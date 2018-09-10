@@ -1,0 +1,3 @@
+#pragma once
+
+#cmakedefine IMPACTO_ENABLE_SLOW_LOG
