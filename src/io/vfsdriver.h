@@ -16,7 +16,6 @@ struct VfsDriver {
   // terminator)
   IoError (*GetName)(VfsArchive* archive, uint32_t id, char* outName);
   IoError (*GetId)(VfsArchive* archive, const char* path, uint32_t* outId);
-  IoError (*GetSize)(VfsArchive* archive, uint32_t id, size_t* outSize);
   // These return IoError_Eof if the last enumerated file is the last in the
   // archive
   IoError (*EnumerateStart)(VfsArchive* archive, uint32_t* outIterator,

@@ -247,7 +247,41 @@ IoError VfsSlurp(VfsArchive* archive, const char* path, void** outData,
 
 IoError VfsOpen(VfsArchive* archive, uint32_t id, SDL_RWops** outHandle) {
   if (VfsOverlayEnabled) {
-    // TODO implement
+    ImpLog(LL_Debug, LC_IO, "Trying to open %d in \"%s\" with overlay FS\n", id,
+           archive->MountPoint);
+
+    char fileName[VfsMaxPath];
+    IoError overlayErr = VfsGetName(archive, id, fileName);
+    if (overlayErr == IoError_OK) {
+      size_t reqSz = snprintf(NULL, 0, "%s/%s/%s", VfsOverlayPath,
+                              archive->MountPoint, fileName) +
+                     1;
+      if (reqSz <= VfsMaxPath) {
+        char* overlayPath = (char*)ImpStackAlloc(reqSz);
+
+        sprintf(overlayPath, "%s/%s/%s", VfsOverlayPath, archive->MountPoint,
+                fileName);
+
+        *outHandle = SDL_RWFromFile(overlayPath, "rb");
+
+        ImpStackFree(overlayPath);
+
+        if (*outHandle != NULL) {
+          ImpLog(LL_Debug, LC_IO, "Opened %d in \"%s\" with overlay FS\n", id,
+                 archive->MountPoint);
+          return IoError_OK;
+        } else {
+          // *no* return - use archive->Driver->Open later
+          ImpLog(LL_Debug, LC_IO, "No overlay file found for %d in \"%s\"\n",
+                 id, archive->MountPoint);
+        }
+
+      } else {
+        ImpLog(LL_Warning, LC_IO,
+               "Cannot use overlay FS for \"%s/%s/%s\" - path too long\n",
+               VfsOverlayPath, archive->MountPoint, fileName);
+      }
+    }
   }
 
   return archive->Driver->Open(archive, id, outHandle);
@@ -266,14 +300,21 @@ IoError VfsGetId(VfsArchive* archive, const char* path, uint32_t* outId) {
   return archive->Driver->GetId(archive, path, outId);
 }
 
-IoError VfsGetSize(VfsArchive* archive, uint32_t id, size_t* outSize) {
-  if (VfsOverlayEnabled) {
-    // TODO implement
+IoError VfsGetSize(VfsArchive* archive, uint32_t id, int64_t* outSize) {
+  SDL_RWops* handle;
+  IoError result = VfsOpen(archive, id, &handle);
+  if (result == IoError_OK) {
+    *outSize = SDL_RWsize(handle);
+    if (*outSize == -1) {
+      ImpLog(LL_Error, LC_IO, "Invalid file size for %d in \"%s\": %s\n", id,
+             archive->MountPoint, SDL_GetError());
+      result = IoError_Fail;
+    }
   }
 
-  return archive->Driver->GetSize(archive, id, outSize);
+  return result;
 }
-IoError VfsGetSize(VfsArchive* archive, const char* path, size_t* outSize) {
+IoError VfsGetSize(VfsArchive* archive, const char* path, int64_t* outSize) {
   uint32_t id;
   IoError result = VfsGetId(archive, path, &id);
   if (result != IoError_OK) return result;

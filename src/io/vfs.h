@@ -53,8 +53,8 @@ IoError VfsOpen(VfsArchive* archive, const char* path, SDL_RWops** outHandle);
 IoError VfsGetName(VfsArchive* archive, uint32_t id, char* outName);
 IoError VfsGetId(VfsArchive* archive, const char* path, uint32_t* outId);
 
-IoError VfsGetSize(VfsArchive* archive, uint32_t id, size_t* outSize);
-IoError VfsGetSize(VfsArchive* archive, const char* path, size_t* outSize);
+IoError VfsGetSize(VfsArchive* archive, uint32_t id, int64_t* outSize);
+IoError VfsGetSize(VfsArchive* archive, const char* path, int64_t* outSize);
 
 // IDs are not required to be sequential...
 // These return IoError_Eof if the last enumerated file is the last in the
