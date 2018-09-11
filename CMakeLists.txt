@@ -8,11 +8,13 @@ find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(SDL2 REQUIRED)
 find_package(glm REQUIRED)
+find_package(ZLIB REQUIRED)
 
 set(Impacto_Src
     src/main.cpp
     src/log.cpp
     src/io/vfs.cpp
+    src/io/mpkdriver.cpp
     src/camera.cpp
 )
 
@@ -21,8 +23,10 @@ set(Impacto_Header
     src/log.h
     src/io/io.h
     src/io/vfs.h
-    src/io/vfsdriver.h
+    src/io/mpkdriver.h
     src/camera.h
+
+    vendor/include/flat_hash_map.hpp
 )
 
 add_executable (impacto ${Impacto_Src} ${Impacto_Header})
@@ -49,6 +53,7 @@ target_link_libraries(impacto PUBLIC
     GLEW::GLEW
     SDL2::SDL2main
     glm
+    ZLIB::ZLIB
 )
 
 install(TARGETS impacto RUNTIME DESTINATION .)
@@ -57,6 +62,7 @@ if (WIN32)
     get_property(SDL2_RUNTIME_DLL TARGET SDL2::SDL2 PROPERTY IMPORTED_LOCATION)
     install(FILES ${SDL2_RUNTIME_DLL} DESTINATION .)
 
+    install(FILES ${ZLIB_INCLUDE_DIR}/../bin/zlib.dll DESTINATION .)
     if(CMAKE_SIZEOF_VOID_P EQUAL 8)
         install(FILES ${GLEW_INCLUDE_DIR}/../bin/Release/x64/glew32.dll DESTINATION .)
 	else()

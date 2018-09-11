@@ -1,9 +1,14 @@
 #pragma once
 
+#include <vector>
+
 #include <SDL_rwops.h>
 
 #include "../impacto.h"
 #include "io.h"
+
+// Warning: The VFS is not threadsafe - within an archive, and error handling in
+// general :(
 
 namespace Impacto {
 
@@ -19,49 +24,70 @@ extern const char VfsOverlayPath[];
 // Path to look for any asset archives in relative to working directory
 extern const char VfsBasePath[];
 
-struct VfsDriver;
-struct VfsArchive;
-
 struct VfsFileInfo {
   uint32_t Id;
   char Name[VfsMaxPath];
 };
 
-void VfsRegisterDriver(VfsDriver* driver);
+class VfsArchive;
 
-IoError VfsMount(const char* archiveName, VfsArchive** outArchive);
+typedef IoError (*VfsMountProc)(SDL_RWops* stream, VfsArchive** outArchive);
 
-// VfsMountChild loads the entire archive into memory
-IoError VfsMountChild(VfsArchive* parent, uint32_t id, VfsArchive** outArchive);
-IoError VfsMountChild(VfsArchive* parent, const char* path,
-                      VfsArchive** outArchive);
+class VfsArchive {
+ public:
+  static IoError Mount(const char* archiveName, VfsArchive** outArchive);
+  static void RegisterDriver(VfsMountProc driver);
 
-// Recursively unmounts and frees an archive
-IoError VfsUnmount(VfsArchive* archive);
+  // Entire child archive is loaded into memory
+  IoError MountChild(uint32_t id, VfsArchive** outArchive);
+  IoError MountChild(const char* path, VfsArchive** outArchive);
 
-// Reads whole file into malloc()'d buffer
-// Data must be freed by caller if no error occurs
-IoError VfsSlurp(VfsArchive* archive, uint32_t id, void** outData,
-                 size_t* outSize);
-IoError VfsSlurp(VfsArchive* archive, const char* path, void** outData,
-                 size_t* outSize);
+  // Reads whole file into malloc()'d buffer
+  // Data must be freed by caller if no error occurs
+  IoError Slurp(uint32_t id, void** outData, int64_t* outSize);
+  IoError Slurp(const char* path, void** outData, int64_t* outSize);
 
-IoError VfsOpen(VfsArchive* archive, uint32_t id, SDL_RWops** outHandle);
-IoError VfsOpen(VfsArchive* archive, const char* path, SDL_RWops** outHandle);
+  IoError Open(uint32_t id, SDL_RWops** outHandle);
+  IoError Open(const char* path, SDL_RWops** outHandle);
 
-// outName must have space for VfsMaxPath characters (including null terminator)
-IoError VfsGetName(VfsArchive* archive, uint32_t id, char* outName);
-IoError VfsGetId(VfsArchive* archive, const char* path, uint32_t* outId);
+  // outName must have space for VfsMaxPath characters (including null
+  // terminator)
+  virtual IoError GetName(uint32_t id, char* outName) = 0;
+  virtual IoError GetId(const char* path, uint32_t* outId) = 0;
 
-IoError VfsGetSize(VfsArchive* archive, uint32_t id, int64_t* outSize);
-IoError VfsGetSize(VfsArchive* archive, const char* path, int64_t* outSize);
+  virtual IoError EnumerateStart(uint32_t* outIterator,
+                                 VfsFileInfo* outFileInfo) = 0;
+  virtual IoError EnumerateNext(uint32_t* inoutIterator,
+                                VfsFileInfo* outFileInfo) = 0;
 
-// IDs are not required to be sequential...
-// These return IoError_Eof if the last enumerated file is the last in the
-// archive
-IoError VfsEnumerateStart(VfsArchive* archive, uint32_t* outIterator,
-                          VfsFileInfo* outFileInfo);
-IoError VfsEnumerateNext(VfsArchive* archive, uint32_t* inoutIterator,
-                         VfsFileInfo* outFileInfo);
+  IoError GetSize(uint32_t id, int64_t* outSize);
+  IoError GetSize(const char* path, int64_t* outSize);
+
+  virtual ~VfsArchive();
+
+  // These are for use by driver file-handle functions
+ public:
+  // virtual folder including parents, e.g. "model.cpk/c002_010.cpk"
+  char MountPoint[VfsMaxPath] = {0};
+  SDL_RWops* BaseStream = NULL;
+  uint32_t OpenHandles = 0;
+
+ protected:
+  // Used for child mounts, which are read into memory fully
+  // and need to be freed on unmount
+  void* InMemoryArchive = NULL;
+
+  VfsArchive* Parent = NULL;
+  std::vector<VfsArchive*> Children;
+
+  bool Mounted = false;
+
+ protected:
+  virtual IoError DriverOpen(uint32_t id, SDL_RWops** outHandle) = 0;
+  virtual IoError DriverGetSize(uint32_t id, int64_t* outSize) = 0;
+
+ private:
+  IoError OverlayOpen(uint32_t id, SDL_RWops** outHandle);
+};
 
 }  // namespace Impacto
