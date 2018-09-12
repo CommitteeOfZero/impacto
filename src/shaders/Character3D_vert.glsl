@@ -4,6 +4,11 @@ layout(location = 2) in vec2 UV;
 layout(location = 3) in lowp ivec4 BoneIndices[4];  // indices into Mesh.BoneMap
 layout(location = 4) in vec4 BoneWeights;
 
+out vec3 normal;
+
 uniform mat4 ViewProjection;
 
-void main() { gl_Position = ViewProjection * vec4(Position, 1.0); }
+void main() {
+  gl_Position = ViewProjection * vec4(Position, 1.0);
+  normal = Normal;
+}
