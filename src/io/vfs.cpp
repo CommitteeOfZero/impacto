@@ -281,15 +281,16 @@ IoError VfsArchive::OverlayOpen(uint32_t id, SDL_RWops** outHandle) {
                  MountPoint);
           return IoError_OK;
         } else {
-          // *no* return - use DriverOpen later
           ImpLog(LL_Debug, LC_IO, "No overlay file found for %d in \"%s\"\n",
                  id, MountPoint);
+          return IoError_Fail;
         }
 
       } else {
         ImpLog(LL_Warning, LC_IO,
                "Cannot use overlay FS for \"%s/%s/%s\" - path too long\n",
                VfsOverlayPath, MountPoint, fileName);
+        return IoError_Fail;
       }
     }
   } else {

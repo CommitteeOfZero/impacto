@@ -53,6 +53,12 @@ const char* ChannelToString(LogChannel channel) {
       return "IO";
     case LC_Render:
       return "Render";
+    case LC_ModelLoad:
+      return "ModelLoad";
+    case LC_GL:
+      return "GL";
+    case LC_Character3D:
+      return "Character3D";
     default:
       assert(false);
       return "";
@@ -107,5 +113,87 @@ void LogSetFile(char* path) {
 }
 
 void LogSetConsole(bool enabled) { LoggingToConsole = enabled; }
+
+void GLAPIENTRY LogGLMessageCallback(GLenum source, GLenum type, GLuint id,
+                                     GLenum severity, GLsizei length,
+                                     const GLchar* message,
+                                     const void* userParam) {
+  LogLevel level;
+  switch (severity) {
+    case GL_DEBUG_SEVERITY_HIGH_ARB:
+      level = LL_Error;
+      break;
+    case GL_DEBUG_SEVERITY_MEDIUM_ARB:
+      level = LL_Warning;
+      break;
+    case GL_DEBUG_SEVERITY_LOW_ARB:
+    default:
+      level = LL_Info;
+      break;
+  }
+
+  const char typeError[] = "Error";
+  const char typeDeprecated[] = "DeprecatedBehaviour";
+  const char typeUB[] = "UndefinedBehaviour";
+  const char typePerf[] = "Performance";
+  const char typePortability[] = "Portability";
+  const char typeOther[] = "Other";
+
+  const char* typeStr;
+  switch (type) {
+    case GL_DEBUG_TYPE_ERROR_ARB:
+      typeStr = typeError;
+      break;
+    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB:
+      typeStr = typeDeprecated;
+      break;
+    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB:
+      typeStr = typeUB;
+      break;
+    case GL_DEBUG_TYPE_PERFORMANCE_ARB:
+      typeStr = typePerf;
+      break;
+    case GL_DEBUG_TYPE_PORTABILITY_ARB:
+      typeStr = typePortability;
+      break;
+    case GL_DEBUG_TYPE_OTHER_ARB:
+    default:
+      typeStr = typeOther;
+      break;
+  }
+
+  const char sourceApi[] = "API";
+  const char sourceSc[] = "ShaderCompiler";
+  const char sourceWin[] = "WindowSystem";
+  const char source3rdParty[] = "ThirdParty";
+  const char sourceApplication[] = "Application";
+  const char sourceOther[] = "Other";
+
+  const char* sourceStr;
+  switch (source) {
+    case GL_DEBUG_SOURCE_API_ARB:
+      sourceStr = sourceApi;
+      break;
+    case GL_DEBUG_SOURCE_SHADER_COMPILER_ARB:
+      sourceStr = sourceSc;
+      break;
+    case GL_DEBUG_SOURCE_WINDOW_SYSTEM_ARB:
+      sourceStr = sourceWin;
+      break;
+    case GL_DEBUG_SOURCE_THIRD_PARTY_ARB:
+      sourceStr = source3rdParty;
+      break;
+    case GL_DEBUG_SOURCE_APPLICATION_ARB:
+      sourceStr = sourceApplication;
+      break;
+    case GL_DEBUG_SOURCE_OTHER_ARB:
+    default:
+      sourceStr = sourceOther;
+      break;
+  }
+
+  ImpLog(level, LC_GL, "type=%s, source=%s, id=%d, message: %s\n", typeStr,
+         sourceStr, id, message);
+}
 
 }  // namespace Impacto

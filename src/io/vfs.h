@@ -10,6 +10,9 @@
 // Warning: The VFS is not threadsafe - within an archive, and error handling in
 // general :(
 
+// TODO: Multipart archives (like C;C bg1.mpk/bg2.mpk), more extensive/flexible
+// patch proxy (supporting plain files *and* c0data.mpk)
+
 namespace Impacto {
 
 // Including null terminator

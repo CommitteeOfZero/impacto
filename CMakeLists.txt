@@ -13,9 +13,13 @@ find_package(ZLIB REQUIRED)
 set(Impacto_Src
     src/main.cpp
     src/log.cpp
+    src/io/io.cpp
     src/io/vfs.cpp
     src/io/mpkdriver.cpp
     src/camera.cpp
+    src/model.cpp
+    src/character3d.cpp
+    src/shader.cpp
 )
 
 set(Impacto_Header
@@ -25,6 +29,9 @@ set(Impacto_Header
     src/io/vfs.h
     src/io/mpkdriver.h
     src/camera.h
+    src/model.h
+    src/character3d.h
+    src/shader.h
 
     vendor/include/flat_hash_map.hpp
 )
@@ -35,13 +42,18 @@ add_executable (impacto ${Impacto_Src} ${Impacto_Header})
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
     set(IMPACTO_ENABLE_SLOW_LOG_DEFAULT ON)
+    set(IMPACTO_GL_DEBUG_DEFAULT ON)
 else()
     set(IMPACTO_ENABLE_SLOW_LOG_DEFAULT OFF)
+    set(IMPACTO_GL_DEBUG_DEFAULT OFF)
 endif()
 
 option(IMPACTO_ENABLE_SLOW_LOG
     "Compile log statements that get hit very frequently or are in a hot path"
     ${IMPACTO_ENABLE_SLOW_LOG_DEFAULT})
+option(IMPACTO_GL_DEBUG
+    "Use an OpenGL debug context and log messages"
+    ${IMPACTO_GL_DEBUG_DEFAULT})
 
 configure_file(src/config.h.in ${PROJECT_BINARY_DIR}/include/config.h)
 target_include_directories(impacto PRIVATE ${PROJECT_BINARY_DIR}/include)
@@ -69,3 +81,7 @@ if (WIN32)
         install(FILES ${GLEW_INCLUDE_DIR}/../bin/Release/Win32/glew32.dll DESTINATION .)
 	endif()
 endif()
+
+# assets
+
+install(DIRECTORY src/shaders DESTINATION .)

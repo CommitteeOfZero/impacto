@@ -76,21 +76,23 @@ size_t SDLCALL MpkEntryUncompressedRead(SDL_RWops* context, void* ptr,
   MpkOpenFile* file = (MpkOpenFile*)context->hidden.unknown.data1;
   int64_t fileCur = file->Entry->Offset + file->Position;
   int64_t fileEnd = file->Entry->Offset + file->Entry->UncompressedSize;
-  int64_t availBytes = std::min(fileCur - fileEnd, bytes);
+  int64_t availBytes = std::min(fileEnd - fileCur, bytes);
   int64_t availNum = availBytes / size;
   if (SDL_RWseek(file->Archive->BaseStream, fileCur, RW_SEEK_SET) == -1) {
     ImpLog(LL_Error, LC_IO,
            "Reading %" PRIu64 " bytes at %" PRId64
-           " from open archive \"%s\" failed (seek error)\n",
-           bytes, fileCur, file->Archive->MountPoint);
+           " from open archive \"%s\" failed (seek error): %s\n",
+           bytes, fileCur, file->Archive->MountPoint, SDL_GetError());
     return 0;
   }
+  ImpLogSlow(LL_Trace, LC_IO, "read size=%" PRId64 " num=%" PRId64 "\n", size,
+             availNum);
   size_t result = SDL_RWread(file->Archive->BaseStream, ptr, size, availNum);
   if (result == 0) {
     ImpLog(LL_Error, LC_IO,
            "Reading %" PRIu64 " bytes at %" PRId64
-           " from open archive \"%s\" failed (read error)\n",
-           bytes, fileCur, file->Archive->MountPoint);
+           " from open archive \"%s\" failed (read error): %s\n",
+           bytes, fileCur, file->Archive->MountPoint, SDL_GetError());
   }
   return result;
 }
