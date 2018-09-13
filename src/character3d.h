@@ -43,6 +43,8 @@ class Character3D {
   GLuint VAOs[ModelMaxMeshesPerModel];
   GLuint VBOs[ModelMaxMeshesPerModel];
   GLuint IBOs[ModelMaxMeshesPerModel];
+
+  GLuint TexBuffers[ModelMaxTexturesPerModel];
 };
 
 }  // namespace Impacto

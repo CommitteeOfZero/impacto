@@ -59,6 +59,9 @@ int main(int argc, char* argv[]) {
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
+  SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+  SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
+
   // TODO DPI aware
 
   int contextFlags = SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG;
@@ -121,7 +124,7 @@ int main(int argc, char* argv[]) {
   SDL_GL_SetSwapInterval(1);
 
   glViewport(0, 0, w, h);
-  glClearColor(0, 0, 0, 0);
+  glClearColor(0.2f, 0.2f, 0.2f, 0);
 
   g_Camera.AspectRatio = (float)w / (float)h;
   CameraInit(&g_Camera);

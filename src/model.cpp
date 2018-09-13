@@ -2,6 +2,7 @@
 #include "io/vfs.h"
 #include "io/io.h"
 #include "log.h"
+#include "gxtloader.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -31,7 +32,6 @@ Model::~Model() {
   if (MorphTargets) free(MorphTargets);
   if (MorphVertexBuffers) free(MorphVertexBuffers);
   if (Indices) free(Indices);
-  if (Textures) free(Textures);
   if (Bones) free(Bones);
 }
 
@@ -62,6 +62,7 @@ Model* Model::Load(uint32_t modelId) {
   result->BoneCount = SDL_ReadLE32(stream);
   result->Bones = (StaticBone*)calloc(result->BoneCount, sizeof(StaticBone));
   result->TextureCount = SDL_ReadLE32(stream);
+  assert(result->TextureCount <= ModelMaxTexturesPerModel);
   result->MorphTargetCount = SDL_ReadLE32(stream);
   result->MorphTargets =
       (MorphTarget*)calloc(result->MorphTargetCount, sizeof(MorphTarget));
@@ -144,9 +145,10 @@ Model* Model::Load(uint32_t modelId) {
       CurrentVertexOffset++;
       ReadVec3LE32(&vertex->Position, stream);
       ReadVec3LE32(&vertex->Normal, stream);
-      // Flip Y for GL
-      vertex->UV =
-          glm::vec2(ReadFloatLE32(stream), 1.0f - ReadFloatLE32(stream));
+
+      // Attention: we are switching the coordinates
+      glm::vec2 _uv = glm::vec2(ReadFloatLE32(stream), ReadFloatLE32(stream));
+      vertex->UV = glm::vec2(_uv.y, _uv.x);
 
       if (mesh->UsedBones > 0) {
         vertex->BoneIndices[0] = SDL_ReadU8(stream);
@@ -247,7 +249,23 @@ Model* Model::Load(uint32_t modelId) {
     }
   }
 
-  // TODO textures
+  // Read textures
+  SDL_RWseek(stream, TexturesOffset, RW_SEEK_SET);
+  for (uint32_t i = 0; i < result->TextureCount; i++) {
+    uint32_t size = SDL_ReadLE32(stream);
+    ImpLog(LL_Debug, LC_ModelLoad, "Loading texture %d, size=0x%08x\n", i,
+           size);
+    void* gxt = malloc(size);
+    SDL_RWread(stream, gxt, 1, size);
+    SDL_RWops* gxtStream = SDL_RWFromConstMem(gxt, size);
+    if (!TextureLoadGXT(gxtStream, &result->Textures[i])) {
+      ImpLog(LL_Debug, LC_ModelLoad,
+             "Texture %d failed to load, falling back to 1x1 pixel\n", i);
+      result->Textures[i].Load1x1();
+    }
+    SDL_RWclose(gxtStream);
+    free(gxt);
+  }
 
   if (stream) {
     SDL_RWclose(stream);

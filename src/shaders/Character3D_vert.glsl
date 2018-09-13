@@ -5,6 +5,7 @@ layout(location = 3) in lowp ivec4 BoneIndices;  // indices into Mesh.BoneMap
 layout(location = 4) in vec4 BoneWeights;
 
 out vec3 normal;
+out vec2 uv;
 
 uniform mat4 ViewProjection;
 uniform mat4 Bones[ModelMaxBonesPerMesh];
@@ -19,4 +20,5 @@ void main() {
 
   gl_Position = ViewProjection * SkeletalTransform * vec4(Position, 1.0);
   normal = normalize(SkeletalTransform * vec4(Normal, 0.0)).xyz;
+  uv = UV;
 }

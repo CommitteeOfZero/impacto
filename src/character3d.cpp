@@ -108,11 +108,18 @@ void Character3D::Render() {
           glm::value_ptr(CurrentPose[StaticModel->Meshes[i].MeshBone].Offset));
     }
 
+    if (StaticModel->Meshes[i].ColorMap >= 0) {
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, TexBuffers[StaticModel->Meshes[i].ColorMap]);
+    }
+
     glDrawElements(GL_TRIANGLES, StaticModel->Meshes[i].IndexCount,
                    GL_UNSIGNED_SHORT, 0);
   }
 }
 
+// TODO do we need to do anything to make sure this only happens on render
+// thread?
 Character3D::~Character3D() {
   if (StaticModel) {
     if (IsSubmitted) {
@@ -165,6 +172,14 @@ void Character3D::Submit() {
                  sizeof(uint16_t) * StaticModel->Meshes[i].IndexCount,
                  StaticModel->Indices + StaticModel->Meshes[i].IndexOffset,
                  GL_STATIC_DRAW);
+  }
+
+  for (int i = 0; i < StaticModel->TextureCount; i++) {
+    TexBuffers[i] = StaticModel->Textures[i].Submit();
+    if (TexBuffers[i] == 0) {
+      ImpLog(LL_Fatal, LC_Character3D,
+             "Submitting texture %d for model %d failed\n", i, StaticModel->Id);
+    }
   }
 
   IsSubmitted = true;

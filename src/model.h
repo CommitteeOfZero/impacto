@@ -15,6 +15,7 @@ const int ModelMaxMorphTargetsPerMesh = 0x50;
 const int ModelMaxBonesPerMesh = 32;
 const int ModelMaxMeshesPerModel = 32;
 const int ModelMaxRootBones = 32;
+const int ModelMaxTexturesPerModel = 32;
 
 struct VertexBuffer {
   glm::vec3 Position;
@@ -105,7 +106,7 @@ class Model {
   uint16_t* Indices = 0;
 
   int32_t TextureCount = 0;
-  Texture* Textures = 0;
+  Texture Textures[ModelMaxTexturesPerModel];
 
   int32_t BoneCount = 0;
   StaticBone* Bones = 0;

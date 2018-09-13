@@ -22,6 +22,8 @@ set(Impacto_Src
     src/shader.cpp
     src/util.cpp
     src/transform.cpp
+    src/gxtloader.cpp
+    src/texture.cpp
 )
 
 set(Impacto_Header
@@ -36,6 +38,8 @@ set(Impacto_Header
     src/shader.h
     src/util.h
     src/transform.h
+    src/gxtloader.h
+    src/texture.h
 
     vendor/include/flat_hash_map.hpp
 )
