@@ -53,9 +53,7 @@ Character3D* Character3D::Load(uint32_t modelId) {
 
 void Character3D::ReloadDefaultBoneTransforms() {
   for (int i = 0; i < StaticModel->BoneCount; i++) {
-    CurrentPose[i].Position = StaticModel->Bones[i].BasePosition;
-    CurrentPose[i].Rotation = StaticModel->Bones[i].BaseRotation;
-    CurrentPose[i].Scale = StaticModel->Bones[i].BaseScale;
+    CurrentPose[i].LocalTransform = StaticModel->Bones[i].BaseTransform;
   }
 }
 
@@ -76,9 +74,7 @@ void Character3D::PoseBone(int16_t id) {
     parentWorld = CurrentPose[bone->Parent].World;
   }
 
-  glm::mat4 local = glm::translate(glm::mat4(1.0), transformed->Position);
-  local = local * glm::mat4_cast(transformed->Rotation);
-  local = glm::scale(local, transformed->Scale);
+  glm::mat4 local = transformed->LocalTransform.Matrix();
 
   transformed->World = parentWorld * local;
 

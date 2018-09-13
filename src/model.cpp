@@ -3,9 +3,7 @@
 #include "io/io.h"
 #include "log.h"
 
-#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/euler_angles.hpp>
 
 namespace Impacto {
 
@@ -199,17 +197,18 @@ Model* Model::Load(uint32_t modelId) {
     SDL_RWseek(stream,
                BonesOffset + ModelFileBoneSize * i + BoneBaseTransformOffset,
                RW_SEEK_SET);
-    ReadVec3LE32(&bone->BasePosition, stream);
-    glm::vec3 euler;
+
+    glm::vec3 position, euler, scale;
+    ReadVec3LE32(&position, stream);
     ReadVec3LE32(&euler, stream);
-    bone->BaseRotation =
-        glm::quat_cast(glm::eulerAngleZYX(euler.z, euler.y, euler.x));
-    ReadVec3LE32(&bone->BaseScale, stream);
+    ReadVec3LE32(&scale, stream);
     // More often than not these are actually not set...
-    if (glm::length(bone->BaseScale) < 0.001f)
-      bone->BaseScale = glm::vec3(1.0f);
+    if (glm::length(scale) < 0.001f) scale = glm::vec3(1.0f);
+    bone->BaseTransform = Transform(position, euler, scale);
+
     // skip over bindpose
     SDL_RWseek(stream, sizeof(glm::mat4), RW_SEEK_CUR);
+
     ReadMat4LE32(&bone->BindInverse, stream);
   }
 

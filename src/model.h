@@ -2,9 +2,9 @@
 
 #include "impacto.h"
 #include "texture.h"
+#include "transform.h"
 
 #include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
 
 namespace Impacto {
 
@@ -40,9 +40,9 @@ struct StaticBone {
   int16_t Parent;
   int16_t ChildrenCount;
   int16_t Children[ModelMaxChildrenPerBone];  // TODO check
-  glm::vec3 BasePosition;
-  glm::quat BaseRotation;
-  glm::vec3 BaseScale;
+
+  Transform BaseTransform;
+
   glm::mat4 BindInverse;
 };
 
