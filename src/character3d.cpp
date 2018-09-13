@@ -82,7 +82,7 @@ void Character3D::PoseBone(int16_t id) {
     PoseBone(bone->Children[i]);
   }
 
-  transformed->Offset = bone->BindInverse * transformed->World;
+  transformed->Offset = transformed->World * bone->BindInverse;
 }
 
 void Character3D::Update() { Pose(); }
