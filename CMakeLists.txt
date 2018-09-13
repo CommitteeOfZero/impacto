@@ -20,6 +20,7 @@ set(Impacto_Src
     src/model.cpp
     src/character3d.cpp
     src/shader.cpp
+    src/util.cpp
 )
 
 set(Impacto_Header
@@ -32,6 +33,7 @@ set(Impacto_Header
     src/model.h
     src/character3d.h
     src/shader.h
+    src/util.h
 
     vendor/include/flat_hash_map.hpp
 )

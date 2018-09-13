@@ -13,6 +13,7 @@ const int ModelMaxChildrenPerBone = 134;
 const int ModelMaxMorphTargetsPerMesh = 0x50;
 const int ModelMaxBonesPerMesh = 32;
 const int ModelMaxMeshesPerModel = 32;
+const int ModelMaxRootBones = 32;
 
 struct VertexBuffer {
   glm::vec3 Position;
@@ -33,16 +34,14 @@ struct MorphTarget {
   int32_t VertexOffset;
 };
 
-struct Bone {
+struct StaticBone {
   int16_t Id;
   int16_t Parent;
   int16_t ChildrenCount;
   int16_t Children[ModelMaxChildrenPerBone];  // TODO check
-  // TODO compose base
   glm::vec3 BasePosition;
   glm::vec3 BaseRotation;
   glm::vec3 BaseScale;
-  glm::mat4 BindPose;
   glm::mat4 BindInverse;
 };
 
@@ -108,7 +107,10 @@ class Model {
   Texture* Textures = 0;
 
   int32_t BoneCount = 0;
-  Bone* Bones = 0;
+  StaticBone* Bones = 0;
+
+  int32_t RootBoneCount = 0;
+  int16_t RootBones[ModelMaxRootBones];
 };
 
 }  // namespace Impacto

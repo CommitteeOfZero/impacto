@@ -3,6 +3,8 @@
 #include "io/io.h"
 #include "log.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+
 namespace Impacto {
 
 static VfsArchive* ModelArchive = NULL;
@@ -12,6 +14,7 @@ const uint32_t ModelFileHeaderSize = 0x54;
 const uint32_t ModelFileMeshInfoSize = 0x18C;
 const uint32_t ModelFileBoneSize = 0x1D0;
 const uint32_t MorphTargetInfoSize = 16;
+const uint32_t BoneBaseTransformOffset = 0x11C;
 
 void Model::Init() {
   assert(ModelArchive == NULL);
@@ -57,7 +60,7 @@ Model* Model::Load(uint32_t modelId) {
   result->MeshCount = SDL_ReadLE32(stream);
   assert(result->MeshCount <= ModelMaxMeshesPerModel);
   result->BoneCount = SDL_ReadLE32(stream);
-  result->Bones = (Bone*)calloc(result->BoneCount, sizeof(Bone));
+  result->Bones = (StaticBone*)calloc(result->BoneCount, sizeof(StaticBone));
   result->TextureCount = SDL_ReadLE32(stream);
   result->MorphTargetCount = SDL_ReadLE32(stream);
   result->MorphTargets =
@@ -159,7 +162,7 @@ Model* Model::Load(uint32_t modelId) {
         vertex->BoneIndices[2] = 0;
         vertex->BoneIndices[3] = 0;
 
-        vertex->BoneWeights = glm::vec4(0.25f);
+        vertex->BoneWeights = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
 
         SDL_RWseek(stream, 4 * sizeof(uint8_t) + 4 * sizeof(float),
                    RW_SEEK_CUR);
@@ -177,21 +180,31 @@ Model* Model::Load(uint32_t modelId) {
   // Read skeleton
   for (uint32_t i = 0; i < result->BoneCount; i++) {
     SDL_RWseek(stream, BonesOffset + ModelFileBoneSize * i, RW_SEEK_SET);
-    Bone* bone = &result->Bones[i];
+    StaticBone* bone = &result->Bones[i];
 
     bone->Id = SDL_ReadLE16(stream);
     SDL_RWseek(stream, 2, RW_SEEK_CUR);
     bone->Parent = SDL_ReadLE16(stream);
+    if (bone->Parent < 0) {
+      result->RootBones[result->RootBoneCount] = i;
+      result->RootBoneCount++;
+      assert(result->RootBoneCount < ModelMaxRootBones);
+    }
     SDL_RWseek(stream, 8, RW_SEEK_CUR);
     bone->ChildrenCount = SDL_ReadLE16(stream);
     assert(bone->ChildrenCount <= ModelMaxChildrenPerBone);
     ReadArrayLE16(bone->Children, stream, bone->ChildrenCount);
+    SDL_RWseek(stream,
+               BonesOffset + ModelFileBoneSize * i + BoneBaseTransformOffset,
+               RW_SEEK_SET);
     ReadVec3LE32(&bone->BasePosition, stream);
     ReadVec3LE32(&bone->BaseRotation, stream);
     ReadVec3LE32(&bone->BaseScale, stream);
     // More often than not these are actually not set...
-    if (bone->BaseScale.length() < 0.001f) bone->BaseScale = glm::vec3(1.0f);
-    ReadMat4LE32(&bone->BindPose, stream);
+    if (glm::length(bone->BaseScale) < 0.001f)
+      bone->BaseScale = glm::vec3(1.0f);
+    // skip over bindpose
+    SDL_RWseek(stream, sizeof(glm::mat4), RW_SEEK_CUR);
     ReadMat4LE32(&bone->BindInverse, stream);
   }
 

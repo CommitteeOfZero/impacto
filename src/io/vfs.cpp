@@ -4,6 +4,7 @@
 #include "vfs.h"
 
 #include "../log.h"
+#include "../util.h"
 
 namespace Impacto {
 

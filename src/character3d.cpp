@@ -10,6 +10,7 @@
 namespace Impacto {
 
 static GLuint ShaderProgram = 0, UniformViewProjection = 0, UniformModel = 0;
+static GLuint UniformBones[ModelMaxBonesPerMesh] = {0};
 static bool IsInit = false;
 
 void Character3D::Init() {
@@ -20,6 +21,12 @@ void Character3D::Init() {
   ShaderProgram = ShaderCompile("Character3D");
   UniformViewProjection = glGetUniformLocation(ShaderProgram, "ViewProjection");
   UniformModel = glGetUniformLocation(ShaderProgram, "Model");
+  for (int i = 0; i < ModelMaxBonesPerMesh; i++) {
+    char name[16];
+    int sz = snprintf(name, 16, "Bones[%d]", i);
+    assert(sz < sizeof(name));
+    UniformBones[i] = glGetUniformLocation(ShaderProgram, name);
+  }
 }
 
 Character3D* Character3D::Load(uint32_t modelId) {
@@ -37,15 +44,78 @@ Character3D* Character3D::Load(uint32_t modelId) {
   Character3D* result = new Character3D;
   result->StaticModel = model;
 
+  result->CurrentPose = (PosedBone*)calloc(model->BoneCount, sizeof(PosedBone));
+
+  result->ReloadDefaultBoneTransforms();
+
   return result;
 }
+
+void Character3D::ReloadDefaultBoneTransforms() {
+  for (int i = 0; i < StaticModel->BoneCount; i++) {
+    CurrentPose[i].Position = StaticModel->Bones[i].BasePosition;
+    CurrentPose[i].Rotation = StaticModel->Bones[i].BaseRotation;
+    CurrentPose[i].Scale = StaticModel->Bones[i].BaseScale;
+  }
+}
+
+void Character3D::Pose() {
+  for (int i = 0; i < StaticModel->RootBoneCount; i++) {
+    PoseBone(StaticModel->RootBones[i]);
+  }
+}
+
+void Character3D::PoseBone(int16_t id) {
+  StaticBone* bone = &StaticModel->Bones[id];
+  PosedBone* transformed = &CurrentPose[id];
+
+  glm::mat4 parentWorld;
+  if (bone->Parent < 0) {
+    parentWorld = glm::mat4(1.0);
+  } else {
+    parentWorld = CurrentPose[bone->Parent].World;
+  }
+
+  glm::mat4 local = glm::translate(glm::mat4(1.0), transformed->Position);
+
+  local = glm::rotate(local, transformed->Rotation.z, glm::vec3(0.0, 0.0, 1.0));
+  local = glm::rotate(local, transformed->Rotation.y, glm::vec3(0.0, 1.0, 0.0));
+  local = glm::rotate(local, transformed->Rotation.x, glm::vec3(1.0, 0.0, 0.0));
+
+  local = glm::scale(local, transformed->Scale);
+
+  transformed->World = parentWorld * local;
+
+  for (int i = 0; i < bone->ChildrenCount; i++) {
+    PoseBone(bone->Children[i]);
+  }
+
+  transformed->Offset = bone->BindInverse * transformed->World;
+}
+
+void Character3D::Update() { Pose(); }
 
 void Character3D::Render() {
   glUseProgram(ShaderProgram);
   glUniformMatrix4fv(UniformViewProjection, 1, GL_FALSE,
                      glm::value_ptr(g_Camera.ViewProjection));
+
   for (int i = 0; i < StaticModel->MeshCount; i++) {
     glBindVertexArray(VAOs[i]);
+
+    if (StaticModel->Meshes[i].UsedBones > 0) {
+      for (int j = 0; j < StaticModel->Meshes[i].UsedBones; j++) {
+        glUniformMatrix4fv(
+            UniformBones[j], 1, GL_FALSE,
+            glm::value_ptr(
+                CurrentPose[StaticModel->Meshes[i].BoneMap[j]].Offset));
+      }
+    } else {
+      glUniformMatrix4fv(
+          UniformBones[0], 1, GL_FALSE,
+          glm::value_ptr(CurrentPose[StaticModel->Meshes[i].MeshBone].Offset));
+    }
+
     glDrawElements(GL_TRIANGLES, StaticModel->Meshes[i].IndexCount,
                    GL_UNSIGNED_SHORT, 0);
   }
@@ -60,6 +130,7 @@ Character3D::~Character3D() {
     }
     delete StaticModel;
   }
+  if (CurrentPose) free(CurrentPose);
 }
 
 void Character3D::Submit() {

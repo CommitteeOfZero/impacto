@@ -7,13 +7,3 @@
 #include <malloc.h>
 
 #include "config.h"
-
-// TODO own _malloca for gcc
-
-#if defined(_malloca)
-#define ImpStackAlloc _malloca
-#define ImpStackFree _freea
-#else
-#define ImpStackAlloc malloc
-#define ImpStackFree free
-#endif

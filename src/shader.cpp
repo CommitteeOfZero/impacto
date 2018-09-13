@@ -6,6 +6,7 @@
 #include "io/io.h"
 #include "log.h"
 #include "model.h"
+#include "util.h"
 
 namespace Impacto {
 

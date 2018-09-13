@@ -30,6 +30,7 @@ void GameLoop() {
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+  character->Update();
   character->Render();
 
   SDL_GL_SwapWindow(window);
