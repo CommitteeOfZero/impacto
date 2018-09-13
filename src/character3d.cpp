@@ -9,7 +9,8 @@
 
 namespace Impacto {
 
-static GLuint ShaderProgram = 0, UniformViewProjection = 0, UniformModel = 0;
+static GLuint ShaderProgram = 0, UniformViewProjection = 0, UniformModel = 0,
+              UniformAlpha = 0;
 static GLuint UniformBones[ModelMaxBonesPerMesh] = {0};
 static bool IsInit = false;
 
@@ -21,6 +22,7 @@ void Character3D::Init() {
   ShaderProgram = ShaderCompile("Character3D");
   UniformViewProjection = glGetUniformLocation(ShaderProgram, "ViewProjection");
   UniformModel = glGetUniformLocation(ShaderProgram, "Model");
+  UniformAlpha = glGetUniformLocation(ShaderProgram, "Alpha");
   for (int i = 0; i < ModelMaxBonesPerMesh; i++) {
     char name[16];
     int sz = snprintf(name, 16, "Bones[%d]", i);
@@ -113,8 +115,17 @@ void Character3D::Render() {
       glBindTexture(GL_TEXTURE_2D, TexBuffers[StaticModel->Meshes[i].ColorMap]);
     }
 
+    glUniform1f(UniformAlpha, StaticModel->Meshes[i].Opacity);
+
+    // TODO: how do they actually do this?
+    if (StaticModel->Meshes[i].Opacity < 0.9) {
+      glDepthMask(GL_FALSE);
+    }
+
     glDrawElements(GL_TRIANGLES, StaticModel->Meshes[i].IndexCount,
                    GL_UNSIGNED_SHORT, 0);
+
+    glDepthMask(GL_TRUE);
   }
 }
 
