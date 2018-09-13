@@ -9,7 +9,7 @@ namespace Impacto {
 struct PosedBone {
   // Affine transform in relation to parent
   glm::vec3 Position;
-  glm::vec3 Rotation;
+  glm::quat Rotation;
   glm::vec3 Scale;
   // Order: T * Rz * Ry * Rx * S
 

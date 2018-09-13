@@ -77,11 +77,7 @@ void Character3D::PoseBone(int16_t id) {
   }
 
   glm::mat4 local = glm::translate(glm::mat4(1.0), transformed->Position);
-
-  local = glm::rotate(local, transformed->Rotation.z, glm::vec3(0.0, 0.0, 1.0));
-  local = glm::rotate(local, transformed->Rotation.y, glm::vec3(0.0, 1.0, 0.0));
-  local = glm::rotate(local, transformed->Rotation.x, glm::vec3(1.0, 0.0, 0.0));
-
+  local = local * glm::mat4_cast(transformed->Rotation);
   local = glm::scale(local, transformed->Scale);
 
   transformed->World = parentWorld * local;

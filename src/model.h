@@ -4,6 +4,7 @@
 #include "texture.h"
 
 #include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 namespace Impacto {
 
@@ -40,7 +41,7 @@ struct StaticBone {
   int16_t ChildrenCount;
   int16_t Children[ModelMaxChildrenPerBone];  // TODO check
   glm::vec3 BasePosition;
-  glm::vec3 BaseRotation;
+  glm::quat BaseRotation;
   glm::vec3 BaseScale;
   glm::mat4 BindInverse;
 };

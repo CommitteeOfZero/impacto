@@ -3,7 +3,9 @@
 #include "io/io.h"
 #include "log.h"
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/euler_angles.hpp>
 
 namespace Impacto {
 
@@ -198,7 +200,10 @@ Model* Model::Load(uint32_t modelId) {
                BonesOffset + ModelFileBoneSize * i + BoneBaseTransformOffset,
                RW_SEEK_SET);
     ReadVec3LE32(&bone->BasePosition, stream);
-    ReadVec3LE32(&bone->BaseRotation, stream);
+    glm::vec3 euler;
+    ReadVec3LE32(&euler, stream);
+    bone->BaseRotation =
+        glm::quat_cast(glm::eulerAngleZYX(euler.z, euler.y, euler.x));
     ReadVec3LE32(&bone->BaseScale, stream);
     // More often than not these are actually not set...
     if (glm::length(bone->BaseScale) < 0.001f)
