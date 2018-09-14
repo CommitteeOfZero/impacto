@@ -32,6 +32,7 @@ class Character3D {
   Model* StaticModel = 0;
 
   PosedBone* CurrentPose = 0;
+  Transform ModelTransform;
 
   bool IsSubmitted = false;
 

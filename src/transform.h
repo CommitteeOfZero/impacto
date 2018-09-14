@@ -5,7 +5,7 @@
 namespace Impacto {
 
 struct Transform {
-  Transform() : Position(), Rotation(), Scale() {}
+  Transform() : Position(), Rotation(), Scale(1.0f) {}
   Transform(glm::vec3 position, glm::quat rotation, glm::vec3 scale)
       : Position(position), Rotation(rotation), Scale(scale) {}
 

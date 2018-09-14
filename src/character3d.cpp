@@ -93,6 +93,8 @@ void Character3D::Render() {
   glUseProgram(ShaderProgram);
   glUniformMatrix4fv(UniformViewProjection, 1, GL_FALSE,
                      glm::value_ptr(g_Camera.ViewProjection));
+  glm::mat4 ModelMatrix = ModelTransform.Matrix();
+  glUniformMatrix4fv(UniformModel, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
 
   for (int i = 0; i < StaticModel->MeshCount; i++) {
     glBindVertexArray(VAOs[i]);
