@@ -13,33 +13,37 @@ find_package(ZLIB REQUIRED)
 set(Impacto_Src
     src/main.cpp
     src/log.cpp
-    src/io/io.cpp
-    src/io/vfs.cpp
-    src/io/mpkdriver.cpp
     src/camera.cpp
     src/model.cpp
     src/character3d.cpp
     src/shader.cpp
     src/util.cpp
     src/transform.cpp
-    src/gxtloader.cpp
-    src/texture.cpp
+
+    src/io/io.cpp
+    src/io/vfs.cpp
+    src/io/mpkdriver.cpp
+
+    src/texture/texture.cpp
+    src/texture/gxtloader.cpp
 )
 
 set(Impacto_Header
     src/impacto.h
     src/log.h
-    src/io/io.h
-    src/io/vfs.h
-    src/io/mpkdriver.h
     src/camera.h
     src/model.h
     src/character3d.h
     src/shader.h
     src/util.h
     src/transform.h
-    src/gxtloader.h
-    src/texture.h
+    
+    src/io/io.h
+    src/io/vfs.h
+    src/io/mpkdriver.h
+    
+    src/texture/texture.h
+    src/texture/gxtloader.h
 
     vendor/include/flat_hash_map.hpp
 )

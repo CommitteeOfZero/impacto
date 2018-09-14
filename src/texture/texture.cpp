@@ -4,7 +4,7 @@
 
 #include <GL/glew.h>
 
-#include "log.h"
+#include "../log.h"
 
 namespace Impacto {
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "impacto.h"
-#include "texture.h"
+#include "texture/texture.h"
 #include "transform.h"
 
 #include <glm/glm.hpp>

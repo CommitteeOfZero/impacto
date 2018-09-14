@@ -1,7 +1,7 @@
 #include "gxtloader.h"
 
-#include "log.h"
-#include "util.h"
+#include "../log.h"
+#include "../util.h"
 
 namespace Impacto {
 namespace Gxm {
