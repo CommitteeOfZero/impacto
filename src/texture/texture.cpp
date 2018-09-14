@@ -34,7 +34,17 @@ uint32_t Texture::Submit() {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16);
 
   // Load in data
-  GLuint texFormat = Format == TexFmt_RGBA ? GL_RGBA : GL_RGB;
+  GLuint texFormat;
+  switch (Format) {
+    case TexFmt_RGBA:
+      texFormat = GL_RGBA;
+      break;
+    case TexFmt_RGB:
+      texFormat = GL_RGB;
+      break;
+    case TexFmt_U8:
+      texFormat = GL_RED;
+  }
   glTexImage2D(GL_TEXTURE_2D, 0, texFormat, Width, Height, 0, texFormat,
                GL_UNSIGNED_BYTE, Buffer);
 

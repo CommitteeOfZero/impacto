@@ -270,6 +270,7 @@ bool GXTLoadSubtexture(SDL_RWops* stream, Texture* outTexture,
       break;
     }
 
+    // DXT1, no alpha
     case Gxm::UBC1: {
       outTexture->Format = TexFmt_RGB;
       outTexture->BufferSize = (3 * stx->Width * stx->Height);
@@ -280,6 +281,27 @@ bool GXTLoadSubtexture(SDL_RWops* stream, Texture* outTexture,
       } else {
         BlockDecompressImageDXT1(stx->Width, stx->Height, stream,
                                  outTexture->Buffer);
+      }
+      break;
+    }
+
+    // 8-bit grayscale
+    case Gxm::U8: {
+      outTexture->Format = TexFmt_U8;
+      outTexture->BufferSize = stx->Width * stx->Height;
+      outTexture->Buffer = (uint8_t*)malloc(outTexture->BufferSize);
+
+      for (int y = 0; y < stx->Height; y++) {
+        for (int x = 0; x < stx->Width; x++) {
+          int outX = x, outY = y;
+          if (stx->PixelOrder == Gxm::Swizzled) {
+            VitaUnswizzle(&outX, &outY, stx->Width, stx->Height);
+          }
+
+          uint8_t v = SDL_ReadU8(stream);
+
+          outTexture->Buffer[(outX + stx->Width * outY)] = v;
+        }
       }
       break;
     }

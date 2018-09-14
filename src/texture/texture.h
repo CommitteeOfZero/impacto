@@ -4,10 +4,7 @@
 
 namespace Impacto {
 
-enum TexFmt {
-  TexFmt_RGB,
-  TexFmt_RGBA,
-};
+enum TexFmt { TexFmt_RGB, TexFmt_RGBA, TexFmt_U8 };
 
 struct Texture {
   int Width;
