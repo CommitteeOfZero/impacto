@@ -422,7 +422,8 @@ IoError MpkArchive::GetName(uint32_t id, char* outName) {
     MpkMetaEntry* entry = &TOC[it->second];
     ImpLogSlow(LL_Trace, LC_IO, "MPK GetName: %s found for %d in \"%s\"\n",
                entry->Name, id, MountPoint);
-    strncpy_s(outName, VfsMaxPath, entry->Name, MpkMaxPath);
+    strncpy(outName, entry->Name, std::min(VfsMaxPath, MpkMaxPath));
+    outName[VfsMaxPath - 1] = '\0';
     return IoError_OK;
   }
 }
@@ -450,8 +451,9 @@ IoError MpkArchive::EnumerateNext(uint32_t* inoutIterator,
     return IoError_Eof;
   }
   outFileInfo->Id = TOC[*inoutIterator].Id;
-  strncpy_s(outFileInfo->Name, VfsMaxPath, TOC[*inoutIterator].Name,
-            MpkMaxPath);
+  strncpy(outFileInfo->Name, TOC[*inoutIterator].Name,
+          std::min(VfsMaxPath, MpkMaxPath));
+  outFileInfo->Name[VfsMaxPath - 1] = '\0';
   *inoutIterator++;
   return IoError_OK;
 }
