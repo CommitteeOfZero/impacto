@@ -3,7 +3,12 @@
 #include "../log.h"
 #include "../util.h"
 
+#include "s3tc.h"
+
 namespace Impacto {
+
+using namespace TexLoad;
+
 namespace Gxm {
 enum SceGxmTextureType : uint32_t {
   Swizzled = 0x00000000,
@@ -120,7 +125,7 @@ uint32_t Compact1By1(uint32_t x) {
 uint32_t DecodeMorton2X(uint32_t code) { return Compact1By1(code >> 0); }
 uint32_t DecodeMorton2Y(uint32_t code) { return Compact1By1(code >> 1); }
 
-void Unswizzle(int* x, int* y, int width, int height) {
+void TexLoad::VitaUnswizzle(int* x, int* y, int width, int height) {
   // TODO: verify this is even sensible
   int origX = *x, origY = *y;
   if (width == 0) width = 16;
@@ -128,7 +133,7 @@ void Unswizzle(int* x, int* y, int width, int height) {
 
   int i = (origY * width) + origX;
   int min = width < height ? width : height;
-  int k = (int)log2f(min);
+  int k = Uint32Log2(min);
 
   if (height < width) {
     // XXXyxyxyx -> XXXxxxyyy
@@ -178,7 +183,7 @@ bool GXTLoadSubtexture(SDL_RWops* stream, Texture* outTexture,
         for (int x = 0; x < stx->Width; x++) {
           int outX = x, outY = y;
           if (stx->PixelOrder == Gxm::Swizzled) {
-            Unswizzle(&outX, &outY, stx->Width, stx->Height);
+            VitaUnswizzle(&outX, &outY, stx->Width, stx->Height);
           }
 
           uint8_t r, g, b;
@@ -211,7 +216,7 @@ bool GXTLoadSubtexture(SDL_RWops* stream, Texture* outTexture,
         for (int x = 0; x < stx->Width; x++) {
           int outX = x, outY = y;
           if (stx->PixelOrder == Gxm::Swizzled) {
-            Unswizzle(&outX, &outY, stx->Width, stx->Height);
+            VitaUnswizzle(&outX, &outY, stx->Width, stx->Height);
           }
 
           uint8_t r, g, b, a;
@@ -245,7 +250,7 @@ bool GXTLoadSubtexture(SDL_RWops* stream, Texture* outTexture,
         for (int x = 0; x < stx->Width; x++) {
           int outX = x, outY = y;
           if (stx->PixelOrder == Gxm::Swizzled) {
-            Unswizzle(&outX, &outY, stx->Width, stx->Height);
+            VitaUnswizzle(&outX, &outY, stx->Width, stx->Height);
           }
 
           uint8_t colorIdx = SDL_ReadU8(stream);
@@ -261,6 +266,20 @@ bool GXTLoadSubtexture(SDL_RWops* stream, Texture* outTexture,
           outTexture->Buffer[(outX + stx->Width * outY) * 3 + 1] = g;
           outTexture->Buffer[(outX + stx->Width * outY) * 3 + 2] = b;
         }
+      }
+      break;
+    }
+
+    case Gxm::UBC1: {
+      outTexture->Format = TexFmt_RGB;
+      outTexture->BufferSize = (3 * stx->Width * stx->Height);
+      outTexture->Buffer = (uint8_t*)malloc(outTexture->BufferSize);
+      if (stx->PixelOrder == Gxm::Swizzled) {
+        BlockDecompressImageDXT1VitaSwizzled(stx->Width, stx->Height, stream,
+                                             outTexture->Buffer);
+      } else {
+        BlockDecompressImageDXT1(stx->Width, stx->Height, stream,
+                                 outTexture->Buffer);
       }
       break;
     }

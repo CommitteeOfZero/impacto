@@ -25,6 +25,7 @@ set(Impacto_Src
     src/io/mpkdriver.cpp
 
     src/texture/texture.cpp
+    src/texture/s3tc.cpp
     src/texture/gxtloader.cpp
 )
 
@@ -43,6 +44,7 @@ set(Impacto_Header
     src/io/mpkdriver.h
     
     src/texture/texture.h
+    src/texture/s3tc.h
     src/texture/gxtloader.h
 
     vendor/include/flat_hash_map.hpp
