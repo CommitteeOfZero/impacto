@@ -85,6 +85,8 @@ class Model {
 
   // Parses a R;NE model file. No GPU submission happens in this class.
   static Model* Load(uint32_t modelId);
+  // Ground plane
+  static Model* MakePlane();
 
   ~Model();
 

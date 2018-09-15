@@ -277,4 +277,72 @@ Model* Model::Load(uint32_t modelId) {
   return result;
 }
 
+Model* Model::MakePlane() {
+  Model* result = new Model;
+  result->Id = -1;
+  result->MeshCount = 1;
+  result->VertexCount = 4;
+  result->IndexCount = 6;
+  result->TextureCount = 1;
+  result->BoneCount = 1;
+  result->RootBoneCount = 1;
+
+  result->VertexBuffers = (VertexBuffer*)malloc(4 * sizeof(VertexBuffer));
+  result->Indices = (uint16_t*)malloc(6 * sizeof(uint16_t));
+  result->Bones = (StaticBone*)malloc(1 * sizeof(StaticBone));
+
+  result->VertexBuffers[0].Position = glm::vec3(-20.0f, 0.0f, -20.0f);
+  result->VertexBuffers[1].Position = glm::vec3(20.0f, 0.0f, -20.0f);
+  result->VertexBuffers[2].Position = glm::vec3(-20.0f, 0.0f, 20.0f);
+  result->VertexBuffers[3].Position = glm::vec3(20.0f, 0.0f, 20.0f);
+
+  result->VertexBuffers[0].Normal = result->VertexBuffers[1].Normal =
+      result->VertexBuffers[2].Normal = result->VertexBuffers[3].Normal =
+          glm::vec3(0.0f, 1.0f, 0.0f);
+
+  result->VertexBuffers[0].UV = glm::vec2(0.0f, 0.0f);
+  result->VertexBuffers[1].UV = glm::vec2(1.0f, 0.0f);
+  result->VertexBuffers[2].UV = glm::vec2(0.0f, 1.0f);
+  result->VertexBuffers[3].UV = glm::vec2(1.0f, 1.0f);
+
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 4; j++) result->VertexBuffers[i].BoneIndices[j] = 0;
+    result->VertexBuffers[i].BoneWeights = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
+  }
+
+  result->Indices[0] = 0;
+  result->Indices[1] = 2;
+  result->Indices[2] = 1;
+  result->Indices[3] = 1;
+  result->Indices[4] = 2;
+  result->Indices[5] = 3;
+
+  result->Bones[0].Id = 0;
+  result->Bones[0].Parent = -1;
+  result->Bones[0].ChildrenCount = 0;
+  result->Bones[0].BindInverse = glm::mat4(1.0f);
+  result->Bones[0].BaseTransform = Transform();
+
+  result->RootBones[0] = 0;
+
+  result->Textures[0].LoadPoliticalCompass();
+
+  result->Meshes[0].BoneMap[0] = 0;
+  result->Meshes[0].VertexCount = 4;
+  result->Meshes[0].IndexCount = 6;
+  result->Meshes[0].VertexOffset = 0;
+  result->Meshes[0].IndexOffset = 0;
+  result->Meshes[0].Opacity = 1.0f;
+  result->Meshes[0].UsedBones = 0;
+  result->Meshes[0].ColorMap = 0;
+  result->Meshes[0].DecalMap = -1;
+  result->Meshes[0].RimlightMap = -1;
+  result->Meshes[0].FourthMap = -1;
+  result->Meshes[0].SpecularColorMap = -1;
+  result->Meshes[0].SixthMap = -1;
+  result->Meshes[0].MeshBone = 0;
+
+  return result;
+}
+
 }  // namespace Impacto

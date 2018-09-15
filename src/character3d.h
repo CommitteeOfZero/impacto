@@ -20,14 +20,14 @@ struct PosedBone {
 class Character3D {
  public:
   static void Init();
-  static Character3D* Load(uint32_t modelId);
+  bool Load(uint32_t modelId);
+  void Unload();
+  void MakePlane();
 
   void Submit();
 
   void Update();
   void Render();
-
-  ~Character3D();
 
   Model* StaticModel = 0;
 

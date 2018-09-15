@@ -14,6 +14,7 @@ struct Texture {
   int BufferSize;
 
   void Load1x1();
+  void LoadPoliticalCompass();
   uint32_t Submit();
 };
 

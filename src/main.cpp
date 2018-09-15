@@ -18,7 +18,7 @@ SDL_Window* window = NULL;
 bool quit = false;
 SDL_GLContext glContext;
 
-Character3D* character;
+Character3D characters[4];
 
 void GameLoop() {
   SDL_Event e;
@@ -28,10 +28,21 @@ void GameLoop() {
     }
   }
 
+  float const radius = 20.0f;
+  static float angle = 0.0f;
+  glm::vec3 position =
+      glm::vec3(radius * cos(angle), radius, radius * sin(angle));
+  angle += 0.02f;
+  if (angle >= 2 * M_PI) angle -= 2 * M_PI;
+  CameraMove(&g_Camera, position);
+  CameraRecalculate(&g_Camera);
+
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  character->Update();
-  character->Render();
+  characters[0].Update();
+  characters[0].Render();
+  characters[1].Update();
+  characters[1].Render();
 
   SDL_GL_SwapWindow(window);
 }
@@ -134,8 +145,10 @@ int main(int argc, char* argv[]) {
 
   ShaderInit();
   Character3D::Init();
-  character = Character3D::Load(0);
-  character->Submit();
+  characters[0].Load(0);
+  characters[0].Submit();
+  characters[1].MakePlane();
+  characters[1].Submit();
 
   while (!quit) {
     GameLoop();

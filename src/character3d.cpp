@@ -31,26 +31,28 @@ void Character3D::Init() {
   }
 }
 
-Character3D* Character3D::Load(uint32_t modelId) {
+bool Character3D::Load(uint32_t modelId) {
   ImpLog(LL_Info, LC_Character3D, "Creating character (model ID %d)\n",
          modelId);
 
-  Model* model = Model::Load(modelId);
+  StaticModel = Model::Load(modelId);
 
-  if (!model) {
+  if (!StaticModel) {
     ImpLog(LL_Error, LC_Character3D,
            "Model loading failed for character with model ID %d\n");
-    return NULL;
+    return false;
   }
 
-  Character3D* result = new Character3D;
-  result->StaticModel = model;
+  CurrentPose = (PosedBone*)calloc(StaticModel->BoneCount, sizeof(PosedBone));
+  ReloadDefaultBoneTransforms();
 
-  result->CurrentPose = (PosedBone*)calloc(model->BoneCount, sizeof(PosedBone));
+  return true;
+}
 
-  result->ReloadDefaultBoneTransforms();
-
-  return result;
+void Character3D::MakePlane() {
+  StaticModel = Model::MakePlane();
+  CurrentPose = (PosedBone*)calloc(StaticModel->BoneCount, sizeof(PosedBone));
+  ReloadDefaultBoneTransforms();
 }
 
 void Character3D::ReloadDefaultBoneTransforms() {
@@ -131,18 +133,23 @@ void Character3D::Render() {
   }
 }
 
-// TODO do we need to do anything to make sure this only happens on render
-// thread?
-Character3D::~Character3D() {
+void Character3D::Unload() {
   if (StaticModel) {
+    ImpLog(LL_Info, LC_Character3D, "Unloading model %d\n", StaticModel->Id);
     if (IsSubmitted) {
       glDeleteBuffers(StaticModel->MeshCount, IBOs);
       glDeleteBuffers(StaticModel->MeshCount, VBOs);
       glDeleteVertexArrays(StaticModel->MeshCount, VAOs);
     }
     delete StaticModel;
+    StaticModel = 0;
   }
-  if (CurrentPose) free(CurrentPose);
+  if (CurrentPose) {
+    free(CurrentPose);
+    CurrentPose = 0;
+  }
+  ModelTransform = Transform();
+  IsSubmitted = false;
 }
 
 void Character3D::Submit() {
