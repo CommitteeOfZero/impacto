@@ -28,7 +28,7 @@ void GameLoop() {
     }
   }
 
-  float const radius = 20.0f;
+  float const radius = 13.0f;
   static float angle = 0.0f;
   glm::vec3 position =
       glm::vec3(radius * cos(angle), radius, radius * sin(angle));

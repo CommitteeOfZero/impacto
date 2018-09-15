@@ -4,7 +4,8 @@ layout(location = 2) in vec2 UV;
 layout(location = 3) in lowp ivec4 BoneIndices;  // indices into Mesh.BoneMap
 layout(location = 4) in vec4 BoneWeights;
 
-out vec3 normal;
+out vec3 worldFragPosition;
+out vec3 worldNormal;
 out vec2 uv;
 
 uniform mat4 ViewProjection;
@@ -22,7 +23,10 @@ void main() {
   mat4 transform = Model * skeletalTransform;
   mat3 normalMatrix = mat3(transpose(inverse(transform)));
 
-  gl_Position = ViewProjection * transform * vec4(Position, 1.0);
-  normal = normalMatrix * Normal;
+  vec4 worldPosition = transform * vec4(Position, 1.0);
+  worldFragPosition = worldPosition.xyz;
+
+  gl_Position = ViewProjection * worldPosition;
+  worldNormal = normalMatrix * Normal;
   uv = UV;
 }

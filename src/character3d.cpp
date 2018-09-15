@@ -10,7 +10,8 @@
 namespace Impacto {
 
 static GLuint ShaderProgram = 0, UniformViewProjection = 0, UniformModel = 0,
-              UniformAlpha = 0;
+              UniformModelOpacity = 0, UniformWorldLightPosition = 0,
+              UniformWorldEyePosition = 0;
 static GLuint UniformBones[ModelMaxBonesPerMesh] = {0};
 static bool IsInit = false;
 
@@ -22,7 +23,11 @@ void Character3D::Init() {
   ShaderProgram = ShaderCompile("Character3D");
   UniformViewProjection = glGetUniformLocation(ShaderProgram, "ViewProjection");
   UniformModel = glGetUniformLocation(ShaderProgram, "Model");
-  UniformAlpha = glGetUniformLocation(ShaderProgram, "Alpha");
+  UniformModelOpacity = glGetUniformLocation(ShaderProgram, "ModelOpacity");
+  UniformWorldLightPosition =
+      glGetUniformLocation(ShaderProgram, "WorldLightPosition");
+  UniformWorldEyePosition =
+      glGetUniformLocation(ShaderProgram, "WorldEyePosition");
   for (int i = 0; i < ModelMaxBonesPerMesh; i++) {
     char name[16];
     int sz = snprintf(name, 16, "Bones[%d]", i);
@@ -93,10 +98,16 @@ void Character3D::Update() { Pose(); }
 
 void Character3D::Render() {
   glUseProgram(ShaderProgram);
+
   glUniformMatrix4fv(UniformViewProjection, 1, GL_FALSE,
                      glm::value_ptr(g_Camera.ViewProjection));
   glm::mat4 ModelMatrix = ModelTransform.Matrix();
   glUniformMatrix4fv(UniformModel, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+
+  glUniform3fv(UniformWorldEyePosition, 1, glm::value_ptr(g_Camera.Position));
+
+  glm::vec3 lightPosition = glm::vec3(1.0, 1.0, 1.0);
+  glUniform3fv(UniformWorldLightPosition, 1, glm::value_ptr(lightPosition));
 
   for (int i = 0; i < StaticModel->MeshCount; i++) {
     glBindVertexArray(VAOs[i]);
@@ -119,7 +130,7 @@ void Character3D::Render() {
       glBindTexture(GL_TEXTURE_2D, TexBuffers[StaticModel->Meshes[i].ColorMap]);
     }
 
-    glUniform1f(UniformAlpha, StaticModel->Meshes[i].Opacity);
+    glUniform1f(UniformModelOpacity, StaticModel->Meshes[i].Opacity);
 
     // TODO: how do they actually do this?
     if (StaticModel->Meshes[i].Opacity < 0.9) {
