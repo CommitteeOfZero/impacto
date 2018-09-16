@@ -25,9 +25,9 @@ void SceneInit() {
       glm::vec3(1.0f, 1.0f, 1.0f);
   g_Scene.GroundPlane.MakePlane();
   g_Scene.GroundPlane.Submit();
-}
 
-void Scene::Init() {}
+  g_Scene.LightPosition = glm::vec3(1.0, 1.0, 1.0);
+}
 
 void Scene::Update(float dt) {
   float const radius = 13.0f;

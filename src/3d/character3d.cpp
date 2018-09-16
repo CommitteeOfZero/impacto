@@ -3,6 +3,7 @@
 
 #include "character3d.h"
 
+#include "scene.h"
 #include "camera.h"
 #include "../shader.h"
 #include "../log.h"
@@ -122,8 +123,8 @@ void Character3D::Render() {
 
   glUniform3fv(UniformWorldEyePosition, 1, glm::value_ptr(g_Camera.Position));
 
-  glm::vec3 lightPosition = glm::vec3(1.0, 1.0, 1.0);
-  glUniform3fv(UniformWorldLightPosition, 1, glm::value_ptr(lightPosition));
+  glUniform3fv(UniformWorldLightPosition, 1,
+               glm::value_ptr(g_Scene.LightPosition));
 
   for (int i = 0; i < StaticModel->MeshCount; i++) {
     glBindVertexArray(VAOs[i]);
