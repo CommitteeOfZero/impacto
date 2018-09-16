@@ -21,11 +21,11 @@ const int VfsMaxPath = 224;
 // The overlay FS allows replacing individual files in an archive using the
 // physical filesystem for quick tweaks, e.g.
 // <VfsOverlayPath>/MODEL.CPK/c002_010.cpk/0000
-extern bool VfsOverlayEnabled;
+extern bool g_VfsOverlayEnabled;
 // Path to root of overlay FS relative to working directory
-extern const char VfsOverlayPath[];
+extern char const g_VfsOverlayPath[];
 // Path to look for any asset archives in relative to working directory
-extern const char VfsBasePath[];
+extern char const g_VfsBasePath[];
 
 struct VfsFileInfo {
   uint32_t Id;
@@ -92,5 +92,7 @@ class VfsArchive {
  private:
   IoError OverlayOpen(uint32_t id, SDL_RWops** outHandle);
 };
+
+void VfsInit();
 
 }  // namespace Impacto

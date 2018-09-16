@@ -10,11 +10,11 @@
 
 namespace Impacto {
 
-static const char ShaderPath[] = "./shaders";
-static const char FragShaderExtension[] = "_frag.glsl";
-static const char VertShaderExtension[] = "_vert.glsl";
+static char const ShaderPath[] = "./shaders";
+static char const FragShaderExtension[] = "_frag.glsl";
+static char const VertShaderExtension[] = "_vert.glsl";
 
-static const char ShaderHeaderTemplate[] =
+static char const ShaderHeaderTemplate[] =
     "\
 #version 330                                                    \n\
                                                                 \n\

@@ -8,10 +8,10 @@ namespace Impacto {
 
 // TODO Color output in console?
 
-LogLevel LogLevelFile = LL_Off;
-LogLevel LogLevelConsole = LL_Off;
-uint32_t LogChannelsFile = 0;
-uint32_t LogChannelsConsole = 0;
+LogLevel g_LogLevelFile = LL_Off;
+LogLevel g_LogLevelConsole = LL_Off;
+uint32_t g_LogChannelsFile = 0;
+uint32_t g_LogChannelsConsole = 0;
 
 bool LoggingToConsole = false;
 bool LoggingToFile = false;
@@ -62,6 +62,8 @@ const char* ChannelToString(LogChannel channel) {
       return "Character3D";
     case LC_TextureLoad:
       return "TextureLoad";
+    case LC_Scene:
+      return "Scene";
     default:
       assert(false);
       return "";
@@ -73,11 +75,12 @@ void ConsoleWrite(const char* str) { printf("%s", str); }
 void ImpLog(LogLevel level, LogChannel channel, const char* format, ...) {
   assert(level > 0 && channel > 0);
   bool any = false;
-  if (LoggingToConsole && level <= LogLevelConsole &&
-      (LogChannelsConsole & channel)) {
+  if (LoggingToConsole && level <= g_LogLevelConsole &&
+      (g_LogChannelsConsole & channel)) {
     any = true;
   }
-  if (LoggingToFile && level <= LogLevelFile && (LogChannelsFile & channel)) {
+  if (LoggingToFile && level <= g_LogLevelFile &&
+      (g_LogChannelsFile & channel)) {
     any = true;
   }
   if (!any) return;
@@ -100,8 +103,8 @@ void ImpLog(LogLevel level, LogChannel channel, const char* format, ...) {
   vsnprintf(line + headSize, tailSize + 1, format, args);
   line[headSize + tailSize] = '\0';
 
-  if (LoggingToConsole && level <= LogLevelConsole &&
-      (LogChannelsConsole & channel)) {
+  if (LoggingToConsole && level <= g_LogLevelConsole &&
+      (g_LogChannelsConsole & channel)) {
     ConsoleWrite(line);
   }
   // TODO file

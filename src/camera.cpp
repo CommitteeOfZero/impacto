@@ -3,44 +3,43 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 
+#include "window.h"
+
 namespace Impacto {
 
 Camera g_Camera;
 
-void CameraMove(Camera* camera, glm::vec3 position) {
-  glm::vec3 target = camera->Position + camera->Direction;
-  camera->Position = position;
-  camera->Direction = target - position;
+void Camera::Move(glm::vec3 position) {
+  glm::vec3 target = Position + Direction;
+  Position = position;
+  Direction = target - position;
 }
 
-void CameraLookAt(Camera* camera, glm::vec3 target) {
-  camera->Direction = target - camera->Position;
+void Camera::LookAt(glm::vec3 target) { Direction = target - Position; }
+
+void Camera::ResetTransform() {
+  Position = glm::vec3(0.0f, 12.0f, 12.0f);
+  Up = glm::vec3(0.0f, 1.0f, 0.0f);
+  LookAt(glm::vec3(0.0f, 10.0f, 0.0f));
 }
 
-void CameraResetTransform(Camera* camera) {
-  camera->Position = glm::vec3(0.0f, 12.0f, 12.0f);
-  camera->Up = glm::vec3(0.0f, 1.0f, 0.0f);
-  CameraLookAt(camera, glm::vec3(0.0f, 10.0f, 0.0f));
+void Camera::ResetPerspective() {
+  Fov = 45.0f;
+  Near = 0.1f;
+  Far = 100.0f;
 }
 
-void CameraResetPerspective(Camera* camera) {
-  camera->Fov = 45.0f;
-  camera->Near = 0.1f;
-  camera->Far = 100.0f;
+void Camera::Init() {
+  AspectRatio = (float)g_WindowWidth / (float)g_WindowHeight;
+  ResetTransform();
+  ResetPerspective();
+  Recalculate();
 }
 
-void CameraInit(Camera* camera) {
-  CameraResetTransform(camera);
-  CameraResetPerspective(camera);
-  CameraRecalculate(camera);
-}
-
-void CameraRecalculate(Camera* camera) {
-  camera->View = glm::lookAt(camera->Position,
-                             camera->Position + camera->Direction, camera->Up);
-  camera->Projection = glm::perspective(camera->Fov, camera->AspectRatio,
-                                        camera->Near, camera->Far);
-  camera->ViewProjection = camera->Projection * camera->View;
+void Camera::Recalculate() {
+  View = glm::lookAt(Position, Position + Direction, Up);
+  Projection = glm::perspective(Fov, AspectRatio, Near, Far);
+  ViewProjection = Projection * View;
 }
 
 }  // namespace Impacto

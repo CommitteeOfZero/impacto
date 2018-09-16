@@ -15,7 +15,7 @@ static GLuint ShaderProgram = 0, UniformViewProjection = 0, UniformModel = 0,
 static GLuint UniformBones[ModelMaxBonesPerMesh] = {0};
 static bool IsInit = false;
 
-void Character3D::Init() {
+void Character3DInit() {
   assert(IsInit == false);
   ImpLog(LL_Info, LC_Character3D, "Initializing Character3D system\n");
   IsInit = true;
@@ -37,10 +37,13 @@ void Character3D::Init() {
 }
 
 bool Character3D::Load(uint32_t modelId) {
+  assert(IsUsed == false);
+
   ImpLog(LL_Info, LC_Character3D, "Creating character (model ID %d)\n",
          modelId);
 
   StaticModel = Model::Load(modelId);
+  ModelTransform = Transform();
 
   if (!StaticModel) {
     ImpLog(LL_Error, LC_Character3D,
@@ -51,13 +54,21 @@ bool Character3D::Load(uint32_t modelId) {
   CurrentPose = (PosedBone*)calloc(StaticModel->BoneCount, sizeof(PosedBone));
   ReloadDefaultBoneTransforms();
 
+  IsUsed = true;
+
   return true;
 }
 
 void Character3D::MakePlane() {
+  assert(IsUsed == false);
+
   StaticModel = Model::MakePlane();
+  ModelTransform = Transform();
+
   CurrentPose = (PosedBone*)calloc(StaticModel->BoneCount, sizeof(PosedBone));
   ReloadDefaultBoneTransforms();
+
+  IsUsed = true;
 }
 
 void Character3D::ReloadDefaultBoneTransforms() {
@@ -94,9 +105,14 @@ void Character3D::PoseBone(int16_t id) {
   transformed->Offset = transformed->World * bone->BindInverse;
 }
 
-void Character3D::Update() { Pose(); }
+void Character3D::Update(float dt) {
+  if (!IsUsed) return;
+  Pose();
+}
 
 void Character3D::Render() {
+  if (!IsUsed) return;
+
   glUseProgram(ShaderProgram);
 
   glUniformMatrix4fv(UniformViewProjection, 1, GL_FALSE,
@@ -161,6 +177,7 @@ void Character3D::Unload() {
   }
   ModelTransform = Transform();
   IsSubmitted = false;
+  IsUsed = false;
 }
 
 void Character3D::Submit() {

@@ -25,13 +25,14 @@ enum LogChannel : uint32_t {
   LC_GL = (1 << 4),
   LC_Character3D = (1 << 5),
   LC_TextureLoad = (1 << 6),
+  LC_Scene = (1 << 7),
   LC_All = 0xFFFFFFFF
 };
 
-extern LogLevel LogLevelFile;
-extern LogLevel LogLevelConsole;
-extern uint32_t LogChannelsFile;
-extern uint32_t LogChannelsConsole;
+extern LogLevel g_LogLevelFile;
+extern LogLevel g_LogLevelConsole;
+extern uint32_t g_LogChannelsFile;
+extern uint32_t g_LogChannelsConsole;
 
 void LogSetFile(char* path);
 void LogSetConsole(bool enabled);

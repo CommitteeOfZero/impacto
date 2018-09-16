@@ -19,6 +19,8 @@ set(Impacto_Src
     src/shader.cpp
     src/util.cpp
     src/transform.cpp
+    src/scene.cpp
+    src/window.cpp
 
     src/io/io.cpp
     src/io/vfs.cpp
@@ -38,7 +40,9 @@ set(Impacto_Header
     src/shader.h
     src/util.h
     src/transform.h
-    
+    src/scene.h
+    src/window.h
+
     src/io/io.h
     src/io/vfs.h
     src/io/mpkdriver.h

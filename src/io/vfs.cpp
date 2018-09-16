@@ -2,15 +2,16 @@
 #include <algorithm>
 
 #include "vfs.h"
+#include "mpkdriver.h"
 
 #include "../log.h"
 #include "../util.h"
 
 namespace Impacto {
 
-bool VfsOverlayEnabled = true;
-const char VfsOverlayPath[] = "./overlayfs";
-const char VfsBasePath[] = "./USRDIR";
+bool g_VfsOverlayEnabled = true;
+char const g_VfsOverlayPath[] = "./overlayfs";
+char const g_VfsBasePath[] = "./USRDIR";
 
 static std::vector<VfsMountProc> VfsDrivers;
 
@@ -24,16 +25,16 @@ IoError VfsArchive::Mount(const char* archiveName, VfsArchive** outArchive) {
     return IoError_NotFound;
   }
 
-  size_t reqSz = snprintf(NULL, 0, "%s/%s", VfsBasePath, archiveName) + 1;
+  size_t reqSz = snprintf(NULL, 0, "%s/%s", g_VfsBasePath, archiveName) + 1;
 
   if (reqSz > VfsMaxPath) {
-    ImpLog(LL_Error, LC_IO, "Path \"%s/%s\" too long\n", VfsBasePath,
+    ImpLog(LL_Error, LC_IO, "Path \"%s/%s\" too long\n", g_VfsBasePath,
            archiveName);
     return IoError_NotFound;
   }
 
   char* fullPath = (char*)ImpStackAlloc(reqSz);
-  sprintf(fullPath, "%s/%s", VfsBasePath, archiveName);
+  sprintf(fullPath, "%s/%s", g_VfsBasePath, archiveName);
 
   SDL_RWops* stream = SDL_RWFromFile(fullPath, "rb");
   if (stream == NULL) {
@@ -258,20 +259,21 @@ IoError VfsArchive::GetSize(const char* path, int64_t* outSize) {
 }
 
 IoError VfsArchive::OverlayOpen(uint32_t id, SDL_RWops** outHandle) {
-  if (VfsOverlayEnabled) {
+  if (g_VfsOverlayEnabled) {
     ImpLog(LL_Debug, LC_IO, "Trying to open %d in \"%s\" with overlay FS\n", id,
            MountPoint);
 
     char fileName[VfsMaxPath];
     IoError overlayErr = GetName(id, fileName);
     if (overlayErr == IoError_OK) {
-      size_t reqSz =
-          snprintf(NULL, 0, "%s/%s/%s", VfsOverlayPath, MountPoint, fileName) +
-          1;
+      size_t reqSz = snprintf(NULL, 0, "%s/%s/%s", g_VfsOverlayPath, MountPoint,
+                              fileName) +
+                     1;
       if (reqSz <= VfsMaxPath) {
         char* overlayPath = (char*)ImpStackAlloc(reqSz);
 
-        sprintf(overlayPath, "%s/%s/%s", VfsOverlayPath, MountPoint, fileName);
+        sprintf(overlayPath, "%s/%s/%s", g_VfsOverlayPath, MountPoint,
+                fileName);
 
         *outHandle = SDL_RWFromFile(overlayPath, "rb");
 
@@ -290,7 +292,7 @@ IoError VfsArchive::OverlayOpen(uint32_t id, SDL_RWops** outHandle) {
       } else {
         ImpLog(LL_Warning, LC_IO,
                "Cannot use overlay FS for \"%s/%s/%s\" - path too long\n",
-               VfsOverlayPath, MountPoint, fileName);
+               g_VfsOverlayPath, MountPoint, fileName);
         return IoError_Fail;
       }
     }
@@ -298,5 +300,7 @@ IoError VfsArchive::OverlayOpen(uint32_t id, SDL_RWops** outHandle) {
     return IoError_Fail;
   }
 }
+
+void VfsInit() { MpkRegisterDriver(); }
 
 }  // namespace Impacto

@@ -19,14 +19,13 @@ struct PosedBone {
 
 class Character3D {
  public:
-  static void Init();
   bool Load(uint32_t modelId);
   void Unload();
   void MakePlane();
 
   void Submit();
 
-  void Update();
+  void Update(float dt);
   void Render();
 
   Model* StaticModel = 0;
@@ -34,6 +33,7 @@ class Character3D {
   PosedBone* CurrentPose = 0;
   Transform ModelTransform;
 
+  bool IsUsed = false;
   bool IsSubmitted = false;
 
  private:
@@ -47,5 +47,7 @@ class Character3D {
 
   GLuint TexBuffers[ModelMaxTexturesPerModel];
 };
+
+void Character3DInit();
 
 }  // namespace Impacto
