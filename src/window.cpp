@@ -4,6 +4,8 @@
 #include "window.h"
 #include "log.h"
 
+#include "../vendor/nuklear/nuklear_sdl_gl3.h"
+
 namespace Impacto {
 
 static bool IsInit = false;
@@ -11,6 +13,7 @@ int g_WindowWidth;
 int g_WindowHeight;
 SDL_Window* g_SDLWindow;
 SDL_GLContext g_GLContext;
+nk_context* g_Nk;
 
 void WindowInit() {
   assert(IsInit == false);
@@ -20,7 +23,7 @@ void WindowInit() {
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) != 0) {
     ImpLog(LL_Fatal, LC_General, "SDL initialisation failed: %s\n",
            SDL_GetError());
-    exit(1);
+    WindowShutdown();
   }
 
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -53,7 +56,7 @@ void WindowInit() {
   if (g_SDLWindow == NULL) {
     ImpLog(LL_Fatal, LC_General, "SDL window creation failed: %s\n",
            SDL_GetError());
-    exit(1);
+    WindowShutdown();
   }
 
   SDL_GetWindowSize(g_SDLWindow, &g_WindowWidth, &g_WindowHeight);
@@ -64,7 +67,7 @@ void WindowInit() {
   if (g_GLContext == NULL) {
     ImpLog(LL_Fatal, LC_General, "OpenGL context creation failed: %s\n",
            SDL_GetError());
-    exit(1);
+    WindowShutdown();
   }
 
   SDL_GL_GetDrawableSize(g_SDLWindow, &g_WindowWidth, &g_WindowHeight);
@@ -76,13 +79,8 @@ void WindowInit() {
   if (glewErr != GLEW_OK) {
     ImpLog(LL_Fatal, LC_General, "GLEW initialisation failed: %s\n",
            glewGetErrorString(glewErr));
-    exit(1);
+    WindowShutdown();
   }
-
-  glEnable(GL_DEPTH_TEST);
-  glEnable(GL_BLEND);
-
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 #ifdef IMPACTO_GL_DEBUG
   GLint flags;
@@ -99,7 +97,21 @@ void WindowInit() {
 #endif
 
   // Vsync
-  SDL_GL_SetSwapInterval(1);
+  SDL_GL_SetSwapInterval(0);
+
+  // Nuklear
+  g_Nk = nk_sdl_init(g_SDLWindow);
+  struct nk_font_atlas* atlas;
+  nk_sdl_font_stash_begin(&atlas);
+  // no fonts => default font used, but we still have do the setup
+  nk_sdl_font_stash_end();
+}
+
+void WindowShutdown() {
+  nk_sdl_shutdown();
+  SDL_GL_DeleteContext(g_GLContext);
+  SDL_DestroyWindow(g_SDLWindow);
+  SDL_Quit();
 }
 
 }  // namespace Impacto

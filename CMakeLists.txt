@@ -17,6 +17,8 @@ set(Impacto_Src
     src/util.cpp
     src/window.cpp
 
+    src/nuklear_impl.cpp
+
     src/3d/camera.cpp
     src/3d/model.cpp
     src/3d/character3d.cpp
@@ -54,6 +56,9 @@ set(Impacto_Header
     src/texture/gxtloader.h
 
     vendor/include/flat_hash_map.hpp
+
+    vendor/nuklear/nuklear.h
+    vendor/nuklear/nuklear_sdl_gl3.h
 )
 
 add_executable (impacto ${Impacto_Src} ${Impacto_Header})
