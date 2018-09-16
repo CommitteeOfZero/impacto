@@ -37,12 +37,14 @@ void Scene::Update(float dt) {
   angle += dt;
   if (angle >= 2 * M_PI) angle -= 2 * M_PI;
   g_Camera.Move(position);
-  g_Camera.Recalculate();
 
   GroundPlane.Update(dt);
   CurrentCharacter.Update(dt);
 }
 void Scene::Render() {
+  // Camera::Recalculate should stay here even for the real game
+  g_Camera.Recalculate();
+
   GroundPlane.Render();
   CurrentCharacter.Render();
 }

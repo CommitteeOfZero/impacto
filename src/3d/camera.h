@@ -31,9 +31,6 @@ class Camera {
   glm::mat4 View;
   glm::mat4 Projection;
   glm::mat4 ViewProjection;
-
- private:
-  float AspectRatio;
 };
 
 extern Camera g_Camera;

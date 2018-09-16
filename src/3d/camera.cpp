@@ -30,15 +30,15 @@ void Camera::ResetPerspective() {
 }
 
 void Camera::Init() {
-  AspectRatio = (float)g_WindowWidth / (float)g_WindowHeight;
   ResetTransform();
   ResetPerspective();
   Recalculate();
 }
 
 void Camera::Recalculate() {
+  float aspectRatio = (float)g_WindowWidth / (float)g_WindowHeight;
   View = glm::lookAt(Position, Position + Direction, Up);
-  Projection = glm::perspective(Fov, AspectRatio, Near, Far);
+  Projection = glm::perspective(Fov, aspectRatio, Near, Far);
   ViewProjection = Projection * View;
 }
 

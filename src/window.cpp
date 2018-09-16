@@ -100,9 +100,6 @@ void WindowInit() {
 
   // Vsync
   SDL_GL_SetSwapInterval(1);
-
-  glViewport(0, 0, g_WindowWidth, g_WindowHeight);
-  glClearColor(0.2f, 0.2f, 0.2f, 0);
 }
 
 }  // namespace Impacto

@@ -16,6 +16,10 @@ static uint64_t t;
 void Update(float dt) { g_Scene.Update(dt); }
 
 void Render() {
+  SDL_GetWindowSize(g_SDLWindow, &g_WindowWidth, &g_WindowHeight);
+  glViewport(0, 0, g_WindowWidth, g_WindowHeight);
+
+  glClearColor(0.2f, 0.2f, 0.2f, 0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   g_Scene.Render();
