@@ -13,14 +13,15 @@ find_package(ZLIB REQUIRED)
 set(Impacto_Src
     src/main.cpp
     src/log.cpp
-    src/camera.cpp
-    src/model.cpp
-    src/character3d.cpp
     src/shader.cpp
     src/util.cpp
-    src/transform.cpp
-    src/scene.cpp
     src/window.cpp
+
+    src/3d/camera.cpp
+    src/3d/model.cpp
+    src/3d/character3d.cpp
+    src/3d/transform.cpp
+    src/3d/scene.cpp
 
     src/io/io.cpp
     src/io/vfs.cpp
@@ -34,14 +35,15 @@ set(Impacto_Src
 set(Impacto_Header
     src/impacto.h
     src/log.h
-    src/camera.h
-    src/model.h
-    src/character3d.h
     src/shader.h
     src/util.h
-    src/transform.h
-    src/scene.h
     src/window.h
+
+    src/3d/camera.h
+    src/3d/model.h
+    src/3d/character3d.h
+    src/3d/transform.h
+    src/3d/scene.h
 
     src/io/io.h
     src/io/vfs.h

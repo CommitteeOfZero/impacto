@@ -4,8 +4,8 @@
 #include "character3d.h"
 
 #include "camera.h"
-#include "shader.h"
-#include "log.h"
+#include "../shader.h"
+#include "../log.h"
 
 namespace Impacto {
 

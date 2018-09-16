@@ -3,7 +3,7 @@
 #include <SDL.h>  // M_PI
 
 #include "camera.h"
-#include "log.h"
+#include "../log.h"
 
 namespace Impacto {
 

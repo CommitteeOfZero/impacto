@@ -4,7 +4,7 @@
 
 #include "log.h"
 #include "io/vfs.h"
-#include "scene.h"
+#include "3d/scene.h"
 #include "shader.h"
 #include "window.h"
 

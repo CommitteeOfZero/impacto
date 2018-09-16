@@ -5,7 +5,7 @@
 #include "impacto.h"
 #include "io/io.h"
 #include "log.h"
-#include "model.h"
+#include "3d/model.h"
 #include "util.h"
 
 namespace Impacto {

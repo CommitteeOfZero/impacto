@@ -1,8 +1,8 @@
 #include "model.h"
-#include "io/vfs.h"
-#include "io/io.h"
-#include "log.h"
-#include "texture/gxtloader.h"
+#include "../io/vfs.h"
+#include "../io/io.h"
+#include "../log.h"
+#include "../texture/gxtloader.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "impacto.h"
 #include "character3d.h"
 
 namespace Impacto {
