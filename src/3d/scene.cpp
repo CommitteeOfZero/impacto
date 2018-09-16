@@ -34,7 +34,7 @@ void Scene::Update(float dt) {
   static float angle = 0.0f;
   glm::vec3 position =
       glm::vec3(radius * cos(angle), radius, radius * sin(angle));
-  angle += 0.02f;
+  angle += dt;
   if (angle >= 2 * M_PI) angle -= 2 * M_PI;
   g_Camera.Move(position);
   g_Camera.Recalculate();
