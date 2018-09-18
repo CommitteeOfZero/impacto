@@ -12,7 +12,8 @@ namespace Impacto {
 
 static GLuint ShaderProgram = 0, UniformViewProjection = 0, UniformModel = 0,
               UniformModelOpacity = 0, UniformWorldLightPosition = 0,
-              UniformWorldEyePosition = 0;
+              UniformWorldEyePosition = 0, UniformColorMap = 0,
+              UniformGradientMaskMap = 0, UniformSpecularColorMap = 0;
 static GLuint UniformBones[ModelMaxBonesPerMesh] = {0};
 static bool IsInit = false;
 
@@ -35,6 +36,12 @@ void Character3DInit() {
     assert(sz < sizeof(name));
     UniformBones[i] = glGetUniformLocation(ShaderProgram, name);
   }
+
+  UniformColorMap = glGetUniformLocation(ShaderProgram, "ColorMap");
+  UniformGradientMaskMap =
+      glGetUniformLocation(ShaderProgram, "GradientMaskMap");
+  UniformSpecularColorMap =
+      glGetUniformLocation(ShaderProgram, "SpecularColorMap");
 }
 
 bool Character3D::Load(uint32_t modelId) {
@@ -126,6 +133,10 @@ void Character3D::Render() {
   glUniform3fv(UniformWorldLightPosition, 1,
                glm::value_ptr(g_Scene.LightPosition));
 
+  glUniform1i(UniformColorMap, 0);
+  glUniform1i(UniformGradientMaskMap, 1);
+  glUniform1i(UniformSpecularColorMap, 2);
+
   for (int i = 0; i < StaticModel->MeshCount; i++) {
     glBindVertexArray(VAOs[i]);
 
@@ -142,9 +153,19 @@ void Character3D::Render() {
           glm::value_ptr(CurrentPose[StaticModel->Meshes[i].MeshBone].Offset));
     }
 
+    glActiveTexture(GL_TEXTURE0);
     if (StaticModel->Meshes[i].ColorMap >= 0) {
-      glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D, TexBuffers[StaticModel->Meshes[i].ColorMap]);
+    }
+    glActiveTexture(GL_TEXTURE1);
+    if (StaticModel->Meshes[i].GradientMaskMap >= 0) {
+      glBindTexture(GL_TEXTURE_2D,
+                    TexBuffers[StaticModel->Meshes[i].GradientMaskMap]);
+    }
+    glActiveTexture(GL_TEXTURE2);
+    if (StaticModel->Meshes[i].SpecularColorMap >= 0) {
+      glBindTexture(GL_TEXTURE_2D,
+                    TexBuffers[StaticModel->Meshes[i].SpecularColorMap]);
     }
 
     glUniform1f(UniformModelOpacity, StaticModel->Meshes[i].Opacity);

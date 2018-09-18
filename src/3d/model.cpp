@@ -111,7 +111,7 @@ Model* Model::Load(uint32_t modelId) {
     SDL_RWseek(stream, 0x14, RW_SEEK_CUR);
     mesh->ColorMap = SDL_ReadLE16(stream);
     mesh->DecalMap = SDL_ReadLE16(stream);
-    mesh->RimlightMap = SDL_ReadLE16(stream);
+    mesh->GradientMaskMap = SDL_ReadLE16(stream);
     mesh->FourthMap = SDL_ReadLE16(stream);
     mesh->SpecularColorMap = SDL_ReadLE16(stream);
     mesh->SixthMap = SDL_ReadLE16(stream);
@@ -336,7 +336,7 @@ Model* Model::MakePlane() {
   result->Meshes[0].UsedBones = 0;
   result->Meshes[0].ColorMap = 0;
   result->Meshes[0].DecalMap = -1;
-  result->Meshes[0].RimlightMap = -1;
+  result->Meshes[0].GradientMaskMap = -1;
   result->Meshes[0].FourthMap = -1;
   result->Meshes[0].SpecularColorMap = -1;
   result->Meshes[0].SixthMap = -1;

@@ -5,6 +5,8 @@ in vec2 uv;
 out vec4 color;
 
 uniform sampler2D ColorMap;
+uniform sampler2D GradientMaskMap;
+uniform sampler2D SpecularColorMap;
 
 uniform float ModelOpacity;
 uniform vec3 WorldLightPosition;
@@ -18,12 +20,8 @@ const vec4 g_ToonFalloffGradDarkVals =
     vec4(0.59375, 0.484375, 0.609375, 0.453125);
 const vec4 g_ToonFalloffGradDarkMax = vec4(0.79, 0.79, 0.61, 0.61);
 
-const float maskParam = 0.5;
-
 const vec3 lightColor = vec3(0.2, 0.5, 0.2);
 const float ambientWeight = 0.5;
-
-const vec3 specColor = vec3(0.7);
 
 vec4 saturate(vec4 x) { return clamp(x, 0.0, 1.0); }
 
@@ -32,6 +30,8 @@ void main() {
   // float diffuse = max(dot(normal, direction), 0.0);
 
   vec4 texColor = texture(ColorMap, uv);
+  float maskParam = texture(GradientMaskMap, uv).r;
+  vec3 specColor = texture(SpecularColorMap, uv).rgb;
 
   vec3 normal = normalize(worldNormal);
   vec3 dirToLight = normalize(WorldLightPosition - worldFragPosition);

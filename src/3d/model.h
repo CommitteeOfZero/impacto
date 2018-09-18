@@ -68,7 +68,7 @@ struct Mesh {
 
   int16_t ColorMap;
   int16_t DecalMap;
-  int16_t RimlightMap;
+  int16_t GradientMaskMap;
   int16_t FourthMap;
   int16_t SpecularColorMap;
   int16_t SixthMap;
