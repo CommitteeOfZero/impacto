@@ -26,9 +26,6 @@ const float ambientWeight = 0.5;
 vec4 saturate(vec4 x) { return clamp(x, 0.0, 1.0); }
 
 void main() {
-  // vec3 direction = normalize(vec3(-1.0, -1.0, 1.0));
-  // float diffuse = max(dot(normal, direction), 0.0);
-
   vec4 texColor = texture(ColorMap, uv);
   float maskParam = texture(GradientMaskMap, uv).r;
   vec3 specColor = texture(SpecularColorMap, uv).rgb;
@@ -40,7 +37,7 @@ void main() {
   float NdotL = dot(normal, dirToLight);
   float scaledDiff = 0.5 * NdotL + 0.5;
 
-  // Note: I think this is a uniform in R;NE ???
+  // Note: this is a uniform in R;NE ???
   vec3 H = normalize(dirToLight + dirToEye);
 
   vec4 toonFalloffGradInput;
@@ -73,8 +70,9 @@ void main() {
   toonColor += falloffColor * (vec3(1.0) - toonColor);
 
   // Specular
-
-  float specIntensity = pow(clamp(dot(normal, H), 0.0, 1.0), 20.0);
+  // R;NE does not use max() here - maybe manual control of H ensures it doesn't
+  // go negative?
+  float specIntensity = pow(max(dot(normal, H), 0.0), 20.0);
   toonColor += specIntensity * specColor;
 
   color = vec4(toonColor, texColor.a * ModelOpacity);

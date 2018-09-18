@@ -26,7 +26,7 @@ void SceneInit() {
   g_Scene.GroundPlane.MakePlane();
   g_Scene.GroundPlane.Submit();
 
-  g_Scene.LightPosition = glm::vec3(1.0, 1.0, 1.0);
+  g_Scene.LightPosition = glm::vec3(1.0, 15.0, 1.0);
 }
 
 void Scene::Update(float dt) {
