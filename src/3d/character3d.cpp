@@ -168,6 +168,7 @@ void Character3D::Unload() {
       glDeleteBuffers(StaticModel->MeshCount, IBOs);
       glDeleteBuffers(StaticModel->MeshCount, VBOs);
       glDeleteVertexArrays(StaticModel->MeshCount, VAOs);
+      glDeleteTextures(StaticModel->TextureCount, TexBuffers);
     }
     delete StaticModel;
     StaticModel = 0;
