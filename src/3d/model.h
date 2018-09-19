@@ -6,6 +6,8 @@
 
 #include <glm/glm.hpp>
 
+#include "../../vendor/include/flat_hash_map.hpp"
+
 namespace Impacto {
 
 enum MeshFlag : uint32_t { MeshFlag_DoubleSided = (1 << 0) };
@@ -80,6 +82,8 @@ struct Mesh {
   int8_t MorphTargetCount;
 };
 
+class Animation;
+
 class Model {
  public:
   static void Init();
@@ -116,6 +120,8 @@ class Model {
 
   int32_t RootBoneCount = 0;
   int16_t RootBones[ModelMaxRootBones];
+
+  ska::flat_hash_map<uint16_t, Animation*> Animations;
 };
 
 }  // namespace Impacto

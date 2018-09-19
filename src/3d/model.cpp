@@ -1,4 +1,6 @@
 #include "model.h"
+
+#include "animation.h"
 #include "../io/vfs.h"
 #include "../io/io.h"
 #include "../log.h"
@@ -32,6 +34,9 @@ Model::~Model() {
   if (MorphTargets) free(MorphTargets);
   if (MorphVertexBuffers) free(MorphVertexBuffers);
   if (Indices) free(Indices);
+  for (auto animation : Animations) {
+    if (animation.second) delete animation.second;
+  }
 }
 
 Model* Model::Load(uint32_t modelId) {
@@ -272,6 +277,16 @@ Model* Model::Load(uint32_t modelId) {
   if (file) {
     free(file);
   }
+
+  // Animations
+  // TODO model.cpk
+  int64_t animSize;
+  void* animData;
+  ModelArchive->Slurp(1, &animData, &animSize);
+  SDL_RWops* animStream = SDL_RWFromConstMem(animData, animSize);
+  result->Animations[1] = Animation::Load(animStream, result);
+  SDL_RWclose(animStream);
+  free(animData);
 
   return result;
 }
