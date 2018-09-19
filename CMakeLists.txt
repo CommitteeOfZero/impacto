@@ -24,6 +24,7 @@ set(Impacto_Src
     src/3d/character3d.cpp
     src/3d/transform.cpp
     src/3d/scene.cpp
+    src/3d/animation.cpp
 
     src/io/io.cpp
     src/io/vfs.cpp
@@ -46,6 +47,7 @@ set(Impacto_Header
     src/3d/character3d.h
     src/3d/transform.h
     src/3d/scene.h
+    src/3d/animation.h
 
     src/io/io.h
     src/io/vfs.h

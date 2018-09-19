@@ -10,12 +10,13 @@ namespace Impacto {
 
 enum MeshFlag : uint32_t { MeshFlag_DoubleSided = (1 << 0) };
 
-const int ModelMaxChildrenPerBone = 134;
-const int ModelMaxMorphTargetsPerMesh = 0x50;
-const int ModelMaxBonesPerMesh = 32;
-const int ModelMaxMeshesPerModel = 32;
-const int ModelMaxRootBones = 32;
-const int ModelMaxTexturesPerModel = 32;
+int const ModelMaxChildrenPerBone = 134;
+int const ModelMaxMorphTargetsPerMesh = 0x50;
+int const ModelMaxBonesPerModel = 320;
+int const ModelMaxBonesPerMesh = 32;
+int const ModelMaxMeshesPerModel = 32;
+int const ModelMaxRootBones = 32;
+int const ModelMaxTexturesPerModel = 32;
 
 struct VertexBuffer {
   glm::vec3 Position;
@@ -111,7 +112,7 @@ class Model {
   Texture Textures[ModelMaxTexturesPerModel];
 
   int32_t BoneCount = 0;
-  StaticBone* Bones = 0;
+  StaticBone Bones[ModelMaxBonesPerModel];
 
   int32_t RootBoneCount = 0;
   int16_t RootBones[ModelMaxRootBones];

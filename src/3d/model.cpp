@@ -32,7 +32,6 @@ Model::~Model() {
   if (MorphTargets) free(MorphTargets);
   if (MorphVertexBuffers) free(MorphVertexBuffers);
   if (Indices) free(Indices);
-  if (Bones) free(Bones);
 }
 
 Model* Model::Load(uint32_t modelId) {
@@ -60,7 +59,7 @@ Model* Model::Load(uint32_t modelId) {
   result->MeshCount = SDL_ReadLE32(stream);
   assert(result->MeshCount <= ModelMaxMeshesPerModel);
   result->BoneCount = SDL_ReadLE32(stream);
-  result->Bones = (StaticBone*)calloc(result->BoneCount, sizeof(StaticBone));
+  assert(result->BoneCount <= ModelMaxBonesPerModel);
   result->TextureCount = SDL_ReadLE32(stream);
   assert(result->TextureCount <= ModelMaxTexturesPerModel);
   result->MorphTargetCount = SDL_ReadLE32(stream);
@@ -289,7 +288,6 @@ Model* Model::MakePlane() {
 
   result->VertexBuffers = (VertexBuffer*)malloc(4 * sizeof(VertexBuffer));
   result->Indices = (uint16_t*)malloc(6 * sizeof(uint16_t));
-  result->Bones = (StaticBone*)malloc(1 * sizeof(StaticBone));
 
   result->VertexBuffers[0].Position = glm::vec3(-20.0f, 0.0f, -20.0f);
   result->VertexBuffers[1].Position = glm::vec3(20.0f, 0.0f, -20.0f);
