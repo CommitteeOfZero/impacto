@@ -15,6 +15,7 @@ class Scene {
   Character3D GroundPlane;
 
   glm::vec3 LightPosition;
+  glm::vec4 Tint;
 };
 
 extern Scene g_Scene;

@@ -11,6 +11,7 @@ uniform sampler2D SpecularColorMap;
 uniform float ModelOpacity;
 uniform vec3 WorldLightPosition;
 uniform vec3 WorldEyePosition;
+uniform vec4 Tint;
 
 const float FALLOFF_POWER = 0.8;
 
@@ -19,9 +20,6 @@ const vec4 g_ToonFalloffGradScale = vec4(10.66667, 10.66667, 32.0, 32.0);
 const vec4 g_ToonFalloffGradDarkVals =
     vec4(0.59375, 0.484375, 0.609375, 0.453125);
 const vec4 g_ToonFalloffGradDarkMax = vec4(0.79, 0.79, 0.61, 0.61);
-
-const vec3 lightColor = vec3(0.2, 0.5, 0.2);
-const float ambientWeight = 0.5;
 
 vec4 saturate(vec4 x) { return clamp(x, 0.0, 1.0); }
 
@@ -59,10 +57,10 @@ void main() {
   vec3 shadowColor = max(texColor.rgb, vec3(0.5)) * texColor.rgb;
   vec3 toonColor = mix(shadowColor, texColor.rgb, toonFalloffInterpParam.x);
 
-  // Ambient
+  // Tint
 
-  vec3 baseAmbientColor = toonColor * lightColor;
-  toonColor = mix(toonColor, baseAmbientColor, ambientWeight);
+  vec3 baseTintColor = toonColor * Tint.rgb;
+  toonColor = mix(toonColor, baseTintColor, Tint.a);
 
   // Rimlight
 

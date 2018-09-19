@@ -12,7 +12,7 @@ namespace Impacto {
 
 static GLuint ShaderProgram = 0, UniformViewProjection = 0, UniformModel = 0,
               UniformModelOpacity = 0, UniformWorldLightPosition = 0,
-              UniformWorldEyePosition = 0, UniformColorMap = 0,
+              UniformTint = 0, UniformWorldEyePosition = 0, UniformColorMap = 0,
               UniformGradientMaskMap = 0, UniformSpecularColorMap = 0;
 static GLuint UniformBones[ModelMaxBonesPerMesh] = {0};
 static bool IsInit = false;
@@ -28,6 +28,7 @@ void Character3DInit() {
   UniformModelOpacity = glGetUniformLocation(ShaderProgram, "ModelOpacity");
   UniformWorldLightPosition =
       glGetUniformLocation(ShaderProgram, "WorldLightPosition");
+  UniformTint = glGetUniformLocation(ShaderProgram, "Tint");
   UniformWorldEyePosition =
       glGetUniformLocation(ShaderProgram, "WorldEyePosition");
   for (int i = 0; i < ModelMaxBonesPerMesh; i++) {
@@ -132,6 +133,8 @@ void Character3D::Render() {
 
   glUniform3fv(UniformWorldLightPosition, 1,
                glm::value_ptr(g_Scene.LightPosition));
+
+  glUniform4fv(UniformTint, 1, glm::value_ptr(g_Scene.Tint));
 
   glUniform1i(UniformColorMap, 0);
   glUniform1i(UniformGradientMaskMap, 1);
