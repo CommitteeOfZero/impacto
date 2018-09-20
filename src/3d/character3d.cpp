@@ -64,9 +64,8 @@ bool Character3D::Load(uint32_t modelId) {
   CurrentPose = (PosedBone*)calloc(StaticModel->BoneCount, sizeof(PosedBone));
   ReloadDefaultBoneTransforms();
 
-  Animator = new ModelAnimator;
-  Animator->Character = this;
-  Animator->Start(1);
+  Animator.Character = this;
+  Animator.Start(1);
 
   IsUsed = true;
 
@@ -79,7 +78,7 @@ void Character3D::MakePlane() {
   StaticModel = Model::MakePlane();
   ModelTransform = Transform();
 
-  Animator = new ModelAnimator;
+  Animator.Character = this;
 
   CurrentPose = (PosedBone*)calloc(StaticModel->BoneCount, sizeof(PosedBone));
   ReloadDefaultBoneTransforms();
@@ -123,7 +122,7 @@ void Character3D::PoseBone(int16_t id) {
 
 void Character3D::Update(float dt) {
   if (!IsUsed) return;
-  if (Animator->CurrentAnimation) Animator->Update(dt);
+  if (Animator.CurrentAnimation) Animator.Update(dt);
   Pose();
 }
 
@@ -194,10 +193,7 @@ void Character3D::Render() {
 }
 
 void Character3D::Unload() {
-  if (Animator) {
-    delete Animator;
-    Animator = 0;
-  }
+  Animator.CurrentAnimation = 0;
   if (StaticModel) {
     ImpLog(LL_Info, LC_Character3D, "Unloading model %d\n", StaticModel->Id);
     if (IsSubmitted) {

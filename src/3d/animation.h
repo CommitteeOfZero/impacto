@@ -38,9 +38,13 @@ struct BoneTrack {
 
 class Animation {
  public:
-  static Animation* Load(SDL_RWops* stream, Model* model);
+  static Animation* Load(SDL_RWops* stream, Model* model, uint16_t id);
   ~Animation();
 
+  // Per-model ID
+  uint16_t Id = 0;
+
+  // Whole animation duration in seconds
   float Duration = 0.0f;
 
   int CoordKeyframeCount = 0;

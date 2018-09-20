@@ -1,9 +1,10 @@
 #pragma once
 
-#include "character3d.h"
 #include "animation.h"
 
 namespace Impacto {
+
+class Character3D;
 
 struct BoneTrackStatus {
   uint16_t CurrentTranslateXKey = 0;
@@ -29,9 +30,12 @@ struct BoneTrackStatus {
 
 class ModelAnimator {
  public:
+  // Note: These are has-a relationships - Character and CurrentAnimation should
+  // not be deleted with the animator
   Character3D* Character = 0;
-
   Animation* CurrentAnimation = 0;
+
+  // Time in seconds
   float CurrentTime = 0;
   BoneTrackStatus BoneKeys[ModelMaxBonesPerModel];
 

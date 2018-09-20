@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 
 #include "model.h"
+#include "modelanimator.h"
 
 namespace Impacto {
 
@@ -36,7 +37,7 @@ class Character3D {
 
   PosedBone* CurrentPose = 0;
   Transform ModelTransform;
-  ModelAnimator* Animator = 0;
+  ModelAnimator Animator;
 
   bool IsUsed = false;
   bool IsSubmitted = false;

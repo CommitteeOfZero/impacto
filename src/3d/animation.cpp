@@ -6,36 +6,58 @@
 #include "animation.h"
 
 #include "../io/io.h"
+#include "../log.h"
 
 namespace Impacto {
 
 int const HeaderSize = 0x30;
+int const HeaderDurationOffset = 0x24;
 int const TrackSize = 0xE8;
 int const TrackCountsOffset = 6;
 int const TrackOffsetsOffset = 0x68;
 
 float const fileFrameTime = 30.0f;
 
-Animation* Animation::Load(SDL_RWops* stream, Model* model) {
-  Animation* result = new Animation;
+enum TargetType { TargetType_Bone = 0, TargetType_MeshGroup = 0x8000 };
+enum SubTrackType {
+  STT_Visibility = 0,
+  STT_TranslateX = 1,
+  STT_TranslateY = 2,
+  STT_TranslateZ = 3,
+  STT_RotateX = 4,
+  STT_RotateY = 5,
+  STT_RotateZ = 6,
+  STT_ScaleX = 7,
+  STT_ScaleY = 8,
+  STT_ScaleZ = 9,
+};
 
-  SDL_RWseek(stream, 9 * 4, RW_SEEK_SET);
+Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
+  ImpLog(LL_Debug, LC_ModelLoad, "Loading animation %hu for model %d\n", id,
+         model->Id);
+
+  Animation* result = new Animation;
+  result->Id = id;
+
+  SDL_RWseek(stream, HeaderDurationOffset, RW_SEEK_SET);
   result->Duration = ReadFloatLE32(stream) / fileFrameTime;
   uint32_t trackCount = SDL_ReadLE32(stream);
   uint32_t tracksOffset = SDL_ReadLE32(stream);
 
+  // Offset into result->CoordKeyframes[]
   int currentCoordOffset = 0;
 
   // Only get bone coord track counts/offsets
   for (uint32_t i = 0; i < trackCount; i++) {
     SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
-    SDL_RWseek(stream, 2, RW_SEEK_CUR);
+    SDL_RWseek(stream, sizeof(uint16_t), RW_SEEK_CUR);
     uint16_t targetType = SDL_ReadLE16(stream);
-    if (targetType == 0) /* Bone track */ {
+    if (targetType == TargetType_Bone) /* Bone track */ {
       BoneTrack* track = &result->BoneTracks[result->BoneTrackCount];
 
       SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
-      SDL_RWseek(stream, 8, RW_SEEK_CUR);
+      // Skip id, targetType, unknown ushort and visibility
+      SDL_RWseek(stream, 4 * sizeof(uint16_t), RW_SEEK_CUR);
 
       // Read coord offsets/counts, so far, so normal...
 
@@ -49,7 +71,7 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model) {
       track->TranslateZCount = SDL_ReadLE16(stream);
       currentCoordOffset += track->TranslateZCount;
 
-      SDL_RWseek(stream, 3 * 2, RW_SEEK_CUR);
+      SDL_RWseek(stream, 3 * sizeof(uint16_t), RW_SEEK_CUR);
 
       track->ScaleXOffset = currentCoordOffset;
       track->ScaleXCount = SDL_ReadLE16(stream);
@@ -66,8 +88,6 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model) {
           track->TranslateZCount + track->ScaleXCount + track->ScaleYCount +
           track->ScaleZCount;
 
-      result->QuatKeyframeCount = 0;
-
       result->BoneTrackCount++;
     }
   }
@@ -75,29 +95,43 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model) {
   result->CoordKeyframes = (CoordKeyframe*)malloc(sizeof(CoordKeyframe) *
                                                   result->CoordKeyframeCount);
 
+  //
   // Interleave rotations. Fun!
+  //
+  // Background: We need rotations as quaternions to interpolate between them
+  // properly. We generate one quaternion keyframe for every time x, y or z
+  // rotation changes. This also means that if e.g. y changes after x, we
+  // interpolate across the x rotation first, then the y rotation (though if
+  // they change on the same frame, we interpolate them simultaneously). Not
+  // ideal, but best we can do without glitches, and for R;NE's animations it
+  // looks fairly smooth in practice.
+  //
   std::vector<std::vector<QuatKeyframe>> rotationTracks;
   rotationTracks.reserve(result->BoneTrackCount);
+
+  result->QuatKeyframeCount = 0;
 
   int currentBoneTrack = 0;
   for (uint32_t i = 0; i < trackCount; i++) {
     SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
     uint16_t id = SDL_ReadLE16(stream);
     uint16_t targetType = SDL_ReadLE16(stream);
-    if (targetType == 0) {
+    if (targetType == TargetType_Bone) {
       BoneTrack* track = &result->BoneTracks[currentBoneTrack];
 
       std::vector<QuatKeyframe> rotationTrack;
 
       SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
-      SDL_RWseek(stream, TrackCountsOffset + 4 * 2, RW_SEEK_CUR);
+      SDL_RWseek(stream, TrackCountsOffset + STT_RotateX * sizeof(uint16_t),
+                 RW_SEEK_CUR);
 
       uint16_t rawRotXCount = SDL_ReadLE16(stream);
       uint16_t rawRotYCount = SDL_ReadLE16(stream);
       uint16_t rawRotZCount = SDL_ReadLE16(stream);
 
       SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
-      SDL_RWseek(stream, TrackOffsetsOffset + 4 * 4, RW_SEEK_CUR);
+      SDL_RWseek(stream, TrackOffsetsOffset + STT_RotateX * sizeof(uint32_t),
+                 RW_SEEK_CUR);
 
       int rawRotXOffset = SDL_ReadLE32(stream) + HeaderSize;
       int rawRotYOffset = SDL_ReadLE32(stream) + HeaderSize;
@@ -121,7 +155,8 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model) {
 
         // Find lowest next time
         if (nextX < rawRotXCount) {
-          SDL_RWseek(stream, rawRotXOffset + nextX * 8, RW_SEEK_SET);
+          SDL_RWseek(stream, rawRotXOffset + nextX * (2 * sizeof(float)),
+                     RW_SEEK_SET);
           nextXTime = (int)ReadFloatLE32(stream);
           nextXValue = ReadFloatLE32(stream);
           if (nextXTime > currentTime && nextXTime < nextTime) {
@@ -129,7 +164,8 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model) {
           }
         }
         if (nextY < rawRotYCount) {
-          SDL_RWseek(stream, rawRotYOffset + nextY * 8, RW_SEEK_SET);
+          SDL_RWseek(stream, rawRotYOffset + nextY * (2 * sizeof(float)),
+                     RW_SEEK_SET);
           nextYTime = (int)ReadFloatLE32(stream);
           nextYValue = ReadFloatLE32(stream);
           if (nextYTime > currentTime && nextYTime < nextTime) {
@@ -137,7 +173,8 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model) {
           }
         }
         if (nextZ < rawRotZCount) {
-          SDL_RWseek(stream, rawRotZOffset + nextZ * 8, RW_SEEK_SET);
+          SDL_RWseek(stream, rawRotZOffset + nextZ * (2 * sizeof(float)),
+                     RW_SEEK_SET);
           nextZTime = (int)ReadFloatLE32(stream);
           nextZValue = ReadFloatLE32(stream);
           if (nextZTime > currentTime && nextZTime < nextTime) {
@@ -186,6 +223,7 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model) {
       (QuatKeyframe*)malloc(sizeof(QuatKeyframe) * result->QuatKeyframeCount);
 
   // Now that we have the buffers, fill with data
+
   currentBoneTrack = 0;
   currentCoordOffset = 0;
   for (uint32_t i = 0; i < trackCount; i++) {
@@ -197,15 +235,19 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model) {
 
       track->Bone = id;
 
-      for (int j = 0; j < 10; j++) {
-        // Skip Visibility and Rotates
-        if (j == 0 || j == 4 || j == 5 || j == 6) continue;
+      // Coords
+      for (int j = STT_Visibility; j <= STT_ScaleZ; j++) {
+        if (j == STT_Visibility || j == STT_RotateX || j == STT_RotateY ||
+            j == STT_RotateZ)
+          continue;
 
         SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
-        SDL_RWseek(stream, TrackCountsOffset + 2 * j, RW_SEEK_CUR);
+        SDL_RWseek(stream, TrackCountsOffset + sizeof(uint16_t) * j,
+                   RW_SEEK_CUR);
         uint16_t currentKeyframeCount = SDL_ReadLE16(stream);
         SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
-        SDL_RWseek(stream, TrackOffsetsOffset + 4 * j, RW_SEEK_CUR);
+        SDL_RWseek(stream, TrackOffsetsOffset + sizeof(uint32_t) * j,
+                   RW_SEEK_CUR);
         uint32_t currentKeyframeOffset = SDL_ReadLE32(stream);
 
         SDL_RWseek(stream, HeaderSize + currentKeyframeOffset, RW_SEEK_SET);

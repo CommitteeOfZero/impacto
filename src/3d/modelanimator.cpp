@@ -1,5 +1,7 @@
 #include "modelanimator.h"
 
+#include "character3d.h"
+
 namespace Impacto {
 
 void ModelAnimator::Start(uint16_t animId) {
@@ -36,7 +38,9 @@ void ModelAnimator::Reset() {
   }
 }
 
-#define TrackIncrementLoop(dataType, type)                            \
+// For each sub-track, if we're not on the last keyframe already, make sure the
+// *next* keyframe is *after* the current time
+#define BoneTrackIncrementLoop(dataType, type)                        \
   while (BoneKeys[i].Next##type##Key < track->##type##Count &&        \
          CurrentAnimation                                             \
                  ->##dataType##Keyframes[track->##type##Offset +      \
@@ -47,7 +51,7 @@ void ModelAnimator::Reset() {
   }                                                                   \
   (void)0
 
-#define TrackInterpolate(dataType, type, dest, func)                     \
+#define BoneTrackInterpolate(dataType, type, dest, func)                 \
   if (track->##type##Count) {                                            \
     if (BoneKeys[i].Next##type##Key < track->##type##Count) {            \
       float nextTime =                                                   \
@@ -82,7 +86,7 @@ void ModelAnimator::Reset() {
   }                                                                      \
   void(0)
 
-#define TrackNoInterpolate(dataType, type, dest)                       \
+#define BoneTrackNoInterpolate(dataType, type, dest)                   \
   if (track->##type##Count) {                                          \
     dest = CurrentAnimation                                            \
                ->##dataType##Keyframes[track->##type##Offset +         \
@@ -106,30 +110,30 @@ void ModelAnimator::Update(float dt) {
     BoneTrack* track = &CurrentAnimation->BoneTracks[i];
     Transform* transform = &Character->CurrentPose[track->Bone].LocalTransform;
 
-    TrackIncrementLoop(Coord, TranslateX);
-    TrackIncrementLoop(Coord, TranslateY);
-    TrackIncrementLoop(Coord, TranslateZ);
-    TrackIncrementLoop(Coord, ScaleX);
-    TrackIncrementLoop(Coord, ScaleY);
-    TrackIncrementLoop(Coord, ScaleZ);
-    TrackIncrementLoop(Quat, Rotate);
+    BoneTrackIncrementLoop(Coord, TranslateX);
+    BoneTrackIncrementLoop(Coord, TranslateY);
+    BoneTrackIncrementLoop(Coord, TranslateZ);
+    BoneTrackIncrementLoop(Coord, ScaleX);
+    BoneTrackIncrementLoop(Coord, ScaleY);
+    BoneTrackIncrementLoop(Coord, ScaleZ);
+    BoneTrackIncrementLoop(Quat, Rotate);
 
     if (Tweening) {
-      TrackInterpolate(Coord, TranslateX, transform->Position.x, mix);
-      TrackInterpolate(Coord, TranslateY, transform->Position.y, mix);
-      TrackInterpolate(Coord, TranslateZ, transform->Position.z, mix);
-      TrackInterpolate(Coord, ScaleX, transform->Scale.x, mix);
-      TrackInterpolate(Coord, ScaleY, transform->Scale.y, mix);
-      TrackInterpolate(Coord, ScaleZ, transform->Scale.z, mix);
-      TrackInterpolate(Quat, Rotate, transform->Rotation, slerp);
+      BoneTrackInterpolate(Coord, TranslateX, transform->Position.x, mix);
+      BoneTrackInterpolate(Coord, TranslateY, transform->Position.y, mix);
+      BoneTrackInterpolate(Coord, TranslateZ, transform->Position.z, mix);
+      BoneTrackInterpolate(Coord, ScaleX, transform->Scale.x, mix);
+      BoneTrackInterpolate(Coord, ScaleY, transform->Scale.y, mix);
+      BoneTrackInterpolate(Coord, ScaleZ, transform->Scale.z, mix);
+      BoneTrackInterpolate(Quat, Rotate, transform->Rotation, slerp);
     } else {
-      TrackNoInterpolate(Coord, TranslateX, transform->Position.x);
-      TrackNoInterpolate(Coord, TranslateY, transform->Position.y);
-      TrackNoInterpolate(Coord, TranslateZ, transform->Position.z);
-      TrackNoInterpolate(Coord, ScaleX, transform->Scale.x);
-      TrackNoInterpolate(Coord, ScaleY, transform->Scale.y);
-      TrackNoInterpolate(Coord, ScaleZ, transform->Scale.z);
-      TrackNoInterpolate(Quat, Rotate, transform->Rotation);
+      BoneTrackNoInterpolate(Coord, TranslateX, transform->Position.x);
+      BoneTrackNoInterpolate(Coord, TranslateY, transform->Position.y);
+      BoneTrackNoInterpolate(Coord, TranslateZ, transform->Position.z);
+      BoneTrackNoInterpolate(Coord, ScaleX, transform->Scale.x);
+      BoneTrackNoInterpolate(Coord, ScaleY, transform->Scale.y);
+      BoneTrackNoInterpolate(Coord, ScaleZ, transform->Scale.z);
+      BoneTrackNoInterpolate(Quat, Rotate, transform->Rotation);
     }
   }
 }

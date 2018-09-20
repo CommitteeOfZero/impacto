@@ -284,7 +284,7 @@ Model* Model::Load(uint32_t modelId) {
   void* animData;
   ModelArchive->Slurp(1, &animData, &animSize);
   SDL_RWops* animStream = SDL_RWFromConstMem(animData, animSize);
-  result->Animations[1] = Animation::Load(animStream, result);
+  result->Animations[1] = Animation::Load(animStream, result, 1);
   SDL_RWclose(animStream);
   free(animData);
 
