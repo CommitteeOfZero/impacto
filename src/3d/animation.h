@@ -18,24 +18,28 @@ struct QuatKeyframe {
   glm::quat Value;
 };
 
+enum BoneKeyType {
+  BKT_TranslateX = 0,
+  BKT_TranslateY = 1,
+  BKT_TranslateZ = 2,
+  BKT_Rotate = 3,
+  BKT_ScaleX = 4,
+  BKT_ScaleY = 5,
+  BKT_ScaleZ = 6,
+  BKT_Count = 7
+};
+
+enum MeshKeyType {
+  MKT_Visible = 0,
+  MKT_MorphInfluenceStart = 1,
+  MKT_Count = MKT_MorphInfluenceStart + AnimMaxMorphTargetsPerTrack
+};
+
 struct BoneTrack {
   uint16_t Bone;
 
-  int TranslateXOffset;
-  int TranslateYOffset;
-  int TranslateZOffset;
-  int ScaleXOffset;
-  int ScaleYOffset;
-  int ScaleZOffset;
-  int RotateOffset;
-
-  uint16_t TranslateXCount;
-  uint16_t TranslateYCount;
-  uint16_t TranslateZCount;
-  uint16_t ScaleXCount;
-  uint16_t ScaleYCount;
-  uint16_t ScaleZCount;
-  uint16_t RotateCount;
+  int KeyOffsets[BKT_Count];
+  uint16_t KeyCounts[BKT_Count];
 };
 
 // Note: Unlike R;NE animation files, we keep a track per mesh, not a track per
@@ -43,16 +47,13 @@ struct BoneTrack {
 struct MeshTrack {
   uint16_t Mesh;
 
-  int VisibilityOffset;
-  int MorphInfluenceOffsets[AnimMaxMorphTargetsPerTrack];
-
-  uint16_t VisibilityCount;
+  int KeyOffsets[MKT_Count];
+  uint16_t KeyCounts[MKT_Count];
 
   uint16_t MorphTargetCount;
   // Unlike R;NE animation files, these IDs go into Model->MorphTargets, not
   // Mesh->MorphTargetIds
   uint16_t MorphTargetIds[AnimMaxMorphTargetsPerTrack];
-  uint16_t MorphInfluenceCounts[AnimMaxMorphTargetsPerTrack];
 };
 
 class Animation {

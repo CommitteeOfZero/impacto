@@ -61,7 +61,7 @@ bool Character3D::Load(uint32_t modelId) {
     return false;
   }
 
-  CurrentPose = (PosedBone*)calloc(StaticModel->BoneCount, sizeof(PosedBone));
+  InitMeshAnimStatus();
   ReloadDefaultBoneTransforms();
 
   Animator.Character = this;
@@ -80,15 +80,96 @@ void Character3D::MakePlane() {
 
   Animator.Character = this;
 
-  CurrentPose = (PosedBone*)calloc(StaticModel->BoneCount, sizeof(PosedBone));
+  InitMeshAnimStatus();
   ReloadDefaultBoneTransforms();
 
   IsUsed = true;
 }
 
+void Character3D::InitMeshAnimStatus() {
+  int totalMorphedVertices = 0;
+  for (int i = 0; i < StaticModel->MeshCount; i++) {
+    MeshAnimStatus[i].MorphedVerticesOffset = totalMorphedVertices;
+    if (StaticModel->Meshes[i].MorphTargetCount > 0) {
+      totalMorphedVertices += StaticModel->Meshes[i].VertexCount;
+    }
+  }
+  CurrentMorphedVertices = (MorphVertexBuffer*)malloc(
+      totalMorphedVertices * sizeof(MorphVertexBuffer));
+  ReloadDefaultMeshAnimStatus();
+}
+
+void Character3D::ReloadDefaultMeshAnimStatus() {
+  int totalMorphedVertices = 0;
+  for (int i = 0; i < StaticModel->MeshCount; i++) {
+    MeshAnimStatus[i].Visible = 1.0f;
+    MeshAnimStatus[i].UsedMorphTargetCount = 0;
+    if (StaticModel->Meshes[i].MorphTargetCount > 0) {
+      for (int j = 0; j < StaticModel->Meshes[i].VertexCount; j++) {
+        CurrentMorphedVertices[totalMorphedVertices].Position =
+            StaticModel->VertexBuffers[StaticModel->Meshes[i].VertexOffset + j]
+                .Position;
+        CurrentMorphedVertices[totalMorphedVertices].Normal =
+            StaticModel->VertexBuffers[StaticModel->Meshes[i].VertexOffset + j]
+                .Normal;
+        totalMorphedVertices++;
+      }
+    }
+  }
+}
+
 void Character3D::ReloadDefaultBoneTransforms() {
   for (int i = 0; i < StaticModel->BoneCount; i++) {
     CurrentPose[i].LocalTransform = StaticModel->Bones[i].BaseTransform;
+  }
+}
+
+void Character3D::CalculateMorphedVertices() {
+  for (int i = 0; i < StaticModel->MeshCount; i++) {
+    if (MeshAnimStatus[i].UsedMorphTargetCount == 0) continue;
+
+    for (int j = 0; j < StaticModel->Meshes[i].VertexCount; j++) {
+      glm::vec3 pos =
+          StaticModel->VertexBuffers[StaticModel->Meshes[i].VertexOffset + j]
+              .Position;
+      glm::vec3 normal =
+          StaticModel->VertexBuffers[StaticModel->Meshes[i].VertexOffset + j]
+              .Normal;
+
+      glm::vec3 basePos = pos;
+      glm::vec3 baseNormal = normal;
+
+      CurrentMorphedVertices[MeshAnimStatus[i].MorphedVerticesOffset + j]
+          .Position = pos;
+      CurrentMorphedVertices[MeshAnimStatus[i].MorphedVerticesOffset + j]
+          .Normal = normal;
+
+      for (int k = 0; k < MeshAnimStatus->UsedMorphTargetCount; k++) {
+        pos +=
+            (StaticModel
+                 ->MorphVertexBuffers
+                     [StaticModel
+                          ->MorphTargets[MeshAnimStatus->UsedMorphTargetIds[k]]
+                          .VertexOffset]
+                 .Position -
+             basePos) *
+            MeshAnimStatus->MorphInfluences[k];
+        normal +=
+            (StaticModel
+                 ->MorphVertexBuffers
+                     [StaticModel
+                          ->MorphTargets[MeshAnimStatus->UsedMorphTargetIds[k]]
+                          .VertexOffset]
+                 .Normal -
+             baseNormal) *
+            MeshAnimStatus->MorphInfluences[k];
+      }
+
+      CurrentMorphedVertices[MeshAnimStatus[i].MorphedVerticesOffset + j]
+          .Position = pos;
+      CurrentMorphedVertices[MeshAnimStatus[i].MorphedVerticesOffset + j]
+          .Normal = normal;
+    }
   }
 }
 
@@ -123,6 +204,7 @@ void Character3D::PoseBone(int16_t id) {
 void Character3D::Update(float dt) {
   if (!IsUsed) return;
   if (Animator.CurrentAnimation) Animator.Update(dt);
+  CalculateMorphedVertices();
   Pose();
 }
 
@@ -148,6 +230,8 @@ void Character3D::Render() {
   glUniform1i(UniformSpecularColorMap, 2);
 
   for (int i = 0; i < StaticModel->MeshCount; i++) {
+    if (!MeshAnimStatus[i].Visible) continue;
+
     glBindVertexArray(VAOs[i]);
 
     if (StaticModel->Meshes[i].UsedBones > 0) {
@@ -205,9 +289,9 @@ void Character3D::Unload() {
     delete StaticModel;
     StaticModel = 0;
   }
-  if (CurrentPose) {
-    free(CurrentPose);
-    CurrentPose = 0;
+  if (CurrentMorphedVertices) {
+    free(CurrentMorphedVertices);
+    CurrentMorphedVertices = 0;
   }
   ModelTransform = Transform();
   IsSubmitted = false;

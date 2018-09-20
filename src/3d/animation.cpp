@@ -63,32 +63,20 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
 
       // Read coord offsets/counts, so far, so normal...
 
-      track->TranslateXOffset = currentCoordOffset;
-      track->TranslateXCount = SDL_ReadLE16(stream);
-      currentCoordOffset += track->TranslateXCount;
-      track->TranslateYOffset = currentCoordOffset;
-      track->TranslateYCount = SDL_ReadLE16(stream);
-      currentCoordOffset += track->TranslateYCount;
-      track->TranslateZOffset = currentCoordOffset;
-      track->TranslateZCount = SDL_ReadLE16(stream);
-      currentCoordOffset += track->TranslateZCount;
+      for (int j = BKT_TranslateX; j < BKT_Rotate; j++) {
+        track->KeyOffsets[j] = currentCoordOffset;
+        track->KeyCounts[j] = SDL_ReadLE16(stream);
+        currentCoordOffset += track->KeyCounts[j];
+      }
 
+      // Skip rotates
       SDL_RWseek(stream, 3 * sizeof(uint16_t), RW_SEEK_CUR);
 
-      track->ScaleXOffset = currentCoordOffset;
-      track->ScaleXCount = SDL_ReadLE16(stream);
-      currentCoordOffset += track->ScaleXCount;
-      track->ScaleYOffset = currentCoordOffset;
-      track->ScaleYCount = SDL_ReadLE16(stream);
-      currentCoordOffset += track->ScaleYCount;
-      track->ScaleZOffset = currentCoordOffset;
-      track->ScaleZCount = SDL_ReadLE16(stream);
-      currentCoordOffset += track->ScaleZCount;
-
-      result->CoordKeyframeCount +=
-          track->TranslateXCount + track->TranslateYCount +
-          track->TranslateZCount + track->ScaleXCount + track->ScaleYCount +
-          track->ScaleZCount;
+      for (int j = BKT_ScaleX; j < BKT_Count; j++) {
+        track->KeyOffsets[j] = currentCoordOffset;
+        track->KeyCounts[j] = SDL_ReadLE16(stream);
+        currentCoordOffset += track->KeyCounts[j];
+      }
 
       result->BoneTrackCount++;
     } else {
@@ -105,7 +93,6 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
       uint16_t visibilityCount = SDL_ReadLE16(stream);
       int visibilityOffset = currentCoordOffset;
       currentCoordOffset += visibilityCount;
-      result->CoordKeyframeCount += visibilityCount;
 
       SDL_RWseek(stream, 0x1E, RW_SEEK_CUR);
 
@@ -125,7 +112,6 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
         morphInfluenceCounts[j] = SDL_ReadLE16(stream);
         morphInfluenceOffsets[j] = currentCoordOffset;
         currentCoordOffset += morphInfluenceCounts[j];
-        result->CoordKeyframeCount += morphInfluenceCounts[j];
       }
 
       for (int j = 0; j < meshes.size(); j++) {
@@ -133,12 +119,14 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
         MeshTrack* track = &result->MeshTracks[result->MeshTrackCount + j];
         track->Mesh = mesh->Id;
 
-        track->VisibilityCount = visibilityCount;
-        track->VisibilityOffset = visibilityOffset;
+        track->KeyCounts[MKT_Visible] = visibilityCount;
+        track->KeyOffsets[MKT_Visible] = visibilityOffset;
         track->MorphTargetCount = morphTargetCount;
         for (int k = 0; k < morphTargetCount; k++) {
-          track->MorphInfluenceCounts[k] = morphInfluenceCounts[k];
-          track->MorphInfluenceOffsets[k] = morphInfluenceOffsets[k];
+          track->KeyCounts[MKT_MorphInfluenceStart + k] =
+              morphInfluenceCounts[k];
+          track->KeyOffsets[MKT_MorphInfluenceStart + k] =
+              morphInfluenceOffsets[k];
           track->MorphTargetIds[k] =
               mesh->MorphTargetIds[virtualMorphTargetIds[k]];
         }
@@ -147,6 +135,7 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
     }
   }
 
+  result->CoordKeyframeCount = currentCoordOffset;
   result->CoordKeyframes = (CoordKeyframe*)malloc(sizeof(CoordKeyframe) *
                                                   result->CoordKeyframeCount);
 
@@ -267,9 +256,9 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
       }
 
       rotationTracks.push_back(rotationTrack);
-      track->RotateCount = rotationTrack.size();
-      track->RotateOffset = result->QuatKeyframeCount;
-      result->QuatKeyframeCount += track->RotateCount;
+      track->KeyCounts[BKT_Rotate] = rotationTrack.size();
+      track->KeyOffsets[BKT_Rotate] = result->QuatKeyframeCount;
+      result->QuatKeyframeCount += track->KeyCounts[BKT_Rotate];
 
       currentBoneTrack++;
     }
@@ -317,24 +306,19 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
 
       // Already have rotate keyframe data
       QuatKeyframe* quatSrc = rotationTracks[currentBoneTrack].data();
-      memcpy(result->QuatKeyframes + track->RotateOffset, quatSrc,
-             track->RotateCount * sizeof(QuatKeyframe));
+      memcpy(result->QuatKeyframes + track->KeyOffsets[BKT_Rotate], quatSrc,
+             track->KeyCounts[BKT_Rotate] * sizeof(QuatKeyframe));
 
       // Animator currently needs this
-      if (track->RotateCount)
-        assert(result->QuatKeyframes[track->RotateOffset].Time == 0.0f);
-      if (track->TranslateXCount)
-        assert(result->CoordKeyframes[track->TranslateXOffset].Time == 0.0f);
-      if (track->TranslateYCount)
-        assert(result->CoordKeyframes[track->TranslateYOffset].Time == 0.0f);
-      if (track->TranslateZCount)
-        assert(result->CoordKeyframes[track->TranslateZOffset].Time == 0.0f);
-      if (track->ScaleXCount)
-        assert(result->CoordKeyframes[track->ScaleXOffset].Time == 0.0f);
-      if (track->ScaleYCount)
-        assert(result->CoordKeyframes[track->ScaleYOffset].Time == 0.0f);
-      if (track->ScaleZCount)
-        assert(result->CoordKeyframes[track->ScaleZOffset].Time == 0.0f);
+      for (int j = BKT_TranslateX; j < BKT_Count; j++) {
+        if (track->KeyCounts[j]) {
+          if (j == BKT_Rotate) {
+            assert(result->QuatKeyframes[track->KeyOffsets[j]].Time == 0.0f);
+          } else {
+            assert(result->CoordKeyframes[track->KeyOffsets[j]].Time == 0.0f);
+          }
+        }
+      }
 
       currentBoneTrack++;
     } else {
@@ -382,7 +366,7 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
           result->CoordKeyframes[currentCoordOffset].Time =
               ReadFloatLE32(stream) / fileFrameTime;
           result->CoordKeyframes[currentCoordOffset].Value =
-              ReadFloatLE32(stream);
+              ReadFloatLE32(stream) / 100.0f;
           currentCoordOffset++;
         }
       }

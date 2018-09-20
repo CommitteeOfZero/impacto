@@ -7,25 +7,13 @@ namespace Impacto {
 class Character3D;
 
 struct BoneTrackStatus {
-  uint16_t CurrentTranslateXKey = 0;
-  uint16_t CurrentTranslateYKey = 0;
-  uint16_t CurrentTranslateZKey = 0;
+  uint16_t CurrentKeys[BKT_Count];
+  uint16_t NextKeys[BKT_Count];
+};
 
-  uint16_t CurrentScaleXKey = 0;
-  uint16_t CurrentScaleYKey = 0;
-  uint16_t CurrentScaleZKey = 0;
-
-  uint16_t CurrentRotateKey = 0;
-
-  uint16_t NextTranslateXKey = 0;
-  uint16_t NextTranslateYKey = 0;
-  uint16_t NextTranslateZKey = 0;
-
-  uint16_t NextScaleXKey = 0;
-  uint16_t NextScaleYKey = 0;
-  uint16_t NextScaleZKey = 0;
-
-  uint16_t NextRotateKey = 0;
+struct MeshTrackStatus {
+  uint16_t CurrentKeys[MKT_Count];
+  uint16_t NextKeys[MKT_Count];
 };
 
 class ModelAnimator {
@@ -38,6 +26,7 @@ class ModelAnimator {
   // Time in seconds
   float CurrentTime = 0;
   BoneTrackStatus BoneKeys[ModelMaxBonesPerModel];
+  MeshTrackStatus MeshKeys[ModelMaxMeshesPerModel];
 
   bool Tweening = true;
 

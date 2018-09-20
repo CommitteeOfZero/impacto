@@ -16,83 +16,91 @@ void ModelAnimator::Reset() {
   assert(CurrentAnimation != 0);
 
   Character->ReloadDefaultBoneTransforms();
+  Character->ReloadDefaultMeshAnimStatus();
 
   CurrentTime = 0.0f;
 
   for (int i = 0; i < CurrentAnimation->BoneTrackCount; i++) {
-    BoneKeys[i].CurrentTranslateXKey = 0;
-    BoneKeys[i].CurrentTranslateYKey = 0;
-    BoneKeys[i].CurrentTranslateZKey = 0;
-    BoneKeys[i].CurrentScaleXKey = 0;
-    BoneKeys[i].CurrentScaleYKey = 0;
-    BoneKeys[i].CurrentScaleZKey = 0;
-    BoneKeys[i].CurrentRotateKey = 0;
+    for (int j = 0; j < BKT_Count; j++) {
+      BoneKeys[i].CurrentKeys[j] = 0;
+      BoneKeys[i].NextKeys[j] = 1;
+    }
+  }
 
-    BoneKeys[i].NextTranslateXKey = 1;
-    BoneKeys[i].NextTranslateYKey = 1;
-    BoneKeys[i].NextTranslateZKey = 1;
-    BoneKeys[i].NextScaleXKey = 1;
-    BoneKeys[i].NextScaleYKey = 1;
-    BoneKeys[i].NextScaleZKey = 1;
-    BoneKeys[i].NextRotateKey = 1;
+  for (int i = 0; i < CurrentAnimation->MeshTrackCount; i++) {
+    for (int j = 0; j < MKT_Count; j++) {
+      MeshKeys[i].CurrentKeys[j] = 0;
+      MeshKeys[i].NextKeys[j] = 1;
+    }
+
+    Character->MeshAnimStatus[CurrentAnimation->MeshTracks[i].Mesh]
+        .UsedMorphTargetCount =
+        CurrentAnimation->MeshTracks[i].MorphTargetCount;
+    for (int j = 0; j < CurrentAnimation->MeshTracks[i].MorphTargetCount; j++) {
+      Character->MeshAnimStatus[CurrentAnimation->MeshTracks[i].Mesh]
+          .UsedMorphTargetIds[j] =
+          CurrentAnimation->MeshTracks[i].MorphTargetIds[j];
+    }
   }
 }
 
 // For each sub-track, if we're not on the last keyframe already, make sure the
 // *next* keyframe is *after* the current time
-#define BoneTrackIncrementLoop(dataType, type)                        \
-  while (BoneKeys[i].Next##type##Key < track->##type##Count &&        \
-         CurrentAnimation                                             \
-                 ->##dataType##Keyframes[track->##type##Offset +      \
-                                         BoneKeys[i].Next##type##Key] \
-                 .Time <= CurrentTime) {                              \
-    BoneKeys[i].Current##type##Key++;                                 \
-    BoneKeys[i].Next##type##Key++;                                    \
-  }                                                                   \
+#define TrackIncrementLoop(targetType, dataType, type)                         \
+  while (##targetType##Keys[i].NextKeys[type] < track->KeyCounts[type] &&      \
+         CurrentAnimation                                                      \
+                 ->##dataType##Keyframes[track->KeyOffsets[type] +             \
+                                         ##targetType##Keys[i].NextKeys[type]] \
+                 .Time <= CurrentTime) {                                       \
+    ##targetType##Keys[i].CurrentKeys[type]++;                                 \
+    ##targetType##Keys[i].NextKeys[type]++;                                    \
+  }                                                                            \
   (void)0
 
-#define BoneTrackInterpolate(dataType, type, dest, func)                 \
-  if (track->##type##Count) {                                            \
-    if (BoneKeys[i].Next##type##Key < track->##type##Count) {            \
-      float nextTime =                                                   \
-          CurrentAnimation                                               \
-              ->##dataType##Keyframes[track->##type##Offset +            \
-                                      BoneKeys[i].Next##type##Key]       \
-              .Time;                                                     \
-      float prevTime =                                                   \
-          CurrentAnimation                                               \
-              ->##dataType##Keyframes[track->##type##Offset +            \
-                                      BoneKeys[i].Current##type##Key]    \
-              .Time;                                                     \
-      float duration = nextTime - prevTime;                              \
-      float timeAlongDuration = CurrentTime - prevTime;                  \
-      float factor = timeAlongDuration / duration;                       \
-      dest = glm::##func(                                                \
-          CurrentAnimation                                               \
-              ->##dataType##Keyframes[track->##type##Offset +            \
-                                      BoneKeys[i].Current##type##Key]    \
-              .Value,                                                    \
-          CurrentAnimation                                               \
-              ->##dataType##Keyframes[track->##type##Offset +            \
-                                      BoneKeys[i].Next##type##Key]       \
-              .Value,                                                    \
-          factor);                                                       \
-    } else {                                                             \
-      dest = CurrentAnimation                                            \
-                 ->##dataType##Keyframes[track->##type##Offset +         \
-                                         BoneKeys[i].Current##type##Key] \
-                 .Value;                                                 \
-    }                                                                    \
-  }                                                                      \
+#define TrackInterpolate(targetType, dataType, type, dest, func)               \
+  if (track->KeyCounts[type]) {                                                \
+    if (##targetType##Keys[i].NextKeys[type] < track->KeyCounts[type]) {       \
+      float nextTime =                                                         \
+          CurrentAnimation                                                     \
+              ->##dataType##Keyframes[track->KeyOffsets[type] +                \
+                                      ##targetType##Keys[i].NextKeys[type]]    \
+              .Time;                                                           \
+      float prevTime =                                                         \
+          CurrentAnimation                                                     \
+              ->##dataType##Keyframes[track->KeyOffsets[type] +                \
+                                      ##targetType##Keys[i].CurrentKeys[type]] \
+              .Time;                                                           \
+      float duration = nextTime - prevTime;                                    \
+      float timeAlongDuration = CurrentTime - prevTime;                        \
+      float factor = timeAlongDuration / duration;                             \
+      dest = glm::##func(                                                      \
+          CurrentAnimation                                                     \
+              ->##dataType##Keyframes[track->KeyOffsets[type] +                \
+                                      ##targetType##Keys[i].CurrentKeys[type]] \
+              .Value,                                                          \
+          CurrentAnimation                                                     \
+              ->##dataType##Keyframes[track->KeyOffsets[type] +                \
+                                      ##targetType##Keys[i].NextKeys[type]]    \
+              .Value,                                                          \
+          factor);                                                             \
+    } else {                                                                   \
+      dest =                                                                   \
+          CurrentAnimation                                                     \
+              ->##dataType##Keyframes[track->KeyOffsets[type] +                \
+                                      ##targetType##Keys[i].CurrentKeys[type]] \
+              .Value;                                                          \
+    }                                                                          \
+  }                                                                            \
   void(0)
 
-#define BoneTrackNoInterpolate(dataType, type, dest)                   \
-  if (track->##type##Count) {                                          \
-    dest = CurrentAnimation                                            \
-               ->##dataType##Keyframes[track->##type##Offset +         \
-                                       BoneKeys[i].Current##type##Key] \
-               .Value;                                                 \
-  }                                                                    \
+#define TrackNoInterpolate(targetType, dataType, type, dest)                 \
+  if (track->KeyCounts[type]) {                                              \
+    dest =                                                                   \
+        CurrentAnimation                                                     \
+            ->##dataType##Keyframes[track->KeyOffsets[type] +                \
+                                    ##targetType##Keys[i].CurrentKeys[type]] \
+            .Value;                                                          \
+  }                                                                          \
   void(0)
 
 void ModelAnimator::Update(float dt) {
@@ -110,30 +118,59 @@ void ModelAnimator::Update(float dt) {
     BoneTrack* track = &CurrentAnimation->BoneTracks[i];
     Transform* transform = &Character->CurrentPose[track->Bone].LocalTransform;
 
-    BoneTrackIncrementLoop(Coord, TranslateX);
-    BoneTrackIncrementLoop(Coord, TranslateY);
-    BoneTrackIncrementLoop(Coord, TranslateZ);
-    BoneTrackIncrementLoop(Coord, ScaleX);
-    BoneTrackIncrementLoop(Coord, ScaleY);
-    BoneTrackIncrementLoop(Coord, ScaleZ);
-    BoneTrackIncrementLoop(Quat, Rotate);
+    TrackIncrementLoop(Bone, Coord, BKT_TranslateX);
+    TrackIncrementLoop(Bone, Coord, BKT_TranslateY);
+    TrackIncrementLoop(Bone, Coord, BKT_TranslateZ);
+    TrackIncrementLoop(Bone, Coord, BKT_ScaleX);
+    TrackIncrementLoop(Bone, Coord, BKT_ScaleY);
+    TrackIncrementLoop(Bone, Coord, BKT_ScaleZ);
+    TrackIncrementLoop(Bone, Quat, BKT_Rotate);
 
     if (Tweening) {
-      BoneTrackInterpolate(Coord, TranslateX, transform->Position.x, mix);
-      BoneTrackInterpolate(Coord, TranslateY, transform->Position.y, mix);
-      BoneTrackInterpolate(Coord, TranslateZ, transform->Position.z, mix);
-      BoneTrackInterpolate(Coord, ScaleX, transform->Scale.x, mix);
-      BoneTrackInterpolate(Coord, ScaleY, transform->Scale.y, mix);
-      BoneTrackInterpolate(Coord, ScaleZ, transform->Scale.z, mix);
-      BoneTrackInterpolate(Quat, Rotate, transform->Rotation, slerp);
+      TrackInterpolate(Bone, Coord, BKT_TranslateX, transform->Position.x, mix);
+      TrackInterpolate(Bone, Coord, BKT_TranslateY, transform->Position.y, mix);
+      TrackInterpolate(Bone, Coord, BKT_TranslateZ, transform->Position.z, mix);
+      TrackInterpolate(Bone, Coord, BKT_ScaleX, transform->Scale.x, mix);
+      TrackInterpolate(Bone, Coord, BKT_ScaleY, transform->Scale.y, mix);
+      TrackInterpolate(Bone, Coord, BKT_ScaleZ, transform->Scale.z, mix);
+      TrackInterpolate(Bone, Quat, BKT_Rotate, transform->Rotation, slerp);
     } else {
-      BoneTrackNoInterpolate(Coord, TranslateX, transform->Position.x);
-      BoneTrackNoInterpolate(Coord, TranslateY, transform->Position.y);
-      BoneTrackNoInterpolate(Coord, TranslateZ, transform->Position.z);
-      BoneTrackNoInterpolate(Coord, ScaleX, transform->Scale.x);
-      BoneTrackNoInterpolate(Coord, ScaleY, transform->Scale.y);
-      BoneTrackNoInterpolate(Coord, ScaleZ, transform->Scale.z);
-      BoneTrackNoInterpolate(Quat, Rotate, transform->Rotation);
+      TrackNoInterpolate(Bone, Coord, BKT_TranslateX, transform->Position.x);
+      TrackNoInterpolate(Bone, Coord, BKT_TranslateY, transform->Position.y);
+      TrackNoInterpolate(Bone, Coord, BKT_TranslateZ, transform->Position.z);
+      TrackNoInterpolate(Bone, Coord, BKT_ScaleX, transform->Scale.x);
+      TrackNoInterpolate(Bone, Coord, BKT_ScaleY, transform->Scale.y);
+      TrackNoInterpolate(Bone, Coord, BKT_ScaleZ, transform->Scale.z);
+      TrackNoInterpolate(Bone, Quat, BKT_Rotate, transform->Rotation);
+    }
+  }
+
+  for (int i = 0; i < CurrentAnimation->MeshTrackCount; i++) {
+    MeshTrack* track = &CurrentAnimation->MeshTracks[i];
+    AnimatedMesh* animatedMesh = &Character->MeshAnimStatus[track->Mesh];
+
+    TrackIncrementLoop(Mesh, Coord, MKT_Visible);
+    for (int j = MKT_MorphInfluenceStart;
+         j < track->MorphTargetCount + MKT_MorphInfluenceStart; j++) {
+      TrackIncrementLoop(Mesh, Coord, j);
+    }
+
+    TrackNoInterpolate(Mesh, Coord, MKT_Visible, animatedMesh->Visible);
+
+    if (Tweening) {
+      for (int j = MKT_MorphInfluenceStart;
+           j < (track->MorphTargetCount + MKT_MorphInfluenceStart); j++) {
+        TrackInterpolate(
+            Mesh, Coord, j,
+            animatedMesh->MorphInfluences[j - MKT_MorphInfluenceStart], mix);
+      }
+    } else {
+      for (int j = MKT_MorphInfluenceStart;
+           j < (track->MorphTargetCount + MKT_MorphInfluenceStart); j++) {
+        TrackNoInterpolate(
+            Mesh, Coord, j,
+            animatedMesh->MorphInfluences[j - MKT_MorphInfluenceStart]);
+      }
     }
   }
 }

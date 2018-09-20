@@ -18,6 +18,15 @@ struct PosedBone {
   glm::mat4 Offset;
 };
 
+struct AnimatedMesh {
+  float Visible;
+  float MorphInfluences[AnimMaxMorphTargetsPerTrack];
+  int MorphedVerticesOffset;
+
+  uint16_t UsedMorphTargetCount;
+  uint16_t UsedMorphTargetIds[AnimMaxMorphTargetsPerTrack];
+};
+
 class ModelAnimator;
 
 class Character3D {
@@ -31,11 +40,18 @@ class Character3D {
   void Update(float dt);
   void Render();
 
+  void CalculateMorphedVertices();
+
   void ReloadDefaultBoneTransforms();
+  void InitMeshAnimStatus();
+  void ReloadDefaultMeshAnimStatus();
 
   Model* StaticModel = 0;
 
-  PosedBone* CurrentPose = 0;
+  // Per-frame results of vertex animation
+  MorphVertexBuffer* CurrentMorphedVertices = 0;
+  AnimatedMesh MeshAnimStatus[ModelMaxMeshesPerModel];
+  PosedBone CurrentPose[ModelMaxBonesPerModel];
   Transform ModelTransform;
   ModelAnimator Animator;
 
