@@ -6,6 +6,8 @@
 
 namespace Impacto {
 
+int const AnimMaxMorphTargetsPerTrack = 16;
+
 struct CoordKeyframe {
   float Time;
   float Value;
@@ -36,6 +38,23 @@ struct BoneTrack {
   uint16_t RotateCount;
 };
 
+// Note: Unlike R;NE animation files, we keep a track per mesh, not a track per
+// mesh group
+struct MeshTrack {
+  uint16_t Mesh;
+
+  int VisibilityOffset;
+  int MorphInfluenceOffsets[AnimMaxMorphTargetsPerTrack];
+
+  uint16_t VisibilityCount;
+
+  uint16_t MorphTargetCount;
+  // Unlike R;NE animation files, these IDs go into Model->MorphTargets, not
+  // Mesh->MorphTargetIds
+  uint16_t MorphTargetIds[AnimMaxMorphTargetsPerTrack];
+  uint16_t MorphInfluenceCounts[AnimMaxMorphTargetsPerTrack];
+};
+
 class Animation {
  public:
   static Animation* Load(SDL_RWops* stream, Model* model, uint16_t id);
@@ -55,6 +74,9 @@ class Animation {
 
   int BoneTrackCount = 0;
   BoneTrack BoneTracks[ModelMaxBonesPerModel];
+
+  int MeshTrackCount = 0;
+  MeshTrack MeshTracks[ModelMaxMeshesPerModel];
 };
 
 }  // namespace Impacto

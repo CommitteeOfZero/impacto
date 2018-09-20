@@ -47,13 +47,15 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
   // Offset into result->CoordKeyframes[]
   int currentCoordOffset = 0;
 
-  // Only get bone coord track counts/offsets
+  // Only get coord track counts/offsets and other simple data
   for (uint32_t i = 0; i < trackCount; i++) {
     SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
-    SDL_RWseek(stream, sizeof(uint16_t), RW_SEEK_CUR);
+    uint16_t id = SDL_ReadLE16(stream);
     uint16_t targetType = SDL_ReadLE16(stream);
-    if (targetType == TargetType_Bone) /* Bone track */ {
+    if (targetType == TargetType_Bone) {
       BoneTrack* track = &result->BoneTracks[result->BoneTrackCount];
+
+      track->Bone = id;
 
       SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
       // Skip id, targetType, unknown ushort and visibility
@@ -89,6 +91,59 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
           track->ScaleZCount;
 
       result->BoneTrackCount++;
+    } else {
+      // Mesh group track
+      std::vector<Mesh*> meshes;
+      for (int j = 0; j < model->MeshCount; j++) {
+        if (model->Meshes[j].GroupId == id) meshes.push_back(&model->Meshes[j]);
+      }
+
+      SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
+      // Skip id, targetType, unknown ushort
+      SDL_RWseek(stream, 3 * sizeof(uint16_t), RW_SEEK_CUR);
+
+      uint16_t visibilityCount = SDL_ReadLE16(stream);
+      int visibilityOffset = currentCoordOffset;
+      currentCoordOffset += visibilityCount;
+      result->CoordKeyframeCount += visibilityCount;
+
+      SDL_RWseek(stream, 0x1E, RW_SEEK_CUR);
+
+      uint16_t morphTargetCount = SDL_ReadLE16(stream);
+
+      uint16_t virtualMorphTargetIds[AnimMaxMorphTargetsPerTrack];
+      for (int j = 0; j < morphTargetCount; j++) {
+        virtualMorphTargetIds[j] = SDL_ReadLE16(stream);
+      }
+
+      SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
+      SDL_RWseek(stream, 0x48, RW_SEEK_CUR);
+
+      uint16_t morphInfluenceCounts[AnimMaxMorphTargetsPerTrack];
+      int morphInfluenceOffsets[AnimMaxMorphTargetsPerTrack];
+      for (int j = 0; j < morphTargetCount; j++) {
+        morphInfluenceCounts[j] = SDL_ReadLE16(stream);
+        morphInfluenceOffsets[j] = currentCoordOffset;
+        currentCoordOffset += morphInfluenceCounts[j];
+        result->CoordKeyframeCount += morphInfluenceCounts[j];
+      }
+
+      for (int j = 0; j < meshes.size(); j++) {
+        Mesh* mesh = meshes[j];
+        MeshTrack* track = &result->MeshTracks[result->MeshTrackCount + j];
+        track->Mesh = mesh->Id;
+
+        track->VisibilityCount = visibilityCount;
+        track->VisibilityOffset = visibilityOffset;
+        track->MorphTargetCount = morphTargetCount;
+        for (int k = 0; k < morphTargetCount; k++) {
+          track->MorphInfluenceCounts[k] = morphInfluenceCounts[k];
+          track->MorphInfluenceOffsets[k] = morphInfluenceOffsets[k];
+          track->MorphTargetIds[k] =
+              mesh->MorphTargetIds[virtualMorphTargetIds[k]];
+        }
+      }
+      result->MeshTrackCount += meshes.size();
     }
   }
 
@@ -112,6 +167,7 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
   result->QuatKeyframeCount = 0;
 
   int currentBoneTrack = 0;
+  int currentMeshTrack = 0;
   for (uint32_t i = 0; i < trackCount; i++) {
     SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
     uint16_t id = SDL_ReadLE16(stream);
@@ -233,8 +289,6 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
     if (targetType == 0) {
       BoneTrack* track = &result->BoneTracks[currentBoneTrack];
 
-      track->Bone = id;
-
       // Coords
       for (int j = STT_Visibility; j <= STT_ScaleZ; j++) {
         if (j == STT_Visibility || j == STT_RotateX || j == STT_RotateY ||
@@ -283,6 +337,55 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
         assert(result->CoordKeyframes[track->ScaleZOffset].Time == 0.0f);
 
       currentBoneTrack++;
+    } else {
+      // Mesh group track
+      SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
+      // Skip id, targetType, unknown ushort
+      SDL_RWseek(stream, TrackCountsOffset, RW_SEEK_CUR);
+
+      uint16_t visibilityCount = SDL_ReadLE16(stream);
+
+      SDL_RWseek(stream, 0x1E, RW_SEEK_CUR);
+      uint16_t morphTargetCount = SDL_ReadLE16(stream);
+
+      SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
+      SDL_RWseek(stream, 0x48, RW_SEEK_CUR);
+
+      uint16_t morphInfluenceCounts[AnimMaxMorphTargetsPerTrack];
+      for (int j = 0; j < morphTargetCount; j++) {
+        morphInfluenceCounts[j] = SDL_ReadLE16(stream);
+      }
+
+      // Visibility data
+      SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
+      SDL_RWseek(stream, TrackOffsetsOffset, RW_SEEK_CUR);
+      int rawVisibilityOffset = SDL_ReadLE32(stream);
+      SDL_RWseek(stream, HeaderSize + rawVisibilityOffset, RW_SEEK_SET);
+      for (int j = 0; j < visibilityCount; j++) {
+        result->CoordKeyframes[currentCoordOffset].Time =
+            ReadFloatLE32(stream) / fileFrameTime;
+        result->CoordKeyframes[currentCoordOffset].Value =
+            ReadFloatLE32(stream);
+        currentCoordOffset++;
+      }
+
+      // Morph influence data
+      SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
+      SDL_RWseek(stream, 0xA8, RW_SEEK_CUR);
+      int rawInfluenceOffsets[16];
+      for (int j = 0; j < morphTargetCount; j++) {
+        rawInfluenceOffsets[j] = SDL_ReadLE32(stream);
+      }
+      for (int j = 0; j < morphTargetCount; j++) {
+        SDL_RWseek(stream, HeaderSize + rawInfluenceOffsets[j], RW_SEEK_SET);
+        for (int k = 0; k < morphInfluenceCounts[j]; k++) {
+          result->CoordKeyframes[currentCoordOffset].Time =
+              ReadFloatLE32(stream) / fileFrameTime;
+          result->CoordKeyframes[currentCoordOffset].Value =
+              ReadFloatLE32(stream);
+          currentCoordOffset++;
+        }
+      }
     }
   }
 

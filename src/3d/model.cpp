@@ -31,7 +31,6 @@ void Model::Init() {
 
 Model::~Model() {
   if (VertexBuffers) free(VertexBuffers);
-  if (MorphTargets) free(MorphTargets);
   if (MorphVertexBuffers) free(MorphVertexBuffers);
   if (Indices) free(Indices);
   for (auto animation : Animations) {
@@ -68,8 +67,7 @@ Model* Model::Load(uint32_t modelId) {
   result->TextureCount = SDL_ReadLE32(stream);
   assert(result->TextureCount <= ModelMaxTexturesPerModel);
   result->MorphTargetCount = SDL_ReadLE32(stream);
-  result->MorphTargets =
-      (MorphTarget*)calloc(result->MorphTargetCount, sizeof(MorphTarget));
+  assert(result->MorphTargetCount <= ModelMaxMorphTargetsPerModel);
 
   uint32_t MeshInfosOffset = SDL_ReadLE32(stream);
   uint32_t BonesOffset = SDL_ReadLE32(stream);
@@ -98,6 +96,8 @@ Model* Model::Load(uint32_t modelId) {
     SDL_RWseek(stream, MeshInfosOffset + ModelFileMeshInfoSize * i,
                RW_SEEK_SET);
     Mesh* mesh = &result->Meshes[i];
+
+    mesh->Id = i;
 
     mesh->GroupId = SDL_ReadLE32(stream);
     mesh->MeshBone = SDL_ReadLE16(stream);

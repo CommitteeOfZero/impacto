@@ -13,6 +13,7 @@ namespace Impacto {
 enum MeshFlag : uint32_t { MeshFlag_DoubleSided = (1 << 0) };
 
 int const ModelMaxChildrenPerBone = 134;
+int const ModelMaxMorphTargetsPerModel = 256;
 int const ModelMaxMorphTargetsPerMesh = 0x50;
 int const ModelMaxBonesPerModel = 320;
 int const ModelMaxBonesPerMesh = 32;
@@ -54,6 +55,8 @@ struct Mesh {
   // Meshes in one group are animated together
   int32_t GroupId;
 
+  int32_t Id;
+
   int32_t VertexCount;
   // Offset (in sizeof(VertexBuffer) units) into Model.VertexBuffers
   int32_t VertexOffset;
@@ -64,7 +67,7 @@ struct Mesh {
   uint32_t Flags;
   float Opacity;
 
-  int8_t MorphTargetIds[ModelMaxMorphTargetsPerMesh];
+  uint8_t MorphTargetIds[ModelMaxMorphTargetsPerMesh];
 
   uint32_t UsedBones;                     // 0 => not skinned
   int16_t BoneMap[ModelMaxBonesPerMesh];  // indices into Model.Bones
@@ -79,7 +82,7 @@ struct Mesh {
   // Sets transform for meshes without individual vertex skinning
   int16_t MeshBone;
 
-  int8_t MorphTargetCount;
+  uint8_t MorphTargetCount;
 };
 
 class Animation;
@@ -104,7 +107,7 @@ class Model {
   VertexBuffer* VertexBuffers = 0;
 
   int32_t MorphTargetCount = 0;
-  MorphTarget* MorphTargets = 0;
+  MorphTarget MorphTargets[ModelMaxMorphTargetsPerModel];
 
   int32_t MorphVertexCount = 0;
   MorphVertexBuffer* MorphVertexBuffers = 0;
