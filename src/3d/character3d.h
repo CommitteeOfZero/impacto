@@ -64,6 +64,7 @@ class Character3D {
 
   GLuint VAOs[ModelMaxMeshesPerModel];
   GLuint VBOs[ModelMaxMeshesPerModel];
+  GLuint MorphVBOs[ModelMaxMeshesPerModel];
   GLuint IBOs[ModelMaxMeshesPerModel];
 
   GLuint TexBuffers[ModelMaxTexturesPerModel];

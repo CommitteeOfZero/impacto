@@ -139,30 +139,27 @@ void Character3D::CalculateMorphedVertices() {
       glm::vec3 basePos = pos;
       glm::vec3 baseNormal = normal;
 
-      CurrentMorphedVertices[MeshAnimStatus[i].MorphedVerticesOffset + j]
-          .Position = pos;
-      CurrentMorphedVertices[MeshAnimStatus[i].MorphedVerticesOffset + j]
-          .Normal = normal;
-
-      for (int k = 0; k < MeshAnimStatus->UsedMorphTargetCount; k++) {
-        pos +=
-            (StaticModel
-                 ->MorphVertexBuffers
-                     [StaticModel
-                          ->MorphTargets[MeshAnimStatus->UsedMorphTargetIds[k]]
-                          .VertexOffset]
-                 .Position -
-             basePos) *
-            MeshAnimStatus->MorphInfluences[k];
-        normal +=
-            (StaticModel
-                 ->MorphVertexBuffers
-                     [StaticModel
-                          ->MorphTargets[MeshAnimStatus->UsedMorphTargetIds[k]]
-                          .VertexOffset]
-                 .Normal -
-             baseNormal) *
-            MeshAnimStatus->MorphInfluences[k];
+      for (int k = 0; k < MeshAnimStatus[i].UsedMorphTargetCount; k++) {
+        pos += (StaticModel
+                    ->MorphVertexBuffers
+                        [StaticModel
+                             ->MorphTargets[MeshAnimStatus[i]
+                                                .UsedMorphTargetIds[k]]
+                             .VertexOffset +
+                         j]
+                    .Position -
+                basePos) *
+               MeshAnimStatus[i].MorphInfluences[k];
+        normal += (StaticModel
+                       ->MorphVertexBuffers
+                           [StaticModel
+                                ->MorphTargets[MeshAnimStatus[i]
+                                                   .UsedMorphTargetIds[k]]
+                                .VertexOffset +
+                            j]
+                       .Normal -
+                   baseNormal) *
+                  MeshAnimStatus[i].MorphInfluences[k];
       }
 
       CurrentMorphedVertices[MeshAnimStatus[i].MorphedVerticesOffset + j]
@@ -234,6 +231,29 @@ void Character3D::Render() {
 
     glBindVertexArray(VAOs[i]);
 
+    if (StaticModel->Meshes[i].MorphTargetCount > 0) {
+      if (MeshAnimStatus[i].UsedMorphTargetCount > 0) {
+        glBindBuffer(GL_ARRAY_BUFFER, MorphVBOs[i]);
+        glBufferData(
+            GL_ARRAY_BUFFER,
+            sizeof(MorphVertexBuffer) * StaticModel->Meshes[i].VertexCount,
+            CurrentMorphedVertices + MeshAnimStatus[i].MorphedVerticesOffset,
+            GL_DYNAMIC_DRAW);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
+                              sizeof(MorphVertexBuffer),
+                              (void*)offsetof(MorphVertexBuffer, Position));
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
+                              sizeof(MorphVertexBuffer),
+                              (void*)offsetof(MorphVertexBuffer, Normal));
+      } else {
+        glBindBuffer(GL_ARRAY_BUFFER, VBOs[i]);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexBuffer),
+                              (void*)offsetof(VertexBuffer, Position));
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VertexBuffer),
+                              (void*)offsetof(VertexBuffer, Normal));
+      }
+    }
+
     if (StaticModel->Meshes[i].UsedBones > 0) {
       for (int j = 0; j < StaticModel->Meshes[i].UsedBones; j++) {
         glUniformMatrix4fv(
@@ -283,6 +303,7 @@ void Character3D::Unload() {
     if (IsSubmitted) {
       glDeleteBuffers(StaticModel->MeshCount, IBOs);
       glDeleteBuffers(StaticModel->MeshCount, VBOs);
+      glDeleteBuffers(StaticModel->MeshCount, MorphVBOs);
       glDeleteVertexArrays(StaticModel->MeshCount, VAOs);
       glDeleteTextures(StaticModel->TextureCount, TexBuffers);
     }
@@ -306,6 +327,7 @@ void Character3D::Submit() {
 
   glGenVertexArrays(StaticModel->MeshCount, VAOs);
   glGenBuffers(StaticModel->MeshCount, VBOs);
+  glGenBuffers(StaticModel->MeshCount, MorphVBOs);
   glGenBuffers(StaticModel->MeshCount, IBOs);
 
   for (int i = 0; i < StaticModel->MeshCount; i++) {
