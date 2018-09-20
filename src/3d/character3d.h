@@ -17,6 +17,8 @@ struct PosedBone {
   glm::mat4 Offset;
 };
 
+class ModelAnimator;
+
 class Character3D {
  public:
   bool Load(uint32_t modelId);
@@ -28,16 +30,18 @@ class Character3D {
   void Update(float dt);
   void Render();
 
+  void ReloadDefaultBoneTransforms();
+
   Model* StaticModel = 0;
 
   PosedBone* CurrentPose = 0;
   Transform ModelTransform;
+  ModelAnimator* Animator = 0;
 
   bool IsUsed = false;
   bool IsSubmitted = false;
 
  private:
-  void ReloadDefaultBoneTransforms();
   void Pose();
   void PoseBone(int16_t id);
 

@@ -33,7 +33,7 @@ void Scene::Update(float dt) {
   static float inclination = M_PI / 4;
   static float azimuth = M_PI / 2;
   static float rotationSpeed = 1.0f;
-  static int rotateCamera = 1;
+  static int rotateCamera = 0;
   static nk_colorf tintColor = {0.784f, 0.671f, 0.6f, 0.9f};
 
   if (nk_begin(g_Nk, "Scene", nk_rect(20, 20, 300, 680),

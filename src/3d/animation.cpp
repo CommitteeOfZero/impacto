@@ -103,10 +103,8 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model) {
       int rawRotYOffset = SDL_ReadLE32(stream) + HeaderSize;
       int rawRotZOffset = SDL_ReadLE32(stream) + HeaderSize;
 
-      float currentXValue, currentYValue, currentZValue;
-      glm::extractEulerAngleZYX(
-          glm::mat4_cast(model->Bones[id].BaseTransform.Rotation),
-          currentZValue, currentYValue, currentXValue);
+      float currentXValue = 0.0f, currentYValue = 0.0f, currentZValue = 0.0f;
+      // The defaults are 0, not BaseRotation, yes, really...
 
       uint16_t nextX = 0;
       uint16_t nextY = 0;
@@ -225,6 +223,22 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model) {
       QuatKeyframe* quatSrc = rotationTracks[currentBoneTrack].data();
       memcpy(result->QuatKeyframes + track->RotateOffset, quatSrc,
              track->RotateCount * sizeof(QuatKeyframe));
+
+      // Animator currently needs this
+      if (track->RotateCount)
+        assert(result->QuatKeyframes[track->RotateOffset].Time == 0.0f);
+      if (track->TranslateXCount)
+        assert(result->CoordKeyframes[track->TranslateXOffset].Time == 0.0f);
+      if (track->TranslateYCount)
+        assert(result->CoordKeyframes[track->TranslateYOffset].Time == 0.0f);
+      if (track->TranslateZCount)
+        assert(result->CoordKeyframes[track->TranslateZOffset].Time == 0.0f);
+      if (track->ScaleXCount)
+        assert(result->CoordKeyframes[track->ScaleXOffset].Time == 0.0f);
+      if (track->ScaleYCount)
+        assert(result->CoordKeyframes[track->ScaleYOffset].Time == 0.0f);
+      if (track->ScaleZCount)
+        assert(result->CoordKeyframes[track->ScaleZOffset].Time == 0.0f);
 
       currentBoneTrack++;
     }
