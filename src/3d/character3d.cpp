@@ -222,9 +222,9 @@ void Character3D::Render() {
 
   glUniform4fv(UniformTint, 1, glm::value_ptr(g_Scene.Tint));
 
-  glUniform1i(UniformColorMap, 0);
-  glUniform1i(UniformGradientMaskMap, 1);
-  glUniform1i(UniformSpecularColorMap, 2);
+  glUniform1i(UniformColorMap, TT_ColorMap);
+  glUniform1i(UniformGradientMaskMap, TT_GradientMaskMap);
+  glUniform1i(UniformSpecularColorMap, TT_SpecularColorMap);
 
   for (int i = 0; i < StaticModel->MeshCount; i++) {
     if (!MeshAnimStatus[i].Visible) continue;
@@ -267,19 +267,14 @@ void Character3D::Render() {
           glm::value_ptr(CurrentPose[StaticModel->Meshes[i].MeshBone].Offset));
     }
 
-    glActiveTexture(GL_TEXTURE0);
-    if (StaticModel->Meshes[i].ColorMap >= 0) {
-      glBindTexture(GL_TEXTURE_2D, TexBuffers[StaticModel->Meshes[i].ColorMap]);
-    }
-    glActiveTexture(GL_TEXTURE1);
-    if (StaticModel->Meshes[i].GradientMaskMap >= 0) {
-      glBindTexture(GL_TEXTURE_2D,
-                    TexBuffers[StaticModel->Meshes[i].GradientMaskMap]);
-    }
-    glActiveTexture(GL_TEXTURE2);
-    if (StaticModel->Meshes[i].SpecularColorMap >= 0) {
-      glBindTexture(GL_TEXTURE_2D,
-                    TexBuffers[StaticModel->Meshes[i].SpecularColorMap]);
+    for (int j = 0; j < TT_Count; j++) {
+      glActiveTexture(GL_TEXTURE0 + j);
+      if (StaticModel->Meshes[i].Maps[j] >= 0) {
+        glBindTexture(GL_TEXTURE_2D,
+                      TexBuffers[StaticModel->Meshes[i].Maps[j]]);
+      } else {
+        // TODO 1x1 texture
+      }
     }
 
     glUniform1f(UniformModelOpacity, StaticModel->Meshes[i].Opacity);

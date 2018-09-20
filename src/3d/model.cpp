@@ -113,12 +113,9 @@ Model* Model::Load(uint32_t modelId) {
     mesh->Opacity = ReadFloatLE32(stream);
 
     SDL_RWseek(stream, 0x14, RW_SEEK_CUR);
-    mesh->ColorMap = SDL_ReadLE16(stream);
-    mesh->DecalMap = SDL_ReadLE16(stream);
-    mesh->GradientMaskMap = SDL_ReadLE16(stream);
-    mesh->FourthMap = SDL_ReadLE16(stream);
-    mesh->SpecularColorMap = SDL_ReadLE16(stream);
-    mesh->SixthMap = SDL_ReadLE16(stream);
+    for (int i = 0; i < TT_Count; i++) {
+      mesh->Maps[i] = SDL_ReadLE16(stream);
+    }
 
     SDL_RWseek(stream, 4, RW_SEEK_CUR);
     mesh->Flags = SDL_ReadLE32(stream);
@@ -347,12 +344,10 @@ Model* Model::MakePlane() {
   result->Meshes[0].IndexOffset = 0;
   result->Meshes[0].Opacity = 1.0f;
   result->Meshes[0].UsedBones = 0;
-  result->Meshes[0].ColorMap = 0;
-  result->Meshes[0].DecalMap = -1;
-  result->Meshes[0].GradientMaskMap = -1;
-  result->Meshes[0].FourthMap = -1;
-  result->Meshes[0].SpecularColorMap = -1;
-  result->Meshes[0].SixthMap = -1;
+  result->Meshes[0].Maps[TT_ColorMap] = 0;
+  for (int i = TT_ColorMap + 1; i < TT_Count; i++) {
+    result->Meshes[0].Maps[i] = -1;
+  }
   result->Meshes[0].MeshBone = 0;
 
   return result;

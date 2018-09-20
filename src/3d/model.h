@@ -51,6 +51,16 @@ struct StaticBone {
   glm::mat4 BindInverse;
 };
 
+enum TextureType {
+  TT_ColorMap = 0,
+  TT_DecalMap = 1,
+  TT_GradientMaskMap = 2,
+  TT_FourthMap = 3,
+  TT_SpecularColorMap = 4,
+  TT_SixthMap = 5,
+  TT_Count = 6
+};
+
 struct Mesh {
   // Meshes in one group are animated together
   int32_t GroupId;
@@ -72,12 +82,7 @@ struct Mesh {
   uint32_t UsedBones;                     // 0 => not skinned
   int16_t BoneMap[ModelMaxBonesPerMesh];  // indices into Model.Bones
 
-  int16_t ColorMap;
-  int16_t DecalMap;
-  int16_t GradientMaskMap;
-  int16_t FourthMap;
-  int16_t SpecularColorMap;
-  int16_t SixthMap;
+  int16_t Maps[TT_Count];
 
   // Sets transform for meshes without individual vertex skinning
   int16_t MeshBone;
