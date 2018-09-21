@@ -24,7 +24,7 @@ int const NkMaxElementMemory = 1024 * 1024;
 void Update(float dt) { g_Scene.Update(dt); }
 
 void Render() {
-  SDL_GetWindowSize(g_SDLWindow, &g_WindowWidth, &g_WindowHeight);
+  WindowGetDimensions();
   glViewport(0, 0, g_WindowWidth, g_WindowHeight);
 
   glClearColor(0.2f, 0.2f, 0.2f, 0);

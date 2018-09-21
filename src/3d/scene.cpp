@@ -36,8 +36,31 @@ void Scene::Update(float dt) {
   static int rotateCamera = 0;
   static nk_colorf tintColor = {0.784f, 0.671f, 0.6f, 0.9f};
 
-  if (nk_begin(g_Nk, "Scene", nk_rect(20, 20, 300, 680),
+  if (nk_begin(g_Nk, "Scene", nk_rect(20, 20, 300, g_WindowHeight - 40),
                NK_WINDOW_BORDER | NK_WINDOW_TITLE)) {
+    if (nk_tree_push(g_Nk, NK_TREE_TAB, "Window", NK_MAXIMIZED)) {
+      nk_layout_row_dynamic(g_Nk, 24, 1);
+
+      static int width;
+      static int height;
+      static bool needRefresh = true;
+      if (needRefresh) {
+        width = g_WindowWidth;
+        height = g_WindowHeight;
+        needRefresh = false;
+      }
+
+      nk_property_int(g_Nk, "Width", 0, &width, 8192, 0, 0.0f);
+      nk_property_int(g_Nk, "Height", 0, &height, 8192, 0, 0.0f);
+
+      if (nk_button_label(g_Nk, "Resize")) {
+        WindowSetDimensions(width, height);
+        needRefresh = true;
+      }
+
+      nk_tree_pop(g_Nk);
+    }
+
     if (nk_tree_push(g_Nk, NK_TREE_TAB, "Camera", NK_MAXIMIZED)) {
       nk_layout_row_dynamic(g_Nk, 24, 1);
 

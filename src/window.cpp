@@ -9,11 +9,31 @@
 namespace Impacto {
 
 static bool IsInit = false;
-int g_WindowWidth;
-int g_WindowHeight;
+int g_WindowWidth = 0;
+int g_WindowHeight = 0;
+int g_MsaaCount = 0;
 SDL_Window* g_SDLWindow;
 SDL_GLContext g_GLContext;
 nk_context* g_Nk;
+
+int lastWidth = -1;
+int lastHeight = -1;
+int lastMsaa = -1;
+
+void WindowGetDimensions() {
+  SDL_GL_GetDrawableSize(g_SDLWindow, &g_WindowWidth, &g_WindowHeight);
+  if (g_WindowWidth != lastWidth || g_WindowHeight != lastHeight) {
+    ImpLog(LL_Debug, LC_General, "Drawable size (pixels): %d x %d\n",
+           g_WindowWidth, g_WindowHeight);
+  }
+  SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &g_MsaaCount);
+  if (g_MsaaCount != lastMsaa) {
+    ImpLog(LL_Debug, LC_General, "Multisample count: %d\n", g_MsaaCount);
+  }
+  lastWidth = g_WindowWidth;
+  lastHeight = g_WindowHeight;
+  lastMsaa = g_MsaaCount;
+}
 
 void WindowInit() {
   assert(IsInit == false);
@@ -70,9 +90,7 @@ void WindowInit() {
     WindowShutdown();
   }
 
-  SDL_GL_GetDrawableSize(g_SDLWindow, &g_WindowWidth, &g_WindowHeight);
-  ImpLog(LL_Debug, LC_General, "Drawable size (pixels): %d x %d\n",
-         g_WindowWidth, g_WindowHeight);
+  WindowGetDimensions();
 
   glewExperimental = GL_TRUE;
   GLenum glewErr = glewInit();
@@ -105,6 +123,14 @@ void WindowInit() {
   nk_sdl_font_stash_begin(&atlas);
   // no fonts => default font used, but we still have do the setup
   nk_sdl_font_stash_end();
+}
+
+void WindowSetDimensions(int width, int height) {
+  ImpLog(LL_Info, LC_General,
+         "Attempting to change window dimensions to %d x %d\n", width, height);
+  assert(width > 0 && height > 0);
+
+  SDL_SetWindowSize(g_SDLWindow, width, height);
 }
 
 void WindowShutdown() {
