@@ -64,6 +64,8 @@ class Character3D {
   void Pose();
   void PoseBone(int16_t id);
 
+  void DrawMesh(int id, bool outline);
+
   GLuint VAOs[ModelMaxMeshesPerModel];
   GLuint VBOs[ModelMaxMeshesPerModel];
   GLuint MorphVBOs[ModelMaxMeshesPerModel];

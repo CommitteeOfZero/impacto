@@ -26,8 +26,9 @@ char const* CommonUniformNames[CU_Count] = {
     "WorldEyePosition", "ModelOpacity"};
 static GLint CommonUniformOffsets[CU_Count];
 
-static GLuint ShaderProgram = 0, UniformColorMap = 0,
-              UniformGradientMaskMap = 0, UniformSpecularColorMap = 0, UBO = 0;
+static GLuint ShaderProgram = 0, ShaderProgramOutline = 0, UniformColorMap = 0,
+              UniformColorMapOutline = 0, UniformGradientMaskMap = 0,
+              UniformSpecularColorMap = 0, UBO = 0;
 static bool IsInit = false;
 
 void Character3DInit() {
@@ -37,6 +38,7 @@ void Character3DInit() {
   Model::Init();
 
   ShaderProgram = ShaderCompile("Character3D");
+  ShaderProgramOutline = ShaderCompile("Character3D_Outline");
 
   GLuint uniformIndices[CU_Count];
   glGetUniformIndices(ShaderProgram, CU_Count, CommonUniformNames,
@@ -47,6 +49,9 @@ void Character3DInit() {
   GLuint blockIndex =
       glGetUniformBlockIndex(ShaderProgram, "Character3DCommon");
   glUniformBlockBinding(ShaderProgram, blockIndex, 0);
+  GLuint blockIndexOutline =
+      glGetUniformBlockIndex(ShaderProgramOutline, "Character3DCommon");
+  glUniformBlockBinding(ShaderProgramOutline, blockIndexOutline, 0);
 
   GLint uniformBlockSize;
   glGetActiveUniformBlockiv(ShaderProgram, blockIndex,
@@ -63,6 +68,9 @@ void Character3DInit() {
       glGetUniformLocation(ShaderProgram, "GradientMaskMap");
   UniformSpecularColorMap =
       glGetUniformLocation(ShaderProgram, "SpecularColorMap");
+
+  UniformColorMapOutline =
+      glGetUniformLocation(ShaderProgramOutline, "ColorMap");
 }
 
 void Character3DUpdateGpu(Scene* scene, Camera* camera) {
@@ -240,17 +248,11 @@ void Character3D::Update(float dt) {
 void Character3D::Render() {
   if (!IsUsed) return;
 
-  glUseProgram(ShaderProgram);
-
   glBindBuffer(GL_UNIFORM_BUFFER, UBO);
 
   glm::mat4 ModelMatrix = ModelTransform.Matrix();
   glBufferSubData(GL_UNIFORM_BUFFER, CommonUniformOffsets[CU_Model],
                   sizeof(glm::mat4), glm::value_ptr(ModelMatrix));
-
-  glUniform1i(UniformColorMap, TT_ColorMap);
-  glUniform1i(UniformGradientMaskMap, TT_GradientMaskMap);
-  glUniform1i(UniformSpecularColorMap, TT_SpecularColorMap);
 
   for (int i = 0; i < StaticModel->MeshCount; i++) {
     if (!MeshAnimStatus[i].Visible) continue;
@@ -308,16 +310,45 @@ void Character3D::Render() {
     glBufferSubData(GL_UNIFORM_BUFFER, CommonUniformOffsets[CU_ModelOpacity],
                     sizeof(float), &StaticModel->Meshes[i].Opacity);
 
-    // TODO: how do they actually do this?
-    if (StaticModel->Meshes[i].Opacity < 0.9) {
-      glDepthMask(GL_FALSE);
+    if (StaticModel->Meshes[i].Flags > 0) {
+      DrawMesh(i, true);
     }
 
-    glDrawElements(GL_TRIANGLES, StaticModel->Meshes[i].IndexCount,
-                   GL_UNSIGNED_SHORT, 0);
-
-    glDepthMask(GL_TRUE);
+    DrawMesh(i, false);
   }
+}
+
+void Character3D::DrawMesh(int id, bool outline) {
+  if (outline) {
+    glUseProgram(ShaderProgramOutline);
+    glUniform1i(UniformColorMapOutline, TT_ColorMap);
+
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_FRONT);
+    glDepthMask(GL_FALSE);
+  } else {
+    glUseProgram(ShaderProgram);
+    glUniform1i(UniformColorMap, TT_ColorMap);
+    glUniform1i(UniformGradientMaskMap, TT_GradientMaskMap);
+    glUniform1i(UniformSpecularColorMap, TT_SpecularColorMap);
+
+    // TODO: how do they actually do this?
+    if (StaticModel->Meshes[id].Opacity < 0.9) {
+      glDepthMask(GL_FALSE);
+    } else {
+      glDepthMask(GL_TRUE);
+    }
+
+    if (StaticModel->Meshes[id].Flags & MeshFlag_DoubleSided) {
+      glDisable(GL_CULL_FACE);
+    } else {
+      glEnable(GL_CULL_FACE);
+      glCullFace(GL_BACK);
+    }
+  }
+
+  glDrawElements(GL_TRIANGLES, StaticModel->Meshes[id].IndexCount,
+                 GL_UNSIGNED_SHORT, 0);
 }
 
 void Character3D::Unload() {
