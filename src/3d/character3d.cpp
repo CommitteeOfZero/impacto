@@ -26,9 +26,7 @@ char const* CommonUniformNames[CU_Count] = {
     "WorldEyePosition", "ModelOpacity"};
 static GLint CommonUniformOffsets[CU_Count];
 
-static GLuint ShaderProgram = 0, ShaderProgramOutline = 0, UniformColorMap = 0,
-              UniformColorMapOutline = 0, UniformGradientMaskMap = 0,
-              UniformSpecularColorMap = 0, UBO = 0;
+static GLuint ShaderProgram = 0, ShaderProgramOutline = 0, UBO = 0;
 static bool IsInit = false;
 
 void Character3DInit() {
@@ -63,14 +61,16 @@ void Character3DInit() {
 
   glBindBufferBase(GL_UNIFORM_BUFFER, 0, UBO);
 
-  UniformColorMap = glGetUniformLocation(ShaderProgram, "ColorMap");
-  UniformGradientMaskMap =
-      glGetUniformLocation(ShaderProgram, "GradientMaskMap");
-  UniformSpecularColorMap =
-      glGetUniformLocation(ShaderProgram, "SpecularColorMap");
+  glUseProgram(ShaderProgram);
+  glUniform1i(glGetUniformLocation(ShaderProgram, "ColorMap"), TT_ColorMap);
+  glUniform1i(glGetUniformLocation(ShaderProgram, "GradientMaskMap"),
+              TT_GradientMaskMap);
+  glUniform1i(glGetUniformLocation(ShaderProgram, "SpecularColorMap"),
+              TT_SpecularColorMap);
 
-  UniformColorMapOutline =
-      glGetUniformLocation(ShaderProgramOutline, "ColorMap");
+  glUseProgram(ShaderProgramOutline);
+  glUniform1i(glGetUniformLocation(ShaderProgramOutline, "ColorMap"),
+              TT_ColorMap);
 }
 
 void Character3DUpdateGpu(Scene* scene, Camera* camera) {
@@ -321,16 +321,12 @@ void Character3D::Render() {
 void Character3D::DrawMesh(int id, bool outline) {
   if (outline) {
     glUseProgram(ShaderProgramOutline);
-    glUniform1i(UniformColorMapOutline, TT_ColorMap);
 
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
     glDepthMask(GL_FALSE);
   } else {
     glUseProgram(ShaderProgram);
-    glUniform1i(UniformColorMap, TT_ColorMap);
-    glUniform1i(UniformGradientMaskMap, TT_GradientMaskMap);
-    glUniform1i(UniformSpecularColorMap, TT_SpecularColorMap);
 
     // TODO: how do they actually do this?
     if (StaticModel->Meshes[id].Opacity < 0.9) {
