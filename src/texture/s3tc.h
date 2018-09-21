@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SDL_RWops.h>
+#include <SDL_rwops.h>
 
 namespace Impacto {
 namespace TexLoad {
