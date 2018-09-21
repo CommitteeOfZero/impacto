@@ -11,11 +11,23 @@
 
 namespace Impacto {
 
-static GLuint ShaderProgram = 0, UniformViewProjection = 0, UniformModel = 0,
-              UniformModelOpacity = 0, UniformWorldLightPosition = 0,
-              UniformTint = 0, UniformWorldEyePosition = 0, UniformColorMap = 0,
-              UniformGradientMaskMap = 0, UniformSpecularColorMap = 0;
-static GLuint UniformBones[ModelMaxBonesPerMesh] = {0};
+enum CommonUniform {
+  CU_ViewProjection = 0,
+  CU_Model = 1,
+  CU_Bones = 2,
+  CU_Tint = 3,
+  CU_WorldLightPosition = 4,
+  CU_WorldEyePosition = 5,
+  CU_ModelOpacity = 6,
+  CU_Count = 7
+};
+char const* CommonUniformNames[CU_Count] = {
+    "ViewProjection",   "Model",       "Bones", "Tint", "WorldLightPosition",
+    "WorldEyePosition", "ModelOpacity"};
+static GLint CommonUniformOffsets[CU_Count];
+
+static GLuint ShaderProgram = 0, UniformColorMap = 0,
+              UniformGradientMaskMap = 0, UniformSpecularColorMap = 0, UBO = 0;
 static bool IsInit = false;
 
 void Character3DInit() {
@@ -23,27 +35,47 @@ void Character3DInit() {
   ImpLog(LL_Info, LC_Character3D, "Initializing Character3D system\n");
   IsInit = true;
   Model::Init();
+
   ShaderProgram = ShaderCompile("Character3D");
-  UniformViewProjection = glGetUniformLocation(ShaderProgram, "ViewProjection");
-  UniformModel = glGetUniformLocation(ShaderProgram, "Model");
-  UniformModelOpacity = glGetUniformLocation(ShaderProgram, "ModelOpacity");
-  UniformWorldLightPosition =
-      glGetUniformLocation(ShaderProgram, "WorldLightPosition");
-  UniformTint = glGetUniformLocation(ShaderProgram, "Tint");
-  UniformWorldEyePosition =
-      glGetUniformLocation(ShaderProgram, "WorldEyePosition");
-  for (int i = 0; i < ModelMaxBonesPerMesh; i++) {
-    char name[16];
-    int sz = snprintf(name, 16, "Bones[%d]", i);
-    assert(sz < sizeof(name));
-    UniformBones[i] = glGetUniformLocation(ShaderProgram, name);
-  }
+
+  GLuint uniformIndices[CU_Count];
+  glGetUniformIndices(ShaderProgram, CU_Count, CommonUniformNames,
+                      uniformIndices);
+  glGetActiveUniformsiv(ShaderProgram, CU_Count, uniformIndices,
+                        GL_UNIFORM_OFFSET, CommonUniformOffsets);
+
+  GLuint blockIndex =
+      glGetUniformBlockIndex(ShaderProgram, "Character3DCommon");
+  glUniformBlockBinding(ShaderProgram, blockIndex, 0);
+
+  GLint uniformBlockSize;
+  glGetActiveUniformBlockiv(ShaderProgram, blockIndex,
+                            GL_UNIFORM_BLOCK_DATA_SIZE, &uniformBlockSize);
+
+  glGenBuffers(1, &UBO);
+  glBindBuffer(GL_UNIFORM_BUFFER, UBO);
+  glBufferData(GL_UNIFORM_BUFFER, uniformBlockSize, NULL, GL_DYNAMIC_DRAW);
+
+  glBindBufferBase(GL_UNIFORM_BUFFER, 0, UBO);
 
   UniformColorMap = glGetUniformLocation(ShaderProgram, "ColorMap");
   UniformGradientMaskMap =
       glGetUniformLocation(ShaderProgram, "GradientMaskMap");
   UniformSpecularColorMap =
       glGetUniformLocation(ShaderProgram, "SpecularColorMap");
+}
+
+void Character3DUpdateGpu(Scene* scene, Camera* camera) {
+  glBindBuffer(GL_UNIFORM_BUFFER, UBO);
+  glBufferSubData(GL_UNIFORM_BUFFER, CommonUniformOffsets[CU_ViewProjection],
+                  sizeof(glm::mat4), glm::value_ptr(camera->ViewProjection));
+  glBufferSubData(GL_UNIFORM_BUFFER, CommonUniformOffsets[CU_Tint],
+                  sizeof(glm::vec4), glm::value_ptr(scene->Tint));
+  glBufferSubData(GL_UNIFORM_BUFFER,
+                  CommonUniformOffsets[CU_WorldLightPosition],
+                  sizeof(glm::vec3), glm::value_ptr(scene->LightPosition));
+  glBufferSubData(GL_UNIFORM_BUFFER, CommonUniformOffsets[CU_WorldEyePosition],
+                  sizeof(glm::vec3), glm::value_ptr(camera->Position));
 }
 
 bool Character3D::Load(uint32_t modelId) {
@@ -210,17 +242,11 @@ void Character3D::Render() {
 
   glUseProgram(ShaderProgram);
 
-  glUniformMatrix4fv(UniformViewProjection, 1, GL_FALSE,
-                     glm::value_ptr(g_Camera.ViewProjection));
+  glBindBuffer(GL_UNIFORM_BUFFER, UBO);
+
   glm::mat4 ModelMatrix = ModelTransform.Matrix();
-  glUniformMatrix4fv(UniformModel, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
-
-  glUniform3fv(UniformWorldEyePosition, 1, glm::value_ptr(g_Camera.Position));
-
-  glUniform3fv(UniformWorldLightPosition, 1,
-               glm::value_ptr(g_Scene.LightPosition));
-
-  glUniform4fv(UniformTint, 1, glm::value_ptr(g_Scene.Tint));
+  glBufferSubData(GL_UNIFORM_BUFFER, CommonUniformOffsets[CU_Model],
+                  sizeof(glm::mat4), glm::value_ptr(ModelMatrix));
 
   glUniform1i(UniformColorMap, TT_ColorMap);
   glUniform1i(UniformGradientMaskMap, TT_GradientMaskMap);
@@ -256,14 +282,16 @@ void Character3D::Render() {
 
     if (StaticModel->Meshes[i].UsedBones > 0) {
       for (int j = 0; j < StaticModel->Meshes[i].UsedBones; j++) {
-        glUniformMatrix4fv(
-            UniformBones[j], 1, GL_FALSE,
+        glBufferSubData(
+            GL_UNIFORM_BUFFER,
+            CommonUniformOffsets[CU_Bones] + sizeof(glm::mat4) * j,
+            sizeof(glm::mat4),
             glm::value_ptr(
                 CurrentPose[StaticModel->Meshes[i].BoneMap[j]].Offset));
       }
     } else {
-      glUniformMatrix4fv(
-          UniformBones[0], 1, GL_FALSE,
+      glBufferSubData(
+          GL_UNIFORM_BUFFER, CommonUniformOffsets[CU_Bones], sizeof(glm::mat4),
           glm::value_ptr(CurrentPose[StaticModel->Meshes[i].MeshBone].Offset));
     }
 
@@ -277,7 +305,8 @@ void Character3D::Render() {
       }
     }
 
-    glUniform1f(UniformModelOpacity, StaticModel->Meshes[i].Opacity);
+    glBufferSubData(GL_UNIFORM_BUFFER, CommonUniformOffsets[CU_ModelOpacity],
+                    sizeof(float), &StaticModel->Meshes[i].Opacity);
 
     // TODO: how do they actually do this?
     if (StaticModel->Meshes[i].Opacity < 0.9) {

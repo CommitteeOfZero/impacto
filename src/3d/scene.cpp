@@ -123,6 +123,8 @@ void Scene::Render() {
   // Camera::Recalculate should stay here even for the real game
   g_Camera.Recalculate();
 
+  Character3DUpdateGpu(this, &g_Camera);
+
   GroundPlane.Render();
   CurrentCharacter.Render();
 }

@@ -8,9 +8,15 @@ out vec3 worldFragPosition;
 out vec3 worldNormal;
 out vec2 uv;
 
-uniform mat4 ViewProjection;
-uniform mat4 Model;
-uniform mat4 Bones[ModelMaxBonesPerMesh];
+layout(std140) uniform Character3DCommon {
+  mat4 ViewProjection;
+  mat4 Model;
+  mat4 Bones[ModelMaxBonesPerMesh];
+  vec4 Tint;
+  vec3 WorldLightPosition;
+  vec3 WorldEyePosition;
+  float ModelOpacity;
+};
 
 void main() {
   // Accumulated skinning, thanks

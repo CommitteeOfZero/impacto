@@ -8,10 +8,15 @@ uniform sampler2D ColorMap;
 uniform sampler2D GradientMaskMap;
 uniform sampler2D SpecularColorMap;
 
-uniform float ModelOpacity;
-uniform vec3 WorldLightPosition;
-uniform vec3 WorldEyePosition;
-uniform vec4 Tint;
+layout(std140) uniform Character3DCommon {
+  mat4 ViewProjection;
+  mat4 Model;
+  mat4 Bones[ModelMaxBonesPerMesh];
+  vec4 Tint;
+  vec3 WorldLightPosition;
+  vec3 WorldEyePosition;
+  float ModelOpacity;
+};
 
 const float FALLOFF_POWER = 0.8;
 

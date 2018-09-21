@@ -28,6 +28,8 @@ struct AnimatedMesh {
 };
 
 class ModelAnimator;
+class Scene;
+class Camera;
 
 class Character3D {
  public:
@@ -71,5 +73,7 @@ class Character3D {
 };
 
 void Character3DInit();
+// Character render updates affecting all characters
+void Character3DUpdateGpu(Scene* scene, Camera* camera);
 
 }  // namespace Impacto
