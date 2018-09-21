@@ -147,9 +147,12 @@ Model* Model::Load(uint32_t modelId) {
       ReadVec3LE32(&vertex->Position, stream);
       ReadVec3LE32(&vertex->Normal, stream);
 
-      // Attention: we are switching the coordinates
-      glm::vec2 _uv = glm::vec2(ReadFloatLE32(stream), ReadFloatLE32(stream));
-      vertex->UV = glm::vec2(_uv.y, _uv.x);
+      // Attention: we have to read these individually, not as
+      // glm::vec2(ReadFloatLE32(stream), ReadFloatLE32(stream)), because
+      // evaluation order seems to vary between compilers
+      float u = ReadFloatLE32(stream);
+      float v = ReadFloatLE32(stream);
+      vertex->UV = glm::vec2(u, v);
 
       if (mesh->UsedBones > 0) {
         vertex->BoneIndices[0] = SDL_ReadU8(stream);
