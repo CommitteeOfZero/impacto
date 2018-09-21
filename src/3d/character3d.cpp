@@ -26,7 +26,8 @@ char const* CommonUniformNames[CU_Count] = {
     "WorldEyePosition", "ModelOpacity"};
 static GLint CommonUniformOffsets[CU_Count];
 
-static GLuint ShaderProgram = 0, ShaderProgramOutline = 0, UBO = 0;
+static GLuint ShaderProgram = 0, ShaderProgramOutline = 0, ShaderProgramEye = 0,
+              UBO = 0;
 static bool IsInit = false;
 
 void Character3DInit() {
@@ -37,6 +38,7 @@ void Character3DInit() {
 
   ShaderProgram = ShaderCompile("Character3D");
   ShaderProgramOutline = ShaderCompile("Character3D_Outline");
+  ShaderProgramEye = ShaderCompile("Character3D_Eye");
 
   GLuint uniformIndices[CU_Count];
   glGetUniformIndices(ShaderProgram, CU_Count, CommonUniformNames,
@@ -50,6 +52,9 @@ void Character3DInit() {
   GLuint blockIndexOutline =
       glGetUniformBlockIndex(ShaderProgramOutline, "Character3DCommon");
   glUniformBlockBinding(ShaderProgramOutline, blockIndexOutline, 0);
+  GLuint blockIndexEye =
+      glGetUniformBlockIndex(ShaderProgramEye, "Character3DCommon");
+  glUniformBlockBinding(ShaderProgramEye, blockIndexEye, 0);
 
   GLint uniformBlockSize;
   glGetActiveUniformBlockiv(ShaderProgram, blockIndex,
@@ -71,6 +76,16 @@ void Character3DInit() {
   glUseProgram(ShaderProgramOutline);
   glUniform1i(glGetUniformLocation(ShaderProgramOutline, "ColorMap"),
               TT_ColorMap);
+
+  glUseProgram(ShaderProgramEye);
+  glUniform1i(glGetUniformLocation(ShaderProgramEye, "HighlightColorMap"),
+              TT_Eye_HighlightColorMap);
+  glUniform1i(glGetUniformLocation(ShaderProgramEye, "WhiteColorMap"),
+              TT_Eye_WhiteColorMap);
+  glUniform1i(glGetUniformLocation(ShaderProgramEye, "IrisSpecularColorMap"),
+              TT_Eye_IrisSpecularColorMap);
+  glUniform1i(glGetUniformLocation(ShaderProgramEye, "IrisColorMap"),
+              TT_Eye_IrisColorMap);
 }
 
 void Character3DUpdateGpu(Scene* scene, Camera* camera) {
@@ -326,7 +341,13 @@ void Character3D::DrawMesh(int id, bool outline) {
     glCullFace(GL_FRONT);
     glDepthMask(GL_FALSE);
   } else {
-    glUseProgram(ShaderProgram);
+    if (StaticModel->Meshes[id].Maps[TT_Eye_WhiteColorMap] >= 0) {
+      // Yes, really, there's no other indication that the mesh is an eye
+      // TODO: Iris/highlights should be animated
+      glUseProgram(ShaderProgramEye);
+    } else {
+      glUseProgram(ShaderProgram);
+    }
 
     // TODO: how do they actually do this?
     if (StaticModel->Meshes[id].Opacity < 0.9) {

@@ -53,11 +53,14 @@ struct StaticBone {
 
 enum TextureType {
   TT_ColorMap = 0,
-  TT_DecalMap = 1,
   TT_GradientMaskMap = 2,
-  TT_FourthMap = 3,
   TT_SpecularColorMap = 4,
-  TT_SixthMap = 5,
+  
+  TT_Eye_IrisColorMap = 0,
+  TT_Eye_WhiteColorMap = 1,
+  TT_Eye_IrisSpecularColorMap = 2,
+  TT_Eye_HighlightColorMap = 3,
+
   TT_Count = 6
 };
 
