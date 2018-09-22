@@ -323,7 +323,7 @@ void Character3D::Render() {
         glBindTexture(GL_TEXTURE_2D,
                       TexBuffers[StaticModel->Meshes[i].Maps[j]]);
       } else {
-        // TODO 1x1 texture
+        glBindTexture(GL_TEXTURE_2D, 0);
       }
     }
 
