@@ -27,7 +27,7 @@ char const* CommonUniformNames[CU_Count] = {
 static GLint CommonUniformOffsets[CU_Count];
 
 static GLuint ShaderProgram = 0, ShaderProgramOutline = 0, ShaderProgramEye = 0,
-              UBO = 0;
+              UBO = 0, UniformDarkMode = 0;
 static bool IsInit = false;
 
 void Character3DInit() {
@@ -66,6 +66,8 @@ void Character3DInit() {
 
   glBindBufferBase(GL_UNIFORM_BUFFER, 0, UBO);
 
+  UniformDarkMode = glGetUniformLocation(ShaderProgram, "DarkMode");
+
   glUseProgram(ShaderProgram);
   glUniform1i(glGetUniformLocation(ShaderProgram, "ColorMap"), TT_ColorMap);
   glUniform1i(glGetUniformLocation(ShaderProgram, "GradientMaskMap"),
@@ -99,6 +101,9 @@ void Character3DUpdateGpu(Scene* scene, Camera* camera) {
                   sizeof(glm::vec3), glm::value_ptr(scene->LightPosition));
   glBufferSubData(GL_UNIFORM_BUFFER, CommonUniformOffsets[CU_WorldEyePosition],
                   sizeof(glm::vec3), glm::value_ptr(camera->Position));
+
+  glUseProgram(ShaderProgram);
+  glUniform1i(UniformDarkMode, scene->DarkMode);
 }
 
 bool Character3D::Load(uint32_t modelId) {

@@ -16,6 +16,7 @@ class Scene {
 
   glm::vec3 LightPosition;
   glm::vec4 Tint;
+  bool DarkMode;
 };
 
 extern Scene g_Scene;

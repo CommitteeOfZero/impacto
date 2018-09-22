@@ -18,6 +18,8 @@ layout(std140) uniform Character3DCommon {
   float ModelOpacity;
 };
 
+uniform bool DarkMode;
+
 const float FALLOFF_POWER = 0.8;
 
 const vec4 g_ToonFalloffGradVals = vec4(0.546875, 0.421875, 0.468750, 0.281250);
@@ -49,12 +51,15 @@ void main() {
   float normDotEye = 1.0 - dot(normal, dirToEye);
   toonFalloffGradInput.zw = vec2(scaledDiff * normDotEye);
 
-  /*vec4 toonFalloffGradParam =
+  vec4 toonFalloffGradParamDark =
       step(g_ToonFalloffGradDarkVals, toonFalloffGradInput) *
-      g_ToonFalloffGradDarkMax;*/
+      g_ToonFalloffGradDarkMax;
 
-  vec4 toonFalloffGradParam = saturate(
+  vec4 toonFalloffGradParamLight = saturate(
       (toonFalloffGradInput - g_ToonFalloffGradVals) * g_ToonFalloffGradScale);
+
+  vec4 toonFalloffGradParam =
+      DarkMode ? toonFalloffGradParamDark : toonFalloffGradParamLight;
 
   vec2 toonFalloffInterpParam =
       mix(toonFalloffGradParam.xz, toonFalloffGradParam.yw, maskParam);

@@ -26,6 +26,7 @@ void SceneInit() {
   g_Scene.GroundPlane.Submit();
 
   g_Scene.LightPosition = glm::vec3(1.0, 15.0, 1.0);
+  g_Scene.DarkMode = false;
 }
 
 void Scene::Update(float dt) {
@@ -85,6 +86,10 @@ void Scene::Update(float dt) {
 
     if (nk_tree_push(g_Nk, NK_TREE_TAB, "Light", NK_MAXIMIZED)) {
       nk_layout_row_dynamic(g_Nk, 24, 1);
+
+      int darkMode = (int)DarkMode;
+      nk_checkbox_label(g_Nk, "DarkMode", &darkMode);
+      DarkMode = (bool)darkMode;
 
       nk_property_float(g_Nk, "LightPosition.x", -40.0f, &LightPosition.x,
                         40.0f, 1.0f, 0.02f);
