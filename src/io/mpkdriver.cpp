@@ -48,6 +48,8 @@ class MpkArchive : public VfsArchive {
  protected:
   IoError DriverOpen(uint32_t id, SDL_RWops** outHandle) override;
   IoError DriverGetSize(uint32_t id, int64_t* outSize) override;
+  IoError DriverCanStream(uint32_t id, bool* outResult) override;
+  IoError DriverSlurp(uint32_t id, void* outBuffer) override;
 };
 
 struct MpkOpenFile {
@@ -410,6 +412,24 @@ IoError MpkArchive::DriverGetSize(uint32_t id, int64_t* outSize) {
     *outSize = entry->UncompressedSize;
     return IoError_OK;
   }
+}
+
+IoError MpkArchive::DriverCanStream(uint32_t id, bool* outResult) {
+  auto it = IdsToFiles.find(id);
+  if (it == IdsToFiles.end()) {
+    ImpLog(LL_Debug, LC_IO, "MPK CanStream: %d not found in \"%s\"\n", id,
+           MountPoint);
+    return IoError_NotFound;
+  }
+  *outResult = true;
+  return IoError_OK;
+}
+
+IoError MpkArchive::DriverSlurp(uint32_t id, void* outBuffer) {
+  // TODO implement this for compressed content? (zlib finalize or sth)
+  ImpLog(LL_Error, LC_IO,
+         "MPK DriverSlurp not implemented, should not have been called\n");
+  return IoError_Fail;
 }
 
 IoError MpkArchive::GetName(uint32_t id, char* outName) {

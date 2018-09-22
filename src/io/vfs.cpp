@@ -182,6 +182,13 @@ IoError VfsArchive::Slurp(uint32_t id, void** outData, int64_t* outSize) {
 
   IoError result = IoError_OK;
 
+  bool canStream;
+  result = CanStream(id, &canStream);
+  if (result != IoError_OK) {
+    ImpLog(LL_Error, LC_IO, "CanStream lookup failed\n");
+    return result;
+  }
+
   result = GetSize(id, outSize);
   if (result != IoError_OK) return result;
   if (*outSize == NULL) return IoError_OK;
@@ -189,24 +196,34 @@ IoError VfsArchive::Slurp(uint32_t id, void** outData, int64_t* outSize) {
   *outData = malloc(*outSize);
   if (*outData == NULL) return IoError_OutOfMemory;
 
-  SDL_RWops* file;
-  result = Open(id, &file);
-  if (result != IoError_OK) {
-    free(*outData);
-    return result;
-  }
+  if (canStream) {
+    SDL_RWops* file;
+    result = Open(id, &file);
+    if (result != IoError_OK) {
+      free(*outData);
+      return result;
+    }
 
-  size_t rwResult = SDL_RWread(file, *outData, 1, *outSize);
-  if (rwResult == 0) {
-    ImpLog(LL_Error, LC_IO, "Slurping file %d in archive \"%s\" failed: %s\n",
-           SDL_GetError());
-    free(*outData);
-    result = IoError_Fail;
-  }
+    size_t rwResult = SDL_RWread(file, *outData, 1, *outSize);
+    if (rwResult == 0) {
+      ImpLog(LL_Error, LC_IO, "Slurping file %d in archive \"%s\" failed: %s\n",
+             SDL_GetError());
+      free(*outData);
+      result = IoError_Fail;
+    }
 
-  // Do this *after* potentially logging a SDL_GetError in case SDL_RWclose
-  // changes last error
-  SDL_RWclose(file);
+    // Do this *after* potentially logging a SDL_GetError in case SDL_RWclose
+    // changes last error
+    SDL_RWclose(file);
+  } else {
+    result = DriverSlurp(id, *outData);
+    if (result != IoError_OK) {
+      ImpLog(LL_Error, LC_IO,
+             "(Driver) Slurping file %d in archive \"%s\" failed: %s\n",
+             SDL_GetError());
+      free(*outData);
+    }
+  }
 
   return result;
 }
@@ -232,6 +249,25 @@ IoError VfsArchive::Open(const char* path, SDL_RWops** outHandle) {
   IoError result = GetId(path, &id);
   if (result != IoError_OK) return result;
   return Open(id, outHandle);
+}
+
+IoError VfsArchive::CanStream(uint32_t id, bool* outResult) {
+  SDL_RWops* tmpHandle;
+  IoError result = OverlayOpen(id, &tmpHandle);
+  if (result == IoError_OK) {
+    SDL_RWclose(tmpHandle);
+    *outResult = true;
+    return IoError_OK;
+  } else {
+    return DriverCanStream(id, outResult);
+  }
+}
+
+IoError VfsArchive::CanStream(const char* path, bool* outResult) {
+  uint32_t id;
+  IoError result = GetId(path, &id);
+  if (result != IoError_OK) return result;
+  return CanStream(id, outResult);
 }
 
 IoError VfsArchive::GetSize(uint32_t id, int64_t* outSize) {

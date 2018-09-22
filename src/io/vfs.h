@@ -63,6 +63,11 @@ class VfsArchive {
   virtual IoError EnumerateNext(uint32_t* inoutIterator,
                                 VfsFileInfo* outFileInfo) = 0;
 
+  // outResult == false => only Slurp supported;
+  // return value != IoError_OK => file inaccessible
+  IoError CanStream(uint32_t id, bool* outResult);
+  IoError CanStream(const char* path, bool* outResult);
+
   IoError GetSize(uint32_t id, int64_t* outSize);
   IoError GetSize(const char* path, int64_t* outSize);
 
@@ -88,6 +93,9 @@ class VfsArchive {
  protected:
   virtual IoError DriverOpen(uint32_t id, SDL_RWops** outHandle) = 0;
   virtual IoError DriverGetSize(uint32_t id, int64_t* outSize) = 0;
+  virtual IoError DriverCanStream(uint32_t id, bool* outResult) = 0;
+  // DriverSlurp() only needs to be implemented for files that can't be streamed
+  virtual IoError DriverSlurp(uint32_t id, void* outBuffer) = 0;
 
  private:
   IoError OverlayOpen(uint32_t id, SDL_RWops** outHandle);
