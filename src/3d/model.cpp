@@ -40,7 +40,7 @@ Model::~Model() {
 
 Model* Model::Load(uint32_t modelId) {
   assert(ModelArchive != NULL);
-  ImpLog(LL_Debug, LC_ModelLoad, "Loading model %d\n", modelId);
+  ImpLogSlow(LL_Debug, LC_ModelLoad, "Loading model %d\n", modelId);
 
   void* file;
   int64_t fileSize;
@@ -239,8 +239,8 @@ Model* Model::Load(uint32_t modelId) {
   SDL_RWseek(stream, TexturesOffset, RW_SEEK_SET);
   for (uint32_t i = 0; i < result->TextureCount; i++) {
     uint32_t size = SDL_ReadLE32(stream);
-    ImpLog(LL_Debug, LC_ModelLoad, "Loading texture %d, size=0x%08x\n", i,
-           size);
+    ImpLogSlow(LL_Debug, LC_ModelLoad, "Loading texture %d, size=0x%08x\n", i,
+               size);
     void* gxt = malloc(size);
     SDL_RWread(stream, gxt, 1, size);
     SDL_RWops* gxtStream = SDL_RWFromConstMem(gxt, size);

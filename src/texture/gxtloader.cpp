@@ -331,7 +331,7 @@ bool GXTLoadSubtexture(SDL_RWops* stream, Texture* outTexture,
 }
 
 bool TextureLoadGXT(SDL_RWops* stream, Texture* outTexture) {
-  ImpLog(LL_Debug, LC_TextureLoad, "Loading GXT texture\n");
+  ImpLogSlow(LL_Debug, LC_TextureLoad, "Loading GXT texture\n");
 
   // Read metadata
 
@@ -350,7 +350,7 @@ bool TextureLoadGXT(SDL_RWops* stream, Texture* outTexture) {
   // padding
   SDL_RWseek(stream, 4, RW_SEEK_CUR);
 
-  ImpLog(
+  ImpLogSlow(
       LL_Debug, LC_TextureLoad,
       "GXT version=0x%08x, subtextureCount=0x%08x, subtexturesOffset=0x%08x, "
       "totalTexSize=0x%08x, p4Count=0x%08x, p8Count=0x%08x\n",
@@ -374,12 +374,12 @@ bool TextureLoadGXT(SDL_RWops* stream, Texture* outTexture) {
 
   SDL_RWseek(stream, stx.Size, RW_SEEK_CUR);
 
-  ImpLog(LL_Debug, LC_TextureLoad,
-         "Subtexture Offset=0x%08x, Size=0x%08x, PaletteIdx=0x%08x, "
-         "Flags=0x%08x, PixelOrder=0x%08x, Format=0x%08x, Width=0x%08x, "
-         "Height=0x%08x, MipmapCount=0x%08x\n",
-         stx.Offset, stx.Size, stx.PaletteIdx, stx.Flags, stx.PixelOrder,
-         stx.Format, stx.Width, stx.Height, stx.MipmapCount);
+  ImpLogSlow(LL_Debug, LC_TextureLoad,
+             "Subtexture Offset=0x%08x, Size=0x%08x, PaletteIdx=0x%08x, "
+             "Flags=0x%08x, PixelOrder=0x%08x, Format=0x%08x, Width=0x%08x, "
+             "Height=0x%08x, MipmapCount=0x%08x\n",
+             stx.Offset, stx.Size, stx.PaletteIdx, stx.Flags, stx.PixelOrder,
+             stx.Format, stx.Width, stx.Height, stx.MipmapCount);
 
   // Read palettes
 
