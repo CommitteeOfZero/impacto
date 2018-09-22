@@ -113,9 +113,7 @@ Model* Model::Load(uint32_t modelId) {
     mesh->Opacity = ReadFloatLE32(stream);
 
     SDL_RWseek(stream, 0x14, RW_SEEK_CUR);
-    for (int i = 0; i < TT_Count; i++) {
-      mesh->Maps[i] = SDL_ReadLE16(stream);
-    }
+    ReadArrayLE16(mesh->Maps, stream, TT_Count);
 
     SDL_RWseek(stream, 4, RW_SEEK_CUR);
     mesh->Flags = SDL_ReadLE32(stream);
@@ -144,29 +142,16 @@ Model* Model::Load(uint32_t modelId) {
     for (uint32_t j = 0; j < mesh->VertexCount; j++) {
       VertexBuffer* vertex = &result->VertexBuffers[CurrentVertexOffset];
       CurrentVertexOffset++;
-      ReadVec3LE32(&vertex->Position, stream);
-      ReadVec3LE32(&vertex->Normal, stream);
-
-      // Attention: we have to read these individually, not as
-      // glm::vec2(ReadFloatLE32(stream), ReadFloatLE32(stream)), because
-      // evaluation order seems to vary between compilers
-      float u = ReadFloatLE32(stream);
-      float v = ReadFloatLE32(stream);
-      vertex->UV = glm::vec2(u, v);
+      // Position, then Normal, then UV
+      ReadArrayFloatLE32((float*)&vertex->Position, stream, 3 * 2 + 2 * 1);
 
       if (mesh->UsedBones > 0) {
-        vertex->BoneIndices[0] = SDL_ReadU8(stream);
-        vertex->BoneIndices[1] = SDL_ReadU8(stream);
-        vertex->BoneIndices[2] = SDL_ReadU8(stream);
-        vertex->BoneIndices[3] = SDL_ReadU8(stream);
+        SDL_RWread(stream, vertex->BoneIndices, 1, 4);
 
         ReadVec4LE32(&vertex->BoneWeights, stream);
       } else {
         // TODO skinned/unskinned mesh distinction?
-        vertex->BoneIndices[0] = 0;
-        vertex->BoneIndices[1] = 0;
-        vertex->BoneIndices[2] = 0;
-        vertex->BoneIndices[3] = 0;
+        *(int*)vertex->BoneIndices = 0;
 
         vertex->BoneWeights = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
 
@@ -177,10 +162,9 @@ Model* Model::Load(uint32_t modelId) {
 
     // Read indices
     SDL_RWseek(stream, RawIndexOffset, RW_SEEK_SET);
-    for (uint32_t j = 0; j < mesh->IndexCount; j++) {
-      result->Indices[CurrentIndexOffset] = SDL_ReadLE16(stream);
-      CurrentIndexOffset++;
-    }
+    ReadArrayLE16(result->Indices + CurrentIndexOffset, stream,
+                  mesh->IndexCount);
+    CurrentIndexOffset += mesh->IndexCount;
   }
 
   // Read skeleton
@@ -244,13 +228,11 @@ Model* Model::Load(uint32_t modelId) {
 
     // Read vertex buffers
     SDL_RWseek(stream, RawMorphVertexOffset, RW_SEEK_SET);
-    for (uint32_t j = 0; j < target->VertexCount; j++) {
-      MorphVertexBuffer* buffer =
-          &result->MorphVertexBuffers[CurrentMorphVertexOffset];
-      CurrentMorphVertexOffset++;
-      ReadVec3LE32(&buffer->Position, stream);
-      ReadVec3LE32(&buffer->Normal, stream);
-    }
+    // Per morph vertex buffer: Position, then Normal
+    ReadArrayFloatLE32(
+        (float*)&result->MorphVertexBuffers[CurrentMorphVertexOffset], stream,
+        3 * 2 * target->VertexCount);
+    CurrentMorphVertexOffset += target->VertexCount;
   }
 
   // Read textures

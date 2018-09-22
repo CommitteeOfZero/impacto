@@ -179,28 +179,35 @@ bool GXTLoadSubtexture(SDL_RWops* stream, Texture* outTexture,
       outTexture->Format = TexFmt_RGB;
       outTexture->BufferSize = (3 * stx->Width * stx->Height);
       outTexture->Buffer = (uint8_t*)malloc(outTexture->BufferSize);
-      for (int y = 0; y < stx->Height; y++) {
-        for (int x = 0; x < stx->Width; x++) {
-          int outX = x, outY = y;
-          if (stx->PixelOrder == Gxm::Swizzled) {
-            VitaUnswizzle(&outX, &outY, stx->Width, stx->Height);
-          }
 
-          uint8_t r, g, b;
-          if (channelOrder == Gxm::RGB) {
-            b = SDL_ReadU8(stream);
-            g = SDL_ReadU8(stream);
-            r = SDL_ReadU8(stream);
-          } else if (channelOrder == Gxm::BGR) {
-            r = SDL_ReadU8(stream);
-            g = SDL_ReadU8(stream);
-            b = SDL_ReadU8(stream);
-          }
+      if (channelOrder == Gxm::BGR && stx->PixelOrder == Gxm::Linear) {
+        SDL_RWread(stream, outTexture->Buffer, outTexture->BufferSize, 1);
+      } else {
+        uint8_t* inBuffer = (uint8_t*)malloc(outTexture->BufferSize);
+        uint8_t* reader = inBuffer;
+        SDL_RWread(stream, inBuffer, outTexture->BufferSize, 1);
 
-          outTexture->Buffer[(outX + stx->Width * outY) * 3 + 0] = r;
-          outTexture->Buffer[(outX + stx->Width * outY) * 3 + 1] = g;
-          outTexture->Buffer[(outX + stx->Width * outY) * 3 + 2] = b;
+        for (int y = 0; y < stx->Height; y++) {
+          for (int x = 0; x < stx->Width; x++) {
+            int outX = x, outY = y;
+            if (stx->PixelOrder == Gxm::Swizzled) {
+              VitaUnswizzle(&outX, &outY, stx->Width, stx->Height);
+            }
+
+            int px = (outX + stx->Width * outY) * 3;
+
+            if (channelOrder == Gxm::RGB) {
+              outTexture->Buffer[px + 2] = *reader++;
+              outTexture->Buffer[px + 1] = *reader++;
+              outTexture->Buffer[px + 0] = *reader++;
+            } else if (channelOrder == Gxm::BGR) {
+              memcpy(outTexture->Buffer + px, reader, 3);
+              reader += 3;
+            }
+          }
         }
+
+        free(inBuffer);
       }
       break;
     }
@@ -212,6 +219,11 @@ bool GXTLoadSubtexture(SDL_RWops* stream, Texture* outTexture,
       outTexture->Format = TexFmt_RGBA;
       outTexture->BufferSize = (4 * stx->Width * stx->Height);
       outTexture->Buffer = (uint8_t*)malloc(outTexture->BufferSize);
+
+      uint8_t* inBuffer = (uint8_t*)malloc(outTexture->BufferSize);
+      uint8_t* reader = inBuffer;
+      SDL_RWread(stream, inBuffer, outTexture->BufferSize, 1);
+
       for (int y = 0; y < stx->Height; y++) {
         for (int x = 0; x < stx->Width; x++) {
           int outX = x, outY = y;
@@ -219,18 +231,16 @@ bool GXTLoadSubtexture(SDL_RWops* stream, Texture* outTexture,
             VitaUnswizzle(&outX, &outY, stx->Width, stx->Height);
           }
 
-          uint8_t r, g, b, a;
-          b = SDL_ReadU8(stream);
-          g = SDL_ReadU8(stream);
-          r = SDL_ReadU8(stream);
-          a = SDL_ReadU8(stream);
+          int px = (outX + stx->Width * outY) * 4;
 
-          outTexture->Buffer[(outX + stx->Width * outY) * 4 + 0] = r;
-          outTexture->Buffer[(outX + stx->Width * outY) * 4 + 1] = g;
-          outTexture->Buffer[(outX + stx->Width * outY) * 4 + 2] = b;
-          outTexture->Buffer[(outX + stx->Width * outY) * 4 + 3] = a;
+          outTexture->Buffer[px + 2] = *reader++;
+          outTexture->Buffer[px + 1] = *reader++;
+          outTexture->Buffer[px + 0] = *reader++;
+          outTexture->Buffer[px + 3] = *reader++;
         }
       }
+
+      free(inBuffer);
       break;
     }
 
@@ -246,6 +256,10 @@ bool GXTLoadSubtexture(SDL_RWops* stream, Texture* outTexture,
       outTexture->BufferSize = (3 * stx->Width * stx->Height);
       outTexture->Buffer = (uint8_t*)malloc(outTexture->BufferSize);
 
+      uint8_t* inBuffer = (uint8_t*)malloc(stx->Width * stx->Height);
+      uint8_t* reader = inBuffer;
+      SDL_RWread(stream, inBuffer, stx->Width * stx->Height, 1);
+
       for (int y = 0; y < stx->Height; y++) {
         for (int x = 0; x < stx->Width; x++) {
           int outX = x, outY = y;
@@ -253,20 +267,16 @@ bool GXTLoadSubtexture(SDL_RWops* stream, Texture* outTexture,
             VitaUnswizzle(&outX, &outY, stx->Width, stx->Height);
           }
 
-          uint8_t colorIdx = SDL_ReadU8(stream);
+          uint8_t colorIdx = *reader++;
           uint8_t* color = palette + 4 * colorIdx;
 
-          // TODO check what the order is on paletted textures that actually
-          // have color
-          uint8_t r = color[0];
-          uint8_t g = color[1];
-          uint8_t b = color[2];
+          int px = (outX + stx->Width * outY) * 3;
 
-          outTexture->Buffer[(outX + stx->Width * outY) * 3 + 0] = r;
-          outTexture->Buffer[(outX + stx->Width * outY) * 3 + 1] = g;
-          outTexture->Buffer[(outX + stx->Width * outY) * 3 + 2] = b;
+          memcpy(outTexture->Buffer + px, color, 3);
         }
       }
+
+      free(inBuffer);
       break;
     }
 
@@ -291,17 +301,25 @@ bool GXTLoadSubtexture(SDL_RWops* stream, Texture* outTexture,
       outTexture->BufferSize = stx->Width * stx->Height;
       outTexture->Buffer = (uint8_t*)malloc(outTexture->BufferSize);
 
-      for (int y = 0; y < stx->Height; y++) {
-        for (int x = 0; x < stx->Width; x++) {
-          int outX = x, outY = y;
-          if (stx->PixelOrder == Gxm::Swizzled) {
+      if (stx->PixelOrder == Gxm::Swizzled) {
+        uint8_t* inBuffer = (uint8_t*)malloc(outTexture->BufferSize);
+        uint8_t* reader = inBuffer;
+        SDL_RWread(stream, inBuffer, outTexture->BufferSize, 1);
+
+        for (int y = 0; y < stx->Height; y++) {
+          for (int x = 0; x < stx->Width; x++) {
+            int outX = x, outY = y;
             VitaUnswizzle(&outX, &outY, stx->Width, stx->Height);
+
+            uint8_t v = *reader++;
+
+            outTexture->Buffer[(outX + stx->Width * outY)] = v;
           }
-
-          uint8_t v = SDL_ReadU8(stream);
-
-          outTexture->Buffer[(outX + stx->Width * outY)] = v;
         }
+
+        free(inBuffer);
+      } else {
+        SDL_RWread(stream, outTexture->Buffer, outTexture->BufferSize, 1);
       }
       break;
     }
