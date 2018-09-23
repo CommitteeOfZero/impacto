@@ -85,6 +85,9 @@ uint32_t Texture::Submit() {
   // framedrop
   glGenerateMipmap(GL_TEXTURE_2D);
 
+  // TODO I meant to do this elsewhere but we gotta do it somewhere
+  free(Buffer);
+
   return result;
 }
 
