@@ -9,6 +9,7 @@
 #include "3d/scene.h"
 #include "shader.h"
 #include "window.h"
+#include "workqueue.h"
 
 using namespace Impacto;
 
@@ -63,6 +64,7 @@ void GameLoop() {
     }
 
     nk_sdl_handle_event(&e);
+    WorkQueueHandleEvent(&e);
   }
   nk_input_end(g_Nk);
 
@@ -77,6 +79,7 @@ void InitSystems() {
 
   VfsInit();
   WindowInit();
+  WorkQueueInit();
   ShaderInit();
   SceneInit();
 }

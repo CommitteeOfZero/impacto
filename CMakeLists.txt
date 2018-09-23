@@ -16,6 +16,7 @@ set(Impacto_Src
     src/shader.cpp
     src/util.cpp
     src/window.cpp
+    src/workqueue.cpp
 
     src/nuklear_impl.cpp
 
@@ -42,6 +43,7 @@ set(Impacto_Header
     src/shader.h
     src/util.h
     src/window.h
+    src/workqueue.h
 
     src/3d/camera.h
     src/3d/model.h

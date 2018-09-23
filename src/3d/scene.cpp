@@ -5,6 +5,7 @@
 #include "camera.h"
 #include "../log.h"
 #include "../window.h"
+#include "../workqueue.h"
 
 namespace Impacto {
 
@@ -20,13 +21,39 @@ void SceneInit() {
   g_Camera.Init();
   Character3DInit();
 
-  g_Scene.CurrentCharacter.Load(0);
-  g_Scene.CurrentCharacter.Submit();
+  g_Scene.LoadCharacterAsync(0);
   g_Scene.GroundPlane.MakePlane();
   g_Scene.GroundPlane.Submit();
 
   g_Scene.LightPosition = glm::vec3(1.0, 15.0, 1.0);
   g_Scene.DarkMode = false;
+}
+
+static void LoadCharacterWorker(void* ptr) {
+  Scene* scene = (Scene*)ptr;
+  scene->CurrentCharacter.Load(scene->CharacterToLoadId);
+}
+
+static void OnCharacterLoaded(void* ptr) {
+  Scene* scene = (Scene*)ptr;
+  scene->CurrentCharacter.Submit();
+  scene->CurrentCharacterLoadStatus = CLS_Loaded;
+}
+
+bool Scene::LoadCharacterAsync(uint32_t id) {
+  if (CurrentCharacterLoadStatus == CLS_Loading) {
+    // Cannot currently cancel a load
+    return false;
+  }
+  if (CurrentCharacterLoadStatus == CLS_Loaded) {
+    CurrentCharacter.Unload();
+    CurrentCharacterLoadStatus = CLS_Unloaded;
+  }
+
+  CharacterToLoadId = id;
+  CurrentCharacterLoadStatus = CLS_Loading;
+  WorkQueuePush(this, &LoadCharacterWorker, &OnCharacterLoaded);
+  return true;
 }
 
 void Scene::Update(float dt) {
@@ -117,20 +144,26 @@ void Scene::Update(float dt) {
       nk_tree_pop(g_Nk);
     }
 
-    if (nk_tree_push(g_Nk, NK_TREE_TAB, "Model", NK_MAXIMIZED)) {
-      nk_layout_row_dynamic(g_Nk, 24, 1);
+    if (CurrentCharacterLoadStatus == CLS_Loaded) {
+      if (nk_tree_push(g_Nk, NK_TREE_TAB, "Model", NK_MAXIMIZED)) {
+        nk_layout_row_dynamic(g_Nk, 24, 1);
 
-      nk_property_float(g_Nk, "Model X", -20.0f,
-                        &CurrentCharacter.ModelTransform.Position.x, 20.0f,
-                        1.0f, 0.02f);
-      nk_property_float(g_Nk, "Model Y", 0.0f,
-                        &CurrentCharacter.ModelTransform.Position.y, 20.0f,
-                        1.0f, 0.02f);
-      nk_property_float(g_Nk, "Model Z", -20.0f,
-                        &CurrentCharacter.ModelTransform.Position.z, 20.0f,
-                        1.0f, 0.02f);
+        nk_property_float(g_Nk, "Model X", -20.0f,
+                          &CurrentCharacter.ModelTransform.Position.x, 20.0f,
+                          1.0f, 0.02f);
+        nk_property_float(g_Nk, "Model Y", 0.0f,
+                          &CurrentCharacter.ModelTransform.Position.y, 20.0f,
+                          1.0f, 0.02f);
+        nk_property_float(g_Nk, "Model Z", -20.0f,
+                          &CurrentCharacter.ModelTransform.Position.z, 20.0f,
+                          1.0f, 0.02f);
 
-      nk_tree_pop(g_Nk);
+        if (nk_button_label(g_Nk, "Reload")) {
+          LoadCharacterAsync(0);
+        }
+
+        nk_tree_pop(g_Nk);
+      }
     }
   }
   nk_end(g_Nk);
@@ -145,7 +178,9 @@ void Scene::Update(float dt) {
   g_Camera.Move(position);
 
   GroundPlane.Update(dt);
-  CurrentCharacter.Update(dt);
+  if (CurrentCharacterLoadStatus == CLS_Loaded) {
+    CurrentCharacter.Update(dt);
+  }
 }
 void Scene::Render() {
   // Camera::Recalculate should stay here even for the real game
@@ -154,7 +189,9 @@ void Scene::Render() {
   Character3DUpdateGpu(this, &g_Camera);
 
   GroundPlane.Render();
-  CurrentCharacter.Render();
+  if (CurrentCharacterLoadStatus == CLS_Loaded) {
+    CurrentCharacter.Render();
+  }
 }
 
 }  // namespace Impacto
