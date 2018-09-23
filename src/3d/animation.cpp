@@ -1,12 +1,10 @@
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/euler_angles.hpp>
-
 #include <vector>
 
 #include "animation.h"
 
 #include "../io/io.h"
 #include "../log.h"
+#include "../util.h"
 
 namespace Impacto {
 
@@ -63,18 +61,20 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
 
       // Read coord offsets/counts, so far, so normal...
 
+      ReadArrayLE16(track->KeyCounts + BKT_TranslateX, stream,
+                    BKT_Rotate - BKT_TranslateX);
       for (int j = BKT_TranslateX; j < BKT_Rotate; j++) {
         track->KeyOffsets[j] = currentCoordOffset;
-        track->KeyCounts[j] = SDL_ReadLE16(stream);
         currentCoordOffset += track->KeyCounts[j];
       }
 
       // Skip rotates
       SDL_RWseek(stream, 3 * sizeof(uint16_t), RW_SEEK_CUR);
 
+      ReadArrayLE16(track->KeyCounts + BKT_ScaleX, stream,
+                    BKT_Count - BKT_ScaleX);
       for (int j = BKT_ScaleX; j < BKT_Count; j++) {
         track->KeyOffsets[j] = currentCoordOffset;
-        track->KeyCounts[j] = SDL_ReadLE16(stream);
         currentCoordOffset += track->KeyCounts[j];
       }
 
@@ -99,17 +99,15 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
       uint16_t morphTargetCount = SDL_ReadLE16(stream);
 
       uint16_t virtualMorphTargetIds[AnimMaxMorphTargetsPerTrack];
-      for (int j = 0; j < morphTargetCount; j++) {
-        virtualMorphTargetIds[j] = SDL_ReadLE16(stream);
-      }
+      ReadArrayLE16(virtualMorphTargetIds, stream, morphTargetCount);
 
       SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
       SDL_RWseek(stream, 0x48, RW_SEEK_CUR);
 
       uint16_t morphInfluenceCounts[AnimMaxMorphTargetsPerTrack];
       int morphInfluenceOffsets[AnimMaxMorphTargetsPerTrack];
+      ReadArrayLE16(morphInfluenceCounts, stream, morphTargetCount);
       for (int j = 0; j < morphTargetCount; j++) {
-        morphInfluenceCounts[j] = SDL_ReadLE16(stream);
         morphInfluenceOffsets[j] = currentCoordOffset;
         currentCoordOffset += morphInfluenceCounts[j];
       }
@@ -122,11 +120,11 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
         track->KeyCounts[MKT_Visible] = visibilityCount;
         track->KeyOffsets[MKT_Visible] = visibilityOffset;
         track->MorphTargetCount = morphTargetCount;
+        memcpy(track->KeyCounts + MKT_MorphInfluenceStart, morphInfluenceCounts,
+               morphTargetCount * sizeof(uint16_t));
+        memcpy(track->KeyOffsets + MKT_MorphInfluenceStart,
+               morphInfluenceOffsets, morphTargetCount * sizeof(int));
         for (int k = 0; k < morphTargetCount; k++) {
-          track->KeyCounts[MKT_MorphInfluenceStart + k] =
-              morphInfluenceCounts[k];
-          track->KeyOffsets[MKT_MorphInfluenceStart + k] =
-              morphInfluenceOffsets[k];
           track->MorphTargetIds[k] =
               mesh->MorphTargetIds[virtualMorphTargetIds[k]];
         }
@@ -174,6 +172,8 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
       uint16_t rawRotYCount = SDL_ReadLE16(stream);
       uint16_t rawRotZCount = SDL_ReadLE16(stream);
 
+      rotationTrack.reserve(rawRotXCount + rawRotYCount + rawRotZCount);
+
       SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
       SDL_RWseek(stream, TrackOffsetsOffset + STT_RotateX * sizeof(uint32_t),
                  RW_SEEK_CUR);
@@ -182,79 +182,84 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
       int rawRotYOffset = SDL_ReadLE32(stream) + HeaderSize;
       int rawRotZOffset = SDL_ReadLE32(stream) + HeaderSize;
 
-      float currentXValue = 0.0f, currentYValue = 0.0f, currentZValue = 0.0f;
+      CoordKeyframe* rotXBuffer =
+          (CoordKeyframe*)malloc(sizeof(CoordKeyframe) * rawRotXCount);
+      CoordKeyframe* rotYBuffer =
+          (CoordKeyframe*)malloc(sizeof(CoordKeyframe) * rawRotYCount);
+      CoordKeyframe* rotZBuffer =
+          (CoordKeyframe*)malloc(sizeof(CoordKeyframe) * rawRotZCount);
+      SDL_RWseek(stream, rawRotXOffset, RW_SEEK_SET);
+      ReadArrayFloatLE32((float*)rotXBuffer, stream, 2 * rawRotXCount);
+      SDL_RWseek(stream, rawRotYOffset, RW_SEEK_SET);
+      ReadArrayFloatLE32((float*)rotYBuffer, stream, 2 * rawRotYCount);
+      SDL_RWseek(stream, rawRotZOffset, RW_SEEK_SET);
+      ReadArrayFloatLE32((float*)rotZBuffer, stream, 2 * rawRotZCount);
+
+      glm::vec3 currentEuler = glm::vec3(0.0f);
       // The defaults are 0, not BaseRotation, yes, really...
 
       uint16_t nextX = 0;
       uint16_t nextY = 0;
       uint16_t nextZ = 0;
 
-      int currentTime = -1;
-
-      int nextXTime, nextYTime, nextZTime;
-      float nextXValue, nextYValue, nextZValue;
+      float currentTime = -1;
 
       while (nextX < rawRotXCount || nextY < rawRotYCount ||
              nextZ < rawRotZCount) {
-        int nextTime = INT_MAX;
+        float nextTime = FLT_MAX;
 
         // Find lowest next time
         if (nextX < rawRotXCount) {
-          SDL_RWseek(stream, rawRotXOffset + nextX * (2 * sizeof(float)),
-                     RW_SEEK_SET);
-          nextXTime = (int)ReadFloatLE32(stream);
-          nextXValue = ReadFloatLE32(stream);
-          if (nextXTime > currentTime && nextXTime < nextTime) {
-            nextTime = nextXTime;
+          if (rotXBuffer[nextX].Time > currentTime &&
+              rotXBuffer[nextX].Time < nextTime) {
+            nextTime = rotXBuffer[nextX].Time;
           }
         }
         if (nextY < rawRotYCount) {
-          SDL_RWseek(stream, rawRotYOffset + nextY * (2 * sizeof(float)),
-                     RW_SEEK_SET);
-          nextYTime = (int)ReadFloatLE32(stream);
-          nextYValue = ReadFloatLE32(stream);
-          if (nextYTime > currentTime && nextYTime < nextTime) {
-            nextTime = nextYTime;
+          if (rotYBuffer[nextY].Time > currentTime &&
+              rotYBuffer[nextY].Time < nextTime) {
+            nextTime = rotYBuffer[nextY].Time;
           }
         }
         if (nextZ < rawRotZCount) {
-          SDL_RWseek(stream, rawRotZOffset + nextZ * (2 * sizeof(float)),
-                     RW_SEEK_SET);
-          nextZTime = (int)ReadFloatLE32(stream);
-          nextZValue = ReadFloatLE32(stream);
-          if (nextZTime > currentTime && nextZTime < nextTime) {
-            nextTime = nextZTime;
+          if (rotZBuffer[nextZ].Time > currentTime &&
+              rotZBuffer[nextZ].Time < nextTime) {
+            nextTime = rotZBuffer[nextZ].Time;
           }
         }
 
         // Advance each series to that time
         if (nextX < rawRotXCount) {
-          if (nextXTime == nextTime) {
-            currentXValue = nextXValue;
+          if (rotXBuffer[nextX].Time == nextTime) {
+            currentEuler.x = rotXBuffer[nextX].Value;
             nextX++;
           }
         }
         if (nextY < rawRotYCount) {
-          if (nextYTime == nextTime) {
-            currentYValue = nextYValue;
+          if (rotYBuffer[nextY].Time == nextTime) {
+            currentEuler.y = rotYBuffer[nextY].Value;
             nextY++;
           }
         }
         if (nextZ < rawRotZCount) {
-          if (nextZTime == nextTime) {
-            currentZValue = nextZValue;
+          if (rotZBuffer[nextZ].Time == nextTime) {
+            currentEuler.z = rotZBuffer[nextZ].Value;
             nextZ++;
           }
         }
 
         currentTime = nextTime;
         QuatKeyframe key;
-        key.Time = (float)currentTime / fileFrameTime;
-        key.Value = glm::quat_cast(
-            glm::eulerAngleZYX(currentZValue, currentYValue, currentXValue));
+        key.Time = currentTime / fileFrameTime;
+        eulerZYXToQuat(&currentEuler, &key.Value);
         rotationTrack.push_back(key);
       }
 
+      free(rotXBuffer);
+      free(rotYBuffer);
+      free(rotZBuffer);
+
+      rotationTrack.shrink_to_fit();
       rotationTracks.push_back(rotationTrack);
       track->KeyCounts[BKT_Rotate] = rotationTrack.size();
       track->KeyOffsets[BKT_Rotate] = result->QuatKeyframeCount;
@@ -295,13 +300,15 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
 
         SDL_RWseek(stream, HeaderSize + currentKeyframeOffset, RW_SEEK_SET);
 
-        for (int k = 0; k < currentKeyframeCount; k++) {
-          result->CoordKeyframes[currentCoordOffset].Time =
-              ReadFloatLE32(stream) / fileFrameTime;
-          result->CoordKeyframes[currentCoordOffset].Value =
-              ReadFloatLE32(stream);
-          currentCoordOffset++;
+        ReadArrayFloatLE32(
+            (float*)(result->CoordKeyframes + currentCoordOffset), stream,
+            2 * currentKeyframeCount);
+        for (float* time = (float*)result->CoordKeyframes;
+             time < (float*)(result->CoordKeyframes + currentKeyframeCount);
+             time += 2) {
+          *time /= fileFrameTime;
         }
+        currentCoordOffset += currentKeyframeCount;
       }
 
       // Already have rotate keyframe data
@@ -336,39 +343,41 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
       SDL_RWseek(stream, 0x48, RW_SEEK_CUR);
 
       uint16_t morphInfluenceCounts[AnimMaxMorphTargetsPerTrack];
-      for (int j = 0; j < morphTargetCount; j++) {
-        morphInfluenceCounts[j] = SDL_ReadLE16(stream);
-      }
+      ReadArrayLE16(morphInfluenceCounts, stream, morphTargetCount);
 
       // Visibility data
       SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
       SDL_RWseek(stream, TrackOffsetsOffset, RW_SEEK_CUR);
       int rawVisibilityOffset = SDL_ReadLE32(stream);
       SDL_RWseek(stream, HeaderSize + rawVisibilityOffset, RW_SEEK_SET);
-      for (int j = 0; j < visibilityCount; j++) {
-        result->CoordKeyframes[currentCoordOffset].Time =
-            ReadFloatLE32(stream) / fileFrameTime;
-        result->CoordKeyframes[currentCoordOffset].Value =
-            ReadFloatLE32(stream);
-        currentCoordOffset++;
+
+      ReadArrayFloatLE32((float*)(result->CoordKeyframes + currentCoordOffset),
+                         stream, 2 * visibilityCount);
+      for (float* time = (float*)result->CoordKeyframes;
+           time < (float*)(result->CoordKeyframes + visibilityCount);
+           time += 2) {
+        *time /= fileFrameTime;
       }
+      currentCoordOffset += visibilityCount;
 
       // Morph influence data
       SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
       SDL_RWseek(stream, 0xA8, RW_SEEK_CUR);
       int rawInfluenceOffsets[16];
-      for (int j = 0; j < morphTargetCount; j++) {
-        rawInfluenceOffsets[j] = SDL_ReadLE32(stream);
-      }
+      ReadArrayLE32(rawInfluenceOffsets, stream, morphTargetCount);
       for (int j = 0; j < morphTargetCount; j++) {
         SDL_RWseek(stream, HeaderSize + rawInfluenceOffsets[j], RW_SEEK_SET);
-        for (int k = 0; k < morphInfluenceCounts[j]; k++) {
-          result->CoordKeyframes[currentCoordOffset].Time =
-              ReadFloatLE32(stream) / fileFrameTime;
-          result->CoordKeyframes[currentCoordOffset].Value =
-              ReadFloatLE32(stream) / 100.0f;
-          currentCoordOffset++;
+        ReadArrayFloatLE32(
+            (float*)(result->CoordKeyframes + currentCoordOffset), stream,
+            morphInfluenceCounts[j] * 2);
+        for (CoordKeyframe* key = result->CoordKeyframes + currentCoordOffset;
+             key < (result->CoordKeyframes + currentCoordOffset +
+                    morphInfluenceCounts[j]);
+             key++) {
+          key->Time /= fileFrameTime;
+          key->Value /= 100.0f;
         }
+        currentCoordOffset += morphInfluenceCounts[j];
       }
     }
   }
