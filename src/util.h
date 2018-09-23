@@ -45,9 +45,30 @@ inline void eulerZYXToQuat(glm::vec3 const* zyx, glm::quat* quat) {
   float cosp = cos(zyx->y * 0.5f);
   float sinp = sin(zyx->y * 0.5f);
 
-  quat->w = cosy * cosr * cosp + siny * sinr * sinp;
+  // This is currently slower than the scalar variant
+  // TODO use sse swizzle instead of set
+#if defined(__SSE2__) && 0
+  __m128 a = _mm_set_ps(cosy, siny, cosy, cosy);
+  __m128 b = _mm_set_ps(cosr, cosr, cosr, sinr);
+  a = _mm_mul_ps(a, b);
+  b = _mm_set_ps(cosp, cosp, sinp, cosp);
+  a = _mm_mul_ps(a, b);
+
+  b = _mm_set_ps(siny, cosy, siny, siny);
+  __m128 c = _mm_set_ps(sinr, sinr, sinr, cosr);
+  b = _mm_mul_ps(b, c);
+  c = _mm_set_ps(sinp, sinp, cosp, sinp);
+  b = _mm_mul_ps(b, c);
+
+  const __m128 d = _mm_set_ps(1.0f, -1.0f, 1.0f, -1.0f);
+  b = _mm_mul_ps(b, d);
+
+  *(__m128*)quat = _mm_add_ps(a, b);
+#else
   quat->x = cosy * sinr * cosp - siny * cosr * sinp;
   quat->y = cosy * cosr * sinp + siny * sinr * cosp;
   quat->z = siny * cosr * cosp - cosy * sinr * sinp;
+  quat->w = cosy * cosr * cosp + siny * sinr * sinp;
+#endif
 }
 }  // namespace Impacto

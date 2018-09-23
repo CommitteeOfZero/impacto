@@ -81,6 +81,8 @@ uint32_t Texture::Submit() {
                GL_UNSIGNED_BYTE, Buffer);
 
   // Build mip chain
+  // TODO do this ourselves outside of Submit(), this can easily cause a
+  // framedrop
   glGenerateMipmap(GL_TEXTURE_2D);
 
   return result;
