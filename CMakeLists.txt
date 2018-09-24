@@ -31,6 +31,7 @@ set(Impacto_Src
     src/io/io.cpp
     src/io/vfs.cpp
     src/io/mpkdriver.cpp
+    src/io/cpkdriver.cpp
 
     src/texture/texture.cpp
     src/texture/s3tc.cpp

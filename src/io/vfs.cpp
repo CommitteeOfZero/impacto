@@ -3,6 +3,7 @@
 
 #include "vfs.h"
 #include "mpkdriver.h"
+#include "cpkdriver.h"
 
 #include "../log.h"
 #include "../util.h"
@@ -337,6 +338,9 @@ IoError VfsArchive::OverlayOpen(uint32_t id, SDL_RWops** outHandle) {
   }
 }
 
-void VfsInit() { MpkRegisterDriver(); }
+void VfsInit() {
+  MpkRegisterDriver();
+  CpkRegisterDriver();
+}
 
 }  // namespace Impacto
