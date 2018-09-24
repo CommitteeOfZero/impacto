@@ -49,6 +49,18 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t animId) {
   // Offset into result->CoordKeyframes[]
   int currentCoordOffset = 0;
 
+  // Input data is bad and sometimes contains more than one track for the same
+  // ID (especially 0). The reference implementation ignores everything after
+  // the first track for an ID. We need to do that to, otherwise glitches e.g.
+  // on c002_030.
+  // TODO: Is this per-track (current implementation) or per-*subtrack*? E.g.
+  // can there be a track specifying only TranslateX for a bone and another
+  // specifying only TranslateY?
+  int32_t TrackForBone[ModelMaxBonesPerModel];
+  memset(TrackForBone, 0xFF, sizeof(TrackForBone));
+  int32_t TrackForMeshGroup[ModelMaxMeshesPerModel];
+  memset(TrackForMeshGroup, 0xFF, sizeof(TrackForMeshGroup));
+
   // Only get coord track counts/offsets and other simple data
   for (uint32_t i = 0; i < trackCount; i++) {
     ImpLogSlow(LL_Trace, LC_ModelLoad, "Pass 1 for track %d\n", i);
@@ -57,11 +69,17 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t animId) {
     uint16_t id = SDL_ReadLE16(stream);
     uint16_t targetType = SDL_ReadLE16(stream);
     if (targetType == TargetType_Bone) {
+      if (TrackForBone[id] != -1) {
+        ImpLogSlow(LL_Trace, LC_ModelLoad,
+                   "Skipping duplicate track %d for bone %d\n", i, id);
+        continue;
+      }
       ImpLogSlow(LL_Trace, LC_ModelLoad, "Track %d is bone %d\n", i, id);
 
       BoneTrack* track = &result->BoneTracks[result->BoneTrackCount];
 
       track->Bone = id;
+      TrackForBone[id] = i;
 
       SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
       // Skip id, targetType, unknown ushort and visibility
@@ -94,7 +112,14 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t animId) {
 
       result->BoneTrackCount++;
     } else {
+      if (TrackForMeshGroup[id] != -1) {
+        ImpLogSlow(LL_Trace, LC_ModelLoad,
+                   "Skipping duplicate track %d for bone %d\n", i, id);
+        continue;
+      }
       ImpLogSlow(LL_Trace, LC_ModelLoad, "Track %d is mesh group %d\n", i, id);
+
+      TrackForMeshGroup[id] = i;
 
       // Mesh group track
       std::vector<Mesh*> meshes;
@@ -191,6 +216,8 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t animId) {
     uint16_t id = SDL_ReadLE16(stream);
     uint16_t targetType = SDL_ReadLE16(stream);
     if (targetType == TargetType_Bone) {
+      if (i != TrackForBone[id]) continue;
+
       ImpLogSlow(LL_Trace, LC_ModelLoad,
                  "Interleaving rotations track %d bone %d\n", i, id);
       BoneTrack* track = &result->BoneTracks[currentBoneTrack];
@@ -333,7 +360,9 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t animId) {
     SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
     uint16_t id = SDL_ReadLE16(stream);
     uint16_t targetType = SDL_ReadLE16(stream);
-    if (targetType == 0) {
+    if (targetType == TargetType_Bone) {
+      if (i != TrackForBone[id]) continue;
+
       BoneTrack* track = &result->BoneTracks[currentBoneTrack];
 
       // Coords
@@ -384,6 +413,8 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t animId) {
 
       currentBoneTrack++;
     } else {
+      if (i != TrackForMeshGroup[id]) continue;
+
       // Mesh group track
       SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
       // Skip id, targetType, unknown ushort
