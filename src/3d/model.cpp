@@ -27,6 +27,12 @@ uint32_t* g_AnimationIds;
 char** g_AnimationNames;
 uint32_t g_AnimationCount;
 
+bool AnimationIsBlacklisted(uint32_t modelId, uint16_t animId) {
+  // This animation file is just broken
+  if (modelId == 273 && animId == 22) return true;
+  return false;
+}
+
 void Model::Init() {
   assert(AllModelsArchive == NULL);
   ImpLog(LL_Info, LC_ModelLoad, "Initializing model loader\n");
@@ -333,7 +339,8 @@ Model* Model::Load(uint32_t modelId) {
   VfsFileInfo animFileInfo;
   err = modelArchive->EnumerateStart(&iterator, &animFileInfo);
   while (err == IoError_OK) {
-    if (animFileInfo.Id != 0) {
+    if (animFileInfo.Id != 0 &&
+        !AnimationIsBlacklisted(modelId, animFileInfo.Id)) {
       int64_t animSize;
       void* animData;
       modelArchive->Slurp(animFileInfo.Id, &animData, &animSize);
@@ -355,7 +362,8 @@ Model* Model::Load(uint32_t modelId) {
 
   err = modelArchive->EnumerateStart(&iterator, &animFileInfo);
   while (err == IoError_OK) {
-    if (animFileInfo.Id != 0) {
+    if (animFileInfo.Id != 0 &&
+        !AnimationIsBlacklisted(modelId, animFileInfo.Id)) {
       g_AnimationIds[currentAnim] = animFileInfo.Id;
       g_AnimationNames[currentAnim] = strdup(animFileInfo.Name);
       currentAnim++;
