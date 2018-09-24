@@ -589,7 +589,7 @@ IoError CpkArchive::DriverCanStream(uint32_t id, bool* outResult) {
   return IoError_OK;
 }
 
-uint16_t get_next_bits(SDL_RWops* input, int* offset_p, uint8_t* bit_pool_p,
+uint16_t get_next_bits(char* input, int* offset_p, uint8_t* bit_pool_p,
                        int* bits_left_p, int bit_count) {
   uint16_t out_bits = 0;
   int num_bits_produced = 0;
@@ -597,10 +597,7 @@ uint16_t get_next_bits(SDL_RWops* input, int* offset_p, uint8_t* bit_pool_p,
 
   while (num_bits_produced < bit_count) {
     if (*bits_left_p == 0) {
-      long retAddr = SDL_RWtell(input);
-      SDL_RWseek(input, *offset_p, RW_SEEK_SET);
-      *bit_pool_p = SDL_ReadU8(input);
-      SDL_RWseek(input, retAddr, RW_SEEK_SET);
+      *bit_pool_p = input[*offset_p];
       *bits_left_p = 8;
       *offset_p = *offset_p - 1;
     }
@@ -641,13 +638,17 @@ IoError CpkArchive::DriverSlurp(uint32_t id, void* outBuffer) {
       return IoError_Fail;
     }
 
+    char* input = (char*)malloc(entry->CompressedSize);
+    SDL_RWread(BaseStream, input, 1, entry->CompressedSize);
+    SDL_RWseek(BaseStream, fileCur, RW_SEEK_SET);
+
     SDL_RWseek(BaseStream, 8, RW_SEEK_CUR);
     int uncompressed_size = SDL_ReadLE32(BaseStream);
     int uncompressed_header_offset = SDL_ReadLE32(BaseStream);
     SDL_RWseek(BaseStream, uncompressed_header_offset, RW_SEEK_CUR);
     SDL_RWread(BaseStream, outBuffer, 1, 0x100);
 
-    int input_end = (entry->CompressedSize - 0x100 - 1) + entry->Offset;
+    int input_end = (entry->CompressedSize - 0x100 - 1);
     int input_offset = input_end;
     int output_end = 0x100 + uncompressed_size - 1;
     uint8_t bit_pool = 0;
@@ -655,17 +656,15 @@ IoError CpkArchive::DriverSlurp(uint32_t id, void* outBuffer) {
     int vle_lens[4] = {2, 3, 5, 8};
 
     while (bytes_output < uncompressed_size) {
-      if (get_next_bits(BaseStream, &input_offset, &bit_pool, &bits_left, 1) >
-          0) {
-        int backreference_offset = output_end - bytes_output +
-                                   get_next_bits(BaseStream, &input_offset,
-                                                 &bit_pool, &bits_left, 13) +
-                                   3;
+      if (get_next_bits(input, &input_offset, &bit_pool, &bits_left, 1) > 0) {
+        int backreference_offset =
+            output_end - bytes_output +
+            get_next_bits(input, &input_offset, &bit_pool, &bits_left, 13) + 3;
         int backreference_length = 3;
         int vle_level;
 
         for (vle_level = 0; vle_level < 4; vle_level++) {
-          int this_level = get_next_bits(BaseStream, &input_offset, &bit_pool,
+          int this_level = get_next_bits(input, &input_offset, &bit_pool,
                                          &bits_left, vle_lens[vle_level]);
           backreference_length += this_level;
           if (this_level != ((1 << vle_lens[vle_level]) - 1)) break;
@@ -674,8 +673,8 @@ IoError CpkArchive::DriverSlurp(uint32_t id, void* outBuffer) {
         if (vle_level == 4) {
           int this_level;
           do {
-            this_level = get_next_bits(BaseStream, &input_offset, &bit_pool,
-                                       &bits_left, 8);
+            this_level =
+                get_next_bits(input, &input_offset, &bit_pool, &bits_left, 8);
             backreference_length += this_level;
           } while (this_level == 255);
         }
@@ -688,10 +687,11 @@ IoError CpkArchive::DriverSlurp(uint32_t id, void* outBuffer) {
       } else {
         // verbatim byte
         ((char*)outBuffer)[output_end - bytes_output] = (uint8_t)get_next_bits(
-            BaseStream, &input_offset, &bit_pool, &bits_left, 8);
+            input, &input_offset, &bit_pool, &bits_left, 8);
         bytes_output++;
       }
     }
+    free(input);
     return IoError_OK;
   }
 }
