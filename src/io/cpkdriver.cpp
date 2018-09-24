@@ -545,7 +545,7 @@ IoError CpkArchive::GetId(const char* path, uint32_t* outId) {
 
 IoError CpkArchive::EnumerateNext(uint32_t* inoutIterator,
                                   VfsFileInfo* outFileInfo) {
-  if (FileCount >= *inoutIterator || *inoutIterator < 0) {
+  if (FileCount <= *inoutIterator || *inoutIterator < 0) {
     ImpLogSlow(LL_Trace, LC_IO,
                "CPK EnumerateNext: %d out of bounds in \"%s\"\n",
                *inoutIterator, MountPoint);
@@ -554,7 +554,8 @@ IoError CpkArchive::EnumerateNext(uint32_t* inoutIterator,
   outFileInfo->Id = TOC[*inoutIterator].Id;
   strncpy(outFileInfo->Name, TOC[*inoutIterator].Name,
           std::min(VfsMaxPath, CpkMaxPath));
-  *inoutIterator++;
+  outFileInfo->Name[VfsMaxPath - 1] = '\0';
+  *inoutIterator = *inoutIterator + 1;
   return IoError_OK;
 }
 

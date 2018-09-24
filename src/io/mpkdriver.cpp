@@ -464,7 +464,7 @@ IoError MpkArchive::GetId(const char* path, uint32_t* outId) {
 
 IoError MpkArchive::EnumerateNext(uint32_t* inoutIterator,
                                   VfsFileInfo* outFileInfo) {
-  if (FileCount >= *inoutIterator || *inoutIterator < 0) {
+  if (FileCount <= *inoutIterator || *inoutIterator < 0) {
     ImpLogSlow(LL_Trace, LC_IO,
                "MPK EnumerateNext: %d out of bounds in \"%s\"\n",
                *inoutIterator, MountPoint);
@@ -474,7 +474,7 @@ IoError MpkArchive::EnumerateNext(uint32_t* inoutIterator,
   strncpy(outFileInfo->Name, TOC[*inoutIterator].Name,
           std::min(VfsMaxPath, MpkMaxPath));
   outFileInfo->Name[VfsMaxPath - 1] = '\0';
-  *inoutIterator++;
+  *inoutIterator = *inoutIterator + 1;
   return IoError_OK;
 }
 
