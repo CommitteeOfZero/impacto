@@ -58,7 +58,7 @@ struct MeshTrack {
 
 class Animation {
  public:
-  static Animation* Load(SDL_RWops* stream, Model* model, uint16_t id);
+  static Animation* Load(SDL_RWops* stream, Model* model, uint16_t animId);
   ~Animation();
 
   // Per-model ID

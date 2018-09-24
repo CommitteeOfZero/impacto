@@ -30,27 +30,35 @@ enum SubTrackType {
   STT_ScaleZ = 9,
 };
 
-Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
-  ImpLog(LL_Debug, LC_ModelLoad, "Loading animation %hu for model %d\n", id,
-         model->Id);
+Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t animId) {
+  ImpLogSlow(LL_Trace, LC_ModelLoad, "Loading animation %hu for model %d\n",
+             animId, model->Id);
 
   Animation* result = new Animation;
-  result->Id = id;
+  result->Id = animId;
 
   SDL_RWseek(stream, HeaderDurationOffset, RW_SEEK_SET);
   result->Duration = ReadFloatLE32(stream) / fileFrameTime;
   uint32_t trackCount = SDL_ReadLE32(stream);
   uint32_t tracksOffset = SDL_ReadLE32(stream);
 
+  ImpLogSlow(LL_Trace, LC_ModelLoad,
+             "Duration (s): %f, track count: %d, tracksOffset: %08x\n",
+             result->Duration, trackCount, tracksOffset);
+
   // Offset into result->CoordKeyframes[]
   int currentCoordOffset = 0;
 
   // Only get coord track counts/offsets and other simple data
   for (uint32_t i = 0; i < trackCount; i++) {
+    ImpLogSlow(LL_Trace, LC_ModelLoad, "Pass 1 for track %d\n", i);
+
     SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
     uint16_t id = SDL_ReadLE16(stream);
     uint16_t targetType = SDL_ReadLE16(stream);
     if (targetType == TargetType_Bone) {
+      ImpLogSlow(LL_Trace, LC_ModelLoad, "Track %d is bone %d\n", i, id);
+
       BoneTrack* track = &result->BoneTracks[result->BoneTrackCount];
 
       track->Bone = id;
@@ -66,6 +74,9 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
       for (int j = BKT_TranslateX; j < BKT_Rotate; j++) {
         track->KeyOffsets[j] = currentCoordOffset;
         currentCoordOffset += track->KeyCounts[j];
+        ImpLogSlow(LL_Trace, LC_ModelLoad,
+                   "Subtrack %d: count %d offset %08x\n", j,
+                   track->KeyCounts[j], track->KeyOffsets[j]);
       }
 
       // Skip rotates
@@ -76,10 +87,15 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
       for (int j = BKT_ScaleX; j < BKT_Count; j++) {
         track->KeyOffsets[j] = currentCoordOffset;
         currentCoordOffset += track->KeyCounts[j];
+        ImpLogSlow(LL_Trace, LC_ModelLoad,
+                   "Subtrack %d: count %d offset %08x\n", j,
+                   track->KeyCounts[j], track->KeyOffsets[j]);
       }
 
       result->BoneTrackCount++;
     } else {
+      ImpLogSlow(LL_Trace, LC_ModelLoad, "Track %d is mesh group %d\n", i, id);
+
       // Mesh group track
       std::vector<Mesh*> meshes;
       for (int j = 0; j < model->MeshCount; j++) {
@@ -93,11 +109,14 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
       uint16_t visibilityCount = SDL_ReadLE16(stream);
       int visibilityOffset = currentCoordOffset;
       currentCoordOffset += visibilityCount;
+      ImpLogSlow(LL_Trace, LC_ModelLoad, "Visibility count %d offset %08x\n",
+                 visibilityCount, visibilityOffset);
 
       SDL_RWseek(stream, 0x1E, RW_SEEK_CUR);
 
       uint16_t morphTargetCount = SDL_ReadLE16(stream);
-
+      ImpLogSlow(LL_Trace, LC_ModelLoad, "Morph target count %d\n",
+                 morphTargetCount);
       uint16_t virtualMorphTargetIds[AnimMaxMorphTargetsPerTrack];
       ReadArrayLE16(virtualMorphTargetIds, stream, morphTargetCount);
 
@@ -110,12 +129,17 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
       for (int j = 0; j < morphTargetCount; j++) {
         morphInfluenceOffsets[j] = currentCoordOffset;
         currentCoordOffset += morphInfluenceCounts[j];
+        ImpLogSlow(LL_Trace, LC_ModelLoad,
+                   "Morph %d: influence count %d offset %08x\n", j,
+                   morphInfluenceCounts[j], morphInfluenceOffsets[j]);
       }
 
       for (int j = 0; j < meshes.size(); j++) {
         Mesh* mesh = meshes[j];
         MeshTrack* track = &result->MeshTracks[result->MeshTrackCount + j];
         track->Mesh = mesh->Id;
+        ImpLogSlow(LL_Trace, LC_ModelLoad, "Mesh group %d <= mesh %d\n", id,
+                   mesh->Id);
 
         track->KeyCounts[MKT_Visible] = visibilityCount;
         track->KeyOffsets[MKT_Visible] = visibilityOffset;
@@ -127,6 +151,9 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
         for (int k = 0; k < morphTargetCount; k++) {
           track->MorphTargetIds[k] =
               mesh->MorphTargetIds[virtualMorphTargetIds[k]];
+          ImpLogSlow(LL_Trace, LC_ModelLoad,
+                     "Morph %d for this mesh: morph target %d\n", k,
+                     mesh->MorphTargetIds[virtualMorphTargetIds[k]]);
         }
       }
       result->MeshTrackCount += meshes.size();
@@ -136,6 +163,10 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
   result->CoordKeyframeCount = currentCoordOffset;
   result->CoordKeyframes = (CoordKeyframe*)malloc(sizeof(CoordKeyframe) *
                                                   result->CoordKeyframeCount);
+
+  ImpLogSlow(LL_Trace, LC_ModelLoad,
+             "---\nTotal coord keyframe count: %d\n---\n",
+             result->CoordKeyframeCount);
 
   //
   // Interleave rotations. Fun!
@@ -160,6 +191,8 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
     uint16_t id = SDL_ReadLE16(stream);
     uint16_t targetType = SDL_ReadLE16(stream);
     if (targetType == TargetType_Bone) {
+      ImpLogSlow(LL_Trace, LC_ModelLoad,
+                 "Interleaving rotations track %d bone %d\n", i, id);
       BoneTrack* track = &result->BoneTracks[currentBoneTrack];
 
       std::vector<QuatKeyframe> rotationTrack;
@@ -172,6 +205,9 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
       uint16_t rawRotYCount = SDL_ReadLE16(stream);
       uint16_t rawRotZCount = SDL_ReadLE16(stream);
 
+      ImpLogSlow(LL_Trace, LC_ModelLoad,
+                 "rawRotXCount=%d, rawRotYCount=%d, rawRotZCount=%d\n",
+                 rawRotXCount, rawRotYCount, rawRotZCount);
       rotationTrack.reserve(rawRotXCount + rawRotYCount + rawRotZCount);
 
       SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
@@ -181,6 +217,10 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
       int rawRotXOffset = SDL_ReadLE32(stream) + HeaderSize;
       int rawRotYOffset = SDL_ReadLE32(stream) + HeaderSize;
       int rawRotZOffset = SDL_ReadLE32(stream) + HeaderSize;
+
+      ImpLogSlow(LL_Trace, LC_ModelLoad,
+                 "rawRotXOffset=%d, rawRotYOffset=%d, rawRotZOffset=%d\n",
+                 rawRotXOffset, rawRotYOffset, rawRotZOffset);
 
       CoordKeyframe* rotXBuffer =
           (CoordKeyframe*)malloc(sizeof(CoordKeyframe) * rawRotXCount);
@@ -253,6 +293,12 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
         key.Time = currentTime / fileFrameTime;
         eulerZYXToQuat(&currentEuler, &key.Value);
         rotationTrack.push_back(key);
+
+        ImpLogSlow(LL_Trace, LC_ModelLoad,
+                   "QuatKeyframe with z=%f, y=%f, x=%f - nextX=%d, nextY=%d, "
+                   "nextZ=%d - currentTime=%f\n",
+                   currentEuler.z, currentEuler.y, currentEuler.x, nextX, nextY,
+                   nextZ, currentTime);
       }
 
       free(rotXBuffer);
@@ -265,12 +311,19 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
       track->KeyOffsets[BKT_Rotate] = result->QuatKeyframeCount;
       result->QuatKeyframeCount += track->KeyCounts[BKT_Rotate];
 
+      ImpLogSlow(LL_Trace, LC_ModelLoad, "QuatKeyframe count %d offset %08x\n",
+                 track->KeyCounts[BKT_Rotate], track->KeyOffsets[BKT_Rotate]);
+
       currentBoneTrack++;
     }
   }
 
   result->QuatKeyframes =
       (QuatKeyframe*)malloc(sizeof(QuatKeyframe) * result->QuatKeyframeCount);
+
+  ImpLogSlow(LL_Trace, LC_ModelLoad,
+             "---\nTotal quat keyframe count: %d\n---\n",
+             result->QuatKeyframeCount);
 
   // Now that we have the buffers, fill with data
 
