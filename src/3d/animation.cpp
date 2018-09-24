@@ -303,8 +303,10 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
         ReadArrayFloatLE32(
             (float*)(result->CoordKeyframes + currentCoordOffset), stream,
             2 * currentKeyframeCount);
-        for (float* time = (float*)result->CoordKeyframes;
-             time < (float*)(result->CoordKeyframes + currentKeyframeCount);
+        for (float* time =
+                 (float*)(result->CoordKeyframes + currentCoordOffset);
+             time < (float*)(result->CoordKeyframes + currentCoordOffset +
+                             currentKeyframeCount);
              time += 2) {
           *time /= fileFrameTime;
         }
@@ -353,8 +355,9 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t id) {
 
       ReadArrayFloatLE32((float*)(result->CoordKeyframes + currentCoordOffset),
                          stream, 2 * visibilityCount);
-      for (float* time = (float*)result->CoordKeyframes;
-           time < (float*)(result->CoordKeyframes + visibilityCount);
+      for (float* time = (float*)(result->CoordKeyframes + currentCoordOffset);
+           time < (float*)(result->CoordKeyframes + currentCoordOffset +
+                           visibilityCount);
            time += 2) {
         *time /= fileFrameTime;
       }
