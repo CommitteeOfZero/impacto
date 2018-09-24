@@ -13,5 +13,13 @@ void BlockDecompressImageDXT1(uint32_t width, uint32_t height,
 void BlockDecompressImageDXT1VitaSwizzled(uint32_t width, uint32_t height,
                                           SDL_RWops* inputStream,
                                           uint8_t* outputImage);
+
+void DecompressBlockDXT5(uint32_t startX, uint32_t startY, uint32_t imageWidth,
+                         SDL_RWops* inputStream, uint8_t* outputImage);
+void BlockDecompressImageDXT5(uint32_t width, uint32_t height,
+                              SDL_RWops* inputStream, uint8_t* outputImage);
+void BlockDecompressImageDXT5VitaSwizzled(uint32_t width, uint32_t height,
+                                          SDL_RWops* inputStream,
+                                          uint8_t* outputImage);
 }  // namespace TexLoad
 }  // namespace Impacto
