@@ -21,7 +21,7 @@ void SceneInit() {
   g_Camera.Init();
   Character3DInit();
 
-  g_Scene.LoadCharacterAsync(0);
+  g_Scene.LoadCharacterAsync(239);  // c002_010
   g_Scene.GroundPlane.MakePlane();
   g_Scene.GroundPlane.Submit();
 
@@ -159,7 +159,7 @@ void Scene::Update(float dt) {
                           1.0f, 0.02f);
 
         if (nk_button_label(g_Nk, "Reload")) {
-          LoadCharacterAsync(0);
+          LoadCharacterAsync(239);
         }
 
         nk_tree_pop(g_Nk);

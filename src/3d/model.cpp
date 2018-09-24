@@ -10,7 +10,7 @@
 
 namespace Impacto {
 
-static VfsArchive* ModelArchive = NULL;
+static VfsArchive* AllModelsArchive = NULL;
 
 const uint32_t ModelFileCountsOffset = 0x24;
 const uint32_t ModelFileHeaderSize = 0x54;
@@ -20,11 +20,11 @@ const uint32_t MorphTargetInfoSize = 16;
 const uint32_t BoneBaseTransformOffset = 0x11C;
 
 void Model::Init() {
-  assert(ModelArchive == NULL);
+  assert(AllModelsArchive == NULL);
   ImpLog(LL_Info, LC_ModelLoad, "Initializing model loader\n");
-  IoError err = VfsArchive::Mount("model.mpk", &ModelArchive);
+  IoError err = VfsArchive::Mount("model.cpk", &AllModelsArchive);
   if (err != IoError_OK) {
-    ModelArchive = NULL;
+    AllModelsArchive = NULL;
     ImpLog(LL_Error, LC_ModelLoad, "Could not open model archive: %d\n", err);
   }
 }
@@ -39,15 +39,24 @@ Model::~Model() {
 }
 
 Model* Model::Load(uint32_t modelId) {
-  assert(ModelArchive != NULL);
+  assert(AllModelsArchive != NULL);
   ImpLogSlow(LL_Debug, LC_ModelLoad, "Loading model %d\n", modelId);
+
+  VfsArchive* modelArchive;
+  IoError err = AllModelsArchive->MountChild(modelId, &modelArchive);
+  if (err != IoError_OK) {
+    ImpLog(LL_Error, LC_ModelLoad, "Could not open model archive for %d\n",
+           modelId);
+    return NULL;
+  }
 
   void* file;
   int64_t fileSize;
-  IoError err = ModelArchive->Slurp(modelId, &file, &fileSize);
+  err = modelArchive->Slurp((uint32_t)0, &file, &fileSize);
   if (err != IoError_OK) {
     ImpLog(LL_Error, LC_ModelLoad, "Could not read model file for %d\n",
            modelId);
+    delete modelArchive;
     return NULL;
   }
 
@@ -261,14 +270,25 @@ Model* Model::Load(uint32_t modelId) {
   }
 
   // Animations
-  // TODO model.cpk
-  int64_t animSize;
-  void* animData;
-  ModelArchive->Slurp(1, &animData, &animSize);
-  SDL_RWops* animStream = SDL_RWFromConstMem(animData, animSize);
-  result->Animations[1] = Animation::Load(animStream, result, 1);
-  SDL_RWclose(animStream);
-  free(animData);
+
+  uint32_t iterator;
+  VfsFileInfo animFileInfo;
+  err = modelArchive->EnumerateStart(&iterator, &animFileInfo);
+  while (err == IoError_OK) {
+    if (animFileInfo.Id != 0) {
+      int64_t animSize;
+      void* animData;
+      modelArchive->Slurp(animFileInfo.Id, &animData, &animSize);
+      SDL_RWops* animStream = SDL_RWFromConstMem(animData, animSize);
+      result->Animations[animFileInfo.Id] =
+          Animation::Load(animStream, result, animFileInfo.Id);
+      SDL_RWclose(animStream);
+      free(animData);
+    }
+    err = modelArchive->EnumerateNext(&iterator, &animFileInfo);
+  }
+
+  delete modelArchive;
 
   return result;
 }
