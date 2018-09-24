@@ -9,6 +9,10 @@ void ModelAnimator::Start(uint16_t animId) {
 
   CurrentAnimation = Character->StaticModel->Animations.at(animId);
 
+  CurrentTime = 0.0f;
+  LoopStart = 0.0f;
+  LoopEnd = CurrentAnimation->Duration;
+  IsPlaying = true;
   Reset();
 }
 void ModelAnimator::Reset() {
@@ -18,30 +22,41 @@ void ModelAnimator::Reset() {
   Character->ReloadDefaultBoneTransforms();
   Character->ReloadDefaultMeshAnimStatus();
 
-  CurrentTime = 0.0f;
-
-  for (int i = 0; i < CurrentAnimation->BoneTrackCount; i++) {
-    for (int j = 0; j < BKT_Count; j++) {
-      BoneKeys[i].CurrentKeys[j] = 0;
-      BoneKeys[i].NextKeys[j] = 1;
-    }
-  }
-
-  for (int i = 0; i < CurrentAnimation->MeshTrackCount; i++) {
-    for (int j = 0; j < MKT_Count; j++) {
-      MeshKeys[i].CurrentKeys[j] = 0;
-      MeshKeys[i].NextKeys[j] = 1;
+  if (CurrentAnimation != 0) {
+    for (int i = 0; i < CurrentAnimation->BoneTrackCount; i++) {
+      for (int j = 0; j < BKT_Count; j++) {
+        BoneKeys[i].CurrentKeys[j] = 0;
+        BoneKeys[i].NextKeys[j] = 1;
+      }
     }
 
-    Character->MeshAnimStatus[CurrentAnimation->MeshTracks[i].Mesh]
-        .UsedMorphTargetCount =
-        CurrentAnimation->MeshTracks[i].MorphTargetCount;
-    for (int j = 0; j < CurrentAnimation->MeshTracks[i].MorphTargetCount; j++) {
+    for (int i = 0; i < CurrentAnimation->MeshTrackCount; i++) {
+      for (int j = 0; j < MKT_Count; j++) {
+        MeshKeys[i].CurrentKeys[j] = 0;
+        MeshKeys[i].NextKeys[j] = 1;
+      }
+
       Character->MeshAnimStatus[CurrentAnimation->MeshTracks[i].Mesh]
-          .UsedMorphTargetIds[j] =
-          CurrentAnimation->MeshTracks[i].MorphTargetIds[j];
+          .UsedMorphTargetCount =
+          CurrentAnimation->MeshTracks[i].MorphTargetCount;
+      for (int j = 0; j < CurrentAnimation->MeshTracks[i].MorphTargetCount;
+           j++) {
+        Character->MeshAnimStatus[CurrentAnimation->MeshTracks[i].Mesh]
+            .UsedMorphTargetIds[j] =
+            CurrentAnimation->MeshTracks[i].MorphTargetIds[j];
+      }
     }
   }
+}
+
+void ModelAnimator::Unload() {
+  Character->ReloadDefaultBoneTransforms();
+  Character->ReloadDefaultMeshAnimStatus();
+  CurrentAnimation = 0;
+  CurrentTime = 0.0f;
+  LoopStart = 0.0f;
+  LoopEnd = 0.0f;
+  IsPlaying = false;
 }
 
 // For each sub-track, if we're not on the last keyframe already, make sure the
@@ -99,13 +114,13 @@ void ModelAnimator::Reset() {
   void(0)
 
 void ModelAnimator::Update(float dt) {
-  assert(Character != 0);
-  assert(CurrentAnimation != 0);
+  if (!IsPlaying || CurrentAnimation == 0 || Character == 0) return;
 
   CurrentTime += dt;
-  if (CurrentTime > CurrentAnimation->Duration) {
-    float remainder = CurrentTime - CurrentAnimation->Duration;
+  if (CurrentTime > LoopEnd) {
+    float remainder = CurrentTime - LoopEnd;
     Reset();
+    CurrentTime = LoopStart;
     CurrentTime += remainder;
   }
 
@@ -183,6 +198,28 @@ void ModelAnimator::Update(float dt) {
       }
     }
   }
+}
+
+void ModelAnimator::Seek(float t) {
+  assert(Character != 0);
+  assert(CurrentAnimation != 0);
+  assert(t <= CurrentAnimation->Duration);
+
+  bool isPlaying = IsPlaying;
+  float loopStart = LoopStart;
+  float loopEnd = LoopEnd;
+
+  IsPlaying = true;
+  LoopStart = 0.0f;
+  LoopEnd = CurrentAnimation->Duration;
+
+  Reset();
+  CurrentTime = 0.0f;
+  Update(t);
+
+  IsPlaying = isPlaying;
+  LoopStart = loopStart;
+  LoopEnd = loopEnd;
 }
 
 }  // namespace Impacto

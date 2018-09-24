@@ -260,7 +260,7 @@ void Character3D::PoseBone(int16_t id) {
 
 void Character3D::Update(float dt) {
   if (!IsUsed) return;
-  if (Animator.CurrentAnimation) Animator.Update(dt);
+  Animator.Update(dt);
   CalculateMorphedVertices();
   Pose();
 }

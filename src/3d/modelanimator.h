@@ -28,10 +28,16 @@ class ModelAnimator {
   BoneTrackStatus BoneKeys[ModelMaxBonesPerModel];
   MeshTrackStatus MeshKeys[ModelMaxMeshesPerModel];
 
+  float LoopStart = 0.0f;
+  float LoopEnd = 0.0f;
+  bool IsPlaying = false;
+
   bool Tweening = true;
 
+  void Unload();
   void Start(uint16_t animId);
   void Reset();
   void Update(float dt);
+  void Seek(float dt);
 };
 }  // namespace Impacto

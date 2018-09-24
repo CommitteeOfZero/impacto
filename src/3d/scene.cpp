@@ -164,6 +164,40 @@ void Scene::Update(float dt) {
 
         nk_tree_pop(g_Nk);
       }
+
+      if (nk_tree_push(g_Nk, NK_TREE_TAB, "Animation", NK_MAXIMIZED)) {
+        nk_layout_row_dynamic(g_Nk, 24, 1);
+
+        int isPlaying = (int)CurrentCharacter.Animator.IsPlaying;
+        nk_checkbox_label(g_Nk, "Playing", &isPlaying);
+        CurrentCharacter.Animator.IsPlaying = (bool)isPlaying;
+
+        int tweening = (int)CurrentCharacter.Animator.Tweening;
+        nk_checkbox_label(g_Nk, "Tweening", &tweening);
+        CurrentCharacter.Animator.Tweening = (bool)tweening;
+
+        if (CurrentCharacter.Animator.CurrentAnimation) {
+          nk_property_float(g_Nk, "Loop start", 0.0f,
+                            &CurrentCharacter.Animator.LoopStart,
+                            CurrentCharacter.Animator.LoopEnd, 1.0f, 0.2f);
+          nk_property_float(
+              g_Nk, "Loop end", 0.0f, &CurrentCharacter.Animator.LoopEnd,
+              CurrentCharacter.Animator.CurrentAnimation->Duration, 1.0f, 0.2f);
+
+          // Nice hack
+          float backup = CurrentCharacter.Animator.CurrentTime;
+          nk_property_float(
+              g_Nk, "Current time", 0.0f,
+              &CurrentCharacter.Animator.CurrentTime,
+              CurrentCharacter.Animator.CurrentAnimation->Duration, 1.0f, 0.2f);
+          if (backup != CurrentCharacter.Animator.CurrentTime) {
+            CurrentCharacter.Animator.Seek(
+                CurrentCharacter.Animator.CurrentTime);
+          }
+        }
+
+        nk_tree_pop(g_Nk);
+      }
     }
   }
   nk_end(g_Nk);
