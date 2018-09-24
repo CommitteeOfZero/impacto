@@ -8,6 +8,8 @@
 
 namespace Impacto {
 
+const int CpkMaxPath = 224;
+
 enum CpkColumnFlags {
   STORAGE_MASK = 0xf0,
   STORAGE_NONE = 0x00,
@@ -31,26 +33,24 @@ enum CpkColumnFlags {
 
 struct CpkTocEntry {
   uint32_t Id;
-  std::string Name;
+  char Name[CpkMaxPath];
   uint64_t Offset;
   uint64_t UncompressedSize;
   uint64_t CompressedSize;
 };
 
-struct CpkCell {
-  uint8_t Type;
+union CpkCell {
   uint8_t Uint8Val;
   uint16_t Uint16Val;
   uint32_t Uint32Val;
   uint64_t Uint64Val;
   float FloatVal;
-  std::string StringVal;
-  std::vector<uint8_t> DataVal;
+  char StringVal[CpkMaxPath];
 };
 
 struct CpkColumn {
   uint32_t Flags;
-  std::string Name;
+  char Name[CpkMaxPath];
   std::vector<CpkCell> Cells;
 };
 
@@ -147,7 +147,7 @@ int64_t SDLCALL CpkEntryUncompressedSeek(SDL_RWops* context, int64_t offset,
     default: {
       ImpLog(LL_Error, LC_IO,
              "Invalid seek type %d in file \"%s\" in archive \"%s\"\n", whence,
-             file->Entry->Name.c_str(), file->Archive->MountPoint);
+             file->Entry->Name, file->Archive->MountPoint);
       return SDL_SetError("Invalid seek type");
       break;
     }
@@ -157,8 +157,7 @@ int64_t SDLCALL CpkEntryUncompressedSeek(SDL_RWops* context, int64_t offset,
     ImpLog(LL_Error, LC_IO,
            "Invalid seek (mode %d, offset %" PRId64
            ") in file \"%s\" in archive \"%s\"\n",
-           whence, offset, file->Entry->Name.c_str(),
-           file->Archive->MountPoint);
+           whence, offset, file->Entry->Name, file->Archive->MountPoint);
     return SDL_SetError("Out-of-bounds seek");
   } else {
     file->Position += relOffset;
@@ -176,13 +175,13 @@ size_t SDLCALL CpkEntryWrite(SDL_RWops* context, const void* ptr, size_t size,
 
 int SDLCALL CpkEntryClose(SDL_RWops* context) {
   CpkOpenFile* file = (CpkOpenFile*)(context->hidden.unknown.data1);
-  ImpLog(LL_Debug, LC_IO, "Closing file \"%s\" in \"%s\"\n",
-         file->Entry->Name.c_str(), file->Archive->MountPoint);
+  ImpLog(LL_Debug, LC_IO, "Closing file \"%s\" in \"%s\"\n", file->Entry->Name,
+         file->Archive->MountPoint);
   if (file->Archive->OpenHandles == 0) {
     ImpLog(LL_Error, LC_IO,
            "Closed file \"%s\" in \"%s\"\n while no file handles were "
            "open\n",
-           file->Entry->Name.c_str(), file->Archive->MountPoint);
+           file->Entry->Name, file->Archive->MountPoint);
   } else {
     file->Archive->OpenHandles--;
   }
@@ -192,21 +191,22 @@ int SDLCALL CpkEntryClose(SDL_RWops* context) {
   return 0;
 }
 
-std::string CpkReadString(SDL_RWops* stream, long stringsOffset) {
+void CpkReadString(SDL_RWops* stream, long stringsOffset, char* output) {
   int stringAddr = stringsOffset + SDL_ReadBE32(stream);
 
   long retAddr = SDL_RWtell(stream);
 
   SDL_RWseek(stream, stringAddr, RW_SEEK_SET);
 
-  std::string str = "";
-  char ch;
-  while ((ch = SDL_ReadU8(stream)) != 0x00) {
-    str += ch;
-  }
-  SDL_RWseek(stream, retAddr, RW_SEEK_SET);
+  memset(output, 0, CpkMaxPath);
 
-  return str;
+  char ch;
+  int i = 0;
+  while ((ch = SDL_ReadU8(stream)) != 0x00) {
+    output[i++] = ch;
+  }
+  output[i] = '\0';
+  SDL_RWseek(stream, retAddr, RW_SEEK_SET);
 }
 
 bool CpkReadUtfBlock(
@@ -241,7 +241,7 @@ bool CpkReadUtfBlock(
     column.Flags = SDL_ReadU8(stream);
     if (column.Flags == 0) column.Flags = SDL_ReadBE32(stream);
 
-    column.Name = CpkReadString(stream, stringsOffset);
+    CpkReadString(stream, stringsOffset, column.Name);
 
     columns.push_back(column);
   }
@@ -251,16 +251,10 @@ bool CpkReadUtfBlock(
     ska::flat_hash_map<std::string, CpkCell> row;
     for (auto& column : columns) {
       CpkCell cell;
-      cell.Type = 0;
-      cell.Uint8Val = 0;
-      cell.Uint16Val = 0;
-      cell.Uint32Val = 0;
-      cell.Uint64Val = 0;
-      cell.FloatVal = 0.0f;
       int storageFlag = column.Flags & CpkColumnFlags::STORAGE_MASK;
       if (storageFlag == 0x50) {
-        cell.Type = column.Flags & CpkColumnFlags::TYPE_MASK;
-        switch (cell.Type) {
+        int cellType = column.Flags & CpkColumnFlags::TYPE_MASK;
+        switch (cellType) {
           case 0:
           case 1:
             cell.Uint8Val = SDL_ReadU8(stream);
@@ -281,21 +275,15 @@ bool CpkReadUtfBlock(
             cell.FloatVal = (float)SDL_ReadBE32(stream);
             break;
           case 0xA:
-            cell.StringVal = CpkReadString(stream, stringsOffset);
+            CpkReadString(stream, stringsOffset, cell.StringVal);
             break;
           case 0xB:
             int dataPos = SDL_ReadBE32(stream) + dataOffset;
             cell.Uint64Val = dataPos;
-            int dataSize = SDL_ReadBE32(stream);
-            cell.DataVal.reserve(dataSize);
-            long retAddr = SDL_RWtell(stream);
-            SDL_RWseek(stream, dataPos, SEEK_SET);
-            for (int i = 0; i < dataSize; i++) {
-              cell.DataVal.push_back(SDL_ReadU8(stream));
-            }
-            SDL_RWseek(stream, retAddr, SEEK_SET);
             break;
         }
+      } else {
+        cell.Uint64Val = 0;
       }
       row[column.Name] = cell;
     }
@@ -333,10 +321,8 @@ bool CpkReadItoc(SDL_RWops* stream, long itocOffset, long contentOffset,
       } else {
         toc[id].UncompressedSize = row["FileSize"].Uint16Val;
       }
-      if (toc[id].Name.empty()) {
-        char name[6];
-        sprintf_s(name, "%05i", id);
-        toc[id].Name = std::string(name);
+      if (!*toc[id].Name) {
+        sprintf(toc[id].Name, "%05i", id);
       }
     }
     for (auto& row : dataHUtfTable) {
@@ -348,10 +334,8 @@ bool CpkReadItoc(SDL_RWops* stream, long itocOffset, long contentOffset,
       } else {
         toc[id].UncompressedSize = row["FileSize"].Uint32Val;
       }
-      if (toc[id].Name.empty()) {
-        char name[6];
-        sprintf_s(name, "%05i", id);
-        toc[id].Name = std::string(name);
+      if (!*toc[id].Name) {
+        sprintf(toc[id].Name, "%05i", id);
       }
     }
   }
@@ -387,12 +371,14 @@ bool CpkReadToc(SDL_RWops* stream, long tocOffset, long contentOffset,
 
   for (auto& row : tocUtfTable) {
     int id = row["ID"].Uint32Val;
+    memset(toc[id].Name, 0, CpkMaxPath);
     toc[id].Id = id;
     toc[id].Offset = row["FileOffset"].Uint64Val;
-    if (!row["DirName"].StringVal.empty()) {
-      toc[id].Name = row["DirName"].StringVal + "/" + row["FileName"].StringVal;
+    if (*row["DirName"].StringVal) {
+      sprintf(toc[id].Name, "%s/%s", row["DirName"].StringVal,
+              row["FileName"].StringVal);
     } else {
-      toc[id].Name = row["FileName"].StringVal;
+      sprintf(toc[id].Name, "%s", row["FileName"].StringVal);
     }
     int extractedSize = row["ExtractSize"].Uint32Val;
     int fileSize = row["FileSize"].Uint32Val;
@@ -402,7 +388,9 @@ bool CpkReadToc(SDL_RWops* stream, long tocOffset, long contentOffset,
     } else {
       toc[id].UncompressedSize = fileSize;
     }
-    if (toc[id].Name.empty()) toc[id].Name = "NO_NAME";
+    if (!*toc[id].Name) {
+      sprintf(toc[id].Name, "%05i", id);
+    }
   }
 }
 
@@ -463,6 +451,7 @@ IoError CpkMount(SDL_RWops* stream, VfsArchive** outArchive) {
   // if (headerUtfTable[0]["GtocOffset"].Uint64Val != 0) {
 
   //}
+
   for (const auto& p : result->TOC) {
     result->NamesToIds[p.second.Name] = p.second.Id;
   }
@@ -534,8 +523,8 @@ IoError CpkArchive::GetName(uint32_t id, char* outName) {
   } else {
     CpkTocEntry* entry = &TOC[id];
     ImpLogSlow(LL_Trace, LC_IO, "CPK GetName: %s found for %d in \"%s\"\n",
-               entry->Name.c_str(), id, MountPoint);
-    strncpy_s(outName, VfsMaxPath, entry->Name.c_str(), entry->Name.length());
+               entry->Name, id, MountPoint);
+    strncpy(outName, entry->Name, std::min(VfsMaxPath, CpkMaxPath));
     return IoError_OK;
   }
 }
@@ -563,8 +552,8 @@ IoError CpkArchive::EnumerateNext(uint32_t* inoutIterator,
     return IoError_Eof;
   }
   outFileInfo->Id = TOC[*inoutIterator].Id;
-  strncpy_s(outFileInfo->Name, VfsMaxPath, TOC[*inoutIterator].Name.c_str(),
-            TOC[*inoutIterator].Name.length());
+  strncpy(outFileInfo->Name, TOC[*inoutIterator].Name,
+          std::min(VfsMaxPath, CpkMaxPath));
   *inoutIterator++;
   return IoError_OK;
 }
