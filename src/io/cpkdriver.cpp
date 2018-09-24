@@ -4,6 +4,8 @@
 #include "vfs.h"
 #include "../log.h"
 
+#include <unordered_map>
+
 #include "../../vendor/include/flat_hash_map.hpp"
 
 namespace Impacto {
@@ -62,6 +64,7 @@ class CpkArchive : public VfsArchive {
   uint32_t FileCount;
   ska::flat_hash_map<int, CpkTocEntry> TOC;
 
+  uint32_t* FilesToIds;
   ska::flat_hash_map<std::string, uint32_t> NamesToIds;
 
   IoError GetName(uint32_t id, char* outName) override;
@@ -356,6 +359,8 @@ IoError CpkArchive::ReadItoc(int64_t itocOffset, int64_t contentOffset,
   std::vector<uint32_t> ids;
   for (const auto& kv : TOC) ids.push_back(kv.first);
   std::sort(ids.begin(), ids.end());
+  int i = 0;
+  FilesToIds = (uint32_t*)calloc(ids.size(), sizeof(uint32_t));
   for (const auto id : ids) {
     uint32_t size;
     CpkTocEntry* entry = &TOC[id];
@@ -367,6 +372,7 @@ IoError CpkArchive::ReadItoc(int64_t itocOffset, int64_t contentOffset,
     entry->Offset = offset;
     offset += size;
     if (size % align) offset += align - (size % align);
+    FilesToIds[i++] = id;
   }
 }
 
@@ -569,8 +575,9 @@ IoError CpkArchive::EnumerateNext(uint32_t* inoutIterator,
                *inoutIterator, MountPoint);
     return IoError_Eof;
   }
-  outFileInfo->Id = TOC[*inoutIterator].Id;
-  strncpy(outFileInfo->Name, TOC[*inoutIterator].Name,
+  int fileId = FilesToIds[*inoutIterator];
+  outFileInfo->Id = TOC[fileId].Id;
+  strncpy(outFileInfo->Name, TOC[fileId].Name,
           std::min(VfsMaxPath, CpkMaxPath));
   outFileInfo->Name[VfsMaxPath - 1] = '\0';
   *inoutIterator = *inoutIterator + 1;
