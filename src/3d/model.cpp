@@ -19,6 +19,14 @@ const uint32_t ModelFileBoneSize = 0x1D0;
 const uint32_t MorphTargetInfoSize = 16;
 const uint32_t BoneBaseTransformOffset = 0x11C;
 
+uint32_t* g_ModelIds;
+char** g_ModelNames;
+uint32_t g_ModelCount;
+
+uint32_t* g_AnimationIds;
+char** g_AnimationNames;
+uint32_t g_AnimationCount;
+
 void Model::Init() {
   assert(AllModelsArchive == NULL);
   ImpLog(LL_Info, LC_ModelLoad, "Initializing model loader\n");
@@ -26,6 +34,40 @@ void Model::Init() {
   if (err != IoError_OK) {
     AllModelsArchive = NULL;
     ImpLog(LL_Error, LC_ModelLoad, "Could not open model archive: %d\n", err);
+  }
+
+  // List models
+  // TODO: We don't need this in the game - take it out when we remove the model
+  // viewer, it's a waste of time then
+
+  g_AnimationCount = 0;
+  g_AnimationNames = 0;
+  g_AnimationIds = 0;
+
+  g_ModelCount = 0;
+
+  uint32_t iterator;
+  VfsFileInfo modelInfo;
+  err = AllModelsArchive->EnumerateStart(&iterator, &modelInfo);
+  while (err == IoError_OK) {
+    if (modelInfo.Name[0] == 'c' || modelInfo.Name[0] == 'C') {
+      g_ModelCount++;
+    }
+    err = AllModelsArchive->EnumerateNext(&iterator, &modelInfo);
+  }
+
+  uint32_t currentModel = 0;
+
+  g_ModelIds = (uint32_t*)malloc(g_ModelCount * sizeof(uint32_t));
+  g_ModelNames = (char**)malloc(g_ModelCount * sizeof(char*));
+  err = AllModelsArchive->EnumerateStart(&iterator, &modelInfo);
+  while (err == IoError_OK) {
+    if (modelInfo.Name[0] == 'c' || modelInfo.Name[0] == 'C') {
+      g_ModelIds[currentModel] = modelInfo.Id;
+      g_ModelNames[currentModel] = strdup(modelInfo.Name);
+      currentModel++;
+    }
+    err = AllModelsArchive->EnumerateNext(&iterator, &modelInfo);
   }
 }
 
@@ -36,6 +78,18 @@ Model::~Model() {
   for (auto animation : Animations) {
     if (animation.second) delete animation.second;
   }
+  if (g_AnimationIds) {
+    free(g_AnimationIds);
+    g_AnimationIds = 0;
+  }
+  if (g_AnimationNames) {
+    for (int i = 0; i < g_AnimationCount; i++) {
+      if (g_AnimationNames[i]) free(g_AnimationNames[i]);
+    }
+    free(g_AnimationNames);
+    g_AnimationNames = 0;
+  }
+  g_AnimationCount = 0;
 }
 
 Model* Model::Load(uint32_t modelId) {
@@ -271,6 +325,10 @@ Model* Model::Load(uint32_t modelId) {
 
   // Animations
 
+  // TODO remove listing, see above
+
+  g_AnimationCount = 0;
+
   uint32_t iterator;
   VfsFileInfo animFileInfo;
   err = modelArchive->EnumerateStart(&iterator, &animFileInfo);
@@ -284,6 +342,23 @@ Model* Model::Load(uint32_t modelId) {
           Animation::Load(animStream, result, animFileInfo.Id);
       SDL_RWclose(animStream);
       free(animData);
+
+      g_AnimationCount++;
+    }
+    err = modelArchive->EnumerateNext(&iterator, &animFileInfo);
+  }
+
+  uint32_t currentAnim = 0;
+
+  g_AnimationIds = (uint32_t*)malloc(g_AnimationCount * sizeof(uint32_t));
+  g_AnimationNames = (char**)malloc(g_AnimationCount * sizeof(char*));
+
+  err = modelArchive->EnumerateStart(&iterator, &animFileInfo);
+  while (err == IoError_OK) {
+    if (animFileInfo.Id != 0) {
+      g_AnimationIds[currentAnim] = animFileInfo.Id;
+      g_AnimationNames[currentAnim] = strdup(animFileInfo.Name);
+      currentAnim++;
     }
     err = modelArchive->EnumerateNext(&iterator, &animFileInfo);
   }

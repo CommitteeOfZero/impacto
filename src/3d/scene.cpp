@@ -21,10 +21,11 @@ void SceneInit() {
   g_Camera.Init();
   Character3DInit();
 
-  g_Scene.LoadCharacterAsync(239);  // c002_010
+  g_Scene.LoadCharacterAsync(g_ModelIds[0]);
   g_Scene.GroundPlane.MakePlane();
   g_Scene.GroundPlane.Submit();
 
+  g_Scene.Tint = glm::vec4(0.784f, 0.671f, 0.6f, 0.9f);
   g_Scene.LightPosition = glm::vec3(1.0, 15.0, 1.0);
   g_Scene.DarkMode = false;
 }
@@ -63,10 +64,12 @@ void Scene::Update(float dt) {
   static float rotationSpeed = 1.0f;
   static int rotateCamera = 0;
   static nk_colorf tintColor = {0.784f, 0.671f, 0.6f, 0.9f};
+  static uint32_t currentModel = 0;
+  static uint32_t currentAnim = 0;
 
   if (nk_begin(g_Nk, "Scene", nk_rect(20, 20, 300, g_WindowHeight - 40),
                NK_WINDOW_BORDER | NK_WINDOW_TITLE)) {
-    if (nk_tree_push(g_Nk, NK_TREE_TAB, "Window", NK_MAXIMIZED)) {
+    if (nk_tree_push(g_Nk, NK_TREE_TAB, "Window", NK_MINIMIZED)) {
       nk_layout_row_dynamic(g_Nk, 24, 1);
 
       static int width;
@@ -89,7 +92,7 @@ void Scene::Update(float dt) {
       nk_tree_pop(g_Nk);
     }
 
-    if (nk_tree_push(g_Nk, NK_TREE_TAB, "Camera", NK_MAXIMIZED)) {
+    if (nk_tree_push(g_Nk, NK_TREE_TAB, "Camera", NK_MINIMIZED)) {
       nk_layout_row_dynamic(g_Nk, 24, 1);
 
       if (nk_button_label(g_Nk, "Reset")) {
@@ -111,7 +114,7 @@ void Scene::Update(float dt) {
       nk_tree_pop(g_Nk);
     }
 
-    if (nk_tree_push(g_Nk, NK_TREE_TAB, "Light", NK_MAXIMIZED)) {
+    if (nk_tree_push(g_Nk, NK_TREE_TAB, "Light", NK_MINIMIZED)) {
       nk_layout_row_dynamic(g_Nk, 24, 1);
 
       int darkMode = (int)DarkMode;
@@ -158,8 +161,11 @@ void Scene::Update(float dt) {
                           &CurrentCharacter.ModelTransform.Position.z, 20.0f,
                           1.0f, 0.02f);
 
-        if (nk_button_label(g_Nk, "Reload")) {
-          LoadCharacterAsync(239);
+        currentModel = nk_combo(g_Nk, (const char**)g_ModelNames, g_ModelCount,
+                                currentModel, 24, nk_vec2(200, 200));
+        if (g_ModelIds[currentModel] != CurrentCharacter.StaticModel->Id) {
+          currentAnim = 0;
+          LoadCharacterAsync(g_ModelIds[currentModel]);
         }
 
         nk_tree_pop(g_Nk);
@@ -193,6 +199,14 @@ void Scene::Update(float dt) {
           if (backup != CurrentCharacter.Animator.CurrentTime) {
             CurrentCharacter.Animator.Seek(
                 CurrentCharacter.Animator.CurrentTime);
+          }
+
+          currentAnim =
+              nk_combo(g_Nk, (const char**)g_AnimationNames, g_AnimationCount,
+                       currentAnim, 24, nk_vec2(200, 200));
+          if (g_AnimationIds[currentAnim] !=
+              CurrentCharacter.Animator.CurrentAnimation->Id) {
+            CurrentCharacter.Animator.Start(g_AnimationIds[currentAnim]);
           }
         }
 

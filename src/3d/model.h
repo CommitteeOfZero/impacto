@@ -21,6 +21,14 @@ int const ModelMaxMeshesPerModel = 32;
 int const ModelMaxRootBones = 32;
 int const ModelMaxTexturesPerModel = 32;
 
+extern uint32_t* g_ModelIds;
+extern char** g_ModelNames;
+extern uint32_t g_ModelCount;
+
+extern uint32_t* g_AnimationIds;
+extern char** g_AnimationNames;
+extern uint32_t g_AnimationCount;
+
 struct VertexBuffer {
   glm::vec3 Position;
   glm::vec3 Normal;
@@ -55,7 +63,7 @@ enum TextureType {
   TT_ColorMap = 0,
   TT_GradientMaskMap = 2,
   TT_SpecularColorMap = 4,
-  
+
   TT_Eye_IrisColorMap = 0,
   TT_Eye_WhiteColorMap = 1,
   TT_Eye_IrisSpecularColorMap = 2,
