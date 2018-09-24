@@ -51,8 +51,10 @@ void main() {
   float normDotEye = 1.0 - dot(normal, dirToEye);
   toonFalloffGradInput.zw = vec2(scaledDiff * normDotEye);
 
+  // Original just uses step here but that looks bad
   vec4 toonFalloffGradParamDark =
-      step(g_ToonFalloffGradDarkVals, toonFalloffGradInput) *
+      smoothstep(g_ToonFalloffGradDarkVals * 0.95,
+                 g_ToonFalloffGradDarkVals * 1.05, toonFalloffGradInput) *
       g_ToonFalloffGradDarkMax;
 
   vec4 toonFalloffGradParamLight = saturate(
