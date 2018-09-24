@@ -4,8 +4,6 @@
 #include "vfs.h"
 #include "../log.h"
 
-#include <unordered_map>
-
 #include "../../vendor/include/flat_hash_map.hpp"
 
 namespace Impacto {
