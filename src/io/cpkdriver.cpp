@@ -332,7 +332,7 @@ IoError CpkArchive::ReadItoc(int64_t itocOffset, int64_t contentOffset,
       } else {
         entry->UncompressedSize = row["FileSize"].Uint16Val;
       }
-      if (entry->Name[0] == '0') {
+      if (entry->Name[0] == '\0') {
         sprintf(entry->Name, "%05i", id);
       }
     }
@@ -346,7 +346,7 @@ IoError CpkArchive::ReadItoc(int64_t itocOffset, int64_t contentOffset,
       } else {
         entry->UncompressedSize = row["FileSize"].Uint32Val;
       }
-      if (entry->Name[0] == '0') {
+      if (entry->Name[0] == '\0') {
         sprintf(entry->Name, "%05i", id);
       }
     }
@@ -401,7 +401,7 @@ IoError CpkArchive::ReadToc(int64_t tocOffset, int64_t contentOffset) {
     } else {
       entry->UncompressedSize = fileSize;
     }
-    if (entry->Name[0] == '0') {
+    if (entry->Name[0] == '\0') {
       sprintf(entry->Name, "%05i", id);
     }
   }
