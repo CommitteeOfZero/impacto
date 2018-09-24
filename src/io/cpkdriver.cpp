@@ -74,11 +74,22 @@ class CpkArchive : public VfsArchive {
 
   ~CpkArchive() override;
 
+  static IoError CpkMount(SDL_RWops* stream, VfsArchive** outArchive);
+
  protected:
   IoError DriverOpen(uint32_t id, SDL_RWops** outHandle) override;
   IoError DriverGetSize(uint32_t id, int64_t* outSize) override;
   IoError DriverCanStream(uint32_t id, bool* outResult) override;
   IoError DriverSlurp(uint32_t id, void* outBuffer) override;
+
+ private:
+  IoError ReadToc(int64_t tocOffset, int64_t contentOffset);
+  IoError ReadEtoc(int64_t etocOffset);
+  IoError ReadItoc(int64_t itocOffset, int64_t contentOffset, uint16_t align);
+
+  bool ReadUtfBlock(
+      std::vector<ska::flat_hash_map<std::string, CpkCell>>* rows);
+  void ReadString(long stringsOffset, char* output);
 };
 
 struct CpkOpenFile {
@@ -191,63 +202,62 @@ int SDLCALL CpkEntryClose(SDL_RWops* context) {
   return 0;
 }
 
-void CpkReadString(SDL_RWops* stream, long stringsOffset, char* output) {
-  int stringAddr = stringsOffset + SDL_ReadBE32(stream);
+void CpkArchive::ReadString(long stringsOffset, char* output) {
+  int stringAddr = stringsOffset + SDL_ReadBE32(BaseStream);
 
-  long retAddr = SDL_RWtell(stream);
+  long retAddr = SDL_RWtell(BaseStream);
 
-  SDL_RWseek(stream, stringAddr, RW_SEEK_SET);
+  SDL_RWseek(BaseStream, stringAddr, RW_SEEK_SET);
 
   memset(output, 0, CpkMaxPath);
 
   char ch;
   int i = 0;
-  while ((ch = SDL_ReadU8(stream)) != 0x00) {
+  while ((ch = SDL_ReadU8(BaseStream)) != 0x00) {
     output[i++] = ch;
   }
   output[i] = '\0';
-  SDL_RWseek(stream, retAddr, RW_SEEK_SET);
+  SDL_RWseek(BaseStream, retAddr, RW_SEEK_SET);
 }
 
-bool CpkReadUtfBlock(
-    SDL_RWops* stream,
+bool CpkArchive::ReadUtfBlock(
     std::vector<ska::flat_hash_map<std::string, CpkCell>>* rows) {
-  long utfBeginOffset = SDL_RWtell(stream);
+  long utfBeginOffset = SDL_RWtell(BaseStream);
 
   const uint32_t utfMagic = 0x40555446;
-  if (SDL_ReadBE32(stream) != utfMagic) {
+  if (SDL_ReadBE32(BaseStream) != utfMagic) {
     ImpLog(LL_Trace, LC_IO, "Error reading CPK UTF table\n");
     return false;
   }
 
-  int tableSize = SDL_ReadBE32(stream);
-  int rowsOffset = SDL_ReadBE32(stream);
-  int stringsOffset = SDL_ReadBE32(stream);
-  int dataOffset = SDL_ReadBE32(stream);
+  int tableSize = SDL_ReadBE32(BaseStream);
+  int rowsOffset = SDL_ReadBE32(BaseStream);
+  int stringsOffset = SDL_ReadBE32(BaseStream);
+  int dataOffset = SDL_ReadBE32(BaseStream);
 
   rowsOffset += (utfBeginOffset + 8);
   stringsOffset += (utfBeginOffset + 8);
   dataOffset += (utfBeginOffset + 8);
 
-  int tableNameOffset = SDL_ReadBE32(stream);
-  int numColumns = SDL_ReadBE16(stream);
-  int rowLength = SDL_ReadBE16(stream);
-  int numRows = SDL_ReadBE32(stream);
+  int tableNameOffset = SDL_ReadBE32(BaseStream);
+  int numColumns = SDL_ReadBE16(BaseStream);
+  int rowLength = SDL_ReadBE16(BaseStream);
+  int numRows = SDL_ReadBE32(BaseStream);
 
   std::vector<CpkColumn> columns;
 
   for (int i = 0; i < numColumns; i++) {
     CpkColumn column;
-    column.Flags = SDL_ReadU8(stream);
-    if (column.Flags == 0) column.Flags = SDL_ReadBE32(stream);
+    column.Flags = SDL_ReadU8(BaseStream);
+    if (column.Flags == 0) column.Flags = SDL_ReadBE32(BaseStream);
 
-    CpkReadString(stream, stringsOffset, column.Name);
+    ReadString(stringsOffset, column.Name);
 
     columns.push_back(column);
   }
 
   for (int i = 0; i < numRows; i++) {
-    SDL_RWseek(stream, rowsOffset + (i * rowLength), SEEK_SET);
+    SDL_RWseek(BaseStream, rowsOffset + (i * rowLength), SEEK_SET);
     ska::flat_hash_map<std::string, CpkCell> row;
     for (auto& column : columns) {
       CpkCell cell;
@@ -257,28 +267,28 @@ bool CpkReadUtfBlock(
         switch (cellType) {
           case 0:
           case 1:
-            cell.Uint8Val = SDL_ReadU8(stream);
+            cell.Uint8Val = SDL_ReadU8(BaseStream);
             break;
           case 2:
           case 3:
-            cell.Uint16Val = SDL_ReadBE16(stream);
+            cell.Uint16Val = SDL_ReadBE16(BaseStream);
             break;
           case 4:
           case 5:
-            cell.Uint32Val = SDL_ReadBE32(stream);
+            cell.Uint32Val = SDL_ReadBE32(BaseStream);
             break;
           case 6:
           case 7:
-            cell.Uint64Val = SDL_ReadBE64(stream);
+            cell.Uint64Val = SDL_ReadBE64(BaseStream);
             break;
           case 8:
-            cell.FloatVal = (float)SDL_ReadBE32(stream);
+            cell.FloatVal = (float)SDL_ReadBE32(BaseStream);
             break;
           case 0xA:
-            CpkReadString(stream, stringsOffset, cell.StringVal);
+            ReadString(stringsOffset, cell.StringVal);
             break;
           case 0xB:
-            int dataPos = SDL_ReadBE32(stream) + dataOffset;
+            int dataPos = SDL_ReadBE32(BaseStream) + dataOffset;
             cell.Uint64Val = dataPos;
             break;
         }
@@ -291,120 +301,122 @@ bool CpkReadUtfBlock(
   }
 }
 
-bool CpkReadItoc(SDL_RWops* stream, long itocOffset, long contentOffset,
-                 uint16_t align, ska::flat_hash_map<int, CpkTocEntry>& toc) {
-  SDL_RWseek(stream, itocOffset, RW_SEEK_SET);
+IoError CpkArchive::ReadItoc(int64_t itocOffset, int64_t contentOffset,
+                             uint16_t align) {
+  SDL_RWseek(BaseStream, itocOffset, RW_SEEK_SET);
   const uint32_t itocMagic = 0x49544F43;
-  if (SDL_ReadBE32(stream) != itocMagic) {
+  if (SDL_ReadBE32(BaseStream) != itocMagic) {
     ImpLog(LL_Trace, LC_IO, "Error reading CPK ITOC\n");
     return IoError_Fail;
   }
-  SDL_RWseek(stream, itocOffset + 0x10, RW_SEEK_SET);
+  SDL_RWseek(BaseStream, itocOffset + 0x10, RW_SEEK_SET);
   std::vector<ska::flat_hash_map<std::string, CpkCell>> itocUtfTable;
-  if (!CpkReadUtfBlock(stream, &itocUtfTable)) return false;
+  if (!ReadUtfBlock(&itocUtfTable)) return IoError_Fail;
 
-  long retAddr = SDL_RWtell(stream);
+  long retAddr = SDL_RWtell(BaseStream);
   if (itocUtfTable[0]["DataL"].Uint64Val != 0) {
-    SDL_RWseek(stream, itocUtfTable[0]["DataL"].Uint64Val, RW_SEEK_SET);
+    SDL_RWseek(BaseStream, itocUtfTable[0]["DataL"].Uint64Val, RW_SEEK_SET);
     std::vector<ska::flat_hash_map<std::string, CpkCell>> dataLUtfTable;
-    if (!CpkReadUtfBlock(stream, &dataLUtfTable)) return false;
-    SDL_RWseek(stream, itocUtfTable[0]["DataH"].Uint64Val, RW_SEEK_SET);
+    if (!ReadUtfBlock(&dataLUtfTable)) return IoError_Fail;
+    SDL_RWseek(BaseStream, itocUtfTable[0]["DataH"].Uint64Val, RW_SEEK_SET);
     std::vector<ska::flat_hash_map<std::string, CpkCell>> dataHUtfTable;
-    if (!CpkReadUtfBlock(stream, &dataHUtfTable)) return false;
+    if (!ReadUtfBlock(&dataHUtfTable)) return IoError_Fail;
 
     for (auto& row : dataLUtfTable) {
       int id = row["ID"].Uint16Val;
-      toc[id].Id = id;
+      CpkTocEntry* entry = &TOC[id];
+      entry->Id = id;
       if (row["ExtractSize"].Uint16Val) {
-        toc[id].UncompressedSize = row["ExtractSize"].Uint16Val;
-        toc[id].CompressedSize = row["FileSize"].Uint16Val;
+        entry->UncompressedSize = row["ExtractSize"].Uint16Val;
+        entry->CompressedSize = row["FileSize"].Uint16Val;
       } else {
-        toc[id].UncompressedSize = row["FileSize"].Uint16Val;
+        entry->UncompressedSize = row["FileSize"].Uint16Val;
       }
-      if (!*toc[id].Name) {
-        sprintf(toc[id].Name, "%05i", id);
+      if (entry->Name[0] == '0') {
+        sprintf(entry->Name, "%05i", id);
       }
     }
     for (auto& row : dataHUtfTable) {
       int id = row["ID"].Uint16Val;
-      toc[id].Id = id;
+      CpkTocEntry* entry = &TOC[id];
+      entry->Id = id;
       if (row["ExtractSize"].Uint32Val) {
-        toc[id].UncompressedSize = row["ExtractSize"].Uint32Val;
-        toc[id].CompressedSize = row["FileSize"].Uint32Val;
+        entry->UncompressedSize = row["ExtractSize"].Uint32Val;
+        entry->CompressedSize = row["FileSize"].Uint32Val;
       } else {
-        toc[id].UncompressedSize = row["FileSize"].Uint32Val;
+        entry->UncompressedSize = row["FileSize"].Uint32Val;
       }
-      if (!*toc[id].Name) {
-        sprintf(toc[id].Name, "%05i", id);
+      if (entry->Name[0] == '0') {
+        sprintf(entry->Name, "%05i", id);
       }
     }
   }
 
   long offset = contentOffset;
   std::vector<uint32_t> ids;
-  for (const auto& kv : toc) ids.push_back(kv.first);
+  for (const auto& kv : TOC) ids.push_back(kv.first);
   std::sort(ids.begin(), ids.end());
   for (const auto id : ids) {
     uint32_t size;
-    if (toc[id].CompressedSize > 0) {
-      size = toc[id].CompressedSize;
+    CpkTocEntry* entry = &TOC[id];
+    if (entry->CompressedSize > 0) {
+      size = entry->CompressedSize;
     } else {
-      size = toc[id].UncompressedSize;
+      size = entry->UncompressedSize;
     }
-    toc[id].Offset = offset;
+    entry->Offset = offset;
     offset += size;
     if (size % align) offset += align - (size % align);
   }
 }
 
-bool CpkReadToc(SDL_RWops* stream, long tocOffset, long contentOffset,
-                ska::flat_hash_map<int, CpkTocEntry>& toc) {
-  SDL_RWseek(stream, tocOffset, RW_SEEK_SET);
+IoError CpkArchive::ReadToc(int64_t tocOffset, int64_t contentOffset) {
+  SDL_RWseek(BaseStream, tocOffset, RW_SEEK_SET);
   const uint32_t tocMagic = 0x544F4320;
-  if (SDL_ReadBE32(stream) != tocMagic) {
+  if (SDL_ReadBE32(BaseStream) != tocMagic) {
     ImpLog(LL_Trace, LC_IO, "Error reading CPK TOC\n");
     return IoError_Fail;
   }
-  SDL_RWseek(stream, tocOffset + 0x10, RW_SEEK_SET);
+  SDL_RWseek(BaseStream, tocOffset + 0x10, RW_SEEK_SET);
   std::vector<ska::flat_hash_map<std::string, CpkCell>> tocUtfTable;
-  if (!CpkReadUtfBlock(stream, &tocUtfTable)) return false;
+  if (!ReadUtfBlock(&tocUtfTable)) return IoError_Fail;
 
   for (auto& row : tocUtfTable) {
     int id = row["ID"].Uint32Val;
-    memset(toc[id].Name, 0, CpkMaxPath);
-    toc[id].Id = id;
-    toc[id].Offset = row["FileOffset"].Uint64Val;
+    CpkTocEntry* entry = &TOC[id];
+    memset(entry->Name, 0, CpkMaxPath);
+    entry->Id = id;
+    entry->Offset = row["FileOffset"].Uint64Val;
     if (*row["DirName"].StringVal) {
-      sprintf(toc[id].Name, "%s/%s", row["DirName"].StringVal,
+      sprintf(entry->Name, "%s/%s", row["DirName"].StringVal,
               row["FileName"].StringVal);
     } else {
-      sprintf(toc[id].Name, "%s", row["FileName"].StringVal);
+      sprintf(entry->Name, "%s", row["FileName"].StringVal);
     }
     int extractedSize = row["ExtractSize"].Uint32Val;
     int fileSize = row["FileSize"].Uint32Val;
     if (extractedSize && (extractedSize != fileSize)) {
-      toc[id].UncompressedSize = extractedSize;
-      toc[id].CompressedSize = fileSize;
+      entry->UncompressedSize = extractedSize;
+      entry->CompressedSize = fileSize;
     } else {
-      toc[id].UncompressedSize = fileSize;
+      entry->UncompressedSize = fileSize;
     }
-    if (!*toc[id].Name) {
-      sprintf(toc[id].Name, "%05i", id);
+    if (entry->Name[0] == '0') {
+      sprintf(entry->Name, "%05i", id);
     }
   }
 }
 
-bool CpkReadEtoc(SDL_RWops* stream, long etocOffset,
-                 ska::flat_hash_map<int, CpkTocEntry>& toc) {
-  SDL_RWseek(stream, etocOffset, RW_SEEK_SET);
+IoError CpkArchive::ReadEtoc(int64_t etocOffset) {
+  SDL_RWseek(BaseStream, etocOffset, RW_SEEK_SET);
   const uint32_t etocMagic = 0x45544F43;
-  if (SDL_ReadBE32(stream) != etocMagic) {
+  if (SDL_ReadBE32(BaseStream) != etocMagic) {
     ImpLog(LL_Trace, LC_IO, "Error reading CPK ETOC\n");
     return IoError_Fail;
   }
-  SDL_RWseek(stream, etocOffset + 0x10, RW_SEEK_SET);
+  SDL_RWseek(BaseStream, etocOffset + 0x10, RW_SEEK_SET);
   std::vector<ska::flat_hash_map<std::string, CpkCell>> etocUtfTable;
-  if (!CpkReadUtfBlock(stream, &etocUtfTable)) return false;
+  if (!ReadUtfBlock(&etocUtfTable)) return IoError_Fail;
 
   // for (auto& row : etocUtfTable) {
   // TODO: This contains the LocalDir and UpdateDateTime params. Do we actually
@@ -412,39 +424,45 @@ bool CpkReadEtoc(SDL_RWops* stream, long etocOffset,
   //}
 }
 
-IoError CpkMount(SDL_RWops* stream, VfsArchive** outArchive) {
+IoError CpkArchive::CpkMount(SDL_RWops* stream, VfsArchive** outArchive) {
   const uint32_t magic = 0x43504B20;
   if (SDL_ReadBE32(stream) != magic) {
     ImpLog(LL_Trace, LC_IO, "Not a CPK\n");
     return IoError_Fail;
   }
+
+  CpkArchive* result = new CpkArchive;
+  result->BaseStream = stream;
+
   SDL_RWseek(stream, 0x10, RW_SEEK_SET);
   std::vector<ska::flat_hash_map<std::string, CpkCell>> headerUtfTable;
-  if (!CpkReadUtfBlock(stream, &headerUtfTable)) return IoError_Fail;
+
+  if (!result->ReadUtfBlock(&headerUtfTable)) {
+    delete result;
+    return IoError_Fail;
+  }
 
   uint16_t alignVal = headerUtfTable[0]["Align"].Uint16Val;
   uint32_t fileCount = headerUtfTable[0]["Files"].Uint32Val;
   uint16_t version = headerUtfTable[0]["Version"].Uint16Val;
   uint16_t revision = headerUtfTable[0]["Revision"].Uint16Val;
 
-  CpkArchive* result = new CpkArchive;
   result->Version = version;
   result->Revision = revision;
   result->FileCount = fileCount;
 
   if (headerUtfTable[0]["TocOffset"].Uint64Val != 0) {
-    CpkReadToc(stream, headerUtfTable[0]["TocOffset"].Uint64Val,
-               headerUtfTable[0]["ContentOffset"].Uint64Val, result->TOC);
+    result->ReadToc(headerUtfTable[0]["TocOffset"].Uint64Val,
+                    headerUtfTable[0]["ContentOffset"].Uint64Val);
   }
 
   if (headerUtfTable[0]["EtocOffset"].Uint64Val != 0) {
-    CpkReadEtoc(stream, headerUtfTable[0]["EtocOffset"].Uint64Val, result->TOC);
+    result->ReadEtoc(headerUtfTable[0]["EtocOffset"].Uint64Val);
   }
 
   if (headerUtfTable[0]["ItocOffset"].Uint64Val != 0) {
-    CpkReadItoc(stream, headerUtfTable[0]["ItocOffset"].Uint64Val,
-                headerUtfTable[0]["ContentOffset"].Uint64Val, alignVal,
-                result->TOC);
+    result->ReadItoc(headerUtfTable[0]["ItocOffset"].Uint64Val,
+                     headerUtfTable[0]["ContentOffset"].Uint64Val, alignVal);
   }
 
   // TODO: Group based TOC. Haven't actually seen anyone implement this.
@@ -688,7 +706,7 @@ IoError CpkArchive::DriverSlurp(uint32_t id, void* outBuffer) {
 
 void CpkRegisterDriver() {
   if (!registered) {
-    VfsArchive::RegisterDriver(CpkMount);
+    VfsArchive::RegisterDriver(CpkArchive::CpkMount);
     registered = true;
     ImpLog(LL_Info, LC_IO, "Registered CPK VFS driver\n");
   } else {
