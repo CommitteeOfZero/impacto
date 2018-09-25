@@ -58,8 +58,6 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t animId) {
   // specifying only TranslateY?
   int32_t TrackForBone[ModelMaxBonesPerModel];
   memset(TrackForBone, 0xFF, sizeof(TrackForBone));
-  int32_t TrackForMeshGroup[ModelMaxMeshesPerModel];
-  memset(TrackForMeshGroup, 0xFF, sizeof(TrackForMeshGroup));
 
   // Only get coord track counts/offsets and other simple data
   for (uint32_t i = 0; i < trackCount; i++) {
@@ -112,14 +110,7 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t animId) {
 
       result->BoneTrackCount++;
     } else {
-      if (TrackForMeshGroup[id] != -1) {
-        ImpLogSlow(LL_Trace, LC_ModelLoad,
-                   "Skipping duplicate track %d for bone %d\n", i, id);
-        continue;
-      }
       ImpLogSlow(LL_Trace, LC_ModelLoad, "Track %d is mesh group %d\n", i, id);
-
-      TrackForMeshGroup[id] = i;
 
       // Mesh group track
       std::vector<Mesh*> meshes;
@@ -413,8 +404,6 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t animId) {
 
       currentBoneTrack++;
     } else {
-      if (i != TrackForMeshGroup[id]) continue;
-
       // Mesh group track
       SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
       // Skip id, targetType, unknown ushort
