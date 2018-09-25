@@ -602,6 +602,8 @@ IoError CpkArchive::DriverCanStream(uint32_t id, bool* outResult) {
   return IoError_OK;
 }
 
+// Based on https://github.com/hcs64/vgm_ripping/tree/master/multi/utf_tab
+
 uint16_t get_next_bits(char* input, int* offset_p, uint8_t* bit_pool_p,
                        int* bits_left_p, int bit_count) {
   uint16_t out_bits = 0;
