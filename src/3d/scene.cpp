@@ -28,7 +28,7 @@ void SceneInit() {
   g_Scene.GroundPlane.Submit();
 
   g_Scene.Tint = glm::vec4(0.784f, 0.671f, 0.6f, 0.9f);
-  g_Scene.LightPosition = glm::vec3(1.0, 15.0, 1.0);
+  g_Scene.LightPosition = glm::vec3(-2.85f, 16.68f, 6.30f);
   g_Scene.DarkMode = false;
 }
 
@@ -88,11 +88,8 @@ bool Scene::LoadCharacterAsync(uint32_t id) {
 }
 
 void Scene::Update(float dt) {
-  static float radius = 20.0f;
-  static float inclination = M_PI / 4;
-  static float azimuth = M_PI / 2;
-  static float rotationSpeed = 1.0f;
-  static int rotateCamera = 0;
+  static glm::vec3 cameraPosition = glm::vec3(0.0f, 12.5f, 23.0f);
+  static glm::vec3 cameraTarget = glm::vec3(0.0f, 12.5f, 0.0f);
   static nk_colorf tintColor = {0.784f, 0.671f, 0.6f, 0.9f};
   static uint32_t currentModel = 0;
   static uint32_t currentAnim = 0;
@@ -127,20 +124,23 @@ void Scene::Update(float dt) {
       nk_layout_row_dynamic(g_Nk, 24, 1);
 
       if (nk_button_label(g_Nk, "Reset")) {
-        radius = 20.0f;
-        inclination = M_PI / 4;
-        azimuth = M_PI / 2;
-        rotationSpeed = 1.0f;
+        cameraPosition = glm::vec3(0.0f, 12.5f, 23.0f);
+        cameraTarget = glm::vec3(0.0f, 12.5f, 0.0f);
       }
 
-      nk_checkbox_label(g_Nk, "Rotating", &rotateCamera);
-      nk_property_float(g_Nk, "Rotation speed", 0.1f, &rotationSpeed, 4.0f,
-                        0.1f, 0.02f);
-      nk_property_float(g_Nk, "Radius", 1.0f, &radius, 100.0f, 5.0f, 1.0f);
-      nk_property_float(g_Nk, "Inclination", 0.0f, &inclination, 2 * M_PI,
-                        0.05f, 0.01f);
-      nk_property_float(g_Nk, "Azimuth", 0.0f, &azimuth, 2 * M_PI, 0.05f,
-                        0.01f);
+      nk_property_float(g_Nk, "Camera X", -1500.0f, &cameraPosition.x, 1500.0f,
+                        1.0f, 0.2f);
+      nk_property_float(g_Nk, "Camera Y", -1500.0f, &cameraPosition.y, 1500.0f,
+                        1.0f, 0.2f);
+      nk_property_float(g_Nk, "Camera Z", -1500.0f, &cameraPosition.z, 1500.0f,
+                        1.0f, 0.2f);
+
+      nk_property_float(g_Nk, "Camera target X", -1500.0f, &cameraTarget.x,
+                        1500.0f, 1.0f, 0.2f);
+      nk_property_float(g_Nk, "Camera target Y", -1500.0f, &cameraTarget.y,
+                        1500.0f, 1.0f, 0.2f);
+      nk_property_float(g_Nk, "Camera target Z", -1500.0f, &cameraTarget.z,
+                        1500.0f, 1.0f, 0.2f);
 
       nk_tree_pop(g_Nk);
     }
@@ -263,17 +263,8 @@ void Scene::Update(float dt) {
   }
   nk_end(g_Nk);
 
-  glm::vec3 position = glm::vec3(radius * sin(inclination) * cos(azimuth),
-                                 radius * cos(inclination),
-                                 radius * sin(inclination) * sin(azimuth));
-  if (rotateCamera) {
-    azimuth += rotationSpeed * dt;
-    if (azimuth >= 2 * M_PI) azimuth -= 2 * M_PI;
-  }
-  g_Camera.Move(position);
-
-  // g_Camera.Move(glm::vec3(0.0f, 12.5f, 23.0f));
-  // g_Camera.LookAt(glm::vec3(0.449f, 12.579f, -23.285f));
+  g_Camera.Move(cameraPosition);
+  g_Camera.LookAt(cameraTarget);
 
   GroundPlane.Update(dt);
   if (CurrentCharacterLoadStatus == OLS_Loaded) {

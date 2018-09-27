@@ -24,7 +24,7 @@ void Camera::ResetTransform() {
 }
 
 void Camera::ResetPerspective() {
-  Fov = M_PI / 4.0f;
+  Fov = M_PI / 8.0f;
   Near = 0.1f;
   Far = 1000.0f;
 }
