@@ -23,6 +23,10 @@ uint32_t* g_ModelIds;
 char** g_ModelNames;
 uint32_t g_ModelCount;
 
+uint32_t* g_BackgroundModelIds;
+char** g_BackgroundModelNames;
+uint32_t g_BackgroundModelCount;
+
 uint32_t* g_AnimationIds;
 char** g_AnimationNames;
 uint32_t g_AnimationCount;
@@ -34,7 +38,8 @@ bool AnimationIsBlacklisted(uint32_t modelId, uint16_t animId) {
 }
 
 void Model::Init() {
-  assert(AllModelsArchive == NULL);
+  if (AllModelsArchive != NULL) return;
+
   ImpLog(LL_Info, LC_ModelLoad, "Initializing model loader\n");
   IoError err = VfsArchive::Mount("model.cpk", &AllModelsArchive);
   if (err != IoError_OK) {
@@ -51,6 +56,7 @@ void Model::Init() {
   g_AnimationIds = 0;
 
   g_ModelCount = 0;
+  g_BackgroundModelCount = 0;
 
   uint32_t iterator;
   VfsFileInfo modelInfo;
@@ -58,20 +64,31 @@ void Model::Init() {
   while (err == IoError_OK) {
     if (modelInfo.Name[0] == 'c' || modelInfo.Name[0] == 'C') {
       g_ModelCount++;
+    } else if (modelInfo.Name[0] == 'b' || modelInfo.Name[0] == 'B') {
+      g_BackgroundModelCount++;
     }
     err = AllModelsArchive->EnumerateNext(&iterator, &modelInfo);
   }
 
   uint32_t currentModel = 0;
+  uint32_t currentBackgroundModel = 0;
 
   g_ModelIds = (uint32_t*)malloc(g_ModelCount * sizeof(uint32_t));
   g_ModelNames = (char**)malloc(g_ModelCount * sizeof(char*));
+  g_BackgroundModelIds =
+      (uint32_t*)malloc(g_BackgroundModelCount * sizeof(uint32_t));
+  g_BackgroundModelNames =
+      (char**)malloc(g_BackgroundModelCount * sizeof(char*));
   err = AllModelsArchive->EnumerateStart(&iterator, &modelInfo);
   while (err == IoError_OK) {
     if (modelInfo.Name[0] == 'c' || modelInfo.Name[0] == 'C') {
       g_ModelIds[currentModel] = modelInfo.Id;
       g_ModelNames[currentModel] = strdup(modelInfo.Name);
       currentModel++;
+    } else if (modelInfo.Name[0] == 'b' || modelInfo.Name[0] == 'B') {
+      g_BackgroundModelIds[currentBackgroundModel] = modelInfo.Id;
+      g_BackgroundModelNames[currentBackgroundModel] = strdup(modelInfo.Name);
+      currentBackgroundModel++;
     }
     err = AllModelsArchive->EnumerateNext(&iterator, &modelInfo);
   }
@@ -84,6 +101,9 @@ Model::~Model() {
   for (auto animation : Animations) {
     if (animation.second) delete animation.second;
   }
+}
+
+void Model::UnloadAnimations() {
   if (g_AnimationIds) {
     free(g_AnimationIds);
     g_AnimationIds = 0;
@@ -126,6 +146,9 @@ Model* Model::Load(uint32_t modelId) {
 
   Model* result = new Model;
   result->Id = modelId;
+  int type = SDL_ReadLE32(stream);
+  assert(type == ModelType_Background || type == ModelType_Character);
+  result->Type = (ModelType)type;
 
   // Read model resource counts and offsets
   SDL_RWseek(stream, ModelFileCountsOffset, RW_SEEK_SET);
@@ -136,7 +159,9 @@ Model* Model::Load(uint32_t modelId) {
   result->TextureCount = SDL_ReadLE32(stream);
   assert(result->TextureCount <= ModelMaxTexturesPerModel);
   result->MorphTargetCount = SDL_ReadLE32(stream);
-  assert(result->MorphTargetCount <= ModelMaxMorphTargetsPerModel);
+  assert(
+      result->MorphTargetCount <= ModelMaxMorphTargetsPerModel &&
+      (result->Type == ModelType_Character || result->MorphTargetCount == 0));
 
   uint32_t MeshInfosOffset = SDL_ReadLE32(stream);
   uint32_t BonesOffset = SDL_ReadLE32(stream);
@@ -156,8 +181,11 @@ Model* Model::Load(uint32_t modelId) {
     result->IndexCount += SDL_ReadLE32(stream);
   }
 
-  result->VertexBuffers =
-      (VertexBuffer*)calloc(result->VertexCount, sizeof(VertexBuffer));
+  if (result->Type == ModelType_Character) {
+    result->VertexBuffers = calloc(result->VertexCount, sizeof(VertexBuffer));
+  } else if (result->Type == ModelType_Background) {
+    result->VertexBuffers = calloc(result->VertexCount, sizeof(BgVertexBuffer));
+  }
   result->Indices = (uint16_t*)calloc(result->IndexCount, sizeof(uint16_t));
 
   // Read mesh attributes
@@ -174,7 +202,17 @@ Model* Model::Load(uint32_t modelId) {
     mesh->MorphTargetCount = SDL_ReadU8(stream);
     assert(mesh->MorphTargetCount <= ModelMaxMorphTargetsPerMesh);
     SDL_RWread(stream, mesh->MorphTargetIds, 1, ModelMaxMorphTargetsPerMesh);
-    SDL_RWseek(stream, 0x80, RW_SEEK_CUR);
+    SDL_RWseek(stream, ModelUnknownsAfterMorphTargets, RW_SEEK_CUR);
+
+    ReadVec3LE32(&mesh->ModelTransform.Position, stream);
+    glm::vec3 euler;
+    ReadVec3LE32(&euler, stream);
+    mesh->ModelTransform.SetRotationFromEuler(euler);
+    ReadVec3LE32(&mesh->ModelTransform.Scale, stream);
+
+    // Skip model matrix and inverse
+    SDL_RWseek(stream, 2 * sizeof(glm::mat4), RW_SEEK_CUR);
+
     mesh->VertexCount = SDL_ReadLE32(stream);
     mesh->IndexCount = SDL_ReadLE32(stream);
 
@@ -208,24 +246,35 @@ Model* Model::Load(uint32_t modelId) {
 
     // Read vertex buffers
     SDL_RWseek(stream, RawVertexOffset, RW_SEEK_SET);
-    for (uint32_t j = 0; j < mesh->VertexCount; j++) {
-      VertexBuffer* vertex = &result->VertexBuffers[CurrentVertexOffset];
-      CurrentVertexOffset++;
-      // Position, then Normal, then UV
-      ReadArrayFloatLE32((float*)&vertex->Position, stream, 3 * 2 + 2 * 1);
+    if (result->Type == ModelType_Character) {
+      for (uint32_t j = 0; j < mesh->VertexCount; j++) {
+        VertexBuffer* vertex =
+            &((VertexBuffer*)result->VertexBuffers)[CurrentVertexOffset];
+        CurrentVertexOffset++;
+        // Position, then Normal, then UV
+        ReadArrayFloatLE32((float*)&vertex->Position, stream, 3 * 2 + 2 * 1);
 
-      if (mesh->UsedBones > 0) {
-        SDL_RWread(stream, vertex->BoneIndices, 1, 4);
+        if (mesh->UsedBones > 0) {
+          SDL_RWread(stream, vertex->BoneIndices, 1, 4);
 
-        ReadVec4LE32(&vertex->BoneWeights, stream);
-      } else {
-        // TODO skinned/unskinned mesh distinction?
-        *(int*)vertex->BoneIndices = 0;
+          ReadVec4LE32(&vertex->BoneWeights, stream);
+        } else {
+          // TODO skinned/unskinned mesh distinction?
+          *(int*)vertex->BoneIndices = 0;
 
-        vertex->BoneWeights = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
+          vertex->BoneWeights = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
 
-        SDL_RWseek(stream, 4 * sizeof(uint8_t) + 4 * sizeof(float),
-                   RW_SEEK_CUR);
+          SDL_RWseek(stream, 4 * sizeof(uint8_t) + 4 * sizeof(float),
+                     RW_SEEK_CUR);
+        }
+      }
+    } else if (result->Type == ModelType_Background) {
+      for (uint32_t j = 0; j < mesh->VertexCount; j++) {
+        BgVertexBuffer* vertex =
+            &((BgVertexBuffer*)result->VertexBuffers)[CurrentVertexOffset];
+        CurrentVertexOffset++;
+        // Position, then UV
+        ReadArrayFloatLE32((float*)&vertex->Position, stream, 3 * 1 + 2 * 1);
       }
     }
 
@@ -332,43 +381,46 @@ Model* Model::Load(uint32_t modelId) {
   // Animations
 
   // TODO remove listing, see above
+  // WOW this really shouldn't be here anyway
 
-  g_AnimationCount = 0;
+  if (result->Type == ModelType_Character) {
+    g_AnimationCount = 0;
 
-  uint32_t iterator;
-  VfsFileInfo animFileInfo;
-  err = modelArchive->EnumerateStart(&iterator, &animFileInfo);
-  while (err == IoError_OK) {
-    if (animFileInfo.Id != 0 &&
-        !AnimationIsBlacklisted(modelId, animFileInfo.Id)) {
-      int64_t animSize;
-      void* animData;
-      modelArchive->Slurp(animFileInfo.Id, &animData, &animSize);
-      SDL_RWops* animStream = SDL_RWFromConstMem(animData, animSize);
-      result->Animations[animFileInfo.Id] =
-          Animation::Load(animStream, result, animFileInfo.Id);
-      SDL_RWclose(animStream);
-      free(animData);
+    uint32_t iterator;
+    VfsFileInfo animFileInfo;
+    err = modelArchive->EnumerateStart(&iterator, &animFileInfo);
+    while (err == IoError_OK) {
+      if (animFileInfo.Id != 0 &&
+          !AnimationIsBlacklisted(modelId, animFileInfo.Id)) {
+        int64_t animSize;
+        void* animData;
+        modelArchive->Slurp(animFileInfo.Id, &animData, &animSize);
+        SDL_RWops* animStream = SDL_RWFromConstMem(animData, animSize);
+        result->Animations[animFileInfo.Id] =
+            Animation::Load(animStream, result, animFileInfo.Id);
+        SDL_RWclose(animStream);
+        free(animData);
 
-      g_AnimationCount++;
+        g_AnimationCount++;
+      }
+      err = modelArchive->EnumerateNext(&iterator, &animFileInfo);
     }
-    err = modelArchive->EnumerateNext(&iterator, &animFileInfo);
-  }
 
-  uint32_t currentAnim = 0;
+    uint32_t currentAnim = 0;
 
-  g_AnimationIds = (uint32_t*)malloc(g_AnimationCount * sizeof(uint32_t));
-  g_AnimationNames = (char**)malloc(g_AnimationCount * sizeof(char*));
+    g_AnimationIds = (uint32_t*)malloc(g_AnimationCount * sizeof(uint32_t));
+    g_AnimationNames = (char**)malloc(g_AnimationCount * sizeof(char*));
 
-  err = modelArchive->EnumerateStart(&iterator, &animFileInfo);
-  while (err == IoError_OK) {
-    if (animFileInfo.Id != 0 &&
-        !AnimationIsBlacklisted(modelId, animFileInfo.Id)) {
-      g_AnimationIds[currentAnim] = animFileInfo.Id;
-      g_AnimationNames[currentAnim] = strdup(animFileInfo.Name);
-      currentAnim++;
+    err = modelArchive->EnumerateStart(&iterator, &animFileInfo);
+    while (err == IoError_OK) {
+      if (animFileInfo.Id != 0 &&
+          !AnimationIsBlacklisted(modelId, animFileInfo.Id)) {
+        g_AnimationIds[currentAnim] = animFileInfo.Id;
+        g_AnimationNames[currentAnim] = strdup(animFileInfo.Name);
+        currentAnim++;
+      }
+      err = modelArchive->EnumerateNext(&iterator, &animFileInfo);
     }
-    err = modelArchive->EnumerateNext(&iterator, &animFileInfo);
   }
 
   delete modelArchive;
@@ -379,6 +431,7 @@ Model* Model::Load(uint32_t modelId) {
 Model* Model::MakePlane() {
   Model* result = new Model;
   result->Id = -1;
+  result->Type = ModelType_Character;
   result->MeshCount = 1;
   result->VertexCount = 4;
   result->IndexCount = 6;
@@ -389,23 +442,24 @@ Model* Model::MakePlane() {
   result->VertexBuffers = (VertexBuffer*)malloc(4 * sizeof(VertexBuffer));
   result->Indices = (uint16_t*)malloc(6 * sizeof(uint16_t));
 
-  result->VertexBuffers[0].Position = glm::vec3(-20.0f, 0.0f, -20.0f);
-  result->VertexBuffers[1].Position = glm::vec3(20.0f, 0.0f, -20.0f);
-  result->VertexBuffers[2].Position = glm::vec3(-20.0f, 0.0f, 20.0f);
-  result->VertexBuffers[3].Position = glm::vec3(20.0f, 0.0f, 20.0f);
+  VertexBuffer* vertexBuffers = (VertexBuffer*)result->VertexBuffers;
 
-  result->VertexBuffers[0].Normal = result->VertexBuffers[1].Normal =
-      result->VertexBuffers[2].Normal = result->VertexBuffers[3].Normal =
-          glm::vec3(0.0f, 1.0f, 0.0f);
+  vertexBuffers[0].Position = glm::vec3(-20.0f, 0.0f, -20.0f);
+  vertexBuffers[1].Position = glm::vec3(20.0f, 0.0f, -20.0f);
+  vertexBuffers[2].Position = glm::vec3(-20.0f, 0.0f, 20.0f);
+  vertexBuffers[3].Position = glm::vec3(20.0f, 0.0f, 20.0f);
 
-  result->VertexBuffers[0].UV = glm::vec2(0.0f, 0.0f);
-  result->VertexBuffers[1].UV = glm::vec2(1.0f, 0.0f);
-  result->VertexBuffers[2].UV = glm::vec2(0.0f, 1.0f);
-  result->VertexBuffers[3].UV = glm::vec2(1.0f, 1.0f);
+  vertexBuffers[0].Normal = vertexBuffers[1].Normal = vertexBuffers[2].Normal =
+      vertexBuffers[3].Normal = glm::vec3(0.0f, 1.0f, 0.0f);
+
+  vertexBuffers[0].UV = glm::vec2(0.0f, 0.0f);
+  vertexBuffers[1].UV = glm::vec2(1.0f, 0.0f);
+  vertexBuffers[2].UV = glm::vec2(0.0f, 1.0f);
+  vertexBuffers[3].UV = glm::vec2(1.0f, 1.0f);
 
   for (int i = 0; i < 4; i++) {
-    for (int j = 0; j < 4; j++) result->VertexBuffers[i].BoneIndices[j] = 0;
-    result->VertexBuffers[i].BoneWeights = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
+    for (int j = 0; j < 4; j++) vertexBuffers[i].BoneIndices[j] = 0;
+    vertexBuffers[i].BoneWeights = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
   }
 
   result->Indices[0] = 0;

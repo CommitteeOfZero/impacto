@@ -20,7 +20,9 @@ void SceneInit() {
 
   g_Camera.Init();
   Character3DInit();
+  Background3DInit();
 
+  g_Scene.LoadBackgroundAsync(g_BackgroundModelIds[0]);
   g_Scene.LoadCharacterAsync(g_ModelIds[0]);
   g_Scene.GroundPlane.MakePlane();
   g_Scene.GroundPlane.Submit();
@@ -28,6 +30,33 @@ void SceneInit() {
   g_Scene.Tint = glm::vec4(0.784f, 0.671f, 0.6f, 0.9f);
   g_Scene.LightPosition = glm::vec3(1.0, 15.0, 1.0);
   g_Scene.DarkMode = false;
+}
+
+static void LoadBackgroundWorker(void* ptr) {
+  Scene* scene = (Scene*)ptr;
+  scene->CurrentBackground.Load(scene->BackgroundToLoadId);
+}
+
+static void OnBackgroundLoaded(void* ptr) {
+  Scene* scene = (Scene*)ptr;
+  scene->CurrentBackground.Submit();
+  scene->CurrentBackgroundLoadStatus = OLS_Loaded;
+}
+
+bool Scene::LoadBackgroundAsync(uint32_t id) {
+  if (CurrentBackgroundLoadStatus == OLS_Loading) {
+    // Cannot currently cancel a load
+    return false;
+  }
+  if (CurrentBackgroundLoadStatus == OLS_Loaded) {
+    CurrentBackground.Unload();
+    CurrentBackgroundLoadStatus = OLS_Unloaded;
+  }
+
+  BackgroundToLoadId = id;
+  CurrentBackgroundLoadStatus = OLS_Loading;
+  WorkQueuePush(this, &LoadBackgroundWorker, &OnBackgroundLoaded);
+  return true;
 }
 
 static void LoadCharacterWorker(void* ptr) {
@@ -38,21 +67,22 @@ static void LoadCharacterWorker(void* ptr) {
 static void OnCharacterLoaded(void* ptr) {
   Scene* scene = (Scene*)ptr;
   scene->CurrentCharacter.Submit();
-  scene->CurrentCharacterLoadStatus = CLS_Loaded;
+  scene->CurrentCharacterLoadStatus = OLS_Loaded;
 }
 
 bool Scene::LoadCharacterAsync(uint32_t id) {
-  if (CurrentCharacterLoadStatus == CLS_Loading) {
+  if (CurrentCharacterLoadStatus == OLS_Loading) {
     // Cannot currently cancel a load
     return false;
   }
-  if (CurrentCharacterLoadStatus == CLS_Loaded) {
+  if (CurrentCharacterLoadStatus == OLS_Loaded) {
     CurrentCharacter.Unload();
-    CurrentCharacterLoadStatus = CLS_Unloaded;
+    Model::UnloadAnimations();
+    CurrentCharacterLoadStatus = OLS_Unloaded;
   }
 
   CharacterToLoadId = id;
-  CurrentCharacterLoadStatus = CLS_Loading;
+  CurrentCharacterLoadStatus = OLS_Loading;
   WorkQueuePush(this, &LoadCharacterWorker, &OnCharacterLoaded);
   return true;
 }
@@ -66,6 +96,7 @@ void Scene::Update(float dt) {
   static nk_colorf tintColor = {0.784f, 0.671f, 0.6f, 0.9f};
   static uint32_t currentModel = 0;
   static uint32_t currentAnim = 0;
+  static uint32_t currentBackground = 0;
 
   if (nk_begin(g_Nk, "Scene", nk_rect(20, 20, 300, g_WindowHeight - 40),
                NK_WINDOW_BORDER | NK_WINDOW_TITLE)) {
@@ -147,18 +178,34 @@ void Scene::Update(float dt) {
       nk_tree_pop(g_Nk);
     }
 
-    if (CurrentCharacterLoadStatus == CLS_Loaded) {
+    if (CurrentBackgroundLoadStatus == OLS_Loaded) {
+      if (nk_tree_push(g_Nk, NK_TREE_TAB, "Background", NK_MAXIMIZED)) {
+        nk_layout_row_dynamic(g_Nk, 24, 1);
+
+        currentBackground = nk_combo(g_Nk, (const char**)g_BackgroundModelNames,
+                                     g_BackgroundModelCount, currentBackground,
+                                     24, nk_vec2(200, 200));
+        if (g_BackgroundModelIds[currentBackground] !=
+            CurrentBackground.StaticModel->Id) {
+          LoadBackgroundAsync(g_BackgroundModelIds[currentBackground]);
+        }
+
+        nk_tree_pop(g_Nk);
+      }
+    }
+
+    if (CurrentCharacterLoadStatus == OLS_Loaded) {
       if (nk_tree_push(g_Nk, NK_TREE_TAB, "Model", NK_MAXIMIZED)) {
         nk_layout_row_dynamic(g_Nk, 24, 1);
 
-        nk_property_float(g_Nk, "Model X", -20.0f,
-                          &CurrentCharacter.ModelTransform.Position.x, 20.0f,
+        nk_property_float(g_Nk, "Model X", -40.0f,
+                          &CurrentCharacter.ModelTransform.Position.x, 40.0f,
                           1.0f, 0.02f);
         nk_property_float(g_Nk, "Model Y", 0.0f,
-                          &CurrentCharacter.ModelTransform.Position.y, 20.0f,
+                          &CurrentCharacter.ModelTransform.Position.y, 40.0f,
                           1.0f, 0.02f);
-        nk_property_float(g_Nk, "Model Z", -20.0f,
-                          &CurrentCharacter.ModelTransform.Position.z, 20.0f,
+        nk_property_float(g_Nk, "Model Z", -40.0f,
+                          &CurrentCharacter.ModelTransform.Position.z, 40.0f,
                           1.0f, 0.02f);
 
         currentModel = nk_combo(g_Nk, (const char**)g_ModelNames, g_ModelCount,
@@ -225,8 +272,11 @@ void Scene::Update(float dt) {
   }
   g_Camera.Move(position);
 
+  // g_Camera.Move(glm::vec3(0.0f, 12.5f, 23.0f));
+  // g_Camera.LookAt(glm::vec3(0.449f, 12.579f, -23.285f));
+
   GroundPlane.Update(dt);
-  if (CurrentCharacterLoadStatus == CLS_Loaded) {
+  if (CurrentCharacterLoadStatus == OLS_Loaded) {
     CurrentCharacter.Update(dt);
   }
 }
@@ -234,10 +284,14 @@ void Scene::Render() {
   // Camera::Recalculate should stay here even for the real game
   g_Camera.Recalculate();
 
+  Background3DUpdateGpu(this, &g_Camera);
   Character3DUpdateGpu(this, &g_Camera);
 
+  if (CurrentBackgroundLoadStatus == OLS_Loaded) {
+    CurrentBackground.Render();
+  }
   GroundPlane.Render();
-  if (CurrentCharacterLoadStatus == CLS_Loaded) {
+  if (CurrentCharacterLoadStatus == OLS_Loaded) {
     CurrentCharacter.Render();
   }
 }

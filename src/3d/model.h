@@ -10,12 +10,19 @@
 
 namespace Impacto {
 
+enum ModelType : uint32_t { ModelType_Background = 1, ModelType_Character = 2 };
+
 enum MeshFlag : uint32_t { MeshFlag_DoubleSided = (1 << 0) };
 
 int const ModelMaxChildrenPerBone = 134;
 int const ModelMaxMorphTargetsPerModel = 256;
-int const ModelMaxMorphTargetsPerMesh = 0x50;
-int const ModelMaxBonesPerModel = 320;
+int const ModelMaxMorphTargetsPerMesh = 32;
+int const ModelUnknownsAfterMorphTargets = 12;
+// TODO: How do we actually want to do this?
+// Character models generally have <300 bones. Some background models have >600
+// bones (what are these for? - some of them seem broken).
+// Dynamic array?
+int const ModelMaxBonesPerModel = 768;
 int const ModelMaxBonesPerMesh = 32;
 int const ModelMaxMeshesPerModel = 32;
 int const ModelMaxRootBones = 32;
@@ -24,6 +31,10 @@ int const ModelMaxTexturesPerModel = 32;
 extern uint32_t* g_ModelIds;
 extern char** g_ModelNames;
 extern uint32_t g_ModelCount;
+
+extern uint32_t* g_BackgroundModelIds;
+extern char** g_BackgroundModelNames;
+extern uint32_t g_BackgroundModelCount;
 
 extern uint32_t* g_AnimationIds;
 extern char** g_AnimationNames;
@@ -35,6 +46,11 @@ struct VertexBuffer {
   glm::vec2 UV;
   uint8_t BoneIndices[4];  // indices into Mesh.BoneMap
   glm::vec4 BoneWeights;
+};
+
+struct BgVertexBuffer {
+  glm::vec3 Position;
+  glm::vec2 UV;
 };
 
 struct MorphVertexBuffer {
@@ -88,6 +104,9 @@ struct Mesh {
   uint32_t Flags;
   float Opacity;
 
+  // This is only used with background models
+  Transform ModelTransform;
+
   uint8_t MorphTargetIds[ModelMaxMorphTargetsPerMesh];
 
   uint32_t UsedBones;                     // 0 => not skinned
@@ -107,6 +126,8 @@ class Model {
  public:
   static void Init();
 
+  static void UnloadAnimations();
+
   // Parses a R;NE model file. No GPU submission happens in this class.
   static Model* Load(uint32_t modelId);
   // Ground plane
@@ -116,11 +137,13 @@ class Model {
 
   uint32_t Id;
 
+  ModelType Type;
+
   int32_t MeshCount = 0;
   Mesh Meshes[ModelMaxMeshesPerModel];
 
   int32_t VertexCount = 0;
-  VertexBuffer* VertexBuffers = 0;
+  void* VertexBuffers = 0;
 
   int32_t MorphTargetCount = 0;
   MorphTarget MorphTargets[ModelMaxMorphTargetsPerModel];

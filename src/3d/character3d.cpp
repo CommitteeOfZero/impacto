@@ -32,7 +32,7 @@ static bool IsInit = false;
 
 void Character3DInit() {
   assert(IsInit == false);
-  ImpLog(LL_Info, LC_Character3D, "Initializing Character3D system\n");
+  ImpLog(LL_Info, LC_Object3D, "Initializing Character3D system\n");
   IsInit = true;
   Model::Init();
 
@@ -109,17 +109,18 @@ void Character3DUpdateGpu(Scene* scene, Camera* camera) {
 bool Character3D::Load(uint32_t modelId) {
   assert(IsUsed == false);
 
-  ImpLog(LL_Info, LC_Character3D, "Creating character (model ID %d)\n",
-         modelId);
+  ImpLog(LL_Info, LC_Object3D, "Creating character (model ID %d)\n", modelId);
 
   StaticModel = Model::Load(modelId);
   ModelTransform = Transform();
 
   if (!StaticModel) {
-    ImpLog(LL_Error, LC_Character3D,
+    ImpLog(LL_Error, LC_Object3D,
            "Model loading failed for character with model ID %d\n");
     return false;
   }
+
+  assert(StaticModel->Type == ModelType_Character);
 
   InitMeshAnimStatus();
   ReloadDefaultBoneTransforms();
@@ -166,12 +167,13 @@ void Character3D::ReloadDefaultMeshAnimStatus() {
     MeshAnimStatus[i].UsedMorphTargetCount = 0;
     if (StaticModel->Meshes[i].MorphTargetCount > 0) {
       for (int j = 0; j < StaticModel->Meshes[i].VertexCount; j++) {
+        VertexBuffer* vertexBuffer =
+            &((VertexBuffer*)StaticModel
+                  ->VertexBuffers)[StaticModel->Meshes[i].VertexOffset + j];
         CurrentMorphedVertices[totalMorphedVertices].Position =
-            StaticModel->VertexBuffers[StaticModel->Meshes[i].VertexOffset + j]
-                .Position;
+            vertexBuffer->Position;
         CurrentMorphedVertices[totalMorphedVertices].Normal =
-            StaticModel->VertexBuffers[StaticModel->Meshes[i].VertexOffset + j]
-                .Normal;
+            vertexBuffer->Normal;
         totalMorphedVertices++;
       }
     }
@@ -189,12 +191,11 @@ void Character3D::CalculateMorphedVertices() {
     if (MeshAnimStatus[i].UsedMorphTargetCount == 0) continue;
 
     for (int j = 0; j < StaticModel->Meshes[i].VertexCount; j++) {
-      glm::vec3 pos =
-          StaticModel->VertexBuffers[StaticModel->Meshes[i].VertexOffset + j]
-              .Position;
-      glm::vec3 normal =
-          StaticModel->VertexBuffers[StaticModel->Meshes[i].VertexOffset + j]
-              .Normal;
+      VertexBuffer* vertexBuffer =
+          &((VertexBuffer*)StaticModel
+                ->VertexBuffers)[StaticModel->Meshes[i].VertexOffset + j];
+      glm::vec3 pos = vertexBuffer->Position;
+      glm::vec3 normal = vertexBuffer->Normal;
 
       glm::vec3 basePos = pos;
       glm::vec3 baseNormal = normal;
@@ -376,7 +377,7 @@ void Character3D::DrawMesh(int id, bool outline) {
 void Character3D::Unload() {
   Animator.CurrentAnimation = 0;
   if (StaticModel) {
-    ImpLog(LL_Info, LC_Character3D, "Unloading model %d\n", StaticModel->Id);
+    ImpLog(LL_Info, LC_Object3D, "Unloading model %d\n", StaticModel->Id);
     if (IsSubmitted) {
       glDeleteBuffers(StaticModel->MeshCount, IBOs);
       glDeleteBuffers(StaticModel->MeshCount, VBOs);
@@ -399,7 +400,7 @@ void Character3D::Unload() {
 void Character3D::Submit() {
   assert(IsSubmitted == false);
 
-  ImpLog(LL_Info, LC_Character3D, "Submitting data to GPU for model ID %d\n",
+  ImpLog(LL_Info, LC_Object3D, "Submitting data to GPU for model ID %d\n",
          StaticModel->Id);
 
   glGenVertexArrays(StaticModel->MeshCount, VAOs);
@@ -411,11 +412,11 @@ void Character3D::Submit() {
     glBindVertexArray(VAOs[i]);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBOs[i]);
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        sizeof(VertexBuffer) * StaticModel->Meshes[i].VertexCount,
-        StaticModel->VertexBuffers + StaticModel->Meshes[i].VertexOffset,
-        GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER,
+                 sizeof(VertexBuffer) * StaticModel->Meshes[i].VertexCount,
+                 (VertexBuffer*)StaticModel->VertexBuffers +
+                     StaticModel->Meshes[i].VertexOffset,
+                 GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexBuffer),
                           (void*)offsetof(VertexBuffer, Position));
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VertexBuffer),
@@ -442,7 +443,7 @@ void Character3D::Submit() {
   for (int i = 0; i < StaticModel->TextureCount; i++) {
     TexBuffers[i] = StaticModel->Textures[i].Submit();
     if (TexBuffers[i] == 0) {
-      ImpLog(LL_Fatal, LC_Character3D,
+      ImpLog(LL_Fatal, LC_Object3D,
              "Submitting texture %d for model %d failed\n", i, StaticModel->Id);
     }
   }
