@@ -133,6 +133,9 @@ IoError VfsArchive::MountChild(uint32_t id, VfsArchive** outArchive) {
   (*outArchive)->Parent = this;
   (*outArchive)->BaseStream = stream;
   (*outArchive)->InMemoryArchive = data;
+  (*outArchive)->Mounted = true;
+
+  Children.push_back(*outArchive);
 
   return IoError_OK;
 }
