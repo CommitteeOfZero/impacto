@@ -4,6 +4,7 @@
 
 #include "character3d.h"
 #include "background3d.h"
+#include "camera.h"
 
 namespace Impacto {
 
@@ -16,6 +17,8 @@ class Scene {
 
   bool LoadBackgroundAsync(uint32_t id);
   bool LoadCharacterAsync(uint32_t id);
+
+  Camera MainCamera;
 
   Background3D CurrentBackground;
 

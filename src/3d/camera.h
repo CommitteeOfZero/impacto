@@ -33,6 +33,4 @@ class Camera {
   glm::mat4 ViewProjection;
 };
 
-extern Camera g_Camera;
-
 }  // namespace Impacto

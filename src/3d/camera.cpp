@@ -7,8 +7,6 @@
 
 namespace Impacto {
 
-Camera g_Camera;
-
 void Camera::Move(glm::vec3 position) {
   glm::vec3 target = Position + Direction;
   Position = position;

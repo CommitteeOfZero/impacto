@@ -18,7 +18,7 @@ void SceneInit() {
   ImpLog(LL_Info, LC_Scene, "Initializing 3D scene system\n");
   IsInit = true;
 
-  g_Camera.Init();
+  g_Scene.MainCamera.Init();
   Character3DInit();
   Background3DInit();
 
@@ -263,8 +263,8 @@ void Scene::Update(float dt) {
   }
   nk_end(g_Nk);
 
-  g_Camera.Move(cameraPosition);
-  g_Camera.LookAt(cameraTarget);
+  MainCamera.Move(cameraPosition);
+  MainCamera.LookAt(cameraTarget);
 
   GroundPlane.Update(dt);
   if (CurrentCharacterLoadStatus == OLS_Loaded) {
@@ -273,10 +273,10 @@ void Scene::Update(float dt) {
 }
 void Scene::Render() {
   // Camera::Recalculate should stay here even for the real game
-  g_Camera.Recalculate();
+  MainCamera.Recalculate();
 
-  Background3DUpdateGpu(this, &g_Camera);
-  Character3DUpdateGpu(this, &g_Camera);
+  Background3DUpdateGpu(this, &MainCamera);
+  Character3DUpdateGpu(this, &MainCamera);
 
   if (CurrentBackgroundLoadStatus == OLS_Loaded) {
     CurrentBackground.Render();
