@@ -35,16 +35,6 @@ void ModelAnimator::Reset() {
         MeshKeys[i].CurrentKeys[j] = 0;
         MeshKeys[i].NextKeys[j] = 1;
       }
-
-      Character->MeshAnimStatus[CurrentAnimation->MeshTracks[i].Mesh]
-          .UsedMorphTargetCount =
-          CurrentAnimation->MeshTracks[i].MorphTargetCount;
-      for (int j = 0; j < CurrentAnimation->MeshTracks[i].MorphTargetCount;
-           j++) {
-        Character->MeshAnimStatus[CurrentAnimation->MeshTracks[i].Mesh]
-            .UsedMorphTargetIds[j] =
-            CurrentAnimation->MeshTracks[i].MorphTargetIds[j];
-      }
     }
   }
 }
@@ -187,14 +177,17 @@ void ModelAnimator::Update(float dt) {
            j < (track->MorphTargetCount + MKT_MorphInfluenceStart); j++) {
         TrackInterpolate(
             MeshKeys, CoordKeyframes, j,
-            animatedMesh->MorphInfluences[j - MKT_MorphInfluenceStart], mix);
+            animatedMesh->MorphInfluences
+                [track->MorphTargetIds[j - MKT_MorphInfluenceStart]],
+            mix);
       }
     } else {
       for (int j = MKT_MorphInfluenceStart;
            j < (track->MorphTargetCount + MKT_MorphInfluenceStart); j++) {
         TrackNoInterpolate(
             MeshKeys, CoordKeyframes, j,
-            animatedMesh->MorphInfluences[j - MKT_MorphInfluenceStart]);
+            animatedMesh->MorphInfluences
+                [track->MorphTargetIds[j - MKT_MorphInfluenceStart]]);
       }
     }
   }

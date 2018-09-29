@@ -133,8 +133,8 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t animId) {
       uint16_t morphTargetCount = SDL_ReadLE16(stream);
       ImpLogSlow(LL_Trace, LC_ModelLoad, "Morph target count %d\n",
                  morphTargetCount);
-      uint16_t virtualMorphTargetIds[AnimMaxMorphTargetsPerTrack];
-      ReadArrayLE16(virtualMorphTargetIds, stream, morphTargetCount);
+      uint16_t morphTargetIds[AnimMaxMorphTargetsPerTrack];
+      ReadArrayLE16(morphTargetIds, stream, morphTargetCount);
 
       SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
       SDL_RWseek(stream, 0x48, RW_SEEK_CUR);
@@ -164,13 +164,8 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t animId) {
                morphTargetCount * sizeof(uint16_t));
         memcpy(track->KeyOffsets + MKT_MorphInfluenceStart,
                morphInfluenceOffsets, morphTargetCount * sizeof(int));
-        for (int k = 0; k < morphTargetCount; k++) {
-          track->MorphTargetIds[k] =
-              mesh->MorphTargetIds[virtualMorphTargetIds[k]];
-          ImpLogSlow(LL_Trace, LC_ModelLoad,
-                     "Morph %d for this mesh: morph target %d\n", k,
-                     mesh->MorphTargetIds[virtualMorphTargetIds[k]]);
-        }
+        memcpy(track->MorphTargetIds, morphTargetIds,
+               morphTargetCount * sizeof(uint16_t));
       }
       result->MeshTrackCount += meshes.size();
     }

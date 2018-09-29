@@ -51,8 +51,6 @@ struct MeshTrack {
   uint16_t KeyCounts[MKT_Count];
 
   uint16_t MorphTargetCount;
-  // Unlike R;NE animation files, these IDs go into Model->MorphTargets, not
-  // Mesh->MorphTargetIds
   uint16_t MorphTargetIds[AnimMaxMorphTargetsPerTrack];
 };
 

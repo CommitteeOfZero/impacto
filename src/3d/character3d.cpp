@@ -164,7 +164,6 @@ void Character3D::ReloadDefaultMeshAnimStatus() {
   int totalMorphedVertices = 0;
   for (int i = 0; i < StaticModel->MeshCount; i++) {
     MeshAnimStatus[i].Visible = 1.0f;
-    MeshAnimStatus[i].UsedMorphTargetCount = 0;
     if (StaticModel->Meshes[i].MorphTargetCount > 0) {
       for (int j = 0; j < StaticModel->Meshes[i].VertexCount; j++) {
         VertexBuffer* vertexBuffer =
@@ -175,6 +174,9 @@ void Character3D::ReloadDefaultMeshAnimStatus() {
         CurrentMorphedVertices[totalMorphedVertices].Normal =
             vertexBuffer->Normal;
         totalMorphedVertices++;
+      }
+      for (int j = 0; j < StaticModel->Meshes[i].MorphTargetCount; j++) {
+        MeshAnimStatus[i].MorphInfluences[j] = 0.0f;
       }
     }
   }
@@ -188,7 +190,8 @@ void Character3D::ReloadDefaultBoneTransforms() {
 
 void Character3D::CalculateMorphedVertices() {
   for (int i = 0; i < StaticModel->MeshCount; i++) {
-    if (MeshAnimStatus[i].UsedMorphTargetCount == 0) continue;
+    Mesh* mesh = &StaticModel->Meshes[i];
+    if (mesh->MorphTargetCount == 0) continue;
 
     for (int j = 0; j < StaticModel->Meshes[i].VertexCount; j++) {
       VertexBuffer* vertexBuffer =
@@ -200,12 +203,10 @@ void Character3D::CalculateMorphedVertices() {
       glm::vec3 basePos = pos;
       glm::vec3 baseNormal = normal;
 
-      for (int k = 0; k < MeshAnimStatus[i].UsedMorphTargetCount; k++) {
+      for (int k = 0; k < mesh->MorphTargetCount; k++) {
         pos += (StaticModel
                     ->MorphVertexBuffers
-                        [StaticModel
-                             ->MorphTargets[MeshAnimStatus[i]
-                                                .UsedMorphTargetIds[k]]
+                        [StaticModel->MorphTargets[mesh->MorphTargetIds[k]]
                              .VertexOffset +
                          j]
                     .Position -
@@ -213,9 +214,7 @@ void Character3D::CalculateMorphedVertices() {
                MeshAnimStatus[i].MorphInfluences[k];
         normal += (StaticModel
                        ->MorphVertexBuffers
-                           [StaticModel
-                                ->MorphTargets[MeshAnimStatus[i]
-                                                   .UsedMorphTargetIds[k]]
+                           [StaticModel->MorphTargets[mesh->MorphTargetIds[k]]
                                 .VertexOffset +
                             j]
                        .Normal -
@@ -281,26 +280,16 @@ void Character3D::Render() {
     glBindVertexArray(VAOs[i]);
 
     if (StaticModel->Meshes[i].MorphTargetCount > 0) {
-      if (MeshAnimStatus[i].UsedMorphTargetCount > 0) {
-        glBindBuffer(GL_ARRAY_BUFFER, MorphVBOs[i]);
-        glBufferData(
-            GL_ARRAY_BUFFER,
-            sizeof(MorphVertexBuffer) * StaticModel->Meshes[i].VertexCount,
-            CurrentMorphedVertices + MeshAnimStatus[i].MorphedVerticesOffset,
-            GL_DYNAMIC_DRAW);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-                              sizeof(MorphVertexBuffer),
-                              (void*)offsetof(MorphVertexBuffer, Position));
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-                              sizeof(MorphVertexBuffer),
-                              (void*)offsetof(MorphVertexBuffer, Normal));
-      } else {
-        glBindBuffer(GL_ARRAY_BUFFER, VBOs[i]);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexBuffer),
-                              (void*)offsetof(VertexBuffer, Position));
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VertexBuffer),
-                              (void*)offsetof(VertexBuffer, Normal));
-      }
+      glBindBuffer(GL_ARRAY_BUFFER, MorphVBOs[i]);
+      glBufferData(
+          GL_ARRAY_BUFFER,
+          sizeof(MorphVertexBuffer) * StaticModel->Meshes[i].VertexCount,
+          CurrentMorphedVertices + MeshAnimStatus[i].MorphedVerticesOffset,
+          GL_DYNAMIC_DRAW);
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(MorphVertexBuffer),
+                            (void*)offsetof(MorphVertexBuffer, Position));
+      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(MorphVertexBuffer),
+                            (void*)offsetof(MorphVertexBuffer, Normal));
     }
 
     if (StaticModel->Meshes[i].UsedBones > 0) {

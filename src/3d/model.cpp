@@ -442,6 +442,7 @@ Model* Model::MakePlane() {
   result->TextureCount = 1;
   result->BoneCount = 1;
   result->RootBoneCount = 1;
+  result->MorphTargetCount = 0;
 
   result->VertexBuffers = (VertexBuffer*)malloc(4 * sizeof(VertexBuffer));
   result->Indices = (uint16_t*)malloc(6 * sizeof(uint16_t));
@@ -483,6 +484,7 @@ Model* Model::MakePlane() {
 
   result->Textures[0].LoadPoliticalCompass();
 
+  result->Meshes[0].MorphTargetCount = 0;
   result->Meshes[0].BoneMap[0] = 0;
   result->Meshes[0].VertexCount = 4;
   result->Meshes[0].IndexCount = 6;

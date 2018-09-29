@@ -20,11 +20,8 @@ struct PosedBone {
 
 struct AnimatedMesh {
   float Visible;
-  float MorphInfluences[AnimMaxMorphTargetsPerTrack];
+  float MorphInfluences[ModelMaxMorphTargetsPerMesh];
   int MorphedVerticesOffset;
-
-  uint16_t UsedMorphTargetCount;
-  uint16_t UsedMorphTargetIds[AnimMaxMorphTargetsPerTrack];
 };
 
 class ModelAnimator;
