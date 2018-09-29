@@ -64,10 +64,7 @@ class Character3D {
   void Pose();
   void PoseBone(int16_t id);
 
-  void UpdateVAO(int id);
-  void SetMeshUniforms(int id);
-  void DrawOutline(int id);
-  void DrawMesh(int id);
+  void DrawMesh(int id, bool outline);
 
   GLuint VAOs[ModelMaxMeshesPerModel];
   GLuint VBOs[ModelMaxMeshesPerModel];
@@ -75,8 +72,6 @@ class Character3D {
   GLuint IBOs[ModelMaxMeshesPerModel];
 
   GLuint TexBuffers[ModelMaxTexturesPerModel];
-
-  bool VAOsUpdated[ModelMaxMeshesPerModel];
 
   Transform PrevBoneTransforms[ModelMaxBonesPerModel];
   AnimatedMesh PrevMeshAnimStatus[ModelMaxMeshesPerModel];

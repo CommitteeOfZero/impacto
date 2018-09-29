@@ -310,139 +310,93 @@ void Character3D::Render() {
   glBufferSubData(GL_UNIFORM_BUFFER, CommonUniformOffsets[CU_Model],
                   sizeof(glm::mat4), glm::value_ptr(ModelMatrix));
 
-  memset(VAOsUpdated, 0, sizeof(VAOsUpdated));
-
-  // Outline pass
-
-  glUseProgram(ShaderProgramOutline);
-
-  glEnable(GL_CULL_FACE);
-  glCullFace(GL_FRONT);
-  glDepthMask(GL_FALSE);
-
   for (int i = 0; i < StaticModel->MeshCount; i++) {
-    if (!MeshAnimStatus[i].Visible || StaticModel->Meshes[i].Flags <= 0)
-      continue;
+    if (!MeshAnimStatus[i].Visible) continue;
 
     glBindVertexArray(VAOs[i]);
 
-    UpdateVAO(i);
-    SetMeshUniforms(i);
-
-    DrawOutline(i);
-  }
-
-  glDepthMask(GL_TRUE);
-  glCullFace(GL_BACK);
-
-  // Color pass
-
-  glUseProgram(ShaderProgram);
-
-  for (int i = 0; i < StaticModel->MeshCount; i++) {
-    if (!MeshAnimStatus[i].Visible ||
-        StaticModel->Meshes[i].Maps[TT_Eye_WhiteColorMap] >= 0)
-      continue;
-
-    glBindVertexArray(VAOs[i]);
-
-    UpdateVAO(i);
-    SetMeshUniforms(i);
-
-    DrawMesh(i);
-  }
-
-  // Eyes
-
-  glUseProgram(ShaderProgramEye);
-
-  for (int i = 0; i < StaticModel->MeshCount; i++) {
-    if (!MeshAnimStatus[i].Visible ||
-        StaticModel->Meshes[i].Maps[TT_Eye_WhiteColorMap] < 0)
-      continue;
-
-    glBindVertexArray(VAOs[i]);
-
-    UpdateVAO(i);
-    SetMeshUniforms(i);
-
-    DrawMesh(i);
-  }
-}
-
-void Character3D::UpdateVAO(int id) {
-  if (VAOsUpdated[id]) return;
-
-  if (StaticModel->Meshes[id].MorphTargetCount > 0) {
-    glBindBuffer(GL_ARRAY_BUFFER, MorphVBOs[id]);
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        sizeof(MorphVertexBuffer) * StaticModel->Meshes[id].VertexCount,
-        CurrentMorphedVertices + MeshAnimStatus[id].MorphedVerticesOffset,
-        GL_DYNAMIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(MorphVertexBuffer),
-                          (void*)offsetof(MorphVertexBuffer, Position));
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(MorphVertexBuffer),
-                          (void*)offsetof(MorphVertexBuffer, Normal));
-  }
-
-  VAOsUpdated[id] = true;
-}
-
-void Character3D::SetMeshUniforms(int id) {
-  if (StaticModel->Meshes[id].UsedBones > 0) {
-    for (int j = 0; j < StaticModel->Meshes[id].UsedBones; j++) {
-      glBufferSubData(
-          GL_UNIFORM_BUFFER,
-          CommonUniformOffsets[CU_Bones] + sizeof(glm::mat4) * j,
-          sizeof(glm::mat4),
-          glm::value_ptr(
-              CurrentPose[StaticModel->Meshes[id].BoneMap[j]].Offset));
+    if (StaticModel->Meshes[i].MorphTargetCount > 0) {
+      glBindBuffer(GL_ARRAY_BUFFER, MorphVBOs[i]);
+      glBufferData(
+          GL_ARRAY_BUFFER,
+          sizeof(MorphVertexBuffer) * StaticModel->Meshes[i].VertexCount,
+          CurrentMorphedVertices + MeshAnimStatus[i].MorphedVerticesOffset,
+          GL_DYNAMIC_DRAW);
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(MorphVertexBuffer),
+                            (void*)offsetof(MorphVertexBuffer, Position));
+      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(MorphVertexBuffer),
+                            (void*)offsetof(MorphVertexBuffer, Normal));
     }
-  } else {
-    glBufferSubData(
-        GL_UNIFORM_BUFFER, CommonUniformOffsets[CU_Bones], sizeof(glm::mat4),
-        glm::value_ptr(CurrentPose[StaticModel->Meshes[id].MeshBone].Offset));
-  }
 
-  for (int j = 0; j < TT_Count; j++) {
-    glActiveTexture(GL_TEXTURE0 + j);
-    if (StaticModel->Meshes[id].Maps[j] >= 0) {
-      glBindTexture(GL_TEXTURE_2D, TexBuffers[StaticModel->Meshes[id].Maps[j]]);
+    if (StaticModel->Meshes[i].UsedBones > 0) {
+      for (int j = 0; j < StaticModel->Meshes[i].UsedBones; j++) {
+        glBufferSubData(
+            GL_UNIFORM_BUFFER,
+            CommonUniformOffsets[CU_Bones] + sizeof(glm::mat4) * j,
+            sizeof(glm::mat4),
+            glm::value_ptr(
+                CurrentPose[StaticModel->Meshes[i].BoneMap[j]].Offset));
+      }
     } else {
-      glBindTexture(GL_TEXTURE_2D, 0);
+      glBufferSubData(
+          GL_UNIFORM_BUFFER, CommonUniformOffsets[CU_Bones], sizeof(glm::mat4),
+          glm::value_ptr(CurrentPose[StaticModel->Meshes[i].MeshBone].Offset));
+    }
+
+    for (int j = 0; j < TT_Count; j++) {
+      glActiveTexture(GL_TEXTURE0 + j);
+      if (StaticModel->Meshes[i].Maps[j] >= 0) {
+        glBindTexture(GL_TEXTURE_2D,
+                      TexBuffers[StaticModel->Meshes[i].Maps[j]]);
+      } else {
+        glBindTexture(GL_TEXTURE_2D, 0);
+      }
+    }
+
+    glBufferSubData(GL_UNIFORM_BUFFER, CommonUniformOffsets[CU_ModelOpacity],
+                    sizeof(float), &StaticModel->Meshes[i].Opacity);
+
+    if (StaticModel->Meshes[i].Flags > 0) {
+      DrawMesh(i, true);
+    }
+
+    DrawMesh(i, false);
+  }
+}
+
+void Character3D::DrawMesh(int id, bool outline) {
+  if (outline) {
+    glUseProgram(ShaderProgramOutline);
+
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_FRONT);
+    glDepthMask(GL_FALSE);
+  } else {
+    if (StaticModel->Meshes[id].Maps[TT_Eye_WhiteColorMap] >= 0) {
+      // Yes, really, there's no other indication that the mesh is an eye
+      // TODO: Iris/highlights should be animated
+      glUseProgram(ShaderProgramEye);
+    } else {
+      glUseProgram(ShaderProgram);
+    }
+
+    // TODO: how do they actually do this?
+    if (StaticModel->Meshes[id].Opacity < 0.9) {
+      glDepthMask(GL_FALSE);
+    } else {
+      glDepthMask(GL_TRUE);
+    }
+
+    if (StaticModel->Meshes[id].Flags & MeshFlag_DoubleSided) {
+      glDisable(GL_CULL_FACE);
+    } else {
+      glEnable(GL_CULL_FACE);
+      glCullFace(GL_BACK);
     }
   }
 
-  glBufferSubData(GL_UNIFORM_BUFFER, CommonUniformOffsets[CU_ModelOpacity],
-                  sizeof(float), &StaticModel->Meshes[id].Opacity);
-}
-
-void Character3D::DrawOutline(int id) {
   glDrawElements(GL_TRIANGLES, StaticModel->Meshes[id].IndexCount,
                  GL_UNSIGNED_SHORT, 0);
-}
-
-void Character3D::DrawMesh(int id) {
-  // TODO: how do they actually do this?
-  if (StaticModel->Meshes[id].Opacity < 0.9) {
-    glDepthMask(GL_FALSE);
-  }
-
-  if (StaticModel->Meshes[id].Flags & MeshFlag_DoubleSided) {
-    glDisable(GL_CULL_FACE);
-  }
-
-  glDrawElements(GL_TRIANGLES, StaticModel->Meshes[id].IndexCount,
-                 GL_UNSIGNED_SHORT, 0);
-
-  // Reset common state
-  if (StaticModel->Meshes[id].Opacity < 0.9) {
-    glDepthMask(GL_TRUE);
-  }
-  if (StaticModel->Meshes[id].Flags & MeshFlag_DoubleSided) {
-    glEnable(GL_CULL_FACE);
-  }
 }
 
 void Character3D::Unload() {
