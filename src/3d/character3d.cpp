@@ -205,9 +205,21 @@ void Character3D::ReloadDefaultBoneTransforms() {
 }
 
 void Character3D::CalculateMorphedVertices() {
+  memset(MeshMorphed, 0, sizeof(MeshMorphed));
+
   for (int i = 0; i < StaticModel->MeshCount; i++) {
     Mesh* mesh = &StaticModel->Meshes[i];
     if (mesh->MorphTargetCount == 0) continue;
+
+    for (int k = 0; k < mesh->MorphTargetCount; k++) {
+      if (MeshAnimStatus[i].MorphInfluences[k] != 0.0f ||
+          (PrevPoseWeight != 0.0f &&
+           PrevMeshAnimStatus[i].MorphInfluences[k] != 0.0f)) {
+        MeshMorphed[i] = true;
+      }
+    }
+
+    if (!MeshMorphed[i]) continue;
 
     for (int j = 0; j < StaticModel->Meshes[i].VertexCount; j++) {
       VertexBuffer* vertexBuffer =
@@ -228,6 +240,7 @@ void Character3D::CalculateMorphedVertices() {
         } else {
           influence = MeshAnimStatus[i].MorphInfluences[k];
         }
+        if (influence == 0.0f) continue;
         pos += (StaticModel
                     ->MorphVertexBuffers
                         [StaticModel->MorphTargets[mesh->MorphTargetIds[k]]
@@ -374,16 +387,24 @@ void Character3D::UpdateVAO(int id) {
   if (VAOsUpdated[id]) return;
 
   if (StaticModel->Meshes[id].MorphTargetCount > 0) {
-    glBindBuffer(GL_ARRAY_BUFFER, MorphVBOs[id]);
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        sizeof(MorphVertexBuffer) * StaticModel->Meshes[id].VertexCount,
-        CurrentMorphedVertices + MeshAnimStatus[id].MorphedVerticesOffset,
-        GL_DYNAMIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(MorphVertexBuffer),
-                          (void*)offsetof(MorphVertexBuffer, Position));
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(MorphVertexBuffer),
-                          (void*)offsetof(MorphVertexBuffer, Normal));
+    if (MeshMorphed[id]) {
+      glBindBuffer(GL_ARRAY_BUFFER, MorphVBOs[id]);
+      glBufferData(
+          GL_ARRAY_BUFFER,
+          sizeof(MorphVertexBuffer) * StaticModel->Meshes[id].VertexCount,
+          CurrentMorphedVertices + MeshAnimStatus[id].MorphedVerticesOffset,
+          GL_DYNAMIC_DRAW);
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(MorphVertexBuffer),
+                            (void*)offsetof(MorphVertexBuffer, Position));
+      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(MorphVertexBuffer),
+                            (void*)offsetof(MorphVertexBuffer, Normal));
+    } else {
+      glBindBuffer(GL_ARRAY_BUFFER, VBOs[id]);
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexBuffer),
+                            (void*)offsetof(VertexBuffer, Position));
+      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VertexBuffer),
+                            (void*)offsetof(VertexBuffer, Normal));
+    }
   }
 
   VAOsUpdated[id] = true;

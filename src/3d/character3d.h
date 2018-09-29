@@ -77,6 +77,7 @@ class Character3D {
   GLuint TexBuffers[ModelMaxTexturesPerModel];
 
   bool VAOsUpdated[ModelMaxMeshesPerModel];
+  bool MeshMorphed[ModelMaxMeshesPerModel];
 
   Transform PrevBoneTransforms[ModelMaxBonesPerModel];
   AnimatedMesh PrevMeshAnimStatus[ModelMaxMeshesPerModel];
