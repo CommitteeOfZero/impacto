@@ -228,6 +228,9 @@ void Character3D::CalculateMorphedVertices() {
         } else {
           influence = MeshAnimStatus[i].MorphInfluences[k];
         }
+
+        if (influence == 0.0f) continue;
+
         pos += (StaticModel
                     ->MorphVertexBuffers
                         [StaticModel->MorphTargets[mesh->MorphTargetIds[k]]
