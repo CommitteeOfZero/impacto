@@ -156,6 +156,10 @@ Model* Model::Load(uint32_t modelId) {
   assert(result->MeshCount <= ModelMaxMeshesPerModel);
   result->BoneCount = SDL_ReadLE32(stream);
   assert(result->BoneCount <= ModelMaxBonesPerModel);
+  if (result->Type == ModelType_Background) {
+    // Backgrounds have a skeleton, but it seems to be unused
+    result->BoneCount = 0;
+  }
   result->TextureCount = SDL_ReadLE32(stream);
   assert(result->TextureCount <= ModelMaxTexturesPerModel);
   result->MorphTargetCount = SDL_ReadLE32(stream);
