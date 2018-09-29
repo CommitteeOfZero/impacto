@@ -15,4 +15,12 @@ glm::mat4 Transform::Matrix() {
   return result;
 }
 
+Transform Transform::Interpolate(Transform next, float factor) {
+  Transform result;
+  result.Position = glm::mix(Position, next.Position, factor);
+  result.Rotation = glm::slerp(Rotation, next.Rotation, factor);
+  result.Scale = glm::mix(Scale, next.Scale, factor);
+  return result;
+}
+
 }  // namespace Impacto

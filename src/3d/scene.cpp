@@ -253,7 +253,8 @@ void Scene::Update(float dt) {
                        currentAnim, 24, nk_vec2(200, 200));
           if (g_AnimationIds[currentAnim] !=
               CurrentCharacter.Animator.CurrentAnimation->Id) {
-            CurrentCharacter.Animator.Start(g_AnimationIds[currentAnim]);
+            CurrentCharacter.SwitchAnimation(g_AnimationIds[currentAnim],
+                                             0.33f);
           }
         }
 

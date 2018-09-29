@@ -113,6 +113,7 @@ bool Character3D::Load(uint32_t modelId) {
 
   StaticModel = Model::Load(modelId);
   ModelTransform = Transform();
+  PrevPoseWeight = 0.0f;
 
   if (!StaticModel) {
     ImpLog(LL_Error, LC_Object3D,
@@ -126,7 +127,7 @@ bool Character3D::Load(uint32_t modelId) {
   ReloadDefaultBoneTransforms();
 
   Animator.Character = this;
-  Animator.Start(1);
+  SwitchAnimation(1, 0.0f);
 
   IsUsed = true;
 
@@ -138,6 +139,7 @@ void Character3D::MakePlane() {
 
   StaticModel = Model::MakePlane();
   ModelTransform = Transform();
+  PrevPoseWeight = 0.0f;
 
   Animator.Character = this;
 
@@ -182,6 +184,20 @@ void Character3D::ReloadDefaultMeshAnimStatus() {
   }
 }
 
+void Character3D::SwitchAnimation(uint32_t animId, float transitionTime) {
+  if (Animator.CurrentAnimation != 0 && transitionTime > 0.0f) {
+    PrevPoseWeight = 1.0f;
+    for (int i = 0; i < StaticModel->BoneCount; i++) {
+      PrevBoneTransforms[i] = CurrentPose[i].LocalTransform;
+    }
+    memcpy(PrevMeshAnimStatus, MeshAnimStatus, sizeof(MeshAnimStatus));
+    AnimationTransitionTime = transitionTime;
+  } else {
+    PrevPoseWeight = 0.0f;
+  }
+  Animator.Start(animId);
+}
+
 void Character3D::ReloadDefaultBoneTransforms() {
   for (int i = 0; i < StaticModel->BoneCount; i++) {
     CurrentPose[i].LocalTransform = StaticModel->Bones[i].BaseTransform;
@@ -204,6 +220,14 @@ void Character3D::CalculateMorphedVertices() {
       glm::vec3 baseNormal = normal;
 
       for (int k = 0; k < mesh->MorphTargetCount; k++) {
+        float influence;
+        if (PrevPoseWeight > 0.0f) {
+          influence = glm::mix(PrevMeshAnimStatus[i].MorphInfluences[k],
+                               MeshAnimStatus[i].MorphInfluences[k],
+                               1.0f - PrevPoseWeight);
+        } else {
+          influence = MeshAnimStatus[i].MorphInfluences[k];
+        }
         pos += (StaticModel
                     ->MorphVertexBuffers
                         [StaticModel->MorphTargets[mesh->MorphTargetIds[k]]
@@ -211,7 +235,7 @@ void Character3D::CalculateMorphedVertices() {
                          j]
                     .Position -
                 basePos) *
-               MeshAnimStatus[i].MorphInfluences[k];
+               influence;
         normal += (StaticModel
                        ->MorphVertexBuffers
                            [StaticModel->MorphTargets[mesh->MorphTargetIds[k]]
@@ -219,7 +243,7 @@ void Character3D::CalculateMorphedVertices() {
                             j]
                        .Normal -
                    baseNormal) *
-                  MeshAnimStatus[i].MorphInfluences[k];
+                  influence;
       }
 
       CurrentMorphedVertices[MeshAnimStatus[i].MorphedVerticesOffset + j]
@@ -247,7 +271,15 @@ void Character3D::PoseBone(int16_t id) {
     parentWorld = CurrentPose[bone->Parent].World;
   }
 
-  glm::mat4 local = transformed->LocalTransform.Matrix();
+  Transform transform;
+  if (PrevPoseWeight > 0.0f) {
+    transform = PrevBoneTransforms[id].Interpolate(transformed->LocalTransform,
+                                                   1.0f - PrevPoseWeight);
+  } else {
+    transform = transformed->LocalTransform;
+  }
+
+  glm::mat4 local = transform.Matrix();
 
   transformed->World = parentWorld * local;
 
@@ -263,6 +295,10 @@ void Character3D::Update(float dt) {
   Animator.Update(dt);
   CalculateMorphedVertices();
   Pose();
+  if (PrevPoseWeight > 0.0f) {
+    PrevPoseWeight -= dt / AnimationTransitionTime;
+    if (PrevPoseWeight < 0.0f) PrevPoseWeight = 0.0f;
+  }
 }
 
 void Character3D::Render() {
@@ -365,6 +401,7 @@ void Character3D::DrawMesh(int id, bool outline) {
 
 void Character3D::Unload() {
   Animator.CurrentAnimation = 0;
+  PrevPoseWeight = 0.0f;
   if (StaticModel) {
     ImpLog(LL_Info, LC_Object3D, "Unloading model %d\n", StaticModel->Id);
     if (IsSubmitted) {

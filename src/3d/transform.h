@@ -17,6 +17,8 @@ struct Transform {
   void SetRotationFromEuler(glm::vec3 eulerZYX);
   glm::mat4 Matrix();
 
+  Transform Interpolate(Transform next, float factor);
+
   glm::vec3 Position;
   glm::quat Rotation;
   glm::vec3 Scale;

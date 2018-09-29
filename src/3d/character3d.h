@@ -19,6 +19,7 @@ struct PosedBone {
 };
 
 struct AnimatedMesh {
+  // TODO: Visibility not blended during animation transitions - is this okay?
   float Visible;
   float MorphInfluences[ModelMaxMorphTargetsPerMesh];
   int MorphedVerticesOffset;
@@ -45,6 +46,8 @@ class Character3D {
   void InitMeshAnimStatus();
   void ReloadDefaultMeshAnimStatus();
 
+  void SwitchAnimation(uint32_t animId, float transitionTime);
+
   Model* StaticModel = 0;
 
   // Per-frame results of vertex animation
@@ -69,6 +72,11 @@ class Character3D {
   GLuint IBOs[ModelMaxMeshesPerModel];
 
   GLuint TexBuffers[ModelMaxTexturesPerModel];
+
+  Transform PrevBoneTransforms[ModelMaxBonesPerModel];
+  AnimatedMesh PrevMeshAnimStatus[ModelMaxMeshesPerModel];
+  float PrevPoseWeight;
+  float AnimationTransitionTime;
 };
 
 void Character3DInit();
