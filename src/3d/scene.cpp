@@ -24,8 +24,6 @@ void SceneInit() {
 
   g_Scene.LoadBackgroundAsync(g_BackgroundModelIds[0]);
   g_Scene.LoadCharacterAsync(g_ModelIds[0]);
-  g_Scene.GroundPlane.MakePlane();
-  g_Scene.GroundPlane.Submit();
 
   g_Scene.Tint = glm::vec4(0.784f, 0.671f, 0.6f, 0.9f);
   g_Scene.LightPosition = glm::vec3(-2.85f, 16.68f, 6.30f);
@@ -267,7 +265,6 @@ void Scene::Update(float dt) {
   MainCamera.Move(cameraPosition);
   MainCamera.LookAt(cameraTarget);
 
-  GroundPlane.Update(dt);
   if (CurrentCharacterLoadStatus == OLS_Loaded) {
     CurrentCharacter.Update(dt);
   }
@@ -282,7 +279,6 @@ void Scene::Render() {
   if (CurrentBackgroundLoadStatus == OLS_Loaded) {
     CurrentBackground.Render();
   }
-  GroundPlane.Render();
   if (CurrentCharacterLoadStatus == OLS_Loaded) {
     CurrentCharacter.Render();
   }

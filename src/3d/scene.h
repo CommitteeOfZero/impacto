@@ -23,7 +23,6 @@ class Scene {
   Background3D CurrentBackground;
 
   Character3D CurrentCharacter;
-  Character3D GroundPlane;
 
   Object3DLoadStatus CurrentBackgroundLoadStatus = OLS_Unloaded;
   Object3DLoadStatus CurrentCharacterLoadStatus = OLS_Unloaded;
