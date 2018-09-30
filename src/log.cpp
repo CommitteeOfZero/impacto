@@ -93,14 +93,17 @@ void ImpLog(LogLevel level, LogChannel channel, const char* format, ...) {
   size_t headSize =
       snprintf(NULL, 0, "[%s][%s][%s] ", ts, levelStr, channelStr);
 
-  va_list args;
+  va_list args, args2;
   va_start(args, format);
+  // cannot reuse args in glibc
+  va_copy(args2, args);
   size_t tailSize = vsnprintf(NULL, 0, format, args);
+  va_end(args);
 
   char* line = (char*)ImpStackAlloc(headSize + tailSize + 1);
 
   snprintf(line, headSize + 1, "[%s][%s][%s] ", ts, levelStr, channelStr);
-  vsnprintf(line + headSize, tailSize + 1, format, args);
+  vsnprintf(line + headSize, tailSize + 1, format, args2);
   line[headSize + tailSize] = '\0';
 
   if (LoggingToConsole && level <= g_LogLevelConsole &&
@@ -109,7 +112,6 @@ void ImpLog(LogLevel level, LogChannel channel, const char* format, ...) {
   }
   // TODO file
 
-  va_end(args);
   free(ts);
   ImpStackFree(line);
 }
