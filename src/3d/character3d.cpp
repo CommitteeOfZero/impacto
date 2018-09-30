@@ -28,6 +28,10 @@ static GLint CommonUniformOffsets[CU_Count];
 
 static GLuint ShaderProgram = 0, ShaderProgramOutline = 0, ShaderProgramEye = 0,
               UBO = 0, UniformDarkMode = 0;
+
+static uint8_t* LocalUniformBuffer;
+static GLint UniformBlockSize;
+
 static bool IsInit = false;
 
 void Character3DInit() {
@@ -56,13 +60,13 @@ void Character3DInit() {
       glGetUniformBlockIndex(ShaderProgramEye, "Character3DCommon");
   glUniformBlockBinding(ShaderProgramEye, blockIndexEye, 0);
 
-  GLint uniformBlockSize;
   glGetActiveUniformBlockiv(ShaderProgram, blockIndex,
-                            GL_UNIFORM_BLOCK_DATA_SIZE, &uniformBlockSize);
+                            GL_UNIFORM_BLOCK_DATA_SIZE, &UniformBlockSize);
 
   glGenBuffers(1, &UBO);
   glBindBuffer(GL_UNIFORM_BUFFER, UBO);
-  glBufferData(GL_UNIFORM_BUFFER, uniformBlockSize, NULL, GL_DYNAMIC_DRAW);
+  glBufferData(GL_UNIFORM_BUFFER, UniformBlockSize, NULL, GL_DYNAMIC_DRAW);
+  LocalUniformBuffer = (uint8_t*)malloc(UniformBlockSize);
 
   glBindBufferBase(GL_UNIFORM_BUFFER, 0, UBO);
 
@@ -91,16 +95,15 @@ void Character3DInit() {
 }
 
 void Character3DUpdateGpu(Scene* scene, Camera* camera) {
-  glBindBuffer(GL_UNIFORM_BUFFER, UBO);
-  glBufferSubData(GL_UNIFORM_BUFFER, CommonUniformOffsets[CU_ViewProjection],
-                  sizeof(glm::mat4), glm::value_ptr(camera->ViewProjection));
-  glBufferSubData(GL_UNIFORM_BUFFER, CommonUniformOffsets[CU_Tint],
-                  sizeof(glm::vec4), glm::value_ptr(scene->Tint));
-  glBufferSubData(GL_UNIFORM_BUFFER,
-                  CommonUniformOffsets[CU_WorldLightPosition],
-                  sizeof(glm::vec3), glm::value_ptr(scene->LightPosition));
-  glBufferSubData(GL_UNIFORM_BUFFER, CommonUniformOffsets[CU_WorldEyePosition],
-                  sizeof(glm::vec3), glm::value_ptr(camera->Position));
+  memcpy(LocalUniformBuffer + CommonUniformOffsets[CU_ViewProjection],
+         glm::value_ptr(camera->ViewProjection),
+         sizeof(camera->ViewProjection));
+  memcpy(LocalUniformBuffer + CommonUniformOffsets[CU_Tint],
+         glm::value_ptr(scene->Tint), sizeof(scene->Tint));
+  memcpy(LocalUniformBuffer + CommonUniformOffsets[CU_WorldLightPosition],
+         glm::value_ptr(scene->LightPosition), sizeof(scene->LightPosition));
+  memcpy(LocalUniformBuffer + CommonUniformOffsets[CU_WorldEyePosition],
+         glm::value_ptr(camera->Position), sizeof(camera->Position));
 
   glUseProgram(ShaderProgram);
   glUniform1i(UniformDarkMode, scene->DarkMode);
@@ -309,9 +312,8 @@ void Character3D::Render() {
 
   glBindBuffer(GL_UNIFORM_BUFFER, UBO);
 
-  glm::mat4 ModelMatrix = ModelTransform.Matrix();
-  glBufferSubData(GL_UNIFORM_BUFFER, CommonUniformOffsets[CU_Model],
-                  sizeof(glm::mat4), glm::value_ptr(ModelMatrix));
+  *(glm::mat4*)(LocalUniformBuffer + CommonUniformOffsets[CU_Model]) =
+      ModelTransform.Matrix();
 
   for (int i = 0; i < StaticModel->MeshCount; i++) {
     if (!MeshAnimStatus[i].Visible) continue;
@@ -333,17 +335,17 @@ void Character3D::Render() {
 
     if (StaticModel->Meshes[i].UsedBones > 0) {
       for (int j = 0; j < StaticModel->Meshes[i].UsedBones; j++) {
-        glBufferSubData(
-            GL_UNIFORM_BUFFER,
-            CommonUniformOffsets[CU_Bones] + sizeof(glm::mat4) * j,
-            sizeof(glm::mat4),
-            glm::value_ptr(
-                CurrentPose[StaticModel->Meshes[i].BoneMap[j]].Offset));
+        memcpy(LocalUniformBuffer + CommonUniformOffsets[CU_Bones] +
+                   j * sizeof(glm::mat4),
+               glm::value_ptr(
+                   CurrentPose[StaticModel->Meshes[i].BoneMap[j]].Offset),
+               sizeof(glm::mat4));
       }
     } else {
-      glBufferSubData(
-          GL_UNIFORM_BUFFER, CommonUniformOffsets[CU_Bones], sizeof(glm::mat4),
-          glm::value_ptr(CurrentPose[StaticModel->Meshes[i].MeshBone].Offset));
+      memcpy(
+          LocalUniformBuffer + CommonUniformOffsets[CU_Bones],
+          glm::value_ptr(CurrentPose[StaticModel->Meshes[i].MeshBone].Offset),
+          sizeof(glm::mat4));
     }
 
     for (int j = 0; j < TT_Count; j++) {
@@ -356,8 +358,12 @@ void Character3D::Render() {
       }
     }
 
-    glBufferSubData(GL_UNIFORM_BUFFER, CommonUniformOffsets[CU_ModelOpacity],
-                    sizeof(float), &StaticModel->Meshes[i].Opacity);
+    memcpy(LocalUniformBuffer + CommonUniformOffsets[CU_ModelOpacity],
+           &StaticModel->Meshes[i].Opacity,
+           sizeof(StaticModel->Meshes[i].Opacity));
+
+    glBufferData(GL_UNIFORM_BUFFER, UniformBlockSize, LocalUniformBuffer,
+                 GL_DYNAMIC_DRAW);
 
     if (StaticModel->Meshes[i].Flags > 0) {
       DrawMesh(i, true);
