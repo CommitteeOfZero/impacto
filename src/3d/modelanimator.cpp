@@ -62,36 +62,36 @@ void ModelAnimator::Unload() {
   }                                                               \
   (void)0
 
-#define TrackInterpolate(targetType, dataType, type, dest, func)         \
-  if (track->KeyCounts[type]) {                                          \
-    if (targetType[i].NextKeys[type] < track->KeyCounts[type]) {         \
-      float nextTime = CurrentAnimation                                  \
-                           ->dataType[track->KeyOffsets[type] +          \
-                                      targetType[i].NextKeys[type]]      \
-                           .Time;                                        \
-      float prevTime = CurrentAnimation                                  \
-                           ->dataType[track->KeyOffsets[type] +          \
-                                      targetType[i].CurrentKeys[type]]   \
-                           .Time;                                        \
-      float duration = nextTime - prevTime;                              \
-      float timeAlongDuration = CurrentTime - prevTime;                  \
-      float factor = timeAlongDuration / duration;                       \
-      dest = glm::##func(CurrentAnimation                                \
-                             ->dataType[track->KeyOffsets[type] +        \
-                                        targetType[i].CurrentKeys[type]] \
-                             .Value,                                     \
-                         CurrentAnimation                                \
-                             ->dataType[track->KeyOffsets[type] +        \
-                                        targetType[i].NextKeys[type]]    \
-                             .Value,                                     \
-                         factor);                                        \
-    } else {                                                             \
-      dest = CurrentAnimation                                            \
-                 ->dataType[track->KeyOffsets[type] +                    \
-                            targetType[i].CurrentKeys[type]]             \
-                 .Value;                                                 \
-    }                                                                    \
-  }                                                                      \
+#define TrackInterpolate(targetType, dataType, type, dest, func)       \
+  if (track->KeyCounts[type]) {                                        \
+    if (targetType[i].NextKeys[type] < track->KeyCounts[type]) {       \
+      float nextTime = CurrentAnimation                                \
+                           ->dataType[track->KeyOffsets[type] +        \
+                                      targetType[i].NextKeys[type]]    \
+                           .Time;                                      \
+      float prevTime = CurrentAnimation                                \
+                           ->dataType[track->KeyOffsets[type] +        \
+                                      targetType[i].CurrentKeys[type]] \
+                           .Time;                                      \
+      float duration = nextTime - prevTime;                            \
+      float timeAlongDuration = CurrentTime - prevTime;                \
+      float factor = timeAlongDuration / duration;                     \
+      dest = glm::func(CurrentAnimation                                \
+                           ->dataType[track->KeyOffsets[type] +        \
+                                      targetType[i].CurrentKeys[type]] \
+                           .Value,                                     \
+                       CurrentAnimation                                \
+                           ->dataType[track->KeyOffsets[type] +        \
+                                      targetType[i].NextKeys[type]]    \
+                           .Value,                                     \
+                       factor);                                        \
+    } else {                                                           \
+      dest = CurrentAnimation                                          \
+                 ->dataType[track->KeyOffsets[type] +                  \
+                            targetType[i].CurrentKeys[type]]           \
+                 .Value;                                               \
+    }                                                                  \
+  }                                                                    \
   void(0)
 
 #define TrackNoInterpolate(targetType, dataType, type, dest) \

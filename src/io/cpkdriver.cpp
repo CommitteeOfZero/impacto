@@ -300,6 +300,8 @@ bool CpkArchive::ReadUtfBlock(
     }
     rows->push_back(row);
   }
+
+  return true;
 }
 
 IoError CpkArchive::ReadItoc(int64_t itocOffset, int64_t contentOffset,
@@ -372,6 +374,8 @@ IoError CpkArchive::ReadItoc(int64_t itocOffset, int64_t contentOffset,
     if (size % align) offset += align - (size % align);
     FilesToIds[i++] = id;
   }
+
+  return IoError_OK;
 }
 
 IoError CpkArchive::ReadToc(int64_t tocOffset, int64_t contentOffset) {
@@ -409,6 +413,8 @@ IoError CpkArchive::ReadToc(int64_t tocOffset, int64_t contentOffset) {
       sprintf(entry->Name, "%05i", id);
     }
   }
+
+  return IoError_OK;
 }
 
 IoError CpkArchive::ReadEtoc(int64_t etocOffset) {
@@ -426,6 +432,8 @@ IoError CpkArchive::ReadEtoc(int64_t etocOffset) {
   // TODO: This contains the LocalDir and UpdateDateTime params. Do we actually
   // need this?...
   //}
+
+  return IoError_OK;
 }
 
 IoError CpkArchive::CpkMount(SDL_RWops* stream, VfsArchive** outArchive) {

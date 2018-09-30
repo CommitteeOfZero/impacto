@@ -195,7 +195,7 @@ IoError VfsArchive::Slurp(uint32_t id, void** outData, int64_t* outSize) {
 
   result = GetSize(id, outSize);
   if (result != IoError_OK) return result;
-  if (*outSize == NULL) return IoError_OK;
+  if (*outSize == 0) return IoError_OK;
 
   *outData = malloc(*outSize);
   if (*outData == NULL) return IoError_OutOfMemory;
@@ -335,6 +335,8 @@ IoError VfsArchive::OverlayOpen(uint32_t id, SDL_RWops** outHandle) {
                g_VfsOverlayPath, MountPoint, fileName);
         return IoError_Fail;
       }
+    } else {
+      return overlayErr;
     }
   } else {
     return IoError_Fail;

@@ -29,11 +29,13 @@ static int WorkerThread(void* unused) {
       SDL_UnlockMutex(Lock);
       item.Perform(item.Data);
 
+      WorkItem* copy = (WorkItem*)malloc(sizeof(WorkItem));
+      memcpy(copy, &item, sizeof(WorkItem));
+
       SDL_Event evt;
       memset(&evt, 0, sizeof(evt));
       evt.type = WorkCompletedEventType;
-      evt.user.data1 = item.Data;
-      evt.user.data2 = item.OnComplete;
+      evt.user.data1 = copy;
       SDL_PushEvent(&evt);
     }
   }
@@ -63,10 +65,11 @@ void WorkQueuePush(void* data, WorkProc worker,
 bool WorkQueueHandleEvent(SDL_Event* evt) {
   if (evt->type != WorkCompletedEventType) return false;
 
-  void* Data = evt->user.data1;
-  WorkCompletionCallbackProc Callback =
-      (WorkCompletionCallbackProc)evt->user.data2;
-  Callback(Data);
+  WorkItem* item = (WorkItem*)evt->user.data1;
+  item->OnComplete(item->Data);
+
+  free(item);
+
   return true;
 }
 

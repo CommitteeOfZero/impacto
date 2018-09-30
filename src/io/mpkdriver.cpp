@@ -255,6 +255,8 @@ int64_t SDLCALL MpkEntryCompressedSeek(SDL_RWops* context, int64_t offset,
       return file->ZlibStream.total_out;
     }
   }
+
+  return SDL_SetError("Fell to end of seek function");
 }
 
 size_t SDLCALL MpkEntryWrite(SDL_RWops* context, const void* ptr, size_t size,
