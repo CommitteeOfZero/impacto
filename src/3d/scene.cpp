@@ -252,7 +252,7 @@ void Scene::Update(float dt) {
           if (g_AnimationIds[currentAnim] !=
               CurrentCharacter.Animator.CurrentAnimation->Id) {
             CurrentCharacter.SwitchAnimation(g_AnimationIds[currentAnim],
-                                             0.33f);
+                                             0.66f);
           }
         }
 

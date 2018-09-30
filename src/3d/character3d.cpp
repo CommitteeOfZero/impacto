@@ -225,9 +225,10 @@ void Character3D::CalculateMorphedVertices() {
       for (int k = 0; k < mesh->MorphTargetCount; k++) {
         float influence;
         if (PrevPoseWeight > 0.0f) {
-          influence = glm::mix(PrevMeshAnimStatus[i].MorphInfluences[k],
-                               MeshAnimStatus[i].MorphInfluences[k],
-                               1.0f - PrevPoseWeight);
+          influence =
+              glm::mix(PrevMeshAnimStatus[i].MorphInfluences[k],
+                       MeshAnimStatus[i].MorphInfluences[k],
+                       glm::smoothstep(0.0f, 1.0f, 1.0f - PrevPoseWeight));
         } else {
           influence = MeshAnimStatus[i].MorphInfluences[k];
         }
@@ -279,8 +280,9 @@ void Character3D::PoseBone(int16_t id) {
 
   Transform transform;
   if (PrevPoseWeight > 0.0f) {
-    transform = PrevBoneTransforms[id].Interpolate(transformed->LocalTransform,
-                                                   1.0f - PrevPoseWeight);
+    transform = PrevBoneTransforms[id].Interpolate(
+        transformed->LocalTransform,
+        glm::smoothstep(0.0f, 1.0f, 1.0f - PrevPoseWeight));
   } else {
     transform = transformed->LocalTransform;
   }
