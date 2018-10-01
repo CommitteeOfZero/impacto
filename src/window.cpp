@@ -14,7 +14,6 @@ int g_WindowHeight = 0;
 int g_MsaaCount = 0;
 SDL_Window* g_SDLWindow;
 SDL_GLContext g_GLContext;
-nk_context* g_Nk;
 
 int lastWidth = -1;
 int lastHeight = -1;
@@ -116,13 +115,6 @@ void WindowInit() {
 
   // Vsync
   SDL_GL_SetSwapInterval(0);
-
-  // Nuklear
-  g_Nk = nk_sdl_init(g_SDLWindow);
-  struct nk_font_atlas* atlas;
-  nk_sdl_font_stash_begin(&atlas);
-  // no fonts => default font used, but we still have do the setup
-  nk_sdl_font_stash_end();
 }
 
 void WindowSetDimensions(int width, int height) {
@@ -134,7 +126,6 @@ void WindowSetDimensions(int width, int height) {
 }
 
 void WindowShutdown() {
-  nk_sdl_shutdown();
   SDL_GL_DeleteContext(g_GLContext);
   SDL_DestroyWindow(g_SDLWindow);
   SDL_Quit();

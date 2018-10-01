@@ -36,10 +36,6 @@ extern uint32_t* g_BackgroundModelIds;
 extern char** g_BackgroundModelNames;
 extern uint32_t g_BackgroundModelCount;
 
-extern uint32_t* g_AnimationIds;
-extern char** g_AnimationNames;
-extern uint32_t g_AnimationCount;
-
 struct VertexBuffer {
   glm::vec3 Position;
   glm::vec3 Normal;
@@ -127,8 +123,7 @@ class Animation;
 class Model {
  public:
   static void Init();
-
-  static void UnloadAnimations();
+  static void EnumerateModels();
 
   // Parses a R;NE model file. No GPU submission happens in this class.
   static Model* Load(uint32_t modelId);
@@ -166,6 +161,10 @@ class Model {
   int16_t RootBones[ModelMaxRootBones];
 
   ska::flat_hash_map<uint16_t, Animation*> Animations;
+
+  uint32_t* AnimationIds;
+  char** AnimationNames;
+  uint32_t AnimationCount;
 };
 
 }  // namespace Impacto

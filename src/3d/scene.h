@@ -35,8 +35,6 @@ class Scene {
   uint32_t CharacterToLoadId;
 };
 
-extern Scene g_Scene;
-
 void SceneInit();
 
 }  // namespace Impacto

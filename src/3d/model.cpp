@@ -27,10 +27,6 @@ uint32_t* g_BackgroundModelIds;
 char** g_BackgroundModelNames;
 uint32_t g_BackgroundModelCount;
 
-uint32_t* g_AnimationIds;
-char** g_AnimationNames;
-uint32_t g_AnimationCount;
-
 bool AnimationIsBlacklisted(uint32_t modelId, uint16_t animId) {
   // This animation file is just broken
   if (modelId == 273 && animId == 22) return true;
@@ -46,21 +42,19 @@ void Model::Init() {
     AllModelsArchive = NULL;
     ImpLog(LL_Error, LC_ModelLoad, "Could not open model archive: %d\n", err);
   }
+}
 
+void Model::EnumerateModels() {
   // List models
   // TODO: We don't need this in the game - take it out when we remove the model
   // viewer, it's a waste of time then
-
-  g_AnimationCount = 0;
-  g_AnimationNames = 0;
-  g_AnimationIds = 0;
 
   g_ModelCount = 0;
   g_BackgroundModelCount = 0;
 
   uint32_t iterator;
   VfsFileInfo modelInfo;
-  err = AllModelsArchive->EnumerateStart(&iterator, &modelInfo);
+  IoError err = AllModelsArchive->EnumerateStart(&iterator, &modelInfo);
   while (err == IoError_OK) {
     if (modelInfo.Name[0] == 'c' || modelInfo.Name[0] == 'C') {
       g_ModelCount++;
@@ -101,21 +95,15 @@ Model::~Model() {
   for (auto animation : Animations) {
     if (animation.second) delete animation.second;
   }
-}
-
-void Model::UnloadAnimations() {
-  if (g_AnimationIds) {
-    free(g_AnimationIds);
-    g_AnimationIds = 0;
+  if (AnimationIds) {
+    free(AnimationIds);
   }
-  if (g_AnimationNames) {
-    for (int i = 0; i < g_AnimationCount; i++) {
-      if (g_AnimationNames[i]) free(g_AnimationNames[i]);
+  if (AnimationNames) {
+    for (int i = 0; i < AnimationCount; i++) {
+      if (AnimationNames[i]) free(AnimationNames[i]);
     }
-    free(g_AnimationNames);
-    g_AnimationNames = 0;
+    free(AnimationNames);
   }
-  g_AnimationCount = 0;
 }
 
 Model* Model::Load(uint32_t modelId) {
@@ -386,9 +374,10 @@ Model* Model::Load(uint32_t modelId) {
 
   // TODO remove listing, see above
   // WOW this really shouldn't be here anyway
+  // TODO should we still remove this?
 
   if (result->Type == ModelType_Character) {
-    g_AnimationCount = 0;
+    result->AnimationCount = 0;
 
     uint32_t iterator;
     VfsFileInfo animFileInfo;
@@ -405,22 +394,24 @@ Model* Model::Load(uint32_t modelId) {
         SDL_RWclose(animStream);
         free(animData);
 
-        g_AnimationCount++;
+        result->AnimationCount++;
       }
       err = modelArchive->EnumerateNext(&iterator, &animFileInfo);
     }
 
     uint32_t currentAnim = 0;
 
-    g_AnimationIds = (uint32_t*)malloc(g_AnimationCount * sizeof(uint32_t));
-    g_AnimationNames = (char**)malloc(g_AnimationCount * sizeof(char*));
+    result->AnimationIds =
+        (uint32_t*)malloc(result->AnimationCount * sizeof(uint32_t));
+    result->AnimationNames =
+        (char**)malloc(result->AnimationCount * sizeof(char*));
 
     err = modelArchive->EnumerateStart(&iterator, &animFileInfo);
     while (err == IoError_OK) {
       if (animFileInfo.Id != 0 &&
           !AnimationIsBlacklisted(modelId, animFileInfo.Id)) {
-        g_AnimationIds[currentAnim] = animFileInfo.Id;
-        g_AnimationNames[currentAnim] = strdup(animFileInfo.Name);
+        result->AnimationIds[currentAnim] = animFileInfo.Id;
+        result->AnimationNames[currentAnim] = strdup(animFileInfo.Name);
         currentAnim++;
       }
       err = modelArchive->EnumerateNext(&iterator, &animFileInfo);
