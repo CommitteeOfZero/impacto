@@ -1,7 +1,5 @@
 #include "scene.h"
 
-#include <SDL.h>  // M_PI
-
 #include "camera.h"
 #include "../log.h"
 #include "../window.h"

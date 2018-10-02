@@ -5,7 +5,6 @@ project ("impacto")
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/modules")
 
 find_package(OpenGL REQUIRED)
-find_package(GLEW REQUIRED)
 find_package(SDL2 REQUIRED)
 find_package(glm REQUIRED)
 find_package(ZLIB REQUIRED)
@@ -39,6 +38,8 @@ set(Impacto_Src
     src/texture/texture.cpp
     src/texture/s3tc.cpp
     src/texture/gxtloader.cpp
+
+    vendor/glad/src/glad.c
 )
 
 set(Impacto_Header
@@ -74,6 +75,8 @@ set(Impacto_Header
     vendor/nuklear/nuklear_sdl_gl3.h
 )
 
+include_directories(vendor/glad/include)
+
 add_executable (impacto ${Impacto_Src} ${Impacto_Header})
 
 # configuration
@@ -100,7 +103,6 @@ target_include_directories(impacto PRIVATE ${PROJECT_BINARY_DIR}/include)
 
 target_link_libraries(impacto PUBLIC
     OpenGL::GL
-    GLEW::GLEW
     SDL2::SDL2main
     glm
     ZLIB::ZLIB
@@ -113,11 +115,6 @@ if (WIN32)
     install(FILES ${SDL2_RUNTIME_DLL} DESTINATION .)
 
     install(FILES ${ZLIB_INCLUDE_DIR}/../bin/zlib.dll DESTINATION .)
-    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-        install(FILES ${GLEW_INCLUDE_DIR}/../bin/Release/x64/glew32.dll DESTINATION .)
-	else()
-        install(FILES ${GLEW_INCLUDE_DIR}/../bin/Release/Win32/glew32.dll DESTINATION .)
-	endif()
 endif()
 
 # assets

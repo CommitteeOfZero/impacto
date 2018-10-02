@@ -1,4 +1,4 @@
-#include <GL/glew.h>
+#include <glad/glad.h>
 #include <SDL_opengl.h>
 
 #include "window.h"
@@ -91,11 +91,9 @@ void WindowInit() {
 
   WindowGetDimensions();
 
-  glewExperimental = GL_TRUE;
-  GLenum glewErr = glewInit();
-  if (glewErr != GLEW_OK) {
-    ImpLog(LL_Fatal, LC_General, "GLEW initialisation failed: %s\n",
-           glewGetErrorString(glewErr));
+  bool gladOk = gladLoadGLLoader(SDL_GL_GetProcAddress);
+  if (!gladOk) {
+    ImpLog(LL_Fatal, LC_General, "GLAD initialisation failed\n");
     WindowShutdown();
   }
 
