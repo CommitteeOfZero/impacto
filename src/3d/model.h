@@ -162,9 +162,9 @@ class Model {
 
   ska::flat_hash_map<uint16_t, Animation*> Animations;
 
-  uint32_t* AnimationIds;
-  char** AnimationNames;
-  uint32_t AnimationCount;
+  uint32_t* AnimationIds = 0;
+  char** AnimationNames = 0;
+  uint32_t AnimationCount = 0;
 };
 
 }  // namespace Impacto
