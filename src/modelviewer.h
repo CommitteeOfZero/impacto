@@ -1,17 +1,19 @@
 #pragma once
 
-#include "basegame.h"
+#include "impacto.h"
+
+#include <glm/glm.hpp>
 
 namespace Impacto {
 
-class ModelViewerGame : public BaseGame {
+class ModelViewer {
  public:
-  ModelViewerGame();
+  ModelViewer();
+
+  void Init();
+  void Update(float dt);
 
  private:
-  void GameUpdate(float dt) override;
-  void DrawLayer(uint32_t layerId) override;
-
   glm::vec3 CameraPosition;
   glm::vec3 CameraTarget;
   nk_colorf UiTintColor;

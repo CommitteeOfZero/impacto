@@ -5,12 +5,11 @@
 #include "shader.h"
 #include "window.h"
 #include "workqueue.h"
-#include "modelviewergame.h"
+#include "game.h"
 
 using namespace Impacto;
 
 static uint64_t t;
-BaseGame* Impacto::g_Game;
 
 void GameLoop() {
   uint64_t t2 = SDL_GetPerformanceCounter();
@@ -34,7 +33,7 @@ void InitSystems() {
 int main(int argc, char* argv[]) {
   InitSystems();
 
-  g_Game = new ModelViewerGame;
+  Game::InitModelViewer();
 
   t = SDL_GetPerformanceCounter();
 

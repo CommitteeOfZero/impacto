@@ -1,15 +1,18 @@
-#include "basegame.h"
+#include "game.h"
 
 #include "window.h"
 #include "../vendor/nuklear/nuklear_sdl_gl3.h"
 #include "workqueue.h"
+#include "modelviewer.h"
 
 namespace Impacto {
 
 static int const NkMaxVertexMemory = 1024 * 1024;
 static int const NkMaxElementMemory = 1024 * 1024;
 
-BaseGame::BaseGame(GameFeatureConfig const& config)
+Game* g_Game;
+
+Game::Game(GameFeatureConfig const& config)
     : LayerCount(config.LayerCount), GameFeatures(config.GameFeatures) {
   WindowInit();
 
@@ -26,13 +29,39 @@ BaseGame::BaseGame(GameFeatureConfig const& config)
     Scene3D = new Scene;
     Scene3D->MainCamera.Init();
   }
+
+  if (GameFeatures & GameFeature_ModelViewer) {
+    ModelViewerComponent = new ModelViewer;
+  }
 }
 
-BaseGame::~BaseGame() {
+void Game::Init() {
+  if (GameFeatures & GameFeature_ModelViewer) {
+    ModelViewerComponent->Init();
+  }
+}
+
+void Game::InitModelViewer() {
+  assert(g_Game == 0);
+  GameFeatureConfig config;
+  config.LayerCount = 1;
+  config.GameFeatures =
+      GameFeature_Nuklear | GameFeature_Scene3D | GameFeature_ModelViewer;
+  config.Scene3D_BackgroundCount = 1;
+  config.Scene3D_CharacterCount = 1;
+
+  g_Game = new Game(config);
+  g_Game->Init();
+}
+
+Game::~Game() {
+  if (GameFeatures & GameFeature_ModelViewer) {
+    delete ModelViewerComponent;
+  }
+
   if (GameFeatures & GameFeature_Scene3D) {
     if (Scene3D) {
       delete Scene3D;
-      Scene3D = 0;
     }
   }
 
@@ -42,7 +71,7 @@ BaseGame::~BaseGame() {
   WindowShutdown();
 }
 
-void BaseGame::Update(float dt) {
+void Game::Update(float dt) {
   SDL_Event e;
   if (GameFeatures & GameFeature_Nuklear) {
     nk_input_begin(Nk);
@@ -61,13 +90,16 @@ void BaseGame::Update(float dt) {
     nk_input_end(Nk);
   }
 
-  GameUpdate(dt);
+  if (GameFeatures & GameFeature_ModelViewer) {
+    ModelViewerComponent->Update(dt);
+  }
+
   if (GameFeatures & GameFeature_Scene3D) {
     Scene3D->Update(dt);
   }
 }
 
-void BaseGame::Render() {
+void Game::Render() {
   WindowGetDimensions();
   glViewport(0, 0, g_WindowWidth, g_WindowHeight);
 
@@ -78,8 +110,12 @@ void BaseGame::Render() {
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+  if (GameFeatures & GameFeature_Scene3D) {
+    Scene3D->Render();
+  }
+
   for (uint32_t layer = 0; layer < LayerCount; layer++) {
-    DrawLayer(layer);
+    // TODO
   }
 
   if (GameFeatures & GameFeature_Nuklear) {
