@@ -8,11 +8,6 @@ YMMV. I had no idea what I was doing. This is definitely not the best way, but i
 
 Create a folder somewhere on your drive, `impacto-deps`.
 
-### GLEW
-
-- Grab Windows binaries from http://glew.sourceforge.net/
-- Extract to `impacto-deps`. You should now have `impacto-deps/glew-2.1.0/LICENSE.txt` etc.
-
 ### SDL2
 
 - Grab Visual C++ binaries (`SDL2-devel-2.0.8-VC.zip`) from https://www.libsdl.org/download-2.0.php
@@ -67,7 +62,6 @@ Create a folder somewhere on your drive, `impacto-deps`.
       "environments": [
         {
           "SDL2DIR": "C:\\path\\to\\impacto-deps\\SDL2-2.0.8",
-          "CMAKE_LIBRARY_PATH": "C:\\path\\to\\impacto-deps\\glew-2.1.0\\lib\\Release\\x64",
           "CMAKE_PREFIX_PATH": "C:\\path\\to\\impacto-deps"
         }
       ],
@@ -97,7 +91,6 @@ Create a folder somewhere on your drive, `impacto-deps`.
       "environments": [
         {
           "SDL2DIR": "C:\\path\\to\\impacto-deps\\SDL2-2.0.8",
-          "CMAKE_LIBRARY_PATH": "C:\\path\\to\\impacto-deps\\glew-2.1.0\\lib\\Release\\x64",
           "CMAKE_PREFIX_PATH": "C:\\path\\to\\impacto-deps"
         }
       ],
