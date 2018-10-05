@@ -64,6 +64,8 @@ const char* ChannelToString(LogChannel channel) {
       return "TextureLoad";
     case LC_Scene:
       return "Scene";
+    case LC_VM:
+      return "VM";
     default:
       assert(false);
       return "";

@@ -39,6 +39,18 @@ set(Impacto_Src
     src/texture/s3tc.cpp
     src/texture/gxtloader.cpp
 
+    src/vm/vm.cpp
+    src/vm/expression.cpp
+    src/vm/inst_system.cpp
+    src/vm/inst_controlflow.cpp
+    src/vm/inst_dialogue.cpp
+    src/vm/inst_gamespecific.cpp
+    src/vm/inst_graphics2d.cpp
+    src/vm/inst_graphics3d.cpp
+    src/vm/inst_misc.cpp
+    src/vm/inst_movie.cpp
+    src/vm/inst_sound.cpp
+
     vendor/glad/src/glad.c
 )
 
@@ -68,6 +80,21 @@ set(Impacto_Header
     src/texture/texture.h
     src/texture/s3tc.h
     src/texture/gxtloader.h
+
+    src/vm/vm.h
+    src/vm/expression.h
+    src/vm/thread.h
+    src/vm/inst_macros.inc
+    src/vm/inst_system.h
+    src/vm/inst_controlflow.h
+    src/vm/inst_dialogue.h
+    src/vm/inst_gamespecific.h
+    src/vm/inst_graphics2d.h
+    src/vm/inst_graphics3d.h
+    src/vm/inst_misc.h
+    src/vm/inst_movie.h
+    src/vm/inst_sound.h
+    src/vm/opcodetables_rne.h
 
     vendor/include/flat_hash_map.hpp
 
