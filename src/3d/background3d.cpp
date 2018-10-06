@@ -123,7 +123,7 @@ void Background3D::Render() {
   // TODO: *should* we cull backfaces? (in the default pose this covers some
   // sprites)
   glDisable(GL_CULL_FACE);
-  glDepthMask(GL_FALSE);
+  glDepthMask(GL_TRUE);
 
   glActiveTexture(GL_TEXTURE0);
 
