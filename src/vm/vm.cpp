@@ -34,7 +34,7 @@ void Vm::Init(uint32_t startScriptId, uint32_t bufferId) {
   memset(&ThreadPool[VmMaxThreads - 1], 0, sizeof(Sc3VmThread));
 
   for (int i = 0; i < VmMaxThreadGroups; i++) {
-    ThreadGroupControl[i] = ThreadFlagState::Display;
+    ThreadGroupControl[i] = TF_Display;
     ThreadGroupHeads[i] = NULL;
     ThreadGroupTails[i] = NULL;
   }
@@ -52,9 +52,7 @@ void Vm::Init(uint32_t startScriptId, uint32_t bufferId) {
     Sc3VmThread* startupThd = CreateThread(0);
     startupThd->ScriptBufferId = bufferId;
     uint8_t* scrBuf = ScriptBuffers[bufferId];
-    startupThd->Ip =
-        (uint8_t*)(scrBuf + ((*(scrBuf + 15) << 24) | (*(scrBuf + 14) << 16) |
-                             (*(scrBuf + 13) << 8) | *(scrBuf + 12)));
+    startupThd->Ip = ScriptGetLabelAddress(scrBuf, 0);
   }
 }
 
@@ -101,18 +99,18 @@ void Vm::CreateThreadExecTable() {
   int tblIndex = 0;
 
   for (int i = 0; i < VmMaxThreadGroups; i++) {
-    if (ThreadGroupControl[i] & ThreadFlagState::Destroy) {
+    if (ThreadGroupControl[i] & TF_Destroy) {
       DestroyThreadGroup(i);
-      ThreadGroupControl[i] ^= ThreadFlagState::Destroy;
-    } else if (!(ThreadGroupControl[i] & ThreadFlagState::Pause)) {
+      ThreadGroupControl[i] ^= TF_Destroy;
+    } else if (!(ThreadGroupControl[i] & TF_Pause)) {
       Sc3VmThread* groupThread = ThreadGroupHeads[i];
       if (groupThread == NULL) continue;
       do {
-        if (groupThread->Flag & ThreadFlagState::Destroy) {
+        if (groupThread->Flag & TF_Destroy) {
           Sc3VmThread* next = groupThread->NextContext;
           DestroyThread(groupThread);
           groupThread = next;
-        } else if (!(groupThread->Flag & ThreadFlagState::Pause)) {
+        } else if (!(groupThread->Flag & TF_Pause)) {
           ThreadTable[tblIndex++] = groupThread;
           groupThread = groupThread->NextContext;
         } else {
@@ -151,7 +149,7 @@ void Vm::Update() {
 
   cnt = 0;
   while (ThreadTable[cnt]) {
-    if (ThreadTable[cnt]->Flag & ThreadFlagState::Destroy) {
+    if (ThreadTable[cnt]->Flag & TF_Destroy) {
       DestroyThread(ThreadTable[cnt]);
     }
     cnt++;
@@ -162,11 +160,11 @@ void Vm::CreateThreadDrawTable() {
   int tblIndex = 0;
 
   for (int i = 0; i < VmMaxThreadGroups; i++) {
-    if (ThreadGroupControl[i] & ThreadFlagState::Display) {
+    if (ThreadGroupControl[i] & TF_Display) {
       Sc3VmThread* groupThread = ThreadGroupHeads[i];
       if (groupThread == NULL) continue;
       do {
-        if (groupThread->Flag & ThreadFlagState::Display) {
+        if (groupThread->Flag & TF_Display) {
           ThreadTable[tblIndex++] = groupThread;
         }
         groupThread = groupThread->NextContext;
@@ -275,12 +273,38 @@ uint8_t* ScriptGetLabelAddress(uint8_t* scriptBufferAdr, uint32_t labelNum) {
           *(uint8_t*)(scriptBufferAdr + 4 * labelNum + 12));
 }
 
-uint8_t* ScriptGetStrAddress(uint8_t* scriptBufferAdr, uint32_t mesNum) {
-  return 0;
+uint32_t ScriptGetLabelAddressNum(uint8_t* scriptBufferAdr, uint32_t labelNum) {
+  return scriptBufferAdr[12] +
+         ((scriptBufferAdr[13] +
+           ((scriptBufferAdr[14] + (scriptBufferAdr[15] << 8)) << 8))
+          << 8);
 }
 
+// TODO: Make this sane
+uint8_t* ScriptGetStrAddress(uint8_t* scriptBufferAdr, uint32_t mesNum) {
+  int v3 = mesNum + ((scriptBufferAdr[5] +
+                      ((scriptBufferAdr[6] + (scriptBufferAdr[7] << 8)) << 8))
+                     << 6);
+  int v4 = (int)&scriptBufferAdr[scriptBufferAdr[4]];
+  return &scriptBufferAdr[256 * (*(uint8_t*)(v4 + 4 * v3 + 1) +
+                                 ((*(uint8_t*)(v4 + 4 * v3 + 2) +
+                                   (*(uint8_t*)(v4 + 4 * v3 + 3) << 8))
+                                  << 8)) +
+                          *(uint8_t*)(v4 + 4 * v3)];
+}
+
+// TODO: Make this sane
 uint8_t* ScriptGetRetAddress(uint8_t* scriptBufferAdr, uint32_t retNum) {
-  return 0;
+  uint32_t v3 =
+      retNum + ((scriptBufferAdr[9] +
+                 ((scriptBufferAdr[10] + (scriptBufferAdr[11] << 8)) << 8))
+                << 6);
+  uint64_t v4 = (uint64_t)&scriptBufferAdr[scriptBufferAdr[8]];
+  return &scriptBufferAdr[256 * (*(uint8_t*)(v4 + 4 * v3 + 1) +
+                                 ((*(uint8_t*)(v4 + 4 * v3 + 2) +
+                                   (*(uint8_t*)(v4 + 4 * v3 + 3) << 8))
+                                  << 8)) +
+                          *(uint8_t*)(v4 + 4 * v3)];
 }
 
 }  // namespace Vm

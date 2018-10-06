@@ -1,17 +1,21 @@
 #include "expression.h"
 
+#include "../game.h"
+
 namespace Impacto {
 namespace Vm {
 
-int _currentToken;
-CALCExpressionNode* parseSubExpression(int minPrecidence);
-CALCExpressionNode* parseTerm();
-uint32_t evaluate(Sc3VmThread*, std::unique_ptr<CALCExpressionNode>&);
-void assignValue(Sc3VmThread*, std::unique_ptr<CALCExpressionNode>&);
-std::vector<CALCToken> getTokens(Sc3VmThread* thd);
-std::vector<CALCToken> _tokens;
+int g_CurrentToken;
+std::vector<VmExprToken> g_Tokens;
+std::vector<VmExprToken> GetTokens(Sc3VmThread* thd);
 
-void CALCinit() {
+VmExpressionNode* ParseSubExpression(int minPrecidence);
+VmExpressionNode* ParseTerm();
+uint32_t Evaluate(Sc3VmThread*, std::unique_ptr<VmExpressionNode>&);
+void AssignValue(Sc3VmThread*, std::unique_ptr<VmExpressionNode>&);
+void* GetMemberPointer(Sc3VmThread* thd, uint32_t offset);
+
+void ExpressionInit() {
   // SYSTEMTIME time;
   // GetSystemTime(&time);
   // int ticks = GetTickCount();
@@ -20,272 +24,268 @@ void CALCinit() {
 }
 
 int calMain(Sc3VmThread* thd, uint32_t* result) {
-  _tokens = getTokens(thd);
-  _currentToken = 0;
+  g_Tokens = GetTokens(thd);
+  g_CurrentToken = 0;
 
-  CALCExpressionNode* root = parseSubExpression(0);
+  VmExpressionNode* root = ParseSubExpression(0);
 
-  std::unique_ptr<CALCExpressionNode> rootPtr =
-      std::unique_ptr<CALCExpressionNode>(root);
+  std::unique_ptr<VmExpressionNode> rootPtr =
+      std::unique_ptr<VmExpressionNode>(root);
 
-  *result = evaluate(thd, rootPtr);
+  *result = Evaluate(thd, rootPtr);
 
   return 0;
 }
 
-uint32_t evaluate(Sc3VmThread* thd, std::unique_ptr<CALCExpressionNode>& root) {
+uint32_t Evaluate(Sc3VmThread* thd, std::unique_ptr<VmExpressionNode>& root) {
   uint32_t leftVal, rightVal;
 
   switch (root->exprType) {
-    case CALCTokenType::Multiplication:
-      leftVal = evaluate(thd, root->leftExpr);
-      rightVal = evaluate(thd, root->rightExpr);
+    case VmExprTokenType::Multiplication:
+      leftVal = Evaluate(thd, root->leftExpr);
+      rightVal = Evaluate(thd, root->rightExpr);
       return leftVal * rightVal;
-    case CALCTokenType::Division:
-      leftVal = evaluate(thd, root->leftExpr);
-      rightVal = evaluate(thd, root->rightExpr);
+    case VmExprTokenType::Division:
+      leftVal = Evaluate(thd, root->leftExpr);
+      rightVal = Evaluate(thd, root->rightExpr);
       if (!rightVal) return 0x7FFFFFFF;
       return leftVal / rightVal;
-    case CALCTokenType::Addition:
-      leftVal = evaluate(thd, root->leftExpr);
-      rightVal = evaluate(thd, root->rightExpr);
+    case VmExprTokenType::Addition:
+      leftVal = Evaluate(thd, root->leftExpr);
+      rightVal = Evaluate(thd, root->rightExpr);
       return leftVal + rightVal;
-    case CALCTokenType::Subtraction:
-      leftVal = evaluate(thd, root->leftExpr);
-      rightVal = evaluate(thd, root->rightExpr);
+    case VmExprTokenType::Subtraction:
+      leftVal = Evaluate(thd, root->leftExpr);
+      rightVal = Evaluate(thd, root->rightExpr);
       return leftVal - rightVal;
-    case CALCTokenType::Modulo:
-      leftVal = evaluate(thd, root->leftExpr);
-      rightVal = evaluate(thd, root->rightExpr);
+    case VmExprTokenType::Modulo:
+      leftVal = Evaluate(thd, root->leftExpr);
+      rightVal = Evaluate(thd, root->rightExpr);
       if (!rightVal) return 0x7FFFFFFF;
       return leftVal % rightVal;
-    case CALCTokenType::ShiftLeft:
-      leftVal = evaluate(thd, root->leftExpr);
-      rightVal = evaluate(thd, root->rightExpr);
+    case VmExprTokenType::ShiftLeft:
+      leftVal = Evaluate(thd, root->leftExpr);
+      rightVal = Evaluate(thd, root->rightExpr);
       return leftVal << rightVal;
-    case CALCTokenType::ShiftRight:
-      leftVal = evaluate(thd, root->leftExpr);
-      rightVal = evaluate(thd, root->rightExpr);
+    case VmExprTokenType::ShiftRight:
+      leftVal = Evaluate(thd, root->leftExpr);
+      rightVal = Evaluate(thd, root->rightExpr);
       return leftVal >> rightVal;
-    case CALCTokenType::BinaryAnd:
-      leftVal = evaluate(thd, root->leftExpr);
-      rightVal = evaluate(thd, root->rightExpr);
+    case VmExprTokenType::BinaryAnd:
+      leftVal = Evaluate(thd, root->leftExpr);
+      rightVal = Evaluate(thd, root->rightExpr);
       return leftVal & rightVal;
-    case CALCTokenType::BinaryXor:
-      leftVal = evaluate(thd, root->leftExpr);
-      rightVal = evaluate(thd, root->rightExpr);
+    case VmExprTokenType::BinaryXor:
+      leftVal = Evaluate(thd, root->leftExpr);
+      rightVal = Evaluate(thd, root->rightExpr);
       return leftVal ^ rightVal;
-    case CALCTokenType::BinaryOr:
-      leftVal = evaluate(thd, root->leftExpr);
-      rightVal = evaluate(thd, root->rightExpr);
+    case VmExprTokenType::BinaryOr:
+      leftVal = Evaluate(thd, root->leftExpr);
+      rightVal = Evaluate(thd, root->rightExpr);
       return leftVal | rightVal;
-    case CALCTokenType::LogicEquals:
-      leftVal = evaluate(thd, root->leftExpr);
-      rightVal = evaluate(thd, root->rightExpr);
+    case VmExprTokenType::LogicEquals:
+      leftVal = Evaluate(thd, root->leftExpr);
+      rightVal = Evaluate(thd, root->rightExpr);
       return leftVal == rightVal;
-    case CALCTokenType::LogicNotEquals:
-      leftVal = evaluate(thd, root->leftExpr);
-      rightVal = evaluate(thd, root->rightExpr);
+    case VmExprTokenType::LogicNotEquals:
+      leftVal = Evaluate(thd, root->leftExpr);
+      rightVal = Evaluate(thd, root->rightExpr);
       return leftVal != rightVal;
-    case CALCTokenType::LogicLessOrEqual:
-      leftVal = evaluate(thd, root->leftExpr);
-      rightVal = evaluate(thd, root->rightExpr);
+    case VmExprTokenType::LogicLessOrEqual:
+      leftVal = Evaluate(thd, root->leftExpr);
+      rightVal = Evaluate(thd, root->rightExpr);
       return leftVal <= rightVal;
-    case CALCTokenType::LogicMoreOrEqual:
-      leftVal = evaluate(thd, root->leftExpr);
-      rightVal = evaluate(thd, root->rightExpr);
+    case VmExprTokenType::LogicMoreOrEqual:
+      leftVal = Evaluate(thd, root->leftExpr);
+      rightVal = Evaluate(thd, root->rightExpr);
       return leftVal >= rightVal;
-    case CALCTokenType::LogicLess:
-      leftVal = evaluate(thd, root->leftExpr);
-      rightVal = evaluate(thd, root->rightExpr);
+    case VmExprTokenType::LogicLess:
+      leftVal = Evaluate(thd, root->leftExpr);
+      rightVal = Evaluate(thd, root->rightExpr);
       return leftVal < rightVal;
-    case CALCTokenType::LogicMore:
-      leftVal = evaluate(thd, root->leftExpr);
-      rightVal = evaluate(thd, root->rightExpr);
+    case VmExprTokenType::LogicMore:
+      leftVal = Evaluate(thd, root->leftExpr);
+      rightVal = Evaluate(thd, root->rightExpr);
       return leftVal > rightVal;
-    case CALCTokenType::Negation:
-      leftVal = evaluate(thd, root->leftExpr);
+    case VmExprTokenType::Negation:
+      leftVal = Evaluate(thd, root->leftExpr);
       return ~leftVal;
-    case CALCTokenType::Assign:
-    case CALCTokenType::MulAssign:
-    case CALCTokenType::DivAssgin:
-    case CALCTokenType::AddAssign:
-    case CALCTokenType::SubAssign:
-    case CALCTokenType::ModAssign:
-    case CALCTokenType::LShAssign:
-    case CALCTokenType::RShAssign:
-    case CALCTokenType::AndAssign:
-    case CALCTokenType::OrAssign:
-    case CALCTokenType::XorAssign:
-    case CALCTokenType::Increment:
-    case CALCTokenType::Decrement:
-      assignValue(thd, root);
+    case VmExprTokenType::Assign:
+    case VmExprTokenType::MulAssign:
+    case VmExprTokenType::DivAssgin:
+    case VmExprTokenType::AddAssign:
+    case VmExprTokenType::SubAssign:
+    case VmExprTokenType::ModAssign:
+    case VmExprTokenType::LShAssign:
+    case VmExprTokenType::RShAssign:
+    case VmExprTokenType::AndAssign:
+    case VmExprTokenType::OrAssign:
+    case VmExprTokenType::XorAssign:
+    case VmExprTokenType::Increment:
+    case VmExprTokenType::Decrement:
+      AssignValue(thd, root);
       return 0;
       break;
-    case CALCTokenType::Value:
+    case VmExprTokenType::Value:
       return root->value;
-    case CALCTokenType::ScrWorkAcc:
-      return 0;
-      // return ScrWork[evaluate(thd, root->rightExpr)];
-    case CALCTokenType::FlagWorkAcc:
-      return 0;
-      // return GetFlag(evaluate(thd, root->rightExpr));
-    case CALCTokenType::ScrBufAcc:
-      leftVal = evaluate(thd, root->leftExpr);
-      rightVal = evaluate(thd, root->rightExpr);
+    case VmExprTokenType::ScrWorkAcc:
+      return thd->GameContext->ScrWork[Evaluate(thd, root->rightExpr)];
+    case VmExprTokenType::FlagWorkAcc:
+      return thd->GameContext->GetFlag(Evaluate(thd, root->rightExpr));
+    case VmExprTokenType::ScrBufAcc:
+      leftVal = Evaluate(thd, root->leftExpr);
+      rightVal = Evaluate(thd, root->rightExpr);
       if (leftVal >= 0) {
-        // unsigned __int8* script =
-        //    (unsigned __int8*)ScrBuf[thd->script_buffer_id];
-        // unsigned __int8* array = script + leftVal;
-        // return (*(unsigned __int8*)(array + 4 * rightVal + 3) << 24) |
-        //       (*(unsigned __int8*)(array + 4 * rightVal + 2) << 16) |
-        //       (*(unsigned __int8*)(array + 4 * rightVal + 1) << 8) |
-        //       *(unsigned __int8*)(array + 4 * rightVal);
+        uint8_t* scrBuf = thd->VmContext->ScriptBuffers[thd->ScriptBufferId];
+        uint8_t* arr = scrBuf + leftVal;
+        return (*(uint8_t*)(arr + 4 * rightVal + 3) << 24) |
+               (*(uint8_t*)(arr + 4 * rightVal + 2) << 16) |
+               (*(uint8_t*)(arr + 4 * rightVal + 1) << 8) |
+               *(uint8_t*)(arr + 4 * rightVal);
       } else {
-        // uint8_t *array = (uint8_t *)getSC3ThreadContext(-a); // parameter
-        // is thread ID int32_t result = READ_LITTLE_ENDIAN_INT32(array + (4
-        // * b));
+        // TODO: Handle this
+        return 0;
       }
       return 0;
-    case CALCTokenType::LabelTableAcc:
+    case VmExprTokenType::LabelTableAcc:
       return 0;
       // return SCRgetLabelAddressNum(thd->script_buffer_id,
       //                             evaluate(thd, root->rightExpr));
-    case CALCTokenType::FarLabelTableAcc:
+    case VmExprTokenType::FarLabelTableAcc:
       return 0;
-    case CALCTokenType::ThdWorkAcc:
+    case VmExprTokenType::ThdWorkAcc:
+      return *(
+          uint32_t*)(GetMemberPointer(thd, Evaluate(thd, root->rightExpr)));
+    case VmExprTokenType::MemoryAcc:
       return 0;
-      // return *(&thd->THD_FLAG + evaluate(thd, root->rightExpr));
-    case CALCTokenType::MemoryAcc:
-      return 0;
-    case CALCTokenType::Random:
-      return evaluate(thd, root->rightExpr) * (rand() & 0x7FFF) >> 15;
+    case VmExprTokenType::Random:
+      return Evaluate(thd, root->rightExpr) * (rand() & 0x7FFF) >> 15;
   }
 }
 
-void assignValue(Sc3VmThread* thd, std::unique_ptr<CALCExpressionNode>& root) {
-  int leftVal = evaluate(thd, root->leftExpr);
+void AssignValue(Sc3VmThread* thd, std::unique_ptr<VmExpressionNode>& root) {
+  int leftVal = Evaluate(thd, root->leftExpr);
   int rightVal = 0;
-  if (root->exprType != CALCTokenType::Increment &&
-      root->exprType != CALCTokenType::Decrement)
-    rightVal = evaluate(thd, root->rightExpr);
+  if (root->exprType != VmExprTokenType::Increment &&
+      root->exprType != VmExprTokenType::Decrement)
+    rightVal = Evaluate(thd, root->rightExpr);
 
   switch (root->exprType) {
-    case CALCTokenType::Assign:
+    case VmExprTokenType::Assign:
       leftVal = rightVal;
       break;
-    case CALCTokenType::MulAssign:
+    case VmExprTokenType::MulAssign:
       leftVal *= rightVal;
       break;
-    case CALCTokenType::DivAssgin:
+    case VmExprTokenType::DivAssgin:
       leftVal /= rightVal;
       break;
-    case CALCTokenType::AddAssign:
+    case VmExprTokenType::AddAssign:
       leftVal += rightVal;
       break;
-    case CALCTokenType::SubAssign:
+    case VmExprTokenType::SubAssign:
       leftVal -= rightVal;
       break;
-    case CALCTokenType::ModAssign:
+    case VmExprTokenType::ModAssign:
       leftVal %= rightVal;
       break;
-    case CALCTokenType::LShAssign:
+    case VmExprTokenType::LShAssign:
       leftVal <<= rightVal;
       break;
-    case CALCTokenType::RShAssign:
+    case VmExprTokenType::RShAssign:
       leftVal >>= rightVal;
       break;
-    case CALCTokenType::AndAssign:
+    case VmExprTokenType::AndAssign:
       leftVal &= rightVal;
       break;
-    case CALCTokenType::OrAssign:
+    case VmExprTokenType::OrAssign:
       leftVal |= rightVal;
       break;
-    case CALCTokenType::XorAssign:
+    case VmExprTokenType::XorAssign:
       leftVal ^= rightVal;
       break;
-    case CALCTokenType::Increment:
+    case VmExprTokenType::Increment:
       leftVal++;
       break;
-    case CALCTokenType::Decrement:
+    case VmExprTokenType::Decrement:
       leftVal--;
       break;
   }
 
-  int index = evaluate(thd, root->leftExpr->rightExpr);
+  int index = Evaluate(thd, root->leftExpr->rightExpr);
 
   switch (root->leftExpr->exprType) {
-    case CALCTokenType::ScrWorkAcc:
-      // ScrWork[index] = leftVal;
+    case VmExprTokenType::ScrWorkAcc:
+      thd->GameContext->ScrWork[index] = leftVal;
       break;
-    case CALCTokenType::FlagWorkAcc:
-      // SetFlag(index, leftVal);
+    case VmExprTokenType::FlagWorkAcc:
+      thd->GameContext->SetFlag(index, leftVal);
       break;
-    case CALCTokenType::ThdWorkAcc:
-      //*(&thd->THD_FLAG + index) = leftVal;
+    case VmExprTokenType::ThdWorkAcc:
+      uint32_t* thdWork = (uint32_t*)GetMemberPointer(thd, index);
+      *(thdWork) = leftVal;
       break;
   }
 }
 
-CALCExpressionNode* parseSubExpression(int minPrecidence) {
-  CALCExpressionNode* leftExpr = parseTerm();
+VmExpressionNode* ParseSubExpression(int minPrecidence) {
+  VmExpressionNode* leftExpr = ParseTerm();
   if (leftExpr == nullptr) return leftExpr;
 
-  if (_currentToken < _tokens.size()) {
-    CALCToken peek = _tokens[_currentToken];
-    if ((peek.type == CALCTokenType::Increment ||
-         peek.type == CALCTokenType::Decrement) &&
+  if (g_CurrentToken < g_Tokens.size()) {
+    VmExprToken peek = g_Tokens[g_CurrentToken];
+    if ((peek.type == VmExprTokenType::Increment ||
+         peek.type == VmExprTokenType::Decrement) &&
         peek.precedence >= minPrecidence) {
-      _currentToken++;
-      CALCExpressionNode* result = new CALCExpressionNode();
+      g_CurrentToken++;
+      VmExpressionNode* result = new VmExpressionNode();
       result->exprType = peek.type;
-      result->leftExpr = std::unique_ptr<CALCExpressionNode>(leftExpr);
+      result->leftExpr = std::unique_ptr<VmExpressionNode>(leftExpr);
       leftExpr = result;
-      if (_currentToken >= _tokens.size()) return leftExpr;
+      if (g_CurrentToken >= g_Tokens.size()) return leftExpr;
     }
 
-    peek = _tokens[_currentToken];
+    peek = g_Tokens[g_CurrentToken];
 
     while (peek.precedence >= minPrecidence) {
       switch (peek.type) {
-        case CALCTokenType::Multiplication:
-        case CALCTokenType::Division:
-        case CALCTokenType::Addition:
-        case CALCTokenType::Subtraction:
-        case CALCTokenType::Modulo:
-        case CALCTokenType::ShiftLeft:
-        case CALCTokenType::ShiftRight:
-        case CALCTokenType::BinaryAnd:
-        case CALCTokenType::BinaryXor:
-        case CALCTokenType::BinaryOr:
-        case CALCTokenType::LogicEquals:
-        case CALCTokenType::LogicNotEquals:
-        case CALCTokenType::LogicLessOrEqual:
-        case CALCTokenType::LogicMoreOrEqual:
-        case CALCTokenType::LogicLess:
-        case CALCTokenType::LogicMore:
-        case CALCTokenType::Negation:
-        case CALCTokenType::Assign:
-        case CALCTokenType::MulAssign:
-        case CALCTokenType::DivAssgin:
-        case CALCTokenType::AddAssign:
-        case CALCTokenType::SubAssign:
-        case CALCTokenType::ModAssign:
-        case CALCTokenType::LShAssign:
-        case CALCTokenType::RShAssign:
-        case CALCTokenType::AndAssign:
-        case CALCTokenType::OrAssign:
-        case CALCTokenType::XorAssign: {
-          _currentToken++;
-          CALCExpressionNode* rightExpr =
-              parseSubExpression(peek.precedence + 1);
-          CALCExpressionNode* result = new CALCExpressionNode();
+        case VmExprTokenType::Multiplication:
+        case VmExprTokenType::Division:
+        case VmExprTokenType::Addition:
+        case VmExprTokenType::Subtraction:
+        case VmExprTokenType::Modulo:
+        case VmExprTokenType::ShiftLeft:
+        case VmExprTokenType::ShiftRight:
+        case VmExprTokenType::BinaryAnd:
+        case VmExprTokenType::BinaryXor:
+        case VmExprTokenType::BinaryOr:
+        case VmExprTokenType::LogicEquals:
+        case VmExprTokenType::LogicNotEquals:
+        case VmExprTokenType::LogicLessOrEqual:
+        case VmExprTokenType::LogicMoreOrEqual:
+        case VmExprTokenType::LogicLess:
+        case VmExprTokenType::LogicMore:
+        case VmExprTokenType::Negation:
+        case VmExprTokenType::Assign:
+        case VmExprTokenType::MulAssign:
+        case VmExprTokenType::DivAssgin:
+        case VmExprTokenType::AddAssign:
+        case VmExprTokenType::SubAssign:
+        case VmExprTokenType::ModAssign:
+        case VmExprTokenType::LShAssign:
+        case VmExprTokenType::RShAssign:
+        case VmExprTokenType::AndAssign:
+        case VmExprTokenType::OrAssign:
+        case VmExprTokenType::XorAssign: {
+          g_CurrentToken++;
+          VmExpressionNode* rightExpr = ParseSubExpression(peek.precedence + 1);
+          VmExpressionNode* result = new VmExpressionNode();
           result->exprType = peek.type;
-          result->leftExpr = std::unique_ptr<CALCExpressionNode>(leftExpr);
-          result->rightExpr = std::unique_ptr<CALCExpressionNode>(rightExpr);
+          result->leftExpr = std::unique_ptr<VmExpressionNode>(leftExpr);
+          result->rightExpr = std::unique_ptr<VmExpressionNode>(rightExpr);
           leftExpr = result;
-          if (_currentToken < _tokens.size())
-            peek = _tokens[_currentToken];
+          if (g_CurrentToken < g_Tokens.size())
+            peek = g_Tokens[g_CurrentToken];
           else
             return leftExpr;
           break;
@@ -300,34 +300,34 @@ CALCExpressionNode* parseSubExpression(int minPrecidence) {
   return leftExpr;
 }
 
-CALCExpressionNode* parseTerm() {
-  CALCToken tok = _tokens[_currentToken++];
-  CALCExpressionNode* term = nullptr;
+VmExpressionNode* ParseTerm() {
+  VmExprToken tok = g_Tokens[g_CurrentToken++];
+  VmExpressionNode* term = nullptr;
   switch (tok.type) {
-    case CALCTokenType::Value:
-      term = new CALCExpressionNode();
+    case VmExprTokenType::Value:
+      term = new VmExpressionNode();
       term->exprType = tok.type;
       term->value = tok.value;
       break;
-    case CALCTokenType::Negation:
-    case CALCTokenType::ScrWorkAcc:
-    case CALCTokenType::FlagWorkAcc:
-    case CALCTokenType::LabelTableAcc:
-    case CALCTokenType::ThdWorkAcc:
-    case CALCTokenType::Random:
-      term = new CALCExpressionNode();
+    case VmExprTokenType::Negation:
+    case VmExprTokenType::ScrWorkAcc:
+    case VmExprTokenType::FlagWorkAcc:
+    case VmExprTokenType::LabelTableAcc:
+    case VmExprTokenType::ThdWorkAcc:
+    case VmExprTokenType::Random:
+      term = new VmExpressionNode();
       term->exprType = tok.type;
-      term->rightExpr = std::unique_ptr<CALCExpressionNode>(
-          parseSubExpression(tok.precedence + 1));
+      term->rightExpr = std::unique_ptr<VmExpressionNode>(
+          ParseSubExpression(tok.precedence + 1));
       break;
-    case CALCTokenType::ScrBufAcc:
-    case CALCTokenType::FarLabelTableAcc:
-      term = new CALCExpressionNode();
+    case VmExprTokenType::ScrBufAcc:
+    case VmExprTokenType::FarLabelTableAcc:
+      term = new VmExpressionNode();
       term->exprType = tok.type;
-      term->leftExpr = std::unique_ptr<CALCExpressionNode>(
-          parseSubExpression(tok.precedence + 1));
-      term->rightExpr = std::unique_ptr<CALCExpressionNode>(
-          parseSubExpression(tok.precedence + 1));
+      term->leftExpr = std::unique_ptr<VmExpressionNode>(
+          ParseSubExpression(tok.precedence + 1));
+      term->rightExpr = std::unique_ptr<VmExpressionNode>(
+          ParseSubExpression(tok.precedence + 1));
       break;
     default:
       return nullptr;
@@ -336,22 +336,22 @@ CALCExpressionNode* parseTerm() {
   return term;
 }
 
-std::vector<CALCToken> getTokens(Sc3VmThread* thd) {
-  std::vector<CALCToken> tokens;
-  CALCToken curToken;
+std::vector<VmExprToken> GetTokens(Sc3VmThread* thd) {
+  std::vector<VmExprToken> tokens;
+  VmExprToken curToken;
 
   if (*thd->Ip) {
     do {
       int8_t tokenType = *thd->Ip;
       if (tokenType >= 0) {
-        curToken.type = (CALCTokenType)tokenType;
+        curToken.type = (VmExprTokenType)tokenType;
         curToken.precedence = *(++thd->Ip);
         thd->Ip++;
         curToken.value = 0;
         tokens.push_back(curToken);
       } else {
         uint8_t* immValue = thd->Ip;
-        curToken.type = CALCTokenType::Value;
+        curToken.type = VmExprTokenType::Value;
         switch (tokenType & 0x60) {
           case 0:
             curToken.value = tokenType & 0x1F;
@@ -388,6 +388,48 @@ std::vector<CALCToken> getTokens(Sc3VmThread* thd) {
   thd->Ip++;
 
   return tokens;
+}
+
+void* GetMemberPointer(Sc3VmThread* thd, uint32_t offset) {
+  switch (offset) {
+    case TO_Flag:
+      return &thd->Flag;
+    case TO_ExecPri:
+      return &thd->ExecPriority;
+    case TO_ScrBuf:
+      return &thd->ScriptBufferId;
+    case TO_WaitCount:
+      return &thd->WaitCounter;
+    case TO_ScrParam:
+      return &thd->ScriptParam;
+    case TO_ScrAddr:
+      return &thd->Ip;
+    case TO_LoopCount:
+      return &thd->LoopCounter;
+    case TO_LoopAddr:
+      return &thd->LoopAddress;
+    case TO_RetCount:
+      return &thd->ReturnCount;
+    case TO_RetAddr:
+      return &thd->ReturnAdresses;
+    case TO_RetScrBuf:
+      return &thd->ReturnGroupIds;
+    case TO_DrawPri:
+      return &thd->DrawPriority;
+    case TO_DrawType:
+      return &thd->DrawType;
+    case TO_Alpha:
+      return &thd->Alpha;
+    case TO_Temp1:
+      return &thd->Temp1;
+    case TO_Temp2:
+      return &thd->Temp2;
+    default:
+      if ((offset - TO_ThdVarBegin) >= 0) {
+        return &thd->Variables[offset - TO_ThdVarBegin];
+      }
+      break;
+  }
 }
 
 }  // namespace Vm

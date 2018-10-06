@@ -15,6 +15,7 @@ int const VmMaxThreads = 100;
 int const VmMaxThreadGroups = 12;
 
 uint8_t* ScriptGetLabelAddress(uint8_t* scriptBufferAdr, uint32_t labelNum);
+uint32_t ScriptGetLabelAddressNum(uint8_t* scriptBufferAdr, uint32_t labelNum);
 uint8_t* ScriptGetStrAddress(uint8_t* scriptBufferAdr, uint32_t strNum);
 uint8_t* ScriptGetRetAddress(uint8_t* scriptBufferAdr, uint32_t retNum);
 
@@ -25,6 +26,7 @@ class Vm {
   void Init(uint32_t startScriptId, uint32_t bufferId);
   void Update();
 
+  uint8_t* ScriptBuffers[VmMaxLoadedScripts];
   bool LoadScript(uint32_t bufferId, uint32_t scriptId);
 
   Sc3VmThread* CreateThread(uint32_t groupId);
@@ -35,10 +37,7 @@ class Vm {
   Game* GameContext;
 
   bool BlockCurrentScriptThread;
-  uint8_t* LoadedScriptAdrs[VmMaxLoadedScripts];
   uint32_t LoadedScriptIds[VmMaxLoadedScripts];
-
-  uint8_t* ScriptBuffers[VmMaxLoadedScripts];
 
   Sc3VmThread ThreadPool[VmMaxThreads];
   Sc3VmThread* ThreadTable[VmMaxThreads];

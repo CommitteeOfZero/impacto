@@ -10,12 +10,12 @@ namespace Impacto {
 
 namespace Vm {
 
-void CALCinit();
+void ExpressionInit();
 
 int calMain(Sc3VmThread* thread, uint32_t* result);
-int CALCaccel(int a1, int a2, int a3);
+int CalculateAccel(int a1, int a2, int a3);
 
-enum CALCTokenType {
+enum VmExprTokenType {
   EndOfExpression = 0x00,
   Value = 0xFF,
 
@@ -62,18 +62,18 @@ enum CALCTokenType {
   Random = 0x33
 };
 
-struct CALCToken {
-  CALCTokenType type;
+struct VmExprToken {
+  VmExprTokenType type;
   int value;
   int precedence;
 };
 
-class CALCExpressionNode {
+class VmExpressionNode {
  public:
-  CALCTokenType exprType;
+  VmExprTokenType exprType;
 
-  std::unique_ptr<CALCExpressionNode> leftExpr;
-  std::unique_ptr<CALCExpressionNode> rightExpr;
+  std::unique_ptr<VmExpressionNode> leftExpr;
+  std::unique_ptr<VmExpressionNode> rightExpr;
 
   int value;
 };
