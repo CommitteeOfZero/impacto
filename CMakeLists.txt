@@ -102,6 +102,7 @@ target_include_directories(impacto PRIVATE ${PROJECT_BINARY_DIR}/include)
 # external libs
 
 target_link_libraries(impacto PUBLIC
+    ${CMAKE_DL_LIBS}
     SDL2::SDL2main
     glm
     ZLIB::ZLIB
