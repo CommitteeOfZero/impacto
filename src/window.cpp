@@ -12,26 +12,39 @@ static bool IsInit = false;
 int g_WindowWidth = 0;
 int g_WindowHeight = 0;
 int g_MsaaCount = 0;
+float g_RenderScale = 1.0f;
 SDL_Window* g_SDLWindow;
 SDL_GLContext g_GLContext;
+bool g_FramebuffersNeedUpdate;
 
 int lastWidth = -1;
 int lastHeight = -1;
-int lastMsaa = -1;
+int lastMsaa = 0;
+float lastRenderScale = 1.0f;
 
-void WindowGetDimensions() {
+void WindowUpdateDimensions() {
+  g_FramebuffersNeedUpdate = false;
   SDL_GL_GetDrawableSize(g_SDLWindow, &g_WindowWidth, &g_WindowHeight);
-  if (g_WindowWidth != lastWidth || g_WindowHeight != lastHeight) {
-    ImpLog(LL_Debug, LC_General, "Drawable size (pixels): %d x %d\n",
-           g_WindowWidth, g_WindowHeight);
-  }
-  SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &g_MsaaCount);
-  if (g_MsaaCount != lastMsaa) {
-    ImpLog(LL_Debug, LC_General, "Multisample count: %d\n", g_MsaaCount);
+  if (g_WindowWidth != lastWidth || g_WindowHeight != lastHeight ||
+      g_MsaaCount != lastMsaa || g_RenderScale != lastRenderScale) {
+    g_FramebuffersNeedUpdate = true;
+    ImpLog(LL_Debug, LC_General,
+           "Drawable size (pixels): %d x %d (%dx MSAA requested, render scale "
+           "%f)\n",
+           g_WindowWidth, g_WindowHeight, g_MsaaCount, g_RenderScale);
   }
   lastWidth = g_WindowWidth;
   lastHeight = g_WindowHeight;
   lastMsaa = g_MsaaCount;
+  lastRenderScale = g_RenderScale;
+}
+
+int WindowGetScaledWidth() {
+  return (int)(g_RenderScale * (float)g_WindowWidth);
+}
+
+int WindowGetScaledHeight() {
+  return (int)(g_RenderScale * (float)g_WindowHeight);
 }
 
 void WindowInit() {
@@ -49,14 +62,11 @@ void WindowInit() {
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
-  // TODO do we need a stencil buffer?
-  // SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-
-  SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+  SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-  SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-  SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
+  SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
+  SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
 
   // TODO DPI aware
 
@@ -89,8 +99,6 @@ void WindowInit() {
     WindowShutdown();
   }
 
-  WindowGetDimensions();
-
   bool gladOk = gladLoadGLLoader(SDL_GL_GetProcAddress);
   if (!gladOk) {
     ImpLog(LL_Fatal, LC_General, "GLAD initialisation failed\n");
@@ -115,13 +123,19 @@ void WindowInit() {
   SDL_GL_SetSwapInterval(0);
 }
 
-void WindowSetDimensions(int width, int height) {
+void WindowSetDimensions(int width, int height, int msaa, float renderScale) {
   ImpLog(LL_Info, LC_General,
-         "Attempting to change window dimensions to %d x %d\n", width, height);
-  assert(width > 0 && height > 0);
+         "Attempting to change window dimensions to %d x %d, %dx MSAA, render "
+         "scale %f\n",
+         width, height, msaa, renderScale);
+  assert(width > 0 && height > 0 && msaa >= 0 && renderScale > 0.0f);
 
   SDL_SetWindowSize(g_SDLWindow, width, height);
+  g_MsaaCount = msaa;
+  g_RenderScale = renderScale;
 }
+
+void WindowUpdate() { WindowUpdateDimensions(); }
 
 void WindowShutdown() {
   SDL_GL_DeleteContext(g_GLContext);

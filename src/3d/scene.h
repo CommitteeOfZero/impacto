@@ -12,6 +12,8 @@ enum Object3DLoadStatus { OLS_Unloaded, OLS_Loading, OLS_Loaded };
 
 class Scene {
  public:
+  ~Scene();
+
   void Update(float dt);
   void Render();
 
@@ -33,6 +35,15 @@ class Scene {
 
   uint32_t BackgroundToLoadId;
   uint32_t CharacterToLoadId;
+
+ private:
+  void SetupFBO();
+  void CleanFBO();
+  void DrawToScreen();
+
+  GLuint FBO = 0;
+  GLuint RenderTextureColor = 0;
+  GLuint RenderTextureDS = 0;
 };
 
 void SceneInit();

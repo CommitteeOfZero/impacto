@@ -18,6 +18,8 @@ void SceneInit() {
   Background3DInit();
 }
 
+Scene::~Scene() { CleanFBO(); }
+
 static void LoadBackgroundWorker(void* ptr) {
   Scene* scene = (Scene*)ptr;
   scene->CurrentBackground.Load(scene->BackgroundToLoadId);
@@ -78,7 +80,9 @@ void Scene::Update(float dt) {
   }
 }
 void Scene::Render() {
-  // Camera::Recalculate should stay here even for the real game
+  SetupFBO();
+
+  MainCamera.AspectRatio = (float)g_WindowWidth / (float)g_WindowHeight;
   MainCamera.Recalculate();
 
   Background3DUpdateGpu(this, &MainCamera);
@@ -90,6 +94,105 @@ void Scene::Render() {
   if (CurrentCharacterLoadStatus == OLS_Loaded) {
     CurrentCharacter.Render();
   }
+
+  DrawToScreen();
+}
+
+void Scene::SetupFBO() {
+  if (g_FramebuffersNeedUpdate) {
+    CleanFBO();
+
+    glGenFramebuffers(1, &FBO);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, FBO);
+    glGenTextures(1, &RenderTextureColor);
+    glGenTextures(1, &RenderTextureDS);
+
+    // TODO MSAA doesn't work this way on GLES - use
+    // https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_multisampled_render_to_texture.txt
+    // or render to renderbuffer
+
+    GLenum textureTarget;
+    if (g_MsaaCount == 0) {
+      textureTarget = GL_TEXTURE_2D;
+      glBindTexture(textureTarget, RenderTextureColor);
+      glTexImage2D(textureTarget, 0, GL_RGBA, WindowGetScaledWidth(),
+                   WindowGetScaledHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    } else {
+      // glBlitFramebuffer() with differently sized source and destination
+      // rectangles is not allowed for multisample textures
+      // TODO: draw quad instead of copy
+      assert(g_RenderScale == 1.0f);
+      textureTarget = GL_TEXTURE_2D_MULTISAMPLE;
+      glBindTexture(textureTarget, RenderTextureColor);
+      glTexImage2DMultisample(textureTarget, g_MsaaCount, GL_RGBA,
+                              WindowGetScaledWidth(), WindowGetScaledHeight(),
+                              GL_FALSE);
+    }
+
+    glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                           textureTarget, RenderTextureColor, 0);
+
+    if (g_MsaaCount == 0) {
+      textureTarget = GL_TEXTURE_2D;
+      glBindTexture(textureTarget, RenderTextureDS);
+      glTexImage2D(textureTarget, 0, GL_DEPTH_STENCIL, WindowGetScaledWidth(),
+                   WindowGetScaledHeight(), 0, GL_DEPTH_STENCIL,
+                   GL_UNSIGNED_INT_24_8, NULL);
+    } else {
+      textureTarget = GL_TEXTURE_2D_MULTISAMPLE;
+      glBindTexture(textureTarget, RenderTextureDS);
+      glTexImage2DMultisample(textureTarget, g_MsaaCount, GL_DEPTH_STENCIL,
+                              WindowGetScaledWidth(), WindowGetScaledHeight(),
+                              GL_FALSE);
+    }
+
+    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
+                           textureTarget, RenderTextureDS, 0);
+
+  } else {
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, FBO);
+  }
+
+  glViewport(0, 0, WindowGetScaledWidth(), WindowGetScaledHeight());
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  glEnable(GL_DEPTH_TEST);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
+void Scene::CleanFBO() {
+  if (RenderTextureColor) {
+    glDeleteTextures(1, &RenderTextureColor);
+    RenderTextureColor = 0;
+  }
+  if (RenderTextureDS) {
+    glDeleteTextures(1, &RenderTextureDS);
+    RenderTextureDS = 0;
+  }
+  if (FBO) {
+    glDeleteFramebuffers(1, &FBO);
+    FBO = 0;
+  }
+}
+
+void Scene::DrawToScreen() {
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+  glViewport(0, 0, g_WindowWidth, g_WindowHeight);
+  glDisable(GL_DEPTH_TEST);
+
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, FBO);
+
+  // TODO: Better than linear filtering for supersampling
+
+  glBlitFramebuffer(0, 0, WindowGetScaledWidth(), WindowGetScaledHeight(), 0, 0,
+                    g_WindowWidth, g_WindowHeight, GL_COLOR_BUFFER_BIT,
+                    GL_LINEAR);
 }
 
 }  // namespace Impacto

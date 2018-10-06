@@ -16,8 +16,6 @@ ModelViewer::ModelViewer() {
   CurrentBackground = 0;
 
   UiTintColor = {0.784f, 0.671f, 0.6f, 0.9f};
-
-  UiWindowDimsNeedUpdate = true;
 }
 
 void ModelViewer::Init() {
@@ -30,23 +28,24 @@ void ModelViewer::Init() {
 }
 
 void ModelViewer::Update(float dt) {
+  if (g_FramebuffersNeedUpdate) {
+    UiWindowWidth = g_WindowWidth;
+    UiWindowHeight = g_WindowHeight;
+    UiMsaaCount = g_MsaaCount;
+  }
+
   if (nk_begin(g_Game->Nk, "Scene", nk_rect(20, 20, 300, g_WindowHeight - 40),
                NK_WINDOW_BORDER | NK_WINDOW_TITLE)) {
     if (nk_tree_push(g_Game->Nk, NK_TREE_TAB, "Window", NK_MINIMIZED)) {
       nk_layout_row_dynamic(g_Game->Nk, 24, 1);
 
-      if (UiWindowDimsNeedUpdate) {
-        UiWindowWidth = g_WindowWidth;
-        UiWindowHeight = g_WindowHeight;
-        UiWindowDimsNeedUpdate = false;
-      }
-
       nk_property_int(g_Game->Nk, "Width", 0, &UiWindowWidth, 8192, 0, 0.0f);
       nk_property_int(g_Game->Nk, "Height", 0, &UiWindowHeight, 8192, 0, 0.0f);
+      nk_property_int(g_Game->Nk, "MSAA", 0, &UiMsaaCount, 16, 0, 0);
 
       if (nk_button_label(g_Game->Nk, "Resize")) {
-        WindowSetDimensions(UiWindowWidth, UiWindowHeight);
-        UiWindowDimsNeedUpdate = true;
+        WindowSetDimensions(UiWindowWidth, UiWindowHeight, UiMsaaCount,
+                            g_RenderScale);
       }
 
       nk_tree_pop(g_Game->Nk);

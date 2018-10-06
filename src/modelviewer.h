@@ -22,7 +22,7 @@ class ModelViewer {
   uint32_t CurrentBackground;
   int UiWindowWidth;
   int UiWindowHeight;
-  bool UiWindowDimsNeedUpdate;
+  int UiMsaaCount;
 };
 
 }  // namespace Impacto

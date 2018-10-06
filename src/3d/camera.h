@@ -28,6 +28,8 @@ class Camera {
   float Near;
   float Far;
 
+  float AspectRatio;
+
   glm::mat4 View;
   glm::mat4 Projection;
   glm::mat4 ViewProjection;
