@@ -83,6 +83,8 @@ Game::~Game() {
   }
 
   if (GameFeatures & GameFeature_Sc3VirtualMachine) {
+    if (ScrWork) free(ScrWork);
+    if (FlagWork) free(FlagWork);
     delete VmComponent;
   }
 
