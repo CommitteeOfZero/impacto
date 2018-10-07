@@ -55,7 +55,7 @@ class Game {
 
 extern Game* g_Game;
 
-enum DrawComponentType {
+enum DrawComponentType : uint8_t {
   TD_Text = 0x0,
   TD_Main = 0x1,
   TD_ExtrasScenes = 0x2,

@@ -8,7 +8,7 @@
 namespace Impacto {
 
 class Game;
-enum DrawComponentType;
+enum DrawComponentType : uint8_t;
 
 namespace Vm {
 
