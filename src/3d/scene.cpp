@@ -185,18 +185,9 @@ void Scene::SetupFramebufferState() {
                            textureTarget, RenderTextureDS, 0);
 
     ShaderParamMap shaderParams;
-    ShaderParameter paramMsCount;
-    paramMsCount.Type = SPT_Int;
-    paramMsCount.Val_Int = g_MsaaCount;
-    shaderParams["MultisampleCount"] = paramMsCount;
-    ShaderParameter paramWindow;
-    paramWindow.Type = SPT_Vec2;
-    paramWindow.Val_Vec2 = glm::vec2(g_WindowWidth, g_WindowHeight);
-    shaderParams["WindowDimensions"] = paramWindow;
-    ShaderParameter paramScale;
-    paramScale.Type = SPT_Float;
-    paramScale.Val_Float = g_RenderScale;
-    shaderParams["RenderScale"] = paramScale;
+    shaderParams["MultisampleCount"] = g_MsaaCount;
+    shaderParams["WindowDimensions"] = glm::vec2(g_WindowWidth, g_WindowHeight);
+    shaderParams["RenderScale"] = g_RenderScale;
 
     ShaderProgram = ShaderCompile("SceneToRT", shaderParams);
     glUseProgram(ShaderProgram);

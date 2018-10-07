@@ -41,12 +41,7 @@ void Character3DInit() {
   Model::Init();
 
   ShaderParamMap shaderParams;
-
-  ShaderParameter paramBoneCount;
-  paramBoneCount.Type = SPT_Int;
-  paramBoneCount.Val_Int = ModelMaxBonesPerMesh;
-
-  shaderParams["ModelMaxBonesPerMesh"] = paramBoneCount;
+  shaderParams["ModelMaxBonesPerMesh"] = ModelMaxBonesPerMesh;
 
   ShaderProgram = ShaderCompile("Character3D", shaderParams);
   ShaderProgramOutline = ShaderCompile("Character3D_Outline", shaderParams);
