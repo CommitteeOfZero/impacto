@@ -299,7 +299,8 @@ void ExpressionNode::AssignValue(Sc3VmThread* thd) {
       break;
     }
     case ET_FuncDMA:
-      ImpLogSlow(LL_Warning, LC_Expr, "STUB token %02X assign\n", ExprType);
+      ImpLogSlow(LL_Warning, LC_Expr, "STUB token %02X assign\n",
+                 LeftExpr->ExprType);
       break;
   }
 }
