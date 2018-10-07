@@ -10,6 +10,9 @@ namespace Impacto {
 static int const NkMaxVertexMemory = 1024 * 1024;
 static int const NkMaxElementMemory = 1024 * 1024;
 
+static int const GameScrWorkSize = 32000;
+static int const GameFlagWorkSize = 1000;
+
 Game* g_Game;
 
 Game::Game(GameFeatureConfig const& config)
@@ -32,6 +35,12 @@ Game::Game(GameFeatureConfig const& config)
   if (GameFeatures & GameFeature_ModelViewer) {
     ModelViewerComponent = new ModelViewer;
   }
+
+  if (GameFeatures & GameFeature_Sc3VirtualMachine) {
+    VmComponent = new Vm::Vm(this);
+    ScrWork = (uint32_t*)calloc(GameScrWorkSize, sizeof(uint32_t));
+    FlagWork = (uint8_t*)calloc(GameFlagWorkSize, sizeof(uint8_t));
+  }
 }
 
 void Game::Init() {
@@ -40,6 +49,10 @@ void Game::Init() {
   }
   if (GameFeatures & GameFeature_ModelViewer) {
     ModelViewerComponent->Init();
+  }
+
+  if (GameFeatures & GameFeature_Sc3VirtualMachine) {
+    VmComponent->Init(4, 0);
   }
 }
 
@@ -56,9 +69,25 @@ void Game::InitModelViewer() {
   g_Game->Init();
 }
 
+void Game::InitVmTest() {
+  assert(g_Game == 0);
+  GameFeatureConfig config;
+  config.LayerCount = 1;
+  config.GameFeatures = GameFeature_Sc3VirtualMachine;
+
+  g_Game = new Game(config);
+  g_Game->Init();
+}
+
 Game::~Game() {
   if (GameFeatures & GameFeature_ModelViewer) {
     delete ModelViewerComponent;
+  }
+
+  if (GameFeatures & GameFeature_Sc3VirtualMachine) {
+    if (ScrWork) free(ScrWork);
+    if (FlagWork) free(FlagWork);
+    delete VmComponent;
   }
 
   if (GameFeatures & GameFeature_Scene3D) {
@@ -96,6 +125,10 @@ void Game::Update(float dt) {
     ModelViewerComponent->Update(dt);
   }
 
+  if (GameFeatures & GameFeature_Sc3VirtualMachine) {
+    VmComponent->Update();
+  }
+
   if (GameFeatures & GameFeature_Scene3D) {
     Scene3D->Update(dt);
   }
@@ -129,6 +162,20 @@ void Game::Render() {
   }
 
   WindowDraw();
+}
+
+void Game::SetFlag(uint32_t flagId, uint32_t value) {
+  uint32_t flagIndex = flagId >> 3;
+  int flagValue = 1 << (flagId - 8 * (flagId >> 3));
+  FlagWork[flagIndex] |= flagValue;
+  if (!value) {
+    FlagWork[flagIndex] ^= flagValue;
+  }
+}
+
+bool Game::GetFlag(uint32_t flagId) {
+  return ((uint8_t)(1 << (flagId - 8 * (flagId >> 3))) &
+          *((uint8_t*)FlagWork + (flagId >> 3))) != 0;
 }
 
 }  // namespace Impacto
