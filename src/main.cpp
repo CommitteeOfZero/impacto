@@ -22,7 +22,7 @@ void GameLoop() {
 
 void InitSystems() {
   LogSetConsole(true);
-  g_LogLevelConsole = LL_Debug;
+  g_LogLevelConsole = LL_Max;
   g_LogChannelsConsole = LC_All;
 
   VfsInit();
@@ -33,8 +33,7 @@ void InitSystems() {
 int main(int argc, char* argv[]) {
   InitSystems();
 
-  // Game::InitModelViewer();
-  Game::InitVmTest();
+  Game::InitModelViewer();
 
   t = SDL_GetPerformanceCounter();
 

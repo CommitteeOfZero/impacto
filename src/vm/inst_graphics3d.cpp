@@ -1,5 +1,7 @@
 #include "inst_graphics3d.h"
 
+#include "inst_macros.inc"
+
 namespace Impacto {
 
 namespace Vm {

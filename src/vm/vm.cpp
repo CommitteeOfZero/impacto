@@ -39,7 +39,7 @@ void Vm::Init(uint32_t startScriptId, uint32_t bufferId) {
     ThreadGroupTails[i] = NULL;
   }
 
-  memset(&ThreadGroupIds, 0, VmMaxThreadGroups * 4);
+  memset(&ThreadGroupCount, 0, VmMaxThreadGroups * 4);
 
   IoError err = VfsArchive::Mount("script.cpk", &AllScriptsArchive);
   if (err != IoError_OK) {
@@ -89,12 +89,14 @@ Sc3VmThread* Vm::CreateThread(uint32_t groupId) {
     prevGroupTail->NextContext = thread;
     ThreadGroupTails[groupId] = thread;
   }
-  ++ThreadGroupIds[groupId];
+  ++ThreadGroupCount[groupId];
   thread->VmContext = this;
   thread->GameContext = GameContext;
   return thread;
 }
 
+// This also destroys thread groups and threads that have the TF_Destroy flag
+// set before building the execution table
 void Vm::CreateThreadExecTable() {
   int tblIndex = 0;
 
@@ -106,11 +108,11 @@ void Vm::CreateThreadExecTable() {
       Sc3VmThread* groupThread = ThreadGroupHeads[i];
       if (groupThread == NULL) continue;
       do {
-        if (groupThread->Flag & TF_Destroy) {
+        if (groupThread->Flags & TF_Destroy) {
           Sc3VmThread* next = groupThread->NextContext;
           DestroyThread(groupThread);
           groupThread = next;
-        } else if (!(groupThread->Flag & TF_Pause)) {
+        } else if (!(groupThread->Flags & TF_Pause)) {
           ThreadTable[tblIndex++] = groupThread;
           groupThread = groupThread->NextContext;
         } else {
@@ -149,7 +151,7 @@ void Vm::Update() {
 
   cnt = 0;
   while (ThreadTable[cnt]) {
-    if (ThreadTable[cnt]->Flag & TF_Destroy) {
+    if (ThreadTable[cnt]->Flags & TF_Destroy) {
       DestroyThread(ThreadTable[cnt]);
     }
     cnt++;
@@ -166,7 +168,7 @@ void Vm::CreateThreadDrawTable() {
       Sc3VmThread* groupThread = ThreadGroupHeads[i];
       if (groupThread == NULL) continue;
       do {
-        if (groupThread->Flag & TF_Display) {
+        if (groupThread->Flags & TF_Display) {
           ThreadTable[tblIndex++] = groupThread;
         }
         groupThread = groupThread->NextContext;
@@ -211,7 +213,7 @@ void Vm::DestroyThread(Sc3VmThread* thread) {
   if (previous != 0) {
     thread->PreviousContext->NextContext = next;
   }
-  --ThreadGroupIds[thread->ScriptBufferId];
+  --ThreadGroupCount[thread->ScriptBufferId];
   int id = thread->Id;
   memset(thread, 0, sizeof(Sc3VmThread));
   thread->Id = id;
@@ -240,6 +242,30 @@ void Vm::DestroyThreadGroup(uint32_t groupId) {
   }
 }
 
+void Vm::ControlThreadGroup(uint32_t controlType, uint32_t groupId) {
+  switch (controlType) {
+    case TC_Destroy:
+      ThreadGroupControl[groupId] |= TF_Destroy;
+      break;
+    case TC_Pause:
+      ThreadGroupControl[groupId] |= TF_Pause;
+      break;
+    case TC_Start:
+      ThreadGroupControl[groupId] =
+          (ThreadGroupControl[groupId] | TF_Pause) ^ TF_Pause;
+      break;
+    case TC_Hide:
+      ThreadGroupControl[groupId] =
+          (ThreadGroupControl[groupId] | TF_Display) ^ TF_Display;
+      break;
+    case TC_Display:
+      ThreadGroupControl[groupId] |= TF_Display;
+      break;
+    default:
+      break;
+  }
+}
+
 void Vm::RunThread(Sc3VmThread* thread) {
   uint8_t* scrVal;
   uint32_t opcodeGrp;
@@ -247,7 +273,7 @@ void Vm::RunThread(Sc3VmThread* thread) {
   uint32_t opcodeGrp1;
   uint32_t calDummy;
 
-  ImpLog(LL_Debug, LC_VM, "Running thread ID = %i\n", thread->Id);
+  ImpLog(LL_Trace, LC_VM, "Running thread ID = %i\n", thread->Id);
 
   BlockCurrentScriptThread = 0;
   do {
@@ -260,7 +286,7 @@ void Vm::RunThread(Sc3VmThread* thread) {
       opcode = *(scrVal + 1);
       opcodeGrp1 = opcodeGrp & 0x7F;
 
-      ImpLog(LL_Debug, LC_VM, "Opcode: %02X:%02X\n", opcodeGrp1, opcode);
+      ImpLog(LL_Trace, LC_VM, "Opcode: %02X:%02X\n", opcodeGrp1, opcode);
 
       if (opcodeGrp1 == 0x10) {
         OpcodeTableUser1[opcode](thread);
@@ -276,45 +302,71 @@ void Vm::RunThread(Sc3VmThread* thread) {
 }
 
 uint8_t* ScriptGetLabelAddress(uint8_t* scriptBufferAdr, uint32_t labelNum) {
-  return scriptBufferAdr +
-         ((*(uint8_t*)(scriptBufferAdr + 4 * labelNum + 15) << 24) |
-          (*(uint8_t*)(scriptBufferAdr + 4 * labelNum + 14) << 16) |
-          (*(uint8_t*)(scriptBufferAdr + 4 * labelNum + 13) << 8) |
-          *(uint8_t*)(scriptBufferAdr + 4 * labelNum + 12));
+  uint32_t* labelTableAdr = (uint32_t*)&scriptBufferAdr[12];
+  uint32_t labelAdrRel = labelTableAdr[labelNum];
+  return &scriptBufferAdr[labelAdrRel];
 }
 
 uint32_t ScriptGetLabelAddressNum(uint8_t* scriptBufferAdr, uint32_t labelNum) {
-  return scriptBufferAdr[12] +
-         ((scriptBufferAdr[13] +
-           ((scriptBufferAdr[14] + (scriptBufferAdr[15] << 8)) << 8))
-          << 8);
+  uint32_t* labelTableAdr = (uint32_t*)&scriptBufferAdr[12];
+  uint32_t labelAdrRel = labelTableAdr[labelNum];
+  return labelAdrRel;
 }
 
-// TODO: Make this sane
 uint8_t* ScriptGetStrAddress(uint8_t* scriptBufferAdr, uint32_t mesNum) {
-  int v3 = mesNum + ((scriptBufferAdr[5] +
-                      ((scriptBufferAdr[6] + (scriptBufferAdr[7] << 8)) << 8))
-                     << 6);
-  int v4 = (int)&scriptBufferAdr[scriptBufferAdr[4]];
-  return &scriptBufferAdr[256 * (*(uint8_t*)(v4 + 4 * v3 + 1) +
-                                 ((*(uint8_t*)(v4 + 4 * v3 + 2) +
-                                   (*(uint8_t*)(v4 + 4 * v3 + 3) << 8))
-                                  << 8)) +
-                          *(uint8_t*)(v4 + 4 * v3)];
+  uint32_t stringTableAdrRel = *(uint32_t*)scriptBufferAdr[4];
+  uint32_t* stringTableAdr = (uint32_t*)&scriptBufferAdr[stringTableAdrRel];
+  uint32_t stringAdrRel = stringTableAdr[mesNum];
+  return &scriptBufferAdr[stringAdrRel];
 }
 
-// TODO: Make this sane
 uint8_t* ScriptGetRetAddress(uint8_t* scriptBufferAdr, uint32_t retNum) {
-  uint32_t v3 =
-      retNum + ((scriptBufferAdr[9] +
-                 ((scriptBufferAdr[10] + (scriptBufferAdr[11] << 8)) << 8))
-                << 6);
-  uint64_t v4 = (uint64_t)&scriptBufferAdr[scriptBufferAdr[8]];
-  return &scriptBufferAdr[256 * (*(uint8_t*)(v4 + 4 * v3 + 1) +
-                                 ((*(uint8_t*)(v4 + 4 * v3 + 2) +
-                                   (*(uint8_t*)(v4 + 4 * v3 + 3) << 8))
-                                  << 8)) +
-                          *(uint8_t*)(v4 + 4 * v3)];
+  uint32_t returnTableAdrRel = *(uint32_t*)scriptBufferAdr[8];
+  uint32_t* returnTableAdr = (uint32_t*)&scriptBufferAdr[returnTableAdrRel];
+  uint32_t returnAdrRel = returnTableAdr[retNum];
+  return &scriptBufferAdr[returnAdrRel];
+}
+
+void* GetMemberPointer(Sc3VmThread* thd, uint32_t offset) {
+  switch (offset) {
+    case TO_Flags:
+      return &thd->Flags;
+    case TO_ExecPri:
+      return &thd->ExecPriority;
+    case TO_ScrBuf:
+      return &thd->ScriptBufferId;
+    case TO_WaitCount:
+      return &thd->WaitCounter;
+    case TO_ScrParam:
+      return &thd->ScriptParam;
+    case TO_ScrAddr:
+      return &thd->Ip;
+    case TO_LoopCount:
+      return &thd->LoopCounter;
+    case TO_LoopAddr:
+      return &thd->LoopAddress;
+    case TO_RetCount:
+      return &thd->CallStackDepth;
+    case TO_RetAddr:
+      return &thd->ReturnAdresses;
+    case TO_RetScrBuf:
+      return &thd->ReturnGroupIds;
+    case TO_DrawPri:
+      return &thd->DrawPriority;
+    case TO_DrawType:
+      return &thd->DrawType;
+    case TO_Alpha:
+      return &thd->Alpha;
+    case TO_Temp1:
+      return &thd->Temp1;
+    case TO_Temp2:
+      return &thd->Temp2;
+    default:
+      if ((offset - TO_ThdVarBegin) >= 0) {
+        return &thd->Variables[offset - TO_ThdVarBegin];
+      }
+      break;
+  }
 }
 
 }  // namespace Vm

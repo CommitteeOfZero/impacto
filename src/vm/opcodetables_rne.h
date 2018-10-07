@@ -24,7 +24,7 @@ InstructionProc static OpcodeTableSystem_RNE[256] = {
     InstHalt,                 // 00 06
     InstJump,                 // 00 07
     InstJumpTable,            // 00 08
-    InstGetLabelAdr,		  // 00 09
+    InstGetLabelAdr,          // 00 09
     InstIf,                   // 00 0A
     InstCall,                 // 00 0B
     InstJumpFar,              // 00 0C

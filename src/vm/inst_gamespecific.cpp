@@ -1,5 +1,7 @@
 #include "inst_gamespecific.h"
 
+#include "inst_macros.inc"
+
 namespace Impacto {
 
 namespace Vm {

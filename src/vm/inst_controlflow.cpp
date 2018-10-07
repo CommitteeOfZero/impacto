@@ -1,5 +1,7 @@
 #include "inst_controlflow.h"
 
+#include "inst_macros.inc"
+
 #include "expression.h"
 
 namespace Impacto {
@@ -31,20 +33,20 @@ VmInstruction(InstCallFar) {
   uint8_t* labelAdr = ScriptGetLabelAddress(
       thread->VmContext->ScriptBuffers[scriptBufferId], labelNum);
 
-  if (thread->ReturnCount != VmCallStackDepth) {
-    thread->ReturnAdresses[thread->ReturnCount] = retNum;
-    thread->ReturnGroupIds[thread->ReturnCount++] = thread->ScriptBufferId;
+  if (thread->CallStackDepth != VmMaxCallStackDepth) {
+    thread->ReturnAdresses[thread->CallStackDepth] = retNum;
+    thread->ReturnGroupIds[thread->CallStackDepth++] = thread->ScriptBufferId;
     thread->Ip = labelAdr;
     thread->ScriptBufferId = scriptBufferId;
   }
 }
 VmInstruction(InstReturn) {
-  if (thread->ReturnCount) {
-    thread->ReturnCount--;
-    uint32_t retBufferId = thread->ReturnGroupIds[thread->ReturnCount];
+  if (thread->CallStackDepth) {
+    thread->CallStackDepth--;
+    uint32_t retBufferId = thread->ReturnGroupIds[thread->CallStackDepth];
     thread->Ip =
         ScriptGetRetAddress(thread->VmContext->ScriptBuffers[retBufferId],
-                            thread->ReturnAdresses[thread->ReturnCount]);
+                            thread->ReturnAdresses[thread->CallStackDepth]);
     thread->ScriptBufferId = retBufferId;
   }
 }

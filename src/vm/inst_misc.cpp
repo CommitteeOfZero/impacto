@@ -1,5 +1,8 @@
 #include "inst_misc.h"
+
 #include "expression.h"
+
+#include "inst_macros.inc"
 
 namespace Impacto {
 

@@ -2,6 +2,8 @@
 
 #include "expression.h"
 
+#include "inst_macros.inc"
+
 namespace Impacto {
 
 namespace Vm {

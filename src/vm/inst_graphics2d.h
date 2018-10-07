@@ -1,7 +1,6 @@
 #pragma once
 
 #include "vm.h"
-#include "inst_macros.inc"
 
 namespace Impacto {
 

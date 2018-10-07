@@ -18,6 +18,7 @@ uint8_t* ScriptGetLabelAddress(uint8_t* scriptBufferAdr, uint32_t labelNum);
 uint32_t ScriptGetLabelAddressNum(uint8_t* scriptBufferAdr, uint32_t labelNum);
 uint8_t* ScriptGetStrAddress(uint8_t* scriptBufferAdr, uint32_t strNum);
 uint8_t* ScriptGetRetAddress(uint8_t* scriptBufferAdr, uint32_t retNum);
+void* GetMemberPointer(Sc3VmThread* thd, uint32_t offset);
 
 class Vm {
  public:
@@ -39,14 +40,21 @@ class Vm {
   bool BlockCurrentScriptThread;
   uint32_t LoadedScriptIds[VmMaxLoadedScripts];
 
-  Sc3VmThread ThreadPool[VmMaxThreads];
-  Sc3VmThread* ThreadTable[VmMaxThreads];
-  uint32_t ThreadGroupControl[VmMaxThreadGroups];
-  uint32_t ThreadGroupIds[VmMaxThreadGroups];
-  // Sc3VmThread ThreadGroupIndex[VmMaxThreadGroups * 2];
-  Sc3VmThread* ThreadGroupHeads[VmMaxThreadGroups];
-  Sc3VmThread* ThreadGroupTails[VmMaxThreadGroups];
-  Sc3VmThread* NextFreeThreadCtx;
+  Sc3VmThread ThreadPool[VmMaxThreads];    // Main thread pool where all the
+                                           // thread objects are stored
+  Sc3VmThread* ThreadTable[VmMaxThreads];  // Table of ordered thread pointers
+                                           // to be executed or "drawn"
+  uint32_t ThreadGroupControl[VmMaxThreadGroups];  // Control states for thread
+                                                   // groups. Each thread group
+                                                   // is a doubly linked list
+  uint32_t ThreadGroupCount[VmMaxThreadGroups];  // Current number of threads in
+                                                 // a group
+  Sc3VmThread* ThreadGroupHeads[VmMaxThreadGroups];  // Pointers to thread group
+                                                     // doubly linked list heads
+  Sc3VmThread* ThreadGroupTails[VmMaxThreadGroups];  // Pointers to thread group
+                                                     // doubly linked list tails
+  Sc3VmThread* NextFreeThreadCtx;  // Next free thread context in the thread
+                                   // pool
 
   InstructionProc* OpcodeTableSystem;
   InstructionProc* OpcodeTableUser1;

@@ -8,10 +8,11 @@
 namespace Impacto {
 
 class Game;
+enum VmThreadDrawType;
 
 namespace Vm {
 
-int const VmCallStackDepth = 8;
+int const VmMaxCallStackDepth = 8;
 int const VmMaxThreadVars = 32;
 
 enum ThreadFlagState {
@@ -23,30 +24,16 @@ enum ThreadFlagState {
   TF_Message = 0x80000000,
 };
 
-enum ThreadDrawType {
-  TD_Text = 0x0,
-  TD_Main = 0x1,
-  TD_Review = 0x2,
-  TD_Mask = 0x3,
-  TD_SystemText = 0x4,
-  TD_SaveMenu = 0x5,
-  TD_MainChip = 0x6,
-  TD_TitleMenu = 0x7,
-  TD_CvMenu = 0x8,
-  TD_Option = 0x9,
-  TD_SystemMenu = 0xA,
-  TD_SystemMessage = 0xB,
-  TD_PlayData = 0xC,
-  TD_Album = 0xD,
-  TD_MusicMode = 0xE,
-  TD_MovieMode = 0x10,
-  TD_SaveIcon = 0x12,
-  TD_GlobalSystemMessage = 0x15,
-  TD_DebugEditor = 0x1E,
+enum ThreadGroupControlType {
+  TC_Destroy = 0,
+  TC_Pause = 1,
+  TC_Start = 2,
+  TC_Hide = 3,
+  TC_Display = 4
 };
 
 enum ThreadOffset {
-  TO_Flag = 0,
+  TO_Flags = 0,
   TO_ExecPri = 4,
   TO_ScrBuf = 5,
   TO_WaitCount = 6,
@@ -65,12 +52,11 @@ enum ThreadOffset {
   TO_ThdVarBegin = 47
 };
 
-typedef struct Sc3VmThread Sc3VmThread;
 class Vm;
 
 struct Sc3VmThread {
   uint32_t Id;
-  uint32_t Flag;
+  uint32_t Flags;
   Sc3VmThread* PreviousContext;
   Sc3VmThread* NextContext;
   Sc3VmThread* NextFreeContext;
@@ -81,11 +67,11 @@ struct Sc3VmThread {
   uint8_t* Ip;
   uint32_t LoopCounter;
   uint8_t* LoopAddress;
-  uint32_t ReturnCount;
-  uint16_t ReturnAdresses[VmCallStackDepth];
-  uint32_t ReturnGroupIds[VmCallStackDepth];
+  uint32_t CallStackDepth;
+  uint16_t ReturnAdresses[VmMaxCallStackDepth];
+  uint32_t ReturnGroupIds[VmMaxCallStackDepth];
   uint32_t DrawPriority;
-  uint32_t DrawType;
+  VmThreadDrawType DrawType;
   uint32_t Alpha;
   uint32_t Temp1;
   uint32_t Temp2;
