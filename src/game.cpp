@@ -27,7 +27,6 @@ Game::Game(GameFeatureConfig const& config)
   if (GameFeatures & GameFeature_Scene3D) {
     SceneInit();
     Scene3D = new Scene;
-    Scene3D->MainCamera.Init();
   }
 
   if (GameFeatures & GameFeature_ModelViewer) {
@@ -36,6 +35,9 @@ Game::Game(GameFeatureConfig const& config)
 }
 
 void Game::Init() {
+  if (GameFeatures & GameFeature_Scene3D) {
+    Scene3D->Init();
+  }
   if (GameFeatures & GameFeature_ModelViewer) {
     ModelViewerComponent->Init();
   }

@@ -14,6 +14,7 @@ class Scene {
  public:
   ~Scene();
 
+  void Init();
   void Update(float dt);
   void Render();
 
@@ -44,6 +45,9 @@ class Scene {
   GLuint FBO = 0;
   GLuint RenderTextureColor = 0;
   GLuint RenderTextureDS = 0;
+
+  GLuint VAOScreenFillingTriangle = 0;
+  GLuint VBOScreenFillingTriangle = 0;
 };
 
 void SceneInit();

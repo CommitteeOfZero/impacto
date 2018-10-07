@@ -4,10 +4,14 @@
 #include "../log.h"
 #include "../window.h"
 #include "../workqueue.h"
+#include "../shader.h"
 
 namespace Impacto {
 
-bool IsInit = false;
+static bool IsInit = false;
+
+GLuint ShaderProgram = 0;
+GLuint UniformMultisampleCount = 0;
 
 void SceneInit() {
   assert(IsInit == false);
@@ -16,9 +20,48 @@ void SceneInit() {
 
   Character3DInit();
   Background3DInit();
+
+  ShaderProgram = ShaderCompile("SceneToRT");
+  glUseProgram(ShaderProgram);
+  glUniform1i(glGetUniformLocation(ShaderProgram, "Framebuffer3D"), 0);
+  glUniform1i(glGetUniformLocation(ShaderProgram, "Framebuffer3DMS"), 1);
+  UniformMultisampleCount =
+      glGetUniformLocation(ShaderProgram, "MultisampleCount");
 }
 
-Scene::~Scene() { CleanFBO(); }
+void Scene::Init() {
+  MainCamera.Init();
+
+  glGenVertexArrays(1, &VAOScreenFillingTriangle);
+  glBindVertexArray(VAOScreenFillingTriangle);
+  glGenBuffers(1, &VBOScreenFillingTriangle);
+  glBindBuffer(GL_ARRAY_BUFFER, VBOScreenFillingTriangle);
+
+  // clang-format off
+  float ScreenFillingTriangle[] = {
+      // Position       // UV
+      -1.0f, -1.0f,     0.0f, 0.0f,
+      3.0f, -1.0f,      2.0f, 0.0f,
+      -1.0f, 3.0f,      0.0f, 2.0f
+  };
+  // clang-format on
+
+  glBufferData(GL_ARRAY_BUFFER, sizeof(ScreenFillingTriangle),
+               ScreenFillingTriangle, GL_STATIC_DRAW);
+  // Position
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float),
+                        (void*)(2 * sizeof(float)));
+  glEnableVertexAttribArray(0);
+  glEnableVertexAttribArray(1);
+}
+
+Scene::~Scene() {
+  if (VBOScreenFillingTriangle) glDeleteBuffers(1, &VBOScreenFillingTriangle);
+  if (VAOScreenFillingTriangle)
+    glDeleteVertexArrays(1, &VAOScreenFillingTriangle);
+  CleanFBO();
+}
 
 static void LoadBackgroundWorker(void* ptr) {
   Scene* scene = (Scene*)ptr;
@@ -118,10 +161,6 @@ void Scene::SetupFBO() {
       glTexImage2D(textureTarget, 0, GL_RGBA, WindowGetScaledWidth(),
                    WindowGetScaledHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
     } else {
-      // glBlitFramebuffer() with differently sized source and destination
-      // rectangles is not allowed for multisample textures
-      // TODO: draw quad instead of copy
-      assert(g_RenderScale == 1.0f);
       textureTarget = GL_TEXTURE_2D_MULTISAMPLE;
       glBindTexture(textureTarget, RenderTextureColor);
       glTexImage2DMultisample(textureTarget, g_MsaaCount, GL_RGBA,
@@ -151,6 +190,9 @@ void Scene::SetupFBO() {
 
     glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
                            textureTarget, RenderTextureDS, 0);
+
+    glUseProgram(ShaderProgram);
+    glUniform1i(UniformMultisampleCount, g_MsaaCount);
 
   } else {
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, FBO);
@@ -182,17 +224,22 @@ void Scene::CleanFBO() {
 
 void Scene::DrawToScreen() {
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, g_DrawRT);
-
   glViewport(0, 0, g_WindowWidth, g_WindowHeight);
-  glDisable(GL_DEPTH_TEST);
 
-  glBindFramebuffer(GL_READ_FRAMEBUFFER, FBO);
+  glDisable(GL_DEPTH_TEST);
 
   // TODO: Better than linear filtering for supersampling
 
-  glBlitFramebuffer(0, 0, WindowGetScaledWidth(), WindowGetScaledHeight(), 0, 0,
-                    g_WindowWidth, g_WindowHeight, GL_COLOR_BUFFER_BIT,
-                    GL_LINEAR);
+  if (g_MsaaCount == 0) {
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, RenderTextureColor);
+  } else {
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, RenderTextureColor);
+  }
+  glBindVertexArray(VAOScreenFillingTriangle);
+  glUseProgram(ShaderProgram);
+  glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
 }  // namespace Impacto
