@@ -91,7 +91,7 @@ GLuint ShaderAttach(GLuint program, GLenum shaderType, char const* path,
   codeParts[1] = params;
   codeParts[2] = source;
 
-  GLint codeLengths[2];
+  GLint codeLengths[3];
   codeLengths[0] = ShaderHeaderLength;
   codeLengths[1] = strlen(params);
   codeLengths[2] = strlen(source);
