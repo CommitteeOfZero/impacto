@@ -67,8 +67,8 @@ int PrintParameter(char* dest, int destSz, char const* name,
   }
 }
 
-bool ShaderAttach(GLuint program, GLenum shaderType, char const* path,
-                  char const* params) {
+GLuint ShaderAttach(GLuint program, GLenum shaderType, char const* path,
+                    char const* params) {
   ImpLog(LL_Debug, LC_Render, "Loading shader object (type %d) \"%s\"\n",
          shaderType, path);
 
@@ -76,14 +76,14 @@ bool ShaderAttach(GLuint program, GLenum shaderType, char const* path,
   char* source = (char*)SDL_LoadFile(path, &sourceRawSz);
   if (!source) {
     ImpLog(LL_Debug, LC_Render, "Failed to read shader source file\n");
-    return false;
+    return 0;
   }
 
   GLuint shader = glCreateShader(shaderType);
   if (!shader) {
     ImpLog(LL_Fatal, LC_Render, "Failed to create shader object\n");
     SDL_free(source);
-    return false;
+    return 0;
   }
 
   const GLchar* codeParts[3];
@@ -107,14 +107,15 @@ bool ShaderAttach(GLuint program, GLenum shaderType, char const* path,
     glGetShaderInfoLog(shader, sizeof(errorLog), NULL, errorLog);
     ImpLog(LL_Fatal, LC_Render, "Error compiling shader: %s\n", errorLog);
     SDL_free(source);
-    return false;
+    glDeleteShader(shader);
+    return 0;
   }
 
   glAttachShader(program, shader);
 
   SDL_free(source);
 
-  return true;
+  return shader;
 }
 
 GLuint ShaderCompile(char const* name, ShaderParamMap const& params) {
@@ -151,14 +152,17 @@ GLuint ShaderCompile(char const* name, ShaderParamMap const& params) {
   paramStr[paramSz - 1] = '\0';
 
   sprintf(fullPath, "%s/%s%s", ShaderPath, name, VertShaderExtension);
-  if (!ShaderAttach(program, GL_VERTEX_SHADER, fullPath, paramStr)) {
+  GLuint vs = ShaderAttach(program, GL_VERTEX_SHADER, fullPath, paramStr);
+  if (!vs) {
     glDeleteProgram(program);
     ImpStackFree(paramStr);
     ImpStackFree(fullPath);
     return 0;
   }
   sprintf(fullPath, "%s/%s%s", ShaderPath, name, FragShaderExtension);
-  if (!ShaderAttach(program, GL_FRAGMENT_SHADER, fullPath, paramStr)) {
+  GLuint fs = ShaderAttach(program, GL_FRAGMENT_SHADER, fullPath, paramStr);
+  if (!fs) {
+    glDeleteShader(vs);
     glDeleteProgram(program);
     ImpStackFree(paramStr);
     ImpStackFree(fullPath);
@@ -172,6 +176,12 @@ GLuint ShaderCompile(char const* name, ShaderParamMap const& params) {
   static GLchar errorLog[1024] = {};
 
   glLinkProgram(program);
+
+  glDetachShader(program, vs);
+  glDetachShader(program, fs);
+  glDeleteShader(vs);
+  glDeleteShader(fs);
+
   glGetProgramiv(program, GL_LINK_STATUS, &result);
   if (!result) {
     glGetProgramInfoLog(program, sizeof(errorLog), NULL, errorLog);
