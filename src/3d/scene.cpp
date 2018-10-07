@@ -157,7 +157,7 @@ void Scene::SetupFBO() {
   }
 
   glViewport(0, 0, WindowGetScaledWidth(), WindowGetScaledHeight());
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glEnable(GL_DEPTH_TEST);
@@ -181,7 +181,7 @@ void Scene::CleanFBO() {
 }
 
 void Scene::DrawToScreen() {
-  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, g_DrawRT);
 
   glViewport(0, 0, g_WindowWidth, g_WindowHeight);
   glDisable(GL_DEPTH_TEST);

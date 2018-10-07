@@ -101,10 +101,6 @@ void Game::Update(float dt) {
 
 void Game::Render() {
   WindowUpdate();
-  glViewport(0, 0, g_WindowWidth, g_WindowHeight);
-
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT);
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -130,7 +126,7 @@ void Game::Render() {
 #endif
   }
 
-  SDL_GL_SwapWindow(g_SDLWindow);
+  WindowDraw();
 }
 
 }  // namespace Impacto

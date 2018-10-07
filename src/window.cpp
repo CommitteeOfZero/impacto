@@ -17,6 +17,11 @@ SDL_Window* g_SDLWindow;
 SDL_GLContext g_GLContext;
 bool g_FramebuffersNeedUpdate;
 
+GLuint g_DrawRT = 0;
+GLuint g_ReadRT = 0;
+GLuint g_ReadRenderTexture = 0;
+static GLuint drawRenderTexture = 0;
+
 int lastWidth = -1;
 int lastHeight = -1;
 int lastMsaa = 0;
@@ -135,9 +140,75 @@ void WindowSetDimensions(int width, int height, int msaa, float renderScale) {
   g_RenderScale = renderScale;
 }
 
-void WindowUpdate() { WindowUpdateDimensions(); }
+void CleanFBOs() {
+  if (drawRenderTexture) glDeleteTextures(1, &drawRenderTexture);
+  if (g_ReadRenderTexture) glDeleteTextures(1, &g_ReadRenderTexture);
+  if (g_DrawRT) glDeleteFramebuffers(1, &g_DrawRT);
+  if (g_ReadRT) glDeleteFramebuffers(1, &g_ReadRT);
+
+  drawRenderTexture = g_ReadRenderTexture = g_DrawRT = g_ReadRT = 0;
+}
+
+void WindowSwapRTs() {
+  GLuint temp;
+
+  temp = g_DrawRT;
+  g_DrawRT = g_ReadRT;
+  g_ReadRT = temp;
+
+  temp = drawRenderTexture;
+  drawRenderTexture = g_ReadRenderTexture;
+  g_ReadRenderTexture = temp;
+
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, g_DrawRT);
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, g_ReadRT);
+}
+
+void WindowUpdate() {
+  WindowUpdateDimensions();
+
+  if (g_FramebuffersNeedUpdate) {
+    CleanFBOs();
+
+    glGenFramebuffers(1, &g_ReadRT);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, g_ReadRT);
+    glGenTextures(1, &g_ReadRenderTexture);
+
+    glBindTexture(GL_TEXTURE_2D, g_ReadRenderTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, g_WindowWidth, g_WindowHeight, 0,
+                 GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+
+    glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                           GL_TEXTURE_2D, g_ReadRenderTexture, 0);
+
+    glGenFramebuffers(1, &g_DrawRT);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, g_DrawRT);
+    glGenTextures(1, &drawRenderTexture);
+
+    glBindTexture(GL_TEXTURE_2D, drawRenderTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, g_WindowWidth, g_WindowHeight, 0,
+                 GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+
+    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                           GL_TEXTURE_2D, drawRenderTexture, 0);
+  }
+
+  glViewport(0, 0, g_WindowWidth, g_WindowHeight);
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void WindowDraw() {
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, g_DrawRT);
+  glBlitFramebuffer(0, 0, g_WindowWidth, g_WindowHeight, 0, 0, g_WindowWidth,
+                    g_WindowHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+  SDL_GL_SwapWindow(g_SDLWindow);
+}
 
 void WindowShutdown() {
+  CleanFBOs();
   SDL_GL_DeleteContext(g_GLContext);
   SDL_DestroyWindow(g_SDLWindow);
   SDL_Quit();
