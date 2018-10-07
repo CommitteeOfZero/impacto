@@ -17,65 +17,75 @@ int CalculateAccel(int a1, int a2, int a3);
 
 enum VmExprTokenType {
   ET_EndOfExpression = 0x00,
-  ET_Value = 0xFF,
+  ET_ImmediateValue = 0xFF,
 
-  ET_Multiplication = 0x01,
-  ET_Division = 0x02,
-  ET_Addition = 0x03,
-  ET_Subtraction = 0x04,
+  ET_Multiply = 0x01,
+  ET_Divide = 0x02,
+  ET_Add = 0x03,
+  ET_Subtract = 0x04,
   ET_Modulo = 0x05,
-  ET_ShiftLeft = 0x06,
-  ET_ShiftRight = 0x07,
-  ET_BinaryAnd = 0x08,
-  ET_BinaryXor = 0x09,
-  ET_BinaryOr = 0x0A,
-  ET_LogicEquals = 0x0C,
-  ET_LogicNotEquals = 0x0D,
-  ET_LogicLessOrEqual = 0x0E,
-  ET_LogicMoreOrEqual = 0x0F,
-  ET_LogicLess = 0x10,
-  ET_LogicMore = 0x11,
+  ET_LeftShift = 0x06,
+  ET_RightShift = 0x07,
+  ET_BitwiseAnd = 0x08,
+  ET_BitwiseXor = 0x09,
+  ET_BitwiseOr = 0x0A,
+  ET_Equal = 0x0C,
+  ET_NotEqual = 0x0D,
+  ET_LessThanEqual = 0x0E,
+  ET_MoreThanEqual = 0x0F,
+  ET_LessThan = 0x10,
+  ET_GreaterThan = 0x11,
 
   ET_Negation = 0x0B,
   ET_Increment = 0x20,
   ET_Decrement = 0x21,
 
   ET_Assign = 0x14,
-  ET_MulAssign = 0x15,
-  ET_DivAssgin = 0x16,
+  ET_MultiplyAssign = 0x15,
+  ET_DivideAssign = 0x16,
   ET_AddAssign = 0x17,
-  ET_SubAssign = 0x18,
-  ET_ModAssign = 0x19,
-  ET_LShAssign = 0x1A,
-  ET_RShAssign = 0x1B,
-  ET_AndAssign = 0x1C,
-  ET_OrAssign = 0x1D,
-  ET_XorAssign = 0x1E,
+  ET_SubtractAssign = 0x18,
+  ET_ModuloAssign = 0x19,
+  ET_LeftShiftAssign = 0x1A,
+  ET_RightShiftAssign = 0x1B,
+  ET_BitwiseAndAssign = 0x1C,
+  ET_BitwiseOrAssign = 0x1D,
+  ET_BitwiseXorAssign = 0x1E,
 
-  ET_ScrWorkAcc = 0x28,
-  ET_FlagWorkAcc = 0x29,
-  ET_ScrBufAcc = 0x2A,
-  ET_LabelTableAcc = 0x2B,
-  ET_FarLabelTableAcc = 0x2C,
-  ET_ThdWorkAcc = 0x2D,
-  ET_MemoryAcc = 0x2E,
-  ET_Random = 0x33
+  ET_FuncGlobalVars = 0x28,
+  ET_FuncFlags = 0x29,
+  ET_FuncDataAccess = 0x2A,
+  ET_FuncLabelTable = 0x2B,
+  ET_FuncFarLabelTable = 0x2C,
+  ET_FuncThreadVars = 0x2D,
+  ET_FuncDMA = 0x2E,
+  ET_FuncUnk2F = 0x2F,
+  ET_FuncUnk30 = 0x30,
+  ET_FuncNop31 = 0x31,
+  ET_FuncNop32 = 0x32,
+  ET_FuncRandom = 0x33
 };
 
 struct VmExprToken {
-  VmExprTokenType type;
-  int value;
-  int precedence;
+  VmExprTokenType Type;
+  int Value;
+  int Precedence;
 };
 
 class VmExpressionNode {
  public:
-  VmExprTokenType exprType;
+  VmExprTokenType ExprType;
 
-  std::unique_ptr<VmExpressionNode> leftExpr;
-  std::unique_ptr<VmExpressionNode> rightExpr;
+  std::unique_ptr<VmExpressionNode> LeftExpr;
+  std::unique_ptr<VmExpressionNode> RightExpr;
 
-  int value;
+  int Value;
+};
+
+class VmExpressionState {
+ public:
+  int CurrentToken;
+  std::vector<VmExprToken> Tokens;
 };
 
 }  // namespace Vm

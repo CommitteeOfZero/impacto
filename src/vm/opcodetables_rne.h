@@ -80,7 +80,7 @@ InstructionProc static OpcodeTableSystem_RNE[256] = {
     InstResetSoundAll,        // 00 3E
     InstSNDloadStop,          // 00 3F
     InstBGMstopWait,          // 00 40
-    InstUnk0041,	          // 00 41
+    InstUnk0041,              // 00 41
     InstSetX360SysMesPos,     // 00 42
     InstSystemMes,            // 00 43
     InstSystemMenu,           // 00 44
@@ -90,7 +90,7 @@ InstructionProc static OpcodeTableSystem_RNE[256] = {
     InstReloadScript,         // 00 48
     InstReloadScriptMenu,     // 00 49
     InstDebugEditer,          // 00 4A
-	InstDummy,                // 00 4B
+    InstDummy,                // 00 4B
     InstDummy,                // 00 4C
     InstSysVoicePlay,         // 00 4D
     InstPadActEx,             // 00 4E
@@ -101,7 +101,7 @@ InstructionProc static OpcodeTableSystem_RNE[256] = {
     InstUnk0053,              // 00 53
     InstUnk0054,              // 00 54
     InstUnk0055,              // 00 55
-	InstDummy,                // 00 56
+    InstDummy,                // 00 56
     InstDummy,                // 00 57
     InstDummy,                // 00 58
     InstDummy,                // 00 59
@@ -110,7 +110,7 @@ InstructionProc static OpcodeTableSystem_RNE[256] = {
     InstDummy,                // 00 5C
     InstDummy,                // 00 5D
     InstDummy,                // 00 5E
-	InstDummy,                // 00 5F
+    InstDummy,                // 00 5F
     InstDummy,                // 00 60
     InstDummy,                // 00 61
     InstDummy,                // 00 62

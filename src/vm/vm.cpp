@@ -34,7 +34,7 @@ void Vm::Init(uint32_t startScriptId, uint32_t bufferId) {
   memset(&ThreadPool[VmMaxThreads - 1], 0, sizeof(Sc3VmThread));
 
   for (int i = 0; i < VmMaxThreadGroups; i++) {
-    ThreadGroupControl[i] = TF_Display;
+    ThreadGroupState[i] = TF_Display;
     ThreadGroupHeads[i] = NULL;
     ThreadGroupTails[i] = NULL;
   }
@@ -101,10 +101,10 @@ void Vm::CreateThreadExecTable() {
   int tblIndex = 0;
 
   for (int i = 0; i < VmMaxThreadGroups; i++) {
-    if (ThreadGroupControl[i] & TF_Destroy) {
+    if (ThreadGroupState[i] & TF_Destroy) {
       DestroyThreadGroup(i);
-      ThreadGroupControl[i] ^= TF_Destroy;
-    } else if (!(ThreadGroupControl[i] & TF_Pause)) {
+      ThreadGroupState[i] ^= TF_Destroy;
+    } else if (!(ThreadGroupState[i] & TF_Pause)) {
       Sc3VmThread* groupThread = ThreadGroupHeads[i];
       if (groupThread == NULL) continue;
       do {
@@ -164,7 +164,7 @@ void Vm::CreateThreadDrawTable() {
   int tblIndex = 0;
 
   for (int i = 0; i < VmMaxThreadGroups; i++) {
-    if (ThreadGroupControl[i] & TF_Display) {
+    if (ThreadGroupState[i] & TF_Display) {
       Sc3VmThread* groupThread = ThreadGroupHeads[i];
       if (groupThread == NULL) continue;
       do {
@@ -242,24 +242,25 @@ void Vm::DestroyThreadGroup(uint32_t groupId) {
   }
 }
 
-void Vm::ControlThreadGroup(uint32_t controlType, uint32_t groupId) {
+void Vm::ControlThreadGroup(ThreadGroupControlType controlType,
+                            uint32_t groupId) {
   switch (controlType) {
     case TC_Destroy:
-      ThreadGroupControl[groupId] |= TF_Destroy;
+      ThreadGroupState[groupId] |= TF_Destroy;
       break;
     case TC_Pause:
-      ThreadGroupControl[groupId] |= TF_Pause;
+      ThreadGroupState[groupId] |= TF_Pause;
       break;
     case TC_Start:
-      ThreadGroupControl[groupId] =
-          (ThreadGroupControl[groupId] | TF_Pause) ^ TF_Pause;
+      ThreadGroupState[groupId] =
+          (ThreadGroupState[groupId] | TF_Pause) ^ TF_Pause;
       break;
     case TC_Hide:
-      ThreadGroupControl[groupId] =
-          (ThreadGroupControl[groupId] | TF_Display) ^ TF_Display;
+      ThreadGroupState[groupId] =
+          (ThreadGroupState[groupId] | TF_Display) ^ TF_Display;
       break;
     case TC_Display:
-      ThreadGroupControl[groupId] |= TF_Display;
+      ThreadGroupState[groupId] |= TF_Display;
       break;
     default:
       break;
@@ -327,7 +328,7 @@ uint8_t* ScriptGetRetAddress(uint8_t* scriptBufferAdr, uint32_t retNum) {
   return &scriptBufferAdr[returnAdrRel];
 }
 
-void* GetMemberPointer(Sc3VmThread* thd, uint32_t offset) {
+void* Sc3VmThread::GetMemberPointer(Sc3VmThread* thd, uint32_t offset) {
   switch (offset) {
     case TO_Flags:
       return &thd->Flags;

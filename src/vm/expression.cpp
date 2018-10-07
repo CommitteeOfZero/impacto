@@ -6,15 +6,13 @@ namespace Impacto {
 
 namespace Vm {
 
-int CurrentToken;
-std::vector<VmExprToken> Tokens;
+VmExpressionState* ExpressionState;
 std::vector<VmExprToken> GetTokens(Sc3VmThread* thd);
 
 VmExpressionNode* ParseSubExpression(int minPrecidence);
 VmExpressionNode* ParseTerm();
 uint32_t Evaluate(Sc3VmThread*, std::unique_ptr<VmExpressionNode>&);
 void AssignValue(Sc3VmThread*, std::unique_ptr<VmExpressionNode>&);
-void* GetMemberPointer(Sc3VmThread* thd, uint32_t offset);
 
 void ExpressionInit() {
   // SYSTEMTIME time;
@@ -25,8 +23,10 @@ void ExpressionInit() {
 }
 
 int calMain(Sc3VmThread* thd, uint32_t* result) {
-  Tokens = GetTokens(thd);
-  CurrentToken = 0;
+  ExpressionState = new VmExpressionState;
+
+  ExpressionState->Tokens = GetTokens(thd);
+  ExpressionState->CurrentToken = 0;
 
   VmExpressionNode* root = ParseSubExpression(0);
 
@@ -35,107 +35,109 @@ int calMain(Sc3VmThread* thd, uint32_t* result) {
 
   *result = Evaluate(thd, rootPtr);
 
+  delete ExpressionState;
+
   return 0;
 }
 
-uint32_t Evaluate(Sc3VmThread* thd, std::unique_ptr<VmExpressionNode>& root) {
+uint32_t Evaluate(Sc3VmThread* thd, std::unique_ptr<VmExpressionNode>& node) {
   uint32_t leftVal, rightVal;
 
-  switch (root->exprType) {
-    case ET_Multiplication:
-      leftVal = Evaluate(thd, root->leftExpr);
-      rightVal = Evaluate(thd, root->rightExpr);
+  switch (node->ExprType) {
+    case ET_Multiply:
+      leftVal = Evaluate(thd, node->LeftExpr);
+      rightVal = Evaluate(thd, node->RightExpr);
       return leftVal * rightVal;
-    case ET_Division:
-      leftVal = Evaluate(thd, root->leftExpr);
-      rightVal = Evaluate(thd, root->rightExpr);
+    case ET_Divide:
+      leftVal = Evaluate(thd, node->LeftExpr);
+      rightVal = Evaluate(thd, node->RightExpr);
       if (!rightVal) return 0x7FFFFFFF;
       return leftVal / rightVal;
-    case ET_Addition:
-      leftVal = Evaluate(thd, root->leftExpr);
-      rightVal = Evaluate(thd, root->rightExpr);
+    case ET_Add:
+      leftVal = Evaluate(thd, node->LeftExpr);
+      rightVal = Evaluate(thd, node->RightExpr);
       return leftVal + rightVal;
-    case ET_Subtraction:
-      leftVal = Evaluate(thd, root->leftExpr);
-      rightVal = Evaluate(thd, root->rightExpr);
+    case ET_Subtract:
+      leftVal = Evaluate(thd, node->LeftExpr);
+      rightVal = Evaluate(thd, node->RightExpr);
       return leftVal - rightVal;
     case ET_Modulo:
-      leftVal = Evaluate(thd, root->leftExpr);
-      rightVal = Evaluate(thd, root->rightExpr);
+      leftVal = Evaluate(thd, node->LeftExpr);
+      rightVal = Evaluate(thd, node->RightExpr);
       if (!rightVal) return 0x7FFFFFFF;
       return leftVal % rightVal;
-    case ET_ShiftLeft:
-      leftVal = Evaluate(thd, root->leftExpr);
-      rightVal = Evaluate(thd, root->rightExpr);
+    case ET_LeftShift:
+      leftVal = Evaluate(thd, node->LeftExpr);
+      rightVal = Evaluate(thd, node->RightExpr);
       return leftVal << rightVal;
-    case ET_ShiftRight:
-      leftVal = Evaluate(thd, root->leftExpr);
-      rightVal = Evaluate(thd, root->rightExpr);
+    case ET_RightShift:
+      leftVal = Evaluate(thd, node->LeftExpr);
+      rightVal = Evaluate(thd, node->RightExpr);
       return leftVal >> rightVal;
-    case ET_BinaryAnd:
-      leftVal = Evaluate(thd, root->leftExpr);
-      rightVal = Evaluate(thd, root->rightExpr);
+    case ET_BitwiseAnd:
+      leftVal = Evaluate(thd, node->LeftExpr);
+      rightVal = Evaluate(thd, node->RightExpr);
       return leftVal & rightVal;
-    case ET_BinaryXor:
-      leftVal = Evaluate(thd, root->leftExpr);
-      rightVal = Evaluate(thd, root->rightExpr);
+    case ET_BitwiseXor:
+      leftVal = Evaluate(thd, node->LeftExpr);
+      rightVal = Evaluate(thd, node->RightExpr);
       return leftVal ^ rightVal;
-    case ET_BinaryOr:
-      leftVal = Evaluate(thd, root->leftExpr);
-      rightVal = Evaluate(thd, root->rightExpr);
+    case ET_BitwiseOr:
+      leftVal = Evaluate(thd, node->LeftExpr);
+      rightVal = Evaluate(thd, node->RightExpr);
       return leftVal | rightVal;
-    case ET_LogicEquals:
-      leftVal = Evaluate(thd, root->leftExpr);
-      rightVal = Evaluate(thd, root->rightExpr);
+    case ET_Equal:
+      leftVal = Evaluate(thd, node->LeftExpr);
+      rightVal = Evaluate(thd, node->RightExpr);
       return leftVal == rightVal;
-    case ET_LogicNotEquals:
-      leftVal = Evaluate(thd, root->leftExpr);
-      rightVal = Evaluate(thd, root->rightExpr);
+    case ET_NotEqual:
+      leftVal = Evaluate(thd, node->LeftExpr);
+      rightVal = Evaluate(thd, node->RightExpr);
       return leftVal != rightVal;
-    case ET_LogicLessOrEqual:
-      leftVal = Evaluate(thd, root->leftExpr);
-      rightVal = Evaluate(thd, root->rightExpr);
+    case ET_LessThanEqual:
+      leftVal = Evaluate(thd, node->LeftExpr);
+      rightVal = Evaluate(thd, node->RightExpr);
       return leftVal <= rightVal;
-    case ET_LogicMoreOrEqual:
-      leftVal = Evaluate(thd, root->leftExpr);
-      rightVal = Evaluate(thd, root->rightExpr);
+    case ET_MoreThanEqual:
+      leftVal = Evaluate(thd, node->LeftExpr);
+      rightVal = Evaluate(thd, node->RightExpr);
       return leftVal >= rightVal;
-    case ET_LogicLess:
-      leftVal = Evaluate(thd, root->leftExpr);
-      rightVal = Evaluate(thd, root->rightExpr);
+    case ET_LessThan:
+      leftVal = Evaluate(thd, node->LeftExpr);
+      rightVal = Evaluate(thd, node->RightExpr);
       return leftVal < rightVal;
-    case ET_LogicMore:
-      leftVal = Evaluate(thd, root->leftExpr);
-      rightVal = Evaluate(thd, root->rightExpr);
+    case ET_GreaterThan:
+      leftVal = Evaluate(thd, node->LeftExpr);
+      rightVal = Evaluate(thd, node->RightExpr);
       return leftVal > rightVal;
     case ET_Negation:
-      leftVal = Evaluate(thd, root->leftExpr);
+      leftVal = Evaluate(thd, node->LeftExpr);
       return ~leftVal;
     case ET_Assign:
-    case ET_MulAssign:
-    case ET_DivAssgin:
+    case ET_MultiplyAssign:
+    case ET_DivideAssign:
     case ET_AddAssign:
-    case ET_SubAssign:
-    case ET_ModAssign:
-    case ET_LShAssign:
-    case ET_RShAssign:
-    case ET_AndAssign:
-    case ET_OrAssign:
-    case ET_XorAssign:
+    case ET_SubtractAssign:
+    case ET_ModuloAssign:
+    case ET_LeftShiftAssign:
+    case ET_RightShiftAssign:
+    case ET_BitwiseAndAssign:
+    case ET_BitwiseOrAssign:
+    case ET_BitwiseXorAssign:
     case ET_Increment:
     case ET_Decrement:
-      AssignValue(thd, root);
+      AssignValue(thd, node);
       return 0;
       break;
-    case ET_Value:
-      return root->value;
-    case ET_ScrWorkAcc:
-      return thd->GameContext->ScrWork[Evaluate(thd, root->rightExpr)];
-    case ET_FlagWorkAcc:
-      return thd->GameContext->GetFlag(Evaluate(thd, root->rightExpr));
-    case ET_ScrBufAcc:
-      leftVal = Evaluate(thd, root->leftExpr);
-      rightVal = Evaluate(thd, root->rightExpr);
+    case ET_ImmediateValue:
+      return node->Value;
+    case ET_FuncGlobalVars:
+      return thd->GameContext->ScrWork[Evaluate(thd, node->RightExpr)];
+    case ET_FuncFlags:
+      return thd->GameContext->GetFlag(Evaluate(thd, node->RightExpr));
+    case ET_FuncDataAccess:
+      leftVal = Evaluate(thd, node->LeftExpr);
+      rightVal = Evaluate(thd, node->RightExpr);
       if (leftVal >= 0) {
         uint8_t* scrBuf = thd->VmContext->ScriptBuffers[thd->ScriptBufferId];
         uint32_t* dataAdrRel = (uint32_t*)scrBuf[leftVal];
@@ -146,60 +148,64 @@ uint32_t Evaluate(Sc3VmThread* thd, std::unique_ptr<VmExpressionNode>& root) {
         return 0;
       }
       return 0;
-    case ET_LabelTableAcc:
+    case ET_FuncLabelTable:
       return ScriptGetLabelAddressNum(
           thd->VmContext->ScriptBuffers[thd->ScriptBufferId],
-          Evaluate(thd, root->rightExpr));
-    case ET_FarLabelTableAcc:
+          Evaluate(thd, node->RightExpr));
+    case ET_FuncFarLabelTable:
       return 0;
-    case ET_ThdWorkAcc:
-      return *(
-          uint32_t*)(GetMemberPointer(thd, Evaluate(thd, root->rightExpr)));
-    case ET_MemoryAcc:
+    case ET_FuncThreadVars:
+      return *(uint32_t*)(thd->GetMemberPointer(
+          thd, Evaluate(thd, node->RightExpr)));
+    case ET_FuncDMA:
+    case ET_FuncUnk2F:
+    case ET_FuncUnk30:
+    case ET_FuncNop31:
+    case ET_FuncNop32:
       return 0;
-    case ET_Random:
-      return Evaluate(thd, root->rightExpr) * (rand() & 0x7FFF) >> 15;
+    case ET_FuncRandom:
+      return Evaluate(thd, node->RightExpr) * (rand() & 0x7FFF) >> 15;
   }
 }
 
 void AssignValue(Sc3VmThread* thd, std::unique_ptr<VmExpressionNode>& root) {
-  int leftVal = Evaluate(thd, root->leftExpr);
+  int leftVal = Evaluate(thd, root->LeftExpr);
   int rightVal = 0;
-  if (root->exprType != ET_Increment && root->exprType != ET_Decrement)
-    rightVal = Evaluate(thd, root->rightExpr);
+  if (root->ExprType != ET_Increment && root->ExprType != ET_Decrement)
+    rightVal = Evaluate(thd, root->RightExpr);
 
-  switch (root->exprType) {
+  switch (root->ExprType) {
     case ET_Assign:
       leftVal = rightVal;
       break;
-    case ET_MulAssign:
+    case ET_MultiplyAssign:
       leftVal *= rightVal;
       break;
-    case ET_DivAssgin:
+    case ET_DivideAssign:
       leftVal /= rightVal;
       break;
     case ET_AddAssign:
       leftVal += rightVal;
       break;
-    case ET_SubAssign:
+    case ET_SubtractAssign:
       leftVal -= rightVal;
       break;
-    case ET_ModAssign:
+    case ET_ModuloAssign:
       leftVal %= rightVal;
       break;
-    case ET_LShAssign:
+    case ET_LeftShiftAssign:
       leftVal <<= rightVal;
       break;
-    case ET_RShAssign:
+    case ET_RightShiftAssign:
       leftVal >>= rightVal;
       break;
-    case ET_AndAssign:
+    case ET_BitwiseAndAssign:
       leftVal &= rightVal;
       break;
-    case ET_OrAssign:
+    case ET_BitwiseOrAssign:
       leftVal |= rightVal;
       break;
-    case ET_XorAssign:
+    case ET_BitwiseXorAssign:
       leftVal ^= rightVal;
       break;
     case ET_Increment:
@@ -210,17 +216,17 @@ void AssignValue(Sc3VmThread* thd, std::unique_ptr<VmExpressionNode>& root) {
       break;
   }
 
-  int index = Evaluate(thd, root->leftExpr->rightExpr);
+  int index = Evaluate(thd, root->LeftExpr->RightExpr);
 
-  switch (root->leftExpr->exprType) {
-    case ET_ScrWorkAcc:
+  switch (root->LeftExpr->ExprType) {
+    case ET_FuncGlobalVars:
       thd->GameContext->ScrWork[index] = leftVal;
       break;
-    case ET_FlagWorkAcc:
+    case ET_FuncFlags:
       thd->GameContext->SetFlag(index, leftVal);
       break;
-    case ET_ThdWorkAcc:
-      uint32_t* thdWork = (uint32_t*)GetMemberPointer(thd, index);
+    case ET_FuncThreadVars:
+      uint32_t* thdWork = (uint32_t*)thd->GetMemberPointer(thd, index);
       *(thdWork) = leftVal;
       break;
   }
@@ -230,59 +236,60 @@ VmExpressionNode* ParseSubExpression(int minPrecidence) {
   VmExpressionNode* leftExpr = ParseTerm();
   if (leftExpr == nullptr) return leftExpr;
 
-  if (CurrentToken < Tokens.size()) {
-    VmExprToken peek = Tokens[CurrentToken];
-    if ((peek.type == ET_Increment || peek.type == ET_Decrement) &&
-        peek.precedence >= minPrecidence) {
-      CurrentToken++;
+  if (ExpressionState->CurrentToken < ExpressionState->Tokens.size()) {
+    VmExprToken peek = ExpressionState->Tokens[ExpressionState->CurrentToken];
+    if ((peek.Type == ET_Increment || peek.Type == ET_Decrement) &&
+        peek.Precedence >= minPrecidence) {
+      ExpressionState->CurrentToken++;
       VmExpressionNode* result = new VmExpressionNode();
-      result->exprType = peek.type;
-      result->leftExpr = std::unique_ptr<VmExpressionNode>(leftExpr);
+      result->ExprType = peek.Type;
+      result->LeftExpr = std::unique_ptr<VmExpressionNode>(leftExpr);
       leftExpr = result;
-      if (CurrentToken >= Tokens.size()) return leftExpr;
+      if (ExpressionState->CurrentToken >= ExpressionState->Tokens.size())
+        return leftExpr;
     }
 
-    peek = Tokens[CurrentToken];
+    peek = ExpressionState->Tokens[ExpressionState->CurrentToken];
 
-    while (peek.precedence >= minPrecidence) {
-      switch (peek.type) {
-        case ET_Multiplication:
-        case ET_Division:
-        case ET_Addition:
-        case ET_Subtraction:
+    while (peek.Precedence >= minPrecidence) {
+      switch (peek.Type) {
+        case ET_Multiply:
+        case ET_Divide:
+        case ET_Add:
+        case ET_Subtract:
         case ET_Modulo:
-        case ET_ShiftLeft:
-        case ET_ShiftRight:
-        case ET_BinaryAnd:
-        case ET_BinaryXor:
-        case ET_BinaryOr:
-        case ET_LogicEquals:
-        case ET_LogicNotEquals:
-        case ET_LogicLessOrEqual:
-        case ET_LogicMoreOrEqual:
-        case ET_LogicLess:
-        case ET_LogicMore:
+        case ET_LeftShift:
+        case ET_RightShift:
+        case ET_BitwiseAnd:
+        case ET_BitwiseXor:
+        case ET_BitwiseOr:
+        case ET_Equal:
+        case ET_NotEqual:
+        case ET_LessThanEqual:
+        case ET_MoreThanEqual:
+        case ET_LessThan:
+        case ET_GreaterThan:
         case ET_Negation:
         case ET_Assign:
-        case ET_MulAssign:
-        case ET_DivAssgin:
+        case ET_MultiplyAssign:
+        case ET_DivideAssign:
         case ET_AddAssign:
-        case ET_SubAssign:
-        case ET_ModAssign:
-        case ET_LShAssign:
-        case ET_RShAssign:
-        case ET_AndAssign:
-        case ET_OrAssign:
-        case ET_XorAssign: {
-          CurrentToken++;
-          VmExpressionNode* rightExpr = ParseSubExpression(peek.precedence + 1);
+        case ET_SubtractAssign:
+        case ET_ModuloAssign:
+        case ET_LeftShiftAssign:
+        case ET_RightShiftAssign:
+        case ET_BitwiseAndAssign:
+        case ET_BitwiseOrAssign:
+        case ET_BitwiseXorAssign: {
+          ExpressionState->CurrentToken++;
+          VmExpressionNode* rightExpr = ParseSubExpression(peek.Precedence + 1);
           VmExpressionNode* result = new VmExpressionNode();
-          result->exprType = peek.type;
-          result->leftExpr = std::unique_ptr<VmExpressionNode>(leftExpr);
-          result->rightExpr = std::unique_ptr<VmExpressionNode>(rightExpr);
+          result->ExprType = peek.Type;
+          result->LeftExpr = std::unique_ptr<VmExpressionNode>(leftExpr);
+          result->RightExpr = std::unique_ptr<VmExpressionNode>(rightExpr);
           leftExpr = result;
-          if (CurrentToken < Tokens.size())
-            peek = Tokens[CurrentToken];
+          if (ExpressionState->CurrentToken < ExpressionState->Tokens.size())
+            peek = ExpressionState->Tokens[ExpressionState->CurrentToken];
           else
             return leftExpr;
           break;
@@ -298,33 +305,33 @@ VmExpressionNode* ParseSubExpression(int minPrecidence) {
 }
 
 VmExpressionNode* ParseTerm() {
-  VmExprToken tok = Tokens[CurrentToken++];
+  VmExprToken tok = ExpressionState->Tokens[ExpressionState->CurrentToken++];
   VmExpressionNode* term = nullptr;
-  switch (tok.type) {
-    case ET_Value:
+  switch (tok.Type) {
+    case ET_ImmediateValue:
       term = new VmExpressionNode();
-      term->exprType = tok.type;
-      term->value = tok.value;
+      term->ExprType = tok.Type;
+      term->Value = tok.Value;
       break;
     case ET_Negation:
-    case ET_ScrWorkAcc:
-    case ET_FlagWorkAcc:
-    case ET_LabelTableAcc:
-    case ET_ThdWorkAcc:
-    case ET_Random:
+    case ET_FuncGlobalVars:
+    case ET_FuncFlags:
+    case ET_FuncLabelTable:
+    case ET_FuncThreadVars:
+    case ET_FuncRandom:
       term = new VmExpressionNode();
-      term->exprType = tok.type;
-      term->rightExpr = std::unique_ptr<VmExpressionNode>(
-          ParseSubExpression(tok.precedence + 1));
+      term->ExprType = tok.Type;
+      term->RightExpr = std::unique_ptr<VmExpressionNode>(
+          ParseSubExpression(tok.Precedence + 1));
       break;
-    case ET_ScrBufAcc:
-    case ET_FarLabelTableAcc:
+    case ET_FuncDataAccess:
+    case ET_FuncFarLabelTable:
       term = new VmExpressionNode();
-      term->exprType = tok.type;
-      term->leftExpr = std::unique_ptr<VmExpressionNode>(
-          ParseSubExpression(tok.precedence + 1));
-      term->rightExpr = std::unique_ptr<VmExpressionNode>(
-          ParseSubExpression(tok.precedence + 1));
+      term->ExprType = tok.Type;
+      term->LeftExpr = std::unique_ptr<VmExpressionNode>(
+          ParseSubExpression(tok.Precedence + 1));
+      term->RightExpr = std::unique_ptr<VmExpressionNode>(
+          ParseSubExpression(tok.Precedence + 1));
       break;
     default:
       return nullptr;
@@ -341,34 +348,34 @@ std::vector<VmExprToken> GetTokens(Sc3VmThread* thd) {
     do {
       int8_t tokenType = *thd->Ip;
       if (tokenType >= 0) {
-        curToken.type = (VmExprTokenType)tokenType;
-        curToken.precedence = *(++thd->Ip);
+        curToken.Type = (VmExprTokenType)tokenType;
+        curToken.Precedence = *(++thd->Ip);
         thd->Ip++;
-        curToken.value = 0;
+        curToken.Value = 0;
         tokens.push_back(curToken);
       } else {
         uint8_t* immValue = thd->Ip;
-        curToken.type = ET_Value;
+        curToken.Type = ET_ImmediateValue;
         switch (tokenType & 0x60) {
           case 0:
-            curToken.value = tokenType & 0x1F;
-            if (tokenType & 0x10) curToken.value |= 0xFFFFFFE0;
+            curToken.Value = tokenType & 0x1F;
+            if (tokenType & 0x10) curToken.Value |= 0xFFFFFFE0;
             thd->Ip++;
             break;
           case 0x20:
-            curToken.value = (uint8_t)immValue[1] + ((tokenType & 0x1F) << 8);
-            if (tokenType & 0x10) curToken.value |= 0xFFFFE000;
+            curToken.Value = (uint8_t)immValue[1] + ((tokenType & 0x1F) << 8);
+            if (tokenType & 0x10) curToken.Value |= 0xFFFFE000;
             thd->Ip += 2;
             break;
           case 0x40:
-            curToken.value =
+            curToken.Value =
                 (uint8_t)immValue[1] +
                 (((uint8_t)immValue[2] + ((tokenType & 0x1F) << 8)) << 8);
-            if (tokenType & 0x10) curToken.value |= 0xFFE00000;
+            if (tokenType & 0x10) curToken.Value |= 0xFFE00000;
             thd->Ip += 3;
             break;
           case 0x60:
-            curToken.value = (((*(thd->Ip + 4) << 8) + +*(thd->Ip + 3))
+            curToken.Value = (((*(thd->Ip + 4) << 8) + +*(thd->Ip + 3))
                               << 8 + *(thd->Ip + 2))
                              << 8 + *(thd->Ip + 1);
             thd->Ip += 5;
@@ -376,7 +383,7 @@ std::vector<VmExprToken> GetTokens(Sc3VmThread* thd) {
           default:
             break;
         }
-        curToken.precedence = *(++thd->Ip);
+        curToken.Precedence = *(++thd->Ip);
         tokens.push_back(curToken);
       }
     } while (*thd->Ip);

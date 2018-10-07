@@ -8,14 +8,14 @@
 namespace Impacto {
 
 class Game;
-enum VmThreadDrawType;
+enum DrawComponentType;
 
 namespace Vm {
 
 int const VmMaxCallStackDepth = 8;
 int const VmMaxThreadVars = 32;
 
-enum ThreadFlagState {
+enum ThreadStateFlag {  // Applies to both individual threads and thread groups
   TF_None = 0x0,
   TF_Destroy = 0x8000000,
   TF_Animate = 0x10000000,
@@ -71,7 +71,7 @@ struct Sc3VmThread {
   uint16_t ReturnAdresses[VmMaxCallStackDepth];
   uint32_t ReturnGroupIds[VmMaxCallStackDepth];
   uint32_t DrawPriority;
-  VmThreadDrawType DrawType;
+  DrawComponentType DrawType;
   uint32_t Alpha;
   uint32_t Temp1;
   uint32_t Temp2;
@@ -79,6 +79,7 @@ struct Sc3VmThread {
   uint32_t MesId;
   Vm* VmContext;
   Game* GameContext;
+  void* GetMemberPointer(Sc3VmThread* thd, uint32_t offset);
 };
 
 }  // namespace Vm

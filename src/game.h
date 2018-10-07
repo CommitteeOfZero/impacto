@@ -40,7 +40,7 @@ class Game {
   uint32_t const GameFeatures;
 
   uint32_t* ScrWork;
-  uint16_t DrawComponents[Vm::VmMaxThreads];
+  DrawComponentType DrawComponents[Vm::VmMaxThreads];
   void SetFlag(uint32_t flagId, uint32_t value);
   bool GetFlag(uint32_t flagId);
 
@@ -55,7 +55,7 @@ class Game {
 
 extern Game* g_Game;
 
-enum VmThreadDrawType {
+enum DrawComponentType {
   TD_Text = 0x0,
   TD_Main = 0x1,
   TD_ExtrasScenes = 0x2,
