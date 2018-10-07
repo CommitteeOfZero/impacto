@@ -123,8 +123,6 @@ void Scene::Update(float dt) {
   }
 }
 void Scene::Render() {
-  SetupFBO();
-
   MainCamera.AspectRatio = (float)g_WindowWidth / (float)g_WindowHeight;
   MainCamera.Recalculate();
 
@@ -134,6 +132,11 @@ void Scene::Render() {
   if (CurrentBackgroundLoadStatus == OLS_Loaded) {
     CurrentBackground.Render();
   }
+
+  // Draw background without MSAA
+
+  SetupFBO();
+
   if (CurrentCharacterLoadStatus == OLS_Loaded) {
     CurrentCharacter.Render();
   }
@@ -227,6 +230,8 @@ void Scene::DrawToScreen() {
   glViewport(0, 0, g_WindowWidth, g_WindowHeight);
 
   glDisable(GL_DEPTH_TEST);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   // TODO: Better than linear filtering for supersampling
 

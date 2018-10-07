@@ -191,6 +191,8 @@ void WindowUpdate() {
 
     glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                            GL_TEXTURE_2D, drawRenderTexture, 0);
+  } else {
+    WindowSwapRTs();
   }
 
   glViewport(0, 0, g_WindowWidth, g_WindowHeight);
