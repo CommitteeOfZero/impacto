@@ -10,9 +10,6 @@ namespace Impacto {
 
 static bool IsInit = false;
 
-GLuint ShaderProgram = 0;
-GLuint UniformMultisampleCount = 0;
-
 void SceneInit() {
   assert(IsInit == false);
   ImpLog(LL_Info, LC_Scene, "Initializing 3D scene system\n");
@@ -20,13 +17,6 @@ void SceneInit() {
 
   Character3DInit();
   Background3DInit();
-
-  ShaderProgram = ShaderCompile("SceneToRT");
-  glUseProgram(ShaderProgram);
-  glUniform1i(glGetUniformLocation(ShaderProgram, "Framebuffer3D"), 0);
-  glUniform1i(glGetUniformLocation(ShaderProgram, "Framebuffer3DMS"), 1);
-  UniformMultisampleCount =
-      glGetUniformLocation(ShaderProgram, "MultisampleCount");
 }
 
 void Scene::Init() {
@@ -60,7 +50,7 @@ Scene::~Scene() {
   if (VBOScreenFillingTriangle) glDeleteBuffers(1, &VBOScreenFillingTriangle);
   if (VAOScreenFillingTriangle)
     glDeleteVertexArrays(1, &VAOScreenFillingTriangle);
-  CleanFBO();
+  CleanFramebufferState();
 }
 
 static void LoadBackgroundWorker(void* ptr) {
@@ -135,7 +125,7 @@ void Scene::Render() {
 
   // Draw background without MSAA
 
-  SetupFBO();
+  SetupFramebufferState();
 
   if (CurrentCharacterLoadStatus == OLS_Loaded) {
     CurrentCharacter.Render();
@@ -144,9 +134,9 @@ void Scene::Render() {
   DrawToScreen();
 }
 
-void Scene::SetupFBO() {
+void Scene::SetupFramebufferState() {
   if (g_FramebuffersNeedUpdate) {
-    CleanFBO();
+    CleanFramebufferState();
 
     glGenFramebuffers(1, &FBO);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, FBO);
@@ -194,9 +184,20 @@ void Scene::SetupFBO() {
     glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
                            textureTarget, RenderTextureDS, 0);
 
-    glUseProgram(ShaderProgram);
-    glUniform1i(UniformMultisampleCount, g_MsaaCount);
+    ShaderParamMap shaderParams;
+    ShaderParameter paramMsCount;
+    paramMsCount.Type = SPT_Int;
+    paramMsCount.Val_Int = g_MsaaCount;
+    shaderParams["MultisampleCount"] = paramMsCount;
+    ShaderParameter paramWindow;
+    paramWindow.Type = SPT_Vec2;
+    paramWindow.Val_Vec2 = glm::vec2(g_WindowWidth, g_WindowHeight);
+    shaderParams["WindowDimensions"] = paramWindow;
 
+    ShaderProgram = ShaderCompile("SceneToRT", shaderParams);
+    glUseProgram(ShaderProgram);
+    glUniform1i(glGetUniformLocation(ShaderProgram, "Framebuffer3D"), 0);
+    glUniform1i(glGetUniformLocation(ShaderProgram, "Framebuffer3DMS"), 1);
   } else {
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, FBO);
   }
@@ -210,7 +211,11 @@ void Scene::SetupFBO() {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-void Scene::CleanFBO() {
+void Scene::CleanFramebufferState() {
+  if (ShaderProgram) {
+    glDeleteProgram(ShaderProgram);
+    ShaderProgram = 0;
+  }
   if (RenderTextureColor) {
     glDeleteTextures(1, &RenderTextureColor);
     RenderTextureColor = 0;

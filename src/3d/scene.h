@@ -38,8 +38,8 @@ class Scene {
   uint32_t CharacterToLoadId;
 
  private:
-  void SetupFBO();
-  void CleanFBO();
+  void SetupFramebufferState();
+  void CleanFramebufferState();
   void DrawToScreen();
 
   GLuint FBO = 0;
@@ -48,6 +48,8 @@ class Scene {
 
   GLuint VAOScreenFillingTriangle = 0;
   GLuint VBOScreenFillingTriangle = 0;
+
+  GLuint ShaderProgram = 0;
 };
 
 void SceneInit();
