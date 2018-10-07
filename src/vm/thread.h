@@ -32,7 +32,7 @@ enum ThreadGroupControlType {
   TC_Display = 4
 };
 
-enum ThreadOffset {
+enum ThreadMemberOffset {
   TO_Flags = 0,
   TO_ExecPri = 4,
   TO_ScrBuf = 5,
@@ -79,7 +79,8 @@ struct Sc3VmThread {
   uint32_t MesId;
   Vm* VmContext;
   Game* GameContext;
-  void* GetMemberPointer(Sc3VmThread* thd, uint32_t offset);
+
+  void* GetMemberPointer(uint32_t offset);
 };
 
 }  // namespace Vm

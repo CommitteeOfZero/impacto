@@ -1,109 +1,184 @@
 #include "expression.h"
 
 #include "../game.h"
+#include "../log.h"
+
+#include <vector>
 
 namespace Impacto {
 
 namespace Vm {
 
-uint32_t Evaluate(Sc3VmThread*, std::unique_ptr<VmExpressionNode>&);
-void AssignValue(Sc3VmThread*, std::unique_ptr<VmExpressionNode>&);
+enum ExprTokenType {
+  ET_EndOfExpression = 0x00,
+  ET_ImmediateValue = 0xFF,
 
-void ExpressionInit() {
-  // SYSTEMTIME time;
-  // GetSystemTime(&time);
-  // int ticks = GetTickCount();
-  // srand(ticks + time.wDay + time.wDayOfWeek * time.wHour +
-  //      time.wMilliseconds * time.wMinute - time.wMonth * time.wSecond);
-}
+  ET_Multiply = 0x01,
+  ET_Divide = 0x02,
+  ET_Add = 0x03,
+  ET_Subtract = 0x04,
+  ET_Modulo = 0x05,
+  ET_LeftShift = 0x06,
+  ET_RightShift = 0x07,
+  ET_BitwiseAnd = 0x08,
+  ET_BitwiseXor = 0x09,
+  ET_BitwiseOr = 0x0A,
+  ET_Equal = 0x0C,
+  ET_NotEqual = 0x0D,
+  ET_LessThanEqual = 0x0E,
+  ET_MoreThanEqual = 0x0F,
+  ET_LessThan = 0x10,
+  ET_GreaterThan = 0x11,
 
-int calMain(Sc3VmThread* thd, uint32_t* result) {
-  ExpressionParser* expressionState = new ExpressionParser(thd);
+  ET_Negation = 0x0B,
+  ET_Increment = 0x20,
+  ET_Decrement = 0x21,
 
-  VmExpressionNode* root = expressionState->ParseSubExpression(0);
+  ET_Assign = 0x14,
+  ET_MultiplyAssign = 0x15,
+  ET_DivideAssign = 0x16,
+  ET_AddAssign = 0x17,
+  ET_SubtractAssign = 0x18,
+  ET_ModuloAssign = 0x19,
+  ET_LeftShiftAssign = 0x1A,
+  ET_RightShiftAssign = 0x1B,
+  ET_BitwiseAndAssign = 0x1C,
+  ET_BitwiseOrAssign = 0x1D,
+  ET_BitwiseXorAssign = 0x1E,
 
-  std::unique_ptr<VmExpressionNode> rootPtr =
-      std::unique_ptr<VmExpressionNode>(root);
+  ET_FuncGlobalVars = 0x28,
+  ET_FuncFlags = 0x29,
+  ET_FuncDataAccess = 0x2A,
+  ET_FuncLabelTable = 0x2B,
+  ET_FuncFarLabelTable = 0x2C,
+  ET_FuncThreadVars = 0x2D,
+  ET_FuncDMA = 0x2E,
+  ET_FuncUnk2F = 0x2F,
+  ET_FuncUnk30 = 0x30,
+  ET_FuncNop31 = 0x31,
+  ET_FuncNop32 = 0x32,
+  ET_FuncRandom = 0x33
+};
 
-  *result = Evaluate(thd, rootPtr);
+struct ExprToken {
+  ExprTokenType Type;
+  int Value;
+  int Precedence;
+};
 
-  delete expressionState;
+class ExpressionNode {
+ public:
+  ExprTokenType ExprType;
+
+  std::unique_ptr<ExpressionNode> LeftExpr;
+  std::unique_ptr<ExpressionNode> RightExpr;
+
+  int Value;
+
+  uint32_t Evaluate(Sc3VmThread* thd);
+  void AssignValue(Sc3VmThread* thd);
+};
+
+class ExpressionParser {
+ public:
+  ExpressionParser(Sc3VmThread* thd);
+  ExpressionNode* ParseSubExpression(int minPrecidence);
+
+ private:
+  int CurrentToken;
+  std::vector<ExprToken> Tokens;
+  void GetTokens(Sc3VmThread* thd);
+
+  ExpressionNode* ParseTerm();
+};
+
+int ExpressionEval(Sc3VmThread* thd, uint32_t* result) {
+  ExpressionParser* parser = new ExpressionParser(thd);
+
+  ExpressionNode* root = parser->ParseSubExpression(0);
+
+  std::unique_ptr<ExpressionNode> rootPtr =
+      std::unique_ptr<ExpressionNode>(root);
+
+  *result = rootPtr->Evaluate(thd);
+
+  delete parser;
 
   return 0;
 }
 
-uint32_t Evaluate(Sc3VmThread* thd, std::unique_ptr<VmExpressionNode>& node) {
+uint32_t ExpressionNode::Evaluate(Sc3VmThread* thd) {
   uint32_t leftVal, rightVal;
 
-  switch (node->ExprType) {
+  switch (ExprType) {
     case ET_Multiply:
-      leftVal = Evaluate(thd, node->LeftExpr);
-      rightVal = Evaluate(thd, node->RightExpr);
+      leftVal = LeftExpr->Evaluate(thd);
+      rightVal = RightExpr->Evaluate(thd);
       return leftVal * rightVal;
     case ET_Divide:
-      leftVal = Evaluate(thd, node->LeftExpr);
-      rightVal = Evaluate(thd, node->RightExpr);
+      leftVal = LeftExpr->Evaluate(thd);
+      rightVal = RightExpr->Evaluate(thd);
       if (!rightVal) return 0x7FFFFFFF;
       return leftVal / rightVal;
     case ET_Add:
-      leftVal = Evaluate(thd, node->LeftExpr);
-      rightVal = Evaluate(thd, node->RightExpr);
+      leftVal = LeftExpr->Evaluate(thd);
+      rightVal = RightExpr->Evaluate(thd);
       return leftVal + rightVal;
     case ET_Subtract:
-      leftVal = Evaluate(thd, node->LeftExpr);
-      rightVal = Evaluate(thd, node->RightExpr);
+      leftVal = LeftExpr->Evaluate(thd);
+      rightVal = RightExpr->Evaluate(thd);
       return leftVal - rightVal;
     case ET_Modulo:
-      leftVal = Evaluate(thd, node->LeftExpr);
-      rightVal = Evaluate(thd, node->RightExpr);
+      leftVal = LeftExpr->Evaluate(thd);
+      rightVal = RightExpr->Evaluate(thd);
       if (!rightVal) return 0x7FFFFFFF;
       return leftVal % rightVal;
     case ET_LeftShift:
-      leftVal = Evaluate(thd, node->LeftExpr);
-      rightVal = Evaluate(thd, node->RightExpr);
+      leftVal = LeftExpr->Evaluate(thd);
+      rightVal = RightExpr->Evaluate(thd);
       return leftVal << rightVal;
     case ET_RightShift:
-      leftVal = Evaluate(thd, node->LeftExpr);
-      rightVal = Evaluate(thd, node->RightExpr);
+      leftVal = LeftExpr->Evaluate(thd);
+      rightVal = RightExpr->Evaluate(thd);
       return leftVal >> rightVal;
     case ET_BitwiseAnd:
-      leftVal = Evaluate(thd, node->LeftExpr);
-      rightVal = Evaluate(thd, node->RightExpr);
+      leftVal = LeftExpr->Evaluate(thd);
+      rightVal = RightExpr->Evaluate(thd);
       return leftVal & rightVal;
     case ET_BitwiseXor:
-      leftVal = Evaluate(thd, node->LeftExpr);
-      rightVal = Evaluate(thd, node->RightExpr);
+      leftVal = LeftExpr->Evaluate(thd);
+      rightVal = RightExpr->Evaluate(thd);
       return leftVal ^ rightVal;
     case ET_BitwiseOr:
-      leftVal = Evaluate(thd, node->LeftExpr);
-      rightVal = Evaluate(thd, node->RightExpr);
+      leftVal = LeftExpr->Evaluate(thd);
+      rightVal = RightExpr->Evaluate(thd);
       return leftVal | rightVal;
     case ET_Equal:
-      leftVal = Evaluate(thd, node->LeftExpr);
-      rightVal = Evaluate(thd, node->RightExpr);
+      leftVal = LeftExpr->Evaluate(thd);
+      rightVal = RightExpr->Evaluate(thd);
       return leftVal == rightVal;
     case ET_NotEqual:
-      leftVal = Evaluate(thd, node->LeftExpr);
-      rightVal = Evaluate(thd, node->RightExpr);
+      leftVal = LeftExpr->Evaluate(thd);
+      rightVal = RightExpr->Evaluate(thd);
       return leftVal != rightVal;
     case ET_LessThanEqual:
-      leftVal = Evaluate(thd, node->LeftExpr);
-      rightVal = Evaluate(thd, node->RightExpr);
+      leftVal = LeftExpr->Evaluate(thd);
+      rightVal = RightExpr->Evaluate(thd);
       return leftVal <= rightVal;
     case ET_MoreThanEqual:
-      leftVal = Evaluate(thd, node->LeftExpr);
-      rightVal = Evaluate(thd, node->RightExpr);
+      leftVal = LeftExpr->Evaluate(thd);
+      rightVal = RightExpr->Evaluate(thd);
       return leftVal >= rightVal;
     case ET_LessThan:
-      leftVal = Evaluate(thd, node->LeftExpr);
-      rightVal = Evaluate(thd, node->RightExpr);
+      leftVal = LeftExpr->Evaluate(thd);
+      rightVal = RightExpr->Evaluate(thd);
       return leftVal < rightVal;
     case ET_GreaterThan:
-      leftVal = Evaluate(thd, node->LeftExpr);
-      rightVal = Evaluate(thd, node->RightExpr);
+      leftVal = LeftExpr->Evaluate(thd);
+      rightVal = RightExpr->Evaluate(thd);
       return leftVal > rightVal;
     case ET_Negation:
-      leftVal = Evaluate(thd, node->LeftExpr);
+      leftVal = LeftExpr->Evaluate(thd);
       return ~leftVal;
     case ET_Assign:
     case ET_MultiplyAssign:
@@ -118,55 +193,56 @@ uint32_t Evaluate(Sc3VmThread* thd, std::unique_ptr<VmExpressionNode>& node) {
     case ET_BitwiseXorAssign:
     case ET_Increment:
     case ET_Decrement:
-      AssignValue(thd, node);
+      AssignValue(thd);
       return 0;
       break;
     case ET_ImmediateValue:
-      return node->Value;
+      return Value;
     case ET_FuncGlobalVars:
-      return thd->GameContext->ScrWork[Evaluate(thd, node->RightExpr)];
+      return thd->GameContext->ScrWork[RightExpr->Evaluate(thd)];
     case ET_FuncFlags:
-      return thd->GameContext->GetFlag(Evaluate(thd, node->RightExpr));
+      return thd->GameContext->GetFlag(RightExpr->Evaluate(thd));
     case ET_FuncDataAccess:
-      leftVal = Evaluate(thd, node->LeftExpr);
-      rightVal = Evaluate(thd, node->RightExpr);
+      leftVal = LeftExpr->Evaluate(thd);
+      rightVal = RightExpr->Evaluate(thd);
       if (leftVal >= 0) {
         uint8_t* scrBuf = thd->VmContext->ScriptBuffers[thd->ScriptBufferId];
         uint32_t* dataAdrRel = (uint32_t*)scrBuf[leftVal];
         uint32_t dataItemAdrRel = dataAdrRel[rightVal];
         return *(uint32_t*)&scrBuf[dataItemAdrRel];
       } else {
+        ImpLogSlow(LL_Warning, LC_Expr, "STUB token %02X evaluate\n", ExprType);
         // TODO: Handle this
         return 0;
       }
-      return 0;
     case ET_FuncLabelTable:
       return ScriptGetLabelAddressNum(
           thd->VmContext->ScriptBuffers[thd->ScriptBufferId],
-          Evaluate(thd, node->RightExpr));
+          RightExpr->Evaluate(thd));
     case ET_FuncFarLabelTable:
       return 0;
     case ET_FuncThreadVars:
-      return *(uint32_t*)(thd->GetMemberPointer(
-          thd, Evaluate(thd, node->RightExpr)));
+      return *(uint32_t*)(thd->GetMemberPointer(RightExpr->Evaluate(thd)));
     case ET_FuncDMA:
     case ET_FuncUnk2F:
     case ET_FuncUnk30:
     case ET_FuncNop31:
     case ET_FuncNop32:
+      ImpLogSlow(LL_Warning, LC_Expr, "STUB token %02X evaluate\n", ExprType);
       return 0;
     case ET_FuncRandom:
-      return Evaluate(thd, node->RightExpr) * (rand() & 0x7FFF) >> 15;
+      // TODO use our own RNG with our own seed
+      return RightExpr->Evaluate(thd) * (rand() & 0x7FFF) >> 15;
   }
 }
 
-void AssignValue(Sc3VmThread* thd, std::unique_ptr<VmExpressionNode>& root) {
-  int leftVal = Evaluate(thd, root->LeftExpr);
+void ExpressionNode::AssignValue(Sc3VmThread* thd) {
+  int leftVal = LeftExpr->Evaluate(thd);
   int rightVal = 0;
-  if (root->ExprType != ET_Increment && root->ExprType != ET_Decrement)
-    rightVal = Evaluate(thd, root->RightExpr);
+  if (ExprType != ET_Increment && ExprType != ET_Decrement)
+    rightVal = RightExpr->Evaluate(thd);
 
-  switch (root->ExprType) {
+  switch (ExprType) {
     case ET_Assign:
       leftVal = rightVal;
       break;
@@ -208,18 +284,22 @@ void AssignValue(Sc3VmThread* thd, std::unique_ptr<VmExpressionNode>& root) {
       break;
   }
 
-  int index = Evaluate(thd, root->LeftExpr->RightExpr);
+  int index = LeftExpr->RightExpr->Evaluate(thd);
 
-  switch (root->LeftExpr->ExprType) {
+  switch (LeftExpr->ExprType) {
     case ET_FuncGlobalVars:
       thd->GameContext->ScrWork[index] = leftVal;
       break;
     case ET_FuncFlags:
       thd->GameContext->SetFlag(index, leftVal);
       break;
-    case ET_FuncThreadVars:
-      uint32_t* thdWork = (uint32_t*)thd->GetMemberPointer(thd, index);
+    case ET_FuncThreadVars: {
+      uint32_t* thdWork = (uint32_t*)thd->GetMemberPointer(index);
       *(thdWork) = leftVal;
+      break;
+    }
+    case ET_FuncDMA:
+      ImpLogSlow(LL_Warning, LC_Expr, "STUB token %02X assign\n", ExprType);
       break;
   }
 }
@@ -229,18 +309,18 @@ ExpressionParser::ExpressionParser(Sc3VmThread* thd) {
   CurrentToken = 0;
 }
 
-VmExpressionNode* ExpressionParser::ParseSubExpression(int minPrecidence) {
-  VmExpressionNode* leftExpr = ParseTerm();
+ExpressionNode* ExpressionParser::ParseSubExpression(int minPrecidence) {
+  ExpressionNode* leftExpr = ParseTerm();
   if (leftExpr == nullptr) return leftExpr;
 
   if (CurrentToken < Tokens.size()) {
-    VmExprToken peek = Tokens[CurrentToken];
+    ExprToken peek = Tokens[CurrentToken];
     if ((peek.Type == ET_Increment || peek.Type == ET_Decrement) &&
         peek.Precedence >= minPrecidence) {
       CurrentToken++;
-      VmExpressionNode* result = new VmExpressionNode();
+      ExpressionNode* result = new ExpressionNode();
       result->ExprType = peek.Type;
-      result->LeftExpr = std::unique_ptr<VmExpressionNode>(leftExpr);
+      result->LeftExpr = std::unique_ptr<ExpressionNode>(leftExpr);
       leftExpr = result;
       if (CurrentToken >= Tokens.size()) return leftExpr;
     }
@@ -278,11 +358,11 @@ VmExpressionNode* ExpressionParser::ParseSubExpression(int minPrecidence) {
         case ET_BitwiseOrAssign:
         case ET_BitwiseXorAssign: {
           CurrentToken++;
-          VmExpressionNode* rightExpr = ParseSubExpression(peek.Precedence + 1);
-          VmExpressionNode* result = new VmExpressionNode();
+          ExpressionNode* rightExpr = ParseSubExpression(peek.Precedence + 1);
+          ExpressionNode* result = new ExpressionNode();
           result->ExprType = peek.Type;
-          result->LeftExpr = std::unique_ptr<VmExpressionNode>(leftExpr);
-          result->RightExpr = std::unique_ptr<VmExpressionNode>(rightExpr);
+          result->LeftExpr = std::unique_ptr<ExpressionNode>(leftExpr);
+          result->RightExpr = std::unique_ptr<ExpressionNode>(rightExpr);
           leftExpr = result;
           if (CurrentToken < Tokens.size())
             peek = Tokens[CurrentToken];
@@ -300,12 +380,12 @@ VmExpressionNode* ExpressionParser::ParseSubExpression(int minPrecidence) {
   return leftExpr;
 }
 
-VmExpressionNode* ExpressionParser::ParseTerm() {
-  VmExprToken tok = Tokens[CurrentToken++];
-  VmExpressionNode* term = nullptr;
+ExpressionNode* ExpressionParser::ParseTerm() {
+  ExprToken tok = Tokens[CurrentToken++];
+  ExpressionNode* term = nullptr;
   switch (tok.Type) {
     case ET_ImmediateValue:
-      term = new VmExpressionNode();
+      term = new ExpressionNode();
       term->ExprType = tok.Type;
       term->Value = tok.Value;
       break;
@@ -315,18 +395,18 @@ VmExpressionNode* ExpressionParser::ParseTerm() {
     case ET_FuncLabelTable:
     case ET_FuncThreadVars:
     case ET_FuncRandom:
-      term = new VmExpressionNode();
+      term = new ExpressionNode();
       term->ExprType = tok.Type;
-      term->RightExpr = std::unique_ptr<VmExpressionNode>(
+      term->RightExpr = std::unique_ptr<ExpressionNode>(
           ParseSubExpression(tok.Precedence + 1));
       break;
     case ET_FuncDataAccess:
     case ET_FuncFarLabelTable:
-      term = new VmExpressionNode();
+      term = new ExpressionNode();
       term->ExprType = tok.Type;
-      term->LeftExpr = std::unique_ptr<VmExpressionNode>(
+      term->LeftExpr = std::unique_ptr<ExpressionNode>(
           ParseSubExpression(tok.Precedence + 1));
-      term->RightExpr = std::unique_ptr<VmExpressionNode>(
+      term->RightExpr = std::unique_ptr<ExpressionNode>(
           ParseSubExpression(tok.Precedence + 1));
       break;
     default:
@@ -337,13 +417,13 @@ VmExpressionNode* ExpressionParser::ParseTerm() {
 }
 
 void ExpressionParser::GetTokens(Sc3VmThread* thd) {
-  VmExprToken curToken;
+  ExprToken curToken;
 
   if (*thd->Ip) {
     do {
       int8_t tokenType = *thd->Ip;
       if (tokenType >= 0) {
-        curToken.Type = (VmExprTokenType)tokenType;
+        curToken.Type = (ExprTokenType)tokenType;
         curToken.Precedence = *(++thd->Ip);
         thd->Ip++;
         curToken.Value = 0;

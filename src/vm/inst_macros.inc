@@ -18,4 +18,4 @@
   (void)0
 #define PopExpression(name) \
   uint32_t name;            \
-  calMain(thread, &name)
+  ExpressionEval(thread, &name)

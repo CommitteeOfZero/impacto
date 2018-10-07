@@ -27,6 +27,7 @@ enum LogChannel : uint32_t {
   LC_TextureLoad = (1 << 6),
   LC_Scene = (1 << 7),
   LC_VM = (1 << 8),
+  LC_Expr = (1 << 9),
   LC_All = 0xFFFFFFFF
 };
 

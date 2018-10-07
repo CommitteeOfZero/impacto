@@ -41,6 +41,7 @@ set(Impacto_Src
 
     src/vm/vm.cpp
     src/vm/expression.cpp
+    src/vm/thread.cpp
     src/vm/inst_system.cpp
     src/vm/inst_controlflow.cpp
     src/vm/inst_dialogue.cpp

@@ -282,7 +282,7 @@ void Vm::RunThread(Sc3VmThread* thread) {
     opcodeGrp = *scrVal;
     if ((uint8_t)opcodeGrp == 0xFE) {
       thread->Ip += 1;
-      calMain(thread, &calDummy);
+      ExpressionEval(thread, &calDummy);
     } else {
       opcode = *(scrVal + 1);
       opcodeGrp1 = opcodeGrp & 0x7F;
@@ -326,48 +326,6 @@ uint8_t* ScriptGetRetAddress(uint8_t* scriptBufferAdr, uint32_t retNum) {
   uint32_t* returnTableAdr = (uint32_t*)&scriptBufferAdr[returnTableAdrRel];
   uint32_t returnAdrRel = returnTableAdr[retNum];
   return &scriptBufferAdr[returnAdrRel];
-}
-
-void* Sc3VmThread::GetMemberPointer(Sc3VmThread* thd, uint32_t offset) {
-  switch (offset) {
-    case TO_Flags:
-      return &thd->Flags;
-    case TO_ExecPri:
-      return &thd->ExecPriority;
-    case TO_ScrBuf:
-      return &thd->ScriptBufferId;
-    case TO_WaitCount:
-      return &thd->WaitCounter;
-    case TO_ScrParam:
-      return &thd->ScriptParam;
-    case TO_ScrAddr:
-      return &thd->Ip;
-    case TO_LoopCount:
-      return &thd->LoopCounter;
-    case TO_LoopAddr:
-      return &thd->LoopAddress;
-    case TO_RetCount:
-      return &thd->CallStackDepth;
-    case TO_RetAddr:
-      return &thd->ReturnAdresses;
-    case TO_RetScrBuf:
-      return &thd->ReturnGroupIds;
-    case TO_DrawPri:
-      return &thd->DrawPriority;
-    case TO_DrawType:
-      return &thd->DrawType;
-    case TO_Alpha:
-      return &thd->Alpha;
-    case TO_Temp1:
-      return &thd->Temp1;
-    case TO_Temp2:
-      return &thd->Temp2;
-    default:
-      if ((offset - TO_ThdVarBegin) >= 0) {
-        return &thd->Variables[offset - TO_ThdVarBegin];
-      }
-      break;
-  }
 }
 
 }  // namespace Vm
