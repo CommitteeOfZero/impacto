@@ -6,11 +6,6 @@ namespace Impacto {
 
 namespace Vm {
 
-VmExpressionState* ExpressionState;
-std::vector<VmExprToken> GetTokens(Sc3VmThread* thd);
-
-VmExpressionNode* ParseSubExpression(int minPrecidence);
-VmExpressionNode* ParseTerm();
 uint32_t Evaluate(Sc3VmThread*, std::unique_ptr<VmExpressionNode>&);
 void AssignValue(Sc3VmThread*, std::unique_ptr<VmExpressionNode>&);
 
@@ -23,19 +18,16 @@ void ExpressionInit() {
 }
 
 int calMain(Sc3VmThread* thd, uint32_t* result) {
-  ExpressionState = new VmExpressionState;
+  VmExpressionState* expressionState = new VmExpressionState(thd);
 
-  ExpressionState->Tokens = GetTokens(thd);
-  ExpressionState->CurrentToken = 0;
-
-  VmExpressionNode* root = ParseSubExpression(0);
+  VmExpressionNode* root = expressionState->ParseSubExpression(0);
 
   std::unique_ptr<VmExpressionNode> rootPtr =
       std::unique_ptr<VmExpressionNode>(root);
 
   *result = Evaluate(thd, rootPtr);
 
-  delete ExpressionState;
+  delete expressionState;
 
   return 0;
 }
@@ -232,24 +224,28 @@ void AssignValue(Sc3VmThread* thd, std::unique_ptr<VmExpressionNode>& root) {
   }
 }
 
-VmExpressionNode* ParseSubExpression(int minPrecidence) {
+VmExpressionState::VmExpressionState(Sc3VmThread* thd) {
+  GetTokens(thd);
+  CurrentToken = 0;
+}
+
+VmExpressionNode* VmExpressionState::ParseSubExpression(int minPrecidence) {
   VmExpressionNode* leftExpr = ParseTerm();
   if (leftExpr == nullptr) return leftExpr;
 
-  if (ExpressionState->CurrentToken < ExpressionState->Tokens.size()) {
-    VmExprToken peek = ExpressionState->Tokens[ExpressionState->CurrentToken];
+  if (CurrentToken < Tokens.size()) {
+    VmExprToken peek = Tokens[CurrentToken];
     if ((peek.Type == ET_Increment || peek.Type == ET_Decrement) &&
         peek.Precedence >= minPrecidence) {
-      ExpressionState->CurrentToken++;
+      CurrentToken++;
       VmExpressionNode* result = new VmExpressionNode();
       result->ExprType = peek.Type;
       result->LeftExpr = std::unique_ptr<VmExpressionNode>(leftExpr);
       leftExpr = result;
-      if (ExpressionState->CurrentToken >= ExpressionState->Tokens.size())
-        return leftExpr;
+      if (CurrentToken >= Tokens.size()) return leftExpr;
     }
 
-    peek = ExpressionState->Tokens[ExpressionState->CurrentToken];
+    peek = Tokens[CurrentToken];
 
     while (peek.Precedence >= minPrecidence) {
       switch (peek.Type) {
@@ -281,15 +277,15 @@ VmExpressionNode* ParseSubExpression(int minPrecidence) {
         case ET_BitwiseAndAssign:
         case ET_BitwiseOrAssign:
         case ET_BitwiseXorAssign: {
-          ExpressionState->CurrentToken++;
+          CurrentToken++;
           VmExpressionNode* rightExpr = ParseSubExpression(peek.Precedence + 1);
           VmExpressionNode* result = new VmExpressionNode();
           result->ExprType = peek.Type;
           result->LeftExpr = std::unique_ptr<VmExpressionNode>(leftExpr);
           result->RightExpr = std::unique_ptr<VmExpressionNode>(rightExpr);
           leftExpr = result;
-          if (ExpressionState->CurrentToken < ExpressionState->Tokens.size())
-            peek = ExpressionState->Tokens[ExpressionState->CurrentToken];
+          if (CurrentToken < Tokens.size())
+            peek = Tokens[CurrentToken];
           else
             return leftExpr;
           break;
@@ -304,8 +300,8 @@ VmExpressionNode* ParseSubExpression(int minPrecidence) {
   return leftExpr;
 }
 
-VmExpressionNode* ParseTerm() {
-  VmExprToken tok = ExpressionState->Tokens[ExpressionState->CurrentToken++];
+VmExpressionNode* VmExpressionState::ParseTerm() {
+  VmExprToken tok = Tokens[CurrentToken++];
   VmExpressionNode* term = nullptr;
   switch (tok.Type) {
     case ET_ImmediateValue:
@@ -340,8 +336,7 @@ VmExpressionNode* ParseTerm() {
   return term;
 }
 
-std::vector<VmExprToken> GetTokens(Sc3VmThread* thd) {
-  std::vector<VmExprToken> tokens;
+void VmExpressionState::GetTokens(Sc3VmThread* thd) {
   VmExprToken curToken;
 
   if (*thd->Ip) {
@@ -352,7 +347,7 @@ std::vector<VmExprToken> GetTokens(Sc3VmThread* thd) {
         curToken.Precedence = *(++thd->Ip);
         thd->Ip++;
         curToken.Value = 0;
-        tokens.push_back(curToken);
+        Tokens.push_back(curToken);
       } else {
         uint8_t* immValue = thd->Ip;
         curToken.Type = ET_ImmediateValue;
@@ -384,14 +379,12 @@ std::vector<VmExprToken> GetTokens(Sc3VmThread* thd) {
             break;
         }
         curToken.Precedence = *(++thd->Ip);
-        tokens.push_back(curToken);
+        Tokens.push_back(curToken);
       }
     } while (*thd->Ip);
   }
 
   thd->Ip++;
-
-  return tokens;
 }
 
 }  // namespace Vm

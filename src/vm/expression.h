@@ -84,8 +84,15 @@ class VmExpressionNode {
 
 class VmExpressionState {
  public:
+  VmExpressionState(Sc3VmThread* thd);
+  VmExpressionNode* ParseSubExpression(int minPrecidence);
+
+ private:
   int CurrentToken;
   std::vector<VmExprToken> Tokens;
+  void GetTokens(Sc3VmThread* thd);
+
+  VmExpressionNode* ParseTerm();
 };
 
 }  // namespace Vm
