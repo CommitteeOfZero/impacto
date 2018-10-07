@@ -11,7 +11,7 @@ namespace Vm {
 VmInstruction(InstJump) {}
 VmInstruction(InstJumpTable) {}
 VmInstruction(InstIf) {
-  thread->Ip += 2;
+  StartInstruction;
   PopUint8(check);
   PopExpression(condition);
   PopUint16(labelNum);
@@ -26,7 +26,7 @@ VmInstruction(InstIf) {
 VmInstruction(InstCall) {}
 VmInstruction(InstJumpFar) {}
 VmInstruction(InstCallFar) {
-  thread->Ip += 2;
+  StartInstruction;
   PopExpression(scriptBufferId);
   PopUint16(labelNum);
   PopUint16(retNum);
@@ -41,6 +41,7 @@ VmInstruction(InstCallFar) {
   }
 }
 VmInstruction(InstReturn) {
+  StartInstruction;
   if (thread->CallStackDepth) {
     thread->CallStackDepth--;
     uint32_t retBufferId = thread->ReturnGroupIds[thread->CallStackDepth];

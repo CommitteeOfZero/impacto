@@ -15,7 +15,7 @@ VmInstruction(InstCreateThread) {}
 VmInstruction(InstKillThread) {}
 VmInstruction(InstReset) {}
 VmInstruction(InstScriptLoad) {
-  thread->Ip += 2;
+  StartInstruction;
   PopExpression(bufferId);
   PopExpression(scriptId);
   thread->VmContext->LoadScript(bufferId, scriptId);
@@ -36,7 +36,7 @@ VmInstruction(InstVsync) {}
 VmInstruction(InstTest) {}
 VmInstruction(InstThreadControlStore) {}
 VmInstruction(InstPadAct) {
-  thread->Ip += 2;
+  StartInstruction;
   PopExpression(unused);
   PopExpression(vib1);
   PopExpression(vib2);
@@ -62,7 +62,7 @@ VmInstruction(InstDebugSetup) {}
 VmInstruction(InstGlobalSystemMessage) {}
 VmInstruction(InstCalc) {}
 VmInstruction(InstMSinit) {
-  thread->Ip += 2;
+  StartInstruction;
   PopExpression(initType);
 }
 VmInstruction(InstSaveSlot) {}

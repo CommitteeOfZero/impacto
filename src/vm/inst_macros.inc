@@ -1,5 +1,7 @@
-#define SaveIp uint8_t* _oldIp = thread->Ip
-#define RestoreIp thread->Ip = _oldIp
+#define StartInstruction        \
+  uint8_t* _oldIp = thread->Ip; \
+  thread->Ip += 2
+#define ResetInstruction thread->Ip = _oldIp
 
 #define BlockThread BlockCurrentScriptThread = true
 

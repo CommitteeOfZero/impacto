@@ -9,7 +9,7 @@ namespace Impacto {
 namespace Vm {
 
 VmInstruction(InstCreateSurf) {
-  thread->Ip += 2;
+  StartInstruction;
   PopUint8(type);
   PopExpression(surfaceId);
   PopExpression(width);

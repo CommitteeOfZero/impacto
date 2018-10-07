@@ -9,12 +9,12 @@ namespace Impacto {
 namespace Vm {
 
 VmInstruction(InstUPLmenuUI) {
-  thread->Ip += 2;
+  StartInstruction;
   PopUint8(arg1);
 }
 VmInstruction(InstUPLxTitle) {}
 VmInstruction(InstPresence) {
-  thread->Ip += 2;
+  StartInstruction;
   PopUint8(arg1);
   PopExpression(arg2);
 }
