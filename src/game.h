@@ -40,6 +40,7 @@ class Game {
   uint32_t const GameFeatures;
 
   uint32_t* ScrWork;
+  uint16_t DrawComponents[Vm::VmMaxThreads];
   void SetFlag(uint32_t flagId, uint32_t value);
   bool GetFlag(uint32_t flagId);
 

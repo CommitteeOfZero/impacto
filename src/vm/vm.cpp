@@ -154,6 +154,8 @@ void Vm::Update() {
     }
     cnt++;
   }
+
+  DrawAllThreads();
 }
 
 void Vm::CreateThreadDrawTable() {
@@ -190,7 +192,15 @@ void Vm::SortThreadDrawTable() {
   }
 }
 
-void Vm::DrawAllThreads() {}
+void Vm::DrawAllThreads() {
+  CreateThreadDrawTable();
+  SortThreadDrawTable();
+
+  int cnt = 0;
+  while (ThreadTable[cnt]) {
+    GameContext->DrawComponents[cnt] = ThreadTable[cnt++]->DrawType;
+  }
+}
 
 void Vm::DestroyThread(Sc3VmThread* thread) {
   Sc3VmThread* previous = thread->PreviousContext;
