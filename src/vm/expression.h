@@ -82,9 +82,9 @@ class VmExpressionNode {
   int Value;
 };
 
-class VmExpressionState {
+class ExpressionParser {
  public:
-  VmExpressionState(Sc3VmThread* thd);
+  ExpressionParser(Sc3VmThread* thd);
   VmExpressionNode* ParseSubExpression(int minPrecidence);
 
  private:

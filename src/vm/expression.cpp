@@ -18,7 +18,7 @@ void ExpressionInit() {
 }
 
 int calMain(Sc3VmThread* thd, uint32_t* result) {
-  VmExpressionState* expressionState = new VmExpressionState(thd);
+  ExpressionParser* expressionState = new ExpressionParser(thd);
 
   VmExpressionNode* root = expressionState->ParseSubExpression(0);
 
@@ -224,12 +224,12 @@ void AssignValue(Sc3VmThread* thd, std::unique_ptr<VmExpressionNode>& root) {
   }
 }
 
-VmExpressionState::VmExpressionState(Sc3VmThread* thd) {
+ExpressionParser::ExpressionParser(Sc3VmThread* thd) {
   GetTokens(thd);
   CurrentToken = 0;
 }
 
-VmExpressionNode* VmExpressionState::ParseSubExpression(int minPrecidence) {
+VmExpressionNode* ExpressionParser::ParseSubExpression(int minPrecidence) {
   VmExpressionNode* leftExpr = ParseTerm();
   if (leftExpr == nullptr) return leftExpr;
 
@@ -300,7 +300,7 @@ VmExpressionNode* VmExpressionState::ParseSubExpression(int minPrecidence) {
   return leftExpr;
 }
 
-VmExpressionNode* VmExpressionState::ParseTerm() {
+VmExpressionNode* ExpressionParser::ParseTerm() {
   VmExprToken tok = Tokens[CurrentToken++];
   VmExpressionNode* term = nullptr;
   switch (tok.Type) {
@@ -336,7 +336,7 @@ VmExpressionNode* VmExpressionState::ParseTerm() {
   return term;
 }
 
-void VmExpressionState::GetTokens(Sc3VmThread* thd) {
+void ExpressionParser::GetTokens(Sc3VmThread* thd) {
   VmExprToken curToken;
 
   if (*thd->Ip) {
