@@ -153,6 +153,9 @@ void Scene::SetupFramebufferState() {
       glBindTexture(textureTarget, RenderTextureColor);
       glTexImage2D(textureTarget, 0, GL_RGBA, WindowGetScaledWidth(),
                    WindowGetScaledHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+
+      glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     } else {
       textureTarget = GL_TEXTURE_2D_MULTISAMPLE;
       glBindTexture(textureTarget, RenderTextureColor);
@@ -160,9 +163,6 @@ void Scene::SetupFramebufferState() {
                               WindowGetScaledWidth(), WindowGetScaledHeight(),
                               GL_FALSE);
     }
-
-    glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                            textureTarget, RenderTextureColor, 0);
@@ -193,6 +193,10 @@ void Scene::SetupFramebufferState() {
     paramWindow.Type = SPT_Vec2;
     paramWindow.Val_Vec2 = glm::vec2(g_WindowWidth, g_WindowHeight);
     shaderParams["WindowDimensions"] = paramWindow;
+    ShaderParameter paramScale;
+    paramScale.Type = SPT_Float;
+    paramScale.Val_Float = g_RenderScale;
+    shaderParams["RenderScale"] = paramScale;
 
     ShaderProgram = ShaderCompile("SceneToRT", shaderParams);
     glUseProgram(ShaderProgram);

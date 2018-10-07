@@ -7,11 +7,12 @@ uniform sampler2DMS Framebuffer3DMS;
 
 // const int MultisampleCount;
 // const vec2 WindowDimensions;
+// const float RenderScale;
 // Knowing these (especially MultisampleCount) at compile time allows
-// optimisations like compressed multisampling storage on Intel
+// optimisations
 
 vec4 textureMS(sampler2DMS tex, vec2 texcoord) {
-  ivec2 iTexcoord = ivec2(floor(WindowDimensions * texcoord));
+  ivec2 iTexcoord = ivec2(floor(WindowDimensions * RenderScale * texcoord));
   vec4 result = vec4(0.0);
   for (int i = 0; i < MultisampleCount; i++) {
     result += texelFetch(tex, iTexcoord, i);
