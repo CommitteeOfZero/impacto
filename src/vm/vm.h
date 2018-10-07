@@ -33,10 +33,11 @@ class Vm {
   void ControlThreadGroup(ThreadGroupControlType controlType, uint32_t groupId);
   void DestroyThread(Sc3VmThread* thread);
 
+  bool BlockCurrentScriptThread;
+
  private:
   Game* GameContext;
 
-  bool BlockCurrentScriptThread;
   uint32_t LoadedScriptIds[VmMaxLoadedScripts];
 
   Sc3VmThread ThreadPool[VmMaxThreads];    // Main thread pool where all the

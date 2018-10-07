@@ -3,7 +3,7 @@
   thread->Ip += 2
 #define ResetInstruction thread->Ip = _oldIp
 
-#define BlockThread BlockCurrentScriptThread = true
+#define BlockThread thread->VmContext->BlockCurrentScriptThread = true
 
 #define PopUint8(name)        \
   uint8_t name = *thread->Ip; \
