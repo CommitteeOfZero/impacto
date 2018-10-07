@@ -2,7 +2,6 @@
 
 #include "log.h"
 #include "io/vfs.h"
-#include "shader.h"
 #include "window.h"
 #include "workqueue.h"
 #include "game.h"
@@ -27,7 +26,6 @@ void InitSystems() {
 
   VfsInit();
   WorkQueueInit();
-  ShaderInit();
 }
 
 int main(int argc, char* argv[]) {

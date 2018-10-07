@@ -40,9 +40,17 @@ void Character3DInit() {
   IsInit = true;
   Model::Init();
 
-  ShaderProgram = ShaderCompile("Character3D");
-  ShaderProgramOutline = ShaderCompile("Character3D_Outline");
-  ShaderProgramEye = ShaderCompile("Character3D_Eye");
+  ShaderParamMap shaderParams;
+
+  ShaderParameter paramBoneCount;
+  paramBoneCount.Type = SPT_Int;
+  paramBoneCount.Val_Int = ModelMaxBonesPerMesh;
+
+  shaderParams["ModelMaxBonesPerMesh"] = paramBoneCount;
+
+  ShaderProgram = ShaderCompile("Character3D", shaderParams);
+  ShaderProgramOutline = ShaderCompile("Character3D_Outline", shaderParams);
+  ShaderProgramEye = ShaderCompile("Character3D_Eye", shaderParams);
 
   GLuint uniformIndices[CU_Count];
   glGetUniformIndices(ShaderProgram, CU_Count, CommonUniformNames,
