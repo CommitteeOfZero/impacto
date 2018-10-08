@@ -200,7 +200,8 @@ void Vm::DrawAllThreads() {
 
   int cnt = 0;
   while (ThreadTable[cnt]) {
-    GameContext->DrawComponents[cnt] = ThreadTable[cnt++]->DrawType;
+    GameContext->DrawComponents[cnt] = ThreadTable[cnt]->DrawType;
+    cnt++;
   }
 }
 
