@@ -199,12 +199,6 @@ void WindowUpdate() {
   if (g_WindowDimensionsChanged) {
     CleanFBOs();
 
-    // Clear outside letter-/pillarbox
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-    glViewport(0, 0, g_WindowWidth, g_WindowHeight);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-
     glGenFramebuffers(1, &g_ReadRT);
     glBindFramebuffer(GL_READ_FRAMEBUFFER, g_ReadRT);
     glGenTextures(1, &g_ReadRenderTexture);
@@ -226,12 +220,22 @@ void WindowUpdate() {
 
     glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                            GL_TEXTURE_2D, drawRenderTexture, 0);
-  } else {
-    WindowSwapRTs();
   }
 
-  glViewport(0, 0, viewport.Width, viewport.Height);
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+  if (viewport.X != 0 || viewport.Y != 0) {
+    // Clear outside letter-/pillarbox
+    // Unfortunately we seem to need to do this every frame - I get content
+    // flickering into the margins on Linux otherwise
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glViewport(0, 0, g_WindowWidth, g_WindowHeight);
+    glClear(GL_COLOR_BUFFER_BIT);
+  }
+
+  WindowSwapRTs();
+
+  glViewport(0, 0, viewport.Width, viewport.Height);
   glClear(GL_COLOR_BUFFER_BIT);
 }
 
