@@ -38,10 +38,9 @@ VmInstruction(InstIf) {
   uint8_t* labelAdr = ScriptGetLabelAddress(
       thread->VmContext->ScriptBuffers[thread->ScriptBufferId], labelNum);
 
-  if (!check) {
-    if (!condition) thread->Ip = labelAdr;
-  } else if (condition)
+  if ((bool)check == (bool)condition) {
     thread->Ip = labelAdr;
+  }
 }
 VmInstruction(InstCall) {
   StartInstruction;
@@ -127,8 +126,6 @@ VmInstruction(InstFlagOnJump) {
   }
 }
 VmInstruction(InstKeyOnJump) {
-  // STUB for now
-
   StartInstruction;
   PopUint8(arg1);
   PopExpression(arg2);
