@@ -36,8 +36,7 @@ class Game {
   ModelViewer* ModelViewerComponent = 0;
   Vm::Vm* VmComponent = 0;
 
-  uint32_t const LayerCount;
-  uint32_t const GameFeatures;
+  GameFeatureConfig const Config;
 
   uint32_t* ScrWork;
   DrawComponentType DrawComponents[Vm::VmMaxThreads];

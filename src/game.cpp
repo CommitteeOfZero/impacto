@@ -13,11 +13,10 @@ static int const NkMaxElementMemory = 1024 * 1024;
 static int const GameScrWorkSize = 32000;
 static int const GameFlagWorkSize = 1000;
 
-Game::Game(GameFeatureConfig const& config)
-    : LayerCount(config.LayerCount), GameFeatures(config.GameFeatures) {
+Game::Game(GameFeatureConfig const& config) : Config(config) {
   WindowInit();
 
-  if (GameFeatures & GameFeature_Nuklear) {
+  if (Config.GameFeatures & GameFeature_Nuklear) {
     Nk = nk_sdl_init(g_SDLWindow);
     struct nk_font_atlas* atlas;
     nk_sdl_font_stash_begin(&atlas);
@@ -25,16 +24,16 @@ Game::Game(GameFeatureConfig const& config)
     nk_sdl_font_stash_end();
   }
 
-  if (GameFeatures & GameFeature_Scene3D) {
+  if (Config.GameFeatures & GameFeature_Scene3D) {
     SceneInit();
     Scene3D = new Scene;
   }
 
-  if (GameFeatures & GameFeature_ModelViewer) {
+  if (Config.GameFeatures & GameFeature_ModelViewer) {
     ModelViewerComponent = new ModelViewer(this);
   }
 
-  if (GameFeatures & GameFeature_Sc3VirtualMachine) {
+  if (Config.GameFeatures & GameFeature_Sc3VirtualMachine) {
     VmComponent = new Vm::Vm(this);
     ScrWork = (uint32_t*)calloc(GameScrWorkSize, sizeof(uint32_t));
     FlagWork = (uint8_t*)calloc(GameFlagWorkSize, sizeof(uint8_t));
@@ -42,14 +41,14 @@ Game::Game(GameFeatureConfig const& config)
 }
 
 void Game::Init() {
-  if (GameFeatures & GameFeature_Scene3D) {
+  if (Config.GameFeatures & GameFeature_Scene3D) {
     Scene3D->Init();
   }
-  if (GameFeatures & GameFeature_ModelViewer) {
+  if (Config.GameFeatures & GameFeature_ModelViewer) {
     ModelViewerComponent->Init();
   }
 
-  if (GameFeatures & GameFeature_Sc3VirtualMachine) {
+  if (Config.GameFeatures & GameFeature_Sc3VirtualMachine) {
     VmComponent->Init(4, 0);
   }
 }
@@ -78,23 +77,23 @@ Game* Game::CreateVmTest() {
 }
 
 Game::~Game() {
-  if (GameFeatures & GameFeature_ModelViewer) {
+  if (Config.GameFeatures & GameFeature_ModelViewer) {
     delete ModelViewerComponent;
   }
 
-  if (GameFeatures & GameFeature_Sc3VirtualMachine) {
+  if (Config.GameFeatures & GameFeature_Sc3VirtualMachine) {
     if (ScrWork) free(ScrWork);
     if (FlagWork) free(FlagWork);
     delete VmComponent;
   }
 
-  if (GameFeatures & GameFeature_Scene3D) {
+  if (Config.GameFeatures & GameFeature_Scene3D) {
     if (Scene3D) {
       delete Scene3D;
     }
   }
 
-  if (GameFeatures & GameFeature_Nuklear) {
+  if (Config.GameFeatures & GameFeature_Nuklear) {
     nk_sdl_shutdown();
   }
   WindowShutdown();
@@ -102,7 +101,7 @@ Game::~Game() {
 
 void Game::Update(float dt) {
   SDL_Event e;
-  if (GameFeatures & GameFeature_Nuklear) {
+  if (Config.GameFeatures & GameFeature_Nuklear) {
     nk_input_begin(Nk);
   }
   while (SDL_PollEvent(&e)) {
@@ -110,24 +109,24 @@ void Game::Update(float dt) {
       ShouldQuit = true;
     }
 
-    if (GameFeatures & GameFeature_Nuklear) {
+    if (Config.GameFeatures & GameFeature_Nuklear) {
       nk_sdl_handle_event(&e);
     }
     WorkQueueHandleEvent(&e);
   }
-  if (GameFeatures & GameFeature_Nuklear) {
+  if (Config.GameFeatures & GameFeature_Nuklear) {
     nk_input_end(Nk);
   }
 
-  if (GameFeatures & GameFeature_ModelViewer) {
+  if (Config.GameFeatures & GameFeature_ModelViewer) {
     ModelViewerComponent->Update(dt);
   }
 
-  if (GameFeatures & GameFeature_Sc3VirtualMachine) {
+  if (Config.GameFeatures & GameFeature_Sc3VirtualMachine) {
     VmComponent->Update();
   }
 
-  if (GameFeatures & GameFeature_Scene3D) {
+  if (Config.GameFeatures & GameFeature_Scene3D) {
     Scene3D->Update(dt);
   }
 }
@@ -138,15 +137,15 @@ void Game::Render() {
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  if (GameFeatures & GameFeature_Scene3D) {
+  if (Config.GameFeatures & GameFeature_Scene3D) {
     Scene3D->Render();
   }
 
-  for (uint32_t layer = 0; layer < LayerCount; layer++) {
+  for (uint32_t layer = 0; layer < Config.LayerCount; layer++) {
     // TODO
   }
 
-  if (GameFeatures & GameFeature_Nuklear) {
+  if (Config.GameFeatures & GameFeature_Nuklear) {
 #ifdef IMPACTO_GL_DEBUG
     // Nuklear spams these
     glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL,
