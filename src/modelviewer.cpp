@@ -28,7 +28,7 @@ void ModelViewer::Init() {
 }
 
 void ModelViewer::Update(float dt) {
-  if (g_FramebuffersNeedUpdate) {
+  if (g_WindowDimensionsChanged) {
     UiWindowWidth = g_WindowWidth;
     UiWindowHeight = g_WindowHeight;
     UiMsaaCount = g_MsaaCount;

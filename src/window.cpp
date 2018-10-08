@@ -15,7 +15,7 @@ int g_MsaaCount = 0;
 float g_RenderScale = 1.0f;
 SDL_Window* g_SDLWindow;
 SDL_GLContext g_GLContext;
-bool g_FramebuffersNeedUpdate;
+bool g_WindowDimensionsChanged;
 
 GLuint g_DrawRT = 0;
 GLuint g_ReadRT = 0;
@@ -28,11 +28,11 @@ int lastMsaa = 0;
 float lastRenderScale = 1.0f;
 
 void WindowUpdateDimensions() {
-  g_FramebuffersNeedUpdate = false;
+  g_WindowDimensionsChanged = false;
   SDL_GL_GetDrawableSize(g_SDLWindow, &g_WindowWidth, &g_WindowHeight);
   if (g_WindowWidth != lastWidth || g_WindowHeight != lastHeight ||
       g_MsaaCount != lastMsaa || g_RenderScale != lastRenderScale) {
-    g_FramebuffersNeedUpdate = true;
+    g_WindowDimensionsChanged = true;
     ImpLog(LL_Debug, LC_General,
            "Drawable size (pixels): %d x %d (%dx MSAA requested, render scale "
            "%f)\n",
@@ -167,7 +167,7 @@ void WindowSwapRTs() {
 void WindowUpdate() {
   WindowUpdateDimensions();
 
-  if (g_FramebuffersNeedUpdate) {
+  if (g_WindowDimensionsChanged) {
     CleanFBOs();
 
     glGenFramebuffers(1, &g_ReadRT);

@@ -20,7 +20,7 @@ extern int g_WindowWidth;
 extern int g_WindowHeight;
 extern int g_MsaaCount;
 extern float g_RenderScale;
-extern bool g_FramebuffersNeedUpdate;
+extern bool g_WindowDimensionsChanged;
 
 // FBO of current render target for drawing onto
 extern GLuint g_DrawRT;

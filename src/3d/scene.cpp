@@ -135,7 +135,7 @@ void Scene::Render() {
 }
 
 void Scene::SetupFramebufferState() {
-  if (g_FramebuffersNeedUpdate) {
+  if (g_WindowDimensionsChanged) {
     CleanFramebufferState();
 
     glGenFramebuffers(1, &FBO);
