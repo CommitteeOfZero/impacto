@@ -199,6 +199,12 @@ void WindowUpdate() {
   if (g_WindowDimensionsChanged) {
     CleanFBOs();
 
+    // Clear outside letter-/pillarbox
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glViewport(0, 0, g_WindowWidth, g_WindowHeight);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
     glGenFramebuffers(1, &g_ReadRT);
     glBindFramebuffer(GL_READ_FRAMEBUFFER, g_ReadRT);
     glGenTextures(1, &g_ReadRenderTexture);
@@ -232,11 +238,6 @@ void WindowUpdate() {
 void WindowDraw() {
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   glBindFramebuffer(GL_READ_FRAMEBUFFER, g_DrawRT);
-
-  // Clear outside letter-/pillarbox
-  glViewport(0, 0, g_WindowWidth, g_WindowHeight);
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT);
 
   Rect viewport = WindowGetViewport();
 
