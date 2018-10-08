@@ -66,7 +66,7 @@ struct Sc3VmThread {
   uint32_t ScriptParam;
   uint8_t* Ip;
   uint32_t LoopCounter;
-  uint8_t* LoopAddress;
+  uint16_t LoopLabelNum;
   uint32_t CallStackDepth;
   uint16_t ReturnAdresses[VmMaxCallStackDepth];
   uint32_t ReturnGroupIds[VmMaxCallStackDepth];

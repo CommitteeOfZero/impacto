@@ -34,6 +34,7 @@ class Vm {
   void DestroyThread(Sc3VmThread* thread);
 
   bool BlockCurrentScriptThread;
+  uint32_t SwitchValue;  // Used in InstSwitch and InstCase
 
  private:
   Game* GameContext;
