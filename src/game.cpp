@@ -13,8 +13,6 @@ static int const NkMaxElementMemory = 1024 * 1024;
 static int const GameScrWorkSize = 32000;
 static int const GameFlagWorkSize = 1000;
 
-Game* g_Game;
-
 Game::Game(GameFeatureConfig const& config)
     : LayerCount(config.LayerCount), GameFeatures(config.GameFeatures) {
   WindowInit();
@@ -33,7 +31,7 @@ Game::Game(GameFeatureConfig const& config)
   }
 
   if (GameFeatures & GameFeature_ModelViewer) {
-    ModelViewerComponent = new ModelViewer;
+    ModelViewerComponent = new ModelViewer(this);
   }
 
   if (GameFeatures & GameFeature_Sc3VirtualMachine) {
@@ -56,8 +54,7 @@ void Game::Init() {
   }
 }
 
-void Game::InitModelViewer() {
-  assert(g_Game == 0);
+Game* Game::CreateModelViewer() {
   GameFeatureConfig config;
   config.LayerCount = 1;
   config.GameFeatures =
@@ -65,18 +62,19 @@ void Game::InitModelViewer() {
   config.Scene3D_BackgroundCount = 1;
   config.Scene3D_CharacterCount = 1;
 
-  g_Game = new Game(config);
-  g_Game->Init();
+  Game* result = new Game(config);
+  result->Init();
+  return result;
 }
 
-void Game::InitVmTest() {
-  assert(g_Game == 0);
+Game* Game::CreateVmTest() {
   GameFeatureConfig config;
   config.LayerCount = 1;
   config.GameFeatures = GameFeature_Sc3VirtualMachine;
 
-  g_Game = new Game(config);
-  g_Game->Init();
+  Game* result = new Game(config);
+  result->Init();
+  return result;
 }
 
 Game::~Game() {

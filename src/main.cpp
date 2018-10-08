@@ -9,14 +9,15 @@
 using namespace Impacto;
 
 static uint64_t t;
+static Game* game;
 
 void GameLoop() {
   uint64_t t2 = SDL_GetPerformanceCounter();
   float dt = ((float)(t2 - t) / (float)SDL_GetPerformanceFrequency());
   t = t2;
 
-  g_Game->Update(dt);
-  g_Game->Render();
+  game->Update(dt);
+  game->Render();
 }
 
 void InitSystems() {
@@ -31,17 +32,17 @@ void InitSystems() {
 int main(int argc, char* argv[]) {
   InitSystems();
 
-  Game::InitModelViewer();
+  game = Game::CreateModelViewer();
 
   t = SDL_GetPerformanceCounter();
 
-  while (!g_Game->ShouldQuit) {
+  while (!game->ShouldQuit) {
     GameLoop();
   }
 
   ImpLog(LL_Info, LC_General, "Bye!\n");
 
-  if (g_Game) delete g_Game;
+  if (game) delete game;
 
   return 0;
 }

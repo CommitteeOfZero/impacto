@@ -24,8 +24,8 @@ struct GameFeatureConfig {
 
 class Game {
  public:
-  static void InitModelViewer();
-  static void InitVmTest();
+  static Game* CreateModelViewer();
+  static Game* CreateVmTest();
 
   ~Game();
   void Update(float dt);
@@ -52,8 +52,6 @@ class Game {
 
   uint8_t* FlagWork;
 };
-
-extern Game* g_Game;
 
 enum DrawComponentType : uint8_t {
   TD_Text = 0x0,

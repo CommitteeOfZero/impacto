@@ -6,14 +6,18 @@
 
 namespace Impacto {
 
+class Game;
+
 class ModelViewer {
  public:
-  ModelViewer();
+  ModelViewer(Game* game);
 
   void Init();
   void Update(float dt);
 
  private:
+  Game* GameContext;
+
   glm::vec3 CameraPosition;
   glm::vec3 CameraTarget;
   nk_colorf UiTintColor;
