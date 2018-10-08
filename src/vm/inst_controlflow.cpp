@@ -53,6 +53,8 @@ VmInstruction(InstCall) {
     thread->ReturnAdresses[thread->CallStackDepth] = retNum;
     thread->ReturnGroupIds[thread->CallStackDepth++] = thread->ScriptBufferId;
     thread->Ip = labelAdr;
+  } else {
+    ImpLog(LL_Error, LC_VM, "Call error, call stack overflow.\n");
   }
 }
 VmInstruction(InstJumpFar) {
@@ -78,6 +80,8 @@ VmInstruction(InstCallFar) {
     thread->ReturnGroupIds[thread->CallStackDepth++] = thread->ScriptBufferId;
     thread->Ip = labelAdr;
     thread->ScriptBufferId = scriptBufferId;
+  } else {
+    ImpLog(LL_Error, LC_VM, "CallFar error, call stack overflow.\n");
   }
 }
 VmInstruction(InstReturn) {
@@ -89,6 +93,8 @@ VmInstruction(InstReturn) {
         ScriptGetRetAddress(thread->VmContext->ScriptBuffers[retBufferId],
                             thread->ReturnAdresses[thread->CallStackDepth]);
     thread->ScriptBufferId = retBufferId;
+  } else {
+    ImpLog(LL_Error, LC_VM, "Return error, call stack empty.\n");
   }
 }
 VmInstruction(InstLoop) {
@@ -132,8 +138,8 @@ VmInstruction(InstKeyOnJump) {
   PopExpression(arg3);
   PopUint16(labelNum);
 
-  ImpLogSlow(LL_Warning, LC_VM,
-             "STUB instruction InstKeyOnJump(arg1: %i, arg2: %i, arg3: %i, "
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction KeyOnJump(arg1: %i, arg2: %i, arg3: %i, "
              "labelNum: %i)\n",
              arg1, arg2, arg3, labelNum);
 }

@@ -66,6 +66,8 @@ const char* ChannelToString(LogChannel channel) {
       return "Scene";
     case LC_VM:
       return "VM";
+    case LC_VMStub:
+      return "VMStub";
     case LC_Expr:
       return "Expr";
     default:
