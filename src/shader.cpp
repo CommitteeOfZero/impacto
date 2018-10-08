@@ -17,6 +17,11 @@ static char const VertShaderExtension[] = "_vert.glsl";
 static char const ShaderHeader[] = "#version 330\n\n";
 GLint ShaderHeaderLength =
     sizeof(ShaderHeader) - 1;  // without null terminator, for glShaderSource()
+static char const ShaderHeaderES[] =
+    "#version 300 es\nprecision mediump float;\n\n";
+GLint ShaderHeaderESLength =
+    sizeof(ShaderHeaderES) -
+    1;  // without null terminator, for glShaderSource()
 
 int PrintParameter(char* dest, int destSz, char const* name,
                    ShaderParameter const& param) {
@@ -94,12 +99,13 @@ GLuint ShaderAttach(GLuint program, GLenum shaderType, char const* path,
   }
 
   const GLchar* codeParts[3];
-  codeParts[0] = ShaderHeader;
+  codeParts[0] = GLAD_GL_ES_VERSION_3_0 ? ShaderHeaderES : ShaderHeader;
   codeParts[1] = params;
   codeParts[2] = source;
 
   GLint codeLengths[3];
-  codeLengths[0] = ShaderHeaderLength;
+  codeLengths[0] =
+      GLAD_GL_ES_VERSION_3_0 ? ShaderHeaderESLength : ShaderHeaderLength;
   codeLengths[1] = strlen(params);
   codeLengths[2] = strlen(source);
 
