@@ -304,27 +304,27 @@ void Vm::RunThread(Sc3VmThread* thread) {
 
 uint8_t* ScriptGetLabelAddress(uint8_t* scriptBufferAdr, uint32_t labelNum) {
   uint32_t* labelTableAdr = (uint32_t*)&scriptBufferAdr[12];
-  uint32_t labelAdrRel = labelTableAdr[labelNum];
+  uint32_t labelAdrRel = SDL_SwapLE32(labelTableAdr[labelNum]);
   return &scriptBufferAdr[labelAdrRel];
 }
 
 uint32_t ScriptGetLabelAddressNum(uint8_t* scriptBufferAdr, uint32_t labelNum) {
   uint32_t* labelTableAdr = (uint32_t*)&scriptBufferAdr[12];
-  uint32_t labelAdrRel = labelTableAdr[labelNum];
+  uint32_t labelAdrRel = SDL_SwapLE32(labelTableAdr[labelNum]);
   return labelAdrRel;
 }
 
 uint8_t* ScriptGetStrAddress(uint8_t* scriptBufferAdr, uint32_t mesNum) {
-  uint32_t stringTableAdrRel = *(uint32_t*)scriptBufferAdr[4];
+  uint32_t stringTableAdrRel = SDL_SwapLE32(*(uint32_t*)scriptBufferAdr[4]);
   uint32_t* stringTableAdr = (uint32_t*)&scriptBufferAdr[stringTableAdrRel];
-  uint32_t stringAdrRel = stringTableAdr[mesNum];
+  uint32_t stringAdrRel = SDL_SwapLE32(stringTableAdr[mesNum]);
   return &scriptBufferAdr[stringAdrRel];
 }
 
 uint8_t* ScriptGetRetAddress(uint8_t* scriptBufferAdr, uint32_t retNum) {
-  uint32_t returnTableAdrRel = *(uint32_t*)scriptBufferAdr[8];
+  uint32_t returnTableAdrRel = SDL_SwapLE32(*(uint32_t*)scriptBufferAdr[8]);
   uint32_t* returnTableAdr = (uint32_t*)&scriptBufferAdr[returnTableAdrRel];
-  uint32_t returnAdrRel = returnTableAdr[retNum];
+  uint32_t returnAdrRel = SDL_SwapLE32(returnTableAdr[retNum]);
   return &scriptBufferAdr[returnAdrRel];
 }
 
