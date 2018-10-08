@@ -4,6 +4,7 @@
 #include "../log.h"
 
 #include <vector>
+#include <memory>
 
 namespace Impacto {
 
