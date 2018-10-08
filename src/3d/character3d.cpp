@@ -27,7 +27,7 @@ char const* CommonUniformNames[CU_Count] = {
 static GLint CommonUniformOffsets[CU_Count];
 
 static GLuint ShaderProgram = 0, ShaderProgramOutline = 0, ShaderProgramEye = 0,
-              UBO = 0, UniformDarkMode = 0;
+              UBO = 0, UniformDarkMode = 0, TextureDummy = 0;
 
 static uint8_t* LocalUniformBuffer;
 static GLint UniformBlockSize;
@@ -95,6 +95,10 @@ void Character3DInit() {
               TT_Eye_IrisSpecularColorMap);
   glUniform1i(glGetUniformLocation(ShaderProgramEye, "IrisColorMap"),
               TT_Eye_IrisColorMap);
+
+  Texture texDummy;
+  texDummy.Load1x1();
+  TextureDummy = texDummy.Submit();
 }
 
 void Character3DUpdateGpu(Scene* scene, Camera* camera) {
@@ -343,7 +347,7 @@ void Character3D::Render() {
       glBindTexture(GL_TEXTURE_2D,
                     TexBuffers[StaticModel->Meshes[i].Maps[TT_ColorMap]]);
     } else {
-      glBindTexture(GL_TEXTURE_2D, 0);
+      glBindTexture(GL_TEXTURE_2D, TextureDummy);
     }
 
     glBufferData(GL_UNIFORM_BUFFER, UniformBlockSize, LocalUniformBuffer,
@@ -366,13 +370,19 @@ void Character3D::Render() {
     UpdateVAO(i);
     SetMeshUniforms(i);
 
-    for (int j = 0; j <= TT_Character3D_Max; j++) {
-      glActiveTexture(GL_TEXTURE0 + j);
-      if (StaticModel->Meshes[i].Maps[j] >= 0) {
+    int const colorPassTextureTypes[] = {TT_ColorMap, TT_GradientMaskMap,
+                                         TT_SpecularColorMap};
+
+    for (int j = 0;
+         j < sizeof(colorPassTextureTypes) / sizeof(colorPassTextureTypes[0]);
+         j++) {
+      int t = colorPassTextureTypes[j];
+      glActiveTexture(GL_TEXTURE0 + t);
+      if (StaticModel->Meshes[i].Maps[t] >= 0) {
         glBindTexture(GL_TEXTURE_2D,
-                      TexBuffers[StaticModel->Meshes[i].Maps[j]]);
+                      TexBuffers[StaticModel->Meshes[i].Maps[t]]);
       } else {
-        glBindTexture(GL_TEXTURE_2D, 0);
+        glBindTexture(GL_TEXTURE_2D, TextureDummy);
       }
     }
 
@@ -394,13 +404,19 @@ void Character3D::Render() {
     UpdateVAO(i);
     SetMeshUniforms(i);
 
-    for (int j = 0; j <= TT_Eye_Max; j++) {
-      glActiveTexture(GL_TEXTURE0 + j);
-      if (StaticModel->Meshes[i].Maps[j] >= 0) {
+    int const eyePassTextureTypes[] = {
+        TT_Eye_HighlightColorMap, TT_Eye_IrisColorMap,
+        TT_Eye_IrisSpecularColorMap, TT_Eye_WhiteColorMap};
+    for (int j = 0;
+         j < sizeof(eyePassTextureTypes) / sizeof(eyePassTextureTypes[0]);
+         j++) {
+      int t = eyePassTextureTypes[j];
+      glActiveTexture(GL_TEXTURE0 + t);
+      if (StaticModel->Meshes[i].Maps[t] >= 0) {
         glBindTexture(GL_TEXTURE_2D,
-                      TexBuffers[StaticModel->Meshes[i].Maps[j]]);
+                      TexBuffers[StaticModel->Meshes[i].Maps[t]]);
       } else {
-        glBindTexture(GL_TEXTURE_2D, 0);
+        glBindTexture(GL_TEXTURE_2D, TextureDummy);
       }
     }
 

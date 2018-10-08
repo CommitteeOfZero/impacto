@@ -10,7 +10,8 @@
 
 namespace Impacto {
 
-static GLuint ShaderProgram = 0, UniformViewProjection = 0, UniformModel = 0;
+static GLuint ShaderProgram = 0, UniformViewProjection = 0, UniformModel = 0,
+              TextureDummy = 0;
 static bool IsInit = false;
 
 void Background3DInit() {
@@ -26,6 +27,10 @@ void Background3DInit() {
 
   glUseProgram(ShaderProgram);
   glUniform1i(glGetUniformLocation(ShaderProgram, "ColorMap"), TT_ColorMap);
+
+  Texture texDummy;
+  texDummy.Load1x1();
+  TextureDummy = texDummy.Submit();
 }
 
 void Background3DUpdateGpu(Scene* scene, Camera* camera) {
@@ -138,7 +143,7 @@ void Background3D::Render() {
       glBindTexture(GL_TEXTURE_2D,
                     TexBuffers[StaticModel->Meshes[i].Maps[TT_ColorMap]]);
     } else {
-      glBindTexture(GL_TEXTURE_2D, 0);
+      glBindTexture(GL_TEXTURE_2D, TextureDummy);
     }
 
     glDrawElements(GL_TRIANGLES, StaticModel->Meshes[i].IndexCount,

@@ -14,10 +14,7 @@ void Texture::Load1x1() {
   Format = TexFmt_RGBA;
   BufferSize = 4;
   Buffer = (uint8_t*)malloc(4);
-  Buffer[0] = 0xFF;
-  Buffer[1] = 0xFF;
-  Buffer[2] = 0xFF;
-  Buffer[3] = 0xFF;
+  *(uint32_t*)Buffer = 0;
 }
 
 void Texture::LoadPoliticalCompass() {
