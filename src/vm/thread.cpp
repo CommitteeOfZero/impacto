@@ -20,7 +20,7 @@ void* Sc3VmThread::GetMemberPointer(uint32_t offset) {
     case TO_LoopCount:
       return &LoopCounter;
     case TO_LoopAddr:
-      return &LoopAddress;
+      return &LoopLabelNum;
     case TO_RetCount:
       return &CallStackDepth;
     case TO_RetAddr:
