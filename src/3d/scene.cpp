@@ -370,7 +370,10 @@ MSResolveMode Scene::CheckMSResolveMode() {
     }
     return MS_BlitFromRenderbuffer;
   }
-  return MS_MultisampleTexture;
+
+  // return MS_MultisampleTexture;
+  return MS_BlitFromRenderbuffer;  // Apparently this is actually slightly
+                                   // faster, who'd've thunk..
 }
 
 }  // namespace Impacto
