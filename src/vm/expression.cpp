@@ -208,7 +208,7 @@ uint32_t ExpressionNode::Evaluate(Sc3VmThread* thd) {
       rightVal = RightExpr->Evaluate(thd);
       if (leftVal >= 0) {
         uint8_t* scrBuf = thd->VmContext->ScriptBuffers[thd->ScriptBufferId];
-        uint32_t* dataAdrRel = (uint32_t*)scrBuf[leftVal];
+        uint32_t* dataAdrRel = (uint32_t*)&scrBuf[leftVal];
         uint32_t dataItemAdrRel = dataAdrRel[rightVal];
         return *(uint32_t*)&scrBuf[dataItemAdrRel];
       } else {
@@ -234,6 +234,9 @@ uint32_t ExpressionNode::Evaluate(Sc3VmThread* thd) {
     case ET_FuncRandom:
       // TODO use our own RNG with our own seed
       return RightExpr->Evaluate(thd) * (rand() & 0x7FFF) >> 15;
+    default:
+      ImpLogSlow(LL_Warning, LC_Expr, "STUB token %02X evaluate\n", ExprType);
+      return 0;
   }
 }
 
@@ -283,6 +286,10 @@ void ExpressionNode::AssignValue(Sc3VmThread* thd) {
     case ET_Decrement:
       leftVal--;
       break;
+    default:
+      ImpLogSlow(LL_Error, LC_Expr, "Tried to assign with unknown token %02X\n",
+                 ExprType);
+      break;
   }
 
   int index = LeftExpr->RightExpr->Evaluate(thd);
@@ -300,6 +307,10 @@ void ExpressionNode::AssignValue(Sc3VmThread* thd) {
       break;
     }
     case ET_FuncDMA:
+      ImpLogSlow(LL_Warning, LC_Expr, "STUB token %02X assign\n",
+                 LeftExpr->ExprType);
+      break;
+    default:
       ImpLogSlow(LL_Warning, LC_Expr, "STUB token %02X assign\n",
                  LeftExpr->ExprType);
       break;
@@ -440,21 +451,20 @@ void ExpressionParser::GetTokens(Sc3VmThread* thd) {
             thd->Ip++;
             break;
           case 0x20:
-            curToken.Value = (uint8_t)immValue[1] + ((tokenType & 0x1F) << 8);
+            curToken.Value = ((immValue[0] & 0x1F) << 8) + immValue[1];
             if (tokenType & 0x10) curToken.Value |= 0xFFFFE000;
             thd->Ip += 2;
             break;
           case 0x40:
             curToken.Value =
-                (uint8_t)immValue[1] +
-                (((uint8_t)immValue[2] + ((tokenType & 0x1F) << 8)) << 8);
+                ((immValue[0] & 0x1F) << 16) + (immValue[2] << 8) + immValue[1];
             if (tokenType & 0x10) curToken.Value |= 0xFFE00000;
             thd->Ip += 3;
             break;
           case 0x60:
-            curToken.Value = (((*(thd->Ip + 4) << 8) + +*(thd->Ip + 3))
-                              << 8 + *(thd->Ip + 2))
-                             << 8 + *(thd->Ip + 1);
+            curToken.Value =
+                SDL_SwapLE32(immValue[1] + (immValue[2] << 8) +
+                             (immValue[3] << 16) + (immValue[4] << 24));
             thd->Ip += 5;
             break;
           default:
