@@ -16,16 +16,16 @@
 #define NK_SDL_GL3_H_
 
 #include <SDL.h>
-#include <SDL_opengl.h>
+#include <SDL_opengles2.h>
 
-NK_API struct nk_context*   nk_sdl_init(SDL_Window *win);
+NK_API struct nk_context*   nk_sdl_init(SDL_Window *win, int max_vertex_buffer, int max_element_buffer);
 NK_API void                 nk_sdl_font_stash_begin(struct nk_font_atlas **atlas);
 NK_API void                 nk_sdl_font_stash_end(void);
 NK_API int                  nk_sdl_handle_event(SDL_Event *evt);
-NK_API void                 nk_sdl_render(enum nk_anti_aliasing , int max_vertex_buffer, int max_element_buffer, int width, int height);
+NK_API void                 nk_sdl_render(enum nk_anti_aliasing AA, int width, int height);
 NK_API void                 nk_sdl_shutdown(void);
 NK_API void                 nk_sdl_device_destroy(void);
-NK_API void                 nk_sdl_device_create(void);
+NK_API void                 nk_sdl_device_create(int max_vertex_buffer, int max_element_buffer);
 
 #endif
 
@@ -53,6 +53,11 @@ struct nk_sdl_device {
     GLint uniform_tex;
     GLint uniform_proj;
     GLuint font_tex;
+    
+    void* vertices;
+    void* elements;
+    int vertices_sz;
+    int elements_sz;
 };
 
 struct nk_sdl_vertex {
@@ -74,7 +79,7 @@ static struct nk_sdl {
   #define NK_SHADER_VERSION "#version 300 es\n"
 #endif
 NK_API void
-nk_sdl_device_create(void)
+nk_sdl_device_create(int max_vertex_buffer, int max_element_buffer)
 {
     GLint status;
     static const GLchar *vertex_shader =
@@ -140,6 +145,14 @@ nk_sdl_device_create(void)
         glBindVertexArray(dev->vao);
         glBindBuffer(GL_ARRAY_BUFFER, dev->vbo);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, dev->ebo);
+        
+        glBufferData(GL_ARRAY_BUFFER, max_vertex_buffer, NULL, GL_STREAM_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, max_element_buffer, NULL, GL_STREAM_DRAW);
+        
+        dev->vertices = malloc((size_t)max_vertex_buffer);
+        dev->elements = malloc((size_t)max_element_buffer);
+        dev->vertices_sz = max_vertex_buffer;
+        dev->elements_sz = max_element_buffer;
 
         glEnableVertexAttribArray((GLuint)dev->attrib_pos);
         glEnableVertexAttribArray((GLuint)dev->attrib_uv);
@@ -181,10 +194,12 @@ nk_sdl_device_destroy(void)
     glDeleteBuffers(1, &dev->vbo);
     glDeleteBuffers(1, &dev->ebo);
     nk_buffer_free(&dev->cmds);
+    free(dev->vertices);
+    free(dev->elements);
 }
 
 NK_API void
-nk_sdl_render(enum nk_anti_aliasing AA, int max_vertex_buffer, int max_element_buffer, int width, int height)
+nk_sdl_render(enum nk_anti_aliasing AA, int width, int height)
 {
     struct nk_sdl_device *dev = &sdl.ogl;
     GLfloat ortho[4][4] = {
@@ -213,21 +228,12 @@ nk_sdl_render(enum nk_anti_aliasing AA, int max_vertex_buffer, int max_element_b
     {
         /* convert from command queue into draw list and draw to screen */
         const struct nk_draw_command *cmd;
-        void *vertices, *elements;
         const nk_draw_index *offset = NULL;
         struct nk_buffer vbuf, ebuf;
 
-        /* allocate vertex and element buffer */
         glBindVertexArray(dev->vao);
         glBindBuffer(GL_ARRAY_BUFFER, dev->vbo);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, dev->ebo);
-
-        glBufferData(GL_ARRAY_BUFFER, max_vertex_buffer, NULL, GL_STREAM_DRAW);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, max_element_buffer, NULL, GL_STREAM_DRAW);
-
-        /* load vertices/elements directly into vertex/element buffer */
-        vertices = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-        elements = glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY);
         {
             /* fill convert configuration */
             struct nk_convert_config config;
@@ -250,12 +256,12 @@ nk_sdl_render(enum nk_anti_aliasing AA, int max_vertex_buffer, int max_element_b
             config.line_AA = AA;
 
             /* setup buffers to load vertices and elements */
-            nk_buffer_init_fixed(&vbuf, vertices, (nk_size)max_vertex_buffer);
-            nk_buffer_init_fixed(&ebuf, elements, (nk_size)max_element_buffer);
+            nk_buffer_init_fixed(&vbuf, dev->vertices, (nk_size)dev->vertices_sz);
+            nk_buffer_init_fixed(&ebuf, dev->elements, (nk_size)dev->elements_sz);
             nk_convert(&sdl.ctx, &dev->cmds, &vbuf, &ebuf, &config);
         }
-        glUnmapBuffer(GL_ARRAY_BUFFER);
-        glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, (size_t)dev->vertices_sz, dev->vertices);
+        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, (size_t)dev->elements_sz, dev->elements);
 
         /* iterate over and execute each draw command */
         nk_draw_foreach(cmd, &sdl.ctx, &dev->cmds) {
@@ -302,14 +308,14 @@ nk_sdl_clipboard_copy(nk_handle usr, const char *text, int len)
 }
 
 NK_API struct nk_context*
-nk_sdl_init(SDL_Window *win)
+nk_sdl_init(SDL_Window *win, int max_vertex_buffer, int max_element_buffer)
 {
     sdl.win = win;
     nk_init_default(&sdl.ctx, 0);
     sdl.ctx.clip.copy = nk_sdl_clipboard_copy;
     sdl.ctx.clip.paste = nk_sdl_clipboard_paste;
     sdl.ctx.clip.userdata = nk_handle_ptr(0);
-    nk_sdl_device_create();
+    nk_sdl_device_create(max_vertex_buffer, max_element_buffer);
     return &sdl.ctx;
 }
 

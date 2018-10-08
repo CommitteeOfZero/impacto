@@ -7,8 +7,8 @@
 
 namespace Impacto {
 
-static int const NkMaxVertexMemory = 1024 * 1024;
-static int const NkMaxElementMemory = 1024 * 1024;
+static int const NkMaxVertexMemory = 256 * 1024;
+static int const NkMaxElementMemory = 128 * 1024;
 
 static int const GameScrWorkSize = 32000;
 static int const GameFlagWorkSize = 1000;
@@ -17,7 +17,7 @@ Game::Game(GameFeatureConfig const& config) : Config(config) {
   WindowInit();
 
   if (Config.GameFeatures & GameFeature_Nuklear) {
-    Nk = nk_sdl_init(g_SDLWindow);
+    Nk = nk_sdl_init(g_SDLWindow, NkMaxVertexMemory, NkMaxElementMemory);
     struct nk_font_atlas* atlas;
     nk_sdl_font_stash_begin(&atlas);
     // no fonts => default font used, but we still have do the setup
@@ -155,8 +155,7 @@ void Game::Render() {
     glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL,
                              GL_FALSE);
 #endif
-    nk_sdl_render(NK_ANTI_ALIASING_OFF, NkMaxVertexMemory, NkMaxElementMemory,
-                  viewport.Width, viewport.Height);
+    nk_sdl_render(NK_ANTI_ALIASING_OFF, viewport.Width, viewport.Height);
 #ifdef IMPACTO_GL_DEBUG
     glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL,
                              GL_TRUE);
