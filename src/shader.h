@@ -10,6 +10,9 @@ enum ShaderParameterType {
   SPT_Int,
   SPT_Float,
 
+  SPT_MacroInt,
+  SPT_MacroFloat,
+
   SPT_Vec2,
   SPT_Vec3,
   SPT_Vec4,
@@ -37,6 +40,10 @@ struct ShaderParameter {
   ShaderParameter() {}
   ShaderParameter(int val) : Type(SPT_Int), Val_Int(val) {}
   ShaderParameter(float val) : Type(SPT_Float), Val_Float(val) {}
+  ShaderParameter(int val, bool macro)
+      : Type(macro ? SPT_MacroInt : SPT_Int), Val_Int(val) {}
+  ShaderParameter(float val, bool macro)
+      : Type(macro ? SPT_MacroFloat : SPT_Float), Val_Float(val) {}
   ShaderParameter(glm::vec2 val) : Type(SPT_Vec2), Val_Vec2(val) {}
   ShaderParameter(glm::vec3 val) : Type(SPT_Vec3), Val_Vec3(val) {}
   ShaderParameter(glm::vec4 val) : Type(SPT_Vec4), Val_Vec4(val) {}

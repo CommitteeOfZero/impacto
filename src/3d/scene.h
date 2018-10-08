@@ -10,6 +10,18 @@ namespace Impacto {
 
 enum Object3DLoadStatus { OLS_Unloaded, OLS_Loading, OLS_Loaded };
 
+enum MSResolveMode {
+  MS_None,
+  // Use a framebuffer with multisample texture
+  MS_MultisampleTexture,
+  // Use a framebuffer with singlesample texture provided by
+  // EXT_multisampled_render_to_texture
+  MS_SinglesampleTextureExt,
+  // Use a framebuffer with multisample renderbuffer and blit to framebuffer
+  // with singlesample texture
+  MS_BlitFromRenderbuffer
+};
+
 class Scene {
  public:
   ~Scene();
@@ -42,9 +54,16 @@ class Scene {
   void CleanFramebufferState();
   void DrawToScreen();
 
+  static MSResolveMode CheckMSResolveMode();
+
   GLuint FBO = 0;
   GLuint RenderTextureColor = 0;
   GLuint RenderTextureDS = 0;
+
+  // Only for MS_BlitFromRenderbuffer
+  GLuint FBOMultisample = 0;
+  GLuint RenderbufferColor = 0;
+  GLuint RenderbufferDS = 0;
 
   GLuint VAOScreenFillingTriangle = 0;
   GLuint VBOScreenFillingTriangle = 0;

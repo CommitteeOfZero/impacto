@@ -2,14 +2,8 @@ in vec2 uv;
 
 out vec4 color;
 
-uniform sampler2D Framebuffer3D;
-uniform sampler2DMS Framebuffer3DMS;
-
-// const int MultisampleCount;
-// const vec2 WindowDimensions;
-// const float RenderScale;
-// Knowing these (especially MultisampleCount) at compile time allows
-// optimisations
+#if MSAA_MODE_MULTISAMPLE_TEXTURE
+uniform sampler2DMS Framebuffer3D;
 
 vec4 textureMS(sampler2DMS tex, vec2 texcoord) {
   ivec2 iTexcoord = ivec2(floor(WindowDimensions * RenderScale * texcoord));
@@ -19,11 +13,20 @@ vec4 textureMS(sampler2DMS tex, vec2 texcoord) {
   }
   return result / MultisampleCount;
 }
+#else
+uniform sampler2D Framebuffer3D;
+#endif
+
+// const int MultisampleCount;
+// const vec2 WindowDimensions;
+// const float RenderScale;
+// Knowing these (especially MultisampleCount) at compile time allows
+// optimisations
 
 void main() {
-  if (MultisampleCount > 0) {
-    color = textureMS(Framebuffer3DMS, uv);
-  } else {
-    color = texture(Framebuffer3D, uv);
-  }
+#if MSAA_MODE_MULTISAMPLE_TEXTURE
+  color = textureMS(Framebuffer3D, uv);
+#else
+  color = texture(Framebuffer3D, uv);
+#endif
 }

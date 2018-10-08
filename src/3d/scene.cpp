@@ -139,20 +139,53 @@ void Scene::SetupFramebufferState() {
   Rect viewport = WindowGetViewport();
   Rect scaledViewport = WindowGetScaledViewport();
 
+  MSResolveMode msaa = CheckMSResolveMode();
+
   if (g_WindowDimensionsChanged) {
     CleanFramebufferState();
+
+    switch (msaa) {
+      case MS_None:
+        ImpLog(LL_Info, LC_Render,
+               "Creating 3D scene framebuffer %dx%d (=> %dx%d), no MSAA\n",
+               scaledViewport.Width, scaledViewport.Height, viewport.Width,
+               viewport.Height);
+        break;
+      case MS_MultisampleTexture:
+        ImpLog(LL_Info, LC_Render,
+               "Creating 3D scene framebuffer %dx%d (=> %dx%d), %dx MSAA using "
+               "multisample texture\n",
+               scaledViewport.Width, scaledViewport.Height, viewport.Width,
+               viewport.Height, g_MsaaCount);
+        break;
+      case MS_SinglesampleTextureExt:
+        ImpLog(LL_Info, LC_Render,
+               "Creating 3D scene framebuffer %dx%d (=> %dx%d), %dx MSAA using "
+               "multisampled_render_to_texture\n",
+               scaledViewport.Width, scaledViewport.Height, viewport.Width,
+               viewport.Height, g_MsaaCount);
+        break;
+      case MS_BlitFromRenderbuffer:
+        ImpLog(LL_Info, LC_Render,
+               "Creating 3D scene framebuffer %dx%d (=> %dx%d), %dx MSAA using "
+               "blit from renderbuffer\n",
+               scaledViewport.Width, scaledViewport.Height, viewport.Width,
+               viewport.Height, g_MsaaCount);
+        break;
+    }
 
     glGenFramebuffers(1, &FBO);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, FBO);
     glGenTextures(1, &RenderTextureColor);
-    glGenTextures(1, &RenderTextureDS);
-
-    // TODO MSAA doesn't work this way on GLES - use
-    // https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_multisampled_render_to_texture.txt
-    // or render to renderbuffer
 
     GLenum textureTarget;
-    if (g_MsaaCount == 0) {
+    if (msaa == MS_MultisampleTexture) {
+      textureTarget = GL_TEXTURE_2D_MULTISAMPLE;
+      glBindTexture(textureTarget, RenderTextureColor);
+      glTexImage2DMultisample(textureTarget, g_MsaaCount, GL_RGBA,
+                              scaledViewport.Width, scaledViewport.Height,
+                              GL_FALSE);
+    } else {
       textureTarget = GL_TEXTURE_2D;
       glBindTexture(textureTarget, RenderTextureColor);
       glTexImage2D(textureTarget, 0, GL_RGBA, scaledViewport.Width,
@@ -160,36 +193,54 @@ void Scene::SetupFramebufferState() {
 
       glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
       glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    } else {
-      textureTarget = GL_TEXTURE_2D_MULTISAMPLE;
-      glBindTexture(textureTarget, RenderTextureColor);
-      glTexImage2DMultisample(textureTarget, g_MsaaCount, GL_RGBA,
-                              scaledViewport.Width, scaledViewport.Height,
-                              GL_FALSE);
     }
 
-    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                           textureTarget, RenderTextureColor, 0);
-
-    if (g_MsaaCount == 0) {
-      textureTarget = GL_TEXTURE_2D;
-      glBindTexture(textureTarget, RenderTextureDS);
-      glTexImage2D(textureTarget, 0, GL_DEPTH_STENCIL, scaledViewport.Width,
-                   scaledViewport.Height, 0, GL_DEPTH_STENCIL,
-                   GL_UNSIGNED_INT_24_8, NULL);
+    if (msaa == MS_SinglesampleTextureExt) {
+      glFramebufferTexture2DMultisampleEXT(GL_DRAW_FRAMEBUFFER,
+                                           GL_COLOR_ATTACHMENT0, textureTarget,
+                                           RenderTextureColor, 0, g_MsaaCount);
     } else {
-      textureTarget = GL_TEXTURE_2D_MULTISAMPLE;
-      glBindTexture(textureTarget, RenderTextureDS);
-      glTexImage2DMultisample(textureTarget, g_MsaaCount, GL_DEPTH_STENCIL,
-                              scaledViewport.Width, scaledViewport.Height,
-                              GL_FALSE);
+      glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                             textureTarget, RenderTextureColor, 0);
     }
 
-    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
-                           textureTarget, RenderTextureDS, 0);
+    // If blitting from renderbuffer, our destination framebuffer does not need
+    // depth/stencil since we aren't rendering 3D content on it directly
+    if (msaa != MS_BlitFromRenderbuffer) {
+      // Combining multisampled renderbuffer + multisampled texture does not
+      // work on Nvidia for me, so only use DS renderbuffer for the other cases
+      if (msaa == MS_None || msaa == MS_SinglesampleTextureExt) {
+        glGenRenderbuffers(1, &RenderbufferDS);
+        glBindRenderbuffer(GL_RENDERBUFFER, RenderbufferDS);
+        if (msaa == MS_SinglesampleTextureExt) {
+          glRenderbufferStorageMultisampleEXT(
+              GL_RENDERBUFFER, g_MsaaCount, GL_DEPTH_STENCIL,
+              scaledViewport.Width, scaledViewport.Height);
+        } else {
+          glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_STENCIL,
+                                scaledViewport.Width, scaledViewport.Height);
+        }
+        glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER,
+                                  GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER,
+                                  RenderbufferDS);
+      } else {
+        // MS_MultisampleTexture only
+        textureTarget = GL_TEXTURE_2D_MULTISAMPLE;
+        glGenTextures(1, &RenderTextureDS);
+        glBindTexture(textureTarget, RenderTextureDS);
+        glTexImage2DMultisample(textureTarget, g_MsaaCount, GL_DEPTH_STENCIL,
+                                scaledViewport.Width, scaledViewport.Height,
+                                GL_FALSE);
+        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
+                               textureTarget, RenderTextureDS, 0);
+      }
+    }
 
     ShaderParamMap shaderParams;
-    shaderParams["MultisampleCount"] = g_MsaaCount;
+    if (msaa == MS_MultisampleTexture) {
+      shaderParams["MultisampleCount"] = g_MsaaCount;
+      shaderParams["MSAA_MODE_MULTISAMPLE_TEXTURE"] = ShaderParameter(1, true);
+    }
     shaderParams["WindowDimensions"] =
         glm::vec2(viewport.Width, viewport.Height);
     shaderParams["RenderScale"] = g_RenderScale;
@@ -197,14 +248,42 @@ void Scene::SetupFramebufferState() {
     ShaderProgram = ShaderCompile("SceneToRT", shaderParams);
     glUseProgram(ShaderProgram);
     glUniform1i(glGetUniformLocation(ShaderProgram, "Framebuffer3D"), 0);
-    glUniform1i(glGetUniformLocation(ShaderProgram, "Framebuffer3DMS"), 1);
+
+    ImpLog(LL_Debug, LC_Render, "FBO status: 0x%04X\n",
+           glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER));
+
+    if (msaa == MS_BlitFromRenderbuffer) {
+      glGenFramebuffers(1, &FBOMultisample);
+      glBindFramebuffer(GL_DRAW_FRAMEBUFFER, FBOMultisample);
+      glGenRenderbuffers(1, &RenderbufferColor);
+      glGenRenderbuffers(1, &RenderbufferDS);
+
+      glBindRenderbuffer(GL_RENDERBUFFER, RenderbufferColor);
+      glRenderbufferStorageMultisample(GL_RENDERBUFFER, g_MsaaCount, GL_RGBA,
+                                       scaledViewport.Width,
+                                       scaledViewport.Height);
+      glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                                GL_RENDERBUFFER, RenderbufferColor);
+
+      glBindRenderbuffer(GL_RENDERBUFFER, RenderbufferDS);
+      glRenderbufferStorageMultisample(GL_RENDERBUFFER, g_MsaaCount,
+                                       GL_DEPTH_STENCIL, scaledViewport.Width,
+                                       scaledViewport.Height);
+      glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER,
+                                GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER,
+                                RenderbufferDS);
+    }
   } else {
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, FBO);
+    if (msaa == MS_BlitFromRenderbuffer) {
+      glBindFramebuffer(GL_DRAW_FRAMEBUFFER, FBOMultisample);
+    } else {
+      glBindFramebuffer(GL_DRAW_FRAMEBUFFER, FBO);
+    }
   }
 
   glViewport(0, 0, scaledViewport.Width, scaledViewport.Height);
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_BLEND);
@@ -225,14 +304,41 @@ void Scene::CleanFramebufferState() {
     glDeleteTextures(1, &RenderTextureDS);
     RenderTextureDS = 0;
   }
+  if (RenderbufferDS) {
+    glDeleteRenderbuffers(1, &RenderbufferDS);
+    RenderbufferDS = 0;
+  }
+  if (RenderbufferColor) {
+    glDeleteRenderbuffers(1, &RenderbufferColor);
+    RenderbufferColor = 0;
+  }
   if (FBO) {
     glDeleteFramebuffers(1, &FBO);
     FBO = 0;
+  }
+  if (FBOMultisample) {
+    glDeleteFramebuffers(1, &FBOMultisample);
+    FBOMultisample = 0;
   }
 }
 
 void Scene::DrawToScreen() {
   Rect viewport = WindowGetViewport();
+  Rect scaledViewport = WindowGetScaledViewport();
+
+  MSResolveMode msaa = CheckMSResolveMode();
+
+  if (msaa == MS_BlitFromRenderbuffer) {
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, FBOMultisample);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, FBO);
+
+    glBlitFramebuffer(0, 0, scaledViewport.Width, scaledViewport.Height, 0, 0,
+                      scaledViewport.Width, scaledViewport.Height,
+                      GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+    GLenum attachments[2] = {GL_COLOR_ATTACHMENT0, GL_DEPTH_STENCIL_ATTACHMENT};
+    glInvalidateFramebuffer(GL_READ_FRAMEBUFFER, 2, attachments);
+  }
 
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, g_DrawRT);
   glViewport(0, 0, viewport.Width, viewport.Height);
@@ -243,16 +349,28 @@ void Scene::DrawToScreen() {
 
   // TODO: Better than linear filtering for supersampling
 
-  if (g_MsaaCount == 0) {
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, RenderTextureColor);
-  } else {
-    glActiveTexture(GL_TEXTURE1);
+  glActiveTexture(GL_TEXTURE0);
+  if (msaa == MS_MultisampleTexture) {
     glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, RenderTextureColor);
+  } else {
+    glBindTexture(GL_TEXTURE_2D, RenderTextureColor);
   }
+
   glBindVertexArray(VAOScreenFillingTriangle);
   glUseProgram(ShaderProgram);
   glDrawArrays(GL_TRIANGLES, 0, 3);
+}
+
+MSResolveMode Scene::CheckMSResolveMode() {
+  if (g_MsaaCount == 0) return MS_None;
+
+  if (GLAD_GL_ES_VERSION_2_0) {
+    if (GLAD_GL_EXT_multisampled_render_to_texture) {
+      return MS_SinglesampleTextureExt;
+    }
+    return MS_BlitFromRenderbuffer;
+  }
+  return MS_MultisampleTexture;
 }
 
 }  // namespace Impacto

@@ -30,6 +30,13 @@ int PrintParameter(char* dest, int destSz, char const* name,
                       param.Val_Int);
       break;
 
+    case SPT_MacroFloat:
+      return snprintf(dest, destSz, "#define %s %f\n", name, param.Val_Float);
+      break;
+    case SPT_MacroInt:
+      return snprintf(dest, destSz, "#define %s %d\n", name, param.Val_Int);
+      break;
+
     case SPT_Vec2:
       return snprintf(dest, destSz, "const vec2 %s = vec2(%f, %f);\n", name,
                       param.Val_Vec2.x, param.Val_Vec2.y);
