@@ -1,6 +1,19 @@
 #include "util.h"
 
 namespace Impacto {
+
+RectF::RectF() {}
+RectF::RectF(float x, float y, float width, float height)
+    : X(x), Y(y), Width(width), Height(height) {}
+RectF::RectF(Rect const& rect)
+    : RectF(rect.X, rect.Y, rect.Width, rect.Height) {}
+
+Rect::Rect() {}
+Rect::Rect(int x, int y, int width, int height)
+    : X(x), Y(y), Width(width), Height(height) {}
+Rect::Rect(RectF const& rect)
+    : Rect((int)rect.X, (int)rect.Y, (int)rect.Width, (int)rect.Height) {}
+
 char* DumpMat4(glm::mat4* matrix, const char* columnSeparator,
                const char* rowSeparator) {
   size_t reqSz =

@@ -105,6 +105,8 @@ void Game::Update(float dt) {
     nk_input_begin(Nk);
   }
   while (SDL_PollEvent(&e)) {
+    WindowAdjustEventCoordinates(&e);
+
     if (e.type == SDL_QUIT) {
       ShouldQuit = true;
     }
@@ -134,6 +136,8 @@ void Game::Update(float dt) {
 void Game::Render() {
   WindowUpdate();
 
+  Rect viewport = WindowGetViewport();
+
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -151,7 +155,8 @@ void Game::Render() {
     glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL,
                              GL_FALSE);
 #endif
-    nk_sdl_render(NK_ANTI_ALIASING_OFF, NkMaxVertexMemory, NkMaxElementMemory);
+    nk_sdl_render(NK_ANTI_ALIASING_OFF, NkMaxVertexMemory, NkMaxElementMemory,
+                  viewport.Width, viewport.Height);
 #ifdef IMPACTO_GL_DEBUG
     glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL,
                              GL_TRUE);

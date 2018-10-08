@@ -17,6 +17,9 @@ SDL_Window* g_SDLWindow;
 SDL_GLContext g_GLContext;
 bool g_WindowDimensionsChanged;
 
+float g_DesignWidth = 1280.0f;
+float g_DesignHeight = 720.0f;
+
 GLuint g_DrawRT = 0;
 GLuint g_ReadRT = 0;
 GLuint g_ReadRenderTexture = 0;
@@ -44,12 +47,36 @@ void WindowUpdateDimensions() {
   lastRenderScale = g_RenderScale;
 }
 
-int WindowGetScaledWidth() {
-  return (int)(g_RenderScale * (float)g_WindowWidth);
+RectF WindowGetViewport() {
+  RectF viewport;
+  float scale = fmin((float)g_WindowWidth / g_DesignWidth,
+                     (float)g_WindowHeight / g_DesignHeight);
+  viewport.Width = g_DesignWidth * scale;
+  viewport.Height = g_DesignHeight * scale;
+  viewport.X = ((float)g_WindowWidth - viewport.Width) / 2.0f;
+  viewport.Y = ((float)g_WindowHeight - viewport.Height) / 2.0f;
+  return viewport;
 }
 
-int WindowGetScaledHeight() {
-  return (int)(g_RenderScale * (float)g_WindowHeight);
+RectF WindowGetScaledViewport() {
+  RectF viewport = WindowGetViewport();
+  viewport.Width *= g_RenderScale;
+  viewport.Height *= g_RenderScale;
+  viewport.X *= g_RenderScale;
+  viewport.Y *= g_RenderScale;
+  return viewport;
+}
+
+void WindowAdjustEventCoordinates(SDL_Event* ev) {
+  // TODO touch (x/y normalized floats)
+  Rect viewport = WindowGetViewport();
+  if (ev->type == SDL_MOUSEMOTION) {
+    ev->motion.x -= viewport.X;
+    ev->motion.y += viewport.Y;
+  } else if (ev->type == SDL_MOUSEBUTTONDOWN || ev->type == SDL_MOUSEBUTTONUP) {
+    ev->button.x -= viewport.X;
+    ev->button.y += viewport.Y;
+  }
 }
 
 void WindowInit() {
@@ -167,6 +194,8 @@ void WindowSwapRTs() {
 void WindowUpdate() {
   WindowUpdateDimensions();
 
+  Rect viewport = WindowGetViewport();
+
   if (g_WindowDimensionsChanged) {
     CleanFBOs();
 
@@ -175,7 +204,7 @@ void WindowUpdate() {
     glGenTextures(1, &g_ReadRenderTexture);
 
     glBindTexture(GL_TEXTURE_2D, g_ReadRenderTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, g_WindowWidth, g_WindowHeight, 0,
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, viewport.Width, viewport.Height, 0,
                  GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 
     glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
@@ -186,7 +215,7 @@ void WindowUpdate() {
     glGenTextures(1, &drawRenderTexture);
 
     glBindTexture(GL_TEXTURE_2D, drawRenderTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, g_WindowWidth, g_WindowHeight, 0,
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, viewport.Width, viewport.Height, 0,
                  GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 
     glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
@@ -195,7 +224,7 @@ void WindowUpdate() {
     WindowSwapRTs();
   }
 
-  glViewport(0, 0, g_WindowWidth, g_WindowHeight);
+  glViewport(0, 0, viewport.Width, viewport.Height);
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
 }
@@ -203,8 +232,18 @@ void WindowUpdate() {
 void WindowDraw() {
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   glBindFramebuffer(GL_READ_FRAMEBUFFER, g_DrawRT);
-  glBlitFramebuffer(0, 0, g_WindowWidth, g_WindowHeight, 0, 0, g_WindowWidth,
-                    g_WindowHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+  // Clear outside letter-/pillarbox
+  glViewport(0, 0, g_WindowWidth, g_WindowHeight);
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT);
+
+  Rect viewport = WindowGetViewport();
+
+  glBlitFramebuffer(0, 0, viewport.Width, viewport.Height, viewport.X,
+                    viewport.Y, viewport.Width + viewport.X,
+                    viewport.Height + viewport.Y, GL_COLOR_BUFFER_BIT,
+                    GL_NEAREST);
 
   SDL_GL_SwapWindow(g_SDLWindow);
 }

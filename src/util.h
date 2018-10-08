@@ -15,6 +15,31 @@
 #endif
 
 namespace Impacto {
+
+struct Rect;
+
+struct RectF {
+  float X;
+  float Y;
+  float Width;
+  float Height;
+
+  RectF();
+  RectF(float x, float y, float width, float height);
+  RectF(Rect const& rect);
+};
+
+struct Rect {
+  int X;
+  int Y;
+  int Width;
+  int Height;
+
+  Rect();
+  Rect(int x, int y, int width, int height);
+  Rect(RectF const& rect);
+};
+
 char* DumpMat4(glm::mat4* matrix, const char* columnSeparator = "\t",
                const char* rowSeparator = "\n");
 

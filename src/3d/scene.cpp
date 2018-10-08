@@ -113,7 +113,8 @@ void Scene::Update(float dt) {
   }
 }
 void Scene::Render() {
-  MainCamera.AspectRatio = (float)g_WindowWidth / (float)g_WindowHeight;
+  RectF viewport = WindowGetViewport();
+  MainCamera.AspectRatio = viewport.Width / viewport.Height;
   MainCamera.Recalculate();
 
   Background3DUpdateGpu(this, &MainCamera);
@@ -135,6 +136,9 @@ void Scene::Render() {
 }
 
 void Scene::SetupFramebufferState() {
+  Rect viewport = WindowGetViewport();
+  Rect scaledViewport = WindowGetScaledViewport();
+
   if (g_WindowDimensionsChanged) {
     CleanFramebufferState();
 
@@ -151,8 +155,8 @@ void Scene::SetupFramebufferState() {
     if (g_MsaaCount == 0) {
       textureTarget = GL_TEXTURE_2D;
       glBindTexture(textureTarget, RenderTextureColor);
-      glTexImage2D(textureTarget, 0, GL_RGBA, WindowGetScaledWidth(),
-                   WindowGetScaledHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+      glTexImage2D(textureTarget, 0, GL_RGBA, scaledViewport.Width,
+                   scaledViewport.Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 
       glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
       glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -160,7 +164,7 @@ void Scene::SetupFramebufferState() {
       textureTarget = GL_TEXTURE_2D_MULTISAMPLE;
       glBindTexture(textureTarget, RenderTextureColor);
       glTexImage2DMultisample(textureTarget, g_MsaaCount, GL_RGBA,
-                              WindowGetScaledWidth(), WindowGetScaledHeight(),
+                              scaledViewport.Width, scaledViewport.Height,
                               GL_FALSE);
     }
 
@@ -170,14 +174,14 @@ void Scene::SetupFramebufferState() {
     if (g_MsaaCount == 0) {
       textureTarget = GL_TEXTURE_2D;
       glBindTexture(textureTarget, RenderTextureDS);
-      glTexImage2D(textureTarget, 0, GL_DEPTH_STENCIL, WindowGetScaledWidth(),
-                   WindowGetScaledHeight(), 0, GL_DEPTH_STENCIL,
+      glTexImage2D(textureTarget, 0, GL_DEPTH_STENCIL, scaledViewport.Width,
+                   scaledViewport.Height, 0, GL_DEPTH_STENCIL,
                    GL_UNSIGNED_INT_24_8, NULL);
     } else {
       textureTarget = GL_TEXTURE_2D_MULTISAMPLE;
       glBindTexture(textureTarget, RenderTextureDS);
       glTexImage2DMultisample(textureTarget, g_MsaaCount, GL_DEPTH_STENCIL,
-                              WindowGetScaledWidth(), WindowGetScaledHeight(),
+                              scaledViewport.Width, scaledViewport.Height,
                               GL_FALSE);
     }
 
@@ -186,7 +190,8 @@ void Scene::SetupFramebufferState() {
 
     ShaderParamMap shaderParams;
     shaderParams["MultisampleCount"] = g_MsaaCount;
-    shaderParams["WindowDimensions"] = glm::vec2(g_WindowWidth, g_WindowHeight);
+    shaderParams["WindowDimensions"] =
+        glm::vec2(viewport.Width, viewport.Height);
     shaderParams["RenderScale"] = g_RenderScale;
 
     ShaderProgram = ShaderCompile("SceneToRT", shaderParams);
@@ -197,7 +202,7 @@ void Scene::SetupFramebufferState() {
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, FBO);
   }
 
-  glViewport(0, 0, WindowGetScaledWidth(), WindowGetScaledHeight());
+  glViewport(0, 0, scaledViewport.Width, scaledViewport.Height);
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -227,8 +232,10 @@ void Scene::CleanFramebufferState() {
 }
 
 void Scene::DrawToScreen() {
+  Rect viewport = WindowGetViewport();
+
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, g_DrawRT);
-  glViewport(0, 0, g_WindowWidth, g_WindowHeight);
+  glViewport(0, 0, viewport.Width, viewport.Height);
 
   glDisable(GL_DEPTH_TEST);
   glEnable(GL_BLEND);

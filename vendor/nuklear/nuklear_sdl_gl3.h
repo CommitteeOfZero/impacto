@@ -1,3 +1,5 @@
+// This is *not* the exact code from vurtun/nuklear!
+
 /*
  * Nuklear - 1.32.0 - public domain
  * no warrenty implied; use at your own risk.
@@ -20,7 +22,7 @@ NK_API struct nk_context*   nk_sdl_init(SDL_Window *win);
 NK_API void                 nk_sdl_font_stash_begin(struct nk_font_atlas **atlas);
 NK_API void                 nk_sdl_font_stash_end(void);
 NK_API int                  nk_sdl_handle_event(SDL_Event *evt);
-NK_API void                 nk_sdl_render(enum nk_anti_aliasing , int max_vertex_buffer, int max_element_buffer);
+NK_API void                 nk_sdl_render(enum nk_anti_aliasing , int max_vertex_buffer, int max_element_buffer, int width, int height);
 NK_API void                 nk_sdl_shutdown(void);
 NK_API void                 nk_sdl_device_destroy(void);
 NK_API void                 nk_sdl_device_create(void);
@@ -182,28 +184,20 @@ nk_sdl_device_destroy(void)
 }
 
 NK_API void
-nk_sdl_render(enum nk_anti_aliasing AA, int max_vertex_buffer, int max_element_buffer)
+nk_sdl_render(enum nk_anti_aliasing AA, int max_vertex_buffer, int max_element_buffer, int width, int height)
 {
     struct nk_sdl_device *dev = &sdl.ogl;
-    int width, height;
-    int display_width, display_height;
-    struct nk_vec2 scale;
     GLfloat ortho[4][4] = {
         {2.0f, 0.0f, 0.0f, 0.0f},
         {0.0f,-2.0f, 0.0f, 0.0f},
         {0.0f, 0.0f,-1.0f, 0.0f},
         {-1.0f,1.0f, 0.0f, 1.0f},
     };
-    SDL_GetWindowSize(sdl.win, &width, &height);
-    SDL_GL_GetDrawableSize(sdl.win, &display_width, &display_height);
     ortho[0][0] /= (GLfloat)width;
     ortho[1][1] /= (GLfloat)height;
 
-    scale.x = (float)display_width/(float)width;
-    scale.y = (float)display_height/(float)height;
-
     /* setup global state */
-    glViewport(0,0,display_width,display_height);
+    glViewport(0,0,width,height);
     glEnable(GL_BLEND);
     glBlendEquation(GL_FUNC_ADD);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -267,10 +261,10 @@ nk_sdl_render(enum nk_anti_aliasing AA, int max_vertex_buffer, int max_element_b
         nk_draw_foreach(cmd, &sdl.ctx, &dev->cmds) {
             if (!cmd->elem_count) continue;
             glBindTexture(GL_TEXTURE_2D, (GLuint)cmd->texture.id);
-            glScissor((GLint)(cmd->clip_rect.x * scale.x),
-                (GLint)((height - (GLint)(cmd->clip_rect.y + cmd->clip_rect.h)) * scale.y),
-                (GLint)(cmd->clip_rect.w * scale.x),
-                (GLint)(cmd->clip_rect.h * scale.y));
+            glScissor((GLint)(cmd->clip_rect.x),
+                (GLint)((height - (GLint)(cmd->clip_rect.y + cmd->clip_rect.h))),
+                (GLint)(cmd->clip_rect.w),
+                (GLint)(cmd->clip_rect.h));
             glDrawElements(GL_TRIANGLES, (GLsizei)cmd->elem_count, GL_UNSIGNED_SHORT, offset);
             offset += cmd->elem_count;
         }
