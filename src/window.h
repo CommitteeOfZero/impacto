@@ -7,6 +7,14 @@
 
 namespace Impacto {
 
+enum GraphicsApi {
+  GfxApi_GL,
+  // Forces the use of a GLES driver (e.g. ANGLE on Windows)
+  GfxApi_ForceNativeGLES,
+  // Forces GLES context on desktop GL driver
+  GfxApi_ForceDesktopGLES
+};
+
 void WindowInit();
 void WindowSetDimensions(int width, int height, int msaa, float renderScale);
 // Aspect ratio corrected viewport in window coordinates
@@ -22,6 +30,10 @@ void WindowShutdown();
 
 extern SDL_Window* g_SDLWindow;
 extern SDL_GLContext g_GLContext;
+
+extern GraphicsApi g_GraphicsApiHint;
+extern GraphicsApi g_ActualGraphicsApi;
+extern bool g_GLDebug;
 
 // Raw dimensions without aspect ratio correction. Only use for
 // setting/determining resolution and drawing to window framebuffer!

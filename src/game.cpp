@@ -150,16 +150,16 @@ void Game::Render() {
   }
 
   if (Config.GameFeatures & GameFeature_Nuklear) {
-#ifdef IMPACTO_GL_DEBUG
-    // Nuklear spams these
-    glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL,
-                             GL_FALSE);
-#endif
+    if (g_GLDebug) {
+      // Nuklear spams these
+      glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0,
+                               NULL, GL_FALSE);
+    }
     nk_sdl_render(NK_ANTI_ALIASING_OFF, viewport.Width, viewport.Height);
-#ifdef IMPACTO_GL_DEBUG
-    glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL,
-                             GL_TRUE);
-#endif
+    if (g_GLDebug) {
+      glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0,
+                               NULL, GL_TRUE);
+    }
   }
 
   WindowDraw();

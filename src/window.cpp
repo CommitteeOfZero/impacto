@@ -13,9 +13,14 @@ int g_WindowWidth = 0;
 int g_WindowHeight = 0;
 int g_MsaaCount = 0;
 float g_RenderScale = 1.0f;
-SDL_Window* g_SDLWindow;
-SDL_GLContext g_GLContext;
+SDL_Window* g_SDLWindow = NULL;
+SDL_GLContext g_GLContext = NULL;
 bool g_WindowDimensionsChanged;
+
+GraphicsApi g_GraphicsApiHint = GfxApi_ForceNativeGLES;
+GraphicsApi g_ActualGraphicsApi;
+
+bool g_GLDebug = false;
 
 float g_DesignWidth = 1280.0f;
 float g_DesignHeight = 720.0f;
@@ -79,6 +84,81 @@ void WindowAdjustEventCoordinates(SDL_Event* ev) {
   }
 }
 
+void TryCreateGL(GraphicsApi api) {
+  if (g_GLContext != NULL) return;
+
+  if (g_SDLWindow) {
+    SDL_DestroyWindow(g_SDLWindow);
+    g_SDLWindow = NULL;
+  }
+
+  SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
+  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
+  SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
+  SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
+
+  int contextFlags = 0;
+
+  switch (api) {
+    case GfxApi_GL:
+      ImpLog(LL_Info, LC_General, "Trying to create desktop GL context\n");
+      SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, "0");
+      SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+      SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+      SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
+                          SDL_GL_CONTEXT_PROFILE_CORE);
+
+      contextFlags |= SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG;
+
+#ifdef IMPACTO_GL_DEBUG
+      contextFlags |= SDL_GL_CONTEXT_DEBUG_FLAG;
+#endif
+      break;
+
+    case GfxApi_ForceDesktopGLES:
+      ImpLog(LL_Info, LC_General,
+             "Trying to create GLES on desktop GL context\n");
+      SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, "0");
+      SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+      SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+      SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
+                          SDL_GL_CONTEXT_PROFILE_ES);
+
+      break;
+
+    case GfxApi_ForceNativeGLES:
+      ImpLog(LL_Info, LC_General, "Trying to create native GLES context\n");
+      SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, "1");
+      SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+      SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+      SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
+                          SDL_GL_CONTEXT_PROFILE_ES);
+      break;
+  }
+
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, contextFlags);
+
+  g_SDLWindow = SDL_CreateWindow("impacto", SDL_WINDOWPOS_UNDEFINED,
+                                 SDL_WINDOWPOS_UNDEFINED, 1280, 720,
+                                 SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+
+  if (g_SDLWindow == NULL) {
+    ImpLog(LL_Error, LC_General, "Window creation failed: %s\n",
+           SDL_GetError());
+    return;
+  }
+
+  g_GLContext = SDL_GL_CreateContext(g_SDLWindow);
+  if (g_GLContext == NULL) {
+    ImpLog(LL_Error, LC_General, "OpenGL context creation failed: %s\n",
+           SDL_GetError());
+    return;
+  } else {
+    g_ActualGraphicsApi = api;
+  }
+}
+
 void WindowInit() {
   assert(IsInit == false);
   ImpLog(LL_Info, LC_General, "Creating window\n");
@@ -88,50 +168,44 @@ void WindowInit() {
     ImpLog(LL_Fatal, LC_General, "SDL initialisation failed: %s\n",
            SDL_GetError());
     WindowShutdown();
+    return;
   }
 
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+  switch (g_GraphicsApiHint) {
+    case GfxApi_GL:
+      TryCreateGL(GfxApi_GL);
+      TryCreateGL(GfxApi_ForceDesktopGLES);
+      TryCreateGL(GfxApi_ForceNativeGLES);
+      break;
+    case GfxApi_ForceDesktopGLES:
+      TryCreateGL(GfxApi_ForceDesktopGLES);
+      TryCreateGL(GfxApi_ForceNativeGLES);
+      TryCreateGL(GfxApi_GL);
+      break;
+    case GfxApi_ForceNativeGLES:
+      TryCreateGL(GfxApi_ForceNativeGLES);
+      TryCreateGL(GfxApi_ForceDesktopGLES);
+      TryCreateGL(GfxApi_GL);
+      break;
+  }
 
-  SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
-  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
-  SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
-  SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
-
-  // TODO DPI aware
-
-  int contextFlags = SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG;
-  // TODO this should really be a runtime decision
-#ifdef IMPACTO_GL_DEBUG
-  contextFlags |= SDL_GL_CONTEXT_DEBUG_FLAG;
-#endif
-
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, contextFlags);
-
-  g_SDLWindow = SDL_CreateWindow("impacto", SDL_WINDOWPOS_UNDEFINED,
-                                 SDL_WINDOWPOS_UNDEFINED, 1280, 720,
-                                 SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
-
-  if (g_SDLWindow == NULL) {
-    ImpLog(LL_Fatal, LC_General, "SDL window creation failed: %s\n",
-           SDL_GetError());
+  if (g_GLContext == NULL) {
+    ImpLog(LL_Fatal, LC_General,
+           "All options for OpenGL context creation failed\n");
     WindowShutdown();
+    return;
   }
 
   SDL_GetWindowSize(g_SDLWindow, &g_WindowWidth, &g_WindowHeight);
   ImpLog(LL_Debug, LC_General, "Window size (screen coords): %d x %d\n",
          g_WindowWidth, g_WindowHeight);
 
-  g_GLContext = SDL_GL_CreateContext(g_SDLWindow);
-  if (g_GLContext == NULL) {
-    ImpLog(LL_Fatal, LC_General, "OpenGL context creation failed: %s\n",
-           SDL_GetError());
-    WindowShutdown();
+  bool gladOk;
+  if (g_ActualGraphicsApi == GfxApi_GL) {
+    gladOk = gladLoadGLLoader(SDL_GL_GetProcAddress);
+  } else {
+    gladOk = gladLoadGLES2Loader(SDL_GL_GetProcAddress);
   }
-
-  bool gladOk = gladLoadGLLoader(SDL_GL_GetProcAddress);
   if (!gladOk) {
     ImpLog(LL_Fatal, LC_General, "GLAD initialisation failed\n");
     WindowShutdown();
@@ -141,6 +215,7 @@ void WindowInit() {
   GLint flags;
   glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
   if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
+    g_GLDebug = true;
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     glDebugMessageCallbackARB(&LogGLMessageCallback, NULL);

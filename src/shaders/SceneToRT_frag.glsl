@@ -2,7 +2,7 @@ in vec2 uv;
 
 out vec4 color;
 
-#if MSAA_MODE_MULTISAMPLE_TEXTURE
+#ifdef MSAA_MODE_MULTISAMPLE_TEXTURE
 uniform sampler2DMS Framebuffer3D;
 
 vec4 textureMS(sampler2DMS tex, vec2 texcoord) {
@@ -24,7 +24,7 @@ uniform sampler2D Framebuffer3D;
 // optimisations
 
 void main() {
-#if MSAA_MODE_MULTISAMPLE_TEXTURE
+#ifdef MSAA_MODE_MULTISAMPLE_TEXTURE
   color = textureMS(Framebuffer3D, uv);
 #else
   color = texture(Framebuffer3D, uv);

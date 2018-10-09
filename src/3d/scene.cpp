@@ -214,10 +214,10 @@ void Scene::SetupFramebufferState() {
         glBindRenderbuffer(GL_RENDERBUFFER, RenderbufferDS);
         if (msaa == MS_SinglesampleTextureExt) {
           glRenderbufferStorageMultisampleEXT(
-              GL_RENDERBUFFER, g_MsaaCount, GL_DEPTH_STENCIL,
+              GL_RENDERBUFFER, g_MsaaCount, GL_DEPTH24_STENCIL8,
               scaledViewport.Width, scaledViewport.Height);
         } else {
-          glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_STENCIL,
+          glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8,
                                 scaledViewport.Width, scaledViewport.Height);
         }
         glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER,
@@ -259,16 +259,16 @@ void Scene::SetupFramebufferState() {
       glGenRenderbuffers(1, &RenderbufferDS);
 
       glBindRenderbuffer(GL_RENDERBUFFER, RenderbufferColor);
-      glRenderbufferStorageMultisample(GL_RENDERBUFFER, g_MsaaCount, GL_RGBA,
+      glRenderbufferStorageMultisample(GL_RENDERBUFFER, g_MsaaCount, GL_RGBA8,
                                        scaledViewport.Width,
                                        scaledViewport.Height);
       glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                                 GL_RENDERBUFFER, RenderbufferColor);
 
       glBindRenderbuffer(GL_RENDERBUFFER, RenderbufferDS);
-      glRenderbufferStorageMultisample(GL_RENDERBUFFER, g_MsaaCount,
-                                       GL_DEPTH_STENCIL, scaledViewport.Width,
-                                       scaledViewport.Height);
+      glRenderbufferStorageMultisample(
+          GL_RENDERBUFFER, g_MsaaCount, GL_DEPTH24_STENCIL8,
+          scaledViewport.Width, scaledViewport.Height);
       glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER,
                                 GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER,
                                 RenderbufferDS);
@@ -364,7 +364,7 @@ void Scene::DrawToScreen() {
 MSResolveMode Scene::CheckMSResolveMode() {
   if (g_MsaaCount == 0) return MS_None;
 
-  if (GLAD_GL_ES_VERSION_2_0) {
+  if (g_ActualGraphicsApi != GfxApi_GL) {
     if (GLAD_GL_EXT_multisampled_render_to_texture) {
       return MS_SinglesampleTextureExt;
     }
