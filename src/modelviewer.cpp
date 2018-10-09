@@ -25,6 +25,11 @@ void ModelViewer::Init() {
   GameContext->Scene3D->Tint = glm::vec4(0.784f, 0.671f, 0.6f, 0.9f);
   GameContext->Scene3D->LightPosition = glm::vec3(-2.85f, 16.68f, 6.30f);
   GameContext->Scene3D->DarkMode = false;
+
+  LastTime = (float)((double)SDL_GetPerformanceCounter() /
+                     (double)SDL_GetPerformanceFrequency());
+  Frames = 0;
+  FPS = 0.0f;
 }
 
 void ModelViewer::Update(float dt) {
@@ -37,6 +42,21 @@ void ModelViewer::Update(float dt) {
   if (nk_begin(GameContext->Nk, "Scene",
                nk_rect(20, 20, 300, g_WindowHeight - 40),
                NK_WINDOW_BORDER | NK_WINDOW_TITLE)) {
+    // FPS counter
+    Frames++;
+    float time = (float)((double)SDL_GetPerformanceCounter() /
+                         (double)SDL_GetPerformanceFrequency());
+    if (time - LastTime >= 2.0f) {
+      FPS = (float)Frames / (time - LastTime);
+      LastTime = time;
+      Frames = 0;
+    }
+
+    nk_layout_row_dynamic(GameContext->Nk, 24, 1);
+    char buffer[32];  // whatever
+    snprintf(buffer, 32, "FPS: %02.2f", FPS);
+    nk_label(GameContext->Nk, buffer, NK_TEXT_ALIGN_CENTERED);
+
     if (nk_tree_push(GameContext->Nk, NK_TREE_TAB, "Window", NK_MINIMIZED)) {
       nk_layout_row_dynamic(GameContext->Nk, 24, 1);
 

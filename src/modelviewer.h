@@ -27,6 +27,11 @@ class ModelViewer {
   int UiWindowWidth;
   int UiWindowHeight;
   int UiMsaaCount;
+
+    // FPS counter
+  float LastTime;
+  int Frames;
+  float FPS;
 };
 
 }  // namespace Impacto
