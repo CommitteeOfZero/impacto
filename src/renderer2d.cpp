@@ -43,6 +43,7 @@ Renderer2D::Renderer2D() {
 
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferData(GL_ARRAY_BUFFER, VertexBufferSize, NULL, GL_STREAM_DRAW);
+
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER,
                IndexBufferCount * sizeof(IndexBuffer[0]), IndexBuffer,
@@ -50,6 +51,8 @@ Renderer2D::Renderer2D() {
 
   // Specify vertex layouts
   glBindVertexArray(VAOSprites);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(VertexBufferSprites),
                         (void*)offsetof(VertexBufferSprites, Position));
   glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(VertexBufferSprites),
@@ -105,7 +108,7 @@ void Renderer2D::DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
         CurrentMode);
     Flush();
     glBindVertexArray(VAOSprites);
-    glUseProgram(R2D_Sprite);
+    glUseProgram(ShaderProgramSprite);
     CurrentMode = R2D_Sprite;
   }
 
@@ -133,10 +136,10 @@ void Renderer2D::DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
                                     topLeft.y + scale.y * sprite.Bounds.Height);
   glm::vec2 bottomRightNDC = DesignToNDC(bottomRight);
 
-  float topUV = 1.0f - (sprite.Bounds.Y / sprite.Sheet.DesignHeight);
+  float topUV = (sprite.Bounds.Y / sprite.Sheet.DesignHeight);
   float leftUV = (sprite.Bounds.X / sprite.Sheet.DesignWidth);
-  float bottomUV = 1.0f - ((sprite.Bounds.Y + sprite.Bounds.Height) /
-                           sprite.Sheet.DesignHeight);
+  float bottomUV =
+      ((sprite.Bounds.Y + sprite.Bounds.Height) / sprite.Sheet.DesignHeight);
   float rightUV =
       ((sprite.Bounds.X + sprite.Bounds.Width) / sprite.Sheet.DesignWidth);
 
@@ -176,7 +179,7 @@ void Renderer2D::Flush() {
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   // TODO: better to specify the whole thing or just this?
   glBufferSubData(GL_ARRAY_BUFFER, 0, VertexBufferFill, VertexBuffer);
-  glDrawElements(GL_TRIANGLES, IndexBufferFill / 3, GL_UNSIGNED_SHORT, 0);
+  glDrawElements(GL_TRIANGLES, IndexBufferFill, GL_UNSIGNED_SHORT, 0);
   IndexBufferFill = 0;
   VertexBufferFill = 0;
 }
