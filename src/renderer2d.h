@@ -32,6 +32,15 @@ class Renderer2D {
 
   void Flush();
 
+  static inline void QuadSetUV(RectF const& spriteBounds, float designWidth,
+                               float designHeight, glm::vec2* bottomLeft,
+                               glm::vec2* topLeft, glm::vec2* topRight,
+                               glm::vec2* bottomRight);
+  static inline void QuadSetPosition(RectF const& transformedQuad,
+                                     glm::vec2* bottomLeft, glm::vec2* topLeft,
+                                     glm::vec2* topRight,
+                                     glm::vec2* bottomRight);
+
   GLuint VBO;
   GLuint IBO;
   GLuint VAOSprites;
