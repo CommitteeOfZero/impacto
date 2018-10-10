@@ -81,6 +81,8 @@ void Renderer2D::Begin() {
   CurrentMode = R2D_None;
   VertexBufferFill = 0;
   IndexBufferFill = 0;
+
+  glDisable(GL_CULL_FACE);
 }
 void Renderer2D::DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
                             glm::vec4 tint, glm::vec2 scale) {
@@ -119,42 +121,46 @@ void Renderer2D::DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
   RectF scaledDest(topLeft.x, topLeft.y, scale.x * sprite.Bounds.Width,
                    scale.y * sprite.Bounds.Height);
 
-  // Since our Y is upside down, we need to swap the vertices for front face
-  // order
-
   QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            &vertices[1].UV, &vertices[0].UV, &vertices[3].UV, &vertices[2].UV);
-  QuadSetPosition(scaledDest, &vertices[1].Position, &vertices[0].Position,
-                  &vertices[3].Position, &vertices[2].Position);
+            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
+  QuadSetPosition(scaledDest, (uintptr_t)&vertices[0].Position,
+                  sizeof(VertexBufferSprites));
 
-  vertices[1].Tint = vertices[0].Tint = vertices[3].Tint = vertices[2].Tint =
-      tint;
+  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
 inline void Renderer2D::QuadSetUV(RectF const& spriteBounds, float designWidth,
-                                  float designHeight, glm::vec2* bottomLeft,
-                                  glm::vec2* topLeft, glm::vec2* topRight,
-                                  glm::vec2* bottomRight) {
+                                  float designHeight, uintptr_t uvs,
+                                  int stride) {
   float topUV = (spriteBounds.Y / designHeight);
   float leftUV = (spriteBounds.X / designWidth);
   float bottomUV = ((spriteBounds.Y + spriteBounds.Height) / designHeight);
   float rightUV = ((spriteBounds.X + spriteBounds.Width) / designWidth);
 
-  *bottomLeft = glm::vec2(leftUV, bottomUV);
-  *topLeft = glm::vec2(leftUV, topUV);
-  *topRight = glm::vec2(rightUV, topUV);
-  *bottomRight = glm::vec2(rightUV, bottomUV);
+  // bottom-left
+  *(glm::vec2*)(uvs + 0 * stride) = glm::vec2(leftUV, bottomUV);
+  // top-left
+  *(glm::vec2*)(uvs + 1 * stride) = glm::vec2(leftUV, topUV);
+  // top-right
+  *(glm::vec2*)(uvs + 2 * stride) = glm::vec2(rightUV, topUV);
+  // bottom-right
+  *(glm::vec2*)(uvs + 3 * stride) = glm::vec2(rightUV, bottomUV);
 }
 
 inline void Renderer2D::QuadSetPosition(RectF const& transformedQuad,
-                                        glm::vec2* bottomLeft,
-                                        glm::vec2* topLeft, glm::vec2* topRight,
-                                        glm::vec2* bottomRight) {
+                                        uintptr_t positions, int stride) {
   RectF quadNDC = DesignToNDC(transformedQuad);
-  *bottomLeft = glm::vec2(quadNDC.X, quadNDC.Y - quadNDC.Height);
-  *topLeft = glm::vec2(quadNDC.X, quadNDC.Y);
-  *topRight = glm::vec2(quadNDC.X + quadNDC.Width, quadNDC.Y);
-  *bottomRight =
+
+  // bottom-left
+  *(glm::vec2*)(positions + 0 * stride) =
+      glm::vec2(quadNDC.X, quadNDC.Y - quadNDC.Height);
+  // top-left
+  *(glm::vec2*)(positions + 1 * stride) = glm::vec2(quadNDC.X, quadNDC.Y);
+  // top-right
+  *(glm::vec2*)(positions + 2 * stride) =
+      glm::vec2(quadNDC.X + quadNDC.Width, quadNDC.Y);
+  // bottom-right
+  *(glm::vec2*)(positions + 3 * stride) =
       glm::vec2(quadNDC.X + quadNDC.Width, quadNDC.Y - quadNDC.Height);
 }
 

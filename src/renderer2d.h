@@ -35,13 +35,9 @@ class Renderer2D {
   void Flush();
 
   static inline void QuadSetUV(RectF const& spriteBounds, float designWidth,
-                               float designHeight, glm::vec2* bottomLeft,
-                               glm::vec2* topLeft, glm::vec2* topRight,
-                               glm::vec2* bottomRight);
+                               float designHeight, uintptr_t uvs, int stride);
   static inline void QuadSetPosition(RectF const& transformedQuad,
-                                     glm::vec2* bottomLeft, glm::vec2* topLeft,
-                                     glm::vec2* topRight,
-                                     glm::vec2* bottomRight);
+                                     uintptr_t positions, int stride);
 
   GLuint VBO;
   GLuint IBO;
