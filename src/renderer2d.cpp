@@ -91,14 +91,7 @@ void Renderer2D::DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
   }
 
   // Do we have space for one more sprite quad?
-  if (VertexBufferFill + 4 * sizeof(VertexBufferSprites) > VertexBufferSize ||
-      IndexBufferFill + 6 > IndexBufferCount) {
-    ImpLogSlow(LL_Trace, LC_Render,
-               "Renderer2D::DrawSprite flushing because buffers full at "
-               "VertexBufferFill=%08X,IndexBufferFill=%08X\n",
-               VertexBufferFill, IndexBufferFill);
-    Flush();
-  }
+  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
 
   // Are we in sprite mode?
   if (CurrentMode != R2D_Sprite) {
@@ -113,15 +106,7 @@ void Renderer2D::DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
   }
 
   // Do we have the texture assigned?
-  if (CurrentTexture != sprite.Sheet.Texture) {
-    ImpLogSlow(LL_Trace, LC_Render,
-               "Renderer2D::DrawSprite flushing because texture %d is not %d\n",
-               CurrentTexture, sprite.Sheet.Texture);
-    Flush();
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
-    CurrentTexture = sprite.Sheet.Texture;
-  }
+  EnsureTextureBound(sprite.Sheet.Texture);
 
   // OK, all good, make quad
 
@@ -177,6 +162,32 @@ void Renderer2D::Finish() {
   if (!Drawing) return;
   Flush();
   Drawing = false;
+}
+
+void Renderer2D::EnsureSpaceAvailable(int vertices, int vertexSize,
+                                      int indices) {
+  if (VertexBufferFill + vertices * vertexSize > VertexBufferSize ||
+      IndexBufferFill + indices > IndexBufferCount) {
+    ImpLogSlow(
+        LL_Trace, LC_Render,
+        "Renderer2D::EnsureSpaceAvailable flushing because buffers full at "
+        "VertexBufferFill=%08X,IndexBufferFill=%08X\n",
+        VertexBufferFill, IndexBufferFill);
+    Flush();
+  }
+}
+
+void Renderer2D::EnsureTextureBound(GLuint texture) {
+  if (CurrentTexture != texture) {
+    ImpLogSlow(LL_Trace, LC_Render,
+               "Renderer2D::EnsureTextureBound flushing because texture %d is "
+               "not %d\n",
+               CurrentTexture, texture);
+    Flush();
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    CurrentTexture = texture;
+  }
 }
 
 void Renderer2D::Flush() {

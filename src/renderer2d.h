@@ -30,6 +30,8 @@ class Renderer2D {
   static int const IndexBufferCount =
       VertexBufferSize / (4 * sizeof(VertexBufferSprites)) * 6;
 
+  void EnsureSpaceAvailable(int vertices, int vertexSize, int indices);
+  void EnsureTextureBound(GLuint texture);
   void Flush();
 
   static inline void QuadSetUV(RectF const& spriteBounds, float designWidth,
