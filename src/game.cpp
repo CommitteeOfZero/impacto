@@ -38,6 +38,11 @@ Game::Game(GameFeatureConfig const& config) : Config(config) {
     ScrWork = (uint32_t*)calloc(GameScrWorkSize, sizeof(uint32_t));
     FlagWork = (uint8_t*)calloc(GameFlagWorkSize, sizeof(uint8_t));
   }
+
+  if (Config.GameFeatures & GameFeature_Renderer2D) {
+    Renderer2D::Init();
+    R2D = new Renderer2D;
+  }
 }
 
 void Game::Init() {
@@ -93,9 +98,16 @@ Game::~Game() {
     }
   }
 
+  if (Config.GameFeatures & GameFeature_Renderer2D) {
+    if (R2D) {
+      delete R2D;
+    }
+  }
+
   if (Config.GameFeatures & GameFeature_Nuklear) {
     nk_sdl_shutdown();
   }
+
   WindowShutdown();
 }
 

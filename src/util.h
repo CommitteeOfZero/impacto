@@ -40,6 +40,9 @@ struct Rect {
   Rect(RectF const& rect);
 };
 
+glm::vec2 DesignToNDC(glm::vec2 xy);
+RectF DesignToNDC(RectF const& rect);
+
 char* DumpMat4(glm::mat4* matrix, const char* columnSeparator = "\t",
                const char* rowSeparator = "\n");
 

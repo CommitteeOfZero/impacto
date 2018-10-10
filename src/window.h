@@ -42,8 +42,12 @@ extern int g_WindowHeight;
 
 extern int g_MsaaCount;
 extern float g_RenderScale;
+
+// The design coordinate system is: x,y from 0,0 to width,height,
+// origin is top left
 extern float g_DesignWidth;
 extern float g_DesignHeight;
+
 extern bool g_WindowDimensionsChanged;
 
 // FBO of current render target for drawing onto

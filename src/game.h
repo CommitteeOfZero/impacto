@@ -4,6 +4,7 @@
 #include "impacto.h"
 #include "modelviewer.h"
 #include "vm/vm.h"
+#include "renderer2d.h"
 
 namespace Impacto {
 
@@ -11,7 +12,8 @@ enum GameFeature {
   GameFeature_Nuklear = (1 << 0),
   GameFeature_Scene3D = (1 << 1),
   GameFeature_ModelViewer = (1 << 2),
-  GameFeature_Sc3VirtualMachine = (1 << 3)
+  GameFeature_Sc3VirtualMachine = (1 << 3),
+  GameFeature_Renderer2D = (1 << 4)
 };
 
 struct GameFeatureConfig {
@@ -35,6 +37,7 @@ class Game {
   nk_context* Nk = 0;
   ModelViewer* ModelViewerComponent = 0;
   Vm::Vm* VmComponent = 0;
+  Renderer2D* R2D = 0;
 
   GameFeatureConfig const Config;
 
