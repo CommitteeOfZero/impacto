@@ -201,11 +201,12 @@ void Renderer2D::Flush() {
     ImpLog(LL_Error, LC_Render, "Renderer2D::Flush() called before Begin()\n");
     return;
   }
-  if (VertexBufferFill == 0 || IndexBufferFill == 0) return;
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  // TODO: better to specify the whole thing or just this?
-  glBufferSubData(GL_ARRAY_BUFFER, 0, VertexBufferFill, VertexBuffer);
-  glDrawElements(GL_TRIANGLES, IndexBufferFill, GL_UNSIGNED_SHORT, 0);
+  if (VertexBufferFill > 0 && IndexBufferFill > 0) {
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    // TODO: better to specify the whole thing or just this?
+    glBufferSubData(GL_ARRAY_BUFFER, 0, VertexBufferFill, VertexBuffer);
+    glDrawElements(GL_TRIANGLES, IndexBufferFill, GL_UNSIGNED_SHORT, 0);
+  }
   IndexBufferFill = 0;
   VertexBufferFill = 0;
 }
