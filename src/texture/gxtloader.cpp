@@ -7,8 +7,6 @@
 
 namespace Impacto {
 
-using namespace TexLoad;
-
 namespace Gxm {
 enum SceGxmTextureType : uint32_t {
   Swizzled = 0x00000000,
@@ -125,7 +123,9 @@ uint32_t Compact1By1(uint32_t x) {
 uint32_t DecodeMorton2X(uint32_t code) { return Compact1By1(code >> 0); }
 uint32_t DecodeMorton2Y(uint32_t code) { return Compact1By1(code >> 1); }
 
-void TexLoad::VitaUnswizzle(int* x, int* y, int width, int height) {
+namespace TexLoad {
+
+void VitaUnswizzle(int* x, int* y, int width, int height) {
   // TODO: verify this is even sensible
   int origX = *x, origY = *y;
   if (width == 0) width = 16;
@@ -159,8 +159,6 @@ bool GXTLoadSubtexture(SDL_RWops* stream, Texture* outTexture,
                        SubtextureHeader* stx, uint8_t* p4Palettes,
                        uint8_t* p8Palettes, uint32_t p4count) {
   memset(outTexture, 0, sizeof(*outTexture));
-  outTexture->Width = stx->Width;
-  outTexture->Height = stx->Height;
   SDL_RWseek(stream, stx->Offset, RW_SEEK_SET);
   uint32_t baseFormat = (stx->Format & 0xFF000000U);
   uint32_t channelOrder = (stx->Format & 0x0000FFFFU);
@@ -176,9 +174,7 @@ bool GXTLoadSubtexture(SDL_RWops* stream, Texture* outTexture,
     case Gxm::U8U8U8: {
       TexfmtCheck(channelOrder == Gxm::BGR || channelOrder == Gxm::RGB);
 
-      outTexture->Format = TexFmt_RGB;
-      outTexture->BufferSize = (3 * stx->Width * stx->Height);
-      outTexture->Buffer = (uint8_t*)malloc(outTexture->BufferSize);
+      outTexture->Init(TexFmt_RGB, stx->Width, stx->Height);
 
       if (channelOrder == Gxm::BGR && stx->PixelOrder == Gxm::Linear) {
         SDL_RWread(stream, outTexture->Buffer, outTexture->BufferSize, 1);
@@ -216,9 +212,7 @@ bool GXTLoadSubtexture(SDL_RWops* stream, Texture* outTexture,
     case Gxm::U8U8U8U8: {
       TexfmtCheck(channelOrder == Gxm::ARGB);
 
-      outTexture->Format = TexFmt_RGBA;
-      outTexture->BufferSize = (4 * stx->Width * stx->Height);
-      outTexture->Buffer = (uint8_t*)malloc(outTexture->BufferSize);
+      outTexture->Init(TexFmt_RGBA, stx->Width, stx->Height);
 
       uint8_t* inBuffer = (uint8_t*)malloc(outTexture->BufferSize);
       uint8_t* reader = inBuffer;
@@ -252,9 +246,7 @@ bool GXTLoadSubtexture(SDL_RWops* stream, Texture* outTexture,
       // and P8 separate
       uint8_t* palette = p8Palettes + 4 * 256 * (stx->PaletteIdx - p4count);
 
-      outTexture->Format = TexFmt_RGB;
-      outTexture->BufferSize = (3 * stx->Width * stx->Height);
-      outTexture->Buffer = (uint8_t*)malloc(outTexture->BufferSize);
+      outTexture->Init(TexFmt_RGB, stx->Width, stx->Height);
 
       uint8_t* inBuffer = (uint8_t*)malloc(stx->Width * stx->Height);
       uint8_t* reader = inBuffer;
@@ -282,9 +274,8 @@ bool GXTLoadSubtexture(SDL_RWops* stream, Texture* outTexture,
 
     // DXT1, no alpha
     case Gxm::UBC1: {
-      outTexture->Format = TexFmt_RGB;
-      outTexture->BufferSize = (3 * stx->Width * stx->Height);
-      outTexture->Buffer = (uint8_t*)malloc(outTexture->BufferSize);
+      outTexture->Init(TexFmt_RGB, stx->Width, stx->Height);
+
       if (stx->PixelOrder == Gxm::Swizzled) {
         BlockDecompressImageDXT1VitaSwizzled(stx->Width, stx->Height, stream,
                                              outTexture->Buffer);
@@ -297,9 +288,8 @@ bool GXTLoadSubtexture(SDL_RWops* stream, Texture* outTexture,
 
     // DXT5
     case Gxm::UBC3: {
-      outTexture->Format = TexFmt_RGBA;
-      outTexture->BufferSize = (4 * stx->Width * stx->Height);
-      outTexture->Buffer = (uint8_t*)malloc(outTexture->BufferSize);
+      outTexture->Init(TexFmt_RGBA, stx->Width, stx->Height);
+
       if (stx->PixelOrder == Gxm::Swizzled) {
         BlockDecompressImageDXT5VitaSwizzled(stx->Width, stx->Height, stream,
                                              outTexture->Buffer);
@@ -312,9 +302,7 @@ bool GXTLoadSubtexture(SDL_RWops* stream, Texture* outTexture,
 
     // 8-bit grayscale
     case Gxm::U8: {
-      outTexture->Format = TexFmt_U8;
-      outTexture->BufferSize = stx->Width * stx->Height;
-      outTexture->Buffer = (uint8_t*)malloc(outTexture->BufferSize);
+      outTexture->Init(TexFmt_U8, stx->Width, stx->Height);
 
       if (stx->PixelOrder == Gxm::Swizzled) {
         uint8_t* inBuffer = (uint8_t*)malloc(outTexture->BufferSize);
@@ -345,12 +333,19 @@ bool GXTLoadSubtexture(SDL_RWops* stream, Texture* outTexture,
   return true;
 }
 
+static uint32_t const magic = 0x47585400;
+
+bool TextureIsGXT(SDL_RWops* stream) {
+  bool result = SDL_ReadBE32(stream) == magic;
+  SDL_RWseek(stream, 0, RW_SEEK_SET);
+  return result;
+}
+
 bool TextureLoadGXT(SDL_RWops* stream, Texture* outTexture) {
   ImpLogSlow(LL_Debug, LC_TextureLoad, "Loading GXT texture\n");
 
   // Read metadata
 
-  const uint32_t magic = 0x47585400;
   if (SDL_ReadBE32(stream) != magic) {
     ImpLog(LL_Error, LC_TextureLoad, "GXT loader called on non GXT data\n");
     return false;
@@ -419,5 +414,5 @@ bool TextureLoadGXT(SDL_RWops* stream, Texture* outTexture) {
 
   return result;
 }
-
+}  // namespace TexLoad
 }  // namespace Impacto

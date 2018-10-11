@@ -13,6 +13,9 @@ struct Texture {
   uint8_t* Buffer;
   int BufferSize;
 
+  void Init(TexFmt fmt, int width, int height);
+
+  bool Load(SDL_RWops* stream);
   void Load1x1();
   void LoadPoliticalCompass();
   uint32_t Submit();

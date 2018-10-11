@@ -5,24 +5,49 @@
 #include <glad/glad.h>
 
 #include "../log.h"
+#include "gxtloader.h"
+#include "plainloader.h"
 
 namespace Impacto {
 
+bool Texture::Load(SDL_RWops* stream) {
+  using namespace TexLoad;
+
+  if (TextureIsGXT(stream)) return TextureLoadGXT(stream, this);
+  if (TextureIsPlain(stream)) return TextureLoadPlain(stream, this);
+
+  uint32_t magic = SDL_ReadBE32(stream);
+  ImpLog(LL_Error, LC_TextureLoad,
+         "No loader for texture, possible magic %08X\n", magic);
+  return false;
+}
+
+void Texture::Init(TexFmt fmt, int width, int height) {
+  Width = width;
+  Height = height;
+  Format = fmt;
+
+  switch (fmt) {
+    case TexFmt_RGBA:
+      BufferSize = width * height * 4;
+      break;
+    case TexFmt_RGB:
+      BufferSize = width * height * 3;
+      break;
+    case TexFmt_U8:
+      BufferSize = width * height;
+      break;
+  }
+  Buffer = (uint8_t*)malloc(BufferSize);
+}
+
 void Texture::Load1x1() {
-  Width = 1;
-  Height = 1;
-  Format = TexFmt_RGBA;
-  BufferSize = 4;
-  Buffer = (uint8_t*)malloc(4);
+  Init(TexFmt_RGBA, 1, 1);
   *(uint32_t*)Buffer = 0;
 }
 
 void Texture::LoadPoliticalCompass() {
-  Width = 512;
-  Height = 512;
-  Format = TexFmt_RGBA;
-  BufferSize = 4 * Width * Height;
-  Buffer = (uint8_t*)malloc(BufferSize);
+  Init(TexFmt_RGBA, 512, 512);
 
   for (int x = 0; x < Width / 2; x++) {
     for (int y = 0; y < Height / 2; y++) {
