@@ -5,6 +5,7 @@
 #include "modelviewer.h"
 #include "vm/vm.h"
 #include "renderer2d.h"
+#include "io/vfs.h"
 
 namespace Impacto {
 
@@ -20,6 +21,8 @@ struct GameFeatureConfig {
   uint32_t LayerCount;
   uint32_t GameFeatures;
 
+  std::string SystemArchiveName = "";
+
   uint32_t Scene3D_CharacterCount;
   uint32_t Scene3D_BackgroundCount;
 };
@@ -28,10 +31,14 @@ class Game {
  public:
   static Game* CreateModelViewer();
   static Game* CreateVmTest();
+  static Game* CreateDialogueTest();
 
   ~Game();
   void Update(float dt);
   void Render();
+
+  void SetFlag(uint32_t flagId, uint32_t value);
+  bool GetFlag(uint32_t flagId);
 
   Scene* Scene3D = 0;
   nk_context* Nk = 0;
@@ -41,10 +48,12 @@ class Game {
 
   GameFeatureConfig const Config;
 
+  Font MainFont;
+
   uint32_t* ScrWork;
   DrawComponentType DrawComponents[Vm::VmMaxThreads];
-  void SetFlag(uint32_t flagId, uint32_t value);
-  bool GetFlag(uint32_t flagId);
+
+  VfsArchive* SystemArchive = 0;
 
   bool ShouldQuit = false;
 
@@ -74,6 +83,8 @@ enum DrawComponentType : uint8_t {
   TD_SaveIcon = 0x12,
   TD_GlobalSystemMessage = 0x15,
   TD_DebugEditor = 0x1E,
+
+  TD_None = 0xFF
 };
 
 }  // namespace Impacto

@@ -337,6 +337,8 @@ void WindowShutdown() {
   SDL_GL_DeleteContext(g_GLContext);
   SDL_DestroyWindow(g_SDLWindow);
   SDL_Quit();
+  // TODO move exit to users
+  exit(0);
 }
 
 }  // namespace Impacto

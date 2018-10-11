@@ -198,6 +198,9 @@ void Vm::DrawAllThreads() {
   CreateThreadDrawTable();
   SortThreadDrawTable();
 
+  memset(GameContext->DrawComponents, TD_None,
+         sizeof(GameContext->DrawComponents));
+
   int cnt = 0;
   while (ThreadTable[cnt]) {
     GameContext->DrawComponents[cnt] = ThreadTable[cnt]->DrawType;

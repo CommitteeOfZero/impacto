@@ -4,6 +4,7 @@
 #include "../vendor/nuklear/nuklear_sdl_gl3.h"
 #include "workqueue.h"
 #include "modelviewer.h"
+#include "log.h"
 
 namespace Impacto {
 
@@ -15,6 +16,18 @@ static int const GameFlagWorkSize = 1000;
 
 Game::Game(GameFeatureConfig const& config) : Config(config) {
   WindowInit();
+
+  memset(DrawComponents, TD_None, sizeof(DrawComponents));
+
+  if (!Config.SystemArchiveName.empty()) {
+    IoError err =
+        VfsArchive::Mount(Config.SystemArchiveName.c_str(), &SystemArchive);
+    if (err != IoError_OK) {
+      ImpLog(LL_Fatal, LC_General, "Failed to load system archive!\n");
+      WindowShutdown();
+      return;
+    }
+  }
 
   if (Config.GameFeatures & GameFeature_Nuklear) {
     Nk = nk_sdl_init(g_SDLWindow, NkMaxVertexMemory, NkMaxElementMemory);
@@ -78,6 +91,33 @@ Game* Game::CreateVmTest() {
 
   Game* result = new Game(config);
   result->Init();
+  return result;
+}
+
+Game* Game::CreateDialogueTest() {
+  GameFeatureConfig config;
+  config.LayerCount = 1;
+  config.GameFeatures = GameFeature_Renderer2D;
+  config.SystemArchiveName = "system.cpk";
+
+  Game* result = new Game(config);
+  result->Init();
+
+  result->MainFont.Sheet = SpriteSheet(2048.0f, 1600.0f);
+  result->MainFont.Columns = 64;
+  result->MainFont.Rows = 50;
+  void* texFile;
+  int64_t texSz;
+  result->SystemArchive->Slurp(12, &texFile, &texSz);
+  SDL_RWops* stream = SDL_RWFromConstMem(texFile, (int)texSz);
+  Texture tex;
+  tex.Load(stream);
+  result->MainFont.Sheet.Texture = tex.Submit();
+  SDL_RWclose(stream);
+  free(texFile);
+
+  result->DrawComponents[0] = TD_Text;
+
   return result;
 }
 
@@ -157,8 +197,39 @@ void Game::Render() {
     Scene3D->Render();
   }
 
-  for (uint32_t layer = 0; layer < Config.LayerCount; layer++) {
-    // TODO
+  if (Config.GameFeatures & GameFeature_Renderer2D) {
+    R2D->Begin();
+    for (int i = 0; i < Vm::VmMaxThreads; i++) {
+      if (DrawComponents[i] == TD_None) break;
+
+      switch (DrawComponents[i]) {
+        case TD_Text: {
+          uint16_t glyphs[6] = {5, 3, 1, 0, 7, 10};
+          float x = 200.0f;
+          float y = 200.0f;
+
+          for (int i = 0; i < 6; i++) {
+            Sprite glyph = MainFont.Glyph(glyphs[i]);
+            R2D->DrawSprite(glyph, glm::vec2(x, y));
+            x += glyph.Bounds.Width;
+          }
+
+          break;
+        }
+        case TD_Main: {
+          for (uint32_t layer = 0; layer < Config.LayerCount; layer++) {
+            // TODO
+          }
+        }
+        default: {
+          ImpLog(LL_Error, LC_General,
+                 "Encountered unknown draw component type %02X\n",
+                 DrawComponents[i]);
+          break;
+        }
+      }
+    }
+    R2D->Finish();
   }
 
   if (Config.GameFeatures & GameFeature_Nuklear) {
