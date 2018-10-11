@@ -32,6 +32,7 @@ class Vm {
   Sc3VmThread* CreateThread(uint32_t groupId);
   void ControlThreadGroup(ThreadGroupControlType controlType, uint32_t groupId);
   void DestroyThread(Sc3VmThread* thread);
+  void RunThread(Sc3VmThread* thread);
 
   bool BlockCurrentScriptThread;
   uint32_t SwitchValue;  // Used in InstSwitch and InstCase
@@ -69,7 +70,6 @@ class Vm {
   void DrawAllThreads();
   void DestroyScriptThreads(uint32_t scriptBufferId);
   void DestroyThreadGroup(uint32_t groupId);
-  void RunThread(Sc3VmThread* thread);
 };
 
 }  // namespace Vm
