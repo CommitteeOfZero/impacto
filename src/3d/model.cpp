@@ -354,7 +354,7 @@ Model* Model::Load(uint32_t modelId) {
     void* gxt = malloc(size);
     SDL_RWread(stream, gxt, 1, size);
     SDL_RWops* gxtStream = SDL_RWFromConstMem(gxt, size);
-    if (!TextureLoadGXT(gxtStream, &result->Textures[i])) {
+    if (!result->Textures[i].Load(gxtStream)) {
       ImpLog(LL_Debug, LC_ModelLoad,
              "Texture %d failed to load, falling back to 1x1 pixel\n", i);
       result->Textures[i].Load1x1();

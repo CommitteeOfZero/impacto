@@ -38,6 +38,7 @@ set(Impacto_Src
     src/texture/texture.cpp
     src/texture/s3tc.cpp
     src/texture/gxtloader.cpp
+    src/texture/plainloader.cpp
 
     src/vm/vm.cpp
     src/vm/expression.cpp
@@ -83,6 +84,7 @@ set(Impacto_Header
     src/texture/texture.h
     src/texture/s3tc.h
     src/texture/gxtloader.h
+    src/texture/plainloader.h
 
     src/vm/vm.h
     src/vm/expression.h
