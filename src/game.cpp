@@ -99,20 +99,18 @@ Game* Game::CreateDialogueTest() {
   config.LayerCount = 1;
   config.GameFeatures = GameFeature_Renderer2D;
   config.SystemArchiveName = "system.cpk";
+  config.Dlg = DialoguePageFeatureConfig_RNE;
 
   Game* result = new Game(config);
   result->Init();
 
-  result->MainFont.Sheet = SpriteSheet(2048.0f, 1600.0f);
-  result->MainFont.Columns = 64;
-  result->MainFont.Rows = 50;
   void* texFile;
   int64_t texSz;
   result->SystemArchive->Slurp(12, &texFile, &texSz);
   SDL_RWops* stream = SDL_RWFromConstMem(texFile, (int)texSz);
   Texture tex;
   tex.Load(stream);
-  result->MainFont.Sheet.Texture = tex.Submit();
+  config.Dlg.DialogueFont.Sheet.Texture = tex.Submit();
   SDL_RWclose(stream);
   free(texFile);
 
@@ -204,16 +202,7 @@ void Game::Render() {
 
       switch (DrawComponents[i]) {
         case TD_Text: {
-          uint16_t glyphs[6] = {5, 3, 1, 0, 7, 10};
-          float x = 200.0f;
-          float y = 200.0f;
-
-          for (int i = 0; i < 6; i++) {
-            Sprite glyph = MainFont.Glyph(glyphs[i]);
-            R2D->DrawSprite(glyph, glm::vec2(x, y));
-            x += glyph.Bounds.Width;
-          }
-
+          // TODO
           break;
         }
         case TD_Main: {

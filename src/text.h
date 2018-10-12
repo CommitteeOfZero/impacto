@@ -9,9 +9,13 @@ enum TextAlignment { TA_Left, TA_Center };
 
 // TODO: think about / profile memory access patterns
 
-// currently exactly 64 bytes on 64-bit
+struct DialogueColorPair {
+  uint32_t TextColor;
+  uint32_t OutlineColor;
+};
+
 struct ProcessedTextGlyph {
-  glm::vec4 Color;
+  DialogueColorPair Colors;
   Sprite Glyph;
   float Opacity;
   RectF DestRect;
@@ -23,12 +27,17 @@ int const DialogueMaxNameLength = 32;
 int const DialogueMaxRubyChunks = 32;
 int const DialogueMaxRubyChunkLength = 32;
 
+int const DialogueColors = 70;
+
 struct DialoguePageFeatureConfig {
   RectF NVLBounds;
   RectF ADVBounds;
-  glm::vec4 OutlineColor;
   float DefaultFontSize;
+  Font DialogueFont;
+  DialogueColorPair ColorTable[DialogueColors];
 };
+
+extern DialoguePageFeatureConfig const DialoguePageFeatureConfig_RNE;
 
 struct RubyChunk {
   int FirstBaseCharacter;
@@ -40,7 +49,6 @@ struct DialoguePage {
   static int const MaxCharacters = 2000;
 
   Game* GameCtx;
-  Font* FontHandle;
 
   int Id;
 

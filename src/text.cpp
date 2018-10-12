@@ -140,7 +140,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
   TextAlignment Alignment = TA_Left;
   int CurrentCharacter = Length;  // in TPS_Normal line
   int LastWordStart = Length;
-  glm::vec4 CurrentColor = GetCurrentBaseColor();
+  DialogueColorPair CurrentColors = GameCtx->Config.Dlg.ColorTable[0];
 
   RectF BoxBounds;
   if (Mode == DPM_ADV) {
@@ -204,6 +204,10 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
         AutoForward = true;
         break;
       }
+      case STT_SetColor: {
+        assert(token.Val_Expr < DialogueColors);
+        CurrentColors = GameCtx->Config.Dlg.ColorTable[token.Val_Expr];
+      }
       case STT_Character: {
         if (State == TPS_Name) {
           Name[NameLength] = token.Val_Uint16;
@@ -218,16 +222,19 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
             LastWordStart = Length;
           }
 
+          // TODO respect TA_Center
+
           IsFullyOpaque = false;
           ProcessedTextGlyph& ptg = Glyphs[Length];
-          ptg.Glyph = FontHandle->Glyph(token.Val_Uint16);
+          ptg.Glyph = GameCtx->Config.Dlg.DialogueFont.Glyph(token.Val_Uint16);
           ptg.Opacity = 0.0f;
-          ptg.Color = CurrentColor;
+          ptg.Colors = CurrentColors;
 
           ptg.DestRect.X = BoxBounds.X + CurrentX;
           ptg.DestRect.Y = BoxBounds.Y + CurrentY;
           ptg.DestRect.Width =
-              (FontSize / FontHandle->RowHeight()) * ptg.Glyph.Bounds.Width;
+              (FontSize / GameCtx->Config.Dlg.DialogueFont.RowHeight()) *
+              ptg.Glyph.Bounds.Width;
           ptg.DestRect.Height = FontSize;
 
           Length++;

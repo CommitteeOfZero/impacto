@@ -24,6 +24,10 @@ struct Sprite {
 };
 
 struct Font {
+  Font() {}
+  Font(float width, float height, uint8_t rows, uint8_t columns)
+      : Sheet(width, height), Rows(rows), Columns(columns) {}
+
   SpriteSheet Sheet;
   uint8_t Rows;
   uint8_t Columns;

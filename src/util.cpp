@@ -32,6 +32,15 @@ RectF DesignToNDC(RectF const& rect) {
   return result;
 }
 
+glm::vec4 RgbaIntToFloat(uint32_t rgba) {
+  glm::vec4 result;
+  result.a = (float)((rgba >> 24) & 0xFF) / 255.0f;
+  result.r = (float)((rgba >> 16) & 0xFF) / 255.0f;
+  result.g = (float)((rgba >> 8) & 0xFF) / 255.0f;
+  result.b = (float)((rgba >> 0) & 0xFF) / 255.0f;
+  return result;
+}
+
 char* DumpMat4(glm::mat4* matrix, const char* columnSeparator,
                const char* rowSeparator) {
   size_t reqSz =

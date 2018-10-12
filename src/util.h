@@ -43,6 +43,8 @@ struct Rect {
 glm::vec2 DesignToNDC(glm::vec2 xy);
 RectF DesignToNDC(RectF const& rect);
 
+glm::vec4 RgbaIntToFloat(uint32_t rgba);
+
 char* DumpMat4(glm::mat4* matrix, const char* columnSeparator = "\t",
                const char* rowSeparator = "\n");
 

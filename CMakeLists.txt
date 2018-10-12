@@ -20,6 +20,8 @@ set(Impacto_Src
     src/renderer2d.cpp
     src/text.cpp
 
+    src/text_rne.cpp
+
     src/nuklear_impl.cpp
 
     src/3d/camera.cpp

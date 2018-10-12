@@ -50,9 +50,7 @@ class Game {
   Vm::Vm* VmComponent = 0;
   Renderer2D* R2D = 0;
 
-  GameFeatureConfig const Config;
-
-  Font MainFont;
+  GameFeatureConfig Config;
 
   uint32_t* ScrWork;
   DrawComponentType DrawComponents[Vm::VmMaxThreads];
