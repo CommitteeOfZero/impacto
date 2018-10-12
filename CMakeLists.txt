@@ -18,6 +18,7 @@ set(Impacto_Src
     src/game.cpp
     src/modelviewer.cpp
     src/renderer2d.cpp
+    src/text.cpp
 
     src/nuklear_impl.cpp
 
@@ -67,6 +68,7 @@ set(Impacto_Header
     src/modelviewer.h
     src/spritesheet.h
     src/renderer2d.h
+    src/text.h
 
     src/3d/camera.h
     src/3d/model.h

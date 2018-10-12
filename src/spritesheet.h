@@ -19,7 +19,7 @@ struct Sprite {
   Sprite(SpriteSheet const& sheet, float x, float y, float width, float height)
       : Sheet(sheet), Bounds(x, y, width, height) {}
 
-  SpriteSheet const& Sheet;
+  SpriteSheet Sheet;
   RectF Bounds;
 };
 

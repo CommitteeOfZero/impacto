@@ -7,6 +7,8 @@
 #include "renderer2d.h"
 #include "io/vfs.h"
 
+#include "text.h"
+
 namespace Impacto {
 
 enum GameFeature {
@@ -25,6 +27,8 @@ struct GameFeatureConfig {
 
   uint32_t Scene3D_CharacterCount;
   uint32_t Scene3D_BackgroundCount;
+
+  DialoguePageFeatureConfig Dlg;
 };
 
 class Game {
