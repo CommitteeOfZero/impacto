@@ -2,6 +2,8 @@
 
 #include "inst_macros.inc"
 
+#include <math.h>
+
 #include "expression.h"
 #include "../game.h"
 #include "../log.h"
@@ -20,7 +22,8 @@ VmInstruction(InstEnd) {
 VmInstruction(InstCreateThread) {
   StartInstruction;
   PopExpression(groupId);
-  PopLocalLabel(labelAdr);
+  PopExpression(scriptBufferId);
+  PopFarLabel(labelAdr, scriptBufferId);
   Sc3VmThread* newThread = thread->VmContext->CreateThread(groupId);
   newThread->ScriptBufferId = groupId;
   newThread->Ip = labelAdr;
@@ -243,27 +246,27 @@ VmInstruction(InstSystemMes) {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SystemMes(mode: SystemMesInit1)\n");
       break;
-    case 2:
+    case 2: {
       PopExpression(sysMesInit2Arg);
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SystemMes(mode: SystemMesInit2, "
                  "sysMesInit2Arg: %i)\n",
                  sysMesInit2Arg);
-      break;
-    case 3:
+    } break;
+    case 3: {
       PopUint16(sysMesStrNum);
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SystemMes(mode: SystemMesSetMes, "
                  "sysMesStrNum: %i)\n",
                  sysMesStrNum);
-      break;
-    case 4:
+    } break;
+    case 4: {
       PopUint16(sysSelStrNum);
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SystemMes(mode: SystemMesSetSel, "
                  "sysSelStrNum: %i)\n",
                  sysSelStrNum);
-      break;
+    } break;
     case 5:
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SystemMes(mode: SystemMesMain)\n");
@@ -294,30 +297,183 @@ VmInstruction(InstSystemMenu) {
 }
 VmInstruction(InstGetNowTime) {
   StartInstruction;
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction GetNowTime(mode: SystemMesFadeIn)\n");
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction GetNowTime()\n");
 }
-VmInstruction(InstGetSystemStatus) {}
-VmInstruction(InstReboot) {}
-VmInstruction(InstReloadScript) {}
-VmInstruction(InstReloadScriptMenu) {}
-VmInstruction(InstDebugEditer) {}
-VmInstruction(InstPadActEx) {}
-VmInstruction(InstDebugSetup) {}
-VmInstruction(InstGlobalSystemMessage) {}
-VmInstruction(InstCalc) {}
+VmInstruction(InstGetSystemStatus) {
+  StartInstruction;
+  PopExpression(type);
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction GetSystemStatus(type: %i)\n", type);
+}
+VmInstruction(InstReboot) {
+  StartInstruction;
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Reboot()\n");
+  BlockThread;
+}
+VmInstruction(InstReloadScript) {
+  StartInstruction;
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction ReloadScript()\n");
+  BlockThread;
+  ResetInstruction;
+}
+VmInstruction(InstReloadScriptMenu) {
+  StartInstruction;
+  PopUint8(arg1);
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction ReloadScriptMenu(arg1: %i)\n", arg1);
+}
+VmInstruction(InstDebugEditer) {
+  StartInstruction;
+  PopUint8(arg1);
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction DebugEditer(arg1: %i)\n",
+             arg1);
+}
+VmInstruction(InstPadActEx) {
+  StartInstruction;
+  PopExpression(arg1);
+  PopExpression(arg2);
+  PopExpression(arg3);
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction PadActEx(arg1: %i, arg2: %i, arg3: "
+             "%i)\n",
+             arg1, arg2, arg3);
+}
+VmInstruction(InstDebugSetup) {
+  StartInstruction;
+  PopExpression(arg1);
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction DebugSetup(arg1: %i)\n",
+             arg1);
+}
+VmInstruction(InstGlobalSystemMessage) {
+  StartInstruction;
+  PopExpression(arg1);
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction GlobalSystemMessage(arg1: %i)\n", arg1);
+}
+VmInstruction(InstCalc) {
+  StartInstruction;
+  PopUint8(type);
+  switch (type) {
+    case 0: {
+      PopExpression(dest);
+      PopExpression(angle);
+      thread->GameContext->ScrWork[dest] = sin(angle);
+    } break;
+    case 1: {
+      PopExpression(dest);
+      PopExpression(angle);
+      thread->GameContext->ScrWork[dest] = cos(angle);
+    } break;
+    case 2: {
+      PopExpression(dest);
+      PopExpression(x);
+      PopExpression(y);
+      thread->GameContext->ScrWork[dest] = atan2(x, y);
+    } break;
+    case 3: {
+      PopExpression(dest);
+      PopExpression(base);
+      PopExpression(angle);
+      PopExpression(offset);
+      thread->GameContext->ScrWork[dest] = offset + base * sin(angle);
+    } break;
+    case 4: {
+      PopExpression(dest);
+      PopExpression(base);
+      PopExpression(angle);
+      PopExpression(offset);
+      thread->GameContext->ScrWork[dest] = offset + base * cos(angle);
+    } break;
+    case 5: {
+      PopExpression(dest);
+      PopExpression(value);
+      PopExpression(multiplier);
+      PopExpression(divider);
+      thread->GameContext->ScrWork[dest] =
+          (((((multiplier * value) * 10.0) / divider) + 5.0) / 10.0);
+    } break;
+    case 6: {
+      PopExpression(dest);
+      PopExpression(x);
+      PopExpression(a);
+      PopExpression(b);
+      if (b >= 2) {
+        thread->GameContext->ScrWork[dest] =
+            (20 * a * x / b + 5 - 10 * a * a * x / b / b) / 10;
+      } else {
+        thread->GameContext->ScrWork[dest] = x;
+      }
+    } break;
+  }
+}
 VmInstruction(InstMSinit) {
   StartInstruction;
   PopExpression(initType);
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MSinit(initType: %i)\n",
              initType);
 }
-VmInstruction(InstSaveSlot) {}
-VmInstruction(InstSystemMain) {}
-VmInstruction(InstGameInfoInit) {}
-VmInstruction(InstSystemDataReset) {}
-VmInstruction(InstDebugData) {}
-VmInstruction(InstAutoSave) {}
+VmInstruction(InstSaveSlot) {
+  StartInstruction;
+  PopExpression(arg1);
+  PopExpression(arg2);
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction SaveSlot(arg1: %i, arg2: %i)\n", arg1, arg2);
+}
+VmInstruction(InstSystemMain) {
+  StartInstruction;
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SystemMain()\n");
+}
+VmInstruction(InstGameInfoInit) {
+  StartInstruction;
+  PopUint8(arg1);
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction GameInfoInit(arg1: %i)\n",
+             arg1);
+}
+VmInstruction(InstSystemDataReset) {
+  StartInstruction;
+  PopUint8(arg1);
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction SystemDataReset(arg1: %i)\n", arg1);
+}
+VmInstruction(InstDebugData) {
+  StartInstruction;
+  PopUint8(arg1);
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction DebugData(arg1: %i)\n",
+             arg1);
+}
+VmInstruction(InstAutoSave) {
+  StartInstruction;
+  PopUint8(type);
+  switch (type) {
+    case 0:
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction AutoSave(type: QuickSave)\n");
+      break;
+    case 1:
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction AutoSave(type: %i)\n",
+                 type);
+      break;
+    case 3:
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction AutoSave(type: %i)\n",
+                 type);
+      break;
+    case 5:
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction AutoSave(type: %i)\n",
+                 type);
+      break;
+    case 10: {
+      PopUint16(checkpointId);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction AutoSave(type: %i, checkpointId: %i)\n",
+                 type, checkpointId);
+    } break;
+    case 2:
+    case 4:
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction AutoSave(arg1: %i)\n",
+                 type);
+      break;
+  }
+}
 
 }  // namespace Vm
 

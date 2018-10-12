@@ -26,5 +26,12 @@
   }                                                                                                   \
   (void)0
 #define PopExpression(name) \
-  uint32_t name;            \
+  int name;            \
   ExpressionEval(thread, &name)
+#define PopString(name)                                                                               \
+  uint8_t* name;                                                                                      \
+  {                                                                                                   \
+    PopUint16(stringNum);                                                                             \
+    name = ScriptGetStrAddress(thread->VmContext->ScriptBuffers[thread->ScriptBufferId], stringNum);  \
+  }                                                                                                   \
+  (void)0

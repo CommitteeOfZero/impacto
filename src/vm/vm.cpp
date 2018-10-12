@@ -28,10 +28,12 @@ void Vm::Init(uint32_t startScriptId, uint32_t bufferId) {
   for (int i = 0; i < VmMaxThreads - 1; i++) {
     memset(&ThreadPool[i], 0, sizeof(Sc3VmThread));
     ThreadPool[i].NextFreeContext = &ThreadPool[i + 1];
+    ThreadPool[i].Id = i;
   }
 
   NextFreeThreadCtx = ThreadPool;
   memset(&ThreadPool[VmMaxThreads - 1], 0, sizeof(Sc3VmThread));
+  ThreadPool[VmMaxThreads - 1].Id = VmMaxThreads - 1;
 
   for (int i = 0; i < VmMaxThreadGroups; i++) {
     ThreadGroupState[i] = TF_Display;
@@ -276,7 +278,7 @@ void Vm::RunThread(Sc3VmThread* thread) {
   uint32_t opcodeGrp;
   uint32_t opcode;
   uint32_t opcodeGrp1;
-  uint32_t calDummy;
+  int calDummy;
 
   ImpLog(LL_Trace, LC_VM, "Running thread ID = %i\n", thread->Id);
 
@@ -319,14 +321,14 @@ uint32_t ScriptGetLabelAddressNum(uint8_t* scriptBufferAdr, uint32_t labelNum) {
 }
 
 uint8_t* ScriptGetStrAddress(uint8_t* scriptBufferAdr, uint32_t mesNum) {
-  uint32_t stringTableAdrRel = SDL_SwapLE32(*(uint32_t*)scriptBufferAdr[4]);
+  uint32_t stringTableAdrRel = SDL_SwapLE32(*(uint32_t*)&scriptBufferAdr[4]);
   uint32_t* stringTableAdr = (uint32_t*)&scriptBufferAdr[stringTableAdrRel];
   uint32_t stringAdrRel = SDL_SwapLE32(stringTableAdr[mesNum]);
   return &scriptBufferAdr[stringAdrRel];
 }
 
 uint8_t* ScriptGetRetAddress(uint8_t* scriptBufferAdr, uint32_t retNum) {
-  uint32_t returnTableAdrRel = SDL_SwapLE32(*(uint32_t*)scriptBufferAdr[8]);
+  uint32_t returnTableAdrRel = SDL_SwapLE32(*(uint32_t*)&scriptBufferAdr[8]);
   uint32_t* returnTableAdr = (uint32_t*)&scriptBufferAdr[returnTableAdrRel];
   uint32_t returnAdrRel = SDL_SwapLE32(returnTableAdr[retNum]);
   return &scriptBufferAdr[returnAdrRel];

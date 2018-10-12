@@ -13,10 +13,10 @@ VmInstruction(InstUnk0054);
 VmInstruction(InstUnk0055);
 VmInstruction(InstUnk011F);
 VmInstruction(InstUnk012D);
-VmInstruction(InstUnk1031);
+VmInstruction(InstGeotag);
 VmInstruction(InstUnk1037);
-VmInstruction(InstUnk1038);
-VmInstruction(InstUnk1039);
+VmInstruction(InstMail);
+VmInstruction(InstTwipo);
 VmInstruction(InstUnk103A);
 
 }  // namespace Vm

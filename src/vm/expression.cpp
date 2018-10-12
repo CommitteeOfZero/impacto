@@ -76,7 +76,7 @@ class ExpressionNode {
 
   int Value;
 
-  uint32_t Evaluate(Sc3VmThread* thd);
+  int Evaluate(Sc3VmThread* thd);
   void AssignValue(Sc3VmThread* thd);
 };
 
@@ -93,7 +93,7 @@ class ExpressionParser {
   ExpressionNode* ParseTerm();
 };
 
-int ExpressionEval(Sc3VmThread* thd, uint32_t* result) {
+int ExpressionEval(Sc3VmThread* thd, int* result) {
   ExpressionParser* parser = new ExpressionParser(thd);
 
   ExpressionNode* root = parser->ParseSubExpression(0);
@@ -108,8 +108,8 @@ int ExpressionEval(Sc3VmThread* thd, uint32_t* result) {
   return 0;
 }
 
-uint32_t ExpressionNode::Evaluate(Sc3VmThread* thd) {
-  uint32_t leftVal, rightVal;
+int ExpressionNode::Evaluate(Sc3VmThread* thd) {
+  int leftVal, rightVal;
 
   switch (ExprType) {
     case ET_Multiply:

@@ -582,15 +582,15 @@ InstructionProc static OpcodeTableUser1_RNE[256] = {
     InstSetSceneViewFlag,  // 10 2E
     InstChkClearFlag,      // 10 2F
     InstBGeffectWave,      // 10 30
-    InstUnk1031,           // 10 31
+    InstGeotag,            // 10 31
     InstNameID,            // 10 32
     InstTips,              // 10 33
     InstTitleMenu,         // 10 34
     InstDummy,             // 10 35
     InstBGeffect,          // 10 36
     InstUnk1037,           // 10 37
-    InstUnk1038,           // 10 38
-    InstUnk1039,           // 10 39
+    InstMail,              // 10 38
+    InstTwipo,             // 10 39
     InstUnk103A,           // 10 3A
     InstDummy,             // 10 3B
     InstDummy,             // 10 3C
