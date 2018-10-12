@@ -76,7 +76,6 @@ struct DialoguePage {
 
   void Clear();
   void AddString(Vm::Sc3VmThread* ctx);
-  glm::vec4 GetCurrentBaseColor();
 };
 
 int TextGetStringLength(Vm::Sc3VmThread* ctx);

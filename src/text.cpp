@@ -259,11 +259,6 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
   } while (token.Type != STT_EndOfString);
 }
 
-glm::vec4 DialoguePage::GetCurrentBaseColor() {
-  // TODO get this from ScrWork?
-  return glm::vec4(1.0f);
-}
-
 int TextGetStringLength(Vm::Sc3VmThread* ctx) {
   int result = 0;
   StringToken token;
