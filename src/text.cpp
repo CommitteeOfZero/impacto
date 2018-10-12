@@ -65,30 +65,33 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
     case STT_AutoForward_1A:
     case STT_Unk_1E:
     case STT_AltLineBreak:
-    case STT_EndOfString:
+    case STT_EndOfString: {
       Type = (StringTokenType)c;
       break;
+    }
 
     case STT_SetFontSize:
     case STT_SetTopMargin:
     case STT_SetLeftMargin:
-    case STT_GetHardcodedValue:
+    case STT_GetHardcodedValue: {
       Type = (StringTokenType)c;
       Val_Uint16 = SDL_SwapBE16(*(uint16_t*)(ctx->Ip));
       ctx->Ip += 2;
       bytesRead += 2;
       break;
+    }
 
     case STT_SetColor:
-    case STT_EvaluateExpression:
+    case STT_EvaluateExpression: {
       Type = (StringTokenType)c;
       uint8_t* oldIp = ctx->Ip;
       // TODO is this really okay to do in parsing code?
       Vm::ExpressionEval(ctx, &Val_Expr);
       bytesRead += (ctx->Ip - oldIp);
       break;
+    }
 
-    default:
+    default: {
       if (c < 0x80) {
         if (c == STT_Character) {
           ImpLog(LL_Error, LC_VM, "STT_Character encountered, uh oh...");
@@ -104,6 +107,7 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
         Val_Uint16 = glyphId;
       }
       break;
+    }
   }
 
   return bytesRead;
@@ -150,46 +154,56 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
     token.Read(ctx);
     switch (token.Type) {
       case STT_LineBreak:
-      case STT_AltLineBreak:
+      case STT_AltLineBreak: {
         CurrentX = 0.0f;
         CurrentY += FontSize;
         LastWordStart = Length;
         break;
-      case STT_CharacterNameStart:
+      }
+      case STT_CharacterNameStart: {
         HasName = true;
         State = TPS_Name;
         break;
-      case STT_RubyTextStart:
+      }
+      case STT_RubyTextStart: {
         CurrentRubyChunk = RubyChunkCount;
         RubyChunkCount++;
         State = TPS_Ruby;
         break;
-      case STT_DialogueLineStart:
+      }
+      case STT_DialogueLineStart: {
         State = TPS_Normal;
         break;
-      case STT_CenterText:
+      }
+      case STT_CenterText: {
         Alignment = TA_Center;
         break;
-      case STT_Present_Clear:
+      }
+      case STT_Present_Clear: {
         NVLResetBeforeAdd = true;
         break;
-      case STT_SetLeftMargin:
+      }
+      case STT_SetLeftMargin: {
         CurrentX += token.Val_Uint16;
         break;
-      case STT_SetTopMargin:
+      }
+      case STT_SetTopMargin: {
         CurrentY += token.Val_Uint16;
         break;
-      case STT_SetFontSize:
+      }
+      case STT_SetFontSize: {
         FontSize = token.Val_Uint16;
         break;
-      case STT_RubyBaseStart:
+      }
+      case STT_RubyBaseStart: {
         RubyChunks[CurrentRubyChunk].FirstBaseCharacter = Length;
         break;
+      }
       case STT_AutoForward:
-      case STT_AutoForward_1A:
+      case STT_AutoForward_1A: {
         AutoForward = true;
         break;
-
+      }
       case STT_Character: {
         if (State == TPS_Name) {
           Name[NameLength] = token.Val_Uint16;
@@ -213,7 +227,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
           ptg.DestRect.X = BoxBounds.X + CurrentX;
           ptg.DestRect.Y = BoxBounds.Y + CurrentY;
           ptg.DestRect.Width =
-              (FontSize / FontHandle->RowHeight) * ptg.Glyph.Bounds.Width;
+              (FontSize / FontHandle->RowHeight()) * ptg.Glyph.Bounds.Width;
           ptg.DestRect.Height = FontSize;
 
           Length++;
@@ -233,13 +247,12 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
       }
 
       // TODO print in parallel, set color
-      default:
-        break;
+      default: { break; }
     }
   } while (token.Type != STT_EndOfString);
 }
 
-glm::vec4 GetCurrentBaseColor() {
+glm::vec4 DialoguePage::GetCurrentBaseColor() {
   // TODO get this from ScrWork?
   return glm::vec4(1.0f);
 }
