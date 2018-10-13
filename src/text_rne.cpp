@@ -7,10 +7,14 @@ DialoguePageFeatureConfig const DialoguePageFeatureConfig_RNE{
     {128.0f, 160.0f, 1024.0f, 400.0f},
     // ADVBounds
     {160.0f, 540.0f, 960.0f, 180.0f},
+    // ADVNameAlignment
+    TA_Right,
     // DefaultFontSize
     32.0f,
+    // RubyFontSize
+    16.0f,
     // DialogueFont
-    {2560.0f, 1600.0f, 64, 50},
+    {2048.0f, 1600.0f, 64, 50},
     // ColorTable
     {{0xFFFFFFFF, 0x000000FF}, {0x5080FFFF, 0x000000FF},
      {0xFF7080FF, 0x000000FF}, {0xFFA0F8FF, 0x000000FF},

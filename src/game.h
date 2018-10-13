@@ -31,6 +31,8 @@ struct GameFeatureConfig {
   DialoguePageFeatureConfig Dlg;
 };
 
+int const DialoguePageCount = 3;
+
 class Game {
  public:
   static Game* CreateModelViewer();
@@ -54,6 +56,7 @@ class Game {
 
   uint32_t* ScrWork;
   DrawComponentType DrawComponents[Vm::VmMaxThreads];
+  DialoguePage DialoguePages[DialoguePageCount];
 
   VfsArchive* SystemArchive = 0;
 

@@ -16,6 +16,7 @@ struct SpriteSheet {
 };
 
 struct Sprite {
+  Sprite() {}
   Sprite(SpriteSheet const& sheet, float x, float y, float width, float height)
       : Sheet(sheet), Bounds(x, y, width, height) {}
 
@@ -25,12 +26,12 @@ struct Sprite {
 
 struct Font {
   Font() {}
-  Font(float width, float height, uint8_t rows, uint8_t columns)
-      : Sheet(width, height), Rows(rows), Columns(columns) {}
+  Font(float width, float height, uint8_t columns, uint8_t rows)
+      : Sheet(width, height), Columns(columns), Rows(rows) {}
 
   SpriteSheet Sheet;
-  uint8_t Rows;
   uint8_t Columns;
+  uint8_t Rows;
 
   float RowHeight() const { return Sheet.DesignHeight / (float)Rows; }
   float ColWidth() const { return Sheet.DesignWidth / (float)Columns; }

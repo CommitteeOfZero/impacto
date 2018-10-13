@@ -237,6 +237,8 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
               ptg.Glyph.Bounds.Width;
           ptg.DestRect.Height = FontSize;
 
+          CurrentX += ptg.DestRect.Width;
+
           Length++;
 
           // Wordwrap
@@ -257,6 +259,35 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
       default: { break; }
     }
   } while (token.Type != STT_EndOfString);
+}
+
+void DialoguePage::Update(float dt) {
+  // TODO rewrite
+  if (!IsFullyOpaque) {
+    int lastFullyOpaqueGlyphCount = FullyOpaqueGlyphCount;
+    for (int i = 0; i < 8; i++) {
+      int ch = lastFullyOpaqueGlyphCount + i;
+      if (ch == Length) break;
+      if (Glyphs[ch].Opacity == 1.0f) {
+        FullyOpaqueGlyphCount = ch + 1;
+        if (FullyOpaqueGlyphCount == Length) {
+          IsFullyOpaque = true;
+          break;
+        }
+      }
+      // TODO speed adjustment
+      Glyphs[ch].Opacity = fminf(Glyphs[ch].Opacity + 2.0f * dt, 1.0f);
+      if (Glyphs[ch].Opacity < (float)(i + 1) / 32.0f) break;
+    }
+  }
+}
+
+void DialoguePage::Render() {
+  for (int i = 0; i < Length; i++) {
+    GameCtx->R2D->DrawSprite(
+        Glyphs[i].Glyph, Glyphs[i].DestRect,
+        RgbaIntToFloat(Glyphs[i].Colors.TextColor) * Glyphs[i].Opacity);
+  }
 }
 
 int TextGetStringLength(Vm::Sc3VmThread* ctx) {

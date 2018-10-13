@@ -12,6 +12,8 @@ class Renderer2D {
   ~Renderer2D();
 
   void Begin();
+  void DrawSprite(Sprite const& sprite, RectF const& dest,
+                  glm::vec4 tint = glm::vec4(1.0));
   void DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
                   glm::vec4 tint = glm::vec4(1.0),
                   glm::vec2 scale = glm::vec2(1.0));

@@ -5,7 +5,7 @@
 
 namespace Impacto {
 
-enum TextAlignment { TA_Left, TA_Center };
+enum TextAlignment { TA_Left, TA_Center, TA_Right };
 
 // TODO: think about / profile memory access patterns
 
@@ -32,7 +32,9 @@ int const DialogueColors = 70;
 struct DialoguePageFeatureConfig {
   RectF NVLBounds;
   RectF ADVBounds;
+  TextAlignment ADVNameAlignment;
   float DefaultFontSize;
+  float RubyFontSize;
   Font DialogueFont;
   DialogueColorPair ColorTable[DialogueColors];
 };
@@ -76,6 +78,8 @@ struct DialoguePage {
 
   void Clear();
   void AddString(Vm::Sc3VmThread* ctx);
+  void Update(float dt);
+  void Render();
 };
 
 int TextGetStringLength(Vm::Sc3VmThread* ctx);

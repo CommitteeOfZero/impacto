@@ -56,6 +56,13 @@ Game::Game(GameFeatureConfig const& config) : Config(config) {
     Renderer2D::Init();
     R2D = new Renderer2D;
   }
+
+  for (int i = 0; i < DialoguePageCount; i++) {
+    DialoguePages[i].Clear();
+    DialoguePages[i].Mode = DPM_NVL;
+    DialoguePages[i].Id = i;
+    DialoguePages[i].GameCtx = this;
+  }
 }
 
 void Game::Init() {
@@ -110,11 +117,20 @@ Game* Game::CreateDialogueTest() {
   SDL_RWops* stream = SDL_RWFromConstMem(texFile, (int)texSz);
   Texture tex;
   tex.Load(stream);
-  config.Dlg.DialogueFont.Sheet.Texture = tex.Submit();
+  result->Config.Dlg.DialogueFont.Sheet.Texture = tex.Submit();
   SDL_RWclose(stream);
   free(texFile);
 
   result->DrawComponents[0] = TD_Text;
+
+  Vm::Sc3VmThread dummy;
+  uint8_t string[] = {0x11, 0x01, 0x18, 0x12, 0x00, 0xF0, 0x82, 0x22, 0x82,
+                      0x23, 0x81, 0xA6, 0x82, 0x24, 0x81, 0x61, 0x82, 0x25,
+                      0x81, 0x60, 0x81, 0x79, 0x81, 0x80, 0x80, 0xBE, 0x82,
+                      0x26, 0x81, 0x64, 0x81, 0x65, 0x82, 0x27, 0x80, 0xED,
+                      0x81, 0x78, 0x80, 0xBF, 0x08, 0xFF};
+  dummy.Ip = string;
+  result->DialoguePages[0].AddString(&dummy);
 
   return result;
 }
@@ -181,6 +197,10 @@ void Game::Update(float dt) {
   if (Config.GameFeatures & GameFeature_Scene3D) {
     Scene3D->Update(dt);
   }
+
+  if (Config.GameFeatures & GameFeature_Renderer2D) {
+    for (int i = 0; i < DialoguePageCount; i++) DialoguePages[i].Update(dt);
+  }
 }
 
 void Game::Render() {
@@ -202,7 +222,7 @@ void Game::Render() {
 
       switch (DrawComponents[i]) {
         case TD_Text: {
-          // TODO
+          DialoguePages[0].Render();
           break;
         }
         case TD_Main: {

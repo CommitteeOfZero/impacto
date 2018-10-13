@@ -84,8 +84,16 @@ void Renderer2D::Begin() {
 
   glDisable(GL_CULL_FACE);
 }
+
 void Renderer2D::DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
                             glm::vec4 tint, glm::vec2 scale) {
+  RectF scaledDest(topLeft.x, topLeft.y, scale.x * sprite.Bounds.Width,
+                   scale.y * sprite.Bounds.Height);
+  DrawSprite(sprite, scaledDest, tint);
+}
+
+void Renderer2D::DrawSprite(Sprite const& sprite, RectF const& dest,
+                            glm::vec4 tint) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer2D::DrawSprite() called before Begin()\n");
@@ -118,12 +126,9 @@ void Renderer2D::DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
 
   IndexBufferFill += 6;
 
-  RectF scaledDest(topLeft.x, topLeft.y, scale.x * sprite.Bounds.Width,
-                   scale.y * sprite.Bounds.Height);
-
   QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
             (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetPosition(scaledDest, (uintptr_t)&vertices[0].Position,
+  QuadSetPosition(dest, (uintptr_t)&vertices[0].Position,
                   sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
