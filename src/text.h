@@ -33,6 +33,8 @@ struct DialoguePageFeatureConfig {
   RectF NVLBounds;
   RectF ADVBounds;
   TextAlignment ADVNameAlignment;
+  float ADVNameFontSize;
+  glm::vec2 ADVNamePos;
   float DefaultFontSize;
   float RubyFontSize;
   Font DialogueFont;
@@ -47,6 +49,13 @@ struct RubyChunk {
   uint16_t Text[DialogueMaxRubyChunkLength];
 };
 
+enum DialoguePageAnimState {
+  DPAS_Hidden,
+  DPAS_Hiding,
+  DPAS_Showing,
+  DPAS_Shown
+};
+
 struct DialoguePage {
   static int const MaxCharacters = 2000;
 
@@ -54,9 +63,12 @@ struct DialoguePage {
 
   int Id;
 
+  float ADVBoxOpacity;
+  DialoguePageAnimState AnimState;
+
   int Length;
   int FullyOpaqueGlyphCount;
-  bool IsFullyOpaque;
+  bool TextIsFullyOpaque;
 
   int NameLength;
   bool HasName;

@@ -116,7 +116,7 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
 void DialoguePage::Clear() {
   Length = 0;
   FullyOpaqueGlyphCount = 0;
-  IsFullyOpaque = false;
+  TextIsFullyOpaque = false;
   NameLength = 0;
   HasName = false;
   RubyChunkCount = 0;
@@ -224,7 +224,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
 
           // TODO respect TA_Center
 
-          IsFullyOpaque = false;
+          TextIsFullyOpaque = false;
           ProcessedTextGlyph& ptg = Glyphs[Length];
           ptg.Glyph = GameCtx->Config.Dlg.DialogueFont.Glyph(token.Val_Uint16);
           ptg.Opacity = 0.0f;
@@ -259,10 +259,13 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
       default: { break; }
     }
   } while (token.Type != STT_EndOfString);
+
+  CurrentY += FontSize;  // For NVL no reset
+  CurrentX = 0.0f;
 }
 
 void DialoguePage::Update(float dt) {
-  if (!IsFullyOpaque) {
+  if (!TextIsFullyOpaque) {
     int lastFullyOpaqueGlyphCount = FullyOpaqueGlyphCount;
     for (int i = 0; i < 4; i++) {
       int ch = lastFullyOpaqueGlyphCount + i;
@@ -270,7 +273,7 @@ void DialoguePage::Update(float dt) {
       if (Glyphs[ch].Opacity == 1.0f) {
         FullyOpaqueGlyphCount = ch + 1;
         if (FullyOpaqueGlyphCount == Length) {
-          IsFullyOpaque = true;
+          TextIsFullyOpaque = true;
           break;
         }
       }
@@ -279,14 +282,68 @@ void DialoguePage::Update(float dt) {
       if (Glyphs[ch].Opacity < 0.25f) break;
     }
   }
+
+  if (AnimState == DPAS_Hiding) {
+    ADVBoxOpacity -= 1.0f * dt;
+    if (ADVBoxOpacity <= 0.0f) {
+      ADVBoxOpacity = 0.0f;
+      AnimState = DPAS_Hidden;
+    }
+  } else if (AnimState == DPAS_Showing) {
+    ADVBoxOpacity += 1.0f * dt;
+    if (ADVBoxOpacity >= 1.0f) {
+      ADVBoxOpacity = 1.0f;
+      AnimState = DPAS_Shown;
+    }
+  }
 }
 
 void DialoguePage::Render() {
+  // dialogue text
+
+  if (AnimState == DPAS_Hidden) return;
+
   for (int i = 0; i < Length; i++) {
+    float opacity = glm::smoothstep(0.0f, 1.0f, Glyphs[i].Opacity);
+    if (Mode == DPM_ADV) opacity *= glm::smoothstep(0.0f, 1.0f, ADVBoxOpacity);
+
     GameCtx->R2D->DrawSprite(
         Glyphs[i].Glyph, Glyphs[i].DestRect,
-        RgbaIntToFloat(Glyphs[i].Colors.TextColor) *
-            glm::smoothstep(0.0f, 1.0f, Glyphs[i].Opacity));
+        RgbaIntToFloat(Glyphs[i].Colors.TextColor) * opacity);
+  }
+
+  if (Mode == DPM_ADV && HasName) {
+    RectF* dests = (RectF*)ImpStackAlloc(sizeof(RectF) * NameLength);
+    Sprite* sprites = (Sprite*)ImpStackAlloc(sizeof(Sprite) * NameLength);
+
+    glm::vec2 pos = GameCtx->Config.Dlg.ADVNamePos;
+    float width = 0.0f;
+    for (int i = 0; i < NameLength; i++) {
+      sprites[i] = GameCtx->Config.Dlg.DialogueFont.Glyph(Name[i]);
+      dests[i].X = pos.x;
+      dests[i].Y = pos.y;
+      dests[i].Width = (GameCtx->Config.Dlg.ADVNameFontSize /
+                        GameCtx->Config.Dlg.DialogueFont.RowHeight()) *
+                       sprites[i].Bounds.Width;
+      dests[i].Height = GameCtx->Config.Dlg.ADVNameFontSize;
+      width += dests[i].Width;
+    }
+
+    if (GameCtx->Config.Dlg.ADVNameAlignment == TA_Center) {
+      for (int i = 0; i < NameLength; i++) dests[i].X -= width / 2.0f;
+    } else if (GameCtx->Config.Dlg.ADVNameAlignment == TA_Right) {
+      for (int i = 0; i < NameLength; i++) dests[i].X -= width;
+    }
+
+    for (int i = 0; i < NameLength; i++) {
+      GameCtx->R2D->DrawSprite(
+          sprites[i], dests[i],
+          RgbaIntToFloat(GameCtx->Config.Dlg.ColorTable[0].TextColor) *
+              glm::smoothstep(0.0f, 1.0f, ADVBoxOpacity));
+    }
+
+    ImpStackFree(sprites);
+    ImpStackFree(dests);
   }
 }
 
