@@ -25,7 +25,8 @@ VmInstruction(InstCreateThread) {
   PopExpression(scriptBufferId);
   PopFarLabel(labelAdr, scriptBufferId);
   Sc3VmThread* newThread = thread->VmContext->CreateThread(groupId);
-  newThread->ScriptBufferId = groupId;
+  newThread->GroupId = groupId;
+  newThread->ScriptBufferId = scriptBufferId;
   newThread->Ip = labelAdr;
   thread->VmContext->RunThread(newThread);
   thread->VmContext->BlockCurrentScriptThread = false;

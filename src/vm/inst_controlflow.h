@@ -13,6 +13,7 @@ VmInstruction(InstCall);
 VmInstruction(InstJumpFar);
 VmInstruction(InstCallFar);
 VmInstruction(InstReturn);
+VmInstruction(InstReturnIfFlag);
 VmInstruction(InstLoop);
 VmInstruction(InstFlagOnJump);
 VmInstruction(InstKeyOnJump);

@@ -45,7 +45,8 @@ VmInstruction(InstCall) {
 
   if (thread->CallStackDepth != VmMaxCallStackDepth) {
     thread->ReturnAdresses[thread->CallStackDepth] = retNum;
-    thread->ReturnGroupIds[thread->CallStackDepth++] = thread->ScriptBufferId;
+    thread->ReturnScriptBufferIds[thread->CallStackDepth++] =
+        thread->ScriptBufferId;
     thread->Ip = labelAdr;
   } else {
     ImpLog(LL_Error, LC_VM, "Call error, call stack overflow.\n");
@@ -67,7 +68,8 @@ VmInstruction(InstCallFar) {
 
   if (thread->CallStackDepth != VmMaxCallStackDepth) {
     thread->ReturnAdresses[thread->CallStackDepth] = retNum;
-    thread->ReturnGroupIds[thread->CallStackDepth++] = thread->ScriptBufferId;
+    thread->ReturnScriptBufferIds[thread->CallStackDepth++] =
+        thread->ScriptBufferId;
     thread->Ip = labelAdr;
     thread->ScriptBufferId = scriptBufferId;
   } else {
@@ -78,7 +80,24 @@ VmInstruction(InstReturn) {
   StartInstruction;
   if (thread->CallStackDepth) {
     thread->CallStackDepth--;
-    uint32_t retBufferId = thread->ReturnGroupIds[thread->CallStackDepth];
+    uint32_t retBufferId =
+        thread->ReturnScriptBufferIds[thread->CallStackDepth];
+    thread->Ip =
+        ScriptGetRetAddress(thread->VmContext->ScriptBuffers[retBufferId],
+                            thread->ReturnAdresses[thread->CallStackDepth]);
+    thread->ScriptBufferId = retBufferId;
+  } else {
+    ImpLog(LL_Error, LC_VM, "Return error, call stack empty.\n");
+  }
+}
+VmInstruction(InstReturnIfFlag) {
+  StartInstruction;
+  PopUint8(value);
+  PopExpression(flagId);
+  if (thread->CallStackDepth && value == thread->GameContext->GetFlag(flagId)) {
+    thread->CallStackDepth--;
+    uint32_t retBufferId =
+        thread->ReturnScriptBufferIds[thread->CallStackDepth];
     thread->Ip =
         ScriptGetRetAddress(thread->VmContext->ScriptBuffers[retBufferId],
                             thread->ReturnAdresses[thread->CallStackDepth]);
@@ -112,10 +131,7 @@ VmInstruction(InstFlagOnJump) {
   StartInstruction;
   PopUint8(value);
   PopExpression(flagId);
-  PopUint16(labelNum);
-
-  uint8_t* labelAdr = ScriptGetLabelAddress(
-      thread->VmContext->ScriptBuffers[thread->ScriptBufferId], labelNum);
+  PopLocalLabel(labelAdr);
 
   if (thread->GameContext->GetFlag(flagId) == (bool)value) {
     thread->Ip = labelAdr;
@@ -127,6 +143,14 @@ VmInstruction(InstKeyOnJump) {
   PopExpression(arg2);
   PopExpression(arg3);
   PopUint16(labelNum);
+  uint8_t* labelAdr = ScriptGetLabelAddress(
+      thread->VmContext->ScriptBuffers[thread->ScriptBufferId], labelNum);
+  if (thread->Id == 0 && labelNum == 57) {
+    thread->Ip = labelAdr;  // Dirty hack to kickstart the titlescreen
+  }
+  if (thread->Id == 0 && labelNum == 80) {
+    thread->Ip = labelAdr;  // Dirty hack to kickstart the "New Game"
+  }
 
   ImpLogSlow(LL_Warning, LC_VMStub,
              "STUB instruction KeyOnJump(arg1: %i, arg2: %i, arg3: %i, "

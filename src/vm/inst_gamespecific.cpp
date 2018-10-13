@@ -14,7 +14,6 @@ VmInstruction(InstUnk0041) {}
 VmInstruction(InstUnk0052) {}
 VmInstruction(InstUnk0053) {}
 VmInstruction(InstUnk0054) {}
-VmInstruction(InstUnk0055) {}
 VmInstruction(InstUnk011F) {}
 VmInstruction(InstUnk012D) {}
 VmInstruction(InstGeotag) {

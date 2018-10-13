@@ -62,6 +62,7 @@ struct Sc3VmThread {
   Sc3VmThread* NextFreeContext;
   uint32_t ExecPriority;
   uint32_t ScriptBufferId;
+  uint32_t GroupId;
   uint32_t WaitCounter;
   uint32_t ScriptParam;
   uint8_t* Ip;
@@ -69,14 +70,14 @@ struct Sc3VmThread {
   uint16_t LoopLabelNum;
   uint32_t CallStackDepth;
   uint16_t ReturnAdresses[VmMaxCallStackDepth];
-  uint32_t ReturnGroupIds[VmMaxCallStackDepth];
+  uint32_t ReturnScriptBufferIds[VmMaxCallStackDepth];
   uint32_t DrawPriority;
   DrawComponentType DrawType;
   uint32_t Alpha;
   uint32_t Temp1;
   uint32_t Temp2;
   uint32_t Variables[VmMaxThreadVars];
-  uint32_t MesId;
+  uint32_t DialoguePageId;
   Vm* VmContext;
   Game* GameContext;
 

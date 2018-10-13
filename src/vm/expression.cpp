@@ -208,9 +208,8 @@ int ExpressionNode::Evaluate(Sc3VmThread* thd) {
       rightVal = RightExpr->Evaluate(thd);
       if (leftVal >= 0) {
         uint8_t* scrBuf = thd->VmContext->ScriptBuffers[thd->ScriptBufferId];
-        uint32_t* dataAdrRel = (uint32_t*)&scrBuf[leftVal];
-        uint32_t dataItemAdrRel = dataAdrRel[rightVal];
-        return *(uint32_t*)&scrBuf[dataItemAdrRel];
+        int* dataArray = (int*)&scrBuf[leftVal];
+        return dataArray[rightVal];
       } else {
         ImpLogSlow(LL_Warning, LC_Expr, "STUB token %02X evaluate\n", ExprType);
         // TODO: Handle this

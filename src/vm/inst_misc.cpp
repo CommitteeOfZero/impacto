@@ -24,9 +24,29 @@ VmInstruction(InstPresence) {
   ImpLogSlow(LL_Warning, LC_VMStub,
              "STUB instruction Presence(arg1: %i, arg2: %i)\n", arg1, arg2);
 }
-VmInstruction(InstAchievement) {}
-VmInstruction(InstSetPlayer) {}
-VmInstruction(InstSignIn) {}
+VmInstruction(InstAchievement) {
+  StartInstruction;
+  PopUint8(type);
+  if (type == 1) {
+    PopExpression(arg1);
+    ImpLogSlow(LL_Warning, LC_VMStub,
+               "STUB instruction Achievement(type: %i, arg1: %i)\n", type,
+               arg1);
+  } else {
+    ImpLogSlow(LL_Warning, LC_VMStub,
+               "STUB instruction Achievement(type: %i)\n", type);
+  }
+}
+VmInstruction(InstSetPlayer) {
+  StartInstruction;
+  PopUint8(arg1);
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SetPlayer(arg1: %i)\n",
+             arg1);
+}
+VmInstruction(InstSignIn) {
+  StartInstruction;
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SignIn()\n");
+}
 VmInstruction(InstAchievementIcon) {}
 VmInstruction(InstSetX360SysMesPos) {
   StartInstruction;
@@ -122,11 +142,45 @@ VmInstruction(InstMovieMode) {}
 VmInstruction(InstClistInit) {}
 VmInstruction(InstSaveMenu) {}
 VmInstruction(InstLoadData) {}
-VmInstruction(InstTitleMenu) {}
+VmInstruction(InstTitleMenu) {
+  StartInstruction;
+  PopUint8(type);
+  switch (type) {
+    case 0:
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction TitleMenu(type: Init)\n");
+      break;
+    case 1:
+      // Hack to kickstart into "New Game"
+      thread->GameContext->ScrWork[3341] = 0;
+      thread->GameContext->ScrWork[3342] = 255;
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction TitleMenu(type: Main)\n");
+      break;
+    case 2:
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction TitleMenu(type: Init2)\n");
+      break;
+      break;
+  }
+}
 VmInstruction(InstSetPlayMode) {}
 VmInstruction(InstSetEVflag) {}
-VmInstruction(InstSetCutin) {}
-VmInstruction(InstAchChkTitle) {}
+VmInstruction(InstSetCutin) {
+  StartInstruction;
+  PopUint8(type);
+  PopExpression(arg1);
+  PopExpression(arg2);
+  PopExpression(arg3);
+  ImpLogSlow(
+      LL_Warning, LC_VMStub,
+      "STUB instruction SetCutin(type: %i, arg1: %i, arg2: %i, arg3: %i)\n",
+      type, arg1, arg2, arg3);
+}
+VmInstruction(InstAchChkTitle) {
+  StartInstruction;
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction AchChkTitle()\n");
+}
 VmInstruction(InstSetSceneViewFlag) {}
 VmInstruction(InstChkClearFlag) {}
 

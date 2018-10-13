@@ -100,7 +100,7 @@ InstructionProc static OpcodeTableSystem_RNE[256] = {
     InstUnk0052,              // 00 52
     InstUnk0053,              // 00 53
     InstUnk0054,              // 00 54
-    InstUnk0055,              // 00 55
+    InstReturnIfFlag,         // 00 55
     InstDummy,                // 00 56
     InstDummy,                // 00 57
     InstDummy,                // 00 58

@@ -52,6 +52,7 @@ void Vm::Init(uint32_t startScriptId, uint32_t bufferId) {
   bool res = LoadScript(bufferId, startScriptId);
   if (res) {
     Sc3VmThread* startupThd = CreateThread(0);
+    startupThd->GroupId = bufferId;
     startupThd->ScriptBufferId = bufferId;
     uint8_t* scrBuf = ScriptBuffers[bufferId];
     startupThd->Ip = ScriptGetLabelAddress(scrBuf, 0);
@@ -120,7 +121,7 @@ void Vm::CreateThreadExecTable() {
         } else {
           groupThread = groupThread->NextContext;
         }
-      } while (groupThread != NULL && groupThread->NextContext != NULL);
+      } while (groupThread != NULL);
     }
   }
   ThreadTable[tblIndex] = 0;
@@ -174,7 +175,7 @@ void Vm::CreateThreadDrawTable() {
           ThreadTable[tblIndex++] = groupThread;
         }
         groupThread = groupThread->NextContext;
-      } while (groupThread != NULL && groupThread->NextContext != NULL);
+      } while (groupThread != NULL);
     }
   }
   ThreadTable[tblIndex] = 0;
@@ -219,7 +220,7 @@ void Vm::DestroyThread(Sc3VmThread* thread) {
   if (previous != 0) {
     thread->PreviousContext->NextContext = next;
   }
-  --ThreadGroupCount[thread->ScriptBufferId];
+  --ThreadGroupCount[thread->GroupId];
   int id = thread->Id;
   memset(thread, 0, sizeof(Sc3VmThread));
   thread->Id = id;
@@ -241,10 +242,12 @@ void Vm::DestroyScriptThreads(uint32_t scriptBufferId) {
 
 void Vm::DestroyThreadGroup(uint32_t groupId) {
   Sc3VmThread* groupThread = ThreadGroupHeads[groupId];
-  while (groupThread->NextContext != 0) {
-    Sc3VmThread* next = groupThread->NextContext;
-    DestroyThread(groupThread);
-    groupThread = next;
+  if (groupThread != NULL) {
+    while (groupThread->NextContext != NULL) {
+      Sc3VmThread* next = groupThread->NextContext;
+      DestroyThread(groupThread);
+      groupThread = next;
+    }
   }
 }
 

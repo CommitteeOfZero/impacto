@@ -94,10 +94,23 @@ Game* Game::CreateModelViewer() {
 Game* Game::CreateVmTest() {
   GameFeatureConfig config;
   config.LayerCount = 1;
-  config.GameFeatures = GameFeature_Sc3VirtualMachine;
+  config.GameFeatures = GameFeature_Sc3VirtualMachine | GameFeature_Renderer2D;
+  config.SystemArchiveName = "system.cpk";
+  config.Dlg = DialoguePageFeatureConfig_RNE;
 
   Game* result = new Game(config);
   result->Init();
+
+  void* texFile;
+  int64_t texSz;
+  result->SystemArchive->Slurp(12, &texFile, &texSz);
+  SDL_RWops* stream = SDL_RWFromConstMem(texFile, (int)texSz);
+  Texture tex;
+  tex.Load(stream);
+  result->Config.Dlg.DialogueFont.Sheet.Texture = tex.Submit();
+  SDL_RWclose(stream);
+  free(texFile);
+
   return result;
 }
 
