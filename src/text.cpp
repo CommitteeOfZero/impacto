@@ -119,6 +119,7 @@ void DialoguePage::Clear() {
   TextIsFullyOpaque = false;
   NameLength = 0;
   HasName = false;
+  memset(RubyChunks, 0, sizeof(RubyChunk) * DialogueMaxRubyChunks);
   RubyChunkCount = 0;
   CurrentRubyChunk = 0;
   CurrentX = 0.0f;
@@ -244,7 +245,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
           // Wordwrap
           if (ptg.DestRect.X + ptg.DestRect.Width >
               BoxBounds.X + BoxBounds.Width) {
-            for (int i = 0; i < Length; i++) {
+            for (int i = LastWordStart; i < Length; i++) {
               Glyphs[i].DestRect.X -= CurrentX;
               Glyphs[i].DestRect.Y += FontSize;
             }

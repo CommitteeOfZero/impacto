@@ -160,33 +160,31 @@ VmInstruction(InstMessWindow) {
       &thread->GameContext->DialoguePages[thread->DialoguePageId];
   switch (type) {
     case 0:  // HideCurrent
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MessWindow(type: HideCurrent)\n");
-      currentPage->AnimState = DPAS_Hiding;
+      if (currentPage->AnimState != DPAS_Hidden) {
+        currentPage->AnimState = DPAS_Hiding;
+      }
       break;
     case 1:  // ShowCurrent
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MessWindow(type: ShowCurrent)\n");
-      currentPage->Mode =
-          (DialoguePageMode)
-              thread->GameContext->ScrWork[4423];  // Only for page 0 for now
-      currentPage->ADVBoxOpacity = 0.0f;
-      currentPage->AnimState = DPAS_Showing;
+      if (currentPage->AnimState != DPAS_Shown) {
+        currentPage->Mode =
+            (DialoguePageMode)
+                thread->GameContext->ScrWork[4423];  // Only for page 0 for now
+        currentPage->ADVBoxOpacity = 0.0f;
+        currentPage->AnimState = DPAS_Showing;
+      }
       break;
     case 2:  // AwaitShowCurrent
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MessWindow(type: AwaitShowCurrent)\n");
       if (currentPage->AnimState == DPAS_Showing) {
         ResetInstruction;
         BlockThread;
       }
       break;
     case 3:  // AwaitHideCurrent
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MessWindow(type: AwaitHideCurrent)\n");
       if (currentPage->AnimState == DPAS_Hiding) {
         ResetInstruction;
         BlockThread;
+      } else if (currentPage->AnimState == DPAS_Hidden) {
+        currentPage->Clear();
       }
       break;
     case 4:  // HideCurrent04
@@ -195,10 +193,11 @@ VmInstruction(InstMessWindow) {
       break;
     case 5: {  // Hide
       PopExpression(messWindowId);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MessWindow(type: Hide, messWindowId: %i)\n",
-                 messWindowId);
-      thread->GameContext->DialoguePages[messWindowId].AnimState = DPAS_Hiding;
+      if (thread->GameContext->DialoguePages[messWindowId].AnimState !=
+          DPAS_Hidden) {
+        thread->GameContext->DialoguePages[messWindowId].AnimState =
+            DPAS_Hiding;
+      }
     } break;
     case 6: {  // HideSlow
       PopExpression(messWindowId);
@@ -234,20 +233,18 @@ VmInstruction(InstSetDic) {
   switch (type) {
     case 0:  // NewTip
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction SetTextTable(type: NewTip, tipId: %i)\n",
-                 tipId);
+                 "STUB instruction SetDic(type: NewTip, tipId: %i)\n", tipId);
       break;
     case 1: {  // Check
       PopExpression(flagId);
       ImpLogSlow(
           LL_Warning, LC_VMStub,
-          "STUB instruction SetTextTable(type: Check, tipId: %i, flagId: %i)\n",
+          "STUB instruction SetDic(type: Check, tipId: %i, flagId: %i)\n",
           tipId, flagId);
     } break;
     case 2:  // SetDic02
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction SetTextTable(type: %i, tipId: %i)\n", type,
-                 tipId);
+                 "STUB instruction SetDic(type: %i, tipId: %i)\n", type, tipId);
       break;
   }
 }

@@ -4,7 +4,7 @@ namespace Impacto {
 
 DialoguePageFeatureConfig const DialoguePageFeatureConfig_RNE{
     // NVLBounds
-    {128.0f, 160.0f, 1024.0f, 400.0f},
+    {125.0f, 85.0f, 1024.0f, 400.0f},
     // ADVBounds
     {160.0f, 540.0f, 960.0f, 180.0f},
     // ADVNameAlignment
