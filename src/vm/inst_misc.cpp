@@ -67,7 +67,7 @@ VmInstruction(InstPressStart) {
     } break;
     case 1: {
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction SetX360SysMesPos(type: %i)\n", type);
+                 "STUB instruction PressStart(type: %i)\n", type);
     } break;
     case 2: {
       PopExpression(arg1);
@@ -86,7 +86,7 @@ VmInstruction(InstPressStart) {
     } break;
     case 4: {
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction SetX360SysMesPos(type: %i)\n", type);
+                 "STUB instruction PressStart(type: %i)\n", type);
     } break;
     case 5: {
       PopExpression(arg1);
@@ -97,11 +97,11 @@ VmInstruction(InstPressStart) {
     } break;
     case 6: {
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction SetX360SysMesPos(type: %i)\n", type);
+                 "STUB instruction PressStart(type: %i)\n", type);
     } break;
     case 7: {
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction SetX360SysMesPos(type: %i)\n", type);
+                 "STUB instruction PressStart(type: %i)\n", type);
     } break;
   }
 }
@@ -146,18 +146,18 @@ VmInstruction(InstTitleMenu) {
   StartInstruction;
   PopUint8(type);
   switch (type) {
-    case 0:
+    case 0:  // Init
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction TitleMenu(type: Init)\n");
       break;
-    case 1:
+    case 1:  // Main
       // Hack to kickstart into "New Game"
       thread->GameContext->ScrWork[3341] = 0;
       thread->GameContext->ScrWork[3342] = 255;
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction TitleMenu(type: Main)\n");
       break;
-    case 2:
+    case 2:  // Init2
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction TitleMenu(type: Init2)\n");
       break;

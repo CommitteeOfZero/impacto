@@ -172,8 +172,10 @@ VmInstruction(InstCopyThreadWork) {
 VmInstruction(InstSave) {
   StartInstruction;
   PopUint8(type);
-  switch (type) {
-    case 40:
+  switch (type) {  // TODO: Types 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
+                   // 16, 20, 21, 72, 30, 31, 32, 33, 34, 35, 41, 50, 51, 66,
+                   // 67, 70, 71, 74, 76
+    case 40:       // SystemDataCheck
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
@@ -239,44 +241,44 @@ VmInstruction(InstSystemMes) {
   PopUint8(mode);
 
   switch (mode) {
-    case 0:
+    case 0:  // SystemMesInit0
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SystemMes(mode: SystemMesInit0)\n");
       break;
-    case 1:
+    case 1:  // SystemMesInit1
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SystemMes(mode: SystemMesInit1)\n");
       break;
-    case 2: {
+    case 2: {  // SystemMesInit2
       PopExpression(sysMesInit2Arg);
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SystemMes(mode: SystemMesInit2, "
                  "sysMesInit2Arg: %i)\n",
                  sysMesInit2Arg);
     } break;
-    case 3: {
+    case 3: {  // SystemMesSetMes
       PopUint16(sysMesStrNum);
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SystemMes(mode: SystemMesSetMes, "
                  "sysMesStrNum: %i)\n",
                  sysMesStrNum);
     } break;
-    case 4: {
+    case 4: {  // SystemMesSetSel
       PopUint16(sysSelStrNum);
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SystemMes(mode: SystemMesSetSel, "
                  "sysSelStrNum: %i)\n",
                  sysSelStrNum);
     } break;
-    case 5:
+    case 5:  // SystemMesMain
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SystemMes(mode: SystemMesMain)\n");
       break;
-    case 6:
+    case 6:  // SystemMesFadeIn
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SystemMes(mode: SystemMesFadeIn)\n");
       break;
-    case 7:
+    case 7:  // SystemMesFadeOut
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SystemMes(mode: SystemMesFadeOut)\n");
       break;
@@ -355,37 +357,37 @@ VmInstruction(InstCalc) {
   StartInstruction;
   PopUint8(type);
   switch (type) {
-    case 0: {
+    case 0: {  // CalcSin
       PopExpression(dest);
       PopExpression(angle);
       thread->GameContext->ScrWork[dest] = sin(angle);
     } break;
-    case 1: {
+    case 1: {  // CalcCos
       PopExpression(dest);
       PopExpression(angle);
       thread->GameContext->ScrWork[dest] = cos(angle);
     } break;
-    case 2: {
+    case 2: {  // CalcAtan2
       PopExpression(dest);
       PopExpression(x);
       PopExpression(y);
       thread->GameContext->ScrWork[dest] = atan2(x, y);
     } break;
-    case 3: {
+    case 3: {  // CalcSinL
       PopExpression(dest);
       PopExpression(base);
       PopExpression(angle);
       PopExpression(offset);
       thread->GameContext->ScrWork[dest] = offset + base * sin(angle);
     } break;
-    case 4: {
+    case 4: {  // CalcCosL
       PopExpression(dest);
       PopExpression(base);
       PopExpression(angle);
       PopExpression(offset);
       thread->GameContext->ScrWork[dest] = offset + base * cos(angle);
     } break;
-    case 5: {
+    case 5: {  // CalcRound
       PopExpression(dest);
       PopExpression(value);
       PopExpression(multiplier);
@@ -393,7 +395,7 @@ VmInstruction(InstCalc) {
       thread->GameContext->ScrWork[dest] =
           (((((multiplier * value) * 10.0) / divider) + 5.0) / 10.0);
     } break;
-    case 6: {
+    case 6: {  // CalcAccel
       PopExpression(dest);
       PopExpression(x);
       PopExpression(a);
@@ -409,7 +411,8 @@ VmInstruction(InstCalc) {
 }
 VmInstruction(InstMSinit) {
   StartInstruction;
-  PopExpression(initType);
+  PopExpression(
+      initType);  // TODO: There's only one type in R;NE - initType <= 10
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MSinit(initType: %i)\n",
              initType);
 }
@@ -446,23 +449,23 @@ VmInstruction(InstAutoSave) {
   StartInstruction;
   PopUint8(type);
   switch (type) {
-    case 0:
+    case 0:  // QuickSave
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction AutoSave(type: QuickSave)\n");
       break;
-    case 1:
+    case 1:  // AutoSaveRestart (?)
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction AutoSave(type: %i)\n",
                  type);
       break;
-    case 3:
+    case 3:  // DisableAutoSave
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction AutoSave(type: %i)\n",
                  type);
       break;
-    case 5:
+    case 5:  // EnableAutoSave
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction AutoSave(type: %i)\n",
                  type);
       break;
-    case 10: {
+    case 10: {  // SetCheckpointId
       PopUint16(checkpointId);
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction AutoSave(type: %i, checkpointId: %i)\n",

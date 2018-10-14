@@ -14,7 +14,7 @@ VmInstruction(InstMesViewFlag) {
   StartInstruction;
   PopUint8(type);
   switch (type) {
-    case 0: {
+    case 0: {  // Set
       PopExpression(arg1);
       PopExpression(arg2);
       ImpLogSlow(
@@ -22,7 +22,7 @@ VmInstruction(InstMesViewFlag) {
           "STUB instruction MesViewFlag(type: Set, arg1: %i, arg2: %i)\n", arg1,
           arg2);
     } break;
-    case 1: {
+    case 1: {  // Check
       PopExpression(dest);
       PopExpression(arg1);
       PopExpression(arg2);
@@ -48,25 +48,28 @@ VmInstruction(InstMesSetID) {
   StartInstruction;
   PopUint8(type);
   switch (type) {
-    case 0: {
+    case 0: {  // SetSavePointPage0
       PopUint16(savePointId);
       ImpLogSlow(
           LL_Warning, LC_VMStub,
           "STUB instruction MesSetID(type: SetSavePoint, savePointId: %i)\n",
           savePointId);
     } break;
-    case 1: {
+    case 1: {  // SetSavePointForPage
       PopUint16(savePointId);
-      PopExpression(arg1);
+      PopExpression(dialoguePageId);
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MesViewFlag(type: SetSavePoint1, "
+                 "STUB instruction MesSetID(type: SetSavePoint1, "
                  "savePointId: %i, arg1: %i)\n",
-                 savePointId, arg1);
+                 savePointId, dialoguePageId);
     } break;
-    case 2: {
-      PopExpression(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MesSetID(type: %i, arg1: %i)\n", type, arg1);
+    case 2: {  // SetPage
+      PopExpression(dialoguePageId);
+      ImpLogSlow(
+          LL_Warning, LC_VMStub,
+          "STUB instruction MesSetID(type: SetPage, dialoguePageId: %i)\n",
+          dialoguePageId);
+      thread->DialoguePageId = dialoguePageId;
     } break;
   }
 }
@@ -79,7 +82,7 @@ VmInstruction(InstMes) {
   StartInstruction;
   PopUint8(type);
   switch (type) {
-    case 0: {
+    case 0: {  // LoadDialogue
       PopExpression(characterId);
       PopString(line);
       uint8_t* oldIp = thread->Ip;
@@ -88,7 +91,7 @@ VmInstruction(InstMes) {
           thread);
       thread->Ip = oldIp;
     } break;
-    case 1: {
+    case 1: {  // LoadVoicedUnactedDialogue
       PopExpression(audioId);
       PopExpression(characterId);
       PopString(line);
@@ -98,7 +101,7 @@ VmInstruction(InstMes) {
           thread);
       thread->Ip = oldIp;
     } break;
-    case 3: {
+    case 3: {  // LoadVoicedDialogue
       PopExpression(audioId);
       PopExpression(animationId);
       PopExpression(characterId);
@@ -107,11 +110,9 @@ VmInstruction(InstMes) {
       thread->Ip = line;
       thread->GameContext->DialoguePages[thread->DialoguePageId].AddString(
           thread);
-      thread->GameContext->DialoguePages[thread->DialoguePageId].AnimState =
-          DPAS_Hidden;
       thread->Ip = oldIp;
     } break;
-    case 0x0B: {
+    case 0x0B: {  // LoadVoicedDialogue0B
       PopExpression(audioId);
       PopExpression(animationId);
       PopExpression(characterId);
@@ -129,28 +130,13 @@ VmInstruction(InstMesMain) {
   PopUint8(type);
   DialoguePage* currentPage =
       &thread->GameContext->DialoguePages[thread->DialoguePageId];
-  if (type == 0) {
-    switch (currentPage->AnimState) {
-      case DPAS_Hidden:
-        currentPage->Mode =
-            (DialoguePageMode)
-                thread->GameContext->ScrWork[4423];  // Only for page 0 for now
-        currentPage->ADVBoxOpacity = 0.0f;
-        currentPage->AnimState = DPAS_Showing;
-        ResetInstruction;
-        BlockThread;
-        break;
-      case DPAS_Shown: {
-        // TODO: Check controls here
-        thread->GameContext->DialoguePages[thread->DialoguePageId].AnimState =
-            DPAS_Hiding;
-      } break;
-      default:
-        ResetInstruction;
-        BlockThread;
-        break;
+  if (type == 0) {  // Normal mode
+    if (!currentPage->TextIsFullyOpaque) {
+      ResetInstruction;
+      BlockThread;
     }
   }
+  // TODO: Type 1 - Skip mode(?)
 }
 
 VmInstruction(InstSetMesModeFormat) {
@@ -170,41 +156,58 @@ VmInstruction(InstMesRev) {}
 VmInstruction(InstMessWindow) {
   StartInstruction;
   PopUint8(type);
+  DialoguePage* currentPage =
+      &thread->GameContext->DialoguePages[thread->DialoguePageId];
   switch (type) {
-    case 0:
+    case 0:  // HideCurrent
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MessWindow(type: HideCurrent)\n");
+      currentPage->AnimState = DPAS_Hiding;
       break;
-    case 1:
+    case 1:  // ShowCurrent
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MessWindow(type: ShowCurrent)\n");
+      currentPage->Mode =
+          (DialoguePageMode)
+              thread->GameContext->ScrWork[4423];  // Only for page 0 for now
+      currentPage->ADVBoxOpacity = 0.0f;
+      currentPage->AnimState = DPAS_Showing;
       break;
-    case 2:
+    case 2:  // AwaitShowCurrent
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MessWindow(type: AwaitShowCurrent)\n");
+      if (currentPage->AnimState == DPAS_Showing) {
+        ResetInstruction;
+        BlockThread;
+      }
       break;
-    case 3:
+    case 3:  // AwaitHideCurrent
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MessWindow(type: AwaitHideCurrent)\n");
+      if (currentPage->AnimState == DPAS_Hiding) {
+        ResetInstruction;
+        BlockThread;
+      }
       break;
-    case 4:
+    case 4:  // HideCurrent04
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MessWindow(type: Current04)\n");
+                 "STUB instruction MessWindow(type: HideCurrent04)\n");
       break;
-    case 5: {
+    case 5: {  // Hide
       PopExpression(messWindowId);
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MessWindow(type: Hide, messWindowId: %i)\n",
                  messWindowId);
+      thread->GameContext->DialoguePages[messWindowId].AnimState = DPAS_Hiding;
     } break;
-    case 6: {
+    case 6: {  // HideSlow
       PopExpression(messWindowId);
       ImpLogSlow(
           LL_Warning, LC_VMStub,
           "STUB instruction MessWindow(type: HideSlow, messWindowId: %i)\n",
           messWindowId);
     } break;
-    case 7: {
+    case 7: {  // HideSlow
       PopExpression(messWindowId);
       ImpLogSlow(
           LL_Warning, LC_VMStub,
@@ -229,19 +232,19 @@ VmInstruction(InstSetDic) {
   PopUint8(type);
   PopExpression(tipId);
   switch (type) {
-    case 0:
+    case 0:  // NewTip
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SetTextTable(type: NewTip, tipId: %i)\n",
                  tipId);
       break;
-    case 1: {
+    case 1: {  // Check
       PopExpression(flagId);
       ImpLogSlow(
           LL_Warning, LC_VMStub,
           "STUB instruction SetTextTable(type: Check, tipId: %i, flagId: %i)\n",
           tipId, flagId);
     } break;
-    case 2:
+    case 2:  // SetDic02
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SetTextTable(type: %i, tipId: %i)\n", type,
                  tipId);
@@ -253,28 +256,28 @@ VmInstruction(InstTips) {
   StartInstruction;
   PopUint8(type);
   switch (type) {
-    case 0: {
+    case 0: {  // TipsDataInit
       PopLocalLabel(tipsDataAdr);
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction Tips(type: TipsDataInit)\n");
     } break;
-    case 1:
+    case 1:  // TipsInit
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction Tips(type: TipsInit)\n");
       break;
-    case 2:
+    case 2:  // TipsMain
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction Tips(type: TipsMain)\n");
       break;
-    case 3:
+    case 3:  // TipsEnd
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction Tips(type: TipsEnd)\n");
       break;
-    case 4:
+    case 4:  // TipsSet
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction Tips(type: TipsSet)\n");
       break;
-    case 10:
+    case 10:  // Tips_ProfSetXboxEvent
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction Tips(type: Tips_ProfSetXboxEvent)\n");
       break;

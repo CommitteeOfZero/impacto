@@ -94,14 +94,16 @@ VmInstruction(InstReturnIfFlag) {
   StartInstruction;
   PopUint8(value);
   PopExpression(flagId);
-  if (thread->CallStackDepth && value == thread->GameContext->GetFlag(flagId)) {
-    thread->CallStackDepth--;
-    uint32_t retBufferId =
-        thread->ReturnScriptBufferIds[thread->CallStackDepth];
-    thread->Ip =
-        ScriptGetRetAddress(thread->VmContext->ScriptBuffers[retBufferId],
-                            thread->ReturnAdresses[thread->CallStackDepth]);
-    thread->ScriptBufferId = retBufferId;
+  if (thread->CallStackDepth) {
+    if (thread->GameContext->GetFlag(flagId) == (bool)value) {
+      thread->CallStackDepth--;
+      uint32_t retBufferId =
+          thread->ReturnScriptBufferIds[thread->CallStackDepth];
+      thread->Ip =
+          ScriptGetRetAddress(thread->VmContext->ScriptBuffers[retBufferId],
+                              thread->ReturnAdresses[thread->CallStackDepth]);
+      thread->ScriptBufferId = retBufferId;
+    }
   } else {
     ImpLog(LL_Error, LC_VM, "Return error, call stack empty.\n");
   }

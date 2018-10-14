@@ -136,11 +136,11 @@ VmInstruction(InstBGeffectWave) {
   PopUint8(type);
   switch (type) {
     case 0:
-    case 2:
+    case 2:  // Unimplemented
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction BGeffectWave(type: %i)\n", type);
       break;
-    case 1: {
+    case 1: {  // BGwaveSetWave
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
@@ -151,7 +151,7 @@ VmInstruction(InstBGeffectWave) {
                  "arg2: %i, arg3: %i, arg4: %i, arg5: %i)\n",
                  arg1, arg2, arg3, arg4, arg5);
     } break;
-    case 3: {
+    case 3: {  // CHAeffectWave
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
@@ -162,7 +162,7 @@ VmInstruction(InstBGeffectWave) {
                  "arg2: %i, arg3: %i, arg4: %i, arg5: %i)\n",
                  arg1, arg2, arg3, arg4, arg5);
     } break;
-    case 4: {
+    case 4: {  // BGwaveResetWave
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
@@ -175,7 +175,7 @@ VmInstruction(InstBGeffectWave) {
           "arg2: %i, arg3: %i, arg4: %i, arg5: %i, arg6: %i)\n",
           arg1, arg2, arg3, arg4, arg5, arg6);
     } break;
-    case 5: {
+    case 5: {  // CHAwaveResetWave
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
@@ -188,11 +188,11 @@ VmInstruction(InstBGeffectWave) {
           "arg2: %i, arg3: %i, arg4: %i, arg5: %i, arg6: %i)\n",
           arg1, arg2, arg3, arg4, arg5, arg6);
     } break;
-    case 10:
+    case 10:  // EFFwaveInitWave
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction BGeffectWave(type: EFFwaveInitWave)\n");
       break;
-    case 11: {
+    case 11: {  // EFFwaveSetWave
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
@@ -204,7 +204,7 @@ VmInstruction(InstBGeffectWave) {
           "arg2: %i, arg3: %i, arg4: %i, arg5: %i)\n",
           arg1, arg2, arg3, arg4, arg5);
     } break;
-    case 12: {
+    case 12: {  // EFFwaveResetWave
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);

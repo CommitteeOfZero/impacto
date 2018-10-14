@@ -39,11 +39,11 @@ VmInstruction(InstMovieMain) {
   StartInstruction;
   PopUint8(type);
   switch (type) {
-    case 2:
+    case 2:  // Stop
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MovieMain(type: Stop)\n");
       break;
-    case 3:
+    case 3:  // StopWait
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MovieMain(type: StopWaitForSomething)\n");
       break;
