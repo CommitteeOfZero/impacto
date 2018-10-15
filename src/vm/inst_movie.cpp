@@ -56,7 +56,12 @@ VmInstruction(InstMovieMain) {
 VmInstruction(InstLoadMovie) {}
 VmInstruction(InstSetRevMes) {}
 VmInstruction(InstPlayMovieMemory) {}
-VmInstruction(InstSFDpause) {}
+VmInstruction(InstSFDpause) {
+  StartInstruction;
+  PopUint8(paused);
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SFDpause(paused: %i)\n",
+             paused);
+}
 
 }  // namespace Vm
 
