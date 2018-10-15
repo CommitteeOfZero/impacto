@@ -328,6 +328,7 @@ void DialoguePage::Render() {
                        sprites[i].Bounds.Width;
       dests[i].Height = GameCtx->Config.Dlg.ADVNameFontSize;
       width += dests[i].Width;
+      pos.x += dests[i].Width;
     }
 
     if (GameCtx->Config.Dlg.ADVNameAlignment == TA_Center) {
