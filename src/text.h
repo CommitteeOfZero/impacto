@@ -19,6 +19,7 @@ struct ProcessedTextGlyph {
   Sprite Glyph;
   float Opacity;
   RectF DestRect;
+  uint8_t CharacterType;
 };
 
 enum DialoguePageMode : uint8_t { DPM_ADV = 0, DPM_NVL = 1 };

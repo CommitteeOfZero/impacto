@@ -141,6 +141,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
   TextAlignment Alignment = TA_Left;
   int CurrentCharacter = Length;  // in TPS_Normal line
   int LastWordStart = Length;
+  int LastLineStart = Length;
   DialogueColorPair CurrentColors = GameCtx->Config.Dlg.ColorTable[0];
 
   RectF BoxBounds;
@@ -159,6 +160,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
         CurrentX = 0.0f;
         CurrentY += FontSize;
         LastWordStart = Length;
+        LastLineStart = Length;
         break;
       }
       case STT_CharacterNameStart: {
@@ -218,18 +220,19 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
               .Text[RubyChunks[CurrentRubyChunk].Length] = token.Val_Uint16;
           RubyChunks[CurrentRubyChunk].Length++;
         } else {
-          // TODO get rid of this hack and also do more sophisticated wordwrap
-          if (token.Val_Uint16 == 0 || token.Val_Uint16 == 63) {  // space
-            LastWordStart = Length;
-          }
-
           // TODO respect TA_Center
 
           TextIsFullyOpaque = false;
           ProcessedTextGlyph& ptg = Glyphs[Length];
           ptg.Glyph = GameCtx->Config.Dlg.DialogueFont.Glyph(token.Val_Uint16);
+          ptg.CharacterType =
+              GameCtx->Config.Dlg.DialogueFont.CharacterType(token.Val_Uint16);
           ptg.Opacity = 0.0f;
           ptg.Colors = CurrentColors;
+
+          if (ptg.CharacterType & CTF_WordStartingPunct) {
+            LastWordStart = Length;  // still *before* this character
+          }
 
           ptg.DestRect.X = BoxBounds.X + CurrentX;
           ptg.DestRect.Y = BoxBounds.Y + CurrentY;
@@ -242,21 +245,40 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
 
           Length++;
 
-          // Wordwrap
+          // Line breaking
           if (ptg.DestRect.X + ptg.DestRect.Width >
               BoxBounds.X + BoxBounds.Width) {
-            for (int i = LastWordStart; i < Length; i++) {
-              Glyphs[i].DestRect.X -= CurrentX;
-              Glyphs[i].DestRect.Y += FontSize;
-            }
-            CurrentX = 0.0f;
             CurrentY += FontSize;
+            if (LastLineStart == LastWordStart) {
+              // Word doesn't fit on a line, gotta break in the middle of it
+              ptg.DestRect.X = BoxBounds.X;
+              ptg.DestRect.Y = BoxBounds.Y + CurrentY;
+              CurrentX = ptg.DestRect.Width;
+            } else {
+              int firstNonSpace = LastWordStart;
+              // Skip spaces at start of (new) line
+              for (int i = LastWordStart; i < Length; i++) {
+                if (!(Glyphs[i].CharacterType & CTF_Space)) break;
+                firstNonSpace = i;
+              }
+              CurrentX = 0.0f;
+              for (int i = firstNonSpace; i < Length; i++) {
+                Glyphs[i].DestRect.X = BoxBounds.X + CurrentX;
+                CurrentX += Glyphs[i].DestRect.Width;
+                Glyphs[i].DestRect.Y += FontSize;
+              }
+            }
             LastWordStart = Length;
+            LastLineStart = Length;
+          }
+
+          if (ptg.CharacterType & CTF_WordEndingPunct) {
+            LastWordStart = Length;  // now after this character
           }
         }
       }
 
-      // TODO print in parallel, set color
+      // TODO print in parallel
       default: { break; }
     }
   } while (token.Type != STT_EndOfString);
