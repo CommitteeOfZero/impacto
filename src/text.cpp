@@ -254,13 +254,15 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
               ptg.DestRect.X = BoxBounds.X;
               ptg.DestRect.Y = BoxBounds.Y + CurrentY;
               CurrentX = ptg.DestRect.Width;
+              LastLineStart = LastWordStart = Length - 1;
             } else {
               int firstNonSpace = LastWordStart;
               // Skip spaces at start of (new) line
               for (int i = LastWordStart; i < Length; i++) {
                 if (!(Glyphs[i].CharacterType & CTF_Space)) break;
-                firstNonSpace = i;
+                firstNonSpace = i + 1;
               }
+              LastLineStart = LastWordStart = firstNonSpace;
               CurrentX = 0.0f;
               for (int i = firstNonSpace; i < Length; i++) {
                 Glyphs[i].DestRect.X = BoxBounds.X + CurrentX;
@@ -268,8 +270,6 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
                 Glyphs[i].DestRect.Y += FontSize;
               }
             }
-            LastWordStart = Length;
-            LastLineStart = Length;
           }
 
           if (ptg.CharacterType & CTF_WordEndingPunct) {
