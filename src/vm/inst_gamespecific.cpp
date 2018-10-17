@@ -10,12 +10,38 @@ namespace Impacto {
 
 namespace Vm {
 
-VmInstruction(InstUnk0041) {}
-VmInstruction(InstUnk0052) {}
-VmInstruction(InstUnk0053) {}
-VmInstruction(InstUnk0054) {}
-VmInstruction(InstUnk011F) {}
-VmInstruction(InstUnk012D) {}
+VmInstruction(InstUnk0041) {
+  StartInstruction;
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk0041()\n");
+}
+VmInstruction(InstUnk0052) {
+  StartInstruction;
+  PopExpression(arg1);
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk0052(arg1: %i)\n",
+             arg1);
+}
+VmInstruction(InstUnk0053) {
+  StartInstruction;
+  PopExpression(arg1);
+  PopExpression(arg2);
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction Unk0053(arg1: %i, arg2: %i)\n", arg1, arg2);
+}
+VmInstruction(InstUnk0054) {
+  StartInstruction;
+  PopExpression(arg1);
+  PopExpression(arg2);
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction Unk0054(arg1: %i, arg2: %i)\n", arg1, arg2);
+}
+VmInstruction(InstUnk011F) {
+  StartInstruction;
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk011F()\n");
+}
+VmInstruction(InstUnk012D) {
+  StartInstruction;
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk012D()\n");
+}
 VmInstruction(InstGeotag) {
   StartInstruction;
   PopUint8(type);
@@ -157,7 +183,15 @@ VmInstruction(InstGeotag) {
     } break;
   }
 }
-VmInstruction(InstUnk1037) {}
+VmInstruction(InstUnk1037) {
+  StartInstruction;
+  PopExpression(arg1);
+  PopExpression(arg2);
+  PopExpression(arg3);
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction Unk1037(arg1: %i, arg2: %i, arg3: %i)\n", arg1,
+             arg2, arg3);
+}
 VmInstruction(InstMail) {
   StartInstruction;
   PopUint8(type);
@@ -308,7 +342,27 @@ VmInstruction(InstTwipo) {
     } break;
   }
 }
-VmInstruction(InstUnk103A) {}
+VmInstruction(InstUnk103A) {
+  StartInstruction;
+  PopUint8(type);
+  switch (type) {
+    case 0: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Unk103A(type: %i, arg1: %i, arg2: %i)\n",
+                 type, arg1, arg2);
+    } break;
+    case 1: {
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk103A(type: %i)\n",
+                 type);
+    } break;
+    case 2: {
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk103A(type: %i)\n",
+                 type);
+    } break;
+  }
+}
 
 }  // namespace Vm
 

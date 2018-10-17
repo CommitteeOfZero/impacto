@@ -73,7 +73,18 @@ VmInstruction(InstMesSetID) {
     } break;
   }
 }
-VmInstruction(InstMesCls) {}
+VmInstruction(InstMesCls) {
+  StartInstruction;
+  PopUint8(type);  // TODO: Implement types 0, 1, 2, 3, 4, 5, 6, 7, 8
+  if ((type & 0xFE) != 4 && !(type & 1)) {
+    PopExpression(arg1);
+    ImpLogSlow(LL_Warning, LC_VMStub,
+               "STUB instruction MesCls(type: %i, arg1: %i)\n", type, arg1);
+  } else {
+    ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MesCls(type: %i)\n",
+               type);
+  }
+}
 VmInstruction(InstMesVoiceWait) {
   StartInstruction;
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MesVoiceWait()\n");
@@ -138,7 +149,6 @@ VmInstruction(InstMesMain) {
   }
   // TODO: Type 1 - Skip mode(?)
 }
-
 VmInstruction(InstSetMesModeFormat) {
   StartInstruction;
   PopExpression(id);
@@ -152,7 +162,40 @@ VmInstruction(InstSetNGmoji) {
   PopString(strAdr2);
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SetNGmoji()\n");
 }
-VmInstruction(InstMesRev) {}
+VmInstruction(InstMesRev) {
+  StartInstruction;
+  PopUint8(type);
+  switch (type) {
+    case 0:  // DispInit
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction SetMesModeFormat(type: DispInit)\n");
+      break;
+    case 1:  // Main
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction SetMesModeFormat(type: Main)\n");
+      break;
+    case 2:  // AllCls
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction SetMesModeFormat(type: AllCls)\n");
+      break;
+    case 3:  // ChkLoad
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction SetMesModeFormat(type: ChkLoad)\n");
+      break;
+    case 4:  // SAVELoad
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction SetMesModeFormat(type: SAVELoad)\n");
+      break;
+    case 5:  // SoundUnk
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction SetMesModeFormat(type: SoundUnk)\n");
+      break;
+    case 0xA:  // DispInit
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction SetMesModeFormat(type: DispInit)\n");
+      break;
+  }
+}
 VmInstruction(InstMessWindow) {
   StartInstruction;
   PopUint8(type);
@@ -215,10 +258,59 @@ VmInstruction(InstMessWindow) {
     } break;
   }
 }
-VmInstruction(InstSel) {}
-VmInstruction(InstSelect) {}
-VmInstruction(InstSysSel) {}
-VmInstruction(InstSysSelect) {}
+VmInstruction(InstSel) {
+  StartInstruction;
+  PopUint8(type);  // TODO: Implement type 1
+  PopString(arg1);
+  if (type == 0 || type == 2) {
+    PopExpression(arg2);
+    ImpLogSlow(LL_Warning, LC_VMStub,
+               "STUB instruction Sel(type: %i, arg2: %i)\n", type, arg2);
+  } else {
+    ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Sel(type: %i)\n", type);
+  }
+}
+VmInstruction(InstSelect) {
+  StartInstruction;
+  PopUint8(type);  // TODO: Implement type 0, 1
+  if (type == 2) {
+    PopExpression(arg1);
+    ImpLogSlow(LL_Warning, LC_VMStub,
+               "STUB instruction Select(type: %i, arg1: %i)\n", type, arg1);
+  } else {
+    ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Select(type: %i)\n",
+               type);
+  }
+}
+VmInstruction(InstSysSel) {
+  StartInstruction;
+  PopUint8(type);  // TODO: Implement type 0, 1
+  if (type >= 2) {
+    PopString(arg1);
+  }
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SysSel(type: %i)\n",
+             type);
+}
+VmInstruction(InstSysSelect) {
+  StartInstruction;
+  PopUint8(type);
+  switch (type & 0xF) {
+    case 0: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction SysSelect(type: %i, arg1: %i, arg2: %i)\n",
+                 type, arg1, arg2);
+    } break;
+    case 2:
+    case 3: {
+      PopExpression(destination);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction SysSelect(type: %i, destination: %i)\n",
+                 type, destination);
+    } break;
+  }
+}
 VmInstruction(InstSetTextTable) {
   StartInstruction;
   PopExpression(id);
@@ -248,7 +340,25 @@ VmInstruction(InstSetDic) {
       break;
   }
 }
-VmInstruction(InstNameID) {}
+VmInstruction(InstNameID) {
+  StartInstruction;
+  PopUint8(type);
+  switch (type) {
+    case 0:
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction NameID(type: %i)\n",
+                 type);
+      break;
+    case 1: {
+      PopLocalLabel(tipsDataAdr);
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction NameID(type: %i)\n",
+                 type);
+    } break;
+    case 2:
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction NameID(type: %i)\n",
+                 type);
+      break;
+  }
+}
 VmInstruction(InstTips) {
   StartInstruction;
   PopUint8(type);
@@ -278,6 +388,40 @@ VmInstruction(InstTips) {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction Tips(type: Tips_ProfSetXboxEvent)\n");
       break;
+  }
+}
+VmInstruction(InstSetRevMes) {
+  StartInstruction;
+  PopUint8(type);
+  switch (type) {
+    case 0: {
+      PopString(message);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction SetRevMes(type: %i)\n", type);
+    } break;
+    case 1: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopString(message);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction SetRevMes(type: %i, arg1: %i, arg2: %i)\n",
+                 type, arg1, arg2);
+    } break;
+    case 2: {
+      PopString(arg1);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction SetRevMes(type: %i)\n", type);
+    } break;
+    case 3: {
+      PopString(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      PopExpression(arg4);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction SetRevMes(type: %i, arg2: %i, arg3: %i, "
+                 "arg4: %i)\n",
+                 type, arg2, arg3, arg4);
+    } break;
   }
 }
 

@@ -26,6 +26,7 @@ VmInstruction(InstSetTextTable);
 VmInstruction(InstSetDic);
 VmInstruction(InstNameID);
 VmInstruction(InstTips);
+VmInstruction(InstSetRevMes);
 
 }  // namespace Vm
 

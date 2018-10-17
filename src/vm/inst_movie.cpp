@@ -53,9 +53,33 @@ VmInstruction(InstMovieMain) {
       break;
   }
 }
-VmInstruction(InstLoadMovie) {}
-VmInstruction(InstSetRevMes) {}
-VmInstruction(InstPlayMovieMemory) {}
+VmInstruction(InstLoadMovie) {
+  StartInstruction;
+  PopExpression(arg1);
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction LoadMovie(arg1: %i)\n",
+             arg1);
+}
+VmInstruction(InstPlayMovieMemory) {
+  StartInstruction;
+  PopUint8(playMode);
+  if (playMode == 99) {
+    PopExpression(playModeEx);
+    PopExpression(playView);
+    PopExpression(movCancelFlag);
+    ImpLogSlow(LL_Warning, LC_VMStub,
+               "STUB instruction PlayMovie(playMode: %i, playModeEx: %i, "
+               "playView: %i, movCancelFlag: %i)\n",
+               playMode, playModeEx, playView, movCancelFlag);
+
+  } else {
+    PopUint8(playView);
+    PopExpression(movCancelFlag);
+    ImpLogSlow(LL_Warning, LC_VMStub,
+               "STUB instruction PlayMovie(playMode: %i, playView: %i, "
+               "movCancelFlag: %i)\n",
+               playMode, playView, movCancelFlag);
+  }
+}
 VmInstruction(InstSFDpause) {
   StartInstruction;
   PopUint8(paused);

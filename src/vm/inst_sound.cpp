@@ -61,8 +61,16 @@ VmInstruction(InstSSEplay) {
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SSEplay(sysSeId: %i)\n",
              sysSeId);
 }
-VmInstruction(InstSSEstop) {}
-VmInstruction(InstBGMflag) {}
+VmInstruction(InstSSEstop) {
+  StartInstruction;
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SSEstop()\n");
+}
+VmInstruction(InstBGMflag) {
+  StartInstruction;
+  PopExpression(arg1);
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction BGMflag(arg1: %i)\n",
+             arg1);
+}
 VmInstruction(InstVoicePlay) {
   StartInstruction;
   PopUint8(channel);
@@ -84,9 +92,47 @@ VmInstruction(InstVoicePlayWait) {
   ImpLogSlow(LL_Warning, LC_VMStub,
              "STUB instruction VoicePlayWait(channel: %i)\n", channel);
 }
-VmInstruction(InstBGMduelPlay) {}
-VmInstruction(InstSNDpause) {}
-VmInstruction(InstSEplayWait) {}
+VmInstruction(InstBGMduelPlay) {
+  StartInstruction;
+  PopUint8(type);
+  switch (type) {
+    case 0: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction BGMduelPlay(type: %i, arg1: %i, arg2: %i)\n",
+                 type, arg1, arg2);
+    } break;
+    case 1: {
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction BGMduelPlay(type: %i)\n", type);
+    } break;
+    case 2: {
+      PopExpression(arg1);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction BGMduelPlay(type: %i, arg1: %i)\n", type,
+                 arg1);
+    } break;
+    case 3: {
+      PopExpression(arg1);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction BGMduelPlay(type: %i, arg1: %i)\n", type,
+                 arg1);
+    } break;
+  }
+}
+VmInstruction(InstSNDpause) {
+  StartInstruction;
+  PopUint8(paused);
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SNDpause(paused: %i)\n",
+             paused);
+}
+VmInstruction(InstSEplayWait) {
+  StartInstruction;
+  PopUint8(channel);
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction SEplayWait(channel: %i)\n", channel);
+}
 VmInstruction(InstResetSoundAll) {
   StartInstruction;
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction ResetSoundAll()\n");
@@ -99,7 +145,12 @@ VmInstruction(InstBGMstopWait) {
   StartInstruction;
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction BGMstopWait()\n");
 }
-VmInstruction(InstSysVoicePlay) {}
+VmInstruction(InstSysVoicePlay) {
+  PopUint8(arg1);
+  PopExpression(arg2);
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction SysVoicePlay(arg1: %i, arg2: %i)\n", arg1, arg2);
+}
 
 }  // namespace Vm
 
