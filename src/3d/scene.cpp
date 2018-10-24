@@ -359,6 +359,8 @@ void Scene::DrawToScreen() {
   glBindVertexArray(VAOScreenFillingTriangle);
   glUseProgram(ShaderProgram);
   glDrawArrays(GL_TRIANGLES, 0, 3);
+
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 MSResolveMode Scene::CheckMSResolveMode() {
