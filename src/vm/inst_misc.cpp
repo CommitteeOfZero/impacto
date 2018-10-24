@@ -3,6 +3,7 @@
 #include "inst_macros.inc"
 
 #include "expression.h"
+#include "scriptvars.h"
 #include "../game.h"
 #include "../log.h"
 
@@ -306,8 +307,8 @@ VmInstruction(InstTitleMenu) {
       break;
     case 1:  // Main
       // Hack to kickstart into "New Game"
-      thread->GameContext->ScrWork[3341] = 0;
-      thread->GameContext->ScrWork[3342] = 255;
+      thread->GameContext->ScrWork[SW_TITLECUR1] = 0;
+      thread->GameContext->ScrWork[SW_TITLECUR2] = 255;
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction TitleMenu(type: Main)\n");
       break;

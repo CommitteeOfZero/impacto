@@ -3,6 +3,7 @@
 #include "inst_macros.inc"
 
 #include "expression.h"
+#include "scriptvars.h"
 #include "../game.h"
 #include "../log.h"
 
@@ -210,8 +211,8 @@ VmInstruction(InstMessWindow) {
     case 1:  // ShowCurrent
       if (currentPage->AnimState != DPAS_Shown) {
         currentPage->Mode =
-            (DialoguePageMode)
-                thread->GameContext->ScrWork[4423];  // Only for page 0 for now
+            (DialoguePageMode)thread->GameContext
+                ->ScrWork[SW_MESADVMODE];  // Only for page 0 for now
         currentPage->ADVBoxOpacity = 0.0f;
         currentPage->AnimState = DPAS_Showing;
       }
