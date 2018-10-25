@@ -330,9 +330,10 @@ void DialoguePage::Render() {
     float opacity = glm::smoothstep(0.0f, 1.0f, Glyphs[i].Opacity);
     if (Mode == DPM_ADV) opacity *= glm::smoothstep(0.0f, 1.0f, ADVBoxOpacity);
 
-    GameCtx->R2D->DrawSprite(
-        Glyphs[i].Glyph, Glyphs[i].DestRect,
-        RgbaIntToFloat(Glyphs[i].Colors.TextColor) * opacity);
+    glm::vec4 color = RgbaIntToFloat(Glyphs[i].Colors.TextColor);
+    color.a *= opacity;
+
+    GameCtx->R2D->DrawSprite(Glyphs[i].Glyph, Glyphs[i].DestRect, color);
   }
 
   if (Mode == DPM_ADV && HasName) {
@@ -359,11 +360,12 @@ void DialoguePage::Render() {
       for (int i = 0; i < NameLength; i++) dests[i].X -= width;
     }
 
+    glm::vec4 color =
+        RgbaIntToFloat(GameCtx->Config.Dlg.ColorTable[0].TextColor);
+    color.a *= glm::smoothstep(0.0f, 1.0f, ADVBoxOpacity);
+
     for (int i = 0; i < NameLength; i++) {
-      GameCtx->R2D->DrawSprite(
-          sprites[i], dests[i],
-          RgbaIntToFloat(GameCtx->Config.Dlg.ColorTable[0].TextColor) *
-              glm::smoothstep(0.0f, 1.0f, ADVBoxOpacity));
+      GameCtx->R2D->DrawSprite(sprites[i], dests[i], color);
     }
 
     ImpStackFree(sprites);
