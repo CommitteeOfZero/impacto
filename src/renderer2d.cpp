@@ -120,6 +120,10 @@ void Renderer2D::DrawSprite(Sprite const& sprite, RectF const& dest,
 
   // OK, all good, make quad
 
+  RectF scaledDest = dest;
+  scaledDest.Width *= sprite.BaseScale.x;
+  scaledDest.Height *= sprite.BaseScale.y;
+
   VertexBufferSprites* vertices =
       (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
   VertexBufferFill += 4 * sizeof(VertexBufferSprites);
@@ -128,7 +132,7 @@ void Renderer2D::DrawSprite(Sprite const& sprite, RectF const& dest,
 
   QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
             (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetPosition(dest, (uintptr_t)&vertices[0].Position,
+  QuadSetPosition(scaledDest, (uintptr_t)&vertices[0].Position,
                   sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;

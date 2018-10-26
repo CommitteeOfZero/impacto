@@ -17,11 +17,13 @@ struct SpriteSheet {
 
 struct Sprite {
   Sprite() {}
-  Sprite(SpriteSheet const& sheet, float x, float y, float width, float height)
-      : Sheet(sheet), Bounds(x, y, width, height) {}
+  Sprite(SpriteSheet const& sheet, float x, float y, float width, float height,
+         glm::vec2 baseScale = glm::vec2(1.0f))
+      : Sheet(sheet), Bounds(x, y, width, height), BaseScale(baseScale) {}
 
   SpriteSheet Sheet;
   RectF Bounds;
+  glm::vec2 BaseScale;
 };
 
 // TODO dataify and move out of here, this file is supposed to be graphics code
