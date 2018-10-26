@@ -48,11 +48,11 @@ int PrintParameter(char* dest, int destSz, char const* name,
                       param.Val_Vec2.x, param.Val_Vec2.y);
       break;
     case SPT_Vec3:
-      return snprintf(dest, destSz, "const Vec3 %s = Vec3(%f, %f, %f);\n", name,
+      return snprintf(dest, destSz, "const vec3 %s = vec3(%f, %f, %f);\n", name,
                       param.Val_Vec3.x, param.Val_Vec3.y, param.Val_Vec3.z);
       break;
     case SPT_Vec4:
-      return snprintf(dest, destSz, "const Vec4 %s = Vec4(%f, %f, %f, %f);\n",
+      return snprintf(dest, destSz, "const vec4 %s = vec4(%f, %f, %f, %f);\n",
                       name, param.Val_Vec4.x, param.Val_Vec4.y,
                       param.Val_Vec4.z, param.Val_Vec4.w);
       break;
