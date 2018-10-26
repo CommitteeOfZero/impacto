@@ -71,6 +71,7 @@ set(Impacto_Header
     src/spritesheet.h
     src/renderer2d.h
     src/text.h
+    src/loadable.h
 
     src/3d/camera.h
     src/3d/model.h

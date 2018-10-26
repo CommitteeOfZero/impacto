@@ -75,7 +75,7 @@ void Background3D::Unload() {
   IsUsed = false;
 }
 
-void Background3D::Submit() {
+void Background3D::MainThreadOnLoad() {
   assert(IsSubmitted == false);
 
   ImpLog(LL_Info, LC_Object3D,

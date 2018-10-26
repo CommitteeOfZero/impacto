@@ -19,8 +19,8 @@ ModelViewer::ModelViewer(Game* game) : GameContext(game) {
 }
 
 void ModelViewer::Init() {
-  GameContext->Scene3D->LoadBackgroundAsync(g_BackgroundModelIds[0]);
-  GameContext->Scene3D->LoadCharacterAsync(g_ModelIds[0]);
+  GameContext->Scene3D->Backgrounds[0].LoadAsync(g_BackgroundModelIds[0]);
+  GameContext->Scene3D->Characters[0].LoadAsync(g_ModelIds[0]);
 
   GameContext->Scene3D->Tint = glm::vec4(0.784f, 0.671f, 0.6f, 0.9f);
   GameContext->Scene3D->LightPosition = glm::vec3(-2.85f, 16.68f, 6.30f);
@@ -135,7 +135,7 @@ void ModelViewer::Update(float dt) {
       nk_tree_pop(GameContext->Nk);
     }
 
-    if (GameContext->Scene3D->CurrentBackgroundLoadStatus == OLS_Loaded) {
+    if (GameContext->Scene3D->Backgrounds[0].Status == LS_Loaded) {
       if (nk_tree_push(GameContext->Nk, NK_TREE_TAB, "Background",
                        NK_MAXIMIZED)) {
         nk_layout_row_dynamic(GameContext->Nk, 24, 1);
@@ -144,8 +144,8 @@ void ModelViewer::Update(float dt) {
             GameContext->Nk, (const char**)g_BackgroundModelNames,
             g_BackgroundModelCount, CurrentBackground, 24, nk_vec2(200, 200));
         if (g_BackgroundModelIds[CurrentBackground] !=
-            GameContext->Scene3D->CurrentBackground.StaticModel->Id) {
-          GameContext->Scene3D->LoadBackgroundAsync(
+            GameContext->Scene3D->Backgrounds[0].StaticModel->Id) {
+          GameContext->Scene3D->Backgrounds[0].LoadAsync(
               g_BackgroundModelIds[CurrentBackground]);
         }
 
@@ -153,30 +153,31 @@ void ModelViewer::Update(float dt) {
       }
     }
 
-    if (GameContext->Scene3D->CurrentCharacterLoadStatus == OLS_Loaded) {
+    if (GameContext->Scene3D->Characters[0].Status == LS_Loaded) {
       if (nk_tree_push(GameContext->Nk, NK_TREE_TAB, "Model", NK_MAXIMIZED)) {
         nk_layout_row_dynamic(GameContext->Nk, 24, 1);
 
         nk_property_float(
             GameContext->Nk, "Model X", -40.0f,
-            &GameContext->Scene3D->CurrentCharacter.ModelTransform.Position.x,
+            &GameContext->Scene3D->Characters[0].ModelTransform.Position.x,
             40.0f, 1.0f, 0.02f);
         nk_property_float(
             GameContext->Nk, "Model Y", 0.0f,
-            &GameContext->Scene3D->CurrentCharacter.ModelTransform.Position.y,
+            &GameContext->Scene3D->Characters[0].ModelTransform.Position.y,
             40.0f, 1.0f, 0.02f);
         nk_property_float(
             GameContext->Nk, "Model Z", -40.0f,
-            &GameContext->Scene3D->CurrentCharacter.ModelTransform.Position.z,
+            &GameContext->Scene3D->Characters[0].ModelTransform.Position.z,
             40.0f, 1.0f, 0.02f);
 
         CurrentModel =
             nk_combo(GameContext->Nk, (const char**)g_ModelNames, g_ModelCount,
                      CurrentModel, 24, nk_vec2(200, 200));
         if (g_ModelIds[CurrentModel] !=
-            GameContext->Scene3D->CurrentCharacter.StaticModel->Id) {
+            GameContext->Scene3D->Characters[0].StaticModel->Id) {
           CurrentAnim = 0;
-          GameContext->Scene3D->LoadCharacterAsync(g_ModelIds[CurrentModel]);
+          GameContext->Scene3D->Characters[0].LoadAsync(
+              g_ModelIds[CurrentModel]);
         }
 
         nk_tree_pop(GameContext->Nk);
@@ -187,59 +188,56 @@ void ModelViewer::Update(float dt) {
         nk_layout_row_dynamic(GameContext->Nk, 24, 1);
 
         int isPlaying =
-            (int)GameContext->Scene3D->CurrentCharacter.Animator.IsPlaying;
+            (int)GameContext->Scene3D->Characters[0].Animator.IsPlaying;
         nk_checkbox_label(GameContext->Nk, "Playing", &isPlaying);
-        GameContext->Scene3D->CurrentCharacter.Animator.IsPlaying =
+        GameContext->Scene3D->Characters[0].Animator.IsPlaying =
             (bool)isPlaying;
 
         int tweening =
-            (int)GameContext->Scene3D->CurrentCharacter.Animator.Tweening;
+            (int)GameContext->Scene3D->Characters[0].Animator.Tweening;
         nk_checkbox_label(GameContext->Nk, "Tweening", &tweening);
-        GameContext->Scene3D->CurrentCharacter.Animator.Tweening =
-            (bool)tweening;
+        GameContext->Scene3D->Characters[0].Animator.Tweening = (bool)tweening;
 
-        if (GameContext->Scene3D->CurrentCharacter.Animator.CurrentAnimation) {
+        if (GameContext->Scene3D->Characters[0].Animator.CurrentAnimation) {
           nk_property_float(
               GameContext->Nk, "Loop start", 0.0f,
-              &GameContext->Scene3D->CurrentCharacter.Animator.LoopStart,
-              GameContext->Scene3D->CurrentCharacter.Animator.LoopEnd, 1.0f,
-              0.2f);
+              &GameContext->Scene3D->Characters[0].Animator.LoopStart,
+              GameContext->Scene3D->Characters[0].Animator.LoopEnd, 1.0f, 0.2f);
           nk_property_float(
               GameContext->Nk, "Loop end", 0.0f,
-              &GameContext->Scene3D->CurrentCharacter.Animator.LoopEnd,
-              GameContext->Scene3D->CurrentCharacter.Animator.CurrentAnimation
-                  ->Duration,
+              &GameContext->Scene3D->Characters[0].Animator.LoopEnd,
+              GameContext->Scene3D->Characters[0]
+                  .Animator.CurrentAnimation->Duration,
               1.0f, 0.2f);
 
           // Nice hack
           float backup =
-              GameContext->Scene3D->CurrentCharacter.Animator.CurrentTime;
+              GameContext->Scene3D->Characters[0].Animator.CurrentTime;
           nk_property_float(
               GameContext->Nk, "Current time", 0.0f,
-              &GameContext->Scene3D->CurrentCharacter.Animator.CurrentTime,
-              GameContext->Scene3D->CurrentCharacter.Animator.CurrentAnimation
-                  ->Duration,
+              &GameContext->Scene3D->Characters[0].Animator.CurrentTime,
+              GameContext->Scene3D->Characters[0]
+                  .Animator.CurrentAnimation->Duration,
               1.0f, 0.2f);
           if (backup !=
-              GameContext->Scene3D->CurrentCharacter.Animator.CurrentTime) {
-            GameContext->Scene3D->CurrentCharacter.Animator.Seek(
-                GameContext->Scene3D->CurrentCharacter.Animator.CurrentTime);
+              GameContext->Scene3D->Characters[0].Animator.CurrentTime) {
+            GameContext->Scene3D->Characters[0].Animator.Seek(
+                GameContext->Scene3D->Characters[0].Animator.CurrentTime);
           }
 
-          CurrentAnim =
-              nk_combo(GameContext->Nk,
-                       (const char**)GameContext->Scene3D->CurrentCharacter
-                           .StaticModel->AnimationNames,
-                       GameContext->Scene3D->CurrentCharacter.StaticModel
-                           ->AnimationCount,
-                       CurrentAnim, 24, nk_vec2(200, 200));
-          if (GameContext->Scene3D->CurrentCharacter.StaticModel
-                  ->AnimationIds[CurrentAnim] !=
-              GameContext->Scene3D->CurrentCharacter.Animator.CurrentAnimation
-                  ->Id) {
-            GameContext->Scene3D->CurrentCharacter.SwitchAnimation(
-                GameContext->Scene3D->CurrentCharacter.StaticModel
-                    ->AnimationIds[CurrentAnim],
+          CurrentAnim = nk_combo(
+              GameContext->Nk,
+              (const char**)GameContext->Scene3D->Characters[0]
+                  .StaticModel->AnimationNames,
+              GameContext->Scene3D->Characters[0].StaticModel->AnimationCount,
+              CurrentAnim, 24, nk_vec2(200, 200));
+          if (GameContext->Scene3D->Characters[0]
+                  .StaticModel->AnimationIds[CurrentAnim] !=
+              GameContext->Scene3D->Characters[0]
+                  .Animator.CurrentAnimation->Id) {
+            GameContext->Scene3D->Characters[0].SwitchAnimation(
+                GameContext->Scene3D->Characters[0]
+                    .StaticModel->AnimationIds[CurrentAnim],
                 0.66f);
           }
         }

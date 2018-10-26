@@ -4,6 +4,7 @@
 
 #include "model.h"
 #include "modelanimator.h"
+#include "../loadable.h"
 
 namespace Impacto {
 
@@ -29,13 +30,13 @@ class ModelAnimator;
 class Scene;
 class Camera;
 
-class Character3D {
+class Character3D : public Loadable<Character3D> {
  public:
   bool Load(uint32_t modelId);
   void Unload();
   void MakePlane();
 
-  void Submit();
+  void MainThreadOnLoad();
 
   void Update(float dt);
   void Render();

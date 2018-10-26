@@ -53,63 +53,11 @@ Scene::~Scene() {
   CleanFramebufferState();
 }
 
-static void LoadBackgroundWorker(void* ptr) {
-  Scene* scene = (Scene*)ptr;
-  scene->CurrentBackground.Load(scene->BackgroundToLoadId);
-}
-
-static void OnBackgroundLoaded(void* ptr) {
-  Scene* scene = (Scene*)ptr;
-  scene->CurrentBackground.Submit();
-  scene->CurrentBackgroundLoadStatus = OLS_Loaded;
-}
-
-bool Scene::LoadBackgroundAsync(uint32_t id) {
-  if (CurrentBackgroundLoadStatus == OLS_Loading) {
-    // Cannot currently cancel a load
-    return false;
-  }
-  if (CurrentBackgroundLoadStatus == OLS_Loaded) {
-    CurrentBackground.Unload();
-    CurrentBackgroundLoadStatus = OLS_Unloaded;
-  }
-
-  BackgroundToLoadId = id;
-  CurrentBackgroundLoadStatus = OLS_Loading;
-  WorkQueuePush(this, &LoadBackgroundWorker, &OnBackgroundLoaded);
-  return true;
-}
-
-static void LoadCharacterWorker(void* ptr) {
-  Scene* scene = (Scene*)ptr;
-  scene->CurrentCharacter.Load(scene->CharacterToLoadId);
-}
-
-static void OnCharacterLoaded(void* ptr) {
-  Scene* scene = (Scene*)ptr;
-  scene->CurrentCharacter.Submit();
-  scene->CurrentCharacterLoadStatus = OLS_Loaded;
-}
-
-bool Scene::LoadCharacterAsync(uint32_t id) {
-  if (CurrentCharacterLoadStatus == OLS_Loading) {
-    // Cannot currently cancel a load
-    return false;
-  }
-  if (CurrentCharacterLoadStatus == OLS_Loaded) {
-    CurrentCharacter.Unload();
-    CurrentCharacterLoadStatus = OLS_Unloaded;
-  }
-
-  CharacterToLoadId = id;
-  CurrentCharacterLoadStatus = OLS_Loading;
-  WorkQueuePush(this, &LoadCharacterWorker, &OnCharacterLoaded);
-  return true;
-}
-
 void Scene::Update(float dt) {
-  if (CurrentCharacterLoadStatus == OLS_Loaded) {
-    CurrentCharacter.Update(dt);
+  for (int i = 0; i < Scene3DMaxCharacters; i++) {
+    if (Characters[i].Status == LS_Loaded) {
+      Characters[i].Update(dt);
+    }
   }
 }
 void Scene::Render() {
@@ -120,16 +68,20 @@ void Scene::Render() {
   Background3DUpdateGpu(this, &MainCamera);
   Character3DUpdateGpu(this, &MainCamera);
 
-  if (CurrentBackgroundLoadStatus == OLS_Loaded) {
-    CurrentBackground.Render();
+  for (int i = 0; i < Scene3DMaxBackgrounds; i++) {
+    if (Backgrounds[i].Status == LS_Loaded) {
+      Backgrounds[i].Render();
+    }
   }
 
   // Draw background without MSAA
 
   SetupFramebufferState();
 
-  if (CurrentCharacterLoadStatus == OLS_Loaded) {
-    CurrentCharacter.Render();
+  for (int i = 0; i < Scene3DMaxCharacters; i++) {
+    if (Characters[i].Status == LS_Loaded) {
+      Characters[i].Render();
+    }
   }
 
   DrawToScreen();

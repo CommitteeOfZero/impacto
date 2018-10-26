@@ -3,18 +3,19 @@
 #include <glad/glad.h>
 
 #include "model.h"
+#include "../loadable.h"
 
 namespace Impacto {
 
 class Scene;
 class Camera;
 
-class Background3D {
+class Background3D : public Loadable<Background3D> {
  public:
   bool Load(uint32_t modelId);
   void Unload();
 
-  void Submit();
+  void MainThreadOnLoad();
 
   void Render();
 

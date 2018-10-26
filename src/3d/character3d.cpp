@@ -516,7 +516,7 @@ void Character3D::Unload() {
   IsUsed = false;
 }
 
-void Character3D::Submit() {
+void Character3D::MainThreadOnLoad() {
   assert(IsSubmitted == false);
 
   ImpLog(LL_Info, LC_Object3D, "Submitting data to GPU for model ID %d\n",

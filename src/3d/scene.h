@@ -8,7 +8,8 @@
 
 namespace Impacto {
 
-enum Object3DLoadStatus { OLS_Unloaded, OLS_Loading, OLS_Loaded };
+int const Scene3DMaxBackgrounds = 8;
+int const Scene3DMaxCharacters = 8;
 
 enum MSResolveMode {
   MS_None,
@@ -30,23 +31,15 @@ class Scene {
   void Update(float dt);
   void Render();
 
-  bool LoadBackgroundAsync(uint32_t id);
-  bool LoadCharacterAsync(uint32_t id);
-
   Camera MainCamera;
 
-  Background3D CurrentBackground;
-
-  Character3D CurrentCharacter;
-
-  Object3DLoadStatus CurrentBackgroundLoadStatus = OLS_Unloaded;
-  Object3DLoadStatus CurrentCharacterLoadStatus = OLS_Unloaded;
+  Background3D Backgrounds[Scene3DMaxBackgrounds];
+  Character3D Characters[Scene3DMaxCharacters];
 
   glm::vec3 LightPosition;
   glm::vec4 Tint;
   bool DarkMode;
 
-  uint32_t BackgroundToLoadId;
   uint32_t CharacterToLoadId;
 
  private:
