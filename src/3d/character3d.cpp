@@ -317,7 +317,7 @@ void Character3D::Update(float dt) {
 }
 
 void Character3D::Render() {
-  if (!IsUsed) return;
+  if (!IsUsed || !IsVisible) return;
 
   glBindBuffer(GL_UNIFORM_BUFFER, UBO);
 
@@ -514,6 +514,7 @@ void Character3D::Unload() {
   ModelTransform = Transform();
   IsSubmitted = false;
   IsUsed = false;
+  IsVisible = false;
 }
 
 void Character3D::MainThreadOnLoad() {

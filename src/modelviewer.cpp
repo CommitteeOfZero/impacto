@@ -136,6 +136,8 @@ void ModelViewer::Update(float dt) {
     }
 
     if (GameContext->Scene3D->Backgrounds[0].Status == LS_Loaded) {
+      GameContext->Scene3D->Backgrounds[0].IsVisible = true;
+
       if (nk_tree_push(GameContext->Nk, NK_TREE_TAB, "Background",
                        NK_MAXIMIZED)) {
         nk_layout_row_dynamic(GameContext->Nk, 24, 1);
@@ -154,6 +156,8 @@ void ModelViewer::Update(float dt) {
     }
 
     if (GameContext->Scene3D->Characters[0].Status == LS_Loaded) {
+      GameContext->Scene3D->Characters[0].IsVisible = true;
+
       if (nk_tree_push(GameContext->Nk, NK_TREE_TAB, "Model", NK_MAXIMIZED)) {
         nk_layout_row_dynamic(GameContext->Nk, 24, 1);
 

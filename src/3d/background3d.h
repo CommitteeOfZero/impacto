@@ -23,6 +23,7 @@ class Background3D : public Loadable<Background3D> {
 
   bool IsUsed = false;
   bool IsSubmitted = false;
+  bool IsVisible = false;
 
  private:
   GLuint VAOs[ModelMaxMeshesPerModel];

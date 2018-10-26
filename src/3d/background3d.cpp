@@ -73,6 +73,7 @@ void Background3D::Unload() {
   }
   IsSubmitted = false;
   IsUsed = false;
+  IsVisible = false;
 }
 
 void Background3D::MainThreadOnLoad() {
@@ -122,7 +123,7 @@ void Background3D::MainThreadOnLoad() {
 }
 
 void Background3D::Render() {
-  if (!IsUsed) return;
+  if (!IsUsed || !IsVisible) return;
 
   glUseProgram(ShaderProgram);
   // TODO: *should* we cull backfaces? (in the default pose this covers some

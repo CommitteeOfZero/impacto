@@ -60,6 +60,7 @@ class Character3D : public Loadable<Character3D> {
 
   bool IsUsed = false;
   bool IsSubmitted = false;
+  bool IsVisible = false;
 
  private:
   void Pose();
