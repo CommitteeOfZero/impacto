@@ -11,12 +11,9 @@ class Scene;
 class Camera;
 
 class Background3D : public Loadable<Background3D> {
+  friend class Loadable<Background3D>;
+
  public:
-  bool Load(uint32_t modelId);
-  void Unload();
-
-  void MainThreadOnLoad();
-
   void Render();
 
   Model* StaticModel = 0;
@@ -24,6 +21,11 @@ class Background3D : public Loadable<Background3D> {
   bool IsUsed = false;
   bool IsSubmitted = false;
   bool IsVisible = false;
+
+ protected:
+  bool LoadSync(uint32_t modelId);
+  void UnloadSync();
+  void MainThreadOnLoad();
 
  private:
   GLuint VAOs[ModelMaxMeshesPerModel];

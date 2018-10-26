@@ -39,7 +39,7 @@ void Background3DUpdateGpu(Scene* scene, Camera* camera) {
                      glm::value_ptr(camera->ViewProjection));
 }
 
-bool Background3D::Load(uint32_t modelId) {
+bool Background3D::LoadSync(uint32_t modelId) {
   assert(IsUsed == false);
 
   ImpLog(LL_Info, LC_Object3D, "Creating background (model ID %d)\n", modelId);
@@ -58,7 +58,7 @@ bool Background3D::Load(uint32_t modelId) {
 
   return true;
 }
-void Background3D::Unload() {
+void Background3D::UnloadSync() {
   if (StaticModel) {
     ImpLog(LL_Info, LC_Object3D, "Unloading background model %d\n",
            StaticModel->Id);

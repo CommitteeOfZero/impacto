@@ -8,11 +8,12 @@ enum LoadStatus { LS_Unloaded, LS_Loading, LS_Loaded };
 
 template <typename T>
 class Loadable {
- public:
-  // void Load(uint32_t id);
-  // void Unload();
+  // protected:
+  // void LoadSync(uint32_t id);
+  // void UnloadSync();
   // void MainThreadOnLoad();
 
+ public:
   LoadStatus Status = LS_Unloaded;
 
   bool LoadAsync(uint32_t id) {
@@ -20,13 +21,17 @@ class Loadable {
       // cannot currently cancel a load
       return false;
     }
-    if (Status == LS_Loaded) {
-      static_cast<T*>(this)->Unload();
-      Status = LS_Unloaded;
-    }
+    Unload();
     NextLoadId = id;
     Status = LS_Loading;
     WorkQueuePush(this, &LoadWorker, &OnLoaded);
+  }
+
+  void Unload() {
+    if (Status == LS_Loaded) {
+      static_cast<T*>(this)->UnloadSync();
+      Status = LS_Unloaded;
+    }
   }
 
  protected:
@@ -34,7 +39,7 @@ class Loadable {
 
   static void LoadWorker(void* ptr) {
     T* loadable = (T*)ptr;
-    loadable->Load(loadable->NextLoadId);
+    loadable->LoadSync(loadable->NextLoadId);
   }
 
   static void OnLoaded(void* ptr) {

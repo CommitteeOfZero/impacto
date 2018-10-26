@@ -116,7 +116,7 @@ void Character3DUpdateGpu(Scene* scene, Camera* camera) {
   glUniform1i(UniformDarkMode, scene->DarkMode);
 }
 
-bool Character3D::Load(uint32_t modelId) {
+bool Character3D::LoadSync(uint32_t modelId) {
   assert(IsUsed == false);
 
   ImpLog(LL_Info, LC_Object3D, "Creating character (model ID %d)\n", modelId);
@@ -492,7 +492,7 @@ void Character3D::DrawMesh(int id) {
   }
 }
 
-void Character3D::Unload() {
+void Character3D::UnloadSync() {
   Animator.CurrentAnimation = 0;
   PrevPoseWeight = 0.0f;
   if (StaticModel) {

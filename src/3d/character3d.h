@@ -31,12 +31,10 @@ class Scene;
 class Camera;
 
 class Character3D : public Loadable<Character3D> {
- public:
-  bool Load(uint32_t modelId);
-  void Unload();
-  void MakePlane();
+  friend class Loadable<Character3D>;
 
-  void MainThreadOnLoad();
+ public:
+  void MakePlane();
 
   void Update(float dt);
   void Render();
@@ -61,6 +59,11 @@ class Character3D : public Loadable<Character3D> {
   bool IsUsed = false;
   bool IsSubmitted = false;
   bool IsVisible = false;
+
+ protected:
+  bool LoadSync(uint32_t modelId);
+  void UnloadSync();
+  void MainThreadOnLoad();
 
  private:
   void Pose();
