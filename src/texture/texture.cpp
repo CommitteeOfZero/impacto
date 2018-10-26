@@ -41,9 +41,12 @@ void Texture::Init(TexFmt fmt, int width, int height) {
   Buffer = (uint8_t*)malloc(BufferSize);
 }
 
-void Texture::Load1x1() {
+void Texture::Load1x1(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) {
   Init(TexFmt_RGBA, 1, 1);
-  *(uint32_t*)Buffer = 0;
+  Buffer[0] = red;
+  Buffer[1] = green;
+  Buffer[2] = blue;
+  Buffer[3] = alpha;
 }
 
 void Texture::LoadCheckerboard() {

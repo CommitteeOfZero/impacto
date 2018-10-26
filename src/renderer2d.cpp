@@ -2,6 +2,7 @@
 
 #include "log.h"
 #include "shader.h"
+#include "texture/texture.h"
 
 namespace Impacto {
 
@@ -62,12 +63,20 @@ Renderer2D::Renderer2D() {
   glEnableVertexAttribArray(0);
   glEnableVertexAttribArray(1);
   glEnableVertexAttribArray(2);
+
+  // Make 1x1 white pixel for colored rectangles
+  Texture rectTexture;
+  rectTexture.Load1x1(0xFF, 0xFF, 0xFF, 0xFF);
+  SpriteSheet rectSheet(1.0f, 1.0f);
+  rectSheet.Texture = rectTexture.Submit();
+  RectSprite = Sprite(rectSheet, 0.0f, 0.0f, 1.0f, 1.0f);
 }
 
 Renderer2D::~Renderer2D() {
   if (VBO) glDeleteBuffers(1, &VBO);
   if (IBO) glDeleteBuffers(1, &IBO);
   if (VAOSprites) glDeleteVertexArrays(1, &VAOSprites);
+  if (RectSprite.Sheet.Texture) glDeleteTextures(1, &RectSprite.Sheet.Texture);
 }
 
 void Renderer2D::Begin() {
@@ -90,6 +99,10 @@ void Renderer2D::DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
   RectF scaledDest(topLeft.x, topLeft.y, scale.x * sprite.Bounds.Width,
                    scale.y * sprite.Bounds.Height);
   DrawSprite(sprite, scaledDest, tint);
+}
+
+void Renderer2D::DrawRect(RectF const& dest, glm::vec4 color) {
+  DrawSprite(RectSprite, dest, color);
 }
 
 void Renderer2D::DrawSprite(Sprite const& sprite, RectF const& dest,

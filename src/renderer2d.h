@@ -17,6 +17,7 @@ class Renderer2D {
   void DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
                   glm::vec4 tint = glm::vec4(1.0),
                   glm::vec2 scale = glm::vec2(1.0));
+  void DrawRect(RectF const& dest, glm::vec4 color);
   void Finish();
 
  private:
@@ -53,6 +54,8 @@ class Renderer2D {
   int VertexBufferFill = 0;
   uint16_t IndexBuffer[IndexBufferCount];
   int IndexBufferFill = 0;
+
+  Sprite RectSprite;
 };
 
 }  // namespace Impacto
