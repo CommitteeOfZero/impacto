@@ -9,8 +9,6 @@ enum LoadStatus { LS_Unloaded, LS_Loading, LS_Loaded };
 template <typename T>
 class Loadable {
  public:
-  ~Loadable() {}
-
   // void Load(uint32_t id);
   // void Unload();
   // void MainThreadOnLoad();
