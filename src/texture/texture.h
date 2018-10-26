@@ -17,6 +17,7 @@ struct Texture {
 
   bool Load(SDL_RWops* stream);
   void Load1x1();
+  void LoadCheckerboard();
   void LoadPoliticalCompass();
   uint32_t Submit();
 };

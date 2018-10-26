@@ -46,6 +46,20 @@ void Texture::Load1x1() {
   *(uint32_t*)Buffer = 0;
 }
 
+void Texture::LoadCheckerboard() {
+  Init(TexFmt_U8, 128, 128);
+  uint8_t color = 0xFF;
+  uint8_t* out = Buffer;
+  for (int y = 0; y < Height; y++) {
+    for (int x = 0; x < Width; x++) {
+      *out = color;
+      out++;
+      color = ~color;
+    }
+    color = ~color;
+  }
+}
+
 void Texture::LoadPoliticalCompass() {
   Init(TexFmt_RGBA, 512, 512);
 
