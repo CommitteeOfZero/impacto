@@ -28,7 +28,6 @@ struct RectF {
   RectF(float x, float y, float width, float height);
   RectF(Rect const& rect);
 
-  // This function assumes +x is right, +y is down
   bool ContainsPoint(glm::vec2 point);
 };
 
@@ -42,7 +41,6 @@ struct Rect {
   Rect(int x, int y, int width, int height);
   Rect(RectF const& rect);
 
-  // This function assumes +x is right, +y is down
   bool ContainsPoint(int x, int y);
 };
 
