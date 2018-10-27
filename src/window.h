@@ -22,7 +22,7 @@ RectF WindowGetViewport();
 // Aspect ratio corrected viewport in window coordinates scaled by g_RenderScale
 RectF WindowGetScaledViewport();
 // Convert input events from window coordinates to viewport coordinates
-void WindowAdjustEventCoordinates(SDL_Event* ev);
+void WindowAdjustEventCoordinatesForNk(SDL_Event* ev);
 void WindowSwapRTs();
 void WindowUpdate();
 void WindowDraw();

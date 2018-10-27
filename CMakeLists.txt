@@ -19,6 +19,7 @@ set(Impacto_Src
     src/modelviewer.cpp
     src/renderer2d.cpp
     src/text.cpp
+    src/inputsystem.cpp
 
     src/text_rne.cpp
 
@@ -72,6 +73,7 @@ set(Impacto_Header
     src/renderer2d.h
     src/text.h
     src/loadable.h
+    src/inputsystem.h
 
     src/3d/camera.h
     src/3d/model.h

@@ -72,8 +72,7 @@ RectF WindowGetScaledViewport() {
   return viewport;
 }
 
-void WindowAdjustEventCoordinates(SDL_Event* ev) {
-  // TODO touch (x/y normalized floats)
+void WindowAdjustEventCoordinatesForNk(SDL_Event* ev) {
   Rect viewport = WindowGetViewport();
   if (ev->type == SDL_MOUSEMOTION) {
     ev->motion.x -= viewport.X;
@@ -174,6 +173,8 @@ void WindowInit() {
     WindowShutdown();
     return;
   }
+
+  SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
 
   switch (g_GraphicsApiHint) {
     case GfxApi_GL:

@@ -37,6 +37,10 @@ Game::Game(GameFeatureConfig const& config) : Config(config) {
     nk_sdl_font_stash_end();
   }
 
+  if (Config.GameFeatures & GameFeature_Input) {
+    Input = new InputSystem;
+  }
+
   if (Config.GameFeatures & GameFeature_Scene3D) {
     SceneInit();
     Scene3D = new Scene;
@@ -177,6 +181,12 @@ Game::~Game() {
     }
   }
 
+  if (Config.GameFeatures & GameFeature_Input) {
+    if (Input) {
+      delete Input;
+    }
+  }
+
   if (Config.GameFeatures & GameFeature_Nuklear) {
     nk_sdl_shutdown();
   }
@@ -189,17 +199,29 @@ void Game::Update(float dt) {
   if (Config.GameFeatures & GameFeature_Nuklear) {
     nk_input_begin(Nk);
   }
+  if (Config.GameFeatures & GameFeature_Input) {
+    Input->BeginFrame();
+  }
   while (SDL_PollEvent(&e)) {
-    WindowAdjustEventCoordinates(&e);
-
     if (e.type == SDL_QUIT) {
       ShouldQuit = true;
     }
 
     if (Config.GameFeatures & GameFeature_Nuklear) {
-      nk_sdl_handle_event(&e);
+      SDL_Event e_nk;
+      memcpy(&e_nk, &e, sizeof(SDL_Event));
+      WindowAdjustEventCoordinatesForNk(&e_nk);
+      if (nk_sdl_handle_event(&e_nk)) continue;
     }
+
+    if (Config.GameFeatures & GameFeature_Input) {
+      if (Input->HandleEvent(&e)) continue;
+    }
+
     WorkQueueHandleEvent(&e);
+  }
+  if (Config.GameFeatures & GameFeature_Input) {
+    Input->EndFrame();
   }
   if (Config.GameFeatures & GameFeature_Nuklear) {
     nk_input_end(Nk);

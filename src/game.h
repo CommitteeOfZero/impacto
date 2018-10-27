@@ -6,7 +6,7 @@
 #include "vm/vm.h"
 #include "renderer2d.h"
 #include "io/vfs.h"
-
+#include "inputsystem.h"
 #include "text.h"
 
 namespace Impacto {
@@ -16,7 +16,8 @@ enum GameFeature {
   GameFeature_Scene3D = (1 << 1),
   GameFeature_ModelViewer = (1 << 2),
   GameFeature_Sc3VirtualMachine = (1 << 3),
-  GameFeature_Renderer2D = (1 << 4)
+  GameFeature_Renderer2D = (1 << 4),
+  GameFeature_Input = (1 << 5)
 };
 
 struct GameFeatureConfig {
@@ -51,6 +52,7 @@ class Game {
   ModelViewer* ModelViewerComponent = 0;
   Vm::Vm* VmComponent = 0;
   Renderer2D* R2D = 0;
+  InputSystem* Input = 0;
 
   GameFeatureConfig Config;
 
