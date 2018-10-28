@@ -14,8 +14,6 @@ int const TrackSize = 0xE8;
 int const TrackCountsOffset = 6;
 int const TrackOffsetsOffset = 0x68;
 
-float const fileFrameTime = 30.0f;
-
 enum TargetType { TargetType_Bone = 0, TargetType_MeshGroup = 0x8000 };
 enum SubTrackType {
   STT_Visibility = 0,
@@ -38,7 +36,7 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t animId) {
   result->Id = animId;
 
   SDL_RWseek(stream, HeaderDurationOffset, RW_SEEK_SET);
-  result->Duration = ReadFloatLE32(stream) / fileFrameTime;
+  result->Duration = ReadFloatLE32(stream) / AnimDesignFrameRate;
   uint32_t trackCount = SDL_ReadLE32(stream);
   uint32_t tracksOffset = SDL_ReadLE32(stream);
 
@@ -303,7 +301,7 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t animId) {
 
         currentTime = nextTime;
         QuatKeyframe key;
-        key.Time = currentTime / fileFrameTime;
+        key.Time = currentTime / AnimDesignFrameRate;
         eulerZYXToQuat(&currentEuler, &key.Value);
         rotationTrack.push_back(key);
 
@@ -376,7 +374,7 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t animId) {
              time < (float*)(result->CoordKeyframes + currentCoordOffset +
                              currentKeyframeCount);
              time += 2) {
-          *time /= fileFrameTime;
+          *time /= AnimDesignFrameRate;
         }
         currentCoordOffset += currentKeyframeCount;
       }
@@ -427,7 +425,7 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t animId) {
            time < (float*)(result->CoordKeyframes + currentCoordOffset +
                            visibilityCount);
            time += 2) {
-        *time /= fileFrameTime;
+        *time /= AnimDesignFrameRate;
       }
       currentCoordOffset += visibilityCount;
 
@@ -445,7 +443,7 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t animId) {
              key < (result->CoordKeyframes + currentCoordOffset +
                     morphInfluenceCounts[j]);
              key++) {
-          key->Time /= fileFrameTime;
+          key->Time /= AnimDesignFrameRate;
           key->Value /= 100.0f;
         }
         currentCoordOffset += morphInfluenceCounts[j];
