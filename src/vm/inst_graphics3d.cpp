@@ -106,8 +106,8 @@ VmInstruction(InstPositionObject) {
       }
     }
 
-    float xRad = (valueX / 1000.0f) * 3.14159274f / 180.0f;
-    float yRad = (valueY / 1000.0f) * 3.14159274f / 180.0f;
+    float xRad = (valueX / 1000.0f) * M_PI / 180.0f;
+    float yRad = (valueY / 1000.0f) * M_PI / 180.0f;
     outX = outX + (sinf(xRad) * (cosf(yRad) * (-(valueZ / 1000.0f))));
     outY = outY + (sinf(yRad) * (-(valueZ / 1000.0f)));
     outZ = outZ + (cosf(xRad) * (cosf(yRad) * (-(valueZ / 1000.0f))));
