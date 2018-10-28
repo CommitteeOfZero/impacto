@@ -84,7 +84,7 @@ bool InputSystem::HandleEvent(SDL_Event const* ev) {
     case SDL_CONTROLLERAXISMOTION: {
       SDL_ControllerAxisEvent const* evt = &ev->caxis;
       CurrentInputDevice = IDEV_Controller;
-      ControllerAxis[evt->axis] = (float)evt->value / (float)UINT16_MAX;
+      ControllerAxis[evt->axis] = (float)evt->value / (float)INT16_MAX;
       return true;
       break;
     }
