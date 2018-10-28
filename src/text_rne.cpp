@@ -6,13 +6,13 @@ DialoguePageFeatureConfig const DialoguePageFeatureConfig_RNE{
     // NVLBounds
     {125.0f, 85.0f, 1024.0f, 400.0f},
     // ADVBounds
-    {160.0f, 540.0f, 960.0f, 180.0f},
+    {161.0f, 546.0f, 960.0f, 180.0f},
     // ADVNameAlignment
     TA_Left,
     // ADVNameFontSize
     24.0f,
     // ADVNamePos
-    glm::vec2(100.0f, 498.0f),
+    glm::vec2(104.0f, 498.0f),
     // DefaultFontSize
     32.0f,
     // RubyFontSize

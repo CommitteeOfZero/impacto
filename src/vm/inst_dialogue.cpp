@@ -212,7 +212,7 @@ VmInstruction(InstMessWindow) {
       if (currentPage->AnimState != DPAS_Shown) {
         currentPage->Mode =
             (DialoguePageMode)thread->GameContext
-                ->ScrWork[SW_MESADVMODE];  // Only for page 0 for now
+                ->ScrWork[SW_MESMODE0];  // Only for page 0 for now
         currentPage->ADVBoxOpacity = 0.0f;
         currentPage->AnimState = DPAS_Showing;
       }

@@ -800,7 +800,7 @@ InstructionProc static OpcodeTableGraph3D_RNE[256] = {
     InstCHAswap3DMaybe,      // 02 05
     InstCHAplayAnim3DMaybe,  // 02 06
     InstCHAUnk02073D,        // 02 07
-    InstUnk0208,             // 02 08
+    InstPositionObject,      // 02 08
     InstCHAsetAnim3D,        // 02 09
     InstDummy,               // 02 0A
     InstDummy,               // 02 0B
