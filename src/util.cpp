@@ -3,15 +3,34 @@
 
 namespace Impacto {
 
+glm::mat2 Rotate2D(float angle) {
+  glm::mat2 result;
+  float cosa = cosf(angle);
+  float sina = sinf(angle);
+  result[0][0] = cosa;
+  result[0][1] = sina;
+  result[1][0] = -sina;
+  result[1][1] = cosa;
+  return result;
+}
+
 RectF::RectF() {}
 RectF::RectF(float x, float y, float width, float height)
     : X(x), Y(y), Width(width), Height(height) {}
 RectF::RectF(Rect const& rect)
     : RectF(rect.X, rect.Y, rect.Width, rect.Height) {}
 
-bool RectF::ContainsPoint(glm::vec2 point) {
-  return point.x >= X && point.x <= (X + Width) && point.y >= Y &&
-         point.y <= (Y + Height);
+glm::vec2 RectF::Center() const {
+  return glm::vec2(X + Width / 2.0f, Y + Height / 2.0f);
+}
+bool RectF::ContainsPoint(glm::vec2 point, float angle) const {
+  point -= Center();
+  if (angle != 0.0f) {
+    point = Rotate2D(-angle) * point;
+  }
+
+  return point.x >= -Width / 2.0f && point.x <= Width / 2.0f &&
+         point.y >= -Height / 2.0f && point.y <= Height / 2.0f;
 }
 
 Rect::Rect() {}
@@ -20,8 +39,16 @@ Rect::Rect(int x, int y, int width, int height)
 Rect::Rect(RectF const& rect)
     : Rect((int)rect.X, (int)rect.Y, (int)rect.Width, (int)rect.Height) {}
 
-bool Rect::ContainsPoint(int x, int y) {
-  return x >= X && x <= (X + Width) && y >= Y && y <= (Y + Height);
+glm::ivec2 Rect::Center() const {
+  return glm::ivec2(X + Width / 2, Y + Height / 2);
+}
+bool Rect::ContainsPoint(glm::ivec2 point, float angle) const {
+  point -= Center();
+  if (angle != 0.0f) {
+    point = (glm::ivec2)(Rotate2D(-angle) * (glm::vec2)point);
+  }
+  return point.x >= -Width / 2 && point.x <= Width / 2 &&
+         point.y >= -Height / 2 && point.y <= Height / 2;
 }
 
 glm::vec2 DesignToNDC(glm::vec2 xy) {

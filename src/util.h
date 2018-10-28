@@ -16,6 +16,8 @@
 
 namespace Impacto {
 
+glm::mat2 Rotate2D(float angle);
+
 struct Rect;
 
 struct RectF {
@@ -28,7 +30,9 @@ struct RectF {
   RectF(float x, float y, float width, float height);
   RectF(Rect const& rect);
 
-  bool ContainsPoint(glm::vec2 point);
+  glm::vec2 Center() const;
+  // Rect is rotated around center
+  bool ContainsPoint(glm::vec2 point, float angle = 0.0f) const;
 };
 
 struct Rect {
@@ -41,7 +45,9 @@ struct Rect {
   Rect(int x, int y, int width, int height);
   Rect(RectF const& rect);
 
-  bool ContainsPoint(int x, int y);
+  glm::ivec2 Center() const;
+  // Rect is rotated around center
+  bool ContainsPoint(glm::ivec2 point, float angle = 0.0f) const;
 };
 
 glm::vec2 DesignToNDC(glm::vec2 xy);

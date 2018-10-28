@@ -95,18 +95,18 @@ void Renderer2D::Begin() {
 }
 
 void Renderer2D::DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
-                            glm::vec4 tint, glm::vec2 scale) {
+                            glm::vec4 tint, glm::vec2 scale, float angle) {
   RectF scaledDest(topLeft.x, topLeft.y, scale.x * sprite.Bounds.Width,
                    scale.y * sprite.Bounds.Height);
-  DrawSprite(sprite, scaledDest, tint);
+  DrawSprite(sprite, scaledDest, tint, angle);
 }
 
-void Renderer2D::DrawRect(RectF const& dest, glm::vec4 color) {
-  DrawSprite(RectSprite, dest, color);
+void Renderer2D::DrawRect(RectF const& dest, glm::vec4 color, float angle) {
+  DrawSprite(RectSprite, dest, color, angle);
 }
 
 void Renderer2D::DrawSprite(Sprite const& sprite, RectF const& dest,
-                            glm::vec4 tint) {
+                            glm::vec4 tint, float angle) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer2D::DrawSprite() called before Begin()\n");
@@ -145,7 +145,7 @@ void Renderer2D::DrawSprite(Sprite const& sprite, RectF const& dest,
 
   QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
             (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetPosition(scaledDest, (uintptr_t)&vertices[0].Position,
+  QuadSetPosition(scaledDest, angle, (uintptr_t)&vertices[0].Position,
                   sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
@@ -170,20 +170,34 @@ inline void Renderer2D::QuadSetUV(RectF const& spriteBounds, float designWidth,
 }
 
 inline void Renderer2D::QuadSetPosition(RectF const& transformedQuad,
-                                        uintptr_t positions, int stride) {
-  RectF quadNDC = DesignToNDC(transformedQuad);
+                                        float angle, uintptr_t positions,
+                                        int stride) {
+  glm::vec2 bottomLeft =
+      glm::vec2(transformedQuad.X, transformedQuad.Y + transformedQuad.Height);
+  glm::vec2 topLeft = glm::vec2(transformedQuad.X, transformedQuad.Y);
+  glm::vec2 topRight =
+      glm::vec2(transformedQuad.X + transformedQuad.Width, transformedQuad.Y);
+  glm::vec2 bottomRight = glm::vec2(transformedQuad.X + transformedQuad.Width,
+                                    transformedQuad.Y + transformedQuad.Height);
+
+  if (angle != 0.0f) {
+    glm::vec2 center = transformedQuad.Center();
+    glm::mat2 rot = Rotate2D(angle);
+
+    bottomLeft = rot * (bottomLeft - center) + center;
+    topLeft = rot * (topLeft - center) + center;
+    topRight = rot * (topRight - center) + center;
+    bottomRight = rot * (bottomRight - center) + center;
+  }
 
   // bottom-left
-  *(glm::vec2*)(positions + 0 * stride) =
-      glm::vec2(quadNDC.X, quadNDC.Y - quadNDC.Height);
+  *(glm::vec2*)(positions + 0 * stride) = DesignToNDC(bottomLeft);
   // top-left
-  *(glm::vec2*)(positions + 1 * stride) = glm::vec2(quadNDC.X, quadNDC.Y);
+  *(glm::vec2*)(positions + 1 * stride) = DesignToNDC(topLeft);
   // top-right
-  *(glm::vec2*)(positions + 2 * stride) =
-      glm::vec2(quadNDC.X + quadNDC.Width, quadNDC.Y);
+  *(glm::vec2*)(positions + 2 * stride) = DesignToNDC(topRight);
   // bottom-right
-  *(glm::vec2*)(positions + 3 * stride) =
-      glm::vec2(quadNDC.X + quadNDC.Width, quadNDC.Y - quadNDC.Height);
+  *(glm::vec2*)(positions + 3 * stride) = DesignToNDC(bottomRight);
 }
 
 void Renderer2D::Finish() {

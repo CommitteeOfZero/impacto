@@ -13,11 +13,11 @@ class Renderer2D {
 
   void Begin();
   void DrawSprite(Sprite const& sprite, RectF const& dest,
-                  glm::vec4 tint = glm::vec4(1.0));
+                  glm::vec4 tint = glm::vec4(1.0), float angle = 0.0f);
   void DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
                   glm::vec4 tint = glm::vec4(1.0),
-                  glm::vec2 scale = glm::vec2(1.0));
-  void DrawRect(RectF const& dest, glm::vec4 color);
+                  glm::vec2 scale = glm::vec2(1.0), float angle = 0.0f);
+  void DrawRect(RectF const& dest, glm::vec4 color, float angle = 0.0f);
   void Finish();
 
  private:
@@ -39,7 +39,7 @@ class Renderer2D {
 
   static inline void QuadSetUV(RectF const& spriteBounds, float designWidth,
                                float designHeight, uintptr_t uvs, int stride);
-  static inline void QuadSetPosition(RectF const& transformedQuad,
+  static inline void QuadSetPosition(RectF const& transformedQuad, float angle,
                                      uintptr_t positions, int stride);
 
   GLuint VBO;
