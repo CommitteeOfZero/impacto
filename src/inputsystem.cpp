@@ -5,8 +5,13 @@ namespace Impacto {
 
 void InputSystem::BeginFrame() {
   memset(ControllerButtonWentDown, false, sizeof(ControllerButtonWentDown));
+  memset(ControllerAxisWentDownLight, false,
+         sizeof(ControllerAxisWentDownLight));
+  memset(ControllerAxisWentDownHeavy, false,
+         sizeof(ControllerAxisWentDownHeavy));
   memset(MouseButtonWentDown, false, sizeof(MouseButtonWentDown));
   memset(KeyboardButtonWentDown, false, sizeof(KeyboardButtonWentDown));
+  TouchWentDown = false;
 
   PrevMousePos = CurMousePos;
   PrevTouchPos = CurTouchPos;
@@ -32,6 +37,13 @@ static glm::vec2 SDLMouseCoordsToDesign(int x, int y) {
 
 bool InputSystem::HandleEvent(SDL_Event const* ev) {
   switch (ev->type) {
+    case SDL_CONTROLLERDEVICEADDED: {
+      SDL_ControllerDeviceEvent const* evt = &ev->cdevice;
+      CurrentInputDevice = IDEV_Controller;
+      SDL_GameControllerOpen(evt->which);
+      return true;
+      break;
+    }
     case SDL_MOUSEMOTION: {
       SDL_MouseMotionEvent const* evt = &ev->motion;
       CurMousePos = SDLMouseCoordsToDesign(evt->x, evt->y);
@@ -80,11 +92,25 @@ bool InputSystem::HandleEvent(SDL_Event const* ev) {
       return true;
       break;
     }
-      // TODO value range of triggers?
     case SDL_CONTROLLERAXISMOTION: {
       SDL_ControllerAxisEvent const* evt = &ev->caxis;
       CurrentInputDevice = IDEV_Controller;
-      ControllerAxis[evt->axis] = (float)evt->value / (float)INT16_MAX;
+      float newVal = (float)evt->value / (float)INT16_MAX;
+      float newWeight = fabsf(newVal);
+      float oldWeight = fabsf(ControllerAxis[evt->axis]);
+      if (oldWeight < ControllerAxisLightThreshold &&
+          newWeight >= ControllerAxisLightThreshold) {
+        ControllerAxisWentDownLight[evt->axis] = true;
+      }
+      if (oldWeight < ControllerAxisHeavyThreshold &&
+          newWeight >= ControllerAxisHeavyThreshold) {
+        ControllerAxisWentDownHeavy[evt->axis] = true;
+      }
+      ControllerAxisIsDownLight[evt->axis] =
+          newWeight >= ControllerAxisLightThreshold;
+      ControllerAxisIsDownHeavy[evt->axis] =
+          newWeight >= ControllerAxisHeavyThreshold;
+      ControllerAxis[evt->axis] = newVal;
       return true;
       break;
     }
@@ -108,6 +134,7 @@ bool InputSystem::HandleEvent(SDL_Event const* ev) {
                                    (int)(evt->y * (float)g_WindowHeight));
         CurrentFinger = evt->fingerId;
         TouchIsDown = true;
+        TouchWentDown = true;
       }
       return true;
       break;

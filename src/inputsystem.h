@@ -7,6 +7,9 @@ namespace Impacto {
 
 enum InputDevice { IDEV_Mouse, IDEV_Keyboard, IDEV_Touch, IDEV_Controller };
 
+float const ControllerAxisLightThreshold = 0.3f;
+float const ControllerAxisHeavyThreshold = 0.8f;
+
 class InputSystem {
  private:
   static int const MouseButtonsMax = SDL_BUTTON_X2 + 1;
@@ -35,6 +38,10 @@ class InputSystem {
   bool MouseButtonIsDown[MouseButtonsMax] = {0};
   bool ControllerButtonWentDown[SDL_CONTROLLER_BUTTON_MAX] = {0};
   bool ControllerButtonIsDown[SDL_CONTROLLER_BUTTON_MAX] = {0};
+  bool ControllerAxisIsDownLight[SDL_CONTROLLER_AXIS_MAX] = {0};
+  bool ControllerAxisWentDownLight[SDL_CONTROLLER_AXIS_MAX] = {0};
+  bool ControllerAxisIsDownHeavy[SDL_CONTROLLER_AXIS_MAX] = {0};
+  bool ControllerAxisWentDownHeavy[SDL_CONTROLLER_AXIS_MAX] = {0};
   bool KeyboardButtonWentDown[SDL_NUM_SCANCODES] = {0};
   bool KeyboardButtonIsDown[SDL_NUM_SCANCODES] = {0};
 
