@@ -5,6 +5,7 @@
 #include "expression.h"
 #include "../game.h"
 #include "../log.h"
+#include "scriptvars.h"
 
 namespace Impacto {
 
