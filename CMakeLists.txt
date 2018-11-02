@@ -7,6 +7,9 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/modules")
 find_package(SDL2 REQUIRED)
 find_package(glm REQUIRED)
 find_package(ZLIB REQUIRED)
+find_package(OpenAL REQUIRED)
+find_package(OggVorbis REQUIRED)
+find_package(Libatrac9 REQUIRED)
 
 set(Impacto_Src
     src/main.cpp
@@ -56,6 +59,12 @@ set(Impacto_Src
     src/vm/inst_misc.cpp
     src/vm/inst_movie.cpp
     src/vm/inst_sound.cpp
+
+    src/audio/audiosystem.cpp
+    src/audio/audiochannel.cpp
+    src/audio/audiostream.cpp
+    src/audio/vorbisaudiostream.cpp
+    src/audio/atrac9audiostream.cpp
 
     vendor/glad/src/glad.c
 )
@@ -108,6 +117,13 @@ set(Impacto_Header
     src/vm/inst_sound.h
     src/vm/opcodetables_rne.h
 
+    src/audio/audiosystem.h
+    src/audio/audiocommon.h
+    src/audio/audiochannel.h
+    src/audio/audiostream.h
+    src/audio/vorbisaudiostream.h
+    src/audio/atrac9audiostream.h
+
     vendor/include/flat_hash_map.hpp
 
     vendor/nuklear/nuklear.h
@@ -115,6 +131,9 @@ set(Impacto_Header
 )
 
 include_directories(vendor/glad/include)
+include_directories(${OPENAL_INCLUDE_DIR})
+include_directories(${OGGVORBIS_INCLUDE_DIRS})
+include_directories(${LIBATRAC9_INCLUDE_DIR})
 
 add_executable (impacto ${Impacto_Src} ${Impacto_Header})
 
@@ -145,6 +164,9 @@ target_link_libraries(impacto PUBLIC
     SDL2::SDL2main
     glm
     ZLIB::ZLIB
+    ${OPENAL_LIBRARY}
+    ${OGGVORBIS_LIBRARIES}
+    ${LIBATRAC9_LIBRARY}
 )
 
 install(TARGETS impacto RUNTIME DESTINATION .)
@@ -154,6 +176,14 @@ if (WIN32)
     install(FILES ${SDL2_RUNTIME_DLL} DESTINATION .)
 
     install(FILES ${ZLIB_INCLUDE_DIR}/../bin/zlib.dll DESTINATION .)
+
+    install(FILES ${LIBATRAC9_INCLUDE_DIR}/../bin/libatrac9.dll DESTINATION .)
+
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        install(FILES ${OPENAL_INCLUDE_DIR}/../../bin/Win64/soft_oal.dll DESTINATION . RENAME OpenAL32.dll)
+    else()
+        install(FILES ${OPENAL_INCLUDE_DIR}/../../bin/Win32/soft_oal.dll DESTINATION . RENAME OpenAL32.dll)
+    endif()
 endif()
 
 # assets

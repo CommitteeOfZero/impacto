@@ -70,6 +70,8 @@ const char* ChannelToString(LogChannel channel) {
       return "VMStub";
     case LC_Expr:
       return "Expr";
+    case LC_Audio:
+      return "Audio";
     default:
       assert(false);
       return "";

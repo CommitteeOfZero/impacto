@@ -6,6 +6,9 @@
 #include "modelviewer.h"
 #include "log.h"
 
+#include "audio/audiochannel.h"
+#include "audio/audiostream.h"
+
 namespace Impacto {
 
 static int const NkMaxVertexMemory = 256 * 1024;
@@ -41,6 +44,10 @@ Game::Game(GameFeatureConfig const& config) : Config(config) {
     Input = new InputSystem;
   }
 
+  if (Config.GameFeatures & GameFeature_Audio) {
+    Audio = new Audio::AudioSystem;
+  }
+
   if (Config.GameFeatures & GameFeature_Scene3D) {
     SceneInit();
     Scene3D = new Scene;
@@ -70,6 +77,9 @@ Game::Game(GameFeatureConfig const& config) : Config(config) {
 }
 
 void Game::Init() {
+  if (Config.GameFeatures & GameFeature_Audio) {
+    Audio->Init(this);
+  }
   if (Config.GameFeatures & GameFeature_Scene3D) {
     Scene3D->Init();
   }
@@ -169,6 +179,10 @@ Game::~Game() {
     delete VmComponent;
   }
 
+  if (Config.GameFeatures & GameFeature_Audio) {
+    if (Audio) delete Audio;
+  }
+
   if (Config.GameFeatures & GameFeature_Scene3D) {
     if (Scene3D) {
       delete Scene3D;
@@ -233,6 +247,10 @@ void Game::Update(float dt) {
 
   if (Config.GameFeatures & GameFeature_Sc3VirtualMachine) {
     VmComponent->Update();
+  }
+
+  if (Config.GameFeatures & GameFeature_Audio) {
+    Audio->Update(dt);
   }
 
   if (Config.GameFeatures & GameFeature_Scene3D) {
