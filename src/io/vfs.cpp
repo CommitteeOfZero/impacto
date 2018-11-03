@@ -433,7 +433,6 @@ IoError VfsArchive::OverlayOpen(uint32_t id, SDL_RWops** outHandle) {
         if (*outHandle != NULL) {
           ImpLog(LL_Debug, LC_IO, "Opened %d in \"%s\" with overlay FS\n", id,
                  MountPoint);
-          OpenHandles++;
           return IoError_OK;
         } else {
           ImpLog(LL_Debug, LC_IO, "No overlay file found for %d in \"%s\"\n",
