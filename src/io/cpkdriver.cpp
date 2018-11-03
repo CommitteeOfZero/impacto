@@ -125,6 +125,7 @@ size_t SDLCALL CpkEntryUncompressedRead(SDL_RWops* context, void* ptr,
   ImpLogSlow(LL_Trace, LC_IO, "read size=%" PRId64 " num=%" PRId64 "\n", size,
              availNum);
   size_t result = SDL_RWread(file->Archive->BaseStream, ptr, size, availNum);
+  file->Position += result * size;
   if (result == 0) {
     ImpLog(LL_Error, LC_IO,
            "Reading %" PRIu64 " bytes at %" PRId64
