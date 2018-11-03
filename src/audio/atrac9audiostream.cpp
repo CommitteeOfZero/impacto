@@ -189,7 +189,7 @@ Atrac9AudioStream::Atrac9AudioStream(SDL_RWops* stream) : AudioStream(stream) {
          "LoopStart=%d, LoopEnd=%d",
          Duration, SampleRate, ChannelCount, LoopStart, LoopEnd);
 
-  Seek(LoopEnd - 10 * SampleRate);
+  Seek(EncoderDelay);
 }
 
 Atrac9AudioStream::~Atrac9AudioStream() {
