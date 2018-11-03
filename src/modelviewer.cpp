@@ -2,11 +2,14 @@
 #include "game.h"
 
 #include "window.h"
+#include "audio/audiostream.h"
+#include "audio/audiochannel.h"
 
 namespace Impacto {
 
 ModelViewer::ModelViewer(Game* game) : GameContext(game) {
   Model::EnumerateModels();
+  EnumerateBgm();
 
   CameraPosition = glm::vec3(0.0f, 12.5f, 23.0f);
   CameraTarget = glm::vec3(0.0f, 12.5f, 0.0f);
@@ -14,8 +17,26 @@ ModelViewer::ModelViewer(Game* game) : GameContext(game) {
   CurrentModel = 0;
   CurrentAnim = 0;
   CurrentBackground = 0;
+  CurrentBgm = 0;
+  BgmChangeQueued = false;
+
+  BgmFadeOut = 0.0f;
+  BgmFadeIn = 0.0f;
+  BgmLoop = true;
 
   UiTintColor = {0.784f, 0.671f, 0.6f, 0.9f};
+}
+
+ModelViewer::~ModelViewer() {
+  if (BgmNames) {
+    for (int i = 0; i < BgmCount; i++) {
+      free(BgmNames[i]);
+    }
+    free(BgmNames);
+  }
+  if (BgmIds) {
+    free(BgmIds);
+  }
 }
 
 void ModelViewer::Init() {
@@ -249,11 +270,69 @@ void ModelViewer::Update(float dt) {
         nk_tree_pop(GameContext->Nk);
       }
     }
+
+    if (nk_tree_push(GameContext->Nk, NK_TREE_TAB, "BGM", NK_MAXIMIZED)) {
+      nk_layout_row_dynamic(GameContext->Nk, 24, 1);
+
+      CurrentBgm = nk_combo(GameContext->Nk, (const char**)BgmNames, BgmCount,
+                            CurrentBgm, 24, nk_vec2(200, 200));
+      nk_checkbox_label(GameContext->Nk, "Loop (takes effect on switch)",
+                        &BgmLoop);
+      if (nk_button_label(GameContext->Nk, "Switch")) {
+        BgmChangeQueued = true;
+        GameContext->Audio->Channels[Audio::AC_BGM0].Stop(BgmFadeOut);
+      }
+
+      nk_property_float(GameContext->Nk, "Master volume", 0.0f,
+                        &GameContext->Audio->MasterVolume, 1.0f, 0.01f, 0.01f);
+      nk_property_float(GameContext->Nk, "BGM volume", 0.0f,
+                        &GameContext->Audio->GroupVolumes[Audio::ACG_BGM], 1.0f,
+                        0.01f, 0.01f);
+
+      nk_property_float(GameContext->Nk, "Fade out duration", 0.0f, &BgmFadeOut,
+                        5.0f, 0.1f, 0.02f);
+      nk_property_float(GameContext->Nk, "Fade in duration", 0.0f, &BgmFadeIn,
+                        5.0f, 0.1f, 0.02f);
+
+      nk_tree_pop(GameContext->Nk);
+    }
   }
   nk_end(GameContext->Nk);
 
+  if (BgmChangeQueued && GameContext->Audio->Channels[Audio::AC_BGM0].State ==
+                             Audio::ACS_Stopped) {
+    SDL_RWops* stream;
+    GameContext->BgmArchive->Open(BgmIds[CurrentBgm], &stream);
+    GameContext->Audio->Channels[Audio::AC_BGM0].Play(
+        Audio::AudioStream::Create(stream), BgmLoop, BgmFadeIn);
+    BgmChangeQueued = false;
+  }
+
   GameContext->Scene3D->MainCamera.Move(CameraPosition);
   GameContext->Scene3D->MainCamera.LookAt(CameraTarget);
+}
+
+void ModelViewer::EnumerateBgm() {
+  uint32_t iterator;
+  VfsFileInfo info;
+
+  IoError err = GameContext->BgmArchive->EnumerateStart(&iterator, &info);
+  while (err == IoError_OK) {
+    BgmCount++;
+    err = GameContext->BgmArchive->EnumerateNext(&iterator, &info);
+  }
+
+  BgmNames = (char**)malloc(BgmCount * sizeof(char*));
+  BgmIds = (uint32_t*)malloc(BgmCount * sizeof(uint32_t));
+
+  uint32_t i = 0;
+  err = GameContext->BgmArchive->EnumerateStart(&iterator, &info);
+  while (err == IoError_OK) {
+    BgmIds[i] = info.Id;
+    BgmNames[i] = strdup(info.Name);
+    i++;
+    err = GameContext->BgmArchive->EnumerateNext(&iterator, &info);
+  }
 }
 
 }  // namespace Impacto

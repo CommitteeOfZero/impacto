@@ -27,6 +27,7 @@ struct GameFeatureConfig {
   uint32_t GameFeatures;
 
   std::string SystemArchiveName = "";
+  std::string BgmArchiveName = "";
 
   uint32_t Scene3D_CharacterCount;
   uint32_t Scene3D_BackgroundCount;
@@ -64,6 +65,7 @@ class Game {
   DialoguePage DialoguePages[DialoguePageCount];
 
   VfsArchive* SystemArchive = 0;
+  VfsArchive* BgmArchive = 0;
 
   bool ShouldQuit = false;
 

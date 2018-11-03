@@ -11,11 +11,14 @@ class Game;
 class ModelViewer {
  public:
   ModelViewer(Game* game);
+  ~ModelViewer();
 
   void Init();
   void Update(float dt);
 
  private:
+  void EnumerateBgm();
+
   Game* GameContext;
 
   glm::vec3 CameraPosition;
@@ -24,11 +27,21 @@ class ModelViewer {
   uint32_t CurrentModel;
   uint32_t CurrentAnim;
   uint32_t CurrentBackground;
+  uint32_t CurrentBgm;
   int UiWindowWidth;
   int UiWindowHeight;
   int UiMsaaCount;
 
-    // FPS counter
+  char** BgmNames = 0;
+  uint32_t* BgmIds = 0;
+  uint32_t BgmCount = 0;
+  bool BgmChangeQueued;
+
+  float BgmFadeOut;
+  float BgmFadeIn;
+  int BgmLoop;
+
+  // FPS counter
   float LastTime;
   int Frames;
   float FPS;

@@ -31,6 +31,14 @@ Game::Game(GameFeatureConfig const& config) : Config(config) {
       return;
     }
   }
+  if (!Config.BgmArchiveName.empty()) {
+    IoError err = VfsArchive::Mount(Config.BgmArchiveName.c_str(), &BgmArchive);
+    if (err != IoError_OK) {
+      ImpLog(LL_Fatal, LC_General, "Failed to load BGM archive!\n");
+      WindowShutdown();
+      return;
+    }
+  }
 
   if (Config.GameFeatures & GameFeature_Nuklear) {
     Nk = nk_sdl_init(g_SDLWindow, NkMaxVertexMemory, NkMaxElementMemory);
@@ -95,8 +103,9 @@ void Game::Init() {
 Game* Game::CreateModelViewer() {
   GameFeatureConfig config;
   config.LayerCount = 1;
-  config.GameFeatures =
-      GameFeature_Nuklear | GameFeature_Scene3D | GameFeature_ModelViewer;
+  config.GameFeatures = GameFeature_Nuklear | GameFeature_Scene3D |
+                        GameFeature_ModelViewer | GameFeature_Audio;
+  config.BgmArchiveName = "bgm.cpk";
   config.Scene3D_BackgroundCount = 1;
   config.Scene3D_CharacterCount = 1;
 
