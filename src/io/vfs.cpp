@@ -16,6 +16,111 @@ char const g_VfsBasePath[] = "./USRDIR";
 
 static std::vector<VfsMountProc> VfsDrivers;
 
+struct LazySlurpStream : SDL_RWops {
+  static IoError Create(VfsArchive* archive, uint32_t id, SDL_RWops** result) {
+    ImpLog(LL_Error, LC_IO,
+           "Creating LazySlurpStream for file %d in archive \"%s\"\n", id,
+           archive->MountPoint);
+    int64_t sz;
+    IoError err = archive->GetSize(id, &sz);
+    if (err != IoError_OK) {
+      ImpLog(LL_Error, LC_IO, "LazySlurpStream creation failed");
+      // File not readable
+      return err;
+    }
+    if (sz > INT_MAX) {
+      ImpLog(LL_Error, LC_IO,
+             "File %d in archive \"%s\" over 2GB, too large for SDL memory "
+             "stream\n",
+             id, archive->MountPoint);
+      return IoError_Fail;
+    }
+    *result = new LazySlurpStream(archive, id, sz);
+    return IoError_OK;
+  }
+
+  ~LazySlurpStream() {
+    if (IsOpen) {
+      free(Memory);
+    } else {
+      Archive->OpenHandles--;
+    }
+  }
+
+ private:
+  LazySlurpStream(VfsArchive* archive, uint32_t id, int64_t fileSize)
+      : Archive(archive), Id(id), FileSize(fileSize) {
+    IsOpen = false;
+
+    size = Size;
+    seek = Seek;
+    read = Read;
+    write = Write;
+    close = Close;
+    type = SDL_RWOPS_UNKNOWN;
+
+    Archive->OpenHandles++;
+  }
+  bool IsOpen;
+
+  VfsArchive* Archive;
+  uint32_t Id;
+  int64_t FileSize;
+
+  void* Memory;
+
+  void Open() {
+    assert(!IsOpen);
+
+    ImpLog(LL_Debug, LC_IO,
+           "Realizing LazySlurpStream for file %d in archive \"%s\"\n", Id,
+           Archive->MountPoint);
+
+    assert(Archive->Slurp(Id, &Memory, &FileSize) == IoError_OK);
+    Archive->OpenHandles--;
+
+    // Treat as an SDL memory stream from now, except for freeing resources
+    SDL_RWops* tempStream = SDL_RWFromConstMem(Memory, FileSize);
+    memcpy(this, tempStream, sizeof(LazySlurpStream));
+    SDL_RWclose(tempStream);
+
+    close = Close;
+    type = SDL_RWOPS_UNKNOWN;
+    IsOpen = true;
+  }
+
+  // Except Close, these functions will only be called when the stream has not
+  // been opened; their entries in the function table will be overwritten
+  // afterwards
+  static int64_t SDLCALL Size(SDL_RWops* context) {
+    return ((LazySlurpStream*)context)->FileSize;
+  }
+  static int64_t SDLCALL Seek(SDL_RWops* context, int64_t offset, int whence) {
+    if (offset == 0 && whence == RW_SEEK_CUR) {
+      // when unopened, position is always 0
+      return 0;
+    }
+    ((LazySlurpStream*)context)->Open();
+    return SDL_RWseek(context, offset, whence);
+  }
+  static size_t SDLCALL Read(SDL_RWops* context, void* ptr, size_t size,
+                             size_t maxnum) {
+    ((LazySlurpStream*)context)->Open();
+    return SDL_RWread(context, ptr, size, maxnum);
+  }
+  static size_t SDLCALL Write(SDL_RWops* context, const void* ptr, size_t size,
+                              size_t num) {
+    char const error[] = "Tried to write to a LazySlurpStream";
+    SDL_SetError(error);
+    ImpLog(LL_Error, LC_IO, "%s\n", error);
+    return 0;
+  }
+  static int SDLCALL Close(SDL_RWops* context) {
+    delete (LazySlurpStream*)context;
+    return 0;
+  }
+};
+
 IoError VfsArchive::Mount(const char* archiveName, VfsArchive** outArchive) {
   IoError result = IoError_OK;
 
@@ -241,10 +346,15 @@ IoError VfsArchive::Slurp(const char* path, void** outData, int64_t* outSize) {
 IoError VfsArchive::Open(uint32_t id, SDL_RWops** outHandle) {
   IoError result = OverlayOpen(id, outHandle);
   if (result != IoError_OK) {
-    result = DriverOpen(id, outHandle);
-  }
-  if (result == IoError_OK) {
-    OpenHandles++;
+    bool canStream;
+    result = CanStream(id, &canStream);
+    if (result == IoError_OK) {
+      if (canStream) {
+        result = DriverOpen(id, outHandle);
+      } else {
+        result = LazySlurpStream::Create(this, id, outHandle);
+      }
+    }
   }
   return result;
 }
@@ -279,6 +389,7 @@ IoError VfsArchive::GetSize(uint32_t id, int64_t* outSize) {
   IoError result = OverlayOpen(id, &handle);
   if (result == IoError_OK) {
     *outSize = SDL_RWsize(handle);
+    SDL_RWclose(handle);
     if (*outSize == -1) {
       ImpLog(LL_Error, LC_IO,
              "Invalid file size for %d in \"%s\" from overlay FS: %s\n", id,
@@ -322,6 +433,7 @@ IoError VfsArchive::OverlayOpen(uint32_t id, SDL_RWops** outHandle) {
         if (*outHandle != NULL) {
           ImpLog(LL_Debug, LC_IO, "Opened %d in \"%s\" with overlay FS\n", id,
                  MountPoint);
+          OpenHandles++;
           return IoError_OK;
         } else {
           ImpLog(LL_Debug, LC_IO, "No overlay file found for %d in \"%s\"\n",

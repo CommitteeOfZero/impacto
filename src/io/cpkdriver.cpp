@@ -526,6 +526,7 @@ IoError CpkArchive::DriverOpen(uint32_t id, SDL_RWops** outHandle) {
   }
 
   *outHandle = rwops;
+  OpenHandles++;
   return IoError_OK;
 }
 
