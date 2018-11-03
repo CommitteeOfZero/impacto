@@ -186,7 +186,7 @@ Atrac9AudioStream::Atrac9AudioStream(SDL_RWops* stream) : AudioStream(stream) {
 
   ImpLog(LL_Debug, LC_Audio,
          "Created ATRAC9 stream Duration=%d, SampleRate=%d, ChannelCount=%d, "
-         "LoopStart=%d, LoopEnd=%d",
+         "LoopStart=%d, LoopEnd=%d\n",
          Duration, SampleRate, ChannelCount, LoopStart, LoopEnd);
 
   Seek(EncoderDelay);
