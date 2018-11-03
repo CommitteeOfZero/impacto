@@ -62,12 +62,13 @@ void AudioChannel::Play(AudioStream* stream, bool loop, float fadeInDuration) {
   FinishedDecode = false;
   Position = 0;
 
+  State = ACS_FadingIn;
+  FadeDuration = fadeInDuration;
   if (fadeInDuration > 0.0f) {
-    State = ACS_FadingIn;
-    FadeDuration = fadeInDuration;
     FadeCompletion = 0.0f;
   } else {
-    State = ACS_Playing;
+    // Still FadingIn so FillBuffers doesn't think we're underrunning
+    FadeCompletion = 1.0f;
   }
   SetGain();
 
@@ -82,9 +83,9 @@ void AudioChannel::Stop(float fadeOutDuration) {
   if (State == ACS_Stopped) return;
   if (fadeOutDuration == 0.0f) {
     State = ACS_Stopped;
-    alSourceStop(Source);
     // unqueue all buffers
     alSourcei(Source, AL_BUFFER, NULL);
+    alSourceStop(Source);
     if (CurrentStream) {
       delete CurrentStream;
       CurrentStream = 0;
@@ -150,7 +151,8 @@ void AudioChannel::Update(float dt) {
   alGetSourcei(Source, AL_SOURCE_STATE, &sourceState);
   if (State != ACS_Stopped && sourceState != AL_PLAYING) {
     ImpLog(LL_Error, LC_Audio,
-           "Restarting playback after buffer underrun on channel %d\n", Id);
+           "Restarting playback after buffer underrun on channel %d - %d\n", Id,
+           sourceState);
     alSourcePlay(Source);
   }
 }
