@@ -10,13 +10,13 @@ DialoguePageFeatureConfig const DialoguePageFeatureConfig_RNE{
     // ADVNameAlignment
     TA_Left,
     // ADVNameFontSize
-    24.0f,
+    22.0f,
     // ADVNamePos
     glm::vec2(104.0f, 498.0f),
     // DefaultFontSize
     32.0f,
     // RubyFontSize
-    16.0f,
+    14.0f,
     // DialogueFont
     {2048.0f, 1600.0f, 64, 50},
     // ColorTable
