@@ -509,7 +509,8 @@ IoError CpkArchive::DriverOpen(uint32_t id, SDL_RWops** outHandle) {
 
   CpkTocEntry* entry = &TOC[id];
 
-  if (entry->CompressedSize) {
+  if (entry->CompressedSize &&
+      entry->CompressedSize != entry->UncompressedSize) {
     ImpLog(LL_Error, LC_IO,
            "CPK open: cannot open LAYLA compressed file as a stream\n");
     return IoError_Fail;
@@ -605,7 +606,8 @@ IoError CpkArchive::DriverCanStream(uint32_t id, bool* outResult) {
            MountPoint);
     return IoError_NotFound;
   }
-  if (it->second.CompressedSize)
+  if (it->second.CompressedSize &&
+      it->second.UncompressedSize != it->second.CompressedSize)
     *outResult = false;
   else
     *outResult = true;
