@@ -2,7 +2,6 @@
 #include <libatrac9/libatrac9.h>
 #include "../log.h"
 #include "../util.h"
-#include <algorithm>
 
 namespace Impacto {
 namespace Audio {
@@ -35,9 +34,9 @@ static const uint8_t Atrac9Guid[] = {0xD2, 0x42, 0xE1, 0x47, 0xBA, 0x36,
 // http://www.piclist.com/techref/io/serial/midi/wave.html
 static bool ParseAt9Riff(SDL_RWops* stream, At9ContainerInfo* info,
                          bool testOnly) {
-  if (SDL_ReadBE32(stream) != RIFFMagic) goto fail;
+  if (SDL_ReadBE32(stream) != RIFFMagic) return false;
   uint32_t remaining = SDL_ReadLE32(stream) - 4;
-  if (SDL_ReadBE32(stream) != WAVEMagic) goto fail;
+  if (SDL_ReadBE32(stream) != WAVEMagic) return false;
 
   bool gotFmt = false;
   bool gotFact = false;
@@ -52,16 +51,16 @@ static bool ParseAt9Riff(SDL_RWops* stream, At9ContainerInfo* info,
         if (gotFmt) {
           ImpLog(LL_Error, LC_Audio,
                  "Encountered ATRAC9 file with more than one fmt chunk\n");
-          goto fail;
+          return false;
         }
         gotFmt = true;
-        if (chunkSize != 52) goto fail;
+        if (chunkSize != 52) return false;
         uint8_t fmtData[52];
         SDL_RWread(stream, fmtData, 52, 1);
         if (SDL_SwapLE16(*(uint16_t*)fmtData) != WaveFormatExtensible)
-          goto fail;
+          return false;
         if (memcmp(fmtData + 24, Atrac9Guid, sizeof(Atrac9Guid)) != 0)
-          goto fail;
+          return false;
 
         // yep, it's an ATRAC9 file
 
@@ -70,10 +69,10 @@ static bool ParseAt9Riff(SDL_RWops* stream, At9ContainerInfo* info,
           ImpLog(LL_Error, LC_Audio,
                  "Encountered ATRAC9 file with unsupported channel count %d\n",
                  info->ChannelCount);
-          goto fail;
+          return false;
         }
 
-        if (testOnly) goto success;
+        if (testOnly) return true;
 
         info->SampleRate = SDL_SwapLE32(*(uint32_t*)(fmtData + 4));
         memcpy(info->ConfigData, fmtData + 44, 4);
@@ -84,10 +83,10 @@ static bool ParseAt9Riff(SDL_RWops* stream, At9ContainerInfo* info,
         if (gotFact) {
           ImpLog(LL_Error, LC_Audio,
                  "Encountered ATRAC9 file with more than one fact chunk\n");
-          goto fail;
+          return false;
         }
         gotFact = true;
-        if (chunkSize != 12) goto fail;
+        if (chunkSize != 12) return false;
         uint8_t factData[12];
         SDL_RWread(stream, factData, 12, 1);
 
@@ -130,21 +129,15 @@ static bool ParseAt9Riff(SDL_RWops* stream, At9ContainerInfo* info,
 breakLoop:
   if (!gotFmt || !gotFact) {
     ImpLog(LL_Error, LC_Audio, "Encountered incomplete ATRAC9 file\n");
-    goto fail;
+    return false;
   }
-
-success:
-  SDL_RWseek(stream, 0, RW_SEEK_SET);
-  return true;
-
-fail:
-  SDL_RWseek(stream, 0, RW_SEEK_SET);
-  return false;
 }
 
 bool AudioIsAtrac9(SDL_RWops* stream) {
   At9ContainerInfo dummy = {0};
-  return ParseAt9Riff(stream, &dummy, true);
+  bool result = ParseAt9Riff(stream, &dummy, true);
+  SDL_RWseek(stream, 0, RW_SEEK_SET);
+  return result;
 }
 
 Atrac9AudioStream::Atrac9AudioStream(SDL_RWops* stream) : AudioStream(stream) {
@@ -178,17 +171,19 @@ Atrac9AudioStream::Atrac9AudioStream(SDL_RWops* stream) : AudioStream(stream) {
 
   SamplesPerFrame = codecinfo.frameSamples;
   FramesPerSuperframe = codecinfo.framesInSuperframe;
+  SamplesPerBuffer = SamplesPerFrame * FramesPerSuperframe;
 
-  DecodedBuffer = (int16_t*)malloc(sizeof(int16_t) * ChannelCount *
-                                   SamplesPerFrame * FramesPerSuperframe);
-  EncodedBufferSize = codecinfo.superframeSize;
-  EncodedBuffer = (uint8_t*)malloc(EncodedBufferSize);
+  DecodedBuffer =
+      (int16_t*)malloc(sizeof(int16_t) * ChannelCount * SamplesPerBuffer);
+  EncodedBytesPerBuffer = codecinfo.superframeSize;
+  EncodedBuffer = (uint8_t*)malloc(EncodedBytesPerBuffer);
 
   ImpLog(LL_Debug, LC_Audio,
          "Created ATRAC9 stream Duration=%d, SampleRate=%d, ChannelCount=%d, "
          "LoopStart=%d, LoopEnd=%d\n",
          Duration, SampleRate, ChannelCount, LoopStart, LoopEnd);
 
+  SDL_RWseek(BaseStream, StreamDataOffset, RW_SEEK_SET);
   Seek(EncoderDelay);
 }
 
@@ -202,76 +197,27 @@ Atrac9AudioStream::~Atrac9AudioStream() {
 // probably kinda slow
 
 int Atrac9AudioStream::Read(void* buffer, int samples) {
-  int16_t* out = (int16_t*)buffer;
-  int read = 0;
-  while (samples) {
-    if (DecodedSamplesAvailable) {
-      // write out decoded samples
-      int samplesWrittenNow = std::min(samples, DecodedSamplesAvailable);
-      if (out) {
-        // null pointer => discard-seek
-        memcpy(out, DecodedBuffer + DecodedSamplesConsumed * ChannelCount,
-               samplesWrittenNow * ChannelCount * (BitDepth / 8));
-        out += samplesWrittenNow * ChannelCount;
-      }
-      samples -= samplesWrittenNow;
-      read += samplesWrittenNow;
-      ReadPosition += samplesWrittenNow;
-      DecodedSamplesAvailable -= samplesWrittenNow;
-      DecodedSamplesConsumed += samplesWrittenNow;
-    } else {
-      // decode more data
-      int SamplesLeft = Duration - ReadPosition;
-      if (SamplesLeft == 0) return read;
-
-      DecodedSamplesAvailable =
-          std::min(SamplesPerFrame * FramesPerSuperframe, SamplesLeft);
-      DecodedSamplesConsumed = 0;
-
-      SDL_RWread(BaseStream, EncodedBuffer, EncodedBufferSize, 1);
-
-      uint8_t* encoded = EncodedBuffer;
-      int16_t* decoded = DecodedBuffer;
-      // Atrac9Decode always decodes one frame
-      for (int i = 0; i < FramesPerSuperframe; i++) {
-        int bytesUsed;
-        int err = Atrac9Decode(At9, encoded, decoded, &bytesUsed);
-        if (err != 0) {
-          ImpLog(LL_Error, LC_Audio, "Atrac9Decode error %d\n", err);
-          return read;
-        }
-        encoded += bytesUsed;
-        decoded += SamplesPerFrame * ChannelCount;
-      }
-    }
-  }
-  return read;
+  return ReadBuffered((int16_t*)buffer, samples);
 }
 
-void Atrac9AudioStream::Seek(int samples) {
-  while (ReadPosition != samples) {
-    int skip = samples - ReadPosition;
-    if (skip > 0 && skip <= DecodedSamplesAvailable) {
-      // all decoded, just need to advance buffer view
-      ReadPosition = samples;
-      DecodedSamplesAvailable -= skip;
-      DecodedSamplesConsumed += skip;
-    } else {
-      // seek to previous superframe
-      DecodedSamplesAvailable = 0;
-      DecodedSamplesConsumed = 0;
-      int superframe = samples / (SamplesPerFrame * FramesPerSuperframe);
-      ReadPosition = superframe * SamplesPerFrame * FramesPerSuperframe;
-      SDL_RWseek(BaseStream, StreamDataOffset + superframe * EncodedBufferSize,
-                 RW_SEEK_SET);
-      // decode superframe
-      Read(NULL, 1);
-      DecodedSamplesAvailable++;
-      DecodedSamplesConsumed--;
-      ReadPosition--;
+bool Atrac9AudioStream::DecodeBuffer() {
+  uint8_t* encoded = EncodedBuffer;
+  int16_t* decoded = DecodedBuffer;
+  // Atrac9Decode always decodes one frame
+  for (int i = 0; i < FramesPerSuperframe; i++) {
+    int bytesUsed;
+    int err = Atrac9Decode(At9, encoded, decoded, &bytesUsed);
+    if (err != 0) {
+      ImpLog(LL_Error, LC_Audio, "Atrac9Decode error %d\n", err);
+      return false;
     }
+    encoded += bytesUsed;
+    decoded += SamplesPerFrame * ChannelCount;
   }
+  return true;
 }
+
+void Atrac9AudioStream::Seek(int samples) { return SeekBuffered(samples); }
 
 }  // namespace Audio
 }  // namespace Impacto

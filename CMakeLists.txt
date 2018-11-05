@@ -65,6 +65,7 @@ set(Impacto_Src
     src/audio/audiostream.cpp
     src/audio/vorbisaudiostream.cpp
     src/audio/atrac9audiostream.cpp
+    src/audio/adxaudiostream.cpp
 
     vendor/glad/src/glad.c
 )
@@ -121,8 +122,10 @@ set(Impacto_Header
     src/audio/audiocommon.h
     src/audio/audiochannel.h
     src/audio/audiostream.h
+    src/audio/buffering.h
     src/audio/vorbisaudiostream.h
     src/audio/atrac9audiostream.h
+    src/audio/adxaudiostream.h
 
     vendor/include/flat_hash_map.hpp
 

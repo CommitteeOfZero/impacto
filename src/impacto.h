@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <assert.h>
 #include <malloc.h>
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 #include "config.h"
 
