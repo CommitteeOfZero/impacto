@@ -27,16 +27,12 @@ class AdxAudioStream : public AudioStream,
 
  private:
   void SetCoefficients(double cutoff, double sampleRate);
-  bool DecodeBufferMono();
-  bool DecodeBufferStereo();
 
   int32_t Coef1;
   int32_t Coef2;
 
-  int32_t Hist1_L;
-  int32_t Hist2_L;
-  int32_t Hist1_R;
-  int32_t Hist2_R;
+  int32_t Hist1[2];
+  int32_t Hist2[2];
 };
 
 }  // namespace Audio

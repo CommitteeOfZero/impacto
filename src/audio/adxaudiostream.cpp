@@ -48,16 +48,6 @@ static inline int clamp16(int32_t val) {
 void AdxAudioStream::SetCoefficients(double cutoff, double sample_rate) {
   // https://wiki.multimedia.cx/index.php/CRI_ADX_ADPCM#Coefficients
 
-  static int16_t const Coef1_44k_500hz = 0x7298;
-  static int16_t const Coef2_44k_500hz = 0x3350;
-  if (cutoff == 500.0) {
-    if (sample_rate == 44100.0) {
-      Coef1 = Coef1_44k_500hz;
-      Coef2 = Coef2_44k_500hz;
-      return;
-    }
-  }
-
   /* temps to keep the calculation simple */
   double z, a, b, c;
 
@@ -72,65 +62,30 @@ void AdxAudioStream::SetCoefficients(double cutoff, double sample_rate) {
   Coef2 = (int16_t)floor(c * c * -4096);
 }
 
-// TODO make this compile-time
+// https://github.com/kode54/vgmstream/blob/master/src/coding/adx_decoder.c
 bool AdxAudioStream::DecodeBuffer() {
-  if (ChannelCount == 2) return DecodeBufferStereo();
-  return DecodeBufferMono();
-}
-
-bool AdxAudioStream::DecodeBufferMono() {
-  /* the +1 becomes important on quiet ADXs */
-  int scale = SDL_SwapBE16(*(uint16_t*)EncodedBuffer) + 1;
-
   int16_t* output = DecodedBuffer;
-  uint8_t* input = EncodedBuffer + 2;
-  for (int i = 0; i < (EncodedBytesPerBuffer - 2); i++) {
-    /* this byte contains nibbles for two samples */
-    int sample_byte = *input;
+  uint8_t* input = EncodedBuffer;
 
-    output[0] = clamp16(get_low_nibble_signed(sample_byte) * scale +
-                        (Coef1 * Hist1_L >> 12) + (Coef2 * Hist2_L >> 12));
-    output[1] =
-        clamp16(get_high_nibble_signed(sample_byte) * scale +
-                (Coef1 * (int32_t)output[0] >> 12) + (Coef2 * Hist1_L >> 12));
-    Hist2_L = output[0];
-    Hist1_L = output[1];
-
-    input++;
-    output += 2;
-  }
-
-  return true;
-}
-
-bool AdxAudioStream::DecodeBufferStereo() {
-  /* the +1 becomes important on quiet ADXs */
-  int scale = SDL_SwapBE16(*(uint16_t*)EncodedBuffer) + 1;
-
-  int16_t* output = DecodedBuffer;
-  uint8_t* input = EncodedBuffer + 2;
-  for (int i = 0; i < (EncodedBytesPerBuffer - 2) / 2; i++) {
-    /* this byte contains nibbles for two samples */
-    int sample_byte_L = input[0];
-    int sample_byte_R = input[1];
-
-    output[0] = clamp16(get_low_nibble_signed(sample_byte_L) * scale +
-                        (Coef1 * Hist1_L >> 12) + (Coef2 * Hist2_L >> 12));
-    output[1] = clamp16(get_low_nibble_signed(sample_byte_R) * scale +
-                        (Coef1 * Hist1_R >> 12) + (Coef2 * Hist2_R >> 12));
-    output[2] =
-        clamp16(get_high_nibble_signed(sample_byte_L) * scale +
-                (Coef1 * (int32_t)output[0] >> 12) + (Coef2 * Hist1_L >> 12));
-    output[3] =
-        clamp16(get_high_nibble_signed(sample_byte_R) * scale +
-                (Coef1 * (int32_t)output[1] >> 12) + (Coef2 * Hist1_R >> 12));
-    Hist2_L = output[0];
-    Hist2_R = output[1];
-    Hist1_L = output[2];
-    Hist1_R = output[3];
-
+  for (int c = 0; c < ChannelCount; c++) {
+    /* the +1 becomes important on quiet ADXs */
+    int scale = SDL_SwapBE16(*(uint16_t*)input) + 1;
     input += 2;
-    output += 4;
+
+    for (int i = 0; i < SamplesPerBuffer; i++) {
+      /* this byte contains nibbles for two samples */
+      int sample_byte = input[i / 2];
+
+      output[i * ChannelCount + c] =
+          clamp16((i & 1 ? get_low_nibble_signed(sample_byte)
+                         : get_high_nibble_signed(sample_byte)) *
+                      scale +
+                  (Coef1 * Hist1[c] >> 12) + (Coef2 * Hist2[c] >> 12));
+
+      Hist2[c] = Hist1[c];
+      Hist1[c] = output[i * ChannelCount + c];
+    }
+    input += SamplesPerBuffer / 2;
   }
 
   return true;
@@ -143,16 +98,16 @@ static bool ParseAdxHeader(SDL_RWops* stream, AdxHeaderInfo* info) {
   // first magic
   if (SDL_SwapBE16(*(uint16_t*)header) != 0x8000) return false;
 
+  info->StreamDataOffset = SDL_SwapBE16(*(uint16_t*)(header + 2)) + 4;
+
   // second magic
-  SDL_RWseek(stream, info->StreamDataOffset - 6, RW_SEEK_CUR);
+  SDL_RWseek(stream, info->StreamDataOffset - 6, RW_SEEK_SET);
   char const magic[] = "(c)CRI";
   char fileMagic[6];
   SDL_RWread(stream, fileMagic, 6, 1);
   if (memcmp(magic, fileMagic, 6) != 0) {
     return false;
   }
-
-  info->StreamDataOffset = SDL_SwapBE16(*(uint16_t*)(header + 2)) + 4;
 
   if (header[4] != 3) {
     ImpLog(LL_Error, LC_Audio,
@@ -203,6 +158,8 @@ static bool ParseAdxHeader(SDL_RWops* stream, AdxHeaderInfo* info) {
 
   // TODO loop support
   info->HasLoop = false;
+
+  return true;
 }
 
 bool AudioIsAdx(SDL_RWops* stream) {
@@ -217,19 +174,21 @@ AdxAudioStream::AdxAudioStream(SDL_RWops* stream) : AudioStream(stream) {
 
   ChannelCount = info.ChannelCount;
   SampleRate = info.SampleRate;
+  EncodedBytesPerBuffer = info.FrameSize * ChannelCount;
+  StreamDataOffset = info.StreamDataOffset;
+  Hist1[0] = info.Hist1_L;
+  Hist1[1] = info.Hist1_R;
+  Hist2[0] = info.Hist2_L;
+  Hist2[1] = info.Hist2_R;
+  SamplesPerBuffer = (info.FrameSize - 2) * 2;
   Duration = info.SampleCount;
-  EncodedBytesPerBuffer = info.FrameSize;
   LoopStart = info.HasLoop ? info.LoopStart : 0;
   LoopEnd = info.HasLoop ? info.LoopEnd : Duration;
-  StreamDataOffset = info.StreamDataOffset;
-  Hist1_L = info.Hist1_L;
-  Hist1_R = info.Hist1_R;
-  Hist2_L = info.Hist2_L;
-  Hist2_R = info.Hist2_R;
-  SamplesPerBuffer = ((EncodedBytesPerBuffer - 2) / 2) / ChannelCount;
   SetCoefficients(info.Highpass, SampleRate);
 
   BitDepth = 16;
+
+  SDL_RWseek(stream, StreamDataOffset, RW_SEEK_SET);
 }
 AdxAudioStream::~AdxAudioStream() {}
 

@@ -43,7 +43,9 @@ class Buffering {
       } else {
         // decode more data
         int samplesLeft = stream->Duration - stream->ReadPosition;
-        if (samplesLeft == 0) return read;
+        if (samplesLeft == 0)
+          //
+          return read;
 
         DecodedSamplesAvailable = SamplesPerBuffer;
         DecodedSamplesConsumed = 0;

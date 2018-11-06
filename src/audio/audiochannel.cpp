@@ -86,6 +86,9 @@ void AudioChannel::Stop(float fadeOutDuration) {
     // unqueue all buffers
     alSourcei(Source, AL_BUFFER, NULL);
     alSourceStop(Source);
+    // ugh, leftover state
+    alDeleteSources(1, &Source);
+    alGenSources(1, &Source);
     if (CurrentStream) {
       delete CurrentStream;
       CurrentStream = 0;
@@ -203,7 +206,8 @@ void AudioChannel::FillBuffers() {
       int samplesToRead = maxSamples - samplesRead;
       if (Looping)
         samplesToRead =
-            std::min(samplesToRead, CurrentStream->LoopEnd - samplesRead);
+            std::min(samplesToRead,
+                     CurrentStream->LoopEnd - CurrentStream->ReadPosition);
       int samplesReadThisIteration = CurrentStream->Read(dest, samplesToRead);
       samplesRead += samplesReadThisIteration;
 
