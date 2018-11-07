@@ -110,7 +110,8 @@ void Character3DUpdateGpu(Scene* scene, Camera* camera) {
   memcpy(LocalUniformBuffer + CommonUniformOffsets[CU_WorldLightPosition],
          glm::value_ptr(scene->LightPosition), sizeof(scene->LightPosition));
   memcpy(LocalUniformBuffer + CommonUniformOffsets[CU_WorldEyePosition],
-         glm::value_ptr(camera->Position), sizeof(camera->Position));
+         glm::value_ptr(camera->CameraTransform.Position),
+         sizeof(camera->CameraTransform.Position));
 
   glUseProgram(ShaderProgram);
   glUniform1i(UniformDarkMode, scene->DarkMode);

@@ -7,18 +7,16 @@
 
 namespace Impacto {
 
-void Camera::Move(glm::vec3 position) {
-  glm::vec3 target = Position + Direction;
-  Position = position;
-  Direction = target - position;
+void Camera::LookAt(glm::vec3 target) {
+  // for camera, need to invert this
+  CameraTransform.SetRotationFromEuler(
+      LookAtEulerZYX(target, CameraTransform.Position));
 }
 
-void Camera::LookAt(glm::vec3 target) { Direction = target - Position; }
-
 void Camera::ResetTransform() {
-  Position = glm::vec3(0.0f, 12.0f, 12.0f);
+  CameraTransform.Position = glm::vec3(0.0f, 12.5f, 23.0f);
   Up = glm::vec3(0.0f, 1.0f, 0.0f);
-  LookAt(glm::vec3(0.0f, 10.0f, 0.0f));
+  LookAt(glm::vec3(0.0f, 12.5f, 0.0f));
 }
 
 void Camera::ResetPerspective() {
@@ -35,7 +33,8 @@ void Camera::Init() {
 }
 
 void Camera::Recalculate() {
-  View = glm::lookAt(Position, Position + Direction, Up);
+  View =
+      glm::inverse(CameraTransform.Matrix());  // move the world, not the camera
   Projection = glm::perspective(Fov, AspectRatio, Near, Far);
   ViewProjection = Projection * View;
 }

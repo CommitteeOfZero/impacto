@@ -2,12 +2,12 @@
 
 #include <glm/glm.hpp>
 
+#include "transform.h"
+
 namespace Impacto {
 
 class Camera {
  public:
-  // Move camera while keeping target
-  void Move(glm::vec3 position);
   // Rotate camera to new target while keeping position
   void LookAt(glm::vec3 target);
   // Reset position, direction and up
@@ -19,8 +19,7 @@ class Camera {
   // Recalculate matrices
   void Recalculate();
 
-  glm::vec3 Position;
-  glm::vec3 Direction;
+  Transform CameraTransform;
   glm::vec3 Up;
 
   // vertical FoV in degrees

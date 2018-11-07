@@ -320,7 +320,7 @@ void ModelViewer::Update(float dt) {
     BgmChangeQueued = false;
   }
 
-  GameContext->Scene3D->MainCamera.Move(CameraPosition);
+  GameContext->Scene3D->MainCamera.CameraTransform.Position = CameraPosition;
   GameContext->Scene3D->MainCamera.LookAt(CameraTarget);
 }
 
