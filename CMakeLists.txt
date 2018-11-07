@@ -66,8 +66,11 @@ set(Impacto_Src
     src/audio/vorbisaudiostream.cpp
     src/audio/atrac9audiostream.cpp
     src/audio/adxaudiostream.cpp
+    src/audio/hcaaudiostream.cpp
 
     vendor/glad/src/glad.c
+
+    vendor/clHCA/clHCA.c
 )
 
 set(Impacto_Header
@@ -126,11 +129,14 @@ set(Impacto_Header
     src/audio/vorbisaudiostream.h
     src/audio/atrac9audiostream.h
     src/audio/adxaudiostream.h
+    src/audio/hcaaudiostream.h
 
     vendor/include/flat_hash_map.hpp
 
     vendor/nuklear/nuklear.h
     vendor/nuklear/nuklear_sdl_gl3.h
+
+    vendor/clHCA/clHCA.h
 )
 
 include_directories(vendor/glad/include)
