@@ -23,6 +23,7 @@ class ModelViewer {
 
   glm::vec3 CameraPosition;
   glm::vec3 CameraTarget;
+  int TrackCamera;
   nk_colorf UiTintColor;
   uint32_t CurrentModel;
   uint32_t CurrentAnim;

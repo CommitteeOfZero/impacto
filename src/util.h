@@ -75,6 +75,20 @@ inline int Uint32Log2(uint32_t v) {
   return r;
 }
 
+// lots of guessing, again...
+inline glm::vec3 LookAtEulerZYX(glm::vec3 from, glm::vec3 to,
+                                glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f)) {
+  glm::vec3 result(0.0f);
+
+  glm::vec3 forward = glm::normalize(from - to);
+
+  result.x =
+      atan2f(forward.y, sqrtf(forward.x * forward.x + forward.z * forward.z));
+  result.y = atan2f(forward.x, forward.z) - M_PI;
+
+  return result;
+}
+
 // https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Euler_Angles_to_Quaternion_Conversion
 // + guessing at the order :)
 inline void eulerZYXToQuat(glm::vec3 const* zyx, glm::quat* quat) {

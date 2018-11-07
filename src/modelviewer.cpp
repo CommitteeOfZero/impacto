@@ -195,6 +195,18 @@ void ModelViewer::Update(float dt) {
             &GameContext->Scene3D->Characters[0].ModelTransform.Position.z,
             40.0f, 1.0f, 0.02f);
 
+        nk_checkbox_label(GameContext->Nk, "Track camera", &TrackCamera);
+        if (TrackCamera) {
+          GameContext->Scene3D->Characters[0]
+              .ModelTransform.SetRotationFromEuler(LookAtEulerZYX(
+                  GameContext->Scene3D->Characters[0].ModelTransform.Position +
+                      glm::vec3(0.0f, 12.5f, 0.0f),
+                  CameraPosition));
+        } else {
+          GameContext->Scene3D->Characters[0].ModelTransform.Rotation =
+              glm::quat();
+        }
+
         CurrentModel =
             nk_combo(GameContext->Nk, (const char**)g_ModelNames, g_ModelCount,
                      CurrentModel, 24, nk_vec2(200, 200));
