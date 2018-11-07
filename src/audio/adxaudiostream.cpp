@@ -151,13 +151,23 @@ static bool ParseAdxHeader(SDL_RWops* stream, AdxHeaderInfo* info) {
     return false;
   }
 
-  info->Hist1_L = SDL_SwapBE16(*(uint16_t*)(header + 0x18));
-  info->Hist2_L = SDL_SwapBE16(*(uint16_t*)(header + 0x1A));
-  info->Hist1_R = SDL_SwapBE16(*(uint16_t*)(header + 0x1C));
-  info->Hist2_R = SDL_SwapBE16(*(uint16_t*)(header + 0x1E));
+  int HistOffset = 0x18;
+  int HistSize = std::max(8, 4 * info->ChannelCount);
 
-  // TODO loop support
-  info->HasLoop = false;
+  info->Hist1_L = SDL_SwapBE16(*(uint16_t*)(header + HistOffset));
+  info->Hist2_L = SDL_SwapBE16(*(uint16_t*)(header + HistOffset + 2));
+  info->Hist1_R = SDL_SwapBE16(*(uint16_t*)(header + HistOffset + 4));
+  info->Hist2_R = SDL_SwapBE16(*(uint16_t*)(header + HistOffset + 6));
+
+  int LoopOffset = HistOffset + HistSize;
+  int LoopSize = 0x18;
+  if (LoopOffset + LoopSize <= info->StreamDataOffset) {
+    info->HasLoop = true;
+    info->LoopStart = SDL_SwapBE32(*(uint32_t*)(header + LoopOffset + 8));
+    info->LoopEnd = SDL_SwapBE32(*(uint32_t*)(header + LoopOffset + 16));
+  } else {
+    info->HasLoop = false;
+  }
 
   return true;
 }
