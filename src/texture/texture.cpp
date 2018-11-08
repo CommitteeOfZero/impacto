@@ -5,7 +5,7 @@
 #include <glad/glad.h>
 
 #include "../log.h"
-#include "gxtloader.h"
+
 #include "plainloader.h"
 
 namespace Impacto {
@@ -13,7 +13,11 @@ namespace Impacto {
 bool Texture::Load(SDL_RWops* stream) {
   using namespace TexLoad;
 
-  if (TextureIsGXT(stream)) return TextureLoadGXT(stream, this);
+  for (auto f : Registry) {
+    if (f(stream, this)) return true;
+  }
+
+  // no registry for this one, since it has no real magic - we must try it last
   if (TextureIsPlain(stream)) return TextureLoadPlain(stream, this);
 
   uint32_t magic = SDL_ReadBE32(stream);
@@ -129,5 +133,12 @@ uint32_t Texture::Submit() {
 
   return result;
 }
+
+bool Texture::AddTextureLoader(Texture::TextureLoader c) {
+  Registry.push_back(c);
+  return true;
+}
+
+std::vector<Texture::TextureLoader> Texture::Registry;
 
 }  // namespace Impacto

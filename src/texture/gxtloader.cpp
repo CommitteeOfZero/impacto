@@ -335,21 +335,16 @@ bool GXTLoadSubtexture(SDL_RWops* stream, Texture* outTexture,
 
 static uint32_t const magic = 0x47585400;
 
-bool TextureIsGXT(SDL_RWops* stream) {
-  bool result = SDL_ReadBE32(stream) == magic;
-  SDL_RWseek(stream, 0, RW_SEEK_SET);
-  return result;
-}
-
 bool TextureLoadGXT(SDL_RWops* stream, Texture* outTexture) {
-  ImpLogSlow(LL_Debug, LC_TextureLoad, "Loading GXT texture\n");
-
   // Read metadata
 
   if (SDL_ReadBE32(stream) != magic) {
-    ImpLog(LL_Error, LC_TextureLoad, "GXT loader called on non GXT data\n");
+    SDL_RWseek(stream, 0, RW_SEEK_SET);
     return false;
   }
+
+  ImpLogSlow(LL_Debug, LC_TextureLoad, "Loading GXT texture\n");
+
   uint32_t version = SDL_ReadLE32(stream);
   uint32_t subtextureCount = SDL_ReadLE32(stream);
   assert(subtextureCount == 1);
@@ -414,5 +409,8 @@ bool TextureLoadGXT(SDL_RWops* stream, Texture* outTexture) {
 
   return result;
 }
+
+static bool _registered = Texture::AddTextureLoader(&TextureLoadGXT);
+
 }  // namespace TexLoad
 }  // namespace Impacto

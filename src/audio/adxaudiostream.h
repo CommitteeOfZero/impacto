@@ -7,14 +7,13 @@
 namespace Impacto {
 namespace Audio {
 
-bool AudioIsAdx(SDL_RWops* stream);
+struct AdxHeaderInfo;
 
 class AdxAudioStream : public AudioStream,
                        public Buffering<AdxAudioStream, int16_t> {
   friend class Buffering<AdxAudioStream, int16_t>;
 
  public:
-  AdxAudioStream(SDL_RWops* stream);
   ~AdxAudioStream();
 
   int Read(void* buffer, int samples) override;
@@ -26,6 +25,9 @@ class AdxAudioStream : public AudioStream,
   uint8_t EncodedBuffer[256] = {0};
 
  private:
+  static AudioStream* Create(SDL_RWops* stream);
+  AdxAudioStream() {}
+  void InitWithInfo(AdxHeaderInfo* info);
   void SetCoefficients(double cutoff, double sampleRate);
 
   int32_t Coef1;
@@ -33,6 +35,8 @@ class AdxAudioStream : public AudioStream,
 
   int32_t Hist1[2];
   int32_t Hist2[2];
+
+  static bool _registered;
 };
 
 }  // namespace Audio

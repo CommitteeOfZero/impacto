@@ -1,5 +1,4 @@
 #include "atrac9audiostream.h"
-#include <libatrac9/libatrac9.h>
 #include "../log.h"
 #include "../util.h"
 
@@ -32,8 +31,7 @@ static const uint8_t Atrac9Guid[] = {0xD2, 0x42, 0xE1, 0x47, 0xBA, 0x36,
                                      0x4F, 0x8C, 0x83, 0x6C};
 
 // http://www.piclist.com/techref/io/serial/midi/wave.html
-static bool ParseAt9Riff(SDL_RWops* stream, At9ContainerInfo* info,
-                         bool testOnly) {
+static bool ParseAt9Riff(SDL_RWops* stream, At9ContainerInfo* info) {
   if (SDL_ReadBE32(stream) != RIFFMagic) return false;
   uint32_t remaining = SDL_ReadLE32(stream) - 4;
   if (SDL_ReadBE32(stream) != WAVEMagic) return false;
@@ -71,8 +69,6 @@ static bool ParseAt9Riff(SDL_RWops* stream, At9ContainerInfo* info,
                  info->ChannelCount);
           return false;
         }
-
-        if (testOnly) return true;
 
         info->SampleRate = SDL_SwapLE32(*(uint32_t*)(fmtData + 4));
         memcpy(info->ConfigData, fmtData + 44, 4);
@@ -133,22 +129,24 @@ breakLoop:
   }
 }
 
-bool AudioIsAtrac9(SDL_RWops* stream) {
-  At9ContainerInfo dummy = {0};
-  bool result = ParseAt9Riff(stream, &dummy, true);
-  SDL_RWseek(stream, 0, RW_SEEK_SET);
-  return result;
-}
+AudioStream* Atrac9AudioStream::Create(SDL_RWops* stream) {
+  Atrac9AudioStream* result = 0;
 
-Atrac9AudioStream::Atrac9AudioStream(SDL_RWops* stream) : AudioStream(stream) {
+  void* At9 = Atrac9GetHandle();
+  if (!At9) {
+    ImpLog(LL_Error, LC_Audio, "Atrac9GetHandle failed\n");
+    goto fail;
+  }
+
   At9ContainerInfo container = {0};
-  At9 = Atrac9GetHandle();
-  if (!At9) return;
-  if (!ParseAt9Riff(stream, &container, false)) return;
+  if (!ParseAt9Riff(stream, &container)) {
+    goto fail;
+  }
+
   int ret = Atrac9InitDecoder(At9, container.ConfigData);
   if (ret != 0) {
     ImpLog(LL_Error, LC_Audio, "Atrac9InitDecoder failed with %d\n", ret);
-    return;
+    goto fail;
   }
 
   Atrac9CodecInfo codecinfo;
@@ -156,26 +154,46 @@ Atrac9AudioStream::Atrac9AudioStream(SDL_RWops* stream) : AudioStream(stream) {
   if (codecinfo.channels != container.ChannelCount ||
       codecinfo.samplingRate != container.SampleRate) {
     ImpLog(LL_Error, LC_Audio, "Atrac9CodecInfo does not match container\n");
-    return;
+    goto fail;
   }
 
-  EncoderDelay = container.EncoderDelay;
-  Duration = container.SampleCount + container.EncoderDelay;
-  SampleRate = container.SampleRate;
-  ChannelCount = container.ChannelCount;
-  LoopStart = container.LoopStart;
-  LoopEnd = container.HasLoop ? container.LoopEnd : Duration;
-  StreamDataOffset = container.StreamDataOffset;
+  result = new Atrac9AudioStream;
+  result->At9 = At9;
+  result->BaseStream = stream;
+  result->InitWithInfo(&container, &codecinfo);
+
+  return result;
+
+fail:
+  if (At9) Atrac9ReleaseHandle(At9);
+  if (result) {
+    result->At9 = 0;
+    result->BaseStream = 0;
+    delete result;
+  }
+  SDL_RWseek(stream, 0, RW_SEEK_SET);
+  return 0;
+}
+
+void Atrac9AudioStream::InitWithInfo(At9ContainerInfo* container,
+                                     Atrac9CodecInfo* codecinfo) {
+  EncoderDelay = container->EncoderDelay;
+  Duration = container->SampleCount + container->EncoderDelay;
+  SampleRate = container->SampleRate;
+  ChannelCount = container->ChannelCount;
+  LoopStart = container->LoopStart;
+  LoopEnd = container->HasLoop ? container->LoopEnd : Duration;
+  StreamDataOffset = container->StreamDataOffset;
 
   BitDepth = 16;
 
-  SamplesPerFrame = codecinfo.frameSamples;
-  FramesPerSuperframe = codecinfo.framesInSuperframe;
+  SamplesPerFrame = codecinfo->frameSamples;
+  FramesPerSuperframe = codecinfo->framesInSuperframe;
   SamplesPerBuffer = SamplesPerFrame * FramesPerSuperframe;
 
   DecodedBuffer =
       (int16_t*)malloc(sizeof(int16_t) * ChannelCount * SamplesPerBuffer);
-  EncodedBytesPerBuffer = codecinfo.superframeSize;
+  EncodedBytesPerBuffer = codecinfo->superframeSize;
   EncodedBuffer = (uint8_t*)malloc(EncodedBytesPerBuffer);
 
   ImpLog(LL_Debug, LC_Audio,
@@ -218,6 +236,9 @@ bool Atrac9AudioStream::DecodeBuffer() {
 }
 
 void Atrac9AudioStream::Seek(int samples) { return SeekBuffered(samples); }
+
+bool Atrac9AudioStream::_registered =
+    AudioStream::AddAudioStreamCreator(&Atrac9AudioStream::Create);
 
 }  // namespace Audio
 }  // namespace Impacto

@@ -16,24 +16,50 @@ static long OvRwTell(void* datasource) {
 }
 ov_callbacks OvRwCallbacks = {OvRwRead, OvRwSeek, NULL, OvRwTell};
 
-bool AudioIsVorbis(SDL_RWops* stream) {
-  OggVorbis_File vf;
-  bool result = ov_test_callbacks(stream, &vf, NULL, 0, OvRwCallbacks) == 0;
-  SDL_RWseek(stream, 0, RW_SEEK_SET);
-  return result;
-}
+AudioStream* VorbisAudioStream::Create(SDL_RWops* stream) {
+  VorbisAudioStream* result = 0;
+  OggVorbis_File Vf;
+  bool VfOpen = false;
 
-VorbisAudioStream::VorbisAudioStream(SDL_RWops* stream) : AudioStream(stream) {
-  ImpLog(LL_Info, LC_Audio, "Creating Vorbis stream\n");
-  int err = ov_open_callbacks(BaseStream, &Vf, NULL, 0, OvRwCallbacks);
+  int err = ov_open_callbacks(stream, &Vf, NULL, 0, OvRwCallbacks);
   if (err < 0) {
-    ImpLog(LL_Error, LC_Audio, "ov_open_callbacks failed with code %d\n", err);
-    return;
+    goto fail;
   }
   VfOpen = true;
+  ImpLog(LL_Info, LC_Audio, "Creating Vorbis stream\n");
 
+  vorbis_info* info = ov_info(&Vf, -1);
+  if (info->channels != 1 && info->channels != 2) {
+    ImpLog(LL_Error, LC_Audio,
+           "Got Vorbis file with unsupported channel count %d\n",
+           info->channels);
+    goto fail;
+  }
+
+  result = new VorbisAudioStream;
+  result->BaseStream = stream;
+  memcpy(&result->Vf, &Vf, sizeof(Vf));
+  result->VfOpen = true;
+
+  return result;
+
+fail:
+  if (VfOpen) {
+    ov_clear(&Vf);
+  }
+  if (result) {
+    result->VfOpen = false;
+    result->BaseStream = 0;
+    delete result;
+  }
+  SDL_RWseek(stream, 0, RW_SEEK_SET);
+  return 0;
+}
+
+void VorbisAudioStream::InitWithInfo(vorbis_info* info) {
   Duration = ov_pcm_total(&Vf, -1);
   LoopEnd = Duration;
+  ChannelCount = info->channels;
 
   vorbis_comment* comments = ov_comment(&Vf, -1);
   int looplength = 0;
@@ -56,9 +82,6 @@ VorbisAudioStream::VorbisAudioStream(SDL_RWops* stream) : AudioStream(stream) {
     LoopEnd = LoopStart + looplength;
   }
 
-  vorbis_info* info = ov_info(&Vf, -1);
-  ChannelCount = info->channels;
-  assert(ChannelCount == 1 || ChannelCount == 2);
   SampleRate = info->rate;
   BitDepth = 16;
 }
@@ -99,6 +122,9 @@ void VorbisAudioStream::Seek(int samples) {
   ov_pcm_seek(&Vf, samples);
   ReadPosition = ov_pcm_tell(&Vf);
 }
+
+bool VorbisAudioStream::_registered =
+    AudioStream::AddAudioStreamCreator(&VorbisAudioStream::Create);
 
 }  // namespace Audio
 }  // namespace Impacto

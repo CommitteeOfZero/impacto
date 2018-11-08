@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../impacto.h"
+#include <vector>
 
 namespace Impacto {
 
@@ -21,6 +22,12 @@ struct Texture {
   void LoadCheckerboard();
   void LoadPoliticalCompass();
   uint32_t Submit();
+
+  typedef bool (*TextureLoader)(SDL_RWops* stream, Texture* texture);
+  static bool AddTextureLoader(TextureLoader c);
+
+ private:
+  static std::vector<TextureLoader> Registry;
 };
 
 }  // namespace Impacto

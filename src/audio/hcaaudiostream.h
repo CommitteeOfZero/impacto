@@ -16,7 +16,6 @@ class HcaAudioStream : public AudioStream,
   friend class Buffering<HcaAudioStream, int16_t>;
 
  public:
-  HcaAudioStream(SDL_RWops* stream);
   ~HcaAudioStream();
 
   int Read(void* buffer, int samples) override;
@@ -28,7 +27,14 @@ class HcaAudioStream : public AudioStream,
   uint8_t* EncodedBuffer = 0;
 
  private:
+  static AudioStream* Create(SDL_RWops* stream);
+  HcaAudioStream() {}
+
+  void InitWithInfo(clHCA_stInfo* info);
+
   clHCA* Decoder = 0;
+
+  static bool _registered;
 };
 
 }  // namespace Audio

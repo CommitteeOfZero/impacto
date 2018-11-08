@@ -7,11 +7,8 @@
 namespace Impacto {
 namespace Audio {
 
-bool AudioIsVorbis(SDL_RWops* stream);
-
 class VorbisAudioStream : public AudioStream {
  public:
-  VorbisAudioStream(SDL_RWops* stream);
   ~VorbisAudioStream();
 
   int Read(void* buffer, int samples) override;
@@ -20,7 +17,13 @@ class VorbisAudioStream : public AudioStream {
   bool VfOpen = false;
 
  private:
+  static AudioStream* Create(SDL_RWops* stream);
+  VorbisAudioStream() {}
+  void InitWithInfo(vorbis_info* info);
+
   OggVorbis_File Vf;
+
+  static bool _registered;
 };
 
 }  // namespace Audio

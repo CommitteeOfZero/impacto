@@ -172,41 +172,56 @@ static bool ParseAdxHeader(SDL_RWops* stream, AdxHeaderInfo* info) {
   return true;
 }
 
-bool AudioIsAdx(SDL_RWops* stream) {
-  AdxHeaderInfo info = {0};
-  bool result = ParseAdxHeader(stream, &info);
-  SDL_RWseek(stream, 0, RW_SEEK_SET);
-  return result;
-}
-AdxAudioStream::AdxAudioStream(SDL_RWops* stream) : AudioStream(stream) {
-  AdxHeaderInfo info = {0};
-  if (!ParseAdxHeader(stream, &info)) return;
+AudioStream* AdxAudioStream::Create(SDL_RWops* stream) {
+  AdxAudioStream* result = 0;
 
-  ChannelCount = info.ChannelCount;
-  SampleRate = info.SampleRate;
-  EncodedBytesPerBuffer = info.FrameSize * ChannelCount;
-  StreamDataOffset = info.StreamDataOffset;
-  Hist1[0] = info.Hist1_L;
-  Hist1[1] = info.Hist1_R;
-  Hist2[0] = info.Hist2_L;
-  Hist2[1] = info.Hist2_R;
-  SamplesPerBuffer = (info.FrameSize - 2) * 2;
-  Duration = info.SampleCount;
-  LoopStart = info.HasLoop ? info.LoopStart : 0;
-  LoopEnd = info.HasLoop ? info.LoopEnd : Duration;
-  SetCoefficients(info.Highpass, SampleRate);
+  AdxHeaderInfo info = {0};
+  if (!ParseAdxHeader(stream, &info)) goto fail;
+
+  result = new AdxAudioStream;
+  result->BaseStream = stream;
+  result->InitWithInfo(&info);
+
+  return result;
+
+fail:
+  if (result) {
+    result->BaseStream = 0;
+    delete result;
+  }
+  SDL_RWseek(stream, 0, RW_SEEK_SET);
+  return 0;
+}
+AdxAudioStream::~AdxAudioStream() {}
+
+void AdxAudioStream::InitWithInfo(AdxHeaderInfo* info) {
+  ChannelCount = info->ChannelCount;
+  SampleRate = info->SampleRate;
+  EncodedBytesPerBuffer = info->FrameSize * ChannelCount;
+  StreamDataOffset = info->StreamDataOffset;
+  Hist1[0] = info->Hist1_L;
+  Hist1[1] = info->Hist1_R;
+  Hist2[0] = info->Hist2_L;
+  Hist2[1] = info->Hist2_R;
+  SamplesPerBuffer = (info->FrameSize - 2) * 2;
+  Duration = info->SampleCount;
+  LoopStart = info->HasLoop ? info->LoopStart : 0;
+  LoopEnd = info->HasLoop ? info->LoopEnd : Duration;
+  SetCoefficients(info->Highpass, SampleRate);
 
   BitDepth = 16;
 
-  SDL_RWseek(stream, StreamDataOffset, RW_SEEK_SET);
+  SDL_RWseek(BaseStream, StreamDataOffset, RW_SEEK_SET);
 }
-AdxAudioStream::~AdxAudioStream() {}
 
 int AdxAudioStream::Read(void* buffer, int samples) {
   return ReadBuffered((int16_t*)buffer, samples);
 }
 
 void AdxAudioStream::Seek(int samples) { SeekBuffered(samples); }
+
+bool AdxAudioStream::_registered =
+    AudioStream::AddAudioStreamCreator(&AdxAudioStream::Create);
 
 }  // namespace Audio
 }  // namespace Impacto

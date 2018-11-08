@@ -3,6 +3,8 @@
 #include "audiocommon.h"
 #include "../impacto.h"
 
+#include <vector>
+
 namespace Impacto {
 namespace Audio {
 
@@ -31,9 +33,15 @@ class AudioStream {
   int ReadPosition = 0;
 
  protected:
-  AudioStream(SDL_RWops* stream) : BaseStream(stream) {}
+  typedef AudioStream* (*AudioStreamCreator)(SDL_RWops* stream);
+  static bool AddAudioStreamCreator(AudioStreamCreator c);
 
-  SDL_RWops* const BaseStream;
+  AudioStream(){};
+
+  SDL_RWops* BaseStream;
+
+ private:
+  static std::vector<AudioStreamCreator> Registry;
 };
 
 }  // namespace Audio

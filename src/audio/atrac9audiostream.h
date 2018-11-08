@@ -3,18 +3,18 @@
 #include "audiostream.h"
 #include "../impacto.h"
 #include "buffering.h"
+#include <libatrac9/libatrac9.h>
 
 namespace Impacto {
 namespace Audio {
 
-bool AudioIsAtrac9(SDL_RWops* stream);
+struct At9ContainerInfo;
 
 class Atrac9AudioStream : public AudioStream,
                           public Buffering<Atrac9AudioStream, int16_t> {
   friend class Buffering<Atrac9AudioStream, int16_t>;
 
  public:
-  Atrac9AudioStream(SDL_RWops* stream);
   ~Atrac9AudioStream();
 
   int Read(void* buffer, int samples) override;
@@ -26,10 +26,17 @@ class Atrac9AudioStream : public AudioStream,
   uint8_t* EncodedBuffer = 0;
 
  private:
+  static AudioStream* Create(SDL_RWops* stream);
+  Atrac9AudioStream() {}
+
+  void InitWithInfo(At9ContainerInfo* container, Atrac9CodecInfo* codecinfo);
+
   void* At9 = 0;
   int SamplesPerFrame;
   int FramesPerSuperframe;
   int EncoderDelay;
+
+  static bool _registered;
 };
 
 }  // namespace Audio
