@@ -29,6 +29,9 @@ void UpdateCharacterRot(Game* gameCtx, int charId) {
         lookat);
     gameCtx->ScrWork[30 * charId + SW_CHA1ROTY] =
         -((lookat.y / (2 * M_PI)) * 360) * 1000.0f;
+  } else {
+    gameCtx->Scene3D->Characters[charId].ModelTransform.SetRotationFromEuler(
+        glm::vec3(0.0f, 0.0f, 0.0f));
   }
 }
 
