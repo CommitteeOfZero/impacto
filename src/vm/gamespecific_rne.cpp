@@ -4,6 +4,7 @@
 #include <ctime>
 
 #include "scriptvars.h"
+#include "../renderer2d.h"
 
 namespace Impacto {
 namespace Vm {
@@ -104,7 +105,7 @@ void SetDateDisplay(Game* gameCtx) {
   col.b = 1.0f;
   if (DateOpacity < 1.0f) DateOpacity += 0.01;
   col.a = glm::smoothstep(0.0f, 1.0f, DateOpacity);
-  gameCtx->R2D->DrawSprite(
+  Renderer2D::DrawSprite(
       dateLine, RectF(1087.0f - (col.a * 256.0f) + 1.0f, 73.0f, 450.0f, 28.0f),
       col);
 
@@ -112,8 +113,8 @@ void SetDateDisplay(Game* gameCtx) {
   dateBracketClose.Sheet = gameCtx->Config.Dlg.DataSpriteSheet;
   dateBracketClose.Bounds = RectF(1776.0f, 63.0f, 8.0f, 20.0f);
   dateBracketClose.BaseScale = glm::vec2(1.0f);
-  gameCtx->R2D->DrawSprite(dateBracketClose, RectF(1167.0f, 60.0f, 8.0f, 20.0f),
-                           col);
+  Renderer2D::DrawSprite(dateBracketClose, RectF(1167.0f, 60.0f, 8.0f, 20.0f),
+                         col);
 
   float weekDayX, weekDayY, weekDayDX;
   switch (weekDay) {
@@ -158,7 +159,7 @@ void SetDateDisplay(Game* gameCtx) {
   dateWeek.Bounds =
       RectF(weekDayX + 1.0f, weekDayY + 1.0f, weekDayDX - 2.0f, 20.0f);
   dateWeek.BaseScale = glm::vec2(1.0f);
-  gameCtx->R2D->DrawSprite(
+  Renderer2D::DrawSprite(
       dateWeek, RectF(1167.0f - weekDayDX, 60.0f, weekDayDX - 2.0f, 20.0f),
       col);
 
@@ -166,8 +167,8 @@ void SetDateDisplay(Game* gameCtx) {
   dateBracketOpen.Sheet = gameCtx->Config.Dlg.DataSpriteSheet;
   dateBracketOpen.Bounds = RectF(1766.0f, 63.0f, 8.0f, 20.0f);
   dateBracketOpen.BaseScale = glm::vec2(1.0f);
-  gameCtx->R2D->DrawSprite(dateBracketOpen,
-                           RectF(1157.0f - weekDayDX, 60.0f, 8.0f, 20.0f), col);
+  Renderer2D::DrawSprite(dateBracketOpen,
+                         RectF(1157.0f - weekDayDX, 60.0f, 8.0f, 20.0f), col);
 
   float year1X, year1Y, year1DX;
   if (year % 10 > 1)
@@ -186,7 +187,7 @@ void SetDateDisplay(Game* gameCtx) {
   dateYear1.Sheet = gameCtx->Config.Dlg.DataSpriteSheet;
   dateYear1.Bounds = RectF(year1X, 63.0f, year1Y - 2.0f, 20.0f);
   dateYear1.BaseScale = glm::vec2(1.0f);
-  gameCtx->R2D->DrawSprite(
+  Renderer2D::DrawSprite(
       dateYear1, RectF(year1DX + 1.0f, 60.0f, year1Y - 2.0f, 20.0f), col);
 
   float year2X, year2Y, year2DX;
@@ -206,26 +207,26 @@ void SetDateDisplay(Game* gameCtx) {
   dateYear2.Sheet = gameCtx->Config.Dlg.DataSpriteSheet;
   dateYear2.Bounds = RectF(year2X, 63.0f, year2Y - 2.0f, 20.0f);
   dateYear2.BaseScale = glm::vec2(1.0f);
-  gameCtx->R2D->DrawSprite(
+  Renderer2D::DrawSprite(
       dateYear2, RectF(year2DX + 1.0f, 60.0f, year2Y - 2.0f, 20.0f), col);
   Sprite dateYear3;
   dateYear3.Sheet = gameCtx->Config.Dlg.DataSpriteSheet;
   dateYear3.Bounds = RectF(1525.0f, 63.0f, 23.0f, 20.0f);
   dateYear3.BaseScale = glm::vec2(1.0f);
-  gameCtx->R2D->DrawSprite(dateYear3,
-                           RectF(year2DX - 24.0f, 60.0f, 23.0f, 20.0f), col);
+  Renderer2D::DrawSprite(dateYear3, RectF(year2DX - 24.0f, 60.0f, 23.0f, 20.0f),
+                         col);
   Sprite dateYear4;
   dateYear4.Sheet = gameCtx->Config.Dlg.DataSpriteSheet;
   dateYear4.Bounds = RectF(1558.0f, 63.0f, 23.0f, 20.0f);
   dateYear4.BaseScale = glm::vec2(1.0f);
-  gameCtx->R2D->DrawSprite(dateYear4,
-                           RectF(year2DX - 49.0f, 60.0f, 23.0f, 20.0f), col);
+  Renderer2D::DrawSprite(dateYear4, RectF(year2DX - 49.0f, 60.0f, 23.0f, 20.0f),
+                         col);
   Sprite dateYearDot;
   dateYearDot.Sheet = gameCtx->Config.Dlg.DataSpriteSheet;
   dateYearDot.Bounds = RectF(1758.0f, 63.0f, 8.0f, 20.0f);
   dateYearDot.BaseScale = glm::vec2(1.0f);
-  gameCtx->R2D->DrawSprite(dateYearDot,
-                           RectF(year2DX - 57.0f, 60.0f, 8.0f, 20.0f), col);
+  Renderer2D::DrawSprite(dateYearDot,
+                         RectF(year2DX - 57.0f, 60.0f, 8.0f, 20.0f), col);
 
   float day1X, day1Y, day1DX;
   if (day % 10 > 1)
@@ -244,8 +245,8 @@ void SetDateDisplay(Game* gameCtx) {
   dateDay1.Sheet = gameCtx->Config.Dlg.DataSpriteSheet;
   dateDay1.Bounds = RectF(day1X, 33.0f, day1Y - 2.0f, 28.0f);
   dateDay1.BaseScale = glm::vec2(1.0f);
-  gameCtx->R2D->DrawSprite(
-      dateDay1, RectF(day1DX + 1.0f, 52.0f, day1Y - 2.0f, 28.0f), col);
+  Renderer2D::DrawSprite(dateDay1,
+                         RectF(day1DX + 1.0f, 52.0f, day1Y - 2.0f, 28.0f), col);
 
   float day2X, day2Y, day2DX;
   if (day / 10 > 1)
@@ -264,14 +265,14 @@ void SetDateDisplay(Game* gameCtx) {
   dateDay2.Sheet = gameCtx->Config.Dlg.DataSpriteSheet;
   dateDay2.Bounds = RectF(day2X, 33.0f, day2Y - 2.0f, 28.0f);
   dateDay2.BaseScale = glm::vec2(1.0f);
-  gameCtx->R2D->DrawSprite(
-      dateDay2, RectF(day2DX + 1.0f, 52.0f, day2Y - 2.0f, 28.0f), col);
+  Renderer2D::DrawSprite(dateDay2,
+                         RectF(day2DX + 1.0f, 52.0f, day2Y - 2.0f, 28.0f), col);
   Sprite dateDayDot;
   dateDayDot.Sheet = gameCtx->Config.Dlg.DataSpriteSheet;
   dateDayDot.Bounds = RectF(1897.0f, 33.0f, 10.0f, 28.0f);
   dateDayDot.BaseScale = glm::vec2(1.0f);
-  gameCtx->R2D->DrawSprite(dateDayDot,
-                           RectF(day2DX - 11.0f, 52.0f, 10.0f, 28.0f), col);
+  Renderer2D::DrawSprite(dateDayDot, RectF(day2DX - 11.0f, 52.0f, 10.0f, 28.0f),
+                         col);
 
   float month1X, month1Y, month1DX;
   if (month % 10 > 1)
@@ -289,7 +290,7 @@ void SetDateDisplay(Game* gameCtx) {
   dateMonth1.Sheet = gameCtx->Config.Dlg.DataSpriteSheet;
   dateMonth1.Bounds = RectF(month1X, 33.0f, month1Y - 2.0f, 28.0f);
   dateMonth1.BaseScale = glm::vec2(1.0f);
-  gameCtx->R2D->DrawSprite(
+  Renderer2D::DrawSprite(
       dateMonth1, RectF(month1DX + 1.0f, 52.0f, month1Y - 2.0f, 28.0f), col);
 
   if (month / 10 != 0) {
@@ -310,7 +311,7 @@ void SetDateDisplay(Game* gameCtx) {
     dateMonth2.Sheet = gameCtx->Config.Dlg.DataSpriteSheet;
     dateMonth2.Bounds = RectF(month2X, 33.0f, month2Y - 2.0f, 28.0f);
     dateMonth2.BaseScale = glm::vec2(1.0f);
-    gameCtx->R2D->DrawSprite(
+    Renderer2D::DrawSprite(
         dateMonth2, RectF(month2DX + 1.0f, 52.0f, month2Y - 2.0f, 28.0f), col);
   }
 }

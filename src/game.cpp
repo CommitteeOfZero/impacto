@@ -9,6 +9,7 @@
 #include "audio/audiosystem.h"
 #include "audio/audiochannel.h"
 #include "audio/audiostream.h"
+#include "renderer2d.h"
 
 namespace Impacto {
 
@@ -96,7 +97,6 @@ Game::Game(GameFeatureConfig const& config) : Config(config) {
 
   if (Config.GameFeatures & GameFeature::Renderer2D) {
     Renderer2D::Init();
-    R2D = new Renderer2D;
   }
 
   for (int i = 0; i < DialoguePageCount; i++) {
@@ -242,9 +242,7 @@ Game::~Game() {
   }
 
   if (Config.GameFeatures & GameFeature::Renderer2D) {
-    if (R2D) {
-      delete R2D;
-    }
+    Renderer2D::Shutdown();
   }
 
   if (Config.GameFeatures & GameFeature::Nuklear) {
@@ -321,7 +319,7 @@ void Game::Render() {
   }
 
   if (Config.GameFeatures & GameFeature::Renderer2D) {
-    R2D->Begin();
+    Renderer2D::BeginFrame();
     Vm::SetDateDisplay(this);
     for (int i = 0; i < Vm::VmMaxThreads; i++) {
       if (DrawComponents[i] == TD_None) break;
@@ -344,7 +342,7 @@ void Game::Render() {
         }
       }
     }
-    R2D->Finish();
+    Renderer2D::EndFrame();
   }
 
   if (Config.GameFeatures & GameFeature::Nuklear) {

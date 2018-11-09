@@ -2,6 +2,7 @@
 #include "vm/expression.h"
 #include "log.h"
 #include "game.h"
+#include "renderer2d.h"
 
 namespace Impacto {
 
@@ -343,14 +344,14 @@ void DialoguePage::Render() {
     col.g = 1.0f;
     col.b = 1.0f;
     col.a = glm::smoothstep(0.0f, 1.0f, ADVBoxOpacity);
-    GameCtx->R2D->DrawSprite(
+    Renderer2D::DrawSprite(
         mesBox, RectF(0.0f, 361.0f * (720.0f / 544.0f), 1280.0f, 206.0f), col);
     // if (TextIsFullyOpaque) {
     //  Sprite waitIcon;
     //  waitIcon.Sheet = GameCtx->Config.Dlg.DataSpriteSheet;
     //  waitIcon.Bounds = RectF(1.0f, 97.0f, 32.0f, 32.0f);
     //  waitIcon.BaseScale = glm::vec2(1.0f);
-    //  GameCtx->R2D->DrawSprite(
+    //  Renderer2D::DrawSprite(
     //      waitIcon, RectF(Glyphs[Length - 1].DestRect.X +
     //                          Glyphs[Length - 1].DestRect.Width + 1.0f,
     //                      Glyphs[Length - 1].DestRect.Y + 2.0f,
@@ -368,19 +369,19 @@ void DialoguePage::Render() {
     // Outline, the dirty way
     ///////////////////////////////////////////////////////////////////////////////
     glm::vec4 outcolor = glm::vec4(0.0f, 0.0f, 0.0f, color.a);
-    GameCtx->R2D->DrawSprite(
+    Renderer2D::DrawSprite(
         Glyphs[i].Glyph,
         RectF(Glyphs[i].DestRect.X + 1, Glyphs[i].DestRect.Y + 1,
               Glyphs[i].DestRect.Width, Glyphs[i].DestRect.Height),
         outcolor);
-    GameCtx->R2D->DrawSprite(
+    Renderer2D::DrawSprite(
         Glyphs[i].Glyph,
         RectF(Glyphs[i].DestRect.X - 1, Glyphs[i].DestRect.Y - 1,
               Glyphs[i].DestRect.Width, Glyphs[i].DestRect.Height),
         outcolor);
     ///////////////////////////////////////////////////////////////////////////////
 
-    GameCtx->R2D->DrawSprite(Glyphs[i].Glyph, Glyphs[i].DestRect, color);
+    Renderer2D::DrawSprite(Glyphs[i].Glyph, Glyphs[i].DestRect, color);
   }
 
   if (Mode == DPM_ADV && HasName) {
@@ -393,7 +394,7 @@ void DialoguePage::Render() {
     col.g = 1.0f;
     col.b = 1.0f;
     col.a = glm::smoothstep(0.0f, 1.0f, ADVBoxOpacity);
-    GameCtx->R2D->DrawSprite(
+    Renderer2D::DrawSprite(
         nameInd, RectF(0.0f, 380.0f * (720.0f / 544.0f), 1010.0f, 31.0f), col);
 
     RectF* dests = (RectF*)ImpStackAlloc(sizeof(RectF) * NameLength);
@@ -428,16 +429,16 @@ void DialoguePage::Render() {
     for (int i = 0; i < NameLength; i++) {
       // Name outline, the dirty way
       ///////////////////////////////////////////////////////////////////////////////
-      GameCtx->R2D->DrawSprite(sprites[i],
-                               RectF(dests[i].X + 1, dests[i].Y + 1,
-                                     dests[i].Width, dests[i].Height),
-                               outcolor);
-      GameCtx->R2D->DrawSprite(sprites[i],
-                               RectF(dests[i].X - 1, dests[i].Y - 1,
-                                     dests[i].Width, dests[i].Height),
-                               outcolor);
+      Renderer2D::DrawSprite(sprites[i],
+                             RectF(dests[i].X + 1, dests[i].Y + 1,
+                                   dests[i].Width, dests[i].Height),
+                             outcolor);
+      Renderer2D::DrawSprite(sprites[i],
+                             RectF(dests[i].X - 1, dests[i].Y - 1,
+                                   dests[i].Width, dests[i].Height),
+                             outcolor);
       ///////////////////////////////////////////////////////////////////////////////
-      GameCtx->R2D->DrawSprite(sprites[i], dests[i], color);
+      Renderer2D::DrawSprite(sprites[i], dests[i], color);
     }
 
     ImpStackFree(sprites);

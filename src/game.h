@@ -5,7 +5,6 @@
 #include "modelviewer.h"
 #include "vm/vm.h"
 #include "vm/gamespecific_rne.h"
-#include "renderer2d.h"
 #include "io/vfs.h"
 #include "text.h"
 #include <enum.h>
@@ -51,7 +50,6 @@ class Game {
   nk_context* Nk = 0;
   ModelViewer* ModelViewerComponent = 0;
   Vm::Vm* VmComponent = 0;
-  Renderer2D* R2D = 0;
 
   GameFeatureConfig Config;
 

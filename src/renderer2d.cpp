@@ -5,22 +5,52 @@
 #include "texture/texture.h"
 
 namespace Impacto {
+namespace Renderer2D {
 
 static bool IsInit = false;
-
 static GLuint ShaderProgramSprite;
 
-void Renderer2D::Init() {
+enum Renderer2DMode { R2D_None, R2D_Sprite };
+
+struct VertexBufferSprites {
+  glm::vec2 Position;
+  glm::vec2 UV;
+  glm::vec4 Tint;
+};
+
+static int const VertexBufferSize = 32 * 1024;
+static int const IndexBufferCount =
+    VertexBufferSize / (4 * sizeof(VertexBufferSprites)) * 6;
+
+static void EnsureSpaceAvailable(int vertices, int vertexSize, int indices);
+static void EnsureTextureBound(GLuint texture);
+static void Flush();
+
+static inline void QuadSetUV(RectF const& spriteBounds, float designWidth,
+                             float designHeight, uintptr_t uvs, int stride);
+static inline void QuadSetPosition(RectF const& transformedQuad, float angle,
+                                   uintptr_t positions, int stride);
+
+static GLuint VBO;
+static GLuint IBO;
+static GLuint VAOSprites;
+
+static bool Drawing = false;
+
+static GLuint CurrentTexture = 0;
+static Renderer2DMode CurrentMode = R2D_None;
+static uint8_t VertexBuffer[VertexBufferSize];
+static int VertexBufferFill = 0;
+static uint16_t IndexBuffer[IndexBufferCount];
+static int IndexBufferFill = 0;
+
+static Sprite RectSprite;
+
+void Init() {
   if (IsInit) return;
   ImpLog(LL_Info, LC_Render, "Initializing Renderer2D system\n");
   IsInit = true;
 
-  ShaderProgramSprite = ShaderCompile("Sprite");
-
-  glUniform1i(glGetUniformLocation(ShaderProgramSprite, "ColorMap"), 0);
-}
-
-Renderer2D::Renderer2D() {
   // Fill index buffer with quads
   int index = 0;
   int vertex = 0;
@@ -70,18 +100,25 @@ Renderer2D::Renderer2D() {
   SpriteSheet rectSheet(1.0f, 1.0f);
   rectSheet.Texture = rectTexture.Submit();
   RectSprite = Sprite(rectSheet, 0.0f, 0.0f, 1.0f, 1.0f);
+
+  // Set up sprite shader
+  ShaderProgramSprite = ShaderCompile("Sprite");
+  glUniform1i(glGetUniformLocation(ShaderProgramSprite, "ColorMap"), 0);
 }
 
-Renderer2D::~Renderer2D() {
+void Shutdown() {
+  if (!IsInit) return;
   if (VBO) glDeleteBuffers(1, &VBO);
   if (IBO) glDeleteBuffers(1, &IBO);
   if (VAOSprites) glDeleteVertexArrays(1, &VAOSprites);
   if (RectSprite.Sheet.Texture) glDeleteTextures(1, &RectSprite.Sheet.Texture);
+  IsInit = false;
 }
 
-void Renderer2D::Begin() {
+void BeginFrame() {
   if (Drawing) {
-    ImpLog(LL_Error, LC_Render, "Renderer2D::Begin() called before Finish()\n");
+    ImpLog(LL_Error, LC_Render,
+           "Renderer2D::BeginFrame() called before EndFrame()\n");
     return;
   }
 
@@ -94,22 +131,28 @@ void Renderer2D::Begin() {
   glDisable(GL_CULL_FACE);
 }
 
-void Renderer2D::DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
-                            glm::vec4 tint, glm::vec2 scale, float angle) {
+void EndFrame() {
+  if (!Drawing) return;
+  Flush();
+  Drawing = false;
+}
+
+void DrawSprite(Sprite const& sprite, glm::vec2 topLeft, glm::vec4 tint,
+                glm::vec2 scale, float angle) {
   RectF scaledDest(topLeft.x, topLeft.y, scale.x * sprite.Bounds.Width,
                    scale.y * sprite.Bounds.Height);
   DrawSprite(sprite, scaledDest, tint, angle);
 }
 
-void Renderer2D::DrawRect(RectF const& dest, glm::vec4 color, float angle) {
+void DrawRect(RectF const& dest, glm::vec4 color, float angle) {
   DrawSprite(RectSprite, dest, color, angle);
 }
 
-void Renderer2D::DrawSprite(Sprite const& sprite, RectF const& dest,
-                            glm::vec4 tint, float angle) {
+void DrawSprite(Sprite const& sprite, RectF const& dest, glm::vec4 tint,
+                float angle) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
-           "Renderer2D::DrawSprite() called before Begin()\n");
+           "Renderer2D::DrawSprite() called before BeginFrame()\n");
     return;
   }
 
@@ -151,9 +194,8 @@ void Renderer2D::DrawSprite(Sprite const& sprite, RectF const& dest,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
-inline void Renderer2D::QuadSetUV(RectF const& spriteBounds, float designWidth,
-                                  float designHeight, uintptr_t uvs,
-                                  int stride) {
+static inline void QuadSetUV(RectF const& spriteBounds, float designWidth,
+                             float designHeight, uintptr_t uvs, int stride) {
   float topUV = (spriteBounds.Y / designHeight);
   float leftUV = (spriteBounds.X / designWidth);
   float bottomUV = ((spriteBounds.Y + spriteBounds.Height) / designHeight);
@@ -169,9 +211,8 @@ inline void Renderer2D::QuadSetUV(RectF const& spriteBounds, float designWidth,
   *(glm::vec2*)(uvs + 3 * stride) = glm::vec2(rightUV, bottomUV);
 }
 
-inline void Renderer2D::QuadSetPosition(RectF const& transformedQuad,
-                                        float angle, uintptr_t positions,
-                                        int stride) {
+static inline void QuadSetPosition(RectF const& transformedQuad, float angle,
+                                   uintptr_t positions, int stride) {
   glm::vec2 bottomLeft =
       glm::vec2(transformedQuad.X, transformedQuad.Y + transformedQuad.Height);
   glm::vec2 topLeft = glm::vec2(transformedQuad.X, transformedQuad.Y);
@@ -200,14 +241,7 @@ inline void Renderer2D::QuadSetPosition(RectF const& transformedQuad,
   *(glm::vec2*)(positions + 3 * stride) = DesignToNDC(bottomRight);
 }
 
-void Renderer2D::Finish() {
-  if (!Drawing) return;
-  Flush();
-  Drawing = false;
-}
-
-void Renderer2D::EnsureSpaceAvailable(int vertices, int vertexSize,
-                                      int indices) {
+static void EnsureSpaceAvailable(int vertices, int vertexSize, int indices) {
   if (VertexBufferFill + vertices * vertexSize > VertexBufferSize ||
       IndexBufferFill + indices > IndexBufferCount) {
     ImpLogSlow(
@@ -219,7 +253,7 @@ void Renderer2D::EnsureSpaceAvailable(int vertices, int vertexSize,
   }
 }
 
-void Renderer2D::EnsureTextureBound(GLuint texture) {
+static void EnsureTextureBound(GLuint texture) {
   if (CurrentTexture != texture) {
     ImpLogSlow(LL_Trace, LC_Render,
                "Renderer2D::EnsureTextureBound flushing because texture %d is "
@@ -232,9 +266,10 @@ void Renderer2D::EnsureTextureBound(GLuint texture) {
   }
 }
 
-void Renderer2D::Flush() {
+static void Flush() {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render, "Renderer2D::Flush() called before Begin()\n");
+    ImpLog(LL_Error, LC_Render,
+           "Renderer2D::Flush() called before BeginFrame()\n");
     return;
   }
   if (VertexBufferFill > 0 && IndexBufferFill > 0) {
@@ -247,4 +282,5 @@ void Renderer2D::Flush() {
   VertexBufferFill = 0;
 }
 
+}  // namespace Renderer2D
 }  // namespace Impacto
