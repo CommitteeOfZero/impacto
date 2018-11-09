@@ -40,7 +40,7 @@ Game::Game(GameFeatureConfig const& config) : Config(config) {
     }
   }
 
-  if (Config.GameFeatures & GameFeature_Nuklear) {
+  if (Config.GameFeatures & GameFeature::Nuklear) {
     Nk = nk_sdl_init(g_SDLWindow, NkMaxVertexMemory, NkMaxElementMemory);
     struct nk_font_atlas* atlas;
     nk_sdl_font_stash_begin(&atlas);
@@ -48,30 +48,30 @@ Game::Game(GameFeatureConfig const& config) : Config(config) {
     nk_sdl_font_stash_end();
   }
 
-  if (Config.GameFeatures & GameFeature_Input) {
+  if (Config.GameFeatures & GameFeature::Input) {
     Input = new InputSystem;
   }
 
-  if (Config.GameFeatures & GameFeature_Audio) {
+  if (Config.GameFeatures & GameFeature::Audio) {
     Audio = new Audio::AudioSystem;
   }
 
-  if (Config.GameFeatures & GameFeature_Scene3D) {
+  if (Config.GameFeatures & GameFeature::Scene3D) {
     SceneInit();
     Scene3D = new Scene;
   }
 
-  if (Config.GameFeatures & GameFeature_ModelViewer) {
+  if (Config.GameFeatures & GameFeature::ModelViewer) {
     ModelViewerComponent = new ModelViewer(this);
   }
 
-  if (Config.GameFeatures & GameFeature_Sc3VirtualMachine) {
+  if (Config.GameFeatures & GameFeature::Sc3VirtualMachine) {
     VmComponent = new Vm::Vm(this);
     ScrWork = (uint32_t*)calloc(GameScrWorkSize, sizeof(uint32_t));
     FlagWork = (uint8_t*)calloc(GameFlagWorkSize, sizeof(uint8_t));
   }
 
-  if (Config.GameFeatures & GameFeature_Renderer2D) {
+  if (Config.GameFeatures & GameFeature::Renderer2D) {
     Renderer2D::Init();
     R2D = new Renderer2D;
   }
@@ -85,17 +85,17 @@ Game::Game(GameFeatureConfig const& config) : Config(config) {
 }
 
 void Game::Init() {
-  if (Config.GameFeatures & GameFeature_Audio) {
+  if (Config.GameFeatures & GameFeature::Audio) {
     Audio->Init(this);
   }
-  if (Config.GameFeatures & GameFeature_Scene3D) {
+  if (Config.GameFeatures & GameFeature::Scene3D) {
     Scene3D->Init();
   }
-  if (Config.GameFeatures & GameFeature_ModelViewer) {
+  if (Config.GameFeatures & GameFeature::ModelViewer) {
     ModelViewerComponent->Init();
   }
 
-  if (Config.GameFeatures & GameFeature_Sc3VirtualMachine) {
+  if (Config.GameFeatures & GameFeature::Sc3VirtualMachine) {
     VmComponent->Init(4, 0);
   }
 }
@@ -103,8 +103,9 @@ void Game::Init() {
 Game* Game::CreateModelViewer() {
   GameFeatureConfig config;
   config.LayerCount = 1;
-  config.GameFeatures = GameFeature_Nuklear | GameFeature_Scene3D |
-                        GameFeature_ModelViewer | GameFeature_Audio;
+  config.GameFeatures = GameFeature::Nuklear | GameFeature::Scene3D |
+                        GameFeature::ModelViewer | GameFeature::Audio |
+                        GameFeature::Input;
   config.BgmArchiveName = "bgm.cpk";
   config.Scene3D_BackgroundCount = 1;
   config.Scene3D_CharacterCount = 1;
@@ -117,7 +118,8 @@ Game* Game::CreateModelViewer() {
 Game* Game::CreateVmTest() {
   GameFeatureConfig config;
   config.LayerCount = 1;
-  config.GameFeatures = GameFeature_Sc3VirtualMachine | GameFeature_Renderer2D;
+  config.GameFeatures =
+      GameFeature::Sc3VirtualMachine | GameFeature::Renderer2D;
   config.SystemArchiveName = "system.cpk";
   config.Dlg = DialoguePageFeatureConfig_RNE;
 
@@ -140,7 +142,7 @@ Game* Game::CreateVmTest() {
 Game* Game::CreateDialogueTest() {
   GameFeatureConfig config;
   config.LayerCount = 1;
-  config.GameFeatures = GameFeature_Renderer2D;
+  config.GameFeatures = GameFeature::Renderer2D;
   config.SystemArchiveName = "system.cpk";
   config.Dlg = DialoguePageFeatureConfig_RNE;
 
@@ -178,39 +180,39 @@ Game* Game::CreateDialogueTest() {
 }
 
 Game::~Game() {
-  if (Config.GameFeatures & GameFeature_ModelViewer) {
+  if (Config.GameFeatures & GameFeature::ModelViewer) {
     delete ModelViewerComponent;
   }
 
-  if (Config.GameFeatures & GameFeature_Sc3VirtualMachine) {
+  if (Config.GameFeatures & GameFeature::Sc3VirtualMachine) {
     if (ScrWork) free(ScrWork);
     if (FlagWork) free(FlagWork);
     delete VmComponent;
   }
 
-  if (Config.GameFeatures & GameFeature_Audio) {
+  if (Config.GameFeatures & GameFeature::Audio) {
     if (Audio) delete Audio;
   }
 
-  if (Config.GameFeatures & GameFeature_Scene3D) {
+  if (Config.GameFeatures & GameFeature::Scene3D) {
     if (Scene3D) {
       delete Scene3D;
     }
   }
 
-  if (Config.GameFeatures & GameFeature_Renderer2D) {
+  if (Config.GameFeatures & GameFeature::Renderer2D) {
     if (R2D) {
       delete R2D;
     }
   }
 
-  if (Config.GameFeatures & GameFeature_Input) {
+  if (Config.GameFeatures & GameFeature::Input) {
     if (Input) {
       delete Input;
     }
   }
 
-  if (Config.GameFeatures & GameFeature_Nuklear) {
+  if (Config.GameFeatures & GameFeature::Nuklear) {
     nk_sdl_shutdown();
   }
 
@@ -219,10 +221,10 @@ Game::~Game() {
 
 void Game::Update(float dt) {
   SDL_Event e;
-  if (Config.GameFeatures & GameFeature_Nuklear) {
+  if (Config.GameFeatures & GameFeature::Nuklear) {
     nk_input_begin(Nk);
   }
-  if (Config.GameFeatures & GameFeature_Input) {
+  if (Config.GameFeatures & GameFeature::Input) {
     Input->BeginFrame();
   }
   while (SDL_PollEvent(&e)) {
@@ -230,43 +232,43 @@ void Game::Update(float dt) {
       ShouldQuit = true;
     }
 
-    if (Config.GameFeatures & GameFeature_Nuklear) {
+    if (Config.GameFeatures & GameFeature::Nuklear) {
       SDL_Event e_nk;
       memcpy(&e_nk, &e, sizeof(SDL_Event));
       WindowAdjustEventCoordinatesForNk(&e_nk);
       if (nk_sdl_handle_event(&e_nk)) continue;
     }
 
-    if (Config.GameFeatures & GameFeature_Input) {
+    if (Config.GameFeatures & GameFeature::Input) {
       if (Input->HandleEvent(&e)) continue;
     }
 
     WorkQueueHandleEvent(&e);
   }
-  if (Config.GameFeatures & GameFeature_Input) {
+  if (Config.GameFeatures & GameFeature::Input) {
     Input->EndFrame();
   }
-  if (Config.GameFeatures & GameFeature_Nuklear) {
+  if (Config.GameFeatures & GameFeature::Nuklear) {
     nk_input_end(Nk);
   }
 
-  if (Config.GameFeatures & GameFeature_ModelViewer) {
+  if (Config.GameFeatures & GameFeature::ModelViewer) {
     ModelViewerComponent->Update(dt);
   }
 
-  if (Config.GameFeatures & GameFeature_Sc3VirtualMachine) {
+  if (Config.GameFeatures & GameFeature::Sc3VirtualMachine) {
     VmComponent->Update();
   }
 
-  if (Config.GameFeatures & GameFeature_Audio) {
+  if (Config.GameFeatures & GameFeature::Audio) {
     Audio->Update(dt);
   }
 
-  if (Config.GameFeatures & GameFeature_Scene3D) {
+  if (Config.GameFeatures & GameFeature::Scene3D) {
     Scene3D->Update(dt);
   }
 
-  if (Config.GameFeatures & GameFeature_Renderer2D) {
+  if (Config.GameFeatures & GameFeature::Renderer2D) {
     for (int i = 0; i < DialoguePageCount; i++) DialoguePages[i].Update(dt);
   }
 }
@@ -279,11 +281,11 @@ void Game::Render() {
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  if (Config.GameFeatures & GameFeature_Scene3D) {
+  if (Config.GameFeatures & GameFeature::Scene3D) {
     Scene3D->Render();
   }
 
-  if (Config.GameFeatures & GameFeature_Renderer2D) {
+  if (Config.GameFeatures & GameFeature::Renderer2D) {
     R2D->Begin();
     for (int i = 0; i < Vm::VmMaxThreads; i++) {
       if (DrawComponents[i] == TD_None) break;
@@ -309,7 +311,7 @@ void Game::Render() {
     R2D->Finish();
   }
 
-  if (Config.GameFeatures & GameFeature_Nuklear) {
+  if (Config.GameFeatures & GameFeature::Nuklear) {
     if (g_GLDebug) {
       // Nuklear spams these
       glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0,

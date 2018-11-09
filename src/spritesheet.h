@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "util.h"
+#include <enum.h>
 
 namespace Impacto {
 
@@ -27,11 +28,8 @@ struct Sprite {
 };
 
 // TODO dataify and move out of here, this file is supposed to be graphics code
-enum CharacterTypeFlags : uint8_t {
-  CTF_Space = (1 << 0),
-  CTF_WordStartingPunct = (1 << 1),
-  CTF_WordEndingPunct = (1 << 2)
-};
+BETTER_ENUM(CharacterTypeFlags, uint8_t, Space = (1 << 0),
+            WordStartingPunct = (1 << 1), WordEndingPunct = (1 << 2))
 
 // TODO these are properties of the font, make into one whole-charset width
 // table and dataify
@@ -98,7 +96,7 @@ struct Font {
   // TODO again, dataify and move out of here
   uint8_t CharacterType(uint16_t glyphId) {
     uint8_t result = 0;
-    if (glyphId == 0 || glyphId == 63) result |= CTF_Space;
+    if (glyphId == 0 || glyphId == 63) result |= CharacterTypeFlags::Space;
 
     // TODO check if these are even the right ones for R;NE
 
@@ -118,14 +116,14 @@ struct Font {
         glyphId == 0x00F4 || glyphId == 0x00F5 || glyphId == 0x00F6 ||
         glyphId == 0x00F7 || glyphId == 0x00F8 || glyphId == 0x00F9 ||
         glyphId == 0x00FA || glyphId == 0x0113)
-      result |= CTF_WordEndingPunct;
+      result |= CharacterTypeFlags::WordEndingPunct;
 
     // space(63) space(0) “ （ 〔 ［ ｛ 〈 《 「
     if (glyphId == 63 || glyphId == 0 || glyphId == 0x00CA ||
         glyphId == 0x00CC || glyphId == 0x00CE || glyphId == 0x00D0 ||
         glyphId == 0x00D2 || glyphId == 0x00D4 || glyphId == 0x00D6 ||
         glyphId == 0x00D8 || glyphId == 0x00DA || glyphId == 0x00DC)
-      result |= CTF_WordStartingPunct;
+      result |= CharacterTypeFlags::WordStartingPunct;
 
     return result;
   }

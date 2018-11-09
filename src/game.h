@@ -9,22 +9,17 @@
 #include "inputsystem.h"
 #include "text.h"
 #include "audio/audiosystem.h"
+#include <enum.h>
 
 namespace Impacto {
 
-enum GameFeature {
-  GameFeature_Nuklear = (1 << 0),
-  GameFeature_Scene3D = (1 << 1),
-  GameFeature_ModelViewer = (1 << 2),
-  GameFeature_Sc3VirtualMachine = (1 << 3),
-  GameFeature_Renderer2D = (1 << 4),
-  GameFeature_Input = (1 << 5),
-  GameFeature_Audio = (1 << 6),
-};
+BETTER_ENUM(GameFeature, int, Nuklear = (1 << 0), Scene3D = (1 << 1),
+            ModelViewer = (1 << 2), Sc3VirtualMachine = (1 << 3),
+            Renderer2D = (1 << 4), Input = (1 << 5), Audio = (1 << 6))
 
 struct GameFeatureConfig {
-  uint32_t LayerCount;
-  uint32_t GameFeatures;
+  int LayerCount;
+  int GameFeatures;
 
   std::string SystemArchiveName = "";
   std::string BgmArchiveName = "";

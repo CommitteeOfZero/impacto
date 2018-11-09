@@ -8,7 +8,7 @@ DialoguePageFeatureConfig const DialoguePageFeatureConfig_RNE{
     // ADVBounds
     {161.0f, 546.0f, 960.0f, 180.0f},
     // ADVNameAlignment
-    TA_Left,
+    TextAlignment::Left,
     // ADVNameFontSize
     22.0f,
     // ADVNamePos

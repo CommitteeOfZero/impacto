@@ -147,6 +147,10 @@ add_executable (impacto ${Impacto_Src} ${Impacto_Header})
 
 # configuration
 
+if(MSVC)
+    add_definitions(-DBETTER_ENUMS_NO_CONSTEXPR) # broken in MSVC 2017 apparently
+endif()
+
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
     set(IMPACTO_ENABLE_SLOW_LOG_DEFAULT ON)
     set(IMPACTO_GL_DEBUG_DEFAULT ON)

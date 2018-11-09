@@ -2,10 +2,11 @@
 
 #include "spritesheet.h"
 #include "vm/thread.h"
+#include <enum.h>
 
 namespace Impacto {
 
-enum TextAlignment { TA_Left, TA_Center, TA_Right };
+BETTER_ENUM(TextAlignment, int, Left = 0, Center, Right)
 
 // TODO: think about / profile memory access patterns
 
@@ -33,7 +34,7 @@ int const DialogueColors = 70;
 struct DialoguePageFeatureConfig {
   RectF NVLBounds;
   RectF ADVBounds;
-  TextAlignment ADVNameAlignment;
+  TextAlignment ADVNameAlignment = TextAlignment::Left;
   float ADVNameFontSize;
   glm::vec2 ADVNamePos;
   float DefaultFontSize;

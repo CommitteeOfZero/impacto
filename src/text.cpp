@@ -138,7 +138,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
 
   float FontSize = GameCtx->Config.Dlg.DefaultFontSize;
   TextParseState State = TPS_Normal;
-  TextAlignment Alignment = TA_Left;
+  TextAlignment Alignment = TextAlignment::Left;
   int CurrentCharacter = Length;  // in TPS_Normal line
   int LastWordStart = Length;
   int LastLineStart = Length;
@@ -179,7 +179,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
         break;
       }
       case STT_CenterText: {
-        Alignment = TA_Center;
+        Alignment = TextAlignment::Center;
         break;
       }
       case STT_Present_Clear: {
@@ -230,7 +230,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
           ptg.Opacity = 0.0f;
           ptg.Colors = CurrentColors;
 
-          if (ptg.CharacterType & CTF_WordStartingPunct) {
+          if (ptg.CharacterType & CharacterTypeFlags::WordStartingPunct) {
             LastWordStart = Length;  // still *before* this character
           }
 
@@ -259,7 +259,8 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
               int firstNonSpace = LastWordStart;
               // Skip spaces at start of (new) line
               for (int i = LastWordStart; i < Length; i++) {
-                if (!(Glyphs[i].CharacterType & CTF_Space)) break;
+                if (!(Glyphs[i].CharacterType & CharacterTypeFlags::Space))
+                  break;
                 firstNonSpace = i + 1;
               }
               LastLineStart = LastWordStart = firstNonSpace;
@@ -272,7 +273,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
             }
           }
 
-          if (ptg.CharacterType & CTF_WordEndingPunct) {
+          if (ptg.CharacterType & CharacterTypeFlags::WordEndingPunct) {
             LastWordStart = Length;  // now after this character
           }
         }
@@ -354,9 +355,9 @@ void DialoguePage::Render() {
       pos.x += dests[i].Width;
     }
 
-    if (GameCtx->Config.Dlg.ADVNameAlignment == TA_Center) {
+    if (GameCtx->Config.Dlg.ADVNameAlignment == +TextAlignment::Center) {
       for (int i = 0; i < NameLength; i++) dests[i].X -= width / 2.0f;
-    } else if (GameCtx->Config.Dlg.ADVNameAlignment == TA_Right) {
+    } else if (GameCtx->Config.Dlg.ADVNameAlignment == +TextAlignment::Right) {
       for (int i = 0; i < NameLength; i++) dests[i].X -= width;
     }
 
