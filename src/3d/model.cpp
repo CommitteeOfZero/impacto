@@ -196,14 +196,15 @@ Model* Model::Load(uint32_t modelId) {
     SDL_RWread(stream, mesh->MorphTargetIds, 1, ModelMaxMorphTargetsPerMesh);
     SDL_RWseek(stream, ModelUnknownsAfterMorphTargets, RW_SEEK_CUR);
 
-    ReadVec3LE32(&mesh->ModelTransform.Position, stream);
-    glm::vec3 euler;
-    ReadVec3LE32(&euler, stream);
-    mesh->ModelTransform.SetRotationFromEuler(euler);
-    ReadVec3LE32(&mesh->ModelTransform.Scale, stream);
+    // Skip translation, rotation and scale (these sometimes don't match the
+    // matrix below, which is authoritative)
+    SDL_RWseek(stream, 3 * sizeof(glm::vec3), RW_SEEK_CUR);
 
-    // Skip model matrix and inverse
-    SDL_RWseek(stream, 2 * sizeof(glm::mat4), RW_SEEK_CUR);
+    glm::mat4 modelMtx;
+    ReadMat4LE32(&modelMtx, stream);
+    mesh->ModelTransform = Transform(modelMtx);
+    // Skip model matrix inverse
+    SDL_RWseek(stream, 1 * sizeof(glm::mat4), RW_SEEK_CUR);
 
     mesh->VertexCount = SDL_ReadLE32(stream);
     mesh->IndexCount = SDL_ReadLE32(stream);

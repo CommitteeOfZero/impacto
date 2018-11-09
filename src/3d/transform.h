@@ -14,6 +14,9 @@ struct Transform {
     SetRotationFromEuler(eulerZYX);
   }
 
+  // Decompose
+  Transform(glm::mat4 const& transformMatrix);
+
   void SetRotationFromEuler(glm::vec3 eulerZYX);
   glm::mat4 Matrix();
 

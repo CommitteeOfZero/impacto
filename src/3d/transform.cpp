@@ -2,7 +2,16 @@
 
 #include "../util.h"
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/matrix_decompose.hpp>
+
 namespace Impacto {
+
+Transform::Transform(glm::mat4 const& transformMatrix) {
+  glm::vec3 dummy1;
+  glm::vec4 dummy2;
+  glm::decompose(transformMatrix, Scale, Rotation, Position, dummy1, dummy2);
+}
 
 void Transform::SetRotationFromEuler(glm::vec3 eulerZYX) {
   eulerZYXToQuat(&eulerZYX, &Rotation);
