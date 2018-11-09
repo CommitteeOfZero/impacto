@@ -6,6 +6,8 @@
 #include "scriptvars.h"
 #include "../game.h"
 #include "../log.h"
+#include "../audio/audiostream.h"
+#include "../audio/audiochannel.h"
 
 namespace Impacto {
 
@@ -123,6 +125,10 @@ VmInstruction(InstMes) {
       thread->GameContext->DialoguePages[thread->DialoguePageId].AddString(
           thread);
       thread->Ip = oldIp;
+      SDL_RWops* stream;
+      thread->GameContext->VoiceArchive->Open(audioId, &stream);
+      thread->GameContext->Audio->Channels[Audio::AC_VOICE0].Play(
+          Audio::AudioStream::Create(stream), false, 0.0f);
     } break;
     case 0x0B: {  // LoadVoicedDialogue0B
       PopExpression(audioId);
@@ -143,10 +149,18 @@ VmInstruction(InstMesMain) {
   DialoguePage* currentPage =
       &thread->GameContext->DialoguePages[thread->DialoguePageId];
   if (type == 0) {  // Normal mode
-    if (!currentPage->TextIsFullyOpaque) {
-      ResetInstruction;
-      BlockThread;
+    if (!(thread->GameContext->Input->MouseButtonWentDown[SDL_BUTTON_LEFT] &&
+          currentPage->TextIsFullyOpaque)) {
+      if (!thread->GameContext->Input
+               ->KeyboardButtonIsDown[SDL_SCANCODE_RCTRL]) {
+        ResetInstruction;
+        BlockThread;
+      }
     }
+    // if (!currentPage->TextIsFullyOpaque) {
+    //  ResetInstruction;
+    //  BlockThread;
+    //}
   }
   // TODO: Type 1 - Skip mode(?)
 }

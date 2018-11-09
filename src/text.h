@@ -41,6 +41,7 @@ struct DialoguePageFeatureConfig {
   float RubyFontSize;
   Font DialogueFont;
   DialogueColorPair ColorTable[DialogueColors];
+  SpriteSheet DataSpriteSheet;
 };
 
 extern DialoguePageFeatureConfig const DialoguePageFeatureConfig_RNE;

@@ -7,6 +7,8 @@
 #include "expression.h"
 #include "../game.h"
 #include "../log.h"
+#include "../audio/audiostream.h"
+#include "../audio/audiochannel.h"
 
 namespace Impacto {
 
@@ -18,19 +20,19 @@ VmInstruction(InstBGMplay) {
   PopExpression(track);
   if (loop == 2) {
     PopExpression(unk);
-    ImpLogSlow(LL_Warning, LC_VMStub,
-               "STUB instruction BGMplay(loop: %i, track: %i, unk: %i)\n", loop,
-               track, unk);
   } else {
-    ImpLogSlow(LL_Warning, LC_VMStub,
-               "STUB instruction BGMplay(loop: %i, track: %i)\n", loop, track);
   }
+
+  SDL_RWops* stream;
+  thread->GameContext->BgmArchive->Open(track, &stream);
+  thread->GameContext->Audio->Channels[Audio::AC_BGM0].Volume = 0.15f;
+  thread->GameContext->Audio->Channels[Audio::AC_BGM0].Play(
+      Audio::AudioStream::Create(stream), (bool)loop, 0.0f);
 }
 VmInstruction(InstBGMstop) {
   StartInstruction;
   PopUint8(channel);
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction BGMstop(channel: %i)\n",
-             channel);
+  thread->GameContext->Audio->Channels[Audio::AC_BGM0 + channel].Stop(1.0f);
 }
 VmInstruction(InstSEplay) {
   StartInstruction;
@@ -39,10 +41,12 @@ VmInstruction(InstSEplay) {
   if (type != 2) {
     PopExpression(effect);
     PopExpression(loop);
-    ImpLogSlow(LL_Warning, LC_VMStub,
-               "STUB instruction SEplay(channel: %i, type: %i, effect: %i, "
-               "loop: %i)\n",
-               channel, type, effect, loop);
+    SDL_RWops* stream;
+    thread->GameContext->SeArchive->Open(effect, &stream);
+    thread->GameContext->Audio->Channels[Audio::AC_SE0 + channel].Volume =
+        (thread->GameContext->ScrWork[4315 + channel] / 100.0f) - 0.3f;
+    thread->GameContext->Audio->Channels[Audio::AC_SE0 + channel].Play(
+        Audio::AudioStream::Create(stream), (bool)loop, 0.0f);
   } else {
     ImpLogSlow(LL_Warning, LC_VMStub,
                "STUB instruction SEplay(channel: %i, type: %i)\n", channel,
@@ -52,18 +56,19 @@ VmInstruction(InstSEplay) {
 VmInstruction(InstSEstop) {
   StartInstruction;
   PopUint8(channel);
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SEstop(channel: %i)\n",
-             channel);
+  thread->GameContext->Audio->Channels[Audio::AC_SE0 + channel].Stop(1.0f);
 }
 VmInstruction(InstSSEplay) {
   StartInstruction;
   PopExpression(sysSeId);
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SSEplay(sysSeId: %i)\n",
-             sysSeId);
+  SDL_RWops* stream;
+  thread->GameContext->SysseArchive->Open(sysSeId, &stream);
+  thread->GameContext->Audio->Channels[Audio::AC_SSE].Play(
+      Audio::AudioStream::Create(stream), false, 0.0f);
 }
 VmInstruction(InstSSEstop) {
   StartInstruction;
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SSEstop()\n");
+  thread->GameContext->Audio->Channels[Audio::AC_SSE].Stop(1.0f);
 }
 VmInstruction(InstBGMflag) {
   StartInstruction;
@@ -76,9 +81,10 @@ VmInstruction(InstVoicePlay) {
   PopUint8(channel);
   PopExpression(arg1);
   PopExpression(arg2);
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction VoicePlay(channel: %i, arg1: %i, arg2: %i)\n",
-             channel, arg1, arg2);
+  SDL_RWops* stream;
+  thread->GameContext->VoiceArchive->Open(arg1, &stream);
+  thread->GameContext->Audio->Channels[Audio::AC_VOICE0 + channel].Play(
+      Audio::AudioStream::Create(stream), (bool)arg2, 0.0f);
 }
 VmInstruction(InstVoiceStop) {
   StartInstruction;

@@ -158,7 +158,8 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
       case STT_LineBreak:
       case STT_AltLineBreak: {
         CurrentX = 0.0f;
-        CurrentY += FontSize;
+        CurrentY +=
+            FontSize + DialoguePageFeatureConfig_RNE.RubyFontSize + 8.0f;
         LastWordStart = Length;
         LastLineStart = Length;
         break;
@@ -248,7 +249,8 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
           // Line breaking
           if (ptg.DestRect.X + ptg.DestRect.Width >
               BoxBounds.X + BoxBounds.Width) {
-            CurrentY += FontSize;
+            CurrentY +=
+                FontSize + DialoguePageFeatureConfig_RNE.RubyFontSize + 8.0f;
             if (LastLineStart == LastWordStart) {
               // Word doesn't fit on a line, gotta break in the middle of it
               ptg.DestRect.X = BoxBounds.X;
@@ -268,7 +270,9 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
               for (int i = firstNonSpace; i < Length; i++) {
                 Glyphs[i].DestRect.X = BoxBounds.X + CurrentX;
                 CurrentX += Glyphs[i].DestRect.Width;
-                Glyphs[i].DestRect.Y += FontSize;
+                Glyphs[i].DestRect.Y +=
+                    FontSize + DialoguePageFeatureConfig_RNE.RubyFontSize +
+                    8.0f;
               }
             }
           }
@@ -284,7 +288,8 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
     }
   } while (token.Type != STT_EndOfString);
 
-  CurrentY += FontSize;  // For NVL no reset
+  CurrentY += FontSize + DialoguePageFeatureConfig_RNE.RubyFontSize +
+              8.0f;  // For NVL no reset
   CurrentX = 0.0f;
 }
 
@@ -308,13 +313,13 @@ void DialoguePage::Update(float dt) {
   }
 
   if (AnimState == DPAS_Hiding) {
-    ADVBoxOpacity -= 1.0f * dt;
+    ADVBoxOpacity -= 3.0f * dt;
     if (ADVBoxOpacity <= 0.0f) {
       ADVBoxOpacity = 0.0f;
       AnimState = DPAS_Hidden;
     }
   } else if (AnimState == DPAS_Showing) {
-    ADVBoxOpacity += 1.0f * dt;
+    ADVBoxOpacity += 3.0f * dt;
     if (ADVBoxOpacity >= 1.0f) {
       ADVBoxOpacity = 1.0f;
       AnimState = DPAS_Shown;
@@ -327,6 +332,32 @@ void DialoguePage::Render() {
 
   if (AnimState == DPAS_Hidden) return;
 
+  // Textbox
+  if (Mode == DPM_ADV) {
+    Sprite mesBox;
+    mesBox.Sheet = GameCtx->Config.Dlg.DataSpriteSheet;
+    mesBox.Bounds = RectF(768.0f, 807.0f, 1280.0f, 206.0f);
+    mesBox.BaseScale = glm::vec2(1280.0f / 960.0f, 720.0f / 544.0f);
+    glm::vec4 col;
+    col.r = 1.0f;
+    col.g = 1.0f;
+    col.b = 1.0f;
+    col.a = glm::smoothstep(0.0f, 1.0f, ADVBoxOpacity);
+    GameCtx->R2D->DrawSprite(
+        mesBox, RectF(0.0f, 361.0f * (720.0f / 544.0f), 1280.0f, 206.0f), col);
+    // if (TextIsFullyOpaque) {
+    //  Sprite waitIcon;
+    //  waitIcon.Sheet = GameCtx->Config.Dlg.DataSpriteSheet;
+    //  waitIcon.Bounds = RectF(1.0f, 97.0f, 32.0f, 32.0f);
+    //  waitIcon.BaseScale = glm::vec2(1.0f);
+    //  GameCtx->R2D->DrawSprite(
+    //      waitIcon, RectF(Glyphs[Length - 1].DestRect.X +
+    //                          Glyphs[Length - 1].DestRect.Width + 1.0f,
+    //                      Glyphs[Length - 1].DestRect.Y + 2.0f,
+    //                      32.0f, 32.0f));
+    //}
+  }
+
   for (int i = 0; i < Length; i++) {
     float opacity = glm::smoothstep(0.0f, 1.0f, Glyphs[i].Opacity);
     if (Mode == DPM_ADV) opacity *= glm::smoothstep(0.0f, 1.0f, ADVBoxOpacity);
@@ -334,10 +365,37 @@ void DialoguePage::Render() {
     glm::vec4 color = RgbaIntToFloat(Glyphs[i].Colors.TextColor);
     color.a *= opacity;
 
+    // Outline, the dirty way
+    ///////////////////////////////////////////////////////////////////////////////
+    glm::vec4 outcolor = glm::vec4(0.0f, 0.0f, 0.0f, color.a);
+    GameCtx->R2D->DrawSprite(
+        Glyphs[i].Glyph,
+        RectF(Glyphs[i].DestRect.X + 1, Glyphs[i].DestRect.Y + 1,
+              Glyphs[i].DestRect.Width, Glyphs[i].DestRect.Height),
+        outcolor);
+    GameCtx->R2D->DrawSprite(
+        Glyphs[i].Glyph,
+        RectF(Glyphs[i].DestRect.X - 1, Glyphs[i].DestRect.Y - 1,
+              Glyphs[i].DestRect.Width, Glyphs[i].DestRect.Height),
+        outcolor);
+    ///////////////////////////////////////////////////////////////////////////////
+
     GameCtx->R2D->DrawSprite(Glyphs[i].Glyph, Glyphs[i].DestRect, color);
   }
 
   if (Mode == DPM_ADV && HasName) {
+    Sprite nameInd;
+    nameInd.Sheet = GameCtx->Config.Dlg.DataSpriteSheet;
+    nameInd.Bounds = RectF(768.0f, 774.0f, 1010.0f, 31.0f);
+    nameInd.BaseScale = glm::vec2(1280.0f / 960.0f, 720.0f / 544.0f);
+    glm::vec4 col;
+    col.r = 1.0f;
+    col.g = 1.0f;
+    col.b = 1.0f;
+    col.a = glm::smoothstep(0.0f, 1.0f, ADVBoxOpacity);
+    GameCtx->R2D->DrawSprite(
+        nameInd, RectF(0.0f, 380.0f * (720.0f / 544.0f), 1010.0f, 31.0f), col);
+
     RectF* dests = (RectF*)ImpStackAlloc(sizeof(RectF) * NameLength);
     Sprite* sprites = (Sprite*)ImpStackAlloc(sizeof(Sprite) * NameLength);
 
@@ -365,7 +423,20 @@ void DialoguePage::Render() {
         RgbaIntToFloat(GameCtx->Config.Dlg.ColorTable[0].TextColor);
     color.a *= glm::smoothstep(0.0f, 1.0f, ADVBoxOpacity);
 
+    glm::vec4 outcolor = glm::vec4(0.0f, 0.0f, 0.0f, color.a);
+
     for (int i = 0; i < NameLength; i++) {
+      // Name outline, the dirty way
+      ///////////////////////////////////////////////////////////////////////////////
+      GameCtx->R2D->DrawSprite(sprites[i],
+                               RectF(dests[i].X + 1, dests[i].Y + 1,
+                                     dests[i].Width, dests[i].Height),
+                               outcolor);
+      GameCtx->R2D->DrawSprite(sprites[i],
+                               RectF(dests[i].X - 1, dests[i].Y - 1,
+                                     dests[i].Width, dests[i].Height),
+                               outcolor);
+      ///////////////////////////////////////////////////////////////////////////////
       GameCtx->R2D->DrawSprite(sprites[i], dests[i], color);
     }
 

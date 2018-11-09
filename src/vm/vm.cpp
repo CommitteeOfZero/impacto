@@ -5,6 +5,8 @@
 #include "../io/vfs.h"
 #include "../io/io.h"
 #include "../game.h"
+#include "scriptvars.h"
+#include "gamespecific_rne.h"
 
 #include "opcodetables_rne.h"
 
@@ -57,6 +59,11 @@ void Vm::Init(uint32_t startScriptId, uint32_t bufferId) {
     uint8_t* scrBuf = ScriptBuffers[bufferId];
     startupThd->Ip = ScriptGetLabelAddress(scrBuf, 0);
   }
+
+  GameContext->ScrWork[2200] =
+      1;  // Global animation multiplier maybe?... Set in GameInit()
+  GameContext->SetFlag(SF_MESALLSKIP,
+                       1);  // SF_MESALLSKIP, force skip mode for now
 }
 
 bool Vm::LoadScript(uint32_t bufferId, uint32_t scriptId) {
@@ -73,6 +80,7 @@ bool Vm::LoadScript(uint32_t bufferId, uint32_t scriptId) {
     return false;
   }
   ScriptBuffers[bufferId] = (uint8_t*)file;
+  GameContext->ScrWork[SW_SCRIPTNO0 + bufferId] = scriptId;
   return true;
 }
 
@@ -161,6 +169,9 @@ void Vm::Update() {
   }
 
   DrawAllThreads();
+
+  UpdateCharacters(GameContext);
+  UpdateCamera(GameContext);
 }
 
 void Vm::CreateThreadDrawTable() {

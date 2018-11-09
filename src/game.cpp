@@ -39,6 +39,32 @@ Game::Game(GameFeatureConfig const& config) : Config(config) {
       return;
     }
   }
+  if (!Config.SeArchiveName.empty()) {
+    IoError err = VfsArchive::Mount(Config.SeArchiveName.c_str(), &SeArchive);
+    if (err != IoError_OK) {
+      ImpLog(LL_Fatal, LC_General, "Failed to load SE archive!\n");
+      WindowShutdown();
+      return;
+    }
+  }
+  if (!Config.SysseArchiveName.empty()) {
+    IoError err =
+        VfsArchive::Mount(Config.SysseArchiveName.c_str(), &SysseArchive);
+    if (err != IoError_OK) {
+      ImpLog(LL_Fatal, LC_General, "Failed to load SYSSE archive!\n");
+      WindowShutdown();
+      return;
+    }
+  }
+  if (!Config.VoiceArchiveName.empty()) {
+    IoError err =
+        VfsArchive::Mount(Config.VoiceArchiveName.c_str(), &VoiceArchive);
+    if (err != IoError_OK) {
+      ImpLog(LL_Fatal, LC_General, "Failed to load VOICE archive!\n");
+      WindowShutdown();
+      return;
+    }
+  }
 
   if (Config.GameFeatures & GameFeature::Nuklear) {
     Nk = nk_sdl_init(g_SDLWindow, NkMaxVertexMemory, NkMaxElementMemory);
@@ -118,14 +144,22 @@ Game* Game::CreateModelViewer() {
 Game* Game::CreateVmTest() {
   GameFeatureConfig config;
   config.LayerCount = 1;
-  config.GameFeatures =
-      GameFeature::Sc3VirtualMachine | GameFeature::Renderer2D;
+  config.GameFeatures = GameFeature::Sc3VirtualMachine |
+                        GameFeature::Renderer2D | GameFeature::Scene3D |
+                        GameFeature::Input | GameFeature::Audio;
   config.SystemArchiveName = "system.cpk";
+  config.BgmArchiveName = "bgm.cpk";
+  config.SeArchiveName = "se.cpk";
+  config.SysseArchiveName = "sysse.cpk";
+  config.VoiceArchiveName = "voice.cpk";
   config.Dlg = DialoguePageFeatureConfig_RNE;
+  config.Scene3D_BackgroundCount = 1;
+  config.Scene3D_CharacterCount = 8;
 
   Game* result = new Game(config);
   result->Init();
 
+  // Font
   void* texFile;
   int64_t texSz;
   result->SystemArchive->Slurp(12, &texFile, &texSz);
@@ -135,6 +169,19 @@ Game* Game::CreateVmTest() {
   result->Config.Dlg.DialogueFont.Sheet.Texture = tex.Submit();
   SDL_RWclose(stream);
   free(texFile);
+
+  // Data sprite sheet
+  void* dataTexFile;
+  int64_t dataTexSz;
+  result->SystemArchive->Slurp(9, &dataTexFile, &dataTexSz);
+  SDL_RWops* dataStream = SDL_RWFromConstMem(dataTexFile, (int)dataTexSz);
+  Texture dataTex;
+  dataTex.Load(dataStream);
+  result->Config.Dlg.DataSpriteSheet.DesignHeight = dataTex.Height;
+  result->Config.Dlg.DataSpriteSheet.DesignWidth = dataTex.Width;
+  result->Config.Dlg.DataSpriteSheet.Texture = dataTex.Submit();
+  SDL_RWclose(dataStream);
+  free(dataTexFile);
 
   return result;
 }
@@ -287,6 +334,7 @@ void Game::Render() {
 
   if (Config.GameFeatures & GameFeature::Renderer2D) {
     R2D->Begin();
+    Vm::SetDateDisplay(this);
     for (int i = 0; i < Vm::VmMaxThreads; i++) {
       if (DrawComponents[i] == TD_None) break;
 

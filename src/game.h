@@ -4,6 +4,7 @@
 #include "impacto.h"
 #include "modelviewer.h"
 #include "vm/vm.h"
+#include "vm/gamespecific_rne.h"
 #include "renderer2d.h"
 #include "io/vfs.h"
 #include "inputsystem.h"
@@ -23,6 +24,9 @@ struct GameFeatureConfig {
 
   std::string SystemArchiveName = "";
   std::string BgmArchiveName = "";
+  std::string SeArchiveName = "";
+  std::string SysseArchiveName = "";
+  std::string VoiceArchiveName = "";
 
   uint32_t Scene3D_CharacterCount;
   uint32_t Scene3D_BackgroundCount;
@@ -61,6 +65,9 @@ class Game {
 
   VfsArchive* SystemArchive = 0;
   VfsArchive* BgmArchive = 0;
+  VfsArchive* SeArchive = 0;
+  VfsArchive* SysseArchive = 0;
+  VfsArchive* VoiceArchive = 0;
 
   bool ShouldQuit = false;
 
