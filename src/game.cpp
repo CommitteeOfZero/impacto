@@ -19,6 +19,8 @@ static int const NkMaxElementMemory = 128 * 1024;
 static int const GameScrWorkSize = 32000;
 static int const GameFlagWorkSize = 1000;
 
+nk_context* Nk = 0;
+
 Game::Game(GameFeatureConfig const& config) : Config(config) {
   WindowInit();
 

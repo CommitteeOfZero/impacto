@@ -11,6 +11,8 @@
 
 namespace Impacto {
 
+extern nk_context* Nk;
+
 BETTER_ENUM(GameFeature, int, Nuklear = (1 << 0), Scene3D = (1 << 1),
             ModelViewer = (1 << 2), Sc3VirtualMachine = (1 << 3),
             Renderer2D = (1 << 4), Input = (1 << 5), Audio = (1 << 6))
@@ -47,7 +49,6 @@ class Game {
   bool GetFlag(uint32_t flagId);
 
   Scene* Scene3D = 0;
-  nk_context* Nk = 0;
   ModelViewer* ModelViewerComponent = 0;
   Vm::Vm* VmComponent = 0;
 
