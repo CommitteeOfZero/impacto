@@ -1,18 +1,31 @@
 #include "audiosystem.h"
 #include "../log.h"
+#include <utility>
 
 namespace Impacto {
 namespace Audio {
 
-AudioSystem::~AudioSystem() {
+static bool IsInit = false;
+
+static ALCdevice* AlcDevice = 0;
+static ALCcontext* AlcContext = 0;
+
+float MasterVolume = 1.0f;
+float GroupVolumes[ACG_Count];
+AudioChannel Channels[AC_Count];
+
+void AudioShutdown() {
   if (AlcContext) alcDestroyContext(AlcContext);
   if (AlcDevice) alcCloseDevice(AlcDevice);
+  IsInit = false;
+  for (int i = 0; i < AC_Count; i++) {
+    Channels[i] = AudioChannel();
+  }
 }
 
-void AudioSystem::Init(Game* game) {
+void AudioInit() {
   assert(IsInit == false);
   ImpLog(LL_Info, LC_Audio, "Initialising audio system\n");
-  GameCtx = game;
 
   AlcDevice = alcOpenDevice(NULL);
   if (!AlcDevice) {
@@ -35,17 +48,17 @@ void AudioSystem::Init(Game* game) {
   }
 
   for (int i = AC_SE0; i <= AC_SE2; i++)
-    Channels[i].Init(game, this, (AudioChannelId)i, ACG_SE);
+    Channels[i].Init((AudioChannelId)i, ACG_SE);
   for (int i = AC_VOICE0; i <= AC_REV; i++)
-    Channels[i].Init(game, this, (AudioChannelId)i, ACG_Voice);
+    Channels[i].Init((AudioChannelId)i, ACG_Voice);
   for (int i = AC_BGM0; i <= AC_BGM2; i++)
-    Channels[i].Init(game, this, (AudioChannelId)i, ACG_BGM);
-  Channels[AC_SSE].Init(game, this, AC_SSE, ACG_SE);
+    Channels[i].Init((AudioChannelId)i, ACG_BGM);
+  Channels[AC_SSE].Init(AC_SSE, ACG_SE);
 
   IsInit = true;
 }
 
-void AudioSystem::Update(float dt) {
+void AudioUpdate(float dt) {
   for (int i = 0; i < AC_Count; i++) {
     Channels[i].Update(dt);
   }

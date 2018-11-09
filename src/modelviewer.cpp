@@ -2,6 +2,7 @@
 #include "game.h"
 
 #include "window.h"
+#include "audio/audiosystem.h"
 #include "audio/audiostream.h"
 #include "audio/audiochannel.h"
 
@@ -292,14 +293,14 @@ void ModelViewer::Update(float dt) {
                         &BgmLoop);
       if (nk_button_label(GameContext->Nk, "Switch")) {
         BgmChangeQueued = true;
-        GameContext->Audio->Channels[Audio::AC_BGM0].Stop(BgmFadeOut);
+        Audio::Channels[Audio::AC_BGM0].Stop(BgmFadeOut);
       }
 
       nk_property_float(GameContext->Nk, "Master volume", 0.0f,
-                        &GameContext->Audio->MasterVolume, 1.0f, 0.01f, 0.01f);
+                        &Audio::MasterVolume, 1.0f, 0.01f, 0.01f);
       nk_property_float(GameContext->Nk, "BGM volume", 0.0f,
-                        &GameContext->Audio->GroupVolumes[Audio::ACG_BGM], 1.0f,
-                        0.01f, 0.01f);
+                        &Audio::GroupVolumes[Audio::ACG_BGM], 1.0f, 0.01f,
+                        0.01f);
 
       nk_property_float(GameContext->Nk, "Fade out duration", 0.0f, &BgmFadeOut,
                         5.0f, 0.1f, 0.02f);
@@ -311,12 +312,12 @@ void ModelViewer::Update(float dt) {
   }
   nk_end(GameContext->Nk);
 
-  if (BgmChangeQueued && GameContext->Audio->Channels[Audio::AC_BGM0].State ==
-                             Audio::ACS_Stopped) {
+  if (BgmChangeQueued &&
+      Audio::Channels[Audio::AC_BGM0].State == Audio::ACS_Stopped) {
     SDL_RWops* stream;
     GameContext->BgmArchive->Open(BgmIds[CurrentBgm], &stream);
-    GameContext->Audio->Channels[Audio::AC_BGM0].Play(
-        Audio::AudioStream::Create(stream), BgmLoop, BgmFadeIn);
+    Audio::Channels[Audio::AC_BGM0].Play(Audio::AudioStream::Create(stream),
+                                         BgmLoop, BgmFadeIn);
     BgmChangeQueued = false;
   }
 

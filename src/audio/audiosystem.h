@@ -5,30 +5,15 @@
 #include "audiochannel.h"
 
 namespace Impacto {
-
-class Game;
-
 namespace Audio {
 
-class AudioSystem {
- public:
-  ~AudioSystem();
+void AudioInit();
+void AudioUpdate(float dt);
+void AudioShutdown();
 
-  void Init(Game* game);
-
-  void Update(float dt);
-
-  float MasterVolume = 1.0f;
-  float GroupVolumes[ACG_Count];
-
-  AudioChannel Channels[AC_Count];
-
- private:
-  bool IsInit = false;
-  Game* GameCtx;
-  ALCdevice* AlcDevice = 0;
-  ALCcontext* AlcContext = 0;
-};
+extern float MasterVolume;
+extern float GroupVolumes[ACG_Count];
+extern AudioChannel Channels[AC_Count];
 
 }  // namespace Audio
 }  // namespace Impacto

@@ -9,7 +9,6 @@
 #include "io/vfs.h"
 #include "inputsystem.h"
 #include "text.h"
-#include "audio/audiosystem.h"
 #include <enum.h>
 
 namespace Impacto {
@@ -55,7 +54,6 @@ class Game {
   Vm::Vm* VmComponent = 0;
   Renderer2D* R2D = 0;
   InputSystem* Input = 0;
-  Audio::AudioSystem* Audio = 0;
 
   GameFeatureConfig Config;
 

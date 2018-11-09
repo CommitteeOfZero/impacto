@@ -3,17 +3,13 @@
 #include "audiocommon.h"
 
 namespace Impacto {
-
-class Game;
-
 namespace Audio {
 
 class AudioChannel {
  public:
   ~AudioChannel();
 
-  void Init(Game* game, AudioSystem* system, AudioChannelId id,
-            AudioChannelGroup group);
+  void Init(AudioChannelId id, AudioChannelGroup group);
 
   // Stream is automatically deleted when playback is stopped
   void Play(AudioStream* stream, bool loop, float fadeInDuration);
@@ -35,8 +31,6 @@ class AudioChannel {
   // Actual playhead at start of (graphics) frame, in AudioStream samples
   int Position = 0;
 
-  ALuint source;
-
  private:
   void SetGain();
   int SamplesPerBuffer() const;
@@ -52,8 +46,6 @@ class AudioChannel {
   // In AudioStream samples
   int BufferStartPositions[AudioBufferCount];
 
-  Game* GameCtx;
-  AudioSystem* System;
   AudioStream* CurrentStream = 0;
   bool IsInit = false;
 

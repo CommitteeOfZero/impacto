@@ -26,11 +26,8 @@ AudioChannel::~AudioChannel() {
   alDeleteBuffers(AudioBufferCount, BufferIds);
 }
 
-void AudioChannel::Init(Game* game, AudioSystem* system, AudioChannelId id,
-                        AudioChannelGroup group) {
+void AudioChannel::Init(AudioChannelId id, AudioChannelGroup group) {
   assert(IsInit == false);
-  GameCtx = game;
-  System = system;
   Id = id;
   Group = group;
   State = ACS_Stopped;
@@ -163,7 +160,7 @@ void AudioChannel::Update(float dt) {
 // TODO what easing functions do we want for this?
 void AudioChannel::SetGain() {
   if (State == ACS_Stopped) return;
-  float gain = System->MasterVolume * System->GroupVolumes[Group] * Volume;
+  float gain = MasterVolume * GroupVolumes[Group] * Volume;
   switch (State) {
     case ACS_FadingIn:
       gain *= powf(FadeCompletion, 3.0f);

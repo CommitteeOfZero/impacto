@@ -6,6 +6,7 @@
 #include "modelviewer.h"
 #include "log.h"
 
+#include "audio/audiosystem.h"
 #include "audio/audiochannel.h"
 #include "audio/audiostream.h"
 
@@ -79,7 +80,7 @@ Game::Game(GameFeatureConfig const& config) : Config(config) {
   }
 
   if (Config.GameFeatures & GameFeature::Audio) {
-    Audio = new Audio::AudioSystem;
+    Audio::AudioInit();
   }
 
   if (Config.GameFeatures & GameFeature::Scene3D) {
@@ -111,9 +112,6 @@ Game::Game(GameFeatureConfig const& config) : Config(config) {
 }
 
 void Game::Init() {
-  if (Config.GameFeatures & GameFeature::Audio) {
-    Audio->Init(this);
-  }
   if (Config.GameFeatures & GameFeature::Scene3D) {
     Scene3D->Init();
   }
@@ -238,7 +236,7 @@ Game::~Game() {
   }
 
   if (Config.GameFeatures & GameFeature::Audio) {
-    if (Audio) delete Audio;
+    Audio::AudioShutdown();
   }
 
   if (Config.GameFeatures & GameFeature::Scene3D) {
@@ -308,7 +306,7 @@ void Game::Update(float dt) {
   }
 
   if (Config.GameFeatures & GameFeature::Audio) {
-    Audio->Update(dt);
+    Audio::AudioUpdate(dt);
   }
 
   if (Config.GameFeatures & GameFeature::Scene3D) {

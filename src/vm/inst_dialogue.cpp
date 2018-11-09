@@ -6,6 +6,7 @@
 #include "scriptvars.h"
 #include "../game.h"
 #include "../log.h"
+#include "../audio/audiosystem.h"
 #include "../audio/audiostream.h"
 #include "../audio/audiochannel.h"
 
@@ -127,8 +128,8 @@ VmInstruction(InstMes) {
       thread->Ip = oldIp;
       SDL_RWops* stream;
       thread->GameContext->VoiceArchive->Open(audioId, &stream);
-      thread->GameContext->Audio->Channels[Audio::AC_VOICE0].Play(
-          Audio::AudioStream::Create(stream), false, 0.0f);
+      Audio::Channels[Audio::AC_VOICE0].Play(Audio::AudioStream::Create(stream),
+                                             false, 0.0f);
     } break;
     case 0x0B: {  // LoadVoicedDialogue0B
       PopExpression(audioId);

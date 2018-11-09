@@ -7,6 +7,7 @@
 #include "expression.h"
 #include "../game.h"
 #include "../log.h"
+#include "../audio/audiosystem.h"
 #include "../audio/audiostream.h"
 #include "../audio/audiochannel.h"
 
@@ -25,14 +26,14 @@ VmInstruction(InstBGMplay) {
 
   SDL_RWops* stream;
   thread->GameContext->BgmArchive->Open(track, &stream);
-  thread->GameContext->Audio->Channels[Audio::AC_BGM0].Volume = 0.15f;
-  thread->GameContext->Audio->Channels[Audio::AC_BGM0].Play(
-      Audio::AudioStream::Create(stream), (bool)loop, 0.0f);
+  Audio::Channels[Audio::AC_BGM0].Volume = 0.15f;
+  Audio::Channels[Audio::AC_BGM0].Play(Audio::AudioStream::Create(stream),
+                                       (bool)loop, 0.0f);
 }
 VmInstruction(InstBGMstop) {
   StartInstruction;
   PopUint8(channel);
-  thread->GameContext->Audio->Channels[Audio::AC_BGM0 + channel].Stop(1.0f);
+  Audio::Channels[Audio::AC_BGM0 + channel].Stop(1.0f);
 }
 VmInstruction(InstSEplay) {
   StartInstruction;
@@ -43,9 +44,9 @@ VmInstruction(InstSEplay) {
     PopExpression(loop);
     SDL_RWops* stream;
     thread->GameContext->SeArchive->Open(effect, &stream);
-    thread->GameContext->Audio->Channels[Audio::AC_SE0 + channel].Volume =
+    Audio::Channels[Audio::AC_SE0 + channel].Volume =
         (thread->GameContext->ScrWork[4315 + channel] / 100.0f) - 0.3f;
-    thread->GameContext->Audio->Channels[Audio::AC_SE0 + channel].Play(
+    Audio::Channels[Audio::AC_SE0 + channel].Play(
         Audio::AudioStream::Create(stream), (bool)loop, 0.0f);
   } else {
     ImpLogSlow(LL_Warning, LC_VMStub,
@@ -56,19 +57,19 @@ VmInstruction(InstSEplay) {
 VmInstruction(InstSEstop) {
   StartInstruction;
   PopUint8(channel);
-  thread->GameContext->Audio->Channels[Audio::AC_SE0 + channel].Stop(1.0f);
+  Audio::Channels[Audio::AC_SE0 + channel].Stop(1.0f);
 }
 VmInstruction(InstSSEplay) {
   StartInstruction;
   PopExpression(sysSeId);
   SDL_RWops* stream;
   thread->GameContext->SysseArchive->Open(sysSeId, &stream);
-  thread->GameContext->Audio->Channels[Audio::AC_SSE].Play(
-      Audio::AudioStream::Create(stream), false, 0.0f);
+  Audio::Channels[Audio::AC_SSE].Play(Audio::AudioStream::Create(stream), false,
+                                      0.0f);
 }
 VmInstruction(InstSSEstop) {
   StartInstruction;
-  thread->GameContext->Audio->Channels[Audio::AC_SSE].Stop(1.0f);
+  Audio::Channels[Audio::AC_SSE].Stop(1.0f);
 }
 VmInstruction(InstBGMflag) {
   StartInstruction;
@@ -83,7 +84,7 @@ VmInstruction(InstVoicePlay) {
   PopExpression(arg2);
   SDL_RWops* stream;
   thread->GameContext->VoiceArchive->Open(arg1, &stream);
-  thread->GameContext->Audio->Channels[Audio::AC_VOICE0 + channel].Play(
+  Audio::Channels[Audio::AC_VOICE0 + channel].Play(
       Audio::AudioStream::Create(stream), (bool)arg2, 0.0f);
 }
 VmInstruction(InstVoiceStop) {

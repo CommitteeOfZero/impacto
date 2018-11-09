@@ -30,7 +30,6 @@ enum AudioChannelState {
   ACS_FadingOut
 };
 
-class AudioSystem;
 class AudioChannel;
 class AudioStream;
 
