@@ -5,7 +5,7 @@
 #include "workqueue.h"
 #include "modelviewer.h"
 #include "log.h"
-
+#include "inputsystem.h"
 #include "audio/audiosystem.h"
 #include "audio/audiochannel.h"
 #include "audio/audiostream.h"
@@ -73,10 +73,6 @@ Game::Game(GameFeatureConfig const& config) : Config(config) {
     nk_sdl_font_stash_begin(&atlas);
     // no fonts => default font used, but we still have do the setup
     nk_sdl_font_stash_end();
-  }
-
-  if (Config.GameFeatures & GameFeature::Input) {
-    Input = new InputSystem;
   }
 
   if (Config.GameFeatures & GameFeature::Audio) {
@@ -251,12 +247,6 @@ Game::~Game() {
     }
   }
 
-  if (Config.GameFeatures & GameFeature::Input) {
-    if (Input) {
-      delete Input;
-    }
-  }
-
   if (Config.GameFeatures & GameFeature::Nuklear) {
     nk_sdl_shutdown();
   }
@@ -270,7 +260,7 @@ void Game::Update(float dt) {
     nk_input_begin(Nk);
   }
   if (Config.GameFeatures & GameFeature::Input) {
-    Input->BeginFrame();
+    Input::BeginFrame();
   }
   while (SDL_PollEvent(&e)) {
     if (e.type == SDL_QUIT) {
@@ -285,13 +275,13 @@ void Game::Update(float dt) {
     }
 
     if (Config.GameFeatures & GameFeature::Input) {
-      if (Input->HandleEvent(&e)) continue;
+      if (Input::HandleEvent(&e)) continue;
     }
 
     WorkQueueHandleEvent(&e);
   }
   if (Config.GameFeatures & GameFeature::Input) {
-    Input->EndFrame();
+    Input::EndFrame();
   }
   if (Config.GameFeatures & GameFeature::Nuklear) {
     nk_input_end(Nk);

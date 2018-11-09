@@ -7,7 +7,6 @@
 #include "vm/gamespecific_rne.h"
 #include "renderer2d.h"
 #include "io/vfs.h"
-#include "inputsystem.h"
 #include "text.h"
 #include <enum.h>
 
@@ -53,7 +52,6 @@ class Game {
   ModelViewer* ModelViewerComponent = 0;
   Vm::Vm* VmComponent = 0;
   Renderer2D* R2D = 0;
-  InputSystem* Input = 0;
 
   GameFeatureConfig Config;
 

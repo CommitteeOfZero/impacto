@@ -5,6 +5,7 @@
 #include "expression.h"
 #include "scriptvars.h"
 #include "../game.h"
+#include "../inputsystem.h"
 #include "../log.h"
 #include "../audio/audiosystem.h"
 #include "../audio/audiostream.h"
@@ -150,10 +151,9 @@ VmInstruction(InstMesMain) {
   DialoguePage* currentPage =
       &thread->GameContext->DialoguePages[thread->DialoguePageId];
   if (type == 0) {  // Normal mode
-    if (!(thread->GameContext->Input->MouseButtonWentDown[SDL_BUTTON_LEFT] &&
+    if (!(Input::MouseButtonWentDown[SDL_BUTTON_LEFT] &&
           currentPage->TextIsFullyOpaque)) {
-      if (!thread->GameContext->Input
-               ->KeyboardButtonIsDown[SDL_SCANCODE_RCTRL]) {
+      if (!Input::KeyboardButtonIsDown[SDL_SCANCODE_RCTRL]) {
         ResetInstruction;
         BlockThread;
       }

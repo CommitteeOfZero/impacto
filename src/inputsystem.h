@@ -4,53 +4,46 @@
 #include <glm/glm.hpp>
 
 namespace Impacto {
-
+namespace Input {
 enum InputDevice { IDEV_Mouse, IDEV_Keyboard, IDEV_Touch, IDEV_Controller };
 
 float const ControllerAxisLightThreshold = 0.3f;
 float const ControllerAxisHeavyThreshold = 0.8f;
 
-class InputSystem {
- private:
-  static int const MouseButtonsMax = SDL_BUTTON_X2 + 1;
+int const MouseButtonsMax = SDL_BUTTON_X2 + 1;
 
- public:
-  void BeginFrame();
-  void EndFrame();
+void BeginFrame();
+void EndFrame();
+bool HandleEvent(SDL_Event const* ev);
 
-  bool HandleEvent(SDL_Event const* ev);
+extern InputDevice CurrentInputDevice;
 
-  InputDevice CurrentInputDevice = IDEV_Mouse;
+extern glm::vec2 PrevMousePos;
+extern glm::vec2 CurMousePos;
 
-  glm::vec2 PrevMousePos = glm::vec2(0.0f);
-  glm::vec2 CurMousePos = glm::vec2(0.0f);
+extern int MouseWheelDeltaX;
+extern int MouseWheelDeltaY;
 
-  int MouseWheelDeltaX = 0;
-  int MouseWheelDeltaY = 0;
+// TODO multitouch
+extern glm::vec2 PrevTouchPos;
+extern glm::vec2 CurTouchPos;
 
-  // TODO multitouch
-  glm::vec2 PrevTouchPos = glm::vec2(0.0f);
-  glm::vec2 CurTouchPos = glm::vec2(0.0f);
+extern float ControllerAxis[SDL_CONTROLLER_AXIS_MAX];
 
-  float ControllerAxis[SDL_CONTROLLER_AXIS_MAX] = {0.0f};
+extern bool MouseButtonWentDown[MouseButtonsMax];
+extern bool MouseButtonIsDown[MouseButtonsMax];
+extern bool ControllerButtonWentDown[SDL_CONTROLLER_BUTTON_MAX];
+extern bool ControllerButtonIsDown[SDL_CONTROLLER_BUTTON_MAX];
+extern bool ControllerAxisIsDownLight[SDL_CONTROLLER_AXIS_MAX];
+extern bool ControllerAxisWentDownLight[SDL_CONTROLLER_AXIS_MAX];
+extern bool ControllerAxisIsDownHeavy[SDL_CONTROLLER_AXIS_MAX];
+extern bool ControllerAxisWentDownHeavy[SDL_CONTROLLER_AXIS_MAX];
+extern bool KeyboardButtonWentDown[SDL_NUM_SCANCODES];
+extern bool KeyboardButtonIsDown[SDL_NUM_SCANCODES];
 
-  bool MouseButtonWentDown[MouseButtonsMax] = {0};
-  bool MouseButtonIsDown[MouseButtonsMax] = {0};
-  bool ControllerButtonWentDown[SDL_CONTROLLER_BUTTON_MAX] = {0};
-  bool ControllerButtonIsDown[SDL_CONTROLLER_BUTTON_MAX] = {0};
-  bool ControllerAxisIsDownLight[SDL_CONTROLLER_AXIS_MAX] = {0};
-  bool ControllerAxisWentDownLight[SDL_CONTROLLER_AXIS_MAX] = {0};
-  bool ControllerAxisIsDownHeavy[SDL_CONTROLLER_AXIS_MAX] = {0};
-  bool ControllerAxisWentDownHeavy[SDL_CONTROLLER_AXIS_MAX] = {0};
-  bool KeyboardButtonWentDown[SDL_NUM_SCANCODES] = {0};
-  bool KeyboardButtonIsDown[SDL_NUM_SCANCODES] = {0};
+// TODO multitouch
+extern bool TouchIsDown;
+extern bool TouchWentDown;
 
-  // TODO multitouch
-  bool TouchIsDown = false;
-  bool TouchWentDown = false;
-
- private:
-  SDL_FingerID CurrentFinger = 0;
-};
-
+}  // namespace Input
 }  // namespace Impacto

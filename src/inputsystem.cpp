@@ -2,8 +2,40 @@
 #include "window.h"
 
 namespace Impacto {
+namespace Input {
 
-void InputSystem::BeginFrame() {
+InputDevice CurrentInputDevice = IDEV_Mouse;
+
+glm::vec2 PrevMousePos = glm::vec2(0.0f);
+glm::vec2 CurMousePos = glm::vec2(0.0f);
+
+int MouseWheelDeltaX = 0;
+int MouseWheelDeltaY = 0;
+
+// TODO multitouch
+glm::vec2 PrevTouchPos = glm::vec2(0.0f);
+glm::vec2 CurTouchPos = glm::vec2(0.0f);
+
+float ControllerAxis[SDL_CONTROLLER_AXIS_MAX] = {0.0f};
+
+bool MouseButtonWentDown[MouseButtonsMax] = {0};
+bool MouseButtonIsDown[MouseButtonsMax] = {0};
+bool ControllerButtonWentDown[SDL_CONTROLLER_BUTTON_MAX] = {0};
+bool ControllerButtonIsDown[SDL_CONTROLLER_BUTTON_MAX] = {0};
+bool ControllerAxisIsDownLight[SDL_CONTROLLER_AXIS_MAX] = {0};
+bool ControllerAxisWentDownLight[SDL_CONTROLLER_AXIS_MAX] = {0};
+bool ControllerAxisIsDownHeavy[SDL_CONTROLLER_AXIS_MAX] = {0};
+bool ControllerAxisWentDownHeavy[SDL_CONTROLLER_AXIS_MAX] = {0};
+bool KeyboardButtonWentDown[SDL_NUM_SCANCODES] = {0};
+bool KeyboardButtonIsDown[SDL_NUM_SCANCODES] = {0};
+
+// TODO multitouch
+bool TouchIsDown = false;
+bool TouchWentDown = false;
+
+static SDL_FingerID CurrentFinger = 0;
+
+void BeginFrame() {
   memset(ControllerButtonWentDown, false, sizeof(ControllerButtonWentDown));
   memset(ControllerAxisWentDownLight, false,
          sizeof(ControllerAxisWentDownLight));
@@ -19,7 +51,7 @@ void InputSystem::BeginFrame() {
   MouseWheelDeltaX = MouseWheelDeltaY = 0;
 }
 
-void InputSystem::EndFrame() {
+void EndFrame() {
   if (CurrentInputDevice == IDEV_Mouse) {
     SDL_ShowCursor(SDL_ENABLE);
   } else {
@@ -35,7 +67,7 @@ static glm::vec2 SDLMouseCoordsToDesign(int x, int y) {
   return result;
 }
 
-bool InputSystem::HandleEvent(SDL_Event const* ev) {
+bool HandleEvent(SDL_Event const* ev) {
   switch (ev->type) {
     case SDL_CONTROLLERDEVICEADDED: {
       SDL_ControllerDeviceEvent const* evt = &ev->cdevice;
@@ -157,4 +189,5 @@ bool InputSystem::HandleEvent(SDL_Event const* ev) {
   }
 }
 
+}  // namespace Input
 }  // namespace Impacto
