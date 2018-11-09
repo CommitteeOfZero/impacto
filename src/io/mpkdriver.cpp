@@ -6,7 +6,7 @@
 #include "vfs.h"
 #include "../log.h"
 
-#include "../../vendor/include/flat_hash_map.hpp"
+#include <flat_hash_map.hpp>
 
 namespace Impacto {
 

@@ -131,8 +131,6 @@ set(Impacto_Header
     src/audio/adxaudiostream.h
     src/audio/hcaaudiostream.h
 
-    vendor/include/flat_hash_map.hpp
-
     vendor/nuklear/nuklear.h
     vendor/nuklear/nuklear_sdl_gl3.h
 
@@ -143,6 +141,7 @@ include_directories(vendor/glad/include)
 include_directories(${OPENAL_INCLUDE_DIR})
 include_directories(${OGGVORBIS_INCLUDE_DIRS})
 include_directories(${LIBATRAC9_INCLUDE_DIR})
+include_directories(vendor/include)
 
 add_executable (impacto ${Impacto_Src} ${Impacto_Header})
 

@@ -2,7 +2,7 @@
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
-#include "../vendor/include/flat_hash_map.hpp"
+#include <flat_hash_map.hpp>
 
 namespace Impacto {
 
