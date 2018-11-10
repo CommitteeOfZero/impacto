@@ -20,8 +20,6 @@ uint32_t SwitchValue;
 
 static VfsArchive* AllScriptsArchive = 0;
 
-static Game* GameContext;
-
 static uint32_t LoadedScriptIds[MaxLoadedScripts];
 
 static Sc3VmThread ThreadPool[MaxThreads];  // Main thread pool where all the
@@ -56,10 +54,9 @@ static void DrawAllThreads();
 static void DestroyScriptThreads(uint32_t scriptBufferId);
 static void DestroyThreadGroup(uint32_t groupId);
 
-void Init(Game* gameCtx, uint32_t startScriptId, uint32_t bufferId) {
+void Init(uint32_t startScriptId, uint32_t bufferId) {
   ImpLog(LL_Info, LC_VM, "Initializing SC3 virtual machine\n");
 
-  GameContext = gameCtx;
   OpcodeTableSystem = OpcodeTableSystem_RNE;
   OpcodeTableGraph = OpcodeTableGraph_RNE;
   OpcodeTableGraph3D = OpcodeTableGraph3D_RNE;
@@ -138,7 +135,6 @@ Sc3VmThread* CreateThread(uint32_t groupId) {
     ThreadGroupTails[groupId] = thread;
   }
   ++ThreadGroupCount[groupId];
-  thread->GameContext = GameContext;
   return thread;
 }
 
@@ -206,7 +202,7 @@ void Update() {
 
   DrawAllThreads();
 
-  if (GameContext->Config.GameFeatures & GameFeature::Scene3D) {
+  if (Profile::GameFeatures & GameFeature::Scene3D) {
     UpdateCharacters();
     UpdateCamera();
   }
@@ -250,12 +246,11 @@ static void DrawAllThreads() {
   CreateThreadDrawTable();
   SortThreadDrawTable();
 
-  memset(GameContext->DrawComponents, TD_None,
-         sizeof(GameContext->DrawComponents));
+  memset(Game::DrawComponents, Game::TD_None, sizeof(Game::DrawComponents));
 
   int cnt = 0;
   while (ThreadTable[cnt]) {
-    GameContext->DrawComponents[cnt] = ThreadTable[cnt]->DrawType;
+    Game::DrawComponents[cnt] = ThreadTable[cnt]->DrawType;
     cnt++;
   }
 }

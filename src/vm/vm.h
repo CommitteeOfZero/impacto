@@ -18,7 +18,7 @@ uint32_t ScriptGetLabelAddressNum(uint8_t* scriptBufferAdr, uint32_t labelNum);
 uint8_t* ScriptGetStrAddress(uint8_t* scriptBufferAdr, uint32_t strNum);
 uint8_t* ScriptGetRetAddress(uint8_t* scriptBufferAdr, uint32_t retNum);
 
-void Init(Game* game, uint32_t startScriptId, uint32_t bufferId);
+void Init(uint32_t startScriptId, uint32_t bufferId);
 void Update();
 
 bool LoadScript(uint32_t bufferId, uint32_t scriptId);

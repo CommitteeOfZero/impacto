@@ -139,19 +139,19 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
 
   AutoForward = false;
 
-  float FontSize = GameCtx->Config.Dlg.DefaultFontSize;
+  float FontSize = Profile::Dlg.DefaultFontSize;
   TextParseState State = TPS_Normal;
   TextAlignment Alignment = TextAlignment::Left;
   int CurrentCharacter = Length;  // in TPS_Normal line
   int LastWordStart = Length;
   int LastLineStart = Length;
-  DialogueColorPair CurrentColors = GameCtx->Config.Dlg.ColorTable[0];
+  DialogueColorPair CurrentColors = Profile::Dlg.ColorTable[0];
 
   RectF BoxBounds;
   if (Mode == DPM_ADV) {
-    BoxBounds = GameCtx->Config.Dlg.ADVBounds;
+    BoxBounds = Profile::Dlg.ADVBounds;
   } else {
-    BoxBounds = GameCtx->Config.Dlg.NVLBounds;
+    BoxBounds = Profile::Dlg.NVLBounds;
   }
 
   StringToken token;
@@ -213,7 +213,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
       }
       case STT_SetColor: {
         assert(token.Val_Expr < DialogueColors);
-        CurrentColors = GameCtx->Config.Dlg.ColorTable[token.Val_Expr];
+        CurrentColors = Profile::Dlg.ColorTable[token.Val_Expr];
       }
       case STT_Character: {
         if (State == TPS_Name) {
@@ -228,9 +228,9 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
 
           TextIsFullyOpaque = false;
           ProcessedTextGlyph& ptg = Glyphs[Length];
-          ptg.Glyph = GameCtx->Config.Dlg.DialogueFont.Glyph(token.Val_Uint16);
+          ptg.Glyph = Profile::Dlg.DialogueFont.Glyph(token.Val_Uint16);
           ptg.CharacterType =
-              GameCtx->Config.Dlg.DialogueFont.CharacterType(token.Val_Uint16);
+              Profile::Dlg.DialogueFont.CharacterType(token.Val_Uint16);
           ptg.Opacity = 0.0f;
           ptg.Colors = CurrentColors;
 
@@ -241,7 +241,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
           ptg.DestRect.X = BoxBounds.X + CurrentX;
           ptg.DestRect.Y = BoxBounds.Y + CurrentY;
           ptg.DestRect.Width =
-              (FontSize / GameCtx->Config.Dlg.DialogueFont.RowHeight()) *
+              (FontSize / Profile::Dlg.DialogueFont.RowHeight()) *
               ptg.Glyph.Bounds.Width;
           ptg.DestRect.Height = FontSize;
 
@@ -338,7 +338,7 @@ void DialoguePage::Render() {
   // Textbox
   if (Mode == DPM_ADV) {
     Sprite mesBox;
-    mesBox.Sheet = GameCtx->Config.Dlg.DataSpriteSheet;
+    mesBox.Sheet = Profile::Dlg.DataSpriteSheet;
     mesBox.Bounds = RectF(768.0f, 807.0f, 1280.0f, 206.0f);
     mesBox.BaseScale = glm::vec2(1280.0f / 960.0f, 720.0f / 544.0f);
     glm::vec4 col;
@@ -350,7 +350,7 @@ void DialoguePage::Render() {
         mesBox, RectF(0.0f, 361.0f * (720.0f / 544.0f), 1280.0f, 206.0f), col);
     // if (TextIsFullyOpaque) {
     //  Sprite waitIcon;
-    //  waitIcon.Sheet = GameCtx->Config.Dlg.DataSpriteSheet;
+    //  waitIcon.Sheet = Profile::Dlg.DataSpriteSheet;
     //  waitIcon.Bounds = RectF(1.0f, 97.0f, 32.0f, 32.0f);
     //  waitIcon.BaseScale = glm::vec2(1.0f);
     //  Renderer2D::DrawSprite(
@@ -388,7 +388,7 @@ void DialoguePage::Render() {
 
   if (Mode == DPM_ADV && HasName) {
     Sprite nameInd;
-    nameInd.Sheet = GameCtx->Config.Dlg.DataSpriteSheet;
+    nameInd.Sheet = Profile::Dlg.DataSpriteSheet;
     nameInd.Bounds = RectF(768.0f, 774.0f, 1010.0f, 31.0f);
     nameInd.BaseScale = glm::vec2(1280.0f / 960.0f, 720.0f / 544.0f);
     glm::vec4 col;
@@ -402,28 +402,27 @@ void DialoguePage::Render() {
     RectF* dests = (RectF*)ImpStackAlloc(sizeof(RectF) * NameLength);
     Sprite* sprites = (Sprite*)ImpStackAlloc(sizeof(Sprite) * NameLength);
 
-    glm::vec2 pos = GameCtx->Config.Dlg.ADVNamePos;
+    glm::vec2 pos = Profile::Dlg.ADVNamePos;
     float width = 0.0f;
     for (int i = 0; i < NameLength; i++) {
-      sprites[i] = GameCtx->Config.Dlg.DialogueFont.Glyph(Name[i]);
+      sprites[i] = Profile::Dlg.DialogueFont.Glyph(Name[i]);
       dests[i].X = pos.x;
       dests[i].Y = pos.y;
-      dests[i].Width = (GameCtx->Config.Dlg.ADVNameFontSize /
-                        GameCtx->Config.Dlg.DialogueFont.RowHeight()) *
+      dests[i].Width = (Profile::Dlg.ADVNameFontSize /
+                        Profile::Dlg.DialogueFont.RowHeight()) *
                        sprites[i].Bounds.Width;
-      dests[i].Height = GameCtx->Config.Dlg.ADVNameFontSize;
+      dests[i].Height = Profile::Dlg.ADVNameFontSize;
       width += dests[i].Width;
       pos.x += dests[i].Width;
     }
 
-    if (GameCtx->Config.Dlg.ADVNameAlignment == +TextAlignment::Center) {
+    if (Profile::Dlg.ADVNameAlignment == +TextAlignment::Center) {
       for (int i = 0; i < NameLength; i++) dests[i].X -= width / 2.0f;
-    } else if (GameCtx->Config.Dlg.ADVNameAlignment == +TextAlignment::Right) {
+    } else if (Profile::Dlg.ADVNameAlignment == +TextAlignment::Right) {
       for (int i = 0; i < NameLength; i++) dests[i].X -= width;
     }
 
-    glm::vec4 color =
-        RgbaIntToFloat(GameCtx->Config.Dlg.ColorTable[0].TextColor);
+    glm::vec4 color = RgbaIntToFloat(Profile::Dlg.ColorTable[0].TextColor);
     color.a *= glm::smoothstep(0.0f, 1.0f, ADVBoxOpacity);
 
     glm::vec4 outcolor = glm::vec4(0.0f, 0.0f, 0.0f, color.a);

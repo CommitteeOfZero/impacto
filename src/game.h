@@ -2,10 +2,11 @@
 
 #include "impacto.h"
 #include "vm/vm.h"
-#include "vm/gamespecific_rne.h"
 #include "io/vfs.h"
 #include "text.h"
 #include <enum.h>
+
+#include <string>
 
 namespace Impacto {
 
@@ -15,48 +16,20 @@ BETTER_ENUM(GameFeature, int, Nuklear = (1 << 0), Scene3D = (1 << 1),
             ModelViewer = (1 << 2), Sc3VirtualMachine = (1 << 3),
             Renderer2D = (1 << 4), Input = (1 << 5), Audio = (1 << 6))
 
-struct GameFeatureConfig {
-  int LayerCount;
-  int GameFeatures;
+namespace Profile {
+extern int LayerCount;
+extern int GameFeatures;
 
-  std::string SystemArchiveName = "";
-  std::string BgmArchiveName = "";
-  std::string SeArchiveName = "";
-  std::string SysseArchiveName = "";
-  std::string VoiceArchiveName = "";
+extern std::string SystemArchiveName;
+extern std::string BgmArchiveName;
+extern std::string SeArchiveName;
+extern std::string SysseArchiveName;
+extern std::string VoiceArchiveName;
 
-  uint32_t Scene3D_CharacterCount;
-  uint32_t Scene3D_BackgroundCount;
+extern DialoguePageFeatureConfig Dlg;
+}  // namespace Profile
 
-  DialoguePageFeatureConfig Dlg;
-};
-
-class Game {
- public:
-  static Game* CreateModelViewer();
-  static Game* CreateVmTest();
-  static Game* CreateDialogueTest();
-
-  ~Game();
-  void Update(float dt);
-  void Render();
-
-  GameFeatureConfig Config;
-
-  DrawComponentType DrawComponents[Vm::MaxThreads];
-
-  VfsArchive* SystemArchive = 0;
-  VfsArchive* BgmArchive = 0;
-  VfsArchive* SeArchive = 0;
-  VfsArchive* SysseArchive = 0;
-  VfsArchive* VoiceArchive = 0;
-
-  bool ShouldQuit = false;
-
- private:
-  Game(GameFeatureConfig const& config);
-  void Init();
-};
+namespace Game {
 
 enum DrawComponentType : uint8_t {
   TD_Text = 0x0,
@@ -80,5 +53,25 @@ enum DrawComponentType : uint8_t {
 
   TD_None = 0xFF
 };
+
+void InitModelViewer();
+void InitVmTest();
+void InitDialogueTest();
+
+void Shutdown();
+
+void Update(float dt);
+void Render();
+
+extern DrawComponentType DrawComponents[Vm::MaxThreads];
+
+extern VfsArchive* SystemArchive;
+extern VfsArchive* BgmArchive;
+extern VfsArchive* SeArchive;
+extern VfsArchive* SysseArchive;
+extern VfsArchive* VoiceArchive;
+
+extern bool ShouldQuit;
+}  // namespace Game
 
 }  // namespace Impacto

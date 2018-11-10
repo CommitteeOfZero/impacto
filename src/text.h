@@ -62,8 +62,6 @@ enum DialoguePageAnimState {
 struct DialoguePage {
   static int const MaxCharacters = 2000;
 
-  Game* GameCtx;
-
   int Id;
 
   float ADVBoxOpacity;

@@ -13,8 +13,6 @@ namespace ModelViewer {
 
 static void EnumerateBgm();
 
-static Game* GameContext;
-
 static glm::vec3 CameraPosition;
 static glm::vec3 CameraTarget;
 static int TrackCamera;
@@ -41,8 +39,7 @@ static float LastTime;
 static int Frames;
 static float FPS;
 
-void Init(Game* game) {
-  GameContext = game;
+void Init() {
   Model::EnumerateModels();
   EnumerateBgm();
 
@@ -307,7 +304,7 @@ void Update(float dt) {
   if (BgmChangeQueued &&
       Audio::Channels[Audio::AC_BGM0].State == Audio::ACS_Stopped) {
     SDL_RWops* stream;
-    GameContext->BgmArchive->Open(BgmIds[CurrentBgm], &stream);
+    Game::BgmArchive->Open(BgmIds[CurrentBgm], &stream);
     Audio::Channels[Audio::AC_BGM0].Play(Audio::AudioStream::Create(stream),
                                          BgmLoop, BgmFadeIn);
     BgmChangeQueued = false;
@@ -321,22 +318,22 @@ static void EnumerateBgm() {
   uint32_t iterator;
   VfsFileInfo info;
 
-  IoError err = GameContext->BgmArchive->EnumerateStart(&iterator, &info);
+  IoError err = Game::BgmArchive->EnumerateStart(&iterator, &info);
   while (err == IoError_OK) {
     BgmCount++;
-    err = GameContext->BgmArchive->EnumerateNext(&iterator, &info);
+    err = Game::BgmArchive->EnumerateNext(&iterator, &info);
   }
 
   BgmNames = (char**)malloc(BgmCount * sizeof(char*));
   BgmIds = (uint32_t*)malloc(BgmCount * sizeof(uint32_t));
 
   uint32_t i = 0;
-  err = GameContext->BgmArchive->EnumerateStart(&iterator, &info);
+  err = Game::BgmArchive->EnumerateStart(&iterator, &info);
   while (err == IoError_OK) {
     BgmIds[i] = info.Id;
     BgmNames[i] = strdup(info.Name);
     i++;
-    err = GameContext->BgmArchive->EnumerateNext(&iterator, &info);
+    err = Game::BgmArchive->EnumerateNext(&iterator, &info);
   }
 }
 

@@ -5,7 +5,7 @@ namespace Vm {
 
 void UpdateCharacters();
 void UpdateCamera();
-void SetDateDisplay(Game* gameCtx);
+void SetDateDisplay();
 
 }  // namespace Vm
 }  // namespace Impacto

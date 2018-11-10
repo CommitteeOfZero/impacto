@@ -3,9 +3,9 @@
 #include "../impacto.h"
 
 namespace Impacto {
-
-class Game;
+namespace Game {
 enum DrawComponentType : uint8_t;
+}
 
 namespace Vm {
 
@@ -69,13 +69,12 @@ struct Sc3VmThread {
   uint16_t ReturnAdresses[MaxCallStackDepth];
   uint32_t ReturnScriptBufferIds[MaxCallStackDepth];
   uint32_t DrawPriority;
-  DrawComponentType DrawType;
+  Game::DrawComponentType DrawType;
   uint32_t Alpha;
   uint32_t Temp1;
   uint32_t Temp2;
   uint32_t Variables[MaxThreadVars];
   uint32_t DialoguePageId;
-  Game* GameContext;
 
   void* GetMemberPointer(uint32_t offset);
 };

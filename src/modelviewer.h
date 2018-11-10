@@ -5,12 +5,9 @@
 #include <glm/glm.hpp>
 
 namespace Impacto {
-
-class Game;
-
 namespace ModelViewer {
 
-void Init(Game* game);
+void Init();
 void Update(float dt);
 
 }  // namespace ModelViewer
