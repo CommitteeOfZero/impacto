@@ -87,10 +87,6 @@ Game::Game(GameFeatureConfig const& config) : Config(config) {
     Scene3D::Init();
   }
 
-  if (Config.GameFeatures & GameFeature::ModelViewer) {
-    ModelViewerComponent = new ModelViewer(this);
-  }
-
   if (Config.GameFeatures & GameFeature::Sc3VirtualMachine) {
     ScrWork = (uint32_t*)calloc(GameScrWorkSize, sizeof(uint32_t));
     FlagWork = (uint8_t*)calloc(GameFlagWorkSize, sizeof(uint8_t));
@@ -110,7 +106,7 @@ Game::Game(GameFeatureConfig const& config) : Config(config) {
 
 void Game::Init() {
   if (Config.GameFeatures & GameFeature::ModelViewer) {
-    ModelViewerComponent->Init();
+    ModelViewer::Init(this);
   }
 
   if (Config.GameFeatures & GameFeature::Sc3VirtualMachine) {
@@ -219,10 +215,6 @@ Game* Game::CreateDialogueTest() {
 }
 
 Game::~Game() {
-  if (Config.GameFeatures & GameFeature::ModelViewer) {
-    delete ModelViewerComponent;
-  }
-
   if (Config.GameFeatures & GameFeature::Sc3VirtualMachine) {
     if (ScrWork) free(ScrWork);
     if (FlagWork) free(FlagWork);
@@ -281,7 +273,7 @@ void Game::Update(float dt) {
   }
 
   if (Config.GameFeatures & GameFeature::ModelViewer) {
-    ModelViewerComponent->Update(dt);
+    ModelViewer::Update(dt);
   }
 
   if (Config.GameFeatures & GameFeature::Sc3VirtualMachine) {

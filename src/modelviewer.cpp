@@ -9,8 +9,40 @@
 #include "3d/model.h"
 
 namespace Impacto {
+namespace ModelViewer {
 
-ModelViewer::ModelViewer(Game* game) : GameContext(game) {
+static void EnumerateBgm();
+
+static Game* GameContext;
+
+static glm::vec3 CameraPosition;
+static glm::vec3 CameraTarget;
+static int TrackCamera;
+static nk_colorf UiTintColor;
+static uint32_t CurrentModel;
+static uint32_t CurrentAnim;
+static uint32_t CurrentBackground;
+static uint32_t CurrentBgm;
+static int UiWindowWidth;
+static int UiWindowHeight;
+static int UiMsaaCount;
+
+static char** BgmNames = 0;
+static uint32_t* BgmIds = 0;
+static uint32_t BgmCount = 0;
+static bool BgmChangeQueued;
+
+static float BgmFadeOut;
+static float BgmFadeIn;
+static int BgmLoop;
+
+// FPS counter
+static float LastTime;
+static int Frames;
+static float FPS;
+
+void Init(Game* game) {
+  GameContext = game;
   Model::EnumerateModels();
   EnumerateBgm();
 
@@ -28,21 +60,7 @@ ModelViewer::ModelViewer(Game* game) : GameContext(game) {
   BgmLoop = true;
 
   UiTintColor = {0.784f, 0.671f, 0.6f, 0.9f};
-}
 
-ModelViewer::~ModelViewer() {
-  if (BgmNames) {
-    for (int i = 0; i < BgmCount; i++) {
-      free(BgmNames[i]);
-    }
-    free(BgmNames);
-  }
-  if (BgmIds) {
-    free(BgmIds);
-  }
-}
-
-void ModelViewer::Init() {
   Scene3D::Backgrounds[0].LoadAsync(g_BackgroundModelIds[0]);
   Scene3D::Characters[0].LoadAsync(g_ModelIds[0]);
 
@@ -56,7 +74,7 @@ void ModelViewer::Init() {
   FPS = 0.0f;
 }
 
-void ModelViewer::Update(float dt) {
+void Update(float dt) {
   if (g_WindowDimensionsChanged) {
     UiWindowWidth = g_WindowWidth;
     UiWindowHeight = g_WindowHeight;
@@ -299,7 +317,7 @@ void ModelViewer::Update(float dt) {
   Scene3D::MainCamera.LookAt(CameraTarget);
 }
 
-void ModelViewer::EnumerateBgm() {
+static void EnumerateBgm() {
   uint32_t iterator;
   VfsFileInfo info;
 
@@ -322,4 +340,5 @@ void ModelViewer::EnumerateBgm() {
   }
 }
 
+}  // namespace ModelViewer
 }  // namespace Impacto

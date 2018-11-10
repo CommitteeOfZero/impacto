@@ -1,7 +1,6 @@
 #pragma once
 
 #include "impacto.h"
-#include "modelviewer.h"
 #include "vm/vm.h"
 #include "vm/gamespecific_rne.h"
 #include "io/vfs.h"
@@ -46,8 +45,6 @@ class Game {
 
   void SetFlag(uint32_t flagId, uint32_t value);
   bool GetFlag(uint32_t flagId);
-
-  ModelViewer* ModelViewerComponent = 0;
 
   GameFeatureConfig Config;
 
