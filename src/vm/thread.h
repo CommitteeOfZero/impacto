@@ -2,9 +2,6 @@
 
 #include "../impacto.h"
 
-//#include "vm.h"
-//#include "../game.h"
-
 namespace Impacto {
 
 class Game;
@@ -12,8 +9,8 @@ enum DrawComponentType : uint8_t;
 
 namespace Vm {
 
-int const VmMaxCallStackDepth = 8;
-int const VmMaxThreadVars = 32;
+int const MaxCallStackDepth = 8;
+int const MaxThreadVars = 32;
 
 enum ThreadStateFlag {  // Applies to both individual threads and thread groups
   TF_None = 0x0,
@@ -69,16 +66,15 @@ struct Sc3VmThread {
   uint32_t LoopCounter;
   uint16_t LoopLabelNum;
   uint32_t CallStackDepth;
-  uint16_t ReturnAdresses[VmMaxCallStackDepth];
-  uint32_t ReturnScriptBufferIds[VmMaxCallStackDepth];
+  uint16_t ReturnAdresses[MaxCallStackDepth];
+  uint32_t ReturnScriptBufferIds[MaxCallStackDepth];
   uint32_t DrawPriority;
   DrawComponentType DrawType;
   uint32_t Alpha;
   uint32_t Temp1;
   uint32_t Temp2;
-  uint32_t Variables[VmMaxThreadVars];
+  uint32_t Variables[MaxThreadVars];
   uint32_t DialoguePageId;
-  Vm* VmContext;
   Game* GameContext;
 
   void* GetMemberPointer(uint32_t offset);

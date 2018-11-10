@@ -207,7 +207,7 @@ int ExpressionNode::Evaluate(Sc3VmThread* thd) {
       leftVal = LeftExpr->Evaluate(thd);
       rightVal = RightExpr->Evaluate(thd);
       if (leftVal >= 0) {
-        uint8_t* scrBuf = thd->VmContext->ScriptBuffers[thd->ScriptBufferId];
+        uint8_t* scrBuf = ScriptBuffers[thd->ScriptBufferId];
         int* dataArray = (int*)&scrBuf[leftVal];
         return dataArray[rightVal];
       } else {
@@ -216,9 +216,8 @@ int ExpressionNode::Evaluate(Sc3VmThread* thd) {
         return 0;
       }
     case ET_FuncLabelTable:
-      return ScriptGetLabelAddressNum(
-          thd->VmContext->ScriptBuffers[thd->ScriptBufferId],
-          RightExpr->Evaluate(thd));
+      return ScriptGetLabelAddressNum(ScriptBuffers[thd->ScriptBufferId],
+                                      RightExpr->Evaluate(thd));
     case ET_FuncFarLabelTable:
       return 0;
     case ET_FuncThreadVars:

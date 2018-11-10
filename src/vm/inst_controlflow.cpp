@@ -21,9 +21,9 @@ VmInstruction(InstJumpTable) {
   PopExpression(labelNumIndex);
   PopUint16(dataLabelNum);
   uint8_t* dataAdr = ScriptGetLabelAddress(
-      thread->VmContext->ScriptBuffers[thread->ScriptBufferId], dataLabelNum);
+      ScriptBuffers[thread->ScriptBufferId], dataLabelNum);
   uint8_t* labelAdr = ScriptGetLabelAddress(
-      thread->VmContext->ScriptBuffers[thread->ScriptBufferId],
+      ScriptBuffers[thread->ScriptBufferId],
       SDL_SwapLE16(*(uint16_t*)(dataAdr + 2 * labelNumIndex)));
 
   thread->Ip = labelAdr;
@@ -43,7 +43,7 @@ VmInstruction(InstCall) {
   PopLocalLabel(labelAdr);
   PopUint16(retNum);
 
-  if (thread->CallStackDepth != VmMaxCallStackDepth) {
+  if (thread->CallStackDepth != MaxCallStackDepth) {
     thread->ReturnAdresses[thread->CallStackDepth] = retNum;
     thread->ReturnScriptBufferIds[thread->CallStackDepth++] =
         thread->ScriptBufferId;
@@ -66,7 +66,7 @@ VmInstruction(InstCallFar) {
   PopFarLabel(labelAdr, scriptBufferId);
   PopUint16(retNum);
 
-  if (thread->CallStackDepth != VmMaxCallStackDepth) {
+  if (thread->CallStackDepth != MaxCallStackDepth) {
     thread->ReturnAdresses[thread->CallStackDepth] = retNum;
     thread->ReturnScriptBufferIds[thread->CallStackDepth++] =
         thread->ScriptBufferId;
@@ -83,7 +83,7 @@ VmInstruction(InstReturn) {
     uint32_t retBufferId =
         thread->ReturnScriptBufferIds[thread->CallStackDepth];
     thread->Ip =
-        ScriptGetRetAddress(thread->VmContext->ScriptBuffers[retBufferId],
+        ScriptGetRetAddress(ScriptBuffers[retBufferId],
                             thread->ReturnAdresses[thread->CallStackDepth]);
     thread->ScriptBufferId = retBufferId;
   } else {
@@ -100,7 +100,7 @@ VmInstruction(InstReturnIfFlag) {
       uint32_t retBufferId =
           thread->ReturnScriptBufferIds[thread->CallStackDepth];
       thread->Ip =
-          ScriptGetRetAddress(thread->VmContext->ScriptBuffers[retBufferId],
+          ScriptGetRetAddress(ScriptBuffers[retBufferId],
                               thread->ReturnAdresses[thread->CallStackDepth]);
       thread->ScriptBufferId = retBufferId;
     }
@@ -113,8 +113,8 @@ VmInstruction(InstLoop) {
   PopUint16(labelNum);
   PopExpression(loopCount);
 
-  uint8_t* labelAdr = ScriptGetLabelAddress(
-      thread->VmContext->ScriptBuffers[thread->ScriptBufferId], labelNum);
+  uint8_t* labelAdr =
+      ScriptGetLabelAddress(ScriptBuffers[thread->ScriptBufferId], labelNum);
 
   if (thread->LoopLabelNum == labelNum) {
     loopCount = thread->LoopCounter;
@@ -145,8 +145,8 @@ VmInstruction(InstKeyOnJump) {
   PopExpression(arg2);
   PopExpression(arg3);
   PopUint16(labelNum);
-  uint8_t* labelAdr = ScriptGetLabelAddress(
-      thread->VmContext->ScriptBuffers[thread->ScriptBufferId], labelNum);
+  uint8_t* labelAdr =
+      ScriptGetLabelAddress(ScriptBuffers[thread->ScriptBufferId], labelNum);
   if (thread->Id == 0 && labelNum == 57) {
     thread->Ip = labelAdr;  // Dirty hack to kickstart the titlescreen
   }
@@ -163,22 +163,22 @@ VmInstruction(InstLoadJump) {
   StartInstruction;
   PopExpression(scriptId);
   PopUint16(labelNum);
-  thread->VmContext->LoadScript(thread->ScriptBufferId, scriptId);
-  uint8_t* labelAdr = ScriptGetLabelAddress(
-      thread->VmContext->ScriptBuffers[thread->ScriptBufferId], labelNum);
+  LoadScript(thread->ScriptBufferId, scriptId);
+  uint8_t* labelAdr =
+      ScriptGetLabelAddress(ScriptBuffers[thread->ScriptBufferId], labelNum);
   thread->Ip = labelAdr;
 }
 VmInstruction(InstSwitch) {
   StartInstruction;
   PopExpression(switchVal);
-  thread->VmContext->SwitchValue = switchVal;
+  SwitchValue = switchVal;
 }
 VmInstruction(InstCase) {
   StartInstruction;
   PopExpression(caseVal);
   PopLocalLabel(labelAdr);
 
-  if (thread->VmContext->SwitchValue == caseVal) {
+  if (SwitchValue == caseVal) {
     thread->Ip = labelAdr;
   }
 }

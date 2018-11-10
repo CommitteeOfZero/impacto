@@ -92,7 +92,6 @@ Game::Game(GameFeatureConfig const& config) : Config(config) {
   }
 
   if (Config.GameFeatures & GameFeature::Sc3VirtualMachine) {
-    VmComponent = new Vm::Vm(this);
     ScrWork = (uint32_t*)calloc(GameScrWorkSize, sizeof(uint32_t));
     FlagWork = (uint8_t*)calloc(GameFlagWorkSize, sizeof(uint8_t));
   }
@@ -115,7 +114,7 @@ void Game::Init() {
   }
 
   if (Config.GameFeatures & GameFeature::Sc3VirtualMachine) {
-    VmComponent->Init(4, 0);
+    Vm::Init(this, 4, 0);
   }
 }
 
@@ -227,7 +226,6 @@ Game::~Game() {
   if (Config.GameFeatures & GameFeature::Sc3VirtualMachine) {
     if (ScrWork) free(ScrWork);
     if (FlagWork) free(FlagWork);
-    delete VmComponent;
   }
 
   if (Config.GameFeatures & GameFeature::Audio) {
@@ -287,7 +285,7 @@ void Game::Update(float dt) {
   }
 
   if (Config.GameFeatures & GameFeature::Sc3VirtualMachine) {
-    VmComponent->Update();
+    Vm::Update();
   }
 
   if (Config.GameFeatures & GameFeature::Audio) {
@@ -318,7 +316,7 @@ void Game::Render() {
   if (Config.GameFeatures & GameFeature::Renderer2D) {
     Renderer2D::BeginFrame();
     Vm::SetDateDisplay(this);
-    for (int i = 0; i < Vm::VmMaxThreads; i++) {
+    for (int i = 0; i < Vm::MaxThreads; i++) {
       if (DrawComponents[i] == TD_None) break;
 
       switch (DrawComponents[i]) {

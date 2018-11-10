@@ -48,12 +48,11 @@ class Game {
   bool GetFlag(uint32_t flagId);
 
   ModelViewer* ModelViewerComponent = 0;
-  Vm::Vm* VmComponent = 0;
 
   GameFeatureConfig Config;
 
   uint32_t* ScrWork;
-  DrawComponentType DrawComponents[Vm::VmMaxThreads];
+  DrawComponentType DrawComponents[Vm::MaxThreads];
   DialoguePage DialoguePages[DialoguePageCount];
 
   VfsArchive* SystemArchive = 0;

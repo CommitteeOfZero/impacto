@@ -11,39 +11,76 @@
 #include "opcodetables_rne.h"
 
 namespace Impacto {
-
 namespace Vm {
 
-static VfsArchive* AllScriptsArchive = NULL;
+uint8_t* ScriptBuffers[MaxLoadedScripts];
+bool BlockCurrentScriptThread;
+uint32_t SwitchValue;
 
-Vm::Vm(Game* gameCtx) {
+static VfsArchive* AllScriptsArchive = 0;
+
+static Game* GameContext;
+
+static uint32_t LoadedScriptIds[MaxLoadedScripts];
+
+static Sc3VmThread ThreadPool[MaxThreads];  // Main thread pool where all the
+                                            // thread objects are stored
+static Sc3VmThread*
+    ThreadTable[MaxThreads];  // Table of ordered thread pointers
+                              // to be executed or "drawn"
+static uint32_t ThreadGroupState[MaxThreadGroups];  // Control states for thread
+                                                    // groups. Each thread group
+                                                    // is a doubly linked list
+static uint32_t ThreadGroupCount[MaxThreadGroups];  // Current number of
+                                                    // threads in a group
+static Sc3VmThread*
+    ThreadGroupHeads[MaxThreadGroups];  // Pointers to thread group
+                                        // doubly linked list heads
+static Sc3VmThread*
+    ThreadGroupTails[MaxThreadGroups];  // Pointers to thread group
+                                        // doubly linked list tails
+static Sc3VmThread* NextFreeThreadCtx;  // Next free thread context in the
+                                        // thread pool
+
+static InstructionProc* OpcodeTableSystem;
+static InstructionProc* OpcodeTableUser1;
+static InstructionProc* OpcodeTableGraph;
+static InstructionProc* OpcodeTableGraph3D;
+
+static void CreateThreadExecTable();
+static void SortThreadExecTable();
+static void CreateThreadDrawTable();
+static void SortThreadDrawTable();
+static void DrawAllThreads();
+static void DestroyScriptThreads(uint32_t scriptBufferId);
+static void DestroyThreadGroup(uint32_t groupId);
+
+void Init(Game* gameCtx, uint32_t startScriptId, uint32_t bufferId) {
+  ImpLog(LL_Info, LC_VM, "Initializing SC3 virtual machine\n");
+
   GameContext = gameCtx;
   OpcodeTableSystem = OpcodeTableSystem_RNE;
   OpcodeTableGraph = OpcodeTableGraph_RNE;
   OpcodeTableGraph3D = OpcodeTableGraph3D_RNE;
   OpcodeTableUser1 = OpcodeTableUser1_RNE;
-}
 
-void Vm::Init(uint32_t startScriptId, uint32_t bufferId) {
-  ImpLog(LL_Info, LC_VM, "Initializing SC3 virtual machine\n");
-
-  for (int i = 0; i < VmMaxThreads - 1; i++) {
+  for (int i = 0; i < MaxThreads - 1; i++) {
     memset(&ThreadPool[i], 0, sizeof(Sc3VmThread));
     ThreadPool[i].NextFreeContext = &ThreadPool[i + 1];
     ThreadPool[i].Id = i;
   }
 
   NextFreeThreadCtx = ThreadPool;
-  memset(&ThreadPool[VmMaxThreads - 1], 0, sizeof(Sc3VmThread));
-  ThreadPool[VmMaxThreads - 1].Id = VmMaxThreads - 1;
+  memset(&ThreadPool[MaxThreads - 1], 0, sizeof(Sc3VmThread));
+  ThreadPool[MaxThreads - 1].Id = MaxThreads - 1;
 
-  for (int i = 0; i < VmMaxThreadGroups; i++) {
+  for (int i = 0; i < MaxThreadGroups; i++) {
     ThreadGroupState[i] = TF_Display;
     ThreadGroupHeads[i] = NULL;
     ThreadGroupTails[i] = NULL;
   }
 
-  memset(&ThreadGroupCount, 0, VmMaxThreadGroups * 4);
+  memset(&ThreadGroupCount, 0, MaxThreadGroups * 4);
 
   IoError err = VfsArchive::Mount("script.cpk", &AllScriptsArchive);
   if (err != IoError_OK) {
@@ -66,7 +103,7 @@ void Vm::Init(uint32_t startScriptId, uint32_t bufferId) {
                        1);  // SF_MESALLSKIP, force skip mode for now
 }
 
-bool Vm::LoadScript(uint32_t bufferId, uint32_t scriptId) {
+bool LoadScript(uint32_t bufferId, uint32_t scriptId) {
   assert(AllScriptsArchive != NULL);
   char scriptName[256];
   AllScriptsArchive->GetName(scriptId, scriptName);
@@ -84,7 +121,7 @@ bool Vm::LoadScript(uint32_t bufferId, uint32_t scriptId) {
   return true;
 }
 
-Sc3VmThread* Vm::CreateThread(uint32_t groupId) {
+Sc3VmThread* CreateThread(uint32_t groupId) {
   if (!NextFreeThreadCtx) return 0;
   Sc3VmThread* thread = NextFreeThreadCtx;
   NextFreeThreadCtx = NextFreeThreadCtx->NextFreeContext;
@@ -101,17 +138,16 @@ Sc3VmThread* Vm::CreateThread(uint32_t groupId) {
     ThreadGroupTails[groupId] = thread;
   }
   ++ThreadGroupCount[groupId];
-  thread->VmContext = this;
   thread->GameContext = GameContext;
   return thread;
 }
 
 // This also destroys thread groups and threads that have the TF_Destroy flag
 // set before building the execution table
-void Vm::CreateThreadExecTable() {
+static void CreateThreadExecTable() {
   int tblIndex = 0;
 
-  for (int i = 0; i < VmMaxThreadGroups; i++) {
+  for (int i = 0; i < MaxThreadGroups; i++) {
     if (ThreadGroupState[i] & TF_Destroy) {
       DestroyThreadGroup(i);
       ThreadGroupState[i] ^= TF_Destroy;
@@ -135,7 +171,7 @@ void Vm::CreateThreadExecTable() {
   ThreadTable[tblIndex] = 0;
 }
 
-void Vm::SortThreadExecTable() {
+static void SortThreadExecTable() {
   int i = 0;
   while (ThreadTable[i]) {
     int j = 0;
@@ -151,7 +187,7 @@ void Vm::SortThreadExecTable() {
   }
 }
 
-void Vm::Update() {
+void Update() {
   CreateThreadExecTable();
   SortThreadExecTable();
 
@@ -174,10 +210,10 @@ void Vm::Update() {
   UpdateCamera(GameContext);
 }
 
-void Vm::CreateThreadDrawTable() {
+static void CreateThreadDrawTable() {
   int tblIndex = 0;
 
-  for (int i = 0; i < VmMaxThreadGroups; i++) {
+  for (int i = 0; i < MaxThreadGroups; i++) {
     if (ThreadGroupState[i] & TF_Display) {
       Sc3VmThread* groupThread = ThreadGroupHeads[i];
       if (groupThread == NULL) continue;
@@ -192,7 +228,7 @@ void Vm::CreateThreadDrawTable() {
   ThreadTable[tblIndex] = 0;
 }
 
-void Vm::SortThreadDrawTable() {
+static void SortThreadDrawTable() {
   int i = 0;
   while (ThreadTable[i]) {
     int j = 0;
@@ -208,7 +244,7 @@ void Vm::SortThreadDrawTable() {
   }
 }
 
-void Vm::DrawAllThreads() {
+static void DrawAllThreads() {
   CreateThreadDrawTable();
   SortThreadDrawTable();
 
@@ -222,7 +258,7 @@ void Vm::DrawAllThreads() {
   }
 }
 
-void Vm::DestroyThread(Sc3VmThread* thread) {
+void DestroyThread(Sc3VmThread* thread) {
   Sc3VmThread* previous = thread->PreviousContext;
   Sc3VmThread* next = thread->NextContext;
   if (next != 0) {
@@ -241,7 +277,7 @@ void Vm::DestroyThread(Sc3VmThread* thread) {
   thread->NextContext = next;
 }
 
-void Vm::DestroyScriptThreads(uint32_t scriptBufferId) {
+static void DestroyScriptThreads(uint32_t scriptBufferId) {
   int cnt = 0;
   while (ThreadTable[cnt]) {
     if (ThreadTable[cnt]->ScriptBufferId == scriptBufferId) {
@@ -251,7 +287,7 @@ void Vm::DestroyScriptThreads(uint32_t scriptBufferId) {
   }
 }
 
-void Vm::DestroyThreadGroup(uint32_t groupId) {
+static void DestroyThreadGroup(uint32_t groupId) {
   Sc3VmThread* groupThread = ThreadGroupHeads[groupId];
   if (groupThread != NULL) {
     while (groupThread->NextContext != NULL) {
@@ -262,8 +298,7 @@ void Vm::DestroyThreadGroup(uint32_t groupId) {
   }
 }
 
-void Vm::ControlThreadGroup(ThreadGroupControlType controlType,
-                            uint32_t groupId) {
+void ControlThreadGroup(ThreadGroupControlType controlType, uint32_t groupId) {
   switch (controlType) {
     case TC_Destroy:
       ThreadGroupState[groupId] |= TF_Destroy;
@@ -287,7 +322,7 @@ void Vm::ControlThreadGroup(ThreadGroupControlType controlType,
   }
 }
 
-void Vm::RunThread(Sc3VmThread* thread) {
+void RunThread(Sc3VmThread* thread) {
   uint8_t* scrVal;
   uint32_t opcodeGrp;
   uint32_t opcode;
@@ -349,5 +384,4 @@ uint8_t* ScriptGetRetAddress(uint8_t* scriptBufferAdr, uint32_t retNum) {
 }
 
 }  // namespace Vm
-
 }  // namespace Impacto

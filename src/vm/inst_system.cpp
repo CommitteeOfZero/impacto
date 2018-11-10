@@ -24,12 +24,12 @@ VmInstruction(InstCreateThread) {
   PopExpression(groupId);
   PopExpression(scriptBufferId);
   PopFarLabel(labelAdr, scriptBufferId);
-  Sc3VmThread* newThread = thread->VmContext->CreateThread(groupId);
+  Sc3VmThread* newThread = CreateThread(groupId);
   newThread->GroupId = groupId;
   newThread->ScriptBufferId = scriptBufferId;
   newThread->Ip = labelAdr;
-  thread->VmContext->RunThread(newThread);
-  thread->VmContext->BlockCurrentScriptThread = false;
+  RunThread(newThread);
+  BlockCurrentScriptThread = false;
 }
 VmInstruction(InstKillThread) {
   StartInstruction;
@@ -46,7 +46,7 @@ VmInstruction(InstScriptLoad) {
   StartInstruction;
   PopExpression(bufferId);
   PopExpression(scriptId);
-  thread->VmContext->LoadScript(bufferId, scriptId);
+  LoadScript(bufferId, scriptId);
 }
 VmInstruction(InstWait) {
   StartInstruction;
@@ -127,8 +127,7 @@ VmInstruction(InstThreadControl) {
   StartInstruction;
   PopExpression(groupId);
   PopExpression(controlType);
-  thread->VmContext->ControlThreadGroup((ThreadGroupControlType)controlType,
-                                        groupId);
+  ControlThreadGroup((ThreadGroupControlType)controlType, groupId);
 }
 VmInstruction(InstGetSelfPointer) {
   StartInstruction;

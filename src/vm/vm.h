@@ -5,73 +5,33 @@
 #define VmInstruction(name) void name(Sc3VmThread* thread)
 
 namespace Impacto {
-
 namespace Vm {
 
 typedef void (*InstructionProc)(Sc3VmThread* thread);
 
-int const VmMaxLoadedScripts = 16;
-int const VmMaxThreads = 100;
-int const VmMaxThreadGroups = 12;
+int const MaxLoadedScripts = 16;
+int const MaxThreads = 100;
+int const MaxThreadGroups = 12;
 
 uint8_t* ScriptGetLabelAddress(uint8_t* scriptBufferAdr, uint32_t labelNum);
 uint32_t ScriptGetLabelAddressNum(uint8_t* scriptBufferAdr, uint32_t labelNum);
 uint8_t* ScriptGetStrAddress(uint8_t* scriptBufferAdr, uint32_t strNum);
 uint8_t* ScriptGetRetAddress(uint8_t* scriptBufferAdr, uint32_t retNum);
 
-class Vm {
- public:
-  Vm(Game* gameCtx);
+void Init(Game* game, uint32_t startScriptId, uint32_t bufferId);
+void Update();
 
-  void Init(uint32_t startScriptId, uint32_t bufferId);
-  void Update();
+bool LoadScript(uint32_t bufferId, uint32_t scriptId);
 
-  uint8_t* ScriptBuffers[VmMaxLoadedScripts];
-  bool LoadScript(uint32_t bufferId, uint32_t scriptId);
+Sc3VmThread* CreateThread(uint32_t groupId);
+void ControlThreadGroup(ThreadGroupControlType controlType, uint32_t groupId);
+void DestroyThread(Sc3VmThread* thread);
+void RunThread(Sc3VmThread* thread);
 
-  Sc3VmThread* CreateThread(uint32_t groupId);
-  void ControlThreadGroup(ThreadGroupControlType controlType, uint32_t groupId);
-  void DestroyThread(Sc3VmThread* thread);
-  void RunThread(Sc3VmThread* thread);
+extern uint8_t* ScriptBuffers[MaxLoadedScripts];
 
-  bool BlockCurrentScriptThread;
-  uint32_t SwitchValue;  // Used in InstSwitch and InstCase
-
- private:
-  Game* GameContext;
-
-  uint32_t LoadedScriptIds[VmMaxLoadedScripts];
-
-  Sc3VmThread ThreadPool[VmMaxThreads];    // Main thread pool where all the
-                                           // thread objects are stored
-  Sc3VmThread* ThreadTable[VmMaxThreads];  // Table of ordered thread pointers
-                                           // to be executed or "drawn"
-  uint32_t ThreadGroupState[VmMaxThreadGroups];  // Control states for thread
-                                                 // groups. Each thread group
-                                                 // is a doubly linked list
-  uint32_t ThreadGroupCount[VmMaxThreadGroups];  // Current number of threads in
-                                                 // a group
-  Sc3VmThread* ThreadGroupHeads[VmMaxThreadGroups];  // Pointers to thread group
-                                                     // doubly linked list heads
-  Sc3VmThread* ThreadGroupTails[VmMaxThreadGroups];  // Pointers to thread group
-                                                     // doubly linked list tails
-  Sc3VmThread* NextFreeThreadCtx;  // Next free thread context in the thread
-                                   // pool
-
-  InstructionProc* OpcodeTableSystem;
-  InstructionProc* OpcodeTableUser1;
-  InstructionProc* OpcodeTableGraph;
-  InstructionProc* OpcodeTableGraph3D;
-
-  void CreateThreadExecTable();
-  void SortThreadExecTable();
-  void CreateThreadDrawTable();
-  void SortThreadDrawTable();
-  void DrawAllThreads();
-  void DestroyScriptThreads(uint32_t scriptBufferId);
-  void DestroyThreadGroup(uint32_t groupId);
-};
+extern bool BlockCurrentScriptThread;
+extern uint32_t SwitchValue;  // Used in InstSwitch and InstCase
 
 }  // namespace Vm
-
 }  // namespace Impacto
