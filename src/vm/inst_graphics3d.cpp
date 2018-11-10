@@ -277,16 +277,16 @@ VmInstruction(InstUnk0213) {  // Set Camera position ???
       ScrWork[arg3] = (int)((23.0f + 0.0f) * 1000.0f);
     } break;
     case 1: {
-      PopExpression(arg1);
+      PopExpression(charId);
       PopExpression(arg2);
       PopExpression(arg3);
       PopExpression(arg4);
-      float x = (int)ScrWork[5706 + 20 * arg1] / 1000.0f;
-      float y =
-          (((int)ScrWork[5707 + 20 * arg1] + (int)ScrWork[5111 + 30 * arg1]) /
-           1000.0f) +
-          12.5;  // main camera default y
-      float z = (int)ScrWork[5708 + 20 * arg1] / 1000.0f;
+      float x = (int)ScrWork[5706 + 20 * charId] / 1000.0f;
+      float y = (((int)ScrWork[5707 + 20 * charId] +
+                  (int)ScrWork[SW_CHA1YCENTER + 30 * charId]) /
+                 1000.0f) +
+                12.5;  // main camera default y
+      float z = (int)ScrWork[5708 + 20 * charId] / 1000.0f;
       ScrWork[arg2] = (int)(x * 1000.0f);
       ScrWork[arg3] = (int)(y * 1000.0f);
       ScrWork[arg4] = (int)(z * 1000.0f);

@@ -20,7 +20,7 @@ static void UpdateCharacterRot(int charId) {
     glm::vec3 object =
         glm::vec3(ScrRealToFloat(ScrWork[30 * charId + SW_CHA1POSX]),
                   ScrRealToFloat(ScrWork[30 * charId + SW_CHA1POSY]) +
-                      ScrRealToFloat(ScrWork[30 * charId + 5111]),
+                      ScrRealToFloat(ScrWork[30 * charId + SW_CHA1YCENTER]),
                   ScrRealToFloat(ScrWork[30 * charId + SW_CHA1POSZ]));
 
     glm::vec3 lookat = LookAtEulerZYX(object, target);
