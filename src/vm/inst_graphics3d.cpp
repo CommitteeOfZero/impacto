@@ -91,81 +91,93 @@ VmInstruction(InstCHAUnk02073D) {
              "STUB instruction CHAUnk02073D(bufferId: %i, unk01: %i)\n",
              bufferId, unk01);
 }
+
+inline bool ObjectIsModel(int objectId) {
+  return objectId >= 10 && objectId <= 17;
+}
+// Note: runtime model, not model file
+inline int ObjectIdToModelId(int objectId) { return objectId - 10; }
+
+// Objects are positioned in a nonstandard spherical coordinate system in
+// relation to a parent
 VmInstruction(InstPositionObject) {
   StartInstruction;
   PopExpression(
       parentObjId);  // 1 -> mainCamera, 2 -> iruoCamera, 10 -> background,
-  PopExpression(objectid);  // 11-17 -> characters, 30-38 -> ???
-  PopExpression(valueX);    // x
-  PopExpression(valueY);    // y
-  PopExpression(valueZ);    // z
+  PopExpression(objectId);  // 11-17 -> characters, 30-38 -> ???
+  PopExpression(theta_);
+  PopExpression(phi_);
+  PopExpression(radius_);
 
-  float outX, outY, outZ;
-  if (parentObjId && objectid) {
-    if (parentObjId == 1) {  // main camera
-      outX = 0.0f + 0.0f;
-      outY = 12.5f + 0.0f;
-      outZ = 23.0f + 0.0f;
-    } else if (parentObjId == 2) {  // iruo camera
-      outX = 0.0f + 0.0f;
-      outY = 12.5f + 0.0f;
-      outZ = 23.0f + 0.0f;
-    } else {
-      if (parentObjId < 10 || parentObjId > 17) {
-        if (parentObjId >= 30 && parentObjId <= 38) {
-          outX = ScrWork[20 * parentObjId + 4900] / 1000.0;
-          outY = (ScrWork[20 * parentObjId + 4901] / 1000.0) + 12.5f;
-          outZ = ScrWork[20 * parentObjId + 4902] / 1000.0;
-        }
-      } else {  // background or character
-        outX = ScrWork[20 * parentObjId + 5506] / 1000.0;
-        outY = ((ScrWork[30 * parentObjId + 4811] +
-                 ScrWork[20 * parentObjId + 5507]) /
-                1000.0) +
-               12.5f;
-        outZ = ScrWork[20 * parentObjId + 5508] / 1000.0;
-      }
+  float theta = DegToRad(ScrRealToFloat(theta_));
+  float phi = DegToRad(ScrRealToFloat(phi_));
+  float radius = ScrRealToFloat(radius_);
+
+  // if(ObjectIsModel(parentObjId))
+  int parentModelId = ObjectIdToModelId(parentObjId);
+  // if(ObjectIsModel(objectId))
+  int modelId = ObjectIdToModelId(objectId);
+
+  glm::vec3 pos;
+
+  if (parentObjId && objectId) {
+    if (parentObjId == 1) {  // main camera default position
+      pos = glm::vec3(0.0f, 12.5f, 23.0f);
+    } else if (parentObjId == 2) {  // iruo camera default position
+      pos = glm::vec3(0.0f, 12.5f, 23.0f);
+    } else if (ObjectIsModel(parentObjId)) {
+      // note, these are different than SW_CHAnPOSa ???
+      pos.x = ScrRealToFloat(ScrWork[20 * parentModelId + 5706]);
+      pos.y = ScrRealToFloat(ScrWork[20 * parentModelId + 5707]) +
+              ScrRealToFloat(ScrWork[30 * parentModelId + SW_CHA1YCENTER]) +
+              12.5f;
+      pos.z = ScrRealToFloat(ScrWork[20 * parentModelId + 5708]);
+    } else if (parentObjId >= 30 && parentObjId <= 38) {
+      pos.x = ScrRealToFloat(ScrWork[20 * parentObjId + 4900]);
+      pos.y = ScrRealToFloat(ScrWork[20 * parentObjId + 4901]) + 12.5f;
+      pos.z = ScrRealToFloat(ScrWork[20 * parentObjId + 4902]);
     }
+
     if (parentObjId != 1 && parentObjId != 2) {
       // I don't even know
-      valueX += 180000;
-      while (valueX > 180000) {
-        valueX -= 360000;
-      }
+      theta += M_PI;
     }
 
-    float xRad = (valueX / 1000.0f) * M_PI / 180.0f;
-    float yRad = (valueY / 1000.0f) * M_PI / 180.0f;
-    outX = outX + (sinf(xRad) * (cosf(yRad) * (-(valueZ / 1000.0f))));
-    outY = outY + (sinf(yRad) * (-(valueZ / 1000.0f)));
-    outZ = outZ + (cosf(xRad) * (cosf(yRad) * (-(valueZ / 1000.0f))));
+    theta = NormalizeRad(theta);
+    phi = NormalizeRad(phi);
 
-    if (objectid == 1 || objectid == 2) {
-      outY = outY - 12.5f;
-      outZ = outZ - 23.0f;
+    glm::vec3 sphericalOffset =
+        glm::vec3(sinf(theta) * cosf(phi), sinf(phi), cosf(theta) * cosf(phi));
+    pos -= radius * sphericalOffset;
+
+    pos.y -= 12.5f;
+    if (objectId == 1 || objectId == 2) {
+      pos.z -= 23.0f;
     }
-    int outYint = (outY * 1000.0f);
-    int outZint = (outZ * 1000.0f);
-    int outXint = (outX * 1000.0f);
-    if (objectid == 1) {  // main camera
-      ScrWork[SW_MAINCAMERAPOSX] = outXint;
-      ScrWork[SW_MAINCAMERAPOSY] = outYint;
-      ScrWork[SW_MAINCAMERAPOSZ] = outZint;
-    } else if (objectid == 2) {  // iruo camera
-      ScrWork[SW_IRUOCAMERAPOSX] = outXint;
-      ScrWork[SW_IRUOCAMERAPOSY] = outYint;
-      ScrWork[SW_IRUOCAMERAPOSZ] = outZint;
-    } else if (objectid < 10 || objectid > 17) {
-      if (objectid >= 30 && objectid <= 38) {
-        ScrWork[4900 + 20 * objectid] = outXint;
-        ScrWork[4901 + 20 * objectid] = outYint - (12.5f * 1000.0f);
-        ScrWork[4902 + 20 * objectid] = outZint;
-      }
-    } else {  // background or character
-      ScrWork[4800 + 30 * objectid] = outXint;
-      ScrWork[4801 + 30 * objectid] =
-          (outYint - ScrWork[4811 + 30 * objectid]) - (12.5f * 1000.0f);
-      ScrWork[4802 + 30 * objectid] = outZint;
+    if (ObjectIsModel(objectId)) {
+      pos.y -= ScrRealToFloat(ScrWork[SW_CHA1YCENTER + 30 * modelId]);
+    }
+
+    int scrX = FloatToScrReal(pos.x);
+    int scrY = FloatToScrReal(pos.y);
+    int scrZ = FloatToScrReal(pos.z);
+
+    if (objectId == 1) {  // main camera
+      ScrWork[SW_MAINCAMERAPOSX] = scrX;
+      ScrWork[SW_MAINCAMERAPOSY] = scrY;
+      ScrWork[SW_MAINCAMERAPOSZ] = scrZ;
+    } else if (objectId == 2) {  // iruo camera
+      ScrWork[SW_IRUOCAMERAPOSX] = scrX;
+      ScrWork[SW_IRUOCAMERAPOSY] = scrY;
+      ScrWork[SW_IRUOCAMERAPOSZ] = scrZ;
+    } else if (ObjectIsModel(objectId)) {
+      ScrWork[SW_CHA1POSX + 30 * modelId] = scrX;
+      ScrWork[SW_CHA1POSY + 30 * modelId] = scrY;
+      ScrWork[SW_CHA1POSZ + 30 * modelId] = scrZ;
+    } else if (objectId >= 30 && objectId <= 38) {
+      ScrWork[4900 + 20 * objectId] = scrX;
+      ScrWork[4901 + 20 * objectId] = scrY;
+      ScrWork[4902 + 20 * objectId] = scrZ;
     }
   }
 }
@@ -202,14 +214,14 @@ VmInstruction(InstUnk0210) {
       for (int i = 1; i <= 29; i++) arg5 += i;
     }
     if (arg1 & 1) {
-      someGlobalFloat1 = ScrWork[5424];
+      someGlobalFloat1 = ScrWork[SW_MAINCAMERAROTX];
       someGlobalFloat2 = arg3;
-      someGlobalFloat3 = (arg3 - ScrWork[5424]) / arg5;
+      someGlobalFloat3 = (arg3 - ScrWork[SW_MAINCAMERAROTX]) / arg5;
     }
     if (arg1 & 2) {
-      someGlobalFloat4 = ScrWork[5423];
+      someGlobalFloat4 = ScrWork[SW_MAINCAMERAROTY];
       someGlobalFloat5 = arg4;
-      someGlobalFloat6 = (arg4 - ScrWork[5423]) / arg5;
+      someGlobalFloat6 = (arg4 - ScrWork[SW_MAINCAMERAROTY]) / arg5;
     }
   } else {
     if (arg1 & 1) {
@@ -224,7 +236,7 @@ VmInstruction(InstUnk0210) {
         arg5 = someGlobalFloat1 + (someGlobalFloat3 * 30.0f);
       }
       someGlobalFloat2 = arg5;
-      ScrWork[5424] = arg5;
+      ScrWork[SW_MAINCAMERAROTX] = arg5;
     }
     if (arg1 & 2) {
       float arg5;
@@ -238,7 +250,7 @@ VmInstruction(InstUnk0210) {
         arg5 = someGlobalFloat4 + (someGlobalFloat6 * 30.0f);
       }
       someGlobalFloat5 = arg5;
-      ScrWork[5423] = arg5;
+      ScrWork[SW_MAINCAMERAROTY] = arg5;
     }
   }
 }
@@ -264,54 +276,37 @@ VmInstruction(InstUnk0213) {  // Set Camera position ???
   StartInstruction;
   PopUint8(type);
   switch (type) {
-    case 0: {  // main camera
-      PopExpression(arg1);
-      PopExpression(arg2);
-      PopExpression(arg3);
-      ImpLogSlow(
-          LL_Warning, LC_VMStub,
-          "STUB instruction Unk0213(type: %i, arg1: %i, arg2: %i, arg3: %i)\n",
-          type, arg1, arg2, arg3);
-      ScrWork[arg1] = (int)((0.0f + 0.0f) * 1000.0f);
-      ScrWork[arg2] = (int)((12.5f + 0.0f) * 1000.0f);
-      ScrWork[arg3] = (int)((23.0f + 0.0f) * 1000.0f);
+    case 0:  // main camera default position
+    case 3:  // iruo camera default position
+    {
+      PopExpression(outX);
+      PopExpression(outY);
+      PopExpression(outZ);
+      ScrWork[outX] = FloatToScrReal(0.0f);
+      ScrWork[outY] = FloatToScrReal(12.5f);
+      ScrWork[outZ] = FloatToScrReal(23.0f);
     } break;
     case 1: {
       PopExpression(charId);
-      PopExpression(arg2);
-      PopExpression(arg3);
-      PopExpression(arg4);
-      float x = (int)ScrWork[5706 + 20 * charId] / 1000.0f;
-      float y = (((int)ScrWork[5707 + 20 * charId] +
-                  (int)ScrWork[SW_CHA1YCENTER + 30 * charId]) /
-                 1000.0f) +
-                12.5;  // main camera default y
-      float z = (int)ScrWork[5708 + 20 * charId] / 1000.0f;
-      ScrWork[arg2] = (int)(x * 1000.0f);
-      ScrWork[arg3] = (int)(y * 1000.0f);
-      ScrWork[arg4] = (int)(z * 1000.0f);
+      PopExpression(outX);
+      PopExpression(outY);
+      PopExpression(outZ);
+      ScrWork[outX] = ScrWork[5706 + 20 * charId];
+      ScrWork[outY] = FloatToScrReal(
+          ScrRealToFloat(ScrWork[5707 + 20 * charId]) +
+          ScrRealToFloat(ScrWork[SW_CHA1YCENTER + 30 * charId]) + 12.5f);
+      ScrWork[outZ] = ScrWork[5708 + 20 * charId];
     } break;
     case 2: {
       PopExpression(arg1);
-      PopExpression(arg2);
-      PopExpression(arg3);
-      PopExpression(arg4);
-      float x = (int)ScrWork[5500 + 20 * arg1] / 1000.0;
-      float y = ((int)ScrWork[5501 + 20 * arg1] / 1000.0) +
-                12.5;  // main camera default y
-      float z = (int)ScrWork[5502 + 20 * arg1] / 1000.0;
-      ScrWork[arg2] = (int)(x * 1000.0);
-      ScrWork[arg3] = (int)(y * 1000.0);
-      ScrWork[arg4] = (int)(z * 1000.0);
+      PopExpression(outX);
+      PopExpression(outY);
+      PopExpression(outZ);
+      ScrWork[outX] = ScrWork[5500 + 20 * arg1];
+      ScrWork[outY] =
+          FloatToScrReal(ScrRealToFloat(ScrWork[5501 + 20 * arg1]) + 12.5f);
+      ScrWork[outZ] = ScrWork[5502 + 20 * arg1];
 
-    } break;
-    case 3: {  // iruo camera
-      PopExpression(arg1);
-      PopExpression(arg2);
-      PopExpression(arg3);
-      ScrWork[arg1] = (int)((0.0f + 0.0f) * 1000.0f);
-      ScrWork[arg2] = (int)((12.5f + 0.0f) * 1000.0f);
-      ScrWork[arg3] = (int)((23.0f + 0.0f) * 1000.0f);
     } break;
   }
 }
@@ -393,14 +388,13 @@ VmInstruction(InstUnk0218) {
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
-      PopExpression(arg4);
-      PopExpression(arg5);
+      PopExpression(outYRot);
+      PopExpression(outXRot);
       glm::vec3 lookat = LookAtEulerZYX(glm::vec3(arg1, arg2, arg3),
                                         glm::vec3(0.0f, 12.5f, 23.0f));
 
-      ScrWork[arg4] = (int)(lookat.y * 1000.0f);
-      ScrWork[arg5] = (int)(lookat.x * 1000.0f);
-
+      ScrWork[outYRot] = FloatToScrReal(RadToDeg(NormalizeRad(lookat.y)));
+      ScrWork[outXRot] = FloatToScrReal(RadToDeg(NormalizeRad(lookat.x)));
     } break;
     case 2: {
       PopExpression(arg1);
