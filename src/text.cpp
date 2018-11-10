@@ -6,6 +6,8 @@
 
 namespace Impacto {
 
+DialoguePage DialoguePages[DialoguePageCount];
+
 enum StringTokenType : uint8_t {
   STT_LineBreak = 0x00,
   STT_CharacterNameStart = 0x01,

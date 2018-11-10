@@ -103,8 +103,7 @@ VmInstruction(InstMes) {
       PopString(line);
       uint8_t* oldIp = thread->Ip;
       thread->Ip = line;
-      thread->GameContext->DialoguePages[thread->DialoguePageId].AddString(
-          thread);
+      DialoguePages[thread->DialoguePageId].AddString(thread);
       thread->Ip = oldIp;
     } break;
     case 1: {  // LoadVoicedUnactedDialogue
@@ -113,8 +112,7 @@ VmInstruction(InstMes) {
       PopString(line);
       uint8_t* oldIp = thread->Ip;
       thread->Ip = line;
-      thread->GameContext->DialoguePages[thread->DialoguePageId].AddString(
-          thread);
+      DialoguePages[thread->DialoguePageId].AddString(thread);
       thread->Ip = oldIp;
     } break;
     case 3: {  // LoadVoicedDialogue
@@ -124,8 +122,7 @@ VmInstruction(InstMes) {
       PopString(line);
       uint8_t* oldIp = thread->Ip;
       thread->Ip = line;
-      thread->GameContext->DialoguePages[thread->DialoguePageId].AddString(
-          thread);
+      DialoguePages[thread->DialoguePageId].AddString(thread);
       thread->Ip = oldIp;
       SDL_RWops* stream;
       thread->GameContext->VoiceArchive->Open(audioId, &stream);
@@ -139,8 +136,7 @@ VmInstruction(InstMes) {
       PopString(line);
       uint8_t* oldIp = thread->Ip;
       thread->Ip = line;
-      thread->GameContext->DialoguePages[thread->DialoguePageId].AddString(
-          thread);
+      DialoguePages[thread->DialoguePageId].AddString(thread);
       thread->Ip = oldIp;
     } break;
   }
@@ -148,8 +144,7 @@ VmInstruction(InstMes) {
 VmInstruction(InstMesMain) {
   StartInstruction;
   PopUint8(type);
-  DialoguePage* currentPage =
-      &thread->GameContext->DialoguePages[thread->DialoguePageId];
+  DialoguePage* currentPage = &DialoguePages[thread->DialoguePageId];
   if (type == 0) {  // Normal mode
     if (!(Input::MouseButtonWentDown[SDL_BUTTON_LEFT] &&
           currentPage->TextIsFullyOpaque)) {
@@ -215,8 +210,7 @@ VmInstruction(InstMesRev) {
 VmInstruction(InstMessWindow) {
   StartInstruction;
   PopUint8(type);
-  DialoguePage* currentPage =
-      &thread->GameContext->DialoguePages[thread->DialoguePageId];
+  DialoguePage* currentPage = &DialoguePages[thread->DialoguePageId];
   switch (type) {
     case 0:  // HideCurrent
       if (currentPage->AnimState != DPAS_Hidden) {
@@ -252,10 +246,8 @@ VmInstruction(InstMessWindow) {
       break;
     case 5: {  // Hide
       PopExpression(messWindowId);
-      if (thread->GameContext->DialoguePages[messWindowId].AnimState !=
-          DPAS_Hidden) {
-        thread->GameContext->DialoguePages[messWindowId].AnimState =
-            DPAS_Hiding;
+      if (DialoguePages[messWindowId].AnimState != DPAS_Hidden) {
+        DialoguePages[messWindowId].AnimState = DPAS_Hiding;
       }
     } break;
     case 6: {  // HideSlow

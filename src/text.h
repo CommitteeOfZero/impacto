@@ -97,6 +97,10 @@ struct DialoguePage {
   void Render();
 };
 
+int const DialoguePageCount = 3;
+
+extern DialoguePage DialoguePages[DialoguePageCount];
+
 int TextGetStringLength(Vm::Sc3VmThread* ctx);
 
 }  // namespace Impacto

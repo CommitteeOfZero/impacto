@@ -206,10 +206,10 @@ Game* Game::CreateDialogueTest() {
                        0xD8, 0x80, 0xE3, 0x80, 0xE3, 0x80, 0xE3,
                        0x80, 0xE3, 0x80, 0xD9, 0x03, 0xFF};
   dummy.Ip = string2;
-  result->DialoguePages[0].Mode = DPM_ADV;
-  result->DialoguePages[0].ADVBoxOpacity = 0.0f;
-  result->DialoguePages[0].AnimState = DPAS_Showing;
-  result->DialoguePages[0].AddString(&dummy);
+  DialoguePages[0].Mode = DPM_ADV;
+  DialoguePages[0].ADVBoxOpacity = 0.0f;
+  DialoguePages[0].AnimState = DPAS_Showing;
+  DialoguePages[0].AddString(&dummy);
 
   return result;
 }
