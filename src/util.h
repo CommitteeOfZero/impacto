@@ -131,5 +131,15 @@ inline int FloatToScrReal(float f) { return (int)(f * 1000.0f); }
 
 inline float DegToRad(float deg) { return deg * (float)M_PI / 180.0f; }
 inline float RadToDeg(float rad) { return rad * 180.0f / (float)M_PI; }
+inline float NormalizeDeg(float deg) {
+  deg = fmodf(deg + 180, 360);
+  if (deg < 0) deg += 360;
+  return deg - 180;
+}
+inline float NormalizeRad(float rad) {
+  rad = fmodf(rad + (float)M_PI, 2.0f * (float)M_PI);
+  if (rad < 0) rad += 2.0 * M_PI;
+  return rad - M_PI;
+}
 
 }  // namespace Impacto

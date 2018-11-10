@@ -29,7 +29,8 @@ static void UpdateCharacterRot(int charId) {
     Scene3D::Characters[charId].ModelTransform.SetRotationFromEuler(lookat);
 
     // minus? really?
-    ScrWork[30 * charId + SW_CHA1ROTY] = FloatToScrReal(RadToDeg(-lookat.y));
+    ScrWork[30 * charId + SW_CHA1ROTY] =
+        FloatToScrReal(NormalizeDeg(RadToDeg(lookat.y)));
   } else {
     Scene3D::Characters[charId].ModelTransform.Rotation = glm::quat();
   }
