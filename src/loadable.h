@@ -24,7 +24,7 @@ class Loadable {
     Unload();
     NextLoadId = id;
     Status = LS_Loading;
-    WorkQueuePush(this, &LoadWorker, &OnLoaded);
+    WorkQueue::Push(this, &LoadWorker, &OnLoaded);
   }
 
   void Unload() {

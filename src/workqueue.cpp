@@ -5,7 +5,7 @@
 #include "impacto.h"
 
 namespace Impacto {
-
+namespace WorkQueue {
 struct WorkItem {
   void* Data;
   WorkProc Perform;
@@ -41,7 +41,7 @@ static int WorkerThread(void* unused) {
   }
 }
 
-void WorkQueueInit() {
+void Init() {
   assert(WorkCompletedEventType == -1);
   WorkCompletedEventType = SDL_RegisterEvents(1);
   assert(WorkCompletedEventType != -1);
@@ -50,8 +50,8 @@ void WorkQueueInit() {
   SDL_CreateThread(&WorkerThread, "Worker thread", NULL);
 }
 
-void WorkQueuePush(void* data, WorkProc worker,
-                   WorkCompletionCallbackProc completionCallback) {
+void Push(void* data, WorkProc worker,
+          WorkCompletionCallbackProc completionCallback) {
   SDL_LockMutex(Lock);
   WorkItem item;
   item.Data = data;
@@ -62,7 +62,7 @@ void WorkQueuePush(void* data, WorkProc worker,
   SDL_UnlockMutex(Lock);
 }
 
-bool WorkQueueHandleEvent(SDL_Event* evt) {
+bool HandleEvent(SDL_Event* evt) {
   if (evt->type != WorkCompletedEventType) return false;
 
   WorkItem* item = (WorkItem*)evt->user.data1;
@@ -72,5 +72,5 @@ bool WorkQueueHandleEvent(SDL_Event* evt) {
 
   return true;
 }
-
+}  // namespace WorkQueue
 }  // namespace Impacto

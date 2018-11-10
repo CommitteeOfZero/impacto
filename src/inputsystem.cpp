@@ -60,10 +60,10 @@ void EndFrame() {
 }
 
 static glm::vec2 SDLMouseCoordsToDesign(int x, int y) {
-  RectF viewport = WindowGetViewport();
+  RectF viewport = Window::GetViewport();
   glm::vec2 result;
-  result.x = ((float)x * (viewport.Width / g_DesignWidth)) - viewport.X;
-  result.y = ((float)y * (viewport.Height / g_DesignHeight)) + viewport.Y;
+  result.x = ((float)x * (viewport.Width / Window::DesignWidth)) - viewport.X;
+  result.y = ((float)y * (viewport.Height / Window::DesignHeight)) + viewport.Y;
   return result;
 }
 
@@ -151,8 +151,8 @@ bool HandleEvent(SDL_Event const* ev) {
       CurrentInputDevice = IDEV_Touch;
       if (CurrentFinger == evt->fingerId && TouchIsDown) {
         CurTouchPos =
-            SDLMouseCoordsToDesign((int)(evt->x * (float)g_WindowWidth),
-                                   (int)(evt->y * (float)g_WindowHeight));
+            SDLMouseCoordsToDesign((int)(evt->x * (float)Window::WindowWidth),
+                                   (int)(evt->y * (float)Window::WindowHeight));
       }
       return true;
       break;
@@ -162,8 +162,8 @@ bool HandleEvent(SDL_Event const* ev) {
       CurrentInputDevice = IDEV_Touch;
       if (!TouchIsDown) {
         CurTouchPos =
-            SDLMouseCoordsToDesign((int)(evt->x * (float)g_WindowWidth),
-                                   (int)(evt->y * (float)g_WindowHeight));
+            SDLMouseCoordsToDesign((int)(evt->x * (float)Window::WindowWidth),
+                                   (int)(evt->y * (float)Window::WindowHeight));
         CurrentFinger = evt->fingerId;
         TouchIsDown = true;
         TouchWentDown = true;
@@ -176,8 +176,8 @@ bool HandleEvent(SDL_Event const* ev) {
       CurrentInputDevice = IDEV_Touch;
       if (CurrentFinger == evt->fingerId && TouchIsDown) {
         CurTouchPos =
-            SDLMouseCoordsToDesign((int)(evt->x * (float)g_WindowWidth),
-                                   (int)(evt->y * (float)g_WindowHeight));
+            SDLMouseCoordsToDesign((int)(evt->x * (float)Window::WindowWidth),
+                                   (int)(evt->y * (float)Window::WindowHeight));
         TouchIsDown = false;
       }
       return true;

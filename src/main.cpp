@@ -25,7 +25,7 @@ void InitSystems() {
   g_LogChannelsConsole = LC_All;
 
   VfsInit();
-  WorkQueueInit();
+  WorkQueue::Init();
 }
 
 int main(int argc, char* argv[]) {

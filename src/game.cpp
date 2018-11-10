@@ -46,7 +46,7 @@ VfsArchive* VoiceArchive = 0;
 bool ShouldQuit = false;
 
 static void Init() {
-  WindowInit();
+  Window::Init();
 
   memset(DrawComponents, TD_None, sizeof(DrawComponents));
 
@@ -55,7 +55,7 @@ static void Init() {
         VfsArchive::Mount(Profile::SystemArchiveName.c_str(), &SystemArchive);
     if (err != IoError_OK) {
       ImpLog(LL_Fatal, LC_General, "Failed to load system archive!\n");
-      WindowShutdown();
+      Window::Shutdown();
       return;
     }
   }
@@ -64,7 +64,7 @@ static void Init() {
         VfsArchive::Mount(Profile::BgmArchiveName.c_str(), &BgmArchive);
     if (err != IoError_OK) {
       ImpLog(LL_Fatal, LC_General, "Failed to load BGM archive!\n");
-      WindowShutdown();
+      Window::Shutdown();
       return;
     }
   }
@@ -72,7 +72,7 @@ static void Init() {
     IoError err = VfsArchive::Mount(Profile::SeArchiveName.c_str(), &SeArchive);
     if (err != IoError_OK) {
       ImpLog(LL_Fatal, LC_General, "Failed to load SE archive!\n");
-      WindowShutdown();
+      Window::Shutdown();
       return;
     }
   }
@@ -81,7 +81,7 @@ static void Init() {
         VfsArchive::Mount(Profile::SysseArchiveName.c_str(), &SysseArchive);
     if (err != IoError_OK) {
       ImpLog(LL_Fatal, LC_General, "Failed to load SYSSE archive!\n");
-      WindowShutdown();
+      Window::Shutdown();
       return;
     }
   }
@@ -90,13 +90,13 @@ static void Init() {
         VfsArchive::Mount(Profile::VoiceArchiveName.c_str(), &VoiceArchive);
     if (err != IoError_OK) {
       ImpLog(LL_Fatal, LC_General, "Failed to load VOICE archive!\n");
-      WindowShutdown();
+      Window::Shutdown();
       return;
     }
   }
 
   if (Profile::GameFeatures & GameFeature::Nuklear) {
-    Nk = nk_sdl_init(g_SDLWindow, NkMaxVertexMemory, NkMaxElementMemory);
+    Nk = nk_sdl_init(Window::SDLWindow, NkMaxVertexMemory, NkMaxElementMemory);
     struct nk_font_atlas* atlas;
     nk_sdl_font_stash_begin(&atlas);
     // no fonts => default font used, but we still have do the setup
@@ -234,7 +234,7 @@ void Shutdown() {
     nk_sdl_shutdown();
   }
 
-  WindowShutdown();
+  Window::Shutdown();
 }
 
 void Update(float dt) {
@@ -253,7 +253,7 @@ void Update(float dt) {
     if (Profile::GameFeatures & GameFeature::Nuklear) {
       SDL_Event e_nk;
       memcpy(&e_nk, &e, sizeof(SDL_Event));
-      WindowAdjustEventCoordinatesForNk(&e_nk);
+      Window::AdjustEventCoordinatesForNk(&e_nk);
       if (nk_sdl_handle_event(&e_nk)) continue;
     }
 
@@ -261,7 +261,7 @@ void Update(float dt) {
       if (Input::HandleEvent(&e)) continue;
     }
 
-    WorkQueueHandleEvent(&e);
+    WorkQueue::HandleEvent(&e);
   }
   if (Profile::GameFeatures & GameFeature::Input) {
     Input::EndFrame();
@@ -292,9 +292,9 @@ void Update(float dt) {
 }
 
 void Render() {
-  WindowUpdate();
+  Window::Update();
 
-  Rect viewport = WindowGetViewport();
+  Rect viewport = Window::GetViewport();
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -331,19 +331,19 @@ void Render() {
   }
 
   if (Profile::GameFeatures & GameFeature::Nuklear) {
-    if (g_GLDebug) {
+    if (Window::GLDebug) {
       // Nuklear spams these
       glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0,
                                NULL, GL_FALSE);
     }
     nk_sdl_render(NK_ANTI_ALIASING_OFF, viewport.Width, viewport.Height);
-    if (g_GLDebug) {
+    if (Window::GLDebug) {
       glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0,
                                NULL, GL_TRUE);
     }
   }
 
-  WindowDraw();
+  Window::Draw();
 }
 
 }  // namespace Game

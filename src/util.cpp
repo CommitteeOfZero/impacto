@@ -53,8 +53,8 @@ bool Rect::ContainsPoint(glm::ivec2 point, float angle) const {
 
 glm::vec2 DesignToNDC(glm::vec2 xy) {
   glm::vec2 result;
-  result.x = (xy.x / (g_DesignWidth * 0.5f)) - 1.0f;
-  result.y = 1.0f - (xy.y / (g_DesignHeight * 0.5f));
+  result.x = (xy.x / (Window::DesignWidth * 0.5f)) - 1.0f;
+  result.y = 1.0f - (xy.y / (Window::DesignHeight * 0.5f));
   return result;
 }
 
@@ -63,8 +63,8 @@ RectF DesignToNDC(RectF const& rect) {
   glm::vec2 xy = DesignToNDC(glm::vec2(rect.X, rect.Y));
   result.X = xy.x;
   result.Y = xy.y;
-  result.Width = rect.Width / (g_DesignWidth * 0.5f);
-  result.Height = rect.Height / (g_DesignHeight * 0.5f);
+  result.Width = rect.Width / (Window::DesignWidth * 0.5f);
+  result.Height = rect.Height / (Window::DesignHeight * 0.5f);
   return result;
 }
 

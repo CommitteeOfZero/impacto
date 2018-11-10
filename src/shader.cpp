@@ -100,14 +100,16 @@ GLuint ShaderAttach(GLuint program, GLenum shaderType, char const* path,
   }
 
   const GLchar* codeParts[3];
-  codeParts[0] =
-      (g_ActualGraphicsApi != GfxApi_GL) ? ShaderHeaderES : ShaderHeader;
+  codeParts[0] = (Window::ActualGraphicsApi != Window::GfxApi_GL)
+                     ? ShaderHeaderES
+                     : ShaderHeader;
   codeParts[1] = params;
   codeParts[2] = source;
 
   GLint codeLengths[3];
-  codeLengths[0] = (g_ActualGraphicsApi != GfxApi_GL) ? ShaderHeaderESLength
-                                                      : ShaderHeaderLength;
+  codeLengths[0] = (Window::ActualGraphicsApi != Window::GfxApi_GL)
+                       ? ShaderHeaderESLength
+                       : ShaderHeaderLength;
   codeLengths[1] = strlen(params);
   codeLengths[2] = strlen(source);
 
