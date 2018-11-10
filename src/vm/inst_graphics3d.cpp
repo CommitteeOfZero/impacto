@@ -118,25 +118,21 @@ VmInstruction(InstPositionObject) {
   // if(ObjectIsModel(objectId))
   int modelId = ObjectIdToModelId(objectId);
 
-  glm::vec3 pos;
+  glm::vec3 pos = glm::vec3(0.0f);
 
   if (parentObjId && objectId) {
-    if (parentObjId == 1) {  // main camera default position
-      pos = glm::vec3(0.0f, 12.5f, 23.0f);
-    } else if (parentObjId == 2) {  // iruo camera default position
-      pos = glm::vec3(0.0f, 12.5f, 23.0f);
+    if (parentObjId == 1 || parentObjId == 2) {  // camera
+      pos.z += 23.0f;
     } else if (ObjectIsModel(parentObjId)) {
       // note, these are different than SW_CHAnPOSa ???
-      pos.x = ScrRealToFloat(ScrWork[20 * parentModelId + 5706]);
-      pos.y = ScrRealToFloat(ScrWork[20 * parentModelId + 5707]) +
-              ScrRealToFloat(ScrWork[30 * parentModelId + SW_CHA1YCENTER]) +
-              12.5f;
-      pos.z = ScrRealToFloat(ScrWork[20 * parentModelId + 5708]);
+      pos = ScrWorkGetVec3(20 * parentModelId + 5706, 20 * parentModelId + 5707,
+                           20 * parentModelId + 5708);
+      pos.y += ScrWorkGetFloat(30 * parentModelId + SW_CHA1YCENTER);
     } else if (parentObjId >= 30 && parentObjId <= 38) {
-      pos.x = ScrRealToFloat(ScrWork[20 * parentObjId + 4900]);
-      pos.y = ScrRealToFloat(ScrWork[20 * parentObjId + 4901]) + 12.5f;
-      pos.z = ScrRealToFloat(ScrWork[20 * parentObjId + 4902]);
+      pos = ScrWorkGetVec3(20 * parentModelId + 5706, 20 * parentModelId + 5707,
+                           20 * parentModelId + 5708);
     }
+    pos.y += 12.5f;
 
     if (parentObjId != 1 && parentObjId != 2) {
       // I don't even know
@@ -150,34 +146,27 @@ VmInstruction(InstPositionObject) {
         glm::vec3(sinf(theta) * cosf(phi), sinf(phi), cosf(theta) * cosf(phi));
     pos -= radius * sphericalOffset;
 
+    // undo offsets
     pos.y -= 12.5f;
     if (objectId == 1 || objectId == 2) {
       pos.z -= 23.0f;
     }
     if (ObjectIsModel(objectId)) {
-      pos.y -= ScrRealToFloat(ScrWork[SW_CHA1YCENTER + 30 * modelId]);
+      pos.y -= ScrWorkGetFloat(30 * modelId + SW_CHA1YCENTER);
     }
 
-    int scrX = FloatToScrReal(pos.x);
-    int scrY = FloatToScrReal(pos.y);
-    int scrZ = FloatToScrReal(pos.z);
-
     if (objectId == 1) {  // main camera
-      ScrWork[SW_MAINCAMERAPOSX] = scrX;
-      ScrWork[SW_MAINCAMERAPOSY] = scrY;
-      ScrWork[SW_MAINCAMERAPOSZ] = scrZ;
+      ScrWorkSetVec3(SW_MAINCAMERAPOSX, SW_MAINCAMERAPOSY, SW_MAINCAMERAPOSZ,
+                     pos);
     } else if (objectId == 2) {  // iruo camera
-      ScrWork[SW_IRUOCAMERAPOSX] = scrX;
-      ScrWork[SW_IRUOCAMERAPOSY] = scrY;
-      ScrWork[SW_IRUOCAMERAPOSZ] = scrZ;
+      ScrWorkSetVec3(SW_IRUOCAMERAPOSX, SW_IRUOCAMERAPOSY, SW_IRUOCAMERAPOSZ,
+                     pos);
     } else if (ObjectIsModel(objectId)) {
-      ScrWork[SW_CHA1POSX + 30 * modelId] = scrX;
-      ScrWork[SW_CHA1POSY + 30 * modelId] = scrY;
-      ScrWork[SW_CHA1POSZ + 30 * modelId] = scrZ;
+      ScrWorkSetVec3(SW_CHA1POSX + 30 * modelId, SW_CHA1POSY + 30 * modelId,
+                     SW_CHA1POSZ + 30 * modelId, pos);
     } else if (objectId >= 30 && objectId <= 38) {
-      ScrWork[4900 + 20 * objectId] = scrX;
-      ScrWork[4901 + 20 * objectId] = scrY;
-      ScrWork[4902 + 20 * objectId] = scrZ;
+      ScrWorkSetVec3(4900 + 20 * objectId, 4901 + 20 * objectId,
+                     4902 + 20 * objectId, pos);
     }
   }
 }
@@ -282,31 +271,28 @@ VmInstruction(InstUnk0213) {  // Set Camera position ???
       PopExpression(outX);
       PopExpression(outY);
       PopExpression(outZ);
-      ScrWork[outX] = FloatToScrReal(0.0f);
-      ScrWork[outY] = FloatToScrReal(12.5f);
-      ScrWork[outZ] = FloatToScrReal(23.0f);
+      ScrWorkSetVec3(outX, outY, outZ, glm::vec3(0.0f, 12.5f, 23.0f));
     } break;
     case 1: {
       PopExpression(charId);
       PopExpression(outX);
       PopExpression(outY);
       PopExpression(outZ);
-      ScrWork[outX] = ScrWork[5706 + 20 * charId];
-      ScrWork[outY] = FloatToScrReal(
-          ScrRealToFloat(ScrWork[5707 + 20 * charId]) +
-          ScrRealToFloat(ScrWork[SW_CHA1YCENTER + 30 * charId]) + 12.5f);
-      ScrWork[outZ] = ScrWork[5708 + 20 * charId];
+      glm::vec3 pos = ScrWorkGetVec3(5706 + 20 * charId, 5707 + 20 * charId,
+                                     5708 + 20 * charId);
+      pos.y += ScrWorkGetFloat(SW_CHA1YCENTER + 30 * charId);
+      pos.y += 12.5f;
+      ScrWorkSetVec3(outX, outY, outZ, pos);
     } break;
     case 2: {
       PopExpression(arg1);
       PopExpression(outX);
       PopExpression(outY);
       PopExpression(outZ);
-      ScrWork[outX] = ScrWork[5500 + 20 * arg1];
-      ScrWork[outY] =
-          FloatToScrReal(ScrRealToFloat(ScrWork[5501 + 20 * arg1]) + 12.5f);
-      ScrWork[outZ] = ScrWork[5502 + 20 * arg1];
-
+      glm::vec3 pos =
+          ScrWorkGetVec3(5500 + 20 * arg1, 5501 + 20 * arg1, 5502 + 20 * arg1);
+      pos.y += 12.5f;
+      ScrWorkSetVec3(outX, outY, outZ, pos);
     } break;
   }
 }

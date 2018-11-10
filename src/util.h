@@ -126,9 +126,6 @@ inline void eulerZYXToQuat(glm::vec3 const* zyx, glm::quat* quat) {
 #endif
 }
 
-inline float ScrRealToFloat(int scrReal) { return (float)scrReal / 1000.0f; }
-inline int FloatToScrReal(float f) { return (int)(f * 1000.0f); }
-
 inline float DegToRad(float deg) { return deg * (float)M_PI / 180.0f; }
 inline float RadToDeg(float rad) { return rad * 180.0f / (float)M_PI; }
 inline float NormalizeDeg(float deg) {
