@@ -5,6 +5,8 @@
 #include "audio/audiosystem.h"
 #include "audio/audiostream.h"
 #include "audio/audiochannel.h"
+#include "3d/scene.h"
+#include "3d/model.h"
 
 namespace Impacto {
 
@@ -41,12 +43,12 @@ ModelViewer::~ModelViewer() {
 }
 
 void ModelViewer::Init() {
-  GameContext->Scene3D->Backgrounds[0].LoadAsync(g_BackgroundModelIds[0]);
-  GameContext->Scene3D->Characters[0].LoadAsync(g_ModelIds[0]);
+  Scene3D::Backgrounds[0].LoadAsync(g_BackgroundModelIds[0]);
+  Scene3D::Characters[0].LoadAsync(g_ModelIds[0]);
 
-  GameContext->Scene3D->Tint = glm::vec4(0.784f, 0.671f, 0.6f, 0.9f);
-  GameContext->Scene3D->LightPosition = glm::vec3(-2.85f, 16.68f, 6.30f);
-  GameContext->Scene3D->DarkMode = false;
+  Scene3D::Tint = glm::vec4(0.784f, 0.671f, 0.6f, 0.9f);
+  Scene3D::LightPosition = glm::vec3(-2.85f, 16.68f, 6.30f);
+  Scene3D::DarkMode = false;
 
   LastTime = (float)((double)SDL_GetPerformanceCounter() /
                      (double)SDL_GetPerformanceFrequency());
@@ -121,19 +123,16 @@ void ModelViewer::Update(float dt) {
     if (nk_tree_push(Nk, NK_TREE_TAB, "Light", NK_MINIMIZED)) {
       nk_layout_row_dynamic(Nk, 24, 1);
 
-      int darkMode = (int)GameContext->Scene3D->DarkMode;
+      int darkMode = (int)Scene3D::DarkMode;
       nk_checkbox_label(Nk, "DarkMode", &darkMode);
-      GameContext->Scene3D->DarkMode = (bool)darkMode;
+      Scene3D::DarkMode = (bool)darkMode;
 
       nk_property_float(Nk, "LightPosition.x", -40.0f,
-                        &GameContext->Scene3D->LightPosition.x, 40.0f, 1.0f,
-                        0.02f);
+                        &Scene3D::LightPosition.x, 40.0f, 1.0f, 0.02f);
       nk_property_float(Nk, "LightPosition.y", -40.0f,
-                        &GameContext->Scene3D->LightPosition.y, 40.0f, 1.0f,
-                        0.02f);
+                        &Scene3D::LightPosition.y, 40.0f, 1.0f, 0.02f);
       nk_property_float(Nk, "LightPosition.z", -40.0f,
-                        &GameContext->Scene3D->LightPosition.z, 40.0f, 1.0f,
-                        0.02f);
+                        &Scene3D::LightPosition.z, 40.0f, 1.0f, 0.02f);
 
       nk_layout_row_dynamic(Nk, 120, 1);
       nk_color_pick(Nk, &UiTintColor, NK_RGBA);
@@ -146,16 +145,16 @@ void ModelViewer::Update(float dt) {
                         0.005f);
       nk_property_float(Nk, "Tint.A", 0.0f, &UiTintColor.a, 1.0f, 0.01f,
                         0.005f);
-      GameContext->Scene3D->Tint.r = UiTintColor.r;
-      GameContext->Scene3D->Tint.g = UiTintColor.g;
-      GameContext->Scene3D->Tint.b = UiTintColor.b;
-      GameContext->Scene3D->Tint.a = UiTintColor.a;
+      Scene3D::Tint.r = UiTintColor.r;
+      Scene3D::Tint.g = UiTintColor.g;
+      Scene3D::Tint.b = UiTintColor.b;
+      Scene3D::Tint.a = UiTintColor.a;
 
       nk_tree_pop(Nk);
     }
 
-    if (GameContext->Scene3D->Backgrounds[0].Status == LS_Loaded) {
-      GameContext->Scene3D->Backgrounds[0].IsVisible = true;
+    if (Scene3D::Backgrounds[0].Status == LS_Loaded) {
+      Scene3D::Backgrounds[0].IsVisible = true;
 
       if (nk_tree_push(Nk, NK_TREE_TAB, "Background", NK_MAXIMIZED)) {
         nk_layout_row_dynamic(Nk, 24, 1);
@@ -164,8 +163,8 @@ void ModelViewer::Update(float dt) {
                                      g_BackgroundModelCount, CurrentBackground,
                                      24, nk_vec2(200, 200));
         if (g_BackgroundModelIds[CurrentBackground] !=
-            GameContext->Scene3D->Backgrounds[0].StaticModel->Id) {
-          GameContext->Scene3D->Backgrounds[0].LoadAsync(
+            Scene3D::Backgrounds[0].StaticModel->Id) {
+          Scene3D::Backgrounds[0].LoadAsync(
               g_BackgroundModelIds[CurrentBackground]);
         }
 
@@ -173,44 +172,38 @@ void ModelViewer::Update(float dt) {
       }
     }
 
-    if (GameContext->Scene3D->Characters[0].Status == LS_Loaded) {
-      GameContext->Scene3D->Characters[0].IsVisible = true;
+    if (Scene3D::Characters[0].Status == LS_Loaded) {
+      Scene3D::Characters[0].IsVisible = true;
 
       if (nk_tree_push(Nk, NK_TREE_TAB, "Model", NK_MAXIMIZED)) {
         nk_layout_row_dynamic(Nk, 24, 1);
 
-        nk_property_float(
-            Nk, "Model X", -40.0f,
-            &GameContext->Scene3D->Characters[0].ModelTransform.Position.x,
-            40.0f, 1.0f, 0.02f);
-        nk_property_float(
-            Nk, "Model Y", 0.0f,
-            &GameContext->Scene3D->Characters[0].ModelTransform.Position.y,
-            40.0f, 1.0f, 0.02f);
-        nk_property_float(
-            Nk, "Model Z", -40.0f,
-            &GameContext->Scene3D->Characters[0].ModelTransform.Position.z,
-            40.0f, 1.0f, 0.02f);
+        nk_property_float(Nk, "Model X", -40.0f,
+                          &Scene3D::Characters[0].ModelTransform.Position.x,
+                          40.0f, 1.0f, 0.02f);
+        nk_property_float(Nk, "Model Y", 0.0f,
+                          &Scene3D::Characters[0].ModelTransform.Position.y,
+                          40.0f, 1.0f, 0.02f);
+        nk_property_float(Nk, "Model Z", -40.0f,
+                          &Scene3D::Characters[0].ModelTransform.Position.z,
+                          40.0f, 1.0f, 0.02f);
 
         nk_checkbox_label(Nk, "Track camera", &TrackCamera);
         if (TrackCamera) {
-          GameContext->Scene3D->Characters[0]
-              .ModelTransform.SetRotationFromEuler(LookAtEulerZYX(
-                  GameContext->Scene3D->Characters[0].ModelTransform.Position +
-                      glm::vec3(0.0f, 12.5f, 0.0f),
-                  CameraPosition));
+          Scene3D::Characters[0].ModelTransform.SetRotationFromEuler(
+              LookAtEulerZYX(Scene3D::Characters[0].ModelTransform.Position +
+                                 glm::vec3(0.0f, 12.5f, 0.0f),
+                             CameraPosition));
         } else {
-          GameContext->Scene3D->Characters[0].ModelTransform.Rotation =
-              glm::quat();
+          Scene3D::Characters[0].ModelTransform.Rotation = glm::quat();
         }
 
         CurrentModel = nk_combo(Nk, (const char**)g_ModelNames, g_ModelCount,
                                 CurrentModel, 24, nk_vec2(200, 200));
         if (g_ModelIds[CurrentModel] !=
-            GameContext->Scene3D->Characters[0].StaticModel->Id) {
+            Scene3D::Characters[0].StaticModel->Id) {
           CurrentAnim = 0;
-          GameContext->Scene3D->Characters[0].LoadAsync(
-              g_ModelIds[CurrentModel]);
+          Scene3D::Characters[0].LoadAsync(g_ModelIds[CurrentModel]);
         }
 
         nk_tree_pop(Nk);
@@ -219,57 +212,45 @@ void ModelViewer::Update(float dt) {
       if (nk_tree_push(Nk, NK_TREE_TAB, "Animation", NK_MAXIMIZED)) {
         nk_layout_row_dynamic(Nk, 24, 1);
 
-        int isPlaying =
-            (int)GameContext->Scene3D->Characters[0].Animator.IsPlaying;
+        int isPlaying = (int)Scene3D::Characters[0].Animator.IsPlaying;
         nk_checkbox_label(Nk, "Playing", &isPlaying);
-        GameContext->Scene3D->Characters[0].Animator.IsPlaying =
-            (bool)isPlaying;
+        Scene3D::Characters[0].Animator.IsPlaying = (bool)isPlaying;
 
-        int tweening =
-            (int)GameContext->Scene3D->Characters[0].Animator.Tweening;
+        int tweening = (int)Scene3D::Characters[0].Animator.Tweening;
         nk_checkbox_label(Nk, "Tweening", &tweening);
-        GameContext->Scene3D->Characters[0].Animator.Tweening = (bool)tweening;
+        Scene3D::Characters[0].Animator.Tweening = (bool)tweening;
 
-        if (GameContext->Scene3D->Characters[0].Animator.CurrentAnimation) {
+        if (Scene3D::Characters[0].Animator.CurrentAnimation) {
+          nk_property_float(Nk, "Loop start", 0.0f,
+                            &Scene3D::Characters[0].Animator.LoopStart,
+                            Scene3D::Characters[0].Animator.LoopEnd, 1.0f,
+                            0.2f);
           nk_property_float(
-              Nk, "Loop start", 0.0f,
-              &GameContext->Scene3D->Characters[0].Animator.LoopStart,
-              GameContext->Scene3D->Characters[0].Animator.LoopEnd, 1.0f, 0.2f);
-          nk_property_float(
-              Nk, "Loop end", 0.0f,
-              &GameContext->Scene3D->Characters[0].Animator.LoopEnd,
-              GameContext->Scene3D->Characters[0]
-                  .Animator.CurrentAnimation->Duration,
-              1.0f, 0.2f);
+              Nk, "Loop end", 0.0f, &Scene3D::Characters[0].Animator.LoopEnd,
+              Scene3D::Characters[0].Animator.CurrentAnimation->Duration, 1.0f,
+              0.2f);
 
           // Nice hack
-          float backup =
-              GameContext->Scene3D->Characters[0].Animator.CurrentTime;
+          float backup = Scene3D::Characters[0].Animator.CurrentTime;
           nk_property_float(
               Nk, "Current time", 0.0f,
-              &GameContext->Scene3D->Characters[0].Animator.CurrentTime,
-              GameContext->Scene3D->Characters[0]
-                  .Animator.CurrentAnimation->Duration,
-              1.0f, 0.2f);
-          if (backup !=
-              GameContext->Scene3D->Characters[0].Animator.CurrentTime) {
-            GameContext->Scene3D->Characters[0].Animator.Seek(
-                GameContext->Scene3D->Characters[0].Animator.CurrentTime);
+              &Scene3D::Characters[0].Animator.CurrentTime,
+              Scene3D::Characters[0].Animator.CurrentAnimation->Duration, 1.0f,
+              0.2f);
+          if (backup != Scene3D::Characters[0].Animator.CurrentTime) {
+            Scene3D::Characters[0].Animator.Seek(
+                Scene3D::Characters[0].Animator.CurrentTime);
           }
 
           CurrentAnim = nk_combo(
               Nk,
-              (const char**)GameContext->Scene3D->Characters[0]
-                  .StaticModel->AnimationNames,
-              GameContext->Scene3D->Characters[0].StaticModel->AnimationCount,
-              CurrentAnim, 24, nk_vec2(200, 200));
-          if (GameContext->Scene3D->Characters[0]
-                  .StaticModel->AnimationIds[CurrentAnim] !=
-              GameContext->Scene3D->Characters[0]
-                  .Animator.CurrentAnimation->Id) {
-            GameContext->Scene3D->Characters[0].SwitchAnimation(
-                GameContext->Scene3D->Characters[0]
-                    .StaticModel->AnimationIds[CurrentAnim],
+              (const char**)Scene3D::Characters[0].StaticModel->AnimationNames,
+              Scene3D::Characters[0].StaticModel->AnimationCount, CurrentAnim,
+              24, nk_vec2(200, 200));
+          if (Scene3D::Characters[0].StaticModel->AnimationIds[CurrentAnim] !=
+              Scene3D::Characters[0].Animator.CurrentAnimation->Id) {
+            Scene3D::Characters[0].SwitchAnimation(
+                Scene3D::Characters[0].StaticModel->AnimationIds[CurrentAnim],
                 0.66f);
           }
         }
@@ -314,8 +295,8 @@ void ModelViewer::Update(float dt) {
     BgmChangeQueued = false;
   }
 
-  GameContext->Scene3D->MainCamera.CameraTransform.Position = CameraPosition;
-  GameContext->Scene3D->MainCamera.LookAt(CameraTarget);
+  Scene3D::MainCamera.CameraTransform.Position = CameraPosition;
+  Scene3D::MainCamera.LookAt(CameraTarget);
 }
 
 void ModelViewer::EnumerateBgm() {

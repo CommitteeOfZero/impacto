@@ -34,7 +34,7 @@ static GLint UniformBlockSize;
 
 static bool IsInit = false;
 
-void Character3DInit() {
+void Character3D::Init() {
   assert(IsInit == false);
   ImpLog(LL_Info, LC_Object3D, "Initializing Character3D system\n");
   IsInit = true;
@@ -101,20 +101,21 @@ void Character3DInit() {
   TextureDummy = texDummy.Submit();
 }
 
-void Character3DUpdateGpu(Scene* scene, Camera* camera) {
+void Character3D::UpdateGpu(Camera* camera) {
   memcpy(LocalUniformBuffer + CommonUniformOffsets[CU_ViewProjection],
          glm::value_ptr(camera->ViewProjection),
          sizeof(camera->ViewProjection));
   memcpy(LocalUniformBuffer + CommonUniformOffsets[CU_Tint],
-         glm::value_ptr(scene->Tint), sizeof(scene->Tint));
+         glm::value_ptr(Scene3D::Tint), sizeof(Scene3D::Tint));
   memcpy(LocalUniformBuffer + CommonUniformOffsets[CU_WorldLightPosition],
-         glm::value_ptr(scene->LightPosition), sizeof(scene->LightPosition));
+         glm::value_ptr(Scene3D::LightPosition),
+         sizeof(Scene3D::LightPosition));
   memcpy(LocalUniformBuffer + CommonUniformOffsets[CU_WorldEyePosition],
          glm::value_ptr(camera->CameraTransform.Position),
          sizeof(camera->CameraTransform.Position));
 
   glUseProgram(ShaderProgram);
-  glUniform1i(UniformDarkMode, scene->DarkMode);
+  glUniform1i(UniformDarkMode, Scene3D::DarkMode);
 }
 
 bool Character3D::LoadSync(uint32_t modelId) {

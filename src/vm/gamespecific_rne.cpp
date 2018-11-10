@@ -6,6 +6,8 @@
 #include "scriptvars.h"
 #include "../renderer2d.h"
 
+#include "../3d/scene.h"
+
 namespace Impacto {
 namespace Vm {
 
@@ -26,12 +28,11 @@ void UpdateCharacterRot(Game* gameCtx, int charId) {
     glm::vec3 lookat = LookAtEulerZYX(glm::vec3(objectX, objectY, objectZ),
                                       glm::vec3(targetX, targetY, targetZ));
     lookat.x = 0.0f;
-    gameCtx->Scene3D->Characters[charId].ModelTransform.SetRotationFromEuler(
-        lookat);
+    Scene3D::Characters[charId].ModelTransform.SetRotationFromEuler(lookat);
     gameCtx->ScrWork[30 * charId + SW_CHA1ROTY] =
         -((lookat.y / (2 * M_PI)) * 360) * 1000.0f;
   } else {
-    gameCtx->Scene3D->Characters[charId].ModelTransform.SetRotationFromEuler(
+    Scene3D::Characters[charId].ModelTransform.SetRotationFromEuler(
         glm::vec3(0.0f, 0.0f, 0.0f));
   }
 }
@@ -40,36 +41,34 @@ void UpdateCharacterPos(Game* gameCtx, int charId) {}
 
 void UpdateCharacters(Game* gameCtx) {
   for (int i = 0; i <= 5; i++) {
-    if (gameCtx->Scene3D->Characters[i].Status == LS_Loaded) {
+    if (Scene3D::Characters[i].Status == LS_Loaded) {
       UpdateCharacterRot(gameCtx, i);
       UpdateCharacterPos(gameCtx, i);
-      gameCtx->Scene3D->Characters[i].IsVisible =
-          gameCtx->GetFlag(SF_CHA1DISP + i);
-      gameCtx->Scene3D->Characters[i].ModelTransform.Position.x =
+      Scene3D::Characters[i].IsVisible = gameCtx->GetFlag(SF_CHA1DISP + i);
+      Scene3D::Characters[i].ModelTransform.Position.x =
           (int)gameCtx->ScrWork[SW_CHA1POSX + i * 30] / 1000.0f;
-      gameCtx->Scene3D->Characters[i].ModelTransform.Position.y =
+      Scene3D::Characters[i].ModelTransform.Position.y =
           ((int)gameCtx->ScrWork[SW_CHA1POSY + i * 30]) / 1000.0f;
-      gameCtx->Scene3D->Characters[i].ModelTransform.Position.z =
+      Scene3D::Characters[i].ModelTransform.Position.z =
           (int)gameCtx->ScrWork[SW_CHA1POSZ + i * 30] / 1000.0f;
     }
   }
-  if (gameCtx->Scene3D->Backgrounds[0].Status == LS_Loaded) {
-    gameCtx->Scene3D->Backgrounds[0].IsVisible = gameCtx->GetFlag(SF_CHA1DISP);
+  if (Scene3D::Backgrounds[0].Status == LS_Loaded) {
+    Scene3D::Backgrounds[0].IsVisible = gameCtx->GetFlag(SF_CHA1DISP);
   }
 }
 
 void UpdateCamera(Game* gameCtx) {
   // Update position
-  // gameCtx->Scene3D->MainCamera.Move(glm::vec3(0.0f, 12.5f, 23.0f));
+  // Scene3D::MainCamera.Move(glm::vec3(0.0f, 12.5f, 23.0f));
 
   // Update lookat
-  gameCtx->Scene3D->MainCamera.LookAt(glm::vec3(0.0f, 12.5f, 0.0f));
+  Scene3D::MainCamera.LookAt(glm::vec3(0.0f, 12.5f, 0.0f));
 
   // Update fov
   float hFovRad =
       ((int)gameCtx->ScrWork[SW_IRUOCAMERAHFOV] / 1000.0f) * M_PI / 180.0f;
-  gameCtx->Scene3D->MainCamera.Fov =
-      2 * atan(tan(hFovRad / 2.0f) * (9.0f / 16.0f));
+  Scene3D::MainCamera.Fov = 2 * atan(tan(hFovRad / 2.0f) * (9.0f / 16.0f));
 
   // Update lighting
   uint32_t lightColor = gameCtx->ScrWork[SW_MAINLIGHTTINT];
@@ -78,9 +77,9 @@ void UpdateCamera(Game* gameCtx) {
   float lightX = (int)gameCtx->ScrWork[SW_MAINLIGHTPOSX] / 1000.0f;
   float lightY = (int)gameCtx->ScrWork[SW_MAINLIGHTPOSY] / 1000.0f;
   float lightZ = (int)gameCtx->ScrWork[SW_MAINLIGHTPOSZ] / 1000.0f;
-  gameCtx->Scene3D->Tint = lightC;
-  gameCtx->Scene3D->LightPosition = glm::vec3(lightX, lightY, lightZ);
-  gameCtx->Scene3D->DarkMode = (bool)gameCtx->ScrWork[SW_MAINLIGHTDARKMODE];
+  Scene3D::Tint = lightC;
+  Scene3D::LightPosition = glm::vec3(lightX, lightY, lightZ);
+  Scene3D::DarkMode = (bool)gameCtx->ScrWork[SW_MAINLIGHTDARKMODE];
 }
 
 void SetDateDisplay(Game* gameCtx) {

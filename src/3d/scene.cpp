@@ -7,19 +7,61 @@
 #include "../shader.h"
 
 namespace Impacto {
+namespace Scene3D {
+
+enum MSResolveMode {
+  MS_None,
+  // Use a framebuffer with multisample texture
+  MS_MultisampleTexture,
+  // Use a framebuffer with singlesample texture provided by
+  // EXT_multisampled_render_to_texture
+  MS_SinglesampleTextureExt,
+  // Use a framebuffer with multisample renderbuffer and blit to framebuffer
+  // with singlesample texture
+  MS_BlitFromRenderbuffer
+};
 
 static bool IsInit = false;
 
-void SceneInit() {
+Camera MainCamera;
+
+Background3D Backgrounds[MaxBackgrounds];
+Character3D Characters[MaxCharacters];
+
+glm::vec3 LightPosition;
+glm::vec4 Tint;
+bool DarkMode;
+
+uint32_t CharacterToLoadId;
+
+static void SetupFramebufferState();
+static void CleanFramebufferState();
+static void DrawToScreen();
+
+static MSResolveMode CheckMSResolveMode();
+
+static GLuint FBO = 0;
+static GLuint RenderTextureColor = 0;
+static GLuint RenderTextureDS = 0;
+
+// Only for MS_BlitFromRenderbuffer
+static GLuint FBOMultisample = 0;
+static GLuint RenderbufferColor = 0;
+static GLuint RenderbufferDS = 0;
+
+static GLuint VAOScreenFillingTriangle = 0;
+static GLuint VBOScreenFillingTriangle = 0;
+
+static GLuint ShaderProgram = 0;
+
+void Init() {
   assert(IsInit == false);
   ImpLog(LL_Info, LC_Scene, "Initializing 3D scene system\n");
   IsInit = true;
 
-  Character3DInit();
-  Background3DInit();
-}
+  Character3D::Init();
+  Background3D::Init();
 
-void Scene::Init() {
   MainCamera.Init();
 
   glGenVertexArrays(1, &VAOScreenFillingTriangle);
@@ -46,29 +88,30 @@ void Scene::Init() {
   glEnableVertexAttribArray(1);
 }
 
-Scene::~Scene() {
+void Shutdown() {
+  if (!IsInit) return;
   if (VBOScreenFillingTriangle) glDeleteBuffers(1, &VBOScreenFillingTriangle);
   if (VAOScreenFillingTriangle)
     glDeleteVertexArrays(1, &VAOScreenFillingTriangle);
   CleanFramebufferState();
 }
 
-void Scene::Update(float dt) {
-  for (int i = 0; i < Scene3DMaxCharacters; i++) {
+void Update(float dt) {
+  for (int i = 0; i < MaxCharacters; i++) {
     if (Characters[i].Status == LS_Loaded) {
       Characters[i].Update(dt);
     }
   }
 }
-void Scene::Render() {
+void Render() {
   RectF viewport = WindowGetViewport();
   MainCamera.AspectRatio = viewport.Width / viewport.Height;
   MainCamera.Recalculate();
 
-  Background3DUpdateGpu(this, &MainCamera);
-  Character3DUpdateGpu(this, &MainCamera);
+  Background3D::UpdateGpu(&MainCamera);
+  Character3D::UpdateGpu(&MainCamera);
 
-  for (int i = 0; i < Scene3DMaxBackgrounds; i++) {
+  for (int i = 0; i < MaxBackgrounds; i++) {
     if (Backgrounds[i].Status == LS_Loaded) {
       Backgrounds[i].Render();
     }
@@ -78,7 +121,7 @@ void Scene::Render() {
 
   SetupFramebufferState();
 
-  for (int i = 0; i < Scene3DMaxCharacters; i++) {
+  for (int i = 0; i < MaxCharacters; i++) {
     if (Characters[i].Status == LS_Loaded) {
       Characters[i].Render();
     }
@@ -87,7 +130,7 @@ void Scene::Render() {
   DrawToScreen();
 }
 
-void Scene::SetupFramebufferState() {
+static void SetupFramebufferState() {
   Rect viewport = WindowGetViewport();
   Rect scaledViewport = WindowGetScaledViewport();
 
@@ -243,7 +286,7 @@ void Scene::SetupFramebufferState() {
                       GL_ONE_MINUS_SRC_ALPHA);
 }
 
-void Scene::CleanFramebufferState() {
+static void CleanFramebufferState() {
   if (ShaderProgram) {
     glDeleteProgram(ShaderProgram);
     ShaderProgram = 0;
@@ -274,7 +317,7 @@ void Scene::CleanFramebufferState() {
   }
 }
 
-void Scene::DrawToScreen() {
+static void DrawToScreen() {
   Rect viewport = WindowGetViewport();
   Rect scaledViewport = WindowGetScaledViewport();
 
@@ -315,7 +358,7 @@ void Scene::DrawToScreen() {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-MSResolveMode Scene::CheckMSResolveMode() {
+static MSResolveMode CheckMSResolveMode() {
   if (g_MsaaCount == 0) return MS_None;
 
   if (g_ActualGraphicsApi != GfxApi_GL) {
@@ -330,4 +373,5 @@ MSResolveMode Scene::CheckMSResolveMode() {
                                    // faster, who'd've thunk..
 }
 
+}  // namespace Scene3D
 }  // namespace Impacto

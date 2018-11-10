@@ -14,7 +14,7 @@ static GLuint ShaderProgram = 0, UniformViewProjection = 0, UniformModel = 0,
               TextureDummy = 0;
 static bool IsInit = false;
 
-void Background3DInit() {
+void Background3D::Init() {
   assert(IsInit == false);
   ImpLog(LL_Info, LC_Object3D, "Initializing Background3D system\n");
   IsInit = true;
@@ -33,7 +33,7 @@ void Background3DInit() {
   TextureDummy = texDummy.Submit();
 }
 
-void Background3DUpdateGpu(Scene* scene, Camera* camera) {
+void Background3D::UpdateGpu(Camera* camera) {
   glUseProgram(ShaderProgram);
   glUniformMatrix4fv(UniformViewProjection, 1, GL_FALSE,
                      glm::value_ptr(camera->ViewProjection));

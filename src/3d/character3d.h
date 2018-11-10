@@ -27,13 +27,16 @@ struct AnimatedMesh {
 };
 
 class ModelAnimator;
-class Scene;
 class Camera;
 
 class Character3D : public Loadable<Character3D> {
   friend class Loadable<Character3D>;
 
  public:
+  static void Init();
+  // Character render updates affecting all characters
+  static void UpdateGpu(Camera* camera);
+
   void MakePlane();
 
   void Update(float dt);
@@ -88,9 +91,5 @@ class Character3D : public Loadable<Character3D> {
   float PrevPoseWeight;
   float AnimationTransitionTime;
 };
-
-void Character3DInit();
-// Character render updates affecting all characters
-void Character3DUpdateGpu(Scene* scene, Camera* camera);
 
 }  // namespace Impacto

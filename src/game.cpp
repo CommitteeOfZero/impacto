@@ -10,6 +10,7 @@
 #include "audio/audiochannel.h"
 #include "audio/audiostream.h"
 #include "renderer2d.h"
+#include "3d/scene.h"
 
 namespace Impacto {
 
@@ -83,8 +84,7 @@ Game::Game(GameFeatureConfig const& config) : Config(config) {
   }
 
   if (Config.GameFeatures & GameFeature::Scene3D) {
-    SceneInit();
-    Scene3D = new Scene;
+    Scene3D::Init();
   }
 
   if (Config.GameFeatures & GameFeature::ModelViewer) {
@@ -110,9 +110,6 @@ Game::Game(GameFeatureConfig const& config) : Config(config) {
 }
 
 void Game::Init() {
-  if (Config.GameFeatures & GameFeature::Scene3D) {
-    Scene3D->Init();
-  }
   if (Config.GameFeatures & GameFeature::ModelViewer) {
     ModelViewerComponent->Init();
   }
@@ -238,9 +235,7 @@ Game::~Game() {
   }
 
   if (Config.GameFeatures & GameFeature::Scene3D) {
-    if (Scene3D) {
-      delete Scene3D;
-    }
+    Scene3D::Shutdown();
   }
 
   if (Config.GameFeatures & GameFeature::Renderer2D) {
@@ -300,7 +295,7 @@ void Game::Update(float dt) {
   }
 
   if (Config.GameFeatures & GameFeature::Scene3D) {
-    Scene3D->Update(dt);
+    Scene3D::Update(dt);
   }
 
   if (Config.GameFeatures & GameFeature::Renderer2D) {
@@ -317,7 +312,7 @@ void Game::Render() {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   if (Config.GameFeatures & GameFeature::Scene3D) {
-    Scene3D->Render();
+    Scene3D::Render();
   }
 
   if (Config.GameFeatures & GameFeature::Renderer2D) {

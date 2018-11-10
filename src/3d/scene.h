@@ -7,63 +7,26 @@
 #include "camera.h"
 
 namespace Impacto {
+namespace Scene3D {
 
-int const Scene3DMaxBackgrounds = 8;
-int const Scene3DMaxCharacters = 8;
+int const MaxBackgrounds = 8;
+int const MaxCharacters = 8;
 
-enum MSResolveMode {
-  MS_None,
-  // Use a framebuffer with multisample texture
-  MS_MultisampleTexture,
-  // Use a framebuffer with singlesample texture provided by
-  // EXT_multisampled_render_to_texture
-  MS_SinglesampleTextureExt,
-  // Use a framebuffer with multisample renderbuffer and blit to framebuffer
-  // with singlesample texture
-  MS_BlitFromRenderbuffer
-};
+void Init();
+void Shutdown();
+void Update(float dt);
+void Render();
 
-class Scene {
- public:
-  ~Scene();
+extern Camera MainCamera;
 
-  void Init();
-  void Update(float dt);
-  void Render();
+extern Background3D Backgrounds[MaxBackgrounds];
+extern Character3D Characters[MaxCharacters];
 
-  Camera MainCamera;
+extern glm::vec3 LightPosition;
+extern glm::vec4 Tint;
+extern bool DarkMode;
 
-  Background3D Backgrounds[Scene3DMaxBackgrounds];
-  Character3D Characters[Scene3DMaxCharacters];
+extern uint32_t CharacterToLoadId;
 
-  glm::vec3 LightPosition;
-  glm::vec4 Tint;
-  bool DarkMode;
-
-  uint32_t CharacterToLoadId;
-
- private:
-  void SetupFramebufferState();
-  void CleanFramebufferState();
-  void DrawToScreen();
-
-  static MSResolveMode CheckMSResolveMode();
-
-  GLuint FBO = 0;
-  GLuint RenderTextureColor = 0;
-  GLuint RenderTextureDS = 0;
-
-  // Only for MS_BlitFromRenderbuffer
-  GLuint FBOMultisample = 0;
-  GLuint RenderbufferColor = 0;
-  GLuint RenderbufferDS = 0;
-
-  GLuint VAOScreenFillingTriangle = 0;
-  GLuint VBOScreenFillingTriangle = 0;
-
-  GLuint ShaderProgram = 0;
-};
-
-void SceneInit();
-
+}  // namespace Scene3D
 }  // namespace Impacto

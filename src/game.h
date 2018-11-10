@@ -1,6 +1,5 @@
 #pragma once
 
-#include "3d/scene.h"
 #include "impacto.h"
 #include "modelviewer.h"
 #include "vm/vm.h"
@@ -48,7 +47,6 @@ class Game {
   void SetFlag(uint32_t flagId, uint32_t value);
   bool GetFlag(uint32_t flagId);
 
-  Scene* Scene3D = 0;
   ModelViewer* ModelViewerComponent = 0;
   Vm::Vm* VmComponent = 0;
 

@@ -7,13 +7,16 @@
 
 namespace Impacto {
 
-class Scene;
 class Camera;
 
 class Background3D : public Loadable<Background3D> {
   friend class Loadable<Background3D>;
 
  public:
+  static void Init();
+  // Background render updates affecting all backgrounds
+  static void UpdateGpu(Camera* camera);
+
   void Render();
 
   Model* StaticModel = 0;
@@ -34,9 +37,5 @@ class Background3D : public Loadable<Background3D> {
 
   GLuint TexBuffers[ModelMaxTexturesPerModel];
 };
-
-void Background3DInit();
-// Background render updates affecting all backgrounds
-void Background3DUpdateGpu(Scene* scene, Camera* camera);
 
 }  // namespace Impacto
