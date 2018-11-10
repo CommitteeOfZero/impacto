@@ -22,7 +22,7 @@ class Camera {
   Transform CameraTransform;
   glm::vec3 Up;
 
-  // vertical FoV in degrees
+  // vertical FoV in radians
   float Fov;
   float Near;
   float Far;

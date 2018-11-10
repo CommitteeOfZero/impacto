@@ -12,22 +12,26 @@ static void UpdateCharacterRot(int charId) {
   int pose = ScrWork[30 * charId + SW_CHA1POSE] - 30;
 
   if (pose >= 0) {
-    float targetX = (int)ScrWork[20 * pose + 5500] / 1000.0f;
-    float targetY = ((int)ScrWork[20 * pose + 5501] / 1000.0f) + 12.5f;
-    float targetZ = (int)ScrWork[20 * pose + 5502] / 1000.0f;
-    float objectX = (int)ScrWork[30 * charId + SW_CHA1POSX] / 1000.0f;
-    float objectY = ((int)ScrWork[30 * charId + SW_CHA1POSY] / 1000.0f) +
-                    ((int)ScrWork[30 * charId + 5111] / 1000.0f);
-    float objectZ = (int)ScrWork[30 * charId + SW_CHA1POSZ] / 1000.0f;
-    glm::vec3 lookat = LookAtEulerZYX(glm::vec3(objectX, objectY, objectZ),
-                                      glm::vec3(targetX, targetY, targetZ));
+    glm::vec3 target =
+        glm::vec3(ScrRealToFloat(ScrWork[20 * pose + 5500]),
+                  ScrRealToFloat(ScrWork[20 * pose + 5501]) + 12.5f,
+                  ScrRealToFloat(ScrWork[20 * pose + 5502]));
+
+    glm::vec3 object =
+        glm::vec3(ScrRealToFloat(ScrWork[30 * charId + SW_CHA1POSX]),
+                  ScrRealToFloat(ScrWork[30 * charId + SW_CHA1POSY]) +
+                      ScrRealToFloat(ScrWork[30 * charId + 5111]),
+                  ScrRealToFloat(ScrWork[30 * charId + SW_CHA1POSZ]));
+
+    glm::vec3 lookat = LookAtEulerZYX(object, target);
     lookat.x = 0.0f;
+
     Scene3D::Characters[charId].ModelTransform.SetRotationFromEuler(lookat);
-    ScrWork[30 * charId + SW_CHA1ROTY] =
-        -((lookat.y / (2 * M_PI)) * 360) * 1000.0f;
+
+    // minus? really?
+    ScrWork[30 * charId + SW_CHA1ROTY] = FloatToScrReal(RadToDeg(-lookat.y));
   } else {
-    Scene3D::Characters[charId].ModelTransform.SetRotationFromEuler(
-        glm::vec3(0.0f, 0.0f, 0.0f));
+    Scene3D::Characters[charId].ModelTransform.Rotation = glm::quat();
   }
 }
 
@@ -39,12 +43,10 @@ static void UpdateCharacters() {
       UpdateCharacterRot(i);
       UpdateCharacterPos(i);
       Scene3D::Characters[i].IsVisible = GetFlag(SF_CHA1DISP + i);
-      Scene3D::Characters[i].ModelTransform.Position.x =
-          (int)ScrWork[SW_CHA1POSX + i * 30] / 1000.0f;
-      Scene3D::Characters[i].ModelTransform.Position.y =
-          ((int)ScrWork[SW_CHA1POSY + i * 30]) / 1000.0f;
-      Scene3D::Characters[i].ModelTransform.Position.z =
-          (int)ScrWork[SW_CHA1POSZ + i * 30] / 1000.0f;
+      Scene3D::Characters[i].ModelTransform.Position =
+          glm::vec3(ScrRealToFloat(ScrWork[SW_CHA1POSX + i * 30]),
+                    ScrRealToFloat(ScrWork[SW_CHA1POSY + i * 30]),
+                    ScrRealToFloat(ScrWork[SW_CHA1POSZ + i * 30]));
     }
   }
   if (Scene3D::Backgrounds[0].Status == LS_Loaded) {
@@ -60,18 +62,17 @@ static void UpdateCamera() {
   Scene3D::MainCamera.LookAt(glm::vec3(0.0f, 12.5f, 0.0f));
 
   // Update fov
-  float hFovRad = ((int)ScrWork[SW_IRUOCAMERAHFOV] / 1000.0f) * M_PI / 180.0f;
-  Scene3D::MainCamera.Fov = 2 * atan(tan(hFovRad / 2.0f) * (9.0f / 16.0f));
+  float hFovRad = DegToRad(ScrRealToFloat(ScrWork[SW_IRUOCAMERAHFOV]));
+  Scene3D::MainCamera.Fov =
+      2.0f *
+      atanf(tanf(hFovRad / 2.0f) * (1.0f / Scene3D::MainCamera.AspectRatio));
 
   // Update lighting
-  uint32_t lightColor = ScrWork[SW_MAINLIGHTTINT];
-  glm::vec4 lightC = RgbaIntToFloat(lightColor);
-  lightC.a = (int)ScrWork[SW_MAINLIGHTINT] / 1000.0f;
-  float lightX = (int)ScrWork[SW_MAINLIGHTPOSX] / 1000.0f;
-  float lightY = (int)ScrWork[SW_MAINLIGHTPOSY] / 1000.0f;
-  float lightZ = (int)ScrWork[SW_MAINLIGHTPOSZ] / 1000.0f;
-  Scene3D::Tint = lightC;
-  Scene3D::LightPosition = glm::vec3(lightX, lightY, lightZ);
+  Scene3D::Tint = RgbaIntToFloat(ScrWork[SW_MAINLIGHTCOLOR]);
+  Scene3D::Tint.a = ScrRealToFloat(ScrWork[SW_MAINLIGHTWEIGHT]);
+  Scene3D::LightPosition = glm::vec3(ScrRealToFloat(ScrWork[SW_MAINLIGHTPOSX]),
+                                     ScrRealToFloat(ScrWork[SW_MAINLIGHTPOSY]),
+                                     ScrRealToFloat(ScrWork[SW_MAINLIGHTPOSZ]));
   Scene3D::DarkMode = (bool)ScrWork[SW_MAINLIGHTDARKMODE];
 }
 
