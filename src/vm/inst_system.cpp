@@ -353,6 +353,7 @@ VmInstruction(InstGlobalSystemMessage) {
   ImpLogSlow(LL_Warning, LC_VMStub,
              "STUB instruction GlobalSystemMessage(arg1: %i)\n", arg1);
 }
+// TODO find the value ranges on these
 VmInstruction(InstCalc) {
   StartInstruction;
   PopUint8(type);
@@ -401,8 +402,7 @@ VmInstruction(InstCalc) {
       PopExpression(a);
       PopExpression(b);
       if (b >= 2) {
-        ScrWork[dest] =
-            (20 * a * x / b + 5 - 10 * a * a * x / b / b) / 10;
+        ScrWork[dest] = (20 * a * x / b + 5 - 10 * a * a * x / b / b) / 10;
       } else {
         ScrWork[dest] = x;
       }
