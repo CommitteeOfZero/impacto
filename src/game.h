@@ -41,12 +41,8 @@ class Game {
   void Update(float dt);
   void Render();
 
-  void SetFlag(uint32_t flagId, uint32_t value);
-  bool GetFlag(uint32_t flagId);
-
   GameFeatureConfig Config;
 
-  uint32_t* ScrWork;
   DrawComponentType DrawComponents[Vm::MaxThreads];
 
   VfsArchive* SystemArchive = 0;
@@ -60,8 +56,6 @@ class Game {
  private:
   Game(GameFeatureConfig const& config);
   void Init();
-
-  uint8_t* FlagWork;
 };
 
 enum DrawComponentType : uint8_t {

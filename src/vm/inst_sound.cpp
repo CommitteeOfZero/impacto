@@ -6,6 +6,7 @@
 
 #include "expression.h"
 #include "../game.h"
+#include "../mem.h"
 #include "../log.h"
 #include "../audio/audiosystem.h"
 #include "../audio/audiostream.h"
@@ -45,7 +46,7 @@ VmInstruction(InstSEplay) {
     SDL_RWops* stream;
     thread->GameContext->SeArchive->Open(effect, &stream);
     Audio::Channels[Audio::AC_SE0 + channel].Volume =
-        (thread->GameContext->ScrWork[4315 + channel] / 100.0f) - 0.3f;
+        (ScrWork[4315 + channel] / 100.0f) - 0.3f;
     Audio::Channels[Audio::AC_SE0 + channel].Play(
         Audio::AudioStream::Create(stream), (bool)loop, 0.0f);
   } else {

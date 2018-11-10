@@ -11,14 +11,12 @@
 #include "audio/audiostream.h"
 #include "renderer2d.h"
 #include "3d/scene.h"
+#include "mem.h"
 
 namespace Impacto {
 
 static int const NkMaxVertexMemory = 256 * 1024;
 static int const NkMaxElementMemory = 128 * 1024;
-
-static int const GameScrWorkSize = 32000;
-static int const GameFlagWorkSize = 1000;
 
 nk_context* Nk = 0;
 
@@ -87,10 +85,8 @@ Game::Game(GameFeatureConfig const& config) : Config(config) {
     Scene3D::Init();
   }
 
-  if (Config.GameFeatures & GameFeature::Sc3VirtualMachine) {
-    ScrWork = (uint32_t*)calloc(GameScrWorkSize, sizeof(uint32_t));
-    FlagWork = (uint8_t*)calloc(GameFlagWorkSize, sizeof(uint8_t));
-  }
+  memset(ScrWork, 0, sizeof(ScrWork));
+  memset(FlagWork, 0, sizeof(FlagWork));
 
   if (Config.GameFeatures & GameFeature::Renderer2D) {
     Renderer2D::Init();
@@ -215,11 +211,6 @@ Game* Game::CreateDialogueTest() {
 }
 
 Game::~Game() {
-  if (Config.GameFeatures & GameFeature::Sc3VirtualMachine) {
-    if (ScrWork) free(ScrWork);
-    if (FlagWork) free(FlagWork);
-  }
-
   if (Config.GameFeatures & GameFeature::Audio) {
     Audio::AudioShutdown();
   }
@@ -346,20 +337,6 @@ void Game::Render() {
   }
 
   WindowDraw();
-}
-
-void Game::SetFlag(uint32_t flagId, uint32_t value) {
-  uint32_t flagIndex = flagId >> 3;
-  int flagValue = 1 << (flagId - 8 * (flagId >> 3));
-  FlagWork[flagIndex] |= flagValue;
-  if (!value) {
-    FlagWork[flagIndex] ^= flagValue;
-  }
-}
-
-bool Game::GetFlag(uint32_t flagId) {
-  return ((uint8_t)(1 << (flagId - 8 * (flagId >> 3))) &
-          *((uint8_t*)FlagWork + (flagId >> 3))) != 0;
 }
 
 }  // namespace Impacto

@@ -2,6 +2,7 @@
 
 #include "../game.h"
 #include "../log.h"
+#include "../mem.h"
 
 #include <vector>
 #include <memory>
@@ -200,9 +201,9 @@ int ExpressionNode::Evaluate(Sc3VmThread* thd) {
     case ET_ImmediateValue:
       return Value;
     case ET_FuncGlobalVars:
-      return thd->GameContext->ScrWork[RightExpr->Evaluate(thd)];
+      return ScrWork[RightExpr->Evaluate(thd)];
     case ET_FuncFlags:
-      return thd->GameContext->GetFlag(RightExpr->Evaluate(thd));
+      return GetFlag(RightExpr->Evaluate(thd));
     case ET_FuncDataAccess:
       leftVal = LeftExpr->Evaluate(thd);
       rightVal = RightExpr->Evaluate(thd);
@@ -294,10 +295,10 @@ void ExpressionNode::AssignValue(Sc3VmThread* thd) {
 
   switch (LeftExpr->ExprType) {
     case ET_FuncGlobalVars:
-      thd->GameContext->ScrWork[index] = leftVal;
+      ScrWork[index] = leftVal;
       break;
     case ET_FuncFlags:
-      thd->GameContext->SetFlag(index, leftVal);
+      SetFlag(index, leftVal);
       break;
     case ET_FuncThreadVars: {
       uint32_t* thdWork = (uint32_t*)thd->GetMemberPointer(index);

@@ -5,6 +5,7 @@
 #include "expression.h"
 #include "scriptvars.h"
 #include "../game.h"
+#include "../mem.h"
 #include "../inputsystem.h"
 #include "../log.h"
 #include "../audio/audiosystem.h"
@@ -220,8 +221,7 @@ VmInstruction(InstMessWindow) {
     case 1:  // ShowCurrent
       if (currentPage->AnimState != DPAS_Shown) {
         currentPage->Mode =
-            (DialoguePageMode)thread->GameContext
-                ->ScrWork[SW_MESMODE0];  // Only for page 0 for now
+            (DialoguePageMode)ScrWork[SW_MESMODE0];  // Only for page 0 for now
         currentPage->ADVBoxOpacity = 0.0f;
         currentPage->AnimState = DPAS_Showing;
       }

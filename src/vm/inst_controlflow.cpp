@@ -4,6 +4,7 @@
 
 #include "expression.h"
 #include "../game.h"
+#include "../mem.h"
 #include "../log.h"
 
 namespace Impacto {
@@ -95,7 +96,7 @@ VmInstruction(InstReturnIfFlag) {
   PopUint8(value);
   PopExpression(flagId);
   if (thread->CallStackDepth) {
-    if (thread->GameContext->GetFlag(flagId) == (bool)value) {
+    if (GetFlag(flagId) == (bool)value) {
       thread->CallStackDepth--;
       uint32_t retBufferId =
           thread->ReturnScriptBufferIds[thread->CallStackDepth];
@@ -135,7 +136,7 @@ VmInstruction(InstFlagOnJump) {
   PopExpression(flagId);
   PopLocalLabel(labelAdr);
 
-  if (thread->GameContext->GetFlag(flagId) == (bool)value) {
+  if (GetFlag(flagId) == (bool)value) {
     thread->Ip = labelAdr;
   }
 }

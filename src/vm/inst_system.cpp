@@ -6,6 +6,7 @@
 
 #include "expression.h"
 #include "../game.h"
+#include "../mem.h"
 #include "../log.h"
 
 namespace Impacto {
@@ -74,7 +75,7 @@ VmInstruction(InstFlagOnWait) {
   StartInstruction;
   PopUint8(checkVal);
   PopExpression(flagId);
-  if (thread->GameContext->GetFlag(flagId) == (bool)checkVal) {
+  if (GetFlag(flagId) == (bool)checkVal) {
     ResetInstruction;
     BlockThread;
   }
@@ -82,19 +83,19 @@ VmInstruction(InstFlagOnWait) {
 VmInstruction(InstSetFlag) {
   StartInstruction;
   PopExpression(flagId);
-  thread->GameContext->SetFlag(flagId, 1);
+  SetFlag(flagId, 1);
 }
 VmInstruction(InstResetFlag) {
   StartInstruction;
   PopExpression(flagId);
-  thread->GameContext->SetFlag(flagId, 0);
+  SetFlag(flagId, 0);
 }
 VmInstruction(InstCopyFlag) {
   StartInstruction;
   PopExpression(flagIdSrc);
   PopExpression(flagIdDst);
-  bool flagValSrc = thread->GameContext->GetFlag(flagIdSrc);
-  thread->GameContext->SetFlag(flagIdDst, flagValSrc);
+  bool flagValSrc = GetFlag(flagIdSrc);
+  SetFlag(flagIdDst, flagValSrc);
 }
 VmInstruction(InstKeyWait) {
   StartInstruction;
@@ -359,39 +360,39 @@ VmInstruction(InstCalc) {
     case 0: {  // CalcSin
       PopExpression(dest);
       PopExpression(angle);
-      thread->GameContext->ScrWork[dest] = sin(angle);
+      ScrWork[dest] = sin(angle);
     } break;
     case 1: {  // CalcCos
       PopExpression(dest);
       PopExpression(angle);
-      thread->GameContext->ScrWork[dest] = cos(angle);
+      ScrWork[dest] = cos(angle);
     } break;
     case 2: {  // CalcAtan2
       PopExpression(dest);
       PopExpression(x);
       PopExpression(y);
-      thread->GameContext->ScrWork[dest] = atan2(x, y);
+      ScrWork[dest] = atan2(x, y);
     } break;
     case 3: {  // CalcSinL
       PopExpression(dest);
       PopExpression(base);
       PopExpression(angle);
       PopExpression(offset);
-      thread->GameContext->ScrWork[dest] = offset + base * sin(angle);
+      ScrWork[dest] = offset + base * sin(angle);
     } break;
     case 4: {  // CalcCosL
       PopExpression(dest);
       PopExpression(base);
       PopExpression(angle);
       PopExpression(offset);
-      thread->GameContext->ScrWork[dest] = offset + base * cos(angle);
+      ScrWork[dest] = offset + base * cos(angle);
     } break;
     case 5: {  // CalcRound
       PopExpression(dest);
       PopExpression(value);
       PopExpression(multiplier);
       PopExpression(divider);
-      thread->GameContext->ScrWork[dest] =
+      ScrWork[dest] =
           (((((multiplier * value) * 10.0) / divider) + 5.0) / 10.0);
     } break;
     case 6: {  // CalcAccel
@@ -400,10 +401,10 @@ VmInstruction(InstCalc) {
       PopExpression(a);
       PopExpression(b);
       if (b >= 2) {
-        thread->GameContext->ScrWork[dest] =
+        ScrWork[dest] =
             (20 * a * x / b + 5 - 10 * a * a * x / b / b) / 10;
       } else {
-        thread->GameContext->ScrWork[dest] = x;
+        ScrWork[dest] = x;
       }
     } break;
   }

@@ -4,6 +4,7 @@
 
 #include "expression.h"
 #include "../game.h"
+#include "../mem.h"
 #include "../log.h"
 #include "scriptvars.h"
 
@@ -30,11 +31,9 @@ VmInstruction(InstCHAload3D) {
       Scene3D::Backgrounds[bufferId].Status == LS_Loading) {
     ResetInstruction;
     BlockThread;
-  } else if (thread->GameContext->ScrWork[SW_CHA1NO + 30 * bufferId] !=
-             modelId) {
-    thread->GameContext->ScrWork[SW_CHA1NO + 30 * bufferId] = modelId;
-    thread->GameContext->ScrWork[SW_CHA1EX + 30 * bufferId] =
-        Get5X13Value(modelId);
+  } else if (ScrWork[SW_CHA1NO + 30 * bufferId] != modelId) {
+    ScrWork[SW_CHA1NO + 30 * bufferId] = modelId;
+    ScrWork[SW_CHA1EX + 30 * bufferId] = Get5X13Value(modelId);
     if (Get5X13Value(modelId) == 0) {
       Scene3D::Backgrounds[bufferId].LoadAsync(modelId);
     } else {
@@ -114,19 +113,17 @@ VmInstruction(InstPositionObject) {
     } else {
       if (parentObjId < 10 || parentObjId > 17) {
         if (parentObjId >= 30 && parentObjId <= 38) {
-          outX = thread->GameContext->ScrWork[20 * parentObjId + 4900] / 1000.0;
-          outY =
-              (thread->GameContext->ScrWork[20 * parentObjId + 4901] / 1000.0) +
-              12.5f;
-          outZ = thread->GameContext->ScrWork[20 * parentObjId + 4902] / 1000.0;
+          outX = ScrWork[20 * parentObjId + 4900] / 1000.0;
+          outY = (ScrWork[20 * parentObjId + 4901] / 1000.0) + 12.5f;
+          outZ = ScrWork[20 * parentObjId + 4902] / 1000.0;
         }
       } else {  // background or character
-        outX = thread->GameContext->ScrWork[20 * parentObjId + 5506] / 1000.0;
-        outY = ((thread->GameContext->ScrWork[30 * parentObjId + 4811] +
-                 thread->GameContext->ScrWork[20 * parentObjId + 5507]) /
+        outX = ScrWork[20 * parentObjId + 5506] / 1000.0;
+        outY = ((ScrWork[30 * parentObjId + 4811] +
+                 ScrWork[20 * parentObjId + 5507]) /
                 1000.0) +
                12.5f;
-        outZ = thread->GameContext->ScrWork[20 * parentObjId + 5508] / 1000.0;
+        outZ = ScrWork[20 * parentObjId + 5508] / 1000.0;
       }
     }
     if (parentObjId != 1 && parentObjId != 2) {
@@ -151,26 +148,24 @@ VmInstruction(InstPositionObject) {
     int outZint = (outZ * 1000.0f);
     int outXint = (outX * 1000.0f);
     if (objectid == 1) {  // main camera
-      thread->GameContext->ScrWork[SW_MAINCAMERAPOSX] = outXint;
-      thread->GameContext->ScrWork[SW_MAINCAMERAPOSY] = outYint;
-      thread->GameContext->ScrWork[SW_MAINCAMERAPOSZ] = outZint;
+      ScrWork[SW_MAINCAMERAPOSX] = outXint;
+      ScrWork[SW_MAINCAMERAPOSY] = outYint;
+      ScrWork[SW_MAINCAMERAPOSZ] = outZint;
     } else if (objectid == 2) {  // iruo camera
-      thread->GameContext->ScrWork[SW_IRUOCAMERAPOSX] = outXint;
-      thread->GameContext->ScrWork[SW_IRUOCAMERAPOSY] = outYint;
-      thread->GameContext->ScrWork[SW_IRUOCAMERAPOSZ] = outZint;
+      ScrWork[SW_IRUOCAMERAPOSX] = outXint;
+      ScrWork[SW_IRUOCAMERAPOSY] = outYint;
+      ScrWork[SW_IRUOCAMERAPOSZ] = outZint;
     } else if (objectid < 10 || objectid > 17) {
       if (objectid >= 30 && objectid <= 38) {
-        thread->GameContext->ScrWork[4900 + 20 * objectid] = outXint;
-        thread->GameContext->ScrWork[4901 + 20 * objectid] =
-            outYint - (12.5f * 1000.0f);
-        thread->GameContext->ScrWork[4902 + 20 * objectid] = outZint;
+        ScrWork[4900 + 20 * objectid] = outXint;
+        ScrWork[4901 + 20 * objectid] = outYint - (12.5f * 1000.0f);
+        ScrWork[4902 + 20 * objectid] = outZint;
       }
     } else {  // background or character
-      thread->GameContext->ScrWork[4800 + 30 * objectid] = outXint;
-      thread->GameContext->ScrWork[4801 + 30 * objectid] =
-          (outYint - thread->GameContext->ScrWork[4811 + 30 * objectid]) -
-          (12.5f * 1000.0f);
-      thread->GameContext->ScrWork[4802 + 30 * objectid] = outZint;
+      ScrWork[4800 + 30 * objectid] = outXint;
+      ScrWork[4801 + 30 * objectid] =
+          (outYint - ScrWork[4811 + 30 * objectid]) - (12.5f * 1000.0f);
+      ScrWork[4802 + 30 * objectid] = outZint;
     }
   }
 }
@@ -207,14 +202,14 @@ VmInstruction(InstUnk0210) {
       for (int i = 1; i <= 29; i++) arg5 += i;
     }
     if (arg1 & 1) {
-      someGlobalFloat1 = thread->GameContext->ScrWork[5424];
+      someGlobalFloat1 = ScrWork[5424];
       someGlobalFloat2 = arg3;
-      someGlobalFloat3 = (arg3 - thread->GameContext->ScrWork[5424]) / arg5;
+      someGlobalFloat3 = (arg3 - ScrWork[5424]) / arg5;
     }
     if (arg1 & 2) {
-      someGlobalFloat4 = thread->GameContext->ScrWork[5423];
+      someGlobalFloat4 = ScrWork[5423];
       someGlobalFloat5 = arg4;
-      someGlobalFloat6 = (arg4 - thread->GameContext->ScrWork[5423]) / arg5;
+      someGlobalFloat6 = (arg4 - ScrWork[5423]) / arg5;
     }
   } else {
     if (arg1 & 1) {
@@ -229,7 +224,7 @@ VmInstruction(InstUnk0210) {
         arg5 = someGlobalFloat1 + (someGlobalFloat3 * 30.0f);
       }
       someGlobalFloat2 = arg5;
-      thread->GameContext->ScrWork[5424] = arg5;
+      ScrWork[5424] = arg5;
     }
     if (arg1 & 2) {
       float arg5;
@@ -243,7 +238,7 @@ VmInstruction(InstUnk0210) {
         arg5 = someGlobalFloat4 + (someGlobalFloat6 * 30.0f);
       }
       someGlobalFloat5 = arg5;
-      thread->GameContext->ScrWork[5423] = arg5;
+      ScrWork[5423] = arg5;
     }
   }
 }
@@ -277,46 +272,46 @@ VmInstruction(InstUnk0213) {  // Set Camera position ???
           LL_Warning, LC_VMStub,
           "STUB instruction Unk0213(type: %i, arg1: %i, arg2: %i, arg3: %i)\n",
           type, arg1, arg2, arg3);
-      thread->GameContext->ScrWork[arg1] = (int)((0.0f + 0.0f) * 1000.0f);
-      thread->GameContext->ScrWork[arg2] = (int)((12.5f + 0.0f) * 1000.0f);
-      thread->GameContext->ScrWork[arg3] = (int)((23.0f + 0.0f) * 1000.0f);
+      ScrWork[arg1] = (int)((0.0f + 0.0f) * 1000.0f);
+      ScrWork[arg2] = (int)((12.5f + 0.0f) * 1000.0f);
+      ScrWork[arg3] = (int)((23.0f + 0.0f) * 1000.0f);
     } break;
     case 1: {
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
       PopExpression(arg4);
-      float x = (int)thread->GameContext->ScrWork[5706 + 20 * arg1] / 1000.0f;
-      float y = (((int)thread->GameContext->ScrWork[5707 + 20 * arg1] +
-                  (int)thread->GameContext->ScrWork[5111 + 30 * arg1]) /
-                 1000.0f) +
-                12.5;  // main camera default y
-      float z = (int)thread->GameContext->ScrWork[5708 + 20 * arg1] / 1000.0f;
-      thread->GameContext->ScrWork[arg2] = (int)(x * 1000.0f);
-      thread->GameContext->ScrWork[arg3] = (int)(y * 1000.0f);
-      thread->GameContext->ScrWork[arg4] = (int)(z * 1000.0f);
+      float x = (int)ScrWork[5706 + 20 * arg1] / 1000.0f;
+      float y =
+          (((int)ScrWork[5707 + 20 * arg1] + (int)ScrWork[5111 + 30 * arg1]) /
+           1000.0f) +
+          12.5;  // main camera default y
+      float z = (int)ScrWork[5708 + 20 * arg1] / 1000.0f;
+      ScrWork[arg2] = (int)(x * 1000.0f);
+      ScrWork[arg3] = (int)(y * 1000.0f);
+      ScrWork[arg4] = (int)(z * 1000.0f);
     } break;
     case 2: {
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
       PopExpression(arg4);
-      float x = (int)thread->GameContext->ScrWork[5500 + 20 * arg1] / 1000.0;
-      float y = ((int)thread->GameContext->ScrWork[5501 + 20 * arg1] / 1000.0) +
+      float x = (int)ScrWork[5500 + 20 * arg1] / 1000.0;
+      float y = ((int)ScrWork[5501 + 20 * arg1] / 1000.0) +
                 12.5;  // main camera default y
-      float z = (int)thread->GameContext->ScrWork[5502 + 20 * arg1] / 1000.0;
-      thread->GameContext->ScrWork[arg2] = (int)(x * 1000.0);
-      thread->GameContext->ScrWork[arg3] = (int)(y * 1000.0);
-      thread->GameContext->ScrWork[arg4] = (int)(z * 1000.0);
+      float z = (int)ScrWork[5502 + 20 * arg1] / 1000.0;
+      ScrWork[arg2] = (int)(x * 1000.0);
+      ScrWork[arg3] = (int)(y * 1000.0);
+      ScrWork[arg4] = (int)(z * 1000.0);
 
     } break;
     case 3: {  // iruo camera
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
-      thread->GameContext->ScrWork[arg1] = (int)((0.0f + 0.0f) * 1000.0f);
-      thread->GameContext->ScrWork[arg2] = (int)((12.5f + 0.0f) * 1000.0f);
-      thread->GameContext->ScrWork[arg3] = (int)((23.0f + 0.0f) * 1000.0f);
+      ScrWork[arg1] = (int)((0.0f + 0.0f) * 1000.0f);
+      ScrWork[arg2] = (int)((12.5f + 0.0f) * 1000.0f);
+      ScrWork[arg3] = (int)((23.0f + 0.0f) * 1000.0f);
     } break;
   }
 }
@@ -403,8 +398,8 @@ VmInstruction(InstUnk0218) {
       glm::vec3 lookat = LookAtEulerZYX(glm::vec3(arg1, arg2, arg3),
                                         glm::vec3(0.0f, 12.5f, 23.0f));
 
-      thread->GameContext->ScrWork[arg4] = (int)(lookat.y * 1000.0f);
-      thread->GameContext->ScrWork[arg5] = (int)(lookat.x * 1000.0f);
+      ScrWork[arg4] = (int)(lookat.y * 1000.0f);
+      ScrWork[arg5] = (int)(lookat.x * 1000.0f);
 
     } break;
     case 2: {

@@ -3,8 +3,8 @@
 namespace Impacto {
 namespace Vm {
 
-void UpdateCharacters(Game* gameCtx);
-void UpdateCamera(Game* gameCtx);
+void UpdateCharacters();
+void UpdateCamera();
 void SetDateDisplay(Game* gameCtx);
 
 }  // namespace Vm

@@ -19,6 +19,7 @@ set(Impacto_Src
     src/window.cpp
     src/workqueue.cpp
     src/game.cpp
+    src/mem.cpp
     src/modelviewer.cpp
     src/renderer2d.cpp
     src/text.cpp
@@ -82,6 +83,7 @@ set(Impacto_Header
     src/window.h
     src/workqueue.h
     src/game.h
+    src/mem.h
     src/modelviewer.h
     src/spritesheet.h
     src/renderer2d.h
