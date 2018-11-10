@@ -129,8 +129,8 @@ VmInstruction(InstPositionObject) {
                            20 * parentModelId + 5708);
       pos.y += ScrWorkGetFloat(30 * parentModelId + SW_CHA1YCENTER);
     } else if (parentObjId >= 30 && parentObjId <= 38) {
-      pos = ScrWorkGetVec3(20 * parentModelId + 5706, 20 * parentModelId + 5707,
-                           20 * parentModelId + 5708);
+      pos = ScrWorkGetVec3(20 * parentObjId + 4900, 20 * parentObjId + 4901,
+                           20 * parentObjId + 4902);
     }
     pos.y += 12.5f;
 
