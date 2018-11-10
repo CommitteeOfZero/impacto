@@ -27,6 +27,8 @@ set(Impacto_Src
 
     src/text_rne.cpp
 
+    src/datedisplay.cpp
+
     src/nuklear_impl.cpp
 
     src/3d/camera.cpp
@@ -51,7 +53,6 @@ set(Impacto_Src
     src/vm/vm.cpp
     src/vm/expression.cpp
     src/vm/thread.cpp
-    src/vm/gamespecific_rne.cpp
     src/vm/inst_system.cpp
     src/vm/inst_controlflow.cpp
     src/vm/inst_dialogue.cpp
@@ -61,6 +62,8 @@ set(Impacto_Src
     src/vm/inst_misc.cpp
     src/vm/inst_movie.cpp
     src/vm/inst_sound.cpp
+
+    src/vm/interface/scene3d.cpp
 
     src/audio/audiosystem.cpp
     src/audio/audiochannel.cpp
@@ -91,6 +94,8 @@ set(Impacto_Header
     src/loadable.h
     src/inputsystem.h
 
+    src/datedisplay.h
+
     src/3d/camera.h
     src/3d/model.h
     src/3d/character3d.h
@@ -112,7 +117,6 @@ set(Impacto_Header
     src/vm/vm.h
     src/vm/expression.h
     src/vm/thread.h
-    src/vm/gamespecific_rne.h
     src/vm/inst_macros.inc
     src/vm/inst_system.h
     src/vm/inst_controlflow.h
@@ -124,6 +128,10 @@ set(Impacto_Header
     src/vm/inst_movie.h
     src/vm/inst_sound.h
     src/vm/opcodetables_rne.h
+
+    src/scriptvars.h
+
+    src/vm/interface/scene3d.h
 
     src/audio/audiosystem.h
     src/audio/audiocommon.h

@@ -12,7 +12,7 @@
 #include "renderer2d.h"
 #include "3d/scene.h"
 #include "mem.h"
-#include "vm/gamespecific_rne.h"
+#include "datedisplay.h"
 
 namespace Impacto {
 
@@ -305,7 +305,7 @@ void Render() {
 
   if (Profile::GameFeatures & GameFeature::Renderer2D) {
     Renderer2D::BeginFrame();
-    Vm::SetDateDisplay();
+    DateDisplay::Render();
     for (int i = 0; i < Vm::MaxThreads; i++) {
       if (DrawComponents[i] == TD_None) break;
 

@@ -6,9 +6,8 @@
 #include "../io/io.h"
 #include "../game.h"
 #include "../mem.h"
-#include "scriptvars.h"
-#include "gamespecific_rne.h"
-
+#include "../scriptvars.h"
+#include "interface/scene3d.h"
 #include "opcodetables_rne.h"
 
 namespace Impacto {
@@ -203,8 +202,7 @@ void Update() {
   DrawAllThreads();
 
   if (Profile::GameFeatures & GameFeature::Scene3D) {
-    UpdateCharacters();
-    UpdateCamera();
+    Interface::UpdateScene3D();
   }
 }
 

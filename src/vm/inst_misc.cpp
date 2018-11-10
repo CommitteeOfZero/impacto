@@ -3,7 +3,7 @@
 #include "inst_macros.inc"
 
 #include "expression.h"
-#include "scriptvars.h"
+#include "../scriptvars.h"
 #include "../game.h"
 #include "../mem.h"
 #include "../log.h"

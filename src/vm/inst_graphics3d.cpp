@@ -6,7 +6,7 @@
 #include "../game.h"
 #include "../mem.h"
 #include "../log.h"
-#include "scriptvars.h"
+#include "../scriptvars.h"
 
 #include "../3d/scene.h"
 

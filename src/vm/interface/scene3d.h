@@ -2,10 +2,10 @@
 
 namespace Impacto {
 namespace Vm {
+namespace Interface {
 
-void UpdateCharacters();
-void UpdateCamera();
-void SetDateDisplay();
+void UpdateScene3D();
 
+}  // namespace Interface
 }  // namespace Vm
 }  // namespace Impacto

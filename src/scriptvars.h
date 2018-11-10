@@ -1,6 +1,6 @@
-namespace Impacto {
+#pragma once
 
-namespace Vm {
+namespace Impacto {
 
 enum ScriptVars {
   LR_DATE = 1029,
@@ -66,5 +66,5 @@ enum FlagVars {
   SF_IRUOENABLE = 2800,
   SF_IRUO = 2816
 };
-}  // namespace Vm
+
 }  // namespace Impacto
