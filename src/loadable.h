@@ -8,11 +8,6 @@ enum LoadStatus { LS_Unloaded, LS_Loading, LS_Loaded };
 
 template <typename T>
 class Loadable {
-  // protected:
-  // void LoadSync(uint32_t id);
-  // void UnloadSync();
-  // void MainThreadOnLoad();
-
  public:
   LoadStatus Status = LS_Unloaded;
 
@@ -35,6 +30,10 @@ class Loadable {
   }
 
  protected:
+  void LoadSync(uint32_t id);
+  void UnloadSync();
+  void MainThreadOnLoad();
+
   uint32_t NextLoadId;
 
   static void LoadWorker(void* ptr) {

@@ -8,12 +8,11 @@ namespace Audio {
 
 template <typename T, typename SampleType>
 class Buffering {
-  // protected:
-  // bool DecodeBuffer()
-  // SampleType* DecodedBuffer
-  // uint8_t* EncodedBuffer
-
  protected:
+  bool DecodeBuffer();
+  SampleType* DecodedBuffer = 0;
+  uint8_t* EncodedBuffer = 0;
+
   int DecodedSamplesAvailable = 0;
   int DecodedSamplesConsumed = 0;
   int SamplesPerBuffer = 0;

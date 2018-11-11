@@ -23,8 +23,6 @@ class HcaAudioStream : public AudioStream,
 
  protected:
   bool DecodeBuffer();
-  int16_t* DecodedBuffer = 0;
-  uint8_t* EncodedBuffer = 0;
 
  private:
   static AudioStream* Create(SDL_RWops* stream);
