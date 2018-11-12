@@ -7,7 +7,8 @@ namespace Io {
 
 class MemoryStream : public InputStream {
  public:
-  MemoryStream(void const* mem, int64_t size, bool freeOnClose = false);
+  ~MemoryStream();
+  MemoryStream(void* mem, int64_t size, bool freeOnClose = false);
 
   int64_t Read(void* buffer, int64_t sz) override;
   int64_t Seek(int64_t offset, int origin) override;
@@ -17,7 +18,7 @@ class MemoryStream : public InputStream {
   MemoryStream() {}
   MemoryStream(MemoryStream const& other) = default;
 
-  void const* Memory;
+  void* Memory;
   bool FreeOnClose;
 };
 

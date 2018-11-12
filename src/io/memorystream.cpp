@@ -5,7 +5,11 @@
 namespace Impacto {
 namespace Io {
 
-MemoryStream::MemoryStream(void const* mem, int64_t size, bool freeOnClose)
+MemoryStream::~MemoryStream() {
+  if (FreeOnClose) free(Memory);
+}
+
+MemoryStream::MemoryStream(void* mem, int64_t size, bool freeOnClose)
     : Memory(mem), FreeOnClose(freeOnClose) {
   Meta.Size = size;
   IsMemory = true;
