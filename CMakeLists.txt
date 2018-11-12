@@ -45,6 +45,13 @@ set(Impacto_Src
     src/io/mpkdriver.cpp
     src/io/cpkdriver.cpp
 
+    src/io/memorystream.cpp
+    src/io/physicalfilestream.cpp
+    src/io/uncompressedstream.cpp
+    src/io/zlibstream.cpp
+    src/io/mpkarchive.cpp
+    src/io/cpkarchive.cpp
+
     src/texture/texture.cpp
     src/texture/s3tc.cpp
     src/texture/gxtloader.cpp
@@ -109,6 +116,15 @@ set(Impacto_Header
     src/io/vfs.h
     src/io/mpkdriver.h
     
+    src/io/buffering.h
+    src/io/filemeta.h
+    src/io/inputstream.h
+    src/io/vfsarchive.h
+    src/io/memorystream.h
+    src/io/physicalfilestream.h
+    src/io/uncompressedstream.h
+    src/io/zlibstream.h
+
     src/texture/texture.h
     src/texture/s3tc.h
     src/texture/gxtloader.h

@@ -7,13 +7,67 @@
 #include "../impacto.h"
 #include "io.h"
 
-// Warning: The VFS is not threadsafe - within an archive, and error handling in
-// general :(
-
-// TODO: Multipart archives (like C;C bg1.mpk/bg2.mpk), more extensive/flexible
-// patch proxy (supporting plain files *and* c0data.mpk)
+// only these for new vfs
+#include "inputstream.h"
+#include <flat_hash_map.hpp>
 
 namespace Impacto {
+namespace Io {
+
+// For transitional purposes, I'm keeping *both* VFS implementations here for
+// now.
+
+// TODO:
+// - Overlay
+// - c0data style redirection (multiple source mountpoints -> one target)
+// - Make the rest of the engine use the new VFS
+// - Configurable physical file search paths
+// - Invert search order, see below
+
+// The public interface of vfs.h is threadsafe. Individual InputStreams are not.
+// Duplicate() them if you need to use them on multiple threads.
+
+void VfsInit();
+// Mount an archive from a physical file.
+// Files will always be loaded from the earliest-mounted archive they're found
+// in
+// TODO invert search order
+IoError VfsMount(std::string const& mountpoint,
+                 std::string const& archiveFileName);
+// Mount an archive from memory. A unique filename must be specified to identify
+// files coming from this archive and to unmount it.
+IoError VfsMountMemory(std::string const& mountpoint,
+                       std::string const& archiveFileName, void* memory,
+                       int64_t size, bool freeOnClose);
+// archiveFileName must match the filename an archive was mounted with
+IoError VfsUnmount(std::string const& mountpoint,
+                   std::string const& archiveFileName);
+IoError VfsGetMeta(std::string const& mountpoint, std::string const& fileName,
+                   FileMeta* outMeta);
+IoError VfsGetMeta(std::string const& mountpoint, uint32_t id,
+                   FileMeta* outMeta);
+IoError VfsOpen(std::string const& mountpoint, std::string const& fileName,
+                InputStream** outStream);
+IoError VfsOpen(std::string const& mountpoint, uint32_t id,
+                InputStream** outStream);
+IoError VfsSlurp(std::string const& mountpoint, std::string const& fileName,
+                 void** outMemory, int64_t* outSize);
+IoError VfsSlurp(std::string const& mountpoint, uint32_t id, void** outMemory,
+                 int64_t* outSize);
+// You can provide a filled outListing, we'll clear it
+IoError VfsListFiles(std::string const& mountpoint,
+                     ska::flat_hash_map<uint32_t, std::string>& outListing);
+
+class VfsArchive;
+typedef IoError (*VfsArchiveFactory)(InputStream* stream,
+                                     VfsArchive** outArchive);
+
+bool VfsRegisterArchiver(VfsArchiveFactory f);
+
+}  // namespace Io
+
+// Warning: The old VFS is not threadsafe - within an archive, and error
+// handling in general :(
 
 // Including null terminator
 const int VfsMaxPath = 224;

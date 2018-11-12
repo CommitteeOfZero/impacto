@@ -5,13 +5,13 @@
 
 namespace Impacto {
 
-enum IoError {
+enum IoError : int64_t {
   IoError_OK = 0,
-  IoError_NotFound,
-  IoError_Eof,
-  IoError_Busy,
-  IoError_OutOfMemory,
-  IoError_Fail
+  IoError_NotFound = -5,
+  IoError_Eof = -4,
+  IoError_Busy = -3,
+  IoError_OutOfMemory = -2,
+  IoError_Fail = -1
 };
 
 // TODO need signed integer versions of SDL_ReadLE16 / SDL_ReadLE32?
