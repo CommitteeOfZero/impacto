@@ -21,21 +21,29 @@ IoError ZlibStream::Create(InputStream* baseStream, int64_t compressedOffset,
     delete dup;
     return IoError_Fail;
   }
-  z_stream zlibState;
-  int zErr;
-  if ((zErr = inflateInit(&zlibState)) != Z_OK) {
-    delete dup;
-    return IoError_Fail;
-  }
   ZlibStream* result = new ZlibStream;
   result->BaseStream = dup;
   result->CompressedOffset = compressedOffset;
   result->CompressedSize = compressedSize;
   result->Meta.Size = uncompressedSize;
-  result->ZlibState = zlibState;
+  memset(&result->ZlibState, 0, sizeof(z_stream));
   result->InputBuffer = (uint8_t*)malloc(ZlibStreamInputBufferSize);
+  if (!result->Init()) {
+    delete result;
+    return IoError_Fail;
+  }
   *out = (InputStream*)result;
   return IoError_OK;
+}
+
+bool ZlibStream::Init() {
+  int64_t read = BaseStream->Read(InputBuffer, ZlibStreamInputBufferSize);
+  if (read < 0) return false;
+  ZlibState.avail_in = read;
+  ZlibState.next_in = InputBuffer;
+  int zErr;
+  zErr = inflateInit(&ZlibState);
+  return zErr == Z_OK;
 }
 
 int64_t ZlibStream::Read(void* buffer, int64_t sz) {
@@ -58,8 +66,7 @@ int64_t ZlibStream::Seek(int64_t offset, int origin) {
     if (absPos < Position) {
       Position = 0;
       inflateReset(&ZlibState);
-      ZlibState.avail_in = 0;
-      ZlibState.next_in = 0;
+      Init();
       BaseStream->Seek(CompressedOffset, RW_SEEK_SET);
     }
     err = DiscardSeekBuffered(absPos);
@@ -79,19 +86,17 @@ IoError ZlibStream::Duplicate(InputStream** outStream) {
     delete dup;
     return IoError_Fail;
   }
-  z_stream zlibState;
-  int zErr;
-  if ((zErr = inflateInit(&zlibState)) != Z_OK) {
-    delete dup;
-    return IoError_Fail;
-  }
   ZlibStream* result = new ZlibStream(*this);
   result->InputBuffer = (uint8_t*)malloc(ZlibStreamInputBufferSize);
   result->BaseStream = dup;
-  result->ZlibState = zlibState;
+  memset(&result->ZlibState, 0, sizeof(z_stream));
   result->Position = 0;
   result->BufferFill = 0;
   result->BufferConsumed = 0;
+  if (!result->Init()) {
+    delete result;
+    return IoError_Fail;
+  }
   err = result->Seek(Position, RW_SEEK_SET);
   if (err != Position) {
     delete result;
@@ -125,6 +130,7 @@ IoError ZlibStream::FillBuffer() {
   }
 
   BufferFill = ZlibState.total_out - lastTotal;
+  return IoError_OK;
 }
 
 }  // namespace Io

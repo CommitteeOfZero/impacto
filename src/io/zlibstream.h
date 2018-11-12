@@ -31,6 +31,8 @@ class ZlibStream : public InputStream, public Buffering<ZlibStream> {
 
   IoError FillBuffer();
 
+  bool Init();
+
   InputStream* BaseStream;
   int64_t CompressedOffset;
   int64_t CompressedSize;
