@@ -41,7 +41,7 @@ class Buffering {
       if (BufferConsumed < BufferFill) {
         int64_t toCopy = std::min(sz, BufferFill - BufferConsumed);
         if (buffer) {
-          memcpy(buffer, Buffer + BufferConsumed, toCopy);
+          memcpy((uint8_t*)buffer + read, Buffer + BufferConsumed, toCopy);
         }
         sz -= toCopy;
         stream->Position += toCopy;
