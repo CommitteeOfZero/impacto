@@ -53,15 +53,33 @@ inline uint16_t ReadSwap<uint16_t>(InputStream* stream) {
   return SDL_Swap16(result);
 }
 template <>
+inline int16_t ReadSwap<int16_t>(InputStream* stream) {
+  int16_t result;
+  stream->Read(&result, sizeof(int16_t));
+  return SDL_Swap16(result);
+}
+template <>
 inline uint32_t ReadSwap<uint32_t>(InputStream* stream) {
   uint32_t result;
   stream->Read(&result, sizeof(uint32_t));
   return SDL_Swap32(result);
 }
 template <>
+inline int32_t ReadSwap<int32_t>(InputStream* stream) {
+  int32_t result;
+  stream->Read(&result, sizeof(int32_t));
+  return SDL_Swap32(result);
+}
+template <>
 inline uint64_t ReadSwap<uint64_t>(InputStream* stream) {
   uint64_t result;
   stream->Read(&result, sizeof(uint64_t));
+  return SDL_Swap64(result);
+}
+template <>
+inline int64_t ReadSwap<int64_t>(InputStream* stream) {
+  int64_t result;
+  stream->Read(&result, sizeof(int64_t));
   return SDL_Swap64(result);
 }
 template <>
@@ -91,6 +109,15 @@ inline void ReadArraySwap(uint16_t* dest, InputStream* stream, int count) {
   for (int i = 0; i < count; i++) dest[i] = SDL_Swap16(dest[i]);
 }
 template <int count>
+inline void ReadArraySwap(int16_t* dest, InputStream* stream) {
+  ReadArrayWithoutSwap<count>(dest, stream);
+  for (int i = 0; i < count; i++) dest[i] = SDL_Swap16(dest[i]);
+}
+inline void ReadArraySwap(int16_t* dest, InputStream* stream, int count) {
+  ReadArrayWithoutSwap(dest, stream, count);
+  for (int i = 0; i < count; i++) dest[i] = SDL_Swap16(dest[i]);
+}
+template <int count>
 inline void ReadArraySwap(uint32_t* dest, InputStream* stream) {
   ReadArrayWithoutSwap<count>(dest, stream);
   for (int i = 0; i < count; i++) dest[i] = SDL_Swap32(dest[i]);
@@ -100,11 +127,29 @@ inline void ReadArraySwap(uint32_t* dest, InputStream* stream, int count) {
   for (int i = 0; i < count; i++) dest[i] = SDL_Swap32(dest[i]);
 }
 template <int count>
+inline void ReadArraySwap(int32_t* dest, InputStream* stream) {
+  ReadArrayWithoutSwap<count>(dest, stream);
+  for (int i = 0; i < count; i++) dest[i] = SDL_Swap32(dest[i]);
+}
+inline void ReadArraySwap(int32_t* dest, InputStream* stream, int count) {
+  ReadArrayWithoutSwap(dest, stream, count);
+  for (int i = 0; i < count; i++) dest[i] = SDL_Swap32(dest[i]);
+}
+template <int count>
 inline void ReadArraySwap(uint64_t* dest, InputStream* stream) {
   ReadArrayWithoutSwap<count>(dest, stream);
   for (int i = 0; i < count; i++) dest[i] = SDL_Swap64(dest[i]);
 }
 inline void ReadArraySwap(uint64_t* dest, InputStream* stream, int count) {
+  ReadArrayWithoutSwap(dest, stream, count);
+  for (int i = 0; i < count; i++) dest[i] = SDL_Swap64(dest[i]);
+}
+template <int count>
+inline void ReadArraySwap(int64_t* dest, InputStream* stream) {
+  ReadArrayWithoutSwap<count>(dest, stream);
+  for (int i = 0; i < count; i++) dest[i] = SDL_Swap64(dest[i]);
+}
+inline void ReadArraySwap(int64_t* dest, InputStream* stream, int count) {
   ReadArrayWithoutSwap(dest, stream, count);
   for (int i = 0; i < count; i++) dest[i] = SDL_Swap64(dest[i]);
 }
