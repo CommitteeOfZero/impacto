@@ -17,7 +17,10 @@ class Buffering {
   int64_t BufferFill = 0;
   int64_t BufferConsumed = 0;
 
-  Buffering(int64_t bufferSize) { Buffer = (uint8_t*)malloc(bufferSize); }
+  Buffering(int64_t bufferSize) {
+    BufferSize = bufferSize;
+    Buffer = (uint8_t*)malloc(bufferSize);
+  }
   Buffering(const Buffering& other)
       : BufferSize(other.BufferSize),
         BufferFill(other.BufferFill),
