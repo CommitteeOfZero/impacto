@@ -2,11 +2,17 @@
 
 #include "inputstream.h"
 #include <SDL_rwops.h>
+#include "buffering.h"
 
 namespace Impacto {
 namespace Io {
 
-class PhysicalFileStream : public InputStream {
+// TODO *optional* buffering
+
+class PhysicalFileStream : public InputStream,
+                           public Buffering<PhysicalFileStream> {
+  friend class Buffering<PhysicalFileStream>;
+
  public:
   ~PhysicalFileStream();
 
@@ -16,8 +22,12 @@ class PhysicalFileStream : public InputStream {
   IoError Duplicate(InputStream** outStream) override;
 
  protected:
-  PhysicalFileStream() {}
+  static int const PhysicalBufferSize = 16 * 1024;
+
+  PhysicalFileStream() : Buffering(PhysicalBufferSize) {}
   PhysicalFileStream(PhysicalFileStream const& other) = default;
+
+  IoError FillBuffer();
 
   SDL_RWops* RW;
   std::string SourceFileName;
