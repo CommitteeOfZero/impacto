@@ -51,6 +51,7 @@ set(Impacto_Src
     src/io/zlibstream.cpp
     src/io/mpkarchive.cpp
     src/io/cpkarchive.cpp
+    src/io/lnk4archive.cpp
 
     src/texture/texture.cpp
     src/texture/s3tc.cpp
