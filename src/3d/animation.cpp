@@ -28,17 +28,19 @@ enum SubTrackType {
   STT_ScaleZ = 9,
 };
 
-Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t animId) {
+using namespace Impacto::Io;
+
+Animation* Animation::Load(InputStream* stream, Model* model, uint16_t animId) {
   ImpLogSlow(LL_Trace, LC_ModelLoad, "Loading animation %hu for model %d\n",
              animId, model->Id);
 
   Animation* result = new Animation;
   result->Id = animId;
 
-  SDL_RWseek(stream, HeaderDurationOffset, RW_SEEK_SET);
-  result->Duration = ReadFloatLE32(stream) / AnimDesignFrameRate;
-  uint32_t trackCount = SDL_ReadLE32(stream);
-  uint32_t tracksOffset = SDL_ReadLE32(stream);
+  stream->Seek(HeaderDurationOffset, RW_SEEK_SET);
+  result->Duration = ReadLE<float>(stream) / AnimDesignFrameRate;
+  uint32_t trackCount = ReadLE<uint32_t>(stream);
+  uint32_t tracksOffset = ReadLE<uint32_t>(stream);
 
   ImpLogSlow(LL_Trace, LC_ModelLoad,
              "Duration (s): %f, track count: %d, tracksOffset: %08x\n",
@@ -61,9 +63,9 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t animId) {
   for (uint32_t i = 0; i < trackCount; i++) {
     ImpLogSlow(LL_Trace, LC_ModelLoad, "Pass 1 for track %d\n", i);
 
-    SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
-    uint16_t id = SDL_ReadLE16(stream);
-    uint16_t targetType = SDL_ReadLE16(stream);
+    stream->Seek(tracksOffset + TrackSize * i, RW_SEEK_SET);
+    uint16_t id = ReadLE<uint16_t>(stream);
+    uint16_t targetType = ReadLE<uint16_t>(stream);
     if (targetType == TargetType_Bone) {
       if (TrackForBone[id] != -1) {
         ImpLogSlow(LL_Trace, LC_ModelLoad,
@@ -77,14 +79,15 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t animId) {
       track->Bone = id;
       TrackForBone[id] = i;
 
-      SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
+      uint32_t seekPos = tracksOffset + TrackSize * i;
       // Skip id, targetType, unknown ushort and visibility
-      SDL_RWseek(stream, 4 * sizeof(uint16_t), RW_SEEK_CUR);
+      seekPos += (4 * sizeof(uint16_t));
+      stream->Seek(seekPos, RW_SEEK_SET);
 
       // Read coord offsets/counts, so far, so normal...
 
-      ReadArrayLE16(track->KeyCounts + BKT_TranslateX, stream,
-                    BKT_Rotate - BKT_TranslateX);
+      ReadArrayLE<(BKT_Rotate - BKT_TranslateX)>(
+          track->KeyCounts + BKT_TranslateX, stream);
       for (int j = BKT_TranslateX; j < BKT_Rotate; j++) {
         track->KeyOffsets[j] = currentCoordOffset;
         currentCoordOffset += track->KeyCounts[j];
@@ -94,10 +97,10 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t animId) {
       }
 
       // Skip rotates
-      SDL_RWseek(stream, 3 * sizeof(uint16_t), RW_SEEK_CUR);
+      stream->Seek(3 * sizeof(uint16_t), RW_SEEK_CUR);
 
-      ReadArrayLE16(track->KeyCounts + BKT_ScaleX, stream,
-                    BKT_Count - BKT_ScaleX);
+      ReadArrayLE<(BKT_Count - BKT_ScaleX)>(track->KeyCounts + BKT_ScaleX,
+                                            stream);
       for (int j = BKT_ScaleX; j < BKT_Count; j++) {
         track->KeyOffsets[j] = currentCoordOffset;
         currentCoordOffset += track->KeyCounts[j];
@@ -116,30 +119,32 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t animId) {
         if (model->Meshes[j].GroupId == id) meshes.push_back(&model->Meshes[j]);
       }
 
-      SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
+      uint32_t seekPos = tracksOffset + TrackSize * i;
       // Skip id, targetType, unknown ushort
-      SDL_RWseek(stream, 3 * sizeof(uint16_t), RW_SEEK_CUR);
+      seekPos += 3 * sizeof(uint16_t);
+      stream->Seek(seekPos, RW_SEEK_SET);
 
-      uint16_t visibilityCount = SDL_ReadLE16(stream);
+      uint16_t visibilityCount = ReadLE<uint16_t>(stream);
       int visibilityOffset = currentCoordOffset;
       currentCoordOffset += visibilityCount;
       ImpLogSlow(LL_Trace, LC_ModelLoad, "Visibility count %d offset %08x\n",
                  visibilityCount, visibilityOffset);
 
-      SDL_RWseek(stream, 0x1E, RW_SEEK_CUR);
+      stream->Seek(0x1E, RW_SEEK_CUR);
 
-      uint16_t morphTargetCount = SDL_ReadLE16(stream);
+      uint16_t morphTargetCount = ReadLE<uint16_t>(stream);
       ImpLogSlow(LL_Trace, LC_ModelLoad, "Morph target count %d\n",
                  morphTargetCount);
       uint16_t morphTargetIds[AnimMaxMorphTargetsPerTrack];
-      ReadArrayLE16(morphTargetIds, stream, morphTargetCount);
+      ReadArrayLE(morphTargetIds, stream, morphTargetCount);
 
-      SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
-      SDL_RWseek(stream, 0x48, RW_SEEK_CUR);
+      seekPos = tracksOffset + TrackSize * i;
+      seekPos += 0x48;
+      stream->Seek(seekPos, RW_SEEK_SET);
 
       uint16_t morphInfluenceCounts[AnimMaxMorphTargetsPerTrack];
       int morphInfluenceOffsets[AnimMaxMorphTargetsPerTrack];
-      ReadArrayLE16(morphInfluenceCounts, stream, morphTargetCount);
+      ReadArrayLE(morphInfluenceCounts, stream, morphTargetCount);
       for (int j = 0; j < morphTargetCount; j++) {
         morphInfluenceOffsets[j] = currentCoordOffset;
         currentCoordOffset += morphInfluenceCounts[j];
@@ -196,9 +201,9 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t animId) {
   int currentBoneTrack = 0;
   int currentMeshTrack = 0;
   for (uint32_t i = 0; i < trackCount; i++) {
-    SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
-    uint16_t id = SDL_ReadLE16(stream);
-    uint16_t targetType = SDL_ReadLE16(stream);
+    stream->Seek(tracksOffset + TrackSize * i, RW_SEEK_SET);
+    uint16_t id = ReadLE<uint16_t>(stream);
+    uint16_t targetType = ReadLE<uint16_t>(stream);
     if (targetType == TargetType_Bone) {
       if (i != TrackForBone[id]) continue;
 
@@ -208,26 +213,26 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t animId) {
 
       std::vector<QuatKeyframe> rotationTrack;
 
-      SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
-      SDL_RWseek(stream, TrackCountsOffset + STT_RotateX * sizeof(uint16_t),
-                 RW_SEEK_CUR);
+      uint32_t seekPos = tracksOffset + TrackSize * i;
+      seekPos += (TrackCountsOffset + STT_RotateX * sizeof(uint16_t));
+      stream->Seek(seekPos, RW_SEEK_SET);
 
-      uint16_t rawRotXCount = SDL_ReadLE16(stream);
-      uint16_t rawRotYCount = SDL_ReadLE16(stream);
-      uint16_t rawRotZCount = SDL_ReadLE16(stream);
+      uint16_t rawRotXCount = ReadLE<uint16_t>(stream);
+      uint16_t rawRotYCount = ReadLE<uint16_t>(stream);
+      uint16_t rawRotZCount = ReadLE<uint16_t>(stream);
 
       ImpLogSlow(LL_Trace, LC_ModelLoad,
                  "rawRotXCount=%d, rawRotYCount=%d, rawRotZCount=%d\n",
                  rawRotXCount, rawRotYCount, rawRotZCount);
       rotationTrack.reserve(rawRotXCount + rawRotYCount + rawRotZCount);
 
-      SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
-      SDL_RWseek(stream, TrackOffsetsOffset + STT_RotateX * sizeof(uint32_t),
-                 RW_SEEK_CUR);
+      seekPos = tracksOffset + TrackSize * i;
+      seekPos += (TrackOffsetsOffset + STT_RotateX * sizeof(uint32_t));
+      stream->Seek(seekPos, RW_SEEK_SET);
 
-      int rawRotXOffset = SDL_ReadLE32(stream) + HeaderSize;
-      int rawRotYOffset = SDL_ReadLE32(stream) + HeaderSize;
-      int rawRotZOffset = SDL_ReadLE32(stream) + HeaderSize;
+      int rawRotXOffset = ReadLE<int>(stream) + HeaderSize;
+      int rawRotYOffset = ReadLE<int>(stream) + HeaderSize;
+      int rawRotZOffset = ReadLE<int>(stream) + HeaderSize;
 
       ImpLogSlow(LL_Trace, LC_ModelLoad,
                  "rawRotXOffset=%d, rawRotYOffset=%d, rawRotZOffset=%d\n",
@@ -239,12 +244,12 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t animId) {
           (CoordKeyframe*)malloc(sizeof(CoordKeyframe) * rawRotYCount);
       CoordKeyframe* rotZBuffer =
           (CoordKeyframe*)malloc(sizeof(CoordKeyframe) * rawRotZCount);
-      SDL_RWseek(stream, rawRotXOffset, RW_SEEK_SET);
-      ReadArrayFloatLE32((float*)rotXBuffer, stream, 2 * rawRotXCount);
-      SDL_RWseek(stream, rawRotYOffset, RW_SEEK_SET);
-      ReadArrayFloatLE32((float*)rotYBuffer, stream, 2 * rawRotYCount);
-      SDL_RWseek(stream, rawRotZOffset, RW_SEEK_SET);
-      ReadArrayFloatLE32((float*)rotZBuffer, stream, 2 * rawRotZCount);
+      stream->Seek(rawRotXOffset, RW_SEEK_SET);
+      ReadArrayLE((float*)rotXBuffer, stream, 2 * rawRotXCount);
+      stream->Seek(rawRotYOffset, RW_SEEK_SET);
+      ReadArrayLE((float*)rotYBuffer, stream, 2 * rawRotYCount);
+      stream->Seek(rawRotZOffset, RW_SEEK_SET);
+      ReadArrayLE((float*)rotZBuffer, stream, 2 * rawRotZCount);
 
       glm::vec3 currentEuler = glm::vec3(0.0f);
       // The defaults are 0, not BaseRotation, yes, really...
@@ -341,9 +346,9 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t animId) {
   currentBoneTrack = 0;
   currentCoordOffset = 0;
   for (uint32_t i = 0; i < trackCount; i++) {
-    SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
-    uint16_t id = SDL_ReadLE16(stream);
-    uint16_t targetType = SDL_ReadLE16(stream);
+    stream->Seek(tracksOffset + TrackSize * i, RW_SEEK_SET);
+    uint16_t id = ReadLE<uint16_t>(stream);
+    uint16_t targetType = ReadLE<uint16_t>(stream);
     if (targetType == TargetType_Bone) {
       if (i != TrackForBone[id]) continue;
 
@@ -355,20 +360,19 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t animId) {
             j == STT_RotateZ)
           continue;
 
-        SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
-        SDL_RWseek(stream, TrackCountsOffset + sizeof(uint16_t) * j,
-                   RW_SEEK_CUR);
-        uint16_t currentKeyframeCount = SDL_ReadLE16(stream);
-        SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
-        SDL_RWseek(stream, TrackOffsetsOffset + sizeof(uint32_t) * j,
-                   RW_SEEK_CUR);
-        uint32_t currentKeyframeOffset = SDL_ReadLE32(stream);
+        uint32_t seekPos = tracksOffset + TrackSize * i;
+        seekPos += TrackCountsOffset + sizeof(uint16_t) * j;
+        stream->Seek(seekPos, RW_SEEK_SET);
+        uint16_t currentKeyframeCount = ReadLE<uint16_t>(stream);
+        seekPos = tracksOffset + TrackSize * i;
+        seekPos += TrackOffsetsOffset + sizeof(uint32_t) * j;
+        stream->Seek(seekPos, RW_SEEK_SET);
+        uint32_t currentKeyframeOffset = ReadLE<uint32_t>(stream);
 
-        SDL_RWseek(stream, HeaderSize + currentKeyframeOffset, RW_SEEK_SET);
+        stream->Seek(HeaderSize + currentKeyframeOffset, RW_SEEK_SET);
 
-        ReadArrayFloatLE32(
-            (float*)(result->CoordKeyframes + currentCoordOffset), stream,
-            2 * currentKeyframeCount);
+        ReadArrayLE((float*)(result->CoordKeyframes + currentCoordOffset),
+                    stream, 2 * currentKeyframeCount);
         for (float* time =
                  (float*)(result->CoordKeyframes + currentCoordOffset);
              time < (float*)(result->CoordKeyframes + currentCoordOffset +
@@ -398,29 +402,33 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t animId) {
       currentBoneTrack++;
     } else {
       // Mesh group track
-      SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
+
+      uint32_t seekPos = tracksOffset + TrackSize * i;
       // Skip id, targetType, unknown ushort
-      SDL_RWseek(stream, TrackCountsOffset, RW_SEEK_CUR);
+      seekPos += TrackCountsOffset;
+      stream->Seek(seekPos, RW_SEEK_SET);
 
-      uint16_t visibilityCount = SDL_ReadLE16(stream);
+      uint16_t visibilityCount = ReadLE<uint16_t>(stream);
 
-      SDL_RWseek(stream, 0x1E, RW_SEEK_CUR);
-      uint16_t morphTargetCount = SDL_ReadLE16(stream);
+      stream->Seek(0x1E, RW_SEEK_CUR);
+      uint16_t morphTargetCount = ReadLE<uint16_t>(stream);
 
-      SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
-      SDL_RWseek(stream, 0x48, RW_SEEK_CUR);
+      seekPos = tracksOffset + TrackSize * i;
+      seekPos += 0x48;
+      stream->Seek(seekPos, RW_SEEK_SET);
 
       uint16_t morphInfluenceCounts[AnimMaxMorphTargetsPerTrack];
-      ReadArrayLE16(morphInfluenceCounts, stream, morphTargetCount);
+      ReadArrayLE(morphInfluenceCounts, stream, morphTargetCount);
 
       // Visibility data
-      SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
-      SDL_RWseek(stream, TrackOffsetsOffset, RW_SEEK_CUR);
-      int rawVisibilityOffset = SDL_ReadLE32(stream);
-      SDL_RWseek(stream, HeaderSize + rawVisibilityOffset, RW_SEEK_SET);
+      seekPos = tracksOffset + TrackSize * i;
+      seekPos += TrackOffsetsOffset;
+      stream->Seek(seekPos, RW_SEEK_SET);
+      int rawVisibilityOffset = ReadLE<int>(stream);
+      stream->Seek(HeaderSize + rawVisibilityOffset, RW_SEEK_SET);
 
-      ReadArrayFloatLE32((float*)(result->CoordKeyframes + currentCoordOffset),
-                         stream, 2 * visibilityCount);
+      ReadArrayLE((float*)(result->CoordKeyframes + currentCoordOffset), stream,
+                  2 * visibilityCount);
       for (float* time = (float*)(result->CoordKeyframes + currentCoordOffset);
            time < (float*)(result->CoordKeyframes + currentCoordOffset +
                            visibilityCount);
@@ -430,15 +438,15 @@ Animation* Animation::Load(SDL_RWops* stream, Model* model, uint16_t animId) {
       currentCoordOffset += visibilityCount;
 
       // Morph influence data
-      SDL_RWseek(stream, tracksOffset + TrackSize * i, RW_SEEK_SET);
-      SDL_RWseek(stream, 0xA8, RW_SEEK_CUR);
+      seekPos = tracksOffset + TrackSize * i;
+      seekPos += 0xA8;
+      stream->Seek(seekPos, RW_SEEK_SET);
       int rawInfluenceOffsets[16];
-      ReadArrayLE32(rawInfluenceOffsets, stream, morphTargetCount);
+      ReadArrayLE(rawInfluenceOffsets, stream, morphTargetCount);
       for (int j = 0; j < morphTargetCount; j++) {
-        SDL_RWseek(stream, HeaderSize + rawInfluenceOffsets[j], RW_SEEK_SET);
-        ReadArrayFloatLE32(
-            (float*)(result->CoordKeyframes + currentCoordOffset), stream,
-            morphInfluenceCounts[j] * 2);
+        stream->Seek(HeaderSize + rawInfluenceOffsets[j], RW_SEEK_SET);
+        ReadArrayLE((float*)(result->CoordKeyframes + currentCoordOffset),
+                    stream, morphInfluenceCounts[j] * 2);
         for (CoordKeyframe* key = result->CoordKeyframes + currentCoordOffset;
              key < (result->CoordKeyframes + currentCoordOffset +
                     morphInfluenceCounts[j]);

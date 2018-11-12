@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SDL_rwops.h>
+#include "../io/inputstream.h"
 
 #include "model.h"
 
@@ -57,7 +57,7 @@ struct MeshTrack {
 
 class Animation {
  public:
-  static Animation* Load(SDL_RWops* stream, Model* model, uint16_t animId);
+  static Animation* Load(Io::InputStream* stream, Model* model, uint16_t animId);
   ~Animation();
 
   // Per-model ID

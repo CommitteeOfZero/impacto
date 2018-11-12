@@ -8,6 +8,8 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "../io/memorystream.h"
+
 namespace Impacto {
 
 static VfsArchive* AllModelsArchive = NULL;
@@ -383,17 +385,18 @@ Model* Model::Load(uint32_t modelId) {
     uint32_t iterator;
     VfsFileInfo animFileInfo;
     err = modelArchive->EnumerateStart(&iterator, &animFileInfo);
+
     while (err == IoError_OK) {
       if (animFileInfo.Id != 0 &&
           !AnimationIsBlacklisted(modelId, animFileInfo.Id)) {
         int64_t animSize;
         void* animData;
         modelArchive->Slurp(animFileInfo.Id, &animData, &animSize);
-        SDL_RWops* animStream = SDL_RWFromConstMem(animData, animSize);
+
+        Io::InputStream* animStream =
+            new Io::MemoryStream(animData, animSize, true);
         result->Animations[animFileInfo.Id] =
             Animation::Load(animStream, result, animFileInfo.Id);
-        SDL_RWclose(animStream);
-        free(animData);
 
         result->AnimationCount++;
       }
