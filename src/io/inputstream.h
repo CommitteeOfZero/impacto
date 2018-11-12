@@ -36,11 +36,11 @@ inline T ReadWithoutSwap(InputStream* stream) {
 }
 
 template <int count, typename T>
-inline void ReadArrayWithoutSwap(InputStream* stream, T* dest) {
+inline void ReadArrayWithoutSwap(T* dest, InputStream* stream) {
   stream->Read(dest, count * sizeof(T));
 }
 template <typename T>
-inline void ReadArrayWithoutSwap(InputStream* stream, T* dest, int count) {
+inline void ReadArrayWithoutSwap(T* dest, InputStream* stream, int count) {
   stream->Read(dest, count * sizeof(T));
 }
 
@@ -82,51 +82,51 @@ inline double ReadSwap<double>(InputStream* stream) {
 }
 
 template <int count>
-inline void ReadArraySwap(InputStream* stream, uint16_t* dest) {
-  ReadArrayWithoutSwap<count>(stream, dest);
+inline void ReadArraySwap(uint16_t* dest, InputStream* stream) {
+  ReadArrayWithoutSwap<count>(dest, stream);
   for (int i = 0; i < count; i++) dest[i] = SDL_Swap16(dest[i]);
 }
-inline void ReadArraySwap(InputStream* stream, uint16_t* dest, int count) {
-  ReadArrayWithoutSwap(stream, dest, count);
+inline void ReadArraySwap(uint16_t* dest, InputStream* stream, int count) {
+  ReadArrayWithoutSwap(dest, stream, count);
   for (int i = 0; i < count; i++) dest[i] = SDL_Swap16(dest[i]);
 }
 template <int count>
-inline void ReadArraySwap(InputStream* stream, uint32_t* dest) {
-  ReadArrayWithoutSwap<count>(stream, dest);
+inline void ReadArraySwap(uint32_t* dest, InputStream* stream) {
+  ReadArrayWithoutSwap<count>(dest, stream);
   for (int i = 0; i < count; i++) dest[i] = SDL_Swap32(dest[i]);
 }
-inline void ReadArraySwap(InputStream* stream, uint32_t* dest, int count) {
-  ReadArrayWithoutSwap(stream, dest, count);
+inline void ReadArraySwap(uint32_t* dest, InputStream* stream, int count) {
+  ReadArrayWithoutSwap(dest, stream, count);
   for (int i = 0; i < count; i++) dest[i] = SDL_Swap32(dest[i]);
 }
 template <int count>
-inline void ReadArraySwap(InputStream* stream, uint64_t* dest) {
-  ReadArrayWithoutSwap<count>(stream, dest);
+inline void ReadArraySwap(uint64_t* dest, InputStream* stream) {
+  ReadArrayWithoutSwap<count>(dest, stream);
   for (int i = 0; i < count; i++) dest[i] = SDL_Swap64(dest[i]);
 }
-inline void ReadArraySwap(InputStream* stream, uint64_t* dest, int count) {
-  ReadArrayWithoutSwap(stream, dest, count);
+inline void ReadArraySwap(uint64_t* dest, InputStream* stream, int count) {
+  ReadArrayWithoutSwap(dest, stream, count);
   for (int i = 0; i < count; i++) dest[i] = SDL_Swap64(dest[i]);
 }
 template <int count>
-inline void ReadArraySwap(InputStream* stream, float* dest) {
-  ReadArrayWithoutSwap<count>(stream, dest);
+inline void ReadArraySwap(float* dest, InputStream* stream) {
+  ReadArrayWithoutSwap<count>(dest, stream);
   for (int i = 0; i < count; i++) dest[i] = SDL_SwapFloat(dest[i]);
 }
-inline void ReadArraySwap(InputStream* stream, float* dest, int count) {
-  ReadArrayWithoutSwap(stream, dest, count);
+inline void ReadArraySwap(float* dest, InputStream* stream, int count) {
+  ReadArrayWithoutSwap(dest, stream, count);
   for (int i = 0; i < count; i++) dest[i] = SDL_SwapFloat(dest[i]);
 }
 template <int count>
-inline void ReadArraySwap(InputStream* stream, double* dest) {
-  ReadArrayWithoutSwap<count>(stream, dest);
+inline void ReadArraySwap(double* dest, InputStream* stream) {
+  ReadArrayWithoutSwap<count>(dest, stream);
   uint64_t* _dest = (uint64_t*)dest;
   for (int i = 0; i < count; i++) {
     _dest[i] = SDL_Swap64(_dest[i]);
   }
 }
-inline void ReadArraySwap(InputStream* stream, double* dest, int count) {
-  ReadArrayWithoutSwap(stream, dest, count);
+inline void ReadArraySwap(double* dest, InputStream* stream, int count) {
+  ReadArrayWithoutSwap(dest, stream, count);
   uint64_t* _dest = (uint64_t*)dest;
   for (int i = 0; i < count; i++) {
     _dest[i] = SDL_Swap64(_dest[i]);
@@ -139,24 +139,24 @@ inline T ReadLE(InputStream* stream) {
   return ReadSwap<T>(stream);
 }
 template <int count, typename T>
-inline void ReadArrayLE(InputStream* stream, T* dest) {
-  ReadArraySwap<count>(stream, dest);
+inline void ReadArrayLE(T* dest, InputStream* stream) {
+  ReadArraySwap<count>(dest, stream);
 }
 template <typename T>
-inline void ReadArrayLE(InputStream* stream, T* dest, int count) {
-  ReadArraySwap(stream, dest, count);
+inline void ReadArrayLE(T* dest, InputStream* stream, int count) {
+  ReadArraySwap(dest, stream, count);
 }
 template <typename T>
 inline T ReadBE(InputStream* stream) {
   return ReadWithoutSwap<T>(stream);
 }
 template <int count, typename T>
-inline void ReadArrayBE(InputStream* stream, T* dest) {
-  ReadArrayWithoutSwap<count>(stream, dest);
+inline void ReadArrayBE(T* dest, InputStream* stream) {
+  ReadArrayWithoutSwap<count>(dest, stream);
 }
 template <typename T>
-inline void ReadArrayBE(InputStream* stream, T* dest, int count) {
-  ReadArrayWithoutSwap(stream, dest, count);
+inline void ReadArrayBE(T* dest, InputStream* stream, int count) {
+  ReadArrayWithoutSwap(dest, stream, count);
 }
 #else
 template <typename T>
@@ -164,75 +164,75 @@ inline T ReadLE(InputStream* stream) {
   return ReadWithoutSwap<T>(stream);
 }
 template <int count, typename T>
-inline void ReadArrayLE(InputStream* stream, T* dest) {
-  ReadArrayWithoutSwap<count>(stream, dest);
+inline void ReadArrayLE(T* dest, InputStream* stream) {
+  ReadArrayWithoutSwap<count>(dest, stream);
 }
 template <typename T>
-inline void ReadArrayLE(InputStream* stream, T* dest, int count) {
-  ReadArrayWithoutSwap(stream, dest, count);
+inline void ReadArrayLE(T* dest, InputStream* stream, int count) {
+  ReadArrayWithoutSwap(dest, stream, count);
 }
 template <typename T>
 inline T ReadBE(InputStream* stream) {
   return ReadSwap<T>(stream);
 }
 template <int count, typename T>
-inline void ReadArrayBE(InputStream* stream, T* dest) {
-  ReadArraySwap<count>(stream, dest);
+inline void ReadArrayBE(T* dest, InputStream* stream) {
+  ReadArraySwap<count>(dest, stream);
 }
 template <typename T>
-inline void ReadArrayBE(InputStream* stream, T* dest, int count) {
-  ReadArraySwap(stream, dest, count);
+inline void ReadArrayBE(T* dest, InputStream* stream, int count) {
+  ReadArraySwap(dest, stream, count);
 }
 #endif
 
-inline void ReadVec2LE(InputStream* stream, float* dest) {
-  ReadArrayLE<2>(stream, dest);
+inline void ReadVec2LE(float* dest, InputStream* stream) {
+  ReadArrayLE<2>(dest, stream);
 }
-inline void ReadVec2LE(InputStream* stream, glm::vec2* dest) {
-  ReadArrayLE<2>(stream, (float*)dest);
+inline void ReadVec2LE(glm::vec2* dest, InputStream* stream) {
+  ReadArrayLE<2>((float*)dest, stream);
 }
-inline void ReadVec3LE(InputStream* stream, float* dest) {
-  ReadArrayLE<3>(stream, dest);
+inline void ReadVec3LE(float* dest, InputStream* stream) {
+  ReadArrayLE<3>(dest, stream);
 }
-inline void ReadVec3LE(InputStream* stream, glm::vec3* dest) {
-  ReadArrayLE<3>(stream, (float*)dest);
+inline void ReadVec3LE(glm::vec3* dest, InputStream* stream) {
+  ReadArrayLE<3>((float*)dest, stream);
 }
-inline void ReadVec4LE(InputStream* stream, float* dest) {
-  ReadArrayLE<4>(stream, dest);
+inline void ReadVec4LE(float* dest, InputStream* stream) {
+  ReadArrayLE<4>(dest, stream);
 }
-inline void ReadVec4LE(InputStream* stream, glm::vec4* dest) {
-  ReadArrayLE<4>(stream, (float*)dest);
+inline void ReadVec4LE(glm::vec4* dest, InputStream* stream) {
+  ReadArrayLE<4>((float*)dest, stream);
 }
-inline void ReadMat4LE(InputStream* stream, float* dest) {
-  ReadArrayLE<16>(stream, dest);
+inline void ReadMat4LE(float* dest, InputStream* stream) {
+  ReadArrayLE<16>(dest, stream);
 }
-inline void ReadMat4LE(InputStream* stream, glm::mat4* dest) {
-  ReadArrayLE<16>(stream, (float*)dest);
+inline void ReadMat4LE(glm::mat4* dest, InputStream* stream) {
+  ReadArrayLE<16>((float*)dest, stream);
 }
 
-inline void ReadVec2BE(InputStream* stream, float* dest) {
-  ReadArrayBE<2>(stream, dest);
+inline void ReadVec2BE(float* dest, InputStream* stream) {
+  ReadArrayBE<2>(dest, stream);
 }
-inline void ReadVec2BE(InputStream* stream, glm::vec2* dest) {
-  ReadArrayBE<2>(stream, (float*)dest);
+inline void ReadVec2BE(glm::vec2* dest, InputStream* stream) {
+  ReadArrayBE<2>((float*)dest, stream);
 }
-inline void ReadVec3BE(InputStream* stream, float* dest) {
-  ReadArrayBE<3>(stream, dest);
+inline void ReadVec3BE(float* dest, InputStream* stream) {
+  ReadArrayBE<3>(dest, stream);
 }
-inline void ReadVec3BE(InputStream* stream, glm::vec3* dest) {
-  ReadArrayBE<3>(stream, (float*)dest);
+inline void ReadVec3BE(glm::vec3* dest, InputStream* stream) {
+  ReadArrayBE<3>((float*)dest, stream);
 }
-inline void ReadVec4BE(InputStream* stream, float* dest) {
-  ReadArrayBE<4>(stream, dest);
+inline void ReadVec4BE(float* dest, InputStream* stream) {
+  ReadArrayBE<4>(dest, stream);
 }
-inline void ReadVec4BE(InputStream* stream, glm::vec4* dest) {
-  ReadArrayBE<4>(stream, (float*)dest);
+inline void ReadVec4BE(glm::vec4* dest, InputStream* stream) {
+  ReadArrayBE<4>((float*)dest, stream);
 }
-inline void ReadMat4BE(InputStream* stream, float* dest) {
-  ReadArrayBE<16>(stream, dest);
+inline void ReadMat4BE(float* dest, InputStream* stream) {
+  ReadArrayBE<16>(dest, stream);
 }
-inline void ReadMat4BE(InputStream* stream, glm::mat4* dest) {
-  ReadArrayBE<16>(stream, (float*)dest);
+inline void ReadMat4BE(glm::mat4* dest, InputStream* stream) {
+  ReadArrayBE<16>((float*)dest, stream);
 }
 
 }  // namespace Io
