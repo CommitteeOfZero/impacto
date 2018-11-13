@@ -219,17 +219,23 @@ void Init() {
   }
 
 #ifdef IMPACTO_GL_DEBUG
-  GLint flags;
-  glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-  if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
-    GLDebug = true;
-    glEnable(GL_DEBUG_OUTPUT);
-    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-    glDebugMessageCallbackARB(&LogGLMessageCallback, NULL);
-    glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL,
-                             GL_TRUE);
+  if (ActualGraphicsApi == GfxApi_GL) {
+    GLint flags;
+    glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+    if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
+      GLDebug = true;
+      glEnable(GL_DEBUG_OUTPUT);
+      glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+      glDebugMessageCallbackARB(&LogGLMessageCallback, NULL);
+      glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0,
+                               NULL, GL_TRUE);
+    } else {
+      ImpLog(LL_Error, LC_GL, "Could not get debug context\n");
+    }
   } else {
-    ImpLog(LL_Error, LC_GL, "Could not get debug context\n");
+    ImpLog(LL_Error, LC_GL,
+           "IMPACTO_GL_DEBUG defined but no debug context requested because "
+           "we're using GLES\n");
   }
 #endif
 
