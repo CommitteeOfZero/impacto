@@ -21,7 +21,6 @@ class MpkArchive : public VfsArchive {
  public:
   ~MpkArchive();
   IoError Open(FileMeta* file, InputStream** outStream) override;
-  IoError Slurp(FileMeta* file, void** outBuffer, int64_t* outSize) override;
 
  private:
   MpkMetaEntry* TOC = 0;
@@ -52,12 +51,6 @@ IoError MpkArchive::Open(FileMeta* file, InputStream** outStream) {
            entry->Compressed);
   }
   return err;
-}
-
-IoError MpkArchive::Slurp(FileMeta* file, void** outBuffer, int64_t* outSize) {
-  ImpLog(LL_Trace, LC_IO, "Tried to slurp from MPK \"%s\"\n",
-         BaseStream->Meta.FileName.c_str());
-  return IoError_Fail;
 }
 
 IoError MpkArchive::Create(InputStream* stream, VfsArchive** outArchive) {

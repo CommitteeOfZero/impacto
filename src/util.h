@@ -3,6 +3,9 @@
 #include "impacto.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <algorithm>
+#include <SDL_stdinc.h>
+#include <string>
 
 // TODO own _malloca for gcc
 
@@ -137,6 +140,18 @@ inline float NormalizeRad(float rad) {
   rad = fmodf(rad + (float)M_PI, 2.0f * (float)M_PI);
   if (rad < 0) rad += 2.0 * M_PI;
   return rad - M_PI;
+}
+
+inline bool StringEndsWith(std::string const& str, std::string const& ending) {
+  if (str.length() < ending.length()) return false;
+  return std::equal(ending.rbegin(), ending.rend(), str.rbegin());
+}
+
+inline bool StringEndsWithCi(std::string const& str,
+                             std::string const& ending) {
+  if (str.length() < ending.length()) return false;
+  return 0 == SDL_strcasecmp(str.c_str() + str.length() - ending.length(),
+                             ending.c_str());
 }
 
 }  // namespace Impacto

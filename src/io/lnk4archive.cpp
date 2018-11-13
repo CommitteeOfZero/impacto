@@ -17,7 +17,6 @@ class Lnk4Archive : public VfsArchive {
  public:
   ~Lnk4Archive();
   IoError Open(FileMeta* file, InputStream** outStream) override;
-  IoError Slurp(FileMeta* file, void** outBuffer, int64_t* outSize) override;
 
  private:
   Lnk4MetaEntry* TOC = 0;
@@ -39,12 +38,6 @@ IoError Lnk4Archive::Open(FileMeta* file, InputStream** outStream) {
            entry->FileName.c_str(), BaseStream->Meta.FileName.c_str());
   }
   return err;
-}
-
-IoError Lnk4Archive::Slurp(FileMeta* file, void** outBuffer, int64_t* outSize) {
-  ImpLog(LL_Trace, LC_IO, "Tried to slurp from LNK4 \"%s\"\n",
-         BaseStream->Meta.FileName.c_str());
-  return IoError_Fail;
 }
 
 IoError Lnk4Archive::Create(InputStream* stream, VfsArchive** outArchive) {

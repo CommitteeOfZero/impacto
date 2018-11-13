@@ -24,8 +24,6 @@ static std::vector<VfsArchiveFactory> Archivers;
 static ska::flat_hash_map<std::string, std::vector<VfsArchive*>> Mounts;
 static SDL_mutex* Lock;
 
-static std::string const VfsArchiveBasePath = "./USRDIR";
-
 static IoError MountInternal(std::string const& mountpoint,
                              InputStream* stream) {
   VfsArchive* archive;
@@ -206,6 +204,13 @@ IoError VfsGetMeta(std::string const& mountpoint, std::string const& fileName,
   *outMeta = *origMeta;
   outMeta->ArchiveMountPoint = mountpoint;
   outMeta->ArchiveFileName = archive->BaseStream->Meta.FileName;
+  if (outMeta->Size < 0) {
+    err = archive->GetCurrentSize(origMeta, &outMeta->Size);
+    if (err != IoError_OK) {
+      ImpLog(LL_Error, LC_IO, "Getting current size failed!\n");
+      goto end;
+    }
+  }
 
 end:
   SDL_UnlockMutex(Lock);
@@ -232,6 +237,13 @@ IoError VfsGetMeta(std::string const& mountpoint, uint32_t id,
   *outMeta = *origMeta;
   outMeta->ArchiveMountPoint = mountpoint;
   outMeta->ArchiveFileName = archive->BaseStream->Meta.FileName;
+  if (outMeta->Size < 0) {
+    err = archive->GetCurrentSize(origMeta, &outMeta->Size);
+    if (err != IoError_OK) {
+      ImpLog(LL_Error, LC_IO, "Getting current size failed!\n");
+      goto end;
+    }
+  }
 
 end:
   SDL_UnlockMutex(Lock);
@@ -338,6 +350,12 @@ IoError SlurpInternal(VfsArchive* archive, FileMeta* origMeta, void** outMemory,
     delete stream;
     if (readErr < 0) {
       free(*outMemory);
+      ImpLog(LL_Error, LC_IO,
+             "Opening/reading \"%s\" (%d) from mountpoint \"%s\" (archive file "
+             "\"%s\") failed\n",
+             origMeta->FileName.c_str(), origMeta->Id,
+             archive->MountPoint.c_str(),
+             archive->BaseStream->Meta.FileName.c_str());
       err = IoError_Fail;
     } else {
       err = IoError_OK;

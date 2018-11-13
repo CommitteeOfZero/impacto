@@ -518,10 +518,6 @@ static IoError DecompressLayla(char* input, uint32_t compressedSize,
 IoError CpkArchive::Slurp(FileMeta* file, void** outBuffer, int64_t* outSize) {
   CpkMetaEntry* entry = (CpkMetaEntry*)file;
   if (!entry->Compressed) {
-    ImpLog(LL_Debug, LC_IO,
-           "CPK cannot slurp uncompressed file \"%s\" in archive "
-           "\"%s\"\n",
-           entry->FileName.c_str(), BaseStream->Meta.FileName.c_str());
     return IoError_Fail;
   }
 

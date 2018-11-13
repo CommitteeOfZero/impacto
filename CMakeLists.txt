@@ -49,9 +49,11 @@ set(Impacto_Src
     src/io/physicalfilestream.cpp
     src/io/uncompressedstream.cpp
     src/io/zlibstream.cpp
+    src/io/vfsarchive.cpp
     src/io/mpkarchive.cpp
     src/io/cpkarchive.cpp
     src/io/lnk4archive.cpp
+    src/io/clsarchive.cpp
 
     src/texture/texture.cpp
     src/texture/s3tc.cpp
