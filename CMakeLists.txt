@@ -53,7 +53,7 @@ set(Impacto_Src
     src/io/mpkarchive.cpp
     src/io/cpkarchive.cpp
     src/io/lnk4archive.cpp
-    src/io/clsarchive.cpp
+    src/io/textarchive.cpp
 
     src/texture/texture.cpp
     src/texture/s3tc.cpp

@@ -18,7 +18,6 @@ namespace Io {
 // now.
 
 // TODO:
-// - Overlay
 // - c0data style redirection (multiple source mountpoints -> one target)
 // - Make the rest of the engine use the new VFS
 // - Configurable physical file search paths
