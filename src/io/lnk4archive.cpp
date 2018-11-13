@@ -71,7 +71,8 @@ IoError Lnk4Archive::Create(InputStream* stream, VfsArchive** outArchive) {
   uint32_t maxFileCount = (dataOffset - tocOffset) / 8;
 
   rawToc = (uint32_t*)ImpStackAlloc(dataOffset - tocOffset);
-  if (stream->Read(rawToc, dataOffset - tocOffset) != dataOffset - 8) goto fail;
+  if (stream->Read(rawToc, dataOffset - tocOffset) != dataOffset - tocOffset)
+    goto fail;
 
   uint32_t fileCount = 0;
   for (uint32_t* it = rawToc; it < rawToc + (maxFileCount * 2); it += 2) {

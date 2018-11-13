@@ -704,7 +704,7 @@ IoError VfsArchive::Slurp(uint32_t id, void** outData, int64_t* outSize) {
   if (*outSize == 0) return IoError_OK;
 
   *outData = malloc(*outSize);
-  if (*outData == NULL) return IoError_OutOfMemory;
+  if (*outData == NULL) return IoError_Fail;
 
   if (canStream) {
     SDL_RWops* file;
