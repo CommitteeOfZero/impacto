@@ -296,6 +296,8 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
   CurrentX = 0.0f;
 }
 
+float WaitIconAngle = 0.0f;
+
 void DialoguePage::Update(float dt) {
   if (!TextIsFullyOpaque) {
     int lastFullyOpaqueGlyphCount = FullyOpaqueGlyphCount;
@@ -328,6 +330,9 @@ void DialoguePage::Update(float dt) {
       AnimState = DPAS_Shown;
     }
   }
+
+  if (WaitIconAngle >= 6.28319f) WaitIconAngle = 0.0f;
+  WaitIconAngle += 1.8f * dt;
 }
 
 void DialoguePage::Render() {
@@ -348,17 +353,6 @@ void DialoguePage::Render() {
     col.a = glm::smoothstep(0.0f, 1.0f, ADVBoxOpacity);
     Renderer2D::DrawSprite(
         mesBox, RectF(0.0f, 361.0f * (720.0f / 544.0f), 1280.0f, 206.0f), col);
-    // if (TextIsFullyOpaque) {
-    //  Sprite waitIcon;
-    //  waitIcon.Sheet = Profile::Dlg.DataSpriteSheet;
-    //  waitIcon.Bounds = RectF(1.0f, 97.0f, 32.0f, 32.0f);
-    //  waitIcon.BaseScale = glm::vec2(1.0f);
-    //  Renderer2D::DrawSprite(
-    //      waitIcon, RectF(Glyphs[Length - 1].DestRect.X +
-    //                          Glyphs[Length - 1].DestRect.Width + 1.0f,
-    //                      Glyphs[Length - 1].DestRect.Y + 2.0f,
-    //                      32.0f, 32.0f));
-    //}
   }
 
   for (int i = 0; i < Length; i++) {
@@ -389,7 +383,7 @@ void DialoguePage::Render() {
   if (Mode == DPM_ADV && HasName) {
     Sprite nameInd;
     nameInd.Sheet = Profile::Dlg.DataSpriteSheet;
-    nameInd.Bounds = RectF(768.0f, 774.0f, 1010.0f, 31.0f);
+    nameInd.Bounds = RectF(768.0f, 774.0f, 155.0f, 31.0f);
     nameInd.BaseScale = glm::vec2(1280.0f / 960.0f, 720.0f / 544.0f);
     glm::vec4 col;
     col.r = 1.0f;
@@ -397,7 +391,7 @@ void DialoguePage::Render() {
     col.b = 1.0f;
     col.a = glm::smoothstep(0.0f, 1.0f, ADVBoxOpacity);
     Renderer2D::DrawSprite(
-        nameInd, RectF(0.0f, 380.0f * (720.0f / 544.0f), 1010.0f, 31.0f), col);
+        nameInd, RectF(0.0f, 380.0f * (720.0f / 544.0f), 155.0f, 31.0f), col);
 
     RectF* dests = (RectF*)ImpStackAlloc(sizeof(RectF) * NameLength);
     Sprite* sprites = (Sprite*)ImpStackAlloc(sizeof(Sprite) * NameLength);
@@ -422,6 +416,47 @@ void DialoguePage::Render() {
       for (int i = 0; i < NameLength; i++) dests[i].X -= width;
     }
 
+    // Name graphic additional length
+    float graphicAddWidth = width * 0.75f;
+    if (graphicAddWidth > 48.0f)
+      graphicAddWidth -= 48.0f;
+    else
+      graphicAddWidth = 0.0f;
+    Sprite nameGraphicAdd;
+    nameGraphicAdd.Sheet = Profile::Dlg.DataSpriteSheet;
+    nameGraphicAdd.BaseScale = glm::vec2(1280.0f / 960.0f, 720.0f / 544.0f);
+    float nameGraphicPos = 155.0f;
+
+    while (graphicAddWidth > 0.0f) {
+      if (graphicAddWidth > 86.0f) {
+        nameGraphicAdd.Bounds = RectF(923.0f, 774.0f, 86.0f, 31.0f);
+        Renderer2D::DrawSprite(nameGraphicAdd,
+                               RectF(nameGraphicPos * (1280.0f / 960.0f),
+                                     380.0f * (720.0f / 544.0f), 86.0f, 31.0f),
+                               col);
+        graphicAddWidth -= 86.0f;
+        nameGraphicPos += 86.0f;
+      } else {
+        nameGraphicAdd.Bounds = RectF(923.0f, 774.0f, graphicAddWidth, 31.0f);
+        Renderer2D::DrawSprite(
+            nameGraphicAdd,
+            RectF(nameGraphicPos * (1280.0f / 960.0f),
+                  380.0f * (720.0f / 544.0f), graphicAddWidth, 31.0f),
+            col);
+        nameGraphicPos += graphicAddWidth;
+        graphicAddWidth = 0.0f;
+      }
+    }
+
+    Sprite nameGraphicDot;
+    nameGraphicDot.Sheet = Profile::Dlg.DataSpriteSheet;
+    nameGraphicDot.BaseScale = glm::vec2(1280.0f / 960.0f, 720.0f / 544.0f);
+    nameGraphicDot.Bounds = RectF(1010.0f, 774.0f, 22.0f, 31.0f);
+    Renderer2D::DrawSprite(nameGraphicDot,
+                           RectF(nameGraphicPos * (1280.0f / 960.0f),
+                                 380.0f * (720.0f / 544.0f), 22.0f, 31.0f),
+                           col);
+
     glm::vec4 color = RgbaIntToFloat(Profile::Dlg.ColorTable[0].TextColor);
     color.a *= glm::smoothstep(0.0f, 1.0f, ADVBoxOpacity);
 
@@ -444,6 +479,20 @@ void DialoguePage::Render() {
 
     ImpStackFree(sprites);
     ImpStackFree(dests);
+  }
+
+  // Wait icon
+  if (TextIsFullyOpaque) {
+    Sprite waitIcon;
+    waitIcon.Sheet = Profile::Dlg.DataSpriteSheet;
+    waitIcon.Bounds = RectF(1.0f, 97.0f, 32.0f, 32.0f);
+    waitIcon.BaseScale = glm::vec2(1.0f);
+    Renderer2D::DrawSprite(
+        waitIcon,
+        RectF(Glyphs[Length - 1].DestRect.X +
+                  Glyphs[Length - 1].DestRect.Width + 4.0f,
+              Glyphs[Length - 1].DestRect.Y + 4.0f, 32.0f, 32.0f),
+        glm::vec4(1.0), WaitIconAngle);
   }
 }
 
