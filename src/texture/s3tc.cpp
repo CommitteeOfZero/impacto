@@ -29,10 +29,13 @@
 
 namespace Impacto {
 namespace TexLoad {
+
+using namespace Impacto::Io;
+
 void DecompressBlockDXT1(uint32_t startX, uint32_t startY, uint32_t imageWidth,
-                         SDL_RWops* inputStream, uint8_t* outputImage) {
-  uint16_t color0 = SDL_ReadLE16(inputStream);
-  uint16_t color1 = SDL_ReadLE16(inputStream);
+                         InputStream* inputStream, uint8_t* outputImage) {
+  uint16_t color0 = ReadLE<uint16_t>(inputStream);
+  uint16_t color1 = ReadLE<uint16_t>(inputStream);
 
   uint32_t temp;
 
@@ -50,7 +53,7 @@ void DecompressBlockDXT1(uint32_t startX, uint32_t startY, uint32_t imageWidth,
   temp = (color1 & 0x001F) * 255 + 16;
   uint8_t b1 = (uint8_t)((temp / 32 + temp) / 32);
 
-  uint32_t code = SDL_ReadLE32(inputStream);
+  uint32_t code = ReadLE<uint32_t>(inputStream);
 
   uint8_t r, g, b;
 
@@ -97,7 +100,7 @@ void DecompressBlockDXT1(uint32_t startX, uint32_t startY, uint32_t imageWidth,
 }
 
 void BlockDecompressImageDXT1(uint32_t width, uint32_t height,
-                              SDL_RWops* inputStream, uint8_t* outputImage) {
+                              InputStream* inputStream, uint8_t* outputImage) {
   uint32_t blockCountX = (width + 3) / 4;
   uint32_t blockCountY = (height + 3) / 4;
   uint32_t blockWidth = (width < 4) ? width : 4;
@@ -111,7 +114,7 @@ void BlockDecompressImageDXT1(uint32_t width, uint32_t height,
 }
 
 void BlockDecompressImageDXT1VitaSwizzled(uint32_t width, uint32_t height,
-                                          SDL_RWops* inputStream,
+                                          InputStream* inputStream,
                                           uint8_t* outputImage) {
   uint32_t blockCountX = (width + 3) / 4;
   uint32_t blockCountY = (height + 3) / 4;
@@ -129,19 +132,19 @@ void BlockDecompressImageDXT1VitaSwizzled(uint32_t width, uint32_t height,
 
 // TODO: Kai's eyes are broken, a problem in here might be why
 void DecompressBlockDXT5(uint32_t startX, uint32_t startY, uint32_t imageWidth,
-                         SDL_RWops* inputStream, uint8_t* outputImage) {
-  uint8_t alpha0 = SDL_ReadU8(inputStream);
-  uint8_t alpha1 = SDL_ReadU8(inputStream);
+                         InputStream* inputStream, uint8_t* outputImage) {
+  uint8_t alpha0 = ReadU8(inputStream);
+  uint8_t alpha1 = ReadU8(inputStream);
 
   uint8_t alphaBits[6];
-  SDL_RWread(inputStream, alphaBits, 6, 1);
+  inputStream->Read(alphaBits, 6);
 
   uint32_t alphaCode1 = alphaBits[2] | (alphaBits[3] << 8) |
                         (alphaBits[4] << 16) | (alphaBits[5] << 24);
   uint16_t alphaCode2 = alphaBits[0] | (alphaBits[1] << 8);
 
-  uint16_t color0 = SDL_ReadLE16(inputStream);
-  uint16_t color1 = SDL_ReadLE16(inputStream);
+  uint16_t color0 = ReadLE<uint16_t>(inputStream);
+  uint16_t color1 = ReadLE<uint16_t>(inputStream);
 
   uint32_t temp;
 
@@ -159,7 +162,7 @@ void DecompressBlockDXT5(uint32_t startX, uint32_t startY, uint32_t imageWidth,
   temp = (color1 & 0x001F) * 255 + 16;
   uint8_t b1 = (uint8_t)((temp / 32 + temp) / 32);
 
-  uint32_t code = SDL_ReadLE32(inputStream);
+  uint32_t code = ReadLE<uint32_t>(inputStream);
 
   uint8_t r, g, b, a;
 
@@ -235,7 +238,7 @@ void DecompressBlockDXT5(uint32_t startX, uint32_t startY, uint32_t imageWidth,
 }
 
 void BlockDecompressImageDXT5(uint32_t width, uint32_t height,
-                              SDL_RWops* inputStream, uint8_t* outputImage) {
+                              InputStream* inputStream, uint8_t* outputImage) {
   uint32_t blockCountX = (width + 3) / 4;
   uint32_t blockCountY = (height + 3) / 4;
   uint32_t blockWidth = (width < 4) ? width : 4;
@@ -249,7 +252,7 @@ void BlockDecompressImageDXT5(uint32_t width, uint32_t height,
 }
 
 void BlockDecompressImageDXT5VitaSwizzled(uint32_t width, uint32_t height,
-                                          SDL_RWops* inputStream,
+                                          InputStream* inputStream,
                                           uint8_t* outputImage) {
   uint32_t blockCountX = (width + 3) / 4;
   uint32_t blockCountY = (height + 3) / 4;

@@ -13,6 +13,7 @@
 #include "3d/scene.h"
 #include "mem.h"
 #include "datedisplay.h"
+#include "io/memorystream.h"
 
 namespace Impacto {
 
@@ -160,25 +161,23 @@ void InitVmTest() {
   void* texFile;
   int64_t texSz;
   SystemArchive->Slurp(12, &texFile, &texSz);
-  SDL_RWops* stream = SDL_RWFromConstMem(texFile, (int)texSz);
+  Io::InputStream* stream = new Io::MemoryStream(texFile, (int)texSz, true);
   Texture tex;
   tex.Load(stream);
   Profile::Dlg.DialogueFont.Sheet.Texture = tex.Submit();
-  SDL_RWclose(stream);
-  free(texFile);
+  delete stream;
 
   // Data sprite sheet
   void* dataTexFile;
   int64_t dataTexSz;
   SystemArchive->Slurp(9, &dataTexFile, &dataTexSz);
-  SDL_RWops* dataStream = SDL_RWFromConstMem(dataTexFile, (int)dataTexSz);
+  stream = new Io::MemoryStream(dataTexFile, (int)dataTexSz, true);
   Texture dataTex;
-  dataTex.Load(dataStream);
+  dataTex.Load(stream);
   Profile::Dlg.DataSpriteSheet.DesignHeight = dataTex.Height;
   Profile::Dlg.DataSpriteSheet.DesignWidth = dataTex.Width;
   Profile::Dlg.DataSpriteSheet.Texture = dataTex.Submit();
-  SDL_RWclose(dataStream);
-  free(dataTexFile);
+  delete stream;
 }
 
 void InitDialogueTest() {
@@ -192,12 +191,11 @@ void InitDialogueTest() {
   void* texFile;
   int64_t texSz;
   SystemArchive->Slurp(12, &texFile, &texSz);
-  SDL_RWops* stream = SDL_RWFromConstMem(texFile, (int)texSz);
+  Io::InputStream* stream = new Io::MemoryStream(texFile, (int)texSz, true);
   Texture tex;
   tex.Load(stream);
   Profile::Dlg.DialogueFont.Sheet.Texture = tex.Submit();
-  SDL_RWclose(stream);
-  free(texFile);
+  delete stream;
 
   DrawComponents[0] = TD_Text;
 

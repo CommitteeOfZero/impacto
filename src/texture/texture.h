@@ -2,6 +2,7 @@
 
 #include "../impacto.h"
 #include <vector>
+#include "../io/inputstream.h"
 
 namespace Impacto {
 
@@ -16,14 +17,14 @@ struct Texture {
 
   void Init(TexFmt fmt, int width, int height);
 
-  bool Load(SDL_RWops* stream);
+  bool Load(Io::InputStream* stream);
   void Load1x1(uint8_t red = 0, uint8_t green = 0, uint8_t blue = 0,
                uint8_t alpha = 0);
   void LoadCheckerboard();
   void LoadPoliticalCompass();
   uint32_t Submit();
 
-  typedef bool (*TextureLoader)(SDL_RWops* stream, Texture* texture);
+  typedef bool (*TextureLoader)(Io::InputStream* stream, Texture* texture);
   static bool AddTextureLoader(TextureLoader c);
 
  private:

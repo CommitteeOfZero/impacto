@@ -5,6 +5,8 @@
 
 #include "s3tc.h"
 
+using namespace Impacto::Io;
+
 namespace Impacto {
 
 namespace Gxm {
@@ -155,11 +157,11 @@ void VitaUnswizzle(int* x, int* y, int width, int height) {
 
 /* clang-format on */
 
-bool GXTLoadSubtexture(SDL_RWops* stream, Texture* outTexture,
+bool GXTLoadSubtexture(InputStream* stream, Texture* outTexture,
                        SubtextureHeader* stx, uint8_t* p4Palettes,
                        uint8_t* p8Palettes, uint32_t p4count) {
   memset(outTexture, 0, sizeof(*outTexture));
-  SDL_RWseek(stream, stx->Offset, RW_SEEK_SET);
+  stream->Seek(stx->Offset, RW_SEEK_SET);
   uint32_t baseFormat = (stx->Format & 0xFF000000U);
   uint32_t channelOrder = (stx->Format & 0x0000FFFFU);
 
@@ -177,11 +179,11 @@ bool GXTLoadSubtexture(SDL_RWops* stream, Texture* outTexture,
       outTexture->Init(TexFmt_RGB, stx->Width, stx->Height);
 
       if (channelOrder == Gxm::BGR && stx->PixelOrder == Gxm::Linear) {
-        SDL_RWread(stream, outTexture->Buffer, outTexture->BufferSize, 1);
+        stream->Read(outTexture->Buffer, outTexture->BufferSize);
       } else {
         uint8_t* inBuffer = (uint8_t*)malloc(outTexture->BufferSize);
         uint8_t* reader = inBuffer;
-        SDL_RWread(stream, inBuffer, outTexture->BufferSize, 1);
+        stream->Read(inBuffer, outTexture->BufferSize);
 
         for (int y = 0; y < stx->Height; y++) {
           for (int x = 0; x < stx->Width; x++) {
@@ -216,7 +218,7 @@ bool GXTLoadSubtexture(SDL_RWops* stream, Texture* outTexture,
 
       uint8_t* inBuffer = (uint8_t*)malloc(outTexture->BufferSize);
       uint8_t* reader = inBuffer;
-      SDL_RWread(stream, inBuffer, outTexture->BufferSize, 1);
+      stream->Read(inBuffer, outTexture->BufferSize);
 
       for (int y = 0; y < stx->Height; y++) {
         for (int x = 0; x < stx->Width; x++) {
@@ -250,7 +252,7 @@ bool GXTLoadSubtexture(SDL_RWops* stream, Texture* outTexture,
 
       uint8_t* inBuffer = (uint8_t*)malloc(stx->Width * stx->Height);
       uint8_t* reader = inBuffer;
-      SDL_RWread(stream, inBuffer, stx->Width * stx->Height, 1);
+      stream->Read(inBuffer, stx->Width * stx->Height);
 
       for (int y = 0; y < stx->Height; y++) {
         for (int x = 0; x < stx->Width; x++) {
@@ -307,7 +309,7 @@ bool GXTLoadSubtexture(SDL_RWops* stream, Texture* outTexture,
       if (stx->PixelOrder == Gxm::Swizzled) {
         uint8_t* inBuffer = (uint8_t*)malloc(outTexture->BufferSize);
         uint8_t* reader = inBuffer;
-        SDL_RWread(stream, inBuffer, outTexture->BufferSize, 1);
+        stream->Read(inBuffer, outTexture->BufferSize);
 
         for (int y = 0; y < stx->Height; y++) {
           for (int x = 0; x < stx->Width; x++) {
@@ -322,7 +324,7 @@ bool GXTLoadSubtexture(SDL_RWops* stream, Texture* outTexture,
 
         free(inBuffer);
       } else {
-        SDL_RWread(stream, outTexture->Buffer, outTexture->BufferSize, 1);
+        stream->Read(outTexture->Buffer, outTexture->BufferSize);
       }
       break;
     }
@@ -335,25 +337,25 @@ bool GXTLoadSubtexture(SDL_RWops* stream, Texture* outTexture,
 
 static uint32_t const magic = 0x47585400;
 
-bool TextureLoadGXT(SDL_RWops* stream, Texture* outTexture) {
+bool TextureLoadGXT(InputStream* stream, Texture* outTexture) {
   // Read metadata
 
-  if (SDL_ReadBE32(stream) != magic) {
-    SDL_RWseek(stream, 0, RW_SEEK_SET);
+  if (ReadBE<uint32_t>(stream) != magic) {
+    stream->Seek(0, RW_SEEK_SET);
     return false;
   }
 
   ImpLogSlow(LL_Debug, LC_TextureLoad, "Loading GXT texture\n");
 
-  uint32_t version = SDL_ReadLE32(stream);
-  uint32_t subtextureCount = SDL_ReadLE32(stream);
+  uint32_t version = ReadLE<uint32_t>(stream);
+  uint32_t subtextureCount = ReadLE<uint32_t>(stream);
   assert(subtextureCount == 1);
-  uint32_t subtexturesOffset = SDL_ReadLE32(stream);
-  uint32_t totalTexSize = SDL_ReadLE32(stream);
-  uint32_t p4Count = SDL_ReadLE32(stream);
-  uint32_t p8Count = SDL_ReadLE32(stream);
+  uint32_t subtexturesOffset = ReadLE<uint32_t>(stream);
+  uint32_t totalTexSize = ReadLE<uint32_t>(stream);
+  uint32_t p4Count = ReadLE<uint32_t>(stream);
+  uint32_t p8Count = ReadLE<uint32_t>(stream);
   // padding
-  SDL_RWseek(stream, 4, RW_SEEK_CUR);
+  stream->Seek(4, RW_SEEK_CUR);
 
   ImpLogSlow(
       LL_Debug, LC_TextureLoad,
@@ -363,21 +365,21 @@ bool TextureLoadGXT(SDL_RWops* stream, Texture* outTexture) {
       p8Count);
 
   SubtextureHeader stx;
-  stx.Offset = SDL_ReadLE32(stream);
-  stx.Size = SDL_ReadLE32(stream);
-  stx.PaletteIdx = SDL_ReadLE32(stream);
-  stx.Flags = SDL_ReadLE32(stream);
-  stx.PixelOrder = SDL_ReadLE32(stream);
-  stx.Format = SDL_ReadLE32(stream);
+  stx.Offset = ReadLE<uint32_t>(stream);
+  stx.Size = ReadLE<uint32_t>(stream);
+  stx.PaletteIdx = ReadLE<uint32_t>(stream);
+  stx.Flags = ReadLE<uint32_t>(stream);
+  stx.PixelOrder = ReadLE<uint32_t>(stream);
+  stx.Format = ReadLE<uint32_t>(stream);
 
-  stx.Width = SDL_ReadLE16(stream);
-  stx.Height = SDL_ReadLE16(stream);
-  stx.MipmapCount = SDL_ReadLE16(stream);
+  stx.Width = ReadLE<uint16_t>(stream);
+  stx.Height = ReadLE<uint16_t>(stream);
+  stx.MipmapCount = ReadLE<uint16_t>(stream);
   assert(stx.MipmapCount == 1);
   // subtexture header padding
-  SDL_RWseek(stream, 2, RW_SEEK_CUR);
+  stream->Seek(2, RW_SEEK_CUR);
 
-  SDL_RWseek(stream, stx.Size, RW_SEEK_CUR);
+  stream->Seek(stx.Size, RW_SEEK_CUR);
 
   ImpLogSlow(LL_Debug, LC_TextureLoad,
              "Subtexture Offset=0x%08x, Size=0x%08x, PaletteIdx=0x%08x, "
@@ -393,11 +395,11 @@ bool TextureLoadGXT(SDL_RWops* stream, Texture* outTexture) {
   uint8_t* P8Palettes = NULL;
   if (p4Count > 0) {
     P4Palettes = (uint8_t*)ImpStackAlloc(4 * 16 * p4Count);
-    SDL_RWread(stream, P4Palettes, 4 * 16, p4Count);
+    stream->Read(P4Palettes, 4 * 16 * p4Count);
   }
   if (p8Count > 0) {
     P8Palettes = (uint8_t*)ImpStackAlloc(4 * 256 * p8Count);
-    SDL_RWread(stream, P8Palettes, 4 * 256, p8Count);
+    stream->Read(P8Palettes, 4 * 256 * p8Count);
   }
 
   // Get result

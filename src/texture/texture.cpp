@@ -10,7 +10,7 @@
 
 namespace Impacto {
 
-bool Texture::Load(SDL_RWops* stream) {
+bool Texture::Load(Io::InputStream* stream) {
   using namespace TexLoad;
 
   for (auto f : Registry) {
@@ -20,7 +20,7 @@ bool Texture::Load(SDL_RWops* stream) {
   // no registry for this one, since it has no real magic - we must try it last
   if (TextureIsPlain(stream)) return TextureLoadPlain(stream, this);
 
-  uint32_t magic = SDL_ReadBE32(stream);
+  uint32_t magic = Io::ReadBE<uint32_t>(stream);
   ImpLog(LL_Error, LC_TextureLoad,
          "No loader for texture, possible magic %08X\n", magic);
   return false;

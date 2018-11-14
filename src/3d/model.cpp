@@ -356,14 +356,13 @@ Model* Model::Load(uint32_t modelId) {
                size);
     void* gxt = malloc(size);
     SDL_RWread(stream, gxt, 1, size);
-    SDL_RWops* gxtStream = SDL_RWFromConstMem(gxt, size);
+    Io::InputStream* gxtStream = new Io::MemoryStream(gxt, size, true);
     if (!result->Textures[i].Load(gxtStream)) {
       ImpLog(LL_Debug, LC_ModelLoad,
              "Texture %d failed to load, falling back to 1x1 pixel\n", i);
       result->Textures[i].LoadCheckerboard();
     }
-    SDL_RWclose(gxtStream);
-    free(gxt);
+    delete gxtStream;
   }
 
   if (stream) {

@@ -3,6 +3,8 @@
 namespace Impacto {
 namespace TexLoad {
 
+using namespace Impacto::Io;
+
 // This is for a very simple format used for some graphics by various console
 // releases
 // TODO: big-endian (360/PS3)
@@ -13,29 +15,29 @@ enum PlainPixelMode : uint32_t {
   Plain_8Bit_Alpha = 8 | (2 << 16)
 };
 
-bool TextureIsPlain(SDL_RWops* stream) {
-  SDL_RWseek(stream, 4, RW_SEEK_SET);
-  uint32_t mode = SDL_ReadLE32(stream);
+bool TextureIsPlain(InputStream* stream) {
+  stream->Seek(4, RW_SEEK_SET);
+  uint32_t mode = ReadLE<uint32_t>(stream);
   bool result = (mode == Plain_8Bit_Paletted || mode == Plain_32Bit_ARGB ||
                  mode == Plain_8Bit_Alpha);
-  SDL_RWseek(stream, 0, RW_SEEK_SET);
+  stream->Seek(0, RW_SEEK_SET);
   return result;
 }
 
-bool TextureLoadPlain(SDL_RWops* stream, Texture* outTexture) {
-  uint16_t width = SDL_ReadLE16(stream);
-  uint16_t height = SDL_ReadLE16(stream);
-  PlainPixelMode mode = (PlainPixelMode)SDL_ReadLE32(stream);
+bool TextureLoadPlain(InputStream* stream, Texture* outTexture) {
+  uint16_t width = ReadLE<uint16_t>(stream);
+  uint16_t height = ReadLE<uint16_t>(stream);
+  PlainPixelMode mode = (PlainPixelMode)ReadLE<uint32_t>(stream);
 
   switch (mode) {
     case Plain_8Bit_Paletted: {  // 8-bit paletted; palette is BGRA
       uint8_t palette[256 * 4];
-      SDL_RWread(stream, palette, 4, 256);
+      stream->Read(palette, 4 * 256);
 
       outTexture->Init(TexFmt_RGBA, width, height);
 
       uint8_t* inBuffer = (uint8_t*)malloc(width * height);
-      SDL_RWread(stream, inBuffer, width * height, 1);
+      stream->Read(inBuffer, width * height);
 
       uint8_t* reader = inBuffer;
       uint8_t* writer = outTexture->Buffer;
@@ -63,7 +65,7 @@ bool TextureLoadPlain(SDL_RWops* stream, Texture* outTexture) {
       outTexture->Init(TexFmt_RGBA, width, height);
 
       uint8_t* inBuffer = (uint8_t*)malloc(outTexture->BufferSize);
-      SDL_RWread(stream, inBuffer, outTexture->BufferSize, 1);
+      stream->Read(inBuffer, outTexture->BufferSize);
 
       uint8_t* reader = inBuffer;
       uint8_t* writer = outTexture->Buffer;
@@ -90,7 +92,7 @@ bool TextureLoadPlain(SDL_RWops* stream, Texture* outTexture) {
       memset(outTexture->Buffer, 0xFF, outTexture->BufferSize);
 
       uint8_t* inBuffer = (uint8_t*)malloc(width * height);
-      SDL_RWread(stream, inBuffer, width * height, 1);
+      stream->Read(inBuffer, width * height);
 
       uint8_t* reader = inBuffer;
       uint8_t* writer = outTexture->Buffer + 3;
