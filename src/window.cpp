@@ -144,9 +144,9 @@ static void TryCreateGL(GraphicsApi api) {
 
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, contextFlags);
 
-  SDLWindow = SDL_CreateWindow("impacto", SDL_WINDOWPOS_UNDEFINED,
-                               SDL_WINDOWPOS_UNDEFINED, 1280, 720,
-                               SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+  SDLWindow = SDL_CreateWindow("ROBOTICS;NOTES PC (Alpha r4)",
+                               SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+                               1280, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 
   if (SDLWindow == NULL) {
     ImpLog(LL_Error, LC_General, "Window creation failed: %s\n",
