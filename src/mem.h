@@ -29,10 +29,10 @@ inline glm::vec3 ScrWorkGetVec3(int idX, int idY, int idZ) {
                    ScrWorkGetFloat(idZ));
 }
 inline void ScrWorkSetAngle(int id, float radians) {
-  ScrWorkSetFloat(id, DegToRad(NormalizeRad(radians)));
+  ScrWorkSetFloat(id, RadToDeg(NormalizeRad(radians)));
 }
 inline float ScrWorkGetAngle(int id) {
-  return RadToDeg(NormalizeDeg(ScrWorkGetFloat(id)));
+  return DegToRad(NormalizeDeg(ScrWorkGetFloat(id)));
 }
 inline void ScrWorkSetAngleVec2(int idX, int idY, glm::vec2 vecRadians) {
   ScrWorkSetAngle(idX, vecRadians.x);
