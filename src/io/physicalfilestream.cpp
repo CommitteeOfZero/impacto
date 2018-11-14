@@ -48,7 +48,7 @@ int64_t PhysicalFileStream::Seek(int64_t offset, int origin) {
   if (err < IoError_OK) {
     BufferFill = 0;
     BufferConsumed = 0;
-    int64_t err = SDL_RWseek(RW, offset, origin);
+    err = SDL_RWseek(RW, offset, origin);
     if (err < 0) return IoError_Fail;
     Position = err;
   }
