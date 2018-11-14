@@ -134,8 +134,8 @@ IoError VfsUnmount(std::string const& mountpoint,
   if (it == Mounts.end()) goto end;
   for (auto arcIt = it->second.begin(); arcIt != it->second.end(); arcIt++) {
     if ((*arcIt)->BaseStream->Meta.FileName == archiveFileName) {
-      it->second.erase(arcIt);
       delete *arcIt;
+      it->second.erase(arcIt);
       err = IoError_OK;
       break;
     }
