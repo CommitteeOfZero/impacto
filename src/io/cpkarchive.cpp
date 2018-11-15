@@ -227,13 +227,16 @@ IoError CpkArchive::ReadItoc(int64_t itocOffset, int64_t contentOffset,
       int id = row["ID"].Uint16Val;
       CpkMetaEntry* entry = GetFileListEntry(id);
       entry->Id = id;
-      if (row["ExtractSize"].Uint16Val) {
-        entry->Size = row["ExtractSize"].Uint16Val;
-        entry->CompressedSize = row["FileSize"].Uint16Val;
+
+      uint16_t extractedSize = row["ExtractSize"].Uint16Val;
+      uint16_t fileSize = row["FileSize"].Uint16Val;
+      if (extractedSize && (extractedSize != fileSize)) {
+        entry->Size = extractedSize;
+        entry->CompressedSize = fileSize;
         entry->Compressed = true;
       } else {
-        entry->Size = row["FileSize"].Uint16Val;
-        entry->CompressedSize = entry->Size;
+        entry->Size = fileSize;
+        entry->CompressedSize = fileSize;
         entry->Compressed = false;
       }
       if (entry->FileName.empty()) {
@@ -247,13 +250,16 @@ IoError CpkArchive::ReadItoc(int64_t itocOffset, int64_t contentOffset,
       int id = row["ID"].Uint16Val;
       CpkMetaEntry* entry = GetFileListEntry(id);
       entry->Id = id;
-      if (row["ExtractSize"].Uint32Val) {
-        entry->Size = row["ExtractSize"].Uint32Val;
-        entry->CompressedSize = row["FileSize"].Uint32Val;
+
+      int extractedSize = row["ExtractSize"].Uint32Val;
+      int fileSize = row["FileSize"].Uint32Val;
+      if (extractedSize && (extractedSize != fileSize)) {
+        entry->Size = extractedSize;
+        entry->CompressedSize = fileSize;
         entry->Compressed = true;
       } else {
-        entry->Size = row["FileSize"].Uint32Val;
-        entry->CompressedSize = entry->Size;
+        entry->Size = fileSize;
+        entry->CompressedSize = fileSize;
         entry->Compressed = false;
       }
       if (entry->FileName.empty()) {
