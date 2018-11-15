@@ -25,6 +25,7 @@ void InitSystems() {
   g_LogChannelsConsole = LC_All;
 
   VfsInit();
+  Io::VfsInit();
   WorkQueue::Init();
 }
 

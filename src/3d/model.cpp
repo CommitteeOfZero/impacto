@@ -9,10 +9,11 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "../io/memorystream.h"
+#include "../io/uncompressedstream.h"
+
+using namespace Impacto::Io;
 
 namespace Impacto {
-
-static VfsArchive* AllModelsArchive = NULL;
 
 const uint32_t ModelFileCountsOffset = 0x24;
 const uint32_t ModelFileHeaderSize = 0x54;
@@ -29,6 +30,8 @@ uint32_t* g_BackgroundModelIds;
 char** g_BackgroundModelNames;
 uint32_t g_BackgroundModelCount;
 
+static bool IsInit = false;
+
 bool AnimationIsBlacklisted(uint32_t modelId, uint16_t animId) {
   // This animation file is just broken
   if (modelId == 273 && animId == 22) return true;
@@ -36,12 +39,11 @@ bool AnimationIsBlacklisted(uint32_t modelId, uint16_t animId) {
 }
 
 void Model::Init() {
-  if (AllModelsArchive != NULL) return;
-
+  if (IsInit) return;
+  IsInit = true;
   ImpLog(LL_Info, LC_ModelLoad, "Initializing model loader\n");
-  IoError err = VfsArchive::Mount("model.cpk", &AllModelsArchive);
+  IoError err = VfsMount("model", "model.cpk");
   if (err != IoError_OK) {
-    AllModelsArchive = NULL;
     ImpLog(LL_Error, LC_ModelLoad, "Could not open model archive: %d\n", err);
   }
 }
@@ -54,17 +56,22 @@ void Model::EnumerateModels() {
   g_ModelCount = 0;
   g_BackgroundModelCount = 0;
 
-  uint32_t iterator;
-  VfsFileInfo modelInfo;
-  IoError err = AllModelsArchive->EnumerateStart(&iterator, &modelInfo);
-  while (err == IoError_OK) {
-    if (modelInfo.Name[0] == 'c' || modelInfo.Name[0] == 'C') {
+  ska::flat_hash_map<uint32_t, std::string> listing;
+  IoError err = VfsListFiles("model", listing);
+  std::vector<std::pair<uint32_t, std::string>> listVec(listing.begin(),
+                                                        listing.end());
+  std::sort(listVec.begin(), listVec.end());
+
+  for (auto const& file : listVec) {
+    printf("%s\n", file.second.c_str());
+    if (file.second[0] == 'c' || file.second[0] == 'C') {
       g_ModelCount++;
-    } else if (modelInfo.Name[0] == 'b' || modelInfo.Name[0] == 'B') {
+    } else if (file.second[0] == 'b' || file.second[0] == 'B') {
       g_BackgroundModelCount++;
     }
-    err = AllModelsArchive->EnumerateNext(&iterator, &modelInfo);
   }
+
+  printf("\n\n");
 
   uint32_t currentModel = 0;
   uint32_t currentBackgroundModel = 0;
@@ -75,18 +82,19 @@ void Model::EnumerateModels() {
       (uint32_t*)malloc(g_BackgroundModelCount * sizeof(uint32_t));
   g_BackgroundModelNames =
       (char**)malloc(g_BackgroundModelCount * sizeof(char*));
-  err = AllModelsArchive->EnumerateStart(&iterator, &modelInfo);
-  while (err == IoError_OK) {
-    if (modelInfo.Name[0] == 'c' || modelInfo.Name[0] == 'C') {
-      g_ModelIds[currentModel] = modelInfo.Id;
-      g_ModelNames[currentModel] = strdup(modelInfo.Name);
+
+  for (auto const& file : listVec) {
+    printf("%s\n", file.second.c_str());
+    if (file.second[0] == 'c' || file.second[0] == 'C') {
+      g_ModelIds[currentModel] = file.first;
+      g_ModelNames[currentModel] = strdup(file.second.c_str());
       currentModel++;
-    } else if (modelInfo.Name[0] == 'b' || modelInfo.Name[0] == 'B') {
-      g_BackgroundModelIds[currentBackgroundModel] = modelInfo.Id;
-      g_BackgroundModelNames[currentBackgroundModel] = strdup(modelInfo.Name);
+    } else if (file.second[0] == 'b' || file.second[0] == 'B') {
+      g_BackgroundModelIds[currentBackgroundModel] = file.first;
+      g_BackgroundModelNames[currentBackgroundModel] =
+          strdup(file.second.c_str());
       currentBackgroundModel++;
     }
-    err = AllModelsArchive->EnumerateNext(&iterator, &modelInfo);
   }
 }
 
@@ -109,11 +117,25 @@ Model::~Model() {
 }
 
 Model* Model::Load(uint32_t modelId) {
-  assert(AllModelsArchive != NULL);
   ImpLogSlow(LL_Debug, LC_ModelLoad, "Loading model %d\n", modelId);
 
-  VfsArchive* modelArchive;
-  IoError err = AllModelsArchive->MountChild(modelId, &modelArchive);
+  FileMeta arcMeta;
+  IoError err = VfsGetMeta("model", modelId, &arcMeta);
+  if (err != IoError_OK) {
+    ImpLog(LL_Error, LC_ModelLoad, "Could not open model archive for %d\n",
+           modelId);
+    return NULL;
+  }
+  void* arcMem;
+  int64_t arcSz;
+  err = VfsSlurp("model", modelId, &arcMem, &arcSz);
+  if (err != IoError_OK) {
+    ImpLog(LL_Error, LC_ModelLoad, "Could not open model archive for %d\n",
+           modelId);
+    return NULL;
+  }
+  std::string modelMountpoint = "model_" + arcMeta.FileName;
+  err = VfsMountMemory(modelMountpoint, arcMeta.FileName, arcMem, arcSz, true);
   if (err != IoError_OK) {
     ImpLog(LL_Error, LC_ModelLoad, "Could not open model archive for %d\n",
            modelId);
@@ -122,57 +144,57 @@ Model* Model::Load(uint32_t modelId) {
 
   void* file;
   int64_t fileSize;
-  err = modelArchive->Slurp((uint32_t)0, &file, &fileSize);
+  err = VfsSlurp(modelMountpoint, 0, &file, &fileSize);
   if (err != IoError_OK) {
     ImpLog(LL_Error, LC_ModelLoad, "Could not read model file for %d\n",
            modelId);
-    delete modelArchive;
+    VfsUnmount(modelMountpoint, arcMeta.FileName);
     return NULL;
   }
 
   // We read the whole file at once for speed, but we still want a stream for
   // convenience
-  SDL_RWops* stream = SDL_RWFromConstMem(file, fileSize);
+  InputStream* stream = new MemoryStream(file, fileSize, true);
 
   Model* result = new Model;
   result->Id = modelId;
-  int type = SDL_ReadLE32(stream);
+  uint32_t type = ReadLE<uint32_t>(stream);
   assert(type == ModelType_Background || type == ModelType_Character);
   result->Type = (ModelType)type;
 
   // Read model resource counts and offsets
-  SDL_RWseek(stream, ModelFileCountsOffset, RW_SEEK_SET);
-  result->MeshCount = SDL_ReadLE32(stream);
+  stream->Seek(ModelFileCountsOffset, RW_SEEK_SET);
+  result->MeshCount = ReadLE<uint32_t>(stream);
   assert(result->MeshCount <= ModelMaxMeshesPerModel);
-  result->BoneCount = SDL_ReadLE32(stream);
+  result->BoneCount = ReadLE<uint32_t>(stream);
   if (result->Type == ModelType_Background) {
     // Backgrounds have a skeleton, but it seems to be unused
     result->BoneCount = 0;
   }
   assert(result->BoneCount <= ModelMaxBonesPerModel);
-  result->TextureCount = SDL_ReadLE32(stream);
+  result->TextureCount = ReadLE<uint32_t>(stream);
   assert(result->TextureCount <= ModelMaxTexturesPerModel);
-  result->MorphTargetCount = SDL_ReadLE32(stream);
+  result->MorphTargetCount = ReadLE<uint32_t>(stream);
   assert(
       result->MorphTargetCount <= ModelMaxMorphTargetsPerModel &&
       (result->Type == ModelType_Character || result->MorphTargetCount == 0));
 
-  uint32_t MeshInfosOffset = SDL_ReadLE32(stream);
-  uint32_t BonesOffset = SDL_ReadLE32(stream);
-  uint32_t TexturesOffset = SDL_ReadLE32(stream);
-  uint32_t MorphVertexOffset = SDL_ReadLE32(stream);
-  uint32_t MorphTargetOffset = SDL_ReadLE32(stream);
+  uint32_t MeshInfosOffset = ReadLE<uint32_t>(stream);
+  uint32_t BonesOffset = ReadLE<uint32_t>(stream);
+  uint32_t TexturesOffset = ReadLE<uint32_t>(stream);
+  uint32_t MorphVertexOffset = ReadLE<uint32_t>(stream);
+  uint32_t MorphTargetOffset = ReadLE<uint32_t>(stream);
 
   result->VertexCount = 0;
   result->IndexCount = 0;
 
   // Accumulate per-mesh vertex buffer / index counts
   for (uint32_t i = 0; i < result->MeshCount; i++) {
-    SDL_RWseek(stream, MeshInfosOffset + ModelFileMeshInfoSize * i,
-               RW_SEEK_SET);
-    SDL_RWseek(stream, 0xE0, RW_SEEK_CUR);
-    result->VertexCount += SDL_ReadLE32(stream);
-    result->IndexCount += SDL_ReadLE32(stream);
+    int64_t seekPos = MeshInfosOffset + ModelFileMeshInfoSize * i;
+    seekPos += 0xE0;
+    stream->Seek(seekPos, RW_SEEK_SET);
+    result->VertexCount += ReadLE<int32_t>(stream);
+    result->IndexCount += ReadLE<int32_t>(stream);
   }
 
   if (result->Type == ModelType_Character) {
@@ -184,83 +206,82 @@ Model* Model::Load(uint32_t modelId) {
 
   // Read mesh attributes
   for (uint32_t i = 0; i < result->MeshCount; i++) {
-    SDL_RWseek(stream, MeshInfosOffset + ModelFileMeshInfoSize * i,
-               RW_SEEK_SET);
+    stream->Seek(MeshInfosOffset + ModelFileMeshInfoSize * i, RW_SEEK_SET);
     Mesh* mesh = &result->Meshes[i];
 
     mesh->Id = i;
 
-    mesh->GroupId = SDL_ReadLE32(stream);
-    mesh->MeshBone = SDL_ReadLE16(stream);
-    SDL_RWseek(stream, 9, RW_SEEK_CUR);
-    mesh->MorphTargetCount = SDL_ReadU8(stream);
+    mesh->GroupId = ReadLE<int32_t>(stream);
+    mesh->MeshBone = ReadLE<int16_t>(stream);
+    stream->Seek(9, RW_SEEK_CUR);
+    mesh->MorphTargetCount = ReadU8(stream);
     assert(mesh->MorphTargetCount <= ModelMaxMorphTargetsPerMesh);
-    SDL_RWread(stream, mesh->MorphTargetIds, 1, ModelMaxMorphTargetsPerMesh);
-    SDL_RWseek(stream, ModelUnknownsAfterMorphTargets, RW_SEEK_CUR);
+    stream->Read(mesh->MorphTargetIds, ModelMaxMorphTargetsPerMesh);
 
+    int64_t seekPos = ModelUnknownsAfterMorphTargets;
     // Skip translation, rotation and scale (these sometimes don't match the
     // matrix below, which is authoritative)
-    SDL_RWseek(stream, 3 * sizeof(glm::vec3), RW_SEEK_CUR);
+    seekPos += 3 * sizeof(glm::vec3);
+    stream->Seek(seekPos, RW_SEEK_CUR);
 
     glm::mat4 modelMtx;
-    ReadMat4LE32(&modelMtx, stream);
+    ReadMat4LE(&modelMtx, stream);
     mesh->ModelTransform = Transform(modelMtx);
     // Skip model matrix inverse
-    SDL_RWseek(stream, 1 * sizeof(glm::mat4), RW_SEEK_CUR);
+    stream->Seek(sizeof(glm::mat4), RW_SEEK_CUR);
 
-    mesh->VertexCount = SDL_ReadLE32(stream);
-    mesh->IndexCount = SDL_ReadLE32(stream);
+    mesh->VertexCount = ReadLE<int32_t>(stream);
+    mesh->IndexCount = ReadLE<int32_t>(stream);
 
-    SDL_RWseek(stream, 0x6C, RW_SEEK_CUR);
-    mesh->Opacity = ReadFloatLE32(stream);
+    stream->Seek(0x6C, RW_SEEK_CUR);
+    mesh->Opacity = ReadLE<float>(stream);
 
-    SDL_RWseek(stream, 0x14, RW_SEEK_CUR);
-    ReadArrayLE16(mesh->Maps, stream, TT_Count);
+    stream->Seek(0x14, RW_SEEK_CUR);
+    ReadArrayLE<TT_Count>(mesh->Maps, stream);
 
-    SDL_RWseek(stream, 4, RW_SEEK_CUR);
-    mesh->Flags = SDL_ReadLE32(stream);
+    stream->Seek(4, RW_SEEK_CUR);
+    mesh->Flags = ReadLE<uint32_t>(stream);
   }
 
   // Read vertex buffers and indices
   int32_t CurrentVertexOffset = 0;
   int32_t CurrentIndexOffset = 0;
   for (uint32_t i = 0; i < result->MeshCount; i++) {
-    SDL_RWseek(stream, MeshInfosOffset + ModelFileMeshInfoSize * i,
-               RW_SEEK_SET);
+    int64_t seekPos = MeshInfosOffset + ModelFileMeshInfoSize * i;
     Mesh* mesh = &result->Meshes[i];
     mesh->VertexOffset = CurrentVertexOffset;
     mesh->IndexOffset = CurrentIndexOffset;
 
-    SDL_RWseek(stream, 0xF0, RW_SEEK_CUR);
-    int32_t RawVertexOffset = ModelFileHeaderSize + SDL_ReadLE32(stream);
-    int32_t RawIndexOffset = ModelFileHeaderSize + SDL_ReadLE32(stream);
+    seekPos += 0xF0;
+    stream->Seek(seekPos, RW_SEEK_SET);
+    int32_t RawVertexOffset = ModelFileHeaderSize + ReadLE<int32_t>(stream);
+    int32_t RawIndexOffset = ModelFileHeaderSize + ReadLE<int32_t>(stream);
 
-    mesh->UsedBones = SDL_ReadLE32(stream);
+    mesh->UsedBones = ReadLE<uint32_t>(stream);
     assert(mesh->UsedBones <= ModelMaxBonesPerMesh);
-    ReadArrayLE16(mesh->BoneMap, stream, mesh->UsedBones);
+    ReadArrayLE(mesh->BoneMap, stream, mesh->UsedBones);
 
     // Read vertex buffers
-    SDL_RWseek(stream, RawVertexOffset, RW_SEEK_SET);
+    stream->Seek(RawVertexOffset, RW_SEEK_SET);
     if (result->Type == ModelType_Character) {
       for (uint32_t j = 0; j < mesh->VertexCount; j++) {
         VertexBuffer* vertex =
             &((VertexBuffer*)result->VertexBuffers)[CurrentVertexOffset];
         CurrentVertexOffset++;
         // Position, then Normal, then UV
-        ReadArrayFloatLE32((float*)&vertex->Position, stream, 3 * 2 + 2 * 1);
+        ReadArrayLE<3 * 2 + 2 * 1>((float*)&vertex->Position, stream);
 
         if (mesh->UsedBones > 0) {
-          SDL_RWread(stream, vertex->BoneIndices, 1, 4);
+          stream->Read(vertex->BoneIndices, 4);
 
-          ReadVec4LE32(&vertex->BoneWeights, stream);
+          ReadVec4LE(&vertex->BoneWeights, stream);
         } else {
           // TODO skinned/unskinned mesh distinction?
           *(int*)vertex->BoneIndices = 0;
 
           vertex->BoneWeights = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
 
-          SDL_RWseek(stream, 4 * sizeof(uint8_t) + 4 * sizeof(float),
-                     RW_SEEK_CUR);
+          stream->Seek(4 * sizeof(uint8_t) + 4 * sizeof(float), RW_SEEK_CUR);
         }
       }
     } else if (result->Type == ModelType_Background) {
@@ -269,59 +290,57 @@ Model* Model::Load(uint32_t modelId) {
             &((BgVertexBuffer*)result->VertexBuffers)[CurrentVertexOffset];
         CurrentVertexOffset++;
         // Position, then UV
-        ReadArrayFloatLE32((float*)&vertex->Position, stream, 3 * 1 + 2 * 1);
+        ReadArrayLE<3 * 1 + 2 * 1>((float*)&vertex->Position, stream);
       }
     }
 
     // Read indices
-    SDL_RWseek(stream, RawIndexOffset, RW_SEEK_SET);
-    ReadArrayLE16(result->Indices + CurrentIndexOffset, stream,
-                  mesh->IndexCount);
+    stream->Seek(RawIndexOffset, RW_SEEK_SET);
+    ReadArrayLE(result->Indices + CurrentIndexOffset, stream, mesh->IndexCount);
     CurrentIndexOffset += mesh->IndexCount;
   }
 
   // Read skeleton
   for (uint32_t i = 0; i < result->BoneCount; i++) {
-    SDL_RWseek(stream, BonesOffset + ModelFileBoneSize * i, RW_SEEK_SET);
+    stream->Seek(BonesOffset + ModelFileBoneSize * i, RW_SEEK_SET);
     StaticBone* bone = &result->Bones[i];
 
-    bone->Id = SDL_ReadLE16(stream);
-    SDL_RWseek(stream, 2, RW_SEEK_CUR);
-    bone->Parent = SDL_ReadLE16(stream);
+    bone->Id = ReadLE<int16_t>(stream);
+    stream->Seek(2, RW_SEEK_CUR);
+    bone->Parent = ReadLE<int16_t>(stream);
     if (bone->Parent < 0) {
       result->RootBones[result->RootBoneCount] = i;
       result->RootBoneCount++;
       assert(result->RootBoneCount < ModelMaxRootBones);
     }
-    SDL_RWseek(stream, 8, RW_SEEK_CUR);
-    bone->ChildrenCount = SDL_ReadLE16(stream);
+    stream->Seek(8, RW_SEEK_CUR);
+    bone->ChildrenCount = ReadLE<int16_t>(stream);
     assert(bone->ChildrenCount <= ModelMaxChildrenPerBone);
-    ReadArrayLE16(bone->Children, stream, bone->ChildrenCount);
-    SDL_RWseek(stream,
-               BonesOffset + ModelFileBoneSize * i + BoneBaseTransformOffset,
-               RW_SEEK_SET);
+    ReadArrayLE(bone->Children, stream, bone->ChildrenCount);
+    stream->Seek(BonesOffset + ModelFileBoneSize * i + BoneBaseTransformOffset,
+                 RW_SEEK_SET);
 
     glm::vec3 position, euler, scale;
-    ReadVec3LE32(&position, stream);
-    ReadVec3LE32(&euler, stream);
-    ReadVec3LE32(&scale, stream);
+    ReadVec3LE(&position, stream);
+    ReadVec3LE(&euler, stream);
+    ReadVec3LE(&scale, stream);
     // More often than not these are actually not set...
     if (glm::length(scale) < 0.001f) scale = glm::vec3(1.0f);
     bone->BaseTransform = Transform(position, euler, scale);
 
     // skip over bindpose
-    SDL_RWseek(stream, sizeof(glm::mat4), RW_SEEK_CUR);
+    stream->Seek(sizeof(glm::mat4), RW_SEEK_CUR);
 
-    ReadMat4LE32(&bone->BindInverse, stream);
+    ReadMat4LE(&bone->BindInverse, stream);
   }
 
   result->MorphVertexCount = 0;
   // Accumulate per-morph target vertex buffer counts
   for (uint32_t i = 0; i < result->MorphTargetCount; i++) {
-    SDL_RWseek(stream, MorphTargetOffset + MorphTargetInfoSize * i,
-               RW_SEEK_SET);
-    SDL_RWseek(stream, 4, RW_SEEK_CUR);
-    result->MorphVertexCount += SDL_ReadLE32(stream);
+    int64_t seekPos = MorphTargetOffset + MorphTargetInfoSize * i;
+    seekPos += 4;
+    stream->Seek(seekPos, RW_SEEK_SET);
+    result->MorphVertexCount += ReadLE<int32_t>(stream);
   }
 
   result->MorphVertexBuffers = (MorphVertexBuffer*)calloc(
@@ -332,31 +351,31 @@ Model* Model::Load(uint32_t modelId) {
   for (uint32_t i = 0; i < result->MorphTargetCount; i++) {
     MorphTarget* target = &result->MorphTargets[i];
     target->VertexOffset = CurrentMorphVertexOffset;
-    SDL_RWseek(stream, MorphTargetOffset + MorphTargetInfoSize * i,
-               RW_SEEK_SET);
-    SDL_RWseek(stream, 4, RW_SEEK_CUR);
-    target->VertexCount = SDL_ReadLE32(stream);
-    SDL_RWseek(stream, 4, RW_SEEK_CUR);
-    uint32_t RawMorphVertexOffset = MorphVertexOffset + SDL_ReadLE32(stream);
+    int64_t seekPos = MorphTargetOffset + MorphTargetInfoSize * i;
+    seekPos += 4;
+    stream->Seek(seekPos, RW_SEEK_SET);
+    target->VertexCount = ReadLE<int32_t>(stream);
+    stream->Seek(4, RW_SEEK_CUR);
+    uint32_t RawMorphVertexOffset =
+        MorphVertexOffset + ReadLE<uint32_t>(stream);
 
     // Read vertex buffers
-    SDL_RWseek(stream, RawMorphVertexOffset, RW_SEEK_SET);
+    stream->Seek(RawMorphVertexOffset, RW_SEEK_SET);
     // Per morph vertex buffer: Position, then Normal
-    ReadArrayFloatLE32(
-        (float*)&result->MorphVertexBuffers[CurrentMorphVertexOffset], stream,
-        3 * 2 * target->VertexCount);
+    ReadArrayLE((float*)&result->MorphVertexBuffers[CurrentMorphVertexOffset],
+                stream, 3 * 2 * target->VertexCount);
     CurrentMorphVertexOffset += target->VertexCount;
   }
 
   // Read textures
-  SDL_RWseek(stream, TexturesOffset, RW_SEEK_SET);
+  stream->Seek(TexturesOffset, RW_SEEK_SET);
   for (uint32_t i = 0; i < result->TextureCount; i++) {
-    uint32_t size = SDL_ReadLE32(stream);
+    uint32_t size = ReadLE<uint32_t>(stream);
     ImpLogSlow(LL_Debug, LC_ModelLoad, "Loading texture %d, size=0x%08x\n", i,
                size);
     void* gxt = malloc(size);
-    SDL_RWread(stream, gxt, 1, size);
-    Io::InputStream* gxtStream = new Io::MemoryStream(gxt, size, true);
+    stream->Read(gxt, size);
+    InputStream* gxtStream = new MemoryStream(gxt, size, true);
     if (!result->Textures[i].Load(gxtStream)) {
       ImpLog(LL_Debug, LC_ModelLoad,
              "Texture %d failed to load, falling back to 1x1 pixel\n", i);
@@ -366,10 +385,7 @@ Model* Model::Load(uint32_t modelId) {
   }
 
   if (stream) {
-    SDL_RWclose(stream);
-  }
-  if (file) {
-    free(file);
+    delete stream;
   }
 
   // Animations
@@ -381,25 +397,23 @@ Model* Model::Load(uint32_t modelId) {
   if (result->Type == ModelType_Character) {
     result->AnimationCount = 0;
 
-    uint32_t iterator;
-    VfsFileInfo animFileInfo;
-    err = modelArchive->EnumerateStart(&iterator, &animFileInfo);
+    ska::flat_hash_map<uint32_t, std::string> listing;
+    VfsListFiles(modelMountpoint, listing);
+    std::vector<std::pair<uint32_t, std::string>> listVec(listing.begin(),
+                                                          listing.end());
+    std::sort(listVec.begin(), listVec.end());
 
-    while (err == IoError_OK) {
-      if (animFileInfo.Id != 0 &&
-          !AnimationIsBlacklisted(modelId, animFileInfo.Id)) {
+    for (auto const& file : listVec) {
+      if (file.first != 0 && !AnimationIsBlacklisted(modelId, file.first)) {
         int64_t animSize;
         void* animData;
-        modelArchive->Slurp(animFileInfo.Id, &animData, &animSize);
-
-        Io::InputStream* animStream =
-            new Io::MemoryStream(animData, animSize, true);
-        result->Animations[animFileInfo.Id] =
-            Animation::Load(animStream, result, animFileInfo.Id);
-
+        VfsSlurp(modelMountpoint, file.first, &animData, &animSize);
+        InputStream* animStream = new MemoryStream(animData, animSize, true);
+        result->Animations[file.first] =
+            Animation::Load(animStream, result, file.first);
+        delete animStream;
         result->AnimationCount++;
       }
-      err = modelArchive->EnumerateNext(&iterator, &animFileInfo);
     }
 
     uint32_t currentAnim = 0;
@@ -409,19 +423,16 @@ Model* Model::Load(uint32_t modelId) {
     result->AnimationNames =
         (char**)malloc(result->AnimationCount * sizeof(char*));
 
-    err = modelArchive->EnumerateStart(&iterator, &animFileInfo);
-    while (err == IoError_OK) {
-      if (animFileInfo.Id != 0 &&
-          !AnimationIsBlacklisted(modelId, animFileInfo.Id)) {
-        result->AnimationIds[currentAnim] = animFileInfo.Id;
-        result->AnimationNames[currentAnim] = strdup(animFileInfo.Name);
+    for (auto const& file : listVec) {
+      if (file.first != 0 && !AnimationIsBlacklisted(modelId, file.first)) {
+        result->AnimationIds[currentAnim] = file.first;
+        result->AnimationNames[currentAnim] = strdup(file.second.c_str());
         currentAnim++;
       }
-      err = modelArchive->EnumerateNext(&iterator, &animFileInfo);
     }
   }
 
-  delete modelArchive;
+  VfsUnmount(modelMountpoint, arcMeta.FileName);
 
   return result;
 }
