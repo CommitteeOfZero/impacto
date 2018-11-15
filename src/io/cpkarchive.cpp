@@ -233,6 +233,7 @@ IoError CpkArchive::ReadItoc(int64_t itocOffset, int64_t contentOffset,
         entry->Compressed = true;
       } else {
         entry->Size = row["FileSize"].Uint16Val;
+        entry->CompressedSize = entry->Size;
         entry->Compressed = false;
       }
       if (entry->FileName.empty()) {
@@ -252,6 +253,7 @@ IoError CpkArchive::ReadItoc(int64_t itocOffset, int64_t contentOffset,
         entry->Compressed = true;
       } else {
         entry->Size = row["FileSize"].Uint32Val;
+        entry->CompressedSize = entry->Size;
         entry->Compressed = false;
       }
       if (entry->FileName.empty()) {
@@ -267,7 +269,7 @@ IoError CpkArchive::ReadItoc(int64_t itocOffset, int64_t contentOffset,
                                                       IdsToFiles.end());
   std::sort(fileVec.begin(), fileVec.end());
   for (const auto kv : fileVec) {
-    uint32_t size;
+    int64_t size;
     CpkMetaEntry* entry = (CpkMetaEntry*)kv.second;
     if (entry->CompressedSize > 0) {
       size = entry->CompressedSize;
@@ -321,6 +323,7 @@ IoError CpkArchive::ReadToc(int64_t tocOffset, int64_t contentOffset) {
       entry->Compressed = true;
     } else {
       entry->Size = fileSize;
+      entry->CompressedSize = fileSize;
       entry->Compressed = false;
     }
   }
