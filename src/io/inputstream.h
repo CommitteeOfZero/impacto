@@ -3,7 +3,9 @@
 #include "filemeta.h"
 #include <stdio.h>
 #include "io.h"
+#include <SDL_rwops.h>
 #include <SDL_endian.h>
+#include <glm/glm.hpp>
 
 namespace Impacto {
 namespace Io {

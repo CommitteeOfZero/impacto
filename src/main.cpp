@@ -24,7 +24,6 @@ void InitSystems() {
   g_LogLevelConsole = LL_Max;
   g_LogChannelsConsole = LC_All;
 
-  VfsInit();
   Io::VfsInit();
   WorkQueue::Init();
 }
