@@ -9,8 +9,6 @@
 namespace Impacto {
 namespace Audio {
 
-bool AudioIsHca(SDL_RWops* stream);
-
 class HcaAudioStream : public AudioStream,
                        public Buffering<HcaAudioStream, int16_t> {
   friend class Buffering<HcaAudioStream, int16_t>;
@@ -25,7 +23,7 @@ class HcaAudioStream : public AudioStream,
   bool DecodeBuffer();
 
  private:
-  static AudioStream* Create(SDL_RWops* stream);
+  static AudioStream* Create(Io::InputStream* stream);
   HcaAudioStream() {}
 
   void InitWithInfo(clHCA_stInfo* info);

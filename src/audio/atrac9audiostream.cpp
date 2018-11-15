@@ -2,6 +2,8 @@
 #include "../log.h"
 #include "../util.h"
 
+using namespace Impacto::Io;
+
 namespace Impacto {
 namespace Audio {
 
@@ -31,17 +33,17 @@ static const uint8_t Atrac9Guid[] = {0xD2, 0x42, 0xE1, 0x47, 0xBA, 0x36,
                                      0x4F, 0x8C, 0x83, 0x6C};
 
 // http://www.piclist.com/techref/io/serial/midi/wave.html
-static bool ParseAt9Riff(SDL_RWops* stream, At9ContainerInfo* info) {
-  if (SDL_ReadBE32(stream) != RIFFMagic) return false;
-  uint32_t remaining = SDL_ReadLE32(stream) - 4;
-  if (SDL_ReadBE32(stream) != WAVEMagic) return false;
+static bool ParseAt9Riff(InputStream* stream, At9ContainerInfo* info) {
+  if (ReadBE<uint32_t>(stream) != RIFFMagic) return false;
+  uint32_t remaining = ReadLE<uint32_t>(stream) - 4;
+  if (ReadBE<uint32_t>(stream) != WAVEMagic) return false;
 
   bool gotFmt = false;
   bool gotFact = false;
 
   while (remaining) {
-    uint32_t chunkId = SDL_ReadBE32(stream);
-    uint32_t chunkSize = SDL_ReadLE32(stream);
+    uint32_t chunkId = ReadBE<uint32_t>(stream);
+    uint32_t chunkSize = ReadLE<uint32_t>(stream);
     remaining -= 8;
     remaining -= chunkSize;
     switch (chunkId) {
@@ -54,7 +56,7 @@ static bool ParseAt9Riff(SDL_RWops* stream, At9ContainerInfo* info) {
         gotFmt = true;
         if (chunkSize != 52) return false;
         uint8_t fmtData[52];
-        SDL_RWread(stream, fmtData, 52, 1);
+        stream->Read(fmtData, 52);
         if (SDL_SwapLE16(*(uint16_t*)fmtData) != WaveFormatExtensible)
           return false;
         if (memcmp(fmtData + 24, Atrac9Guid, sizeof(Atrac9Guid)) != 0)
@@ -84,7 +86,7 @@ static bool ParseAt9Riff(SDL_RWops* stream, At9ContainerInfo* info) {
         gotFact = true;
         if (chunkSize != 12) return false;
         uint8_t factData[12];
-        SDL_RWread(stream, factData, 12, 1);
+        stream->Read(factData, 12);
 
         info->SampleCount = SDL_SwapLE32(*(uint32_t*)(factData));
         info->EncoderDelay = SDL_SwapLE32(*(uint32_t*)(factData + 8));
@@ -93,30 +95,29 @@ static bool ParseAt9Riff(SDL_RWops* stream, At9ContainerInfo* info) {
       }
       case smplMagic: {
         if (chunkSize < 36) {
-          SDL_RWseek(stream, chunkSize, RW_SEEK_CUR);
+          stream->Seek(chunkSize, RW_SEEK_CUR);
           break;
         }
         uint8_t smplData[36];
-        SDL_RWread(stream, smplData, 36, 1);
+        stream->Read(smplData, 36);
         int loopCount = SDL_SwapLE32(*(uint32_t*)(smplData + 28));
         info->HasLoop = loopCount > 0;
         if (info->HasLoop) {
           uint8_t loopChunk[24];
-          SDL_RWread(stream, loopChunk, 24, 1);
+          stream->Read(loopChunk, 24);
           info->LoopStart = SDL_SwapLE32(*(uint32_t*)(loopChunk + 8));
           info->LoopEnd = SDL_SwapLE32(*(uint32_t*)(loopChunk + 12));
         }
         // skip further loop chunks
-        if (loopCount > 1)
-          SDL_RWseek(stream, 24 * (loopCount - 1), RW_SEEK_CUR);
+        if (loopCount > 1) stream->Seek(24 * (loopCount - 1), RW_SEEK_CUR);
         break;
       }
       case dataMagic: {
-        info->StreamDataOffset = SDL_RWtell(stream);
+        info->StreamDataOffset = stream->Position;
         goto breakLoop;
       }
       default: {
-        SDL_RWseek(stream, chunkSize, RW_SEEK_CUR);
+        stream->Seek(chunkSize, RW_SEEK_CUR);
         break;
       }
     }
@@ -129,7 +130,7 @@ breakLoop:
   }
 }
 
-AudioStream* Atrac9AudioStream::Create(SDL_RWops* stream) {
+AudioStream* Atrac9AudioStream::Create(InputStream* stream) {
   Atrac9AudioStream* result = 0;
 
   void* At9 = Atrac9GetHandle();
@@ -171,7 +172,7 @@ fail:
     result->BaseStream = 0;
     delete result;
   }
-  SDL_RWseek(stream, 0, RW_SEEK_SET);
+  stream->Seek(0, RW_SEEK_SET);
   return 0;
 }
 
@@ -201,7 +202,7 @@ void Atrac9AudioStream::InitWithInfo(At9ContainerInfo* container,
          "LoopStart=%d, LoopEnd=%d\n",
          Duration, SampleRate, ChannelCount, LoopStart, LoopEnd);
 
-  SDL_RWseek(BaseStream, StreamDataOffset, RW_SEEK_SET);
+  BaseStream->Seek(StreamDataOffset, RW_SEEK_SET);
   Seek(EncoderDelay);
 }
 

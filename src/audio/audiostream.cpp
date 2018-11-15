@@ -4,7 +4,7 @@
 namespace Impacto {
 namespace Audio {
 
-AudioStream* AudioStream::Create(SDL_RWops* stream) {
+AudioStream* AudioStream::Create(Io::InputStream* stream) {
   for (auto f : Registry) {
     AudioStream* result = f(stream);
     if (result) return result;

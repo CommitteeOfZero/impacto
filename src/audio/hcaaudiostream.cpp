@@ -3,22 +3,24 @@
 #include "../util.h"
 #include "../log.h"
 
+using namespace Impacto::Io;
+
 namespace Impacto {
 namespace Audio {
 
-AudioStream* HcaAudioStream::Create(SDL_RWops* stream) {
+AudioStream* HcaAudioStream::Create(InputStream* stream) {
   clHCA* Decoder = 0;
   HcaAudioStream* result = 0;
 
   uint8_t headerStart[8];
-  SDL_RWread(stream, headerStart, 8, 1);
+  stream->Read(headerStart, 8);
   int headerSize = clHCA_isOurFile(headerStart, 8);
   if (headerSize < 0) {
     goto fail;
   }
   uint8_t* header = (uint8_t*)ImpStackAlloc(headerSize);
   memcpy(header, headerStart, 8);
-  SDL_RWread(stream, header + 8, headerSize - 8, 1);
+  stream->Read(header + 8, headerSize - 8);
 
   Decoder = clHCA_new();
   int err = clHCA_DecodeHeader(Decoder, header, headerSize);
@@ -51,7 +53,7 @@ fail:
     result->BaseStream = 0;
     delete result;
   }
-  SDL_RWseek(stream, 0, RW_SEEK_SET);
+  stream->Seek(0, RW_SEEK_SET);
   return 0;
 }
 

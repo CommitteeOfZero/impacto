@@ -303,8 +303,8 @@ void Update(float dt) {
 
   if (BgmChangeQueued &&
       Audio::Channels[Audio::AC_BGM0].State == Audio::ACS_Stopped) {
-    SDL_RWops* stream;
-    Game::BgmArchive->Open(BgmIds[CurrentBgm], &stream);
+    Io::InputStream* stream;
+    Io::VfsOpen("bgm", BgmIds[CurrentBgm], &stream);
     Audio::Channels[Audio::AC_BGM0].Play(Audio::AudioStream::Create(stream),
                                          BgmLoop, BgmFadeIn);
     BgmChangeQueued = false;
@@ -315,25 +315,19 @@ void Update(float dt) {
 }
 
 static void EnumerateBgm() {
-  uint32_t iterator;
-  VfsFileInfo info;
+  std::map<uint32_t, std::string> listing;
+  IoError err = Io::VfsListFiles("bgm", listing);
 
-  IoError err = Game::BgmArchive->EnumerateStart(&iterator, &info);
-  while (err == IoError_OK) {
-    BgmCount++;
-    err = Game::BgmArchive->EnumerateNext(&iterator, &info);
-  }
+  BgmCount = listing.size();
 
   BgmNames = (char**)malloc(BgmCount * sizeof(char*));
   BgmIds = (uint32_t*)malloc(BgmCount * sizeof(uint32_t));
 
   uint32_t i = 0;
-  err = Game::BgmArchive->EnumerateStart(&iterator, &info);
-  while (err == IoError_OK) {
-    BgmIds[i] = info.Id;
-    BgmNames[i] = strdup(info.Name);
+  for (auto const& file : listing) {
+    BgmIds[i] = file.first;
+    BgmNames[i] = strdup(file.second.c_str());
     i++;
-    err = Game::BgmArchive->EnumerateNext(&iterator, &info);
   }
 }
 

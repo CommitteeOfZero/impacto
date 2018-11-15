@@ -25,8 +25,8 @@ VmInstruction(InstBGMplay) {
   } else {
   }
 
-  SDL_RWops* stream;
-  Game::BgmArchive->Open(track, &stream);
+  Io::InputStream* stream;
+  Io::VfsOpen("bgm", track, &stream);
   Audio::Channels[Audio::AC_BGM0].Volume = 0.15f;
   Audio::Channels[Audio::AC_BGM0].Play(Audio::AudioStream::Create(stream),
                                        (bool)loop, 0.0f);
@@ -43,8 +43,8 @@ VmInstruction(InstSEplay) {
   if (type != 2) {
     PopExpression(effect);
     PopExpression(loop);
-    SDL_RWops* stream;
-    Game::SeArchive->Open(effect, &stream);
+    Io::InputStream* stream;
+    Io::VfsOpen("se", effect, &stream);
     Audio::Channels[Audio::AC_SE0 + channel].Volume =
         (ScrWork[4315 + channel] / 100.0f) - 0.3f;
     Audio::Channels[Audio::AC_SE0 + channel].Play(
@@ -63,8 +63,8 @@ VmInstruction(InstSEstop) {
 VmInstruction(InstSSEplay) {
   StartInstruction;
   PopExpression(sysSeId);
-  SDL_RWops* stream;
-  Game::SysseArchive->Open(sysSeId, &stream);
+  Io::InputStream* stream;
+  Io::VfsOpen("sysse", sysSeId, &stream);
   Audio::Channels[Audio::AC_SSE].Play(Audio::AudioStream::Create(stream), false,
                                       0.0f);
 }
@@ -83,8 +83,8 @@ VmInstruction(InstVoicePlay) {
   PopUint8(channel);
   PopExpression(arg1);
   PopExpression(arg2);
-  SDL_RWops* stream;
-  Game::VoiceArchive->Open(arg1, &stream);
+  Io::InputStream* stream;
+  Io::VfsOpen("voice", arg1, &stream);
   Audio::Channels[Audio::AC_VOICE0 + channel].Play(
       Audio::AudioStream::Create(stream), (bool)arg2, 0.0f);
 }

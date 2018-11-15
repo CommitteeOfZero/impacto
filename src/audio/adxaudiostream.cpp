@@ -5,6 +5,8 @@
 
 #include <algorithm>
 
+using namespace Impacto::Io;
+
 namespace Impacto {
 namespace Audio {
 
@@ -91,9 +93,9 @@ bool AdxAudioStream::DecodeBuffer() {
   return true;
 }
 
-static bool ParseAdxHeader(SDL_RWops* stream, AdxHeaderInfo* info) {
+static bool ParseAdxHeader(InputStream* stream, AdxHeaderInfo* info) {
   uint8_t header[0x34];
-  SDL_RWread(stream, header, 0x34, 1);
+  stream->Read(header, 0x34);
 
   // first magic
   if (SDL_SwapBE16(*(uint16_t*)header) != 0x8000) return false;
@@ -101,10 +103,10 @@ static bool ParseAdxHeader(SDL_RWops* stream, AdxHeaderInfo* info) {
   info->StreamDataOffset = SDL_SwapBE16(*(uint16_t*)(header + 2)) + 4;
 
   // second magic
-  SDL_RWseek(stream, info->StreamDataOffset - 6, RW_SEEK_SET);
+  stream->Seek(info->StreamDataOffset - 6, RW_SEEK_SET);
   char const magic[] = "(c)CRI";
   char fileMagic[6];
-  SDL_RWread(stream, fileMagic, 6, 1);
+  stream->Read(fileMagic, 6);
   if (memcmp(magic, fileMagic, 6) != 0) {
     return false;
   }
@@ -172,7 +174,7 @@ static bool ParseAdxHeader(SDL_RWops* stream, AdxHeaderInfo* info) {
   return true;
 }
 
-AudioStream* AdxAudioStream::Create(SDL_RWops* stream) {
+AudioStream* AdxAudioStream::Create(InputStream* stream) {
   AdxAudioStream* result = 0;
 
   AdxHeaderInfo info = {0};
@@ -189,7 +191,7 @@ fail:
     result->BaseStream = 0;
     delete result;
   }
-  SDL_RWseek(stream, 0, RW_SEEK_SET);
+  stream->Seek(0, RW_SEEK_SET);
   return 0;
 }
 AdxAudioStream::~AdxAudioStream() {}
@@ -211,7 +213,7 @@ void AdxAudioStream::InitWithInfo(AdxHeaderInfo* info) {
 
   BitDepth = 16;
 
-  SDL_RWseek(BaseStream, StreamDataOffset, RW_SEEK_SET);
+  BaseStream->Seek(StreamDataOffset, RW_SEEK_SET);
 }
 
 int AdxAudioStream::Read(void* buffer, int samples) {

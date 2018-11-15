@@ -48,8 +48,7 @@ class Buffering {
 
         DecodedSamplesAvailable = SamplesPerBuffer;
         DecodedSamplesConsumed = 0;
-        SDL_RWread(stream->BaseStream, stream->EncodedBuffer,
-                   EncodedBytesPerBuffer, 1);
+        stream->BaseStream->Read(stream->EncodedBuffer, EncodedBytesPerBuffer);
         bool decodeSuccess = stream->DecodeBuffer();
 
         DecodedSamplesAvailable =
@@ -67,9 +66,8 @@ class Buffering {
     int currentBuffer = stream->ReadPosition / SamplesPerBuffer;
     if (currentBuffer != buffer) {
       // seek base stream
-      SDL_RWseek(stream->BaseStream,
-                 StreamDataOffset + buffer * EncodedBytesPerBuffer,
-                 RW_SEEK_SET);
+      stream->BaseStream->Seek(
+          StreamDataOffset + buffer * EncodedBytesPerBuffer, RW_SEEK_SET);
       stream->ReadPosition = buffer * SamplesPerBuffer;
       DecodedSamplesAvailable = 0;
       DecodedSamplesConsumed = 0;

@@ -39,10 +39,6 @@ namespace Game {
 DrawComponentType DrawComponents[Vm::MaxThreads];
 
 VfsArchive* SystemArchive = 0;
-VfsArchive* BgmArchive = 0;
-VfsArchive* SeArchive = 0;
-VfsArchive* SysseArchive = 0;
-VfsArchive* VoiceArchive = 0;
 
 bool ShouldQuit = false;
 
@@ -61,8 +57,7 @@ static void Init() {
     }
   }
   if (!Profile::BgmArchiveName.empty()) {
-    IoError err =
-        VfsArchive::Mount(Profile::BgmArchiveName.c_str(), &BgmArchive);
+    IoError err = Io::VfsMount("bgm", Profile::BgmArchiveName);
     if (err != IoError_OK) {
       ImpLog(LL_Fatal, LC_General, "Failed to load BGM archive!\n");
       Window::Shutdown();
@@ -70,7 +65,7 @@ static void Init() {
     }
   }
   if (!Profile::SeArchiveName.empty()) {
-    IoError err = VfsArchive::Mount(Profile::SeArchiveName.c_str(), &SeArchive);
+    IoError err = Io::VfsMount("se", Profile::SeArchiveName);
     if (err != IoError_OK) {
       ImpLog(LL_Fatal, LC_General, "Failed to load SE archive!\n");
       Window::Shutdown();
@@ -78,8 +73,7 @@ static void Init() {
     }
   }
   if (!Profile::SysseArchiveName.empty()) {
-    IoError err =
-        VfsArchive::Mount(Profile::SysseArchiveName.c_str(), &SysseArchive);
+    IoError err = Io::VfsMount("sysse", Profile::SysseArchiveName);
     if (err != IoError_OK) {
       ImpLog(LL_Fatal, LC_General, "Failed to load SYSSE archive!\n");
       Window::Shutdown();
@@ -87,8 +81,7 @@ static void Init() {
     }
   }
   if (!Profile::VoiceArchiveName.empty()) {
-    IoError err =
-        VfsArchive::Mount(Profile::VoiceArchiveName.c_str(), &VoiceArchive);
+    IoError err = Io::VfsMount("voice", Profile::VoiceArchiveName);
     if (err != IoError_OK) {
       ImpLog(LL_Fatal, LC_General, "Failed to load VOICE archive!\n");
       Window::Shutdown();

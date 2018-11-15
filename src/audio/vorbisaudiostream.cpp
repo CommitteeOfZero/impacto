@@ -2,21 +2,23 @@
 #include "../log.h"
 #include <algorithm>
 
+using namespace Impacto::Io;
+
 namespace Impacto {
 namespace Audio {
 
 static size_t OvRwRead(void* ptr, size_t size, size_t nmemb, void* datasource) {
-  return SDL_RWread((SDL_RWops*)datasource, ptr, size, nmemb);
+  return ((InputStream*)datasource)->Read(ptr, size * nmemb) / size;
 }
 static int OvRwSeek(void* datasource, ogg_int64_t offset, int whence) {
-  return SDL_RWseek((SDL_RWops*)datasource, offset, whence);
+  return ((InputStream*)datasource)->Seek(offset, whence);
 }
 static long OvRwTell(void* datasource) {
-  return SDL_RWtell((SDL_RWops*)datasource);
+  return ((InputStream*)datasource)->Position;
 }
 ov_callbacks OvRwCallbacks = {OvRwRead, OvRwSeek, NULL, OvRwTell};
 
-AudioStream* VorbisAudioStream::Create(SDL_RWops* stream) {
+AudioStream* VorbisAudioStream::Create(InputStream* stream) {
   VorbisAudioStream* result = 0;
   OggVorbis_File Vf;
   bool VfOpen = false;
@@ -52,7 +54,7 @@ fail:
     result->BaseStream = 0;
     delete result;
   }
-  SDL_RWseek(stream, 0, RW_SEEK_SET);
+  stream->Seek(0, RW_SEEK_SET);
   return 0;
 }
 

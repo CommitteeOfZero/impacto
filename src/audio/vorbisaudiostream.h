@@ -17,7 +17,7 @@ class VorbisAudioStream : public AudioStream {
   bool VfOpen = false;
 
  private:
-  static AudioStream* Create(SDL_RWops* stream);
+  static AudioStream* Create(Io::InputStream* stream);
   VorbisAudioStream() {}
   void InitWithInfo(vorbis_info* info);
 

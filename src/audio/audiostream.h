@@ -2,6 +2,7 @@
 
 #include "audiocommon.h"
 #include "../impacto.h"
+#include "../io/inputstream.h"
 
 #include <vector>
 
@@ -11,10 +12,10 @@ namespace Audio {
 class AudioStream {
  public:
   virtual ~AudioStream() {
-    if (BaseStream) SDL_RWclose(BaseStream);
+    if (BaseStream) delete BaseStream;
   }
 
-  static AudioStream* Create(SDL_RWops* stream);
+  static AudioStream* Create(Io::InputStream* stream);
 
   // Returns number of samples read
   virtual int Read(void* buffer, int samples) = 0;
@@ -33,12 +34,12 @@ class AudioStream {
   int ReadPosition = 0;
 
  protected:
-  typedef AudioStream* (*AudioStreamCreator)(SDL_RWops* stream);
+  typedef AudioStream* (*AudioStreamCreator)(Io::InputStream* stream);
   static bool AddAudioStreamCreator(AudioStreamCreator c);
 
   AudioStream(){};
 
-  SDL_RWops* BaseStream;
+  Io::InputStream* BaseStream = 0;
 
  private:
   static std::vector<AudioStreamCreator> Registry;

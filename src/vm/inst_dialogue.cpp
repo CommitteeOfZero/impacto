@@ -125,8 +125,8 @@ VmInstruction(InstMes) {
       thread->Ip = line;
       DialoguePages[thread->DialoguePageId].AddString(thread);
       thread->Ip = oldIp;
-      SDL_RWops* stream;
-      Game::VoiceArchive->Open(audioId, &stream);
+      Io::InputStream* stream;
+      Io::VfsOpen("voice", audioId, &stream);
       Audio::Channels[Audio::AC_VOICE0].Play(Audio::AudioStream::Create(stream),
                                              false, 0.0f);
     } break;
