@@ -38,8 +38,6 @@ nk_context* Nk = 0;
 namespace Game {
 DrawComponentType DrawComponents[Vm::MaxThreads];
 
-VfsArchive* SystemArchive = 0;
-
 bool ShouldQuit = false;
 
 static void Init() {
@@ -48,8 +46,7 @@ static void Init() {
   memset(DrawComponents, TD_None, sizeof(DrawComponents));
 
   if (!Profile::SystemArchiveName.empty()) {
-    IoError err =
-        VfsArchive::Mount(Profile::SystemArchiveName.c_str(), &SystemArchive);
+    IoError err = Io::VfsMount("system", Profile::SystemArchiveName);
     if (err != IoError_OK) {
       ImpLog(LL_Fatal, LC_General, "Failed to load system archive!\n");
       Window::Shutdown();
@@ -151,20 +148,15 @@ void InitVmTest() {
   Init();
 
   // Font
-  void* texFile;
-  int64_t texSz;
-  SystemArchive->Slurp(12, &texFile, &texSz);
-  Io::InputStream* stream = new Io::MemoryStream(texFile, (int)texSz, true);
+  Io::InputStream* stream;
+  Io::VfsOpen("system", 12, &stream);
   Texture tex;
   tex.Load(stream);
   Profile::Dlg.DialogueFont.Sheet.Texture = tex.Submit();
   delete stream;
 
   // Data sprite sheet
-  void* dataTexFile;
-  int64_t dataTexSz;
-  SystemArchive->Slurp(9, &dataTexFile, &dataTexSz);
-  stream = new Io::MemoryStream(dataTexFile, (int)dataTexSz, true);
+  Io::VfsOpen("system", 9, &stream);
   Texture dataTex;
   dataTex.Load(stream);
   Profile::Dlg.DataSpriteSheet.DesignHeight = dataTex.Height;
@@ -181,10 +173,8 @@ void InitDialogueTest() {
 
   Init();
 
-  void* texFile;
-  int64_t texSz;
-  SystemArchive->Slurp(12, &texFile, &texSz);
-  Io::InputStream* stream = new Io::MemoryStream(texFile, (int)texSz, true);
+  Io::InputStream* stream;
+  Io::VfsOpen("system", 12, &stream);
   Texture tex;
   tex.Load(stream);
   Profile::Dlg.DialogueFont.Sheet.Texture = tex.Submit();

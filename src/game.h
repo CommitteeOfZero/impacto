@@ -65,8 +65,6 @@ void Render();
 
 extern DrawComponentType DrawComponents[Vm::MaxThreads];
 
-extern VfsArchive* SystemArchive;
-
 extern bool ShouldQuit;
 }  // namespace Game
 

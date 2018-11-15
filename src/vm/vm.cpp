@@ -17,8 +17,6 @@ uint8_t* ScriptBuffers[MaxLoadedScripts];
 bool BlockCurrentScriptThread;
 uint32_t SwitchValue;
 
-static VfsArchive* AllScriptsArchive = 0;
-
 static uint32_t LoadedScriptIds[MaxLoadedScripts];
 
 static Sc3VmThread ThreadPool[MaxThreads];  // Main thread pool where all the
@@ -79,9 +77,8 @@ void Init(uint32_t startScriptId, uint32_t bufferId) {
 
   memset(&ThreadGroupCount, 0, MaxThreadGroups * 4);
 
-  IoError err = VfsArchive::Mount("script.cpk", &AllScriptsArchive);
+  IoError err = Io::VfsMount("script", "script.cpk");
   if (err != IoError_OK) {
-    AllScriptsArchive = NULL;
     ImpLog(LL_Error, LC_VM, "Could not open script archive: %d\n", err);
   }
 
@@ -100,14 +97,13 @@ void Init(uint32_t startScriptId, uint32_t bufferId) {
 }
 
 bool LoadScript(uint32_t bufferId, uint32_t scriptId) {
-  assert(AllScriptsArchive != NULL);
-  char scriptName[256];
-  AllScriptsArchive->GetName(scriptId, scriptName);
-  ImpLogSlow(LL_Debug, LC_VM, "Loading script \"%s\"\n", scriptName);
+  Io::FileMeta meta;
+  Io::VfsGetMeta("script", scriptId, &meta);
+  ImpLogSlow(LL_Debug, LC_VM, "Loading script \"%s\"\n", meta.FileName);
 
   void* file;
   int64_t fileSize;
-  IoError err = AllScriptsArchive->Slurp(scriptId, &file, &fileSize);
+  IoError err = Io::VfsSlurp("script", scriptId, &file, &fileSize);
   if (err != IoError_OK) {
     ImpLog(LL_Error, LC_VM, "Could not read script file for %d\n", scriptId);
     return false;
