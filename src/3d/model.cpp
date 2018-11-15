@@ -56,13 +56,10 @@ void Model::EnumerateModels() {
   g_ModelCount = 0;
   g_BackgroundModelCount = 0;
 
-  ska::flat_hash_map<uint32_t, std::string> listing;
+  std::map<uint32_t, std::string> listing;
   IoError err = VfsListFiles("model", listing);
-  std::vector<std::pair<uint32_t, std::string>> listVec(listing.begin(),
-                                                        listing.end());
-  std::sort(listVec.begin(), listVec.end());
 
-  for (auto const& file : listVec) {
+  for (auto const& file : listing) {
     printf("%s\n", file.second.c_str());
     if (file.second[0] == 'c' || file.second[0] == 'C') {
       g_ModelCount++;
@@ -83,7 +80,7 @@ void Model::EnumerateModels() {
   g_BackgroundModelNames =
       (char**)malloc(g_BackgroundModelCount * sizeof(char*));
 
-  for (auto const& file : listVec) {
+  for (auto const& file : listing) {
     printf("%s\n", file.second.c_str());
     if (file.second[0] == 'c' || file.second[0] == 'C') {
       g_ModelIds[currentModel] = file.first;
@@ -397,13 +394,10 @@ Model* Model::Load(uint32_t modelId) {
   if (result->Type == ModelType_Character) {
     result->AnimationCount = 0;
 
-    ska::flat_hash_map<uint32_t, std::string> listing;
+    std::map<uint32_t, std::string> listing;
     VfsListFiles(modelMountpoint, listing);
-    std::vector<std::pair<uint32_t, std::string>> listVec(listing.begin(),
-                                                          listing.end());
-    std::sort(listVec.begin(), listVec.end());
 
-    for (auto const& file : listVec) {
+    for (auto const& file : listing) {
       if (file.first != 0 && !AnimationIsBlacklisted(modelId, file.first)) {
         int64_t animSize;
         void* animData;
@@ -423,7 +417,7 @@ Model* Model::Load(uint32_t modelId) {
     result->AnimationNames =
         (char**)malloc(result->AnimationCount * sizeof(char*));
 
-    for (auto const& file : listVec) {
+    for (auto const& file : listing) {
       if (file.first != 0 && !AnimationIsBlacklisted(modelId, file.first)) {
         result->AnimationIds[currentAnim] = file.first;
         result->AnimationNames[currentAnim] = strdup(file.second.c_str());

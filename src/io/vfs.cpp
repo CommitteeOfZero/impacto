@@ -399,7 +399,7 @@ end:
 }
 
 IoError VfsListFiles(std::string const& mountpoint,
-                     ska::flat_hash_map<uint32_t, std::string>& outListing) {
+                     std::map<uint32_t, std::string>& outListing) {
   IoError err;
   SDL_LockMutex(Lock);
 

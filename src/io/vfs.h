@@ -10,6 +10,7 @@
 // only these for new vfs
 #include "inputstream.h"
 #include <flat_hash_map.hpp>
+#include <map>
 
 namespace Impacto {
 namespace Io {
@@ -58,7 +59,7 @@ IoError VfsSlurp(std::string const& mountpoint, uint32_t id, void** outMemory,
                  int64_t* outSize);
 // You can provide a filled outListing, we'll clear it
 IoError VfsListFiles(std::string const& mountpoint,
-                     ska::flat_hash_map<uint32_t, std::string>& outListing);
+                     std::map<uint32_t, std::string>& outListing);
 
 class VfsArchive;
 typedef IoError (*VfsArchiveFactory)(InputStream* stream,
