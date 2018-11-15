@@ -47,7 +47,8 @@ IoError Lnk4Archive::Create(InputStream* stream, VfsArchive** outArchive) {
   Lnk4Archive* result = 0;
   uint32_t* rawToc = 0;
 
-  uint32_t blockSize = 2048;
+  uint32_t offsetBlockSize = 2048;
+  uint32_t blockSize = 1024;
 
   uint32_t const magic = 0x4C4E4B34;
   if (ReadBE<uint32_t>(stream) != magic) {
@@ -55,7 +56,7 @@ IoError Lnk4Archive::Create(InputStream* stream, VfsArchive** outArchive) {
     goto fail;
   }
   uint32_t const tocOffset = 8;
-  uint32_t dataOffset = ReadBE<uint32_t>(stream);
+  uint32_t dataOffset = ReadLE<uint32_t>(stream);
   if (dataOffset < tocOffset) {
     ImpLog(LL_Error, LC_IO, "LNK4 header too short\n");
     goto fail;
@@ -70,7 +71,7 @@ IoError Lnk4Archive::Create(InputStream* stream, VfsArchive** outArchive) {
   uint32_t fileCount = 0;
   for (uint32_t* it = rawToc; it < rawToc + (maxFileCount * 2); it += 2) {
     // first file starts at 0
-    if (SDL_SwapBE32(*it) == 0 && it != rawToc) break;
+    if (SDL_SwapLE32(*it) == 0 && it != rawToc) break;
     fileCount++;
   }
 
@@ -86,8 +87,8 @@ IoError Lnk4Archive::Create(InputStream* stream, VfsArchive** outArchive) {
     result->TOC[i].FileName = fileName;
     result->TOC[i].Id = i;
     result->TOC[i].Offset =
-        SDL_SwapBE32(rawToc[i * 2]) * blockSize + dataOffset;
-    result->TOC[i].Size = SDL_SwapBE32(rawToc[i * 2 + 1]) * blockSize;
+        SDL_SwapLE32(rawToc[i * 2]) * offsetBlockSize + dataOffset;
+    result->TOC[i].Size = SDL_SwapLE32(rawToc[i * 2 + 1]) * blockSize;
     result->IdsToFiles[i] = &result->TOC[i];
     result->NamesToIds[result->TOC[i].FileName] = i;
   }
