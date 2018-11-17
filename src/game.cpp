@@ -141,7 +141,7 @@ void InitVmTest() {
   Profile::SystemArchiveName = "system.cpk";
   Profile::BgmArchiveName = "bgm.cpk";
   Profile::SeArchiveName = "se.cpk";
-  Profile::SysseArchiveName = "sysse.cpk";
+  Profile::SysseArchiveName = "sysse.dat";
   Profile::VoiceArchiveName = "voice.cpk";
   Profile::Dlg = DialoguePageFeatureConfig_RNE;
 

@@ -77,7 +77,7 @@ void Init(uint32_t startScriptId, uint32_t bufferId) {
 
   memset(&ThreadGroupCount, 0, MaxThreadGroups * 4);
 
-  IoError err = Io::VfsMount("script", "script.cpk");
+  IoError err = Io::VfsMount("script", "script.cls");
   if (err != IoError_OK) {
     ImpLog(LL_Error, LC_VM, "Could not open script archive: %d\n", err);
   }
