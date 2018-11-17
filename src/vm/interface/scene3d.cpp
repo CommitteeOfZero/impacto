@@ -56,10 +56,13 @@ static void UpdateCamera() {
   // Scene3D::MainCamera.Move(glm::vec3(0.0f, 12.5f, 23.0f));
 
   // Update lookat
-  Scene3D::MainCamera.LookAt(glm::vec3(0.0f, 12.5f, 0.0f));
+  // Just the main camera for now
+  glm::vec3 lookatCam =
+      ScrWorkGetAngleVec3(SW_MAINCAMERAROTX, SW_MAINCAMERAROTY, 5425);
+  Scene3D::MainCamera.CameraTransform.SetRotationFromEuler(lookatCam);
 
   // Update fov
-  float hFovRad = ScrWorkGetAngle(SW_IRUOCAMERAHFOV);
+  float hFovRad = ScrWorkGetAngle(SW_MAINCAMERAHFOV);
   Scene3D::MainCamera.Fov =
       2.0f *
       atanf(tanf(hFovRad / 2.0f) * (1.0f / Scene3D::MainCamera.AspectRatio));

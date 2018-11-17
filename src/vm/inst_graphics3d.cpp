@@ -349,6 +349,8 @@ VmInstruction(InstUnk0216) {
                  "STUB instruction Unk0216(type: %i, arg1: %i, arg2: %i, arg3: "
                  "%i, arg4: %i, arg5: %i, arg6: %i, arg7: %i, arg8: %i)\n",
                  type, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+      ScrWork[arg7] = arg5;
+      ScrWork[arg8] = arg6;
     } break;
     case 1: {
       PopExpression(arg1);
@@ -374,13 +376,15 @@ VmInstruction(InstUnk0218) {
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
-      PopExpression(outYRot);
       PopExpression(outXRot);
-      glm::vec3 lookat = LookAtEulerZYX(glm::vec3(arg1, arg2, arg3),
-                                        glm::vec3(0.0f, 12.5f, 23.0f));
+      PopExpression(outYRot);
+      glm::vec3 lookat =
+          LookAtEulerZYX(glm::vec3(ScrRealToFloat(arg1), ScrRealToFloat(arg2),
+                                   ScrRealToFloat(arg3)),
+                         glm::vec3(0.0f, 12.5f, 23.0f));
 
-      ScrWork[outYRot] = FloatToScrReal(RadToDeg(NormalizeRad(lookat.y)));
       ScrWork[outXRot] = FloatToScrReal(RadToDeg(NormalizeRad(lookat.x)));
+      ScrWork[outYRot] = FloatToScrReal(RadToDeg(NormalizeRad(lookat.y)));
     } break;
     case 2: {
       PopExpression(arg1);
