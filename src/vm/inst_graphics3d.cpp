@@ -73,9 +73,12 @@ VmInstruction(InstCHAplayAnim3DMaybe) {
         (animationId - 1);
     Scene3D::Renderables[bufferId].Animator.LoopStart =
         AnimLoopPoints[loopId].LoopStart / AnimDesignFrameRate;
-    if (AnimLoopPoints[loopId].LoopEnd != 65536)
+    if (AnimLoopPoints[loopId].LoopEnd == 65536) {
+      Scene3D::Renderables[bufferId].Animator.OneShot = true;
+    } else {
       Scene3D::Renderables[bufferId].Animator.LoopEnd =
           AnimLoopPoints[loopId].LoopEnd / AnimDesignFrameRate;
+    }
   }
 }
 VmInstruction(InstCHAUnk02073D) {

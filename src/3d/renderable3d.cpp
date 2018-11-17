@@ -328,7 +328,14 @@ void Renderable3D::PoseBone(int16_t id) {
 
 void Renderable3D::Update(float dt) {
   if (!IsUsed) return;
-  Animator.Update(dt);
+  if (Animator.CurrentAnimation) {
+    if (!Animator.IsPlaying) {
+      // oneshot ended
+      SwitchAnimation(1, AnimationTransitionTime);
+    } else {
+      Animator.Update(dt);
+    }
+  }
   CalculateMorphedVertices();
   Pose();
   if (PrevPoseWeight > 0.0f) {

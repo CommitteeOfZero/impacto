@@ -19,7 +19,9 @@ void ModelAnimator::Start(uint16_t animId) {
   LoopStart = 0.0f;
   LoopEnd = CurrentAnimation->Duration;
   IsPlaying = true;
+  OneShot = false;
   Reset();
+  Update(0);
 }
 void ModelAnimator::Reset() {
   assert(Character != 0);

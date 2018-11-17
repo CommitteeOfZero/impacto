@@ -31,7 +31,7 @@ class ModelAnimator {
   float LoopStart = 0.0f;
   float LoopEnd = 0.0f;
   bool IsPlaying = false;
-
+  bool OneShot = false;
   bool Tweening = true;
 
   void Unload();
