@@ -87,11 +87,11 @@ VmInstruction(InstCHAUnk02073D) {
              bufferId, unk01);
 }
 
-inline bool ObjectIsModel(int objectId) {
+inline bool ObjectIsRenderable(int objectId) {
   return objectId >= 10 && objectId <= 17;
 }
 // Note: runtime model, not model file
-inline int ObjectIdToModelId(int objectId) { return objectId - 10; }
+inline int ObjectIdToRenderableId(int objectId) { return objectId - 10; }
 
 // Objects are positioned in a nonstandard spherical coordinate system in
 // relation to a parent
@@ -108,21 +108,22 @@ VmInstruction(InstPositionObject) {
   float phi = DegToRad(ScrRealToFloat(phi_));
   float radius = ScrRealToFloat(radius_);
 
-  // if(ObjectIsModel(parentObjId))
-  int parentModelId = ObjectIdToModelId(parentObjId);
-  // if(ObjectIsModel(objectId))
-  int modelId = ObjectIdToModelId(objectId);
+  // if(ObjectIsRenderable(parentObjId))
+  int parentRenderableId = ObjectIdToRenderableId(parentObjId);
+  // if(ObjectIsRenderable(objectId))
+  int renderableId = ObjectIdToRenderableId(objectId);
 
   glm::vec3 pos = glm::vec3(0.0f);
 
   if (parentObjId && objectId) {
     if (parentObjId == 1 || parentObjId == 2) {  // camera
       pos.z += 23.0f;
-    } else if (ObjectIsModel(parentObjId)) {
+    } else if (ObjectIsRenderable(parentObjId)) {
       // note, these are different than SW_CHAnPOSa ???
-      pos = ScrWorkGetVec3(20 * parentModelId + 5706, 20 * parentModelId + 5707,
-                           20 * parentModelId + 5708);
-      pos.y += ScrWorkGetFloat(30 * parentModelId + SW_CHA1YCENTER);
+      pos = ScrWorkGetVec3(20 * parentRenderableId + 5706,
+                           20 * parentRenderableId + 5707,
+                           20 * parentRenderableId + 5708);
+      pos.y += ScrWorkGetFloat(30 * parentRenderableId + SW_CHA1YCENTER);
     } else if (parentObjId >= 30 && parentObjId <= 38) {
       pos = ScrWorkGetVec3(20 * parentObjId + 4900, 20 * parentObjId + 4901,
                            20 * parentObjId + 4902);
@@ -146,8 +147,8 @@ VmInstruction(InstPositionObject) {
     if (objectId == 1 || objectId == 2) {
       pos.z -= 23.0f;
     }
-    if (ObjectIsModel(objectId)) {
-      pos.y -= ScrWorkGetFloat(30 * modelId + SW_CHA1YCENTER);
+    if (ObjectIsRenderable(objectId)) {
+      pos.y -= ScrWorkGetFloat(30 * renderableId + SW_CHA1YCENTER);
     }
 
     if (objectId == 1) {  // main camera
@@ -156,9 +157,10 @@ VmInstruction(InstPositionObject) {
     } else if (objectId == 2) {  // iruo camera
       ScrWorkSetVec3(SW_IRUOCAMERAPOSX, SW_IRUOCAMERAPOSY, SW_IRUOCAMERAPOSZ,
                      pos);
-    } else if (ObjectIsModel(objectId)) {
-      ScrWorkSetVec3(SW_CHA1POSX + 30 * modelId, SW_CHA1POSY + 30 * modelId,
-                     SW_CHA1POSZ + 30 * modelId, pos);
+    } else if (ObjectIsRenderable(objectId)) {
+      ScrWorkSetVec3(SW_CHA1POSX + 30 * renderableId,
+                     SW_CHA1POSY + 30 * renderableId,
+                     SW_CHA1POSZ + 30 * renderableId, pos);
     } else if (objectId >= 30 && objectId <= 38) {
       ScrWorkSetVec3(4900 + 20 * objectId, 4901 + 20 * objectId,
                      4902 + 20 * objectId, pos);
