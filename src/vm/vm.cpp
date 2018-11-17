@@ -43,14 +43,6 @@ static InstructionProc* OpcodeTableUser1;
 static InstructionProc* OpcodeTableGraph;
 static InstructionProc* OpcodeTableGraph3D;
 
-// TODO: with an unstable 60fps lock this probably ends up being choppy?
-static float const VmFrameTime = 1.0f / 60.0f;
-static float TimeSinceLastFrame = 0.0f;
-// For easy toggling during development
-// TODO: Should we disable tickrate lock during skip mode?
-static bool const VmFixedTickRate = true;
-
-static void Tick();
 static void CreateThreadExecTable();
 static void SortThreadExecTable();
 static void CreateThreadDrawTable();
@@ -186,19 +178,7 @@ static void SortThreadExecTable() {
   }
 }
 
-void Update(float dt) {
-  if (VmFixedTickRate) {
-    TimeSinceLastFrame += dt;
-    while (TimeSinceLastFrame >= VmFrameTime) {
-      Tick();
-      TimeSinceLastFrame -= VmFrameTime;
-    }
-  } else {
-    Tick();
-  }
-}
-
-static void Tick() {
+void Update() {
   CreateThreadExecTable();
   SortThreadExecTable();
 

@@ -19,7 +19,7 @@ uint8_t* ScriptGetStrAddress(uint8_t* scriptBufferAdr, uint32_t strNum);
 uint8_t* ScriptGetRetAddress(uint8_t* scriptBufferAdr, uint32_t retNum);
 
 void Init(uint32_t startScriptId, uint32_t bufferId);
-void Update(float dt);
+void Update();
 
 bool LoadScript(uint32_t bufferId, uint32_t scriptId);
 

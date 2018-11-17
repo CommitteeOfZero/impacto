@@ -256,7 +256,7 @@ void Update(float dt) {
   }
 
   if (Profile::GameFeatures & GameFeature::Sc3VirtualMachine) {
-    Vm::Update(dt);
+    Vm::Update();
   }
 
   if (Profile::GameFeatures & GameFeature::Audio) {
