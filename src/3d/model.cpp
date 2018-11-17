@@ -60,15 +60,12 @@ void Model::EnumerateModels() {
   IoError err = VfsListFiles("model", listing);
 
   for (auto const& file : listing) {
-    printf("%s\n", file.second.c_str());
     if (file.second[0] == 'c' || file.second[0] == 'C') {
       g_ModelCount++;
     } else if (file.second[0] == 'b' || file.second[0] == 'B') {
       g_BackgroundModelCount++;
     }
   }
-
-  printf("\n\n");
 
   uint32_t currentModel = 0;
   uint32_t currentBackgroundModel = 0;
@@ -81,7 +78,6 @@ void Model::EnumerateModels() {
       (char**)malloc(g_BackgroundModelCount * sizeof(char*));
 
   for (auto const& file : listing) {
-    printf("%s\n", file.second.c_str());
     if (file.second[0] == 'c' || file.second[0] == 'C') {
       g_ModelIds[currentModel] = file.first;
       g_ModelNames[currentModel] = strdup(file.second.c_str());
