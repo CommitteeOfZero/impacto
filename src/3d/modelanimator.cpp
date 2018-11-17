@@ -116,6 +116,10 @@ void ModelAnimator::Update(float dt) {
 
   CurrentTime += dt;
   if (CurrentTime > LoopEnd) {
+    if (OneShot) {
+      IsPlaying = false;
+      return;
+    }
     float remainder = CurrentTime - LoopEnd;
     Reset();
     CurrentTime = LoopStart;
