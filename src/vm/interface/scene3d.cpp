@@ -8,7 +8,7 @@ namespace Impacto {
 namespace Vm {
 namespace Interface {
 
-static void UpdateCharacterRot(int charId) {
+static void UpdateRenderableRot(int charId) {
   int pose = ScrWork[30 * charId + SW_CHA1POSE] - 30;
 
   if (pose >= 0) {
@@ -24,30 +24,27 @@ static void UpdateCharacterRot(int charId) {
     glm::vec3 lookat = LookAtEulerZYX(object, target);
     lookat.x = 0.0f;
 
-    Scene3D::Characters[charId].ModelTransform.SetRotationFromEuler(lookat);
+    Scene3D::Renderables[charId].ModelTransform.SetRotationFromEuler(lookat);
 
     ScrWorkSetAngle(30 * charId + SW_CHA1ROTY, lookat.y);
   } else {
-    Scene3D::Characters[charId].ModelTransform.Rotation = glm::quat();
+    Scene3D::Renderables[charId].ModelTransform.Rotation = glm::quat();
   }
 }
 
-static void UpdateCharacterPos(int charId) {
-  Scene3D::Characters[charId].ModelTransform.Position =
+static void UpdateRenderablePos(int charId) {
+  Scene3D::Renderables[charId].ModelTransform.Position =
       ScrWorkGetVec3(30 * charId + SW_CHA1POSX, 30 * charId + SW_CHA1POSY,
                      30 * charId + SW_CHA1POSZ);
 }
 
-static void UpdateCharacters() {
-  for (int i = 0; i <= 5; i++) {
-    if (Scene3D::Characters[i].Status == LS_Loaded) {
-      UpdateCharacterRot(i);
-      UpdateCharacterPos(i);
-      Scene3D::Characters[i].IsVisible = GetFlag(SF_CHA1DISP + i);
+static void UpdateRenderables() {
+  for (int i = 0; i <= 8; i++) {
+    if (Scene3D::Renderables[i].Status == LS_Loaded) {
+      UpdateRenderableRot(i);
+      UpdateRenderablePos(i);
+      Scene3D::Renderables[i].IsVisible = GetFlag(SF_CHA1DISP + i);
     }
-  }
-  if (Scene3D::Backgrounds[0].Status == LS_Loaded) {
-    Scene3D::Backgrounds[0].IsVisible = GetFlag(SF_CHA1DISP);
   }
 }
 
@@ -76,7 +73,7 @@ static void UpdateCamera() {
 }
 
 void UpdateScene3D() {
-  UpdateCharacters();
+  UpdateRenderables();
   UpdateCamera();
 }
 

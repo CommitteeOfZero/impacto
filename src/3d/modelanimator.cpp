@@ -1,12 +1,18 @@
 #include "modelanimator.h"
 
-#include "character3d.h"
+#include "renderable3d.h"
 
 namespace Impacto {
 
 void ModelAnimator::Start(uint16_t animId) {
   assert(Character != 0);
 
+  if (Character->StaticModel->Animations.find(animId) ==
+      Character->StaticModel->Animations.end()) {
+    CurrentAnimation = 0;
+    IsPlaying = false;
+    return;
+  }
   CurrentAnimation = Character->StaticModel->Animations.at(animId);
 
   CurrentTime = 0.0f;

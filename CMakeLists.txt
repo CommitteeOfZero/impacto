@@ -33,8 +33,7 @@ set(Impacto_Src
 
     src/3d/camera.cpp
     src/3d/model.cpp
-    src/3d/character3d.cpp
-    src/3d/background3d.cpp
+    src/3d/renderable3d.cpp
     src/3d/transform.cpp
     src/3d/scene.cpp
     src/3d/animation.cpp
@@ -104,8 +103,7 @@ set(Impacto_Header
 
     src/3d/camera.h
     src/3d/model.h
-    src/3d/character3d.h
-    src/3d/background3d.h
+    src/3d/renderable3d.h
     src/3d/transform.h
     src/3d/scene.h
     src/3d/animation.h

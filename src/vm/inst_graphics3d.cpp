@@ -27,18 +27,13 @@ VmInstruction(InstCHAload3D) {
   PopExpression(bufferId);
   PopExpression(unk01);
   PopExpression(modelId);
-  if (Scene3D::Characters[bufferId].Status == LS_Loading ||
-      Scene3D::Backgrounds[bufferId].Status == LS_Loading) {
+  if (Scene3D::Renderables[bufferId].Status == LS_Loading) {
     ResetInstruction;
     BlockThread;
   } else if (ScrWork[SW_CHA1NO + 30 * bufferId] != modelId) {
     ScrWork[SW_CHA1NO + 30 * bufferId] = modelId;
     ScrWork[SW_CHA1EX + 30 * bufferId] = Get5X13Value(modelId);
-    if (Get5X13Value(modelId) == 0) {
-      Scene3D::Backgrounds[bufferId].LoadAsync(modelId);
-    } else {
-      Scene3D::Characters[bufferId].LoadAsync(modelId);
-    }
+    Scene3D::Renderables[bufferId].LoadAsync(modelId);
     ResetInstruction;
     BlockThread;
   }
@@ -70,16 +65,16 @@ VmInstruction(InstCHAplayAnim3DMaybe) {
   PopExpression(bufferId);
   PopExpression(animationId);
   PopUint8(unk01);
-  if (Scene3D::Characters[bufferId].Status == LS_Loaded && animationId != 0) {
-    Scene3D::Characters[bufferId].SwitchAnimation(animationId, 0.66f);
+  if (Scene3D::Renderables[bufferId].Status == LS_Loaded && animationId != 0) {
+    Scene3D::Renderables[bufferId].SwitchAnimation(animationId, 0.66f);
     int loopId =
-        64 * ModelIdToCharId[Scene3D::Characters[bufferId].StaticModel->Id -
+        64 * ModelIdToCharId[Scene3D::Renderables[bufferId].StaticModel->Id -
                              237] +
         (animationId - 1);
-    Scene3D::Characters[bufferId].Animator.LoopStart =
+    Scene3D::Renderables[bufferId].Animator.LoopStart =
         AnimLoopPoints[loopId].LoopStart / AnimDesignFrameRate;
     if (AnimLoopPoints[loopId].LoopEnd != 65536)
-      Scene3D::Characters[bufferId].Animator.LoopEnd =
+      Scene3D::Renderables[bufferId].Animator.LoopEnd =
           AnimLoopPoints[loopId].LoopEnd / AnimDesignFrameRate;
   }
 }

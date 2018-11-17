@@ -29,8 +29,8 @@ struct AnimatedMesh {
 class ModelAnimator;
 class Camera;
 
-class Character3D : public Loadable<Character3D> {
-  friend class Loadable<Character3D>;
+class Renderable3D : public Loadable<Renderable3D> {
+  friend class Loadable<Renderable3D>;
 
  public:
   static void Init();
@@ -72,10 +72,19 @@ class Character3D : public Loadable<Character3D> {
   void Pose();
   void PoseBone(int16_t id);
 
-  void UpdateVAO(int id);
+  void DrawOutlines();
+  void DrawEyes();
+  void DrawRegular();
+
+  void DrawBackground();
+
+  void UseVAO(int id);
+  void PrepareUniforms();
   void SetMeshUniforms(int id);
-  void DrawMesh(int id);
-  void DrawOutline(int id);
+  void SubmitUniforms();
+  void SetTextures(int id, int const* textureUnits, int count);
+  void DrawCharacterMesh(int id);
+  void DrawSimpleMesh(int id);
 
   GLuint VAOs[ModelMaxMeshesPerModel];
   GLuint VBOs[ModelMaxMeshesPerModel];

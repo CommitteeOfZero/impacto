@@ -4,7 +4,7 @@
 
 namespace Impacto {
 
-class Character3D;
+class Renderable3D;
 
 struct BoneTrackStatus {
   uint16_t CurrentKeys[BKT_Count];
@@ -20,7 +20,7 @@ class ModelAnimator {
  public:
   // Note: These are has-a relationships - Character and CurrentAnimation should
   // not be deleted with the animator
-  Character3D* Character = 0;
+  Renderable3D* Character = 0;
   Animation* CurrentAnimation = 0;
 
   // Time in seconds

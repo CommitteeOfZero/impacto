@@ -58,8 +58,8 @@ const char* ChannelToString(LogChannel channel) {
       return "ModelLoad";
     case LC_GL:
       return "GL";
-    case LC_Object3D:
-      return "Object3D";
+    case LC_Renderable3D:
+      return "Renderable3D";
     case LC_TextureLoad:
       return "TextureLoad";
     case LC_Scene:

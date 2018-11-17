@@ -25,14 +25,11 @@ static bool IsInit = false;
 
 Camera MainCamera;
 
-Background3D Backgrounds[MaxBackgrounds];
-Character3D Characters[MaxCharacters];
+Renderable3D Renderables[MaxRenderables];
 
 glm::vec3 LightPosition;
 glm::vec4 Tint;
 bool DarkMode;
-
-uint32_t CharacterToLoadId;
 
 static void SetupFramebufferState();
 static void CleanFramebufferState();
@@ -59,8 +56,7 @@ void Init() {
   ImpLog(LL_Info, LC_Scene, "Initializing 3D scene system\n");
   IsInit = true;
 
-  Character3D::Init();
-  Background3D::Init();
+  Renderable3D::Init();
 
   MainCamera.Init();
 
@@ -97,9 +93,9 @@ void Shutdown() {
 }
 
 void Update(float dt) {
-  for (int i = 0; i < MaxCharacters; i++) {
-    if (Characters[i].Status == LS_Loaded) {
-      Characters[i].Update(dt);
+  for (int i = 0; i < MaxRenderables; i++) {
+    if (Renderables[i].Status == LS_Loaded) {
+      Renderables[i].Update(dt);
     }
   }
 }
@@ -108,12 +104,12 @@ void Render() {
   MainCamera.AspectRatio = viewport.Width / viewport.Height;
   MainCamera.Recalculate();
 
-  Background3D::UpdateGpu(&MainCamera);
-  Character3D::UpdateGpu(&MainCamera);
+  Renderable3D::UpdateGpu(&MainCamera);
 
-  for (int i = 0; i < MaxBackgrounds; i++) {
-    if (Backgrounds[i].Status == LS_Loaded) {
-      Backgrounds[i].Render();
+  for (int i = 0; i < MaxRenderables; i++) {
+    if (Renderables[i].Status == LS_Loaded &&
+        Renderables[i].StaticModel->Type == ModelType_Background) {
+      Renderables[i].Render();
     }
   }
 
@@ -121,9 +117,10 @@ void Render() {
 
   SetupFramebufferState();
 
-  for (int i = 0; i < MaxCharacters; i++) {
-    if (Characters[i].Status == LS_Loaded) {
-      Characters[i].Render();
+  for (int i = 0; i < MaxRenderables; i++) {
+    if (Renderables[i].Status == LS_Loaded &&
+        Renderables[i].StaticModel->Type == ModelType_Character) {
+      Renderables[i].Render();
     }
   }
 

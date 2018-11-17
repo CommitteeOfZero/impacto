@@ -58,8 +58,8 @@ void Init() {
 
   UiTintColor = {0.784f, 0.671f, 0.6f, 0.9f};
 
-  Scene3D::Backgrounds[0].LoadAsync(g_BackgroundModelIds[0]);
-  Scene3D::Characters[0].LoadAsync(g_ModelIds[0]);
+  Scene3D::Renderables[0].LoadAsync(g_BackgroundModelIds[0]);
+  Scene3D::Renderables[1].LoadAsync(g_ModelIds[0]);
 
   Scene3D::Tint = glm::vec4(0.784f, 0.671f, 0.6f, 0.9f);
   Scene3D::LightPosition = glm::vec3(-2.85f, 16.68f, 6.30f);
@@ -168,8 +168,8 @@ void Update(float dt) {
       nk_tree_pop(Nk);
     }
 
-    if (Scene3D::Backgrounds[0].Status == LS_Loaded) {
-      Scene3D::Backgrounds[0].IsVisible = true;
+    if (Scene3D::Renderables[0].Status == LS_Loaded) {
+      Scene3D::Renderables[0].IsVisible = true;
 
       if (nk_tree_push(Nk, NK_TREE_TAB, "Background", NK_MAXIMIZED)) {
         nk_layout_row_dynamic(Nk, 24, 1);
@@ -178,8 +178,8 @@ void Update(float dt) {
                                      g_BackgroundModelCount, CurrentBackground,
                                      24, nk_vec2(200, 200));
         if (g_BackgroundModelIds[CurrentBackground] !=
-            Scene3D::Backgrounds[0].StaticModel->Id) {
-          Scene3D::Backgrounds[0].LoadAsync(
+            Scene3D::Renderables[0].StaticModel->Id) {
+          Scene3D::Renderables[0].LoadAsync(
               g_BackgroundModelIds[CurrentBackground]);
         }
 
@@ -187,38 +187,38 @@ void Update(float dt) {
       }
     }
 
-    if (Scene3D::Characters[0].Status == LS_Loaded) {
-      Scene3D::Characters[0].IsVisible = true;
+    if (Scene3D::Renderables[1].Status == LS_Loaded) {
+      Scene3D::Renderables[1].IsVisible = true;
 
       if (nk_tree_push(Nk, NK_TREE_TAB, "Model", NK_MAXIMIZED)) {
         nk_layout_row_dynamic(Nk, 24, 1);
 
         nk_property_float(Nk, "Model X", -40.0f,
-                          &Scene3D::Characters[0].ModelTransform.Position.x,
+                          &Scene3D::Renderables[1].ModelTransform.Position.x,
                           40.0f, 1.0f, 0.02f);
         nk_property_float(Nk, "Model Y", 0.0f,
-                          &Scene3D::Characters[0].ModelTransform.Position.y,
+                          &Scene3D::Renderables[1].ModelTransform.Position.y,
                           40.0f, 1.0f, 0.02f);
         nk_property_float(Nk, "Model Z", -40.0f,
-                          &Scene3D::Characters[0].ModelTransform.Position.z,
+                          &Scene3D::Renderables[1].ModelTransform.Position.z,
                           40.0f, 1.0f, 0.02f);
 
         nk_checkbox_label(Nk, "Track camera", &TrackCamera);
         if (TrackCamera) {
-          Scene3D::Characters[0].ModelTransform.SetRotationFromEuler(
-              LookAtEulerZYX(Scene3D::Characters[0].ModelTransform.Position +
+          Scene3D::Renderables[1].ModelTransform.SetRotationFromEuler(
+              LookAtEulerZYX(Scene3D::Renderables[1].ModelTransform.Position +
                                  glm::vec3(0.0f, 12.5f, 0.0f),
                              CameraPosition));
         } else {
-          Scene3D::Characters[0].ModelTransform.Rotation = glm::quat();
+          Scene3D::Renderables[1].ModelTransform.Rotation = glm::quat();
         }
 
         CurrentModel = nk_combo(Nk, (const char**)g_ModelNames, g_ModelCount,
                                 CurrentModel, 24, nk_vec2(200, 200));
         if (g_ModelIds[CurrentModel] !=
-            Scene3D::Characters[0].StaticModel->Id) {
+            Scene3D::Renderables[1].StaticModel->Id) {
           CurrentAnim = 0;
-          Scene3D::Characters[0].LoadAsync(g_ModelIds[CurrentModel]);
+          Scene3D::Renderables[1].LoadAsync(g_ModelIds[CurrentModel]);
         }
 
         nk_tree_pop(Nk);
@@ -227,45 +227,45 @@ void Update(float dt) {
       if (nk_tree_push(Nk, NK_TREE_TAB, "Animation", NK_MAXIMIZED)) {
         nk_layout_row_dynamic(Nk, 24, 1);
 
-        int isPlaying = (int)Scene3D::Characters[0].Animator.IsPlaying;
+        int isPlaying = (int)Scene3D::Renderables[1].Animator.IsPlaying;
         nk_checkbox_label(Nk, "Playing", &isPlaying);
-        Scene3D::Characters[0].Animator.IsPlaying = (bool)isPlaying;
+        Scene3D::Renderables[1].Animator.IsPlaying = (bool)isPlaying;
 
-        int tweening = (int)Scene3D::Characters[0].Animator.Tweening;
+        int tweening = (int)Scene3D::Renderables[1].Animator.Tweening;
         nk_checkbox_label(Nk, "Tweening", &tweening);
-        Scene3D::Characters[0].Animator.Tweening = (bool)tweening;
+        Scene3D::Renderables[1].Animator.Tweening = (bool)tweening;
 
-        if (Scene3D::Characters[0].Animator.CurrentAnimation) {
+        if (Scene3D::Renderables[1].Animator.CurrentAnimation) {
           nk_property_float(Nk, "Loop start", 0.0f,
-                            &Scene3D::Characters[0].Animator.LoopStart,
-                            Scene3D::Characters[0].Animator.LoopEnd, 1.0f,
+                            &Scene3D::Renderables[1].Animator.LoopStart,
+                            Scene3D::Renderables[1].Animator.LoopEnd, 1.0f,
                             0.2f);
           nk_property_float(
-              Nk, "Loop end", 0.0f, &Scene3D::Characters[0].Animator.LoopEnd,
-              Scene3D::Characters[0].Animator.CurrentAnimation->Duration, 1.0f,
+              Nk, "Loop end", 0.0f, &Scene3D::Renderables[1].Animator.LoopEnd,
+              Scene3D::Renderables[1].Animator.CurrentAnimation->Duration, 1.0f,
               0.2f);
 
           // Nice hack
-          float backup = Scene3D::Characters[0].Animator.CurrentTime;
+          float backup = Scene3D::Renderables[1].Animator.CurrentTime;
           nk_property_float(
               Nk, "Current time", 0.0f,
-              &Scene3D::Characters[0].Animator.CurrentTime,
-              Scene3D::Characters[0].Animator.CurrentAnimation->Duration, 1.0f,
+              &Scene3D::Renderables[1].Animator.CurrentTime,
+              Scene3D::Renderables[1].Animator.CurrentAnimation->Duration, 1.0f,
               0.2f);
-          if (backup != Scene3D::Characters[0].Animator.CurrentTime) {
-            Scene3D::Characters[0].Animator.Seek(
-                Scene3D::Characters[0].Animator.CurrentTime);
+          if (backup != Scene3D::Renderables[1].Animator.CurrentTime) {
+            Scene3D::Renderables[1].Animator.Seek(
+                Scene3D::Renderables[1].Animator.CurrentTime);
           }
 
           CurrentAnim = nk_combo(
               Nk,
-              (const char**)Scene3D::Characters[0].StaticModel->AnimationNames,
-              Scene3D::Characters[0].StaticModel->AnimationCount, CurrentAnim,
+              (const char**)Scene3D::Renderables[1].StaticModel->AnimationNames,
+              Scene3D::Renderables[1].StaticModel->AnimationCount, CurrentAnim,
               24, nk_vec2(200, 200));
-          if (Scene3D::Characters[0].StaticModel->AnimationIds[CurrentAnim] !=
-              Scene3D::Characters[0].Animator.CurrentAnimation->Id) {
-            Scene3D::Characters[0].SwitchAnimation(
-                Scene3D::Characters[0].StaticModel->AnimationIds[CurrentAnim],
+          if (Scene3D::Renderables[1].StaticModel->AnimationIds[CurrentAnim] !=
+              Scene3D::Renderables[1].Animator.CurrentAnimation->Id) {
+            Scene3D::Renderables[1].SwitchAnimation(
+                Scene3D::Renderables[1].StaticModel->AnimationIds[CurrentAnim],
                 0.66f);
           }
         }
