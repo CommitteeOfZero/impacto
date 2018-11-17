@@ -128,6 +128,7 @@ breakLoop:
     ImpLog(LL_Error, LC_Audio, "Encountered incomplete ATRAC9 file\n");
     return false;
   }
+  return true;
 }
 
 AudioStream* Atrac9AudioStream::Create(InputStream* stream) {
