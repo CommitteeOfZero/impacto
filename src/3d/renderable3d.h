@@ -72,12 +72,6 @@ class Renderable3D : public Loadable<Renderable3D> {
   void Pose();
   void PoseBone(int16_t id);
 
-  void DrawOutlines();
-  void DrawEyes();
-  void DrawRegular();
-
-  void DrawBackground();
-
   void UseVAO(int id);
   void PrepareUniforms();
   void SetMeshUniforms(int id);
