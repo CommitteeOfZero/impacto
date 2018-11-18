@@ -5,9 +5,14 @@
 #include <math.h>
 
 #include "expression.h"
+#include "../scriptvars.h"
 #include "../game.h"
 #include "../mem.h"
 #include "../log.h"
+#include "../sysmesboxdisplay.h"
+#include "../audio/audiosystem.h"
+#include "../audio/audiostream.h"
+#include "../audio/audiochannel.h"
 
 namespace Impacto {
 
@@ -244,10 +249,12 @@ VmInstruction(InstSystemMes) {
     case 0:  // SystemMesInit0
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SystemMes(mode: SystemMesInit0)\n");
+      SysMesBoxDisplay::MessageCount = 0;
       break;
     case 1:  // SystemMesInit1
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SystemMes(mode: SystemMesInit1)\n");
+      SysMesBoxDisplay::MessageCount = 0;
       break;
     case 2: {  // SystemMesInit2
       PopExpression(sysMesInit2Arg);
@@ -255,6 +262,7 @@ VmInstruction(InstSystemMes) {
                  "STUB instruction SystemMes(mode: SystemMesInit2, "
                  "sysMesInit2Arg: %i)\n",
                  sysMesInit2Arg);
+      ScrWork[SW_SYSMESANIMCTF] = 2 * SysMesBoxDisplay::MessageCount + 33;
     } break;
     case 3: {  // SystemMesSetMes
       PopUint16(sysMesStrNum);
@@ -262,6 +270,7 @@ VmInstruction(InstSystemMes) {
                  "STUB instruction SystemMes(mode: SystemMesSetMes, "
                  "sysMesStrNum: %i)\n",
                  sysMesStrNum);
+      SysMesBoxDisplay::MessageCount++;
     } break;
     case 4: {  // SystemMesSetSel
       PopUint16(sysSelStrNum);
@@ -275,12 +284,35 @@ VmInstruction(InstSystemMes) {
                  "STUB instruction SystemMes(mode: SystemMesMain)\n");
       break;
     case 6:  // SystemMesFadeIn
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction SystemMes(mode: SystemMesFadeIn)\n");
+      ScrWork[SW_SYSMESALPHA] = 256;
+      SysMesBoxDisplay::BoxOpacity = 1.0f;
+      SysMesBoxDisplay::AnimState = SysMesBoxDisplay::Showing;
+      if (!ScrWork[SW_SYSMESANIMCTCUR]) {
+        Io::InputStream* stream;
+        Io::VfsOpen("sysse", 16, &stream);
+        Audio::Channels[Audio::AC_SSE].Play(Audio::AudioStream::Create(stream),
+                                            false, 0.0f);
+      }
+      if (ScrWork[SW_SYSMESANIMCTCUR] < ScrWork[SW_SYSMESANIMCTF]) {
+        ResetInstruction;
+        BlockThread;
+      }
       break;
     case 7:  // SystemMesFadeOut
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction SystemMes(mode: SystemMesFadeOut)\n");
+      SysMesBoxDisplay::AnimState = SysMesBoxDisplay::Hiding;
+      if (ScrWork[SW_SYSMESANIMCTCUR] == ScrWork[SW_SYSMESANIMCTF]) {
+        Io::InputStream* stream;
+        Io::VfsOpen("sysse", 29, &stream);
+        Audio::Channels[Audio::AC_SSE].Play(Audio::AudioStream::Create(stream),
+                                            false, 0.0f);
+      }
+      if (ScrWork[SW_SYSMESANIMCTCUR] > 0) {
+        ResetInstruction;
+        BlockThread;
+      } else {
+        ScrWork[SW_SYSMESALPHA] = 0;
+        SysMesBoxDisplay::BoxOpacity = 0.0f;
+      }
       break;
     case 8:
       ImpLogSlow(LL_Warning, LC_VMStub,

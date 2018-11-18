@@ -14,6 +14,7 @@
 #include "mem.h"
 #include "datedisplay.h"
 #include "saveicondisplay.h"
+#include "sysmesboxdisplay.h"
 #include "io/memorystream.h"
 
 namespace Impacto {
@@ -259,6 +260,7 @@ void Update(float dt) {
   if (Profile::GameFeatures & GameFeature::Sc3VirtualMachine) {
     Vm::Update();
     SaveIconDisplay::Update(dt);
+    SysMesBoxDisplay::Update(dt);
   }
 
   if (Profile::GameFeatures & GameFeature::Audio) {
@@ -304,6 +306,9 @@ void Render() {
         }
         case TD_SaveIcon: {
           SaveIconDisplay::Render();
+        }
+        case TD_SystemMessage: {
+          SysMesBoxDisplay::Render();
         }
         default: {
           ImpLog(LL_Error, LC_General,
