@@ -1,4 +1,4 @@
-﻿cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.8)
 
 project ("impacto")
 
@@ -28,6 +28,7 @@ set(Impacto_Src
     src/text_rne.cpp
 
     src/datedisplay.cpp
+    src/saveicondisplay.cpp
 
     src/nuklear_impl.cpp
 
@@ -100,6 +101,7 @@ set(Impacto_Header
     src/inputsystem.h
 
     src/datedisplay.h
+    src/saveicondisplay.h
 
     src/3d/camera.h
     src/3d/model.h

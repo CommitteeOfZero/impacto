@@ -13,6 +13,7 @@
 #include "3d/scene.h"
 #include "mem.h"
 #include "datedisplay.h"
+#include "saveicondisplay.h"
 #include "io/memorystream.h"
 
 namespace Impacto {
@@ -257,6 +258,7 @@ void Update(float dt) {
 
   if (Profile::GameFeatures & GameFeature::Sc3VirtualMachine) {
     Vm::Update();
+    SaveIconDisplay::Update(dt);
   }
 
   if (Profile::GameFeatures & GameFeature::Audio) {
@@ -299,6 +301,9 @@ void Render() {
           for (uint32_t layer = 0; layer < Profile::LayerCount; layer++) {
             // TODO
           }
+        }
+        case TD_SaveIcon: {
+          SaveIconDisplay::Render();
         }
         default: {
           ImpLog(LL_Error, LC_General,
