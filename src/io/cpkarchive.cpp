@@ -421,7 +421,7 @@ IoError CpkArchive::Open(FileMeta* file, InputStream** outStream) {
     ImpLog(LL_Debug, LC_IO,
            "CPK cannot stream LAYLA compressed file \"%s\" in archive "
            "\"%s\"\n",
-           entry->FileName, BaseStream->Meta.FileName);
+           entry->FileName.c_str(), BaseStream->Meta.FileName.c_str());
     return IoError_Fail;
   } else {
     err = UncompressedStream::Create(BaseStream, entry->Offset, entry->Size,
@@ -430,7 +430,7 @@ IoError CpkArchive::Open(FileMeta* file, InputStream** outStream) {
   if (err != IoError_OK) {
     ImpLog(LL_Error, LC_IO,
            "CPK file open failed for file \"%s\" in archive \"%s\"\n",
-           entry->FileName, BaseStream->Meta.FileName);
+           entry->FileName.c_str(), BaseStream->Meta.FileName.c_str());
   }
   return err;
 }
