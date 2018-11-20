@@ -53,7 +53,7 @@ void Render() {
 
       Renderer2D::DrawRect(RectF(344.0f, (360.0f - (posParam / 2.0f)) - 1.0f,
                                  592.0f, posParam + 2.0f),
-                           glm::vec4(1.0f, 1.0f, 1.0f, 0.35f));
+                           glm::vec4(1.0f, 1.0f, 1.0f, 0.75f));
       Renderer2D::DrawSprite(
           sysMesBoxPart1,
           RectF(344.0f, (360.0f - (posParam / 2.0f)) - 3.0f, 592.0f, 8.0f),

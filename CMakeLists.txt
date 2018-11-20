@@ -30,6 +30,7 @@ set(Impacto_Src
     src/datedisplay.cpp
     src/saveicondisplay.cpp
     src/sysmesboxdisplay.cpp
+    src/loadingdisplay.cpp
 
     src/nuklear_impl.cpp
 
@@ -104,6 +105,7 @@ set(Impacto_Header
     src/datedisplay.h
     src/saveicondisplay.h
     src/sysmesboxdisplay.h
+    src/loadingdisplay.h
 
     src/3d/camera.h
     src/3d/model.h

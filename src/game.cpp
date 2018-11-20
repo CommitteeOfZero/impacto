@@ -15,6 +15,7 @@
 #include "datedisplay.h"
 #include "saveicondisplay.h"
 #include "sysmesboxdisplay.h"
+#include "loadingdisplay.h"
 #include "io/memorystream.h"
 
 namespace Impacto {
@@ -261,6 +262,7 @@ void Update(float dt) {
     Vm::Update();
     SaveIconDisplay::Update(dt);
     SysMesBoxDisplay::Update(dt);
+    LoadingDisplay::Update(dt);
   }
 
   if (Profile::GameFeatures & GameFeature::Audio) {
@@ -303,12 +305,19 @@ void Render() {
           for (uint32_t layer = 0; layer < Profile::LayerCount; layer++) {
             // TODO
           }
+          break;
+        }
+        case TD_SystemIcons: {
+          LoadingDisplay::Render();
+          break;
         }
         case TD_SaveIcon: {
           SaveIconDisplay::Render();
+          break;
         }
         case TD_SystemMessage: {
           SysMesBoxDisplay::Render();
+          break;
         }
         default: {
           ImpLog(LL_Error, LC_General,
