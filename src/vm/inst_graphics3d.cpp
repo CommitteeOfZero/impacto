@@ -75,7 +75,7 @@ VmInstruction(InstCHAplayAnim3DMaybe) {
         AnimLoopPoints[loopId].LoopStart / AnimDesignFrameRate;
     if (AnimLoopPoints[loopId].LoopEnd == 65536) {
       Scene3D::Renderables[bufferId].Animator.OneShot = true;
-    } else {
+    } else if (AnimLoopPoints[loopId].LoopEnd != 0) {
       Scene3D::Renderables[bufferId].Animator.LoopEnd =
           AnimLoopPoints[loopId].LoopEnd / AnimDesignFrameRate;
     }
