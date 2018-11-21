@@ -9,13 +9,13 @@ uniform sampler2D GradientMaskMap;
 uniform sampler2D SpecularColorMap;
 
 layout(std140) uniform Character3DCommon {
-  mat4 ViewProjection;
-  mat4 Model;
-  mat4 Bones[ModelMaxBonesPerMesh];
-  vec4 Tint;
-  vec3 WorldLightPosition;
-  vec3 WorldEyePosition;
-  float ModelOpacity;
+  UNIFORM_PRECISION mat4 ViewProjection;
+  UNIFORM_PRECISION mat4 Model;
+  UNIFORM_PRECISION mat4 Bones[ModelMaxBonesPerMesh];
+  UNIFORM_PRECISION vec4 Tint;
+  UNIFORM_PRECISION vec3 WorldLightPosition;
+  UNIFORM_PRECISION vec3 WorldEyePosition;
+  UNIFORM_PRECISION float ModelOpacity;
 };
 
 uniform bool DarkMode;

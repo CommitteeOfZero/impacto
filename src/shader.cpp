@@ -15,14 +15,23 @@ static char const ShaderPath[] = "./shaders";
 static char const FragShaderExtension[] = "_frag.glsl";
 static char const VertShaderExtension[] = "_vert.glsl";
 
-static char const ShaderHeader[] = "#version 330\n\n";
-GLint ShaderHeaderLength =
+// We need highp in vertex shaders, but uniforms shared between vertex and
+// fragment shaders need to have the same precision in both
+
+static char const ShaderHeader[] =
+    "#version 330\n#define UNIFORM_PRECISION highp\n\n";
+static GLint const ShaderHeaderLength =
     sizeof(ShaderHeader) - 1;  // without null terminator, for glShaderSource()
 static char const ShaderHeaderES[] =
-    "#version 300 es\nprecision mediump float;\n\n";
-GLint ShaderHeaderESLength =
-    sizeof(ShaderHeaderES) -
-    1;  // without null terminator, for glShaderSource()
+    "#version 300 es\n#define UNIFORM_PRECISION mediump\n\n";
+static GLint const ShaderHeaderESLength = sizeof(ShaderHeaderES) - 1;
+static char const ShaderHeaderVert[] =
+    "#define VERTEX_SHADER\n#ifdef GL_ES\nprecision highp float;\n#endif\n\n";
+static GLint const ShaderHeaderVertLength = sizeof(ShaderHeaderVert) - 1;
+static char const ShaderHeaderFrag[] =
+    "#define FRAGMENT_SHADER\n#ifdef GL_ES\nprecision mediump "
+    "float;\n#endif\n\n";
+static GLint const ShaderHeaderFragLength = sizeof(ShaderHeaderFrag) - 1;
 
 int PrintParameter(char* dest, int destSz, char const* name,
                    ShaderParameter const& param) {
@@ -99,21 +108,25 @@ GLuint ShaderAttach(GLuint program, GLenum shaderType, char const* path,
     return 0;
   }
 
-  const GLchar* codeParts[3];
+  const GLchar* codeParts[4];
   codeParts[0] = (Window::ActualGraphicsApi != Window::GfxApi_GL)
                      ? ShaderHeaderES
                      : ShaderHeader;
-  codeParts[1] = params;
-  codeParts[2] = source;
+  codeParts[1] =
+      shaderType == GL_VERTEX_SHADER ? ShaderHeaderVert : ShaderHeaderFrag;
+  codeParts[2] = params;
+  codeParts[3] = source;
 
-  GLint codeLengths[3];
+  GLint codeLengths[4];
   codeLengths[0] = (Window::ActualGraphicsApi != Window::GfxApi_GL)
                        ? ShaderHeaderESLength
                        : ShaderHeaderLength;
-  codeLengths[1] = strlen(params);
-  codeLengths[2] = strlen(source);
+  codeLengths[1] = shaderType == GL_VERTEX_SHADER ? ShaderHeaderVertLength
+                                                  : ShaderHeaderFragLength;
+  codeLengths[2] = strlen(params);
+  codeLengths[3] = strlen(source);
 
-  glShaderSource(shader, 3, codeParts, codeLengths);
+  glShaderSource(shader, 4, codeParts, codeLengths);
 
   GLint result = 0;
   static GLchar errorLog[1024] = {0};
