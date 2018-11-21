@@ -105,7 +105,7 @@ void Render() {
   MainCamera.AspectRatio = viewport.Width / viewport.Height;
   MainCamera.Recalculate();
 
-  Renderable3D::UpdateGpu(&MainCamera);
+  Renderable3D::LoadSceneUniforms(&MainCamera);
 
   for (int i = 0; i < MaxRenderables; i++) {
     if (Renderables[i].Status == LS_Loaded &&

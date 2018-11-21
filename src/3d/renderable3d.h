@@ -35,7 +35,7 @@ class Renderable3D : public Loadable<Renderable3D> {
  public:
   static void Init();
   // Character render updates affecting all characters
-  static void UpdateGpu(Camera* camera);
+  static void LoadSceneUniforms(Camera* camera);
 
   void MakePlane();
 
@@ -72,22 +72,25 @@ class Renderable3D : public Loadable<Renderable3D> {
 
   void CalculateMorphedVertices(int id);
 
-  void UseVAO(int id);
-  void PrepareUniforms();
-  void SetMeshUniforms(int id);
-  void SubmitUniforms();
+  void UseMesh(int id);
+  void LoadModelUniforms();
+  void LoadMeshUniforms(int id);
   void SetTextures(int id, int const* textureUnits, int count);
   void DrawCharacterMesh(int id);
   void DrawSimpleMesh(int id);
+
+  GLuint UBOModel;
 
   GLuint VAOs[ModelMaxMeshesPerModel];
   GLuint VBOs[ModelMaxMeshesPerModel];
   GLuint MorphVBOs[ModelMaxMeshesPerModel];
   GLuint IBOs[ModelMaxMeshesPerModel];
+  GLuint UBOs[ModelMaxMeshesPerModel];
 
   GLuint TexBuffers[ModelMaxTexturesPerModel];
 
   bool VAOsUpdated[ModelMaxMeshesPerModel];
+  bool UniformsUpdated[ModelMaxMeshesPerModel];
 
   Transform PrevBoneTransforms[ModelMaxBonesPerModel];
   AnimatedMesh PrevMeshAnimStatus[ModelMaxMeshesPerModel];

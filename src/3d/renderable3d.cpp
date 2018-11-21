@@ -11,31 +11,38 @@
 
 namespace Impacto {
 
-enum CommonUniform {
-  CU_ViewProjection = 0,
-  CU_Model = 1,
-  CU_Bones = 2,
-  CU_Tint = 3,
-  CU_WorldLightPosition = 4,
-  CU_WorldEyePosition = 5,
-  CU_ModelOpacity = 6,
-  CU_Count = 7
+enum SceneUniform {
+  SU_ViewProjection = 0,
+  SU_Tint = 1,
+  SU_WorldLightPosition = 2,
+  SU_WorldEyePosition = 3,
+  SU_Count = 4
 };
-char const* CommonUniformNames[CU_Count] = {
-    "ViewProjection",   "Model",       "Bones", "Tint", "WorldLightPosition",
-    "WorldEyePosition", "ModelOpacity"};
-static GLint CommonUniformOffsets[CU_Count];
+enum ModelUniform { MU_Model = 0, MU_Count = 1 };
+enum MeshUniform { MSU_Bones = 0, MSU_ModelOpacity = 1, MSU_Count = 2 };
+
+static char const* SceneUniformNames[SU_Count] = {
+    "ViewProjection", "Tint", "WorldLightPosition", "WorldEyePosition"};
+static GLint SceneUniformOffsets[SU_Count];
+static char const* ModelUniformNames[MU_Count] = {"Model"};
+static GLint ModelUniformOffsets[MU_Count];
+static char const* MeshUniformNames[MSU_Count] = {"Bones", "ModelOpacity"};
+static GLint MeshUniformOffsets[MSU_Count];
 
 static GLuint TextureDummy = 0;
 // character
 static GLuint ShaderProgram = 0, ShaderProgramOutline = 0, ShaderProgramEye = 0,
-              UBO = 0, UniformDarkMode = 0;
+              UBOScene = 0, UniformDarkMode = 0;
 // background
 static GLuint ShaderProgramBackground = 0, UniformViewProjectionBackground = 0,
               UniformModelBackground = 0;
 
-static uint8_t* LocalUniformBuffer;
-static GLint UniformBlockSize;
+static uint8_t* SceneUniformBuffer;
+static GLint SceneUniformBlockSize;
+static uint8_t* ModelUniformBuffer;
+static GLint ModelUniformBlockSize;
+static uint8_t* MeshUniformBuffer;
+static GLint MeshUniformBlockSize;
 
 static bool IsInit = false;
 
@@ -54,31 +61,57 @@ void Renderable3D::Init() {
 
   ShaderProgramBackground = ShaderCompile("Renderable3D_Background");
 
-  GLuint uniformIndices[CU_Count];
-  glGetUniformIndices(ShaderProgram, CU_Count, CommonUniformNames,
-                      uniformIndices);
-  glGetActiveUniformsiv(ShaderProgram, CU_Count, uniformIndices,
-                        GL_UNIFORM_OFFSET, CommonUniformOffsets);
+  GLuint sceneUniformIndices[SU_Count];
+  glGetUniformIndices(ShaderProgram, SU_Count, SceneUniformNames,
+                      sceneUniformIndices);
+  glGetActiveUniformsiv(ShaderProgram, SU_Count, sceneUniformIndices,
+                        GL_UNIFORM_OFFSET, SceneUniformOffsets);
+  GLuint modelUniformIndices[MU_Count];
+  glGetUniformIndices(ShaderProgram, MU_Count, ModelUniformNames,
+                      modelUniformIndices);
+  glGetActiveUniformsiv(ShaderProgram, MU_Count, modelUniformIndices,
+                        GL_UNIFORM_OFFSET, ModelUniformOffsets);
+  GLuint meshUniformIndices[MSU_Count];
+  glGetUniformIndices(ShaderProgram, MSU_Count, MeshUniformNames,
+                      meshUniformIndices);
+  glGetActiveUniformsiv(ShaderProgram, MSU_Count, meshUniformIndices,
+                        GL_UNIFORM_OFFSET, MeshUniformOffsets);
 
-  GLuint blockIndex =
-      glGetUniformBlockIndex(ShaderProgram, "Character3DCommon");
+  GLuint blockIndex = glGetUniformBlockIndex(ShaderProgram, "Character3DScene");
   glUniformBlockBinding(ShaderProgram, blockIndex, 0);
-  GLuint blockIndexOutline =
-      glGetUniformBlockIndex(ShaderProgramOutline, "Character3DCommon");
-  glUniformBlockBinding(ShaderProgramOutline, blockIndexOutline, 0);
-  GLuint blockIndexEye =
-      glGetUniformBlockIndex(ShaderProgramEye, "Character3DCommon");
-  glUniformBlockBinding(ShaderProgramEye, blockIndexEye, 0);
-
   glGetActiveUniformBlockiv(ShaderProgram, blockIndex,
-                            GL_UNIFORM_BLOCK_DATA_SIZE, &UniformBlockSize);
+                            GL_UNIFORM_BLOCK_DATA_SIZE, &SceneUniformBlockSize);
+  blockIndex = glGetUniformBlockIndex(ShaderProgram, "Character3DModel");
+  glUniformBlockBinding(ShaderProgram, blockIndex, 1);
+  glGetActiveUniformBlockiv(ShaderProgram, blockIndex,
+                            GL_UNIFORM_BLOCK_DATA_SIZE, &ModelUniformBlockSize);
+  blockIndex = glGetUniformBlockIndex(ShaderProgram, "Character3DMesh");
+  glUniformBlockBinding(ShaderProgram, blockIndex, 2);
+  glGetActiveUniformBlockiv(ShaderProgram, blockIndex,
+                            GL_UNIFORM_BLOCK_DATA_SIZE, &MeshUniformBlockSize);
 
-  glGenBuffers(1, &UBO);
-  glBindBuffer(GL_UNIFORM_BUFFER, UBO);
-  glBufferData(GL_UNIFORM_BUFFER, UniformBlockSize, NULL, GL_DYNAMIC_DRAW);
-  LocalUniformBuffer = (uint8_t*)malloc(UniformBlockSize);
+  blockIndex = glGetUniformBlockIndex(ShaderProgramOutline, "Character3DScene");
+  glUniformBlockBinding(ShaderProgramOutline, blockIndex, 0);
+  blockIndex = glGetUniformBlockIndex(ShaderProgramOutline, "Character3DModel");
+  glUniformBlockBinding(ShaderProgramOutline, blockIndex, 1);
+  blockIndex = glGetUniformBlockIndex(ShaderProgramOutline, "Character3DMesh");
+  glUniformBlockBinding(ShaderProgramOutline, blockIndex, 2);
 
-  glBindBufferBase(GL_UNIFORM_BUFFER, 0, UBO);
+  blockIndex = glGetUniformBlockIndex(ShaderProgramEye, "Character3DScene");
+  glUniformBlockBinding(ShaderProgramEye, blockIndex, 0);
+  blockIndex = glGetUniformBlockIndex(ShaderProgramEye, "Character3DModel");
+  glUniformBlockBinding(ShaderProgramEye, blockIndex, 1);
+  blockIndex = glGetUniformBlockIndex(ShaderProgramEye, "Character3DMesh");
+  glUniformBlockBinding(ShaderProgramEye, blockIndex, 2);
+
+  glGenBuffers(1, &UBOScene);
+  // Initialize storage
+  glBindBuffer(GL_UNIFORM_BUFFER, UBOScene);
+  glBufferData(GL_UNIFORM_BUFFER, SceneUniformBlockSize, NULL, GL_DYNAMIC_DRAW);
+
+  SceneUniformBuffer = (uint8_t*)malloc(SceneUniformBlockSize);
+  ModelUniformBuffer = (uint8_t*)malloc(ModelUniformBlockSize);
+  MeshUniformBuffer = (uint8_t*)malloc(MeshUniformBlockSize);
 
   UniformDarkMode = glGetUniformLocation(ShaderProgram, "DarkMode");
 
@@ -117,18 +150,21 @@ void Renderable3D::Init() {
   TextureDummy = texDummy.Submit();
 }
 
-void Renderable3D::UpdateGpu(Camera* camera) {
-  memcpy(LocalUniformBuffer + CommonUniformOffsets[CU_ViewProjection],
+void Renderable3D::LoadSceneUniforms(Camera* camera) {
+  glBindBufferBase(GL_UNIFORM_BUFFER, 0, UBOScene);
+  memcpy(SceneUniformBuffer + SceneUniformOffsets[SU_ViewProjection],
          glm::value_ptr(camera->ViewProjection),
          sizeof(camera->ViewProjection));
-  memcpy(LocalUniformBuffer + CommonUniformOffsets[CU_Tint],
+  memcpy(SceneUniformBuffer + SceneUniformOffsets[SU_Tint],
          glm::value_ptr(Scene3D::Tint), sizeof(Scene3D::Tint));
-  memcpy(LocalUniformBuffer + CommonUniformOffsets[CU_WorldLightPosition],
+  memcpy(SceneUniformBuffer + SceneUniformOffsets[SU_WorldLightPosition],
          glm::value_ptr(Scene3D::LightPosition),
          sizeof(Scene3D::LightPosition));
-  memcpy(LocalUniformBuffer + CommonUniformOffsets[CU_WorldEyePosition],
+  memcpy(SceneUniformBuffer + SceneUniformOffsets[SU_WorldEyePosition],
          glm::value_ptr(camera->CameraTransform.Position),
          sizeof(camera->CameraTransform.Position));
+  glBufferSubData(GL_UNIFORM_BUFFER, 0, SceneUniformBlockSize,
+                  SceneUniformBuffer);
 
   glUseProgram(ShaderProgram);
   glUniform1i(UniformDarkMode, Scene3D::DarkMode);
@@ -335,9 +371,10 @@ void Renderable3D::Update(float dt) {
 void Renderable3D::Render() {
   if (!IsUsed || !IsVisible) return;
 
-  PrepareUniforms();
+  LoadModelUniforms();
 
   memset(VAOsUpdated, 0, sizeof(VAOsUpdated));
+  memset(UniformsUpdated, 0, sizeof(UniformsUpdated));
 
   if (StaticModel->Type == ModelType_Character) {
     // Outline pass
@@ -355,13 +392,11 @@ void Renderable3D::Render() {
       if (!MeshAnimStatus[i].Visible || StaticModel->Meshes[i].Flags <= 0)
         continue;
 
-      UseVAO(i);
-      SetMeshUniforms(i);
+      UseMesh(i);
 
       int const outlinePassTextureTypes[] = {TT_ColorMap};
       SetTextures(i, outlinePassTextureTypes, 1);
 
-      SubmitUniforms();
       DrawSimpleMesh(i);
     }
 
@@ -376,15 +411,13 @@ void Renderable3D::Render() {
           StaticModel->Meshes[i].Maps[TT_Eye_WhiteColorMap] < 0)
         continue;
 
-      UseVAO(i);
-      SetMeshUniforms(i);
+      UseMesh(i);
 
       int const eyePassTextureTypes[] = {
           TT_Eye_HighlightColorMap, TT_Eye_IrisColorMap,
           TT_Eye_IrisSpecularColorMap, TT_Eye_WhiteColorMap};
       SetTextures(i, eyePassTextureTypes, 4);
 
-      SubmitUniforms();
       DrawCharacterMesh(i);
     }
 
@@ -397,14 +430,12 @@ void Renderable3D::Render() {
           StaticModel->Meshes[i].Maps[TT_Eye_WhiteColorMap] >= 0)
         continue;
 
-      UseVAO(i);
-      SetMeshUniforms(i);
+      UseMesh(i);
 
       int const colorPassTextureTypes[] = {TT_ColorMap, TT_GradientMaskMap,
                                            TT_SpecularColorMap};
       SetTextures(i, colorPassTextureTypes, 3);
 
-      SubmitUniforms();
       DrawCharacterMesh(i);
     }
   } else if (StaticModel->Type == ModelType_Background) {
@@ -415,8 +446,7 @@ void Renderable3D::Render() {
     glDepthMask(GL_TRUE);
 
     for (int i = 0; i < StaticModel->MeshCount; i++) {
-      UseVAO(i);
-      SetMeshUniforms(i);
+      UseMesh(i);
 
       int const backgroundTextureTypes[] = {TT_ColorMap};
       SetTextures(i, backgroundTextureTypes, 1);
@@ -438,63 +468,70 @@ void Renderable3D::SetTextures(int id, int const* textureTypes, int count) {
   }
 }
 
-void Renderable3D::PrepareUniforms() {
+void Renderable3D::LoadModelUniforms() {
   if (StaticModel->Type == ModelType_Character) {
-    glBindBuffer(GL_UNIFORM_BUFFER, UBO);
-
-    *(glm::mat4*)(LocalUniformBuffer + CommonUniformOffsets[CU_Model]) =
+    glBindBufferBase(GL_UNIFORM_BUFFER, 1, UBOModel);
+    *(glm::mat4*)(ModelUniformBuffer + ModelUniformOffsets[MU_Model]) =
         ModelTransform.Matrix();
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, ModelUniformBlockSize,
+                    ModelUniformBuffer);
   }
 }
 
-void Renderable3D::SubmitUniforms() {
-  if (StaticModel->Type == ModelType_Character) {
-    glBufferData(GL_UNIFORM_BUFFER, UniformBlockSize, LocalUniformBuffer,
-                 GL_DYNAMIC_DRAW);
-  }
-}
-
-void Renderable3D::UseVAO(int id) {
+void Renderable3D::UseMesh(int id) {
   glBindVertexArray(VAOs[id]);
 
-  if (VAOsUpdated[id]) return;
+  LoadMeshUniforms(id);
 
-  if (StaticModel->Meshes[id].MorphTargetCount > 0) {
-    glBindBuffer(GL_ARRAY_BUFFER, MorphVBOs[id]);
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        sizeof(MorphVertexBuffer) * StaticModel->Meshes[id].VertexCount,
-        CurrentMorphedVertices + MeshAnimStatus[id].MorphedVerticesOffset,
-        GL_DYNAMIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(MorphVertexBuffer),
-                          (void*)offsetof(MorphVertexBuffer, Position));
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(MorphVertexBuffer),
-                          (void*)offsetof(MorphVertexBuffer, Normal));
-  }
-
-  VAOsUpdated[id] = true;
-}
-
-void Renderable3D::SetMeshUniforms(int id) {
-  if (StaticModel->Type == ModelType_Character) {
-    if (StaticModel->Meshes[id].UsedBones > 0) {
-      for (int j = 0; j < StaticModel->Meshes[id].UsedBones; j++) {
-        memcpy(LocalUniformBuffer + CommonUniformOffsets[CU_Bones] +
-                   j * sizeof(glm::mat4),
-               glm::value_ptr(
-                   CurrentPose[StaticModel->Meshes[id].BoneMap[j]].Offset),
-               sizeof(glm::mat4));
-      }
-    } else {
-      memcpy(
-          LocalUniformBuffer + CommonUniformOffsets[CU_Bones],
-          glm::value_ptr(CurrentPose[StaticModel->Meshes[id].MeshBone].Offset),
-          sizeof(glm::mat4));
+  if (!VAOsUpdated[id]) {
+    if (StaticModel->Meshes[id].MorphTargetCount > 0) {
+      glBindBuffer(GL_ARRAY_BUFFER, MorphVBOs[id]);
+      glBufferData(
+          GL_ARRAY_BUFFER,
+          sizeof(MorphVertexBuffer) * StaticModel->Meshes[id].VertexCount,
+          CurrentMorphedVertices + MeshAnimStatus[id].MorphedVerticesOffset,
+          GL_DYNAMIC_DRAW);
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(MorphVertexBuffer),
+                            (void*)offsetof(MorphVertexBuffer, Position));
+      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(MorphVertexBuffer),
+                            (void*)offsetof(MorphVertexBuffer, Normal));
     }
 
-    memcpy(LocalUniformBuffer + CommonUniformOffsets[CU_ModelOpacity],
-           &StaticModel->Meshes[id].Opacity,
-           sizeof(StaticModel->Meshes[id].Opacity));
+    VAOsUpdated[id] = true;
+  }
+}
+
+void Renderable3D::LoadMeshUniforms(int id) {
+  if (StaticModel->Type == ModelType_Character) {
+    glBindBufferBase(GL_UNIFORM_BUFFER, 2, UBOs[id]);
+
+    if (!UniformsUpdated[id]) {
+      if (StaticModel->Meshes[id].UsedBones > 0) {
+        glm::mat4* outBone =
+            (glm::mat4*)(MeshUniformBuffer + MeshUniformOffsets[MSU_Bones]);
+        for (int j = 0; j < StaticModel->Meshes[id].UsedBones; j++) {
+          memcpy(outBone,
+                 glm::value_ptr(
+                     CurrentPose[StaticModel->Meshes[id].BoneMap[j]].Offset),
+                 sizeof(glm::mat4));
+          outBone++;
+        }
+      } else {
+        memcpy(MeshUniformBuffer + MeshUniformOffsets[MSU_Bones],
+               glm::value_ptr(
+                   CurrentPose[StaticModel->Meshes[id].MeshBone].Offset),
+               sizeof(glm::mat4));
+      }
+
+      memcpy(MeshUniformBuffer + MeshUniformOffsets[MSU_ModelOpacity],
+             &StaticModel->Meshes[id].Opacity,
+             sizeof(StaticModel->Meshes[id].Opacity));
+
+      glBufferSubData(GL_UNIFORM_BUFFER, 0, MeshUniformBlockSize,
+                      MeshUniformBuffer);
+
+      UniformsUpdated[id] = true;
+    }
   } else if (StaticModel->Type == ModelType_Background) {
     glm::mat4 modelMatrix = StaticModel->Meshes[id].ModelTransform.Matrix();
     glUniformMatrix4fv(UniformModelBackground, 1, GL_FALSE,
@@ -537,8 +574,10 @@ void Renderable3D::UnloadSync() {
       glDeleteBuffers(StaticModel->MeshCount, IBOs);
       glDeleteBuffers(StaticModel->MeshCount, VBOs);
       glDeleteBuffers(StaticModel->MeshCount, MorphVBOs);
+      glDeleteBuffers(StaticModel->MeshCount, UBOs);
       glDeleteVertexArrays(StaticModel->MeshCount, VAOs);
       glDeleteTextures(StaticModel->TextureCount, TexBuffers);
+      glDeleteBuffers(1, &UBOModel);
     }
     delete StaticModel;
     StaticModel = 0;
@@ -563,8 +602,17 @@ void Renderable3D::MainThreadOnLoad() {
   glGenBuffers(StaticModel->MeshCount, VBOs);
   glGenBuffers(StaticModel->MeshCount, MorphVBOs);
   glGenBuffers(StaticModel->MeshCount, IBOs);
+  glGenBuffers(StaticModel->MeshCount, UBOs);
+  glGenBuffers(1, &UBOModel);
+
+  glBindBuffer(GL_UNIFORM_BUFFER, UBOModel);
+  glBufferData(GL_UNIFORM_BUFFER, ModelUniformBlockSize, NULL, GL_DYNAMIC_DRAW);
 
   for (int i = 0; i < StaticModel->MeshCount; i++) {
+    glBindBuffer(GL_UNIFORM_BUFFER, UBOs[i]);
+    glBufferData(GL_UNIFORM_BUFFER, MeshUniformBlockSize, NULL,
+                 GL_DYNAMIC_DRAW);
+
     glBindVertexArray(VAOs[i]);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBOs[i]);

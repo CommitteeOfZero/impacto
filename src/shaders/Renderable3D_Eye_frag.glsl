@@ -7,13 +7,17 @@ uniform sampler2D WhiteColorMap;
 uniform sampler2D IrisSpecularColorMap;
 uniform sampler2D HighlightColorMap;
 
-layout(std140) uniform Character3DCommon {
+layout(std140) uniform Character3DScene {
   UNIFORM_PRECISION mat4 ViewProjection;
-  UNIFORM_PRECISION mat4 Model;
-  UNIFORM_PRECISION mat4 Bones[ModelMaxBonesPerMesh];
   UNIFORM_PRECISION vec4 Tint;
   UNIFORM_PRECISION vec3 WorldLightPosition;
   UNIFORM_PRECISION vec3 WorldEyePosition;
+};
+
+layout(std140) uniform Character3DModel { UNIFORM_PRECISION mat4 Model; };
+
+layout(std140) uniform Character3DMesh {
+  UNIFORM_PRECISION mat4 Bones[ModelMaxBonesPerMesh];
   UNIFORM_PRECISION float ModelOpacity;
 };
 
