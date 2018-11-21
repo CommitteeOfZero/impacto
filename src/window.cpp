@@ -219,6 +219,10 @@ void Init() {
     Shutdown();
   }
 
+  // At the time of writing, this is on by default on Intel on Windows until we
+  // resize the window???
+  glDisable(GL_FRAMEBUFFER_SRGB);
+
 #ifdef IMPACTO_GL_DEBUG
   if (ActualGraphicsApi == GfxApi_GL) {
     GLint flags;
