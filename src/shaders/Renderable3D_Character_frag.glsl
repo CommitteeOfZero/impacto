@@ -13,6 +13,7 @@ layout(std140) uniform Character3DScene {
   UNIFORM_PRECISION vec4 Tint;
   UNIFORM_PRECISION vec3 WorldLightPosition;
   UNIFORM_PRECISION vec3 WorldEyePosition;
+  bool DarkMode;
 };
 
 layout(std140) uniform Character3DModel { UNIFORM_PRECISION mat4 Model; };
@@ -21,8 +22,6 @@ layout(std140) uniform Character3DMesh {
   UNIFORM_PRECISION mat4 Bones[ModelMaxBonesPerMesh];
   UNIFORM_PRECISION float ModelOpacity;
 };
-
-uniform bool DarkMode;
 
 const float FALLOFF_POWER = 0.8;
 

@@ -16,13 +16,15 @@ enum SceneUniform {
   SU_Tint = 1,
   SU_WorldLightPosition = 2,
   SU_WorldEyePosition = 3,
-  SU_Count = 4
+  SU_DarkMode = 4,
+  SU_Count = 5
 };
 enum ModelUniform { MU_Model = 0, MU_Count = 1 };
 enum MeshUniform { MSU_Bones = 0, MSU_ModelOpacity = 1, MSU_Count = 2 };
 
 static char const* SceneUniformNames[SU_Count] = {
-    "ViewProjection", "Tint", "WorldLightPosition", "WorldEyePosition"};
+    "ViewProjection", "Tint", "WorldLightPosition", "WorldEyePosition",
+    "DarkMode"};
 static GLint SceneUniformOffsets[SU_Count];
 static char const* ModelUniformNames[MU_Count] = {"Model"};
 static GLint ModelUniformOffsets[MU_Count];
@@ -32,7 +34,7 @@ static GLint MeshUniformOffsets[MSU_Count];
 static GLuint TextureDummy = 0;
 // character
 static GLuint ShaderProgram = 0, ShaderProgramOutline = 0, ShaderProgramEye = 0,
-              UBOScene = 0, UniformDarkMode = 0;
+              UBOScene = 0;
 // background
 static GLuint ShaderProgramBackground = 0, UniformViewProjectionBackground = 0,
               UniformModelBackground = 0;
@@ -113,8 +115,6 @@ void Renderable3D::Init() {
   ModelUniformBuffer = (uint8_t*)malloc(ModelUniformBlockSize);
   MeshUniformBuffer = (uint8_t*)malloc(MeshUniformBlockSize);
 
-  UniformDarkMode = glGetUniformLocation(ShaderProgram, "DarkMode");
-
   UniformViewProjectionBackground =
       glGetUniformLocation(ShaderProgramBackground, "ViewProjection");
   UniformModelBackground =
@@ -163,11 +163,10 @@ void Renderable3D::LoadSceneUniforms(Camera* camera) {
   memcpy(SceneUniformBuffer + SceneUniformOffsets[SU_WorldEyePosition],
          glm::value_ptr(camera->CameraTransform.Position),
          sizeof(camera->CameraTransform.Position));
+  *(uint32_t*)(SceneUniformBuffer + SceneUniformOffsets[SU_DarkMode]) =
+      Scene3D::DarkMode;
   glBufferSubData(GL_UNIFORM_BUFFER, 0, SceneUniformBlockSize,
                   SceneUniformBuffer);
-
-  glUseProgram(ShaderProgram);
-  glUniform1i(UniformDarkMode, Scene3D::DarkMode);
 
   glUseProgram(ShaderProgramBackground);
   glUniformMatrix4fv(UniformViewProjectionBackground, 1, GL_FALSE,
