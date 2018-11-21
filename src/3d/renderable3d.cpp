@@ -440,10 +440,6 @@ void Renderable3D::Render() {
     }
   } else if (StaticModel->Type == ModelType_Background) {
     glUseProgram(ShaderProgramBackground);
-    // TODO: *should* we cull backfaces? (in the default pose this covers some
-    // sprites)
-    glDisable(GL_CULL_FACE);
-    glDepthMask(GL_TRUE);
 
     for (int i = 0; i < StaticModel->MeshCount; i++) {
       UseMesh(i);

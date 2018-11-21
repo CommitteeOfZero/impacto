@@ -336,7 +336,6 @@ static void DrawToScreen() {
   GLC::BindFramebuffer(GL_DRAW_FRAMEBUFFER, Window::DrawRT);
   glViewport(0, 0, viewport.Width, viewport.Height);
 
-  glDisable(GL_DEPTH_TEST);
   glEnable(GL_BLEND);
   glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
