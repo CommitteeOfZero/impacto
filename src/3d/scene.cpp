@@ -5,6 +5,7 @@
 #include "../window.h"
 #include "../workqueue.h"
 #include "../shader.h"
+#include "../glc.h"
 
 namespace Impacto {
 namespace Scene3D {
@@ -167,7 +168,7 @@ static void SetupFramebufferState() {
     }
 
     glGenFramebuffers(1, &FBO);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, FBO);
+    GLC::BindFramebuffer(GL_DRAW_FRAMEBUFFER, FBO);
     glGenTextures(1, &RenderTextureColor);
 
     GLenum textureTarget;
@@ -246,7 +247,7 @@ static void SetupFramebufferState() {
 
     if (msaa == MS_BlitFromRenderbuffer) {
       glGenFramebuffers(1, &FBOMultisample);
-      glBindFramebuffer(GL_DRAW_FRAMEBUFFER, FBOMultisample);
+      GLC::BindFramebuffer(GL_DRAW_FRAMEBUFFER, FBOMultisample);
       glGenRenderbuffers(1, &RenderbufferColor);
       glGenRenderbuffers(1, &RenderbufferDS);
 
@@ -267,9 +268,9 @@ static void SetupFramebufferState() {
     }
   } else {
     if (msaa == MS_BlitFromRenderbuffer) {
-      glBindFramebuffer(GL_DRAW_FRAMEBUFFER, FBOMultisample);
+      GLC::BindFramebuffer(GL_DRAW_FRAMEBUFFER, FBOMultisample);
     } else {
-      glBindFramebuffer(GL_DRAW_FRAMEBUFFER, FBO);
+      GLC::BindFramebuffer(GL_DRAW_FRAMEBUFFER, FBO);
     }
   }
 
@@ -305,11 +306,11 @@ static void CleanFramebufferState() {
     RenderbufferColor = 0;
   }
   if (FBO) {
-    glDeleteFramebuffers(1, &FBO);
+    GLC::DeleteFramebuffers(1, &FBO);
     FBO = 0;
   }
   if (FBOMultisample) {
-    glDeleteFramebuffers(1, &FBOMultisample);
+    GLC::DeleteFramebuffers(1, &FBOMultisample);
     FBOMultisample = 0;
   }
 }
@@ -321,8 +322,8 @@ static void DrawToScreen() {
   MSResolveMode msaa = CheckMSResolveMode();
 
   if (msaa == MS_BlitFromRenderbuffer) {
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, FBOMultisample);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, FBO);
+    GLC::BindFramebuffer(GL_READ_FRAMEBUFFER, FBOMultisample);
+    GLC::BindFramebuffer(GL_DRAW_FRAMEBUFFER, FBO);
 
     glBlitFramebuffer(0, 0, scaledViewport.Width, scaledViewport.Height, 0, 0,
                       scaledViewport.Width, scaledViewport.Height,
@@ -332,7 +333,7 @@ static void DrawToScreen() {
     glInvalidateFramebuffer(GL_READ_FRAMEBUFFER, 2, attachments);
   }
 
-  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, Window::DrawRT);
+  GLC::BindFramebuffer(GL_DRAW_FRAMEBUFFER, Window::DrawRT);
   glViewport(0, 0, viewport.Width, viewport.Height);
 
   glDisable(GL_DEPTH_TEST);

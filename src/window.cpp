@@ -3,6 +3,7 @@
 
 #include "window.h"
 #include "log.h"
+#include "glc.h"
 
 #include "../vendor/nuklear/nuklear_sdl_gl3.h"
 
@@ -258,8 +259,8 @@ void SetDimensions(int width, int height, int msaa, float renderScale) {
 static void CleanFBOs() {
   if (drawRenderTexture) glDeleteTextures(1, &drawRenderTexture);
   if (ReadRenderTexture) glDeleteTextures(1, &ReadRenderTexture);
-  if (DrawRT) glDeleteFramebuffers(1, &DrawRT);
-  if (ReadRT) glDeleteFramebuffers(1, &ReadRT);
+  if (DrawRT) GLC::DeleteFramebuffers(1, &DrawRT);
+  if (ReadRT) GLC::DeleteFramebuffers(1, &ReadRT);
 
   drawRenderTexture = ReadRenderTexture = DrawRT = ReadRT = 0;
 }
@@ -275,8 +276,8 @@ void SwapRTs() {
   drawRenderTexture = ReadRenderTexture;
   ReadRenderTexture = temp;
 
-  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, DrawRT);
-  glBindFramebuffer(GL_READ_FRAMEBUFFER, ReadRT);
+  GLC::BindFramebuffer(GL_DRAW_FRAMEBUFFER, DrawRT);
+  GLC::BindFramebuffer(GL_READ_FRAMEBUFFER, ReadRT);
 }
 
 void Update() {
@@ -288,7 +289,7 @@ void Update() {
     CleanFBOs();
 
     glGenFramebuffers(1, &ReadRT);
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, ReadRT);
+    GLC::BindFramebuffer(GL_READ_FRAMEBUFFER, ReadRT);
     glGenTextures(1, &ReadRenderTexture);
 
     glBindTexture(GL_TEXTURE_2D, ReadRenderTexture);
@@ -299,7 +300,7 @@ void Update() {
                            GL_TEXTURE_2D, ReadRenderTexture, 0);
 
     glGenFramebuffers(1, &DrawRT);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, DrawRT);
+    GLC::BindFramebuffer(GL_DRAW_FRAMEBUFFER, DrawRT);
     glGenTextures(1, &drawRenderTexture);
 
     glBindTexture(GL_TEXTURE_2D, drawRenderTexture);
@@ -316,7 +317,7 @@ void Update() {
     // Clear outside letter-/pillarbox
     // Unfortunately we seem to need to do this every frame - I get content
     // flickering into the margins on Linux otherwise
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    GLC::BindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glViewport(0, 0, WindowWidth, WindowHeight);
     glClear(GL_COLOR_BUFFER_BIT);
   }
@@ -328,8 +329,8 @@ void Update() {
 }
 
 void Draw() {
-  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-  glBindFramebuffer(GL_READ_FRAMEBUFFER, DrawRT);
+  GLC::BindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+  GLC::BindFramebuffer(GL_READ_FRAMEBUFFER, DrawRT);
 
   Rect viewport = GetViewport();
 

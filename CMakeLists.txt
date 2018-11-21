@@ -24,6 +24,7 @@ set(Impacto_Src
     src/renderer2d.cpp
     src/text.cpp
     src/inputsystem.cpp
+    src/glc.cpp
 
     src/text_rne.cpp
 
@@ -101,6 +102,7 @@ set(Impacto_Header
     src/text.h
     src/loadable.h
     src/inputsystem.h
+    src/glc.h
 
     src/datedisplay.h
     src/saveicondisplay.h
