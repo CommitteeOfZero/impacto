@@ -226,62 +226,54 @@ void Renderable3D::ReloadDefaultBoneTransforms() {
   }
 }
 
-void Renderable3D::CalculateMorphedVertices() {
-  MorphVertexBuffer* currentMorphedVertex = 0;
-  VertexBuffer* currentVertex = 0;
+void Renderable3D::CalculateMorphedVertices(int id) {
+  Mesh* mesh = &StaticModel->Meshes[id];
+  AnimatedMesh* animStatus = &MeshAnimStatus[id];
+  AnimatedMesh* prevAnimStatus = &PrevMeshAnimStatus[id];
+  if (mesh->MorphTargetCount == 0) return;
 
-  Mesh* mesh;
-  AnimatedMesh* animStatus;
-  AnimatedMesh* prevAnimStatus;
-  for (int i = 0; i < StaticModel->MeshCount; i++) {
-    mesh = &StaticModel->Meshes[i];
-    animStatus = &MeshAnimStatus[i];
-    prevAnimStatus = &PrevMeshAnimStatus[i];
-    if (mesh->MorphTargetCount == 0) continue;
+  MorphVertexBuffer* currentMorphedVertex =
+      CurrentMorphedVertices + animStatus->MorphedVerticesOffset;
+  VertexBuffer* currentVertex =
+      ((VertexBuffer*)StaticModel->VertexBuffers) + mesh->VertexOffset;
+
+  for (int j = 0; j < mesh->VertexCount; j++) {
+    currentMorphedVertex->Position = currentVertex->Position;
+    currentMorphedVertex->Normal = currentVertex->Normal;
+    currentMorphedVertex++;
+    currentVertex++;
+  }
+
+  for (int k = 0; k < mesh->MorphTargetCount; k++) {
+    float influence;
+    if (PrevPoseWeight > 0.0f) {
+      influence = glm::mix(prevAnimStatus->MorphInfluences[k],
+                           animStatus->MorphInfluences[k],
+                           glm::smoothstep(0.0f, 1.0f, 1.0f - PrevPoseWeight));
+    } else {
+      influence = animStatus->MorphInfluences[k];
+    }
+
+    if (influence == 0.0f) continue;
 
     currentMorphedVertex =
         CurrentMorphedVertices + animStatus->MorphedVerticesOffset;
     currentVertex =
         ((VertexBuffer*)StaticModel->VertexBuffers) + mesh->VertexOffset;
 
+    MorphVertexBuffer* currentMorphTargetVbo =
+        StaticModel->MorphVertexBuffers +
+        StaticModel->MorphTargets[mesh->MorphTargetIds[k]].VertexOffset;
+
     for (int j = 0; j < mesh->VertexCount; j++) {
-      currentMorphedVertex->Position = currentVertex->Position;
-      currentMorphedVertex->Normal = currentVertex->Normal;
+      currentMorphedVertex->Position +=
+          (currentMorphTargetVbo->Position - currentVertex->Position) *
+          influence;
+      currentMorphedVertex->Normal +=
+          (currentMorphTargetVbo->Normal - currentVertex->Normal) * influence;
       currentMorphedVertex++;
       currentVertex++;
-    }
-
-    for (int k = 0; k < mesh->MorphTargetCount; k++) {
-      float influence;
-      if (PrevPoseWeight > 0.0f) {
-        influence = glm::mix(
-            prevAnimStatus->MorphInfluences[k], animStatus->MorphInfluences[k],
-            glm::smoothstep(0.0f, 1.0f, 1.0f - PrevPoseWeight));
-      } else {
-        influence = animStatus->MorphInfluences[k];
-      }
-
-      if (influence == 0.0f) continue;
-
-      currentMorphedVertex =
-          CurrentMorphedVertices + animStatus->MorphedVerticesOffset;
-      currentVertex =
-          ((VertexBuffer*)StaticModel->VertexBuffers) + mesh->VertexOffset;
-
-      MorphVertexBuffer* currentMorphTargetVbo =
-          StaticModel->MorphVertexBuffers +
-          StaticModel->MorphTargets[mesh->MorphTargetIds[k]].VertexOffset;
-
-      for (int j = 0; j < mesh->VertexCount; j++) {
-        currentMorphedVertex->Position +=
-            (currentMorphTargetVbo->Position - currentVertex->Position) *
-            influence;
-        currentMorphedVertex->Normal +=
-            (currentMorphTargetVbo->Normal - currentVertex->Normal) * influence;
-        currentMorphedVertex++;
-        currentVertex++;
-        currentMorphTargetVbo++;
-      }
+      currentMorphTargetVbo++;
     }
   }
 }
@@ -333,7 +325,6 @@ void Renderable3D::Update(float dt) {
       Animator.Update(dt);
     }
   }
-  CalculateMorphedVertices();
   Pose();
   if (PrevPoseWeight > 0.0f) {
     PrevPoseWeight -= dt / AnimationTransitionTime;
@@ -358,6 +349,9 @@ void Renderable3D::Render() {
     glDepthMask(GL_FALSE);
 
     for (int i = 0; i < StaticModel->MeshCount; i++) {
+      // First pass, animate morph targets regardless of whether we're drawing
+      CalculateMorphedVertices(i);
+
       if (!MeshAnimStatus[i].Visible || StaticModel->Meshes[i].Flags <= 0)
         continue;
 

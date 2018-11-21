@@ -42,8 +42,6 @@ class Renderable3D : public Loadable<Renderable3D> {
   void Update(float dt);
   void Render();
 
-  void CalculateMorphedVertices();
-
   void ReloadDefaultBoneTransforms();
   void InitMeshAnimStatus();
   void ReloadDefaultMeshAnimStatus();
@@ -71,6 +69,8 @@ class Renderable3D : public Loadable<Renderable3D> {
  private:
   void Pose();
   void PoseBone(int16_t id);
+
+  void CalculateMorphedVertices(int id);
 
   void UseVAO(int id);
   void PrepareUniforms();
