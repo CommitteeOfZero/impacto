@@ -174,6 +174,12 @@ include_directories(${OGGVORBIS_INCLUDE_DIRS})
 include_directories(${LIBATRAC9_INCLUDE_DIR})
 include_directories(vendor/include)
 
+if (WIN32)
+    list(APPEND Impacto_Src
+        src/manifest_windows.manifest
+    )
+endif()
+
 add_executable (impacto ${Impacto_Src} ${Impacto_Header})
 
 # configuration
