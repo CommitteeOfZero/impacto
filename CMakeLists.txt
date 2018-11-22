@@ -85,6 +85,8 @@ set(Impacto_Src
     vendor/glad/src/glad.c
 
     vendor/clHCA/clHCA.c
+
+    vendor/duktape/src/duktape.c
 )
 
 set(Impacto_Header
@@ -173,6 +175,7 @@ include_directories(${OPENAL_INCLUDE_DIR})
 include_directories(${OGGVORBIS_INCLUDE_DIRS})
 include_directories(${LIBATRAC9_INCLUDE_DIR})
 include_directories(vendor/include)
+include_directories(vendor/duktape/include)
 
 if (WIN32)
     list(APPEND Impacto_Src
