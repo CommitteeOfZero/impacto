@@ -36,8 +36,7 @@ static GLuint TextureDummy = 0;
 static GLuint ShaderProgram = 0, ShaderProgramOutline = 0, ShaderProgramEye = 0,
               UBOScene = 0;
 // background
-static GLuint ShaderProgramBackground = 0, UniformViewProjectionBackground = 0,
-              UniformModelBackground = 0;
+static GLuint ShaderProgramBackground = 0, UniformMVPBackground = 0;
 
 static uint8_t* SceneUniformBuffer;
 static GLint SceneUniformBlockSize;
@@ -45,6 +44,8 @@ static uint8_t* ModelUniformBuffer;
 static GLint ModelUniformBlockSize;
 static uint8_t* MeshUniformBuffer;
 static GLint MeshUniformBlockSize;
+
+static glm::mat4 ViewProjection;
 
 static bool IsInit = false;
 
@@ -115,10 +116,7 @@ void Renderable3D::Init() {
   ModelUniformBuffer = (uint8_t*)malloc(ModelUniformBlockSize);
   MeshUniformBuffer = (uint8_t*)malloc(MeshUniformBlockSize);
 
-  UniformViewProjectionBackground =
-      glGetUniformLocation(ShaderProgramBackground, "ViewProjection");
-  UniformModelBackground =
-      glGetUniformLocation(ShaderProgramBackground, "Model");
+  UniformMVPBackground = glGetUniformLocation(ShaderProgramBackground, "MVP");
 
   glUseProgram(ShaderProgram);
   glUniform1i(glGetUniformLocation(ShaderProgram, "ColorMap"), TT_ColorMap);
@@ -168,9 +166,7 @@ void Renderable3D::LoadSceneUniforms(Camera* camera) {
   glBufferSubData(GL_UNIFORM_BUFFER, 0, SceneUniformBlockSize,
                   SceneUniformBuffer);
 
-  glUseProgram(ShaderProgramBackground);
-  glUniformMatrix4fv(UniformViewProjectionBackground, 1, GL_FALSE,
-                     glm::value_ptr(camera->ViewProjection));
+  ViewProjection = camera->ViewProjection;
 }
 
 bool Renderable3D::LoadSync(uint32_t modelId) {
@@ -528,9 +524,9 @@ void Renderable3D::LoadMeshUniforms(int id) {
       UniformsUpdated[id] = true;
     }
   } else if (StaticModel->Type == ModelType_Background) {
-    glm::mat4 modelMatrix = StaticModel->Meshes[id].ModelTransform.Matrix();
-    glUniformMatrix4fv(UniformModelBackground, 1, GL_FALSE,
-                       glm::value_ptr(modelMatrix));
+    glm::mat4 mvp =
+        ViewProjection * StaticModel->Meshes[id].ModelTransform.Matrix();
+    glUniformMatrix4fv(UniformMVPBackground, 1, GL_FALSE, glm::value_ptr(mvp));
   }
 }
 

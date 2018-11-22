@@ -3,10 +3,9 @@ layout(location = 1) in vec2 UV;
 
 out vec2 uv;
 
-uniform mat4 ViewProjection;
-uniform mat4 Model;
+uniform mat4 MVP;
 
 void main() {
-  gl_Position = ViewProjection * Model * vec4(Position, 1.0);
+  gl_Position = MVP * vec4(Position, 1.0);
   uv = UV;
 }
