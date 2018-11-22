@@ -330,7 +330,8 @@ static void DrawToScreen() {
                       GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
     GLenum attachments[2] = {GL_COLOR_ATTACHMENT0, GL_DEPTH_STENCIL_ATTACHMENT};
-    glInvalidateFramebuffer(GL_READ_FRAMEBUFFER, 2, attachments);
+    if (glInvalidateFramebuffer)
+      glInvalidateFramebuffer(GL_READ_FRAMEBUFFER, 2, attachments);
   }
 
   GLC::BindFramebuffer(GL_DRAW_FRAMEBUFFER, Window::DrawRT);
