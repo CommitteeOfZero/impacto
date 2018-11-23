@@ -243,3 +243,4 @@ endif()
 # assets
 
 install(DIRECTORY src/shaders DESTINATION .)
+install(DIRECTORY profiles DESTINATION .)
