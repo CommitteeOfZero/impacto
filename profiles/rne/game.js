@@ -9,3 +9,4 @@ include('rne/charset.js');
 include('rne/font.js');
 include('rne/dialogue.js');
 include('rne/nametag.js');
+include('rne/animations.js');
