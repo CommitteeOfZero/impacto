@@ -31,53 +31,54 @@ static duk_ret_t DukInclude(duk_context* ctx) {
   if (IncludedFiles.find(file) != IncludedFiles.end()) {
     ImpLog(LL_Debug, LC_Profile, "File %s already included, skipping...\n",
            file.c_str());
-  } else {
-    IncludedFiles.insert(file);
-    ImpLog(LL_Debug, LC_Profile, "Including %s\n", file.c_str());
+    return 0;
+  }
 
-    Io::InputStream* stream;
-    IoError err = Io::PhysicalFileStream::Create(file, &stream);
-    if (err != IoError_OK) {
-      ImpLog(LL_Error, LC_Profile, "Could not open %s\n", file.c_str());
-      return DUK_RET_ERROR;
-    }
+  IncludedFiles.insert(file);
+  ImpLog(LL_Debug, LC_Profile, "Including %s\n", file.c_str());
 
-    char const prefix[] = "(function() {";
-    char const suffix[] = "})();";
+  Io::InputStream* stream;
+  IoError err = Io::PhysicalFileStream::Create(file, &stream);
+  if (err != IoError_OK) {
+    ImpLog(LL_Error, LC_Profile, "Could not open %s\n", file.c_str());
+    return DUK_RET_ERROR;
+  }
 
-    char* script =
-        (char*)malloc(strlen(prefix) + stream->Meta.Size + strlen(suffix));
-    memcpy(script, prefix, strlen(prefix));
+  char const prefix[] = "(function() {";
+  char const suffix[] = "})();";
 
-    int64_t len = stream->Read(script + strlen(prefix), stream->Meta.Size);
+  char* script =
+      (char*)malloc(strlen(prefix) + stream->Meta.Size + strlen(suffix));
+  memcpy(script, prefix, strlen(prefix));
 
-    if (len < 0) {
-      free(script);
-      delete stream;
+  int64_t len = stream->Read(script + strlen(prefix), stream->Meta.Size);
 
-      ImpLog(LL_Error, LC_Profile, "Could not open %s\n", file.c_str());
-      return DUK_RET_ERROR;
-    }
-
-    len += strlen(prefix);
-    memcpy(script + len, suffix, strlen(suffix));
-    len += strlen(suffix);
-
-    int evalErr = duk_peval_lstring(ctx, script, len);
-
+  if (len < 0) {
     free(script);
     delete stream;
 
-    if (evalErr != 0) {
-      ImpLog(LL_Error, LC_Profile, "JS include('%s') error: %s\n", file.c_str(),
-             duk_safe_to_string(ctx, -1));
-      duk_pop(ctx);
-      return DUK_RET_EVAL_ERROR;
-    } else {
-      ImpLog(LL_Debug, LC_Profile, "JS include('%s') success\n", file.c_str());
-      duk_pop(ctx);
-      return 0;
-    }
+    ImpLog(LL_Error, LC_Profile, "Could not open %s\n", file.c_str());
+    return DUK_RET_ERROR;
+  }
+
+  len += strlen(prefix);
+  memcpy(script + len, suffix, strlen(suffix));
+  len += strlen(suffix);
+
+  int evalErr = duk_peval_lstring(ctx, script, len);
+
+  free(script);
+  delete stream;
+
+  if (evalErr != 0) {
+    ImpLog(LL_Error, LC_Profile, "JS include('%s') error: %s\n", file.c_str(),
+           duk_safe_to_string(ctx, -1));
+    duk_pop(ctx);
+    return DUK_RET_EVAL_ERROR;
+  } else {
+    ImpLog(LL_Debug, LC_Profile, "JS include('%s') success\n", file.c_str());
+    duk_pop(ctx);
+    return 0;
   }
 }
 
