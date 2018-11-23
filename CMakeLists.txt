@@ -26,6 +26,8 @@ set(Impacto_Src
     src/inputsystem.cpp
     src/glc.cpp
 
+    src/profile/profile.cpp
+
     src/text_rne.cpp
 
     src/datedisplay.cpp
@@ -105,6 +107,8 @@ set(Impacto_Header
     src/loadable.h
     src/inputsystem.h
     src/glc.h
+
+    src/profile/profile.h
 
     src/datedisplay.h
     src/saveicondisplay.h

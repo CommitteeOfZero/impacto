@@ -31,6 +31,8 @@ void InitSystems() {
 int main(int argc, char* argv[]) {
   InitSystems();
 
+  Game::InitFromProfile("modelviewer");
+
   Game::InitModelViewer();
 
   t = SDL_GetPerformanceCounter();

@@ -72,6 +72,8 @@ const char* ChannelToString(LogChannel channel) {
       return "Expr";
     case LC_Audio:
       return "Audio";
+    case LC_Profile:
+      return "Profile";
     default:
       assert(false);
       return "";

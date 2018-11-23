@@ -30,6 +30,7 @@ enum LogChannel : uint32_t {
   LC_Expr = (1 << 9),
   LC_VMStub = (1 << 10),
   LC_Audio = (1 << 11),
+  LC_Profile = (1 << 12),
   LC_All = 0xFFFFFFFF
 };
 

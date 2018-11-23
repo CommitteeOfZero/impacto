@@ -54,6 +54,8 @@ enum DrawComponentType : uint8_t {
   TD_None = 0xFF
 };
 
+void InitFromProfile(std::string const& name);
+
 void InitModelViewer();
 void InitVmTest();
 void InitDialogueTest();

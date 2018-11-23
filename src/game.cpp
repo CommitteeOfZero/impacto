@@ -18,6 +18,8 @@
 #include "loadingdisplay.h"
 #include "io/memorystream.h"
 
+#include "profile/profile.h"
+
 namespace Impacto {
 
 namespace Profile {
@@ -126,6 +128,8 @@ static void Init() {
     Vm::Init(4, 0);
   }
 }
+
+void InitFromProfile(std::string const& name) { Profile::LoadProfile(name); }
 
 void InitModelViewer() {
   Profile::LayerCount = 1;
