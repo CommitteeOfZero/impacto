@@ -73,16 +73,12 @@ void Render() {
 
       loadingBg.Sheet = Profile::Dlg.DataSpriteSheet;
       loadingBg.Bounds = RectF(spriteX, spriteY, 277.0f, 81.0f);
-      loadingBg.BaseScale = glm::vec2(1.0f);
-      Renderer2D::DrawSprite(loadingBg, RectF(1019.0f, 598.0f, 277.0f, 81.0f),
-                             col);
+      Renderer2D::DrawSprite(loadingBg, glm::vec2(1019.0f, 598.0f), col);
     } else if (GetFlag(SF_LOADING)) {
       spriteY = (60.0f * glm::floor(LoadingAnimBg) + 544.0f);
       loadingBg.Sheet = Profile::Dlg.DataSpriteSheet;
       loadingBg.Bounds = RectF(555.0f, spriteY, 206.0f, 58.0f);
-      loadingBg.BaseScale = glm::vec2(1.0f);
-      Renderer2D::DrawSprite(loadingBg, RectF(1074.0f, 611.0f, 206.0f, 58.0f),
-                             col);
+      Renderer2D::DrawSprite(loadingBg, glm::vec2(1074.0f, 611.0f), col);
     }
 
     if (LoadingAnim >= 3.0f)
@@ -92,17 +88,13 @@ void Render() {
     Sprite loadingDiskIcon;
     loadingDiskIcon.Sheet = Profile::Dlg.DataSpriteSheet;
     loadingDiskIcon.Bounds = RectF(spriteX, 1.0f, 60.0f, 60.0f);
-    loadingDiskIcon.BaseScale = glm::vec2(1.0f);
     spriteY = 23.0f * glm::floor(LoadingAnim) + 91.0f;
     Sprite loadingText;
     loadingText.Sheet = Profile::Dlg.DataSpriteSheet;
     loadingText.Bounds = RectF(173.0f, spriteY, 214.0f, 21.0f);
-    loadingText.BaseScale = glm::vec2(1.0f);
 
-    Renderer2D::DrawSprite(loadingDiskIcon, RectF(986.0f, 608.0f, 60.0f, 60.0f),
-                           col);
-    Renderer2D::DrawSprite(loadingText, RectF(1025.0f, 628.0f, 214.0f, 21.0f),
-                           col);
+    Renderer2D::DrawSprite(loadingDiskIcon, glm::vec2(986.0f, 608.0f), col);
+    Renderer2D::DrawSprite(loadingText, glm::vec2(1025.0f, 628.0f), col);
   }
 }
 

@@ -19,7 +19,7 @@ void Update(float dt) {
 
   if (AnimState == Hiding) {
     if (SaveIconOpacity > 0.0f)
-      SaveIconOpacity -= 1.8f * dt;
+      SaveIconOpacity -= 4.0f * dt;
     else {
       PositionX = 1153.0f;
       PositionY = 23.0f;
@@ -44,17 +44,14 @@ void Render() {
     Sprite saveIconBg;
     saveIconBg.Sheet = Profile::Dlg.DataSpriteSheet;
     saveIconBg.Bounds = RectF(1439.0f, 1.0f, 84.0f, 84.0f);
-    saveIconBg.BaseScale = glm::vec2(1.0f);
     Sprite saveIcon;
     saveIcon.Sheet = Profile::Dlg.DataSpriteSheet;
     saveIcon.Bounds =
         RectF(1977.0f, (glm::floor(SaveIconAnim) * 72.0f) + 1.0f, 70.0f, 70.0f);
-    saveIcon.BaseScale = glm::vec2(1.0f);
-    Renderer2D::DrawSprite(
-        saveIconBg, RectF(PositionX - 7.0f, PositionY - 4.0f, 84.0f, 84.0f),
-        glm::vec4(1.0f, 1.0f, 1.0f, col.a / 2.0f));
-    Renderer2D::DrawSprite(saveIcon, RectF(PositionX, PositionY, 70.0f, 70.0f),
-                           col);
+    Renderer2D::DrawSprite(saveIconBg,
+                           glm::vec2(PositionX - 7.0f, PositionY - 4.0f),
+                           glm::vec4(1.0f, 1.0f, 1.0f, col.a / 2.0f));
+    Renderer2D::DrawSprite(saveIcon, glm::vec2(PositionX, PositionY), col);
   }
 }
 

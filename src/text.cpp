@@ -351,8 +351,8 @@ void DialoguePage::Render() {
     col.g = 1.0f;
     col.b = 1.0f;
     col.a = glm::smoothstep(0.0f, 1.0f, ADVBoxOpacity);
-    Renderer2D::DrawSprite(
-        mesBox, RectF(0.0f, 361.0f * (720.0f / 544.0f), 1280.0f, 206.0f), col);
+    Renderer2D::DrawSprite(mesBox, glm::vec2(0.0f, 361.0f * (720.0f / 544.0f)),
+                           col);
   }
 
   for (int i = 0; i < Length; i++) {
@@ -390,8 +390,8 @@ void DialoguePage::Render() {
     col.g = 1.0f;
     col.b = 1.0f;
     col.a = glm::smoothstep(0.0f, 1.0f, ADVBoxOpacity);
-    Renderer2D::DrawSprite(
-        nameInd, RectF(0.0f, 380.0f * (720.0f / 544.0f), 155.0f, 31.0f), col);
+    Renderer2D::DrawSprite(nameInd, glm::vec2(0.0f, 380.0f * (720.0f / 544.0f)),
+                           col);
 
     RectF* dests = (RectF*)ImpStackAlloc(sizeof(RectF) * NameLength);
     Sprite* sprites = (Sprite*)ImpStackAlloc(sizeof(Sprite) * NameLength);

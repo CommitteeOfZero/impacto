@@ -27,23 +27,19 @@ void Render() {
   Sprite dateLine;
   dateLine.Sheet = Profile::Dlg.DataSpriteSheet;
   dateLine.Bounds = RectF(1525.0f, 1.0f, 450.0f, 28.0f);
-  dateLine.BaseScale = glm::vec2(1.0f);
   glm::vec4 col;
   col.r = 1.0f;
   col.g = 1.0f;
   col.b = 1.0f;
   if (DateOpacity < 1.0f) DateOpacity += 0.01;
   col.a = glm::smoothstep(0.0f, 1.0f, DateOpacity);
-  Renderer2D::DrawSprite(
-      dateLine, RectF(1087.0f - (col.a * 256.0f) + 1.0f, 73.0f, 450.0f, 28.0f),
-      col);
+  Renderer2D::DrawSprite(dateLine, glm::vec2(1086.0f - (col.a * 256.0f), 73.0f),
+                         col);
 
   Sprite dateBracketClose;
   dateBracketClose.Sheet = Profile::Dlg.DataSpriteSheet;
   dateBracketClose.Bounds = RectF(1776.0f, 63.0f, 8.0f, 20.0f);
-  dateBracketClose.BaseScale = glm::vec2(1.0f);
-  Renderer2D::DrawSprite(dateBracketClose, RectF(1167.0f, 60.0f, 8.0f, 20.0f),
-                         col);
+  Renderer2D::DrawSprite(dateBracketClose, glm::vec2(1167.0f, 60.0f), col);
 
   float weekDayX, weekDayY, weekDayDX;
   switch (weekDay) {
@@ -87,17 +83,13 @@ void Render() {
   dateWeek.Sheet = Profile::Dlg.DataSpriteSheet;
   dateWeek.Bounds =
       RectF(weekDayX + 1.0f, weekDayY + 1.0f, weekDayDX - 2.0f, 20.0f);
-  dateWeek.BaseScale = glm::vec2(1.0f);
-  Renderer2D::DrawSprite(
-      dateWeek, RectF(1167.0f - weekDayDX, 60.0f, weekDayDX - 2.0f, 20.0f),
-      col);
+  Renderer2D::DrawSprite(dateWeek, glm::vec2(1167.0f - weekDayDX, 60.0f), col);
 
   Sprite dateBracketOpen;
   dateBracketOpen.Sheet = Profile::Dlg.DataSpriteSheet;
   dateBracketOpen.Bounds = RectF(1766.0f, 63.0f, 8.0f, 20.0f);
-  dateBracketOpen.BaseScale = glm::vec2(1.0f);
-  Renderer2D::DrawSprite(dateBracketOpen,
-                         RectF(1157.0f - weekDayDX, 60.0f, 8.0f, 20.0f), col);
+  Renderer2D::DrawSprite(dateBracketOpen, glm::vec2(1157.0f - weekDayDX, 60.0f),
+                         col);
 
   float year1X, year1Y, year1DX;
   if (year % 10 > 1)
@@ -115,9 +107,7 @@ void Render() {
   Sprite dateYear1;
   dateYear1.Sheet = Profile::Dlg.DataSpriteSheet;
   dateYear1.Bounds = RectF(year1X, 63.0f, year1Y - 2.0f, 20.0f);
-  dateYear1.BaseScale = glm::vec2(1.0f);
-  Renderer2D::DrawSprite(
-      dateYear1, RectF(year1DX + 1.0f, 60.0f, year1Y - 2.0f, 20.0f), col);
+  Renderer2D::DrawSprite(dateYear1, glm::vec2(year1DX + 1.0f, 60.0f), col);
 
   float year2X, year2Y, year2DX;
   if (year / 10 > 1)
@@ -135,27 +125,19 @@ void Render() {
   Sprite dateYear2;
   dateYear2.Sheet = Profile::Dlg.DataSpriteSheet;
   dateYear2.Bounds = RectF(year2X, 63.0f, year2Y - 2.0f, 20.0f);
-  dateYear2.BaseScale = glm::vec2(1.0f);
-  Renderer2D::DrawSprite(
-      dateYear2, RectF(year2DX + 1.0f, 60.0f, year2Y - 2.0f, 20.0f), col);
+  Renderer2D::DrawSprite(dateYear2, glm::vec2(year2DX + 1.0f, 60.0f), col);
   Sprite dateYear3;
   dateYear3.Sheet = Profile::Dlg.DataSpriteSheet;
   dateYear3.Bounds = RectF(1525.0f, 63.0f, 23.0f, 20.0f);
-  dateYear3.BaseScale = glm::vec2(1.0f);
-  Renderer2D::DrawSprite(dateYear3, RectF(year2DX - 24.0f, 60.0f, 23.0f, 20.0f),
-                         col);
+  Renderer2D::DrawSprite(dateYear3, glm::vec2(year2DX - 24.0f, 60.0f), col);
   Sprite dateYear4;
   dateYear4.Sheet = Profile::Dlg.DataSpriteSheet;
   dateYear4.Bounds = RectF(1558.0f, 63.0f, 23.0f, 20.0f);
-  dateYear4.BaseScale = glm::vec2(1.0f);
-  Renderer2D::DrawSprite(dateYear4, RectF(year2DX - 49.0f, 60.0f, 23.0f, 20.0f),
-                         col);
+  Renderer2D::DrawSprite(dateYear4, glm::vec2(year2DX - 49.0f, 60.0f), col);
   Sprite dateYearDot;
   dateYearDot.Sheet = Profile::Dlg.DataSpriteSheet;
   dateYearDot.Bounds = RectF(1758.0f, 63.0f, 8.0f, 20.0f);
-  dateYearDot.BaseScale = glm::vec2(1.0f);
-  Renderer2D::DrawSprite(dateYearDot,
-                         RectF(year2DX - 57.0f, 60.0f, 8.0f, 20.0f), col);
+  Renderer2D::DrawSprite(dateYearDot, glm::vec2(year2DX - 57.0f, 60.0f), col);
 
   float day1X, day1Y, day1DX;
   if (day % 10 > 1)
@@ -173,9 +155,7 @@ void Render() {
   Sprite dateDay1;
   dateDay1.Sheet = Profile::Dlg.DataSpriteSheet;
   dateDay1.Bounds = RectF(day1X, 33.0f, day1Y - 2.0f, 28.0f);
-  dateDay1.BaseScale = glm::vec2(1.0f);
-  Renderer2D::DrawSprite(dateDay1,
-                         RectF(day1DX + 1.0f, 52.0f, day1Y - 2.0f, 28.0f), col);
+  Renderer2D::DrawSprite(dateDay1, glm::vec2(day1DX + 1.0f, 52.0f), col);
 
   float day2X, day2Y, day2DX;
   if (day / 10 > 1)
@@ -193,15 +173,11 @@ void Render() {
   Sprite dateDay2;
   dateDay2.Sheet = Profile::Dlg.DataSpriteSheet;
   dateDay2.Bounds = RectF(day2X, 33.0f, day2Y - 2.0f, 28.0f);
-  dateDay2.BaseScale = glm::vec2(1.0f);
-  Renderer2D::DrawSprite(dateDay2,
-                         RectF(day2DX + 1.0f, 52.0f, day2Y - 2.0f, 28.0f), col);
+  Renderer2D::DrawSprite(dateDay2, glm::vec2(day2DX + 1.0f, 52.0f), col);
   Sprite dateDayDot;
   dateDayDot.Sheet = Profile::Dlg.DataSpriteSheet;
   dateDayDot.Bounds = RectF(1897.0f, 33.0f, 10.0f, 28.0f);
-  dateDayDot.BaseScale = glm::vec2(1.0f);
-  Renderer2D::DrawSprite(dateDayDot, RectF(day2DX - 11.0f, 52.0f, 10.0f, 28.0f),
-                         col);
+  Renderer2D::DrawSprite(dateDayDot, glm::vec2(day2DX - 11.0f, 52.0f), col);
 
   float month1X, month1Y, month1DX;
   if (month % 10 > 1)
@@ -218,9 +194,7 @@ void Render() {
   Sprite dateMonth1;
   dateMonth1.Sheet = Profile::Dlg.DataSpriteSheet;
   dateMonth1.Bounds = RectF(month1X, 33.0f, month1Y - 2.0f, 28.0f);
-  dateMonth1.BaseScale = glm::vec2(1.0f);
-  Renderer2D::DrawSprite(
-      dateMonth1, RectF(month1DX + 1.0f, 52.0f, month1Y - 2.0f, 28.0f), col);
+  Renderer2D::DrawSprite(dateMonth1, glm::vec2(month1DX + 1.0f, 52.0f), col);
 
   if (month / 10 != 0) {
     float month2X, month2Y, month2DX;
@@ -239,9 +213,7 @@ void Render() {
     Sprite dateMonth2;
     dateMonth2.Sheet = Profile::Dlg.DataSpriteSheet;
     dateMonth2.Bounds = RectF(month2X, 33.0f, month2Y - 2.0f, 28.0f);
-    dateMonth2.BaseScale = glm::vec2(1.0f);
-    Renderer2D::DrawSprite(
-        dateMonth2, RectF(month2DX + 1.0f, 52.0f, month2Y - 2.0f, 28.0f), col);
+    Renderer2D::DrawSprite(dateMonth2, glm::vec2(month2DX + 1.0f, 52.0f), col);
   }
 }
 

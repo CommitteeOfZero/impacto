@@ -41,7 +41,6 @@ void Render() {
     Sprite sysMesBoxPart1;
     sysMesBoxPart1.Sheet = Profile::Dlg.DataSpriteSheet;
     sysMesBoxPart1.Bounds = RectF(1383.0f, 107.0f, 592.0f, 8.0f);
-    sysMesBoxPart1.BaseScale = glm::vec2(1.0f);
 
     int posParam;
 
@@ -56,14 +55,12 @@ void Render() {
                            glm::vec4(1.0f, 1.0f, 1.0f, 0.75f));
       Renderer2D::DrawSprite(
           sysMesBoxPart1,
-          RectF(344.0f, (360.0f - (posParam / 2.0f)) - 3.0f, 592.0f, 8.0f),
-          col);
+          glm::vec2(344.0f, (360.0f - (posParam / 2.0f)) - 3.0f), col);
 
       sysMesBoxPart1.Bounds = RectF(1383.0f, 117.0f, 592.0f, 8.0f);
       Renderer2D::DrawSprite(
           sysMesBoxPart1,
-          RectF(344.0f, ((360.0f - (posParam / 2.0f)) + posParam) - 3.0f,
-                592.0f, 8.0f),
+          glm::vec2(344.0f, ((360.0f - (posParam / 2.0f)) + posParam) - 3.0f),
           col);
 
       if ((ScrWork[SW_SYSMESANIMCTCUR] - 9) > 2 * MessageCount + 8) {
@@ -71,15 +68,13 @@ void Render() {
           Sprite sysMesBoxPart2;
           sysMesBoxPart2.Sheet = Profile::Dlg.DataSpriteSheet;
           sysMesBoxPart2.Bounds = RectF(1383.0f, 127.0f, 592.0f, 2.0f);
-          sysMesBoxPart2.BaseScale = glm::vec2(1.0f);
           Renderer2D::DrawSprite(
               sysMesBoxPart2,
-              RectF(344.0f, (360.0f - (posParam / 2.0f)) + 36.0f, 592.0f, 2.0f),
-              col);
+              glm::vec2(344.0f, (360.0f - (posParam / 2.0f)) + 36.0f), col);
           Renderer2D::DrawSprite(
               sysMesBoxPart2,
-              RectF(344.0f, ((360.0f - (posParam / 2.0f)) + posParam) - 36.0f,
-                    592.0f, 2.0f),
+              glm::vec2(344.0f,
+                        ((360.0f - (posParam / 2.0f)) + posParam) - 36.0f),
               col);
         }
 
@@ -94,15 +89,9 @@ void Render() {
             (12 * ((ScrWork[SW_SYSMESANIMCTCUR] - 9) - 2 * MessageCount - 8)) -
                 2.0f,
             31.0f);
-        sysMesBoxPart3.BaseScale = glm::vec2(1.0f);
         Renderer2D::DrawSprite(
             sysMesBoxPart3,
-            RectF(344.0f, (360.0f - (posParam / 2.0f)) + 3.0f,
-                  (12 *
-                   ((ScrWork[SW_SYSMESANIMCTCUR] - 9) - 2 * MessageCount - 8)) -
-                      2.0f,
-                  31.0f),
-            col);
+            glm::vec2(344.0f, (360.0f - (posParam / 2.0f)) + 3.0f), col);
 
         // TODO: Draw Yes/No/OK buttons here
 
@@ -120,17 +109,14 @@ void Render() {
       sysMesBoxLine.Sheet = Profile::Dlg.DataSpriteSheet;
       sysMesBoxLine.Bounds =
           RectF(linePosX + 1.0f, 107.0f, linePosDispX + 2.0f, 8.0f);
-      sysMesBoxLine.BaseScale = glm::vec2(1.0f);
       Renderer2D::DrawSprite(sysMesBoxLine,
-                             RectF(639.0f - (linePosDispX / 2.0f), 360.0f,
-                                   linePosDispX + 2.0f, 8.0f),
+                             glm::vec2(639.0f - (linePosDispX / 2.0f), 360.0f),
                              col);
       sysMesBoxLine.Bounds =
           RectF(linePosX + 1.0f, 117.0f, linePosDispX + 2.0f, 8.0f);
-      Renderer2D::DrawSprite(sysMesBoxLine,
-                             RectF(639.0f - (linePosDispX / 2.0f) + 1.0f,
-                                   352.0f, linePosDispX + 2.0f, 8.0f),
-                             col);
+      Renderer2D::DrawSprite(
+          sysMesBoxLine,
+          glm::vec2(639.0f - (linePosDispX / 2.0f) + 1.0f, 352.0f), col);
     }
   }
 }
