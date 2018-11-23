@@ -1,10 +1,10 @@
 if (root.Animations === undefined) root.Animations = {};
 
 AnimationDirections = {
-    Left = 0,
-    Right = 1,
-    Down = 2,
-    Up = 3
+    Left: 0,
+    Right: 1,
+    Down: 2,
+    Up: 3
 };
 
 DeleteAnimation = function (name) {

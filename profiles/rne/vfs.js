@@ -1,5 +1,5 @@
 root.Vfs = {
-    Mounts = {
+    Mounts: {
         "script": ["games/rne/gamedata/script.cls"],
         "system": ["games/rne/gamedata/system.cpk"],
         "bgm": ["games/rne/gamedata/bgm.cpk"],

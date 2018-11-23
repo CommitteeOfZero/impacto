@@ -2,7 +2,7 @@
 for (var i = 0; i < 64 * 50; i++) root.CharacterFlags[i] = 0;
 
 var spaces = [0, 63];
-for (var i = 0; i < spaces.length(); i++) {
+for (var i = 0; i < spaces.length; i++) {
     root.CharacterFlags[spaces[i]] |= CharacterTypeFlags.Space;
 }
 
