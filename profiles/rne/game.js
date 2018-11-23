@@ -10,3 +10,4 @@ include('rne/font.js');
 include('rne/dialogue.js');
 include('rne/nametag.js');
 include('rne/animations.js');
+include('rne/scene3d/scene3d.js');
