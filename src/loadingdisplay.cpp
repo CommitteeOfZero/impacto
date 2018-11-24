@@ -30,8 +30,7 @@ void Update(float dt) {
       IsResourceLoad = false;
       Fade = 0.0f;
 
-      ResourceLoadBg =
-          Profile::LoadingDisplay::ResourceLoadBgAnim.Instantiate();
+      SaveLoadBg = Profile::LoadingDisplay::SaveLoadBgAnim.Instantiate();
       LoadingIcon = Profile::LoadingDisplay::LoadingIconAnim.Instantiate();
       LoadingText = Profile::LoadingDisplay::LoadingTextAnim.Instantiate();
 
@@ -40,7 +39,8 @@ void Update(float dt) {
       IsResourceLoad = true;
       Fade = 0.0f;
 
-      SaveLoadBg = Profile::LoadingDisplay::SaveLoadBgAnim.Instantiate();
+      ResourceLoadBg =
+          Profile::LoadingDisplay::ResourceLoadBgAnim.Instantiate();
       LoadingIcon = Profile::LoadingDisplay::LoadingIconAnim.Instantiate();
       LoadingText = Profile::LoadingDisplay::LoadingTextAnim.Instantiate();
     }
