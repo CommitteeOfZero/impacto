@@ -19,13 +19,11 @@
 #include "io/memorystream.h"
 
 #include "profile/profile.h"
+#include "profile/game.h"
 
 namespace Impacto {
 
 namespace Profile {
-int LayerCount;
-int GameFeatures;
-
 std::string SystemArchiveName = "";
 std::string BgmArchiveName = "";
 std::string SeArchiveName = "";
@@ -132,19 +130,11 @@ static void Init() {
 void InitFromProfile(std::string const& name) { Profile::LoadProfile(name); }
 
 void InitModelViewer() {
-  Profile::LayerCount = 1;
-  Profile::GameFeatures = GameFeature::Nuklear | GameFeature::Scene3D |
-                          GameFeature::ModelViewer | GameFeature::Audio |
-                          GameFeature::Input;
   Profile::BgmArchiveName = "bgm.cpk";
   Init();
 }
 
 void InitVmTest() {
-  Profile::LayerCount = 1;
-  Profile::GameFeatures = GameFeature::Sc3VirtualMachine |
-                          GameFeature::Renderer2D | GameFeature::Scene3D |
-                          GameFeature::Input | GameFeature::Audio;
   Profile::SystemArchiveName = "system.cpk";
   Profile::BgmArchiveName = "bgm.cpk";
   Profile::SeArchiveName = "se.cpk";
@@ -173,8 +163,6 @@ void InitVmTest() {
 }
 
 void InitDialogueTest() {
-  Profile::LayerCount = 1;
-  Profile::GameFeatures = GameFeature::Renderer2D;
   Profile::SystemArchiveName = "system.cpk";
   Profile::Dlg = DialoguePageFeatureConfig_RNE;
 

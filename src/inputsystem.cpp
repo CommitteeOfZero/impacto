@@ -1,6 +1,8 @@
 #include "inputsystem.h"
 #include "window.h"
 
+#include "profile/game.h"
+
 namespace Impacto {
 namespace Input {
 
@@ -62,8 +64,9 @@ void EndFrame() {
 static glm::vec2 SDLMouseCoordsToDesign(int x, int y) {
   RectF viewport = Window::GetViewport();
   glm::vec2 result;
-  result.x = ((float)x * (viewport.Width / Window::DesignWidth)) - viewport.X;
-  result.y = ((float)y * (viewport.Height / Window::DesignHeight)) + viewport.Y;
+  result.x = ((float)x * (viewport.Width / Profile::DesignWidth)) - viewport.X;
+  result.y =
+      ((float)y * (viewport.Height / Profile::DesignHeight)) + viewport.Y;
   return result;
 }
 

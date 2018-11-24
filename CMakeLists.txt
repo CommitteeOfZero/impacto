@@ -27,6 +27,8 @@ set(Impacto_Src
     src/glc.cpp
 
     src/profile/profile.cpp
+    src/profile/profile_internal.cpp
+    src/profile/game.cpp
 
     src/text_rne.cpp
 
@@ -109,6 +111,8 @@ set(Impacto_Header
     src/glc.h
 
     src/profile/profile.h
+    src/profile/profile_internal.h
+    src/profile/game.h
 
     src/datedisplay.h
     src/saveicondisplay.h

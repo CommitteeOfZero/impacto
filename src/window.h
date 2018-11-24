@@ -43,11 +43,6 @@ extern int WindowHeight;
 extern int MsaaCount;
 extern float RenderScale;
 
-// The design coordinate system is: x,y from 0,0 to width,height,
-// origin is top left
-extern float DesignWidth;
-extern float DesignHeight;
-
 extern bool WindowDimensionsChanged;
 
 // FBO of current render target for drawing onto

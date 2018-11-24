@@ -1,6 +1,8 @@
 #include "util.h"
 #include "window.h"
 
+#include "profile/game.h"
+
 namespace Impacto {
 
 glm::mat2 Rotate2D(float angle) {
@@ -53,8 +55,8 @@ bool Rect::ContainsPoint(glm::ivec2 point, float angle) const {
 
 glm::vec2 DesignToNDC(glm::vec2 xy) {
   glm::vec2 result;
-  result.x = (xy.x / (Window::DesignWidth * 0.5f)) - 1.0f;
-  result.y = 1.0f - (xy.y / (Window::DesignHeight * 0.5f));
+  result.x = (xy.x / (Profile::DesignWidth * 0.5f)) - 1.0f;
+  result.y = 1.0f - (xy.y / (Profile::DesignHeight * 0.5f));
   return result;
 }
 
@@ -63,8 +65,8 @@ RectF DesignToNDC(RectF const& rect) {
   glm::vec2 xy = DesignToNDC(glm::vec2(rect.X, rect.Y));
   result.X = xy.x;
   result.Y = xy.y;
-  result.Width = rect.Width / (Window::DesignWidth * 0.5f);
-  result.Height = rect.Height / (Window::DesignHeight * 0.5f);
+  result.Width = rect.Width / (Profile::DesignWidth * 0.5f);
+  result.Height = rect.Height / (Profile::DesignHeight * 0.5f);
   return result;
 }
 

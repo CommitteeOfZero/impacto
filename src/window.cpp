@@ -5,6 +5,8 @@
 #include "log.h"
 #include "glc.h"
 
+#include "profile/game.h"
+
 #include "../vendor/nuklear/nuklear_sdl_gl3.h"
 
 namespace Impacto {
@@ -24,9 +26,6 @@ GraphicsApi GraphicsApiHint = GfxApi_ForceNativeGLES;
 GraphicsApi ActualGraphicsApi;
 
 bool GLDebug = false;
-
-float DesignWidth = 1280.0f;
-float DesignHeight = 720.0f;
 
 GLuint DrawRT = 0;
 GLuint ReadRT = 0;
@@ -57,10 +56,10 @@ static void UpdateDimensions() {
 
 RectF GetViewport() {
   RectF viewport;
-  float scale = fmin((float)WindowWidth / DesignWidth,
-                     (float)WindowHeight / DesignHeight);
-  viewport.Width = DesignWidth * scale;
-  viewport.Height = DesignHeight * scale;
+  float scale = fmin((float)WindowWidth / Profile::DesignWidth,
+                     (float)WindowHeight / Profile::DesignHeight);
+  viewport.Width = Profile::DesignWidth * scale;
+  viewport.Height = Profile::DesignHeight * scale;
   viewport.X = ((float)WindowWidth - viewport.Width) / 2.0f;
   viewport.Y = ((float)WindowHeight - viewport.Height) / 2.0f;
   return viewport;

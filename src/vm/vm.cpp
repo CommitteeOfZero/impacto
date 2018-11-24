@@ -9,6 +9,7 @@
 #include "../scriptvars.h"
 #include "interface/scene3d.h"
 #include "opcodetables_rne.h"
+#include "../profile/game.h"
 
 namespace Impacto {
 namespace Vm {

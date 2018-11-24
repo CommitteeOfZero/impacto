@@ -1,4 +1,5 @@
 #include "profile.h"
+#include "profile_internal.h"
 #include "../io/physicalfilestream.h"
 #include "../log.h"
 #include "../window.h"
@@ -9,6 +10,8 @@
 #include "../text.h"
 #include "../game.h"
 #include "../spritesheet.h"
+
+#include "game.h"
 
 namespace Impacto {
 namespace Profile {
@@ -163,9 +166,15 @@ void LoadProfile(std::string const& name) {
   ImpLog(LL_Info, LC_Profile, "JS profile execute success\n");
   duk_get_global_string(ctx, "root");
 
-  std::string jsonStr = duk_json_encode(ctx, -1);
+  char const* jsonStr = duk_json_encode(ctx, -1);
+
+  LoadJsonString(jsonStr);
 
   duk_destroy_heap(ctx);
+
+  LoadFromJson();
+
+  Json.SetNull();
 }
 
 }  // namespace Profile
