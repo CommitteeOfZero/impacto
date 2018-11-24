@@ -13,10 +13,10 @@ float DefaultFov;
 
 float AnimationDesignFrameRate;
 
-std::vector<std::pair<uint32_t, uint32_t>> AnimationParseBlacklist;
+std::vector<std::pair<uint32_t, uint16_t>> AnimationParseBlacklist;
 
 ska::flat_hash_map<uint32_t, CharacterDef> Characters;
-ska::flat_hash_map<uint32_t, CharacterDef&> ModelsToCharacters;
+ska::flat_hash_map<uint32_t, uint32_t> ModelsToCharacters;
 
 void Configure() {
   auto const& _scene3d =
@@ -50,15 +50,71 @@ void Configure() {
 
     for (Value::ConstMemberIterator it = _animationParseBlacklist.MemberBegin();
          it != _animationParseBlacklist.MemberEnd(); ++it) {
-      int model =
+      uint32_t model =
           EnsureGetInt(it->name, "/Scene3D/AnimationParseBlacklist/x (name)");
       AssertIs(it->value, "/Scene3D/AnimationParseBlacklist/x", kArrayType);
 
       for (Value::ConstValueIterator anim = it->value.Begin();
            anim != it->value.End(); ++anim) {
-        int animId =
+        uint16_t animId =
             EnsureGetInt(*anim, "/Scene3D/AnimationParseBlacklist/x/y");
         AnimationParseBlacklist.emplace_back(model, animId);
+      }
+    }
+  }
+
+  // Characters
+
+  auto const& _characters =
+      AssertIs(EnsureGetMember(_scene3d, "/Scene3D", "Characters"),
+               "/Scene3D/Characters", kObjectType);
+
+  for (Value::ConstMemberIterator it = _characters.MemberBegin();
+       it != _characters.MemberEnd(); ++it) {
+    uint32_t charId = EnsureGetInt(it->name, "/Scene3D/Characters/x (name)");
+    AssertIs(it->value, "/Scene3D/Characters/x", kObjectType);
+
+    CharacterDef& character = Characters[charId];
+    character.CharacterId = charId;
+
+    auto const& _models =
+        AssertIs(EnsureGetMember(it->value, "/Scene3D/Characters/x", "Models"),
+                 "/Scene3D/Characters/x/Models", kArrayType);
+
+    for (Value::ConstValueIterator _model = _models.Begin();
+         _model != _models.End(); ++_model) {
+      uint32_t modelId =
+          EnsureGetInt(*_model, "/Scene3D/Characters/x/Models/y");
+      character.Models.push_back(modelId);
+      ModelsToCharacters[modelId] = charId;
+    }
+
+    auto const& _anims = AssertIs(
+        EnsureGetMember(it->value, "/Scene3D/Characters/x", "Animations"),
+        "/Scene3D/Characters/x/Animations", kObjectType);
+
+    for (Value::ConstMemberIterator _anim = _anims.MemberBegin();
+         _anim != _anims.MemberEnd(); ++_anim) {
+      AssertIs(_anim->value, "/Scene3D/Characters/x/Animations/y", kObjectType);
+      uint16_t animId = EnsureGetInt(
+          _anim->name, "/Scene3D/Characters/x/Animations/y (name)");
+      AnimationDef& animDef = character.Animations[animId];
+      animDef.AnimId = animId;
+      animDef.CharacterId = charId;
+      {
+        auto const mit = _anim->value.FindMember("OneShot");
+        if (mit != _anim->value.MemberEnd() && mit->value.IsBool())
+          animDef.OneShot = mit->value.GetBool();
+      }
+      {
+        auto const mit = _anim->value.FindMember("LoopStart");
+        if (mit != _anim->value.MemberEnd() && mit->value.IsNumber())
+          animDef.LoopStart = mit->value.GetFloat();
+      }
+      {
+        auto const mit = _anim->value.FindMember("LoopEnd");
+        if (mit != _anim->value.MemberEnd() && mit->value.IsNumber())
+          animDef.LoopEnd = mit->value.GetFloat();
       }
     }
   }

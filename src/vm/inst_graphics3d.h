@@ -26,15 +26,6 @@ VmInstruction(InstUnk0218);
 VmInstruction(InstUnk0219);
 VmInstruction(InstUnk0240);
 
-struct AnimLoopPointPair {
-  uint32_t LoopStart;
-  uint32_t LoopEnd;
-};
-
-extern int const ModelIdToCharId[46];
-
-extern AnimLoopPointPair const AnimLoopPoints[1088];
-
 }  // namespace Vm
 
 }  // namespace Impacto

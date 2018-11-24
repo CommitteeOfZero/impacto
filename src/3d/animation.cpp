@@ -40,7 +40,8 @@ Animation* Animation::Load(InputStream* stream, Model* model, uint16_t animId) {
   result->Id = animId;
 
   stream->Seek(HeaderDurationOffset, RW_SEEK_SET);
-  result->Duration = ReadLE<float>(stream) /  Profile::Scene3D::AnimationDesignFrameRate;
+  result->Duration =
+      ReadLE<float>(stream) / Profile::Scene3D::AnimationDesignFrameRate;
   uint32_t trackCount = ReadLE<uint32_t>(stream);
   uint32_t tracksOffset = ReadLE<uint32_t>(stream);
 
@@ -308,7 +309,7 @@ Animation* Animation::Load(InputStream* stream, Model* model, uint16_t animId) {
 
         currentTime = nextTime;
         QuatKeyframe key;
-        key.Time = currentTime /  Profile::Scene3D::AnimationDesignFrameRate;
+        key.Time = currentTime / Profile::Scene3D::AnimationDesignFrameRate;
         eulerZYXToQuat(&currentEuler, &key.Value);
         rotationTrack.push_back(key);
 
@@ -380,7 +381,7 @@ Animation* Animation::Load(InputStream* stream, Model* model, uint16_t animId) {
              time < (float*)(result->CoordKeyframes + currentCoordOffset +
                              currentKeyframeCount);
              time += 2) {
-          *time /=  Profile::Scene3D::AnimationDesignFrameRate;
+          *time /= Profile::Scene3D::AnimationDesignFrameRate;
         }
         currentCoordOffset += currentKeyframeCount;
       }
@@ -435,7 +436,7 @@ Animation* Animation::Load(InputStream* stream, Model* model, uint16_t animId) {
            time < (float*)(result->CoordKeyframes + currentCoordOffset +
                            visibilityCount);
            time += 2) {
-        *time /=  Profile::Scene3D::AnimationDesignFrameRate;
+        *time /= Profile::Scene3D::AnimationDesignFrameRate;
       }
       currentCoordOffset += visibilityCount;
 
@@ -453,10 +454,35 @@ Animation* Animation::Load(InputStream* stream, Model* model, uint16_t animId) {
              key < (result->CoordKeyframes + currentCoordOffset +
                     morphInfluenceCounts[j]);
              key++) {
-          key->Time /=  Profile::Scene3D::AnimationDesignFrameRate;
+          key->Time /= Profile::Scene3D::AnimationDesignFrameRate;
           key->Value /= 100.0f;
         }
         currentCoordOffset += morphInfluenceCounts[j];
+      }
+    }
+  }
+
+  // Ahhh, now fetch metadata
+
+  result->LoopEnd = result->Duration;
+
+  auto charId = Profile::Scene3D::ModelsToCharacters.find(model->Id);
+  if (charId != Profile::Scene3D::ModelsToCharacters.end()) {
+    auto const& character = Profile::Scene3D::Characters[charId->second];
+    auto animDef = character.Animations.find(animId);
+    if (animDef != character.Animations.end()) {
+      if (animDef->second.OneShot) {
+        if (animId != 1) {
+          // Idle animation always loops, even if the data says otherwise...
+          result->OneShot = true;
+        }
+      } else {
+        result->LoopStart = animDef->second.LoopStart /
+                            Profile::Scene3D::AnimationDesignFrameRate;
+        if (animDef->second.LoopEnd > 0) {
+          result->LoopEnd = animDef->second.LoopEnd /
+                            Profile::Scene3D::AnimationDesignFrameRate;
+        }
       }
     }
   }

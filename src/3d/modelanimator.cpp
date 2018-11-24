@@ -16,10 +16,10 @@ void ModelAnimator::Start(uint16_t animId) {
   CurrentAnimation = Character->StaticModel->Animations.at(animId);
 
   CurrentTime = 0.0f;
-  LoopStart = 0.0f;
-  LoopEnd = CurrentAnimation->Duration;
+  LoopStart = CurrentAnimation->LoopStart;
+  LoopEnd = CurrentAnimation->LoopEnd;
   IsPlaying = true;
-  OneShot = false;
+  OneShot = CurrentAnimation->OneShot;
   Reset();
   Update(0);
 }

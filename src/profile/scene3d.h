@@ -16,25 +16,25 @@ extern float DefaultFov;
 
 extern float AnimationDesignFrameRate;
 
-extern std::vector<std::pair<uint32_t, uint32_t>> AnimationParseBlacklist;
+extern std::vector<std::pair<uint32_t, uint16_t>> AnimationParseBlacklist;
 
 struct AnimationDef {
   uint32_t CharacterId;
-  uint32_t AnimId;
-  bool OneShot;
-  float LoopStart;
-  float LoopEnd;
+  uint16_t AnimId;
+  bool OneShot = false;
+  float LoopStart = 0.0f;
+  float LoopEnd = 0.0f;
 };
 
 class CharacterDef {
  public:
-  uint32_t ModelId;
+  uint32_t CharacterId;
   std::vector<uint32_t> Models;
-  ska::flat_hash_map<uint32_t, AnimationDef> Animations;
+  ska::flat_hash_map<uint16_t, AnimationDef> Animations;
 };
 
 extern ska::flat_hash_map<uint32_t, CharacterDef> Characters;
-extern ska::flat_hash_map<uint32_t, CharacterDef&> ModelsToCharacters;
+extern ska::flat_hash_map<uint32_t, uint32_t> ModelsToCharacters;
 
 void Configure();
 

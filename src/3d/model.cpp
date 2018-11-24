@@ -11,6 +11,8 @@
 #include "../io/memorystream.h"
 #include "../io/uncompressedstream.h"
 
+#include "../profile/scene3d.h"
+
 using namespace Impacto::Io;
 
 namespace Impacto {
@@ -31,8 +33,9 @@ char** g_BackgroundModelNames;
 uint32_t g_BackgroundModelCount;
 
 bool AnimationIsBlacklisted(uint32_t modelId, uint16_t animId) {
-  // This animation file is just broken
-  if (modelId == 273 && animId == 22) return true;
+  for (auto p : Profile::Scene3D::AnimationParseBlacklist) {
+    if (p.first == modelId && p.second == animId) return true;
+  }
   return false;
 }
 

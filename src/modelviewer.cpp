@@ -257,13 +257,17 @@ void Update(float dt) {
                 Scene3D::Renderables[1].Animator.CurrentTime);
           }
 
+          int oneShot = (int)Scene3D::Renderables[1].Animator.OneShot;
+          nk_checkbox_label(Nk, "OneShot", &oneShot);
+          Scene3D::Renderables[1].Animator.OneShot = oneShot;
+
           CurrentAnim = nk_combo(
               Nk,
               (const char**)Scene3D::Renderables[1].StaticModel->AnimationNames,
               Scene3D::Renderables[1].StaticModel->AnimationCount, CurrentAnim,
               24, nk_vec2(200, 200));
-          if (Scene3D::Renderables[1].StaticModel->AnimationIds[CurrentAnim] !=
-              Scene3D::Renderables[1].Animator.CurrentAnimation->Id) {
+
+          if (nk_button_label(Nk, "Switch")) {
             Scene3D::Renderables[1].SwitchAnimation(
                 Scene3D::Renderables[1].StaticModel->AnimationIds[CurrentAnim],
                 0.66f);

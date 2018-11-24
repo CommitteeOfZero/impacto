@@ -66,6 +66,10 @@ class Animation {
   // Whole animation duration in seconds
   float Duration = 0.0f;
 
+  bool OneShot = false;
+  float LoopStart = 0.0f;
+  float LoopEnd = 0.0f;
+
   int CoordKeyframeCount = 0;
   CoordKeyframe* CoordKeyframes = 0;
 
