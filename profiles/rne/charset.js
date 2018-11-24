@@ -1,9 +1,12 @@
-﻿root.CharacterFlags = new Array(64 * 50);
-for (var i = 0; i < 64 * 50; i++) root.CharacterFlags[i] = 0;
+﻿root.Charset = {
+    Flags: new Array(64 * 50)
+};
+
+for (var i = 0; i < 64 * 50; i++) root.Charset.Flags[i] = 0;
 
 var spaces = [0, 63];
 for (var i = 0; i < spaces.length; i++) {
-    root.CharacterFlags[spaces[i]] |= CharacterTypeFlags.Space;
+    root.Charset.Flags[spaces[i]] |= CharacterTypeFlags.Space;
 }
 
 // 、 。 ． ， ？ ！ 〜 ” ー ） 〕 ］ ｝ 〉 》 」 』 】☆ ★ ♪ 々 ぁ ぃ ぅ ぇ
@@ -25,9 +28,10 @@ var wordEndingPuncts = [
     0x00FA, 0x0113
 ];
 for (var i = 0; i < wordEndingPuncts.length; i++) {
-    root.CharacterFlags[wordEndingPuncts[i]] |= CharacterTypeFlags.WordEndingPunct;
+    root.Charset.Flags[wordEndingPuncts[i]] |= CharacterTypeFlags.WordEndingPunct;
 }
 
+// space(63) space(0) “ （ 〔 ［ ｛ 〈 《 「
 var wordStartingPuncts = [
     63, 0, 0x00CA,
     0x00CC, 0x00CE, 0x00D0,
@@ -35,5 +39,5 @@ var wordStartingPuncts = [
     0x00D8, 0x00DA, 0x00DC
 ];
 for (var i = 0; i < wordStartingPuncts.length; i++) {
-    root.CharacterFlags[wordStartingPuncts[i]] |= CharacterTypeFlags.WordStartingPunct;
+    root.Charset.Flags[wordStartingPuncts[i]] |= CharacterTypeFlags.WordStartingPunct;
 }

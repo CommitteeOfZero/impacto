@@ -21,6 +21,8 @@
 #include "profile/profile.h"
 #include "profile/game.h"
 #include "profile/sprites.h"
+#include "profile/charset.h"
+#include "profile/fonts.h"
 
 namespace Impacto {
 
@@ -69,6 +71,9 @@ static void Init() {
 
   if (Profile::GameFeatures & GameFeature::Renderer2D) {
     Profile::LoadSpritesheets();
+    Profile::Charset::Load();
+    Profile::LoadFonts();
+
     Renderer2D::Init();
   }
 

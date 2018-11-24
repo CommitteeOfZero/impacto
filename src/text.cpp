@@ -4,6 +4,8 @@
 #include "game.h"
 #include "renderer2d.h"
 
+#include "profile/charset.h"
+
 namespace Impacto {
 
 DialoguePage DialoguePages[DialoguePageCount];
@@ -229,8 +231,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
           TextIsFullyOpaque = false;
           ProcessedTextGlyph& ptg = Glyphs[Length];
           ptg.Glyph = Profile::Dlg.DialogueFont.Glyph(token.Val_Uint16);
-          ptg.CharacterType =
-              Profile::Dlg.DialogueFont.CharacterType(token.Val_Uint16);
+          ptg.CharacterType = Profile::Charset::Flags[token.Val_Uint16];
           ptg.Opacity = 0.0f;
           ptg.Colors = CurrentColors;
 

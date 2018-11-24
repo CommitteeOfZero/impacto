@@ -1,12 +1,15 @@
 #pragma once
 
-#include "spritesheet.h"
+#include "font.h"
 #include "vm/thread.h"
 #include <enum.h>
 
 namespace Impacto {
 
 BETTER_ENUM(TextAlignment, int, Left = 0, Center, Right)
+
+BETTER_ENUM(CharacterTypeFlags, uint8_t, Space = (1 << 0),
+            WordStartingPunct = (1 << 1), WordEndingPunct = (1 << 2))
 
 // TODO: think about / profile memory access patterns
 

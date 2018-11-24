@@ -1,8 +1,8 @@
 root.Fonts = {
     "Default": {
         Sheet: "Font",
-        Rows: 64,
-        Columns: 50,
+        Columns: 64,
+        Rows: 50,
         Widths: new Array(64 * 50),
         DesignColWidth: 32
     }

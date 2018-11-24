@@ -9,7 +9,6 @@
 
 #include "../text.h"
 #include "../game.h"
-#include "../spritesheet.h"
 
 #include "game.h"
 
