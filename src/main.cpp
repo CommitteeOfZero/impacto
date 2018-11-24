@@ -33,8 +33,6 @@ int main(int argc, char* argv[]) {
 
   Game::InitFromProfile("modelviewer");
 
-  Game::InitModelViewer();
-
   t = SDL_GetPerformanceCounter();
 
   while (!Game::ShouldQuit) {

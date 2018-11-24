@@ -54,10 +54,6 @@ enum DrawComponentType : uint8_t {
 
 void InitFromProfile(std::string const& name);
 
-void InitModelViewer();
-void InitVmTest();
-void InitDialogueTest();
-
 void Shutdown();
 
 void Update(float dt);

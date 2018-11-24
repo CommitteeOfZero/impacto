@@ -44,6 +44,11 @@ DrawComponentType DrawComponents[Vm::MaxThreads];
 bool ShouldQuit = false;
 
 static void Init() {
+  Profile::LoadGameFromJson();
+
+  // Very temporary
+  Profile::BgmArchiveName = "bgm.cpk";
+
   Window::Init();
 
   memset(DrawComponents, TD_None, sizeof(DrawComponents));
@@ -125,12 +130,12 @@ static void Init() {
   if (Profile::GameFeatures & GameFeature::Sc3VirtualMachine) {
     Vm::Init(4, 0);
   }
+
+  Profile::ClearJsonProfile();
 }
 
-void InitFromProfile(std::string const& name) { Profile::LoadProfile(name); }
-
-void InitModelViewer() {
-  Profile::BgmArchiveName = "bgm.cpk";
+void InitFromProfile(std::string const& name) {
+  Profile::MakeJsonProfile(name);
   Init();
 }
 

@@ -115,7 +115,7 @@ static void DefineEnumUint(duk_context* ctx) {
   duk_put_global_string(ctx, Enum::_name());
 }
 
-void LoadProfile(std::string const& name) {
+void MakeJsonProfile(std::string const& name) {
   Io::InputStream* stream;
   IoError err =
       Io::PhysicalFileStream::Create("profiles/" + name + "/game.js", &stream);
@@ -171,11 +171,9 @@ void LoadProfile(std::string const& name) {
   LoadJsonString(jsonStr);
 
   duk_destroy_heap(ctx);
-
-  LoadFromJson();
-
-  Json.SetNull();
 }
+
+void ClearJsonProfile() { Json.SetNull(); }
 
 }  // namespace Profile
 }  // namespace Impacto

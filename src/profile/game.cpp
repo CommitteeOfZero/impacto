@@ -11,7 +11,7 @@ int GameFeatures;
 float DesignWidth;
 float DesignHeight;
 
-void LoadFromJson() {
+void LoadGameFromJson() {
   AssertIs(Json, "/", kObjectType);
   AssertHasMember(Json, "/", "LayerCount");
   AssertHasMember(Json, "/", "GameFeatures");

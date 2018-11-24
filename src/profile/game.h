@@ -11,7 +11,7 @@ extern int GameFeatures;
 extern float DesignWidth;
 extern float DesignHeight;
 
-void LoadFromJson();
+void LoadGameFromJson();
 
 }  // namespace Profile
 }  // namespace Impacto
