@@ -4,6 +4,8 @@
 #include "window.h"
 #include "game.h"
 
+#include "io/physicalfilestream.h"
+
 using namespace Impacto;
 
 static uint64_t t;
@@ -22,7 +24,18 @@ int main(int argc, char* argv[]) {
   g_LogLevelConsole = LL_Max;
   g_LogChannelsConsole = LC_All;
 
-  Game::InitFromProfile("modelviewer");
+  Io::InputStream* stream;
+  IoError err = Io::PhysicalFileStream::Create("profile.txt", &stream);
+  if (err != IoError_OK) {
+    ImpLog(LL_Fatal, LC_General, "Couldn't open profile.txt\n");
+    Window::Shutdown();
+  }
+
+  std::string profileName;
+  profileName.resize(stream->Meta.Size, '\0');
+  profileName.resize(stream->Read(&profileName[0], stream->Meta.Size));
+
+  Game::InitFromProfile(profileName);
 
   t = SDL_GetPerformanceCounter();
 
