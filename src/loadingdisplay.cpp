@@ -11,6 +11,8 @@
 namespace Impacto {
 namespace LoadingDisplay {
 
+enum LoadingAnimState { Hidden, Hiding, Showing, Shown };
+
 static float Fade = 0.0f;
 
 static LoadingAnimState AnimState = Hidden;
