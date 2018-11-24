@@ -139,8 +139,9 @@ void EndFrame() {
 
 void DrawSprite(Sprite const& sprite, glm::vec2 topLeft, glm::vec4 tint,
                 glm::vec2 scale, float angle) {
-  RectF scaledDest(topLeft.x, topLeft.y, scale.x * sprite.Bounds.Width,
-                   scale.y * sprite.Bounds.Height);
+  RectF scaledDest(topLeft.x, topLeft.y,
+                   scale.x * sprite.Bounds.Width * sprite.BaseScale.x,
+                   scale.y * sprite.Bounds.Height * sprite.BaseScale.y);
   DrawSprite(sprite, scaledDest, tint, angle);
 }
 
@@ -176,10 +177,6 @@ void DrawSprite(Sprite const& sprite, RectF const& dest, glm::vec4 tint,
 
   // OK, all good, make quad
 
-  RectF scaledDest = dest;
-  scaledDest.Width *= sprite.BaseScale.x;
-  scaledDest.Height *= sprite.BaseScale.y;
-
   VertexBufferSprites* vertices =
       (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
   VertexBufferFill += 4 * sizeof(VertexBufferSprites);
@@ -188,7 +185,7 @@ void DrawSprite(Sprite const& sprite, RectF const& dest, glm::vec4 tint,
 
   QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
             (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetPosition(scaledDest, angle, (uintptr_t)&vertices[0].Position,
+  QuadSetPosition(dest, angle, (uintptr_t)&vertices[0].Position,
                   sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
