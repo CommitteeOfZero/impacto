@@ -1,9 +1,7 @@
 ﻿#include "impacto.h"
 
 #include "log.h"
-#include "io/vfs.h"
 #include "window.h"
-#include "workqueue.h"
 #include "game.h"
 
 using namespace Impacto;
@@ -19,17 +17,10 @@ void GameLoop() {
   Game::Render();
 }
 
-void InitSystems() {
+int main(int argc, char* argv[]) {
   LogSetConsole(true);
   g_LogLevelConsole = LL_Max;
   g_LogChannelsConsole = LC_All;
-
-  Io::VfsInit();
-  WorkQueue::Init();
-}
-
-int main(int argc, char* argv[]) {
-  InitSystems();
 
   Game::InitFromProfile("modelviewer");
 

@@ -24,12 +24,6 @@
 namespace Impacto {
 
 namespace Profile {
-std::string SystemArchiveName = "";
-std::string BgmArchiveName = "";
-std::string SeArchiveName = "";
-std::string SysseArchiveName = "";
-std::string VoiceArchiveName = "";
-
 DialoguePageFeatureConfig Dlg;
 }  // namespace Profile
 
@@ -44,55 +38,14 @@ DrawComponentType DrawComponents[Vm::MaxThreads];
 bool ShouldQuit = false;
 
 static void Init() {
+  WorkQueue::Init();
+
   Profile::LoadGameFromJson();
 
-  // Very temporary
-  Profile::BgmArchiveName = "bgm.cpk";
-
+  Io::VfsInit();
   Window::Init();
 
   memset(DrawComponents, TD_None, sizeof(DrawComponents));
-
-  if (!Profile::SystemArchiveName.empty()) {
-    IoError err = Io::VfsMount("system", Profile::SystemArchiveName);
-    if (err != IoError_OK) {
-      ImpLog(LL_Fatal, LC_General, "Failed to load system archive!\n");
-      Window::Shutdown();
-      return;
-    }
-  }
-  if (!Profile::BgmArchiveName.empty()) {
-    IoError err = Io::VfsMount("bgm", Profile::BgmArchiveName);
-    if (err != IoError_OK) {
-      ImpLog(LL_Fatal, LC_General, "Failed to load BGM archive!\n");
-      Window::Shutdown();
-      return;
-    }
-  }
-  if (!Profile::SeArchiveName.empty()) {
-    IoError err = Io::VfsMount("se", Profile::SeArchiveName);
-    if (err != IoError_OK) {
-      ImpLog(LL_Fatal, LC_General, "Failed to load SE archive!\n");
-      Window::Shutdown();
-      return;
-    }
-  }
-  if (!Profile::SysseArchiveName.empty()) {
-    IoError err = Io::VfsMount("sysse", Profile::SysseArchiveName);
-    if (err != IoError_OK) {
-      ImpLog(LL_Fatal, LC_General, "Failed to load SYSSE archive!\n");
-      Window::Shutdown();
-      return;
-    }
-  }
-  if (!Profile::VoiceArchiveName.empty()) {
-    IoError err = Io::VfsMount("voice", Profile::VoiceArchiveName);
-    if (err != IoError_OK) {
-      ImpLog(LL_Fatal, LC_General, "Failed to load VOICE archive!\n");
-      Window::Shutdown();
-      return;
-    }
-  }
 
   if (Profile::GameFeatures & GameFeature::Nuklear) {
     Nk = nk_sdl_init(Window::SDLWindow, NkMaxVertexMemory, NkMaxElementMemory);
@@ -140,11 +93,6 @@ void InitFromProfile(std::string const& name) {
 }
 
 void InitVmTest() {
-  Profile::SystemArchiveName = "system.cpk";
-  Profile::BgmArchiveName = "bgm.cpk";
-  Profile::SeArchiveName = "se.cpk";
-  Profile::SysseArchiveName = "sysse.dat";
-  Profile::VoiceArchiveName = "voice.cpk";
   Profile::Dlg = DialoguePageFeatureConfig_RNE;
 
   Init();
@@ -168,7 +116,6 @@ void InitVmTest() {
 }
 
 void InitDialogueTest() {
-  Profile::SystemArchiveName = "system.cpk";
   Profile::Dlg = DialoguePageFeatureConfig_RNE;
 
   Init();

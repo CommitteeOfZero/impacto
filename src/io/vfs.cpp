@@ -5,6 +5,7 @@
 #include "physicalfilestream.h"
 #include "memorystream.h"
 #include "../log.h"
+#include "../profile/vfs.h"
 
 namespace Impacto {
 namespace Io {
@@ -25,7 +26,8 @@ static IoError MountInternal(std::string const& mountpoint,
     archive->MountPoint = mountpoint;
     Mounts[mountpoint].push_back(archive);
   } else {
-    ImpLog(LL_Error, LC_IO, "No archiver supports this file\n");
+    ImpLog(LL_Error, LC_IO, "No archiver supports file %s\n",
+           stream->Meta.FileName.c_str());
   }
   return err;
 }
@@ -40,7 +42,11 @@ static VfsArchive* FindArchive(std::string const& mountpoint,
   return 0;
 }
 
-void VfsInit() { Lock = SDL_CreateMutex(); }
+void VfsInit() {
+  Lock = SDL_CreateMutex();
+
+  Profile::Vfs::Configure();
+}
 
 IoError VfsMount(std::string const& mountpoint,
                  std::string const& archiveFileName) {
@@ -50,8 +56,6 @@ IoError VfsMount(std::string const& mountpoint,
   ImpLog(LL_Debug, LC_IO, "Trying to mount \"%s\" on mountpoint \"%s\"\n",
          archiveFileName.c_str(), mountpoint.c_str());
 
-  std::string physPath = VfsArchiveBasePath + "/" + archiveFileName;
-
   if (FindArchive(mountpoint, archiveFileName) != 0) {
     ImpLog(LL_Error, LC_IO, "File with this name already mounted!\n");
     err = IoError_Fail;
@@ -59,16 +63,12 @@ IoError VfsMount(std::string const& mountpoint,
   }
 
   InputStream* archiveFile;
-  err = PhysicalFileStream::Create(physPath, &archiveFile);
+  err = PhysicalFileStream::Create(archiveFileName, &archiveFile);
   if (err != IoError_OK) {
     ImpLog(LL_Debug, LC_IO, "Could not open physical file \"%s\"\n",
-           physPath.c_str());
+           archiveFileName.c_str());
     goto end;
   }
-
-  // PhysicalFileStream puts the full path in there, we want the path the user
-  // specified
-  archiveFile->Meta.FileName = archiveFileName;
 
   err = MountInternal(mountpoint, archiveFile);
   if (err != IoError_OK) {

@@ -17,13 +17,6 @@ BETTER_ENUM(GameFeature, int, Nuklear = (1 << 0), Scene3D = (1 << 1),
             Renderer2D = (1 << 4), Input = (1 << 5), Audio = (1 << 6))
 
 namespace Profile {
-
-extern std::string SystemArchiveName;
-extern std::string BgmArchiveName;
-extern std::string SeArchiveName;
-extern std::string SysseArchiveName;
-extern std::string VoiceArchiveName;
-
 extern DialoguePageFeatureConfig Dlg;
 }  // namespace Profile
 

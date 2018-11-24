@@ -110,7 +110,6 @@ IoError TextArchive::Create(InputStream* stream, VfsArchive** outArchive) {
   switch (type) {
     case CLS: {
       basePath =
-          VfsArchiveBasePath + "/" +
           stream->Meta.FileName.substr(0, stream->Meta.FileName.length() -
                                               std::string(".cls").length()) +
           "/";
@@ -118,7 +117,7 @@ IoError TextArchive::Create(InputStream* stream, VfsArchive** outArchive) {
     }
     case MLP:
     case TextMPK: {
-      basePath = VfsArchiveBasePath + "/";
+      basePath = "";
       break;
     }
   }

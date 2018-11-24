@@ -29,8 +29,6 @@ namespace Io {
 // The public interface of vfs.h is threadsafe. Individual InputStreams are not.
 // Duplicate() them if you need to use them on multiple threads.
 
-static std::string const VfsArchiveBasePath = "./USRDIR";
-
 void VfsInit();
 // Mount an archive from a physical file.
 // Files will always be loaded from the earliest-mounted archive they're found

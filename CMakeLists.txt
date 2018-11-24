@@ -29,6 +29,7 @@ set(Impacto_Src
     src/profile/profile.cpp
     src/profile/profile_internal.cpp
     src/profile/game.cpp
+    src/profile/vfs.cpp
 
     src/text_rne.cpp
 
@@ -113,6 +114,7 @@ set(Impacto_Header
     src/profile/profile.h
     src/profile/profile_internal.h
     src/profile/game.h
+    src/profile/vfs.h
 
     src/datedisplay.h
     src/saveicondisplay.h
@@ -252,3 +254,4 @@ endif()
 
 install(DIRECTORY src/shaders DESTINATION .)
 install(DIRECTORY profiles DESTINATION .)
+install(DIRECTORY games DESTINATION .)
