@@ -13,12 +13,16 @@ extern RectF ADVBounds;
 
 extern Sprite ADVBoxSprite;
 extern glm::vec2 ADVBoxPos;
+extern float ADVBoxFadeOutDuration;
+extern float ADVBoxFadeInDuration;
 
 extern TextAlignment ADVNameAlignment;
 extern float ADVNameFontSize;
 extern glm::vec2 ADVNamePos;
 
 extern Sprite WaitIconSprite;
+extern glm::vec2 WaitIconOffset;
+extern float WaitIconAnimationDuration;
 
 extern Font DialogueFont;
 extern float DefaultFontSize;

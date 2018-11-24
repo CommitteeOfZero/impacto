@@ -11,6 +11,8 @@ extern glm::vec2 DefaultPosition;
 extern Sprite BackgroundSprite;
 extern glm::vec2 BackgroundOffset;
 extern float BackgroundMaxAlpha;
+extern float FadeInDuration;
+extern float FadeOutDuration;
 
 void Configure();
 

@@ -11,12 +11,16 @@ RectF ADVBounds;
 
 Sprite ADVBoxSprite;
 glm::vec2 ADVBoxPos;
+float ADVBoxFadeOutDuration;
+float ADVBoxFadeInDuration;
 
 TextAlignment ADVNameAlignment = TextAlignment::Left;
 float ADVNameFontSize;
 glm::vec2 ADVNamePos;
 
 Sprite WaitIconSprite;
+glm::vec2 WaitIconOffset;
+float WaitIconAnimationDuration;
 
 Font DialogueFont;
 float DefaultFontSize;
@@ -48,6 +52,10 @@ void Configure() {
 
   ADVBoxSprite = EnsureGetMemberSprite(_dialogue, "/Dialogue", "ADVBoxSprite");
   ADVBoxPos = EnsureGetMemberVec2(_dialogue, "/Dialogue", "ADVBoxPos");
+  ADVBoxFadeOutDuration =
+      EnsureGetMemberFloat(_dialogue, "/Dialogue", "ADVBoxFadeOutDuration");
+  ADVBoxFadeInDuration =
+      EnsureGetMemberFloat(_dialogue, "/Dialogue", "ADVBoxFadeInDuration");
 
   ADVNameAlignment = TextAlignment::_from_integral_unchecked(
       EnsureGetMemberInt(_dialogue, "/Dialogue", "ADVNameAlignment"));
@@ -58,6 +66,10 @@ void Configure() {
 
   WaitIconSprite =
       EnsureGetMemberSprite(_dialogue, "/Dialogue", "WaitIconSprite");
+  WaitIconOffset =
+      EnsureGetMemberVec2(_dialogue, "/Dialogue", "WaitIconOffset");
+  WaitIconAnimationDuration =
+      EnsureGetMemberFloat(_dialogue, "/Dialogue", "WaitIconAnimationDuration");
 
   DialogueFont = EnsureGetMemberFont(_dialogue, "/Dialogue", "DialogueFont");
   DefaultFontSize =

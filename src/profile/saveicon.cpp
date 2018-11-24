@@ -10,6 +10,8 @@ glm::vec2 DefaultPosition;
 Sprite BackgroundSprite;
 glm::vec2 BackgroundOffset;
 float BackgroundMaxAlpha;
+float FadeInDuration;
+float FadeOutDuration;
 
 void Configure() {
   auto const& _saveIcon =
@@ -25,6 +27,10 @@ void Configure() {
       EnsureGetMemberVec2(_saveIcon, "/SaveIcon", "BackgroundOffset");
   BackgroundMaxAlpha =
       EnsureGetMemberFloat(_saveIcon, "/SaveIcon", "BackgroundMaxAlpha");
+  FadeInDuration =
+      EnsureGetMemberFloat(_saveIcon, "/SaveIcon", "FadeInDuration");
+  FadeOutDuration =
+      EnsureGetMemberFloat(_saveIcon, "/SaveIcon", "FadeOutDuration");
 }
 
 }  // namespace SaveIcon

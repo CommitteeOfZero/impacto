@@ -316,13 +316,13 @@ void DialoguePage::Update(float dt) {
   }
 
   if (AnimState == DPAS_Hiding) {
-    ADVBoxOpacity -= 3.0f * dt;
+    ADVBoxOpacity -= dt / ADVBoxFadeOutDuration;
     if (ADVBoxOpacity <= 0.0f) {
       ADVBoxOpacity = 0.0f;
       AnimState = DPAS_Hidden;
     }
   } else if (AnimState == DPAS_Showing) {
-    ADVBoxOpacity += 3.0f * dt;
+    ADVBoxOpacity += dt / ADVBoxFadeInDuration;
     if (ADVBoxOpacity >= 1.0f) {
       ADVBoxOpacity = 1.0f;
       AnimState = DPAS_Shown;
@@ -330,7 +330,7 @@ void DialoguePage::Update(float dt) {
   }
 
   if (WaitIconAngle >= 2.0f * M_PI) WaitIconAngle = 0.0f;
-  WaitIconAngle += 1.8f * dt;
+  WaitIconAngle += (2.0f * M_PI) * dt / WaitIconAnimationDuration;
 }
 
 void DialoguePage::Render() {
@@ -448,8 +448,8 @@ void DialoguePage::Render() {
     Renderer2D::DrawSprite(
         WaitIconSprite,
         glm::vec2(Glyphs[Length - 1].DestRect.X +
-                      Glyphs[Length - 1].DestRect.Width + 4.0f,
-                  Glyphs[Length - 1].DestRect.Y + 4.0f),
+                      Glyphs[Length - 1].DestRect.Width + WaitIconOffset.x,
+                  Glyphs[Length - 1].DestRect.Y + WaitIconOffset.y),
         opacityTint, glm::vec2(1.0f), WaitIconAngle);
   }
 }

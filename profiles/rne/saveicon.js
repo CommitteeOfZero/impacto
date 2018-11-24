@@ -3,7 +3,9 @@ root.SaveIcon = {
     DefaultPosition: { X: 1153, Y: 23 },
     BackgroundSprite: "SaveIconBg",
     BackgroundOffset: { X: -7, Y: -4 },
-    BackgroundMaxAlpha: 0.5
+    BackgroundMaxAlpha: 0.5,
+    FadeInDuration: 0.5,
+    FadeOutDuration: 0.25
 };
 
 MakeAnimation({

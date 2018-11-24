@@ -12,7 +12,7 @@ namespace SaveIconDisplay {
 
 enum SaveIconAnimState { Hidden, Hiding, Showing, Shown };
 
-static float Opacity = 0.0f;
+static float Fade = 0.0f;
 
 static glm::vec2 Position;
 SaveIconAnimState AnimState = Hidden;
@@ -30,15 +30,15 @@ void ShowAt(glm::vec2 pos) {
 
 void Update(float dt) {
   if (AnimState == Hiding) {
-    Opacity -= 4.0f * dt;
-    if (Opacity <= 0.0f) {
-      Opacity = 0.0f;
+    Fade -= dt / Profile::SaveIcon::FadeOutDuration;
+    if (Fade <= 0.0f) {
+      Fade = 0.0f;
       AnimState = Hidden;
     }
   } else if (AnimState == Showing) {
-    Opacity += 1.8f * dt;
-    if (Opacity >= 1.0f) {
-      Opacity = 1.0f;
+    Fade += dt / Profile::SaveIcon::FadeInDuration;
+    if (Fade >= 1.0f) {
+      Fade = 1.0f;
       AnimState = Shown;
     }
   }
@@ -50,9 +50,9 @@ void Update(float dt) {
 
 void Render() {
   if (AnimState == Hidden) return;
-  if (Opacity > 0.0f) {
+  if (Fade > 0.0f) {
     glm::vec4 col(1.0f);
-    col.a = glm::smoothstep(0.0f, 1.0f, Opacity);
+    col.a = glm::smoothstep(0.0f, 1.0f, Fade);
     Renderer2D::DrawSprite(
         Profile::SaveIcon::BackgroundSprite,
         Position + Profile::SaveIcon::BackgroundOffset,
