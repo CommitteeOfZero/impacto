@@ -26,6 +26,7 @@
 #include "profile/dialogue.h"
 #include "profile/saveicon.h"
 #include "profile/animations.h"
+#include "profile/loadingdisplay.h"
 
 namespace Impacto {
 
@@ -94,6 +95,7 @@ static void Init() {
 
   if (Profile::GameFeatures & GameFeature::Sc3VirtualMachine) {
     Profile::SaveIcon::Configure();
+    Profile::LoadingDisplay::Configure();
 
     Vm::Init(4, 0);
   }

@@ -38,6 +38,7 @@ set(Impacto_Src
     src/profile/fonts.cpp
     src/profile/dialogue.cpp
     src/profile/saveicon.cpp
+    src/profile/loadingdisplay.cpp
 
     src/text_rne.cpp
 
@@ -133,6 +134,7 @@ set(Impacto_Header
     src/profile/fonts.h
     src/profile/dialogue.h
     src/profile/saveicon.h
+    src/profile/loadingdisplay.h
 
     src/datedisplay.h
     src/saveicondisplay.h

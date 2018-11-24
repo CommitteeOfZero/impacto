@@ -1,4 +1,15 @@
-include('common/animation.js');
+root.LoadingDisplay = {
+    ResourceLoadBgAnim: "ResourceLoadingBg",
+    SaveLoadBgAnim: "SaveLoadingBg",
+    LoadingIconAnim: "LoadingDisc",
+    LoadingTextAnim: "LoadingText",
+    ResourceBgPos: { X: 1074, Y: 611 },
+    SaveBgPos: { X: 1019, Y: 598 },
+    IconPos: { X: 986, Y: 608 },
+    TextPos: { X: 1025, Y: 628 },
+    FadeInDuration: 0.66,
+    FadeOutDuration: 0.33
+};
 
 MakeAnimation({
     Name: "ResourceLoadingBg",
