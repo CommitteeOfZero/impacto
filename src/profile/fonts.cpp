@@ -20,17 +20,7 @@ void LoadFonts() {
 
     Font& font = Fonts[name];
 
-    char const* sheetName =
-        EnsureGetMemberString(it->value, "/Fonts/x", "Sheet");
-
-    auto const sheetRef = SpriteSheets.find(sheetName);
-    if (sheetRef == SpriteSheets.end()) {
-      ImpLog(LL_Fatal, LC_Profile, "No spritesheet %s (used by font %s)\n",
-             sheetName, name.c_str());
-      Window::Shutdown();
-    }
-
-    font.Sheet = sheetRef->second;
+    font.Sheet = EnsureGetMemberSpriteSheet(it->value, "/Fonts/x", "Sheet");
     font.Rows = EnsureGetMemberInt(it->value, "/Fonts/x", "Rows");
     font.Columns = EnsureGetMemberInt(it->value, "/Fonts/x", "Columns");
 

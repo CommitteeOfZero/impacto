@@ -23,6 +23,7 @@
 #include "profile/sprites.h"
 #include "profile/charset.h"
 #include "profile/fonts.h"
+#include "profile/dialogue.h"
 
 namespace Impacto {
 
@@ -73,14 +74,15 @@ static void Init() {
     Profile::LoadSpritesheets();
     Profile::Charset::Load();
     Profile::LoadFonts();
+    Profile::Dialogue::Configure();
 
     Renderer2D::Init();
-  }
 
-  for (int i = 0; i < DialoguePageCount; i++) {
-    DialoguePages[i].Clear();
-    DialoguePages[i].Mode = DPM_NVL;
-    DialoguePages[i].Id = i;
+    for (int i = 0; i < Profile::Dialogue::PageCount; i++) {
+      DialoguePages[i].Clear();
+      DialoguePages[i].Mode = DPM_NVL;
+      DialoguePages[i].Id = i;
+    }
   }
 
   if (Profile::GameFeatures & GameFeature::ModelViewer) {
@@ -225,7 +227,8 @@ void Update(float dt) {
   }
 
   if (Profile::GameFeatures & GameFeature::Renderer2D) {
-    for (int i = 0; i < DialoguePageCount; i++) DialoguePages[i].Update(dt);
+    for (int i = 0; i < Profile::Dialogue::PageCount; i++)
+      DialoguePages[i].Update(dt);
   }
 }
 

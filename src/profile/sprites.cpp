@@ -61,17 +61,8 @@ void LoadSpritesheets() {
 
     Sprite& sprite = Sprites[name];
 
-    char const* sheetName =
-        EnsureGetMemberString(it->value, "/Sprites/x", "Sheet");
+    sprite.Sheet = EnsureGetMemberSpriteSheet(it->value, "/Sprites/x", "Sheet");
 
-    auto const sheetRef = SpriteSheets.find(sheetName);
-    if (sheetRef == SpriteSheets.end()) {
-      ImpLog(LL_Fatal, LC_Profile, "No spritesheet %s (used by %s)\n",
-             sheetName, name.c_str());
-      Window::Shutdown();
-    }
-
-    sprite.Sheet = sheetRef->second;
     sprite.Bounds = EnsureGetMemberRectF(it->value, "/Sprites/x", "Bounds");
     if (!TryGetMemberVec2(it->value, "BaseScale", sprite.BaseScale)) {
       sprite.BaseScale = glm::vec2(1.0f);

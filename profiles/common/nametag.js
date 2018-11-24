@@ -18,10 +18,14 @@ MakeNameTag = function (desc) {
     }
 
     root.Dialogue.ADVNameTag = {
-        X: desc.ScreenX,
-        Y: desc.ScreenY,
+        Position: {
+            X: desc.ScreenX,
+            Y: desc.ScreenY,
+        },
         LeftSprite: "ADVNameLeft",
         LineSprite: "ADVNameLine",
-        RightSprite: "ADVNameRight"
+        RightSprite: "ADVNameRight",
+        LineFactor: desc.LineFactor,
+        BaseLineWidth: desc.BaseLineWidth
     };
 };

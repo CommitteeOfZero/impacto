@@ -32,8 +32,6 @@ int const DialogueMaxNameLength = 32;
 int const DialogueMaxRubyChunks = 32;
 int const DialogueMaxRubyChunkLength = 32;
 
-int const DialogueColors = 70;
-
 struct DialoguePageFeatureConfig {
   RectF NVLBounds;
   RectF ADVBounds;
@@ -43,7 +41,7 @@ struct DialoguePageFeatureConfig {
   float DefaultFontSize;
   float RubyFontSize;
   Font DialogueFont;
-  DialogueColorPair ColorTable[DialogueColors];
+  DialogueColorPair ColorTable[70];
   SpriteSheet DataSpriteSheet;
 };
 
@@ -63,8 +61,6 @@ enum DialoguePageAnimState {
 };
 
 struct DialoguePage {
-  static int const MaxCharacters = 2000;
-
   int Id;
 
   float ADVBoxOpacity;
@@ -85,7 +81,7 @@ struct DialoguePage {
   float CurrentX;
   float CurrentY;
 
-  ProcessedTextGlyph Glyphs[MaxCharacters];
+  ProcessedTextGlyph* Glyphs;
 
   DialoguePageMode Mode;
 
@@ -98,9 +94,7 @@ struct DialoguePage {
   void Render();
 };
 
-int const DialoguePageCount = 3;
-
-extern DialoguePage DialoguePages[DialoguePageCount];
+extern DialoguePage* DialoguePages;
 
 int TextGetStringLength(Vm::Sc3VmThread* ctx);
 

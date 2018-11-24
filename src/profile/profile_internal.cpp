@@ -4,6 +4,9 @@
 
 #include <rapidjson/error/en.h>
 
+#include "sprites.h"
+#include "fonts.h"
+
 namespace Impacto {
 namespace Profile {
 
@@ -467,6 +470,43 @@ Io::AssetPath EnsureGetMemberAssetPath(Value const& val, char const* path,
   Window::Shutdown();
 
   return result;
+}
+
+Sprite EnsureGetMemberSprite(Value const& val, char const* path,
+                             char const* member) {
+  char const* spriteName = EnsureGetMemberString(val, path, member);
+
+  auto const spriteRef = Sprites.find(spriteName);
+  if (spriteRef == Sprites.end()) {
+    ImpLog(LL_Fatal, LC_Profile, "No sprite %s\n", spriteName);
+    Window::Shutdown();
+  }
+
+  return spriteRef->second;
+}
+SpriteSheet EnsureGetMemberSpriteSheet(Value const& val, char const* path,
+                                       char const* member) {
+  char const* sheetName = EnsureGetMemberString(val, path, member);
+
+  auto const sheetRef = SpriteSheets.find(sheetName);
+  if (sheetRef == SpriteSheets.end()) {
+    ImpLog(LL_Fatal, LC_Profile, "No spritesheet %s\n", sheetName);
+    Window::Shutdown();
+  }
+
+  return sheetRef->second;
+}
+Font EnsureGetMemberFont(Value const& val, char const* path,
+                         char const* member) {
+  char const* fontName = EnsureGetMemberString(val, path, member);
+
+  auto const fontRef = Fonts.find(fontName);
+  if (fontRef == Fonts.end()) {
+    ImpLog(LL_Fatal, LC_Profile, "No font %s\n", fontName);
+    Window::Shutdown();
+  }
+
+  return fontRef->second;
 }
 
 }  // namespace Profile

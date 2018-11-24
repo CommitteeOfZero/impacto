@@ -26,6 +26,15 @@ struct Sprite {
   SpriteSheet Sheet;
   RectF Bounds;
   glm::vec2 BaseScale;
+
+  float ScaledWidth() { return Bounds.Width * BaseScale.x; }
+  float ScaledHeight() { return Bounds.Height * BaseScale.y; }
+  void SetScaledWidth(float scaledWidth) {
+    Bounds.Width = scaledWidth / BaseScale.x;
+  }
+  void SetScaledHeight(float scaledHeight) {
+    Bounds.Height = scaledHeight / BaseScale.y;
+  }
 };
 
 }  // namespace Impacto

@@ -6,6 +6,9 @@
 #include "../io/assetpath.h"
 #include "../util.h"
 
+#include "../spritesheet.h"
+#include "../font.h"
+
 using namespace rapidjson;
 
 namespace Impacto {
@@ -80,6 +83,13 @@ bool TryGetMemberAssetPath(Value const& val, char const* member,
 Io::AssetPath EnsureGetAssetPath(Value const& val, char const* path);
 Io::AssetPath EnsureGetMemberAssetPath(Value const& val, char const* path,
                                        char const* member);
+
+Sprite EnsureGetMemberSprite(Value const& val, char const* path,
+                             char const* member);
+SpriteSheet EnsureGetMemberSpriteSheet(Value const& val, char const* path,
+                                       char const* member);
+Font EnsureGetMemberFont(Value const& val, char const* path,
+                         char const* member);
 
 }  // namespace Profile
 }  // namespace Impacto
