@@ -137,7 +137,7 @@ bool TryGetBool(Value const& val, bool& outBool) {
 
 bool TryGetMemberBool(Value const& val, char const* member, bool& outBool) {
   auto const it = val.FindMember(member);
-  if (it->value == val.MemberEnd()) return false;
+  if (it == val.MemberEnd()) return false;
   return TryGetBool(it->value, outBool);
 }
 
@@ -178,7 +178,7 @@ bool TryGetInt(Value const& val, int& outInt) {
 
 bool TryGetMemberInt(Value const& val, char const* member, int& outInt) {
   auto const it = val.FindMember(member);
-  if (it->value == val.MemberEnd()) return false;
+  if (it == val.MemberEnd()) return false;
   return TryGetInt(it->value, outInt);
 }
 
@@ -219,7 +219,7 @@ bool TryGetUint(Value const& val, uint32_t& outUint) {
 
 bool TryGetMemberUint(Value const& val, char const* member, uint32_t& outUint) {
   auto const it = val.FindMember(member);
-  if (it->value == val.MemberEnd()) return false;
+  if (it == val.MemberEnd()) return false;
   return TryGetUint(it->value, outUint);
 }
 
@@ -262,7 +262,7 @@ bool TryGetFloat(Value const& val, float& outFloat) {
 
 bool TryGetMemberFloat(Value const& val, char const* member, float& outFloat) {
   auto const it = val.FindMember(member);
-  if (it->value == val.MemberEnd()) return false;
+  if (it == val.MemberEnd()) return false;
   return TryGetFloat(it->value, outFloat);
 }
 
@@ -297,7 +297,7 @@ bool TryGetString(Value const& val, char const*& outString) {
 bool TryGetMemberString(Value const& val, char const* member,
                         char const*& outString) {
   auto const it = val.FindMember(member);
-  if (it->value == val.MemberEnd()) return false;
+  if (it == val.MemberEnd()) return false;
   return TryGetString(it->value, outString);
 }
 
@@ -331,7 +331,7 @@ bool TryGetVec2(Value const& val, glm::vec2& outVec) {
 
 bool TryGetMemberVec2(Value const& val, char const* member, glm::vec2& outVec) {
   auto const it = val.FindMember(member);
-  if (it->value == val.MemberEnd()) return false;
+  if (it == val.MemberEnd()) return false;
   return TryGetVec2(it->value, outVec);
 }
 
@@ -365,7 +365,7 @@ bool TryGetVec3(Value const& val, glm::vec3& outVec) {
 
 bool TryGetMemberVec3(Value const& val, char const* member, glm::vec3& outVec) {
   auto const it = val.FindMember(member);
-  if (it->value == val.MemberEnd()) return false;
+  if (it == val.MemberEnd()) return false;
   return TryGetVec3(it->value, outVec);
 }
 
@@ -409,7 +409,7 @@ bool TryGetAssetPath(Value const& val, Io::AssetPath& outPath) {
 bool TryGetMemberAssetPath(Value const& val, char const* member,
                            Io::AssetPath& outPath) {
   auto const it = val.FindMember(member);
-  if (it->value == val.MemberEnd()) return false;
+  if (it == val.MemberEnd()) return false;
   return TryGetAssetPath(it->value, outPath);
 }
 
