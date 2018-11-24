@@ -16,6 +16,8 @@ struct SpriteSheet {
   GLuint Texture = 0;
 };
 
+// TODO replace BaseScale with scaled width/height and unscaled width/height
+
 struct Sprite {
   Sprite() : BaseScale(1.0f) {}
   Sprite(SpriteSheet const& sheet, float x, float y, float width, float height,

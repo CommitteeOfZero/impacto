@@ -20,6 +20,7 @@
 
 #include "profile/profile.h"
 #include "profile/game.h"
+#include "profile/sprites.h"
 
 namespace Impacto {
 
@@ -67,6 +68,7 @@ static void Init() {
   memset(FlagWork, 0, sizeof(FlagWork));
 
   if (Profile::GameFeatures & GameFeature::Renderer2D) {
+    Profile::LoadSpritesheets();
     Renderer2D::Init();
   }
 

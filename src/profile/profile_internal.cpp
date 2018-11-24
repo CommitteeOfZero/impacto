@@ -389,6 +389,41 @@ glm::vec3 EnsureGetMemberVec3(Value const& val, char const* path,
   return result;
 }
 
+bool TryGetRectF(Value const& val, RectF& outRect) {
+  if (!val.IsObject()) return false;
+
+  return TryGetMemberFloat(val, "X", outRect.X) &&
+         TryGetMemberFloat(val, "Y", outRect.Y) &&
+         TryGetMemberFloat(val, "Width", outRect.Width) &&
+         TryGetMemberFloat(val, "Height", outRect.Height);
+}
+
+bool TryGetMemberRectF(Value const& val, char const* member, RectF& outRect) {
+  auto const it = val.FindMember(member);
+  if (it == val.MemberEnd()) return false;
+  return TryGetRectF(it->value, outRect);
+}
+
+RectF EnsureGetRectF(Value const& val, char const* path) {
+  RectF result;
+  if (!TryGetRectF(val, result)) {
+    ImpLog(LL_Fatal, LC_Profile, "Expected %s to be RectF\n", path);
+    Window::Shutdown();
+  }
+  return result;
+}
+
+RectF EnsureGetMemberRectF(Value const& val, char const* path,
+                           char const* member) {
+  RectF result;
+  if (TryGetMemberRectF(val, member, result)) return result;
+
+  ImpLog(LL_Fatal, LC_Profile, "Expected %s/%s to be RectF\n", path, member);
+  Window::Shutdown();
+
+  return result;
+}
+
 bool TryGetAssetPath(Value const& val, Io::AssetPath& outPath) {
   if (val.IsString()) {
     outPath.Mount = "";

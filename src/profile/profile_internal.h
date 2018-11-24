@@ -4,6 +4,7 @@
 #include <initializer_list>
 #include <glm/glm.hpp>
 #include "../io/assetpath.h"
+#include "../util.h"
 
 using namespace rapidjson;
 
@@ -68,6 +69,11 @@ bool TryGetMemberVec3(Value const& val, char const* member, glm::vec3& outVec);
 glm::vec3 EnsureGetVec3(Value const& val, char const* path);
 glm::vec3 EnsureGetMemberVec3(Value const& val, char const* path,
                               char const* member);
+bool TryGetRectF(Value const& val, RectF& outRect);
+bool TryGetMemberRectF(Value const& val, char const* member, RectF& outRect);
+RectF EnsureGetRectF(Value const& val, char const* path);
+RectF EnsureGetMemberRectF(Value const& val, char const* path,
+                           char const* member);
 bool TryGetAssetPath(Value const& val, Io::AssetPath& outPath);
 bool TryGetMemberAssetPath(Value const& val, char const* member,
                            Io::AssetPath& outPath);
