@@ -14,14 +14,10 @@ float DesignHeight;
 void LoadGameFromJson() {
   AssertIs(Json, "/", kObjectType);
 
-  LayerCount =
-      EnsureGetInt(EnsureGetMember(Json, "/", "LayerCount"), "/LayerCount");
-  GameFeatures =
-      EnsureGetInt(EnsureGetMember(Json, "/", "GameFeatures"), "/GameFeatures");
-  DesignWidth =
-      EnsureGetFloat(EnsureGetMember(Json, "/", "DesignWidth"), "/DesignWidth");
-  DesignHeight = EnsureGetFloat(EnsureGetMember(Json, "/", "DesignHeight"),
-                                "/DesignHeight");
+  LayerCount = EnsureGetMemberInt(Json, "/", "LayerCount");
+  GameFeatures = EnsureGetMemberInt(Json, "/", "GameFeatures");
+  DesignWidth = EnsureGetMemberFloat(Json, "/", "DesignWidth");
+  DesignHeight = EnsureGetMemberFloat(Json, "/", "DesignHeight");
 }
 
 }  // namespace Profile

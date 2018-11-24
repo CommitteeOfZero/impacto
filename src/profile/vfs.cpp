@@ -6,9 +6,9 @@ namespace Impacto {
 namespace Profile {
 namespace Vfs {
 void Configure() {
-  auto const& _mounts = AssertIs(
-      EnsureGetMember(EnsureGetMember(Json, "/", "Vfs"), "/Vfs", "Mounts"),
-      "/Vfs/Mounts", kObjectType);
+  auto const& _mounts = EnsureGetMemberOfType(
+      EnsureGetMemberOfType(Json, "/", "Vfs", kObjectType), "/Vfs", "Mounts",
+      kObjectType);
 
   for (Value::ConstMemberIterator it = _mounts.MemberBegin();
        it != _mounts.MemberEnd(); ++it) {

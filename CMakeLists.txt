@@ -50,6 +50,7 @@ set(Impacto_Src
     src/3d/modelanimator.cpp
 
     src/io/vfs.cpp
+    src/io/assetpath.cpp
     src/io/memorystream.cpp
     src/io/physicalfilestream.cpp
     src/io/uncompressedstream.cpp
@@ -135,6 +136,7 @@ set(Impacto_Header
     src/io/vfs.h
     src/io/buffering.h
     src/io/filemeta.h
+    src/io/assetpath.h
     src/io/inputstream.h
     src/io/vfsarchive.h
     src/io/memorystream.h
