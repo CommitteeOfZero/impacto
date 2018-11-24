@@ -124,7 +124,7 @@ VmInstruction(InstPositionObject) {
 
   if (parentObjId && objectId) {
     if (parentObjId == 1 || parentObjId == 2) {  // camera
-      pos.z += 23.0f;
+      pos.z += Profile::Scene3D::DefaultCameraPosition.z;
     } else if (ObjectIsRenderable(parentObjId)) {
       // note, these are different than SW_CHAnPOSa ???
       pos = ScrWorkGetVec3(20 * parentRenderableId + 5706,
@@ -135,7 +135,7 @@ VmInstruction(InstPositionObject) {
       pos = ScrWorkGetVec3(20 * parentObjId + 4900, 20 * parentObjId + 4901,
                            20 * parentObjId + 4902);
     }
-    pos.y += 12.5f;
+    pos.y += Profile::Scene3D::DefaultCameraPosition.y;
 
     if (parentObjId != 1 && parentObjId != 2) {
       // I don't even know
@@ -150,9 +150,9 @@ VmInstruction(InstPositionObject) {
     pos -= radius * sphericalOffset;
 
     // undo offsets
-    pos.y -= 12.5f;
+    pos.y -= Profile::Scene3D::DefaultCameraPosition.y;
     if (objectId == 1 || objectId == 2) {
-      pos.z -= 23.0f;
+      pos.z -= Profile::Scene3D::DefaultCameraPosition.z;
     }
     if (ObjectIsRenderable(objectId)) {
       pos.y -= ScrWorkGetFloat(30 * renderableId + SW_CHA1YCENTER);
@@ -275,7 +275,7 @@ VmInstruction(InstUnk0213) {  // Set Camera position ???
       PopExpression(outX);
       PopExpression(outY);
       PopExpression(outZ);
-      ScrWorkSetVec3(outX, outY, outZ, glm::vec3(0.0f, 12.5f, 23.0f));
+      ScrWorkSetVec3(outX, outY, outZ, Profile::Scene3D::DefaultCameraPosition);
     } break;
     case 1: {
       PopExpression(charId);
@@ -285,7 +285,7 @@ VmInstruction(InstUnk0213) {  // Set Camera position ???
       glm::vec3 pos = ScrWorkGetVec3(5706 + 20 * charId, 5707 + 20 * charId,
                                      5708 + 20 * charId);
       pos.y += ScrWorkGetFloat(SW_CHA1YCENTER + 30 * charId);
-      pos.y += 12.5f;
+      pos.y += Profile::Scene3D::DefaultCameraPosition.y;
       ScrWorkSetVec3(outX, outY, outZ, pos);
     } break;
     case 2: {
@@ -295,7 +295,7 @@ VmInstruction(InstUnk0213) {  // Set Camera position ???
       PopExpression(outZ);
       glm::vec3 pos =
           ScrWorkGetVec3(5500 + 20 * arg1, 5501 + 20 * arg1, 5502 + 20 * arg1);
-      pos.y += 12.5f;
+      pos.y += Profile::Scene3D::DefaultCameraPosition.y;
       ScrWorkSetVec3(outX, outY, outZ, pos);
     } break;
   }
@@ -385,7 +385,7 @@ VmInstruction(InstUnk0218) {
       glm::vec3 lookat =
           LookAtEulerZYX(glm::vec3(ScrRealToFloat(arg1), ScrRealToFloat(arg2),
                                    ScrRealToFloat(arg3)),
-                         glm::vec3(0.0f, 12.5f, 23.0f));
+                         Profile::Scene3D::DefaultCameraPosition);
 
       ScrWork[outXRot] = FloatToScrReal(RadToDeg(NormalizeRad(lookat.x)));
       ScrWork[outYRot] = FloatToScrReal(RadToDeg(NormalizeRad(lookat.y)));

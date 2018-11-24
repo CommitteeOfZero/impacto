@@ -4,6 +4,8 @@
 #include "../../mem.h"
 #include "../../util.h"
 
+#include "../../profile/scene3d.h"
+
 namespace Impacto {
 namespace Vm {
 namespace Interface {
@@ -14,7 +16,7 @@ static void UpdateRenderableRot(int charId) {
   if (pose >= 0) {
     glm::vec3 target =
         ScrWorkGetVec3(20 * pose + 5500, 20 * pose + 5501, 20 * pose + 5502);
-    target.y += 12.5f;
+    target.y += Profile::Scene3D::DefaultCameraPosition.y;
 
     glm::vec3 object =
         ScrWorkGetVec3(30 * charId + SW_CHA1POSX, 30 * charId + SW_CHA1POSY,
