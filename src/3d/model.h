@@ -122,7 +122,6 @@ class Animation;
 
 class Model {
  public:
-  static void Init();
   static void EnumerateModels();
 
   // Parses a R;NE model file. No GPU submission happens in this class.

@@ -30,22 +30,10 @@ uint32_t* g_BackgroundModelIds;
 char** g_BackgroundModelNames;
 uint32_t g_BackgroundModelCount;
 
-static bool IsInit = false;
-
 bool AnimationIsBlacklisted(uint32_t modelId, uint16_t animId) {
   // This animation file is just broken
   if (modelId == 273 && animId == 22) return true;
   return false;
-}
-
-void Model::Init() {
-  if (IsInit) return;
-  IsInit = true;
-  ImpLog(LL_Info, LC_ModelLoad, "Initializing model loader\n");
-  IoError err = VfsMount("model", "model.cpk");
-  if (err != IoError_OK) {
-    ImpLog(LL_Error, LC_ModelLoad, "Could not open model archive: %d\n", err);
-  }
 }
 
 void Model::EnumerateModels() {

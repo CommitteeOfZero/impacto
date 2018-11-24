@@ -53,7 +53,6 @@ void Renderable3D::Init() {
   assert(IsInit == false);
   ImpLog(LL_Info, LC_Renderable3D, "Initializing Renderable3D system\n");
   IsInit = true;
-  Model::Init();
 
   ShaderParamMap shaderParams;
   shaderParams["ModelMaxBonesPerMesh"] = ModelMaxBonesPerMesh;
