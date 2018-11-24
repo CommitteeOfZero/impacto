@@ -19,10 +19,7 @@ SaveIconAnimState AnimState = Hidden;
 
 static SpriteAnimation SaveIconForeground;
 
-void Hide() {
-  AnimState = Hidden;
-  Opacity = 0.0f;
-}
+void Hide() { AnimState = Hiding; }
 
 void Show() { ShowAt(Profile::SaveIcon::DefaultPosition); }
 void ShowAt(glm::vec2 pos) {
@@ -32,10 +29,6 @@ void ShowAt(glm::vec2 pos) {
 }
 
 void Update(float dt) {
-  if (AnimState == Hidden) return;
-
-  SaveIconForeground.Update(dt);
-
   if (AnimState == Hiding) {
     Opacity -= 4.0f * dt;
     if (Opacity <= 0.0f) {
@@ -49,6 +42,10 @@ void Update(float dt) {
       AnimState = Shown;
     }
   }
+
+  if (AnimState == Hidden) return;
+
+  SaveIconForeground.Update(dt);
 }
 
 void Render() {
