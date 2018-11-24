@@ -13,25 +13,15 @@ float DesignHeight;
 
 void LoadGameFromJson() {
   AssertIs(Json, "/", kObjectType);
-  AssertHasMember(Json, "/", "LayerCount");
-  AssertHasMember(Json, "/", "GameFeatures");
-  AssertHasMember(Json, "/", "DesignWidth");
-  AssertHasMember(Json, "/", "DesignHeight");
 
-  auto const& _layerCount = Json["LayerCount"];
-  auto const& _gameFeatures = Json["GameFeatures"];
-  auto const& _designWidth = Json["DesignWidth"];
-  auto const& _designHeight = Json["DesignHeight"];
-
-  AssertIsIntegral(_layerCount, "/LayerCount");
-  AssertIsIntegral(_gameFeatures, "/GameFeatures");
-  AssertIs(_designWidth, "/DesignWidth", kNumberType);
-  AssertIs(_designWidth, "/DesignHeight", kNumberType);
-
-  LayerCount = _layerCount.GetInt();
-  GameFeatures = _gameFeatures.GetInt();
-  DesignWidth = _designWidth.GetFloat();
-  DesignHeight = _designHeight.GetFloat();
+  LayerCount =
+      EnsureGetInt(EnsureGetMember(Json, "/", "LayerCount"), "/LayerCount");
+  GameFeatures =
+      EnsureGetInt(EnsureGetMember(Json, "/", "GameFeatures"), "/GameFeatures");
+  DesignWidth =
+      EnsureGetFloat(EnsureGetMember(Json, "/", "DesignWidth"), "/DesignWidth");
+  DesignHeight = EnsureGetFloat(EnsureGetMember(Json, "/", "DesignHeight"),
+                                "/DesignHeight");
 }
 
 }  // namespace Profile

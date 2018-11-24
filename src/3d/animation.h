@@ -7,7 +7,6 @@
 namespace Impacto {
 
 int const AnimMaxMorphTargetsPerTrack = 16;
-float const AnimDesignFrameRate = 30.0f;
 
 struct CoordKeyframe {
   float Time;
@@ -57,7 +56,8 @@ struct MeshTrack {
 
 class Animation {
  public:
-  static Animation* Load(Io::InputStream* stream, Model* model, uint16_t animId);
+  static Animation* Load(Io::InputStream* stream, Model* model,
+                         uint16_t animId);
   ~Animation();
 
   // Per-model ID

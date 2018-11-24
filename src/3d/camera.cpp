@@ -5,6 +5,8 @@
 
 #include "../window.h"
 
+#include "../profile/scene3d.h"
+
 namespace Impacto {
 
 void Camera::LookAt(glm::vec3 target) {
@@ -14,13 +16,13 @@ void Camera::LookAt(glm::vec3 target) {
 }
 
 void Camera::ResetTransform() {
-  CameraTransform.Position = glm::vec3(0.0f, 12.5f, 23.0f);
+  CameraTransform.Position = Profile::Scene3D::DefaultCameraPosition;
   Up = glm::vec3(0.0f, 1.0f, 0.0f);
-  LookAt(glm::vec3(0.0f, 12.5f, 0.0f));
+  LookAt(Profile::Scene3D::DefaultCameraTarget);
 }
 
 void Camera::ResetPerspective() {
-  Fov = M_PI / 8.0f;
+  Fov = Profile::Scene3D::DefaultFov;
   Near = 0.1f;
   Far = 1000.0f;
   AspectRatio = 1.0f;

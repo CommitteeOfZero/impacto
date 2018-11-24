@@ -8,8 +8,6 @@
 namespace Impacto {
 namespace Scene3D {
 
-int const MaxRenderables = 8;
-
 void Init();
 void Shutdown();
 void Update(float dt);
@@ -17,7 +15,7 @@ void Render();
 
 extern Camera MainCamera;
 
-extern Renderable3D Renderables[MaxRenderables];
+extern Renderable3D *Renderables;
 
 extern glm::vec3 LightPosition;
 extern glm::vec4 Tint;

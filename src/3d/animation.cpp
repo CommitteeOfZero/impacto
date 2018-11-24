@@ -6,6 +6,8 @@
 #include "../log.h"
 #include "../util.h"
 
+#include "../profile/scene3d.h"
+
 namespace Impacto {
 
 int const HeaderSize = 0x30;
@@ -38,7 +40,7 @@ Animation* Animation::Load(InputStream* stream, Model* model, uint16_t animId) {
   result->Id = animId;
 
   stream->Seek(HeaderDurationOffset, RW_SEEK_SET);
-  result->Duration = ReadLE<float>(stream) / AnimDesignFrameRate;
+  result->Duration = ReadLE<float>(stream) /  Profile::Scene3D::AnimationDesignFrameRate;
   uint32_t trackCount = ReadLE<uint32_t>(stream);
   uint32_t tracksOffset = ReadLE<uint32_t>(stream);
 
@@ -306,7 +308,7 @@ Animation* Animation::Load(InputStream* stream, Model* model, uint16_t animId) {
 
         currentTime = nextTime;
         QuatKeyframe key;
-        key.Time = currentTime / AnimDesignFrameRate;
+        key.Time = currentTime /  Profile::Scene3D::AnimationDesignFrameRate;
         eulerZYXToQuat(&currentEuler, &key.Value);
         rotationTrack.push_back(key);
 
@@ -378,7 +380,7 @@ Animation* Animation::Load(InputStream* stream, Model* model, uint16_t animId) {
              time < (float*)(result->CoordKeyframes + currentCoordOffset +
                              currentKeyframeCount);
              time += 2) {
-          *time /= AnimDesignFrameRate;
+          *time /=  Profile::Scene3D::AnimationDesignFrameRate;
         }
         currentCoordOffset += currentKeyframeCount;
       }
@@ -433,7 +435,7 @@ Animation* Animation::Load(InputStream* stream, Model* model, uint16_t animId) {
            time < (float*)(result->CoordKeyframes + currentCoordOffset +
                            visibilityCount);
            time += 2) {
-        *time /= AnimDesignFrameRate;
+        *time /=  Profile::Scene3D::AnimationDesignFrameRate;
       }
       currentCoordOffset += visibilityCount;
 
@@ -451,7 +453,7 @@ Animation* Animation::Load(InputStream* stream, Model* model, uint16_t animId) {
              key < (result->CoordKeyframes + currentCoordOffset +
                     morphInfluenceCounts[j]);
              key++) {
-          key->Time /= AnimDesignFrameRate;
+          key->Time /=  Profile::Scene3D::AnimationDesignFrameRate;
           key->Value /= 100.0f;
         }
         currentCoordOffset += morphInfluenceCounts[j];

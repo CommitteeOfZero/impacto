@@ -30,6 +30,7 @@ set(Impacto_Src
     src/profile/profile_internal.cpp
     src/profile/game.cpp
     src/profile/vfs.cpp
+    src/profile/scene3d.cpp
 
     src/text_rne.cpp
 
@@ -115,6 +116,7 @@ set(Impacto_Header
     src/profile/profile_internal.h
     src/profile/game.h
     src/profile/vfs.h
+    src/profile/scene3d.h
 
     src/datedisplay.h
     src/saveicondisplay.h

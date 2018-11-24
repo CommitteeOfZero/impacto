@@ -7,6 +7,8 @@
 #include "../shader.h"
 #include "../glc.h"
 
+#include "../profile/scene3d.h"
+
 namespace Impacto {
 namespace Scene3D {
 
@@ -26,7 +28,7 @@ static bool IsInit = false;
 
 Camera MainCamera;
 
-Renderable3D Renderables[MaxRenderables];
+Renderable3D *Renderables = 0;
 
 glm::vec3 LightPosition;
 glm::vec4 Tint;
@@ -57,6 +59,10 @@ void Init() {
   ImpLog(LL_Info, LC_Scene, "Initializing 3D scene system\n");
   IsInit = true;
 
+  Profile::Scene3D::Configure();
+
+  Renderables = new Renderable3D[Profile::Scene3D::MaxRenderables];
+
   Renderable3D::Init();
 
   MainCamera.Init();
@@ -80,7 +86,7 @@ void Init() {
   // Position
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
   glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float),
-                        (void*)(2 * sizeof(float)));
+                        (void *)(2 * sizeof(float)));
   glEnableVertexAttribArray(0);
   glEnableVertexAttribArray(1);
 }
@@ -91,10 +97,11 @@ void Shutdown() {
   if (VAOScreenFillingTriangle)
     glDeleteVertexArrays(1, &VAOScreenFillingTriangle);
   CleanFramebufferState();
+  if (Renderables) delete[] Renderables;
 }
 
 void Update(float dt) {
-  for (int i = 0; i < MaxRenderables; i++) {
+  for (int i = 0; i < Profile::Scene3D::MaxRenderables; i++) {
     if (Renderables[i].Status == LS_Loaded) {
       Renderables[i].Update(dt);
     }
@@ -107,7 +114,7 @@ void Render() {
 
   Renderable3D::LoadSceneUniforms(&MainCamera);
 
-  for (int i = 0; i < MaxRenderables; i++) {
+  for (int i = 0; i < Profile::Scene3D::MaxRenderables; i++) {
     if (Renderables[i].Status == LS_Loaded &&
         Renderables[i].StaticModel->Type == ModelType_Background) {
       Renderables[i].Render();
@@ -118,7 +125,7 @@ void Render() {
 
   SetupFramebufferState();
 
-  for (int i = 0; i < MaxRenderables; i++) {
+  for (int i = 0; i < Profile::Scene3D::MaxRenderables; i++) {
     if (Renderables[i].Status == LS_Loaded &&
         Renderables[i].StaticModel->Type == ModelType_Character) {
       Renderables[i].Render();

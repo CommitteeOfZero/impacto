@@ -10,6 +10,8 @@
 
 #include "../3d/scene.h"
 
+#include "../profile/scene3d.h"
+
 namespace Impacto {
 
 namespace Vm {
@@ -72,12 +74,14 @@ VmInstruction(InstCHAplayAnim3DMaybe) {
                              237] +
         (animationId - 1);
     Scene3D::Renderables[bufferId].Animator.LoopStart =
-        AnimLoopPoints[loopId].LoopStart / AnimDesignFrameRate;
+        AnimLoopPoints[loopId].LoopStart /
+        Profile::Scene3D::AnimationDesignFrameRate;
     if (AnimLoopPoints[loopId].LoopEnd == 65536) {
       Scene3D::Renderables[bufferId].Animator.OneShot = true;
     } else if (AnimLoopPoints[loopId].LoopEnd != 0) {
       Scene3D::Renderables[bufferId].Animator.LoopEnd =
-          AnimLoopPoints[loopId].LoopEnd / AnimDesignFrameRate;
+          AnimLoopPoints[loopId].LoopEnd /
+          Profile::Scene3D::AnimationDesignFrameRate;
     }
   }
 }
