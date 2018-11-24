@@ -1,14 +1,14 @@
 #pragma once
 
-#include "../font.h"
 #include <flat_hash_map.hpp>
+#include "../spriteanimation.h"
 
 namespace Impacto {
 namespace Profile {
 
-extern ska::flat_hash_map<std::string, Font> Fonts;
+extern ska::flat_hash_map<std::string, SpriteAnimationDef> Animations;
 
-void LoadFonts();
+void LoadAnimations();
 
 }  // namespace Profile
 }  // namespace Impacto

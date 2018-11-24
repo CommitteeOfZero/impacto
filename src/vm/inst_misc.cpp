@@ -77,14 +77,12 @@ VmInstruction(InstPressStart) {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction PressStart(type: %i, arg1: %i, arg2: %i)\n",
                  type, arg1, arg2);
-      SaveIconDisplay::PositionX = arg1;
-      SaveIconDisplay::PositionY = arg2;
-      SaveIconDisplay::AnimState = SaveIconDisplay::Showing;
+      SaveIconDisplay::ShowAt(glm::vec2(arg1, arg2));
     } break;
     case 1: {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction PressStart(type: %i)\n", type);
-      SaveIconDisplay::AnimState = SaveIconDisplay::Hiding;
+      SaveIconDisplay::Hide();
     } break;
     case 2: {
       PopExpression(arg1);
@@ -104,7 +102,7 @@ VmInstruction(InstPressStart) {
     case 4: {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction PressStart(type: %i)\n", type);
-      SaveIconDisplay::AnimState = SaveIconDisplay::Showing;
+      SaveIconDisplay::Show();
     } break;
     case 5: {
       PopExpression(arg1);
@@ -116,12 +114,12 @@ VmInstruction(InstPressStart) {
     case 6: {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction PressStart(type: %i)\n", type);
-      SaveIconDisplay::AnimState = SaveIconDisplay::Hiding;
+      SaveIconDisplay::Hide();
     } break;
     case 7: {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction PressStart(type: %i)\n", type);
-      SaveIconDisplay::AnimState = SaveIconDisplay::Hiding;
+      SaveIconDisplay::Hide();
     } break;
   }
 }

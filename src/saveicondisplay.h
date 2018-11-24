@@ -1,16 +1,15 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
 namespace Impacto {
 namespace SaveIconDisplay {
 
-extern float PositionX;
-extern float PositionY;
-
-enum SaveIconAnimState { Hidden, Hiding, Showing, Shown };
-
-extern SaveIconAnimState AnimState;
-
+void Hide();
+void Show();
+void ShowAt(glm::vec2 pos);
 void Update(float dt);
 void Render();
+
 }  // namespace SaveIconDisplay
 }  // namespace Impacto

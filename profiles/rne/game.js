@@ -5,9 +5,9 @@ root.DesignHeight = 720;
 
 include('rne/vfs.js');
 include('rne/sprites.js');
+include('rne/animations.js');
 include('rne/charset.js');
 include('rne/font.js');
 include('rne/dialogue.js');
-include('rne/nametag.js');
-include('rne/animations.js');
+include('rne/saveicon.js');
 include('rne/scene3d/scene3d.js');

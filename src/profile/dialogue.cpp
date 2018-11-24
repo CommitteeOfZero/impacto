@@ -105,8 +105,6 @@ void Configure() {
         _advNameTag, "/Dialogue/ADVNameTag", "LineSprite");
     ADVNameTag::RightSprite = EnsureGetMemberSprite(
         _advNameTag, "/Dialogue/ADVNameTag", "RightSprite");
-    ADVNameTag::LineFactor =
-        EnsureGetMemberFloat(_advNameTag, "/Dialogue/ADVNameTag", "LineFactor");
     ADVNameTag::BaseLineWidth = EnsureGetMemberFloat(
         _advNameTag, "/Dialogue/ADVNameTag", "BaseLineWidth");
   }

@@ -3,55 +3,65 @@
 #include "impacto.h"
 #include "renderer2d.h"
 #include "game.h"
+#include "spriteanimation.h"
+
+#include "profile/saveicon.h"
 
 namespace Impacto {
 namespace SaveIconDisplay {
 
-static float SaveIconAnim = 0.0f;
-static float SaveIconOpacity = 0.0f;
-float PositionX = 1153.0f;
-float PositionY = 23.0f;
+enum SaveIconAnimState { Hidden, Hiding, Showing, Shown };
+
+static float Opacity = 0.0f;
+
+static glm::vec2 Position;
 SaveIconAnimState AnimState = Hidden;
 
+static SpriteAnimation SaveIconForeground;
+
+void Hide() {
+  AnimState = Hidden;
+  Opacity = 0.0f;
+}
+
+void Show() { ShowAt(Profile::SaveIcon::DefaultPosition); }
+void ShowAt(glm::vec2 pos) {
+  Position = pos;
+  AnimState = Showing;
+  SaveIconForeground = Profile::SaveIcon::ForegroundAnimation.Instantiate();
+}
+
 void Update(float dt) {
-  SaveIconAnim += 16.6f * dt;
-  if (SaveIconAnim > 7.0f) SaveIconAnim = 0.0f;
+  if (AnimState == Hidden) return;
+
+  SaveIconForeground.Update(dt);
 
   if (AnimState == Hiding) {
-    if (SaveIconOpacity > 0.0f)
-      SaveIconOpacity -= 4.0f * dt;
-    else {
-      PositionX = 1153.0f;
-      PositionY = 23.0f;
+    Opacity -= 4.0f * dt;
+    if (Opacity <= 0.0f) {
+      Opacity = 0.0f;
       AnimState = Hidden;
     }
   } else if (AnimState == Showing) {
-    SaveIconOpacity += 1.8f * dt;
-    if (SaveIconOpacity >= 1.0f) {
-      SaveIconOpacity = 1.0f;
+    Opacity += 1.8f * dt;
+    if (Opacity >= 1.0f) {
+      Opacity = 1.0f;
       AnimState = Shown;
     }
   }
 }
 
 void Render() {
-  if (SaveIconOpacity > 0.0f) {
-    glm::vec4 col;
-    col.r = 1.0f;
-    col.g = 1.0f;
-    col.b = 1.0f;
-    col.a = glm::smoothstep(0.0f, 1.0f, SaveIconOpacity);
-    Sprite saveIconBg;
-    saveIconBg.Sheet = Profile::Dlg.DataSpriteSheet;
-    saveIconBg.Bounds = RectF(1439.0f, 1.0f, 84.0f, 84.0f);
-    Sprite saveIcon;
-    saveIcon.Sheet = Profile::Dlg.DataSpriteSheet;
-    saveIcon.Bounds =
-        RectF(1977.0f, (glm::floor(SaveIconAnim) * 72.0f) + 1.0f, 70.0f, 70.0f);
-    Renderer2D::DrawSprite(saveIconBg,
-                           glm::vec2(PositionX - 7.0f, PositionY - 4.0f),
-                           glm::vec4(1.0f, 1.0f, 1.0f, col.a / 2.0f));
-    Renderer2D::DrawSprite(saveIcon, glm::vec2(PositionX, PositionY), col);
+  if (AnimState == Hidden) return;
+  if (Opacity > 0.0f) {
+    glm::vec4 col(1.0f);
+    col.a = glm::smoothstep(0.0f, 1.0f, Opacity);
+    Renderer2D::DrawSprite(
+        Profile::SaveIcon::BackgroundSprite,
+        Position + Profile::SaveIcon::BackgroundOffset,
+        col *
+            glm::vec4(1.0f, 1.0f, 1.0f, Profile::SaveIcon::BackgroundMaxAlpha));
+    Renderer2D::DrawSprite(SaveIconForeground.CurrentSprite(), Position, col);
   }
 }
 

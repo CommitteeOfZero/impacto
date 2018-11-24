@@ -21,6 +21,7 @@ set(Impacto_Src
     src/game.cpp
     src/mem.cpp
     src/modelviewer.cpp
+    src/spriteanimation.cpp
     src/renderer2d.cpp
     src/text.cpp
     src/inputsystem.cpp
@@ -32,9 +33,11 @@ set(Impacto_Src
     src/profile/vfs.cpp
     src/profile/scene3d.cpp
     src/profile/sprites.cpp
+    src/profile/animations.cpp
     src/profile/charset.cpp
     src/profile/fonts.cpp
     src/profile/dialogue.cpp
+    src/profile/saveicon.cpp
 
     src/text_rne.cpp
 
@@ -111,6 +114,7 @@ set(Impacto_Header
     src/mem.h
     src/modelviewer.h
     src/spritesheet.h
+    src/spriteanimation.h
     src/font.h
     src/renderer2d.h
     src/text.h
@@ -124,9 +128,11 @@ set(Impacto_Header
     src/profile/vfs.h
     src/profile/scene3d.h
     src/profile/sprites.h
+    src/profile/animations.h
     src/profile/charset.h
     src/profile/fonts.h
     src/profile/dialogue.h
+    src/profile/saveicon.h
 
     src/datedisplay.h
     src/saveicondisplay.h

@@ -1,3 +1,15 @@
+root.Sprites["ADVBox"] = {
+    Sheet: "Data",
+    Bounds: { X: 768, Y: 807, Width: 1280, Height: 206 },
+    // Even though the sprite is sized for 1280x720, they draw it unscaled at 960x544, cutting off the remainder
+    BaseScale: { X: 1280 / 960, Y: 720 / 544 }
+};
+
+root.Sprites["DialogueWaitIcon"] = {
+    Sheet: "Data",
+    Bounds: { X: 1, Y: 97, Width: 32, Height: 32 }
+};
+
 root.Dialogue = {
     NVLBounds: { X: 125, Y: 85, Width: 1024, Height: 400 },
     ADVBounds: { X: 161, Y: 546, Width: 960, Height: 180 },
@@ -51,3 +63,5 @@ root.Dialogue = {
     MaxPageSize: 2000,
     PageCount: 3
 };
+
+include('rne/nametag.js');

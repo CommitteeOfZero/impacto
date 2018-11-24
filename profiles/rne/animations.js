@@ -65,19 +65,3 @@ MakeAnimation({
     Columns: 1,
     PrimaryDirection: AnimationDirections.Down
 });
-
-MakeAnimation({
-    Name: "SaveIcon",
-    Sheet: "Data",
-    FirstFrameX: 1977,
-    FirstFrameY: 1,
-    FrameWidth: 70,
-    ColWidth: 70,
-    FrameHeight: 70,
-    RowHeight: 72,
-    Frames: 8,
-    Duration: 0.5,
-    Rows: 8,
-    Columns: 1,
-    PrimaryDirection: AnimationDirections.Down
-});

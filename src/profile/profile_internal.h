@@ -8,6 +8,7 @@
 
 #include "../spritesheet.h"
 #include "../font.h"
+#include "../spriteanimation.h"
 
 using namespace rapidjson;
 
@@ -84,12 +85,29 @@ Io::AssetPath EnsureGetAssetPath(Value const& val, char const* path);
 Io::AssetPath EnsureGetMemberAssetPath(Value const& val, char const* path,
                                        char const* member);
 
+bool TryGetSprite(Value const& val, Sprite& outSprite);
+bool TryGetMemberSprite(Value const& val, char const* member,
+                        Sprite& outSprite);
+Sprite EnsureGetSprite(Value const& val, char const* path);
 Sprite EnsureGetMemberSprite(Value const& val, char const* path,
                              char const* member);
+bool TryGetSpriteSheet(Value const& val, SpriteSheet& outSpriteSheet);
+bool TryGetMemberSpriteSheet(Value const& val, char const* member,
+                             SpriteSheet& outSpriteSheet);
+SpriteSheet EnsureGetSpriteSheet(Value const& val, char const* path);
 SpriteSheet EnsureGetMemberSpriteSheet(Value const& val, char const* path,
                                        char const* member);
+bool TryGetFont(Value const& val, Font& outFont);
+bool TryGetMemberFont(Value const& val, char const* member, Font& outFont);
+Font EnsureGetFont(Value const& val, char const* path);
 Font EnsureGetMemberFont(Value const& val, char const* path,
                          char const* member);
+bool TryGetAnimation(Value const& val, SpriteAnimationDef& outAnimation);
+bool TryGetMemberAnimation(Value const& val, char const* member,
+                           SpriteAnimationDef& outAnimation);
+SpriteAnimationDef EnsureGetAnimation(Value const& val, char const* path);
+SpriteAnimationDef EnsureGetMemberAnimation(Value const& val, char const* path,
+                                            char const* member);
 
 }  // namespace Profile
 }  // namespace Impacto

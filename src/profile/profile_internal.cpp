@@ -6,6 +6,7 @@
 
 #include "sprites.h"
 #include "fonts.h"
+#include "animations.h"
 
 namespace Impacto {
 namespace Profile {
@@ -472,41 +473,161 @@ Io::AssetPath EnsureGetMemberAssetPath(Value const& val, char const* path,
   return result;
 }
 
-Sprite EnsureGetMemberSprite(Value const& val, char const* path,
-                             char const* member) {
-  char const* spriteName = EnsureGetMemberString(val, path, member);
+bool TryGetSprite(Value const& val, Sprite& outSprite) {
+  char const* spriteName;
+  if (!TryGetString(val, spriteName)) return false;
 
   auto const spriteRef = Sprites.find(spriteName);
-  if (spriteRef == Sprites.end()) {
-    ImpLog(LL_Fatal, LC_Profile, "No sprite %s\n", spriteName);
+  if (spriteRef == Sprites.end()) return false;
+
+  outSprite = spriteRef->second;
+  return true;
+}
+
+bool TryGetMemberSprite(Value const& val, char const* member,
+                        Sprite& outSprite) {
+  bool success;
+  Value const& _member = TryGetMember(val, member, success);
+  if (!success) return false;
+
+  return TryGetSprite(_member, outSprite);
+}
+
+Sprite EnsureGetSprite(Value const& val, char const* path) {
+  Sprite result;
+  if (!TryGetSprite(val, result)) {
+    ImpLog(LL_Fatal, LC_Profile, "Expected %s to be Sprite\n", path);
     Window::Shutdown();
   }
-
-  return spriteRef->second;
+  return result;
 }
-SpriteSheet EnsureGetMemberSpriteSheet(Value const& val, char const* path,
-                                       char const* member) {
-  char const* sheetName = EnsureGetMemberString(val, path, member);
+
+Sprite EnsureGetMemberSprite(Value const& val, char const* path,
+                             char const* member) {
+  Sprite result;
+  if (!TryGetMemberSprite(val, member, result)) {
+    ImpLog(LL_Fatal, LC_Profile, "Expected %s/%s to be Sprite\n", path, member);
+    Window::Shutdown();
+  }
+  return result;
+}
+
+bool TryGetSpriteSheet(Value const& val, SpriteSheet& outSheet) {
+  char const* sheetName;
+  if (!TryGetString(val, sheetName)) return false;
 
   auto const sheetRef = SpriteSheets.find(sheetName);
-  if (sheetRef == SpriteSheets.end()) {
-    ImpLog(LL_Fatal, LC_Profile, "No spritesheet %s\n", sheetName);
+  if (sheetRef == SpriteSheets.end()) return false;
+
+  outSheet = sheetRef->second;
+  return true;
+}
+
+bool TryGetMemberSpriteSheet(Value const& val, char const* member,
+                             SpriteSheet& outSheet) {
+  bool success;
+  Value const& _member = TryGetMember(val, member, success);
+  if (!success) return false;
+
+  return TryGetSpriteSheet(_member, outSheet);
+}
+
+SpriteSheet EnsureGetSpriteSheet(Value const& val, char const* path) {
+  SpriteSheet result;
+  if (!TryGetSpriteSheet(val, result)) {
+    ImpLog(LL_Fatal, LC_Profile, "Expected %s to be SpriteSheet\n", path);
     Window::Shutdown();
   }
-
-  return sheetRef->second;
+  return result;
 }
-Font EnsureGetMemberFont(Value const& val, char const* path,
-                         char const* member) {
-  char const* fontName = EnsureGetMemberString(val, path, member);
+
+SpriteSheet EnsureGetMemberSpriteSheet(Value const& val, char const* path,
+                                       char const* member) {
+  SpriteSheet result;
+  if (!TryGetMemberSpriteSheet(val, member, result)) {
+    ImpLog(LL_Fatal, LC_Profile, "Expected %s/%s to be SpriteSheet\n", path,
+           member);
+    Window::Shutdown();
+  }
+  return result;
+}
+
+bool TryGetFont(Value const& val, Font& outFont) {
+  char const* fontName;
+  if (!TryGetString(val, fontName)) return false;
 
   auto const fontRef = Fonts.find(fontName);
-  if (fontRef == Fonts.end()) {
-    ImpLog(LL_Fatal, LC_Profile, "No font %s\n", fontName);
+  if (fontRef == Fonts.end()) return false;
+
+  outFont = fontRef->second;
+  return true;
+}
+
+bool TryGetMemberFont(Value const& val, char const* member, Font& outFont) {
+  bool success;
+  Value const& _member = TryGetMember(val, member, success);
+  if (!success) return false;
+
+  return TryGetFont(_member, outFont);
+}
+
+Font EnsureGetFont(Value const& val, char const* path) {
+  Font result;
+  if (!TryGetFont(val, result)) {
+    ImpLog(LL_Fatal, LC_Profile, "Expected %s to be Font\n", path);
     Window::Shutdown();
   }
+  return result;
+}
 
-  return fontRef->second;
+Font EnsureGetMemberFont(Value const& val, char const* path,
+                         char const* member) {
+  Font result;
+  if (!TryGetMemberFont(val, member, result)) {
+    ImpLog(LL_Fatal, LC_Profile, "Expected %s/%s to be Font\n", path, member);
+    Window::Shutdown();
+  }
+  return result;
+}
+
+bool TryGetAnimation(Value const& val, SpriteAnimationDef& outAnimation) {
+  char const* animName;
+  if (!TryGetString(val, animName)) return false;
+
+  auto const animRef = Animations.find(animName);
+  if (animRef == Animations.end()) return false;
+
+  outAnimation = animRef->second;
+  return true;
+}
+
+bool TryGetMemberAnimation(Value const& val, char const* member,
+                           SpriteAnimationDef& outAnimation) {
+  bool success;
+  Value const& _member = TryGetMember(val, member, success);
+  if (!success) return false;
+
+  return TryGetAnimation(_member, outAnimation);
+}
+
+SpriteAnimationDef EnsureGetAnimation(Value const& val, char const* path) {
+  SpriteAnimationDef result;
+  if (!TryGetAnimation(val, result)) {
+    ImpLog(LL_Fatal, LC_Profile, "Expected %s to be Animation\n", path);
+    Window::Shutdown();
+  }
+  return result;
+}
+
+SpriteAnimationDef EnsureGetMemberAnimation(Value const& val, char const* path,
+                                            char const* member) {
+  SpriteAnimationDef result;
+  if (!TryGetMemberAnimation(val, member, result)) {
+    ImpLog(LL_Fatal, LC_Profile, "Expected %s/%s to be Animation\n", path,
+           member);
+    Window::Shutdown();
+  }
+  return result;
 }
 
 }  // namespace Profile

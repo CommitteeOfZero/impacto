@@ -37,7 +37,6 @@ extern glm::vec2 Position;
 extern Sprite LeftSprite;
 extern Sprite LineSprite;
 extern Sprite RightSprite;
-extern float LineFactor;
 extern float BaseLineWidth;
 }  // namespace ADVNameTag
 

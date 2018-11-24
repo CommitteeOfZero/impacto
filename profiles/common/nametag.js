@@ -22,10 +22,9 @@ MakeNameTag = function (desc) {
             X: desc.ScreenX,
             Y: desc.ScreenY,
         },
-        LeftSprite: "ADVNameLeft",
-        LineSprite: "ADVNameLine",
-        RightSprite: "ADVNameRight",
-        LineFactor: desc.LineFactor,
+        LeftSprite: "ADVNameTagLeft",
+        LineSprite: "ADVNameTagLine",
+        RightSprite: "ADVNameTagRight",
         BaseLineWidth: desc.BaseLineWidth
     };
 };

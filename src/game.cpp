@@ -24,6 +24,8 @@
 #include "profile/charset.h"
 #include "profile/fonts.h"
 #include "profile/dialogue.h"
+#include "profile/saveicon.h"
+#include "profile/animations.h"
 
 namespace Impacto {
 
@@ -74,6 +76,7 @@ static void Init() {
     Profile::LoadSpritesheets();
     Profile::Charset::Load();
     Profile::LoadFonts();
+    Profile::LoadAnimations();
     Profile::Dialogue::Configure();
 
     Renderer2D::Init();
@@ -90,6 +93,8 @@ static void Init() {
   }
 
   if (Profile::GameFeatures & GameFeature::Sc3VirtualMachine) {
+    Profile::SaveIcon::Configure();
+
     Vm::Init(4, 0);
   }
 
