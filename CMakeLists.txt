@@ -37,15 +37,16 @@ set(Impacto_Src
     src/profile/charset.cpp
     src/profile/fonts.cpp
     src/profile/dialogue.cpp
-    src/profile/saveicon.cpp
-    src/profile/loadingdisplay.cpp
+
+    src/profile/hud/saveicon.cpp
+    src/profile/hud/loadingdisplay.cpp
 
     src/text_rne.cpp
 
-    src/datedisplay.cpp
-    src/saveicondisplay.cpp
-    src/sysmesboxdisplay.cpp
-    src/loadingdisplay.cpp
+    src/hud/datedisplay.cpp
+    src/hud/saveicondisplay.cpp
+    src/hud/sysmesboxdisplay.cpp
+    src/hud/loadingdisplay.cpp
 
     src/nuklear_impl.cpp
 
@@ -133,13 +134,14 @@ set(Impacto_Header
     src/profile/charset.h
     src/profile/fonts.h
     src/profile/dialogue.h
-    src/profile/saveicon.h
-    src/profile/loadingdisplay.h
 
-    src/datedisplay.h
-    src/saveicondisplay.h
-    src/sysmesboxdisplay.h
-    src/loadingdisplay.h
+    src/profile/hud/saveicon.h
+    src/profile/hud/loadingdisplay.h
+
+    src/hud/datedisplay.h
+    src/hud/saveicondisplay.h
+    src/hud/sysmesboxdisplay.h
+    src/hud/loadingdisplay.h
 
     src/3d/camera.h
     src/3d/model.h

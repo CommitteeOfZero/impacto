@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../spriteanimation.h"
+#include "../../spriteanimation.h"
 
 namespace Impacto {
 namespace Profile {

@@ -1,5 +1,5 @@
 #include "saveicon.h"
-#include "profile_internal.h"
+#include "../profile_internal.h"
 
 namespace Impacto {
 namespace Profile {

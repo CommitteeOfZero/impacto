@@ -12,10 +12,10 @@
 #include "renderer2d.h"
 #include "3d/scene.h"
 #include "mem.h"
-#include "datedisplay.h"
-#include "saveicondisplay.h"
-#include "sysmesboxdisplay.h"
-#include "loadingdisplay.h"
+#include "hud/datedisplay.h"
+#include "hud/saveicondisplay.h"
+#include "hud/sysmesboxdisplay.h"
+#include "hud/loadingdisplay.h"
 #include "io/memorystream.h"
 
 #include "profile/profile.h"
@@ -24,9 +24,9 @@
 #include "profile/charset.h"
 #include "profile/fonts.h"
 #include "profile/dialogue.h"
-#include "profile/saveicon.h"
+#include "profile/hud/saveicon.h"
 #include "profile/animations.h"
-#include "profile/loadingdisplay.h"
+#include "profile/hud/loadingdisplay.h"
 
 namespace Impacto {
 

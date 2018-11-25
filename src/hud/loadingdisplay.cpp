@@ -1,12 +1,12 @@
 #include "loadingdisplay.h"
 
-#include "impacto.h"
-#include "renderer2d.h"
-#include "game.h"
-#include "mem.h"
-#include "scriptvars.h"
-#include "spriteanimation.h"
-#include "profile/loadingdisplay.h"
+#include "../impacto.h"
+#include "../renderer2d.h"
+#include "../game.h"
+#include "../mem.h"
+#include "../scriptvars.h"
+#include "../spriteanimation.h"
+#include "../profile/hud/loadingdisplay.h"
 
 namespace Impacto {
 namespace LoadingDisplay {

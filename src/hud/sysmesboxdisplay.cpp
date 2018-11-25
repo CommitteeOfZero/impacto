@@ -1,10 +1,10 @@
 #include "sysmesboxdisplay.h"
 
-#include "impacto.h"
-#include "renderer2d.h"
-#include "game.h"
-#include "mem.h"
-#include "scriptvars.h"
+#include "../impacto.h"
+#include "../renderer2d.h"
+#include "../game.h"
+#include "../mem.h"
+#include "../scriptvars.h"
 
 namespace Impacto {
 namespace SysMesBoxDisplay {

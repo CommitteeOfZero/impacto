@@ -9,6 +9,6 @@ include('common/animation.js');
 include('rne/charset.js');
 include('rne/font.js');
 include('rne/dialogue.js');
-include('rne/saveicon.js');
-include('rne/loadingdisplay.js');
+include('rne/hud/saveicon.js');
+include('rne/hud/loadingdisplay.js');
 include('rne/scene3d/scene3d.js');

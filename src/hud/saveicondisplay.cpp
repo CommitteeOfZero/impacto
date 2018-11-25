@@ -1,11 +1,11 @@
 #include "saveicondisplay.h"
 
-#include "impacto.h"
-#include "renderer2d.h"
-#include "game.h"
-#include "spriteanimation.h"
+#include "../impacto.h"
+#include "../renderer2d.h"
+#include "../game.h"
+#include "../spriteanimation.h"
 
-#include "profile/saveicon.h"
+#include "../profile/hud/saveicon.h"
 
 namespace Impacto {
 namespace SaveIconDisplay {
