@@ -10,6 +10,8 @@
 #include "interface/scene3d.h"
 #include "opcodetables_rne.h"
 #include "../profile/game.h"
+#include "../profile/vm.h"
+#include "../window.h"
 
 namespace Impacto {
 namespace Vm {
@@ -52,13 +54,25 @@ static void DrawAllThreads();
 static void DestroyScriptThreads(uint32_t scriptBufferId);
 static void DestroyThreadGroup(uint32_t groupId);
 
-void Init(uint32_t startScriptId, uint32_t bufferId) {
+void Init() {
   ImpLog(LL_Info, LC_VM, "Initializing SC3 virtual machine\n");
 
-  OpcodeTableSystem = OpcodeTableSystem_RNE;
-  OpcodeTableGraph = OpcodeTableGraph_RNE;
-  OpcodeTableGraph3D = OpcodeTableGraph3D_RNE;
-  OpcodeTableUser1 = OpcodeTableUser1_RNE;
+  Profile::Vm::Configure();
+
+  switch (Profile::Vm::GameInstructionSet) {
+    case InstructionSet::RNE: {
+      OpcodeTableSystem = OpcodeTableSystem_RNE;
+      OpcodeTableGraph = OpcodeTableGraph_RNE;
+      OpcodeTableGraph3D = OpcodeTableGraph3D_RNE;
+      OpcodeTableUser1 = OpcodeTableUser1_RNE;
+      break;
+    }
+    default: {
+      ImpLog(LL_Fatal, LC_VM, "Unsupported instruction set\n");
+      Window::Shutdown();
+      break;
+    }
+  }
 
   for (int i = 0; i < MaxThreads - 1; i++) {
     memset(&ThreadPool[i], 0, sizeof(Sc3VmThread));
@@ -78,12 +92,13 @@ void Init(uint32_t startScriptId, uint32_t bufferId) {
 
   memset(&ThreadGroupCount, 0, MaxThreadGroups * 4);
 
-  bool res = LoadScript(bufferId, startScriptId);
+  bool res =
+      LoadScript(Profile::Vm::StartScriptBuffer, Profile::Vm::StartScript);
   if (res) {
     Sc3VmThread* startupThd = CreateThread(0);
-    startupThd->GroupId = bufferId;
-    startupThd->ScriptBufferId = bufferId;
-    uint8_t* scrBuf = ScriptBuffers[bufferId];
+    startupThd->GroupId = 0;
+    startupThd->ScriptBufferId = Profile::Vm::StartScriptBuffer;
+    uint8_t* scrBuf = ScriptBuffers[Profile::Vm::StartScriptBuffer];
     startupThd->Ip = ScriptGetLabelAddress(scrBuf, 0);
   }
 

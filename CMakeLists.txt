@@ -37,6 +37,7 @@ set(Impacto_Src
     src/profile/charset.cpp
     src/profile/fonts.cpp
     src/profile/dialogue.cpp
+    src/profile/vm.cpp
 
     src/profile/hud/saveicon.cpp
     src/profile/hud/loadingdisplay.cpp
@@ -134,6 +135,7 @@ set(Impacto_Header
     src/profile/charset.h
     src/profile/fonts.h
     src/profile/dialogue.h
+    src/profile/vm.h
 
     src/profile/hud/saveicon.h
     src/profile/hud/loadingdisplay.h

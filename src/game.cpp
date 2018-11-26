@@ -97,7 +97,7 @@ static void Init() {
     Profile::SaveIcon::Configure();
     Profile::LoadingDisplay::Configure();
 
-    Vm::Init(4, 0);
+    Vm::Init();
   }
 
   Profile::ClearJsonProfile();

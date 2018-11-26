@@ -3,6 +3,12 @@ root.GameFeatures = GameFeature.Sc3VirtualMachine | GameFeature.Renderer2D | Gam
 root.DesignWidth = 1280;
 root.DesignHeight = 720;
 
+root.Vm = {
+    StartScript: 4,
+    StartScriptBuffer: 0,
+    GameInstructionSet: InstructionSet.RNE
+};
+
 include('rne/vfs.js');
 include('rne/sprites.js');
 include('common/animation.js');

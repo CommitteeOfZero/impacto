@@ -1,11 +1,14 @@
 #pragma once
 
 #include "thread.h"
+#include <enum.h>
 
 #define VmInstruction(name) void name(Sc3VmThread* thread)
 
 namespace Impacto {
 namespace Vm {
+
+BETTER_ENUM(InstructionSet, int, RNE)
 
 typedef void (*InstructionProc)(Sc3VmThread* thread);
 
@@ -18,7 +21,7 @@ uint32_t ScriptGetLabelAddressNum(uint8_t* scriptBufferAdr, uint32_t labelNum);
 uint8_t* ScriptGetStrAddress(uint8_t* scriptBufferAdr, uint32_t strNum);
 uint8_t* ScriptGetRetAddress(uint8_t* scriptBufferAdr, uint32_t retNum);
 
-void Init(uint32_t startScriptId, uint32_t bufferId);
+void Init();
 void Update();
 
 bool LoadScript(uint32_t bufferId, uint32_t scriptId);
