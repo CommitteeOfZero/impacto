@@ -70,12 +70,12 @@ RectF DesignToNDC(RectF const& rect) {
   return result;
 }
 
-glm::vec4 RgbaIntToFloat(uint32_t rgba) {
+glm::vec4 RgbIntToFloat(uint32_t rgb) {
   glm::vec4 result;
-  result.a = (float)((rgba >> 24) & 0xFF) / 255.0f;
-  result.r = (float)((rgba >> 16) & 0xFF) / 255.0f;
-  result.g = (float)((rgba >> 8) & 0xFF) / 255.0f;
-  result.b = (float)((rgba >> 0) & 0xFF) / 255.0f;
+  result.a = 1.0f;
+  result.r = (float)((rgb >> 16) & 0xFF) / 255.0f;
+  result.g = (float)((rgb >> 8) & 0xFF) / 255.0f;
+  result.b = (float)((rgb >> 0) & 0xFF) / 255.0f;
   return result;
 }
 

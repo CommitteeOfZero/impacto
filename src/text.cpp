@@ -350,12 +350,12 @@ void DialoguePage::Render() {
     float opacity = glm::smoothstep(0.0f, 1.0f, Glyphs[i].Opacity);
     if (Mode == DPM_ADV) opacity *= glm::smoothstep(0.0f, 1.0f, ADVBoxOpacity);
 
-    glm::vec4 color = RgbaIntToFloat(Glyphs[i].Colors.TextColor);
+    glm::vec4 color = RgbIntToFloat(Glyphs[i].Colors.TextColor);
     color.a *= opacity;
 
     // Outline, the dirty way
     ///////////////////////////////////////////////////////////////////////////////
-    glm::vec4 outcolor = RgbaIntToFloat(Glyphs[i].Colors.OutlineColor);
+    glm::vec4 outcolor = RgbIntToFloat(Glyphs[i].Colors.OutlineColor);
     outcolor.a *= opacity;
     Renderer2D::DrawSprite(
         Glyphs[i].Glyph,
@@ -418,10 +418,10 @@ void DialoguePage::Render() {
                              opacityTint);
     }
 
-    glm::vec4 color = RgbaIntToFloat(ColorTable[0].TextColor);
+    glm::vec4 color = RgbIntToFloat(ColorTable[0].TextColor);
     color.a *= glm::smoothstep(0.0f, 1.0f, ADVBoxOpacity);
 
-    glm::vec4 outcolor = RgbaIntToFloat(ColorTable[0].OutlineColor);
+    glm::vec4 outcolor = RgbIntToFloat(ColorTable[0].OutlineColor);
     outcolor.a *= glm::smoothstep(0.0f, 1.0f, ADVBoxOpacity);
 
     for (int i = 0; i < NameLength; i++) {
