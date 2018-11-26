@@ -7,7 +7,7 @@
 #include "../game.h"
 #include "../mem.h"
 #include "../log.h"
-#include "../saveicondisplay.h"
+#include "../hud/saveicondisplay.h"
 
 namespace Impacto {
 

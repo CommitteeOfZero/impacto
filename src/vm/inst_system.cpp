@@ -9,7 +9,7 @@
 #include "../game.h"
 #include "../mem.h"
 #include "../log.h"
-#include "../sysmesboxdisplay.h"
+#include "../hud/sysmesboxdisplay.h"
 #include "../audio/audiosystem.h"
 #include "../audio/audiostream.h"
 #include "../audio/audiochannel.h"
