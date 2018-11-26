@@ -7,7 +7,7 @@ void SpriteAnimation::Reset() { Time = 0.0f; }
 void SpriteAnimation::Update(float dt) {
   Time += dt;
   if (Time >= Def->Duration) {
-    Time = fmodf(Def->Duration, Time);
+    Time = fmodf(Time, Def->Duration);
   }
 }
 Sprite SpriteAnimation::CurrentSprite() {
