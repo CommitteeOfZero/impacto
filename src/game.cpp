@@ -27,6 +27,7 @@
 #include "profile/hud/saveicon.h"
 #include "profile/animations.h"
 #include "profile/hud/loadingdisplay.h"
+#include "profile/hud/datedisplay.h"
 
 namespace Impacto {
 
@@ -96,6 +97,7 @@ static void Init() {
   if (Profile::GameFeatures & GameFeature::Sc3VirtualMachine) {
     Profile::SaveIcon::Configure();
     Profile::LoadingDisplay::Configure();
+    Profile::DateDisplay::Configure();
 
     Vm::Init();
   }
@@ -223,6 +225,7 @@ void Update(float dt) {
     SaveIconDisplay::Update(dt);
     SysMesBoxDisplay::Update(dt);
     LoadingDisplay::Update(dt);
+    DateDisplay::Update(dt);
   }
 
   if (Profile::GameFeatures & GameFeature::Audio) {

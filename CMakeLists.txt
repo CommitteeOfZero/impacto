@@ -41,6 +41,7 @@ set(Impacto_Src
 
     src/profile/hud/saveicon.cpp
     src/profile/hud/loadingdisplay.cpp
+    src/profile/hud/datedisplay.cpp
 
     src/text_rne.cpp
 
@@ -139,6 +140,7 @@ set(Impacto_Header
 
     src/profile/hud/saveicon.h
     src/profile/hud/loadingdisplay.h
+    src/profile/hud/datedisplay.h
 
     src/hud/datedisplay.h
     src/hud/saveicondisplay.h

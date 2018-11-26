@@ -17,4 +17,5 @@ include('rne/font.js');
 include('rne/dialogue.js');
 include('rne/hud/saveicon.js');
 include('rne/hud/loadingdisplay.js');
+include('rne/hud/datedisplay.js');
 include('rne/scene3d/scene3d.js');
