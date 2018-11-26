@@ -16,7 +16,7 @@ void Configure() {
   StartScript = EnsureGetMemberUint(_vm, "/Vm", "StartScript");
   StartScriptBuffer = EnsureGetMemberUint(_vm, "/Vm", "StartScriptBuffer");
   GameInstructionSet = Impacto::Vm::InstructionSet::_from_integral_unchecked(
-      EnsureGetMemberInt(_vm, "/Vm", "InstructionSet"));
+      EnsureGetMemberInt(_vm, "/Vm", "GameInstructionSet"));
 }
 
 }  // namespace Vm
