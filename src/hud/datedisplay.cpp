@@ -58,12 +58,14 @@ void Update(float dt) {
 void Render() {
   if (AnimState == Hidden) return;
   if (Fade > 0.0f) {
-    glm::vec4 col(1.0f);
-    col.a = glm::smoothstep(0.0f, 1.0f, Fade);
+    float smoothedFade = glm::smoothstep(0.0f, 1.0f, Fade);
 
-    Renderer2D::DrawSprite(BackgroundSprite,
-                           glm::mix(BackgroundStartPos, BackgroundEndPos, Fade),
-                           col);
+    glm::vec4 col(1.0f);
+    col.a = smoothedFade;
+
+    Renderer2D::DrawSprite(
+        BackgroundSprite,
+        glm::mix(BackgroundStartPos, BackgroundEndPos, smoothedFade), col);
 
     glm::vec2 pos(DateStartX, YearWeekY);
     Renderer2D::DrawSprite(CloseBracketSprite, pos, col);
