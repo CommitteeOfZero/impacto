@@ -20,8 +20,8 @@ extern Sprite OpenBracketSprite;
 extern Sprite CloseBracketSprite;
 extern Sprite BackgroundSprite;
 
-extern float BackgroundStartX;
-extern float BackgroundY;
+extern glm::vec2 BackgroundStartPos;
+extern glm::vec2 BackgroundEndPos;
 extern float DateStartX;
 extern float YearWeekY;
 extern float MonthDayY;

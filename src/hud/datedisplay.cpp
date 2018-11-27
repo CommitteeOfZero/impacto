@@ -11,6 +11,8 @@
 namespace Impacto {
 namespace DateDisplay {
 
+using namespace Impacto::Profile::DateDisplay;
+
 enum DateAnimState { Hidden, Hiding, Showing, Shown };
 
 static float Fade = 0.0f;
@@ -39,13 +41,13 @@ void Update(float dt) {
   }
 
   if (AnimState == Hiding) {
-    Fade -= dt / Profile::DateDisplay::FadeOutDuration;
+    Fade -= dt / FadeOutDuration;
     if (Fade <= 0.0f) {
       Fade = 0.0f;
       AnimState = Hidden;
     }
   } else if (AnimState == Showing) {
-    Fade += dt / Profile::DateDisplay::FadeInDuration;
+    Fade += dt / FadeInDuration;
     if (Fade >= 1.0f) {
       Fade = 1.0f;
       AnimState = Shown;
@@ -59,81 +61,45 @@ void Render() {
     glm::vec4 col(1.0f);
     col.a = glm::smoothstep(0.0f, 1.0f, Fade);
 
-    Renderer2D::DrawSprite(
-        Profile::DateDisplay::BackgroundSprite,
-        glm::vec2(Profile::DateDisplay::BackgroundStartX - (col.a * 256.0f),
-                  Profile::DateDisplay::BackgroundY),
-        col);
+    Renderer2D::DrawSprite(BackgroundSprite,
+                           glm::mix(BackgroundStartPos, BackgroundEndPos, Fade),
+                           col);
 
-    float dateCurrentX = Profile::DateDisplay::DateStartX;
-    Renderer2D::DrawSprite(
-        Profile::DateDisplay::CloseBracketSprite,
-        glm::vec2(dateCurrentX, Profile::DateDisplay::YearWeekY), col);
+    glm::vec2 pos(DateStartX, YearWeekY);
+    Renderer2D::DrawSprite(CloseBracketSprite, pos, col);
 
-    dateCurrentX -= Profile::DateDisplay::WeekSprites[Week].ScaledWidth() +
-                    Profile::DateDisplay::Spacing;
-    Renderer2D::DrawSprite(
-        Profile::DateDisplay::WeekSprites[Week],
-        glm::vec2(dateCurrentX, Profile::DateDisplay::YearWeekY), col);
+    pos.x -= WeekSprites[Week].ScaledWidth() + Spacing;
+    Renderer2D::DrawSprite(WeekSprites[Week], pos, col);
 
-    dateCurrentX -= Profile::DateDisplay::OpenBracketSprite.ScaledWidth() +
-                    Profile::DateDisplay::Spacing;
-    Renderer2D::DrawSprite(
-        Profile::DateDisplay::OpenBracketSprite,
-        glm::vec2(dateCurrentX, Profile::DateDisplay::YearWeekY), col);
+    pos.x -= OpenBracketSprite.ScaledWidth() + Spacing;
+    Renderer2D::DrawSprite(OpenBracketSprite, pos, col);
 
-    dateCurrentX -=
-        Profile::DateDisplay::YearNumSprites[Year % 10].ScaledWidth();
-    Renderer2D::DrawSprite(
-        Profile::DateDisplay::YearNumSprites[Year % 10],
-        glm::vec2(dateCurrentX, Profile::DateDisplay::YearWeekY), col);
-    dateCurrentX -=
-        Profile::DateDisplay::YearNumSprites[Year / 10].ScaledWidth();
-    Renderer2D::DrawSprite(
-        Profile::DateDisplay::YearNumSprites[Year / 10],
-        glm::vec2(dateCurrentX, Profile::DateDisplay::YearWeekY), col);
-    dateCurrentX -= Profile::DateDisplay::YearNumSprites[0].ScaledWidth();
-    Renderer2D::DrawSprite(
-        Profile::DateDisplay::YearNumSprites[0],
-        glm::vec2(dateCurrentX, Profile::DateDisplay::YearWeekY), col);
-    dateCurrentX -= Profile::DateDisplay::YearNumSprites[2].ScaledWidth();
-    Renderer2D::DrawSprite(
-        Profile::DateDisplay::YearNumSprites[2],
-        glm::vec2(dateCurrentX, Profile::DateDisplay::YearWeekY), col);
+    pos.x -= YearNumSprites[Year % 10].ScaledWidth();
+    Renderer2D::DrawSprite(YearNumSprites[Year % 10], pos, col);
+    pos.x -= YearNumSprites[Year / 10].ScaledWidth();
+    Renderer2D::DrawSprite(YearNumSprites[Year / 10], pos, col);
+    pos.x -= YearNumSprites[0].ScaledWidth();
+    Renderer2D::DrawSprite(YearNumSprites[0], pos, col);
+    pos.x -= YearNumSprites[2].ScaledWidth();
+    Renderer2D::DrawSprite(YearNumSprites[2], pos, col);
 
-    dateCurrentX -= Profile::DateDisplay::DYSeparatorSprite.ScaledWidth();
-    Renderer2D::DrawSprite(
-        Profile::DateDisplay::DYSeparatorSprite,
-        glm::vec2(dateCurrentX, Profile::DateDisplay::YearWeekY), col);
+    pos.x -= DYSeparatorSprite.ScaledWidth();
+    Renderer2D::DrawSprite(DYSeparatorSprite, pos, col);
 
-    dateCurrentX -=
-        Profile::DateDisplay::DayNumSprites[Day % 10].ScaledWidth() +
-        Profile::DateDisplay::Spacing;
-    Renderer2D::DrawSprite(
-        Profile::DateDisplay::DayNumSprites[Day % 10],
-        glm::vec2(dateCurrentX, Profile::DateDisplay::MonthDayY), col);
-    dateCurrentX -= Profile::DateDisplay::DayNumSprites[Day / 10].ScaledWidth();
-    Renderer2D::DrawSprite(
-        Profile::DateDisplay::DayNumSprites[Day / 10],
-        glm::vec2(dateCurrentX, Profile::DateDisplay::MonthDayY), col);
+    pos.y = MonthDayY;
+    pos.x -= DayNumSprites[Day % 10].ScaledWidth() + Spacing;
+    Renderer2D::DrawSprite(DayNumSprites[Day % 10], pos, col);
+    pos.x -= DayNumSprites[Day / 10].ScaledWidth();
+    Renderer2D::DrawSprite(DayNumSprites[Day / 10], pos, col);
 
-    dateCurrentX -= Profile::DateDisplay::MDSeparatorSprite.ScaledWidth();
-    Renderer2D::DrawSprite(
-        Profile::DateDisplay::MDSeparatorSprite,
-        glm::vec2(dateCurrentX, Profile::DateDisplay::MonthDayY), col);
+    pos.x -= MDSeparatorSprite.ScaledWidth();
+    Renderer2D::DrawSprite(MDSeparatorSprite, pos, col);
 
-    dateCurrentX -=
-        Profile::DateDisplay::MonthNumSprites[Month % 10].ScaledWidth() +
-        Profile::DateDisplay::Spacing;
-    Renderer2D::DrawSprite(
-        Profile::DateDisplay::MonthNumSprites[Month % 10],
-        glm::vec2(dateCurrentX, Profile::DateDisplay::MonthDayY), col);
+    pos.x -= MonthNumSprites[Month % 10].ScaledWidth() + Spacing;
+    Renderer2D::DrawSprite(MonthNumSprites[Month % 10], pos, col);
     if (Month / 10 != 0) {
-      dateCurrentX -=
-          Profile::DateDisplay::MonthNumSprites[Month / 10].ScaledWidth();
-      Renderer2D::DrawSprite(
-          Profile::DateDisplay::MonthNumSprites[Month / 10],
-          glm::vec2(dateCurrentX, Profile::DateDisplay::MonthDayY), col);
+      pos.x -= MonthNumSprites[Month / 10].ScaledWidth();
+      Renderer2D::DrawSprite(MonthNumSprites[Month / 10], pos, col);
     }
   }
 }
