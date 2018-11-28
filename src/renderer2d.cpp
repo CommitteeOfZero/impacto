@@ -3,6 +3,7 @@
 #include "log.h"
 #include "shader.h"
 #include "texture/texture.h"
+#include "profile/game.h"
 
 namespace Impacto {
 namespace Renderer2D {
@@ -32,9 +33,9 @@ static inline void QuadSetPosition(RectF const& transformedQuad, float angle,
                                    uintptr_t positions, int stride);
 static inline void QuadSetPosition3DRotated(RectF const& transformedQuad,
                                             float depth,
-                                            float vanishingPointLeftFactor,
-                                            glm::quat rot, uintptr_t positions,
-                                            int stride);
+                                            glm::vec2 vanishingPoint,
+                                            bool stayInScreen, glm::quat rot,
+                                            uintptr_t positions, int stride);
 
 static GLuint VBO;
 static GLuint IBO;
@@ -155,8 +156,8 @@ void DrawRect(RectF const& dest, glm::vec4 color, float angle) {
 }
 
 void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest, float depth,
-                         float vanishingPointLeftFactor, glm::quat rot,
-                         glm::vec4 tint) {
+                         glm::vec2 vanishingPoint, bool stayInScreen,
+                         glm::quat rot, glm::vec4 tint) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer2D::DrawSprite3DRotated() called before BeginFrame()\n");
@@ -191,18 +192,17 @@ void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest, float depth,
 
   QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
             (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetPosition3DRotated(dest, depth, vanishingPointLeftFactor, rot,
+  QuadSetPosition3DRotated(dest, depth, vanishingPoint, stayInScreen, rot,
                            (uintptr_t)&vertices[0].Position,
                            sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
-void DrawRect3DRotated(RectF const& dest, float depth,
-                       float vanishingPointLeftFactor, glm::quat rot,
-                       glm::vec4 tint) {
-  DrawSprite3DRotated(RectSprite, dest, depth, vanishingPointLeftFactor, rot,
-                      tint);
+void DrawRect3DRotated(RectF const& dest, float depth, glm::vec2 vanishingPoint,
+                       bool stayInScreen, glm::quat rot, glm::vec4 color) {
+  DrawSprite3DRotated(RectSprite, dest, depth, vanishingPoint, stayInScreen,
+                      rot, color);
 }
 
 void DrawSprite(Sprite const& sprite, RectF const& dest, glm::vec4 tint,
@@ -295,37 +295,51 @@ static inline void QuadSetPosition(RectF const& transformedQuad, float angle,
 }
 
 void QuadSetPosition3DRotated(RectF const& transformedQuad, float depth,
-                              float vanishingPointLeftFactor, glm::quat rot,
-                              uintptr_t positions, int stride) {
+                              glm::vec2 vanishingPoint, bool stayInScreen,
+                              glm::quat rot, uintptr_t positions, int stride) {
+  float widthNormalized = transformedQuad.Width / (Profile::DesignWidth * 0.5f);
+  float heightNormalized =
+      transformedQuad.Height / (Profile::DesignHeight * 0.5f);
+
   glm::vec4 corners[4]{
       // bottom-left
-      {-transformedQuad.Width / 2.0f, transformedQuad.Height / 2.0f, 0, 1},
+      {glm::vec2(-widthNormalized / 2.0f, -heightNormalized / 2.0f), 0, 1},
       // top-left
-      {-transformedQuad.Width / 2.0f, -transformedQuad.Height / 2.0f, 0, 1},
+      {glm::vec2(-widthNormalized / 2.0f, heightNormalized / 2.0f), 0, 1},
       // top-right
-      {transformedQuad.Width / 2.0f, -transformedQuad.Height / 2.0f, 0, 1},
+      {glm::vec2(widthNormalized / 2.0f, heightNormalized / 2.0f), 0, 1},
       // bottom-right
-      {transformedQuad.Width / 2.0f, transformedQuad.Height / 2.0f, 0, 1}};
+      {glm::vec2(widthNormalized / 2.0f, -heightNormalized / 2.0f), 0, 1}};
 
-  glm::mat4 rotMtx = glm::mat4_cast(rot);
+  glm::mat4 transform =
+      glm::translate(glm::mat4(1.0f),
+                     glm::vec3(DesignToNDC(transformedQuad.Center()), 0)) *
+      glm::mat4_cast(rot);
+
+  glm::vec4 vanishingPointNDC(DesignToNDC(vanishingPoint), 0, 0);
+
   for (int i = 0; i < 4; i++) {
-    // translating x before perspective divide effectively puts the vanishing
-    // point left instead of center
-    // unfortunately I don't know how to generalise this
-    corners[i].x += vanishingPointLeftFactor * transformedQuad.Center().x;
+    corners[i] = transform * corners[i];
+  }
 
-    corners[i] = rotMtx * corners[i];
+  if (stayInScreen) {
+    float maxZ = 0.0f;
+    for (int i = 0; i < 4; i++) {
+      if (corners[i].z > maxZ) maxZ = corners[i].z;
+    }
+    for (int i = 0; i < 4; i++) {
+      corners[i].z -= maxZ;
+    }
+  }
 
+  for (int i = 0; i < 4; i++) {
     // perspective
+    corners[i] -= vanishingPointNDC;
     corners[i].x *= (depth / (depth - corners[i].z));
     corners[i].y *= (depth / (depth - corners[i].z));
+    corners[i] += vanishingPointNDC;
 
-    // translate
-    corners[i].x +=
-        (1.0f - vanishingPointLeftFactor) * transformedQuad.Center().x;
-    corners[i].y += transformedQuad.Center().y;
-
-    *(glm::vec2*)(positions + i * stride) = DesignToNDC(corners[i]);
+    *(glm::vec2*)(positions + i * stride) = corners[i];
   }
 }
 
