@@ -105,6 +105,8 @@ set(Impacto_Src
     vendor/clHCA/clHCA.c
 
     vendor/duktape/src/duktape.c
+
+    vendor/pcg/src/pcg_basic.c
 )
 
 set(Impacto_Header
@@ -125,6 +127,7 @@ set(Impacto_Header
     src/loadable.h
     src/inputsystem.h
     src/glc.h
+    src/rng.h
 
     src/profile/profile.h
     src/profile/profile_internal.h
@@ -213,6 +216,7 @@ include_directories(${OGGVORBIS_INCLUDE_DIRS})
 include_directories(${LIBATRAC9_INCLUDE_DIR})
 include_directories(vendor/include)
 include_directories(vendor/duktape/include)
+include_directories(vendor/pcg/include)
 
 if (WIN32)
     list(APPEND Impacto_Src
