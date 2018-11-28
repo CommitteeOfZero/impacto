@@ -199,6 +199,16 @@ void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest, float depth,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
+void DrawSprite3DRotated(Sprite const& sprite, glm::vec2 topLeft, float depth,
+                         glm::vec2 vanishingPoint, bool stayInScreen,
+                         glm::quat rot, glm::vec4 tint, glm::vec2 scale) {
+  RectF scaledDest(topLeft.x, topLeft.y,
+                   scale.x * sprite.Bounds.Width * sprite.BaseScale.x,
+                   scale.y * sprite.Bounds.Height * sprite.BaseScale.y);
+  DrawSprite3DRotated(sprite, scaledDest, depth, vanishingPoint, stayInScreen,
+                      rot, tint);
+}
+
 void DrawRect3DRotated(RectF const& dest, float depth, glm::vec2 vanishingPoint,
                        bool stayInScreen, glm::quat rot, glm::vec4 color) {
   DrawSprite3DRotated(RectSprite, dest, depth, vanishingPoint, stayInScreen,
