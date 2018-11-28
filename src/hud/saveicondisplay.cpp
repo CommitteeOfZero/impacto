@@ -10,56 +10,46 @@
 namespace Impacto {
 namespace SaveIconDisplay {
 
-enum SaveIconAnimState { Hidden, Hiding, Showing, Shown };
-
-static float Fade = 0.0f;
-
 static glm::vec2 Position;
-SaveIconAnimState AnimState = Hidden;
 
 static SpriteAnimation SaveIconForeground;
+static Animation FadeAnimation;
 
-void Hide() { AnimState = Hiding; }
+void Init() {
+  Profile::SaveIcon::Configure();
+  FadeAnimation.DurationIn = Profile::SaveIcon::FadeInDuration;
+  FadeAnimation.DurationOut = Profile::SaveIcon::FadeOutDuration;
+  SaveIconForeground = Profile::SaveIcon::ForegroundAnimation.Instantiate();
+  SaveIconForeground.LoopMode = ALM_Loop;
+}
+
+void Hide() { FadeAnimation.StartOut(); }
 
 void Show() { ShowAt(Profile::SaveIcon::DefaultPosition); }
 void ShowAt(glm::vec2 pos) {
+  // TODO how do we handle Show/Hide during in-progress animation?
+
   Position = pos;
-  AnimState = Showing;
-  SaveIconForeground = Profile::SaveIcon::ForegroundAnimation.Instantiate();
+  SaveIconForeground.StartIn();
+  FadeAnimation.StartIn();
 }
 
 void Update(float dt) {
-  if (AnimState == Hiding) {
-    Fade -= dt / Profile::SaveIcon::FadeOutDuration;
-    if (Fade <= 0.0f) {
-      Fade = 0.0f;
-      AnimState = Hidden;
-    }
-  } else if (AnimState == Showing) {
-    Fade += dt / Profile::SaveIcon::FadeInDuration;
-    if (Fade >= 1.0f) {
-      Fade = 1.0f;
-      AnimState = Shown;
-    }
-  }
-
-  if (AnimState == Hidden) return;
-
+  FadeAnimation.Update(dt);
+  if (FadeAnimation.IsOut()) return;
   SaveIconForeground.Update(dt);
 }
 
 void Render() {
-  if (AnimState == Hidden) return;
-  if (Fade > 0.0f) {
-    glm::vec4 col(1.0f);
-    col.a = glm::smoothstep(0.0f, 1.0f, Fade);
-    Renderer2D::DrawSprite(
-        Profile::SaveIcon::BackgroundSprite,
-        Position + Profile::SaveIcon::BackgroundOffset,
-        col *
-            glm::vec4(1.0f, 1.0f, 1.0f, Profile::SaveIcon::BackgroundMaxAlpha));
-    Renderer2D::DrawSprite(SaveIconForeground.CurrentSprite(), Position, col);
-  }
+  if (FadeAnimation.IsOut()) return;
+
+  glm::vec4 col(1.0f);
+  col.a = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
+  Renderer2D::DrawSprite(
+      Profile::SaveIcon::BackgroundSprite,
+      Position + Profile::SaveIcon::BackgroundOffset,
+      col * glm::vec4(1.0f, 1.0f, 1.0f, Profile::SaveIcon::BackgroundMaxAlpha));
+  Renderer2D::DrawSprite(SaveIconForeground.CurrentSprite(), Position, col);
 }
 
 }  // namespace SaveIconDisplay

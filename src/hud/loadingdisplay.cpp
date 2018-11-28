@@ -11,45 +11,54 @@
 namespace Impacto {
 namespace LoadingDisplay {
 
-enum LoadingAnimState { Hidden, Hiding, Showing, Shown };
-
-static float Fade = 0.0f;
-
-static LoadingAnimState AnimState = Hidden;
 static bool IsResourceLoad = false;
 
 static SpriteAnimation ResourceLoadBg;
 static SpriteAnimation SaveLoadBg;
 static SpriteAnimation LoadingIcon;
 static SpriteAnimation LoadingText;
+static Animation FadeAnimation;
+
+void Init() {
+  Profile::LoadingDisplay::Configure();
+  FadeAnimation.DurationIn = Profile::LoadingDisplay::FadeInDuration;
+  FadeAnimation.DurationOut = Profile::LoadingDisplay::FadeOutDuration;
+
+  SaveLoadBg = Profile::LoadingDisplay::SaveLoadBgAnim.Instantiate();
+  SaveLoadBg.LoopMode = ALM_Loop;
+  ResourceLoadBg = Profile::LoadingDisplay::ResourceLoadBgAnim.Instantiate();
+  ResourceLoadBg.LoopMode = ALM_Loop;
+  LoadingIcon = Profile::LoadingDisplay::LoadingIconAnim.Instantiate();
+  LoadingIcon.LoopMode = ALM_Loop;
+  LoadingText = Profile::LoadingDisplay::LoadingTextAnim.Instantiate();
+  LoadingText.LoopMode = ALM_Loop;
+}
 
 void Update(float dt) {
-  if (AnimState == Hidden) {
+  FadeAnimation.Update(dt);
+
+  if (FadeAnimation.IsOut()) {
     if (GetFlag(SF_LOADINGFROMSAVE)) {
-      AnimState = Showing;
+      FadeAnimation.StartIn();
       IsResourceLoad = false;
-      Fade = 0.0f;
 
-      SaveLoadBg = Profile::LoadingDisplay::SaveLoadBgAnim.Instantiate();
-      LoadingIcon = Profile::LoadingDisplay::LoadingIconAnim.Instantiate();
-      LoadingText = Profile::LoadingDisplay::LoadingTextAnim.Instantiate();
-
+      SaveLoadBg.StartIn(true);
+      LoadingIcon.StartIn(true);
+      LoadingText.StartIn(true);
     } else if (GetFlag(SF_LOADING)) {
-      AnimState = Showing;
+      FadeAnimation.StartIn();
       IsResourceLoad = true;
-      Fade = 0.0f;
 
-      ResourceLoadBg =
-          Profile::LoadingDisplay::ResourceLoadBgAnim.Instantiate();
-      LoadingIcon = Profile::LoadingDisplay::LoadingIconAnim.Instantiate();
-      LoadingText = Profile::LoadingDisplay::LoadingTextAnim.Instantiate();
+      ResourceLoadBg.StartIn(true);
+      LoadingIcon.StartIn(true);
+      LoadingText.StartIn(true);
     }
-  } else if (AnimState == Shown && !GetFlag(SF_LOADINGFROMSAVE) &&
+  } else if (FadeAnimation.IsIn() && !GetFlag(SF_LOADINGFROMSAVE) &&
              !GetFlag(SF_LOADING)) {
-    AnimState = Hiding;
+    FadeAnimation.StartOut();
   }
 
-  if (AnimState != Hidden) {
+  if (!FadeAnimation.IsOut()) {
     LoadingIcon.Update(dt);
     LoadingText.Update(dt);
     if (IsResourceLoad) {
@@ -58,41 +67,26 @@ void Update(float dt) {
       SaveLoadBg.Update(dt);
     }
   }
-
-  if (AnimState == Hiding) {
-    Fade -= dt / Profile::LoadingDisplay::FadeOutDuration;
-    if (Fade <= 0.0f) {
-      Fade = 0.0f;
-      AnimState = Hidden;
-    }
-  } else if (AnimState == Showing) {
-    Fade += dt / Profile::LoadingDisplay::FadeInDuration;
-    if (Fade >= 1.0f) {
-      Fade = 1.0f;
-      AnimState = Shown;
-    }
-  }
 }
 
 void Render() {
-  if (AnimState == Hidden) return;
-  if (Fade > 0.0f) {
-    glm::vec4 col(1.0f);
-    col.a = glm::smoothstep(0.0f, 1.0f, Fade);
+  if (FadeAnimation.IsOut()) return;
 
-    if (IsResourceLoad) {
-      Renderer2D::DrawSprite(ResourceLoadBg.CurrentSprite(),
-                             Profile::LoadingDisplay::ResourceBgPos, col);
-    } else {
-      Renderer2D::DrawSprite(SaveLoadBg.CurrentSprite(),
-                             Profile::LoadingDisplay::SaveBgPos, col);
-    }
+  glm::vec4 col(1.0f);
+  col.a = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
 
-    Renderer2D::DrawSprite(LoadingIcon.CurrentSprite(),
-                           Profile::LoadingDisplay::IconPos, col);
-    Renderer2D::DrawSprite(LoadingText.CurrentSprite(),
-                           Profile::LoadingDisplay::TextPos, col);
+  if (IsResourceLoad) {
+    Renderer2D::DrawSprite(ResourceLoadBg.CurrentSprite(),
+                           Profile::LoadingDisplay::ResourceBgPos, col);
+  } else {
+    Renderer2D::DrawSprite(SaveLoadBg.CurrentSprite(),
+                           Profile::LoadingDisplay::SaveBgPos, col);
   }
+
+  Renderer2D::DrawSprite(LoadingIcon.CurrentSprite(),
+                         Profile::LoadingDisplay::IconPos, col);
+  Renderer2D::DrawSprite(LoadingText.CurrentSprite(),
+                         Profile::LoadingDisplay::TextPos, col);
 }
 
 }  // namespace LoadingDisplay

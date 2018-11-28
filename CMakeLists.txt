@@ -128,6 +128,7 @@ set(Impacto_Header
     src/inputsystem.h
     src/glc.h
     src/rng.h
+    src/animation.h
 
     src/profile/profile.h
     src/profile/profile_internal.h

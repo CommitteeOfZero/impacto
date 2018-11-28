@@ -5,6 +5,7 @@
 namespace Impacto {
 namespace SaveIconDisplay {
 
+void Init();
 void Hide();
 void Show();
 void ShowAt(glm::vec2 pos);

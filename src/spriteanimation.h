@@ -1,18 +1,16 @@
 #pragma once
 
 #include "spritesheet.h"
+#include "animation.h"
 
 namespace Impacto {
 
 struct SpriteAnimationDef;
 
-struct SpriteAnimation {
+struct SpriteAnimation : public Animation {
   SpriteAnimationDef* Def = 0;
-  float Time;
 
   bool Exists();
-  void Reset();
-  void Update(float dt);
   Sprite CurrentSprite();
 };
 
