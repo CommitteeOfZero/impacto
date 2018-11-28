@@ -30,6 +30,11 @@ static inline void QuadSetUV(RectF const& spriteBounds, float designWidth,
                              float designHeight, uintptr_t uvs, int stride);
 static inline void QuadSetPosition(RectF const& transformedQuad, float angle,
                                    uintptr_t positions, int stride);
+static inline void QuadSetPosition3DRotated(RectF const& transformedQuad,
+                                            float depth,
+                                            float vanishingPointLeftFactor,
+                                            glm::quat rot, uintptr_t positions,
+                                            int stride);
 
 static GLuint VBO;
 static GLuint IBO;
@@ -149,6 +154,57 @@ void DrawRect(RectF const& dest, glm::vec4 color, float angle) {
   DrawSprite(RectSprite, dest, color, angle);
 }
 
+void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest, float depth,
+                         float vanishingPointLeftFactor, glm::quat rot,
+                         glm::vec4 tint) {
+  if (!Drawing) {
+    ImpLog(LL_Error, LC_Render,
+           "Renderer2D::DrawSprite3DRotated() called before BeginFrame()\n");
+    return;
+  }
+
+  // Do we have space for one more sprite quad?
+  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
+
+  // Are we in sprite mode?
+  if (CurrentMode != R2D_Sprite) {
+    ImpLogSlow(LL_Trace, LC_Render,
+               "Renderer2D::DrawSprite3DRotated flushing because mode %d is "
+               "not R2D_Sprite\n",
+               CurrentMode);
+    Flush();
+    glBindVertexArray(VAOSprites);
+    glUseProgram(ShaderProgramSprite);
+    CurrentMode = R2D_Sprite;
+  }
+
+  // Do we have the texture assigned?
+  EnsureTextureBound(sprite.Sheet.Texture);
+
+  // OK, all good, make quad
+
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
+  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
+
+  IndexBufferFill += 6;
+
+  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
+            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
+  QuadSetPosition3DRotated(dest, depth, vanishingPointLeftFactor, rot,
+                           (uintptr_t)&vertices[0].Position,
+                           sizeof(VertexBufferSprites));
+
+  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
+}
+
+void DrawRect3DRotated(RectF const& dest, float depth,
+                       float vanishingPointLeftFactor, glm::quat rot,
+                       glm::vec4 tint) {
+  DrawSprite3DRotated(RectSprite, dest, depth, vanishingPointLeftFactor, rot,
+                      tint);
+}
+
 void DrawSprite(Sprite const& sprite, RectF const& dest, glm::vec4 tint,
                 float angle) {
   if (!Drawing) {
@@ -236,6 +292,41 @@ static inline void QuadSetPosition(RectF const& transformedQuad, float angle,
   *(glm::vec2*)(positions + 2 * stride) = DesignToNDC(topRight);
   // bottom-right
   *(glm::vec2*)(positions + 3 * stride) = DesignToNDC(bottomRight);
+}
+
+void QuadSetPosition3DRotated(RectF const& transformedQuad, float depth,
+                              float vanishingPointLeftFactor, glm::quat rot,
+                              uintptr_t positions, int stride) {
+  glm::vec4 corners[4]{
+      // bottom-left
+      {-transformedQuad.Width / 2.0f, transformedQuad.Height / 2.0f, 0, 1},
+      // top-left
+      {-transformedQuad.Width / 2.0f, -transformedQuad.Height / 2.0f, 0, 1},
+      // top-right
+      {transformedQuad.Width / 2.0f, -transformedQuad.Height / 2.0f, 0, 1},
+      // bottom-right
+      {transformedQuad.Width / 2.0f, transformedQuad.Height / 2.0f, 0, 1}};
+
+  glm::mat4 rotMtx = glm::mat4_cast(rot);
+  for (int i = 0; i < 4; i++) {
+    // translating x before perspective divide effectively puts the vanishing
+    // point left instead of center
+    // unfortunately I don't know how to generalise this
+    corners[i].x += vanishingPointLeftFactor * transformedQuad.Center().x;
+
+    corners[i] = rotMtx * corners[i];
+
+    // perspective
+    corners[i].x *= (depth / (depth - corners[i].z));
+    corners[i].y *= (depth / (depth - corners[i].z));
+
+    // translate
+    corners[i].x +=
+        (1.0f - vanishingPointLeftFactor) * transformedQuad.Center().x;
+    corners[i].y += transformedQuad.Center().y;
+
+    *(glm::vec2*)(positions + i * stride) = DesignToNDC(corners[i]);
+  }
 }
 
 static void EnsureSpaceAvailable(int vertices, int vertexSize, int indices) {

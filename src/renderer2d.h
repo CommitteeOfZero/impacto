@@ -19,5 +19,12 @@ void DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
                 glm::vec2 scale = glm::vec2(1.0), float angle = 0.0f);
 void DrawRect(RectF const& dest, glm::vec4 color, float angle = 0.0f);
 
+void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest, float depth,
+                         float vanishingPointLeftFactor, glm::quat rot,
+                         glm::vec4 tint = glm::vec4(1.0f));
+void DrawRect3DRotated(RectF const& dest, float depth,
+                       float vanishingPointLeftFactor, glm::quat rot,
+                       glm::vec4 tint = glm::vec4(1.0f));
+
 }  // namespace Renderer2D
 }  // namespace Impacto
