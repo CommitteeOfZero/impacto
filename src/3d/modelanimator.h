@@ -21,7 +21,7 @@ class ModelAnimator {
   // Note: These are has-a relationships - Character and CurrentAnimation should
   // not be deleted with the animator
   Renderable3D* Character = 0;
-  Animation* CurrentAnimation = 0;
+  ModelAnimation* CurrentAnimation = 0;
 
   // Time in seconds
   float CurrentTime = 0;

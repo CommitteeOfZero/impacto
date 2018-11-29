@@ -32,11 +32,12 @@ enum SubTrackType {
 
 using namespace Impacto::Io;
 
-Animation* Animation::Load(InputStream* stream, Model* model, uint16_t animId) {
+ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
+                                     uint16_t animId) {
   ImpLogSlow(LL_Trace, LC_ModelLoad, "Loading animation %hu for model %d\n",
              animId, model->Id);
 
-  Animation* result = new Animation;
+  ModelAnimation* result = new ModelAnimation;
   result->Id = animId;
 
   stream->Seek(HeaderDurationOffset, RW_SEEK_SET);
@@ -490,7 +491,7 @@ Animation* Animation::Load(InputStream* stream, Model* model, uint16_t animId) {
   return result;
 }
 
-Animation::~Animation() {
+ModelAnimation::~ModelAnimation() {
   if (CoordKeyframes) free(CoordKeyframes);
   if (QuatKeyframes) free(QuatKeyframes);
 }

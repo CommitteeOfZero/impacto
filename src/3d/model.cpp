@@ -391,7 +391,7 @@ Model* Model::Load(uint32_t modelId) {
         VfsSlurp(modelMountpoint, file.first, &animData, &animSize);
         InputStream* animStream = new MemoryStream(animData, animSize, true);
         result->Animations[file.first] =
-            Animation::Load(animStream, result, file.first);
+            ModelAnimation::Load(animStream, result, file.first);
         delete animStream;
         result->AnimationCount++;
       }

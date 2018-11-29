@@ -118,7 +118,7 @@ struct Mesh {
   uint8_t MorphTargetCount;
 };
 
-class Animation;
+class ModelAnimation;
 
 class Model {
  public:
@@ -159,7 +159,7 @@ class Model {
   int32_t RootBoneCount = 0;
   int16_t RootBones[ModelMaxRootBones];
 
-  ska::flat_hash_map<uint16_t, Animation*> Animations;
+  ska::flat_hash_map<uint16_t, ModelAnimation*> Animations;
 
   uint32_t* AnimationIds = 0;
   char** AnimationNames = 0;

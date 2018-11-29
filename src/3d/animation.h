@@ -54,11 +54,11 @@ struct MeshTrack {
   uint16_t MorphTargetIds[AnimMaxMorphTargetsPerTrack];
 };
 
-class Animation {
+class ModelAnimation {
  public:
-  static Animation* Load(Io::InputStream* stream, Model* model,
-                         uint16_t animId);
-  ~Animation();
+  static ModelAnimation* Load(Io::InputStream* stream, Model* model,
+                              uint16_t animId);
+  ~ModelAnimation();
 
   // Per-model ID
   uint16_t Id = 0;
