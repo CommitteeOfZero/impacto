@@ -3,6 +3,7 @@
 #include "log.h"
 #include "game.h"
 #include "renderer2d.h"
+#include "animation.h"
 
 #include "profile/charset.h"
 #include "profile/dialogue.h"
@@ -12,6 +13,8 @@ namespace Impacto {
 using namespace Impacto::Profile::Dialogue;
 
 DialoguePage* DialoguePages;
+
+static Animation WaitIconAnimation;
 
 enum StringTokenType : uint8_t {
   STT_LineBreak = 0x00,
@@ -119,6 +122,20 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
   }
 
   return bytesRead;
+}
+
+void DialoguePage::Init() {
+  Profile::Dialogue::Configure();
+  WaitIconAnimation.DurationIn = Profile::Dialogue::WaitIconAnimationDuration;
+  WaitIconAnimation.LoopMode = ALM_Loop;
+
+  for (int i = 0; i < Profile::Dialogue::PageCount; i++) {
+    DialoguePages[i].Clear();
+    DialoguePages[i].Mode = DPM_NVL;
+    DialoguePages[i].Id = i;
+    DialoguePages[i].FadeAnimation.DurationIn = ADVBoxFadeInDuration;
+    DialoguePages[i].FadeAnimation.DurationOut = ADVBoxFadeOutDuration;
+  }
 }
 
 void DialoguePage::Clear() {
@@ -294,8 +311,6 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
   CurrentX = 0.0f;
 }
 
-float WaitIconAngle = 0.0f;
-
 void DialoguePage::Update(float dt) {
   if (!TextIsFullyOpaque) {
     int lastFullyOpaqueGlyphCount = FullyOpaqueGlyphCount;
@@ -315,31 +330,17 @@ void DialoguePage::Update(float dt) {
     }
   }
 
-  if (AnimState == DPAS_Hiding) {
-    ADVBoxOpacity -= dt / ADVBoxFadeOutDuration;
-    if (ADVBoxOpacity <= 0.0f) {
-      ADVBoxOpacity = 0.0f;
-      AnimState = DPAS_Hidden;
-    }
-  } else if (AnimState == DPAS_Showing) {
-    ADVBoxOpacity += dt / ADVBoxFadeInDuration;
-    if (ADVBoxOpacity >= 1.0f) {
-      ADVBoxOpacity = 1.0f;
-      AnimState = DPAS_Shown;
-    }
-  }
-
-  if (WaitIconAngle >= 2.0f * M_PI) WaitIconAngle = 0.0f;
-  WaitIconAngle += (2.0f * M_PI) * dt / WaitIconAnimationDuration;
+  FadeAnimation.Update(dt);
+  WaitIconAnimation.Update(dt);
 }
 
 void DialoguePage::Render() {
   // dialogue text
 
-  if (AnimState == DPAS_Hidden) return;
+  if (FadeAnimation.IsOut()) return;
 
   glm::vec4 opacityTint(1.0f);
-  opacityTint.a *= glm::smoothstep(0.0f, 1.0f, ADVBoxOpacity);
+  opacityTint.a *= glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
 
   // Textbox
   if (Mode == DPM_ADV) {
@@ -348,7 +349,8 @@ void DialoguePage::Render() {
 
   for (int i = 0; i < Length; i++) {
     float opacity = glm::smoothstep(0.0f, 1.0f, Glyphs[i].Opacity);
-    if (Mode == DPM_ADV) opacity *= glm::smoothstep(0.0f, 1.0f, ADVBoxOpacity);
+    if (Mode == DPM_ADV)
+      opacity *= glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
 
     glm::vec4 color = RgbIntToFloat(Glyphs[i].Colors.TextColor);
     color.a *= opacity;
@@ -419,10 +421,10 @@ void DialoguePage::Render() {
     }
 
     glm::vec4 color = RgbIntToFloat(ColorTable[0].TextColor);
-    color.a *= glm::smoothstep(0.0f, 1.0f, ADVBoxOpacity);
+    color.a *= glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
 
     glm::vec4 outcolor = RgbIntToFloat(ColorTable[0].OutlineColor);
-    outcolor.a *= glm::smoothstep(0.0f, 1.0f, ADVBoxOpacity);
+    outcolor.a *= glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
 
     for (int i = 0; i < NameLength; i++) {
       // Name outline, the dirty way
@@ -450,7 +452,7 @@ void DialoguePage::Render() {
         glm::vec2(Glyphs[Length - 1].DestRect.X +
                       Glyphs[Length - 1].DestRect.Width + WaitIconOffset.x,
                   Glyphs[Length - 1].DestRect.Y + WaitIconOffset.y),
-        opacityTint, glm::vec2(1.0f), WaitIconAngle);
+        opacityTint, glm::vec2(1.0f), WaitIconAnimation.Progress * 2.0f * M_PI);
   }
 }
 

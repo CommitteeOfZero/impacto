@@ -214,29 +214,28 @@ VmInstruction(InstMessWindow) {
   DialoguePage* currentPage = &DialoguePages[thread->DialoguePageId];
   switch (type) {
     case 0:  // HideCurrent
-      if (currentPage->AnimState != DPAS_Hidden) {
-        currentPage->AnimState = DPAS_Hiding;
+      if (!currentPage->FadeAnimation.IsOut()) {
+        currentPage->FadeAnimation.StartOut();
       }
       break;
     case 1:  // ShowCurrent
-      if (currentPage->AnimState != DPAS_Shown) {
+      if (!currentPage->FadeAnimation.IsIn()) {
         currentPage->Mode =
             (DialoguePageMode)ScrWork[SW_MESMODE0];  // Only for page 0 for now
-        currentPage->ADVBoxOpacity = 0.0f;
-        currentPage->AnimState = DPAS_Showing;
+        currentPage->FadeAnimation.StartIn(true);
       }
       break;
     case 2:  // AwaitShowCurrent
-      if (currentPage->AnimState == DPAS_Showing) {
+      if (currentPage->FadeAnimation.State == AS_Playing) {
         ResetInstruction;
         BlockThread;
       }
       break;
     case 3:  // AwaitHideCurrent
-      if (currentPage->AnimState == DPAS_Hiding) {
+      if (currentPage->FadeAnimation.State == AS_Playing) {
         ResetInstruction;
         BlockThread;
-      } else if (currentPage->AnimState == DPAS_Hidden) {
+      } else if (currentPage->FadeAnimation.IsOut()) {
         currentPage->Clear();
       }
       break;
@@ -246,8 +245,8 @@ VmInstruction(InstMessWindow) {
       break;
     case 5: {  // Hide
       PopExpression(messWindowId);
-      if (DialoguePages[messWindowId].AnimState != DPAS_Hidden) {
-        DialoguePages[messWindowId].AnimState = DPAS_Hiding;
+      if (!DialoguePages[messWindowId].FadeAnimation.IsOut()) {
+        DialoguePages[messWindowId].FadeAnimation.StartOut();
       }
     } break;
     case 6: {  // HideSlow

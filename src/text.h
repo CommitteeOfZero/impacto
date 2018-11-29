@@ -1,6 +1,7 @@
 #pragma once
 
 #include "font.h"
+#include "animation.h"
 #include "vm/thread.h"
 #include <enum.h>
 
@@ -61,10 +62,11 @@ enum DialoguePageAnimState {
 };
 
 struct DialoguePage {
+  static void Init();
+
   int Id;
 
-  float ADVBoxOpacity;
-  DialoguePageAnimState AnimState;
+  Animation FadeAnimation;
 
   int Length;
   int FullyOpaqueGlyphCount;
