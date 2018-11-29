@@ -536,6 +536,7 @@ void Renderable3D::DrawSimpleMesh(int id) {
 
 void Renderable3D::DrawCharacterMesh(int id) {
   // TODO: how do they actually do this?
+  // NOTE this approach breaks on Nae's sunglasses, for one
   if (StaticModel->Meshes[id].Opacity < 0.9) {
     glDepthMask(GL_FALSE);
   }
