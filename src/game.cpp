@@ -16,6 +16,7 @@
 #include "hud/saveicondisplay.h"
 #include "hud/sysmesboxdisplay.h"
 #include "hud/loadingdisplay.h"
+#include "hud/mainmenu.h"
 #include "io/memorystream.h"
 
 #include "profile/profile.h"
@@ -24,9 +25,7 @@
 #include "profile/charset.h"
 #include "profile/fonts.h"
 #include "profile/dialogue.h"
-#include "profile/hud/saveicon.h"
 #include "profile/animations.h"
-#include "profile/hud/loadingdisplay.h"
 #include "profile/hud/datedisplay.h"
 
 namespace Impacto {
@@ -79,15 +78,10 @@ static void Init() {
     Profile::Charset::Load();
     Profile::LoadFonts();
     Profile::LoadAnimations();
-    Profile::Dialogue::Configure();
+    DialoguePage::Init();
+    MainMenu::Init();
 
     Renderer2D::Init();
-
-    for (int i = 0; i < Profile::Dialogue::PageCount; i++) {
-      DialoguePages[i].Clear();
-      DialoguePages[i].Mode = DPM_NVL;
-      DialoguePages[i].Id = i;
-    }
   }
 
   if (Profile::GameFeatures & GameFeature::ModelViewer) {
@@ -95,8 +89,8 @@ static void Init() {
   }
 
   if (Profile::GameFeatures & GameFeature::Sc3VirtualMachine) {
-    Profile::SaveIcon::Configure();
-    Profile::LoadingDisplay::Configure();
+    SaveIconDisplay::Init();
+    LoadingDisplay::Init();
     Profile::DateDisplay::Configure();
 
     Vm::Init();
@@ -158,8 +152,6 @@ void InitDialogueTest() {
                        0x80, 0xE3, 0x80, 0xD9, 0x03, 0xFF};
   dummy.Ip = string2;
   DialoguePages[0].Mode = DPM_ADV;
-  DialoguePages[0].ADVBoxOpacity = 0.0f;
-  DialoguePages[0].AnimState = DPAS_Showing;
   DialoguePages[0].AddString(&dummy);
 }
 

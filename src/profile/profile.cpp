@@ -10,6 +10,7 @@
 #include "../text.h"
 #include "../game.h"
 #include "../vm/vm.h"
+#include "../hud/mainmenu.h"
 
 namespace Impacto {
 namespace Profile {
@@ -148,6 +149,7 @@ void MakeJsonProfile(std::string const& name) {
   DefineEnumInt<GameFeature>(ctx);
   DefineEnumInt<CharacterTypeFlags>(ctx);
   DefineEnumInt<Vm::InstructionSet>(ctx);
+  DefineEnumInt<MainMenu::MainMenuType>(ctx);
 
   ImpLog(LL_Info, LC_Profile, "Starting profile %s\n", name.c_str());
 
