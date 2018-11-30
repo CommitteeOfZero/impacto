@@ -21,7 +21,7 @@ MakeAnimation({
     FrameHeight: 58,
     RowHeight: 60,
     Frames: 8,
-    Duration: 1,
+    Duration: 0.8,
     Rows: 8,
     Columns: 1,
     PrimaryDirection: AnimationDirections.Down
@@ -37,7 +37,7 @@ MakeAnimation({
     FrameHeight: 81,
     RowHeight: 83,
     Frames: 4,
-    Duration: 1,
+    Duration: 0.8,
     Rows: 2,
     Columns: 2,
     PrimaryDirection: AnimationDirections.Down,
@@ -54,7 +54,7 @@ MakeAnimation({
     FrameHeight: 60,
     RowHeight: 62,
     Frames: 3,
-    Duration: 1,
+    Duration: 0.8,
     Rows: 1,
     Columns: 3,
     PrimaryDirection: AnimationDirections.Right
@@ -71,7 +71,7 @@ MakeAnimation({
     FrameHeight: 21,
     RowHeight: 23,
     Frames: 5,
-    Duration: 1,
+    Duration: 0.8,
     Rows: 5,
     Columns: 1,
     PrimaryDirection: AnimationDirections.Down

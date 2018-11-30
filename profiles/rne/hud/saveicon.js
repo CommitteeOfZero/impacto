@@ -18,7 +18,7 @@ MakeAnimation({
     FrameHeight: 70,
     RowHeight: 72,
     Frames: 8,
-    Duration: 0.5,
+    Duration: 0.4,
     Rows: 8,
     Columns: 1,
     PrimaryDirection: AnimationDirections.Down

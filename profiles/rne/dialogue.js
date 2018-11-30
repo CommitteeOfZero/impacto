@@ -22,7 +22,7 @@ root.Dialogue = {
     ADVNamePos: { X: 104, Y: 498 },
     WaitIconSprite: "DialogueWaitIcon",
     WaitIconOffset: { X: 4, Y: 4 },
-    WaitIconAnimationDuration: 3.5,
+    WaitIconAnimationDuration: 3.2,
     DialogueFont: "Default",
     DefaultFontSize: 32,
     LineSpacing: 22,
