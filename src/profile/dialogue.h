@@ -21,6 +21,9 @@ extern float NVLBoxMaxOpacity;
 
 extern TextAlignment ADVNameAlignment;
 extern float ADVNameFontSize;
+// Unlike most positions, this position is relative to alignment
+// e.g. if ADVNameAlignment == TextAlignment::Right, name will *end* at
+// ADVNamePos.x
 extern glm::vec2 ADVNamePos;
 
 extern Sprite WaitIconSprite;
@@ -31,6 +34,7 @@ extern Font DialogueFont;
 extern float DefaultFontSize;
 extern float LineSpacing;
 extern float RubyFontSize;
+extern float RubyYOffset;
 
 extern int ColorCount;
 extern DialogueColorPair* ColorTable;

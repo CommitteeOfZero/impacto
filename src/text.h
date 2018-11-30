@@ -7,7 +7,8 @@
 
 namespace Impacto {
 
-BETTER_ENUM(TextAlignment, int, Left = 0, Center, Right)
+BETTER_ENUM(TextAlignment, int, Left = 0, Center, Right, Block)
+// Block alignment only supported for ruby
 
 BETTER_ENUM(CharacterTypeFlags, uint8_t, Space = (1 << 0),
             WordStartingPunct = (1 << 1), WordEndingPunct = (1 << 2))
@@ -21,10 +22,11 @@ struct DialogueColorPair {
 
 struct ProcessedTextGlyph {
   DialogueColorPair Colors;
-  Sprite Glyph;
+  uint16_t CharId;
   float Opacity;
   RectF DestRect;
-  uint8_t CharacterType;
+
+  uint8_t Flags() const;
 };
 
 enum DialoguePageMode : uint8_t { DPM_ADV = 0, DPM_NVL = 1 };
@@ -51,7 +53,10 @@ extern DialoguePageFeatureConfig const DialoguePageFeatureConfig_RNE;
 struct RubyChunk {
   int FirstBaseCharacter;
   int Length;
-  uint16_t Text[DialogueMaxRubyChunkLength];
+  int BaseLength;
+  bool CenterPerCharacter;
+  ProcessedTextGlyph Text[DialogueMaxRubyChunkLength];
+  uint16_t RawText[DialogueMaxRubyChunkLength];
 };
 
 struct DialoguePage {
@@ -67,14 +72,11 @@ struct DialoguePage {
 
   int NameLength;
   bool HasName;
-  uint16_t Name[DialogueMaxNameLength];
+  ProcessedTextGlyph Name[DialogueMaxNameLength];
 
   int RubyChunkCount;
   int CurrentRubyChunk;
   RubyChunk RubyChunks[DialogueMaxRubyChunks];
-
-  float CurrentX;
-  float CurrentY;
 
   ProcessedTextGlyph* Glyphs;
 
@@ -87,10 +89,27 @@ struct DialoguePage {
   void AddString(Vm::Sc3VmThread* ctx);
   void Update(float dt);
   void Render();
+
+ private:
+  void FinishLine(Vm::Sc3VmThread* ctx, int nextLineStart);
+  void EndRubyBase(int lastBaseCharacter);
+
+  bool BuildingRubyBase;
+  int FirstRubyChunkOnLine;
+
+  float CurrentLineTop;
+  float CurrentLineTopMargin;
+  int LastLineStart;
 };
 
 extern DialoguePage* DialoguePages;
 
 int TextGetStringLength(Vm::Sc3VmThread* ctx);
+int TextGetMainCharacterCount(Vm::Sc3VmThread* ctx);
+int TextLayoutPlainLine(Vm::Sc3VmThread* ctx, int stringLength,
+                        ProcessedTextGlyph* outGlyphs, Font* font,
+                        float fontSize, DialogueColorPair colors, float opacity,
+                        glm::vec2 pos, TextAlignment alignment,
+                        float blockWidth = 0.0f);
 
 }  // namespace Impacto

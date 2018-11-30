@@ -37,7 +37,7 @@ enum StringTokenType : uint8_t {
   STT_Present_0x18 = 0x18,
   STT_AutoForward = 0x19,
   STT_AutoForward_1A = 0x1A,
-  STT_Unk_1E = 0x1E,
+  STT_RubyCenterPerCharacter = 0x1E,
   STT_AltLineBreak = 0x1F,
 
   // This is our own!
@@ -75,7 +75,7 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
     case STT_Present_0x18:
     case STT_AutoForward:
     case STT_AutoForward_1A:
-    case STT_Unk_1E:
+    case STT_RubyCenterPerCharacter:
     case STT_AltLineBreak:
     case STT_EndOfString: {
       Type = (StringTokenType)c;
@@ -125,6 +125,10 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
   return bytesRead;
 }
 
+uint8_t ProcessedTextGlyph::Flags() const {
+  return Profile::Charset::Flags[CharId];
+}
+
 void DialoguePage::Init() {
   Profile::Dialogue::Configure();
   WaitIconAnimation.DurationIn = Profile::Dialogue::WaitIconAnimationDuration;
@@ -148,26 +152,115 @@ void DialoguePage::Clear() {
   memset(RubyChunks, 0, sizeof(RubyChunk) * DialogueMaxRubyChunks);
   RubyChunkCount = 0;
   CurrentRubyChunk = 0;
-  CurrentX = 0.0f;
-  CurrentY = 0.0f;
+  FirstRubyChunkOnLine = 0;
+  if (Mode == DPM_ADV) {
+    CurrentLineTop = ADVBounds.Y;
+  } else {
+    CurrentLineTop = NVLBounds.Y;
+  }
+  CurrentLineTopMargin = 0.0f;
   NVLResetBeforeAdd = false;
 }
 
 enum TextParseState { TPS_Normal, TPS_Name, TPS_Ruby };
+
+void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, int nextLineStart) {
+  EndRubyBase(nextLineStart - 1);
+
+  // Lay out all ruby chunks on this line (before we change CurrentLineTop and
+  // thus can't find where to put them)
+  for (int i = FirstRubyChunkOnLine; i < RubyChunkCount; i++) {
+    if (RubyChunks[i].FirstBaseCharacter >= nextLineStart) break;
+
+    uint8_t* oldIp = ctx->Ip;
+    ctx->Ip = (uint8_t*)RubyChunks[i].RawText;
+
+    glm::vec2 pos =
+        glm::vec2(0, CurrentLineTop + CurrentLineTopMargin + RubyYOffset);
+
+    // ruby base length > ruby text length: block align
+    // ruby base length > ruby text length and 0x1E: center per character
+    // ruby base length == ruby text length: center per character
+    // ruby base length < ruby text length: center over block (handled by block
+    // align)
+
+    if (RubyChunks[i].Length == RubyChunks[i].BaseLength ||
+        (RubyChunks[i].CenterPerCharacter &&
+         RubyChunks[i].BaseLength > RubyChunks[i].Length)) {
+      // center every ruby character over the base character below it
+      for (int j = 0; j < RubyChunks[i].Length; j++) {
+        RectF const& baseGlyphRect =
+            Glyphs[RubyChunks[i].FirstBaseCharacter + j].DestRect;
+        pos.x = baseGlyphRect.Center().x;
+        TextLayoutPlainLine(ctx, 1, RubyChunks[i].Text + j, &DialogueFont,
+                            RubyFontSize, ColorTable[0], 1.0f, pos,
+                            TextAlignment::Center);
+      }
+    } else {
+      // evenly space out all ruby characters over the block of base text
+      // TODO is this really the right behaviour for CenterPerCharacter(0x1E)
+      // and ruby base length < ruby text length?
+      RectF const& baseGlyphRect =
+          Glyphs[RubyChunks[i].FirstBaseCharacter].DestRect;
+      pos.x = baseGlyphRect.X;
+      float blockWidth = 0.0f;
+      for (int j = 0; j < RubyChunks[i].BaseLength; j++) {
+        blockWidth +=
+            Glyphs[RubyChunks[i].FirstBaseCharacter + j].DestRect.Width;
+      }
+      int rubyLength =
+          TextLayoutPlainLine(ctx, RubyChunks[i].Length, RubyChunks[i].Text,
+                              &DialogueFont, RubyFontSize, ColorTable[0], 1.0f,
+                              pos, TextAlignment::Block, blockWidth);
+    }
+
+    ctx->Ip = oldIp;
+
+    FirstRubyChunkOnLine++;
+  }
+
+  float lineHeight = DefaultFontSize;
+  // Glyphs of different font sizes are bottom-aligned within the line
+  for (int i = LastLineStart; i < nextLineStart; i++) {
+    if (Glyphs[i].DestRect.Height > lineHeight)
+      lineHeight = Glyphs[i].DestRect.Height;
+  }
+  for (int i = LastLineStart; i < nextLineStart; i++) {
+    Glyphs[i].DestRect.Y = CurrentLineTop + CurrentLineTopMargin +
+                           (lineHeight - Glyphs[i].DestRect.Height);
+  }
+  CurrentLineTop =
+      CurrentLineTop + CurrentLineTopMargin + lineHeight + LineSpacing;
+  CurrentLineTopMargin = 0.0f;
+  LastLineStart = nextLineStart;
+}
+
+void DialoguePage::EndRubyBase(int lastBaseCharacter) {
+  if (BuildingRubyBase) {
+    RubyChunks[CurrentRubyChunk].BaseLength =
+        (lastBaseCharacter - RubyChunks[CurrentRubyChunk].FirstBaseCharacter) +
+        1;
+    BuildingRubyBase = false;
+  }
+}
 
 void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
   if (Mode == DPM_ADV || NVLResetBeforeAdd) {
     Clear();
   }
 
+  // TODO should we reset HasName here?
+  // It shouldn't really matter since names are an ADV thing and we clear before
+  // every add on ADV anyway...
+
   AutoForward = false;
 
   float FontSize = DefaultFontSize;
   TextParseState State = TPS_Normal;
+  // TODO respect alignment
   TextAlignment Alignment = TextAlignment::Left;
-  int CurrentCharacter = Length;  // in TPS_Normal line
   int LastWordStart = Length;
-  int LastLineStart = Length;
+  LastLineStart = Length;
   DialogueColorPair CurrentColors = ColorTable[0];
 
   RectF BoxBounds;
@@ -177,16 +270,21 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
     BoxBounds = NVLBounds;
   }
 
+  float CurrentX = 0.0f;
+
+  uint16_t name[DialogueMaxNameLength];
+
+  BuildingRubyBase = false;
+
   StringToken token;
   do {
     token.Read(ctx);
     switch (token.Type) {
       case STT_LineBreak:
       case STT_AltLineBreak: {
-        CurrentX = 0.0f;
-        CurrentY += FontSize + LineSpacing;
+        FinishLine(ctx, Length);
         LastWordStart = Length;
-        LastLineStart = Length;
+        CurrentX = 0.0f;
         break;
       }
       case STT_CharacterNameStart: {
@@ -195,12 +293,16 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
         break;
       }
       case STT_RubyTextStart: {
-        CurrentRubyChunk = RubyChunkCount;
-        RubyChunkCount++;
+        EndRubyBase(Length - 1);
         State = TPS_Ruby;
         break;
       }
-      case STT_DialogueLineStart: {
+      case STT_RubyCenterPerCharacter: {
+        RubyChunks[CurrentRubyChunk].CenterPerCharacter = true;
+        break;
+      }
+      case STT_DialogueLineStart:
+      case STT_RubyTextEnd: {
         State = TPS_Normal;
         break;
       }
@@ -213,11 +315,22 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
         break;
       }
       case STT_SetLeftMargin: {
-        CurrentX += token.Val_Uint16;
+        float addX = token.Val_Uint16;
+        if (CurrentX + addX > BoxBounds.Width) {
+          FinishLine(ctx, Length);
+          LastWordStart = Length;
+          addX -= (BoxBounds.Width - CurrentX);
+          CurrentX = 0.0f;
+        }
+        while (addX > BoxBounds.Width) {
+          FinishLine(ctx, Length);
+          addX -= BoxBounds.Width;
+        }
+        CurrentX += addX;
         break;
       }
       case STT_SetTopMargin: {
-        CurrentY += token.Val_Uint16;
+        CurrentLineTopMargin = token.Val_Uint16;
         break;
       }
       case STT_SetFontSize: {
@@ -225,7 +338,10 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
         break;
       }
       case STT_RubyBaseStart: {
+        CurrentRubyChunk = RubyChunkCount;
+        RubyChunkCount++;
         RubyChunks[CurrentRubyChunk].FirstBaseCharacter = Length;
+        LastWordStart = Length;
         break;
       }
       case STT_AutoForward:
@@ -239,30 +355,29 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
       }
       case STT_Character: {
         if (State == TPS_Name) {
-          Name[NameLength] = token.Val_Uint16;
+          name[NameLength] = token.Val_Uint16;
           NameLength++;
         } else if (State == TPS_Ruby) {
           RubyChunks[CurrentRubyChunk]
-              .Text[RubyChunks[CurrentRubyChunk].Length] = token.Val_Uint16;
+              .RawText[RubyChunks[CurrentRubyChunk].Length] = token.Val_Uint16;
           RubyChunks[CurrentRubyChunk].Length++;
         } else {
           // TODO respect TA_Center
+          // TODO what to do about left margin if text alignment is center?
 
           TextIsFullyOpaque = false;
           ProcessedTextGlyph& ptg = Glyphs[Length];
-          ptg.Glyph = DialogueFont.Glyph(token.Val_Uint16);
-          ptg.CharacterType = Profile::Charset::Flags[token.Val_Uint16];
+          ptg.CharId = token.Val_Uint16;
           ptg.Opacity = 0.0f;
           ptg.Colors = CurrentColors;
 
-          if (ptg.CharacterType & CharacterTypeFlags::WordStartingPunct) {
+          if (ptg.Flags() & CharacterTypeFlags::WordStartingPunct) {
             LastWordStart = Length;  // still *before* this character
           }
 
           ptg.DestRect.X = BoxBounds.X + CurrentX;
-          ptg.DestRect.Y = BoxBounds.Y + CurrentY;
-          ptg.DestRect.Width =
-              (FontSize / DialogueFont.RowHeight()) * ptg.Glyph.Bounds.Width;
+          ptg.DestRect.Width = (FontSize / DialogueFont.RowHeight()) *
+                               DialogueFont.Widths[ptg.CharId];
           ptg.DestRect.Height = FontSize;
 
           CurrentX += ptg.DestRect.Width;
@@ -272,32 +387,35 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
           // Line breaking
           if (ptg.DestRect.X + ptg.DestRect.Width >
               BoxBounds.X + BoxBounds.Width) {
-            CurrentY += FontSize + LineSpacing;
             if (LastLineStart == LastWordStart) {
               // Word doesn't fit on a line, gotta break in the middle of it
               ptg.DestRect.X = BoxBounds.X;
-              ptg.DestRect.Y = BoxBounds.Y + CurrentY;
               CurrentX = ptg.DestRect.Width;
-              LastLineStart = LastWordStart = Length - 1;
+              FinishLine(ctx, Length - 1);
+              LastWordStart = Length - 1;
             } else {
               int firstNonSpace = LastWordStart;
               // Skip spaces at start of (new) line
               for (int i = LastWordStart; i < Length; i++) {
-                if (!(Glyphs[i].CharacterType & CharacterTypeFlags::Space))
-                  break;
+                if (!(Glyphs[i].Flags() & CharacterTypeFlags::Space)) break;
                 firstNonSpace = i + 1;
               }
-              LastLineStart = LastWordStart = firstNonSpace;
-              CurrentX = 0.0f;
-              for (int i = firstNonSpace; i < Length; i++) {
-                Glyphs[i].DestRect.X = BoxBounds.X + CurrentX;
-                CurrentX += Glyphs[i].DestRect.Width;
-                Glyphs[i].DestRect.Y += FontSize + LineSpacing;
+              FinishLine(ctx, firstNonSpace);
+              LastWordStart = firstNonSpace;
+              if (firstNonSpace < Length) {
+                for (int i = firstNonSpace; i < Length; i++) {
+                  Glyphs[i].DestRect.X -= Glyphs[firstNonSpace].DestRect.X;
+                }
+                CurrentX = Glyphs[Length - 1].DestRect.X +
+                           Glyphs[Length - 1].DestRect.Width;
+              } else {
+                // new line is empty
+                CurrentX = 0.0f;
               }
             }
           }
 
-          if (ptg.CharacterType & CharacterTypeFlags::WordEndingPunct) {
+          if (ptg.Flags() & CharacterTypeFlags::WordEndingPunct) {
             LastWordStart = Length;  // now after this character
           }
         }
@@ -308,8 +426,18 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
     }
   } while (token.Type != STT_EndOfString);
 
-  CurrentY += FontSize + LineSpacing;  // For NVL no reset
+  FinishLine(ctx, Length);
   CurrentX = 0.0f;
+
+  if (HasName) {
+    uint8_t* oldIp = ctx->Ip;
+    ctx->Ip = (uint8_t*)name;
+    int nameLength = TextLayoutPlainLine(ctx, NameLength, Name, &DialogueFont,
+                                         ADVNameFontSize, ColorTable[0], 1.0f,
+                                         ADVNamePos, ADVNameAlignment);
+    assert(nameLength == NameLength);
+    ctx->Ip = oldIp;
+  }
 }
 
 void DialoguePage::Update(float dt) {
@@ -352,31 +480,8 @@ void DialoguePage::Render() {
         RectF(0, 0, Profile::DesignWidth, Profile::DesignHeight), nvlBoxTint);
   }
 
-  for (int i = 0; i < Length; i++) {
-    float opacity = glm::smoothstep(0.0f, 1.0f, Glyphs[i].Opacity) *
-                    glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
-
-    glm::vec4 color = RgbIntToFloat(Glyphs[i].Colors.TextColor);
-    color.a *= opacity;
-
-    // Outline, the dirty way
-    ///////////////////////////////////////////////////////////////////////////////
-    glm::vec4 outcolor = RgbIntToFloat(Glyphs[i].Colors.OutlineColor);
-    outcolor.a *= opacity;
-    Renderer2D::DrawSprite(
-        Glyphs[i].Glyph,
-        RectF(Glyphs[i].DestRect.X + 1, Glyphs[i].DestRect.Y + 1,
-              Glyphs[i].DestRect.Width, Glyphs[i].DestRect.Height),
-        outcolor);
-    Renderer2D::DrawSprite(
-        Glyphs[i].Glyph,
-        RectF(Glyphs[i].DestRect.X - 1, Glyphs[i].DestRect.Y - 1,
-              Glyphs[i].DestRect.Width, Glyphs[i].DestRect.Height),
-        outcolor);
-    ///////////////////////////////////////////////////////////////////////////////
-
-    Renderer2D::DrawSprite(Glyphs[i].Glyph, Glyphs[i].DestRect, color);
-  }
+  Renderer2D::DrawProcessedText(Glyphs, Length, &DialogueFont, opacityTint.a,
+                                true);
 
   if (Mode == DPM_ADV && HasName) {
     if (HaveADVNameTag) {
@@ -384,26 +489,9 @@ void DialoguePage::Render() {
                              opacityTint);
     }
 
-    RectF* dests = (RectF*)ImpStackAlloc(sizeof(RectF) * NameLength);
-    Sprite* sprites = (Sprite*)ImpStackAlloc(sizeof(Sprite) * NameLength);
-
-    glm::vec2 pos = ADVNamePos;
     float width = 0.0f;
     for (int i = 0; i < NameLength; i++) {
-      sprites[i] = DialogueFont.Glyph(Name[i]);
-      dests[i].X = pos.x;
-      dests[i].Y = pos.y;
-      dests[i].Width = (ADVNameFontSize / DialogueFont.RowHeight()) *
-                       sprites[i].Bounds.Width;
-      dests[i].Height = ADVNameFontSize;
-      width += dests[i].Width;
-      pos.x += dests[i].Width;
-    }
-
-    if (ADVNameAlignment == +TextAlignment::Center) {
-      for (int i = 0; i < NameLength; i++) dests[i].X -= width / 2.0f;
-    } else if (ADVNameAlignment == +TextAlignment::Right) {
-      for (int i = 0; i < NameLength; i++) dests[i].X -= width;
+      width += Name[i].DestRect.Width;
     }
 
     if (HaveADVNameTag) {
@@ -424,29 +512,8 @@ void DialoguePage::Render() {
                              opacityTint);
     }
 
-    glm::vec4 color = RgbIntToFloat(ColorTable[0].TextColor);
-    color.a *= glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
-
-    glm::vec4 outcolor = RgbIntToFloat(ColorTable[0].OutlineColor);
-    outcolor.a *= glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
-
-    for (int i = 0; i < NameLength; i++) {
-      // Name outline, the dirty way
-      ///////////////////////////////////////////////////////////////////////////////
-      Renderer2D::DrawSprite(sprites[i],
-                             RectF(dests[i].X + 1, dests[i].Y + 1,
-                                   dests[i].Width, dests[i].Height),
-                             outcolor);
-      Renderer2D::DrawSprite(sprites[i],
-                             RectF(dests[i].X - 1, dests[i].Y - 1,
-                                   dests[i].Width, dests[i].Height),
-                             outcolor);
-      ///////////////////////////////////////////////////////////////////////////////
-      Renderer2D::DrawSprite(sprites[i], dests[i], color);
-    }
-
-    ImpStackFree(sprites);
-    ImpStackFree(dests);
+    Renderer2D::DrawProcessedText(Name, NameLength, &DialogueFont,
+                                  opacityTint.a, true);
   }
 
   // Wait icon
@@ -467,6 +534,113 @@ int TextGetStringLength(Vm::Sc3VmThread* ctx) {
     result += token.Read(ctx);
   } while (token.Type != STT_EndOfString);
   return result;
+}
+int TextGetMainCharacterCount(Vm::Sc3VmThread* ctx) {
+  int result = 0;
+  StringToken token;
+  bool isMain = true;
+  do {
+    switch (token.Type) {
+      case STT_CharacterNameStart:
+      case STT_RubyTextStart: {
+        isMain = false;
+        break;
+      }
+      case STT_DialogueLineStart: {
+        isMain = true;
+        break;
+      }
+      case STT_Character: {
+        if (isMain) result++;
+        break;
+      }
+    }
+  } while (token.Type != STT_EndOfString);
+  return result;
+}
+
+int TextLayoutPlainLine(Vm::Sc3VmThread* ctx, int stringLength,
+                        ProcessedTextGlyph* outGlyphs, Font* font,
+                        float fontSize, DialogueColorPair colors, float opacity,
+                        glm::vec2 pos, TextAlignment alignment,
+                        float blockWidth) {
+  int characterCount = 0;
+  StringToken token;
+
+  float currentX = 0;
+
+  for (int i = 0; i < stringLength; i++) {
+    token.Read(ctx);
+    if (token.Type == STT_EndOfString) break;
+    if (token.Type != STT_Character) continue;
+
+    ProcessedTextGlyph& ptg = outGlyphs[characterCount];
+    ptg.CharId = token.Val_Uint16;
+    ptg.Colors = colors;
+    ptg.Opacity = opacity;
+
+    ptg.DestRect.X = currentX;
+    ptg.DestRect.Y = pos.y;
+    ptg.DestRect.Width =
+        (fontSize / font->RowHeight()) * font->Widths[ptg.CharId];
+    ptg.DestRect.Height = fontSize;
+
+    currentX += ptg.DestRect.Width;
+
+    characterCount++;
+  }
+
+  // currentX is now line width
+
+  // Block alignment:
+  //
+  //  l  i  n  e
+  // block__below
+  //
+  // If block below is shorter than line, line is just centered over the block
+
+  if (alignment == +TextAlignment::Block && blockWidth < currentX) {
+    pos.x += blockWidth / 2.0f;
+    alignment = TextAlignment::Center;
+  }
+
+  switch (alignment) {
+    case TextAlignment::Left: {
+      // pos is top left
+      for (int i = 0; i < characterCount; i++) {
+        outGlyphs[i].DestRect.X += pos.x;
+      }
+      break;
+    }
+    case TextAlignment::Right: {
+      // pos is top right
+      for (int i = 0; i < characterCount; i++) {
+        outGlyphs[i].DestRect.X += (pos.x - currentX);
+      }
+      break;
+    }
+    case TextAlignment::Center: {
+      // pos is top center
+      for (int i = 0; i < characterCount; i++) {
+        outGlyphs[i].DestRect.X += (pos.x - (currentX / 2.0f));
+      }
+      break;
+    }
+    case TextAlignment::Block: {
+      float blockSpacing = blockWidth / (float)currentX;
+      if (characterCount >= 1) {
+        outGlyphs[0].DestRect.X +=
+            pos.x + blockSpacing / 2.0f - outGlyphs[0].DestRect.Width / 2.0f;
+      }
+      for (int i = 1; i < characterCount; i++) {
+        outGlyphs[i].DestRect.X +=
+            blockSpacing - outGlyphs[i].DestRect.Width / 2.0f;
+      }
+      break;
+    }
+  }
+
+  return characterCount;
 }
 
 }  // namespace Impacto

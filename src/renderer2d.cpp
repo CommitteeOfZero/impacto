@@ -215,6 +215,42 @@ void DrawRect3DRotated(RectF const& dest, float depth, glm::vec2 vanishingPoint,
                       rot, color);
 }
 
+void DrawProcessedText(ProcessedTextGlyph* text, int length, Font* font,
+                       float opacity, bool outlined,
+                       bool smoothstepGlyphOpacity) {
+  // cruddy mages outline
+  if (outlined) {
+    for (int i = 0; i < length; i++) {
+      glm::vec4 color = RgbIntToFloat(text[i].Colors.OutlineColor);
+      color.a = opacity;
+      if (smoothstepGlyphOpacity) {
+        color.a *= glm::smoothstep(0.0f, 1.0f, text[i].Opacity);
+      } else {
+        color.a *= text[i].Opacity;
+      }
+      Sprite glyph = font->Glyph(text[i].CharId);
+      RectF dest = text[i].DestRect;
+      dest.X -= 1;
+      dest.Y -= 1;
+      DrawSprite(glyph, dest, color);
+      dest.X += 2;
+      dest.Y += 2;
+      DrawSprite(glyph, dest, color);
+    }
+  }
+
+  for (int i = 0; i < length; i++) {
+    glm::vec4 color = RgbIntToFloat(text[i].Colors.TextColor);
+    color.a = opacity;
+    if (smoothstepGlyphOpacity) {
+      color.a *= glm::smoothstep(0.0f, 1.0f, text[i].Opacity);
+    } else {
+      color.a *= text[i].Opacity;
+    }
+    DrawSprite(font->Glyph(text[i].CharId), text[i].DestRect, color);
+  }
+}
+
 void DrawSprite(Sprite const& sprite, RectF const& dest, glm::vec4 tint,
                 float angle) {
   if (!Drawing) {

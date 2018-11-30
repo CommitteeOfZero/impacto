@@ -29,6 +29,7 @@ Font DialogueFont;
 float DefaultFontSize;
 float LineSpacing;
 float RubyFontSize;
+float RubyYOffset;
 
 int ColorCount;
 DialogueColorPair* ColorTable;
@@ -83,6 +84,7 @@ void Configure() {
       EnsureGetMemberFloat(_dialogue, "/Dialogue", "DefaultFontSize");
   LineSpacing = EnsureGetMemberFloat(_dialogue, "/Dialogue", "LineSpacing");
   RubyFontSize = EnsureGetMemberFloat(_dialogue, "/Dialogue", "RubyFontSize");
+  RubyYOffset = EnsureGetMemberFloat(_dialogue, "/Dialogue", "RubyYOffset");
 
   MaxPageSize = EnsureGetMemberInt(_dialogue, "/Dialogue", "MaxPageSize");
   PageCount = EnsureGetMemberInt(_dialogue, "/Dialogue", "PageCount");

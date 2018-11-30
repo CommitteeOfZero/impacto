@@ -1,6 +1,7 @@
 #pragma once
 
 #include "spritesheet.h"
+#include "text.h"
 
 namespace Impacto {
 
@@ -28,6 +29,10 @@ void DrawSprite3DRotated(Sprite const& sprite, glm::vec2 topLeft, float depth,
                          glm::vec2 scale = glm::vec2(1.0f));
 void DrawRect3DRotated(RectF const& dest, float depth, glm::vec2 vanishingPoint,
                        bool stayInScreen, glm::quat rot, glm::vec4 color);
+
+void DrawProcessedText(ProcessedTextGlyph* text, int length, Font* font,
+                       float opacity = 1.0f, bool outlined = false,
+                       bool smoothstepGlyphOpacity = true);
 
 }  // namespace Renderer2D
 }  // namespace Impacto

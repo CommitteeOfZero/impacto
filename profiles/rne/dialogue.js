@@ -28,6 +28,7 @@ root.Dialogue = {
     DefaultFontSize: 32,
     LineSpacing: 22,
     RubyFontSize: 14,
+    RubyYOffset: -18,
     ColorTable: [
         [0xFFFFFF, 0x000000], [0x5080FF, 0x000000],
         [0xFF7080, 0x000000], [0xFFA0F8, 0x000000],
