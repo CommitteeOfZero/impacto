@@ -221,7 +221,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
         break;
       }
       case STT_SetFontSize: {
-        FontSize = token.Val_Uint16;
+        FontSize = ((float)token.Val_Uint16) / 1000.0f;
         break;
       }
       case STT_RubyBaseStart: {
