@@ -54,13 +54,6 @@ struct RubyChunk {
   uint16_t Text[DialogueMaxRubyChunkLength];
 };
 
-enum DialoguePageAnimState {
-  DPAS_Hidden,
-  DPAS_Hiding,
-  DPAS_Showing,
-  DPAS_Shown
-};
-
 struct DialoguePage {
   static void Init();
 
