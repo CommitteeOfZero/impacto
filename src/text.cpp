@@ -7,6 +7,7 @@
 
 #include "profile/charset.h"
 #include "profile/dialogue.h"
+#include "profile/game.h"
 
 namespace Impacto {
 
@@ -133,8 +134,8 @@ void DialoguePage::Init() {
     DialoguePages[i].Clear();
     DialoguePages[i].Mode = DPM_NVL;
     DialoguePages[i].Id = i;
-    DialoguePages[i].FadeAnimation.DurationIn = ADVBoxFadeInDuration;
-    DialoguePages[i].FadeAnimation.DurationOut = ADVBoxFadeOutDuration;
+    DialoguePages[i].FadeAnimation.DurationIn = FadeInDuration;
+    DialoguePages[i].FadeAnimation.DurationOut = FadeOutDuration;
   }
 }
 
@@ -340,11 +341,15 @@ void DialoguePage::Render() {
   if (FadeAnimation.IsOut()) return;
 
   glm::vec4 opacityTint(1.0f);
-  opacityTint.a *= glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
+  opacityTint.a = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
 
   // Textbox
   if (Mode == DPM_ADV) {
     Renderer2D::DrawSprite(ADVBoxSprite, ADVBoxPos, opacityTint);
+  } else {
+    glm::vec4 nvlBoxTint(0.0f, 0.0f, 0.0f, opacityTint.a * NVLBoxMaxOpacity);
+    Renderer2D::DrawRect(
+        RectF(0, 0, Profile::DesignWidth, Profile::DesignHeight), nvlBoxTint);
   }
 
   for (int i = 0; i < Length; i++) {

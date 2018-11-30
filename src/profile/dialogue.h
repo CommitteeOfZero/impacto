@@ -13,8 +13,11 @@ extern RectF ADVBounds;
 
 extern Sprite ADVBoxSprite;
 extern glm::vec2 ADVBoxPos;
-extern float ADVBoxFadeOutDuration;
-extern float ADVBoxFadeInDuration;
+
+extern float FadeOutDuration;
+extern float FadeInDuration;
+
+extern float NVLBoxMaxOpacity;
 
 extern TextAlignment ADVNameAlignment;
 extern float ADVNameFontSize;

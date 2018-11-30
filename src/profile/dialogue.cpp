@@ -11,8 +11,11 @@ RectF ADVBounds;
 
 Sprite ADVBoxSprite;
 glm::vec2 ADVBoxPos;
-float ADVBoxFadeOutDuration;
-float ADVBoxFadeInDuration;
+
+float FadeOutDuration;
+float FadeInDuration;
+
+float NVLBoxMaxOpacity;
 
 TextAlignment ADVNameAlignment = TextAlignment::Left;
 float ADVNameFontSize;
@@ -52,10 +55,14 @@ void Configure() {
 
   ADVBoxSprite = EnsureGetMemberSprite(_dialogue, "/Dialogue", "ADVBoxSprite");
   ADVBoxPos = EnsureGetMemberVec2(_dialogue, "/Dialogue", "ADVBoxPos");
-  ADVBoxFadeOutDuration =
-      EnsureGetMemberFloat(_dialogue, "/Dialogue", "ADVBoxFadeOutDuration");
-  ADVBoxFadeInDuration =
-      EnsureGetMemberFloat(_dialogue, "/Dialogue", "ADVBoxFadeInDuration");
+
+  FadeOutDuration =
+      EnsureGetMemberFloat(_dialogue, "/Dialogue", "FadeOutDuration");
+  FadeInDuration =
+      EnsureGetMemberFloat(_dialogue, "/Dialogue", "FadeInDuration");
+
+  NVLBoxMaxOpacity =
+      EnsureGetMemberFloat(_dialogue, "/Dialogue", "NVLBoxMaxOpacity");
 
   ADVNameAlignment = TextAlignment::_from_integral_unchecked(
       EnsureGetMemberInt(_dialogue, "/Dialogue", "ADVNameAlignment"));
