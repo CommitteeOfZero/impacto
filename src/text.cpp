@@ -353,9 +353,8 @@ void DialoguePage::Render() {
   }
 
   for (int i = 0; i < Length; i++) {
-    float opacity = glm::smoothstep(0.0f, 1.0f, Glyphs[i].Opacity);
-    if (Mode == DPM_ADV)
-      opacity *= glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
+    float opacity = glm::smoothstep(0.0f, 1.0f, Glyphs[i].Opacity) *
+                    glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
 
     glm::vec4 color = RgbIntToFloat(Glyphs[i].Colors.TextColor);
     color.a *= opacity;
