@@ -245,9 +245,10 @@ void DialoguePage::EndRubyBase(int lastBaseCharacter) {
 }
 
 void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
-  if (Mode == DPM_ADV || NVLResetBeforeAdd) {
+  if (Mode == DPM_ADV || NVLResetBeforeAdd || PrevMode != Mode) {
     Clear();
   }
+  PrevMode = Mode;
 
   // TODO should we reset HasName here?
   // It shouldn't really matter since names are an ADV thing and we clear before
@@ -355,11 +356,12 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
       }
       case STT_Character: {
         if (State == TPS_Name) {
-          name[NameLength] = token.Val_Uint16;
+          name[NameLength] = SDL_Swap16(token.Val_Uint16 | 0x8000);
           NameLength++;
         } else if (State == TPS_Ruby) {
           RubyChunks[CurrentRubyChunk]
-              .RawText[RubyChunks[CurrentRubyChunk].Length] = token.Val_Uint16;
+              .RawText[RubyChunks[CurrentRubyChunk].Length] =
+              SDL_Swap16(token.Val_Uint16 | 0x8000);
           RubyChunks[CurrentRubyChunk].Length++;
         } else {
           // TODO respect TA_Center

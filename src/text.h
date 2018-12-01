@@ -100,6 +100,8 @@ struct DialoguePage {
   float CurrentLineTop;
   float CurrentLineTopMargin;
   int LastLineStart;
+
+  DialoguePageMode PrevMode = DPM_ADV;
 };
 
 extern DialoguePage* DialoguePages;
