@@ -132,6 +132,7 @@ uint8_t ProcessedTextGlyph::Flags() const {
 void DialoguePage::Init() {
   Profile::Dialogue::Configure();
   WaitIconAnimation.DurationIn = Profile::Dialogue::WaitIconAnimationDuration;
+  WaitIconAnimation.StartIn();
   WaitIconAnimation.LoopMode = ALM_Loop;
 
   for (int i = 0; i < Profile::Dialogue::PageCount; i++) {
