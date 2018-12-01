@@ -302,8 +302,14 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
         RubyChunks[CurrentRubyChunk].CenterPerCharacter = true;
         break;
       }
-      case STT_DialogueLineStart:
+      case STT_DialogueLineStart: {
+        State = TPS_Normal;
+        break;
+      }
       case STT_RubyTextEnd: {
+        // At least S;G uses [ruby-base]link text[ruby-text-end] for mails, with
+        // no ruby-text-start
+        EndRubyBase(Length - 1);
         State = TPS_Normal;
         break;
       }
@@ -404,15 +410,10 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
               }
               FinishLine(ctx, firstNonSpace);
               LastWordStart = firstNonSpace;
-              if (firstNonSpace < Length) {
-                for (int i = firstNonSpace; i < Length; i++) {
-                  Glyphs[i].DestRect.X -= Glyphs[firstNonSpace].DestRect.X;
-                }
-                CurrentX = Glyphs[Length - 1].DestRect.X +
-                           Glyphs[Length - 1].DestRect.Width;
-              } else {
-                // new line is empty
-                CurrentX = 0.0f;
+              CurrentX = 0.0f;
+              for (int i = firstNonSpace; i < Length; i++) {
+                Glyphs[i].DestRect.X = BoxBounds.X + CurrentX;
+                CurrentX += Glyphs[i].DestRect.Width;
               }
             }
           }
