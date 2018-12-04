@@ -268,8 +268,8 @@ void Render() {
               if (Backgrounds2D[i].Status == LS_Loaded &&
                   Backgrounds2D[i].Layer == layer && Backgrounds2D[i].Show) {
                 Renderer2D::DrawSprite(Backgrounds2D[i].BgSprite,
-                                       RectF(0.0f, 0.0f, Profile::DesignHeight,
-                                             Profile::DesignWidth));
+                                       RectF(0.0f, 0.0f, Profile::DesignWidth,
+                                             Profile::DesignHeight));
               }
             }
             if (ScrWork[SW_MASK1PRI] == layer) {
@@ -283,8 +283,8 @@ void Render() {
                 if (!maskSizeX || !maskSizeY) {
                   maskPosX = 0;
                   maskPosY = 0;
-                  maskSizeX = Profile::DesignHeight;
-                  maskSizeY = Profile::DesignWidth;
+                  maskSizeX = Profile::DesignWidth;
+                  maskSizeY = Profile::DesignHeight;
                 }
                 glm::vec4 col = ScrWorkGetColor(SW_MASK1COLOR);
                 col.a = glm::min(maskAlpha / 255.0f, 1.0f);
