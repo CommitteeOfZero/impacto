@@ -1,4 +1,4 @@
-﻿cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.8)
 
 project ("impacto")
 
@@ -53,6 +53,7 @@ set(Impacto_Src
     src/hud/sysmesboxdisplay.cpp
     src/hud/loadingdisplay.cpp
     src/hud/mainmenu.cpp
+    src/profile/hud/sysmesboxdisplay.cpp
 
     src/nuklear_impl.cpp
 
@@ -150,6 +151,7 @@ set(Impacto_Header
     src/profile/hud/loadingdisplay.h
     src/profile/hud/datedisplay.h
     src/profile/hud/mainmenu.h
+    src/profile/hud/sysmesboxdisplay.h
 
     src/games/rne/menubackground.h
 

@@ -110,7 +110,7 @@ void Init() {
 bool LoadScript(uint32_t bufferId, uint32_t scriptId) {
   Io::FileMeta meta;
   Io::VfsGetMeta("script", scriptId, &meta);
-  ImpLogSlow(LL_Debug, LC_VM, "Loading script \"%s\"\n", meta.FileName);
+  ImpLogSlow(LL_Debug, LC_VM, "Loading script \"%s\"\n", meta.FileName.c_str());
 
   void* file;
   int64_t fileSize;

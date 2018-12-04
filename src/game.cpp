@@ -27,6 +27,7 @@
 #include "profile/dialogue.h"
 #include "profile/animations.h"
 #include "profile/hud/datedisplay.h"
+#include "profile/hud/sysmesboxdisplay.h"
 
 namespace Impacto {
 
@@ -91,6 +92,7 @@ static void Init() {
   if (Profile::GameFeatures & GameFeature::Sc3VirtualMachine) {
     SaveIconDisplay::Init();
     LoadingDisplay::Init();
+    SysMesBoxDisplay::Init();
     Profile::DateDisplay::Configure();
 
     Vm::Init();
