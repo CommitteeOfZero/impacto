@@ -46,7 +46,7 @@ VmInstruction(InstSEplay) {
     Io::InputStream* stream;
     Io::VfsOpen("se", effect, &stream);
     Audio::Channels[Audio::AC_SE0 + channel].Volume =
-        (ScrWork[4315 + channel] / 100.0f) - 0.3f;
+        (ScrWork[4315 + channel] / 100.0f) * 0.3f;
     Audio::Channels[Audio::AC_SE0 + channel].Play(
         Audio::AudioStream::Create(stream), (bool)loop, 0.0f);
   } else {

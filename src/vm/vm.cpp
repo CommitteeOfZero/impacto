@@ -8,6 +8,7 @@
 #include "../mem.h"
 #include "../scriptvars.h"
 #include "interface/scene3d.h"
+#include "interface/background2d.h"
 #include "opcodetables_rne.h"
 #include "../profile/game.h"
 #include "../profile/vm.h"
@@ -211,6 +212,7 @@ void Update() {
   if (Profile::GameFeatures & GameFeature::Scene3D) {
     Interface::UpdateScene3D();
   }
+  Interface::UpdateBackground2D();
 }
 
 static void CreateThreadDrawTable() {

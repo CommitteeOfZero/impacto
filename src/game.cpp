@@ -10,6 +10,7 @@
 #include "audio/audiochannel.h"
 #include "audio/audiostream.h"
 #include "renderer2d.h"
+#include "background2d.h"
 #include "3d/scene.h"
 #include "mem.h"
 #include "hud/datedisplay.h"
@@ -18,6 +19,7 @@
 #include "hud/loadingdisplay.h"
 #include "hud/mainmenu.h"
 #include "io/memorystream.h"
+#include "scriptvars.h"
 
 #include "profile/profile.h"
 #include "profile/game.h"
@@ -250,7 +252,6 @@ void Render() {
 
   if (Profile::GameFeatures & GameFeature::Renderer2D) {
     Renderer2D::BeginFrame();
-    DateDisplay::Render();
     for (int i = 0; i < Vm::MaxThreads; i++) {
       if (DrawComponents[i] == TD_None) break;
 
@@ -262,19 +263,55 @@ void Render() {
         case TD_Main: {
           for (uint32_t layer = 0; layer < Profile::LayerCount; layer++) {
             // TODO
+
+            for (int i = 0; i < MaxBackgrounds2D; i++) {
+              if (Backgrounds2D[i].Status == LS_Loaded &&
+                  Backgrounds2D[i].Layer == layer && Backgrounds2D[i].Show) {
+                Renderer2D::DrawSprite(Backgrounds2D[i].BgSprite,
+                                       RectF(0.0f, 0.0f, Profile::DesignHeight,
+                                             Profile::DesignWidth));
+              }
+            }
+            if (ScrWork[SW_MASK1PRI] == layer) {
+              int maskAlpha =
+                  ScrWork[SW_MASK1ALPHA_OFS] + ScrWork[SW_MASK1ALPHA];
+              if (maskAlpha) {
+                int maskPosX = ScrWork[SW_MASK1POSX];
+                int maskPosY = ScrWork[SW_MASK1POSY];
+                int maskSizeX = ScrWork[SW_MASK1SIZEX];
+                int maskSizeY = ScrWork[SW_MASK1SIZEY];
+                if (!maskSizeX || !maskSizeY) {
+                  maskPosX = 0;
+                  maskPosY = 0;
+                  maskSizeX = Profile::DesignHeight;
+                  maskSizeY = Profile::DesignWidth;
+                }
+                glm::vec4 col = ScrWorkGetColor(SW_MASK1COLOR);
+                col.a = glm::min(maskAlpha / 255.0f, 1.0f);
+                Renderer2D::DrawRect(
+                    RectF(maskPosX, maskPosY, maskSizeX, maskSizeY), col);
+              }
+            }
           }
+          DateDisplay::Render();
+          break;
+        }
+        case TD_SystemText: {
           break;
         }
         case TD_SystemIcons: {
           LoadingDisplay::Render();
           break;
         }
-        case TD_SaveIcon: {
-          SaveIconDisplay::Render();
+        case TD_SystemMenu: {
           break;
         }
         case TD_SystemMessage: {
           SysMesBoxDisplay::Render();
+          break;
+        }
+        case TD_SaveIcon: {
+          SaveIconDisplay::Render();
           break;
         }
         default: {

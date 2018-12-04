@@ -23,6 +23,7 @@ set(Impacto_Src
     src/modelviewer.cpp
     src/spriteanimation.cpp
     src/renderer2d.cpp
+    src/background2d.cpp
     src/text.cpp
     src/inputsystem.cpp
     src/glc.cpp
@@ -96,6 +97,7 @@ set(Impacto_Src
     src/vm/inst_sound.cpp
 
     src/vm/interface/scene3d.cpp
+    src/vm/interface/background2d.cpp
 
     src/audio/audiosystem.cpp
     src/audio/audiochannel.cpp
@@ -128,6 +130,7 @@ set(Impacto_Header
     src/spriteanimation.h
     src/font.h
     src/renderer2d.h
+    src/background2d.h
     src/text.h
     src/loadable.h
     src/inputsystem.h
@@ -204,6 +207,7 @@ set(Impacto_Header
     src/scriptvars.h
 
     src/vm/interface/scene3d.h
+    src/vm/interface/background2d.h
 
     src/audio/audiosystem.h
     src/audio/audiocommon.h

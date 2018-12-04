@@ -13,6 +13,7 @@
 #include "../audio/audiosystem.h"
 #include "../audio/audiostream.h"
 #include "../audio/audiochannel.h"
+#include "../background2d.h"
 
 namespace Impacto {
 
@@ -447,6 +448,9 @@ VmInstruction(InstMSinit) {
       initType);  // TODO: There's only one type in R;NE - initType <= 10
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MSinit(initType: %i)\n",
              initType);
+  for (int i = 0; i < MaxBackgrounds2D; i++) {
+    ScrWork[SW_BG1SURF + i] = i;
+  }
 }
 VmInstruction(InstSaveSlot) {
   StartInstruction;
