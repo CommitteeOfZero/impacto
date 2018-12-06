@@ -1,5 +1,6 @@
 #include "mainmenu.h"
 #include "../profile_internal.h"
+#include "../games/rne/tilebackground.h"
 
 namespace Impacto {
 namespace Profile {
@@ -9,10 +10,6 @@ using namespace Impacto::MainMenu;
 
 MainMenuType Type = MainMenuType::None;
 
-float BackgroundInDuration;
-float BackgroundOutDuration;
-Sprite BackgroundSprite;
-
 void Configure() {
   if (TryPushMember("MainMenu")) {
     AssertIs(kObjectType);
@@ -20,9 +17,9 @@ void Configure() {
     Type = MainMenuType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
 
     if (Type == +MainMenuType::RNE) {
-      BackgroundInDuration = EnsureGetMemberFloat("BackgroundInDuration");
-      BackgroundOutDuration = EnsureGetMemberFloat("BackgroundOutDuration");
-      BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
+      EnsurePushMemberOfType("Background", kObjectType);
+      BackgroundAnimation = RNE::ParseTileBackground();
+      Pop();
     }
 
     Pop();

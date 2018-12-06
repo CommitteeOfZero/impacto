@@ -1,8 +1,16 @@
 root.MainMenu = {
     Type: MainMenuType.RNE,
-    BackgroundInDuration: 0.75,
-    BackgroundOutDuration: 1.0,
-    BackgroundSprite: "MainMenuBackground"
+    Background: {
+        DurationIn: 0.75,
+        DurationOut: 1.0,
+        Sprite: "MainMenuBackground",
+        Rows: 7,
+        Columns: 12,
+        CenterY: 0.7,
+        VanishingPointX: 0.66,
+        Depth: 2,
+        MaxAngle: Math.PI / 2
+    }
 };
 
 root.Sprites["MainMenuBackground"] = {

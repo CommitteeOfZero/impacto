@@ -1,24 +1,13 @@
 #include "mainmenu.h"
 
 #include "../profile/hud/mainmenu.h"
-#include "../animation.h"
-#include "../games/rne/tilebackground.h"
 
 namespace Impacto {
 namespace MainMenu {
 
-static Animation* BackgroundAnimation = 0;
+Animation* BackgroundAnimation = 0;
 
-void Init() {
-  Profile::MainMenu::Configure();
-
-  switch (Profile::MainMenu::Type) {
-    case MainMenuType::RNE: {
-      BackgroundAnimation = new RNE::TileBackground();
-      break;
-    }
-  }
-}
+void Init() { Profile::MainMenu::Configure(); }
 
 void Show() {
   if (BackgroundAnimation) BackgroundAnimation->StartIn();
