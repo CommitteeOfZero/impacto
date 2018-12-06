@@ -174,7 +174,7 @@ void MakeJsonProfile(std::string const& name) {
   duk_destroy_heap(ctx);
 }
 
-void ClearJsonProfile() { Json.SetNull(); }
+void ClearJsonProfile() { ClearJsonProfileInternal(); }
 
 }  // namespace Profile
 }  // namespace Impacto

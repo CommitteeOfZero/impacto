@@ -358,5 +358,11 @@ void LoadJsonString(char const* str) {
   JsonStack.emplace(Json, JsonStackPath);
 }
 
+void ClearJsonProfileInternal() {
+  while (!JsonStack.empty()) Pop();
+  JsonStackPath[0] = '\0';
+  Json.SetNull();
+}
+
 }  // namespace Profile
 }  // namespace Impacto

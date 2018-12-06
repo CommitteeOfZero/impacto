@@ -59,6 +59,7 @@ int32_t EnsureGetKeyInt(Value::ConstMemberIterator it);
 char const* EnsureGetKeyString(Value::ConstMemberIterator it);
 
 void LoadJsonString(char const* str);
+void ClearJsonProfileInternal();
 
 }  // namespace Profile
 }  // namespace Impacto
