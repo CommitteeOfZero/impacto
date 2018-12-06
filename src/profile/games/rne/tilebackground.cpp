@@ -13,6 +13,8 @@ Impacto::RNE::TileBackground* ParseTileBackground() {
   result->DurationIn = EnsureGetMemberFloat("DurationIn");
   result->DurationOut = EnsureGetMemberFloat("DurationOut");
 
+  result->Seed = EnsureGetMemberUint("Seed");
+
   result->Rows = EnsureGetMemberInt("Rows");
   result->Columns = EnsureGetMemberInt("Columns");
 

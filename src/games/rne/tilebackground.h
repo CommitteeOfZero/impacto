@@ -10,6 +10,8 @@ class TileBackground : public Animation {
   void Init();
   void Render() override;
 
+  uint32_t Seed;
+
   int Columns;
   int Rows;
 

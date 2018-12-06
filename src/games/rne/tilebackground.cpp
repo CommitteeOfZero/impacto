@@ -34,7 +34,7 @@ void TileBackground::Render() {
         angle = -angle;
       }
 
-      RNG rng(i, 0);
+      RNG rng(i, Seed);
       // FloatBetween(x, y) is in seconds here, we divide by DurationIn to get
       // the corresponding progress value for those seconds in the in direction
       float tileDuration = rng.FloatBetween(0.22f, 0.28f) / DurationIn;

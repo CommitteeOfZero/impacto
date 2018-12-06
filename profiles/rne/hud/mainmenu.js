@@ -4,6 +4,7 @@ root.MainMenu = {
         DurationIn: 0.75,
         DurationOut: 1.0,
         Sprite: "MainMenuBackground",
+        Seed: 0,
         Rows: 7,
         Columns: 12,
         CenterY: 0.7,
