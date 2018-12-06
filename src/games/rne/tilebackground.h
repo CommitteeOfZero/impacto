@@ -4,9 +4,9 @@
 
 namespace Impacto {
 namespace RNE {
-class MenuBackground : public Animation {
+class TileBackground : public Animation {
  public:
-  MenuBackground();
+  TileBackground();
   void Render() override;
 };
 }  // namespace RNE

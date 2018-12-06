@@ -2,7 +2,7 @@
 
 #include "../profile/hud/mainmenu.h"
 #include "../animation.h"
-#include "../games/rne/menubackground.h"
+#include "../games/rne/tilebackground.h"
 
 namespace Impacto {
 namespace MainMenu {
@@ -14,7 +14,7 @@ void Init() {
 
   switch (Profile::MainMenu::Type) {
     case MainMenuType::RNE: {
-      BackgroundAnimation = new RNE::MenuBackground();
+      BackgroundAnimation = new RNE::TileBackground();
       break;
     }
   }

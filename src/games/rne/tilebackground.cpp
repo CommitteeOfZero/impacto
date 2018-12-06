@@ -1,4 +1,4 @@
-#include "menubackground.h"
+#include "tilebackground.h"
 #include "../../renderer2d.h"
 #include "../../rng.h"
 #include "../../profile/game.h"
@@ -29,13 +29,13 @@ void Init() {
   IsInit = true;
 }
 
-MenuBackground::MenuBackground() {
+TileBackground::TileBackground() {
   if (!IsInit) Init();
   DurationIn = Profile::MainMenu::BackgroundInDuration;
   DurationOut = Profile::MainMenu::BackgroundOutDuration;
 }
 
-void MenuBackground::Render() {
+void TileBackground::Render() {
   if (Progress == 0) return;
   if (Progress == 1) {
     Renderer2D::DrawSprite(Profile::MainMenu::BackgroundSprite,
