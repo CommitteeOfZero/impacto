@@ -11,12 +11,14 @@ Impacto::Vm::InstructionSet GameInstructionSet =
     Impacto::Vm::InstructionSet::RNE;
 
 void Configure() {
-  auto const& _vm = EnsureGetMemberOfType(Json, "/", "Vm", kObjectType);
+  EnsurePushMemberOfType("Vm", kObjectType);
 
-  StartScript = EnsureGetMemberUint(_vm, "/Vm", "StartScript");
-  StartScriptBuffer = EnsureGetMemberUint(_vm, "/Vm", "StartScriptBuffer");
+  StartScript = EnsureGetMemberUint("StartScript");
+  StartScriptBuffer = EnsureGetMemberUint("StartScriptBuffer");
   GameInstructionSet = Impacto::Vm::InstructionSet::_from_integral_unchecked(
-      EnsureGetMemberInt(_vm, "/Vm", "GameInstructionSet"));
+      EnsureGetMemberInt("GameInstructionSet"));
+
+  Pop();
 }
 
 }  // namespace Vm

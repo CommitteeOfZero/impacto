@@ -9,32 +9,36 @@ namespace Profile {
 ska::flat_hash_map<std::string, SpriteAnimationDef> Animations;
 
 void LoadAnimations() {
-  auto const& _animations =
-      EnsureGetMemberOfType(Json, "/", "Animations", kObjectType);
+  EnsurePushMemberOfType("Animations", kObjectType);
 
+  auto const& _animations = TopVal();
   for (Value::ConstMemberIterator it = _animations.MemberBegin();
-       it != _animations.MemberEnd(); ++it) {
-    std::string name(EnsureGetString(it->name, "/Animations/x (name)"));
-    AssertIs(it->value, "/Animations/x", kObjectType);
+       it != _animations.MemberEnd(); it++) {
+    std::string name(EnsureGetKeyString(it));
 
-    ImpLog(LL_Debug, LC_Profile, "Loading animation %s\n", name.c_str());
+    EnsurePushMemberIteratorOfType(it, kObjectType);
 
     SpriteAnimationDef& animation = Animations[name];
-    animation.Duration =
-        EnsureGetMemberFloat(it->value, "/Animations/x", "Duration");
+    animation.Duration = EnsureGetMemberFloat("Duration");
 
-    auto const& frames =
-        EnsureGetMemberOfType(it->value, "/Animations/x", "Frames", kArrayType);
+    {
+      EnsurePushMemberOfType("Frames", kArrayType);
 
-    animation.FrameCount = frames.Size();
-    animation.Frames = (Sprite*)malloc(frames.Size() * sizeof(Sprite));
+      auto const& _frames = TopVal();
+      animation.FrameCount = _frames.Size();
+      animation.Frames = (Sprite*)malloc(animation.FrameCount * sizeof(Sprite));
 
-    int i = 0;
-    for (auto it = frames.Begin(); it != frames.End(); it++) {
-      animation.Frames[i] = EnsureGetSprite(*it, "/Animations/x/Frames/y");
-      i++;
+      for (uint32_t i = 0; i < animation.FrameCount; i++) {
+        animation.Frames[i] = EnsureGetArrayElementSprite(i);
+      }
+
+      Pop();
     }
+
+    Pop();
   }
+
+  Pop();
 }
 
 }  // namespace Profile

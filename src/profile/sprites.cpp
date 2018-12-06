@@ -12,27 +12,20 @@ ska::flat_hash_map<std::string, SpriteSheet> SpriteSheets;
 ska::flat_hash_map<std::string, Sprite> Sprites;
 
 void LoadSpritesheets() {
-  auto const& _spritesheets =
-      EnsureGetMemberOfType(Json, "/", "SpriteSheets", kObjectType);
-  auto const& _sprites =
-      EnsureGetMemberOfType(Json, "/", "Sprites", kObjectType);
+  EnsurePushMemberOfType("SpriteSheets", kObjectType);
 
+  auto const& _spritesheets = TopVal();
   for (Value::ConstMemberIterator it = _spritesheets.MemberBegin();
-       it != _spritesheets.MemberEnd(); ++it) {
-    std::string name(EnsureGetString(it->name, "/SpriteSheets/x (name)"));
-    AssertIs(it->value, "/SpriteSheets/x", kObjectType);
+       it != _spritesheets.MemberEnd(); it++) {
+    std::string name(EnsureGetKeyString(it));
 
-    ImpLog(LL_Debug, LC_Profile, "Loading spritesheet %s\n", name.c_str());
+    EnsurePushMemberIteratorOfType(it, kObjectType);
 
     SpriteSheet& sheet = SpriteSheets[name];
+    sheet.DesignWidth = EnsureGetMemberFloat("DesignWidth");
+    sheet.DesignHeight = EnsureGetMemberFloat("DesignHeight");
 
-    sheet.DesignWidth =
-        EnsureGetMemberFloat(it->value, "/SpriteSheets/x", "DesignWidth");
-    sheet.DesignHeight =
-        EnsureGetMemberFloat(it->value, "/SpriteSheets/x", "DesignHeight");
-
-    Io::AssetPath asset =
-        EnsureGetMemberAssetPath(it->value, "/SpriteSheets/x", "Path");
+    Io::AssetPath asset = EnsureGetMemberAssetPath("Path");
 
     Io::InputStream* stream;
     IoError err = asset.Open(&stream);
@@ -50,24 +43,31 @@ void LoadSpritesheets() {
     }
     delete stream;
     sheet.Texture = texture.Submit();
+
+    Pop();
   }
 
-  for (Value::ConstMemberIterator it = _sprites.MemberBegin();
-       it != _sprites.MemberEnd(); ++it) {
-    std::string name(EnsureGetString(it->name, "/Sprites/x (name)"));
-    AssertIs(it->value, "/Sprites/x", kObjectType);
+  Pop();
 
-    ImpLog(LL_Debug, LC_Profile, "Loading sprite %s\n", name.c_str());
+  EnsurePushMemberOfType("Sprites", kObjectType);
+
+  auto const& _sprites = TopVal();
+  for (Value::ConstMemberIterator it = _sprites.MemberBegin();
+       it != _sprites.MemberEnd(); it++) {
+    std::string name(EnsureGetKeyString(it));
+
+    EnsurePushMemberIteratorOfType(it, kObjectType);
 
     Sprite& sprite = Sprites[name];
-
-    sprite.Sheet = EnsureGetMemberSpriteSheet(it->value, "/Sprites/x", "Sheet");
-
-    sprite.Bounds = EnsureGetMemberRectF(it->value, "/Sprites/x", "Bounds");
-    if (!TryGetMemberVec2(it->value, "BaseScale", sprite.BaseScale)) {
+    sprite.Sheet = EnsureGetMemberSpriteSheet("Sheet");
+    sprite.Bounds = EnsureGetMemberRectF("Bounds");
+    if (!TryGetMemberVec2("BaseScale", sprite.BaseScale))
       sprite.BaseScale = glm::vec2(1.0f);
-    }
+
+    Pop();
   }
+
+  Pop();
 }
 
 }  // namespace Profile

@@ -14,22 +14,18 @@ float BackgroundOutDuration;
 Sprite BackgroundSprite;
 
 void Configure() {
-  bool success;
-  auto const& _mainMenu = TryGetMember(Json, "MainMenu", success);
-  if (!success) return;
+  if (TryPushMember("MainMenu")) {
+    AssertIs(kObjectType);
 
-  AssertIs(_mainMenu, "/MainMenu", kObjectType);
+    Type = MainMenuType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
 
-  Type = MainMenuType::_from_integral_unchecked(
-      EnsureGetMemberInt(_mainMenu, "/MainMenu", "Type"));
+    if (Type == +MainMenuType::RNE) {
+      BackgroundInDuration = EnsureGetMemberFloat("BackgroundInDuration");
+      BackgroundOutDuration = EnsureGetMemberFloat("BackgroundOutDuration");
+      BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
+    }
 
-  if (Type == +MainMenuType::RNE) {
-    BackgroundInDuration =
-        EnsureGetMemberFloat(_mainMenu, "/MainMenu", "BackgroundInDuration");
-    BackgroundOutDuration =
-        EnsureGetMemberFloat(_mainMenu, "/MainMenu", "BackgroundOutDuration");
-    BackgroundSprite =
-        EnsureGetMemberSprite(_mainMenu, "/MainMenu", "BackgroundSprite");
+    Pop();
   }
 }
 

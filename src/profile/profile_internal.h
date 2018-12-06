@@ -18,96 +18,47 @@ namespace Profile {
 extern Document Json;
 extern Value GlobalNull;
 
+#define JSON_GET_METHODS(typeName, nativeType)                              \
+  bool TryGet##typeName(nativeType& out##typeName);                         \
+  nativeType EnsureGet##typeName();                                         \
+  bool TryGetMember##typeName(char const* name, nativeType& out##typeName); \
+  nativeType EnsureGetMember##typeName(char const* name);                   \
+  bool TryGetArrayElement##typeName(uint32_t index,                         \
+                                    nativeType& out##typeName);             \
+  nativeType EnsureGetArrayElement##typeName(uint32_t index);
+
+Value const& TopVal();
+void Pop();
+void PushArrayElement(uint32_t i);
+bool TryPushMember(char const* name);
+void EnsurePushMember(char const* name);
+void EnsurePushMemberOfType(char const* name, Type type);
+void AssertIs(Type type);
+void AssertIsOneOf(std::initializer_list<Type> types);
+void PushMemberIterator(Value::ConstMemberIterator it);
+void EnsurePushMemberIteratorOfType(Value::ConstMemberIterator it, Type type);
+
+JSON_GET_METHODS(Bool, bool)
+JSON_GET_METHODS(Uint, uint32_t)
+JSON_GET_METHODS(Int, int32_t)
+JSON_GET_METHODS(Float, float)
+JSON_GET_METHODS(String, char const*)
+
+JSON_GET_METHODS(Vec2, glm::vec2)
+JSON_GET_METHODS(Vec3, glm::vec3)
+JSON_GET_METHODS(RectF, RectF)
+JSON_GET_METHODS(AssetPath, Io::AssetPath)
+
+JSON_GET_METHODS(Sprite, Sprite)
+JSON_GET_METHODS(SpriteSheet, SpriteSheet)
+JSON_GET_METHODS(Font, Font)
+JSON_GET_METHODS(Animation, SpriteAnimationDef)
+
+uint32_t EnsureGetKeyUint(Value::ConstMemberIterator it);
+int32_t EnsureGetKeyInt(Value::ConstMemberIterator it);
+char const* EnsureGetKeyString(Value::ConstMemberIterator it);
+
 void LoadJsonString(char const* str);
-
-Value const& AssertIs(Value const& val, char const* path, Type type);
-Value const& AssertIsOneOf(Value const& val, char const* path,
-                           std::initializer_list<Type> types);
-
-Value const& TryGetMember(Value const& val, char const* member,
-                          bool& outSuccess);
-Value const& EnsureGetMember(Value const& val, char const* path,
-                             char const* member);
-Value const& EnsureGetMemberOfType(Value const& val, char const* path,
-                                   char const* member, Type type);
-Value const& EnsureGetMemberOfTypes(Value const& val, char const* path,
-                                    char const* member,
-                                    std::initializer_list<Type> types);
-
-// Yeah, these can't really be templated (except for TryGetMemberX)...
-// TryGetX logic is type specific, EnsureGet(Member)X has different error
-// strings for each type
-
-bool TryGetString(Value const& val, char const*& outString);
-bool TryGetMemberString(Value const& val, char const* member,
-                        char const*& outString);
-char const* EnsureGetString(Value const& val, char const* path);
-char const* EnsureGetMemberString(Value const& val, char const* path,
-                                  char const* member);
-bool TryGetBool(Value const& val, bool& outBool);
-bool TryGetMemberBool(Value const& val, char const* member, bool& outBool);
-bool EnsureGetBool(Value const& val, char const* path);
-bool EnsureGetMemberBool(Value const& val, char const* path,
-                         char const* member);
-bool TryGetInt(Value const& val, int& outInt);
-bool TryGetMemberInt(Value const& val, char const* member, int& outInt);
-int EnsureGetInt(Value const& val, char const* path);
-int EnsureGetMemberInt(Value const& val, char const* path, char const* member);
-bool TryGetUint(Value const& val, uint32_t& outUint);
-bool TryGetMemberUint(Value const& val, char const* member, uint32_t& outUint);
-uint32_t EnsureGetUint(Value const& val, char const* path);
-uint32_t EnsureGetMemberUint(Value const& val, char const* path,
-                             char const* member);
-bool TryGetFloat(Value const& val, float& outFloat);
-bool TryGetMemberFloat(Value const& val, char const* member, float& outFloat);
-float EnsureGetFloat(Value const& val, char const* path);
-float EnsureGetMemberFloat(Value const& val, char const* path,
-                           char const* member);
-bool TryGetVec2(Value const& val, glm::vec2& outVec);
-bool TryGetMemberVec2(Value const& val, char const* member, glm::vec2& outVec);
-glm::vec2 EnsureGetVec2(Value const& val, char const* path);
-glm::vec2 EnsureGetMemberVec2(Value const& val, char const* path,
-                              char const* member);
-bool TryGetVec3(Value const& val, glm::vec3& outVec);
-bool TryGetMemberVec3(Value const& val, char const* member, glm::vec3& outVec);
-glm::vec3 EnsureGetVec3(Value const& val, char const* path);
-glm::vec3 EnsureGetMemberVec3(Value const& val, char const* path,
-                              char const* member);
-bool TryGetRectF(Value const& val, RectF& outRect);
-bool TryGetMemberRectF(Value const& val, char const* member, RectF& outRect);
-RectF EnsureGetRectF(Value const& val, char const* path);
-RectF EnsureGetMemberRectF(Value const& val, char const* path,
-                           char const* member);
-bool TryGetAssetPath(Value const& val, Io::AssetPath& outPath);
-bool TryGetMemberAssetPath(Value const& val, char const* member,
-                           Io::AssetPath& outPath);
-Io::AssetPath EnsureGetAssetPath(Value const& val, char const* path);
-Io::AssetPath EnsureGetMemberAssetPath(Value const& val, char const* path,
-                                       char const* member);
-
-bool TryGetSprite(Value const& val, Sprite& outSprite);
-bool TryGetMemberSprite(Value const& val, char const* member,
-                        Sprite& outSprite);
-Sprite EnsureGetSprite(Value const& val, char const* path);
-Sprite EnsureGetMemberSprite(Value const& val, char const* path,
-                             char const* member);
-bool TryGetSpriteSheet(Value const& val, SpriteSheet& outSpriteSheet);
-bool TryGetMemberSpriteSheet(Value const& val, char const* member,
-                             SpriteSheet& outSpriteSheet);
-SpriteSheet EnsureGetSpriteSheet(Value const& val, char const* path);
-SpriteSheet EnsureGetMemberSpriteSheet(Value const& val, char const* path,
-                                       char const* member);
-bool TryGetFont(Value const& val, Font& outFont);
-bool TryGetMemberFont(Value const& val, char const* member, Font& outFont);
-Font EnsureGetFont(Value const& val, char const* path);
-Font EnsureGetMemberFont(Value const& val, char const* path,
-                         char const* member);
-bool TryGetAnimation(Value const& val, SpriteAnimationDef& outAnimation);
-bool TryGetMemberAnimation(Value const& val, char const* member,
-                           SpriteAnimationDef& outAnimation);
-SpriteAnimationDef EnsureGetAnimation(Value const& val, char const* path);
-SpriteAnimationDef EnsureGetMemberAnimation(Value const& val, char const* path,
-                                            char const* member);
 
 }  // namespace Profile
 }  // namespace Impacto

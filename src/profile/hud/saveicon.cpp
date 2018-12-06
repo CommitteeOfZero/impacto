@@ -14,23 +14,17 @@ float FadeInDuration;
 float FadeOutDuration;
 
 void Configure() {
-  auto const& _saveIcon =
-      EnsureGetMemberOfType(Json, "/", "SaveIcon", kObjectType);
+  EnsurePushMemberOfType("SaveIcon", kObjectType);
 
-  ForegroundAnimation =
-      EnsureGetMemberAnimation(_saveIcon, "/SaveIcon", "ForegroundAnimation");
-  DefaultPosition =
-      EnsureGetMemberVec2(_saveIcon, "/SaveIcon", "DefaultPosition");
-  BackgroundSprite =
-      EnsureGetMemberSprite(_saveIcon, "/SaveIcon", "BackgroundSprite");
-  BackgroundOffset =
-      EnsureGetMemberVec2(_saveIcon, "/SaveIcon", "BackgroundOffset");
-  BackgroundMaxAlpha =
-      EnsureGetMemberFloat(_saveIcon, "/SaveIcon", "BackgroundMaxAlpha");
-  FadeInDuration =
-      EnsureGetMemberFloat(_saveIcon, "/SaveIcon", "FadeInDuration");
-  FadeOutDuration =
-      EnsureGetMemberFloat(_saveIcon, "/SaveIcon", "FadeOutDuration");
+  ForegroundAnimation = EnsureGetMemberAnimation("ForegroundAnimation");
+  DefaultPosition = EnsureGetMemberVec2("DefaultPosition");
+  BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
+  BackgroundOffset = EnsureGetMemberVec2("BackgroundOffset");
+  BackgroundMaxAlpha = EnsureGetMemberFloat("BackgroundMaxAlpha");
+  FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
+  FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
+
+  Pop();
 }
 
 }  // namespace SaveIcon

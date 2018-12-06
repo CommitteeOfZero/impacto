@@ -8,16 +8,20 @@ namespace Charset {
 uint8_t* Flags = 0;
 
 void Load() {
-  auto const& _flags = EnsureGetMemberOfType(
-      EnsureGetMemberOfType(Json, "/", "Charset", kObjectType), "/Charset",
-      "Flags", kArrayType);
+  EnsurePushMemberOfType("Charset", kObjectType);
+  {
+    EnsurePushMemberOfType("Flags", kArrayType);
 
-  Flags = (uint8_t*)malloc(_flags.Size());
-  int i = 0;
-  for (auto it = _flags.Begin(); it != _flags.End(); it++) {
-    Flags[i] = EnsureGetInt(*it, "/Charset/Flags/x");
-    i++;
+    auto const& _flags = TopVal();
+    uint32_t flagsCount = _flags.Size();
+    Flags = (uint8_t*)malloc(flagsCount);
+    for (uint32_t i = 0; i < flagsCount; i++) {
+      Flags[i] = EnsureGetArrayElementInt(i);
+    }
+
+    Pop();
   }
+  Pop();
 }
 
 }  // namespace Charset

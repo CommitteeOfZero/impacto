@@ -27,71 +27,47 @@ float Spacing;
 float FadeInDuration;
 float FadeOutDuration;
 
+static void GetMemberSpriteArray(Sprite* arr, uint32_t count,
+                                 char const* name) {
+  EnsurePushMemberOfType(name, kArrayType);
+
+  if (TopVal().Size() != count) {
+    ImpLog(LL_Fatal, LC_Profile, "Expected to have %d sprites for %s\n", count,
+           name);
+    Window::Shutdown();
+  }
+
+  for (uint32_t i = 0; i < count; i++) {
+    arr[i] = EnsureGetArrayElementSprite(i);
+  }
+
+  Pop();
+}
+
 void Configure() {
-  auto const& _dateDisplay =
-      EnsureGetMemberOfType(Json, "/", "DateDisplay", kObjectType);
-  auto const& monthSprites = EnsureGetMemberOfType(
-      _dateDisplay, "/DateDisplay", "MonthNumSprites", kArrayType);
-  auto const& daySprites = EnsureGetMemberOfType(_dateDisplay, "/DateDisplay",
-                                                 "DayNumSprites", kArrayType);
-  auto const& yearSprites = EnsureGetMemberOfType(_dateDisplay, "/DateDisplay",
-                                                  "YearNumSprites", kArrayType);
+  EnsurePushMemberOfType("DateDisplay", kObjectType);
 
-  if (monthSprites.Size() != NumSpriteCount ||
-      daySprites.Size() != NumSpriteCount ||
-      yearSprites.Size() != NumSpriteCount) {
-    ImpLog(LL_Fatal, LC_Profile,
-           "Expected to have %d digit sprites for years, months and days\n",
-           NumSpriteCount);
-    Window::Shutdown();
-  }
+  GetMemberSpriteArray(MonthNumSprites, NumSpriteCount, "MonthNumSprites");
+  GetMemberSpriteArray(DayNumSprites, NumSpriteCount, "DayNumSprites");
+  GetMemberSpriteArray(YearNumSprites, NumSpriteCount, "YearNumSprites");
+  GetMemberSpriteArray(WeekSprites, WeekSpriteCount, "WeekSprites");
 
-  for (int i = 0; i < NumSpriteCount; i++) {
-    MonthNumSprites[i] =
-        EnsureGetSprite(monthSprites[i], "/DateDisplay/MonthNumSprites/x");
-    DayNumSprites[i] =
-        EnsureGetSprite(daySprites[i], "/DateDisplay/DayNumSprites/x");
-    YearNumSprites[i] =
-        EnsureGetSprite(yearSprites[i], "/DateDisplay/YearNumSprites/x");
-  }
+  MDSeparatorSprite = EnsureGetMemberSprite("MDSeparatorSprite");
+  DYSeparatorSprite = EnsureGetMemberSprite("DYSeparatorSprite");
+  OpenBracketSprite = EnsureGetMemberSprite("OpenBracketSprite");
+  CloseBracketSprite = EnsureGetMemberSprite("CloseBracketSprite");
+  BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
 
-  auto const& weekSprites = EnsureGetMemberOfType(_dateDisplay, "/DateDisplay",
-                                                  "WeekSprites", kArrayType);
+  BackgroundStartPos = EnsureGetMemberVec2("BackgroundStartPos");
+  BackgroundEndPos = EnsureGetMemberVec2("BackgroundEndPos");
+  DateStartX = EnsureGetMemberFloat("DateStartX");
+  YearWeekY = EnsureGetMemberFloat("YearWeekY");
+  MonthDayY = EnsureGetMemberFloat("MonthDayY");
+  Spacing = EnsureGetMemberFloat("Spacing");
+  FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
+  FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
 
-  if (weekSprites.Size() != WeekSpriteCount) {
-    ImpLog(LL_Fatal, LC_Profile, "Expected to have %d weekday sprites\n",
-           WeekSpriteCount);
-    Window::Shutdown();
-  }
-
-  for (int i = 0; i < WeekSpriteCount; i++) {
-    WeekSprites[i] =
-        EnsureGetSprite(weekSprites[i], "/DateDisplay/WeekSprites/x");
-  }
-
-  MDSeparatorSprite =
-      EnsureGetMemberSprite(_dateDisplay, "/DateDisplay", "MDSeparatorSprite");
-  DYSeparatorSprite =
-      EnsureGetMemberSprite(_dateDisplay, "/DateDisplay", "DYSeparatorSprite");
-  OpenBracketSprite =
-      EnsureGetMemberSprite(_dateDisplay, "/DateDisplay", "OpenBracketSprite");
-  CloseBracketSprite =
-      EnsureGetMemberSprite(_dateDisplay, "/DateDisplay", "CloseBracketSprite");
-  BackgroundSprite =
-      EnsureGetMemberSprite(_dateDisplay, "/DateDisplay", "BackgroundSprite");
-
-  BackgroundStartPos =
-      EnsureGetMemberVec2(_dateDisplay, "/DateDisplay", "BackgroundStartPos");
-  BackgroundEndPos =
-      EnsureGetMemberVec2(_dateDisplay, "/DateDisplay", "BackgroundEndPos");
-  DateStartX = EnsureGetMemberFloat(_dateDisplay, "/DateDisplay", "DateStartX");
-  YearWeekY = EnsureGetMemberFloat(_dateDisplay, "/DateDisplay", "YearWeekY");
-  MonthDayY = EnsureGetMemberFloat(_dateDisplay, "/DateDisplay", "MonthDayY");
-  Spacing = EnsureGetMemberFloat(_dateDisplay, "/DateDisplay", "Spacing");
-  FadeInDuration =
-      EnsureGetMemberFloat(_dateDisplay, "/DateDisplay", "FadeInDuration");
-  FadeOutDuration =
-      EnsureGetMemberFloat(_dateDisplay, "/DateDisplay", "FadeOutDuration");
+  Pop();
 }
 
 }  // namespace DateDisplay

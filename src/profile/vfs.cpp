@@ -6,20 +6,32 @@ namespace Impacto {
 namespace Profile {
 namespace Vfs {
 void Configure() {
-  auto const& _mounts = EnsureGetMemberOfType(
-      EnsureGetMemberOfType(Json, "/", "Vfs", kObjectType), "/Vfs", "Mounts",
-      kObjectType);
+  EnsurePushMemberOfType("Vfs", kObjectType);
 
-  for (Value::ConstMemberIterator it = _mounts.MemberBegin();
-       it != _mounts.MemberEnd(); ++it) {
-    AssertIs(it->value, "/Vfs/Mounts/x", kArrayType);
-    std::string name(EnsureGetString(it->name, "/Vfs/Mounts/x (name)"));
-    for (Value::ConstValueIterator archive = it->value.Begin();
-         archive != it->value.End(); ++archive) {
-      std::string file(EnsureGetString(*archive, "/Vfs/Mounts/x/y"));
-      Io::VfsMount(name, file);
+  {
+    EnsurePushMemberOfType("Mounts", kObjectType);
+
+    auto const& _mounts = TopVal();
+
+    for (Value::ConstMemberIterator it = _mounts.MemberBegin();
+         it != _mounts.MemberEnd(); it++) {
+      std::string name(EnsureGetKeyString(it));
+
+      EnsurePushMemberIteratorOfType(it, kArrayType);
+
+      uint32_t mountCount = TopVal().Size();
+      for (uint32_t i = 0; i < mountCount; i++) {
+        std::string file(EnsureGetArrayElementString(i));
+        Io::VfsMount(name, file);
+      }
+
+      Pop();
     }
+
+    Pop();
   }
+
+  Pop();
 }
 }  // namespace Vfs
 }  // namespace Profile

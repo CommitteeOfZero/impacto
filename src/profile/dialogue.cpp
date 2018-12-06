@@ -48,87 +48,79 @@ float BaseLineWidth;
 }  // namespace ADVNameTag
 
 void Configure() {
-  auto const& _dialogue =
-      EnsureGetMemberOfType(Json, "/", "Dialogue", kObjectType);
+  EnsurePushMemberOfType("Dialogue", kObjectType);
 
-  NVLBounds = EnsureGetMemberRectF(_dialogue, "/Dialogue", "NVLBounds");
-  ADVBounds = EnsureGetMemberRectF(_dialogue, "/Dialogue", "ADVBounds");
+  NVLBounds = EnsureGetMemberRectF("NVLBounds");
+  ADVBounds = EnsureGetMemberRectF("ADVBounds");
 
-  ADVBoxSprite = EnsureGetMemberSprite(_dialogue, "/Dialogue", "ADVBoxSprite");
-  ADVBoxPos = EnsureGetMemberVec2(_dialogue, "/Dialogue", "ADVBoxPos");
+  ADVBoxSprite = EnsureGetMemberSprite("ADVBoxSprite");
+  ADVBoxPos = EnsureGetMemberVec2("ADVBoxPos");
 
-  FadeOutDuration =
-      EnsureGetMemberFloat(_dialogue, "/Dialogue", "FadeOutDuration");
-  FadeInDuration =
-      EnsureGetMemberFloat(_dialogue, "/Dialogue", "FadeInDuration");
+  FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
+  FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
 
-  NVLBoxMaxOpacity =
-      EnsureGetMemberFloat(_dialogue, "/Dialogue", "NVLBoxMaxOpacity");
+  NVLBoxMaxOpacity = EnsureGetMemberFloat("NVLBoxMaxOpacity");
 
   ADVNameAlignment = TextAlignment::_from_integral_unchecked(
-      EnsureGetMemberInt(_dialogue, "/Dialogue", "ADVNameAlignment"));
+      EnsureGetMemberInt("ADVNameAlignment"));
 
-  ADVNameFontSize =
-      EnsureGetMemberFloat(_dialogue, "/Dialogue", "ADVNameFontSize");
-  ADVNamePos = EnsureGetMemberVec2(_dialogue, "/Dialogue", "ADVNamePos");
+  ADVNameFontSize = EnsureGetMemberFloat("ADVNameFontSize");
+  ADVNamePos = EnsureGetMemberVec2("ADVNamePos");
 
-  WaitIconSprite =
-      EnsureGetMemberSprite(_dialogue, "/Dialogue", "WaitIconSprite");
-  WaitIconOffset =
-      EnsureGetMemberVec2(_dialogue, "/Dialogue", "WaitIconOffset");
-  WaitIconAnimationDuration =
-      EnsureGetMemberFloat(_dialogue, "/Dialogue", "WaitIconAnimationDuration");
+  WaitIconSprite = EnsureGetMemberSprite("WaitIconSprite");
+  WaitIconOffset = EnsureGetMemberVec2("WaitIconOffset");
+  WaitIconAnimationDuration = EnsureGetMemberFloat("WaitIconAnimationDuration");
 
-  DialogueFont = EnsureGetMemberFont(_dialogue, "/Dialogue", "DialogueFont");
-  DefaultFontSize =
-      EnsureGetMemberFloat(_dialogue, "/Dialogue", "DefaultFontSize");
-  LineSpacing = EnsureGetMemberFloat(_dialogue, "/Dialogue", "LineSpacing");
-  RubyFontSize = EnsureGetMemberFloat(_dialogue, "/Dialogue", "RubyFontSize");
-  RubyYOffset = EnsureGetMemberFloat(_dialogue, "/Dialogue", "RubyYOffset");
+  DialogueFont = EnsureGetMemberFont("DialogueFont");
+  DefaultFontSize = EnsureGetMemberFloat("DefaultFontSize");
+  LineSpacing = EnsureGetMemberFloat("LineSpacing");
+  RubyFontSize = EnsureGetMemberFloat("RubyFontSize");
+  RubyYOffset = EnsureGetMemberFloat("RubyYOffset");
 
-  MaxPageSize = EnsureGetMemberInt(_dialogue, "/Dialogue", "MaxPageSize");
-  PageCount = EnsureGetMemberInt(_dialogue, "/Dialogue", "PageCount");
+  MaxPageSize = EnsureGetMemberInt("MaxPageSize");
+  PageCount = EnsureGetMemberInt("PageCount");
 
   Impacto::DialoguePages = new DialoguePage[PageCount];
   for (int i = 0; i < PageCount; i++) {
     Impacto::DialoguePages[i].Glyphs = new ProcessedTextGlyph[MaxPageSize];
   }
 
-  auto const& _colors =
-      EnsureGetMemberOfType(_dialogue, "/Dialogue", "ColorTable", kArrayType);
+  {
+    EnsurePushMemberOfType("ColorTable", kArrayType);
 
-  ColorCount = _colors.Size();
-  ColorTable = new DialogueColorPair[ColorCount];
-  int i = 0;
-  for (auto it = _colors.Begin(); it != _colors.End(); it++) {
-    auto const& _pair = AssertIs(*it, "/Dialogue/ColorTable/x", kArrayType);
-    if (_pair.Size() != 2) {
-      ImpLog(LL_Fatal, LC_Profile, "Expected two colors\n");
-      Window::Shutdown();
+    auto const& _colors = TopVal();
+    ColorCount = _colors.Size();
+    ColorTable = new DialogueColorPair[ColorCount];
+    for (uint32_t i = 0; i < ColorCount; i++) {
+      PushArrayElement(i);
+      AssertIs(kArrayType);
+      auto const& _pair = TopVal();
+      if (_pair.Size() != 2) {
+        ImpLog(LL_Fatal, LC_Profile, "Expected two colors\n");
+        Window::Shutdown();
+      }
+      ColorTable[i].TextColor = EnsureGetArrayElementUint(0);
+      ColorTable[i].OutlineColor = EnsureGetArrayElementUint(1);
+      Pop();
     }
-    ColorTable[i].TextColor =
-        EnsureGetUint(_pair[0], "/Dialogue/ColorTable/x/0");
-    ColorTable[i].OutlineColor =
-        EnsureGetUint(_pair[1], "/Dialogue/ColorTable/x/1");
-    i++;
+
+    Pop();
   }
 
-  Value const& _advNameTag =
-      TryGetMember(_dialogue, "ADVNameTag", HaveADVNameTag);
+  HaveADVNameTag = TryPushMember("ADVNameTag");
   if (HaveADVNameTag) {
-    AssertIs(_advNameTag, "/Dialogue/ADVNameTag", kObjectType);
+    AssertIs(kObjectType);
 
-    ADVNameTag::Position =
-        EnsureGetMemberVec2(_advNameTag, "/Dialogue/ADVNameTag", "Position");
-    ADVNameTag::LeftSprite = EnsureGetMemberSprite(
-        _advNameTag, "/Dialogue/ADVNameTag", "LeftSprite");
-    ADVNameTag::LineSprite = EnsureGetMemberSprite(
-        _advNameTag, "/Dialogue/ADVNameTag", "LineSprite");
-    ADVNameTag::RightSprite = EnsureGetMemberSprite(
-        _advNameTag, "/Dialogue/ADVNameTag", "RightSprite");
-    ADVNameTag::BaseLineWidth = EnsureGetMemberFloat(
-        _advNameTag, "/Dialogue/ADVNameTag", "BaseLineWidth");
+    ADVNameTag::Position = EnsureGetMemberVec2("Position");
+    ADVNameTag::LeftSprite = EnsureGetMemberSprite("LeftSprite");
+    ADVNameTag::LineSprite = EnsureGetMemberSprite("LineSprite");
+    ADVNameTag::RightSprite = EnsureGetMemberSprite("RightSprite");
+    ADVNameTag::BaseLineWidth = EnsureGetMemberFloat("BaseLineWidth");
+
+    Pop();
   }
+
+  Pop();
 }
 
 }  // namespace Dialogue

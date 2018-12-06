@@ -19,86 +19,104 @@ ska::flat_hash_map<uint32_t, CharacterDef> Characters;
 ska::flat_hash_map<uint32_t, uint32_t> ModelsToCharacters;
 
 void Configure() {
-  auto const& _scene3d =
-      EnsureGetMemberOfType(Json, "/", "Scene3D", kObjectType);
+  EnsurePushMemberOfType("Scene3D", kObjectType);
 
-  MaxRenderables = EnsureGetMemberUint(_scene3d, "/Scene3D", "MaxRenderables");
-  AnimationDesignFrameRate =
-      EnsureGetMemberFloat(_scene3d, "/Scene3D", "AnimationDesignFrameRate");
+  MaxRenderables = EnsureGetMemberUint("MaxRenderables");
+  AnimationDesignFrameRate = EnsureGetMemberFloat("AnimationDesignFrameRate");
 
-  auto const& _defaultCamera =
-      EnsureGetMemberOfType(_scene3d, "/Scene3D", "DefaultCamera", kObjectType);
+  {
+    EnsurePushMemberOfType("DefaultCamera", kObjectType);
 
-  DefaultCameraPosition =
-      EnsureGetMemberVec3(_defaultCamera, "/Scene3D/DefaultCamera", "Position");
-  DefaultCameraTarget =
-      EnsureGetMemberVec3(_defaultCamera, "/Scene3D/DefaultCamera", "Target");
-  DefaultFov =
-      EnsureGetMemberFloat(_defaultCamera, "/Scene3D/DefaultCamera", "Fov");
+    DefaultCameraPosition = EnsureGetMemberVec3("Position");
+    DefaultCameraTarget = EnsureGetMemberVec3("Target");
+    DefaultFov = EnsureGetMemberFloat("Fov");
 
-  if (_scene3d.HasMember("AnimationParseBlacklist")) {
-    auto const& _animationParseBlacklist = EnsureGetMemberOfType(
-        _scene3d, "/Scene3D", "AnimationParseBlacklist", kObjectType);
+    Pop();
+  }
 
+  if (TryPushMember("AnimationParseBlacklist")) {
+    AssertIs(kObjectType);
+
+    auto const& _animationParseBlacklist = TopVal();
     for (Value::ConstMemberIterator it = _animationParseBlacklist.MemberBegin();
-         it != _animationParseBlacklist.MemberEnd(); ++it) {
-      uint32_t model =
-          EnsureGetUint(it->name, "/Scene3D/AnimationParseBlacklist/x (name)");
-      AssertIs(it->value, "/Scene3D/AnimationParseBlacklist/x", kArrayType);
+         it != _animationParseBlacklist.MemberEnd(); it++) {
+      uint32_t model = EnsureGetKeyUint(it);
+      EnsurePushMemberIteratorOfType(it, kArrayType);
 
-      for (Value::ConstValueIterator anim = it->value.Begin();
-           anim != it->value.End(); ++anim) {
-        uint16_t animId =
-            EnsureGetUint(*anim, "/Scene3D/AnimationParseBlacklist/x/y");
-        AnimationParseBlacklist.emplace_back(model, animId);
+      uint32_t animCount = TopVal().Size();
+      for (uint32_t i = 0; i < animCount; i++) {
+        AnimationParseBlacklist.emplace_back(model,
+                                             EnsureGetArrayElementUint(i));
       }
+
+      Pop();
     }
+
+    Pop();
   }
 
   // Characters
 
-  auto const& _characters =
-      EnsureGetMemberOfType(_scene3d, "/Scene3D", "Characters", kObjectType);
+  {
+    EnsurePushMemberOfType("Characters", kObjectType);
 
-  for (Value::ConstMemberIterator it = _characters.MemberBegin();
-       it != _characters.MemberEnd(); ++it) {
-    uint32_t charId = EnsureGetUint(it->name, "/Scene3D/Characters/x (name)");
-    AssertIs(it->value, "/Scene3D/Characters/x", kObjectType);
+    auto const& _characters = TopVal();
+    for (Value::ConstMemberIterator it = _characters.MemberBegin();
+         it != _characters.MemberEnd(); it++) {
+      uint32_t charId = EnsureGetKeyUint(it);
 
-    CharacterDef& character = Characters[charId];
-    character.CharacterId = charId;
+      EnsurePushMemberIteratorOfType(it, kObjectType);
 
-    auto const& _models = EnsureGetMemberOfType(
-        it->value, "/Scene3D/Characters/x", "Models", kArrayType);
+      CharacterDef& character = Characters[charId];
+      character.CharacterId = charId;
 
-    for (Value::ConstValueIterator _model = _models.Begin();
-         _model != _models.End(); ++_model) {
-      uint32_t modelId =
-          EnsureGetUint(*_model, "/Scene3D/Characters/x/Models/y");
-      character.Models.push_back(modelId);
-      ModelsToCharacters[modelId] = charId;
+      {
+        EnsurePushMemberOfType("Models", kArrayType);
+
+        uint32_t modelCount = TopVal().Size();
+        for (uint32_t i = 0; i < modelCount; i++) {
+          uint32_t modelId = EnsureGetArrayElementUint(i);
+          character.Models.push_back(modelId);
+          ModelsToCharacters[modelId] = charId;
+        }
+
+        Pop();
+      }
+
+      {
+        EnsurePushMemberOfType("Animations", kObjectType);
+
+        auto const& _anims = TopVal();
+        for (Value::ConstMemberIterator anim = _anims.MemberBegin();
+             anim != _anims.MemberEnd(); anim++) {
+          uint16_t animId = EnsureGetKeyUint(anim);
+
+          EnsurePushMemberIteratorOfType(anim, kObjectType);
+
+          AnimationDef& animDef = character.Animations[animId];
+          animDef.AnimId = animId;
+          animDef.CharacterId = charId;
+
+          if (!TryGetMemberFloat("LoopStart", animDef.LoopStart))
+            animDef.LoopStart = 0;
+          if (!TryGetMemberFloat("LoopEnd", animDef.LoopEnd))
+            animDef.LoopEnd = 0;
+          if (!TryGetMemberBool("OneShot", animDef.OneShot))
+            animDef.OneShot = false;
+
+          Pop();
+        }
+
+        Pop();
+      }
+
+      Pop();
     }
 
-    auto const& _anims = EnsureGetMemberOfType(
-        it->value, "/Scene3D/Characters/x", "Animations", kObjectType);
-
-    for (Value::ConstMemberIterator _anim = _anims.MemberBegin();
-         _anim != _anims.MemberEnd(); ++_anim) {
-      AssertIs(_anim->value, "/Scene3D/Characters/x/Animations/y", kObjectType);
-      uint16_t animId = EnsureGetUint(
-          _anim->name, "/Scene3D/Characters/x/Animations/y (name)");
-      AnimationDef& animDef = character.Animations[animId];
-      animDef.AnimId = animId;
-      animDef.CharacterId = charId;
-
-      if (!TryGetMemberFloat(_anim->value, "LoopStart", animDef.LoopStart))
-        animDef.LoopStart = 0;
-      if (!TryGetMemberFloat(_anim->value, "LoopEnd", animDef.LoopEnd))
-        animDef.LoopEnd = 0;
-      if (!TryGetMemberBool(_anim->value, "OneShot", animDef.OneShot))
-        animDef.OneShot = false;
-    }
+    Pop();
   }
+
+  Pop();
 }
 
 }  // namespace Scene3D

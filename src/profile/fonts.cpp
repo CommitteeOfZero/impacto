@@ -9,45 +9,41 @@ namespace Profile {
 ska::flat_hash_map<std::string, Font> Fonts;
 
 void LoadFonts() {
-  auto const& _fonts = EnsureGetMemberOfType(Json, "/", "Fonts", kObjectType);
+  EnsurePushMemberOfType("Fonts", kObjectType);
 
+  auto const& _fonts = TopVal();
   for (Value::ConstMemberIterator it = _fonts.MemberBegin();
-       it != _fonts.MemberEnd(); ++it) {
-    std::string name(EnsureGetString(it->name, "/Fonts/x (name)"));
-    AssertIs(it->value, "/Fonts/x", kObjectType);
+       it != _fonts.MemberEnd(); it++) {
+    std::string name(EnsureGetKeyString(it));
 
-    ImpLog(LL_Debug, LC_Profile, "Loading font %s\n", name.c_str());
+    EnsurePushMemberIteratorOfType(it, kObjectType);
 
     Font& font = Fonts[name];
+    font.Sheet = EnsureGetMemberSpriteSheet("Sheet");
+    font.Rows = EnsureGetMemberInt("Rows");
+    font.Columns = EnsureGetMemberInt("Columns");
 
-    font.Sheet = EnsureGetMemberSpriteSheet(it->value, "/Fonts/x", "Sheet");
-    font.Rows = EnsureGetMemberInt(it->value, "/Fonts/x", "Rows");
-    font.Columns = EnsureGetMemberInt(it->value, "/Fonts/x", "Columns");
-
-    float designColWidth =
-        EnsureGetMemberFloat(it->value, "/Fonts/x", "DesignColWidth");
+    float designColWidth = EnsureGetMemberFloat("DesignColWidth");
     float actualColWidth = font.ColWidth();
 
-    auto const& _widths =
-        EnsureGetMemberOfType(it->value, "/Fonts/x", "Widths", kArrayType);
+    {
+      EnsurePushMemberOfType("Widths", kArrayType);
 
-    font.Widths = (float*)malloc(_widths.Size() * sizeof(float));
+      auto const& _widths = TopVal();
+      uint32_t widthCount = _widths.Size();
+      font.Widths = (float*)malloc(widthCount * sizeof(float));
+      for (uint32_t i = 0; i < widthCount; i++) {
+        font.Widths[i] =
+            EnsureGetArrayElementFloat(i) * actualColWidth / designColWidth;
+      }
 
-    if (designColWidth != actualColWidth) {
-      int i = 0;
-      for (auto it = _widths.Begin(); it != _widths.End(); it++) {
-        font.Widths[i] = EnsureGetFloat(*it, "/Fonts/x/Widths/y") *
-                         actualColWidth / designColWidth;
-        i++;
-      }
-    } else {
-      int i = 0;
-      for (auto it = _widths.Begin(); it != _widths.End(); it++) {
-        font.Widths[i] = EnsureGetFloat(*it, "/Fonts/x/Widths/y");
-        i++;
-      }
+      Pop();
     }
+
+    Pop();
   }
+
+  Pop();
 }
 
 }  // namespace Profile

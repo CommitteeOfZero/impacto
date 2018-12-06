@@ -19,27 +19,20 @@ float FadeInDuration;
 float FadeOutDuration;
 
 void Configure() {
-  auto const& _loadingDisplay =
-      EnsureGetMemberOfType(Json, "/", "LoadingDisplay", kObjectType);
+  EnsurePushMemberOfType("LoadingDisplay", kObjectType);
 
-  ResourceLoadBgAnim = EnsureGetMemberAnimation(
-      _loadingDisplay, "/LoadingDisplay", "ResourceLoadBgAnim");
-  SaveLoadBgAnim = EnsureGetMemberAnimation(_loadingDisplay, "/LoadingDisplay",
-                                            "SaveLoadBgAnim");
-  LoadingIconAnim = EnsureGetMemberAnimation(_loadingDisplay, "/LoadingDisplay",
-                                             "LoadingIconAnim");
-  LoadingTextAnim = EnsureGetMemberAnimation(_loadingDisplay, "/LoadingDisplay",
-                                             "LoadingTextAnim");
-  ResourceBgPos =
-      EnsureGetMemberVec2(_loadingDisplay, "/LoadingDisplay", "ResourceBgPos");
-  SaveBgPos =
-      EnsureGetMemberVec2(_loadingDisplay, "/LoadingDisplay", "SaveBgPos");
-  IconPos = EnsureGetMemberVec2(_loadingDisplay, "/LoadingDisplay", "IconPos");
-  TextPos = EnsureGetMemberVec2(_loadingDisplay, "/LoadingDisplay", "TextPos");
-  FadeInDuration = EnsureGetMemberFloat(_loadingDisplay, "/LoadingDisplay",
-                                        "FadeInDuration");
-  FadeOutDuration = EnsureGetMemberFloat(_loadingDisplay, "/LoadingDisplay",
-                                         "FadeOutDuration");
+  ResourceLoadBgAnim = EnsureGetMemberAnimation("ResourceLoadBgAnim");
+  SaveLoadBgAnim = EnsureGetMemberAnimation("SaveLoadBgAnim");
+  LoadingIconAnim = EnsureGetMemberAnimation("LoadingIconAnim");
+  LoadingTextAnim = EnsureGetMemberAnimation("LoadingTextAnim");
+  ResourceBgPos = EnsureGetMemberVec2("ResourceBgPos");
+  SaveBgPos = EnsureGetMemberVec2("SaveBgPos");
+  IconPos = EnsureGetMemberVec2("IconPos");
+  TextPos = EnsureGetMemberVec2("TextPos");
+  FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
+  FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
+
+  Pop();
 }
 
 }  // namespace LoadingDisplay

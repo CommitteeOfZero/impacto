@@ -12,12 +12,12 @@ float DesignWidth;
 float DesignHeight;
 
 void LoadGameFromJson() {
-  AssertIs(Json, "/", kObjectType);
+  AssertIs(kObjectType);
 
-  LayerCount = EnsureGetMemberInt(Json, "/", "LayerCount");
-  GameFeatures = EnsureGetMemberInt(Json, "/", "GameFeatures");
-  DesignWidth = EnsureGetMemberFloat(Json, "/", "DesignWidth");
-  DesignHeight = EnsureGetMemberFloat(Json, "/", "DesignHeight");
+  LayerCount = EnsureGetMemberInt("LayerCount");
+  GameFeatures = EnsureGetMemberInt("GameFeatures");
+  DesignWidth = EnsureGetMemberFloat("DesignWidth");
+  DesignHeight = EnsureGetMemberFloat("DesignHeight");
 }
 
 }  // namespace Profile
