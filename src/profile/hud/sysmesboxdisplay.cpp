@@ -39,72 +39,42 @@ float FadeInDuration;
 float FadeOutDuration;
 
 void Configure() {
-  auto const& _sysMesBoxDisplay =
-      EnsureGetMemberOfType(Json, "/", "SysMesBoxDisplay", kObjectType);
+  EnsurePushMemberOfType("SysMesBoxDisplay", kObjectType);
 
-  BoxDecorationTop = EnsureGetMemberSprite(
-      _sysMesBoxDisplay, "/SysMesBoxDisplay", "BoxDecorationTop");
-  BoxDecorationBottom = EnsureGetMemberSprite(
-      _sysMesBoxDisplay, "/SysMesBoxDisplay", "BoxDecorationBottom");
-  TextDecoration = EnsureGetMemberSprite(_sysMesBoxDisplay, "/SysMesBoxDisplay",
-                                         "TextDecoration");
-  MessageLabel = EnsureGetMemberSprite(_sysMesBoxDisplay, "/SysMesBoxDisplay",
-                                       "MessageLabel");
-  Line1 =
-      EnsureGetMemberSprite(_sysMesBoxDisplay, "/SysMesBoxDisplay", "Line1");
-  Line2 =
-      EnsureGetMemberSprite(_sysMesBoxDisplay, "/SysMesBoxDisplay", "Line2");
+  BoxDecorationTop = EnsureGetMemberSprite("BoxDecorationTop");
+  BoxDecorationBottom = EnsureGetMemberSprite("BoxDecorationBottom");
+  TextDecoration = EnsureGetMemberSprite("TextDecoration");
+  MessageLabel = EnsureGetMemberSprite("MessageLabel");
+  Line1 = EnsureGetMemberSprite("Line1");
+  Line2 = EnsureGetMemberSprite("Line2");
 
-  LinePositionXFirst = EnsureGetMemberFloat(
-      _sysMesBoxDisplay, "/SysMesBoxDisplay", "LinePositionXFirst");
-  LinePositionX = EnsureGetMemberFloat(_sysMesBoxDisplay, "/SysMesBoxDisplay",
-                                       "LinePositionX");
-  LinePositionMultiplier = EnsureGetMemberFloat(
-      _sysMesBoxDisplay, "/SysMesBoxDisplay", "LinePositionMultiplier");
-  LineWidthFirst = EnsureGetMemberFloat(_sysMesBoxDisplay, "/SysMesBoxDisplay",
-                                        "LineWidthFirst");
-  LineWidthBase = EnsureGetMemberFloat(_sysMesBoxDisplay, "/SysMesBoxDisplay",
-                                       "LineWidthBase");
-  LineWidthMultiplier = EnsureGetMemberFloat(
-      _sysMesBoxDisplay, "/SysMesBoxDisplay", "LineWidthMultiplier");
-  Line1SpriteY = EnsureGetMemberFloat(_sysMesBoxDisplay, "/SysMesBoxDisplay",
-                                      "Line1SpriteY");
-  Line2SpriteY = EnsureGetMemberFloat(_sysMesBoxDisplay, "/SysMesBoxDisplay",
-                                      "Line2SpriteY");
-  LineSpriteHeight = EnsureGetMemberFloat(
-      _sysMesBoxDisplay, "/SysMesBoxDisplay", "LineSpriteHeight");
-  LineDisplayXBase = EnsureGetMemberFloat(
-      _sysMesBoxDisplay, "/SysMesBoxDisplay", "LineDisplayXBase");
-  Line1DisplayY = EnsureGetMemberFloat(_sysMesBoxDisplay, "/SysMesBoxDisplay",
-                                       "Line1DisplayY");
-  Line2DisplayY = EnsureGetMemberFloat(_sysMesBoxDisplay, "/SysMesBoxDisplay",
-                                       "Line2DisplayY");
-  BoxDisplayStartCount = EnsureGetMemberFloat(
-      _sysMesBoxDisplay, "/SysMesBoxDisplay", "BoxDisplayStartCount");
-  BoxHeightBase = EnsureGetMemberFloat(_sysMesBoxDisplay, "/SysMesBoxDisplay",
-                                       "BoxHeightBase");
-  BoxHeightMultiplier = EnsureGetMemberFloat(
-      _sysMesBoxDisplay, "/SysMesBoxDisplay", "BoxHeightMultiplier");
-  BoxWidth =
-      EnsureGetMemberFloat(_sysMesBoxDisplay, "/SysMesBoxDisplay", "BoxWidth");
-  BoxTextFontSize = EnsureGetMemberFloat(_sysMesBoxDisplay, "/SysMesBoxDisplay",
-                                         "BoxTextFontSize");
-  BoxTopYBase = EnsureGetMemberFloat(_sysMesBoxDisplay, "/SysMesBoxDisplay",
-                                     "BoxTopYBase");
-  BoxDisplayX = EnsureGetMemberFloat(_sysMesBoxDisplay, "/SysMesBoxDisplay",
-                                     "BoxDisplayX");
-  MessageLabelSpriteXBase = EnsureGetMemberFloat(
-      _sysMesBoxDisplay, "/SysMesBoxDisplay", "MessageLabelSpriteXBase");
-  MessageLabelSpriteY = EnsureGetMemberFloat(
-      _sysMesBoxDisplay, "/SysMesBoxDisplay", "MessageLabelSpriteY");
-  MessageLabelSpriteHeight = EnsureGetMemberFloat(
-      _sysMesBoxDisplay, "/SysMesBoxDisplay", "MessageLabelSpriteHeight");
-  AnimationSpeed = EnsureGetMemberFloat(_sysMesBoxDisplay, "/SysMesBoxDisplay",
-                                        "AnimationSpeed");
-  FadeInDuration = EnsureGetMemberFloat(_sysMesBoxDisplay, "/SysMesBoxDisplay",
-                                        "FadeInDuration");
-  FadeOutDuration = EnsureGetMemberFloat(_sysMesBoxDisplay, "/SysMesBoxDisplay",
-                                         "FadeOutDuration");
+  LinePositionXFirst = EnsureGetMemberFloat("LinePositionXFirst");
+  LinePositionX = EnsureGetMemberFloat("LinePositionX");
+  LinePositionMultiplier = EnsureGetMemberFloat("LinePositionMultiplier");
+  LineWidthFirst = EnsureGetMemberFloat("LineWidthFirst");
+  LineWidthBase = EnsureGetMemberFloat("LineWidthBase");
+  LineWidthMultiplier = EnsureGetMemberFloat("LineWidthMultiplier");
+  Line1SpriteY = EnsureGetMemberFloat("Line1SpriteY");
+  Line2SpriteY = EnsureGetMemberFloat("Line2SpriteY");
+  LineSpriteHeight = EnsureGetMemberFloat("LineSpriteHeight");
+  LineDisplayXBase = EnsureGetMemberFloat("LineDisplayXBase");
+  Line1DisplayY = EnsureGetMemberFloat("Line1DisplayY");
+  Line2DisplayY = EnsureGetMemberFloat("Line2DisplayY");
+  BoxDisplayStartCount = EnsureGetMemberFloat("BoxDisplayStartCount");
+  BoxHeightBase = EnsureGetMemberFloat("BoxHeightBase");
+  BoxHeightMultiplier = EnsureGetMemberFloat("BoxHeightMultiplier");
+  BoxWidth = EnsureGetMemberFloat("BoxWidth");
+  BoxTextFontSize = EnsureGetMemberFloat("BoxTextFontSize");
+  BoxTopYBase = EnsureGetMemberFloat("BoxTopYBase");
+  BoxDisplayX = EnsureGetMemberFloat("BoxDisplayX");
+  MessageLabelSpriteXBase = EnsureGetMemberFloat("MessageLabelSpriteXBase");
+  MessageLabelSpriteY = EnsureGetMemberFloat("MessageLabelSpriteY");
+  MessageLabelSpriteHeight = EnsureGetMemberFloat("MessageLabelSpriteHeight");
+  AnimationSpeed = EnsureGetMemberFloat("AnimationSpeed");
+  FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
+  FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
+
+  Pop();
 }
 
 }  // namespace SysMesBoxDisplay
