@@ -242,13 +242,20 @@ bool GXTLoadSubtexture(InputStream* stream, Texture* outTexture,
 
     // 256 color paletted
     case Gxm::P8: {
-      TexfmtCheck(channelOrder == Gxm::_1RGB);
+      TexfmtCheck(channelOrder == Gxm::_1RGB || channelOrder == Gxm::ARGB);
 
       // PaletteIdx is into *all* palettes (P8s following all P4s), we have P4
       // and P8 separate
       uint8_t* palette = p8Palettes + 4 * 256 * (stx->PaletteIdx - p4count);
 
-      outTexture->Init(TexFmt_RGB, stx->Width, stx->Height);
+      int bytesPerPixel;
+      if (channelOrder == Gxm::_1RGB) {
+        outTexture->Init(TexFmt_RGB, stx->Width, stx->Height);
+        bytesPerPixel = 3;
+      } else if (channelOrder == Gxm::ARGB) {
+        outTexture->Init(TexFmt_RGBA, stx->Width, stx->Height);
+        bytesPerPixel = 4;
+      }
 
       uint8_t* inBuffer = (uint8_t*)malloc(stx->Width * stx->Height);
       uint8_t* reader = inBuffer;
@@ -264,9 +271,9 @@ bool GXTLoadSubtexture(InputStream* stream, Texture* outTexture,
           uint8_t colorIdx = *reader++;
           uint8_t* color = palette + 4 * colorIdx;
 
-          int px = (outX + stx->Width * outY) * 3;
+          int px = (outX + stx->Width * outY) * bytesPerPixel;
 
-          memcpy(outTexture->Buffer + px, color, 3);
+          memcpy(outTexture->Buffer + px, color, bytesPerPixel);
         }
       }
 
