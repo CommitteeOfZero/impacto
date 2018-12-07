@@ -273,7 +273,12 @@ bool GXTLoadSubtexture(InputStream* stream, Texture* outTexture,
 
           int px = (outX + stx->Width * outY) * bytesPerPixel;
 
-          memcpy(outTexture->Buffer + px, color, bytesPerPixel);
+          outTexture->Buffer[px + 2] = color[0];
+          outTexture->Buffer[px + 1] = color[1];
+          outTexture->Buffer[px + 0] = color[2];
+          if (bytesPerPixel == 4) {
+            outTexture->Buffer[px + 3] = color[3];
+          }
         }
       }
 
