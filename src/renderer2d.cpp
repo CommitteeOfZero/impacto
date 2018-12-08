@@ -10,8 +10,9 @@ namespace Renderer2D {
 
 static bool IsInit = false;
 static GLuint ShaderProgramSprite;
+static GLuint ShaderProgramSpriteInverted;
 
-enum Renderer2DMode { R2D_None, R2D_Sprite };
+enum Renderer2DMode { R2D_None, R2D_Sprite, R2D_SpriteInverted };
 
 struct VertexBufferSprites {
   glm::vec2 Position;
@@ -25,6 +26,7 @@ static int const IndexBufferCount =
 
 static void EnsureSpaceAvailable(int vertices, int vertexSize, int indices);
 static void EnsureTextureBound(GLuint texture);
+static void EnsureModeSprite(bool inverted);
 static void Flush();
 
 static inline void QuadSetUV(RectF const& spriteBounds, float designWidth,
@@ -118,6 +120,8 @@ void Init() {
   // Set up sprite shader
   ShaderProgramSprite = ShaderCompile("Sprite");
   glUniform1i(glGetUniformLocation(ShaderProgramSprite, "ColorMap"), 0);
+  ShaderProgramSpriteInverted = ShaderCompile("Sprite_inverted");
+  glUniform1i(glGetUniformLocation(ShaderProgramSpriteInverted, "ColorMap"), 0);
 }
 
 void Shutdown() {
@@ -152,11 +156,11 @@ void EndFrame() {
 }
 
 void DrawSprite(Sprite const& sprite, glm::vec2 topLeft, glm::vec4 tint,
-                glm::vec2 scale, float angle) {
+                glm::vec2 scale, float angle, bool inverted) {
   RectF scaledDest(topLeft.x, topLeft.y,
                    scale.x * sprite.Bounds.Width * sprite.BaseScale.x,
                    scale.y * sprite.Bounds.Height * sprite.BaseScale.y);
-  DrawSprite(sprite, scaledDest, tint, angle);
+  DrawSprite(sprite, scaledDest, tint, angle, inverted);
 }
 
 void DrawRect(RectF const& dest, glm::vec4 color, float angle) {
@@ -165,7 +169,7 @@ void DrawRect(RectF const& dest, glm::vec4 color, float angle) {
 
 void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest, float depth,
                          glm::vec2 vanishingPoint, bool stayInScreen,
-                         glm::quat rot, glm::vec4 tint) {
+                         glm::quat rot, glm::vec4 tint, bool inverted) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer2D::DrawSprite3DRotated() called before BeginFrame()\n");
@@ -176,16 +180,7 @@ void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest, float depth,
   EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
 
   // Are we in sprite mode?
-  if (CurrentMode != R2D_Sprite) {
-    ImpLogSlow(LL_Trace, LC_Render,
-               "Renderer2D::DrawSprite3DRotated flushing because mode %d is "
-               "not R2D_Sprite\n",
-               CurrentMode);
-    Flush();
-    glBindVertexArray(VAOSprites);
-    glUseProgram(ShaderProgramSprite);
-    CurrentMode = R2D_Sprite;
-  }
+  EnsureModeSprite(inverted);
 
   // Do we have the texture assigned?
   EnsureTextureBound(sprite.Sheet.Texture);
@@ -209,12 +204,13 @@ void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest, float depth,
 
 void DrawSprite3DRotated(Sprite const& sprite, glm::vec2 topLeft, float depth,
                          glm::vec2 vanishingPoint, bool stayInScreen,
-                         glm::quat rot, glm::vec4 tint, glm::vec2 scale) {
+                         glm::quat rot, glm::vec4 tint, glm::vec2 scale,
+                         bool inverted) {
   RectF scaledDest(topLeft.x, topLeft.y,
                    scale.x * sprite.Bounds.Width * sprite.BaseScale.x,
                    scale.y * sprite.Bounds.Height * sprite.BaseScale.y);
   DrawSprite3DRotated(sprite, scaledDest, depth, vanishingPoint, stayInScreen,
-                      rot, tint);
+                      rot, tint, inverted);
 }
 
 void DrawRect3DRotated(RectF const& dest, float depth, glm::vec2 vanishingPoint,
@@ -312,7 +308,7 @@ void DrawProcessedText(ProcessedTextGlyph* text, int length, Font* font,
 }
 
 void DrawSprite(Sprite const& sprite, RectF const& dest, glm::vec4 tint,
-                float angle) {
+                float angle, bool inverted) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer2D::DrawSprite() called before BeginFrame()\n");
@@ -323,16 +319,7 @@ void DrawSprite(Sprite const& sprite, RectF const& dest, glm::vec4 tint,
   EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
 
   // Are we in sprite mode?
-  if (CurrentMode != R2D_Sprite) {
-    ImpLogSlow(
-        LL_Trace, LC_Render,
-        "Renderer2D::DrawSprite flushing because mode %d is not R2D_Sprite\n",
-        CurrentMode);
-    Flush();
-    glBindVertexArray(VAOSprites);
-    glUseProgram(ShaderProgramSprite);
-    CurrentMode = R2D_Sprite;
-  }
+  EnsureModeSprite(inverted);
 
   // Do we have the texture assigned?
   EnsureTextureBound(sprite.Sheet.Texture);
@@ -471,6 +458,20 @@ static void EnsureTextureBound(GLuint texture) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
     CurrentTexture = texture;
+  }
+}
+
+static void EnsureModeSprite(bool inverted) {
+  Renderer2DMode wantedMode = inverted ? R2D_SpriteInverted : R2D_Sprite;
+  if (CurrentMode != wantedMode) {
+    ImpLogSlow(
+        LL_Trace, LC_Render,
+        "Renderer2D flushing because mode %d is not R2D_Sprite/inverted\n",
+        CurrentMode);
+    Flush();
+    glBindVertexArray(VAOSprites);
+    glUseProgram(inverted ? ShaderProgramSpriteInverted : ShaderProgramSprite);
+    CurrentMode = wantedMode;
   }
 }
 
