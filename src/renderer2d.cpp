@@ -51,6 +51,8 @@ static GLuint VBO;
 static GLuint IBO;
 static GLuint VAOSprites;
 
+static GLuint Sampler;
+
 static bool Drawing = false;
 
 static GLuint CurrentTexture = 0;
@@ -122,6 +124,12 @@ void Init() {
   glUniform1i(glGetUniformLocation(ShaderProgramSprite, "ColorMap"), 0);
   ShaderProgramSpriteInverted = ShaderCompile("Sprite_inverted");
   glUniform1i(glGetUniformLocation(ShaderProgramSpriteInverted, "ColorMap"), 0);
+
+  // No-mipmapping sampler
+  glGenSamplers(1, &Sampler);
+  glSamplerParameteri(Sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glSamplerParameteri(Sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glSamplerParameteri(Sampler, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16);
 }
 
 void Shutdown() {
@@ -147,12 +155,17 @@ void BeginFrame() {
   IndexBufferFill = 0;
 
   glDisable(GL_CULL_FACE);
+
+  // TODO should we really be making this global?
+  glBindSampler(0, Sampler);
 }
 
 void EndFrame() {
   if (!Drawing) return;
   Flush();
   Drawing = false;
+
+  glBindSampler(0, 0);
 }
 
 void DrawSprite(Sprite const& sprite, glm::vec2 topLeft, glm::vec4 tint,
