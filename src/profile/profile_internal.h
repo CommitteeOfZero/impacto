@@ -51,7 +51,7 @@ JSON_GET_METHODS(AssetPath, Io::AssetPath)
 
 JSON_GET_METHODS(Sprite, Sprite)
 JSON_GET_METHODS(SpriteSheet, SpriteSheet)
-JSON_GET_METHODS(Font, Font)
+JSON_GET_METHODS(Font, Font*)
 JSON_GET_METHODS(Animation, SpriteAnimationDef)
 
 uint32_t EnsureGetKeyUint(Value::ConstMemberIterator it);

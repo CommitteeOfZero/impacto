@@ -193,7 +193,7 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, int nextLineStart) {
         RectF const& baseGlyphRect =
             Glyphs[RubyChunks[i].FirstBaseCharacter + j].DestRect;
         pos.x = baseGlyphRect.Center().x;
-        TextLayoutPlainLine(ctx, 1, RubyChunks[i].Text + j, &DialogueFont,
+        TextLayoutPlainLine(ctx, 1, RubyChunks[i].Text + j, DialogueFont,
                             RubyFontSize, ColorTable[0], 1.0f, pos,
                             TextAlignment::Center);
       }
@@ -211,7 +211,7 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, int nextLineStart) {
       }
       int rubyLength =
           TextLayoutPlainLine(ctx, RubyChunks[i].Length, RubyChunks[i].Text,
-                              &DialogueFont, RubyFontSize, ColorTable[0], 1.0f,
+                              DialogueFont, RubyFontSize, ColorTable[0], 1.0f,
                               pos, TextAlignment::Block, blockWidth);
     }
 
@@ -230,8 +230,8 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, int nextLineStart) {
     Glyphs[i].DestRect.Y = CurrentLineTop + CurrentLineTopMargin +
                            (lineHeight - Glyphs[i].DestRect.Height);
   }
-  CurrentLineTop =
-      CurrentLineTop + CurrentLineTopMargin + lineHeight + LineSpacing;
+  CurrentLineTop = CurrentLineTop + CurrentLineTopMargin + lineHeight +
+                   DialogueFont->LineSpacing;
   CurrentLineTopMargin = 0.0f;
   LastLineStart = nextLineStart;
 }
@@ -385,8 +385,8 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
           }
 
           ptg.DestRect.X = BoxBounds.X + CurrentX;
-          ptg.DestRect.Width = (FontSize / DialogueFont.RowHeight()) *
-                               DialogueFont.Widths[ptg.CharId];
+          ptg.DestRect.Width = (FontSize / DialogueFont->CellHeight) *
+                               DialogueFont->Widths[ptg.CharId];
           ptg.DestRect.Height = FontSize;
 
           CurrentX += ptg.DestRect.Width;
@@ -436,7 +436,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
   if (HasName) {
     uint8_t* oldIp = ctx->Ip;
     ctx->Ip = (uint8_t*)name;
-    int nameLength = TextLayoutPlainLine(ctx, NameLength, Name, &DialogueFont,
+    int nameLength = TextLayoutPlainLine(ctx, NameLength, Name, DialogueFont,
                                          ADVNameFontSize, ColorTable[0], 1.0f,
                                          ADVNamePos, ADVNameAlignment);
     assert(nameLength == NameLength);
@@ -484,7 +484,7 @@ void DialoguePage::Render() {
         RectF(0, 0, Profile::DesignWidth, Profile::DesignHeight), nvlBoxTint);
   }
 
-  Renderer2D::DrawProcessedText(Glyphs, Length, &DialogueFont, opacityTint.a,
+  Renderer2D::DrawProcessedText(Glyphs, Length, DialogueFont, opacityTint.a,
                                 true);
 
   if (Mode == DPM_ADV && HasName) {
@@ -516,8 +516,8 @@ void DialoguePage::Render() {
                              opacityTint);
     }
 
-    Renderer2D::DrawProcessedText(Name, NameLength, &DialogueFont,
-                                  opacityTint.a, true);
+    Renderer2D::DrawProcessedText(Name, NameLength, DialogueFont, opacityTint.a,
+                                  true);
   }
 
   // Wait icon
@@ -586,7 +586,7 @@ int TextLayoutPlainLine(Vm::Sc3VmThread* ctx, int stringLength,
     ptg.DestRect.X = currentX;
     ptg.DestRect.Y = pos.y;
     ptg.DestRect.Width =
-        (fontSize / font->RowHeight()) * font->Widths[ptg.CharId];
+        (fontSize / font->CellHeight) * font->Widths[ptg.CharId];
     ptg.DestRect.Height = fontSize;
 
     currentX += ptg.DestRect.Width;

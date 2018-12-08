@@ -1,10 +1,12 @@
 root.Fonts = {
     "Default": {
+        Type: FontType.Basic,
         Sheet: "Font",
         Columns: 64,
         Rows: 50,
         Widths: new Array(64 * 50),
-        DesignColWidth: 32
+        DesignColWidth: 32,
+        LineSpacing: 22,
     }
 };
 

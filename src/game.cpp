@@ -33,10 +33,6 @@
 
 namespace Impacto {
 
-namespace Profile {
-DialoguePageFeatureConfig Dlg;
-}  // namespace Profile
-
 static int const NkMaxVertexMemory = 256 * 1024;
 static int const NkMaxElementMemory = 128 * 1024;
 
@@ -106,57 +102,6 @@ static void Init() {
 void InitFromProfile(std::string const& name) {
   Profile::MakeJsonProfile(name);
   Init();
-}
-
-void InitVmTest() {
-  Profile::Dlg = DialoguePageFeatureConfig_RNE;
-
-  Init();
-
-  // Font
-  Io::InputStream* stream;
-  Io::VfsOpen("system", 12, &stream);
-  Texture tex;
-  tex.Load(stream);
-  Profile::Dlg.DialogueFont.Sheet.Texture = tex.Submit();
-  delete stream;
-
-  // Data sprite sheet
-  Io::VfsOpen("system", 9, &stream);
-  Texture dataTex;
-  dataTex.Load(stream);
-  Profile::Dlg.DataSpriteSheet.DesignHeight = dataTex.Height;
-  Profile::Dlg.DataSpriteSheet.DesignWidth = dataTex.Width;
-  Profile::Dlg.DataSpriteSheet.Texture = dataTex.Submit();
-  delete stream;
-}
-
-void InitDialogueTest() {
-  Profile::Dlg = DialoguePageFeatureConfig_RNE;
-
-  Init();
-
-  Io::InputStream* stream;
-  Io::VfsOpen("system", 12, &stream);
-  Texture tex;
-  tex.Load(stream);
-  Profile::Dlg.DialogueFont.Sheet.Texture = tex.Submit();
-  delete stream;
-
-  DrawComponents[0] = TD_Text;
-
-  Vm::Sc3VmThread dummy;
-  uint8_t string[] = {0x11, 0x01, 0x18, 0x12, 0x00, 0xF0, 0x82, 0x22, 0x82,
-                      0x23, 0x81, 0xA6, 0x82, 0x24, 0x81, 0x61, 0x82, 0x25,
-                      0x81, 0x60, 0x81, 0x79, 0x81, 0x80, 0x80, 0xBE, 0x82,
-                      0x26, 0x81, 0x64, 0x81, 0x65, 0x82, 0x27, 0x80, 0xED,
-                      0x81, 0x78, 0x80, 0xBF, 0x08, 0xFF};
-  uint8_t string2[] = {0x01, 0x82, 0x20, 0x82, 0x21, 0x02, 0x80,
-                       0xD8, 0x80, 0xE3, 0x80, 0xE3, 0x80, 0xE3,
-                       0x80, 0xE3, 0x80, 0xD9, 0x03, 0xFF};
-  dummy.Ip = string2;
-  DialoguePages[0].Mode = DPM_ADV;
-  DialoguePages[0].AddString(&dummy);
 }
 
 void Shutdown() {

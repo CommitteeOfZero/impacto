@@ -25,9 +25,8 @@ Sprite WaitIconSprite;
 glm::vec2 WaitIconOffset;
 float WaitIconAnimationDuration;
 
-Font DialogueFont;
+Font* DialogueFont;
 float DefaultFontSize;
-float LineSpacing;
 float RubyFontSize;
 float RubyYOffset;
 
@@ -73,7 +72,6 @@ void Configure() {
 
   DialogueFont = EnsureGetMemberFont("DialogueFont");
   DefaultFontSize = EnsureGetMemberFloat("DefaultFontSize");
-  LineSpacing = EnsureGetMemberFloat("LineSpacing");
   RubyFontSize = EnsureGetMemberFloat("RubyFontSize");
   RubyYOffset = EnsureGetMemberFloat("RubyYOffset");
 

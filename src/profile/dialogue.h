@@ -30,9 +30,8 @@ extern Sprite WaitIconSprite;
 extern glm::vec2 WaitIconOffset;
 extern float WaitIconAnimationDuration;
 
-extern Font DialogueFont;
+extern Font* DialogueFont;
 extern float DefaultFontSize;
-extern float LineSpacing;
 extern float RubyFontSize;
 extern float RubyYOffset;
 

@@ -1,22 +1,40 @@
 #pragma once
 
 #include "spritesheet.h"
+#include <enum.h>
 
 namespace Impacto {
 
+BETTER_ENUM(FontType, int, Basic, LB)
+
 class Font {
  public:
-  Font() {}
-  Font(float width, float height, uint8_t columns, uint8_t rows)
-      : Sheet(width, height), Columns(columns), Rows(rows) {}
+  Font(FontType type) : Type(type) {}
 
-  SpriteSheet Sheet;
+  FontType Type;
+
   uint8_t Columns;
   uint8_t Rows;
   float* Widths;
 
-  float RowHeight() const { return Sheet.DesignHeight / (float)Rows; }
-  float ColWidth() const { return Sheet.DesignWidth / (float)Columns; }
+  float CellHeight;
+  float CellWidth;
+
+  float LineSpacing;
+
+  virtual void CalculateDefaultSizes() = 0;
+};
+
+class BasicFont : public Font {
+ public:
+  BasicFont() : Font(FontType::Basic) {}
+
+  SpriteSheet Sheet;
+
+  void CalculateDefaultSizes() override {
+    CellHeight = Sheet.DesignHeight / (float)Rows;
+    CellWidth = Sheet.DesignWidth / (float)Columns;
+  }
 
   Sprite Glyph(uint8_t row, uint8_t col) { return Glyph(row * Columns + col); }
 
@@ -24,8 +42,49 @@ class Font {
     uint8_t row = id / Columns;
     uint8_t col = id % Columns;
     float width = Widths[id];
-    return Sprite(Sheet, col * ColWidth(), row * RowHeight(), width,
-                  RowHeight());
+    return Sprite(Sheet, col * CellWidth, row * CellHeight, width, CellHeight);
+  }
+};
+
+class LBFont : public Font {
+ public:
+  LBFont() : Font(FontType::LB) {}
+
+  SpriteSheet ForegroundSheet;
+  SpriteSheet OutlineSheet;
+
+  float OutlineCellHeight;
+  float OutlineCellWidth;
+
+  glm::vec2 OutlineOffset;
+
+  void CalculateDefaultSizes() override {
+    CellHeight = ForegroundSheet.DesignHeight / (float)Rows;
+    CellWidth = ForegroundSheet.DesignWidth / (float)Columns;
+
+    OutlineCellHeight = OutlineSheet.DesignHeight / (float)Rows;
+    OutlineCellWidth = OutlineSheet.DesignWidth / (float)Columns;
+  }
+
+  Sprite Glyph(uint8_t row, uint8_t col) { return Glyph(row * Columns + col); }
+
+  Sprite Glyph(uint16_t id) {
+    uint8_t row = id / Columns;
+    uint8_t col = id % Columns;
+    float width = Widths[id];
+    return Sprite(ForegroundSheet, col * CellWidth, row * CellHeight, width,
+                  CellHeight);
+  }
+
+  Sprite OutlineGlyph(uint8_t row, uint8_t col) {
+    return OutlineGlyph(row * Columns + col);
+  }
+
+  Sprite OutlineGlyph(uint16_t id) {
+    uint8_t row = id / Columns;
+    uint8_t col = id % Columns;
+    return Sprite(OutlineSheet, col * OutlineCellWidth, row * OutlineCellHeight,
+                  OutlineCellWidth, OutlineCellHeight);
   }
 };
 

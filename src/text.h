@@ -35,21 +35,6 @@ int const DialogueMaxNameLength = 32;
 int const DialogueMaxRubyChunks = 32;
 int const DialogueMaxRubyChunkLength = 32;
 
-struct DialoguePageFeatureConfig {
-  RectF NVLBounds;
-  RectF ADVBounds;
-  TextAlignment ADVNameAlignment = TextAlignment::Left;
-  float ADVNameFontSize;
-  glm::vec2 ADVNamePos;
-  float DefaultFontSize;
-  float RubyFontSize;
-  Font DialogueFont;
-  DialogueColorPair ColorTable[70];
-  SpriteSheet DataSpriteSheet;
-};
-
-extern DialoguePageFeatureConfig const DialoguePageFeatureConfig_RNE;
-
 struct RubyChunk {
   int FirstBaseCharacter;
   int Length;

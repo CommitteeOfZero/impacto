@@ -336,8 +336,8 @@ JSON_GET_METHODS(Sprite, Sprite, "Sprite")
 TRY_GET_ENTITY(SpriteSheet, SpriteSheet, SpriteSheets)
 JSON_GET_METHODS(SpriteSheet, SpriteSheet, "SpriteSheet")
 
-TRY_GET_ENTITY(Font, Font, Fonts)
-JSON_GET_METHODS(Font, Font, "Font")
+TRY_GET_ENTITY(Font, Font*, Fonts)
+JSON_GET_METHODS(Font, Font*, "Font")
 
 TRY_GET_ENTITY(Animation, SpriteAnimationDef, Animations)
 JSON_GET_METHODS(Animation, SpriteAnimationDef, "Animation")

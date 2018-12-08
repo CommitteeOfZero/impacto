@@ -7,6 +7,7 @@
 
 #include <duktape.h>
 
+#include "../font.h"
 #include "../text.h"
 #include "../game.h"
 #include "../vm/vm.h"
@@ -150,6 +151,7 @@ void MakeJsonProfile(std::string const& name) {
   DefineEnumInt<CharacterTypeFlags>(ctx);
   DefineEnumInt<Vm::InstructionSet>(ctx);
   DefineEnumInt<MainMenu::MainMenuType>(ctx);
+  DefineEnumInt<FontType>(ctx);
 
   ImpLog(LL_Info, LC_Profile, "Starting profile %s\n", name.c_str());
 

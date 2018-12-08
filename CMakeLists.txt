@@ -49,8 +49,6 @@ set(Impacto_Src
 
     src/games/rne/tilebackground.cpp
 
-    src/text_rne.cpp
-
     src/hud/datedisplay.cpp
     src/hud/saveicondisplay.cpp
     src/hud/sysmesboxdisplay.cpp
@@ -59,6 +57,7 @@ set(Impacto_Src
     src/profile/hud/sysmesboxdisplay.cpp
 
     src/nuklear_impl.cpp
+    src/stbi_impl.c
 
     src/3d/camera.cpp
     src/3d/model.cpp
@@ -84,6 +83,7 @@ set(Impacto_Src
     src/texture/s3tc.cpp
     src/texture/gxtloader.cpp
     src/texture/plainloader.cpp
+    src/texture/stbiloader.cpp
 
     src/vm/vm.cpp
     src/vm/expression.cpp

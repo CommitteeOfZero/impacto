@@ -6,7 +6,7 @@
 namespace Impacto {
 namespace Profile {
 
-extern ska::flat_hash_map<std::string, Font> Fonts;
+extern ska::flat_hash_map<std::string, Font*> Fonts;
 
 void LoadFonts();
 

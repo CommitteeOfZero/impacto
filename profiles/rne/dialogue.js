@@ -26,7 +26,6 @@ root.Dialogue = {
     WaitIconAnimationDuration: 3.2,
     DialogueFont: "Default",
     DefaultFontSize: 32,
-    LineSpacing: 22,
     RubyFontSize: 14,
     RubyYOffset: -18,
     ColorTable: [
