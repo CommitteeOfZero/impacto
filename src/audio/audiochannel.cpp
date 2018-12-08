@@ -196,7 +196,7 @@ void AudioChannel::FillBuffers() {
     int samplesRead = 0;
     while (samplesRead < maxSamples) {
       if (Looping && CurrentStream->ReadPosition >= CurrentStream->LoopEnd) {
-        ImpLog(LL_Debug, LC_Audio, "Channel %d looping\n", Id);
+        ImpLog(LL_Trace, LC_Audio, "Channel %d looping\n", Id);
         CurrentStream->Seek(CurrentStream->LoopStart);
       }
       dest = HostBuffer + samplesRead * CurrentStream->BytesPerSample();
