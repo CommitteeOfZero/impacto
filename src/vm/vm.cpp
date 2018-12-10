@@ -300,6 +300,8 @@ static void DestroyThreadGroup(uint32_t groupId) {
       groupThread = next;
     }
   }
+  ThreadGroupHeads[groupId] = NULL;
+  ThreadGroupTails[groupId] = NULL;
 }
 
 void ControlThreadGroup(ThreadGroupControlType controlType, uint32_t groupId) {
