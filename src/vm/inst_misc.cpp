@@ -8,6 +8,8 @@
 #include "../mem.h"
 #include "../log.h"
 #include "../hud/saveicondisplay.h"
+#include "../hud/mainmenu.h"
+#include "../inputsystem.h"
 
 namespace Impacto {
 
@@ -66,6 +68,19 @@ VmInstruction(InstSetX360SysMesPos) {
   PopExpression(arg1);
   ImpLogSlow(LL_Warning, LC_VMStub,
              "STUB instruction SetX360SysMesPos(arg1: %i)\n", arg1);
+}
+VmInstruction(InstSystemMenu) {
+  StartInstruction;
+  PopUint8(mode);
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SystemMenu(mode: %i)\n",
+             mode);
+  switch (mode) {
+    case 0:
+      MainMenu::Show();
+      break;
+    case 1:
+      break;
+  }
 }
 VmInstruction(InstPressStart) {
   StartInstruction;

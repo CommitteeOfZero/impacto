@@ -14,6 +14,7 @@ VmInstruction(InstSetPlayer);
 VmInstruction(InstSignIn);
 VmInstruction(InstAchievementIcon);
 VmInstruction(InstSetX360SysMesPos);
+VmInstruction(InstSystemMenu);
 VmInstruction(InstPressStart);
 VmInstruction(InstClearFlagChk);
 VmInstruction(InstOption);

@@ -10,6 +10,10 @@ BETTER_ENUM(MainMenuType, int, None, RNE)
 
 extern Animation* BackgroundAnimation;
 
+enum MainMenuState { Hidden, Hiding, Showing, Shown };
+
+extern MainMenuState State;
+
 void Init();
 void Show();
 void Hide();

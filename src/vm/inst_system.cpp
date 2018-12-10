@@ -325,12 +325,6 @@ VmInstruction(InstSystemMes) {
       break;
   }
 }
-VmInstruction(InstSystemMenu) {
-  StartInstruction;
-  PopUint8(mode);
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SystemMenu(mode: %i)\n",
-             mode);
-}
 VmInstruction(InstGetNowTime) {
   StartInstruction;
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction GetNowTime()\n");

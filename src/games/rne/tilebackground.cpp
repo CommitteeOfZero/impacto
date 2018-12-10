@@ -67,7 +67,7 @@ void TileBackground::Render() {
           tileSprite,
           RectF((float)x * ColumnWidth, (float)y * RowHeight, ColumnWidth,
                 RowHeight),
-          2.0f, vanishingPoint, true, quat,
+          2.0f, vanishingPoint, false, quat,
           glm::vec4(1.0f, 1.0f, 1.0f, smoothedTileProgress));
     }
   }

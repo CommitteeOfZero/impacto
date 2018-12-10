@@ -38,7 +38,6 @@ VmInstruction(InstMwait);
 VmInstruction(InstTerminate);
 VmInstruction(InstDebugPrint);
 VmInstruction(InstSystemMes);
-VmInstruction(InstSystemMenu);
 VmInstruction(InstGetNowTime);
 VmInstruction(InstGetSystemStatus);
 VmInstruction(InstReboot);

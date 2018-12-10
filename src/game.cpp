@@ -78,7 +78,6 @@ static void Init() {
     Profile::LoadFonts();
     Profile::LoadAnimations();
     DialoguePage::Init();
-    MainMenu::Init();
 
     Renderer2D::Init();
   }
@@ -91,6 +90,7 @@ static void Init() {
     SaveIconDisplay::Init();
     LoadingDisplay::Init();
     SysMesBoxDisplay::Init();
+    MainMenu::Init();
     Profile::DateDisplay::Configure();
 
     Vm::Init();
@@ -167,6 +167,7 @@ void Update(float dt) {
     SysMesBoxDisplay::Update(dt);
     LoadingDisplay::Update(dt);
     DateDisplay::Update(dt);
+    MainMenu::Update(dt);
   }
 
   if (Profile::GameFeatures & GameFeature::Audio) {
@@ -249,6 +250,7 @@ void Render() {
           break;
         }
         case TD_SystemMenu: {
+          MainMenu::Render();
           break;
         }
         case TD_SystemMessage: {
