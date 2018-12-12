@@ -84,6 +84,8 @@ IoError VfsMountMemory(std::string const& mountpoint,
                        std::string const& archiveFileName, void* memory,
                        int64_t size, bool freeOnClose) {
   IoError err;
+  InputStream* archiveFile;
+
   SDL_LockMutex(Lock);
 
   ImpLog(
@@ -97,7 +99,7 @@ IoError VfsMountMemory(std::string const& mountpoint,
     goto end;
   }
 
-  InputStream* archiveFile = new MemoryStream(memory, size, freeOnClose);
+  archiveFile = new MemoryStream(memory, size, freeOnClose);
   archiveFile->Meta.FileName = archiveFileName;
   err = MountInternal(mountpoint, archiveFile);
   if (err != IoError_OK) {

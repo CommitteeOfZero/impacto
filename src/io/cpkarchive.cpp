@@ -364,6 +364,8 @@ IoError CpkArchive::Create(InputStream* stream, VfsArchive** outArchive) {
 
   std::vector<ska::flat_hash_map<std::string, CpkCell>> headerUtfTable;
 
+  uint16_t alignVal;
+
   uint32_t const magic = 0x43504B20;
   if (ReadBE<uint32_t>(stream) != magic) {
     ImpLog(LL_Trace, LC_IO, "Not a CPK\n");
@@ -378,7 +380,7 @@ IoError CpkArchive::Create(InputStream* stream, VfsArchive** outArchive) {
     goto fail;
   }
 
-  uint16_t alignVal = headerUtfTable[0]["Align"].Uint16Val;
+  alignVal = headerUtfTable[0]["Align"].Uint16Val;
   result->FileCount = headerUtfTable[0]["Files"].Uint32Val;
   result->Version = headerUtfTable[0]["Version"].Uint16Val;
   result->Revision = headerUtfTable[0]["Revision"].Uint16Val;

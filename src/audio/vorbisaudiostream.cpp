@@ -23,6 +23,8 @@ AudioStream* VorbisAudioStream::Create(InputStream* stream) {
   OggVorbis_File Vf;
   bool VfOpen = false;
 
+  vorbis_info* info;
+
   int err = ov_open_callbacks(stream, &Vf, NULL, 0, OvRwCallbacks);
   if (err < 0) {
     goto fail;
@@ -30,7 +32,7 @@ AudioStream* VorbisAudioStream::Create(InputStream* stream) {
   VfOpen = true;
   ImpLog(LL_Info, LC_Audio, "Creating Vorbis stream\n");
 
-  vorbis_info* info = ov_info(&Vf, -1);
+  info = ov_info(&Vf, -1);
   if (info->channels != 1 && info->channels != 2) {
     ImpLog(LL_Error, LC_Audio,
            "Got Vorbis file with unsupported channel count %d\n",

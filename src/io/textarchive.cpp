@@ -78,6 +78,11 @@ IoError TextArchive::Create(InputStream* stream, VfsArchive** outArchive) {
 
   TextArchiveType type;
 
+  int64_t size;
+  int64_t maxFileCount;
+  TextArchive* result;
+  uint32_t lineId;
+
   if (StringEndsWithCi(stream->Meta.FileName, ".cls")) {
     type = CLS;
   } else if (StringEndsWithCi(stream->Meta.FileName, ".mlp")) {
@@ -95,11 +100,11 @@ IoError TextArchive::Create(InputStream* stream, VfsArchive** outArchive) {
   }
 
   content.resize(stream->Meta.Size);
-  int64_t size = stream->Read(&content[0], stream->Meta.Size);
+  size = stream->Read(&content[0], stream->Meta.Size);
   content.resize(size);
-  int64_t maxFileCount = std::count(content.begin(), content.end(), '\n') + 1;
+  maxFileCount = std::count(content.begin(), content.end(), '\n') + 1;
 
-  TextArchive* result = 0;
+  result = 0;
 
   result = new TextArchive;
   result->BaseStream = stream;
@@ -122,7 +127,7 @@ IoError TextArchive::Create(InputStream* stream, VfsArchive** outArchive) {
     }
   }
 
-  uint32_t lineId = 0;
+  lineId = 0;
 
   ss = std::istringstream(content, std::ios::in);
   for (std::string line; std::getline(ss, line); lineId++) {

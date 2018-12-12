@@ -30,7 +30,7 @@ int64_t MemoryStream::Seek(int64_t offset, int origin) {
     newPos = offset;
   } else if (origin == RW_SEEK_CUR) {
     newPos += offset;
-  } else if (origin = RW_SEEK_END) {
+  } else if (origin == RW_SEEK_END) {
     newPos = Meta.Size - offset;
   } else {
     return IoError_Fail;

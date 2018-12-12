@@ -134,24 +134,27 @@ breakLoop:
 AudioStream* Atrac9AudioStream::Create(InputStream* stream) {
   Atrac9AudioStream* result = 0;
 
+  At9ContainerInfo container;
+  int ret;
+  Atrac9CodecInfo codecinfo;
+
   void* At9 = Atrac9GetHandle();
   if (!At9) {
     ImpLog(LL_Error, LC_Audio, "Atrac9GetHandle failed\n");
     goto fail;
   }
 
-  At9ContainerInfo container = {0};
+  container = {0};
   if (!ParseAt9Riff(stream, &container)) {
     goto fail;
   }
 
-  int ret = Atrac9InitDecoder(At9, container.ConfigData);
+  ret = Atrac9InitDecoder(At9, container.ConfigData);
   if (ret != 0) {
     ImpLog(LL_Error, LC_Audio, "Atrac9InitDecoder failed with %d\n", ret);
     goto fail;
   }
 
-  Atrac9CodecInfo codecinfo;
   Atrac9GetCodecInfo(At9, &codecinfo);
   if (codecinfo.channels != container.ChannelCount ||
       codecinfo.samplingRate != container.SampleRate) {

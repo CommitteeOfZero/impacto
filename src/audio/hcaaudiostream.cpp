@@ -12,25 +12,30 @@ AudioStream* HcaAudioStream::Create(InputStream* stream) {
   clHCA* Decoder = 0;
   HcaAudioStream* result = 0;
 
+  clHCA_stInfo info;
+
+  uint8_t* header;
+
+  int err;
+
   uint8_t headerStart[8];
   stream->Read(headerStart, 8);
   int headerSize = clHCA_isOurFile(headerStart, 8);
   if (headerSize < 0) {
     goto fail;
   }
-  uint8_t* header = (uint8_t*)ImpStackAlloc(headerSize);
+  header = (uint8_t*)ImpStackAlloc(headerSize);
   memcpy(header, headerStart, 8);
   stream->Read(header + 8, headerSize - 8);
 
   Decoder = clHCA_new();
-  int err = clHCA_DecodeHeader(Decoder, header, headerSize);
+  err = clHCA_DecodeHeader(Decoder, header, headerSize);
   ImpStackFree(header);
   if (err) {
     ImpLog(LL_Error, LC_Audio, "clHCA_DecodeHeader failed with code %d\n", err);
     goto fail;
   }
 
-  clHCA_stInfo info;
   clHCA_getInfo(Decoder, &info);
 
   if (info.channelCount != 1 && info.channelCount != 2) {

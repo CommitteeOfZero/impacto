@@ -61,5 +61,7 @@ char const* EnsureGetKeyString(Value::ConstMemberIterator it);
 void LoadJsonString(char const* str);
 void ClearJsonProfileInternal();
 
+#undef JSON_GET_METHODS
+
 }  // namespace Profile
 }  // namespace Impacto

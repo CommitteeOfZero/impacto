@@ -4,12 +4,9 @@ project ("impacto")
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/modules")
 
-find_package(SDL2 REQUIRED)
-find_package(glm REQUIRED)
-find_package(ZLIB REQUIRED)
-find_package(OpenAL REQUIRED)
-find_package(OggVorbis REQUIRED)
-find_package(Libatrac9 REQUIRED)
+if(EMSCRIPTEN)
+    list(APPEND CMAKE_MODULE_PATH ${EMSCRIPTEN_ROOT_PATH}/cmake/Modules)
+endif()
 
 set(Impacto_Src
     src/main.cpp
@@ -229,29 +226,78 @@ set(Impacto_Header
     vendor/clHCA/clHCA.h
 )
 
-include_directories(vendor/glad/include)
-include_directories(${OPENAL_INCLUDE_DIR})
-include_directories(${OGGVORBIS_INCLUDE_DIRS})
-include_directories(${LIBATRAC9_INCLUDE_DIR})
-include_directories(vendor/include)
-include_directories(vendor/duktape/include)
-include_directories(vendor/pcg/include)
-
 if (WIN32)
     list(APPEND Impacto_Src
         src/manifest_windows.manifest
     )
 endif()
 
+# dependencies
+
+find_package(Libatrac9 REQUIRED)
+find_package(glm REQUIRED)
+find_package(OpenAL REQUIRED)
+
+set(Impacto_Libs
+    ${CMAKE_DL_LIBS}
+    ${LIBATRAC9_LIBRARY}
+    ${OPENAL_LIBRARY}
+)
+
+if(EMSCRIPTEN)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_SDL=2 -s USE_ZLIB=1 -s USE_OGG=1 -s USE_VORBIS=1 -s USE_PTHREADS=1 -s WASM=1")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s USE_SDL=2 -s USE_ZLIB=1 -s USE_OGG=1 -s USE_VORBIS=1 -s USE_PTHREADS=1 -s WASM=1")
+
+    add_definitions(-DIMPACTO_OPENAL_INCLUDE_SUBDIR)
+else()
+    find_package(SDL2 REQUIRED)
+    find_package(ZLIB REQUIRED)
+    find_package(OggVorbis REQUIRED)
+
+    include_directories(${OGGVORBIS_INCLUDE_DIRS})
+
+    list(APPEND Impacto_Libs
+        SDL2::SDL2main
+        glm
+        ZLIB::ZLIB
+        ${OGGVORBIS_LIBRARIES}
+    )
+
+    add_definitions(-DIMPACTO_OPENAL_HAVE_ALEXT)
+endif()
+
+include_directories(vendor/glad/include)
+include_directories(${LIBATRAC9_INCLUDE_DIR})
+include_directories(${OPENAL_INCLUDE_DIR})
+include_directories(vendor/include)
+include_directories(vendor/duktape/include)
+include_directories(vendor/pcg/include)
+
 add_executable (impacto ${Impacto_Src} ${Impacto_Header})
 
-# configuration
+target_link_libraries(impacto PUBLIC ${Impacto_Libs})
+
+# compiler/dependency configuration
+
+set_property(TARGET impacto PROPERTY CXX_STANDARD 14)
+
+if(EMSCRIPTEN)
+    set(CMAKE_EXECUTABLE_SUFFIX ".html")
+endif()
 
 if(MSVC)
     add_definitions(-DBETTER_ENUMS_NO_CONSTEXPR) # broken in MSVC 2017 apparently
 endif()
 
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    add_definitions(-DENV64BIT)
+else()
+    add_definitions(-DENV32BIT)
+endif()
+
 add_definitions(-DGLM_FORCE_RADIANS) # lol
+
+# target configuration
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
     set(IMPACTO_ENABLE_SLOW_LOG_DEFAULT ON)
@@ -271,17 +317,7 @@ option(IMPACTO_GL_DEBUG
 configure_file(src/config.h.in ${PROJECT_BINARY_DIR}/include/config.h)
 target_include_directories(impacto PRIVATE ${PROJECT_BINARY_DIR}/include)
 
-# external libs
-
-target_link_libraries(impacto PUBLIC
-    ${CMAKE_DL_LIBS}
-    SDL2::SDL2main
-    glm
-    ZLIB::ZLIB
-    ${OPENAL_LIBRARY}
-    ${OGGVORBIS_LIBRARIES}
-    ${LIBATRAC9_LIBRARY}
-)
+# binary install
 
 install(TARGETS impacto RUNTIME DESTINATION .)
 
@@ -300,7 +336,7 @@ if (WIN32)
     endif()
 endif()
 
-# assets
+# asset install
 
 install(DIRECTORY src/shaders DESTINATION .)
 install(DIRECTORY profiles DESTINATION .)

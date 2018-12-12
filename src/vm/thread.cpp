@@ -38,9 +38,7 @@ void* Sc3VmThread::GetMemberPointer(uint32_t offset) {
     case TO_Temp2:
       return &Temp2;
     default:
-      if ((offset - TO_ThdVarBegin) >= 0) {
-        return &Variables[offset - TO_ThdVarBegin];
-      }
+      return &Variables[offset - TO_ThdVarBegin];
       break;
   }
 }

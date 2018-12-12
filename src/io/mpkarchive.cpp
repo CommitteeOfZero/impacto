@@ -60,13 +60,19 @@ IoError MpkArchive::Create(InputStream* stream, VfsArchive** outArchive) {
   MpkArchive* result = 0;
 
   uint32_t const magic = 0x4D504B00;
+
+  uint32_t FileCount;
+  uint16_t MinorVersion;
+  uint16_t MajorVersion;
+  char name[MpkMaxPath];
+
   if (ReadBE<uint32_t>(stream) != magic) {
     ImpLog(LL_Trace, LC_IO, "Not an MPK\n");
     goto fail;
   }
 
-  uint16_t MinorVersion = ReadLE<uint16_t>(stream);
-  uint16_t MajorVersion = ReadLE<uint16_t>(stream);
+  MinorVersion = ReadLE<uint16_t>(stream);
+  MajorVersion = ReadLE<uint16_t>(stream);
   // TODO support v1
   if (MinorVersion != 0 || MajorVersion != 2) {
     ImpLog(LL_Trace, LC_IO, "Unsupported MPK version %d.%d\n", MajorVersion,
@@ -76,13 +82,12 @@ IoError MpkArchive::Create(InputStream* stream, VfsArchive** outArchive) {
 
   result = new MpkArchive;
   result->BaseStream = stream;
-  uint32_t FileCount = ReadLE<uint32_t>(stream);
+  FileCount = ReadLE<uint32_t>(stream);
   result->NamesToIds.reserve(FileCount);
   result->IdsToFiles.reserve(FileCount);
   result->TOC = new MpkMetaEntry[FileCount];
 
   stream->Seek(0x40, RW_SEEK_SET);
-  char name[MpkMaxPath];
   for (uint32_t i = 0; i < FileCount; i++) {
     uint32_t Compression = ReadLE<uint32_t>(stream);
     uint32_t Id = ReadLE<uint32_t>(stream);

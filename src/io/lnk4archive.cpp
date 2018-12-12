@@ -51,24 +51,32 @@ IoError Lnk4Archive::Create(InputStream* stream, VfsArchive** outArchive) {
   uint32_t blockSize = 1024;
 
   uint32_t const magic = 0x4C4E4B34;
+
+  uint32_t const tocOffset = 8;
+
+  uint32_t maxFileCount;
+  uint32_t fileCount;
+  uint32_t dataOffset;
+  char fileName[6];
+
   if (ReadBE<uint32_t>(stream) != magic) {
     ImpLog(LL_Trace, LC_IO, "Not LNK4\n");
     goto fail;
   }
-  uint32_t const tocOffset = 8;
-  uint32_t dataOffset = ReadLE<uint32_t>(stream);
+
+  dataOffset = ReadLE<uint32_t>(stream);
   if (dataOffset < tocOffset) {
     ImpLog(LL_Error, LC_IO, "LNK4 header too short\n");
     goto fail;
   }
 
-  uint32_t maxFileCount = (dataOffset - tocOffset) / 8;
+  maxFileCount = (dataOffset - tocOffset) / 8;
 
   rawToc = (uint32_t*)ImpStackAlloc(dataOffset - tocOffset);
   if (stream->Read(rawToc, dataOffset - tocOffset) != dataOffset - tocOffset)
     goto fail;
 
-  uint32_t fileCount = 0;
+  fileCount = 0;
   for (uint32_t* it = rawToc; it < rawToc + (maxFileCount * 2); it += 2) {
     // first file starts at 0
     if (SDL_SwapLE32(*it) == 0 && it != rawToc) break;
@@ -81,7 +89,6 @@ IoError Lnk4Archive::Create(InputStream* stream, VfsArchive** outArchive) {
   result->IdsToFiles.reserve(fileCount);
   result->TOC = new Lnk4MetaEntry[fileCount];
 
-  char fileName[6];
   for (uint32_t i = 0; i < fileCount; i++) {
     snprintf(fileName, 6, "%5i", i);
     result->TOC[i].FileName = fileName;
