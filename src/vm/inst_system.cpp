@@ -23,8 +23,8 @@ VmInstruction(InstDummy) {}
 
 VmInstruction(InstEnd) {
   StartInstruction;
+  thread->Flags = TF_Destroy;
   BlockThread;
-  ResetInstruction;
 }
 VmInstruction(InstCreateThread) {
   StartInstruction;
@@ -35,6 +35,8 @@ VmInstruction(InstCreateThread) {
   newThread->GroupId = groupId;
   newThread->ScriptBufferId = scriptBufferId;
   newThread->Ip = labelAdr;
+  thread->ScriptParam = newThread->Id;
+  newThread->ScriptParam = thread->Id;
   RunThread(newThread);
   BlockCurrentScriptThread = false;
 }
@@ -169,11 +171,16 @@ VmInstruction(InstCopyThreadWork) {
   PopExpression(threadIdDst);
   PopExpression(beginIndex);
   PopExpression(count);
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction CopyThreadWork(threadIdSrc: %i, threadIdDst: "
-             "%i, beginIndex: %i, "
-             "count: %i)\n",
-             threadIdSrc, threadIdDst, beginIndex, count);
+  Sc3VmThread* srcThread = &ThreadPool[threadIdSrc];
+  Sc3VmThread* dstThread;
+  if (threadIdDst == 0)
+    dstThread = thread;
+  else
+    dstThread = &ThreadPool[threadIdSrc];
+
+  for (int i = 0; i < count; i++) {
+    dstThread->Variables[beginIndex + i] = srcThread->Variables[beginIndex + i];
+  }
 }
 VmInstruction(InstSave) {
   StartInstruction;

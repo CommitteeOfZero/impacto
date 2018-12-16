@@ -23,8 +23,8 @@ uint32_t SwitchValue;
 
 static uint32_t LoadedScriptIds[MaxLoadedScripts];
 
-static Sc3VmThread ThreadPool[MaxThreads];  // Main thread pool where all the
-                                            // thread objects are stored
+Sc3VmThread ThreadPool[MaxThreads];  // Main thread pool where all the
+                                     // thread objects are stored
 static Sc3VmThread*
     ThreadTable[MaxThreads];  // Table of ordered thread pointers
                               // to be executed or "drawn"
@@ -263,6 +263,12 @@ static void DrawAllThreads() {
 }
 
 void DestroyThread(Sc3VmThread* thread) {
+  if (ThreadGroupHeads[thread->GroupId] == thread) {
+    ThreadGroupHeads[thread->GroupId] = NULL;
+    ThreadGroupTails[thread->GroupId] = NULL;
+  } else if (ThreadGroupTails[thread->GroupId] == thread) {
+    ThreadGroupTails[thread->GroupId] = thread->PreviousContext;
+  }
   Sc3VmThread* previous = thread->PreviousContext;
   Sc3VmThread* next = thread->NextContext;
   if (next != 0) {

@@ -33,6 +33,8 @@ void RunThread(Sc3VmThread* thread);
 
 extern uint8_t* ScriptBuffers[MaxLoadedScripts];
 
+extern Sc3VmThread ThreadPool[MaxThreads];
+
 extern bool BlockCurrentScriptThread;
 extern uint32_t SwitchValue;  // Used in InstSwitch and InstCase
 
