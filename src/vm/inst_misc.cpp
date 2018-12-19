@@ -8,6 +8,7 @@
 #include "../mem.h"
 #include "../log.h"
 #include "../hud/saveicondisplay.h"
+#include "../hud/titlemenu.h"
 #include "../hud/mainmenu.h"
 #include "../inputsystem.h"
 
@@ -326,6 +327,7 @@ VmInstruction(InstTitleMenu) {
     case 0:  // Init
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction TitleMenu(type: Init)\n");
+      TitleMenu::Show();
       break;
     case 1:  // Main
       // Hack to kickstart into "New Game"

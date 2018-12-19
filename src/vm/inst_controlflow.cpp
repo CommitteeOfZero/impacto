@@ -150,7 +150,8 @@ VmInstruction(InstKeyOnJump) {
   PopUint16(labelNum);
   uint8_t* labelAdr =
       ScriptGetLabelAddress(ScriptBuffers[thread->ScriptBufferId], labelNum);
-  if (thread->Id == 0 && labelNum == 57) {
+  if (thread->Id == 0 && labelNum == 57 &&
+      (Input::MouseButtonWentDown[SDL_BUTTON_LEFT])) {
     thread->Ip = labelAdr;  // Dirty hack to kickstart the titlescreen
   }
   if (thread->Id == 0 && labelNum == 80) {

@@ -17,6 +17,7 @@
 #include "hud/saveicondisplay.h"
 #include "hud/sysmesboxdisplay.h"
 #include "hud/loadingdisplay.h"
+#include "hud/titlemenu.h"
 #include "hud/mainmenu.h"
 #include "io/memorystream.h"
 #include "scriptvars.h"
@@ -90,6 +91,7 @@ static void Init() {
     SaveIconDisplay::Init();
     LoadingDisplay::Init();
     SysMesBoxDisplay::Init();
+    TitleMenu::Init();
     MainMenu::Init();
     Profile::DateDisplay::Configure();
 
@@ -167,6 +169,7 @@ void Update(float dt) {
     SysMesBoxDisplay::Update(dt);
     LoadingDisplay::Update(dt);
     DateDisplay::Update(dt);
+    TitleMenu::Update(dt);
     MainMenu::Update(dt);
   }
 
@@ -250,6 +253,7 @@ void Render() {
           break;
         }
         case TD_SystemMenu: {
+          TitleMenu::Render();
           MainMenu::Render();
           break;
         }

@@ -41,6 +41,7 @@ set(Impacto_Src
     src/profile/hud/loadingdisplay.cpp
     src/profile/hud/datedisplay.cpp
     src/profile/hud/mainmenu.cpp
+    src/profile/hud/titlemenu.cpp
 
     src/profile/games/rne/tilebackground.cpp
 
@@ -51,6 +52,7 @@ set(Impacto_Src
     src/hud/sysmesboxdisplay.cpp
     src/hud/loadingdisplay.cpp
     src/hud/mainmenu.cpp
+    src/hud/titlemenu.cpp
     src/profile/hud/sysmesboxdisplay.cpp
 
     src/nuklear_impl.cpp
@@ -153,6 +155,7 @@ set(Impacto_Header
     src/profile/hud/loadingdisplay.h
     src/profile/hud/datedisplay.h
     src/profile/hud/mainmenu.h
+    src/profile/hud/titlemenu.h
     src/profile/hud/sysmesboxdisplay.h
 
     src/profile/games/rne/tilebackground.h
@@ -164,6 +167,7 @@ set(Impacto_Header
     src/hud/sysmesboxdisplay.h
     src/hud/loadingdisplay.h
     src/hud/mainmenu.h
+    src/hud/titlemenu.h
 
     src/3d/camera.h
     src/3d/model.h

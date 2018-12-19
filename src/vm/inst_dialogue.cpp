@@ -154,10 +154,6 @@ VmInstruction(InstMesMain) {
         BlockThread;
       }
     }
-    // if (!currentPage->TextIsFullyOpaque) {
-    //  ResetInstruction;
-    //  BlockThread;
-    //}
   }
   // TODO: Type 1 - Skip mode(?)
 }
