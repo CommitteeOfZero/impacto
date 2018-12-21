@@ -387,7 +387,7 @@ VmInstruction(InstGlobalSystemMessage) {
   ImpLogSlow(LL_Warning, LC_VMStub,
              "STUB instruction GlobalSystemMessage(arg1: %i)\n", arg1);
 }
-// TODO find the value ranges on these
+// TODO find the value ranges for atan2
 VmInstruction(InstCalc) {
   StartInstruction;
   PopUint8(type);
@@ -395,12 +395,12 @@ VmInstruction(InstCalc) {
     case 0: {  // CalcSin
       PopExpression(dest);
       PopExpression(angle);
-      ScrWork[dest] = sin(angle);
+      ScrWork[dest] = (std::sin(angle / (65536 / (2 * M_PI)))) * 65536;
     } break;
     case 1: {  // CalcCos
       PopExpression(dest);
       PopExpression(angle);
-      ScrWork[dest] = cos(angle);
+      ScrWork[dest] = (std::cos(angle / (65536 / (2 * M_PI)))) * 65536;
     } break;
     case 2: {  // CalcAtan2
       PopExpression(dest);
@@ -413,14 +413,16 @@ VmInstruction(InstCalc) {
       PopExpression(base);
       PopExpression(angle);
       PopExpression(offset);
-      ScrWork[dest] = offset + base * sin(angle);
+      ScrWork[dest] =
+          offset + base * ((std::sin(angle / (65536 / (2 * M_PI)))) * 65536);
     } break;
     case 4: {  // CalcCosL
       PopExpression(dest);
       PopExpression(base);
       PopExpression(angle);
       PopExpression(offset);
-      ScrWork[dest] = offset + base * cos(angle);
+      ScrWork[dest] =
+          offset + base * ((std::cos(angle / (65536 / (2 * M_PI)))) * 65536);
     } break;
     case 5: {  // CalcRound
       PopExpression(dest);
