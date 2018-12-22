@@ -12,14 +12,16 @@ using namespace Impacto::Io;
 enum PlainPixelMode : uint32_t {
   Plain_8Bit_Paletted = 8,
   Plain_32Bit_ARGB = 32,
-  Plain_8Bit_Alpha = 8 | (2 << 16)
+  Plain_8Bit_Alpha1 = 8 | (1 << 16),
+  // Literally the same format, no idea why they made a new version
+  Plain_8Bit_Alpha2 = 8 | (2 << 16)
 };
 
 bool TextureIsPlain(InputStream* stream) {
   stream->Seek(4, RW_SEEK_SET);
   uint32_t mode = ReadLE<uint32_t>(stream);
   bool result = (mode == Plain_8Bit_Paletted || mode == Plain_32Bit_ARGB ||
-                 mode == Plain_8Bit_Alpha);
+                 mode == Plain_8Bit_Alpha1 || mode == Plain_8Bit_Alpha2);
   stream->Seek(0, RW_SEEK_SET);
   return result;
 }
@@ -86,7 +88,8 @@ bool TextureLoadPlain(InputStream* stream, Texture* outTexture) {
       return true;
     }
 
-    case Plain_8Bit_Alpha: {  // No palette, alpha channel only
+    case Plain_8Bit_Alpha1:
+    case Plain_8Bit_Alpha2: {  // No palette, alpha channel only
       // TODO alpha textures
       outTexture->Init(TexFmt_RGBA, width, height);
       memset(outTexture->Buffer, 0xFF, outTexture->BufferSize);
