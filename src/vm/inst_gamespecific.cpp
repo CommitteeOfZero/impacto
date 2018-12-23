@@ -5,6 +5,7 @@
 #include "expression.h"
 #include "../game.h"
 #include "../log.h"
+#include "../mem.h"
 
 namespace Impacto {
 
@@ -192,7 +193,7 @@ VmInstruction(InstUnk1037) {
              "STUB instruction Unk1037(arg1: %i, arg2: %i, arg3: %i)\n", arg1,
              arg2, arg3);
 }
-VmInstruction(InstUnk1037Darling) {
+VmInstruction(InstPhoneSG) {
   StartInstruction;
   PopUint8(type);
   switch (type) {
@@ -226,6 +227,11 @@ VmInstruction(InstUnk1037Darling) {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction Unk1037(arg1: %i, arg2: %i, arg3: %i)\n",
                  arg1, arg2, arg3);
+      if (GetFlag(2600)) {
+        ScrWork[6404] = 20;
+      } else {
+        ScrWork[6404] = 0;
+      }
       break;
     }
     case 4: {
@@ -239,6 +245,9 @@ VmInstruction(InstUnk1037Darling) {
                  "STUB instruction CHAmoveSetSeqDirect(arg1: %i, arg2: %i, "
                  "arg3: %i, arg4: %i, arg5: %i, arg6: %i)\n",
                  arg1, arg2, arg3, arg4, arg5, arg6);
+      break;
+    }
+    case 5: {  // PhoneInit
       break;
     }
     case 15: {

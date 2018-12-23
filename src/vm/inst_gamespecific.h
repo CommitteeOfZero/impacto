@@ -14,7 +14,7 @@ VmInstruction(InstUnk011F);
 VmInstruction(InstUnk012D);
 VmInstruction(InstGeotag);
 VmInstruction(InstUnk1037);
-VmInstruction(InstUnk1037Darling);
+VmInstruction(InstPhoneSG);
 VmInstruction(InstMail);
 VmInstruction(InstUnk1038Darling);
 VmInstruction(InstTwipo);

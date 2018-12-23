@@ -588,7 +588,7 @@ InstructionProc static OpcodeTableUser1_Darling[256] = {
     InstTitleMenuOld,      // 10 34
     InstDummy,             // 10 35
     InstBGeffect,          // 10 36
-    InstUnk1037Darling,    // 10 37
+    InstPhoneSG,           // 10 37
     InstUnk1038Darling,    // 10 38
     InstTwipo,             // 10 39
     InstUnk103A,           // 10 3A
