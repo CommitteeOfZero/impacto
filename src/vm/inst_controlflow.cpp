@@ -6,6 +6,7 @@
 #include "../game.h"
 #include "../mem.h"
 #include "../log.h"
+#include "../profile/vm.h"
 #include "../inputsystem.h"
 #include "../hud/mainmenu.h"
 
@@ -44,10 +45,15 @@ VmInstruction(InstIf) {
 VmInstruction(InstCall) {
   StartInstruction;
   PopLocalLabel(labelAdr);
-  PopUint16(retNum);
 
   if (thread->CallStackDepth != MaxCallStackDepth) {
-    thread->ReturnAdresses[thread->CallStackDepth] = retNum;
+    if (Profile::Vm::UseReturnIds) {
+      PopUint16(retNum);
+      thread->ReturnAdresses[thread->CallStackDepth] =
+          ScriptGetRetAddress(ScriptBuffers[thread->ScriptBufferId], retNum);
+    } else {
+      thread->ReturnAdresses[thread->CallStackDepth] = thread->Ip;
+    }
     thread->ReturnScriptBufferIds[thread->CallStackDepth++] =
         thread->ScriptBufferId;
     thread->Ip = labelAdr;
@@ -67,10 +73,15 @@ VmInstruction(InstCallFar) {
   StartInstruction;
   PopExpression(scriptBufferId);
   PopFarLabel(labelAdr, scriptBufferId);
-  PopUint16(retNum);
 
   if (thread->CallStackDepth != MaxCallStackDepth) {
-    thread->ReturnAdresses[thread->CallStackDepth] = retNum;
+    if (Profile::Vm::UseReturnIds) {
+      PopUint16(retNum);
+      thread->ReturnAdresses[thread->CallStackDepth] =
+          ScriptGetRetAddress(ScriptBuffers[thread->ScriptBufferId], retNum);
+    } else {
+      thread->ReturnAdresses[thread->CallStackDepth] = thread->Ip;
+    }
     thread->ReturnScriptBufferIds[thread->CallStackDepth++] =
         thread->ScriptBufferId;
     thread->Ip = labelAdr;
@@ -85,9 +96,7 @@ VmInstruction(InstReturn) {
     thread->CallStackDepth--;
     uint32_t retBufferId =
         thread->ReturnScriptBufferIds[thread->CallStackDepth];
-    thread->Ip =
-        ScriptGetRetAddress(ScriptBuffers[retBufferId],
-                            thread->ReturnAdresses[thread->CallStackDepth]);
+    thread->Ip = thread->ReturnAdresses[thread->CallStackDepth];
     thread->ScriptBufferId = retBufferId;
   } else {
     ImpLog(LL_Error, LC_VM, "Return error, call stack empty.\n");
@@ -102,9 +111,7 @@ VmInstruction(InstReturnIfFlag) {
       thread->CallStackDepth--;
       uint32_t retBufferId =
           thread->ReturnScriptBufferIds[thread->CallStackDepth];
-      thread->Ip =
-          ScriptGetRetAddress(ScriptBuffers[retBufferId],
-                              thread->ReturnAdresses[thread->CallStackDepth]);
+      thread->Ip = thread->ReturnAdresses[thread->CallStackDepth];
       thread->ScriptBufferId = retBufferId;
     }
   } else {
@@ -150,6 +157,9 @@ VmInstruction(InstKeyOnJump) {
   PopUint16(labelNum);
   uint8_t* labelAdr =
       ScriptGetLabelAddress(ScriptBuffers[thread->ScriptBufferId], labelNum);
+  if (Input::KeyboardButtonWentDown[SDL_SCANCODE_D]) {
+    thread->Ip = labelAdr;
+  }
   if (thread->Id == 0 && labelNum == 57 &&
       (Input::MouseButtonWentDown[SDL_BUTTON_LEFT])) {
     thread->Ip = labelAdr;  // Dirty hack to kickstart the titlescreen

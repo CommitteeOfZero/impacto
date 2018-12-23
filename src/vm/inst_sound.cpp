@@ -88,6 +88,15 @@ VmInstruction(InstVoicePlay) {
   Audio::Channels[Audio::AC_VOICE0 + channel].Play(
       Audio::AudioStream::Create(stream), (bool)arg2, 0.0f);
 }
+VmInstruction(InstVoicePlayOld) {
+  StartInstruction;
+  PopUint8(channel);
+  PopExpression(arg1);
+  Io::InputStream* stream;
+  Io::VfsOpen("voice", arg1, &stream);
+  Audio::Channels[Audio::AC_VOICE0 + channel].Play(
+      Audio::AudioStream::Create(stream), false, 0.0f);
+}
 VmInstruction(InstVoiceStop) {
   StartInstruction;
   PopUint8(channel);

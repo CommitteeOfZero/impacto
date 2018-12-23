@@ -1,5 +1,6 @@
-#define StartInstruction        \
-  uint8_t* _oldIp = thread->Ip; \
+#define StartInstruction                           \
+  uint8_t* _oldIp = thread->Ip;                    \
+  bool noExpressions = (bool)(*thread->Ip & 0x80); \
   thread->Ip += 2
 #define ResetInstruction thread->Ip = _oldIp
 

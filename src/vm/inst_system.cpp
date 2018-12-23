@@ -14,6 +14,7 @@
 #include "../audio/audiostream.h"
 #include "../audio/audiochannel.h"
 #include "../background2d.h"
+#include "../profile/vm.h"
 
 namespace Impacto {
 
@@ -127,10 +128,20 @@ VmInstruction(InstKeyWaitTimer) {
 }
 VmInstruction(InstMemberWrite) {
   StartInstruction;
-  PopExpression(index);
-  PopExpression(value);
-  uint32_t* thdElement = (uint32_t*)thread->GetMemberPointer(index);
-  *thdElement = value;
+  if (noExpressions) {
+    PopUint8(index);
+    uint32_t* thdElement = (uint32_t*)thread->GetMemberPointer(index);
+    uint8_t* immValue = thread->Ip;
+    int value = SDL_SwapLE32(immValue[0] + (immValue[1] << 8) +
+                             (immValue[2] << 16) + (immValue[3] << 24));
+    thread->Ip += 4;
+    *thdElement = value;
+  } else {
+    PopExpression(index);
+    uint32_t* thdElement = (uint32_t*)thread->GetMemberPointer(index);
+    PopExpression(value);
+    *thdElement = value;
+  }
 }
 VmInstruction(InstThreadControl) {
   StartInstruction;
@@ -505,10 +516,15 @@ VmInstruction(InstAutoSave) {
                  type);
       break;
     case 10: {  // SetCheckpointId
-      PopUint16(checkpointId);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction AutoSave(type: %i, checkpointId: %i)\n",
-                 type, checkpointId);
+      if (Profile::Vm::UseReturnIds) {
+        PopUint16(checkpointId);
+        ImpLogSlow(LL_Warning, LC_VMStub,
+                   "STUB instruction AutoSave(type: %i, checkpointId: %i)\n",
+                   type, checkpointId);
+      } else {
+        ImpLogSlow(LL_Warning, LC_VMStub,
+                   "STUB instruction AutoSave(type: %i)\n", type);
+      }
     } break;
     case 2:
     case 4:

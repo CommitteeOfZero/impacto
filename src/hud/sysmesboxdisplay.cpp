@@ -47,7 +47,7 @@ void Update(float dt) {
     }
   }
 
-  ScrWork[SW_SYSMESANIMCTCUR] = glm::floor(BoxAnimCount);
+  ScrWork[SW_SYSMESANIMCTCUR] = std::floor(BoxAnimCount);
 
   if (AnimState != Hidden) {
     float linePosX = LinePositionXFirst;
@@ -107,7 +107,7 @@ void Render() {
           Renderer2D::DrawSprite(
               TextDecoration, glm::vec2(BoxDisplayX, BoxTopY + 36.0f), texCol);
           Renderer2D::DrawSprite(TextDecoration,
-                                 glm::vec2(BoxDisplayX, BoxBottomY - 36.0f),
+                                 glm::vec2(BoxDisplayX, BoxBottomY - 32.0f),
                                  texCol);
         }
         Renderer2D::DrawSprite(MessageLabel,

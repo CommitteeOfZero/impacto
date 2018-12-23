@@ -124,6 +124,23 @@ VmInstruction(InstBGsetLink) {
              "arg4: %i)\n",
              id, arg1, arg2, arg4);
 }
+VmInstruction(InstCHAload) {
+  StartInstruction;
+  PopUint8(arg1);
+  PopExpression(arg2);
+  PopExpression(arg3);
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction CHAload(arg1: %i, arg2: %i, arg3: %i)\n", arg1,
+             arg2, arg3);
+}
+VmInstruction(InstCHAswap) {
+  StartInstruction;
+  PopExpression(srcBufferId);
+  PopExpression(dstBufferId);
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction CHAswap(srcBufferId: %i, dstBufferId: %i)\n",
+             srcBufferId, dstBufferId);
+}
 VmInstruction(InstBGrelease) {
   StartInstruction;
   PopExpression(bufferId);
@@ -139,6 +156,59 @@ VmInstruction(InstBGcopy) {
              "STUB instruction BGcopy(srcBufferId: %i, dstBufferId: %i)\n",
              srcBufferId, dstBufferId);
 }
+VmInstruction(InstCHAcopy) {
+  StartInstruction;
+  PopExpression(srcBufferId);
+  PopExpression(dstBufferId);
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction CHAcopy(srcBufferId: %i, dstBufferId: %i)\n",
+             srcBufferId, dstBufferId);
+}
+VmInstruction(InstCharaLayerLoad) { StartInstruction; }
+VmInstruction(InstCHAmove) {
+  StartInstruction;
+  PopUint8(type);
+  switch (type) {
+    case 0:
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction CHAmoveInit()\n");
+      break;
+    case 1: {
+      PopExpression(arg1);
+      PopLocalLabel(seqDataBlock);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction CHAmoveSetSeq(arg1: %i)\n", arg1);
+    } break;
+    case 2: {
+      PopExpression(arg1);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction CHAmoveExec_Blocking(arg1: %i)\n", arg1);
+    } break;
+    case 3:
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction CHAmoveExec_NonBlocking()\n");
+      break;
+    case 4: {
+      PopExpression(arg1);
+      PopExpression(destination);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction CHAmoveChkEnd(arg1: %i, destination: %i)\n",
+                 arg1, destination);
+    } break;
+    case 5: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      PopExpression(arg4);
+      PopExpression(arg5);
+      PopExpression(arg6);
+      PopExpression(arg7);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction CHAmoveSetSeqDirect(arg1: %i, arg2: %i, "
+                 "arg3: %i, arg4: %i, arg5: %i, arg6: %i, arg7: %i)\n",
+                 arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+    } break;
+  }
+}
 VmInstruction(InstBGloadEx) {
   StartInstruction;
   PopExpression(bufferId);
@@ -146,6 +216,12 @@ VmInstruction(InstBGloadEx) {
   ImpLogSlow(LL_Warning, LC_VMStub,
              "STUB instruction BGloadEx(bufferId: %i, backgroundId: %i)\n",
              bufferId, backgroundId);
+}
+VmInstruction(InstCHArelease) {
+  StartInstruction;
+  PopExpression(bufferId);
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction CHArelease(bufferId: %i)\n", bufferId);
 }
 VmInstruction(InstGetCharaPause) {
   StartInstruction;

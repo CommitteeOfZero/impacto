@@ -8,7 +8,7 @@
 namespace Impacto {
 namespace Vm {
 
-BETTER_ENUM(InstructionSet, int, RNE)
+BETTER_ENUM(InstructionSet, int, RNE, Darling, CHLCC)
 
 typedef void (*InstructionProc)(Sc3VmThread* thread);
 

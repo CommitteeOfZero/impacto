@@ -9,6 +9,7 @@ uint32_t StartScript;
 uint32_t StartScriptBuffer;
 Impacto::Vm::InstructionSet GameInstructionSet =
     Impacto::Vm::InstructionSet::RNE;
+bool UseReturnIds = true;
 
 void Configure() {
   EnsurePushMemberOfType("Vm", kObjectType);
@@ -17,6 +18,7 @@ void Configure() {
   StartScriptBuffer = EnsureGetMemberUint("StartScriptBuffer");
   GameInstructionSet = Impacto::Vm::InstructionSet::_from_integral_unchecked(
       EnsureGetMemberInt("GameInstructionSet"));
+  UseReturnIds = EnsureGetMemberBool("UseReturnIds");
 
   Pop();
 }

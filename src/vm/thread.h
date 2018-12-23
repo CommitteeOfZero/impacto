@@ -66,7 +66,7 @@ struct Sc3VmThread {
   uint32_t LoopCounter;
   uint16_t LoopLabelNum;
   uint32_t CallStackDepth;
-  uint16_t ReturnAdresses[MaxCallStackDepth];
+  uint8_t* ReturnAdresses[MaxCallStackDepth];
   uint32_t ReturnScriptBufferIds[MaxCallStackDepth];
   uint32_t DrawPriority;
   Game::DrawComponentType DrawType;

@@ -10,6 +10,8 @@
 #include "interface/scene3d.h"
 #include "interface/background2d.h"
 #include "opcodetables_rne.h"
+#include "opcodetables_darling.h"
+#include "opcodetables_chlcc.h"
 #include "../profile/game.h"
 #include "../profile/vm.h"
 #include "../window.h"
@@ -66,6 +68,18 @@ void Init() {
       OpcodeTableGraph = OpcodeTableGraph_RNE;
       OpcodeTableGraph3D = OpcodeTableGraph3D_RNE;
       OpcodeTableUser1 = OpcodeTableUser1_RNE;
+      break;
+    }
+    case InstructionSet::Darling: {
+      OpcodeTableSystem = OpcodeTableSystem_Darling;
+      OpcodeTableGraph = OpcodeTableGraph_Darling;
+      OpcodeTableUser1 = OpcodeTableUser1_Darling;
+      break;
+    }
+    case InstructionSet::CHLCC: {
+      OpcodeTableSystem = OpcodeTableSystem_CHLCC;
+      OpcodeTableGraph = OpcodeTableGraph_CHLCC;
+      OpcodeTableUser1 = OpcodeTableUser1_CHLCC;
       break;
     }
     default: {
@@ -354,7 +368,9 @@ void RunThread(Sc3VmThread* thread) {
       opcode = *(scrVal + 1);
       opcodeGrp1 = opcodeGrp & 0x7F;
 
-      ImpLog(LL_Trace, LC_VM, "Opcode: %02X:%02X\n", opcodeGrp1, opcode);
+      ImpLog(LL_Trace, LC_VM,
+             "Address: %016X Opcode: %02X:%02X ScriptBuffer: %i\n", thread->Ip,
+             opcodeGrp1, opcode, thread->ScriptBufferId);
 
       if (opcodeGrp1 == 0x10) {
         OpcodeTableUser1[opcode](thread);

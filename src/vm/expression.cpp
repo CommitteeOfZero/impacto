@@ -421,6 +421,14 @@ ExpressionNode* ExpressionParser::ParseTerm() {
       term->RightExpr = std::unique_ptr<ExpressionNode>(
           ParseSubExpression(tok.Precedence + 1));
       break;
+      // ????
+      // in RN03_16A.scr there is an instruction parameter that is just "=43"
+    case ET_Assign:
+      tok = Tokens[CurrentToken++];
+      term = new ExpressionNode();
+      term->ExprType = tok.Type;
+      term->Value = tok.Value;
+      break;
     default:
       return nullptr;
   }

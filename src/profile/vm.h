@@ -10,6 +10,7 @@ namespace Vm {
 extern uint32_t StartScript;
 extern uint32_t StartScriptBuffer;
 extern Impacto::Vm::InstructionSet GameInstructionSet;
+extern bool UseReturnIds;
 
 void Configure();
 

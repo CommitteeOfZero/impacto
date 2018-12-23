@@ -14,6 +14,7 @@ VmInstruction(InstSSEplay);
 VmInstruction(InstSSEstop);
 VmInstruction(InstBGMflag);
 VmInstruction(InstVoicePlay);
+VmInstruction(InstVoicePlayOld);
 VmInstruction(InstVoiceStop);
 VmInstruction(InstVoicePlayWait);
 VmInstruction(InstBGMduelPlay);

@@ -143,6 +143,12 @@ VmInstruction(InstClearFlagChk) {
   StartInstruction;
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction ClearFlagChk()\n");
 }
+VmInstruction(InstClearFlagChkOld) {
+  StartInstruction;
+  PopUint8(arg1);
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction ClearFlagChk(arg1: %i)\n",
+             arg1);
+}
 VmInstruction(InstOption) {
   StartInstruction;
   PopUint8(type);
@@ -342,6 +348,13 @@ VmInstruction(InstTitleMenu) {
       break;
       break;
   }
+}
+VmInstruction(InstTitleMenuOld) {
+  StartInstruction;
+  // Hack to kickstart into "New Game"
+  ScrWork[SW_TITLECUR1] = 0;
+  ScrWork[SW_TITLECUR2] = 255;
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction TitleMenu(type: Main)\n");
 }
 VmInstruction(InstSetPlayMode) {
   StartInstruction;

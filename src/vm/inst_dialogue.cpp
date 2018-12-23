@@ -11,6 +11,7 @@
 #include "../audio/audiosystem.h"
 #include "../audio/audiostream.h"
 #include "../audio/audiochannel.h"
+#include "../profile/vm.h"
 
 namespace Impacto {
 
@@ -55,11 +56,16 @@ VmInstruction(InstMesSetID) {
   PopUint8(type);
   switch (type) {
     case 0: {  // SetSavePointPage0
-      PopUint16(savePointId);
-      ImpLogSlow(
-          LL_Warning, LC_VMStub,
-          "STUB instruction MesSetID(type: SetSavePoint, savePointId: %i)\n",
-          savePointId);
+      if (Profile::Vm::UseReturnIds) {
+        PopUint16(savePointId);
+        ImpLogSlow(
+            LL_Warning, LC_VMStub,
+            "STUB instruction MesSetID(type: SetSavePoint, savePointId: %i)\n",
+            savePointId);
+      } else {
+        ImpLogSlow(LL_Warning, LC_VMStub,
+                   "STUB instruction MesSetID(type: SetSavePoint)\n");
+      }
     } break;
     case 1: {  // SetSavePointForPage
       PopUint16(savePointId);

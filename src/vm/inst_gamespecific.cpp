@@ -192,6 +192,70 @@ VmInstruction(InstUnk1037) {
              "STUB instruction Unk1037(arg1: %i, arg2: %i, arg3: %i)\n", arg1,
              arg2, arg3);
 }
+VmInstruction(InstUnk1037Darling) {
+  StartInstruction;
+  PopUint8(type);
+  switch (type) {
+    case 0: {
+      PopUint8(arg1);
+      PopExpression(arg2);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Unk1037(arg1: %i, arg2: %i)\n", arg1, arg2);
+      break;
+    }
+    case 1: {
+      PopUint8(arg1);
+      PopExpression(arg2);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Unk1037(arg1: %i, arg2: %i)\n", arg1, arg2);
+      break;
+    }
+    case 2: {
+      PopUint8(arg1);
+      PopExpression(arg2);
+      PopUint16(arg3);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Unk1037(arg1: %i, arg2: %i, arg3: %i)\n",
+                 arg1, arg2, arg3);
+      break;
+    }
+    case 3: {
+      PopUint8(arg1);
+      PopExpression(arg2);
+      PopUint16(arg3);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Unk1037(arg1: %i, arg2: %i, arg3: %i)\n",
+                 arg1, arg2, arg3);
+      break;
+    }
+    case 4: {
+      PopUint16(arg1);
+      PopUint16(arg2);
+      PopUint16(arg3);
+      PopUint16(arg4);
+      PopUint16(arg5);
+      PopUint16(arg6);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction CHAmoveSetSeqDirect(arg1: %i, arg2: %i, "
+                 "arg3: %i, arg4: %i, arg5: %i, arg6: %i)\n",
+                 arg1, arg2, arg3, arg4, arg5, arg6);
+      break;
+    }
+    case 15: {
+      PopExpression(arg1);
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk1037(arg1: %i)\n",
+                 arg1);
+      break;
+    }
+    case 18: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Unk1037(arg1: %i, arg2: %i)\n", arg1, arg2);
+      break;
+    }
+  }
+}
 VmInstruction(InstMail) {
   StartInstruction;
   PopUint8(type);
@@ -285,6 +349,11 @@ VmInstruction(InstMail) {
                  type);
       break;
   }
+}
+VmInstruction(InstUnk1038Darling) {
+  StartInstruction;
+  PopUint8(type);
+  if (type == 0) PopUint16(arg1);
 }
 VmInstruction(InstTwipo) {
   StartInstruction;
