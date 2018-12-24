@@ -77,6 +77,7 @@ set(Impacto_Src
     src/io/cpkarchive.cpp
     src/io/lnk4archive.cpp
     src/io/textarchive.cpp
+    src/io/afsarchive.cpp
 
     src/texture/texture.cpp
     src/texture/s3tc.cpp

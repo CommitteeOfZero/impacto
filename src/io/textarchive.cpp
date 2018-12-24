@@ -83,6 +83,8 @@ IoError TextArchive::Create(InputStream* stream, VfsArchive** outArchive) {
   TextArchive* result;
   uint32_t lineId;
 
+  result = 0;
+
   if (StringEndsWithCi(stream->Meta.FileName, ".cls")) {
     type = CLS;
   } else if (StringEndsWithCi(stream->Meta.FileName, ".mlp")) {
@@ -103,8 +105,6 @@ IoError TextArchive::Create(InputStream* stream, VfsArchive** outArchive) {
   size = stream->Read(&content[0], stream->Meta.Size);
   content.resize(size);
   maxFileCount = std::count(content.begin(), content.end(), '\n') + 1;
-
-  result = 0;
 
   result = new TextArchive;
   result->BaseStream = stream;

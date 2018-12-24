@@ -90,7 +90,7 @@ IoError Lnk4Archive::Create(InputStream* stream, VfsArchive** outArchive) {
   result->TOC = new Lnk4MetaEntry[fileCount];
 
   for (uint32_t i = 0; i < fileCount; i++) {
-    snprintf(fileName, 6, "%5i", i);
+    snprintf(fileName, 6, "%05i", i);
     result->TOC[i].FileName = fileName;
     result->TOC[i].Id = i;
     result->TOC[i].Offset =
