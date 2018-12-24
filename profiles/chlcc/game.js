@@ -22,4 +22,3 @@ include('chlcc/hud/datedisplay.js');
 //include('chlcc/hud/titlemenu.js');
 //include('chlcc/hud/mainmenu.js');
 include('chlcc/hud/sysmesboxdisplay.js');
-include('chlcc/scene3d/scene3d.js');

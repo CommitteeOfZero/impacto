@@ -9,6 +9,7 @@ namespace Vm {
 VmInstruction(InstBGMplay);
 VmInstruction(InstBGMstop);
 VmInstruction(InstSEplay);
+VmInstruction(InstSEplayMO6);
 VmInstruction(InstSEstop);
 VmInstruction(InstSSEplay);
 VmInstruction(InstSSEstop);

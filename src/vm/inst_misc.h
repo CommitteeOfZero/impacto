@@ -9,6 +9,7 @@ namespace Vm {
 VmInstruction(InstUPLmenuUI);
 VmInstruction(InstUPLxTitle);
 VmInstruction(InstPresence);
+VmInstruction(InstPresenceMO6);
 VmInstruction(InstAchievement);
 VmInstruction(InstSetPlayer);
 VmInstruction(InstSignIn);

@@ -35,6 +35,12 @@ VmInstruction(InstPresence) {
   ImpLogSlow(LL_Warning, LC_VMStub,
              "STUB instruction Presence(arg1: %i, arg2: %i)\n", arg1, arg2);
 }
+VmInstruction(InstPresenceMO6) {
+  StartInstruction;
+  PopExpression(arg1);
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Presence(arg1: %i)\n",
+             arg1);
+}
 VmInstruction(InstAchievement) {
   StartInstruction;
   PopUint8(type);
