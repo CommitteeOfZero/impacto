@@ -7,6 +7,7 @@ namespace Impacto {
 namespace Vm {
 
 VmInstruction(InstPlayMovie);
+VmInstruction(InstPlayMovieOld);
 VmInstruction(InstMovieMain);
 VmInstruction(InstLoadMovie);
 VmInstruction(InstPlayMovieMemory);

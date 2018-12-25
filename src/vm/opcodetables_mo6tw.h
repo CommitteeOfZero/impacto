@@ -308,7 +308,7 @@ InstructionProc static OpcodeTableGraph_MO6TW[256] = {
     InstUnk011F,           // 01 1F
     InstSCcapture,         // 01 20
     InstSetTextTable,      // 01 21
-    InstPlayMovie,         // 01 22
+    InstPlayMovieOld,      // 01 22
     InstMovieMain,         // 01 23
     InstLoadMovie,         // 01 24
     InstSetRevMes,         // 01 25

@@ -10,7 +10,7 @@ root.Sprites["DialogueWaitIcon"] = {
 
 root.Dialogue = {
     NVLBounds: { X: 125, Y: 85, Width: 1024, Height: 400 },
-    ADVBounds: { X: 161, Y: 526, Width: 960, Height: 180 },
+    ADVBounds: { X: 161, Y: 522, Width: 960, Height: 180 },
     ADVBoxSprite: "ADVBox",
     ADVBoxPos: { X: 127, Y: 500 },
     FadeOutDuration: 0.33,
@@ -18,7 +18,7 @@ root.Dialogue = {
     NVLBoxMaxOpacity: 0.55,
     ADVNameAlignment: TextAlignment.Left,
     ADVNameFontSize: 32,
-    ADVNamePos: { X: 140, Y: 463 },
+    ADVNamePos: { X: 120, Y: 462 },
     WaitIconSprite: "DialogueWaitIcon",
     WaitIconOffset: { X: 4, Y: 4 },
     WaitIconAnimationDuration: 3.2,

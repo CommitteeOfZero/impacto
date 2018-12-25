@@ -35,6 +35,16 @@ VmInstruction(InstPlayMovie) {
                playMode, playView, playNo, movCancelFlag);
   }
 }
+VmInstruction(InstPlayMovieOld) {
+  StartInstruction;
+  PopUint8(playMode);
+  PopExpression(playNo);
+  PopExpression(movCancelFlag);
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction PlayMovie(playMode: %i, playNo: %i, "
+             "movCancelFlag: %i)\n",
+             playMode, playNo, movCancelFlag);
+}
 VmInstruction(InstMovieMain) {
   StartInstruction;
   PopUint8(type);

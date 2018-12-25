@@ -269,14 +269,27 @@ VmInstruction(InstMessWindow) {
 }
 VmInstruction(InstSel) {
   StartInstruction;
-  PopUint8(type);  // TODO: Implement type 1
-  PopString(arg1);
-  if (type == 0 || type == 2) {
-    PopExpression(arg2);
-    ImpLogSlow(LL_Warning, LC_VMStub,
-               "STUB instruction Sel(type: %i, arg2: %i)\n", type, arg2);
-  } else {
-    ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Sel(type: %i)\n", type);
+  PopUint8(type);
+  switch (type) {
+    case 0: {
+      PopExpression(arg1);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Sel(type: %i, arg1: %i)\n", type, arg1);
+      break;
+    }
+    case 1: {
+      PopString(arg1);
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Sel(type: %i)\n",
+                 type);
+      break;
+    }
+    case 2: {
+      PopString(arg1);
+      PopExpression(arg2);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Sel(type: %i, arg1: %i)\n", type, arg1);
+      break;
+    }
   }
 }
 VmInstruction(InstSelect) {

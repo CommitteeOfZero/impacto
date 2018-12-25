@@ -3,11 +3,11 @@ MakeNameTag({
     Sheet: "Data",
     X: 1,
     Y: 266,
-    LeftWidth: 102,
-    LineWidth: 32,
-    RightWidth: 102,
+    LeftWidth: 23,
+    LineWidth: 190,
+    RightWidth: 23,
     Height: 41,
     ScreenX: 100,
     ScreenY: 458,
-    BaseLineWidth: 64
+    BaseLineWidth: 0
 });
