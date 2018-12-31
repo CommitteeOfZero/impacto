@@ -2,10 +2,15 @@
 #include "../profile_internal.h"
 #include "../../log.h"
 #include "../../window.h"
+#include "../../games/rne/datedisplay.h"
 
 namespace Impacto {
 namespace Profile {
 namespace DateDisplay {
+
+using namespace Impacto::DateDisplay;
+
+DateDisplayType Type = DateDisplayType::None;
 
 Sprite MonthNumSprites[NumSpriteCount];
 Sprite DayNumSprites[NumSpriteCount];
@@ -46,6 +51,13 @@ static void GetMemberSpriteArray(Sprite* arr, uint32_t count,
 
 void Configure() {
   EnsurePushMemberOfType("DateDisplay", kObjectType);
+
+  Type = DateDisplayType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
+
+  if (Type == +DateDisplayType::RNE) {
+    Impacto::DateDisplay::Implementation =
+        new Impacto::DateDisplay::RNEDateDisplay;
+  }
 
   GetMemberSpriteArray(MonthNumSprites, NumSpriteCount, "MonthNumSprites");
   GetMemberSpriteArray(DayNumSprites, NumSpriteCount, "DayNumSprites");
