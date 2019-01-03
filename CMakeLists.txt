@@ -250,8 +250,8 @@ set(Impacto_Libs
 )
 
 if(EMSCRIPTEN)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_SDL=2 -s USE_ZLIB=1 -s USE_OGG=1 -s USE_VORBIS=1 -s USE_PTHREADS=1 -s WASM=1")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s USE_SDL=2 -s USE_ZLIB=1 -s USE_OGG=1 -s USE_VORBIS=1 -s USE_PTHREADS=1 -s WASM=1")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_SDL=2 -s USE_ZLIB=1 -s USE_OGG=1 -s USE_VORBIS=1 -s WASM=1")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s USE_SDL=2 -s USE_ZLIB=1 -s USE_OGG=1 -s USE_VORBIS=1 -s WASM=1")
 
     add_definitions(-DIMPACTO_OPENAL_INCLUDE_SUBDIR)
 else()
@@ -318,6 +318,12 @@ option(IMPACTO_ENABLE_SLOW_LOG
 option(IMPACTO_GL_DEBUG
     "Use an OpenGL debug context and log messages"
     ${IMPACTO_GL_DEBUG_DEFAULT})
+
+if(EMSCRIPTEN)
+    set(IMPACTO_HAVE_THREADS OFF)
+else()
+    set(IMPACTO_HAVE_THREADS ON)
+endif()
 
 configure_file(src/config.h.in ${PROJECT_BINARY_DIR}/include/config.h)
 target_include_directories(impacto PRIVATE ${PROJECT_BINARY_DIR}/include)

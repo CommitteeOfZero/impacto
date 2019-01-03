@@ -2,3 +2,4 @@
 
 #cmakedefine IMPACTO_ENABLE_SLOW_LOG
 #cmakedefine IMPACTO_GL_DEBUG
+#cmakedefine IMPACTO_HAVE_THREADS
