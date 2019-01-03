@@ -252,8 +252,18 @@ set(Impacto_Libs
 )
 
 if(EMSCRIPTEN)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_SDL=2 -s USE_ZLIB=1 -s USE_OGG=1 -s USE_VORBIS=1 -s WASM=1")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s USE_SDL=2 -s USE_ZLIB=1 -s USE_OGG=1 -s USE_VORBIS=1 -s WASM=1")
+    set(IMPACTO_EMSCRIPTEN_BUILD_FLAGS "\
+        -s USE_SDL=2 \
+        -s USE_ZLIB=1 \
+        -s USE_OGG=1 \
+        -s USE_VORBIS=1 \
+        -s WASM=1 \
+        --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/profiles@/profiles \
+        --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/games@/games \
+        --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders@/shaders \
+     ")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${IMPACTO_EMSCRIPTEN_BUILD_FLAGS}")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${IMPACTO_EMSCRIPTEN_BUILD_FLAGS}")
 
     add_definitions(-DIMPACTO_OPENAL_INCLUDE_SUBDIR)
 else()
