@@ -46,6 +46,7 @@ set(Impacto_Src
     src/profile/games/rne/tilebackground.cpp
 
     src/games/rne/tilebackground.cpp
+    src/games/rne/datedisplay.cpp
 
     src/hud/datedisplay.cpp
     src/hud/saveicondisplay.cpp
@@ -162,6 +163,7 @@ set(Impacto_Header
     src/profile/games/rne/tilebackground.h
 
     src/games/rne/tilebackground.h
+    src/games/rne/datedisplay.h
 
     src/hud/datedisplay.h
     src/hud/saveicondisplay.h
