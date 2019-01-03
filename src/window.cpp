@@ -134,9 +134,14 @@ static void TryCreateGL(GraphicsApi api) {
 
     case GfxApi_ForceNativeGLES:
       ImpLog(LL_Info, LC_General, "Trying to create native GLES context\n");
-      SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, "1");
+
+#ifndef EMSCRIPTEN
+      // Emscripten's EGL implementation fails when you ask it for GLES 3.0,
+      // though that is what it gives you when building for WebGL 2...
       SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
       SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+      SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, "1");
+#endif
       SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
                           SDL_GL_CONTEXT_PROFILE_ES);
       break;

@@ -258,10 +258,17 @@ if(EMSCRIPTEN)
         -s USE_OGG=1 \
         -s USE_VORBIS=1 \
         -s WASM=1 \
+        -s USE_WEBGL2=1 \
         --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/profiles@/profiles \
         --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/games@/games \
         --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders@/shaders \
-     ")
+    ")
+    if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+        set(IMPACTO_EMSCRIPTEN_BUILD_FLAGS "${IMPACTO_EMSCRIPTEN_BUILD_FLAGS} \
+            -s GL_ASSERTIONS=1 \
+            -s GL_DEBUG=1 \
+        ")
+    endif()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${IMPACTO_EMSCRIPTEN_BUILD_FLAGS}")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${IMPACTO_EMSCRIPTEN_BUILD_FLAGS}")
 
