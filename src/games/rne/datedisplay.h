@@ -3,13 +3,15 @@
 #include "../../hud/datedisplay.h"
 
 namespace Impacto {
-namespace DateDisplay {
+namespace RNE {
 
-class RNEDateDisplay : public DateDisplay {
+using namespace Impacto::DateDisplay;
+
+class DateDisplay : public DateDisplayBase {
  public:
   void Update(float dt);
   void Render();
 };
 
-}  // namespace DateDisplay
+}  // namespace RNE
 }  // namespace Impacto

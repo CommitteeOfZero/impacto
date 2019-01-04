@@ -93,7 +93,7 @@ static void Init() {
     SysMesBoxDisplay::Init();
     TitleMenu::Init();
     MainMenu::Init();
-    Profile::DateDisplay::Configure();
+    DateDisplay::Init();
 
     Vm::Init();
   }

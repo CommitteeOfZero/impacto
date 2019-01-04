@@ -9,14 +9,15 @@
 #include "../../profile/hud/datedisplay.h"
 
 namespace Impacto {
-namespace DateDisplay {
+namespace RNE {
 
 using namespace Impacto::Profile::DateDisplay;
 
-void RNEDateDisplay::Update(float dt) {
-  if (AnimState == Hidden) {
+void DateDisplay::Update(float dt) {
+  FadeAnimation.Update(dt);
+  if (FadeAnimation.IsOut()) {
     if (ScrWork[LR_DATE] != 0 && GetFlag(SF_DATEDISPLAY)) {
-      AnimState = Showing;
+      FadeAnimation.StartIn();
       Year = (ScrWork[LR_DATE] / 10000);
       Month = (ScrWork[LR_DATE] - 10000 * Year) / 100;
       Day = (ScrWork[LR_DATE] - 10000 * Year) % 100;
@@ -25,29 +26,15 @@ void RNEDateDisplay::Update(float dt) {
       const std::tm* time_out = std::localtime(&time_temp);
       Week = time_out->tm_wday;
     }
-  } else if (AnimState == Shown && !GetFlag(SF_DATEDISPLAY)) {
-    AnimState = Hiding;
-  }
-
-  if (AnimState == Hiding) {
-    Fade -= dt / FadeOutDuration;
-    if (Fade <= 0.0f) {
-      Fade = 0.0f;
-      AnimState = Hidden;
-    }
-  } else if (AnimState == Showing) {
-    Fade += dt / FadeInDuration;
-    if (Fade >= 1.0f) {
-      Fade = 1.0f;
-      AnimState = Shown;
-    }
+  } else if (FadeAnimation.IsIn() && !GetFlag(SF_DATEDISPLAY)) {
+    FadeAnimation.StartOut();
   }
 }
 
-void RNEDateDisplay::Render() {
-  if (AnimState == Hidden) return;
-  if (Fade > 0.0f) {
-    float smoothedFade = glm::smoothstep(0.0f, 1.0f, Fade);
+void DateDisplay::Render() {
+  if (FadeAnimation.IsOut()) return;
+  if (FadeAnimation.Progress > 0.0f) {
+    float smoothedFade = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
 
     glm::vec4 col(1.0f);
     col.a = smoothedFade;
@@ -95,5 +82,5 @@ void RNEDateDisplay::Render() {
   }
 }
 
-}  // namespace DateDisplay
+}  // namespace RNE
 }  // namespace Impacto

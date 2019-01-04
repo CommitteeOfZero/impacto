@@ -57,6 +57,7 @@ enum ScriptVars {
   SW_MASK1SIZEX = 4455,
   SW_MASK1SIZEY = 4456,
   // Darling
+  // SW_MASK1COLOR = 4400,
   // SW_MASK1ALPHA = 4401,
   // SW_MASK1PRI = 4402,
   // SW_MASK1POSX = 4403,

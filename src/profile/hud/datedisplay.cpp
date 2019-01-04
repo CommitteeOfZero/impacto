@@ -55,8 +55,7 @@ void Configure() {
   Type = DateDisplayType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
 
   if (Type == +DateDisplayType::RNE) {
-    Impacto::DateDisplay::Implementation =
-        new Impacto::DateDisplay::RNEDateDisplay;
+    Impacto::DateDisplay::Implementation = new Impacto::RNE::DateDisplay;
   }
 
   GetMemberSpriteArray(MonthNumSprites, NumSpriteCount, "MonthNumSprites");
