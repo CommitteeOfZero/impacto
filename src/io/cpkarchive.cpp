@@ -314,7 +314,7 @@ IoError CpkArchive::ReadToc(int64_t tocOffset, int64_t contentOffset) {
       snprintf(path, CpkMaxPath, "%s/%s", row["DirName"].StringVal,
                row["FileName"].StringVal);
     } else {
-      snprintf(path, CpkMaxPath, row["FileName"].StringVal);
+      snprintf(path, CpkMaxPath, "%s", row["FileName"].StringVal);
     }
     if (strlen(path) == 0) {
       snprintf(path, CpkMaxPath, "%05i", id);
