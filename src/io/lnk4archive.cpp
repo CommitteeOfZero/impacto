@@ -1,4 +1,4 @@
-#include "vfsarchive.h"
+#include "lnk4archive.h"
 
 #include "../log.h"
 #include "uncompressedstream.h"
@@ -11,17 +11,6 @@ namespace Io {
 
 struct Lnk4MetaEntry : FileMeta {
   int64_t Offset;
-};
-
-class Lnk4Archive : public VfsArchive {
- public:
-  ~Lnk4Archive();
-  IoError Open(FileMeta* file, InputStream** outStream) override;
-
- private:
-  Lnk4MetaEntry* TOC = 0;
-  static bool _registered;
-  static IoError Create(InputStream* stream, VfsArchive** outArchive);
 };
 
 Lnk4Archive::~Lnk4Archive() {
@@ -112,8 +101,6 @@ fail:
   if (rawToc) ImpStackFree(rawToc);
   return IoError_Fail;
 }
-
-bool Lnk4Archive::_registered = VfsRegisterArchiver(Lnk4Archive::Create);
 
 }  // namespace Io
 }  // namespace Impacto

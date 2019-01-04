@@ -59,11 +59,5 @@ IoError VfsSlurp(std::string const& mountpoint, uint32_t id, void** outMemory,
 IoError VfsListFiles(std::string const& mountpoint,
                      std::map<uint32_t, std::string>& outListing);
 
-class VfsArchive;
-typedef IoError (*VfsArchiveFactory)(InputStream* stream,
-                                     VfsArchive** outArchive);
-
-bool VfsRegisterArchiver(VfsArchiveFactory f);
-
 }  // namespace Io
 }  // namespace Impacto

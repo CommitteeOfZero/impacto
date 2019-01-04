@@ -1,16 +1,12 @@
-#include "vfsarchive.h"
+#include "cpkarchive.h"
 
 #include "../log.h"
-#include <flat_hash_map.hpp>
 #include "uncompressedstream.h"
 #include "vfs.h"
 #include <SDL_endian.h>
-#include <vector>
 
 namespace Impacto {
 namespace Io {
-
-const int CpkMaxPath = 224;
 
 enum CpkColumnFlags {
   STORAGE_MASK = 0xf0,
@@ -33,15 +29,6 @@ enum CpkColumnFlags {
   TYPE_1BYTE = 0x00,
 };
 
-union CpkCell {
-  uint8_t Uint8Val;
-  uint16_t Uint16Val;
-  uint32_t Uint32Val;
-  uint64_t Uint64Val;
-  float FloatVal;
-  char StringVal[CpkMaxPath];
-};
-
 struct CpkColumn {
   uint32_t Flags;
   char Name[CpkMaxPath];
@@ -52,35 +39,6 @@ struct CpkMetaEntry : public FileMeta {
   int64_t Offset;
   int64_t CompressedSize;
   bool Compressed;
-};
-
-class CpkArchive : public VfsArchive {
- public:
-  ~CpkArchive();
-
-  IoError Open(FileMeta* file, InputStream** outStream) override;
-  IoError Slurp(FileMeta* file, void** outBuffer, int64_t* outSize) override;
-
- private:
-  static bool _registered;
-  static IoError Create(InputStream* stream, VfsArchive** outArchive);
-
-  IoError ReadToc(int64_t tocOffset, int64_t contentOffset);
-  IoError ReadEtoc(int64_t etocOffset);
-  IoError ReadItoc(int64_t itocOffset, int64_t contentOffset, uint16_t align);
-
-  CpkMetaEntry* GetFileListEntry(uint32_t id);
-
-  bool ReadUtfBlock(
-      std::vector<ska::flat_hash_map<std::string, CpkCell>>* rows);
-  void ReadString(int64_t stringsOffset, char* output);
-
-  uint16_t Version;
-  uint16_t Revision;
-
-  CpkMetaEntry* FileList = 0;
-  uint32_t FileCount = 0;
-  uint32_t NextFile = 0;
 };
 
 CpkArchive::~CpkArchive() {
@@ -561,8 +519,6 @@ IoError CpkArchive::Slurp(FileMeta* file, void** outBuffer, int64_t* outSize) {
   free(compressedData);
   return err;
 }
-
-bool CpkArchive::_registered = VfsRegisterArchiver(CpkArchive::Create);
 
 }  // namespace Io
 }  // namespace Impacto

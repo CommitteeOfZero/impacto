@@ -1,4 +1,4 @@
-#include "vfsarchive.h"
+#include "mpkarchive.h"
 
 #include "../log.h"
 #include <flat_hash_map.hpp>
@@ -15,17 +15,6 @@ struct MpkMetaEntry : FileMeta {
   int64_t Offset;
   int64_t CompressedSize;
   bool Compressed;
-};
-
-class MpkArchive : public VfsArchive {
- public:
-  ~MpkArchive();
-  IoError Open(FileMeta* file, InputStream** outStream) override;
-
- private:
-  MpkMetaEntry* TOC = 0;
-  static bool _registered;
-  static IoError Create(InputStream* stream, VfsArchive** outArchive);
 };
 
 MpkArchive::~MpkArchive() {
@@ -122,8 +111,6 @@ fail:
   if (result) delete result;
   return IoError_Fail;
 }
-
-bool MpkArchive::_registered = VfsRegisterArchiver(MpkArchive::Create);
 
 }  // namespace Io
 }  // namespace Impacto

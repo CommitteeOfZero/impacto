@@ -7,8 +7,17 @@
 #include "../log.h"
 #include "../profile/vfs.h"
 
+#include "afsarchive.h"
+#include "cpkarchive.h"
+#include "lnk4archive.h"
+#include "mpkarchive.h"
+#include "textarchive.h"
+
 namespace Impacto {
 namespace Io {
+
+typedef IoError (*VfsArchiveFactory)(InputStream* stream,
+                                     VfsArchive** outArchive);
 
 static std::vector<VfsArchiveFactory> Archivers;
 static ska::flat_hash_map<std::string, std::vector<VfsArchive*>> Mounts;
@@ -44,6 +53,12 @@ static VfsArchive* FindArchive(std::string const& mountpoint,
 
 void VfsInit() {
   Lock = SDL_CreateMutex();
+
+  Archivers.push_back(AfsArchive::Create);
+  Archivers.push_back(CpkArchive::Create);
+  Archivers.push_back(Lnk4Archive::Create);
+  Archivers.push_back(MpkArchive::Create);
+  Archivers.push_back(TextArchive::Create);
 
   Profile::Vfs::Configure();
 }
@@ -411,11 +426,6 @@ IoError VfsListFiles(std::string const& mountpoint,
 end:
   SDL_UnlockMutex(Lock);
   return err;
-}
-
-bool VfsRegisterArchiver(VfsArchiveFactory f) {
-  Archivers.push_back(f);
-  return true;
 }
 
 }  // namespace Io

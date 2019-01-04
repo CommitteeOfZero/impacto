@@ -1,4 +1,4 @@
-#include "vfsarchive.h"
+#include "afsarchive.h"
 
 #include "../log.h"
 #include "uncompressedstream.h"
@@ -11,17 +11,6 @@ namespace Io {
 
 struct AfsMetaEntry : FileMeta {
   int64_t Offset;
-};
-
-class AfsArchive : public VfsArchive {
- public:
-  ~AfsArchive();
-  IoError Open(FileMeta* file, InputStream** outStream) override;
-
- private:
-  AfsMetaEntry* TOC = 0;
-  static bool _registered;
-  static IoError Create(InputStream* stream, VfsArchive** outArchive);
 };
 
 AfsArchive::~AfsArchive() {
@@ -94,8 +83,6 @@ fail:
   if (rawToc) ImpStackFree(rawToc);
   return IoError_Fail;
 }
-
-bool AfsArchive::_registered = VfsRegisterArchiver(AfsArchive::Create);
 
 }  // namespace Io
 }  // namespace Impacto

@@ -1,4 +1,4 @@
-#include "vfsarchive.h"
+#include "textarchive.h"
 
 #include "../log.h"
 #include "physicalfilestream.h"
@@ -14,20 +14,6 @@ enum TextArchiveType { CLS, MLP, TextMPK };
 
 struct TextMetaEntry : FileMeta {
   std::string FullPath;
-};
-
-class TextArchive : public VfsArchive {
- public:
-  ~TextArchive();
-  IoError Open(FileMeta* file, InputStream** outStream) override;
-  IoError GetCurrentSize(FileMeta* file, int64_t* outSize) override;
-
- private:
-  TextMetaEntry* TOC = 0;
-  std::string BasePath;
-
-  static bool _registered;
-  static IoError Create(InputStream* stream, VfsArchive** outArchive);
 };
 
 TextArchive::~TextArchive() {
@@ -189,8 +175,6 @@ fail:
   if (result) delete result;
   return IoError_Fail;
 }
-
-bool TextArchive::_registered = VfsRegisterArchiver(TextArchive::Create);
 
 }  // namespace Io
 }  // namespace Impacto
