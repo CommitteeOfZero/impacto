@@ -252,6 +252,10 @@ set(Impacto_Libs
 )
 
 if(EMSCRIPTEN)
+    # BINARYEN_TRAP_MODE=clamp => https://groups.google.com/forum/#!topic/emscripten-discuss/IJr4ApiW_zU
+    # duk_heap_alloc() errors without this
+    # MAIN_MODULE=1 => SDL_GL_GetProcAddress falls back to dlsym() so we need dynamic linking support (...)
+
     set(IMPACTO_EMSCRIPTEN_BUILD_FLAGS "\
         -s USE_SDL=2 \
         -s USE_ZLIB=1 \
@@ -259,6 +263,8 @@ if(EMSCRIPTEN)
         -s USE_VORBIS=1 \
         -s WASM=1 \
         -s USE_WEBGL2=1 \
+        -s MAIN_MODULE=1 \
+        -s BINARYEN_TRAP_MODE=clamp \
         --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/profiles@/profiles \
         --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/games@/games \
         --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders@/shaders \
