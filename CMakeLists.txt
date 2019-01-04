@@ -263,7 +263,7 @@ if(EMSCRIPTEN)
         -s USE_VORBIS=1 \
         -s WASM=1 \
         -s USE_WEBGL2=1 \
-        -s MAIN_MODULE=1 \
+        -s MAIN_MODULE=2 \
         -s BINARYEN_TRAP_MODE=clamp \
         -s ALLOW_MEMORY_GROWTH=1 \
         --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/profiles@/profiles \
@@ -274,6 +274,10 @@ if(EMSCRIPTEN)
         set(IMPACTO_EMSCRIPTEN_BUILD_FLAGS "${IMPACTO_EMSCRIPTEN_BUILD_FLAGS} \
             -s GL_ASSERTIONS=1 \
             -s GL_DEBUG=1 \
+        ")
+    else()
+        set(IMPACTO_EMSCRIPTEN_BUILD_FLAGS "${IMPACTO_EMSCRIPTEN_BUILD_FLAGS} \
+            -O3 \
         ")
     endif()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${IMPACTO_EMSCRIPTEN_BUILD_FLAGS}")
