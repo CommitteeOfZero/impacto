@@ -115,6 +115,14 @@ VmInstruction(InstVoiceStop) {
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction VoiceStop(channel: %i)\n",
              channel);
 }
+VmInstruction(InstVoiceStopNew) {
+  StartInstruction;
+  PopUint8(channel);
+  PopExpression(arg1);
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction VoiceStopNew(channel: %i, arg1: %i)\n", channel,
+             arg1);
+}
 VmInstruction(InstVoicePlayWait) {
   StartInstruction;
   PopUint8(channel);

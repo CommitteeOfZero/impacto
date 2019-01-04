@@ -145,6 +145,14 @@ VmInstruction(InstPressStart) {
     } break;
   }
 }
+VmInstruction(InstPressStartNew) {
+  StartInstruction;
+  PopUint8(type);
+  if (type == 0 || type == 3) {
+    PopLocalLabel(labelAdr);
+    thread->Ip = labelAdr;
+  }
+}
 VmInstruction(InstClearFlagChk) {
   StartInstruction;
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction ClearFlagChk()\n");
@@ -345,6 +353,41 @@ VmInstruction(InstTitleMenu) {
       // Hack to kickstart into "New Game"
       ScrWork[SW_TITLECUR1] = 0;
       ScrWork[SW_TITLECUR2] = 255;
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction TitleMenu(type: Main)\n");
+      break;
+    case 2:  // Init2
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction TitleMenu(type: Init2)\n");
+      break;
+      break;
+  }
+}
+VmInstruction(InstTitleMenuNew) {
+  StartInstruction;
+  PopUint8(type);
+  switch (type) {
+    case 0:  // Init
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction TitleMenu(type: Init)\n");
+      // TitleMenu::Show();
+      break;
+    case 1:  // Main
+      // Hack to kickstart into "New Game"
+      if (ScrWork[SW_TITLEMODE] == 3) {
+        if (Input::KeyboardButtonWentDown[SDL_SCANCODE_T]) {
+          ScrWork[2139] = 0;
+          SetFlag(1241, 1);
+        }
+      } else if (ScrWork[SW_TITLEMODE] == 1 && ScrWork[SW_TITLEDISPCT] == 60) {
+        // Check "PRESS TO START" here
+        if (Input::KeyboardButtonWentDown[SDL_SCANCODE_T]) {
+          ScrWork[SW_TITLEMODE] = 2;
+          ScrWork[SW_TITLEDISPCT] = 0;
+          ScrWork[SW_TITLEMOVIECT] = 0;
+          SetFlag(1241, 1);
+        }
+      }
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction TitleMenu(type: Main)\n");
       break;
