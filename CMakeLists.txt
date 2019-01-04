@@ -265,7 +265,7 @@ if(EMSCRIPTEN)
         -s USE_WEBGL2=1 \
         -s MAIN_MODULE=1 \
         -s BINARYEN_TRAP_MODE=clamp \
-        -s TOTAL_MEMORY=1073741824 \
+        -s ALLOW_MEMORY_GROWTH=1 \
         --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/profiles@/profiles \
         --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/games@/games \
         --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders@/shaders \
