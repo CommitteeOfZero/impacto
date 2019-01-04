@@ -620,7 +620,8 @@ void Renderable3D::MainThreadOnLoad() {
                             (void*)offsetof(VertexBuffer, Normal));
       glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(VertexBuffer),
                             (void*)offsetof(VertexBuffer, UV));
-      glVertexAttribIPointer(3, 4, GL_UNSIGNED_BYTE, sizeof(VertexBuffer),
+      // WebGL doesn't like unsigned byte here, figures...
+      glVertexAttribIPointer(3, 4, GL_BYTE, sizeof(VertexBuffer),
                              (void*)offsetof(VertexBuffer, BoneIndices));
       glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(VertexBuffer),
                             (void*)offsetof(VertexBuffer, BoneWeights));

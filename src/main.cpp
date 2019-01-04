@@ -1,5 +1,9 @@
 ﻿#include "impacto.h"
 
+#ifdef EMSCRIPTEN
+#include <emscripten.h>
+#endif
+
 #include "log.h"
 #include "window.h"
 #include "game.h"
@@ -35,10 +39,21 @@ int main(int argc, char* argv[]) {
   profileName.resize(stream->Meta.Size, '\0');
   profileName.resize(stream->Read(&profileName[0], stream->Meta.Size));
 
+#ifdef EMSCRIPTEN
+  // Emscripten's EGL requests a window framebuffer with antialiasing by default
+  // (as WebGL does)
+  // Emscripten's SDL2 port fails to change this even with MSAA set to 0 in the
+  // context parameters
+  EM_ASM(EGL.antialias = false;);
+#endif
+
   Game::InitFromProfile(profileName);
 
   t = SDL_GetPerformanceCounter();
 
+#ifdef EMSCRIPTEN
+  emscripten_set_main_loop(GameLoop, -1, 1);
+#else
   while (!Game::ShouldQuit) {
     GameLoop();
   }
@@ -46,6 +61,7 @@ int main(int argc, char* argv[]) {
   ImpLog(LL_Info, LC_General, "Bye!\n");
 
   Game::Shutdown();
+#endif
 
   return 0;
 }
