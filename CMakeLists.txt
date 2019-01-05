@@ -266,6 +266,7 @@ if(EMSCRIPTEN)
         -s MAIN_MODULE=2 \
         -s BINARYEN_TRAP_MODE=clamp \
         -s ALLOW_MEMORY_GROWTH=1 \
+        -g4 \
         --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/profiles@/profiles \
         --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/games@/games \
         --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders@/shaders \
@@ -282,6 +283,11 @@ if(EMSCRIPTEN)
     endif()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${IMPACTO_EMSCRIPTEN_BUILD_FLAGS}")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${IMPACTO_EMSCRIPTEN_BUILD_FLAGS}")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${IMPACTO_EMSCRIPTEN_BUILD_FLAGS}")
+
+    string(REPLACE "-O2" "" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
+    string(REPLACE "-O2" "" CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
+    string(REPLACE "-O2" "" CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
 
     add_definitions(-DIMPACTO_OPENAL_INCLUDE_SUBDIR)
 else()
