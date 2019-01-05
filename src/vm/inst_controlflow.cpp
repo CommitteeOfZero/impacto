@@ -185,7 +185,7 @@ VmInstruction(InstKeyOnJump) {
 VmInstruction(InstClickOnJump) {
   StartInstruction;
   PopUint8(arg1);
-  if (arg1 & 0xFE == 2) {
+  if ((arg1 & 0xFE) == 2) {
     PopExpression(_arg1);
     PopExpression(_arg2);
     PopExpression(_arg3);
