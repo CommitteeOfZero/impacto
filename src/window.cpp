@@ -96,6 +96,8 @@ static void TryCreateGL(GraphicsApi api) {
   SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
   SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
   SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+  // Required for blending to work right in Firefox
+  SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
 
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
