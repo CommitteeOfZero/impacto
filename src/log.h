@@ -43,7 +43,7 @@ void LogSetFile(char* path);
 void LogSetConsole(bool enabled);
 
 void ImpLog(LogLevel level, LogChannel channel, const char* format, ...);
-#ifdef IMPACTO_ENABLE_SLOW_LOG
+#if IMPACTO_ENABLE_SLOW_LOG
 #define ImpLogSlow ImpLog
 #else
 #define ImpLogSlow(...) (void)0

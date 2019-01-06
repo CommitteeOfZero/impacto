@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef IMPACTO_OPENAL_INCLUDE_SUBDIR
+#if IMPACTO_OPENAL_INCLUDE_SUBDIR
 #include <AL/al.h>
 #include <AL/alc.h>
 #else
@@ -8,7 +8,7 @@
 #include "alc.h"
 #endif
 
-#ifdef IMPACTO_OPENAL_HAVE_ALEXT
+#if IMPACTO_OPENAL_HAVE_ALEXT
 #include "alext.h"
 #else
 // emscripten has these but not alext.h /shrug

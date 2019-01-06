@@ -22,7 +22,7 @@ static void InitEventType() {
   assert(WorkCompletedEventType != -1);
 }
 
-#ifdef IMPACTO_HAVE_THREADS
+#if IMPACTO_HAVE_THREADS
 
 static std::deque<WorkItem> WorkQueue;
 static SDL_mutex* Lock;

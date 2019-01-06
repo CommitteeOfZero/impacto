@@ -139,7 +139,7 @@ static void TryCreateGL(GraphicsApi api) {
 
       contextFlags |= SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG;
 
-#ifdef IMPACTO_GL_DEBUG
+#if IMPACTO_GL_DEBUG
       contextFlags |= SDL_GL_CONTEXT_DEBUG_FLAG;
 #endif
       break;
@@ -255,7 +255,7 @@ void Init() {
   // resize the window???
   glDisable(GL_FRAMEBUFFER_SRGB);
 
-#ifdef IMPACTO_GL_DEBUG
+#if IMPACTO_GL_DEBUG
   if (ActualGraphicsApi == GfxApi_GL) {
     GLint flags;
     glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
