@@ -61,6 +61,7 @@ void EndFrame() {
   }
 }
 
+// TODO SDL High DPI
 static glm::vec2 SDLMouseCoordsToDesign(int x, int y) {
   RectF viewport = Window::GetViewport();
   glm::vec2 result;

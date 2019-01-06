@@ -361,8 +361,10 @@ option(IMPACTO_GL_DEBUG
 
 if(EMSCRIPTEN)
     set(IMPACTO_HAVE_THREADS OFF)
+    set(IMPACTO_USE_SDL_HIGHDPI ON)
 else()
     set(IMPACTO_HAVE_THREADS ON)
+    set(IMPACTO_USE_SDL_HIGHDPI OFF)
 endif()
 
 configure_file(src/config.h.in ${PROJECT_BINARY_DIR}/include/config.h)

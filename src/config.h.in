@@ -3,3 +3,4 @@
 #cmakedefine IMPACTO_ENABLE_SLOW_LOG
 #cmakedefine IMPACTO_GL_DEBUG
 #cmakedefine IMPACTO_HAVE_THREADS
+#cmakedefine01 IMPACTO_USE_SDL_HIGHDPI

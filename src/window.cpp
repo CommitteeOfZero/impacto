@@ -75,11 +75,32 @@ RectF GetScaledViewport() {
 }
 
 void AdjustEventCoordinatesForNk(SDL_Event* ev) {
+  int width;
+  int height;
+  SDL_GetWindowSize(SDLWindow, &width, &height);
+
   Rect viewport = GetViewport();
+
+  // For platforms where high DPI is supported with SDL_WINDOW_ALLOW_HIGHDPI:
+  // Input events are in window dimensions, GetViewport() is in real pixels
+  // e.g. window dimensions 1280x720, GetViewport() 1920x1080
+  // Our nuklear is set up to deal with real pixels, so we need to transform
+  // event coordinates into those
+  float scaleX = (float)viewport.Width / (float)width;
+  float scaleY = (float)viewport.Height / (float)height;
+
   if (ev->type == SDL_MOUSEMOTION) {
+    ev->motion.x = (float)ev->motion.x * scaleX;
+    ev->motion.y = (float)ev->motion.y * scaleY;
+
+    // skip over letter/pillarbox
     ev->motion.x -= viewport.X;
     ev->motion.y += viewport.Y;
   } else if (ev->type == SDL_MOUSEBUTTONDOWN || ev->type == SDL_MOUSEBUTTONUP) {
+    ev->button.x = (float)ev->button.x * scaleX;
+    ev->button.y = (float)ev->button.y * scaleY;
+
+    // skip over letter/pillarbox
     ev->button.x -= viewport.X;
     ev->button.y += viewport.Y;
   }
@@ -151,9 +172,14 @@ static void TryCreateGL(GraphicsApi api) {
 
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, contextFlags);
 
-  SDLWindow = SDL_CreateWindow("ROBOTICS;NOTES PC (Alpha r4)",
-                               SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                               1280, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+  uint32_t windowFlags = SDL_WINDOW_OPENGL;
+#if IMPACTO_USE_SDL_HIGHDPI
+  windowFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
+#endif
+
+  SDLWindow =
+      SDL_CreateWindow("ROBOTICS;NOTES PC (Alpha r4)", SDL_WINDOWPOS_UNDEFINED,
+                       SDL_WINDOWPOS_UNDEFINED, 1280, 720, windowFlags);
 
   if (SDLWindow == NULL) {
     ImpLog(LL_Error, LC_General, "Window creation failed: %s\n",
@@ -261,7 +287,13 @@ void SetDimensions(int width, int height, int msaa, float renderScale) {
          width, height, msaa, renderScale);
   assert(width > 0 && height > 0 && msaa >= 0 && renderScale > 0.0f);
 
-  SDL_SetWindowSize(SDLWindow, width, height);
+  // Relevant when high DPI support is SDL_WINDOW_ALLOW_HIGHDPI
+  int curWindowWidth, curWindowHeight;
+  SDL_GetWindowSize(SDLWindow, &curWindowWidth, &curWindowHeight);
+  float dpiScaleX = (float)curWindowWidth / (float)WindowWidth;
+  float dpiScaleY = (float)curWindowHeight / (float)WindowHeight;
+
+  SDL_SetWindowSize(SDLWindow, width * dpiScaleX, height * dpiScaleY);
   MsaaCount = msaa;
   RenderScale = renderScale;
 }
