@@ -40,6 +40,11 @@ extern bool GLDebug;
 extern int WindowWidth;
 extern int WindowHeight;
 
+// OS window dimensions * DpiScaleX/Y => WindowWidth/Height (real pixels)
+// Always 1 unless high DPI support is SDL_WINDOW_ALLOW_HIGHDPI
+extern float DpiScaleX;
+extern float DpiScaleY;
+
 extern int MsaaCount;
 extern float RenderScale;
 
