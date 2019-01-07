@@ -6,8 +6,6 @@
 namespace Impacto {
 namespace DateDisplay {
 
-enum DateAnimState { Hidden, Hiding, Showing, Shown };
-
 BETTER_ENUM(DateDisplayType, int, None, RNE, Darling)
 
 class DateDisplayBase {

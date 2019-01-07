@@ -17,8 +17,12 @@ void Init() {
   }
 }
 
-void Update(float dt) { Implementation->Update(dt); }
-void Render() { Implementation->Render(); }
+void Update(float dt) {
+  if (Implementation) Implementation->Update(dt);
+}
+void Render() {
+  if (Implementation) Implementation->Render();
+}
 
 }  // namespace DateDisplay
 }  // namespace Impacto
