@@ -814,7 +814,7 @@ InstructionProc static OpcodeTableGraph3D_RNE[256] = {
     InstUnk0213,             // 02 13
     InstUnk0214,             // 02 14
     InstUnk0215,             // 02 15
-    InstUnk0216,             // 02 16
+    InstMoveCamera,          // 02 16
     InstUnk0217,             // 02 17
     InstUnk0218,             // 02 18
     InstUnk0219,             // 02 19

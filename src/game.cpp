@@ -242,6 +242,12 @@ void Render() {
               }
             }
           }
+          if (GetFlag(SF_POKECOMENABLE)) {
+            SetFlag(SF_DATEDISPLAY, 0);
+            // hack
+            ScrWork[6381] = 0;
+            ScrWork[6382] = 0;
+          }
           DateDisplay::Render();
           break;
         }

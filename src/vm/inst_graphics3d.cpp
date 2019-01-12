@@ -330,32 +330,70 @@ VmInstruction(InstUnk0215) {
              arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11,
              arg12, arg13, arg14, arg15, arg16, arg17);
 }
-VmInstruction(InstUnk0216) {
+
+int movementVarDestY = 0;
+float movementStartY = 0.0f;
+float movementEndY = 0.0f;
+float movementYDelta = 0.0f;
+
+int movementVarDestX = 0;
+float movementStartX = 0.0f;
+float movementEndX = 0.0f;
+float movementXDelta = 0.0f;
+
+VmInstruction(InstMoveCamera) {
   StartInstruction;
   PopUint8(type);
   switch (type) {
     case 0: {
       PopExpression(arg1);
-      PopExpression(arg2);
-      PopExpression(arg3);
-      PopExpression(arg4);
-      PopExpression(arg5);
-      PopExpression(arg6);
-      PopExpression(arg7);
-      PopExpression(arg8);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Unk0216(type: %i, arg1: %i, arg2: %i, arg3: "
-                 "%i, arg4: %i, arg5: %i, arg6: %i, arg7: %i, arg8: %i)\n",
-                 type, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
-      ScrWork[arg7] = arg5;
-      ScrWork[arg8] = arg6;
+      PopExpression(movStartY);
+      PopExpression(movStartX);
+      PopExpression(movEndY);
+      PopExpression(movEndX);
+      PopExpression(length);
+      PopExpression(movDestVarY);
+      PopExpression(movDestVarX);
+      int totalIterations = 0;
+      if (length <= 29) {
+        for (int i = 1; i <= length; i++) {
+          totalIterations += i;
+        }
+      } else {
+        totalIterations = 30 * length - 870;
+        int i = 1;
+        do {
+          totalIterations += i++;
+        } while (i <= 29);
+      }
+
+      movementVarDestY = movDestVarY;
+      movementStartY = ScrRealToFloat(movStartY);
+      movementEndY = ScrRealToFloat(movEndY);
+      movementYDelta = (movementEndY - movementStartY) / totalIterations;
+
+      movementVarDestX = movDestVarX;
+      movementStartX = ScrRealToFloat(movStartX);
+      movementEndX = ScrRealToFloat(movEndX);
+      movementXDelta = (movementEndX - movementStartX) / totalIterations;
+
     } break;
     case 1: {
       PopExpression(arg1);
-      PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Unk0216(type: %i, arg1: %i, arg2: %i)\n",
-                 type, arg1, arg2);
+      PopExpression(iterations);
+      float moveYCur = 0.0f, moveXCur = 0.0f;
+      if (iterations <= 29) {
+        moveYCur = movementStartY + (movementYDelta * iterations);
+        moveXCur = movementStartX + (movementXDelta * iterations);
+      } else {
+        moveYCur = movementStartY + (movementYDelta * 30.0f);
+        moveXCur = movementStartX + (movementXDelta * 30.0f);
+      }
+      movementStartY = moveYCur;
+      movementStartX = moveXCur;
+      ScrWork[movementVarDestY] = FloatToScrReal(moveYCur);
+      ScrWork[movementVarDestX] = FloatToScrReal(moveXCur);
+
     } break;
   }
 }
@@ -374,15 +412,15 @@ VmInstruction(InstUnk0218) {
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
-      PopExpression(outXRot);
       PopExpression(outYRot);
+      PopExpression(outXRot);
       glm::vec3 lookat =
           LookAtEulerZYX(glm::vec3(ScrRealToFloat(arg1), ScrRealToFloat(arg2),
                                    ScrRealToFloat(arg3)),
                          Profile::Scene3D::DefaultCameraPosition);
 
-      ScrWork[outXRot] = FloatToScrReal(RadToDeg(NormalizeRad(lookat.x)));
-      ScrWork[outYRot] = FloatToScrReal(RadToDeg(NormalizeRad(lookat.y)));
+      ScrWork[outXRot] = -FloatToScrReal(RadToDeg(NormalizeRad(lookat.x)));
+      ScrWork[outYRot] = -FloatToScrReal(RadToDeg(NormalizeRad(lookat.y)));
     } break;
     case 2: {
       PopExpression(arg1);

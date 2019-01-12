@@ -20,7 +20,7 @@ VmInstruction(InstUnk0212);
 VmInstruction(InstUnk0213);
 VmInstruction(InstUnk0214);
 VmInstruction(InstUnk0215);
-VmInstruction(InstUnk0216);
+VmInstruction(InstMoveCamera);
 VmInstruction(InstUnk0217);
 VmInstruction(InstUnk0218);
 VmInstruction(InstUnk0219);

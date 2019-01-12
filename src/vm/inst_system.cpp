@@ -3,6 +3,7 @@
 #include "inst_macros.inc"
 
 #include <math.h>
+#include <ctime>
 
 #include "expression.h"
 #include "../scriptvars.h"
@@ -345,7 +346,15 @@ VmInstruction(InstSystemMes) {
 }
 VmInstruction(InstGetNowTime) {
   StartInstruction;
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction GetNowTime()\n");
+  std::time_t t = std::time(0);
+  std::tm* now = std::localtime(&t);
+  ScrWork[SW_TIMEYEAR] = now->tm_year + 1900;
+  ScrWork[SW_TIMEMONTH] = now->tm_mon + 1;
+  ScrWork[SW_TIMEDAY] = now->tm_mday;
+  ScrWork[SW_TIMEHOUR] = now->tm_hour;
+  ScrWork[SW_TIMEMINUTE] = now->tm_min;
+  ScrWork[SW_TIMESECOND] = now->tm_sec;
+  ScrWork[SW_TIMEWEEK] = now->tm_wday;
 }
 VmInstruction(InstGetSystemStatus) {
   StartInstruction;
@@ -465,6 +474,16 @@ VmInstruction(InstMSinit) {
   for (int i = 0; i < MaxBackgrounds2D; i++) {
     ScrWork[SW_BG1SURF + i] = i;
   }
+
+  ScrWork[SW_IRUOCAMERAHFOVCUR] = 40000;
+  ScrWork[SW_MAINCAMERAHFOVCUR] = 40000;
+  ScrWork[6402] = 640;
+  ScrWork[6403] = 360;
+  // Hack for now
+  ScrWork[6410] = -14674;
+  ScrWork[6411] = 13974;
+  ScrWork[6412] = -19588;
+  ScrWork[6413] = 19088;
 }
 VmInstruction(InstSaveSlot) {
   StartInstruction;

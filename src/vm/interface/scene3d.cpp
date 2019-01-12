@@ -45,26 +45,60 @@ static void UpdateRenderables() {
     if (Scene3D::Renderables[i].Status == LS_Loaded) {
       UpdateRenderableRot(i);
       UpdateRenderablePos(i);
-      Scene3D::Renderables[i].IsVisible = GetFlag(SF_CHA1DISP + i);
+      Scene3D::Renderables[i].IsVisible =
+          GetFlag(SF_CHA1DISP + i) || GetFlag(2808 + i);
     }
   }
 }
 
 static void UpdateCamera() {
+  glm::vec3 posCam;
+  glm::vec3 lookatCam;
+  float hFovRad;
+  int camera = !GetFlag(SF_IRUOENABLE);
+  posCam = ScrWorkGetAngleVec3(SW_IRUOCAMERAPOSX + 20 * camera,
+                               SW_IRUOCAMERAPOSY + 20 * camera,
+                               SW_IRUOCAMERAPOSZ + 20 * camera);
+  lookatCam =
+      ScrWorkGetAngleVec3(SW_IRUOCAMERAROTX + 20 * camera,
+                          SW_IRUOCAMERAROTY + 20 * camera, 5405 + 20 * camera);
+  lookatCam = -lookatCam;
+
+  if (ScrWork[SW_IRUOCAMERAHFOVDELTA + 20 * camera] == 0) {
+    ScrWork[SW_IRUOCAMERAHFOVCUR] = ScrWork[SW_IRUOCAMERAHFOV];
+    ScrWork[SW_MAINCAMERAHFOVCUR] = ScrWork[SW_MAINCAMERAHFOV];
+  } else if (ScrWork[SW_IRUOCAMERAHFOV + 20 * camera] >
+             ScrWork[SW_IRUOCAMERAHFOVCUR + 10 * camera]) {
+    ScrWork[SW_IRUOCAMERAHFOVCUR + 10 * camera] +=
+        ScrWork[SW_IRUOCAMERAHFOVDELTA + 20 * camera];
+    if (ScrWork[SW_IRUOCAMERAHFOV + 20 * camera] <
+        ScrWork[SW_IRUOCAMERAHFOVCUR + 10 * camera])
+      ScrWork[SW_IRUOCAMERAHFOVCUR + 10 * camera] =
+          ScrWork[SW_IRUOCAMERAHFOV + 20 * camera];
+  } else if (ScrWork[SW_IRUOCAMERAHFOV + 20 * camera] <
+             ScrWork[SW_IRUOCAMERAHFOVCUR + 10 * camera]) {
+    ScrWork[SW_IRUOCAMERAHFOVCUR + 10 * camera] -=
+        ScrWork[SW_IRUOCAMERAHFOVDELTA + 20 * camera];
+    if (ScrWork[SW_IRUOCAMERAHFOV + 20 * camera] >
+        ScrWork[SW_IRUOCAMERAHFOVCUR + 10 * camera])
+      ScrWork[SW_IRUOCAMERAHFOVCUR + 10 * camera] =
+          ScrWork[SW_IRUOCAMERAHFOV + 20 * camera];
+  }
+  hFovRad = ScrWorkGetAngle(SW_IRUOCAMERAHFOVCUR + 10 * camera);
+
   // Update position
   // Scene3D::MainCamera.Move(glm::vec3(0.0f, 12.5f, 23.0f));
-
   // Update lookat
-  // Just the main camera for now
-  glm::vec3 lookatCam =
-      ScrWorkGetAngleVec3(SW_MAINCAMERAROTX, SW_MAINCAMERAROTY, 5425);
   Scene3D::MainCamera.CameraTransform.SetRotationFromEuler(lookatCam);
-
   // Update fov
-  float hFovRad = ScrWorkGetAngle(SW_MAINCAMERAHFOV);
   Scene3D::MainCamera.Fov =
       2.0f *
       atanf(tanf(hFovRad / 2.0f) * (1.0f / Scene3D::MainCamera.AspectRatio));
+
+  ScrWork[5980] = ScrWork[SW_IRUOCAMERAROTX];
+  ScrWork[5981] = ScrWork[SW_IRUOCAMERAROTY];
+  ScrWork[5990] = ScrWork[SW_MAINCAMERAROTX];
+  ScrWork[5991] = ScrWork[SW_MAINCAMERAROTY];
 
   // Update lighting
   Scene3D::Tint = ScrWorkGetColor(SW_MAINLIGHTCOLOR);
