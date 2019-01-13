@@ -62,7 +62,7 @@ static void UpdateCamera() {
   lookatCam =
       ScrWorkGetAngleVec3(SW_IRUOCAMERAROTX + 20 * camera,
                           SW_IRUOCAMERAROTY + 20 * camera, 5405 + 20 * camera);
-  lookatCam = -lookatCam;
+  lookatCam.x = -lookatCam.x;
 
   if (ScrWork[SW_IRUOCAMERAHFOVDELTA + 20 * camera] == 0) {
     ScrWork[SW_IRUOCAMERAHFOVCUR] = ScrWork[SW_IRUOCAMERAHFOV];
@@ -100,8 +100,14 @@ static void UpdateCamera() {
 
   ScrWork[5980] = ScrWork[SW_IRUOCAMERAROTX];
   ScrWork[5981] = ScrWork[SW_IRUOCAMERAROTY];
+  ScrWork[5982] = ScrWork[SW_IRUOCAMERAPOSX];
+  ScrWork[5983] = ScrWork[SW_IRUOCAMERAPOSY];
+  ScrWork[5984] = ScrWork[SW_IRUOCAMERAPOSZ];
   ScrWork[5990] = ScrWork[SW_MAINCAMERAROTX];
   ScrWork[5991] = ScrWork[SW_MAINCAMERAROTY];
+  ScrWork[5992] = ScrWork[SW_MAINCAMERAPOSX];
+  ScrWork[5993] = ScrWork[SW_MAINCAMERAPOSY];
+  ScrWork[5994] = ScrWork[SW_MAINCAMERAPOSZ];
 
   // Update lighting
   Scene3D::Tint = ScrWorkGetColor(SW_MAINLIGHTCOLOR);

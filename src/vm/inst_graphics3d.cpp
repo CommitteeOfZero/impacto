@@ -422,7 +422,7 @@ VmInstruction(InstUnk0218) {
                          Profile::Scene3D::DefaultCameraPosition);
 
       ScrWork[outXRot] = -FloatToScrReal(RadToDeg(NormalizeRad(lookat.x)));
-      ScrWork[outYRot] = -FloatToScrReal(RadToDeg(NormalizeRad(lookat.y)));
+      ScrWork[outYRot] = FloatToScrReal(RadToDeg(NormalizeRad(lookat.y)));
     } break;
     case 2: {
       PopExpression(arg1);
