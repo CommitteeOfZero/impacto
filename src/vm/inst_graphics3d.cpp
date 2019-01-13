@@ -393,7 +393,9 @@ VmInstruction(InstMoveCamera) {
       movementStartX = moveXCur;
       ScrWork[movementVarDestY] = FloatToScrReal(moveYCur);
       ScrWork[movementVarDestX] = FloatToScrReal(moveXCur);
-
+      // meh (hack... I *love* ScrWork crap)
+      thread->Variables[7] = FloatToScrReal(moveYCur);
+      thread->Variables[8] = FloatToScrReal(moveXCur);
     } break;
   }
 }

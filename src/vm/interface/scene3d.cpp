@@ -84,7 +84,10 @@ static void UpdateCamera() {
       ScrWork[SW_IRUOCAMERAHFOVCUR + 10 * camera] =
           ScrWork[SW_IRUOCAMERAHFOV + 20 * camera];
   }
-  hFovRad = ScrWorkGetAngle(SW_IRUOCAMERAHFOVCUR + 10 * camera);
+  if (GetFlag(SF_IRUOENABLE) && !GetFlag(SF_IRUOAUTO))
+    hFovRad = ScrWorkGetAngle(SW_POKECOMIRUOHFOV);
+  else
+    hFovRad = ScrWorkGetAngle(SW_IRUOCAMERAHFOVCUR + 10 * camera);
 
   // Update position
   // Scene3D::MainCamera.Move(glm::vec3(0.0f, 12.5f, 23.0f));
