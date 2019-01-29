@@ -23,7 +23,18 @@ void GameLoop() {
   Game::Render();
 }
 
+#ifdef EMSCRIPTEN
+extern "C" void EMSCRIPTEN_KEEPALIVE StartGame() {
+  t = SDL_GetPerformanceCounter();
+  emscripten_set_main_loop(GameLoop, -1, 0);
+}
+#endif
+
 int main(int argc, char* argv[]) {
+#ifdef EMSCRIPTEN
+  EM_ASM(OnGameLoadStart(););
+#endif
+
   LogSetConsole(true);
   g_LogLevelConsole = LL_Max;
   g_LogChannelsConsole = LC_All;
@@ -49,11 +60,11 @@ int main(int argc, char* argv[]) {
 
   Game::InitFromProfile(profileName);
 
+#ifdef EMSCRIPTEN
+  EM_ASM(OnGameLoaded(););
+#else
   t = SDL_GetPerformanceCounter();
 
-#ifdef EMSCRIPTEN
-  emscripten_set_main_loop(GameLoop, -1, 1);
-#else
   while (!Game::ShouldQuit) {
     GameLoop();
   }
