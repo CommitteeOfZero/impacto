@@ -491,7 +491,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice) {
 }
 
 void DialoguePage::Update(float dt) {
-  if (Input) Typewriter.Update(dt);
+  Typewriter.Update(dt);
 
   for (int i = 0; i < Length; i++) {
     Glyphs[i].Opacity = Typewriter.CalcOpacity(i);
