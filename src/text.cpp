@@ -555,7 +555,7 @@ void DialoguePage::Render() {
   }
 
   // Wait icon
-  if (Typewriter.Progress == 1.0f) {
+  if (Typewriter.Progress == 1.0f && Length > 0) {
     Renderer2D::DrawSprite(
         WaitIconSprite,
         glm::vec2(Glyphs[Length - 1].DestRect.X +
