@@ -1,0 +1,304 @@
+﻿@font-face {
+    font-family: 'Dosis';
+    src: url('Dosis-Medium.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Dosis';
+    src: url('Dosis-SemiBold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Dosis';
+    src: url('Dosis-Book.ttf') format('truetype');
+    font-weight: 200;
+    font-style: normal;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    height: 100%;
+    background: #000;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+#phonedroid-content * {
+    font-family: 'Dosis';
+}
+
+.game-panel {
+    width: 50%;
+    height: 100%;
+    float: left;
+    padding: 8px;
+    background-size: cover !important;
+    transition-property: all;
+    transition-duration: 0.5s;
+    background-blend-mode: darken;
+}
+
+#phonedroid-content {
+    font-size: 16pt;
+    overflow: hidden;
+    position: relative;
+}
+
+#background {
+    display: unset;
+    background-image: url(bg.jpg);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: -1;
+    visibility: hidden;
+    animation-duration: 1.25s;
+    animation-fill-mode: forwards;
+    animation-timing-function: linear;
+}
+
+.animated #background {
+    animation-name: background-in;
+}
+
+.animated-out #background, .animated-out #phonedroid-frame {
+    animation-direction: reverse;
+}
+
+@keyframes background-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        visibility: visible;
+        opacity: 1;
+    }
+}
+
+#phonedroid-frame {
+    visibility: hidden;
+    opacity: 0;
+    animation-duration: 0.8s;
+    animation-fill-mode: forwards;
+}
+
+#phonedroid-container {
+    width: 100%;
+    height: 100%;
+}
+
+/* Mobile */
+
+.animated #phonedroid-frame {
+    animation-name: phonedroid-frame-in-mobile;
+}
+
+@keyframes phonedroid-frame-in-mobile {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        visibility: visible;
+        opacity: 1;
+    }
+}
+
+#notes {
+    display: none;
+}
+
+#phonedroid-content {
+    height: 100%;
+}
+
+#phonedroid-frame {
+    height: 100%;
+}
+
+/* Desktop */
+
+@media only screen and (min-height: 600px) and (min-width: 900px) {
+    #phonedroid-container {
+        text-align: center;
+    }
+
+    #phonedroid-frame {
+        margin-top: 72px;
+        text-align: left;
+        display: inline-block;
+        background-image: url(phonedroid.png);
+        background-size: contain;
+        width: 860px;
+        height: 486px;
+        user-select: none;
+    }
+
+    .animated #phonedroid-frame {
+        animation-name: phonedroid-frame-in;
+    }
+
+    @keyframes phonedroid-frame-in {
+        0% {
+            transform-origin: center right;
+            opacity: 0;
+            transform: translateX(360px) translateY(360px) rotate(-50deg);
+        }
+
+        33% {
+            opacity: 0.125;
+        }
+
+        100% {
+            visibility: visible;
+            opacity: 1;
+        }
+    }
+
+    #notes a:link, #notes a:visited, #notes a:hover, #notes a:active {
+        color: #ffffff;
+    }
+
+    #notes {
+        display: unset;
+        position: fixed;
+        bottom: 0px;
+        left: 0px;
+        padding: 16px;
+        color: #ffffff;
+        background: rgba(0,0,0,0.5);
+        width: 100%;
+    }
+
+    #phonedroid-content {
+        margin: 36px 0 0 63px;
+        width: 737px;
+        height: 415px;
+    }
+
+    #phonedroid-content:before {
+        content: " ";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url(pixelgrid.png);
+        pointer-events: none;
+        z-index: 1;
+        box-shadow: inset 0px 0px 6px 2px rgba(0,0,0,0.4);
+    }
+}
+
+button {
+    padding: 2px 12px 4px 12px;
+    border: 0;
+    border-top: 1px solid #bed6e1;
+    border-radius: 5px;
+    box-shadow: 0 0 0 1px #4d7080;
+    background: linear-gradient(#79a5b8, #49798f);
+    color: white;
+    text-shadow: 0 0 6px #283a42;
+    font-size: 16pt;
+    margin-left: 8px;
+}
+
+button:focus {
+    outline: 0;
+}
+
+button:active {
+    border-top: 0;
+    padding-top: 3px;
+    background: linear-gradient(#49798f, #79a5b8);
+}
+
+.game-panel:hover {
+    cursor: pointer;
+}
+
+#rne-panel {
+    background: url(rne-bg.jpg);
+    border-right: 1px solid #0199e5;
+    background-color: rgba(0,0,0,0.65);
+}
+
+#rne-panel.panel-selected {
+    background-color: rgba(0,0,0,0.25);
+}
+
+#dash-panel {
+    background: url(dash-bg.jpg);
+    background-color: rgba(0,0,0,0.5);
+}
+
+#dash-panel.panel-selected {
+    background-color: rgba(0,0,0,0.0);
+}
+
+.game-line {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 10px 12px;
+    background: linear-gradient(rgba(228, 229, 231, 0.7), rgba(177, 183, 188, 0.7));
+    box-shadow: 0px 0px 8px 3px rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.panel-fullwidth {
+    width: 100%;
+    border: 0 !important;
+}
+
+.settings-open .game-panel:not(.panel-fullwidth) {
+    width: 0;
+    padding: 0;
+    border: 0 !important;
+}
+
+#settings {
+    position: absolute;
+    top: 100px;
+    left: 80px;
+    right: 80px;
+    bottom: 80px;
+    opacity: 0;
+    visibility: hidden;
+    transition-property: opacity;
+    transition-duration: 0.5s;
+    transition-delay: 0.33s;
+    color: #e0e0e0;
+    line-height: 2.2rem;
+}
+
+.settings-open #settings {
+    visibility: visible;
+    opacity: 1;
+}
+
+.settings-open .game-panel {
+    cursor: unset;
+}
