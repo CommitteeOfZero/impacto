@@ -19,95 +19,41 @@
             document.body.classList.add("animated-out");
         }
 
-        var gameInfos = {
-            "rne": "R;N ELITE Demo&nbsp;&nbsp;<span style='font-weight: 200; font-style: oblique'>(423.23 MB / 585.28 MB downloaded)</span>",
-            "dash": "R;N DaSH Demo&nbsp;&nbsp;<span style='font-weight: 200; font-style: oblique'>(423.23 MB / 585.28 MB downloaded)</span>",
-        }
-
-        var selectedGame = "";
-        var settingsOpen = false;
-
-        function selectGame(game) {
-            if (settingsOpen) return;
-            Array.from(document.getElementsByClassName("panel-selected")).forEach(function (el) {
-                el.classList.remove("panel-selected");
-                void el.offsetWidth;
-            });
-            document.getElementById(game + "-panel").classList.add("panel-selected");
-            document.getElementById("game-line-info").innerHTML = gameInfos[game];
-            selectedGame = game;
-        }
-
-        function showSettings() {
-            document.body.classList.add("settings-open");
-            document.getElementById(selectedGame + "-panel").classList.add("panel-fullwidth");
-            Array.from(document.getElementsByClassName("panel-selected")).forEach(function (el) {
-                el.classList.remove("panel-selected");
-                void el.offsetWidth;
-            });
-            settingsOpen = true;
-        }
-
-        function cancel() {
-            /*document.getElementById("background").addEventListener("animationend", function () {
-                Array.from(document.getElementsByClassName("ui")).forEach(function (el) {
-                    el.remove();
-                });
-            });*/
-
-            document.getElementById("background").addEventListener("animationend", function () {
-                window.location.reload();
-            });
-            uiOut();
-
-        }
-
         window.onload = function () {
             uiIn();
         };
     </script>
 </head>
-<body>
-    <div id="background" class="ui">
-        <div id="notes">
-            <ul style="margin:0;font-size:90%;">
-                <li>Settings are completely unstyled, no idea how to make them look good yet, would appreciate some ideas.</li>
-                <li>I haven't checked how this looks on mobile. Might just show only the Phonedroid content on there.</li>
-                <li>No, the games won't be displayed in the Phonedroid, they'll cover the whole tab.</li>
-                <li>I'll put a download progress bar on the "select a game bar" after user clicks play, when I get to it.</li>
-            </ul>
-        </div>
-    </div>
+<body class="settings-open">
+    <div id="background" class="ui"></div>
     <div id="phonedroid-container" class="ui">
         <div id="phonedroid-frame">
             <div id="phonedroid-content">
-                <div class="game-panel" id="rne-panel" onclick="selectGame('rne')">
-                    <p>
-                        <center><img src="rne-logo.png"></center>
-                    </p>
-                </div>
-                <div class="game-panel" id="dash-panel" onclick="selectGame('dash')">
+                <div class="game-panel panel-fullwidth" id="dash-panel">
                     <p>
                         <center><img src="dash-logo.png"></center>
                     </p>
                 </div>
                 <div class="game-line">
                     <span id="game-line-info">
-                        Select a game
+                        R;N DaSH Demo&nbsp;&nbsp;<span style="font-weight: 200; font-style: oblique">(423.23 MB / 585.28 MB downloaded)</span>
                     </span>
                     <span id="game-line-buttons">
-                        <button onclick="showSettings()">Select</button>
-                        <button onclick="cancel()">Delete</button>
+                        <button onclick="deleteLocalData()">Delete</button>
+                        <button onclick="loadGame()">Load</button>
                     </span>
                 </div>
                 <div id="settings">
-                    <label for="fullscreen">Fullscreen:</label><input type="checkbox" name="fullscreen" id="fullscreen"><br>
-                    <label for="sound">Sound:</label><input type="checkbox" name="sound" id="sound"><br>
+                    <label for="fullscreen">Fullscreen:</label><input type="checkbox" name="fullscreen" id="fullscreen" checked><br>
+                    <label for="sound">Sound:</label><input type="checkbox" name="sound" id="sound" checked><br>
                     MSAA:
                     <input type="radio" name="msaa" id="msaa0" value="0"><label for="msaa0">Off</label>
-                    <input type="radio" name="msaa" id="msaa2" value="2"><label for="msaa2">2x</label>
+                    <input type="radio" name="msaa" id="msaa2" value="2" checked><label for="msaa2">2x</label>
                     <input type="radio" name="msaa" id="msaa4" value="4"><label for="msaa4">4x</label>
-                    <input type="radio" name="msaa" id="msaa8" value="8"><label for="msaa8">8x</label>
+                    <input type="radio" name="msaa" id="msaa8" value="8"><label for="msaa8">8x</label><br>
+                    <br>
+                    This is a tech demo. We're not doing the full game for now.<br>
+                    <a href="#">Source code.</a>
                 </div>
             </div>
         </div>

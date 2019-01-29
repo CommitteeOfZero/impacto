@@ -36,6 +36,10 @@ body {
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 
+a:link, #notes a:visited, #notes a:hover, #notes a:active {
+    color: #ffffff;
+}
+
 #phonedroid-content * {
     font-family: 'Dosis';
 }
@@ -172,10 +176,6 @@ body {
             visibility: visible;
             opacity: 1;
         }
-    }
-
-    #notes a:link, #notes a:visited, #notes a:hover, #notes a:active {
-        color: #ffffff;
     }
 
     #notes {
