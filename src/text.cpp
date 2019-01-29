@@ -129,6 +129,39 @@ uint8_t ProcessedTextGlyph::Flags() const {
   return Profile::Charset::Flags[CharId];
 }
 
+void TypewriterEffect::Start(int firstGlyph, int glyphCount, float duration) {
+  DurationIn = duration;
+  FirstGlyph = firstGlyph;
+  GlyphCount = glyphCount;
+  StartIn(true);
+}
+
+float TypewriterEffect::CalcOpacity(int glyph) {
+  if (glyph < FirstGlyph) return 1.0f;
+  if (glyph >= FirstGlyph + GlyphCount) return 0.0f;
+
+  // We start displaying a glyph after the previous one is 25% opaque
+  // => Total time t given glyph count n and time per glyph d:
+  //        t = ((n - 1) * (0.25 * d)) + d
+  // => Time per glyph given glyph count n and total time t:
+  //        d = (4 * t) / (n + 3)
+
+  float currentTime = Progress * DurationIn;
+  float timePerGlyph = (4.0f * DurationIn) / ((float)GlyphCount + 3.0f);
+
+  // We animate only [FirstGlyph, FirstGlyph + GlyphCount],
+  // shift to [0, GlyphCount]
+  int glyphInSeries = glyph - FirstGlyph;
+  float glyphStartTime = (float)glyphInSeries * timePerGlyph * 0.25f;
+  float glyphEndTime = glyphStartTime + timePerGlyph;
+
+  if (currentTime < glyphStartTime) return 0.0f;
+  if (currentTime >= glyphEndTime) return 1.0f;
+  return (currentTime - glyphStartTime) / timePerGlyph;
+}
+
+bool DialoguePage::TextIsFullyOpaque() { return Typewriter.Progress == 1.0f; }
+
 void DialoguePage::Init() {
   Profile::Dialogue::Configure();
   WaitIconAnimation.DurationIn = Profile::Dialogue::WaitIconAnimationDuration;
@@ -146,8 +179,6 @@ void DialoguePage::Init() {
 
 void DialoguePage::Clear() {
   Length = 0;
-  FullyOpaqueGlyphCount = 0;
-  TextIsFullyOpaque = false;
   NameLength = 0;
   HasName = false;
   memset(RubyChunks, 0, sizeof(RubyChunk) * DialogueMaxRubyChunks);
@@ -245,11 +276,13 @@ void DialoguePage::EndRubyBase(int lastBaseCharacter) {
   }
 }
 
-void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
+void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice) {
   if (Mode == DPM_ADV || NVLResetBeforeAdd || PrevMode != Mode) {
     Clear();
   }
   PrevMode = Mode;
+
+  int typewriterStart = Length;
 
   // TODO should we reset HasName here?
   // It shouldn't really matter since names are an ADV thing and we clear before
@@ -374,7 +407,6 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
           // TODO respect TA_Center
           // TODO what to do about left margin if text alignment is center?
 
-          TextIsFullyOpaque = false;
           ProcessedTextGlyph& ptg = Glyphs[Length];
           ptg.CharId = token.Val_Uint16;
           ptg.Opacity = 0.0f;
@@ -442,25 +474,27 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx) {
     assert(nameLength == NameLength);
     ctx->Ip = oldIp;
   }
+
+  if (voice != 0) {
+    Audio::Channels[Audio::AC_VOICE0].Play(voice, false, 0.0f);
+  }
+
+  int typewriterCt = Length - typewriterStart;
+  float typewriterDur = 0.0f;
+  if (voice != 0) {
+    typewriterDur = Audio::Channels[Audio::AC_VOICE0].DurationInSeconds();
+  }
+  if (typewriterDur <= 0.0f) {
+    typewriterDur = (float)typewriterCt / 16.0f;
+  }
+  Typewriter.Start(typewriterStart, typewriterCt, typewriterDur);
 }
 
 void DialoguePage::Update(float dt) {
-  if (!TextIsFullyOpaque) {
-    int lastFullyOpaqueGlyphCount = FullyOpaqueGlyphCount;
-    for (int i = 0; i < 4; i++) {
-      int ch = lastFullyOpaqueGlyphCount + i;
-      if (ch == Length) break;
-      if (Glyphs[ch].Opacity == 1.0f) {
-        FullyOpaqueGlyphCount = ch + 1;
-        if (FullyOpaqueGlyphCount == Length) {
-          TextIsFullyOpaque = true;
-          break;
-        }
-      }
-      // TODO speed adjustment
-      Glyphs[ch].Opacity = fminf(Glyphs[ch].Opacity + 4.0f * dt, 1.0f);
-      if (Glyphs[ch].Opacity < 0.25f) break;
-    }
+  if (Input) Typewriter.Update(dt);
+
+  for (int i = 0; i < Length; i++) {
+    Glyphs[i].Opacity = Typewriter.CalcOpacity(i);
   }
 
   FadeAnimation.Update(dt);
@@ -521,7 +555,7 @@ void DialoguePage::Render() {
   }
 
   // Wait icon
-  if (TextIsFullyOpaque) {
+  if (Typewriter.Progress == 1.0f) {
     Renderer2D::DrawSprite(
         WaitIconSprite,
         glm::vec2(Glyphs[Length - 1].DestRect.X +

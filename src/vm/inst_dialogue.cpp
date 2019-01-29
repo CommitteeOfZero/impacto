@@ -127,14 +127,13 @@ VmInstruction(InstMes) {
       PopExpression(animationId);
       PopExpression(characterId);
       PopString(line);
-      uint8_t* oldIp = thread->Ip;
-      thread->Ip = line;
-      DialoguePages[thread->DialoguePageId].AddString(thread);
-      thread->Ip = oldIp;
       Io::InputStream* stream;
       Io::VfsOpen("voice", audioId, &stream);
-      Audio::Channels[Audio::AC_VOICE0].Play(Audio::AudioStream::Create(stream),
-                                             false, 0.0f);
+      uint8_t* oldIp = thread->Ip;
+      thread->Ip = line;
+      DialoguePages[thread->DialoguePageId].AddString(
+          thread, Audio::AudioStream::Create(stream));
+      thread->Ip = oldIp;
     } break;
     case 0x0B: {  // LoadVoicedDialogue0B
       PopExpression(audioId);
@@ -154,7 +153,7 @@ VmInstruction(InstMesMain) {
   DialoguePage* currentPage = &DialoguePages[thread->DialoguePageId];
   if (type == 0) {  // Normal mode
     if (!(Input::MouseButtonWentDown[SDL_BUTTON_LEFT] &&
-          currentPage->TextIsFullyOpaque)) {
+          currentPage->TextIsFullyOpaque())) {
       if (!Input::KeyboardButtonIsDown[SDL_SCANCODE_RCTRL]) {
         ResetInstruction;
         BlockThread;

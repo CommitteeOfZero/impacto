@@ -19,6 +19,8 @@ class AudioChannel {
   void Update(float dt);
 
   float PositionInSeconds() const;
+  // may be negative for no fixed duration, 0 for no audio
+  float DurationInSeconds() const;
 
   AudioChannelId Id;
   AudioChannelGroup Group;

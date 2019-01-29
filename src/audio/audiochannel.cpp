@@ -235,6 +235,10 @@ float AudioChannel::PositionInSeconds() const {
   if (!CurrentStream) return 0;
   return (float)Position / (float)CurrentStream->SampleRate;
 }
+float AudioChannel::DurationInSeconds() const {
+  if (!CurrentStream) return 0;
+  return (float)CurrentStream->Duration / (float)CurrentStream->SampleRate;
+}
 
 }  // namespace Audio
 }  // namespace Impacto

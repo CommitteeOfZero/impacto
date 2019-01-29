@@ -5,6 +5,10 @@
 #include "vm/thread.h"
 #include <enum.h>
 
+#include "audio/audiosystem.h"
+#include "audio/audiostream.h"
+#include "audio/audiochannel.h"
+
 namespace Impacto {
 
 BETTER_ENUM(TextAlignment, int, Left = 0, Center, Right, Block)
@@ -44,16 +48,27 @@ struct RubyChunk {
   uint16_t RawText[DialogueMaxRubyChunkLength];
 };
 
+struct TypewriterEffect : public Animation {
+ public:
+  void Start(int firstGlyph, int glyphCount, float duration);
+  float CalcOpacity(int glyph);
+
+ private:
+  int FirstGlyph;
+  int GlyphCount;
+};
+
 struct DialoguePage {
   static void Init();
 
   int Id;
 
   Animation FadeAnimation;
+  TypewriterEffect Typewriter;
+  // TODO get rid of this
+  bool TextIsFullyOpaque();
 
   int Length;
-  int FullyOpaqueGlyphCount;
-  bool TextIsFullyOpaque;
 
   int NameLength;
   bool HasName;
@@ -71,7 +86,7 @@ struct DialoguePage {
   bool AutoForward;
 
   void Clear();
-  void AddString(Vm::Sc3VmThread* ctx);
+  void AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice = 0);
   void Update(float dt);
   void Render();
 
