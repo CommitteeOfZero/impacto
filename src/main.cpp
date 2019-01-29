@@ -15,8 +15,13 @@ using namespace Impacto;
 static uint64_t t;
 
 void GameLoop() {
-  uint64_t t2 = SDL_GetPerformanceCounter();
-  float dt = ((float)(t2 - t) / (float)SDL_GetPerformanceFrequency());
+  // TODO: Better FPS lock
+  uint64_t t2;
+  float dt;
+  do {
+    t2 = SDL_GetPerformanceCounter();
+    dt = ((float)(t2 - t) / (float)SDL_GetPerformanceFrequency());
+  } while (dt < 0.016f);
   t = t2;
 
   Game::Update(dt);
