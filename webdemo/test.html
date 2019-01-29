@@ -25,6 +25,7 @@
     </script>
 </head>
 <body class="settings-open">
+    <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
     <div id="background" class="ui"></div>
     <div id="phonedroid-container" class="ui">
         <div id="phonedroid-frame">
@@ -39,7 +40,7 @@
                         R;N DaSH Demo&nbsp;&nbsp;<span style="font-weight: 200; font-style: oblique">(423.23 MB / 585.28 MB downloaded)</span>
                     </span>
                     <span id="game-line-buttons">
-                        <button onclick="deleteLocalData()">Delete</button>
+                        <button onclick="uiOut()">Delete</button>
                         <button onclick="loadGame()">Load</button>
                     </span>
                 </div>
@@ -60,4 +61,3 @@
     </div>
 </body>
 </html>
-
