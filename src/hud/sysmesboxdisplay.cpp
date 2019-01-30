@@ -6,6 +6,7 @@
 #include "../mem.h"
 #include "../scriptvars.h"
 #include "../profile/hud/sysmesboxdisplay.h"
+#include "../profile/dialogue.h"
 
 namespace Impacto {
 namespace SysMesBoxDisplay {
@@ -13,6 +14,7 @@ namespace SysMesBoxDisplay {
 using namespace Impacto::Profile::SysMesBoxDisplay;
 
 int MessageCount;
+ProcessedTextGlyph Messages[8][255];
 float BoxOpacity = 0.0f;
 SysMesBoxAnimState AnimState = Hidden;
 static float BoxAnimCount = 0.0f;
@@ -115,7 +117,16 @@ void Render() {
 
         // TODO: Draw Yes/No/OK buttons here
 
-        // TODO: Draw text here
+        float textBeginY = TextMiddleY - (TextMarginY * (4 + MessageCount));
+        for (int i = 0; i < MessageCount; i++) {
+          int lineLen;
+          for (lineLen = 0; lineLen < 255; lineLen++) {
+            if (Messages[i][lineLen].CharId == 0) break;
+            Messages[i][lineLen].DestRect.Y = textBeginY + (i * TextLineHeight);
+          }
+          Renderer2D::DrawProcessedText(
+              Messages[i], lineLen, Profile::Dialogue::DialogueFont, texCol.a);
+        }
       }
 
     } else {

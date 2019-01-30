@@ -15,7 +15,10 @@
 #include "../audio/audiostream.h"
 #include "../audio/audiochannel.h"
 #include "../background2d.h"
+#include "../text.h"
+#include "../profile/dialogue.h"
 #include "../profile/vm.h"
+#include "../profile/hud/sysmesboxdisplay.h"
 
 namespace Impacto {
 
@@ -267,30 +270,30 @@ VmInstruction(InstSystemMes) {
 
   switch (mode) {
     case 0:  // SystemMesInit0
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction SystemMes(mode: SystemMesInit0)\n");
-      SysMesBoxDisplay::MessageCount = 0;
-      break;
     case 1:  // SystemMesInit1
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction SystemMes(mode: SystemMesInit1)\n");
       SysMesBoxDisplay::MessageCount = 0;
+      memset(SysMesBoxDisplay::Messages, 0,
+             (8 * 255) * sizeof(ProcessedTextGlyph));
       break;
     case 2: {  // SystemMesInit2
       PopExpression(sysMesInit2Arg);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction SystemMes(mode: SystemMesInit2, "
-                 "sysMesInit2Arg: %i)\n",
-                 sysMesInit2Arg);
       ScrWork[SW_SYSMESANIMCTF] = 2 * SysMesBoxDisplay::MessageCount + 33;
     } break;
     case 3: {  // SystemMesSetMes
       PopUint16(sysMesStrNum);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction SystemMes(mode: SystemMesSetMes, "
-                 "sysMesStrNum: %i)\n",
-                 sysMesStrNum);
+      uint8_t* oldIp = thread->Ip;
+      thread->Ip = ScriptGetStrAddress(ScriptBuffers[thread->ScriptBufferId],
+                                       sysMesStrNum);
+      int len = TextLayoutPlainLine(
+          thread, 255,
+          SysMesBoxDisplay::Messages[SysMesBoxDisplay::MessageCount],
+          Profile::Dialogue::DialogueFont,
+          Profile::SysMesBoxDisplay::TextFontSize,
+          Profile::Dialogue::ColorTable[10], 1.0f,
+          glm::vec2(Profile::SysMesBoxDisplay::TextX, 0.0f),
+          TextAlignment::Left);
       SysMesBoxDisplay::MessageCount++;
+      thread->Ip = oldIp;
     } break;
     case 4: {  // SystemMesSetSel
       PopUint16(sysSelStrNum);
