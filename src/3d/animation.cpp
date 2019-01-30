@@ -91,6 +91,10 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
     }
     uint16_t id = ReadLE<uint16_t>(stream);
     uint16_t targetType = ReadLE<uint16_t>(stream);
+    if (name[0] == 'M') targetType = TargetType_MeshGroup;
+    if (targetType == TargetType_Bone && TEMP_IsDaSH) {
+      id = model->BoneIds[std::string((char*)name)];
+    }
     if (targetType == TargetType_Bone) {
       if (TrackForBone[id] != -1) {
         ImpLogSlow(LL_Trace, LC_ModelLoad,
@@ -235,11 +239,19 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
   int currentMeshTrack = 0;
   for (uint32_t i = 0; i < trackCount; i++) {
     uint32_t seekPos = tracksOffset + trackSize * i;
-    // Skip name
-    if (TEMP_IsDaSH) seekPos += 32;
     stream->Seek(seekPos, RW_SEEK_SET);
+    uint8_t name[32];
+    if (TEMP_IsDaSH) {
+      stream->Read(name, 32);
+    } else {
+      memset(name, 0, sizeof(name));
+    }
     uint16_t id = ReadLE<uint16_t>(stream);
     uint16_t targetType = ReadLE<uint16_t>(stream);
+    if (name[0] == 'M') targetType = TargetType_MeshGroup;
+    if (targetType == TargetType_Bone && TEMP_IsDaSH) {
+      id = model->BoneIds[std::string((char*)name)];
+    }
     if (targetType == TargetType_Bone) {
       if (i != TrackForBone[id]) continue;
 
@@ -383,11 +395,19 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
   currentCoordOffset = 0;
   for (uint32_t i = 0; i < trackCount; i++) {
     uint32_t seekPos = tracksOffset + trackSize * i;
-    // Skip name
-    if (TEMP_IsDaSH) seekPos += 32;
     stream->Seek(seekPos, RW_SEEK_SET);
+    uint8_t name[32];
+    if (TEMP_IsDaSH) {
+      stream->Read(name, 32);
+    } else {
+      memset(name, 0, sizeof(name));
+    }
     uint16_t id = ReadLE<uint16_t>(stream);
     uint16_t targetType = ReadLE<uint16_t>(stream);
+    if (name[0] == 'M') targetType = TargetType_MeshGroup;
+    if (targetType == TargetType_Bone && TEMP_IsDaSH) {
+      id = model->BoneIds[std::string((char*)name)];
+    }
     if (targetType == TargetType_Bone) {
       if (i != TrackForBone[id]) continue;
 

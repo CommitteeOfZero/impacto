@@ -188,7 +188,7 @@ bool Renderable3D::LoadSync(uint32_t modelId) {
   ReloadDefaultBoneTransforms();
 
   Animator.Character = this;
-  SwitchAnimation(1, 0.0f);
+  SwitchAnimation(15, 0.0f);
 
   IsUsed = true;
 
@@ -386,7 +386,8 @@ void Renderable3D::Update(float dt) {
   if (Animator.CurrentAnimation) {
     if (!Animator.IsPlaying) {
       // oneshot ended
-      SwitchAnimation(1, AnimationTransitionTime);
+      // SwitchAnimation(1, AnimationTransitionTime);
+      SwitchAnimation(15, AnimationTransitionTime);
     } else {
       Animator.Update(dt);
     }

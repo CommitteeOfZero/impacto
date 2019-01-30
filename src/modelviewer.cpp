@@ -43,8 +43,8 @@ void Init() {
   Model::EnumerateModels();
   EnumerateBgm();
 
-  CameraPosition = glm::vec3(0.0f, 12.5f, 23.0f);
-  CameraTarget = glm::vec3(0.0f, 12.5f, 0.0f);
+  CameraPosition = glm::vec3(0.0f, 1.25f, 2.30f);
+  CameraTarget = glm::vec3(0.0f, 1.25f, 0.0f);
 
   CurrentModel = 0;
   CurrentAnim = 0;
@@ -114,8 +114,8 @@ void Update(float dt) {
       nk_layout_row_dynamic(Nk, 24, 1);
 
       if (nk_button_label(Nk, "Reset")) {
-        CameraPosition = glm::vec3(0.0f, 12.5f, 23.0f);
-        CameraTarget = glm::vec3(0.0f, 12.5f, 0.0f);
+        CameraPosition = glm::vec3(0.0f, 1.25f, 2.30f);
+        CameraTarget = glm::vec3(0.0f, 1.25f, 0.0f);
       }
 
       nk_property_float(Nk, "Camera X", -1500.0f, &CameraPosition.x, 1500.0f,
@@ -207,7 +207,7 @@ void Update(float dt) {
         if (TrackCamera) {
           Scene3D::Renderables[1].ModelTransform.SetRotationFromEuler(
               LookAtEulerZYX(Scene3D::Renderables[1].ModelTransform.Position +
-                                 glm::vec3(0.0f, 12.5f, 0.0f),
+                                 glm::vec3(0.0f, 1.25f, 0.0f),
                              CameraPosition));
         } else {
           Scene3D::Renderables[1].ModelTransform.Rotation = glm::quat();
