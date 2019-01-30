@@ -50,7 +50,7 @@ uint8_t* _swizzle(int width, int height, int blkWidth, int blkHeight, int bpp,
     pitch = round_up(width * bpp, 64);
     surfSize = round_up(pitch * round_up(height, block_height * 8), alignment);
   }
-  auto result = new uint8_t[surfSize];
+  auto result = (uint8_t*)malloc(surfSize);
 
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
@@ -239,13 +239,15 @@ uint32_t TextureNX::GetBytesPerTexel() {
 
 uint32_t TextureNX::GetBlockHeight() { return 1 << BlockHeightLog2; }
 
-void BCnDecompress(uint8_t* dataBuff, TextureNX element, int n) {
+uint8_t* BCnDecompress(uint8_t* dataBuff, TextureNX element, int n) {
   int s = element.Height * element.Width * 4;
-  uint8_t* dst = new uint8_t[s];
+  uint8_t* dst = (uint8_t*)malloc(s);
 
   BcnDecode(dst, s, dataBuff,
             element.GetBytesPerTexel() * element.Height * element.Width,
             element.Width, element.Height, n, BcnDecoderFormatRGBA, 0);
+
+  return dst;
 }
 
 bool TextureLoadBNTX(InputStream* stream, Texture* outTexture) {
@@ -339,7 +341,7 @@ bool TextureLoadBNTX(InputStream* stream, Texture* outTexture) {
 
     stream->Seek(BaseOffset, 0);
 
-    uint8_t* dataBuff = new uint8_t[DataLength];
+    uint8_t* dataBuff = (uint8_t*)malloc(DataLength);
     stream->Read(dataBuff, DataLength);
 
     TextureNX element = TextureNX();
@@ -368,27 +370,31 @@ bool TextureLoadBNTX(InputStream* stream, Texture* outTexture) {
         auto unswizzled = _swizzle(element.Width, element.Height, blk_width,
                                    blk_height, bpp, 1, element.Alignment,
                                    element.BlockHeightLog2, dataBuff, 0);
-        delete dataBuff;
+        free(dataBuff);
         dataBuff = unswizzled;
       }
 
       switch (element.FormatType) {
         case BC1: {
-          BCnDecompress(dataBuff, element, 1);
+          free(dataBuff);
+          dataBuff = BCnDecompress(dataBuff, element, 1);
 
         } break;
         case BC2: {
-          BCnDecompress(dataBuff, element, 2);
+          free(dataBuff);
+          dataBuff = BCnDecompress(dataBuff, element, 2);
 
         } break;
 
         case BC3: {
-          BCnDecompress(dataBuff, element, 3);
+          free(dataBuff);
+          dataBuff = BCnDecompress(dataBuff, element, 3);
 
         } break;
 
         case BC5: {
-          BCnDecompress(dataBuff, element, 5);
+          free(dataBuff);
+          dataBuff = BCnDecompress(dataBuff, element, 5);
         } break;
 
         case TextureFormatType::R8G8B8A8:
@@ -402,6 +408,7 @@ bool TextureLoadBNTX(InputStream* stream, Texture* outTexture) {
       outTexture->Height = element.Height;
       outTexture->Format = TexFmt_RGBA;
       result = true;
+      break;
     }
   }
 
