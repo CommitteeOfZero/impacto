@@ -239,13 +239,15 @@ uint32_t TextureNX::GetBytesPerTexel() {
 
 uint32_t TextureNX::GetBlockHeight() { return 1 << BlockHeightLog2; }
 
-void BCnDecompress(uint8_t* dataBuff, TextureNX element, int n) {
+uint8_t* BCnDecompress(uint8_t* dataBuff, TextureNX element, int n) {
   int s = element.Height * element.Width * 4;
-  uint8_t* dst = new uint8_t[s];
+  uint8_t* dst = (uint8_t*)malloc(s);
 
   BcnDecode(dst, s, dataBuff,
             element.GetBytesPerTexel() * element.Height * element.Width,
             element.Width, element.Height, n, BcnDecoderFormatRGBA, 0);
+
+  return dst;
 }
 
 bool TextureLoadBNTX(InputStream* stream, Texture* outTexture) {
@@ -374,21 +376,25 @@ bool TextureLoadBNTX(InputStream* stream, Texture* outTexture) {
 
       switch (element.FormatType) {
         case BC1: {
-          BCnDecompress(dataBuff, element, 1);
+          free(dataBuff);
+          dataBuff = BCnDecompress(dataBuff, element, 1);
 
         } break;
         case BC2: {
-          BCnDecompress(dataBuff, element, 2);
+          free(dataBuff);
+          dataBuff = BCnDecompress(dataBuff, element, 2);
 
         } break;
 
         case BC3: {
-          BCnDecompress(dataBuff, element, 3);
+          free(dataBuff);
+          dataBuff = BCnDecompress(dataBuff, element, 3);
 
         } break;
 
         case BC5: {
-          BCnDecompress(dataBuff, element, 5);
+          free(dataBuff);
+          dataBuff = BCnDecompress(dataBuff, element, 5);
         } break;
 
         case TextureFormatType::R8G8B8A8:
@@ -402,6 +408,7 @@ bool TextureLoadBNTX(InputStream* stream, Texture* outTexture) {
       outTexture->Height = element.Height;
       outTexture->Format = TexFmt_RGBA;
       result = true;
+      break;
     }
   }
 
