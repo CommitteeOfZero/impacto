@@ -967,5 +967,4 @@ width); } else { return !stbi_write_hdr_to_func(wcb, 0, width, height, 4, (float
 *)dst);
     }
 }*/
-
 #endif
