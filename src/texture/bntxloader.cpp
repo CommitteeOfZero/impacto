@@ -50,7 +50,7 @@ uint8_t* _swizzle(int width, int height, int blkWidth, int blkHeight, int bpp,
     pitch = round_up(width * bpp, 64);
     surfSize = round_up(pitch * round_up(height, block_height * 8), alignment);
   }
-  auto result = new uint8_t[surfSize];
+  auto result = (uint8_t*)malloc(surfSize);
 
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
@@ -339,7 +339,7 @@ bool TextureLoadBNTX(InputStream* stream, Texture* outTexture) {
 
     stream->Seek(BaseOffset, 0);
 
-    uint8_t* dataBuff = new uint8_t[DataLength];
+    uint8_t* dataBuff = (uint8_t*)malloc(DataLength);
     stream->Read(dataBuff, DataLength);
 
     TextureNX element = TextureNX();
@@ -368,7 +368,7 @@ bool TextureLoadBNTX(InputStream* stream, Texture* outTexture) {
         auto unswizzled = _swizzle(element.Width, element.Height, blk_width,
                                    blk_height, bpp, 1, element.Alignment,
                                    element.BlockHeightLog2, dataBuff, 0);
-        delete dataBuff;
+        free(dataBuff);
         dataBuff = unswizzled;
       }
 
