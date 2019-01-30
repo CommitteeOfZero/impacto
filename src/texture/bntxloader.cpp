@@ -78,8 +78,7 @@ uint8_t* _swizzle(int width, int height, int blkWidth, int blkHeight, int bpp,
   return result;
 }
 
-static uint64_t const magic = 0x58544E42;
-
+static uint64_t const magic = 0x424E5458;
 
 int BPPbyFormat(TextureFormatType format) {
   switch (format) {
