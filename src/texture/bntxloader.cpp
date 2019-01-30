@@ -149,8 +149,7 @@ int BPPbyFormat(TextureFormatType format) {
   }
 }
 
-TextureNX::TextureNX() {
-}
+TextureNX::TextureNX() {}
 
 uint32_t TextureNX::Pow2RoundUp(uint32_t Value) {
   Value--;
@@ -202,8 +201,6 @@ uint32_t TextureNX::GetPow2HeightInTexels() {
   return Pow2Height;
 }
 
-  
-
 uint32_t TextureNX::GetBytesPerTexel() {
   switch (FormatType) {
     case R5G6B5:
@@ -243,8 +240,7 @@ uint32_t TextureNX::GetBytesPerTexel() {
 
 uint32_t TextureNX::GetBlockHeight() { return 1 << BlockHeightLog2; }
 
-
-void BCnDecompress(uint8_t* dataBuff, TextureNX element,int n) {
+void BCnDecompress(uint8_t* dataBuff, TextureNX element, int n) {
   int s = element.Height * element.Width * 4;
   uint8_t* dst = new uint8_t[s];
 
@@ -278,8 +274,6 @@ bool TextureLoadBNTX(InputStream* stream, Texture* outTexture) {
   uint64_t DataBlkAddress = ReadLE<uint64_t>(stream);
   uint64_t DictAddress = ReadLE<uint64_t>(stream);
   uint32_t StrDictLength = ReadLE<uint32_t>(stream);
-
-
 
   for (int Index = 0; Index < TexturesCount; Index++) {
     stream->Seek(InfoPtrsAddress + Index * 8, 0);
@@ -381,7 +375,7 @@ bool TextureLoadBNTX(InputStream* stream, Texture* outTexture) {
 
       switch (element.FormatType) {
         case BC1: {
-          BCnDecompress(dataBuff, element,1);
+          BCnDecompress(dataBuff, element, 1);
 
         } break;
         case BC2: {
@@ -395,12 +389,11 @@ bool TextureLoadBNTX(InputStream* stream, Texture* outTexture) {
         } break;
 
         case BC5: {
-          BCnDecompress(dataBuff, element,5);
+          BCnDecompress(dataBuff, element, 5);
         } break;
 
         case TextureFormatType::R8G8B8A8:
 
-        
           break;
       }
 
