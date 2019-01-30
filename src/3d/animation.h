@@ -36,6 +36,9 @@ enum MeshKeyType {
 };
 
 struct BoneTrack {
+  // DaSH addition
+  uint8_t Name[32];
+
   uint16_t Bone;
 
   int KeyOffsets[BKT_Count];
@@ -45,6 +48,9 @@ struct BoneTrack {
 // Note: Unlike R;NE animation files, we keep a track per mesh, not a track per
 // mesh group
 struct MeshTrack {
+  // DaSH addition
+  uint8_t Name[32];
+
   uint16_t Mesh;
 
   int KeyOffsets[MKT_Count];
