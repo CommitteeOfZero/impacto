@@ -10,11 +10,15 @@
 
 namespace Impacto {
 
-enum ModelType : uint32_t { ModelType_Background = 1, ModelType_Character = 2 };
+enum ModelType : uint32_t {
+  ModelType_Background = 1,
+  ModelType_Character = 2,
+  ModelType_Character_DaSH = (2 << 16)
+};
 
 enum MeshFlag : uint32_t { MeshFlag_DoubleSided = (1 << 0) };
 
-int const ModelMaxChildrenPerBone = 134;
+int const ModelMaxChildrenPerBone = 133;
 int const ModelMaxMorphTargetsPerModel = 256;
 int const ModelMaxMorphTargetsPerMesh = 32;
 int const ModelUnknownsAfterMorphTargets = 12;
@@ -181,6 +185,8 @@ class Model {
   int16_t RootBones[ModelMaxRootBones];
 
   ska::flat_hash_map<uint16_t, ModelAnimation*> Animations;
+
+  ska::flat_hash_map<std::string, uint16_t> BoneIds;
 
   uint32_t* AnimationIds = 0;
   char** AnimationNames = 0;

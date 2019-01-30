@@ -22,7 +22,7 @@ const uint32_t ModelFileHeaderSize = 0x54;
 const uint32_t ModelFileMeshInfoSize = 0x18C;
 uint32_t const ModelFileMeshInfoSize_DaSH = 0x1A8;
 const uint32_t ModelFileBoneSize = 0x1D0;
-uint32_t const ModelFileBoneSize_DaSH = 0x1F0;
+uint32_t const ModelFileBoneSize_DaSH = 0x1FC;
 const uint32_t MorphTargetInfoSize = 16;
 const uint32_t BoneBaseTransformOffset = 0x11C;
 uint32_t const BoneBaseTransformOffset_DaSH = 0x13C;
@@ -49,7 +49,7 @@ void Model::EnumerateModels() {
   // TODO: We don't need this in the game - take it out when we remove the model
   // viewer, it's a waste of time then
 
-  g_ModelCount = 0;
+  /*g_ModelCount = 0;
   g_BackgroundModelCount = 0;
 
   std::map<uint32_t, std::string> listing;
@@ -84,7 +84,19 @@ void Model::EnumerateModels() {
           strdup(file.second.c_str());
       currentBackgroundModel++;
     }
-  }
+  }*/
+
+  g_ModelCount = 1;
+  g_BackgroundModelCount = 1;
+  g_ModelIds = (uint32_t*)malloc(sizeof(uint32_t));
+  g_BackgroundModelIds = (uint32_t*)malloc(sizeof(uint32_t));
+  g_ModelNames = (char**)malloc(sizeof(char*));
+  g_BackgroundModelNames = (char**)malloc(sizeof(char*));
+
+  g_ModelIds[0] = 466;
+  g_BackgroundModelIds[0] = 0;
+  g_ModelNames[0] = strdup("c001_010.lkm");
+  g_BackgroundModelNames[0] = strdup("b001_000.lkm");
 }
 
 Model::~Model() {
@@ -154,6 +166,23 @@ static void UnmountModel(uint32_t modelId) {
   VfsUnmount("model_" + arcMeta.FileName, arcMeta.FileName);
 }
 
+static IoError SlurpModel(uint32_t modelId, void** outMemory,
+                          int64_t* outSize) {
+  if (TEMP_IsDaSH) {
+    return VfsSlurp("model", modelId, outMemory, outSize);
+  } else {
+    FileMeta arcMeta;
+    IoError err = VfsGetMeta("model", modelId, &arcMeta);
+    if (err != IoError_OK) {
+      ImpLog(LL_Error, LC_ModelLoad, "Could not open model archive for %d\n",
+             modelId);
+      return err;
+    }
+    std::string modelMountpoint = "model_" + arcMeta.FileName;
+    return VfsSlurp(modelMountpoint, 0, outMemory, outSize);
+  }
+}
+
 Model* Model::Load(uint32_t modelId) {
   uint32_t meshInfoSize, meshInfoCountsOffset, boneSize,
       boneBaseTransformOffset;
@@ -179,7 +208,7 @@ Model* Model::Load(uint32_t modelId) {
 
   void* file;
   int64_t fileSize;
-  IoError err = VfsSlurp(modelMountpoint, 0, &file, &fileSize);
+  err = SlurpModel(modelId, &file, &fileSize);
   if (err != IoError_OK) {
     ImpLog(LL_Error, LC_ModelLoad, "Could not read model file for %d\n",
            modelId);
@@ -194,6 +223,7 @@ Model* Model::Load(uint32_t modelId) {
   Model* result = new Model;
   result->Id = modelId;
   uint32_t type = ReadLE<uint32_t>(stream);
+  if (type == ModelType_Character_DaSH) type = ModelType_Character;
   assert(type == ModelType_Background || type == ModelType_Character);
   result->Type = (ModelType)type;
 
@@ -213,6 +243,12 @@ Model* Model::Load(uint32_t modelId) {
   assert(
       result->MorphTargetCount <= ModelMaxMorphTargetsPerModel &&
       (result->Type == ModelType_Character || result->MorphTargetCount == 0));
+
+  ImpLog(LL_Debug, LC_ModelLoad,
+         "Model %d MeshCount=%d BoneCount=%d TextureCount=%d "
+         "MorphTargetCount=%d\n",
+         modelId, result->MeshCount, result->BoneCount, result->TextureCount,
+         result->MorphTargetCount);
 
   uint32_t MeshInfosOffset = ReadLE<uint32_t>(stream);
   uint32_t BonesOffset = ReadLE<uint32_t>(stream);
@@ -376,6 +412,7 @@ Model* Model::Load(uint32_t modelId) {
 
   // Read skeleton
   for (uint32_t i = 0; i < result->BoneCount; i++) {
+    uint32_t seekPos = BonesOffset + boneSize * i;
     stream->Seek(BonesOffset + boneSize * i, RW_SEEK_SET);
     StaticBone* bone = &result->Bones[i];
 
@@ -386,6 +423,9 @@ Model* Model::Load(uint32_t modelId) {
     }
 
     bone->Id = ReadLE<int16_t>(stream);
+
+    result->BoneIds[std::string((char*)bone->Name)] = bone->Id;
+
     stream->Seek(2, RW_SEEK_CUR);
     bone->Parent = ReadLE<int16_t>(stream);
     if (bone->Parent < 0) {
@@ -396,6 +436,11 @@ Model* Model::Load(uint32_t modelId) {
     stream->Seek(8, RW_SEEK_CUR);
     bone->ChildrenCount = ReadLE<int16_t>(stream);
     assert(bone->ChildrenCount <= ModelMaxChildrenPerBone);
+
+    if (TEMP_IsDaSH) {
+      stream->Seek(2, RW_SEEK_CUR);
+    }
+
     ReadArrayLE(bone->Children, stream, bone->ChildrenCount);
     stream->Seek(BonesOffset + boneSize * i + boneBaseTransformOffset,
                  RW_SEEK_SET);
@@ -475,7 +520,7 @@ Model* Model::Load(uint32_t modelId) {
   // TODO should we still remove this?
 
   if (result->Type == ModelType_Character) {
-    result->AnimationCount = 0;
+    /*result->AnimationCount = 0;
 
     std::map<uint32_t, std::string> listing;
     VfsListFiles(modelMountpoint, listing);
@@ -506,7 +551,20 @@ Model* Model::Load(uint32_t modelId) {
         result->AnimationNames[currentAnim] = strdup(file.second.c_str());
         currentAnim++;
       }
-    }
+    }*/
+
+    result->AnimationCount = 1;
+    result->AnimationIds = (uint32_t*)malloc(sizeof(uint32_t));
+    result->AnimationNames = (char**)malloc(sizeof(char*));
+    result->AnimationIds[0] = 15;
+    result->AnimationNames[0] = strdup("c001_000@1_stand.lka");
+
+    int64_t animSize;
+    void* animData;
+    VfsSlurp("motion", 15, &animData, &animSize);
+    InputStream* animStream = new MemoryStream(animData, animSize, true);
+    result->Animations[15] = ModelAnimation::Load(animStream, result, 15);
+    delete animStream;
   }
 
   UnmountModel(modelId);
