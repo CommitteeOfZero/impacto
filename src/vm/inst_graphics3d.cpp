@@ -331,22 +331,23 @@ VmInstruction(InstUnk0215) {
              arg12, arg13, arg14, arg15, arg16, arg17);
 }
 
-int movementVarDestY = 0;
-float movementStartY = 0.0f;
-float movementEndY = 0.0f;
-float movementYDelta = 0.0f;
+// Temporary test stuff, needs to be done properly
+int movementVarDestY[2];
+float movementStartY[2];
+float movementEndY[2];
+float movementYDelta[2];
 
-int movementVarDestX = 0;
-float movementStartX = 0.0f;
-float movementEndX = 0.0f;
-float movementXDelta = 0.0f;
+int movementVarDestX[2];
+float movementStartX[2];
+float movementEndX[2];
+float movementXDelta[2];
 
 VmInstruction(InstMoveCamera) {
   StartInstruction;
   PopUint8(type);
   switch (type) {
     case 0: {
-      PopExpression(arg1);
+      PopExpression(cameraId);
       PopExpression(movStartY);
       PopExpression(movStartX);
       PopExpression(movEndY);
@@ -367,32 +368,38 @@ VmInstruction(InstMoveCamera) {
         } while (i <= 29);
       }
 
-      movementVarDestY = movDestVarY;
-      movementStartY = ScrRealToFloat(movStartY);
-      movementEndY = ScrRealToFloat(movEndY);
-      movementYDelta = (movementEndY - movementStartY) / totalIterations;
+      movementVarDestY[cameraId] = movDestVarY;
+      movementStartY[cameraId] = ScrRealToFloat(movStartY);
+      movementEndY[cameraId] = ScrRealToFloat(movEndY);
+      movementYDelta[cameraId] =
+          (movementEndY[cameraId] - movementStartY[cameraId]) / totalIterations;
 
-      movementVarDestX = movDestVarX;
-      movementStartX = ScrRealToFloat(movStartX);
-      movementEndX = ScrRealToFloat(movEndX);
-      movementXDelta = (movementEndX - movementStartX) / totalIterations;
+      movementVarDestX[cameraId] = movDestVarX;
+      movementStartX[cameraId] = ScrRealToFloat(movStartX);
+      movementEndX[cameraId] = ScrRealToFloat(movEndX);
+      movementXDelta[cameraId] =
+          (movementEndX[cameraId] - movementStartX[cameraId]) / totalIterations;
 
     } break;
     case 1: {
-      PopExpression(arg1);
+      PopExpression(cameraId);
       PopExpression(iterations);
       float moveYCur = 0.0f, moveXCur = 0.0f;
       if (iterations <= 29) {
-        moveYCur = movementStartY + (movementYDelta * iterations);
-        moveXCur = movementStartX + (movementXDelta * iterations);
+        moveYCur =
+            movementStartY[cameraId] + (movementYDelta[cameraId] * iterations);
+        moveXCur =
+            movementStartX[cameraId] + (movementXDelta[cameraId] * iterations);
       } else {
-        moveYCur = movementStartY + (movementYDelta * 30.0f);
-        moveXCur = movementStartX + (movementXDelta * 30.0f);
+        moveYCur =
+            movementStartY[cameraId] + (movementYDelta[cameraId] * 30.0f);
+        moveXCur =
+            movementStartX[cameraId] + (movementXDelta[cameraId] * 30.0f);
       }
-      movementStartY = moveYCur;
-      movementStartX = moveXCur;
-      ScrWork[movementVarDestY] = FloatToScrReal(moveYCur);
-      ScrWork[movementVarDestX] = FloatToScrReal(moveXCur);
+      movementStartY[cameraId] = moveYCur;
+      movementStartX[cameraId] = moveXCur;
+      ScrWork[movementVarDestY[cameraId]] = FloatToScrReal(moveYCur);
+      ScrWork[movementVarDestX[cameraId]] = FloatToScrReal(moveXCur);
       // meh (hack... I *love* ScrWork crap)
       thread->Variables[7] = FloatToScrReal(moveYCur);
       thread->Variables[8] = FloatToScrReal(moveXCur);
