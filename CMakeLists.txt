@@ -84,6 +84,8 @@ set(Impacto_Src
 
     src/texture/texture.cpp
     src/texture/s3tc.cpp
+    src/texture/bcdecode.cpp
+    src/texture/bntxloader.cpp
     src/texture/gxtloader.cpp
     src/texture/plainloader.cpp
     src/texture/stbiloader.cpp
@@ -198,7 +200,9 @@ set(Impacto_Header
 
     src/texture/texture.h
     src/texture/s3tc.h
+    src/texture/bcdecode.h
     src/texture/gxtloader.h
+    src/texture/bntxloader.h
     src/texture/plainloader.h
 
     src/vm/vm.h
