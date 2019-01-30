@@ -20,9 +20,14 @@ namespace Impacto {
 const uint32_t ModelFileCountsOffset = 0x24;
 const uint32_t ModelFileHeaderSize = 0x54;
 const uint32_t ModelFileMeshInfoSize = 0x18C;
+uint32_t const ModelFileMeshInfoSize_DaSH = 0x1A8;
 const uint32_t ModelFileBoneSize = 0x1D0;
+uint32_t const ModelFileBoneSize_DaSH = 0x1F0;
 const uint32_t MorphTargetInfoSize = 16;
 const uint32_t BoneBaseTransformOffset = 0x11C;
+uint32_t const BoneBaseTransformOffset_DaSH = 0x13C;
+uint32_t const MeshInfoCountsOffset = 0xE0;
+uint32_t const MeshInfoCountsOffset_DaSH = 0xF8;
 
 uint32_t* g_ModelIds;
 char** g_ModelNames;
@@ -100,15 +105,19 @@ Model::~Model() {
   }
 }
 
-Model* Model::Load(uint32_t modelId) {
-  ImpLogSlow(LL_Debug, LC_ModelLoad, "Loading model %d\n", modelId);
+static IoError MountModel(uint32_t modelId, std::string& outMountpoint) {
+  // DaSH doesn't have model archives
+  if (TEMP_IsDaSH) {
+    outMountpoint = "model";
+    return IoError_OK;
+  }
 
   FileMeta arcMeta;
   IoError err = VfsGetMeta("model", modelId, &arcMeta);
   if (err != IoError_OK) {
     ImpLog(LL_Error, LC_ModelLoad, "Could not open model archive for %d\n",
            modelId);
-    return NULL;
+    return err;
   }
   void* arcMem;
   int64_t arcSz;
@@ -116,23 +125,65 @@ Model* Model::Load(uint32_t modelId) {
   if (err != IoError_OK) {
     ImpLog(LL_Error, LC_ModelLoad, "Could not open model archive for %d\n",
            modelId);
-    return NULL;
+    return err;
   }
   std::string modelMountpoint = "model_" + arcMeta.FileName;
   err = VfsMountMemory(modelMountpoint, arcMeta.FileName, arcMem, arcSz, true);
   if (err != IoError_OK) {
     ImpLog(LL_Error, LC_ModelLoad, "Could not open model archive for %d\n",
            modelId);
+    free(arcMem);
+    return err;
+  }
+
+  outMountpoint = modelMountpoint;
+  return IoError_OK;
+}
+
+static void UnmountModel(uint32_t modelId) {
+  if (TEMP_IsDaSH) return;
+  FileMeta arcMeta;
+  IoError err = VfsGetMeta("model", modelId, &arcMeta);
+  if (err != IoError_OK) {
+    ImpLog(
+        LL_Error, LC_ModelLoad,
+        "Could not unmount model archive for %d (this should never happen)\n",
+        modelId);
+    return;
+  }
+  VfsUnmount("model_" + arcMeta.FileName, arcMeta.FileName);
+}
+
+Model* Model::Load(uint32_t modelId) {
+  uint32_t meshInfoSize, meshInfoCountsOffset, boneSize,
+      boneBaseTransformOffset;
+  if (TEMP_IsDaSH) {
+    meshInfoSize = ModelFileMeshInfoSize_DaSH;
+    meshInfoCountsOffset = MeshInfoCountsOffset_DaSH;
+    boneSize = ModelFileBoneSize_DaSH;
+    boneBaseTransformOffset = BoneBaseTransformOffset_DaSH;
+  } else {
+    meshInfoSize = ModelFileMeshInfoSize;
+    meshInfoCountsOffset = MeshInfoCountsOffset;
+    boneSize = ModelFileBoneSize;
+    boneBaseTransformOffset = BoneBaseTransformOffset;
+  }
+
+  ImpLogSlow(LL_Debug, LC_ModelLoad, "Loading model %d\n", modelId);
+
+  std::string modelMountpoint;
+  IoError err = MountModel(modelId, modelMountpoint);
+  if (err != IoError_OK) {
     return NULL;
   }
 
   void* file;
   int64_t fileSize;
-  err = VfsSlurp(modelMountpoint, 0, &file, &fileSize);
+  IoError err = VfsSlurp(modelMountpoint, 0, &file, &fileSize);
   if (err != IoError_OK) {
     ImpLog(LL_Error, LC_ModelLoad, "Could not read model file for %d\n",
            modelId);
-    VfsUnmount(modelMountpoint, arcMeta.FileName);
+    UnmountModel(modelId);
     return NULL;
   }
 
@@ -174,15 +225,20 @@ Model* Model::Load(uint32_t modelId) {
 
   // Accumulate per-mesh vertex buffer / index counts
   for (uint32_t i = 0; i < result->MeshCount; i++) {
-    int64_t seekPos = MeshInfosOffset + ModelFileMeshInfoSize * i;
-    seekPos += 0xE0;
+    int64_t seekPos = MeshInfosOffset + meshInfoSize * i;
+    seekPos += meshInfoCountsOffset;
     stream->Seek(seekPos, RW_SEEK_SET);
     result->VertexCount += ReadLE<int32_t>(stream);
     result->IndexCount += ReadLE<int32_t>(stream);
   }
 
   if (result->Type == ModelType_Character) {
-    result->VertexBuffers = calloc(result->VertexCount, sizeof(VertexBuffer));
+    if (TEMP_IsDaSH) {
+      result->VertexBuffers =
+          calloc(result->VertexCount, sizeof(VertexBufferDaSH));
+    } else {
+      result->VertexBuffers = calloc(result->VertexCount, sizeof(VertexBuffer));
+    }
   } else if (result->Type == ModelType_Background) {
     result->VertexBuffers = calloc(result->VertexCount, sizeof(BgVertexBuffer));
   }
@@ -190,8 +246,14 @@ Model* Model::Load(uint32_t modelId) {
 
   // Read mesh attributes
   for (uint32_t i = 0; i < result->MeshCount; i++) {
-    stream->Seek(MeshInfosOffset + ModelFileMeshInfoSize * i, RW_SEEK_SET);
+    stream->Seek(MeshInfosOffset + meshInfoSize * i, RW_SEEK_SET);
     Mesh* mesh = &result->Meshes[i];
+
+    if (TEMP_IsDaSH) {
+      stream->Read(mesh->Name, 32);
+    } else {
+      memset(mesh->Name, 0, sizeof(mesh->Name));
+    }
 
     mesh->Id = i;
 
@@ -202,7 +264,8 @@ Model* Model::Load(uint32_t modelId) {
     assert(mesh->MorphTargetCount <= ModelMaxMorphTargetsPerMesh);
     stream->Read(mesh->MorphTargetIds, ModelMaxMorphTargetsPerMesh);
 
-    int64_t seekPos = ModelUnknownsAfterMorphTargets;
+    int64_t seekPos = TEMP_IsDaSH ? ModelUnknownsAfterMorphTargets_DaSH
+                                  : ModelUnknownsAfterMorphTargets;
     // Skip translation, rotation and scale (these sometimes don't match the
     // matrix below, which is authoritative)
     seekPos += 3 * sizeof(glm::vec3);
@@ -231,12 +294,12 @@ Model* Model::Load(uint32_t modelId) {
   int32_t CurrentVertexOffset = 0;
   int32_t CurrentIndexOffset = 0;
   for (uint32_t i = 0; i < result->MeshCount; i++) {
-    int64_t seekPos = MeshInfosOffset + ModelFileMeshInfoSize * i;
+    int64_t seekPos = MeshInfosOffset + meshInfoSize * i;
     Mesh* mesh = &result->Meshes[i];
     mesh->VertexOffset = CurrentVertexOffset;
     mesh->IndexOffset = CurrentIndexOffset;
 
-    seekPos += 0xF0;
+    seekPos += meshInfoCountsOffset + 4 * sizeof(int);
     stream->Seek(seekPos, RW_SEEK_SET);
     int32_t RawVertexOffset = ModelFileHeaderSize + ReadLE<int32_t>(stream);
     int32_t RawIndexOffset = ModelFileHeaderSize + ReadLE<int32_t>(stream);
@@ -248,24 +311,51 @@ Model* Model::Load(uint32_t modelId) {
     // Read vertex buffers
     stream->Seek(RawVertexOffset, RW_SEEK_SET);
     if (result->Type == ModelType_Character) {
-      for (uint32_t j = 0; j < mesh->VertexCount; j++) {
-        VertexBuffer* vertex =
-            &((VertexBuffer*)result->VertexBuffers)[CurrentVertexOffset];
-        CurrentVertexOffset++;
-        // Position, then Normal, then UV
-        ReadArrayLE<3 * 2 + 2 * 1>((float*)&vertex->Position, stream);
+      if (TEMP_IsDaSH) {
+        for (uint32_t j = 0; j < mesh->VertexCount; j++) {
+          VertexBufferDaSH* vertex =
+              &((VertexBufferDaSH*)result->VertexBuffers)[CurrentVertexOffset];
+          CurrentVertexOffset++;
+          // Position, then Normal
+          ReadArrayLE<3 * 2>((float*)&vertex->Position, stream);
+          // vec3 unk1, vec4 unk2
+          stream->Seek(7 * sizeof(float), RW_SEEK_CUR);
+          // UV
+          ReadVec2LE(&vertex->UV, stream);
 
-        if (mesh->UsedBones > 0) {
-          stream->Read(vertex->BoneIndices, 4);
+          if (mesh->UsedBones > 0) {
+            stream->Read(vertex->BoneIndices, 4);
 
-          ReadVec4LE(&vertex->BoneWeights, stream);
-        } else {
-          // TODO skinned/unskinned mesh distinction?
-          *(int*)vertex->BoneIndices = 0;
+            ReadVec4LE(&vertex->BoneWeights, stream);
+          } else {
+            // TODO skinned/unskinned mesh distinction?
+            *(int*)vertex->BoneIndices = 0;
 
-          vertex->BoneWeights = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
+            vertex->BoneWeights = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
 
-          stream->Seek(4 * sizeof(uint8_t) + 4 * sizeof(float), RW_SEEK_CUR);
+            stream->Seek(4 * sizeof(uint8_t) + 4 * sizeof(float), RW_SEEK_CUR);
+          }
+        }
+      } else {
+        for (uint32_t j = 0; j < mesh->VertexCount; j++) {
+          VertexBuffer* vertex =
+              &((VertexBuffer*)result->VertexBuffers)[CurrentVertexOffset];
+          CurrentVertexOffset++;
+          // Position, then Normal, then UV
+          ReadArrayLE<3 * 2 + 2 * 1>((float*)&vertex->Position, stream);
+
+          if (mesh->UsedBones > 0) {
+            stream->Read(vertex->BoneIndices, 4);
+
+            ReadVec4LE(&vertex->BoneWeights, stream);
+          } else {
+            // TODO skinned/unskinned mesh distinction?
+            *(int*)vertex->BoneIndices = 0;
+
+            vertex->BoneWeights = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
+
+            stream->Seek(4 * sizeof(uint8_t) + 4 * sizeof(float), RW_SEEK_CUR);
+          }
         }
       }
     } else if (result->Type == ModelType_Background) {
@@ -286,8 +376,14 @@ Model* Model::Load(uint32_t modelId) {
 
   // Read skeleton
   for (uint32_t i = 0; i < result->BoneCount; i++) {
-    stream->Seek(BonesOffset + ModelFileBoneSize * i, RW_SEEK_SET);
+    stream->Seek(BonesOffset + boneSize * i, RW_SEEK_SET);
     StaticBone* bone = &result->Bones[i];
+
+    if (TEMP_IsDaSH) {
+      stream->Read(bone->Name, 32);
+    } else {
+      memset(bone->Name, 0, sizeof(bone->Name));
+    }
 
     bone->Id = ReadLE<int16_t>(stream);
     stream->Seek(2, RW_SEEK_CUR);
@@ -301,7 +397,7 @@ Model* Model::Load(uint32_t modelId) {
     bone->ChildrenCount = ReadLE<int16_t>(stream);
     assert(bone->ChildrenCount <= ModelMaxChildrenPerBone);
     ReadArrayLE(bone->Children, stream, bone->ChildrenCount);
-    stream->Seek(BonesOffset + ModelFileBoneSize * i + BoneBaseTransformOffset,
+    stream->Seek(BonesOffset + boneSize * i + boneBaseTransformOffset,
                  RW_SEEK_SET);
 
     glm::vec3 position, euler, scale;
@@ -413,11 +509,12 @@ Model* Model::Load(uint32_t modelId) {
     }
   }
 
-  VfsUnmount(modelMountpoint, arcMeta.FileName);
+  UnmountModel(modelId);
 
   return result;
 }
 
+// WARNING: Breaks with DaSH
 Model* Model::MakePlane() {
   Model* result = new Model;
   result->Id = -1;
@@ -460,6 +557,7 @@ Model* Model::MakePlane() {
   result->Indices[4] = 2;
   result->Indices[5] = 3;
 
+  memset(result->Bones[0].Name, 0, sizeof(result->Bones[0].Name));
   result->Bones[0].Id = 0;
   result->Bones[0].Parent = -1;
   result->Bones[0].ChildrenCount = 0;
@@ -470,6 +568,7 @@ Model* Model::MakePlane() {
 
   result->Textures[0].LoadPoliticalCompass();
 
+  memset(result->Meshes[0].Name, 0, sizeof(result->Meshes[0].Name));
   result->Meshes[0].MorphTargetCount = 0;
   result->Meshes[0].BoneMap[0] = 0;
   result->Meshes[0].VertexCount = 4;

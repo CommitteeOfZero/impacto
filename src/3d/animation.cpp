@@ -13,8 +13,11 @@ namespace Impacto {
 int const HeaderSize = 0x30;
 int const HeaderDurationOffset = 0x24;
 int const TrackSize = 0xE8;
+int const TrackSize_DaSH = 0x108;
 int const TrackCountsOffset = 6;
+int const TrackCountsOffset_DaSH = 0x26;
 int const TrackOffsetsOffset = 0x68;
+int const TrackOffsetsOffset_DaSH = 0x88;
 
 enum TargetType { TargetType_Bone = 0, TargetType_MeshGroup = 0x8000 };
 enum SubTrackType {
@@ -34,6 +37,17 @@ using namespace Impacto::Io;
 
 ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
                                      uint16_t animId) {
+  int trackSize, trackCountsOffset, trackOffsetsOffset;
+  if (TEMP_IsDaSH) {
+    trackSize = TrackSize_DaSH;
+    trackCountsOffset = TrackCountsOffset_DaSH;
+    trackOffsetsOffset = TrackOffsetsOffset_DaSH;
+  } else {
+    trackSize = TrackSize;
+    trackCountsOffset = TrackCountsOffset;
+    trackOffsetsOffset = TrackOffsetsOffset;
+  }
+
   ImpLogSlow(LL_Trace, LC_ModelLoad, "Loading animation %hu for model %d\n",
              animId, model->Id);
 
@@ -67,7 +81,14 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
   for (uint32_t i = 0; i < trackCount; i++) {
     ImpLogSlow(LL_Trace, LC_ModelLoad, "Pass 1 for track %d\n", i);
 
-    stream->Seek(tracksOffset + TrackSize * i, RW_SEEK_SET);
+    uint8_t name[32];
+
+    stream->Seek(tracksOffset + trackSize * i, RW_SEEK_SET);
+    if (TEMP_IsDaSH) {
+      stream->Read(name, 32);
+    } else {
+      memset(name, 0, sizeof(name));
+    }
     uint16_t id = ReadLE<uint16_t>(stream);
     uint16_t targetType = ReadLE<uint16_t>(stream);
     if (targetType == TargetType_Bone) {
@@ -79,11 +100,14 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
       ImpLogSlow(LL_Trace, LC_ModelLoad, "Track %d is bone %d\n", i, id);
 
       BoneTrack* track = &result->BoneTracks[result->BoneTrackCount];
+      memcpy(track->Name, name, sizeof(name));
 
       track->Bone = id;
       TrackForBone[id] = i;
 
-      uint32_t seekPos = tracksOffset + TrackSize * i;
+      uint32_t seekPos = tracksOffset + trackSize * i;
+      // Skip name
+      if (TEMP_IsDaSH) seekPos += 32;
       // Skip id, targetType, unknown ushort and visibility
       seekPos += (4 * sizeof(uint16_t));
       stream->Seek(seekPos, RW_SEEK_SET);
@@ -123,7 +147,9 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
         if (model->Meshes[j].GroupId == id) meshes.push_back(&model->Meshes[j]);
       }
 
-      uint32_t seekPos = tracksOffset + TrackSize * i;
+      uint32_t seekPos = tracksOffset + trackSize * i;
+      // Skip name
+      if (TEMP_IsDaSH) seekPos += 32;
       // Skip id, targetType, unknown ushort
       seekPos += 3 * sizeof(uint16_t);
       stream->Seek(seekPos, RW_SEEK_SET);
@@ -142,7 +168,9 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
       uint16_t morphTargetIds[AnimMaxMorphTargetsPerTrack];
       ReadArrayLE(morphTargetIds, stream, morphTargetCount);
 
-      seekPos = tracksOffset + TrackSize * i;
+      seekPos = tracksOffset + trackSize * i;
+      // Skip name
+      if (TEMP_IsDaSH) seekPos += 32;
       seekPos += 0x48;
       stream->Seek(seekPos, RW_SEEK_SET);
 
@@ -160,6 +188,7 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
       for (int j = 0; j < meshes.size(); j++) {
         Mesh* mesh = meshes[j];
         MeshTrack* track = &result->MeshTracks[result->MeshTrackCount + j];
+        memcpy(track->Name, name, sizeof(name));
         track->Mesh = mesh->Id;
         ImpLogSlow(LL_Trace, LC_ModelLoad, "Mesh group %d <= mesh %d\n", id,
                    mesh->Id);
@@ -205,7 +234,10 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
   int currentBoneTrack = 0;
   int currentMeshTrack = 0;
   for (uint32_t i = 0; i < trackCount; i++) {
-    stream->Seek(tracksOffset + TrackSize * i, RW_SEEK_SET);
+    uint32_t seekPos = tracksOffset + trackSize * i;
+    // Skip name
+    if (TEMP_IsDaSH) seekPos += 32;
+    stream->Seek(seekPos, RW_SEEK_SET);
     uint16_t id = ReadLE<uint16_t>(stream);
     uint16_t targetType = ReadLE<uint16_t>(stream);
     if (targetType == TargetType_Bone) {
@@ -217,8 +249,8 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
 
       std::vector<QuatKeyframe> rotationTrack;
 
-      uint32_t seekPos = tracksOffset + TrackSize * i;
-      seekPos += (TrackCountsOffset + STT_RotateX * sizeof(uint16_t));
+      seekPos = tracksOffset + trackSize * i;
+      seekPos += (trackCountsOffset + STT_RotateX * sizeof(uint16_t));
       stream->Seek(seekPos, RW_SEEK_SET);
 
       uint16_t rawRotXCount = ReadLE<uint16_t>(stream);
@@ -230,8 +262,8 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
                  rawRotXCount, rawRotYCount, rawRotZCount);
       rotationTrack.reserve(rawRotXCount + rawRotYCount + rawRotZCount);
 
-      seekPos = tracksOffset + TrackSize * i;
-      seekPos += (TrackOffsetsOffset + STT_RotateX * sizeof(uint32_t));
+      seekPos = tracksOffset + trackSize * i;
+      seekPos += (trackOffsetsOffset + STT_RotateX * sizeof(uint32_t));
       stream->Seek(seekPos, RW_SEEK_SET);
 
       int rawRotXOffset = ReadLE<int>(stream) + HeaderSize;
@@ -350,7 +382,10 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
   currentBoneTrack = 0;
   currentCoordOffset = 0;
   for (uint32_t i = 0; i < trackCount; i++) {
-    stream->Seek(tracksOffset + TrackSize * i, RW_SEEK_SET);
+    uint32_t seekPos = tracksOffset + trackSize * i;
+    // Skip name
+    if (TEMP_IsDaSH) seekPos += 32;
+    stream->Seek(seekPos, RW_SEEK_SET);
     uint16_t id = ReadLE<uint16_t>(stream);
     uint16_t targetType = ReadLE<uint16_t>(stream);
     if (targetType == TargetType_Bone) {
@@ -364,12 +399,12 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
             j == STT_RotateZ)
           continue;
 
-        uint32_t seekPos = tracksOffset + TrackSize * i;
-        seekPos += TrackCountsOffset + sizeof(uint16_t) * j;
+        seekPos = tracksOffset + trackSize * i;
+        seekPos += trackCountsOffset + sizeof(uint16_t) * j;
         stream->Seek(seekPos, RW_SEEK_SET);
         uint16_t currentKeyframeCount = ReadLE<uint16_t>(stream);
-        seekPos = tracksOffset + TrackSize * i;
-        seekPos += TrackOffsetsOffset + sizeof(uint32_t) * j;
+        seekPos = tracksOffset + trackSize * i;
+        seekPos += trackOffsetsOffset + sizeof(uint32_t) * j;
         stream->Seek(seekPos, RW_SEEK_SET);
         uint32_t currentKeyframeOffset = ReadLE<uint32_t>(stream);
 
@@ -407,9 +442,9 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
     } else {
       // Mesh group track
 
-      uint32_t seekPos = tracksOffset + TrackSize * i;
+      uint32_t seekPos = tracksOffset + trackSize * i;
       // Skip id, targetType, unknown ushort
-      seekPos += TrackCountsOffset;
+      seekPos += trackCountsOffset;
       stream->Seek(seekPos, RW_SEEK_SET);
 
       uint16_t visibilityCount = ReadLE<uint16_t>(stream);
@@ -417,7 +452,9 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
       stream->Seek(0x1E, RW_SEEK_CUR);
       uint16_t morphTargetCount = ReadLE<uint16_t>(stream);
 
-      seekPos = tracksOffset + TrackSize * i;
+      seekPos = tracksOffset + trackSize * i;
+      // Skip name
+      if (TEMP_IsDaSH) seekPos += 32;
       seekPos += 0x48;
       stream->Seek(seekPos, RW_SEEK_SET);
 
@@ -425,8 +462,8 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
       ReadArrayLE(morphInfluenceCounts, stream, morphTargetCount);
 
       // Visibility data
-      seekPos = tracksOffset + TrackSize * i;
-      seekPos += TrackOffsetsOffset;
+      seekPos = tracksOffset + trackSize * i;
+      seekPos += trackOffsetsOffset;
       stream->Seek(seekPos, RW_SEEK_SET);
       int rawVisibilityOffset = ReadLE<int>(stream);
       stream->Seek(HeaderSize + rawVisibilityOffset, RW_SEEK_SET);
@@ -442,7 +479,9 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
       currentCoordOffset += visibilityCount;
 
       // Morph influence data
-      seekPos = tracksOffset + TrackSize * i;
+      seekPos = tracksOffset + trackSize * i;
+      // Skip name
+      if (TEMP_IsDaSH) seekPos += 32;
       seekPos += 0xA8;
       stream->Seek(seekPos, RW_SEEK_SET);
       int rawInfluenceOffsets[16];

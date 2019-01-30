@@ -18,6 +18,7 @@ int const ModelMaxChildrenPerBone = 134;
 int const ModelMaxMorphTargetsPerModel = 256;
 int const ModelMaxMorphTargetsPerMesh = 32;
 int const ModelUnknownsAfterMorphTargets = 12;
+int const ModelUnknownsAfterMorphTargets_DaSH = 4;
 // TODO: How do we actually want to do this?
 // Character models generally have <300 bones. Some background models have >600
 // bones (what are these for? - some of them seem broken).
@@ -36,9 +37,23 @@ extern uint32_t* g_BackgroundModelIds;
 extern char** g_BackgroundModelNames;
 extern uint32_t g_BackgroundModelCount;
 
+bool const TEMP_IsDaSH = true;
+
 struct VertexBuffer {
   glm::vec3 Position;
   glm::vec3 Normal;
+  glm::vec2 UV;
+  uint8_t BoneIndices[4];  // indices into Mesh.BoneMap
+  glm::vec4 BoneWeights;
+};
+
+struct VertexBufferDaSH {
+  glm::vec3 Position;
+  glm::vec3 Normal;
+
+  glm::vec3 unk1;  // normalized, orthogonal to normal - tangent?
+  glm::vec4 unk2;  // all 1 in the first few vertices of c001_010
+
   glm::vec2 UV;
   uint8_t BoneIndices[4];  // indices into Mesh.BoneMap
   glm::vec4 BoneWeights;
@@ -61,6 +76,9 @@ struct MorphTarget {
 };
 
 struct StaticBone {
+  // DaSH addition
+  uint8_t Name[32];
+
   int16_t Id;
   int16_t Parent;
   int16_t ChildrenCount;
@@ -87,6 +105,9 @@ enum TextureType {
 };
 
 struct Mesh {
+  // DaSH addition
+  uint8_t Name[32];
+
   // Meshes in one group are animated together
   int32_t GroupId;
 
