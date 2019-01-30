@@ -264,14 +264,30 @@ void Renderable3D::CalculateMorphedVertices(int id) {
 
   MorphVertexBuffer* currentMorphedVertex =
       CurrentMorphedVertices + animStatus->MorphedVerticesOffset;
-  VertexBuffer* currentVertex =
-      ((VertexBuffer*)StaticModel->VertexBuffers) + mesh->VertexOffset;
+
+  void* currentVertex;
+  if (TEMP_IsDaSH) {
+    currentVertex =
+        ((VertexBufferDaSH*)StaticModel->VertexBuffers) + mesh->VertexOffset;
+  } else {
+    currentVertex =
+        ((VertexBuffer*)StaticModel->VertexBuffers) + mesh->VertexOffset;
+  }
+
+  VertexBuffer* currentVertexRNE = (VertexBuffer*)currentVertex;
+  VertexBufferDaSH* currentVertexDaSH = (VertexBufferDaSH*)currentVertex;
 
   for (int j = 0; j < mesh->VertexCount; j++) {
-    currentMorphedVertex->Position = currentVertex->Position;
-    currentMorphedVertex->Normal = currentVertex->Normal;
+    if (TEMP_IsDaSH) {
+      currentMorphedVertex->Position = currentVertexDaSH->Position;
+      currentMorphedVertex->Normal = currentVertexDaSH->Normal;
+      currentVertexDaSH++;
+    } else {
+      currentMorphedVertex->Position = currentVertexRNE->Position;
+      currentMorphedVertex->Normal = currentVertexRNE->Normal;
+      currentVertexRNE++;
+    }
     currentMorphedVertex++;
-    currentVertex++;
   }
 
   for (int k = 0; k < mesh->MorphTargetCount; k++) {
@@ -288,21 +304,41 @@ void Renderable3D::CalculateMorphedVertices(int id) {
 
     currentMorphedVertex =
         CurrentMorphedVertices + animStatus->MorphedVerticesOffset;
-    currentVertex =
-        ((VertexBuffer*)StaticModel->VertexBuffers) + mesh->VertexOffset;
+
+    if (TEMP_IsDaSH) {
+      currentVertex =
+          ((VertexBufferDaSH*)StaticModel->VertexBuffers) + mesh->VertexOffset;
+    } else {
+      currentVertex =
+          ((VertexBuffer*)StaticModel->VertexBuffers) + mesh->VertexOffset;
+    }
+
+    currentVertexRNE = (VertexBuffer*)currentVertex;
+    currentVertexDaSH = (VertexBufferDaSH*)currentVertex;
 
     MorphVertexBuffer* currentMorphTargetVbo =
         StaticModel->MorphVertexBuffers +
         StaticModel->MorphTargets[mesh->MorphTargetIds[k]].VertexOffset;
 
     for (int j = 0; j < mesh->VertexCount; j++) {
-      currentMorphedVertex->Position +=
-          (currentMorphTargetVbo->Position - currentVertex->Position) *
-          influence;
-      currentMorphedVertex->Normal +=
-          (currentMorphTargetVbo->Normal - currentVertex->Normal) * influence;
+      if (TEMP_IsDaSH) {
+        currentMorphedVertex->Position +=
+            (currentMorphTargetVbo->Position - currentVertexDaSH->Position) *
+            influence;
+        currentMorphedVertex->Normal +=
+            (currentMorphTargetVbo->Normal - currentVertexDaSH->Normal) *
+            influence;
+        currentVertexDaSH++;
+      } else {
+        currentMorphedVertex->Position +=
+            (currentMorphTargetVbo->Position - currentVertexRNE->Position) *
+            influence;
+        currentMorphedVertex->Normal +=
+            (currentMorphTargetVbo->Normal - currentVertexRNE->Normal) *
+            influence;
+        currentVertexRNE++;
+      }
       currentMorphedVertex++;
-      currentVertex++;
       currentMorphTargetVbo++;
     }
   }
@@ -609,27 +645,56 @@ void Renderable3D::MainThreadOnLoad() {
     glBindBuffer(GL_ARRAY_BUFFER, VBOs[i]);
 
     if (StaticModel->Type == ModelType_Character) {
-      glBufferData(GL_ARRAY_BUFFER,
-                   sizeof(VertexBuffer) * StaticModel->Meshes[i].VertexCount,
-                   (VertexBuffer*)StaticModel->VertexBuffers +
-                       StaticModel->Meshes[i].VertexOffset,
-                   GL_STATIC_DRAW);
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexBuffer),
-                            (void*)offsetof(VertexBuffer, Position));
-      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VertexBuffer),
-                            (void*)offsetof(VertexBuffer, Normal));
-      glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(VertexBuffer),
-                            (void*)offsetof(VertexBuffer, UV));
-      // WebGL doesn't like unsigned byte here, figures...
-      glVertexAttribIPointer(3, 4, GL_BYTE, sizeof(VertexBuffer),
-                             (void*)offsetof(VertexBuffer, BoneIndices));
-      glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(VertexBuffer),
-                            (void*)offsetof(VertexBuffer, BoneWeights));
-      glEnableVertexAttribArray(0);
-      glEnableVertexAttribArray(1);
-      glEnableVertexAttribArray(2);
-      glEnableVertexAttribArray(3);
-      glEnableVertexAttribArray(4);
+      if (TEMP_IsDaSH) {
+        glBufferData(
+            GL_ARRAY_BUFFER,
+            sizeof(VertexBufferDaSH) * StaticModel->Meshes[i].VertexCount,
+            (VertexBufferDaSH*)StaticModel->VertexBuffers +
+                StaticModel->Meshes[i].VertexOffset,
+            GL_STATIC_DRAW);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
+                              sizeof(VertexBufferDaSH),
+                              (void*)offsetof(VertexBufferDaSH, Position));
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
+                              sizeof(VertexBufferDaSH),
+                              (void*)offsetof(VertexBufferDaSH, Normal));
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
+                              sizeof(VertexBufferDaSH),
+                              (void*)offsetof(VertexBufferDaSH, UV));
+        // WebGL doesn't like unsigned byte here, figures...
+        glVertexAttribIPointer(3, 4, GL_BYTE, sizeof(VertexBufferDaSH),
+                               (void*)offsetof(VertexBufferDaSH, BoneIndices));
+        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE,
+                              sizeof(VertexBufferDaSH),
+                              (void*)offsetof(VertexBufferDaSH, BoneWeights));
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(2);
+        glEnableVertexAttribArray(3);
+        glEnableVertexAttribArray(4);
+      } else {
+        glBufferData(GL_ARRAY_BUFFER,
+                     sizeof(VertexBuffer) * StaticModel->Meshes[i].VertexCount,
+                     (VertexBuffer*)StaticModel->VertexBuffers +
+                         StaticModel->Meshes[i].VertexOffset,
+                     GL_STATIC_DRAW);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexBuffer),
+                              (void*)offsetof(VertexBuffer, Position));
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VertexBuffer),
+                              (void*)offsetof(VertexBuffer, Normal));
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(VertexBuffer),
+                              (void*)offsetof(VertexBuffer, UV));
+        // WebGL doesn't like unsigned byte here, figures...
+        glVertexAttribIPointer(3, 4, GL_BYTE, sizeof(VertexBuffer),
+                               (void*)offsetof(VertexBuffer, BoneIndices));
+        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(VertexBuffer),
+                              (void*)offsetof(VertexBuffer, BoneWeights));
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(2);
+        glEnableVertexAttribArray(3);
+        glEnableVertexAttribArray(4);
+      }
     } else if (StaticModel->Type == ModelType_Background) {
       glBufferData(GL_ARRAY_BUFFER,
                    sizeof(BgVertexBuffer) * StaticModel->Meshes[i].VertexCount,
