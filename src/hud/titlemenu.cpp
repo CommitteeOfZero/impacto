@@ -2,6 +2,8 @@
 
 #include "../profile/hud/titlemenu.h"
 #include "../renderer2d.h"
+#include "../texture/texture.h"
+#include "../spritesheet.h"
 #include "../games/rne/tilebackground.h"
 #include "../audio/audiosystem.h"
 #include "../audio/audiostream.h"
@@ -9,6 +11,7 @@
 #include "../io/vfs.h"
 #include "../mem.h"
 #include "../scriptvars.h"
+#include "../background2d.h"
 
 namespace Impacto {
 namespace TitleMenu {
@@ -20,6 +23,7 @@ TitleMenuState State = Hidden;
 Animation* BackgroundAnimation = 0;
 static Animation PreTitleItemsAnimation;
 static Animation PressToStartAnimation;
+static int const TitleBgBufferId = 3;
 
 void Init() {
   Configure();
@@ -32,7 +36,14 @@ void Init() {
 
 void Show() {
   if (State != Shown) {
-    if (BackgroundAnimation) BackgroundAnimation->StartIn();
+    if (BackgroundAnimation) {
+      Impacto::RNE::TileBackground* background =
+          (Impacto::RNE::TileBackground*)BackgroundAnimation;
+      Backgrounds2D[TitleBgBufferId].BgSprite.BaseScale =
+          glm::vec2(1280.0f / 960.0f, 720.0f / 544.0f);
+      background->BackgroundSprite = Backgrounds2D[TitleBgBufferId].BgSprite;
+      BackgroundAnimation->StartIn();
+    }
     State = Showing;
   }
 }
@@ -81,8 +92,13 @@ void Render() {
                              glm::vec4(1.0f));
       Renderer2D::DrawSprite(EliteSprite, glm::vec2(EliteX, EliteY),
                              glm::vec4(1.0f));
-      Renderer2D::DrawSprite(LogoSprite, glm::vec2(LogoX, LogoY),
-                             glm::vec4(1.0f));
+      if (ScrWork[SW_TITLECGNO] == 542) {
+        Renderer2D::DrawSprite(LogoSprite, glm::vec2(LogoX, LogoY),
+                               glm::vec4(1.0f), glm::vec2(1.0f), 0.0f, true);
+      } else {
+        Renderer2D::DrawSprite(LogoSprite, glm::vec2(LogoX, LogoY),
+                               glm::vec4(1.0f));
+      }
     }
   }
 }

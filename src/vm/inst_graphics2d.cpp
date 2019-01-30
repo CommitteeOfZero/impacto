@@ -39,6 +39,21 @@ VmInstruction(InstLoadPic) {
   ImpLogSlow(LL_Warning, LC_VMStub,
              "STUB instruction LoadPic(surfaceId: %i, width: %i, height: %i)\n",
              surfaceId, archiveId, fileId);
+  if (surfaceId < 8) {
+    switch (archiveId) {
+      case 0: {  // bg archive
+        if (Backgrounds2D[surfaceId].Status == LS_Loading) {
+          ResetInstruction;
+          BlockThread;
+        } else if (ScrWork[SW_BG1NO + 40 * surfaceId] != fileId) {
+          ScrWork[SW_BG1NO + 40 * surfaceId] = fileId;
+          Backgrounds2D[surfaceId].LoadAsync(fileId);
+          ResetInstruction;
+          BlockThread;
+        }
+      } break;
+    }
+  }
 }
 VmInstruction(InstSurfFill) {
   StartInstruction;
