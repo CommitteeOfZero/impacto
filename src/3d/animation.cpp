@@ -225,8 +225,8 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
         MeshTrack* track = &result->MeshTracks[result->MeshTrackCount + j];
         memcpy(track->Name, target.Name, sizeof(target.Name));
         track->Mesh = mesh->Id;
-        ImpLogSlow(LL_Trace, LC_ModelLoad, "Mesh group %d <= mesh %d\n", id,
-                   mesh->Id);
+        ImpLogSlow(LL_Trace, LC_ModelLoad, "Mesh group %d <= mesh %d\n",
+                   target.Id, mesh->Id);
 
         track->KeyCounts[MKT_Visible] = visibilityCount;
         track->KeyOffsets[MKT_Visible] = visibilityOffset;
