@@ -37,7 +37,7 @@ int const ModelMaxBonesPerModel = 768;
 int const ModelMaxBonesPerMesh = 32;
 int const ModelMaxMeshesPerModel = 32;
 int const ModelMaxRootBones = 32;
-int const ModelMaxTexturesPerModel = 32;
+int const ModelMaxTexturesPerModel = 64;
 
 extern uint32_t* g_ModelIds;
 extern char** g_ModelNames;
