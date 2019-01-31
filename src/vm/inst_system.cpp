@@ -267,6 +267,11 @@ VmInstruction(InstDebugPrint) {
 VmInstruction(InstSystemMes) {
   StartInstruction;
   PopUint8(mode);
+  switch (Profile::Vm::GameInstructionSet) {
+    case InstructionSet::RND:
+      PopUint8(unk01);
+      break;
+  }
 
   switch (mode) {
     case 0:  // SystemMesInit0

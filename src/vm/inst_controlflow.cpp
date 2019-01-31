@@ -182,6 +182,41 @@ VmInstruction(InstKeyOnJump) {
              "labelNum: %i)\n",
              arg1, arg2, arg3, labelNum);
 }
+VmInstruction(InstKeyOnJump_Dash) {
+  StartInstruction;
+  PopUint8(arg1);
+  PopExpression(arg2);
+  if (arg1 < 10) {
+    PopExpression(arg3);
+  }
+  PopUint16(labelNum);
+  uint8_t* labelAdr =
+      ScriptGetLabelAddress(ScriptBuffers[thread->ScriptBufferId], labelNum);
+  if (Input::KeyboardButtonWentDown[SDL_SCANCODE_D]) {
+    thread->Ip = labelAdr;
+  }
+  if (thread->Id == 0 && labelNum == 57 &&
+      (Input::MouseButtonWentDown[SDL_BUTTON_LEFT])) {
+    thread->Ip = labelAdr;  // Dirty hack to kickstart the titlescreen
+  }
+  if (thread->Id == 0 && labelNum == 80) {
+    thread->Ip = labelAdr;  // Dirty hack to kickstart the "New Game"
+  }
+  if (thread->Id == 0 && labelNum == 108 &&
+      Input::MouseButtonWentDown[SDL_BUTTON_RIGHT]) {
+    thread->Ip = labelAdr;  // Dirty hack to kickstart the system menu
+  }
+  if (thread->Id == 0 && labelNum == 113 &&
+      Input::MouseButtonWentDown[SDL_BUTTON_RIGHT]) {
+    thread->Ip = labelAdr;  // Dirty hack to get out of the system menu
+    MainMenu::Hide();
+  }
+
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction KeyOnJump(arg1: %i, arg2: %i, "
+             "labelNum: %i)\n",
+             arg1, arg2, labelNum);
+}
 VmInstruction(InstClickOnJump) {
   StartInstruction;
   PopUint8(arg1);

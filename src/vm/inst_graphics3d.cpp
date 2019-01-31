@@ -11,6 +11,7 @@
 #include "../3d/scene.h"
 
 #include "../profile/scene3d.h"
+#include "../profile/vm.h"
 
 namespace Impacto {
 
@@ -26,7 +27,11 @@ float someGlobalFloat6 = 0.0f;
 VmInstruction(InstCHAload3D) {
   StartInstruction;
   PopExpression(bufferId);
-  PopExpression(unk01);
+  switch (Profile::Vm::GameInstructionSet) {
+    case InstructionSet::RNE:
+      PopExpression(unk01);
+      break;
+  }
   PopExpression(modelId);
   if (Scene3D::Renderables[bufferId].Status == LS_Loading) {
     ResetInstruction;
@@ -486,6 +491,56 @@ VmInstruction(InstUnk0219) {  // Not implemented
   PopExpression(bufferId);
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk0219(bufferId: %i)\n",
              bufferId);
+}
+VmInstruction(InstUnk0220_Dash) {
+  StartInstruction;
+  PopUint8(type);
+  switch (type) {
+    case 0: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      ImpLogSlow(
+          LL_Warning, LC_VMStub,
+          "STUB instruction Unk0220(type: %i, arg1: %i, arg2: %i, arg3: %i)\n",
+          type, arg1, arg2, arg3);
+    } break;
+    case 1: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      PopExpression(arg4);
+      PopExpression(arg5);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Unk0220(type: %i, arg1: %i, arg2: %i, arg3: "
+                 "%i, arg4: %i, arg5: %i)\n",
+                 type, arg1, arg2, arg3, arg4, arg5);
+
+    } break;
+    case 2: {
+      PopExpression(arg1);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Unk0220(type: %i, arg1: %i)\n", type, arg1);
+    } break;
+    case 3: {
+      PopExpression(arg1);
+      PopUint8(arg2);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Unk0220(type: %i, arg1: %i, arg2: %i)\n",
+                 type, arg1, arg2);
+
+    } break;
+    case 4: {
+      PopUint8(arg1);
+      if (!arg1) {
+        PopExpression(arg2);
+      }
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Unk0220(type: %i, arg1: %i)\n", type, arg1);
+    } break;
+    case 10:
+      break;
+  }
 }
 VmInstruction(InstUnk0240) {  // Debug opcode
   StartInstruction;

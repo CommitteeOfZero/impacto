@@ -11,6 +11,7 @@ VmInstruction(InstUnk0052);
 VmInstruction(InstUnk0053);
 VmInstruction(InstUnk0054);
 VmInstruction(InstUnk011F);
+VmInstruction(InstLoadFontWidths);
 VmInstruction(InstUnk012D);
 VmInstruction(InstGeotag);
 VmInstruction(InstUnk1037);
@@ -18,6 +19,7 @@ VmInstruction(InstPhoneSG);
 VmInstruction(InstMail);
 VmInstruction(InstUnk1038Darling);
 VmInstruction(InstTwipo);
+VmInstruction(InstTwipo_Dash);
 VmInstruction(InstUnk103A);
 
 }  // namespace Vm

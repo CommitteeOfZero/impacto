@@ -6,6 +6,7 @@
 #include "../game.h"
 #include "../log.h"
 #include "../mem.h"
+#include "../scriptvars.h"
 
 namespace Impacto {
 
@@ -38,6 +39,16 @@ VmInstruction(InstUnk0054) {
 VmInstruction(InstUnk011F) {
   StartInstruction;
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk011F()\n");
+}
+VmInstruction(InstLoadFontWidths) {
+  StartInstruction;
+  PopExpression(fontId);
+  PopExpression(archiveId);
+  PopExpression(fileId);
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction LoadFontWidths(fontId: %i, archiveId: %i, "
+             "fileId: %i)\n",
+             fontId, archiveId, fileId);
 }
 VmInstruction(InstUnk012D) {
   StartInstruction;
@@ -420,6 +431,60 @@ VmInstruction(InstTwipo) {
     } break;
   }
 }
+VmInstruction(InstTwipo_Dash) {
+  StartInstruction;
+  PopUint8(type);
+  switch (type) {
+    case 0: {
+      PopLocalLabel(label1);
+      PopLocalLabel(label2);
+      PopLocalLabel(label3);
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Twipo(type: %i)\n",
+                 type);
+    } break;
+    case 1:
+    case 11:
+    case 12:
+      break;
+    case 2: {
+      PopExpression(arg1);
+      PopLocalLabel(label1);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Twipo(type: %i, arg1: %i)\n", type, arg1);
+    } break;
+    case 3: {
+      PopExpression(arg1);
+      PopLocalLabel(label1);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Twipo(type: %i, arg1: %i)\n", type, arg1);
+    } break;
+    case 4: {
+      PopExpression(arg1);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Twipo(type: %i, arg1: %i)\n", type, arg1);
+    } break;
+    case 5: {
+      PopExpression(arg1);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Twipo(type: %i, arg1: %i)\n", type, arg1);
+    } break;
+    case 6: {
+      PopExpression(arg1);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Twipo(type: %i, arg1: %i)\n", type, arg1);
+    } break;
+    case 7: {
+      PopExpression(arg1);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Twipo(type: %i, arg1: %i)\n", type, arg1);
+    } break;
+    case 10: {
+      PopExpression(arg1);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Twipo(type: %i, arg1: %i)\n", type, arg1);
+    } break;
+  }
+}
 VmInstruction(InstUnk103A) {
   StartInstruction;
   PopUint8(type);
@@ -436,6 +501,7 @@ VmInstruction(InstUnk103A) {
                  type);
     } break;
     case 2: {
+      SetFlag(2951, 1);  // Always win KillBallad
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk103A(type: %i)\n",
                  type);
     } break;

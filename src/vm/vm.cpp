@@ -13,6 +13,7 @@
 #include "opcodetables_darling.h"
 #include "opcodetables_chlcc.h"
 #include "opcodetables_mo6tw.h"
+#include "opcodetables_rnd.h"
 #include "../profile/game.h"
 #include "../profile/vm.h"
 #include "../window.h"
@@ -87,6 +88,13 @@ void Init() {
       OpcodeTableSystem = OpcodeTableSystem_MO6TW;
       OpcodeTableGraph = OpcodeTableGraph_MO6TW;
       OpcodeTableUser1 = OpcodeTableUser1_MO6TW;
+      break;
+    }
+    case InstructionSet::RND: {
+      OpcodeTableSystem = OpcodeTableSystem_RND;
+      OpcodeTableGraph = OpcodeTableGraph_RND;
+      OpcodeTableGraph3D = OpcodeTableGraph3D_RND;
+      OpcodeTableUser1 = OpcodeTableUser1_RND;
       break;
     }
     default: {

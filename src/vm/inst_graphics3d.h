@@ -24,6 +24,7 @@ VmInstruction(InstMoveCamera);
 VmInstruction(InstUnk0217);
 VmInstruction(InstUnk0218);
 VmInstruction(InstUnk0219);
+VmInstruction(InstUnk0220_Dash);
 VmInstruction(InstUnk0240);
 
 }  // namespace Vm
