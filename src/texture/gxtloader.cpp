@@ -288,7 +288,7 @@ bool GXTLoadSubtexture(InputStream* stream, Texture* outTexture,
 
     // DXT1, no alpha
     case Gxm::UBC1: {
-      outTexture->Init(TexFmt_RGB, stx->Width, stx->Height);
+      outTexture->Init(TexFmt_RGBA, stx->Width, stx->Height);
 
       if (stx->PixelOrder == Gxm::Swizzled) {
         BlockDecompressImageDXT1VitaSwizzled(stx->Width, stx->Height, stream,
