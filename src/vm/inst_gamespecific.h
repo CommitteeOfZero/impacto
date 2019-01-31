@@ -11,7 +11,6 @@ VmInstruction(InstUnk0052);
 VmInstruction(InstUnk0053);
 VmInstruction(InstUnk0054);
 VmInstruction(InstUnk011F);
-VmInstruction(InstLoadFontWidths);
 VmInstruction(InstUnk012D);
 VmInstruction(InstGeotag);
 VmInstruction(InstUnk1037);

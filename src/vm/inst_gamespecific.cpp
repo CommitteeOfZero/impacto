@@ -40,16 +40,6 @@ VmInstruction(InstUnk011F) {
   StartInstruction;
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk011F()\n");
 }
-VmInstruction(InstLoadFontWidths) {
-  StartInstruction;
-  PopExpression(fontId);
-  PopExpression(archiveId);
-  PopExpression(fileId);
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction LoadFontWidths(fontId: %i, archiveId: %i, "
-             "fileId: %i)\n",
-             fontId, archiveId, fileId);
-}
 VmInstruction(InstUnk012D) {
   StartInstruction;
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk012D()\n");

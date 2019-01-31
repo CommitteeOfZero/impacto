@@ -14,7 +14,7 @@ namespace Impacto {
 
 namespace Vm {
 
-InstructionProc static OpcodeTableSystem_RND[256] = {
+InstructionProc static OpcodeTableSystem_Dash[256] = {
     InstEnd,                  // 00 00
     InstCreateThread,         // 00 01
     InstKillThread,           // 00 02
@@ -273,7 +273,7 @@ InstructionProc static OpcodeTableSystem_RND[256] = {
     InstDummy                 // 00 FF
 };
 
-InstructionProc static OpcodeTableGraph_RND[256] = {
+InstructionProc static OpcodeTableGraph_Dash[256] = {
     InstCreateSurf,        // 01 00
     InstReleaseSurf,       // 01 01
     InstLoadPic,           // 01 02
@@ -532,7 +532,7 @@ InstructionProc static OpcodeTableGraph_RND[256] = {
     InstDummy              // 01 FF
 };
 
-InstructionProc static OpcodeTableUser1_RND[256] = {
+InstructionProc static OpcodeTableUser1_Dash[256] = {
     InstMSinit,            // 10 00
     InstBGload,            // 10 01
     InstBGswap,            // 10 02
@@ -791,7 +791,7 @@ InstructionProc static OpcodeTableUser1_RND[256] = {
     InstDummy              // 10 FF
 };
 
-InstructionProc static OpcodeTableGraph3D_RND[256] = {
+InstructionProc static OpcodeTableGraph3D_Dash[256] = {
     InstDummy,               // 02 00
     InstCHAload3D,           // 02 01
     InstCHArelease3D,        // 02 02

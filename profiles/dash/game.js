@@ -6,7 +6,7 @@ root.DesignHeight = 720;
 root.Vm = {
     StartScript: 4,
     StartScriptBuffer: 0,
-    GameInstructionSet: InstructionSet.RNE,
+    GameInstructionSet: InstructionSet.Dash,
     UseReturnIds: true
 };
 

@@ -560,6 +560,16 @@ VmInstruction(InstAutoSave) {
       break;
   }
 }
+VmInstruction(InstLoadFontWidths) {
+  StartInstruction;
+  PopExpression(fontId);
+  PopExpression(archiveId);
+  PopExpression(fileId);
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction LoadFontWidths(fontId: %i, archiveId: %i, "
+             "fileId: %i)\n",
+             fontId, archiveId, fileId);
+}
 
 }  // namespace Vm
 
