@@ -268,7 +268,7 @@ VmInstruction(InstSystemMes) {
   StartInstruction;
   PopUint8(mode);
   switch (Profile::Vm::GameInstructionSet) {
-    case InstructionSet::RND:
+    case InstructionSet::Dash:
       PopUint8(unk01);
       break;
   }
