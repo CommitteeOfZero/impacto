@@ -434,13 +434,20 @@ void Renderable3D::Render() {
 
     // Eye pass
 
+    if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+      glDisable(GL_CULL_FACE);
+    }
+
     glUseProgram(ShaderProgramEye);
     glCullFace(GL_BACK);
     glDepthMask(GL_TRUE);
 
     for (int i = 0; i < StaticModel->MeshCount; i++) {
       if (!MeshAnimStatus[i].Visible ||
-          StaticModel->Meshes[i].Maps[TT_Eye_WhiteColorMap] < 0)
+          (Profile::Scene3D::Version == +LKMVersion::RNE &&
+           StaticModel->Meshes[i].Maps[TT_Eye_WhiteColorMap] < 0) ||
+          (Profile::Scene3D::Version == +LKMVersion::DaSH &&
+           StaticModel->Meshes[i].Flags != 0))
         continue;
 
       UseMesh(i);
@@ -459,7 +466,10 @@ void Renderable3D::Render() {
 
     for (int i = 0; i < StaticModel->MeshCount; i++) {
       if (!MeshAnimStatus[i].Visible ||
-          StaticModel->Meshes[i].Maps[TT_Eye_WhiteColorMap] >= 0)
+          (Profile::Scene3D::Version == +LKMVersion::RNE &&
+           StaticModel->Meshes[i].Maps[TT_Eye_WhiteColorMap] >= 0) ||
+          (Profile::Scene3D::Version == +LKMVersion::DaSH &&
+           StaticModel->Meshes[i].Flags == 0))
         continue;
 
       UseMesh(i);
@@ -469,6 +479,10 @@ void Renderable3D::Render() {
       SetTextures(i, colorPassTextureTypes, 3);
 
       DrawCharacterMesh(i);
+    }
+
+    if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+      glEnable(GL_CULL_FACE);
     }
   } else if (StaticModel->Type == ModelType_Background) {
     glUseProgram(ShaderProgramBackground);
@@ -579,7 +593,8 @@ void Renderable3D::DrawCharacterMesh(int id) {
     glDepthMask(GL_FALSE);
   }
 
-  if (StaticModel->Meshes[id].Flags & MeshFlag_DoubleSided) {
+  if (StaticModel->Meshes[id].Flags & MeshFlag_DoubleSided &&
+      Profile::Scene3D::Version == +LKMVersion::RNE) {
     glDisable(GL_CULL_FACE);
   }
 
@@ -589,7 +604,8 @@ void Renderable3D::DrawCharacterMesh(int id) {
   if (StaticModel->Meshes[id].Opacity < 0.9) {
     glDepthMask(GL_TRUE);
   }
-  if (StaticModel->Meshes[id].Flags & MeshFlag_DoubleSided) {
+  if (StaticModel->Meshes[id].Flags & MeshFlag_DoubleSided &&
+      Profile::Scene3D::Version == +LKMVersion::RNE) {
     glEnable(GL_CULL_FACE);
   }
 }
