@@ -19,7 +19,7 @@ BETTER_ENUM(LKMVersion, int, RNE = 0, DaSH)
 enum ModelType : uint32_t {
   ModelType_Background = 1,
   ModelType_Character = 2,
-  ModelType_Character_DaSH = (2 << 16)
+  ModelType_DaSH_Unspecified = (2 << 16)
 };
 
 enum MeshFlag : uint32_t { MeshFlag_DoubleSided = (1 << 0) };

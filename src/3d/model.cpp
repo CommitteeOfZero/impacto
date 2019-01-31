@@ -249,7 +249,14 @@ Model* Model::Load(uint32_t modelId) {
   Model* result = new Model;
   result->Id = modelId;
   uint32_t type = ReadLE<uint32_t>(stream);
-  if (type == ModelType_Character_DaSH) type = ModelType_Character;
+  if (type == ModelType_DaSH_Unspecified) {
+    assert(Profile::Scene3D::Version == +LKMVersion::DaSH);
+    if (Profile::Scene3D::ModelsToCharacters.count(modelId) != 0) {
+      type = ModelType_Character;
+    } else {
+      type = ModelType_Background;
+    }
+  }
   assert(type == ModelType_Background || type == ModelType_Character);
   result->Type = (ModelType)type;
 
