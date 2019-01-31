@@ -37,7 +37,7 @@ uint32_t* g_BackgroundModelIds;
 char** g_BackgroundModelNames;
 uint32_t g_BackgroundModelCount;
 
-bool AnimationIsBlacklisted(uint32_t modelId, uint16_t animId) {
+bool AnimationIsBlacklisted(uint32_t modelId, int16_t animId) {
   for (auto p : Profile::Scene3D::AnimationParseBlacklist) {
     if (p.first == modelId && p.second == animId) return true;
   }
@@ -49,16 +49,16 @@ void Model::EnumerateModels() {
   // TODO: We don't need this in the game - take it out when we remove the model
   // viewer, it's a waste of time then
 
-  /*g_ModelCount = 0;
+  g_ModelCount = 0;
   g_BackgroundModelCount = 0;
 
   std::map<uint32_t, std::string> listing;
   IoError err = VfsListFiles("model", listing);
 
   for (auto const& file : listing) {
-    if (file.second[0] == 'c' || file.second[0] == 'C') {
+    if (Profile::Scene3D::ModelsToCharacters.count(file.first) != 0) {
       g_ModelCount++;
-    } else if (file.second[0] == 'b' || file.second[0] == 'B') {
+    } else {
       g_BackgroundModelCount++;
     }
   }
@@ -74,29 +74,17 @@ void Model::EnumerateModels() {
       (char**)malloc(g_BackgroundModelCount * sizeof(char*));
 
   for (auto const& file : listing) {
-    if (file.second[0] == 'c' || file.second[0] == 'C') {
+    if (Profile::Scene3D::ModelsToCharacters.count(file.first) != 0) {
       g_ModelIds[currentModel] = file.first;
       g_ModelNames[currentModel] = strdup(file.second.c_str());
       currentModel++;
-    } else if (file.second[0] == 'b' || file.second[0] == 'B') {
+    } else {
       g_BackgroundModelIds[currentBackgroundModel] = file.first;
       g_BackgroundModelNames[currentBackgroundModel] =
           strdup(file.second.c_str());
       currentBackgroundModel++;
     }
-  }*/
-
-  g_ModelCount = 1;
-  g_BackgroundModelCount = 1;
-  g_ModelIds = (uint32_t*)malloc(sizeof(uint32_t));
-  g_BackgroundModelIds = (uint32_t*)malloc(sizeof(uint32_t));
-  g_ModelNames = (char**)malloc(sizeof(char*));
-  g_BackgroundModelNames = (char**)malloc(sizeof(char*));
-
-  g_ModelIds[0] = 466;
-  g_BackgroundModelIds[0] = 0;
-  g_ModelNames[0] = strdup("c001_010.lkm");
-  g_BackgroundModelNames[0] = strdup("b001_000.lkm");
+  }
 }
 
 Model::~Model() {
@@ -117,9 +105,27 @@ Model::~Model() {
   }
 }
 
+static IoError GetModelMountpoint(uint32_t modelId,
+                                  std::string& outMountpoint) {
+  if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+    outMountpoint = "model";
+    return IoError_OK;
+  } else {
+    FileMeta arcMeta;
+    IoError err = VfsGetMeta("model", modelId, &arcMeta);
+    if (err != IoError_OK) {
+      ImpLog(LL_Error, LC_ModelLoad, "Could not open model archive for %d\n",
+             modelId);
+      return err;
+    }
+    outMountpoint = "model_" + arcMeta.FileName;
+    return IoError_OK;
+  }
+}
+
 static IoError MountModel(uint32_t modelId, std::string& outMountpoint) {
   // DaSH doesn't have model archives
-  if (TEMP_IsDaSH) {
+  if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
     outMountpoint = "model";
     return IoError_OK;
   }
@@ -153,7 +159,8 @@ static IoError MountModel(uint32_t modelId, std::string& outMountpoint) {
 }
 
 static void UnmountModel(uint32_t modelId) {
-  if (TEMP_IsDaSH) return;
+  if (Profile::Scene3D::Version == +LKMVersion::DaSH) return;
+
   FileMeta arcMeta;
   IoError err = VfsGetMeta("model", modelId, &arcMeta);
   if (err != IoError_OK) {
@@ -168,25 +175,44 @@ static void UnmountModel(uint32_t modelId) {
 
 static IoError SlurpModel(uint32_t modelId, void** outMemory,
                           int64_t* outSize) {
-  if (TEMP_IsDaSH) {
+  if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
     return VfsSlurp("model", modelId, outMemory, outSize);
   } else {
-    FileMeta arcMeta;
-    IoError err = VfsGetMeta("model", modelId, &arcMeta);
-    if (err != IoError_OK) {
-      ImpLog(LL_Error, LC_ModelLoad, "Could not open model archive for %d\n",
-             modelId);
-      return err;
-    }
-    std::string modelMountpoint = "model_" + arcMeta.FileName;
-    return VfsSlurp(modelMountpoint, 0, outMemory, outSize);
+    std::string mountpoint;
+    IoError err = GetModelMountpoint(modelId, mountpoint);
+    if (err != IoError_OK) return err;
+    return VfsSlurp(mountpoint, 0, outMemory, outSize);
   }
+}
+
+static IoError SlurpAnim(uint32_t modelId, int16_t animId, void** outMemory,
+                         int64_t* outSize, std::string& outName) {
+  std::string mountpoint;
+  IoError err;
+
+  if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+    mountpoint = "motion";
+  } else {
+    err = GetModelMountpoint(modelId, mountpoint);
+    if (err != IoError_OK) return err;
+  }
+
+  FileMeta animMeta;
+  err = VfsGetMeta(mountpoint, animId, &animMeta);
+  if (err != IoError_OK) {
+    ImpLog(LL_Error, LC_ModelLoad,
+           "Could not find animation file %h for model %d\n", animId, modelId);
+    return err;
+  }
+  outName = animMeta.FileName;
+
+  return VfsSlurp(mountpoint, animId, outMemory, outSize);
 }
 
 Model* Model::Load(uint32_t modelId) {
   uint32_t meshInfoSize, meshInfoCountsOffset, boneSize,
       boneBaseTransformOffset;
-  if (TEMP_IsDaSH) {
+  if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
     meshInfoSize = ModelFileMeshInfoSize_DaSH;
     meshInfoCountsOffset = MeshInfoCountsOffset_DaSH;
     boneSize = ModelFileBoneSize_DaSH;
@@ -269,7 +295,7 @@ Model* Model::Load(uint32_t modelId) {
   }
 
   if (result->Type == ModelType_Character) {
-    if (TEMP_IsDaSH) {
+    if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
       result->VertexBuffers =
           calloc(result->VertexCount, sizeof(VertexBufferDaSH));
     } else {
@@ -285,23 +311,31 @@ Model* Model::Load(uint32_t modelId) {
     stream->Seek(MeshInfosOffset + meshInfoSize * i, RW_SEEK_SET);
     Mesh* mesh = &result->Meshes[i];
 
-    if (TEMP_IsDaSH) {
+    if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
       stream->Read(mesh->Name, 32);
     } else {
       memset(mesh->Name, 0, sizeof(mesh->Name));
     }
 
     mesh->Id = i;
-
     mesh->GroupId = ReadLE<int32_t>(stream);
+
+    if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+      std::string nameStr = std::string((char*)mesh->Name);
+      assert(result->NamedMeshGroups.count(nameStr) == 0 ||
+             result->NamedMeshGroups[nameStr] == mesh->GroupId);
+      result->NamedMeshGroups[nameStr] = mesh->GroupId;
+    }
+
     mesh->MeshBone = ReadLE<int16_t>(stream);
     stream->Seek(9, RW_SEEK_CUR);
     mesh->MorphTargetCount = ReadU8(stream);
     assert(mesh->MorphTargetCount <= ModelMaxMorphTargetsPerMesh);
     stream->Read(mesh->MorphTargetIds, ModelMaxMorphTargetsPerMesh);
 
-    int64_t seekPos = TEMP_IsDaSH ? ModelUnknownsAfterMorphTargets_DaSH
-                                  : ModelUnknownsAfterMorphTargets;
+    int64_t seekPos = (Profile::Scene3D::Version == +LKMVersion::DaSH)
+                          ? ModelUnknownsAfterMorphTargets_DaSH
+                          : ModelUnknownsAfterMorphTargets;
     // Skip translation, rotation and scale (these sometimes don't match the
     // matrix below, which is authoritative)
     seekPos += 3 * sizeof(glm::vec3);
@@ -347,7 +381,7 @@ Model* Model::Load(uint32_t modelId) {
     // Read vertex buffers
     stream->Seek(RawVertexOffset, RW_SEEK_SET);
     if (result->Type == ModelType_Character) {
-      if (TEMP_IsDaSH) {
+      if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
         for (uint32_t j = 0; j < mesh->VertexCount; j++) {
           VertexBufferDaSH* vertex =
               &((VertexBufferDaSH*)result->VertexBuffers)[CurrentVertexOffset];
@@ -416,7 +450,7 @@ Model* Model::Load(uint32_t modelId) {
     stream->Seek(BonesOffset + boneSize * i, RW_SEEK_SET);
     StaticBone* bone = &result->Bones[i];
 
-    if (TEMP_IsDaSH) {
+    if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
       stream->Read(bone->Name, 32);
     } else {
       memset(bone->Name, 0, sizeof(bone->Name));
@@ -424,7 +458,12 @@ Model* Model::Load(uint32_t modelId) {
 
     bone->Id = ReadLE<int16_t>(stream);
 
-    result->BoneIds[std::string((char*)bone->Name)] = bone->Id;
+    if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+      std::string nameStr = std::string((char*)bone->Name);
+      assert(result->NamedBones.count(nameStr) == 0 ||
+             result->NamedBones[nameStr] == bone->Id);
+      result->NamedBones[nameStr] = bone->Id;
+    }
 
     stream->Seek(2, RW_SEEK_CUR);
     bone->Parent = ReadLE<int16_t>(stream);
@@ -437,7 +476,7 @@ Model* Model::Load(uint32_t modelId) {
     bone->ChildrenCount = ReadLE<int16_t>(stream);
     assert(bone->ChildrenCount <= ModelMaxChildrenPerBone);
 
-    if (TEMP_IsDaSH) {
+    if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
       stream->Seek(2, RW_SEEK_CUR);
     }
 
@@ -520,51 +559,57 @@ Model* Model::Load(uint32_t modelId) {
   // TODO should we still remove this?
 
   if (result->Type == ModelType_Character) {
-    /*result->AnimationCount = 0;
+    Profile::Scene3D::CharacterDef& charDef = Profile::Scene3D::Characters
+        [Profile::Scene3D::ModelsToCharacters[modelId]];
 
-    std::map<uint32_t, std::string> listing;
-    VfsListFiles(modelMountpoint, listing);
+    result->IdleAnimation = charDef.IdleAnimation;
+    result->AnimationCount = 0;
 
-    for (auto const& file : listing) {
-      if (file.first != 0 && !AnimationIsBlacklisted(modelId, file.first)) {
+    for (auto const& anim : charDef.Animations) {
+      auto animId = anim.first;
+
+      if (AnimationIsBlacklisted(modelId, animId)) continue;
+
+      int64_t animSize;
+      void* animData;
+
+      if (!AnimationIsBlacklisted(modelId, animId)) {
+        std::string animName;
         int64_t animSize;
         void* animData;
-        VfsSlurp(modelMountpoint, file.first, &animData, &animSize);
+
+        if (SlurpAnim(modelId, animId, &animData, &animSize, animName) !=
+            IoError_OK) {
+          ImpLog(LL_Error, LC_ModelLoad,
+                 "Could not read animation %h for model %d\n", animId, modelId);
+          continue;
+        }
+
         InputStream* animStream = new MemoryStream(animData, animSize, true);
-        result->Animations[file.first] =
-            ModelAnimation::Load(animStream, result, file.first);
+        animStream->Meta.FileName = animName;
+        ModelAnimation* anim = ModelAnimation::Load(animStream, result, animId);
         delete animStream;
+        if (anim == 0) {
+          ImpLog(LL_Error, LC_ModelLoad,
+                 "Could not parse animation %h for model %d\n", animId,
+                 modelId);
+          continue;
+        }
+        result->Animations[animId] = anim;
         result->AnimationCount++;
       }
     }
 
-    uint32_t currentAnim = 0;
-
     result->AnimationIds =
-        (uint32_t*)malloc(result->AnimationCount * sizeof(uint32_t));
+        (int32_t*)malloc(sizeof(int32_t) * result->AnimationCount);
     result->AnimationNames =
-        (char**)malloc(result->AnimationCount * sizeof(char*));
+        (char**)malloc(sizeof(char*) * result->AnimationCount);
 
-    for (auto const& file : listing) {
-      if (file.first != 0 && !AnimationIsBlacklisted(modelId, file.first)) {
-        result->AnimationIds[currentAnim] = file.first;
-        result->AnimationNames[currentAnim] = strdup(file.second.c_str());
-        currentAnim++;
-      }
-    }*/
-
-    result->AnimationCount = 1;
-    result->AnimationIds = (uint32_t*)malloc(sizeof(uint32_t));
-    result->AnimationNames = (char**)malloc(sizeof(char*));
-    result->AnimationIds[0] = 15;
-    result->AnimationNames[0] = strdup("c001_000@1_stand.lka");
-
-    int64_t animSize;
-    void* animData;
-    VfsSlurp("motion", 15, &animData, &animSize);
-    InputStream* animStream = new MemoryStream(animData, animSize, true);
-    result->Animations[15] = ModelAnimation::Load(animStream, result, 15);
-    delete animStream;
+    int i = 0;
+    for (auto const& anim : result->Animations) {
+      result->AnimationIds[i] = anim.first;
+      result->AnimationNames[i] = strdup(anim.second->Name.c_str());
+    }
   }
 
   UnmountModel(modelId);

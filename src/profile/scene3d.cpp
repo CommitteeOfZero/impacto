@@ -5,6 +5,8 @@ namespace Impacto {
 namespace Profile {
 namespace Scene3D {
 
+LKMVersion Version = LKMVersion::RNE;
+
 int MaxRenderables;
 
 glm::vec3 DefaultCameraPosition;
@@ -13,13 +15,15 @@ float DefaultFov;
 
 float AnimationDesignFrameRate;
 
-std::vector<std::pair<uint32_t, uint16_t>> AnimationParseBlacklist;
+std::vector<std::pair<uint32_t, int16_t>> AnimationParseBlacklist;
 
 ska::flat_hash_map<uint32_t, CharacterDef> Characters;
 ska::flat_hash_map<uint32_t, uint32_t> ModelsToCharacters;
 
 void Configure() {
   EnsurePushMemberOfType("Scene3D", kObjectType);
+
+  Version = LKMVersion::_from_integral_unchecked(EnsureGetMemberInt("Version"));
 
   MaxRenderables = EnsureGetMemberUint("MaxRenderables");
   AnimationDesignFrameRate = EnsureGetMemberFloat("AnimationDesignFrameRate");
@@ -46,7 +50,7 @@ void Configure() {
       uint32_t animCount = TopVal().Size();
       for (uint32_t i = 0; i < animCount; i++) {
         AnimationParseBlacklist.emplace_back(model,
-                                             EnsureGetArrayElementUint(i));
+                                             EnsureGetArrayElementInt(i));
       }
 
       Pop();
@@ -69,6 +73,7 @@ void Configure() {
 
       CharacterDef& character = Characters[charId];
       character.CharacterId = charId;
+      character.IdleAnimation = EnsureGetMemberInt("IdleAnimation");
 
       {
         EnsurePushMemberOfType("Models", kArrayType);
@@ -89,7 +94,7 @@ void Configure() {
         auto const& _anims = TopVal();
         for (Value::ConstMemberIterator anim = _anims.MemberBegin();
              anim != _anims.MemberEnd(); anim++) {
-          uint16_t animId = EnsureGetKeyUint(anim);
+          uint16_t animId = EnsureGetKeyInt(anim);
 
           EnsurePushMemberIteratorOfType(anim, kObjectType);
 

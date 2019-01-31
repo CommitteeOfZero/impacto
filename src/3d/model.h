@@ -1,5 +1,6 @@
 #pragma once
 
+#include <enum.h>
 #include "../impacto.h"
 #include "../texture/texture.h"
 #include "transform.h"
@@ -8,7 +9,12 @@
 
 #include <flat_hash_map.hpp>
 
+// BIG TODO: Use integer types consistently internally (not always possible for
+// file content, but eh)
+
 namespace Impacto {
+
+BETTER_ENUM(LKMVersion, int, RNE = 0, DaSH)
 
 enum ModelType : uint32_t {
   ModelType_Background = 1,
@@ -40,8 +46,6 @@ extern uint32_t g_ModelCount;
 extern uint32_t* g_BackgroundModelIds;
 extern char** g_BackgroundModelNames;
 extern uint32_t g_BackgroundModelCount;
-
-bool const TEMP_IsDaSH = true;
 
 struct VertexBuffer {
   glm::vec3 Position;
@@ -184,11 +188,15 @@ class Model {
   int32_t RootBoneCount = 0;
   int16_t RootBones[ModelMaxRootBones];
 
-  ska::flat_hash_map<uint16_t, ModelAnimation*> Animations;
+  ska::flat_hash_map<int16_t, ModelAnimation*> Animations;
 
-  ska::flat_hash_map<std::string, uint16_t> BoneIds;
+  // These are only filled for DaSH
+  ska::flat_hash_map<std::string, int32_t> NamedMeshGroups;
+  ska::flat_hash_map<std::string, uint16_t> NamedBones;
 
-  uint32_t* AnimationIds = 0;
+  int16_t IdleAnimation = -1;
+
+  int32_t* AnimationIds = 0;
   char** AnimationNames = 0;
   uint32_t AnimationCount = 0;
 };

@@ -4,7 +4,7 @@
 
 namespace Impacto {
 
-void ModelAnimator::Start(uint16_t animId) {
+void ModelAnimator::Start(int16_t animId) {
   assert(Character != 0);
 
   if (Character->StaticModel->Animations.find(animId) ==

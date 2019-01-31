@@ -9,6 +9,8 @@
 #include "../shader.h"
 #include "../log.h"
 
+#include "../profile/scene3d.h"
+
 namespace Impacto {
 
 enum SceneUniform {
@@ -188,7 +190,7 @@ bool Renderable3D::LoadSync(uint32_t modelId) {
   ReloadDefaultBoneTransforms();
 
   Animator.Character = this;
-  SwitchAnimation(15, 0.0f);
+  SwitchAnimation(StaticModel->IdleAnimation, 0.0f);
 
   IsUsed = true;
 
@@ -236,7 +238,7 @@ void Renderable3D::ReloadDefaultMeshAnimStatus() {
   }
 }
 
-void Renderable3D::SwitchAnimation(uint32_t animId, float transitionTime) {
+void Renderable3D::SwitchAnimation(int16_t animId, float transitionTime) {
   if (Animator.CurrentAnimation != 0 && transitionTime > 0.0f) {
     PrevPoseWeight = 1.0f;
     for (int i = 0; i < StaticModel->BoneCount; i++) {
@@ -266,7 +268,7 @@ void Renderable3D::CalculateMorphedVertices(int id) {
       CurrentMorphedVertices + animStatus->MorphedVerticesOffset;
 
   void* currentVertex;
-  if (TEMP_IsDaSH) {
+  if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
     currentVertex =
         ((VertexBufferDaSH*)StaticModel->VertexBuffers) + mesh->VertexOffset;
   } else {
@@ -278,7 +280,7 @@ void Renderable3D::CalculateMorphedVertices(int id) {
   VertexBufferDaSH* currentVertexDaSH = (VertexBufferDaSH*)currentVertex;
 
   for (int j = 0; j < mesh->VertexCount; j++) {
-    if (TEMP_IsDaSH) {
+    if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
       currentMorphedVertex->Position = currentVertexDaSH->Position;
       currentMorphedVertex->Normal = currentVertexDaSH->Normal;
       currentVertexDaSH++;
@@ -305,7 +307,7 @@ void Renderable3D::CalculateMorphedVertices(int id) {
     currentMorphedVertex =
         CurrentMorphedVertices + animStatus->MorphedVerticesOffset;
 
-    if (TEMP_IsDaSH) {
+    if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
       currentVertex =
           ((VertexBufferDaSH*)StaticModel->VertexBuffers) + mesh->VertexOffset;
     } else {
@@ -321,7 +323,7 @@ void Renderable3D::CalculateMorphedVertices(int id) {
         StaticModel->MorphTargets[mesh->MorphTargetIds[k]].VertexOffset;
 
     for (int j = 0; j < mesh->VertexCount; j++) {
-      if (TEMP_IsDaSH) {
+      if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
         currentMorphedVertex->Position +=
             (currentMorphTargetVbo->Position - currentVertexDaSH->Position) *
             influence;
@@ -386,8 +388,7 @@ void Renderable3D::Update(float dt) {
   if (Animator.CurrentAnimation) {
     if (!Animator.IsPlaying) {
       // oneshot ended
-      // SwitchAnimation(1, AnimationTransitionTime);
-      SwitchAnimation(15, AnimationTransitionTime);
+      SwitchAnimation(StaticModel->IdleAnimation, AnimationTransitionTime);
     } else {
       Animator.Update(dt);
     }
@@ -646,7 +647,7 @@ void Renderable3D::MainThreadOnLoad() {
     glBindBuffer(GL_ARRAY_BUFFER, VBOs[i]);
 
     if (StaticModel->Type == ModelType_Character) {
-      if (TEMP_IsDaSH) {
+      if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
         glBufferData(
             GL_ARRAY_BUFFER,
             sizeof(VertexBufferDaSH) * StaticModel->Meshes[i].VertexCount,

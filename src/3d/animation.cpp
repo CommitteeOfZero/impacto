@@ -19,7 +19,12 @@ int const TrackCountsOffset_DaSH = 0x26;
 int const TrackOffsetsOffset = 0x68;
 int const TrackOffsetsOffset_DaSH = 0x88;
 
-enum TargetType { TargetType_Bone = 0, TargetType_MeshGroup = 0x8000 };
+enum TargetType {
+  TargetType_Bone = 0,
+  TargetType_MeshGroup = 0x8000,
+  // Our invention
+  TargetType_NotFound = 0xFFFF
+};
 enum SubTrackType {
   STT_Visibility = 0,
   STT_TranslateX = 1,
@@ -35,10 +40,45 @@ enum SubTrackType {
 
 using namespace Impacto::Io;
 
+struct Target {
+  uint8_t Name[32];
+  TargetType Type;
+  uint16_t Id;
+};
+
+Target GetTarget(InputStream* stream, Model* model) {
+  Target result;
+  result.Type = TargetType_NotFound;
+
+  if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+    stream->Read(result.Name, 32);
+
+    stream->Seek(2 * sizeof(uint16_t), RW_SEEK_CUR);
+
+    std::string nameStr = std::string((char*)result.Name);
+    if (model->NamedBones.count(nameStr) != 0) {
+      result.Type = TargetType_Bone;
+      result.Id = model->NamedBones[nameStr];
+    } else if (model->NamedMeshGroups.count(nameStr) != 0) {
+      result.Type = TargetType_MeshGroup;
+      result.Id = model->NamedMeshGroups[nameStr];
+    }
+  } else {
+    memset(result.Name, 0, sizeof(result.Name));
+
+    result.Id = ReadLE<uint16_t>(stream);
+    uint16_t targetType = ReadLE<uint16_t>(stream);
+    assert(targetType == TargetType_Bone || targetType == TargetType_MeshGroup);
+    result.Type = (TargetType)targetType;
+  }
+
+  return result;
+}
+
 ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
-                                     uint16_t animId) {
+                                     int16_t animId) {
   int trackSize, trackCountsOffset, trackOffsetsOffset;
-  if (TEMP_IsDaSH) {
+  if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
     trackSize = TrackSize_DaSH;
     trackCountsOffset = TrackCountsOffset_DaSH;
     trackOffsetsOffset = TrackOffsetsOffset_DaSH;
@@ -48,11 +88,12 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
     trackOffsetsOffset = TrackOffsetsOffset;
   }
 
-  ImpLogSlow(LL_Trace, LC_ModelLoad, "Loading animation %hu for model %d\n",
-             animId, model->Id);
-
   ModelAnimation* result = new ModelAnimation;
   result->Id = animId;
+  result->Name = stream->Meta.FileName;
+
+  ImpLogSlow(LL_Trace, LC_ModelLoad, "Loading animation %h (%s) for model %d\n",
+             animId, result->Name.c_str(), model->Id);
 
   stream->Seek(HeaderDurationOffset, RW_SEEK_SET);
   result->Duration =
@@ -81,37 +122,25 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
   for (uint32_t i = 0; i < trackCount; i++) {
     ImpLogSlow(LL_Trace, LC_ModelLoad, "Pass 1 for track %d\n", i);
 
-    uint8_t name[32];
-
     stream->Seek(tracksOffset + trackSize * i, RW_SEEK_SET);
-    if (TEMP_IsDaSH) {
-      stream->Read(name, 32);
-    } else {
-      memset(name, 0, sizeof(name));
-    }
-    uint16_t id = ReadLE<uint16_t>(stream);
-    uint16_t targetType = ReadLE<uint16_t>(stream);
-    if (name[0] == 'M') targetType = TargetType_MeshGroup;
-    if (targetType == TargetType_Bone && TEMP_IsDaSH) {
-      id = model->BoneIds[std::string((char*)name)];
-    }
-    if (targetType == TargetType_Bone) {
-      if (TrackForBone[id] != -1) {
+    Target target = GetTarget(stream, model);
+    if (target.Type == TargetType_Bone) {
+      if (TrackForBone[target.Id] != -1) {
         ImpLogSlow(LL_Trace, LC_ModelLoad,
-                   "Skipping duplicate track %d for bone %d\n", i, id);
+                   "Skipping duplicate track %d for bone %d\n", i, target.Id);
         continue;
       }
-      ImpLogSlow(LL_Trace, LC_ModelLoad, "Track %d is bone %d\n", i, id);
+      ImpLogSlow(LL_Trace, LC_ModelLoad, "Track %d is bone %d\n", i, target.Id);
 
       BoneTrack* track = &result->BoneTracks[result->BoneTrackCount];
-      memcpy(track->Name, name, sizeof(name));
+      memcpy(track->Name, target.Name, sizeof(target.Name));
 
-      track->Bone = id;
-      TrackForBone[id] = i;
+      track->Bone = target.Id;
+      TrackForBone[target.Id] = i;
 
       uint32_t seekPos = tracksOffset + trackSize * i;
       // Skip name
-      if (TEMP_IsDaSH) seekPos += 32;
+      if (Profile::Scene3D::Version == +LKMVersion::DaSH) seekPos += 32;
       // Skip id, targetType, unknown ushort and visibility
       seekPos += (4 * sizeof(uint16_t));
       stream->Seek(seekPos, RW_SEEK_SET);
@@ -142,18 +171,20 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
       }
 
       result->BoneTrackCount++;
-    } else {
-      ImpLogSlow(LL_Trace, LC_ModelLoad, "Track %d is mesh group %d\n", i, id);
+    } else if (target.Type == TargetType_MeshGroup) {
+      ImpLogSlow(LL_Trace, LC_ModelLoad, "Track %d is mesh group %d\n", i,
+                 target.Id);
 
       // Mesh group track
       std::vector<Mesh*> meshes;
       for (int j = 0; j < model->MeshCount; j++) {
-        if (model->Meshes[j].GroupId == id) meshes.push_back(&model->Meshes[j]);
+        if (model->Meshes[j].GroupId == target.Id)
+          meshes.push_back(&model->Meshes[j]);
       }
 
       uint32_t seekPos = tracksOffset + trackSize * i;
       // Skip name
-      if (TEMP_IsDaSH) seekPos += 32;
+      if (Profile::Scene3D::Version == +LKMVersion::DaSH) seekPos += 32;
       // Skip id, targetType, unknown ushort
       seekPos += 3 * sizeof(uint16_t);
       stream->Seek(seekPos, RW_SEEK_SET);
@@ -174,7 +205,7 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
 
       seekPos = tracksOffset + trackSize * i;
       // Skip name
-      if (TEMP_IsDaSH) seekPos += 32;
+      if (Profile::Scene3D::Version == +LKMVersion::DaSH) seekPos += 32;
       seekPos += 0x48;
       stream->Seek(seekPos, RW_SEEK_SET);
 
@@ -192,7 +223,7 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
       for (int j = 0; j < meshes.size(); j++) {
         Mesh* mesh = meshes[j];
         MeshTrack* track = &result->MeshTracks[result->MeshTrackCount + j];
-        memcpy(track->Name, name, sizeof(name));
+        memcpy(track->Name, target.Name, sizeof(target.Name));
         track->Mesh = mesh->Id;
         ImpLogSlow(LL_Trace, LC_ModelLoad, "Mesh group %d <= mesh %d\n", id,
                    mesh->Id);
@@ -240,23 +271,12 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
   for (uint32_t i = 0; i < trackCount; i++) {
     uint32_t seekPos = tracksOffset + trackSize * i;
     stream->Seek(seekPos, RW_SEEK_SET);
-    uint8_t name[32];
-    if (TEMP_IsDaSH) {
-      stream->Read(name, 32);
-    } else {
-      memset(name, 0, sizeof(name));
-    }
-    uint16_t id = ReadLE<uint16_t>(stream);
-    uint16_t targetType = ReadLE<uint16_t>(stream);
-    if (name[0] == 'M') targetType = TargetType_MeshGroup;
-    if (targetType == TargetType_Bone && TEMP_IsDaSH) {
-      id = model->BoneIds[std::string((char*)name)];
-    }
-    if (targetType == TargetType_Bone) {
-      if (i != TrackForBone[id]) continue;
+    Target target = GetTarget(stream, model);
+    if (target.Type == TargetType_Bone) {
+      if (i != TrackForBone[target.Id]) continue;
 
       ImpLogSlow(LL_Trace, LC_ModelLoad,
-                 "Interleaving rotations track %d bone %d\n", i, id);
+                 "Interleaving rotations track %d bone %d\n", i, target.Id);
       BoneTrack* track = &result->BoneTracks[currentBoneTrack];
 
       std::vector<QuatKeyframe> rotationTrack;
@@ -396,20 +416,9 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
   for (uint32_t i = 0; i < trackCount; i++) {
     uint32_t seekPos = tracksOffset + trackSize * i;
     stream->Seek(seekPos, RW_SEEK_SET);
-    uint8_t name[32];
-    if (TEMP_IsDaSH) {
-      stream->Read(name, 32);
-    } else {
-      memset(name, 0, sizeof(name));
-    }
-    uint16_t id = ReadLE<uint16_t>(stream);
-    uint16_t targetType = ReadLE<uint16_t>(stream);
-    if (name[0] == 'M') targetType = TargetType_MeshGroup;
-    if (targetType == TargetType_Bone && TEMP_IsDaSH) {
-      id = model->BoneIds[std::string((char*)name)];
-    }
-    if (targetType == TargetType_Bone) {
-      if (i != TrackForBone[id]) continue;
+    Target target = GetTarget(stream, model);
+    if (target.Type == TargetType_Bone) {
+      if (i != TrackForBone[target.Id]) continue;
 
       BoneTrack* track = &result->BoneTracks[currentBoneTrack];
 
@@ -459,7 +468,7 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
       }
 
       currentBoneTrack++;
-    } else {
+    } else if (target.Type == TargetType_MeshGroup) {
       // Mesh group track
 
       uint32_t seekPos = tracksOffset + trackSize * i;
@@ -474,7 +483,7 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
 
       seekPos = tracksOffset + trackSize * i;
       // Skip name
-      if (TEMP_IsDaSH) seekPos += 32;
+      if (Profile::Scene3D::Version == +LKMVersion::DaSH) seekPos += 32;
       seekPos += 0x48;
       stream->Seek(seekPos, RW_SEEK_SET);
 
@@ -501,7 +510,7 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
       // Morph influence data
       seekPos = tracksOffset + trackSize * i;
       // Skip name
-      if (TEMP_IsDaSH) seekPos += 32;
+      if (Profile::Scene3D::Version == +LKMVersion::DaSH) seekPos += 32;
       seekPos += 0xA8;
       stream->Seek(seekPos, RW_SEEK_SET);
       int rawInfluenceOffsets[16];
@@ -532,7 +541,7 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
     auto animDef = character.Animations.find(animId);
     if (animDef != character.Animations.end()) {
       if (animDef->second.OneShot) {
-        if (animId != 1) {
+        if (animId != character.IdleAnimation) {
           // Idle animation always loops, even if the data says otherwise...
           result->OneShot = true;
         }

@@ -63,11 +63,14 @@ struct MeshTrack {
 class ModelAnimation {
  public:
   static ModelAnimation* Load(Io::InputStream* stream, Model* model,
-                              uint16_t animId);
+                              int16_t animId);
   ~ModelAnimation();
 
   // Per-model ID
-  uint16_t Id = 0;
+  // or global in DaSH
+  int16_t Id = 0;
+
+  std::string Name;
 
   // Whole animation duration in seconds
   float Duration = 0.0f;

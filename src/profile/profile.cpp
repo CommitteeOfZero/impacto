@@ -13,6 +13,7 @@
 #include "../vm/vm.h"
 #include "../hud/mainmenu.h"
 #include "../hud/datedisplay.h"
+#include "../3d/model.h"
 
 namespace Impacto {
 namespace Profile {
@@ -154,6 +155,7 @@ void MakeJsonProfile(std::string const& name) {
   DefineEnumInt<MainMenu::MainMenuType>(ctx);
   DefineEnumInt<DateDisplay::DateDisplayType>(ctx);
   DefineEnumInt<FontType>(ctx);
+  DefineEnumInt<LKMVersion>(ctx);
 
   ImpLog(LL_Info, LC_Profile, "Starting profile %s\n", name.c_str());
 

@@ -46,7 +46,7 @@ class Renderable3D : public Loadable<Renderable3D> {
   void InitMeshAnimStatus();
   void ReloadDefaultMeshAnimStatus();
 
-  void SwitchAnimation(uint32_t animId, float transitionTime);
+  void SwitchAnimation(int16_t animId, float transitionTime);
 
   Model* StaticModel = 0;
 

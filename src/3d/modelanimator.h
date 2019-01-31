@@ -35,7 +35,7 @@ class ModelAnimator {
   bool Tweening = true;
 
   void Unload();
-  void Start(uint16_t animId);
+  void Start(int16_t animId);
   void Reset();
   void Update(float dt);
   void Seek(float dt);
