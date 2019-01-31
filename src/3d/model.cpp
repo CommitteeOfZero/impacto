@@ -330,7 +330,8 @@ Model* Model::Load(uint32_t modelId) {
     if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
       std::string nameStr = std::string((char*)mesh->Name);
       assert(result->NamedMeshGroups.count(nameStr) == 0 ||
-             result->NamedMeshGroups[nameStr] == mesh->GroupId);
+             result->NamedMeshGroups[nameStr] == mesh->GroupId ||
+             nameStr == "");
       result->NamedMeshGroups[nameStr] = mesh->GroupId;
     }
 
@@ -468,7 +469,7 @@ Model* Model::Load(uint32_t modelId) {
     if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
       std::string nameStr = std::string((char*)bone->Name);
       assert(result->NamedBones.count(nameStr) == 0 ||
-             result->NamedBones[nameStr] == bone->Id);
+             result->NamedBones[nameStr] == bone->Id || nameStr == "");
       result->NamedBones[nameStr] = bone->Id;
     }
 
