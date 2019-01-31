@@ -595,6 +595,7 @@ Model* Model::Load(uint32_t modelId) {
                  modelId);
           continue;
         }
+        assert(result->Animations.count(animId) == 0);
         result->Animations[animId] = anim;
         result->AnimationCount++;
       }
@@ -609,6 +610,7 @@ Model* Model::Load(uint32_t modelId) {
     for (auto const& anim : result->Animations) {
       result->AnimationIds[i] = anim.first;
       result->AnimationNames[i] = strdup(anim.second->Name.c_str());
+      i++;
     }
   }
 
