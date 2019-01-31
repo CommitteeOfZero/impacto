@@ -292,11 +292,11 @@ bool TextureLoadBNTX(InputStream* stream, Texture* outTexture) {
 
     uint64_t BRTILength1 = ReadLE<uint64_t>(stream);
 
-    uint8_t Flags = ReadLE<uint8_t>(stream);
+    uint8_t TileMode = ReadLE<uint8_t>(stream);
 
     uint8_t Dimensions = ReadLE<uint8_t>(stream);
 
-    uint16_t TileMode = ReadLE<uint16_t>(stream);
+    uint16_t unknown = ReadLE<uint16_t>(stream);
     uint16_t SwizzleSize = ReadLE<uint16_t>(stream);
     uint16_t MipmapCount = ReadLE<uint16_t>(stream);
     uint16_t MultiSampleCount = ReadLE<uint16_t>(stream);
@@ -333,16 +333,16 @@ bool TextureLoadBNTX(InputStream* stream, Texture* outTexture) {
 
     stream->Seek(PtrsAddress, 0);
 
-    uint64_t BaseOffset = 0;
-
-    for (int Mip = 0; Mip < MipmapCount; Mip++) {
+    uint64_t BaseOffset = ReadLE<uint64_t>(stream);
+    /*
+    for (int Mip = 1; Mip < MipmapCount; Mip++) {
       uint64_t mipOffset = ReadLE<uint64_t>(stream);
 
       MipOffsets.push_back(mipOffset - BaseOffset);
       ImpLog(LL_Debug, LC_General, "%d\n", mipOffset);
-    }
+    }*/
 
-    stream->Seek(MipOffsets[0], RW_SEEK_SET);
+    stream->Seek(BaseOffset, RW_SEEK_SET);
 
     uint8_t* dataBuff = (uint8_t*)malloc(DataLength);
     stream->Read(dataBuff, DataLength);
