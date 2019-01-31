@@ -8,6 +8,8 @@
 #include "3d/scene.h"
 #include "3d/model.h"
 
+#include "profile/scene3d.h"
+
 namespace Impacto {
 namespace ModelViewer {
 
@@ -43,8 +45,8 @@ void Init() {
   Model::EnumerateModels();
   EnumerateBgm();
 
-  CameraPosition = glm::vec3(0.0f, 1.25f, 2.30f);
-  CameraTarget = glm::vec3(0.0f, 1.25f, 0.0f);
+  CameraPosition = Profile::Scene3D::DefaultCameraPosition;
+  CameraTarget = Profile::Scene3D::DefaultCameraTarget;
 
   CurrentModel = 0;
   CurrentAnim = 0;
@@ -114,8 +116,8 @@ void Update(float dt) {
       nk_layout_row_dynamic(Nk, 24, 1);
 
       if (nk_button_label(Nk, "Reset")) {
-        CameraPosition = glm::vec3(0.0f, 1.25f, 2.30f);
-        CameraTarget = glm::vec3(0.0f, 1.25f, 0.0f);
+        CameraPosition = Profile::Scene3D::DefaultCameraPosition;
+        CameraTarget = Profile::Scene3D::DefaultCameraTarget;
       }
 
       nk_property_float(Nk, "Camera X", -1500.0f, &CameraPosition.x, 1500.0f,
@@ -207,7 +209,7 @@ void Update(float dt) {
         if (TrackCamera) {
           Scene3D::Renderables[1].ModelTransform.SetRotationFromEuler(
               LookAtEulerZYX(Scene3D::Renderables[1].ModelTransform.Position +
-                                 glm::vec3(0.0f, 1.25f, 0.0f),
+                                 Profile::Scene3D::DefaultCameraTarget,
                              CameraPosition));
         } else {
           Scene3D::Renderables[1].ModelTransform.Rotation = glm::quat();
