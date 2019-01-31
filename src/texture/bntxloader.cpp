@@ -260,7 +260,8 @@ bool TextureLoadBNTX(InputStream* stream, Texture* outTexture) {
   bool result = false;
   ImpLogSlow(LL_Debug, LC_TextureLoad, "Loading BNTX texture\n");
 
-  uint64_t BnTxSignature = ReadLE<uint64_t>(stream);
+  stream->Seek(4, RW_SEEK_CUR);
+  // uint64_t BnTxSignature = ReadLE<uint64_t>(stream);
   uint32_t DataLength = ReadLE<uint32_t>(stream);
   uint16_t ByteOrderMark = ReadLE<uint16_t>(stream);
   uint16_t FormatRevision = ReadLE<uint16_t>(stream);
@@ -271,6 +272,7 @@ bool TextureLoadBNTX(InputStream* stream, Texture* outTexture) {
   uint32_t NXSignature = ReadLE<uint32_t>(stream);
 
   uint32_t TexturesCount = ReadLE<uint32_t>(stream);
+  ImpLog(LL_Debug, LC_General, "%d\n", TexturesCount);
   uint64_t InfoPtrsAddress = ReadLE<uint64_t>(stream);
   uint64_t DataBlkAddress = ReadLE<uint64_t>(stream);
   uint64_t DictAddress = ReadLE<uint64_t>(stream);
@@ -331,15 +333,16 @@ bool TextureLoadBNTX(InputStream* stream, Texture* outTexture) {
 
     stream->Seek(PtrsAddress, 0);
 
-    uint64_t BaseOffset;
+    uint64_t BaseOffset = 0;
 
-    for (int Mip = 1; Mip < MipmapCount; Mip++) {
+    for (int Mip = 0; Mip < MipmapCount; Mip++) {
       uint64_t mipOffset = ReadLE<uint64_t>(stream);
 
-      MipOffsets[Mip] = mipOffset - BaseOffset;
+      MipOffsets.push_back(mipOffset - BaseOffset);
+      ImpLog(LL_Debug, LC_General, "%d\n", mipOffset);
     }
 
-    stream->Seek(BaseOffset, 0);
+    stream->Seek(MipOffsets[0], RW_SEEK_SET);
 
     uint8_t* dataBuff = (uint8_t*)malloc(DataLength);
     stream->Read(dataBuff, DataLength);
@@ -359,7 +362,7 @@ bool TextureLoadBNTX(InputStream* stream, Texture* outTexture) {
     element.Type = (TextureType)(TextureType2);
     element.FormatType = (TextureFormatType)((Format >> 8) & 0xff);
     element.FormatVariant = (TextureFormatVar)((Format >> 0) & 0xff);
-    element.TilingMode = Flags;
+    element.TilingMode = TileMode;
     element.Alignment = Alignment;
 
     if (element.MipmapCount >= 1) {
@@ -376,25 +379,26 @@ bool TextureLoadBNTX(InputStream* stream, Texture* outTexture) {
 
       switch (element.FormatType) {
         case BC1: {
-          free(dataBuff);
+          void* oldBuff = dataBuff;
           dataBuff = BCnDecompress(dataBuff, element, 1);
-
+          free(oldBuff);
         } break;
         case BC2: {
-          free(dataBuff);
+          void* oldBuff = dataBuff;
           dataBuff = BCnDecompress(dataBuff, element, 2);
-
+          free(oldBuff);
         } break;
 
         case BC3: {
-          free(dataBuff);
+          void* oldBuff = dataBuff;
           dataBuff = BCnDecompress(dataBuff, element, 3);
-
+          free(oldBuff);
         } break;
 
         case BC5: {
-          free(dataBuff);
+          void* oldBuff = dataBuff;
           dataBuff = BCnDecompress(dataBuff, element, 5);
+          free(oldBuff);
         } break;
 
         case TextureFormatType::R8G8B8A8:
