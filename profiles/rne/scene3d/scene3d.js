@@ -1,4 +1,5 @@
 root.Scene3D = {
+    Version: LKMVersion.RNE,
     MaxRenderables: 8,
     DefaultCamera: {
         Position: {

@@ -2,6 +2,7 @@
 
 root.Scene3D.Characters = {
     1: {
+        IdleAnimation: 1,
         Models: [237, 238],
         Animations: {
             1: { OneShot: true },
@@ -21,6 +22,7 @@ root.Scene3D.Characters = {
         }
     },
     2: {
+        IdleAnimation: 1,
         Models: [239, 240, 241, 242, 243, 244, 245],
         Animations: {
             1: { LoopStart: 0, LoopEnd: 730 },
@@ -60,6 +62,7 @@ root.Scene3D.Characters = {
         }
     },
     3: {
+        IdleAnimation: 1,
         Models: [246, 247, 248, 249],
         Animations: {
             1: { LoopStart: 0, LoopEnd: 775 },
@@ -88,6 +91,7 @@ root.Scene3D.Characters = {
         }
     },
     4: {
+        IdleAnimation: 1,
         Models: [250, 251, 252, 253],
         Animations: {
             1: { LoopStart: 0, LoopEnd: 600 },
@@ -107,6 +111,7 @@ root.Scene3D.Characters = {
         }
     },
     5: {
+        IdleAnimation: 1,
         Models: [254, 255],
         Animations: {
             1: { LoopStart: 0, LoopEnd: 690 },
@@ -143,6 +148,7 @@ root.Scene3D.Characters = {
         }
     },
     6: {
+        IdleAnimation: 1,
         Models: [256, 257, 258, 259, 260, 261],
         Animations: {
             1: { LoopStart: 90, LoopEnd: 705 },
@@ -166,6 +172,7 @@ root.Scene3D.Characters = {
         }
     },
     7: {
+        IdleAnimation: 1,
         Models: [262, 263, 264, 265],
         Animations: {
             1: { OneShot: true },
@@ -179,6 +186,7 @@ root.Scene3D.Characters = {
         }
     },
     8: {
+        IdleAnimation: 1,
         Models: [266, 267],
         Animations: {
             1: { LoopStart: 0, LoopEnd: 450 },
@@ -195,6 +203,7 @@ root.Scene3D.Characters = {
         }
     },
     9: {
+        IdleAnimation: 1,
         Models: [268, 269],
         Animations: {
             1: { OneShot: true },
@@ -211,6 +220,7 @@ root.Scene3D.Characters = {
         }
     },
     10: {
+        IdleAnimation: 1,
         Models: [270, 271, 272],
         Animations: {
             1: { OneShot: true },
@@ -228,6 +238,7 @@ root.Scene3D.Characters = {
         }
     },
     11: {
+        IdleAnimation: 1,
         Models: [273],
         Animations: {
             1: { OneShot: true },
@@ -244,6 +255,7 @@ root.Scene3D.Characters = {
         }
     },
     12: {
+        IdleAnimation: 1,
         Models: [274],
         Animations: {
             1: { LoopStart: 170, LoopEnd: 540 },
@@ -273,6 +285,7 @@ root.Scene3D.Characters = {
         }
     },
     13: {
+        IdleAnimation: 1,
         Models: [275],
         Animations: {
             1: { OneShot: true },
@@ -302,6 +315,7 @@ root.Scene3D.Characters = {
         }
     },
     14: {
+        IdleAnimation: 1,
         Models: [276],
         Animations: {
             1: { OneShot: true },
@@ -318,6 +332,7 @@ root.Scene3D.Characters = {
         }
     },
     15: {
+        IdleAnimation: 1,
         Models: [277],
         Animations: {
             1: { OneShot: true },
@@ -334,6 +349,7 @@ root.Scene3D.Characters = {
         }
     },
     16: {
+        IdleAnimation: 1,
         Models: [278],
         Animations: {
             1: { OneShot: true },
@@ -350,6 +366,7 @@ root.Scene3D.Characters = {
         }
     },
     17: {
+        IdleAnimation: 1,
         Models: [279, 280, 281, 282],
         Animations: {
             1: { OneShot: true },
