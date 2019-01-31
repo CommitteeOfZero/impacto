@@ -35,7 +35,7 @@ int const ModelUnknownsAfterMorphTargets_DaSH = 4;
 // Dynamic array?
 int const ModelMaxBonesPerModel = 768;
 int const ModelMaxBonesPerMesh = 32;
-int const ModelMaxMeshesPerModel = 32;
+int const ModelMaxMeshesPerModel = 64;
 int const ModelMaxRootBones = 32;
 int const ModelMaxTexturesPerModel = 64;
 
