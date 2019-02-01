@@ -364,7 +364,6 @@ Model* Model::Load(uint32_t modelId) {
     stream->Seek(0x14, RW_SEEK_CUR);
     ReadArrayLE<TT_Count>(mesh->Maps, stream);
 
-    stream->Seek(4, RW_SEEK_CUR);
     mesh->Flags = ReadLE<uint32_t>(stream);
   }
 

@@ -109,7 +109,20 @@ enum TextureType {
   TT_Eye_HighlightColorMap = 3,
   TT_Eye_Max = 3,
 
-  TT_Count = 6
+  TT_DaSH_ColorMap = 0,
+  TT_DaSH_Unk1 = 1,  // 1 and 3 are gradients
+  TT_DaSH_Unk2 = 2,  // 1 pixel
+  TT_DaSH_Unk3 = 3,
+  TT_DaSH_Shadow = 4,  // is this a shadow map in the conventional sense?
+  TT_DaSH_GradientMaskMap = 5,
+  TT_DaSH_SpecularColorMap = 6,
+  TT_DaSH_Unk7 = 7, // Noise
+
+  TT_DaSH_Eye_WhiteColorMap = 0,
+  TT_DaSH_Eye_IrisColorMap = 1,
+  TT_DaSH_Eye_HighlightColorMap = 2,
+
+  TT_Count = 8
 };
 
 struct Mesh {

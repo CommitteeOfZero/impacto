@@ -22,7 +22,11 @@ layout(std140) uniform Character3DMesh {
 };
 
 // TODO there's a uniform for this somewhere...
+#if DASH
+const float OutlineThickness = 0.003;
+#else
 const float OutlineThickness = 0.03;
+#endif
 
 void main() {
   // Accumulated skinning, thanks

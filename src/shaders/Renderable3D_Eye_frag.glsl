@@ -4,7 +4,9 @@ out vec4 color;
 
 uniform sampler2D IrisColorMap;
 uniform sampler2D WhiteColorMap;
+#if DASH == 0
 uniform sampler2D IrisSpecularColorMap;
+#endif
 uniform sampler2D HighlightColorMap;
 
 layout(std140) uniform Character3DScene {
@@ -28,13 +30,17 @@ const float HIGHLIGHT_TINT_INTENSITY = 0.6;
 void main() {
   vec4 eyeWhiteColor = texture(WhiteColorMap, uv);
   vec4 irisColor = texture(IrisColorMap, uv);
+#if DASH == 0
   vec4 irisSpecularColor = texture(IrisSpecularColorMap, uv);
+#endif
   vec4 highlightColor = texture(HighlightColorMap, uv);
 
   vec3 eyeColor = mix(eyeWhiteColor.rgb, irisColor.rgb, irisColor.a);
 
+#if DASH == 0
   // "Specular"
   eyeColor += irisSpecularColor.rgb * 0.1;
+#endif
 
   // Tint
   vec3 baseTintColor = eyeColor * Tint.rgb;

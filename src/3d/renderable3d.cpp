@@ -58,6 +58,8 @@ void Renderable3D::Init() {
 
   ShaderParamMap shaderParams;
   shaderParams["ModelMaxBonesPerMesh"] = ModelMaxBonesPerMesh;
+  int isDaSH = (int)(Profile::Scene3D::Version == +LKMVersion::DaSH);
+  shaderParams["DASH"] = ShaderParameter(isDaSH, true);
 
   ShaderProgram = ShaderCompile("Renderable3D_Character", shaderParams);
   ShaderProgramOutline = ShaderCompile("Renderable3D_Outline", shaderParams);
@@ -120,25 +122,43 @@ void Renderable3D::Init() {
   UniformMVPBackground = glGetUniformLocation(ShaderProgramBackground, "MVP");
 
   glUseProgram(ShaderProgram);
-  glUniform1i(glGetUniformLocation(ShaderProgram, "ColorMap"), TT_ColorMap);
-  glUniform1i(glGetUniformLocation(ShaderProgram, "GradientMaskMap"),
-              TT_GradientMaskMap);
-  glUniform1i(glGetUniformLocation(ShaderProgram, "SpecularColorMap"),
-              TT_SpecularColorMap);
+  if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+    glUniform1i(glGetUniformLocation(ShaderProgram, "ColorMap"),
+                TT_DaSH_ColorMap);
+    glUniform1i(glGetUniformLocation(ShaderProgram, "GradientMaskMap"),
+                TT_DaSH_GradientMaskMap);
+    glUniform1i(glGetUniformLocation(ShaderProgram, "SpecularColorMap"),
+                TT_DaSH_SpecularColorMap);
+  } else {
+    glUniform1i(glGetUniformLocation(ShaderProgram, "ColorMap"), TT_ColorMap);
+    glUniform1i(glGetUniformLocation(ShaderProgram, "GradientMaskMap"),
+                TT_GradientMaskMap);
+    glUniform1i(glGetUniformLocation(ShaderProgram, "SpecularColorMap"),
+                TT_SpecularColorMap);
+  }
 
   glUseProgram(ShaderProgramOutline);
   glUniform1i(glGetUniformLocation(ShaderProgramOutline, "ColorMap"),
               TT_ColorMap);
 
   glUseProgram(ShaderProgramEye);
-  glUniform1i(glGetUniformLocation(ShaderProgramEye, "HighlightColorMap"),
-              TT_Eye_HighlightColorMap);
-  glUniform1i(glGetUniformLocation(ShaderProgramEye, "WhiteColorMap"),
-              TT_Eye_WhiteColorMap);
-  glUniform1i(glGetUniformLocation(ShaderProgramEye, "IrisSpecularColorMap"),
-              TT_Eye_IrisSpecularColorMap);
-  glUniform1i(glGetUniformLocation(ShaderProgramEye, "IrisColorMap"),
-              TT_Eye_IrisColorMap);
+  if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+    glUniform1i(glGetUniformLocation(ShaderProgramEye, "HighlightColorMap"),
+                TT_DaSH_Eye_HighlightColorMap);
+    glUniform1i(glGetUniformLocation(ShaderProgramEye, "WhiteColorMap"),
+                TT_DaSH_Eye_WhiteColorMap);
+    glUniform1i(glGetUniformLocation(ShaderProgramEye, "IrisColorMap"),
+                TT_DaSH_Eye_IrisColorMap);
+  } else {
+    glUniform1i(glGetUniformLocation(ShaderProgramEye, "HighlightColorMap"),
+                TT_Eye_HighlightColorMap);
+    glUniform1i(glGetUniformLocation(ShaderProgramEye, "WhiteColorMap"),
+                TT_Eye_WhiteColorMap);
+    glUniform1i(glGetUniformLocation(ShaderProgramEye, "IrisSpecularColorMap"),
+                TT_Eye_IrisSpecularColorMap);
+    glUniform1i(glGetUniformLocation(ShaderProgramEye, "IrisColorMap"),
+                TT_Eye_IrisColorMap);
+  }
 
   glUseProgram(ShaderProgramBackground);
   glUniform1i(glGetUniformLocation(ShaderProgramBackground, "ColorMap"),
@@ -452,10 +472,17 @@ void Renderable3D::Render() {
 
       UseMesh(i);
 
-      int const eyePassTextureTypes[] = {
-          TT_Eye_HighlightColorMap, TT_Eye_IrisColorMap,
-          TT_Eye_IrisSpecularColorMap, TT_Eye_WhiteColorMap};
-      SetTextures(i, eyePassTextureTypes, 4);
+      if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+        int const eyePassTextureTypes[] = {TT_DaSH_Eye_HighlightColorMap,
+                                           TT_DaSH_Eye_IrisColorMap,
+                                           TT_DaSH_Eye_WhiteColorMap};
+        SetTextures(i, eyePassTextureTypes, 3);
+      } else {
+        int const eyePassTextureTypes[] = {
+            TT_Eye_HighlightColorMap, TT_Eye_IrisColorMap,
+            TT_Eye_IrisSpecularColorMap, TT_Eye_WhiteColorMap};
+        SetTextures(i, eyePassTextureTypes, 4);
+      }
 
       DrawCharacterMesh(i);
     }
@@ -474,9 +501,16 @@ void Renderable3D::Render() {
 
       UseMesh(i);
 
-      int const colorPassTextureTypes[] = {TT_ColorMap, TT_GradientMaskMap,
-                                           TT_SpecularColorMap};
-      SetTextures(i, colorPassTextureTypes, 3);
+      if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+        int const colorPassTextureTypes[] = {TT_DaSH_ColorMap,
+                                             TT_DaSH_GradientMaskMap,
+                                             TT_DaSH_SpecularColorMap};
+        SetTextures(i, colorPassTextureTypes, 3);
+      } else {
+        int const colorPassTextureTypes[] = {TT_ColorMap, TT_GradientMaskMap,
+                                             TT_SpecularColorMap};
+        SetTextures(i, colorPassTextureTypes, 3);
+      }
 
       DrawCharacterMesh(i);
     }
