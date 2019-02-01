@@ -35,12 +35,14 @@ void Camera::Init() {
 }
 
 void Camera::Recalculate() {
-  View =
-      glm::inverse(CameraTransform.Matrix());  // move the world, not the camera
-
   // X axis is flipped in DaSH, for whatever reason
   if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
-    View = glm::scale(View, glm::vec3(-1, 1, 1));
+    Transform xFlippedTransform = CameraTransform;
+    xFlippedTransform.Scale.x = -xFlippedTransform.Scale.x;
+    View = glm::inverse(xFlippedTransform.Matrix());
+  } else {
+    View = glm::inverse(
+        CameraTransform.Matrix());  // move the world, not the camera
   }
 
   Projection = glm::perspective(Fov, AspectRatio, Near, Far);
