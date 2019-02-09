@@ -26,9 +26,9 @@ layout(std140) uniform Character3DMesh {
 
 // TODO there's a uniform for this somewhere...
 #if DASH
-const float OutlineThickness = 0.003;
+const float OutlineThickness = 0.0035;
 #else
-const float OutlineThickness = 0.03;
+const float OutlineThickness = 0.035;
 #endif
 
 void main() {
@@ -54,6 +54,6 @@ void main() {
   uv = UV;
 
 #if DASH
-  uvNoise = ((gl_Position.xy / gl_Position.w) + vec2(1.0)) / 2.0;
+  uvNoise = (gl_Position.xy / gl_Position.w) * 0.2;
 #endif
 }
