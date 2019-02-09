@@ -22,7 +22,10 @@ enum ModelType : uint32_t {
   ModelType_DaSH_Unspecified = (2 << 16)
 };
 
-enum MeshFlag : uint32_t { MeshFlag_DoubleSided = (1 << 0) };
+enum MeshFlag : uint32_t {
+  // MeshFlag_DoubleSided = (1 << 0),
+  MeshFlag_Later = (1 << 1)
+};
 
 int const ModelMaxChildrenPerBone = 133;
 int const ModelMaxMorphTargetsPerModel = 256;
@@ -116,13 +119,27 @@ enum TextureType {
   TT_DaSH_Shadow = 4,  // is this a shadow map in the conventional sense?
   TT_DaSH_GradientMaskMap = 5,
   TT_DaSH_SpecularColorMap = 6,
-  TT_DaSH_Unk7 = 7, // Noise
+  TT_DaSH_Unk7 = 7,  // Noise
 
   TT_DaSH_Eye_WhiteColorMap = 0,
   TT_DaSH_Eye_IrisColorMap = 1,
   TT_DaSH_Eye_HighlightColorMap = 2,
 
   TT_Count = 8
+};
+
+enum MaterialType {
+  // Ours
+  MT_None = 0,
+  MT_Outline = 1,
+  MT_Generic = 2,
+  MT_Eye = 3,
+  MT_Background = 4,
+  // DaSH
+  MT_DaSH_Generic = 200,
+  MT_DaSH_Eye = 300,
+  MT_DaSH_Face = 400,
+  MT_DaSH_Skin = 500
 };
 
 struct Mesh {
@@ -141,6 +158,7 @@ struct Mesh {
   // Offset (in sizeof(uint16_t) units) into Model.Indices
   int32_t IndexOffset;
 
+  MaterialType Material;
   uint32_t Flags;
   float Opacity;
 

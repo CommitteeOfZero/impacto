@@ -365,6 +365,20 @@ Model* Model::Load(uint32_t modelId) {
     ReadArrayLE<TT_Count>(mesh->Maps, stream);
 
     mesh->Flags = ReadLE<uint32_t>(stream);
+
+    // Choose material
+    if (result->Type == ModelType_Background) {
+      mesh->Material = MT_Background;
+    } else if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+      stream->Seek(3 * 4, RW_SEEK_CUR);
+      mesh->Material = (MaterialType)ReadLE<int>(stream);
+      assert(mesh->Material == MT_DaSH_Generic ||
+             mesh->Material == MT_DaSH_Eye || mesh->Material == MT_DaSH_Face ||
+             mesh->Material == MT_DaSH_Skin);
+    } else {
+      mesh->Material =
+          mesh->Maps[TT_Eye_WhiteColorMap] >= 0 ? MT_Eye : MT_Generic;
+    }
   }
 
   // Read vertex buffers and indices
@@ -694,6 +708,7 @@ Model* Model::MakePlane() {
     result->Meshes[0].Maps[i] = -1;
   }
   result->Meshes[0].MeshBone = 0;
+  result->Meshes[0].Material = MT_Generic;
 
   return result;
 }

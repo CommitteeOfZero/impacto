@@ -26,6 +26,8 @@ struct AnimatedMesh {
   int MorphedVerticesOffset;
 };
 
+enum RenderPass { RP_Outline = 0, RP_First = 1, RP_Second = 2, RP_Count };
+
 class ModelAnimator;
 class Camera;
 
@@ -34,8 +36,7 @@ class Renderable3D : public Loadable<Renderable3D> {
 
  public:
   static void Init();
-  // Character render updates affecting all characters
-  static void LoadSceneUniforms(Camera* camera);
+  static void BeginFrame(Camera* camera);
 
   void MakePlane();
 
@@ -72,12 +73,12 @@ class Renderable3D : public Loadable<Renderable3D> {
 
   void CalculateMorphedVertices(int id);
 
+  void UseMaterial(MaterialType type);
   void UseMesh(int id);
   void LoadModelUniforms();
   void LoadMeshUniforms(int id);
   void SetTextures(int id, int const* textureUnits, int count);
-  void DrawCharacterMesh(int id);
-  void DrawSimpleMesh(int id);
+  void DrawMesh(int id, RenderPass pass);
 
   GLuint UBOModel;
 

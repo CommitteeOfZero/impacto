@@ -51,6 +51,10 @@ static glm::mat4 ViewProjection;
 
 static bool IsInit = false;
 
+static MaterialType CurrentMaterial = MT_None;
+static bool CurrentMaterialIsDepthWrite = false;
+static bool CurrentMaterialIsBackfaceCull = false;
+
 void Renderable3D::Init() {
   assert(IsInit == false);
   ImpLog(LL_Info, LC_Renderable3D, "Initializing Renderable3D system\n");
@@ -169,7 +173,9 @@ void Renderable3D::Init() {
   TextureDummy = texDummy.Submit();
 }
 
-void Renderable3D::LoadSceneUniforms(Camera* camera) {
+void Renderable3D::BeginFrame(Camera* camera) {
+  CurrentMaterial = MT_None;
+
   glBindBufferBase(GL_UNIFORM_BUFFER, 0, UBOScene);
   memcpy(SceneUniformBuffer + SceneUniformOffsets[SU_ViewProjection],
          glm::value_ptr(camera->ViewProjection),
@@ -418,6 +424,87 @@ void Renderable3D::Update(float dt) {
     PrevPoseWeight -= dt / AnimationTransitionTime;
     if (PrevPoseWeight < 0.0f) PrevPoseWeight = 0.0f;
   }
+
+  for (int i = 0; i < StaticModel->MeshCount; i++) {
+    CalculateMorphedVertices(i);
+  }
+}
+
+void Renderable3D::DrawMesh(int id, RenderPass pass) {
+  if (pass == RP_Outline && StaticModel->Type == ModelType_Background) return;
+
+  if (!MeshAnimStatus[id].Visible) return;
+
+  Mesh& mesh = StaticModel->Meshes[id];
+
+  if (pass == RP_First && mesh.Flags & MeshFlag_Later) return;
+  if (pass == RP_Second && !(mesh.Flags & MeshFlag_Later)) return;
+
+  if (pass == RP_Outline) {
+    UseMaterial(MT_Outline);
+  } else {
+    UseMaterial(mesh.Material);
+  }
+  // Because of the above, we use CurrentMaterial later, not mesh.Material
+
+  UseMesh(id);
+
+  switch (CurrentMaterial) {
+    case MT_Background: {
+      int const backgroundTextureTypes[] = {TT_ColorMap};
+      SetTextures(id, backgroundTextureTypes, 1);
+      break;
+    }
+    case MT_Outline: {
+      int const outlineTextureTypes[] = {TT_ColorMap};
+      SetTextures(id, outlineTextureTypes, 1);
+      break;
+    }
+    case MT_Generic: {
+      int const genericTextureTypes[] = {TT_ColorMap, TT_GradientMaskMap,
+                                         TT_SpecularColorMap};
+      SetTextures(id, genericTextureTypes, 3);
+      break;
+    }
+    case MT_Eye: {
+      int const eyeTextureTypes[] = {
+          TT_Eye_HighlightColorMap, TT_Eye_IrisColorMap,
+          TT_Eye_IrisSpecularColorMap, TT_Eye_WhiteColorMap};
+      SetTextures(id, eyeTextureTypes, 4);
+      break;
+    }
+    case MT_DaSH_Generic:
+    case MT_DaSH_Face:
+    case MT_DaSH_Skin: {
+      int const dashGenericTextureTypes[] = {
+          TT_DaSH_ColorMap, TT_DaSH_GradientMaskMap, TT_DaSH_SpecularColorMap};
+      SetTextures(id, dashGenericTextureTypes, 3);
+      break;
+    }
+    case MT_DaSH_Eye: {
+      int const dashEyeTextureTypes[] = {TT_DaSH_Eye_HighlightColorMap,
+                                         TT_DaSH_Eye_IrisColorMap,
+                                         TT_DaSH_Eye_WhiteColorMap};
+      SetTextures(id, dashEyeTextureTypes, 3);
+      break;
+    }
+  }
+
+  if (mesh.Opacity < 0.9 && CurrentMaterialIsDepthWrite) {
+    glDepthMask(GL_FALSE);
+  }
+  // if (mesh.Flags & MeshFlag_DoubleSided && CurrentMaterialIsBackfaceCull) {
+  //  glDisable(GL_CULL_FACE);
+  //}
+
+  glDrawElements(GL_TRIANGLES, mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
+
+  if (mesh.Opacity < 0.9 && CurrentMaterialIsDepthWrite) {
+    glDepthMask(GL_TRUE);
+  }
+  // if (mesh.Flags & MeshFlag_DoubleSided && CurrentMaterialIsBackfaceCull) {
+  //  glEnable(GL_CULL_FACE);
+  //}
 }
 
 void Renderable3D::Render() {
@@ -428,106 +515,9 @@ void Renderable3D::Render() {
   memset(VAOsUpdated, 0, sizeof(VAOsUpdated));
   memset(UniformsUpdated, 0, sizeof(UniformsUpdated));
 
-  if (StaticModel->Type == ModelType_Character) {
-    // Outline pass
-
-    glUseProgram(ShaderProgramOutline);
-
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_FRONT);
-    glDepthMask(GL_FALSE);
-
-    for (int i = 0; i < StaticModel->MeshCount; i++) {
-      // First pass, animate morph targets regardless of whether we're drawing
-      CalculateMorphedVertices(i);
-
-      if (!MeshAnimStatus[i].Visible || StaticModel->Meshes[i].Flags <= 0)
-        continue;
-
-      UseMesh(i);
-
-      int const outlinePassTextureTypes[] = {TT_ColorMap};
-      SetTextures(i, outlinePassTextureTypes, 1);
-
-      DrawSimpleMesh(i);
-    }
-
-    // Eye pass
-
-    if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
-      glDisable(GL_CULL_FACE);
-    }
-
-    glUseProgram(ShaderProgramEye);
-    glCullFace(GL_BACK);
-    glDepthMask(GL_TRUE);
-
-    for (int i = 0; i < StaticModel->MeshCount; i++) {
-      if (!MeshAnimStatus[i].Visible ||
-          (Profile::Scene3D::Version == +LKMVersion::RNE &&
-           StaticModel->Meshes[i].Maps[TT_Eye_WhiteColorMap] < 0) ||
-          (Profile::Scene3D::Version == +LKMVersion::DaSH &&
-           StaticModel->Meshes[i].Flags != 0))
-        continue;
-
-      UseMesh(i);
-
-      if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
-        int const eyePassTextureTypes[] = {TT_DaSH_Eye_HighlightColorMap,
-                                           TT_DaSH_Eye_IrisColorMap,
-                                           TT_DaSH_Eye_WhiteColorMap};
-        SetTextures(i, eyePassTextureTypes, 3);
-      } else {
-        int const eyePassTextureTypes[] = {
-            TT_Eye_HighlightColorMap, TT_Eye_IrisColorMap,
-            TT_Eye_IrisSpecularColorMap, TT_Eye_WhiteColorMap};
-        SetTextures(i, eyePassTextureTypes, 4);
-      }
-
-      DrawCharacterMesh(i);
-    }
-
-    // Color pass
-
-    glUseProgram(ShaderProgram);
-
-    for (int i = 0; i < StaticModel->MeshCount; i++) {
-      if (!MeshAnimStatus[i].Visible ||
-          (Profile::Scene3D::Version == +LKMVersion::RNE &&
-           StaticModel->Meshes[i].Maps[TT_Eye_WhiteColorMap] >= 0) ||
-          (Profile::Scene3D::Version == +LKMVersion::DaSH &&
-           StaticModel->Meshes[i].Flags == 0))
-        continue;
-
-      UseMesh(i);
-
-      if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
-        int const colorPassTextureTypes[] = {TT_DaSH_ColorMap,
-                                             TT_DaSH_GradientMaskMap,
-                                             TT_DaSH_SpecularColorMap};
-        SetTextures(i, colorPassTextureTypes, 3);
-      } else {
-        int const colorPassTextureTypes[] = {TT_ColorMap, TT_GradientMaskMap,
-                                             TT_SpecularColorMap};
-        SetTextures(i, colorPassTextureTypes, 3);
-      }
-
-      DrawCharacterMesh(i);
-    }
-
-    if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
-      glEnable(GL_CULL_FACE);
-    }
-  } else if (StaticModel->Type == ModelType_Background) {
-    glUseProgram(ShaderProgramBackground);
-
-    for (int i = 0; i < StaticModel->MeshCount; i++) {
-      UseMesh(i);
-
-      int const backgroundTextureTypes[] = {TT_ColorMap};
-      SetTextures(i, backgroundTextureTypes, 1);
-
-      DrawSimpleMesh(i);
+  for (int i = 0; i < RP_Count; i++) {
+    for (int j = 0; j < StaticModel->MeshCount; j++) {
+      DrawMesh(j, (RenderPass)i);
     }
   }
 }
@@ -552,6 +542,60 @@ void Renderable3D::LoadModelUniforms() {
     glBufferSubData(GL_UNIFORM_BUFFER, 0, ModelUniformBlockSize,
                     ModelUniformBuffer);
   }
+}
+
+void Renderable3D::UseMaterial(MaterialType type) {
+  if (CurrentMaterial == type) return;
+
+  switch (type) {
+    case MT_Outline: {
+      glUseProgram(ShaderProgramOutline);
+      break;
+    }
+    case MT_Background: {
+      glUseProgram(ShaderProgramBackground);
+      break;
+    }
+    case MT_Generic:
+    case MT_DaSH_Generic:
+    case MT_DaSH_Face:
+    case MT_DaSH_Skin: {
+      glUseProgram(ShaderProgram);
+      break;
+    }
+    case MT_Eye:
+    case MT_DaSH_Eye: {
+      glUseProgram(ShaderProgramEye);
+      break;
+    }
+  }
+
+  glEnable(GL_CULL_FACE);
+  if (type == MT_Outline) {
+    glCullFace(GL_FRONT);
+  } else {
+    glCullFace(GL_BACK);
+  }
+
+  // if (type == MT_Outline || type == MT_Generic || type == MT_Eye) {
+  //  glEnable(GL_CULL_FACE);
+  //  GLenum side = type == MT_Outline ? GL_FRONT : GL_BACK;
+  //  glCullFace(side);
+  //  CurrentMaterialIsBackfaceCull = side == GL_BACK;
+  //} else {
+  //  glDisable(GL_CULL_FACE);
+  //  CurrentMaterialIsBackfaceCull = false;
+  //}
+
+  if (type == MT_Outline) {
+    CurrentMaterialIsDepthWrite = false;
+    glDepthMask(GL_FALSE);
+  } else {
+    CurrentMaterialIsDepthWrite = true;
+    glDepthMask(GL_TRUE);
+  }
+
+  CurrentMaterial = type;
 }
 
 void Renderable3D::UseMesh(int id) {
@@ -612,35 +656,6 @@ void Renderable3D::LoadMeshUniforms(int id) {
     glm::mat4 mvp =
         ViewProjection * StaticModel->Meshes[id].ModelTransform.Matrix();
     glUniformMatrix4fv(UniformMVPBackground, 1, GL_FALSE, glm::value_ptr(mvp));
-  }
-}
-
-void Renderable3D::DrawSimpleMesh(int id) {
-  glDrawElements(GL_TRIANGLES, StaticModel->Meshes[id].IndexCount,
-                 GL_UNSIGNED_SHORT, 0);
-}
-
-void Renderable3D::DrawCharacterMesh(int id) {
-  // TODO: how do they actually do this?
-  // NOTE this approach breaks on Nae's sunglasses, for one
-  if (StaticModel->Meshes[id].Opacity < 0.9) {
-    glDepthMask(GL_FALSE);
-  }
-
-  if (StaticModel->Meshes[id].Flags & MeshFlag_DoubleSided &&
-      Profile::Scene3D::Version == +LKMVersion::RNE) {
-    glDisable(GL_CULL_FACE);
-  }
-
-  DrawSimpleMesh(id);
-
-  // Reset common state
-  if (StaticModel->Meshes[id].Opacity < 0.9) {
-    glDepthMask(GL_TRUE);
-  }
-  if (StaticModel->Meshes[id].Flags & MeshFlag_DoubleSided &&
-      Profile::Scene3D::Version == +LKMVersion::RNE) {
-    glEnable(GL_CULL_FACE);
   }
 }
 

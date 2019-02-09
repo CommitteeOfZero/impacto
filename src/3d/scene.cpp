@@ -112,7 +112,7 @@ void Render() {
   MainCamera.AspectRatio = viewport.Width / viewport.Height;
   MainCamera.Recalculate();
 
-  Renderable3D::LoadSceneUniforms(&MainCamera);
+  Renderable3D::BeginFrame(&MainCamera);
 
   for (int i = 0; i < Profile::Scene3D::MaxRenderables; i++) {
     if (Renderables[i].Status == LS_Loaded &&
