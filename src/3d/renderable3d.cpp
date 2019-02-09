@@ -69,7 +69,8 @@ void Renderable3D::Init() {
   ShaderProgramOutline = ShaderCompile("Renderable3D_Outline", shaderParams);
   ShaderProgramEye = ShaderCompile("Renderable3D_Eye", shaderParams);
 
-  ShaderProgramBackground = ShaderCompile("Renderable3D_Background");
+  ShaderProgramBackground =
+      ShaderCompile("Renderable3D_Background", shaderParams);
 
   GLuint sceneUniformIndices[SU_Count];
   glGetUniformIndices(ShaderProgram, SU_Count, SceneUniformNames,
@@ -142,8 +143,15 @@ void Renderable3D::Init() {
   }
 
   glUseProgram(ShaderProgramOutline);
-  glUniform1i(glGetUniformLocation(ShaderProgramOutline, "ColorMap"),
-              TT_ColorMap);
+  if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+    glUniform1i(glGetUniformLocation(ShaderProgramOutline, "ColorMap"),
+                TT_DaSH_ColorMap);
+    glUniform1i(glGetUniformLocation(ShaderProgramOutline, "NoiseMap"),
+                TT_DaSH_NoiseMap);
+  } else {
+    glUniform1i(glGetUniformLocation(ShaderProgramOutline, "ColorMap"),
+                TT_ColorMap);
+  }
 
   glUseProgram(ShaderProgramEye);
   if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
@@ -456,8 +464,13 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
       break;
     }
     case MT_Outline: {
-      int const outlineTextureTypes[] = {TT_ColorMap};
-      SetTextures(id, outlineTextureTypes, 1);
+      if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+        int const outlineTextureTypes[] = {TT_DaSH_ColorMap, TT_DaSH_NoiseMap};
+        SetTextures(id, outlineTextureTypes, 2);
+      } else {
+        int const outlineTextureTypes[] = {TT_ColorMap};
+        SetTextures(id, outlineTextureTypes, 1);
+      }
       break;
     }
     case MT_Generic: {

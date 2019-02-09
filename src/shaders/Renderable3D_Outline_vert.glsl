@@ -5,6 +5,9 @@ layout(location = 3) in lowp ivec4 BoneIndices;  // indices into Mesh.BoneMap
 layout(location = 4) in vec4 BoneWeights;
 
 out vec2 uv;
+#if DASH
+out vec2 uvNoise;
+#endif
 
 layout(std140) uniform Character3DScene {
   UNIFORM_PRECISION mat4 ViewProjection;
@@ -49,4 +52,8 @@ void main() {
   gl_Position += viewNormal * OutlineThickness;
 
   uv = UV;
+
+#if DASH
+  uvNoise = ((gl_Position.xy / gl_Position.w) + vec2(1.0)) / 2.0;
+#endif
 }
