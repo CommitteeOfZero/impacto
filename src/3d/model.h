@@ -62,8 +62,9 @@ struct VertexBufferDaSH {
   glm::vec3 Position;
   glm::vec3 Normal;
 
-  glm::vec3 unk1;  // normalized, orthogonal to normal - tangent?
-  glm::vec4 unk2;  // all 1 in the first few vertices of c001_010
+  glm::vec3 unk1;  // tangent, only used in generic and skin
+  glm::vec4 unk2;  // all 1 in the first few vertices of c001_010, apparently
+                   // not used in rendering
 
   glm::vec2 UV;
   uint8_t BoneIndices[4];  // indices into Mesh.BoneMap
