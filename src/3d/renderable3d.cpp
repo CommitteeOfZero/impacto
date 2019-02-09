@@ -518,6 +518,8 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
   // if (mesh.Flags & MeshFlag_DoubleSided && CurrentMaterialIsBackfaceCull) {
   //  glEnable(GL_CULL_FACE);
   //}
+
+  if (pass != RP_Outline) DrawMesh(id, RP_Outline);
 }
 
 void Renderable3D::Render() {
@@ -528,10 +530,15 @@ void Renderable3D::Render() {
   memset(VAOsUpdated, 0, sizeof(VAOsUpdated));
   memset(UniformsUpdated, 0, sizeof(UniformsUpdated));
 
-  for (int i = 0; i < RP_Count; i++) {
+  for (int i = RP_First; i < RP_Count; i++) {
     for (int j = 0; j < StaticModel->MeshCount; j++) {
       DrawMesh(j, (RenderPass)i);
     }
+  }
+
+  if (CurrentMaterial == MT_Outline) {
+    // Clean up some state
+    UseMaterial(MT_Background);
   }
 }
 
