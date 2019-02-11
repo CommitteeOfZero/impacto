@@ -22,7 +22,12 @@ enum SceneUniform {
   SU_Count = 5
 };
 enum ModelUniform { MU_Model = 0, MU_Count = 1 };
-enum MeshUniform { MSU_Bones = 0, MSU_ModelOpacity = 1, MSU_Count = 2 };
+enum MeshUniform {
+  MSU_Bones = 0,
+  MSU_ModelOpacity = 1,
+  MSU_HasShadowColorMap = 2,
+  MSU_Count = 3
+};
 
 static char const* SceneUniformNames[SU_Count] = {
     "ViewProjection", "Tint", "WorldLightPosition", "WorldEyePosition",
@@ -30,7 +35,8 @@ static char const* SceneUniformNames[SU_Count] = {
 static GLint SceneUniformOffsets[SU_Count];
 static char const* ModelUniformNames[MU_Count] = {"Model"};
 static GLint ModelUniformOffsets[MU_Count];
-static char const* MeshUniformNames[MSU_Count] = {"Bones", "ModelOpacity"};
+static char const* MeshUniformNames[MSU_Count] = {"Bones", "ModelOpacity",
+                                                  "HasShadowColorMap"};
 static GLint MeshUniformOffsets[MSU_Count];
 
 static GLuint TextureDummy = 0;
@@ -130,6 +136,8 @@ void Renderable3D::Init() {
   if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
     glUniform1i(glGetUniformLocation(ShaderProgram, "ColorMap"),
                 TT_DaSH_ColorMap);
+    glUniform1i(glGetUniformLocation(ShaderProgram, "ShadowColorMap"),
+                TT_DaSH_ShadowColorMap);
     glUniform1i(glGetUniformLocation(ShaderProgram, "GradientMaskMap"),
                 TT_DaSH_GradientMaskMap);
     glUniform1i(glGetUniformLocation(ShaderProgram, "SpecularColorMap"),
@@ -486,7 +494,13 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
       SetTextures(id, eyeTextureTypes, 4);
       break;
     }
-    case MT_DaSH_Generic:
+    case MT_DaSH_Generic: {
+      int const dashGenericTextureTypes[] = {
+          TT_DaSH_ColorMap, TT_DaSH_ShadowColorMap, TT_DaSH_GradientMaskMap,
+          TT_DaSH_SpecularColorMap};
+      SetTextures(id, dashGenericTextureTypes, 4);
+      break;
+    }
     case MT_DaSH_Face:
     case MT_DaSH_Skin: {
       int const dashGenericTextureTypes[] = {
@@ -642,30 +656,32 @@ void Renderable3D::UseMesh(int id) {
 }
 
 void Renderable3D::LoadMeshUniforms(int id) {
+  Mesh& mesh = StaticModel->Meshes[id];
+
   if (StaticModel->Type == ModelType_Character) {
     glBindBufferBase(GL_UNIFORM_BUFFER, 2, UBOs[id]);
 
     if (!UniformsUpdated[id]) {
-      if (StaticModel->Meshes[id].UsedBones > 0) {
+      if (mesh.UsedBones > 0) {
         glm::mat4* outBone =
             (glm::mat4*)(MeshUniformBuffer + MeshUniformOffsets[MSU_Bones]);
-        for (int j = 0; j < StaticModel->Meshes[id].UsedBones; j++) {
-          memcpy(outBone,
-                 glm::value_ptr(
-                     CurrentPose[StaticModel->Meshes[id].BoneMap[j]].Offset),
+        for (int j = 0; j < mesh.UsedBones; j++) {
+          memcpy(outBone, glm::value_ptr(CurrentPose[mesh.BoneMap[j]].Offset),
                  sizeof(glm::mat4));
           outBone++;
         }
       } else {
         memcpy(MeshUniformBuffer + MeshUniformOffsets[MSU_Bones],
-               glm::value_ptr(
-                   CurrentPose[StaticModel->Meshes[id].MeshBone].Offset),
+               glm::value_ptr(CurrentPose[mesh.MeshBone].Offset),
                sizeof(glm::mat4));
       }
 
       memcpy(MeshUniformBuffer + MeshUniformOffsets[MSU_ModelOpacity],
-             &StaticModel->Meshes[id].Opacity,
-             sizeof(StaticModel->Meshes[id].Opacity));
+             &mesh.Opacity, sizeof(mesh.Opacity));
+
+      *(uint32_t*)(MeshUniformBuffer +
+                   MeshUniformOffsets[MSU_HasShadowColorMap]) =
+          mesh.Material == MT_DaSH_Generic && mesh.HasShadowColorMap;
 
       glBufferSubData(GL_UNIFORM_BUFFER, 0, MeshUniformBlockSize,
                       MeshUniformBuffer);
@@ -673,8 +689,7 @@ void Renderable3D::LoadMeshUniforms(int id) {
       UniformsUpdated[id] = true;
     }
   } else if (StaticModel->Type == ModelType_Background) {
-    glm::mat4 mvp =
-        ViewProjection * StaticModel->Meshes[id].ModelTransform.Matrix();
+    glm::mat4 mvp = ViewProjection * mesh.ModelTransform.Matrix();
     glUniformMatrix4fv(UniformMVPBackground, 1, GL_FALSE, glm::value_ptr(mvp));
   }
 }

@@ -117,7 +117,7 @@ enum TextureType {
   TT_DaSH_Unk1 = 1,  // 1 and 3 are gradients
   TT_DaSH_Unk2 = 2,  // 1 pixel
   TT_DaSH_Unk3 = 3,
-  TT_DaSH_Shadow = 4,  // is this a shadow map in the conventional sense?
+  TT_DaSH_ShadowColorMap = 4,
   TT_DaSH_GradientMaskMap = 5,
   TT_DaSH_SpecularColorMap = 6,
   TT_DaSH_NoiseMap = 7,  // Noise
@@ -172,6 +172,7 @@ struct Mesh {
   int16_t BoneMap[ModelMaxBonesPerMesh];  // indices into Model.Bones
 
   int16_t Maps[TT_Count];
+  bool HasShadowColorMap;
 
   // Sets transform for meshes without individual vertex skinning
   int16_t MeshBone;

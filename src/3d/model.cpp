@@ -358,7 +358,14 @@ Model* Model::Load(uint32_t modelId) {
     mesh->VertexCount = ReadLE<int32_t>(stream);
     mesh->IndexCount = ReadLE<int32_t>(stream);
 
-    stream->Seek(0x6C, RW_SEEK_CUR);
+    stream->Seek(0x68, RW_SEEK_CUR);
+    if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+      // Don't ask me why there's a float for this
+      mesh->HasShadowColorMap = ReadLE<float>(stream) != 0.0f;
+    } else {
+      stream->Seek(4, RW_SEEK_CUR);
+      mesh->HasShadowColorMap = false;
+    }
     mesh->Opacity = ReadLE<float>(stream);
 
     stream->Seek(0x14, RW_SEEK_CUR);

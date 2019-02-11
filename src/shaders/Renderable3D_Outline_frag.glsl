@@ -23,6 +23,7 @@ layout(std140) uniform Character3DModel { UNIFORM_PRECISION mat4 Model; };
 layout(std140) uniform Character3DMesh {
   UNIFORM_PRECISION mat4 Bones[ModelMaxBonesPerMesh];
   UNIFORM_PRECISION float ModelOpacity;
+  bool HasShadowColorMap;
 };
 
 void main() {

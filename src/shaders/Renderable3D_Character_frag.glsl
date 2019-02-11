@@ -5,6 +5,9 @@ in vec2 uv;
 out vec4 color;
 
 uniform sampler2D ColorMap;
+#ifdef DASH
+uniform sampler2D ShadowColorMap;
+#endif
 uniform sampler2D GradientMaskMap;
 uniform sampler2D SpecularColorMap;
 
@@ -21,6 +24,7 @@ layout(std140) uniform Character3DModel { UNIFORM_PRECISION mat4 Model; };
 layout(std140) uniform Character3DMesh {
   UNIFORM_PRECISION mat4 Bones[ModelMaxBonesPerMesh];
   UNIFORM_PRECISION float ModelOpacity;
+  bool HasShadowColorMap;
 };
 
 const float FALLOFF_POWER = 0.8;
@@ -69,7 +73,17 @@ void main() {
   vec2 toonFalloffInterpParam =
       mix(toonFalloffGradParam.xz, toonFalloffGradParam.yw, maskParam);
 
-  vec3 shadowColor = max(texColor.rgb, vec3(0.5)) * texColor.rgb;
+  vec3 shadowColor;
+#if DASH
+  if (HasShadowColorMap) {
+    shadowColor = texture(ShadowColorMap, uv).rgb;
+  } else {
+#endif
+    shadowColor = max(texColor.rgb, vec3(0.5)) * texColor.rgb;
+#if DASH
+  }
+#endif
+
   vec3 toonColor = mix(shadowColor, texColor.rgb, toonFalloffInterpParam.x);
 
   // Tint
