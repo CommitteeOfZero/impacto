@@ -36,9 +36,19 @@ VmInstruction(InstIf) {
   StartInstruction;
   PopUint8(check);
   PopExpression(condition);
-  PopLocalLabel(labelAdr);
+
+  PopUint16(labelNum);
+  uint8_t* labelAdr =
+      ScriptGetLabelAddress(ScriptBuffers[thread->ScriptBufferId], labelNum);
 
   if ((bool)check == (bool)condition) {
+    thread->Ip = labelAdr;
+  }
+
+  // Hack: Pokecom infinite recursion in DaSH macrosys2
+  if (thread->Variables[0] == 1 && labelNum == 107 &&
+      thread->ScriptBufferId == 7) {
+    thread->Variables[0] = 0;
     thread->Ip = labelAdr;
   }
 }

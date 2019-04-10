@@ -96,7 +96,7 @@ void Render() {
 
     if (BoxAnimCount > 9.0f) {
       Renderer2D::DrawRect(
-          RectF(BoxDisplayX, BoxTopY - 1.0f, 592.0f, BoxHeight + 2.0f),
+          RectF(BoxDisplayX, BoxTopY - 1.0f, BoxWidth, BoxHeight + 2.0f),
           glm::vec4(1.0f, 1.0f, 1.0f, 0.75f));
       Renderer2D::DrawSprite(BoxDecorationTop,
                              glm::vec2(BoxDisplayX, BoxTopY - 3.0f), col);

@@ -7,6 +7,7 @@
 #include "expression.h"
 #include "../game.h"
 #include "../log.h"
+#include "../mem.h"
 
 namespace Impacto {
 
@@ -54,6 +55,7 @@ VmInstruction(InstMovieMain) {
                  "STUB instruction MovieMain(type: Stop)\n");
       break;
     case 3:  // StopWait
+      ScrWork[6343] = 255;
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MovieMain(type: StopWaitForSomething)\n");
       break;

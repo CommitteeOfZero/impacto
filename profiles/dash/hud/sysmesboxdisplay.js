@@ -2,33 +2,33 @@ var sheet = "Data";
 var name = "SysMesBox";
 
 root.SysMesBoxDisplay = {
-    LinePositionXFirst: 1622,
-    LinePositionX: 1652,
+    LinePositionXFirst: 2433,
+    LinePositionX: 2478,
     LinePositionMultiplier: 30,
-    LineWidthFirst: 114,
-    LineWidthBase: 54,
+    LineWidthFirst: 171,
+    LineWidthBase: 81,
     LineWidthMultiplier: 60,
-    Line1SpriteY: 107,
-    Line2SpriteY: 117,
-    LineSpriteHeight: 8,
-    LineDisplayXBase: 639,
-    Line1DisplayY: 360,
-    Line2DisplayY: 352,
+    Line1SpriteY: 160.5,
+    Line2SpriteY: 175.5,
+    LineSpriteHeight: 12,
+    LineDisplayXBase: 958.5,
+    Line1DisplayY: 540,
+    Line2DisplayY: 528,
     BoxDisplayStartCount: 9,
-    BoxHeightBase: 112,
+    BoxHeightBase: 168,
     BoxHeightMultiplier: 14,
-    BoxWidth: 592,
-    BoxTextFontSize: 28,
-    BoxTopYBase: 360,
-    BoxDisplayX: 344,
-    MessageLabelSpriteXBase: 1574,
-    MessageLabelSpriteY: 131,
-    MessageLabelSpriteHeight: 31,
-	TextFontSize: 26,
-	TextMiddleY: 418,
-	TextX: 370,
-	TextLineHeight: 28,
-	TextMarginY: 14,
+    BoxWidth: 912,
+    BoxTextFontSize: 42,
+    BoxTopYBase: 540,
+    BoxDisplayX: 516,
+    MessageLabelSpriteXBase: 2368,
+    MessageLabelSpriteY: 196.5,
+    MessageLabelSpriteHeight: 64,
+	TextFontSize: 39,
+	TextMiddleY: 627,
+	TextX: 555,
+	TextLineHeight: 42,
+	TextMarginY: 21,
     AnimationSpeed: 55,
     FadeInDuration: 0.33,
     FadeOutDuration: 0.25
@@ -37,10 +37,10 @@ root.SysMesBoxDisplay = {
 root.Sprites[name + "BoxDecorationTop"] = {
     Sheet: sheet,
     Bounds: {
-        X: 1383,
-        Y: 107,
-        Width: 592,
-        Height: 8
+        X: 2048,
+        Y: 400,
+        Width: 912,
+        Height: 4
     }
 };
 root.SysMesBoxDisplay.BoxDecorationTop = name + "BoxDecorationTop";
@@ -48,10 +48,10 @@ root.SysMesBoxDisplay.BoxDecorationTop = name + "BoxDecorationTop";
 root.Sprites[name + "BoxDecorationBottom"] = {
     Sheet: sheet,
     Bounds: {
-        X: 1383,
-        Y: 117,
-        Width: 592,
-        Height: 8
+        X: 2048,
+        Y: 536,
+        Width: 912,
+        Height: 4
     }
 };
 root.SysMesBoxDisplay.BoxDecorationBottom = name + "BoxDecorationBottom";
@@ -59,10 +59,10 @@ root.SysMesBoxDisplay.BoxDecorationBottom = name + "BoxDecorationBottom";
 root.Sprites[name + "TextDecoration"] = {
     Sheet: sheet,
     Bounds: {
-        X: 1383,
-        Y: 127,
-        Width: 592,
-        Height: 2
+        X: 2074.5,
+        Y: 127*1.5,
+        Width: 888,
+        Height: 2*1.5
     }
 };
 root.SysMesBoxDisplay.TextDecoration = name + "TextDecoration";
@@ -70,10 +70,10 @@ root.SysMesBoxDisplay.TextDecoration = name + "TextDecoration";
 root.Sprites[name + "MessageLabel"] = {
     Sheet: sheet,
     Bounds: {
-        X: 1383,
-        Y: 127,
-        Width: 592,
-        Height: 2
+        X: 2074.5,
+        Y: 190.5,
+        Width: 888,
+        Height: 3
     }
 };
 root.SysMesBoxDisplay.MessageLabel = name + "MessageLabel";
@@ -81,10 +81,10 @@ root.SysMesBoxDisplay.MessageLabel = name + "MessageLabel";
 root.Sprites[name + "Line1"] = {
     Sheet: sheet,
     Bounds: {
-        X: 1622,
-        Y: 107,
-        Width: 114,
-        Height: 8
+        X: 1622*1.5,
+        Y: 107*1.5,
+        Width: 114*1.5,
+        Height: 8*1.5
     }
 };
 root.SysMesBoxDisplay.Line1 = name + "Line1";
@@ -92,10 +92,10 @@ root.SysMesBoxDisplay.Line1 = name + "Line1";
 root.Sprites[name + "Line2"] = {
     Sheet: sheet,
     Bounds: {
-        X: 1622,
-        Y: 117,
-        Width: 114,
-        Height: 8
+        X: 1622*1.5,
+        Y: 117*1.5,
+        Width: 114*1.5,
+        Height: 8*1.5
     }
 };
 root.SysMesBoxDisplay.Line2 = name + "Line2";

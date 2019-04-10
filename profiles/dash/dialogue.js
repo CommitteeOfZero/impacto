@@ -1,33 +1,31 @@
 root.Sprites["ADVBox"] = {
-    Sheet: "Data",
-    Bounds: { X: 768, Y: 807, Width: 1280, Height: 206 },
-    // Even though the sprite is sized for 1280x720, they draw it unscaled at 960x544, cutting off the remainder
-    BaseScale: { X: 1280 / 960, Y: 720 / 544 }
+    Sheet: "MesBox",
+    Bounds: { X: 0, Y: 864, Width: 1920, Height: 281 }
 };
 
 root.Sprites["DialogueWaitIcon"] = {
     Sheet: "Data",
-    Bounds: { X: 1, Y: 97, Width: 32, Height: 32 }
+    Bounds: { X: 1, Y: 145.5, Width: 48, Height: 48 }
 };
 
 root.Dialogue = {
-    NVLBounds: { X: 125, Y: 85, Width: 1024, Height: 400 },
-    ADVBounds: { X: 161, Y: 546, Width: 960, Height: 180 },
+    NVLBounds: { X: 188, Y: 128, Width: 1536, Height: 600 },
+    ADVBounds: { X: 295, Y: 828, Width: 1440, Height: 270 },
     ADVBoxSprite: "ADVBox",
-    ADVBoxPos: { X: 0, Y: 477.8 },
+    ADVBoxPos: { X: 0, Y: 781 },
     FadeOutDuration: 0.33,
     FadeInDuration: 0.33,
     NVLBoxMaxOpacity: 0.55,
     ADVNameAlignment: TextAlignment.Left,
-    ADVNameFontSize: 22,
-    ADVNamePos: { X: 104, Y: 498 },
+    ADVNameFontSize: 33,
+    ADVNamePos: { X: 173, Y: 773 },
     WaitIconSprite: "DialogueWaitIcon",
     WaitIconOffset: { X: 4, Y: 4 },
     WaitIconAnimationDuration: 3.2,
     DialogueFont: "Default",
-    DefaultFontSize: 32,
-    RubyFontSize: 14,
-    RubyYOffset: -18,
+    DefaultFontSize: 48,
+    RubyFontSize: 21,
+    RubyYOffset: -27,
     ColorTable: [
         [0xFFFFFF, 0x000000], [0x5080FF, 0x000000],
         [0xFF7080, 0x000000], [0xFFA0F8, 0x000000],
@@ -69,4 +67,4 @@ root.Dialogue = {
     PageCount: 3
 };
 
-include('rne/nametag.js');
+include('dash/nametag.js');

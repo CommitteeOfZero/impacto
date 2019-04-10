@@ -12,6 +12,8 @@
 #include "../hud/mainmenu.h"
 #include "../inputsystem.h"
 
+#include "../profile/vm.h"
+
 namespace Impacto {
 
 namespace Vm {
@@ -99,7 +101,12 @@ VmInstruction(InstPressStart) {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction PressStart(type: %i, arg1: %i, arg2: %i)\n",
                  type, arg1, arg2);
-      SaveIconDisplay::ShowAt(glm::vec2(arg1, arg2));
+      switch (Profile::Vm::GameInstructionSet) {
+        case InstructionSet::Dash: {
+          SaveIconDisplay::ShowAt(glm::vec2(arg1 * 1.5f, arg2 * 1.5f));
+        } break;
+        default: { SaveIconDisplay::ShowAt(glm::vec2(arg1, arg2)); } break;
+      }
     } break;
     case 1: {
       ImpLogSlow(LL_Warning, LC_VMStub,
@@ -348,11 +355,20 @@ VmInstruction(InstTitleMenu) {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction TitleMenu(type: Init)\n");
       TitleMenu::Show();
+      SetFlag(SF_TITLEMODE, 1);
       break;
     case 1:  // Main
       // Hack to kickstart into "New Game"
-      ScrWork[SW_TITLECUR1] = 0;
+      switch (Profile::Vm::GameInstructionSet) {
+        case InstructionSet::RNE:
+          ScrWork[SW_TITLECUR1] = 0;
+          break;
+        case InstructionSet::Dash:
+          ScrWork[SW_TITLECUR1] = 2;
+          break;
+      }
       ScrWork[SW_TITLECUR2] = 255;
+      SetFlag(SF_TITLEMODE, 0);
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction TitleMenu(type: Main)\n");
       break;

@@ -1,25 +1,25 @@
 var sheet = "Data";
 var name = "Date";
 
-var yearNumFirstX = 1525;
-var yearNumFirstY = 63;
-var yearNumWidth = 25;
-var yearNum1Width = 8;
-var yearNumHeight = 20;
+var yearNumFirstX = 2287.5;
+var yearNumFirstY = 94.5;
+var yearNumWidth = 37.5;
+var yearNum1Width = 12;
+var yearNumHeight = 30;
 
-var numFirstX = 1524;
-var numFirstY = 33;
-var numWidth = 40;
-var num1Width = 12;
-var numHeight = 28;
+var numFirstX = 2286;
+var numFirstY = 49.5;
+var numWidth = 60;
+var num1Width = 18;
+var numHeight = 42;
 
-var weekFirstX = 1785;
-var weekFirstY = 63;
-var weekSecondX = 1525;
-var weekSecondY = 85;
-var weekWidth = 73;
-var weekFriWidth = 56;
-var weekHeight = 20;
+var weekFirstX = 2677.5;
+var weekFirstY = 94.5;
+var weekSecondX = 2287.5;
+var weekSecondY = 127.5;
+var weekWidth = 109.5;
+var weekFriWidth = 84;
+var weekHeight = 30;
 
 root.DateDisplay = {
 	Type: DateDisplayType.RNE,
@@ -27,12 +27,12 @@ root.DateDisplay = {
     MonthNumSprites: [],
     DayNumSprites: [],
     WeekSprites: [],
-    BackgroundStartPos: { X: 1088, Y: 73 },
-    BackgroundEndPos: { X: 1088 - 256, Y: 73 },
-    DateStartX: 1167,
-    YearWeekY: 60,
-    MonthDayY: 52,
-    Spacing: 1,
+    BackgroundStartPos: { X: 1632, Y: 109.5 },
+    BackgroundEndPos: { X: 1632 - 384, Y: 109.5 },
+    DateStartX: 1750.5,
+    YearWeekY: 90,
+    MonthDayY: 78,
+    Spacing: 1.5,
     FadeInDuration: 0.5,
     FadeOutDuration: 0.5
 };
@@ -107,10 +107,10 @@ for (var i = 0; i < 7; i++) {
 root.Sprites[name + "MonthDaySeparator"] = {
     Sheet: sheet,
     Bounds: {
-        X: 1897,
-        Y: 33,
-        Width: 10,
-        Height: 28
+        X: 2845.5,
+        Y: 49.5,
+        Width: 15,
+        Height: 42
     }
 };
 root.DateDisplay.MDSeparatorSprite = name + "MonthDaySeparator";
@@ -118,10 +118,10 @@ root.DateDisplay.MDSeparatorSprite = name + "MonthDaySeparator";
 root.Sprites[name + "DayYearSeparator"] = {
     Sheet: sheet,
     Bounds: {
-        X: 1758,
-        Y: 63,
-        Width: 8,
-        Height: 20
+        X: 2637,
+        Y: 94.5,
+        Width: 12,
+        Height: 30
     }
 };
 root.DateDisplay.DYSeparatorSprite = name + "DayYearSeparator";
@@ -129,10 +129,10 @@ root.DateDisplay.DYSeparatorSprite = name + "DayYearSeparator";
 root.Sprites[name + "OpenBracket"] = {
     Sheet: sheet,
     Bounds: {
-        X: 1766,
-        Y: 63,
-        Width: 8,
-        Height: 20
+        X: 2649,
+        Y: 94.5,
+        Width: 12,
+        Height: 30
     }
 };
 root.DateDisplay.OpenBracketSprite = name + "OpenBracket";
@@ -140,10 +140,10 @@ root.DateDisplay.OpenBracketSprite = name + "OpenBracket";
 root.Sprites[name + "CloseBracket"] = {
     Sheet: sheet,
     Bounds: {
-        X: 1776,
-        Y: 63,
-        Width: 8,
-        Height: 20
+        X: 2664,
+        Y: 94.5,
+        Width: 12,
+        Height: 30
     }
 };
 root.DateDisplay.CloseBracketSprite = name + "CloseBracket";
@@ -151,10 +151,10 @@ root.DateDisplay.CloseBracketSprite = name + "CloseBracket";
 root.Sprites[name + "Background"] = {
     Sheet: sheet,
     Bounds: {
-        X: 1525,
-        Y: 1,
-        Width: 450,
-        Height: 28
+        X: 2287.5,
+        Y: 2,
+        Width: 675,
+        Height: 42
     }
 };
 root.DateDisplay.BackgroundSprite = name + "Background";

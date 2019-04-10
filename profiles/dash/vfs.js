@@ -1,13 +1,13 @@
 root.Vfs = {
     Mounts: {
-        "script": ["games/dash/script.cls"],
-        "system": ["games/rne/gamedata/system.cpk"],
-        "bgm": ["games/dash/bgm.cls"],
-        "se": ["games/dash/se.cls"],
-        "sysse": ["games/dash/sysse.cls"],
-        "voice": ["games/dash/voice.cls"],
-        "model": ["games/dash/model.cls"],
-        "motion": ["games/dash/motion.cls"],
-        "bg": ["games/dash/bg.cls"]
+        "script": ["games/dash/gamedata/script.cls"],
+        "system": ["games/dash/gamedata/system.cls"],
+        "bgm": ["games/dash/gamedata/bgm.cls"],
+        "se": ["games/dash/gamedata/se.cls"],
+        "sysse": ["games/dash/gamedata/sysse.cls"],
+        "voice": ["games/dash/gamedata/voice.cls"],
+        "model": ["games/dash/gamedata/model.cls"],
+        "motion": ["games/dash/gamedata/motion.cls"],
+        "bg": ["games/dash/gamedata/bg.cls"]
     }
 };

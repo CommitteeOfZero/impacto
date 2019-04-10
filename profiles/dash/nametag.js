@@ -1,14 +1,14 @@
 include('common/nametag.js');
 MakeNameTag({
-    Sheet: "Data",
-    X: 768,
-    Y: 774,
-    LeftWidth: 155,
-    LineWidth: 86,
-    RightWidth: 22,
-    BaseScale: { X: 1280 / 960, Y: 720 / 544 },
-    Height: 31,
-    ScreenX: 0,
-    ScreenY: 503,
-    BaseLineWidth: 64
+    Sheet: "Menu",
+    X: 3207,
+    Y: 1097,
+    LeftWidth: 168,
+    LineWidth: 467,
+    BaseScale: { X: 0.6307692307692308, Y: 0.6307692307692308 },
+    RightWidth: 130,
+    Height: 65,
+    ScreenX: 64,
+    ScreenY: 768,
+    BaseLineWidth: 0
 });

@@ -75,8 +75,7 @@ for (var i = 0; i < 8; i++) {
 
 root.Sprites["MainMenuBackground"] = {
     Sheet: "Menu",
-    Bounds: { X: 0, Y: 0, Width: 960, Height: 544 },
-    BaseScale: { X: 1280 / 960, Y: 720 / 544 }
+    Bounds: { X: 0, Y: 1088, Width: 1920, Height: 1080 },
 };
 
 root.Sprites["MainMenuButtonBackground"] = {

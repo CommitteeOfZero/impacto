@@ -1,7 +1,7 @@
 root.LayerCount = 100;
 root.GameFeatures = GameFeature.Sc3VirtualMachine | GameFeature.Renderer2D | GameFeature.Scene3D | GameFeature.Input | GameFeature.Audio;
-root.DesignWidth = 1280;
-root.DesignHeight = 720;
+root.DesignWidth = 1920;
+root.DesignHeight = 1080;
 
 root.Vm = {
     StartScript: 4,

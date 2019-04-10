@@ -315,12 +315,17 @@ VmInstruction(InstSystemMes) {
       ScrWork[SW_SYSMESALPHA] = 256;
       SysMesBoxDisplay::BoxOpacity = 1.0f;
       SysMesBoxDisplay::AnimState = SysMesBoxDisplay::Showing;
-      if (!ScrWork[SW_SYSMESANIMCTCUR]) {
-        Io::InputStream* stream;
-        Io::VfsOpen("sysse", 16, &stream);
-        Audio::Channels[Audio::AC_SSE].Play(Audio::AudioStream::Create(stream),
-                                            false, 0.0f);
+
+      // Hack...
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::RNE) {
+        if (!ScrWork[SW_SYSMESANIMCTCUR]) {
+          Io::InputStream* stream;
+          Io::VfsOpen("sysse", 16, &stream);
+          Audio::Channels[Audio::AC_SSE].Play(
+              Audio::AudioStream::Create(stream), false, 0.0f);
+        }
       }
+
       if (ScrWork[SW_SYSMESANIMCTCUR] < ScrWork[SW_SYSMESANIMCTF]) {
         ResetInstruction;
         BlockThread;
@@ -328,12 +333,17 @@ VmInstruction(InstSystemMes) {
       break;
     case 7:  // SystemMesFadeOut
       SysMesBoxDisplay::AnimState = SysMesBoxDisplay::Hiding;
-      if (ScrWork[SW_SYSMESANIMCTCUR] == ScrWork[SW_SYSMESANIMCTF]) {
-        Io::InputStream* stream;
-        Io::VfsOpen("sysse", 29, &stream);
-        Audio::Channels[Audio::AC_SSE].Play(Audio::AudioStream::Create(stream),
-                                            false, 0.0f);
+
+      // Hack...
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::RNE) {
+        if (ScrWork[SW_SYSMESANIMCTCUR] == ScrWork[SW_SYSMESANIMCTF]) {
+          Io::InputStream* stream;
+          Io::VfsOpen("sysse", 29, &stream);
+          Audio::Channels[Audio::AC_SSE].Play(
+              Audio::AudioStream::Create(stream), false, 0.0f);
+        }
       }
+
       if (ScrWork[SW_SYSMESANIMCTCUR] > 0) {
         ResetInstruction;
         BlockThread;
