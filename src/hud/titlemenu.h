@@ -6,13 +6,26 @@
 namespace Impacto {
 namespace TitleMenu {
 
-BETTER_ENUM(TitleMenuType, int, None, RNE)
-
-extern Animation* BackgroundAnimation;
+BETTER_ENUM(TitleMenuType, int, None, RNE, Dash)
 
 enum TitleMenuState { Hidden, Hiding, Showing, Shown };
 
 extern TitleMenuState State;
+
+class TitleMenuBase {
+ public:
+  virtual void Show() = 0;
+  virtual void Hide() = 0;
+  virtual void Update(float dt) = 0;
+  virtual void Render() = 0;
+
+  Animation PressToStartAnimation;
+
+ protected:
+  TitleMenuState State;
+};
+
+extern TitleMenuBase* Implementation;
 
 void Init();
 void Show();

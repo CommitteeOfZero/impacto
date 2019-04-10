@@ -45,10 +45,16 @@ set(Impacto_Src
 
     src/profile/games/rne/tilebackground.cpp
     src/profile/games/rne/mainmenu.cpp
+    src/profile/games/rne/titlemenu.cpp
+
+	src/profile/games/dash/titlemenu.cpp
 
     src/games/rne/tilebackground.cpp
     src/games/rne/datedisplay.cpp
     src/games/rne/mainmenu.cpp
+    src/games/rne/titlemenu.cpp
+
+    src/games/dash/titlemenu.cpp
 
     src/hud/datedisplay.cpp
     src/hud/saveicondisplay.cpp
@@ -166,10 +172,16 @@ set(Impacto_Header
 
     src/profile/games/rne/tilebackground.h
     src/profile/games/rne/mainmenu.h
+    src/profile/games/rne/titlemenu.h
+
+    src/profile/games/dash/titlemenu.h
 
     src/games/rne/tilebackground.h
     src/games/rne/datedisplay.h
     src/games/rne/mainmenu.h
+    src/games/rne/titlemenu.h
+
+    src/games/dash/titlemenu.h
 
     src/hud/datedisplay.h
     src/hud/saveicondisplay.h
