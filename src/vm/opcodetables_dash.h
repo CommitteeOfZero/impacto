@@ -796,11 +796,11 @@ InstructionProc static OpcodeTableGraph3D_Dash[256] = {
     InstCHAload3D,           // 02 01
     InstCHArelease3D,        // 02 02
     InstDummy,               // 02 03
-    InstUnk0204,             // 02 04
-    InstCHAswap3DMaybe,      // 02 05
+    InstDummy,               // 02 04
+    InstDummy,               // 02 05
     InstCHAplayAnim3DMaybe,  // 02 06
-    InstCHAUnk02073D,        // 02 07
-    InstPositionObject,      // 02 08
+    InstCHAUnk02073D_Dash,   // 02 07
+    InstPositionObject_Dash, // 02 08
     InstCHAsetAnim3D,        // 02 09
     InstDummy,               // 02 0A
     InstDummy,               // 02 0B
@@ -856,7 +856,7 @@ InstructionProc static OpcodeTableGraph3D_Dash[256] = {
     InstDummy,               // 02 3D
     InstDummy,               // 02 3E
     InstDummy,               // 02 3F
-    InstUnk0240,             // 02 40
+    InstDummy,               // 02 40
     InstDummy,               // 02 41
     InstDummy,               // 02 42
     InstDummy,               // 02 43

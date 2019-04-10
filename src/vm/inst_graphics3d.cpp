@@ -10,12 +10,16 @@
 
 #include "../3d/scene.h"
 
+#include "interface/scene3d.h"
+
 #include "../profile/scene3d.h"
 #include "../profile/vm.h"
 
 namespace Impacto {
 
 namespace Vm {
+
+using namespace Interface;
 
 float someGlobalFloat1 = 0.0f;
 float someGlobalFloat2 = 0.0f;
@@ -78,10 +82,23 @@ VmInstruction(InstCHAplayAnim3DMaybe) {
   StartInstruction;
   PopExpression(bufferId);
   PopExpression(animationId);
-  PopUint8(unk01);
+  switch (Profile::Vm::GameInstructionSet) {
+    case InstructionSet::Dash: {
+      PopUint16(unk01);
+    } break;
+    case InstructionSet::RNE: {
+      PopUint8(unk01);
+    } break;
+  }
   if (Scene3D::Renderables[bufferId].Status == LS_Loaded && animationId != 0) {
     // TODO shouldn't this wait for that renderable to be loaded?
-    Scene3D::Renderables[bufferId].SwitchAnimation(animationId, 0.66f);
+    if (Scene3D::Renderables[bufferId].Animator.IsPlaying &&
+        Scene3D::Renderables[bufferId].Animator.CurrentAnimation->OneShot) {
+      ResetInstruction;
+      BlockThread;
+    } else {
+      Scene3D::Renderables[bufferId].SwitchAnimation(animationId, 0.66f);
+    }
   }
 }
 VmInstruction(InstCHAUnk02073D) {
@@ -91,6 +108,38 @@ VmInstruction(InstCHAUnk02073D) {
   ImpLogSlow(LL_Warning, LC_VMStub,
              "STUB instruction CHAUnk02073D(bufferId: %i, unk01: %i)\n",
              bufferId, unk01);
+}
+VmInstruction(InstCHAUnk02073D_Dash) {
+  StartInstruction;
+  PopUint8(arg1);
+  PopExpression(arg2);
+  if (arg1 == 2) {
+    PopExpression(arg3);
+    PopExpression(arg4);
+    PopLocalLabel(arg5);
+    ImpLogSlow(LL_Warning, LC_VMStub,
+               "STUB instruction CHAUnk02073D_Dash(arg1: %i, arg2: %i, arg3: "
+               "%i, arg4: %i, arg5: %i)\n",
+               arg1, arg2, arg3, arg4, arg5);
+  } else {
+    PopLocalLabel(arg3);
+    uint16_t* dataArray = (uint16_t*)arg3;
+    uint16_t testNum = dataArray[1];
+    if (Scene3D::Renderables[arg2].Status == LS_Loaded && testNum != 0) {
+      // TODO shouldn't this wait for that renderable to be loaded?
+      if (Scene3D::Renderables[arg2].Animator.IsPlaying &&
+          Scene3D::Renderables[arg2].Animator.CurrentAnimation->OneShot) {
+        ResetInstruction;
+        BlockThread;
+      } else {
+        SetFlag(SF_CHA1DISP + arg2, true);
+        Scene3D::Renderables[arg2].SwitchAnimation(testNum, 0);
+      }
+    }
+    ImpLogSlow(LL_Warning, LC_VMStub,
+               "STUB instruction CHAUnk02073D_Dash(arg1: %i, arg2: %i)\n", arg1,
+               arg2);
+  }
 }
 
 inline bool ObjectIsRenderable(int objectId) {
@@ -156,6 +205,62 @@ VmInstruction(InstPositionObject) {
     if (ObjectIsRenderable(objectId)) {
       pos.y -= ScrWorkGetFloat(30 * renderableId + SW_CHA1YCENTER);
     }
+
+    if (objectId == 1) {  // main camera
+      ScrWorkSetVec3(SW_MAINCAMERAPOSX, SW_MAINCAMERAPOSY, SW_MAINCAMERAPOSZ,
+                     pos);
+    } else if (objectId == 2) {  // iruo camera
+      ScrWorkSetVec3(SW_IRUOCAMERAPOSX, SW_IRUOCAMERAPOSY, SW_IRUOCAMERAPOSZ,
+                     pos);
+    } else if (ObjectIsRenderable(objectId)) {
+      ScrWorkSetVec3(SW_CHA1POSX + 30 * renderableId,
+                     SW_CHA1POSY + 30 * renderableId,
+                     SW_CHA1POSZ + 30 * renderableId, pos);
+    } else if (objectId >= 30 && objectId <= 38) {
+      ScrWorkSetVec3(4900 + 20 * objectId, 4901 + 20 * objectId,
+                     4902 + 20 * objectId, pos);
+    }
+  }
+}
+VmInstruction(InstPositionObject_Dash) {
+  StartInstruction;
+  PopExpression(
+      parentObjId);  // 1 -> mainCamera, 2 -> iruoCamera, 10 -> background,
+  PopExpression(objectId);  // 11-17 -> characters, 30-38 -> ???
+  PopExpression(theta_);
+  PopExpression(phi_);
+  PopExpression(radius_);
+
+  float theta = DegToRad(ScrRealToFloat(theta_));
+  float phi = DegToRad(ScrRealToFloat(phi_));
+  float radius = ScrRealToFloat(radius_);
+
+  // if(ObjectIsRenderable(parentObjId))
+  int parentRenderableId = ObjectIdToRenderableId(parentObjId);
+  // if(ObjectIsRenderable(objectId))
+  int renderableId = ObjectIdToRenderableId(objectId);
+
+  glm::vec3 pos = glm::vec3(0.0f);
+
+  if (parentObjId && objectId) {
+    if (parentObjId == 1 || parentObjId == 2) {  // camera
+      pos = ScrWorkGetVec3(10 * parentObjId + 5390, 10 * parentObjId + 5391,
+                           10 * parentObjId + 5392);
+    } else if (ObjectIsRenderable(parentObjId)) {
+      // note, these are different than SW_CHAnPOSa ???
+      pos = ScrWorkGetVec3(20 * parentObjId + 4900, 20 * parentObjId + 4901,
+                           20 * parentObjId + 4902);
+    } else if (parentObjId >= 30 && parentObjId <= 38) {
+      pos = ScrWorkGetVec3(30 * parentObjId + 4800, 30 * parentObjId + 4801,
+                           30 * parentObjId + 4802);
+    }
+
+    theta = NormalizeRad(theta);
+    phi = NormalizeRad(phi);
+
+    pos.x += radius * sinf(theta);
+    pos.y -= radius * sinf(phi);
+    pos.z -= radius * ((cosf(theta) + cosf(phi)) * 0.5f);
 
     if (objectId == 1) {  // main camera
       ScrWorkSetVec3(SW_MAINCAMERAPOSX, SW_MAINCAMERAPOSY, SW_MAINCAMERAPOSZ,
@@ -500,10 +605,10 @@ VmInstruction(InstUnk0220_Dash) {
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
-      ImpLogSlow(
-          LL_Warning, LC_VMStub,
-          "STUB instruction Unk0220(type: %i, arg1: %i, arg2: %i, arg3: %i)\n",
-          type, arg1, arg2, arg3);
+      ScrWorkAnimations[arg1].MainAnimation.DurationIn = arg3 / 1000.0f;
+      ScrWorkAnimations[arg1].MainAnimation.DurationOut =
+          ScrWorkAnimations[arg1].MainAnimation.DurationIn;
+      ScrWorkAnimations[arg1].AltTarget = arg2 != 2;
     } break;
     case 1: {
       PopExpression(arg1);
@@ -511,16 +616,20 @@ VmInstruction(InstUnk0220_Dash) {
       PopExpression(arg3);
       PopExpression(arg4);
       PopExpression(arg5);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Unk0220(type: %i, arg1: %i, arg2: %i, arg3: "
-                 "%i, arg4: %i, arg5: %i)\n",
-                 type, arg1, arg2, arg3, arg4, arg5);
-
+      ScrWorkAnimationData anim;
+      anim.Target = arg2;
+      anim.From = arg3;
+      anim.To = arg4;
+      // if (anim.From == anim.To) {
+      //  anim.To = 256;
+      //}
+      if (ScrWorkAnimations[arg1].AltTarget) anim.To = arg5;
+      ScrWorkAnimations[arg1].AnimationData.push_back(anim);
     } break;
     case 2: {
       PopExpression(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Unk0220(type: %i, arg1: %i)\n", type, arg1);
+      CurrentScrWorkAnimations.push_back(arg1);
+      ScrWorkAnimations[arg1].MainAnimation.StartIn();
     } break;
     case 3: {
       PopExpression(arg1);
@@ -528,7 +637,13 @@ VmInstruction(InstUnk0220_Dash) {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction Unk0220(type: %i, arg1: %i, arg2: %i)\n",
                  type, arg1, arg2);
-
+      if (ScrWorkAnimations[arg1].MainAnimation.IsIn() ||
+          CurrentScrWorkAnimations.size() == 0) {
+        ScrWorkAnimations.erase(arg1);
+      } else {
+        ResetInstruction;
+        BlockThread;
+      }
     } break;
     case 4: {
       PopUint8(arg1);

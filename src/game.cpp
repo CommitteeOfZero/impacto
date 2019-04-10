@@ -29,6 +29,8 @@
 #include "profile/fonts.h"
 #include "profile/dialogue.h"
 #include "profile/animations.h"
+#include "profile/scene3d.h"
+#include "profile/vm.h"
 #include "profile/hud/datedisplay.h"
 #include "profile/hud/sysmesboxdisplay.h"
 
@@ -216,9 +218,16 @@ void Render() {
             for (int i = 0; i < MaxBackgrounds2D; i++) {
               if (Backgrounds2D[i].Status == LS_Loaded &&
                   Backgrounds2D[i].Layer == layer && Backgrounds2D[i].Show) {
-                Renderer2D::DrawSprite(Backgrounds2D[i].BgSprite,
-                                       RectF(0.0f, 0.0f, Profile::DesignWidth,
-                                             Profile::DesignHeight));
+                glm::vec4 col = glm::vec4(1.0f);
+                if (Profile::Vm::GameInstructionSet ==
+                    +Vm::InstructionSet::Dash) {
+                  col.a = ScrWork[SW_BG1ALPHA + 40 * i] / 256.0f;
+                }
+                Renderer2D::DrawSprite(
+                    Backgrounds2D[i].BgSprite,
+                    RectF(0.0f, 0.0f, Backgrounds2D[i].BgSprite.ScaledWidth(),
+                          Backgrounds2D[i].BgSprite.ScaledHeight()),
+                    col);
               }
             }
             if (ScrWork[SW_MASK1PRI] == layer) {
@@ -247,6 +256,17 @@ void Render() {
             // hack
             ScrWork[6381] = 0;
             ScrWork[6382] = 0;
+            ScrWork[6384] = 0;
+          }
+          if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::Dash) {
+            /////////// DaSH hack? ///////
+            if (GetFlag(2904) || GetFlag(2900) ||
+                Scene3D::MainCamera.CameraTransform.Position !=
+                    Profile::Scene3D::DefaultCameraPosition)
+              SetFlag(1615, 0);
+            else
+              SetFlag(1615, 1);
+            //////////////////////////////
           }
           DateDisplay::Render();
           break;
