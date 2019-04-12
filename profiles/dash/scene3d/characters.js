@@ -27,8 +27,8 @@ root.Scene3D.Characters = {
             34: { OneShot: true },
             35: { OneShot: true },
             36: { OneShot: true },
-            37: { OneShot: true },
-            38: { OneShot: true }
+            37: { LoopStart: 0, LoopEnd: 40 },
+            38: { LoopStart: 0, LoopEnd: 40 }
         }
     },
     2: {
@@ -59,9 +59,9 @@ root.Scene3D.Characters = {
             60: { OneShot: true },
             61: { OneShot: true },
             62: { LoopStart: 39, LoopEnd: 99 },
-            63: { OneShot: true },
-            64: { OneShot: true },
-            65: { OneShot: true },
+            63: { LoopStart: 0, LoopEnd: 48 },
+            64: { LoopStart: 0, LoopEnd: 40 },
+            65: { LoopStart: 0, LoopEnd: 48 },
             66: { OneShot: true }
         }
     },
@@ -96,9 +96,9 @@ root.Scene3D.Characters = {
             91: { OneShot: true },
             92: { LoopStart: 30, LoopEnd: 90 },
             93: { LoopStart: 15, LoopEnd: 40 },
-            94: { OneShot: true },
-            95: { OneShot: true },
-            96: { OneShot: true },
+            94: { LoopStart: 0, LoopEnd: 48 },
+            95: { LoopStart: 0, LoopEnd: 40 },
+            96: { LoopStart: 0, LoopEnd: 48 },
             97: { OneShot: true }
         }
     },
@@ -134,9 +134,9 @@ root.Scene3D.Characters = {
             123: { OneShot: true },
             124: { OneShot: true },
             125: { LoopStart: 25, LoopEnd: 50 },
-            126: { OneShot: true },
-            127: { OneShot: true },
-            128: { OneShot: true },
+            126: { LoopStart: 0, LoopEnd: 48 },
+            127: { LoopStart: 0, LoopEnd: 40 },
+            128: { LoopStart: 0, LoopEnd: 48 },
             129: { OneShot: true }
         }
     },
@@ -168,9 +168,9 @@ root.Scene3D.Characters = {
             151: { OneShot: true },
             152: { OneShot: true },
             153: { OneShot: true },
-            154: { OneShot: true },
-            155: { OneShot: true },
-            156: { OneShot: true }
+            154: { LoopStart: 0, LoopEnd: 48 },
+            155: { LoopStart: 0, LoopEnd: 40 },
+            156: { LoopStart: 0, LoopEnd: 48 }
         }
     },
     6: {
@@ -201,8 +201,8 @@ root.Scene3D.Characters = {
             178: { OneShot: true },
             179: { OneShot: true },
             180: { OneShot: true },
-            181: { OneShot: true },
-            182: { OneShot: true }
+            181: { LoopStart: 0, LoopEnd: 40 },
+            182: { LoopStart: 0, LoopEnd: 40 }
         }
     },
     7: {
@@ -322,9 +322,9 @@ root.Scene3D.Characters = {
             233: { OneShot: true },
             234: { OneShot: true },
             235: { LoopStart: 30, LoopEnd: 70 },
-            236: { OneShot: true },
-            237: { OneShot: true },
-            238: { OneShot: true }
+            236: { LoopStart: 0, LoopEnd: 48 },
+            237: { LoopStart: 0, LoopEnd: 40 },
+            238: { LoopStart: 0, LoopEnd: 48 }
         }
     },
     18: {
@@ -353,8 +353,8 @@ root.Scene3D.Characters = {
             258: { OneShot: true },
             259: { OneShot: true },
             260: { OneShot: true },
-            261: { OneShot: true },
-            262: { OneShot: true }
+            261: { LoopStart: 0, LoopEnd: 40 },
+            262: { LoopStart: 0, LoopEnd: 40 }
         }
     },
     19: {
@@ -382,9 +382,9 @@ root.Scene3D.Characters = {
             281: { OneShot: true },
             282: { OneShot: true },
             283: { OneShot: true },
-            284: { OneShot: true },
-            285: { OneShot: true },
-            286: { OneShot: true }
+            284: { LoopStart: 0, LoopEnd: 48 },
+            285: { LoopStart: 0, LoopEnd: 40 },
+            286: { LoopStart: 0, LoopEnd: 48 }
         }
     }
 };
