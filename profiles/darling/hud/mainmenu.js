@@ -1,26 +1,7 @@
 root.MainMenu = {
-    Type: MainMenuType.RNE,
-    Background: {
-        DurationIn: 0.75,
-        DurationOut: 1.0,
-        Sprite: "MainMenuBackground",
-        Seed: 0,
-        Rows: 7,
-        Columns: 12,
-        CenterY: 0.7,
-        VanishingPointX: 0.66,
-        Depth: 2,
-        MaxAngle: Math.PI / 2
-    },
+    Type: MainMenuType.None,
     ButtonBackgroundSprite: "MainMenuButtonBackground",
-    SkyBackgroundSprite: "MainMenuSkyBackground",
-    SkyArrowSprite: "MainMenuSkyArrow",
-    SkyTextSprite: "MainMenuSkyText",
     ButtonPromptsSprite: "MainMenuButtonPrompts",
-    SkyBackgroundBeginX: -80,
-    SkyBackgroundY: 0,
-    SkyTextBeginX: 287,
-    SkyTextY: 69,
     ButtonBackgroundStartX: 1257,
     ButtonBackgroundX: 0,
     ButtonBackgroundY: 681,
@@ -29,20 +10,9 @@ root.MainMenu = {
     MenuEntriesSprites: [],
     MenuEntriesHighlightedSprites: [],
     MenuEntriesX: 0,
-    MenuEntriesXSkew: 20,
     MenuEntriesXOffset: 100,
     MenuEntriesFirstY: 220,
     MenuEntriesYPadding: 50,
-    MenuEntriesTargetWidth: 417,
-    SkyInStartProgress: 0.285,
-    SkyOutStartProgress: 0.715,
-    SkyMoveDurationIn: 0.415,
-    SkyMoveDurationOut: 0.415,
-    EntriesMoveDurationIn: 0.4,
-    EntriesMoveDurationOut: 0.4,
-    HighlightDurationIn: 0.15,
-    HighlightDurationOut: 0.15,
-
 };
 
 for (var i = 0; i < 8; i++) {
@@ -82,24 +52,6 @@ root.Sprites["MainMenuBackground"] = {
 root.Sprites["MainMenuButtonBackground"] = {
     Sheet: "Menu",
     Bounds: { X: root.MainMenu.ButtonBackgroundSprStartX, Y: 975, Width: 0, Height: 30 },
-    BaseScale: { X: 1280 / 960, Y: 720 / 544 }
-};
-
-root.Sprites["MainMenuSkyBackground"] = {
-    Sheet: "Data",
-    Bounds: { X: 1383, Y: 534, Width: 418, Height: 90 },
-    BaseScale: { X: 1280 / 960, Y: 720 / 544 }
-};
-
-root.Sprites["MainMenuSkyArrow"] = {
-    Sheet: "Data",
-    Bounds: { X: 1802, Y: 534, Width: 70, Height: 90 },
-    BaseScale: { X: 1280 / 960, Y: 720 / 544 }
-};
-
-root.Sprites["MainMenuSkyText"] = {
-    Sheet: "Data",
-    Bounds: { X: 1875, Y: 587, Width: 119, Height: 30 },
     BaseScale: { X: 1280 / 960, Y: 720 / 544 }
 };
 

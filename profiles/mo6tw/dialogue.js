@@ -19,6 +19,7 @@ root.Dialogue = {
     ADVNameAlignment: TextAlignment.Left,
     ADVNameFontSize: 32,
     ADVNamePos: { X: 120, Y: 462 },
+    WaitIconCurrentType: WaitIconType.RotateZ,
     WaitIconSprite: "DialogueWaitIcon",
     WaitIconOffset: { X: 4, Y: 4 },
     WaitIconAnimationDuration: 3.2,

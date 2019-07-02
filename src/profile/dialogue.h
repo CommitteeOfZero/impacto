@@ -3,6 +3,8 @@
 #include "../util.h"
 #include "../spritesheet.h"
 #include "../text.h"
+#include "../hud/waiticondisplay.h"
+#include "../spriteanimation.h"
 
 namespace Impacto {
 namespace Profile {
@@ -27,8 +29,10 @@ extern float ADVNameFontSize;
 extern glm::vec2 ADVNamePos;
 
 extern Sprite WaitIconSprite;
+extern SpriteAnimationDef WaitIconSpriteAnim;
 extern glm::vec2 WaitIconOffset;
 extern float WaitIconAnimationDuration;
+extern WaitIconDisplay::WaitIconType WaitIconCurrentType;
 
 extern Font* DialogueFont;
 extern float DefaultFontSize;

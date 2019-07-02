@@ -14,6 +14,7 @@
 #include "../hud/mainmenu.h"
 #include "../hud/titlemenu.h"
 #include "../hud/datedisplay.h"
+#include "../hud/waiticondisplay.h"
 #include "../3d/model.h"
 
 namespace Impacto {
@@ -156,6 +157,7 @@ void MakeJsonProfile(std::string const& name) {
   DefineEnumInt<MainMenu::MainMenuType>(ctx);
   DefineEnumInt<TitleMenu::TitleMenuType>(ctx);
   DefineEnumInt<DateDisplay::DateDisplayType>(ctx);
+  DefineEnumInt<WaitIconDisplay::WaitIconType>(ctx);
   DefineEnumInt<FontType>(ctx);
   DefineEnumInt<LKMVersion>(ctx);
 

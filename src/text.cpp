@@ -9,13 +9,13 @@
 #include "profile/dialogue.h"
 #include "profile/game.h"
 
+#include "hud/waiticondisplay.h"
+
 namespace Impacto {
 
 using namespace Impacto::Profile::Dialogue;
 
 DialoguePage* DialoguePages;
-
-static Animation WaitIconAnimation;
 
 enum StringTokenType : uint8_t {
   STT_LineBreak = 0x00,
@@ -164,9 +164,8 @@ bool DialoguePage::TextIsFullyOpaque() { return Typewriter.Progress == 1.0f; }
 
 void DialoguePage::Init() {
   Profile::Dialogue::Configure();
-  WaitIconAnimation.DurationIn = Profile::Dialogue::WaitIconAnimationDuration;
-  WaitIconAnimation.StartIn();
-  WaitIconAnimation.LoopMode = ALM_Loop;
+
+  WaitIconDisplay::Init();
 
   for (int i = 0; i < Profile::Dialogue::PageCount; i++) {
     DialoguePages[i].Clear();
@@ -498,7 +497,7 @@ void DialoguePage::Update(float dt) {
   }
 
   FadeAnimation.Update(dt);
-  WaitIconAnimation.Update(dt);
+  WaitIconDisplay::Update(dt);
 }
 
 void DialoguePage::Render() {
@@ -556,12 +555,10 @@ void DialoguePage::Render() {
 
   // Wait icon
   if (Typewriter.Progress == 1.0f && Length > 0) {
-    Renderer2D::DrawSprite(
-        WaitIconSprite,
-        glm::vec2(Glyphs[Length - 1].DestRect.X +
-                      Glyphs[Length - 1].DestRect.Width + WaitIconOffset.x,
-                  Glyphs[Length - 1].DestRect.Y + WaitIconOffset.y),
-        opacityTint, glm::vec2(1.0f), WaitIconAnimation.Progress * 2.0f * M_PI);
+    WaitIconDisplay::Render(glm::vec2(Glyphs[Length - 1].DestRect.X +
+                                          Glyphs[Length - 1].DestRect.Width,
+                                      Glyphs[Length - 1].DestRect.Y),
+                            opacityTint);
   }
 }
 

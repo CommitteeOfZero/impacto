@@ -3,11 +3,6 @@ root.Sprites["ADVBox"] = {
     Bounds: { X: 0, Y: 864, Width: 1920, Height: 281 }
 };
 
-root.Sprites["DialogueWaitIcon"] = {
-    Sheet: "Data",
-    Bounds: { X: 1, Y: 145.5, Width: 48, Height: 48 }
-};
-
 root.Dialogue = {
     NVLBounds: { X: 188, Y: 128, Width: 1536, Height: 600 },
     ADVBounds: { X: 295, Y: 828, Width: 1440, Height: 270 },
@@ -19,9 +14,9 @@ root.Dialogue = {
     ADVNameAlignment: TextAlignment.Left,
     ADVNameFontSize: 33,
     ADVNamePos: { X: 173, Y: 773 },
-    WaitIconSprite: "DialogueWaitIcon",
-    WaitIconOffset: { X: 4, Y: 4 },
-    WaitIconAnimationDuration: 3.2,
+    WaitIconSpriteAnim: "WaitIconSpriteAnimDef",
+	WaitIconCurrentType: WaitIconType.SpriteAnim,
+    WaitIconOffset: { X: 0, Y: 0 },
     DialogueFont: "Default",
     DefaultFontSize: 48,
     RubyFontSize: 21,
@@ -66,5 +61,22 @@ root.Dialogue = {
     MaxPageSize: 2000,
     PageCount: 3
 };
+
+MakeAnimation({
+    Name: "WaitIconSpriteAnimDef",
+    Sheet: "MesBox",
+    FirstFrameX: 0,
+    FirstFrameY: 1919,
+    FrameWidth: 64,
+    ColWidth: 64,
+    FrameHeight: 64,
+    RowHeight: 64,
+    Frames: 44,
+    Duration: 5.0,
+    Rows: 2,
+    Columns: 32,
+    PrimaryDirection: AnimationDirections.Right,
+	SecondaryDirection: AnimationDirections.Down
+});
 
 include('dash/nametag.js');

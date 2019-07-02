@@ -22,8 +22,11 @@ float ADVNameFontSize;
 glm::vec2 ADVNamePos;
 
 Sprite WaitIconSprite;
+SpriteAnimationDef WaitIconSpriteAnim;
 glm::vec2 WaitIconOffset;
 float WaitIconAnimationDuration;
+Impacto::WaitIconDisplay::WaitIconType WaitIconCurrentType{
+    Impacto::WaitIconDisplay::WaitIconType::None};
 
 Font* DialogueFont;
 float DefaultFontSize;
@@ -66,9 +69,16 @@ void Configure() {
   ADVNameFontSize = EnsureGetMemberFloat("ADVNameFontSize");
   ADVNamePos = EnsureGetMemberVec2("ADVNamePos");
 
-  WaitIconSprite = EnsureGetMemberSprite("WaitIconSprite");
+  WaitIconCurrentType = WaitIconDisplay::WaitIconType::_from_integral_unchecked(
+      EnsureGetMemberInt("WaitIconCurrentType"));
+  if (WaitIconCurrentType == +WaitIconDisplay::WaitIconType::SpriteAnim) {
+    WaitIconSpriteAnim = EnsureGetMemberAnimation("WaitIconSpriteAnim");
+  } else {
+    WaitIconSprite = EnsureGetMemberSprite("WaitIconSprite");
+    WaitIconAnimationDuration =
+        EnsureGetMemberFloat("WaitIconAnimationDuration");
+  }
   WaitIconOffset = EnsureGetMemberVec2("WaitIconOffset");
-  WaitIconAnimationDuration = EnsureGetMemberFloat("WaitIconAnimationDuration");
 
   DialogueFont = EnsureGetMemberFont("DialogueFont");
   DefaultFontSize = EnsureGetMemberFloat("DefaultFontSize");

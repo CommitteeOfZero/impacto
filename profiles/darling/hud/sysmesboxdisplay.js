@@ -24,6 +24,11 @@ root.SysMesBoxDisplay = {
     MessageLabelSpriteXBase: 1574,
     MessageLabelSpriteY: 131,
     MessageLabelSpriteHeight: 31,
+	TextFontSize: 26,
+	TextMiddleY: 418,
+	TextX: 370,
+	TextLineHeight: 28,
+	TextMarginY: 14,
     AnimationSpeed: 55,
     FadeInDuration: 0.33,
     FadeOutDuration: 0.25

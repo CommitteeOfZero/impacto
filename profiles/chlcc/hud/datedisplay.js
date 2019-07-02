@@ -22,7 +22,8 @@ var weekFriWidth = 56;
 var weekHeight = 20;
 
 root.DateDisplay = {
-    YearNumSprites: [],
+	Type: DateDisplayType.RNE,
+	YearNumSprites: [],
     MonthNumSprites: [],
     DayNumSprites: [],
     WeekSprites: [],
