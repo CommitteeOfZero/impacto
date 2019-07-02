@@ -1,7 +1,11 @@
-﻿#include "impacto.h"
+#include "impacto.h"
 
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
+#endif
+
+#ifdef __SWITCH__
+#include <switch.h>
 #endif
 
 #include "log.h"
@@ -70,7 +74,11 @@ int main(int argc, char* argv[]) {
 #else
   t = SDL_GetPerformanceCounter();
 
+#ifdef __SWITCH__
+  while (appletMainLoop() && !Game::ShouldQuit) {
+#else
   while (!Game::ShouldQuit) {
+#endif
     GameLoop();
   }
 

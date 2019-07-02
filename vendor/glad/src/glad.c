@@ -819,7 +819,9 @@
 #include <string.h>
 #include <glad/glad.h>
 
+#if !defined(__SWITCH__)
 static void* get_proc(const char *namez);
+#endif
 
 #if defined(_WIN32) || defined(__CYGWIN__)
 #include <windows.h>
@@ -867,7 +869,7 @@ void close_gl(void) {
         libGL = NULL;
     }
 }
-#else
+#elif !defined(__SWITCH__)
 #include <dlfcn.h>
 static void* libGL;
 
@@ -916,6 +918,7 @@ void close_gl(void) {
 }
 #endif
 
+#if !defined(__SWITCH__)
 static
 void* get_proc(const char *namez) {
     void* result = NULL;
@@ -936,7 +939,12 @@ void* get_proc(const char *namez) {
 
     return result;
 }
+#endif
 
+#if defined(__SWITCH__)
+#include <EGL/egl.h>
+int gladLoadGL(void) { return gladLoadGLLoader((GLADloadproc)eglGetProcAddress); }
+#else
 int gladLoadGL(void) {
     int status = 0;
 
@@ -947,6 +955,7 @@ int gladLoadGL(void) {
 
     return status;
 }
+#endif
 
 struct gladGLversionStruct GLVersion = { 0, 0 };
 

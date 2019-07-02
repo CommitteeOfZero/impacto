@@ -267,11 +267,18 @@ find_package(Libatrac9 REQUIRED)
 find_package(glm REQUIRED)
 find_package(OpenAL REQUIRED)
 
+if(NX) # avoid CMAKE_DL_LIBS for NX
+set(Impacto_Libs
+    ${LIBATRAC9_LIBRARY}
+    ${OPENAL_LIBRARY}
+)
+else()
 set(Impacto_Libs
     ${CMAKE_DL_LIBS}
     ${LIBATRAC9_LIBRARY}
     ${OPENAL_LIBRARY}
 )
+endif()
 
 if(EMSCRIPTEN)
     # BINARYEN_TRAP_MODE=clamp => https://groups.google.com/forum/#!topic/emscripten-discuss/IJr4ApiW_zU
@@ -310,6 +317,29 @@ if(EMSCRIPTEN)
     string(REPLACE "-O2" "" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
     string(REPLACE "-O2" "" CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
     string(REPLACE "-O2" "" CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
+
+    add_definitions(-DIMPACTO_OPENAL_INCLUDE_SUBDIR)
+elseif(NX)
+    find_package(SDL2 REQUIRED)
+    find_package(ZLIB REQUIRED)
+    find_package(OggVorbis REQUIRED)
+
+    include_directories(${OGGVORBIS_INCLUDE_DIRS})
+
+    list(APPEND Impacto_Libs
+        SDL2::SDL2main
+        glm
+        ZLIB::ZLIB
+        vorbisfile
+        vorbis
+        ogg
+        EGL
+        glapi
+        drm_nouveau
+        nx
+    )
+
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--start-group") # workaround for SDL2 being last in the linker list
 
     add_definitions(-DIMPACTO_OPENAL_INCLUDE_SUBDIR)
 else()
@@ -352,10 +382,15 @@ if(MSVC)
     add_definitions(-DBETTER_ENUMS_NO_CONSTEXPR) # broken in MSVC 2017 apparently
 endif()
 
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+if(NX)
+    set_property(TARGET impacto PROPERTY NO_SYSTEM_FROM_IMPORTED ON) # to avoid -isystem
     add_definitions(-DENV64BIT)
 else()
-    add_definitions(-DENV32BIT)
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        add_definitions(-DENV64BIT)
+    else()
+        add_definitions(-DENV32BIT)
+    endif()
 endif()
 
 add_definitions(-DGLM_FORCE_RADIANS) # lol
@@ -405,6 +440,13 @@ if (WIN32)
     else()
         install(FILES ${OPENAL_INCLUDE_DIR}/../../bin/Win32/soft_oal.dll DESTINATION . RENAME OpenAL32.dll)
     endif()
+endif()
+
+if(NX)
+    set(APP_TITLE "Impacto")
+    set(APP_AUTHOR "Committee of Zero")
+    set(APP_VERSION "0.0.1")
+    set(APP_ICON "${DEVKITPRO}/libnx/default_icon.jpg")
 endif()
 
 # asset install
