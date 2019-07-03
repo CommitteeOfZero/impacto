@@ -442,13 +442,6 @@ if (WIN32)
     endif()
 endif()
 
-if(NX)
-    set(APP_TITLE "Impacto")
-    set(APP_AUTHOR "Committee of Zero")
-    set(APP_VERSION "0.0.1")
-    set(APP_ICON "${DEVKITPRO}/libnx/default_icon.jpg")
-endif()
-
 # asset install
 
 install(DIRECTORY src/shaders DESTINATION .)
