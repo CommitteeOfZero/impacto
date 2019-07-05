@@ -48,7 +48,7 @@ set(Impacto_Src
     src/profile/games/rne/mainmenu.cpp
     src/profile/games/rne/titlemenu.cpp
 
-	src/profile/games/dash/titlemenu.cpp
+    src/profile/games/dash/titlemenu.cpp
 
     src/games/rne/tilebackground.cpp
     src/games/rne/datedisplay.cpp
@@ -63,7 +63,7 @@ set(Impacto_Src
     src/hud/loadingdisplay.cpp
     src/hud/mainmenu.cpp
     src/hud/titlemenu.cpp
-	src/hud/waiticondisplay.cpp
+    src/hud/waiticondisplay.cpp
 
     src/nuklear_impl.cpp
     src/stbi_impl.c
@@ -190,7 +190,7 @@ set(Impacto_Header
     src/hud/loadingdisplay.h
     src/hud/mainmenu.h
     src/hud/titlemenu.h
-	src/hud/waiticondisplay.h
+    src/hud/waiticondisplay.h
 
     src/3d/camera.h
     src/3d/model.h
