@@ -42,24 +42,34 @@ set(Impacto_Src
     src/profile/hud/datedisplay.cpp
     src/profile/hud/mainmenu.cpp
     src/profile/hud/titlemenu.cpp
-    src/profile/hud/sysmesboxdisplay.cpp
+    src/profile/hud/sysmesbox.cpp
 
     src/profile/games/rne/tilebackground.cpp
     src/profile/games/rne/mainmenu.cpp
     src/profile/games/rne/titlemenu.cpp
+    src/profile/games/rne/sysmesbox.cpp
 
     src/profile/games/dash/titlemenu.cpp
+
+    src/profile/games/chlcc/sysmesbox.cpp
+
+    src/profile/games/mo6tw/sysmesbox.cpp
 
     src/games/rne/tilebackground.cpp
     src/games/rne/datedisplay.cpp
     src/games/rne/mainmenu.cpp
     src/games/rne/titlemenu.cpp
+    src/games/rne/sysmesbox.cpp
 
     src/games/dash/titlemenu.cpp
 
+    src/games/chlcc/sysmesbox.cpp
+
+	src/games/mo6tw/sysmesbox.cpp
+
     src/hud/datedisplay.cpp
     src/hud/saveicondisplay.cpp
-    src/hud/sysmesboxdisplay.cpp
+    src/hud/sysmesbox.cpp
     src/hud/loadingdisplay.cpp
     src/hud/mainmenu.cpp
     src/hud/titlemenu.cpp
@@ -169,24 +179,34 @@ set(Impacto_Header
     src/profile/hud/datedisplay.h
     src/profile/hud/mainmenu.h
     src/profile/hud/titlemenu.h
-    src/profile/hud/sysmesboxdisplay.h
+    src/profile/hud/sysmesbox.h
 
     src/profile/games/rne/tilebackground.h
     src/profile/games/rne/mainmenu.h
     src/profile/games/rne/titlemenu.h
+    src/profile/games/rne/sysmesbox.h
 
     src/profile/games/dash/titlemenu.h
+
+    src/profile/games/chlcc/sysmesbox.h
+
+    src/profile/games/mo6tw/sysmesbox.h
 
     src/games/rne/tilebackground.h
     src/games/rne/datedisplay.h
     src/games/rne/mainmenu.h
     src/games/rne/titlemenu.h
+    src/games/rne/sysmesbox.h
 
     src/games/dash/titlemenu.h
 
+    src/games/chlcc/sysmesbox.h
+
+    src/games/mo6tw/sysmesbox.h
+
     src/hud/datedisplay.h
     src/hud/saveicondisplay.h
-    src/hud/sysmesboxdisplay.h
+    src/hud/sysmesbox.h
     src/hud/loadingdisplay.h
     src/hud/mainmenu.h
     src/hud/titlemenu.h

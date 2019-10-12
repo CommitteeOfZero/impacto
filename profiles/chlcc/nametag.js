@@ -7,7 +7,7 @@ MakeNameTag({
     LineWidth: 0,
     RightWidth: 0,
     Height: 44,
-    ScreenX: 0,
-    ScreenY: 455,
+    ScreenX: -1,
+    ScreenY: 465,
     BaseLineWidth: 266
 });

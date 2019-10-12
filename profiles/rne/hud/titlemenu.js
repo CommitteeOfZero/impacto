@@ -1,5 +1,5 @@
 root.TitleMenu = {
-    Type: MainMenuType.RNE,
+    Type: TitleMenuType.RNE,
     Background: {
         DurationIn: 1.0,
         DurationOut: 1.0,

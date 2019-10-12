@@ -2,6 +2,7 @@ var sheet = "Data";
 var name = "SysMesBox";
 
 root.SysMesBoxDisplay = {
+    Type: SysMesBoxType.RNE,
     LinePositionXFirst: 1622,
     LinePositionX: 1652,
     LinePositionMultiplier: 30,
@@ -24,6 +25,7 @@ root.SysMesBoxDisplay = {
     MessageLabelSpriteXBase: 1574,
     MessageLabelSpriteY: 131,
     MessageLabelSpriteHeight: 31,
+	MessageLabelSpriteMultiplier: 12,
 	TextFontSize: 26,
 	TextMiddleY: 418,
 	TextX: 370,

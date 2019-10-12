@@ -1,22 +1,20 @@
-#include "sysmesboxdisplay.h"
+#include "sysmesbox.h"
 
-#include "../impacto.h"
-#include "../renderer2d.h"
-#include "../game.h"
-#include "../mem.h"
-#include "../scriptvars.h"
-#include "../profile/hud/sysmesboxdisplay.h"
-#include "../profile/dialogue.h"
+#include "../../impacto.h"
+#include "../../renderer2d.h"
+#include "../../game.h"
+#include "../../mem.h"
+#include "../../scriptvars.h"
+#include "../../profile/hud/sysmesbox.h"
+#include "../../profile/games/rne/sysmesbox.h"
+#include "../../profile/dialogue.h"
 
 namespace Impacto {
-namespace SysMesBoxDisplay {
+namespace RNE {
 
-using namespace Impacto::Profile::SysMesBoxDisplay;
+using namespace Impacto::Profile::SysMesBox;
+using namespace Impacto::Profile::RNE::SysMesBox;
 
-int MessageCount;
-ProcessedTextGlyph Messages[8][255];
-float BoxOpacity = 0.0f;
-SysMesBoxAnimState AnimState = Hidden;
 static float BoxAnimCount = 0.0f;
 static float BoxTopY = 0.0f;
 static float BoxBottomY = 0.0f;
@@ -24,34 +22,30 @@ static float LineLength = 0.0f;
 static float BoxHeight = 0.0f;
 static float BoxProgressCount = 0.0f;
 static int TextStartCount = 0;
-static Animation FadeAnimation;
 
-void Init() {
-  Configure();
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
-}
+void SysMesBox::Show() { State = Showing; }
+void SysMesBox::Hide() { State = Hiding; }
 
-void Update(float dt) {
+void SysMesBox::Update(float dt) {
   FadeAnimation.Update(dt);
 
-  if (AnimState == Hiding) {
+  if (State == Hiding) {
     BoxAnimCount -= AnimationSpeed * dt;
     if (BoxAnimCount <= 0.0f) {
       BoxAnimCount = 0.0f;
-      AnimState = Hidden;
+      State = Hidden;
     }
-  } else if (AnimState == Showing) {
+  } else if (State == Showing) {
     BoxAnimCount += AnimationSpeed * dt;
     if (BoxAnimCount >= ScrWork[SW_SYSMESANIMCTF]) {
       BoxAnimCount = ScrWork[SW_SYSMESANIMCTF];
-      AnimState = Shown;
+      State = Shown;
     }
   }
 
   ScrWork[SW_SYSMESANIMCTCUR] = std::floor(BoxAnimCount);
 
-  if (AnimState != Hidden) {
+  if (State != Hidden) {
     float linePosX = LinePositionXFirst;
     LineLength = LineWidthFirst;
     if (ScrWork[SW_SYSMESANIMCTCUR] > 1) {
@@ -76,35 +70,60 @@ void Update(float dt) {
 
     MessageLabel.Bounds =
         RectF(MessageLabelSpriteXBase -
-                  (12 * (BoxProgressCount - 2 * MessageCount - 8)) + 1.0f,
+                  (MessageLabelSpriteMultiplier *
+                   (BoxProgressCount - 2 * MessageCount - 8)) +
+                  1.0f,
               MessageLabelSpriteY,
-              (12 * (BoxProgressCount - 2 * MessageCount - 8)) - 2.0f,
+              (MessageLabelSpriteMultiplier *
+               (BoxProgressCount - 2 * MessageCount - 8)) -
+                  2.0f,
               MessageLabelSpriteHeight);
 
     if (BoxProgressCount > TextStartCount) {
-      if (AnimState == Showing && FadeAnimation.IsOut())
+      if (State == Showing && FadeAnimation.IsOut())
         FadeAnimation.StartIn();
-      else if (AnimState == Hiding && FadeAnimation.IsIn())
+      else if (State == Hiding && FadeAnimation.IsIn())
         FadeAnimation.StartOut();
+    }
+
+    if (Type == +SysMesBoxType::Dash) {
+      float boxDecorationHeight = BoxHeight / 2.0f;
+      if (boxDecorationHeight > 60.0f) boxDecorationHeight = 61.0f;
+
+      BoxDecorationTop.Bounds =
+          RectF(BoxDecorationTop.Bounds.X, BoxDecorationTop.Bounds.Y,
+                BoxDecorationTop.Bounds.Width, boxDecorationHeight);
+      BoxDecorationBottom.Bounds =
+          RectF(BoxDecorationBottom.Bounds.X,
+                Line1DisplayY - boxDecorationHeight + 1.0f,
+                BoxDecorationBottom.Bounds.Width, boxDecorationHeight);
     }
   }
 }
 
-void Render() {
+void SysMesBox::Render() {
   if (BoxOpacity) {
     glm::vec4 col(1.0f, 1.0f, 1.0f, glm::smoothstep(0.0f, 1.0f, BoxOpacity));
 
-    if (BoxAnimCount > 9.0f) {
+    if (BoxAnimCount > BoxDisplayStartCount) {
       Renderer2D::DrawRect(
           RectF(BoxDisplayX, BoxTopY - 1.0f, BoxWidth, BoxHeight + 2.0f),
           glm::vec4(1.0f, 1.0f, 1.0f, 0.75f));
       Renderer2D::DrawSprite(BoxDecorationTop,
                              glm::vec2(BoxDisplayX, BoxTopY - 3.0f), col);
-      Renderer2D::DrawSprite(BoxDecorationBottom,
-                             glm::vec2(BoxDisplayX, BoxBottomY - 3.0f), col);
+      if (Type == +SysMesBoxType::Dash) {
+        Renderer2D::DrawSprite(
+            BoxDecorationBottom,
+            glm::vec2(BoxDisplayX,
+                      BoxBottomY - BoxDecorationBottom.Bounds.Height + 3.0f),
+            col);
+      } else {
+        Renderer2D::DrawSprite(BoxDecorationBottom,
+                               glm::vec2(BoxDisplayX, BoxBottomY - 3.0f), col);
+      }
 
       if (BoxProgressCount > TextStartCount) {
-        glm::vec4 texCol(1.0, 1.0f, 1.0f, FadeAnimation.Progress);
+        glm::vec4 texCol(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
         if (BoxHeight > 56) {
           Renderer2D::DrawSprite(
               TextDecoration, glm::vec2(BoxDisplayX, BoxTopY + 36.0f), texCol);
@@ -142,5 +161,5 @@ void Render() {
   }
 }
 
-}  // namespace SysMesBoxDisplay
+}  // namespace RNE
 }  // namespace Impacto

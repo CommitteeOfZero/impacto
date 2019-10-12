@@ -1,10 +1,15 @@
 #pragma once
 
-#include "../sprites.h"
+#include "../../../hud/sysmesbox.h"
+#include "../../../spritesheet.h"
+#include "../../../games/rne/sysmesbox.h"
 
 namespace Impacto {
 namespace Profile {
-namespace SysMesBoxDisplay {
+namespace RNE {
+namespace SysMesBox {
+
+Impacto::SysMesBox::SysMesBoxBase* Configure();
 
 extern Sprite BoxDecorationTop;
 extern Sprite BoxDecorationBottom;
@@ -35,17 +40,9 @@ extern float BoxDisplayX;
 extern float MessageLabelSpriteXBase;
 extern float MessageLabelSpriteY;
 extern float MessageLabelSpriteHeight;
-extern float TextFontSize;
-extern float TextMiddleY;
-extern float TextX;
-extern float TextLineHeight;
-extern float TextMarginY;
-extern float AnimationSpeed;
-extern float FadeInDuration;
-extern float FadeOutDuration;
+extern float MessageLabelSpriteMultiplier;
 
-void Configure();
-
-}  // namespace SysMesBoxDisplay
+}  // namespace SysMesBox
+}  // namespace RNE
 }  // namespace Profile
 }  // namespace Impacto

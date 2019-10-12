@@ -15,7 +15,7 @@
 #include "mem.h"
 #include "hud/datedisplay.h"
 #include "hud/saveicondisplay.h"
-#include "hud/sysmesboxdisplay.h"
+#include "hud/sysmesbox.h"
 #include "hud/loadingdisplay.h"
 #include "hud/titlemenu.h"
 #include "hud/mainmenu.h"
@@ -32,7 +32,7 @@
 #include "profile/scene3d.h"
 #include "profile/vm.h"
 #include "profile/hud/datedisplay.h"
-#include "profile/hud/sysmesboxdisplay.h"
+#include "profile/hud/sysmesbox.h"
 
 namespace Impacto {
 
@@ -168,7 +168,7 @@ void Update(float dt) {
   if (Profile::GameFeatures & GameFeature::Sc3VirtualMachine) {
     Vm::Update();
     SaveIconDisplay::Update(dt);
-    SysMesBoxDisplay::Update(dt);
+    SysMesBox::Update(dt);
     LoadingDisplay::Update(dt);
     DateDisplay::Update(dt);
     TitleMenu::Update(dt);
@@ -284,7 +284,7 @@ void Render() {
           break;
         }
         case TD_SystemMessage: {
-          SysMesBoxDisplay::Render();
+          SysMesBox::Render();
           break;
         }
         case TD_SaveIcon: {

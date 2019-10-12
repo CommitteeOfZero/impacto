@@ -1,9 +1,10 @@
-#include "sysmesboxdisplay.h"
-#include "../profile_internal.h"
+#include "sysmesbox.h"
+#include "../../profile_internal.h"
 
 namespace Impacto {
 namespace Profile {
-namespace SysMesBoxDisplay {
+namespace RNE {
+namespace SysMesBox {
 
 Sprite BoxDecorationTop;
 Sprite BoxDecorationBottom;
@@ -34,6 +35,7 @@ float BoxDisplayX;
 float MessageLabelSpriteXBase;
 float MessageLabelSpriteY;
 float MessageLabelSpriteHeight;
+float MessageLabelSpriteMultiplier;
 float TextFontSize;
 float TextMiddleY;
 float TextX;
@@ -43,8 +45,8 @@ float AnimationSpeed;
 float FadeInDuration;
 float FadeOutDuration;
 
-void Configure() {
-  EnsurePushMemberOfType("SysMesBoxDisplay", kObjectType);
+Impacto::SysMesBox::SysMesBoxBase* Configure() {
+  Impacto::RNE::SysMesBox* result = new Impacto::RNE::SysMesBox();
 
   BoxDecorationTop = EnsureGetMemberSprite("BoxDecorationTop");
   BoxDecorationBottom = EnsureGetMemberSprite("BoxDecorationBottom");
@@ -75,18 +77,13 @@ void Configure() {
   MessageLabelSpriteXBase = EnsureGetMemberFloat("MessageLabelSpriteXBase");
   MessageLabelSpriteY = EnsureGetMemberFloat("MessageLabelSpriteY");
   MessageLabelSpriteHeight = EnsureGetMemberFloat("MessageLabelSpriteHeight");
-  TextFontSize = EnsureGetMemberFloat("TextFontSize");
-  TextMiddleY = EnsureGetMemberFloat("TextMiddleY");
-  TextX = EnsureGetMemberFloat("TextX");
-  TextLineHeight = EnsureGetMemberFloat("TextLineHeight");
-  TextMarginY = EnsureGetMemberFloat("TextMarginY");
-  AnimationSpeed = EnsureGetMemberFloat("AnimationSpeed");
-  FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
-  FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
+  MessageLabelSpriteMultiplier =
+      EnsureGetMemberFloat("MessageLabelSpriteMultiplier");
 
-  Pop();
+  return result;
 }
 
-}  // namespace SysMesBoxDisplay
+}  // namespace SysMesBox
+}  // namespace RNE
 }  // namespace Profile
 }  // namespace Impacto

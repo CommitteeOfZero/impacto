@@ -3,26 +3,20 @@ root.Sprites["ADVBox"] = {
     Bounds: { X: 768, Y: 815, Width: 1280, Height: 206 },
 };
 
-root.Sprites["DialogueWaitIcon"] = {
-    Sheet: "Data",
-    Bounds: { X: 1, Y: 97, Width: 32, Height: 32 }
-};
-
 root.Dialogue = {
     NVLBounds: { X: 125, Y: 85, Width: 1024, Height: 400 },
     ADVBounds: { X: 161, Y: 546, Width: 960, Height: 180 },
     ADVBoxSprite: "ADVBox",
-    ADVBoxPos: { X: 0, Y: 500 },
+    ADVBoxPos: { X: -1, Y: 512 },
     FadeOutDuration: 0.33,
     FadeInDuration: 0.33,
     NVLBoxMaxOpacity: 0.55,
     ADVNameAlignment: TextAlignment.Left,
-    ADVNameFontSize: 22,
-    ADVNamePos: { X: 104, Y: 468 },
-    WaitIconCurrentType: WaitIconType.RotateZ,
-    WaitIconSprite: "DialogueWaitIcon",
+    ADVNameFontSize: 29,
+    ADVNamePos: { X: 132, Y: 470 },
+    WaitIconSpriteAnim: "WaitIconSpriteAnimDef",
+	WaitIconCurrentType: WaitIconType.SpriteAnim,
     WaitIconOffset: { X: 4, Y: 4 },
-    WaitIconAnimationDuration: 3.2,
     DialogueFont: "Default",
     DefaultFontSize: 32,
     RubyFontSize: 14,
@@ -67,5 +61,21 @@ root.Dialogue = {
     MaxPageSize: 2000,
     PageCount: 3
 };
+
+MakeAnimation({
+    Name: "WaitIconSpriteAnimDef",
+    Sheet: "Data",
+    FirstFrameX: 0,
+    FirstFrameY: 96,
+    FrameWidth: 34,
+    ColWidth: 34,
+    FrameHeight: 34,
+    RowHeight: 34,
+    Frames: 8,
+    Duration: 1.5,
+    Rows: 8,
+    Columns: 1,
+    PrimaryDirection: AnimationDirections.Down,
+});
 
 include('chlcc/nametag.js');

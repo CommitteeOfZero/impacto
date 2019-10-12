@@ -10,7 +10,7 @@
 #include "../game.h"
 #include "../mem.h"
 #include "../log.h"
-#include "../hud/sysmesboxdisplay.h"
+#include "../hud/sysmesbox.h"
 #include "../audio/audiosystem.h"
 #include "../audio/audiostream.h"
 #include "../audio/audiochannel.h"
@@ -18,7 +18,7 @@
 #include "../text.h"
 #include "../profile/dialogue.h"
 #include "../profile/vm.h"
-#include "../profile/hud/sysmesboxdisplay.h"
+#include "../profile/hud/sysmesbox.h"
 
 namespace Impacto {
 
@@ -276,13 +276,14 @@ VmInstruction(InstSystemMes) {
   switch (mode) {
     case 0:  // SystemMesInit0
     case 1:  // SystemMesInit1
-      SysMesBoxDisplay::MessageCount = 0;
-      memset(SysMesBoxDisplay::Messages, 0,
+      SysMesBox::Implementation->MessageCount = 0;
+      memset(SysMesBox::Implementation->Messages, 0,
              (8 * 255) * sizeof(ProcessedTextGlyph));
       break;
     case 2: {  // SystemMesInit2
       PopExpression(sysMesInit2Arg);
-      ScrWork[SW_SYSMESANIMCTF] = 2 * SysMesBoxDisplay::MessageCount + 33;
+      ScrWork[SW_SYSMESANIMCTF] =
+          2 * SysMesBox::Implementation->MessageCount + 33;
     } break;
     case 3: {  // SystemMesSetMes
       PopUint16(sysMesStrNum);
@@ -291,13 +292,22 @@ VmInstruction(InstSystemMes) {
                                        sysMesStrNum);
       int len = TextLayoutPlainLine(
           thread, 255,
-          SysMesBoxDisplay::Messages[SysMesBoxDisplay::MessageCount],
-          Profile::Dialogue::DialogueFont,
-          Profile::SysMesBoxDisplay::TextFontSize,
+          SysMesBox::Implementation
+              ->Messages[SysMesBox::Implementation->MessageCount],
+          Profile::Dialogue::DialogueFont, Profile::SysMesBox::TextFontSize,
           Profile::Dialogue::ColorTable[10], 1.0f,
-          glm::vec2(Profile::SysMesBoxDisplay::TextX, 0.0f),
-          TextAlignment::Left);
-      SysMesBoxDisplay::MessageCount++;
+          glm::vec2(Profile::SysMesBox::TextX, 0.0f), TextAlignment::Left);
+      float mesLen = 0.0f;
+      for (int i = 0; i < len; i++) {
+        mesLen += SysMesBox::Implementation
+                      ->Messages[SysMesBox::Implementation->MessageCount][i]
+                      .DestRect.Width;
+      }
+      SysMesBox::Implementation
+          ->MessageWidths[SysMesBox::Implementation->MessageCount] = mesLen;
+      SysMesBox::Implementation
+          ->MessageLengths[SysMesBox::Implementation->MessageCount] = len;
+      SysMesBox::Implementation->MessageCount++;
       thread->Ip = oldIp;
     } break;
     case 4: {  // SystemMesSetSel
@@ -313,8 +323,8 @@ VmInstruction(InstSystemMes) {
       break;
     case 6:  // SystemMesFadeIn
       ScrWork[SW_SYSMESALPHA] = 256;
-      SysMesBoxDisplay::BoxOpacity = 1.0f;
-      SysMesBoxDisplay::AnimState = SysMesBoxDisplay::Showing;
+      SysMesBox::Implementation->BoxOpacity = 1.0f;
+      SysMesBox::Show();
 
       // Hack...
       if (Profile::Vm::GameInstructionSet == +InstructionSet::RNE) {
@@ -332,7 +342,7 @@ VmInstruction(InstSystemMes) {
       }
       break;
     case 7:  // SystemMesFadeOut
-      SysMesBoxDisplay::AnimState = SysMesBoxDisplay::Hiding;
+      SysMesBox::Hide();
 
       // Hack...
       if (Profile::Vm::GameInstructionSet == +InstructionSet::RNE) {
@@ -349,7 +359,7 @@ VmInstruction(InstSystemMes) {
         BlockThread;
       } else {
         ScrWork[SW_SYSMESALPHA] = 0;
-        SysMesBoxDisplay::BoxOpacity = 0.0f;
+        SysMesBox::Implementation->BoxOpacity = 0.0f;
       }
       break;
     case 8:

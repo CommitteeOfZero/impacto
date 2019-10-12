@@ -14,6 +14,7 @@
 #include "../hud/mainmenu.h"
 #include "../hud/titlemenu.h"
 #include "../hud/datedisplay.h"
+#include "../hud/sysmesbox.h"
 #include "../hud/waiticondisplay.h"
 #include "../3d/model.h"
 
@@ -158,6 +159,7 @@ void MakeJsonProfile(std::string const& name) {
   DefineEnumInt<TitleMenu::TitleMenuType>(ctx);
   DefineEnumInt<DateDisplay::DateDisplayType>(ctx);
   DefineEnumInt<WaitIconDisplay::WaitIconType>(ctx);
+  DefineEnumInt<SysMesBox::SysMesBoxType>(ctx);
   DefineEnumInt<FontType>(ctx);
   DefineEnumInt<LKMVersion>(ctx);
 

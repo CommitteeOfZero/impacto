@@ -2,28 +2,30 @@ var sheet = "Data";
 var name = "SysMesBox";
 
 root.SysMesBoxDisplay = {
+    Type: SysMesBoxType.Dash,
     LinePositionXFirst: 2433,
     LinePositionX: 2478,
     LinePositionMultiplier: 30,
     LineWidthFirst: 171,
-    LineWidthBase: 81,
+    LineWidthBase: 121.5,
     LineWidthMultiplier: 60,
     Line1SpriteY: 160.5,
     Line2SpriteY: 175.5,
     LineSpriteHeight: 12,
-    LineDisplayXBase: 958.5,
+    LineDisplayXBase: 961.5,
     Line1DisplayY: 540,
     Line2DisplayY: 528,
     BoxDisplayStartCount: 9,
     BoxHeightBase: 168,
-    BoxHeightMultiplier: 14,
-    BoxWidth: 912,
+    BoxHeightMultiplier: 21,
+    BoxWidth: 900,
     BoxTextFontSize: 42,
     BoxTopYBase: 540,
-    BoxDisplayX: 516,
+    BoxDisplayX: 510,
     MessageLabelSpriteXBase: 2368,
     MessageLabelSpriteY: 196.5,
     MessageLabelSpriteHeight: 64,
+	MessageLabelSpriteMultiplier: 18.4,
 	TextFontSize: 39,
 	TextMiddleY: 627,
 	TextX: 555,
@@ -37,10 +39,10 @@ root.SysMesBoxDisplay = {
 root.Sprites[name + "BoxDecorationTop"] = {
     Sheet: sheet,
     Bounds: {
-        X: 2048,
+        X: 2049,
         Y: 400,
         Width: 912,
-        Height: 4
+        Height: 61
     }
 };
 root.SysMesBoxDisplay.BoxDecorationTop = name + "BoxDecorationTop";
@@ -48,10 +50,10 @@ root.SysMesBoxDisplay.BoxDecorationTop = name + "BoxDecorationTop";
 root.Sprites[name + "BoxDecorationBottom"] = {
     Sheet: sheet,
     Bounds: {
-        X: 2048,
+        X: 2049,
         Y: 536,
         Width: 912,
-        Height: 4
+        Height: 12
     }
 };
 root.SysMesBoxDisplay.BoxDecorationBottom = name + "BoxDecorationBottom";
