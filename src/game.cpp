@@ -227,7 +227,9 @@ void Render() {
                 }
                 Renderer2D::DrawSprite(
                     Backgrounds2D[i].BgSprite,
-                    RectF(0.0f, 0.0f, Backgrounds2D[i].BgSprite.ScaledWidth(),
+                    RectF(Backgrounds2D[i].DisplayCoords.x,
+                          Backgrounds2D[i].DisplayCoords.y,
+                          Backgrounds2D[i].BgSprite.ScaledWidth(),
                           Backgrounds2D[i].BgSprite.ScaledHeight()),
                     col);
               }

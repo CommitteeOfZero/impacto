@@ -12,6 +12,7 @@ class Background2D : public Loadable<Background2D> {
 
  public:
   Sprite BgSprite;
+  glm::vec2 DisplayCoords;
   bool Show;
   int Layer;
 
