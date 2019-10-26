@@ -3,6 +3,7 @@
 #include "../games/rne/tilebackground.h"
 #include "../games/rne/titlemenu.h"
 #include "../games/dash/titlemenu.h"
+#include "../games/chlcc/titlemenu.h"
 #include "../../log.h"
 #include "../../window.h"
 
@@ -32,6 +33,8 @@ void Configure() {
       Implementation = RNE::TitleMenu::Configure();
     } else if (Type == +TitleMenuType::Dash) {
       Implementation = Dash::TitleMenu::Configure();
+    } else if (Type == +TitleMenuType::CHLCC) {
+      Implementation = CHLCC::TitleMenu::Configure();
     }
 
     PressToStartSprite = EnsureGetMemberSprite("PressToStartSprite");

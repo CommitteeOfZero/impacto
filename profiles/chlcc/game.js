@@ -21,6 +21,6 @@ include('chlcc/dialogue.js');
 include('chlcc/hud/saveicon.js');
 include('chlcc/hud/loadingdisplay.js');
 include('chlcc/hud/datedisplay.js');
-//include('chlcc/hud/titlemenu.js');
+include('chlcc/hud/titlemenu.js');
 //include('chlcc/hud/mainmenu.js');
 include('chlcc/hud/sysmesboxdisplay.js');

@@ -6,7 +6,7 @@
 namespace Impacto {
 namespace TitleMenu {
 
-BETTER_ENUM(TitleMenuType, int, None, RNE, Dash)
+BETTER_ENUM(TitleMenuType, int, None, RNE, Dash, CHLCC)
 
 enum TitleMenuState { Hidden, Hiding, Showing, Shown };
 
