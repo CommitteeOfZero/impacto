@@ -392,6 +392,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice) {
       case STT_SetColor: {
         assert(token.Val_Expr < ColorCount);
         CurrentColors = ColorTable[token.Val_Expr];
+        break;
       }
       case STT_Character: {
         if (State == TPS_Name) {
@@ -457,7 +458,9 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice) {
       }
 
       // TODO print in parallel
-      default: { break; }
+      default: {
+        break;
+      }
     }
   } while (token.Type != STT_EndOfString);
 
