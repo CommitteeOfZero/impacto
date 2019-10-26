@@ -1,11 +1,13 @@
 #include "../../impacto.h"
-#include "../../scriptvars.h"
+#include "../../profile/scriptvars.h"
 #include "../../mem.h"
 #include "../../background2d.h"
 
 namespace Impacto {
 namespace Vm {
 namespace Interface {
+
+using namespace Impacto::Profile::ScriptVars;
 
 void UpdateBackground2D() {
   for (int i = 0; i < MaxBackgrounds2D; i++) {

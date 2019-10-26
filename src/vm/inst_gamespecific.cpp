@@ -6,11 +6,13 @@
 #include "../game.h"
 #include "../log.h"
 #include "../mem.h"
-#include "../scriptvars.h"
+#include "../profile/scriptvars.h"
 
 namespace Impacto {
 
 namespace Vm {
+	
+using namespace Impacto::Profile::ScriptVars;
 
 VmInstruction(InstUnk0041) {
   StartInstruction;

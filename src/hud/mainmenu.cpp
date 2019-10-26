@@ -4,7 +4,6 @@
 #include "../renderer2d.h"
 #include "../games/rne/tilebackground.h"
 #include "../mem.h"
-#include "../scriptvars.h"
 
 namespace Impacto {
 namespace MainMenu {

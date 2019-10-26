@@ -10,6 +10,8 @@ root.Vm = {
     UseReturnIds: true
 };
 
+include('common/scriptvars.js');
+include('dash/scriptvars.js');
 include('dash/vfs.js');
 include('dash/sprites.js');
 include('common/animation.js');

@@ -6,7 +6,7 @@
 #include <ctime>
 
 #include "expression.h"
-#include "../scriptvars.h"
+#include "../profile/scriptvars.h"
 #include "../game.h"
 #include "../mem.h"
 #include "../log.h"
@@ -23,6 +23,8 @@
 namespace Impacto {
 
 namespace Vm {
+
+using namespace Impacto::Profile::ScriptVars;
 
 VmInstruction(InstDummy) {}
 

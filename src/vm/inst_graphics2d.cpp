@@ -5,13 +5,15 @@
 #include "expression.h"
 #include "../game.h"
 #include "../log.h"
-#include "../scriptvars.h"
+#include "../profile/scriptvars.h"
 #include "../mem.h"
 #include "../background2d.h"
 
 namespace Impacto {
 
 namespace Vm {
+
+using namespace Impacto::Profile::ScriptVars;
 
 VmInstruction(InstCreateSurf) {
   StartInstruction;

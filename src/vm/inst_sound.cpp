@@ -11,10 +11,14 @@
 #include "../audio/audiosystem.h"
 #include "../audio/audiostream.h"
 #include "../audio/audiochannel.h"
+#include "../profile/scriptvars.h"
+#include "../profile/vm.h"
 
 namespace Impacto {
 
 namespace Vm {
+	
+using namespace Impacto::Profile::ScriptVars;
 
 VmInstruction(InstBGMplay) {
   StartInstruction;
@@ -45,8 +49,12 @@ VmInstruction(InstSEplay) {
     PopExpression(loop);
     Io::InputStream* stream;
     Io::VfsOpen("se", effect, &stream);
-    Audio::Channels[Audio::AC_SE0 + channel].Volume =
-        (ScrWork[4315 + channel] / 100.0f) * 0.3f;
+    if (Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
+      Audio::Channels[Audio::AC_SE0 + channel].Volume = 0.3f;
+    } else {
+      Audio::Channels[Audio::AC_SE0 + channel].Volume =
+          (ScrWork[SW_SEVOL + channel] / 100.0f) * 0.3f;
+    }
     Audio::Channels[Audio::AC_SE0 + channel].Play(
         Audio::AudioStream::Create(stream), (bool)loop, 0.0f);
   } else {
@@ -63,7 +71,7 @@ VmInstruction(InstSEplayMO6) {
   Io::InputStream* stream;
   Io::VfsOpen("se", effect, &stream);
   Audio::Channels[Audio::AC_SE0 + channel].Volume =
-      (ScrWork[4315 + channel] / 100.0f) * 0.3f;
+      (ScrWork[SW_SEVOL + channel] / 100.0f) * 0.3f;
   Audio::Channels[Audio::AC_SE0 + channel].Play(
       Audio::AudioStream::Create(stream), (bool)loop, 0.0f);
 }

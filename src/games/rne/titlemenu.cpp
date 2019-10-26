@@ -11,7 +11,7 @@
 #include "../../audio/audiochannel.h"
 #include "../../io/vfs.h"
 #include "../../mem.h"
-#include "../../scriptvars.h"
+#include "../../profile/scriptvars.h"
 #include "../../background2d.h"
 
 namespace Impacto {
@@ -19,6 +19,7 @@ namespace RNE {
 
 using namespace Impacto::Profile::TitleMenu;
 using namespace Impacto::Profile::RNE::TitleMenu;
+using namespace Impacto::Profile::ScriptVars;
 
 static int const TitleBgBufferId = 3;
 

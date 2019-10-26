@@ -5,13 +5,14 @@
 #include "../../renderer2d.h"
 #include "../../games/rne/tilebackground.h"
 #include "../../mem.h"
-#include "../../scriptvars.h"
+#include "../../profile/scriptvars.h"
 
 namespace Impacto {
 namespace RNE {
 
 using namespace Impacto::Profile::MainMenu;
 using namespace Impacto::Profile::RNE::MainMenu;
+using namespace Impacto::Profile::ScriptVars;
 
 void MainMenu::Show() {
   if (State != Shown) {

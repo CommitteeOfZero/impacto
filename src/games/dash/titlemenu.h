@@ -13,9 +13,6 @@ class TitleMenu : public TitleMenuBase {
   void Hide();
   void Update(float dt);
   void Render();
-
-  Animation* BackgroundAnimation = 0;
-  Animation PreTitleItemsAnimation;
 };
 
 }  // namespace Dash

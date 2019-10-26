@@ -3,7 +3,7 @@
 #include "inst_macros.inc"
 
 #include "expression.h"
-#include "../scriptvars.h"
+#include "../profile/scriptvars.h"
 #include "../game.h"
 #include "../mem.h"
 #include "../inputsystem.h"
@@ -16,6 +16,8 @@
 namespace Impacto {
 
 namespace Vm {
+	
+using namespace Impacto::Profile::ScriptVars;
 
 VmInstruction(InstMesViewFlag) {
   StartInstruction;

@@ -6,7 +6,7 @@
 #include "../game.h"
 #include "../mem.h"
 #include "../log.h"
-#include "../scriptvars.h"
+#include "../profile/scriptvars.h"
 
 #include "../3d/scene.h"
 
@@ -18,6 +18,8 @@
 namespace Impacto {
 
 namespace Vm {
+	
+using namespace Impacto::Profile::ScriptVars;
 
 using namespace Interface;
 

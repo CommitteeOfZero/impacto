@@ -10,6 +10,8 @@ root.Vm = {
 	UseReturnIds: false
 };
 
+include('common/scriptvars.js');
+include('mo6tw/scriptvars.js');
 include('mo6tw/vfs.js');
 include('mo6tw/sprites.js');
 include('common/animation.js');

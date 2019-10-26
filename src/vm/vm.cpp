@@ -6,7 +6,6 @@
 #include "../io/io.h"
 #include "../game.h"
 #include "../mem.h"
-#include "../scriptvars.h"
 #include "interface/scene3d.h"
 #include "interface/background2d.h"
 #include "opcodetables_rne.h"
@@ -16,10 +15,13 @@
 #include "opcodetables_dash.h"
 #include "../profile/game.h"
 #include "../profile/vm.h"
+#include "../profile/scriptvars.h"
 #include "../window.h"
 
 namespace Impacto {
 namespace Vm {
+
+using namespace Profile::ScriptVars;
 
 uint8_t* ScriptBuffers[MaxLoadedScripts];
 bool BlockCurrentScriptThread;
@@ -63,6 +65,7 @@ void Init() {
   ImpLog(LL_Info, LC_VM, "Initializing SC3 virtual machine\n");
 
   Profile::Vm::Configure();
+  Profile::ScriptVars::Configure();
 
   switch (Profile::Vm::GameInstructionSet) {
     case InstructionSet::RNE: {

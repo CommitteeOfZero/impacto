@@ -10,6 +10,7 @@ root.Vm = {
 	UseReturnIds: true
 };
 
+include('common/scriptvars.js');
 include('rne/vfs.js');
 include('rne/sprites.js');
 include('common/animation.js');

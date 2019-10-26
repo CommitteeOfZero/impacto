@@ -1,6 +1,6 @@
 #include "datedisplay.h"
 
-#include "../../scriptvars.h"
+#include "../../profile/scriptvars.h"
 #include "../../impacto.h"
 #include "../../mem.h"
 #include <ctime>
@@ -12,6 +12,7 @@ namespace Impacto {
 namespace RNE {
 
 using namespace Impacto::Profile::DateDisplay;
+using namespace Impacto::Profile::ScriptVars;
 
 void DateDisplay::Update(float dt) {
   FadeAnimation.Update(dt);

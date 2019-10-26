@@ -10,7 +10,7 @@
 #include "../../audio/audiochannel.h"
 #include "../../io/vfs.h"
 #include "../../mem.h"
-#include "../../scriptvars.h"
+#include "../../profile/scriptvars.h"
 #include "../../background2d.h"
 
 namespace Impacto {
@@ -18,6 +18,7 @@ namespace Dash {
 
 using namespace Impacto::Profile::TitleMenu;
 using namespace Impacto::Profile::Dash::TitleMenu;
+using namespace Impacto::Profile::ScriptVars;
 
 void TitleMenu::Show() {
   if (State != Shown) {

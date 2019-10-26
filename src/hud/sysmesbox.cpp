@@ -4,7 +4,6 @@
 #include "../renderer2d.h"
 #include "../game.h"
 #include "../mem.h"
-#include "../scriptvars.h"
 #include "../profile/hud/sysmesbox.h"
 #include "../profile/dialogue.h"
 
@@ -15,9 +14,7 @@ using namespace Impacto::Profile::SysMesBox;
 
 SysMesBoxBase* Implementation = 0;
 
-void Init() {
-  Configure();
-}
+void Init() { Configure(); }
 
 void Show() {
   if (Implementation) Implementation->Show();

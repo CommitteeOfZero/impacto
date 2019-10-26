@@ -36,6 +36,7 @@ set(Impacto_Src
     src/profile/fonts.cpp
     src/profile/dialogue.cpp
     src/profile/vm.cpp
+    src/profile/scriptvars.cpp
 
     src/profile/hud/saveicon.cpp
     src/profile/hud/loadingdisplay.cpp
@@ -173,6 +174,7 @@ set(Impacto_Header
     src/profile/fonts.h
     src/profile/dialogue.h
     src/profile/vm.h
+    src/profile/scriptvars.h
 
     src/profile/hud/saveicon.h
     src/profile/hud/loadingdisplay.h
@@ -253,8 +255,6 @@ set(Impacto_Header
     src/vm/inst_movie.h
     src/vm/inst_sound.h
     src/vm/opcodetables_rne.h
-
-    src/scriptvars.h
 
     src/vm/interface/scene3d.h
     src/vm/interface/background2d.h

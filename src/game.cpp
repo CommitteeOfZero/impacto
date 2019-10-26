@@ -20,7 +20,6 @@
 #include "hud/titlemenu.h"
 #include "hud/mainmenu.h"
 #include "io/memorystream.h"
-#include "scriptvars.h"
 
 #include "profile/profile.h"
 #include "profile/game.h"
@@ -31,10 +30,13 @@
 #include "profile/animations.h"
 #include "profile/scene3d.h"
 #include "profile/vm.h"
+#include "profile/scriptvars.h"
 #include "profile/hud/datedisplay.h"
 #include "profile/hud/sysmesbox.h"
 
 namespace Impacto {
+
+using namespace Profile::ScriptVars;
 
 static int const NkMaxVertexMemory = 256 * 1024;
 static int const NkMaxElementMemory = 128 * 1024;
@@ -92,7 +94,7 @@ static void Init() {
   if (Profile::GameFeatures & GameFeature::Sc3VirtualMachine) {
     SaveIconDisplay::Init();
     LoadingDisplay::Init();
-    SysMesBoxDisplay::Init();
+    SysMesBox::Init();
     TitleMenu::Init();
     MainMenu::Init();
     DateDisplay::Init();
@@ -292,9 +294,9 @@ void Render() {
           break;
         }
         default: {
-          ImpLog(LL_Error, LC_General,
-                 "Encountered unknown draw component type %02X\n",
-                 DrawComponents[i]);
+          ImpLogSlow(LL_Error, LC_General,
+                     "Encountered unknown draw component type %02X\n",
+                     DrawComponents[i]);
           break;
         }
       }

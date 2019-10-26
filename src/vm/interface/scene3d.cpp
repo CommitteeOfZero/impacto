@@ -1,7 +1,7 @@
 #include "scene3d.h"
 
 #include "../../impacto.h"
-#include "../../scriptvars.h"
+#include "../../profile/scriptvars.h"
 #include "../../3d/scene.h"
 #include "../../mem.h"
 #include "../../util.h"
@@ -12,6 +12,8 @@
 namespace Impacto {
 namespace Vm {
 namespace Interface {
+
+using namespace Impacto::Profile::ScriptVars;
 
 ska::flat_hash_map<int, ScrWorkAnimation> ScrWorkAnimations;
 std::vector<int> CurrentScrWorkAnimations;

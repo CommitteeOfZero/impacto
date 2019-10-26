@@ -4,7 +4,7 @@
 #include "../../renderer2d.h"
 #include "../../game.h"
 #include "../../mem.h"
-#include "../../scriptvars.h"
+#include "../../profile/scriptvars.h"
 #include "../../profile/hud/sysmesbox.h"
 #include "../../profile/games/mo6tw/sysmesbox.h"
 #include "../../profile/dialogue.h"
@@ -14,6 +14,7 @@ namespace MO6TW {
 
 using namespace Impacto::Profile::SysMesBox;
 using namespace Impacto::Profile::MO6TW::SysMesBox;
+using namespace Impacto::Profile::ScriptVars;
 
 static float BoxAnimCount = 0.0f;
 static float BoxTopY = 0.0f;
@@ -89,7 +90,8 @@ void SysMesBox::Render() {
         Messages[i][j].DestRect.Y = TextMiddleY + (i * TextLineHeight);
       }
       Renderer2D::DrawProcessedText(Messages[i], MessageLengths[i],
-                                    Profile::Dialogue::DialogueFont, col.a);
+                                    Profile::Dialogue::DialogueFont, col.a,
+                                    true);
     }
   }
 }
