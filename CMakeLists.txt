@@ -57,6 +57,8 @@ set(Impacto_Src
 
     src/profile/games/mo6tw/sysmesbox.cpp
 
+    src/profile/games/darling/sysmesbox.cpp
+
     src/games/rne/tilebackground.cpp
     src/games/rne/datedisplay.cpp
     src/games/rne/mainmenu.cpp
@@ -69,6 +71,8 @@ set(Impacto_Src
     src/games/chlcc/sysmesbox.cpp
 
 	src/games/mo6tw/sysmesbox.cpp
+
+	src/games/darling/sysmesbox.cpp
 
     src/hud/datedisplay.cpp
     src/hud/saveicondisplay.cpp
@@ -197,6 +201,8 @@ set(Impacto_Header
 
     src/profile/games/mo6tw/sysmesbox.h
 
+    src/profile/games/darling/sysmesbox.h
+
     src/games/rne/tilebackground.h
     src/games/rne/datedisplay.h
     src/games/rne/mainmenu.h
@@ -209,6 +215,8 @@ set(Impacto_Header
     src/games/chlcc/sysmesbox.h
 
     src/games/mo6tw/sysmesbox.h
+
+    src/games/darling/sysmesbox.h
 
     src/hud/datedisplay.h
     src/hud/saveicondisplay.h

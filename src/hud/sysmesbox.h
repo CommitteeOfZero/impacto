@@ -5,7 +5,7 @@
 namespace Impacto {
 namespace SysMesBox {
 
-BETTER_ENUM(SysMesBoxType, int, None, RNE, Dash, CHLCC, MO6TW)
+BETTER_ENUM(SysMesBoxType, int, None, RNE, Dash, CHLCC, MO6TW, Darling)
 
 enum SysMesBoxState { Hidden, Hiding, Showing, Shown };
 

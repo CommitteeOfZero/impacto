@@ -2,14 +2,13 @@ var sheet = "Data";
 var name = "SysMesBox";
 
 root.SysMesBoxDisplay = {
-	Type: SysMesBoxType.MO6TW,
+	Type: SysMesBoxType.Darling,
 	BoxX: 602,
 	BoxY: 224,
 	BoxMiddleBaseX: 604,
 	BoxMinimumWidth: 768,
-	BoxMiddleBaseWidth: 40,
-	BoxMiddleRemainBase: 350,
-	BoxRightBaseX: 370,
+	BoxMiddleBaseWidth: 434,
+	BoxRightBaseWidth: 24,
 	BoxRightRemainPad: 48,
 	TextFontSize: 32,
 	TextMiddleY: 236,
