@@ -6,6 +6,8 @@ namespace Interface {
 
 void UpdateBackground2D();
 
+void UpdateCharacter2D();
+
 int GetBufferId(int bufIdByScript);
 
 }  // namespace Interface

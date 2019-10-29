@@ -477,6 +477,12 @@ VmInstruction(InstTwipo_Dash) {
     } break;
   }
 }
+VmInstruction(InstDelusionTriggerCHLCC) {
+  StartInstruction;
+  PopUint8(type);
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction DelusionTriggerCHLCC()\n");
+}
 VmInstruction(InstUnk103A) {
   StartInstruction;
   PopUint8(type);

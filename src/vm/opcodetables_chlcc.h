@@ -578,7 +578,7 @@ InstructionProc static OpcodeTableUser1_CHLCC[256] = {
     InstSetCutin,          // 10 2A
     InstDummy,             // 10 2B
     InstDummy,             // 10 2C
-    InstAchChkTitle,       // 10 2D
+    InstDelusionTriggerCHLCC,// 10 2D
     InstSetSceneViewFlag,  // 10 2E
     InstChkClearFlag,      // 10 2F
     InstBGeffectWave,      // 10 30

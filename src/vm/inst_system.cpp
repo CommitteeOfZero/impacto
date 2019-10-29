@@ -15,6 +15,7 @@
 #include "../audio/audiostream.h"
 #include "../audio/audiochannel.h"
 #include "../background2d.h"
+#include "../character2d.h"
 #include "../text.h"
 #include "../profile/dialogue.h"
 #include "../profile/vm.h"
@@ -503,6 +504,9 @@ VmInstruction(InstMSinit) {
              initType);
   for (int i = 0; i < MaxBackgrounds2D; i++) {
     ScrWork[SW_BG1SURF + i] = i;
+  }
+  for (int i = 0; i < MaxCharacters2D; i++) {
+    ScrWork[SW_CHA1SURF + i] = i;
   }
 
   ScrWork[SW_IRUOCAMERAHFOVCUR] = 40000;

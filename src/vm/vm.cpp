@@ -62,7 +62,8 @@ static void DestroyScriptThreads(uint32_t scriptBufferId);
 static void DestroyThreadGroup(uint32_t groupId);
 
 void Init() {
-  ImpLog(LL_Info, LC_VM, "Initializing SC3 virtual machine\n");
+  ImpLog(LL_Info, LC_VM,
+         "Initializing SC3 virtual machine\n**** Start apprication ****\n");
 
   Profile::Vm::Configure();
   Profile::ScriptVars::Configure();
@@ -243,6 +244,8 @@ void Update() {
 
   if (Profile::GameFeatures & GameFeature::Scene3D) {
     Interface::UpdateScene3D();
+  } else {
+    Interface::UpdateCharacter2D();
   }
   Interface::UpdateBackground2D();
 }

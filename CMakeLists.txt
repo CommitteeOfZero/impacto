@@ -18,9 +18,11 @@ set(Impacto_Src
     src/game.cpp
     src/mem.cpp
     src/modelviewer.cpp
+    src/characterviewer.cpp
     src/spriteanimation.cpp
     src/renderer2d.cpp
     src/background2d.cpp
+    src/character2d.cpp
     src/text.cpp
     src/inputsystem.cpp
     src/glc.cpp
@@ -157,11 +159,13 @@ set(Impacto_Header
     src/game.h
     src/mem.h
     src/modelviewer.h
+    src/characterviewer.h
     src/spritesheet.h
     src/spriteanimation.h
     src/font.h
     src/renderer2d.h
     src/background2d.h
+    src/character2d.h
     src/text.h
     src/loadable.h
     src/inputsystem.h

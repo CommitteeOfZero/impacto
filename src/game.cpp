@@ -4,6 +4,7 @@
 #include "../vendor/nuklear/nuklear_sdl_gl3.h"
 #include "workqueue.h"
 #include "modelviewer.h"
+#include "characterviewer.h"
 #include "log.h"
 #include "inputsystem.h"
 #include "audio/audiosystem.h"
@@ -11,6 +12,7 @@
 #include "audio/audiostream.h"
 #include "renderer2d.h"
 #include "background2d.h"
+#include "character2d.h"
 #include "3d/scene.h"
 #include "mem.h"
 #include "hud/datedisplay.h"
@@ -91,6 +93,10 @@ static void Init() {
     ModelViewer::Init();
   }
 
+  if (Profile::GameFeatures & GameFeature::CharacterViewer) {
+    CharacterViewer::Init();
+  }
+
   if (Profile::GameFeatures & GameFeature::Sc3VirtualMachine) {
     SaveIconDisplay::Init();
     LoadingDisplay::Init();
@@ -167,6 +173,10 @@ void Update(float dt) {
     ModelViewer::Update(dt);
   }
 
+  if (Profile::GameFeatures & GameFeature::CharacterViewer) {
+    CharacterViewer::Update(dt);
+  }
+
   if (Profile::GameFeatures & GameFeature::Sc3VirtualMachine) {
     Vm::Update();
     SaveIconDisplay::Update(dt);
@@ -237,6 +247,12 @@ void Render() {
                     col);
               }
             }
+            for (int i = 0; i < MaxCharacters2D; i++) {
+              if (Characters2D[i].Status == LS_Loaded &&
+                  Characters2D[i].Layer == layer && Characters2D[i].Show) {
+                Characters2D[i].Render();
+              }
+            }
             if (ScrWork[SW_MASK1PRI] == layer) {
               int maskAlpha =
                   ScrWork[SW_MASK1ALPHA_OFS] + ScrWork[SW_MASK1ALPHA];
@@ -305,6 +321,20 @@ void Render() {
           break;
         }
       }
+    }
+    Renderer2D::EndFrame();
+  }
+
+  if (Profile::GameFeatures & GameFeature::CharacterViewer) {
+    Renderer2D::BeginFrame();
+    if (Backgrounds2D[0].Status == LS_Loaded) {
+      Renderer2D::DrawSprite(
+          Backgrounds2D[0].BgSprite,
+          RectF(0.0f, 0.0f, Backgrounds2D[0].BgSprite.ScaledWidth(),
+                Backgrounds2D[0].BgSprite.ScaledHeight()));
+    }
+    if (Characters2D[0].Status == LS_Loaded) {
+      Characters2D[0].Render();
     }
     Renderer2D::EndFrame();
   }

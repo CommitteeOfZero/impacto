@@ -8,6 +8,7 @@
 #include "../profile/scriptvars.h"
 #include "../mem.h"
 #include "../background2d.h"
+#include "../character2d.h"
 #include "interface/scene2d.h"
 #include "../profile/vm.h"
 
@@ -150,19 +151,52 @@ VmInstruction(InstBGsetLink) {
 VmInstruction(InstCHAload) {
   StartInstruction;
   PopUint8(arg1);
-  PopExpression(arg2);
-  PopExpression(arg3);
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction CHAload(arg1: %i, arg2: %i, arg3: %i)\n", arg1,
-             arg2, arg3);
+  PopExpression(bufferId);
+  PopExpression(characterId);
+
+  int actualBufId = Interface::GetBufferId(bufferId) - 1;
+  int chaBufId = ScrWork[SW_CHA1SURF + actualBufId];
+  if (Characters2D[chaBufId].Status == LS_Loading) {
+    ResetInstruction;
+    BlockThread;
+  } else if (ScrWork[SW_CHA1NO + ScrWorkChaStructSize * actualBufId] !=
+             (characterId & 0xFFFF)) {
+    ScrWork[SW_CHA1NO + ScrWorkChaStructSize * actualBufId] =
+        characterId & 0xFFFF;
+    ScrWork[SW_CHA1FACE + ScrWorkChaStructSize * actualBufId] =
+        characterId >> 16;
+    Characters2D[chaBufId].LoadAsync(characterId);
+    ResetInstruction;
+    BlockThread;
+  }
 }
 VmInstruction(InstCHAswap) {
   StartInstruction;
   PopExpression(srcBufferId);
   PopExpression(dstBufferId);
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction CHAswap(srcBufferId: %i, dstBufferId: %i)\n",
-             srcBufferId, dstBufferId);
+
+  srcBufferId = Interface::GetBufferId(srcBufferId) - 1;
+  dstBufferId = Interface::GetBufferId(dstBufferId) - 1;
+
+  bool cha1fl = GetFlag(SF_CHA1DISP + srcBufferId);
+  bool cha2fl = GetFlag(SF_CHA1DISP + dstBufferId);
+  SetFlag(SF_CHA1DISP + srcBufferId, cha2fl);
+  SetFlag(SF_CHA1DISP + dstBufferId, cha1fl);
+
+  int counter = 0;
+  do {
+    int temp =
+        ScrWork[SW_CHA1POSX + (srcBufferId * ScrWorkChaStructSize) + counter];
+    ScrWork[SW_CHA1POSX + (srcBufferId * ScrWorkChaStructSize) + counter] =
+        ScrWork[SW_CHA1POSX + (dstBufferId * ScrWorkChaStructSize) + counter];
+    ScrWork[SW_CHA1POSX + (dstBufferId * ScrWorkChaStructSize) + counter] =
+        temp;
+    counter++;
+  } while (counter != ScrWorkChaStructSize);
+
+  int tempb = ScrWork[SW_CHA1SURF + srcBufferId];
+  ScrWork[SW_CHA1SURF + srcBufferId] = ScrWork[SW_CHA1SURF + dstBufferId];
+  ScrWork[SW_CHA1SURF + dstBufferId] = tempb;
 }
 VmInstruction(InstBGrelease) {
   StartInstruction;
@@ -198,9 +232,24 @@ VmInstruction(InstCHAcopy) {
   StartInstruction;
   PopExpression(srcBufferId);
   PopExpression(dstBufferId);
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction CHAcopy(srcBufferId: %i, dstBufferId: %i)\n",
-             srcBufferId, dstBufferId);
+
+  srcBufferId = Interface::GetBufferId(srcBufferId) - 1;
+  dstBufferId = Interface::GetBufferId(dstBufferId) - 1;
+
+  int chaId = (ScrWork[SW_CHA1FACE + ScrWorkBgStructSize * srcBufferId] << 16) +
+              ScrWork[SW_CHA1NO + ScrWorkBgStructSize * srcBufferId];
+  int dstSurfId = ScrWork[SW_CHA1SURF + dstBufferId];
+
+  if (Characters2D[dstSurfId].Status == LS_Loading) {
+    ResetInstruction;
+    BlockThread;
+  } else if (ScrWork[SW_CHA1NO + ScrWorkChaStructSize * dstBufferId] !=
+             (chaId & 0xFFFF)) {
+    ScrWork[SW_CHA1NO + ScrWorkChaStructSize * dstBufferId] = chaId & 0xFFFF;
+    Characters2D[dstSurfId].LoadAsync(chaId);
+    ResetInstruction;
+    BlockThread;
+  }
 }
 VmInstruction(InstCharaLayerLoad) { StartInstruction; }
 VmInstruction(InstCHAmove) {
@@ -258,8 +307,11 @@ VmInstruction(InstBGloadEx) {
 VmInstruction(InstCHArelease) {
   StartInstruction;
   PopExpression(bufferId);
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction CHArelease(bufferId: %i)\n", bufferId);
+  bufferId = Interface::GetBufferId(bufferId) - 1;
+  int surfId = ScrWork[SW_CHA1SURF + bufferId];
+  if (Characters2D[surfId].Status == LS_Loaded) {
+    Characters2D[surfId].Unload();
+  }
 }
 VmInstruction(InstGetCharaPause) {
   StartInstruction;

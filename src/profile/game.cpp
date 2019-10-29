@@ -8,6 +8,10 @@ namespace Profile {
 int LayerCount;
 int GameFeatures;
 
+bool LayFileBigEndian;
+float LayFileTexXMultiplier;
+float LayFileTexYMultiplier;
+
 float DesignWidth;
 float DesignHeight;
 
@@ -18,6 +22,13 @@ void LoadGameFromJson() {
   GameFeatures = EnsureGetMemberInt("GameFeatures");
   DesignWidth = EnsureGetMemberFloat("DesignWidth");
   DesignHeight = EnsureGetMemberFloat("DesignHeight");
+
+  bool res = TryGetMemberBool("LayFileBigEndian", LayFileBigEndian);
+  if (!res) LayFileBigEndian = false;
+  res = TryGetMemberFloat("LayFileTexXMultiplier", LayFileTexXMultiplier);
+  if (!res) LayFileTexXMultiplier = 1.0f;
+  res = TryGetMemberFloat("LayFileTexYMultiplier", LayFileTexYMultiplier);
+  if (!res) LayFileTexYMultiplier = 1.0f;
 }
 
 }  // namespace Profile

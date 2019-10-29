@@ -3,6 +3,7 @@
 #include "../../profile/vm.h"
 #include "../../mem.h"
 #include "../../background2d.h"
+#include "../../character2d.h"
 #include "../../profile/game.h"
 
 namespace Impacto {
@@ -60,6 +61,18 @@ void UpdateBackground2D() {
                 (Backgrounds2D[bufId].BgSprite.ScaledHeight() / 2.0f));
       } break;
     }
+  }
+}
+
+void UpdateCharacter2D() {
+  for (int i = 0; i < MaxCharacters2D; i++) {
+    int bufId = ScrWork[SW_CHA1SURF + i];
+    Characters2D[bufId].Layer = ScrWork[SW_CHA1PRI + ScrWorkChaStructSize * i];
+    Characters2D[bufId].Show = GetFlag(SF_CHA1DISP + i);
+    Characters2D[bufId].CharaOffsetX =
+        ScrWork[SW_CHA1POSX + ScrWorkChaStructSize * i];
+    Characters2D[bufId].CharaOffsetY =
+        ScrWork[SW_CHA1POSY + ScrWorkChaStructSize * i];
   }
 }
 

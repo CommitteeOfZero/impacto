@@ -19,6 +19,7 @@ VmInstruction(InstMail);
 VmInstruction(InstUnk1038Darling);
 VmInstruction(InstTwipo);
 VmInstruction(InstTwipo_Dash);
+VmInstruction(InstDelusionTriggerCHLCC);
 VmInstruction(InstUnk103A);
 
 }  // namespace Vm

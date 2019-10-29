@@ -14,7 +14,8 @@ extern nk_context* Nk;
 
 BETTER_ENUM(GameFeature, int, Nuklear = (1 << 0), Scene3D = (1 << 1),
             ModelViewer = (1 << 2), Sc3VirtualMachine = (1 << 3),
-            Renderer2D = (1 << 4), Input = (1 << 5), Audio = (1 << 6))
+            Renderer2D = (1 << 4), Input = (1 << 5), Audio = (1 << 6),
+            CharacterViewer = (1 << 7))
 
 namespace Game {
 

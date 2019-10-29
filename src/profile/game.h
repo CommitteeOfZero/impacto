@@ -6,6 +6,10 @@ namespace Profile {
 extern int LayerCount;
 extern int GameFeatures;
 
+extern bool LayFileBigEndian;
+extern float LayFileTexXMultiplier;
+extern float LayFileTexYMultiplier;
+
 // The design coordinate system is: x,y from 0,0 to width,height,
 // origin is top left
 extern float DesignWidth;
