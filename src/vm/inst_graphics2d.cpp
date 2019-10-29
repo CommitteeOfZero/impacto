@@ -8,12 +8,15 @@
 #include "../profile/scriptvars.h"
 #include "../mem.h"
 #include "../background2d.h"
+#include "interface/scene2d.h"
+#include "../profile/vm.h"
 
 namespace Impacto {
 
 namespace Vm {
 
 using namespace Impacto::Profile::ScriptVars;
+using namespace Impacto::Profile::Vm;
 
 VmInstruction(InstCreateSurf) {
   StartInstruction;
@@ -47,8 +50,9 @@ VmInstruction(InstLoadPic) {
         if (Backgrounds2D[surfaceId].Status == LS_Loading) {
           ResetInstruction;
           BlockThread;
-        } else if (ScrWork[SW_BG1NO + 40 * surfaceId] != fileId) {
-          ScrWork[SW_BG1NO + 40 * surfaceId] = fileId;
+        } else if (ScrWork[SW_BG1NO + ScrWorkBgStructSize * surfaceId] !=
+                   fileId) {
+          ScrWork[SW_BG1NO + ScrWorkBgStructSize * surfaceId] = fileId;
           Backgrounds2D[surfaceId].LoadAsync(fileId);
           ResetInstruction;
           BlockThread;
@@ -80,12 +84,14 @@ VmInstruction(InstBGload) {
   StartInstruction;
   PopExpression(bufferId);
   PopExpression(backgroundId);
-  int bgBufId = ScrWork[SW_BG1SURF + (bufferId - 1)];
+  int actualBufId = Interface::GetBufferId(bufferId) - 1;
+  int bgBufId = ScrWork[SW_BG1SURF + actualBufId];
   if (Backgrounds2D[bgBufId].Status == LS_Loading) {
     ResetInstruction;
     BlockThread;
-  } else if (ScrWork[SW_BG1NO + 40 * bufferId] != backgroundId) {
-    ScrWork[SW_BG1NO + 40 * bufferId] = backgroundId;
+  } else if (ScrWork[SW_BG1NO + ScrWorkBgStructSize * actualBufId] !=
+             backgroundId) {
+    ScrWork[SW_BG1NO + ScrWorkBgStructSize * actualBufId] = backgroundId;
     Backgrounds2D[bgBufId].LoadAsync(backgroundId);
     ResetInstruction;
     BlockThread;
@@ -95,28 +101,28 @@ VmInstruction(InstBGswap) {
   StartInstruction;
   PopExpression(srcBufferId);
   PopExpression(dstBufferId);
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction BGswap(srcBufferId: %i, dstBufferId: %i)\n",
-             srcBufferId, dstBufferId);
 
-  bool bg1fl = GetFlag(SF_BG1DISP + (srcBufferId - 1));
-  bool bg2fl = GetFlag(SF_BG1DISP + (dstBufferId - 1));
-  SetFlag(SF_BG1DISP + (srcBufferId - 1), bg2fl);
-  SetFlag(SF_BG1DISP + (dstBufferId - 1), bg1fl);
+  srcBufferId = Interface::GetBufferId(srcBufferId) - 1;
+  dstBufferId = Interface::GetBufferId(dstBufferId) - 1;
+
+  bool bg1fl = GetFlag(SF_BG1DISP + srcBufferId);
+  bool bg2fl = GetFlag(SF_BG1DISP + dstBufferId);
+  SetFlag(SF_BG1DISP + srcBufferId, bg2fl);
+  SetFlag(SF_BG1DISP + dstBufferId, bg1fl);
 
   int counter = 0;
   do {
-    int temp = ScrWork[SW_BG1POSX + ((srcBufferId - 1) * 40) + counter];
-    ScrWork[SW_BG1POSX + ((srcBufferId - 1) * 40) + counter] =
-        ScrWork[SW_BG1POSX + ((dstBufferId - 1) * 40) + counter];
-    ScrWork[SW_BG1POSX + ((dstBufferId - 1) * 40) + counter] = temp;
+    int temp =
+        ScrWork[SW_BG1POSX + (srcBufferId * ScrWorkBgStructSize) + counter];
+    ScrWork[SW_BG1POSX + (srcBufferId * ScrWorkBgStructSize) + counter] =
+        ScrWork[SW_BG1POSX + (dstBufferId * ScrWorkBgStructSize) + counter];
+    ScrWork[SW_BG1POSX + (dstBufferId * ScrWorkBgStructSize) + counter] = temp;
     counter++;
-  } while (counter != 40);
+  } while (counter != ScrWorkBgStructSize);
 
-  int tempb = ScrWork[SW_BG1SURF + (srcBufferId - 1)];
-  ScrWork[SW_BG1SURF + (srcBufferId - 1)] =
-      ScrWork[SW_BG1SURF + (dstBufferId - 1)];
-  ScrWork[SW_BG1SURF + (dstBufferId - 1)] = tempb;
+  int tempb = ScrWork[SW_BG1SURF + srcBufferId];
+  ScrWork[SW_BG1SURF + srcBufferId] = ScrWork[SW_BG1SURF + dstBufferId];
+  ScrWork[SW_BG1SURF + dstBufferId] = tempb;
 }
 VmInstruction(InstBGsetColor) {
   StartInstruction;
@@ -161,17 +167,32 @@ VmInstruction(InstCHAswap) {
 VmInstruction(InstBGrelease) {
   StartInstruction;
   PopExpression(bufferId);
-  if (Backgrounds2D[bufferId - 1].Status == LS_Loaded) {
-    Backgrounds2D[bufferId - 1].Unload();
+  bufferId = Interface::GetBufferId(bufferId) - 1;
+  int surfId = ScrWork[SW_BG1SURF + bufferId];
+  if (Backgrounds2D[surfId].Status == LS_Loaded) {
+    Backgrounds2D[surfId].Unload();
   }
 }
 VmInstruction(InstBGcopy) {
   StartInstruction;
   PopExpression(srcBufferId);
   PopExpression(dstBufferId);
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction BGcopy(srcBufferId: %i, dstBufferId: %i)\n",
-             srcBufferId, dstBufferId);
+
+  srcBufferId = Interface::GetBufferId(srcBufferId) - 1;
+  dstBufferId = Interface::GetBufferId(dstBufferId) - 1;
+
+  int bgId = ScrWork[SW_BG1NO + ScrWorkBgStructSize * srcBufferId];
+  int dstSurfId = ScrWork[SW_BG1SURF + dstBufferId];
+
+  if (Backgrounds2D[dstSurfId].Status == LS_Loading) {
+    ResetInstruction;
+    BlockThread;
+  } else if (ScrWork[SW_BG1NO + ScrWorkBgStructSize * dstBufferId] != bgId) {
+    ScrWork[SW_BG1NO + ScrWorkBgStructSize * dstBufferId] = bgId;
+    Backgrounds2D[dstSurfId].LoadAsync(bgId);
+    ResetInstruction;
+    BlockThread;
+  }
 }
 VmInstruction(InstCHAcopy) {
   StartInstruction;

@@ -128,7 +128,7 @@ set(Impacto_Src
     src/vm/inst_sound.cpp
 
     src/vm/interface/scene3d.cpp
-    src/vm/interface/background2d.cpp
+    src/vm/interface/scene2d.cpp
 
     src/audio/audiosystem.cpp
     src/audio/audiochannel.cpp
@@ -269,7 +269,7 @@ set(Impacto_Header
     src/vm/opcodetables_rne.h
 
     src/vm/interface/scene3d.h
-    src/vm/interface/background2d.h
+    src/vm/interface/scene2d.h
 
     src/audio/audiosystem.h
     src/audio/audiocommon.h

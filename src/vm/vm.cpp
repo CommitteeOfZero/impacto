@@ -7,7 +7,7 @@
 #include "../game.h"
 #include "../mem.h"
 #include "interface/scene3d.h"
-#include "interface/background2d.h"
+#include "interface/scene2d.h"
 #include "opcodetables_rne.h"
 #include "opcodetables_darling.h"
 #include "opcodetables_chlcc.h"

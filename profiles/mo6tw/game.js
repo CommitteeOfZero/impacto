@@ -7,7 +7,9 @@ root.Vm = {
     StartScript: 0,
     StartScriptBuffer: 0,
     GameInstructionSet: InstructionSet.MO6TW,
-	UseReturnIds: false
+	UseReturnIds: false,
+	ScrWorkChaStructSize: 20,
+	ScrWorkBgStructSize: 20
 };
 
 include('common/scriptvars.js');

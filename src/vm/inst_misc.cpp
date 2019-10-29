@@ -107,7 +107,9 @@ VmInstruction(InstPressStart) {
         case InstructionSet::Dash: {
           SaveIconDisplay::ShowAt(glm::vec2(arg1 * 1.5f, arg2 * 1.5f));
         } break;
-        default: { SaveIconDisplay::ShowAt(glm::vec2(arg1, arg2)); } break;
+        default: {
+          SaveIconDisplay::ShowAt(glm::vec2(arg1, arg2));
+        } break;
       }
     } break;
     case 1: {

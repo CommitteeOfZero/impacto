@@ -223,7 +223,10 @@ void Render() {
                 glm::vec4 col = glm::vec4(1.0f);
                 if (Profile::Vm::GameInstructionSet ==
                     +Vm::InstructionSet::Dash) {
-                  col.a = ScrWork[SW_BG1ALPHA + 40 * i] / 256.0f;
+                  col.a =
+                      ScrWork[SW_BG1ALPHA +
+                              Impacto::Profile::Vm::ScrWorkBgStructSize * i] /
+                      256.0f;
                 }
                 Renderer2D::DrawSprite(
                     Backgrounds2D[i].BgSprite,

@@ -11,6 +11,8 @@ extern uint32_t StartScript;
 extern uint32_t StartScriptBuffer;
 extern Impacto::Vm::InstructionSet GameInstructionSet;
 extern bool UseReturnIds;
+extern int ScrWorkChaStructSize;
+extern int ScrWorkBgStructSize;
 
 void Configure();
 
