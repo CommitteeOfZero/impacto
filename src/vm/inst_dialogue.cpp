@@ -363,6 +363,12 @@ VmInstruction(InstSetDic) {
       break;
   }
 }
+VmInstruction(InstEncyclopedia) {
+  StartInstruction;
+  PopExpression(tipId);
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction Encyclopedia(tipId: %i)\n", tipId);
+}
 VmInstruction(InstNameID) {
   StartInstruction;
   PopUint8(type);

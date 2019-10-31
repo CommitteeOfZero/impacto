@@ -572,7 +572,7 @@ InstructionProc static OpcodeTableUser1_MO6TW[256] = {
     InstLoadData,          // 10 24
     InstDummy,             // 10 25
     InstDummy,             // 10 26
-    InstSetDic,            // 10 27
+    InstEncyclopedia,      // 10 27
     InstSetPlayMode,       // 10 28
     InstSetEVflag,         // 10 29
     InstSetCutin,          // 10 2A

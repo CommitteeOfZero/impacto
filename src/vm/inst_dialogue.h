@@ -24,6 +24,7 @@ VmInstruction(InstSysSel);
 VmInstruction(InstSysSelect);
 VmInstruction(InstSetTextTable);
 VmInstruction(InstSetDic);
+VmInstruction(InstEncyclopedia);
 VmInstruction(InstNameID);
 VmInstruction(InstTips);
 VmInstruction(InstSetRevMes);
