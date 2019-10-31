@@ -224,7 +224,7 @@ void Render() {
           break;
         }
         case TD_Main: {
-          for (uint32_t layer = 0; layer < Profile::LayerCount; layer++) {
+          for (uint32_t layer = 0; layer <= Profile::LayerCount; layer++) {
             // TODO
 
             for (int i = 0; i < MaxBackgrounds2D; i++) {
