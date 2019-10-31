@@ -125,12 +125,15 @@ void SysMesBox::Render() {
 
       if (BoxProgressCount > TextStartCount) {
         glm::vec4 texCol(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-        if (BoxHeight > 56) {
+        if (BoxHeight > TextDecorationStart) {
           Renderer2D::DrawSprite(
-              TextDecoration, glm::vec2(BoxDisplayX, BoxTopY + 36.0f), texCol);
-          Renderer2D::DrawSprite(TextDecoration,
-                                 glm::vec2(BoxDisplayX, BoxBottomY - 32.0f),
-                                 texCol);
+              TextDecoration,
+              glm::vec2(BoxDisplayX, BoxTopY + TextDecorationTopYOffset),
+              texCol);
+          Renderer2D::DrawSprite(
+              TextDecoration,
+              glm::vec2(BoxDisplayX, BoxBottomY - TextDecorationBottomYOffset),
+              texCol);
         }
         Renderer2D::DrawSprite(MessageLabel,
                                glm::vec2(BoxDisplayX, BoxTopY + 3.0f), texCol);

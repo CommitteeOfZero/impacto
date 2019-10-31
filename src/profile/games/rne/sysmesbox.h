@@ -41,6 +41,10 @@ extern float MessageLabelSpriteXBase;
 extern float MessageLabelSpriteY;
 extern float MessageLabelSpriteHeight;
 extern float MessageLabelSpriteMultiplier;
+extern float TextDecorationStart;
+extern float TextDecorationTopYOffset;
+extern float TextDecorationBottomYOffset;
+extern float SpriteMargin;
 
 }  // namespace SysMesBox
 }  // namespace RNE

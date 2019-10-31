@@ -36,6 +36,9 @@ float MessageLabelSpriteXBase;
 float MessageLabelSpriteY;
 float MessageLabelSpriteHeight;
 float MessageLabelSpriteMultiplier;
+float TextDecorationStart;
+float TextDecorationTopYOffset;
+float TextDecorationBottomYOffset;
 float TextFontSize;
 float TextMiddleY;
 float TextX;
@@ -44,6 +47,7 @@ float TextMarginY;
 float AnimationSpeed;
 float FadeInDuration;
 float FadeOutDuration;
+float SpriteMargin;
 
 Impacto::SysMesBox::SysMesBoxBase* Configure() {
   Impacto::RNE::SysMesBox* result = new Impacto::RNE::SysMesBox();
@@ -79,6 +83,11 @@ Impacto::SysMesBox::SysMesBoxBase* Configure() {
   MessageLabelSpriteHeight = EnsureGetMemberFloat("MessageLabelSpriteHeight");
   MessageLabelSpriteMultiplier =
       EnsureGetMemberFloat("MessageLabelSpriteMultiplier");
+  TextDecorationStart = EnsureGetMemberFloat("TextDecorationStart");
+  TextDecorationTopYOffset = EnsureGetMemberFloat("TextDecorationTopYOffset");
+  TextDecorationBottomYOffset =
+      EnsureGetMemberFloat("TextDecorationBottomYOffset");
+  SpriteMargin = EnsureGetMemberFloat("SpriteMargin");
 
   return result;
 }
