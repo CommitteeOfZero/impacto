@@ -395,34 +395,27 @@ IoError CpkArchive::Open(FileMeta* file, InputStream** outStream) {
   return err;
 }
 
-// Based on https://github.com/hcs64/vgm_ripping/tree/master/multi/utf_tab
+// Based on https://forum.xentax.com/viewtopic.php?f=21&t=5137&p=44219
 
-static uint16_t get_next_bits(char* input, int* offset_p, uint8_t* bit_pool_p,
+static uint32_t get_next_bits(char* input, int* offset_p, uint32_t* bit_pool_p,
                               int* bits_left_p, int bit_count) {
-  uint16_t out_bits = 0;
-  int num_bits_produced = 0;
-  int bits_this_round;
+  uint32_t out_bits = 0;
 
-  while (num_bits_produced < bit_count) {
-    if (*bits_left_p == 0) {
-      *bit_pool_p = input[*offset_p];
-      *bits_left_p = 8;
+  if (*bits_left_p < bit_count) {
+    int count = ((24 - *bits_left_p) >> 3) + 1;
+    while (count) {
+      uint8_t source = input[*offset_p];
       *offset_p = *offset_p - 1;
+      *bit_pool_p = (*bit_pool_p << 8) | source;
+      *bits_left_p += 8;
+      count--;
     }
-
-    if (*bits_left_p > (bit_count - num_bits_produced))
-      bits_this_round = bit_count - num_bits_produced;
-    else
-      bits_this_round = *bits_left_p;
-
-    out_bits <<= bits_this_round;
-
-    out_bits |= *bit_pool_p >> (*bits_left_p - bits_this_round) &
-                ((1 << bits_this_round) - 1);
-
-    *bits_left_p -= bits_this_round;
-    num_bits_produced += bits_this_round;
   }
+
+  *bits_left_p -= bit_count;
+  out_bits = *bit_pool_p >> *bits_left_p;
+  uint32_t mask = (1 << bit_count) - 1;
+  out_bits &= mask;
 
   return out_bits;
 }
@@ -442,7 +435,7 @@ static IoError DecompressLayla(char* input, uint32_t compressedSize,
   int input_end = (compressedSize - 0x100 - 1);
   int input_offset = input_end;
   int output_end = 0x100 + uncompressed_size - 1;
-  uint8_t bit_pool = 0;
+  uint32_t bit_pool = 0;
   int bits_left = 0, bytes_output = 0;
   int vle_lens[4] = {2, 3, 5, 8};
 
