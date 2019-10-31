@@ -39,7 +39,7 @@ class Character2D : public Loadable<Character2D> {
   std::vector<Character2DState> StatesToDraw;
 };
 
-int const MaxCharacters2D = 8;
+int const MaxCharacters2D = 16;
 
 extern Character2D Characters2D[MaxCharacters2D];
 

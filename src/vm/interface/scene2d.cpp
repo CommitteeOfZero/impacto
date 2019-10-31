@@ -1,9 +1,7 @@
-#include "../../impacto.h"
+#include "scene2d.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/vm.h"
 #include "../../mem.h"
-#include "../../background2d.h"
-#include "../../character2d.h"
 #include "../../profile/game.h"
 
 namespace Impacto {
@@ -19,6 +17,14 @@ void UpdateBackground2D() {
 
     Backgrounds2D[bufId].Layer = ScrWork[SW_BG1PRI + ScrWorkBgStructSize * i];
     Backgrounds2D[bufId].Show = GetFlag(SF_BG1DISP + i);
+
+    // HACK: In this case it's supposed to show a screen cap from surfaceIds
+    // 200/201, but...
+    if ((GetScriptBufferId(i) == ScrWork[SW_EFF_CAP_BUF]) ||
+        (GetScriptBufferId(i) == ScrWork[SW_EFF_CAP_BUF2])) {
+      Backgrounds2D[bufId].Show = false;
+      continue;
+    }
 
     // ScrWork coordinates assume everything is 1280x720 regardless of design
     // resolution, that's why that's hardcoded here
@@ -73,46 +79,6 @@ void UpdateCharacter2D() {
         ScrWork[SW_CHA1POSX + ScrWorkChaStructSize * i];
     Characters2D[bufId].CharaOffsetY =
         ScrWork[SW_CHA1POSY + ScrWorkChaStructSize * i];
-  }
-}
-
-// Because yes
-int GetBufferId(int bufIdByScript) {
-  switch (bufIdByScript) {
-    case 1:
-    case 2:
-      return bufIdByScript;
-    case 4:
-      return 3;
-    case 8:
-      return 4;
-    case 16:
-      return 5;
-    case 32:
-      return 6;
-    case 64:
-      return 7;
-    case 128:
-      return 8;
-    case 256:
-      return 9;
-    case 512:
-      return 10;
-    case 1024:
-      return 11;
-    case 2048:
-      return 12;
-    case 4096:
-      return 13;
-    case 8192:
-      return 14;
-    case 16384:
-      return 15;
-    case 32768:
-      return 16;
-    default:
-      return 0;
-      break;
   }
 }
 

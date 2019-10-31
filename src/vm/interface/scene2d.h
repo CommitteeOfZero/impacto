@@ -1,4 +1,7 @@
 #pragma once
+#include "../../impacto.h"
+#include "../../background2d.h"
+#include "../../character2d.h"
 
 namespace Impacto {
 namespace Vm {
@@ -8,7 +11,11 @@ void UpdateBackground2D();
 
 void UpdateCharacter2D();
 
-int GetBufferId(int bufIdByScript);
+// Because yes
+inline int GetBufferId(int bufIdByScript) { return std::log2(bufIdByScript); }
+inline int GetScriptBufferId(int bufIdBySurf) {
+  return std::pow(2, bufIdBySurf);
+}
 
 }  // namespace Interface
 }  // namespace Vm

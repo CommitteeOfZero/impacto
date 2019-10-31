@@ -85,7 +85,7 @@ VmInstruction(InstBGload) {
   StartInstruction;
   PopExpression(bufferId);
   PopExpression(backgroundId);
-  int actualBufId = Interface::GetBufferId(bufferId) - 1;
+  int actualBufId = Interface::GetBufferId(bufferId);
   int bgBufId = ScrWork[SW_BG1SURF + actualBufId];
   if (Backgrounds2D[bgBufId].Status == LS_Loading) {
     ResetInstruction;
@@ -103,8 +103,8 @@ VmInstruction(InstBGswap) {
   PopExpression(srcBufferId);
   PopExpression(dstBufferId);
 
-  srcBufferId = Interface::GetBufferId(srcBufferId) - 1;
-  dstBufferId = Interface::GetBufferId(dstBufferId) - 1;
+  srcBufferId = Interface::GetBufferId(srcBufferId);
+  dstBufferId = Interface::GetBufferId(dstBufferId);
 
   bool bg1fl = GetFlag(SF_BG1DISP + srcBufferId);
   bool bg2fl = GetFlag(SF_BG1DISP + dstBufferId);
@@ -148,13 +148,25 @@ VmInstruction(InstBGsetLink) {
              "arg4: %i)\n",
              id, arg1, arg2, arg4);
 }
+VmInstruction(InstBGsetLinkOld) {
+  StartInstruction;
+  PopUint8(target);
+  PopExpression(arg1);
+  PopExpression(arg2);
+  PopExpression(arg3);
+  int link = (arg3 << 16) + (arg1 << 8) + arg2;
+  if (target)
+    ScrWork[SW_BGLINK] = link;
+  else
+    ScrWork[SW_BGLINK2] = link;
+}
 VmInstruction(InstCHAload) {
   StartInstruction;
   PopUint8(arg1);
   PopExpression(bufferId);
   PopExpression(characterId);
 
-  int actualBufId = Interface::GetBufferId(bufferId) - 1;
+  int actualBufId = Interface::GetBufferId(bufferId);
   int chaBufId = ScrWork[SW_CHA1SURF + actualBufId];
   if (Characters2D[chaBufId].Status == LS_Loading) {
     ResetInstruction;
@@ -175,8 +187,8 @@ VmInstruction(InstCHAswap) {
   PopExpression(srcBufferId);
   PopExpression(dstBufferId);
 
-  srcBufferId = Interface::GetBufferId(srcBufferId) - 1;
-  dstBufferId = Interface::GetBufferId(dstBufferId) - 1;
+  srcBufferId = Interface::GetBufferId(srcBufferId);
+  dstBufferId = Interface::GetBufferId(dstBufferId);
 
   bool cha1fl = GetFlag(SF_CHA1DISP + srcBufferId);
   bool cha2fl = GetFlag(SF_CHA1DISP + dstBufferId);
@@ -201,7 +213,7 @@ VmInstruction(InstCHAswap) {
 VmInstruction(InstBGrelease) {
   StartInstruction;
   PopExpression(bufferId);
-  bufferId = Interface::GetBufferId(bufferId) - 1;
+  bufferId = Interface::GetBufferId(bufferId);
   int surfId = ScrWork[SW_BG1SURF + bufferId];
   if (Backgrounds2D[surfId].Status == LS_Loaded) {
     Backgrounds2D[surfId].Unload();
@@ -212,8 +224,8 @@ VmInstruction(InstBGcopy) {
   PopExpression(srcBufferId);
   PopExpression(dstBufferId);
 
-  srcBufferId = Interface::GetBufferId(srcBufferId) - 1;
-  dstBufferId = Interface::GetBufferId(dstBufferId) - 1;
+  srcBufferId = Interface::GetBufferId(srcBufferId);
+  dstBufferId = Interface::GetBufferId(dstBufferId);
 
   int bgId = ScrWork[SW_BG1NO + ScrWorkBgStructSize * srcBufferId];
   int dstSurfId = ScrWork[SW_BG1SURF + dstBufferId];
@@ -233,8 +245,8 @@ VmInstruction(InstCHAcopy) {
   PopExpression(srcBufferId);
   PopExpression(dstBufferId);
 
-  srcBufferId = Interface::GetBufferId(srcBufferId) - 1;
-  dstBufferId = Interface::GetBufferId(dstBufferId) - 1;
+  srcBufferId = Interface::GetBufferId(srcBufferId);
+  dstBufferId = Interface::GetBufferId(dstBufferId);
 
   int chaId = (ScrWork[SW_CHA1FACE + ScrWorkBgStructSize * srcBufferId] << 16) +
               ScrWork[SW_CHA1NO + ScrWorkBgStructSize * srcBufferId];
@@ -307,7 +319,7 @@ VmInstruction(InstBGloadEx) {
 VmInstruction(InstCHArelease) {
   StartInstruction;
   PopExpression(bufferId);
-  bufferId = Interface::GetBufferId(bufferId) - 1;
+  bufferId = Interface::GetBufferId(bufferId);
   int surfId = ScrWork[SW_CHA1SURF + bufferId];
   if (Characters2D[surfId].Status == LS_Loaded) {
     Characters2D[surfId].Unload();

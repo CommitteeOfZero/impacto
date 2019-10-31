@@ -15,6 +15,7 @@ VmInstruction(InstBGload);
 VmInstruction(InstBGswap);
 VmInstruction(InstBGsetColor);
 VmInstruction(InstBGsetLink);
+VmInstruction(InstBGsetLinkOld);
 VmInstruction(InstCHAload);
 VmInstruction(InstCHAswap);
 VmInstruction(InstBGrelease);
