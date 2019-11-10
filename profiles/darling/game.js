@@ -1,5 +1,5 @@
 root.LayerCount = 100;
-root.GameFeatures = GameFeature.Sc3VirtualMachine | GameFeature.Renderer2D | GameFeature.Input | GameFeature.Audio;
+root.GameFeatures = GameFeature.Sc3VirtualMachine | GameFeature.Renderer2D | GameFeature.Input | GameFeature.Audio | GameFeature.Nuklear;
 root.DesignWidth = 1280;
 root.DesignHeight = 720;
 

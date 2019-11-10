@@ -203,6 +203,16 @@ void Update(float dt) {
   }
 }
 
+static bool DebugWindowEnabled = false;
+// FPS counter
+static float LastTime;
+static int Frames = 0;
+static float FPS = 0.0f;
+static int ScrWorkIndexStart = 0;
+static int ScrWorkIndexEnd = 0;
+static int FlagWorkIndexStart = 0;
+static int FlagWorkIndexEnd = 0;
+
 void Render() {
   Window::Update();
 
@@ -213,6 +223,77 @@ void Render() {
 
   if (Profile::GameFeatures & GameFeature::Scene3D) {
     Scene3D::Render();
+  }
+
+  if ((Profile::GameFeatures & GameFeature::Nuklear) &&
+      (Profile::GameFeatures & GameFeature::Sc3VirtualMachine)) {
+    if (Input::KeyboardButtonWentDown[SDL_SCANCODE_E] ||
+        Input::ControllerButtonWentDown[SDL_CONTROLLER_BUTTON_Y])
+      DebugWindowEnabled = !DebugWindowEnabled;
+
+    // FPS counter
+    Frames++;
+    float time = (float)((double)SDL_GetPerformanceCounter() /
+                         (double)SDL_GetPerformanceFrequency());
+    if (time - LastTime >= 2.0f) {
+      FPS = (float)Frames / (time - LastTime);
+      LastTime = time;
+      Frames = 0;
+    }
+
+    if (DebugWindowEnabled) {
+      if (nk_begin(Nk, "Debug Editor",
+                   nk_rect(20, 20, 300, Window::WindowHeight - 40),
+                   NK_WINDOW_BORDER | NK_WINDOW_TITLE)) {
+        nk_layout_row_dynamic(Nk, 24, 1);
+        char buffer[32];  // whatever
+        snprintf(buffer, 32, "FPS: %02.2f", FPS);
+        nk_label(Nk, buffer, NK_TEXT_ALIGN_CENTERED);
+
+        nk_property_int(Nk, "ScrWork start index", 0, &ScrWorkIndexStart, 8000,
+                        1, 1.0f);
+        nk_property_int(Nk, "ScrWork end index", 0, &ScrWorkIndexEnd, 8000, 1,
+                        1.0f);
+
+        if (ScrWorkIndexEnd < ScrWorkIndexStart)
+          ScrWorkIndexEnd = ScrWorkIndexStart;
+
+        nk_property_int(Nk, "FlagWork start index", 0, &FlagWorkIndexStart,
+                        7000, 1, 0.0f);
+        nk_property_int(Nk, "FlagWork end index", 0, &FlagWorkIndexEnd, 7000, 1,
+                        0.0f);
+
+        if (FlagWorkIndexEnd < FlagWorkIndexStart)
+          FlagWorkIndexEnd = FlagWorkIndexStart;
+
+        if (nk_tree_push(Nk, NK_TREE_TAB, "ScrWork Editor", NK_MINIMIZED)) {
+          nk_layout_row_dynamic(Nk, 24, 1);
+
+          for (int i = ScrWorkIndexStart; i <= ScrWorkIndexEnd; i++) {
+            char buf[32];
+            snprintf(buf, 32, "ScrWork[%d]", i);
+            nk_property_int(Nk, buf, INT_MIN, &ScrWork[i], INT_MAX, 1, 50.0f);
+          }
+
+          nk_tree_pop(Nk);
+        }
+
+        if (nk_tree_push(Nk, NK_TREE_TAB, "FlagWork Editor", NK_MINIMIZED)) {
+          nk_layout_row_dynamic(Nk, 24, 1);
+
+          for (int i = FlagWorkIndexStart; i <= FlagWorkIndexEnd; i++) {
+            char buf[32];
+            snprintf(buf, 32, "GetFlag(%d)", i);
+            int flagVal = (int)GetFlag(i);
+            nk_checkbox_label(Nk, buf, &flagVal);
+            SetFlag(i, (bool)flagVal);
+          }
+
+          nk_tree_pop(Nk);
+        }
+      }
+      nk_end(Nk);
+    }
   }
 
   if (Profile::GameFeatures & GameFeature::Renderer2D) {
