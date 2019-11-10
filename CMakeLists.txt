@@ -84,6 +84,7 @@ set(Impacto_Src
     src/hud/mainmenu.cpp
     src/hud/titlemenu.cpp
     src/hud/waiticondisplay.cpp
+    src/hud/selectiondisplay.cpp
 
     src/nuklear_impl.cpp
     src/stbi_impl.c
@@ -232,6 +233,7 @@ set(Impacto_Header
     src/hud/mainmenu.h
     src/hud/titlemenu.h
     src/hud/waiticondisplay.h
+    src/hud/selectiondisplay.h
 
     src/3d/camera.h
     src/3d/model.h

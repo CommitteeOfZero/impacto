@@ -21,6 +21,7 @@
 #include "hud/loadingdisplay.h"
 #include "hud/titlemenu.h"
 #include "hud/mainmenu.h"
+#include "hud/selectiondisplay.h"
 #include "io/memorystream.h"
 
 #include "profile/profile.h"
@@ -185,6 +186,7 @@ void Update(float dt) {
     DateDisplay::Update(dt);
     TitleMenu::Update(dt);
     MainMenu::Update(dt);
+    SelectionDisplay::Update(dt);
   }
 
   if (Profile::GameFeatures & GameFeature::Audio) {
@@ -221,6 +223,7 @@ void Render() {
       switch (DrawComponents[i]) {
         case TD_Text: {
           DialoguePages[0].Render();
+          SelectionDisplay::Render();
           break;
         }
         case TD_Main: {

@@ -4,6 +4,7 @@
 
 #include "expression.h"
 #include "../profile/scriptvars.h"
+#include "../profile/dialogue.h"
 #include "../game.h"
 #include "../mem.h"
 #include "../inputsystem.h"
@@ -12,11 +13,12 @@
 #include "../audio/audiostream.h"
 #include "../audio/audiochannel.h"
 #include "../profile/vm.h"
+#include "../hud/selectiondisplay.h"
 
 namespace Impacto {
 
 namespace Vm {
-	
+
 using namespace Impacto::Profile::ScriptVars;
 
 VmInstruction(InstMesViewFlag) {
@@ -272,37 +274,88 @@ VmInstruction(InstSel) {
   StartInstruction;
   PopUint8(type);
   switch (type) {
-    case 0: {
+    case 0: {  // SelInit
       PopExpression(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Sel(type: %i, arg1: %i)\n", type, arg1);
+      SelectionDisplay::IsPlain = (bool)arg1;
+
+      SelectionDisplay::ChoiceCount = 0;
+      memset(SelectionDisplay::Choices, 0,
+             (15 * 255) * sizeof(ProcessedTextGlyph));
+      SelectionDisplay::CurrentChoice = -1;
       break;
     }
     case 1: {
-      PopString(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Sel(type: %i)\n",
-                 type);
+      PopUint16(selStrNum);
+      uint8_t* oldIp = thread->Ip;
+      thread->Ip =
+          ScriptGetStrAddress(ScriptBuffers[thread->ScriptBufferId], selStrNum);
+      int len = TextLayoutPlainLine(
+          thread, 255, SelectionDisplay::Choices[SelectionDisplay::ChoiceCount],
+          Profile::Dialogue::DialogueFont, Profile::Dialogue::DefaultFontSize,
+          Profile::Dialogue::ColorTable[32], 1.0f,
+          glm::vec2(100.0f, 100.0f + (Profile::Dialogue::DefaultFontSize *
+                                      SelectionDisplay::ChoiceCount)),
+          TextAlignment::Left);
+      float mesLen = 0.0f;
+      for (int i = 0; i < len; i++) {
+        mesLen += SelectionDisplay::Choices[SelectionDisplay::ChoiceCount][i]
+                      .DestRect.Width;
+      }
+      SelectionDisplay::ChoiceWidths[SelectionDisplay::ChoiceCount] = mesLen;
+      SelectionDisplay::ChoiceLengths[SelectionDisplay::ChoiceCount] = len;
+      SelectionDisplay::ChoiceCount++;
+      thread->Ip = oldIp;
       break;
     }
     case 2: {
-      PopString(arg1);
+      PopUint16(selStrNum);
+      uint8_t* oldIp = thread->Ip;
+      thread->Ip =
+          ScriptGetStrAddress(ScriptBuffers[thread->ScriptBufferId], selStrNum);
+      int len = TextLayoutPlainLine(
+          thread, 255, SelectionDisplay::Choices[SelectionDisplay::ChoiceCount],
+          Profile::Dialogue::DialogueFont, Profile::Dialogue::DefaultFontSize,
+          Profile::Dialogue::ColorTable[32], 1.0f,
+          glm::vec2(100.0f, 100.0f + (Profile::Dialogue::DefaultFontSize *
+                                      SelectionDisplay::ChoiceCount)),
+          TextAlignment::Left);
+      float mesLen = 0.0f;
+      for (int i = 0; i < len; i++) {
+        mesLen += SelectionDisplay::Choices[SelectionDisplay::ChoiceCount][i]
+                      .DestRect.Width;
+      }
+      SelectionDisplay::ChoiceWidths[SelectionDisplay::ChoiceCount] = mesLen;
+      SelectionDisplay::ChoiceLengths[SelectionDisplay::ChoiceCount] = len;
+      SelectionDisplay::ChoiceCount++;
+      thread->Ip = oldIp;
+
       PopExpression(arg2);
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Sel(type: %i, arg1: %i)\n", type, arg1);
+                 "STUB instruction Sel(type: %i, arg1: %i)\n", type, selStrNum);
       break;
     }
   }
 }
 VmInstruction(InstSelect) {
   StartInstruction;
-  PopUint8(type);  // TODO: Implement type 0, 1
-  if (type == 2) {
-    PopExpression(arg1);
-    ImpLogSlow(LL_Warning, LC_VMStub,
-               "STUB instruction Select(type: %i, arg1: %i)\n", type, arg1);
-  } else {
-    ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Select(type: %i)\n",
-               type);
+  PopUint8(type);
+  switch (type) {
+    case 0: {
+      SelectionDisplay::Show();
+    } break;
+    case 1: {
+      if (!SelectionDisplay::ChoiceMade) {
+        ResetInstruction;
+        BlockThread;
+      } else
+        BlockThread;
+    } break;
+    case 2: {
+      PopExpression(arg1);
+      ScrWork[arg1] = SelectionDisplay::CurrentChoice;
+      SelectionDisplay::ChoiceCount = 0;
+      SelectionDisplay::Hide();
+    } break;
   }
 }
 VmInstruction(InstSysSel) {
