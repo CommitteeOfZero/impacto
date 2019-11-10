@@ -20,6 +20,8 @@
 #include "../profile/dialogue.h"
 #include "../profile/vm.h"
 #include "../profile/hud/sysmesbox.h"
+#include "../inputsystem.h"
+#include "interface/input.h"
 
 namespace Impacto {
 
@@ -279,8 +281,12 @@ VmInstruction(InstSystemMes) {
   switch (mode) {
     case 0:  // SystemMesInit0
     case 1:  // SystemMesInit1
+      SysMesBox::Implementation->CurrentChoice = 255;
       SysMesBox::Implementation->MessageCount = 0;
       memset(SysMesBox::Implementation->Messages, 0,
+             (8 * 255) * sizeof(ProcessedTextGlyph));
+      SysMesBox::Implementation->ChoiceCount = 0;
+      memset(SysMesBox::Implementation->Choices, 0,
              (8 * 255) * sizeof(ProcessedTextGlyph));
       break;
     case 2: {  // SystemMesInit2
@@ -315,30 +321,41 @@ VmInstruction(InstSystemMes) {
     } break;
     case 4: {  // SystemMesSetSel
       PopUint16(sysSelStrNum);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction SystemMes(mode: SystemMesSetSel, "
-                 "sysSelStrNum: %i)\n",
-                 sysSelStrNum);
+      uint8_t* oldIp = thread->Ip;
+      thread->Ip = ScriptGetStrAddress(ScriptBuffers[thread->ScriptBufferId],
+                                       sysSelStrNum);
+      int len = TextLayoutPlainLine(
+          thread, 255,
+          SysMesBox::Implementation
+              ->Choices[SysMesBox::Implementation->ChoiceCount],
+          Profile::Dialogue::DialogueFont, Profile::SysMesBox::TextFontSize,
+          Profile::Dialogue::ColorTable[10], 1.0f,
+          glm::vec2(Profile::SysMesBox::TextX, 0.0f), TextAlignment::Left);
+      float mesLen = 0.0f;
+      for (int i = 0; i < len; i++) {
+        mesLen += SysMesBox::Implementation
+                      ->Choices[SysMesBox::Implementation->ChoiceCount][i]
+                      .DestRect.Width;
+      }
+      SysMesBox::Implementation
+          ->ChoiceWidths[SysMesBox::Implementation->ChoiceCount] = mesLen;
+      SysMesBox::Implementation
+          ->ChoiceLengths[SysMesBox::Implementation->ChoiceCount] = len;
+      SysMesBox::Implementation->ChoiceCount++;
+      thread->Ip = oldIp;
     } break;
     case 5:  // SystemMesMain
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction SystemMes(mode: SystemMesMain)\n");
+      if (!SysMesBox::Implementation->ChoiceMade) {
+        ResetInstruction;
+        BlockThread;
+      } else {
+        SysMesBox::Implementation->ChoiceMade = false;
+      }
       break;
     case 6:  // SystemMesFadeIn
       ScrWork[SW_SYSMESALPHA] = 256;
       SysMesBox::Implementation->BoxOpacity = 1.0f;
       SysMesBox::Show();
-
-      // Hack...
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::RNE) {
-        if (!ScrWork[SW_SYSMESANIMCTCUR]) {
-          Io::InputStream* stream;
-          Io::VfsOpen("sysse", 16, &stream);
-          Audio::Channels[Audio::AC_SSE].Play(
-              Audio::AudioStream::Create(stream), false, 0.0f);
-        }
-      }
-
       if (ScrWork[SW_SYSMESANIMCTCUR] < ScrWork[SW_SYSMESANIMCTF]) {
         ResetInstruction;
         BlockThread;
@@ -346,17 +363,6 @@ VmInstruction(InstSystemMes) {
       break;
     case 7:  // SystemMesFadeOut
       SysMesBox::Hide();
-
-      // Hack...
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::RNE) {
-        if (ScrWork[SW_SYSMESANIMCTCUR] == ScrWork[SW_SYSMESANIMCTF]) {
-          Io::InputStream* stream;
-          Io::VfsOpen("sysse", 29, &stream);
-          Audio::Channels[Audio::AC_SSE].Play(
-              Audio::AudioStream::Create(stream), false, 0.0f);
-        }
-      }
-
       if (ScrWork[SW_SYSMESANIMCTCUR] > 0) {
         ResetInstruction;
         BlockThread;

@@ -6,6 +6,7 @@
 #include "../../games/rne/tilebackground.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
+#include "../../inputsystem.h"
 
 namespace Impacto {
 namespace RNE {
@@ -13,6 +14,8 @@ namespace RNE {
 using namespace Impacto::Profile::MainMenu;
 using namespace Impacto::Profile::RNE::MainMenu;
 using namespace Impacto::Profile::ScriptVars;
+
+int CurrentChoice = 0;
 
 void MainMenu::Show() {
   if (State != Shown) {
@@ -27,6 +30,22 @@ void MainMenu::Hide() {
   }
 }
 void MainMenu::Update(float dt) {
+  if (ScrWork[SW_SYSMENUCT] == 100 && State == Shown) {
+    Hide();
+  }
+
+  if (State == Shown) {
+    if (Input::KeyboardButtonWentDown[SDL_SCANCODE_DOWN])
+      CurrentChoice++;
+    else if (Input::KeyboardButtonWentDown[SDL_SCANCODE_UP])
+      CurrentChoice--;
+    if (CurrentChoice < 0)
+      CurrentChoice = 7;
+    else if (CurrentChoice > 7)
+      CurrentChoice = 0;
+    ScrWork[SW_SYSMENUCNO] = CurrentChoice;
+  }
+
   SkyMoveAnimation.Update(dt);
   EntriesMoveAnimation.Update(dt);
   HighlightAnimation.Update(dt);
@@ -58,7 +77,7 @@ void MainMenu::Update(float dt) {
   ButtonBackgroundSprite.Bounds.Width =
       ButtonBackgroundTargetWidth * SkyMoveAnimation.Progress;
 
-  MenuEntriesHSprites[0].Bounds.Width =
+  MenuEntriesHSprites[CurrentChoice].Bounds.Width =
       MenuEntriesTargetWidth * HighlightAnimation.Progress;
 }
 void MainMenu::Render() {
@@ -105,8 +124,10 @@ void MainMenu::Render() {
       Renderer2D::DrawSprite(ButtonPromptsSprite,
                              glm::vec2(ButtonBackgroundX, ButtonBackgroundY),
                              glm::vec4(1.0f));
-      Renderer2D::DrawSprite(MenuEntriesHSprites[0],
-                             glm::vec2(MenuEntriesX, MenuEntriesFirstY));
+      Renderer2D::DrawSprite(
+          MenuEntriesHSprites[CurrentChoice],
+          glm::vec2(MenuEntriesX,
+                    MenuEntriesFirstY + (CurrentChoice * MenuEntriesYPadding)));
     }
   }
 }

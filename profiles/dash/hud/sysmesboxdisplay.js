@@ -26,6 +26,14 @@ root.SysMesBoxDisplay = {
     MessageLabelSpriteY: 196.5,
     MessageLabelSpriteHeight: 64,
 	MessageLabelSpriteMultiplier: 18.4,
+    ButtonYesDisplayXBase: 1350.5,
+	ButtonRightDisplayXBase: 1409,
+	ButtonSpriteY: 196.5,
+	ButtonWidth: 157.5, 
+	ButtonSelectedSpriteY: 238.5,
+	ButtonYOffset: 50,
+    ButtonYWidthBase: 58.5,
+    ButtonRightWidthBase: -112.5,
 	TextDecorationStart: 56,
 	TextDecorationTopYOffset: 36,
 	TextDecorationBottomYOffset: 32,
@@ -105,3 +113,36 @@ root.Sprites[name + "Line2"] = {
     }
 };
 root.SysMesBoxDisplay.Line2 = name + "Line2";
+
+root.Sprites[name + "ButtonYes"] = {
+    Sheet: sheet,
+    Bounds: {
+        X: 1656 * 1.5,
+        Y: 131 * 1.5,
+        Width: 105 * 1.5,
+        Height: 26 * 1.5
+    }
+};
+root.SysMesBoxDisplay.ButtonYes = name + "ButtonYes";
+
+root.Sprites[name + "ButtonNo"] = {
+    Sheet: sheet,
+    Bounds: {
+        X: 1763 * 1.5,
+        Y: 131 * 1.5,
+        Width: 105 * 1.5,
+        Height: 26 * 1.5
+    }
+};
+root.SysMesBoxDisplay.ButtonNo = name + "ButtonNo";
+
+root.Sprites[name + "ButtonOK"] = {
+    Sheet: sheet,
+    Bounds: {
+        X: 1870 * 1.5,
+        Y: 131 * 1.5,
+        Width: 105 * 1.5,
+        Height: 26 * 1.5
+    }
+};
+root.SysMesBoxDisplay.ButtonOK = name + "ButtonOK";

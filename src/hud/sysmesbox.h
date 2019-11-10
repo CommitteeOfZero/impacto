@@ -19,10 +19,16 @@ class SysMesBoxBase {
   virtual void Render() = 0;
 
   int MessageCount;
+  int ChoiceCount;
+  int CurrentChoice = 255;
+  bool ChoiceMade = false;
   float BoxOpacity;
   ProcessedTextGlyph Messages[8][255];
   int MessageLengths[8];
   float MessageWidths[8];
+  ProcessedTextGlyph Choices[8][255];
+  int ChoiceLengths[8];
+  float ChoiceWidths[8];
   Animation FadeAnimation;
 
  protected:

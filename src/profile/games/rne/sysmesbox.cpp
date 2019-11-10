@@ -12,6 +12,9 @@ Sprite TextDecoration;
 Sprite MessageLabel;
 Sprite Line1;
 Sprite Line2;
+Sprite ButtonYes;
+Sprite ButtonNo;
+Sprite ButtonOK;
 
 float LinePositionXFirst;
 float LinePositionX;
@@ -36,6 +39,14 @@ float MessageLabelSpriteXBase;
 float MessageLabelSpriteY;
 float MessageLabelSpriteHeight;
 float MessageLabelSpriteMultiplier;
+float ButtonYesDisplayXBase;
+float ButtonRightDisplayXBase;
+float ButtonSpriteY;
+float ButtonWidth;
+float ButtonSelectedSpriteY;
+float ButtonYOffset;
+float ButtonYWidthBase;
+float ButtonRightWidthBase;
 float TextDecorationStart;
 float TextDecorationTopYOffset;
 float TextDecorationBottomYOffset;
@@ -58,6 +69,9 @@ Impacto::SysMesBox::SysMesBoxBase* Configure() {
   MessageLabel = EnsureGetMemberSprite("MessageLabel");
   Line1 = EnsureGetMemberSprite("Line1");
   Line2 = EnsureGetMemberSprite("Line2");
+  ButtonYes = EnsureGetMemberSprite("ButtonYes");
+  ButtonNo = EnsureGetMemberSprite("ButtonNo");
+  ButtonOK = EnsureGetMemberSprite("ButtonOK");
 
   LinePositionXFirst = EnsureGetMemberFloat("LinePositionXFirst");
   LinePositionX = EnsureGetMemberFloat("LinePositionX");
@@ -83,6 +97,14 @@ Impacto::SysMesBox::SysMesBoxBase* Configure() {
   MessageLabelSpriteHeight = EnsureGetMemberFloat("MessageLabelSpriteHeight");
   MessageLabelSpriteMultiplier =
       EnsureGetMemberFloat("MessageLabelSpriteMultiplier");
+  ButtonYesDisplayXBase = EnsureGetMemberFloat("ButtonYesDisplayXBase");
+  ButtonRightDisplayXBase = EnsureGetMemberFloat("ButtonRightDisplayXBase");
+  ButtonSpriteY = EnsureGetMemberFloat("ButtonSpriteY");
+  ButtonWidth = EnsureGetMemberFloat("ButtonWidth");
+  ButtonSelectedSpriteY = EnsureGetMemberFloat("ButtonSelectedSpriteY");
+  ButtonYOffset = EnsureGetMemberFloat("ButtonYOffset");
+  ButtonYWidthBase = EnsureGetMemberFloat("ButtonYWidthBase");
+  ButtonRightWidthBase = EnsureGetMemberFloat("ButtonRightWidthBase");
   TextDecorationStart = EnsureGetMemberFloat("TextDecorationStart");
   TextDecorationTopYOffset = EnsureGetMemberFloat("TextDecorationTopYOffset");
   TextDecorationBottomYOffset =
