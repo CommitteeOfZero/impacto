@@ -141,7 +141,7 @@ void Init() {
 
   ScrWork[2200] = 1;  // Global animation multiplier maybe?... Set in GameInit()
   // SetFlag(SF_MESALLSKIP,
-  //        1);  // SF_MESALLSKIP, force skip mode for now
+  //        1);  // Force skip mode for now
 }
 
 bool LoadScript(uint32_t bufferId, uint32_t scriptId) {
@@ -406,6 +406,25 @@ void RunThread(Sc3VmThread* thread) {
         OpcodeTableGraph[opcode](thread);
       } else if (!opcodeGrp1) {
         OpcodeTableSystem[opcode](thread);
+      } else {
+        ImpLog(LL_Error, LC_VM,
+               "Thread CRASH! Unknown opcode. Attempting recovery. Address: "
+               "%016X Opcode: %02X:%02X ScriptBuffer: %i\n",
+               thread->Ip, opcodeGrp1, opcode, thread->ScriptBufferId);
+        if (thread->CallStackDepth) {
+          thread->CallStackDepth--;
+          uint32_t retBufferId =
+              thread->ReturnScriptBufferIds[thread->CallStackDepth];
+          thread->Ip = thread->ReturnAdresses[thread->CallStackDepth];
+          thread->ScriptBufferId = retBufferId;
+        } else {
+          ImpLog(LL_Error, LC_VM,
+                 "Call stack empty, attempting instruction skip (will most "
+                 "likely result in a hang).\n");
+          while (*(thread->Ip) != 0xFE) {
+            thread->Ip += 1;
+          }
+        }
       }
     }
   } while (!BlockCurrentScriptThread);
