@@ -29,6 +29,7 @@ VmInstruction(InstAlbum);
 VmInstruction(InstMovieMode);
 VmInstruction(InstClistInit);
 VmInstruction(InstSaveMenu);
+VmInstruction(InstSaveMenuOld);
 VmInstruction(InstLoadData);
 VmInstruction(InstTitleMenu);
 VmInstruction(InstTitleMenuOld);

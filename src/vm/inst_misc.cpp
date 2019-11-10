@@ -333,6 +333,30 @@ VmInstruction(InstSaveMenu) {
       break;
   }
 }
+VmInstruction(InstSaveMenuOld) {
+  StartInstruction;
+  PopUint8(type);
+  switch (type) {
+    case 0: {
+      PopUint8(arg1);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction SaveMenu(type: %i, arg1: %i)\n", type, arg1);
+    } break;
+    case 1:
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SaveMenu(type: %i)\n",
+                 type);
+      break;
+    case 2: {
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SaveMenu(type: %i)\n",
+                 type);
+    } break;
+    case 10: {
+      PopUint8(arg1);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction SaveMenu(type: %i, arg1: %i)\n", type, arg1);
+    } break;
+  }
+}
 VmInstruction(InstLoadData) {
   StartInstruction;
   PopUint8(type);
