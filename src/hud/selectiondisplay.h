@@ -10,7 +10,7 @@ enum SelectionDisplayState { Hidden, Hiding, Showing, Shown };
 extern SelectionDisplayState State;
 
 extern bool IsPlain;
-extern bool ChoiceMade = false;
+extern bool ChoiceMade;
 extern int ChoiceCount;
 extern int CurrentChoice;
 extern ProcessedTextGlyph

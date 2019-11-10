@@ -5,6 +5,7 @@
 #include "../../game.h"
 #include "../../mem.h"
 #include "../../inputsystem.h"
+#include "../../vm/interface/input.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/hud/sysmesbox.h"
 #include "../../profile/games/rne/sysmesbox.h"
@@ -173,7 +174,7 @@ void SysMesBox::Update(float dt) {
         CurrentChoice--;
         if (CurrentChoice < 0) CurrentChoice = 1;
       }
-    } else if (Input::KeyboardButtonWentDown[SDL_SCANCODE_RETURN]) {
+    } else if (Vm::Interface::PAD1A & Vm::Interface::PADinputWentDown) {
       ChoiceMade = true;
     }
   }

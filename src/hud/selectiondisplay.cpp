@@ -15,6 +15,7 @@ SelectionDisplayState State;
 
 bool IsPlain;
 int ChoiceCount;
+bool ChoiceMade = false;
 int CurrentChoice = -1;
 ProcessedTextGlyph Choices[15][255];  // The official implementation limit is
                                       // actually 60, but... really? 60 choices?
