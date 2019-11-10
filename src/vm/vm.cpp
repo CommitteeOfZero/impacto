@@ -8,6 +8,7 @@
 #include "../mem.h"
 #include "interface/scene3d.h"
 #include "interface/scene2d.h"
+#include "interface/input.h"
 #include "opcodetables_rne.h"
 #include "opcodetables_darling.h"
 #include "opcodetables_chlcc.h"
@@ -15,6 +16,7 @@
 #include "opcodetables_dash.h"
 #include "../profile/game.h"
 #include "../profile/vm.h"
+#include "../profile/scriptinput.h"
 #include "../profile/scriptvars.h"
 #include "../window.h"
 
@@ -66,6 +68,7 @@ void Init() {
          "Initializing SC3 virtual machine\n**** Start apprication ****\n");
 
   Profile::Vm::Configure();
+  Profile::ScriptInput::Configure();
   Profile::ScriptVars::Configure();
 
   switch (Profile::Vm::GameInstructionSet) {
@@ -224,6 +227,8 @@ static void SortThreadExecTable() {
 }
 
 void Update() {
+  Interface::UpdatePADInput();
+
   CreateThreadExecTable();
   SortThreadExecTable();
 

@@ -16,6 +16,7 @@ root.Vm = {
 	ScrWorkBgStructSize: 20
 };
 
+include('common/scriptinput.js');
 include('common/scriptvars.js');
 include('mo6tw/scriptvars.js');
 include('mo6tw/vfs.js');

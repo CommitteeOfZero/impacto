@@ -16,6 +16,7 @@ root.Vm = {
 	ScrWorkBgStructSize: 40
 };
 
+include('common/scriptinput.js');
 include('common/scriptvars.js');
 include('darling/scriptvars.js');
 include('darling/vfs.js');

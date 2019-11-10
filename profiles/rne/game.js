@@ -12,6 +12,7 @@ root.Vm = {
 	ScrWorkBgStructSize: 40
 };
 
+include('common/scriptinput.js')
 include('common/scriptvars.js');
 include('rne/vfs.js');
 include('rne/sprites.js');
