@@ -20,6 +20,8 @@ class TitleMenuBase {
   virtual void Render() = 0;
 
   Animation PressToStartAnimation;
+  int CurrentChoice = 0;
+  int SecondaryChoice = 0;
 
  protected:
   TitleMenuState State;

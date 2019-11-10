@@ -11,6 +11,8 @@ namespace TitleMenu {
 
 Impacto::TitleMenu::TitleMenuBase* Configure();
 
+static int const MenuEntriesNum = 4;
+
 extern Sprite BackgroundSprite;
 extern Sprite DelusionADVUnderSprite;
 extern Sprite DelusionADVSprite;
@@ -25,6 +27,17 @@ extern Sprite StarLogoSprite;
 extern Sprite ExclMarkLogoSprite;
 extern Sprite CopyrightTextSprite;
 extern Sprite SpinningCircleSprite;
+extern Sprite ItemHighlightSprite;
+extern Sprite ItemLoadLineSprite;
+extern Sprite ItemLoadQuickLineSprite;
+extern Sprite ItemLoadQuickSprite;
+extern Sprite ItemLoadSprite;
+extern Sprite ItemLoadQuickHighlightedSprite;
+extern Sprite ItemLoadHighlightedSprite;
+extern Sprite SecondaryItemHighlightSprite;
+
+extern Sprite MenuEntriesSprites[MenuEntriesNum];
+extern Sprite MenuEntriesHSprites[MenuEntriesNum];
 
 extern float DelusionADVUnderX;
 extern float DelusionADVUnderY;
@@ -52,6 +65,22 @@ extern float CopyrightTextX;
 extern float CopyrightTextY;
 extern float SpinningCircleX;
 extern float SpinningCircleY;
+extern float SpinningCircleAnimationDuration;
+extern float ItemHighlightOffsetX;
+extern float ItemHighlightOffsetY;
+extern float ItemPadding;
+extern float ItemYBase;
+extern float ItemFadeInDuration;
+extern float ItemFadeOutDuration;
+extern float ItemLoadX;
+extern float ItemLoadY;
+extern float ItemLoadQuickY;
+extern float SecondaryItemHighlightX;
+extern float SecondaryMenuPaddingY;
+extern float SecondaryMenuLoadOffsetY;
+extern float SecondaryMenuLoadLineX;
+extern float SecondaryMenuLoadLineY;
+extern float SecondaryMenuLoadQuickLineY;
 
 }  // namespace TitleMenu
 }  // namespace CHLCC

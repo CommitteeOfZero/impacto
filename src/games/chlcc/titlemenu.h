@@ -13,6 +13,16 @@ class TitleMenu : public TitleMenuBase {
   void Hide();
   void Update(float dt);
   void Render();
+
+  void DrawTitleMenuBackGraphics();
+  void DrawTitleMenuItems();
+  void DrawTitleMenuItemsLoad();
+  void DrawTitleMenuItemsExtras();
+  void DrawTitleMenuItemsSystem();
+
+  Animation SpinningCircleAnimation;
+  Animation ItemsFadeInAnimation;
+  Animation SecondaryItemsFadeInAnimation;
 };
 
 }  // namespace CHLCC
