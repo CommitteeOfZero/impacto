@@ -17,7 +17,7 @@
 namespace Impacto {
 
 namespace Vm {
-	
+
 using namespace Impacto::Profile::ScriptVars;
 
 VmInstruction(InstBGMplay) {
@@ -84,9 +84,11 @@ VmInstruction(InstSSEplay) {
   StartInstruction;
   PopExpression(sysSeId);
   Io::InputStream* stream;
-  Io::VfsOpen("sysse", sysSeId, &stream);
-  Audio::Channels[Audio::AC_SSE].Play(Audio::AudioStream::Create(stream), false,
-                                      0.0f);
+  int64_t err = Io::VfsOpen("sysse", sysSeId, &stream);
+  if (err == IoError_OK) {
+    Audio::Channels[Audio::AC_SSE].Play(Audio::AudioStream::Create(stream),
+                                        false, 0.0f);
+  }
 }
 VmInstruction(InstSSEstop) {
   StartInstruction;
