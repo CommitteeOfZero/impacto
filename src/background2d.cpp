@@ -3,6 +3,7 @@
 #include "io/memorystream.h"
 #include "io/vfs.h"
 #include "util.h"
+#include "profile/game.h"
 
 namespace Impacto {
 
@@ -33,8 +34,13 @@ void Background2D::UnloadSync() {
 
 void Background2D::MainThreadOnLoad() {
   BgSpriteSheet.Texture = BgTexture.Submit();
-  BgSpriteSheet.DesignWidth = BgTexture.Width;
-  BgSpriteSheet.DesignHeight = BgTexture.Height;
+  if ((BgTexture.Width == 1) && (BgTexture.Height == 1)) {
+    BgSpriteSheet.DesignWidth = Profile::DesignWidth;
+    BgSpriteSheet.DesignHeight = Profile::DesignHeight;
+  } else {
+    BgSpriteSheet.DesignWidth = BgTexture.Width;
+    BgSpriteSheet.DesignHeight = BgTexture.Height;
+  }
   BgSprite.Sheet = BgSpriteSheet;
   BgSprite.BaseScale = glm::vec2(1.0f);
   BgSprite.Bounds =
