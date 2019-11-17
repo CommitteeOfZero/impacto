@@ -31,3 +31,4 @@ include('mo6tw/hud/datedisplay.js');
 //include('mo6tw/hud/titlemenu.js');
 //include('mo6tw/hud/mainmenu.js');
 include('mo6tw/hud/sysmesboxdisplay.js');
+include('mo6tw/hud/selectiondisplay.js');

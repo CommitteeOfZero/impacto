@@ -29,3 +29,4 @@ include('dash/hud/titlemenu.js');
 include('dash/hud/mainmenu.js');
 include('dash/hud/sysmesboxdisplay.js');
 include('dash/scene3d/scene3d.js');
+include('dash/hud/selectiondisplay.js');

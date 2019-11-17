@@ -292,9 +292,7 @@ VmInstruction(InstSel) {
       int len = TextLayoutPlainLine(
           thread, 255, SelectionDisplay::Choices[SelectionDisplay::ChoiceCount],
           Profile::Dialogue::DialogueFont, Profile::Dialogue::DefaultFontSize,
-          Profile::Dialogue::ColorTable[32], 1.0f,
-          glm::vec2(100.0f, 100.0f + (Profile::Dialogue::DefaultFontSize *
-                                      SelectionDisplay::ChoiceCount)),
+          Profile::Dialogue::ColorTable[0], 1.0f, glm::vec2(0.0f, 0.0f),
           TextAlignment::Left);
       float mesLen = 0.0f;
       for (int i = 0; i < len; i++) {
@@ -315,9 +313,7 @@ VmInstruction(InstSel) {
       int len = TextLayoutPlainLine(
           thread, 255, SelectionDisplay::Choices[SelectionDisplay::ChoiceCount],
           Profile::Dialogue::DialogueFont, Profile::Dialogue::DefaultFontSize,
-          Profile::Dialogue::ColorTable[32], 1.0f,
-          glm::vec2(100.0f, 100.0f + (Profile::Dialogue::DefaultFontSize *
-                                      SelectionDisplay::ChoiceCount)),
+          Profile::Dialogue::ColorTable[0], 1.0f, glm::vec2(0.0f, 0.0f),
           TextAlignment::Left);
       float mesLen = 0.0f;
       for (int i = 0; i < len; i++) {

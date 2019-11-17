@@ -47,6 +47,7 @@ set(Impacto_Src
     src/profile/hud/mainmenu.cpp
     src/profile/hud/titlemenu.cpp
     src/profile/hud/sysmesbox.cpp
+    src/profile/hud/selectiondisplay.cpp
 
     src/profile/games/rne/tilebackground.cpp
     src/profile/games/rne/mainmenu.cpp
@@ -196,6 +197,7 @@ set(Impacto_Header
     src/profile/hud/mainmenu.h
     src/profile/hud/titlemenu.h
     src/profile/hud/sysmesbox.h
+    src/profile/hud/selectiondisplay.h
 
     src/profile/games/rne/tilebackground.h
     src/profile/games/rne/mainmenu.h

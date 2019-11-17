@@ -28,3 +28,4 @@ include('rne/hud/titlemenu.js');
 include('rne/hud/mainmenu.js');
 include('rne/hud/sysmesboxdisplay.js');
 include('rne/scene3d/scene3d.js');
+include('rne/hud/selectiondisplay.js');

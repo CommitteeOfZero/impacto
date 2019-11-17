@@ -31,3 +31,4 @@ include('darling/hud/datedisplay.js');
 //include('darling/hud/titlemenu.js');
 //include('darling/hud/mainmenu.js');
 include('darling/hud/sysmesboxdisplay.js');
+include('dash/hud/selectiondisplay.js');

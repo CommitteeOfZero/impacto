@@ -99,6 +99,7 @@ static void Init() {
   }
 
   if (Profile::GameFeatures & GameFeature::Sc3VirtualMachine) {
+    SelectionDisplay::Init();
     SaveIconDisplay::Init();
     LoadingDisplay::Init();
     SysMesBox::Init();
