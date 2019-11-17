@@ -281,6 +281,7 @@ VmInstruction(InstSystemMes) {
   switch (mode) {
     case 0:  // SystemMesInit0
     case 1:  // SystemMesInit1
+      SysMesBox::Implementation->ChoiceMade = false;
       SysMesBox::Implementation->CurrentChoice = 255;
       SysMesBox::Implementation->MessageCount = 0;
       memset(SysMesBox::Implementation->Messages, 0,
@@ -349,7 +350,7 @@ VmInstruction(InstSystemMes) {
         ResetInstruction;
         BlockThread;
       } else {
-        SysMesBox::Implementation->ChoiceMade = false;
+        ScrWork[SW_SYSSEL] = SysMesBox::Implementation->CurrentChoice;
       }
       break;
     case 6:  // SystemMesFadeIn

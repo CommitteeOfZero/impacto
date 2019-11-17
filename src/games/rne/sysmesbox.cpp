@@ -42,7 +42,6 @@ void SysMesBox::Show() {
   }
 }
 void SysMesBox::Hide() {
-  ScrWork[SW_SYSSEL] = CurrentChoice;
   State = Hiding;
   // Hack...
   if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::RNE) {
