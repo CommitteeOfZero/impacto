@@ -8,6 +8,7 @@
 #include "../../io/vfs.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
+#include "../../profile/game.h"
 #include "../../inputsystem.h"
 
 namespace Impacto {
@@ -21,12 +22,12 @@ int SecondaryChoiceCount = 0;
 
 void TitleMenu::Show() {
   if (State != Shown) {
-    State = Showing;
+    State = Shown;
   }
 }
 void TitleMenu::Hide() {
   if (State != Hidden) {
-    State = Hiding;
+    State = Hidden;
   }
 }
 void TitleMenu::Update(float dt) {
@@ -34,6 +35,14 @@ void TitleMenu::Update(float dt) {
   SpinningCircleAnimation.Update(dt);
   ItemsFadeInAnimation.Update(dt);
   SecondaryItemsFadeInAnimation.Update(dt);
+
+  if (GetFlag(SF_TITLEMODE)) {
+    Show();
+  } else {
+    ItemsFadeInAnimation.StartOut();
+    SecondaryItemsFadeInAnimation.StartOut();
+    Hide();
+  }
 
   if (Input::KeyboardButtonWentDown[SDL_SCANCODE_DOWN]) {
     if (ScrWork[SW_TITLEDISPCT] >= 7) {
@@ -53,12 +62,6 @@ void TitleMenu::Update(float dt) {
     }
   }
 
-  if (ScrWork[SW_TITLEDISPCT] == 1) {
-    Show();
-  } else if (ScrWork[SW_TITLEDISPCT] == 0) {
-    Hide();
-  }
-
   if (PressToStartAnimation.State == AS_Stopped &&
       ScrWork[SW_TITLEDISPCT] == 1) {
     PressToStartAnimation.StartIn();
@@ -68,64 +71,71 @@ void TitleMenu::Update(float dt) {
 
 void TitleMenu::Render() {
   if (State != Hidden && GetFlag(SF_TITLEMODE)) {
-    switch (ScrWork[SW_TITLEDISPCT]) {
-      case 0:  // Initial animation
-        break;
-      case 1: {  // Press to start
-        DrawTitleMenuBackGraphics();
-        glm::vec4 col = glm::vec4(1.0f);
-        col.a = glm::smoothstep(0.0f, 1.0f, PressToStartAnimation.Progress);
-        Renderer2D::DrawSprite(PressToStartSprite,
-                               glm::vec2(PressToStartX, PressToStartY), col);
-      } break;
-      case 2: {  // Transition between Press to start and menus
-        DrawTitleMenuBackGraphics();
-      } break;
-      case 3: {  // MenuItems Fade In
-        if (ItemsFadeInAnimation.IsOut() &&
-            ItemsFadeInAnimation.State != AS_Playing)
-          ItemsFadeInAnimation.StartIn();
-        else if (ItemsFadeInAnimation.State != AS_Playing)
-          ItemsFadeInAnimation.StartOut();
-        DrawTitleMenuBackGraphics();
-        DrawTitleMenuItems();
-      } break;
-      case 4: {  // Main Menu
-        DrawTitleMenuBackGraphics();
-        DrawTitleMenuItems();
-      } break;
-      case 7: {  // Secondary menu LOAD Fade In
-        SecondaryChoiceCount = 1;
-        if (SecondaryItemsFadeInAnimation.IsOut() &&
-            SecondaryItemsFadeInAnimation.State != AS_Playing)
-          SecondaryItemsFadeInAnimation.StartIn();
-        else if (SecondaryItemsFadeInAnimation.State != AS_Playing)
-          SecondaryItemsFadeInAnimation.StartOut();
-        DrawTitleMenuBackGraphics();
-        DrawTitleMenuItemsLoad();
-        DrawTitleMenuItems();
-      } break;
-      case 8: {  // Secondary menu LOAD
-        DrawTitleMenuBackGraphics();
-        DrawTitleMenuItemsLoad();
-        DrawTitleMenuItems();
-      } break;
-      case 9: {  // Secondary menu EXTRAS Fade In
-        DrawTitleMenuBackGraphics();
-        DrawTitleMenuItems();
-      } break;
-      case 10: {  // Secondary menu EXTRAS
-        DrawTitleMenuBackGraphics();
-        DrawTitleMenuItems();
-      } break;
-      case 11: {  // Secondary menu SYSTEM Fade In
-        DrawTitleMenuBackGraphics();
-        DrawTitleMenuItems();
-      } break;
-      case 12: {  // Secondary menu SYSTEM
-        DrawTitleMenuBackGraphics();
-        DrawTitleMenuItems();
-      } break;
+    int maskAlpha = ScrWork[SW_TITLEMASKALPHA];
+    glm::vec4 col = ScrWorkGetColor(SW_TITLEMASKCOLOR);
+    col.a = glm::min(maskAlpha / 255.0f, 1.0f);
+    Renderer2D::DrawRect(
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight), col);
+    if (ScrWork[SW_SYSMENUCT] < 64) {
+      switch (ScrWork[SW_TITLEDISPCT]) {
+        case 0:  // Initial animation
+          break;
+        case 1: {  // Press to start
+          DrawTitleMenuBackGraphics();
+          glm::vec4 col = glm::vec4(1.0f);
+          col.a = glm::smoothstep(0.0f, 1.0f, PressToStartAnimation.Progress);
+          Renderer2D::DrawSprite(PressToStartSprite,
+                                 glm::vec2(PressToStartX, PressToStartY), col);
+        } break;
+        case 2: {  // Transition between Press to start and menus
+          DrawTitleMenuBackGraphics();
+        } break;
+        case 3: {  // MenuItems Fade In
+          if (ItemsFadeInAnimation.IsOut() &&
+              ItemsFadeInAnimation.State != AS_Playing)
+            ItemsFadeInAnimation.StartIn();
+          else if (ItemsFadeInAnimation.State != AS_Playing)
+            ItemsFadeInAnimation.StartOut();
+          DrawTitleMenuBackGraphics();
+          DrawTitleMenuItems();
+        } break;
+        case 4: {  // Main Menu
+          DrawTitleMenuBackGraphics();
+          DrawTitleMenuItems();
+        } break;
+        case 7: {  // Secondary menu LOAD Fade In
+          SecondaryChoiceCount = 1;
+          if (SecondaryItemsFadeInAnimation.IsOut() &&
+              SecondaryItemsFadeInAnimation.State != AS_Playing)
+            SecondaryItemsFadeInAnimation.StartIn();
+          else if (SecondaryItemsFadeInAnimation.State != AS_Playing)
+            SecondaryItemsFadeInAnimation.StartOut();
+          DrawTitleMenuBackGraphics();
+          DrawTitleMenuItemsLoad();
+          DrawTitleMenuItems();
+        } break;
+        case 8: {  // Secondary menu LOAD
+          DrawTitleMenuBackGraphics();
+          DrawTitleMenuItemsLoad();
+          DrawTitleMenuItems();
+        } break;
+        case 9: {  // Secondary menu EXTRAS Fade In
+          DrawTitleMenuBackGraphics();
+          DrawTitleMenuItems();
+        } break;
+        case 10: {  // Secondary menu EXTRAS
+          DrawTitleMenuBackGraphics();
+          DrawTitleMenuItems();
+        } break;
+        case 11: {  // Secondary menu SYSTEM Fade In
+          DrawTitleMenuBackGraphics();
+          DrawTitleMenuItems();
+        } break;
+        case 12: {  // Secondary menu SYSTEM
+          DrawTitleMenuBackGraphics();
+          DrawTitleMenuItems();
+        } break;
+      }
     }
   }
 }
