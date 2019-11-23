@@ -15,6 +15,7 @@ root.Vm = {
 include('common/scriptinput.js');
 include('common/scriptvars.js');
 include('dash/scriptvars.js');
+include('dash/savedata.js');
 include('dash/vfs.js');
 include('dash/sprites.js');
 include('common/animation.js');

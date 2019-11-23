@@ -19,6 +19,7 @@ root.Vm = {
 include('common/scriptinput.js');
 include('common/scriptvars.js');
 include('darling/scriptvars.js');
+include('darling/savedata.js');
 include('darling/vfs.js');
 include('darling/sprites.js');
 include('common/animation.js');

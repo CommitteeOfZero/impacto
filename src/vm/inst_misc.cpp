@@ -11,6 +11,7 @@
 #include "../hud/titlemenu.h"
 #include "../hud/mainmenu.h"
 #include "../inputsystem.h"
+#include "../savesystem.h"
 
 #include "../profile/vm.h"
 
@@ -343,6 +344,7 @@ VmInstruction(InstSaveMenuOld) {
                  "STUB instruction SaveMenu(type: %i, arg1: %i)\n", type, arg1);
     } break;
     case 1:
+      ScrWork[SW_SAVEFILESTATUS] = 1;
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SaveMenu(type: %i)\n",
                  type);
       break;
@@ -374,6 +376,11 @@ VmInstruction(InstLoadData) {
                  type);
       break;
   }
+}
+VmInstruction(InstLoadDataOld) {
+  StartInstruction;
+  PopExpression(arg1);
+  SaveSystem::LoadMemory(SaveSystem::SaveFull, arg1);
 }
 VmInstruction(InstTitleMenu) {
   StartInstruction;

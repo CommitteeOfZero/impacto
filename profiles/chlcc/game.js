@@ -19,6 +19,7 @@ root.Vm = {
 include('common/scriptinput.js');
 include('common/scriptvars.js');
 include('chlcc/scriptvars.js');
+include('chlcc/savedata.js');
 include('chlcc/vfs.js');
 include('chlcc/sprites.js');
 include('common/animation.js');

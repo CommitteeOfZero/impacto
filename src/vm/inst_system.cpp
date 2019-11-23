@@ -22,6 +22,7 @@
 #include "../profile/hud/sysmesbox.h"
 #include "../inputsystem.h"
 #include "interface/input.h"
+#include "../savesystem.h"
 
 namespace Impacto {
 
@@ -208,15 +209,18 @@ VmInstruction(InstSave) {
   switch (type) {  // TODO: Types 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
                    // 16, 20, 21, 72, 30, 31, 32, 33, 34, 35, 41, 50, 51, 66,
                    // 67, 70, 71, 74, 76
-    case 40:       // SystemDataCheck
-      PopExpression(arg1);
-      PopExpression(arg2);
-      PopExpression(arg3);
-      PopExpression(arg4);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Save(type: %i, arg1: %i, arg2: %i, arg3: "
-                 "%i, arg4: %i)\n",
-                 type, arg1, arg2, arg3, arg4);
+    case 32:
+      ScrWork[SW_SAVEERRORCODE] = SaveSystem::MountSaveFile();
+      break;
+    case 40:  // SystemDataCheck
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::RNE) {
+        PopExpression(unused1);
+        PopExpression(unused2);
+        PopExpression(unused3);
+        PopExpression(unused4);
+      }
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Save(type: %i)\n",
+                 type);
       break;
     default:
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Save(type: %i)\n",

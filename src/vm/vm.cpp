@@ -129,6 +129,10 @@ void Init() {
 
   memset(&ThreadGroupCount, 0, MaxThreadGroups * 4);
 
+  for (int i = 0; i < MaxLoadedScripts; i++) {
+    ScrWork[SW_SCRIPTNO0 + i] = -1;
+  }
+
   bool res =
       LoadScript(Profile::Vm::StartScriptBuffer, Profile::Vm::StartScript);
   if (res) {
@@ -145,19 +149,22 @@ void Init() {
 }
 
 bool LoadScript(uint32_t bufferId, uint32_t scriptId) {
-  Io::FileMeta meta;
-  Io::VfsGetMeta("script", scriptId, &meta);
-  ImpLogSlow(LL_Debug, LC_VM, "Loading script \"%s\"\n", meta.FileName.c_str());
+  if (ScrWork[SW_SCRIPTNO0 + bufferId] != scriptId) {
+    Io::FileMeta meta;
+    Io::VfsGetMeta("script", scriptId, &meta);
+    ImpLogSlow(LL_Debug, LC_VM, "Loading script \"%s\"\n",
+               meta.FileName.c_str());
 
-  void* file;
-  int64_t fileSize;
-  IoError err = Io::VfsSlurp("script", scriptId, &file, &fileSize);
-  if (err != IoError_OK) {
-    ImpLog(LL_Error, LC_VM, "Could not read script file for %d\n", scriptId);
-    return false;
+    void* file;
+    int64_t fileSize;
+    IoError err = Io::VfsSlurp("script", scriptId, &file, &fileSize);
+    if (err != IoError_OK) {
+      ImpLog(LL_Error, LC_VM, "Could not read script file for %d\n", scriptId);
+      return false;
+    }
+    ScriptBuffers[bufferId] = (uint8_t*)file;
+    ScrWork[SW_SCRIPTNO0 + bufferId] = scriptId;
   }
-  ScriptBuffers[bufferId] = (uint8_t*)file;
-  ScrWork[SW_SCRIPTNO0 + bufferId] = scriptId;
   return true;
 }
 

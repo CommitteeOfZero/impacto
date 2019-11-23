@@ -31,6 +31,7 @@ VmInstruction(InstClistInit);
 VmInstruction(InstSaveMenu);
 VmInstruction(InstSaveMenuOld);
 VmInstruction(InstLoadData);
+VmInstruction(InstLoadDataOld);
 VmInstruction(InstTitleMenu);
 VmInstruction(InstTitleMenuOld);
 VmInstruction(InstTitleMenuNew);

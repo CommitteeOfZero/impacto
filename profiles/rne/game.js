@@ -14,6 +14,7 @@ root.Vm = {
 
 include('common/scriptinput.js')
 include('common/scriptvars.js');
+include('rne/savedata.js');
 include('rne/vfs.js');
 include('rne/sprites.js');
 include('common/animation.js');

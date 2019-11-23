@@ -25,6 +25,7 @@ set(Impacto_Src
     src/character2d.cpp
     src/text.cpp
     src/inputsystem.cpp
+    src/savesystem.cpp
     src/glc.cpp
 
     src/profile/profile.cpp
@@ -40,6 +41,7 @@ set(Impacto_Src
     src/profile/vm.cpp
     src/profile/scriptvars.cpp
 	src/profile/scriptinput.cpp
+    src/profile/savesystem.cpp
 
     src/profile/hud/saveicon.cpp
     src/profile/hud/loadingdisplay.cpp
@@ -73,6 +75,7 @@ set(Impacto_Src
 
     src/games/chlcc/titlemenu.cpp
     src/games/chlcc/sysmesbox.cpp
+    src/games/chlcc/savesystem.cpp
 
 	src/games/mo6tw/sysmesbox.cpp
 
@@ -173,6 +176,7 @@ set(Impacto_Header
     src/text.h
     src/loadable.h
     src/inputsystem.h
+    src/savesystem.h
     src/glc.h
     src/rng.h
     src/animation.h
@@ -190,6 +194,7 @@ set(Impacto_Header
     src/profile/vm.h
     src/profile/scriptvars.h
     src/profile/scriptinput.h
+    src/profile/savesystem.h
 
     src/profile/hud/saveicon.h
     src/profile/hud/loadingdisplay.h
@@ -223,6 +228,7 @@ set(Impacto_Header
 
     src/games/chlcc/titlemenu.h
     src/games/chlcc/sysmesbox.h
+    src/games/chlcc/savesystem.h
 
     src/games/mo6tw/sysmesbox.h
 

@@ -7,6 +7,7 @@
 #include "characterviewer.h"
 #include "log.h"
 #include "inputsystem.h"
+#include "savesystem.h"
 #include "audio/audiosystem.h"
 #include "audio/audiochannel.h"
 #include "audio/audiostream.h"
@@ -99,6 +100,7 @@ static void Init() {
   }
 
   if (Profile::GameFeatures & GameFeature::Sc3VirtualMachine) {
+    SaveSystem::Init();
     SelectionDisplay::Init();
     SaveIconDisplay::Init();
     LoadingDisplay::Init();

@@ -11,6 +11,7 @@
 #include "../text.h"
 #include "../game.h"
 #include "../vm/vm.h"
+#include "../savesystem.h"
 #include "../hud/mainmenu.h"
 #include "../hud/titlemenu.h"
 #include "../hud/datedisplay.h"
@@ -155,6 +156,7 @@ void MakeJsonProfile(std::string const& name) {
   DefineEnumInt<GameFeature>(ctx);
   DefineEnumInt<CharacterTypeFlags>(ctx);
   DefineEnumInt<Vm::InstructionSet>(ctx);
+  DefineEnumInt<SaveSystem::SaveDataType>(ctx);
   DefineEnumInt<MainMenu::MainMenuType>(ctx);
   DefineEnumInt<TitleMenu::TitleMenuType>(ctx);
   DefineEnumInt<DateDisplay::DateDisplayType>(ctx);
