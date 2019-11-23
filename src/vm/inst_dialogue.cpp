@@ -275,6 +275,9 @@ VmInstruction(InstSel) {
   PopUint8(type);
   switch (type) {
     case 0: {  // SelInit
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::Dash) {
+        PopUint16(unused);
+      }
       PopExpression(arg1);
       SelectionDisplay::IsPlain = (bool)arg1;
 
@@ -326,8 +329,6 @@ VmInstruction(InstSel) {
       thread->Ip = oldIp;
 
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Sel(type: %i, arg1: %i)\n", type, selStrNum);
       break;
     }
   }

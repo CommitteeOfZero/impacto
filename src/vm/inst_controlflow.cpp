@@ -174,6 +174,7 @@ VmInstruction(InstKeyOnJump) {
   }
   if (arg2 & Interface::PADinputWentDown) {
     thread->Ip = labelAdr;
+    Interface::PADinputWentDown = 0;
     // if (thread->Id == 0 &&
     //    labelNum == 113) {  // Dirty hack to get out of the system menu
     //  MainMenu::Hide();
