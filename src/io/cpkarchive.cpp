@@ -395,7 +395,7 @@ IoError CpkArchive::Open(FileMeta* file, InputStream** outStream) {
   return err;
 }
 
-// Based on https://forum.xentax.com/viewtopic.php?f=21&t=5137&p=44219
+// Based on https://forum.xentax.com/viewtopic.php?f=21&t=5137&hilit=CRILAYLA
 
 static uint32_t get_next_bits(char* input, int* offset_p, uint32_t* bit_pool_p,
                               int* bits_left_p, int bit_count) {
@@ -419,6 +419,8 @@ static uint32_t get_next_bits(char* input, int* offset_p, uint32_t* bit_pool_p,
 
   return out_bits;
 }
+
+// Based on https://github.com/hcs64/vgm_ripping/tree/master/multi/utf_tab
 
 static IoError DecompressLayla(char* input, uint32_t compressedSize,
                                char* output, uint32_t uncompressedSize) {
