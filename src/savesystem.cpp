@@ -23,12 +23,20 @@ SaveError MountSaveFile() {
                     // script.
 }
 
-void SaveMemory(SaveType type, int id) {
-  if (Implementation) Implementation->SaveMemory(type, id);
+void SaveMemory() {
+  if (Implementation) Implementation->SaveMemory();
 }
 
 void LoadMemory(SaveType type, int id) {
   if (Implementation) Implementation->LoadMemory(type, id);
+}
+
+void FlushWorkingSaveEntry(SaveType type, int id) {
+  if (Implementation) Implementation->FlushWorkingSaveEntry(type, id);
+}
+
+void WriteSaveFile() {
+  if (Implementation) Implementation->WriteSaveFile();
 }
 
 }  // namespace SaveSystem

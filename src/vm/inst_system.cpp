@@ -520,6 +520,15 @@ VmInstruction(InstMSinit) {
     ScrWork[SW_CHA1SURF + i] = i;
   }
 
+  ScrWork[SW_BGMREQNO] = 0xFFFF;
+  ScrWork[SW_SEREQNO] = 0xFFFF;
+  ScrWork[SW_SEREQNO + 1] = 0xFFFF;
+  ScrWork[SW_SEREQNO + 2] = 0xFFFF;
+  ScrWork[SW_BGMVOL] = 100;
+  ScrWork[SW_SEVOL] = 100;
+  ScrWork[SW_SEVOL + 1] = 100;
+  ScrWork[SW_SEVOL + 2] = 100;
+
   ScrWork[SW_IRUOCAMERAHFOVCUR] = 40000;
   ScrWork[SW_MAINCAMERAHFOVCUR] = 40000;
   ScrWork[6402] = 640;

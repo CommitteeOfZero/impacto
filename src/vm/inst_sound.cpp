@@ -29,6 +29,8 @@ VmInstruction(InstBGMplay) {
   } else {
   }
 
+  ScrWork[SW_BGMREQNO] = track;
+
   Io::InputStream* stream;
   Io::VfsOpen("bgm", track, &stream);
   Audio::Channels[Audio::AC_BGM0].Volume = 0.15f;
@@ -39,6 +41,7 @@ VmInstruction(InstBGMstop) {
   StartInstruction;
   PopUint8(channel);
   Audio::Channels[Audio::AC_BGM0 + channel].Stop(1.0f);
+  ScrWork[SW_BGMREQNO] = 0xFFFF;
 }
 VmInstruction(InstSEplay) {
   StartInstruction;
@@ -49,12 +52,9 @@ VmInstruction(InstSEplay) {
     PopExpression(loop);
     Io::InputStream* stream;
     Io::VfsOpen("se", effect, &stream);
-    if (Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
-      Audio::Channels[Audio::AC_SE0 + channel].Volume = 0.3f;
-    } else {
-      Audio::Channels[Audio::AC_SE0 + channel].Volume =
-          (ScrWork[SW_SEVOL + channel] / 100.0f) * 0.3f;
-    }
+    ScrWork[SW_SEREQNO + channel] = effect;
+    Audio::Channels[Audio::AC_SE0 + channel].Volume =
+        (ScrWork[SW_SEVOL + channel] / 100.0f) * 0.3f;
     Audio::Channels[Audio::AC_SE0 + channel].Play(
         Audio::AudioStream::Create(stream), (bool)loop, 0.0f);
   } else {
@@ -79,6 +79,7 @@ VmInstruction(InstSEstop) {
   StartInstruction;
   PopUint8(channel);
   Audio::Channels[Audio::AC_SE0 + channel].Stop(1.0f);
+  ScrWork[SW_SEREQNO + channel] = 0xFFFF;
 }
 VmInstruction(InstSSEplay) {
   StartInstruction;

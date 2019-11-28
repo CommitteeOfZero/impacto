@@ -50,8 +50,10 @@ class SaveFileEntryBase {
 class SaveSystemBase {
  public:
   virtual SaveError MountSaveFile() = 0;
-  virtual void SaveMemory(SaveType type, int id) = 0;
+  virtual void SaveMemory() = 0;
   virtual void LoadMemory(SaveType type, int id) = 0;
+  virtual void FlushWorkingSaveEntry(SaveType type, int id) = 0;
+  virtual void WriteSaveFile() = 0;
 
   SaveFileEntryBase* FullSaveEntries[MaxSaveEntries];
   SaveFileEntryBase* QuickSaveEntries[MaxSaveEntries];
@@ -62,8 +64,10 @@ extern SaveSystemBase* Implementation;
 void Init();
 
 SaveError MountSaveFile();
-void SaveMemory(SaveType type, int id);
+void SaveMemory();
 void LoadMemory(SaveType type, int id);
+void FlushWorkingSaveEntry(SaveType type, int id);
+void WriteSaveFile();
 
 }  // namespace SaveSystem
 }  // namespace Impacto

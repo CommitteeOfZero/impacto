@@ -14,6 +14,8 @@ using namespace Impacto::Vm;
 using namespace Impacto::Profile::SaveSystem;
 using namespace Impacto::Profile::ScriptVars;
 
+SaveFileEntry* WorkingSaveEntry = 0;
+
 SaveError SaveSystem::MountSaveFile() {
   Io::InputStream* stream;
   IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream);
@@ -23,6 +25,8 @@ SaveError SaveSystem::MountSaveFile() {
     case IoError_Fail:
       return SaveCorrupted;
   };
+
+  WorkingSaveEntry = new SaveFileEntry();
 
   stream->Seek(0x3b06, SEEK_SET);  // TODO: Actually load system data
 
@@ -47,11 +51,9 @@ SaveError SaveSystem::MountSaveFile() {
     Io::ReadLE<uint8_t>(stream);
     stream->Seek(31, SEEK_CUR);
     Io::ReadArrayLE<uint8_t>(
-        ((SaveFileEntry*)QuickSaveEntries[i])->FlagWorkScript1,
-                             stream, 50);
+        ((SaveFileEntry*)QuickSaveEntries[i])->FlagWorkScript1, stream, 50);
     Io::ReadArrayLE<uint8_t>(
-        ((SaveFileEntry*)QuickSaveEntries[i])->FlagWorkScript2,
-                             stream, 100);
+        ((SaveFileEntry*)QuickSaveEntries[i])->FlagWorkScript2, stream, 100);
     Io::ReadArrayBE<int>(((SaveFileEntry*)QuickSaveEntries[i])->ScrWorkScript1,
                          stream, 300);
     Io::ReadArrayBE<int>(((SaveFileEntry*)QuickSaveEntries[i])->ScrWorkScript2,
@@ -98,11 +100,9 @@ SaveError SaveSystem::MountSaveFile() {
     Io::ReadLE<uint8_t>(stream);
     stream->Seek(31, SEEK_CUR);
     Io::ReadArrayLE<uint8_t>(
-        ((SaveFileEntry*)FullSaveEntries[i])->FlagWorkScript1,
-                             stream, 50);
+        ((SaveFileEntry*)FullSaveEntries[i])->FlagWorkScript1, stream, 50);
     Io::ReadArrayLE<uint8_t>(
-        ((SaveFileEntry*)FullSaveEntries[i])->FlagWorkScript2,
-                             stream, 100);
+        ((SaveFileEntry*)FullSaveEntries[i])->FlagWorkScript2, stream, 100);
     Io::ReadArrayBE<int>(((SaveFileEntry*)FullSaveEntries[i])->ScrWorkScript1,
                          stream, 300);
     Io::ReadArrayBE<int>(((SaveFileEntry*)FullSaveEntries[i])->ScrWorkScript2,
@@ -129,7 +129,118 @@ SaveError SaveSystem::MountSaveFile() {
   return SaveOK;
 }
 
-void SaveSystem::SaveMemory(SaveType type, int id) {}
+// uint16_t CalculateChecksum(int id) {
+//  return 0;
+//}
+
+void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id) {
+  SaveFileEntry* entry = 0;
+  switch (type) {
+    case SaveQuick:
+      entry = (SaveFileEntry*)QuickSaveEntries[id];
+      break;
+    case SaveFull:
+      entry = (SaveFileEntry*)FullSaveEntries[id];
+      break;
+  }
+
+  if (WorkingSaveEntry != 0) {
+    if (entry != 0) {
+      entry->Status = 1;
+
+      entry->PlayTime = WorkingSaveEntry->PlayTime;
+      entry->SwTitle = WorkingSaveEntry->SwTitle;
+
+      memcpy(entry->FlagWorkScript1, WorkingSaveEntry->FlagWorkScript1, 50);
+      memcpy(entry->FlagWorkScript2, WorkingSaveEntry->FlagWorkScript2, 100);
+      memcpy(entry->ScrWorkScript1, WorkingSaveEntry->ScrWorkScript1, 1200);
+      memcpy(entry->ScrWorkScript2, WorkingSaveEntry->ScrWorkScript2, 5200);
+
+      entry->MainThreadExecPriority = WorkingSaveEntry->MainThreadExecPriority;
+      entry->MainThreadWaitCounter = WorkingSaveEntry->MainThreadWaitCounter;
+      entry->MainThreadScriptParam = WorkingSaveEntry->MainThreadScriptParam;
+      entry->MainThreadGroupId = WorkingSaveEntry->MainThreadGroupId;
+      entry->MainThreadGroupId = WorkingSaveEntry->MainThreadGroupId;
+      entry->MainThreadIp = WorkingSaveEntry->MainThreadIp;
+      entry->MainThreadCallStackDepth =
+          WorkingSaveEntry->MainThreadCallStackDepth;
+
+      for (int j = 0; j < 8; j++) {
+        entry->MainThreadReturnAddresses[j] =
+            WorkingSaveEntry->MainThreadReturnAddresses[j];
+        entry->MainThreadReturnBufIds[j] =
+            WorkingSaveEntry->MainThreadReturnBufIds[j];
+      }
+
+      memcpy(entry->MainThreadVariables, WorkingSaveEntry->MainThreadVariables,
+             64);
+      entry->MainThreadDialoguePageId =
+          WorkingSaveEntry->MainThreadDialoguePageId;
+    }
+  }
+}
+
+void SaveSystem::WriteSaveFile() {
+  // Io::InputStream* stream;
+  // IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream);
+
+  // stream->Seek(0x3b06, SEEK_SET);  // TODO: Actually save system data
+
+  // for (int i = 0; i < MaxSaveEntries; i++) {
+  //  if (QuickSaveEntries[i]->Status == 0) {
+  //    stream->Seek(0x2000, SEEK_CUR);
+  //  } else {
+  //    // TODO: We don't have writing to file...
+  //  }
+  //}
+
+  // for (int i = 0; i < MaxSaveEntries; i++) {
+  //  if (FullSaveEntries[i]->Status == 0) {
+  //    stream->Seek(0x2000, SEEK_CUR);
+  //  } else {
+  //    // TODO: We don't have writing to file...
+  //  }
+  //}
+}
+
+void SaveSystem::SaveMemory() {
+  if (WorkingSaveEntry != 0) {
+    WorkingSaveEntry->Status = 1;
+
+    WorkingSaveEntry->PlayTime = ScrWork[2304];
+    WorkingSaveEntry->SwTitle = ScrWork[2300];
+
+    memcpy(WorkingSaveEntry->FlagWorkScript1, &FlagWork[50], 50);
+    memcpy(WorkingSaveEntry->FlagWorkScript2, &FlagWork[300], 100);
+    memcpy(WorkingSaveEntry->ScrWorkScript1, &ScrWork[300], 1200);
+    memcpy(WorkingSaveEntry->ScrWorkScript2, &ScrWork[2300], 5200);
+
+    int threadId = ScrWork[SW_MAINTHDP];
+    Sc3VmThread* thd = &ThreadPool[threadId & 0x7FFFFFFF];
+    if (thd != 0 &&
+        (thd->GroupId == 4 || thd->GroupId == 5 || thd->GroupId == 6)) {
+      WorkingSaveEntry->MainThreadExecPriority = thd->ExecPriority;
+      WorkingSaveEntry->MainThreadWaitCounter = thd->WaitCounter;
+      WorkingSaveEntry->MainThreadScriptParam = thd->ScriptParam;
+      WorkingSaveEntry->MainThreadGroupId = thd->GroupId << 16;
+      WorkingSaveEntry->MainThreadGroupId |= thd->ScriptBufferId;
+      WorkingSaveEntry->MainThreadIp =
+          thd->Ip - ScriptBuffers[thd->ScriptBufferId];
+      WorkingSaveEntry->MainThreadCallStackDepth = thd->CallStackDepth;
+
+      for (int j = 0; j < thd->CallStackDepth; j++) {
+        WorkingSaveEntry->MainThreadReturnAddresses[j] =
+            thd->ReturnAdresses[j] -
+            ScriptBuffers[thd->ReturnScriptBufferIds[j]];
+        WorkingSaveEntry->MainThreadReturnBufIds[j] =
+            thd->ReturnScriptBufferIds[j];
+      }
+
+      memcpy(WorkingSaveEntry->MainThreadVariables, thd->Variables, 64);
+      WorkingSaveEntry->MainThreadDialoguePageId = thd->DialoguePageId;
+    }
+  }
+}
 
 void SaveSystem::LoadMemory(SaveType type, int id) {
   SaveFileEntry* entry = 0;
@@ -144,44 +255,47 @@ void SaveSystem::LoadMemory(SaveType type, int id) {
 
   if (entry != 0)
     if (entry->Status) {
+      ScrWork[2304] = entry->PlayTime;
+      ScrWork[2300] = entry->SwTitle;
+
       memcpy(&FlagWork[50], entry->FlagWorkScript1, 50);
       memcpy(&FlagWork[300], entry->FlagWorkScript2, 100);
       memcpy(&ScrWork[300], entry->ScrWorkScript1, 1200);
       memcpy(&ScrWork[2300], entry->ScrWorkScript2, 5200);
 
       // TODO: What to do about this mess I wonder...
-      ScrWork[2001] = ScrWork[2311];
-      ScrWork[2002] = ScrWork[2312];
-      ScrWork[2003] = ScrWork[2313];
-      ScrWork[2005] = ScrWork[2310];
-      ScrWork[2006] = ScrWork[2322];
-      ScrWork[2007] = ScrWork[2323];
-      ScrWork[2008] = ScrWork[2324];
-      ScrWork[2009] = ScrWork[2325];
-      ScrWork[2010] = ScrWork[2407];
-      ScrWork[2011] = ScrWork[2427];
-      ScrWork[2012] = ScrWork[2447];
-      ScrWork[2013] = ScrWork[2467];
-      ScrWork[2014] = ScrWork[2487];
-      ScrWork[2015] = ScrWork[2507];
-      ScrWork[2016] = ScrWork[2527];
-      ScrWork[2017] = ScrWork[2547];
-      ScrWork[2018] = ScrWork[2609];
-      ScrWork[2019] = ScrWork[2629];
-      ScrWork[2020] = ScrWork[2649];
-      ScrWork[2021] = ScrWork[2669];
-      ScrWork[2022] = ScrWork[2689];
-      ScrWork[2023] = ScrWork[2709];
-      ScrWork[2024] = ScrWork[2729];
-      ScrWork[2025] = ScrWork[2749];
-      ScrWork[2026] = ScrWork[2769];
-      ScrWork[2027] = ScrWork[2789];
-      ScrWork[2028] = ScrWork[2809];
-      ScrWork[2029] = ScrWork[2829];
-      ScrWork[2030] = ScrWork[2849];
-      ScrWork[2031] = ScrWork[2869];
-      ScrWork[2032] = ScrWork[2889];
-      ScrWork[2033] = ScrWork[2909];
+      ScrWork[SW_SVSENO] = ScrWork[SW_SEREQNO];
+      ScrWork[SW_SVSENO + 1] = ScrWork[SW_SEREQNO + 1];
+      ScrWork[SW_SVSENO + 2] = ScrWork[SW_SEREQNO + 2];
+      ScrWork[SW_SVBGMNO] = ScrWork[SW_BGMREQNO];
+      ScrWork[SW_SVSCRNO1] = ScrWork[SW_SCRIPTNO2];
+      ScrWork[SW_SVSCRNO2] = ScrWork[SW_SCRIPTNO3];
+      ScrWork[SW_SVSCRNO3] = ScrWork[SW_SCRIPTNO4];
+      ScrWork[SW_SVSCRNO4] = ScrWork[SW_SCRIPTNO5];
+      ScrWork[SW_SVBGNO1] = ScrWork[SW_BG1NO];
+      ScrWork[SW_SVBGNO1 + 1] = ScrWork[2427];
+      ScrWork[SW_SVBGNO1 + 2] = ScrWork[2447];
+      ScrWork[SW_SVBGNO1 + 3] = ScrWork[2467];
+      ScrWork[SW_SVBGNO1 + 4] = ScrWork[2487];
+      ScrWork[SW_SVBGNO1 + 5] = ScrWork[2507];
+      ScrWork[SW_SVBGNO1 + 6] = ScrWork[2527];
+      ScrWork[SW_SVBGNO1 + 7] = ScrWork[2547];
+      ScrWork[SW_SVCHANO1] = ScrWork[SW_CHA1NO];
+      ScrWork[SW_SVCHANO1 + 1] = ScrWork[2629];
+      ScrWork[SW_SVCHANO1 + 2] = ScrWork[2649];
+      ScrWork[SW_SVCHANO1 + 3] = ScrWork[2669];
+      ScrWork[SW_SVCHANO1 + 4] = ScrWork[2689];
+      ScrWork[SW_SVCHANO1 + 5] = ScrWork[2709];
+      ScrWork[SW_SVCHANO1 + 6] = ScrWork[2729];
+      ScrWork[SW_SVCHANO1 + 7] = ScrWork[2749];
+      ScrWork[SW_SVCHANO1 + 8] = ScrWork[2769];
+      ScrWork[SW_SVCHANO1 + 9] = ScrWork[2789];
+      ScrWork[SW_SVCHANO1 + 10] = ScrWork[2809];
+      ScrWork[SW_SVCHANO1 + 11] = ScrWork[2829];
+      ScrWork[SW_SVCHANO1 + 12] = ScrWork[2849];
+      ScrWork[SW_SVCHANO1 + 13] = ScrWork[2869];
+      ScrWork[SW_SVCHANO1 + 14] = ScrWork[2889];
+      ScrWork[SW_SVCHANO1 + 15] = ScrWork[2909];
       ScrWork[2034] = ScrWork[3200];
       ScrWork[2035] = ScrWork[3201];
       ScrWork[2036] = ScrWork[3202];
@@ -226,15 +340,12 @@ void SaveSystem::LoadMemory(SaveType type, int id) {
         thd->ScriptParam = entry->MainThreadScriptParam;
         thd->GroupId = entry->MainThreadGroupId >> 16;
         thd->ScriptBufferId = entry->MainThreadGroupId & 0xFFFF;
-        if (ScriptBuffers[thd->ScriptBufferId] == 0) {
-          LoadScript(thd->ScriptBufferId, ScrWork[2004 + thd->ScriptBufferId]);
-        }
+        LoadScript(thd->ScriptBufferId, ScrWork[2004 + thd->ScriptBufferId]);
         thd->Ip = ScriptBuffers[thd->ScriptBufferId] + entry->MainThreadIp;
+        // thd->CallStackDepth = entry->MainThreadCallStackDepth;
 
-        if (ScriptBuffers[entry->MainThreadReturnBufIds[0]] == 0) {
-          LoadScript(entry->MainThreadReturnBufIds[0],
-                     ScrWork[2004 + entry->MainThreadReturnBufIds[0]]);
-        }
+        LoadScript(entry->MainThreadReturnBufIds[0],
+                   ScrWork[2004 + entry->MainThreadReturnBufIds[0]]);
         thd->CallStackDepth++;
         thd->ReturnScriptBufferIds[0] = entry->MainThreadReturnBufIds[0];
         thd->ReturnAdresses[0] =
