@@ -39,6 +39,8 @@ DialogueColorPair* ColorTable;
 int MaxPageSize;
 int PageCount;
 
+bool ColorTagIsUint8;
+
 bool HaveADVNameTag;
 namespace ADVNameTag {
 glm::vec2 Position;
@@ -114,6 +116,8 @@ void Configure() {
 
     Pop();
   }
+
+  ColorTagIsUint8 = EnsureGetMemberBool("ColorTagIsUint8");
 
   HaveADVNameTag = TryPushMember("ADVNameTag");
   if (HaveADVNameTag) {

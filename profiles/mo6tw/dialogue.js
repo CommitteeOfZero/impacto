@@ -65,7 +65,8 @@ root.Dialogue = {
         [0xF8910B, 0x000000], [0x33F12A, 0x000000]
     ],
     MaxPageSize: 2000,
-    PageCount: 3
+    PageCount: 3,
+    ColorTagIsUint8: true
 };
 
 include('mo6tw/nametag.js');

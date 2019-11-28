@@ -93,7 +93,15 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
       break;
     }
 
-    case STT_SetColor:
+    case STT_SetColor: {
+      if (ColorTagIsUint8) {
+        Type = (StringTokenType)c;
+        Val_Expr = (*(uint8_t*)(ctx->Ip));
+        ctx->Ip += 1;
+        bytesRead += 1;
+        break;
+      }
+    }
     case STT_EvaluateExpression: {
       Type = (StringTokenType)c;
       uint8_t* oldIp = ctx->Ip;

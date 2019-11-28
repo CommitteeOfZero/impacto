@@ -45,6 +45,8 @@ extern DialogueColorPair* ColorTable;
 extern int MaxPageSize;
 extern int PageCount;
 
+extern bool ColorTagIsUint8;
+
 extern bool HaveADVNameTag;
 namespace ADVNameTag {
 extern glm::vec2 Position;
