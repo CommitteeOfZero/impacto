@@ -10,7 +10,6 @@
 #include "../../profile/hud/sysmesbox.h"
 #include "../../profile/games/chlcc/sysmesbox.h"
 #include "../../profile/dialogue.h"
-#include "../../vm/interface/input.h"
 
 namespace Impacto {
 namespace CHLCC {
@@ -71,10 +70,6 @@ void SysMesBox::Hide() { State = Hiding; }
 
 void SysMesBox::Update(float dt) {
   FadeAnimation.Update(dt);
-
-  if (Vm::Interface::PAD1A & Vm::Interface::PADinputWentDown) {
-    ChoiceMade = true;
-  }
 
   if (State == Hiding) {
     BoxAnimCount -= AnimationSpeed * dt;

@@ -11,7 +11,7 @@
 namespace Impacto {
 
 namespace Vm {
-	
+
 using namespace Impacto::Profile::ScriptVars;
 
 VmInstruction(InstUnk0041) {
@@ -230,10 +230,10 @@ VmInstruction(InstPhoneSG) {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction Unk1037(arg1: %i, arg2: %i, arg3: %i)\n",
                  arg1, arg2, arg3);
-      if (GetFlag(2600)) {
-        ScrWork[6404] = 20;
+      if (GetFlag(SF_Phone_Open)) {
+        ScrWork[SW_PHONE_DISP_CT] = 20;
       } else {
-        ScrWork[6404] = 0;
+        ScrWork[SW_PHONE_DISP_CT] = 0;
       }
       break;
     }

@@ -86,7 +86,7 @@ static void UpdateRenderables() {
       UpdateRenderableRot(i);
       UpdateRenderablePos(i);
       Scene3D::Renderables[i].IsVisible =
-          GetFlag(SF_CHA1DISP + i) || GetFlag(2808 + i);
+          GetFlag(SF_CHA1DISP + i) || GetFlag(SF_AR_SETUP_ADD_MDLBUF1 + i);
     }
   }
 }
@@ -101,9 +101,9 @@ static void UpdateCamera() {
   posCam = ScrWorkGetVec3(SW_IRUOCAMERAPOSX + 20 * camera,
                           SW_IRUOCAMERAPOSY + 20 * camera,
                           SW_IRUOCAMERAPOSZ + 20 * camera);
-  lookatCam =
-      ScrWorkGetAngleVec3(SW_IRUOCAMERAROTX + 20 * camera,
-                          SW_IRUOCAMERAROTY + 20 * camera, 5405 + 20 * camera);
+  lookatCam = ScrWorkGetAngleVec3(SW_IRUOCAMERAROTX + 20 * camera,
+                                  SW_IRUOCAMERAROTY + 20 * camera,
+                                  SW_CAMSHTARDIR + 20 * camera);
 
   switch (Profile::Vm::GameInstructionSet) {
     case InstructionSet::Dash: {
@@ -176,11 +176,12 @@ static void UpdateCamera() {
       Scene3D::DarkMode = (bool)ScrWork[SW_MAINLIGHTDARKMODE];
     } break;
     case InstructionSet::Dash: {
-      Scene3D::Tint.r = ScrWork[5460] / 255.0f;
-      Scene3D::Tint.g = ScrWork[5461] / 255.0f;
-      Scene3D::Tint.b = ScrWork[5462] / 255.0f;
+      Scene3D::Tint.r = ScrWork[SW_LIGHT1_COLORR] / 255.0f;
+      Scene3D::Tint.g = ScrWork[SW_LIGHT1_COLORG] / 255.0f;
+      Scene3D::Tint.b = ScrWork[SW_LIGHT1_COLORB] / 255.0f;
       Scene3D::Tint.a = 1.0f;
-      Scene3D::LightPosition = ScrWorkGetVec3(5463, 5464, 5465);
+      Scene3D::LightPosition =
+          ScrWorkGetVec3(SW_LIGHT1_POSX, SW_LIGHT1_POSY, SW_LIGHT1_POSZ);
     } break;
   }
 }

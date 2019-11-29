@@ -531,13 +531,13 @@ VmInstruction(InstMSinit) {
 
   ScrWork[SW_IRUOCAMERAHFOVCUR] = 40000;
   ScrWork[SW_MAINCAMERAHFOVCUR] = 40000;
-  ScrWork[6402] = 640;
-  ScrWork[6403] = 360;
+  ScrWork[SW_AR_POSX] = 640;
+  ScrWork[SW_AR_POSY] = 360;
   // Hack for now
-  ScrWork[6410] = -14674;
-  ScrWork[6411] = 13974;
-  ScrWork[6412] = -19588;
-  ScrWork[6413] = 19088;
+  ScrWork[SW_AR_ELVMIN] = -14674;
+  ScrWork[SW_AR_ELVMAX] = 13974;
+  ScrWork[SW_AR_ROTMIN] = -19588;
+  ScrWork[SW_AR_ROTMAX] = 19088;
 }
 VmInstruction(InstSaveSlot) {
   StartInstruction;

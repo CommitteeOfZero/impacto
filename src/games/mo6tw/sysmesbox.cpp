@@ -4,6 +4,8 @@
 #include "../../renderer2d.h"
 #include "../../game.h"
 #include "../../mem.h"
+#include "../../inputsystem.h"
+#include "../../vm/interface/input.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/hud/sysmesbox.h"
 #include "../../profile/games/mo6tw/sysmesbox.h"
@@ -45,6 +47,27 @@ void SysMesBox::Update(float dt) {
   }
 
   ScrWork[SW_SYSMESANIMCTCUR] = std::floor(BoxAnimCount);
+
+  if (State == Shown) {
+    // Nice input
+    if (Input::KeyboardButtonWentDown[SDL_SCANCODE_RIGHT]) {
+      if (CurrentChoice == 255)
+        CurrentChoice = 1;
+      else {
+        CurrentChoice++;
+        if (CurrentChoice > 1) CurrentChoice = 0;
+      }
+    } else if (Input::KeyboardButtonWentDown[SDL_SCANCODE_LEFT]) {
+      if (CurrentChoice == 255)
+        CurrentChoice = 0;
+      else {
+        CurrentChoice--;
+        if (CurrentChoice < 0) CurrentChoice = 1;
+      }
+    } else if (Vm::Interface::PAD1A & Vm::Interface::PADinputWentDown) {
+      ChoiceMade = true;
+    }
+  }
 
   if (State != Hidden) {
     if (State == Showing && FadeAnimation.IsOut())

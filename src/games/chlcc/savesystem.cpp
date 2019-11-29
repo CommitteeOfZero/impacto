@@ -255,8 +255,8 @@ void SaveSystem::LoadMemory(SaveType type, int id) {
 
   if (entry != 0)
     if (entry->Status) {
-      ScrWork[2304] = entry->PlayTime;
-      ScrWork[2300] = entry->SwTitle;
+      ScrWork[SW_PLAYTIME] = entry->PlayTime;
+      ScrWork[SW_TITLE] = entry->SwTitle;
 
       memcpy(&FlagWork[50], entry->FlagWorkScript1, 50);
       memcpy(&FlagWork[300], entry->FlagWorkScript2, 100);
