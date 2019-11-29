@@ -37,7 +37,7 @@ static void UpdateScrWorkAnimations() {
 }
 
 static void UpdateRenderableRot(int charId) {
-  int pose = ScrWork[30 * charId + SW_CHA1POSE] - 30;
+  int pose = ScrWork[30 * charId + SW_MDL1TARDIR] - 30;
 
   switch (Profile::Vm::GameInstructionSet) {
     case InstructionSet::RNE: {
@@ -47,9 +47,9 @@ static void UpdateRenderableRot(int charId) {
         target.y += Profile::Scene3D::DefaultCameraPosition.y;
 
         glm::vec3 object =
-            ScrWorkGetVec3(30 * charId + SW_CHA1POSX, 30 * charId + SW_CHA1POSY,
-                           30 * charId + SW_CHA1POSZ);
-        object.y += ScrWorkGetFloat(30 * charId + SW_CHA1YCENTER);
+            ScrWorkGetVec3(30 * charId + SW_MDL1POSX, 30 * charId + SW_MDL1POSY,
+                           30 * charId + SW_MDL1POSZ);
+        object.y += ScrWorkGetFloat(30 * charId + SW_MDL1CENY);
 
         glm::vec3 lookat = LookAtEulerZYX(object, target);
         lookat.x = 0.0f;
@@ -57,27 +57,27 @@ static void UpdateRenderableRot(int charId) {
         Scene3D::Renderables[charId].ModelTransform.SetRotationFromEuler(
             lookat);
 
-        ScrWorkSetAngle(30 * charId + SW_CHA1ROTY, lookat.y);
+        ScrWorkSetAngle(30 * charId + SW_MDL1ROTY, lookat.y);
       } else {
         Scene3D::Renderables[charId].ModelTransform.SetRotationFromEuler(
-            ScrWorkGetAngleVec3(30 * charId + SW_CHA1ROTX,
-                                30 * charId + SW_CHA1ROTY,
-                                30 * charId + SW_CHA1ROTZ));
+            ScrWorkGetAngleVec3(30 * charId + SW_MDL1ROTX,
+                                30 * charId + SW_MDL1ROTY,
+                                30 * charId + SW_MDL1ROTZ));
       }
     } break;
     case InstructionSet::Dash: {
       Scene3D::Renderables[charId].ModelTransform.SetRotationFromEuler(
-          ScrWorkGetAngleVec3(30 * charId + SW_CHA1ROTX,
-                              30 * charId + SW_CHA1ROTY,
-                              30 * charId + SW_CHA1ROTZ));
+          ScrWorkGetAngleVec3(30 * charId + SW_MDL1ROTX,
+                              30 * charId + SW_MDL1ROTY,
+                              30 * charId + SW_MDL1ROTZ));
     } break;
   }
 }
 
 static void UpdateRenderablePos(int charId) {
   Scene3D::Renderables[charId].ModelTransform.Position =
-      ScrWorkGetVec3(30 * charId + SW_CHA1POSX, 30 * charId + SW_CHA1POSY,
-                     30 * charId + SW_CHA1POSZ);
+      ScrWorkGetVec3(30 * charId + SW_MDL1POSX, 30 * charId + SW_MDL1POSY,
+                     30 * charId + SW_MDL1POSZ);
 }
 
 static void UpdateRenderables() {
@@ -85,8 +85,11 @@ static void UpdateRenderables() {
     if (Scene3D::Renderables[i].Status == LS_Loaded) {
       UpdateRenderableRot(i);
       UpdateRenderablePos(i);
-      Scene3D::Renderables[i].IsVisible =
-          GetFlag(SF_CHA1DISP + i) || GetFlag(SF_AR_SETUP_ADD_MDLBUF1 + i);
+      if (GetFlag(SF_IRUOENABLE) && GetFlag(SF_Pokecon_Open)) {
+        Scene3D::Renderables[i].IsVisible = GetFlag(SF_MDL1SHDISP + i);
+      } else {
+        Scene3D::Renderables[i].IsVisible = GetFlag(SF_MDL1DISP + i);
+      }
     }
   }
 }

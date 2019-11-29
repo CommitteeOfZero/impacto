@@ -42,15 +42,15 @@ VmInstruction(InstCHAload3D) {
   if (Scene3D::Renderables[bufferId].Status == LS_Loading) {
     ResetInstruction;
     BlockThread;
-  } else if (ScrWork[SW_CHA1NO + 30 * bufferId] != modelId) {
-    ScrWork[SW_CHA1NO + 30 * bufferId] = modelId;
+  } else if (ScrWork[SW_MDL1FILENO + 30 * bufferId] != modelId) {
+    ScrWork[SW_MDL1FILENO + 30 * bufferId] = modelId;
 
     auto charId = Profile::Scene3D::ModelsToCharacters.find(modelId);
     if (charId != Profile::Scene3D::ModelsToCharacters.end()) {
-      ScrWork[SW_CHA1EX + 30 * bufferId] = charId->second;
+      ScrWork[SW_MDL1CHANO + 30 * bufferId] = charId->second;
     } else {
       // background
-      ScrWork[SW_CHA1EX + 30 * bufferId] = 0;
+      ScrWork[SW_MDL1CHANO + 30 * bufferId] = 0;
     }
 
     Scene3D::Renderables[bufferId].LoadAsync(modelId);
@@ -134,7 +134,7 @@ VmInstruction(InstCHAUnk02073D_Dash) {
         ResetInstruction;
         BlockThread;
       } else {
-        SetFlag(SF_CHA1DISP + arg2, true);
+        SetFlag(SF_MDL1DISP + arg2, true);
         Scene3D::Renderables[arg2].SwitchAnimation(testNum, 0);
       }
     }
@@ -180,7 +180,7 @@ VmInstruction(InstPositionObject) {
       pos = ScrWorkGetVec3(20 * parentRenderableId + 5706,
                            20 * parentRenderableId + 5707,
                            20 * parentRenderableId + 5708);
-      pos.y += ScrWorkGetFloat(30 * parentRenderableId + SW_CHA1YCENTER);
+      pos.y += ScrWorkGetFloat(30 * parentRenderableId + SW_MDL1CENY);
     } else if (parentObjId >= 30 && parentObjId <= 38) {
       pos = ScrWorkGetVec3(20 * parentObjId + 4900, 20 * parentObjId + 4901,
                            20 * parentObjId + 4902);
@@ -205,7 +205,7 @@ VmInstruction(InstPositionObject) {
       pos.z -= Profile::Scene3D::DefaultCameraPosition.z;
     }
     if (ObjectIsRenderable(objectId)) {
-      pos.y -= ScrWorkGetFloat(30 * renderableId + SW_CHA1YCENTER);
+      pos.y -= ScrWorkGetFloat(30 * renderableId + SW_MDL1CENY);
     }
 
     if (objectId == 1) {  // main camera
@@ -215,9 +215,9 @@ VmInstruction(InstPositionObject) {
       ScrWorkSetVec3(SW_IRUOCAMERAPOSX, SW_IRUOCAMERAPOSY, SW_IRUOCAMERAPOSZ,
                      pos);
     } else if (ObjectIsRenderable(objectId)) {
-      ScrWorkSetVec3(SW_CHA1POSX + 30 * renderableId,
-                     SW_CHA1POSY + 30 * renderableId,
-                     SW_CHA1POSZ + 30 * renderableId, pos);
+      ScrWorkSetVec3(SW_MDL1POSX + 30 * renderableId,
+                     SW_MDL1POSY + 30 * renderableId,
+                     SW_MDL1POSZ + 30 * renderableId, pos);
     } else if (objectId >= 30 && objectId <= 38) {
       ScrWorkSetVec3(4900 + 20 * objectId, 4901 + 20 * objectId,
                      4902 + 20 * objectId, pos);
@@ -271,9 +271,9 @@ VmInstruction(InstPositionObject_Dash) {
       ScrWorkSetVec3(SW_IRUOCAMERAPOSX, SW_IRUOCAMERAPOSY, SW_IRUOCAMERAPOSZ,
                      pos);
     } else if (ObjectIsRenderable(objectId)) {
-      ScrWorkSetVec3(SW_CHA1POSX + 30 * renderableId,
-                     SW_CHA1POSY + 30 * renderableId,
-                     SW_CHA1POSZ + 30 * renderableId, pos);
+      ScrWorkSetVec3(SW_MDL1POSX + 30 * renderableId,
+                     SW_MDL1POSY + 30 * renderableId,
+                     SW_MDL1POSZ + 30 * renderableId, pos);
     } else if (objectId >= 30 && objectId <= 38) {
       ScrWorkSetVec3(4900 + 20 * objectId, 4901 + 20 * objectId,
                      4902 + 20 * objectId, pos);
@@ -390,7 +390,7 @@ VmInstruction(InstUnk0213) {  // Set Camera position ???
       PopExpression(outZ);
       glm::vec3 pos = ScrWorkGetVec3(5706 + 20 * charId, 5707 + 20 * charId,
                                      5708 + 20 * charId);
-      pos.y += ScrWorkGetFloat(SW_CHA1YCENTER + 30 * charId);
+      pos.y += ScrWorkGetFloat(SW_MDL1CENY + 30 * charId);
       pos.y += Profile::Scene3D::DefaultCameraPosition.y;
       ScrWorkSetVec3(outX, outY, outZ, pos);
     } break;

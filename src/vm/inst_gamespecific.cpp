@@ -116,6 +116,16 @@ VmInstruction(InstGeotag) {
                  type, arg1, arg2);
     } break;
     case 10: {
+      for (int i = 0; i < 8; i++) {
+        if (ScrWork[SW_CHA1EX + 30 * i] == 0)
+          SetFlag(SF_MDL1SHDISP + i, 1);
+        else {
+          if (GetFlag(SF_AR_SETUP_ADD_MDLBUF1 + i))
+            SetFlag(SF_MDL1SHDISP + i, 1);
+          else
+            SetFlag(SF_MDL1SHDISP + i, 0);
+        }
+      }
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Geotag(type: %i)\n",
                  type);
     } break;

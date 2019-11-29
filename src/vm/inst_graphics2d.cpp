@@ -168,6 +168,11 @@ VmInstruction(InstCHAload) {
 
   int actualBufId = Interface::GetBufferId(bufferId);
   int chaBufId = ScrWork[SW_CHA1SURF + actualBufId];
+  if (((characterId & 0xFFFF0000) >> 16) == 0) {
+    characterId =
+        (ScrWork[SW_CHA1FACE + ScrWorkChaStructSize * actualBufId] << 16) |
+        characterId;
+  }
   if (Characters2D[chaBufId].Status == LS_Loading) {
     ResetInstruction;
     BlockThread;
@@ -429,9 +434,28 @@ VmInstruction(InstBGeffectWave) {
 }
 VmInstruction(InstBGeffect) {
   StartInstruction;
-  PopUint8(arg1);
+  PopUint8(type);
+  switch (type) {
+    case 0:
+    case 5: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      PopExpression(arg4);
+    } break;
+    case 1:
+    case 3:
+    case 9: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+    } break;
+    case 6:
+    case 7: {
+      PopExpression(arg1);
+    } break;
+  }
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction BGeffect(arg1: %i)\n",
-             arg1);
+             type);
 }
 
 }  // namespace Vm
