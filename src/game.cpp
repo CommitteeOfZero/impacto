@@ -204,6 +204,13 @@ void Update(float dt) {
     for (int i = 0; i < Profile::Dialogue::PageCount; i++)
       DialoguePages[i].Update(dt);
   }
+
+  if ((Profile::GameFeatures & GameFeature::Renderer2D) &&
+      !(Profile::GameFeatures & GameFeature::Scene3D)) {
+    for (int i = 0; i < MaxCharacters2D; i++) {
+      if (Characters2D[i].Show) Characters2D[i].Update(dt);
+    }
+  }
 }
 
 static bool DebugWindowEnabled = false;

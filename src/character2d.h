@@ -13,19 +13,28 @@ namespace Impacto {
 
 struct Character2DState {
   int Count;
+  // LAY
   glm::vec2* ScreenCoords;
   glm::vec2* TextureCoords;
+  // MVL
+  uint16_t* Indices;
 };
+
+int const MaxMvlIndices = 128 * 1024;
 
 class Character2D : public Loadable<Character2D> {
   friend class Loadable<Character2D>;
 
  public:
   Sprite CharaSprite;
-  int CharaOffsetX;
-  int CharaOffsetY;
+  int OffsetX;
+  int OffsetY;
+  int Face;
+  int LipFrame;
+  int EyeFrame;
   bool Show;
   int Layer;
+  void Update(float dt);
   void Render();
 
  protected:
@@ -36,7 +45,14 @@ class Character2D : public Loadable<Character2D> {
  private:
   Texture CharaTexture;
   SpriteSheet CharaSpriteSheet;
-  std::vector<Character2DState> StatesToDraw;
+
+  ska::flat_hash_map<int, Character2DState> States;
+  std::vector<int> StatesToDraw;
+
+  float* MvlVertices;
+  uint16_t MvlIndices[MaxMvlIndices];
+  int MvlVerticesCount;
+  int MvlIndicesCount;
 };
 
 int const MaxCharacters2D = 16;

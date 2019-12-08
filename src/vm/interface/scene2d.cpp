@@ -75,10 +75,11 @@ void UpdateCharacter2D() {
     int bufId = ScrWork[SW_CHA1SURF + i];
     Characters2D[bufId].Layer = ScrWork[SW_CHA1PRI + ScrWorkChaStructSize * i];
     Characters2D[bufId].Show = GetFlag(SF_CHA1DISP + i);
-    Characters2D[bufId].CharaOffsetX =
+    Characters2D[bufId].OffsetX =
         ScrWork[SW_CHA1POSX + ScrWorkChaStructSize * i];
-    Characters2D[bufId].CharaOffsetY =
+    Characters2D[bufId].OffsetY =
         ScrWork[SW_CHA1POSY + ScrWorkChaStructSize * i];
+    Characters2D[bufId].Face = ScrWork[SW_CHA1FACE + ScrWorkChaStructSize * i] << 16;
   }
 }
 

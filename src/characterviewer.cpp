@@ -136,6 +136,23 @@ void Update(float dt) {
           Characters2D[0].Status == LS_Unloaded) {
         Characters2D[0].LoadAsync(CharacterIds[CurrentCharacter] | 0x10000);
       }
+      if (Characters2D[0].Status == LS_Loaded) Characters2D[0].Show = true;
+
+      nk_property_int(Nk, "Character X", -10000, &Characters2D[0].OffsetX,
+                      10000, 1, 5.0f);
+      nk_property_int(Nk, "Character Y", -10000, &Characters2D[0].OffsetY,
+                      10000, 1, 5.0f);
+
+      Characters2D[0].Face >>= 16;
+      nk_property_int(Nk, "Character Face", 1, &Characters2D[0].Face, 20, 1,
+                      1.0f);
+      Characters2D[0].Face <<= 16;
+
+      nk_property_int(Nk, "Character Eye", 0, &Characters2D[0].EyeFrame, 10, 1,
+                      1.0f);
+
+      nk_property_int(Nk, "Character Lip", 0, &Characters2D[0].LipFrame, 10, 1,
+                      1.0f);
 
       nk_tree_pop(Nk);
     }

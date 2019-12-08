@@ -9,6 +9,7 @@ int LayerCount;
 int GameFeatures;
 
 bool LayFileBigEndian;
+bool CharaIsMvl;
 float LayFileTexXMultiplier;
 float LayFileTexYMultiplier;
 
@@ -25,6 +26,8 @@ void LoadGameFromJson() {
 
   bool res = TryGetMemberBool("LayFileBigEndian", LayFileBigEndian);
   if (!res) LayFileBigEndian = false;
+  res = TryGetMemberBool("CharaIsMvl", CharaIsMvl);
+  if (!res) CharaIsMvl = false;
   res = TryGetMemberFloat("LayFileTexXMultiplier", LayFileTexXMultiplier);
   if (!res) LayFileTexXMultiplier = 1.0f;
   res = TryGetMemberFloat("LayFileTexYMultiplier", LayFileTexYMultiplier);

@@ -3,6 +3,7 @@ root.GameFeatures = GameFeature.Sc3VirtualMachine | GameFeature.Renderer2D | Gam
 root.DesignWidth = 1280;
 root.DesignHeight = 720;
 
+root.CharaIsMvl = false;
 root.LayFileBigEndian = true;
 root.LayFileTexXMultiplier = 2048;
 root.LayFileTexYMultiplier = 1024;

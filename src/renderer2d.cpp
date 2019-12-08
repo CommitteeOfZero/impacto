@@ -20,7 +20,7 @@ struct VertexBufferSprites {
   glm::vec4 Tint;
 };
 
-static int const VertexBufferSize = 32 * 1024;
+static int const VertexBufferSize = 1024 * 1024;
 static int const IndexBufferCount =
     VertexBufferSize / (4 * sizeof(VertexBufferSprites)) * 6;
 
@@ -318,6 +318,52 @@ void DrawProcessedText(ProcessedTextGlyph* text, int length, Font* font,
                                smoothstepGlyphOpacity);
     }
   }
+}
+
+void DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
+                      int verticesCount, float* mvlVertices, int indicesCount,
+                      uint16_t* mvlIndices, bool inverted, glm::vec4 tint) {
+  if (!Drawing) {
+    ImpLog(LL_Error, LC_Render,
+           "Renderer2D::DrawCharacterMvl() called before BeginFrame()\n");
+    return;
+  }
+
+  // Draw just the character with this since we need to rebind the index buffer
+  // anyway...
+  Flush();
+
+  // Do we have space for the whole character?
+  EnsureSpaceAvailable(verticesCount, sizeof(VertexBufferSprites),
+                       indicesCount);
+
+  // Are we in sprite mode?
+  EnsureModeSprite(inverted);
+
+  // Do we have the texture assigned?
+  EnsureTextureBound(sprite.Sheet.Texture);
+
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
+  VertexBufferFill += verticesCount * sizeof(VertexBufferSprites);
+
+  IndexBufferFill += indicesCount;
+
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesCount * sizeof(mvlIndices[0]),
+               mvlIndices, GL_STATIC_DRAW);
+
+  for (int i = 0; i < verticesCount; i++) {
+    vertices[i].Position = DesignToNDC(glm::vec2(
+        mvlVertices[i * 5] + topLeft.x, mvlVertices[i * 5 + 1] + topLeft.y));
+    vertices[i].UV = glm::vec2(mvlVertices[i * 5 + 3], mvlVertices[i * 5 + 4]);
+    vertices[i].Tint = tint;
+  }
+
+  // Flush again and bind back our buffer
+  Flush();
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+               IndexBufferCount * sizeof(IndexBuffer[0]), IndexBuffer,
+               GL_STATIC_DRAW);
 }
 
 void DrawSprite(Sprite const& sprite, RectF const& dest, glm::vec4 tint,

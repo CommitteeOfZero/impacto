@@ -38,5 +38,10 @@ void DrawProcessedText(ProcessedTextGlyph* text, int length, Font* font,
                        float opacity = 1.0f, bool outlined = false,
                        bool smoothstepGlyphOpacity = true);
 
+void DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
+                      int verticesCount, float* mvlVertices, int indicesCount,
+                      uint16_t* mvlIndices, bool inverted = false,
+                      glm::vec4 tint = glm::vec4(1.0));
+
 }  // namespace Renderer2D
 }  // namespace Impacto

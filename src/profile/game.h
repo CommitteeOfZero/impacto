@@ -7,6 +7,7 @@ extern int LayerCount;
 extern int GameFeatures;
 
 extern bool LayFileBigEndian;
+extern bool CharaIsMvl;
 extern float LayFileTexXMultiplier;
 extern float LayFileTexYMultiplier;
 
