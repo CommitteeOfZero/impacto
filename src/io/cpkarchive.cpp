@@ -54,23 +54,21 @@ void DecryptUtfBlock(uint8_t* utfBlock, uint64_t size) {
 }
 
 bool CpkArchive::ReadUtfBlock(
-    uint8_t* utfBlock,
-    std::vector<ska::flat_hash_map<std::string, CpkCell>>* rows,
-    uint64_t utfSize) {
-  int64_t utfBeginOffset = BaseStream->Position;
-
+    uint8_t* utfBlock, uint64_t utfSize,
+    std::vector<ska::flat_hash_map<std::string, CpkCell>>* rows) {
   const uint32_t utfMagic = 0x40555446;
-  UtfStream = new MemoryStream(utfBlock, utfSize);
+  UtfStream = new MemoryStream(utfBlock, utfSize, true);
   if (ReadBE<uint32_t>(UtfStream) != utfMagic) {
     DecryptUtfBlock(utfBlock, utfSize);
     UtfStream->Seek(0, RW_SEEK_SET);
     if (ReadBE<uint32_t>(UtfStream) != utfMagic) {
       ImpLog(LL_Trace, LC_IO, "Error reading CPK UTF table\n");
+      delete UtfStream;
       return false;
     }
   }
 
-  // uint32_t tableSize = ReadBE<uint32_t>(BaseStream);
+  // uint32_t tableSize = ReadBE<uint32_t>(UtfStream);
   UtfStream->Seek(4, RW_SEEK_CUR);
   int64_t rowsOffset = ReadBE<uint32_t>(UtfStream);
   int64_t stringsOffset = ReadBE<uint32_t>(UtfStream);
@@ -80,7 +78,7 @@ bool CpkArchive::ReadUtfBlock(
   stringsOffset += 8;
   dataOffset += 8;
 
-  // uint32_t tableNameOffset = ReadBE<uint32_t>(BaseStream);
+  // uint32_t tableNameOffset = ReadBE<uint32_t>(UtfStream);
   UtfStream->Seek(4, RW_SEEK_CUR);
   uint16_t numColumns = ReadBE<uint16_t>(UtfStream);
   uint16_t rowLength = ReadBE<uint16_t>(UtfStream);
@@ -150,6 +148,7 @@ bool CpkArchive::ReadUtfBlock(
     rows->push_back(row);
   }
 
+  delete UtfStream;
   return true;
 }
 
@@ -197,18 +196,16 @@ IoError CpkArchive::ReadItoc(int64_t itocOffset, int64_t contentOffset,
   uint8_t* utfBlock = (uint8_t*)malloc(utfSize);
   BaseStream->Read(utfBlock, utfSize);
   std::vector<ska::flat_hash_map<std::string, CpkCell>> itocUtfTable;
-  if (!ReadUtfBlock(utfBlock, &itocUtfTable, utfSize)) return IoError_Fail;
+  if (!ReadUtfBlock(utfBlock, utfSize, &itocUtfTable)) return IoError_Fail;
 
   if (itocUtfTable[0]["DataL"].Uint64Val != 0) {
-    // BaseStream->Seek(itocUtfTable[0]["DataL"].Uint64Val, RW_SEEK_SET);
     std::vector<ska::flat_hash_map<std::string, CpkCell>> dataLUtfTable;
-    if (!ReadUtfBlock(itocUtfTable[0]["DataL"].DataArray, &dataLUtfTable,
-                      itocUtfTable[0]["DataL"].DataSize))
+    if (!ReadUtfBlock(itocUtfTable[0]["DataL"].DataArray,
+                      itocUtfTable[0]["DataL"].DataSize, &dataLUtfTable))
       return IoError_Fail;
-    // BaseStream->Seek(itocUtfTable[0]["DataH"].Uint64Val, RW_SEEK_SET);
     std::vector<ska::flat_hash_map<std::string, CpkCell>> dataHUtfTable;
-    if (!ReadUtfBlock(itocUtfTable[0]["DataH"].DataArray, &dataHUtfTable,
-                      itocUtfTable[0]["DataH"].DataSize))
+    if (!ReadUtfBlock(itocUtfTable[0]["DataH"].DataArray,
+                      itocUtfTable[0]["DataH"].DataSize, &dataHUtfTable))
       return IoError_Fail;
 
     for (auto& row : dataLUtfTable) {
@@ -290,7 +287,7 @@ IoError CpkArchive::ReadToc(int64_t tocOffset, int64_t contentOffset) {
   uint8_t* utfBlock = (uint8_t*)malloc(utfSize);
   BaseStream->Read(utfBlock, utfSize);
   std::vector<ska::flat_hash_map<std::string, CpkCell>> tocUtfTable;
-  if (!ReadUtfBlock(utfBlock, &tocUtfTable, utfSize)) return IoError_Fail;
+  if (!ReadUtfBlock(utfBlock, utfSize, &tocUtfTable)) return IoError_Fail;
 
   for (auto& row : tocUtfTable) {
     uint32_t id = row["ID"].Uint32Val;
@@ -340,7 +337,7 @@ IoError CpkArchive::ReadEtoc(int64_t etocOffset) {
   uint8_t* utfBlock = (uint8_t*)malloc(utfSize);
   BaseStream->Read(utfBlock, utfSize);
   std::vector<ska::flat_hash_map<std::string, CpkCell>> etocUtfTable;
-  if (!ReadUtfBlock(utfBlock, &etocUtfTable, utfSize)) return IoError_Fail;
+  if (!ReadUtfBlock(utfBlock, utfSize, &etocUtfTable)) return IoError_Fail;
 
   // for (auto& row : etocUtfTable) {
   // TODO: This contains the LocalDir and UpdateDateTime params. Do we actually
@@ -373,7 +370,7 @@ IoError CpkArchive::Create(InputStream* stream, VfsArchive** outArchive) {
   uint64_t utfSize = ReadLE<uint64_t>(stream);
   uint8_t* utfBlock = (uint8_t*)malloc(utfSize);
   stream->Read(utfBlock, utfSize);
-  if (!result->ReadUtfBlock(utfBlock, &headerUtfTable, utfSize)) {
+  if (!result->ReadUtfBlock(utfBlock, utfSize, &headerUtfTable)) {
     goto fail;
   }
 

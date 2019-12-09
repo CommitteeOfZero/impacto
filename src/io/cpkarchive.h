@@ -41,9 +41,9 @@ class CpkArchive : public VfsArchive {
 
   CpkMetaEntry* GetFileListEntry(uint32_t id);
 
-  bool ReadUtfBlock(uint8_t* utfBlock,
-                    std::vector<ska::flat_hash_map<std::string, CpkCell>>* rows,
-                    uint64_t utfSize);
+  bool ReadUtfBlock(
+      uint8_t* utfBlock, uint64_t utfSize,
+      std::vector<ska::flat_hash_map<std::string, CpkCell>>* rows);
   void ReadString(int64_t stringsOffset, char* output);
 
   uint16_t Version;
