@@ -48,7 +48,10 @@ int64_t PhysicalFileStream::Seek(int64_t offset, int origin) {
   if (err < IoError_OK) {
     BufferFill = 0;
     BufferConsumed = 0;
-    err = SDL_RWseek(RW, offset, origin);
+    err = SDL_RWseek(RW, absPos,
+                     RW_SEEK_SET);  // TODO: why does SDL_RWtell not match
+                                    // Position here sometimes? This causes PNGs
+                                    // with iTxT chunk to fail loading :thonk:
     if (err < 0) return IoError_Fail;
     Position = err;
   }
