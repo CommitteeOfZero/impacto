@@ -278,6 +278,7 @@ VmInstruction(InstSystemMes) {
   PopUint8(mode);
   switch (Profile::Vm::GameInstructionSet) {
     case InstructionSet::Dash:
+    case InstructionSet::CC:
       PopUint8(unk01);
       break;
   }

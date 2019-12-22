@@ -206,6 +206,158 @@ VmInstruction(InstUnk1037) {
              "STUB instruction Unk1037(arg1: %i, arg2: %i, arg3: %i)\n", arg1,
              arg2, arg3);
 }
+VmInstruction(InstMapSystem) {
+  StartInstruction;
+  PopUint8(type);
+  switch (type) {
+    case 1:
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapInit");
+      break;
+    case 2: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      ImpLogSlow(LL_Warning, LC_VMStub, "MapSetFadein");
+    } break;
+    case 3: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      PopExpression(arg4);
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapSetGroup");
+    } break;
+    case 4: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapSetFadeout");
+    } break;
+    case 5: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapSetDisp");
+    } break;
+    case 6: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapSetHide");
+    } break;
+    case 7:
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapFadeEndChk_Wait");
+      break;
+    case 8: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapMoveAnimeInit");
+    } break;
+    case 9:
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapMoveAnimeMain");
+      break;
+    case 0xA: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapGetPos");
+    } break;
+    case 0xB: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      PopExpression(arg4);
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapSetPool");
+    } break;
+    case 0xC: {
+      PopExpression(arg1);
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapResetPoolAll");
+    } break;
+    case 0xD:
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction MapPoolFadeEndChk_Wait");
+      break;
+    case 0xE: {
+      PopExpression(arg1);
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapPoolShuffle");
+    } break;
+    case 0xF: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapPoolSetDisp");
+    } break;
+    case 0x10: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapPoolSetHide");
+    } break;
+    case 0x11: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapPoolSetFadein");
+    } break;
+    case 0x12: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapPoolSetFadeout");
+    } break;
+    case 0x13: {
+      PopExpression(arg1);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction MapPlayerPhotoSelect");
+    } break;
+    case 0x14: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapResetPool");
+    } break;
+    case 0x15: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapSetGroupEx");
+    } break;
+    case 0x16: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapZoomInit");
+    } break;
+    case 0x17:
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapZoomMain");
+      break;
+    case 0x18: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapZoomInit2");
+    } break;
+    case 0x19:
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapZoomMain3");
+      break;
+    case 0x1A: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapZoomInit3");
+    } break;
+    case 0x1B: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapMoveAnimeInit2");
+    } break;
+    case 0x1C:
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapMoveAnimeMain2");
+      break;
+    case 0x1E:
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction MapPlayerPotalSelectInit");
+      break;
+    case 0x1F:
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction MapPlayerPotalSelect");
+      break;
+    case 0x28:
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapSystem_28");
+      break;
+  }
+}
 VmInstruction(InstPhoneSG) {
   StartInstruction;
   PopUint8(type);

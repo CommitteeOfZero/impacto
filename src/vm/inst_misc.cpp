@@ -421,7 +421,7 @@ VmInstruction(InstTitleMenuNew) {
     case 0:  // Init
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction TitleMenu(type: Init)\n");
-      // TitleMenu::Show();
+      TitleMenu::Show();
       break;
     case 1:  // Main
       // Hack to kickstart into "New Game"
@@ -429,6 +429,7 @@ VmInstruction(InstTitleMenuNew) {
         if (Input::KeyboardButtonWentDown[SDL_SCANCODE_T]) {
           ScrWork[2139] = 0;
           SetFlag(1241, 1);
+          TitleMenu::Hide();
         }
       } else if (ScrWork[SW_TITLEMODE] == 1 && ScrWork[SW_TITLEDISPCT] == 60) {
         // Check "PRESS TO START" here

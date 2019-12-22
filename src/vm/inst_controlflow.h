@@ -19,6 +19,7 @@ VmInstruction(InstFlagOnJump);
 VmInstruction(InstKeyOnJump);
 VmInstruction(InstKeyOnJump_Dash);
 VmInstruction(InstClickOnJump);
+VmInstruction(InstKeyboardOnJump);
 VmInstruction(InstLoadJump);
 VmInstruction(InstSwitch);
 VmInstruction(InstCase);

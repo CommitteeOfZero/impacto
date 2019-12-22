@@ -14,6 +14,7 @@
 #include "opcodetables_chlcc.h"
 #include "opcodetables_mo6tw.h"
 #include "opcodetables_dash.h"
+#include "opcodetables_cc.h"
 #include "../profile/game.h"
 #include "../profile/vm.h"
 #include "../profile/scriptinput.h"
@@ -102,6 +103,12 @@ void Init() {
       OpcodeTableGraph = OpcodeTableGraph_Dash;
       OpcodeTableGraph3D = OpcodeTableGraph3D_Dash;
       OpcodeTableUser1 = OpcodeTableUser1_Dash;
+      break;
+    }
+    case InstructionSet::CC: {
+      OpcodeTableSystem = OpcodeTableSystem_CC;
+      OpcodeTableGraph = OpcodeTableGraph_CC;
+      OpcodeTableUser1 = OpcodeTableUser1_CC;
       break;
     }
     default: {

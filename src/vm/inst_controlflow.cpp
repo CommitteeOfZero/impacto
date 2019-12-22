@@ -262,6 +262,17 @@ VmInstruction(InstClickOnJump) {
              "labelNum: %i)\n",
              arg1, arg2, labelNum);
 }
+VmInstruction(InstKeyboardOnJump) {
+  StartInstruction;
+  PopUint8(arg1);
+  PopExpression(arg2);
+  PopExpression(arg3);
+  PopLocalLabel(arg4);
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction KeyboardOnJump(arg1: %i, arg2: %i, arg3: %i, "
+             "arg4: %i)\n",
+             arg1, arg2, arg3, arg4);
+}
 VmInstruction(InstLoadJump) {
   StartInstruction;
   PopExpression(scriptId);

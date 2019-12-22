@@ -199,6 +199,10 @@ VmInstruction(InstSysVoicePlay) {
   ImpLogSlow(LL_Warning, LC_VMStub,
              "STUB instruction SysVoicePlay(arg1: %i, arg2: %i)\n", arg1, arg2);
 }
+VmInstruction(InstSysSeload) {
+  StartInstruction;
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SysSeload()\n");
+}
 
 }  // namespace Vm
 

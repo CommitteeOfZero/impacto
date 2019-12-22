@@ -14,6 +14,7 @@ VmInstruction(InstUnk011F);
 VmInstruction(InstUnk012D);
 VmInstruction(InstGeotag);
 VmInstruction(InstUnk1037);
+VmInstruction(InstMapSystem);
 VmInstruction(InstPhoneSG);
 VmInstruction(InstMail);
 VmInstruction(InstUnk1038Darling);

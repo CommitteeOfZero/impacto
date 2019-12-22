@@ -26,6 +26,7 @@ VmInstruction(InstResetSoundAll);
 VmInstruction(InstSNDloadStop);
 VmInstruction(InstBGMstopWait);
 VmInstruction(InstSysVoicePlay);
+VmInstruction(InstSysSeload);
 
 }  // namespace Vm
 

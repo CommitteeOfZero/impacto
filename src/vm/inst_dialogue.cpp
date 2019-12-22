@@ -424,11 +424,14 @@ VmInstruction(InstNameID) {
   PopUint8(type);
   switch (type) {
     case 0:
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
+        PopLocalLabel(namePlateDataBlock);
+      }
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction NameID(type: %i)\n",
                  type);
       break;
     case 1: {
-      PopLocalLabel(tipsDataAdr);
+      PopLocalLabel(namePlateDataBlock);
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction NameID(type: %i)\n",
                  type);
     } break;
