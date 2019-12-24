@@ -3,7 +3,7 @@
 
 #include <string>
 #include <enum.h>
-#include <time.h>
+#include <ctime>
 #include "log.h"
 
 namespace Impacto {

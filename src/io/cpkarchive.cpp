@@ -296,10 +296,10 @@ IoError CpkArchive::ReadToc(int64_t tocOffset, int64_t contentOffset) {
     entry->Id = id;
     entry->Offset = row["FileOffset"].Uint64Val;
 
-    char path[CpkMaxPath] = {0};
+    char path[CpkMaxPath * 2] = {0};
 
     if (*row["DirName"].StringVal) {
-      snprintf(path, CpkMaxPath, "%s/%s", row["DirName"].StringVal,
+      snprintf(path, CpkMaxPath * 2, "%s/%s", row["DirName"].StringVal,
                row["FileName"].StringVal);
     } else {
       snprintf(path, CpkMaxPath, "%s", row["FileName"].StringVal);
@@ -356,6 +356,8 @@ IoError CpkArchive::Create(InputStream* stream, VfsArchive** outArchive) {
   std::vector<ska::flat_hash_map<std::string, CpkCell>> headerUtfTable;
 
   uint16_t alignVal;
+  uint64_t utfSize = 0;
+  uint8_t* utfBlock = 0;
 
   uint32_t const magic = 0x43504B20;
   if (ReadBE<uint32_t>(stream) != magic) {
@@ -367,8 +369,8 @@ IoError CpkArchive::Create(InputStream* stream, VfsArchive** outArchive) {
   result->BaseStream = stream;
 
   stream->Seek(0x8, RW_SEEK_SET);
-  uint64_t utfSize = ReadLE<uint64_t>(stream);
-  uint8_t* utfBlock = (uint8_t*)malloc(utfSize);
+  utfSize = ReadLE<uint64_t>(stream);
+  utfBlock = (uint8_t*)malloc(utfSize);
   stream->Read(utfBlock, utfSize);
   if (!result->ReadUtfBlock(utfBlock, utfSize, &headerUtfTable)) {
     goto fail;
