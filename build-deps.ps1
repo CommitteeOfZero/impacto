@@ -71,6 +71,9 @@ function InstallPackages() {
     & $vcpkg install sdl2 openal-soft libogg libvorbis zlib glm --triplet $Arch-windows
     if ($local_vcpkg) {
         & $vcpkg integrate install
+        Write-Output "Cleaning up..."
+        Remove-Item build/vcpkg/downloads -Recurse
+        Remove-Item build/vcpkg/buildtrees -Recurse
     }
 }
 
