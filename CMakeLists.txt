@@ -313,6 +313,19 @@ endif()
 
 # dependencies
 
+if (WIN32)
+    set(SDL2_LIBRARIES SDL2::SDL2 SDL2::SDL2main)
+    set(LIBATRAC9_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/vendor/LibAtrac9/include")
+
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        set(LIBATRAC9_ARCH "x64")
+    else()
+        set(LIBATRAC9_ARCH "x86")
+    endif()
+
+    set(LIBATRAC9_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/vendor/LibAtrac9/bin/${LIBATRAC9_ARCH}/libatrac9.lib")
+endif()
+
 find_package(Libatrac9 REQUIRED)
 find_package(glm REQUIRED)
 find_package(OpenAL REQUIRED)
@@ -377,7 +390,7 @@ elseif(NX)
     include_directories(${OGGVORBIS_INCLUDE_DIRS})
 
     list(APPEND Impacto_Libs
-        SDL2::SDL2main
+        ${SDL2_LIBRARIES}
         glm
         ZLIB::ZLIB
         vorbisfile
@@ -400,7 +413,7 @@ else()
     include_directories(${OGGVORBIS_INCLUDE_DIRS})
 
     list(APPEND Impacto_Libs
-        SDL2::SDL2main
+        ${SDL2_LIBRARIES}
         glm
         ZLIB::ZLIB
         ${OGGVORBIS_LIBRARIES}
@@ -412,6 +425,7 @@ endif()
 include_directories(vendor/glad/include)
 include_directories(${LIBATRAC9_INCLUDE_DIR})
 include_directories(${OPENAL_INCLUDE_DIR})
+include_directories(${SDL2_INCLUDE_DIRS})
 include_directories(vendor/include)
 include_directories(vendor/duktape/include)
 include_directories(vendor/pcg/include)
@@ -478,18 +492,15 @@ target_include_directories(impacto PRIVATE ${PROJECT_BINARY_DIR}/include)
 install(TARGETS impacto RUNTIME DESTINATION .)
 
 if (WIN32)
-    get_property(SDL2_RUNTIME_DLL TARGET SDL2::SDL2 PROPERTY IMPORTED_LOCATION)
-    install(FILES ${SDL2_RUNTIME_DLL} DESTINATION .)
-
-    install(FILES ${ZLIB_INCLUDE_DIR}/../bin/zlib.dll DESTINATION .)
-
-    install(FILES ${LIBATRAC9_INCLUDE_DIR}/../bin/libatrac9.dll DESTINATION .)
-
-    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-        install(FILES ${OPENAL_INCLUDE_DIR}/../../bin/Win64/soft_oal.dll DESTINATION . RENAME OpenAL32.dll)
-    else()
-        install(FILES ${OPENAL_INCLUDE_DIR}/../../bin/Win32/soft_oal.dll DESTINATION . RENAME OpenAL32.dll)
-    endif()
+    install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/
+        DESTINATION .
+        FILES_MATCHING PATTERN "*.dll"
+        PATTERN ".cmake" EXCLUDE
+        PATTERN "CMakeFiles" EXCLUDE
+        PATTERN "include" EXCLUDE
+        PATTERN "Testing" EXCLUDE
+    )
+    install(FILES ${LIBATRAC9_INCLUDE_DIR}/../bin/${LIBATRAC9_ARCH}/libatrac9.dll DESTINATION .)
 endif()
 
 # asset install
