@@ -18,6 +18,8 @@
 x64/
 x86/
 bld/
+[Bb]uild/
+[Oo]ut
 [Bb]in/
 [Oo]bj/
 [Ll]og/
@@ -263,3 +265,4 @@ __pycache__/
 ###
 
 /CMakeSettings.json
+vendor/LibAtrac9
