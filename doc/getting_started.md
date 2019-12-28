@@ -52,13 +52,17 @@ For the list of required game resource files refer to the `vfs.js` file located 
 └───vendor                            - Third-party libraries
 ```
 
+## General engine information
+To get an overall understanding of how the original Mages. engine functions please refer to  https://committeeofzero.gitbooks.io/mages-engine-compendium/content/
+
 ## Making simple changes
 The main game loop is located in `/src/game.cpp`. The main scripting execution loop is located in `/src/vm/vm.cpp`.
 
-All of the instructions are split into groups and implemented in their respective files, for example the instructions that alter the control flow are located in `/src/vm/inst_controlflow.cpp`.
+All of Mages. engine games use bytecode script files to define game behaviour.
+The scripting engine instructions are split into groups and implemented in their respective files, for example the instructions that alter the control flow are located in `/src/vm/inst_controlflow.cpp`.
 In order to make implementing new instructions easier, all instruction implementations use macros. A simple instruction implementation would be defined as:
 
-```
+```cpp
 VmInstruction(InstJump) {
   StartInstruction;
   PopLocalLabel(labelAdr);
@@ -71,9 +75,9 @@ After defining an instruction, it must be placed into the instruction table for 
 ## Making simple UI changes
 Since each game has its own custom interface, UI elements are implemented using class hierarchy. Specific implementations are located in `/src/games/<game_name>/`, while common implementations are located in `/src/hud/`. The type of UI that the game uses and its specifics are defined by the profile configuration files, located in `/profiles/<profile_name>/hud/`.
 
-Each UI element class implements an Update and Render functions. You can draw a simple sprite inside the Render function by using the following function (defined in `/src/renderer2d.h`):
+Each UI element class implements Update and Render functions. You can draw a simple sprite inside the Render function by using the following function (defined in `/src/renderer2d.h`):
 
-```
+```cpp
 Renderer2D::DrawSprite(Sprite, glm::vec2(X, Y));
 ```
 
@@ -81,23 +85,23 @@ Sprites are defined in profile configuration files. For example, in order to def
 
 * In apporpriate UI definition file located in `/src/profile/games/<game_name>/` define a `Sprite` (defined in `/src/spritesheet.h`) variable, for example:
 
-```
+```cpp
 Sprite BackgroundSprite;
 ```
 
 * In profile sprites definition file located in `/profiles/<profile_name>/sprites.js` in `root.SpriteSheets` list, define a spritesheet, for example:
 
-```
-    "Data": {
-        Path: { Mount: "system", Id: 5 },
-        DesignWidth: 2048,  //Spritesheet width
-        DesignHeight: 1024  //Spritesheet height
-    },
+```cpp
+"Data": {
+    Path: { Mount: "system", Id: 5 },
+    DesignWidth: 2048,  //Spritesheet width
+    DesignHeight: 1024  //Spritesheet height
+},
 ```
 
 * In appropriate profile UI definition file located in `/profiles/<profile_name>/hud/` add a sprite definition to the global `root.Sprites` dictionary, for example:
 
-```
+```cpp
 root.Sprites["TitleMenuBackground"] = {
     Sheet: "Title",
     Bounds: { X: 0, Y: 0, Width: 1920, Height: 1080 },
@@ -106,7 +110,7 @@ root.Sprites["TitleMenuBackground"] = {
 
 * In appropriate profile UI definition file located in `/profiles/<profile_name>/hud/` in the UI element object define the sprite variable, for example:
 
-```
+```cpp
 root.TitleMenu = {
     BackgroundSpriteProfile: "TitleMenuBackground",
 };
@@ -114,7 +118,7 @@ root.TitleMenu = {
 
 * In appropriate UI definition file located in `/src/profile/games/<game_name>/` in the `Configure` function, get the sprite object defined in the profile UI definition file, for example:
 
-```
+```cpp
 BackgroundSprite = EnsureGetMemberSprite("BackgroundSpriteProfile");
 ```
 
