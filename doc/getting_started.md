@@ -15,7 +15,7 @@ Following profiles are currently available:
 
 * chlcc - Chaos;Head Love Chu Chu
 * cclcc - Chaos;Child Love Chu Chu
-* darling - Steins;Gate Darling of Loving Vows
+* darling - Steins;Gate My Darling's Embrace
 * dash - Robotics;Notes DaSH
 * mo6tw - Memories Off 6 ~T-Wave~
 * rne - Robotics;Notes Elite (PS Vita)
@@ -71,13 +71,13 @@ After defining an instruction, it must be placed into the instruction table for 
 ## Making simple UI changes
 Since each game has its own custom interface, UI elements are implemented using class hierarchy. Specific implementations are located in `/src/games/<game_name>/`, while common implementations are located in `/src/hud/`. The type of UI that the game uses and its specifics are defined by the profile configuration files, located in `/profiles/<profile_name>/hud/`.
 
-Each UI element class implements an Update and Render functions. You can draw a simple sprite inside the Render function by using the following function (defined in `/src/renderer2d.h`:
+Each UI element class implements an Update and Render functions. You can draw a simple sprite inside the Render function by using the following function (defined in `/src/renderer2d.h`):
 
 ```
 Renderer2D::DrawSprite(Sprite, glm::vec2(X, Y));
 ```
 
-Sprites are definted in profile configuration files. For example, in order to define a simple sprite that uses a texture from the system archive, do the following:
+Sprites are defined in profile configuration files. For example, in order to define a simple sprite that uses a texture from the system archive, do the following:
 
 * In apporpriate UI definition file located in `/src/profile/games/<game_name>/` define a `Sprite` (defined in `/src/spritesheet.h`) variable, for example:
 
@@ -95,7 +95,7 @@ Sprite BackgroundSprite;
     },
 ```
 
-* In apporpriate profile UI definition file located in `/profiles/<profile_name>/hud/` add a sprite definition to the global `root.Sprites` dictionary, for example:
+* In appropriate profile UI definition file located in `/profiles/<profile_name>/hud/` add a sprite definition to the global `root.Sprites` dictionary, for example:
 
 ```
 root.Sprites["TitleMenuBackground"] = {
@@ -104,7 +104,7 @@ root.Sprites["TitleMenuBackground"] = {
 };
 ```
 
-* In apporpriate profile UI definition file located in `/profiles/<profile_name>/hud/` in the UI element object define the sprite variable, for example:
+* In appropriate profile UI definition file located in `/profiles/<profile_name>/hud/` in the UI element object define the sprite variable, for example:
 
 ```
 root.TitleMenu = {
@@ -112,7 +112,7 @@ root.TitleMenu = {
 };
 ```
 
-* In apporpriate UI definition file located in `/src/profile/games/<game_name>/` in the `Configure` function, get the sprite object defined in the profile UI definition file, for example:
+* In appropriate UI definition file located in `/src/profile/games/<game_name>/` in the `Configure` function, get the sprite object defined in the profile UI definition file, for example:
 
 ```
 BackgroundSprite = EnsureGetMemberSprite("BackgroundSpriteProfile");
