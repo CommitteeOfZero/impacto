@@ -73,9 +73,9 @@ VmInstruction(InstJump) {
 After defining an instruction, it must be placed into the instruction table for the desired instruction set. Instruction set definitions are located in `/src/vm/opcodetables_*.cpp`
 
 ## Making simple UI changes
-Since each game has its own custom interface, UI elements are implemented using class hierarchy. Specific implementations are located in `/src/games/<game_name>/`, while common implementations are located in `/src/hud/`. The type of UI that the game uses and its specifics are defined by the profile configuration files, located in `/profiles/<profile_name>/hud/`.
+Since each game has its own custom interface, UI elements are implemented using class hierarchy. Base class implementations are located in `/src/hud/`, while specific class implementations are located in `/src/games/<game_name>/`. The UI element implementations used along with their display specifications (co-ordinates, animation parameters etc) for each game are defined by the profile configuration files, located in `/profiles/<profile_name>/hud/`.
 
-Each UI element class implements Update and Render functions. You can draw a simple sprite inside the Render function by using the following function (defined in `/src/renderer2d.h`):
+Each UI element class implements an Update functions, which updates dynamic values, and a Render function, which draws sprites on the screen. For example, you can draw a simple sprite inside the Render function by using the following function (defined in `/src/renderer2d.h`):
 
 ```cpp
 Renderer2D::DrawSprite(Sprite, glm::vec2(X, Y));
@@ -83,15 +83,15 @@ Renderer2D::DrawSprite(Sprite, glm::vec2(X, Y));
 
 Sprites are defined in profile configuration files. For example, in order to define a simple sprite that uses a texture from the system archive, do the following:
 
-* In apporpriate UI definition file located in `/src/profile/games/<game_name>/` define a `Sprite` (defined in `/src/spritesheet.h`) variable, for example:
+1. In the apporpriate UI definition file located in `/src/profile/games/<game_name>/` define a `Sprite` (defined in `/src/spritesheet.h`) variable, for example:
 
 ```cpp
 Sprite BackgroundSprite;
 ```
 
-* In profile sprites definition file located in `/profiles/<profile_name>/sprites.js` in `root.SpriteSheets` list, define a spritesheet, for example:
+2. In profile sprites definition file located in `/profiles/<profile_name>/sprites.js` in `root.SpriteSheets` list, define a spritesheet, for example:
 
-```cpp
+```javascript
 "Data": {
     Path: { Mount: "system", Id: 5 },
     DesignWidth: 2048,  //Spritesheet width
@@ -99,24 +99,24 @@ Sprite BackgroundSprite;
 },
 ```
 
-* In appropriate profile UI definition file located in `/profiles/<profile_name>/hud/` add a sprite definition to the global `root.Sprites` dictionary, for example:
+3. In the appropriate profile UI definition file located in `/profiles/<profile_name>/hud/` add a sprite definition to the global `root.Sprites` dictionary, for example:
 
-```cpp
+```javascript
 root.Sprites["TitleMenuBackground"] = {
     Sheet: "Title",
     Bounds: { X: 0, Y: 0, Width: 1920, Height: 1080 },
 };
 ```
 
-* In appropriate profile UI definition file located in `/profiles/<profile_name>/hud/` in the UI element object define the sprite variable, for example:
+4. In the appropriate profile UI definition file located in `/profiles/<profile_name>/hud/` in the UI element object define the sprite variable, for example:
 
-```cpp
+```javascript
 root.TitleMenu = {
     BackgroundSpriteProfile: "TitleMenuBackground",
 };
 ```
 
-* In appropriate UI definition file located in `/src/profile/games/<game_name>/` in the `Configure` function, get the sprite object defined in the profile UI definition file, for example:
+5. In the appropriate UI definition file located in `/src/profile/games/<game_name>/` in the `Configure` function, get the sprite object defined in the profile UI definition file, for example:
 
 ```cpp
 BackgroundSprite = EnsureGetMemberSprite("BackgroundSpriteProfile");
