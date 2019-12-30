@@ -1,5 +1,8 @@
 # Getting started
 
+## General information
+Impacto implements support for running multiple games on a single codebase by using "profiles." A profile is a set of JavaScript configuration files that define various parameters for a specific game, for example its design resolution, virtual machine parameters, sprite definitions, UI specifics, etc. This makes supporting a new game as simple as defining its profile, adding missing virtual machine instructions (if any) and implementing UI specifics (if any).
+
 ## Running games
 The following directories must be in the same directory as the Impacto executable:
 
@@ -24,33 +27,6 @@ Following profiles are currently available:
 * modelviewer-dash - A viewer for 3D models from Robotics;Notes DaSH
 
 For the list of required game resource files refer to the `vfs.js` file located in desired game profile directory. The resource files should be placed in `/games/<profile_name>/gamedata/` directory.
-
-## Repository map
-```
-├───doc                               - Documentation
-│   └───font-lb                       - LanguageBarrier font documentation
-├───docker                            - Docker files for Emscripten build
-│   └───impacto-emscripten            - 
-├───games                             - Game resources directory
-│   └───rne                           - 
-│       └───font-lb                   - LanguageBarrier font files
-├───modules                           - CMake module lookup files
-├───profiles                          - Profile definition files
-├───src                               - Main source directory
-│   ├───3d                            - 3D system source files
-│   ├───audio                         - Audio system source files
-│   ├───games                         - Game specific source files
-│   ├───hud                           - UI base source files
-│   ├───io                            - IO system source files
-│   ├───profile                       - Profile system source files
-│   │   ├───games                     - 
-│   │   └───hud                       - 
-│   ├───shaders                       - Shader source files
-│   ├───texture                       - Texture loading source files
-│   └───vm                            - SC3 Virtual Machine source files
-│       └───interface                 - Virtual Machine <-> Engine interface source files
-└───vendor                            - Third-party libraries
-```
 
 ## General engine information
 To get an overall understanding of how the original Mages. engine functions please refer to  https://committeeofzero.gitbooks.io/mages-engine-compendium/content/
