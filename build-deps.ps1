@@ -22,7 +22,7 @@ function BuildLibatrac9() {
     pushd "vendor"
     $repo_root = "LibAtrac9"
     if (!(Test-Path $repo_root)) {
-        & git clone https://github.com/Thealexbarney/LibAtrac9.git
+        & git clone https://github.com/Thealexbarney/LibAtrac9.git --depth 1
     }
     
     pushd $repo_root
@@ -43,8 +43,12 @@ function BuildLibatrac9() {
     Get-ChildItem -Path "./C/src/*" -Include *.h | Copy-Item -Destination $includedir
     mkdir "bin/x86" -Force | Out-Null
     mkdir "bin/x64" -Force | Out-Null
-    Get-ChildItem -Path "./C/Release/*" -Include *.dll,*.lib | Copy-Item -Destination "bin/x86"
-    Get-ChildItem -Path "./C/x64/Release/*" -Include *.dll,*.lib | Copy-Item -Destination "bin/x64"
+	if(Test-Path "./C/Release") {
+		Get-ChildItem -Path "./C/Release/*" -Include *.dll,*.lib | Copy-Item -Destination "bin/x86"
+	}
+	if(Test-Path "./C/x64/Release") {
+		Get-ChildItem -Path "./C/x64/Release/*" -Include *.dll,*.lib | Copy-Item -Destination "bin/x64"
+	}
     popd
     popd
 }
@@ -58,9 +62,9 @@ function InstallPackages() {
         if (!(Test-Path build/vcpkg)) {
             mkdir build -Force | Out-Null
             pushd build
-            & git clone https://github.com/Microsoft/vcpkg.git
+            & git clone https://github.com/Microsoft/vcpkg.git --depth 1
             pushd vcpkg
-            ./bootstrap-vcpkg
+            ./bootstrap-vcpkg -disableMetrics
             popd
             popd
         }

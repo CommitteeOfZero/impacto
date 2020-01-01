@@ -2,7 +2,9 @@
 
 ## Dependencies
 
-Visual Studio must have the "Desktop development with C++" optional features installed.
+Visual Studio must have the "Desktop development with C++" optional features installed (you can check if you have them installed by going into the "Tools" menu and selecting "Get Tools and Features...").
+
+Git command-line tool must be available from within PowerShell. If you don't have it installed, you can download it from https://git-scm.com/downloads
 
 Enable execution of PowerShell scripts by running the following command in an elevated PowerShell prompt:
 
@@ -12,7 +14,7 @@ Run `.\build-deps.ps1` from a PowerShell prompt.
 
 ## Visual Studio 2019 CMake project setup
 
-- Put following `CMakeSettings.json` in the repository root (don't worry, it's gitignored) and change paths accordingly:
+- Put following `CMakeSettings.json` in the repository root (don't worry, it's gitignored) and change paths accordingly (the directories will be created automatically upon building):
 
 ```json
 {
@@ -24,8 +26,8 @@ Run `.\build-deps.ps1` from a PowerShell prompt.
       "inheritEnvironments": [
         "msvc_x64_x64"
       ],
-      "buildRoot": "C:\\path\\to\\impacto-build\\build\\${name}",
-      "installRoot": "C:\\path\\to\\impacto-build\\install\\${name}",
+      "buildRoot": "C:\\full\\path\\to\\impacto-build\\build\\${name}",
+      "installRoot": "C:\\full\path\\to\\impacto-build\\install\\${name}",
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": ""
@@ -37,8 +39,8 @@ Run `.\build-deps.ps1` from a PowerShell prompt.
       "inheritEnvironments": [
         "msvc_x64_x64"
       ],
-      "buildRoot": "C:\\path\\to\\impacto-build\\build\\${name}",
-      "installRoot": "C:\\path\\to\\impacto-build\\install\\${name}",
+      "buildRoot": "C:\\full\\path\\to\\impacto-build\\build\\${name}",
+      "installRoot": "C:\\full\\path\\to\\impacto-build\\install\\${name}",
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": ""
@@ -48,7 +50,7 @@ Run `.\build-deps.ps1` from a PowerShell prompt.
 ```
 
 - Open the project with *File->Open->Folder...* in VS2019
-- When picking a build target, make sure to use `impacto.exe (Install)`
+- When picking a startup item, make sure to use `impacto.exe (Install)`
 
 ## Cry
 
