@@ -314,11 +314,11 @@ endif()
 # dependencies
 
 if (WIN32)
-	# Workaround for RelWithDebInfo builds not installing all the libraries
-	set(CMAKE_MAP_IMPORTED_CONFIG_MINSIZEREL Release)
-	set(CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release)
+    # Workaround for RelWithDebInfo builds not installing all the libraries
+    set(CMAKE_MAP_IMPORTED_CONFIG_MINSIZEREL Release)
+    set(CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release)
     
-	set(SDL2_LIBRARIES SDL2::SDL2 SDL2::SDL2main)
+    set(SDL2_LIBRARIES SDL2::SDL2 SDL2::SDL2main)
     set(LIBATRAC9_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/vendor/LibAtrac9/include")
 
     if(CMAKE_SIZEOF_VOID_P EQUAL 8)
