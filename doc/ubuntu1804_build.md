@@ -9,7 +9,7 @@ You can use the following shell script for getting dependencies and setting up f
 # Also install libglm-dev if the glm version provided by your distro is 0.9.9.3 or higher
 sudo apt-get -y install git cmake libsdl2-dev libopenal-dev libogg-dev libvorbis-dev zlib1g-dev
 
-# Clone Impacto 
+# Clone impacto 
 git clone https://github.com/CommitteeOfZero/impacto.git
 cd impacto
 
@@ -32,7 +32,7 @@ cmake .
 make
 popd
 
-# Build Impacto
+# Build impacto
 LIBATRAC9DIR=vendor/LibAtrac9 cmake .
 make
 ```

@@ -1,10 +1,10 @@
 # Getting started
 
 ## General information
-Impacto implements support for running multiple games on a single codebase by using "profiles." A profile is a set of JavaScript configuration files that define various parameters for a specific game such as its design resolution, virtual machine parameters, sprite definitions, UI specifics, etc. This makes supporting a new game as simple as defining its profile, adding missing virtual machine instructions (if any) and implementing UI specifics (if any).
+impacto implements support for running multiple games on a single codebase by using "profiles." A profile is a set of JavaScript configuration files that define various parameters for a specific game such as its design resolution, virtual machine parameters, sprite definitions, UI specifics, etc. This makes supporting a new game as simple as defining its profile, adding missing virtual machine instructions (if any) and implementing UI specifics (if any).
 
 ## Running games
-The following directories must be in the same directory as the Impacto executable:
+The following directories must be in the same directory as the impacto executable:
 
 * games - directory that contains game resource files
 * profiles - directory that contains profile definition files
@@ -12,7 +12,7 @@ The following directories must be in the same directory as the Impacto executabl
 
 These folders can be found in the repository root. When building on Windows they will automatically be copied to your specified install location.
 
-In order to launch a game using Impacto, a file named `profile.txt` that contains the name of the profile to launch, must be placed near the Impacto executable.
+In order to launch a game using impacto, a file named `profile.txt` that contains the name of the profile to launch, must be placed near the impacto executable.
 
 Following profiles are currently available:
 
