@@ -43,12 +43,12 @@ function BuildLibatrac9() {
     Get-ChildItem -Path "./C/src/*" -Include *.h | Copy-Item -Destination $includedir
     mkdir "bin/x86" -Force | Out-Null
     mkdir "bin/x64" -Force | Out-Null
-	if(Test-Path "./C/Release") {
-		Get-ChildItem -Path "./C/Release/*" -Include *.dll,*.lib | Copy-Item -Destination "bin/x86"
-	}
-	if(Test-Path "./C/x64/Release") {
-		Get-ChildItem -Path "./C/x64/Release/*" -Include *.dll,*.lib | Copy-Item -Destination "bin/x64"
-	}
+    if(Test-Path "./C/Release") {
+        Get-ChildItem -Path "./C/Release/*" -Include *.dll,*.lib | Copy-Item -Destination "bin/x86"
+    }
+    if(Test-Path "./C/x64/Release") {
+        Get-ChildItem -Path "./C/x64/Release/*" -Include *.dll,*.lib | Copy-Item -Destination "bin/x64"
+    }
     popd
     popd
 }
