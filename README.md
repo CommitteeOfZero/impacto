@@ -1,22 +1,29 @@
 # impacto
 
-impacto is an open-source generic MAGES. engine reimplementation written using C++ and OpenGL. It allows to run games using MAGES. engine using the original resources. The code is made to be portable and currently supports building for Windows/Linux/Nintendo Switch (homebrew).
+**impacto** is an open-source **reimplementation** of the **"MAGES." visual novel engine** in C++ and OpenGL. Using the original data files, impacto can run any supported game on any supported platform.
 
 ## Status
-**impacto is still in development**. It gets in-game in several games but major functionality and architectural design is still missing, so **no games are fully playable yet**. Refer to #1 for supported games and remaining work.
+
+**impacto is in an early stage of development**. It gets in-game in several titles but major functionality and architectural design are still missing and **no games are fully playable yet**. Refer to #1 for supported games and remaining work.
+
+impacto is currently being developed for **64-bit Windows 10 and desktop Linux PCs** but we've successfully experimented on macOS, Android (ARM), Switch (homebrew and Linux) and HTML5/WebAssembly (via Emscripten) and full official Android support is planned.
 
 ## Building
-For building on Windows with Visual Studio 2019 and newer, please refer to the [building instructions](doc/vs2019_build.md).
 
-For building on Linux make sure you have installed all dependecies, such as libsdl2-dev, libopenal-dev, libogg-dev, libvorbis-dev, zlib1g-dev, libglm-dev. You will also have to compile and install [libatrac9](https://github.com/Thealexbarney/LibAtrac9) manually. Please refer to the [sample instructions](doc/ubuntu1804_build.md) using Ubuntu 18.04 LTS.
-After all dependecies are satisfied, in the repository root folder run:
-```
-cmake .
-make
-```
+For building on Windows with Visual Studio 2019 or newer, please refer to the [building instructions](doc/vs2019_build.md).
+
+For building on Linux, see the [instructions for Ubuntu 18.04 Desktop](doc/ubuntu1804_build.md) and adapt to your distribution if necessary.
+
+More platforms and toolchains are known to work.
 
 ## Contributing
-Contributing to development of impacto is always welcome. Wether it's fixing something, adding new features or changing existing ones, feel free to submit a PR or file an issue. For details on how to get started please check out the [Getting Started](doc/getting_started.md) guide.
 
-## License
-impacto source code is licensed under the [ISC license](LICENSE).
+**We are looking for contributors!** Check out the [Getting Started guide](doc/getting_started.md) for pointers on setting up games for testing, finding your way around the codebase and adding functionality.
+
+There is work to be done for C++ programmers of any skill level in a wide range of subjects, on game engine architecture (design and implementation), reverse-engineering the original (looking at just the game's outside behaviour as a *black box* or inspecting the internals through a *white box*), replicating it, improving on it with new functionality, documenting our efforts, fixing bugs and polish.
+
+If you're interested, [come join our Discord](https://discord.gg/rq4GGCh) to discuss ideas and help you get into it.
+
+## Legal stuff
+
+impacto source code as a whole is released under the liberal [ISC license](LICENSE). Some parts are based on or copied from third-party code under various licenses. Binary distributions or parts thereof may fall under more restrictive licensing terms. See [THIRDPARTY.md](THIRDPARTY.md) for details and attribution.
