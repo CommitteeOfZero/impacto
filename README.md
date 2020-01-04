@@ -4,7 +4,7 @@
 
 ## Status
 
-**impacto is in an early stage of development**. It gets in-game in several titles but major functionality and architectural design are still missing and **no games are fully playable yet**. Refer to #1 for supported games and remaining work.
+**impacto is in an early stage of development**. It gets in-game in several titles but major functionality and architectural design are still missing and **no games are fully playable yet**. Refer to [#1](https://github.com/CommitteeOfZero/impacto/issues/1) for supported games and remaining work.
 
 impacto is currently being developed for **64-bit Windows 10 and desktop Linux PCs** but we've successfully experimented on macOS, Android (ARM), Switch (homebrew and Linux) and HTML5/WebAssembly (via Emscripten) and full official Android support is planned.
 
