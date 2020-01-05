@@ -1,4 +1,4 @@
-﻿#include "gxtloader.h"
+#include "gxtloader.h"
 
 #include "../log.h"
 #include "../util.h"
@@ -13,68 +13,69 @@ namespace Impacto {
 
 namespace TexLoad {
 
-int DIV_ROUND_UP(int n, int d) { return (n + d - 1) / d; }
+int CountLsbZeros(int value) {
+  int count = 0;
 
-int round_up(int x, int y) { return ((x - 1) | (y - 1)) + 1; }
+  while (((value >> count) & 1) == 0) {
+    count++;
+  }
 
-int getAddrBlockLinear(int x, int y, int width, int bpp, int base_address,
-                       int block_height) {
-  int image_width_in_gobs = DIV_ROUND_UP(width * bpp, 64);
-
-  int GOB_address =
-      (base_address +
-       (y / (8 * block_height)) * 512 * block_height * image_width_in_gobs +
-       (x * bpp / 64) * 512 * block_height +
-       (y % (8 * block_height) / 8) * 512);
-
-  x *= bpp;
-
-  int Address = (GOB_address + ((x % 64) / 32) * 256 + ((y % 8) / 2) * 64 +
-                 ((x % 32) / 16) * 32 + (y % 2) * 16 + (x % 16));
-
-  return Address;
+  return count;
 }
 
-uint8_t* _swizzle(int width, int height, int blkWidth, int blkHeight, int bpp,
-                  int tileMode, int alignment, int size_range, uint8_t* data,
-                  int toSwizzle) {
-  int block_height = 1 << size_range;
+int Pow2RoundUp(int value) {
+  value--;
 
-  width = DIV_ROUND_UP(width, blkWidth);
-  height = DIV_ROUND_UP(height, blkHeight);
-  int pitch, surfSize;
-  if (tileMode == 0) {
-    pitch = round_up(width * bpp, 32);
-    surfSize = round_up(pitch * height, alignment);
-  } else {
-    pitch = round_up(width * bpp, 64);
-    surfSize = round_up(pitch * round_up(height, block_height * 8), alignment);
+  value |= (value >> 1);
+  value |= (value >> 2);
+  value |= (value >> 4);
+  value |= (value >> 8);
+  value |= (value >> 16);
+
+  return ++value;
+}
+
+int DivRoundUp(int lhs, int rhs) { return (lhs + (rhs - 1)) / rhs; }
+
+uint8_t* UnSwizzle(int width, int height, int blkWidth, int blkHeight, int bpp,
+                   int blkHeightLog2, uint8_t* data) {
+  width = DivRoundUp(width, blkWidth);
+  height = DivRoundUp(height, blkHeight);
+
+  blkHeight = 1 << blkHeightLog2;
+
+  int bppShift = CountLsbZeros(bpp);
+  int widthInGobs = DivRoundUp(width * bpp, 64);
+  int pow2Height = Pow2RoundUp(height);
+
+  while (blkHeight * 8 > pow2Height && blkHeight > 1) {
+    blkHeight >>= 1;
   }
-  auto result = (uint8_t*)malloc(surfSize);
+
+  int bhMask = (blkHeight * 8) - 1;
+  int bhShift = CountLsbZeros(blkHeight * 8);
+  int robSize = 512 * blkHeight * widthInGobs;
+  int xShift = CountLsbZeros(512 * blkHeight);
+  int pitch = (width * bpp + 3) & ~3;
+  auto result = (uint8_t*)malloc(height * pitch);
 
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
-      int pos = 0;
-      if (tileMode == 0)
-        pos = y * pitch + x * bpp;
+      int outOffs = (y * width + x) * bpp;
+      int x1 = x << bppShift;
+      int position = (y >> bhShift) * robSize;
+      position += (x1 >> 6) << xShift;
+      position += ((y & bhMask) >> 3) << 9;
+      position += ((x1 & 0x3f) >> 5) << 8;
+      position += ((y & 0x07) >> 1) << 6;
+      position += ((x1 & 0x1f) >> 4) << 5;
+      position += ((y & 0x01) >> 0) << 4;
+      position += ((x1 & 0x0f) >> 0) << 0;
 
-      else {
-        pos = getAddrBlockLinear(x, y, width, bpp, 0, block_height);
-
-        int pos_ = (y * width + x) * bpp;
-
-        if (pos + bpp <= surfSize) {
-          if (toSwizzle) {
-            for (int i = 0; i < bpp; i++) result[pos + i] = data[pos_ + i];
-          }
-
-          else {
-            for (int i = 0; i < bpp; i++) result[pos_ + i] = data[pos + i];
-          }
-        }
-      }
+      for (int i = 0; i < bpp; i++) result[outOffs + i] = data[position + i];
     }
   }
+
   return result;
 }
 
@@ -370,9 +371,9 @@ bool TextureLoadBNTX(InputStream* stream, Texture* outTexture) {
         int bpp = BPPbyFormat(element.FormatType);
         int blk_width = 4;
         int blk_height = 4;
-        auto unswizzled = _swizzle(element.Width, element.Height, blk_width,
-                                   blk_height, bpp, 1, element.Alignment,
-                                   element.BlockHeightLog2, dataBuff, 0);
+        auto unswizzled =
+            UnSwizzle(element.Width, element.Height, blk_width, blk_height, bpp,
+                      element.BlockHeightLog2, dataBuff);
         free(dataBuff);
         dataBuff = unswizzled;
       }
