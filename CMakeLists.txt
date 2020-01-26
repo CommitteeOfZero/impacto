@@ -416,6 +416,11 @@ else()
 
     include_directories(${OGGVORBIS_INCLUDE_DIRS})
 
+    # Add this because apparently find_package(SDL2 REQUIRED) doesn't work right on Arch?
+    if("${SDL2_LIBRARIES}" STREQUAL "")
+        set(SDL2_LIBRARIES "SDL2::SDL2")
+    endif()
+
     list(APPEND Impacto_Libs
         ${SDL2_LIBRARIES}
         glm
