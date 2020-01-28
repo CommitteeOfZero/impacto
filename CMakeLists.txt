@@ -121,6 +121,7 @@ set(Impacto_Src
     src/texture/gxtloader.cpp
     src/texture/plainloader.cpp
     src/texture/stbiloader.cpp
+    src/texture/ddsloader.cpp
 
     src/vm/vm.cpp
     src/vm/expression.cpp
@@ -154,6 +155,16 @@ set(Impacto_Src
     vendor/duktape/src/duktape.c
 
     vendor/pcg/src/pcg_basic.c
+    
+    vendor/squish/alpha.cpp 
+    vendor/squish/clusterfit.cpp
+    vendor/squish/colourblock.cpp 
+    vendor/squish/colourfit.cpp 
+    vendor/squish/colourset.cpp
+    vendor/squish/maths.cpp 
+    vendor/squish/rangefit.cpp 
+    vendor/squish/singlecolourfit.cpp
+    vendor/squish/squish.cpp
 )
 
 set(Impacto_Header
@@ -301,8 +312,10 @@ set(Impacto_Header
 
     vendor/nuklear/nuklear.h
     vendor/nuklear/nuklear_sdl_gl3.h
-
+    
     vendor/clHCA/clHCA.h
+    
+    vendor/squish/squish.h
 )
 
 if (WIN32)
@@ -317,7 +330,7 @@ if (WIN32)
     # Workaround for RelWithDebInfo builds not installing all the libraries
     set(CMAKE_MAP_IMPORTED_CONFIG_MINSIZEREL Release)
     set(CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release)
-    
+
     set(SDL2_LIBRARIES SDL2::SDL2 SDL2::SDL2main)
     set(LIBATRAC9_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/vendor/LibAtrac9/include")
 
