@@ -13,6 +13,7 @@
 #include "opcodetables_darling.h"
 #include "opcodetables_chlcc.h"
 #include "opcodetables_mo6tw.h"
+#include "opcodetables_mo7.h"
 #include "opcodetables_dash.h"
 #include "opcodetables_cc.h"
 #include "../profile/game.h"
@@ -96,6 +97,12 @@ void Init() {
       OpcodeTableSystem = OpcodeTableSystem_MO6TW;
       OpcodeTableGraph = OpcodeTableGraph_MO6TW;
       OpcodeTableUser1 = OpcodeTableUser1_MO6TW;
+      break;
+    }
+    case InstructionSet::MO7: {
+      OpcodeTableSystem = OpcodeTableSystem_MO7;
+      OpcodeTableGraph = OpcodeTableGraph_MO7;
+      OpcodeTableUser1 = OpcodeTableUser1_MO7;
       break;
     }
     case InstructionSet::Dash: {

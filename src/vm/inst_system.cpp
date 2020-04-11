@@ -539,6 +539,10 @@ VmInstruction(InstMSinit) {
   ScrWork[SW_AR_ELVMAX] = 13974;
   ScrWork[SW_AR_ROTMIN] = -19588;
   ScrWork[SW_AR_ROTMAX] = 19088;
+
+  if (Profile::Vm::GameInstructionSet == +InstructionSet::MO7) {
+    ScrWork[SW_SHORTCUT] = 0xFFFF;
+  }
 }
 VmInstruction(InstSaveSlot) {
   StartInstruction;

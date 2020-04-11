@@ -29,6 +29,7 @@ VmInstruction(InstGetCharaPause);
 VmInstruction(InstBGfadeExpInit);
 VmInstruction(InstBGeffectWave);
 VmInstruction(InstBGeffect);
+VmInstruction(InstBGeffectMO7);
 
 }  // namespace Vm
 

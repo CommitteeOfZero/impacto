@@ -396,6 +396,7 @@ VmInstruction(InstTitleMenu) {
       // Hack to kickstart into "New Game"
       switch (Profile::Vm::GameInstructionSet) {
         case InstructionSet::RNE:
+        case InstructionSet::MO7:
           ScrWork[SW_TITLECUR1] = 0;
           break;
         case InstructionSet::Dash:

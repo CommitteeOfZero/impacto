@@ -458,6 +458,18 @@ VmInstruction(InstBGeffect) {
              type);
 }
 
+VmInstruction(InstBGeffectMO7) {
+  StartInstruction;
+  PopUint8(type);
+  switch (type) {
+    case 0: {
+      PopExpression(arg1);
+    } break;
+  }
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction BGeffectMO7(arg1: %i)\n",
+             type);
+}
+
 }  // namespace Vm
 
 }  // namespace Impacto

@@ -197,6 +197,10 @@ VmInstruction(InstGeotag) {
     } break;
   }
 }
+VmInstruction(InstUnk1037MO7) {
+  StartInstruction;
+  PopUint8(type);
+}
 VmInstruction(InstUnk1037) {
   StartInstruction;
   PopExpression(arg1);
@@ -528,6 +532,13 @@ VmInstruction(InstUnk1038Darling) {
   StartInstruction;
   PopUint8(type);
   if (type == 0) PopUint16(arg1);
+}
+VmInstruction(InstUnk1038MO7) {
+  StartInstruction;
+  PopExpression(arg1);
+  PopExpression(arg2);
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction Unk1038MO7(arg1: %i, arg2: %i)\n", arg1, arg2);
 }
 VmInstruction(InstTwipo) {
   StartInstruction;
