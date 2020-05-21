@@ -12,6 +12,13 @@ namespace MainMenu {
 extern Sprite SkyBackgroundSprite;
 extern Sprite SkyArrowSprite;
 extern Sprite SkyTextSprite;
+extern Sprite ButtonBackgroundSprite;
+extern Sprite ButtonPromptsSprite;
+extern float ButtonBackgroundStartX;
+extern float ButtonBackgroundX;
+extern float ButtonBackgroundY;
+extern float ButtonBackgroundTargetWidth;
+extern float ButtonBackgroundSprStartX;
 extern float SkyBackgroundBeginX;
 extern float SkyBackgroundY;
 extern float SkyTextBeginX;

@@ -11,8 +11,6 @@ namespace TitleMenu {
 
 Impacto::TitleMenu::TitleMenuBase* Configure();
 
-static int const MenuEntriesNum = 4;
-
 extern Sprite BackgroundSprite;
 extern Sprite DelusionADVUnderSprite;
 extern Sprite DelusionADVSprite;
@@ -35,9 +33,6 @@ extern Sprite ItemLoadSprite;
 extern Sprite ItemLoadQuickHighlightedSprite;
 extern Sprite ItemLoadHighlightedSprite;
 extern Sprite SecondaryItemHighlightSprite;
-
-extern Sprite MenuEntriesSprites[MenuEntriesNum];
-extern Sprite MenuEntriesHSprites[MenuEntriesNum];
 
 extern float DelusionADVUnderX;
 extern float DelusionADVUnderY;

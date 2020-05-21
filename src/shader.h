@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <flat_hash_map.hpp>
+#include <string>
 
 namespace Impacto {
 

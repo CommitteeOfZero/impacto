@@ -139,7 +139,7 @@ void AudioChannel::Update(float dt) {
           CurrentStream->LoopStart +
           (Position % (CurrentStream->LoopEnd - CurrentStream->LoopStart));
   } else {
-    Position = std::max(Position, CurrentStream->Duration);
+    Position = std::min(Position, CurrentStream->Duration);
   }
 
   // TODO do this on background thread detached from game loop

@@ -10,6 +10,13 @@ namespace MainMenu {
 Sprite SkyBackgroundSprite;
 Sprite SkyArrowSprite;
 Sprite SkyTextSprite;
+Sprite ButtonBackgroundSprite;
+Sprite ButtonPromptsSprite;
+float ButtonBackgroundStartX;
+float ButtonBackgroundX;
+float ButtonBackgroundY;
+float ButtonBackgroundTargetWidth;
+float ButtonBackgroundSprStartX;
 float SkyBackgroundBeginX;
 float SkyBackgroundY;
 float SkyTextBeginX;
@@ -49,6 +56,15 @@ Impacto::MainMenu::MainMenuBase* Configure() {
   EntriesMoveDurationOut = EnsureGetMemberFloat("EntriesMoveDurationOut");
   HighlightDurationIn = EnsureGetMemberFloat("HighlightDurationIn");
   HighlightDurationOut = EnsureGetMemberFloat("HighlightDurationOut");
+
+  ButtonBackgroundSprite = EnsureGetMemberSprite("ButtonBackgroundSprite");
+  ButtonPromptsSprite = EnsureGetMemberSprite("ButtonPromptsSprite");
+  ButtonBackgroundStartX = EnsureGetMemberFloat("ButtonBackgroundStartX");
+  ButtonBackgroundX = EnsureGetMemberFloat("ButtonBackgroundX");
+  ButtonBackgroundY = EnsureGetMemberFloat("ButtonBackgroundY");
+  ButtonBackgroundTargetWidth =
+      EnsureGetMemberFloat("ButtonBackgroundTargetWidth");
+  ButtonBackgroundSprStartX = EnsureGetMemberFloat("ButtonBackgroundSprStartX");
 
   result->SkyMoveAnimation.DurationIn = SkyMoveDurationIn;
   result->SkyMoveAnimation.DurationOut = SkyMoveDurationOut;

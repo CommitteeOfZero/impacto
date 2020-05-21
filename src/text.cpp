@@ -4,6 +4,8 @@
 #include "game.h"
 #include "renderer2d.h"
 #include "animation.h"
+#include "mem.h"
+#include "profile/scriptvars.h"
 
 #include "profile/charset.h"
 #include "profile/dialogue.h"
@@ -14,6 +16,7 @@
 namespace Impacto {
 
 using namespace Impacto::Profile::Dialogue;
+using namespace Impacto::Profile::ScriptVars;
 
 DialoguePage* DialoguePages;
 
@@ -520,8 +523,10 @@ void DialoguePage::Render() {
   opacityTint.a = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
 
   // Textbox
+  glm::vec4 col = ScrWorkGetColor(SW_MESWINDOW_COLOR);
+  col.a = opacityTint.a;
   if (Mode == DPM_ADV) {
-    Renderer2D::DrawSprite(ADVBoxSprite, ADVBoxPos, opacityTint);
+    Renderer2D::DrawSprite(ADVBoxSprite, ADVBoxPos, col);
   } else {
     glm::vec4 nvlBoxTint(0.0f, 0.0f, 0.0f, opacityTint.a * NVLBoxMaxOpacity);
     Renderer2D::DrawRect(
@@ -533,8 +538,7 @@ void DialoguePage::Render() {
 
   if (Mode == DPM_ADV && HasName) {
     if (HaveADVNameTag) {
-      Renderer2D::DrawSprite(ADVNameTag::LeftSprite, ADVNameTag::Position,
-                             opacityTint);
+      Renderer2D::DrawSprite(ADVNameTag::LeftSprite, ADVNameTag::Position, col);
     }
 
     float width = 0.0f;
@@ -550,14 +554,13 @@ void DialoguePage::Render() {
       while (lineWidth > 0.0f) {
         Sprite lineSprite = ADVNameTag::LineSprite;
         lineSprite.SetScaledWidth(fminf(lineSprite.ScaledWidth(), lineWidth));
-        Renderer2D::DrawSprite(
-            lineSprite, glm::vec2(lineX, ADVNameTag::Position.y), opacityTint);
+        Renderer2D::DrawSprite(lineSprite,
+                               glm::vec2(lineX, ADVNameTag::Position.y), col);
         lineX += lineSprite.ScaledWidth();
         lineWidth -= lineSprite.ScaledWidth();
       }
       Renderer2D::DrawSprite(ADVNameTag::RightSprite,
-                             glm::vec2(lineX, ADVNameTag::Position.y),
-                             opacityTint);
+                             glm::vec2(lineX, ADVNameTag::Position.y), col);
     }
 
     Renderer2D::DrawProcessedText(Name, NameLength, DialogueFont, opacityTint.a,
@@ -569,7 +572,7 @@ void DialoguePage::Render() {
     WaitIconDisplay::Render(glm::vec2(Glyphs[Length - 1].DestRect.X +
                                           Glyphs[Length - 1].DestRect.Width,
                                       Glyphs[Length - 1].DestRect.Y),
-                            opacityTint);
+                            col);
   }
 }
 

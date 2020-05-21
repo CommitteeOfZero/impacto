@@ -30,8 +30,6 @@ Sprite ItemLoadSprite;
 Sprite ItemLoadQuickHighlightedSprite;
 Sprite ItemLoadHighlightedSprite;
 Sprite SecondaryItemHighlightSprite;
-Sprite MenuEntriesSprites[MenuEntriesNum];
-Sprite MenuEntriesHSprites[MenuEntriesNum];
 
 float DelusionADVUnderX;
 float DelusionADVUnderY;
@@ -165,11 +163,6 @@ Impacto::TitleMenu::TitleMenuBase* Configure() {
   SecondaryMenuLoadLineY = EnsureGetMemberFloat("SecondaryMenuLoadLineY");
   SecondaryMenuLoadQuickLineY =
       EnsureGetMemberFloat("SecondaryMenuLoadQuickLineY");
-
-  GetMemberSpriteArray(MenuEntriesSprites, MenuEntriesNum,
-                       "MenuEntriesSprites");
-  GetMemberSpriteArray(MenuEntriesHSprites, MenuEntriesNum,
-                       "MenuEntriesHighlightedSprites");
 
   result->ItemsFadeInAnimation.DurationIn = ItemFadeInDuration;
   result->ItemsFadeInAnimation.DurationOut = ItemFadeOutDuration;

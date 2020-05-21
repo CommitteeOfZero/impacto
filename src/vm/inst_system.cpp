@@ -521,6 +521,7 @@ VmInstruction(InstMSinit) {
     ScrWork[SW_CHA1SURF + i] = i;
   }
 
+  ScrWork[SW_MESWINDOW_COLOR] = 0xFFFFFF;
   ScrWork[SW_BGMREQNO] = 0xFFFF;
   ScrWork[SW_SEREQNO] = 0xFFFF;
   ScrWork[SW_SEREQNO + 1] = 0xFFFF;

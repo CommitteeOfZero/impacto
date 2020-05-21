@@ -28,6 +28,8 @@ root.MainMenu = {
     ButtonBackgroundSprStartX: 1499,
     MenuEntriesSprites: [],
     MenuEntriesHighlightedSprites: [],
+    MenuEntriesNum: 8,
+    MenuEntriesHNum: 8,
     MenuEntriesX: 0,
     MenuEntriesXSkew: 20,
     MenuEntriesXOffset: 100,
@@ -42,7 +44,6 @@ root.MainMenu = {
     EntriesMoveDurationOut: 0.4,
     HighlightDurationIn: 0.15,
     HighlightDurationOut: 0.15,
-
 };
 
 for (var i = 0; i < 8; i++) {

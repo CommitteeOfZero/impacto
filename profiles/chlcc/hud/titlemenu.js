@@ -69,6 +69,7 @@ root.TitleMenu = {
     SecondaryMenuLoadLineX: 235,
     SecondaryMenuLoadLineY: 113,
     SecondaryMenuLoadQuickLineY: 86,
+    MenuEntriesNum: 4,
     MenuEntriesSprites: [],
     MenuEntriesHighlightedSprites: []
 };

@@ -395,6 +395,10 @@ void Render() {
           LoadingDisplay::Render();
           break;
         }
+        case TD_TitleMenu: {
+          TitleMenu::Render();
+          break;
+        }
         case TD_SystemMenu: {
           TitleMenu::Render();
           MainMenu::Render();

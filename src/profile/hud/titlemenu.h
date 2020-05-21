@@ -7,9 +7,15 @@ namespace Impacto {
 namespace Profile {
 namespace TitleMenu {
 
+static int const MenuEntriesNumMax = 16;
+
 extern Impacto::TitleMenu::TitleMenuType Type;
 
 extern Sprite PressToStartSprite;
+extern Sprite MenuEntriesSprites[MenuEntriesNumMax];
+extern Sprite MenuEntriesHSprites[MenuEntriesNumMax];
+
+extern int MenuEntriesNum;
 
 extern float PressToStartAnimDurationIn;
 extern float PressToStartAnimDurationOut;

@@ -2,6 +2,7 @@
 #include "../profile_internal.h"
 #include "../games/rne/tilebackground.h"
 #include "../games/rne/mainmenu.h"
+#include "../games/mo6tw/mainmenu.h"
 #include "../../log.h"
 #include "../../window.h"
 
@@ -13,15 +14,11 @@ using namespace Impacto::MainMenu;
 
 MainMenuType Type = MainMenuType::None;
 
-Sprite ButtonBackgroundSprite;
-Sprite ButtonPromptsSprite;
-Sprite MenuEntriesSprites[MenuEntriesNum];
-Sprite MenuEntriesHSprites[MenuEntriesNum];
-float ButtonBackgroundStartX;
-float ButtonBackgroundX;
-float ButtonBackgroundY;
-float ButtonBackgroundTargetWidth;
-float ButtonBackgroundSprStartX;
+Sprite MenuEntriesSprites[MenuEntriesNumMax];
+Sprite MenuEntriesHSprites[MenuEntriesNumMax];
+
+int MenuEntriesNum;
+int MenuEntriesHNum;
 float MenuEntriesX;
 float MenuEntriesXOffset;
 float MenuEntriesFirstY;
@@ -52,26 +49,26 @@ void Configure() {
 
     if (Type == +MainMenuType::RNE) {
       Implementation = RNE::MainMenu::Configure();
+    } else if (Type == +MainMenuType::MO6TW) {
+      Implementation = MO6TW::MainMenu::Configure();
     }
 
-    ButtonBackgroundSprite = EnsureGetMemberSprite("ButtonBackgroundSprite");
-    ButtonPromptsSprite = EnsureGetMemberSprite("ButtonPromptsSprite");
-    ButtonBackgroundStartX = EnsureGetMemberFloat("ButtonBackgroundStartX");
-    ButtonBackgroundX = EnsureGetMemberFloat("ButtonBackgroundX");
-    ButtonBackgroundY = EnsureGetMemberFloat("ButtonBackgroundY");
-    ButtonBackgroundTargetWidth =
-        EnsureGetMemberFloat("ButtonBackgroundTargetWidth");
-    ButtonBackgroundSprStartX =
-        EnsureGetMemberFloat("ButtonBackgroundSprStartX");
+    MenuEntriesNum = EnsureGetMemberInt("MenuEntriesNum");
+    MenuEntriesHNum = EnsureGetMemberInt("MenuEntriesHNum");
     MenuEntriesX = EnsureGetMemberFloat("MenuEntriesX");
     MenuEntriesXOffset = EnsureGetMemberFloat("MenuEntriesXOffset");
     MenuEntriesFirstY = EnsureGetMemberFloat("MenuEntriesFirstY");
     MenuEntriesYPadding = EnsureGetMemberFloat("MenuEntriesYPadding");
 
-    GetMemberSpriteArray(MenuEntriesSprites, MenuEntriesNum,
-                         "MenuEntriesSprites");
-    GetMemberSpriteArray(MenuEntriesHSprites, MenuEntriesNum,
-                         "MenuEntriesHighlightedSprites");
+    if (MenuEntriesNum > 0) {
+      GetMemberSpriteArray(MenuEntriesSprites, MenuEntriesNum,
+                           "MenuEntriesSprites");
+    }
+    if (MenuEntriesHNum > 0) {
+      GetMemberSpriteArray(MenuEntriesHSprites, MenuEntriesHNum,
+                           "MenuEntriesHighlightedSprites");
+    }
+
     Pop();
   }
 }

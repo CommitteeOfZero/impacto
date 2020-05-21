@@ -34,7 +34,8 @@ root.TitleMenu = {
     EliteX: 488 * (1280 / 960),
     EliteY: 275 * (720 / 544),
     LogoX: 487 * (1280 / 960),
-    LogoY: 216 * (720 / 544)
+    LogoY: 216 * (720 / 544),
+    MenuEntriesNum: 0
 };
 
 root.Sprites["TitleMenuBackground"] = {
