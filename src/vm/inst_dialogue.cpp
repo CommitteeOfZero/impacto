@@ -294,7 +294,6 @@ VmInstruction(InstSel) {
       }
       PopExpression(arg1);
       UI::SelectionMenuPtr->Init((bool)arg1);
-
       // SaveIconDisplay::Show();
       break;
     }

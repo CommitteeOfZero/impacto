@@ -290,101 +290,29 @@ VmInstruction(InstSystemMes) {
   switch (mode) {
     case 0:  // SystemMesInit0
     case 1:  // SystemMesInit1
-             // SysMesBox::Implementation->ChoiceMade = false;
-             // SysMesBox::Implementation->CurrentChoice = 255;
-             // SysMesBox::Implementation->MessageCount = 0;
-             // memset(SysMesBox::Implementation->Messages, 0,
-             //       (8 * 255) * sizeof(ProcessedTextGlyph));
-             // SysMesBox::Implementation->ChoiceCount = 0;
-             // memset(SysMesBox::Implementation->Choices, 0,
-             //       (8 * 255) * sizeof(ProcessedTextGlyph));
-
       UI::SysMesBoxPtr->Init();
       break;
     case 2: {  // SystemMesInit2
       PopExpression(sysMesInit2Arg);
-      // ScrWork[SW_SYSMESANIMCTF] =
-      //    2 * SysMesBox::Implementation->MessageCount + 33;
       ScrWork[SW_SYSMESANIMCTF] = 2 * UI::SysMesBoxPtr->MessageCount + 33;
     } break;
     case 3: {  // SystemMesSetMes
       PopUint16(sysMesStrNum);
-
       UI::SysMesBoxPtr->AddMessage(ScriptGetStrAddress(
           ScriptBuffers[thread->ScriptBufferId], sysMesStrNum));
-      // uint8_t* oldIp = thread->Ip;
-      // thread->Ip = ScriptGetStrAddress(ScriptBuffers[thread->ScriptBufferId],
-      //                                 sysMesStrNum);
-      // int len = TextLayoutPlainLine(
-      //    thread, 255,
-      //    SysMesBox::Implementation
-      //        ->Messages[SysMesBox::Implementation->MessageCount],
-      //    Profile::Dialogue::DialogueFont, Profile::SysMesBox::TextFontSize,
-      //    Profile::Dialogue::ColorTable[10], 1.0f,
-      //    glm::vec2(Profile::SysMesBox::TextX, 0.0f), TextAlignment::Left);
-      // float mesLen = 0.0f;
-      // for (int i = 0; i < len; i++) {
-      //  mesLen += SysMesBox::Implementation
-      //                ->Messages[SysMesBox::Implementation->MessageCount][i]
-      //                .DestRect.Width;
-      //}
-      // SysMesBox::Implementation
-      //    ->MessageWidths[SysMesBox::Implementation->MessageCount] = mesLen;
-      // SysMesBox::Implementation
-      //    ->MessageLengths[SysMesBox::Implementation->MessageCount] = len;
-      // SysMesBox::Implementation->MessageCount++;
-      // thread->Ip = oldIp;
     } break;
     case 4: {  // SystemMesSetSel
       PopUint16(sysSelStrNum);
-
       UI::SysMesBoxPtr->AddChoice(ScriptGetStrAddress(
           ScriptBuffers[thread->ScriptBufferId], sysSelStrNum));
-      // uint8_t* oldIp = thread->Ip;
-      // thread->Ip = ScriptGetStrAddress(ScriptBuffers[thread->ScriptBufferId],
-      //                                 sysSelStrNum);
-      // int len = TextLayoutPlainLine(
-      //    thread, 255,
-      //    SysMesBox::Implementation
-      //        ->Choices[SysMesBox::Implementation->ChoiceCount],
-      //    Profile::Dialogue::DialogueFont, Profile::SysMesBox::TextFontSize,
-      //    Profile::Dialogue::ColorTable[10], 1.0f,
-      //    glm::vec2(Profile::SysMesBox::TextX, 0.0f), TextAlignment::Left);
-      // float mesLen = 0.0f;
-      // for (int i = 0; i < len; i++) {
-      //  mesLen += SysMesBox::Implementation
-      //                ->Choices[SysMesBox::Implementation->ChoiceCount][i]
-      //                .DestRect.Width;
-      //}
-      // SysMesBox::Implementation
-      //    ->ChoiceWidths[SysMesBox::Implementation->ChoiceCount] = mesLen;
-      // SysMesBox::Implementation
-      //    ->ChoiceLengths[SysMesBox::Implementation->ChoiceCount] = len;
-      // SysMesBox::Implementation->ChoiceCount++;
-      // thread->Ip = oldIp;
     } break;
     case 5:  // SystemMesMain
-             // if (!SysMesBox::Implementation->ChoiceMade) {
-             //  ResetInstruction;
-             //  BlockThread;
-             //} else {
-             //  ScrWork[SW_SYSSEL] = SysMesBox::Implementation->CurrentChoice;
-             //}
-
       if (!UI::SysMesBoxPtr->ChoiceMade) {
         ResetInstruction;
         BlockThread;
       }
       break;
     case 6:  // SystemMesFadeIn
-             // ScrWork[SW_SYSMESALPHA] = 256;
-             // SysMesBox::Implementation->BoxOpacity = 1.0f;
-             // SysMesBox::Show();
-             // if (ScrWork[SW_SYSMESANIMCTCUR] < ScrWork[SW_SYSMESANIMCTF]) {
-             //  ResetInstruction;
-             //  BlockThread;
-             // }
-
       if (UI::SysMesBoxPtr->State == UI::MenuState::Hidden) {
         UI::SysMesBoxPtr->Show();
         ResetInstruction;
@@ -403,15 +331,6 @@ VmInstruction(InstSystemMes) {
         ResetInstruction;
         BlockThread;
       }
-
-      // SysMesBox::Hide();
-      // if (ScrWork[SW_SYSMESANIMCTCUR] > 0) {
-      //  ResetInstruction;
-      //  BlockThread;
-      // } else {
-      //  ScrWork[SW_SYSMESALPHA] = 0;
-      //  SysMesBox::Implementation->BoxOpacity = 0.0f;
-      // }
       break;
     case 8:
       ImpLogSlow(LL_Warning, LC_VMStub,
