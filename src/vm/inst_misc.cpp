@@ -3,13 +3,13 @@
 #include "inst_macros.inc"
 
 #include "expression.h"
+#include "interface/input.h"
 #include "../profile/scriptvars.h"
 #include "../game.h"
 #include "../mem.h"
 #include "../log.h"
 #include "../hud/saveicondisplay.h"
-#include "../hud/titlemenu.h"
-#include "../hud/mainmenu.h"
+#include "../ui/ui.h"
 #include "../inputsystem.h"
 #include "../savesystem.h"
 
@@ -88,10 +88,20 @@ VmInstruction(InstSystemMenu) {
              mode);
   switch (mode) {
     case 0:
-      MainMenu::Show();
+      UI::SystemMenuPtr->Show();
       break;
-    case 1:
-      break;
+    case 1: {
+      if (!UI::SystemMenuPtr->ChoiceMade) {
+        if (!(Interface::PADinputButtonWentDown & Interface::PAD1B) &&
+            !(Interface::PADinputMouseWentDown & Interface::PAD1B)) {
+          ResetInstruction;
+          BlockThread;
+        }
+      } else {
+        UI::SystemMenuPtr->ChoiceMade = false;
+        Interface::PADinputButtonWentDown |= Interface::PAD1A;
+      }
+    } break;
   }
 }
 VmInstruction(InstPressStart) {
@@ -381,6 +391,7 @@ VmInstruction(InstLoadDataOld) {
   StartInstruction;
   PopExpression(arg1);
   SaveSystem::LoadMemory(SaveSystem::SaveFull, arg1);
+  if (ScrWork[SW_MESWINDOW_COLOR] == 0) ScrWork[SW_MESWINDOW_COLOR] = 0xFFFFFF;
 }
 VmInstruction(InstTitleMenu) {
   StartInstruction;
@@ -389,7 +400,7 @@ VmInstruction(InstTitleMenu) {
     case 0:  // Init
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction TitleMenu(type: Init)\n");
-      TitleMenu::Show();
+      // TitleMenu::Show();
       SetFlag(SF_TITLEMODE, 1);
       break;
     case 1:  // Main
@@ -422,7 +433,7 @@ VmInstruction(InstTitleMenuNew) {
     case 0:  // Init
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction TitleMenu(type: Init)\n");
-      TitleMenu::Show();
+      // TitleMenu::Show();
       break;
     case 1:  // Main
       // Hack to kickstart into "New Game"
@@ -430,7 +441,7 @@ VmInstruction(InstTitleMenuNew) {
         if (Input::KeyboardButtonWentDown[SDL_SCANCODE_T]) {
           ScrWork[2139] = 0;
           SetFlag(1241, 1);
-          TitleMenu::Hide();
+          // TitleMenu::Hide();
         }
       } else if (ScrWork[SW_TITLEMODE] == 1 && ScrWork[SW_TITLEDISPCT] == 60) {
         // Check "PRESS TO START" here
@@ -453,14 +464,26 @@ VmInstruction(InstTitleMenuNew) {
 }
 VmInstruction(InstTitleMenuOld) {
   StartInstruction;
-
-  if (TitleMenu::Implementation != 0) {
-    ScrWork[SW_TITLECUR1] = TitleMenu::Implementation->CurrentChoice;
-    ScrWork[SW_TITLECUR2] = TitleMenu::Implementation->SecondaryChoice;
+  // Sometimes in order to make something sane
+  // you have to sacrifice the sanity of others...
+  if (!UI::TitleMenuPtr->ChoiceMade) {
+    if (!((Interface::PADinputButtonWentDown & Interface::PAD1B) ||
+          (Interface::PADinputMouseWentDown & Interface::PAD1B))) {
+      ResetInstruction;
+      BlockThread;
+    }
   } else {
-    ScrWork[SW_TITLECUR1] = 0;
-    ScrWork[SW_TITLECUR2] = 255;
+    UI::TitleMenuPtr->ChoiceMade = false;
+    Interface::PADinputButtonWentDown |= Interface::PAD1A;
   }
+
+  // if (TitleMenu::Implementation != 0) {
+  //  // ScrWork[SW_TITLECUR1] = TitleMenu::Implementation->CurrentChoice;
+  //  ScrWork[SW_TITLECUR2] = TitleMenu::Implementation->SecondaryChoice;
+  //} else {
+  //  // ScrWork[SW_TITLECUR1] = 0;
+  //  ScrWork[SW_TITLECUR2] = 255;
+  //}
 }
 VmInstruction(InstSetPlayMode) {
   StartInstruction;

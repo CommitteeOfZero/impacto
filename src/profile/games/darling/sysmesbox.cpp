@@ -19,9 +19,7 @@ float BoxMiddleBaseWidth;
 float BoxRightBaseWidth;
 float BoxRightRemainPad;
 
-Impacto::SysMesBox::SysMesBoxBase* Configure() {
-  Impacto::Darling::SysMesBox* result = new Impacto::Darling::SysMesBox();
-
+void Configure() {
   BoxPartLeft = EnsureGetMemberSprite("BoxPartLeft");
   BoxPartRight = EnsureGetMemberSprite("BoxPartRight");
   BoxPartMiddle = EnsureGetMemberSprite("BoxPartMiddle");
@@ -34,8 +32,6 @@ Impacto::SysMesBox::SysMesBoxBase* Configure() {
   BoxMiddleBaseWidth = EnsureGetMemberFloat("BoxMiddleBaseWidth");
   BoxRightBaseWidth = EnsureGetMemberFloat("BoxRightBaseWidth");
   BoxRightRemainPad = EnsureGetMemberFloat("BoxRightRemainPad");
-
-  return result;
 }
 
 }  // namespace SysMesBox

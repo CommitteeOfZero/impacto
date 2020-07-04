@@ -8,7 +8,6 @@
 #include "../log.h"
 #include "../profile/vm.h"
 #include "../inputsystem.h"
-#include "../hud/mainmenu.h"
 #include "interface/input.h"
 
 namespace Impacto {
@@ -172,9 +171,11 @@ VmInstruction(InstKeyOnJump) {
   if (arg1 & 2) {
     arg2 = Interface::PADcustom[arg2];
   }
-  if (arg2 & Interface::PADinputWentDown) {
+  if (arg2 & Interface::PADinputButtonWentDown ||
+      arg2 & Interface::PADinputMouseWentDown) {
     thread->Ip = labelAdr;
-    Interface::PADinputWentDown = 0;
+    Interface::PADinputButtonWentDown = 0;
+    Interface::PADinputMouseWentDown = 0;
     // if (thread->Id == 0 &&
     //    labelNum == 113) {  // Dirty hack to get out of the system menu
     //  MainMenu::Hide();
@@ -234,7 +235,7 @@ VmInstruction(InstKeyOnJump_Dash) {
   if (thread->Id == 0 && labelNum == 113 &&
       Input::MouseButtonWentDown[SDL_BUTTON_RIGHT]) {
     thread->Ip = labelAdr;  // Dirty hack to get out of the system menu
-    MainMenu::Hide();
+    // SystemMenu::Hide();
   }
 
   ImpLogSlow(LL_Warning, LC_VMStub,

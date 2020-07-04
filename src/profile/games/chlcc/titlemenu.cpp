@@ -91,9 +91,7 @@ static void GetMemberSpriteArray(Sprite* arr, uint32_t count,
   Pop();
 }
 
-Impacto::TitleMenu::TitleMenuBase* Configure() {
-  Impacto::CHLCC::TitleMenu* result = new Impacto::CHLCC::TitleMenu();
-
+void Configure() {
   BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
   DelusionADVUnderSprite = EnsureGetMemberSprite("DelusionADVUnderSprite");
   DelusionADVUnderX = EnsureGetMemberFloat("DelusionADVUnderX");
@@ -164,17 +162,16 @@ Impacto::TitleMenu::TitleMenuBase* Configure() {
   SecondaryMenuLoadQuickLineY =
       EnsureGetMemberFloat("SecondaryMenuLoadQuickLineY");
 
-  result->ItemsFadeInAnimation.DurationIn = ItemFadeInDuration;
-  result->ItemsFadeInAnimation.DurationOut = ItemFadeOutDuration;
+  // result->ItemsFadeInAnimation.DurationIn = ItemFadeInDuration;
+  // result->ItemsFadeInAnimation.DurationOut = ItemFadeOutDuration;
 
-  result->SecondaryItemsFadeInAnimation.DurationIn = 0.2f;
-  result->SecondaryItemsFadeInAnimation.DurationOut = 0.2f;
+  // result->SecondaryItemsFadeInAnimation.DurationIn = 0.2f;
+  // result->SecondaryItemsFadeInAnimation.DurationOut = 0.2f;
 
-  result->SpinningCircleAnimation.LoopMode = ALM_Loop;
-  result->SpinningCircleAnimation.DurationIn = SpinningCircleAnimationDuration;
-  result->SpinningCircleAnimation.DurationOut = SpinningCircleAnimationDuration;
-
-  return result;
+  // result->SpinningCircleAnimation.LoopMode = ALM_Loop;
+  // result->SpinningCircleAnimation.DurationIn =
+  // SpinningCircleAnimationDuration; result->SpinningCircleAnimation.DurationOut
+  // = SpinningCircleAnimationDuration;
 }
 
 }  // namespace TitleMenu

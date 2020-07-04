@@ -28,11 +28,10 @@ float EliteY;
 float LogoX;
 float LogoY;
 
-Impacto::TitleMenu::TitleMenuBase* Configure() {
-  Impacto::RNE::TitleMenu* result = new Impacto::RNE::TitleMenu();
-
+void Configure() {
   EnsurePushMemberOfType("Background", kObjectType);
-  result->BackgroundAnimation = RNE::ParseTileBackground();
+  // result->BackgroundAnimation = RNE::ParseTileBackground();
+  RNE::ParseTileBackground();
   Pop();
 
   LineSprite = EnsureGetMemberSprite("LineSprite");
@@ -56,10 +55,8 @@ Impacto::TitleMenu::TitleMenuBase* Configure() {
   PreTitleAnimDurationIn = EnsureGetMemberFloat("PreTitleAnimDurationIn");
   PreTitleAnimDurationOut = EnsureGetMemberFloat("PreTitleAnimDurationOut");
 
-  result->PreTitleItemsAnimation.DurationIn = PreTitleAnimDurationIn;
-  result->PreTitleItemsAnimation.DurationOut = PreTitleAnimDurationOut;
-
-  return result;
+  // result->PreTitleItemsAnimation.DurationIn = PreTitleAnimDurationIn;
+  // result->PreTitleItemsAnimation.DurationOut = PreTitleAnimDurationOut;
 }
 
 }  // namespace TitleMenu

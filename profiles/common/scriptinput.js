@@ -18,7 +18,7 @@ root.Input = {
 	KB_PAD1R3: 33,			  // 4
 	// Mouse
 	MS_PAD1A: 1,              // Left
-	MS_PAD1START: 3,          // Right
+	MS_PAD1B: 3,              // Right
 	// Controller
 	GP_PAD1A: 0,             
 	GP_PAD1B: 1,             

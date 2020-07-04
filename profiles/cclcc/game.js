@@ -29,6 +29,6 @@ include('cclcc/hud/saveicon.js');
 include('cclcc/hud/loadingdisplay.js');
 include('cclcc/hud/datedisplay.js');
 include('cclcc/hud/titlemenu.js');
-//include('cclcc/hud/mainmenu.js');
+//include('cclcc/hud/systemmenu.js');
 include('cclcc/hud/sysmesboxdisplay.js');
 include('cclcc/hud/selectiondisplay.js');

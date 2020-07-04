@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../../../hud/titlemenu.h"
 #include "../../../spritesheet.h"
 #include "../../../games/dash/titlemenu.h"
 
@@ -9,7 +8,7 @@ namespace Profile {
 namespace Dash {
 namespace TitleMenu {
 
-Impacto::TitleMenu::TitleMenuBase* Configure();
+void Configure();
 
 extern Sprite BackgroundSprite;
 

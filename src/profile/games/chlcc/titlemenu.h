@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../../../hud/titlemenu.h"
 #include "../../../spritesheet.h"
 #include "../../../games/chlcc/titlemenu.h"
 
@@ -9,7 +8,7 @@ namespace Profile {
 namespace CHLCC {
 namespace TitleMenu {
 
-Impacto::TitleMenu::TitleMenuBase* Configure();
+void Configure();
 
 extern Sprite BackgroundSprite;
 extern Sprite DelusionADVUnderSprite;

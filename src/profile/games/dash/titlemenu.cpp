@@ -8,12 +8,8 @@ namespace TitleMenu {
 
 Sprite BackgroundSprite;
 
-Impacto::TitleMenu::TitleMenuBase* Configure() {
-  Impacto::Dash::TitleMenu* result = new Impacto::Dash::TitleMenu();
-
+void Configure() {
   BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
-
-  return result;
 }
 
 }  // namespace TitleMenu

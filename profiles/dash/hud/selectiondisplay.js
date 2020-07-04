@@ -11,11 +11,7 @@ root.SelectionDisplay = {
     PlainSelectionFrameMiddleSprite: "PlainSelectionFrameMiddle",
     SelectionHighlightSprite: "SelectionHighlight",
     SelectionBackgroundX: 228,
-    SelectionBackgroundY1: 277,
-    SelectionBackgroundY2: 277,
-    SelectionBackgroundY3: 196,
-    SelectionBackgroundY4: 129,
-    SelectionBackgroundY5: 95,
+    SelectionBackgroundY: [277, 277, 196, 129, 95],
     SelectionYSpacing: 81,
     PlainSelectionYSpacing: 10,
     FadeAnimationDurationInOut: 0.2

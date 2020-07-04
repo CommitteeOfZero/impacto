@@ -60,9 +60,7 @@ float FadeInDuration;
 float FadeOutDuration;
 float SpriteMargin;
 
-Impacto::SysMesBox::SysMesBoxBase* Configure() {
-  Impacto::RNE::SysMesBox* result = new Impacto::RNE::SysMesBox();
-
+void Configure() {
   BoxDecorationTop = EnsureGetMemberSprite("BoxDecorationTop");
   BoxDecorationBottom = EnsureGetMemberSprite("BoxDecorationBottom");
   TextDecoration = EnsureGetMemberSprite("TextDecoration");
@@ -110,8 +108,6 @@ Impacto::SysMesBox::SysMesBoxBase* Configure() {
   TextDecorationBottomYOffset =
       EnsureGetMemberFloat("TextDecorationBottomYOffset");
   SpriteMargin = EnsureGetMemberFloat("SpriteMargin");
-
-  return result;
 }
 
 }  // namespace SysMesBox

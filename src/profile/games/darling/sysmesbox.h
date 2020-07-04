@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../../../hud/sysmesbox.h"
 #include "../../../spritesheet.h"
 #include "../../../games/darling/sysmesbox.h"
 
@@ -9,7 +8,7 @@ namespace Profile {
 namespace Darling {
 namespace SysMesBox {
 
-Impacto::SysMesBox::SysMesBoxBase* Configure();
+void Configure();
 
 extern Sprite BoxPartLeft;
 extern Sprite BoxPartRight;

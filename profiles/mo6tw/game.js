@@ -31,6 +31,6 @@ include('mo6tw/hud/saveicon.js');
 include('mo6tw/hud/loadingdisplay.js');
 include('mo6tw/hud/datedisplay.js');
 include('mo6tw/hud/titlemenu.js');
-include('mo6tw/hud/mainmenu.js');
+include('mo6tw/hud/systemmenu.js');
 include('mo6tw/hud/sysmesboxdisplay.js');
 include('mo6tw/hud/selectiondisplay.js');

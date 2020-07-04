@@ -2,8 +2,8 @@ root.TitleMenu = {
     Type: TitleMenuType.MO6TW,
     PressToStartX: 497,
     PressToStartY: 402,
-    PressToStartAnimDurationIn: 0.55,
-    PressToStartAnimDurationOut: 0.55,
+    PressToStartAnimDurationIn: 0.5,
+    PressToStartAnimDurationOut: 0.5,
     PressToStartSprite:"TitleMenuPressToStart",
     BackgroundSprite: "TitleMenuBackground",
     CopyrightSprite: "TitleMenuCopyright",
@@ -15,7 +15,7 @@ root.TitleMenu = {
     MenuBackgroundSprite: "MenuBackground",
     MenuItemLockedSprite: "MenuEntryLocked",
     MenuItemLockedSpriteH: "MenuEntryLockedH",
-    MenuEntriesNum: 7,
+    MenuEntriesNum: 23,
     MenuEntriesSprites: [],
     MenuEntriesHighlightedSprites: [],
     MenuEntriesX: 513,
@@ -24,7 +24,7 @@ root.TitleMenu = {
     MenuEntriesTargetWidth: 254
 };
 
-for (var i = 0; i < 7; i++) {
+for (var i = 0; i < 23; i++) {
     root.Sprites["MenuEntry" + i] = {
         Sheet: "Title",
         Bounds: {
@@ -37,7 +37,7 @@ for (var i = 0; i < 7; i++) {
     root.TitleMenu.MenuEntriesSprites.push("MenuEntry" + i);
 }
 
-for (var i = 0; i < 7; i++) {
+for (var i = 0; i < 23; i++) {
     root.Sprites["MenuEntryHighlighted" + i] = {
         Sheet: "Title",
         Bounds: {

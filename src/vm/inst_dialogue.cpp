@@ -13,7 +13,9 @@
 #include "../audio/audiostream.h"
 #include "../audio/audiochannel.h"
 #include "../profile/vm.h"
-#include "../hud/selectiondisplay.h"
+#include "../hud/saveicondisplay.h"
+#include "../savesystem.h"
+#include "../ui/ui.h"
 
 namespace Impacto {
 
@@ -106,7 +108,19 @@ VmInstruction(InstMesVoiceWait) {
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MesVoiceWait()\n");
 }
 VmInstruction(InstMes) {
+  // Save before advancing Ip
+  SaveSystem::SaveMemory();
+
   StartInstruction;
+
+  // After loading a save we need to make sure the textbox is actually shown
+  if (DialoguePages[thread->DialoguePageId].FadeAnimation.IsOut() &&
+      GetFlag(thread->DialoguePageId + SF_MESWINDOW0OPENFL)) {
+    DialoguePages[thread->DialoguePageId].Mode =
+        (DialoguePageMode)ScrWork[SW_MESMODE0];
+    DialoguePages[thread->DialoguePageId].FadeAnimation.StartIn(true);
+  }
+
   PopUint8(type);
   switch (type) {
     case 0: {  // LoadDialogue
@@ -279,55 +293,21 @@ VmInstruction(InstSel) {
         PopUint16(unused);
       }
       PopExpression(arg1);
-      SelectionDisplay::IsPlain = (bool)arg1;
+      UI::SelectionMenuPtr->Init((bool)arg1);
 
-      SelectionDisplay::ChoiceCount = 0;
-      memset(SelectionDisplay::Choices, 0,
-             (15 * 255) * sizeof(ProcessedTextGlyph));
-      SelectionDisplay::CurrentChoice = -1;
+      // SaveIconDisplay::Show();
       break;
     }
     case 1: {
       PopUint16(selStrNum);
-      uint8_t* oldIp = thread->Ip;
-      thread->Ip =
-          ScriptGetStrAddress(ScriptBuffers[thread->ScriptBufferId], selStrNum);
-      int len = TextLayoutPlainLine(
-          thread, 255, SelectionDisplay::Choices[SelectionDisplay::ChoiceCount],
-          Profile::Dialogue::DialogueFont, Profile::Dialogue::DefaultFontSize,
-          Profile::Dialogue::ColorTable[0], 1.0f, glm::vec2(0.0f, 0.0f),
-          TextAlignment::Left);
-      float mesLen = 0.0f;
-      for (int i = 0; i < len; i++) {
-        mesLen += SelectionDisplay::Choices[SelectionDisplay::ChoiceCount][i]
-                      .DestRect.Width;
-      }
-      SelectionDisplay::ChoiceWidths[SelectionDisplay::ChoiceCount] = mesLen;
-      SelectionDisplay::ChoiceLengths[SelectionDisplay::ChoiceCount] = len;
-      SelectionDisplay::ChoiceCount++;
-      thread->Ip = oldIp;
+      UI::SelectionMenuPtr->AddChoice(ScriptGetStrAddress(
+          ScriptBuffers[thread->ScriptBufferId], selStrNum));
       break;
     }
     case 2: {
       PopUint16(selStrNum);
-      uint8_t* oldIp = thread->Ip;
-      thread->Ip =
-          ScriptGetStrAddress(ScriptBuffers[thread->ScriptBufferId], selStrNum);
-      int len = TextLayoutPlainLine(
-          thread, 255, SelectionDisplay::Choices[SelectionDisplay::ChoiceCount],
-          Profile::Dialogue::DialogueFont, Profile::Dialogue::DefaultFontSize,
-          Profile::Dialogue::ColorTable[0], 1.0f, glm::vec2(0.0f, 0.0f),
-          TextAlignment::Left);
-      float mesLen = 0.0f;
-      for (int i = 0; i < len; i++) {
-        mesLen += SelectionDisplay::Choices[SelectionDisplay::ChoiceCount][i]
-                      .DestRect.Width;
-      }
-      SelectionDisplay::ChoiceWidths[SelectionDisplay::ChoiceCount] = mesLen;
-      SelectionDisplay::ChoiceLengths[SelectionDisplay::ChoiceCount] = len;
-      SelectionDisplay::ChoiceCount++;
-      thread->Ip = oldIp;
-
+      UI::SelectionMenuPtr->AddChoice(ScriptGetStrAddress(
+          ScriptBuffers[thread->ScriptBufferId], selStrNum));
       PopExpression(arg2);
       break;
     }
@@ -338,20 +318,26 @@ VmInstruction(InstSelect) {
   PopUint8(type);
   switch (type) {
     case 0: {
-      SelectionDisplay::Show();
+      UI::SelectionMenuPtr->Show();
     } break;
     case 1: {
-      if (!SelectionDisplay::ChoiceMade) {
+      if (!UI::SelectionMenuPtr->ChoiceMade) {
         ResetInstruction;
         BlockThread;
-      } else
+      } else if (UI::SelectionMenuPtr->State == UI::MenuState::Hiding) {
+        ResetInstruction;
         BlockThread;
+      } else if (UI::SelectionMenuPtr->State == UI::MenuState::Hidden) {
+        BlockThread;
+      } else {
+        UI::SelectionMenuPtr->Hide();
+        ResetInstruction;
+        BlockThread;
+      }
     } break;
     case 2: {
       PopExpression(arg1);
-      ScrWork[arg1] = SelectionDisplay::CurrentChoice;
-      SelectionDisplay::ChoiceCount = 0;
-      SelectionDisplay::Hide();
+      ScrWork[arg1] = UI::SelectionMenuPtr->SelectedChoiceId;
     } break;
   }
 }

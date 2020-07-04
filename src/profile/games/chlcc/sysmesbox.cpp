@@ -26,9 +26,7 @@ float HighlightXOffset;
 float HighlightXBase;
 float HighlightXStep;
 
-Impacto::SysMesBox::SysMesBoxBase* Configure() {
-  Impacto::CHLCC::SysMesBox* result = new Impacto::CHLCC::SysMesBox();
-
+void Configure() {
   Box = EnsureGetMemberSprite("Box");
   BoxDecoration = EnsureGetMemberSprite("BoxDecoration");
   SelectionLeftPart = EnsureGetMemberSprite("SelectionLeftPart");
@@ -49,8 +47,6 @@ Impacto::SysMesBox::SysMesBoxBase* Configure() {
   HighlightXOffset = EnsureGetMemberFloat("HighlightXOffset");
   HighlightXBase = EnsureGetMemberFloat("HighlightXBase");
   HighlightXStep = EnsureGetMemberFloat("HighlightXStep");
-
-  return result;
 }
 
 }  // namespace SysMesBox

@@ -7,6 +7,9 @@
 #include "characterviewer.h"
 #include "log.h"
 #include "inputsystem.h"
+
+#include "ui/ui.h"
+
 #include "savesystem.h"
 #include "audio/audiosystem.h"
 #include "audio/audiochannel.h"
@@ -18,11 +21,7 @@
 #include "mem.h"
 #include "hud/datedisplay.h"
 #include "hud/saveicondisplay.h"
-#include "hud/sysmesbox.h"
 #include "hud/loadingdisplay.h"
-#include "hud/titlemenu.h"
-#include "hud/mainmenu.h"
-#include "hud/selectiondisplay.h"
 #include "io/memorystream.h"
 
 #include "profile/profile.h"
@@ -36,7 +35,10 @@
 #include "profile/vm.h"
 #include "profile/scriptvars.h"
 #include "profile/hud/datedisplay.h"
-#include "profile/hud/sysmesbox.h"
+#include "profile/ui/selectionmenu.h"
+#include "profile/ui/sysmesbox.h"
+#include "profile/ui/systemmenu.h"
+#include "profile/ui/titlemenu.h"
 
 namespace Impacto {
 
@@ -100,16 +102,17 @@ static void Init() {
   }
 
   if (Profile::GameFeatures & GameFeature::Sc3VirtualMachine) {
+    Vm::Init();
+
+    Profile::SelectionMenu::Configure();
+
     SaveSystem::Init();
-    SelectionDisplay::Init();
     SaveIconDisplay::Init();
     LoadingDisplay::Init();
-    SysMesBox::Init();
-    TitleMenu::Init();
-    MainMenu::Init();
+    Profile::SysMesBox::Configure();
+    Profile::TitleMenu::Configure();
+    Profile::SystemMenu::Configure();
     DateDisplay::Init();
-
-    Vm::Init();
   }
 
   Profile::ClearJsonProfile();
@@ -183,13 +186,15 @@ void Update(float dt) {
 
   if (Profile::GameFeatures & GameFeature::Sc3VirtualMachine) {
     Vm::Update();
+
+    UI::SysMesBoxPtr->Update(dt);
+    UI::TitleMenuPtr->Update(dt);
+    UI::SystemMenuPtr->Update(dt);
+    UI::SelectionMenuPtr->Update(dt);
+
     SaveIconDisplay::Update(dt);
-    SysMesBox::Update(dt);
     LoadingDisplay::Update(dt);
     DateDisplay::Update(dt);
-    TitleMenu::Update(dt);
-    MainMenu::Update(dt);
-    SelectionDisplay::Update(dt);
   }
 
   if (Profile::GameFeatures & GameFeature::Audio) {
@@ -314,7 +319,7 @@ void Render() {
       switch (DrawComponents[i]) {
         case TD_Text: {
           DialoguePages[0].Render();
-          SelectionDisplay::Render();
+          UI::SelectionMenuPtr->Render();
           break;
         }
         case TD_Main: {
@@ -393,19 +398,20 @@ void Render() {
         }
         case TD_SystemIcons: {
           LoadingDisplay::Render();
+          SaveIconDisplay::Render();
           break;
         }
         case TD_TitleMenu: {
-          TitleMenu::Render();
+          // UI::TitleMenuPtr->Render();
           break;
         }
         case TD_SystemMenu: {
-          TitleMenu::Render();
-          MainMenu::Render();
+          UI::TitleMenuPtr->Render();
+          UI::SystemMenuPtr->Render();
           break;
         }
         case TD_SystemMessage: {
-          SysMesBox::Render();
+          UI::SysMesBoxPtr->Render();
           break;
         }
         case TD_SaveIcon: {
