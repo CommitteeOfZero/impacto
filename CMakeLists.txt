@@ -83,6 +83,7 @@ set(Impacto_Src
 	src/games/mo6tw/sysmesbox.cpp
     src/games/mo6tw/systemmenu.cpp
     src/games/mo6tw/titlemenu.cpp
+    src/games/mo6tw/savesystem.cpp
 
 	src/games/darling/sysmesbox.cpp
 
@@ -257,6 +258,7 @@ set(Impacto_Header
     src/games/mo6tw/sysmesbox.h
     src/games/mo6tw/systemmenu.h
     src/games/mo6tw/titlemenu.h
+    src/games/mo6tw/savesystem.h
 
     src/games/darling/sysmesbox.h
 

@@ -9,7 +9,7 @@
 namespace Impacto {
 namespace SaveSystem {
 
-BETTER_ENUM(SaveDataType, int, None, CHLCC)
+BETTER_ENUM(SaveDataType, int, None, CHLCC, MO6TW)
 
 enum SaveError {
   SaveOK = 0,

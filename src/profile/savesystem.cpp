@@ -2,6 +2,7 @@
 #include "profile_internal.h"
 
 #include "../games/chlcc/savesystem.h"
+#include "../games/mo6tw/savesystem.h"
 
 namespace Impacto {
 namespace Profile {
@@ -21,6 +22,9 @@ void Configure() {
   switch (Type) {
     case SaveDataType::CHLCC:
       Implementation = new Impacto::CHLCC::SaveSystem();
+      break;
+    case SaveDataType::MO6TW:
+      Implementation = new Impacto::MO6TW::SaveSystem();
       break;
   }
 

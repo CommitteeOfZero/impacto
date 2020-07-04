@@ -235,6 +235,7 @@ VmInstruction(InstMessWindow) {
     case 0:  // HideCurrent
       if (!currentPage->FadeAnimation.IsOut()) {
         currentPage->FadeAnimation.StartOut();
+        SetFlag(thread->DialoguePageId + SF_MESWINDOW0OPENFL, 0);
       }
       break;
     case 1:  // ShowCurrent
@@ -242,6 +243,7 @@ VmInstruction(InstMessWindow) {
         currentPage->Mode =
             (DialoguePageMode)ScrWork[SW_MESMODE0];  // Only for page 0 for now
         currentPage->FadeAnimation.StartIn(true);
+        SetFlag(thread->DialoguePageId + SF_MESWINDOW0OPENFL, 1);
       }
       break;
     case 2:  // AwaitShowCurrent
@@ -259,13 +261,16 @@ VmInstruction(InstMessWindow) {
       }
       break;
     case 4:  // HideCurrent04
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MessWindow(type: HideCurrent04)\n");
+      if (!currentPage->FadeAnimation.IsOut()) {
+        currentPage->FadeAnimation.StartOut();
+        SetFlag(thread->DialoguePageId + SF_MESWINDOW0OPENFL, 0);
+      }
       break;
     case 5: {  // Hide
       PopExpression(messWindowId);
       if (!DialoguePages[messWindowId].FadeAnimation.IsOut()) {
         DialoguePages[messWindowId].FadeAnimation.StartOut();
+        SetFlag(messWindowId + SF_MESWINDOW0OPENFL, 0);
       }
     } break;
     case 6: {  // HideSlow
@@ -411,6 +416,10 @@ VmInstruction(InstNameID) {
     case 0:
       if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
         PopLocalLabel(namePlateDataBlock);
+      } else if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW) {
+        PopExpression(arg1);
+        PopExpression(arg2);
+        PopExpression(arg3);
       }
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction NameID(type: %i)\n",
                  type);

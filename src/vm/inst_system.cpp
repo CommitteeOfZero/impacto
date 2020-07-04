@@ -223,6 +223,11 @@ VmInstruction(InstSave) {
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Save(type: %i)\n",
                  type);
       break;
+    case 16:
+      SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::SaveFull,
+                                        ScrWork[SW_SAVEFILENO]);
+      SaveSystem::WriteSaveFile();
+      break;
     default:
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Save(type: %i)\n",
                  type);
@@ -469,6 +474,14 @@ VmInstruction(InstMSinit) {
       initType);  // TODO: There's only one type in R;NE - initType <= 10
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MSinit(initType: %i)\n",
              initType);
+
+  if (initType == 2 &&
+      Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW) {
+    memset(&FlagWork, 0, 100);
+    memset(&FlagWork[150], 0, 75);
+    memset(&FlagWork[300], 0, 100);
+  }
+
   for (int i = 0; i < MaxBackgrounds2D; i++) {
     ScrWork[SW_BG1SURF + i] = i;
   }

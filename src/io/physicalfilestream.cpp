@@ -22,6 +22,21 @@ IoError PhysicalFileStream::Create(std::string const& fileName,
   return IoError_OK;
 }
 
+IoError PhysicalFileStream::CreateWrite(std::string const& fileName,
+                                        InputStream** out) {
+  SDL_RWops* rw = SDL_RWFromFile(fileName.c_str(), "r+b");
+  if (!rw) return IoError_Fail;
+  int64_t size = SDL_RWsize(rw);
+  if (size <= 0) return IoError_Fail;
+  PhysicalFileStream* result = new PhysicalFileStream;
+  result->RW = rw;
+  result->Meta.Size = size;
+  result->SourceFileName = fileName;
+  result->Meta.FileName = fileName;
+  *out = (InputStream*)result;
+  return IoError_OK;
+}
+
 IoError PhysicalFileStream::FillBuffer() {
   int64_t read = SDL_RWread(RW, Buffer, 1, PhysicalBufferSize);
   if (read < 0) return IoError_Fail;
@@ -75,6 +90,12 @@ IoError PhysicalFileStream::Duplicate(InputStream** outStream) {
   result->RW = rw;
   *outStream = (InputStream*)result;
   return IoError_OK;
+}
+
+int64_t PhysicalFileStream::Write(void* buffer, int64_t sz, int cnt) {
+  int64_t written = SDL_RWwrite(RW, buffer, sz, cnt);
+  Seek(sz * cnt, SEEK_CUR);
+  return written;
 }
 
 }  // namespace Io

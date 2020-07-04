@@ -548,9 +548,9 @@ InstructionProc static OpcodeTableUser1_MO6TW[256] = {
     InstGameInfoInit,      // 10 0C
     InstCHAmove,           // 10 0D
     InstBGloadEx,          // 10 0E
-    InstDummy,             // 10 0F
-    InstBGrelease,         // 10 10
-    InstCHArelease,        // 10 11
+    InstUnk100FMO6,        // 10 0F
+    InstUnk1010MO6,        // 10 10
+    InstUnk1011MO6,        // 10 11
     InstClearFlagChkOld,   // 10 12
     InstOption,            // 10 13
     InstSystemDataReset,   // 10 14
@@ -568,8 +568,8 @@ InstructionProc static OpcodeTableUser1_MO6TW[256] = {
     InstMovieMode,         // 10 20
     InstClistInit,         // 10 21
     InstAutoSave,          // 10 22
-    InstSaveMenu,          // 10 23
-    InstLoadData,          // 10 24
+    InstSaveMenuOld,       // 10 23
+    InstLoadDataOld,       // 10 24
     InstDummy,             // 10 25
     InstDummy,             // 10 26
     InstEncyclopedia,      // 10 27

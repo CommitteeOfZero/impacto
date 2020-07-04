@@ -311,7 +311,9 @@ static void DrawAllThreads() {
 
   int cnt = 0;
   while (ThreadTable[cnt]) {
-    Game::DrawComponents[cnt] = ThreadTable[cnt]->DrawType;
+    if (ThreadTable[cnt]->Flags & TF_Display) {
+      Game::DrawComponents[cnt] = ThreadTable[cnt]->DrawType;
+    }
     cnt++;
   }
 }

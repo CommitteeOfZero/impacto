@@ -197,6 +197,42 @@ VmInstruction(InstGeotag) {
     } break;
   }
 }
+VmInstruction(InstUnk100FMO6) {
+  StartInstruction;
+  PopUint8(type);
+  PopExpression(arg1);
+  PopExpression(arg2);
+  PopExpression(arg3);
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction Unk100FMO6(type: %i, arg1: %i, arg2: %i, arg3: "
+             "%i)\n",
+             type, arg1, arg2, arg3);
+}
+VmInstruction(InstUnk1010MO6) {
+  StartInstruction;
+  PopUint8(type);
+  PopExpression(arg1);
+  PopExpression(arg2);
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction Unk100FMO6(type: %i, arg1: %i, arg2: %i)\n",
+             type, arg1, arg2);
+}
+VmInstruction(InstUnk1011MO6) {
+  StartInstruction;
+  PopUint8(type);
+  PopUint8(type2);
+  if (type2 != 2) {
+    PopExpression(arg1);
+    PopExpression(arg2);
+    PopExpression(arg3);
+    if (type2 != 0) {
+      PopExpression(arg4);
+      PopExpression(arg5);
+      PopExpression(arg6);
+      PopExpression(arg7);
+    }
+  }
+}
 VmInstruction(InstUnk1037MO7) {
   StartInstruction;
   PopUint8(type);

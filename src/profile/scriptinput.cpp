@@ -31,7 +31,7 @@ int KB_PAD1R2;
 int KB_PAD1R3;
 
 int MS_PAD1A;
-int MS_PAD1START;
+int MS_PAD1B;
 
 int GP_PAD1A;
 int GP_PAD1B;
@@ -71,7 +71,7 @@ void Configure() {
   KB_PAD1R3 = EnsureGetMemberInt("KB_PAD1R3");
 
   MS_PAD1A = EnsureGetMemberInt("MS_PAD1A");
-  MS_PAD1START = EnsureGetMemberInt("MS_PAD1START");
+  MS_PAD1B = EnsureGetMemberInt("MS_PAD1B");
 
   GP_PAD1A = EnsureGetMemberInt("GP_PAD1A");
   GP_PAD1B = EnsureGetMemberInt("GP_PAD1B");
@@ -108,7 +108,7 @@ void Configure() {
   PADToKeyboard[PAD1R3] = KB_PAD1R3;
 
   PADToMouse[PAD1A] = MS_PAD1A;
-  PADToMouse[PAD1START] = MS_PAD1START;
+  PADToMouse[PAD1B] = MS_PAD1B;
 
   PADToController[PAD1A] = GP_PAD1A;
   PADToController[PAD1B] = GP_PAD1B;

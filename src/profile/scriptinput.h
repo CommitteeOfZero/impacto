@@ -29,7 +29,7 @@ extern int KB_PAD1R2;
 extern int KB_PAD1R3;
 
 extern int MS_PAD1A;
-extern int MS_PAD1START;
+extern int MS_PAD1B;
 
 extern int GP_PAD1A;
 extern int GP_PAD1B;
