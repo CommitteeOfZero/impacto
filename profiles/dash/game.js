@@ -3,6 +3,8 @@ root.GameFeatures = GameFeature.Sc3VirtualMachine | GameFeature.Renderer2D | Gam
 root.DesignWidth = 1920;
 root.DesignHeight = 1080;
 
+root.WindowName = "ROBOTICS;NOTES DaSH";
+
 root.Vm = {
     StartScript: 4,
     StartScriptBuffer: 0,

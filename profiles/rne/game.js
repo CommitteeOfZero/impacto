@@ -3,6 +3,8 @@ root.GameFeatures = GameFeature.Sc3VirtualMachine | GameFeature.Renderer2D | Gam
 root.DesignWidth = 1280;
 root.DesignHeight = 720;
 
+root.WindowName = "ROBOTICS;NOTES ELITE";
+
 root.Vm = {
     StartScript: 4,
     StartScriptBuffer: 0,
