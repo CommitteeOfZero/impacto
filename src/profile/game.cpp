@@ -8,6 +8,8 @@ namespace Profile {
 int LayerCount;
 int GameFeatures;
 
+char const* WindowName;
+
 bool LayFileBigEndian;
 bool CharaIsMvl;
 float LayFileTexXMultiplier;
@@ -21,6 +23,7 @@ void LoadGameFromJson() {
 
   LayerCount = EnsureGetMemberInt("LayerCount");
   GameFeatures = EnsureGetMemberInt("GameFeatures");
+  WindowName = EnsureGetMemberString("WindowName");
   DesignWidth = EnsureGetMemberFloat("DesignWidth");
   DesignHeight = EnsureGetMemberFloat("DesignHeight");
 

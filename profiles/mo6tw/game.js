@@ -3,6 +3,8 @@ root.GameFeatures = GameFeature.Sc3VirtualMachine | GameFeature.Renderer2D | Gam
 root.DesignWidth = 1280;
 root.DesignHeight = 720;
 
+root.WindowName = "Memories Off 6 ~T-Wave~";
+
 root.CharaIsMvl = false;
 root.LayFileBigEndian = true;
 root.LayFileTexXMultiplier = 2048;
