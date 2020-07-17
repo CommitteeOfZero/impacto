@@ -475,7 +475,7 @@ include_directories(vendor/include)
 include_directories(vendor/duktape/include)
 include_directories(vendor/pcg/include)
 
-add_executable (impacto ${Impacto_Src} ${Impacto_Header})
+add_executable (impacto ${Impacto_Src} ${Impacto_Header} "src/ui/widgets/chlcc/titlebutton.cpp" "src/ui/widgets/chlcc/titlebutton.h")
 
 target_link_libraries(impacto PUBLIC ${Impacto_Libs})
 

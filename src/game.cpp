@@ -189,7 +189,7 @@ void Update(float dt) {
 
     UI::SysMesBoxPtr->Update(dt);
     UI::TitleMenuPtr->Update(dt);
-    UI::SystemMenuPtr->Update(dt);
+    //UI::SystemMenuPtr->Update(dt);
     UI::SelectionMenuPtr->Update(dt);
 
     SaveIconDisplay::Update(dt);
@@ -407,7 +407,7 @@ void Render() {
         }
         case TD_SystemMenu: {
           UI::TitleMenuPtr->Render();
-          UI::SystemMenuPtr->Render();
+          // UI::SystemMenuPtr->Render();
           break;
         }
         case TD_SystemMessage: {

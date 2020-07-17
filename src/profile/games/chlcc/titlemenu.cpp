@@ -3,6 +3,11 @@
 #include "../../../window.h"
 #include "../../profile_internal.h"
 
+#include "../../ui/titlemenu.h"
+#include "../../../game.h"
+#include "../../../ui/ui.h"
+#include "../../../games/chlcc/titlemenu.h"
+
 namespace Impacto {
 namespace Profile {
 namespace CHLCC {
@@ -162,16 +167,24 @@ void Configure() {
   SecondaryMenuLoadQuickLineY =
       EnsureGetMemberFloat("SecondaryMenuLoadQuickLineY");
 
-  // result->ItemsFadeInAnimation.DurationIn = ItemFadeInDuration;
-  // result->ItemsFadeInAnimation.DurationOut = ItemFadeOutDuration;
+  UI::CHLCC::TitleMenu* menu = new UI::CHLCC::TitleMenu();
+  menu->PressToStartAnimation.DurationIn =
+      Profile::TitleMenu::PressToStartAnimDurationIn;
+  menu->PressToStartAnimation.DurationOut =
+      Profile::TitleMenu::PressToStartAnimDurationOut;
+  menu->PressToStartAnimation.LoopMode = ALM_ReverseDirection;
 
-  // result->SecondaryItemsFadeInAnimation.DurationIn = 0.2f;
-  // result->SecondaryItemsFadeInAnimation.DurationOut = 0.2f;
+  menu->ItemsFadeInAnimation.DurationIn = ItemFadeInDuration;
+  menu->ItemsFadeInAnimation.DurationOut = ItemFadeOutDuration;
 
-  // result->SpinningCircleAnimation.LoopMode = ALM_Loop;
-  // result->SpinningCircleAnimation.DurationIn =
-  // SpinningCircleAnimationDuration; result->SpinningCircleAnimation.DurationOut
-  // = SpinningCircleAnimationDuration;
+  menu->SecondaryItemsFadeInAnimation.DurationIn = 0.2f;
+  menu->SecondaryItemsFadeInAnimation.DurationOut = 0.2f;
+
+  menu->SpinningCircleAnimation.LoopMode = ALM_Loop;
+  menu->SpinningCircleAnimation.DurationIn = SpinningCircleAnimationDuration;
+  menu->SpinningCircleAnimation.DurationOut = SpinningCircleAnimationDuration;
+
+  UI::TitleMenuPtr = menu;
 }
 
 }  // namespace TitleMenu
