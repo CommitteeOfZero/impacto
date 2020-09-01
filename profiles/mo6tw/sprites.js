@@ -28,6 +28,11 @@ root.SpriteSheets = {
         Path: {Mount: "system", Id: 29 },
         DesignWidth: 1280,
         DesignHeight: 720
+    },
+    "Save": {
+        Path: {Mount: "system", Id: 22 },
+        DesignWidth: 2048,
+        DesignHeight: 1024
     }
 };
 

@@ -65,10 +65,10 @@ static glm::vec2 SDLMouseCoordsToDesign(int x, int y) {
   RectF viewport = Window::GetViewport();
   glm::vec2 result;
   result.x = ((float)x *
-              ((viewport.Width * Window::DpiScaleX) / Profile::DesignWidth)) -
+              (Profile::DesignWidth / (viewport.Width * Window::DpiScaleX))) -
              (viewport.X * Window::DpiScaleX);
   result.y = ((float)y *
-              ((viewport.Height * Window::DpiScaleY) / Profile::DesignHeight)) +
+              (Profile::DesignHeight / (viewport.Height * Window::DpiScaleY))) +
              (viewport.Y * Window::DpiScaleY);
   return result;
 }

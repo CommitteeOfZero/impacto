@@ -8,6 +8,21 @@ root.Sprites["DialogueWaitIcon"] = {
     Bounds: { X: 418, Y: 276, Width: 32, Height: 32 }
 };
 
+root.Sprites["ADVBoxPartLeft"] = {
+    Sheet: "Data",
+    Bounds: { X: 1028, Y: 309, Width: 28, Height: 180 },
+};
+
+root.Sprites["ADVBoxPartRight"] = {
+    Sheet: "Data",
+    Bounds: { X: 1058, Y: 309, Width: 28, Height: 180 },
+};
+
+root.Sprites["ADVBoxDecoration"] = {
+    Sheet: "Data",
+    Bounds: { X: 371, Y: 121, Width: 48, Height: 46 },
+};
+
 root.Dialogue = {
     NVLBounds: { X: 125, Y: 85, Width: 1024, Height: 400 },
     ADVBounds: { X: 161, Y: 522, Width: 960, Height: 180 },
@@ -15,6 +30,13 @@ root.Dialogue = {
     ADVBoxPos: { X: 127, Y: 500 },
     FadeOutDuration: 0.33,
     FadeInDuration: 0.33,
+    DialogueBoxCurrentType: DialogueBoxType.MO6TW,
+    ADVBoxPartLeft: "ADVBoxPartLeft",
+    ADVBoxPartRight: "ADVBoxPartRight",
+    ADVBoxPartLeftPos: { X: 101, Y: 500 },
+    ADVBoxPartRightPos: { X: 1153, Y: 500 },
+    ADVBoxDecoration: "ADVBoxDecoration",
+    ADVBoxDecorationPos: { X: 1001, Y: 646 },
     NVLBoxMaxOpacity: 0.55,
     ADVNameAlignment: TextAlignment.Left,
     ADVNameFontSize: 32,

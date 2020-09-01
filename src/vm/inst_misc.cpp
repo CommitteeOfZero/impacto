@@ -350,11 +350,24 @@ VmInstruction(InstSaveMenuOld) {
   switch (type) {
     case 0: {
       PopUint8(arg1);
+      ScrWork[SW_SAVEMENUMODE] = arg1;
+      ScrWork[SW_SAVEFILESTATUS] = 0;
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SaveMenu(type: %i, arg1: %i)\n", type, arg1);
     } break;
     case 1:
-      ScrWork[SW_SAVEFILESTATUS] = 1;
+      if (!UI::SaveMenuPtr->ChoiceMade) {
+        if (!((Interface::PADinputButtonWentDown & Interface::PAD1B) ||
+              (Interface::PADinputMouseWentDown & Interface::PAD1B))) {
+          ResetInstruction;
+          BlockThread;
+        }
+      } else {
+        UI::SaveMenuPtr->ChoiceMade = false;
+        Interface::PADinputButtonWentDown |= Interface::PAD1A;
+        ScrWork[SW_SAVEFILESTATUS] = SaveSystem::GetSaveSatus(
+            SaveSystem::SaveType::SaveFull, ScrWork[SW_SAVEFILENO]);
+      }
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SaveMenu(type: %i)\n",
                  type);
       break;

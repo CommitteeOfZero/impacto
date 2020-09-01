@@ -474,8 +474,34 @@ void SaveSystem::LoadMemory(SaveType type, int id) {
 
         memcpy(thd->Variables, entry->MainThreadVariables, 64);
         thd->DialoguePageId = entry->MainThreadDialoguePageId;
+
+        // Tell the script side of save loading that we already loaded the
+        // needed scripts ourselves
+        // TODO: Figure out a better way of loading in general
+        ScrWork[SW_SVSCRNO1] = 65535;
+        ScrWork[SW_SVSCRNO2] = 65535;
+        ScrWork[SW_SVSCRNO3] = 65535;
+        ScrWork[SW_SVSCRNO4] = 65535;
       }
     }
+}
+
+uint8_t SaveSystem::GetSaveSatus(SaveType type, int id) {
+  switch (type) {
+    case SaveQuick:
+      return ((SaveFileEntry*)QuickSaveEntries[id])->Status;
+    case SaveFull:
+      return ((SaveFileEntry*)FullSaveEntries[id])->Status;
+  }
+}
+
+int SaveSystem::GetSaveTitle(SaveType type, int id) {
+  switch (type) {
+    case SaveQuick:
+      return ((SaveFileEntry*)QuickSaveEntries[id])->SwTitle;
+    case SaveFull:
+      return ((SaveFileEntry*)FullSaveEntries[id])->SwTitle;
+  }
 }
 
 }  // namespace MO6TW

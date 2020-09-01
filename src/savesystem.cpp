@@ -39,5 +39,13 @@ void WriteSaveFile() {
   if (Implementation) Implementation->WriteSaveFile();
 }
 
+uint8_t GetSaveSatus(SaveType type, int id) {
+  if (Implementation) return Implementation->GetSaveSatus(type, id);
+}
+
+int GetSaveTitle(SaveType type, int id) {
+  if (Implementation) return Implementation->GetSaveTitle(type, id);
+}
+
 }  // namespace SaveSystem
 }  // namespace Impacto

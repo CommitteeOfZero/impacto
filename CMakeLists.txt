@@ -49,6 +49,7 @@ set(Impacto_Src
 
     src/profile/ui/systemmenu.cpp
     src/profile/ui/titlemenu.cpp
+    src/profile/ui/savemenu.cpp
     src/profile/ui/sysmesbox.cpp
     src/profile/ui/selectionmenu.cpp
 
@@ -62,9 +63,11 @@ set(Impacto_Src
     src/profile/games/chlcc/titlemenu.cpp
     src/profile/games/chlcc/sysmesbox.cpp
 
+    src/profile/games/mo6tw/dialoguebox.cpp
     src/profile/games/mo6tw/sysmesbox.cpp
     src/profile/games/mo6tw/systemmenu.cpp
     src/profile/games/mo6tw/titlemenu.cpp
+    src/profile/games/mo6tw/savemenu.cpp
 
     src/profile/games/darling/sysmesbox.cpp
 
@@ -80,13 +83,16 @@ set(Impacto_Src
     src/games/chlcc/sysmesbox.cpp
     src/games/chlcc/savesystem.cpp
 
+    src/games/mo6tw/dialoguebox.cpp
 	src/games/mo6tw/sysmesbox.cpp
     src/games/mo6tw/systemmenu.cpp
     src/games/mo6tw/titlemenu.cpp
+    src/games/mo6tw/savemenu.cpp
     src/games/mo6tw/savesystem.cpp
 
 	src/games/darling/sysmesbox.cpp
 
+    src/hud/dialoguebox.cpp
     src/hud/datedisplay.cpp
     src/hud/saveicondisplay.cpp
     src/hud/loadingdisplay.cpp
@@ -100,6 +106,7 @@ set(Impacto_Src
     src/ui/widgets/label.cpp
     src/ui/widgets/button.cpp
     src/ui/widgets/mo6tw/titlebutton.cpp
+    src/ui/widgets/mo6tw/saveentrybutton.cpp
 
     src/nuklear_impl.cpp
     src/stbi_impl.c
@@ -224,6 +231,7 @@ set(Impacto_Header
 
     src/profile/ui/systemmenu.h
     src/profile/ui/titlemenu.h
+    src/profile/ui/savemenu.h
     src/profile/ui/sysmesbox.h
     src/profile/ui/selectionmenu.h
 
@@ -237,9 +245,11 @@ set(Impacto_Header
     src/profile/games/chlcc/titlemenu.h
     src/profile/games/chlcc/sysmesbox.h
 
+    src/profile/games/mo6tw/dialoguebox.h
     src/profile/games/mo6tw/sysmesbox.h
     src/profile/games/mo6tw/systemmenu.h
     src/profile/games/mo6tw/titlemenu.h
+    src/profile/games/mo6tw/savemenu.h
 
     src/profile/games/darling/sysmesbox.h
 
@@ -255,13 +265,16 @@ set(Impacto_Header
     src/games/chlcc/sysmesbox.h
     src/games/chlcc/savesystem.h
 
+    src/games/mo6tw/dialoguebox.h
     src/games/mo6tw/sysmesbox.h
     src/games/mo6tw/systemmenu.h
     src/games/mo6tw/titlemenu.h
+    src/games/mo6tw/savemenu.h
     src/games/mo6tw/savesystem.h
 
     src/games/darling/sysmesbox.h
 
+    src/hud/dialoguebox.h
     src/hud/datedisplay.h
     src/hud/saveicondisplay.h
     src/hud/loadingdisplay.h
@@ -276,6 +289,7 @@ set(Impacto_Header
     src/ui/widgets/label.h
     src/ui/widgets/button.h
     src/ui/widgets/mo6tw/titlebutton.h
+    src/ui/widgets/mo6tw/saveentrybutton.h
 
     src/3d/camera.h
     src/3d/model.h
