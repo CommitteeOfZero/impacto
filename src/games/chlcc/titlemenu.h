@@ -28,6 +28,7 @@ class TitleMenu : public Menu {
 
   void MenuButtonOnClick(Widgets::Button* target);
   void SecondaryButtonOnClick(Widgets::Button* target);
+
   void DrawTitleMenuBackGraphics();
 
  private:
@@ -40,6 +41,14 @@ class TitleMenu : public Menu {
   WidgetGroup* LoadItems;
   Widgets::CHLCC::TitleButton* SubLoad;
   Widgets::CHLCC::TitleButton* QuickLoad;
+
+  WidgetGroup* ExtraItems;
+  Widgets::CHLCC::TitleButton* ClearList;
+  Widgets::CHLCC::TitleButton* CGLibrary;
+  Widgets::CHLCC::TitleButton* SoundLibrary;
+  Widgets::CHLCC::TitleButton* MovieLibrary;
+  Widgets::CHLCC::TitleButton* Tips;
+  Widgets::CHLCC::TitleButton* Trophy;
 
   WidgetGroup* SystemItems;
   Widgets::CHLCC::TitleButton* Config;

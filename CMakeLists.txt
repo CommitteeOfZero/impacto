@@ -100,6 +100,7 @@ set(Impacto_Src
     src/ui/widgets/label.cpp
     src/ui/widgets/button.cpp
     src/ui/widgets/mo6tw/titlebutton.cpp
+    src/ui/widgets/chlcc/titlebutton.cpp
 
     src/nuklear_impl.cpp
     src/stbi_impl.c
@@ -276,6 +277,7 @@ set(Impacto_Header
     src/ui/widgets/label.h
     src/ui/widgets/button.h
     src/ui/widgets/mo6tw/titlebutton.h
+    src/ui/widgets/chlcc/titlebutton.h
 
     src/3d/camera.h
     src/3d/model.h
@@ -475,7 +477,7 @@ include_directories(vendor/include)
 include_directories(vendor/duktape/include)
 include_directories(vendor/pcg/include)
 
-add_executable (impacto ${Impacto_Src} ${Impacto_Header} "src/ui/widgets/chlcc/titlebutton.cpp" "src/ui/widgets/chlcc/titlebutton.h")
+add_executable (impacto ${Impacto_Src} ${Impacto_Header})
 
 target_link_libraries(impacto PUBLIC ${Impacto_Libs})
 

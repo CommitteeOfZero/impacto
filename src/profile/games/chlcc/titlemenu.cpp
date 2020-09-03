@@ -28,8 +28,12 @@ Sprite ExclMarkLogoSprite;
 Sprite CopyrightTextSprite;
 Sprite SpinningCircleSprite;
 Sprite ItemHighlightSprite;
-Sprite ItemLoadLineSprite;
-Sprite ItemLoadQuickLineSprite;
+Sprite ItemHyperUpLine;
+Sprite ItemSuperUpLine;
+Sprite ItemUpLine;
+Sprite ItemStraightLine;
+Sprite ItemDownLine;
+Sprite ItemSuperDownLine;
 Sprite ItemLoadQuickSprite;
 Sprite ItemLoadSprite;
 Sprite ItemLoadQuickHighlightedSprite;
@@ -69,15 +73,31 @@ float ItemPadding;
 float ItemYBase;
 float ItemFadeInDuration;
 float ItemFadeOutDuration;
-float ItemLoadX;
+float SecondaryItemX;
 float ItemLoadY;
 float ItemLoadQuickY;
+float ItemClearListY;
+float ItemCGLibraryY;
+float ItemSoundLibraryY;
+float ItemMovieLibraryY;
+float ItemTipsY;
+float ItemTrophyY;
+float ItemConfigY;
+float ItemSystemSaveY;
 float SecondaryItemHighlightX;
 float SecondaryMenuPaddingY;
 float SecondaryMenuLoadOffsetY;
-float SecondaryMenuLoadLineX;
+float SecondaryMenuLineX;
 float SecondaryMenuLoadLineY;
 float SecondaryMenuLoadQuickLineY;
+float SecondaryMenuExtraClearY;
+float SecondaryMenuExtraCGY;
+float SecondaryMenuExtraSoundY;
+float SecondaryMenuExtraMovieY;
+float SecondaryMenuExtraTipsY;
+float SecondaryMenuExtraTrophyY;
+float SecondaryMenuSystemConfigY;
+float SecondaryMenuSystemSaveY;
 
 static void GetMemberSpriteArray(Sprite* arr, uint32_t count,
                                  char const* name) {
@@ -146,10 +166,14 @@ void Configure() {
   ItemYBase = EnsureGetMemberFloat("ItemYBase");
   ItemFadeInDuration = EnsureGetMemberFloat("ItemFadeInDuration");
   ItemFadeOutDuration = EnsureGetMemberFloat("ItemFadeOutDuration");
-  ItemLoadLineSprite = EnsureGetMemberSprite("ItemLoadLineSprite");
-  ItemLoadQuickLineSprite = EnsureGetMemberSprite("ItemLoadQuickLineSprite");
+  ItemHyperUpLine = EnsureGetMemberSprite("ItemHyperUpLine");
+  ItemSuperUpLine = EnsureGetMemberSprite("ItemSuperUpLine");
+  ItemUpLine = EnsureGetMemberSprite("ItemUpLine");
+  ItemStraightLine = EnsureGetMemberSprite("ItemStraightLine");
+  ItemDownLine = EnsureGetMemberSprite("ItemDownLine");
+  ItemSuperDownLine = EnsureGetMemberSprite("ItemSuperDownLine");
   ItemLoadQuickSprite = EnsureGetMemberSprite("ItemLoadQuickSprite");
-  ItemLoadX = EnsureGetMemberFloat("ItemLoadX");
+  SecondaryItemX = EnsureGetMemberFloat("SecondaryItemX");
   ItemLoadY = EnsureGetMemberFloat("ItemLoadY");
   ItemLoadQuickY = EnsureGetMemberFloat("ItemLoadQuickY");
   ItemLoadSprite = EnsureGetMemberSprite("ItemLoadSprite");
@@ -157,15 +181,31 @@ void Configure() {
       EnsureGetMemberSprite("ItemLoadQuickHighlightedSprite");
   ItemLoadHighlightedSprite =
       EnsureGetMemberSprite("ItemLoadHighlightedSprite");
+  ItemClearListY = EnsureGetMemberFloat("ItemClearListY");
+  ItemCGLibraryY = EnsureGetMemberFloat("ItemCGLibraryY");
+  ItemSoundLibraryY = EnsureGetMemberFloat("ItemSoundLibraryY");
+  ItemMovieLibraryY = EnsureGetMemberFloat("ItemMovieLibraryY");
+  ItemTipsY = EnsureGetMemberFloat("ItemTipsY");
+  ItemTrophyY = EnsureGetMemberFloat("ItemTrophyY");
+  ItemConfigY = EnsureGetMemberFloat("ItemConfigY");
+  ItemSystemSaveY = EnsureGetMemberFloat("ItemSystemSaveY");
   SecondaryItemHighlightSprite =
       EnsureGetMemberSprite("SecondaryItemHighlightSprite");
   SecondaryItemHighlightX = EnsureGetMemberFloat("SecondaryItemHighlightX");
   SecondaryMenuPaddingY = EnsureGetMemberFloat("SecondaryMenuPaddingY");
   SecondaryMenuLoadOffsetY = EnsureGetMemberFloat("SecondaryMenuLoadOffsetY");
-  SecondaryMenuLoadLineX = EnsureGetMemberFloat("SecondaryMenuLoadLineX");
+  SecondaryMenuLineX = EnsureGetMemberFloat("SecondaryMenuLineX");
   SecondaryMenuLoadLineY = EnsureGetMemberFloat("SecondaryMenuLoadLineY");
   SecondaryMenuLoadQuickLineY =
       EnsureGetMemberFloat("SecondaryMenuLoadQuickLineY");
+  SecondaryMenuExtraClearY = EnsureGetMemberFloat("SecondaryMenuExtraClearY");
+  SecondaryMenuExtraCGY = EnsureGetMemberFloat("SecondaryMenuExtraCGY");
+  SecondaryMenuExtraSoundY = EnsureGetMemberFloat("SecondaryMenuExtraSoundY");
+  SecondaryMenuExtraMovieY = EnsureGetMemberFloat("SecondaryMenuExtraMovieY");
+  SecondaryMenuExtraTipsY = EnsureGetMemberFloat("SecondaryMenuExtraTipsY");
+  SecondaryMenuExtraTrophyY = EnsureGetMemberFloat("SecondaryMenuExtraTrophyY");
+  SecondaryMenuSystemConfigY = EnsureGetMemberFloat("SecondaryMenuSystemConfigY");
+  SecondaryMenuSystemSaveY = EnsureGetMemberFloat("SecondaryMenuSystemSaveY");
 
   UI::CHLCC::TitleMenu* menu = new UI::CHLCC::TitleMenu();
   menu->PressToStartAnimation.DurationIn =

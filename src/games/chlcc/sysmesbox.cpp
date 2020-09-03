@@ -1,15 +1,12 @@
 #include "sysmesbox.h"
 
-#include "../../impacto.h"
-#include "../../renderer2d.h"
-#include "../../game.h"
-#include "../../mem.h"
-#include "../../inputsystem.h"
-#include "../../vm/interface/input.h"
-#include "../../profile/scriptvars.h"
 #include "../../profile/ui/sysmesbox.h"
 #include "../../profile/games/chlcc/sysmesbox.h"
 #include "../../profile/dialogue.h"
+#include "../../profile/game.h"
+#include "../../profile/scriptvars.h"
+#include "../../mem.h"
+#include "../../renderer2d.h"
 
 namespace Impacto {
 namespace UI {
@@ -19,14 +16,6 @@ using namespace Impacto::UI::Widgets;
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::SysMesBox;
 using namespace Impacto::Profile::CHLCC::SysMesBox;
-
-static float boxanimcount = 0.0f;
-static float boxtopy = 0.0f;
-static float boxbottomy = 0.0f;
-static float linelength = 0.0f;
-static float boxheight = 0.0f;
-static float boxprogresscount = 0.0f;
-static int textstartcount = 0;
 
 void SysMesBox::ChoiceItemOnClick(Button* target) {
   ScrWork[SW_SYSSEL] = target->Id;
@@ -146,7 +135,8 @@ void SysMesBox::Render() {
     }
     if (maxWidth < MinMaxMesWidth) maxWidth = MinMaxMesWidth;
 
-    Renderer2D::DrawSprite(Box, glm::vec2(BoxX - (maxWidth / 2.0f), BoxY), col);
+    Renderer2D::DrawSprite(Box, glm::vec2(BoxX, BoxY), col);
+
     MessageItems->Opacity = FadeAnimation.Progress;
     MessageItems->Render();
     ChoiceItems->Opacity = FadeAnimation.Progress;
@@ -199,169 +189,6 @@ void SysMesBox::AddChoice(uint8_t* str) {
   ChoiceLengths[ChoiceCount] = len;
   ChoiceCount++;
 }
-/*void sysmesbox::show() {
-state = showing;
-
-// set up so we don't have to do this each frame
-float diff = 0.0f;
-float maxwidth = flt_min;
-for (int i = 0; i < messagecount; i++) {
-  if (maxwidth < messagewidths[i]) maxwidth = messagewidths[i];
-}
-
-float totalchoicewidth = 0.0f;
-for (int i = 0; i < choicecount; i++) {
-  totalchoicewidth += choicewidths[i] + choicepadding;
-}
-if (maxwidth < totalchoicewidth) maxwidth = totalchoicewidth;
-if (maxwidth < minmaxmeswidth) maxwidth = minmaxmeswidth;
-
-choicex = (maxwidth / 2.0f) - totalchoicewidth + choicexbase;
-
-for (int i = 0; i < messagecount; i++) {
-  diff = messages[i][0].destrect.x - (textx - (maxwidth / 2.0f));
-  for (int j = 0; j < messagelengths[i]; j++) {
-    messages[i][j].colors = profile::dialogue::colortable[0];
-    messages[i][j].destrect.x -= diff;
-    messages[i][j].destrect.y = textmiddley + (i * textlineheight);
-  }
-}
-
-float tempchoicex = choicex;
-
-for (int i = 0; i < choicecount; i++) {
-  diff = choices[i][0].destrect.x - tempchoicex;
-  for (int j = 0; j < choicelengths[i]; j++) {
-    choices[i][j].colors = profile::dialogue::colortable[0];
-    choices[i][j].destrect.x -= diff;
-    choices[i][j].destrect.y = choicey;
-  }
-  tempchoicex += choicewidths[i] + choicepadding;
-}
-}
-void sysmesbox::hide() { state = hiding; }
-
-void sysmesbox::update(float dt) {
-fadeanimation.update(dt);
-
-if (state == hiding) {
-  boxanimcount -= animationspeed * dt;
-  if (boxanimcount <= 0.0f) {
-    boxanimcount = 0.0f;
-    state = hidden;
-  }
-} else if (state == showing) {
-  boxanimcount += animationspeed * dt;
-  if (boxanimcount >= scrwork[sw_sysmesanimctf]) {
-    boxanimcount = scrwork[sw_sysmesanimctf];
-    state = shown;
-  }
-}
-
-scrwork[sw_sysmesanimctcur] = std::floor(boxanimcount);
-
-if (state == shown) {
-  // nice input
-  if (input::keyboardbuttonwentdown[sdl_scancode_right]) {
-    if (currentchoice == 255)
-      currentchoice = 1;
-    else {
-      currentchoice++;
-      if (currentchoice > 1) currentchoice = 0;
-    }
-  } else if (input::keyboardbuttonwentdown[sdl_scancode_left]) {
-    if (currentchoice == 255)
-      currentchoice = 0;
-    else {
-      currentchoice--;
-      if (currentchoice < 0) currentchoice = 1;
-    }
-  } else if (vm::interface::pad1a & vm::interface::padinputbuttonwentdown) {
-    choicemade = true;
-  }
-}
-
-if (state != hidden) {
-  if (state == showing && fadeanimation.isout())
-    fadeanimation.startin();
-  else if (state == hiding && fadeanimation.isin())
-    fadeanimation.startout();
-
-  if (currentchoice != 255 && choicecount > 0) {
-    highlightx = choicex;
-    for (int i = 0; i < currentchoice; i++) {
-      highlightx += choicewidths[i] + choicepadding;
-    }
-    selectedwidth = choicewidths[currentchoice];
-    selectedwidthadjusted = selectedwidth + highlightrightpartspritewidth;
-    if (selectedwidthadjusted < minhighlightwidth) {
-      selectedwidth = minhighlightwidth;
-      selectedwidthadjusted = selectedwidth;
-    }
-  }
-}
-}
-
-void sysmesbox::render() {
-if (boxopacity) {
-  glm::vec4 col(1.0f, 1.0f, 1.0f, fadeanimation.progress);
-  renderer2d::drawsprite(box, glm::vec2(boxx, boxy), col);
-
-  if (currentchoice != 255 && choicecount > 0) {
-    if (selectedwidth < highlightbasewidth) {
-      rectf prevbounds = selectionleftpart.bounds;
-      selectionleftpart.bounds =
-          rectf(selectionleftpart.bounds.x, selectionleftpart.bounds.y,
-                selectedwidth, selectionleftpart.bounds.height);
-      renderer2d::drawsprite(selectionleftpart,
-                             glm::vec2(highlightx - highlightxoffset,
-                                       choicey - highlightyoffset),
-                             col);
-      selectionleftpart.bounds = prevbounds;
-      renderer2d::drawsprite(
-          selectionrightpart,
-          glm::vec2(highlightx + selectedwidth - highlightxoffset,
-                    choicey - highlightyoffset),
-          col);
-    } else {
-      renderer2d::drawsprite(selectionleftpart,
-                             glm::vec2(highlightx - highlightxoffset,
-                                       choicey - highlightyoffset),
-                             col);
-      selectedwidthadjusted -= highlightbasewidth;
-      highlightx += highlightxstep + 1.0f;
-      while (selectedwidthadjusted > highlightbasewidth) {
-        renderer2d::drawsprite(
-            selectionmiddlepart,
-            glm::vec2(highlightx, choicey - highlightyoffset), col);
-        highlightx += highlightxstep;
-        selectedwidthadjusted -= highlightxstep;
-      }
-      rectf prevbounds = selectionrightpart.bounds;
-      selectionrightpart.bounds =
-          rectf(highlightxbase - selectedwidthadjusted - 1.0f,
-                selectionrightpart.bounds.y, selectedwidthadjusted,
-                selectionrightpart.bounds.height);
-      renderer2d::drawsprite(
-          selectionrightpart,
-          glm::vec2(highlightx, choicey - highlightyoffset), col);
-      selectionrightpart.bounds = prevbounds;
-    }
-  }
-
-  for (int i = 0; i < messagecount; i++) {
-    renderer2d::drawprocessedtext(messages[i], messagelengths[i],
-                                  profile::dialogue::dialoguefont, col.a,
-                                  true);
-  }
-
-  for (int i = 0; i < choicecount; i++) {
-    renderer2d::drawprocessedtext(choices[i], choicelengths[i],
-                                  profile::dialogue::dialoguefont, col.a,
-                                  true);
-  }
-}
-}*/
 
 }  // namespace CHLCC
 }  // namespace UI
