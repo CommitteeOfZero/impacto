@@ -17,7 +17,7 @@ void TitleButton::Render() {
   white.a = Opacity;
 
   if (HasFocus) {
-    if (TitleButton::Id < 4) {
+    if (TitleButton::Id < 4) {  //Main buttons
     Renderer2D::DrawSprite(HighlightSprite,
                            glm::vec2(Bounds.X - ItemHighlightOffsetX,
                                      Bounds.Y - ItemHighlightOffsetY),
@@ -25,14 +25,14 @@ void TitleButton::Render() {
     Renderer2D::DrawSprite(FocusedSprite,
                            glm::vec2(Bounds.X, Bounds.Y),
                            white);
-    } else {
+    } else {  //Sub buttons
       Renderer2D::DrawSprite(
           HighlightSprite,
           glm::vec2(SecondaryItemHighlightX, Bounds.Y - ItemHighlightOffsetY),
           white);
       Renderer2D::DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y),
                              white);
-      switch (TitleButton::Id) {
+      switch (TitleButton::Id) {  //Draws the lines specific to each button
         case 4: {  //Load to Load line
           Renderer2D::DrawSprite(
               ItemUpLine,
