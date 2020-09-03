@@ -22,6 +22,8 @@ class SaveSystem : public SaveSystemBase {
   void LoadMemory(SaveType type, int id);
   void FlushWorkingSaveEntry(SaveType type, int id);
   void WriteSaveFile();
+  uint8_t GetSaveSatus(SaveType type, int id);
+  int GetSaveTitle(SaveType type, int id);
 };
 
 }  // namespace MO6TW

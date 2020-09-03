@@ -378,6 +378,8 @@ VmInstruction(InstSetTextTable) {
   StartInstruction;
   PopExpression(id);
   PopLocalLabel(tableDataAdr);
+  TextTable[id].scriptBufferAdr = ScriptBuffers[thread->ScriptBufferId];
+  TextTable[id].labelAdr = tableDataAdr;
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SetTextTable(id: %i)\n",
              id);
 }

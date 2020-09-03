@@ -12,6 +12,8 @@
 #include "profile/game.h"
 
 #include "hud/waiticondisplay.h"
+#include "hud/dialoguebox.h"
+#include "games/mo6tw/dialoguebox.h"
 
 namespace Impacto {
 
@@ -19,6 +21,7 @@ using namespace Impacto::Profile::Dialogue;
 using namespace Impacto::Profile::ScriptVars;
 
 DialoguePage* DialoguePages;
+DialogueBox* TextBox;
 
 enum StringTokenType : uint8_t {
   STT_LineBreak = 0x00,
@@ -175,6 +178,15 @@ bool DialoguePage::TextIsFullyOpaque() { return Typewriter.Progress == 1.0f; }
 
 void DialoguePage::Init() {
   Profile::Dialogue::Configure();
+
+  switch (DialogueBoxCurrentType) {
+    case DialogueBoxType::MO6TW:
+      TextBox = new MO6TW::DialogueBox();
+      break;
+    default:
+      TextBox = new DialogueBox();
+      break;
+  }
 
   WaitIconDisplay::Init();
 
@@ -523,49 +535,23 @@ void DialoguePage::Render() {
   opacityTint.a = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
 
   // Textbox
+  float width = 0.0f;
+  if (HasName) {
+    for (int i = 0; i < NameLength; i++) {
+      width += Name[i].DestRect.Width;
+    }
+  }
+
+  TextBox->Render(Mode, HasName, width, opacityTint.a);
+
   glm::vec4 col = ScrWorkGetColor(SW_MESWINDOW_COLOR);
   col.a = opacityTint.a;
-  if (Mode == DPM_ADV) {
-    Renderer2D::DrawSprite(ADVBoxSprite, ADVBoxPos, col);
-  } else {
-    glm::vec4 nvlBoxTint(0.0f, 0.0f, 0.0f, opacityTint.a * NVLBoxMaxOpacity);
-    Renderer2D::DrawRect(
-        RectF(0, 0, Profile::DesignWidth, Profile::DesignHeight), nvlBoxTint);
-  }
 
   Renderer2D::DrawProcessedText(Glyphs, Length, DialogueFont, opacityTint.a,
                                 true);
 
-  if (Mode == DPM_ADV && HasName) {
-    if (HaveADVNameTag) {
-      Renderer2D::DrawSprite(ADVNameTag::LeftSprite, ADVNameTag::Position, col);
-    }
-
-    float width = 0.0f;
-    for (int i = 0; i < NameLength; i++) {
-      width += Name[i].DestRect.Width;
-    }
-
-    if (HaveADVNameTag) {
-      // Name graphic additional length
-      float lineWidth = width - ADVNameTag::BaseLineWidth;
-      float lineX =
-          ADVNameTag::Position.x + ADVNameTag::LeftSprite.ScaledWidth();
-      while (lineWidth > 0.0f) {
-        Sprite lineSprite = ADVNameTag::LineSprite;
-        lineSprite.SetScaledWidth(fminf(lineSprite.ScaledWidth(), lineWidth));
-        Renderer2D::DrawSprite(lineSprite,
-                               glm::vec2(lineX, ADVNameTag::Position.y), col);
-        lineX += lineSprite.ScaledWidth();
-        lineWidth -= lineSprite.ScaledWidth();
-      }
-      Renderer2D::DrawSprite(ADVNameTag::RightSprite,
-                             glm::vec2(lineX, ADVNameTag::Position.y), col);
-    }
-
-    Renderer2D::DrawProcessedText(Name, NameLength, DialogueFont, opacityTint.a,
-                                  true);
-  }
+  Renderer2D::DrawProcessedText(Name, NameLength, DialogueFont, opacityTint.a,
+                                true);
 
   // Wait icon
   if (Typewriter.Progress == 1.0f && Length > 0) {

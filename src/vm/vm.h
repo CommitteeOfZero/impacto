@@ -19,6 +19,7 @@ int const MaxThreadGroups = 12;
 uint8_t* ScriptGetLabelAddress(uint8_t* scriptBufferAdr, uint32_t labelNum);
 uint32_t ScriptGetLabelAddressNum(uint8_t* scriptBufferAdr, uint32_t labelNum);
 uint8_t* ScriptGetStrAddress(uint8_t* scriptBufferAdr, uint32_t strNum);
+uint8_t* ScriptGetTextTableStrAddress(uint32_t textTableId, uint32_t strNum);
 uint8_t* ScriptGetRetAddress(uint8_t* scriptBufferAdr, uint32_t retNum);
 
 void Init();
@@ -37,6 +38,13 @@ extern Sc3VmThread ThreadPool[MaxThreads];
 
 extern bool BlockCurrentScriptThread;
 extern uint32_t SwitchValue;  // Used in InstSwitch and InstCase
+
+struct TextTableEntry {
+  uint8_t* scriptBufferAdr;
+  uint8_t* labelAdr;
+};
+
+extern TextTableEntry TextTable[16];
 
 }  // namespace Vm
 }  // namespace Impacto

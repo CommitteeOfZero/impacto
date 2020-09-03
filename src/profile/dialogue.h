@@ -4,6 +4,7 @@
 #include "../spritesheet.h"
 #include "../text.h"
 #include "../hud/waiticondisplay.h"
+#include "../hud/dialoguebox.h"
 #include "../spriteanimation.h"
 
 namespace Impacto {
@@ -18,6 +19,8 @@ extern glm::vec2 ADVBoxPos;
 
 extern float FadeOutDuration;
 extern float FadeInDuration;
+
+extern DialogueBoxType DialogueBoxCurrentType;
 
 extern float NVLBoxMaxOpacity;
 

@@ -6,6 +6,8 @@ namespace Profile {
 extern int LayerCount;
 extern int GameFeatures;
 
+extern char const* WindowName;
+
 extern bool LayFileBigEndian;
 extern bool CharaIsMvl;
 extern float LayFileTexXMultiplier;

@@ -3,6 +3,8 @@ root.GameFeatures = GameFeature.Sc3VirtualMachine | GameFeature.Renderer2D | Gam
 root.DesignWidth = 1280;
 root.DesignHeight = 720;
 
+root.WindowName = "Memories Off 6 ~T-Wave~";
+
 root.CharaIsMvl = false;
 root.LayFileBigEndian = true;
 root.LayFileTexXMultiplier = 2048;
@@ -32,5 +34,6 @@ include('mo6tw/hud/loadingdisplay.js');
 include('mo6tw/hud/datedisplay.js');
 include('mo6tw/hud/titlemenu.js');
 include('mo6tw/hud/systemmenu.js');
+include('mo6tw/hud/savemenu.js');
 include('mo6tw/hud/sysmesboxdisplay.js');
 include('mo6tw/hud/selectiondisplay.js');

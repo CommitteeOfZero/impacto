@@ -39,6 +39,7 @@
 #include "profile/ui/sysmesbox.h"
 #include "profile/ui/systemmenu.h"
 #include "profile/ui/titlemenu.h"
+#include "profile/ui/savemenu.h"
 
 namespace Impacto {
 
@@ -112,6 +113,7 @@ static void Init() {
     Profile::SysMesBox::Configure();
     Profile::TitleMenu::Configure();
     Profile::SystemMenu::Configure();
+    Profile::SaveMenu::Configure();
     DateDisplay::Init();
   }
 
@@ -189,7 +191,8 @@ void Update(float dt) {
 
     UI::SysMesBoxPtr->Update(dt);
     UI::TitleMenuPtr->Update(dt);
-    //UI::SystemMenuPtr->Update(dt);
+    UI::SystemMenuPtr->Update(dt);
+    UI::SaveMenuPtr->Update(dt);
     UI::SelectionMenuPtr->Update(dt);
 
     SaveIconDisplay::Update(dt);
@@ -396,18 +399,22 @@ void Render() {
         case TD_SystemText: {
           break;
         }
+        case TD_SaveMenu: {
+          UI::SaveMenuPtr->Render();
+          break;
+        }
         case TD_SystemIcons: {
           LoadingDisplay::Render();
           SaveIconDisplay::Render();
           break;
         }
         case TD_TitleMenu: {
-          // UI::TitleMenuPtr->Render();
+          UI::TitleMenuPtr->Render();
           break;
         }
         case TD_SystemMenu: {
-          UI::TitleMenuPtr->Render();
-          // UI::SystemMenuPtr->Render();
+          // UI::TitleMenuPtr->Render();
+          UI::SystemMenuPtr->Render();
           break;
         }
         case TD_SystemMessage: {
