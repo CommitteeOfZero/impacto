@@ -46,6 +46,9 @@ TitleMenu::TitleMenu() {
 
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
+  Sprite LineSprites[6] = {ItemHyperUpLine, ItemSuperUpLine,
+                           ItemUpLine,      ItemStraightLine,
+                           ItemDownLine,    ItemSuperDownLine};
 
   // Start menu button
   Start = new TitleButton(0, MenuEntriesSprites[0], MenuEntriesHSprites[0], 
@@ -54,6 +57,7 @@ TitleMenu::TitleMenu() {
               ItemHighlightOffsetX,
           ((ItemYBase - 1.0f) + (0 * ItemPadding))));
   Start->OnClickHandler = onClick;
+  Start->isSubButton = false;
   MainItems->Add(Start, FocusDirection::Vertical);
 
   // Load menu button
@@ -63,6 +67,7 @@ TitleMenu::TitleMenu() {
               ItemHighlightOffsetX,
           ((ItemYBase - 1.0f) + (1 * ItemPadding))));
   Load->OnClickHandler = onClick;
+  Load->isSubButton = false;
   MainItems->Add(Load, FocusDirection::Vertical);
 
   // Extra menu button
@@ -72,6 +77,7 @@ TitleMenu::TitleMenu() {
               ItemHighlightOffsetX,
           ((ItemYBase - 1.0f) + (2 * ItemPadding))));
   Extra->OnClickHandler = onClick;
+  Extra->isSubButton = false;
   MainItems->Add(Extra, FocusDirection::Vertical);
 
   // System menu button
@@ -81,6 +87,7 @@ TitleMenu::TitleMenu() {
               ItemHighlightOffsetX,
           ((ItemYBase - 1.0f) + (3 * ItemPadding))));
   System->OnClickHandler = onClick;
+  System->isSubButton = false;
   MainItems->Add(System, FocusDirection::Vertical);
 
   // Quick Load secondary Load menu button
@@ -88,6 +95,9 @@ TitleMenu::TitleMenu() {
       SecondaryItemHighlightSprite,
       glm::vec2(SecondaryItemX, ItemLoadQuickY));
   QuickLoad->OnClickHandler = secondaryOnClick;
+  QuickLoad->isSubButton = true;
+  QuickLoad->LineDecoration = LineSprites[2];
+  QuickLoad->LineY = SecondaryMenuLoadLineY;
   LoadItems->Add(QuickLoad, FocusDirection::Vertical);
 
   // Sub Load secondary Load menu button
@@ -95,6 +105,9 @@ TitleMenu::TitleMenu() {
       SecondaryItemHighlightSprite,
       glm::vec2(SecondaryItemX, ItemLoadY));
   SubLoad->OnClickHandler = secondaryOnClick;
+  SubLoad->isSubButton = true;
+  SubLoad->LineDecoration = LineSprites[3];
+  SubLoad->LineY = SecondaryMenuLoadQuickLineY;
   LoadItems->Add(SubLoad, FocusDirection::Vertical);
 
   // Clear List secondary Extra menu button
@@ -102,6 +115,9 @@ TitleMenu::TitleMenu() {
       SecondaryItemHighlightSprite,
       glm::vec2(SecondaryItemX, ItemClearListY));
   ClearList->OnClickHandler = secondaryOnClick;
+  ClearList->isSubButton = true;
+  ClearList->LineDecoration = LineSprites[0];
+  ClearList->LineY = SecondaryMenuExtraClearY;
   ExtraItems->Add(ClearList, FocusDirection::Vertical);
 
   // CG Library secondary Extra menu button
@@ -109,6 +125,9 @@ TitleMenu::TitleMenu() {
       SecondaryItemHighlightSprite,
       glm::vec2(SecondaryItemX, ItemCGLibraryY));
   CGLibrary->OnClickHandler = secondaryOnClick;
+  CGLibrary->isSubButton = true;
+  CGLibrary->LineDecoration = LineSprites[1];
+  CGLibrary->LineY = SecondaryMenuExtraCGY;
   ExtraItems->Add(CGLibrary, FocusDirection::Vertical);
 
   // Sound Library secondary Extra menu button
@@ -116,6 +135,9 @@ TitleMenu::TitleMenu() {
       SecondaryItemHighlightSprite, 
       glm::vec2(SecondaryItemX, ItemSoundLibraryY));
   SoundLibrary->OnClickHandler = secondaryOnClick;
+  SoundLibrary->isSubButton = true;
+  SoundLibrary->LineDecoration = LineSprites[2];
+  SoundLibrary->LineY = SecondaryMenuExtraSoundY;
   ExtraItems->Add(SoundLibrary, FocusDirection::Vertical);
 
   // Movie Library secondary Extra menu button
@@ -123,6 +145,9 @@ TitleMenu::TitleMenu() {
       SecondaryItemHighlightSprite,
       glm::vec2(SecondaryItemX, ItemMovieLibraryY));
   MovieLibrary->OnClickHandler = secondaryOnClick;
+  MovieLibrary->isSubButton = true;
+  MovieLibrary->LineDecoration = LineSprites[3];
+  MovieLibrary->LineY = SecondaryMenuExtraMovieY;
   ExtraItems->Add(MovieLibrary, FocusDirection::Vertical);
 
   // Tips secondary Extra menu button
@@ -130,6 +155,9 @@ TitleMenu::TitleMenu() {
       SecondaryItemHighlightSprite,
       glm::vec2(SecondaryItemX, ItemTipsY));
   Tips->OnClickHandler = secondaryOnClick;
+  Tips->isSubButton = true;
+  Tips->LineDecoration = LineSprites[4];
+  Tips->LineY = SecondaryMenuExtraTipsY;
   ExtraItems->Add(Tips, FocusDirection::Vertical);
 
   // Trophy secondary Extra menu button
@@ -137,6 +165,9 @@ TitleMenu::TitleMenu() {
       SecondaryItemHighlightSprite,
       glm::vec2(SecondaryItemX, ItemTrophyY));
   Trophy->OnClickHandler = secondaryOnClick;
+  Trophy->isSubButton = true;
+  Trophy->LineDecoration = LineSprites[5];
+  Trophy->LineY = SecondaryMenuExtraTrophyY;
   ExtraItems->Add(Trophy, FocusDirection::Vertical);
 
   // Option secondary System menu button
@@ -144,6 +175,9 @@ TitleMenu::TitleMenu() {
       SecondaryItemHighlightSprite,
       glm::vec2(SecondaryItemX, ItemConfigY));
   Config->OnClickHandler = secondaryOnClick;
+  Config->isSubButton = true;
+  Config->LineDecoration = LineSprites[2];
+  Config->LineY = SecondaryMenuSystemConfigY;
   SystemItems->Add(Config, FocusDirection::Vertical);
 
   // System Save secondary System menu button
@@ -151,6 +185,9 @@ TitleMenu::TitleMenu() {
       SecondaryItemHighlightSprite, 
       glm::vec2(SecondaryItemX, ItemSystemSaveY));
   SystemSave->OnClickHandler = secondaryOnClick;
+  SystemSave->isSubButton = true;
+  SystemSave->LineDecoration = LineSprites[3];
+  SystemSave->LineY = SecondaryMenuSystemSaveY;
   SystemItems->Add(SystemSave, FocusDirection::Vertical);
 }
 
