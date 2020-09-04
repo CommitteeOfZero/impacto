@@ -44,8 +44,6 @@ TitleMenu::TitleMenu() {
   auto secondaryOnClick = std::bind(&TitleMenu::SecondaryButtonOnClick, this,
                                     std::placeholders::_1);
 
-  Sprite nullSprite = Sprite();
-  nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
   Sprite LineSprites[6] = {ItemHyperUpLine, ItemSuperUpLine,
                            ItemUpLine,      ItemStraightLine,
                            ItemDownLine,    ItemSuperDownLine};
