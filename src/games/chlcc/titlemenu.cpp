@@ -44,10 +44,6 @@ TitleMenu::TitleMenu() {
   auto secondaryOnClick = std::bind(&TitleMenu::SecondaryButtonOnClick, this,
                                     std::placeholders::_1);
 
-  Sprite LineSprites[6] = {ItemHyperUpLine, ItemSuperUpLine,
-                           ItemUpLine,      ItemStraightLine,
-                           ItemDownLine,    ItemSuperDownLine};
-
   // Start menu button
   Start = new TitleButton(0, MenuEntriesSprites[0], MenuEntriesHSprites[0], 
       ItemHighlightSprite,
@@ -55,7 +51,7 @@ TitleMenu::TitleMenu() {
               ItemHighlightOffsetX,
           ((ItemYBase - 1.0f) + (0 * ItemPadding))));
   Start->OnClickHandler = onClick;
-  Start->isSubButton = false;
+  Start->IsSubButton = false;
   MainItems->Add(Start, FocusDirection::Vertical);
 
   // Load menu button
@@ -65,7 +61,7 @@ TitleMenu::TitleMenu() {
               ItemHighlightOffsetX,
           ((ItemYBase - 1.0f) + (1 * ItemPadding))));
   Load->OnClickHandler = onClick;
-  Load->isSubButton = false;
+  Load->IsSubButton = false;
   MainItems->Add(Load, FocusDirection::Vertical);
 
   // Extra menu button
@@ -75,7 +71,7 @@ TitleMenu::TitleMenu() {
               ItemHighlightOffsetX,
           ((ItemYBase - 1.0f) + (2 * ItemPadding))));
   Extra->OnClickHandler = onClick;
-  Extra->isSubButton = false;
+  Extra->IsSubButton = false;
   MainItems->Add(Extra, FocusDirection::Vertical);
 
   // System menu button
@@ -85,7 +81,7 @@ TitleMenu::TitleMenu() {
               ItemHighlightOffsetX,
           ((ItemYBase - 1.0f) + (3 * ItemPadding))));
   System->OnClickHandler = onClick;
-  System->isSubButton = false;
+  System->IsSubButton = false;
   MainItems->Add(System, FocusDirection::Vertical);
 
   // Quick Load secondary Load menu button
@@ -93,7 +89,7 @@ TitleMenu::TitleMenu() {
       SecondaryItemHighlightSprite,
       glm::vec2(SecondaryItemX, ItemLoadQuickY));
   QuickLoad->OnClickHandler = secondaryOnClick;
-  QuickLoad->isSubButton = true;
+  QuickLoad->IsSubButton = true;
   QuickLoad->LineDecoration = LineSprites[2];
   QuickLoad->LineY = SecondaryMenuLoadLineY;
   LoadItems->Add(QuickLoad, FocusDirection::Vertical);
@@ -103,7 +99,7 @@ TitleMenu::TitleMenu() {
       SecondaryItemHighlightSprite,
       glm::vec2(SecondaryItemX, ItemLoadY));
   SubLoad->OnClickHandler = secondaryOnClick;
-  SubLoad->isSubButton = true;
+  SubLoad->IsSubButton = true;
   SubLoad->LineDecoration = LineSprites[3];
   SubLoad->LineY = SecondaryMenuLoadQuickLineY;
   LoadItems->Add(SubLoad, FocusDirection::Vertical);
@@ -113,7 +109,7 @@ TitleMenu::TitleMenu() {
       SecondaryItemHighlightSprite,
       glm::vec2(SecondaryItemX, ItemClearListY));
   ClearList->OnClickHandler = secondaryOnClick;
-  ClearList->isSubButton = true;
+  ClearList->IsSubButton = true;
   ClearList->LineDecoration = LineSprites[0];
   ClearList->LineY = SecondaryMenuExtraClearY;
   ExtraItems->Add(ClearList, FocusDirection::Vertical);
@@ -123,7 +119,7 @@ TitleMenu::TitleMenu() {
       SecondaryItemHighlightSprite,
       glm::vec2(SecondaryItemX, ItemCGLibraryY));
   CGLibrary->OnClickHandler = secondaryOnClick;
-  CGLibrary->isSubButton = true;
+  CGLibrary->IsSubButton = true;
   CGLibrary->LineDecoration = LineSprites[1];
   CGLibrary->LineY = SecondaryMenuExtraCGY;
   ExtraItems->Add(CGLibrary, FocusDirection::Vertical);
@@ -133,7 +129,7 @@ TitleMenu::TitleMenu() {
       SecondaryItemHighlightSprite, 
       glm::vec2(SecondaryItemX, ItemSoundLibraryY));
   SoundLibrary->OnClickHandler = secondaryOnClick;
-  SoundLibrary->isSubButton = true;
+  SoundLibrary->IsSubButton = true;
   SoundLibrary->LineDecoration = LineSprites[2];
   SoundLibrary->LineY = SecondaryMenuExtraSoundY;
   ExtraItems->Add(SoundLibrary, FocusDirection::Vertical);
@@ -143,7 +139,7 @@ TitleMenu::TitleMenu() {
       SecondaryItemHighlightSprite,
       glm::vec2(SecondaryItemX, ItemMovieLibraryY));
   MovieLibrary->OnClickHandler = secondaryOnClick;
-  MovieLibrary->isSubButton = true;
+  MovieLibrary->IsSubButton = true;
   MovieLibrary->LineDecoration = LineSprites[3];
   MovieLibrary->LineY = SecondaryMenuExtraMovieY;
   ExtraItems->Add(MovieLibrary, FocusDirection::Vertical);
@@ -153,7 +149,7 @@ TitleMenu::TitleMenu() {
       SecondaryItemHighlightSprite,
       glm::vec2(SecondaryItemX, ItemTipsY));
   Tips->OnClickHandler = secondaryOnClick;
-  Tips->isSubButton = true;
+  Tips->IsSubButton = true;
   Tips->LineDecoration = LineSprites[4];
   Tips->LineY = SecondaryMenuExtraTipsY;
   ExtraItems->Add(Tips, FocusDirection::Vertical);
@@ -163,7 +159,7 @@ TitleMenu::TitleMenu() {
       SecondaryItemHighlightSprite,
       glm::vec2(SecondaryItemX, ItemTrophyY));
   Trophy->OnClickHandler = secondaryOnClick;
-  Trophy->isSubButton = true;
+  Trophy->IsSubButton = true;
   Trophy->LineDecoration = LineSprites[5];
   Trophy->LineY = SecondaryMenuExtraTrophyY;
   ExtraItems->Add(Trophy, FocusDirection::Vertical);
@@ -173,7 +169,7 @@ TitleMenu::TitleMenu() {
       SecondaryItemHighlightSprite,
       glm::vec2(SecondaryItemX, ItemConfigY));
   Config->OnClickHandler = secondaryOnClick;
-  Config->isSubButton = true;
+  Config->IsSubButton = true;
   Config->LineDecoration = LineSprites[2];
   Config->LineY = SecondaryMenuSystemConfigY;
   SystemItems->Add(Config, FocusDirection::Vertical);
@@ -183,7 +179,7 @@ TitleMenu::TitleMenu() {
       SecondaryItemHighlightSprite, 
       glm::vec2(SecondaryItemX, ItemSystemSaveY));
   SystemSave->OnClickHandler = secondaryOnClick;
-  SystemSave->isSubButton = true;
+  SystemSave->IsSubButton = true;
   SystemSave->LineDecoration = LineSprites[3];
   SystemSave->LineY = SecondaryMenuSystemSaveY;
   SystemItems->Add(SystemSave, FocusDirection::Vertical);
@@ -259,20 +255,20 @@ void TitleMenu::Update(float dt) {
       case 3: {  // Main Menu Fade In
         if (!MainItems->IsShown && ScrWork[SW_TITLECT] == 0) {
           MainItems->Show();
-          MainItems->Opacity = 0.0f;
-          PrimaryFadeAnimation.DurationIn = 0.3f;
-          PrimaryFadeAnimation.DurationOut = 0.3f;
+          MainItems->Opacity = Opacity;
+          PrimaryFadeAnimation.DurationIn = PrimaryFadeInDuration;
+          PrimaryFadeAnimation.DurationOut = PrimaryFadeOutDuration;
           PrimaryFadeAnimation.StartIn();
         }
       } break;
       case 7: {  // Secondary menu Load Fade In
         if (!LoadItems->IsShown && ScrWork[SW_TITLECT] == 0) {
           LoadItems->Show();
-          LoadItems->Opacity = 0.0f;
+          LoadItems->Opacity = Opacity;
           MainItems->HasFocus = false;
 
-          SecondaryFadeAnimation.DurationIn = 0.512f;
-          SecondaryFadeAnimation.DurationOut = 0.512f;
+          SecondaryFadeAnimation.DurationIn = SecondaryFadeInDuration;
+          SecondaryFadeAnimation.DurationOut = SecondaryFadeOutDuration;
           SecondaryFadeAnimation.StartIn();
 
         } else if (LoadItems->IsShown && ScrWork[SW_TITLECT] == 32) {
@@ -286,11 +282,11 @@ void TitleMenu::Update(float dt) {
       case 9: {  // Secondary menu Extra Fade In
         if (!ExtraItems->IsShown && ScrWork[SW_TITLECT] == 0) {
           ExtraItems->Show();
-          ExtraItems->Opacity = 0.0f;
+          ExtraItems->Opacity = Opacity;
           MainItems->HasFocus = false;
 
-          SecondaryFadeAnimation.DurationIn = 0.512f;
-          SecondaryFadeAnimation.DurationOut = 0.512f;
+          SecondaryFadeAnimation.DurationIn = SecondaryFadeInDuration;
+          SecondaryFadeAnimation.DurationOut = SecondaryFadeOutDuration;
           SecondaryFadeAnimation.StartIn();
 
         } else if (ExtraItems->IsShown && ScrWork[SW_TITLECT] == 32) {
@@ -304,11 +300,11 @@ void TitleMenu::Update(float dt) {
       case 11: {  // Secondary menu System Fade In
         if (!SystemItems->IsShown && ScrWork[SW_TITLECT] == 0) {
           SystemItems->Show();
-          SystemItems->Opacity = 0.0f;
+          SystemItems->Opacity = Opacity;
           MainItems->HasFocus = false;
 
-          SecondaryFadeAnimation.DurationIn = 0.512f;
-          SecondaryFadeAnimation.DurationOut = 0.512f;
+          SecondaryFadeAnimation.DurationIn = SecondaryFadeInDuration;
+          SecondaryFadeAnimation.DurationOut = SecondaryFadeOutDuration;
           SecondaryFadeAnimation.StartIn();
 
         } else if (SystemItems->IsShown && ScrWork[SW_TITLECT] == 32) {

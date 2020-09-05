@@ -10,6 +10,8 @@ namespace TitleMenu {
 
 void Configure();
 
+static int const LineEntriesNumMax = 32;
+
 extern Sprite BackgroundSprite;
 extern Sprite DelusionADVUnderSprite;
 extern Sprite DelusionADVSprite;
@@ -25,12 +27,7 @@ extern Sprite ExclMarkLogoSprite;
 extern Sprite CopyrightTextSprite;
 extern Sprite SpinningCircleSprite;
 extern Sprite ItemHighlightSprite;
-extern Sprite ItemHyperUpLine;
-extern Sprite ItemSuperUpLine;
-extern Sprite ItemUpLine;
-extern Sprite ItemStraightLine;
-extern Sprite ItemDownLine;
-extern Sprite ItemSuperDownLine;
+extern Sprite LineSprites[LineEntriesNumMax];
 extern Sprite ItemLoadQuickSprite;
 extern Sprite ItemLoadSprite;
 extern Sprite ItemLoadQuickHighlightedSprite;
@@ -70,6 +67,13 @@ extern float ItemPadding;
 extern float ItemYBase;
 extern float ItemFadeInDuration;
 extern float ItemFadeOutDuration;
+extern float SecondaryItemFadeInDuration;
+extern float SecondaryItemFadeOutDuration;
+extern float PrimaryFadeInDuration;
+extern float PrimaryFadeOutDuration;
+extern float SecondaryFadeInDuration;
+extern float SecondaryFadeOutDuration;
+extern float Opacity;
 extern float SecondaryItemX;
 extern float ItemLoadY;
 extern float ItemLoadQuickY;
@@ -95,6 +99,8 @@ extern float SecondaryMenuExtraTipsY;
 extern float SecondaryMenuExtraTrophyY;
 extern float SecondaryMenuSystemConfigY;
 extern float SecondaryMenuSystemSaveY;
+
+extern int LineNum;
 
 }  // namespace TitleMenu
 }  // namespace CHLCC

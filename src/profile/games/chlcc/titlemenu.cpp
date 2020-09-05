@@ -28,12 +28,7 @@ Sprite ExclMarkLogoSprite;
 Sprite CopyrightTextSprite;
 Sprite SpinningCircleSprite;
 Sprite ItemHighlightSprite;
-Sprite ItemHyperUpLine;
-Sprite ItemSuperUpLine;
-Sprite ItemUpLine;
-Sprite ItemStraightLine;
-Sprite ItemDownLine;
-Sprite ItemSuperDownLine;
+Sprite LineSprites[LineEntriesNumMax];
 Sprite ItemLoadQuickSprite;
 Sprite ItemLoadSprite;
 Sprite ItemLoadQuickHighlightedSprite;
@@ -73,6 +68,13 @@ float ItemPadding;
 float ItemYBase;
 float ItemFadeInDuration;
 float ItemFadeOutDuration;
+float SecondaryItemFadeInDuration;
+float SecondaryItemFadeOutDuration;
+float PrimaryFadeInDuration;
+float PrimaryFadeOutDuration;
+float SecondaryFadeInDuration;
+float SecondaryFadeOutDuration;
+float Opacity;
 float SecondaryItemX;
 float ItemLoadY;
 float ItemLoadQuickY;
@@ -98,6 +100,8 @@ float SecondaryMenuExtraTipsY;
 float SecondaryMenuExtraTrophyY;
 float SecondaryMenuSystemConfigY;
 float SecondaryMenuSystemSaveY;
+
+int LineNum;
 
 static void GetMemberSpriteArray(Sprite* arr, uint32_t count,
                                  char const* name) {
@@ -166,12 +170,15 @@ void Configure() {
   ItemYBase = EnsureGetMemberFloat("ItemYBase");
   ItemFadeInDuration = EnsureGetMemberFloat("ItemFadeInDuration");
   ItemFadeOutDuration = EnsureGetMemberFloat("ItemFadeOutDuration");
-  ItemHyperUpLine = EnsureGetMemberSprite("ItemHyperUpLine");
-  ItemSuperUpLine = EnsureGetMemberSprite("ItemSuperUpLine");
-  ItemUpLine = EnsureGetMemberSprite("ItemUpLine");
-  ItemStraightLine = EnsureGetMemberSprite("ItemStraightLine");
-  ItemDownLine = EnsureGetMemberSprite("ItemDownLine");
-  ItemSuperDownLine = EnsureGetMemberSprite("ItemSuperDownLine");
+  SecondaryItemFadeInDuration = EnsureGetMemberFloat("SecondaryItemFadeInDuration");
+  SecondaryItemFadeOutDuration = EnsureGetMemberFloat("SecondaryItemFadeOutDuration");
+  PrimaryFadeInDuration = EnsureGetMemberFloat("PrimaryFadeInDuration");
+  PrimaryFadeOutDuration = EnsureGetMemberFloat("PrimaryFadeOutDuration");
+  SecondaryFadeInDuration = EnsureGetMemberFloat("SecondaryFadeInDuration");
+  SecondaryFadeOutDuration = EnsureGetMemberFloat("SecondaryFadeOutDuration");
+  Opacity = EnsureGetMemberFloat("Opacity");
+  LineNum = EnsureGetMemberInt("LineNum");
+  GetMemberSpriteArray(LineSprites, LineNum, "LineEntriesSprites");
   ItemLoadQuickSprite = EnsureGetMemberSprite("ItemLoadQuickSprite");
   SecondaryItemX = EnsureGetMemberFloat("SecondaryItemX");
   ItemLoadY = EnsureGetMemberFloat("ItemLoadY");
@@ -217,8 +224,9 @@ void Configure() {
   menu->ItemsFadeInAnimation.DurationIn = ItemFadeInDuration;
   menu->ItemsFadeInAnimation.DurationOut = ItemFadeOutDuration;
 
-  menu->SecondaryItemsFadeInAnimation.DurationIn = 0.2f;
-  menu->SecondaryItemsFadeInAnimation.DurationOut = 0.2f;
+  menu->SecondaryItemsFadeInAnimation.DurationIn = SecondaryItemFadeInDuration;
+  menu->SecondaryItemsFadeInAnimation.DurationOut =
+      SecondaryItemFadeOutDuration;
 
   menu->SpinningCircleAnimation.LoopMode = ALM_Loop;
   menu->SpinningCircleAnimation.DurationIn = SpinningCircleAnimationDuration;

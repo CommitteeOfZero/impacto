@@ -17,7 +17,7 @@ void TitleButton::Render() {
   white.a = Opacity;
 
   if (HasFocus) {
-    if (!isSubButton) {  //Main buttons
+    if (!IsSubButton) {  //Main buttons
     Renderer2D::DrawSprite(HighlightSprite,
                            glm::vec2(Bounds.X - ItemHighlightOffsetX,
                                      Bounds.Y - ItemHighlightOffsetY),

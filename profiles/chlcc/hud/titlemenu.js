@@ -53,6 +53,13 @@ root.TitleMenu = {
     ItemYBase: 69,
     ItemFadeInDuration: 0.3,
     ItemFadeOutDuration: 0.6,
+    SecondaryItemFadeInDuration: 0.2,
+    SecondaryItemFadeOutDuration: 0.2,
+    PrimaryFadeInDuration: 0.3,
+    PrimaryFadeOutDuration: 0.3,
+    SecondaryFadeInDuration: 0.512,
+    SecondaryFadeOutDuration: 0.512,
+    Opacity: 0.0,
     ItemHyperUpLine:"TitleMenuItemHyperUpLine",
     ItemSuperUpLine: "TitleMenuItemSuperUpLine",
     ItemUpLine: "TitleMenuItemUpLine",
@@ -91,7 +98,9 @@ root.TitleMenu = {
     SecondaryMenuSystemSaveY: 199,
     MenuEntriesNum: 14,
     MenuEntriesSprites: [],
-    MenuEntriesHighlightedSprites: []
+    MenuEntriesHighlightedSprites: [],
+    LineNum: 6,
+    LineEntriesSprites: []
 };
 
 for (var i = 0; i < 4; i++) {
@@ -255,6 +264,8 @@ root.Sprites["TitleMenuItemSuperDownLine"] = {
     Sheet: "Title",
     Bounds: { X: 1805, Y: 959, Width: 51, Height: 54 },
 };
+
+root.TitleMenu.LineEntriesSprites.push("TitleMenuItemHyperUpLine", "TitleMenuItemSuperUpLine", "TitleMenuItemUpLine", "TitleMenuItemStraightLine", "TitleMenuItemDownLine", "TitleMenuItemSuperDownLine");
 
 root.Sprites["TitleMenuItemLoadQuick"] = {
     Sheet: "Title",
