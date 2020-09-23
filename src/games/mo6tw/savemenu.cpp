@@ -23,8 +23,6 @@ using namespace Impacto::UI::Widgets::MO6TW;
 
 Widget* EntryGrid[RowsPerPage][EntriesPerRow];
 
-uint8_t TestText[] = {0x80, 0x9D, 0x80, 0xA8, 0x80, 0xB6, 0x80, 0xB7, 0xFF};
-
 void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
   if ((SaveSystem::GetSaveSatus(SaveSystem::SaveType::SaveFull, target->Id) !=
        0) ||
