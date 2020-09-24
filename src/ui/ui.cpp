@@ -5,9 +5,9 @@ namespace UI {
 
 Menu* FocusedMenu = 0;
 
-Menu* SystemMenuPtr = 0;
-Menu* TitleMenuPtr = 0;
-Menu* SaveMenuPtr = 0;
+Menu* SystemMenuPtr = new NullMenu();
+Menu* TitleMenuPtr = new NullMenu();
+Menu* SaveMenuPtr = new NullMenu();
 
 SelectionMenu* SelectionMenuPtr = 0;
 SysMesBox* SysMesBoxPtr = 0;

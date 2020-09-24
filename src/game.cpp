@@ -191,8 +191,8 @@ void Update(float dt) {
 
     UI::SysMesBoxPtr->Update(dt);
     UI::TitleMenuPtr->Update(dt);
-    //UI::SystemMenuPtr->Update(dt);
-    //UI::SaveMenuPtr->Update(dt);
+    UI::SystemMenuPtr->Update(dt);
+    UI::SaveMenuPtr->Update(dt);
     UI::SelectionMenuPtr->Update(dt);
 
     SaveIconDisplay::Update(dt);
@@ -413,8 +413,11 @@ void Render() {
           break;
         }
         case TD_SystemMenu: {
-          UI::TitleMenuPtr->Render();
-          //UI::SystemMenuPtr->Render();
+          // TODO: Ehhh... not the greatest way of doing this...
+          if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::CHLCC) {
+            UI::TitleMenuPtr->Render();
+          }
+          UI::SystemMenuPtr->Render();
           break;
         }
         case TD_SystemMessage: {

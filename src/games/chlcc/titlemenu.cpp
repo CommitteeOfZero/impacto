@@ -45,59 +45,62 @@ TitleMenu::TitleMenu() {
                                     std::placeholders::_1);
 
   // Start menu button
-  Start = new TitleButton(0, MenuEntriesSprites[0], MenuEntriesHSprites[0], 
-      ItemHighlightSprite,
-      glm::vec2(((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
+  Start = new TitleButton(
+      0, MenuEntriesSprites[0], MenuEntriesHSprites[0], ItemHighlightSprite,
+      glm::vec2(
+          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
               ItemHighlightOffsetX,
           ((ItemYBase - 1.0f) + (0 * ItemPadding))));
   Start->OnClickHandler = onClick;
-  Start->IsSubButton = false;
+  Start->HasFocus = true;
+
   MainItems->Add(Start, FocusDirection::Vertical);
 
   // Load menu button
-  Load = new TitleButton(1, MenuEntriesSprites[1], MenuEntriesHSprites[1], 
-      ItemHighlightSprite,
-      glm::vec2(((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
+  Load = new TitleButton(
+      1, MenuEntriesSprites[1], MenuEntriesHSprites[1], ItemHighlightSprite,
+      glm::vec2(
+          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
               ItemHighlightOffsetX,
           ((ItemYBase - 1.0f) + (1 * ItemPadding))));
   Load->OnClickHandler = onClick;
-  Load->IsSubButton = false;
   MainItems->Add(Load, FocusDirection::Vertical);
 
   // Extra menu button
-  Extra = new TitleButton(2, MenuEntriesSprites[2], MenuEntriesHSprites[2], 
-      ItemHighlightSprite,
-      glm::vec2(((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
+  Extra = new TitleButton(
+      2, MenuEntriesSprites[2], MenuEntriesHSprites[2], ItemHighlightSprite,
+      glm::vec2(
+          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
               ItemHighlightOffsetX,
           ((ItemYBase - 1.0f) + (2 * ItemPadding))));
   Extra->OnClickHandler = onClick;
-  Extra->IsSubButton = false;
   MainItems->Add(Extra, FocusDirection::Vertical);
 
   // System menu button
-  System = new TitleButton(3, MenuEntriesSprites[3], MenuEntriesHSprites[3], 
-      ItemHighlightSprite,
-      glm::vec2(((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
+  System = new TitleButton(
+      3, MenuEntriesSprites[3], MenuEntriesHSprites[3], ItemHighlightSprite,
+      glm::vec2(
+          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
               ItemHighlightOffsetX,
           ((ItemYBase - 1.0f) + (3 * ItemPadding))));
   System->OnClickHandler = onClick;
-  System->IsSubButton = false;
   MainItems->Add(System, FocusDirection::Vertical);
 
   // Quick Load secondary Load menu button
-  QuickLoad = new TitleButton(4, MenuEntriesSprites[4], MenuEntriesHSprites[4],
-      SecondaryItemHighlightSprite,
-      glm::vec2(SecondaryItemX, ItemLoadQuickY));
+  QuickLoad = new TitleButton(0, MenuEntriesSprites[4], MenuEntriesHSprites[4],
+                              SecondaryItemHighlightSprite,
+                              glm::vec2(SecondaryItemX, ItemLoadQuickY));
   QuickLoad->OnClickHandler = secondaryOnClick;
+  QuickLoad->HasFocus = true;
   QuickLoad->IsSubButton = true;
   QuickLoad->LineDecoration = LineSprites[2];
   QuickLoad->LineY = SecondaryMenuLoadLineY;
   LoadItems->Add(QuickLoad, FocusDirection::Vertical);
 
   // Sub Load secondary Load menu button
-  SubLoad = new TitleButton(5, MenuEntriesSprites[5], MenuEntriesHSprites[5],
-      SecondaryItemHighlightSprite,
-      glm::vec2(SecondaryItemX, ItemLoadY));
+  SubLoad = new TitleButton(1, MenuEntriesSprites[5], MenuEntriesHSprites[5],
+                            SecondaryItemHighlightSprite,
+                            glm::vec2(SecondaryItemX, ItemLoadY));
   SubLoad->OnClickHandler = secondaryOnClick;
   SubLoad->IsSubButton = true;
   SubLoad->LineDecoration = LineSprites[3];
@@ -105,19 +108,20 @@ TitleMenu::TitleMenu() {
   LoadItems->Add(SubLoad, FocusDirection::Vertical);
 
   // Clear List secondary Extra menu button
-  ClearList = new TitleButton(6, MenuEntriesSprites[6], MenuEntriesHSprites[6],
-      SecondaryItemHighlightSprite,
-      glm::vec2(SecondaryItemX, ItemClearListY));
+  ClearList = new TitleButton(0, MenuEntriesSprites[6], MenuEntriesHSprites[6],
+                              SecondaryItemHighlightSprite,
+                              glm::vec2(SecondaryItemX, ItemClearListY));
   ClearList->OnClickHandler = secondaryOnClick;
   ClearList->IsSubButton = true;
+  ClearList->HasFocus = true;
   ClearList->LineDecoration = LineSprites[0];
   ClearList->LineY = SecondaryMenuExtraClearY;
   ExtraItems->Add(ClearList, FocusDirection::Vertical);
 
   // CG Library secondary Extra menu button
-  CGLibrary = new TitleButton(7, MenuEntriesSprites[7], MenuEntriesHSprites[7],
-      SecondaryItemHighlightSprite,
-      glm::vec2(SecondaryItemX, ItemCGLibraryY));
+  CGLibrary = new TitleButton(1, MenuEntriesSprites[7], MenuEntriesHSprites[7],
+                              SecondaryItemHighlightSprite,
+                              glm::vec2(SecondaryItemX, ItemCGLibraryY));
   CGLibrary->OnClickHandler = secondaryOnClick;
   CGLibrary->IsSubButton = true;
   CGLibrary->LineDecoration = LineSprites[1];
@@ -125,9 +129,10 @@ TitleMenu::TitleMenu() {
   ExtraItems->Add(CGLibrary, FocusDirection::Vertical);
 
   // Sound Library secondary Extra menu button
-  SoundLibrary = new TitleButton(8, MenuEntriesSprites[8], MenuEntriesHSprites[8],
-      SecondaryItemHighlightSprite, 
-      glm::vec2(SecondaryItemX, ItemSoundLibraryY));
+  SoundLibrary =
+      new TitleButton(2, MenuEntriesSprites[8], MenuEntriesHSprites[8],
+                      SecondaryItemHighlightSprite,
+                      glm::vec2(SecondaryItemX, ItemSoundLibraryY));
   SoundLibrary->OnClickHandler = secondaryOnClick;
   SoundLibrary->IsSubButton = true;
   SoundLibrary->LineDecoration = LineSprites[2];
@@ -135,9 +140,10 @@ TitleMenu::TitleMenu() {
   ExtraItems->Add(SoundLibrary, FocusDirection::Vertical);
 
   // Movie Library secondary Extra menu button
-  MovieLibrary = new TitleButton(9, MenuEntriesSprites[9], MenuEntriesHSprites[9],
-      SecondaryItemHighlightSprite,
-      glm::vec2(SecondaryItemX, ItemMovieLibraryY));
+  MovieLibrary =
+      new TitleButton(3, MenuEntriesSprites[9], MenuEntriesHSprites[9],
+                      SecondaryItemHighlightSprite,
+                      glm::vec2(SecondaryItemX, ItemMovieLibraryY));
   MovieLibrary->OnClickHandler = secondaryOnClick;
   MovieLibrary->IsSubButton = true;
   MovieLibrary->LineDecoration = LineSprites[3];
@@ -145,9 +151,9 @@ TitleMenu::TitleMenu() {
   ExtraItems->Add(MovieLibrary, FocusDirection::Vertical);
 
   // Tips secondary Extra menu button
-  Tips = new TitleButton(10, MenuEntriesSprites[10], MenuEntriesHSprites[10],
-      SecondaryItemHighlightSprite,
-      glm::vec2(SecondaryItemX, ItemTipsY));
+  Tips = new TitleButton(4, MenuEntriesSprites[10], MenuEntriesHSprites[10],
+                         SecondaryItemHighlightSprite,
+                         glm::vec2(SecondaryItemX, ItemTipsY));
   Tips->OnClickHandler = secondaryOnClick;
   Tips->IsSubButton = true;
   Tips->LineDecoration = LineSprites[4];
@@ -155,9 +161,9 @@ TitleMenu::TitleMenu() {
   ExtraItems->Add(Tips, FocusDirection::Vertical);
 
   // Trophy secondary Extra menu button
-  Trophy = new TitleButton(11, MenuEntriesSprites[11], MenuEntriesHSprites[11],
-      SecondaryItemHighlightSprite,
-      glm::vec2(SecondaryItemX, ItemTrophyY));
+  Trophy = new TitleButton(5, MenuEntriesSprites[11], MenuEntriesHSprites[11],
+                           SecondaryItemHighlightSprite,
+                           glm::vec2(SecondaryItemX, ItemTrophyY));
   Trophy->OnClickHandler = secondaryOnClick;
   Trophy->IsSubButton = true;
   Trophy->LineDecoration = LineSprites[5];
@@ -165,19 +171,20 @@ TitleMenu::TitleMenu() {
   ExtraItems->Add(Trophy, FocusDirection::Vertical);
 
   // Option secondary System menu button
-  Config = new TitleButton(12, MenuEntriesSprites[12], MenuEntriesHSprites[12],
-      SecondaryItemHighlightSprite,
-      glm::vec2(SecondaryItemX, ItemConfigY));
+  Config = new TitleButton(0, MenuEntriesSprites[12], MenuEntriesHSprites[12],
+                           SecondaryItemHighlightSprite,
+                           glm::vec2(SecondaryItemX, ItemConfigY));
   Config->OnClickHandler = secondaryOnClick;
   Config->IsSubButton = true;
+  Config->HasFocus = true;
   Config->LineDecoration = LineSprites[2];
   Config->LineY = SecondaryMenuSystemConfigY;
   SystemItems->Add(Config, FocusDirection::Vertical);
 
   // System Save secondary System menu button
-  SystemSave = new TitleButton(13, MenuEntriesSprites[13], MenuEntriesHSprites[13],
-      SecondaryItemHighlightSprite, 
-      glm::vec2(SecondaryItemX, ItemSystemSaveY));
+  SystemSave = new TitleButton(
+      1, MenuEntriesSprites[13], MenuEntriesHSprites[13],
+      SecondaryItemHighlightSprite, glm::vec2(SecondaryItemX, ItemSystemSaveY));
   SystemSave->OnClickHandler = secondaryOnClick;
   SystemSave->IsSubButton = true;
   SystemSave->LineDecoration = LineSprites[3];
@@ -241,7 +248,7 @@ void TitleMenu::Update(float dt) {
     SystemItems->Opacity =
         glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
     SystemItems->Update(dt);
-    
+
     switch (ScrWork[SW_TITLEDISPCT]) {
       case 0: {
         // When returning to title menu from loading a game we need to hide the
@@ -340,7 +347,7 @@ void TitleMenu::Render() {
         case 2: {  // Transition between Press to start and menus
           DrawTitleMenuBackGraphics();
         } break;
-        case 3:    // MenuItems Fade In
+        case 3:  // MenuItems Fade In
           if (ItemsFadeInAnimation.IsOut() &&
               ItemsFadeInAnimation.State != AS_Playing)
             ItemsFadeInAnimation.StartIn();

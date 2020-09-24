@@ -13,7 +13,7 @@ class TitleButton : public Widgets::Button {
               Sprite const& highlight, glm::vec2 pos)
       : Widgets::Button(id, norm, focused, highlight, pos) {}
   void Render() override;
-  bool IsSubButton;
+  bool IsSubButton = false;
   Sprite LineDecoration;
   float LineY;
 };

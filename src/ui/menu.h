@@ -19,7 +19,7 @@ class Menu {
   virtual void Update(float dt) = 0;
   virtual void Render() = 0;
 
-  MenuState State;
+  MenuState State = Hidden;
 
   bool IsFocused = false;
   bool ChoiceMade = false;

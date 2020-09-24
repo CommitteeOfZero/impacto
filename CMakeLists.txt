@@ -101,6 +101,7 @@ set(Impacto_Src
     src/ui/ui.cpp
     src/ui/widget.cpp
     src/ui/widgetgroup.cpp
+    src/ui/nullmenu.cpp
     src/ui/selectionmenu.cpp
     src/ui/sysmesbox.cpp
     src/ui/widgets/label.cpp
@@ -284,6 +285,7 @@ set(Impacto_Header
     src/ui/ui.h
     src/ui/widgetgroup.h
     src/ui/menu.h
+    src/ui/nullmenu.h
     src/ui/selectionmenu.h
     src/ui/sysmesbox.h
     src/ui/widget.h
