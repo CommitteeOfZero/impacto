@@ -10,6 +10,8 @@ namespace TitleMenu {
 
 void Configure();
 
+static int const LineEntriesNumMax = 32;
+
 extern Sprite BackgroundSprite;
 extern Sprite DelusionADVUnderSprite;
 extern Sprite DelusionADVSprite;
@@ -25,8 +27,7 @@ extern Sprite ExclMarkLogoSprite;
 extern Sprite CopyrightTextSprite;
 extern Sprite SpinningCircleSprite;
 extern Sprite ItemHighlightSprite;
-extern Sprite ItemLoadLineSprite;
-extern Sprite ItemLoadQuickLineSprite;
+extern Sprite LineSprites[LineEntriesNumMax];
 extern Sprite ItemLoadQuickSprite;
 extern Sprite ItemLoadSprite;
 extern Sprite ItemLoadQuickHighlightedSprite;
@@ -66,15 +67,40 @@ extern float ItemPadding;
 extern float ItemYBase;
 extern float ItemFadeInDuration;
 extern float ItemFadeOutDuration;
-extern float ItemLoadX;
+extern float SecondaryItemFadeInDuration;
+extern float SecondaryItemFadeOutDuration;
+extern float PrimaryFadeInDuration;
+extern float PrimaryFadeOutDuration;
+extern float SecondaryFadeInDuration;
+extern float SecondaryFadeOutDuration;
+extern float Opacity;
+extern float SecondaryItemX;
 extern float ItemLoadY;
 extern float ItemLoadQuickY;
+extern float ItemClearListY;
+extern float ItemCGLibraryY;
+extern float ItemSoundLibraryY;
+extern float ItemMovieLibraryY;
+extern float ItemTipsY;
+extern float ItemTrophyY;
+extern float ItemConfigY;
+extern float ItemSystemSaveY;
 extern float SecondaryItemHighlightX;
 extern float SecondaryMenuPaddingY;
 extern float SecondaryMenuLoadOffsetY;
-extern float SecondaryMenuLoadLineX;
+extern float SecondaryMenuLineX;
 extern float SecondaryMenuLoadLineY;
 extern float SecondaryMenuLoadQuickLineY;
+extern float SecondaryMenuExtraClearY;
+extern float SecondaryMenuExtraCGY;
+extern float SecondaryMenuExtraSoundY;
+extern float SecondaryMenuExtraMovieY;
+extern float SecondaryMenuExtraTipsY;
+extern float SecondaryMenuExtraTrophyY;
+extern float SecondaryMenuSystemConfigY;
+extern float SecondaryMenuSystemSaveY;
+
+extern int LineNum;
 
 }  // namespace TitleMenu
 }  // namespace CHLCC

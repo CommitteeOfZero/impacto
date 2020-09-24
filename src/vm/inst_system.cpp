@@ -312,7 +312,13 @@ VmInstruction(InstSystemMes) {
           ScriptBuffers[thread->ScriptBufferId], sysSelStrNum));
     } break;
     case 5:  // SystemMesMain
-      if (!UI::SysMesBoxPtr->ChoiceMade) {
+      if (!UI::SysMesBoxPtr->ChoiceMade &&
+          (UI::SysMesBoxPtr->ChoiceCount > 0)) {
+        ResetInstruction;
+        BlockThread;
+      } else if (UI::SysMesBoxPtr->ChoiceCount == 0 &&
+                 !(Interface::PADinputButtonWentDown & Interface::PAD1A ||
+                   Interface::PADinputMouseWentDown & Interface::PAD1A)) {
         ResetInstruction;
         BlockThread;
       }
