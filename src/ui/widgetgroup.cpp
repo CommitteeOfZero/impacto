@@ -17,6 +17,7 @@ void WidgetGroup::Add(Widget* widget, int focusDirection) {
   if (focusDirection & FocusDirection::Horizontal) {
     HorizontalFocusChain.push_back(Children.size());
   }
+  if (widget->HasFocus) FocusId = Children.size();
   Children.push_back(widget);
 }
 
@@ -90,11 +91,14 @@ void WidgetGroup::UpdateInput() {
   }
 
   for (auto el : Children) {
-    if (el->Enabled && el->HasFocus) {
+    el->UpdateInput();
+    if (el->Enabled && el->Hovered &&
+        Input::CurrentInputDevice == Input::IDEV_Mouse) {
+      if (FocusId != -1) Children[FocusId]->HasFocus = false;
+      el->HasFocus = true;
       auto it = std::find(Children.begin(), Children.end(), el);
       FocusId = std::distance(Children.begin(), it);
     }
-    el->UpdateInput();
   }
 }
 void WidgetGroup::Update(float dt) {

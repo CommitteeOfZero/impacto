@@ -28,7 +28,6 @@ void Button::UpdateInput() {
   if (Enabled) {
     if (Input::PrevMousePos != Input::CurMousePos) {
       Hovered = Bounds.ContainsPoint(Input::CurMousePos);
-      HasFocus = Hovered;
     }
     if (HasFocus &&
         ((Hovered &&
