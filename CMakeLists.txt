@@ -477,10 +477,16 @@ else()
 
     list(APPEND Impacto_Libs
         ${SDL2_LIBRARIES}
-        glm
         ZLIB::ZLIB
         ${OGGVORBIS_LIBRARIES}
     )
+
+    # If we don't do this it decides to link glm as a library on macOS for some reason
+    if(NOT APPLE)
+        list(APPEND Impacto_Libs
+            glm
+        )
+    endif()
 
     add_definitions(-DIMPACTO_OPENAL_HAVE_ALEXT)
 endif()

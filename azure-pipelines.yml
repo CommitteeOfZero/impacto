@@ -107,17 +107,17 @@ jobs:
         profiles/**/*
         games/**/*
         src/shaders/**/*
-      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/impacto'
   - task: CopyFiles@2
     displayName: Copy artifact
     inputs:
       SourceFolder: 'src'
       Contents: 'shaders/**/*'
-      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/impacto'
   - task: ArchiveFiles@2
     displayName: Archive artifact
     inputs:
-      rootFolderOrFile: '$(Build.ArtifactStagingDirectory)'
+      rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/impacto'
       includeRootFolder: true
       archiveType: 'zip'
       archiveFile: '$(Build.ArtifactStagingDirectory)/impacto-linux-$(version)-$(Build.SourceVersion).zip'
@@ -128,53 +128,53 @@ jobs:
       ArtifactName: 'release'
       publishLocation: 'Container'
 
-#- job: macos_build
-#  displayName: macOS Build
-#
-#  pool:
-#    vmImage: 'macOS-latest'
-#  
-#  steps:
-#  - script: |
-#      brew install openal-soft sdl2 glm
-#      pushd vendor
-#      git clone https://github.com/Thealexbarney/LibAtrac9.git --depth 1
-#      cd LibAtrac9/C && make
-#      mkdir -p ../include/libatrac9
-#      mkdir -p ../libs
-#      cp bin/libatrac9.a ../libs/
-#      cp src/libatrac9.h ../include/libatrac9/
-#      popd
-#      LIBATRAC9DIR=vendor/LibAtrac9 cmake -DOPENAL_LIBRARY=/usr/local/opt/openal-soft/lib/libopenal.dylib -DOPENAL_INCLUDE_DIR=/usr/local/opt/openal-soft/include/AL .
-#      make -j2
-#  - task: CopyFiles@2
-#    displayName: Copy artifact
-#    inputs:
-#      Contents: |
-#        impacto
-#        profiles/**/*
-#        games/**/*
-#        src/shaders/**/*
-#      TargetFolder: '$(Build.ArtifactStagingDirectory)'
-#  - task: CopyFiles@2
-#    displayName: Copy artifact
-#    inputs:
-#      SourceFolder: 'src'
-#      Contents: 'shaders/**/*'
-#      TargetFolder: '$(Build.ArtifactStagingDirectory)'
-#  - task: ArchiveFiles@2
-#    displayName: Archive artifact
-#    inputs:
-#      rootFolderOrFile: '$(Build.ArtifactStagingDirectory)'
-#      includeRootFolder: true
-#      archiveType: 'zip'
-#      archiveFile: '$(Build.ArtifactStagingDirectory)/impacto-macos-$(version)-$(Build.SourceVersion).zip'
-#      replaceExistingArchive: true
-#  - task: PublishBuildArtifacts@1
-#    inputs:
-#      PathtoPublish: '$(Build.ArtifactStagingDirectory)/impacto-macos-$(version)-$(Build.SourceVersion).zip'
-#      ArtifactName: 'release'
-#      publishLocation: 'Container'
+- job: macos_build
+  displayName: macOS Build
+
+  pool:
+    vmImage: 'macOS-latest'
+  
+  steps:
+  - script: |
+      brew install openal-soft sdl2 glm
+      pushd vendor
+      git clone https://github.com/Thealexbarney/LibAtrac9.git --depth 1
+      cd LibAtrac9/C && make
+      mkdir -p ../include/libatrac9
+      mkdir -p ../libs
+      cp bin/libatrac9.a ../libs/
+      cp src/libatrac9.h ../include/libatrac9/
+      popd
+      LIBATRAC9DIR=vendor/LibAtrac9 cmake -DOPENAL_LIBRARY=/usr/local/opt/openal-soft/lib/libopenal.dylib -DOPENAL_INCLUDE_DIR=/usr/local/opt/openal-soft/include/AL .
+      make -j2
+  - task: CopyFiles@2
+    displayName: Copy artifact
+    inputs:
+      Contents: |
+        impacto
+        profiles/**/*
+        games/**/*
+        src/shaders/**/*
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/impacto'
+  - task: CopyFiles@2
+    displayName: Copy artifact
+    inputs:
+      SourceFolder: 'src'
+      Contents: 'shaders/**/*'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/impacto'
+  - task: ArchiveFiles@2
+    displayName: Archive artifact
+    inputs:
+      rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/impacto'
+      includeRootFolder: true
+      archiveType: 'zip'
+      archiveFile: '$(Build.ArtifactStagingDirectory)/impacto-macos-$(version)-$(Build.SourceVersion).zip'
+      replaceExistingArchive: true
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/impacto-macos-$(version)-$(Build.SourceVersion).zip'
+      ArtifactName: 'release'
+      publishLocation: 'Container'
 
 - job: publish_artifacts
   displayName: Publish Artifacts
@@ -233,16 +233,17 @@ jobs:
   dependsOn:
   - win_x64_build
   - linux_x64_build
-#  - macos_build
+  - macos_build
   variables:
     winBuildStatus: $[ dependencies.win_x64_build.result ]
     linuxBuildStatus: $[ dependencies.linux_x64_build.result ]
-#    macOSBuildStatus: $[ dependencies.macos_build.result ]
+    macOSBuildStatus: $[ dependencies.macos_build.result ]
   condition: |
     or
     (
       in(dependencies.win_x64_build.result, 'Failed', 'Canceled'),
-      in(dependencies.linux_x64_build.result, 'Failed', 'Canceled')
+      in(dependencies.linux_x64_build.result, 'Failed', 'Canceled'),
+      in(dependencies.macos_build.result, 'Failed', 'Canceled')
     )
 
   pool:

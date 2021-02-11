@@ -24,6 +24,7 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ii]nstall/
+cmake-build-*/
 
 # Visual Studio 2015 cache/options directory
 .vs/
@@ -197,6 +198,11 @@ ClientBin/
 *.publishsettings
 node_modules/
 orleans.codegen.cs
+*.cbp
+cmake_install.cmake
+include/
+Makefile
+.DS_Store
 
 # Since there are multiple workflows, uncomment next line to ignore bower_components
 # (https://github.com/github/gitignore/pull/1529#issuecomment-104372622)

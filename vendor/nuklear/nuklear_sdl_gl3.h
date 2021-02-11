@@ -16,7 +16,11 @@
 #define NK_SDL_GL3_H_
 
 #include <SDL.h>
+#ifdef __APPLE__
+#include <SDL2/SDL_opengl.h>
+#else
 #include <SDL_opengles2.h>
+#endif
 
 NK_API struct nk_context*   nk_sdl_init(SDL_Window *win, int max_vertex_buffer, int max_element_buffer);
 NK_API void                 nk_sdl_font_stash_begin(struct nk_font_atlas **atlas);
