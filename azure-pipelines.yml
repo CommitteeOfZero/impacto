@@ -195,8 +195,8 @@ jobs:
       downloadPath: '$(System.ArtifactsDirectory)'
   - task: GitHubRelease@1
     inputs:
-      gitHubConnection: 'github.com_MrRevo3D'
-      repositoryName: 'MrRevo3D/impacto'
+      gitHubConnection: 'github'
+      repositoryName: 'CommitteeOfZero/impacto'
       action: 'create'
       target: '$(Build.SourceVersion)'
       tagSource: 'userSpecifiedTag'
@@ -223,7 +223,7 @@ jobs:
       embeds: |
           [{
           "title": "$(commitAuthor)",
-          "description": "Commit\n`$(Build.SourceVersionMessage) ($(Build.SourceVersion))`\nfrom branch `$(Build.SourceBranchName)` has been successfully built.\n\nRelease URL:\nhttps://github.com/MrRevo3D/impacto/releases/tag/$(version)\n\nDetails:\n$(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)&view=results",
+          "description": "Commit\n`$(Build.SourceVersionMessage) ($(Build.SourceVersion))`\nfrom branch `$(Build.SourceBranchName)` has been successfully built.\n\nRelease URL:\nhttps://github.com/CommitteeOfZero/impacto/releases/tag/$(version)\n\nDetails:\n$(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)&view=results",
           "color": 3659647,
           "timestamp": "$(timestamp)"
           }]
