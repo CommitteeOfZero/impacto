@@ -24,8 +24,8 @@ float MenuEntriesX;
 float MenuEntriesXOffset;
 float MenuEntriesFirstY;
 float MenuEntriesYPadding;
-float FadeInDuration;
-float FadeOutDuration;
+float FadeInDuration = 0.5f;
+float FadeOutDuration = 0.5f;
 
 static void GetMemberSpriteArray(Sprite* arr, uint32_t count,
                                  char const* name) {
@@ -66,8 +66,8 @@ void Configure() {
                            "MenuEntriesHighlightedSprites");
     }
 
-    FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
-    FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
+    TryGetMemberFloat("FadeInDuration", FadeInDuration);
+    TryGetMemberFloat("FadeOutDuration", FadeOutDuration);
 
     if (Type == +SystemMenuType::RNE) {
       RNE::SystemMenu::Configure();
