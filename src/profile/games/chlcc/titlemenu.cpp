@@ -74,7 +74,6 @@ float PrimaryFadeInDuration;
 float PrimaryFadeOutDuration;
 float SecondaryFadeInDuration;
 float SecondaryFadeOutDuration;
-float Opacity;
 float SecondaryItemX;
 float ItemLoadY;
 float ItemLoadQuickY;
@@ -170,13 +169,14 @@ void Configure() {
   ItemYBase = EnsureGetMemberFloat("ItemYBase");
   ItemFadeInDuration = EnsureGetMemberFloat("ItemFadeInDuration");
   ItemFadeOutDuration = EnsureGetMemberFloat("ItemFadeOutDuration");
-  SecondaryItemFadeInDuration = EnsureGetMemberFloat("SecondaryItemFadeInDuration");
-  SecondaryItemFadeOutDuration = EnsureGetMemberFloat("SecondaryItemFadeOutDuration");
+  SecondaryItemFadeInDuration =
+      EnsureGetMemberFloat("SecondaryItemFadeInDuration");
+  SecondaryItemFadeOutDuration =
+      EnsureGetMemberFloat("SecondaryItemFadeOutDuration");
   PrimaryFadeInDuration = EnsureGetMemberFloat("PrimaryFadeInDuration");
   PrimaryFadeOutDuration = EnsureGetMemberFloat("PrimaryFadeOutDuration");
   SecondaryFadeInDuration = EnsureGetMemberFloat("SecondaryFadeInDuration");
   SecondaryFadeOutDuration = EnsureGetMemberFloat("SecondaryFadeOutDuration");
-  Opacity = EnsureGetMemberFloat("Opacity");
   LineNum = EnsureGetMemberInt("LineNum");
   GetMemberSpriteArray(LineSprites, LineNum, "LineEntriesSprites");
   ItemLoadQuickSprite = EnsureGetMemberSprite("ItemLoadQuickSprite");
@@ -211,7 +211,8 @@ void Configure() {
   SecondaryMenuExtraMovieY = EnsureGetMemberFloat("SecondaryMenuExtraMovieY");
   SecondaryMenuExtraTipsY = EnsureGetMemberFloat("SecondaryMenuExtraTipsY");
   SecondaryMenuExtraTrophyY = EnsureGetMemberFloat("SecondaryMenuExtraTrophyY");
-  SecondaryMenuSystemConfigY = EnsureGetMemberFloat("SecondaryMenuSystemConfigY");
+  SecondaryMenuSystemConfigY =
+      EnsureGetMemberFloat("SecondaryMenuSystemConfigY");
   SecondaryMenuSystemSaveY = EnsureGetMemberFloat("SecondaryMenuSystemSaveY");
 
   UI::CHLCC::TitleMenu* menu = new UI::CHLCC::TitleMenu();

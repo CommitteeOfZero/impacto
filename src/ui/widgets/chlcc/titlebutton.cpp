@@ -11,37 +11,30 @@ namespace CHLCC {
 using namespace Impacto::Profile::CHLCC::TitleMenu;
 
 void TitleButton::Render() {
-  glm::vec4 black(0.0f);
-  black.a = Opacity;
-  glm::vec4 white(1.0f);
-  white.a = Opacity;
-
   if (HasFocus) {
-    if (!IsSubButton) {  //Main buttons
-    Renderer2D::DrawSprite(HighlightSprite,
-                           glm::vec2(Bounds.X - ItemHighlightOffsetX,
-                                     Bounds.Y - ItemHighlightOffsetY),
-                           white);
-    Renderer2D::DrawSprite(FocusedSprite,
-                           glm::vec2(Bounds.X, Bounds.Y),
-                           white);
-    } else {  //Sub buttons
+    if (!IsSubButton) {  // Main buttons
+      Renderer2D::DrawSprite(HighlightSprite,
+                             glm::vec2(Bounds.X - ItemHighlightOffsetX,
+                                       Bounds.Y - ItemHighlightOffsetY),
+                             Tint);
+      Renderer2D::DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y),
+                             Tint);
+    } else {  // Sub buttons
       Renderer2D::DrawSprite(
           HighlightSprite,
           glm::vec2(SecondaryItemHighlightX, Bounds.Y - ItemHighlightOffsetY),
-          white);
+          Tint);
       Renderer2D::DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y),
-                             white);
-      Renderer2D::DrawSprite(LineDecoration, glm::vec2(SecondaryMenuLineX, LineY),
-                             white);
+                             Tint);
+      Renderer2D::DrawSprite(LineDecoration,
+                             glm::vec2(SecondaryMenuLineX, LineY), Tint);
     }
   } else {
     if (Enabled) {
-      Renderer2D::DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y),
-                             white);
+      Renderer2D::DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
     } else {
       Renderer2D::DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y),
-                             white);
+                             Tint);
     }
   }
 }

@@ -73,7 +73,6 @@ extern float PrimaryFadeInDuration;
 extern float PrimaryFadeOutDuration;
 extern float SecondaryFadeInDuration;
 extern float SecondaryFadeOutDuration;
-extern float Opacity;
 extern float SecondaryItemX;
 extern float ItemLoadY;
 extern float ItemLoadQuickY;

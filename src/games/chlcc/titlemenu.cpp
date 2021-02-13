@@ -262,7 +262,7 @@ void TitleMenu::Update(float dt) {
       case 3: {  // Main Menu Fade In
         if (!MainItems->IsShown && ScrWork[SW_TITLECT] == 0) {
           MainItems->Show();
-          MainItems->Opacity = Opacity;
+          MainItems->Opacity = 0.0f;
           PrimaryFadeAnimation.DurationIn = PrimaryFadeInDuration;
           PrimaryFadeAnimation.DurationOut = PrimaryFadeOutDuration;
           PrimaryFadeAnimation.StartIn();
@@ -271,7 +271,7 @@ void TitleMenu::Update(float dt) {
       case 7: {  // Secondary menu Load Fade In
         if (!LoadItems->IsShown && ScrWork[SW_TITLECT] == 0) {
           LoadItems->Show();
-          LoadItems->Opacity = Opacity;
+          LoadItems->Opacity = 0.0f;
           MainItems->HasFocus = false;
 
           SecondaryFadeAnimation.DurationIn = SecondaryFadeInDuration;
@@ -289,7 +289,7 @@ void TitleMenu::Update(float dt) {
       case 9: {  // Secondary menu Extra Fade In
         if (!ExtraItems->IsShown && ScrWork[SW_TITLECT] == 0) {
           ExtraItems->Show();
-          ExtraItems->Opacity = Opacity;
+          ExtraItems->Opacity = 0.0f;
           MainItems->HasFocus = false;
 
           SecondaryFadeAnimation.DurationIn = SecondaryFadeInDuration;
@@ -307,7 +307,7 @@ void TitleMenu::Update(float dt) {
       case 11: {  // Secondary menu System Fade In
         if (!SystemItems->IsShown && ScrWork[SW_TITLECT] == 0) {
           SystemItems->Show();
-          SystemItems->Opacity = Opacity;
+          SystemItems->Opacity = 0.0f;
           MainItems->HasFocus = false;
 
           SecondaryFadeAnimation.DurationIn = SecondaryFadeInDuration;

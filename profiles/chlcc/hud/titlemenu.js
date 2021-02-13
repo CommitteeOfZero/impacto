@@ -59,7 +59,6 @@ root.TitleMenu = {
     PrimaryFadeOutDuration: 0.3,
     SecondaryFadeInDuration: 0.512,
     SecondaryFadeOutDuration: 0.512,
-    Opacity: 0.0,
     ItemHyperUpLine:"TitleMenuItemHyperUpLine",
     ItemSuperUpLine: "TitleMenuItemSuperUpLine",
     ItemUpLine: "TitleMenuItemUpLine",
