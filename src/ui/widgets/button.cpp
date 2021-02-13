@@ -39,26 +39,22 @@ void Button::UpdateInput() {
 }
 
 void Button::Render() {
-  glm::vec4 white(1.0f);
-  white.a = Opacity;
-
   if (HasFocus) {
     Renderer2D::DrawSprite(
-        HighlightSprite, glm::vec2(Bounds.X, Bounds.Y + 3.0f), white,
+        HighlightSprite, glm::vec2(Bounds.X, Bounds.Y + 3.0f), Tint,
         glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
-    Renderer2D::DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), white);
+    Renderer2D::DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
   } else {
     if (Enabled)
-      Renderer2D::DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y),
-                             white);
+      Renderer2D::DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
     else
       Renderer2D::DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y),
-                             white);
+                             Tint);
   }
 
   if (HasText) {
     Renderer2D::DrawProcessedText(Text, TextLength,
-                                  Profile::Dialogue::DialogueFont, Opacity,
+                                  Profile::Dialogue::DialogueFont, Tint.a,
                                   Outline, true);
   }
 }

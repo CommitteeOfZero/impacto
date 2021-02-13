@@ -2,6 +2,11 @@
 #include "../../profile_internal.h"
 #include "tilebackground.h"
 
+#include "../../ui/titlemenu.h"
+#include "../../../game.h"
+#include "../../../ui/ui.h"
+#include "../../../games/rne/titlemenu.h"
+
 namespace Impacto {
 namespace Profile {
 namespace RNE {
@@ -28,10 +33,13 @@ float EliteY;
 float LogoX;
 float LogoY;
 
+Animation* BackgroundAnimation = 0;
+Animation PreTitleItemsAnimation;
+Animation PressToStartAnimation;
+
 void Configure() {
   EnsurePushMemberOfType("Background", kObjectType);
-  // result->BackgroundAnimation = RNE::ParseTileBackground();
-  RNE::ParseTileBackground();
+  BackgroundAnimation = RNE::ParseTileBackground();
   Pop();
 
   LineSprite = EnsureGetMemberSprite("LineSprite");
@@ -55,8 +63,14 @@ void Configure() {
   PreTitleAnimDurationIn = EnsureGetMemberFloat("PreTitleAnimDurationIn");
   PreTitleAnimDurationOut = EnsureGetMemberFloat("PreTitleAnimDurationOut");
 
-  // result->PreTitleItemsAnimation.DurationIn = PreTitleAnimDurationIn;
-  // result->PreTitleItemsAnimation.DurationOut = PreTitleAnimDurationOut;
+  PressToStartAnimation.DurationIn =
+      Profile::TitleMenu::PressToStartAnimDurationIn;
+  PressToStartAnimation.DurationOut =
+      Profile::TitleMenu::PressToStartAnimDurationOut;
+  PressToStartAnimation.LoopMode = ALM_ReverseDirection;
+  PreTitleItemsAnimation.DurationIn = PreTitleAnimDurationIn;
+  PreTitleItemsAnimation.DurationOut = PreTitleAnimDurationOut;
+  UI::TitleMenuPtr = new UI::RNE::TitleMenu();
 }
 
 }  // namespace TitleMenu

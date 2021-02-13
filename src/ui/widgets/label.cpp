@@ -24,9 +24,8 @@ void Label::UpdateInput() {}
 void Label::Update(float dt) { Widget::Update(dt); }
 
 void Label::Render() {
-  Renderer2D::DrawProcessedText(Text, TextLength,
-                                Profile::Dialogue::DialogueFont, Opacity,
-                                Outline, true);
+  Renderer2D::DrawProcessedText(
+      Text, TextLength, Profile::Dialogue::DialogueFont, Tint.a, Outline, true);
 }
 
 void Label::SetText(uint8_t* str, int fontSize, bool outline) {

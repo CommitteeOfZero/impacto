@@ -2,6 +2,10 @@
 #include "../../profile_internal.h"
 #include "tilebackground.h"
 
+#include "../../ui/systemmenu.h"
+#include "../../../ui/ui.h"
+#include "../../../games/rne/systemmenu.h"
+
 namespace Impacto {
 namespace Profile {
 namespace RNE {
@@ -31,10 +35,14 @@ float EntriesMoveDurationIn;
 float EntriesMoveDurationOut;
 float HighlightDurationIn;
 float HighlightDurationOut;
+Animation* BackgroundAnimation = 0;
+Animation SkyMoveAnimation;
+Animation EntriesMoveAnimation;
+Animation HighlightAnimation;
 
 void Configure() {
   EnsurePushMemberOfType("Background", kObjectType);
-  // result->BackgroundAnimation = RNE::ParseTileBackground();
+  BackgroundAnimation = RNE::ParseTileBackground();
   RNE::ParseTileBackground();
   Pop();
 
@@ -65,14 +73,16 @@ void Configure() {
       EnsureGetMemberFloat("ButtonBackgroundTargetWidth");
   ButtonBackgroundSprStartX = EnsureGetMemberFloat("ButtonBackgroundSprStartX");
 
-  // result->SkyMoveAnimation.DurationIn = SkyMoveDurationIn;
-  // result->SkyMoveAnimation.DurationOut = SkyMoveDurationOut;
+  SkyMoveAnimation.DurationIn = SkyMoveDurationIn;
+  SkyMoveAnimation.DurationOut = SkyMoveDurationOut;
 
-  // result->EntriesMoveAnimation.DurationIn = EntriesMoveDurationIn;
-  // result->EntriesMoveAnimation.DurationOut = EntriesMoveDurationOut;
+  EntriesMoveAnimation.DurationIn = EntriesMoveDurationIn;
+  EntriesMoveAnimation.DurationOut = EntriesMoveDurationOut;
 
-  // result->HighlightAnimation.DurationIn = HighlightDurationIn;
-  // result->HighlightAnimation.DurationOut = HighlightDurationOut;
+  HighlightAnimation.DurationIn = HighlightDurationIn;
+  HighlightAnimation.DurationOut = HighlightDurationOut;
+
+  UI::SystemMenuPtr = new UI::RNE::SystemMenu();
 }
 
 }  // namespace SystemMenu

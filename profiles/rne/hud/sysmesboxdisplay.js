@@ -28,9 +28,7 @@ root.SysMesBoxDisplay = {
 	MessageLabelSpriteMultiplier: 12,
 	ButtonYesDisplayXBase: 897,
 	ButtonRightDisplayXBase: 936,
-	ButtonSpriteY: 131,
-	ButtonWidth: 105, 
-	ButtonSelectedSpriteY: 159,
+	ButtonWidth: 105,
 	ButtonYOffset: 29,
     ButtonYWidthBase: 39,
     ButtonRightWidthBase: -75,
@@ -146,3 +144,36 @@ root.Sprites[name + "ButtonOK"] = {
     }
 };
 root.SysMesBoxDisplay.ButtonOK = name + "ButtonOK";
+
+root.Sprites[name + "ButtonYesHighlighted"] = {
+    Sheet: sheet,
+    Bounds: {
+        X: 1656,
+        Y: 159,
+        Width: 105,
+        Height: 26
+    }
+};
+root.SysMesBoxDisplay.ButtonYesHighlighted = name + "ButtonYesHighlighted";
+
+root.Sprites[name + "ButtonNoHighlighted"] = {
+    Sheet: sheet,
+    Bounds: {
+        X: 1763,
+        Y: 159,
+        Width: 105,
+        Height: 26
+    }
+};
+root.SysMesBoxDisplay.ButtonNoHighlighted = name + "ButtonNoHighlighted";
+
+root.Sprites[name + "ButtonOKHighlighted"] = {
+    Sheet: sheet,
+    Bounds: {
+        X: 1870,
+        Y: 159,
+        Width: 105,
+        Height: 26
+    }
+};
+root.SysMesBoxDisplay.ButtonOKHighlighted = name + "ButtonOKHighlighted";

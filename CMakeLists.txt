@@ -109,6 +109,7 @@ set(Impacto_Src
     src/ui/widgets/mo6tw/titlebutton.cpp
     src/ui/widgets/mo6tw/saveentrybutton.cpp
     src/ui/widgets/chlcc/titlebutton.cpp
+    src/ui/widgets/rne/sysmenubutton.cpp
 
     src/nuklear_impl.cpp
     src/stbi_impl.c
@@ -294,6 +295,7 @@ set(Impacto_Header
     src/ui/widgets/mo6tw/titlebutton.h
     src/ui/widgets/mo6tw/saveentrybutton.h
     src/ui/widgets/chlcc/titlebutton.h
+    src/ui/widgets/rne/sysmenubutton.h
 
     src/3d/camera.h
     src/3d/model.h

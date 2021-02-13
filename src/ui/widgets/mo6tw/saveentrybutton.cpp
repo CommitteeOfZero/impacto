@@ -9,45 +9,41 @@ namespace Widgets {
 namespace MO6TW {
 
 void SaveEntryButton::Render() {
-  glm::vec4 white(1.0f);
-  white.a = Opacity;
-
   if (HasFocus) {
-    Renderer2D::DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), white);
+    Renderer2D::DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
   } else {
     if (Enabled) {
-      Renderer2D::DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y),
-                             white);
+      Renderer2D::DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
     } else {
       Renderer2D::DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y),
-                             white);
+                             Tint);
     }
   }
 
   if (EntryActive) {
     Renderer2D::DrawProcessedText(SceneTitle, SceneTitleLength,
-                                  Profile::Dialogue::DialogueFont, Opacity,
-                                  true, true);
+                                  Profile::Dialogue::DialogueFont, Tint.a, true,
+                                  true);
     Renderer2D::DrawProcessedText(PlayTimeHint, PlayTimeHintLength,
-                                  Profile::Dialogue::DialogueFont, Opacity,
-                                  true, true);
+                                  Profile::Dialogue::DialogueFont, Tint.a, true,
+                                  true);
     Renderer2D::DrawProcessedText(PlayTime, PlayTimeLength,
-                                  Profile::Dialogue::DialogueFont, Opacity,
-                                  true, true);
+                                  Profile::Dialogue::DialogueFont, Tint.a, true,
+                                  true);
     Renderer2D::DrawProcessedText(SaveDateHint, SaveDateHintLength,
-                                  Profile::Dialogue::DialogueFont, Opacity,
-                                  true, true);
+                                  Profile::Dialogue::DialogueFont, Tint.a, true,
+                                  true);
     Renderer2D::DrawProcessedText(SaveDate, SaveDateLength,
-                                  Profile::Dialogue::DialogueFont, Opacity,
-                                  true, true);
+                                  Profile::Dialogue::DialogueFont, Tint.a, true,
+                                  true);
   } else {
     Renderer2D::DrawProcessedText(SceneTitle, SceneTitleLength,
-                                  Profile::Dialogue::DialogueFont, Opacity,
-                                  true, true);
+                                  Profile::Dialogue::DialogueFont, Tint.a, true,
+                                  true);
   }
 
   Renderer2D::DrawSprite(Thumbnail,
-                         glm::vec2(Bounds.X + 41.0f, Bounds.Y + 5.0f), white);
+                         glm::vec2(Bounds.X + 41.0f, Bounds.Y + 5.0f), Tint);
 }
 
 void SaveEntryButton::AddSceneTitleText(uint8_t* str, int fontSize,

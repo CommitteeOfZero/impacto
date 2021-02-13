@@ -414,7 +414,7 @@ void Render() {
         }
         case TD_SystemMenu: {
           // TODO: Ehhh... not the greatest way of doing this...
-          if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::CHLCC) {
+          if (Profile::Vm::GameInstructionSet != +Vm::InstructionSet::MO6TW) {
             UI::TitleMenuPtr->Render();
           }
           UI::SystemMenuPtr->Render();

@@ -1,6 +1,9 @@
 #include "sysmesbox.h"
 #include "../../profile_internal.h"
 
+#include "../../../ui/ui.h"
+#include "../../../games/rne/sysmesbox.h"
+
 namespace Impacto {
 namespace Profile {
 namespace RNE {
@@ -15,6 +18,9 @@ Sprite Line2;
 Sprite ButtonYes;
 Sprite ButtonNo;
 Sprite ButtonOK;
+Sprite ButtonYesHighlighted;
+Sprite ButtonNoHighlighted;
+Sprite ButtonOKHighlighted;
 
 float LinePositionXFirst;
 float LinePositionX;
@@ -41,9 +47,7 @@ float MessageLabelSpriteHeight;
 float MessageLabelSpriteMultiplier;
 float ButtonYesDisplayXBase;
 float ButtonRightDisplayXBase;
-float ButtonSpriteY;
 float ButtonWidth;
-float ButtonSelectedSpriteY;
 float ButtonYOffset;
 float ButtonYWidthBase;
 float ButtonRightWidthBase;
@@ -58,7 +62,6 @@ float TextMarginY;
 float AnimationSpeed;
 float FadeInDuration;
 float FadeOutDuration;
-float SpriteMargin;
 
 void Configure() {
   BoxDecorationTop = EnsureGetMemberSprite("BoxDecorationTop");
@@ -70,6 +73,9 @@ void Configure() {
   ButtonYes = EnsureGetMemberSprite("ButtonYes");
   ButtonNo = EnsureGetMemberSprite("ButtonNo");
   ButtonOK = EnsureGetMemberSprite("ButtonOK");
+  ButtonYesHighlighted = EnsureGetMemberSprite("ButtonYesHighlighted");
+  ButtonNoHighlighted = EnsureGetMemberSprite("ButtonNoHighlighted");
+  ButtonOKHighlighted = EnsureGetMemberSprite("ButtonOKHighlighted");
 
   LinePositionXFirst = EnsureGetMemberFloat("LinePositionXFirst");
   LinePositionX = EnsureGetMemberFloat("LinePositionX");
@@ -97,9 +103,7 @@ void Configure() {
       EnsureGetMemberFloat("MessageLabelSpriteMultiplier");
   ButtonYesDisplayXBase = EnsureGetMemberFloat("ButtonYesDisplayXBase");
   ButtonRightDisplayXBase = EnsureGetMemberFloat("ButtonRightDisplayXBase");
-  ButtonSpriteY = EnsureGetMemberFloat("ButtonSpriteY");
   ButtonWidth = EnsureGetMemberFloat("ButtonWidth");
-  ButtonSelectedSpriteY = EnsureGetMemberFloat("ButtonSelectedSpriteY");
   ButtonYOffset = EnsureGetMemberFloat("ButtonYOffset");
   ButtonYWidthBase = EnsureGetMemberFloat("ButtonYWidthBase");
   ButtonRightWidthBase = EnsureGetMemberFloat("ButtonRightWidthBase");
@@ -107,7 +111,8 @@ void Configure() {
   TextDecorationTopYOffset = EnsureGetMemberFloat("TextDecorationTopYOffset");
   TextDecorationBottomYOffset =
       EnsureGetMemberFloat("TextDecorationBottomYOffset");
-  SpriteMargin = EnsureGetMemberFloat("SpriteMargin");
+
+  UI::SysMesBoxPtr = new UI::RNE::SysMesBox();
 }
 
 }  // namespace SysMesBox

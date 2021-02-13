@@ -32,6 +32,10 @@ extern float EntriesMoveDurationIn;
 extern float EntriesMoveDurationOut;
 extern float HighlightDurationIn;
 extern float HighlightDurationOut;
+extern Animation* BackgroundAnimation;
+extern Animation SkyMoveAnimation;
+extern Animation EntriesMoveAnimation;
+extern Animation HighlightAnimation;
 
 void Configure();
 

@@ -31,6 +31,10 @@ extern float EliteY;
 extern float LogoX;
 extern float LogoY;
 
+extern Animation* BackgroundAnimation;
+extern Animation PreTitleItemsAnimation;
+extern Animation PressToStartAnimation;
+
 }  // namespace TitleMenu
 }  // namespace RNE
 }  // namespace Profile

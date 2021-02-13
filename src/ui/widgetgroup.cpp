@@ -114,8 +114,10 @@ void WidgetGroup::Update(float dt) {
 void WidgetGroup::Render() {
   if (IsShown) {
     for (auto el : Children) {
-      el->Opacity = Opacity;
+      float alpha = el->Tint.a;
+      el->Tint.a *= Opacity;
       el->Render();
+      el->Tint.a = alpha;
     }
   }
 }

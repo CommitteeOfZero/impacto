@@ -127,7 +127,7 @@ TitleMenu::TitleMenu() {
 }
 
 void TitleMenu::Show() {
-  if (State != Shown) {
+  if (State == Hidden) {
     State = Shown;
     if (UI::FocusedMenu != 0) {
       LastFocusedMenu = UI::FocusedMenu;
@@ -140,7 +140,7 @@ void TitleMenu::Show() {
   }
 }
 void TitleMenu::Hide() {
-  if (State != Hidden) {
+  if (State == Shown) {
     State = Hidden;
     MainItems->Hide();
     if (LastFocusedMenu != 0) {
