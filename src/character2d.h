@@ -35,7 +35,7 @@ class Character2D : public Loadable<Character2D> {
   bool Show;
   int Layer;
   void Update(float dt);
-  void Render();
+  void Render(glm::vec4 col);
 
  protected:
   bool LoadSync(uint32_t charaId);

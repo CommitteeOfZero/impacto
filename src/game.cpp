@@ -16,6 +16,7 @@
 #include "audio/audiostream.h"
 #include "renderer2d.h"
 #include "background2d.h"
+#include "mask2d.h"
 #include "character2d.h"
 #include "3d/scene.h"
 #include "mem.h"
@@ -330,29 +331,13 @@ void Render() {
             // TODO
 
             for (int i = 0; i < MaxBackgrounds2D; i++) {
-              if (Backgrounds2D[i].Status == LS_Loaded &&
-                  Backgrounds2D[i].Layer == layer && Backgrounds2D[i].Show) {
-                glm::vec4 col = glm::vec4(1.0f);
-                if (Profile::Vm::GameInstructionSet ==
-                    +Vm::InstructionSet::Dash) {
-                  col.a =
-                      ScrWork[SW_BG1ALPHA +
-                              Impacto::Profile::Vm::ScrWorkBgStructSize * i] /
-                      256.0f;
-                }
-                Renderer2D::DrawSprite(
-                    Backgrounds2D[i].BgSprite,
-                    RectF(Backgrounds2D[i].DisplayCoords.x,
-                          Backgrounds2D[i].DisplayCoords.y,
-                          Backgrounds2D[i].BgSprite.ScaledWidth(),
-                          Backgrounds2D[i].BgSprite.ScaledHeight()),
-                    col);
-              }
+              Backgrounds2D[i].Render(i, layer);
             }
             for (int i = 0; i < MaxCharacters2D; i++) {
               if (Characters2D[i].Status == LS_Loaded &&
                   Characters2D[i].Layer == layer && Characters2D[i].Show) {
-                Characters2D[i].Render();
+                glm::vec4 col(1.0f);
+                Characters2D[i].Render(col);
               }
             }
             if (ScrWork[SW_MASK1PRI] == layer) {
@@ -448,7 +433,7 @@ void Render() {
                 Backgrounds2D[0].BgSprite.ScaledHeight()));
     }
     if (Characters2D[0].Status == LS_Loaded) {
-      Characters2D[0].Render();
+      Characters2D[0].Render(glm::vec4(1.0f));
     }
     Renderer2D::EndFrame();
   }

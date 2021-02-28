@@ -22,6 +22,7 @@ set(Impacto_Src
     src/spriteanimation.cpp
     src/renderer2d.cpp
     src/background2d.cpp
+    src/mask2d.cpp
     src/character2d.cpp
     src/text.cpp
     src/inputsystem.cpp
@@ -204,6 +205,7 @@ set(Impacto_Header
     src/font.h
     src/renderer2d.h
     src/background2d.h
+    src/mask2d.h
     src/character2d.h
     src/text.h
     src/loadable.h

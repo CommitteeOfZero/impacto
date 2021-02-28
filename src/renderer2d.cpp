@@ -11,6 +11,7 @@ namespace Renderer2D {
 static bool IsInit = false;
 static GLuint ShaderProgramSprite;
 static GLuint ShaderProgramSpriteInverted;
+static GLuint ShaderProgramMaskedSprite;
 
 enum Renderer2DMode { R2D_None, R2D_Sprite, R2D_SpriteInverted };
 
@@ -124,6 +125,8 @@ void Init() {
   glUniform1i(glGetUniformLocation(ShaderProgramSprite, "ColorMap"), 0);
   ShaderProgramSpriteInverted = ShaderCompile("Sprite_inverted");
   glUniform1i(glGetUniformLocation(ShaderProgramSpriteInverted, "ColorMap"), 0);
+  ShaderProgramMaskedSprite = ShaderCompile("MaskedSprite");
+  glUniform1i(glGetUniformLocation(ShaderProgramMaskedSprite, "ColorMap"), 0);
 
   // No-mipmapping sampler
   glGenSamplers(1, &Sampler);
@@ -394,6 +397,54 @@ void DrawSprite(Sprite const& sprite, RectF const& dest, glm::vec4 tint,
   QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
             (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
   QuadSetPosition(dest, angle, (uintptr_t)&vertices[0].Position,
+                  sizeof(VertexBufferSprites));
+
+  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
+}
+
+void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
+                      RectF const& dest, glm::vec4 tint, int alpha,
+                      int fadeRange) {
+  if (!Drawing) {
+    ImpLog(LL_Error, LC_Render,
+           "Renderer2D::DrawMaskedSprite() called before BeginFrame()\n");
+    return;
+  }
+
+  if (alpha < 0) alpha = 0;
+  if (alpha > fadeRange + 256) alpha = fadeRange + 256;
+
+  float alphaRange = 256.0f / fadeRange;
+  float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
+
+  // Do we have space for one more sprite quad?
+  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
+
+  Flush();
+  glBindVertexArray(VAOSprites);
+  glUseProgram(ShaderProgramMaskedSprite);
+  glUniform1i(glGetUniformLocation(ShaderProgramMaskedSprite, "Mask"), 2);
+  glUniform2f(glGetUniformLocation(ShaderProgramMaskedSprite, "Alpha"),
+              alphaRange, constAlpha);
+
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
+
+  glActiveTexture(GL_TEXTURE2);
+  glBindTexture(GL_TEXTURE_2D, mask.Sheet.Texture);
+  glBindSampler(2, Sampler);
+
+  // OK, all good, make quad
+
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
+  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
+
+  IndexBufferFill += 6;
+
+  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
+            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
+  QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
                   sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;

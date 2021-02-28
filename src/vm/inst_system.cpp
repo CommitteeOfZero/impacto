@@ -14,6 +14,7 @@
 #include "../audio/audiostream.h"
 #include "../audio/audiochannel.h"
 #include "../background2d.h"
+#include "../mask2d.h"
 #include "../character2d.h"
 #include "../text.h"
 #include "../profile/dialogue.h"
@@ -486,6 +487,14 @@ VmInstruction(InstMSinit) {
     memset(&FlagWork, 0, 100);
     memset(&FlagWork[150], 0, 75);
     memset(&FlagWork[300], 0, 100);
+  }
+
+  if (initType == 0) {
+    std::map<uint32_t, std::string> maskFiles;
+    Io::VfsListFiles("mask", maskFiles);
+    for (auto const& mask : maskFiles) {
+      Masks2D[mask.first].LoadSync(mask.first);
+    }
   }
 
   for (int i = 0; i < MaxBackgrounds2D; i++) {

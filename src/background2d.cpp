@@ -1,11 +1,18 @@
 #include "background2d.h"
 
+#include "mask2d.h"
+#include "mem.h"
 #include "io/memorystream.h"
 #include "io/vfs.h"
 #include "util.h"
 #include "profile/game.h"
+#include "profile/scriptvars.h"
+#include "profile/vm.h"
 
 namespace Impacto {
+
+using namespace Impacto::Profile::ScriptVars;
+using namespace Impacto::Profile::Vm;
 
 Background2D Backgrounds2D[MaxBackgrounds2D];
 
@@ -47,6 +54,48 @@ void Background2D::MainThreadOnLoad() {
       RectF(0.0f, 0.0f, BgSpriteSheet.DesignWidth, BgSpriteSheet.DesignHeight);
   Show = false;
   Layer = -1;
+}
+
+void Background2D::Render(int bgId, int layer) {
+  if (Status == LS_Loaded && Layer == layer && Show) {
+    glm::vec4 col = glm::vec4(1.0f);
+    if (GameInstructionSet == +Vm::InstructionSet::Dash) {
+      col.a = ScrWork[SW_BG1ALPHA + ScrWorkBgStructSize * bgId] / 256.0f;
+    }
+    int renderType = ScrWork[SW_BG1FADETYPE + ScrWorkBgStructSize * bgId];
+    BackgroundRenderTable[renderType](this, bgId, col);
+  }
+}
+
+BackgroundRenderer(RenderRegular) {
+  Renderer2D::DrawSprite(
+      bg->BgSprite,
+      RectF(bg->DisplayCoords.x, bg->DisplayCoords.y,
+            bg->BgSprite.ScaledWidth(), bg->BgSprite.ScaledHeight()),
+      col);
+}
+
+BackgroundRenderer(RenderMasked) {
+  Renderer2D::DrawMaskedSprite(
+      bg->BgSprite,
+      Masks2D[ScrWork[SW_BG1MASKNO + ScrWorkBgStructSize * bgId]].MaskSprite,
+      RectF(bg->DisplayCoords.x, bg->DisplayCoords.y,
+            bg->BgSprite.ScaledWidth(), bg->BgSprite.ScaledHeight()),
+      col, ScrWork[SW_BG1FADECT + ScrWorkBgStructSize * bgId],
+      ScrWork[SW_BG1MASKFADERANGE + ScrWorkBgStructSize * bgId]);
+}
+
+BackgroundRenderer(RenderFade) {
+  col.a = ((ScrWork[SW_BG1FADECT + ScrWorkBgStructSize * bgId] *
+            (ScrWork[SW_BG1ALPHA + ScrWorkBgStructSize * bgId] +
+             ScrWork[SW_BG1ALPHA_OFS + 10 * bgId])) >>
+           8) /
+          256.0f;
+  Renderer2D::DrawSprite(
+      bg->BgSprite,
+      RectF(bg->DisplayCoords.x, bg->DisplayCoords.y,
+            bg->BgSprite.ScaledWidth(), bg->BgSprite.ScaledHeight()),
+      col);
 }
 
 }  // namespace Impacto
