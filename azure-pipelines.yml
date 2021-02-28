@@ -267,7 +267,7 @@ jobs:
       embeds: |
           [{
           "title": "$(commitAuthor)",
-          "description": "Commit\n`$(Build.SourceVersionMessage) ($(Build.SourceVersion))`\nfrom branch `$(Build.SourceBranchName)` has failed build.\n\nJob status:\nwin_x64_build: $(winBuildStatus)\nlinux_x64_build: $(linuxBuildStatus)\n\nDetails:\n$(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)&view=results",
+          "description": "Commit\n`$(Build.SourceVersionMessage) ($(Build.SourceVersion))`\nfrom branch `$(Build.SourceBranchName)` has failed build.\n\nJob status:\nwin_x64_build: $(winBuildStatus)\nlinux_x64_build: $(linuxBuildStatus)\nmacos_build: $(macOSBuildStatus)\n\nDetails:\n$(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)&view=results",
           "color": 16711680,
           "timestamp": "$(timestamp)"
           }]
