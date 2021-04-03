@@ -1,6 +1,3 @@
-trigger:
-- ui-rework
-
 jobs:
 - job: win_x64_build
   displayName: Windows x64 Build
