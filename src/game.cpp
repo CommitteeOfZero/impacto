@@ -7,22 +7,22 @@
 #include "characterviewer.h"
 #include "log.h"
 #include "inputsystem.h"
+
+#include "ui/ui.h"
+
 #include "savesystem.h"
 #include "audio/audiosystem.h"
 #include "audio/audiochannel.h"
 #include "audio/audiostream.h"
 #include "renderer2d.h"
 #include "background2d.h"
+#include "mask2d.h"
 #include "character2d.h"
 #include "3d/scene.h"
 #include "mem.h"
 #include "hud/datedisplay.h"
 #include "hud/saveicondisplay.h"
-#include "hud/sysmesbox.h"
 #include "hud/loadingdisplay.h"
-#include "hud/titlemenu.h"
-#include "hud/mainmenu.h"
-#include "hud/selectiondisplay.h"
 #include "io/memorystream.h"
 
 #include "profile/profile.h"
@@ -36,7 +36,11 @@
 #include "profile/vm.h"
 #include "profile/scriptvars.h"
 #include "profile/hud/datedisplay.h"
-#include "profile/hud/sysmesbox.h"
+#include "profile/ui/selectionmenu.h"
+#include "profile/ui/sysmesbox.h"
+#include "profile/ui/systemmenu.h"
+#include "profile/ui/titlemenu.h"
+#include "profile/ui/savemenu.h"
 
 namespace Impacto {
 
@@ -100,16 +104,18 @@ static void Init() {
   }
 
   if (Profile::GameFeatures & GameFeature::Sc3VirtualMachine) {
+    Vm::Init();
+
+    Profile::SelectionMenu::Configure();
+
     SaveSystem::Init();
-    SelectionDisplay::Init();
     SaveIconDisplay::Init();
     LoadingDisplay::Init();
-    SysMesBox::Init();
-    TitleMenu::Init();
-    MainMenu::Init();
+    Profile::SysMesBox::Configure();
+    Profile::TitleMenu::Configure();
+    Profile::SystemMenu::Configure();
+    Profile::SaveMenu::Configure();
     DateDisplay::Init();
-
-    Vm::Init();
   }
 
   Profile::ClearJsonProfile();
@@ -183,13 +189,16 @@ void Update(float dt) {
 
   if (Profile::GameFeatures & GameFeature::Sc3VirtualMachine) {
     Vm::Update();
+
+    UI::SysMesBoxPtr->Update(dt);
+    UI::TitleMenuPtr->Update(dt);
+    UI::SystemMenuPtr->Update(dt);
+    UI::SaveMenuPtr->Update(dt);
+    UI::SelectionMenuPtr->Update(dt);
+
     SaveIconDisplay::Update(dt);
-    SysMesBox::Update(dt);
     LoadingDisplay::Update(dt);
     DateDisplay::Update(dt);
-    TitleMenu::Update(dt);
-    MainMenu::Update(dt);
-    SelectionDisplay::Update(dt);
   }
 
   if (Profile::GameFeatures & GameFeature::Audio) {
@@ -314,7 +323,7 @@ void Render() {
       switch (DrawComponents[i]) {
         case TD_Text: {
           DialoguePages[0].Render();
-          SelectionDisplay::Render();
+          UI::SelectionMenuPtr->Render();
           break;
         }
         case TD_Main: {
@@ -322,29 +331,13 @@ void Render() {
             // TODO
 
             for (int i = 0; i < MaxBackgrounds2D; i++) {
-              if (Backgrounds2D[i].Status == LS_Loaded &&
-                  Backgrounds2D[i].Layer == layer && Backgrounds2D[i].Show) {
-                glm::vec4 col = glm::vec4(1.0f);
-                if (Profile::Vm::GameInstructionSet ==
-                    +Vm::InstructionSet::Dash) {
-                  col.a =
-                      ScrWork[SW_BG1ALPHA +
-                              Impacto::Profile::Vm::ScrWorkBgStructSize * i] /
-                      256.0f;
-                }
-                Renderer2D::DrawSprite(
-                    Backgrounds2D[i].BgSprite,
-                    RectF(Backgrounds2D[i].DisplayCoords.x,
-                          Backgrounds2D[i].DisplayCoords.y,
-                          Backgrounds2D[i].BgSprite.ScaledWidth(),
-                          Backgrounds2D[i].BgSprite.ScaledHeight()),
-                    col);
-              }
+              Backgrounds2D[i].Render(i, layer);
             }
             for (int i = 0; i < MaxCharacters2D; i++) {
               if (Characters2D[i].Status == LS_Loaded &&
                   Characters2D[i].Layer == layer && Characters2D[i].Show) {
-                Characters2D[i].Render();
+                glm::vec4 col(1.0f);
+                Characters2D[i].Render(col);
               }
             }
             if (ScrWork[SW_MASK1PRI] == layer) {
@@ -391,21 +384,29 @@ void Render() {
         case TD_SystemText: {
           break;
         }
+        case TD_SaveMenu: {
+          UI::SaveMenuPtr->Render();
+          break;
+        }
         case TD_SystemIcons: {
           LoadingDisplay::Render();
+          SaveIconDisplay::Render();
           break;
         }
         case TD_TitleMenu: {
-          TitleMenu::Render();
+          UI::TitleMenuPtr->Render();
           break;
         }
         case TD_SystemMenu: {
-          TitleMenu::Render();
-          MainMenu::Render();
+          // TODO: Ehhh... not the greatest way of doing this...
+          if (Profile::Vm::GameInstructionSet != +Vm::InstructionSet::MO6TW) {
+            UI::TitleMenuPtr->Render();
+          }
+          UI::SystemMenuPtr->Render();
           break;
         }
         case TD_SystemMessage: {
-          SysMesBox::Render();
+          UI::SysMesBoxPtr->Render();
           break;
         }
         case TD_SaveIcon: {
@@ -432,7 +433,7 @@ void Render() {
                 Backgrounds2D[0].BgSprite.ScaledHeight()));
     }
     if (Characters2D[0].Status == LS_Loaded) {
-      Characters2D[0].Render();
+      Characters2D[0].Render(glm::vec4(1.0f));
     }
     Renderer2D::EndFrame();
   }

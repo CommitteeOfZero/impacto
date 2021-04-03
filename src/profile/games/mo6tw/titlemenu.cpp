@@ -3,6 +3,11 @@
 #include "../../../window.h"
 #include "../../profile_internal.h"
 
+#include "../../ui/titlemenu.h"
+#include "../../../game.h"
+#include "../../../ui/ui.h"
+#include "../../../games/mo6tw/titlemenu.h"
+
 namespace Impacto {
 namespace Profile {
 namespace MO6TW {
@@ -23,10 +28,16 @@ float LogoX;
 float LogoY;
 float CopyrightX;
 float CopyrightY;
+float PrimaryFadeAnimDuration;
+float SecondaryMenuAnimTargetX;
+float SecondaryMenuAnimTargetY;
+float SecondaryMenuAnimTarget2X;
+float SecondaryMenuAnimTarget2Y;
+float SecondaryMenuAnimDuration;
+float SecondaryMenuAnimUnderX;
+float SecondaryMenuAnimUnderYMultiplier;
 
-Impacto::TitleMenu::TitleMenuBase* Configure() {
-  Impacto::MO6TW::TitleMenu* result = new Impacto::MO6TW::TitleMenu();
-
+void Configure() {
   BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
   CopyrightSprite = EnsureGetMemberSprite("CopyrightSprite");
   LogoSprite = EnsureGetMemberSprite("LogoSprite");
@@ -41,8 +52,27 @@ Impacto::TitleMenu::TitleMenuBase* Configure() {
   MenuEntriesX = EnsureGetMemberFloat("MenuEntriesX");
   MenuEntriesFirstY = EnsureGetMemberFloat("MenuEntriesFirstY");
   MenuEntriesYPadding = EnsureGetMemberFloat("MenuEntriesYPadding");
+  PrimaryFadeAnimDuration = EnsureGetMemberFloat("PrimaryFadeAnimDuration");
+  SecondaryMenuAnimTargetX = EnsureGetMemberFloat("SecondaryMenuAnimTargetX");
+  SecondaryMenuAnimTargetY = EnsureGetMemberFloat("SecondaryMenuAnimTargetY");
+  SecondaryMenuAnimTarget2X = EnsureGetMemberFloat("SecondaryMenuAnimTarget2X");
+  SecondaryMenuAnimTarget2Y = EnsureGetMemberFloat("SecondaryMenuAnimTarget2Y");
+  SecondaryMenuAnimDuration = EnsureGetMemberFloat("SecondaryMenuAnimDuration");
+  SecondaryMenuAnimUnderX = EnsureGetMemberFloat("SecondaryMenuAnimUnderX");
+  SecondaryMenuAnimUnderYMultiplier =
+      EnsureGetMemberFloat("SecondaryMenuAnimUnderYMultiplier");
 
-  return result;
+  UI::MO6TW::TitleMenu* menu = new UI::MO6TW::TitleMenu();
+  menu->PressToStartAnimation.DurationIn =
+      Profile::TitleMenu::PressToStartAnimDurationIn;
+  menu->PressToStartAnimation.DurationOut =
+      Profile::TitleMenu::PressToStartAnimDurationOut;
+  menu->PressToStartAnimation.LoopMode = ALM_ReverseDirection;
+  menu->PrimaryFadeAnimation.DurationIn = PrimaryFadeAnimDuration;
+  menu->PrimaryFadeAnimation.DurationOut = PrimaryFadeAnimDuration;
+  menu->SecondaryFadeAnimation.DurationIn = SecondaryMenuAnimDuration;
+  menu->SecondaryFadeAnimation.DurationOut = SecondaryMenuAnimDuration;
+  UI::TitleMenuPtr = menu;
 }
 
 }  // namespace TitleMenu

@@ -22,6 +22,7 @@ set(Impacto_Src
     src/spriteanimation.cpp
     src/renderer2d.cpp
     src/background2d.cpp
+    src/mask2d.cpp
     src/character2d.cpp
     src/text.cpp
     src/inputsystem.cpp
@@ -46,13 +47,15 @@ set(Impacto_Src
     src/profile/hud/saveicon.cpp
     src/profile/hud/loadingdisplay.cpp
     src/profile/hud/datedisplay.cpp
-    src/profile/hud/mainmenu.cpp
-    src/profile/hud/titlemenu.cpp
-    src/profile/hud/sysmesbox.cpp
-    src/profile/hud/selectiondisplay.cpp
+
+    src/profile/ui/systemmenu.cpp
+    src/profile/ui/titlemenu.cpp
+    src/profile/ui/savemenu.cpp
+    src/profile/ui/sysmesbox.cpp
+    src/profile/ui/selectionmenu.cpp
 
     src/profile/games/rne/tilebackground.cpp
-    src/profile/games/rne/mainmenu.cpp
+    src/profile/games/rne/systemmenu.cpp
     src/profile/games/rne/titlemenu.cpp
     src/profile/games/rne/sysmesbox.cpp
 
@@ -61,15 +64,17 @@ set(Impacto_Src
     src/profile/games/chlcc/titlemenu.cpp
     src/profile/games/chlcc/sysmesbox.cpp
 
+    src/profile/games/mo6tw/dialoguebox.cpp
     src/profile/games/mo6tw/sysmesbox.cpp
-    src/profile/games/mo6tw/mainmenu.cpp
+    src/profile/games/mo6tw/systemmenu.cpp
     src/profile/games/mo6tw/titlemenu.cpp
+    src/profile/games/mo6tw/savemenu.cpp
 
     src/profile/games/darling/sysmesbox.cpp
 
     src/games/rne/tilebackground.cpp
     src/games/rne/datedisplay.cpp
-    src/games/rne/mainmenu.cpp
+    src/games/rne/systemmenu.cpp
     src/games/rne/titlemenu.cpp
     src/games/rne/sysmesbox.cpp
 
@@ -79,20 +84,33 @@ set(Impacto_Src
     src/games/chlcc/sysmesbox.cpp
     src/games/chlcc/savesystem.cpp
 
+    src/games/mo6tw/dialoguebox.cpp
 	src/games/mo6tw/sysmesbox.cpp
-    src/games/mo6tw/mainmenu.cpp
+    src/games/mo6tw/systemmenu.cpp
     src/games/mo6tw/titlemenu.cpp
+    src/games/mo6tw/savemenu.cpp
+    src/games/mo6tw/savesystem.cpp
 
 	src/games/darling/sysmesbox.cpp
 
+    src/hud/dialoguebox.cpp
     src/hud/datedisplay.cpp
     src/hud/saveicondisplay.cpp
-    src/hud/sysmesbox.cpp
     src/hud/loadingdisplay.cpp
-    src/hud/mainmenu.cpp
-    src/hud/titlemenu.cpp
     src/hud/waiticondisplay.cpp
-    src/hud/selectiondisplay.cpp
+
+    src/ui/ui.cpp
+    src/ui/widget.cpp
+    src/ui/widgetgroup.cpp
+    src/ui/nullmenu.cpp
+    src/ui/selectionmenu.cpp
+    src/ui/sysmesbox.cpp
+    src/ui/widgets/label.cpp
+    src/ui/widgets/button.cpp
+    src/ui/widgets/mo6tw/titlebutton.cpp
+    src/ui/widgets/mo6tw/saveentrybutton.cpp
+    src/ui/widgets/chlcc/titlebutton.cpp
+    src/ui/widgets/rne/sysmenubutton.cpp
 
     src/nuklear_impl.cpp
     src/stbi_impl.c
@@ -187,6 +205,7 @@ set(Impacto_Header
     src/font.h
     src/renderer2d.h
     src/background2d.h
+    src/mask2d.h
     src/character2d.h
     src/text.h
     src/loadable.h
@@ -214,13 +233,15 @@ set(Impacto_Header
     src/profile/hud/saveicon.h
     src/profile/hud/loadingdisplay.h
     src/profile/hud/datedisplay.h
-    src/profile/hud/mainmenu.h
-    src/profile/hud/titlemenu.h
-    src/profile/hud/sysmesbox.h
-    src/profile/hud/selectiondisplay.h
+
+    src/profile/ui/systemmenu.h
+    src/profile/ui/titlemenu.h
+    src/profile/ui/savemenu.h
+    src/profile/ui/sysmesbox.h
+    src/profile/ui/selectionmenu.h
 
     src/profile/games/rne/tilebackground.h
-    src/profile/games/rne/mainmenu.h
+    src/profile/games/rne/systemmenu.h
     src/profile/games/rne/titlemenu.h
     src/profile/games/rne/sysmesbox.h
 
@@ -229,15 +250,17 @@ set(Impacto_Header
     src/profile/games/chlcc/titlemenu.h
     src/profile/games/chlcc/sysmesbox.h
 
+    src/profile/games/mo6tw/dialoguebox.h
     src/profile/games/mo6tw/sysmesbox.h
-    src/profile/games/mo6tw/mainmenu.h
+    src/profile/games/mo6tw/systemmenu.h
     src/profile/games/mo6tw/titlemenu.h
+    src/profile/games/mo6tw/savemenu.h
 
     src/profile/games/darling/sysmesbox.h
 
     src/games/rne/tilebackground.h
     src/games/rne/datedisplay.h
-    src/games/rne/mainmenu.h
+    src/games/rne/systemmenu.h
     src/games/rne/titlemenu.h
     src/games/rne/sysmesbox.h
 
@@ -247,20 +270,34 @@ set(Impacto_Header
     src/games/chlcc/sysmesbox.h
     src/games/chlcc/savesystem.h
 
+    src/games/mo6tw/dialoguebox.h
     src/games/mo6tw/sysmesbox.h
-    src/games/mo6tw/mainmenu.h
+    src/games/mo6tw/systemmenu.h
     src/games/mo6tw/titlemenu.h
+    src/games/mo6tw/savemenu.h
+    src/games/mo6tw/savesystem.h
 
     src/games/darling/sysmesbox.h
 
+    src/hud/dialoguebox.h
     src/hud/datedisplay.h
     src/hud/saveicondisplay.h
-    src/hud/sysmesbox.h
     src/hud/loadingdisplay.h
-    src/hud/mainmenu.h
-    src/hud/titlemenu.h
     src/hud/waiticondisplay.h
-    src/hud/selectiondisplay.h
+
+    src/ui/ui.h
+    src/ui/widgetgroup.h
+    src/ui/menu.h
+    src/ui/nullmenu.h
+    src/ui/selectionmenu.h
+    src/ui/sysmesbox.h
+    src/ui/widget.h
+    src/ui/widgets/label.h
+    src/ui/widgets/button.h
+    src/ui/widgets/mo6tw/titlebutton.h
+    src/ui/widgets/mo6tw/saveentrybutton.h
+    src/ui/widgets/chlcc/titlebutton.h
+    src/ui/widgets/rne/sysmenubutton.h
 
     src/3d/camera.h
     src/3d/model.h
@@ -444,10 +481,16 @@ else()
 
     list(APPEND Impacto_Libs
         ${SDL2_LIBRARIES}
-        glm
         ZLIB::ZLIB
         ${OGGVORBIS_LIBRARIES}
     )
+
+    # If we don't do this it decides to link glm as a library on macOS for some reason
+    if(NOT APPLE)
+        list(APPEND Impacto_Libs
+            glm
+        )
+    endif()
 
     add_definitions(-DIMPACTO_OPENAL_HAVE_ALEXT)
 endif()

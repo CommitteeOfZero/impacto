@@ -10,19 +10,21 @@
 #include "../game.h"
 #include "../mem.h"
 #include "../log.h"
-#include "../hud/sysmesbox.h"
 #include "../audio/audiosystem.h"
 #include "../audio/audiostream.h"
 #include "../audio/audiochannel.h"
 #include "../background2d.h"
+#include "../mask2d.h"
 #include "../character2d.h"
 #include "../text.h"
 #include "../profile/dialogue.h"
 #include "../profile/vm.h"
-#include "../profile/hud/sysmesbox.h"
+#include "../profile/ui/sysmesbox.h"
 #include "../inputsystem.h"
 #include "interface/input.h"
 #include "../savesystem.h"
+#include "../window.h"
+#include "../ui/ui.h"
 
 namespace Impacto {
 
@@ -222,6 +224,11 @@ VmInstruction(InstSave) {
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Save(type: %i)\n",
                  type);
       break;
+    case 16:
+      SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::SaveFull,
+                                        ScrWork[SW_SAVEFILENO]);
+      SaveSystem::WriteSaveFile();
+      break;
     default:
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Save(type: %i)\n",
                  type);
@@ -264,8 +271,11 @@ VmInstruction(InstMwait) {
 }
 VmInstruction(InstTerminate) {
   StartInstruction;
-  BlockThread;
-  ResetInstruction;
+
+  ImpLog(LL_Info, LC_VM, "VM requested shutdown!\n");
+  Window::Shutdown();
+  // BlockThread;
+  // ResetInstruction;
 }
 VmInstruction(InstDebugPrint) {
   StartInstruction;
@@ -286,95 +296,52 @@ VmInstruction(InstSystemMes) {
   switch (mode) {
     case 0:  // SystemMesInit0
     case 1:  // SystemMesInit1
-      SysMesBox::Implementation->ChoiceMade = false;
-      SysMesBox::Implementation->CurrentChoice = 255;
-      SysMesBox::Implementation->MessageCount = 0;
-      memset(SysMesBox::Implementation->Messages, 0,
-             (8 * 255) * sizeof(ProcessedTextGlyph));
-      SysMesBox::Implementation->ChoiceCount = 0;
-      memset(SysMesBox::Implementation->Choices, 0,
-             (8 * 255) * sizeof(ProcessedTextGlyph));
+      UI::SysMesBoxPtr->Init();
       break;
     case 2: {  // SystemMesInit2
       PopExpression(sysMesInit2Arg);
-      ScrWork[SW_SYSMESANIMCTF] =
-          2 * SysMesBox::Implementation->MessageCount + 33;
+      ScrWork[SW_SYSMESANIMCTF] = 2 * UI::SysMesBoxPtr->MessageCount + 33;
     } break;
     case 3: {  // SystemMesSetMes
       PopUint16(sysMesStrNum);
-      uint8_t* oldIp = thread->Ip;
-      thread->Ip = ScriptGetStrAddress(ScriptBuffers[thread->ScriptBufferId],
-                                       sysMesStrNum);
-      int len = TextLayoutPlainLine(
-          thread, 255,
-          SysMesBox::Implementation
-              ->Messages[SysMesBox::Implementation->MessageCount],
-          Profile::Dialogue::DialogueFont, Profile::SysMesBox::TextFontSize,
-          Profile::Dialogue::ColorTable[10], 1.0f,
-          glm::vec2(Profile::SysMesBox::TextX, 0.0f), TextAlignment::Left);
-      float mesLen = 0.0f;
-      for (int i = 0; i < len; i++) {
-        mesLen += SysMesBox::Implementation
-                      ->Messages[SysMesBox::Implementation->MessageCount][i]
-                      .DestRect.Width;
-      }
-      SysMesBox::Implementation
-          ->MessageWidths[SysMesBox::Implementation->MessageCount] = mesLen;
-      SysMesBox::Implementation
-          ->MessageLengths[SysMesBox::Implementation->MessageCount] = len;
-      SysMesBox::Implementation->MessageCount++;
-      thread->Ip = oldIp;
+      UI::SysMesBoxPtr->AddMessage(ScriptGetStrAddress(
+          ScriptBuffers[thread->ScriptBufferId], sysMesStrNum));
     } break;
     case 4: {  // SystemMesSetSel
       PopUint16(sysSelStrNum);
-      uint8_t* oldIp = thread->Ip;
-      thread->Ip = ScriptGetStrAddress(ScriptBuffers[thread->ScriptBufferId],
-                                       sysSelStrNum);
-      int len = TextLayoutPlainLine(
-          thread, 255,
-          SysMesBox::Implementation
-              ->Choices[SysMesBox::Implementation->ChoiceCount],
-          Profile::Dialogue::DialogueFont, Profile::SysMesBox::TextFontSize,
-          Profile::Dialogue::ColorTable[10], 1.0f,
-          glm::vec2(Profile::SysMesBox::TextX, 0.0f), TextAlignment::Left);
-      float mesLen = 0.0f;
-      for (int i = 0; i < len; i++) {
-        mesLen += SysMesBox::Implementation
-                      ->Choices[SysMesBox::Implementation->ChoiceCount][i]
-                      .DestRect.Width;
-      }
-      SysMesBox::Implementation
-          ->ChoiceWidths[SysMesBox::Implementation->ChoiceCount] = mesLen;
-      SysMesBox::Implementation
-          ->ChoiceLengths[SysMesBox::Implementation->ChoiceCount] = len;
-      SysMesBox::Implementation->ChoiceCount++;
-      thread->Ip = oldIp;
+      UI::SysMesBoxPtr->AddChoice(ScriptGetStrAddress(
+          ScriptBuffers[thread->ScriptBufferId], sysSelStrNum));
     } break;
     case 5:  // SystemMesMain
-      if (!SysMesBox::Implementation->ChoiceMade) {
+      if (!UI::SysMesBoxPtr->ChoiceMade &&
+          (UI::SysMesBoxPtr->ChoiceCount > 0)) {
         ResetInstruction;
         BlockThread;
-      } else {
-        ScrWork[SW_SYSSEL] = SysMesBox::Implementation->CurrentChoice;
+      } else if (UI::SysMesBoxPtr->ChoiceCount == 0 &&
+                 !(Interface::PADinputButtonWentDown & Interface::PAD1A ||
+                   Interface::PADinputMouseWentDown & Interface::PAD1A)) {
+        ResetInstruction;
+        BlockThread;
       }
       break;
     case 6:  // SystemMesFadeIn
-      ScrWork[SW_SYSMESALPHA] = 256;
-      SysMesBox::Implementation->BoxOpacity = 1.0f;
-      SysMesBox::Show();
-      if (ScrWork[SW_SYSMESANIMCTCUR] < ScrWork[SW_SYSMESANIMCTF]) {
+      if (UI::SysMesBoxPtr->State == UI::MenuState::Hidden) {
+        UI::SysMesBoxPtr->Show();
+        ResetInstruction;
+        BlockThread;
+      } else if (UI::SysMesBoxPtr->State != UI::MenuState::Shown) {
         ResetInstruction;
         BlockThread;
       }
       break;
     case 7:  // SystemMesFadeOut
-      SysMesBox::Hide();
-      if (ScrWork[SW_SYSMESANIMCTCUR] > 0) {
+      if (UI::SysMesBoxPtr->State == UI::MenuState::Shown) {
+        UI::SysMesBoxPtr->Hide();
         ResetInstruction;
         BlockThread;
-      } else {
-        ScrWork[SW_SYSMESALPHA] = 0;
-        SysMesBox::Implementation->BoxOpacity = 0.0f;
+      } else if (UI::SysMesBoxPtr->State != UI::MenuState::Hidden) {
+        ResetInstruction;
+        BlockThread;
       }
       break;
     case 8:
@@ -514,6 +481,22 @@ VmInstruction(InstMSinit) {
       initType);  // TODO: There's only one type in R;NE - initType <= 10
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MSinit(initType: %i)\n",
              initType);
+
+  if (initType == 2 &&
+      Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW) {
+    memset(&FlagWork, 0, 100);
+    memset(&FlagWork[150], 0, 75);
+    memset(&FlagWork[300], 0, 100);
+  }
+
+  if (initType == 0) {
+    std::map<uint32_t, std::string> maskFiles;
+    Io::VfsListFiles("mask", maskFiles);
+    for (auto const& mask : maskFiles) {
+      Masks2D[mask.first].LoadSync(mask.first);
+    }
+  }
+
   for (int i = 0; i < MaxBackgrounds2D; i++) {
     ScrWork[SW_BG1SURF + i] = i;
   }

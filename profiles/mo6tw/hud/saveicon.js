@@ -1,25 +1,25 @@
 root.SaveIcon = {
     ForegroundAnimation: "SaveIcon",
-    DefaultPosition: { X: 1153, Y: 23 },
+    DefaultPosition: { X: 1072, Y: 36 },
     BackgroundSprite: "SaveIconBg",
     BackgroundOffset: { X: -7, Y: -4 },
     BackgroundMaxAlpha: 0.5,
-    FadeInDuration: 0.5,
+    FadeInDuration: 0.25,
     FadeOutDuration: 0.25
 };
 
 MakeAnimation({
     Name: "SaveIcon",
     Sheet: "Data",
-    FirstFrameX: 1977,
-    FirstFrameY: 1,
-    FrameWidth: 70,
-    ColWidth: 70,
-    FrameHeight: 70,
-    RowHeight: 72,
-    Frames: 8,
+    FirstFrameX: 257,
+    FirstFrameY: 121,
+    FrameWidth: 96,
+    ColWidth: 96,
+    FrameHeight: 22,
+    RowHeight: 24,
+    Frames: 4,
     Duration: 0.4,
-    Rows: 8,
+    Rows: 4,
     Columns: 1,
     PrimaryDirection: AnimationDirections.Down
 });

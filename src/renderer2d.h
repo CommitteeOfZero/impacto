@@ -22,6 +22,10 @@ void DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
                 bool inverted = false);
 void DrawRect(RectF const& dest, glm::vec4 color, float angle = 0.0f);
 
+void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
+                      RectF const& dest, glm::vec4 tint, int alpha,
+                      int fadeRange);
+
 void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest, float depth,
                          glm::vec2 vanishingPoint, bool stayInScreen,
                          glm::quat rot, glm::vec4 tint = glm::vec4(1.0f),

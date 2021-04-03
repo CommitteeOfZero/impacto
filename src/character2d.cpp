@@ -189,11 +189,11 @@ void Character2D::Update(float dt) {
   }
 }
 
-void Character2D::Render() {
+void Character2D::Render(glm::vec4 col) {
   if (Profile::CharaIsMvl) {
     Renderer2D::DrawCharacterMvl(CharaSprite, glm::vec2(OffsetX, OffsetY),
                                  MvlVerticesCount, MvlVertices, MvlIndicesCount,
-                                 MvlIndices);
+                                 MvlIndices, false, col);
   } else {
     for (auto id : StatesToDraw) {
       if (States.count(id)) {
@@ -204,7 +204,8 @@ void Character2D::Render() {
           Renderer2D::DrawSprite(
               CharaSprite,
               RectF(state.ScreenCoords[i].x + OffsetX,
-                    state.ScreenCoords[i].y + OffsetY, 32.0f, 32.0f));
+                    state.ScreenCoords[i].y + OffsetY, 32.0f, 32.0f),
+              col);
         }
       }
     }

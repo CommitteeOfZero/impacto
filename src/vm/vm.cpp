@@ -30,6 +30,7 @@ using namespace Profile::ScriptVars;
 uint8_t* ScriptBuffers[MaxLoadedScripts];
 bool BlockCurrentScriptThread;
 uint32_t SwitchValue;
+TextTableEntry TextTable[16];
 
 static uint32_t LoadedScriptIds[MaxLoadedScripts];
 
@@ -311,7 +312,9 @@ static void DrawAllThreads() {
 
   int cnt = 0;
   while (ThreadTable[cnt]) {
-    Game::DrawComponents[cnt] = ThreadTable[cnt]->DrawType;
+    if (ThreadTable[cnt]->Flags & TF_Display) {
+      Game::DrawComponents[cnt] = ThreadTable[cnt]->DrawType;
+    }
     cnt++;
   }
 }
@@ -459,6 +462,18 @@ uint32_t ScriptGetLabelAddressNum(uint8_t* scriptBufferAdr, uint32_t labelNum) {
 uint8_t* ScriptGetStrAddress(uint8_t* scriptBufferAdr, uint32_t mesNum) {
   uint32_t stringTableAdrRel = SDL_SwapLE32(*(uint32_t*)&scriptBufferAdr[4]);
   uint32_t* stringTableAdr = (uint32_t*)&scriptBufferAdr[stringTableAdrRel];
+  uint32_t stringAdrRel = SDL_SwapLE32(stringTableAdr[mesNum]);
+  return &scriptBufferAdr[stringAdrRel];
+}
+
+uint8_t* ScriptGetTextTableStrAddress(uint32_t textTableId, uint32_t strNum) {
+  uint8_t* scriptBufferAdr = TextTable[textTableId].scriptBufferAdr;
+  uint32_t stringTableAdrRel = SDL_SwapLE32(*(uint32_t*)&scriptBufferAdr[4]);
+  uint32_t* stringTableAdr = (uint32_t*)&scriptBufferAdr[stringTableAdrRel];
+
+  uint16_t* textTable = (uint16_t*)TextTable[textTableId].labelAdr;
+  uint16_t mesNum = textTable[strNum];
+
   uint32_t stringAdrRel = SDL_SwapLE32(stringTableAdr[mesNum]);
   return &scriptBufferAdr[stringAdrRel];
 }

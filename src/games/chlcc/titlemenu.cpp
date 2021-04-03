@@ -1,40 +1,231 @@
 #include "titlemenu.h"
 
-#include "../../profile/hud/titlemenu.h"
-#include "../../profile/games/chlcc/titlemenu.h"
-#include "../../renderer2d.h"
 #include "../../texture/texture.h"
 #include "../../spritesheet.h"
 #include "../../io/vfs.h"
+
+#include "../../renderer2d.h"
 #include "../../mem.h"
+#include "../../inputsystem.h"
+#include "../../ui/widgets/label.h"
+#include "../../profile/ui/titlemenu.h"
+#include "../../profile/games/chlcc/titlemenu.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/game.h"
-#include "../../inputsystem.h"
 
 namespace Impacto {
+namespace UI {
 namespace CHLCC {
 
 using namespace Impacto::Profile::TitleMenu;
 using namespace Impacto::Profile::CHLCC::TitleMenu;
 using namespace Impacto::Profile::ScriptVars;
 
-int SecondaryChoiceCount = 0;
+using namespace Impacto::UI::Widgets::CHLCC;
+
+void TitleMenu::MenuButtonOnClick(Widgets::Button* target) {
+  ScrWork[SW_TITLECUR1] = target->Id;
+  ChoiceMade = true;
+}
+
+void TitleMenu::SecondaryButtonOnClick(Widgets::Button* target) {
+  ScrWork[SW_TITLECUR2] = target->Id;
+  ChoiceMade = true;
+}
+
+TitleMenu::TitleMenu() {
+  MainItems = new WidgetGroup();
+  LoadItems = new WidgetGroup();
+  ExtraItems = new WidgetGroup();
+  SystemItems = new WidgetGroup();
+
+  auto onClick =
+      std::bind(&TitleMenu::MenuButtonOnClick, this, std::placeholders::_1);
+  auto secondaryOnClick = std::bind(&TitleMenu::SecondaryButtonOnClick, this,
+                                    std::placeholders::_1);
+
+  // Start menu button
+  Start = new TitleButton(
+      0, MenuEntriesSprites[0], MenuEntriesHSprites[0], ItemHighlightSprite,
+      glm::vec2(
+          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
+              ItemHighlightOffsetX,
+          ((ItemYBase - 1.0f) + (0 * ItemPadding))));
+  Start->OnClickHandler = onClick;
+  Start->HasFocus = true;
+
+  MainItems->Add(Start, FocusDirection::Vertical);
+
+  // Load menu button
+  Load = new TitleButton(
+      1, MenuEntriesSprites[1], MenuEntriesHSprites[1], ItemHighlightSprite,
+      glm::vec2(
+          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
+              ItemHighlightOffsetX,
+          ((ItemYBase - 1.0f) + (1 * ItemPadding))));
+  Load->OnClickHandler = onClick;
+  MainItems->Add(Load, FocusDirection::Vertical);
+
+  // Extra menu button
+  Extra = new TitleButton(
+      2, MenuEntriesSprites[2], MenuEntriesHSprites[2], ItemHighlightSprite,
+      glm::vec2(
+          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
+              ItemHighlightOffsetX,
+          ((ItemYBase - 1.0f) + (2 * ItemPadding))));
+  Extra->OnClickHandler = onClick;
+  MainItems->Add(Extra, FocusDirection::Vertical);
+
+  // System menu button
+  System = new TitleButton(
+      3, MenuEntriesSprites[3], MenuEntriesHSprites[3], ItemHighlightSprite,
+      glm::vec2(
+          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
+              ItemHighlightOffsetX,
+          ((ItemYBase - 1.0f) + (3 * ItemPadding))));
+  System->OnClickHandler = onClick;
+  MainItems->Add(System, FocusDirection::Vertical);
+
+  // Quick Load secondary Load menu button
+  QuickLoad = new TitleButton(0, MenuEntriesSprites[4], MenuEntriesHSprites[4],
+                              SecondaryItemHighlightSprite,
+                              glm::vec2(SecondaryItemX, ItemLoadQuickY));
+  QuickLoad->OnClickHandler = secondaryOnClick;
+  QuickLoad->HasFocus = true;
+  QuickLoad->IsSubButton = true;
+  QuickLoad->LineDecoration = LineSprites[2];
+  QuickLoad->LineY = SecondaryMenuLoadLineY;
+  LoadItems->Add(QuickLoad, FocusDirection::Vertical);
+
+  // Sub Load secondary Load menu button
+  SubLoad = new TitleButton(1, MenuEntriesSprites[5], MenuEntriesHSprites[5],
+                            SecondaryItemHighlightSprite,
+                            glm::vec2(SecondaryItemX, ItemLoadY));
+  SubLoad->OnClickHandler = secondaryOnClick;
+  SubLoad->IsSubButton = true;
+  SubLoad->LineDecoration = LineSprites[3];
+  SubLoad->LineY = SecondaryMenuLoadQuickLineY;
+  LoadItems->Add(SubLoad, FocusDirection::Vertical);
+
+  // Clear List secondary Extra menu button
+  ClearList = new TitleButton(0, MenuEntriesSprites[6], MenuEntriesHSprites[6],
+                              SecondaryItemHighlightSprite,
+                              glm::vec2(SecondaryItemX, ItemClearListY));
+  ClearList->OnClickHandler = secondaryOnClick;
+  ClearList->IsSubButton = true;
+  ClearList->HasFocus = true;
+  ClearList->LineDecoration = LineSprites[0];
+  ClearList->LineY = SecondaryMenuExtraClearY;
+  ExtraItems->Add(ClearList, FocusDirection::Vertical);
+
+  // CG Library secondary Extra menu button
+  CGLibrary = new TitleButton(1, MenuEntriesSprites[7], MenuEntriesHSprites[7],
+                              SecondaryItemHighlightSprite,
+                              glm::vec2(SecondaryItemX, ItemCGLibraryY));
+  CGLibrary->OnClickHandler = secondaryOnClick;
+  CGLibrary->IsSubButton = true;
+  CGLibrary->LineDecoration = LineSprites[1];
+  CGLibrary->LineY = SecondaryMenuExtraCGY;
+  ExtraItems->Add(CGLibrary, FocusDirection::Vertical);
+
+  // Sound Library secondary Extra menu button
+  SoundLibrary =
+      new TitleButton(2, MenuEntriesSprites[8], MenuEntriesHSprites[8],
+                      SecondaryItemHighlightSprite,
+                      glm::vec2(SecondaryItemX, ItemSoundLibraryY));
+  SoundLibrary->OnClickHandler = secondaryOnClick;
+  SoundLibrary->IsSubButton = true;
+  SoundLibrary->LineDecoration = LineSprites[2];
+  SoundLibrary->LineY = SecondaryMenuExtraSoundY;
+  ExtraItems->Add(SoundLibrary, FocusDirection::Vertical);
+
+  // Movie Library secondary Extra menu button
+  MovieLibrary =
+      new TitleButton(3, MenuEntriesSprites[9], MenuEntriesHSprites[9],
+                      SecondaryItemHighlightSprite,
+                      glm::vec2(SecondaryItemX, ItemMovieLibraryY));
+  MovieLibrary->OnClickHandler = secondaryOnClick;
+  MovieLibrary->IsSubButton = true;
+  MovieLibrary->LineDecoration = LineSprites[3];
+  MovieLibrary->LineY = SecondaryMenuExtraMovieY;
+  ExtraItems->Add(MovieLibrary, FocusDirection::Vertical);
+
+  // Tips secondary Extra menu button
+  Tips = new TitleButton(4, MenuEntriesSprites[10], MenuEntriesHSprites[10],
+                         SecondaryItemHighlightSprite,
+                         glm::vec2(SecondaryItemX, ItemTipsY));
+  Tips->OnClickHandler = secondaryOnClick;
+  Tips->IsSubButton = true;
+  Tips->LineDecoration = LineSprites[4];
+  Tips->LineY = SecondaryMenuExtraTipsY;
+  ExtraItems->Add(Tips, FocusDirection::Vertical);
+
+  // Trophy secondary Extra menu button
+  Trophy = new TitleButton(5, MenuEntriesSprites[11], MenuEntriesHSprites[11],
+                           SecondaryItemHighlightSprite,
+                           glm::vec2(SecondaryItemX, ItemTrophyY));
+  Trophy->OnClickHandler = secondaryOnClick;
+  Trophy->IsSubButton = true;
+  Trophy->LineDecoration = LineSprites[5];
+  Trophy->LineY = SecondaryMenuExtraTrophyY;
+  ExtraItems->Add(Trophy, FocusDirection::Vertical);
+
+  // Option secondary System menu button
+  Config = new TitleButton(0, MenuEntriesSprites[12], MenuEntriesHSprites[12],
+                           SecondaryItemHighlightSprite,
+                           glm::vec2(SecondaryItemX, ItemConfigY));
+  Config->OnClickHandler = secondaryOnClick;
+  Config->IsSubButton = true;
+  Config->HasFocus = true;
+  Config->LineDecoration = LineSprites[2];
+  Config->LineY = SecondaryMenuSystemConfigY;
+  SystemItems->Add(Config, FocusDirection::Vertical);
+
+  // System Save secondary System menu button
+  SystemSave = new TitleButton(
+      1, MenuEntriesSprites[13], MenuEntriesHSprites[13],
+      SecondaryItemHighlightSprite, glm::vec2(SecondaryItemX, ItemSystemSaveY));
+  SystemSave->OnClickHandler = secondaryOnClick;
+  SystemSave->IsSubButton = true;
+  SystemSave->LineDecoration = LineSprites[3];
+  SystemSave->LineY = SecondaryMenuSystemSaveY;
+  SystemItems->Add(SystemSave, FocusDirection::Vertical);
+}
 
 void TitleMenu::Show() {
   if (State != Shown) {
     State = Shown;
+    if (UI::FocusedMenu != 0) {
+      LastFocusedMenu = UI::FocusedMenu;
+      LastFocusedMenu->IsFocused = false;
+    }
+    IsFocused = true;
+    UI::FocusedMenu = this;
+    if (PressToStartAnimation.State == AS_Stopped) {
+      PressToStartAnimation.StartIn();
+      SpinningCircleAnimation.StartIn();
+    }
   }
 }
 void TitleMenu::Hide() {
   if (State != Hidden) {
     State = Hidden;
+    MainItems->Hide();
+    if (LastFocusedMenu != 0) {
+      UI::FocusedMenu = LastFocusedMenu;
+      LastFocusedMenu->IsFocused = true;
+    } else {
+      UI::FocusedMenu = 0;
+    }
+    IsFocused = false;
   }
 }
+
 void TitleMenu::Update(float dt) {
   PressToStartAnimation.Update(dt);
   SpinningCircleAnimation.Update(dt);
-  ItemsFadeInAnimation.Update(dt);
-  SecondaryItemsFadeInAnimation.Update(dt);
+  PrimaryFadeAnimation.Update(dt);
+  SecondaryFadeAnimation.Update(dt);
 
   if (GetFlag(SF_TITLEMODE)) {
     Show();
@@ -44,39 +235,105 @@ void TitleMenu::Update(float dt) {
     Hide();
   }
 
-  if (Input::KeyboardButtonWentDown[SDL_SCANCODE_DOWN]) {
-    if (ScrWork[SW_TITLEDISPCT] >= 7) {
-      SecondaryChoice++;
-      if (SecondaryChoice > SecondaryChoiceCount) SecondaryChoice = 0;
-    } else {
-      CurrentChoice++;
-      if (CurrentChoice > 3) CurrentChoice = 0;
-    }
-  } else if (Input::KeyboardButtonWentDown[SDL_SCANCODE_UP]) {
-    if (ScrWork[SW_TITLEDISPCT] >= 7) {
-      SecondaryChoice--;
-      if (SecondaryChoice < 0) SecondaryChoice = SecondaryChoiceCount;
-    } else {
-      CurrentChoice--;
-      if (CurrentChoice < 0) CurrentChoice = 3;
-    }
-  }
+  if (State == Shown && IsFocused) {
+    MainItems->Opacity =
+        glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
+    MainItems->Update(dt);
+    LoadItems->Opacity =
+        glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
+    LoadItems->Update(dt);
+    ExtraItems->Opacity =
+        glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
+    ExtraItems->Update(dt);
+    SystemItems->Opacity =
+        glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
+    SystemItems->Update(dt);
 
-  if (PressToStartAnimation.State == AS_Stopped &&
-      ScrWork[SW_TITLEDISPCT] == 1) {
-    PressToStartAnimation.StartIn();
-    SpinningCircleAnimation.StartIn();
+    switch (ScrWork[SW_TITLEDISPCT]) {
+      case 0: {
+        // When returning to title menu from loading a game we need to hide the
+        // load sub-menu
+        if (LoadItems->IsShown) {
+          SecondaryFadeAnimation.StartOut();
+          MainItems->HasFocus = true;
+          LoadItems->Hide();
+        }
+      } break;
+      case 3: {  // Main Menu Fade In
+        if (!MainItems->IsShown && ScrWork[SW_TITLECT] == 0) {
+          MainItems->Show();
+          MainItems->Opacity = 0.0f;
+          PrimaryFadeAnimation.DurationIn = PrimaryFadeInDuration;
+          PrimaryFadeAnimation.DurationOut = PrimaryFadeOutDuration;
+          PrimaryFadeAnimation.StartIn();
+        }
+      } break;
+      case 7: {  // Secondary menu Load Fade In
+        if (!LoadItems->IsShown && ScrWork[SW_TITLECT] == 0) {
+          LoadItems->Show();
+          LoadItems->Opacity = 0.0f;
+          MainItems->HasFocus = false;
+
+          SecondaryFadeAnimation.DurationIn = SecondaryFadeInDuration;
+          SecondaryFadeAnimation.DurationOut = SecondaryFadeOutDuration;
+          SecondaryFadeAnimation.StartIn();
+
+        } else if (LoadItems->IsShown && ScrWork[SW_TITLECT] == 32) {
+          SecondaryFadeAnimation.StartOut();
+
+        } else if (ScrWork[SW_TITLECT] == 0) {
+          LoadItems->Hide();
+          MainItems->HasFocus = true;
+        }
+      } break;
+      case 9: {  // Secondary menu Extra Fade In
+        if (!ExtraItems->IsShown && ScrWork[SW_TITLECT] == 0) {
+          ExtraItems->Show();
+          ExtraItems->Opacity = 0.0f;
+          MainItems->HasFocus = false;
+
+          SecondaryFadeAnimation.DurationIn = SecondaryFadeInDuration;
+          SecondaryFadeAnimation.DurationOut = SecondaryFadeOutDuration;
+          SecondaryFadeAnimation.StartIn();
+
+        } else if (ExtraItems->IsShown && ScrWork[SW_TITLECT] == 32) {
+          SecondaryFadeAnimation.StartOut();
+
+        } else if (ScrWork[SW_TITLECT] == 0) {
+          ExtraItems->Hide();
+          MainItems->HasFocus = true;
+        }
+      } break;
+      case 11: {  // Secondary menu System Fade In
+        if (!SystemItems->IsShown && ScrWork[SW_TITLECT] == 0) {
+          SystemItems->Show();
+          SystemItems->Opacity = 0.0f;
+          MainItems->HasFocus = false;
+
+          SecondaryFadeAnimation.DurationIn = SecondaryFadeInDuration;
+          SecondaryFadeAnimation.DurationOut = SecondaryFadeOutDuration;
+          SecondaryFadeAnimation.StartIn();
+
+        } else if (SystemItems->IsShown && ScrWork[SW_TITLECT] == 32) {
+          SecondaryFadeAnimation.StartOut();
+
+        } else if (ScrWork[SW_TITLECT] == 0) {
+          SystemItems->Hide();
+          MainItems->HasFocus = true;
+        }
+      } break;
+    }
+    if (PressToStartAnimation.State == AS_Stopped &&
+        ScrWork[SW_TITLEDISPCT] == 1) {
+      PressToStartAnimation.StartIn();
+      SpinningCircleAnimation.StartIn();
+    }
   }
 }
 
 void TitleMenu::Render() {
   if (State != Hidden && GetFlag(SF_TITLEMODE)) {
-    int maskAlpha = ScrWork[SW_TITLEMASKALPHA];
-    glm::vec4 col = ScrWorkGetColor(SW_TITLEMASKCOLOR);
-    col.a = glm::min(maskAlpha / 255.0f, 1.0f);
-    Renderer2D::DrawRect(
-        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight), col);
-    if (ScrWork[SW_SYSMENUCT] < 64) {
+    if (ScrWork[SW_MENUCT] < 64) {
       switch (ScrWork[SW_TITLEDISPCT]) {
         case 0:  // Initial animation
           break;
@@ -90,57 +347,60 @@ void TitleMenu::Render() {
         case 2: {  // Transition between Press to start and menus
           DrawTitleMenuBackGraphics();
         } break;
-        case 3: {  // MenuItems Fade In
+        case 3:  // MenuItems Fade In
           if (ItemsFadeInAnimation.IsOut() &&
               ItemsFadeInAnimation.State != AS_Playing)
             ItemsFadeInAnimation.StartIn();
           else if (ItemsFadeInAnimation.State != AS_Playing)
             ItemsFadeInAnimation.StartOut();
           DrawTitleMenuBackGraphics();
-          DrawTitleMenuItems();
-        } break;
+          MainItems->Render();
         case 4: {  // Main Menu
           DrawTitleMenuBackGraphics();
-          DrawTitleMenuItems();
+          MainItems->Render();
         } break;
         case 7: {  // Secondary menu LOAD Fade In
-          SecondaryChoiceCount = 1;
           if (SecondaryItemsFadeInAnimation.IsOut() &&
               SecondaryItemsFadeInAnimation.State != AS_Playing)
             SecondaryItemsFadeInAnimation.StartIn();
           else if (SecondaryItemsFadeInAnimation.State != AS_Playing)
             SecondaryItemsFadeInAnimation.StartOut();
-          DrawTitleMenuBackGraphics();
-          DrawTitleMenuItemsLoad();
-          DrawTitleMenuItems();
-        } break;
+        }
         case 8: {  // Secondary menu LOAD
           DrawTitleMenuBackGraphics();
-          DrawTitleMenuItemsLoad();
-          DrawTitleMenuItems();
+          LoadItems->Render();
+          MainItems->Render();
         } break;
         case 9: {  // Secondary menu EXTRAS Fade In
           DrawTitleMenuBackGraphics();
-          DrawTitleMenuItems();
+          MainItems->Render();
         } break;
         case 10: {  // Secondary menu EXTRAS
           DrawTitleMenuBackGraphics();
-          DrawTitleMenuItems();
+          ExtraItems->Render();
+          MainItems->Render();
         } break;
         case 11: {  // Secondary menu SYSTEM Fade In
           DrawTitleMenuBackGraphics();
-          DrawTitleMenuItems();
-        } break;
+          MainItems->Render();
+        }
         case 12: {  // Secondary menu SYSTEM
           DrawTitleMenuBackGraphics();
-          DrawTitleMenuItems();
+          SystemItems->Render();
+          MainItems->Render();
         } break;
       }
     }
+
+    int maskAlpha = ScrWork[SW_TITLEMASKALPHA];
+    glm::vec4 col = ScrWorkGetColor(SW_TITLEMASKCOLOR);
+    col.a = glm::min(maskAlpha / 255.0f, 1.0f);
+    Renderer2D::DrawRect(
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight), col);
   }
 }
 
-void TitleMenu::DrawTitleMenuBackGraphics() {
+inline void TitleMenu::DrawTitleMenuBackGraphics() {
   Renderer2D::DrawSprite(BackgroundSprite, glm::vec2(0.0f));
   Renderer2D::DrawSprite(SpinningCircleSprite,
                          glm::vec2(SpinningCircleX, SpinningCircleY),
@@ -167,62 +427,6 @@ void TitleMenu::DrawTitleMenuBackGraphics() {
                          glm::vec2(CopyrightTextX, CopyrightTextY));
 }
 
-void TitleMenu::DrawTitleMenuItems() {
-  glm::vec4 col = glm::vec4(1.0f);
-  col.a = glm::smoothstep(0.0f, 1.0f, ItemsFadeInAnimation.Progress);
-  for (int i = 0; i < 4; i++) {
-    if (CurrentChoice == i) {
-      Renderer2D::DrawSprite(
-          ItemHighlightSprite,
-          glm::vec2(
-              ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) -
-                  ItemHighlightOffsetX,
-              ((ItemYBase - 1.0f) + (i * ItemPadding)) - ItemHighlightOffsetY),
-          col);
-      Renderer2D::DrawSprite(
-          MenuEntriesHSprites[i],
-          glm::vec2(ItemHighlightOffsetX * ItemsFadeInAnimation.Progress,
-                    ItemYBase + (i * ItemPadding)),
-          col);
-    } else {
-      Renderer2D::DrawSprite(
-          MenuEntriesSprites[i],
-          glm::vec2(ItemHighlightOffsetX * ItemsFadeInAnimation.Progress,
-                    ItemYBase + (i * ItemPadding)),
-          col);
-    }
-  }
-}
-
-void TitleMenu::DrawTitleMenuItemsLoad() {
-  glm::vec4 col = glm::vec4(1.0f);
-  col.a = glm::smoothstep(0.0f, 1.0f, SecondaryItemsFadeInAnimation.Progress);
-
-  Renderer2D::DrawSprite(SecondaryItemHighlightSprite,
-                         glm::vec2(SecondaryItemHighlightX,
-                                   SecondaryChoice * SecondaryMenuPaddingY +
-                                       SecondaryMenuLoadOffsetY),
-                         col);
-  if (SecondaryChoice == 0) {
-    Renderer2D::DrawSprite(
-        ItemLoadQuickLineSprite,
-        glm::vec2(SecondaryMenuLoadLineX, SecondaryMenuLoadQuickLineY), col);
-    Renderer2D::DrawSprite(ItemLoadQuickHighlightedSprite,
-                           glm::vec2(ItemLoadX, ItemLoadQuickY), col);
-    Renderer2D::DrawSprite(ItemLoadSprite, glm::vec2(ItemLoadX, ItemLoadY),
-                           col);
-  } else {
-    Renderer2D::DrawSprite(
-        ItemLoadLineSprite,
-        glm::vec2(SecondaryMenuLoadLineX, SecondaryMenuLoadLineY), col);
-    Renderer2D::DrawSprite(ItemLoadQuickSprite,
-                           glm::vec2(ItemLoadX, ItemLoadQuickY), col);
-    Renderer2D::DrawSprite(ItemLoadHighlightedSprite,
-                           glm::vec2(ItemLoadX, ItemLoadY), col);
-  }
-}
-void TitleMenu::DrawTitleMenuItemsExtras() {}
-void TitleMenu::DrawTitleMenuItemsSystem() {}
-
 }  // namespace CHLCC
+}  // namespace UI
 }  // namespace Impacto

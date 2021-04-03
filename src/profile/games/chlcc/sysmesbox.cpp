@@ -1,6 +1,9 @@
 #include "sysmesbox.h"
 #include "../../profile_internal.h"
 
+#include "../../../ui/ui.h"
+#include "../../../games/chlcc/sysmesbox.h"
+
 namespace Impacto {
 namespace Profile {
 namespace CHLCC {
@@ -26,9 +29,7 @@ float HighlightXOffset;
 float HighlightXBase;
 float HighlightXStep;
 
-Impacto::SysMesBox::SysMesBoxBase* Configure() {
-  Impacto::CHLCC::SysMesBox* result = new Impacto::CHLCC::SysMesBox();
-
+void Configure() {
   Box = EnsureGetMemberSprite("Box");
   BoxDecoration = EnsureGetMemberSprite("BoxDecoration");
   SelectionLeftPart = EnsureGetMemberSprite("SelectionLeftPart");
@@ -50,7 +51,7 @@ Impacto::SysMesBox::SysMesBoxBase* Configure() {
   HighlightXBase = EnsureGetMemberFloat("HighlightXBase");
   HighlightXStep = EnsureGetMemberFloat("HighlightXStep");
 
-  return result;
+  UI::SysMesBoxPtr = new UI::CHLCC::SysMesBox();
 }
 
 }  // namespace SysMesBox

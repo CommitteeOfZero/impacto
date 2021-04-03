@@ -358,5 +358,23 @@ void SaveSystem::LoadMemory(SaveType type, int id) {
     }
 }
 
+uint8_t SaveSystem::GetSaveSatus(SaveType type, int id) {
+  switch (type) {
+    case SaveQuick:
+      return ((SaveFileEntry*)QuickSaveEntries[id])->Status;
+    case SaveFull:
+      return ((SaveFileEntry*)FullSaveEntries[id])->Status;
+  }
+}
+
+int SaveSystem::GetSaveTitle(SaveType type, int id) {
+  switch (type) {
+    case SaveQuick:
+      return ((SaveFileEntry*)QuickSaveEntries[id])->SwTitle;
+    case SaveFull:
+      return ((SaveFileEntry*)FullSaveEntries[id])->SwTitle;
+  }
+}
+
 }  // namespace CHLCC
 }  // namespace Impacto

@@ -1,15 +1,13 @@
 #pragma once
 
-#include "../../../hud/titlemenu.h"
 #include "../../../spritesheet.h"
-#include "../../../games/mo6tw/titlemenu.h"
 
 namespace Impacto {
 namespace Profile {
 namespace MO6TW {
 namespace TitleMenu {
 
-Impacto::TitleMenu::TitleMenuBase* Configure();
+void Configure();
 
 extern Sprite BackgroundSprite;
 extern Sprite CopyrightSprite;
@@ -26,6 +24,14 @@ extern float LogoX;
 extern float LogoY;
 extern float CopyrightX;
 extern float CopyrightY;
+extern float PrimaryFadeAnimDuration;
+extern float SecondaryMenuAnimTargetX;
+extern float SecondaryMenuAnimTargetY;
+extern float SecondaryMenuAnimTarget2X;
+extern float SecondaryMenuAnimTarget2Y;
+extern float SecondaryMenuAnimDuration;
+extern float SecondaryMenuAnimUnderX;
+extern float SecondaryMenuAnimUnderYMultiplier;
 
 }  // namespace TitleMenu
 }  // namespace MO6TW

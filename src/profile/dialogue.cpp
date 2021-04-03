@@ -3,6 +3,8 @@
 #include "../log.h"
 #include "../window.h"
 
+#include "games/mo6tw/dialoguebox.h"
+
 namespace Impacto {
 namespace Profile {
 namespace Dialogue {
@@ -14,6 +16,8 @@ glm::vec2 ADVBoxPos;
 
 float FadeOutDuration;
 float FadeInDuration;
+
+DialogueBoxType DialogueBoxCurrentType{DialogueBoxType::None};
 
 float NVLBoxMaxOpacity;
 
@@ -62,6 +66,14 @@ void Configure() {
 
   FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
   FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
+
+  DialogueBoxCurrentType = DialogueBoxType::_from_integral_unchecked(
+      EnsureGetMemberInt("DialogueBoxCurrentType"));
+
+  switch (DialogueBoxCurrentType) {
+    case DialogueBoxType::MO6TW:
+      Profile::MO6TW::DialogueBox::Configure();
+  }
 
   NVLBoxMaxOpacity = EnsureGetMemberFloat("NVLBoxMaxOpacity");
 

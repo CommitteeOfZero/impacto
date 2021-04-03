@@ -48,30 +48,58 @@ root.TitleMenu = {
     SpinningCircleAnimationDuration: 15,
 	ItemHighlightSprite: "TitleMenuItemHighlight",
 	ItemHighlightOffsetX: 73,
-	ItemHighlightOffsetY: 6,
+	ItemHighlightOffsetY: 7,
     ItemPadding: 40,
     ItemYBase: 69,
     ItemFadeInDuration: 0.3,
     ItemFadeOutDuration: 0.6,
-    ItemLoadLineSprite: "TitleMenuItemLoadLine",
-    ItemLoadQuickLineSprite: "TitleMenuItemLoadQuickLine",
+    SecondaryItemFadeInDuration: 0.2,
+    SecondaryItemFadeOutDuration: 0.2,
+    PrimaryFadeInDuration: 0.3,
+    PrimaryFadeOutDuration: 0.3,
+    SecondaryFadeInDuration: 0.512,
+    SecondaryFadeOutDuration: 0.512,
+    ItemHyperUpLine:"TitleMenuItemHyperUpLine",
+    ItemSuperUpLine: "TitleMenuItemSuperUpLine",
+    ItemUpLine: "TitleMenuItemUpLine",
+    ItemStraightLine: "TitleMenuItemStraightLine",
+    ItemDownLine: "TitleMenuItemDownLine",
+    ItemSuperDownLine: "TitleMenuItemSuperDownLine",
     ItemLoadQuickSprite: "TitleMenuItemLoadQuick",
-    ItemLoadX: 320,
+    SecondaryItemX: 320,
     ItemLoadY: 109,
     ItemLoadQuickY: 83,
     ItemLoadSprite: "TitleMenuItemLoad",
     ItemLoadQuickHighlightedSprite: "TitleMenuItemLoadQuickHighlighted",
     ItemLoadHighlightedSprite: "TitleMenuItemLoadHighlighted",
     SecondaryItemHighlightSprite: "TitleMenuSecondaryItemHighlight",
-    SecondaryItemHighlightX: 284,
+    ItemClearListY: 71,
+    ItemCGLibraryY: 97,
+    ItemSoundLibraryY: 123,
+    ItemMovieLibraryY: 149,
+    ItemTipsY: 175,
+    ItemTrophyY: 201,
+    ItemConfigY: 163,
+    ItemSystemSaveY: 189,
+    SecondaryItemHighlightX: 286,
     SecondaryMenuPaddingY: 26,
     SecondaryMenuLoadOffsetY: 76,
-    SecondaryMenuLoadLineX: 235,
-    SecondaryMenuLoadLineY: 113,
-    SecondaryMenuLoadQuickLineY: 86,
-    MenuEntriesNum: 4,
+    SecondaryMenuLineX: 241,
+    SecondaryMenuLoadLineY: 93,
+    SecondaryMenuLoadQuickLineY: 119,
+    SecondaryMenuExtraClearY: 81,
+    SecondaryMenuExtraCGY: 107,
+    SecondaryMenuExtraSoundY: 133,
+    SecondaryMenuExtraMovieY: 159,
+    SecondaryMenuExtraTipsY: 159,
+    SecondaryMenuExtraTrophyY: 159,
+    SecondaryMenuSystemConfigY: 173,
+    SecondaryMenuSystemSaveY: 199,
+    MenuEntriesNum: 14,
     MenuEntriesSprites: [],
-    MenuEntriesHighlightedSprites: []
+    MenuEntriesHighlightedSprites: [],
+    LineNum: 6,
+    LineEntriesSprites: []
 };
 
 for (var i = 0; i < 4; i++) {
@@ -87,6 +115,19 @@ for (var i = 0; i < 4; i++) {
     root.TitleMenu.MenuEntriesSprites.push("TitleMenuEntry" + i);
 }
 
+for (var i = 0; i < 10; i++) {
+    root.Sprites["TitleMenuEntry" + i + 4] = {
+        Sheet: "Title",
+        Bounds: {
+            X: 1369,
+            Y: 684 + i * 22,
+            Width: 216,
+            Height: 20
+        }
+    };
+    root.TitleMenu.MenuEntriesSprites.push("TitleMenuEntry" + i + 4);
+}
+
 for (var i = 0; i < 4; i++) {
     root.Sprites["TitleMenuEntryHighlighted" + i] = {
         Sheet: "Title",
@@ -98,6 +139,19 @@ for (var i = 0; i < 4; i++) {
         }
     };
     root.TitleMenu.MenuEntriesHighlightedSprites.push("TitleMenuEntryHighlighted" + i);
+}
+
+for (var i = 0; i < 10; i++) {
+    root.Sprites["TitleMenuEntryHighlighted" + i + 4] = {
+        Sheet: "Title",
+        Bounds: {
+            X: 1151,
+            Y: 684 + i * 22,
+            Width: 216,
+            Height: 20
+        }
+    };
+    root.TitleMenu.MenuEntriesHighlightedSprites.push("TitleMenuEntryHighlighted" + i + 4);
 }
 
 root.Sprites["TitleMenuPressToStart"] = {
@@ -180,15 +234,37 @@ root.Sprites["TitleMenuItemHighlight"] = {
     Bounds: { X: 915, Y: 951, Width: 244, Height: 36 },
 };
 
-root.Sprites["TitleMenuItemLoadLine"] = {
+root.Sprites["TitleMenuItemHyperUpLine"] = {
     Sheet: "Title",
-    Bounds: { X: 1805, Y: 882, Width: 56, Height: 20 },
+    Bounds: { X: 1805, Y: 686, Width: 51, Height: 80 },
 };
 
-root.Sprites["TitleMenuItemLoadQuickLine"] = {
+root.Sprites["TitleMenuItemSuperUpLine"] = {
     Sheet: "Title",
-    Bounds: { X: 1805, Y: 838, Width: 56, Height: 42 },
+    Bounds: { X: 1805, Y: 776, Width: 51, Height: 54 },
 };
+
+root.Sprites["TitleMenuItemUpLine"] = {
+    Sheet: "Title",
+    Bounds: { X: 1805, Y: 845, Width: 51, Height: 28 },
+};
+
+root.Sprites["TitleMenuItemStraightLine"] = {
+    Sheet: "Title",
+    Bounds: { X: 1805, Y: 888, Width: 51, Height: 2 },
+};
+
+root.Sprites["TitleMenuItemDownLine"] = {
+    Sheet: "Title",
+    Bounds: { X: 1805, Y: 910, Width: 51, Height: 28 },
+};
+
+root.Sprites["TitleMenuItemSuperDownLine"] = {
+    Sheet: "Title",
+    Bounds: { X: 1805, Y: 959, Width: 51, Height: 54 },
+};
+
+root.TitleMenu.LineEntriesSprites.push("TitleMenuItemHyperUpLine", "TitleMenuItemSuperUpLine", "TitleMenuItemUpLine", "TitleMenuItemStraightLine", "TitleMenuItemDownLine", "TitleMenuItemSuperDownLine");
 
 root.Sprites["TitleMenuItemLoadQuick"] = {
     Sheet: "Title",

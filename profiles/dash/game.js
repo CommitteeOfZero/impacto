@@ -29,7 +29,7 @@ include('dash/hud/saveicon.js');
 include('dash/hud/loadingdisplay.js');
 include('dash/hud/datedisplay.js');
 include('dash/hud/titlemenu.js');
-include('dash/hud/mainmenu.js');
+include('dash/hud/systemmenu.js');
 include('dash/hud/sysmesboxdisplay.js');
 include('dash/scene3d/scene3d.js');
 include('dash/hud/selectiondisplay.js');

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../../../hud/titlemenu.h"
 #include "../../../spritesheet.h"
 #include "../../../games/rne/titlemenu.h"
 
@@ -9,7 +8,7 @@ namespace Profile {
 namespace RNE {
 namespace TitleMenu {
 
-Impacto::TitleMenu::TitleMenuBase* Configure();
+void Configure();
 
 extern Sprite LineSprite;
 extern Sprite CopyrightSprite;
@@ -31,6 +30,10 @@ extern float EliteX;
 extern float EliteY;
 extern float LogoX;
 extern float LogoY;
+
+extern Animation* BackgroundAnimation;
+extern Animation PreTitleItemsAnimation;
+extern Animation PressToStartAnimation;
 
 }  // namespace TitleMenu
 }  // namespace RNE

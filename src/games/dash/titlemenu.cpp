@@ -1,6 +1,6 @@
 #include "titlemenu.h"
 
-#include "../../profile/hud/titlemenu.h"
+#include "../../profile/ui/titlemenu.h"
 #include "../../profile/games/dash/titlemenu.h"
 #include "../../renderer2d.h"
 #include "../../texture/texture.h"
@@ -14,11 +14,14 @@
 #include "../../background2d.h"
 
 namespace Impacto {
+namespace UI {
 namespace Dash {
 
 using namespace Impacto::Profile::TitleMenu;
 using namespace Impacto::Profile::Dash::TitleMenu;
 using namespace Impacto::Profile::ScriptVars;
+
+TitleMenu::TitleMenu() {}
 
 void TitleMenu::Show() {
   if (State != Shown) {
@@ -49,4 +52,5 @@ void TitleMenu::Render() {
 }
 
 }  // namespace Dash
+}  // namespace UI
 }  // namespace Impacto

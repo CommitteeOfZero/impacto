@@ -1,23 +1,24 @@
 #include "sysmesbox.h"
 
-#include "../../impacto.h"
-#include "../../renderer2d.h"
-#include "../../game.h"
-#include "../../mem.h"
-#include "../../inputsystem.h"
-#include "../../vm/interface/input.h"
-#include "../../profile/scriptvars.h"
-#include "../../profile/hud/sysmesbox.h"
+#include "../../profile/ui/sysmesbox.h"
 #include "../../profile/games/rne/sysmesbox.h"
 #include "../../profile/dialogue.h"
+#include "../../profile/game.h"
 #include "../../profile/vm.h"
+#include "../../profile/scriptvars.h"
+#include "../../mem.h"
+#include "../../io/vfs.h"
+#include "../../inputsystem.h"
+#include "../../renderer2d.h"
 
 namespace Impacto {
+namespace UI {
 namespace RNE {
 
+using namespace Impacto::UI::Widgets;
+using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::SysMesBox;
 using namespace Impacto::Profile::RNE::SysMesBox;
-using namespace Impacto::Profile::ScriptVars;
 
 static float BoxAnimCount = 0.0f;
 static float BoxTopY = 0.0f;
@@ -29,9 +30,64 @@ static float ButtonYesX = 0.0f;
 static float ButtonRightX = 0.0f;
 static int TextStartCount = 0;
 
+void SysMesBox::ChoiceItemOnClick(Button* target) {
+  ScrWork[SW_SYSSEL] = target->Id;
+  ChoiceMade = true;
+}
+
 void SysMesBox::Show() {
+  MessageItems = new WidgetGroup();
+  ChoiceItems = new WidgetGroup();
+
+  Sprite nullSprite = Sprite();
+  nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
+
+  auto onClick =
+      std::bind(&SysMesBox::ChoiceItemOnClick, this, std::placeholders::_1);
+
+  float textBeginY = TextMiddleY - (TextMarginY * (4 + MessageCount));
+  for (int i = 0; i < MessageCount; i++) {
+    int lineLen;
+    for (int j = 0; j < MessageLengths[i]; j++) {
+      if (Messages[i][j].CharId == 0) break;
+      Messages[i][j].DestRect.Y = textBeginY + (i * TextLineHeight);
+    }
+
+    Label* message = new Label(Messages[i], MessageLengths[i], MessageWidths[i],
+                               TextFontSize, false);
+
+    MessageItems->Add(message, FocusDirection::Vertical);
+  }
+
+  if (ChoiceCount == 1) {
+    WidgetOK = new Button(0, ButtonOK, ButtonOKHighlighted, nullSprite,
+                          glm::vec2(ButtonRightX, 0.0f));
+    WidgetOK->OnClickHandler = onClick;
+    ChoiceItems->Add(WidgetOK, FocusDirection::Horizontal);
+
+  } else if (ChoiceCount == 2) {
+    WidgetYes = new Button(0, ButtonYes, ButtonYesHighlighted, nullSprite,
+                           glm::vec2(ButtonYesX, 0.0f));
+    WidgetYes->OnClickHandler = onClick;
+    ChoiceItems->Add(WidgetYes, FocusDirection::Horizontal);
+    WidgetNo = new Button(1, ButtonNo, ButtonNoHighlighted, nullSprite,
+                          glm::vec2(ButtonRightX, 0.0f));
+    WidgetNo->OnClickHandler = onClick;
+    ChoiceItems->Add(WidgetNo, FocusDirection::Horizontal);
+  }
+
+  MessageItems->Show();
+  MessageItems->HasFocus = false;
+  if (ChoiceCount != 0) ChoiceItems->Show();
   State = Showing;
-  // Hack...
+
+  if (UI::FocusedMenu != 0) {
+    LastFocusedMenu = UI::FocusedMenu;
+    LastFocusedMenu->IsFocused = false;
+  }
+  IsFocused = true;
+  UI::FocusedMenu = this;
+
   if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::RNE) {
     if (!ScrWork[SW_SYSMESANIMCTCUR]) {
       Io::InputStream* stream;
@@ -41,17 +97,22 @@ void SysMesBox::Show() {
     }
   }
 }
+
 void SysMesBox::Hide() {
-  State = Hiding;
-  // Hack...
   if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::RNE) {
-    if (ScrWork[SW_SYSMESANIMCTCUR] == ScrWork[SW_SYSMESANIMCTF]) {
-      Io::InputStream* stream;
-      Io::VfsOpen("sysse", 29, &stream);
-      Audio::Channels[Audio::AC_SSE].Play(Audio::AudioStream::Create(stream),
-                                          false, 0.0f);
-    }
+    Io::InputStream* stream;
+    Io::VfsOpen("sysse", 29, &stream);
+    Audio::Channels[Audio::AC_SSE].Play(Audio::AudioStream::Create(stream),
+                                        false, 0.0f);
   }
+  State = Hiding;
+  if (LastFocusedMenu != 0) {
+    UI::FocusedMenu = LastFocusedMenu;
+    LastFocusedMenu->IsFocused = true;
+  } else {
+    UI::FocusedMenu = 0;
+  }
+  IsFocused = false;
 }
 
 void SysMesBox::Update(float dt) {
@@ -100,31 +161,6 @@ void SysMesBox::Update(float dt) {
         (MessageLabelSpriteMultiplier *
          (BoxProgressCount - 2 * MessageCount - 8));
 
-    if (ChoiceCount == 2) {
-      float buttonYesSpriteY = ButtonSpriteY;
-      float buttonYesSpriteWidth = ButtonYWidthBase + labelButtonSpriteOffsetX;
-      if (buttonYesSpriteWidth > ButtonWidth)
-        buttonYesSpriteWidth = ButtonWidth;
-      if (CurrentChoice == 0) buttonYesSpriteY = ButtonSelectedSpriteY;
-      ButtonYes.Bounds = RectF(ButtonYes.Bounds.X, buttonYesSpriteY,
-                               buttonYesSpriteWidth, ButtonYes.Bounds.Height);
-      ButtonYesX = ButtonYesDisplayXBase - labelButtonSpriteOffsetX;
-    }
-    if (ChoiceCount >= 1) {
-      float buttonRightSpriteY = ButtonSpriteY;
-      float buttonRightSpriteWidth =
-          ButtonRightWidthBase + labelButtonSpriteOffsetX;
-      ButtonRightX = ButtonRightDisplayXBase - buttonRightSpriteWidth;
-      if (buttonRightSpriteWidth > ButtonWidth)
-        buttonRightSpriteWidth = ButtonWidth;
-      if (CurrentChoice == 1 || (ChoiceCount == 1 && CurrentChoice == 0))
-        buttonRightSpriteY = ButtonSelectedSpriteY;
-      ButtonNo.Bounds = RectF(ButtonNo.Bounds.X, buttonRightSpriteY,
-                              buttonRightSpriteWidth, ButtonNo.Bounds.Height);
-      ButtonOK.Bounds = RectF(ButtonOK.Bounds.X, buttonRightSpriteY,
-                              buttonRightSpriteWidth, ButtonOK.Bounds.Height);
-    }
-
     MessageLabel.Bounds =
         RectF(MessageLabelSpriteXBase - labelButtonSpriteOffsetX + 1.0f,
               MessageLabelSpriteY, labelButtonSpriteOffsetX - 2.0f,
@@ -137,51 +173,63 @@ void SysMesBox::Update(float dt) {
         FadeAnimation.StartOut();
     }
 
-    if (Type == +SysMesBoxType::Dash) {
-      float boxDecorationHeight = BoxHeight / 2.0f;
-      if (boxDecorationHeight > 60.0f) boxDecorationHeight = 61.0f;
-
-      BoxDecorationTop.Bounds =
-          RectF(BoxDecorationTop.Bounds.X, BoxDecorationTop.Bounds.Y,
-                BoxDecorationTop.Bounds.Width, boxDecorationHeight);
-      BoxDecorationBottom.Bounds =
-          RectF(BoxDecorationBottom.Bounds.X,
-                Line1DisplayY - boxDecorationHeight + 1.0f,
-                BoxDecorationBottom.Bounds.Width, boxDecorationHeight);
+    if (ChoiceCount == 2) {
+      float buttonYesSpriteWidth = ButtonYWidthBase + labelButtonSpriteOffsetX;
+      if (buttonYesSpriteWidth > ButtonWidth)
+        buttonYesSpriteWidth = ButtonWidth;
+      WidgetYes->NormalSprite.Bounds = RectF(
+          WidgetYes->NormalSprite.Bounds.X, WidgetYes->NormalSprite.Bounds.Y,
+          buttonYesSpriteWidth, WidgetYes->NormalSprite.Bounds.Height);
+      WidgetYes->FocusedSprite.Bounds = RectF(
+          WidgetYes->FocusedSprite.Bounds.X, WidgetYes->FocusedSprite.Bounds.Y,
+          buttonYesSpriteWidth, WidgetYes->FocusedSprite.Bounds.Height);
+      ButtonYesX = ButtonYesDisplayXBase - labelButtonSpriteOffsetX;
+      WidgetYes->MoveTo(glm::vec2(ButtonYesX, BoxBottomY - ButtonYOffset));
+    }
+    if (ChoiceCount >= 1) {
+      float buttonRightSpriteWidth =
+          ButtonRightWidthBase + labelButtonSpriteOffsetX;
+      ButtonRightX = ButtonRightDisplayXBase - buttonRightSpriteWidth;
+      if (buttonRightSpriteWidth > ButtonWidth)
+        buttonRightSpriteWidth = ButtonWidth;
+      if (WidgetNo) {
+        WidgetNo->NormalSprite.Bounds = RectF(
+            WidgetNo->NormalSprite.Bounds.X, WidgetNo->NormalSprite.Bounds.Y,
+            buttonRightSpriteWidth, WidgetNo->NormalSprite.Bounds.Height);
+        WidgetNo->FocusedSprite.Bounds = RectF(
+            WidgetNo->FocusedSprite.Bounds.X, WidgetNo->FocusedSprite.Bounds.Y,
+            buttonRightSpriteWidth, WidgetNo->FocusedSprite.Bounds.Height);
+        WidgetNo->MoveTo(glm::vec2(ButtonRightX, BoxBottomY - ButtonYOffset));
+      }
+      if (WidgetOK) {
+        WidgetOK->NormalSprite.Bounds = RectF(
+            WidgetOK->NormalSprite.Bounds.X, WidgetOK->NormalSprite.Bounds.Y,
+            buttonRightSpriteWidth, WidgetOK->NormalSprite.Bounds.Height);
+        WidgetOK->FocusedSprite.Bounds = RectF(
+            WidgetOK->FocusedSprite.Bounds.X, WidgetOK->FocusedSprite.Bounds.Y,
+            buttonRightSpriteWidth, WidgetOK->FocusedSprite.Bounds.Height);
+        WidgetOK->MoveTo(glm::vec2(ButtonRightX, BoxBottomY - ButtonYOffset));
+      }
     }
 
-    // Nice input
-    if (Input::KeyboardButtonWentDown[SDL_SCANCODE_RIGHT]) {
+    if (Input::KeyboardButtonWentDown[SDL_SCANCODE_RIGHT] ||
+        Input::KeyboardButtonWentDown[SDL_SCANCODE_LEFT]) {
       Io::InputStream* stream;
       Io::VfsOpen("sysse", 1, &stream);
       Audio::Channels[Audio::AC_SSE].Play(Audio::AudioStream::Create(stream),
                                           false, 0.0f);
-      if (CurrentChoice == 255)
-        CurrentChoice = 1;
-      else {
-        CurrentChoice++;
-        if (CurrentChoice > 1) CurrentChoice = 0;
-      }
-    } else if (Input::KeyboardButtonWentDown[SDL_SCANCODE_LEFT]) {
-      Io::InputStream* stream;
-      Io::VfsOpen("sysse", 1, &stream);
-      Audio::Channels[Audio::AC_SSE].Play(Audio::AudioStream::Create(stream),
-                                          false, 0.0f);
-      if (CurrentChoice == 255)
-        CurrentChoice = 0;
-      else {
-        CurrentChoice--;
-        if (CurrentChoice < 0) CurrentChoice = 1;
-      }
-    } else if (Vm::Interface::PAD1A & Vm::Interface::PADinputWentDown) {
-      ChoiceMade = true;
+    }
+
+    if (IsFocused) {
+      MessageItems->Update(dt);
+      ChoiceItems->Update(dt);
     }
   }
 }
 
 void SysMesBox::Render() {
-  if (BoxOpacity) {
-    glm::vec4 col(1.0f, 1.0f, 1.0f, glm::smoothstep(0.0f, 1.0f, BoxOpacity));
+  if (State != Hidden) {
+    glm::vec4 col(1.0f, 1.0f, 1.0f, 1.0f);
 
     if (BoxAnimCount > BoxDisplayStartCount) {
       Renderer2D::DrawRect(
@@ -215,29 +263,10 @@ void SysMesBox::Render() {
         Renderer2D::DrawSprite(MessageLabel,
                                glm::vec2(BoxDisplayX, BoxTopY + 3.0f), texCol);
 
-        if (ChoiceCount == 2) {
-          Renderer2D::DrawSprite(
-              ButtonYes, glm::vec2(ButtonYesX, BoxBottomY - ButtonYOffset),
-              texCol);
-          Renderer2D::DrawSprite(
-              ButtonNo, glm::vec2(ButtonRightX, BoxBottomY - ButtonYOffset),
-              texCol);
-        } else if (ChoiceCount == 1) {
-          Renderer2D::DrawSprite(
-              ButtonOK, glm::vec2(ButtonRightX, BoxBottomY - ButtonYOffset),
-              texCol);
-        }
-
-        float textBeginY = TextMiddleY - (TextMarginY * (4 + MessageCount));
-        for (int i = 0; i < MessageCount; i++) {
-          int lineLen;
-          for (lineLen = 0; lineLen < 255; lineLen++) {
-            if (Messages[i][lineLen].CharId == 0) break;
-            Messages[i][lineLen].DestRect.Y = textBeginY + (i * TextLineHeight);
-          }
-          Renderer2D::DrawProcessedText(
-              Messages[i], lineLen, Profile::Dialogue::DialogueFont, texCol.a);
-        }
+        MessageItems->Opacity = texCol.a;
+        MessageItems->Render();
+        ChoiceItems->Opacity = texCol.a;
+        ChoiceItems->Render();
       }
 
     } else {
@@ -253,5 +282,41 @@ void SysMesBox::Render() {
   }
 }
 
+void SysMesBox::Init() {
+  ChoiceMade = false;
+  MessageCount = 0;
+  ChoiceCount = 0;
+
+  FadeAnimation.DurationIn = FadeInDuration;
+  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.Direction = 1;
+  FadeAnimation.LoopMode = ALM_Stop;
+
+  memset(Messages, 0, (8 * 255) * sizeof(ProcessedTextGlyph));
+  memset(Choices, 0, (8 * 255) * sizeof(ProcessedTextGlyph));
+}
+
+void SysMesBox::AddMessage(uint8_t* str) {
+  Impacto::Vm::Sc3VmThread dummy;
+  dummy.Ip = str;
+  int len = TextLayoutPlainLine(&dummy, 255, Messages[MessageCount],
+                                Profile::Dialogue::DialogueFont, TextFontSize,
+                                Profile::Dialogue::ColorTable[10], 1.0f,
+                                glm::vec2(TextX, 0.0f), TextAlignment::Left);
+  float mesLen = 0.0f;
+  for (int i = 0; i < len; i++) {
+    mesLen += Messages[MessageCount][i].DestRect.Width;
+  }
+  MessageWidths[MessageCount] = mesLen;
+  MessageLengths[MessageCount] = len;
+  MessageCount++;
+}
+
+void SysMesBox::AddChoice(uint8_t* str) {
+  // No text based choices in R;NE
+  ChoiceCount++;
+}
+
 }  // namespace RNE
+}  // namespace UI
 }  // namespace Impacto

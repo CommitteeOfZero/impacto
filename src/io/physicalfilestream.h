@@ -17,9 +17,11 @@ class PhysicalFileStream : public InputStream,
   ~PhysicalFileStream();
 
   static IoError Create(std::string const& fileName, InputStream** out);
+  static IoError CreateWrite(std::string const& fileName, InputStream** out);
   int64_t Read(void* buffer, int64_t sz) override;
   int64_t Seek(int64_t offset, int origin) override;
   IoError Duplicate(InputStream** outStream) override;
+  int64_t Write(void* buffer, int64_t sz, int cnt);
 
  protected:
   static int const PhysicalBufferSize = 16 * 1024;

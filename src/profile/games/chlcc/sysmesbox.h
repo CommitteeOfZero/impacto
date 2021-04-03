@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../../../hud/sysmesbox.h"
 #include "../../../spritesheet.h"
 #include "../../../games/chlcc/sysmesbox.h"
 
@@ -9,7 +8,7 @@ namespace Profile {
 namespace CHLCC {
 namespace SysMesBox {
 
-Impacto::SysMesBox::SysMesBoxBase* Configure();
+void Configure();
 
 extern Sprite Box;
 extern Sprite BoxDecoration;

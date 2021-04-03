@@ -36,6 +36,11 @@ VmInstruction(InstReleaseSurf) {
   PopExpression(surfaceId);
   ImpLogSlow(LL_Warning, LC_VMStub,
              "STUB instruction ReleaseSurf(surfaceId: %i)\n", surfaceId);
+  if (surfaceId < 8) {
+    if (Backgrounds2D[surfaceId].Status == LS_Loaded) {
+      Backgrounds2D[surfaceId].Unload();
+    }
+  }
 }
 VmInstruction(InstLoadPic) {
   StartInstruction;

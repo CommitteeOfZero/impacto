@@ -1,6 +1,6 @@
 #include "titlemenu.h"
 
-#include "../../profile/hud/titlemenu.h"
+#include "../../profile/ui/titlemenu.h"
 #include "../../profile/games/rne/titlemenu.h"
 #include "../../renderer2d.h"
 #include "../../texture/texture.h"
@@ -15,6 +15,7 @@
 #include "../../background2d.h"
 
 namespace Impacto {
+namespace UI {
 namespace RNE {
 
 using namespace Impacto::Profile::TitleMenu;
@@ -23,8 +24,10 @@ using namespace Impacto::Profile::ScriptVars;
 
 static int const TitleBgBufferId = 3;
 
+TitleMenu::TitleMenu() {}
+
 void TitleMenu::Show() {
-  if (State != Shown) {
+  if (State == Hidden) {
     if (BackgroundAnimation) {
       Impacto::RNE::TileBackground* background =
           (Impacto::RNE::TileBackground*)BackgroundAnimation;
@@ -37,7 +40,7 @@ void TitleMenu::Show() {
   }
 }
 void TitleMenu::Hide() {
-  if (State != Hidden) {
+  if (State == Shown) {
     if (BackgroundAnimation) BackgroundAnimation->StartOut();
     State = Hiding;
   }
@@ -46,6 +49,11 @@ void TitleMenu::Update(float dt) {
   if (BackgroundAnimation) BackgroundAnimation->Update(dt);
   PreTitleItemsAnimation.Update(dt);
   PressToStartAnimation.Update(dt);
+  if (GetFlag(SF_TITLEMODE)) {
+    Show();
+  } else {
+    Hide();
+  }
 
   if (State == Showing) {
     if (BackgroundAnimation->IsIn()) {
@@ -93,4 +101,5 @@ void TitleMenu::Render() {
 }
 
 }  // namespace RNE
+}  // namespace UI
 }  // namespace Impacto

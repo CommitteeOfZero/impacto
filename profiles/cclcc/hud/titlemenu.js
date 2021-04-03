@@ -6,6 +6,7 @@ root.TitleMenu = {
     PressToStartAnimDurationOut: 0.7,
     PressToStartSprite: "TitleMenuPressToStart",
     BackgroundSprite: "TitleMenuBackground",
+    MenuEntriesNum: 0
 };
 
 root.Sprites["TitleMenuPressToStart"] = {

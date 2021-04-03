@@ -9,7 +9,7 @@
 namespace Impacto {
 namespace SaveSystem {
 
-BETTER_ENUM(SaveDataType, int, None, CHLCC)
+BETTER_ENUM(SaveDataType, int, None, CHLCC, MO6TW)
 
 enum SaveError {
   SaveOK = 0,
@@ -54,6 +54,8 @@ class SaveSystemBase {
   virtual void LoadMemory(SaveType type, int id) = 0;
   virtual void FlushWorkingSaveEntry(SaveType type, int id) = 0;
   virtual void WriteSaveFile() = 0;
+  virtual uint8_t GetSaveSatus(SaveType type, int id) = 0;
+  virtual int GetSaveTitle(SaveType type, int id) = 0;
 
   SaveFileEntryBase* FullSaveEntries[MaxSaveEntries];
   SaveFileEntryBase* QuickSaveEntries[MaxSaveEntries];
@@ -68,6 +70,8 @@ void SaveMemory();
 void LoadMemory(SaveType type, int id);
 void FlushWorkingSaveEntry(SaveType type, int id);
 void WriteSaveFile();
+uint8_t GetSaveSatus(SaveType type, int id);
+int GetSaveTitle(SaveType type, int id);
 
 }  // namespace SaveSystem
 }  // namespace Impacto

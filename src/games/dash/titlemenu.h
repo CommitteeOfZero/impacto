@@ -1,14 +1,17 @@
 #pragma once
 
-#include "../../hud/titlemenu.h"
+#include "../../ui/menu.h"
+#include "../../ui/widgetgroup.h"
+#include "../../ui/widgets/button.h"
 
 namespace Impacto {
+namespace UI {
 namespace Dash {
 
-using namespace Impacto::TitleMenu;
-
-class TitleMenu : public TitleMenuBase {
+class TitleMenu : public Menu {
  public:
+  TitleMenu();
+
   void Show();
   void Hide();
   void Update(float dt);
@@ -16,4 +19,5 @@ class TitleMenu : public TitleMenuBase {
 };
 
 }  // namespace Dash
+}  // namespace UI
 }  // namespace Impacto

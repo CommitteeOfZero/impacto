@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../../../hud/sysmesbox.h"
 #include "../../../spritesheet.h"
 #include "../../../games/rne/sysmesbox.h"
 
@@ -9,7 +8,7 @@ namespace Profile {
 namespace RNE {
 namespace SysMesBox {
 
-Impacto::SysMesBox::SysMesBoxBase* Configure();
+void Configure();
 
 extern Sprite BoxDecorationTop;
 extern Sprite BoxDecorationBottom;
@@ -20,6 +19,9 @@ extern Sprite Line2;
 extern Sprite ButtonYes;
 extern Sprite ButtonNo;
 extern Sprite ButtonOK;
+extern Sprite ButtonYesHighlighted;
+extern Sprite ButtonNoHighlighted;
+extern Sprite ButtonOKHighlighted;
 
 extern float LinePositionXFirst;
 extern float LinePositionX;
@@ -46,7 +48,6 @@ extern float MessageLabelSpriteHeight;
 extern float MessageLabelSpriteMultiplier;
 extern float ButtonYesDisplayXBase;
 extern float ButtonRightDisplayXBase;
-extern float ButtonSpriteY;
 extern float ButtonWidth;
 extern float ButtonSelectedSpriteY;
 extern float ButtonYOffset;
@@ -55,7 +56,6 @@ extern float ButtonRightWidthBase;
 extern float TextDecorationStart;
 extern float TextDecorationTopYOffset;
 extern float TextDecorationBottomYOffset;
-extern float SpriteMargin;
 
 }  // namespace SysMesBox
 }  // namespace RNE

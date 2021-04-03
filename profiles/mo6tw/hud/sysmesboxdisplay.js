@@ -16,10 +16,20 @@ root.SysMesBoxDisplay = {
 	TextX: 640,
 	TextLineHeight: 34,
 	TextMarginY: 14,
+    ChoicePadding: 40,
+    ChoiceY: 365,
+    ChoiceXBase: 680,
+    MinMaxMesWidth: 294,
     AnimationSpeed: 55,
-    FadeInDuration: 0.33,
-    FadeOutDuration: 0.25
+    FadeInDuration: 0.256,
+    FadeOutDuration: 0.256
 };
+
+root.Sprites["SelectionHighlight"] = {
+    Sheet: "Data",
+    Bounds: { X: 65, Y: 33, Width: 94, Height: 30 }
+};
+root.SysMesBoxDisplay.SelectionHighlight = "SelectionHighlight";
 
 root.Sprites[name + "BoxPartLeft"] = {
     Sheet: sheet,
