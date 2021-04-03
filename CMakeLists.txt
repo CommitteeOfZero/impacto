@@ -488,7 +488,7 @@ else()
     # If we don't do this it decides to link glm as a library on macOS for some reason
     if(NOT APPLE)
         list(APPEND Impacto_Libs
-            glm
+            glm::glm
         )
     endif()
 
