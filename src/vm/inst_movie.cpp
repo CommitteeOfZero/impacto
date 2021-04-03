@@ -9,6 +9,7 @@
 #include "../log.h"
 #include "../mem.h"
 #include "../profile/scriptvars.h"
+#include "../video/videosystem.h"
 
 namespace Impacto {
 
@@ -33,6 +34,14 @@ VmInstruction(InstPlayMovie) {
     PopUint8(playView);
     PopExpression(playNo);
     PopExpression(movCancelFlag);
+    if (playNo == 0) {
+      BlockThread;
+      return;
+    }
+    Io::InputStream* stream;
+    Io::VfsOpen("movie", playNo, &stream);
+    Video::Players[0].Play(stream, false);
+    BlockThread;
     ImpLogSlow(LL_Warning, LC_VMStub,
                "STUB instruction PlayMovie(playMode: %i, playView: %i, "
                "playNo: %i, movCancelFlag: %i)\n",
@@ -44,6 +53,10 @@ VmInstruction(InstPlayMovieOld) {
   PopUint8(playMode);
   PopExpression(playNo);
   PopExpression(movCancelFlag);
+  Io::InputStream* stream;
+  Io::VfsOpen("movie", playNo, &stream);
+  Video::Players[0].Play(stream, false);
+  BlockThread;
   ImpLogSlow(LL_Warning, LC_VMStub,
              "STUB instruction PlayMovie(playMode: %i, playNo: %i, "
              "movCancelFlag: %i)\n",
@@ -54,6 +67,10 @@ VmInstruction(InstMovieMain) {
   PopUint8(type);
   switch (type) {
     case 2:  // Stop
+      if (Video::Players[0].IsPlaying) {
+        ResetInstruction;
+        BlockThread;
+      }
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MovieMain(type: Stop)\n");
       break;
@@ -63,6 +80,10 @@ VmInstruction(InstMovieMain) {
                  "STUB instruction MovieMain(type: StopWaitForSomething)\n");
       break;
     default:
+      if (Video::Players[0].IsPlaying) {
+        ResetInstruction;
+        BlockThread;
+      }
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MovieMain(type: %i)\n", type);
       break;

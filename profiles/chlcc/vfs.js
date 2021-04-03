@@ -7,6 +7,7 @@ root.Vfs = {
         "voice": ["games/chlcc/gamedata/voice.cpk"],
         "bg": ["games/chlcc/gamedata/bg.cpk"],
         "chara": ["games/chlcc/gamedata/chara.cpk"],
-        "mask": ["games/chlcc/gamedata/mask.cpk"]
+        "mask": ["games/chlcc/gamedata/mask.cpk"],
+        "movie": ["games/chlcc/gamedata/movie.cpk"]
     }
 };

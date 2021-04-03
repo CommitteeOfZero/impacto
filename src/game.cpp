@@ -14,6 +14,7 @@
 #include "audio/audiosystem.h"
 #include "audio/audiochannel.h"
 #include "audio/audiostream.h"
+#include "video/videosystem.h"
 #include "renderer2d.h"
 #include "background2d.h"
 #include "mask2d.h"
@@ -76,6 +77,10 @@ static void Init() {
 
   if (Profile::GameFeatures & GameFeature::Audio) {
     Audio::AudioInit();
+  }
+
+  if (Profile::GameFeatures & GameFeature::Video) {
+    Video::VideoInit();
   }
 
   if (Profile::GameFeatures & GameFeature::Scene3D) {
@@ -203,6 +208,10 @@ void Update(float dt) {
 
   if (Profile::GameFeatures & GameFeature::Audio) {
     Audio::AudioUpdate(dt);
+  }
+
+  if (Profile::GameFeatures & GameFeature::Video) {
+    Video::VideoUpdate(dt);
   }
 
   if (Profile::GameFeatures & GameFeature::Scene3D) {
@@ -379,6 +388,7 @@ void Render() {
             //////////////////////////////
           }
           DateDisplay::Render();
+          Video::VideoRender();
           break;
         }
         case TD_SystemText: {

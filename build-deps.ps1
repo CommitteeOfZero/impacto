@@ -72,7 +72,7 @@ function InstallPackages() {
         $local_vcpkg = $true
     }
 
-    & $vcpkg install sdl2 openal-soft libogg libvorbis zlib glm --triplet $Arch-windows
+    & $vcpkg install sdl2 openal-soft libogg libvorbis zlib glm ffmpeg --triplet $Arch-windows
     if ($local_vcpkg) {
         & $vcpkg integrate install
         Write-Output "Cleaning up..."

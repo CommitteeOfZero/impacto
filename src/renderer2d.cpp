@@ -12,8 +12,9 @@ static bool IsInit = false;
 static GLuint ShaderProgramSprite;
 static GLuint ShaderProgramSpriteInverted;
 static GLuint ShaderProgramMaskedSprite;
+static GLuint ShaderProgramYUVFrame;
 
-enum Renderer2DMode { R2D_None, R2D_Sprite, R2D_SpriteInverted };
+enum Renderer2DMode { R2D_None, R2D_Sprite, R2D_SpriteInverted, R2D_YUVFrame };
 
 struct VertexBufferSprites {
   glm::vec2 Position;
@@ -127,6 +128,8 @@ void Init() {
   glUniform1i(glGetUniformLocation(ShaderProgramSpriteInverted, "ColorMap"), 0);
   ShaderProgramMaskedSprite = ShaderCompile("MaskedSprite");
   glUniform1i(glGetUniformLocation(ShaderProgramMaskedSprite, "ColorMap"), 0);
+  ShaderProgramYUVFrame = ShaderCompile("YUVFrame");
+  glUniform1i(glGetUniformLocation(ShaderProgramYUVFrame, "Luma"), 0);
 
   // No-mipmapping sampler
   glGenSamplers(1, &Sampler);
@@ -599,6 +602,63 @@ static void Flush() {
   }
   IndexBufferFill = 0;
   VertexBufferFill = 0;
+}
+
+void DrawVideoTexture(YUVFrame const& tex, glm::vec2 topLeft, glm::vec4 tint,
+                      glm::vec2 scale, float angle, bool inverted) {
+  RectF scaledDest(topLeft.x, topLeft.y, scale.x * tex.Width,
+                   scale.y * tex.Height);
+  DrawVideoTexture(tex, scaledDest, tint, angle, inverted);
+}
+
+void DrawVideoTexture(YUVFrame const& tex, RectF const& dest, glm::vec4 tint,
+                      float angle, bool inverted) {
+  if (!Drawing) {
+    ImpLog(LL_Error, LC_Render,
+           "Renderer2D::DrawVideoTexture() called before BeginFrame()\n");
+    return;
+  }
+
+  // Do we have space for one more sprite quad?
+  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
+
+  if (CurrentMode != R2D_YUVFrame) {
+    Flush();
+    CurrentMode = R2D_YUVFrame;
+  }
+  glBindVertexArray(VAOSprites);
+  glUseProgram(ShaderProgramYUVFrame);
+  glUniform1i(glGetUniformLocation(ShaderProgramYUVFrame, "Cb"), 2);
+  glUniform1i(glGetUniformLocation(ShaderProgramYUVFrame, "Cr"), 4);
+
+  // Luma
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, tex.LumaId);
+
+  // Cb
+  glActiveTexture(GL_TEXTURE2);
+  glBindTexture(GL_TEXTURE_2D, tex.CbId);
+  glBindSampler(2, Sampler);
+
+  // Cr
+  glActiveTexture(GL_TEXTURE4);
+  glBindTexture(GL_TEXTURE_2D, tex.CrId);
+  glBindSampler(4, Sampler);
+
+  // OK, all good, make quad
+
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
+  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
+
+  IndexBufferFill += 6;
+
+  QuadSetUV(RectF(0.0f, 0.0f, tex.Width, tex.Height), tex.Width, tex.Height,
+            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
+  QuadSetPosition(dest, angle, (uintptr_t)&vertices[0].Position,
+                  sizeof(VertexBufferSprites));
+
+  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
 }  // namespace Renderer2D
