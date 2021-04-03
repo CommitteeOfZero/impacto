@@ -485,10 +485,13 @@ else()
         ${OGGVORBIS_LIBRARIES}
     )
 
-    # If we don't do this it decides to link glm as a library on macOS for some reason
-    if(NOT APPLE)
+    if(VCPKG_TOOLCHAIN)
         list(APPEND Impacto_Libs
             glm::glm
+        )
+    elseif(NOT APPLE) # If we don't do this it decides to link glm as a library on macOS for some reason        
+        list(APPEND Impacto_Libs
+            glm
         )
     endif()
 
