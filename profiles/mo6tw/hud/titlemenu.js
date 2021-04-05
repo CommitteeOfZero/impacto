@@ -4,7 +4,7 @@ root.TitleMenu = {
     PressToStartY: 402,
     PressToStartAnimDurationIn: 0.5,
     PressToStartAnimDurationOut: 0.5,
-    PressToStartSprite:"TitleMenuPressToStart",
+    PressToStartSprite: "TitleMenuPressToStart",
     BackgroundSprite: "TitleMenuBackground",
     CopyrightSprite: "TitleMenuCopyright",
     LogoSprite: "TitleMenuLogo",
@@ -21,7 +21,15 @@ root.TitleMenu = {
     MenuEntriesX: 513,
     MenuEntriesFirstY: 269,
     MenuEntriesYPadding: 32,
-    MenuEntriesTargetWidth: 254
+    MenuEntriesTargetWidth: 254,
+    PrimaryFadeAnimDuration: 0.3,
+    SecondaryMenuAnimTargetX: 110,
+    SecondaryMenuAnimTargetY: 0,
+    SecondaryMenuAnimTarget2X: 130,
+    SecondaryMenuAnimTarget2Y: 0,
+    SecondaryMenuAnimDuration: 0.512,
+    SecondaryMenuAnimUnderX: 0,
+    SecondaryMenuAnimUnderYMultiplier: 2
 };
 
 for (var i = 0; i < 23; i++) {

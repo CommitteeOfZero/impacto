@@ -12,6 +12,8 @@ void Configure();
 
 extern Sprite BackgroundSprite;
 
+extern Animation PressToStartAnimation;
+
 }  // namespace TitleMenu
 }  // namespace Dash
 }  // namespace Profile

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "selectionmenu.h"
+#include "nullmenu.h"
 #include "sysmesbox.h"
 
 namespace Impacto {

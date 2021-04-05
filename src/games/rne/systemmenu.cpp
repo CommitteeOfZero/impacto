@@ -1,138 +1,179 @@
-//#include "systemmenu.h"
-//
-//#include "../../profile/ui/systemmenu.h"
-//#include "../../profile/games/rne/systemmenu.h"
-//#include "../../renderer2d.h"
-//#include "../../games/rne/tilebackground.h"
-//#include "../../mem.h"
-//#include "../../profile/scriptvars.h"
-//#include "../../inputsystem.h"
-//
-// namespace Impacto {
-// namespace RNE {
-//
-// using namespace Impacto::Profile::SystemMenu;
-// using namespace Impacto::Profile::RNE::SystemMenu;
-// using namespace Impacto::Profile::ScriptVars;
-//
-// int CurrentChoice = 0;
-//
-// void SystemMenu::Show() {
-//  if (State != Shown) {
-//    if (BackgroundAnimation) BackgroundAnimation->StartIn();
-//    State = Showing;
-//  }
-//}
-// void SystemMenu::Hide() {
-//  if (State != Hidden) {
-//    HighlightAnimation.StartOut();
-//    State = Hiding;
-//  }
-//}
-// void SystemMenu::Update(float dt) {
-//  if (ScrWork[SW_SYSMENUCT] == 100 && State == Shown) {
-//    Hide();
-//  }
-//
-//  if (State == Shown) {
-//    if (Input::KeyboardButtonWentDown[SDL_SCANCODE_DOWN])
-//      CurrentChoice++;
-//    else if (Input::KeyboardButtonWentDown[SDL_SCANCODE_UP])
-//      CurrentChoice--;
-//    if (CurrentChoice < 0)
-//      CurrentChoice = 7;
-//    else if (CurrentChoice > 7)
-//      CurrentChoice = 0;
-//    ScrWork[SW_SYSMENUCNO] = CurrentChoice;
-//  }
-//
-//  SkyMoveAnimation.Update(dt);
-//  EntriesMoveAnimation.Update(dt);
-//  HighlightAnimation.Update(dt);
-//  if (BackgroundAnimation) BackgroundAnimation->Update(dt);
-//
-//  if (State == Showing) {
-//    if (BackgroundAnimation->Progress >= SkyInStartProgress) {
-//      if (SkyMoveAnimation.IsOut()) SkyMoveAnimation.StartIn();
-//      if (EntriesMoveAnimation.IsOut()) EntriesMoveAnimation.StartIn();
-//    }
-//    if (SkyMoveAnimation.IsIn()) {
-//      if (HighlightAnimation.IsOut()) HighlightAnimation.StartIn();
-//    }
-//    if (HighlightAnimation.IsIn()) State = Shown;
-//  } else if (State == Hiding) {
-//    if (HighlightAnimation.IsOut()) {
-//      if (BackgroundAnimation && BackgroundAnimation->IsIn())
-//        BackgroundAnimation->StartOut();
-//    }
-//    if (BackgroundAnimation->Progress <= SkyOutStartProgress) {
-//      if (SkyMoveAnimation.IsIn()) SkyMoveAnimation.StartOut();
-//      if (EntriesMoveAnimation.IsIn()) EntriesMoveAnimation.StartOut();
-//    }
-//    if (BackgroundAnimation->IsOut()) State = Hidden;
-//  }
-//  ButtonBackgroundSprite.Bounds.X =
-//      ButtonBackgroundSprStartX -
-//      (ButtonBackgroundTargetWidth * SkyMoveAnimation.Progress);
-//  ButtonBackgroundSprite.Bounds.Width =
-//      ButtonBackgroundTargetWidth * SkyMoveAnimation.Progress;
-//
-//  MenuEntriesHSprites[CurrentChoice].Bounds.Width =
-//      MenuEntriesTargetWidth * HighlightAnimation.Progress;
-//}
-// void SystemMenu::Render() {
-//  if (State != Hidden && ScrWork[SW_SYSMENUALPHA] > 0) {
-//    if (BackgroundAnimation) BackgroundAnimation->Render();
-//    glm::vec4 colSky(1.0f);
-//    colSky.a = glm::smoothstep(0.0f, 1.0f, SkyMoveAnimation.Progress);
-//
-//    glm::vec2 destSky = glm::vec2(
-//        SkyBackgroundBeginX +
-//            (SkyMoveAnimation.Progress * std::abs(SkyBackgroundBeginX)),
-//        SkyBackgroundY);
-//    Renderer2D::DrawSprite(SkyBackgroundSprite, destSky, colSky);
-//    Renderer2D::DrawSprite(SkyArrowSprite, destSky, colSky);
-//
-//    Renderer2D::DrawSprite(
-//        SkyTextSprite,
-//        glm::vec2(SkyTextBeginX + (SkyMoveAnimation.Progress *
-//                                   std::abs(SkyBackgroundBeginX)),
-//                  SkyTextY),
-//        colSky);
-//
-//    Renderer2D::DrawSprite(
-//        ButtonBackgroundSprite,
-//        glm::vec2(ButtonBackgroundStartX -
-//                      (ButtonBackgroundStartX * SkyMoveAnimation.Progress),
-//                  ButtonBackgroundY),
-//        glm::vec4(1.0f));
-//
-//    glm::vec4 black(0.0f);
-//    black.a = glm::smoothstep(0.0f, 1.0f, EntriesMoveAnimation.Progress);
-//    for (int i = 0; i < MenuEntriesNum; i++) {
-//      black.a = glm::smoothstep(
-//          0.0f, 1.0f, 1.0f - (i + 1) * (1.0f -
-//          EntriesMoveAnimation.Progress));
-//      Renderer2D::DrawSprite(
-//          MenuEntriesSprites[i],
-//          glm::vec2(((i * MenuEntriesXSkew) + MenuEntriesXOffset) *
-//                        (1.0f - EntriesMoveAnimation.Progress),
-//                    MenuEntriesFirstY + (i * MenuEntriesYPadding)),
-//          black);
-//    }
-//
-//    if (SkyMoveAnimation.IsIn()) {
-//      Renderer2D::DrawSprite(ButtonPromptsSprite,
-//                             glm::vec2(ButtonBackgroundX, ButtonBackgroundY),
-//                             glm::vec4(1.0f));
-//      Renderer2D::DrawSprite(
-//          MenuEntriesHSprites[CurrentChoice],
-//          glm::vec2(MenuEntriesX,
-//                    MenuEntriesFirstY + (CurrentChoice *
-//                    MenuEntriesYPadding)));
-//    }
-//  }
-//}
-//
-//}  // namespace RNE
-//}  // namespace Impacto
+#include "systemmenu.h"
+
+#include "../../profile/ui/systemmenu.h"
+#include "../../profile/games/rne/systemmenu.h"
+#include "../../games/rne/tilebackground.h"
+#include "../../renderer2d.h"
+#include "../../mem.h"
+#include "../../profile/scriptvars.h"
+#include "../../inputsystem.h"
+#include "../../ui/widgets/button.h"
+#include "../../ui/widgets/rne/sysmenubutton.h"
+
+namespace Impacto {
+namespace UI {
+namespace RNE {
+
+using namespace Impacto::Profile::SystemMenu;
+using namespace Impacto::Profile::RNE::SystemMenu;
+using namespace Impacto::Profile::ScriptVars;
+
+using namespace Impacto::UI::Widgets;
+using namespace Impacto::UI::Widgets::RNE;
+
+void SystemMenu::MenuButtonOnClick(Widgets::Button* target) {
+  ScrWork[SW_SYSMENUCNO] = target->Id;
+  ChoiceMade = true;
+}
+
+SystemMenu::SystemMenu() {
+  MainItems = new WidgetGroup();
+
+  auto onClick =
+      std::bind(&SystemMenu::MenuButtonOnClick, this, std::placeholders::_1);
+
+  Sprite nullSprite = Sprite();
+  nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
+
+  for (int i = 0; i < MenuEntriesNum; i++) {
+    SysMenuButton* menuButton = new SysMenuButton(
+        i, MenuEntriesSprites[i], nullSprite, MenuEntriesHSprites[i],
+        glm::vec2(MenuEntriesX, MenuEntriesFirstY + (i * MenuEntriesYPadding)));
+
+    menuButton->OnClickHandler = onClick;
+    MainItems->Add(menuButton, FocusDirection::Vertical);
+  }
+}
+
+void SystemMenu::Show() {
+  if (State != Shown) {
+    State = Showing;
+    if (BackgroundAnimation) BackgroundAnimation->StartIn();
+
+    MainItems->Show();
+    if (UI::FocusedMenu != 0) {
+      LastFocusedMenu = UI::FocusedMenu;
+      LastFocusedMenu->IsFocused = false;
+    }
+    IsFocused = true;
+    UI::FocusedMenu = this;
+  }
+}
+void SystemMenu::Hide() {
+  if (State != Hidden) {
+    State = Hiding;
+    HighlightAnimation.StartOut();
+    for (auto& item : MainItems->Children) {
+      item->HasFocus = false;
+    }
+    if (LastFocusedMenu != 0) {
+      UI::FocusedMenu = LastFocusedMenu;
+      LastFocusedMenu->IsFocused = true;
+    } else {
+      UI::FocusedMenu = 0;
+    }
+    IsFocused = false;
+  }
+}
+
+void SystemMenu::Update(float dt) {
+  if (ScrWork[SW_SYSMENUALPHA] < 256 && State == Shown) {
+    Hide();
+  }
+
+  if (ScrWork[SW_SYSMENUCT] == 100 && State == Shown) {
+    Hide();
+  }
+
+  SkyMoveAnimation.Update(dt);
+  EntriesMoveAnimation.Update(dt);
+  HighlightAnimation.Update(dt);
+  if (BackgroundAnimation) BackgroundAnimation->Update(dt);
+
+  if (State == Showing) {
+    if (BackgroundAnimation->Progress >= SkyInStartProgress) {
+      if (SkyMoveAnimation.IsOut()) SkyMoveAnimation.StartIn();
+      if (EntriesMoveAnimation.IsOut()) EntriesMoveAnimation.StartIn();
+    }
+    if (SkyMoveAnimation.IsIn()) {
+      if (HighlightAnimation.IsOut()) HighlightAnimation.StartIn();
+    }
+    if (HighlightAnimation.IsIn()) State = Shown;
+  } else if (State == Hiding) {
+    if (HighlightAnimation.IsOut()) {
+      if (BackgroundAnimation && BackgroundAnimation->IsIn())
+        BackgroundAnimation->StartOut();
+    }
+    if (BackgroundAnimation->Progress <= SkyOutStartProgress) {
+      if (SkyMoveAnimation.IsIn()) SkyMoveAnimation.StartOut();
+      if (EntriesMoveAnimation.IsIn()) EntriesMoveAnimation.StartOut();
+    }
+    if (BackgroundAnimation->IsOut()) State = Hidden;
+  }
+  ButtonBackgroundSprite.Bounds.X =
+      ButtonBackgroundSprStartX -
+      (ButtonBackgroundTargetWidth * SkyMoveAnimation.Progress);
+  ButtonBackgroundSprite.Bounds.Width =
+      ButtonBackgroundTargetWidth * SkyMoveAnimation.Progress;
+
+  int idx = 0;
+  for (auto& item : MainItems->Children) {
+    item->MoveTo(glm::vec2(((idx * MenuEntriesXSkew) + MenuEntriesXOffset) *
+                               (1.0f - EntriesMoveAnimation.Progress),
+                           MenuEntriesFirstY + (idx * MenuEntriesYPadding)));
+    item->Tint.a = glm::smoothstep(
+        0.0f, 1.0f, 1.0f - (idx + 1) * (1.0f - EntriesMoveAnimation.Progress));
+    Button* button = (Button*)item;
+    button->HighlightSprite.Bounds.Width =
+        MenuEntriesTargetWidth * HighlightAnimation.Progress;
+    idx++;
+  }
+
+  if (ScrWork[SW_SYSMENUALPHA] == 0) {
+    MainItems->Hide();
+  }
+
+  if (State == Shown && IsFocused) {
+    MainItems->Update(dt);
+  }
+}
+
+void SystemMenu::Render() {
+  if (State != Hidden && ScrWork[SW_SYSMENUALPHA] > 0) {
+    if (BackgroundAnimation) BackgroundAnimation->Render();
+    glm::vec4 colSky(1.0f);
+    colSky.a = glm::smoothstep(0.0f, 1.0f, SkyMoveAnimation.Progress);
+
+    glm::vec2 destSky = glm::vec2(
+        SkyBackgroundBeginX +
+            (SkyMoveAnimation.Progress * std::abs(SkyBackgroundBeginX)),
+        SkyBackgroundY);
+    Renderer2D::DrawSprite(SkyBackgroundSprite, destSky, colSky);
+    Renderer2D::DrawSprite(SkyArrowSprite, destSky, colSky);
+
+    Renderer2D::DrawSprite(
+        SkyTextSprite,
+        glm::vec2(SkyTextBeginX + (SkyMoveAnimation.Progress *
+                                   std::abs(SkyBackgroundBeginX)),
+                  SkyTextY),
+        colSky);
+
+    Renderer2D::DrawSprite(
+        ButtonBackgroundSprite,
+        glm::vec2(ButtonBackgroundStartX -
+                      (ButtonBackgroundStartX * SkyMoveAnimation.Progress),
+                  ButtonBackgroundY),
+        glm::vec4(1.0f));
+
+    if (SkyMoveAnimation.IsIn()) {
+      Renderer2D::DrawSprite(ButtonPromptsSprite,
+                             glm::vec2(ButtonBackgroundX, ButtonBackgroundY),
+                             glm::vec4(1.0f));
+    }
+    MainItems->Render();
+  }
+}
+
+}  // namespace RNE
+}  // namespace UI
+}  // namespace Impacto

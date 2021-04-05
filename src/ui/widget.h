@@ -13,7 +13,7 @@ class Widget {
   bool HasFocus = false;
   bool Hovered = false;
 
-  float Opacity = 1.0f;
+  glm::vec4 Tint = glm::vec4(1.0f);
 
   virtual void Update(float dt);
   virtual void UpdateInput() = 0;

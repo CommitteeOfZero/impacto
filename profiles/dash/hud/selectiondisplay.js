@@ -10,6 +10,7 @@ root.SelectionDisplay = {
     PlainSelectionFrameBottomSideSprite: "PlainSelectionFrameBottomSide",
     PlainSelectionFrameMiddleSprite: "PlainSelectionFrameMiddle",
     SelectionHighlightSprite: "SelectionHighlight",
+    SelectionMaxCount: 5,
     SelectionBackgroundX: 228,
     SelectionBackgroundY: [277, 277, 196, 129, 95],
     SelectionYSpacing: 81,

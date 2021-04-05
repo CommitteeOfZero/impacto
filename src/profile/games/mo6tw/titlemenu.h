@@ -24,6 +24,14 @@ extern float LogoX;
 extern float LogoY;
 extern float CopyrightX;
 extern float CopyrightY;
+extern float PrimaryFadeAnimDuration;
+extern float SecondaryMenuAnimTargetX;
+extern float SecondaryMenuAnimTargetY;
+extern float SecondaryMenuAnimTarget2X;
+extern float SecondaryMenuAnimTarget2Y;
+extern float SecondaryMenuAnimDuration;
+extern float SecondaryMenuAnimUnderX;
+extern float SecondaryMenuAnimUnderYMultiplier;
 
 }  // namespace TitleMenu
 }  // namespace MO6TW

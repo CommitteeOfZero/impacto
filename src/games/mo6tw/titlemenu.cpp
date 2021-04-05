@@ -127,7 +127,7 @@ TitleMenu::TitleMenu() {
 }
 
 void TitleMenu::Show() {
-  if (State != Shown) {
+  if (State == Hidden) {
     State = Shown;
     if (UI::FocusedMenu != 0) {
       LastFocusedMenu = UI::FocusedMenu;
@@ -140,7 +140,7 @@ void TitleMenu::Show() {
   }
 }
 void TitleMenu::Hide() {
-  if (State != Hidden) {
+  if (State == Shown) {
     State = Hidden;
     MainItems->Hide();
     if (LastFocusedMenu != 0) {
@@ -185,12 +185,22 @@ void TitleMenu::Update(float dt) {
         if (ContinueItems->IsShown) {
           SecondaryFadeAnimation.StartOut();
           MainItems->HasFocus = true;
-          Load->Move(glm::vec2(-110.0f, 0.0f));
-          QuickLoad->Move(glm::vec2(-130.0f, 0.0f));
-          Memories->Move(glm::vec2(0.0f, -2.0f * MenuEntriesYPadding));
-          Encyclopedia->Move(glm::vec2(0.0f, -2.0f * MenuEntriesYPadding));
-          System->Move(glm::vec2(0.0f, -2.0f * MenuEntriesYPadding));
-          Exit->Move(glm::vec2(0.0f, -2.0f * MenuEntriesYPadding));
+          Load->Move(
+              glm::vec2(-SecondaryMenuAnimTargetX, SecondaryMenuAnimTargetY));
+          QuickLoad->Move(
+              glm::vec2(-SecondaryMenuAnimTarget2X, SecondaryMenuAnimTarget2Y));
+          Memories->Move(glm::vec2(
+              SecondaryMenuAnimUnderX,
+              -SecondaryMenuAnimUnderYMultiplier * MenuEntriesYPadding));
+          Encyclopedia->Move(glm::vec2(
+              SecondaryMenuAnimUnderX,
+              -SecondaryMenuAnimUnderYMultiplier * MenuEntriesYPadding));
+          System->Move(glm::vec2(
+              SecondaryMenuAnimUnderX,
+              -SecondaryMenuAnimUnderYMultiplier * MenuEntriesYPadding));
+          Exit->Move(glm::vec2(
+              SecondaryMenuAnimUnderX,
+              -SecondaryMenuAnimUnderYMultiplier * MenuEntriesYPadding));
           ContinueItems->Hide();
         }
       } break;
@@ -198,8 +208,6 @@ void TitleMenu::Update(float dt) {
         if (!MainItems->IsShown && ScrWork[SW_TITLECT] == 0) {
           MainItems->Show();
           MainItems->Opacity = 0.0f;
-          PrimaryFadeAnimation.DurationIn = 0.3f;
-          PrimaryFadeAnimation.DurationOut = 0.3f;
           PrimaryFadeAnimation.StartIn();
         }
       } break;
@@ -209,29 +217,57 @@ void TitleMenu::Update(float dt) {
           ContinueItems->Opacity = 0.0f;
           MainItems->HasFocus = false;
 
-          SecondaryFadeAnimation.DurationIn = 0.512f;
-          SecondaryFadeAnimation.DurationOut = 0.512f;
           SecondaryFadeAnimation.StartIn();
 
-          Load->Move(glm::vec2(110.0f, 0.0f), 0.512f);
-          QuickLoad->Move(glm::vec2(130.0f, 0.0f), 0.512f);
+          Load->Move(
+              glm::vec2(SecondaryMenuAnimTargetX, SecondaryMenuAnimTargetY),
+              SecondaryMenuAnimDuration);
+          QuickLoad->Move(
+              glm::vec2(SecondaryMenuAnimTarget2X, SecondaryMenuAnimTarget2Y),
+              SecondaryMenuAnimDuration);
 
-          Memories->Move(glm::vec2(0.0f, 2.0f * MenuEntriesYPadding), 0.512f);
-          Encyclopedia->Move(glm::vec2(0.0f, 2.0f * MenuEntriesYPadding),
-                             0.512f);
-          System->Move(glm::vec2(0.0f, 2.0f * MenuEntriesYPadding), 0.512f);
-          Exit->Move(glm::vec2(0.0f, 2.0f * MenuEntriesYPadding), 0.512f);
+          Memories->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                                   SecondaryMenuAnimUnderYMultiplier *
+                                       MenuEntriesYPadding),
+                         SecondaryMenuAnimDuration);
+          Encyclopedia->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                                       SecondaryMenuAnimUnderYMultiplier *
+                                           MenuEntriesYPadding),
+                             SecondaryMenuAnimDuration);
+          System->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                                 SecondaryMenuAnimUnderYMultiplier *
+                                     MenuEntriesYPadding),
+                       SecondaryMenuAnimDuration);
+          Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                               SecondaryMenuAnimUnderYMultiplier *
+                                   MenuEntriesYPadding),
+                     SecondaryMenuAnimDuration);
         } else if (ContinueItems->IsShown && ScrWork[SW_TITLECT] == 32) {
           SecondaryFadeAnimation.StartOut();
 
-          Load->Move(glm::vec2(-110.0f, 0.0f), 0.512f);
-          QuickLoad->Move(glm::vec2(-130.0f, 0.0f), 0.512f);
+          Load->Move(
+              glm::vec2(-SecondaryMenuAnimTargetX, SecondaryMenuAnimTargetY),
+              SecondaryMenuAnimDuration);
+          QuickLoad->Move(
+              glm::vec2(-SecondaryMenuAnimTarget2X, SecondaryMenuAnimTarget2Y),
+              SecondaryMenuAnimDuration);
 
-          Memories->Move(glm::vec2(0.0f, -2.0f * MenuEntriesYPadding), 0.512f);
-          Encyclopedia->Move(glm::vec2(0.0f, -2.0f * MenuEntriesYPadding),
-                             0.512f);
-          System->Move(glm::vec2(0.0f, -2.0f * MenuEntriesYPadding), 0.512f);
-          Exit->Move(glm::vec2(0.0f, -2.0f * MenuEntriesYPadding), 0.512f);
+          Memories->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                                   -SecondaryMenuAnimUnderYMultiplier *
+                                       MenuEntriesYPadding),
+                         SecondaryMenuAnimDuration);
+          Encyclopedia->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                                       -SecondaryMenuAnimUnderYMultiplier *
+                                           MenuEntriesYPadding),
+                             SecondaryMenuAnimDuration);
+          System->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                                 -SecondaryMenuAnimUnderYMultiplier *
+                                     MenuEntriesYPadding),
+                       SecondaryMenuAnimDuration);
+          Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                               -SecondaryMenuAnimUnderYMultiplier *
+                                   MenuEntriesYPadding),
+                     SecondaryMenuAnimDuration);
         } else if (ScrWork[SW_TITLECT] == 0) {
           ContinueItems->Hide();
           MainItems->HasFocus = true;
@@ -243,21 +279,33 @@ void TitleMenu::Update(float dt) {
           SystemItems->Opacity = 0.0f;
           MainItems->HasFocus = false;
 
-          SecondaryFadeAnimation.DurationIn = 0.512f;
-          SecondaryFadeAnimation.DurationOut = 0.512f;
           SecondaryFadeAnimation.StartIn();
 
-          Option->Move(glm::vec2(110.0f, 0.0f), 0.512f);
-          SystemSave->Move(glm::vec2(130.0f, 0.0f), 0.512f);
+          Option->Move(
+              glm::vec2(SecondaryMenuAnimTargetX, SecondaryMenuAnimTargetY),
+              SecondaryMenuAnimDuration);
+          SystemSave->Move(
+              glm::vec2(SecondaryMenuAnimTarget2X, SecondaryMenuAnimTarget2Y),
+              SecondaryMenuAnimDuration);
 
-          Exit->Move(glm::vec2(0.0f, 2.0f * MenuEntriesYPadding), 0.512f);
+          Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                               SecondaryMenuAnimUnderYMultiplier *
+                                   MenuEntriesYPadding),
+                     SecondaryMenuAnimDuration);
         } else if (SystemItems->IsShown && ScrWork[SW_TITLECT] == 32) {
           SecondaryFadeAnimation.StartOut();
 
-          Option->Move(glm::vec2(-110.0f, 0.0f), 0.512f);
-          SystemSave->Move(glm::vec2(-130.0f, 0.0f), 0.512f);
+          Option->Move(
+              glm::vec2(-SecondaryMenuAnimTargetX, SecondaryMenuAnimTargetY),
+              SecondaryMenuAnimDuration);
+          SystemSave->Move(
+              glm::vec2(-SecondaryMenuAnimTarget2X, SecondaryMenuAnimTarget2Y),
+              SecondaryMenuAnimDuration);
 
-          Exit->Move(glm::vec2(0.0f, -2.0f * MenuEntriesYPadding), 0.512f);
+          Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                               -SecondaryMenuAnimUnderYMultiplier *
+                                   MenuEntriesYPadding),
+                     SecondaryMenuAnimDuration);
         } else if (ScrWork[SW_TITLECT] == 0) {
           SystemItems->Hide();
           MainItems->HasFocus = true;

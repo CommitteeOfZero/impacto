@@ -9,9 +9,9 @@ namespace MO6TW {
 
 void TitleButton::Render() {
   glm::vec4 black(0.0f);
-  black.a = Opacity;
+  black.a = Tint.a;
   glm::vec4 white(1.0f);
-  white.a = Opacity;
+  white.a = Tint.a;
 
   if (HasFocus) {
     Renderer2D::DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y + 1.0f),

@@ -176,32 +176,7 @@ VmInstruction(InstKeyOnJump) {
     thread->Ip = labelAdr;
     Interface::PADinputButtonWentDown = 0;
     Interface::PADinputMouseWentDown = 0;
-    // if (thread->Id == 0 &&
-    //    labelNum == 113) {  // Dirty hack to get out of the system menu
-    //  MainMenu::Hide();
-    //}
   }
-
-  // if (Input::KeyboardButtonWentDown[SDL_SCANCODE_D] ||
-  //    Input::ControllerButtonWentDown[SDL_CONTROLLER_BUTTON_X]) {
-  //  thread->Ip = labelAdr;
-  //}
-  // if (thread->Id == 0 && labelNum == 57 &&
-  //    (Input::MouseButtonWentDown[SDL_BUTTON_LEFT] || Input::TouchWentDown)) {
-  //  thread->Ip = labelAdr;  // Dirty hack to kickstart the titlescreen
-  //}
-  // if (thread->Id == 0 && labelNum == 80) {
-  //  thread->Ip = labelAdr;  // Dirty hack to kickstart the "New Game"
-  //}
-  // if (thread->Id == 0 && labelNum == 108 &&
-  //    Input::MouseButtonWentDown[SDL_BUTTON_RIGHT]) {
-  //  thread->Ip = labelAdr;  // Dirty hack to kickstart the system menu
-  //}
-  // if (thread->Id == 0 && labelNum == 113 &&
-  //    Input::MouseButtonWentDown[SDL_BUTTON_RIGHT]) {
-  //  thread->Ip = labelAdr;  // Dirty hack to get out of the system menu
-  // MainMenu::Hide();
-  //}
 
   ImpLogSlow(LL_Trace, LC_VM,
              "KeyOnJump(arg1: %i, arg2: %i, arg3: %i, "
@@ -218,24 +193,14 @@ VmInstruction(InstKeyOnJump_Dash) {
   PopUint16(labelNum);
   uint8_t* labelAdr =
       ScriptGetLabelAddress(ScriptBuffers[thread->ScriptBufferId], labelNum);
-  if (Input::KeyboardButtonWentDown[SDL_SCANCODE_D]) {
+  if (arg1 & 2) {
+    arg2 = Interface::PADcustom[arg2];
+  }
+  if (arg2 & Interface::PADinputButtonWentDown ||
+      arg2 & Interface::PADinputMouseWentDown) {
     thread->Ip = labelAdr;
-  }
-  if (thread->Id == 0 && labelNum == 57 &&
-      (Input::MouseButtonWentDown[SDL_BUTTON_LEFT])) {
-    thread->Ip = labelAdr;  // Dirty hack to kickstart the titlescreen
-  }
-  if (thread->Id == 0 && labelNum == 80) {
-    thread->Ip = labelAdr;  // Dirty hack to kickstart the "New Game"
-  }
-  if (thread->Id == 0 && labelNum == 108 &&
-      Input::MouseButtonWentDown[SDL_BUTTON_RIGHT]) {
-    thread->Ip = labelAdr;  // Dirty hack to kickstart the system menu
-  }
-  if (thread->Id == 0 && labelNum == 113 &&
-      Input::MouseButtonWentDown[SDL_BUTTON_RIGHT]) {
-    thread->Ip = labelAdr;  // Dirty hack to get out of the system menu
-    // SystemMenu::Hide();
+    Interface::PADinputButtonWentDown = 0;
+    Interface::PADinputMouseWentDown = 0;
   }
 
   ImpLogSlow(LL_Warning, LC_VMStub,

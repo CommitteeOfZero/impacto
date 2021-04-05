@@ -11,27 +11,24 @@ using namespace Impacto::Vm::Interface;
 void WidgetGroup::Add(Widget* widget, int focusDirection) {
   // TODO: Yes, this doesn't work if we delete widgets after init. Do we even
   // *need* to though?
-  if (widget->Enabled) {
-    if (focusDirection & FocusDirection::Vertical) {
-      VerticalFocusChain.push_back(Children.size());
-    }
-    if (focusDirection & FocusDirection::Horizontal) {
-      HorizontalFocusChain.push_back(Children.size());
-    }
+  if (focusDirection & FocusDirection::Vertical) {
+    VerticalFocusChain.push_back(Children.size());
   }
+  if (focusDirection & FocusDirection::Horizontal) {
+    HorizontalFocusChain.push_back(Children.size());
+  }
+  if (widget->HasFocus) FocusId = Children.size();
   Children.push_back(widget);
 }
 
 void WidgetGroup::AddToFocusChain(Widget* widget, int focusDirection) {
-  if (widget->Enabled) {
-    auto it = std::find(Children.begin(), Children.end(), widget);
-    int id = std::distance(Children.begin(), it);
-    if (focusDirection & FocusDirection::Vertical) {
-      VerticalFocusChain.push_back(id);
-    }
-    if (focusDirection & FocusDirection::Horizontal) {
-      HorizontalFocusChain.push_back(id);
-    }
+  auto it = std::find(Children.begin(), Children.end(), widget);
+  int id = std::distance(Children.begin(), it);
+  if (focusDirection & FocusDirection::Vertical) {
+    VerticalFocusChain.push_back(id);
+  }
+  if (focusDirection & FocusDirection::Horizontal) {
+    HorizontalFocusChain.push_back(id);
   }
 }
 
@@ -39,31 +36,41 @@ void WidgetGroup::FocusChainAdvance(std::vector<int> const& focusChain,
                                     bool forward) {
   auto it = std::find(focusChain.begin(), focusChain.end(), FocusId);
   if (forward) {
-    if (it != focusChain.end()) {
-      Children[*it]->HasFocus = false;
-      auto next = std::next(it);
-      if (next != focusChain.end()) {
-        FocusId = *next;
-      } else {
-        FocusId = focusChain[0];
-      }
+    if (it == focusChain.end()) {
+      it = focusChain.begin();
     } else {
-      FocusId = focusChain[0];
+      Children[*it]->HasFocus = false;
+      it = std::next(it);
+      if (it == focusChain.end()) it = focusChain.begin();
     }
-    Children[FocusId]->HasFocus = true;
+    if (it != focusChain.end()) {
+      while (!Children[*it]->Enabled) {
+        it = std::next(it);
+        if (it == focusChain.end()) {
+          it = focusChain.begin();
+        }
+      }
+      FocusId = *it;
+      Children[FocusId]->HasFocus = true;
+    }
   } else {
-    if (it != focusChain.end()) {
-      Children[*it]->HasFocus = false;
-      if (it == focusChain.begin()) {
-        FocusId = focusChain.back();
-      } else {
-        auto prev = std::prev(it);
-        FocusId = *prev;
-      }
+    if (it == focusChain.end()) {
+      it = std::prev(it);
     } else {
-      FocusId = focusChain[focusChain.size() - 1];
+      Children[*it]->HasFocus = false;
+      if (it == focusChain.begin()) it = focusChain.end();
+      it = std::prev(it);
     }
-    Children[FocusId]->HasFocus = true;
+    if (it != focusChain.end()) {
+      while (!Children[*it]->Enabled) {
+        if (it == focusChain.begin()) {
+          it = focusChain.end();
+        }
+        it = std::prev(it);
+      }
+      FocusId = *it;
+      Children[FocusId]->HasFocus = true;
+    }
   }
 }
 
@@ -84,11 +91,14 @@ void WidgetGroup::UpdateInput() {
   }
 
   for (auto el : Children) {
-    if (el->Enabled && el->HasFocus) {
+    el->UpdateInput();
+    if (el->Enabled && el->Hovered &&
+        Input::CurrentInputDevice == Input::IDEV_Mouse) {
+      if (FocusId != -1) Children[FocusId]->HasFocus = false;
+      el->HasFocus = true;
       auto it = std::find(Children.begin(), Children.end(), el);
       FocusId = std::distance(Children.begin(), it);
     }
-    el->UpdateInput();
   }
 }
 void WidgetGroup::Update(float dt) {
@@ -104,8 +114,10 @@ void WidgetGroup::Update(float dt) {
 void WidgetGroup::Render() {
   if (IsShown) {
     for (auto el : Children) {
-      el->Opacity = Opacity;
+      float alpha = el->Tint.a;
+      el->Tint.a *= Opacity;
       el->Render();
+      el->Tint.a = alpha;
     }
   }
 }

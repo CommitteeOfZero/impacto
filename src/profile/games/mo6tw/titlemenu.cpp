@@ -28,6 +28,14 @@ float LogoX;
 float LogoY;
 float CopyrightX;
 float CopyrightY;
+float PrimaryFadeAnimDuration;
+float SecondaryMenuAnimTargetX;
+float SecondaryMenuAnimTargetY;
+float SecondaryMenuAnimTarget2X;
+float SecondaryMenuAnimTarget2Y;
+float SecondaryMenuAnimDuration;
+float SecondaryMenuAnimUnderX;
+float SecondaryMenuAnimUnderYMultiplier;
 
 void Configure() {
   BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
@@ -44,6 +52,15 @@ void Configure() {
   MenuEntriesX = EnsureGetMemberFloat("MenuEntriesX");
   MenuEntriesFirstY = EnsureGetMemberFloat("MenuEntriesFirstY");
   MenuEntriesYPadding = EnsureGetMemberFloat("MenuEntriesYPadding");
+  PrimaryFadeAnimDuration = EnsureGetMemberFloat("PrimaryFadeAnimDuration");
+  SecondaryMenuAnimTargetX = EnsureGetMemberFloat("SecondaryMenuAnimTargetX");
+  SecondaryMenuAnimTargetY = EnsureGetMemberFloat("SecondaryMenuAnimTargetY");
+  SecondaryMenuAnimTarget2X = EnsureGetMemberFloat("SecondaryMenuAnimTarget2X");
+  SecondaryMenuAnimTarget2Y = EnsureGetMemberFloat("SecondaryMenuAnimTarget2Y");
+  SecondaryMenuAnimDuration = EnsureGetMemberFloat("SecondaryMenuAnimDuration");
+  SecondaryMenuAnimUnderX = EnsureGetMemberFloat("SecondaryMenuAnimUnderX");
+  SecondaryMenuAnimUnderYMultiplier =
+      EnsureGetMemberFloat("SecondaryMenuAnimUnderYMultiplier");
 
   UI::MO6TW::TitleMenu* menu = new UI::MO6TW::TitleMenu();
   menu->PressToStartAnimation.DurationIn =
@@ -51,6 +68,10 @@ void Configure() {
   menu->PressToStartAnimation.DurationOut =
       Profile::TitleMenu::PressToStartAnimDurationOut;
   menu->PressToStartAnimation.LoopMode = ALM_ReverseDirection;
+  menu->PrimaryFadeAnimation.DurationIn = PrimaryFadeAnimDuration;
+  menu->PrimaryFadeAnimation.DurationOut = PrimaryFadeAnimDuration;
+  menu->SecondaryFadeAnimation.DurationIn = SecondaryMenuAnimDuration;
+  menu->SecondaryFadeAnimation.DurationOut = SecondaryMenuAnimDuration;
   UI::TitleMenuPtr = menu;
 }
 

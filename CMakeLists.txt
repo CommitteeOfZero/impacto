@@ -22,6 +22,7 @@ set(Impacto_Src
     src/spriteanimation.cpp
     src/renderer2d.cpp
     src/background2d.cpp
+    src/mask2d.cpp
     src/character2d.cpp
     src/text.cpp
     src/inputsystem.cpp
@@ -101,12 +102,15 @@ set(Impacto_Src
     src/ui/ui.cpp
     src/ui/widget.cpp
     src/ui/widgetgroup.cpp
+    src/ui/nullmenu.cpp
     src/ui/selectionmenu.cpp
     src/ui/sysmesbox.cpp
     src/ui/widgets/label.cpp
     src/ui/widgets/button.cpp
     src/ui/widgets/mo6tw/titlebutton.cpp
     src/ui/widgets/mo6tw/saveentrybutton.cpp
+    src/ui/widgets/chlcc/titlebutton.cpp
+    src/ui/widgets/rne/sysmenubutton.cpp
 
     src/nuklear_impl.cpp
     src/stbi_impl.c
@@ -201,6 +205,7 @@ set(Impacto_Header
     src/font.h
     src/renderer2d.h
     src/background2d.h
+    src/mask2d.h
     src/character2d.h
     src/text.h
     src/loadable.h
@@ -283,6 +288,7 @@ set(Impacto_Header
     src/ui/ui.h
     src/ui/widgetgroup.h
     src/ui/menu.h
+    src/ui/nullmenu.h
     src/ui/selectionmenu.h
     src/ui/sysmesbox.h
     src/ui/widget.h
@@ -290,6 +296,8 @@ set(Impacto_Header
     src/ui/widgets/button.h
     src/ui/widgets/mo6tw/titlebutton.h
     src/ui/widgets/mo6tw/saveentrybutton.h
+    src/ui/widgets/chlcc/titlebutton.h
+    src/ui/widgets/rne/sysmenubutton.h
 
     src/3d/camera.h
     src/3d/model.h
@@ -473,10 +481,19 @@ else()
 
     list(APPEND Impacto_Libs
         ${SDL2_LIBRARIES}
-        glm
         ZLIB::ZLIB
         ${OGGVORBIS_LIBRARIES}
     )
+
+    if(VCPKG_TOOLCHAIN)
+        list(APPEND Impacto_Libs
+            glm::glm
+        )
+    elseif(NOT APPLE) # If we don't do this it decides to link glm as a library on macOS for some reason        
+        list(APPEND Impacto_Libs
+            glm
+        )
+    endif()
 
     add_definitions(-DIMPACTO_OPENAL_HAVE_ALEXT)
 endif()

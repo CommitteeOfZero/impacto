@@ -220,6 +220,8 @@ GLuint ShaderCompile(char const* name, ShaderParamMap const& params) {
     return 0;
   }
 
+  // TODO: Figure out why this actually doesn't work on macOS
+#ifndef __APPLE__
   glValidateProgram(program);
   glGetProgramiv(program, GL_VALIDATE_STATUS, &result);
   if (!result) {
@@ -229,6 +231,7 @@ GLuint ShaderCompile(char const* name, ShaderParamMap const& params) {
     glDeleteProgram(program);
     return 0;
   }
+#endif
 
   return program;
 }

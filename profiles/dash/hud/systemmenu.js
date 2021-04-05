@@ -42,7 +42,8 @@ root.SystemMenu = {
     EntriesMoveDurationOut: 0.4,
     HighlightDurationIn: 0.15,
     HighlightDurationOut: 0.15,
-
+    MenuEntriesNum: 0,
+    MenuEntriesHNum: 0
 };
 
 for (var i = 0; i < 8; i++) {
