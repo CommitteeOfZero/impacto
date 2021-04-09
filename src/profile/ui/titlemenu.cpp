@@ -5,6 +5,7 @@
 #include "../games/dash/titlemenu.h"
 #include "../games/chlcc/titlemenu.h"
 #include "../games/mo6tw/titlemenu.h"
+#include "../games/cclcc/titlemenu.h"
 #include "../../log.h"
 #include "../../window.h"
 
@@ -77,6 +78,8 @@ void Configure() {
       CHLCC::TitleMenu::Configure();
     } else if (Type == +TitleMenuType::MO6TW) {
       MO6TW::TitleMenu::Configure();
+    } else if (Type == +TitleMenuType::CCLCC) {
+      CCLCC::TitleMenu::Configure();
     }
 
     // if (Implementation != 0) {

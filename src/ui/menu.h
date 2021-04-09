@@ -8,7 +8,7 @@
 namespace Impacto {
 namespace UI {
 
-BETTER_ENUM(MenuType, int, None, RNE, Dash, CHLCC, MO6TW)
+BETTER_ENUM(MenuType, int, None, RNE, Dash, CHLCC, MO6TW, CCLCC)
 
 enum MenuState { Hidden, Hiding, Showing, Shown };
 
