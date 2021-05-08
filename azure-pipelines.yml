@@ -77,7 +77,7 @@ jobs:
   
   steps:
   - script: |
-      sudo apt-get -y install libsdl2-dev libopenal-dev libogg-dev libvorbis-dev
+      sudo apt-get -y install libsdl2-dev libopenal-dev libogg-dev libvorbis-dev libavdevice-dev libavfilter-dev libavformat-dev libavcodec-dev libswscale-dev libswresample-dev libavresample-dev libavutil-dev
       sudo sed -i -e 's/-lSDL2 /-lSDL2/g' /usr/lib/x86_64-linux-gnu/cmake/SDL2/sdl2-config.cmake
       dpkg -l | grep sdl
       pushd vendor
@@ -133,7 +133,7 @@ jobs:
   
   steps:
   - script: |
-      brew install openal-soft sdl2 glm
+      brew install openal-soft sdl2 glm ffmpeg
       pushd vendor
       git clone https://github.com/Thealexbarney/LibAtrac9.git --depth 1
       cd LibAtrac9/C && make
