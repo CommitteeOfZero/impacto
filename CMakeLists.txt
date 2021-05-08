@@ -458,10 +458,12 @@ elseif(NX)
     find_package(SDL2 REQUIRED)
     find_package(ZLIB REQUIRED)
     find_package(OggVorbis REQUIRED)
+    find_package(FFMPEG REQUIRED)
 
     include_directories(${OGGVORBIS_INCLUDE_DIRS})
 
     list(APPEND Impacto_Libs
+        ${FFMPEG_LIBRARIES}
         ${SDL2_LIBRARIES}
         glm
         ZLIB::ZLIB
