@@ -16,12 +16,17 @@ namespace TitleMenu {
 Sprite BackgroundSprite;
 Sprite MainBackgroundSprite;
 Sprite CopyrightTextSprite;
+Sprite MenuSprite;
+Sprite ItemHighlightSprite;
 
 float CopyrightTextX;
 float CopyrightTextY;
-
-
-
+float MenuX;
+float MenuY;
+float ItemHighlightOffsetX;
+float ItemHighlightOffsetY;
+float ItemYBase;
+float ItemPadding;
 
 static void GetMemberSpriteArray(Sprite* arr, uint32_t count,
                                  char const* name) {
@@ -46,6 +51,11 @@ void Configure() {
   CopyrightTextSprite = EnsureGetMemberSprite("CopyrightTextSprite");
   CopyrightTextX = EnsureGetMemberFloat("CopyrightTextX");
   CopyrightTextY = EnsureGetMemberFloat("CopyrightTextY");
+  MenuSprite = EnsureGetMemberSprite("MenuSprite");
+  MenuX = EnsureGetMemberFloat("MenuX");
+  MenuY = EnsureGetMemberFloat("MenuY");
+  ItemHighlightSprite = EnsureGetMemberSprite("ItemHighlightSprite");
+  ItemYBase = EnsureGetMemberFloat("ItemYBase");
 
   UI::CCLCC::TitleMenu* menu = new UI::CCLCC::TitleMenu();
   menu->PressToStartAnimation.DurationIn =

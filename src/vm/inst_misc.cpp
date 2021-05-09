@@ -458,7 +458,7 @@ VmInstruction(InstTitleMenuNew) {
         }
       } else if (ScrWork[SW_TITLEMODE] == 1 && ScrWork[SW_TITLEDISPCT] == 60) {
         // Check "PRESS TO START" here
-        if (Input::KeyboardButtonWentDown[SDL_SCANCODE_T]) {
+        if (Interface::PADinputMouseWentDown) {
           ScrWork[SW_TITLEMODE] = 2;
           ScrWork[SW_TITLEDISPCT] = 0;
           ScrWork[SW_TITLEMOVIECT] = 0;
