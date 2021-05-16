@@ -10,7 +10,7 @@ int StreamRead(void* ptr, uint8_t* buf, int buf_size) {
   Io::InputStream* stream = reinterpret_cast<Io::InputStream*>(ptr);
 
   uint64_t bytesRead = stream->Read(buf, buf_size);
-  if (bytesRead == IoError_Fail) return AVERROR_EOF;
+  if ((bytesRead == IoError_Fail || bytesRead == IoError_Eof)) return AVERROR_EOF;
 
   return bytesRead;
 }
@@ -18,9 +18,9 @@ int StreamRead(void* ptr, uint8_t* buf, int buf_size) {
 int64_t StreamSeek(void* ptr, int64_t pos, int origin) {
   Io::InputStream* stream = reinterpret_cast<Io::InputStream*>(ptr);
 
-  if (origin == AVSEEK_SIZE) return -1;
+  if (origin == AVSEEK_SIZE) return stream->Meta.Size;
   int64_t newPos = stream->Seek(pos, origin);
-  if (newPos == IoError_Fail) return AVERROR_EOF;
+  if ((newPos == IoError_Fail) || (newPos == IoError_Eof)) return AVERROR_EOF;
 
   return newPos;
 }
@@ -210,7 +210,7 @@ void VideoPlayer::Read() {
   int serial = 0;
   AVPacket* packet = av_packet_alloc();
   if (!packet) {
-    ImpLog(LL_Error, LC_General, "Failed to allocate a packet!\n");
+    ImpLog(LL_Error, LC_Video, "Failed to allocate a packet!\n");
     return;
   }
   while (true) {
