@@ -284,7 +284,7 @@ jobs:
     (
       in(dependencies.win_x64_build.result, 'Failed', 'Canceled'),
       in(dependencies.linux_x64_build.result, 'Failed', 'Canceled'),
-      in(dependencies.macos_build.result, 'Failed', 'Canceled')
+      in(dependencies.macos_build.result, 'Failed', 'Canceled'),
       in(dependencies.switch_build.result, 'Failed', 'Canceled')
     )
 
