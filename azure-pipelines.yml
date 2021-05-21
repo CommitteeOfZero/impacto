@@ -103,7 +103,6 @@ jobs:
         impacto
         profiles/**/*
         games/**/*
-        src/shaders/**/*
       TargetFolder: '$(Build.ArtifactStagingDirectory)/impacto'
   - task: CopyFiles@2
     displayName: Copy artifact
@@ -151,7 +150,6 @@ jobs:
         impacto
         profiles/**/*
         games/**/*
-        src/shaders/**/*
       TargetFolder: '$(Build.ArtifactStagingDirectory)/impacto'
   - task: CopyFiles@2
     displayName: Copy artifact
@@ -191,7 +189,6 @@ jobs:
         impacto.nro
         profiles/**/*
         games/**/*
-        src/shaders/**/*
       TargetFolder: '$(Build.ArtifactStagingDirectory)/impacto'
   - task: CopyFiles@2
     displayName: Copy artifact
