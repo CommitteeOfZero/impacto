@@ -14,6 +14,9 @@ static GLuint ShaderProgramSpriteInverted;
 static GLuint ShaderProgramMaskedSprite;
 static GLuint ShaderProgramYUVFrame;
 
+GLuint YUVFrameCbLocation;
+GLuint YUVFrameCrLocation;
+
 enum Renderer2DMode { R2D_None, R2D_Sprite, R2D_SpriteInverted, R2D_YUVFrame };
 
 struct VertexBufferSprites {
@@ -130,6 +133,8 @@ void Init() {
   glUniform1i(glGetUniformLocation(ShaderProgramMaskedSprite, "ColorMap"), 0);
   ShaderProgramYUVFrame = ShaderCompile("YUVFrame");
   glUniform1i(glGetUniformLocation(ShaderProgramYUVFrame, "Luma"), 0);
+  YUVFrameCbLocation = glGetUniformLocation(ShaderProgramYUVFrame, "Cb");
+  YUVFrameCrLocation = glGetUniformLocation(ShaderProgramYUVFrame, "Cr");
 
   // No-mipmapping sampler
   glGenSamplers(1, &Sampler);
@@ -628,8 +633,8 @@ void DrawVideoTexture(YUVFrame const& tex, RectF const& dest, glm::vec4 tint,
   }
   glBindVertexArray(VAOSprites);
   glUseProgram(ShaderProgramYUVFrame);
-  glUniform1i(glGetUniformLocation(ShaderProgramYUVFrame, "Cb"), 2);
-  glUniform1i(glGetUniformLocation(ShaderProgramYUVFrame, "Cr"), 4);
+  glUniform1i(YUVFrameCbLocation, 2);
+  glUniform1i(YUVFrameCrLocation, 4);
 
   // Luma
   glActiveTexture(GL_TEXTURE0);

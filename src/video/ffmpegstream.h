@@ -21,6 +21,7 @@ struct AVFrameItem {
   AVFrame* Frame;
   int Serial;
   double Timestamp;
+  double Duration;
 };
 
 class FFmpegStream {
@@ -35,7 +36,6 @@ class FFmpegStream {
 
   SDL_mutex* PacketLock;
   SDL_mutex* FrameLock;
-  SDL_cond* ReadCond;
   SDL_cond* DecodeCond;
 
   FFmpegStream(AVStream* stream, AVCodecContext* codecCtx);

@@ -10,7 +10,8 @@ int StreamRead(void* ptr, uint8_t* buf, int buf_size) {
   Io::InputStream* stream = reinterpret_cast<Io::InputStream*>(ptr);
 
   uint64_t bytesRead = stream->Read(buf, buf_size);
-  if ((bytesRead == IoError_Fail || bytesRead == IoError_Eof)) return AVERROR_EOF;
+  if ((bytesRead == IoError_Fail || bytesRead == IoError_Eof))
+    return AVERROR_EOF;
 
   return bytesRead;
 }
@@ -92,7 +93,7 @@ void VideoPlayer::Init() {
 
   alGenBuffers(AudioBufferCount, BufferIds);
 
-  Lock = SDL_CreateMutex();
+  ReadCond = SDL_CreateCond();
 
   IsInit = true;
 }
@@ -100,7 +101,7 @@ void VideoPlayer::Init() {
 void VideoPlayer::Play(Io::InputStream* stream, bool looping) {
   // Don't do anything if we don't have the video system
   if (!IsInit) return;
-  ImpLog(LL_Trace, LC_Video, "Opening file: %s from: %s\n",
+  ImpLog(LL_Info, LC_Video, "Opening file: %s from: %s\n",
          stream->Meta.FileName.c_str(), stream->Meta.ArchiveFileName.c_str());
 
   int videoStreamId = -1;
@@ -150,10 +151,12 @@ void VideoPlayer::Play(Io::InputStream* stream, bool looping) {
 
     AVCodecContext* codecCtx = avcodec_alloc_context3(codec);
     avcodec_parameters_to_context(codecCtx, videoStream->codecpar);
+    AVDictionary* options = NULL;
+    av_dict_set(&options, "threads", "auto", 0);
 
-    avcodec_open2(codecCtx, codec, nullptr);
+    avcodec_open2(codecCtx, codec, &options);
     VideoStream = new FFmpegStream(videoStream, codecCtx);
-    Test.Init(codecCtx->width, codecCtx->height);
+    VideoTexture.Init(codecCtx->width, codecCtx->height);
   }
 
   // Find and open the audio codec
@@ -166,8 +169,10 @@ void VideoPlayer::Play(Io::InputStream* stream, bool looping) {
 
     AVCodecContext* codecCtx = avcodec_alloc_context3(codec);
     avcodec_parameters_to_context(codecCtx, audioStream->codecpar);
+    AVDictionary* options = NULL;
+    av_dict_set(&options, "threads", "auto", 0);
 
-    avcodec_open2(codecCtx, codec, nullptr);
+    avcodec_open2(codecCtx, codec, &options);
     AudioStream = new FFmpegStream(audioStream, codecCtx);
     AudioStream->Duration = audioStream->duration *
                             av_q2d(audioStream->time_base) *
@@ -206,30 +211,51 @@ void VideoPlayer::Play(Io::InputStream* stream, bool looping) {
   }
 }
 
+bool VideoPlayer::QueuesHaveEnoughPackets() {
+  SDL_LockMutex(VideoStream->PacketLock);
+  int videoQueueSize = VideoStream->PacketQueue.size();
+  SDL_UnlockMutex(VideoStream->PacketLock);
+  int audioQueueSize = 0;
+  if (AudioStream) {
+    SDL_LockMutex(AudioStream->PacketLock);
+    audioQueueSize = AudioStream->PacketQueue.size();
+    SDL_UnlockMutex(AudioStream->PacketLock);
+  }
+
+  return (videoQueueSize > 25 && audioQueueSize > 25);
+}
+
 void VideoPlayer::Read() {
   int serial = 0;
   AVPacket* packet = av_packet_alloc();
+  SDL_mutex* waitMutex = SDL_CreateMutex();
   if (!packet) {
     ImpLog(LL_Error, LC_Video, "Failed to allocate a packet!\n");
+    SDL_DestroyMutex(waitMutex);
     return;
   }
   while (true) {
-    if (VideoStream->PacketQueue.size() > 20) {
-      SDL_LockMutex(VideoStream->PacketLock);
-      SDL_CondWaitTimeout(VideoStream->ReadCond, VideoStream->PacketLock, 10);
-      SDL_UnlockMutex(VideoStream->PacketLock);
+    if (QueuesHaveEnoughPackets()) {
+      SDL_LockMutex(waitMutex);
+      SDL_CondWaitTimeout(ReadCond, waitMutex, 10);
+      SDL_UnlockMutex(waitMutex);
       continue;
     }
+
     int ret = av_read_frame(FormatContext, packet);
     if (ret >= 0) {
       if (packet->stream_index == VideoStream->stream->index) {
         AVPacketItem item;
-        item.Packet = av_packet_clone(packet);
+        item.Packet = av_packet_alloc();
+        av_packet_move_ref(item.Packet, packet);
         item.Serial = serial++;
+        SDL_LockMutex(VideoStream->PacketLock);
         VideoStream->PacketQueue.push(item);
+        SDL_UnlockMutex(VideoStream->PacketLock);
       } else if (packet->stream_index == AudioStream->stream->index) {
         AVPacketItem item;
-        item.Packet = av_packet_clone(packet);
+        item.Packet = av_packet_alloc();
+        av_packet_move_ref(item.Packet, packet);
         item.Serial = serial++;
         SDL_LockMutex(AudioStream->PacketLock);
         AudioStream->PacketQueue.push(item);
@@ -241,10 +267,17 @@ void VideoPlayer::Read() {
       if (ret == AVERROR_EOF) {
         ImpLog(LL_Debug, LC_Video, "EOF!\n");
         AVPacketItem item;
-        item.Packet = av_packet_clone(packet);
+        item.Packet = av_packet_alloc();
+        av_packet_move_ref(item.Packet, packet);
         item.Serial = INT32_MIN;
-        if (AudioStream) AudioStream->PacketQueue.push(item);
+        if (AudioStream) {
+          SDL_LockMutex(AudioStream->PacketLock);
+          AudioStream->PacketQueue.push(item);
+          SDL_UnlockMutex(AudioStream->PacketLock);
+        }
+        SDL_LockMutex(VideoStream->PacketLock);
         VideoStream->PacketQueue.push(item);
+        SDL_UnlockMutex(VideoStream->PacketLock);
       } else {
         char error[255];
         av_strerror(ret, error, 255);
@@ -259,10 +292,16 @@ void VideoPlayer::Read() {
 void VideoPlayer::Decode(AVMediaType avType) {
   int ret = 0;
   AVFrame* frame = av_frame_alloc();
+  SDL_mutex* waitMutex = SDL_CreateMutex();
   FFmpegStream* stream = 0;
+  double duration = 0.0;
   switch (avType) {
     case AVMEDIA_TYPE_VIDEO:
       stream = VideoStream;
+      AVRational frameRate =
+          av_guess_frame_rate(FormatContext, stream->stream, NULL);
+      duration =
+          (frameRate.num && frameRate.den ? av_q2d(frameRate) / 1000.0 : 0);
       break;
     case AVMEDIA_TYPE_AUDIO:
       stream = AudioStream;
@@ -271,44 +310,56 @@ void VideoPlayer::Decode(AVMediaType avType) {
 
   while (true) {
     SDL_LockMutex(stream->PacketLock);
+    ImpLogSlow(LL_Trace, LC_Video, "%d->PacketQueue.size() = %d\n", avType,
+               stream->PacketQueue.size());
     if (stream->PacketQueue.empty()) {
-      SDL_CondSignal(VideoStream->ReadCond);
       SDL_UnlockMutex(stream->PacketLock);
+      SDL_CondSignal(ReadCond);
+      ImpLogSlow(LL_Trace, LC_Video, "%d Decoder starving!\n", avType);
       continue;
     }
     SDL_UnlockMutex(stream->PacketLock);
-    if (stream->FrameQueue.size() > 100) {
-      SDL_LockMutex(stream->FrameLock);
-      SDL_CondWait(stream->DecodeCond, stream->FrameLock);
+
+    SDL_LockMutex(stream->FrameLock);
+    if (stream->FrameQueue.size() > 60) {
       SDL_UnlockMutex(stream->FrameLock);
+
+      ImpLogSlow(LL_Trace, LC_Video, "%d FrameQueue full!\n", avType);
+      SDL_LockMutex(waitMutex);
+      SDL_CondWait(stream->DecodeCond, waitMutex);
+      SDL_UnlockMutex(waitMutex);
       continue;
     }
+    SDL_UnlockMutex(stream->FrameLock);
+
     SDL_LockMutex(stream->PacketLock);
     auto packet = stream->PacketQueue.front();
     SDL_UnlockMutex(stream->PacketLock);
+
     do {
       ret = avcodec_receive_frame(stream->CodecContext, frame);
       if (ret >= 0) {
         AVFrameItem item;
-        item.Frame = av_frame_clone(frame);
         item.Serial = 0;
         item.Timestamp =
             frame->best_effort_timestamp * av_q2d(stream->stream->time_base);
-
+        item.Duration = duration;
+        item.Frame = av_frame_alloc();
+        av_frame_move_ref(item.Frame, frame);
         SDL_LockMutex(stream->FrameLock);
         stream->FrameQueue.push(item);
         SDL_UnlockMutex(stream->FrameLock);
-        av_frame_unref(frame);
       }
       if (ret == AVERROR_EOF) {
         AVFrameItem item;
-        item.Frame = av_frame_clone(frame);
+        item.Frame = av_frame_alloc();
+        av_frame_move_ref(item.Frame, frame);
         item.Serial = INT32_MIN;
         SDL_LockMutex(stream->FrameLock);
         stream->FrameQueue.push(item);
         SDL_UnlockMutex(stream->FrameLock);
-        av_frame_unref(frame);
         avcodec_flush_buffers(stream->CodecContext);
+        SDL_DestroyMutex(waitMutex);
         return;
       }
     } while (ret != AVERROR(EAGAIN));
@@ -320,6 +371,7 @@ void VideoPlayer::Decode(AVMediaType avType) {
       SDL_LockMutex(stream->FrameLock);
       stream->FrameQueue.push(item);
       SDL_UnlockMutex(stream->FrameLock);
+      SDL_DestroyMutex(waitMutex);
       return;
     }
     if (packet.Packet->data) {
@@ -348,10 +400,9 @@ void VideoPlayer::Stop() {
 
 void VideoPlayer::ProcessAudio() {
   while (IsPlaying) {
-    // Audio
     SDL_LockMutex(AudioStream->FrameLock);
-    // ImpLog(LL_Trace, LC_Video, "AudioStream->FrameQueue.size() = %d\n",
-    //       AudioStream->FrameQueue.size());
+    ImpLogSlow(LL_Trace, LC_Video, "AudioStream->FrameQueue.size() = %d\n",
+               AudioStream->FrameQueue.size());
     if (!AudioStream->FrameQueue.empty()) {
       SDL_UnlockMutex(AudioStream->FrameLock);
       alGetSourcei(ALSource, AL_BUFFERS_PROCESSED, &FreeBufferCount);
@@ -370,7 +421,7 @@ void VideoPlayer::ProcessAudio() {
       samplePosition = std::min(samplePosition, AudioStream->Duration);
       double position =
           samplePosition / (double)AudioStream->CodecContext->sample_rate;
-      // ImpLog(LL_Debug, LC_Video, "samplePosition: %f\n", position);
+      ImpLogSlow(LL_Trace, LC_Video, "samplePosition: %f\n", position);
 
       AudioClock->Set(position, 0);
 
@@ -382,6 +433,7 @@ void VideoPlayer::ProcessAudio() {
       }
     } else {
       SDL_UnlockMutex(AudioStream->FrameLock);
+      SDL_CondSignal(AudioStream->DecodeCond);
       ImpLog(LL_Debug, LC_Video, "Ran out of audio frames!\n");
     }
   }
@@ -389,10 +441,15 @@ void VideoPlayer::ProcessAudio() {
 
 void VideoPlayer::Update(float dt) {
   if (IsPlaying) {
-    SDL_LockMutex(VideoStream->FrameLock);
-    while (!VideoStream->FrameQueue.empty()) {
-      // ImpLog(LL_Trace, LC_Video, "VideoStream->FrameQueue.size() = %d\n",
-      //       VideoStream->FrameQueue.size());
+    while (true) {
+      SDL_LockMutex(VideoStream->FrameLock);
+      if (VideoStream->FrameQueue.empty()) {
+        SDL_UnlockMutex(VideoStream->FrameLock);
+        SDL_CondSignal(VideoStream->DecodeCond);
+        break;
+      }
+      ImpLogSlow(LL_Trace, LC_Video, "VideoStream->FrameQueue.size() = %d\n",
+                 VideoStream->FrameQueue.size());
       auto frame = VideoStream->FrameQueue.front();
       SDL_UnlockMutex(VideoStream->FrameLock);
       if (frame.Serial == INT32_MIN) {
@@ -405,7 +462,11 @@ void VideoPlayer::Update(float dt) {
       double time = av_gettime_relative() / 1000000.0;
       double duration = frame.Timestamp - PreviousFrameTimestamp;
 
-      duration = GetTargetDelay(duration);
+      if (AudioStream) {
+        duration = GetTargetDelay(duration);
+      } else {
+        duration = frame.Duration;
+      }
 
       if (time < FrameTimer + duration) {
         break;
@@ -417,24 +478,24 @@ void VideoPlayer::Update(float dt) {
       VideoClock->Set(frame.Timestamp, frame.Serial);
       ExternalClock->SyncTo(VideoClock);
 
-      Test.Submit(frame.Frame->data[0], frame.Frame->data[1],
-                  frame.Frame->data[2]);
+      VideoTexture.Submit(frame.Frame->data[0], frame.Frame->data[1],
+                          frame.Frame->data[2]);
       av_frame_free(&frame.Frame);
       SDL_LockMutex(VideoStream->FrameLock);
       VideoStream->FrameQueue.pop();
-      if (VideoStream->FrameQueue.size() < 10) {
-        SDL_CondSignal(VideoStream->DecodeCond);
-      }
+      SDL_UnlockMutex(VideoStream->FrameLock);
+      SDL_CondSignal(VideoStream->DecodeCond);
+      break;
     }
-    SDL_UnlockMutex(VideoStream->FrameLock);
   }
 }
 
 void VideoPlayer::Render() {
   if (IsPlaying) {
-    float widthScale = Profile::DesignWidth / Test.Width;
-    float heightScale = Profile::DesignHeight / Test.Height;
-    Renderer2D::DrawVideoTexture(Test, glm::vec2(0.0f, 0.0f), glm::vec4(1.0f),
+    float widthScale = Profile::DesignWidth / VideoTexture.Width;
+    float heightScale = Profile::DesignHeight / VideoTexture.Height;
+    Renderer2D::DrawVideoTexture(VideoTexture, glm::vec2(0.0f, 0.0f),
+                                 glm::vec4(1.0f),
                                  glm::vec2(widthScale, heightScale));
   }
 }
@@ -450,7 +511,7 @@ double VideoPlayer::GetTargetDelay(double duration) {
     else if (diff >= sync_threshold)
       duration = 2 * duration;
   }
-  ImpLog(LL_Trace, LC_Video, "Target delay: %f\n", duration);
+  ImpLog(LL_Debug, LC_Video, "Target delay: %f\n", duration);
 
   return duration;
 }
@@ -465,6 +526,7 @@ void VideoPlayer::FillAudioBuffers() {
       SDL_LockMutex(AudioStream->FrameLock);
       if (AudioStream->FrameQueue.empty()) {
         SDL_UnlockMutex(AudioStream->FrameLock);
+        SDL_CondSignal(AudioStream->DecodeCond);
         continue;
       }
       auto aFrame = AudioStream->FrameQueue.front();
@@ -502,11 +564,8 @@ void VideoPlayer::FillAudioBuffers() {
       av_frame_free(&aFrame.Frame);
       SDL_LockMutex(AudioStream->FrameLock);
       AudioStream->FrameQueue.pop();
-      if (AudioStream->FrameQueue.size() < 10) {
-        SDL_CondSignal(AudioStream->DecodeCond);
-      }
       SDL_UnlockMutex(AudioStream->FrameLock);
-
+      SDL_CondSignal(AudioStream->DecodeCond);
     } while (totalSize <= 4096);
 
     alSourceUnqueueBuffers(ALSource, 1, &BufferIds[FirstFreeBuffer]);

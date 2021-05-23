@@ -58,10 +58,11 @@ class VideoPlayer {
  private:
   void FillAudioBuffers();
   double GetTargetDelay(double duration);
+  bool QueuesHaveEnoughPackets();
 
   static int const FILESTREAMBUFFERSZ = 64 * 8192;
   uint8_t* FileStreamBuffer;
-  SDL_mutex* Lock;
+  SDL_cond* ReadCond;
 
   uint64_t Time;
 
@@ -89,7 +90,7 @@ class VideoPlayer {
 
   bool IsInit = false;
 
-  YUVFrame Test;
+  YUVFrame VideoTexture;
 
   bool Looping;
   double PreviousFrameTimestamp = 0.0;
