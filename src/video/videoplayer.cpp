@@ -294,14 +294,14 @@ void VideoPlayer::Decode(AVMediaType avType) {
   AVFrame* frame = av_frame_alloc();
   SDL_mutex* waitMutex = SDL_CreateMutex();
   FFmpegStream* stream = 0;
+  AVRational frameRate = {};
   double duration = 0.0;
   switch (avType) {
     case AVMEDIA_TYPE_VIDEO:
       stream = VideoStream;
-      AVRational frameRate =
-          av_guess_frame_rate(FormatContext, stream->stream, NULL);
+      frameRate = av_guess_frame_rate(FormatContext, stream->stream, NULL);
       duration =
-          (frameRate.num && frameRate.den ? av_q2d(frameRate) / 1000.0 : 0);
+          (frameRate.num && frameRate.den ? av_q2d(frameRate) / 1000.0 : 0.0);
       break;
     case AVMEDIA_TYPE_AUDIO:
       stream = AudioStream;
