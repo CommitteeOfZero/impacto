@@ -34,6 +34,8 @@ class FFmpegStream {
   std::queue<AVFrameItem> FrameQueue;
   int Duration;
 
+  SDL_Thread* DecoderThreadID;
+
   SDL_mutex* PacketLock;
   SDL_mutex* FrameLock;
   SDL_cond* DecodeCond;
