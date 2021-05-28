@@ -101,6 +101,7 @@ void VideoPlayer::Init() {
 void VideoPlayer::Play(Io::InputStream* stream, bool looping) {
   // Don't do anything if we don't have the video system
   if (!IsInit) return;
+  AbortRequest = false;
   ImpLog(LL_Info, LC_Video, "Opening file: %s from: %s\n",
          stream->Meta.FileName.c_str(), stream->Meta.ArchiveFileName.c_str());
 
@@ -200,14 +201,16 @@ void VideoPlayer::Play(Io::InputStream* stream, bool looping) {
   IsPlaying = true;
 
   // Danger zone
-  SDL_CreateThread(&PlayerRead, "videoplayer::read", this);
+  ReadThreadID = SDL_CreateThread(&PlayerRead, "videoplayer::read", this);
   if (VideoStream) {
-    SDL_CreateThread(&PlayerDecodeVideo, "videoplayer::decodevideo", this);
+    VideoStream->DecoderThreadID =
+        SDL_CreateThread(&PlayerDecodeVideo, "videoplayer::decodevideo", this);
   }
   if (AudioStream) {
     MasterClock = AudioClock;
-    SDL_CreateThread(&PlayerDecodeAudio, "videoplayer::decodeaudio", this);
-    SDL_CreateThread(&PlayerAudio, "videoplayer::audio", this);
+    AudioStream->DecoderThreadID =
+        SDL_CreateThread(&PlayerDecodeAudio, "videoplayer::decodeaudio", this);
+    AudioThreadID = SDL_CreateThread(&PlayerAudio, "videoplayer::audio", this);
   }
 }
 
@@ -234,7 +237,7 @@ void VideoPlayer::Read() {
     SDL_DestroyMutex(waitMutex);
     return;
   }
-  while (true) {
+  while (!AbortRequest) {
     if (QueuesHaveEnoughPackets()) {
       SDL_LockMutex(waitMutex);
       SDL_CondWaitTimeout(ReadCond, waitMutex, 10);
@@ -308,7 +311,7 @@ void VideoPlayer::Decode(AVMediaType avType) {
       break;
   }
 
-  while (true) {
+  while (!AbortRequest) {
     SDL_LockMutex(stream->PacketLock);
     ImpLogSlow(LL_Trace, LC_Video, "%d->PacketQueue.size() = %d\n", avType,
                stream->PacketQueue.size());
@@ -388,6 +391,17 @@ void VideoPlayer::Decode(AVMediaType avType) {
 
 void VideoPlayer::Stop() {
   IsPlaying = false;
+  AbortRequest = true;
+  SDL_WaitThread(ReadThreadID, NULL);
+  if (AudioStream) {
+    SDL_CondSignal(AudioStream->DecodeCond);
+    SDL_WaitThread(AudioThreadID, NULL);
+    SDL_WaitThread(AudioStream->DecoderThreadID, NULL);
+  }
+  if (VideoStream) {
+    SDL_CondSignal(VideoStream->DecodeCond);
+    SDL_WaitThread(VideoStream->DecoderThreadID, NULL);
+  }
   if (AudioBuffer) av_free(AudioBuffer);
   FrameTimer = 0.0;
   PreviousFrameTimestamp = 0.0;
@@ -399,7 +413,7 @@ void VideoPlayer::Stop() {
 }
 
 void VideoPlayer::ProcessAudio() {
-  while (IsPlaying) {
+  while (IsPlaying && !AbortRequest) {
     SDL_LockMutex(AudioStream->FrameLock);
     ImpLogSlow(LL_Trace, LC_Video, "AudioStream->FrameQueue.size() = %d\n",
                AudioStream->FrameQueue.size());

@@ -10,6 +10,7 @@
 #include "../mem.h"
 #include "../profile/scriptvars.h"
 #include "../video/videosystem.h"
+#include "interface/input.h"
 
 namespace Impacto {
 
@@ -34,10 +35,6 @@ VmInstruction(InstPlayMovie) {
     PopUint8(playView);
     PopExpression(playNo);
     PopExpression(movCancelFlag);
-    if (playNo == 0) {
-      BlockThread;
-      return;
-    }
     Io::InputStream* stream;
     Io::VfsOpen("movie", playNo, &stream);
     Video::Players[0].Play(stream, false);
@@ -67,7 +64,10 @@ VmInstruction(InstMovieMain) {
   PopUint8(type);
   switch (type) {
     case 2:  // Stop
-      if (Video::Players[0].IsPlaying) {
+      if (Interface::PADinputButtonWentDown & Interface::PAD1A ||
+          Interface::PADinputMouseWentDown & Interface::PAD1A) {
+        Video::Players[0].Stop();
+      } else if (Video::Players[0].IsPlaying) {
         ResetInstruction;
         BlockThread;
       }
@@ -80,7 +80,10 @@ VmInstruction(InstMovieMain) {
                  "STUB instruction MovieMain(type: StopWaitForSomething)\n");
       break;
     default:
-      if (Video::Players[0].IsPlaying) {
+      if (Interface::PADinputButtonWentDown & Interface::PAD1A ||
+          Interface::PADinputMouseWentDown & Interface::PAD1A) {
+        Video::Players[0].Stop();
+      } else if (Video::Players[0].IsPlaying) {
         ResetInstruction;
         BlockThread;
       }

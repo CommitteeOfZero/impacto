@@ -52,6 +52,9 @@ class VideoPlayer {
   void ProcessAudio();
 
   bool IsPlaying;
+  bool AbortRequest;
+  SDL_Thread* ReadThreadID;
+  SDL_Thread* AudioThreadID;
   FFmpegStream* VideoStream = 0;
   FFmpegStream* AudioStream = 0;
 
