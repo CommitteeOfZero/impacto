@@ -403,6 +403,11 @@ void VideoPlayer::Stop() {
     SDL_WaitThread(VideoStream->DecoderThreadID, NULL);
   }
   if (AudioBuffer) av_free(AudioBuffer);
+  alSourcei(ALSource, AL_BUFFER, NULL);
+  alSourceStop(ALSource);
+  alDeleteSources(1, &ALSource);
+  alGenSources(1, &ALSource);
+  First = true;
   FrameTimer = 0.0;
   PreviousFrameTimestamp = 0.0;
   delete VideoStream;
@@ -531,7 +536,7 @@ double VideoPlayer::GetTargetDelay(double duration) {
 }
 
 void VideoPlayer::FillAudioBuffers() {
-  while (FreeBufferCount) {
+  while (FreeBufferCount && !AbortRequest) {
     int totalSize = 0;
 
     do {

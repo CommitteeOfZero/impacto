@@ -14,12 +14,12 @@ FFmpegStream::FFmpegStream(AVStream* avStream, AVCodecContext* codecCtx) {
 FFmpegStream::~FFmpegStream() {
   while (FrameQueue.size() > 0) {
     auto frame = FrameQueue.front();
-    av_frame_free(&frame.Frame);
+    if (frame.Serial != INT32_MIN) av_frame_free(&frame.Frame);
     FrameQueue.pop();
   }
   while (PacketQueue.size() > 0) {
     auto packet = PacketQueue.front();
-    av_packet_free(&packet.Packet);
+    if (packet.Serial != INT32_MIN) av_packet_free(&packet.Packet);
     PacketQueue.pop();
   }
   avcodec_close(CodecContext);
