@@ -102,6 +102,7 @@ void VideoPlayer::Play(Io::InputStream* stream, bool looping) {
   // Don't do anything if we don't have the video system
   if (!IsInit) return;
   AbortRequest = false;
+  SeekRequest = false;
   ImpLog(LL_Info, LC_Video, "Opening file: %s from: %s\n",
          stream->Meta.FileName.c_str(), stream->Meta.ArchiveFileName.c_str());
 
@@ -238,7 +239,28 @@ void VideoPlayer::Read() {
     return;
   }
   while (!AbortRequest) {
-    if (QueuesHaveEnoughPackets()) {
+    if (SeekRequest) {
+      SeekRequest = false;
+
+      int64_t timestamp = SeekPosition * AV_TIME_BASE;
+      avformat_seek_file(FormatContext, -1, timestamp - 1 * AV_TIME_BASE,
+                         timestamp, timestamp, 0);
+
+      if (VideoStream) {
+        VideoStream->FlushPacketQueue();
+        VideoStream->FlushFrameQueue();
+      }
+
+      if (AudioStream) {
+        AudioStream->FlushPacketQueue();
+        AudioStream->FlushFrameQueue();
+      }
+
+      FrameTimer = 0.0;
+      PreviousFrameTimestamp = -1;
+    }
+
+    if (QueuesHaveEnoughPackets() || ReaderEOF) {
       SDL_LockMutex(waitMutex);
       SDL_CondWaitTimeout(ReadCond, waitMutex, 10);
       SDL_UnlockMutex(waitMutex);
@@ -251,7 +273,7 @@ void VideoPlayer::Read() {
         AVPacketItem item;
         item.Packet = av_packet_alloc();
         av_packet_move_ref(item.Packet, packet);
-        item.Serial = serial++;
+        item.Serial = VideoStream->PacketQueueSerial;
         SDL_LockMutex(VideoStream->PacketLock);
         VideoStream->PacketQueue.push(item);
         SDL_UnlockMutex(VideoStream->PacketLock);
@@ -259,7 +281,7 @@ void VideoPlayer::Read() {
         AVPacketItem item;
         item.Packet = av_packet_alloc();
         av_packet_move_ref(item.Packet, packet);
-        item.Serial = serial++;
+        item.Serial = AudioStream->PacketQueueSerial;
         SDL_LockMutex(AudioStream->PacketLock);
         AudioStream->PacketQueue.push(item);
         SDL_UnlockMutex(AudioStream->PacketLock);
@@ -269,6 +291,7 @@ void VideoPlayer::Read() {
     } else {
       if (ret == AVERROR_EOF) {
         ImpLog(LL_Debug, LC_Video, "EOF!\n");
+        ReaderEOF = true;
         AVPacketItem item;
         item.Packet = av_packet_alloc();
         av_packet_move_ref(item.Packet, packet);
@@ -287,7 +310,6 @@ void VideoPlayer::Read() {
         ImpLog(LL_Error, LC_Video, "Uh oh %s\n", error);
       }
       av_packet_unref(packet);
-      break;
     }
   }
 }
@@ -335,15 +357,36 @@ void VideoPlayer::Decode(AVMediaType avType) {
     }
     SDL_UnlockMutex(stream->FrameLock);
 
-    SDL_LockMutex(stream->PacketLock);
-    auto packet = stream->PacketQueue.front();
-    SDL_UnlockMutex(stream->PacketLock);
+    AVPacketItem packet;
+    while (true) {
+      int prevSerial = stream->CurrentPacketSerial;
+      SDL_LockMutex(stream->PacketLock);
+      packet = stream->PacketQueue.front();
+      stream->CurrentPacketSerial = packet.Serial;
+      if (prevSerial == INT32_MIN || stream->CurrentPacketSerial == INT32_MIN) {
+        SDL_UnlockMutex(stream->PacketLock);
+        break;
+      }
+      if (prevSerial != stream->CurrentPacketSerial) {
+        avcodec_flush_buffers(stream->CodecContext);
+        if (avType == AVMEDIA_TYPE_AUDIO) {
+          alSourceStop(ALSource);
+        }
+      }
+      if (stream->PacketQueueSerial == stream->CurrentPacketSerial) {
+        SDL_UnlockMutex(stream->PacketLock);
+        break;
+      }
+      av_packet_free(&packet.Packet);
+      stream->PacketQueue.pop();
+      SDL_UnlockMutex(stream->PacketLock);
+    }
 
     do {
       ret = avcodec_receive_frame(stream->CodecContext, frame);
       if (ret >= 0) {
         AVFrameItem item;
-        item.Serial = 0;
+        item.Serial = stream->PacketQueueSerial;
         item.Timestamp =
             frame->best_effort_timestamp * av_q2d(stream->stream->time_base);
         item.Duration = duration;
@@ -362,8 +405,10 @@ void VideoPlayer::Decode(AVMediaType avType) {
         stream->FrameQueue.push(item);
         SDL_UnlockMutex(stream->FrameLock);
         avcodec_flush_buffers(stream->CodecContext);
-        SDL_DestroyMutex(waitMutex);
-        return;
+        SDL_LockMutex(waitMutex);
+        SDL_CondWait(stream->DecodeCond, waitMutex);
+        SDL_UnlockMutex(waitMutex);
+        continue;
       }
     } while (ret != AVERROR(EAGAIN));
 
@@ -374,9 +419,16 @@ void VideoPlayer::Decode(AVMediaType avType) {
       SDL_LockMutex(stream->FrameLock);
       stream->FrameQueue.push(item);
       SDL_UnlockMutex(stream->FrameLock);
-      SDL_DestroyMutex(waitMutex);
-      return;
+      SDL_LockMutex(stream->PacketLock);
+      stream->PacketQueue.pop();
+      SDL_UnlockMutex(stream->PacketLock);
+      stream->CurrentPacketSerial = -1;
+      SDL_LockMutex(waitMutex);
+      SDL_CondWait(stream->DecodeCond, waitMutex);
+      SDL_UnlockMutex(waitMutex);
+      continue;
     }
+    SDL_LockMutex(stream->PacketLock);
     if (packet.Packet->data) {
       ret = avcodec_send_packet(stream->CodecContext, packet.Packet);
       if (ret >= 0) {
@@ -386,6 +438,7 @@ void VideoPlayer::Decode(AVMediaType avType) {
         SDL_UnlockMutex(stream->PacketLock);
       }
     }
+    SDL_UnlockMutex(stream->PacketLock);
   }
 }
 
@@ -393,6 +446,7 @@ void VideoPlayer::Stop() {
   IsPlaying = false;
   AbortRequest = true;
   SDL_WaitThread(ReadThreadID, NULL);
+  ReaderEOF = false;
   if (AudioStream) {
     SDL_CondSignal(AudioStream->DecodeCond);
     SDL_WaitThread(AudioThreadID, NULL);
@@ -415,6 +469,13 @@ void VideoPlayer::Stop() {
   avformat_close_input(&FormatContext);
   reinterpret_cast<Io::InputStream*>(IoContext->opaque)->~InputStream();
   avio_context_free(&IoContext);
+}
+
+void VideoPlayer::Seek(int64_t pos) {
+  SeekRequest = true;
+  SeekPosition = pos;
+  ReaderEOF = false;
+  SDL_CondSignal(ReadCond);
 }
 
 void VideoPlayer::ProcessAudio() {
@@ -472,14 +533,23 @@ void VideoPlayer::Update(float dt) {
       auto frame = VideoStream->FrameQueue.front();
       SDL_UnlockMutex(VideoStream->FrameLock);
       if (frame.Serial == INT32_MIN) {
-        Stop();
+        if (Looping) {
+          Seek(0);
+        } else {
+          Stop();
+        }
         return;
       }
       if (!FrameTimer) {
         FrameTimer = av_gettime_relative() / 1000000.0;
       }
       double time = av_gettime_relative() / 1000000.0;
-      double duration = frame.Timestamp - PreviousFrameTimestamp;
+      double duration;
+      if (PreviousFrameTimestamp == -1) {
+        duration = 0.0;
+      } else {
+        duration = frame.Timestamp - PreviousFrameTimestamp;
+      }
 
       if (AudioStream) {
         duration = GetTargetDelay(duration);

@@ -33,6 +33,8 @@ class FFmpegStream {
   std::queue<AVPacketItem> PacketQueue;
   std::queue<AVFrameItem> FrameQueue;
   int Duration;
+  int PacketQueueSerial = 0;
+  int CurrentPacketSerial = 0;
 
   SDL_Thread* DecoderThreadID;
 
@@ -42,6 +44,9 @@ class FFmpegStream {
 
   FFmpegStream(AVStream* stream, AVCodecContext* codecCtx);
   ~FFmpegStream();
+
+  void FlushPacketQueue();
+  void FlushFrameQueue();
 };
 
 }  // namespace Video

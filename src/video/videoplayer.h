@@ -44,6 +44,7 @@ class VideoPlayer {
 
   void Play(Io::InputStream* stream, bool loop);
   void Stop();
+  void Seek(int64_t pos);
 
   void Update(float dt);
   void Render();
@@ -53,6 +54,7 @@ class VideoPlayer {
 
   bool IsPlaying;
   bool AbortRequest;
+  bool SeekRequest;
   SDL_Thread* ReadThreadID;
   SDL_Thread* AudioThreadID;
   FFmpegStream* VideoStream = 0;
@@ -68,6 +70,7 @@ class VideoPlayer {
   SDL_cond* ReadCond;
 
   uint64_t Time;
+  int64_t SeekPosition;
 
   AVFormatContext* FormatContext = 0;
   AVIOContext* IoContext = 0;
@@ -95,7 +98,8 @@ class VideoPlayer {
 
   YUVFrame VideoTexture;
 
-  bool Looping;
+  bool Looping = true;
+  bool ReaderEOF = false;
   double PreviousFrameTimestamp = 0.0;
   double FrameTimer = 0.0;
   double MaxFrameDuration;
