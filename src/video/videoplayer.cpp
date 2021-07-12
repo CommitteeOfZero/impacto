@@ -98,11 +98,13 @@ void VideoPlayer::Init() {
   IsInit = true;
 }
 
-void VideoPlayer::Play(Io::InputStream* stream, bool looping) {
+void VideoPlayer::Play(Io::InputStream* stream, bool looping, bool alpha) {
   // Don't do anything if we don't have the video system
   if (!IsInit) return;
   AbortRequest = false;
   SeekRequest = false;
+  Looping = looping;
+  IsAlpha = alpha;
   ImpLog(LL_Info, LC_Video, "Opening file: %s from: %s\n",
          stream->Meta.FileName.c_str(), stream->Meta.ArchiveFileName.c_str());
 
@@ -579,13 +581,15 @@ void VideoPlayer::Update(float dt) {
   }
 }
 
-void VideoPlayer::Render() {
+void VideoPlayer::Render(float videoAlpha) {
   if (IsPlaying) {
     float widthScale = Profile::DesignWidth / VideoTexture.Width;
     float heightScale = Profile::DesignHeight / VideoTexture.Height;
-    Renderer2D::DrawVideoTexture(VideoTexture, glm::vec2(0.0f, 0.0f),
-                                 glm::vec4(1.0f),
-                                 glm::vec2(widthScale, heightScale));
+    glm::vec4 tint = glm::vec4(1.0f);
+    if (IsAlpha) tint.a = videoAlpha;
+    Renderer2D::DrawVideoTexture(VideoTexture, glm::vec2(0.0f, 0.0f), tint,
+                                 glm::vec2(widthScale, heightScale), 0.0f,
+                                 IsAlpha);
   }
 }
 

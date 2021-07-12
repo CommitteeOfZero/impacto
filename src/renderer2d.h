@@ -50,11 +50,11 @@ void DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
 
 void DrawVideoTexture(YUVFrame const& tex, RectF const& dest,
                       glm::vec4 tint = glm::vec4(1.0), float angle = 0.0f,
-                      bool inverted = false);
+                      bool alphaVideo = false);
 void DrawVideoTexture(YUVFrame const& tex, glm::vec2 topLeft,
                       glm::vec4 tint = glm::vec4(1.0),
                       glm::vec2 scale = glm::vec2(1.0), float angle = 0.0f,
-                      bool inverted = false);
+                      bool alphaVideo = false);
 
 }  // namespace Renderer2D
 }  // namespace Impacto

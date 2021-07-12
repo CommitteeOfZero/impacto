@@ -42,12 +42,12 @@ class VideoPlayer {
 
   void Init();
 
-  void Play(Io::InputStream* stream, bool loop);
+  void Play(Io::InputStream* stream, bool loop, bool alpha);
   void Stop();
   void Seek(int64_t pos);
 
   void Update(float dt);
-  void Render();
+  void Render(float videoAlpha);
   void Read();
   void Decode(AVMediaType avType);
   void ProcessAudio();
@@ -98,7 +98,8 @@ class VideoPlayer {
 
   YUVFrame VideoTexture;
 
-  bool Looping = true;
+  bool IsAlpha = false;
+  bool Looping = false;
   bool ReaderEOF = false;
   double PreviousFrameTimestamp = 0.0;
   double FrameTimer = 0.0;

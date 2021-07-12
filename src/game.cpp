@@ -388,7 +388,7 @@ void Render() {
             //////////////////////////////
           }
           DateDisplay::Render();
-          Video::VideoRender();
+          Video::VideoRender(ScrWork[SW_MOVIEALPHA] / 256.0f);
           break;
         }
         case TD_SystemText: {

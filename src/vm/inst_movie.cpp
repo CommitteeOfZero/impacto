@@ -37,7 +37,7 @@ VmInstruction(InstPlayMovie) {
     PopExpression(movCancelFlag);
     Io::InputStream* stream;
     Io::VfsOpen("movie", playNo, &stream);
-    Video::Players[0].Play(stream, playMode == 5);
+    Video::Players[0].Play(stream, playMode == 5, playMode == 5);
     BlockThread;
     ImpLogSlow(LL_Warning, LC_VMStub,
                "STUB instruction PlayMovie(playMode: %i, playView: %i, "
@@ -52,7 +52,7 @@ VmInstruction(InstPlayMovieOld) {
   PopExpression(movCancelFlag);
   Io::InputStream* stream;
   Io::VfsOpen("movie", playNo, &stream);
-  Video::Players[0].Play(stream, playMode == 5);
+  Video::Players[0].Play(stream, playMode == 5, playMode == 5);
   BlockThread;
   ImpLogSlow(LL_Warning, LC_VMStub,
              "STUB instruction PlayMovie(playMode: %i, playNo: %i, "

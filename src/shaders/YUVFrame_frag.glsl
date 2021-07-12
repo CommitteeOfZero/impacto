@@ -6,6 +6,7 @@ out vec4 color;
 uniform sampler2D Luma;
 uniform sampler2D Cb;
 uniform sampler2D Cr;
+uniform bool IsAlpha;
 
 const mat4 yuv_to_rgb_rec601 = mat4(
     1.16438,  0.00000,  1.59603, -0.87079,
@@ -14,11 +15,21 @@ const mat4 yuv_to_rgb_rec601 = mat4(
     0, 0, 0, 1
 );
 
-void main() {
+vec4 getRGBA(vec2 texUv) {
     vec4 yuvcolor = vec4(1.0);
-    yuvcolor.r = texture(Luma, uv).r;
-    yuvcolor.g = texture(Cb, uv).r;
-    yuvcolor.b = texture(Cr, uv).r;
-    color = yuvcolor * yuv_to_rgb_rec601;
+    yuvcolor.r = texture(Luma, texUv).r;
+    yuvcolor.g = texture(Cb, texUv).r;
+    yuvcolor.b = texture(Cr, texUv).r;
+    return yuvcolor * yuv_to_rgb_rec601;
+}
+
+void main() {
+    if (IsAlpha) {
+        color = getRGBA(vec2(uv.x, uv.y / 2.0));
+        float alpha = getRGBA(vec2(uv.x, uv.y / 2.0 + 0.5)).r;
+        color.a = alpha >= 0.9 ? 1.0 : alpha;
+    } else {
+        color = getRGBA(uv);
+    }
 	color *= tint;
 }

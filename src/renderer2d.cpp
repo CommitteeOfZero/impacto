@@ -16,6 +16,7 @@ static GLuint ShaderProgramYUVFrame;
 
 GLuint YUVFrameCbLocation;
 GLuint YUVFrameCrLocation;
+GLuint YUVFrameIsAlphaLocation;
 
 enum Renderer2DMode { R2D_None, R2D_Sprite, R2D_SpriteInverted, R2D_YUVFrame };
 
@@ -135,6 +136,8 @@ void Init() {
   glUniform1i(glGetUniformLocation(ShaderProgramYUVFrame, "Luma"), 0);
   YUVFrameCbLocation = glGetUniformLocation(ShaderProgramYUVFrame, "Cb");
   YUVFrameCrLocation = glGetUniformLocation(ShaderProgramYUVFrame, "Cr");
+  YUVFrameIsAlphaLocation =
+      glGetUniformLocation(ShaderProgramYUVFrame, "IsAlpha");
 
   // No-mipmapping sampler
   glGenSamplers(1, &Sampler);
@@ -610,14 +613,14 @@ static void Flush() {
 }
 
 void DrawVideoTexture(YUVFrame const& tex, glm::vec2 topLeft, glm::vec4 tint,
-                      glm::vec2 scale, float angle, bool inverted) {
+                      glm::vec2 scale, float angle, bool alphaVideo) {
   RectF scaledDest(topLeft.x, topLeft.y, scale.x * tex.Width,
                    scale.y * tex.Height);
-  DrawVideoTexture(tex, scaledDest, tint, angle, inverted);
+  DrawVideoTexture(tex, scaledDest, tint, angle, alphaVideo);
 }
 
 void DrawVideoTexture(YUVFrame const& tex, RectF const& dest, glm::vec4 tint,
-                      float angle, bool inverted) {
+                      float angle, bool alphaVideo) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer2D::DrawVideoTexture() called before BeginFrame()\n");
@@ -635,6 +638,7 @@ void DrawVideoTexture(YUVFrame const& tex, RectF const& dest, glm::vec4 tint,
   glUseProgram(ShaderProgramYUVFrame);
   glUniform1i(YUVFrameCbLocation, 2);
   glUniform1i(YUVFrameCrLocation, 4);
+  glUniform1i(YUVFrameIsAlphaLocation, alphaVideo);
 
   // Luma
   glActiveTexture(GL_TEXTURE0);

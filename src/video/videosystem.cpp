@@ -22,9 +22,9 @@ void VideoUpdate(float dt) {
   }
 }
 
-void VideoRender() {
+void VideoRender(float videoAlpha) {
   for (int i = 0; i < 2; i++) {
-    Players[i].Render();
+    Players[i].Render(videoAlpha);
   }
 }
 

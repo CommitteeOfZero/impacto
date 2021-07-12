@@ -12,7 +12,7 @@ extern VideoPlayer Players[2];
 
 void VideoInit();
 void VideoUpdate(float dt);
-void VideoRender();
+void VideoRender(float videoAlpha);
 void VideoShutdown();
 
 }  // namespace Video
