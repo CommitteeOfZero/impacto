@@ -192,6 +192,9 @@ GLuint ShaderCompile(char const* name, ShaderParamMap const& params) {
   sprintf(fullPath, "%s/%s%s", ShaderPath, name, FragShaderExtension);
   GLuint fs = ShaderAttach(program, GL_FRAGMENT_SHADER, fullPath, paramStr);
   if (!fs) {
+    static GLchar errorLog[1024] = {};
+    glGetProgramInfoLog(program, sizeof(errorLog), NULL, errorLog);
+    ImpLog(LL_Fatal, LC_Render, "Error linking shader program: %s\n", errorLog);
     glDeleteShader(vs);
     glDeleteProgram(program);
     ImpStackFree(paramStr);
