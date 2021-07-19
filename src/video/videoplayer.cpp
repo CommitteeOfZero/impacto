@@ -445,32 +445,35 @@ void VideoPlayer::Decode(AVMediaType avType) {
 }
 
 void VideoPlayer::Stop() {
-  IsPlaying = false;
-  AbortRequest = true;
-  SDL_WaitThread(ReadThreadID, NULL);
-  ReaderEOF = false;
-  if (AudioStream) {
-    SDL_CondSignal(AudioStream->DecodeCond);
-    SDL_WaitThread(AudioThreadID, NULL);
-    SDL_WaitThread(AudioStream->DecoderThreadID, NULL);
+  if (IsPlaying) {
+    IsPlaying = false;
+    AbortRequest = true;
+    SDL_WaitThread(ReadThreadID, NULL);
+    ReaderEOF = false;
+    if (AudioStream) {
+      SDL_CondSignal(AudioStream->DecodeCond);
+      SDL_WaitThread(AudioThreadID, NULL);
+      SDL_WaitThread(AudioStream->DecoderThreadID, NULL);
+    }
+    if (VideoStream) {
+      SDL_CondSignal(VideoStream->DecodeCond);
+      SDL_WaitThread(VideoStream->DecoderThreadID, NULL);
+    }
+    if (AudioBuffer) av_free(AudioBuffer);
+    alSourcei(ALSource, AL_BUFFER, NULL);
+    alSourceStop(ALSource);
+    alDeleteSources(1, &ALSource);
+    alGenSources(1, &ALSource);
+    First = true;
+    FrameTimer = 0.0;
+    PreviousFrameTimestamp = 0.0;
+    delete VideoStream;
+    delete AudioStream;
+    avformat_close_input(&FormatContext);
+    if (IoContext)
+      reinterpret_cast<Io::InputStream*>(IoContext->opaque)->~InputStream();
+    avio_context_free(&IoContext);
   }
-  if (VideoStream) {
-    SDL_CondSignal(VideoStream->DecodeCond);
-    SDL_WaitThread(VideoStream->DecoderThreadID, NULL);
-  }
-  if (AudioBuffer) av_free(AudioBuffer);
-  alSourcei(ALSource, AL_BUFFER, NULL);
-  alSourceStop(ALSource);
-  alDeleteSources(1, &ALSource);
-  alGenSources(1, &ALSource);
-  First = true;
-  FrameTimer = 0.0;
-  PreviousFrameTimestamp = 0.0;
-  delete VideoStream;
-  delete AudioStream;
-  avformat_close_input(&FormatContext);
-  reinterpret_cast<Io::InputStream*>(IoContext->opaque)->~InputStream();
-  avio_context_free(&IoContext);
 }
 
 void VideoPlayer::Seek(int64_t pos) {

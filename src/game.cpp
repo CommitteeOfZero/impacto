@@ -137,6 +137,10 @@ void Shutdown() {
     Audio::AudioShutdown();
   }
 
+  if (Profile::GameFeatures & GameFeature::Video) {
+    Video::VideoShutdown();
+  }
+
   if (Profile::GameFeatures & GameFeature::Scene3D) {
     Scene3D::Shutdown();
   }

@@ -7,7 +7,11 @@ namespace Video {
 
 VideoPlayer Players[2];
 
-void VideoShutdown() {}
+void VideoShutdown() {
+  for (int i = 0; i < 2; i++) {
+    Players[i].Stop();
+  }
+}
 
 void VideoInit() {
   ImpLog(LL_Info, LC_Audio, "Initialising video system\n");
