@@ -194,12 +194,9 @@ VmInstruction(InstCopyThreadWork) {
   PopExpression(threadIdDst);
   PopExpression(beginIndex);
   PopExpression(count);
-  Sc3VmThread* srcThread = &ThreadPool[threadIdSrc];
-  Sc3VmThread* dstThread;
-  if (threadIdDst == 0)
-    dstThread = thread;
-  else
-    dstThread = &ThreadPool[threadIdSrc];
+  Sc3VmThread *srcThread, *dstThread;
+  srcThread = threadIdSrc == 0 ? thread : &ThreadPool[threadIdSrc];
+  dstThread = threadIdDst == 0 ? thread : &ThreadPool[threadIdDst];
 
   for (int i = 0; i < count; i++) {
     dstThread->Variables[beginIndex + i] = srcThread->Variables[beginIndex + i];

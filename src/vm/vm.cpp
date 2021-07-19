@@ -328,8 +328,7 @@ static void DrawAllThreads() {
 
 void DestroyThread(Sc3VmThread* thread) {
   if (ThreadGroupHeads[thread->GroupId] == thread) {
-    ThreadGroupHeads[thread->GroupId] = NULL;
-    ThreadGroupTails[thread->GroupId] = NULL;
+    ThreadGroupHeads[thread->GroupId] = thread->NextContext;
   } else if (ThreadGroupTails[thread->GroupId] == thread) {
     ThreadGroupTails[thread->GroupId] = thread->PreviousContext;
   }
