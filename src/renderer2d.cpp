@@ -2,6 +2,7 @@
 
 #include "log.h"
 #include "shader.h"
+#include "window.h"
 #include "texture/texture.h"
 #include "profile/game.h"
 
@@ -17,6 +18,7 @@ static GLuint ShaderProgramYUVFrame;
 GLuint YUVFrameCbLocation;
 GLuint YUVFrameCrLocation;
 GLuint YUVFrameIsAlphaLocation;
+GLuint MaskedIsInvertedLocation;
 
 enum Renderer2DMode { R2D_None, R2D_Sprite, R2D_SpriteInverted, R2D_YUVFrame };
 
@@ -37,6 +39,9 @@ static void Flush();
 
 static inline void QuadSetUV(RectF const& spriteBounds, float designWidth,
                              float designHeight, uintptr_t uvs, int stride);
+static inline void QuadSetUVFlipped(RectF const& spriteBounds,
+                                    float designWidth, float designHeight,
+                                    uintptr_t uvs, int stride);
 static inline void QuadSetPosition(RectF const& transformedQuad, float angle,
                                    uintptr_t positions, int stride);
 static inline void QuadSetPosition3DRotated(RectF const& transformedQuad,
@@ -132,6 +137,8 @@ void Init() {
   glUniform1i(glGetUniformLocation(ShaderProgramSpriteInverted, "ColorMap"), 0);
   ShaderProgramMaskedSprite = ShaderCompile("MaskedSprite");
   glUniform1i(glGetUniformLocation(ShaderProgramMaskedSprite, "ColorMap"), 0);
+  MaskedIsInvertedLocation =
+      glGetUniformLocation(ShaderProgramMaskedSprite, "IsInverted");
   ShaderProgramYUVFrame = ShaderCompile("YUVFrame");
   glUniform1i(glGetUniformLocation(ShaderProgramYUVFrame, "Luma"), 0);
   YUVFrameCbLocation = glGetUniformLocation(ShaderProgramYUVFrame, "Cb");
@@ -183,11 +190,11 @@ void EndFrame() {
 }
 
 void DrawSprite(Sprite const& sprite, glm::vec2 topLeft, glm::vec4 tint,
-                glm::vec2 scale, float angle, bool inverted) {
+                glm::vec2 scale, float angle, bool inverted, bool isScreencap) {
   RectF scaledDest(topLeft.x, topLeft.y,
                    scale.x * sprite.Bounds.Width * sprite.BaseScale.x,
                    scale.y * sprite.Bounds.Height * sprite.BaseScale.y);
-  DrawSprite(sprite, scaledDest, tint, angle, inverted);
+  DrawSprite(sprite, scaledDest, tint, angle, inverted, isScreencap);
 }
 
 void DrawRect(RectF const& dest, glm::vec4 color, float angle) {
@@ -381,7 +388,7 @@ void DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
 }
 
 void DrawSprite(Sprite const& sprite, RectF const& dest, glm::vec4 tint,
-                float angle, bool inverted) {
+                float angle, bool inverted, bool isScreencap) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer2D::DrawSprite() called before BeginFrame()\n");
@@ -394,6 +401,10 @@ void DrawSprite(Sprite const& sprite, RectF const& dest, glm::vec4 tint,
   // Are we in sprite mode?
   EnsureModeSprite(inverted);
 
+  if (isScreencap) {
+    Flush();
+  }
+
   // Do we have the texture assigned?
   EnsureTextureBound(sprite.Sheet.Texture);
 
@@ -405,8 +416,15 @@ void DrawSprite(Sprite const& sprite, RectF const& dest, glm::vec4 tint,
 
   IndexBufferFill += 6;
 
-  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
+  if (isScreencap) {
+    QuadSetUVFlipped(sprite.Bounds, sprite.Sheet.DesignWidth,
+                     sprite.Sheet.DesignHeight, (uintptr_t)&vertices[0].UV,
+                     sizeof(VertexBufferSprites));
+  } else {
+    QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth,
+              sprite.Sheet.DesignHeight, (uintptr_t)&vertices[0].UV,
+              sizeof(VertexBufferSprites));
+  }
   QuadSetPosition(dest, angle, (uintptr_t)&vertices[0].Position,
                   sizeof(VertexBufferSprites));
 
@@ -415,7 +433,7 @@ void DrawSprite(Sprite const& sprite, RectF const& dest, glm::vec4 tint,
 
 void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
                       RectF const& dest, glm::vec4 tint, int alpha,
-                      int fadeRange) {
+                      int fadeRange, bool isScreencap, bool isInverted) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer2D::DrawMaskedSprite() called before BeginFrame()\n");
@@ -437,6 +455,7 @@ void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
   glUniform1i(glGetUniformLocation(ShaderProgramMaskedSprite, "Mask"), 2);
   glUniform2f(glGetUniformLocation(ShaderProgramMaskedSprite, "Alpha"),
               alphaRange, constAlpha);
+  glUniform1i(MaskedIsInvertedLocation, isInverted);
 
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
@@ -453,12 +472,37 @@ void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
 
   IndexBufferFill += 6;
 
-  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
+  if (isScreencap) {
+    QuadSetUVFlipped(sprite.Bounds, sprite.Sheet.DesignWidth,
+                     sprite.Sheet.DesignHeight, (uintptr_t)&vertices[0].UV,
+                     sizeof(VertexBufferSprites));
+  } else {
+    QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth,
+              sprite.Sheet.DesignHeight, (uintptr_t)&vertices[0].UV,
+              sizeof(VertexBufferSprites));
+  }
   QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
                   sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
+}
+
+static inline void QuadSetUVFlipped(RectF const& spriteBounds,
+                                    float designWidth, float designHeight,
+                                    uintptr_t uvs, int stride) {
+  float topUV = (spriteBounds.Y / designHeight);
+  float leftUV = (spriteBounds.X / designWidth);
+  float bottomUV = ((spriteBounds.Y + spriteBounds.Height) / designHeight);
+  float rightUV = ((spriteBounds.X + spriteBounds.Width) / designWidth);
+
+  // top-left
+  *(glm::vec2*)(uvs + 0 * stride) = glm::vec2(leftUV, topUV);
+  // bottom-left
+  *(glm::vec2*)(uvs + 1 * stride) = glm::vec2(leftUV, bottomUV);
+  // bottom-right
+  *(glm::vec2*)(uvs + 2 * stride) = glm::vec2(rightUV, bottomUV);
+  // top-right
+  *(glm::vec2*)(uvs + 3 * stride) = glm::vec2(rightUV, topUV);
 }
 
 static inline void QuadSetUV(RectF const& spriteBounds, float designWidth,
@@ -668,6 +712,18 @@ void DrawVideoTexture(YUVFrame const& tex, RectF const& dest, glm::vec4 tint,
                   sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
+}
+
+void CaptureScreencap(Sprite const& sprite) {
+  Flush();
+  Window::SwapRTs();
+  int prevTextureBinding;
+  glGetIntegerv(GL_TEXTURE_BINDING_2D, &prevTextureBinding);
+  glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
+  glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, Profile::DesignWidth,
+                   Profile::DesignHeight, 0);
+  glBindTexture(GL_TEXTURE_2D, prevTextureBinding);
+  Window::SwapRTs();
 }
 
 }  // namespace Renderer2D

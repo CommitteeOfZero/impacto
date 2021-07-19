@@ -37,8 +37,8 @@ VmInstruction(InstReleaseSurf) {
   ImpLogSlow(LL_Warning, LC_VMStub,
              "STUB instruction ReleaseSurf(surfaceId: %i)\n", surfaceId);
   if (surfaceId < 8) {
-    if (Backgrounds2D[surfaceId].Status == LS_Loaded) {
-      Backgrounds2D[surfaceId].Unload();
+    if (Backgrounds2D[surfaceId]->Status == LS_Loaded) {
+      Backgrounds2D[surfaceId]->Unload();
     }
   }
 }
@@ -53,13 +53,13 @@ VmInstruction(InstLoadPic) {
   if (surfaceId < 8) {
     switch (archiveId) {
       case 0: {  // bg archive
-        if (Backgrounds2D[surfaceId].Status == LS_Loading) {
+        if (Backgrounds2D[surfaceId]->Status == LS_Loading) {
           ResetInstruction;
           BlockThread;
         } else if (ScrWork[SW_BG1NO + ScrWorkBgStructSize * surfaceId] !=
                    fileId) {
           ScrWork[SW_BG1NO + ScrWorkBgStructSize * surfaceId] = fileId;
-          Backgrounds2D[surfaceId].LoadAsync(fileId);
+          Backgrounds2D[surfaceId]->LoadAsync(fileId);
           ResetInstruction;
           BlockThread;
         }
@@ -92,13 +92,13 @@ VmInstruction(InstBGload) {
   PopExpression(backgroundId);
   int actualBufId = Interface::GetBufferId(bufferId);
   int bgBufId = ScrWork[SW_BG1SURF + actualBufId];
-  if (Backgrounds2D[bgBufId].Status == LS_Loading) {
+  if (Backgrounds2D[bgBufId]->Status == LS_Loading) {
     ResetInstruction;
     BlockThread;
   } else if (ScrWork[SW_BG1NO + ScrWorkBgStructSize * actualBufId] !=
              backgroundId) {
     ScrWork[SW_BG1NO + ScrWorkBgStructSize * actualBufId] = backgroundId;
-    Backgrounds2D[bgBufId].LoadAsync(backgroundId);
+    Backgrounds2D[bgBufId]->LoadAsync(backgroundId);
     ResetInstruction;
     BlockThread;
   }
@@ -225,8 +225,8 @@ VmInstruction(InstBGrelease) {
   PopExpression(bufferId);
   bufferId = Interface::GetBufferId(bufferId);
   int surfId = ScrWork[SW_BG1SURF + bufferId];
-  if (Backgrounds2D[surfId].Status == LS_Loaded) {
-    Backgrounds2D[surfId].Unload();
+  if (Backgrounds2D[surfId]->Status == LS_Loaded) {
+    Backgrounds2D[surfId]->Unload();
   }
 }
 VmInstruction(InstBGcopy) {
@@ -240,12 +240,12 @@ VmInstruction(InstBGcopy) {
   int bgId = ScrWork[SW_BG1NO + ScrWorkBgStructSize * srcBufferId];
   int dstSurfId = ScrWork[SW_BG1SURF + dstBufferId];
 
-  if (Backgrounds2D[dstSurfId].Status == LS_Loading) {
+  if (Backgrounds2D[dstSurfId]->Status == LS_Loading) {
     ResetInstruction;
     BlockThread;
   } else if (ScrWork[SW_BG1NO + ScrWorkBgStructSize * dstBufferId] != bgId) {
     ScrWork[SW_BG1NO + ScrWorkBgStructSize * dstBufferId] = bgId;
-    Backgrounds2D[dstSurfId].LoadAsync(bgId);
+    Backgrounds2D[dstSurfId]->LoadAsync(bgId);
     ResetInstruction;
     BlockThread;
   }

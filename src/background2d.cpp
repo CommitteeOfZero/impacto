@@ -14,7 +14,23 @@ namespace Impacto {
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Vm;
 
-Background2D Backgrounds2D[MaxBackgrounds2D];
+Background2D Backgrounds[MaxBackgrounds2D];
+Background2D Screencaptures[MaxScreencaptures];
+
+ska::flat_hash_map<int, Background2D*> Backgrounds2D;
+
+void Background2D::Init() {
+  for (int i = 0; i < MaxBackgrounds2D; i++) {
+    Backgrounds2D[i] = &Backgrounds[i];
+  }
+
+  for (int i = 0; i < MaxScreencaptures; i++) {
+    Screencaptures[i].LoadSolidColor(0xFF000000, Profile::DesignWidth,
+                                     Profile::DesignHeight);
+    Screencaptures[i].Status = LS_Loaded;
+    Screencaptures[i].IsScreencap = true;
+  }
+}
 
 bool Background2D::LoadSync(uint32_t bgId) {
   if (bgId & 0xFF000000) {
@@ -28,6 +44,11 @@ bool Background2D::LoadSync(uint32_t bgId) {
     delete stream;
   }
   return true;
+}
+
+void Background2D::LoadSolidColor(uint32_t color, int width, int height) {
+  BgTexture.LoadSolidColor(width, height, color);
+  MainThreadOnLoad();
 }
 
 void Background2D::UnloadSync() {
@@ -72,7 +93,7 @@ BackgroundRenderer(RenderRegular) {
       bg->BgSprite,
       RectF(bg->DisplayCoords.x, bg->DisplayCoords.y,
             bg->BgSprite.ScaledWidth(), bg->BgSprite.ScaledHeight()),
-      col);
+      col, 0.0f, false, bg->IsScreencap);
 }
 
 BackgroundRenderer(RenderMasked) {
@@ -82,7 +103,19 @@ BackgroundRenderer(RenderMasked) {
       RectF(bg->DisplayCoords.x, bg->DisplayCoords.y,
             bg->BgSprite.ScaledWidth(), bg->BgSprite.ScaledHeight()),
       col, ScrWork[SW_BG1FADECT + ScrWorkBgStructSize * bgId],
-      ScrWork[SW_BG1MASKFADERANGE + ScrWorkBgStructSize * bgId]);
+      ScrWork[SW_BG1MASKFADERANGE + ScrWorkBgStructSize * bgId],
+      bg->IsScreencap);
+}
+
+BackgroundRenderer(RenderMaskedInverted) {
+  Renderer2D::DrawMaskedSprite(
+      bg->BgSprite,
+      Masks2D[ScrWork[SW_BG1MASKNO + ScrWorkBgStructSize * bgId]].MaskSprite,
+      RectF(bg->DisplayCoords.x, bg->DisplayCoords.y,
+            bg->BgSprite.ScaledWidth(), bg->BgSprite.ScaledHeight()),
+      col, ScrWork[SW_BG1FADECT + ScrWorkBgStructSize * bgId],
+      ScrWork[SW_BG1MASKFADERANGE + ScrWorkBgStructSize * bgId],
+      bg->IsScreencap, true);
 }
 
 BackgroundRenderer(RenderFade) {
@@ -95,7 +128,7 @@ BackgroundRenderer(RenderFade) {
       bg->BgSprite,
       RectF(bg->DisplayCoords.x, bg->DisplayCoords.y,
             bg->BgSprite.ScaledWidth(), bg->BgSprite.ScaledHeight()),
-      col);
+      col, 0.0f, false, bg->IsScreencap);
 }
 
 }  // namespace Impacto
