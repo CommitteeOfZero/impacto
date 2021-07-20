@@ -720,8 +720,8 @@ void CaptureScreencap(Sprite const& sprite) {
   int prevTextureBinding;
   glGetIntegerv(GL_TEXTURE_BINDING_2D, &prevTextureBinding);
   glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
-  glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, Profile::DesignWidth,
-                   Profile::DesignHeight, 0);
+  glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, Window::WindowWidth,
+                   Window::WindowHeight, 0);
   glBindTexture(GL_TEXTURE_2D, prevTextureBinding);
   Window::SwapRTs();
 }

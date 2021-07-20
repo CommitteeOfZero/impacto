@@ -8,6 +8,7 @@
 #include "profile/game.h"
 #include "profile/scriptvars.h"
 #include "profile/vm.h"
+#include "window.h"
 
 namespace Impacto {
 
@@ -25,8 +26,8 @@ void Background2D::Init() {
   }
 
   for (int i = 0; i < MaxScreencaptures; i++) {
-    Screencaptures[i].LoadSolidColor(0xFF000000, Profile::DesignWidth,
-                                     Profile::DesignHeight);
+    Screencaptures[i].LoadSolidColor(0xFF000000, Window::WindowWidth,
+                                     Window::WindowHeight);
     Screencaptures[i].Status = LS_Loaded;
     Screencaptures[i].IsScreencap = true;
   }

@@ -3,6 +3,7 @@
 #include "../../profile/vm.h"
 #include "../../mem.h"
 #include "../../profile/game.h"
+#include "../../window.h"
 
 namespace Impacto {
 namespace Vm {
@@ -68,6 +69,24 @@ void UpdateBackground2D() {
                     (Profile::DesignHeight / 720.0f) -
                 (Backgrounds2D[bufId]->BgSprite.ScaledHeight() / 2.0f));
       } break;
+      case 4: {
+        float posX = (ScrWork[SW_BG1POSX + ScrWorkBgStructSize * i] +
+                      ScrWork[SW_BG1POSX_OFS + 10 * i]) /
+                     1000.0f;
+        float posY = (ScrWork[SW_BG1POSY + ScrWorkBgStructSize * i] +
+                      ScrWork[SW_BG1POSY_OFS + 10 * i]) /
+                     1000.0f;
+        Backgrounds2D[bufId]->DisplayCoords =
+            glm::vec2(-(posX * (Profile::DesignWidth / 1280.0f)),
+                      -(posY * (Profile::DesignHeight / 720.0f)));
+        Backgrounds2D[bufId]->BgSprite.BaseScale = glm::vec2(1.0f, 1.0f);
+      } break;
+    }
+
+    if (Backgrounds2D[bufId]->IsScreencap) {
+      Backgrounds2D[bufId]->BgSprite.BaseScale *=
+          glm::vec2(Profile::DesignWidth / Window::WindowWidth,
+                    Profile::DesignHeight / Window::WindowHeight);
     }
   }
 }
@@ -85,10 +104,12 @@ void UpdateCharacter2D() {
     Characters2D[bufId].Layer = ScrWork[SW_CHA1PRI + ScrWorkChaStructSize * i];
     Characters2D[bufId].Show = GetFlag(SF_CHA1DISP + i);
     Characters2D[bufId].OffsetX =
-        ScrWork[SW_CHA1POSX + ScrWorkChaStructSize * i] *
+        (ScrWork[SW_CHA1POSX + ScrWorkChaStructSize * i] +
+         ScrWork[SW_CHA1POSX_OFS + 10 * i]) *
         (Profile::DesignWidth / 1280.0f);
     Characters2D[bufId].OffsetY =
-        ScrWork[SW_CHA1POSY + ScrWorkChaStructSize * i] *
+        (ScrWork[SW_CHA1POSY + ScrWorkChaStructSize * i] +
+         ScrWork[SW_CHA1POSY_OFS + 10 * i]) *
         (Profile::DesignHeight / 720.0f);
     Characters2D[bufId].Face = ScrWork[SW_CHA1FACE + ScrWorkChaStructSize * i]
                                << 16;

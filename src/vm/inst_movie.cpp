@@ -75,7 +75,14 @@ VmInstruction(InstMovieMain) {
                  "STUB instruction MovieMain(type: Stop)\n");
       break;
     case 3:  // StopWait
-      ScrWork[SW_MOVIEFRAME] = 255;
+      if (Interface::PADinputButtonWentDown & Interface::PAD1A ||
+          Interface::PADinputMouseWentDown & Interface::PAD1A) {
+        Video::Players[0].Stop();
+        ScrWork[SW_MOVIEFRAME] = 255;
+      } else if (Video::Players[0].IsPlaying) {
+        ResetInstruction;
+        BlockThread;
+      }
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MovieMain(type: StopWaitForSomething)\n");
       break;
