@@ -354,6 +354,10 @@ void Render() {
                   Characters2D[bufId].Layer == layer &&
                   Characters2D[bufId].Show) {
                 glm::vec4 col(1.0f);
+                col.a = (ScrWork[SW_CHA1ALPHA +
+                                 Profile::Vm::ScrWorkBgStructSize * i] +
+                         ScrWork[SW_CHA1ALPHA_OFS + 10 * i]) /
+                        256.0f;
                 Characters2D[bufId].Render(col);
               }
             }
