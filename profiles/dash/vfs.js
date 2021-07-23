@@ -8,6 +8,8 @@ root.Vfs = {
         "voice": ["games/dash/gamedata/voice.cls"],
         "model": ["games/dash/gamedata/model.cls"],
         "motion": ["games/dash/gamedata/motion.cls"],
-        "bg": ["games/dash/gamedata/bg.cls"]
+        "bg": ["games/dash/gamedata/bg.cls"],
+        "mask": ["games/dash/gamedata/mask.cls"],
+        "movie": ["games/dash/gamedata/movie.cls"]
     }
 };

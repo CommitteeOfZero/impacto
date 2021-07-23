@@ -14,6 +14,7 @@
 #include "audio/audiosystem.h"
 #include "audio/audiochannel.h"
 #include "audio/audiostream.h"
+#include "video/videosystem.h"
 #include "renderer2d.h"
 #include "background2d.h"
 #include "mask2d.h"
@@ -78,6 +79,10 @@ static void Init() {
     Audio::AudioInit();
   }
 
+  if (Profile::GameFeatures & GameFeature::Video) {
+    Video::VideoInit();
+  }
+
   if (Profile::GameFeatures & GameFeature::Scene3D) {
     Scene3D::Init();
   }
@@ -93,6 +98,7 @@ static void Init() {
     DialoguePage::Init();
 
     Renderer2D::Init();
+    Background2D::Init();
   }
 
   if (Profile::GameFeatures & GameFeature::ModelViewer) {
@@ -129,6 +135,10 @@ void InitFromProfile(std::string const& name) {
 void Shutdown() {
   if (Profile::GameFeatures & GameFeature::Audio) {
     Audio::AudioShutdown();
+  }
+
+  if (Profile::GameFeatures & GameFeature::Video) {
+    Video::VideoShutdown();
   }
 
   if (Profile::GameFeatures & GameFeature::Scene3D) {
@@ -203,6 +213,10 @@ void Update(float dt) {
 
   if (Profile::GameFeatures & GameFeature::Audio) {
     Audio::AudioUpdate(dt);
+  }
+
+  if (Profile::GameFeatures & GameFeature::Video) {
+    Video::VideoUpdate(dt);
   }
 
   if (Profile::GameFeatures & GameFeature::Scene3D) {
@@ -331,13 +345,20 @@ void Render() {
             // TODO
 
             for (int i = 0; i < MaxBackgrounds2D; i++) {
-              Backgrounds2D[i].Render(i, layer);
+              int bufId = ScrWork[SW_BG1SURF + i];
+              Backgrounds2D[bufId]->Render(i, layer);
             }
             for (int i = 0; i < MaxCharacters2D; i++) {
-              if (Characters2D[i].Status == LS_Loaded &&
-                  Characters2D[i].Layer == layer && Characters2D[i].Show) {
+              int bufId = ScrWork[SW_CHA1SURF + i];
+              if (Characters2D[bufId].Status == LS_Loaded &&
+                  Characters2D[bufId].Layer == layer &&
+                  Characters2D[bufId].Show) {
                 glm::vec4 col(1.0f);
-                Characters2D[i].Render(col);
+                col.a = (ScrWork[SW_CHA1ALPHA +
+                                 Profile::Vm::ScrWorkBgStructSize * i] +
+                         ScrWork[SW_CHA1ALPHA_OFS + 10 * i]) /
+                        256.0f;
+                Characters2D[bufId].Render(col);
               }
             }
             if (ScrWork[SW_MASK1PRI] == layer) {
@@ -360,6 +381,20 @@ void Render() {
                     RectF(maskPosX, maskPosY, maskSizeX, maskSizeY), col);
               }
             }
+
+            if (ScrWork[SW_EFF_CAP_BUF] && ScrWork[SW_EFF_CAP_PRI] == layer) {
+              int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF]);
+              if (Backgrounds2D[bufId]->Status == LS_Loaded) {
+                Renderer2D::CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
+              }
+            }
+
+            if (ScrWork[SW_EFF_CAP_BUF2] && ScrWork[SW_EFF_CAP_PRI2] == layer) {
+              int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF2]);
+              if (Backgrounds2D[bufId]->Status == LS_Loaded) {
+                Renderer2D::CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
+              }
+            }
           }
           if (GetFlag(SF_Pokecon_Open)) {
             SetFlag(SF_DATEDISPLAY, 0);
@@ -379,6 +414,7 @@ void Render() {
             //////////////////////////////
           }
           DateDisplay::Render();
+          Video::VideoRender(ScrWork[SW_MOVIEALPHA] / 256.0f);
           break;
         }
         case TD_SystemText: {
@@ -426,11 +462,11 @@ void Render() {
 
   if (Profile::GameFeatures & GameFeature::CharacterViewer) {
     Renderer2D::BeginFrame();
-    if (Backgrounds2D[0].Status == LS_Loaded) {
+    if (Backgrounds2D[0]->Status == LS_Loaded) {
       Renderer2D::DrawSprite(
-          Backgrounds2D[0].BgSprite,
-          RectF(0.0f, 0.0f, Backgrounds2D[0].BgSprite.ScaledWidth(),
-                Backgrounds2D[0].BgSprite.ScaledHeight()));
+          Backgrounds2D[0]->BgSprite,
+          RectF(0.0f, 0.0f, Backgrounds2D[0]->BgSprite.ScaledWidth(),
+                Backgrounds2D[0]->BgSprite.ScaledHeight()));
     }
     if (Characters2D[0].Status == LS_Loaded) {
       Characters2D[0].Render(glm::vec4(1.0f));

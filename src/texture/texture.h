@@ -20,6 +20,7 @@ struct Texture {
   bool Load(Io::InputStream* stream);
   void Load1x1(uint8_t red = 0, uint8_t green = 0, uint8_t blue = 0,
                uint8_t alpha = 0);
+  void LoadSolidColor(int width, int height, uint32_t color = 0xFFFFFFFF);
   void LoadCheckerboard();
   void LoadPoliticalCompass();
   uint32_t Submit();

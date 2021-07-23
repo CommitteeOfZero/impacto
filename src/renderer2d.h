@@ -2,6 +2,7 @@
 
 #include "spritesheet.h"
 #include "text.h"
+#include "video/yuvframe.h"
 
 namespace Impacto {
 
@@ -15,16 +16,17 @@ void EndFrame();
 
 void DrawSprite(Sprite const& sprite, RectF const& dest,
                 glm::vec4 tint = glm::vec4(1.0), float angle = 0.0f,
-                bool inverted = false);
+                bool inverted = false, bool isScreencap = false);
 void DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
                 glm::vec4 tint = glm::vec4(1.0),
                 glm::vec2 scale = glm::vec2(1.0), float angle = 0.0f,
-                bool inverted = false);
+                bool inverted = false, bool isScreencap = false);
 void DrawRect(RectF const& dest, glm::vec4 color, float angle = 0.0f);
 
 void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
                       RectF const& dest, glm::vec4 tint, int alpha,
-                      int fadeRange);
+                      int fadeRange, bool isScreencap = false,
+                      bool isInverted = false);
 
 void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest, float depth,
                          glm::vec2 vanishingPoint, bool stayInScreen,
@@ -46,6 +48,16 @@ void DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
                       int verticesCount, float* mvlVertices, int indicesCount,
                       uint16_t* mvlIndices, bool inverted = false,
                       glm::vec4 tint = glm::vec4(1.0));
+
+void DrawVideoTexture(YUVFrame const& tex, RectF const& dest,
+                      glm::vec4 tint = glm::vec4(1.0), float angle = 0.0f,
+                      bool alphaVideo = false);
+void DrawVideoTexture(YUVFrame const& tex, glm::vec2 topLeft,
+                      glm::vec4 tint = glm::vec4(1.0),
+                      glm::vec2 scale = glm::vec2(1.0), float angle = 0.0f,
+                      bool alphaVideo = false);
+
+void CaptureScreencap(Sprite const& sprite);
 
 }  // namespace Renderer2D
 }  // namespace Impacto

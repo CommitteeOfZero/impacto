@@ -9,6 +9,7 @@
 * `src/texture/gxtloader.cpp`: Unswizzling code based on [Scarlet](https://github.com/xdanieldzd/Scarlet/blob/d8aabf430307d35a81b131e40bb3c9a4828bdd7b/Scarlet/Drawing/ImageBinary.cs) and work by [FireyFly](http://xen.firefly.nu/up/rearrange.c.html) and [ryg](https://fgiesen.wordpress.com/2009/12/13/decoding-morton-codes/)
 * `src/texture/s3tc.cpp`: based on [s3tc-dxt-decompression](https://github.com/Benjamin-Dobell/s3tc-dxt-decompression)
 * `src/texture/ddsloader.cpp`: based on [OpenImageIO](https://github.com/OpenImageIO/oiio/tree/master/src/dds.imageio)
+* `src/video/videoplayer.cpp`: syncing code based on [FFplay](https://github.com/FFmpeg/FFmpeg/blob/master/fftools/ffplay.c)
 * `vendor/clHCA`: part of [vgmstream](https://github.com/losnoco/vgmstream)
 * `vendor/duktape`: [Duktape](https://github.com/svaarala/duktape)
 * `vendor/glad`: output from [glad](https://github.com/Dav1dde/glad) generator, patched for Switch support
@@ -38,15 +39,15 @@ All third-party code mentioned above is mandatory, included in the build process
 * Emscripten and NX builds use static linking for all other external libraries, other platforms use dynamic linking.
 * glm (being a header-only template library) is always compiled into the output executable.
 * The example Emscripten build process explicitly uses emscripten-ports packages for [Ogg](https://github.com/emscripten-ports/Ogg), [SDL2](https://github.com/emscripten-ports/SDL2), [Vorbis](https://github.com/emscripten-ports/Vorbis) and [zlib](https://github.com/emscripten-ports/zlib) and the original authors' source distributions for glm and LibAtrac9.
-* The example Win32/MSVC build process explicitly uses vcpkg packages for [OpenAL Soft](https://github.com/microsoft/vcpkg/tree/master/ports/openal-soft), [glm](https://github.com/microsoft/vcpkg/tree/master/ports/glm), [Ogg](https://github.com/microsoft/vcpkg/tree/master/ports/libogg), [SDL2](https://github.com/microsoft/vcpkg/tree/master/ports/sdl2), [Vorbis](https://github.com/microsoft/vcpkg/tree/master/ports/libvorbis) and [zlib](https://github.com/microsoft/vcpkg/tree/master/ports/zlib) and the original authors' source distributions for LibAtrac9.
-* The example Ubuntu build process explicitly uses build host apt packages for `libopenal-dev` (OpenAL Soft on Ubuntu 18.04), `libogg-dev`, `libsdl2-dev`, `libvorbis-dev` and `zlib1g-dev` and the original authors' source distributions for glm and LibAtrac9.
+* The example Win32/MSVC build process explicitly uses vcpkg packages for [OpenAL Soft](https://github.com/microsoft/vcpkg/tree/master/ports/openal-soft), [glm](https://github.com/microsoft/vcpkg/tree/master/ports/glm), [Ogg](https://github.com/microsoft/vcpkg/tree/master/ports/libogg), [SDL2](https://github.com/microsoft/vcpkg/tree/master/ports/sdl2), [Vorbis](https://github.com/microsoft/vcpkg/tree/master/ports/libvorbis), [zlib](https://github.com/microsoft/vcpkg/tree/master/ports/zlib) and [FFmpeg](https://github.com/microsoft/vcpkg/tree/master/ports/ffmpeg) and the original authors' source distributions for LibAtrac9.
+* The example Ubuntu build process explicitly uses build host apt packages for `libopenal-dev` (OpenAL Soft on Ubuntu 18.04), `libogg-dev`, `libsdl2-dev`, `libvorbis-dev`, `zlib1g-dev`, `libavdevice-dev`, `libavfilter-dev`, `libavformat-dev`, `libavcodec-dev`, `libswscale-dev`, `libswresample-dev`, `libavresample-dev` and `libavutil-dev` and the original authors' source distributions for glm and LibAtrac9.
 * Win32 install targets copy all required DLLs except the standard C/C++ runtime libraries to the output folder.
 
 ** Binary licensing:**
 
 * Unless specified otherwise, impacto source and binaries are covered by [the ISC license](LICENSE) but contain and use the dependencies listed above, requiring third-party copyright notices.
 * NX builds statically link OpenAL Soft (assuming this is used as the OpenAL implementation), placing NX binaries under LGPLv2 or later.
-* Win32 builds ship OpenAL Soft as a DLL, thus including LGPLv2 code in the distribution but not inside the impacto executable.
+* Win32 builds ship OpenAL Soft and FFmpeg as DLLs, thus including LGPLv2 code in the distribution but not inside the impacto executable.
 
 License statements for third-party code in this repository (where given) and external libraries bundled by the build process in at least one supported configuration follow:
 
@@ -992,6 +993,12 @@ system version, originally https://www.zlib.net/
 Copyright (C) 1995-2017 Jean-loup Gailly and Mark Adler
 
 See below for license text (zlib).
+
+## FFmpeg
+
+https://www.ffmpeg.org/
+
+See below for license text (LGPLv2).
 
 # Generic license texts
 

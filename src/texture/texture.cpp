@@ -53,6 +53,17 @@ void Texture::Load1x1(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) {
   Buffer[3] = alpha;
 }
 
+void Texture::LoadSolidColor(int width, int height, uint32_t color) {
+  Init(TexFmt_RGBA, width, height);
+  uint32_t* out = (uint32_t*)Buffer;
+  for (int y = 0; y < Height; y++) {
+    for (int x = 0; x < Width; x++) {
+      *out = color;
+      out++;
+    }
+  }
+}
+
 void Texture::LoadCheckerboard() {
   Init(TexFmt_U8, 128, 128);
   uint8_t color = 0xFF;

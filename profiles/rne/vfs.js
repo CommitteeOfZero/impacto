@@ -7,6 +7,7 @@ root.Vfs = {
         "sysse": ["games/rne/gamedata/sysse.dat"],
         "voice": ["games/rne/gamedata/voice.cpk"],
         "model": ["games/rne/gamedata/model.cpk"],
-        "bg": ["games/rne/gamedata/bg.cpk"]
+        "bg": ["games/rne/gamedata/bg.cpk"],
+        "mask": ["games/rne/gamedata/mask.cpk"]
     }
 };

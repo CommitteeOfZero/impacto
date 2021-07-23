@@ -31,9 +31,9 @@ void TitleMenu::Show() {
     if (BackgroundAnimation) {
       Impacto::RNE::TileBackground* background =
           (Impacto::RNE::TileBackground*)BackgroundAnimation;
-      Backgrounds2D[TitleBgBufferId].BgSprite.BaseScale =
+      Backgrounds2D[TitleBgBufferId]->BgSprite.BaseScale =
           glm::vec2(1280.0f / 960.0f, 720.0f / 544.0f);
-      background->BackgroundSprite = Backgrounds2D[TitleBgBufferId].BgSprite;
+      background->BackgroundSprite = Backgrounds2D[TitleBgBufferId]->BgSprite;
       BackgroundAnimation->StartIn();
     }
     State = Showing;

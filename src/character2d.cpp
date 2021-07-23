@@ -113,12 +113,12 @@ bool Character2D::LoadSync(uint32_t charaId) {
       States[id].TextureCoords = (glm::vec2*)malloc(count * sizeof(glm::vec2));
       stream->Seek(12 * (stateCount) + 8 + (start * 16), SEEK_SET);
       for (int i = 0; i < count; i++) {
-        States[id].ScreenCoords[i].x = StreamReadFloat(stream) + 1.0f;
-        States[id].ScreenCoords[i].y = StreamReadFloat(stream) + 1.0f;
+        States[id].ScreenCoords[i].x = StreamReadFloat(stream);
+        States[id].ScreenCoords[i].y = StreamReadFloat(stream);
         States[id].TextureCoords[i].x =
-            StreamReadFloat(stream) * Profile::LayFileTexXMultiplier - 1.0f;
+            StreamReadFloat(stream) * Profile::LayFileTexXMultiplier;
         States[id].TextureCoords[i].y =
-            StreamReadFloat(stream) * Profile::LayFileTexYMultiplier - 1.0f;
+            StreamReadFloat(stream) * Profile::LayFileTexYMultiplier;
       }
 
       stream->Seek(back, SEEK_SET);
@@ -200,12 +200,11 @@ void Character2D::Render(glm::vec4 col) {
         Character2DState state = States[id];
         for (int i = 0; i < state.Count; i++) {
           CharaSprite.Bounds = RectF(state.TextureCoords[i].x,
-                                     state.TextureCoords[i].y, 32.0f, 32.0f);
-          Renderer2D::DrawSprite(
-              CharaSprite,
-              RectF(state.ScreenCoords[i].x + OffsetX,
-                    state.ScreenCoords[i].y + OffsetY, 32.0f, 32.0f),
-              col);
+                                     state.TextureCoords[i].y, 30.0f, 30.0f);
+          Renderer2D::DrawSprite(CharaSprite,
+                                 glm::vec2(state.ScreenCoords[i].x + OffsetX,
+                                           state.ScreenCoords[i].y + OffsetY),
+                                 col);
         }
       }
     }

@@ -117,7 +117,7 @@ void Update(float dt) {
 
       if (LastBackground != CurrentBackground ||
           Characters2D[0].Status == LS_Unloaded) {
-        Backgrounds2D[0].LoadAsync(BackgroundIds[CurrentBackground]);
+        Backgrounds2D[0]->LoadAsync(BackgroundIds[CurrentBackground]);
       }
 
       nk_tree_pop(Nk);

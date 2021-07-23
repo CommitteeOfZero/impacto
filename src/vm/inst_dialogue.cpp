@@ -16,6 +16,7 @@
 #include "../hud/saveicondisplay.h"
 #include "../savesystem.h"
 #include "../ui/ui.h"
+#include "interface/input.h"
 
 namespace Impacto {
 
@@ -170,7 +171,8 @@ VmInstruction(InstMesMain) {
   PopUint8(type);
   DialoguePage* currentPage = &DialoguePages[thread->DialoguePageId];
   if (type == 0) {  // Normal mode
-    if (!(Input::MouseButtonWentDown[SDL_BUTTON_LEFT] &&
+    if (!((Interface::PADinputButtonWentDown & Interface::PAD1A ||
+           Interface::PADinputMouseWentDown & Interface::PAD1A) &&
           currentPage->TextIsFullyOpaque())) {
       if (!Input::KeyboardButtonIsDown[SDL_SCANCODE_RCTRL]) {
         ResetInstruction;

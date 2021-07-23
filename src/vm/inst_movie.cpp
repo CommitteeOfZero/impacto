@@ -9,6 +9,8 @@
 #include "../log.h"
 #include "../mem.h"
 #include "../profile/scriptvars.h"
+#include "../video/videosystem.h"
+#include "interface/input.h"
 
 namespace Impacto {
 
@@ -33,6 +35,10 @@ VmInstruction(InstPlayMovie) {
     PopUint8(playView);
     PopExpression(playNo);
     PopExpression(movCancelFlag);
+    Io::InputStream* stream;
+    Io::VfsOpen("movie", playNo, &stream);
+    Video::Players[0].Play(stream, playMode == 5, playMode == 5);
+    BlockThread;
     ImpLogSlow(LL_Warning, LC_VMStub,
                "STUB instruction PlayMovie(playMode: %i, playView: %i, "
                "playNo: %i, movCancelFlag: %i)\n",
@@ -44,6 +50,10 @@ VmInstruction(InstPlayMovieOld) {
   PopUint8(playMode);
   PopExpression(playNo);
   PopExpression(movCancelFlag);
+  Io::InputStream* stream;
+  Io::VfsOpen("movie", playNo, &stream);
+  Video::Players[0].Play(stream, playMode == 5, playMode == 5);
+  BlockThread;
   ImpLogSlow(LL_Warning, LC_VMStub,
              "STUB instruction PlayMovie(playMode: %i, playNo: %i, "
              "movCancelFlag: %i)\n",
@@ -54,15 +64,36 @@ VmInstruction(InstMovieMain) {
   PopUint8(type);
   switch (type) {
     case 2:  // Stop
+      if (Interface::PADinputButtonWentDown & Interface::PAD1A ||
+          Interface::PADinputMouseWentDown & Interface::PAD1A) {
+        Video::Players[0].Stop();
+      } else if (Video::Players[0].IsPlaying) {
+        ResetInstruction;
+        BlockThread;
+      }
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MovieMain(type: Stop)\n");
       break;
     case 3:  // StopWait
-      ScrWork[SW_MOVIEFRAME] = 255;
+      if (Interface::PADinputButtonWentDown & Interface::PAD1A ||
+          Interface::PADinputMouseWentDown & Interface::PAD1A) {
+        Video::Players[0].Stop();
+        ScrWork[SW_MOVIEFRAME] = 255;
+      } else if (Video::Players[0].IsPlaying) {
+        ResetInstruction;
+        BlockThread;
+      }
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MovieMain(type: StopWaitForSomething)\n");
       break;
     default:
+      if (Interface::PADinputButtonWentDown & Interface::PAD1A ||
+          Interface::PADinputMouseWentDown & Interface::PAD1A) {
+        Video::Players[0].Stop();
+      } else if (Video::Players[0].IsPlaying) {
+        ResetInstruction;
+        BlockThread;
+      }
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MovieMain(type: %i)\n", type);
       break;

@@ -175,6 +175,11 @@ set(Impacto_Src
     src/audio/adxaudiostream.cpp
     src/audio/hcaaudiostream.cpp
 
+    src/video/videosystem.cpp
+    src/video/videoplayer.cpp
+    src/video/yuvframe.cpp
+    src/video/ffmpegstream.cpp
+
     vendor/glad/src/glad.c
 
     vendor/clHCA/clHCA.c
@@ -365,6 +370,11 @@ set(Impacto_Header
     src/audio/adxaudiostream.h
     src/audio/hcaaudiostream.h
 
+    src/video/videosystem.h
+    src/video/videoplayer.h
+    src/video/yuvframe.h
+    src/video/ffmpegstream.h
+
     vendor/nuklear/nuklear.h
     vendor/nuklear/nuklear_sdl_gl3.h
     
@@ -458,10 +468,12 @@ elseif(NX)
     find_package(SDL2 REQUIRED)
     find_package(ZLIB REQUIRED)
     find_package(OggVorbis REQUIRED)
+    find_package(FFMPEG REQUIRED)
 
     include_directories(${OGGVORBIS_INCLUDE_DIRS})
 
     list(APPEND Impacto_Libs
+        ${FFMPEG_LIBRARIES}
         ${SDL2_LIBRARIES}
         glm
         ZLIB::ZLIB
@@ -481,6 +493,7 @@ else()
     find_package(SDL2 REQUIRED)
     find_package(ZLIB REQUIRED)
     find_package(OggVorbis REQUIRED)
+    find_package(FFMPEG REQUIRED)
 
     include_directories(${OGGVORBIS_INCLUDE_DIRS})
 
@@ -490,6 +503,7 @@ else()
     endif()
 
     list(APPEND Impacto_Libs
+        ${FFMPEG_LIBRARIES}
         ${SDL2_LIBRARIES}
         ZLIB::ZLIB
         ${OGGVORBIS_LIBRARIES}
@@ -511,6 +525,7 @@ endif()
 include_directories(vendor/glad/include)
 include_directories(${LIBATRAC9_INCLUDE_DIR})
 include_directories(${OPENAL_INCLUDE_DIR})
+include_directories(${FFMPEG_INCLUDE_DIRS})
 include_directories(${SDL2_INCLUDE_DIRS})
 include_directories(vendor/include)
 include_directories(vendor/duktape/include)

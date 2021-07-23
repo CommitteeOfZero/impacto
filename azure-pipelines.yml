@@ -77,7 +77,8 @@ jobs:
   
   steps:
   - script: |
-      sudo apt-get -y install libsdl2-dev libopenal-dev libogg-dev libvorbis-dev
+      sudo apt-get -y update
+      sudo apt-get -y install libsdl2-dev libopenal-dev libogg-dev libvorbis-dev libavdevice-dev libavfilter-dev libavformat-dev libavcodec-dev libswscale-dev libswresample-dev libavresample-dev libavutil-dev
       sudo sed -i -e 's/-lSDL2 /-lSDL2/g' /usr/lib/x86_64-linux-gnu/cmake/SDL2/sdl2-config.cmake
       dpkg -l | grep sdl
       pushd vendor
@@ -103,7 +104,6 @@ jobs:
         impacto
         profiles/**/*
         games/**/*
-        src/shaders/**/*
       TargetFolder: '$(Build.ArtifactStagingDirectory)/impacto'
   - task: CopyFiles@2
     displayName: Copy artifact
@@ -133,7 +133,7 @@ jobs:
   
   steps:
   - script: |
-      brew install openal-soft sdl2 glm
+      brew install openal-soft sdl2 glm ffmpeg
       pushd vendor
       git clone https://github.com/Thealexbarney/LibAtrac9.git --depth 1
       cd LibAtrac9/C && make
@@ -151,7 +151,6 @@ jobs:
         impacto
         profiles/**/*
         games/**/*
-        src/shaders/**/*
       TargetFolder: '$(Build.ArtifactStagingDirectory)/impacto'
   - task: CopyFiles@2
     displayName: Copy artifact
@@ -173,11 +172,52 @@ jobs:
       ArtifactName: 'release'
       publishLocation: 'Container'
 
+- job: switch_build
+  displayName: Switch Build
+
+  pool:
+    name: 'SwitchBuild'
+  
+  steps:
+  - script: |
+      cmake . -DCMAKE_TOOLCHAIN_FILE=HorizonNX.toolchain
+      make
+      elf2nro impacto impacto.nro
+  - task: CopyFiles@2
+    displayName: Copy artifact
+    inputs:
+      Contents: |
+        impacto.nro
+        profiles/**/*
+        games/**/*
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/impacto'
+  - task: CopyFiles@2
+    displayName: Copy artifact
+    inputs:
+      SourceFolder: 'src'
+      Contents: 'shaders/**/*'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/impacto'
+  - task: ArchiveFiles@2
+    displayName: Archive artifact
+    inputs:
+      rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/impacto'
+      includeRootFolder: true
+      archiveType: 'zip'
+      archiveFile: '$(Build.ArtifactStagingDirectory)/impacto-switch-$(version)-$(Build.SourceVersion).zip'
+      replaceExistingArchive: true
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/impacto-switch-$(version)-$(Build.SourceVersion).zip'
+      ArtifactName: 'release'
+      publishLocation: 'Container'
+
 - job: publish_artifacts
   displayName: Publish Artifacts
   dependsOn: 
   - win_x64_build
   - linux_x64_build
+  - macos_build
+  - switch_build
   condition: succeeded()
 
   pool:
@@ -231,16 +271,19 @@ jobs:
   - win_x64_build
   - linux_x64_build
   - macos_build
+  - switch_build
   variables:
     winBuildStatus: $[ dependencies.win_x64_build.result ]
     linuxBuildStatus: $[ dependencies.linux_x64_build.result ]
     macOSBuildStatus: $[ dependencies.macos_build.result ]
+    switchBuildStatus: $[ dependencies.switch_build.result ]
   condition: |
     or
     (
       in(dependencies.win_x64_build.result, 'Failed', 'Canceled'),
       in(dependencies.linux_x64_build.result, 'Failed', 'Canceled'),
-      in(dependencies.macos_build.result, 'Failed', 'Canceled')
+      in(dependencies.macos_build.result, 'Failed', 'Canceled'),
+      in(dependencies.switch_build.result, 'Failed', 'Canceled')
     )
 
   pool:
@@ -264,7 +307,7 @@ jobs:
       embeds: |
           [{
           "title": "$(commitAuthor)",
-          "description": "Commit\n`$(Build.SourceVersionMessage) ($(Build.SourceVersion))`\nfrom branch `$(Build.SourceBranchName)` has failed build.\n\nJob status:\nwin_x64_build: $(winBuildStatus)\nlinux_x64_build: $(linuxBuildStatus)\nmacos_build: $(macOSBuildStatus)\n\nDetails:\n$(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)&view=results",
+          "description": "Commit\n`$(Build.SourceVersionMessage) ($(Build.SourceVersion))`\nfrom branch `$(Build.SourceBranchName)` has failed build.\n\nJob status:\nwin_x64_build: $(winBuildStatus)\nlinux_x64_build: $(linuxBuildStatus)\nmacos_build: $(macOSBuildStatus)\nswitch_build: $(switchBuildStatus)\n\nDetails:\n$(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)&view=results",
           "color": 16711680,
           "timestamp": "$(timestamp)"
           }]
