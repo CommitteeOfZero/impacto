@@ -454,12 +454,17 @@ void VideoPlayer::Stop() {
       SDL_CondSignal(AudioStream->DecodeCond);
       SDL_WaitThread(AudioThreadID, NULL);
       SDL_WaitThread(AudioStream->DecoderThreadID, NULL);
+      delete AudioStream;
+      AudioStream = 0;
     }
     if (VideoStream) {
       SDL_CondSignal(VideoStream->DecodeCond);
       SDL_WaitThread(VideoStream->DecoderThreadID, NULL);
+      delete VideoStream;
+      VideoStream = 0;
     }
     if (AudioBuffer) av_free(AudioBuffer);
+    AudioBuffer = 0;
     alSourcei(ALSource, AL_BUFFER, NULL);
     alSourceStop(ALSource);
     alDeleteSources(1, &ALSource);
@@ -467,8 +472,6 @@ void VideoPlayer::Stop() {
     First = true;
     FrameTimer = 0.0;
     PreviousFrameTimestamp = 0.0;
-    delete VideoStream;
-    delete AudioStream;
     avformat_close_input(&FormatContext);
     if (IoContext)
       reinterpret_cast<Io::InputStream*>(IoContext->opaque)->~InputStream();

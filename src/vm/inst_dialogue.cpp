@@ -296,7 +296,8 @@ VmInstruction(InstSel) {
   PopUint8(type);
   switch (type) {
     case 0: {  // SelInit
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::Dash) {
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::Dash ||
+          Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
         PopUint16(unused);
       }
       PopExpression(arg1);

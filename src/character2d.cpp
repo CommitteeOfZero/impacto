@@ -1,10 +1,16 @@
 #include "character2d.h"
 
+#include "mem.h"
 #include "io/io.h"
 #include "io/vfs.h"
 #include "util.h"
+#include "profile/scriptvars.h"
+#include "profile/vm.h"
 
 namespace Impacto {
+
+using namespace Impacto::Profile::ScriptVars;
+using namespace Impacto::Profile::Vm;
 
 Character2D Characters2D[MaxCharacters2D];
 
@@ -189,22 +195,35 @@ void Character2D::Update(float dt) {
   }
 }
 
-void Character2D::Render(glm::vec4 col) {
-  if (Profile::CharaIsMvl) {
-    Renderer2D::DrawCharacterMvl(CharaSprite, glm::vec2(OffsetX, OffsetY),
-                                 MvlVerticesCount, MvlVertices, MvlIndicesCount,
-                                 MvlIndices, false, col);
-  } else {
-    for (auto id : StatesToDraw) {
-      if (States.count(id)) {
-        Character2DState state = States[id];
-        for (int i = 0; i < state.Count; i++) {
-          CharaSprite.Bounds = RectF(state.TextureCoords[i].x,
-                                     state.TextureCoords[i].y, 30.0f, 30.0f);
-          Renderer2D::DrawSprite(CharaSprite,
-                                 glm::vec2(state.ScreenCoords[i].x + OffsetX,
-                                           state.ScreenCoords[i].y + OffsetY),
-                                 col);
+void Character2D::Render(int chaId, int layer) {
+  if (Status == LS_Loaded && Layer == layer && Show) {
+    glm::vec4 col(1.0f);
+    col.a = (ScrWork[SW_CHA1ALPHA + Profile::Vm::ScrWorkChaStructSize * chaId] +
+             ScrWork[SW_CHA1ALPHA_OFS + 10 * chaId]) /
+            256.0f;
+    if (ScrWork[SW_CHA1FADETYPE + Profile::Vm::ScrWorkChaStructSize * chaId] ==
+        1) {
+      col.a =
+          ScrWork[SW_CHA1FADECT + Profile::Vm::ScrWorkChaStructSize * chaId] /
+          256.0f;
+    }
+
+    if (Profile::CharaIsMvl) {
+      Renderer2D::DrawCharacterMvl(CharaSprite, glm::vec2(OffsetX, OffsetY),
+                                   MvlVerticesCount, MvlVertices,
+                                   MvlIndicesCount, MvlIndices, false, col);
+    } else {
+      for (auto id : StatesToDraw) {
+        if (States.count(id)) {
+          Character2DState state = States[id];
+          for (int i = 0; i < state.Count; i++) {
+            CharaSprite.Bounds = RectF(state.TextureCoords[i].x,
+                                       state.TextureCoords[i].y, 30.0f, 30.0f);
+            Renderer2D::DrawSprite(CharaSprite,
+                                   glm::vec2(state.ScreenCoords[i].x + OffsetX,
+                                             state.ScreenCoords[i].y + OffsetY),
+                                   col);
+          }
         }
       }
     }

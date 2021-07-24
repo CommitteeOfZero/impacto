@@ -10,6 +10,7 @@ extern char const* WindowName;
 
 extern bool LayFileBigEndian;
 extern bool CharaIsMvl;
+extern bool UseScreenCapEffects;
 extern float LayFileTexXMultiplier;
 extern float LayFileTexYMultiplier;
 
