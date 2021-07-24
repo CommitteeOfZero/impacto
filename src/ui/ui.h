@@ -10,7 +10,7 @@ namespace UI {
 BETTER_ENUM(SystemMenuType, int, None, RNE, MO6TW)
 BETTER_ENUM(SaveMenuType, int, None, MO6TW)
 BETTER_ENUM(SysMesBoxType, int, None, RNE, Dash, CHLCC, MO6TW, Darling)
-BETTER_ENUM(TitleMenuType, int, None, RNE, Dash, CHLCC, MO6TW)
+BETTER_ENUM(TitleMenuType, int, None, RNE, Dash, CHLCC, MO6TW, CC)
 
 // Current focused menu
 extern Menu* FocusedMenu;
