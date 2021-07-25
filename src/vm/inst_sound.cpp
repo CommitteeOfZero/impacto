@@ -201,6 +201,9 @@ VmInstruction(InstSysVoicePlay) {
 }
 VmInstruction(InstSysSeload) {
   StartInstruction;
+  if (Profile::Vm::GameInstructionSet == +InstructionSet::MO8) {
+    PopUint8(arg1);
+  }
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SysSeload()\n");
 }
 

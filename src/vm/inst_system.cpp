@@ -68,6 +68,10 @@ VmInstruction(InstScriptLoad) {
   StartInstruction;
   PopExpression(bufferId);
   PopExpression(scriptId);
+  if (Profile::Vm::UseMsbStrings) {
+    LoadMsb(bufferId, scriptId);
+    scriptId += 1;
+  }
   LoadScript(bufferId, scriptId);
 }
 VmInstruction(InstWait) {
@@ -349,6 +353,14 @@ VmInstruction(InstSystemMes) {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SystemMes(mode: %i)\n", mode);
       break;
+    case 0x83: {
+      PopExpression(arg1);
+      UI::SysMesBoxPtr->AddMessage(
+          MsbGetStrAddress(MsbBuffers[thread->ScriptBufferId], arg1));
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction SystemMes(mode: %i, arg1: %i)\n", mode,
+                 arg1);
+    } break;
   }
 }
 VmInstruction(InstGetNowTime) {
@@ -496,9 +508,11 @@ VmInstruction(InstMSinit) {
 
   for (int i = 0; i < MaxBackgrounds2D; i++) {
     ScrWork[SW_BG1SURF + i] = i;
+    ScrWork[SW_BG1ALPHA + Profile::Vm::ScrWorkBgStructSize * i] = 256;
   }
   for (int i = 0; i < MaxCharacters2D; i++) {
     ScrWork[SW_CHA1SURF + i] = i;
+    ScrWork[SW_CHA1ALPHA + Profile::Vm::ScrWorkChaStructSize * i] = 256;
   }
 
   ScrWork[SW_MESWINDOW_COLOR] = 0xFFFFFF;

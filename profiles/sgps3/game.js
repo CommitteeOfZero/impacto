@@ -9,6 +9,7 @@ root.CharaIsMvl = false;
 root.LayFileBigEndian = true;
 root.LayFileTexXMultiplier = 2048;
 root.LayFileTexYMultiplier = 1024;
+root.UseScreenCapEffects = false;
 
 root.Vm = {
     StartScript: 2,

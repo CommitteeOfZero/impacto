@@ -113,6 +113,9 @@ void UpdateCharacter2D() {
         (ScrWork[SW_CHA1POSY + ScrWorkChaStructSize * i] +
          ScrWork[SW_CHA1POSY_OFS + 10 * i]) *
         (Profile::DesignHeight / 720.0f);
+    if (Profile::Vm::GameInstructionSet == +InstructionSet::MO8) {
+      Characters2D[bufId].OffsetY = -Characters2D[bufId].OffsetY;
+    }
     Characters2D[bufId].Face = ScrWork[SW_CHA1FACE + ScrWorkChaStructSize * i]
                                << 16;
   }

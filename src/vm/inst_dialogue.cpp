@@ -164,6 +164,27 @@ VmInstruction(InstMes) {
       DialoguePages[thread->DialoguePageId].AddString(thread);
       thread->Ip = oldIp;
     } break;
+    case 0x80: {  // LoadDialogueMSB
+      PopExpression(characterId);
+      PopMsbString(line);
+      uint8_t* oldIp = thread->Ip;
+      thread->Ip = line;
+      DialoguePages[thread->DialoguePageId].AddString(thread);
+      thread->Ip = oldIp;
+    } break;
+    case 0x83: {  // LoadVoicedDialogueMSB
+      PopExpression(audioId);
+      PopExpression(animationId);
+      PopExpression(characterId);
+      PopMsbString(line);
+      Io::InputStream* stream;
+      Io::VfsOpen("voice", audioId, &stream);
+      uint8_t* oldIp = thread->Ip;
+      thread->Ip = line;
+      DialoguePages[thread->DialoguePageId].AddString(
+          thread, Audio::AudioStream::Create(stream));
+      thread->Ip = oldIp;
+    } break;
   }
 }
 VmInstruction(InstMesMain) {
@@ -419,7 +440,8 @@ VmInstruction(InstNameID) {
   PopUint8(type);
   switch (type) {
     case 0:
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC ||
+          Profile::Vm::GameInstructionSet == +InstructionSet::MO8) {
         PopLocalLabel(namePlateDataBlock);
       } else if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW) {
         PopExpression(arg1);
@@ -446,6 +468,9 @@ VmInstruction(InstTips) {
   switch (type) {
     case 0: {  // TipsDataInit
       PopLocalLabel(tipsDataAdr);
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::MO8) {
+        PopLocalLabel(tipsDataAdr1);
+      }
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction Tips(type: TipsDataInit)\n");
     } break;

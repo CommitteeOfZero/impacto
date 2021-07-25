@@ -26,7 +26,7 @@ root.SpriteSheets = {
     },
     "TitleChip": {
         Path: { Mount: "system", Id: 30 },
-        DesignWidth: 2500,
+        DesignWidth: 2528,
         DesignHeight: 2048
     },
     "MenuChip": {

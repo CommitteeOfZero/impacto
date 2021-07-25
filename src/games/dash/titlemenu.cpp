@@ -24,21 +24,38 @@ using namespace Impacto::Profile::ScriptVars;
 TitleMenu::TitleMenu() {}
 
 void TitleMenu::Show() {
-  if (State != Shown) {
-    State = Showing;
+  if (State == Hidden) {
+    State = Shown;
+    if (UI::FocusedMenu != 0) {
+      LastFocusedMenu = UI::FocusedMenu;
+      LastFocusedMenu->IsFocused = false;
+    }
+    IsFocused = true;
+    UI::FocusedMenu = this;
+    if (PressToStartAnimation.State == AS_Stopped) {
+      PressToStartAnimation.StartIn();
+    }
   }
 }
 void TitleMenu::Hide() {
-  if (State != Hidden) {
-    State = Hiding;
+  if (State == Shown) {
+    State = Hidden;
+    if (LastFocusedMenu != 0) {
+      UI::FocusedMenu = LastFocusedMenu;
+      LastFocusedMenu->IsFocused = true;
+    } else {
+      UI::FocusedMenu = 0;
+    }
+    IsFocused = false;
   }
 }
+
 void TitleMenu::Update(float dt) {
   PressToStartAnimation.Update(dt);
-
-  if (State == Showing) {
-    if (PressToStartAnimation.State == AS_Stopped)
-      PressToStartAnimation.StartIn();
+  if (GetFlag(SF_TITLEMODE)) {
+    Show();
+  } else {
+    Hide();
   }
 }
 void TitleMenu::Render() {
