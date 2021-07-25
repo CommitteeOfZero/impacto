@@ -48,15 +48,54 @@ TitleMenu::TitleMenu() {
 
   // NewGame menu button
   NewGame = new TitleButton(
-      0, MenuEntriesSprites[0], nullSprite, ItemHighlightSprite,
+      0, MenuEntriesSprites[0], MenuEntriesHSprites[0], ItemHighlightSprite,
       glm::vec2(
           ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
               ItemHighlightOffsetX,
           ((ItemYBase - 1.0f) + (0 * ItemPadding))));
   NewGame->OnClickHandler = onClick;
   NewGame->HasFocus = true;
-
   MainItems->Add(NewGame, FocusDirection::Vertical);
+
+  // Continue menu button
+  Continue = new TitleButton(
+      1, MenuEntriesSprites[1], MenuEntriesHSprites[1], ItemHighlightSprite,
+      glm::vec2(
+          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
+              ItemHighlightOffsetX,
+          ((ItemYBase - 1.0f) + (1 * ItemPadding))));
+  Continue->OnClickHandler = onClick;
+  MainItems->Add(Continue, FocusDirection::Vertical);
+
+  // Extra menu button
+  Extra = new TitleButton(
+      2, MenuEntriesSprites[2], MenuEntriesHSprites[2], ItemHighlightSprite,
+      glm::vec2(
+          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
+              ItemHighlightOffsetX,
+          ((ItemYBase - 1.0f) + (2 * ItemPadding))));
+  Extra->OnClickHandler = onClick;
+  MainItems->Add(Extra, FocusDirection::Vertical);
+
+  // Config menu button
+  Config = new TitleButton(
+      3, MenuEntriesSprites[3], MenuEntriesHSprites[3], ItemHighlightSprite,
+      glm::vec2(
+          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
+              ItemHighlightOffsetX,
+          ((ItemYBase - 1.0f) + (3 * ItemPadding))));
+  Config->OnClickHandler = onClick;
+  MainItems->Add(Config, FocusDirection::Vertical);
+
+  // Help menu button
+  Help = new TitleButton(
+      4, MenuEntriesSprites[4], MenuEntriesHSprites[4], ItemHighlightSprite,
+      glm::vec2(
+          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
+              ItemHighlightOffsetX,
+          ((ItemYBase - 1.0f) + (4 * ItemPadding))));
+  Help->OnClickHandler = onClick;
+  MainItems->Add(Help, FocusDirection::Vertical);
 }
 
 void TitleMenu::Show() {
@@ -97,18 +136,23 @@ void TitleMenu::Update(float dt) {
   } else {
     Hide();
   }
-}
 
-/*void TitleMenu::Render() {
-  if (State != Hidden && GetFlag(SF_TITLEMODE)) {
-    if (ScrWork[SW_TITLEMODE] > 0 && ScrWork [SW_TITLEMODE] < 3) {
-        DrawTitleMenuBackGraphics();
-      } else {
-        DrawMainMenuBackGraphics();
-      }
+  if (State == Shown && IsFocused) {
+    MainItems->Opacity =
+        glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
+    MainItems->Update(dt);
+    ContinueItems->Opacity =
+        glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
+    ContinueItems->Update(dt);
+    ExtraItems->Opacity =
+        glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
+    ExtraItems->Update(dt);
+
+    MainItems->Show();
+    /*switch (ScrWork[SW_TITLEDISPCT]) {
+    }*/
   }
-
-}*/
+}
 
 void TitleMenu::Render() {
   if (State != Hidden && GetFlag(SF_TITLEMODE)) {

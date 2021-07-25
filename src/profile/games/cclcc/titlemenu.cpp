@@ -56,6 +56,7 @@ void Configure() {
   MenuY = EnsureGetMemberFloat("MenuY");
   ItemHighlightSprite = EnsureGetMemberSprite("ItemHighlightSprite");
   ItemYBase = EnsureGetMemberFloat("ItemYBase");
+  ItemPadding = EnsureGetMemberFloat("ItemPadding");
 
   UI::CCLCC::TitleMenu* menu = new UI::CCLCC::TitleMenu();
   menu->PressToStartAnimation.DurationIn =

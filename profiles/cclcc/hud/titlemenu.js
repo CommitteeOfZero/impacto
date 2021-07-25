@@ -16,34 +16,34 @@ root.TitleMenu = {
     ItemHighlightSprite: "TitleMenuItemHighlight",
     ItemHighlightOffsetX: 328,
     ItemHighlightOffsetY: 7,
-    ItemPadding: 55,
+    ItemPadding: 56,
     ItemYBase: 328,
     MenuEntriesSprites: [],
     MenuEntriesHighlightedSprites: [],
-    MenuEntriesNum: 4
+    MenuEntriesNum: 5
 };
 
-for (var i = 0; i < 4; i++) {
+for (var i = 0; i < 5; i++) {
     root.Sprites["TitleMenuEntry" + i] = {
         Sheet: "TitleChip",
         Bounds: {
             X: 33,
-            Y: 288 + i * 57,
+            Y: 288 + i * root.TitleMenu.ItemPadding,
             Width: 223,
-            Height: 35
+            Height: 37
         }
     };
     root.TitleMenu.MenuEntriesSprites.push("TitleMenuEntry" + i);
 };
 
-for (var i = 0; i < 4; i++) {
+for (var i = 0; i < 5; i++) {
     root.Sprites["TitleMenuEntry" + i] = {
         Sheet: "TitleChip",
         Bounds: {
             X: 33,
-            Y: 288 + i * 57,
+            Y: 288 + i * root.TitleMenu.ItemPadding,
             Width: 223,
-            Height: 35
+            Height: 37
         }
     };
     root.TitleMenu.MenuEntriesHighlightedSprites.push("TitleMenuEntry" + i);
