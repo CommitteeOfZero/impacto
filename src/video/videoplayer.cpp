@@ -40,10 +40,6 @@ static int PlayerDecodeAudio(void* ptr) {
   ((VideoPlayer*)ptr)->Decode(AVMEDIA_TYPE_AUDIO);
   return 0;
 }
-static int PlayerAudio(void* ptr) {
-  ((VideoPlayer*)ptr)->ProcessAudio();
-  return 0;
-}
 
 Clock::Clock() {
   Speed = 1.0;
@@ -201,8 +197,6 @@ void VideoPlayer::Play(Io::InputStream* stream, bool looping, bool alpha) {
   MaxFrameDuration =
       (FormatContext->iformat->flags & AVFMT_TS_DISCONT) ? 10.0 : 3600.0;
 
-  IsPlaying = true;
-
   // Danger zone
   ReadThreadID = SDL_CreateThread(&PlayerRead, "videoplayer::read", this);
   if (VideoStream) {
@@ -213,8 +207,9 @@ void VideoPlayer::Play(Io::InputStream* stream, bool looping, bool alpha) {
     MasterClock = AudioClock;
     AudioStream->DecoderThreadID =
         SDL_CreateThread(&PlayerDecodeAudio, "videoplayer::decodeaudio", this);
-    AudioThreadID = SDL_CreateThread(&PlayerAudio, "videoplayer::audio", this);
   }
+
+  IsPlaying = true;
 }
 
 bool VideoPlayer::QueuesHaveEnoughPackets() {
@@ -447,6 +442,7 @@ void VideoPlayer::Decode(AVMediaType avType) {
 void VideoPlayer::Stop() {
   if (IsPlaying) {
     IsPlaying = false;
+    PlaybackStarted = false;
     AbortRequest = true;
     SDL_WaitThread(ReadThreadID, NULL);
     ReaderEOF = false;
@@ -487,48 +483,46 @@ void VideoPlayer::Seek(int64_t pos) {
 }
 
 void VideoPlayer::ProcessAudio() {
-  while (IsPlaying && !AbortRequest) {
-    SDL_LockMutex(AudioStream->FrameLock);
-    ImpLogSlow(LL_Trace, LC_Video, "AudioStream->FrameQueue.size() = %d\n",
-               AudioStream->FrameQueue.size());
-    if (!AudioStream->FrameQueue.empty()) {
-      SDL_UnlockMutex(AudioStream->FrameLock);
-      alGetSourcei(ALSource, AL_BUFFERS_PROCESSED, &FreeBufferCount);
-      if (First) {
-        FreeBufferCount = AudioBufferCount;
-        First = false;
-      }
-
-      int currentlyPlayingBuffer =
-          (FirstFreeBuffer + FreeBufferCount) % AudioBufferCount;
-
-      int offset;
-      alGetSourcei(ALSource, AL_SAMPLE_OFFSET, &offset);
-      int samplePosition =
-          BufferStartPositions[currentlyPlayingBuffer] + offset;
-      samplePosition = std::min(samplePosition, AudioStream->Duration);
-      double position =
-          samplePosition / (double)AudioStream->CodecContext->sample_rate;
-      ImpLogSlow(LL_Trace, LC_Video, "samplePosition: %f\n", position);
-
-      AudioClock->Set(position, 0);
-
-      FillAudioBuffers();
-      ALint sourceState;
-      alGetSourcei(ALSource, AL_SOURCE_STATE, &sourceState);
-      if (sourceState == AL_STOPPED || sourceState == AL_INITIAL) {
-        alSourcePlay(ALSource);
-      }
-    } else {
-      SDL_UnlockMutex(AudioStream->FrameLock);
-      SDL_CondSignal(AudioStream->DecodeCond);
-      ImpLog(LL_Debug, LC_Video, "Ran out of audio frames!\n");
+  SDL_LockMutex(AudioStream->FrameLock);
+  ImpLogSlow(LL_Trace, LC_Video, "AudioStream->FrameQueue.size() = %d\n",
+             AudioStream->FrameQueue.size());
+  if (!AudioStream->FrameQueue.empty()) {
+    SDL_UnlockMutex(AudioStream->FrameLock);
+    alGetSourcei(ALSource, AL_BUFFERS_PROCESSED, &FreeBufferCount);
+    if (First) {
+      FreeBufferCount = AudioBufferCount;
+      First = false;
     }
+
+    int currentlyPlayingBuffer =
+        (FirstFreeBuffer + FreeBufferCount) % AudioBufferCount;
+
+    int offset;
+    alGetSourcei(ALSource, AL_SAMPLE_OFFSET, &offset);
+    int samplePosition = BufferStartPositions[currentlyPlayingBuffer] + offset;
+    samplePosition = std::min(samplePosition, AudioStream->Duration);
+    double position =
+        samplePosition / (double)AudioStream->CodecContext->sample_rate;
+    ImpLogSlow(LL_Trace, LC_Video, "samplePosition: %f\n", position);
+
+    AudioClock->Set(position, 0);
+
+    FillAudioBuffers();
+    ALint sourceState;
+    alGetSourcei(ALSource, AL_SOURCE_STATE, &sourceState);
+    if (sourceState == AL_STOPPED || sourceState == AL_INITIAL) {
+      alSourcePlay(ALSource);
+    }
+  } else {
+    SDL_UnlockMutex(AudioStream->FrameLock);
+    SDL_CondSignal(AudioStream->DecodeCond);
+    ImpLog(LL_Debug, LC_Video, "Ran out of audio frames!\n");
   }
 }
 
 void VideoPlayer::Update(float dt) {
   if (IsPlaying) {
+    if (AudioStream) ProcessAudio();
     while (true) {
       SDL_LockMutex(VideoStream->FrameLock);
       if (VideoStream->FrameQueue.empty()) {
@@ -570,6 +564,9 @@ void VideoPlayer::Update(float dt) {
       }
 
       FrameTimer += duration;
+      if (duration > 0 && time - FrameTimer > 0.1) {
+        FrameTimer = time;
+      }
       PreviousFrameTimestamp = frame.Timestamp;
 
       VideoClock->Set(frame.Timestamp, frame.Serial);
@@ -577,6 +574,7 @@ void VideoPlayer::Update(float dt) {
 
       VideoTexture.Submit(frame.Frame->data[0], frame.Frame->data[1],
                           frame.Frame->data[2]);
+      PlaybackStarted = true;
       av_frame_free(&frame.Frame);
       SDL_LockMutex(VideoStream->FrameLock);
       VideoStream->FrameQueue.pop();
@@ -588,7 +586,7 @@ void VideoPlayer::Update(float dt) {
 }
 
 void VideoPlayer::Render(float videoAlpha) {
-  if (IsPlaying) {
+  if (IsPlaying && PlaybackStarted) {
     float widthScale = Profile::DesignWidth / VideoTexture.Width;
     float heightScale = Profile::DesignHeight / VideoTexture.Height;
     glm::vec4 tint = glm::vec4(1.0f);
@@ -610,7 +608,7 @@ double VideoPlayer::GetTargetDelay(double duration) {
     else if (diff >= sync_threshold)
       duration = 2 * duration;
   }
-  ImpLog(LL_Debug, LC_Video, "Target delay: %f\n", duration);
+  ImpLogSlow(LL_Trace, LC_Video, "Target delay: %f\n", duration);
 
   return duration;
 }
