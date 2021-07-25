@@ -12,6 +12,7 @@ char const* WindowName;
 
 bool LayFileBigEndian;
 bool CharaIsMvl;
+bool UseScreenCapEffects;
 float LayFileTexXMultiplier;
 float LayFileTexYMultiplier;
 
@@ -35,6 +36,8 @@ void LoadGameFromJson() {
   if (!res) LayFileTexXMultiplier = 1.0f;
   res = TryGetMemberFloat("LayFileTexYMultiplier", LayFileTexYMultiplier);
   if (!res) LayFileTexYMultiplier = 1.0f;
+  res = TryGetMemberBool("UseScreenCapEffects", UseScreenCapEffects);
+  if (!res) UseScreenCapEffects = true;
 }
 
 }  // namespace Profile

@@ -21,8 +21,8 @@ using namespace Impacto::Profile::ScriptVars;
 VmInstruction(InstPlayMovie) {
   StartInstruction;
   PopUint8(playMode);
-  if (playMode == 99) {
-    PopExpression(playModeEx);
+  if (playMode == 99) {  // PlayMovieRecover - used when loading a save file
+    PopExpression(playModeEx);  // playMode of the video at save time
     PopExpression(playView);
     PopExpression(playNo);
     PopExpression(movCancelFlag);

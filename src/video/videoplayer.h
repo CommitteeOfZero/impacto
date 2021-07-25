@@ -101,6 +101,7 @@ class VideoPlayer {
   bool IsAlpha = false;
   bool Looping = false;
   bool ReaderEOF = false;
+  bool PlaybackStarted = false;
   double PreviousFrameTimestamp = 0.0;
   double FrameTimer = 0.0;
   double MaxFrameDuration;

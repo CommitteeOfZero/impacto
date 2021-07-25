@@ -413,7 +413,6 @@ VmInstruction(InstTitleMenu) {
     case 0:  // Init
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction TitleMenu(type: Init)\n");
-      // TitleMenu::Show();
       SetFlag(SF_TITLEMODE, 1);
       break;
     case 1:  // Main
@@ -446,19 +445,19 @@ VmInstruction(InstTitleMenuNew) {
     case 0:  // Init
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction TitleMenu(type: Init)\n");
-      // TitleMenu::Show();
       break;
     case 1:  // Main
       // Hack to kickstart into "New Game"
       if (ScrWork[SW_TITLEMODE] == 3) {
-        if (Input::KeyboardButtonWentDown[SDL_SCANCODE_T]) {
+        if (((Interface::PADinputButtonWentDown & Interface::PAD1A) ||
+             (Interface::PADinputMouseWentDown & Interface::PAD1A))) {
           ScrWork[2139] = 0;
           SetFlag(1241, 1);
-          // TitleMenu::Hide();
         }
       } else if (ScrWork[SW_TITLEMODE] == 1 && ScrWork[SW_TITLEDISPCT] == 60) {
         // Check "PRESS TO START" here
-        if (Interface::PADinputMouseWentDown) {
+        if (((Interface::PADinputButtonWentDown & Interface::PAD1A) ||
+             (Interface::PADinputMouseWentDown & Interface::PAD1A))) {
           ScrWork[SW_TITLEMODE] = 2;
           ScrWork[SW_TITLEDISPCT] = 0;
           ScrWork[SW_TITLEMOVIECT] = 0;

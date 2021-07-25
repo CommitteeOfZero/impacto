@@ -16,12 +16,14 @@ void UpdateBackground2D() {
   for (int i = 0; i < MaxBackgrounds2D; i++) {
     int bufId = ScrWork[SW_BG1SURF + i];
 
-    if (GetScriptBufferId(i) == ScrWork[SW_EFF_CAP_BUF]) {
-      Backgrounds2D[bufId] = &Screencaptures[0];
-    } else if (GetScriptBufferId(i) == ScrWork[SW_EFF_CAP_BUF2]) {
-      Backgrounds2D[bufId] = &Screencaptures[1];
-    } else if (Backgrounds2D[bufId]->IsScreencap) {
-      Backgrounds2D[bufId] = &Backgrounds[bufId];
+    if (Profile::UseScreenCapEffects) {
+      if (GetScriptBufferId(i) == ScrWork[SW_EFF_CAP_BUF]) {
+        Backgrounds2D[bufId] = &Screencaptures[0];
+      } else if (GetScriptBufferId(i) == ScrWork[SW_EFF_CAP_BUF2]) {
+        Backgrounds2D[bufId] = &Screencaptures[1];
+      } else if (Backgrounds2D[bufId]->IsScreencap) {
+        Backgrounds2D[bufId] = &Backgrounds[bufId];
+      }
     }
 
     Backgrounds2D[bufId]->Layer = ScrWork[SW_BG1PRI + ScrWorkBgStructSize * i];

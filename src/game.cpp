@@ -350,16 +350,7 @@ void Render() {
             }
             for (int i = 0; i < MaxCharacters2D; i++) {
               int bufId = ScrWork[SW_CHA1SURF + i];
-              if (Characters2D[bufId].Status == LS_Loaded &&
-                  Characters2D[bufId].Layer == layer &&
-                  Characters2D[bufId].Show) {
-                glm::vec4 col(1.0f);
-                col.a = (ScrWork[SW_CHA1ALPHA +
-                                 Profile::Vm::ScrWorkBgStructSize * i] +
-                         ScrWork[SW_CHA1ALPHA_OFS + 10 * i]) /
-                        256.0f;
-                Characters2D[bufId].Render(col);
-              }
+              Characters2D[bufId].Render(i, layer);
             }
             if (ScrWork[SW_MASK1PRI] == layer) {
               int maskAlpha =
@@ -382,17 +373,20 @@ void Render() {
               }
             }
 
-            if (ScrWork[SW_EFF_CAP_BUF] && ScrWork[SW_EFF_CAP_PRI] == layer) {
-              int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF]);
-              if (Backgrounds2D[bufId]->Status == LS_Loaded) {
-                Renderer2D::CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
+            if (Profile::UseScreenCapEffects) {
+              if (ScrWork[SW_EFF_CAP_BUF] && ScrWork[SW_EFF_CAP_PRI] == layer) {
+                int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF]);
+                if (Backgrounds2D[bufId]->Status == LS_Loaded) {
+                  Renderer2D::CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
+                }
               }
-            }
 
-            if (ScrWork[SW_EFF_CAP_BUF2] && ScrWork[SW_EFF_CAP_PRI2] == layer) {
-              int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF2]);
-              if (Backgrounds2D[bufId]->Status == LS_Loaded) {
-                Renderer2D::CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
+              if (ScrWork[SW_EFF_CAP_BUF2] &&
+                  ScrWork[SW_EFF_CAP_PRI2] == layer) {
+                int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF2]);
+                if (Backgrounds2D[bufId]->Status == LS_Loaded) {
+                  Renderer2D::CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
+                }
               }
             }
           }
@@ -469,7 +463,9 @@ void Render() {
                 Backgrounds2D[0]->BgSprite.ScaledHeight()));
     }
     if (Characters2D[0].Status == LS_Loaded) {
-      Characters2D[0].Render(glm::vec4(1.0f));
+      Characters2D[0].Layer = 0;
+      ScrWork[SW_CHA1ALPHA] = 256;
+      Characters2D[0].Render(0, 0);
     }
     Renderer2D::EndFrame();
   }

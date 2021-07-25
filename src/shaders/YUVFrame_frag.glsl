@@ -26,8 +26,7 @@ vec4 getRGBA(vec2 texUv) {
 void main() {
     if (IsAlpha) {
         color = getRGBA(vec2(uv.x, uv.y / 2.0));
-        float alpha = getRGBA(vec2(uv.x, uv.y / 2.0 + 0.5)).r;
-        color.a = alpha >= 0.9 ? 1.0 : alpha;
+        color.a = getRGBA(vec2(uv.x, uv.y / 2.0 + 0.5)).r;
     } else {
         color = getRGBA(uv);
     }
