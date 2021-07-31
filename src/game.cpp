@@ -99,6 +99,7 @@ static void Init() {
 
     Renderer2D::Init();
     Background2D::Init();
+    Mask2D::Init();
   }
 
   if (Profile::GameFeatures & GameFeature::ModelViewer) {

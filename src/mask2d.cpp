@@ -9,6 +9,14 @@ namespace Impacto {
 
 Mask2D Masks2D[MaxMasks2D];
 
+void Mask2D::Init() {
+  std::map<uint32_t, std::string> maskFiles;
+  Io::VfsListFiles("mask", maskFiles);
+  for (auto const& mask : maskFiles) {
+    Masks2D[mask.first].LoadSync(mask.first);
+  }
+}
+
 bool Mask2D::LoadSync(uint32_t maskId) {
   Io::InputStream* stream;
   int64_t err = Io::VfsOpen("mask", maskId, &stream);

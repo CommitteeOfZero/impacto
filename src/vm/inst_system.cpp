@@ -498,14 +498,6 @@ VmInstruction(InstMSinit) {
     memset(&FlagWork[300], 0, 100);
   }
 
-  if (initType == 0) {
-    std::map<uint32_t, std::string> maskFiles;
-    Io::VfsListFiles("mask", maskFiles);
-    for (auto const& mask : maskFiles) {
-      Masks2D[mask.first].LoadSync(mask.first);
-    }
-  }
-
   for (int i = 0; i < MaxBackgrounds2D; i++) {
     ScrWork[SW_BG1SURF + i] = i;
     ScrWork[SW_BG1ALPHA + Profile::Vm::ScrWorkBgStructSize * i] = 256;

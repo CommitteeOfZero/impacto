@@ -3,6 +3,7 @@
 #include "../games/chlcc/sysmesbox.h"
 #include "../games/mo6tw/sysmesbox.h"
 #include "../games/darling/sysmesbox.h"
+#include "../games/cc/sysmesbox.h"
 
 #include "../profile_internal.h"
 
@@ -37,6 +38,8 @@ void Configure() {
       MO6TW::SysMesBox::Configure();
     } else if (Type == +SysMesBoxType::Darling) {
       Darling::SysMesBox::Configure();
+    } else if (Type == +SysMesBoxType::CC) {
+      CC::SysMesBox::Configure();
     }
 
     TextFontSize = EnsureGetMemberFloat("TextFontSize");

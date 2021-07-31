@@ -33,7 +33,12 @@ root.SpriteSheets = {
         Path: { Mount: "system", Id: 19 },
         DesignWidth: 4096,
         DesignHeight: 3072
-    }
+    },
+    "SysMesBox": {
+        Path: { Mount: "system", Id: 26 },
+        DesignWidth: 2048,
+        DesignHeight: 1528
+    },
 };
 
 root.Sprites = {};
