@@ -1,20 +1,20 @@
 root.Sprites["ADVBox"] = {
     Sheet: "MesBox",
-    Bounds: { X: 0, Y: 0, Width: 1920, Height: 281 }
+    Bounds: { X: 0, Y: 0, Width: 1920, Height: 330 }
 };
 
 root.Dialogue = {
     NVLBounds: { X: 188, Y: 128, Width: 1536, Height: 600 },
-    ADVBounds: { X: 295, Y: 828, Width: 1440, Height: 270 },
+    ADVBounds: { X: 518, Y: 838, Width: 1240, Height: 230 },
     ADVBoxSprite: "ADVBox",
-    ADVBoxPos: { X: 0, Y: 781 },
+    ADVBoxPos: { X: 0, Y: 760 },
     FadeOutDuration: 0.33,
     FadeInDuration: 0.33,
     DialogueBoxCurrentType: DialogueBoxType.Plain,
     NVLBoxMaxOpacity: 0.55,
-    ADVNameAlignment: TextAlignment.Left,
-    ADVNameFontSize: 33,
-    ADVNamePos: { X: 173, Y: 773 },
+    ADVNameAlignment: TextAlignment.Center,
+    ADVNameFontSize: 42,
+    ADVNamePos: { X: 168, Y: 974 },
     WaitIconSpriteAnim: "WaitIconSpriteAnimDef",
 	WaitIconCurrentType: WaitIconType.SpriteAnim,
     WaitIconOffset: { X: 0, Y: 0 },
@@ -68,15 +68,15 @@ MakeAnimation({
     Name: "WaitIconSpriteAnimDef",
     Sheet: "MesBox",
     FirstFrameX: 0,
-    FirstFrameY: 1919,
+    FirstFrameY: 440,
     FrameWidth: 64,
     ColWidth: 64,
     FrameHeight: 64,
     RowHeight: 64,
-    Frames: 44,
-    Duration: 5.0,
-    Rows: 2,
-    Columns: 32,
+    Frames: 3,
+    Duration: 3.0,
+    Rows: 1,
+    Columns: 3,
     PrimaryDirection: AnimationDirections.Right,
 	SecondaryDirection: AnimationDirections.Down
 });

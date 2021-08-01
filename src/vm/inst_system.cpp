@@ -354,12 +354,8 @@ VmInstruction(InstSystemMes) {
                  "STUB instruction SystemMes(mode: %i)\n", mode);
       break;
     case 0x83: {
-      PopExpression(arg1);
-      UI::SysMesBoxPtr->AddMessage(
-          MsbGetStrAddress(MsbBuffers[thread->ScriptBufferId], arg1));
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction SystemMes(mode: %i, arg1: %i)\n", mode,
-                 arg1);
+      PopMsbString(message);
+      UI::SysMesBoxPtr->AddMessage(message);
     } break;
   }
 }

@@ -523,6 +523,9 @@ VmInstruction(InstSetPlayMode) {
 }
 VmInstruction(InstSetEVflag) {
   StartInstruction;
+  if (Profile::Vm::GameInstructionSet == +InstructionSet::MO8) {
+    PopUint8(unk01);
+  }
   PopExpression(arg1);
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SetEVflag(arg1: %i)\n",
              arg1);

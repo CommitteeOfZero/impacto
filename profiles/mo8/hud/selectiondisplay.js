@@ -11,16 +11,16 @@ root.SelectionDisplay = {
     PlainSelectionFrameMiddleSprite: "PlainSelectionFrameMiddle",
     SelectionHighlightSprite: "SelectionHighlight",
     SelectionMaxCount: 5,
-    SelectionBackgroundX: 228,
-    SelectionBackgroundY: [277, 277, 196, 129, 95],
-    SelectionYSpacing: 81,
+    SelectionBackgroundX: 470,
+    SelectionBackgroundY: [332, 332, 210, 110, 59],
+    SelectionYSpacing: 93,
     PlainSelectionYSpacing: 10,
     FadeAnimationDurationInOut: 0.2
 };
 
 root.Sprites["SelectionBackground"] = {
     Sheet: "Data",
-    Bounds: { X: 1, Y: 535, Width: 829, Height: 69 }
+    Bounds: { X: 0, Y: 358, Width: 980, Height: 80 }
 };
 
 root.Sprites["PlainSelectionFrameTopLeft"] = {
@@ -70,5 +70,5 @@ root.Sprites["PlainSelectionFrameMiddle"] = {
 
 root.Sprites["SelectionHighlight"] = {
     Sheet: "Data",
-    Bounds: { X: 97.5, Y: 49.5, Width: 141, Height: 45 }
+    Bounds: { X: 0, Y: 540, Width: 980, Height: 80 }
 };
