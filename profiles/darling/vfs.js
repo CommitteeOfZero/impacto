@@ -7,6 +7,8 @@ root.Vfs = {
         "sysse": ["games/darling/gamedata/se.cpk"],
         "voice": ["games/darling/gamedata/voice.cpk"],
         "bg": ["games/darling/gamedata/bg.cpk"],
-        "chara": ["games/darling/gamedata/chara.cpk"]
+        "chara": ["games/darling/gamedata/chara.cpk"],
+        "mask": ["games/darling/gamedata/mask.cpk"],
+        "movie": ["games/darling/gamedata/movie.cpk"]
     }
 };

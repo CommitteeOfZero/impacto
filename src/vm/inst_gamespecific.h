@@ -12,6 +12,7 @@ VmInstruction(InstUnk0053);
 VmInstruction(InstUnk0054);
 VmInstruction(InstUnk011F);
 VmInstruction(InstUnk012D);
+VmInstruction(InstUnk012FMO8);
 VmInstruction(InstGeotag);
 VmInstruction(InstUnk100FMO6);
 VmInstruction(InstUnk1010MO6);
@@ -27,6 +28,8 @@ VmInstruction(InstTwipo);
 VmInstruction(InstTwipo_Dash);
 VmInstruction(InstDelusionTriggerCHLCC);
 VmInstruction(InstUnk103A);
+VmInstruction(InstUnk103CMO8);
+VmInstruction(InstUnk103DMO8);
 
 }  // namespace Vm
 

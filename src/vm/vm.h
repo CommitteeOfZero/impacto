@@ -9,7 +9,7 @@ namespace Impacto {
 namespace Vm {
 
 BETTER_ENUM(InstructionSet, int, RNE, Darling, CHLCC, MO6TW, MO7, Dash, CC,
-            SGPS3)
+            SGPS3, MO8)
 
 typedef void (*InstructionProc)(Sc3VmThread* thread);
 
@@ -22,11 +22,13 @@ uint32_t ScriptGetLabelAddressNum(uint8_t* scriptBufferAdr, uint32_t labelNum);
 uint8_t* ScriptGetStrAddress(uint8_t* scriptBufferAdr, uint32_t strNum);
 uint8_t* ScriptGetTextTableStrAddress(uint32_t textTableId, uint32_t strNum);
 uint8_t* ScriptGetRetAddress(uint8_t* scriptBufferAdr, uint32_t retNum);
+uint8_t* MsbGetStrAddress(uint8_t* msbBufferAdr, uint32_t mesNum);
 
 void Init();
 void Update();
 
 bool LoadScript(uint32_t bufferId, uint32_t scriptId);
+bool LoadMsb(uint32_t bufferId, uint32_t fileId);
 
 Sc3VmThread* CreateThread(uint32_t groupId);
 void ControlThreadGroup(ThreadGroupControlType controlType, uint32_t groupId);
@@ -34,6 +36,7 @@ void DestroyThread(Sc3VmThread* thread);
 void RunThread(Sc3VmThread* thread);
 
 extern uint8_t* ScriptBuffers[MaxLoadedScripts];
+extern uint8_t* MsbBuffers[MaxLoadedScripts];
 
 extern Sc3VmThread ThreadPool[MaxThreads];
 

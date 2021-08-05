@@ -8,6 +8,8 @@ namespace Impacto {
 
 class Mask2D {
  public:
+  static void Init();
+
   Sprite MaskSprite;
   bool LoadSync(uint32_t maskId);
   void UnloadSync();

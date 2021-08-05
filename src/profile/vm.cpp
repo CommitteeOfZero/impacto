@@ -10,6 +10,7 @@ uint32_t StartScriptBuffer;
 Impacto::Vm::InstructionSet GameInstructionSet =
     Impacto::Vm::InstructionSet::RNE;
 bool UseReturnIds = true;
+bool UseMsbStrings = false;
 int ScrWorkChaStructSize;
 int ScrWorkBgStructSize;
 
@@ -21,6 +22,7 @@ void Configure() {
   GameInstructionSet = Impacto::Vm::InstructionSet::_from_integral_unchecked(
       EnsureGetMemberInt("GameInstructionSet"));
   UseReturnIds = EnsureGetMemberBool("UseReturnIds");
+  TryGetMemberBool("UseMsbStrings", UseMsbStrings);
   ScrWorkChaStructSize = EnsureGetMemberInt("ScrWorkChaStructSize");
   ScrWorkBgStructSize = EnsureGetMemberInt("ScrWorkBgStructSize");
 

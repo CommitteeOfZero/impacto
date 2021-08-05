@@ -464,6 +464,24 @@ VmInstruction(InstTitleMenuNew) {
           SetFlag(1241, 1);
         }
       }
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::MO8) {
+        if (ScrWork[SW_TITLEMODE] == 5) {
+          if (((Interface::PADinputButtonWentDown & Interface::PAD1A) ||
+               (Interface::PADinputMouseWentDown & Interface::PAD1A))) {
+            ScrWork[2139] = 0;
+            SetFlag(1241, 1);
+          }
+        } else if (ScrWork[SW_TITLEMODE] == 1) {
+          // Check "PRESS TO START" here
+          if (((Interface::PADinputButtonWentDown & Interface::PAD1A) ||
+               (Interface::PADinputMouseWentDown & Interface::PAD1A))) {
+            ScrWork[SW_TITLEMODE] = 2;
+            ScrWork[SW_TITLEDISPCT] = 0;
+            ScrWork[SW_TITLEMOVIECT] = 0;
+            SetFlag(1241, 1);
+          }
+        }
+      }
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction TitleMenu(type: Main)\n");
       break;
@@ -505,6 +523,9 @@ VmInstruction(InstSetPlayMode) {
 }
 VmInstruction(InstSetEVflag) {
   StartInstruction;
+  if (Profile::Vm::GameInstructionSet == +InstructionSet::MO8) {
+    PopUint8(unk01);
+  }
   PopExpression(arg1);
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SetEVflag(arg1: %i)\n",
              arg1);

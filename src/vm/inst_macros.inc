@@ -38,3 +38,11 @@
         ScriptGetStrAddress(ScriptBuffers[thread->ScriptBufferId], stringNum); \
   }                                                                            \
   (void)0
+#define PopMsbString(name)                                                     \
+  uint8_t* name;                                                               \
+  {                                                                            \
+    PopExpression(stringNum);                                                  \
+    name =                                                                     \
+        MsbGetStrAddress(MsbBuffers[thread->ScriptBufferId], stringNum);       \
+  }                                                                            \
+  (void)0

@@ -46,6 +46,57 @@ VmInstruction(InstUnk012D) {
   StartInstruction;
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk012D()\n");
 }
+VmInstruction(InstUnk012FMO8) {
+  StartInstruction;
+  PopUint8(type);
+  switch (type) {
+    case 0: {
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Unk012FMO8(type: %i)\n", type);
+    } break;
+    case 1: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      PopExpression(arg4);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Unk012FMO8(type: %i, arg1: %i, arg2: %i, "
+                 "arg3: %i, arg4: %i)\n",
+                 type, arg1, arg2, arg3, arg4);
+    } break;
+    case 2: {
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Unk012FMO8(type: %i)\n", type);
+    } break;
+    case 3: {
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Unk012FMO8(type: %i)\n", type);
+    } break;
+    case 4: {
+      PopExpression(arg1);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Unk012FMO8(type: %i, arg1: %i)\n", type,
+                 arg1);
+    } break;
+    case 5: {
+      PopExpression(arg1);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Unk012FMO8(type: %i, arg1: %i)\n", type,
+                 arg1);
+    } break;
+    case 6: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      PopExpression(arg4);
+      PopExpression(arg5);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Unk012FMO8(type: %i, arg1: %i, arg2: %i, "
+                 "arg3: %i, arg4: %i, arg5: %i)\n",
+                 type, arg1, arg2, arg3, arg4, arg5);
+    } break;
+  }
+}
 VmInstruction(InstGeotag) {
   StartInstruction;
   PopUint8(type);
@@ -713,6 +764,21 @@ VmInstruction(InstUnk103A) {
                  type);
     } break;
   }
+}
+
+VmInstruction(InstUnk103CMO8) {
+  StartInstruction;
+  PopUint8(type);
+  PopExpression(arg1);
+  PopExpression(arg2);
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction Unk103CMO8(arg1: %i, arg2: %i)\n", arg1, arg2);
+}
+VmInstruction(InstUnk103DMO8) {
+  StartInstruction;
+  PopExpression(arg1);
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk103DMO8(arg1: %i)\n",
+             arg1);
 }
 
 }  // namespace Vm

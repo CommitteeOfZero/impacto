@@ -26,14 +26,19 @@ root.SpriteSheets = {
     },
     "TitleChip": {
         Path: { Mount: "system", Id: 30 },
-        DesignWidth: 2500,
+        DesignWidth: 2528,
         DesignHeight: 2048
     },
     "MenuChip": {
         Path: { Mount: "system", Id: 19 },
         DesignWidth: 4096,
         DesignHeight: 3072
-    }
+    },
+    "SysMesBox": {
+        Path: { Mount: "system", Id: 26 },
+        DesignWidth: 2048,
+        DesignHeight: 1528
+    },
 };
 
 root.Sprites = {};

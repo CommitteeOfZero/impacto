@@ -490,6 +490,13 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice) {
   FinishLine(ctx, Length);
   CurrentX = 0.0f;
 
+  // Even if there is a name in the string it should not be
+  // rendered when in NVL mode
+  if (Mode == DPM_NVL) {
+    HasName = false;
+    NameLength = 0;
+  }
+
   if (HasName) {
     uint8_t* oldIp = ctx->Ip;
     ctx->Ip = (uint8_t*)name;

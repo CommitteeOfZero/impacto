@@ -14,6 +14,7 @@
 #include "opcodetables_chlcc.h"
 #include "opcodetables_mo6tw.h"
 #include "opcodetables_mo7.h"
+#include "opcodetables_mo8.h"
 #include "opcodetables_dash.h"
 #include "opcodetables_cc.h"
 #include "opcodetables_sgps3.h"
@@ -29,6 +30,7 @@ namespace Vm {
 using namespace Profile::ScriptVars;
 
 uint8_t* ScriptBuffers[MaxLoadedScripts];
+uint8_t* MsbBuffers[MaxLoadedScripts];
 bool BlockCurrentScriptThread;
 uint32_t SwitchValue;
 TextTableEntry TextTable[16];
@@ -126,6 +128,12 @@ void Init() {
       OpcodeTableUser1 = OpcodeTableUser1_SGPS3;
       break;
     }
+    case InstructionSet::MO8: {
+      OpcodeTableSystem = OpcodeTableSystem_MO8;
+      OpcodeTableGraph = OpcodeTableGraph_MO8;
+      OpcodeTableUser1 = OpcodeTableUser1_MO8;
+      break;
+    }
     default: {
       ImpLog(LL_Fatal, LC_VM, "Unsupported instruction set\n");
       Window::Shutdown();
@@ -153,6 +161,9 @@ void Init() {
 
   bool res =
       LoadScript(Profile::Vm::StartScriptBuffer, Profile::Vm::StartScript);
+  if (Profile::Vm::UseMsbStrings) {
+    res = LoadMsb(Profile::Vm::StartScriptBuffer, Profile::Vm::StartScript - 1);
+  }
   if (res) {
     Sc3VmThread* startupThd = CreateThread(0);
     startupThd->GroupId = 0;
@@ -180,6 +191,23 @@ bool LoadScript(uint32_t bufferId, uint32_t scriptId) {
   }
   ScriptBuffers[bufferId] = (uint8_t*)file;
   ScrWork[SW_SCRIPTNO0 + bufferId] = scriptId;
+  return true;
+}
+
+bool LoadMsb(uint32_t bufferId, uint32_t fileId) {
+  Io::FileMeta meta;
+  Io::VfsGetMeta("script", fileId, &meta);
+  ImpLogSlow(LL_Debug, LC_VM, "Loading msb file \"%s\"\n",
+             meta.FileName.c_str());
+
+  void* file;
+  int64_t fileSize;
+  IoError err = Io::VfsSlurp("script", fileId, &file, &fileSize);
+  if (err != IoError_OK) {
+    ImpLog(LL_Error, LC_VM, "Could not read msb file for %d\n", fileId);
+    return false;
+  }
+  MsbBuffers[bufferId] = (uint8_t*)file;
   return true;
 }
 
@@ -489,6 +517,23 @@ uint8_t* ScriptGetRetAddress(uint8_t* scriptBufferAdr, uint32_t retNum) {
   uint32_t* returnTableAdr = (uint32_t*)&scriptBufferAdr[returnTableAdrRel];
   uint32_t returnAdrRel = SDL_SwapLE32(returnTableAdr[retNum]);
   return &scriptBufferAdr[returnAdrRel];
+}
+
+uint8_t* MsbGetStrAddress(uint8_t* msbBufferAdr, uint32_t mesNum) {
+  uint32_t languageCount = SDL_SwapLE32(*(uint32_t*)&msbBufferAdr[4]);
+  uint32_t stringAreaStartRel = SDL_SwapLE32(*(uint32_t*)&msbBufferAdr[12]);
+  uint32_t* tableAdrRel = (uint32_t*)&msbBufferAdr[16];
+
+  if (mesNum != 0) {
+    while (true) {
+      uint32_t id = SDL_SwapLE32(*(uint32_t*)&tableAdrRel[languageCount + 1]);
+      tableAdrRel += languageCount + 1;
+      if (id == mesNum) break;
+    }
+  }
+  uint32_t stringOffset = SDL_SwapLE32(*(uint32_t*)&tableAdrRel[1]);
+
+  return &msbBufferAdr[stringAreaStartRel + stringOffset];
 }
 
 }  // namespace Vm
