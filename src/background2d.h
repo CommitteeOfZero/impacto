@@ -19,6 +19,8 @@ class Background2D : public Loadable<Background2D> {
 
   Sprite BgSprite;
   glm::vec2 DisplayCoords;
+  Background2D* LinkedBuffer;
+  Background2D* SecondLinkedBuffer;
   bool Show;
   bool IsScreencap = false;
   int Layer;

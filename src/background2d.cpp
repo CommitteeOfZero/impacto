@@ -95,6 +95,14 @@ BackgroundRenderer(RenderRegular) {
       RectF(bg->DisplayCoords.x, bg->DisplayCoords.y,
             bg->BgSprite.ScaledWidth(), bg->BgSprite.ScaledHeight()),
       col, 0.0f, false, bg->IsScreencap);
+  if (bg->LinkedBuffer) {
+    Renderer2D::DrawSprite(bg->LinkedBuffer->BgSprite,
+                           RectF(bg->LinkedBuffer->DisplayCoords.x,
+                                 bg->LinkedBuffer->DisplayCoords.y,
+                                 bg->LinkedBuffer->BgSprite.ScaledWidth(),
+                                 bg->LinkedBuffer->BgSprite.ScaledHeight()),
+                           col, 0.0f, false, bg->LinkedBuffer->IsScreencap);
+  }
 }
 
 BackgroundRenderer(RenderMasked) {

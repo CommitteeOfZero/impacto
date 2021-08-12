@@ -143,15 +143,14 @@ VmInstruction(InstBGsetLink) {
   PopUint8(id);
   PopExpression(arg1);
   PopExpression(arg2);
+  int arg3 = 0;
   if (id >= 4) {
-    PopExpression(arg3);
+    ExpressionEval(thread, &arg3);
+    id -= 4;
   }
   PopExpression(arg4);
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction BGsetLink(id: %i, arg1: "
-             "%i, arg2: %i, "
-             "arg4: %i)\n",
-             id, arg1, arg2, arg4);
+  int link = (arg3 << 24) + (arg4 << 16) + (arg1 << 8) + arg2;
+  ScrWork[SW_BGLINK + id] = link;
 }
 VmInstruction(InstBGsetLinkOld) {
   StartInstruction;
