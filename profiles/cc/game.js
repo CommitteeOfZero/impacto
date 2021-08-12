@@ -16,7 +16,8 @@ root.Vm = {
     GameInstructionSet: InstructionSet.CC,
 	UseReturnIds: true,
 	ScrWorkChaStructSize: 40,
-	ScrWorkBgStructSize: 40
+	ScrWorkBgStructSize: 40,
+    MaxLinkedBgBuffers: 3
 };
 
 include('common/scriptinput.js');

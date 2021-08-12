@@ -26,16 +26,17 @@ VmInstruction(InstBGMplay) {
   PopExpression(track);
   if (loop == 2) {
     PopExpression(unk);
-  } else {
   }
 
-  ScrWork[SW_BGMREQNO] = track;
+  if (ScrWork[SW_BGMREQNO] != track) {
+    ScrWork[SW_BGMREQNO] = track;
 
-  Io::InputStream* stream;
-  Io::VfsOpen("bgm", track, &stream);
-  Audio::Channels[Audio::AC_BGM0].Volume = 0.15f;
-  Audio::Channels[Audio::AC_BGM0].Play(Audio::AudioStream::Create(stream),
-                                       (bool)loop, 0.0f);
+    Io::InputStream* stream;
+    Io::VfsOpen("bgm", track, &stream);
+    Audio::Channels[Audio::AC_BGM0].Volume = 0.15f;
+    Audio::Channels[Audio::AC_BGM0].Play(Audio::AudioStream::Create(stream),
+                                         (bool)loop, 0.0f);
+  }
 }
 VmInstruction(InstBGMstop) {
   StartInstruction;

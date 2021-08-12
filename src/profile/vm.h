@@ -14,6 +14,7 @@ extern bool UseReturnIds;
 extern bool UseMsbStrings;
 extern int ScrWorkChaStructSize;
 extern int ScrWorkBgStructSize;
+extern int MaxLinkedBgBuffers;
 
 void Configure();
 

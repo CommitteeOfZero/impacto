@@ -16,8 +16,10 @@ void UpdateBackground2D() {
   for (int i = 0; i < MaxBackgrounds2D; i++) {
     int bufId = ScrWork[SW_BG1SURF + i];
 
-    if ((GetScriptBufferId(i) == (ScrWork[SW_BGLINK] & 0xFF)) ||
-        (GetScriptBufferId(i) == (ScrWork[SW_BGLINK2] & 0xFF))) {
+    if (((GetScriptBufferId(i) == (ScrWork[SW_BGLINK] & 0xFF)) &&
+         (ScrWork[SW_BGLINK] >> (MaxLinkedBgBuffers * 8) & 0xFF) != LD_Off) ||
+        ((GetScriptBufferId(i) == (ScrWork[SW_BGLINK2] & 0xFF)) &&
+         (ScrWork[SW_BGLINK2] >> (MaxLinkedBgBuffers * 8) & 0xFF) != LD_Off)) {
       continue;
     }
 
@@ -112,7 +114,7 @@ void LinkBuffers(int linkCode, int currentBufferId,
   if (srcBufId == GetScriptBufferId(currentBufferId)) {
     int childBufId = GetBufferId(linkCode & 0xFF);
     Background2D* childBuf = Backgrounds2D[ScrWork[SW_BG1SURF + childBufId]];
-    int dir = (linkCode >> 16) & 0xFF;
+    int dir = (linkCode >> (MaxLinkedBgBuffers * 8)) & 0xFF;
 
     childBuf->BgSprite.BaseScale = currentBuffer->BgSprite.BaseScale;
     currentBuffer->LinkedBuffer = childBuf;
