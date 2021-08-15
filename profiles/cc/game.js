@@ -17,7 +17,7 @@ root.Vm = {
 	UseReturnIds: true,
 	ScrWorkChaStructSize: 40,
 	ScrWorkBgStructSize: 40,
-    MaxLinkedBgBuffers: 3
+    MaxLinkedBgBuffers: 2
 };
 
 include('common/scriptinput.js');

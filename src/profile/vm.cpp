@@ -13,7 +13,7 @@ bool UseReturnIds = true;
 bool UseMsbStrings = false;
 int ScrWorkChaStructSize;
 int ScrWorkBgStructSize;
-int MaxLinkedBgBuffers = 2;
+int MaxLinkedBgBuffers = 1;
 
 void Configure() {
   EnsurePushMemberOfType("Vm", kObjectType);

@@ -3,7 +3,7 @@ root.GameFeatures = GameFeature.Sc3VirtualMachine | GameFeature.Renderer2D | Gam
 root.DesignWidth = 1920;
 root.DesignHeight = 1080;
 
-root.WindowName = "Memories Off ~Innocent Fille~";
+root.WindowName = "Memories Off -Innocent Fille-";
 
 root.CharaIsMvl = true;
 
@@ -15,7 +15,7 @@ root.Vm = {
     UseMsbStrings: true,
     ScrWorkChaStructSize: 40,
     ScrWorkBgStructSize: 40,
-    MaxLinkedBgBuffers: 3
+    MaxLinkedBgBuffers: 2
 };
 
 include('common/scriptinput.js');

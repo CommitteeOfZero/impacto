@@ -11,7 +11,8 @@ root.Vm = {
     GameInstructionSet: InstructionSet.Dash,
     UseReturnIds: true,
 	ScrWorkChaStructSize: 40,
-	ScrWorkBgStructSize: 40
+	ScrWorkBgStructSize: 40,
+    MaxLinkedBgBuffers: 2
 };
 
 include('common/scriptinput.js');

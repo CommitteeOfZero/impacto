@@ -16,13 +16,6 @@ void UpdateBackground2D() {
   for (int i = 0; i < MaxBackgrounds2D; i++) {
     int bufId = ScrWork[SW_BG1SURF + i];
 
-    if (((GetScriptBufferId(i) == (ScrWork[SW_BGLINK] & 0xFF)) &&
-         (ScrWork[SW_BGLINK] >> (MaxLinkedBgBuffers * 8) & 0xFF) != LD_Off) ||
-        ((GetScriptBufferId(i) == (ScrWork[SW_BGLINK2] & 0xFF)) &&
-         (ScrWork[SW_BGLINK2] >> (MaxLinkedBgBuffers * 8) & 0xFF) != LD_Off)) {
-      continue;
-    }
-
     if (Profile::UseScreenCapEffects) {
       if (GetScriptBufferId(i) == ScrWork[SW_EFF_CAP_BUF]) {
         Backgrounds2D[bufId] = &Screencaptures[0];
@@ -97,7 +90,10 @@ void UpdateBackground2D() {
     } else if (ScrWork[SW_BGLINK2]) {
       LinkBuffers(ScrWork[SW_BGLINK2], i, Backgrounds2D[bufId]);
     } else {
-      Backgrounds2D[bufId]->LinkedBuffer = NULL;
+      for (int i = 0; i < MaxLinkedBgBuffers; i++) {
+        Backgrounds2D[bufId]->Links[i].Direction = LD_Off;
+        Backgrounds2D[bufId]->Links[i].LinkedBuffer = NULL;
+      }
     }
 
     if (Backgrounds2D[bufId]->IsScreencap) {
@@ -112,37 +108,61 @@ void LinkBuffers(int linkCode, int currentBufferId,
                  Background2D* currentBuffer) {
   int srcBufId = (linkCode >> 8) & 0xFF;
   if (srcBufId == GetScriptBufferId(currentBufferId)) {
-    int childBufId = GetBufferId(linkCode & 0xFF);
-    Background2D* childBuf = Backgrounds2D[ScrWork[SW_BG1SURF + childBufId]];
-    int dir = (linkCode >> (MaxLinkedBgBuffers * 8)) & 0xFF;
-
-    childBuf->BgSprite.BaseScale = currentBuffer->BgSprite.BaseScale;
-    currentBuffer->LinkedBuffer = childBuf;
-    switch (dir) {
-      case LD_Up: {
-        childBuf->DisplayCoords =
-            glm::vec2(currentBuffer->DisplayCoords.x,
-                      currentBuffer->DisplayCoords.y -
-                          currentBuffer->BgSprite.ScaledHeight());
-      } break;
-      case LD_Down: {
-        childBuf->DisplayCoords =
-            glm::vec2(currentBuffer->DisplayCoords.x,
-                      currentBuffer->DisplayCoords.y +
-                          currentBuffer->BgSprite.ScaledHeight());
-      } break;
-      case LD_Left: {
-        childBuf->DisplayCoords =
-            glm::vec2(currentBuffer->DisplayCoords.x -
-                          currentBuffer->BgSprite.ScaledWidth(),
-                      currentBuffer->DisplayCoords.y);
-      } break;
-      case LD_Right: {
-        childBuf->DisplayCoords =
-            glm::vec2(currentBuffer->DisplayCoords.x +
-                          currentBuffer->BgSprite.ScaledWidth(),
-                      currentBuffer->DisplayCoords.y);
-      } break;
+    int dir = (linkCode >> 16) & 0xFF;
+    for (int i = 0; i < MaxLinkedBgBuffers; i++) {
+      int childBufId = (linkCode >> (i * 24)) & 0xFF;
+      if (childBufId != 0) {
+        childBufId = GetBufferId(childBufId);
+        Background2D* childBuf =
+            Backgrounds2D[ScrWork[SW_BG1SURF + childBufId]];
+        childBuf->BgSprite.BaseScale = currentBuffer->BgSprite.BaseScale;
+        currentBuffer->Links[i].LinkedBuffer = childBuf;
+        currentBuffer->Links[i].Direction = (LinkDirection)dir;
+        switch (dir) {
+          case LD_Up3: {
+            float offset = i == 0 ? 0.0f
+                                  : currentBuffer->Links[i - 1]
+                                        .LinkedBuffer->BgSprite.ScaledHeight();
+            currentBuffer->Links[i].DisplayCoords =
+                glm::vec2(currentBuffer->DisplayCoords.x,
+                          currentBuffer->DisplayCoords.y -
+                              currentBuffer->BgSprite.ScaledHeight() - offset);
+          } break;
+          case LD_Up: {
+            currentBuffer->Links[i].DisplayCoords =
+                glm::vec2(currentBuffer->DisplayCoords.x,
+                          currentBuffer->DisplayCoords.y -
+                              currentBuffer->BgSprite.ScaledHeight());
+          } break;
+          case LD_Down3: {
+            float offset = i == 0 ? 0.0f
+                                  : currentBuffer->Links[i - 1]
+                                        .LinkedBuffer->BgSprite.ScaledHeight();
+            currentBuffer->Links[i].DisplayCoords =
+                glm::vec2(currentBuffer->DisplayCoords.x,
+                          currentBuffer->DisplayCoords.y +
+                              currentBuffer->BgSprite.ScaledHeight() + offset);
+          } break;
+          case LD_Down: {
+            currentBuffer->Links[i].DisplayCoords =
+                glm::vec2(currentBuffer->DisplayCoords.x,
+                          currentBuffer->DisplayCoords.y +
+                              currentBuffer->BgSprite.ScaledHeight());
+          } break;
+          case LD_Left: {
+            currentBuffer->Links[i].DisplayCoords =
+                glm::vec2(currentBuffer->DisplayCoords.x -
+                              currentBuffer->BgSprite.ScaledWidth(),
+                          currentBuffer->DisplayCoords.y);
+          } break;
+          case LD_Right: {
+            currentBuffer->Links[i].DisplayCoords =
+                glm::vec2(currentBuffer->DisplayCoords.x +
+                              currentBuffer->BgSprite.ScaledWidth(),
+                          currentBuffer->DisplayCoords.y);
+          } break;
+        }
+      }
     }
   }
 }

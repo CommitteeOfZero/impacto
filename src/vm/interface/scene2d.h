@@ -7,8 +7,6 @@ namespace Impacto {
 namespace Vm {
 namespace Interface {
 
-enum LinkDirection { LD_Off, LD_Up, LD_Down, LD_Left, LD_Right };
-
 void UpdateBackground2D();
 
 void UpdateCharacter2D();
