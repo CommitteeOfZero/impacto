@@ -261,10 +261,9 @@ VmInstruction(InstMwait) {
   }
   thread->WaitCounter--;
   // This wait is ignored if skip mode is enabled
-  // TODO: Implement this when we have skip mode
-  // if (SkipModeEnabled) {
-  //  thread->WaitCounter = 0;
-  //}
+  if (GetFlag(SF_MESALLSKIP)) {
+    thread->WaitCounter = 0;
+  }
   if (thread->WaitCounter > 0) {
     ResetInstruction;
     BlockThread;
@@ -374,6 +373,11 @@ VmInstruction(InstGetNowTime) {
 VmInstruction(InstGetSystemStatus) {
   StartInstruction;
   PopExpression(type);
+  switch (type) {
+    case 5: {  // SYSSTAT_SKIP
+      thread->ScriptParam = GetFlag(SF_MESALLSKIP);
+    } break;
+  }
   ImpLogSlow(LL_Warning, LC_VMStub,
              "STUB instruction GetSystemStatus(type: %i)\n", type);
 }

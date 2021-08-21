@@ -192,14 +192,20 @@ VmInstruction(InstMesMain) {
   PopUint8(type);
   DialoguePage* currentPage = &DialoguePages[thread->DialoguePageId];
   if (type == 0) {  // Normal mode
-    if (!((Interface::PADinputButtonWentDown & Interface::PAD1A ||
-           Interface::PADinputMouseWentDown & Interface::PAD1A) &&
-          currentPage->TextIsFullyOpaque())) {
-      if (!Input::KeyboardButtonIsDown[SDL_SCANCODE_RCTRL]) {
+    if ((Interface::PADinputButtonWentDown & Interface::PAD1A ||
+         Interface::PADinputMouseWentDown & Interface::PAD1A) &&
+        !currentPage->TextIsFullyOpaque() &&
+        !currentPage->Typewriter.IsCancelled) {
+      currentPage->Typewriter.CancelRequested = true;
+      ResetInstruction;
+    } else if (!((Interface::PADinputButtonWentDown & Interface::PAD1A ||
+                  Interface::PADinputMouseWentDown & Interface::PAD1A) &&
+                 currentPage->TextIsFullyOpaque())) {
+      if (!GetFlag(SF_MESALLSKIP)) {
         ResetInstruction;
-        BlockThread;
       }
     }
+    BlockThread;
   }
   // TODO: Type 1 - Skip mode(?)
 }

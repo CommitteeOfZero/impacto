@@ -5,6 +5,8 @@
 #include "renderer2d.h"
 #include "animation.h"
 #include "mem.h"
+#include "inputsystem.h"
+#include "vm/interface/input.h"
 #include "profile/scriptvars.h"
 
 #include "profile/charset.h"
@@ -147,7 +149,20 @@ void TypewriterEffect::Start(int firstGlyph, int glyphCount, float duration) {
   DurationIn = duration;
   FirstGlyph = firstGlyph;
   GlyphCount = glyphCount;
+  LastOpaqueCharacter = 0;
+  IsCancelled = false;
   StartIn(true);
+}
+
+void TypewriterEffect::Update(float dt) {
+  if (State == AS_Stopped) return;
+  if (CancelRequested) {
+    CancelRequested = false;
+    IsCancelled = true;
+    DurationIn = 0.25f;
+    CancelStartTime = Progress * DurationIn;
+  }
+  UpdateImpl(dt);
 }
 
 float TypewriterEffect::CalcOpacity(int glyph) {
@@ -166,8 +181,16 @@ float TypewriterEffect::CalcOpacity(int glyph) {
   // We animate only [FirstGlyph, FirstGlyph + GlyphCount],
   // shift to [0, GlyphCount]
   int glyphInSeries = glyph - FirstGlyph;
-  float glyphStartTime = (float)glyphInSeries * timePerGlyph * 0.25f;
-  float glyphEndTime = glyphStartTime + timePerGlyph;
+  float glyphStartTime;
+  float glyphEndTime;
+  if (IsCancelled && glyph >= LastOpaqueCharacter) {
+    glyphStartTime = CancelStartTime;
+    glyphEndTime = DurationIn;
+    timePerGlyph = DurationIn;
+  } else {
+    glyphStartTime = (float)glyphInSeries * timePerGlyph * 0.25f;
+    glyphEndTime = glyphStartTime + timePerGlyph;
+  }
 
   if (currentTime < glyphStartTime) return 0.0f;
   if (currentTime >= glyphEndTime) return 1.0f;
@@ -527,6 +550,9 @@ void DialoguePage::Update(float dt) {
 
   for (int i = 0; i < Length; i++) {
     Glyphs[i].Opacity = Typewriter.CalcOpacity(i);
+    if (Glyphs[i].Opacity == 0.0f) {
+      Typewriter.LastOpaqueCharacter = i;
+    }
   }
 
   FadeAnimation.Update(dt);

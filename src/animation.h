@@ -1,5 +1,8 @@
 #pragma once
 
+#include "mem.h"
+#include "profile/scriptvars.h"
+
 namespace Impacto {
 
 enum AnimationState { AS_Stopped, AS_Playing };
@@ -41,7 +44,12 @@ class Animation {
  protected:
   virtual void StartInImpl() {}
   virtual void StartOutImpl() {}
-  virtual void UpdateImpl(float dt) { AddDelta(dt); }
+  virtual void UpdateImpl(float dt) {
+    if (GetFlag(Profile::ScriptVars::SF_MESALLSKIP) && State != AS_Stopped) {
+      Progress = Direction == 1 ? 1 : 0;
+    }
+    AddDelta(dt);
+  }
 
   void AddDelta(float dt) {
     if (Direction == 1) {
