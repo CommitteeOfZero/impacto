@@ -95,6 +95,16 @@ BackgroundRenderer(RenderRegular) {
       RectF(bg->DisplayCoords.x, bg->DisplayCoords.y,
             bg->BgSprite.ScaledWidth(), bg->BgSprite.ScaledHeight()),
       col, 0.0f, false, bg->IsScreencap);
+  for (int i = 0; i < MaxLinkedBgBuffers; i++) {
+    if (bg->Links[i].Direction != LD_Off && bg->Links[i].LinkedBuffer != NULL) {
+      Renderer2D::DrawSprite(
+          bg->Links[i].LinkedBuffer->BgSprite,
+          RectF(bg->Links[i].DisplayCoords.x, bg->Links[i].DisplayCoords.y,
+                bg->Links[i].LinkedBuffer->BgSprite.ScaledWidth(),
+                bg->Links[i].LinkedBuffer->BgSprite.ScaledHeight()),
+          col, 0.0f, false, bg->Links[i].LinkedBuffer->IsScreencap);
+    }
+  }
 }
 
 BackgroundRenderer(RenderMasked) {
@@ -130,6 +140,16 @@ BackgroundRenderer(RenderFade) {
       RectF(bg->DisplayCoords.x, bg->DisplayCoords.y,
             bg->BgSprite.ScaledWidth(), bg->BgSprite.ScaledHeight()),
       col, 0.0f, false, bg->IsScreencap);
+  for (int i = 0; i < MaxLinkedBgBuffers; i++) {
+    if (bg->Links[i].Direction != LD_Off && bg->Links[i].LinkedBuffer != NULL) {
+      Renderer2D::DrawSprite(
+          bg->Links[i].LinkedBuffer->BgSprite,
+          RectF(bg->Links[i].DisplayCoords.x, bg->Links[i].DisplayCoords.y,
+                bg->Links[i].LinkedBuffer->BgSprite.ScaledWidth(),
+                bg->Links[i].LinkedBuffer->BgSprite.ScaledHeight()),
+          col, 0.0f, false, bg->Links[i].LinkedBuffer->IsScreencap);
+    }
+  }
 }
 
 }  // namespace Impacto

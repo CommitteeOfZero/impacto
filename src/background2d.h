@@ -11,6 +11,26 @@
 
 namespace Impacto {
 
+enum LinkDirection {
+  LD_Off,
+  LD_Up,
+  LD_Down,
+  LD_Left,
+  LD_Right,
+  LD_Up3,
+  LD_Down3
+};
+
+int const MaxLinks = 2;
+
+typedef class Background2D;
+
+struct LinkState {
+  Background2D* LinkedBuffer;
+  LinkDirection Direction;
+  glm::vec2 DisplayCoords;
+};
+
 class Background2D : public Loadable<Background2D> {
   friend class Loadable<Background2D>;
 
@@ -19,6 +39,7 @@ class Background2D : public Loadable<Background2D> {
 
   Sprite BgSprite;
   glm::vec2 DisplayCoords;
+  LinkState Links[MaxLinks];
   bool Show;
   bool IsScreencap = false;
   int Layer;

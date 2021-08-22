@@ -13,7 +13,7 @@ root.Input = {
 	KB_PAD1L1: 20,            // Q
 	KB_PAD1L2: 30,			  // 1
 	KB_PAD1L3: 32,			  // 3
-	KB_PAD1R1: 26,			  // W
+	KB_PAD1R1: 228,			  // RCTRL
 	KB_PAD1R2: 31,			  // 2
 	KB_PAD1R3: 33,			  // 4
 	// Mouse

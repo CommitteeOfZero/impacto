@@ -13,6 +13,7 @@ bool UseReturnIds = true;
 bool UseMsbStrings = false;
 int ScrWorkChaStructSize;
 int ScrWorkBgStructSize;
+int MaxLinkedBgBuffers = 1;
 
 void Configure() {
   EnsurePushMemberOfType("Vm", kObjectType);
@@ -25,6 +26,7 @@ void Configure() {
   TryGetMemberBool("UseMsbStrings", UseMsbStrings);
   ScrWorkChaStructSize = EnsureGetMemberInt("ScrWorkChaStructSize");
   ScrWorkBgStructSize = EnsureGetMemberInt("ScrWorkBgStructSize");
+  TryGetMemberInt("MaxLinkedBgBuffers", MaxLinkedBgBuffers);
 
   Pop();
 }

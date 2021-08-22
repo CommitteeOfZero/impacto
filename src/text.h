@@ -52,10 +52,15 @@ struct TypewriterEffect : public Animation {
  public:
   void Start(int firstGlyph, int glyphCount, float duration);
   float CalcOpacity(int glyph);
+  void Update(float dt);
+  int LastOpaqueCharacter;
+  bool CancelRequested = false;
+  bool IsCancelled = false;
 
  private:
   int FirstGlyph;
   int GlyphCount;
+  float CancelStartTime;
 };
 
 struct DialoguePage {

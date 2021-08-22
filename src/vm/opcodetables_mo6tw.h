@@ -537,7 +537,7 @@ InstructionProc static OpcodeTableUser1_MO6TW[256] = {
     InstBGload,            // 10 01
     InstBGswap,            // 10 02
     InstBGsetColor,        // 10 03
-    InstBGsetLink,         // 10 04
+    InstBGsetLinkOld,      // 10 04
     InstCHAload,           // 10 05
     InstCHAswap,           // 10 06
     InstBGcopy,            // 10 07
