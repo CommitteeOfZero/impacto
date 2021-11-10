@@ -1,6 +1,7 @@
 #include "savemenu.h"
 #include "../profile_internal.h"
 #include "../games/mo6tw/savemenu.h"
+#include "../games/chlcc/savemenu.h"
 #include "../../ui/ui.h"
 #include "../../log.h"
 #include "../../window.h"
@@ -45,6 +46,8 @@ void Configure() {
 
     if (Type == +SaveMenuType::MO6TW) {
       MO6TW::SaveMenu::Configure();
+    } else if (Type == +TitleMenuType::CHLCC) {
+      CHLCC::SaveMenu::Configure();
     } /* else {
        UI::SaveMenuPtr = new UI::NullMenu();
      }*/

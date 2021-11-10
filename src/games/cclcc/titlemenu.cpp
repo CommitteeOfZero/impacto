@@ -137,7 +137,7 @@ void TitleMenu::Update(float dt) {
     Hide();
   }
 
-  if (State == Shown && IsFocused) {
+  if (State != Hidden && GetFlag(SF_TITLEMODE)) {
     MainItems->Opacity =
         glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
     MainItems->Update(dt);
@@ -148,9 +148,11 @@ void TitleMenu::Update(float dt) {
         glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
     ExtraItems->Update(dt);
 
-    MainItems->Show();
-    /*switch (ScrWork[SW_TITLEDISPCT]) {
-    }*/
+    switch (ScrWork[SW_TITLEMODE]) {
+      case 3: {
+        MainItems->Show();
+      } break;
+    }
   }
 }
 
