@@ -45,6 +45,8 @@ AudioStream* VorbisAudioStream::Create(InputStream* stream) {
   memcpy(&result->Vf, &Vf, sizeof(Vf));
   result->VfOpen = true;
 
+  result->InitWithInfo(info);
+
   return result;
 
 fail:
