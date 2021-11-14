@@ -36,6 +36,9 @@ struct RectF {
   glm::vec2 Center() const;
   // Rect is rotated around center
   bool ContainsPoint(glm::vec2 point, float angle = 0.0f) const;
+  // TEMP //
+  bool Contains(RectF const& rect) const;
+  //////////
 };
 
 struct Rect {

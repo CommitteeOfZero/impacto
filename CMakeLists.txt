@@ -53,6 +53,7 @@ set(Impacto_Src
     src/profile/ui/savemenu.cpp
     src/profile/ui/sysmesbox.cpp
     src/profile/ui/selectionmenu.cpp
+    src/profile/ui/backlogmenu.cpp
 
     src/profile/games/rne/tilebackground.cpp
     src/profile/games/rne/systemmenu.cpp
@@ -111,8 +112,10 @@ set(Impacto_Src
     src/ui/nullmenu.cpp
     src/ui/selectionmenu.cpp
     src/ui/sysmesbox.cpp
+    src/ui/backlogmenu.cpp
     src/ui/widgets/label.cpp
     src/ui/widgets/button.cpp
+    src/ui/widgets/backlogentry.cpp
     src/ui/widgets/mo6tw/titlebutton.cpp
     src/ui/widgets/mo6tw/saveentrybutton.cpp
     src/ui/widgets/chlcc/titlebutton.cpp
@@ -250,6 +253,7 @@ set(Impacto_Header
     src/profile/ui/savemenu.h
     src/profile/ui/sysmesbox.h
     src/profile/ui/selectionmenu.h
+    src/profile/ui/backlogmenu.h
 
     src/profile/games/rne/tilebackground.h
     src/profile/games/rne/systemmenu.h
@@ -308,9 +312,11 @@ set(Impacto_Header
     src/ui/nullmenu.h
     src/ui/selectionmenu.h
     src/ui/sysmesbox.h
+    src/ui/backlogmenu.h
     src/ui/widget.h
     src/ui/widgets/label.h
     src/ui/widgets/button.h
+    src/ui/widgets/backlogentry.h
     src/ui/widgets/mo6tw/titlebutton.h
     src/ui/widgets/mo6tw/saveentrybutton.h
     src/ui/widgets/chlcc/titlebutton.h

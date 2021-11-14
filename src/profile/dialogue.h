@@ -13,6 +13,7 @@ namespace Dialogue {
 
 extern RectF NVLBounds;
 extern RectF ADVBounds;
+extern RectF REVBounds;
 
 extern Sprite ADVBoxSprite;
 extern glm::vec2 ADVBoxPos;

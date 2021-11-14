@@ -24,6 +24,7 @@ root.Sprites["ADVBoxDecoration"] = {
 };
 
 root.Dialogue = {
+    REVBounds: { X: 0, Y: 0, Width: 960, Height: 400 },
     NVLBounds: { X: 125, Y: 85, Width: 1024, Height: 400 },
     ADVBounds: { X: 161, Y: 522, Width: 960, Height: 180 },
     ADVBoxSprite: "ADVBox",

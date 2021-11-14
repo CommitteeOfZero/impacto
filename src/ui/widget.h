@@ -20,10 +20,10 @@ class Widget {
   virtual void Render() = 0;
 
   // TODO: Text movement in widgets with text
-  void Move(glm::vec2 relativePosition, float duration);
-  void Move(glm::vec2 relativePosition);
-  void MoveTo(glm::vec2 pos, float duration);
-  void MoveTo(glm::vec2 pos);
+  virtual void Move(glm::vec2 relativePosition, float duration);
+  virtual void Move(glm::vec2 relativePosition);
+  virtual void MoveTo(glm::vec2 pos, float duration);
+  virtual void MoveTo(glm::vec2 pos);
 
   RectF Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "backlogmenu.h"
 #include "selectionmenu.h"
 #include "nullmenu.h"
 #include "sysmesbox.h"
@@ -23,6 +24,7 @@ extern Menu* SaveMenuPtr;
 //
 extern SelectionMenu* SelectionMenuPtr;
 extern SysMesBox* SysMesBoxPtr;
+extern BacklogMenu* BacklogMenuPtr;
 
 }  // namespace UI
 }  // namespace Impacto
