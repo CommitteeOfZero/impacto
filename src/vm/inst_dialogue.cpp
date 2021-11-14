@@ -131,6 +131,7 @@ VmInstruction(InstMes) {
       thread->Ip = line;
       DialoguePages[thread->DialoguePageId].AddString(thread);
       thread->Ip = oldIp;
+      UI::BacklogMenuPtr->AddMessage(line);
     } break;
     case 1: {  // LoadVoicedUnactedDialogue
       PopExpression(audioId);
@@ -153,6 +154,7 @@ VmInstruction(InstMes) {
       DialoguePages[thread->DialoguePageId].AddString(
           thread, Audio::AudioStream::Create(stream));
       thread->Ip = oldIp;
+      UI::BacklogMenuPtr->AddMessage(line, audioId);
     } break;
     case 0x0B: {  // LoadVoicedDialogue0B
       PopExpression(audioId);
@@ -227,6 +229,7 @@ VmInstruction(InstMesRev) {
   PopUint8(type);
   switch (type) {
     case 0:  // DispInit
+      UI::BacklogMenuPtr->Show();
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SetMesModeFormat(type: DispInit)\n");
       break;
@@ -235,6 +238,7 @@ VmInstruction(InstMesRev) {
                  "STUB instruction SetMesModeFormat(type: Main)\n");
       break;
     case 2:  // AllCls
+      UI::BacklogMenuPtr->Hide();
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SetMesModeFormat(type: AllCls)\n");
       break;

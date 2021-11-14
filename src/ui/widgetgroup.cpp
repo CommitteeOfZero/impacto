@@ -2,11 +2,23 @@
 
 #include "../inputsystem.h"
 #include "../vm/interface/input.h"
+#include "../profile/game.h"
 
 namespace Impacto {
 namespace UI {
 
 using namespace Impacto::Vm::Interface;
+
+WidgetGroup::WidgetGroup() {
+  Position = glm::vec2(0.0f);
+  RenderingBounds =
+      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight);
+}
+WidgetGroup::WidgetGroup(glm::vec2 pos) {
+  Position = pos;
+  RenderingBounds =
+      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight);
+}
 
 void WidgetGroup::Add(Widget* widget, int focusDirection) {
   // TODO: Yes, this doesn't work if we delete widgets after init. Do we even
@@ -114,10 +126,12 @@ void WidgetGroup::Update(float dt) {
 void WidgetGroup::Render() {
   if (IsShown) {
     for (auto el : Children) {
-      float alpha = el->Tint.a;
-      el->Tint.a *= Opacity;
-      el->Render();
-      el->Tint.a = alpha;
+      if (RenderingBounds.Contains(el->Bounds)) {
+        float alpha = el->Tint.a;
+        el->Tint.a *= Opacity;
+        el->Render();
+        el->Tint.a = alpha;
+      }
     }
   }
 }
@@ -132,6 +146,36 @@ void WidgetGroup::Hide() {
   Opacity = 0.0f;
   IsShown = false;
   HasFocus = false;
+}
+
+void WidgetGroup::Move(glm::vec2 relativePosition, float duration) {
+  for (auto el : Children) {
+    el->Move(relativePosition, duration);
+  }
+  Position += relativePosition;
+}
+
+void WidgetGroup::Move(glm::vec2 relativePosition) {
+  for (auto el : Children) {
+    el->Move(relativePosition);
+  }
+  Position += relativePosition;
+}
+
+void WidgetGroup::MoveTo(glm::vec2 pos, float duration) {
+  auto relativePosition = pos - Position;
+  for (auto el : Children) {
+    el->Move(relativePosition, duration);
+  }
+  Position = pos;
+}
+
+void WidgetGroup::MoveTo(glm::vec2 pos) {
+  auto relativePosition = pos - Position;
+  for (auto el : Children) {
+    el->Move(relativePosition);
+  }
+  Position = pos;
 }
 
 }  // namespace UI

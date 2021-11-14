@@ -232,6 +232,8 @@ void DialoguePage::Clear() {
   FirstRubyChunkOnLine = 0;
   if (Mode == DPM_ADV) {
     CurrentLineTop = ADVBounds.Y;
+  } else if (Mode == DPM_REV) {
+    CurrentLineTop = REVBounds.Y;
   } else {
     CurrentLineTop = NVLBounds.Y;
   }
@@ -346,6 +348,8 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice) {
   RectF BoxBounds;
   if (Mode == DPM_ADV) {
     BoxBounds = ADVBounds;
+  } else if (Mode == DPM_REV) {
+    BoxBounds = REVBounds;
   } else {
     BoxBounds = NVLBounds;
   }

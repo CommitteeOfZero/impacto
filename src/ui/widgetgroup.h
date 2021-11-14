@@ -13,6 +13,9 @@ BETTER_ENUM(FocusDirection, int, Vertical = (1 << 0), Horizontal = (1 << 1),
 
 class WidgetGroup {
  public:
+  WidgetGroup();
+  WidgetGroup(glm::vec2 pos);
+
   std::vector<Widget*> Children;
   void Add(Widget* widget, int focusDirection);
   void AddToFocusChain(Widget* widget, int focusDirection);
@@ -20,6 +23,9 @@ class WidgetGroup {
   int FocusId = -1;
   std::vector<int> VerticalFocusChain;
   std::vector<int> HorizontalFocusChain;
+
+  glm::vec2 Position;
+  RectF RenderingBounds;
 
   bool HasFocus = false;
   bool IsShown = false;
@@ -29,6 +35,11 @@ class WidgetGroup {
 
   void Show();
   void Hide();
+
+  void Move(glm::vec2 relativePosition, float duration);
+  void Move(glm::vec2 relativePosition);
+  void MoveTo(glm::vec2 pos, float duration);
+  void MoveTo(glm::vec2 pos);
 
   float Opacity = 1.0f;
 

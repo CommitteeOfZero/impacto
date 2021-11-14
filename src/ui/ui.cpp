@@ -11,6 +11,7 @@ Menu* SaveMenuPtr = new NullMenu();
 
 SelectionMenu* SelectionMenuPtr = 0;
 SysMesBox* SysMesBoxPtr = 0;
+BacklogMenu* BacklogMenuPtr = 0;
 
 }  // namespace UI
 }  // namespace Impacto

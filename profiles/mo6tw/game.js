@@ -38,3 +38,4 @@ include('mo6tw/hud/systemmenu.js');
 include('mo6tw/hud/savemenu.js');
 include('mo6tw/hud/sysmesboxdisplay.js');
 include('mo6tw/hud/selectiondisplay.js');
+include('mo6tw/hud/backlogmenu.js');

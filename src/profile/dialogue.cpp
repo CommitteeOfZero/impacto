@@ -2,6 +2,7 @@
 #include "profile_internal.h"
 #include "../log.h"
 #include "../window.h"
+#include "../ui/ui.h"
 
 #include "games/mo6tw/dialoguebox.h"
 
@@ -10,6 +11,7 @@ namespace Profile {
 namespace Dialogue {
 RectF NVLBounds;
 RectF ADVBounds;
+RectF REVBounds;
 
 Sprite ADVBoxSprite;
 glm::vec2 ADVBoxPos;
@@ -60,6 +62,7 @@ void Configure() {
 
   NVLBounds = EnsureGetMemberRectF("NVLBounds");
   ADVBounds = EnsureGetMemberRectF("ADVBounds");
+  REVBounds = EnsureGetMemberRectF("REVBounds");
 
   ADVBoxSprite = EnsureGetMemberSprite("ADVBoxSprite");
   ADVBoxPos = EnsureGetMemberVec2("ADVBoxPos");
