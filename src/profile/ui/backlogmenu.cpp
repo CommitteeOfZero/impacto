@@ -13,9 +13,13 @@ using namespace Impacto::UI;
 Sprite BacklogBackground;
 Sprite EntryHighlight;
 Sprite VoiceIcon;
+Sprite ScrollbarThumb;
+Sprite ScrollbarTrack;
 
 float EntryYPadding;
 glm::vec2 EntriesStart;
+glm::vec2 ScrollbarPosition;
+RectF RenderingBounds;
 
 float FadeInDuration;
 float FadeOutDuration;
@@ -27,9 +31,13 @@ void Configure() {
     BacklogBackground = EnsureGetMemberSprite("BacklogBackgroundSprite");
     EntryHighlight = EnsureGetMemberSprite("EntryHighlightSprite");
     VoiceIcon = EnsureGetMemberSprite("VoiceIconSprite");
+    ScrollbarThumb = EnsureGetMemberSprite("ScrollbarThumbSprite");
+    ScrollbarTrack = EnsureGetMemberSprite("ScrollbarTrackSprite");
 
     EntryYPadding = EnsureGetMemberFloat("EntryYPadding");
     EntriesStart = EnsureGetMemberVec2("EntriesStart");
+    ScrollbarPosition = EnsureGetMemberVec2("ScrollbarPosition");
+    RenderingBounds = EnsureGetMemberRectF("RenderingBounds");
 
     FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
     FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");

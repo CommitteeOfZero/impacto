@@ -3,7 +3,9 @@
 #include "ui.h"
 #include "../renderer2d.h"
 #include "../mem.h"
+#include "../vm/interface/input.h"
 #include "../profile/scriptvars.h"
+#include "../profile/scriptinput.h"
 #include "../profile/dialogue.h"
 #include "../profile/ui/backlogmenu.h"
 #include "../inputsystem.h"
@@ -13,7 +15,9 @@ namespace Impacto {
 namespace UI {
 
 using namespace Impacto::Profile::ScriptVars;
+using namespace Impacto::Profile::ScriptInput;
 using namespace Impacto::Profile::BacklogMenu;
+using namespace Impacto::Vm::Interface;
 
 using namespace Impacto::UI::Widgets;
 
@@ -27,11 +31,12 @@ void BacklogMenu::MenuButtonOnClick(Widgets::BacklogEntry* target) {
 }
 
 BacklogMenu::BacklogMenu() {
-  MainItems = new WidgetGroup();
-  // TEMP //
-  MainItems->RenderingBounds = RectF(0.0f, 75.0f, 1280.0f, 615.0f);
-  //////////
+  MainItems = new WidgetGroup(EntriesStart);
+  MainItems->RenderingBounds = RenderingBounds;
 
+  MainScrollbar = new Scrollbar(0, ScrollbarPosition, 0.0f, 1.0f, &PageY,
+                                SBDIR_VERTICAL, ScrollbarTrack, ScrollbarThumb);
+  MainScrollbar->Enabled = false;
   CurrentEntryPos = EntriesStart;
 
   FadeAnimation.Direction = 1;
@@ -77,25 +82,35 @@ void BacklogMenu::Update(float dt) {
     State = Hidden;
 
   if (State == Shown && IsFocused) {
-    // TEMP //
-    if (Input::KeyboardButtonIsDown[SDL_SCANCODE_K]) {
-      MainItems->Move(glm::vec2(0.0f, 10.0f));
-      CurrentEntryPos.y += 10.0f;
+    if (ItemsHeight > MainItems->RenderingBounds.Height) {
+      MainScrollbar->Enabled = true;
+      MainScrollbar->MinValue = MainItems->RenderingBounds.Y + EntryYPadding;
+      MainScrollbar->MaxValue = -ItemsHeight +
+                                MainItems->RenderingBounds.Height +
+                                MainItems->RenderingBounds.Y;
     }
-    if (Input::KeyboardButtonIsDown[SDL_SCANCODE_I]) {
-      MainItems->Move(glm::vec2(0.0f, -10.0f));
-      CurrentEntryPos.y += -10.0f;
+    if (MainScrollbar->Enabled) {
+      MainItems->MoveTo(glm::vec2(EntriesStart.x, PageY));
+      auto lastEntry = MainItems->Children.back();
+      CurrentEntryPos.y =
+          lastEntry->Bounds.Y + lastEntry->Bounds.Height + EntryYPadding;
     }
-    if (Input::KeyboardButtonIsDown[SDL_SCANCODE_L]) {
-      MainItems->Move(glm::vec2(10.0f, 0.0f));
-      CurrentEntryPos.x += 10.0f;
-    }
-    if (Input::KeyboardButtonIsDown[SDL_SCANCODE_J]) {
-      MainItems->Move(glm::vec2(-10.0f, 0.0f));
-      CurrentEntryPos.x += -10.0f;
-    }
-    //////////
     MainItems->Update(dt);
+    if ((PADinputButtonWentDown & PAD1DOWN ||
+         PADinputButtonWentDown & PAD1UP) &&
+        MainScrollbar->Enabled) {
+      auto focusedEl = MainItems->Children[MainItems->FocusId];
+      if (focusedEl->Bounds.Y < MainItems->RenderingBounds.Y) {
+        PageY += focusedEl->Bounds.Height + EntryYPadding;
+      } else if (focusedEl->Bounds.Y + focusedEl->Bounds.Height >
+                 MainItems->RenderingBounds.Y +
+                                           MainItems->RenderingBounds.Height) {
+        PageY -= focusedEl->Bounds.Height + EntryYPadding;
+      }
+    }
+
+    MainScrollbar->UpdateInput();
+    MainScrollbar->Update(dt);
   }
 }
 
@@ -105,6 +120,7 @@ void BacklogMenu::Render() {
     MainItems->Opacity = col.a;
     Renderer2D::DrawSprite(BacklogBackground, glm::vec2(0.0f));
     MainItems->Render();
+    MainScrollbar->Render();
   }
 }
 
@@ -118,8 +134,15 @@ void BacklogMenu::AddMessage(uint8_t* str, int audioId) {
   CurrentEntryPos.y += backlogEntry->TextHeight + EntryYPadding;
   backlogEntry->OnClickHandler = onClick;
   MainItems->Add(backlogEntry, FocusDirection::Vertical);
-  // MainItems->Move(glm::vec2(-(backlogEntry->TextHeight + EntryYPadding),
-  // 0.0f));
+  ItemsHeight += backlogEntry->TextHeight + EntryYPadding;
+  if (ItemsHeight > MainItems->RenderingBounds.Height) {
+    MainScrollbar->MaxValue = -ItemsHeight + MainItems->RenderingBounds.Height +
+                              MainItems->RenderingBounds.Y;
+    PageY = MainScrollbar->MaxValue;
+    MainItems->MoveTo(glm::vec2(EntriesStart.x, PageY));
+    CurrentEntryPos.y =
+        backlogEntry->Bounds.Y + backlogEntry->Bounds.Height + EntryYPadding;
+  }
 }
 
 }  // namespace UI

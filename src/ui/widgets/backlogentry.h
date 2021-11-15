@@ -16,7 +16,7 @@ class BacklogEntry : public Widget {
 
   void Update(float dt) override;
   void UpdateInput();
-  virtual void Render();
+  void Render() override;
 
   void Move(glm::vec2 relativePosition) override;
 
