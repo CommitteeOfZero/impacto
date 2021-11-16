@@ -491,8 +491,13 @@ VmInstruction(InstMSinit) {
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MSinit(initType: %i)\n",
              initType);
 
+  if (initType == 5) {
+    UI::BacklogMenuPtr->Clear();
+  }
+
   if (initType == 2 &&
       Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW) {
+    UI::BacklogMenuPtr->Clear();
     memset(&FlagWork, 0, 100);
     memset(&FlagWork[150], 0, 75);
     memset(&FlagWork[300], 0, 100);

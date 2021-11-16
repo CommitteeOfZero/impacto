@@ -178,5 +178,15 @@ void WidgetGroup::MoveTo(glm::vec2 pos) {
   Position = pos;
 }
 
+void WidgetGroup::Clear() {
+  for (auto el : Children) {
+    delete el;
+  }
+  Children.clear();
+  VerticalFocusChain.clear();
+  HorizontalFocusChain.clear();
+  FocusId = -1;
+}
+
 }  // namespace UI
 }  // namespace Impacto

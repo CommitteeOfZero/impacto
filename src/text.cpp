@@ -374,6 +374,9 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice) {
       case STT_CharacterNameStart: {
         HasName = true;
         State = TPS_Name;
+        if (Mode == DPM_REV) {
+          CurrentLineTop += REVNameOffset;
+        }
         break;
       }
       case STT_RubyTextStart: {
@@ -527,9 +530,21 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice) {
   if (HasName) {
     uint8_t* oldIp = ctx->Ip;
     ctx->Ip = (uint8_t*)name;
-    int nameLength = TextLayoutPlainLine(ctx, NameLength, Name, DialogueFont,
-                                         ADVNameFontSize, ColorTable[0], 1.0f,
-                                         ADVNamePos, ADVNameAlignment);
+
+    float fontSize = ADVNameFontSize;
+    glm::vec2 pos = ADVNamePos;
+    TextAlignment alignment = ADVNameAlignment;
+    int colorIndex = 0;
+    if (Mode == DPM_REV) {
+      fontSize = REVNameFontSize;
+      pos = glm::vec2(REVBounds.X, REVBounds.Y);
+      alignment = TextAlignment::Left;
+      colorIndex = REVNameColor;
+    }
+
+    int nameLength =
+        TextLayoutPlainLine(ctx, NameLength, Name, DialogueFont, fontSize,
+                            ColorTable[colorIndex], 1.0f, pos, alignment);
     assert(nameLength == NameLength);
     ctx->Ip = oldIp;
   }

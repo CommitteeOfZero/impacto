@@ -23,6 +23,11 @@ root.SpriteSheets = {
         Path: { Mount: "bg", Id: 540 },
         DesignWidth: 960,
         DesignHeight: 544
+    },
+    "Backlog": {
+        Path: {Mount: "system", Id: 6 },
+        DesignWidth: 2048,
+        DesignHeight: 720
     }
 };
 

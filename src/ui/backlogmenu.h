@@ -19,6 +19,7 @@ class BacklogMenu : public Menu {
 
   void AddMessage(uint8_t* str, int audioId = -1);
   void MenuButtonOnClick(Widgets::BacklogEntry* target);
+  void Clear();
 
   float PageY = 0.0f;
 

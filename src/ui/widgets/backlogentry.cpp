@@ -47,11 +47,24 @@ BacklogEntry::BacklogEntry(int id, uint8_t* str, int audioId, glm::vec2 pos) {
   if (currentWidth > maxWidth) {
     maxWidth = currentWidth;
   }
-  TextHeight = (BacklogPage->Glyphs[TextLength - 1].DestRect.Y +
-                BacklogPage->Glyphs[TextLength - 1].DestRect.Height) -
-               BacklogPage->Glyphs[0].DestRect.Y;
-  Bounds = RectF(BacklogPage->Glyphs[0].DestRect.X,
-                 BacklogPage->Glyphs[0].DestRect.Y, maxWidth, TextHeight);
+  if (BacklogPage->HasName) {
+    TextHeight = (BacklogPage->Glyphs[TextLength - 1].DestRect.Y +
+                  BacklogPage->Glyphs[TextLength - 1].DestRect.Height) -
+                 BacklogPage->Name[0].DestRect.Y;
+    Bounds = RectF(BacklogPage->Name[0].DestRect.X,
+                   BacklogPage->Name[0].DestRect.Y, maxWidth, TextHeight);
+  } else {
+    TextHeight = (BacklogPage->Glyphs[TextLength - 1].DestRect.Y +
+                  BacklogPage->Glyphs[TextLength - 1].DestRect.Height) -
+                 BacklogPage->Glyphs[0].DestRect.Y;
+    Bounds = RectF(BacklogPage->Glyphs[0].DestRect.X,
+                   BacklogPage->Glyphs[0].DestRect.Y, maxWidth, TextHeight);
+  }
+}
+
+BacklogEntry::~BacklogEntry() {
+  delete BacklogPage->Glyphs;
+  delete BacklogPage;
 }
 
 void BacklogEntry::UpdateInput() {
@@ -68,22 +81,17 @@ void BacklogEntry::UpdateInput() {
   }
 }
 
-void BacklogEntry::Update(float dt) {
-  auto previousBounds = RectF(Bounds);
-  Widget::Update(dt);
-  if (previousBounds.X != Bounds.X || previousBounds.Y != Bounds.Y) {
-    for (int i = 0; i < TextLength; i++) {
-      BacklogPage->Glyphs[i].DestRect.X += Bounds.X - previousBounds.X;
-      BacklogPage->Glyphs[i].DestRect.Y += Bounds.Y - previousBounds.Y;
-    }
-  }
-}
-
 void BacklogEntry::Move(glm::vec2 relativePosition) {
   Widget::Move(relativePosition);
   for (int i = 0; i < TextLength; i++) {
     BacklogPage->Glyphs[i].DestRect.X += relativePosition.x;
     BacklogPage->Glyphs[i].DestRect.Y += relativePosition.y;
+  }
+  if (BacklogPage->HasName) {
+    for (int i = 0; i < BacklogPage->NameLength; i++) {
+      BacklogPage->Name[i].DestRect.X += relativePosition.x;
+      BacklogPage->Name[i].DestRect.Y += relativePosition.y;
+    }
   }
 }
 
@@ -98,6 +106,11 @@ void BacklogEntry::Render() {
   if (AudioId != -1) {
     Renderer2D::DrawSprite(
         VoiceIcon, glm::vec2(Bounds.X - VoiceIcon.ScaledWidth(), Bounds.Y));
+  }
+  if (BacklogPage->HasName) {
+    Renderer2D::DrawProcessedText(BacklogPage->Name, BacklogPage->NameLength,
+                                  Profile::Dialogue::DialogueFont, Tint.a, true,
+                                  true);
   }
   Renderer2D::DrawProcessedText(BacklogPage->Glyphs, TextLength,
                                 Profile::Dialogue::DialogueFont, Tint.a, true,

@@ -13,8 +13,8 @@ namespace Widgets {
 class BacklogEntry : public Widget {
  public:
   BacklogEntry(int id, uint8_t* str, int audioId, glm::vec2 pos);
+  ~BacklogEntry();
 
-  void Update(float dt) override;
   void UpdateInput();
   void Render() override;
 
@@ -29,8 +29,6 @@ class BacklogEntry : public Widget {
  protected:
   DialoguePage* BacklogPage;
   int TextLength = 0;
-  int NameLength = 0;
-  float NameWidth = 0.0f;
 };
 
 }  // namespace Widgets

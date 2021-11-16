@@ -3,6 +3,8 @@
 namespace Impacto {
 namespace UI {
 
+Widget::~Widget() {}
+
 void Widget::Update(float dt) {
   if (MoveAnimation.State == AS_Playing) {
     MoveAnimation.Update(dt);

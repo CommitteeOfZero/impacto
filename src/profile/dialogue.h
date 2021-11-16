@@ -32,6 +32,10 @@ extern float ADVNameFontSize;
 // ADVNamePos.x
 extern glm::vec2 ADVNamePos;
 
+extern float REVNameFontSize;
+extern int REVNameColor;
+extern float REVNameOffset;
+
 extern Sprite WaitIconSprite;
 extern SpriteAnimationDef WaitIconSpriteAnim;
 extern glm::vec2 WaitIconOffset;
