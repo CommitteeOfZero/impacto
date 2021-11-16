@@ -27,6 +27,10 @@ TextAlignment ADVNameAlignment = TextAlignment::Left;
 float ADVNameFontSize;
 glm::vec2 ADVNamePos;
 
+float REVNameFontSize;
+int REVNameColor;
+float REVNameOffset;
+
 Sprite WaitIconSprite;
 SpriteAnimationDef WaitIconSpriteAnim;
 glm::vec2 WaitIconOffset;
@@ -85,6 +89,10 @@ void Configure() {
 
   ADVNameFontSize = EnsureGetMemberFloat("ADVNameFontSize");
   ADVNamePos = EnsureGetMemberVec2("ADVNamePos");
+
+  REVNameFontSize = EnsureGetMemberFloat("REVNameFontSize");
+  REVNameColor = EnsureGetMemberInt("REVNameColor");
+  REVNameOffset = EnsureGetMemberFloat("REVNameOffset");
 
   WaitIconCurrentType = WaitIconDisplay::WaitIconType::_from_integral_unchecked(
       EnsureGetMemberInt("WaitIconCurrentType"));

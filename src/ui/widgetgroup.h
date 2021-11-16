@@ -41,6 +41,8 @@ class WidgetGroup {
   void MoveTo(glm::vec2 pos, float duration);
   void MoveTo(glm::vec2 pos);
 
+  void Clear();
+
   float Opacity = 1.0f;
 
  private:
