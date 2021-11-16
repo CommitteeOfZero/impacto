@@ -30,6 +30,7 @@ include('rne/hud/loadingdisplay.js');
 include('rne/hud/datedisplay.js');
 include('rne/hud/titlemenu.js');
 include('rne/hud/systemmenu.js');
+include('rne/hud/backlogmenu.js');
 include('rne/hud/sysmesboxdisplay.js');
 include('rne/scene3d/scene3d.js');
 include('rne/hud/selectiondisplay.js');

@@ -36,5 +36,6 @@ include('cc/hud/loadingdisplay.js');
 include('cc/hud/datedisplay.js');
 include('cc/hud/titlemenu.js');
 //include('cc/hud/systemmenu.js');
+include('cc/hud/backlogmenu.js');
 include('cc/hud/sysmesboxdisplay.js');
 include('cc/hud/selectiondisplay.js');

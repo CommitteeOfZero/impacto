@@ -35,5 +35,6 @@ include('mo7/hud/loadingdisplay.js');
 include('mo7/hud/datedisplay.js');
 //include('mo7/hud/titlemenu.js');
 //include('mo7/hud/systemmenu.js');
+include('mo7/hud/backlogmenu.js');
 include('mo7/hud/sysmesboxdisplay.js');
 include('mo7/hud/selectiondisplay.js');
