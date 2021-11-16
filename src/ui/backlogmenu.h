@@ -3,6 +3,7 @@
 #include "menu.h"
 #include "widgetgroup.h"
 #include "widgets/backlogentry.h"
+#include "widgets/scrollbar.h"
 
 namespace Impacto {
 namespace UI {
@@ -19,11 +20,15 @@ class BacklogMenu : public Menu {
   void AddMessage(uint8_t* str, int audioId = -1);
   void MenuButtonOnClick(Widgets::BacklogEntry* target);
 
+  float PageY = 0.0f;
+
  private:
   int CurrentId = 0;
+  float ItemsHeight = 0.0f;
   glm::vec2 CurrentEntryPos;
   WidgetGroup* MainItems;
   Animation FadeAnimation;
+  Widgets::Scrollbar* MainScrollbar;
 };
 
 }  // namespace UI

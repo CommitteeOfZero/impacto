@@ -122,6 +122,7 @@ set(Impacto_Src
     src/ui/widgets/label.cpp
     src/ui/widgets/button.cpp
     src/ui/widgets/backlogentry.cpp
+    src/ui/widgets/scrollbar.cpp
     src/ui/widgets/mo6tw/titlebutton.cpp
     src/ui/widgets/mo6tw/saveentrybutton.cpp
     src/ui/widgets/chlcc/titlebutton.cpp
@@ -331,6 +332,7 @@ set(Impacto_Header
     src/ui/widgets/label.h
     src/ui/widgets/button.h
     src/ui/widgets/backlogentry.h
+    src/ui/widgets/scrollbar.h
     src/ui/widgets/mo6tw/titlebutton.h
     src/ui/widgets/mo6tw/saveentrybutton.h
     src/ui/widgets/chlcc/titlebutton.h
