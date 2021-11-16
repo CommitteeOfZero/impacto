@@ -33,6 +33,7 @@ include('darling/hud/saveicon.js');
 include('darling/hud/loadingdisplay.js');
 include('darling/hud/datedisplay.js');
 include('darling/hud/titlemenu.js');
+include('darling/hud/backlogmenu.js');
 //include('darling/hud/systemmenu.js');
 include('darling/hud/sysmesboxdisplay.js');
 include('dash/hud/selectiondisplay.js');

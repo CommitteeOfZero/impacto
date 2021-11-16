@@ -35,5 +35,6 @@ include('sgps3/hud/loadingdisplay.js');
 include('sgps3/hud/datedisplay.js');
 include('sgps3/hud/titlemenu.js');
 //include('sgps3/hud/systemmenu.js');
+include('sgps3/hud/backlogmenu.js');
 include('sgps3/hud/sysmesboxdisplay.js');
 include('sgps3/hud/selectiondisplay.js');
