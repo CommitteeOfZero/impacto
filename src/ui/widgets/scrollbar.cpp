@@ -26,11 +26,19 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float min, float max, float* value,
       RectF(pos.x, pos.y, TrackSprite.Bounds.Width, TrackSprite.Bounds.Height);
 }
 
+Scrollbar::Scrollbar(int id, glm::vec2 pos, float min, float max, float* value,
+                     ScrollbarDirection dir, Sprite const& track,
+                     Sprite const& thumb, Sprite const& fill)
+    : Scrollbar(id, pos, min, max, value, dir, track, thumb) {
+  FillSprite = fill;
+  HasFill = true;
+}
+
 void Scrollbar::UpdateInput() {
   if (Enabled) {
     if (Input::PrevMousePos != Input::CurMousePos) {
       Hovered = TrackBounds.ContainsPoint(Input::CurMousePos) ||
-                ThumbSprite.Bounds.ContainsPoint(Input::CurMousePos);
+                ThumbBounds.ContainsPoint(Input::CurMousePos);
     }
     if (Hovered && Input::MouseButtonIsDown[SDL_BUTTON_LEFT]) {
       Scrolling = true;
@@ -63,21 +71,32 @@ void Scrollbar::UpdateInput() {
 
 void Scrollbar::Render() {
   Renderer2D::DrawSprite(TrackSprite, TrackBounds);
+
   float thumbX, thumbY;
+  float part = ((*Value - MinValue) / (MaxValue - MinValue)) * Length;
   if (Direction == SBDIR_VERTICAL) {
     thumbX = (TrackBounds.X + (TrackBounds.Width / 2.0f)) -
              (ThumbSprite.ScaledWidth() / 2.0f);
-    thumbY = (TrackBounds.Y +
-              (((*Value - MinValue) / (MaxValue - MinValue)) * Length)) -
-             (ThumbSprite.ScaledHeight() / 2.0f);
+    thumbY = (TrackBounds.Y + part) - (ThumbSprite.ScaledHeight() / 2.0f);
+    if (HasFill) {
+      FillSprite.Bounds.Height = part;
+      Renderer2D::DrawSprite(FillSprite,
+                             glm::vec2(TrackBounds.X, TrackBounds.Y), Tint);
+    }
   } else if (Direction == SBDIR_HORIZONTAL) {
-    thumbX = (TrackBounds.X +
-              (((*Value - MinValue) / (MaxValue - MinValue)) * Length)) -
-             (ThumbSprite.ScaledWidth() / 2.0f);
+    thumbX = (TrackBounds.X + part) - (ThumbSprite.ScaledWidth() / 2.0f);
     thumbY = (TrackBounds.Y + (TrackBounds.Height / 2.0f)) -
              (ThumbSprite.ScaledHeight() / 2.0f);
+    if (HasFill) {
+      FillSprite.Bounds.Width = part;
+      Renderer2D::DrawSprite(FillSprite,
+                             glm::vec2(TrackBounds.X, TrackBounds.Y), Tint);
+    }
   }
-  Renderer2D::DrawSprite(ThumbSprite, glm::vec2(thumbX, thumbY));
+  ThumbBounds = RectF(thumbX, thumbY, ThumbSprite.ScaledWidth(),
+                      ThumbSprite.ScaledHeight());
+
+  Renderer2D::DrawSprite(ThumbSprite, glm::vec2(thumbX, thumbY), Tint);
 }
 
 }  // namespace Widgets

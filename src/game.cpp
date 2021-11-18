@@ -43,6 +43,7 @@
 #include "profile/ui/titlemenu.h"
 #include "profile/ui/savemenu.h"
 #include "profile/ui/backlogmenu.h"
+#include "profile/ui/optionsmenu.h"
 
 namespace Impacto {
 
@@ -124,6 +125,7 @@ static void Init() {
     Profile::SystemMenu::Configure();
     Profile::SaveMenu::Configure();
     Profile::BacklogMenu::Configure();
+    Profile::OptionsMenu::Configure();
     DateDisplay::Init();
   }
 
@@ -209,6 +211,7 @@ void Update(float dt) {
     UI::SaveMenuPtr->Update(dt);
     UI::SelectionMenuPtr->Update(dt);
     UI::BacklogMenuPtr->Update(dt);
+    UI::OptionsMenuPtr->Update(dt);
 
     SaveIconDisplay::Update(dt);
     LoadingDisplay::Update(dt);
@@ -441,6 +444,7 @@ void Render() {
             UI::TitleMenuPtr->Render();
           }
           UI::SystemMenuPtr->Render();
+          UI::OptionsMenuPtr->Render();
           break;
         }
         case TD_SystemMessage: {
