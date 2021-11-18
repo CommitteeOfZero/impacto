@@ -54,6 +54,7 @@ set(Impacto_Src
     src/profile/ui/sysmesbox.cpp
     src/profile/ui/selectionmenu.cpp
     src/profile/ui/backlogmenu.cpp
+    src/profile/ui/optionsmenu.cpp
 
     src/profile/games/rne/tilebackground.cpp
     src/profile/games/rne/systemmenu.cpp
@@ -74,6 +75,7 @@ set(Impacto_Src
     src/profile/games/mo6tw/systemmenu.cpp
     src/profile/games/mo6tw/titlemenu.cpp
     src/profile/games/mo6tw/savemenu.cpp
+    src/profile/games/mo6tw/optionsmenu.cpp
 
     src/profile/games/darling/sysmesbox.cpp
 
@@ -100,6 +102,7 @@ set(Impacto_Src
     src/games/mo6tw/systemmenu.cpp
     src/games/mo6tw/titlemenu.cpp
     src/games/mo6tw/savemenu.cpp
+    src/games/mo6tw/optionsmenu.cpp
     src/games/mo6tw/savesystem.cpp
 
 	src/games/darling/sysmesbox.cpp
@@ -123,6 +126,7 @@ set(Impacto_Src
     src/ui/widgets/button.cpp
     src/ui/widgets/backlogentry.cpp
     src/ui/widgets/scrollbar.cpp
+    src/ui/widgets/toggle.cpp
     src/ui/widgets/mo6tw/titlebutton.cpp
     src/ui/widgets/mo6tw/saveentrybutton.cpp
     src/ui/widgets/chlcc/titlebutton.cpp
@@ -263,6 +267,7 @@ set(Impacto_Header
     src/profile/ui/sysmesbox.h
     src/profile/ui/selectionmenu.h
     src/profile/ui/backlogmenu.h
+    src/profile/ui/optionsmenu.h
 
     src/profile/games/rne/tilebackground.h
     src/profile/games/rne/systemmenu.h
@@ -283,6 +288,7 @@ set(Impacto_Header
     src/profile/games/mo6tw/systemmenu.h
     src/profile/games/mo6tw/titlemenu.h
     src/profile/games/mo6tw/savemenu.h
+    src/profile/games/mo6tw/optionsmenu.h
 
     src/profile/games/darling/sysmesbox.h
 
@@ -309,6 +315,7 @@ set(Impacto_Header
     src/games/mo6tw/systemmenu.h
     src/games/mo6tw/titlemenu.h
     src/games/mo6tw/savemenu.h
+    src/games/mo6tw/optionsmenu.h
     src/games/mo6tw/savesystem.h
 
     src/games/darling/sysmesbox.h
@@ -333,6 +340,7 @@ set(Impacto_Header
     src/ui/widgets/button.h
     src/ui/widgets/backlogentry.h
     src/ui/widgets/scrollbar.h
+    src/ui/widgets/toggle.h
     src/ui/widgets/mo6tw/titlebutton.h
     src/ui/widgets/mo6tw/saveentrybutton.h
     src/ui/widgets/chlcc/titlebutton.h
