@@ -51,7 +51,7 @@ void SelectionMenu::AddChoice(uint8_t* str) {
 }
 
 void SelectionMenu::Show() {
-  ChoiceItems = new WidgetGroup();
+  ChoiceItems = new Widgets::Group(this);
 
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
@@ -90,7 +90,7 @@ void SelectionMenu::Show() {
                       Profile::Dialogue::DefaultFontSize, true);
       choice->OnClickHandler = onClick;
 
-      ChoiceItems->Add(choice, FocusDirection::Vertical);
+      ChoiceItems->Add(choice, FDIR_DOWN);
     }
     ChoiceHeight -= PlainSelectionYSpacing;
   } else {
@@ -119,21 +119,27 @@ void SelectionMenu::Show() {
                       Profile::Dialogue::DefaultFontSize, true);
       choice->OnClickHandler = onClick;
 
-      ChoiceItems->Add(choice, FocusDirection::Vertical);
+      ChoiceItems->Add(choice, FDIR_DOWN);
     }
   }
 
   ChoiceItems->Show();
   FadeAnimation.StartIn();
   State = Showing;
+  Menu::Show();
 }
 
 void SelectionMenu::Hide() {
   FadeAnimation.StartOut();
   State = Hiding;
+  memset(FocusStart, 0, sizeof(FocusStart));
+  if (CurrentlyFocusedElement) CurrentlyFocusedElement->HasFocus = false;
+  CurrentlyFocusedElement = 0;
+  Menu::Hide();
 }
 
 void SelectionMenu::Update(float dt) {
+  UpdateInput();
   FadeAnimation.Update(dt);
   if (State != Hidden) {
     if (FadeAnimation.IsIn()) State = Shown;

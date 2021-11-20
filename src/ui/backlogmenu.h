@@ -1,7 +1,7 @@
 #pragma once
 
 #include "menu.h"
-#include "widgetgroup.h"
+#include "widgets/group.h"
 #include "widgets/backlogentry.h"
 #include "widgets/scrollbar.h"
 
@@ -27,7 +27,7 @@ class BacklogMenu : public Menu {
   int CurrentId = 0;
   float ItemsHeight = 0.0f;
   glm::vec2 CurrentEntryPos;
-  WidgetGroup* MainItems;
+  Widgets::Group* MainItems;
   Animation FadeAnimation;
   Widgets::Scrollbar* MainScrollbar;
 };

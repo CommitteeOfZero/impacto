@@ -44,5 +44,11 @@ void Widget::MoveTo(glm::vec2 pos) {
   Bounds.Y = pos.y;
 }
 
+Widget* Widget::GetFocus(FocusDirection dir) { return FocusElements[dir]; }
+
+void Widget::SetFocus(Widget* widget, FocusDirection dir) {
+  FocusElements[dir] = widget;
+}
+
 }  // namespace UI
 }  // namespace Impacto

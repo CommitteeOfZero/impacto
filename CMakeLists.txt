@@ -111,7 +111,7 @@ set(Impacto_Src
 
     src/ui/ui.cpp
     src/ui/widget.cpp
-    src/ui/widgetgroup.cpp
+    src/ui/menu.cpp
     src/ui/nullmenu.cpp
     src/ui/selectionmenu.cpp
     src/ui/sysmesbox.cpp
@@ -121,6 +121,7 @@ set(Impacto_Src
     src/ui/widgets/backlogentry.cpp
     src/ui/widgets/scrollbar.cpp
     src/ui/widgets/toggle.cpp
+    src/ui/widgets/group.cpp
     src/ui/widgets/mo6tw/titlebutton.cpp
     src/ui/widgets/mo6tw/saveentrybutton.cpp
     src/ui/widgets/chlcc/titlebutton.cpp
@@ -315,7 +316,6 @@ set(Impacto_Header
     src/hud/waiticondisplay.h
 
     src/ui/ui.h
-    src/ui/widgetgroup.h
     src/ui/menu.h
     src/ui/nullmenu.h
     src/ui/selectionmenu.h
@@ -327,6 +327,7 @@ set(Impacto_Header
     src/ui/widgets/backlogentry.h
     src/ui/widgets/scrollbar.h
     src/ui/widgets/toggle.h
+    src/ui/widgets/group.h
     src/ui/widgets/mo6tw/titlebutton.h
     src/ui/widgets/mo6tw/saveentrybutton.h
     src/ui/widgets/chlcc/titlebutton.h

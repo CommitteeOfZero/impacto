@@ -33,6 +33,9 @@ class Scrollbar : public Widget {
   float* Value;
 
  protected:
+  float Step = 0.0f;
+  float TrackProgress = 0.0f;
+  glm::vec2 ThumbPosition;
   RectF TrackBounds;
   RectF ThumbBounds;
   bool Scrolling = false;

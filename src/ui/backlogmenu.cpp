@@ -31,7 +31,7 @@ void BacklogMenu::MenuButtonOnClick(Widgets::BacklogEntry* target) {
 }
 
 BacklogMenu::BacklogMenu() {
-  MainItems = new WidgetGroup(EntriesStart);
+  MainItems = new Widgets::Group(this, EntriesStart);
   MainItems->RenderingBounds = RenderingBounds;
 
   MainScrollbar = new Scrollbar(0, ScrollbarPosition, 0.0f, 1.0f, &PageY,
@@ -50,6 +50,11 @@ void BacklogMenu::Show() {
     State = Showing;
     FadeAnimation.StartIn();
     MainItems->Show();
+    if (!MainItems->Children.empty()) {
+      auto el = MainItems->Children.back();
+      FocusStart[FDIR_UP] = el;
+      FocusStart[FDIR_DOWN] = el;
+    }
     if (UI::FocusedMenu != 0) {
       LastFocusedMenu = UI::FocusedMenu;
       LastFocusedMenu->IsFocused = false;
@@ -74,6 +79,8 @@ void BacklogMenu::Hide() {
 }
 
 void BacklogMenu::Update(float dt) {
+  UpdateInput();
+
   FadeAnimation.Update(dt);
 
   if (FadeAnimation.IsIn())
@@ -99,7 +106,7 @@ void BacklogMenu::Update(float dt) {
     if ((PADinputButtonWentDown & PAD1DOWN ||
          PADinputButtonWentDown & PAD1UP) &&
         MainScrollbar->Enabled) {
-      auto focusedEl = MainItems->Children[MainItems->FocusId];
+      auto focusedEl = CurrentlyFocusedElement;
       if (focusedEl->Bounds.Y < MainItems->RenderingBounds.Y) {
         PageY += focusedEl->Bounds.Height + EntryYPadding;
       } else if (focusedEl->Bounds.Y + focusedEl->Bounds.Height >
@@ -135,7 +142,7 @@ void BacklogMenu::AddMessage(uint8_t* str, int audioId) {
     CurrentId += 1;
     CurrentEntryPos.y += backlogEntry->TextHeight + EntryYPadding;
     backlogEntry->OnClickHandler = onClick;
-    MainItems->Add(backlogEntry, FocusDirection::Vertical);
+    MainItems->Add(backlogEntry, FDIR_DOWN);
     ItemsHeight += backlogEntry->TextHeight + EntryYPadding;
     if (ItemsHeight > MainItems->RenderingBounds.Height) {
       MainScrollbar->MaxValue = -ItemsHeight +

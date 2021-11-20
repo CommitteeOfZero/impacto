@@ -1,23 +1,22 @@
 #pragma once
 
-#include <enum.h>
-#include <flat_hash_map.hpp>
+#include <vector>
 #include "../impacto.h"
-#include "widgetgroup.h"
+#include "widget.h"
 
 namespace Impacto {
 namespace UI {
-
-BETTER_ENUM(MenuType, int, None, RNE, Dash, CHLCC, MO6TW)
 
 enum MenuState { Hidden, Hiding, Showing, Shown };
 
 class Menu {
  public:
-  virtual void Show() = 0;
-  virtual void Hide() = 0;
+  virtual void Show();
+  virtual void Hide();
   virtual void Update(float dt) = 0;
   virtual void Render() = 0;
+
+  void UpdateInput();
 
   MenuState State = Hidden;
 
@@ -25,6 +24,11 @@ class Menu {
   bool ChoiceMade = false;
 
   Menu* LastFocusedMenu = 0;
+  Widget* FocusStart[4] = {0, 0, 0, 0};
+  Widget* CurrentlyFocusedElement = 0;
+
+ private:
+  void AdvanceFocus(FocusDirection dir);
 };
 
 }  // namespace UI

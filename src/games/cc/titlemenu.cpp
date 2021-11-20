@@ -63,6 +63,8 @@ void TitleMenu::Hide() {
 }
 
 void TitleMenu::Update(float dt) {
+  UpdateInput();
+
   PressToStartAnimation.Update(dt);
   SmokeAnimation.Update(dt);
   MoveLeftAnimation.Update(dt);

@@ -34,10 +34,10 @@ void TitleMenu::SecondaryButtonOnClick(Widgets::Button* target) {
 }
 
 TitleMenu::TitleMenu() {
-  MainItems = new WidgetGroup();
-  LoadItems = new WidgetGroup();
-  ExtraItems = new WidgetGroup();
-  SystemItems = new WidgetGroup();
+  MainItems = new Widgets::Group(this);
+  LoadItems = new Widgets::Group(this);
+  ExtraItems = new Widgets::Group(this);
+  SystemItems = new Widgets::Group(this);
 
   auto onClick =
       std::bind(&TitleMenu::MenuButtonOnClick, this, std::placeholders::_1);
@@ -54,7 +54,7 @@ TitleMenu::TitleMenu() {
   Start->OnClickHandler = onClick;
   Start->HasFocus = true;
 
-  MainItems->Add(Start, FocusDirection::Vertical);
+  MainItems->Add(Start, FDIR_DOWN);
 
   // Load menu button
   Load = new TitleButton(
@@ -64,7 +64,7 @@ TitleMenu::TitleMenu() {
               ItemHighlightOffsetX,
           ((ItemYBase - 1.0f) + (1 * ItemPadding))));
   Load->OnClickHandler = onClick;
-  MainItems->Add(Load, FocusDirection::Vertical);
+  MainItems->Add(Load, FDIR_DOWN);
 
   // Extra menu button
   Extra = new TitleButton(
@@ -74,7 +74,7 @@ TitleMenu::TitleMenu() {
               ItemHighlightOffsetX,
           ((ItemYBase - 1.0f) + (2 * ItemPadding))));
   Extra->OnClickHandler = onClick;
-  MainItems->Add(Extra, FocusDirection::Vertical);
+  MainItems->Add(Extra, FDIR_DOWN);
 
   // System menu button
   System = new TitleButton(
@@ -84,7 +84,7 @@ TitleMenu::TitleMenu() {
               ItemHighlightOffsetX,
           ((ItemYBase - 1.0f) + (3 * ItemPadding))));
   System->OnClickHandler = onClick;
-  MainItems->Add(System, FocusDirection::Vertical);
+  MainItems->Add(System, FDIR_DOWN);
 
   // Quick Load secondary Load menu button
   QuickLoad = new TitleButton(0, MenuEntriesSprites[4], MenuEntriesHSprites[4],
@@ -95,7 +95,7 @@ TitleMenu::TitleMenu() {
   QuickLoad->IsSubButton = true;
   QuickLoad->LineDecoration = LineSprites[2];
   QuickLoad->LineY = SecondaryMenuLoadLineY;
-  LoadItems->Add(QuickLoad, FocusDirection::Vertical);
+  LoadItems->Add(QuickLoad, FDIR_DOWN);
 
   // Sub Load secondary Load menu button
   SubLoad = new TitleButton(1, MenuEntriesSprites[5], MenuEntriesHSprites[5],
@@ -105,7 +105,7 @@ TitleMenu::TitleMenu() {
   SubLoad->IsSubButton = true;
   SubLoad->LineDecoration = LineSprites[3];
   SubLoad->LineY = SecondaryMenuLoadQuickLineY;
-  LoadItems->Add(SubLoad, FocusDirection::Vertical);
+  LoadItems->Add(SubLoad, FDIR_DOWN);
 
   // Clear List secondary Extra menu button
   ClearList = new TitleButton(0, MenuEntriesSprites[6], MenuEntriesHSprites[6],
@@ -116,7 +116,7 @@ TitleMenu::TitleMenu() {
   ClearList->HasFocus = true;
   ClearList->LineDecoration = LineSprites[0];
   ClearList->LineY = SecondaryMenuExtraClearY;
-  ExtraItems->Add(ClearList, FocusDirection::Vertical);
+  ExtraItems->Add(ClearList, FDIR_DOWN);
 
   // CG Library secondary Extra menu button
   CGLibrary = new TitleButton(1, MenuEntriesSprites[7], MenuEntriesHSprites[7],
@@ -126,7 +126,7 @@ TitleMenu::TitleMenu() {
   CGLibrary->IsSubButton = true;
   CGLibrary->LineDecoration = LineSprites[1];
   CGLibrary->LineY = SecondaryMenuExtraCGY;
-  ExtraItems->Add(CGLibrary, FocusDirection::Vertical);
+  ExtraItems->Add(CGLibrary, FDIR_DOWN);
 
   // Sound Library secondary Extra menu button
   SoundLibrary =
@@ -137,7 +137,7 @@ TitleMenu::TitleMenu() {
   SoundLibrary->IsSubButton = true;
   SoundLibrary->LineDecoration = LineSprites[2];
   SoundLibrary->LineY = SecondaryMenuExtraSoundY;
-  ExtraItems->Add(SoundLibrary, FocusDirection::Vertical);
+  ExtraItems->Add(SoundLibrary, FDIR_DOWN);
 
   // Movie Library secondary Extra menu button
   MovieLibrary =
@@ -148,7 +148,7 @@ TitleMenu::TitleMenu() {
   MovieLibrary->IsSubButton = true;
   MovieLibrary->LineDecoration = LineSprites[3];
   MovieLibrary->LineY = SecondaryMenuExtraMovieY;
-  ExtraItems->Add(MovieLibrary, FocusDirection::Vertical);
+  ExtraItems->Add(MovieLibrary, FDIR_DOWN);
 
   // Tips secondary Extra menu button
   Tips = new TitleButton(4, MenuEntriesSprites[10], MenuEntriesHSprites[10],
@@ -158,7 +158,7 @@ TitleMenu::TitleMenu() {
   Tips->IsSubButton = true;
   Tips->LineDecoration = LineSprites[4];
   Tips->LineY = SecondaryMenuExtraTipsY;
-  ExtraItems->Add(Tips, FocusDirection::Vertical);
+  ExtraItems->Add(Tips, FDIR_DOWN);
 
   // Trophy secondary Extra menu button
   Trophy = new TitleButton(5, MenuEntriesSprites[11], MenuEntriesHSprites[11],
@@ -168,7 +168,7 @@ TitleMenu::TitleMenu() {
   Trophy->IsSubButton = true;
   Trophy->LineDecoration = LineSprites[5];
   Trophy->LineY = SecondaryMenuExtraTrophyY;
-  ExtraItems->Add(Trophy, FocusDirection::Vertical);
+  ExtraItems->Add(Trophy, FDIR_DOWN);
 
   // Option secondary System menu button
   Config = new TitleButton(0, MenuEntriesSprites[12], MenuEntriesHSprites[12],
@@ -179,7 +179,7 @@ TitleMenu::TitleMenu() {
   Config->HasFocus = true;
   Config->LineDecoration = LineSprites[2];
   Config->LineY = SecondaryMenuSystemConfigY;
-  SystemItems->Add(Config, FocusDirection::Vertical);
+  SystemItems->Add(Config, FDIR_DOWN);
 
   // System Save secondary System menu button
   SystemSave = new TitleButton(
@@ -189,7 +189,7 @@ TitleMenu::TitleMenu() {
   SystemSave->IsSubButton = true;
   SystemSave->LineDecoration = LineSprites[3];
   SystemSave->LineY = SecondaryMenuSystemSaveY;
-  SystemItems->Add(SystemSave, FocusDirection::Vertical);
+  SystemItems->Add(SystemSave, FDIR_DOWN);
 }
 
 void TitleMenu::Show() {
@@ -222,6 +222,8 @@ void TitleMenu::Hide() {
 }
 
 void TitleMenu::Update(float dt) {
+  UpdateInput();
+
   PressToStartAnimation.Update(dt);
   SpinningCircleAnimation.Update(dt);
   PrimaryFadeAnimation.Update(dt);

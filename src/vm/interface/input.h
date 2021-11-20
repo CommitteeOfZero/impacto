@@ -70,6 +70,8 @@ static uint32_t PADcustom[] = {0x10000,
 
 extern int PADinputButtonWentDown;
 extern int PADinputMouseWentDown;
+extern int PADinputButtonIsDown;
+extern int PADinputMouseIsDown;
 
 void UpdatePADInput();
 

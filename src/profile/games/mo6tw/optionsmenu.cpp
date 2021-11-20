@@ -21,6 +21,9 @@ glm::vec2 VoiceToggleStart;
 glm::vec2 VoiceTogglePadding;
 int VoiceTogglePerLine;
 
+Sprite SectionHeaderSprites[SectionHeaderCount];
+Sprite SectionHeaderHighlightedSprites[SectionHeaderCount];
+
 static void GetMemberSpriteArray(Sprite* arr, uint32_t count,
                                  char const* name) {
   EnsurePushMemberOfType(name, kArrayType);
@@ -49,6 +52,11 @@ void Configure() {
   VoiceToggleStart = EnsureGetMemberVec2("VoiceToggleStart");
   VoiceTogglePadding = EnsureGetMemberVec2("VoiceTogglePadding");
   VoiceTogglePerLine = EnsureGetMemberInt("VoiceTogglePerLine");
+
+  GetMemberSpriteArray(SectionHeaderSprites, SectionHeaderCount,
+                       "SectionHeaderSprites");
+  GetMemberSpriteArray(SectionHeaderHighlightedSprites, SectionHeaderCount,
+                       "SectionHeaderHighlightedSprites");
 
   UI::OptionsMenuPtr = new UI::MO6TW::OptionsMenu();
 }

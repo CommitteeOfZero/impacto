@@ -24,7 +24,7 @@ void SystemMenu::MenuButtonOnClick(Widgets::Button* target) {
 }
 
 SystemMenu::SystemMenu() {
-  MainItems = new WidgetGroup();
+  MainItems = new Widgets::Group(this);
 
   auto onClick =
       std::bind(&SystemMenu::MenuButtonOnClick, this, std::placeholders::_1);
@@ -36,7 +36,7 @@ SystemMenu::SystemMenu() {
         glm::vec2(MenuEntriesX, MenuEntriesFirstY + (i * MenuEntriesYPadding)));
 
     menuButton->OnClickHandler = onClick;
-    MainItems->Add(menuButton, FocusDirection::Vertical);
+    MainItems->Add(menuButton, FDIR_DOWN);
   }
 
   FadeAnimation.Direction = 1;
@@ -74,6 +74,8 @@ void SystemMenu::Hide() {
 }
 
 void SystemMenu::Update(float dt) {
+  UpdateInput();
+
   FadeAnimation.Update(dt);
   if (ScrWork[SW_SYSMENUALPHA] < 256 && State == Shown) {
     Hide();

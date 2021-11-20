@@ -2,6 +2,7 @@
 #include "../log.h"
 #include <utility>
 #include "../profile/game.h"
+#include "../audio/audiosystem.h"
 
 namespace Impacto {
 namespace Video {
@@ -79,7 +80,6 @@ VideoPlayer::~VideoPlayer() { IsInit = false; }
 void VideoPlayer::Init() {
   assert(IsInit == false);
 
-  // Testing crap
   alGenSources(1, &ALSource);
   alSourcef(ALSource, AL_PITCH, 1);
   alSourcef(ALSource, AL_GAIN, 1);
@@ -483,6 +483,8 @@ void VideoPlayer::Seek(int64_t pos) {
 }
 
 void VideoPlayer::ProcessAudio() {
+  float gain = Audio::MasterVolume * Audio::GroupVolumes[Audio::ACG_Movie];
+  alSourcef(ALSource, AL_GAIN, gain);
   SDL_LockMutex(AudioStream->FrameLock);
   ImpLogSlow(LL_Trace, LC_Video, "AudioStream->FrameQueue.size() = %d\n",
              AudioStream->FrameQueue.size());

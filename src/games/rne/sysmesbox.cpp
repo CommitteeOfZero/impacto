@@ -36,8 +36,8 @@ void SysMesBox::ChoiceItemOnClick(Button* target) {
 }
 
 void SysMesBox::Show() {
-  MessageItems = new WidgetGroup();
-  ChoiceItems = new WidgetGroup();
+  MessageItems = new Widgets::Group(this);
+  ChoiceItems = new Widgets::Group(this);
 
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
@@ -56,24 +56,24 @@ void SysMesBox::Show() {
     Label* message = new Label(Messages[i], MessageLengths[i], MessageWidths[i],
                                TextFontSize, false);
 
-    MessageItems->Add(message, FocusDirection::Vertical);
+    MessageItems->Add(message, FDIR_DOWN);
   }
 
   if (ChoiceCount == 1) {
     WidgetOK = new Button(0, ButtonOK, ButtonOKHighlighted, nullSprite,
                           glm::vec2(ButtonRightX, 0.0f));
     WidgetOK->OnClickHandler = onClick;
-    ChoiceItems->Add(WidgetOK, FocusDirection::Horizontal);
+    ChoiceItems->Add(WidgetOK, FDIR_RIGHT);
 
   } else if (ChoiceCount == 2) {
     WidgetYes = new Button(0, ButtonYes, ButtonYesHighlighted, nullSprite,
                            glm::vec2(ButtonYesX, 0.0f));
     WidgetYes->OnClickHandler = onClick;
-    ChoiceItems->Add(WidgetYes, FocusDirection::Horizontal);
+    ChoiceItems->Add(WidgetYes, FDIR_RIGHT);
     WidgetNo = new Button(1, ButtonNo, ButtonNoHighlighted, nullSprite,
                           glm::vec2(ButtonRightX, 0.0f));
     WidgetNo->OnClickHandler = onClick;
-    ChoiceItems->Add(WidgetNo, FocusDirection::Horizontal);
+    ChoiceItems->Add(WidgetNo, FDIR_LEFT);
   }
 
   MessageItems->Show();
@@ -116,6 +116,8 @@ void SysMesBox::Hide() {
 }
 
 void SysMesBox::Update(float dt) {
+  UpdateInput();
+
   FadeAnimation.Update(dt);
 
   if (State == Hiding) {
