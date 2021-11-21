@@ -54,7 +54,6 @@ TitleMenu::TitleMenu() {
               ItemHighlightOffsetX,
           ((ItemYBase - 1.0f) + (0 * ItemPadding))));
   NewGame->OnClickHandler = onClick;
-  NewGame->HasFocus = true;
   MainItems->Add(NewGame, FDIR_DOWN);
 
   // Continue menu button
@@ -140,7 +139,7 @@ void TitleMenu::Update(float dt) {
     Hide();
   }
 
-  if (State != Hidden && GetFlag(SF_TITLEMODE)) {
+  if (State == Shown && IsFocused) {
     MainItems->Opacity =
         glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
     MainItems->Update(dt);
@@ -152,8 +151,10 @@ void TitleMenu::Update(float dt) {
     ExtraItems->Update(dt);
 
     switch (ScrWork[SW_TITLEMODE]) {
-      case 3: {
+      case 3: {  // Main Menu Fade In
         MainItems->Show();
+        CurrentlyFocusedElement = NewGame;
+        NewGame->HasFocus = true;
       } break;
     }
   }
@@ -179,6 +180,10 @@ void TitleMenu::Render() {
         else if (ItemsFadeInAnimation.State != AS_Playing)
           ItemsFadeInAnimation.StartOut();
         DrawMainMenuBackGraphics();
+        MainItems->Render();
+      } break;
+      case 4: {  // Main Menu
+        DrawTitleMenuBackGraphics();
         MainItems->Render();
       } break;
       case 11: {  // Initial Fade In
