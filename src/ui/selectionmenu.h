@@ -2,6 +2,7 @@
 
 #include "menu.h"
 #include "widgets/button.h"
+#include "widgets/group.h"
 #include "../text.h"
 
 namespace Impacto {
@@ -22,7 +23,7 @@ class SelectionMenu : public Menu {
   int SelectedChoiceId = 0;
 
  private:
-  WidgetGroup* ChoiceItems;
+  Widgets::Group* ChoiceItems;
   Animation FadeAnimation;
   bool IsPlain;
   ProcessedTextGlyph Choices[15][255];

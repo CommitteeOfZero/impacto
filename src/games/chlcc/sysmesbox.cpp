@@ -23,8 +23,8 @@ void SysMesBox::ChoiceItemOnClick(Button* target) {
 }
 
 void SysMesBox::Show() {
-  MessageItems = new WidgetGroup();
-  ChoiceItems = new WidgetGroup();
+  MessageItems = new Widgets::Group(this);
+  ChoiceItems = new Widgets::Group(this);
 
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
@@ -50,7 +50,7 @@ void SysMesBox::Show() {
     Label* message = new Label(Messages[i], MessageLengths[i], MessageWidths[i],
                                TextFontSize, true);
 
-    MessageItems->Add(message, FocusDirection::Vertical);
+    MessageItems->Add(message, FDIR_DOWN);
   }
 
   float totalChoiceWidth = 0.0f;
@@ -80,7 +80,7 @@ void SysMesBox::Show() {
                     Profile::Dialogue::DefaultFontSize, true);
     choice->OnClickHandler = onClick;
 
-    ChoiceItems->Add(choice, FocusDirection::Horizontal);
+    ChoiceItems->Add(choice, FDIR_LEFT);
 
     tempChoiceX += ChoiceWidths[i] + ChoicePadding;
   }
@@ -112,6 +112,8 @@ void SysMesBox::Hide() {
 }
 
 void SysMesBox::Update(float dt) {
+  UpdateInput();
+
   FadeAnimation.Update(dt);
   if (State != Hidden) {
     if (FadeAnimation.IsIn()) State = Shown;

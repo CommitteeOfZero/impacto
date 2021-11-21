@@ -19,7 +19,7 @@
 namespace Impacto {
 namespace Audio {
 
-enum AudioChannelGroup { ACG_BGM, ACG_SE, ACG_Voice, ACG_Count };
+enum AudioChannelGroup { ACG_BGM, ACG_SE, ACG_Voice, ACG_Movie, ACG_Count };
 enum AudioChannelId {
   AC_SE0 = 0,
   AC_SE1,

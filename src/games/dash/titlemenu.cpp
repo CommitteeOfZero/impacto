@@ -51,6 +51,8 @@ void TitleMenu::Hide() {
 }
 
 void TitleMenu::Update(float dt) {
+  UpdateInput();
+
   PressToStartAnimation.Update(dt);
   if (GetFlag(SF_TITLEMODE)) {
     Show();

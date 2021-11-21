@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../ui/menu.h"
-#include "../../ui/widgetgroup.h"
+#include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
 #include "../../ui/widgets/scrollbar.h"
 #include "../../ui/widgets/toggle.h"
@@ -22,12 +22,15 @@ class OptionsMenu : public Menu {
   void MenuButtonOnClick(Widgets::Button* target);
 
  private:
-  WidgetGroup* MainItems;
   Animation FadeAnimation;
-  Widgets::Toggle* TestToggle;
-  Widgets::Scrollbar* MainScrollbar;
-  bool VoiceTest[14];
-  float Test = 0.0f;
+
+  Widgets::Scrollbar* VoiceVolumeSlider;
+  Widgets::Scrollbar* BGMVolumeSlider;
+  Widgets::Scrollbar* SEVolumeSlider;
+  Widgets::Scrollbar* MovieVolumeSlider;
+  Widgets::Group* FirstPage;
+  Widgets::Group* CharacterVoiceToggles;
+  bool VoiceTest[13];
 };
 
 }  // namespace MO6TW

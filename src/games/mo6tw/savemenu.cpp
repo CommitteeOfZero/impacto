@@ -41,7 +41,8 @@ SaveMenu::SaveMenu() {
 
 void SaveMenu::Show() {
   if (State != Shown) {
-    MainItems = new WidgetGroup();
+    MainItems = new Widgets::Group(this);
+    MainItems->WrapFocus = false;
 
     auto onClick =
         std::bind(&SaveMenu::MenuButtonOnClick, this, std::placeholders::_1);
@@ -96,19 +97,28 @@ void SaveMenu::Show() {
         }
         saveEntryButton->Thumbnail = EmptyThumbnailSprite;
         id++;
-        MainItems->Add(saveEntryButton, FocusDirection::Horizontal);
+        if (j == EntriesPerRow - 1) {
+          MainItems->Add(saveEntryButton, FDIR_RIGHT);
+        } else {
+          MainItems->Add(saveEntryButton);
+        }
         EntryGrid[i][j] = saveEntryButton;
       }
     }
     for (int j = 0; j < EntriesPerRow; j++) {
       for (int i = 0; i < RowsPerPage; i++) {
-        MainItems->AddToFocusChain(EntryGrid[i][j], FocusDirection::Vertical);
+        if (i != RowsPerPage - 1) {
+          EntryGrid[i][j]->SetFocus(EntryGrid[i + 1][j], FDIR_DOWN);
+          EntryGrid[i + 1][j]->SetFocus(EntryGrid[i][j], FDIR_UP);
+        }
       }
     }
 
     State = Showing;
     FadeAnimation.StartIn();
     MainItems->Show();
+    CurrentlyFocusedElement = EntryGrid[0][0];
+    EntryGrid[0][0]->HasFocus = true;
     if (UI::FocusedMenu != 0) {
       LastFocusedMenu = UI::FocusedMenu;
       LastFocusedMenu->IsFocused = false;
@@ -133,6 +143,8 @@ void SaveMenu::Hide() {
 }
 
 void SaveMenu::Update(float dt) {
+  UpdateInput();
+
   FadeAnimation.Update(dt);
   if (ScrWork[SW_FILEALPHA] < 256 && State == Shown) {
     Hide();

@@ -1,11 +1,15 @@
 #pragma once
 
+#include <enum.h>
+
 #include "../impacto.h"
 #include "../util.h"
 #include "../animation.h"
 
 namespace Impacto {
 namespace UI {
+
+enum FocusDirection { FDIR_LEFT, FDIR_RIGHT, FDIR_UP, FDIR_DOWN };
 
 class Widget {
  public:
@@ -27,12 +31,18 @@ class Widget {
   virtual void MoveTo(glm::vec2 pos, float duration);
   virtual void MoveTo(glm::vec2 pos);
 
+  virtual Widget* GetFocus(FocusDirection dir);
+  virtual void SetFocus(Widget* widget, FocusDirection dir);
+
   RectF Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
 
   glm::vec2 MoveTarget;
   glm::vec2 MoveOrigin;
   bool Moving = false;
   Animation MoveAnimation;
+
+ private:
+  Widget* FocusElements[4] = {0, 0, 0, 0};
 };
 
 }  // namespace UI

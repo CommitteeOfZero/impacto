@@ -7,6 +7,8 @@ root.OptionsMenu = {
     VoiceToggleEnabledSprites: [],
     VoiceToggleDisabledSprites: [],
     VoiceToggleHighlightSprite: "OptionsVoiceToggleHighlight",
+    SectionHeaderSprites: [],
+    SectionHeaderHighlightedSprites: [],
     VoiceToggleStart: { X: 80, Y: 465 },
     VoiceTogglePadding: { X: 96, Y: 56 },
     VoiceTogglePerLine: 5,
@@ -77,3 +79,34 @@ root.Sprites["OptionsVoiceToggleHighlight"] = {
     Sheet: "Options",
     Bounds: { X: 968, Y: 753, Width: 88, Height: 48 }
 };
+
+var firstX = 1301;
+var firstY = 1;
+var highlightedFirstY = 443;
+
+for (var i = 1; i < 14; i++) {
+    root.Sprites["OptionsSectionHeader" + i] = {
+        Sheet: "Options",
+        Bounds: {
+            X: firstX,
+            Y: firstY,
+            Width: 400,
+            Height: 32
+        }
+    };
+    root.OptionsMenu.SectionHeaderSprites.push("OptionsSectionHeader" + i);
+
+    root.Sprites["OptionsSectionHeaderHighlighted" + i] = {
+        Sheet: "Options",
+        Bounds: {
+            X: firstX,
+            Y: highlightedFirstY,
+            Width: 400,
+            Height: 32
+        }
+    };
+    root.OptionsMenu.SectionHeaderHighlightedSprites.push("OptionsSectionHeaderHighlighted" + i);
+
+    firstY += 34;
+    highlightedFirstY += 34;
+}

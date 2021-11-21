@@ -1,12 +1,14 @@
 #include "scrollbar.h"
 #include "../../renderer2d.h"
 #include "../../inputsystem.h"
+#include "../../vm/interface/input.h"
 
 namespace Impacto {
 namespace UI {
 namespace Widgets {
 
 using namespace Impacto::Profile::ScriptVars;
+using namespace Impacto::Vm::Interface;
 
 Scrollbar::Scrollbar(int id, glm::vec2 pos, float min, float max, float* value,
                      ScrollbarDirection dir, Sprite const& track,
@@ -16,14 +18,16 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float min, float max, float* value,
   MinValue = min;
   MaxValue = max;
   Value = value;
-  *Value = min;
   TrackSprite = track;
   ThumbSprite = thumb;
   Direction = dir;
+  Step = (MaxValue - MinValue) * 0.01f;
   Length = Direction == SBDIR_VERTICAL ? TrackSprite.Bounds.Height
                                        : TrackSprite.Bounds.Width;
-  TrackBounds =
-      RectF(pos.x, pos.y, TrackSprite.Bounds.Width, TrackSprite.Bounds.Height);
+  TrackBounds = RectF(pos.x, pos.y, TrackSprite.ScaledWidth(),
+                      TrackSprite.ScaledHeight());
+  ThumbBounds =
+      RectF(0.0f, 0.0f, ThumbSprite.ScaledWidth(), ThumbSprite.ScaledHeight());
 }
 
 Scrollbar::Scrollbar(int id, glm::vec2 pos, float min, float max, float* value,
@@ -36,6 +40,25 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float min, float max, float* value,
 
 void Scrollbar::UpdateInput() {
   if (Enabled) {
+    if (HasFocus) {
+      switch (Direction) {
+        case SBDIR_VERTICAL:
+          if (PADinputButtonIsDown & PAD1DOWN) {
+            *Value += Step;
+          } else if (PADinputButtonIsDown & PAD1UP) {
+            *Value -= Step;
+          }
+          break;
+        case SBDIR_HORIZONTAL:
+          if (PADinputButtonIsDown & PAD1RIGHT) {
+            *Value += Step;
+          } else if (PADinputButtonIsDown & PAD1LEFT) {
+            *Value -= Step;
+          }
+          break;
+      }
+    }
+
     if (Input::PrevMousePos != Input::CurMousePos) {
       Hovered = TrackBounds.ContainsPoint(Input::CurMousePos) ||
                 ThumbBounds.ContainsPoint(Input::CurMousePos);
@@ -45,58 +68,62 @@ void Scrollbar::UpdateInput() {
     }
     if (Input::MouseButtonIsDown[SDL_BUTTON_LEFT] && Scrolling) {
       float mouseP, trackP1, trackP2;
-      if (Direction == SBDIR_VERTICAL) {
-        mouseP = Input::CurMousePos.y;
-        trackP1 = TrackBounds.Y;
-        trackP2 = TrackBounds.Height;
-      } else if (Direction == SBDIR_HORIZONTAL) {
-        mouseP = Input::CurMousePos.x;
-        trackP1 = TrackBounds.X;
-        trackP2 = TrackBounds.Width;
+      switch (Direction) {
+        case SBDIR_VERTICAL:
+          mouseP = Input::CurMousePos.y;
+          trackP1 = TrackBounds.Y;
+          trackP2 = TrackBounds.Height;
+          break;
+        case SBDIR_HORIZONTAL:
+          mouseP = Input::CurMousePos.x;
+          trackP1 = TrackBounds.X;
+          trackP2 = TrackBounds.Width;
+          break;
       }
 
-      if (mouseP > trackP1 + trackP2)
-        *Value = MaxValue;
-      else if (mouseP < trackP1)
-        *Value = MinValue;
-      else {
-        *Value =
-            MinValue + (((mouseP - trackP1) / trackP2) * (MaxValue - MinValue));
-      }
+      *Value =
+          MinValue + (((mouseP - trackP1) / trackP2) * (MaxValue - MinValue));
     } else {
       Scrolling = false;
+    }
+
+    TrackProgress = ((*Value - MinValue) / (MaxValue - MinValue)) * Length;
+    if (TrackProgress > Length) {
+      *Value = MaxValue;
+      TrackProgress = Length;
+    } else if (TrackProgress < 0.0f) {
+      *Value = MinValue;
+      TrackProgress = 0.0f;
+    }
+
+    if (Direction == SBDIR_VERTICAL) {
+      ThumbBounds.X = (TrackBounds.X + (TrackBounds.Width / 2.0f)) -
+                      (ThumbSprite.ScaledWidth() / 2.0f);
+      ThumbBounds.Y =
+          (TrackBounds.Y + TrackProgress) - (ThumbSprite.ScaledHeight() / 2.0f);
+      if (HasFill) {
+        FillSprite.Bounds.Height = TrackProgress;
+      }
+    } else if (Direction == SBDIR_HORIZONTAL) {
+      ThumbBounds.X =
+          (TrackBounds.X + TrackProgress) - (ThumbSprite.ScaledWidth() / 2.0f);
+      ThumbBounds.Y = (TrackBounds.Y + (TrackBounds.Height / 2.0f)) -
+                      (ThumbSprite.ScaledHeight() / 2.0f);
+      if (HasFill) {
+        FillSprite.Bounds.Width = TrackProgress;
+      }
     }
   }
 }
 
 void Scrollbar::Render() {
   Renderer2D::DrawSprite(TrackSprite, TrackBounds);
-
-  float thumbX, thumbY;
-  float part = ((*Value - MinValue) / (MaxValue - MinValue)) * Length;
-  if (Direction == SBDIR_VERTICAL) {
-    thumbX = (TrackBounds.X + (TrackBounds.Width / 2.0f)) -
-             (ThumbSprite.ScaledWidth() / 2.0f);
-    thumbY = (TrackBounds.Y + part) - (ThumbSprite.ScaledHeight() / 2.0f);
-    if (HasFill) {
-      FillSprite.Bounds.Height = part;
-      Renderer2D::DrawSprite(FillSprite,
-                             glm::vec2(TrackBounds.X, TrackBounds.Y), Tint);
-    }
-  } else if (Direction == SBDIR_HORIZONTAL) {
-    thumbX = (TrackBounds.X + part) - (ThumbSprite.ScaledWidth() / 2.0f);
-    thumbY = (TrackBounds.Y + (TrackBounds.Height / 2.0f)) -
-             (ThumbSprite.ScaledHeight() / 2.0f);
-    if (HasFill) {
-      FillSprite.Bounds.Width = part;
-      Renderer2D::DrawSprite(FillSprite,
-                             glm::vec2(TrackBounds.X, TrackBounds.Y), Tint);
-    }
+  if (HasFill) {
+    Renderer2D::DrawSprite(FillSprite, glm::vec2(TrackBounds.X, TrackBounds.Y),
+                           Tint);
   }
-  ThumbBounds = RectF(thumbX, thumbY, ThumbSprite.ScaledWidth(),
-                      ThumbSprite.ScaledHeight());
-
-  Renderer2D::DrawSprite(ThumbSprite, glm::vec2(thumbX, thumbY), Tint);
+  Renderer2D::DrawSprite(ThumbSprite, glm::vec2(ThumbBounds.X, ThumbBounds.Y),
+                         Tint);
 }
 
 }  // namespace Widgets

@@ -30,9 +30,9 @@ void TitleMenu::SecondaryButtonOnClick(Widgets::Button* target) {
 }
 
 TitleMenu::TitleMenu() {
-  MainItems = new WidgetGroup();
-  ContinueItems = new WidgetGroup();
-  SystemItems = new WidgetGroup();
+  MainItems = new Widgets::Group(this);
+  ContinueItems = new Widgets::Group(this);
+  SystemItems = new Widgets::Group(this);
 
   auto onClick =
       std::bind(&TitleMenu::MenuButtonOnClick, this, std::placeholders::_1);
@@ -47,7 +47,7 @@ TitleMenu::TitleMenu() {
       new TitleButton(0, MenuEntriesSprites[0], MenuEntriesHSprites[0],
                       nullSprite, glm::vec2(MenuEntriesX, MenuEntriesFirstY));
   InitialStart->OnClickHandler = onClick;
-  MainItems->Add(InitialStart, FocusDirection::Vertical);
+  MainItems->Add(InitialStart, FDIR_DOWN);
 
   // Lockable Extra Story menu button
   ExtraStory = new TitleButton(
@@ -56,14 +56,14 @@ TitleMenu::TitleMenu() {
   ExtraStory->Enabled = false;
   ExtraStory->OnClickHandler = onClick;
   ExtraStory->DisabledSprite = MenuItemLockedSprite;
-  MainItems->Add(ExtraStory, FocusDirection::Vertical);
+  MainItems->Add(ExtraStory, FDIR_DOWN);
 
   // Continue menu button
   Continue = new TitleButton(
       2, MenuEntriesSprites[2], MenuEntriesHSprites[2], nullSprite,
       glm::vec2(MenuEntriesX, MenuEntriesFirstY + (2 * MenuEntriesYPadding)));
   Continue->OnClickHandler = onClick;
-  MainItems->Add(Continue, FocusDirection::Vertical);
+  MainItems->Add(Continue, FDIR_DOWN);
 
   // Lockable Memories menu button
   Memories = new TitleButton(
@@ -72,35 +72,35 @@ TitleMenu::TitleMenu() {
   Memories->Enabled = false;
   Memories->OnClickHandler = onClick;
   Memories->DisabledSprite = MenuItemLockedSprite;
-  MainItems->Add(Memories, FocusDirection::Vertical);
+  MainItems->Add(Memories, FDIR_DOWN);
 
   // Encyclopedia menu button
   Encyclopedia = new TitleButton(
       4, MenuEntriesSprites[4], MenuEntriesHSprites[4], nullSprite,
       glm::vec2(MenuEntriesX, MenuEntriesFirstY + (4 * MenuEntriesYPadding)));
   Encyclopedia->OnClickHandler = onClick;
-  MainItems->Add(Encyclopedia, FocusDirection::Vertical);
+  MainItems->Add(Encyclopedia, FDIR_DOWN);
 
   // System menu button
   System = new TitleButton(
       5, MenuEntriesSprites[5], MenuEntriesHSprites[5], nullSprite,
       glm::vec2(MenuEntriesX, MenuEntriesFirstY + (5 * MenuEntriesYPadding)));
   System->OnClickHandler = onClick;
-  MainItems->Add(System, FocusDirection::Vertical);
+  MainItems->Add(System, FDIR_DOWN);
 
   // Exit menu button
   Exit = new TitleButton(
       6, MenuEntriesSprites[6], MenuEntriesHSprites[6], nullSprite,
       glm::vec2(MenuEntriesX, MenuEntriesFirstY + (6 * MenuEntriesYPadding)));
   Exit->OnClickHandler = onClick;
-  MainItems->Add(Exit, FocusDirection::Vertical);
+  MainItems->Add(Exit, FDIR_DOWN);
 
   // Load secondary Continue menu button
   Load = new TitleButton(
       0, MenuEntriesSprites[10], MenuEntriesHSprites[10], nullSprite,
       glm::vec2(MenuEntriesX, MenuEntriesFirstY + (3 * MenuEntriesYPadding)));
   Load->OnClickHandler = secondaryOnClick;
-  ContinueItems->Add(Load, FocusDirection::Vertical);
+  ContinueItems->Add(Load, FDIR_DOWN);
 
   // Quick Load secondary Continue menu button
   QuickLoad = new TitleButton(
@@ -108,14 +108,14 @@ TitleMenu::TitleMenu() {
       glm::vec2(MenuEntriesX - 20.0f,
                 MenuEntriesFirstY + (4 * MenuEntriesYPadding)));
   QuickLoad->OnClickHandler = secondaryOnClick;
-  ContinueItems->Add(QuickLoad, FocusDirection::Vertical);
+  ContinueItems->Add(QuickLoad, FDIR_DOWN);
 
   // Option secondary System menu button
   Option = new TitleButton(
       0, MenuEntriesSprites[18], MenuEntriesHSprites[18], nullSprite,
       glm::vec2(MenuEntriesX, MenuEntriesFirstY + (6 * MenuEntriesYPadding)));
   Option->OnClickHandler = secondaryOnClick;
-  SystemItems->Add(Option, FocusDirection::Vertical);
+  SystemItems->Add(Option, FDIR_DOWN);
 
   // System Save secondary System menu button
   SystemSave = new TitleButton(
@@ -123,7 +123,7 @@ TitleMenu::TitleMenu() {
       glm::vec2(MenuEntriesX - 20.0f,
                 MenuEntriesFirstY + (7 * MenuEntriesYPadding)));
   SystemSave->OnClickHandler = secondaryOnClick;
-  SystemItems->Add(SystemSave, FocusDirection::Vertical);
+  SystemItems->Add(SystemSave, FDIR_DOWN);
 }
 
 void TitleMenu::Show() {
@@ -154,6 +154,8 @@ void TitleMenu::Hide() {
 }
 
 void TitleMenu::Update(float dt) {
+  UpdateInput();
+
   PressToStartAnimation.Update(dt);
   PrimaryFadeAnimation.Update(dt);
   SecondaryFadeAnimation.Update(dt);

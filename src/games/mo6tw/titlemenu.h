@@ -2,8 +2,8 @@
 
 #include "../../animation.h"
 #include "../../ui/menu.h"
-#include "../../ui/widgetgroup.h"
 #include "../../ui/widgets/button.h"
+#include "../../ui/widgets/group.h"
 #include "../../ui/widgets/mo6tw/titlebutton.h"
 
 namespace Impacto {
@@ -27,7 +27,7 @@ class TitleMenu : public Menu {
   void SecondaryButtonOnClick(Widgets::Button* target);
 
  private:
-  WidgetGroup* MainItems;
+  Widgets::Group* MainItems;
   Widgets::MO6TW::TitleButton* InitialStart;
   Widgets::MO6TW::TitleButton* ExtraStory;
   Widgets::MO6TW::TitleButton* Continue;
@@ -36,15 +36,15 @@ class TitleMenu : public Menu {
   Widgets::MO6TW::TitleButton* System;
   Widgets::MO6TW::TitleButton* Exit;
 
-  WidgetGroup* ExtraStoryItems;
+  Widgets::Group* ExtraStoryItems;
 
-  WidgetGroup* ContinueItems;
+  Widgets::Group* ContinueItems;
   Widgets::MO6TW::TitleButton* Load;
   Widgets::MO6TW::TitleButton* QuickLoad;
 
-  WidgetGroup* MemoriesItems;
+  Widgets::Group* MemoriesItems;
 
-  WidgetGroup* SystemItems;
+  Widgets::Group* SystemItems;
   Widgets::MO6TW::TitleButton* Option;
   Widgets::MO6TW::TitleButton* SystemSave;
 };

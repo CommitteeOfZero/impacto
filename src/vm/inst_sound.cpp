@@ -33,7 +33,6 @@ VmInstruction(InstBGMplay) {
 
     Io::InputStream* stream;
     Io::VfsOpen("bgm", track, &stream);
-    Audio::Channels[Audio::AC_BGM0].Volume = 0.15f;
     Audio::Channels[Audio::AC_BGM0].Play(Audio::AudioStream::Create(stream),
                                          (bool)loop, 0.0f);
   }

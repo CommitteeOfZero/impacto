@@ -44,7 +44,7 @@ void AudioInit() {
   }
 
   for (int i = 0; i < ACG_Count; i++) {
-    GroupVolumes[i] = 1.0f;
+    GroupVolumes[i] = 0.5f;
   }
 
   for (int i = AC_SE0; i <= AC_SE2; i++)

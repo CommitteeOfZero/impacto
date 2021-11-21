@@ -2,6 +2,7 @@
 
 #include "menu.h"
 #include "../text.h"
+#include "../ui/widgets/group.h"
 
 namespace Impacto {
 namespace UI {
@@ -21,8 +22,8 @@ class SysMesBox : public Menu {
   int ChoiceCount;
 
  protected:
-  WidgetGroup* MessageItems;
-  WidgetGroup* ChoiceItems;
+  Widgets::Group* MessageItems;
+  Widgets::Group* ChoiceItems;
 
   float BoxOpacity;
   ProcessedTextGlyph Messages[8][255];

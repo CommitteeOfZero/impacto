@@ -2,7 +2,7 @@
 
 #include "../../animation.h"
 #include "../../ui/menu.h"
-#include "../../ui/widgetgroup.h"
+#include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
 #include "../../ui/widgets/chlcc/titlebutton.h"
 
@@ -32,17 +32,17 @@ class TitleMenu : public Menu {
   void DrawTitleMenuBackGraphics();
 
  private:
-  WidgetGroup* MainItems;
+  Widgets::Group* MainItems;
   Widgets::CHLCC::TitleButton* Start;
   Widgets::CHLCC::TitleButton* Load;
   Widgets::CHLCC::TitleButton* Extra;
   Widgets::CHLCC::TitleButton* System;
 
-  WidgetGroup* LoadItems;
+  Widgets::Group* LoadItems;
   Widgets::CHLCC::TitleButton* SubLoad;
   Widgets::CHLCC::TitleButton* QuickLoad;
 
-  WidgetGroup* ExtraItems;
+  Widgets::Group* ExtraItems;
   Widgets::CHLCC::TitleButton* ClearList;
   Widgets::CHLCC::TitleButton* CGLibrary;
   Widgets::CHLCC::TitleButton* SoundLibrary;
@@ -50,7 +50,7 @@ class TitleMenu : public Menu {
   Widgets::CHLCC::TitleButton* Tips;
   Widgets::CHLCC::TitleButton* Trophy;
 
-  WidgetGroup* SystemItems;
+  Widgets::Group* SystemItems;
   Widgets::CHLCC::TitleButton* Config;
   Widgets::CHLCC::TitleButton* SystemSave;
 };
