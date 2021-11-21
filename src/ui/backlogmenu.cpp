@@ -124,7 +124,7 @@ void BacklogMenu::Update(float dt) {
 void BacklogMenu::Render() {
   if (State != Hidden) {
     glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-    MainItems->Opacity = col.a;
+    MainItems->Tint = col;
     Renderer2D::DrawSprite(BacklogBackground, glm::vec2(0.0f), col);
     MainItems->Render();
     MainScrollbar->Render();

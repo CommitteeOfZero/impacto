@@ -32,8 +32,11 @@ class Group : public Widget {
 
   Widget* GetFocus(FocusDirection dir) override;
 
-  void Show();
-  void Hide();
+  void Show() override;
+  void Hide() override;
+
+  WidgetType GetType() override;
+
   void Clear();
 
   void Move(glm::vec2 relativePosition, float duration) override;
@@ -41,12 +44,10 @@ class Group : public Widget {
   void MoveTo(glm::vec2 pos, float duration) override;
   void MoveTo(glm::vec2 pos) override;
 
-  float Opacity = 1.0f;
-
  private:
   Menu* MenuContext;
   Widget* FocusStart[4] = {0, 0, 0, 0};
-  Widget* PreviousFocusElement;
+  Widget* PreviousFocusElement = 0;
   Widget* PreviousFocusStart[4] = {0, 0, 0, 0};
 };
 

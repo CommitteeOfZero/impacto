@@ -56,15 +56,19 @@ void Group::Add(Widget* widget, FocusDirection dir) {
   }
 }
 
+WidgetType Group::GetType() { return WT_GROUP; }
+
 void Group::UpdateInput() {
-  for (auto el : Children) {
-    el->UpdateInput();
-    if (el->Enabled && el->Hovered &&
-        Input::CurrentInputDevice == Input::IDEV_Mouse) {
-      if (MenuContext->CurrentlyFocusedElement)
-        MenuContext->CurrentlyFocusedElement->HasFocus = false;
-      el->HasFocus = true;
-      MenuContext->CurrentlyFocusedElement = el;
+  for (const auto& el : Children) {
+    if (el->GetType() == WT_NORMAL) {
+      el->UpdateInput();
+      if (el->Enabled && el->Hovered &&
+          Input::CurrentInputDevice == Input::IDEV_Mouse) {
+        if (MenuContext->CurrentlyFocusedElement)
+          MenuContext->CurrentlyFocusedElement->HasFocus = false;
+        el->HasFocus = true;
+        MenuContext->CurrentlyFocusedElement = el;
+      }
     }
   }
 }
@@ -75,7 +79,7 @@ void Group::Update(float dt) {
       UpdateInput();
     }
     bool isFocused = false;
-    for (auto el : Children) {
+    for (const auto& el : Children) {
       if (!FocusLock) {
         isFocused = isFocused ||
                     (el == MenuContext->CurrentlyFocusedElement ? true : false);
@@ -88,12 +92,12 @@ void Group::Update(float dt) {
 
 void Group::Render() {
   if (IsShown) {
-    for (auto el : Children) {
+    for (const auto& el : Children) {
       if (RenderingBounds.Contains(el->Bounds)) {
-        float alpha = el->Tint.a;
-        el->Tint.a *= Opacity;
+        auto tint = el->Tint;
+        el->Tint *= Tint;
         el->Render();
-        el->Tint.a = alpha;
+        el->Tint = tint;
       }
     }
   }
@@ -101,15 +105,16 @@ void Group::Render() {
 
 Widget* Group::GetFocus(FocusDirection dir) {
   if (!Children.empty()) {
-    if (dir == FDIR_DOWN || FDIR_RIGHT)
+    if (dir == FDIR_DOWN || dir == FDIR_RIGHT)
       return Children.front();
-    else if (dir == FDIR_UP || FDIR_LEFT)
+    else if (dir == FDIR_UP || dir == FDIR_LEFT)
       return Children.back();
-  }
+  } else
+    return 0;
 }
 
 void Group::Show() {
-  Opacity = 1.0f;
+  Tint.a = 1.0f;
   IsShown = true;
   if (FocusLock) {
     HasFocus = true;
@@ -122,28 +127,36 @@ void Group::Show() {
              sizeof(MenuContext->FocusStart));
     }
   }
+  for (const auto& el : Children) {
+    el->Show();
+  }
 }
 
 void Group::Hide() {
-  Opacity = 0.0f;
+  Tint.a = 0.0f;
   IsShown = false;
   HasFocus = false;
   if (FocusLock) {
+    if (MenuContext->CurrentlyFocusedElement)
+      MenuContext->CurrentlyFocusedElement->HasFocus = false;
     MenuContext->CurrentlyFocusedElement = PreviousFocusElement;
     memcpy(MenuContext->FocusStart, PreviousFocusStart,
            sizeof(MenuContext->FocusStart));
   }
+  for (const auto& el : Children) {
+    el->Hide();
+  }
 }
 
 void Group::Move(glm::vec2 relativePosition, float duration) {
-  for (auto el : Children) {
+  for (const auto& el : Children) {
     el->Move(relativePosition, duration);
   }
   Position += relativePosition;
 }
 
 void Group::Move(glm::vec2 relativePosition) {
-  for (auto el : Children) {
+  for (const auto& el : Children) {
     el->Move(relativePosition);
   }
   Position += relativePosition;
@@ -151,7 +164,7 @@ void Group::Move(glm::vec2 relativePosition) {
 
 void Group::MoveTo(glm::vec2 pos, float duration) {
   auto relativePosition = pos - Position;
-  for (auto el : Children) {
+  for (const auto& el : Children) {
     el->Move(relativePosition, duration);
   }
   Position = pos;
@@ -159,7 +172,7 @@ void Group::MoveTo(glm::vec2 pos, float duration) {
 
 void Group::MoveTo(glm::vec2 pos) {
   auto relativePosition = pos - Position;
-  for (auto el : Children) {
+  for (const auto& el : Children) {
     el->Move(relativePosition);
   }
   Position = pos;

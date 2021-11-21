@@ -6,6 +6,7 @@
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
 #include "../../inputsystem.h"
+#include "../../vm/interface/input.h"
 #include "../../ui/widgets/button.h"
 #include "../../vm/vm.h"
 #include "../../audio/audiochannel.h"
@@ -17,42 +18,112 @@ namespace MO6TW {
 using namespace Impacto::Profile::OptionsMenu;
 using namespace Impacto::Profile::MO6TW::OptionsMenu;
 using namespace Impacto::Profile::ScriptVars;
+using namespace Impacto::Vm::Interface;
 
-void OptionsMenu::MenuButtonOnClick(Widgets::Button* target) {}
+void OptionsMenu::MessageSpeedToggleOnClick(Widgets::Toggle* target) {
+  if (*target->Value) {
+    memset(MessageSpeedValues, false, sizeof(MessageSpeedValues));
+    MessageSpeedValues[target->Id] = true;
+  } else {
+    *target->Value = true;
+  }
+}
+
+void OptionsMenu::AutoModeWaitTimeOnClick(Widgets::Toggle* target) {
+  if (*target->Value) {
+    memset(AutoModeWaitTimeValues, false, sizeof(AutoModeWaitTimeValues));
+    AutoModeWaitTimeValues[target->Id] = true;
+  } else {
+    *target->Value = true;
+  }
+}
+
+void OptionsMenu::SyncTextSpeedToVoiceOnClick(Widgets::Toggle* target) {
+  if (*target->Value) {
+    memset(SyncTextSpeedToVoiceValues, false,
+           sizeof(SyncTextSpeedToVoiceValues));
+    SyncTextSpeedToVoiceValues[target->Id] = true;
+  } else {
+    *target->Value = true;
+  }
+}
+
+void OptionsMenu::SkipVoiceAtNextLineOnClick(Widgets::Toggle* target) {
+  if (*target->Value) {
+    memset(SkipVoiceAtNextLineValues, false, sizeof(SkipVoiceAtNextLineValues));
+    SkipVoiceAtNextLineValues[target->Id] = true;
+  } else {
+    *target->Value = true;
+  }
+}
+
+void OptionsMenu::SkipModeOnClick(Widgets::Toggle* target) {
+  if (*target->Value) {
+    memset(SkipModeValues, false, sizeof(SkipModeValues));
+    SkipModeValues[target->Id] = true;
+  } else {
+    *target->Value = true;
+  }
+}
+
+void OptionsMenu::AutoSaveTriggerOnClick(Widgets::Toggle* target) {
+  if (*target->Value) {
+    memset(AutoSaveTriggerValues, false, sizeof(AutoSaveTriggerValues));
+    AutoSaveTriggerValues[target->Id] = true;
+  } else {
+    *target->Value = true;
+  }
+}
+
+void OptionsMenu::TipsNotificationsOnClick(Widgets::Toggle* target) {
+  if (*target->Value) {
+    memset(TipsNotificationsValues, false, sizeof(TipsNotificationsValues));
+    TipsNotificationsValues[target->Id] = true;
+  } else {
+    *target->Value = true;
+  }
+}
 
 OptionsMenu::OptionsMenu() {
   FadeAnimation.Direction = 1;
   FadeAnimation.LoopMode = ALM_Stop;
   FadeAnimation.DurationIn = FadeInDuration;
   FadeAnimation.DurationOut = FadeOutDuration;
+
+  // First page
   FirstPage = new Widgets::Group(this);
-  FirstPage->WrapFocus = false;
   CharacterVoiceToggles = new Widgets::Group(this);
   CharacterVoiceToggles->FocusLock = false;
   CharacterVoiceToggles->WrapFocus = false;
 
   VoiceVolumeSlider = new Widgets::Scrollbar(
-      0, glm::vec2(94.0f, 88.0f), 0.0f, 1.0f,
-      &Audio::GroupVolumes[Audio::ACG_Voice], Widgets::SBDIR_HORIZONTAL,
-      SliderTrackSprite, SliderThumbSprite, SliderFillSprite);
+      0, FirstPageSliderPos, 0.0f, 1.0f, &Audio::GroupVolumes[Audio::ACG_Voice],
+      Widgets::SBDIR_HORIZONTAL, SliderTrackSprite, SliderThumbSprite,
+      SliderFillSprite, SliderThumbOffset);
   FirstPage->Add(VoiceVolumeSlider, FDIR_DOWN);
+  FirstPageSliderPos.y += FirstPageSliderMargin;
+
   BGMVolumeSlider = new Widgets::Scrollbar(
-      0, glm::vec2(94.0f, 183.0f), 0.0f, 1.0f,
-      &Audio::GroupVolumes[Audio::ACG_BGM], Widgets::SBDIR_HORIZONTAL,
-      SliderTrackSprite, SliderThumbSprite, SliderFillSprite);
+      0, FirstPageSliderPos, 0.0f, 1.0f, &Audio::GroupVolumes[Audio::ACG_BGM],
+      Widgets::SBDIR_HORIZONTAL, SliderTrackSprite, SliderThumbSprite,
+      SliderFillSprite, SliderThumbOffset);
   FirstPage->Add(BGMVolumeSlider, FDIR_DOWN);
+  FirstPageSliderPos.y += FirstPageSliderMargin;
+
   SEVolumeSlider = new Widgets::Scrollbar(
-      0, glm::vec2(94.0f, 280.0f), 0.0f, 1.0f,
-      &Audio::GroupVolumes[Audio::ACG_SE], Widgets::SBDIR_HORIZONTAL,
-      SliderTrackSprite, SliderThumbSprite, SliderFillSprite);
+      0, FirstPageSliderPos, 0.0f, 1.0f, &Audio::GroupVolumes[Audio::ACG_SE],
+      Widgets::SBDIR_HORIZONTAL, SliderTrackSprite, SliderThumbSprite,
+      SliderFillSprite, SliderThumbOffset);
   FirstPage->Add(SEVolumeSlider, FDIR_DOWN);
+  FirstPageSliderPos.y += FirstPageSliderMargin;
+
   MovieVolumeSlider = new Widgets::Scrollbar(
-      0, glm::vec2(94.0f, 376.0f), 0.0f, 1.0f,
-      &Audio::GroupVolumes[Audio::ACG_Movie], Widgets::SBDIR_HORIZONTAL,
-      SliderTrackSprite, SliderThumbSprite, SliderFillSprite);
+      0, FirstPageSliderPos, 0.0f, 1.0f, &Audio::GroupVolumes[Audio::ACG_Movie],
+      Widgets::SBDIR_HORIZONTAL, SliderTrackSprite, SliderThumbSprite,
+      SliderFillSprite, SliderThumbOffset);
   FirstPage->Add(MovieVolumeSlider, FDIR_DOWN);
 
-  glm::vec2 pos = VoiceToggleStart;
+  auto pos = VoiceToggleStart;
   int row = 1;
   int totalRows = VoiceToggleCount / VoiceTogglePerLine +
                   (VoiceToggleCount % VoiceTogglePerLine != 0);
@@ -82,7 +153,7 @@ OptionsMenu::OptionsMenu() {
   }
   row = 1;
   int idx = 0;
-  for (auto el : CharacterVoiceToggles->Children) {
+  for (const auto& el : CharacterVoiceToggles->Children) {
     if (row != totalRows) {
       Widget* focusTarget;
       if ((idx + VoiceTogglePerLine) >
@@ -99,9 +170,160 @@ OptionsMenu::OptionsMenu() {
       row += 1;
     }
   }
-  VoiceVolumeSlider->SetFocus(CharacterVoiceToggles->Children.back(), FDIR_UP);
-  MovieVolumeSlider->SetFocus(CharacterVoiceToggles->Children.front(),
-                              FDIR_DOWN);
+  FirstPage->Add(CharacterVoiceToggles, FDIR_DOWN);
+
+  // Second page
+  SecondPage = new Widgets::Group(this);
+  int checkboxLabelIdx = 0;
+
+  MessageSpeedToggles = new Widgets::Group(this);
+  MessageSpeedToggles->FocusLock = false;
+  AutoModeWaitTimeToggles = new Widgets::Group(this);
+  AutoModeWaitTimeToggles->FocusLock = false;
+  SyncTextSpeedToVoiceToggles = new Widgets::Group(this);
+  SyncTextSpeedToVoiceToggles->FocusLock = false;
+  SkipVoiceAtNextLineToggles = new Widgets::Group(this);
+  SkipVoiceAtNextLineToggles->FocusLock = false;
+  SkipModeToggles = new Widgets::Group(this);
+  SkipModeToggles->FocusLock = false;
+  AutoSaveTriggerToggles = new Widgets::Group(this);
+  AutoSaveTriggerToggles->FocusLock = false;
+  TipsNotificationsToggles = new Widgets::Group(this);
+  TipsNotificationsToggles->FocusLock = false;
+
+  auto messageSpeedOnClick = std::bind(&OptionsMenu::MessageSpeedToggleOnClick,
+                                       this, std::placeholders::_1);
+  for (int i = 0; i < 4; i++) {
+    auto toggle = new Widgets::Toggle(
+        i, &MessageSpeedValues[i], CheckboxTickSprite, CheckboxBoxSprite,
+        CheckboxTickSprite,
+        glm::vec2(CheckboxFirstPos.x + (i * CheckboxFirstSectionPaddingX),
+                  CheckboxFirstPos.y),
+        true, CheckboxLabelSprites[checkboxLabelIdx++], CheckboxLabelOffset);
+    toggle->Enabled = true;
+    toggle->OnClickHandler = messageSpeedOnClick;
+    toggle->SetFocus(AutoModeWaitTimeToggles, FDIR_DOWN);
+    toggle->SetFocus(TipsNotificationsToggles, FDIR_UP);
+    MessageSpeedToggles->Add(toggle, FDIR_RIGHT);
+  }
+  SecondPage->Add(MessageSpeedToggles, FDIR_DOWN);
+
+  CheckboxFirstPos += CheckboxMargin;
+  auto autoModeWaitTimeOnClick = std::bind(
+      &OptionsMenu::AutoModeWaitTimeOnClick, this, std::placeholders::_1);
+  for (int i = 0; i < 3; i++) {
+    auto toggle = new Widgets::Toggle(
+        i, &AutoModeWaitTimeValues[i], CheckboxTickSprite, CheckboxBoxSprite,
+        CheckboxTickSprite,
+        glm::vec2(CheckboxFirstPos.x + (i * CheckboxFirstSectionPaddingX),
+                  CheckboxFirstPos.y),
+        true, CheckboxLabelSprites[checkboxLabelIdx++], CheckboxLabelOffset);
+    toggle->Enabled = true;
+    toggle->OnClickHandler = autoModeWaitTimeOnClick;
+    toggle->SetFocus(SyncTextSpeedToVoiceToggles, FDIR_DOWN);
+    toggle->SetFocus(MessageSpeedToggles, FDIR_UP);
+    AutoModeWaitTimeToggles->Add(toggle, FDIR_RIGHT);
+  }
+  SecondPage->Add(AutoModeWaitTimeToggles, FDIR_DOWN);
+
+  CheckboxFirstPos += CheckboxMargin;
+  auto syncTextSpeedToVoiceOnClick = std::bind(
+      &OptionsMenu::SyncTextSpeedToVoiceOnClick, this, std::placeholders::_1);
+  for (int i = 0; i < 2; i++) {
+    auto toggle = new Widgets::Toggle(
+        i, &SyncTextSpeedToVoiceValues[i], CheckboxTickSprite,
+        CheckboxBoxSprite, CheckboxTickSprite,
+        glm::vec2(CheckboxFirstPos.x + (i * CheckboxFirstSectionPaddingX),
+                  CheckboxFirstPos.y),
+        true, CheckboxLabelSprites[checkboxLabelIdx++], CheckboxLabelOffset);
+    toggle->Enabled = true;
+    toggle->OnClickHandler = syncTextSpeedToVoiceOnClick;
+    toggle->SetFocus(SkipVoiceAtNextLineToggles, FDIR_DOWN);
+    toggle->SetFocus(AutoModeWaitTimeToggles, FDIR_UP);
+    SyncTextSpeedToVoiceToggles->Add(toggle, FDIR_RIGHT);
+  }
+  checkboxLabelIdx -= 2;
+  SecondPage->Add(SyncTextSpeedToVoiceToggles, FDIR_DOWN);
+
+  CheckboxFirstPos += CheckboxMargin;
+  auto skipVoiceAtNextLineOnClick = std::bind(
+      &OptionsMenu::SkipVoiceAtNextLineOnClick, this, std::placeholders::_1);
+  for (int i = 0; i < 2; i++) {
+    auto toggle = new Widgets::Toggle(
+        i, &SkipVoiceAtNextLineValues[i], CheckboxTickSprite, CheckboxBoxSprite,
+        CheckboxTickSprite,
+        glm::vec2(CheckboxFirstPos.x + (i * CheckboxFirstSectionPaddingX),
+                  CheckboxFirstPos.y),
+        true, CheckboxLabelSprites[checkboxLabelIdx++], CheckboxLabelOffset);
+    toggle->Enabled = true;
+    toggle->OnClickHandler = skipVoiceAtNextLineOnClick;
+    toggle->SetFocus(SkipModeToggles, FDIR_DOWN);
+    toggle->SetFocus(SyncTextSpeedToVoiceToggles, FDIR_UP);
+    SkipVoiceAtNextLineToggles->Add(toggle, FDIR_RIGHT);
+  }
+  SecondPage->Add(SkipVoiceAtNextLineToggles, FDIR_DOWN);
+
+  auto skipModeOnClick =
+      std::bind(&OptionsMenu::SkipModeOnClick, this, std::placeholders::_1);
+  for (int i = 0; i < 2; i++) {
+    auto toggle = new Widgets::Toggle(
+        i, &SkipModeValues[i], CheckboxTickSprite, CheckboxBoxSprite,
+        CheckboxTickSprite,
+        glm::vec2(
+            CheckboxSecondPos.x + (i * CheckboxSecondSectionFirstPaddingX),
+            CheckboxSecondPos.y),
+        true, CheckboxLabelSprites[checkboxLabelIdx++], CheckboxLabelOffset);
+    toggle->Enabled = true;
+    toggle->OnClickHandler = skipModeOnClick;
+    toggle->SetFocus(AutoSaveTriggerToggles, FDIR_DOWN);
+    toggle->SetFocus(SkipVoiceAtNextLineToggles, FDIR_UP);
+    SkipModeToggles->Add(toggle, FDIR_RIGHT);
+  }
+  SecondPage->Add(SkipModeToggles, FDIR_DOWN);
+
+  float dummy = 0.0f;
+  ScreenSizeSlider = new Widgets::Scrollbar(
+      0, ScreenSizeSliderPos, 0.0f, 1.0f, &dummy, Widgets::SBDIR_HORIZONTAL,
+      SliderTrackSprite, SliderThumbSprite, SliderFillSprite,
+      SliderThumbOffset);
+
+  CheckboxSecondPos += CheckboxMargin;
+  auto autoSaveTriggerOnClick = std::bind(&OptionsMenu::AutoSaveTriggerOnClick,
+                                          this, std::placeholders::_1);
+  for (int i = 0; i < 4; i++) {
+    auto toggle = new Widgets::Toggle(
+        i, &AutoSaveTriggerValues[i], CheckboxTickSprite, CheckboxBoxSprite,
+        CheckboxTickSprite,
+        glm::vec2(AutoSaveTriggerXPos[i], CheckboxSecondPos.y), true,
+        CheckboxLabelSprites[i == 3 ? 8 : checkboxLabelIdx++],
+        CheckboxLabelOffset);
+    toggle->Enabled = true;
+    toggle->OnClickHandler = autoSaveTriggerOnClick;
+    toggle->SetFocus(ScreenSizeSlider, FDIR_DOWN);
+    toggle->SetFocus(SkipModeToggles, FDIR_UP);
+    AutoSaveTriggerToggles->Add(toggle, FDIR_RIGHT);
+  }
+  SecondPage->Add(AutoSaveTriggerToggles, FDIR_DOWN);
+
+  ScreenSizeSlider->SetFocus(TipsNotificationsToggles, FDIR_DOWN);
+  SecondPage->Add(ScreenSizeSlider, FDIR_DOWN);
+
+  auto tipsNotificationsOnClick = std::bind(
+      &OptionsMenu::TipsNotificationsOnClick, this, std::placeholders::_1);
+  checkboxLabelIdx = 7;
+  for (int i = 0; i < 2; i++) {
+    auto toggle = new Widgets::Toggle(
+        i, &TipsNotificationsValues[i], CheckboxTickSprite, CheckboxBoxSprite,
+        CheckboxTickSprite,
+        glm::vec2(TipsPos.x + (i * CheckboxFirstSectionPaddingX), TipsPos.y),
+        true, CheckboxLabelSprites[checkboxLabelIdx++], CheckboxLabelOffset);
+    toggle->Enabled = true;
+    toggle->OnClickHandler = tipsNotificationsOnClick;
+    toggle->SetFocus(MessageSpeedToggles, FDIR_DOWN);
+    toggle->SetFocus(ScreenSizeSlider, FDIR_UP);
+    TipsNotificationsToggles->Add(toggle, FDIR_RIGHT);
+  }
+  SecondPage->Add(TipsNotificationsToggles, FDIR_DOWN);
 }
 
 void OptionsMenu::Show() {
@@ -109,7 +331,6 @@ void OptionsMenu::Show() {
     State = Showing;
     FadeAnimation.StartIn();
     FirstPage->Show();
-    CharacterVoiceToggles->Show();
     if (UI::FocusedMenu != 0) {
       LastFocusedMenu = UI::FocusedMenu;
       LastFocusedMenu->IsFocused = false;
@@ -122,8 +343,6 @@ void OptionsMenu::Hide() {
   if (State != Hidden) {
     State = Hiding;
     FadeAnimation.StartOut();
-    CurrentlyFocusedElement->HasFocus = false;
-    CurrentlyFocusedElement = 0;
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
       LastFocusedMenu->IsFocused = true;
@@ -139,7 +358,7 @@ void OptionsMenu::Update(float dt) {
 
   FadeAnimation.Update(dt);
   FirstPage->Update(dt);
-  CharacterVoiceToggles->Update(dt);
+  SecondPage->Update(dt);
   if (ScrWork[SW_OPTIONALPHA] < 256 && State == Shown) {
     Hide();
   } else if (ScrWork[SW_OPTIONALPHA] == 256 && State == Hidden) {
@@ -150,50 +369,79 @@ void OptionsMenu::Update(float dt) {
     State = Shown;
   else if (ScrWork[SW_OPTIONALPHA] == 0 && FadeAnimation.IsOut())
     State = Hidden;
+
+  if (State == Shown) {
+    if (PADinputButtonWentDown & PAD1X) {
+      if (FirstPage->IsShown) {
+        FirstPage->Hide();
+        SecondPage->Show();
+      } else if (SecondPage->IsShown) {
+        SecondPage->Hide();
+        FirstPage->Show();
+      }
+    }
+  }
 }
 
 void OptionsMenu::Render() {
   if (State != Hidden) {
-    Renderer2D::DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f));
+    glm::vec4 col(1.0f, 1.0f, 1.0f,
+                  glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress));
+    Renderer2D::DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
     if (FirstPage->IsShown) {
-      if (VoiceVolumeSlider->HasFocus) {
-        Renderer2D::DrawSprite(SectionHeaderHighlightedSprites[0],
-                               glm::vec2(79.0f, 47.0f));
-      } else {
-        Renderer2D::DrawSprite(SectionHeaderSprites[0],
-                               glm::vec2(79.0f, 47.0f));
-      }
-      if (BGMVolumeSlider->HasFocus) {
-        Renderer2D::DrawSprite(SectionHeaderHighlightedSprites[1],
-                               glm::vec2(79.0f, 143.0f));
-      } else {
-        Renderer2D::DrawSprite(SectionHeaderSprites[1],
-                               glm::vec2(79.0f, 143.0f));
-      }
-      if (SEVolumeSlider->HasFocus) {
-        Renderer2D::DrawSprite(SectionHeaderHighlightedSprites[2],
-                               glm::vec2(79.0f, 239.0f));
-      } else {
-        Renderer2D::DrawSprite(SectionHeaderSprites[2],
-                               glm::vec2(79.0f, 239.0f));
-      }
-      if (MovieVolumeSlider->HasFocus) {
-        Renderer2D::DrawSprite(SectionHeaderHighlightedSprites[3],
-                               glm::vec2(79.0f, 336.0f));
-      } else {
-        Renderer2D::DrawSprite(SectionHeaderSprites[3],
-                               glm::vec2(79.0f, 336.0f));
-      }
-      if (CharacterVoiceToggles->HasFocus) {
-        Renderer2D::DrawSprite(SectionHeaderHighlightedSprites[4],
-                               glm::vec2(79.0f, 431.0f));
-      } else {
-        Renderer2D::DrawSprite(SectionHeaderSprites[4],
-                               glm::vec2(79.0f, 431.0f));
-      }
+      auto pos = FirstPageSectionHeaderPos;
+      Renderer2D::DrawSprite(
+          SectionHeaderSprites[0 + VoiceVolumeSlider->HasFocus], pos, col);
+      pos.y += FirstPageSliderMargin;
+      Renderer2D::DrawSprite(
+          SectionHeaderSprites[2 + BGMVolumeSlider->HasFocus], pos, col);
+      pos.y += FirstPageSliderMargin;
+      Renderer2D::DrawSprite(SectionHeaderSprites[4 + SEVolumeSlider->HasFocus],
+                             pos, col);
+      pos.y += FirstPageSliderMargin;
+      Renderer2D::DrawSprite(
+          SectionHeaderSprites[6 + MovieVolumeSlider->HasFocus], pos, col);
+      pos.y += FirstPageSliderMargin;
+      Renderer2D::DrawSprite(
+          SectionHeaderSprites[8 + CharacterVoiceToggles->HasFocus], pos, col);
+
+      FirstPage->Tint = col;
+      FirstPage->Render();
+    } else if (SecondPage->IsShown) {
+      auto pos = SecondPageSectionHeaderPos;
+      Renderer2D::DrawSprite(
+          SectionHeaderSprites[10 + MessageSpeedToggles->HasFocus], pos, col);
+      pos += CheckboxMargin;
+      Renderer2D::DrawSprite(
+          SectionHeaderSprites[12 + AutoModeWaitTimeToggles->HasFocus], pos,
+          col);
+      pos += CheckboxMargin;
+      Renderer2D::DrawSprite(
+          SectionHeaderSprites[14 + SyncTextSpeedToVoiceToggles->HasFocus], pos,
+          col);
+      pos += CheckboxMargin;
+      Renderer2D::DrawSprite(
+          SectionHeaderSprites[16 + SkipVoiceAtNextLineToggles->HasFocus], pos,
+          col);
+      pos += CheckboxMargin;
+      pos.x = SecondPageSectionHeaderPos.x;
+      Renderer2D::DrawSprite(
+          SectionHeaderSprites[18 + SkipModeToggles->HasFocus], pos, col);
+      pos += CheckboxMargin;
+      Renderer2D::DrawSprite(
+          SectionHeaderSprites[20 + AutoSaveTriggerToggles->HasFocus], pos,
+          col);
+      pos += CheckboxMargin;
+      Renderer2D::DrawSprite(
+          SectionHeaderSprites[22 + ScreenSizeSlider->HasFocus], pos, col);
+      pos += CheckboxMargin;
+      Renderer2D::DrawSprite(
+          SectionHeaderSprites[24 + TipsNotificationsToggles->HasFocus], pos,
+          col);
+
+      SecondPage->Tint = col;
+      SecondPage->Render();
     }
-    FirstPage->Render();
-    CharacterVoiceToggles->Render();
   }
 }
 

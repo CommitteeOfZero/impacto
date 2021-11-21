@@ -25,12 +25,12 @@ class Toggle : public Widget {
   void Render();
 
   int Id;
+  bool* Value;
   std::function<void(Toggle*)> OnClickHandler;
 
  private:
   void SetText(uint8_t* str, int fontSize, bool outline);
 
-  bool* Value;
   Sprite EnabledSprite;
   Sprite DisabledSprite;
   Sprite HighlightSprite;

@@ -209,7 +209,7 @@ void SelectionMenu::Render() {
       }
     }
 
-    ChoiceItems->Opacity = col.a;
+    ChoiceItems->Tint = col;
     ChoiceItems->Render();
   }
 }

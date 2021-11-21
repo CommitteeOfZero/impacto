@@ -170,13 +170,13 @@ void TitleMenu::Update(float dt) {
     Memories->Enabled = (GetFlag(860) || GetFlag(861) || GetFlag(862) ||
                          GetFlag(863) || GetFlag(864));
 
-    MainItems->Opacity =
+    MainItems->Tint.a =
         glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
     MainItems->Update(dt);
-    ContinueItems->Opacity =
+    ContinueItems->Tint.a =
         glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
     ContinueItems->Update(dt);
-    SystemItems->Opacity =
+    SystemItems->Tint.a =
         glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
     SystemItems->Update(dt);
 
@@ -209,14 +209,14 @@ void TitleMenu::Update(float dt) {
       case 3: {  // Main Menu Fade In
         if (!MainItems->IsShown && ScrWork[SW_TITLECT] == 0) {
           MainItems->Show();
-          MainItems->Opacity = 0.0f;
+          MainItems->Tint.a = 0.0f;
           PrimaryFadeAnimation.StartIn();
         }
       } break;
       case 7: {  // Secondary menu Continue Fade In
         if (!ContinueItems->IsShown && ScrWork[SW_TITLECT] == 0) {
           ContinueItems->Show();
-          ContinueItems->Opacity = 0.0f;
+          ContinueItems->Tint.a = 0.0f;
           MainItems->HasFocus = false;
 
           SecondaryFadeAnimation.StartIn();
@@ -278,7 +278,7 @@ void TitleMenu::Update(float dt) {
       case 11: {
         if (!SystemItems->IsShown && ScrWork[SW_TITLECT] == 0) {
           SystemItems->Show();
-          SystemItems->Opacity = 0.0f;
+          SystemItems->Tint.a = 0.0f;
           MainItems->HasFocus = false;
 
           SecondaryFadeAnimation.StartIn();

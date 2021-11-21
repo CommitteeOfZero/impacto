@@ -51,11 +51,17 @@ void Menu::AdvanceFocus(FocusDirection dir) {
     if (!FocusStart[dir]) return;
 
     CurrentlyFocusedElement = FocusStart[dir];
-    CurrentlyFocusedElement->HasFocus = true;
+    if (CurrentlyFocusedElement->GetType() == WT_GROUP)
+      CurrentlyFocusedElement = CurrentlyFocusedElement->GetFocus(dir);
+
+    if (CurrentlyFocusedElement) CurrentlyFocusedElement->HasFocus = true;
     return;
   }
 
   auto el = CurrentlyFocusedElement->GetFocus(dir);
+  if (el && el->GetType() == WT_GROUP)
+    el = el->GetFocus(dir);
+
   if (el) {
     CurrentlyFocusedElement->HasFocus = false;
     CurrentlyFocusedElement = el;
