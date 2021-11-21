@@ -50,7 +50,7 @@ TitleMenu::TitleMenu() {
   NewGame = new TitleButton(
       0, MenuEntriesSprites[0], MenuEntriesHSprites[0], ItemHighlightSprite,
       glm::vec2(
-          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
+          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress)) +
               ItemHighlightOffsetX,
           ((ItemYBase - 1.0f) + (0 * ItemPadding))));
   NewGame->OnClickHandler = onClick;
@@ -61,7 +61,7 @@ TitleMenu::TitleMenu() {
   Continue = new TitleButton(
       1, MenuEntriesSprites[1], MenuEntriesHSprites[1], ItemHighlightSprite,
       glm::vec2(
-          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
+          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress)) +
               ItemHighlightOffsetX,
           ((ItemYBase - 1.0f) + (1 * ItemPadding))));
   Continue->OnClickHandler = onClick;
@@ -71,7 +71,7 @@ TitleMenu::TitleMenu() {
   Extra = new TitleButton(
       2, MenuEntriesSprites[2], MenuEntriesHSprites[2], ItemHighlightSprite,
       glm::vec2(
-          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
+          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress)) +
               ItemHighlightOffsetX,
           ((ItemYBase - 1.0f) + (2 * ItemPadding))));
   Extra->OnClickHandler = onClick;
@@ -81,7 +81,7 @@ TitleMenu::TitleMenu() {
   Config = new TitleButton(
       3, MenuEntriesSprites[3], MenuEntriesHSprites[3], ItemHighlightSprite,
       glm::vec2(
-          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
+          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress)) +
               ItemHighlightOffsetX,
           ((ItemYBase - 1.0f) + (3 * ItemPadding))));
   Config->OnClickHandler = onClick;
@@ -91,7 +91,7 @@ TitleMenu::TitleMenu() {
   Help = new TitleButton(
       4, MenuEntriesSprites[4], MenuEntriesHSprites[4], ItemHighlightSprite,
       glm::vec2(
-          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
+          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress)) +
               ItemHighlightOffsetX,
           ((ItemYBase - 1.0f) + (4 * ItemPadding))));
   Help->OnClickHandler = onClick;
@@ -116,6 +116,7 @@ void TitleMenu::Show() {
 void TitleMenu::Hide() {
   if (State != Hidden) {
     State = Hidden;
+    MainItems->Hide();
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
       LastFocusedMenu->IsFocused = true;
