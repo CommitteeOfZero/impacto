@@ -34,9 +34,9 @@ void TitleMenu::SecondaryButtonOnClick(Widgets::Button* target) {
 }
 
 TitleMenu::TitleMenu() {
-  MainItems = new WidgetGroup();
-  ContinueItems = new WidgetGroup();
-  ExtraItems = new WidgetGroup();
+  MainItems = new Widgets::Group(this);
+  ContinueItems = new Widgets::Group(this);
+  ExtraItems = new Widgets::Group(this);
 
   auto onClick =
       std::bind(&TitleMenu::MenuButtonOnClick, this, std::placeholders::_1);
@@ -55,7 +55,7 @@ TitleMenu::TitleMenu() {
           ((ItemYBase - 1.0f) + (0 * ItemPadding))));
   NewGame->OnClickHandler = onClick;
   NewGame->HasFocus = true;
-  MainItems->Add(NewGame, FocusDirection::Vertical);
+  MainItems->Add(NewGame, FDIR_DOWN);
 
   // Continue menu button
   Continue = new TitleButton(
@@ -65,7 +65,7 @@ TitleMenu::TitleMenu() {
               ItemHighlightOffsetX,
           ((ItemYBase - 1.0f) + (1 * ItemPadding))));
   Continue->OnClickHandler = onClick;
-  MainItems->Add(Continue, FocusDirection::Vertical);
+  MainItems->Add(Continue, FDIR_DOWN);
 
   // Extra menu button
   Extra = new TitleButton(
@@ -75,7 +75,7 @@ TitleMenu::TitleMenu() {
               ItemHighlightOffsetX,
           ((ItemYBase - 1.0f) + (2 * ItemPadding))));
   Extra->OnClickHandler = onClick;
-  MainItems->Add(Extra, FocusDirection::Vertical);
+  MainItems->Add(Extra, FDIR_DOWN);
 
   // Config menu button
   Config = new TitleButton(
@@ -85,7 +85,7 @@ TitleMenu::TitleMenu() {
               ItemHighlightOffsetX,
           ((ItemYBase - 1.0f) + (3 * ItemPadding))));
   Config->OnClickHandler = onClick;
-  MainItems->Add(Config, FocusDirection::Vertical);
+  MainItems->Add(Config, FDIR_DOWN);
 
   // Help menu button
   Help = new TitleButton(
@@ -95,7 +95,7 @@ TitleMenu::TitleMenu() {
               ItemHighlightOffsetX,
           ((ItemYBase - 1.0f) + (4 * ItemPadding))));
   Help->OnClickHandler = onClick;
-  MainItems->Add(Help, FocusDirection::Vertical);
+  MainItems->Add(Help, FDIR_DOWN);
 }
 
 void TitleMenu::Show() {
@@ -127,6 +127,8 @@ void TitleMenu::Hide() {
 }
 
 void TitleMenu::Update(float dt) {
+  UpdateInput();
+
   PressToStartAnimation.Update(dt);
   PrimaryFadeAnimation.Update(dt);
   SecondaryFadeAnimation.Update(dt);

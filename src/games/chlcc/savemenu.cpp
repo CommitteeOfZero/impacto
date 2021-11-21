@@ -46,7 +46,7 @@ void SaveMenu::Hide() {
   if (State != Hidden) {
     State = Hiding;
     FadeAnimation.StartOut();
-    MainItems->Hide();
+    //MainItems->Hide();
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
       LastFocusedMenu->IsFocused = true;
@@ -71,7 +71,7 @@ void SaveMenu::Update(float dt) {
     State = Hidden;
 
   if (State == Shown && IsFocused) {
-    MainItems->Update(dt);
+   //MainItems->Update(dt);
   }
 }
 

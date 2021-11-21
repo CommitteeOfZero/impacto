@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../ui/menu.h"
-#include "../../ui/widgetgroup.h"
+#include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
 
 namespace Impacto {
@@ -20,7 +20,7 @@ class SaveMenu : public Menu {
   void MenuButtonOnClick(Widgets::Button* target);
 
  private:
-  WidgetGroup* MainItems;
+  //WidgetGroup* MainItems;
   Animation FadeAnimation;
 };
 
