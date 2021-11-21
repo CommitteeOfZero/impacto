@@ -49,50 +49,45 @@ TitleMenu::TitleMenu() {
   // NewGame menu button
   NewGame = new TitleButton(
       0, MenuEntriesSprites[0], MenuEntriesHSprites[0], ItemHighlightSprite,
-      glm::vec2(
-          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress)) +
-              ItemHighlightOffsetX,
-          ((ItemYBase - 1.0f) + (0 * ItemPadding))));
+      glm::vec2(((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress)) +
+                    ItemHighlightOffsetX,
+                ((ItemYBase - 1.0f) + (0 * ItemPadding))));
   NewGame->OnClickHandler = onClick;
   MainItems->Add(NewGame, FDIR_DOWN);
 
   // Continue menu button
   Continue = new TitleButton(
       1, MenuEntriesSprites[1], MenuEntriesHSprites[1], ItemHighlightSprite,
-      glm::vec2(
-          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress)) +
-              ItemHighlightOffsetX,
-          ((ItemYBase - 1.0f) + (1 * ItemPadding))));
+      glm::vec2(((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress)) +
+                    ItemHighlightOffsetX,
+                ((ItemYBase - 1.0f) + (1 * ItemPadding))));
   Continue->OnClickHandler = onClick;
   MainItems->Add(Continue, FDIR_DOWN);
 
   // Extra menu button
   Extra = new TitleButton(
       2, MenuEntriesSprites[2], MenuEntriesHSprites[2], ItemHighlightSprite,
-      glm::vec2(
-          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress)) +
-              ItemHighlightOffsetX,
-          ((ItemYBase - 1.0f) + (2 * ItemPadding))));
+      glm::vec2(((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress)) +
+                    ItemHighlightOffsetX,
+                ((ItemYBase - 1.0f) + (2 * ItemPadding))));
   Extra->OnClickHandler = onClick;
   MainItems->Add(Extra, FDIR_DOWN);
 
   // Config menu button
   Config = new TitleButton(
       3, MenuEntriesSprites[3], MenuEntriesHSprites[3], ItemHighlightSprite,
-      glm::vec2(
-          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress)) +
-              ItemHighlightOffsetX,
-          ((ItemYBase - 1.0f) + (3 * ItemPadding))));
+      glm::vec2(((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress)) +
+                    ItemHighlightOffsetX,
+                ((ItemYBase - 1.0f) + (3 * ItemPadding))));
   Config->OnClickHandler = onClick;
   MainItems->Add(Config, FDIR_DOWN);
 
   // Help menu button
   Help = new TitleButton(
       4, MenuEntriesSprites[4], MenuEntriesHSprites[4], ItemHighlightSprite,
-      glm::vec2(
-          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress)) +
-              ItemHighlightOffsetX,
-          ((ItemYBase - 1.0f) + (4 * ItemPadding))));
+      glm::vec2(((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress)) +
+                    ItemHighlightOffsetX,
+                ((ItemYBase - 1.0f) + (4 * ItemPadding))));
   Help->OnClickHandler = onClick;
   MainItems->Add(Help, FDIR_DOWN);
 }
@@ -139,22 +134,24 @@ void TitleMenu::Update(float dt) {
     Hide();
   }
 
-  if (State == Shown && IsFocused) {
-    MainItems->Opacity =
-        glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
+  if (State != Hidden && GetFlag(SF_TITLEMODE)) {
     MainItems->Update(dt);
+    /*MainItems->Opacity =
+        glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
     ContinueItems->Opacity =
         glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
     ContinueItems->Update(dt);
     ExtraItems->Opacity =
         glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
-    ExtraItems->Update(dt);
+    ExtraItems->Update(dt);*/
 
     switch (ScrWork[SW_TITLEMODE]) {
       case 3: {  // Main Menu Fade In
-        MainItems->Show();
-        CurrentlyFocusedElement = NewGame;
-        NewGame->HasFocus = true;
+        if (!MainItems->IsShown) {
+          MainItems->Show();
+          CurrentlyFocusedElement = NewGame;
+          NewGame->HasFocus = true;
+        }
       } break;
     }
   }
@@ -168,7 +165,7 @@ void TitleMenu::Render() {
         glm::vec4 col = glm::vec4(1.0f);
         col.a = glm::smoothstep(0.0f, 1.0f, PressToStartAnimation.Progress);
         Renderer2D::DrawSprite(PressToStartSprite,
-                                glm::vec2(PressToStartX, PressToStartY), col);
+                               glm::vec2(PressToStartX, PressToStartY), col);
       } break;
       case 2: {  // Transition between Press to start and menus
         DrawTitleMenuBackGraphics();
