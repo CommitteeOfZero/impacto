@@ -265,9 +265,9 @@ void SysMesBox::Render() {
         Renderer2D::DrawSprite(MessageLabel,
                                glm::vec2(BoxDisplayX, BoxTopY + 3.0f), texCol);
 
-        MessageItems->Opacity = texCol.a;
+        MessageItems->Tint.a = texCol.a;
         MessageItems->Render();
-        ChoiceItems->Opacity = texCol.a;
+        ChoiceItems->Tint.a = texCol.a;
         ChoiceItems->Render();
       }
 

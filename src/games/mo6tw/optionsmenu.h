@@ -19,7 +19,13 @@ class OptionsMenu : public Menu {
   void Update(float dt);
   void Render();
 
-  void MenuButtonOnClick(Widgets::Button* target);
+  void MessageSpeedToggleOnClick(Widgets::Toggle* target);
+  void AutoModeWaitTimeOnClick(Widgets::Toggle* target);
+  void SyncTextSpeedToVoiceOnClick(Widgets::Toggle* target);
+  void SkipVoiceAtNextLineOnClick(Widgets::Toggle* target);
+  void SkipModeOnClick(Widgets::Toggle* target);
+  void AutoSaveTriggerOnClick(Widgets::Toggle* target);
+  void TipsNotificationsOnClick(Widgets::Toggle* target);
 
  private:
   Animation FadeAnimation;
@@ -31,6 +37,23 @@ class OptionsMenu : public Menu {
   Widgets::Group* FirstPage;
   Widgets::Group* CharacterVoiceToggles;
   bool VoiceTest[13];
+
+  Widgets::Scrollbar* ScreenSizeSlider;
+  Widgets::Group* SecondPage;
+  Widgets::Group* MessageSpeedToggles;
+  bool MessageSpeedValues[4] = {false};
+  Widgets::Group* AutoModeWaitTimeToggles;
+  bool AutoModeWaitTimeValues[3] = {false};
+  Widgets::Group* SyncTextSpeedToVoiceToggles;
+  bool SyncTextSpeedToVoiceValues[2] = {false};
+  Widgets::Group* SkipVoiceAtNextLineToggles;
+  bool SkipVoiceAtNextLineValues[2] = {false};
+  Widgets::Group* SkipModeToggles;
+  bool SkipModeValues[2] = {false};
+  Widgets::Group* AutoSaveTriggerToggles;
+  bool AutoSaveTriggerValues[4] = {false};
+  Widgets::Group* TipsNotificationsToggles;
+  bool TipsNotificationsValues[2] = {false};
 };
 
 }  // namespace MO6TW

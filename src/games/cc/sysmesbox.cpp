@@ -204,7 +204,7 @@ void SysMesBox::Render() {
     }
 
     if (animationFrame > SealSpriteCount) {
-      MessageItems->Opacity =
+      MessageItems->Tint.a =
           WidgetsAlphaMultiplier * ((FadeAnimation.Progress * AnimationSpeed) -
                                     AnimationProgressWidgetsStartOffset);
       MessageItems->Render();

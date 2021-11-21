@@ -96,7 +96,7 @@ void SystemMenu::Render() {
     glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
     Renderer2D::DrawSprite(SystemMenuBackgroundSprite,
                            glm::vec2(SystemMenuX, SystemMenuY), col);
-    MainItems->Opacity = col.a;
+    MainItems->Tint = col;
     MainItems->Render();
   }
 }

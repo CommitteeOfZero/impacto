@@ -234,16 +234,16 @@ void TitleMenu::Update(float dt) {
   }
 
   if (State == Shown && IsFocused) {
-    MainItems->Opacity =
+    MainItems->Tint.a =
         glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
     MainItems->Update(dt);
-    LoadItems->Opacity =
+    LoadItems->Tint.a =
         glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
     LoadItems->Update(dt);
-    ExtraItems->Opacity =
+    ExtraItems->Tint.a =
         glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
     ExtraItems->Update(dt);
-    SystemItems->Opacity =
+    SystemItems->Tint.a =
         glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
     SystemItems->Update(dt);
 
@@ -260,7 +260,7 @@ void TitleMenu::Update(float dt) {
       case 3: {  // Main Menu Fade In
         if (!MainItems->IsShown && ScrWork[SW_TITLECT] == 0) {
           MainItems->Show();
-          MainItems->Opacity = 0.0f;
+          MainItems->Tint.a = 0.0f;
           CurrentlyFocusedElement = Start;
           Start->HasFocus = true;
           PrimaryFadeAnimation.DurationIn = PrimaryFadeInDuration;
@@ -271,7 +271,7 @@ void TitleMenu::Update(float dt) {
       case 7: {  // Secondary menu Load Fade In
         if (!LoadItems->IsShown && ScrWork[SW_TITLECT] == 0) {
           LoadItems->Show();
-          LoadItems->Opacity = 0.0f;
+          LoadItems->Tint.a = 0.0f;
           MainItems->HasFocus = false;
           CurrentlyFocusedElement = QuickLoad;
           QuickLoad->HasFocus = true;
@@ -291,7 +291,7 @@ void TitleMenu::Update(float dt) {
       case 9: {  // Secondary menu Extra Fade In
         if (!ExtraItems->IsShown && ScrWork[SW_TITLECT] == 0) {
           ExtraItems->Show();
-          ExtraItems->Opacity = 0.0f;
+          ExtraItems->Tint.a = 0.0f;
           MainItems->HasFocus = false;
           CurrentlyFocusedElement = ClearList;
           ClearList->HasFocus = true;
@@ -311,7 +311,7 @@ void TitleMenu::Update(float dt) {
       case 11: {  // Secondary menu System Fade In
         if (!SystemItems->IsShown && ScrWork[SW_TITLECT] == 0) {
           SystemItems->Show();
-          SystemItems->Opacity = 0.0f;
+          SystemItems->Tint.a = 0.0f;
           MainItems->HasFocus = false;
           CurrentlyFocusedElement = Config;
           Config->HasFocus = true;

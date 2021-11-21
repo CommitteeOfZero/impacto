@@ -12,7 +12,7 @@ using namespace Impacto::Vm::Interface;
 
 Scrollbar::Scrollbar(int id, glm::vec2 pos, float min, float max, float* value,
                      ScrollbarDirection dir, Sprite const& track,
-                     Sprite const& thumb) {
+                     Sprite const& thumb, glm::vec2 thumbOffset) {
   Enabled = true;
   Id = id;
   MinValue = min;
@@ -28,12 +28,14 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float min, float max, float* value,
                       TrackSprite.ScaledHeight());
   ThumbBounds =
       RectF(0.0f, 0.0f, ThumbSprite.ScaledWidth(), ThumbSprite.ScaledHeight());
+  ThumbSpriteOffset = thumbOffset;
 }
 
 Scrollbar::Scrollbar(int id, glm::vec2 pos, float min, float max, float* value,
                      ScrollbarDirection dir, Sprite const& track,
-                     Sprite const& thumb, Sprite const& fill)
-    : Scrollbar(id, pos, min, max, value, dir, track, thumb) {
+                     Sprite const& thumb, Sprite const& fill,
+                     glm::vec2 thumbOffset)
+    : Scrollbar(id, pos, min, max, value, dir, track, thumb, thumbOffset) {
   FillSprite = fill;
   HasFill = true;
 }
@@ -113,11 +115,14 @@ void Scrollbar::UpdateInput() {
         FillSprite.Bounds.Width = TrackProgress;
       }
     }
+
+    ThumbBounds.X += ThumbSpriteOffset.x;
+    ThumbBounds.Y += ThumbSpriteOffset.y;
   }
 }
 
 void Scrollbar::Render() {
-  Renderer2D::DrawSprite(TrackSprite, TrackBounds);
+  Renderer2D::DrawSprite(TrackSprite, TrackBounds, Tint);
   if (HasFill) {
     Renderer2D::DrawSprite(FillSprite, glm::vec2(TrackBounds.X, TrackBounds.Y),
                            Tint);

@@ -8,10 +8,26 @@ root.OptionsMenu = {
     VoiceToggleDisabledSprites: [],
     VoiceToggleHighlightSprite: "OptionsVoiceToggleHighlight",
     SectionHeaderSprites: [],
-    SectionHeaderHighlightedSprites: [],
+    CheckboxBoxSprite: "OptionsCheckboxBox",
+    CheckboxTickSprite: "OptionsCheckboxTick",
+    CheckboxLabelSprites: [],
     VoiceToggleStart: { X: 80, Y: 465 },
     VoiceTogglePadding: { X: 96, Y: 56 },
     VoiceTogglePerLine: 5,
+    FirstPageSliderPos: { X: 94, Y: 88 },
+    FirstPageSliderMargin: 96,
+    SliderThumbOffset: { X: 6, Y: 14 },
+    CheckboxLabelOffset: { X: 24, Y: 3 },
+    CheckboxFirstPos: { X: 90, Y: 65 },
+    CheckboxFirstSectionPaddingX: 88,
+    CheckboxMargin: { X: 32, Y: 80 },
+    CheckboxSecondPos: { X: 90, Y: 385 },
+    CheckboxSecondSectionFirstPaddingX: 133,
+    AutoSaveTriggerXPos: [ 122, 256, 390, 597 ],
+    ScreenSizeSliderPos: { X: 158, Y: 551 },
+    TipsPos: { X: 186, Y: 625 },
+    FirstPageSectionHeaderPos: { X: 79, Y: 47 },
+    SecondPageSectionHeaderPos: { X: 79, Y: 31 },
     FadeInDuration: 0.2,
     FadeOutDuration: 0.2
 };
@@ -105,8 +121,36 @@ for (var i = 1; i < 14; i++) {
             Height: 32
         }
     };
-    root.OptionsMenu.SectionHeaderHighlightedSprites.push("OptionsSectionHeaderHighlighted" + i);
+    root.OptionsMenu.SectionHeaderSprites.push("OptionsSectionHeaderHighlighted" + i);
 
     firstY += 34;
     highlightedFirstY += 34;
+}
+
+root.Sprites["OptionsCheckboxBox"] = {
+    Sheet: "Options",
+    Bounds: { X: 965, Y: 855, Width: 30, Height: 30 }
+};
+
+root.Sprites["OptionsCheckboxTick"] = {
+    Sheet: "Options",
+    Bounds: { X: 995, Y: 855, Width: 30, Height: 30 }
+};
+
+firstX = 1735;
+firstY = 1;
+
+for (var i = 1; i < 15; i++) {
+    root.Sprites["OptionsCheckboxLabel" + i] = {
+        Sheet: "Options",
+        Bounds: {
+            X: firstX,
+            Y: firstY,
+            Width: 200,
+            Height: 32
+        }
+    };
+    root.OptionsMenu.CheckboxLabelSprites.push("OptionsCheckboxLabel" + i);
+
+    firstY += 32;
 }

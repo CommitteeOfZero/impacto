@@ -177,7 +177,7 @@ void SaveMenu::Render() {
         Renderer2D::DrawSprite(LoadTextSprite, MenuTitleTextPos, col);
         break;
     }
-    MainItems->Opacity = col.a;
+    MainItems->Tint = col;
     MainItems->Render();
   }
 }

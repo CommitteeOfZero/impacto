@@ -149,9 +149,9 @@ void SysMesBox::Render() {
         BoxPartRight,
         glm::vec2(leftStartX + maxWidth + BoxRightBaseWidth, BoxY), col);
 
-    MessageItems->Opacity = FadeAnimation.Progress;
+    MessageItems->Tint.a = FadeAnimation.Progress;
     MessageItems->Render();
-    ChoiceItems->Opacity = FadeAnimation.Progress;
+    ChoiceItems->Tint.a = FadeAnimation.Progress;
     ChoiceItems->Render();
   }
 }

@@ -152,9 +152,9 @@ void SysMesBox::Render() {
     BoxPartRight.Bounds.Width = (remainWidth + BoxRightRemainPad) - 1.0f;
     Renderer2D::DrawSprite(BoxPartRight, glm::vec2(currentX, BoxY), col);
 
-    MessageItems->Opacity = FadeAnimation.Progress;
+    MessageItems->Tint.a = FadeAnimation.Progress;
     MessageItems->Render();
-    ChoiceItems->Opacity = FadeAnimation.Progress;
+    ChoiceItems->Tint.a = FadeAnimation.Progress;
     ChoiceItems->Render();
   }
 }

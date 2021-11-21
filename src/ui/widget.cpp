@@ -14,6 +14,11 @@ void Widget::Update(float dt) {
   }
 }
 
+void Widget::Show() {}
+void Widget::Hide() {}
+
+WidgetType Widget::GetType() { return WT_NORMAL; }
+
 void Widget::Move(glm::vec2 relativePosition, float duration) {
   MoveOrigin = glm::vec2(Bounds.X, Bounds.Y);
   MoveTarget = MoveOrigin + relativePosition;

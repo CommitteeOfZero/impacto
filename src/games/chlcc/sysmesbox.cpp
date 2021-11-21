@@ -139,9 +139,9 @@ void SysMesBox::Render() {
 
     Renderer2D::DrawSprite(Box, glm::vec2(BoxX, BoxY), col);
 
-    MessageItems->Opacity = FadeAnimation.Progress;
+    MessageItems->Tint.a = FadeAnimation.Progress;
     MessageItems->Render();
-    ChoiceItems->Opacity = FadeAnimation.Progress;
+    ChoiceItems->Tint.a = FadeAnimation.Progress;
     ChoiceItems->Render();
   }
 }

@@ -10,6 +10,7 @@ namespace Impacto {
 namespace UI {
 
 enum FocusDirection { FDIR_LEFT, FDIR_RIGHT, FDIR_UP, FDIR_DOWN };
+enum WidgetType { WT_NORMAL, WT_GROUP };
 
 class Widget {
  public:
@@ -24,6 +25,11 @@ class Widget {
   virtual void Update(float dt);
   virtual void UpdateInput() = 0;
   virtual void Render() = 0;
+
+  virtual void Show();
+  virtual void Hide();
+
+  virtual WidgetType GetType();
 
   // TODO: Text movement in widgets with text
   virtual void Move(glm::vec2 relativePosition, float duration);

@@ -65,8 +65,10 @@ void Toggle::Render() {
     Renderer2D::DrawSprite(EnabledSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
   }
   if (HasFocus) {
+    auto tint = Tint;
+    if (IsCheckbox) tint.a *= 0.5f;
     Renderer2D::DrawSprite(HighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
-                           Tint);
+                           tint);
   }
   if (HasSpriteLabel) {
     Renderer2D::DrawSprite(LabelSprite,
