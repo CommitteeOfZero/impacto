@@ -52,7 +52,6 @@ TitleMenu::TitleMenu() {
               ItemHighlightOffsetX,
           ((ItemYBase - 1.0f) + (0 * ItemPadding))));
   Start->OnClickHandler = onClick;
-  Start->HasFocus = true;
 
   MainItems->Add(Start, FDIR_DOWN);
 
@@ -91,7 +90,6 @@ TitleMenu::TitleMenu() {
                               SecondaryItemHighlightSprite,
                               glm::vec2(SecondaryItemX, ItemLoadQuickY));
   QuickLoad->OnClickHandler = secondaryOnClick;
-  QuickLoad->HasFocus = true;
   QuickLoad->IsSubButton = true;
   QuickLoad->LineDecoration = LineSprites[2];
   QuickLoad->LineY = SecondaryMenuLoadLineY;
@@ -113,7 +111,6 @@ TitleMenu::TitleMenu() {
                               glm::vec2(SecondaryItemX, ItemClearListY));
   ClearList->OnClickHandler = secondaryOnClick;
   ClearList->IsSubButton = true;
-  ClearList->HasFocus = true;
   ClearList->LineDecoration = LineSprites[0];
   ClearList->LineY = SecondaryMenuExtraClearY;
   ExtraItems->Add(ClearList, FDIR_DOWN);
@@ -176,7 +173,6 @@ TitleMenu::TitleMenu() {
                            glm::vec2(SecondaryItemX, ItemConfigY));
   Config->OnClickHandler = secondaryOnClick;
   Config->IsSubButton = true;
-  Config->HasFocus = true;
   Config->LineDecoration = LineSprites[2];
   Config->LineY = SecondaryMenuSystemConfigY;
   SystemItems->Add(Config, FDIR_DOWN);
@@ -265,6 +261,8 @@ void TitleMenu::Update(float dt) {
         if (!MainItems->IsShown && ScrWork[SW_TITLECT] == 0) {
           MainItems->Show();
           MainItems->Opacity = 0.0f;
+          CurrentlyFocusedElement = Start;
+          Start->HasFocus = true;
           PrimaryFadeAnimation.DurationIn = PrimaryFadeInDuration;
           PrimaryFadeAnimation.DurationOut = PrimaryFadeOutDuration;
           PrimaryFadeAnimation.StartIn();
@@ -275,6 +273,8 @@ void TitleMenu::Update(float dt) {
           LoadItems->Show();
           LoadItems->Opacity = 0.0f;
           MainItems->HasFocus = false;
+          CurrentlyFocusedElement = QuickLoad;
+          QuickLoad->HasFocus = true;
 
           SecondaryFadeAnimation.DurationIn = SecondaryFadeInDuration;
           SecondaryFadeAnimation.DurationOut = SecondaryFadeOutDuration;
@@ -293,6 +293,8 @@ void TitleMenu::Update(float dt) {
           ExtraItems->Show();
           ExtraItems->Opacity = 0.0f;
           MainItems->HasFocus = false;
+          CurrentlyFocusedElement = ClearList;
+          ClearList->HasFocus = true;
 
           SecondaryFadeAnimation.DurationIn = SecondaryFadeInDuration;
           SecondaryFadeAnimation.DurationOut = SecondaryFadeOutDuration;
@@ -311,6 +313,8 @@ void TitleMenu::Update(float dt) {
           SystemItems->Show();
           SystemItems->Opacity = 0.0f;
           MainItems->HasFocus = false;
+          CurrentlyFocusedElement = Config;
+          Config->HasFocus = true;
 
           SecondaryFadeAnimation.DurationIn = SecondaryFadeInDuration;
           SecondaryFadeAnimation.DurationOut = SecondaryFadeOutDuration;
