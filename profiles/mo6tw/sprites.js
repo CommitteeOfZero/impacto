@@ -43,6 +43,16 @@ root.SpriteSheets = {
         Path: {Mount: "system", Id: 20 },
         DesignWidth: 2048,
         DesignHeight: 1024
+    },
+    "Tips": {
+        Path: {Mount: "system", Id: 10 },
+        DesignWidth: 2048,
+        DesignHeight: 1024
+    },
+    "TipsThumbnails": {
+        Path: {Mount: "system", Id: 11 },
+        DesignWidth: 2048,
+        DesignHeight: 1024
     }
 };
 

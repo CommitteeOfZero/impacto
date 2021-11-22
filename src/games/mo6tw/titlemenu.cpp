@@ -341,10 +341,20 @@ void TitleMenu::Render() {
           Renderer2D::DrawSprite(MenuBackgroundSprite, glm::vec2(0.0f));
           MainItems->Render();
         } break;
+        case 5:    // Secondary menu Extra story Fade In
+        case 6: {  // Secondary menu Extra story
+          Renderer2D::DrawSprite(MenuBackgroundSprite, glm::vec2(0.0f));
+          MainItems->Render();
+        } break;
         case 7:    // Secondary menu Continue Fade In
         case 8: {  // Secondary menu Continue
           Renderer2D::DrawSprite(MenuBackgroundSprite, glm::vec2(0.0f));
           ContinueItems->Render();
+          MainItems->Render();
+        } break;
+        case 9:     // Secondary menu Memories Fade In
+        case 10: {  // Secondary menu Memories
+          Renderer2D::DrawSprite(MenuBackgroundSprite, glm::vec2(0.0f));
           MainItems->Render();
         } break;
         case 11:    // Secondary menu System Fade In

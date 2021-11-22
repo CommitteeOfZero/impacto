@@ -367,6 +367,7 @@ VmInstruction(InstSelect) {
   switch (type) {
     case 0: {
       UI::SelectionMenuPtr->Show();
+      SaveIconDisplay::ShowFor(2.4f);
     } break;
     case 1: {
       if (!UI::SelectionMenuPtr->ChoiceMade) {
