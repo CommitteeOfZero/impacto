@@ -55,6 +55,7 @@ set(Impacto_Src
     src/profile/ui/selectionmenu.cpp
     src/profile/ui/backlogmenu.cpp
     src/profile/ui/optionsmenu.cpp
+    src/profile/ui/tipsmenu.cpp
 
     src/profile/games/rne/tilebackground.cpp
     src/profile/games/rne/systemmenu.cpp
@@ -76,6 +77,7 @@ set(Impacto_Src
     src/profile/games/mo6tw/titlemenu.cpp
     src/profile/games/mo6tw/savemenu.cpp
     src/profile/games/mo6tw/optionsmenu.cpp
+    src/profile/games/mo6tw/tipsmenu.cpp
 
     src/profile/games/darling/sysmesbox.cpp
 
@@ -103,6 +105,7 @@ set(Impacto_Src
     src/games/mo6tw/titlemenu.cpp
     src/games/mo6tw/savemenu.cpp
     src/games/mo6tw/optionsmenu.cpp
+    src/games/mo6tw/tipsmenu.cpp
     src/games/mo6tw/savesystem.cpp
 
 	src/games/darling/sysmesbox.cpp
@@ -269,6 +272,7 @@ set(Impacto_Header
     src/profile/ui/selectionmenu.h
     src/profile/ui/backlogmenu.h
     src/profile/ui/optionsmenu.h
+    src/profile/ui/tipsmenu.h
 
     src/profile/games/rne/tilebackground.h
     src/profile/games/rne/systemmenu.h
@@ -290,6 +294,7 @@ set(Impacto_Header
     src/profile/games/mo6tw/titlemenu.h
     src/profile/games/mo6tw/savemenu.h
     src/profile/games/mo6tw/optionsmenu.h
+    src/profile/games/mo6tw/tipsmenu.h
 
     src/profile/games/darling/sysmesbox.h
 
@@ -317,6 +322,7 @@ set(Impacto_Header
     src/games/mo6tw/titlemenu.h
     src/games/mo6tw/savemenu.h
     src/games/mo6tw/optionsmenu.h
+    src/games/mo6tw/tipsmenu.h
     src/games/mo6tw/savesystem.h
 
     src/games/darling/sysmesbox.h

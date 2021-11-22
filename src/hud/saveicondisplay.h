@@ -9,6 +9,7 @@ void Init();
 void Hide();
 void Show();
 void ShowAt(glm::vec2 pos);
+void ShowFor(float seconds);
 void Update(float dt);
 void Render();
 

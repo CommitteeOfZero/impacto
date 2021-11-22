@@ -20,6 +20,7 @@
 #include "../profile/dialogue.h"
 #include "../profile/vm.h"
 #include "../profile/ui/sysmesbox.h"
+#include "../hud/saveicondisplay.h"
 #include "../inputsystem.h"
 #include "interface/input.h"
 #include "../savesystem.h"
@@ -570,6 +571,7 @@ VmInstruction(InstAutoSave) {
   PopUint8(type);
   switch (type) {
     case 0:  // QuickSave
+      SaveIconDisplay::ShowFor(2.4f);
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction AutoSave(type: QuickSave)\n");
       break;

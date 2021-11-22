@@ -14,6 +14,9 @@ static glm::vec2 Position;
 
 static SpriteAnimation SaveIconForeground;
 static Animation FadeAnimation;
+static Animation Timer;
+
+static bool IsTimed = false;
 
 void Init() {
   Profile::SaveIcon::Configure();
@@ -23,7 +26,10 @@ void Init() {
   SaveIconForeground.LoopMode = ALM_Loop;
 }
 
-void Hide() { FadeAnimation.StartOut(); }
+void Hide() {
+  FadeAnimation.StartOut();
+  IsTimed = false;
+}
 
 void Show() { ShowAt(Profile::SaveIcon::DefaultPosition); }
 void ShowAt(glm::vec2 pos) {
@@ -33,9 +39,19 @@ void ShowAt(glm::vec2 pos) {
   SaveIconForeground.StartIn();
   FadeAnimation.StartIn();
 }
+void ShowFor(float seconds) {
+  Timer.LoopMode = ALM_Stop;
+  Timer.DurationIn = seconds;
+  Timer.DurationOut = seconds;
+  IsTimed = true;
+  Timer.StartIn(true);
+  Show();
+}
 
 void Update(float dt) {
   FadeAnimation.Update(dt);
+  Timer.Update(dt);
+  if (IsTimed && Timer.IsIn()) Hide();
   if (FadeAnimation.IsOut()) return;
   SaveIconForeground.Update(dt);
 }
