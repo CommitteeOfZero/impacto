@@ -33,6 +33,8 @@ TitleMenu::TitleMenu() {
   MainItems = new Widgets::Group(this);
   ContinueItems = new Widgets::Group(this);
   SystemItems = new Widgets::Group(this);
+  ExtraStoryItems = new Widgets::Group(this);
+  MemoriesItems = new Widgets::Group(this);
 
   auto onClick =
       std::bind(&TitleMenu::MenuButtonOnClick, this, std::placeholders::_1);
@@ -110,6 +112,68 @@ TitleMenu::TitleMenu() {
   QuickLoad->OnClickHandler = secondaryOnClick;
   ContinueItems->Add(QuickLoad, FDIR_DOWN);
 
+  // Prologue secondary Extra Story menu button
+  Prologue = new TitleButton(
+      0, MenuEntriesSprites[7], MenuEntriesHSprites[7], nullSprite,
+      glm::vec2(MenuEntriesX, MenuEntriesFirstY + (2 * MenuEntriesYPadding)));
+  Prologue->OnClickHandler = secondaryOnClick;
+  ExtraStoryItems->Add(Prologue, FDIR_DOWN);
+
+  // Otome Judge feat.Shin secondary Extra Story menu button
+  OtomeJudgeShin = new TitleButton(
+      1, MenuEntriesSprites[8], MenuEntriesHSprites[8], nullSprite,
+      glm::vec2(MenuEntriesX - 20.0f,
+                MenuEntriesFirstY + (3 * MenuEntriesYPadding)));
+  OtomeJudgeShin->OnClickHandler = secondaryOnClick;
+  ExtraStoryItems->Add(OtomeJudgeShin, FDIR_DOWN);
+
+  // Warning secondary Extra Story menu button
+  Warning = new TitleButton(
+      2, MenuEntriesSprites[9], MenuEntriesHSprites[9], nullSprite,
+      glm::vec2(MenuEntriesX - 40.0f,
+                MenuEntriesFirstY + (4 * MenuEntriesYPadding)));
+  Warning->OnClickHandler = secondaryOnClick;
+  ExtraStoryItems->Add(Warning, FDIR_DOWN);
+
+  // Warning secondary Extra Story menu button
+  ClearList = new TitleButton(
+      0, MenuEntriesSprites[13], MenuEntriesHSprites[13], nullSprite,
+      glm::vec2(MenuEntriesX, MenuEntriesFirstY + (4 * MenuEntriesYPadding)));
+  ClearList->OnClickHandler = secondaryOnClick;
+  MemoriesItems->Add(ClearList, FDIR_DOWN);
+
+  // Warning secondary Extra Story menu button
+  Album = new TitleButton(
+      1, MenuEntriesSprites[14], MenuEntriesHSprites[14], nullSprite,
+      glm::vec2(MenuEntriesX - 20.0f,
+                MenuEntriesFirstY + (5 * MenuEntriesYPadding)));
+  Album->OnClickHandler = secondaryOnClick;
+  MemoriesItems->Add(Album, FDIR_DOWN);
+
+  // Warning secondary Extra Story menu button
+  Music = new TitleButton(
+      2, MenuEntriesSprites[15], MenuEntriesHSprites[15], nullSprite,
+      glm::vec2(MenuEntriesX - 40.0f,
+                MenuEntriesFirstY + (6 * MenuEntriesYPadding)));
+  Music->OnClickHandler = secondaryOnClick;
+  MemoriesItems->Add(Music, FDIR_DOWN);
+
+  // Warning secondary Extra Story menu button
+  Movie = new TitleButton(
+      3, MenuEntriesSprites[16], MenuEntriesHSprites[16], nullSprite,
+      glm::vec2(MenuEntriesX - 60.0f,
+                MenuEntriesFirstY + (7 * MenuEntriesYPadding)));
+  Movie->OnClickHandler = secondaryOnClick;
+  MemoriesItems->Add(Movie, FDIR_DOWN);
+
+  // Warning secondary Extra Story menu button
+  ActorsVoice = new TitleButton(
+      4, MenuEntriesSprites[17], MenuEntriesHSprites[17], nullSprite,
+      glm::vec2(MenuEntriesX - 80.0f,
+                MenuEntriesFirstY + (8 * MenuEntriesYPadding)));
+  ActorsVoice->OnClickHandler = secondaryOnClick;
+  MemoriesItems->Add(ActorsVoice, FDIR_DOWN);
+
   // Option secondary System menu button
   Option = new TitleButton(
       0, MenuEntriesSprites[18], MenuEntriesHSprites[18], nullSprite,
@@ -179,31 +243,58 @@ void TitleMenu::Update(float dt) {
     SystemItems->Tint.a =
         glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
     SystemItems->Update(dt);
+    ExtraStoryItems->Tint.a =
+        glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
+    ExtraStoryItems->Update(dt);
+    MemoriesItems->Tint.a =
+        glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
+    MemoriesItems->Update(dt);
 
     switch (ScrWork[SW_TITLEDISPCT]) {
       case 0: {
         // When returning to title menu from loading a game we need to hide the
-        // continue sub-menu
+        // continue sub-menu and extra story sub-menu
         if (ContinueItems->IsShown) {
-          SecondaryFadeAnimation.StartOut();
           MainItems->HasFocus = true;
-          Load->Move(
-              glm::vec2(-SecondaryMenuAnimTargetX, SecondaryMenuAnimTargetY));
+          SecondaryFadeAnimation.StartOut();
+          Load->Move(-SecondaryMenuAnimTarget);
           QuickLoad->Move(
-              glm::vec2(-SecondaryMenuAnimTarget2X, SecondaryMenuAnimTarget2Y));
-          Memories->Move(glm::vec2(
-              SecondaryMenuAnimUnderX,
-              -SecondaryMenuAnimUnderYMultiplier * MenuEntriesYPadding));
-          Encyclopedia->Move(glm::vec2(
-              SecondaryMenuAnimUnderX,
-              -SecondaryMenuAnimUnderYMultiplier * MenuEntriesYPadding));
-          System->Move(glm::vec2(
-              SecondaryMenuAnimUnderX,
-              -SecondaryMenuAnimUnderYMultiplier * MenuEntriesYPadding));
-          Exit->Move(glm::vec2(
-              SecondaryMenuAnimUnderX,
-              -SecondaryMenuAnimUnderYMultiplier * MenuEntriesYPadding));
+              glm::vec2(-(SecondaryMenuAnimTarget.x + SecondaryMenuPadding),
+                        SecondaryMenuAnimTarget.y));
+
+          Memories->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                                   -ContinueItemCount * MenuEntriesYPadding));
+          Encyclopedia->Move(
+              glm::vec2(SecondaryMenuAnimUnderX,
+                        -ContinueItemCount * MenuEntriesYPadding));
+          System->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                                 -ContinueItemCount * MenuEntriesYPadding));
+          Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                               -ContinueItemCount * MenuEntriesYPadding));
           ContinueItems->Hide();
+        }
+        if (ExtraStoryItems->IsShown) {
+          MainItems->HasFocus = true;
+          SecondaryFadeAnimation.StartOut();
+          Prologue->Move(-SecondaryMenuAnimTarget);
+          OtomeJudgeShin->Move(
+              glm::vec2(-(SecondaryMenuAnimTarget.x + SecondaryMenuPadding),
+                        SecondaryMenuAnimTarget.y));
+          Warning->Move(glm::vec2(
+              -(SecondaryMenuAnimTarget.x + (2 * SecondaryMenuPadding)),
+              SecondaryMenuAnimTarget.y));
+          Continue->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                                   -ExtraStoryItemCount * MenuEntriesYPadding));
+          Memories->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                                   -ExtraStoryItemCount * MenuEntriesYPadding));
+          Encyclopedia->Move(
+              glm::vec2(SecondaryMenuAnimUnderX,
+                        -ExtraStoryItemCount * MenuEntriesYPadding));
+          System->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                                 -ExtraStoryItemCount * MenuEntriesYPadding));
+          Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                               -ExtraStoryItemCount * MenuEntriesYPadding));
+          ExtraStoryItems->Hide();
         }
       } break;
       case 3: {  // Main Menu Fade In
@@ -213,101 +304,41 @@ void TitleMenu::Update(float dt) {
           PrimaryFadeAnimation.StartIn();
         }
       } break;
+      case 5: {  // Secondary menu Extra Story Fade In
+        if (!ExtraStoryItems->IsShown && ScrWork[SW_TITLECT] == 0) {
+          ShowExtraStoryItems();
+        } else if (ExtraStoryItems->IsShown && ScrWork[SW_TITLECT] == 32) {
+          HideExtraStoryItems();
+        } else if (ScrWork[SW_TITLECT] == 0) {
+          ExtraStoryItems->Hide();
+          MainItems->HasFocus = true;
+        }
+      } break;
       case 7: {  // Secondary menu Continue Fade In
         if (!ContinueItems->IsShown && ScrWork[SW_TITLECT] == 0) {
-          ContinueItems->Show();
-          ContinueItems->Tint.a = 0.0f;
-          MainItems->HasFocus = false;
-
-          SecondaryFadeAnimation.StartIn();
-
-          Load->Move(
-              glm::vec2(SecondaryMenuAnimTargetX, SecondaryMenuAnimTargetY),
-              SecondaryMenuAnimDuration);
-          QuickLoad->Move(
-              glm::vec2(SecondaryMenuAnimTarget2X, SecondaryMenuAnimTarget2Y),
-              SecondaryMenuAnimDuration);
-
-          Memories->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                                   SecondaryMenuAnimUnderYMultiplier *
-                                       MenuEntriesYPadding),
-                         SecondaryMenuAnimDuration);
-          Encyclopedia->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                                       SecondaryMenuAnimUnderYMultiplier *
-                                           MenuEntriesYPadding),
-                             SecondaryMenuAnimDuration);
-          System->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                                 SecondaryMenuAnimUnderYMultiplier *
-                                     MenuEntriesYPadding),
-                       SecondaryMenuAnimDuration);
-          Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                               SecondaryMenuAnimUnderYMultiplier *
-                                   MenuEntriesYPadding),
-                     SecondaryMenuAnimDuration);
+          ShowContinueItems();
         } else if (ContinueItems->IsShown && ScrWork[SW_TITLECT] == 32) {
-          SecondaryFadeAnimation.StartOut();
-
-          Load->Move(
-              glm::vec2(-SecondaryMenuAnimTargetX, SecondaryMenuAnimTargetY),
-              SecondaryMenuAnimDuration);
-          QuickLoad->Move(
-              glm::vec2(-SecondaryMenuAnimTarget2X, SecondaryMenuAnimTarget2Y),
-              SecondaryMenuAnimDuration);
-
-          Memories->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                                   -SecondaryMenuAnimUnderYMultiplier *
-                                       MenuEntriesYPadding),
-                         SecondaryMenuAnimDuration);
-          Encyclopedia->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                                       -SecondaryMenuAnimUnderYMultiplier *
-                                           MenuEntriesYPadding),
-                             SecondaryMenuAnimDuration);
-          System->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                                 -SecondaryMenuAnimUnderYMultiplier *
-                                     MenuEntriesYPadding),
-                       SecondaryMenuAnimDuration);
-          Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                               -SecondaryMenuAnimUnderYMultiplier *
-                                   MenuEntriesYPadding),
-                     SecondaryMenuAnimDuration);
+          HideContinueItems();
         } else if (ScrWork[SW_TITLECT] == 0) {
           ContinueItems->Hide();
           MainItems->HasFocus = true;
         }
       } break;
-      case 11: {
+      case 9: {  // Secondary menu Memories Fade In
+        if (!MemoriesItems->IsShown && ScrWork[SW_TITLECT] == 0) {
+          ShowMemoriesItems();
+        } else if (MemoriesItems->IsShown && ScrWork[SW_TITLECT] == 32) {
+          HideMemoriesItems();
+        } else if (ScrWork[SW_TITLECT] == 0) {
+          MemoriesItems->Hide();
+          MainItems->HasFocus = true;
+        }
+      } break;
+      case 11: {  // Secondary menu System Fade In
         if (!SystemItems->IsShown && ScrWork[SW_TITLECT] == 0) {
-          SystemItems->Show();
-          SystemItems->Tint.a = 0.0f;
-          MainItems->HasFocus = false;
-
-          SecondaryFadeAnimation.StartIn();
-
-          Option->Move(
-              glm::vec2(SecondaryMenuAnimTargetX, SecondaryMenuAnimTargetY),
-              SecondaryMenuAnimDuration);
-          SystemSave->Move(
-              glm::vec2(SecondaryMenuAnimTarget2X, SecondaryMenuAnimTarget2Y),
-              SecondaryMenuAnimDuration);
-
-          Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                               SecondaryMenuAnimUnderYMultiplier *
-                                   MenuEntriesYPadding),
-                     SecondaryMenuAnimDuration);
+          ShowSystemItems();
         } else if (SystemItems->IsShown && ScrWork[SW_TITLECT] == 32) {
-          SecondaryFadeAnimation.StartOut();
-
-          Option->Move(
-              glm::vec2(-SecondaryMenuAnimTargetX, SecondaryMenuAnimTargetY),
-              SecondaryMenuAnimDuration);
-          SystemSave->Move(
-              glm::vec2(-SecondaryMenuAnimTarget2X, SecondaryMenuAnimTarget2Y),
-              SecondaryMenuAnimDuration);
-
-          Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                               -SecondaryMenuAnimUnderYMultiplier *
-                                   MenuEntriesYPadding),
-                     SecondaryMenuAnimDuration);
+          HideSystemItems();
         } else if (ScrWork[SW_TITLECT] == 0) {
           SystemItems->Hide();
           MainItems->HasFocus = true;
@@ -344,6 +375,7 @@ void TitleMenu::Render() {
         case 5:    // Secondary menu Extra story Fade In
         case 6: {  // Secondary menu Extra story
           Renderer2D::DrawSprite(MenuBackgroundSprite, glm::vec2(0.0f));
+          ExtraStoryItems->Render();
           MainItems->Render();
         } break;
         case 7:    // Secondary menu Continue Fade In
@@ -355,6 +387,7 @@ void TitleMenu::Render() {
         case 9:     // Secondary menu Memories Fade In
         case 10: {  // Secondary menu Memories
           Renderer2D::DrawSprite(MenuBackgroundSprite, glm::vec2(0.0f));
+          MemoriesItems->Render();
           MainItems->Render();
         } break;
         case 11:    // Secondary menu System Fade In
@@ -372,6 +405,213 @@ void TitleMenu::Render() {
     Renderer2D::DrawRect(
         RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight), col);
   }
+}
+
+void TitleMenu::ShowExtraStoryItems() {
+  ExtraStoryItems->Show();
+  ExtraStoryItems->Tint.a = 0.0f;
+  MainItems->HasFocus = false;
+
+  SecondaryFadeAnimation.StartIn();
+
+  Prologue->Move(SecondaryMenuAnimTarget, SecondaryMenuAnimDuration);
+  OtomeJudgeShin->Move(
+      glm::vec2(SecondaryMenuAnimTarget.x + SecondaryMenuPadding,
+                SecondaryMenuAnimTarget.y),
+      SecondaryMenuAnimDuration);
+  Warning->Move(
+      glm::vec2(SecondaryMenuAnimTarget.x + (2 * SecondaryMenuPadding),
+                SecondaryMenuAnimTarget.y),
+      SecondaryMenuAnimDuration);
+
+  Continue->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                           ExtraStoryItemCount * MenuEntriesYPadding),
+                 SecondaryMenuAnimDuration);
+  Memories->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                           ExtraStoryItemCount * MenuEntriesYPadding),
+                 SecondaryMenuAnimDuration);
+  Encyclopedia->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                               ExtraStoryItemCount * MenuEntriesYPadding),
+                     SecondaryMenuAnimDuration);
+  System->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                         ExtraStoryItemCount * MenuEntriesYPadding),
+               SecondaryMenuAnimDuration);
+  Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                       ExtraStoryItemCount * MenuEntriesYPadding),
+             SecondaryMenuAnimDuration);
+}
+
+void TitleMenu::HideExtraStoryItems() {
+  SecondaryFadeAnimation.StartOut();
+
+  Prologue->Move(-SecondaryMenuAnimTarget, SecondaryMenuAnimDuration);
+  OtomeJudgeShin->Move(
+      glm::vec2(-(SecondaryMenuAnimTarget.x + SecondaryMenuPadding),
+                SecondaryMenuAnimTarget.y),
+      SecondaryMenuAnimDuration);
+  Warning->Move(
+      glm::vec2(-(SecondaryMenuAnimTarget.x + (2 * SecondaryMenuPadding)),
+                SecondaryMenuAnimTarget.y),
+      SecondaryMenuAnimDuration);
+
+  Continue->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                           -ExtraStoryItemCount * MenuEntriesYPadding),
+                 SecondaryMenuAnimDuration);
+  Memories->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                           -ExtraStoryItemCount * MenuEntriesYPadding),
+                 SecondaryMenuAnimDuration);
+  Encyclopedia->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                               -ExtraStoryItemCount * MenuEntriesYPadding),
+                     SecondaryMenuAnimDuration);
+  System->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                         -ExtraStoryItemCount * MenuEntriesYPadding),
+               SecondaryMenuAnimDuration);
+  Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                       -ExtraStoryItemCount * MenuEntriesYPadding),
+             SecondaryMenuAnimDuration);
+}
+
+void TitleMenu::ShowContinueItems() {
+  ContinueItems->Show();
+  ContinueItems->Tint.a = 0.0f;
+  MainItems->HasFocus = false;
+
+  SecondaryFadeAnimation.StartIn();
+
+  Load->Move(SecondaryMenuAnimTarget, SecondaryMenuAnimDuration);
+  QuickLoad->Move(glm::vec2(SecondaryMenuAnimTarget.x + SecondaryMenuPadding,
+                            SecondaryMenuAnimTarget.y),
+                  SecondaryMenuAnimDuration);
+
+  Memories->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                           ContinueItemCount * MenuEntriesYPadding),
+                 SecondaryMenuAnimDuration);
+  Encyclopedia->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                               ContinueItemCount * MenuEntriesYPadding),
+                     SecondaryMenuAnimDuration);
+  System->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                         ContinueItemCount * MenuEntriesYPadding),
+               SecondaryMenuAnimDuration);
+  Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                       ContinueItemCount * MenuEntriesYPadding),
+             SecondaryMenuAnimDuration);
+}
+
+void TitleMenu::HideContinueItems() {
+  SecondaryFadeAnimation.StartOut();
+
+  Load->Move(-SecondaryMenuAnimTarget, SecondaryMenuAnimDuration);
+  QuickLoad->Move(glm::vec2(-(SecondaryMenuAnimTarget.x + SecondaryMenuPadding),
+                            SecondaryMenuAnimTarget.y),
+                  SecondaryMenuAnimDuration);
+
+  Memories->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                           -ContinueItemCount * MenuEntriesYPadding),
+                 SecondaryMenuAnimDuration);
+  Encyclopedia->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                               -ContinueItemCount * MenuEntriesYPadding),
+                     SecondaryMenuAnimDuration);
+  System->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                         -ContinueItemCount * MenuEntriesYPadding),
+               SecondaryMenuAnimDuration);
+  Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                       -ContinueItemCount * MenuEntriesYPadding),
+             SecondaryMenuAnimDuration);
+}
+
+void TitleMenu::ShowMemoriesItems() {
+  MemoriesItems->Show();
+  MemoriesItems->Tint.a = 0.0f;
+  MainItems->HasFocus = false;
+
+  SecondaryFadeAnimation.StartIn();
+
+  ClearList->Move(SecondaryMenuAnimTarget, SecondaryMenuAnimDuration);
+  Album->Move(glm::vec2(SecondaryMenuAnimTarget.x + SecondaryMenuPadding,
+                        SecondaryMenuAnimTarget.y),
+              SecondaryMenuAnimDuration);
+  Music->Move(glm::vec2(SecondaryMenuAnimTarget.x + (2 * SecondaryMenuPadding),
+                        SecondaryMenuAnimTarget.y),
+              SecondaryMenuAnimDuration);
+  Movie->Move(glm::vec2(SecondaryMenuAnimTarget.x + (3 * SecondaryMenuPadding),
+                        SecondaryMenuAnimTarget.y),
+              SecondaryMenuAnimDuration);
+  ActorsVoice->Move(
+      glm::vec2(SecondaryMenuAnimTarget.x + (4 * SecondaryMenuPadding),
+                SecondaryMenuAnimTarget.y),
+      SecondaryMenuAnimDuration);
+
+  Encyclopedia->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                               MemoriesItemCount * MenuEntriesYPadding),
+                     SecondaryMenuAnimDuration);
+  System->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                         MemoriesItemCount * MenuEntriesYPadding),
+               SecondaryMenuAnimDuration);
+  Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                       MemoriesItemCount * MenuEntriesYPadding),
+             SecondaryMenuAnimDuration);
+}
+
+void TitleMenu::HideMemoriesItems() {
+  SecondaryFadeAnimation.StartOut();
+
+  ClearList->Move(-SecondaryMenuAnimTarget, SecondaryMenuAnimDuration);
+  Album->Move(glm::vec2(-(SecondaryMenuAnimTarget.x + SecondaryMenuPadding),
+                        SecondaryMenuAnimTarget.y),
+              SecondaryMenuAnimDuration);
+  Music->Move(
+      glm::vec2(-(SecondaryMenuAnimTarget.x + (2 * SecondaryMenuPadding)),
+                SecondaryMenuAnimTarget.y),
+      SecondaryMenuAnimDuration);
+  Movie->Move(
+      glm::vec2(-(SecondaryMenuAnimTarget.x + (3 * SecondaryMenuPadding)),
+                SecondaryMenuAnimTarget.y),
+      SecondaryMenuAnimDuration);
+  ActorsVoice->Move(
+      glm::vec2(-(SecondaryMenuAnimTarget.x + (4 * SecondaryMenuPadding)),
+                SecondaryMenuAnimTarget.y),
+      SecondaryMenuAnimDuration);
+
+  Encyclopedia->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                               -MemoriesItemCount * MenuEntriesYPadding),
+                     SecondaryMenuAnimDuration);
+  System->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                         -MemoriesItemCount * MenuEntriesYPadding),
+               SecondaryMenuAnimDuration);
+  Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                       -MemoriesItemCount * MenuEntriesYPadding),
+             SecondaryMenuAnimDuration);
+}
+
+void TitleMenu::ShowSystemItems() {
+  SystemItems->Show();
+  SystemItems->Tint.a = 0.0f;
+  MainItems->HasFocus = false;
+
+  SecondaryFadeAnimation.StartIn();
+
+  Option->Move(SecondaryMenuAnimTarget, SecondaryMenuAnimDuration);
+  SystemSave->Move(glm::vec2(SecondaryMenuAnimTarget.x + SecondaryMenuPadding,
+                             SecondaryMenuAnimTarget.y),
+                   SecondaryMenuAnimDuration);
+
+  Exit->Move(
+      glm::vec2(SecondaryMenuAnimUnderX, SystemItemCount * MenuEntriesYPadding),
+      SecondaryMenuAnimDuration);
+}
+
+void TitleMenu::HideSystemItems() {
+  SecondaryFadeAnimation.StartOut();
+
+  Option->Move(-SecondaryMenuAnimTarget, SecondaryMenuAnimDuration);
+  SystemSave->Move(
+      glm::vec2(-(SecondaryMenuAnimTarget.x + SecondaryMenuPadding),
+                SecondaryMenuAnimTarget.y),
+      SecondaryMenuAnimDuration);
+
+  Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
+                       -SystemItemCount * MenuEntriesYPadding),
+             SecondaryMenuAnimDuration);
 }
 
 }  // namespace MO6TW
