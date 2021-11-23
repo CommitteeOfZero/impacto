@@ -37,16 +37,32 @@ class TitleMenu : public Menu {
   Widgets::MO6TW::TitleButton* Exit;
 
   Widgets::Group* ExtraStoryItems;
+  Widgets::MO6TW::TitleButton* Prologue;
+  Widgets::MO6TW::TitleButton* OtomeJudgeShin;
+  Widgets::MO6TW::TitleButton* Warning;
+  void ShowExtraStoryItems();
+  void HideExtraStoryItems();
 
   Widgets::Group* ContinueItems;
   Widgets::MO6TW::TitleButton* Load;
   Widgets::MO6TW::TitleButton* QuickLoad;
+  void ShowContinueItems();
+  void HideContinueItems();
 
   Widgets::Group* MemoriesItems;
+  Widgets::MO6TW::TitleButton* ClearList;
+  Widgets::MO6TW::TitleButton* Album;
+  Widgets::MO6TW::TitleButton* Music;
+  Widgets::MO6TW::TitleButton* Movie;
+  Widgets::MO6TW::TitleButton* ActorsVoice;
+  void ShowMemoriesItems();
+  void HideMemoriesItems();
 
   Widgets::Group* SystemItems;
   Widgets::MO6TW::TitleButton* Option;
   Widgets::MO6TW::TitleButton* SystemSave;
+  void ShowSystemItems();
+  void HideSystemItems();
 };
 
 }  // namespace MO6TW

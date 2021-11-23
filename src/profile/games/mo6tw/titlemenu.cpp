@@ -29,13 +29,14 @@ float LogoY;
 float CopyrightX;
 float CopyrightY;
 float PrimaryFadeAnimDuration;
-float SecondaryMenuAnimTargetX;
-float SecondaryMenuAnimTargetY;
-float SecondaryMenuAnimTarget2X;
-float SecondaryMenuAnimTarget2Y;
+glm::vec2 SecondaryMenuAnimTarget;
+float SecondaryMenuPadding;
 float SecondaryMenuAnimDuration;
 float SecondaryMenuAnimUnderX;
-float SecondaryMenuAnimUnderYMultiplier;
+float ExtraStoryItemCount;
+float ContinueItemCount;
+float MemoriesItemCount;
+float SystemItemCount;
 
 void Configure() {
   BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
@@ -53,14 +54,14 @@ void Configure() {
   MenuEntriesFirstY = EnsureGetMemberFloat("MenuEntriesFirstY");
   MenuEntriesYPadding = EnsureGetMemberFloat("MenuEntriesYPadding");
   PrimaryFadeAnimDuration = EnsureGetMemberFloat("PrimaryFadeAnimDuration");
-  SecondaryMenuAnimTargetX = EnsureGetMemberFloat("SecondaryMenuAnimTargetX");
-  SecondaryMenuAnimTargetY = EnsureGetMemberFloat("SecondaryMenuAnimTargetY");
-  SecondaryMenuAnimTarget2X = EnsureGetMemberFloat("SecondaryMenuAnimTarget2X");
-  SecondaryMenuAnimTarget2Y = EnsureGetMemberFloat("SecondaryMenuAnimTarget2Y");
+  SecondaryMenuAnimTarget = EnsureGetMemberVec2("SecondaryMenuAnimTarget");
+  SecondaryMenuPadding = EnsureGetMemberFloat("SecondaryMenuPadding");
   SecondaryMenuAnimDuration = EnsureGetMemberFloat("SecondaryMenuAnimDuration");
   SecondaryMenuAnimUnderX = EnsureGetMemberFloat("SecondaryMenuAnimUnderX");
-  SecondaryMenuAnimUnderYMultiplier =
-      EnsureGetMemberFloat("SecondaryMenuAnimUnderYMultiplier");
+  ExtraStoryItemCount = EnsureGetMemberFloat("ExtraStoryItemCount");
+  ContinueItemCount = EnsureGetMemberFloat("ContinueItemCount");
+  MemoriesItemCount = EnsureGetMemberFloat("MemoriesItemCount");
+  SystemItemCount = EnsureGetMemberFloat("SystemItemCount");
 
   UI::MO6TW::TitleMenu* menu = new UI::MO6TW::TitleMenu();
   menu->PressToStartAnimation.DurationIn =

@@ -23,13 +23,14 @@ root.TitleMenu = {
     MenuEntriesYPadding: 32,
     MenuEntriesTargetWidth: 254,
     PrimaryFadeAnimDuration: 0.3,
-    SecondaryMenuAnimTargetX: 110,
-    SecondaryMenuAnimTargetY: 0,
-    SecondaryMenuAnimTarget2X: 130,
-    SecondaryMenuAnimTarget2Y: 0,
+    SecondaryMenuAnimTarget: { X: 110, Y: 0 },
+    SecondaryMenuPadding: 20,
     SecondaryMenuAnimDuration: 0.512,
     SecondaryMenuAnimUnderX: 0,
-    SecondaryMenuAnimUnderYMultiplier: 2
+    ExtraStoryItemCount: 3,
+    ContinueItemCount: 2,
+    MemoriesItemCount: 5,
+    SystemItemCount: 2,
 };
 
 for (var i = 0; i < 23; i++) {

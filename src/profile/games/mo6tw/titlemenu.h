@@ -25,13 +25,14 @@ extern float LogoY;
 extern float CopyrightX;
 extern float CopyrightY;
 extern float PrimaryFadeAnimDuration;
-extern float SecondaryMenuAnimTargetX;
-extern float SecondaryMenuAnimTargetY;
-extern float SecondaryMenuAnimTarget2X;
-extern float SecondaryMenuAnimTarget2Y;
+extern glm::vec2 SecondaryMenuAnimTarget;
+extern float SecondaryMenuPadding;
 extern float SecondaryMenuAnimDuration;
 extern float SecondaryMenuAnimUnderX;
-extern float SecondaryMenuAnimUnderYMultiplier;
+extern float ExtraStoryItemCount;
+extern float ContinueItemCount;
+extern float MemoriesItemCount;
+extern float SystemItemCount;
 
 }  // namespace TitleMenu
 }  // namespace MO6TW
