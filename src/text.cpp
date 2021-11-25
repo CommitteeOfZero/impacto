@@ -234,6 +234,8 @@ void DialoguePage::Clear() {
     CurrentLineTop = ADVBounds.Y;
   } else if (Mode == DPM_REV) {
     CurrentLineTop = REVBounds.Y;
+  } else if (Mode == DPM_TIPS) {
+    CurrentLineTop = TipsBounds.Y;
   } else {
     CurrentLineTop = NVLBounds.Y;
   }
@@ -308,8 +310,10 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, int nextLineStart) {
     Glyphs[i].DestRect.Y = CurrentLineTop + CurrentLineTopMargin +
                            (lineHeight - Glyphs[i].DestRect.Height);
   }
-  CurrentLineTop = CurrentLineTop + CurrentLineTopMargin + lineHeight +
-                   DialogueFont->LineSpacing;
+  float lineSpacing = DialogueFont->LineSpacing;
+  if (Mode == DPM_TIPS) lineSpacing = TipsLineSpacing;
+  CurrentLineTop =
+      CurrentLineTop + CurrentLineTopMargin + lineHeight + lineSpacing;
   CurrentLineTopMargin = 0.0f;
   LastLineStart = nextLineStart;
 }
@@ -350,6 +354,8 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice) {
     BoxBounds = ADVBounds;
   } else if (Mode == DPM_REV) {
     BoxBounds = REVBounds;
+  } else if (Mode == DPM_TIPS) {
+    BoxBounds = TipsBounds;
   } else {
     BoxBounds = NVLBounds;
   }
@@ -462,7 +468,10 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice) {
 
           ProcessedTextGlyph& ptg = Glyphs[Length];
           ptg.CharId = token.Val_Uint16;
-          ptg.Opacity = 0.0f;
+          if (Mode == DPM_REV || Mode == DPM_TIPS)
+            ptg.Opacity = 1.0f;
+          else
+            ptg.Opacity = 0.0f;
           ptg.Colors = CurrentColors;
 
           if (ptg.Flags() & CharacterTypeFlags::WordStartingPunct) {

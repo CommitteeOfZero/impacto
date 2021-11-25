@@ -492,6 +492,7 @@ VmInstruction(InstTips) {
       if (Profile::Vm::GameInstructionSet == +InstructionSet::MO8) {
         PopLocalLabel(tipsDataAdr1);
       }
+      UI::TipsMenuPtr->DataInit(thread->ScriptBufferId, tipsDataAdr);
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction Tips(type: TipsDataInit)\n");
     } break;

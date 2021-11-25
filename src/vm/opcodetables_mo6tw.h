@@ -582,7 +582,7 @@ InstructionProc static OpcodeTableUser1_MO6TW[256] = {
     InstSetSceneViewFlag,  // 10 2E
     InstChkClearFlag,      // 10 2F
     InstBGeffectWave,      // 10 30
-    InstGeotag,            // 10 31
+    InstDummy,             // 10 31
     InstNameID,            // 10 32
     InstTips,              // 10 33
     InstTitleMenuOld,      // 10 34

@@ -7,6 +7,11 @@ namespace Profile {
 namespace MO6TW {
 namespace TipsMenu {
 
+int const ThumbnailCount = 37;
+
+extern Sprite TipThumbnails[ThumbnailCount];
+extern Sprite TipTextOnlyThumbnail;
+
 void Configure();
 
 }  // namespace TipsMenu

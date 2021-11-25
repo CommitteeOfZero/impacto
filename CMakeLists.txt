@@ -125,6 +125,7 @@ set(Impacto_Src
     src/ui/selectionmenu.cpp
     src/ui/sysmesbox.cpp
     src/ui/backlogmenu.cpp
+    src/ui/tipsmenu.cpp
     src/ui/widgets/label.cpp
     src/ui/widgets/button.cpp
     src/ui/widgets/backlogentry.cpp
@@ -341,6 +342,7 @@ set(Impacto_Header
     src/ui/selectionmenu.h
     src/ui/sysmesbox.h
     src/ui/backlogmenu.h
+    src/ui/tipsmenu.h
     src/ui/widget.h
     src/ui/widgets/label.h
     src/ui/widgets/button.h

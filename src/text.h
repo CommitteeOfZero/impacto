@@ -33,7 +33,12 @@ struct ProcessedTextGlyph {
   uint8_t Flags() const;
 };
 
-enum DialoguePageMode : uint8_t { DPM_ADV = 0, DPM_NVL = 1, DPM_REV = 2 };
+enum DialoguePageMode : uint8_t {
+  DPM_ADV = 0,
+  DPM_NVL = 1,
+  DPM_REV = 2,
+  DPM_TIPS = 3
+};
 
 int const DialogueMaxNameLength = 32;
 int const DialogueMaxRubyChunks = 32;

@@ -34,7 +34,6 @@ BacklogEntry::BacklogEntry(int id, uint8_t* str, int audioId, glm::vec2 pos) {
   float currentY = BacklogPage->Glyphs[0].DestRect.Y;
   float currentWidth = 0.0f, maxWidth = 0.0f;
   for (int i = 0; i < TextLength; i++) {
-    BacklogPage->Glyphs[i].Opacity = 1.0f;
     if (currentY != BacklogPage->Glyphs[i].DestRect.Y) {
       if (currentWidth > maxWidth) {
         maxWidth = currentWidth;
