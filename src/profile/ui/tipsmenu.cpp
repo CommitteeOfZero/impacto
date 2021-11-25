@@ -31,6 +31,8 @@ void Configure() {
 
     if (Type == +TipsMenuType::MO6TW) {
       MO6TW::TipsMenu::Configure();
+    } else {
+      UI::TipsMenuPtr = new UI::TipsMenu();
     }
 
     Pop();

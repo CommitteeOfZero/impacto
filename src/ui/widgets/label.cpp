@@ -7,9 +7,13 @@ namespace Impacto {
 namespace UI {
 namespace Widgets {
 
-Label::Label(uint8_t* str, glm::vec2 pos, int fontSize, bool outline) {
+Label::Label() {}
+
+Label::Label(uint8_t* str, glm::vec2 pos, int fontSize, bool outline,
+             int colorIndex) {
   FontSize = fontSize;
   Bounds = RectF(pos.x, pos.y, TextLength, FontSize);
+  ColorIndex = colorIndex;
   SetText(str, fontSize, outline);
 }
 
@@ -31,15 +35,20 @@ void Label::Render() {
 void Label::SetText(uint8_t* str, int fontSize, bool outline) {
   Impacto::Vm::Sc3VmThread dummy;
   dummy.Ip = str;
-  TextLength =
-      TextLayoutPlainLine(&dummy, 255, Text, Profile::Dialogue::DialogueFont,
-                          fontSize, Profile::Dialogue::ColorTable[10], 1.0f,
-                          glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
+  TextLength = TextLayoutPlainLine(
+      &dummy, 255, Text, Profile::Dialogue::DialogueFont, fontSize,
+      Profile::Dialogue::ColorTable[ColorIndex], 1.0f,
+      glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
   Outline = outline;
   for (int i = 0; i < TextLength; i++) {
     TextWidth += Text[i].DestRect.Width;
   }
   Bounds = RectF(Text[0].DestRect.X, Text[0].DestRect.Y, TextWidth, fontSize);
+}
+
+void Label::SetText(uint8_t* str, int fontSize, bool outline, int colorIndex) {
+  ColorIndex = colorIndex;
+  SetText(str, fontSize, outline);
 }
 
 void Label::SetText(ProcessedTextGlyph* str, int textLength, float textWidth,

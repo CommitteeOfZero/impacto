@@ -12,6 +12,7 @@ namespace Dialogue {
 RectF NVLBounds;
 RectF ADVBounds;
 RectF REVBounds;
+RectF TipsBounds;
 
 Sprite ADVBoxSprite;
 glm::vec2 ADVBoxPos;
@@ -30,6 +31,8 @@ glm::vec2 ADVNamePos;
 float REVNameFontSize;
 int REVNameColor;
 float REVNameOffset;
+
+float TipsLineSpacing;
 
 Sprite WaitIconSprite;
 SpriteAnimationDef WaitIconSpriteAnim;
@@ -67,6 +70,7 @@ void Configure() {
   NVLBounds = EnsureGetMemberRectF("NVLBounds");
   ADVBounds = EnsureGetMemberRectF("ADVBounds");
   REVBounds = EnsureGetMemberRectF("REVBounds");
+  TryGetMemberRectF("TipsBounds", TipsBounds);
 
   ADVBoxSprite = EnsureGetMemberSprite("ADVBoxSprite");
   ADVBoxPos = EnsureGetMemberVec2("ADVBoxPos");
@@ -93,6 +97,8 @@ void Configure() {
   REVNameFontSize = EnsureGetMemberFloat("REVNameFontSize");
   REVNameColor = EnsureGetMemberInt("REVNameColor");
   REVNameOffset = EnsureGetMemberFloat("REVNameOffset");
+
+  TryGetMemberFloat("TipsLineSpacing", TipsLineSpacing);
 
   WaitIconCurrentType = WaitIconDisplay::WaitIconType::_from_integral_unchecked(
       EnsureGetMemberInt("WaitIconCurrentType"));

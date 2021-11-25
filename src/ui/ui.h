@@ -4,6 +4,7 @@
 #include "selectionmenu.h"
 #include "nullmenu.h"
 #include "sysmesbox.h"
+#include "tipsmenu.h"
 
 namespace Impacto {
 namespace UI {
@@ -23,12 +24,12 @@ extern Menu* SystemMenuPtr;
 extern Menu* TitleMenuPtr;
 extern Menu* SaveMenuPtr;
 extern Menu* OptionsMenuPtr;
-extern Menu* TipsMenuPtr;
 
 //
 extern SelectionMenu* SelectionMenuPtr;
 extern SysMesBox* SysMesBoxPtr;
 extern BacklogMenu* BacklogMenuPtr;
+extern TipsMenu* TipsMenuPtr;
 
 }  // namespace UI
 }  // namespace Impacto

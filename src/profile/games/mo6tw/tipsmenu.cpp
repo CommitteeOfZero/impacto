@@ -13,7 +13,32 @@ namespace Profile {
 namespace MO6TW {
 namespace TipsMenu {
 
-void Configure() { UI::TipsMenuPtr = new UI::MO6TW::TipsMenu(); }
+Sprite TipThumbnails[ThumbnailCount];
+Sprite TipTextOnlyThumbnail;
+
+static void GetMemberSpriteArray(Sprite* arr, uint32_t count,
+                                 char const* name) {
+  EnsurePushMemberOfType(name, kArrayType);
+
+  if (TopVal().Size() != count) {
+    ImpLog(LL_Fatal, LC_Profile, "Expected to have %d sprites for %s\n", count,
+           name);
+    Window::Shutdown();
+  }
+
+  for (uint32_t i = 0; i < count; i++) {
+    arr[i] = EnsureGetArrayElementSprite(i);
+  }
+
+  Pop();
+}
+
+void Configure() {
+  GetMemberSpriteArray(TipThumbnails, 37, "Thumbnails");
+  TipTextOnlyThumbnail = EnsureGetMemberSprite("TextOnlyThumbnail");
+
+  UI::TipsMenuPtr = new UI::MO6TW::TipsMenu();
+}
 
 }  // namespace TipsMenu
 }  // namespace MO6TW

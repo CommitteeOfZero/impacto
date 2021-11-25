@@ -14,6 +14,7 @@ namespace Dialogue {
 extern RectF NVLBounds;
 extern RectF ADVBounds;
 extern RectF REVBounds;
+extern RectF TipsBounds;
 
 extern Sprite ADVBoxSprite;
 extern glm::vec2 ADVBoxPos;
@@ -35,6 +36,8 @@ extern glm::vec2 ADVNamePos;
 extern float REVNameFontSize;
 extern int REVNameColor;
 extern float REVNameOffset;
+
+extern float TipsLineSpacing;
 
 extern Sprite WaitIconSprite;
 extern SpriteAnimationDef WaitIconSpriteAnim;
