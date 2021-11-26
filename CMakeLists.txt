@@ -126,6 +126,7 @@ set(Impacto_Src
     src/ui/widgets/scrollbar.cpp
     src/ui/widgets/toggle.cpp
     src/ui/widgets/group.cpp
+    src/ui/widgets/carousel.cpp
     src/ui/widgets/mo6tw/titlebutton.cpp
     src/ui/widgets/mo6tw/saveentrybutton.cpp
     src/ui/widgets/chlcc/titlebutton.cpp
@@ -336,6 +337,7 @@ set(Impacto_Header
     src/ui/widgets/scrollbar.h
     src/ui/widgets/toggle.h
     src/ui/widgets/group.h
+    src/ui/widgets/carousel.h
     src/ui/widgets/mo6tw/titlebutton.h
     src/ui/widgets/mo6tw/saveentrybutton.h
     src/ui/widgets/chlcc/titlebutton.h

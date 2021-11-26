@@ -41,8 +41,9 @@ void Button::UpdateInput() {
 void Button::Render() {
   if (HasFocus) {
     Renderer2D::DrawSprite(
-        HighlightSprite, glm::vec2(Bounds.X, Bounds.Y + 3.0f), Tint,
-        glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
+        HighlightSprite,
+        glm::vec2(Bounds.X + HighlightOffset.x, Bounds.Y + HighlightOffset.y),
+        Tint, glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
     Renderer2D::DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
   } else {
     if (Enabled)
@@ -59,14 +60,14 @@ void Button::Render() {
   }
 }
 
-void Button::SetText(uint8_t* str, int fontSize, bool outline) {
+void Button::SetText(uint8_t* str, int fontSize, bool outline, int colorIndex) {
   HasText = true;
   Impacto::Vm::Sc3VmThread dummy;
   dummy.Ip = str;
-  TextLength =
-      TextLayoutPlainLine(&dummy, 255, Text, Profile::Dialogue::DialogueFont,
-                          fontSize, Profile::Dialogue::ColorTable[10], 1.0f,
-                          glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
+  TextLength = TextLayoutPlainLine(
+      &dummy, 255, Text, Profile::Dialogue::DialogueFont, fontSize,
+      Profile::Dialogue::ColorTable[colorIndex], 1.0f,
+      glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
   Outline = outline;
   for (int i = 0; i < TextLength; i++) {
     TextWidth += Text[i].DestRect.Width;

@@ -2,6 +2,8 @@
 
 #include "../../ui/tipsmenu.h"
 #include "../../ui/widgets/group.h"
+#include "../../ui/widgets/button.h"
+#include "../../ui/widgets/carousel.h"
 
 namespace Impacto {
 namespace UI {
@@ -9,9 +11,12 @@ namespace MO6TW {
 
 int const MaxTipStrings = 6;
 uint32_t const MaxTipDataSize = 0x500;
+int const MaxTipPages = 10;
+int const MaxTipsPerPage = 50;
 
 struct TipsDataRecord {
-  uint16_t unk01;
+  uint16_t id;
+  uint16_t sortLetterIndex;
   uint16_t thumbnailIndex;
   uint16_t numberOfContentStrings;
   uint8_t* stringPtrs[MaxTipStrings];
@@ -28,13 +33,19 @@ class TipsMenu : public UI::TipsMenu {
 
   void DataInit(int scriptBufferId, uint8_t* tipsData);
 
+  void TipOnClick(Widgets::Button* target);
+
  protected:
   void SwitchToTipId(int id);
   void SwitchToTipPage(int page);
 
  private:
+  int CurrentTipPage = 1;
+  int CurrentPageIdx = 0;
+  int PageCount = 0;
   std::vector<TipsDataRecord> Records;
   Sprite* ThumbnailSprite;
+  Widgets::Carousel* ItemsList;
 };
 
 }  // namespace MO6TW

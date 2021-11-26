@@ -123,5 +123,6 @@ int TextLayoutPlainLine(Vm::Sc3VmThread* ctx, int stringLength,
                         float fontSize, DialogueColorPair colors, float opacity,
                         glm::vec2 pos, TextAlignment alignment,
                         float blockWidth = 0.0f);
+float TextGetPlainLineWidth(Vm::Sc3VmThread* ctx, Font* font, float fontSize);
 
 }  // namespace Impacto

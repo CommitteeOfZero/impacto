@@ -5,11 +5,9 @@
 #include "../../renderer2d.h"
 #include "../../mem.h"
 #include "../../vm/vm.h"
-#include "../../vm/interface/input.h"
 #include "../../profile/scriptvars.h"
-#include "../../profile/scriptinput.h"
 #include "../../profile/dialogue.h"
-#include "../../inputsystem.h"
+#include "../../profile/ui/backlogmenu.h"
 #include "../../ui/widgets/label.h"
 #include "../../io/memorystream.h"
 
@@ -20,10 +18,12 @@ namespace MO6TW {
 using namespace Impacto::Profile::TipsMenu;
 using namespace Impacto::Profile::MO6TW::TipsMenu;
 using namespace Impacto::Profile::ScriptVars;
-using namespace Impacto::Profile::ScriptInput;
-using namespace Impacto::Vm::Interface;
 
 using namespace Impacto::UI::Widgets;
+
+void TipsMenu::TipOnClick(Widgets::Button *target) {
+  SwitchToTipId(target->Id);
+}
 
 TipsMenu::TipsMenu() {
   FadeAnimation.Direction = 1;
@@ -32,11 +32,11 @@ TipsMenu::TipsMenu() {
   FadeAnimation.DurationOut = FadeOutDuration;
 
   Name = new Widgets::Label();
-  Name->Bounds = RectF(700.0f, 115.0f, 0.0f, 0.0f);
+  Name->Bounds = RectF(703.0f, 117.0f, 0.0f, 0.0f);
   Pronounciation = new Widgets::Label();
-  Pronounciation->Bounds = RectF(700.0f, 85.0f, 0.0f, 0.0f);
+  Pronounciation->Bounds = RectF(703.0f, 87.0f, 0.0f, 0.0f);
   Category = new Widgets::Label();
-  Category->Bounds = RectF(1135.0f, 205.0f, 0.0f, 0.0f);
+  Category->Bounds = RectF(1135.0f, 206.0f, 0.0f, 0.0f);
   TextPage = new DialoguePage();
   TextPage->Glyphs = new ProcessedTextGlyph[Profile::Dialogue::MaxPageSize];
   TextPage->Clear();
@@ -86,10 +86,8 @@ void TipsMenu::Update(float dt) {
     State = Hidden;
 
   if (State == Shown) {
-    if (PADinputButtonWentDown & PAD1DOWN)
-      SwitchToTipId(CurrentlyDisplayedTipId + 1);
-    if (PADinputButtonWentDown & PAD1UP)
-      SwitchToTipId(CurrentlyDisplayedTipId - 1);
+    ItemsList->UpdateInput();
+    ItemsList->Update(dt);
   }
 }
 
@@ -97,6 +95,8 @@ void TipsMenu::Render() {
   if (State != Hidden && ScrWork[SW_TIPSALPHA] > 0) {
     glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
     Renderer2D::DrawSprite(BackgroundSprite, glm::vec2(0.0f), col);
+    ItemsList->Render();
+
     if (CurrentlyDisplayedTipId != -1) {
       Name->Render();
       Pronounciation->Render();
@@ -105,7 +105,7 @@ void TipsMenu::Render() {
                                     Profile::Dialogue::DialogueFont, col.a,
                                     true, true);
       if (ThumbnailSprite) {
-        Renderer2D::DrawSprite(*ThumbnailSprite, glm::vec2(412.0f, 45.0f), col);
+        Renderer2D::DrawSprite(*ThumbnailSprite, glm::vec2(413.0f, 45.0f), col);
       }
     }
   }
@@ -114,43 +114,84 @@ void TipsMenu::Render() {
 void TipsMenu::DataInit(int scriptBufferId, uint8_t *tipsData) {
   auto scriptBuffer = Vm::ScriptBuffers[scriptBufferId];
 
-  Impacto::Io::MemoryStream *stream =
-      new Impacto::Io::MemoryStream(tipsData, MaxTipDataSize);
-  auto unk01 = Impacto::Io::ReadLE<uint16_t>(stream);
+  Records.clear();
+  Records.shrink_to_fit();
+
+  ItemsList = new Widgets::Carousel(CDIR_HORIZONTAL);
+  Sprite nullSprite = Sprite();
+  nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
+  auto onClick = std::bind(&TipsMenu::TipOnClick, this, std::placeholders::_1);
+  int idx = 0, currentPage = 0, idxInPage = 0;
+  Widgets::Group *pageItems = new Widgets::Group(this);
+
+  Io::MemoryStream *stream = new Io::MemoryStream(tipsData, MaxTipDataSize);
+  auto unk01 = Io::ReadLE<uint16_t>(stream);
   while (unk01 != 255) {
     TipsDataRecord record;
     memset(&record, 0, sizeof(TipsDataRecord));
-    record.unk01 = unk01;
-    record.thumbnailIndex = Impacto::Io::ReadLE<uint16_t>(stream);
-    record.numberOfContentStrings = Impacto::Io::ReadLE<uint16_t>(stream);
+    record.id = idx++;
+    // I don't know, I don't care, this is not my magic
+    record.sortLetterIndex = (unk01 - 5 * ((unk01 + 1) / 10) - 6);
+    auto page = record.sortLetterIndex / 5;
+    if (page != currentPage) {
+      currentPage = page;
+      idxInPage = 0;
+      pageItems->Show();
+      ItemsList->Add(pageItems);
+      pageItems = new Widgets::Group(this);
+    }
+    record.thumbnailIndex = Io::ReadLE<uint16_t>(stream);
+    record.numberOfContentStrings = Io::ReadLE<uint16_t>(stream);
     for (int i = 0; i < record.numberOfContentStrings + 3; i++) {
-      record.stringPtrs[i] = Vm::ScriptGetStrAddress(
-          scriptBuffer, Impacto::Io::ReadLE<uint16_t>(stream));
+      record.stringPtrs[i] =
+          Vm::ScriptGetStrAddress(scriptBuffer, Io::ReadLE<uint16_t>(stream));
     }
     Records.push_back(record);
-    unk01 = Impacto::Io::ReadLE<uint16_t>(stream);
+
+    Button *button = new Button(
+        record.id, nullSprite, nullSprite, Profile::BacklogMenu::EntryHighlight,
+        glm::vec2(119.0f, 108.0f + (idxInPage++ * 20.0f)));
+
+    button->HighlightOffset.y = -10.0f;
+    button->OnClickHandler = onClick;
+    button->SetText(record.stringPtrs[0], 20, true, 0);
+    pageItems->Add(button, FDIR_DOWN);
+
+    unk01 = Io::ReadLE<uint16_t>(stream);
   }
+
   delete stream;
 }
 
 void TipsMenu::SwitchToTipId(int id) {
   CurrentlyDisplayedTipId = id;
   auto tipRecord = Records.at(id);
-  Name->SetText(tipRecord.stringPtrs[0], 34, true, 0);
-  Pronounciation->SetText(tipRecord.stringPtrs[1], 22, true, 0);
-  Category->SetText(tipRecord.stringPtrs[2], 34, true, 0);
+  Name->SetText(tipRecord.stringPtrs[0], 32, true, 0);
+  Pronounciation->SetText(tipRecord.stringPtrs[1], 20, true, 0);
+
+  Vm::Sc3VmThread dummy;
+  dummy.Ip = tipRecord.stringPtrs[2];
+  float categoryWidth =
+      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, 32);
+  Category->Bounds.X = 1200.0f - categoryWidth;
+  Category->SetText(tipRecord.stringPtrs[2], 32, true, 0);
   if (tipRecord.thumbnailIndex != 0xFFFF)
     ThumbnailSprite = &TipThumbnails[tipRecord.thumbnailIndex];
   else
     ThumbnailSprite = &TipTextOnlyThumbnail;
 
   TextPage->Clear();
-  Impacto::Vm::Sc3VmThread dummy;
   dummy.Ip = tipRecord.stringPtrs[3];
   TextPage->AddString(&dummy);
 }
 
-void TipsMenu::SwitchToTipPage(int page) {}
+void TipsMenu::SwitchToTipPage(int num) {
+  CurrentTipPage = num;
+  TextPage->Clear();
+  Vm::Sc3VmThread dummy;
+  dummy.Ip = Records.at(CurrentlyDisplayedTipId).stringPtrs[2 + num];
+  TextPage->AddString(&dummy);
+}
 
 }  // namespace MO6TW
 }  // namespace UI
