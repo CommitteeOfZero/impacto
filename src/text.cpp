@@ -739,4 +739,19 @@ int TextLayoutPlainLine(Vm::Sc3VmThread* ctx, int stringLength,
   return characterCount;
 }
 
+float TextGetPlainLineWidth(Vm::Sc3VmThread* ctx, Font* font, float fontSize) {
+  StringToken token;
+
+  float width = 0.0f;
+  while (true) {
+    token.Read(ctx);
+    if (token.Type == STT_EndOfString) break;
+    if (token.Type != STT_Character) continue;
+
+    width += (fontSize / font->CellHeight) * font->Widths[token.Val_Uint16];
+  }
+
+  return width;
+}
+
 }  // namespace Impacto

@@ -18,7 +18,7 @@ class Button : public Widget {
   void UpdateInput();
   virtual void Render();
 
-  void SetText(uint8_t* str, int fontSize, bool outline);
+  void SetText(uint8_t* str, int fontSize, bool outline, int colorIndex = 10);
   void SetText(ProcessedTextGlyph* str, int textLength, float textWidth,
                int fontSize, bool outline);
 
@@ -29,6 +29,8 @@ class Button : public Widget {
   Sprite DisabledSprite;
 
   std::function<void(Button*)> OnClickHandler;
+
+  glm::vec2 HighlightOffset = glm::vec2(0.0f, 3.0f);
 
  protected:
   bool HasText = false;
