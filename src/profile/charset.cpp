@@ -32,7 +32,10 @@ void Load() {
     for (Value::ConstMemberIterator it = _textToSc3Hash.MemberBegin();
          it != _textToSc3Hash.MemberEnd(); it++) {
       std::string key(EnsureGetKeyString(it));
-      auto codePoint = utf8::next(key.begin(), key.end());
+
+      std::string::iterator strIt = key.begin();
+      std::string::iterator strEnd = key.end();
+      auto codePoint = utf8::next(strIt, strEnd);
 
       EnsurePushMemberIteratorOfType(it, kNumberType);
 
