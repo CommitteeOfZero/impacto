@@ -129,6 +129,7 @@ set(Impacto_Src
     src/ui/widgets/carousel.cpp
     src/ui/widgets/mo6tw/titlebutton.cpp
     src/ui/widgets/mo6tw/saveentrybutton.cpp
+    src/ui/widgets/mo6tw/tipsentrybutton.cpp
     src/ui/widgets/chlcc/titlebutton.cpp
     src/ui/widgets/rne/sysmenubutton.cpp
 
@@ -340,6 +341,7 @@ set(Impacto_Header
     src/ui/widgets/carousel.h
     src/ui/widgets/mo6tw/titlebutton.h
     src/ui/widgets/mo6tw/saveentrybutton.h
+    src/ui/widgets/mo6tw/tipsentrybutton.h
     src/ui/widgets/chlcc/titlebutton.h
     src/ui/widgets/rne/sysmenubutton.h
 
@@ -410,6 +412,8 @@ set(Impacto_Header
     vendor/clHCA/clHCA.h
     
     vendor/squish/squish.h
+
+    vendor/utf8-cpp/utf8.h
 )
 
 if (WIN32)

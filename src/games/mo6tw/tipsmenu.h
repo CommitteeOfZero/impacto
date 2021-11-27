@@ -43,9 +43,13 @@ class TipsMenu : public UI::TipsMenu {
   int CurrentTipPage = 1;
   int CurrentPageIdx = 0;
   int PageCount = 0;
+  uint16_t* sortString = 0;
   std::vector<TipsDataRecord> Records;
   Sprite* ThumbnailSprite;
   Widgets::Carousel* ItemsList;
+  Widgets::Label* PageSeparator;
+  Widgets::Label* CurrentPage;
+  Widgets::Label* TotalPages;
 };
 
 }  // namespace MO6TW

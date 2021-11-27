@@ -8,9 +8,11 @@ namespace MO6TW {
 namespace TipsMenu {
 
 int const ThumbnailCount = 37;
+int const MaxCategoryString = 5;
 
 extern Sprite TipThumbnails[ThumbnailCount];
 extern Sprite TipTextOnlyThumbnail;
+extern uint16_t CategoryString[MaxCategoryString];
 
 void Configure();
 

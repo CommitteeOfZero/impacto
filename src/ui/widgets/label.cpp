@@ -13,8 +13,7 @@ Label::Label(uint8_t* str, glm::vec2 pos, int fontSize, bool outline,
              int colorIndex) {
   FontSize = fontSize;
   Bounds = RectF(pos.x, pos.y, TextLength, FontSize);
-  ColorIndex = colorIndex;
-  SetText(str, fontSize, outline);
+  SetText(str, fontSize, outline, colorIndex);
 }
 
 Label::Label(ProcessedTextGlyph* str, int textLength, float textWidth,
@@ -32,7 +31,8 @@ void Label::Render() {
       Text, TextLength, Profile::Dialogue::DialogueFont, Tint.a, Outline, true);
 }
 
-void Label::SetText(uint8_t* str, int fontSize, bool outline) {
+void Label::SetText(uint8_t* str, int fontSize, bool outline, int colorIndex) {
+  ColorIndex = colorIndex;
   Impacto::Vm::Sc3VmThread dummy;
   dummy.Ip = str;
   TextLength = TextLayoutPlainLine(
@@ -46,17 +46,27 @@ void Label::SetText(uint8_t* str, int fontSize, bool outline) {
   Bounds = RectF(Text[0].DestRect.X, Text[0].DestRect.Y, TextWidth, fontSize);
 }
 
-void Label::SetText(uint8_t* str, int fontSize, bool outline, int colorIndex) {
-  ColorIndex = colorIndex;
-  SetText(str, fontSize, outline);
-}
-
 void Label::SetText(ProcessedTextGlyph* str, int textLength, float textWidth,
-                    int fontSize, bool outline) {
+                    int fontSize, bool outline, int colorIndex) {
+  ColorIndex = colorIndex;
   TextLength = textLength;
   TextWidth = textWidth;
   Outline = outline;
   memcpy(Text, str, TextLength * sizeof(ProcessedTextGlyph));
+  Bounds = RectF(Text[0].DestRect.X, Text[0].DestRect.Y, TextWidth, fontSize);
+}
+
+void Label::SetText(std::string str, int fontSize, bool outline,
+                    int colorIndex) {
+  ColorIndex = colorIndex;
+  TextLength = TextLayoutPlainString(
+      str, Text, Profile::Dialogue::DialogueFont, fontSize,
+      Profile::Dialogue::ColorTable[ColorIndex], 1.0f,
+      glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
+  Outline = outline;
+  for (int i = 0; i < TextLength; i++) {
+    TextWidth += Text[i].DestRect.Width;
+  }
   Bounds = RectF(Text[0].DestRect.X, Text[0].DestRect.Y, TextWidth, fontSize);
 }
 

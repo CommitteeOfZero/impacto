@@ -28,6 +28,8 @@ class TipsMenu : public Menu {
   Widgets::Label* Name;
   Widgets::Label* Pronounciation;
   Widgets::Label* Category;
+  Widgets::Label* NumberText;
+  Widgets::Label* Number;
 };
 
 }  // namespace UI

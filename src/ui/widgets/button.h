@@ -12,6 +12,7 @@ namespace Widgets {
 
 class Button : public Widget {
  public:
+  Button() {}
   Button(int id, Sprite const& norm, Sprite const& focused,
          Sprite const& highlight, glm::vec2 pos);
 

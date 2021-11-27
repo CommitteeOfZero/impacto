@@ -2,6 +2,7 @@
 #include "../../profile_internal.h"
 #include "../../../window.h"
 #include "../../../log.h"
+#include "../../../text.h"
 
 #include "../../ui/tipsmenu.h"
 #include "../../../game.h"
@@ -15,6 +16,7 @@ namespace TipsMenu {
 
 Sprite TipThumbnails[ThumbnailCount];
 Sprite TipTextOnlyThumbnail;
+uint16_t CategoryString[MaxCategoryString];
 
 static void GetMemberSpriteArray(Sprite* arr, uint32_t count,
                                  char const* name) {
@@ -36,6 +38,8 @@ static void GetMemberSpriteArray(Sprite* arr, uint32_t count,
 void Configure() {
   GetMemberSpriteArray(TipThumbnails, 37, "Thumbnails");
   TipTextOnlyThumbnail = EnsureGetMemberSprite("TextOnlyThumbnail");
+  auto str = EnsureGetMemberString("CategoryString");
+  TextGetSc3String(str, CategoryString);
 
   UI::TipsMenuPtr = new UI::MO6TW::TipsMenu();
 }

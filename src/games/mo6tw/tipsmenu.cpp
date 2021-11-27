@@ -9,6 +9,7 @@
 #include "../../profile/dialogue.h"
 #include "../../profile/ui/backlogmenu.h"
 #include "../../ui/widgets/label.h"
+#include "../../ui/widgets/mo6tw/tipsentrybutton.h"
 #include "../../io/memorystream.h"
 
 namespace Impacto {
@@ -20,6 +21,7 @@ using namespace Impacto::Profile::MO6TW::TipsMenu;
 using namespace Impacto::Profile::ScriptVars;
 
 using namespace Impacto::UI::Widgets;
+using namespace Impacto::UI::Widgets::MO6TW;
 
 void TipsMenu::TipOnClick(Widgets::Button *target) {
   SwitchToTipId(target->Id);
@@ -98,6 +100,11 @@ void TipsMenu::Render() {
     ItemsList->Render();
 
     if (CurrentlyDisplayedTipId != -1) {
+      NumberText->Render();
+      Number->Render();
+      PageSeparator->Render();
+      CurrentPage->Render();
+      TotalPages->Render();
       Name->Render();
       Pronounciation->Render();
       Category->Render();
@@ -114,32 +121,28 @@ void TipsMenu::Render() {
 void TipsMenu::DataInit(int scriptBufferId, uint8_t *tipsData) {
   auto scriptBuffer = Vm::ScriptBuffers[scriptBufferId];
 
-  Records.clear();
-  Records.shrink_to_fit();
-
   ItemsList = new Widgets::Carousel(CDIR_HORIZONTAL);
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
   auto onClick = std::bind(&TipsMenu::TipOnClick, this, std::placeholders::_1);
-  int idx = 0, currentPage = 0, idxInPage = 0;
+  int idx = 0, currentPage = 0, currentCategoryId = -1;
   Widgets::Group *pageItems = new Widgets::Group(this);
 
+  // String of characters by which tips are sorted, taken from _system script
+  sortString = (uint16_t *)Vm::ScriptGetTextTableStrAddress(2, 5);
+
+  float currentY = 87.0f;
+
+  // Read tips data from the script and create UI elements for each tip
   Io::MemoryStream *stream = new Io::MemoryStream(tipsData, MaxTipDataSize);
   auto unk01 = Io::ReadLE<uint16_t>(stream);
   while (unk01 != 255) {
+    // Read tip entry from the data array
     TipsDataRecord record;
     memset(&record, 0, sizeof(TipsDataRecord));
     record.id = idx++;
     // I don't know, I don't care, this is not my magic
     record.sortLetterIndex = (unk01 - 5 * ((unk01 + 1) / 10) - 6);
-    auto page = record.sortLetterIndex / 5;
-    if (page != currentPage) {
-      currentPage = page;
-      idxInPage = 0;
-      pageItems->Show();
-      ItemsList->Add(pageItems);
-      pageItems = new Widgets::Group(this);
-    }
     record.thumbnailIndex = Io::ReadLE<uint16_t>(stream);
     record.numberOfContentStrings = Io::ReadLE<uint16_t>(stream);
     for (int i = 0; i < record.numberOfContentStrings + 3; i++) {
@@ -148,19 +151,68 @@ void TipsMenu::DataInit(int scriptBufferId, uint8_t *tipsData) {
     }
     Records.push_back(record);
 
-    Button *button = new Button(
-        record.id, nullSprite, nullSprite, Profile::BacklogMenu::EntryHighlight,
-        glm::vec2(119.0f, 108.0f + (idxInPage++ * 20.0f)));
+    // In this case the tips are split into pages in UI with maximum of 5
+    // categories per page, with each category being a character from
+    // the sort string and containing all tips the names of which begin with
+    // that character
+    auto page = record.sortLetterIndex / 5;
+    if (page != currentPage) {
+      currentPage = page;
+      currentY = 87.0f;
+      pageItems->Show();
+      ItemsList->Add(pageItems);
+      pageItems = new Widgets::Group(this);
+    }
 
-    button->HighlightOffset.y = -10.0f;
+    // Start new category
+    // We take a character from the sort string and use that as the category
+    // name inside a predefined template
+    if (record.sortLetterIndex != currentCategoryId) {
+      currentCategoryId = record.sortLetterIndex;
+      CategoryString[1] = sortString[currentCategoryId];
+
+      Label *categoryLabel = new Label();
+      categoryLabel->Bounds.X = 69.0f;
+      categoryLabel->Bounds.Y = currentY;
+      categoryLabel->SetText((uint8_t *)CategoryString, 20, true, 0);
+      pageItems->Add(categoryLabel);
+      currentY += 20.0f;
+    }
+
+    // Actual tip entry button
+    TipsEntryButton *button = new TipsEntryButton(
+        record.id, &record, RectF(69.0f, currentY, 300.0f, 24.0f),
+        Profile::BacklogMenu::EntryHighlight);
     button->OnClickHandler = onClick;
-    button->SetText(record.stringPtrs[0], 20, true, 0);
-    pageItems->Add(button, FDIR_DOWN);
 
+    pageItems->Add(button, FDIR_DOWN);
+    currentY += 20.0f;
+
+    // Next tip entry from the data array
     unk01 = Io::ReadLE<uint16_t>(stream);
   }
 
   delete stream;
+
+  // Add last category
+  pageItems->Show();
+  ItemsList->Add(pageItems);
+
+  // Number label
+  NumberText = new Label(Vm::ScriptGetTextTableStrAddress(2, 8),
+                         glm::vec2(1070.0f, 45.0f), 32, true, 0);
+  // Tip number
+  Number = new Label();
+  Number->Bounds = RectF(1130.0f, 45.0f, 0.0f, 0.0f);
+  // Tip page separator
+  PageSeparator = new Label(Vm::ScriptGetTextTableStrAddress(2, 9),
+                            glm::vec2(1154.0f, 645.0f), 32, true, 0);
+  // Current tip page
+  CurrentPage = new Label();
+  CurrentPage->Bounds = RectF(1130.0f, 645.0f, 0.0f, 0.0f);
+  // Total tip pages
+  TotalPages = new Label();
+  TotalPages->Bounds = RectF(1184.0f, 645.0f, 0.0f, 0.0f);
 }
 
 void TipsMenu::SwitchToTipId(int id) {
@@ -179,6 +231,16 @@ void TipsMenu::SwitchToTipId(int id) {
     ThumbnailSprite = &TipThumbnails[tipRecord.thumbnailIndex];
   else
     ThumbnailSprite = &TipTextOnlyThumbnail;
+
+  char temp[5];
+  sprintf(temp, "%4d", tipRecord.id + 1);
+  Number->SetText(std::string(temp), 32, true, 0);
+
+  sprintf(temp, "%d", CurrentTipPage);
+  CurrentPage->SetText(std::string(temp), 32, true, 0);
+
+  sprintf(temp, "%d", tipRecord.numberOfContentStrings);
+  TotalPages->SetText(std::string(temp), 32, true, 0);
 
   TextPage->Clear();
   dummy.Ip = tipRecord.stringPtrs[3];

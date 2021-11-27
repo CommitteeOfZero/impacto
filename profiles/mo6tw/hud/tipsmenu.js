@@ -3,6 +3,7 @@ root.TipsMenu = {
     BackgroundSprite: "TipsMenuBackground",
     Thumbnails: [],
     TextOnlyThumbnail: "TipsTextOnlyThumbnail",
+    CategoryString: "【 】",
     FadeInDuration: 0.2,
     FadeOutDuration: 0.2
 };

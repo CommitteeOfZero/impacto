@@ -19,10 +19,11 @@ class Label : public Widget {
   void UpdateInput();
   void Render();
 
-  void SetText(uint8_t* str, int fontSize, bool outline);
-  void SetText(uint8_t* str, int fontSize, bool outline, int colorIndex);
+  void SetText(uint8_t* str, int fontSize, bool outline, int colorIndex = 10);
+  void SetText(std::string str, int fontSize, bool outline,
+               int colorIndex = 10);
   void SetText(ProcessedTextGlyph* str, int textLength, float textWidth,
-               int fontSize, bool outline);
+               int fontSize, bool outline, int colorIndex = 10);
 
  private:
   int FontSize;
