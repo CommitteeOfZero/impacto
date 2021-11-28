@@ -1,8 +1,8 @@
 #include "savesystem.h"
-#include "profile_internal.h"
+#include "../profile_internal.h"
 
-#include "../games/chlcc/savesystem.h"
-#include "../games/mo6tw/savesystem.h"
+#include "../../games/chlcc/savesystem.h"
+#include "../../games/mo6tw/savesystem.h"
 
 namespace Impacto {
 namespace Profile {

@@ -1,9 +1,9 @@
 #include "savesystem.h"
 
-#include "io/physicalfilestream.h"
-#include "mem.h"
-#include "vm/vm.h"
-#include "profile/savesystem.h"
+#include "../io/physicalfilestream.h"
+#include "../mem.h"
+#include "../vm/vm.h"
+#include "../profile/data/savesystem.h"
 
 namespace Impacto {
 namespace SaveSystem {
@@ -45,6 +45,15 @@ uint8_t GetSaveSatus(SaveType type, int id) {
 
 int GetSaveTitle(SaveType type, int id) {
   if (Implementation) return Implementation->GetSaveTitle(type, id);
+}
+
+uint32_t GetTipStatus(int tipId) {
+  if (Implementation) return Implementation->GetTipStatus(tipId);
+}
+
+void SetTipStatus(int tipId, bool isLocked, bool isUnread, bool isNew) {
+  if (Implementation)
+    Implementation->SetTipStatus(tipId, isLocked, isUnread, isNew);
 }
 
 }  // namespace SaveSystem

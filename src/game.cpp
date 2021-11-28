@@ -10,7 +10,8 @@
 
 #include "ui/ui.h"
 
-#include "savesystem.h"
+#include "data/savesystem.h"
+#include "data/tipssystem.h"
 #include "audio/audiosystem.h"
 #include "audio/audiochannel.h"
 #include "audio/audiostream.h"
@@ -119,6 +120,7 @@ static void Init() {
     Profile::SelectionMenu::Configure();
 
     SaveSystem::Init();
+    TipsSystem::Init();
     SaveIconDisplay::Init();
     LoadingDisplay::Init();
     Profile::SysMesBox::Configure();

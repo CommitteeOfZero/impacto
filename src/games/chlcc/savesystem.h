@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../savesystem.h"
+#include "../../data/savesystem.h"
 
 namespace Impacto {
 namespace CHLCC {
@@ -24,6 +24,8 @@ class SaveSystem : public SaveSystemBase {
   void WriteSaveFile();
   uint8_t GetSaveSatus(SaveType type, int id);
   int GetSaveTitle(SaveType type, int id);
+  uint32_t GetTipStatus(int tipId);
+  void SetTipStatus(int tipId, bool isLocked, bool isUnread, bool isNew);
 };
 
 }  // namespace CHLCC

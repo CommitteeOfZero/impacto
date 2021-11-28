@@ -13,7 +13,9 @@ using namespace Impacto::Vm::Interface;
 Carousel::Carousel(CarouselDirection dir) { Direction = dir; }
 
 void Carousel::Update(float dt) {
-  if (!Children.empty() && Iterator != Children.end()) (*Iterator)->Update(dt);
+  if (!Children.empty() && Iterator != Children.end()) {
+    (*Iterator)->Update(dt);
+  }
 }
 
 void Carousel::UpdateInput() {
@@ -37,13 +39,14 @@ void Carousel::UpdateInput() {
       }
       (*Iterator)->Show();
     }
-
-    if (Iterator != Children.end()) (*Iterator)->UpdateInput();
   }
 }
 
 void Carousel::Render() {
-  if (!Children.empty() && Iterator != Children.end()) (*Iterator)->Render();
+  if (!Children.empty() && Iterator != Children.end()) {
+    (*Iterator)->Tint = Tint;
+    (*Iterator)->Render();
+  }
 }
 
 void Carousel::Add(Widget* widget) {

@@ -39,17 +39,20 @@ void Group::Add(Widget* widget, FocusDirection dir) {
       break;
   }
 
-  if (!Children.empty()) {
-    auto el = Children.back();
+  if (LastFocusableElementId != -1) {
+    auto el = Children.at(LastFocusableElementId);
     el->SetFocus(widget, dir);
     widget->SetFocus(el, oppositeDir);
     if (!FocusStart[dir]) FocusStart[dir] = el;
     if (!FocusStart[oppositeDir]) FocusStart[oppositeDir] = el;
+  } else {
+    FirstFocusableElementId = Children.size();
   }
 
   Add(widget);
+  LastFocusableElementId = Children.size() - 1;
   if (WrapFocus) {
-    auto firstEl = Children.front();
+    auto firstEl = Children.at(FirstFocusableElementId);
     widget->SetFocus(firstEl, dir);
     firstEl->SetFocus(widget, oppositeDir);
     FocusStart[oppositeDir] = widget;

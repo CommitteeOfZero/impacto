@@ -3,13 +3,13 @@
 namespace Impacto {
 namespace UI {
 
+void TipsMenu::Init() {}
 void TipsMenu::Show() {}
 void TipsMenu::Hide() {}
 void TipsMenu::Update(float dt) {}
 void TipsMenu::Render() {}
-void TipsMenu::DataInit(int scriptDataId, uint8_t* tipsData) {}
 void TipsMenu::SwitchToTipId(int id) {}
-void TipsMenu::SwitchToTipPage(int page) {}
+void TipsMenu::NextTipPage() {}
 
 }  // namespace UI
 }  // namespace Impacto

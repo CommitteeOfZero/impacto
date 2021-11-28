@@ -10,16 +10,15 @@ namespace UI {
 
 class TipsMenu : public Menu {
  public:
+  virtual void Init();
   virtual void Show();
   virtual void Hide();
   virtual void Update(float dt);
   virtual void Render();
 
-  virtual void DataInit(int scriptBufferId, uint8_t* tipsData);
-
  protected:
   virtual void SwitchToTipId(int id);
-  virtual void SwitchToTipPage(int page);
+  virtual void NextTipPage();
 
   int CurrentlyDisplayedTipId = -1;
 

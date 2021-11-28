@@ -4,7 +4,7 @@
 #include "../../io/physicalfilestream.h"
 #include "../../mem.h"
 #include "../../vm/vm.h"
-#include "../../profile/savesystem.h"
+#include "../../profile/data/savesystem.h"
 #include "../../profile/scriptvars.h"
 
 namespace Impacto {
@@ -375,6 +375,10 @@ int SaveSystem::GetSaveTitle(SaveType type, int id) {
       return ((SaveFileEntry*)FullSaveEntries[id])->SwTitle;
   }
 }
+
+uint32_t SaveSystem::GetTipStatus(int tipId) { return 0; }
+void SaveSystem::SetTipStatus(int tipId, bool isLocked, bool isUnread,
+                              bool isNew) {}
 
 }  // namespace CHLCC
 }  // namespace Impacto

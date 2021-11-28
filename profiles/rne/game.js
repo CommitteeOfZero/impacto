@@ -18,6 +18,7 @@ root.Vm = {
 include('common/scriptinput.js')
 include('common/scriptvars.js');
 include('rne/savedata.js');
+include('rne/tipssystem.js');
 include('rne/vfs.js');
 include('rne/sprites.js');
 include('common/animation.js');
@@ -34,3 +35,4 @@ include('rne/hud/backlogmenu.js');
 include('rne/hud/sysmesboxdisplay.js');
 include('rne/scene3d/scene3d.js');
 include('rne/hud/selectiondisplay.js');
+include('rne/hud/tipsmenu.js');

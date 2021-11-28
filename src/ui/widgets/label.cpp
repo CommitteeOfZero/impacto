@@ -40,6 +40,7 @@ void Label::SetText(uint8_t* str, int fontSize, bool outline, int colorIndex) {
       Profile::Dialogue::ColorTable[ColorIndex], 1.0f,
       glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
   Outline = outline;
+  TextWidth = 0.0f;
   for (int i = 0; i < TextLength; i++) {
     TextWidth += Text[i].DestRect.Width;
   }
@@ -64,6 +65,7 @@ void Label::SetText(std::string str, int fontSize, bool outline,
       Profile::Dialogue::ColorTable[ColorIndex], 1.0f,
       glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
   Outline = outline;
+  TextWidth = 0.0f;
   for (int i = 0; i < TextLength; i++) {
     TextWidth += Text[i].DestRect.Width;
   }

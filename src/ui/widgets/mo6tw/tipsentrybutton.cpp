@@ -2,37 +2,67 @@
 
 #include "../../../renderer2d.h"
 #include "../../../profile/dialogue.h"
+#include "../../../profile/games/mo6tw/tipsmenu.h"
 #include "../../../text.h"
+#include "../../../vm/vm.h"
 
 namespace Impacto {
 namespace UI {
 namespace Widgets {
 namespace MO6TW {
 
-TipsEntryButton::TipsEntryButton(int id, UI::MO6TW::TipsDataRecord* tipRecord,
+using namespace Impacto::TipsSystem;
+
+using namespace Impacto::Profile::MO6TW::TipsMenu;
+
+TipsEntryButton::TipsEntryButton(int id, TipsDataRecord* tipRecord,
                                  RectF const& dest, Sprite const& highlight) {
   Id = id;
   TipEntryRecord = tipRecord;
   Bounds = dest;
   HighlightSprite = highlight;
   Enabled = true;
-  HighlightOffset = glm::vec2(0.0f, -9.0f);
+  HighlightOffset = TipListEntryHighlightOffset;
+  PrevUnreadState = TipEntryRecord->IsUnread;
   char tipNumber[5];
-  sprintf(tipNumber, "%3d.", tipRecord->id + 1);
+  sprintf(tipNumber, "%3d.", tipRecord->Id + 1);
   TextLayoutPlainString(std::string(tipNumber), TipNumber,
-                        Profile::Dialogue::DialogueFont, 20,
-                        Profile::Dialogue::ColorTable[0], 1.0f,
+                        Profile::Dialogue::DialogueFont, TipListEntryFontSize,
+                        Profile::Dialogue::ColorTable[DefaultColorIndex], 1.0f,
                         glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
   Vm::Sc3VmThread dummy;
-  dummy.Ip = tipRecord->stringPtrs[0];
+  dummy.Ip = tipRecord->StringPtrs[0];
   TipNameLength = TextLayoutPlainLine(
-      &dummy, 255, TipName, Profile::Dialogue::DialogueFont, 20,
-      Profile::Dialogue::ColorTable[0], 1.0f,
-      glm::vec2(Bounds.X + 50.0f, Bounds.Y), TextAlignment::Left);
-  TextLayoutPlainString(std::string("New"), NewText,
-                        Profile::Dialogue::DialogueFont, 20,
-                        Profile::Dialogue::ColorTable[0], 1.0f,
-                        glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
+      &dummy, 255, TipName, Profile::Dialogue::DialogueFont,
+      TipListEntryFontSize, Profile::Dialogue::ColorTable[DefaultColorIndex],
+      1.0f, glm::vec2(Bounds.X + TipListEntryNameXOffset, Bounds.Y),
+      TextAlignment::Left);
+  TextLayoutPlainString(TipListEntryNewText, NewText,
+                        Profile::Dialogue::DialogueFont, TipListEntryFontSize,
+                        Profile::Dialogue::ColorTable[DefaultColorIndex], 1.0f,
+                        glm::vec2(Bounds.X + TipListEntryNewOffset, Bounds.Y),
+                        TextAlignment::Left);
+  dummy.Ip = Vm::ScriptGetTextTableStrAddress(TipListEntryLockedTable,
+                                              TipListEntryLockedIndex);
+  TextLayoutPlainLine(&dummy, 255, TipLockedText,
+                      Profile::Dialogue::DialogueFont, TipListEntryFontSize,
+                      Profile::Dialogue::ColorTable[UnreadColorIndex], 1.0f,
+                      glm::vec2(Bounds.X + TipListEntryNameXOffset, Bounds.Y),
+                      TextAlignment::Left);
+}
+
+void TipsEntryButton::Update(float dt) {
+  Button::Update(dt);
+  if (PrevUnreadState != TipEntryRecord->IsUnread) {
+    int colorIndex = DefaultColorIndex;
+    if (TipEntryRecord->IsUnread) {
+      colorIndex = UnreadColorIndex;
+    }
+    for (int i = 0; i < TipNameLength; i++) {
+      TipName[i].Colors = Profile::Dialogue::ColorTable[colorIndex];
+    }
+    PrevUnreadState = TipEntryRecord->IsUnread;
+  }
 }
 
 void TipsEntryButton::Render() {
@@ -44,9 +74,20 @@ void TipsEntryButton::Render() {
   }
 
   Renderer2D::DrawProcessedText(TipNumber, TipNumberLength,
-                                Profile::Dialogue::DialogueFont, 1.0f, true);
-  Renderer2D::DrawProcessedText(TipName, TipNameLength,
-                                Profile::Dialogue::DialogueFont, 1.0f, true);
+                                Profile::Dialogue::DialogueFont, Tint.a, true);
+  if (TipEntryRecord->IsLocked) {
+    Renderer2D::DrawProcessedText(TipLockedText, TipLockedTextLength,
+                                  Profile::Dialogue::DialogueFont, Tint.a,
+                                  true);
+  } else {
+    Renderer2D::DrawProcessedText(
+        TipName, TipNameLength, Profile::Dialogue::DialogueFont, Tint.a, true);
+    if (TipEntryRecord->IsNew) {
+      Renderer2D::DrawProcessedText(NewText, NewTextLength,
+                                    Profile::Dialogue::DialogueFont, Tint.a,
+                                    true);
+    }
+  }
 }
 
 }  // namespace MO6TW

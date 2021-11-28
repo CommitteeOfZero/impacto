@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../button.h"
-#include "../../../games/mo6tw/tipsmenu.h"
+#include "../../../data/tipssystem.h"
 
 namespace Impacto {
 namespace UI {
@@ -14,18 +14,21 @@ int const NewTextLength = 3;
 
 class TipsEntryButton : public Widgets::Button {
  public:
-  TipsEntryButton(int id, UI::MO6TW::TipsDataRecord* tipRecord,
+  TipsEntryButton(int id, Impacto::TipsSystem::TipsDataRecord* tipRecord,
                   RectF const& dest, Sprite const& highlight);
+  void Update(float dt) override;
   void Render() override;
 
+  Impacto::TipsSystem::TipsDataRecord* TipEntryRecord;
+
  private:
-  UI::MO6TW::TipsDataRecord* TipEntryRecord;
   ProcessedTextGlyph TipNumber[TipNumberLength];
   ProcessedTextGlyph TipName[255];
   ProcessedTextGlyph TipLockedText[TipLockedTextLength];
   ProcessedTextGlyph NewText[NewTextLength];
 
   int TipNameLength;
+  bool PrevUnreadState;
 };
 
 }  // namespace MO6TW

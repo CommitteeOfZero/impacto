@@ -24,10 +24,12 @@ void Configure() {
 
     Type = TipsMenuType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
 
-    FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
-    FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
+    if (Type != +TipsMenuType::None) {
+      FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
+      FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
 
-    BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
+      BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
+    }
 
     if (Type == +TipsMenuType::MO6TW) {
       MO6TW::TipsMenu::Configure();

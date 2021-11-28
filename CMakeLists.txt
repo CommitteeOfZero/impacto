@@ -26,8 +26,10 @@ set(Impacto_Src
     src/character2d.cpp
     src/text.cpp
     src/inputsystem.cpp
-    src/savesystem.cpp
     src/glc.cpp
+
+    src/data/savesystem.cpp
+    src/data/tipssystem.cpp
 
     src/profile/profile.cpp
     src/profile/profile_internal.cpp
@@ -42,7 +44,9 @@ set(Impacto_Src
     src/profile/vm.cpp
     src/profile/scriptvars.cpp
 	src/profile/scriptinput.cpp
-    src/profile/savesystem.cpp
+
+    src/profile/data/savesystem.cpp
+    src/profile/data/tipssystem.cpp
 
     src/profile/hud/saveicon.cpp
     src/profile/hud/loadingdisplay.cpp
@@ -103,6 +107,7 @@ set(Impacto_Src
     src/games/mo6tw/optionsmenu.cpp
     src/games/mo6tw/tipsmenu.cpp
     src/games/mo6tw/savesystem.cpp
+    src/games/mo6tw/tipssystem.cpp
 
 	src/games/darling/sysmesbox.cpp
 
@@ -236,10 +241,12 @@ set(Impacto_Header
     src/text.h
     src/loadable.h
     src/inputsystem.h
-    src/savesystem.h
     src/glc.h
     src/rng.h
     src/animation.h
+
+    src/data/savesystem.h
+    src/data/tipssystem.h
 
     src/profile/profile.h
     src/profile/profile_internal.h
@@ -254,7 +261,9 @@ set(Impacto_Header
     src/profile/vm.h
     src/profile/scriptvars.h
     src/profile/scriptinput.h
-    src/profile/savesystem.h
+
+    src/profile/data/savesystem.h
+    src/profile/data/tipssystem.h
 
     src/profile/hud/saveicon.h
     src/profile/hud/loadingdisplay.h
@@ -315,6 +324,7 @@ set(Impacto_Header
     src/games/mo6tw/optionsmenu.h
     src/games/mo6tw/tipsmenu.h
     src/games/mo6tw/savesystem.h
+    src/games/mo6tw/tipssystem.h
 
     src/games/darling/sysmesbox.h
 

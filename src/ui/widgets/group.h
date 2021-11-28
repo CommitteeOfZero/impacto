@@ -46,6 +46,8 @@ class Group : public Widget {
 
  private:
   Menu* MenuContext;
+  int FirstFocusableElementId = -1;
+  int LastFocusableElementId = -1;
   Widget* FocusStart[4] = {0, 0, 0, 0};
   Widget* PreviousFocusElement = 0;
   Widget* PreviousFocusStart[4] = {0, 0, 0, 0};

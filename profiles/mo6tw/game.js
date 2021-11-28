@@ -24,6 +24,7 @@ include('common/scriptinput.js');
 include('common/scriptvars.js');
 include('mo6tw/scriptvars.js');
 include('mo6tw/savedata.js');
+include('mo6tw/tipssystem.js')
 include('mo6tw/vfs.js');
 include('mo6tw/sprites.js');
 include('common/animation.js');

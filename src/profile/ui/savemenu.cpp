@@ -45,9 +45,7 @@ void Configure() {
 
     if (Type == +SaveMenuType::MO6TW) {
       MO6TW::SaveMenu::Configure();
-    } /* else {
-       UI::SaveMenuPtr = new UI::NullMenu();
-     }*/
+    }
 
     Pop();
   }
