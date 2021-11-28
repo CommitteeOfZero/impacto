@@ -136,12 +136,12 @@ void TitleMenu::Update(float dt) {
 
   if (State != Hidden && GetFlag(SF_TITLEMODE)) {
     MainItems->Update(dt);
-    /*MainItems->Opacity =
+    /*MainItems->Tint.a =
         glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
-    ContinueItems->Opacity =
+    ContinueItems->Tint.a =
         glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
     ContinueItems->Update(dt);
-    ExtraItems->Opacity =
+    ExtraItems->Tint.a =
         glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
     ExtraItems->Update(dt);*/
 

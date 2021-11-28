@@ -10,7 +10,7 @@ namespace Impacto {
 namespace UI {
 
 BETTER_ENUM(SystemMenuType, int, None, RNE, MO6TW)
-BETTER_ENUM(SaveMenuType, int, None, MO6TW)
+BETTER_ENUM(SaveMenuType, int, None, MO6TW, CHLCC)
 BETTER_ENUM(SysMesBoxType, int, None, RNE, Dash, CHLCC, MO6TW, Darling, CC)
 BETTER_ENUM(TitleMenuType, int, None, RNE, Dash, CHLCC, MO6TW, CC, CCLCC)
 BETTER_ENUM(OptionsMenuType, int, None, MO6TW)

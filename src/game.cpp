@@ -214,7 +214,7 @@ void Update(float dt) {
     UI::SelectionMenuPtr->Update(dt);
     UI::BacklogMenuPtr->Update(dt);
     UI::OptionsMenuPtr->Update(dt);
-    UI::TipsMenuPtr->Update(dt);
+    // UI::TipsMenuPtr->Update(dt);
 
     SaveIconDisplay::Update(dt);
     LoadingDisplay::Update(dt);

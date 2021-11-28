@@ -14,9 +14,9 @@ root.Vm = {
     StartScript: 0,
     StartScriptBuffer: 0,
     GameInstructionSet: InstructionSet.CHLCC,
-	UseReturnIds: false,
-	ScrWorkChaStructSize: 20,
-	ScrWorkBgStructSize: 20
+    UseReturnIds: false,
+    ScrWorkChaStructSize: 20,
+    ScrWorkBgStructSize: 20
 };
 
 include('common/scriptinput.js');
@@ -35,5 +35,7 @@ include('chlcc/hud/datedisplay.js');
 include('chlcc/hud/titlemenu.js');
 include('chlcc/hud/backlogmenu.js');
 //include('chlcc/hud/systemmenu.js');
+//include('chlcc/hud/optionsmenu.js');
+include('chlcc/hud/tipsmenu.js');
 include('chlcc/hud/sysmesboxdisplay.js');
 include('chlcc/hud/selectiondisplay.js');

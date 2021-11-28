@@ -1,5 +1,5 @@
 root.SystemMenu = {
-    Type: SystemMenuType.RNE,
+    Type: SystemMenuType.None,
     Background: {
         DurationIn: 0.75,
         DurationOut: 1.0,

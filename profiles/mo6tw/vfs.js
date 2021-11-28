@@ -8,6 +8,6 @@ root.Vfs = {
         "bg": ["games/mo6tw/gamedata/bg.cpk"],
         "chara": ["games/mo6tw/gamedata/chara.cpk"],
         "mask": ["games/mo6tw/gamedata/mask.cpk"],
-        "movie": ["games/mo6tw/gamedata/movie.cls"]
+        "movie": ["games/mo6tw/gamedata/movie.cpk"]
     }
 };
