@@ -9,6 +9,13 @@ namespace Widgets {
 
 Label::Label() {}
 
+Label::Label(Sprite const& label, glm::vec2 pos) {
+  IsText = false;
+  LabelSprite = label;
+  Bounds =
+      RectF(pos.x, pos.y, LabelSprite.Bounds.Width, LabelSprite.Bounds.Height);
+}
+
 Label::Label(uint8_t* str, glm::vec2 pos, int fontSize, bool outline,
              int colorIndex) {
   FontSize = fontSize;
@@ -27,8 +34,13 @@ void Label::UpdateInput() {}
 void Label::Update(float dt) { Widget::Update(dt); }
 
 void Label::Render() {
-  Renderer2D::DrawProcessedText(
-      Text, TextLength, Profile::Dialogue::DialogueFont, Tint.a, Outline, true);
+  if (IsText) {
+    Renderer2D::DrawProcessedText(Text, TextLength,
+                                  Profile::Dialogue::DialogueFont, Tint.a,
+                                  Outline, true);
+  } else {
+    Renderer2D::DrawSprite(LabelSprite, Bounds, Tint);
+  }
 }
 
 void Label::SetText(uint8_t* str, int fontSize, bool outline, int colorIndex) {

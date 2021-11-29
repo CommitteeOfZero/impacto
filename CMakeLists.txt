@@ -43,7 +43,7 @@ set(Impacto_Src
     src/profile/dialogue.cpp
     src/profile/vm.cpp
     src/profile/scriptvars.cpp
-	src/profile/scriptinput.cpp
+    src/profile/scriptinput.cpp
 
     src/profile/data/savesystem.cpp
     src/profile/data/tipssystem.cpp
@@ -60,6 +60,7 @@ set(Impacto_Src
     src/profile/ui/backlogmenu.cpp
     src/profile/ui/optionsmenu.cpp
     src/profile/ui/tipsmenu.cpp
+    src/profile/ui/extramenus.cpp
 
     src/profile/games/rne/tilebackground.cpp
     src/profile/games/rne/systemmenu.cpp
@@ -81,6 +82,7 @@ set(Impacto_Src
     src/profile/games/mo6tw/savemenu.cpp
     src/profile/games/mo6tw/optionsmenu.cpp
     src/profile/games/mo6tw/tipsmenu.cpp
+    src/profile/games/mo6tw/clearlistmenu.cpp
 
     src/profile/games/darling/sysmesbox.cpp
 
@@ -100,7 +102,7 @@ set(Impacto_Src
     src/games/cc/sysmesbox.cpp
 
     src/games/mo6tw/dialoguebox.cpp
-	src/games/mo6tw/sysmesbox.cpp
+    src/games/mo6tw/sysmesbox.cpp
     src/games/mo6tw/systemmenu.cpp
     src/games/mo6tw/titlemenu.cpp
     src/games/mo6tw/savemenu.cpp
@@ -108,8 +110,9 @@ set(Impacto_Src
     src/games/mo6tw/tipsmenu.cpp
     src/games/mo6tw/savesystem.cpp
     src/games/mo6tw/tipssystem.cpp
+    src/games/mo6tw/clearlistmenu.cpp
 
-	src/games/darling/sysmesbox.cpp
+    src/games/darling/sysmesbox.cpp
 
     src/hud/dialoguebox.cpp
     src/hud/datedisplay.cpp
@@ -277,6 +280,7 @@ set(Impacto_Header
     src/profile/ui/backlogmenu.h
     src/profile/ui/optionsmenu.h
     src/profile/ui/tipsmenu.h
+    src/profile/ui/extramenus.h
 
     src/profile/games/rne/tilebackground.h
     src/profile/games/rne/systemmenu.h
@@ -298,6 +302,7 @@ set(Impacto_Header
     src/profile/games/mo6tw/savemenu.h
     src/profile/games/mo6tw/optionsmenu.h
     src/profile/games/mo6tw/tipsmenu.h
+    src/profile/games/mo6tw/clearlistmenu.h
 
     src/profile/games/darling/sysmesbox.h
 
@@ -325,6 +330,7 @@ set(Impacto_Header
     src/games/mo6tw/tipsmenu.h
     src/games/mo6tw/savesystem.h
     src/games/mo6tw/tipssystem.h
+    src/games/mo6tw/clearlistmenu.h
 
     src/games/darling/sysmesbox.h
 
@@ -399,7 +405,7 @@ set(Impacto_Header
 
     src/vm/interface/scene3d.h
     src/vm/interface/scene2d.h
-	src/vm/interface/input.h
+    src/vm/interface/input.h
 
     src/audio/audiosystem.h
     src/audio/audiocommon.h

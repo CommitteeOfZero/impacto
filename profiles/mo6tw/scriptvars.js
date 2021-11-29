@@ -1,5 +1,6 @@
 var sv = root.ScriptVars;
 
+sv.SW_TOTALPLAYTIME = 990;
 sv.SW_TITLEDISPCT = 1014;
 sv.SW_SYSSEL = 1028;
 sv.SW_TITLEMASKALPHA = 1033;

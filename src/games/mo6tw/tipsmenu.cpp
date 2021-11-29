@@ -87,6 +87,17 @@ void TipsMenu::Hide() {
   }
 }
 
+void TipsMenu::UpdateInput() {
+  Menu::UpdateInput();
+  if (State == Shown) {
+    if (CurrentlyDisplayedTipId != -1) {
+      if (PADinputButtonWentDown & PAD1X) {
+        NextTipPage();
+      }
+    }
+  }
+}
+
 void TipsMenu::Update(float dt) {
   UpdateInput();
 
@@ -109,12 +120,6 @@ void TipsMenu::Update(float dt) {
     ItemsList->UpdateInput();
     ItemsList->Update(dt);
     TipViewItems->Update(dt);
-
-    if (CurrentlyDisplayedTipId != -1) {
-      if (PADinputButtonWentDown & PAD1X) {
-        NextTipPage();
-      }
-    }
   }
 }
 

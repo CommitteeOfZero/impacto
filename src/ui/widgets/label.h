@@ -10,6 +10,7 @@ namespace Widgets {
 class Label : public Widget {
  public:
   Label();
+  Label(Sprite const& label, glm::vec2 pos);
   Label(uint8_t* str, glm::vec2 pos, int fontSize, bool outline,
         int colorIndex = 10);
   Label(ProcessedTextGlyph* str, int textLength, float textWidth, int fontSize,
@@ -26,6 +27,8 @@ class Label : public Widget {
                int fontSize, bool outline, int colorIndex = 10);
 
  private:
+  bool IsText;
+  Sprite LabelSprite;
   int FontSize;
   ProcessedTextGlyph Text[255];
   int TextLength;

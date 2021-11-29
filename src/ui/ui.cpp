@@ -15,5 +15,8 @@ SysMesBox* SysMesBoxPtr = 0;
 BacklogMenu* BacklogMenuPtr = 0;
 TipsMenu* TipsMenuPtr = 0;
 
+int ExtraMenuCount = 0;
+Menu* ExtraMenus[MaxExtraMenus];
+
 }  // namespace UI
 }  // namespace Impacto

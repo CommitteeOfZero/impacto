@@ -46,6 +46,7 @@
 #include "profile/ui/backlogmenu.h"
 #include "profile/ui/optionsmenu.h"
 #include "profile/ui/tipsmenu.h"
+#include "profile/ui/extramenus.h"
 
 namespace Impacto {
 
@@ -130,6 +131,7 @@ static void Init() {
     Profile::BacklogMenu::Configure();
     Profile::OptionsMenu::Configure();
     Profile::TipsMenu::Configure();
+    Profile::ExtraMenus::Configure();
     DateDisplay::Init();
   }
 
@@ -217,6 +219,9 @@ void Update(float dt) {
     UI::BacklogMenuPtr->Update(dt);
     UI::OptionsMenuPtr->Update(dt);
     UI::TipsMenuPtr->Update(dt);
+    for (int i = 0; i < UI::ExtraMenuCount; i++) {
+      UI::ExtraMenus[i]->Update(dt);
+    }
 
     SaveIconDisplay::Update(dt);
     LoadingDisplay::Update(dt);
@@ -451,6 +456,15 @@ void Render() {
           UI::SystemMenuPtr->Render();
           UI::TipsMenuPtr->Render();
           UI::OptionsMenuPtr->Render();
+          break;
+        }
+        case TD_PlayData:
+        case TD_Album:
+        case TD_ExtrasMusicMode:
+        case TD_ExtrasMovieMode: {
+          for (int i = 0; i < UI::ExtraMenuCount; i++) {
+            UI::ExtraMenus[i]->Render();
+          }
           break;
         }
         case TD_SystemMessage: {

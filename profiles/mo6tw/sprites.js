@@ -53,6 +53,11 @@ root.SpriteSheets = {
         Path: {Mount: "system", Id: 11 },
         DesignWidth: 2048,
         DesignHeight: 1024
+    },
+    "ClearList": {
+        Path: {Mount: "system", Id: 7 },
+        DesignWidth: 2048,
+        DesignHeight: 1024
     }
 };
 
