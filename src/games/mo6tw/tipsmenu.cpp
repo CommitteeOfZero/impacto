@@ -90,6 +90,7 @@ void TipsMenu::Hide() {
 void TipsMenu::UpdateInput() {
   Menu::UpdateInput();
   if (State == Shown) {
+    ItemsList->UpdateInput();
     if (CurrentlyDisplayedTipId != -1) {
       if (PADinputButtonWentDown & PAD1X) {
         NextTipPage();
@@ -117,7 +118,6 @@ void TipsMenu::Update(float dt) {
   TipViewItems->Tint.a = FadeAnimation.Progress;
 
   if (State == Shown) {
-    ItemsList->UpdateInput();
     ItemsList->Update(dt);
     TipViewItems->Update(dt);
   }
@@ -167,10 +167,7 @@ void TipsMenu::Init() {
     // that character
     auto page = record->SortLetterIndex / TipListCategoriesPerPage;
     if (page != currentPage) {
-      if (currentPage == 0)
-        pageItems->Show();
-      else
-        pageItems->IsShown = true;
+      if (currentPage == 0) pageItems->Show();
       currentPage = page;
       currentY = TipListInitialY;
       ItemsList->Add(pageItems);
@@ -205,7 +202,6 @@ void TipsMenu::Init() {
   }
 
   // Add last category
-  pageItems->IsShown = true;
   ItemsList->Add(pageItems);
 
   // Number label

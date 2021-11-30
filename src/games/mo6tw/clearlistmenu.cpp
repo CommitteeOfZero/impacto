@@ -22,11 +22,17 @@ ClearListMenu::ClearListMenu() {
   FadeAnimation.LoopMode = ALM_Stop;
   FadeAnimation.DurationIn = FadeInDuration;
   FadeAnimation.DurationOut = FadeOutDuration;
+
+  MainItems =
+      new Carousel(CDIR_HORIZONTAL,
+                   std::bind(&ClearListMenu::AdvancePage, this,
+                             std::placeholders::_1, std::placeholders::_2),
+                   std::bind(&ClearListMenu::GoBackPage, this,
+                             std::placeholders::_1, std::placeholders::_2));
 }
 
 void ClearListMenu::Show() {
   if (!IsInit) {
-    MainItems = new Carousel(CDIR_HORIZONTAL);
     InitMainPage();
     InitSceneTitlePage();
     InitEndingListPage();
@@ -37,6 +43,7 @@ void ClearListMenu::Show() {
     State = Showing;
     FadeAnimation.StartIn();
     MainItems->Show();
+    UpdateEndingList();
     if (UI::FocusedMenu != 0) {
       LastFocusedMenu = UI::FocusedMenu;
       LastFocusedMenu->IsFocused = false;
@@ -60,6 +67,11 @@ void ClearListMenu::Hide() {
   }
 }
 
+void ClearListMenu::UpdateInput() {
+  Menu::UpdateInput();
+  if (State == Shown) MainItems->UpdateInput();
+}
+
 void ClearListMenu::Update(float dt) {
   UpdateInput();
 
@@ -79,6 +91,10 @@ void ClearListMenu::Update(float dt) {
   if (State != Hidden) {
     UpdatePlayTime();
     MainItems->Update(dt);
+
+    if (PreviousPage && PreviousPage->MoveAnimation.IsIn()) {
+      PreviousPage->Hide();
+    }
   }
 }
 
@@ -93,6 +109,7 @@ void ClearListMenu::Render() {
 
 void ClearListMenu::InitMainPage() {
   MainPage = new Group(this);
+  MainPage->FocusLock = false;
 
   MainPage->Add(new Label(ClearListLabel, LabelPosition));
   MainPage->Add(new Label(EndingsLabel, EndingsLabelPosition));
@@ -207,9 +224,90 @@ void ClearListMenu::UpdatePlayTime() {
   }
 }
 
-void ClearListMenu::InitEndingListPage() { EndingListPage = new Group(this); }
+void ClearListMenu::InitEndingListPage() {
+  EndingListPage = new Group(this);
+  EndingListPage->FocusLock = false;
+  EndingNames = new Widget*[EndingCount * 2];
 
-void ClearListMenu::InitSceneTitlePage() { SceneTitlePage = new Group(this); }
+  EndingListPage->Add(new Label(EndingListLabel, LabelPosition));
+  EndingListPage->Add(new Label(WindowSprite, WindowPosition));
+
+  auto numberLabelPos = EndingsListNumberInitialPosition;
+  auto textLabelPos = EndingsListTextInitialPosition;
+  int idx = 0;
+  char temp[4];
+  auto lockedText = Vm::ScriptGetTextTableStrAddress(
+      EndingsListTextLockedTable, EndingsListTextLockedEntry);
+  for (int i = 0; i < EndingCount; i++) {
+    sprintf(temp, "%2d", i + 1);
+    auto numberLabel =
+        new Label(std::string(temp), numberLabelPos, EndingsListTextFontSize,
+                  false, EndingsListTextColorIndex);
+    numberLabelPos += EndingsListTextMargin;
+
+    auto lockedLabel =
+        new Label(lockedText, textLabelPos, EndingsListTextFontSize, false,
+                  EndingsListTextColorIndex);
+    auto unlockedLabel = new Label(
+        Vm::ScriptGetTextTableStrAddress(EndingsListTextTable, i), textLabelPos,
+        EndingsListTextFontSize, false, EndingsListTextColorIndex);
+    textLabelPos += EndingsListTextMargin;
+
+    EndingNames[idx] = unlockedLabel;
+    idx += 1;
+    EndingNames[idx] = lockedLabel;
+    idx += 1;
+
+    EndingListPage->Add(numberLabel);
+    EndingListPage->Add(lockedLabel);
+    EndingListPage->Add(unlockedLabel);
+  }
+
+  MainItems->Add(EndingListPage);
+}
+
+void ClearListMenu::UpdateEndingList() {
+  int idx = 0;
+  for (int i = 0; i < EndingCount * 2; i += 2) {
+    if (GetFlag(SF_CLR_END1 + idx)) {
+      EndingNames[i]->Tint.a = 1.0f;
+      EndingNames[i + 1]->Tint.a = 0.0f;
+    } else {
+      EndingNames[i + 1]->Tint.a = 1.0f;
+      EndingNames[i]->Tint.a = 0.0f;
+    }
+    idx += 1;
+  }
+}
+
+void ClearListMenu::InitSceneTitlePage() {
+  SceneTitlePage = new Group(this);
+  SceneTitlePage->FocusLock = false;
+
+  SceneTitlePage->Add(new Label(SceneTitleLabel, LabelPosition));
+
+  MainItems->Add(SceneTitlePage);
+}
+
+// TEST
+void ClearListMenu::AdvancePage(Widget* currentPage, Widget* nextPage) {
+  currentPage->Move(glm::vec2(750.0f, 0.0f), 0.4f);
+  nextPage->MoveTo(glm::vec2(-750.0f, 0.0f));
+  nextPage->Move(glm::vec2(750.0f, 0.0f), 0.4f);
+  nextPage->Show();
+  CurrentPage = nextPage;
+  PreviousPage = currentPage;
+}
+
+// TEST
+void ClearListMenu::GoBackPage(Widget* currentPage, Widget* nextPage) {
+  currentPage->Move(glm::vec2(-750.0f, 0.0f), 0.4f);
+  nextPage->MoveTo(glm::vec2(750.0f, 0.0f));
+  nextPage->Move(glm::vec2(-750.0f, 0.0f), 0.4f);
+  nextPage->Show();
+  CurrentPage = nextPage;
+  PreviousPage = currentPage;
+}
 
 }  // namespace MO6TW
 }  // namespace UI

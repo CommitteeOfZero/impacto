@@ -29,6 +29,13 @@ Label::Label(ProcessedTextGlyph* str, int textLength, float textWidth,
   SetText(str, textLength, textWidth, fontSize, outline);
 }
 
+Label::Label(std::string str, glm::vec2 pos, int fontSize, bool outline,
+             int colorIndex) {
+  FontSize = fontSize;
+  Bounds = RectF(pos.x, pos.y, TextLength, FontSize);
+  SetText(str, fontSize, outline, colorIndex);
+}
+
 void Label::UpdateInput() {}
 
 void Label::Update(float dt) { Widget::Update(dt); }
@@ -41,6 +48,19 @@ void Label::Render() {
   } else {
     Renderer2D::DrawSprite(LabelSprite, Bounds, Tint);
   }
+}
+
+void Label::Move(glm::vec2 relativePosition) {
+  Widget::Move(relativePosition);
+  for (int i = 0; i < TextLength; i++) {
+    Text[i].DestRect.X += relativePosition.x;
+    Text[i].DestRect.Y += relativePosition.y;
+  }
+}
+
+void Label::MoveTo(glm::vec2 pos) {
+  auto relativePosition = pos - glm::vec2(Bounds.X, Bounds.Y);
+  Move(relativePosition);
 }
 
 void Label::SetText(uint8_t* str, int fontSize, bool outline, int colorIndex) {

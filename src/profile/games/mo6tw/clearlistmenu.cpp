@@ -10,6 +10,9 @@ namespace MO6TW {
 namespace ClearListMenu {
 
 Sprite BackgroundSprite;
+Sprite WindowSprite;
+glm::vec2 WindowPosition;
+
 glm::vec2 LabelPosition;
 Sprite ClearListLabel;
 glm::vec2 EndingsLabelPosition;
@@ -25,11 +28,26 @@ Sprite PlayTimeLabel;
 Sprite ClearListTextBackground;
 glm::vec2 ClearListTextBGOffset;
 
+Sprite EndingListLabel;
+int EndingCount;
+glm::vec2 EndingsListNumberInitialPosition;
+glm::vec2 EndingsListTextInitialPosition;
+glm::vec2 EndingsListTextMargin;
+int EndingsListTextFontSize;
+int EndingsListTextLockedTable;
+int EndingsListTextLockedEntry;
+int EndingsListTextTable;
+int EndingsListTextColorIndex;
+
+Sprite SceneTitleLabel;
+
 float FadeInDuration;
 float FadeOutDuration;
 
 void Configure() {
   BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
+  WindowSprite = EnsureGetMemberSprite("WindowSprite");
+  WindowPosition = EnsureGetMemberVec2("WindowPosition");
 
   LabelPosition = EnsureGetMemberVec2("LabelPosition");
 
@@ -46,6 +64,21 @@ void Configure() {
   PlayTimeLabel = EnsureGetMemberSprite("PlayTimeLabel");
   ClearListTextBackground = EnsureGetMemberSprite("ClearListTextBackground");
   ClearListTextBGOffset = EnsureGetMemberVec2("ClearListTextBGOffset");
+
+  EndingListLabel = EnsureGetMemberSprite("EndingListLabel");
+  EndingCount = EnsureGetMemberInt("EndingCount");
+  EndingsListNumberInitialPosition =
+      EnsureGetMemberVec2("EndingsListNumberInitialPosition");
+  EndingsListTextInitialPosition =
+      EnsureGetMemberVec2("EndingsListTextInitialPosition");
+  EndingsListTextMargin = EnsureGetMemberVec2("EndingsListTextMargin");
+  EndingsListTextFontSize = EnsureGetMemberInt("EndingsListTextFontSize");
+  EndingsListTextLockedTable = EnsureGetMemberInt("EndingsListTextLockedTable");
+  EndingsListTextLockedEntry = EnsureGetMemberInt("EndingsListTextLockedEntry");
+  EndingsListTextTable = EnsureGetMemberInt("EndingsListTextTable");
+  EndingsListTextColorIndex = EnsureGetMemberInt("EndingsListTextColorIndex");
+
+  SceneTitleLabel = EnsureGetMemberSprite("SceneTitleLabel");
 
   FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
   FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");

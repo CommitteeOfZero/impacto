@@ -9,8 +9,7 @@ void Widget::Update(float dt) {
   if (MoveAnimation.State == AS_Playing) {
     MoveAnimation.Update(dt);
     auto move = glm::mix(MoveOrigin, MoveTarget, MoveAnimation.Progress);
-    Bounds.X = move.x;
-    Bounds.Y = move.y;
+    MoveTo(move);
   }
 }
 

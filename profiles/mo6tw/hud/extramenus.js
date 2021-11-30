@@ -2,6 +2,8 @@ root.ExtraMenus = {
     ClearListMenu: {
         Type: ClearListMenuType.MO6TW,
         BackgroundSprite: "ClearListBackground",
+        WindowSprite: "ClearListWindow",
+        WindowPosition: { X: 85, Y: 115 },
         LabelPosition: { X: 790, Y: 32 },
         ClearListLabel: "ClearListLabel",
         EndingsLabelPosition: { X: 64, Y: 116 },
@@ -16,6 +18,17 @@ root.ExtraMenus = {
         PlayTimeLabel: "PlayTimeLabel",
         ClearListTextBackground: "ClearListTextBackground",
         ClearListTextBGOffset: { X: 0, Y: 48 },
+        EndingListLabel: "EndingListLabel",
+        EndingCount: 14,
+        EndingsListNumberInitialPosition: { X: 108, Y: 142 },
+        EndingsListTextInitialPosition: { X: 156, Y: 142 },
+        EndingsListTextMargin: { X: 0, Y: 36 },
+        EndingsListTextFontSize: 28,
+        EndingsListTextLockedTable: 0,
+        EndingsListTextLockedEntry: 15,
+        EndingsListTextTable: 3,
+        EndingsListTextColorIndex: 0,
+        SceneTitleLabel: "SceneTitleLabel",
         FadeInDuration: 0.2,
         FadeOutDuration: 0.2
     }
@@ -59,4 +72,19 @@ root.Sprites["PlayTimeLabel"] = {
 root.Sprites["ClearListTextBackground"] = {
     Sheet: "ClearList",
     Bounds: { X: 105, Y: 970, Width: 576, Height: 48 }
+};
+
+root.Sprites["EndingListLabel"] = {
+    Sheet: "ClearList",
+    Bounds: { X: 1291, Y: 723, Width: 410, Height: 62 }
+};
+
+root.Sprites["SceneTitleLabel"] = {
+    Sheet: "ClearList",
+    Bounds: { X: 1291, Y: 595, Width: 410, Height: 62 }
+};
+
+root.Sprites["ClearListWindow"] = {
+    Sheet: "ClearList",
+    Bounds: { X: 1291, Y: 1, Width: 638, Height: 554 }
 };

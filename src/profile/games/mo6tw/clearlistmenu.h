@@ -8,6 +8,9 @@ namespace MO6TW {
 namespace ClearListMenu {
 
 extern Sprite BackgroundSprite;
+extern Sprite WindowSprite;
+extern glm::vec2 WindowPosition;
+
 extern glm::vec2 LabelPosition;
 extern Sprite ClearListLabel;
 extern glm::vec2 EndingsLabelPosition;
@@ -22,6 +25,19 @@ extern glm::vec2 PlayTimeLabelPosition;
 extern Sprite PlayTimeLabel;
 extern Sprite ClearListTextBackground;
 extern glm::vec2 ClearListTextBGOffset;
+
+extern Sprite EndingListLabel;
+extern int EndingCount;
+extern glm::vec2 EndingsListNumberInitialPosition;
+extern glm::vec2 EndingsListTextInitialPosition;
+extern glm::vec2 EndingsListTextMargin;
+extern int EndingsListTextFontSize;
+extern int EndingsListTextLockedTable;
+extern int EndingsListTextLockedEntry;
+extern int EndingsListTextTable;
+extern int EndingsListTextColorIndex;
+
+extern Sprite SceneTitleLabel;
 
 extern float FadeInDuration;
 extern float FadeOutDuration;

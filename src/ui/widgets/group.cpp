@@ -78,6 +78,7 @@ void Group::UpdateInput() {
 
 void Group::Update(float dt) {
   if (IsShown) {
+    Widget::Update(dt);
     if ((FocusLock && HasFocus) || !FocusLock) {
       UpdateInput();
     }
@@ -152,6 +153,7 @@ void Group::Hide() {
 }
 
 void Group::Move(glm::vec2 relativePosition, float duration) {
+  Widget::Move(relativePosition, duration);
   for (const auto& el : Children) {
     el->Move(relativePosition, duration);
   }
@@ -159,6 +161,7 @@ void Group::Move(glm::vec2 relativePosition, float duration) {
 }
 
 void Group::Move(glm::vec2 relativePosition) {
+  Widget::Move(relativePosition);
   for (const auto& el : Children) {
     el->Move(relativePosition);
   }
@@ -166,6 +169,7 @@ void Group::Move(glm::vec2 relativePosition) {
 }
 
 void Group::MoveTo(glm::vec2 pos, float duration) {
+  Widget::MoveTo(pos, duration);
   auto relativePosition = pos - Position;
   for (const auto& el : Children) {
     el->Move(relativePosition, duration);
@@ -174,6 +178,7 @@ void Group::MoveTo(glm::vec2 pos, float duration) {
 }
 
 void Group::MoveTo(glm::vec2 pos) {
+  Widget::MoveTo(pos);
   auto relativePosition = pos - Position;
   for (const auto& el : Children) {
     el->Move(relativePosition);

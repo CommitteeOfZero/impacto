@@ -15,13 +15,18 @@ class ClearListMenu : public Menu {
 
   void Show();
   void Hide();
+  void UpdateInput();
   void Update(float dt);
   void Render();
+
+  void AdvancePage(Widget* currentPage, Widget* nextPage);
+  void GoBackPage(Widget* currentPage, Widget* nextPage);
 
  private:
   void InitMainPage();
   void UpdatePlayTime();
   void InitEndingListPage();
+  void UpdateEndingList();
   void InitSceneTitlePage();
 
   bool IsInit = false;
@@ -31,6 +36,9 @@ class ClearListMenu : public Menu {
   Widgets::Group* SceneTitlePage;
   Widgets::Group* EndingListPage;
 
+  Widget* CurrentPage = 0;
+  Widget* PreviousPage = 0;
+
   Widgets::Label* PlaySeconds;
   Widgets::Label* PlayMinutes;
   Widgets::Label* PlayHours;
@@ -38,6 +46,8 @@ class ClearListMenu : public Menu {
   float SecondsTextWidth;
   float MinutesTextWidth;
   float HoursTextWidth;
+
+  Widget** EndingNames;
 
   Animation FadeAnimation;
 };
