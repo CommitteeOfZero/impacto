@@ -29,6 +29,8 @@ root.ExtraMenus = {
         EndingsListTextTable: 3,
         EndingsListTextColorIndex: 0,
         SceneTitleLabel: "SceneTitleLabel",
+        SceneCount: 158,
+        ArrowsAnimationDuration: 0.3,
         FadeInDuration: 0.2,
         FadeOutDuration: 0.2
     }

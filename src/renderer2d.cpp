@@ -726,5 +726,22 @@ void CaptureScreencap(Sprite const& sprite) {
   Window::SwapRTs();
 }
 
+void EnableScissor() {
+  Flush();
+  glEnable(GL_SCISSOR_TEST);
+}
+
+void SetScissorRect(RectF const& rect) {
+  Rect viewport = Window::GetViewport();
+  glScissor((GLint)(rect.X),
+            (GLint)((viewport.Height - (GLint)(rect.Y + rect.Height))),
+            (GLint)(rect.Width), (GLint)(rect.Height));
+}
+
+void DisableScissor() {
+  Flush();
+  glDisable(GL_SCISSOR_TEST);
+}
+
 }  // namespace Renderer2D
 }  // namespace Impacto

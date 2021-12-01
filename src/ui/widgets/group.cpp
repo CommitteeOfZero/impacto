@@ -2,6 +2,7 @@
 
 #include "../../profile/game.h"
 #include "../../inputsystem.h"
+#include "../../renderer2d.h"
 
 namespace Impacto {
 namespace UI {
@@ -14,11 +15,7 @@ Group::Group(Menu* ctx) {
       RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight);
 }
 
-Group::Group(Menu* ctx, glm::vec2 pos) : Group(ctx) {
-  Position = pos;
-  RenderingBounds =
-      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight);
-}
+Group::Group(Menu* ctx, glm::vec2 pos) : Group(ctx) { Position = pos; }
 
 void Group::Add(Widget* widget) { Children.push_back(widget); }
 
@@ -96,6 +93,8 @@ void Group::Update(float dt) {
 
 void Group::Render() {
   if (IsShown) {
+    Renderer2D::EnableScissor();
+    Renderer2D::SetScissorRect(RenderingBounds);
     for (const auto& el : Children) {
       if (RenderingBounds.Contains(el->Bounds)) {
         auto tint = el->Tint;
@@ -104,6 +103,7 @@ void Group::Render() {
         el->Tint = tint;
       }
     }
+    Renderer2D::DisableScissor();
   }
 }
 

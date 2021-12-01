@@ -250,4 +250,5 @@ root.ScriptVars = {
 	SF_Pokecon_ManualMode: 2903,	
 	SF_Pokecon_Disable: 2904,	
 	SF_POKECOMENABLE: 2900,
+	SF_SCN_CLR1: 3680
 }

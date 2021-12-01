@@ -25,9 +25,12 @@ class ClearListMenu : public Menu {
  private:
   void InitMainPage();
   void UpdatePlayTime();
+  void UpdateEndingCount();
+  void UpdateSceneCount();
   void InitEndingListPage();
   void UpdateEndingList();
   void InitSceneTitlePage();
+  void UpdateSceneList();
 
   bool IsInit = false;
 
@@ -39,6 +42,11 @@ class ClearListMenu : public Menu {
   Widget* CurrentPage = 0;
   Widget* PreviousPage = 0;
 
+  float SeparatorWidth;
+  Widgets::Label* UnlockedEndingCount;
+  float EndingCountWidth;
+  Widgets::Label* UnlockedSceneCount;
+  float SceneCountWidth;
   Widgets::Label* PlaySeconds;
   Widgets::Label* PlayMinutes;
   Widgets::Label* PlayHours;
@@ -48,8 +56,10 @@ class ClearListMenu : public Menu {
   float HoursTextWidth;
 
   Widget** EndingNames;
+  Widget** SceneNames;
 
   Animation FadeAnimation;
+  Animation ArrowsAnimation;
 };
 
 }  // namespace MO6TW

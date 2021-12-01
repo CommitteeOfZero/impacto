@@ -59,5 +59,9 @@ void DrawVideoTexture(YUVFrame const& tex, glm::vec2 topLeft,
 
 void CaptureScreencap(Sprite const& sprite);
 
+void EnableScissor();
+void SetScissorRect(RectF const& rect);
+void DisableScissor();
+
 }  // namespace Renderer2D
 }  // namespace Impacto

@@ -38,7 +38,9 @@ extern int EndingsListTextTable;
 extern int EndingsListTextColorIndex;
 
 extern Sprite SceneTitleLabel;
+extern int SceneCount;
 
+extern float ArrowsAnimationDuration;
 extern float FadeInDuration;
 extern float FadeOutDuration;
 

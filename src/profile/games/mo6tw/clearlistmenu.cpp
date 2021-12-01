@@ -40,7 +40,9 @@ int EndingsListTextTable;
 int EndingsListTextColorIndex;
 
 Sprite SceneTitleLabel;
+int SceneCount;
 
+float ArrowsAnimationDuration;
 float FadeInDuration;
 float FadeOutDuration;
 
@@ -79,7 +81,9 @@ void Configure() {
   EndingsListTextColorIndex = EnsureGetMemberInt("EndingsListTextColorIndex");
 
   SceneTitleLabel = EnsureGetMemberSprite("SceneTitleLabel");
+  SceneCount = EnsureGetMemberInt("SceneCount");
 
+  ArrowsAnimationDuration = EnsureGetMemberFloat("ArrowsAnimationDuration");
   FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
   FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
 

@@ -6,7 +6,7 @@ root.BacklogMenu = {
     ScrollbarThumbSprite: "ScrollbarThumb",
     ScrollbarPosition: { X: 1165, Y: 98 },
     EntriesStart: { X: 163, Y: 85 },
-    RenderingBounds: { X: 0, Y: 75, Width: 1280, Height: 615 },
+    RenderingBounds: { X: 87, Y: 83, Width: 1055, Height: 590 },
     EntryYPadding: 22,
     FadeInDuration: 0.2,
     FadeOutDuration: 0.2
