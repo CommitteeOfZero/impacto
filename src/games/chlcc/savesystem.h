@@ -26,6 +26,7 @@ class SaveSystem : public SaveSystemBase {
   int GetSaveTitle(SaveType type, int id);
   uint32_t GetTipStatus(int tipId);
   void SetTipStatus(int tipId, bool isLocked, bool isUnread, bool isNew);
+  void GetReadMessagesCount(int* totalMessageCount, int* readMessageCount);
 };
 
 }  // namespace CHLCC

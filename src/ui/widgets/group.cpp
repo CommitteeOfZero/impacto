@@ -10,12 +10,14 @@ namespace Widgets {
 
 Group::Group(Menu* ctx) {
   MenuContext = ctx;
-  Position = glm::vec2(0.0f);
+  Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
   RenderingBounds =
       RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight);
 }
 
-Group::Group(Menu* ctx, glm::vec2 pos) : Group(ctx) { Position = pos; }
+Group::Group(Menu* ctx, glm::vec2 pos) : Group(ctx) {
+  Bounds = RectF(pos.x, pos.y, 0.0f, 0.0f);
+}
 
 void Group::Add(Widget* widget) { Children.push_back(widget); }
 
@@ -96,7 +98,7 @@ void Group::Render() {
     Renderer2D::EnableScissor();
     Renderer2D::SetScissorRect(RenderingBounds);
     for (const auto& el : Children) {
-      if (RenderingBounds.Contains(el->Bounds)) {
+      if (RenderingBounds.Intersects(el->Bounds)) {
         auto tint = el->Tint;
         el->Tint *= Tint;
         el->Render();
@@ -152,38 +154,19 @@ void Group::Hide() {
   }
 }
 
-void Group::Move(glm::vec2 relativePosition, float duration) {
-  Widget::Move(relativePosition, duration);
-  for (const auto& el : Children) {
-    el->Move(relativePosition, duration);
-  }
-  Position += relativePosition;
-}
-
 void Group::Move(glm::vec2 relativePosition) {
-  Widget::Move(relativePosition);
   for (const auto& el : Children) {
     el->Move(relativePosition);
   }
-  Position += relativePosition;
-}
-
-void Group::MoveTo(glm::vec2 pos, float duration) {
-  Widget::MoveTo(pos, duration);
-  auto relativePosition = pos - Position;
-  for (const auto& el : Children) {
-    el->Move(relativePosition, duration);
-  }
-  Position = pos;
+  Widget::Move(relativePosition);
 }
 
 void Group::MoveTo(glm::vec2 pos) {
-  Widget::MoveTo(pos);
-  auto relativePosition = pos - Position;
+  auto relativePosition = pos - glm::vec2(Bounds.X, Bounds.Y);
   for (const auto& el : Children) {
     el->Move(relativePosition);
   }
-  Position = pos;
+  Widget::MoveTo(pos);
 }
 
 void Group::Clear() {

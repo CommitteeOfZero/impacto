@@ -19,7 +19,6 @@ class Group : public Widget {
   void Add(Widget* widget);
   void Add(Widget* widget, FocusDirection dir);
 
-  glm::vec2 Position;
   RectF RenderingBounds;
 
   bool IsShown = false;
@@ -39,9 +38,7 @@ class Group : public Widget {
 
   void Clear();
 
-  void Move(glm::vec2 relativePosition, float duration) override;
   void Move(glm::vec2 relativePosition) override;
-  void MoveTo(glm::vec2 pos, float duration) override;
   void MoveTo(glm::vec2 pos) override;
 
  private:

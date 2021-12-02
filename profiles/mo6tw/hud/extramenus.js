@@ -4,6 +4,8 @@ root.ExtraMenus = {
         BackgroundSprite: "ClearListBackground",
         WindowSprite: "ClearListWindow",
         WindowPosition: { X: 85, Y: 115 },
+        WindowSpritePartLeft: "ClearListSceneWindowLeft",
+        WindowSpritePartRight: "ClearListSceneWindowRight",
         LabelPosition: { X: 790, Y: 32 },
         ClearListLabel: "ClearListLabel",
         EndingsLabelPosition: { X: 64, Y: 116 },
@@ -30,6 +32,9 @@ root.ExtraMenus = {
         EndingsListTextColorIndex: 0,
         SceneTitleLabel: "SceneTitleLabel",
         SceneCount: 158,
+        ScrollbarTrackSprite: "ClearListScrollbarTrack",
+        ScrollbarThumbSprite: "ClearListScrollbarThumb",
+        ScrollbarPosition: { X: 870, Y: 130 },
         ArrowsAnimationDuration: 0.3,
         FadeInDuration: 0.2,
         FadeOutDuration: 0.2
@@ -89,4 +94,24 @@ root.Sprites["SceneTitleLabel"] = {
 root.Sprites["ClearListWindow"] = {
     Sheet: "ClearList",
     Bounds: { X: 1291, Y: 1, Width: 638, Height: 554 }
+};
+
+root.Sprites["ClearListSceneWindowLeft"] = {
+    Sheet: "ClearList",
+    Bounds: { X: 1291, Y: 1, Width: 538, Height: 554 }
+};
+
+root.Sprites["ClearListSceneWindowRight"] = {
+    Sheet: "ClearList",
+    Bounds: { X: 1629, Y: 1, Width: 300, Height: 554 }
+};
+
+root.Sprites["ClearListScrollbarThumb"] = {
+    Sheet: "ClearList",
+    Bounds: { X: 65, Y: 725, Width: 38, Height: 46 },
+};
+
+root.Sprites["ClearListScrollbarTrack"] = {
+    Sheet: "ClearList",
+    Bounds: { X: 1939, Y: 17, Width: 8, Height: 514 },
 };

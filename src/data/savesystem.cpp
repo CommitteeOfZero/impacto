@@ -56,5 +56,10 @@ void SetTipStatus(int tipId, bool isLocked, bool isUnread, bool isNew) {
     Implementation->SetTipStatus(tipId, isLocked, isUnread, isNew);
 }
 
+void GetReadMessagesCount(int* totalMessageCount, int* readMessageCount) {
+  if (Implementation)
+    Implementation->GetReadMessagesCount(totalMessageCount, readMessageCount);
+}
+
 }  // namespace SaveSystem
 }  // namespace Impacto

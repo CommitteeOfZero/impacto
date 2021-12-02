@@ -10,6 +10,9 @@ namespace SaveSystem {
 extern Impacto::SaveSystem::SaveDataType Type;
 
 extern std::string SaveFilePath;
+extern uint32_t* StoryScriptIDs;
+extern int StoryScriptCount;
+extern Impacto::SaveSystem::ScriptMessageDataPair* ScriptMessageData;
 
 void Configure();
 

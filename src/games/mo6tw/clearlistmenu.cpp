@@ -7,6 +7,7 @@
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
 #include "../../vm/vm.h"
+#include "../../data/savesystem.h"
 
 namespace Impacto {
 namespace UI {
@@ -51,6 +52,7 @@ void ClearListMenu::Show() {
     MainItems->Show();
     UpdateEndingCount();
     UpdateSceneCount();
+    UpdateCompletionPercentage();
     UpdateEndingList();
     UpdateSceneList();
     if (UI::FocusedMenu != 0) {
@@ -101,6 +103,7 @@ void ClearListMenu::Update(float dt) {
     ArrowsAnimation.Update(dt);
     UpdatePlayTime();
     MainItems->Update(dt);
+    SceneTitleItems->MoveTo(glm::vec2(SceneTitleItems->Bounds.X, SceneListY));
 
     if (PreviousPage && PreviousPage->MoveAnimation.IsIn()) {
       PreviousPage->Hide();
@@ -181,6 +184,10 @@ void ClearListMenu::InitMainPage() {
 
   UnlockedSceneCount = new Label();
   MainPage->Add(UnlockedSceneCount);
+
+  // Completion percentage
+  CompletionPercentage = new Label();
+  MainPage->Add(CompletionPercentage);
 
   // Play time
   auto secondsText = Vm::ScriptGetTextTableStrAddress(0, 9);
@@ -269,6 +276,24 @@ void ClearListMenu::UpdateSceneCount() {
       558.0f;
   UnlockedSceneCount->Bounds.Y = 284.0f;
   UnlockedSceneCount->SetText((uint8_t*)sc3StringBuffer, 32, false, 0);
+}
+
+void ClearListMenu::UpdateCompletionPercentage() {
+  Vm::Sc3VmThread dummy;
+  char temp[10];
+  uint16_t sc3StringBuffer[10];
+  int totalMessageCount = 0, readMessageCount = 0;
+
+  SaveSystem::GetReadMessagesCount(&totalMessageCount, &readMessageCount);
+  float readPercentage = readMessageCount / (float)totalMessageCount * 100.0f;
+  sprintf(temp, "%.2f%%", readPercentage);
+  TextGetSc3String(std::string(temp), sc3StringBuffer);
+  dummy.Ip = (uint8_t*)sc3StringBuffer;
+  float percentageWidth =
+      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, 32);
+  CompletionPercentage->Bounds.X = 96.0f - percentageWidth + 560.0f;
+  CompletionPercentage->Bounds.Y = 396.0f;
+  CompletionPercentage->SetText((uint8_t*)sc3StringBuffer, 32, false, 0);
 }
 
 void ClearListMenu::UpdatePlayTime() {
@@ -382,10 +407,17 @@ void ClearListMenu::InitSceneTitlePage() {
   SceneNames = new Widget*[SceneCount * 2];
 
   SceneTitlePage->Add(new Label(SceneTitleLabel, LabelPosition));
-  SceneTitlePage->Add(new Label(WindowSprite, WindowPosition));
+  SceneTitlePage->Add(new Label(WindowSpritePartLeft, WindowPosition));
+  SceneTitlePage->Add(new Label(
+      WindowSpritePartRight,
+      WindowPosition + glm::vec2(WindowSpritePartLeft.ScaledWidth(), 0.0f)));
+
+  SceneTitleItems = new Group(this);
+  SceneTitleItems->FocusLock = false;
 
   auto numberLabelPos = glm::vec2(108.0f, 140.0f);
   auto textLabelPos = glm::vec2(156.0f, 140.0f);
+
   int idx = 0;
   char temp[4];
   auto lockedText = Vm::ScriptGetTextTableStrAddress(0, 15);
@@ -405,10 +437,21 @@ void ClearListMenu::InitSceneTitlePage() {
     SceneNames[idx] = lockedLabel;
     idx += 1;
 
-    SceneTitlePage->Add(numberLabel);
-    SceneTitlePage->Add(lockedLabel);
-    SceneTitlePage->Add(unlockedLabel);
+    SceneTitleItems->Add(numberLabel);
+    SceneTitleItems->Add(lockedLabel);
+    SceneTitleItems->Add(unlockedLabel);
   }
+
+  float totalHeight = (24.0f * SceneCount) + (12.0f * (SceneCount - 2));
+  SceneTitleItems->RenderingBounds = RectF(90.0f, 120.0f, 795.0f, 538.0f);
+  SceneTitleItems->Bounds = RectF(108.0f, 140.0f, 838.0f, totalHeight);
+  SceneTitlePage->Add(SceneTitleItems);
+
+  SceneListY = 140.0f;
+  auto scrollbar = new Scrollbar(
+      0, ScrollbarPosition, 140.0f, 140.0f - totalHeight + 500.0f, &SceneListY,
+      SBDIR_VERTICAL, ScrollbarTrack, ScrollbarThumb);
+  SceneTitlePage->Add(scrollbar);
 
   MainItems->Add(SceneTitlePage);
 }

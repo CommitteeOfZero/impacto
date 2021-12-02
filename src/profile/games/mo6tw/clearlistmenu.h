@@ -10,6 +10,8 @@ namespace ClearListMenu {
 extern Sprite BackgroundSprite;
 extern Sprite WindowSprite;
 extern glm::vec2 WindowPosition;
+extern Sprite WindowSpritePartLeft;
+extern Sprite WindowSpritePartRight;
 
 extern glm::vec2 LabelPosition;
 extern Sprite ClearListLabel;
@@ -39,6 +41,9 @@ extern int EndingsListTextColorIndex;
 
 extern Sprite SceneTitleLabel;
 extern int SceneCount;
+extern Sprite ScrollbarTrack;
+extern Sprite ScrollbarThumb;
+extern glm::vec2 ScrollbarPosition;
 
 extern float ArrowsAnimationDuration;
 extern float FadeInDuration;

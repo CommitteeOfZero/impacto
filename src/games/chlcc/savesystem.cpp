@@ -379,6 +379,8 @@ int SaveSystem::GetSaveTitle(SaveType type, int id) {
 uint32_t SaveSystem::GetTipStatus(int tipId) { return 0; }
 void SaveSystem::SetTipStatus(int tipId, bool isLocked, bool isUnread,
                               bool isNew) {}
+void SaveSystem::GetReadMessagesCount(int* totalMessageCount,
+                                      int* readMessageCount) {}
 
 }  // namespace CHLCC
 }  // namespace Impacto

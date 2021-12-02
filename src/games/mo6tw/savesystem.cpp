@@ -36,8 +36,10 @@ SaveError SaveSystem::MountSaveFile() {
   Io::ReadArrayLE<uint8_t>(&FlagWork[460], stream, 40);
   Io::ReadArrayLE<uint8_t>((uint8_t*)&ScrWork[600], stream, 1600);
 
-  stream->Seek(0x3336, SEEK_SET);
+  stream->Seek(0xc26, SEEK_SET);
+  Io::ReadArrayLE<uint8_t>(MessageFlags, stream, 10000);
 
+  stream->Seek(0x3336, SEEK_SET);
   Io::ReadArrayLE<uint8_t>(GameExtraData, stream, 1024);
 
   stream->Seek(0x3b06, SEEK_SET);  // TODO: Actually load system data
@@ -206,8 +208,10 @@ void SaveSystem::WriteSaveFile() {
   auto err1 = SDL_GetError();
   stream = (Io::PhysicalFileStream*)instream;
 
-  stream->Seek(0x3336, SEEK_SET);
+  stream->Seek(0xc26, SEEK_SET);
+  stream->Write(&MessageFlags, sizeof(uint8_t), 10000);
 
+  stream->Seek(0x3336, SEEK_SET);
   stream->Write(&GameExtraData, sizeof(uint8_t), 1024);
 
   stream->Seek(0x3b06, SEEK_SET);  // TODO: Actually save system data
@@ -539,6 +543,19 @@ void SaveSystem::SetTipStatus(int tipId, bool isLocked, bool isUnread,
     GameExtraData[(tipId + 2) >> 3] &= ~(Flbit[(tipId + 2) & 7]);
   } else {
     GameExtraData[(tipId + 2) >> 3] |= Flbit[(tipId + 2) & 7];
+  }
+}
+
+void SaveSystem::GetReadMessagesCount(int* totalMessageCount,
+                                      int* readMessageCount) {
+  for (int i = 0; i < StoryScriptCount; i++) {
+    auto record = ScriptMessageData[StoryScriptIDs[i]];
+    *totalMessageCount += record.LineCount;
+    for (int j = 0; j < record.LineCount; j++) {
+      *readMessageCount +=
+          ((*(uint8_t*)(MessageFlags + ((record.SaveDataOffset + i) >> 3)) &
+            Flbit[(record.SaveDataOffset + i) & 7]) != 0);
+    }
   }
 }
 

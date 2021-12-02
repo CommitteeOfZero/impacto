@@ -12,6 +12,8 @@ namespace ClearListMenu {
 Sprite BackgroundSprite;
 Sprite WindowSprite;
 glm::vec2 WindowPosition;
+Sprite WindowSpritePartLeft;
+Sprite WindowSpritePartRight;
 
 glm::vec2 LabelPosition;
 Sprite ClearListLabel;
@@ -41,6 +43,9 @@ int EndingsListTextColorIndex;
 
 Sprite SceneTitleLabel;
 int SceneCount;
+Sprite ScrollbarTrack;
+Sprite ScrollbarThumb;
+glm::vec2 ScrollbarPosition;
 
 float ArrowsAnimationDuration;
 float FadeInDuration;
@@ -50,6 +55,8 @@ void Configure() {
   BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
   WindowSprite = EnsureGetMemberSprite("WindowSprite");
   WindowPosition = EnsureGetMemberVec2("WindowPosition");
+  WindowSpritePartLeft = EnsureGetMemberSprite("WindowSpritePartLeft");
+  WindowSpritePartRight = EnsureGetMemberSprite("WindowSpritePartRight");
 
   LabelPosition = EnsureGetMemberVec2("LabelPosition");
 
@@ -82,6 +89,9 @@ void Configure() {
 
   SceneTitleLabel = EnsureGetMemberSprite("SceneTitleLabel");
   SceneCount = EnsureGetMemberInt("SceneCount");
+  ScrollbarTrack = EnsureGetMemberSprite("ScrollbarTrackSprite");
+  ScrollbarThumb = EnsureGetMemberSprite("ScrollbarThumbSprite");
+  ScrollbarPosition = EnsureGetMemberVec2("ScrollbarPosition");
 
   ArrowsAnimationDuration = EnsureGetMemberFloat("ArrowsAnimationDuration");
   FadeInDuration = EnsureGetMemberFloat("FadeInDuration");

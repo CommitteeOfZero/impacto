@@ -27,6 +27,7 @@ class ClearListMenu : public Menu {
   void UpdatePlayTime();
   void UpdateEndingCount();
   void UpdateSceneCount();
+  void UpdateCompletionPercentage();
   void InitEndingListPage();
   void UpdateEndingList();
   void InitSceneTitlePage();
@@ -47,6 +48,7 @@ class ClearListMenu : public Menu {
   float EndingCountWidth;
   Widgets::Label* UnlockedSceneCount;
   float SceneCountWidth;
+  Widgets::Label* CompletionPercentage;
   Widgets::Label* PlaySeconds;
   Widgets::Label* PlayMinutes;
   Widgets::Label* PlayHours;
@@ -57,6 +59,9 @@ class ClearListMenu : public Menu {
 
   Widget** EndingNames;
   Widget** SceneNames;
+
+  float SceneListY;
+  Widgets::Group* SceneTitleItems;
 
   Animation FadeAnimation;
   Animation ArrowsAnimation;

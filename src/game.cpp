@@ -458,10 +458,7 @@ void Render() {
           UI::OptionsMenuPtr->Render();
           break;
         }
-        case TD_PlayData:
-        case TD_Album:
-        case TD_ExtrasMusicMode:
-        case TD_ExtrasMovieMode: {
+        case TD_PlayData: {
           for (int i = 0; i < UI::ExtraMenuCount; i++) {
             UI::ExtraMenus[i]->Render();
           }
