@@ -381,6 +381,7 @@ void SaveSystem::SetTipStatus(int tipId, bool isLocked, bool isUnread,
                               bool isNew) {}
 void SaveSystem::GetReadMessagesCount(int* totalMessageCount,
                                       int* readMessageCount) {}
+void SaveSystem::GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) {}
 
 }  // namespace CHLCC
 }  // namespace Impacto

@@ -138,6 +138,7 @@ set(Impacto_Src
     src/ui/widgets/mo6tw/titlebutton.cpp
     src/ui/widgets/mo6tw/saveentrybutton.cpp
     src/ui/widgets/mo6tw/tipsentrybutton.cpp
+    src/ui/widgets/mo6tw/scenelistentry.cpp
     src/ui/widgets/chlcc/titlebutton.cpp
     src/ui/widgets/rne/sysmenubutton.cpp
 
@@ -358,6 +359,7 @@ set(Impacto_Header
     src/ui/widgets/mo6tw/titlebutton.h
     src/ui/widgets/mo6tw/saveentrybutton.h
     src/ui/widgets/mo6tw/tipsentrybutton.h
+    src/ui/widgets/mo6tw/scenelistentry.h
     src/ui/widgets/chlcc/titlebutton.h
     src/ui/widgets/rne/sysmenubutton.h
 

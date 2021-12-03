@@ -4,6 +4,7 @@
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/carousel.h"
 #include "../../ui/widgets/label.h"
+#include "../../ui/widgets/button.h"
 
 namespace Impacto {
 namespace UI {
@@ -19,14 +20,17 @@ class ClearListMenu : public Menu {
   void Update(float dt);
   void Render();
 
-  void AdvancePage(Widget* currentPage, Widget* nextPage);
-  void GoBackPage(Widget* currentPage, Widget* nextPage);
+  void OnAdvancePage(Widget* currentPage, Widget* nextPage);
+  void OnGoBackPage(Widget* currentPage, Widget* nextPage);
+  void ArrowLeftOnClick(Widgets::Button* target);
+  void ArrowRightOnClick(Widgets::Button* target);
 
  private:
   void InitMainPage();
   void UpdatePlayTime();
   void UpdateEndingCount();
   void UpdateSceneCount();
+  void UpdateAlbumCount();
   void UpdateCompletionPercentage();
   void InitEndingListPage();
   void UpdateEndingList();
@@ -36,6 +40,7 @@ class ClearListMenu : public Menu {
   bool IsInit = false;
 
   Widgets::Carousel* MainItems;
+  Widgets::Group* Arrows;
   Widgets::Group* MainPage;
   Widgets::Group* SceneTitlePage;
   Widgets::Group* EndingListPage;
@@ -48,6 +53,8 @@ class ClearListMenu : public Menu {
   float EndingCountWidth;
   Widgets::Label* UnlockedSceneCount;
   float SceneCountWidth;
+  Widgets::Label* UnlockedAlbumCount;
+  float AlbumCountWidth;
   Widgets::Label* CompletionPercentage;
   Widgets::Label* PlaySeconds;
   Widgets::Label* PlayMinutes;

@@ -27,6 +27,7 @@ class SaveSystem : public SaveSystemBase {
   uint32_t GetTipStatus(int tipId);
   void SetTipStatus(int tipId, bool isLocked, bool isUnread, bool isNew);
   void GetReadMessagesCount(int* totalMessageCount, int* readMessageCount);
+  void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount);
 };
 
 }  // namespace CHLCC

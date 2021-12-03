@@ -36,6 +36,19 @@ SaveError SaveSystem::MountSaveFile() {
   Io::ReadArrayLE<uint8_t>(&FlagWork[460], stream, 40);
   Io::ReadArrayLE<uint8_t>((uint8_t*)&ScrWork[600], stream, 1600);
 
+  stream->Seek(0x7DA, SEEK_SET);
+  for (int i = 0; i < 150; i++) {
+    auto val = Io::ReadU8(stream);
+    EVFlags[8 * i] = val & 1;
+    EVFlags[8 * i + 1] = (val & 2) != 0;
+    EVFlags[8 * i + 2] = (val & 4) != 0;
+    EVFlags[8 * i + 3] = (val & 8) != 0;
+    EVFlags[8 * i + 4] = (val & 0x10) != 0;
+    EVFlags[8 * i + 5] = (val & 0x20) != 0;
+    EVFlags[8 * i + 6] = (val & 0x40) != 0;
+    EVFlags[8 * i + 7] = val >> 7;
+  }
+
   stream->Seek(0xc26, SEEK_SET);
   Io::ReadArrayLE<uint8_t>(MessageFlags, stream, 10000);
 
@@ -555,6 +568,17 @@ void SaveSystem::GetReadMessagesCount(int* totalMessageCount,
       *readMessageCount +=
           ((*(uint8_t*)(MessageFlags + ((record.SaveDataOffset + i) >> 3)) &
             Flbit[(record.SaveDataOffset + i) & 7]) != 0);
+    }
+  }
+}
+
+void SaveSystem::GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) {
+  for (int i = 0; i < MaxAlbumEntries; i++) {
+    if (AlbumData[i][0] == 0xFFFF) break;
+    for (int j = 1; j < MaxAlbumSubEntries; j++) {
+      if (AlbumData[i][j] == 0xFFFF) break;
+      *totalEVCount += 1;
+      *viewedEVCount += EVFlags[AlbumData[i][j]];
     }
   }
 }

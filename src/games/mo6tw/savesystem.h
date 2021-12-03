@@ -27,10 +27,12 @@ class SaveSystem : public SaveSystemBase {
   uint32_t GetTipStatus(int tipId);
   void SetTipStatus(int tipId, bool isLocked, bool isUnread, bool isNew);
   void GetReadMessagesCount(int* totalMessageCount, int* readMessageCount);
+  void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount);
 
  private:
   uint8_t GameExtraData[1024];
   uint8_t MessageFlags[10000];
+  bool EVFlags[1200];
 };
 
 }  // namespace MO6TW

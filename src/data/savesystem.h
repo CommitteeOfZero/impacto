@@ -68,6 +68,7 @@ class SaveSystemBase {
                             bool isNew) = 0;
   virtual void GetReadMessagesCount(int* totalMessageCount,
                                     int* readMessageCount) = 0;
+  virtual void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) = 0;
 
   SaveFileEntryBase* FullSaveEntries[MaxSaveEntries];
   SaveFileEntryBase* QuickSaveEntries[MaxSaveEntries];
@@ -87,6 +88,7 @@ int GetSaveTitle(SaveType type, int id);
 uint32_t GetTipStatus(int tipId);
 void SetTipStatus(int tipId, bool isLocked, bool isUnread, bool isNew);
 void GetReadMessagesCount(int* totalMessageCount, int* readMessageCount);
+void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount);
 
 }  // namespace SaveSystem
 }  // namespace Impacto

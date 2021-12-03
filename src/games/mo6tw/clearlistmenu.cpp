@@ -2,12 +2,15 @@
 
 #include "../../profile/ui/extramenus.h"
 #include "../../profile/games/mo6tw/clearlistmenu.h"
+#include "../../profile/ui/backlogmenu.h"
 #include "../../profile/dialogue.h"
 #include "../../renderer2d.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
 #include "../../vm/vm.h"
+#include "../../vm/interface/input.h"
 #include "../../data/savesystem.h"
+#include "../../ui/widgets/mo6tw/scenelistentry.h"
 
 namespace Impacto {
 namespace UI {
@@ -16,7 +19,13 @@ namespace MO6TW {
 using namespace Impacto::Profile::MO6TW::ClearListMenu;
 using namespace Impacto::Profile::ScriptVars;
 
+using namespace Impacto::Vm::Interface;
+
 using namespace Impacto::UI::Widgets;
+
+void ClearListMenu::ArrowLeftOnClick(Button* target) { MainItems->Previous(); }
+
+void ClearListMenu::ArrowRightOnClick(Button* target) { MainItems->Next(); }
 
 ClearListMenu::ClearListMenu() {
   FadeAnimation.Direction = 1;
@@ -32,10 +41,26 @@ ClearListMenu::ClearListMenu() {
 
   MainItems =
       new Carousel(CDIR_HORIZONTAL,
-                   std::bind(&ClearListMenu::AdvancePage, this,
+                   std::bind(&ClearListMenu::OnAdvancePage, this,
                              std::placeholders::_1, std::placeholders::_2),
-                   std::bind(&ClearListMenu::GoBackPage, this,
+                   std::bind(&ClearListMenu::OnGoBackPage, this,
                              std::placeholders::_1, std::placeholders::_2));
+
+  Arrows = new Group(this);
+  Arrows->FocusLock = false;
+  Sprite nullSprite = Sprite();
+  nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
+  auto arrowLeft =
+      new Button(0, ArrowLeft, ArrowLeft, nullSprite, ArrowLeftPosition);
+  arrowLeft->OnClickHandler =
+      std::bind(&ClearListMenu::ArrowLeftOnClick, this, std::placeholders::_1);
+  auto arrowRight =
+      new Button(1, ArrowRight, ArrowRight, nullSprite, ArrowRightPosition);
+  arrowRight->OnClickHandler =
+      std::bind(&ClearListMenu::ArrowRightOnClick, this, std::placeholders::_1);
+  Arrows->Add(arrowLeft);
+  Arrows->Add(arrowRight);
+  Arrows->IsShown = true;
 }
 
 void ClearListMenu::Show() {
@@ -52,6 +77,7 @@ void ClearListMenu::Show() {
     MainItems->Show();
     UpdateEndingCount();
     UpdateSceneCount();
+    UpdateAlbumCount();
     UpdateCompletionPercentage();
     UpdateEndingList();
     UpdateSceneList();
@@ -80,7 +106,21 @@ void ClearListMenu::Hide() {
 
 void ClearListMenu::UpdateInput() {
   Menu::UpdateInput();
-  if (State == Shown) MainItems->UpdateInput();
+  if (State == Shown) {
+    MainItems->UpdateInput();
+    if ((PADinputButtonWentDown & PAD1DOWN ||
+         PADinputButtonWentDown & PAD1UP) &&
+        SceneTitleItems->HasFocus) {
+      auto focusedEl = CurrentlyFocusedElement;
+      if (focusedEl->Bounds.Y < SceneTitleItems->RenderingBounds.Y) {
+        SceneListY += SceneListTextMargin.y;
+      } else if (focusedEl->Bounds.Y + focusedEl->Bounds.Height >
+                 SceneTitleItems->RenderingBounds.Y +
+                     SceneTitleItems->RenderingBounds.Height) {
+        SceneListY -= SceneListTextMargin.y;
+      }
+    }
+  }
 }
 
 void ClearListMenu::Update(float dt) {
@@ -103,6 +143,7 @@ void ClearListMenu::Update(float dt) {
     ArrowsAnimation.Update(dt);
     UpdatePlayTime();
     MainItems->Update(dt);
+    Arrows->Update(dt);
     SceneTitleItems->MoveTo(glm::vec2(SceneTitleItems->Bounds.X, SceneListY));
 
     if (PreviousPage && PreviousPage->MoveAnimation.IsIn()) {
@@ -117,6 +158,9 @@ void ClearListMenu::Render() {
     Renderer2D::DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
     MainItems->Tint = col;
     MainItems->Render();
+    Arrows->Tint =
+        glm::vec4(1.0f, 1.0f, 1.0f, glm::step(0.5f, ArrowsAnimation.Progress));
+    Arrows->Render();
   }
 }
 
@@ -145,25 +189,31 @@ void ClearListMenu::InitMainPage() {
   char temp[10];
   uint16_t sc3StringBuffer[10];
 
-  auto separator = Vm::ScriptGetTextTableStrAddress(0, 13);
+  auto separator =
+      Vm::ScriptGetTextTableStrAddress(SeparatorTable, SeparatorEntry);
   dummy.Ip = separator;
   SeparatorWidth =
-      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, 32);
+      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
 
   // Ending count
   sprintf(temp, "%d", EndingCount);
   TextGetSc3String(std::string(temp), sc3StringBuffer);
   dummy.Ip = (uint8_t*)sc3StringBuffer;
   EndingCountWidth =
-      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, 32);
+      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
   MainPage->Add(new Label(
       (uint8_t*)sc3StringBuffer,
-      glm::vec2((64.0f - EndingCountWidth) + 560.0f, 172.0f), 32, false, 0));
+      glm::vec2(
+          (EndingsLabelPosition.x - EndingCountWidth) + EndingCountPosition.x,
+          EndingCountPosition.y),
+      FontSize, false, ClearListColorIndex));
 
   MainPage->Add(new Label(
       separator,
-      glm::vec2((64.0f - (EndingCountWidth + SeparatorWidth)) + 560.0f, 172.0f),
-      32, false, 0));
+      glm::vec2((EndingsLabelPosition.x - (EndingCountWidth + SeparatorWidth)) +
+                    EndingCountPosition.x,
+                EndingCountPosition.y),
+      FontSize, false, ClearListColorIndex));
 
   UnlockedEndingCount = new Label();
   MainPage->Add(UnlockedEndingCount);
@@ -173,14 +223,18 @@ void ClearListMenu::InitMainPage() {
   TextGetSc3String(std::string(temp), sc3StringBuffer);
   dummy.Ip = (uint8_t*)sc3StringBuffer;
   SceneCountWidth =
-      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, 32);
-  MainPage->Add(new Label(
-      (uint8_t*)sc3StringBuffer,
-      glm::vec2((128.0f - SceneCountWidth) + 560.0f, 284.0f), 32, false, 0));
+      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
+  MainPage->Add(new Label((uint8_t*)sc3StringBuffer,
+                          glm::vec2((ScenesLabelPosition.x - SceneCountWidth) +
+                                        SceneCountPosition.x,
+                                    SceneCountPosition.y),
+                          FontSize, false, ClearListColorIndex));
   MainPage->Add(new Label(
       separator,
-      glm::vec2((128.0f - (SceneCountWidth + SeparatorWidth)) + 560.0f, 284.0f),
-      32, false, 0));
+      glm::vec2((ScenesLabelPosition.x - (SceneCountWidth + SeparatorWidth)) +
+                    SceneCountPosition.x,
+                SceneCountPosition.y),
+      FontSize, false, ClearListColorIndex));
 
   UnlockedSceneCount = new Label();
   MainPage->Add(UnlockedSceneCount);
@@ -189,36 +243,65 @@ void ClearListMenu::InitMainPage() {
   CompletionPercentage = new Label();
   MainPage->Add(CompletionPercentage);
 
+  // Album count
+  int totalCount = 0, unlockedCount = 0;
+  SaveSystem::GetViewedEVsCount(&totalCount, &unlockedCount);
+  sprintf(temp, "%d", totalCount);
+  TextGetSc3String(std::string(temp), sc3StringBuffer);
+  dummy.Ip = (uint8_t*)sc3StringBuffer;
+  AlbumCountWidth =
+      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
+  MainPage->Add(new Label(
+      (uint8_t*)sc3StringBuffer,
+      glm::vec2((AlbumLabelPosition.x - AlbumCountWidth) + AlbumCountPosition.x,
+                AlbumCountPosition.y),
+      FontSize, false, ClearListColorIndex));
+
+  MainPage->Add(new Label(
+      separator,
+      glm::vec2((AlbumLabelPosition.x - (AlbumCountWidth + SeparatorWidth)) +
+                    AlbumCountPosition.x,
+                AlbumCountPosition.y),
+      FontSize, false, ClearListColorIndex));
+
+  UnlockedAlbumCount = new Label();
+  MainPage->Add(UnlockedAlbumCount);
+
   // Play time
-  auto secondsText = Vm::ScriptGetTextTableStrAddress(0, 9);
+  auto secondsText = Vm::ScriptGetTextTableStrAddress(PlayTimeTextTable,
+                                                      PlayTimeSecondsTextEntry);
   dummy.Ip = secondsText;
   SecondsTextWidth =
-      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, 32);
-  MainPage->Add(new Label(
-      secondsText,
-      glm::vec2(PlayTimeLabelPosition.x - SecondsTextWidth + 562.0f, 620.0f),
-      32, false, 0));
+      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
+  MainPage->Add(new Label(secondsText,
+                          glm::vec2(PlayTimeLabelPosition.x - SecondsTextWidth +
+                                        PlayTimeSecondsTextPosition.x,
+                                    PlayTimeSecondsTextPosition.y),
+                          FontSize, false, ClearListColorIndex));
 
-  auto minutesText = Vm::ScriptGetTextTableStrAddress(0, 8);
+  auto minutesText = Vm::ScriptGetTextTableStrAddress(PlayTimeTextTable,
+                                                      PlayTimeMinutesTextEntry);
   dummy.Ip = minutesText;
   MinutesTextWidth =
-      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, 32);
-  MainPage->Add(new Label(minutesText,
-                          glm::vec2(PlayTimeLabelPosition.x - SecondsTextWidth -
-                                        MinutesTextWidth + 514.0f,
-                                    620.0f),
-                          32, false, 0));
+      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
+  MainPage->Add(
+      new Label(minutesText,
+                glm::vec2(PlayTimeLabelPosition.x - SecondsTextWidth -
+                              MinutesTextWidth + PlayTimeMinutesTextPosition.x,
+                          PlayTimeMinutesTextPosition.y),
+                FontSize, false, ClearListColorIndex));
 
-  auto hoursText = Vm::ScriptGetTextTableStrAddress(0, 10);
+  auto hoursText = Vm::ScriptGetTextTableStrAddress(PlayTimeTextTable,
+                                                    PlayTimeHoursTextEntry);
   dummy.Ip = hoursText;
   HoursTextWidth =
-      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, 32);
-  HoursText =
-      new Label(hoursText,
-                glm::vec2(PlayTimeLabelPosition.x - SecondsTextWidth -
-                              MinutesTextWidth - HoursTextWidth + 466.0f,
-                          620.0f),
-                32, false, 0);
+      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
+  HoursText = new Label(
+      hoursText,
+      glm::vec2(PlayTimeLabelPosition.x - SecondsTextWidth - MinutesTextWidth -
+                    HoursTextWidth + PlayTimeHoursTextPosition.x,
+                PlayTimeHoursTextPosition.y),
+      FontSize, false, ClearListColorIndex);
   HoursText->Tint.a = 0.0f;
   MainPage->Add(HoursText);
   PlaySeconds = new Label();
@@ -249,12 +332,14 @@ void ClearListMenu::UpdateEndingCount() {
   TextGetSc3String(std::string(temp), sc3StringBuffer);
   dummy.Ip = (uint8_t*)sc3StringBuffer;
   float unlockedEndingCountWidth =
-      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, 32);
+      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
   UnlockedEndingCount->Bounds.X =
-      (64.0f - (EndingCountWidth + SeparatorWidth + unlockedEndingCountWidth)) +
-      558.0f;
-  UnlockedEndingCount->Bounds.Y = 172.0f;
-  UnlockedEndingCount->SetText((uint8_t*)sc3StringBuffer, 32, false, 0);
+      (EndingsLabelPosition.x -
+       (EndingCountWidth + SeparatorWidth + unlockedEndingCountWidth)) +
+      EndingCountPosition.x;
+  UnlockedEndingCount->Bounds.Y = EndingCountPosition.y;
+  UnlockedEndingCount->SetText((uint8_t*)sc3StringBuffer, FontSize, false,
+                               ClearListColorIndex);
 }
 
 void ClearListMenu::UpdateSceneCount() {
@@ -270,12 +355,35 @@ void ClearListMenu::UpdateSceneCount() {
   TextGetSc3String(std::string(temp), sc3StringBuffer);
   dummy.Ip = (uint8_t*)sc3StringBuffer;
   float unlockedSceneCountWidth =
-      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, 32);
+      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
   UnlockedSceneCount->Bounds.X =
-      (128.0f - (SceneCountWidth + SeparatorWidth + unlockedSceneCountWidth)) +
-      558.0f;
-  UnlockedSceneCount->Bounds.Y = 284.0f;
-  UnlockedSceneCount->SetText((uint8_t*)sc3StringBuffer, 32, false, 0);
+      (ScenesLabelPosition.x -
+       (SceneCountWidth + SeparatorWidth + unlockedSceneCountWidth)) +
+      SceneCountPosition.x;
+  UnlockedSceneCount->Bounds.Y = SceneCountPosition.y;
+  UnlockedSceneCount->SetText((uint8_t*)sc3StringBuffer, FontSize, false,
+                              ClearListColorIndex);
+}
+
+void ClearListMenu::UpdateAlbumCount() {
+  Vm::Sc3VmThread dummy;
+  char temp[10];
+  uint16_t sc3StringBuffer[10];
+
+  int totalCount = 0, unlockedCount = 0;
+  SaveSystem::GetViewedEVsCount(&totalCount, &unlockedCount);
+  sprintf(temp, "%d", unlockedCount);
+  TextGetSc3String(std::string(temp), sc3StringBuffer);
+  dummy.Ip = (uint8_t*)sc3StringBuffer;
+  float unlockedAlbumCountWidth =
+      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
+  UnlockedAlbumCount->Bounds.X =
+      (AlbumLabelPosition.x -
+       (AlbumCountWidth + SeparatorWidth + unlockedAlbumCountWidth)) +
+      AlbumCountPosition.x;
+  UnlockedAlbumCount->Bounds.Y = AlbumCountPosition.y;
+  UnlockedAlbumCount->SetText((uint8_t*)sc3StringBuffer, FontSize, false,
+                              ClearListColorIndex);
 }
 
 void ClearListMenu::UpdateCompletionPercentage() {
@@ -290,10 +398,12 @@ void ClearListMenu::UpdateCompletionPercentage() {
   TextGetSc3String(std::string(temp), sc3StringBuffer);
   dummy.Ip = (uint8_t*)sc3StringBuffer;
   float percentageWidth =
-      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, 32);
-  CompletionPercentage->Bounds.X = 96.0f - percentageWidth + 560.0f;
-  CompletionPercentage->Bounds.Y = 396.0f;
-  CompletionPercentage->SetText((uint8_t*)sc3StringBuffer, 32, false, 0);
+      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
+  CompletionPercentage->Bounds.X =
+      CompletionLabelPosition.x - percentageWidth + CompletionPosition.x;
+  CompletionPercentage->Bounds.Y = CompletionPosition.y;
+  CompletionPercentage->SetText((uint8_t*)sc3StringBuffer, FontSize, false,
+                                ClearListColorIndex);
 }
 
 void ClearListMenu::UpdatePlayTime() {
@@ -309,22 +419,25 @@ void ClearListMenu::UpdatePlayTime() {
   TextGetSc3String(std::string(temp), sc3StringBuffer);
   dummy.Ip = (uint8_t*)sc3StringBuffer;
   float secondsWidth =
-      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, 32);
-  PlaySeconds->Bounds.X =
-      PlayTimeLabelPosition.x - (SecondsTextWidth + secondsWidth) + 560.0f;
-  PlaySeconds->Bounds.Y = 620.0f;
-  PlaySeconds->SetText((uint8_t*)sc3StringBuffer, 32, false, 0);
+      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
+  PlaySeconds->Bounds.X = PlayTimeLabelPosition.x -
+                          (SecondsTextWidth + secondsWidth) +
+                          PlayTimeSecondsPosition.x;
+  PlaySeconds->Bounds.Y = PlayTimeSecondsPosition.y;
+  PlaySeconds->SetText((uint8_t*)sc3StringBuffer, FontSize, false,
+                       ClearListColorIndex);
 
   sprintf(temp, "%2d", minutes);
   TextGetSc3String(std::string(temp), sc3StringBuffer);
   dummy.Ip = (uint8_t*)sc3StringBuffer;
   float minutesWidth =
-      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, 32);
+      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
   PlayMinutes->Bounds.X = PlayTimeLabelPosition.x -
                           (SecondsTextWidth + MinutesTextWidth + minutesWidth) +
-                          512.0f;
-  PlayMinutes->Bounds.Y = 620.0f;
-  PlayMinutes->SetText((uint8_t*)sc3StringBuffer, 32, false, 0);
+                          PlayTimeMinutesPosition.x;
+  PlayMinutes->Bounds.Y = PlayTimeMinutesPosition.y;
+  PlayMinutes->SetText((uint8_t*)sc3StringBuffer, FontSize, false,
+                       ClearListColorIndex);
 
   if (hours != 0) {
     HoursText->Tint.a = FadeAnimation.Progress;
@@ -332,13 +445,14 @@ void ClearListMenu::UpdatePlayTime() {
     sprintf(temp, "%2d", hours);
     TextGetSc3String(std::string(temp), sc3StringBuffer);
     dummy.Ip = (uint8_t*)sc3StringBuffer;
-    float hoursWidth =
-        TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, 32);
+    float hoursWidth = TextGetPlainLineWidth(
+        &dummy, Profile::Dialogue::DialogueFont, FontSize);
     PlayHours->Bounds.X = PlayTimeLabelPosition.x - SecondsTextWidth -
                           MinutesTextWidth - (HoursTextWidth + hoursWidth) +
-                          464.0f;
-    PlayHours->Bounds.Y = 620.0f;
-    PlayHours->SetText((uint8_t*)sc3StringBuffer, 32, false, 0);
+                          PlayTimeHoursPosition.x;
+    PlayHours->Bounds.Y = PlayTimeHoursPosition.y;
+    PlayHours->SetText((uint8_t*)sc3StringBuffer, FontSize, false,
+                       ClearListColorIndex);
   } else {
     PlayHours->Tint.a = 0.0f;
     HoursText->Tint.a = 0.0f;
@@ -415,41 +529,44 @@ void ClearListMenu::InitSceneTitlePage() {
   SceneTitleItems = new Group(this);
   SceneTitleItems->FocusLock = false;
 
-  auto numberLabelPos = glm::vec2(108.0f, 140.0f);
-  auto textLabelPos = glm::vec2(156.0f, 140.0f);
+  auto numberLabelPos = SceneListNumberInitialPosition;
+  auto textLabelPos = SceneListTextInitialPosition;
 
   int idx = 0;
   char temp[4];
-  auto lockedText = Vm::ScriptGetTextTableStrAddress(0, 15);
+  auto lockedText = Vm::ScriptGetTextTableStrAddress(SceneTitleLockedTable,
+                                                     SceneTitleLockedEntry);
   for (int i = 0; i < SceneCount; i++) {
     sprintf(temp, "%2d", i + 1);
-    auto numberLabel =
-        new Label(std::string(temp), numberLabelPos, 24, false, 0);
-    numberLabelPos += glm::vec2(0.0f, 36.0f);
+    auto numberLabel = new Label(std::string(temp), numberLabelPos,
+                                 SceneListFontSize, false, SceneListColorIndex);
+    numberLabelPos += SceneListTextMargin;
 
-    auto lockedLabel = new Label(lockedText, textLabelPos, 24, false, 0);
-    auto unlockedLabel = new Label(Vm::ScriptGetTextTableStrAddress(4, i),
-                                   textLabelPos, 24, false, 0);
-    textLabelPos += glm::vec2(0.0f, 36.0f);
-
-    SceneNames[idx] = unlockedLabel;
-    idx += 1;
-    SceneNames[idx] = lockedLabel;
-    idx += 1;
-
-    SceneTitleItems->Add(numberLabel);
-    SceneTitleItems->Add(lockedLabel);
-    SceneTitleItems->Add(unlockedLabel);
+    auto lockedLabel = new Label(lockedText, textLabelPos, SceneListFontSize,
+                                 false, SceneListColorIndex);
+    auto unlockedLabel =
+        new Label(Vm::ScriptGetTextTableStrAddress(SceneListTextTable, i),
+                  textLabelPos, SceneListFontSize, false, SceneListColorIndex);
+    textLabelPos += SceneListTextMargin;
+    SceneTitleItems->Add(new Widgets::MO6TW::SceneListEntry(
+                             i, numberLabel, lockedLabel, unlockedLabel,
+                             Profile::BacklogMenu::EntryHighlight, true),
+                         FDIR_DOWN);
   }
 
-  float totalHeight = (24.0f * SceneCount) + (12.0f * (SceneCount - 2));
-  SceneTitleItems->RenderingBounds = RectF(90.0f, 120.0f, 795.0f, 538.0f);
-  SceneTitleItems->Bounds = RectF(108.0f, 140.0f, 838.0f, totalHeight);
+  float totalHeight =
+      (SceneListFontSize * SceneCount) +
+      ((SceneListTextMargin.y - SceneListFontSize) * (SceneCount - 2));
+  SceneTitleItems->RenderingBounds = SceneTitleItemsRenderingBounds;
+  SceneTitleItems->Bounds =
+      RectF(SceneListNumberInitialPosition.x, SceneListNumberInitialPosition.y,
+            SceneTitleItemsWidth, totalHeight);
   SceneTitlePage->Add(SceneTitleItems);
 
-  SceneListY = 140.0f;
+  SceneListY = ScrollbarStart;
   auto scrollbar = new Scrollbar(
-      0, ScrollbarPosition, 140.0f, 140.0f - totalHeight + 500.0f, &SceneListY,
+      0, ScrollbarPosition, ScrollbarStart,
+      ScrollbarStart - totalHeight + ScrollAreaHeight, &SceneListY,
       SBDIR_VERTICAL, ScrollbarTrack, ScrollbarThumb);
   SceneTitlePage->Add(scrollbar);
 
@@ -457,21 +574,15 @@ void ClearListMenu::InitSceneTitlePage() {
 }
 
 void ClearListMenu::UpdateSceneList() {
-  int idx = 0;
-  for (int i = 0; i < SceneCount * 2; i += 2) {
-    if (GetFlag(SF_SCN_CLR1 + idx)) {
-      SceneNames[i]->Tint.a = 1.0f;
-      SceneNames[i + 1]->Tint.a = 0.0f;
-    } else {
-      SceneNames[i + 1]->Tint.a = 1.0f;
-      SceneNames[i]->Tint.a = 0.0f;
-    }
-    idx += 1;
+  for (int i = 0; i < SceneCount; i++) {
+    auto entry = dynamic_cast<Widgets::MO6TW::SceneListEntry*>(
+        SceneTitleItems->Children.at(i));
+    entry->IsLocked = !GetFlag(SF_SCN_CLR1 + i);
   }
 }
 
 // TEST
-void ClearListMenu::AdvancePage(Widget* currentPage, Widget* nextPage) {
+void ClearListMenu::OnAdvancePage(Widget* currentPage, Widget* nextPage) {
   currentPage->Move(glm::vec2(750.0f, 0.0f), 0.4f);
   nextPage->MoveTo(glm::vec2(-750.0f, 0.0f));
   nextPage->Move(glm::vec2(750.0f, 0.0f), 0.4f);
@@ -481,7 +592,7 @@ void ClearListMenu::AdvancePage(Widget* currentPage, Widget* nextPage) {
 }
 
 // TEST
-void ClearListMenu::GoBackPage(Widget* currentPage, Widget* nextPage) {
+void ClearListMenu::OnGoBackPage(Widget* currentPage, Widget* nextPage) {
   currentPage->Move(glm::vec2(-750.0f, 0.0f), 0.4f);
   nextPage->MoveTo(glm::vec2(750.0f, 0.0f));
   nextPage->Move(glm::vec2(-750.0f, 0.0f), 0.4f);

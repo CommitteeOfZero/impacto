@@ -22,6 +22,8 @@ class Carousel : public Widget {
   void Render();
 
   void Add(Widget* widget);
+  void Next();
+  void Previous();
 
  private:
   void OnChange(Widget* current, Widget* next);

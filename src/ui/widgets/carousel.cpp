@@ -38,22 +38,10 @@ void Carousel::UpdateInput() {
     auto buttonBack = Direction == CDIR_HORIZONTAL ? PAD1LEFT : PAD1UP;
 
     if (PADinputButtonWentDown & buttonBack) {
-      auto current = *Iterator;
-      if (Iterator == Children.begin()) {
-        Iterator = Children.end();
-      }
-      Iterator--;
-      auto next = *Iterator;
-      OnBackHandler(current, next);
+      Previous();
     }
     if (PADinputButtonWentDown & buttonAdvance) {
-      auto current = *Iterator;
-      Iterator++;
-      if (Iterator == Children.end()) {
-        Iterator = Children.begin();
-      }
-      auto next = *Iterator;
-      OnAdvanceHandler(current, next);
+      Next();
     }
   }
 }
@@ -70,6 +58,26 @@ void Carousel::Render() {
 void Carousel::Add(Widget* widget) {
   Children.push_back(widget);
   Iterator = Children.begin();
+}
+
+void Carousel::Next() {
+  auto current = *Iterator;
+  Iterator++;
+  if (Iterator == Children.end()) {
+    Iterator = Children.begin();
+  }
+  auto next = *Iterator;
+  OnAdvanceHandler(current, next);
+}
+
+void Carousel::Previous() {
+  auto current = *Iterator;
+  if (Iterator == Children.begin()) {
+    Iterator = Children.end();
+  }
+  Iterator--;
+  auto next = *Iterator;
+  OnBackHandler(current, next);
 }
 
 void Carousel::OnChange(Widget* current, Widget* next) {

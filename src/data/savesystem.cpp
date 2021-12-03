@@ -61,5 +61,10 @@ void GetReadMessagesCount(int* totalMessageCount, int* readMessageCount) {
     Implementation->GetReadMessagesCount(totalMessageCount, readMessageCount);
 }
 
+void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) {
+  if (Implementation)
+    Implementation->GetViewedEVsCount(totalEVCount, viewedEVCount);
+}
+
 }  // namespace SaveSystem
 }  // namespace Impacto

@@ -29,7 +29,7 @@ void Button::UpdateInput() {
     if (Input::PrevMousePos != Input::CurMousePos) {
       Hovered = Bounds.ContainsPoint(Input::CurMousePos);
     }
-    if (HasFocus &&
+    if (OnClickHandler && HasFocus &&
         ((Hovered &&
           Vm::Interface::PADinputMouseWentDown & Vm::Interface::PAD1A) ||
          (Vm::Interface::PADinputButtonWentDown & Vm::Interface::PAD1A))) {

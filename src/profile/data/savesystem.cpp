@@ -17,6 +17,7 @@ std::string SaveFilePath;
 uint32_t* StoryScriptIDs;
 int StoryScriptCount;
 ScriptMessageDataPair* ScriptMessageData;
+uint16_t AlbumData[MaxAlbumEntries][MaxAlbumSubEntries];
 
 void Configure() {
   EnsurePushMemberOfType("SaveData", kObjectType);
@@ -65,6 +66,27 @@ void Configure() {
       ScriptMessageData[i].SaveDataOffset = EnsureGetArrayElementUint(1);
       Pop();
     }
+
+    Pop();
+  }
+
+  if (TryPushMember("AlbumData")) {
+    AssertIs(kArrayType);
+
+    auto const& _albumData = TopVal();
+    auto dataCount = _albumData.Size();
+    for (uint32_t i = 0; i < dataCount; i++) {
+      PushArrayElement(i);
+      AssertIs(kArrayType);
+      auto const& _albumSubData = TopVal();
+      auto subDataCount = _albumSubData.Size();
+      for (uint32_t j = 0; j < subDataCount; j++) {
+        AlbumData[i][j] = EnsureGetArrayElementUint(j);
+      }
+      Pop();
+    }
+    // End marker
+    AlbumData[dataCount][0] = 0xFFFF;
 
     Pop();
   }
