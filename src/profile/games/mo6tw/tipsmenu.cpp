@@ -117,7 +117,11 @@ void Configure() {
   CurrentPageBounds = EnsureGetMemberRectF("CurrentPageBounds");
   TotalPagesBounds = EnsureGetMemberRectF("TotalPagesBounds");
 
+  auto drawType = Game::DrawComponentType::_from_integral_unchecked(
+      EnsureGetMemberInt("DrawType"));
+
   UI::TipsMenuPtr = new UI::MO6TW::TipsMenu();
+  UI::Menus[drawType].push_back(UI::TipsMenuPtr);
 }
 
 }  // namespace TipsMenu

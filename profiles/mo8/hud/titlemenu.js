@@ -1,5 +1,6 @@
 root.TitleMenu = {
     Type: TitleMenuType.Dash,
+    DrawType: DrawComponentType.SystemMenu,
     PressToStartX: 744,
     PressToStartY: 586,
     PressToStartAnimDurationIn: 0.7,

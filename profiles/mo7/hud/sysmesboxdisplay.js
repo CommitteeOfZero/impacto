@@ -3,6 +3,7 @@ var name = "SysMesBox";
 
 root.SysMesBoxDisplay = {
 	Type: SysMesBoxType.CHLCC,
+    DrawType: DrawComponentType.SystemMessage,
 	BoxX: 0,
 	BoxY: 215,
 	TextFontSize: 32,

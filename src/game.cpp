@@ -58,7 +58,7 @@ static int const NkMaxElementMemory = 128 * 1024;
 nk_context* Nk = 0;
 
 namespace Game {
-DrawComponentType DrawComponents[Vm::MaxThreads];
+uint8_t DrawComponents[Vm::MaxThreads];
 
 bool ShouldQuit = false;
 
@@ -70,7 +70,7 @@ static void Init() {
   Io::VfsInit();
   Window::Init();
 
-  memset(DrawComponents, TD_None, sizeof(DrawComponents));
+  memset(DrawComponents, DrawComponentType::None, sizeof(DrawComponents));
 
   if (Profile::GameFeatures & GameFeature::Nuklear) {
     Nk = nk_sdl_init(Window::SDLWindow, NkMaxVertexMemory, NkMaxElementMemory);
@@ -211,16 +211,10 @@ void Update(float dt) {
   if (Profile::GameFeatures & GameFeature::Sc3VirtualMachine) {
     Vm::Update();
 
-    UI::SysMesBoxPtr->Update(dt);
-    UI::TitleMenuPtr->Update(dt);
-    UI::SystemMenuPtr->Update(dt);
-    UI::SaveMenuPtr->Update(dt);
-    UI::SelectionMenuPtr->Update(dt);
-    UI::BacklogMenuPtr->Update(dt);
-    UI::OptionsMenuPtr->Update(dt);
-    UI::TipsMenuPtr->Update(dt);
-    for (int i = 0; i < UI::ExtraMenuCount; i++) {
-      UI::ExtraMenus[i]->Update(dt);
+    for (DrawComponentType value : DrawComponentType::_values()) {
+      for (auto const& menu : UI::Menus[value]) {
+        menu->Update(dt);
+      }
     }
 
     SaveIconDisplay::Update(dt);
@@ -349,15 +343,14 @@ void Render() {
   if (Profile::GameFeatures & GameFeature::Renderer2D) {
     Renderer2D::BeginFrame();
     for (int i = 0; i < Vm::MaxThreads; i++) {
-      if (DrawComponents[i] == TD_None) break;
+      if (DrawComponents[i] == +DrawComponentType::None) break;
 
       switch (DrawComponents[i]) {
-        case TD_Text: {
+        case DrawComponentType::Text: {
           DialoguePages[0].Render();
-          UI::SelectionMenuPtr->Render();
           break;
         }
-        case TD_Main: {
+        case DrawComponentType::Main: {
           for (uint32_t layer = 0; layer <= Profile::LayerCount; layer++) {
             // TODO
 
@@ -428,47 +421,33 @@ void Render() {
           Video::VideoRender(ScrWork[SW_MOVIEALPHA] / 256.0f);
           break;
         }
-        case TD_ExtrasScenes: {
-          UI::BacklogMenuPtr->Render();
+        case DrawComponentType::ExtrasScenes: {
           break;
         }
-        case TD_SystemText: {
+        case DrawComponentType::SystemText: {
           break;
         }
-        case TD_SaveMenu: {
-          UI::SaveMenuPtr->Render();
+        case DrawComponentType::SaveMenu: {
           break;
         }
-        case TD_SystemIcons: {
+        case DrawComponentType::SystemIcons: {
           LoadingDisplay::Render();
           SaveIconDisplay::Render();
           break;
         }
-        case TD_TitleMenu: {
-          UI::TitleMenuPtr->Render();
+        case DrawComponentType::TitleMenu: {
           break;
         }
-        case TD_SystemMenu: {
-          // TODO: Ehhh... not the greatest way of doing this...
-          if (Profile::Vm::GameInstructionSet != +Vm::InstructionSet::MO6TW) {
-            UI::TitleMenuPtr->Render();
-          }
-          UI::SystemMenuPtr->Render();
-          UI::TipsMenuPtr->Render();
-          UI::OptionsMenuPtr->Render();
+        case DrawComponentType::SystemMenu: {
           break;
         }
-        case TD_PlayData: {
-          for (int i = 0; i < UI::ExtraMenuCount; i++) {
-            UI::ExtraMenus[i]->Render();
-          }
+        case DrawComponentType::PlayData: {
           break;
         }
-        case TD_SystemMessage: {
-          UI::SysMesBoxPtr->Render();
+        case DrawComponentType::SystemMessage: {
           break;
         }
-        case TD_SaveIcon: {
+        case DrawComponentType::SaveIcon: {
           SaveIconDisplay::Render();
           break;
         }
@@ -478,6 +457,10 @@ void Render() {
                      DrawComponents[i]);
           break;
         }
+      }
+
+      for (auto const& menu : UI::Menus[DrawComponents[i]]) {
+        menu->Render();
       }
     }
     Renderer2D::EndFrame();

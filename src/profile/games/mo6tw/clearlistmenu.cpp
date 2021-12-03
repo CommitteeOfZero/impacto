@@ -3,6 +3,7 @@
 #include "../../../ui/ui.h"
 #include "../../../games/mo6tw/clearlistmenu.h"
 #include "../../../text.h"
+#include "../../../game.h"
 
 namespace Impacto {
 namespace Profile {
@@ -172,7 +173,11 @@ void Configure() {
   FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
   FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
 
-  UI::ExtraMenus[UI::ExtraMenuCount++] = new UI::MO6TW::ClearListMenu();
+  auto drawType = Game::DrawComponentType::_from_integral_unchecked(
+      EnsureGetMemberInt("DrawType"));
+
+  auto clearList = new UI::MO6TW::ClearListMenu();
+  UI::Menus[drawType].push_back(clearList);
 }
 
 }  // namespace ClearListMenu

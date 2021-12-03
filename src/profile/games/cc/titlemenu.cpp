@@ -109,6 +109,11 @@ void Configure() {
   menu->MoveLeftAnimation.DurationIn = MoveLeftAnimationDurationIn;
   menu->MoveLeftAnimation.DurationOut = MoveLeftAnimationDurationOut;
   UI::TitleMenuPtr = menu;
+
+  auto drawType = Game::DrawComponentType::_from_integral_unchecked(
+      EnsureGetMemberInt("DrawType"));
+
+  UI::Menus[drawType].push_back(UI::TitleMenuPtr);
 }
 
 }  // namespace TitleMenu

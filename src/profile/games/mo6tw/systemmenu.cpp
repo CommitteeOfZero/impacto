@@ -29,7 +29,11 @@ void Configure() {
   SystemMenuX = EnsureGetMemberFloat("SystemMenuX");
   SystemMenuY = EnsureGetMemberFloat("SystemMenuY");
 
+  auto drawType = Game::DrawComponentType::_from_integral_unchecked(
+      EnsureGetMemberInt("DrawType"));
+
   UI::SystemMenuPtr = new UI::MO6TW::SystemMenu();
+  UI::Menus[drawType].push_back(UI::SystemMenuPtr);
 }
 
 }  // namespace SystemMenu

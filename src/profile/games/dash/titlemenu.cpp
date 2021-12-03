@@ -21,7 +21,12 @@ void Configure() {
   PressToStartAnimation.DurationOut =
       Profile::TitleMenu::PressToStartAnimDurationOut;
   PressToStartAnimation.LoopMode = ALM_ReverseDirection;
+
+  auto drawType = Game::DrawComponentType::_from_integral_unchecked(
+      EnsureGetMemberInt("DrawType"));
+
   UI::TitleMenuPtr = new UI::Dash::TitleMenu();
+  UI::Menus[drawType].push_back(UI::TitleMenuPtr);
 }
 
 }  // namespace TitleMenu

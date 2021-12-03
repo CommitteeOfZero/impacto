@@ -1,5 +1,6 @@
 root.OptionsMenu = {
     Type: OptionsMenuType.MO6TW,
+    DrawType: DrawComponentType.SystemMenu,
     BackgroundSprite: "OptionsBackground",
     SliderTrackSprite: "OptionsSliderTrack",
     SliderFillSprite: "OptionsSliderFill",

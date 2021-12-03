@@ -4,6 +4,7 @@
 #include "../../../window.h"
 #include "../../../ui/ui.h"
 #include "../../../games/cc/sysmesbox.h"
+#include "../../../game.h"
 
 namespace Impacto {
 namespace Profile {
@@ -104,7 +105,11 @@ void Configure() {
   ButtonYesNoAlphaDivider = EnsureGetMemberFloat("ButtonYesNoAlphaDivider");
   WidgetsAlphaMultiplier = EnsureGetMemberFloat("WidgetsAlphaMultiplier");
 
+  auto drawType = Game::DrawComponentType::_from_integral_unchecked(
+      EnsureGetMemberInt("DrawType"));
+
   UI::SysMesBoxPtr = new UI::CC::SysMesBox();
+  UI::Menus[drawType].push_back(UI::SysMesBoxPtr);
 }
 
 }  // namespace SysMesBox

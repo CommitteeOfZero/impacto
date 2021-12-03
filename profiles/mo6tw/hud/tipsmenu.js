@@ -1,5 +1,6 @@
 root.TipsMenu = {
     Type: TipsMenuType.MO6TW,
+    DrawType: DrawComponentType.SystemMenu,
     BackgroundSprite: "TipsMenuBackground",
     Thumbnails: [],
     TextOnlyThumbnail: "TipsTextOnlyThumbnail",

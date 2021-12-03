@@ -234,6 +234,11 @@ void Configure() {
   menu->SpinningCircleAnimation.DurationOut = SpinningCircleAnimationDuration;
 
   UI::TitleMenuPtr = menu;
+
+  auto drawType = Game::DrawComponentType::_from_integral_unchecked(
+      EnsureGetMemberInt("DrawType"));
+
+  UI::Menus[drawType].push_back(UI::TitleMenuPtr);
 }
 
 }  // namespace TitleMenu

@@ -3,6 +3,7 @@
 #include "../../ui/ui.h"
 #include "../../log.h"
 #include "../../window.h"
+#include "../../game.h"
 
 namespace Impacto {
 namespace Profile {
@@ -42,7 +43,11 @@ void Configure() {
     FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
     FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
 
+    auto drawType = Game::DrawComponentType::_from_integral_unchecked(
+        EnsureGetMemberInt("DrawType"));
+
     UI::BacklogMenuPtr = new UI::BacklogMenu();
+    UI::Menus[drawType].push_back(UI::BacklogMenuPtr);
 
     Pop();
   }

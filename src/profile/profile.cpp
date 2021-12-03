@@ -156,6 +156,7 @@ void MakeJsonProfile(std::string const& name) {
   DefineEnumInt<GameFeature>(ctx);
   DefineEnumInt<CharacterTypeFlags>(ctx);
   DefineEnumInt<Vm::InstructionSet>(ctx);
+  DefineEnumUint<Game::DrawComponentType>(ctx);
   DefineEnumInt<SaveSystem::SaveDataType>(ctx);
   DefineEnumInt<TipsSystem::TipsSystemType>(ctx);
   DefineEnumInt<UI::SystemMenuType>(ctx);

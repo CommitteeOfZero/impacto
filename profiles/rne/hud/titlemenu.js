@@ -1,5 +1,6 @@
 root.TitleMenu = {
     Type: TitleMenuType.RNE,
+    DrawType: DrawComponentType.SystemMenu,
     Background: {
         DurationIn: 1.0,
         DurationOut: 1.0,

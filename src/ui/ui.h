@@ -6,6 +6,9 @@
 #include "sysmesbox.h"
 #include "tipsmenu.h"
 
+#include <flat_hash_map.hpp>
+#include <vector>
+
 namespace Impacto {
 namespace UI {
 
@@ -22,6 +25,8 @@ BETTER_ENUM(MovieMenuType, int, None, MO6TW)
 
 int const MaxExtraMenus = 10;
 
+extern ska::flat_hash_map<uint8_t, std::vector<Menu*>> Menus;
+
 // Current focused menu
 extern Menu* FocusedMenu;
 
@@ -30,10 +35,6 @@ extern Menu* SystemMenuPtr;
 extern Menu* TitleMenuPtr;
 extern Menu* SaveMenuPtr;
 extern Menu* OptionsMenuPtr;
-
-// Extra menus
-extern int ExtraMenuCount;
-extern Menu* ExtraMenus[MaxExtraMenus];
 
 //
 extern SelectionMenu* SelectionMenuPtr;

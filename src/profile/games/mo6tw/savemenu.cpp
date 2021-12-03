@@ -41,7 +41,11 @@ void Configure() {
   LoadEntryHighlightedSprite =
       EnsureGetMemberSprite("LoadEntryHighlightedSprite");
 
+  auto drawType = Game::DrawComponentType::_from_integral_unchecked(
+      EnsureGetMemberInt("DrawType"));
+
   UI::SaveMenuPtr = new UI::MO6TW::SaveMenu();
+  UI::Menus[drawType].push_back(UI::SaveMenuPtr);
 }
 
 }  // namespace SaveMenu

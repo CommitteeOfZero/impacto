@@ -3,6 +3,7 @@ var name = "SysMesBox";
 
 root.SysMesBoxDisplay = {
 	Type: SysMesBoxType.MO6TW,
+    DrawType: DrawComponentType.SystemMessage,
 	BoxX: 602,
 	BoxY: 204,
 	BoxMiddleBaseX: 783,

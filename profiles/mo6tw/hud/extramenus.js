@@ -1,5 +1,6 @@
 root.ExtraMenus = {
     ClearListMenu: {
+        DrawType: DrawComponentType.PlayData,
         Type: ClearListMenuType.MO6TW,
         BackgroundSprite: "ClearListBackground",
         WindowSprite: "ClearListWindow",

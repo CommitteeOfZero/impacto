@@ -2,6 +2,7 @@
 #include "../profile_internal.h"
 #include "../../ui/ui.h"
 #include "../../window.h"
+#include "../../game.h"
 
 namespace Impacto {
 namespace Profile {
@@ -80,7 +81,11 @@ void Configure() {
   FadeAnimationDurationInOut =
       EnsureGetMemberFloat("FadeAnimationDurationInOut");
 
+  auto drawType = Game::DrawComponentType::_from_integral_unchecked(
+      EnsureGetMemberInt("DrawType"));
+
   UI::SelectionMenuPtr = new UI::SelectionMenu();
+  UI::Menus[drawType].push_back(UI::SelectionMenuPtr);
 
   Pop();
 }
