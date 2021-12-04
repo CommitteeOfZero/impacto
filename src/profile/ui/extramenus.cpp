@@ -2,6 +2,7 @@
 #include "../profile_internal.h"
 #include "../../ui/ui.h"
 #include "../games/mo6tw/clearlistmenu.h"
+#include "../games/mo6tw/moviemenu.h"
 
 namespace Impacto {
 namespace Profile {
@@ -51,16 +52,16 @@ void Configure() {
     //  Pop();
     //}
 
-    // if (TryPushMember("MovieMenu")) {
-    //  MovieType =
-    //      MovieMenuType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
+    if (TryPushMember("MovieMenu")) {
+      MovieType =
+          MovieMenuType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
 
-    //  if (ClearListType == +MovieMenuType::MO6TW) {
-    //    MO6TW::MovieMenu::Configure();
-    //  }
+      if (ClearListType == +MovieMenuType::MO6TW) {
+        MO6TW::MovieMenu::Configure();
+      }
 
-    //  Pop();
-    //}
+      Pop();
+    }
 
     Pop();
   }

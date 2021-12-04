@@ -58,6 +58,11 @@ root.SpriteSheets = {
         Path: {Mount: "system", Id: 7 },
         DesignWidth: 2048,
         DesignHeight: 1024
+    },
+    "Movie": {
+        Path: {Mount: "system", Id: 14 },
+        DesignWidth: 2048,
+        DesignHeight: 1024
     }
 };
 

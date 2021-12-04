@@ -73,6 +73,32 @@ root.ExtraMenus = {
         ArrowRightPosition: { X: 1190, Y: 337 },
         FadeInDuration: 0.2,
         FadeOutDuration: 0.2
+    },
+    MovieMenu: {
+        DrawType: DrawComponentType.ExtrasMovieMode,
+        Type: MovieMenuType.MO6TW,
+        BackgroundSprite: "MovieMenuBackground",
+        FirstOPTopPartSprite: "MovieMenuFirstOPTopPart",
+        FirstOPBottomPartSprite: "MovieMenuFirstOPBottomPart",
+        SecondOPTopPartSprite: "MovieMenuSecondOPTopPart",
+        SecondOPBottomPartSprite: "MovieMenuSecondOPBottomPart",
+        UnlockedMovieThumbnailSprites: [],
+        LockedMovieThumbnailSprites: [],
+        SelectionHighlightTopLeft: "MovieMenuSelectionHighlightTopLeft",
+        SelectionHighlightTopRight: "MovieMenuSelectionHighlightTopRight",
+        SelectionHighlightBottomLeft: "MovieMenuSelectionHighlightBottomLeft",
+        SelectionHighlightBottomRight: "MovieMenuSelectionHighlightBottomRight",
+        ItemCount: 12,
+        ItemsPerRow: 4,
+        InitialItemPosition: { X: 151, Y: 80 },
+        ItemOffset: { X: 250, Y: 206 },
+        HighlightAnimationDuration: 0.5,
+        HighlightTopLeftOffset: { X: 8, Y: 8 },
+        HighlightTopRightOffset: { X: 12, Y: 9 },
+        HighlightBottomLeftOffset: { X: 8, Y: 14 },
+        HighlightBottomRightOffset: { X: 13, Y: 14 },
+        FadeInDuration: 0.2,
+        FadeOutDuration: 0.2
     }
 };
 
@@ -160,3 +186,107 @@ root.Sprites["ClearListArrowRight"] = {
     Sheet: "ClearList",
     Bounds: { X: 33, Y: 725, Width: 30, Height: 46 },
 };
+
+root.Sprites["MovieMenuBackground"] = {
+    Sheet: "Movie",
+    Bounds: { X: 0, Y: 0, Width: 1280, Height: 720 }
+};
+
+root.Sprites["MovieMenuFirstOPTopPart"] = {
+    Sheet: "Movie",
+    Bounds: { X: 465, Y: 913, Width: 230, Height: 95 }
+};
+
+root.Sprites["MovieMenuFirstOPBottomPart"] = {
+    Sheet: "Movie",
+    Bounds: { X: 697, Y: 913, Width: 230, Height: 95 }
+};
+
+root.Sprites["MovieMenuSecondOPTopPart"] = {
+    Sheet: "Movie",
+    Bounds: { X: 1, Y: 913, Width: 230, Height: 95 }
+};
+
+root.Sprites["MovieMenuSecondOPBottomPart"] = {
+    Sheet: "Movie",
+    Bounds: { X: 233, Y: 913, Width: 230, Height: 95 }
+};
+
+root.Sprites["MovieMenuSelectionHighlightTopLeft"] = {
+    Sheet: "Movie",
+    Bounds: { X: 1161, Y: 721, Width: 22, Height: 22 }
+};
+
+root.Sprites["MovieMenuSelectionHighlightTopRight"] = {
+    Sheet: "Movie",
+    Bounds: { X: 1185, Y: 721, Width: 22, Height: 22 }
+};
+
+root.Sprites["MovieMenuSelectionHighlightBottomLeft"] = {
+    Sheet: "Movie",
+    Bounds: { X: 1161, Y: 745, Width: 22, Height: 22 }
+};
+
+root.Sprites["MovieMenuSelectionHighlightBottomRight"] = {
+    Sheet: "Movie",
+    Bounds: { X: 1185, Y: 745, Width: 22, Height: 22 }
+};
+
+var firstX = 1281;
+var firstY = 1;
+
+for (var i = 1; i < 11; i++) {
+    root.Sprites["UnlockedMovieThumbnail" + i] = {
+        Sheet: "Movie",
+        Bounds: {
+            X: firstX,
+            Y: firstY,
+            Width: 230,
+            Height: 190
+        }
+    };
+    root.ExtraMenus.MovieMenu.UnlockedMovieThumbnailSprites.push("UnlockedMovieThumbnail" + i);
+
+    if (i % 3 == 0) {
+        firstX = 1281;
+        firstY += 191;
+    } else {
+        firstX += 231;
+    }
+}
+
+firstX = 1;
+firstY = 721;
+
+for (var i = 1; i < 11; i++) {
+    if (i == 6) {
+        firstX = 1513;
+        firstY = 577;
+    } else if (i == 8) {
+        firstX = 1281;
+        firstY = 769;
+    }
+
+    root.Sprites["LockedMovieThumbnail" + i] = {
+        Sheet: "Movie",
+        Bounds: {
+            X: firstX,
+            Y: firstY,
+            Width: 230,
+            Height: 190
+        }
+    };
+    root.ExtraMenus.MovieMenu.LockedMovieThumbnailSprites.push("LockedMovieThumbnail" + i);
+
+    firstX += 231;
+}
+
+// I don't fucking know, do you know?
+// I don't, fuck.
+var temp = root.ExtraMenus.MovieMenu.UnlockedMovieThumbnailSprites[6];
+root.ExtraMenus.MovieMenu.UnlockedMovieThumbnailSprites[6] = root.ExtraMenus.MovieMenu.UnlockedMovieThumbnailSprites[7];
+root.ExtraMenus.MovieMenu.UnlockedMovieThumbnailSprites[7] = temp;
+
+temp = root.ExtraMenus.MovieMenu.LockedMovieThumbnailSprites[6];
+root.ExtraMenus.MovieMenu.LockedMovieThumbnailSprites[6] = root.ExtraMenus.MovieMenu.LockedMovieThumbnailSprites[7];
+root.ExtraMenus.MovieMenu.LockedMovieThumbnailSprites[7] = temp;
