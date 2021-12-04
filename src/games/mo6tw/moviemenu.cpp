@@ -17,7 +17,7 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::UI::Widgets;
 
 void MovieMenu::MovieButtonOnClick(Button* target) {
-  auto movieButton = dynamic_cast<Widgets::MO6TW::MovieEntryButton*>(target);
+  auto movieButton = static_cast<Widgets::MO6TW::MovieEntryButton*>(target);
   if (!movieButton->IsLocked) {
     ScrWork[SW_MOVIEMODE_CUR] = movieButton->Id;
   }
@@ -168,7 +168,7 @@ void MovieMenu::Render() {
 
 void MovieMenu::UpdateMovieEntries() {
   for (const auto& el : MainItems->Children) {
-    auto movieButton = dynamic_cast<Widgets::MO6TW::MovieEntryButton*>(el);
+    auto movieButton = static_cast<Widgets::MO6TW::MovieEntryButton*>(el);
     if (movieButton->Id == 0 || movieButton->Id == 1)
       movieButton->IsLocked = false;
     else

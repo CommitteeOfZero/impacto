@@ -27,7 +27,7 @@ using namespace Impacto::UI::Widgets;
 using namespace Impacto::UI::Widgets::MO6TW;
 
 void TipsMenu::TipOnClick(Button *target) {
-  auto tipEntry = dynamic_cast<TipsEntryButton *>(target);
+  auto tipEntry = static_cast<TipsEntryButton *>(target);
   if (!tipEntry->TipEntryRecord->IsLocked) SwitchToTipId(target->Id);
 }
 

@@ -575,7 +575,7 @@ void ClearListMenu::InitSceneTitlePage() {
 
 void ClearListMenu::UpdateSceneList() {
   for (int i = 0; i < SceneCount; i++) {
-    auto entry = dynamic_cast<Widgets::MO6TW::SceneListEntry*>(
+    auto entry = static_cast<Widgets::MO6TW::SceneListEntry*>(
         SceneTitleItems->Children.at(i));
     entry->IsLocked = !GetFlag(SF_SCN_CLR1 + i);
   }
