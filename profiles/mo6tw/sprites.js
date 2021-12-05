@@ -63,6 +63,16 @@ root.SpriteSheets = {
         Path: {Mount: "system", Id: 14 },
         DesignWidth: 2048,
         DesignHeight: 1024
+    },
+    "ActorsVoice": {
+        Path: {Mount: "system", Id: 0 },
+        DesignWidth: 2048,
+        DesignHeight: 1024
+    },
+    "ActorsVoiceBackground": {
+        Path: {Mount: "system", Id: 1 },
+        DesignWidth: 1280,
+        DesignHeight: 720
     }
 };
 

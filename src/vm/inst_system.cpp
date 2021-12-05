@@ -375,9 +375,19 @@ VmInstruction(InstGetSystemStatus) {
   StartInstruction;
   PopExpression(type);
   switch (type) {
+    case 1: {  // SYSSTAT_VOICEPLAY (Note, called voiceplay, but actually
+               // !voiceplay...)
+      thread->ScriptParam =
+          Audio::Channels[Audio::AC_VOICE0].State != Audio::ACS_Playing;
+      break;
+    }
     case 5: {  // SYSSTAT_SKIP
       thread->ScriptParam = GetFlag(SF_MESALLSKIP);
     } break;
+    case 11: {
+      thread->ScriptParam = 1;
+      break;
+    }
   }
   ImpLogSlow(LL_Warning, LC_VMStub,
              "STUB instruction GetSystemStatus(type: %i)\n", type);
@@ -507,6 +517,7 @@ VmInstruction(InstMSinit) {
   for (int i = 0; i < MaxBackgrounds2D; i++) {
     ScrWork[SW_BG1SURF + i] = i;
     ScrWork[SW_BG1ALPHA + Profile::Vm::ScrWorkBgStructSize * i] = 256;
+    ScrWork[SW_BG1NO + Profile::Vm::ScrWorkBgStructSize * i] = 0xFFFF;
   }
   for (int i = 0; i < MaxCharacters2D; i++) {
     ScrWork[SW_CHA1SURF + i] = i;

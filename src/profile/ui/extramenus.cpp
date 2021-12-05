@@ -3,6 +3,7 @@
 #include "../../ui/ui.h"
 #include "../games/mo6tw/clearlistmenu.h"
 #include "../games/mo6tw/moviemenu.h"
+#include "../games/mo6tw/actorsvoicemenu.h"
 
 namespace Impacto {
 namespace Profile {
@@ -14,6 +15,7 @@ ClearListMenuType ClearListType = ClearListMenuType::None;
 AlbumMenuType AlbumType = AlbumMenuType::None;
 MusicMenuType MusicType = MusicMenuType::None;
 MovieMenuType MovieType = MovieMenuType::None;
+ActorsVoiceMenuType ActorsVoiceType = ActorsVoiceMenuType::None;
 
 void Configure() {
   if (TryPushMember("ExtraMenus")) {
@@ -56,8 +58,19 @@ void Configure() {
       MovieType =
           MovieMenuType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
 
-      if (ClearListType == +MovieMenuType::MO6TW) {
+      if (MovieType == +MovieMenuType::MO6TW) {
         MO6TW::MovieMenu::Configure();
+      }
+
+      Pop();
+    }
+
+    if (TryPushMember("ActorsVoiceMenu")) {
+      ActorsVoiceType = ActorsVoiceMenuType::_from_integral_unchecked(
+          EnsureGetMemberInt("Type"));
+
+      if (ActorsVoiceType == +ActorsVoiceMenuType::MO6TW) {
+        MO6TW::ActorsVoiceMenu::Configure();
       }
 
       Pop();

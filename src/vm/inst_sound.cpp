@@ -123,8 +123,7 @@ VmInstruction(InstVoicePlayOld) {
 VmInstruction(InstVoiceStop) {
   StartInstruction;
   PopUint8(channel);
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction VoiceStop(channel: %i)\n",
-             channel);
+  Audio::Channels[Audio::AC_VOICE0 + channel].Stop(0.0f);
 }
 VmInstruction(InstVoiceStopNew) {
   StartInstruction;

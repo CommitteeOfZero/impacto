@@ -167,7 +167,7 @@ void MovieMenu::Render() {
 }
 
 void MovieMenu::UpdateMovieEntries() {
-  for (const auto& el : MainItems->Children) {
+  for (auto el : MainItems->Children) {
     auto movieButton = static_cast<Widgets::MO6TW::MovieEntryButton*>(el);
     if (movieButton->Id == 0 || movieButton->Id == 1)
       movieButton->IsLocked = false;

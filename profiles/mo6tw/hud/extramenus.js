@@ -99,8 +99,24 @@ root.ExtraMenus = {
         HighlightBottomRightOffset: { X: 13, Y: 14 },
         FadeInDuration: 0.2,
         FadeOutDuration: 0.2
+    },
+    ActorsVoiceMenu: {
+        DrawType: DrawComponentType.ExtrasActorsVoice,
+        Type: MovieMenuType.MO6TW,
+        BackgroundSprite: "ActorsVoiceBackground",
+        UnlockedSprites: [],
+        LockedSprites: [],
+        UnlockedHighlightedSprites: [],
+        LockedHighlightedSprites: [],
+        InitialItemPosition: { X: 256, Y: 112 },
+        ItemOffset: { X: 0, Y: 60 },
+        CharacterBackgroundBufferId: 4,
+        FadeInDuration: 0.2,
+        FadeOutDuration: 0.2
     }
 };
+
+// Clear list
 
 root.Sprites["ClearListBackground"] = {
     Sheet: "ClearList",
@@ -186,6 +202,8 @@ root.Sprites["ClearListArrowRight"] = {
     Sheet: "ClearList",
     Bounds: { X: 33, Y: 725, Width: 30, Height: 46 },
 };
+
+// Movie menu
 
 root.Sprites["MovieMenuBackground"] = {
     Sheet: "Movie",
@@ -290,3 +308,61 @@ root.ExtraMenus.MovieMenu.UnlockedMovieThumbnailSprites[7] = temp;
 temp = root.ExtraMenus.MovieMenu.LockedMovieThumbnailSprites[6];
 root.ExtraMenus.MovieMenu.LockedMovieThumbnailSprites[6] = root.ExtraMenus.MovieMenu.LockedMovieThumbnailSprites[7];
 root.ExtraMenus.MovieMenu.LockedMovieThumbnailSprites[7] = temp;
+
+// Actors Voice menu
+
+root.Sprites["ActorsVoiceBackground"] = {
+    Sheet: "ActorsVoiceBackground",
+    Bounds: { X: 0, Y: 0, Width: 1280, Height: 720 }
+};
+
+firstX = 1;
+firstY = 1;
+
+for (var i = 0; i < 8; i++) {
+    root.Sprites["LockedHighlightedSprites" + i] = {
+        Sheet: "ActorsVoice",
+        Bounds: {
+            X: firstX,
+            Y: firstY,
+            Width: 774,
+            Height: 50
+        }
+    };
+    root.ExtraMenus.ActorsVoiceMenu.LockedHighlightedSprites.push("LockedHighlightedSprites" + i);
+
+    root.Sprites["UnlockedHighlightedSprites" + i] = {
+        Sheet: "ActorsVoice",
+        Bounds: {
+            X: firstX + 776,
+            Y: firstY,
+            Width: 774,
+            Height: 50
+        }
+    };
+    root.ExtraMenus.ActorsVoiceMenu.UnlockedHighlightedSprites.push("UnlockedHighlightedSprites" + i);
+
+    root.Sprites["LockedSprites" + i] = {
+        Sheet: "ActorsVoice",
+        Bounds: {
+            X: firstX,
+            Y: firstY + 448,
+            Width: 774,
+            Height: 50
+        }
+    };
+    root.ExtraMenus.ActorsVoiceMenu.LockedSprites.push("LockedSprites" + i);
+
+    root.Sprites["UnlockedSprites" + i] = {
+        Sheet: "ActorsVoice",
+        Bounds: {
+            X: firstX + 776,
+            Y: firstY + 448,
+            Width: 774,
+            Height: 50
+        }
+    };
+    root.ExtraMenus.ActorsVoiceMenu.UnlockedSprites.push("UnlockedSprites" + i);
+
+    firstY += 56;
+}
