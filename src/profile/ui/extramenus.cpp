@@ -4,6 +4,7 @@
 #include "../games/mo6tw/clearlistmenu.h"
 #include "../games/mo6tw/moviemenu.h"
 #include "../games/mo6tw/actorsvoicemenu.h"
+#include "../games/mo6tw/musicmenu.h"
 
 namespace Impacto {
 namespace Profile {
@@ -43,16 +44,16 @@ void Configure() {
     //  Pop();
     //}
 
-    // if (TryPushMember("MusicMenu")) {
-    //  MusicType =
-    //      MusicMenuType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
+    if (TryPushMember("MusicMenu")) {
+      MusicType =
+          MusicMenuType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
 
-    //  if (MusicType == +MusicMenuType::MO6TW) {
-    //    MO6TW::MusicMenu::Configure();
-    //  }
+      if (MusicType == +MusicMenuType::MO6TW) {
+        MO6TW::MusicMenu::Configure();
+      }
 
-    //  Pop();
-    //}
+      Pop();
+    }
 
     if (TryPushMember("MovieMenu")) {
       MovieType =

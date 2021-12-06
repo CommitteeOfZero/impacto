@@ -85,6 +85,7 @@ set(Impacto_Src
     src/profile/games/mo6tw/clearlistmenu.cpp
     src/profile/games/mo6tw/moviemenu.cpp
     src/profile/games/mo6tw/actorsvoicemenu.cpp
+    src/profile/games/mo6tw/musicmenu.cpp
 
     src/profile/games/darling/sysmesbox.cpp
 
@@ -115,6 +116,7 @@ set(Impacto_Src
     src/games/mo6tw/clearlistmenu.cpp
     src/games/mo6tw/moviemenu.cpp
     src/games/mo6tw/actorsvoicemenu.cpp
+    src/games/mo6tw/musicmenu.cpp
 
     src/games/darling/sysmesbox.cpp
 
@@ -312,6 +314,7 @@ set(Impacto_Header
     src/profile/games/mo6tw/clearlistmenu.h
     src/profile/games/mo6tw/moviemenu.h
     src/profile/games/mo6tw/actorsvoicemenu.h
+    src/profile/games/mo6tw/musicmenu.h
 
     src/profile/games/darling/sysmesbox.h
 
@@ -342,6 +345,7 @@ set(Impacto_Header
     src/games/mo6tw/clearlistmenu.h
     src/games/mo6tw/moviemenu.h
     src/games/mo6tw/actorsvoicemenu.h
+    src/games/mo6tw/musicmenu.h
 
     src/games/darling/sysmesbox.h
 

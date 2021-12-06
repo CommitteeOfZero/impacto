@@ -1,0 +1,30 @@
+#pragma once
+
+#include "../../ui/menu.h"
+#include "../../ui/widgets/group.h"
+#include "../../ui/widgets/button.h"
+
+namespace Impacto {
+namespace UI {
+namespace MO6TW {
+
+class MusicMenu : public Menu {
+ public:
+  MusicMenu();
+
+  void Show();
+  void Hide();
+  void UpdateInput();
+  void Update(float dt);
+  void Render();
+
+  void MusicButtonOnClick(Widgets::Button* target);
+
+ private:
+  Widgets::Group* MainItems;
+  Animation FadeAnimation;
+};
+
+}  // namespace MO6TW
+}  // namespace UI
+}  // namespace Impacto

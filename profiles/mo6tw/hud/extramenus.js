@@ -102,7 +102,7 @@ root.ExtraMenus = {
     },
     ActorsVoiceMenu: {
         DrawType: DrawComponentType.ExtrasActorsVoice,
-        Type: MovieMenuType.MO6TW,
+        Type: ActorsVoiceMenuType.MO6TW,
         BackgroundSprite: "ActorsVoiceBackground",
         UnlockedSprites: [],
         LockedSprites: [],
@@ -111,6 +111,13 @@ root.ExtraMenus = {
         InitialItemPosition: { X: 256, Y: 112 },
         ItemOffset: { X: 0, Y: 60 },
         CharacterBackgroundBufferId: 4,
+        FadeInDuration: 0.2,
+        FadeOutDuration: 0.2
+    },
+    MusicMenu: {
+        DrawType: DrawComponentType.ExtrasActorsVoice,
+        Type: MusicMenuType.MO6TW,
+        BackgroundSprite: "MusicMenuBackground",
         FadeInDuration: 0.2,
         FadeOutDuration: 0.2
     }
@@ -366,3 +373,10 @@ for (var i = 0; i < 8; i++) {
 
     firstY += 56;
 }
+
+// Music menu
+
+root.Sprites["MusicMenuBackground"] = {
+    Sheet: "Music",
+    Bounds: { X: 0, Y: 0, Width: 1280, Height: 720 }
+};
