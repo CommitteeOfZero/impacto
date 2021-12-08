@@ -63,7 +63,15 @@ void Label::MoveTo(glm::vec2 pos) {
   Move(relativePosition);
 }
 
+void Label::SetSprite(Sprite const& label) {
+  IsText = false;
+  LabelSprite = label;
+  Bounds = RectF(Bounds.X, Bounds.Y, LabelSprite.Bounds.Width,
+                 LabelSprite.Bounds.Height);
+}
+
 void Label::SetText(uint8_t* str, int fontSize, bool outline, int colorIndex) {
+  IsText = true;
   ColorIndex = colorIndex;
   Impacto::Vm::Sc3VmThread dummy;
   dummy.Ip = str;
@@ -81,6 +89,7 @@ void Label::SetText(uint8_t* str, int fontSize, bool outline, int colorIndex) {
 
 void Label::SetText(ProcessedTextGlyph* str, int textLength, float textWidth,
                     int fontSize, bool outline, int colorIndex) {
+  IsText = true;
   ColorIndex = colorIndex;
   TextLength = textLength;
   TextWidth = textWidth;
@@ -91,6 +100,7 @@ void Label::SetText(ProcessedTextGlyph* str, int textLength, float textWidth,
 
 void Label::SetText(std::string str, int fontSize, bool outline,
                     int colorIndex) {
+  IsText = true;
   ColorIndex = colorIndex;
   TextLength = TextLayoutPlainString(
       str, Text, Profile::Dialogue::DialogueFont, fontSize,

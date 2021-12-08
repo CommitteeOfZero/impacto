@@ -14,6 +14,27 @@ namespace MusicMenu {
 
 Sprite BackgroundSprite;
 
+Sprite Thumbnails[MusicTrackCount];
+glm::vec2 ThumbnailPosition;
+Sprite ItemsWindow;
+glm::vec2 ItemsWindowPosition;
+RectF ItemsWindowRenderingBounds;
+glm::vec2 MusicListMargin;
+glm::vec2 MusicListInitialPosition;
+Sprite PlaybackWindow;
+glm::vec2 PlaybackWindowPosition;
+Sprite PlaybackModeLabels[MusicPlaybackModeLabelCount];
+glm::vec2 PlaybackModeLabelPosition;
+glm::vec2 CurrentlyPlayingLabelPosition;
+Sprite ItemNames[MusicTrackCount];
+glm::vec2 ItemNameHighlightOffset;
+Sprite LockedItem;
+Sprite ScrollbarThumb;
+Sprite ScrollbarTrack;
+glm::vec2 ScrollbarPosition;
+float ScrollbarStart;
+int Playlist[MusicTrackCount];
+
 float FadeInDuration;
 float FadeOutDuration;
 
@@ -36,6 +57,42 @@ static void GetMemberSpriteArray(Sprite* arr, uint32_t count,
 
 void Configure() {
   BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
+
+  GetMemberSpriteArray(Thumbnails, MusicTrackCount, "Thumbnails");
+  ThumbnailPosition = EnsureGetMemberVec2("ThumbnailPosition");
+  ItemsWindow = EnsureGetMemberSprite("ItemsWindow");
+  ItemsWindowPosition = EnsureGetMemberVec2("ItemsWindowPosition");
+  ItemsWindowRenderingBounds =
+      EnsureGetMemberRectF("ItemsWindowRenderingBounds");
+  MusicListMargin = EnsureGetMemberVec2("MusicListMargin");
+  MusicListInitialPosition = EnsureGetMemberVec2("MusicListInitialPosition");
+  PlaybackWindow = EnsureGetMemberSprite("PlaybackWindow");
+  PlaybackWindowPosition = EnsureGetMemberVec2("PlaybackWindowPosition");
+  GetMemberSpriteArray(PlaybackModeLabels, MusicPlaybackModeLabelCount,
+                       "PlaybackModeLabels");
+  PlaybackModeLabelPosition = EnsureGetMemberVec2("PlaybackModeLabelPosition");
+  CurrentlyPlayingLabelPosition =
+      EnsureGetMemberVec2("CurrentlyPlayingLabelPosition");
+  GetMemberSpriteArray(ItemNames, MusicTrackCount, "ItemNames");
+  ItemNameHighlightOffset = EnsureGetMemberVec2("ItemNameHighlightOffset");
+  LockedItem = EnsureGetMemberSprite("LockedItem");
+  ScrollbarThumb = EnsureGetMemberSprite("ScrollbarThumb");
+  ScrollbarTrack = EnsureGetMemberSprite("ScrollbarTrack");
+  ScrollbarPosition = EnsureGetMemberVec2("ScrollbarPosition");
+  ScrollbarStart = EnsureGetMemberFloat("ScrollbarStart");
+
+  {
+    EnsurePushMemberOfType("Playlist", kArrayType);
+
+    auto const& _items = TopVal();
+    auto size = _items.Size();
+    assert(size == MusicTrackCount);
+    for (uint32_t i = 0; i < MusicTrackCount; i++) {
+      Playlist[i] = EnsureGetArrayElementInt(i);
+    }
+
+    Pop();
+  }
 
   FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
   FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");

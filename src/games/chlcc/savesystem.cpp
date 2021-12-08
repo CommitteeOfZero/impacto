@@ -382,6 +382,7 @@ void SaveSystem::SetTipStatus(int tipId, bool isLocked, bool isUnread,
 void SaveSystem::GetReadMessagesCount(int* totalMessageCount,
                                       int* readMessageCount) {}
 void SaveSystem::GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) {}
+bool SaveSystem::GetBgmFlag(int id) { return true; }
 
 }  // namespace CHLCC
 }  // namespace Impacto

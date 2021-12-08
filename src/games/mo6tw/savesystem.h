@@ -28,11 +28,13 @@ class SaveSystem : public SaveSystemBase {
   void SetTipStatus(int tipId, bool isLocked, bool isUnread, bool isNew);
   void GetReadMessagesCount(int* totalMessageCount, int* readMessageCount);
   void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount);
+  bool GetBgmFlag(int id);
 
  private:
   uint8_t GameExtraData[1024];
   uint8_t MessageFlags[10000];
   bool EVFlags[1200];
+  uint8_t BGMFlags[100];
 };
 
 }  // namespace MO6TW

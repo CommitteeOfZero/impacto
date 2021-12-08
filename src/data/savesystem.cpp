@@ -66,5 +66,9 @@ void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) {
     Implementation->GetViewedEVsCount(totalEVCount, viewedEVCount);
 }
 
+bool GetBgmFlag(int id) {
+  if (Implementation) return Implementation->GetBgmFlag(id);
+}
+
 }  // namespace SaveSystem
 }  // namespace Impacto

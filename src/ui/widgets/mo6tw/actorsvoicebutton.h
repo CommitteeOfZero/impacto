@@ -15,8 +15,6 @@ class ActorsVoiceButton : public Widgets::Button {
                     glm::vec2 pos);
   void Render() override;
 
-  bool IsLocked = true;
-
  private:
   Sprite LockedHighlightSprite;
 };

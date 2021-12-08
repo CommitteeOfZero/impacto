@@ -18,10 +18,8 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::UI::Widgets;
 
 void ActorsVoiceMenu::VoiceButtonOnClick(Button* target) {
-  auto actorsVoiceButton =
-      static_cast<Widgets::MO6TW::ActorsVoiceButton*>(target);
-  if (!actorsVoiceButton->IsLocked) {
-    ScrWork[SW_ACTORVOICE_CUR] = actorsVoiceButton->Id;
+  if (!target->IsLocked) {
+    ScrWork[SW_ACTORVOICE_CUR] = target->Id;
   }
 }
 
@@ -125,8 +123,7 @@ void ActorsVoiceMenu::Render() {
 
 void ActorsVoiceMenu::UpdateActorsVoiceEntries() {
   for (auto el : MainItems->Children) {
-    auto actorsVoiceButton =
-        static_cast<Widgets::MO6TW::ActorsVoiceButton*>(el);
+    auto actorsVoiceButton = static_cast<Button*>(el);
     actorsVoiceButton->IsLocked =
         !GetFlag(SF_ACTORSVOICE_UNLOCK1 + actorsVoiceButton->Id);
   }

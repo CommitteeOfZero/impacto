@@ -118,6 +118,31 @@ root.ExtraMenus = {
         DrawType: DrawComponentType.ExtrasActorsVoice,
         Type: MusicMenuType.MO6TW,
         BackgroundSprite: "MusicMenuBackground",
+        ItemsWindow: "MusicMenuItemsWindow",
+        ItemsWindowPosition: { X: 685, Y: 233 },
+        ItemsWindowRenderingBounds: { X: 702, Y: 242, Width: 420, Height: 428 },
+        MusicListMargin: { X: 0, Y: 26 },
+        MusicListInitialPosition: { X: 723, Y: 252 },
+        PlaybackWindow: "MusicMenuPlaybackWindow",
+        PlaybackWindowPosition: { X: 217, Y: 98 },
+        PlaybackModeLabels: [],
+        PlaybackModeLabelPosition: { X: 886, Y: 178 },
+        CurrentlyPlayingLabelPosition: { X: 337, Y: 143 },
+        Thumbnails: [],
+        ThumbnailPosition: { X: 221, Y: 297 },
+        ItemNames: [],
+        ItemNameHighlightOffset: { X: 0, Y: -4 },
+        Playlist:
+            [
+                30, 0, 1, 2, 3, 4, 5, 6, 7, 10, 11, 8, 9, 25, 12,
+                13, 14, 15, 16, 17, 18, 19, 26, 27, 28, 29, 20,
+                24, 22, 31, 32, 33, 34, 35, 37, 39, 40, 36, 41
+            ],
+        LockedItem: "MusicMenuLockedItem",
+        ScrollbarThumb: "MusicMenuScrollbarThumb",
+        ScrollbarTrack: "MusicMenuScrollbarTrack",
+        ScrollbarPosition: { X: 1134, Y: 244 },
+        ScrollbarStart: 252,
         FadeInDuration: 0.2,
         FadeOutDuration: 0.2
     }
@@ -379,4 +404,101 @@ for (var i = 0; i < 8; i++) {
 root.Sprites["MusicMenuBackground"] = {
     Sheet: "Music",
     Bounds: { X: 0, Y: 0, Width: 1280, Height: 720 }
+};
+
+root.Sprites["MusicMenuItemsWindow"] = {
+    Sheet: "Music",
+    Bounds: { X: 1281, Y: 1, Width: 480, Height: 454 }
+};
+
+root.Sprites["MusicMenuPlaybackWindow"] = {
+    Sheet: "Music",
+    Bounds: { X: 1, Y: 721, Width: 954, Height: 114 }
+};
+
+firstX = 1;
+firstY = 1;
+var sheetIdx = 0;
+
+for (var i = 1; i <= 39; i++) {
+    root.Sprites["MusicMenuThumbnail" + i] = {
+        Sheet: "MusicThumbnails" + sheetIdx,
+        Bounds: {
+            X: firstX,
+            Y: firstY,
+            Width: 400,
+            Height: 400
+        }
+    };
+    root.ExtraMenus.MusicMenu.Thumbnails.push("MusicMenuThumbnail" + i);
+
+    if (i % 10 == 0) {
+        sheetIdx += 1;
+        firstX = 1;
+        firstY = 1;
+    }
+    else if (i % 5 == 0) {
+        firstX = 1;
+        firstY += 402;
+    } else {
+        firstX += 402;
+    }
+}
+
+firstX = 957;
+firstY = 720;
+
+for (var i = 0; i < 4; i++) {
+    root.Sprites["MusicMenuPlaybackModeLabel" + i] = {
+        Sheet: "Music",
+        Bounds: {
+            X: firstX,
+            Y: firstY,
+            Width: 94,
+            Height: 24
+        }
+    };
+    root.ExtraMenus.MusicMenu.PlaybackModeLabels.push("MusicMenuPlaybackModeLabel" + i);
+
+    firstY += 26;
+}
+
+firstX = 1281;
+firstY = 456;
+
+for (var i = 1; i <= 40; i++) {
+    if (i != 20) {
+        root.Sprites["MusicMenuItemName" + i] = {
+            Sheet: "Music",
+            Bounds: {
+                X: firstX,
+                Y: firstY,
+                Width: 358,
+                Height: 22
+            }
+        };
+        root.ExtraMenus.MusicMenu.ItemNames.push("MusicMenuItemName" + i);
+    }
+
+    if (i % 20 == 0) {
+        firstX = 1640;
+        firstY = 456;
+    } else {
+        firstY += 24;
+    }
+}
+
+root.Sprites["MusicMenuLockedItem"] = {
+    Sheet: "Music",
+    Bounds: { X: 1281, Y: 912, Width: 358, Height: 22 }
+};
+
+root.Sprites["MusicMenuScrollbarThumb"] = {
+    Sheet: "Music",
+    Bounds: { X: 1, Y: 837, Width: 34, Height: 46 }
+};
+
+root.Sprites["MusicMenuScrollbarTrack"] = {
+    Sheet: "Music",
+    Bounds: { X: 1780, Y: 0, Width: 9, Height: 427 }
 };

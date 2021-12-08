@@ -49,6 +49,9 @@ SaveError SaveSystem::MountSaveFile() {
     EVFlags[8 * i + 7] = val >> 7;
   }
 
+  stream->Seek(0xbc2, SEEK_SET);
+  Io::ReadArrayLE<uint8_t>(BGMFlags, stream, 100);
+
   stream->Seek(0xc26, SEEK_SET);
   Io::ReadArrayLE<uint8_t>(MessageFlags, stream, 10000);
 
@@ -220,6 +223,9 @@ void SaveSystem::WriteSaveFile() {
   IoError err = Io::PhysicalFileStream::CreateWrite(SaveFilePath, &instream);
   auto err1 = SDL_GetError();
   stream = (Io::PhysicalFileStream*)instream;
+
+  stream->Seek(0xbc2, SEEK_SET);
+  stream->Write(&BGMFlags, sizeof(uint8_t), 100);
 
   stream->Seek(0xc26, SEEK_SET);
   stream->Write(&MessageFlags, sizeof(uint8_t), 10000);
@@ -582,6 +588,8 @@ void SaveSystem::GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) {
     }
   }
 }
+
+bool SaveSystem::GetBgmFlag(int id) { return BGMFlags[id]; }
 
 }  // namespace MO6TW
 }  // namespace Impacto

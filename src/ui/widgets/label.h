@@ -24,6 +24,7 @@ class Label : public Widget {
   void Move(glm::vec2 relativePosition) override;
   void MoveTo(glm::vec2 pos) override;
 
+  void SetSprite(Sprite const& label);
   void SetText(uint8_t* str, int fontSize, bool outline, int colorIndex = 10);
   void SetText(std::string str, int fontSize, bool outline,
                int colorIndex = 10);

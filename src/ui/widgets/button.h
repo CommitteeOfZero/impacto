@@ -28,6 +28,9 @@ class Button : public Widget {
   Sprite FocusedSprite;
   Sprite HighlightSprite;
   Sprite DisabledSprite;
+  Sprite LockedSprite;
+
+  bool IsLocked = false;
 
   std::function<void(Button*)> OnClickHandler;
 
