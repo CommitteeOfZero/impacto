@@ -33,6 +33,8 @@ class AudioChannel {
   // Actual playhead at start of (graphics) frame, in AudioStream samples
   int Position = 0;
 
+  bool Looping;
+
  private:
   void SetGain();
   int SamplesPerBuffer() const;
@@ -51,7 +53,6 @@ class AudioChannel {
   AudioStream* CurrentStream = 0;
   bool IsInit = false;
 
-  bool Looping;
   bool FinishedDecode;
 
   float FadeDuration = 0.0f;

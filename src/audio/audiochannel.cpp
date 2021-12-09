@@ -120,7 +120,7 @@ void AudioChannel::Update(float dt) {
 
   alGetSourcei(Source, AL_BUFFERS_PROCESSED, &FreeBufferCount);
 
-  if (FreeBufferCount == AudioBufferCount && FinishedDecode && !Looping) {
+  if (Position >= CurrentStream->Duration && FinishedDecode && !Looping) {
     // whole file has been played out
     Stop(0.0f);
     return;

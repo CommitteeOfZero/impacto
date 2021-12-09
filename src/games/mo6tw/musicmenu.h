@@ -9,6 +9,13 @@ namespace Impacto {
 namespace UI {
 namespace MO6TW {
 
+enum MusicPlaybackMode {
+  MPM_One,
+  MPM_Playlist,
+  MPM_RepeatOne,
+  MPM_RepeatPlaylist
+};
+
 class MusicMenu : public Menu {
  public:
   MusicMenu();
@@ -23,6 +30,8 @@ class MusicMenu : public Menu {
 
  private:
   void UpdateMusicEntries();
+  void SwitchToTrack(int id);
+  inline int GetNextTrackId(int id);
 
   Widgets::Group* MainItems;
   Widgets::Group* BackgroundItems;
@@ -30,9 +39,11 @@ class MusicMenu : public Menu {
   Widgets::Label* CurrentlyPlaying;
   Widgets::Label* PlaybackModeLabel;
   Animation FadeAnimation;
+  Sprite NullSprite;
 
   float MusicListY;
-  int PlaybackMode = 0;
+  MusicPlaybackMode PlaybackMode = MPM_One;
+  int CurrentlyPlayingTrackId = -1;
 };
 
 }  // namespace MO6TW

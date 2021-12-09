@@ -24,12 +24,7 @@ using namespace Impacto::Vm::Interface;
 void MusicMenu::MusicButtonOnClick(Button* target) {
   if (target->IsLocked) return;
 
-  Io::InputStream* stream;
-  Io::VfsOpen("bgm", Playlist[target->Id], &stream);
-  Audio::Channels[Audio::AC_BGM0].Play(Audio::AudioStream::Create(stream),
-                                       PlaybackMode == 2, 0.0f);
-  Thumbnail->SetSprite(Thumbnails[target->Id]);
-  CurrentlyPlaying->SetSprite(ItemNames[target->Id]);
+  SwitchToTrack(target->Id);
 }
 
 MusicMenu::MusicMenu() {
@@ -45,11 +40,11 @@ MusicMenu::MusicMenu() {
 
   BackgroundItems->Add(new Label(ItemsWindow, ItemsWindowPosition));
   BackgroundItems->Add(new Label(PlaybackWindow, PlaybackWindowPosition));
-  Sprite nullSprite = Sprite();
-  nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
-  Thumbnail = new Label(nullSprite, ThumbnailPosition);
+  NullSprite = Sprite();
+  NullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
+  Thumbnail = new Label(NullSprite, ThumbnailPosition);
   BackgroundItems->Add(Thumbnail);
-  CurrentlyPlaying = new Label(nullSprite, CurrentlyPlayingLabelPosition);
+  CurrentlyPlaying = new Label(NullSprite, CurrentlyPlayingLabelPosition);
   BackgroundItems->Add(CurrentlyPlaying);
   PlaybackModeLabel =
       new Label(PlaybackModeLabels[PlaybackMode], PlaybackModeLabelPosition);
@@ -131,6 +126,22 @@ void MusicMenu::UpdateInput() {
         MusicListY -= MusicListMargin.y;
       }
     }
+
+    if (PADinputButtonWentDown & PAD1Y) {
+      auto mode = (int)PlaybackMode + 1;
+      if (mode > 3) mode = 0;
+      PlaybackMode = (MusicPlaybackMode)mode;
+      if (PlaybackMode == MPM_RepeatOne) {
+        Audio::Channels[Audio::AC_BGM0].Looping = true;
+      } else {
+        Audio::Channels[Audio::AC_BGM0].Looping = false;
+      }
+      PlaybackModeLabel->SetSprite(PlaybackModeLabels[PlaybackMode]);
+    }
+
+    if (PADinputButtonWentDown & PAD1X) {
+      SwitchToTrack(-1);
+    }
   }
 }
 
@@ -154,6 +165,24 @@ void MusicMenu::Update(float dt) {
     BackgroundItems->Update(dt);
     MainItems->Update(dt);
     MainItems->MoveTo(glm::vec2(MainItems->Bounds.X, MusicListY));
+
+    if (CurrentlyPlayingTrackId != -1 &&
+        Audio::Channels[Audio::AC_BGM0].State == Audio::ACS_Stopped) {
+      int trackId;
+      if (PlaybackMode == MPM_One) {
+        trackId = -1;
+      } else {
+        trackId = GetNextTrackId(CurrentlyPlayingTrackId + 1);
+        if (trackId == MusicTrackCount) {
+          if (PlaybackMode == MPM_RepeatPlaylist) {
+            trackId = GetNextTrackId(0);
+          } else if (PlaybackMode == MPM_Playlist) {
+            trackId = -1;
+          }
+        }
+      }
+      SwitchToTrack(trackId);
+    }
   }
 }
 
@@ -173,6 +202,38 @@ void MusicMenu::UpdateMusicEntries() {
     auto button = static_cast<Button*>(el);
     button->IsLocked = !SaveSystem::GetBgmFlag(Playlist[button->Id]);
   }
+}
+
+void MusicMenu::SwitchToTrack(int id) {
+  CurrentlyPlayingTrackId = id;
+  if (id == -1) {
+    Audio::Channels[Audio::AC_BGM0].Stop(0.5f);
+    Thumbnail->SetSprite(NullSprite);
+    CurrentlyPlaying->SetSprite(NullSprite);
+    return;
+  }
+
+  Io::InputStream* stream;
+  Io::VfsOpen("bgm", Playlist[id], &stream);
+  Audio::Channels[Audio::AC_BGM0].Play(Audio::AudioStream::Create(stream),
+                                       PlaybackMode == MPM_RepeatOne, 0.5f);
+  Thumbnail->SetSprite(Thumbnails[id]);
+  CurrentlyPlaying->SetSprite(ItemNames[id]);
+}
+
+inline int MusicMenu::GetNextTrackId(int id) {
+  while (!SaveSystem::GetBgmFlag(Playlist[id])) {
+    id += 1;
+    if (id == MusicTrackCount) {
+      if (PlaybackMode == MPM_RepeatPlaylist) {
+        id = 0;
+      } else if (PlaybackMode == MPM_Playlist) {
+        id = -1;
+        break;
+      }
+    }
+  }
+  return id;
 }
 
 }  // namespace MO6TW
