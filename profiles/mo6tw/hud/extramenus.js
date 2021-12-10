@@ -138,6 +138,9 @@ root.ExtraMenus = {
                 13, 14, 15, 16, 17, 18, 19, 26, 27, 28, 29, 20,
                 24, 22, 31, 32, 33, 34, 35, 37, 39, 40, 36, 41
             ],
+        TimerChars: [],
+        TimerInitialPosition: { X: 825, Y: 141 },
+        TimerMargin: { X: 15, Y: 0 },
         LockedItem: "MusicMenuLockedItem",
         ScrollbarThumb: "MusicMenuScrollbarThumb",
         ScrollbarTrack: "MusicMenuScrollbarTrack",
@@ -502,3 +505,21 @@ root.Sprites["MusicMenuScrollbarTrack"] = {
     Sheet: "Music",
     Bounds: { X: 1780, Y: 0, Width: 9, Height: 427 }
 };
+
+firstX = 1053;
+firstY = 721;
+
+for (var i = 0; i < 11; i++) {
+    root.Sprites["MusicMenuTimerChar" + i] = {
+        Sheet: "Music",
+        Bounds: {
+            X: firstX,
+            Y: firstY,
+            Width: 15,
+            Height: 24
+        }
+    };
+    root.ExtraMenus.MusicMenu.TimerChars.push("MusicMenuTimerChar" + i);
+
+    firstX += 17;
+}

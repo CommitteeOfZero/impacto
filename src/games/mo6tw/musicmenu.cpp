@@ -37,6 +37,8 @@ MusicMenu::MusicMenu() {
   MainItems->WrapFocus = false;
   BackgroundItems = new Group(this);
   BackgroundItems->FocusLock = false;
+  Timer = new Group(this);
+  Timer->FocusLock = false;
 
   BackgroundItems->Add(new Label(ItemsWindow, ItemsWindowPosition));
   BackgroundItems->Add(new Label(PlaybackWindow, PlaybackWindowPosition));
@@ -76,6 +78,12 @@ MusicMenu::MusicMenu() {
       ScrollbarStart - totalHeight + ItemsWindowRenderingBounds.Height,
       &MusicListY, SBDIR_VERTICAL, ScrollbarTrack, ScrollbarThumb);
   BackgroundItems->Add(scrollbar);
+
+  pos = TimerInitialPosition;
+  for (int i = 0; i < 8; i++) {
+    Timer->Add(new Label(NullSprite, pos));
+    pos += TimerMargin;
+  }
 }
 
 void MusicMenu::Show() {
@@ -99,6 +107,7 @@ void MusicMenu::Hide() {
     FadeAnimation.StartOut();
     MainItems->Hide();
     BackgroundItems->Hide();
+    Timer->Hide();
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
       LastFocusedMenu->IsFocused = true;
@@ -166,6 +175,7 @@ void MusicMenu::Update(float dt) {
     MainItems->Update(dt);
     MainItems->MoveTo(glm::vec2(MainItems->Bounds.X, MusicListY));
 
+    UpdateMusicTimer();
     if (CurrentlyPlayingTrackId != -1 &&
         Audio::Channels[Audio::AC_BGM0].State == Audio::ACS_Stopped) {
       int trackId;
@@ -194,6 +204,8 @@ void MusicMenu::Render() {
     BackgroundItems->Render();
     MainItems->Tint = col;
     MainItems->Render();
+    Timer->Tint.a *= col.a;
+    Timer->Render();
   }
 }
 
@@ -204,12 +216,31 @@ void MusicMenu::UpdateMusicEntries() {
   }
 }
 
+void MusicMenu::UpdateMusicTimer() {
+  if (Audio::Channels[Audio::AC_BGM0].State == Audio::ACS_Stopped) {
+    Timer->Hide();
+  } else {
+    int position = Audio::Channels[Audio::AC_BGM0].PositionInSeconds();
+    auto seconds = position % 3600 % 60;
+    auto minutes = position % 3600 / 60;
+    auto hours = position / 3600;
+    char time[9];
+    sprintf(time, "%02d:%02d:%02d", hours, minutes, seconds);
+    for (int i = 0; i < 8; i++) {
+      auto label = static_cast<Label*>(Timer->Children.at(i));
+      label->SetSprite(time[i] == ':' ? TimerChars[TimerCharCount - 1]
+                                      : TimerChars[(int)time[i] - (int)'0']);
+    }
+  }
+}
+
 void MusicMenu::SwitchToTrack(int id) {
   CurrentlyPlayingTrackId = id;
   if (id == -1) {
     Audio::Channels[Audio::AC_BGM0].Stop(0.5f);
     Thumbnail->SetSprite(NullSprite);
     CurrentlyPlaying->SetSprite(NullSprite);
+    Timer->Hide();
     return;
   }
 
@@ -219,6 +250,7 @@ void MusicMenu::SwitchToTrack(int id) {
                                        PlaybackMode == MPM_RepeatOne, 0.5f);
   Thumbnail->SetSprite(Thumbnails[id]);
   CurrentlyPlaying->SetSprite(ItemNames[id]);
+  Timer->Show();
 }
 
 inline int MusicMenu::GetNextTrackId(int id) {

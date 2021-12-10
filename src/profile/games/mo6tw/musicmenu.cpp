@@ -34,6 +34,9 @@ Sprite ScrollbarTrack;
 glm::vec2 ScrollbarPosition;
 float ScrollbarStart;
 int Playlist[MusicTrackCount];
+Sprite TimerChars[TimerCharCount];
+glm::vec2 TimerInitialPosition;
+glm::vec2 TimerMargin;
 
 float FadeInDuration;
 float FadeOutDuration;
@@ -93,6 +96,10 @@ void Configure() {
 
     Pop();
   }
+
+  GetMemberSpriteArray(TimerChars, TimerCharCount, "TimerChars");
+  TimerInitialPosition = EnsureGetMemberVec2("TimerInitialPosition");
+  TimerMargin = EnsureGetMemberVec2("TimerMargin");
 
   FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
   FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");

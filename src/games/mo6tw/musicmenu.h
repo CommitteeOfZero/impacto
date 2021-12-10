@@ -30,11 +30,13 @@ class MusicMenu : public Menu {
 
  private:
   void UpdateMusicEntries();
+  void UpdateMusicTimer();
   void SwitchToTrack(int id);
   inline int GetNextTrackId(int id);
 
   Widgets::Group* MainItems;
   Widgets::Group* BackgroundItems;
+  Widgets::Group* Timer;
   Widgets::Label* Thumbnail;
   Widgets::Label* CurrentlyPlaying;
   Widgets::Label* PlaybackModeLabel;

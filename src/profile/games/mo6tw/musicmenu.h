@@ -9,6 +9,7 @@ namespace MusicMenu {
 
 int const MusicTrackCount = 39;
 int const MusicPlaybackModeLabelCount = 4;
+int const TimerCharCount = 11;
 
 void Configure();
 
@@ -34,6 +35,9 @@ extern Sprite ScrollbarTrack;
 extern glm::vec2 ScrollbarPosition;
 extern float ScrollbarStart;
 extern int Playlist[MusicTrackCount];
+extern Sprite TimerChars[TimerCharCount];
+extern glm::vec2 TimerInitialPosition;
+extern glm::vec2 TimerMargin;
 
 extern float FadeInDuration;
 extern float FadeOutDuration;
