@@ -148,6 +148,22 @@ root.ExtraMenus = {
         ScrollbarStart: 252,
         FadeInDuration: 0.2,
         FadeOutDuration: 0.2
+    },
+    AlbumMenu: {
+        DrawType: DrawComponentType.Album,
+        Type: MusicMenuType.MO6TW,
+        CharacterButtons: [],
+        HighlightedCharacterButtons: [],
+        BackgroundSprite: "AlbumMenuBackground",
+        InitialButtonPosition: { X: 149, Y: 115 },
+        ButtonOddX: 421,
+        ButtonEvenX: 149,
+        ButtonMargin: { X: 0, Y: 90 },
+        HighlightAnimationDuration: 0.5,
+        YunoButtonIdx: 3,
+        SuzuButtonIdx: 4,
+        FadeInDuration: 0.2,
+        FadeOutDuration: 0.2
     }
 };
 
@@ -522,4 +538,94 @@ for (var i = 0; i < 11; i++) {
     root.ExtraMenus.MusicMenu.TimerChars.push("MusicMenuTimerChar" + i);
 
     firstX += 17;
+}
+
+// Album menu
+
+root.Sprites["AlbumMenuBackground"] = {
+    Sheet: "Album",
+    Bounds: { X: 0, Y: 0, Width: 1280, Height: 720 }
+};
+
+var buttonX = 1;
+var highlightedButtonX = 1281;
+var buttonY = 761;
+var highlightedButtonY = 1;
+
+for (var i = 1; i <= 6; i++) {
+    if (i == 4) {
+        root.Sprites["AlbumMenuCharaButton" + i + "Locked"] = {
+            Sheet: "Album",
+            Bounds: {
+                X: 1281,
+                Y: 529,
+                Width: 710,
+                Height: 86
+            }
+        };
+        root.Sprites["AlbumMenuCharaButtonHighlighted" + i + "Locked"] = {
+            Sheet: "Album",
+            Bounds: {
+                X: 1281,
+                Y: 617,
+                Width: 710,
+                Height: 86
+            }
+        };
+        root.ExtraMenus.AlbumMenu.CharacterButtons.push("AlbumMenuCharaButton" + i + "Locked");
+        root.ExtraMenus.AlbumMenu.HighlightedCharacterButtons.push("AlbumMenuCharaButtonHighlighted" + i + "Locked");
+    } else if (i == 5) {
+        root.Sprites["AlbumMenuCharaButton" + i + "Locked"] = {
+            Sheet: "Album2",
+            Bounds: {
+                X: 817,
+                Y: 813,
+                Width: 710,
+                Height: 86
+            }
+        };
+        root.Sprites["AlbumMenuCharaButtonHighlighted" + i + "Locked"] = {
+            Sheet: "Album2",
+            Bounds: {
+                X: 817,
+                Y: 725,
+                Width: 710,
+                Height: 86
+            }
+        };
+        root.ExtraMenus.AlbumMenu.CharacterButtons.push("AlbumMenuCharaButton" + i + "Locked");
+        root.ExtraMenus.AlbumMenu.HighlightedCharacterButtons.push("AlbumMenuCharaButtonHighlighted" + i + "Locked");
+    }
+
+    root.Sprites["AlbumMenuCharaButton" + i] = {
+        Sheet: "Album",
+        Bounds: {
+            X: buttonX,
+            Y: buttonY,
+            Width: 710,
+            Height: 86
+        }
+    };
+
+    root.Sprites["AlbumMenuCharaButtonHighlighted" + i] = {
+        Sheet: "Album",
+        Bounds: {
+            X: highlightedButtonX,
+            Y: highlightedButtonY,
+            Width: 710,
+            Height: 86
+        }
+    };
+
+    root.ExtraMenus.AlbumMenu.CharacterButtons.push("AlbumMenuCharaButton" + i);
+    root.ExtraMenus.AlbumMenu.HighlightedCharacterButtons.push("AlbumMenuCharaButtonHighlighted" + i);
+
+    if (i % 3 == 0) {
+        buttonX = 713;
+        buttonY = 761;
+        highlightedButtonY += 88;
+    } else {
+        buttonY += 88;
+        highlightedButtonY += 88;
+    }
 }

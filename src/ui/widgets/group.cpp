@@ -174,6 +174,7 @@ void Group::Clear() {
     delete el;
   }
   Children.clear();
+  LastFocusableElementId = -1;
 }
 
 }  // namespace Widgets

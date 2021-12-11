@@ -17,7 +17,7 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::UI::Widgets;
 
 void MovieMenu::MovieButtonOnClick(Button* target) {
-  auto movieButton = static_cast<Widgets::MO6TW::MovieEntryButton*>(target);
+  auto movieButton = static_cast<Widgets::MO6TW::ImageThumbnailButton*>(target);
   if (!movieButton->IsLocked) {
     ScrWork[SW_MOVIEMODE_CUR] = movieButton->Id;
   }
@@ -39,7 +39,7 @@ MovieMenu::MovieMenu() {
 
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
-  auto firstOp = new Widgets::MO6TW::MovieEntryButton(
+  auto firstOp = new Widgets::MO6TW::ImageThumbnailButton(
       0, FirstOPTopPartSprite, FirstOPBottomPartSprite, nullSprite,
       SelectionHighlightTopLeft, SelectionHighlightTopRight,
       SelectionHighlightBottomLeft, SelectionHighlightBottomRight, pos);
@@ -48,7 +48,7 @@ MovieMenu::MovieMenu() {
 
   pos.x += ItemOffset.x;
 
-  auto secondOp = new Widgets::MO6TW::MovieEntryButton(
+  auto secondOp = new Widgets::MO6TW::ImageThumbnailButton(
       1, SecondOPTopPartSprite, SecondOPBottomPartSprite, nullSprite,
       SelectionHighlightTopLeft, SelectionHighlightTopRight,
       SelectionHighlightBottomLeft, SelectionHighlightBottomRight, pos);
@@ -60,7 +60,7 @@ MovieMenu::MovieMenu() {
   int row = 1;
   int totalRows = ItemCount / ItemsPerRow + (ItemCount % ItemsPerRow != 0);
   for (int i = 2; i < ItemCount; i++) {
-    auto item = new Widgets::MO6TW::MovieEntryButton(
+    auto item = new Widgets::MO6TW::ImageThumbnailButton(
         i, UnlockedMovieThumbnailSprites[i - 2],
         LockedMovieThumbnailSprites[i - 2], SelectionHighlightTopLeft,
         SelectionHighlightTopRight, SelectionHighlightBottomLeft,
@@ -168,7 +168,7 @@ void MovieMenu::Render() {
 
 void MovieMenu::UpdateMovieEntries() {
   for (auto el : MainItems->Children) {
-    auto movieButton = static_cast<Widgets::MO6TW::MovieEntryButton*>(el);
+    auto movieButton = static_cast<Widgets::MO6TW::ImageThumbnailButton*>(el);
     if (movieButton->Id == 0 || movieButton->Id == 1)
       movieButton->IsLocked = false;
     else

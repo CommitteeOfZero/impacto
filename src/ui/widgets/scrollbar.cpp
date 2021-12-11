@@ -28,6 +28,15 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float min, float max, float* value,
                       TrackSprite.ScaledHeight());
   ThumbBounds =
       RectF(0.0f, 0.0f, ThumbSprite.ScaledWidth(), ThumbSprite.ScaledHeight());
+  if (Direction == SBDIR_VERTICAL) {
+    ThumbBounds.X = (TrackBounds.X + (TrackBounds.Width / 2.0f)) -
+                    (ThumbSprite.ScaledWidth() / 2.0f);
+    ThumbBounds.Y = TrackBounds.Y - (ThumbSprite.ScaledHeight() / 2.0f);
+  } else if (Direction == SBDIR_HORIZONTAL) {
+    ThumbBounds.X = TrackBounds.X - (ThumbSprite.ScaledWidth() / 2.0f);
+    ThumbBounds.Y = (TrackBounds.Y + (TrackBounds.Height / 2.0f)) -
+                    (ThumbSprite.ScaledHeight() / 2.0f);
+  }
   ThumbSpriteOffset = thumbOffset;
 }
 

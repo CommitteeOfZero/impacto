@@ -19,6 +19,7 @@ GLuint YUVFrameCbLocation;
 GLuint YUVFrameCrLocation;
 GLuint YUVFrameIsAlphaLocation;
 GLuint MaskedIsInvertedLocation;
+GLuint MaskedIsSameTextureLocation;
 
 enum Renderer2DMode { R2D_None, R2D_Sprite, R2D_SpriteInverted, R2D_YUVFrame };
 
@@ -26,6 +27,7 @@ struct VertexBufferSprites {
   glm::vec2 Position;
   glm::vec2 UV;
   glm::vec4 Tint;
+  glm::vec2 MaskUV;
 };
 
 static int const VertexBufferSize = 1024 * 1024;
@@ -119,9 +121,12 @@ void Init() {
                         (void*)offsetof(VertexBufferSprites, UV));
   glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(VertexBufferSprites),
                         (void*)offsetof(VertexBufferSprites, Tint));
+  glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(VertexBufferSprites),
+                        (void*)offsetof(VertexBufferSprites, MaskUV));
   glEnableVertexAttribArray(0);
   glEnableVertexAttribArray(1);
   glEnableVertexAttribArray(2);
+  glEnableVertexAttribArray(3);
 
   // Make 1x1 white pixel for colored rectangles
   Texture rectTexture;
@@ -139,6 +144,8 @@ void Init() {
   glUniform1i(glGetUniformLocation(ShaderProgramMaskedSprite, "ColorMap"), 0);
   MaskedIsInvertedLocation =
       glGetUniformLocation(ShaderProgramMaskedSprite, "IsInverted");
+  MaskedIsSameTextureLocation =
+      glGetUniformLocation(ShaderProgramMaskedSprite, "IsSameTexture");
   ShaderProgramYUVFrame = ShaderCompile("YUVFrame");
   glUniform1i(glGetUniformLocation(ShaderProgramYUVFrame, "Luma"), 0);
   YUVFrameCbLocation = glGetUniformLocation(ShaderProgramYUVFrame, "Cb");
@@ -433,7 +440,8 @@ void DrawSprite(Sprite const& sprite, RectF const& dest, glm::vec4 tint,
 
 void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
                       RectF const& dest, glm::vec4 tint, int alpha,
-                      int fadeRange, bool isScreencap, bool isInverted) {
+                      int fadeRange, bool isScreencap, bool isInverted,
+                      bool isSameTexture) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer2D::DrawMaskedSprite() called before BeginFrame()\n");
@@ -456,6 +464,7 @@ void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
   glUniform2f(glGetUniformLocation(ShaderProgramMaskedSprite, "Alpha"),
               alphaRange, constAlpha);
   glUniform1i(MaskedIsInvertedLocation, isInverted);
+  glUniform1i(MaskedIsSameTextureLocation, isSameTexture);
 
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
@@ -481,6 +490,9 @@ void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
               sprite.Sheet.DesignHeight, (uintptr_t)&vertices[0].UV,
               sizeof(VertexBufferSprites));
   }
+  QuadSetUV(sprite.Bounds, sprite.Bounds.Width, sprite.Bounds.Height,
+            (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites));
+
   QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
                   sizeof(VertexBufferSprites));
 

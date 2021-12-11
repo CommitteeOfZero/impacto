@@ -415,6 +415,18 @@ IoError CpkArchive::Open(FileMeta* file, InputStream** outStream) {
   CpkMetaEntry* entry = (CpkMetaEntry*)file;
 
   IoError err;
+  BaseStream->Seek(entry->Offset, RW_SEEK_SET);
+  uint32_t const laylaMagic1 = 0x4352494C;
+  uint32_t const laylaMagic2 = 0x41594C41;
+
+  if (!entry->Compressed && ReadBE<uint32_t>(BaseStream) == laylaMagic1 &&
+      ReadBE<uint32_t>(BaseStream) == laylaMagic2) {
+    // Marking file as compressed because apparently some times it's just not
+    // marked in toc
+    entry->Size = ReadLE<uint32_t>(BaseStream) + 0x100;
+    entry->Compressed = true;
+  }
+
   if (entry->Compressed) {
     ImpLog(LL_Debug, LC_IO,
            "CPK cannot stream LAYLA compressed file \"%s\" in archive "

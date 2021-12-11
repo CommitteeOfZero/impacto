@@ -1,4 +1,4 @@
-#include "movieentrybutton.h"
+#include "imagethumbnailbutton.h"
 
 #include "../../../renderer2d.h"
 #include "../../../profile/games/mo6tw/moviemenu.h"
@@ -10,13 +10,13 @@ namespace MO6TW {
 
 using namespace Impacto::Profile::MO6TW::MovieMenu;
 
-MovieEntryButton::MovieEntryButton(int id, Sprite const& norm,
-                                   Sprite const& disabled,
-                                   Sprite const& focusedTopLeft,
-                                   Sprite const& focusedTopRight,
-                                   Sprite const& focusedBottomLeft,
-                                   Sprite const& focusedBottomRight,
-                                   glm::vec2 pos) {
+ImageThumbnailButton::ImageThumbnailButton(int id, Sprite const& norm,
+                                           Sprite const& disabled,
+                                           Sprite const& focusedTopLeft,
+                                           Sprite const& focusedTopRight,
+                                           Sprite const& focusedBottomLeft,
+                                           Sprite const& focusedBottomRight,
+                                           glm::vec2 pos) {
   Id = id;
   NormalSprite = norm;
   DisabledSprite = disabled;
@@ -35,26 +35,26 @@ MovieEntryButton::MovieEntryButton(int id, Sprite const& norm,
   HighlightAnimation.StartIn();
 }
 
-MovieEntryButton::MovieEntryButton(
+ImageThumbnailButton::ImageThumbnailButton(
     int id, Sprite const& normTopPart, Sprite const& normBottomPart,
     Sprite const& disabled, Sprite const& focusedTopLeft,
     Sprite const& focusedTopRight, Sprite const& focusedBottomLeft,
     Sprite const& focusedBottomRight, glm::vec2 pos)
-    : MovieEntryButton(id, normTopPart, disabled, focusedTopLeft,
-                       focusedTopRight, focusedBottomLeft, focusedBottomRight,
-                       pos) {
+    : ImageThumbnailButton(id, normTopPart, disabled, focusedTopLeft,
+                           focusedTopRight, focusedBottomLeft,
+                           focusedBottomRight, pos) {
   IsSplit = true;
   BottomPart = normBottomPart;
   Bounds = RectF(pos.x, pos.y, NormalSprite.ScaledWidth(),
                  NormalSprite.ScaledHeight() + BottomPart.ScaledHeight());
 }
 
-void MovieEntryButton::Update(float dt) {
+void ImageThumbnailButton::Update(float dt) {
   Button::Update(dt);
   HighlightAnimation.Update(dt);
 }
 
-void MovieEntryButton::Render() {
+void ImageThumbnailButton::Render() {
   if (!IsLocked) {
     Renderer2D::DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
     if (IsSplit) {

@@ -98,6 +98,26 @@ root.SpriteSheets = {
         Path: {Mount: "system", Id: 19 },
         DesignWidth: 2048,
         DesignHeight: 1024
+    },
+    "Album": {
+        Path: {Mount: "system", Id: 2 },
+        DesignWidth: 2048,
+        DesignHeight: 1024
+    },
+    "Album2": {
+        Path: {Mount: "system", Id: 3 },
+        DesignWidth: 2048,
+        DesignHeight: 1024
+    },
+    "AlbumThumbnails0": {
+        Path: {Mount: "system", Id: 4 },
+        DesignWidth: 2048,
+        DesignHeight: 1024
+    },
+    "AlbumThumbnails1": {
+        Path: {Mount: "system", Id: 5 },
+        DesignWidth: 2048,
+        DesignHeight: 1024
     }
 };
 

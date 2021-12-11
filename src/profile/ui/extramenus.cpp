@@ -5,6 +5,7 @@
 #include "../games/mo6tw/moviemenu.h"
 #include "../games/mo6tw/actorsvoicemenu.h"
 #include "../games/mo6tw/musicmenu.h"
+#include "../games/mo6tw/albummenu.h"
 
 namespace Impacto {
 namespace Profile {
@@ -33,16 +34,16 @@ void Configure() {
       Pop();
     }
 
-    // if (TryPushMember("AlbumMenu")) {
-    //  AlbumType =
-    //      AlbumMenuType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
+    if (TryPushMember("AlbumMenu")) {
+      AlbumType =
+          AlbumMenuType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
 
-    //  if (AlbumType == +AlbumMenuType::MO6TW) {
-    //    MO6TW::AlbumMenu::Configure();
-    //  }
+      if (AlbumType == +AlbumMenuType::MO6TW) {
+        MO6TW::AlbumMenu::Configure();
+      }
 
-    //  Pop();
-    //}
+      Pop();
+    }
 
     if (TryPushMember("MusicMenu")) {
       MusicType =
