@@ -23,6 +23,8 @@ glm::vec2 ButtonMargin;
 float HighlightAnimationDuration;
 int YunoButtonIdx;
 int SuzuButtonIdx;
+Sprite CharacterPortraits[CharacterPortraitCount];
+glm::vec2 PortraitPosition;
 
 float FadeInDuration;
 float FadeOutDuration;
@@ -59,6 +61,9 @@ void Configure() {
       EnsureGetMemberFloat("HighlightAnimationDuration");
   YunoButtonIdx = EnsureGetMemberInt("YunoButtonIdx");
   SuzuButtonIdx = EnsureGetMemberInt("SuzuButtonIdx");
+  GetMemberSpriteArray(CharacterPortraits, CharacterPortraitCount,
+                       "CharacterPortraits");
+  PortraitPosition = EnsureGetMemberVec2("PortraitPosition");
 
   FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
   FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");

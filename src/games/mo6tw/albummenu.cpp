@@ -21,6 +21,10 @@ using namespace Impacto::Vm::Interface;
 
 using namespace Impacto::UI::Widgets;
 
+void AlbumMenu::CharacterButtonOnClick(Button* target) {
+  if (!target->IsLocked) SwitchToCharacter(target->Id);
+}
+
 AlbumMenu::AlbumMenu() {
   FadeAnimation.Direction = 1;
   FadeAnimation.LoopMode = ALM_Stop;
@@ -28,8 +32,15 @@ AlbumMenu::AlbumMenu() {
   FadeAnimation.DurationOut = FadeOutDuration;
 
   MainItems = new Group(this);
+  SecondaryItems = new Group(this);
+  SecondaryItems->FocusLock = false;
+  ImageGrid = new Group(this);
   auto pos = InitialButtonPosition;
   int idx = 0;
+
+  auto characterOnClick = std::bind(&AlbumMenu::CharacterButtonOnClick, this,
+                                    std::placeholders::_1);
+
   for (int i = 0; i < CharacterButtonCount; i++) {
     if (idx % 2 == 0)
       pos.x = ButtonEvenX;
@@ -37,7 +48,7 @@ AlbumMenu::AlbumMenu() {
       pos.x = ButtonOddX;
 
     Sprite *sprite, *lockedSprite, *highlightedSprite, *highlightedLockedSprite;
-    if (idx == 3 || idx == 4) {
+    if (idx == YunoButtonIdx || idx == SuzuButtonIdx) {
       sprite = &CharacterButtonSprites[i];
       lockedSprite = &CharacterButtonSprites[i + 1];
       highlightedSprite = &HighlightedCharacterButtonSprites[i];
@@ -49,11 +60,11 @@ AlbumMenu::AlbumMenu() {
       highlightedSprite = &HighlightedCharacterButtonSprites[i];
       highlightedLockedSprite = highlightedSprite;
     }
-    MainItems->Add(
-        new Widgets::MO6TW::AlbumCharacterButton(
-            idx, *sprite, *lockedSprite, *highlightedSprite,
-            *highlightedLockedSprite, pos, HighlightAnimationDuration),
-        FDIR_DOWN);
+    auto button = new Widgets::MO6TW::AlbumCharacterButton(
+        idx, *sprite, *lockedSprite, *highlightedSprite,
+        *highlightedLockedSprite, pos, HighlightAnimationDuration);
+    button->OnClickHandler = characterOnClick;
+    MainItems->Add(button, FDIR_DOWN);
     pos += ButtonMargin;
     idx += 1;
   }
@@ -90,9 +101,12 @@ void AlbumMenu::Hide() {
 void AlbumMenu::UpdateInput() {
   Menu::UpdateInput();
   if (State == Shown) {
-    MainItems->UpdateInput();
     if (PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B) {
-      SetFlag(SF_ALBUMEND, true);
+      if (SelectedCharacterId == -1) {
+        SetFlag(SF_ALBUMEND, true);
+      } else {
+        SwitchToCharacter(-1);
+      }
     }
   }
 }
@@ -124,6 +138,35 @@ void AlbumMenu::Render() {
     Renderer2D::DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
     MainItems->Tint = col;
     MainItems->Render();
+    SecondaryItems->Tint = col;
+    SecondaryItems->Render();
+    ImageGrid->Tint = col;
+    ImageGrid->Render();
+  }
+}
+
+void AlbumMenu::SwitchToCharacter(int id) {
+  SelectedCharacterId = id;
+  if (id == -1) {
+    SecondaryItems->Hide();
+    ImageGrid->Hide();
+    MainItems->Show();
+  } else {
+    LoadCharacter(id);
+    MainItems->Hide();
+    SecondaryItems->Show();
+    ImageGrid->Show();
+  }
+}
+
+void AlbumMenu::LoadCharacter(int id) {
+  ImageGrid->Clear();
+  SecondaryItems->Clear();
+  if (id < CharacterPortraitCount) {
+    SecondaryItems->Add(new Label(
+        CharacterPortraits[id],
+        glm::vec2(PortraitPosition.x - CharacterPortraits[id].ScaledWidth(),
+                  PortraitPosition.y)));
   }
 }
 

@@ -10,6 +10,7 @@ namespace AlbumMenu {
 void Configure();
 
 int const CharacterButtonCount = 8;
+int const CharacterPortraitCount = 5;
 
 extern Sprite BackgroundSprite;
 
@@ -22,6 +23,8 @@ extern glm::vec2 ButtonMargin;
 extern float HighlightAnimationDuration;
 extern int YunoButtonIdx;
 extern int SuzuButtonIdx;
+extern Sprite CharacterPortraits[CharacterPortraitCount];
+extern glm::vec2 PortraitPosition;
 
 extern float FadeInDuration;
 extern float FadeOutDuration;

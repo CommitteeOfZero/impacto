@@ -162,6 +162,8 @@ root.ExtraMenus = {
         HighlightAnimationDuration: 0.5,
         YunoButtonIdx: 3,
         SuzuButtonIdx: 4,
+        CharacterPortraits: [],
+        PortraitPosition: { X: 1282, Y: 80 },
         FadeInDuration: 0.2,
         FadeOutDuration: 0.2
     }
@@ -551,6 +553,9 @@ var buttonX = 1;
 var highlightedButtonX = 1281;
 var buttonY = 761;
 var highlightedButtonY = 1;
+var portraitX = 1;
+var portraitY = 1;
+var portraitWidths = [383, 413, 484, 355, 326];
 
 for (var i = 1; i <= 6; i++) {
     if (i == 4) {
@@ -620,6 +625,20 @@ for (var i = 1; i <= 6; i++) {
     root.ExtraMenus.AlbumMenu.CharacterButtons.push("AlbumMenuCharaButton" + i);
     root.ExtraMenus.AlbumMenu.HighlightedCharacterButtons.push("AlbumMenuCharaButtonHighlighted" + i);
 
+    if (i != 6) {
+        root.Sprites["AlbumMenuCharaPortrait" + i] = {
+            Sheet: "Album2",
+            Bounds: {
+                X: portraitX,
+                Y: portraitY,
+                Width: portraitWidths[i - 1],
+                Height: 640
+            }
+        };
+        root.ExtraMenus.AlbumMenu.CharacterPortraits.push("AlbumMenuCharaPortrait" + i);
+        portraitX += portraitWidths[i - 1];
+    }
+
     if (i % 3 == 0) {
         buttonX = 713;
         buttonY = 761;
@@ -629,3 +648,7 @@ for (var i = 1; i <= 6; i++) {
         highlightedButtonY += 88;
     }
 }
+
+temp = root.ExtraMenus.AlbumMenu.CharacterPortraits[3];
+root.ExtraMenus.AlbumMenu.CharacterPortraits[3] = root.ExtraMenus.AlbumMenu.CharacterPortraits[4];
+root.ExtraMenus.AlbumMenu.CharacterPortraits[4] = temp;

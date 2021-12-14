@@ -18,9 +18,19 @@ class AlbumMenu : public Menu {
   void Update(float dt);
   void Render();
 
+  void CharacterButtonOnClick(Widgets::Button* target);
+
  private:
   Widgets::Group* MainItems;
+  Widgets::Group* ImageGrid;
+  Widgets::Group* SecondaryItems;
+
+  int SelectedCharacterId = -1;
+
   Animation FadeAnimation;
+
+  void SwitchToCharacter(int id);
+  void LoadCharacter(int id);
 };
 
 }  // namespace MO6TW
