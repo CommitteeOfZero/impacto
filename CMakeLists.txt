@@ -604,6 +604,20 @@ include_directories(vendor/include)
 include_directories(vendor/duktape/include)
 include_directories(vendor/pcg/include)
 
+if (NOT DEFINED IMPACTO_DISABLE_MSPACK)
+    list(APPEND Impacto_Src
+        src/io/lzxstream.cpp
+
+        vendor/mspack/lzxc.c
+        vendor/mspack/lzxd.c
+        vendor/mspack/system.c
+    )
+    list(APPEND Impacto_Header
+        src/io/lzxstream.h
+    )
+    include_directories(vendor/mspack)
+endif()
+
 add_executable (impacto ${Impacto_Src} ${Impacto_Header})
 
 target_link_libraries(impacto PUBLIC ${Impacto_Libs})

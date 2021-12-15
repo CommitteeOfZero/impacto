@@ -2,6 +2,9 @@
 
 #include "../log.h"
 #include "uncompressedstream.h"
+#ifndef IMPACTO_DISABLE_MSPACK
+#include "lzxstream.h"
+#endif
 #include "vfs.h"
 #include "../util.h"
 #include <SDL_endian.h>
@@ -19,8 +22,17 @@ Lnk4Archive::~Lnk4Archive() {
 
 IoError Lnk4Archive::Open(FileMeta* file, InputStream** outStream) {
   Lnk4MetaEntry* entry = (Lnk4MetaEntry*)file;
+#ifndef IMPACTO_DISABLE_MSPACK
+  IoError err =
+      LzxStream::Create(BaseStream, entry->Offset, entry->Size, outStream);
+  if (err != IoError_OK) {
+    err = UncompressedStream::Create(BaseStream, entry->Offset, entry->Size,
+                                     outStream);
+  }
+#else
   IoError err = UncompressedStream::Create(BaseStream, entry->Offset,
                                            entry->Size, outStream);
+#endif
   if (err != IoError_OK) {
     ImpLog(LL_Error, LC_IO,
            "LNK4 file open failed for file \"%s\" in archive \"%s\"\n",

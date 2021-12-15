@@ -21,6 +21,7 @@
 * `vendor/pcg`: [PCG Random Number Generation, Minimal C Edition](https://github.com/imneme/pcg-c-basic)
 * `vendor/squish`: [Squish](http://sjbrown.co.uk/?code=squish)
 * `vendor/utf8-cpp`: [UTF8-CPP](http://utfcpp.sourceforge.net/)
+* `vendor/mspack`: [libmspack](https://www.cabextract.org.uk/libmspack/), only includes LZX decompressor to reduce code size
 
 All third-party code mentioned above is mandatory, included in the build process and compiled into the output executable for impacto on every supported platform and build configuration.
 
@@ -48,7 +49,8 @@ All third-party code mentioned above is mandatory, included in the build process
 
 * Unless specified otherwise, impacto source and binaries are covered by [the ISC license](LICENSE) but contain and use the dependencies listed above, requiring third-party copyright notices.
 * NX builds statically link OpenAL Soft (assuming this is used as the OpenAL implementation), placing NX binaries under LGPLv2 or later.
-* Win32 builds ship OpenAL Soft and FFmpeg as DLLs, thus including LGPLv2 code in the distribution but not inside the impacto executable.
+* All builds ship with libmspack in the impacto executable, placing it under LGPLv2 or later. If you wish to disable libmspack and get rid of LGPLv2 dependency, please use -DIMPACTO_DISABLE_MSPACK
+  define.
 
 License statements for third-party code in this repository (where given) and external libraries bundled by the build process in at least one supported configuration follow:
 
@@ -1028,6 +1030,12 @@ Copyright 2006 Nemanja Trifunovic
 >     FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE,
 >     ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 >     DEALINGS IN THE SOFTWARE.
+
+## libmspack
+
+https://www.cabextract.org.uk/libmspack/
+
+See below for license text (LGPLv2).
 
 # Generic license texts
 
