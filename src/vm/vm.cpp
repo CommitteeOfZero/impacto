@@ -343,7 +343,8 @@ static void DrawAllThreads() {
   CreateThreadDrawTable();
   SortThreadDrawTable();
 
-  memset(Game::DrawComponents, Game::TD_None, sizeof(Game::DrawComponents));
+  memset(Game::DrawComponents, Game::DrawComponentType::None,
+         sizeof(Game::DrawComponents));
 
   int cnt = 0;
   while (ThreadTable[cnt]) {

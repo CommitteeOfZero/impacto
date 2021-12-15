@@ -24,6 +24,7 @@ include('common/scriptinput.js');
 include('common/scriptvars.js');
 include('mo6tw/scriptvars.js');
 include('mo6tw/savedata.js');
+include('mo6tw/tipssystem.js')
 include('mo6tw/vfs.js');
 include('mo6tw/sprites.js');
 include('common/animation.js');
@@ -41,3 +42,4 @@ include('mo6tw/hud/selectiondisplay.js');
 include('mo6tw/hud/backlogmenu.js');
 include('mo6tw/hud/optionsmenu.js');
 include('mo6tw/hud/tipsmenu.js');
+include('mo6tw/hud/extramenus.js');

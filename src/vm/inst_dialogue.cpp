@@ -14,7 +14,8 @@
 #include "../audio/audiochannel.h"
 #include "../profile/vm.h"
 #include "../hud/saveicondisplay.h"
-#include "../savesystem.h"
+#include "../data/savesystem.h"
+#include "../data/tipssystem.h"
 #include "../ui/ui.h"
 #include "interface/input.h"
 
@@ -434,6 +435,7 @@ VmInstruction(InstSetDic) {
   PopExpression(tipId);
   switch (type) {
     case 0:  // NewTip
+      TipsSystem::SetTipLockedState(tipId, false);
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SetDic(type: NewTip, tipId: %i)\n", tipId);
       break;
@@ -455,6 +457,7 @@ VmInstruction(InstEncyclopedia) {
   PopExpression(tipId);
   ImpLogSlow(LL_Warning, LC_VMStub,
              "STUB instruction Encyclopedia(tipId: %i)\n", tipId);
+  TipsSystem::SetTipLockedState(tipId, false);
 }
 VmInstruction(InstNameID) {
   StartInstruction;
@@ -492,11 +495,13 @@ VmInstruction(InstTips) {
       if (Profile::Vm::GameInstructionSet == +InstructionSet::MO8) {
         PopLocalLabel(tipsDataAdr1);
       }
-      UI::TipsMenuPtr->DataInit(thread->ScriptBufferId, tipsDataAdr);
+
+      TipsSystem::DataInit(thread->ScriptBufferId, tipsDataAdr);
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction Tips(type: TipsDataInit)\n");
     } break;
     case 1:  // TipsInit
+      TipsSystem::UpdateTipRecords();
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction Tips(type: TipsInit)\n");
       break;

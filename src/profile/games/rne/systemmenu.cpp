@@ -5,6 +5,7 @@
 #include "../../ui/systemmenu.h"
 #include "../../../ui/ui.h"
 #include "../../../games/rne/systemmenu.h"
+#include "../../../game.h"
 
 namespace Impacto {
 namespace Profile {
@@ -82,7 +83,11 @@ void Configure() {
   HighlightAnimation.DurationIn = HighlightDurationIn;
   HighlightAnimation.DurationOut = HighlightDurationOut;
 
+  auto drawType = Game::DrawComponentType::_from_integral_unchecked(
+      EnsureGetMemberInt("DrawType"));
+
   UI::SystemMenuPtr = new UI::RNE::SystemMenu();
+  UI::Menus[drawType].push_back(UI::SystemMenuPtr);
 }
 
 }  // namespace SystemMenu

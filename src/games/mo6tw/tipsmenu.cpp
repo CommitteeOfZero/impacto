@@ -1,15 +1,17 @@
 #include "tipsmenu.h"
 
-#include "../../profile/ui/tipsmenu.h"
-#include "../../profile/games/mo6tw/tipsmenu.h"
 #include "../../renderer2d.h"
 #include "../../mem.h"
 #include "../../vm/vm.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/dialogue.h"
 #include "../../profile/ui/backlogmenu.h"
-#include "../../ui/widgets/label.h"
+#include "../../profile/ui/tipsmenu.h"
+#include "../../profile/games/mo6tw/tipsmenu.h"
+#include "../../ui/widgets/mo6tw/tipsentrybutton.h"
 #include "../../io/memorystream.h"
+#include "../../data/tipssystem.h"
+#include "../../vm/interface/input.h"
 
 namespace Impacto {
 namespace UI {
@@ -19,10 +21,14 @@ using namespace Impacto::Profile::TipsMenu;
 using namespace Impacto::Profile::MO6TW::TipsMenu;
 using namespace Impacto::Profile::ScriptVars;
 
-using namespace Impacto::UI::Widgets;
+using namespace Impacto::Vm::Interface;
 
-void TipsMenu::TipOnClick(Widgets::Button *target) {
-  SwitchToTipId(target->Id);
+using namespace Impacto::UI::Widgets;
+using namespace Impacto::UI::Widgets::MO6TW;
+
+void TipsMenu::TipOnClick(Button *target) {
+  auto tipEntry = static_cast<TipsEntryButton *>(target);
+  if (!tipEntry->TipEntryRecord->IsLocked) SwitchToTipId(target->Id);
 }
 
 TipsMenu::TipsMenu() {
@@ -31,12 +37,22 @@ TipsMenu::TipsMenu() {
   FadeAnimation.DurationIn = FadeInDuration;
   FadeAnimation.DurationOut = FadeOutDuration;
 
-  Name = new Widgets::Label();
-  Name->Bounds = RectF(703.0f, 117.0f, 0.0f, 0.0f);
-  Pronounciation = new Widgets::Label();
-  Pronounciation->Bounds = RectF(703.0f, 87.0f, 0.0f, 0.0f);
-  Category = new Widgets::Label();
-  Category->Bounds = RectF(1135.0f, 206.0f, 0.0f, 0.0f);
+  TipViewItems = new Group(this);
+  TipViewItems->FocusLock = false;
+  TipViewItems->IsShown = true;
+
+  Name = new Label();
+  Name->Bounds = NameInitialBounds;
+  TipViewItems->Add(Name);
+
+  Pronounciation = new Label();
+  Pronounciation->Bounds = PronounciationInitialBounds;
+  TipViewItems->Add(Pronounciation);
+
+  Category = new Label();
+  Category->Bounds = CategoryInitialBounds;
+  TipViewItems->Add(Category);
+
   TextPage = new DialoguePage();
   TextPage->Glyphs = new ProcessedTextGlyph[Profile::Dialogue::MaxPageSize];
   TextPage->Clear();
@@ -67,6 +83,19 @@ void TipsMenu::Hide() {
       UI::FocusedMenu = 0;
     }
     IsFocused = false;
+    CurrentlyDisplayedTipId = -1;
+  }
+}
+
+void TipsMenu::UpdateInput() {
+  Menu::UpdateInput();
+  if (State == Shown) {
+    ItemsList->UpdateInput();
+    if (CurrentlyDisplayedTipId != -1) {
+      if (PADinputButtonWentDown & PAD1X) {
+        NextTipPage();
+      }
+    }
   }
 }
 
@@ -85,9 +114,12 @@ void TipsMenu::Update(float dt) {
   else if (ScrWork[SW_TIPSALPHA] == 0 && FadeAnimation.IsOut())
     State = Hidden;
 
+  ItemsList->Tint.a = FadeAnimation.Progress;
+  TipViewItems->Tint.a = FadeAnimation.Progress;
+
   if (State == Shown) {
-    ItemsList->UpdateInput();
     ItemsList->Update(dt);
+    TipViewItems->Update(dt);
   }
 }
 
@@ -98,99 +130,160 @@ void TipsMenu::Render() {
     ItemsList->Render();
 
     if (CurrentlyDisplayedTipId != -1) {
-      Name->Render();
-      Pronounciation->Render();
-      Category->Render();
+      TipViewItems->Render();
       Renderer2D::DrawProcessedText(TextPage->Glyphs, TextPage->Length,
                                     Profile::Dialogue::DialogueFont, col.a,
                                     true, true);
       if (ThumbnailSprite) {
-        Renderer2D::DrawSprite(*ThumbnailSprite, glm::vec2(413.0f, 45.0f), col);
+        Renderer2D::DrawSprite(*ThumbnailSprite, ThumbnailPosition, col);
       }
     }
   }
 }
 
-void TipsMenu::DataInit(int scriptBufferId, uint8_t *tipsData) {
-  auto scriptBuffer = Vm::ScriptBuffers[scriptBufferId];
-
-  Records.clear();
-  Records.shrink_to_fit();
-
-  ItemsList = new Widgets::Carousel(CDIR_HORIZONTAL);
+void TipsMenu::Init() {
+  ItemsList = new Carousel(CDIR_HORIZONTAL);
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
   auto onClick = std::bind(&TipsMenu::TipOnClick, this, std::placeholders::_1);
-  int idx = 0, currentPage = 0, idxInPage = 0;
-  Widgets::Group *pageItems = new Widgets::Group(this);
+  int idx = 0, currentPage = 0, currentCategoryId = -1;
+  Group *pageItems = new Group(this);
 
-  Io::MemoryStream *stream = new Io::MemoryStream(tipsData, MaxTipDataSize);
-  auto unk01 = Io::ReadLE<uint16_t>(stream);
-  while (unk01 != 255) {
-    TipsDataRecord record;
-    memset(&record, 0, sizeof(TipsDataRecord));
-    record.id = idx++;
-    // I don't know, I don't care, this is not my magic
-    record.sortLetterIndex = (unk01 - 5 * ((unk01 + 1) / 10) - 6);
-    auto page = record.sortLetterIndex / 5;
+  // String of characters by which tips are sorted, taken from _system script
+  auto sortString = (uint16_t *)Vm::ScriptGetTextTableStrAddress(
+      SortStringTable, SortStringIndex);
+
+  Records = TipsSystem::GetTipRecords();
+  auto recordCount = TipsSystem::GetTipCount();
+
+  float currentY = TipListInitialY;
+
+  for (int i = 0; i < recordCount; i++) {
+    auto record = &Records[i];
+
+    // In this case the tips are split into pages in UI with maximum of 5
+    // categories per page, with each category being a character from
+    // the sort string and containing all tips the names of which begin with
+    // that character
+    auto page = record->SortLetterIndex / TipListCategoriesPerPage;
     if (page != currentPage) {
+      if (currentPage == 0) pageItems->Show();
       currentPage = page;
-      idxInPage = 0;
-      pageItems->Show();
+      currentY = TipListInitialY;
       ItemsList->Add(pageItems);
-      pageItems = new Widgets::Group(this);
+      pageItems = new Group(this);
     }
-    record.thumbnailIndex = Io::ReadLE<uint16_t>(stream);
-    record.numberOfContentStrings = Io::ReadLE<uint16_t>(stream);
-    for (int i = 0; i < record.numberOfContentStrings + 3; i++) {
-      record.stringPtrs[i] =
-          Vm::ScriptGetStrAddress(scriptBuffer, Io::ReadLE<uint16_t>(stream));
+
+    // Start new category
+    // We take a character from the sort string and use that as the category
+    // name inside a predefined template
+    if (record->SortLetterIndex != currentCategoryId) {
+      currentCategoryId = record->SortLetterIndex;
+      CategoryString[1] = sortString[currentCategoryId];
+
+      Label *categoryLabel = new Label();
+      categoryLabel->Bounds.X = TipListEntryBounds.X;
+      categoryLabel->Bounds.Y = currentY;
+      categoryLabel->SetText((uint8_t *)CategoryString, TipListEntryFontSize,
+                             true, 0);
+      pageItems->Add(categoryLabel);
+      currentY += TipListYPadding;
     }
-    Records.push_back(record);
 
-    Button *button = new Button(
-        record.id, nullSprite, nullSprite, Profile::BacklogMenu::EntryHighlight,
-        glm::vec2(119.0f, 108.0f + (idxInPage++ * 20.0f)));
-
-    button->HighlightOffset.y = -10.0f;
+    // Actual tip entry button
+    TipListEntryBounds.Y = currentY;
+    TipsEntryButton *button =
+        new TipsEntryButton(record->Id, record, TipListEntryBounds,
+                            Profile::BacklogMenu::EntryHighlight);
     button->OnClickHandler = onClick;
-    button->SetText(record.stringPtrs[0], 20, true, 0);
-    pageItems->Add(button, FDIR_DOWN);
 
-    unk01 = Io::ReadLE<uint16_t>(stream);
+    pageItems->Add(button, FDIR_DOWN);
+    currentY += TipListYPadding;
   }
 
-  delete stream;
+  // Add last category
+  ItemsList->Add(pageItems);
+
+  // Number label
+  NumberText = new Label(Vm::ScriptGetTextTableStrAddress(NumberLabelStrTable,
+                                                          NumberLabelStrIndex),
+                         NumberLabelPosition, NumberLabelFontSize, true,
+                         DefaultColorIndex);
+  TipViewItems->Add(NumberText);
+  // Tip number
+  Number = new Label();
+  Number->Bounds = NumberBounds;
+  TipViewItems->Add(Number);
+  // Tip page separator
+  PageSeparator = new Label(
+      Vm::ScriptGetTextTableStrAddress(PageSeparatorTable, PageSeparatorIndex),
+      PageSeparatorPosition, PageSeparatorFontSize, true, DefaultColorIndex);
+  TipViewItems->Add(PageSeparator);
+  // Current tip page
+  CurrentPage = new Label();
+  CurrentPage->Bounds = CurrentPageBounds;
+  TipViewItems->Add(CurrentPage);
+  // Total tip pages
+  TotalPages = new Label();
+  TotalPages->Bounds = TotalPagesBounds;
+  TipViewItems->Add(TotalPages);
 }
 
 void TipsMenu::SwitchToTipId(int id) {
   CurrentlyDisplayedTipId = id;
-  auto tipRecord = Records.at(id);
-  Name->SetText(tipRecord.stringPtrs[0], 32, true, 0);
-  Pronounciation->SetText(tipRecord.stringPtrs[1], 20, true, 0);
+  CurrentTipPage = 1;
+  TipsSystem::SetTipUnreadState(id, false);
+  TipsSystem::SetTipNewState(id, false);
+
+  auto tipRecord = &Records[id];
+  Name->SetText(tipRecord->StringPtrs[0], NameFontSize, true,
+                DefaultColorIndex);
+  Pronounciation->SetText(tipRecord->StringPtrs[1], PronounciationFontSize,
+                          true, DefaultColorIndex);
 
   Vm::Sc3VmThread dummy;
-  dummy.Ip = tipRecord.stringPtrs[2];
-  float categoryWidth =
-      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, 32);
-  Category->Bounds.X = 1200.0f - categoryWidth;
-  Category->SetText(tipRecord.stringPtrs[2], 32, true, 0);
-  if (tipRecord.thumbnailIndex != 0xFFFF)
-    ThumbnailSprite = &TipThumbnails[tipRecord.thumbnailIndex];
+  dummy.Ip = tipRecord->StringPtrs[2];
+  float categoryWidth = TextGetPlainLineWidth(
+      &dummy, Profile::Dialogue::DialogueFont, CategoryFontSize);
+  Category->Bounds.X = CategoryEndX - categoryWidth;
+  Category->SetText(tipRecord->StringPtrs[2], CategoryFontSize, true,
+                    DefaultColorIndex);
+  if (tipRecord->ThumbnailIndex != 0xFFFF)
+    ThumbnailSprite = &TipThumbnails[tipRecord->ThumbnailIndex];
   else
     ThumbnailSprite = &TipTextOnlyThumbnail;
 
+  char temp[5];
+  sprintf(temp, "%4d", tipRecord->Id + 1);
+  Number->SetText(std::string(temp), NumberFontSize, true, DefaultColorIndex);
+
+  sprintf(temp, "%d", CurrentTipPage);
+  CurrentPage->SetText(std::string(temp), PageSeparatorFontSize, true,
+                       DefaultColorIndex);
+
+  sprintf(temp, "%d", tipRecord->NumberOfContentStrings);
+  TotalPages->SetText(std::string(temp), PageSeparatorFontSize, true,
+                      DefaultColorIndex);
+
   TextPage->Clear();
-  dummy.Ip = tipRecord.stringPtrs[3];
+  dummy.Ip = tipRecord->StringPtrs[3];
   TextPage->AddString(&dummy);
 }
 
-void TipsMenu::SwitchToTipPage(int num) {
-  CurrentTipPage = num;
+void TipsMenu::NextTipPage() {
+  CurrentTipPage += 1;
+  if (CurrentTipPage > Records[CurrentlyDisplayedTipId].NumberOfContentStrings)
+    CurrentTipPage = 1;
+
   TextPage->Clear();
   Vm::Sc3VmThread dummy;
-  dummy.Ip = Records.at(CurrentlyDisplayedTipId).stringPtrs[2 + num];
+  dummy.Ip = Records[CurrentlyDisplayedTipId].StringPtrs[2 + CurrentTipPage];
   TextPage->AddString(&dummy);
+
+  char temp[5];
+  sprintf(temp, "%d", CurrentTipPage);
+  CurrentPage->SetText(std::string(temp), PageSeparatorFontSize, true,
+                       DefaultColorIndex);
 }
 
 }  // namespace MO6TW

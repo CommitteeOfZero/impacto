@@ -26,7 +26,7 @@ void DrawRect(RectF const& dest, glm::vec4 color, float angle = 0.0f);
 void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
                       RectF const& dest, glm::vec4 tint, int alpha,
                       int fadeRange, bool isScreencap = false,
-                      bool isInverted = false);
+                      bool isInverted = false, bool isSameTexture = false);
 
 void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest, float depth,
                          glm::vec2 vanishingPoint, bool stayInScreen,
@@ -58,6 +58,10 @@ void DrawVideoTexture(YUVFrame const& tex, glm::vec2 topLeft,
                       bool alphaVideo = false);
 
 void CaptureScreencap(Sprite const& sprite);
+
+void EnableScissor();
+void SetScissorRect(RectF const& rect);
+void DisableScissor();
 
 }  // namespace Renderer2D
 }  // namespace Impacto

@@ -6,6 +6,9 @@
 #include "sysmesbox.h"
 #include "tipsmenu.h"
 
+#include <flat_hash_map.hpp>
+#include <vector>
+
 namespace Impacto {
 namespace UI {
 
@@ -15,6 +18,15 @@ BETTER_ENUM(SysMesBoxType, int, None, RNE, Dash, CHLCC, MO6TW, Darling, CC)
 BETTER_ENUM(TitleMenuType, int, None, RNE, Dash, CHLCC, MO6TW, CC, CCLCC)
 BETTER_ENUM(OptionsMenuType, int, None, MO6TW)
 BETTER_ENUM(TipsMenuType, int, None, MO6TW)
+BETTER_ENUM(ClearListMenuType, int, None, MO6TW)
+BETTER_ENUM(AlbumMenuType, int, None, MO6TW)
+BETTER_ENUM(MusicMenuType, int, None, MO6TW)
+BETTER_ENUM(MovieMenuType, int, None, MO6TW)
+BETTER_ENUM(ActorsVoiceMenuType, int, None, MO6TW)
+
+int const MaxExtraMenus = 10;
+
+extern ska::flat_hash_map<uint8_t, std::vector<Menu*>> Menus;
 
 // Current focused menu
 extern Menu* FocusedMenu;

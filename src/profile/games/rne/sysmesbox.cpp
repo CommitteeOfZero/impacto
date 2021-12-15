@@ -3,6 +3,7 @@
 
 #include "../../../ui/ui.h"
 #include "../../../games/rne/sysmesbox.h"
+#include "../../../game.h"
 
 namespace Impacto {
 namespace Profile {
@@ -112,7 +113,11 @@ void Configure() {
   TextDecorationBottomYOffset =
       EnsureGetMemberFloat("TextDecorationBottomYOffset");
 
+  auto drawType = Game::DrawComponentType::_from_integral_unchecked(
+      EnsureGetMemberInt("DrawType"));
+
   UI::SysMesBoxPtr = new UI::RNE::SysMesBox();
+  UI::Menus[drawType].push_back(UI::SysMesBoxPtr);
 }
 
 }  // namespace SysMesBox

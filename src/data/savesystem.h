@@ -1,10 +1,10 @@
 #pragma once
-#include "impacto.h"
+#include "../impacto.h"
 
 #include <string>
 #include <enum.h>
 #include <ctime>
-#include "log.h"
+#include "../log.h"
 
 namespace Impacto {
 namespace SaveSystem {
@@ -25,6 +25,13 @@ enum SaveError {
 enum SaveType { SaveFull = 0, SaveQuick = 1 };
 
 int const MaxSaveEntries = 48;
+
+uint8_t const Flbit[] = {1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80};
+
+struct ScriptMessageDataPair {
+  uint32_t LineCount;
+  uint32_t SaveDataOffset;
+};
 
 class SaveFileEntryBase {
  public:
@@ -56,6 +63,13 @@ class SaveSystemBase {
   virtual void WriteSaveFile() = 0;
   virtual uint8_t GetSaveSatus(SaveType type, int id) = 0;
   virtual int GetSaveTitle(SaveType type, int id) = 0;
+  virtual uint32_t GetTipStatus(int tipId) = 0;
+  virtual void SetTipStatus(int tipId, bool isLocked, bool isUnread,
+                            bool isNew) = 0;
+  virtual void GetReadMessagesCount(int* totalMessageCount,
+                                    int* readMessageCount) = 0;
+  virtual void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) = 0;
+  virtual bool GetBgmFlag(int id) = 0;
 
   SaveFileEntryBase* FullSaveEntries[MaxSaveEntries];
   SaveFileEntryBase* QuickSaveEntries[MaxSaveEntries];
@@ -72,6 +86,11 @@ void FlushWorkingSaveEntry(SaveType type, int id);
 void WriteSaveFile();
 uint8_t GetSaveSatus(SaveType type, int id);
 int GetSaveTitle(SaveType type, int id);
+uint32_t GetTipStatus(int tipId);
+void SetTipStatus(int tipId, bool isLocked, bool isUnread, bool isNew);
+void GetReadMessagesCount(int* totalMessageCount, int* readMessageCount);
+void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount);
+bool GetBgmFlag(int id);
 
 }  // namespace SaveSystem
 }  // namespace Impacto

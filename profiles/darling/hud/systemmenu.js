@@ -1,5 +1,6 @@
 root.SystemMenu = {
     Type: SystemMenuType.None,
+    DrawType: DrawComponentType.SystemMenu,
     ButtonBackgroundSprite: "SystemMenuButtonBackground",
     ButtonPromptsSprite: "SystemMenuButtonPrompts",
     ButtonBackgroundStartX: 1257,

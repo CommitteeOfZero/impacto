@@ -20,7 +20,7 @@ More platforms and toolchains are known to work.
 
 **We are looking for contributors!** Check out the [Getting Started guide](doc/getting_started.md) for pointers on setting up games for testing, finding your way around the codebase and adding functionality. Also check out the [Contributor guide](doc/contributor_guide.md) for important information on the code style you should follow.
 
-There is work to be done for C++ programmers of any skill level in a wide range of subjects, on game engine architecture (design and implementation), reverse-engineering the original (looking at just the game's outside behaviour as a *black box* or inspecting the internals through a *white box*), replicating it, improving on it with new functionality, documenting our efforts, fixing bugs and polish.
+There is work to be done for C++ programmers of any skill level in a wide range of subjects, on game engine architecture (design and implementation), reverse-engineering the original (looking at just the game's outside behaviour as a *black box* or inspecting the internals through a *white box*), replicating it, improving on it with new functionality, documenting our efforts, fixing bugs and polish. 
 
 If you're interested, [come join our Discord](https://discord.gg/rq4GGCh) to discuss ideas and help you get into it.
 

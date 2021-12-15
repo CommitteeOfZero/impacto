@@ -1,5 +1,6 @@
 root.SaveMenu = {
     Type: SaveMenuType.MO6TW,
+    DrawType: DrawComponentType.SystemMenu,
     SaveMenuBackgroundSprite: "SaveMenuBackground",
 	EmptyThumbnailSprite: "EmptyThumbnail",
     QuickLoadTextSprite: "QuickLoadText",

@@ -35,12 +35,10 @@ bool RectF::ContainsPoint(glm::vec2 point, float angle) const {
          point.y >= -Height / 2.0f && point.y <= Height / 2.0f;
 }
 
-// TEMP //
-bool RectF::Contains(RectF const& rect) const {
-  return rect.X >= X && rect.Y >= Y && (rect.X + rect.Width <= X + Width) &&
-         (rect.Y + rect.Height <= Y + Height);
+bool RectF::Intersects(RectF const& rect) const {
+  return (X <= rect.X + rect.Width && rect.X <= X + Width &&
+          Y <= rect.Y + rect.Height && rect.Y <= Y + Height);
 }
-//////////
 
 Rect::Rect() {}
 Rect::Rect(int x, int y, int width, int height)

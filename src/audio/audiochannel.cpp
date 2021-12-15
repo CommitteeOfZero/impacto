@@ -130,6 +130,9 @@ void AudioChannel::Update(float dt) {
   int currentlyPlayingBuffer =
       (FirstFreeBuffer + FreeBufferCount) % AudioBufferCount;
 
+  // TODO: Figure out what's wrong with this, seems like position can randomly
+  // become less than the previous position (I think start + offset somehow gets
+  // bigger than next buffer start)
   int offset;
   alGetSourcei(Source, AL_SAMPLE_OFFSET, &offset);
   Position = BufferStartPositions[currentlyPlayingBuffer] + offset;

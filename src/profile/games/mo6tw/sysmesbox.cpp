@@ -3,6 +3,7 @@
 
 #include "../../../ui/ui.h"
 #include "../../../games/mo6tw/sysmesbox.h"
+#include "../../../game.h"
 
 namespace Impacto {
 namespace Profile {
@@ -49,7 +50,11 @@ void Configure() {
   BoxRightBaseX = EnsureGetMemberFloat("BoxRightBaseX");
   BoxRightRemainPad = EnsureGetMemberFloat("BoxRightRemainPad");
 
+  auto drawType = Game::DrawComponentType::_from_integral_unchecked(
+      EnsureGetMemberInt("DrawType"));
+
   UI::SysMesBoxPtr = new UI::MO6TW::SysMesBox();
+  UI::Menus[drawType].push_back(UI::SysMesBoxPtr);
 }
 
 }  // namespace SysMesBox

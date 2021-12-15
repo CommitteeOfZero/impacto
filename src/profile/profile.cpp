@@ -12,7 +12,8 @@
 #include "../game.h"
 #include "../ui/ui.h"
 #include "../vm/vm.h"
-#include "../savesystem.h"
+#include "../data/savesystem.h"
+#include "../data/tipssystem.h"
 #include "../hud/datedisplay.h"
 #include "../hud/waiticondisplay.h"
 #include "../hud/dialoguebox.h"
@@ -155,12 +156,19 @@ void MakeJsonProfile(std::string const& name) {
   DefineEnumInt<GameFeature>(ctx);
   DefineEnumInt<CharacterTypeFlags>(ctx);
   DefineEnumInt<Vm::InstructionSet>(ctx);
+  DefineEnumUint<Game::DrawComponentType>(ctx);
   DefineEnumInt<SaveSystem::SaveDataType>(ctx);
+  DefineEnumInt<TipsSystem::TipsSystemType>(ctx);
   DefineEnumInt<UI::SystemMenuType>(ctx);
   DefineEnumInt<UI::TitleMenuType>(ctx);
   DefineEnumInt<UI::SaveMenuType>(ctx);
   DefineEnumInt<UI::OptionsMenuType>(ctx);
   DefineEnumInt<UI::TipsMenuType>(ctx);
+  DefineEnumInt<UI::ClearListMenuType>(ctx);
+  DefineEnumInt<UI::AlbumMenuType>(ctx);
+  DefineEnumInt<UI::MusicMenuType>(ctx);
+  DefineEnumInt<UI::MovieMenuType>(ctx);
+  DefineEnumInt<UI::ActorsVoiceMenuType>(ctx);
   DefineEnumInt<DateDisplay::DateDisplayType>(ctx);
   DefineEnumInt<WaitIconDisplay::WaitIconType>(ctx);
   DefineEnumInt<DialogueBoxType>(ctx);

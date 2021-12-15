@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../savesystem.h"
+#include "../../data/savesystem.h"
 
 namespace Impacto {
 namespace MO6TW {
@@ -24,6 +24,17 @@ class SaveSystem : public SaveSystemBase {
   void WriteSaveFile();
   uint8_t GetSaveSatus(SaveType type, int id);
   int GetSaveTitle(SaveType type, int id);
+  uint32_t GetTipStatus(int tipId);
+  void SetTipStatus(int tipId, bool isLocked, bool isUnread, bool isNew);
+  void GetReadMessagesCount(int* totalMessageCount, int* readMessageCount);
+  void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount);
+  bool GetBgmFlag(int id);
+
+ private:
+  uint8_t GameExtraData[1024];
+  uint8_t MessageFlags[10000];
+  bool EVFlags[1200];
+  uint8_t BGMFlags[100];
 };
 
 }  // namespace MO6TW

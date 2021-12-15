@@ -1,5 +1,6 @@
 root.TitleMenu = {
     Type: TitleMenuType.CC,
+    DrawType: DrawComponentType.SystemMenu,
     PressToStartX: 816,
     PressToStartY: 738,
     PressToStartAnimDurationIn: 0.7,

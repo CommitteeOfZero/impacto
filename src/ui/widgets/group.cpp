@@ -2,6 +2,7 @@
 
 #include "../../profile/game.h"
 #include "../../inputsystem.h"
+#include "../../renderer2d.h"
 
 namespace Impacto {
 namespace UI {
@@ -9,15 +10,13 @@ namespace Widgets {
 
 Group::Group(Menu* ctx) {
   MenuContext = ctx;
-  Position = glm::vec2(0.0f);
+  Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
   RenderingBounds =
       RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight);
 }
 
 Group::Group(Menu* ctx, glm::vec2 pos) : Group(ctx) {
-  Position = pos;
-  RenderingBounds =
-      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight);
+  Bounds = RectF(pos.x, pos.y, 0.0f, 0.0f);
 }
 
 void Group::Add(Widget* widget) { Children.push_back(widget); }
@@ -39,17 +38,20 @@ void Group::Add(Widget* widget, FocusDirection dir) {
       break;
   }
 
-  if (!Children.empty()) {
-    auto el = Children.back();
+  if (LastFocusableElementId != -1) {
+    auto el = Children.at(LastFocusableElementId);
     el->SetFocus(widget, dir);
     widget->SetFocus(el, oppositeDir);
     if (!FocusStart[dir]) FocusStart[dir] = el;
     if (!FocusStart[oppositeDir]) FocusStart[oppositeDir] = el;
+  } else {
+    FirstFocusableElementId = Children.size();
   }
 
   Add(widget);
+  LastFocusableElementId = Children.size() - 1;
   if (WrapFocus) {
-    auto firstEl = Children.front();
+    auto firstEl = Children.at(FirstFocusableElementId);
     widget->SetFocus(firstEl, dir);
     firstEl->SetFocus(widget, oppositeDir);
     FocusStart[oppositeDir] = widget;
@@ -75,6 +77,7 @@ void Group::UpdateInput() {
 
 void Group::Update(float dt) {
   if (IsShown) {
+    Widget::Update(dt);
     if ((FocusLock && HasFocus) || !FocusLock) {
       UpdateInput();
     }
@@ -92,14 +95,17 @@ void Group::Update(float dt) {
 
 void Group::Render() {
   if (IsShown) {
+    Renderer2D::EnableScissor();
+    Renderer2D::SetScissorRect(RenderingBounds);
     for (const auto& el : Children) {
-      if (RenderingBounds.Contains(el->Bounds)) {
+      if (RenderingBounds.Intersects(el->Bounds)) {
         auto tint = el->Tint;
         el->Tint *= Tint;
         el->Render();
         el->Tint = tint;
       }
     }
+    Renderer2D::DisableScissor();
   }
 }
 
@@ -148,34 +154,19 @@ void Group::Hide() {
   }
 }
 
-void Group::Move(glm::vec2 relativePosition, float duration) {
-  for (const auto& el : Children) {
-    el->Move(relativePosition, duration);
-  }
-  Position += relativePosition;
-}
-
 void Group::Move(glm::vec2 relativePosition) {
   for (const auto& el : Children) {
     el->Move(relativePosition);
   }
-  Position += relativePosition;
-}
-
-void Group::MoveTo(glm::vec2 pos, float duration) {
-  auto relativePosition = pos - Position;
-  for (const auto& el : Children) {
-    el->Move(relativePosition, duration);
-  }
-  Position = pos;
+  Widget::Move(relativePosition);
 }
 
 void Group::MoveTo(glm::vec2 pos) {
-  auto relativePosition = pos - Position;
+  auto relativePosition = pos - glm::vec2(Bounds.X, Bounds.Y);
   for (const auto& el : Children) {
     el->Move(relativePosition);
   }
-  Position = pos;
+  Widget::MoveTo(pos);
 }
 
 void Group::Clear() {
@@ -183,6 +174,7 @@ void Group::Clear() {
     delete el;
   }
   Children.clear();
+  LastFocusableElementId = -1;
 }
 
 }  // namespace Widgets

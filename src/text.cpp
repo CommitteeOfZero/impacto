@@ -17,6 +17,8 @@
 #include "hud/dialoguebox.h"
 #include "games/mo6tw/dialoguebox.h"
 
+#include "../vendor/utf8-cpp/utf8.h"
+
 namespace Impacto {
 
 using namespace Impacto::Profile::Dialogue;
@@ -752,6 +754,48 @@ float TextGetPlainLineWidth(Vm::Sc3VmThread* ctx, Font* font, float fontSize) {
   }
 
   return width;
+}
+
+int TextLayoutPlainString(std::string str, ProcessedTextGlyph* outGlyphs,
+                          Font* font, float fontSize, DialogueColorPair colors,
+                          float opacity, glm::vec2 pos, TextAlignment alignment,
+                          float blockWidth) {
+  std::string::iterator strIt = str.begin();
+  std::string::iterator strEnd = str.end();
+
+  int sc3StrLength = utf8::distance(strIt, strEnd) + 1;
+  uint16_t* sc3StrPtr = (uint16_t*)malloc(sizeof(uint16_t) * sc3StrLength);
+
+  TextGetSc3String(str, sc3StrPtr);
+
+  Vm::Sc3VmThread dummy;
+  dummy.Ip = (uint8_t*)sc3StrPtr;
+
+  int length =
+      TextLayoutPlainLine(&dummy, sc3StrLength, outGlyphs, font, fontSize,
+                          colors, opacity, pos, alignment, blockWidth);
+
+  free(sc3StrPtr);
+
+  return length;
+}
+
+void TextGetSc3String(std::string str, uint16_t* out) {
+  std::string::iterator strIt = str.begin();
+  std::string::iterator strEnd = str.end();
+
+  int sc3StrLength = utf8::distance(strIt, strEnd) + 1;
+
+  int sc3Idx = 0;
+  while (strIt != strEnd) {
+    auto codePoint = utf8::next(strIt, strEnd);
+
+    uint16_t sc3Val = Profile::Charset::CharacterToSc3[codePoint];
+    out[sc3Idx++] = SDL_Swap16(sc3Val);
+  }
+  out[sc3Idx++] = 0xFF;
+
+  assert(sc3Idx == sc3StrLength);
 }
 
 }  // namespace Impacto

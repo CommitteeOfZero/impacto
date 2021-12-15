@@ -1,4 +1,5 @@
 root.SelectionDisplay = {
+    DrawType: DrawComponentType.Text,
     SelectionBackgroundSprite: "SelectionBackground",
     PlainSelectionFrameTopLeftSprite: "PlainSelectionFrameTopLeft",
     PlainSelectionFrameTopSideSprite: "PlainSelectionFrameTopSide",

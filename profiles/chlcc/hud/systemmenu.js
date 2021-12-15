@@ -1,5 +1,6 @@
 root.SystemMenu = {
-    Type: SystemMenuType.None,
+    Type: SystemMenuType.RNE,
+    DrawType: DrawComponentType.SystemMenu,
     Background: {
         DurationIn: 0.75,
         DurationOut: 1.0,

@@ -4,7 +4,7 @@
 #include "../../io/physicalfilestream.h"
 #include "../../mem.h"
 #include "../../vm/vm.h"
-#include "../../profile/savesystem.h"
+#include "../../profile/data/savesystem.h"
 #include "../../profile/scriptvars.h"
 
 namespace Impacto {
@@ -35,6 +35,28 @@ SaveError SaveSystem::MountSaveFile() {
   Io::ReadArrayLE<uint8_t>(&FlagWork[100], stream, 50);
   Io::ReadArrayLE<uint8_t>(&FlagWork[460], stream, 40);
   Io::ReadArrayLE<uint8_t>((uint8_t*)&ScrWork[600], stream, 1600);
+
+  stream->Seek(0x7DA, SEEK_SET);
+  for (int i = 0; i < 150; i++) {
+    auto val = Io::ReadU8(stream);
+    EVFlags[8 * i] = val & 1;
+    EVFlags[8 * i + 1] = (val & 2) != 0;
+    EVFlags[8 * i + 2] = (val & 4) != 0;
+    EVFlags[8 * i + 3] = (val & 8) != 0;
+    EVFlags[8 * i + 4] = (val & 0x10) != 0;
+    EVFlags[8 * i + 5] = (val & 0x20) != 0;
+    EVFlags[8 * i + 6] = (val & 0x40) != 0;
+    EVFlags[8 * i + 7] = val >> 7;
+  }
+
+  stream->Seek(0xbc2, SEEK_SET);
+  Io::ReadArrayLE<uint8_t>(BGMFlags, stream, 100);
+
+  stream->Seek(0xc26, SEEK_SET);
+  Io::ReadArrayLE<uint8_t>(MessageFlags, stream, 10000);
+
+  stream->Seek(0x3336, SEEK_SET);
+  Io::ReadArrayLE<uint8_t>(GameExtraData, stream, 1024);
 
   stream->Seek(0x3b06, SEEK_SET);  // TODO: Actually load system data
 
@@ -201,6 +223,15 @@ void SaveSystem::WriteSaveFile() {
   IoError err = Io::PhysicalFileStream::CreateWrite(SaveFilePath, &instream);
   auto err1 = SDL_GetError();
   stream = (Io::PhysicalFileStream*)instream;
+
+  stream->Seek(0xbc2, SEEK_SET);
+  stream->Write(&BGMFlags, sizeof(uint8_t), 100);
+
+  stream->Seek(0xc26, SEEK_SET);
+  stream->Write(&MessageFlags, sizeof(uint8_t), 10000);
+
+  stream->Seek(0x3336, SEEK_SET);
+  stream->Write(&GameExtraData, sizeof(uint8_t), 1024);
 
   stream->Seek(0x3b06, SEEK_SET);  // TODO: Actually save system data
 
@@ -503,6 +534,62 @@ int SaveSystem::GetSaveTitle(SaveType type, int id) {
       return ((SaveFileEntry*)FullSaveEntries[id])->SwTitle;
   }
 }
+
+uint32_t SaveSystem::GetTipStatus(int tipId) {
+  tipId *= 3;
+  return (((GameExtraData[tipId >> 3] & Flbit[tipId & 7]) != 0) |
+          (2 *
+           ((Flbit[(tipId + 2) & 7] & GameExtraData[(tipId + 2) >> 3]) != 0))) &
+             0xFB |
+         (4 *
+          ((GameExtraData[(tipId + 1) >> 3] & Flbit[(tipId + 1) & 7]) != 0));
+}
+
+void SaveSystem::SetTipStatus(int tipId, bool isLocked, bool isUnread,
+                              bool isNew) {
+  tipId *= 3;
+  if (isLocked) {
+    GameExtraData[tipId >> 3] &= ~(Flbit[tipId & 7]);
+  } else {
+    GameExtraData[tipId >> 3] |= Flbit[tipId & 7];
+  }
+  if (isUnread) {
+    GameExtraData[(tipId + 1) >> 3] &= ~(Flbit[(tipId + 1) & 7]);
+  } else {
+    GameExtraData[(tipId + 1) >> 3] |= Flbit[(tipId + 1) & 7];
+  }
+  if (isNew) {
+    GameExtraData[(tipId + 2) >> 3] &= ~(Flbit[(tipId + 2) & 7]);
+  } else {
+    GameExtraData[(tipId + 2) >> 3] |= Flbit[(tipId + 2) & 7];
+  }
+}
+
+void SaveSystem::GetReadMessagesCount(int* totalMessageCount,
+                                      int* readMessageCount) {
+  for (int i = 0; i < StoryScriptCount; i++) {
+    auto record = ScriptMessageData[StoryScriptIDs[i]];
+    *totalMessageCount += record.LineCount;
+    for (int j = 0; j < record.LineCount; j++) {
+      *readMessageCount +=
+          ((*(uint8_t*)(MessageFlags + ((record.SaveDataOffset + i) >> 3)) &
+            Flbit[(record.SaveDataOffset + i) & 7]) != 0);
+    }
+  }
+}
+
+void SaveSystem::GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) {
+  for (int i = 0; i < MaxAlbumEntries; i++) {
+    if (AlbumData[i][0] == 0xFFFF) break;
+    for (int j = 1; j < MaxAlbumSubEntries; j++) {
+      if (AlbumData[i][j] == 0xFFFF) break;
+      *totalEVCount += 1;
+      *viewedEVCount += EVFlags[AlbumData[i][j]];
+    }
+  }
+}
+
+bool SaveSystem::GetBgmFlag(int id) { return BGMFlags[id]; }
 
 }  // namespace MO6TW
 }  // namespace Impacto

@@ -53,6 +53,71 @@ root.SpriteSheets = {
         Path: {Mount: "system", Id: 11 },
         DesignWidth: 2048,
         DesignHeight: 1024
+    },
+    "ClearList": {
+        Path: {Mount: "system", Id: 7 },
+        DesignWidth: 2048,
+        DesignHeight: 1024
+    },
+    "Movie": {
+        Path: {Mount: "system", Id: 14 },
+        DesignWidth: 2048,
+        DesignHeight: 1024
+    },
+    "ActorsVoice": {
+        Path: {Mount: "system", Id: 0 },
+        DesignWidth: 2048,
+        DesignHeight: 1024
+    },
+    "ActorsVoiceBackground": {
+        Path: {Mount: "system", Id: 1 },
+        DesignWidth: 1280,
+        DesignHeight: 720
+    },
+    "Music": {
+        Path: {Mount: "system", Id: 15 },
+        DesignWidth: 2048,
+        DesignHeight: 1024
+    },
+    "MusicThumbnails0": {
+        Path: {Mount: "system", Id: 16 },
+        DesignWidth: 2048,
+        DesignHeight: 1024
+    },
+    "MusicThumbnails1": {
+        Path: {Mount: "system", Id: 17 },
+        DesignWidth: 2048,
+        DesignHeight: 1024
+    },
+    "MusicThumbnails2": {
+        Path: {Mount: "system", Id: 18 },
+        DesignWidth: 2048,
+        DesignHeight: 1024
+    },
+    "MusicThumbnails3": {
+        Path: {Mount: "system", Id: 19 },
+        DesignWidth: 2048,
+        DesignHeight: 1024
+    },
+    "Album": {
+        Path: {Mount: "system", Id: 2 },
+        DesignWidth: 2048,
+        DesignHeight: 1024
+    },
+    "Album2": {
+        Path: {Mount: "system", Id: 3 },
+        DesignWidth: 2048,
+        DesignHeight: 1024
+    },
+    "AlbumThumbnails0": {
+        Path: {Mount: "system", Id: 4 },
+        DesignWidth: 2048,
+        DesignHeight: 1024
+    },
+    "AlbumThumbnails1": {
+        Path: {Mount: "system", Id: 5 },
+        DesignWidth: 2048,
+        DesignHeight: 1024
     }
 };
 

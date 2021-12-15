@@ -5,6 +5,8 @@ namespace UI {
 
 Menu* FocusedMenu = 0;
 
+ska::flat_hash_map<uint8_t, std::vector<Menu*>> Menus;
+
 Menu* SystemMenuPtr = new NullMenu();
 Menu* TitleMenuPtr = new NullMenu();
 Menu* SaveMenuPtr = new NullMenu();

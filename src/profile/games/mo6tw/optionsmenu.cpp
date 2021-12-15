@@ -114,7 +114,11 @@ void Configure() {
   SecondPageSectionHeaderPos =
       EnsureGetMemberVec2("SecondPageSectionHeaderPos");
 
+  auto drawType = Game::DrawComponentType::_from_integral_unchecked(
+      EnsureGetMemberInt("DrawType"));
+
   UI::OptionsMenuPtr = new UI::MO6TW::OptionsMenu();
+  UI::Menus[drawType].push_back(UI::OptionsMenuPtr);
 }
 
 }  // namespace OptionsMenu

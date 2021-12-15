@@ -8,6 +8,7 @@
 #include "../../profile/games/mo6tw/titlemenu.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/game.h"
+#include "../../mask2d.h"
 
 namespace Impacto {
 namespace UI {
@@ -334,6 +335,11 @@ void TitleMenu::Update(float dt) {
           MainItems->HasFocus = true;
         }
       } break;
+      case 10: {
+        if (MemoriesItems->IsShown && !MainItems->IsShown) {
+          MainItems->IsShown = true;
+        }
+      }
       case 11: {  // Secondary menu System Fade In
         if (!SystemItems->IsShown && ScrWork[SW_TITLECT] == 0) {
           ShowSystemItems();
@@ -353,9 +359,26 @@ void TitleMenu::Render() {
     if (ScrWork[SW_MENUCT] != 100) {
       switch (ScrWork[SW_TITLEDISPCT]) {
         case 0:  // Initial animation
+          Renderer2D::DrawMaskedSprite(
+              BackgroundSprite, BackgroundSprite,
+              RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
+                    BackgroundSprite.ScaledHeight()),
+              glm::vec4(1.0f), (ScrWork[SW_TITLECT] * 287) / 48, 32, false,
+              false, true);
+          if (ScrWork[SW_TITLECT] > 48) {
+            Renderer2D::DrawMaskedSprite(
+                LogoSprite, Masks2D[17].MaskSprite,
+                RectF(LogoX, LogoY, LogoSprite.ScaledWidth(),
+                      LogoSprite.ScaledHeight()),
+                glm::vec4(1.0f), (ScrWork[SW_TITLECT] * 271 - 13008) / 32, 16);
+          }
           break;
         case 1: {  // Press to start
-          Renderer2D::DrawSprite(BackgroundSprite, glm::vec2(0.0f));
+          Renderer2D::DrawMaskedSprite(
+              BackgroundSprite, BackgroundSprite,
+              RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
+                    BackgroundSprite.ScaledHeight()),
+              glm::vec4(1.0f), 287, 32, false, false, true);
           Renderer2D::DrawSprite(LogoSprite, glm::vec2(LogoX, LogoY));
           Renderer2D::DrawSprite(CopyrightSprite,
                                  glm::vec2(CopyrightX, CopyrightY));
@@ -364,37 +387,85 @@ void TitleMenu::Render() {
           Renderer2D::DrawSprite(PressToStartSprite,
                                  glm::vec2(PressToStartX, PressToStartY), col);
         } break;
-        case 2: {  // Transition between Press to start and menus
-          Renderer2D::DrawSprite(MenuBackgroundSprite, glm::vec2(0.0f));
+        case 2: {
+          Renderer2D::DrawMaskedSprite(
+              BackgroundSprite, BackgroundSprite,
+              RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
+                    BackgroundSprite.ScaledHeight()),
+              glm::vec4(1.0f), 287, 32, false, false, true);
+          Renderer2D::DrawSprite(LogoSprite, glm::vec2(LogoX, LogoY));
+          Renderer2D::DrawSprite(CopyrightSprite,
+                                 glm::vec2(CopyrightX, CopyrightY));
         } break;
         case 3:    // Main Menu Fade In
         case 4: {  // Main Menu
-          Renderer2D::DrawSprite(MenuBackgroundSprite, glm::vec2(0.0f));
+          Renderer2D::DrawMaskedSprite(
+              MenuBackgroundSprite, MenuBackgroundSprite,
+              RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
+                    MenuBackgroundSprite.ScaledHeight()),
+              glm::vec4(1.0f), 287, 32, false, false, true);
           MainItems->Render();
         } break;
         case 5:    // Secondary menu Extra story Fade In
         case 6: {  // Secondary menu Extra story
-          Renderer2D::DrawSprite(MenuBackgroundSprite, glm::vec2(0.0f));
+          Renderer2D::DrawMaskedSprite(
+              MenuBackgroundSprite, MenuBackgroundSprite,
+              RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
+                    MenuBackgroundSprite.ScaledHeight()),
+              glm::vec4(1.0f), 287, 32, false, false, true);
           ExtraStoryItems->Render();
           MainItems->Render();
         } break;
         case 7:    // Secondary menu Continue Fade In
         case 8: {  // Secondary menu Continue
-          Renderer2D::DrawSprite(MenuBackgroundSprite, glm::vec2(0.0f));
+          Renderer2D::DrawMaskedSprite(
+              MenuBackgroundSprite, MenuBackgroundSprite,
+              RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
+                    MenuBackgroundSprite.ScaledHeight()),
+              glm::vec4(1.0f), 287, 32, false, false, true);
           ContinueItems->Render();
           MainItems->Render();
         } break;
         case 9:     // Secondary menu Memories Fade In
         case 10: {  // Secondary menu Memories
-          Renderer2D::DrawSprite(MenuBackgroundSprite, glm::vec2(0.0f));
+          Renderer2D::DrawMaskedSprite(
+              MenuBackgroundSprite, MenuBackgroundSprite,
+              RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
+                    MenuBackgroundSprite.ScaledHeight()),
+              glm::vec4(1.0f), 287, 32, false, false, true);
           MemoriesItems->Render();
           MainItems->Render();
         } break;
         case 11:    // Secondary menu System Fade In
         case 12: {  // Secondary menu System
-          Renderer2D::DrawSprite(MenuBackgroundSprite, glm::vec2(0.0f));
+          Renderer2D::DrawMaskedSprite(
+              MenuBackgroundSprite, MenuBackgroundSprite,
+              RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
+                    MenuBackgroundSprite.ScaledHeight()),
+              glm::vec4(1.0f), 287, 32, false, false, true);
           SystemItems->Render();
           MainItems->Render();
+        } break;
+        case 20:
+        case 21: {  // Transition between Press to start and menus
+          Renderer2D::DrawMaskedSprite(
+              BackgroundSprite, BackgroundSprite,
+              RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
+                    BackgroundSprite.ScaledHeight()),
+              glm::vec4(1.0f), 287, 32, false, false, true);
+          Renderer2D::DrawMaskedSprite(
+              LogoSprite, Masks2D[17].MaskSprite,
+              RectF(LogoX, LogoY, LogoSprite.ScaledWidth(),
+                    LogoSprite.ScaledHeight()),
+              glm::vec4(1.0f), 287, 16);
+          Renderer2D::DrawSprite(CopyrightSprite,
+                                 glm::vec2(CopyrightX, CopyrightY));
+          Renderer2D::DrawMaskedSprite(
+              MenuBackgroundSprite, MenuBackgroundSprite,
+              RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
+                    MenuBackgroundSprite.ScaledHeight()),
+              glm::vec4(1.0f), (ScrWork[SW_TITLECT] * 287) / 48, 32, false,
+              false, true);
         } break;
       }
     }

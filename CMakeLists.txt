@@ -26,8 +26,10 @@ set(Impacto_Src
     src/character2d.cpp
     src/text.cpp
     src/inputsystem.cpp
-    src/savesystem.cpp
     src/glc.cpp
+
+    src/data/savesystem.cpp
+    src/data/tipssystem.cpp
 
     src/profile/profile.cpp
     src/profile/profile_internal.cpp
@@ -41,8 +43,10 @@ set(Impacto_Src
     src/profile/dialogue.cpp
     src/profile/vm.cpp
     src/profile/scriptvars.cpp
-	src/profile/scriptinput.cpp
-    src/profile/savesystem.cpp
+    src/profile/scriptinput.cpp
+
+    src/profile/data/savesystem.cpp
+    src/profile/data/tipssystem.cpp
 
     src/profile/hud/saveicon.cpp
     src/profile/hud/loadingdisplay.cpp
@@ -56,6 +60,7 @@ set(Impacto_Src
     src/profile/ui/backlogmenu.cpp
     src/profile/ui/optionsmenu.cpp
     src/profile/ui/tipsmenu.cpp
+    src/profile/ui/extramenus.cpp
 
     src/profile/games/rne/tilebackground.cpp
     src/profile/games/rne/systemmenu.cpp
@@ -78,6 +83,11 @@ set(Impacto_Src
     src/profile/games/mo6tw/savemenu.cpp
     src/profile/games/mo6tw/optionsmenu.cpp
     src/profile/games/mo6tw/tipsmenu.cpp
+    src/profile/games/mo6tw/clearlistmenu.cpp
+    src/profile/games/mo6tw/moviemenu.cpp
+    src/profile/games/mo6tw/actorsvoicemenu.cpp
+    src/profile/games/mo6tw/musicmenu.cpp
+    src/profile/games/mo6tw/albummenu.cpp
 
     src/profile/games/darling/sysmesbox.cpp
 
@@ -100,15 +110,21 @@ set(Impacto_Src
     src/games/cc/sysmesbox.cpp
 
     src/games/mo6tw/dialoguebox.cpp
-	src/games/mo6tw/sysmesbox.cpp
+    src/games/mo6tw/sysmesbox.cpp
     src/games/mo6tw/systemmenu.cpp
     src/games/mo6tw/titlemenu.cpp
     src/games/mo6tw/savemenu.cpp
     src/games/mo6tw/optionsmenu.cpp
     src/games/mo6tw/tipsmenu.cpp
     src/games/mo6tw/savesystem.cpp
+    src/games/mo6tw/tipssystem.cpp
+    src/games/mo6tw/clearlistmenu.cpp
+    src/games/mo6tw/moviemenu.cpp
+    src/games/mo6tw/actorsvoicemenu.cpp
+    src/games/mo6tw/musicmenu.cpp
+    src/games/mo6tw/albummenu.cpp
 
-	src/games/darling/sysmesbox.cpp
+    src/games/darling/sysmesbox.cpp
 
     src/games/cclcc/titlemenu.cpp
 
@@ -135,6 +151,11 @@ set(Impacto_Src
     src/ui/widgets/carousel.cpp
     src/ui/widgets/mo6tw/titlebutton.cpp
     src/ui/widgets/mo6tw/saveentrybutton.cpp
+    src/ui/widgets/mo6tw/tipsentrybutton.cpp
+    src/ui/widgets/mo6tw/scenelistentry.cpp
+    src/ui/widgets/mo6tw/imagethumbnailbutton.cpp
+    src/ui/widgets/mo6tw/actorsvoicebutton.cpp
+    src/ui/widgets/mo6tw/albumcharacterbutton.cpp
     src/ui/widgets/chlcc/titlebutton.cpp
     src/ui/widgets/chlcc/saveentrybutton.cpp
     src/ui/widgets/rne/sysmenubutton.cpp
@@ -243,10 +264,12 @@ set(Impacto_Header
     src/text.h
     src/loadable.h
     src/inputsystem.h
-    src/savesystem.h
     src/glc.h
     src/rng.h
     src/animation.h
+
+    src/data/savesystem.h
+    src/data/tipssystem.h
 
     src/profile/profile.h
     src/profile/profile_internal.h
@@ -261,7 +284,9 @@ set(Impacto_Header
     src/profile/vm.h
     src/profile/scriptvars.h
     src/profile/scriptinput.h
-    src/profile/savesystem.h
+
+    src/profile/data/savesystem.h
+    src/profile/data/tipssystem.h
 
     src/profile/hud/saveicon.h
     src/profile/hud/loadingdisplay.h
@@ -275,6 +300,7 @@ set(Impacto_Header
     src/profile/ui/backlogmenu.h
     src/profile/ui/optionsmenu.h
     src/profile/ui/tipsmenu.h
+    src/profile/ui/extramenus.h
 
     src/profile/games/rne/tilebackground.h
     src/profile/games/rne/systemmenu.h
@@ -297,6 +323,11 @@ set(Impacto_Header
     src/profile/games/mo6tw/savemenu.h
     src/profile/games/mo6tw/optionsmenu.h
     src/profile/games/mo6tw/tipsmenu.h
+    src/profile/games/mo6tw/clearlistmenu.h
+    src/profile/games/mo6tw/moviemenu.h
+    src/profile/games/mo6tw/actorsvoicemenu.h
+    src/profile/games/mo6tw/musicmenu.h
+    src/profile/games/mo6tw/albummenu.h
 
     src/profile/games/darling/sysmesbox.h
 
@@ -326,6 +357,12 @@ set(Impacto_Header
     src/games/mo6tw/optionsmenu.h
     src/games/mo6tw/tipsmenu.h
     src/games/mo6tw/savesystem.h
+    src/games/mo6tw/tipssystem.h
+    src/games/mo6tw/clearlistmenu.h
+    src/games/mo6tw/moviemenu.h
+    src/games/mo6tw/actorsvoicemenu.h
+    src/games/mo6tw/musicmenu.h
+    src/games/mo6tw/albummenu.h
 
     src/games/darling/sysmesbox.h
 
@@ -354,6 +391,11 @@ set(Impacto_Header
     src/ui/widgets/carousel.h
     src/ui/widgets/mo6tw/titlebutton.h
     src/ui/widgets/mo6tw/saveentrybutton.h
+    src/ui/widgets/mo6tw/tipsentrybutton.h
+    src/ui/widgets/mo6tw/scenelistentry.h
+    src/ui/widgets/mo6tw/imagethumbnailbutton.h
+    src/ui/widgets/mo6tw/actorsvoicebutton.h
+    src/ui/widgets/mo6tw/albumcharacterbutton.h
     src/ui/widgets/chlcc/titlebutton.h
     src/ui/widgets/chlcc/saveentrybutton.h
     src/ui/widgets/rne/sysmenubutton.h
@@ -403,7 +445,7 @@ set(Impacto_Header
 
     src/vm/interface/scene3d.h
     src/vm/interface/scene2d.h
-	src/vm/interface/input.h
+    src/vm/interface/input.h
 
     src/audio/audiosystem.h
     src/audio/audiocommon.h
@@ -426,6 +468,8 @@ set(Impacto_Header
     vendor/clHCA/clHCA.h
     
     vendor/squish/squish.h
+
+    vendor/utf8-cpp/utf8.h
 )
 
 if (WIN32)
@@ -575,6 +619,20 @@ include_directories(${SDL2_INCLUDE_DIRS})
 include_directories(vendor/include)
 include_directories(vendor/duktape/include)
 include_directories(vendor/pcg/include)
+
+if (NOT DEFINED IMPACTO_DISABLE_MSPACK)
+    list(APPEND Impacto_Src
+        src/io/lzxstream.cpp
+
+        vendor/mspack/lzxc.c
+        vendor/mspack/lzxd.c
+        vendor/mspack/system.c
+    )
+    list(APPEND Impacto_Header
+        src/io/lzxstream.h
+    )
+    include_directories(vendor/mspack)
+endif()
 
 add_executable (impacto ${Impacto_Src} ${Impacto_Header})
 

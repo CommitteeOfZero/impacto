@@ -37,6 +37,15 @@ jobs:
       SourceFolder: 'C:/Program Files/impacto/Release'
       Contents: '**'
       TargetFolder: 'C:/Program Files/impacto'
+  - task: CopyFiles@2
+    displayName: Copy docs
+    inputs:
+      SourceFolder: '$(Build.Repository.LocalPath)'
+      Contents: |
+        THIRDPARTY.md
+        README.md
+        LICENSE
+      TargetFolder: 'C:/Program Files/impacto'
   - task: DeleteFiles@1
     displayName: Remove leftovers
     inputs:
@@ -111,6 +120,15 @@ jobs:
       SourceFolder: 'src'
       Contents: 'shaders/**/*'
       TargetFolder: '$(Build.ArtifactStagingDirectory)/impacto'
+  - task: CopyFiles@2
+    displayName: Copy docs
+    inputs:
+      SourceFolder: '$(Build.Repository.LocalPath)'
+      Contents: |
+        THIRDPARTY.md
+        README.md
+        LICENSE
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/impacto'
   - task: ArchiveFiles@2
     displayName: Archive artifact
     inputs:
@@ -158,6 +176,15 @@ jobs:
       SourceFolder: 'src'
       Contents: 'shaders/**/*'
       TargetFolder: '$(Build.ArtifactStagingDirectory)/impacto'
+  - task: CopyFiles@2
+    displayName: Copy docs
+    inputs:
+      SourceFolder: '$(Build.Repository.LocalPath)'
+      Contents: |
+        THIRDPARTY.md
+        README.md
+        LICENSE
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/impacto'
   - task: ArchiveFiles@2
     displayName: Archive artifact
     inputs:
@@ -196,6 +223,15 @@ jobs:
     inputs:
       SourceFolder: 'src'
       Contents: 'shaders/**/*'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/impacto'
+  - task: CopyFiles@2
+    displayName: Copy docs
+    inputs:
+      SourceFolder: '$(Build.Repository.LocalPath)'
+      Contents: |
+        THIRDPARTY.md
+        README.md
+        LICENSE
       TargetFolder: '$(Build.ArtifactStagingDirectory)/impacto'
   - task: ArchiveFiles@2
     displayName: Archive artifact

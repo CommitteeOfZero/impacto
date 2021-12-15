@@ -1,5 +1,6 @@
 root.SystemMenu = {
     Type: SystemMenuType.MO6TW,
+    DrawType: DrawComponentType.SystemMenu,
     SystemMenuBackgroundSprite: "SystemMenuBackground",
     SystemMenuX: 993,
     SystemMenuY: 114,

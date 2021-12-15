@@ -70,7 +70,12 @@ void Configure() {
   PressToStartAnimation.LoopMode = ALM_ReverseDirection;
   PreTitleItemsAnimation.DurationIn = PreTitleAnimDurationIn;
   PreTitleItemsAnimation.DurationOut = PreTitleAnimDurationOut;
+
+  auto drawType = Game::DrawComponentType::_from_integral_unchecked(
+      EnsureGetMemberInt("DrawType"));
+
   UI::TitleMenuPtr = new UI::RNE::TitleMenu();
+  UI::Menus[drawType].push_back(UI::TitleMenuPtr);
 }
 
 }  // namespace TitleMenu

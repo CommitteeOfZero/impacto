@@ -3,6 +3,7 @@ var name = "SysMesBox";
 
 root.SysMesBoxDisplay = {
     Type: SysMesBoxType.CC,
+    DrawType: DrawComponentType.SystemMessage,
     SumoSealSprites: [],
     SumoSealCenterPosX: [
         1175, 1269, 542, 1386, 970, 813, 725, 997
