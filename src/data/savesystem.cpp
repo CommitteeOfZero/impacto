@@ -66,6 +66,11 @@ void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) {
     Implementation->GetViewedEVsCount(totalEVCount, viewedEVCount);
 }
 
+void GetEVStatus(int evId, int* totalVariations, int* viewedVariations) {
+  if (Implementation)
+    Implementation->GetEVStatus(evId, totalVariations, viewedVariations);
+}
+
 bool GetBgmFlag(int id) {
   if (Implementation) return Implementation->GetBgmFlag(id);
 }

@@ -17,7 +17,8 @@ std::string SaveFilePath;
 uint32_t* StoryScriptIDs;
 int StoryScriptCount;
 ScriptMessageDataPair* ScriptMessageData;
-uint16_t AlbumData[MaxAlbumEntries][MaxAlbumSubEntries];
+uint16_t AlbumEvData[MaxAlbumEntries][MaxAlbumSubEntries];
+uint16_t AlbumData[MaxAlbumEntries][MaxAlbumSubEntries][MaxCGSprites];
 
 void Configure() {
   EnsurePushMemberOfType("SaveData", kObjectType);
@@ -70,6 +71,29 @@ void Configure() {
     Pop();
   }
 
+  if (TryPushMember("AlbumEvData")) {
+    AssertIs(kArrayType);
+
+    auto const& _albumEvData = TopVal();
+    auto dataCount = _albumEvData.Size();
+    for (uint32_t i = 0; i < dataCount; i++) {
+      PushArrayElement(i);
+      AssertIs(kArrayType);
+      auto const& _albumSubData = TopVal();
+      auto subDataCount = _albumSubData.Size();
+      for (uint32_t j = 0; j < subDataCount; j++) {
+        AlbumEvData[i][j] = EnsureGetArrayElementUint(j);
+      }
+      // End marker
+      AlbumEvData[i][subDataCount] = 0xFFFF;
+      Pop();
+    }
+    // End marker
+    AlbumEvData[dataCount][0] = 0xFFFF;
+
+    Pop();
+  }
+
   if (TryPushMember("AlbumData")) {
     AssertIs(kArrayType);
 
@@ -81,13 +105,19 @@ void Configure() {
       auto const& _albumSubData = TopVal();
       auto subDataCount = _albumSubData.Size();
       for (uint32_t j = 0; j < subDataCount; j++) {
-        AlbumData[i][j] = EnsureGetArrayElementUint(j);
+        PushArrayElement(j);
+        AssertIs(kArrayType);
+        auto const& _albumCGSprites = TopVal();
+        auto cgSpriteCount = _albumCGSprites.Size();
+        for (uint32_t k = 0; k < cgSpriteCount; k++) {
+          AlbumData[i][j][k] = EnsureGetArrayElementUint(k);
+        }
+        // End marker
+        AlbumData[i][j][cgSpriteCount] = 0xFFFF;
+        Pop();
       }
       Pop();
     }
-    // End marker
-    AlbumData[dataCount][0] = 0xFFFF;
-
     Pop();
   }
 

@@ -163,7 +163,21 @@ root.ExtraMenus = {
         YunoButtonIdx: 3,
         SuzuButtonIdx: 4,
         CharacterPortraits: [],
+        OthersPortraitTopPart: "AlbumMenuOthersPortraitTop",
+        OthersPortraitBottomPart: "AlbumMenuOthersPortraitBottom",
         PortraitPosition: { X: 1282, Y: 80 },
+        OthersPortraitPosition: { X: 1282, Y: 124 },
+        Thumbnails: [],
+        ThumbnailOffsets: [0, 20, 37, 53, 65, 78],
+        LockedThumbnail: "AlbumMenuLockedThumbnail",
+        ThumbnailBorder: "AlbumMenuThumbnailBorder",
+        ThumbnailHighlightTopLeft: "AlbumMenuThumbnailHighlightTopLeft",
+        ThumbnailHighlightTopRight: "AlbumMenuThumbnailHighlightTopRight",
+        ThumbnailHighlightBottomLeft: "AlbumMenuThumbnailHighlightBottomLeft",
+        ThumbnailHighlightBottomRight: "AlbumMenuThumbnailHighlightBottomRight",
+        ThumbnailGridFirstPosition: { X: 154, Y: 130 },
+        ThumbnailGridMargin: { X: 262, Y: 188 },
+        ThumbnailGridBounds: { X: 127, Y: 106, Width: 810, Height: 550 },
         FadeInDuration: 0.2,
         FadeOutDuration: 0.2
     }
@@ -652,3 +666,81 @@ for (var i = 1; i <= 6; i++) {
 temp = root.ExtraMenus.AlbumMenu.CharacterPortraits[3];
 root.ExtraMenus.AlbumMenu.CharacterPortraits[3] = root.ExtraMenus.AlbumMenu.CharacterPortraits[4];
 root.ExtraMenus.AlbumMenu.CharacterPortraits[4] = temp;
+
+root.Sprites["AlbumMenuOthersPortraitTop"] = {
+    Sheet: "Album2",
+    Bounds: { X: 409, Y: 725, Width: 406, Height: 298 }
+};
+root.Sprites["AlbumMenuOthersPortraitBottom"] = {
+    Sheet: "Album2",
+    Bounds: { X: 1, Y: 725, Width: 406, Height: 298 }
+};
+
+var column = 0;
+var row = 0;
+var block = 0;
+var thumbX = 1;
+var thumbY = 1;
+var thumbnailSheet = "AlbumThumbnails0";
+for (var i = 0; i < 104; i++)
+{
+    root.Sprites["AlbumMenuThumbnail" + i] = {
+        Sheet: thumbnailSheet,
+        Bounds: {
+            X: thumbX,
+            Y: thumbY,
+            Width: 240,
+            Height: 135
+        }
+    };
+
+    root.ExtraMenus.AlbumMenu.Thumbnails.push("AlbumMenuThumbnail" + i);
+
+    thumbX += 242;
+    column += 1;
+    if (column == 4) {
+        thumbX = (block * 968) + 1;
+        thumbY += 137;
+        row += 1;
+        column = 0;
+        if (row == 7) {
+            row = 0;
+            block += 1;
+            if (block == 2) {
+                thumbnailSheet = "AlbumThumbnails1";
+                block = 0;
+                thumbX = 1;
+                thumbY = 1;
+            } else {
+                thumbX = block * 969;
+                thumbY = 1;
+            }
+        }
+    }
+}
+
+root.Sprites["AlbumMenuThumbnailBorder"] = {
+    Sheet: "Album",
+    Bounds: { X: 1425, Y: 721, Width: 262, Height: 158 }
+};
+root.Sprites["AlbumMenuLockedThumbnail"] = {
+    Sheet: "Album",
+    Bounds: { X: 1698, Y: 731, Width: 240, Height: 135 }
+};
+
+root.Sprites["AlbumMenuThumbnailHighlightTopLeft"] = {
+    Sheet: "Album",
+    Bounds: { X: 1425, Y: 881, Width: 22, Height: 22 }
+};
+root.Sprites["AlbumMenuThumbnailHighlightTopRight"] = {
+    Sheet: "Album",
+    Bounds: { X: 1449, Y: 881, Width: 22, Height: 22 }
+};
+root.Sprites["AlbumMenuThumbnailHighlightBottomLeft"] = {
+    Sheet: "Album",
+    Bounds: { X: 1425, Y: 905, Width: 22, Height: 22 }
+};
+root.Sprites["AlbumMenuThumbnailHighlightBottomRight"] = {
+    Sheet: "Album",
+    Bounds: { X: 1449, Y: 905, Width: 22, Height: 22 }
+};

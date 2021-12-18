@@ -9,6 +9,7 @@
 #include "../../background2d.h"
 #include "../../vm/interface/input.h"
 #include "../../ui/widgets/mo6tw/albumcharacterbutton.h"
+#include "../../ui/widgets/mo6tw/albumthumbnailbutton.h"
 
 namespace Impacto {
 namespace UI {
@@ -35,6 +36,7 @@ AlbumMenu::AlbumMenu() {
   SecondaryItems = new Group(this);
   SecondaryItems->FocusLock = false;
   ImageGrid = new Group(this);
+  ImageGrid->RenderingBounds = ThumbnailGridBounds;
   auto pos = InitialButtonPosition;
   int idx = 0;
 
@@ -101,6 +103,7 @@ void AlbumMenu::Hide() {
 void AlbumMenu::UpdateInput() {
   Menu::UpdateInput();
   if (State == Shown) {
+    if (SelectedCharacterId != -1) ImageGrid->UpdateInput();
     if (PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B) {
       if (SelectedCharacterId == -1) {
         SetFlag(SF_ALBUMEND, true);
@@ -129,6 +132,7 @@ void AlbumMenu::Update(float dt) {
 
   if (State != Hidden) {
     MainItems->Update(dt);
+    if (SelectedCharacterId != -1) ImageGrid->Update(dt);
   }
 }
 
@@ -162,11 +166,68 @@ void AlbumMenu::SwitchToCharacter(int id) {
 void AlbumMenu::LoadCharacter(int id) {
   ImageGrid->Clear();
   SecondaryItems->Clear();
+  // Others category portrait is split into two sprites
   if (id < CharacterPortraitCount) {
     SecondaryItems->Add(new Label(
         CharacterPortraits[id],
         glm::vec2(PortraitPosition.x - CharacterPortraits[id].ScaledWidth(),
                   PortraitPosition.y)));
+  } else {
+    SecondaryItems->Add(new Label(
+        OthersPortraitTopPart,
+        glm::vec2(
+            OthersPortraitPosition.x - OthersPortraitTopPart.ScaledWidth(),
+            OthersPortraitPosition.y)));
+    SecondaryItems->Add(new Label(
+        OthersPortraitBottomPart,
+        glm::vec2(
+            OthersPortraitPosition.x - OthersPortraitBottomPart.ScaledWidth(),
+            OthersPortraitPosition.y + OthersPortraitTopPart.ScaledHeight())));
+  }
+
+  int row = 1;
+  int endIdx =
+      id == CharacterPortraitCount ? EventCgCount : ThumbnailOffsets[id + 1];
+  int idx = 0;
+  auto pos = ThumbnailGridFirstPosition;
+  for (int i = ThumbnailOffsets[id]; i < endIdx; i++) {
+    if (idx && idx % 3 == 0) {
+      row += 1;
+      pos.x = ThumbnailGridFirstPosition.x;
+      pos.y += ThumbnailGridMargin.y;
+    }
+    int totalEvVariations, viewedEvVariations;
+    SaveSystem::GetEVStatus(i, &totalEvVariations, &viewedEvVariations);
+    auto button = new Widgets::MO6TW::AlbumThumbnailButton(
+        i, Thumbnails[i], LockedThumbnail, ThumbnailHighlightTopLeft,
+        ThumbnailHighlightTopRight, ThumbnailHighlightBottomLeft,
+        ThumbnailHighlightBottomRight, ThumbnailBorder, pos);
+    pos.x += ThumbnailGridMargin.x;
+    button->IsLocked = viewedEvVariations == 0;
+    ImageGrid->Add(button, FDIR_RIGHT);
+    if (row != 1) {
+      button->SetFocus(ImageGrid->Children.at(idx - 3), FDIR_UP);
+    }
+    idx += 1;
+  }
+
+  int totalRows = row;
+  idx = 0;
+  row = 1;
+  for (const auto& el : ImageGrid->Children) {
+    if (row != totalRows) {
+      Widget* focusTarget;
+      if ((idx + 3) > ImageGrid->Children.size() - 1)
+        focusTarget = ImageGrid->Children.back();
+      else
+        focusTarget = ImageGrid->Children.at(idx + 3);
+      el->SetFocus(focusTarget, FDIR_DOWN);
+    }
+
+    idx += 1;
+    if (idx % 3 == 0) {
+      row += 1;
+    }
   }
 }
 

@@ -148,6 +148,7 @@ set(Impacto_Src
     src/ui/widgets/mo6tw/tipsentrybutton.cpp
     src/ui/widgets/mo6tw/scenelistentry.cpp
     src/ui/widgets/mo6tw/imagethumbnailbutton.cpp
+    src/ui/widgets/mo6tw/albumthumbnailbutton.cpp
     src/ui/widgets/mo6tw/actorsvoicebutton.cpp
     src/ui/widgets/mo6tw/albumcharacterbutton.cpp
     src/ui/widgets/chlcc/titlebutton.cpp
@@ -380,6 +381,7 @@ set(Impacto_Header
     src/ui/widgets/mo6tw/tipsentrybutton.h
     src/ui/widgets/mo6tw/scenelistentry.h
     src/ui/widgets/mo6tw/imagethumbnailbutton.h
+    src/ui/widgets/mo6tw/albumthumbnailbutton.h
     src/ui/widgets/mo6tw/actorsvoicebutton.h
     src/ui/widgets/mo6tw/albumcharacterbutton.h
     src/ui/widgets/chlcc/titlebutton.h
@@ -608,7 +610,6 @@ if (NOT DEFINED IMPACTO_DISABLE_MSPACK)
     list(APPEND Impacto_Src
         src/io/lzxstream.cpp
 
-        vendor/mspack/lzxc.c
         vendor/mspack/lzxd.c
         vendor/mspack/system.c
     )

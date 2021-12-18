@@ -580,12 +580,23 @@ void SaveSystem::GetReadMessagesCount(int* totalMessageCount,
 
 void SaveSystem::GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) {
   for (int i = 0; i < MaxAlbumEntries; i++) {
-    if (AlbumData[i][0] == 0xFFFF) break;
-    for (int j = 1; j < MaxAlbumSubEntries; j++) {
-      if (AlbumData[i][j] == 0xFFFF) break;
+    if (AlbumEvData[i][0] == 0xFFFF) break;
+    for (int j = 0; j < MaxAlbumSubEntries; j++) {
+      if (AlbumEvData[i][j] == 0xFFFF) break;
       *totalEVCount += 1;
-      *viewedEVCount += EVFlags[AlbumData[i][j]];
+      *viewedEVCount += EVFlags[AlbumEvData[i][j]];
     }
+  }
+}
+
+void SaveSystem::GetEVStatus(int evId, int* totalVariations,
+                             int* viewedVariations) {
+  *totalVariations = 0;
+  *viewedVariations = 0;
+  for (int i = 0; i < MaxAlbumSubEntries; i++) {
+    if (AlbumEvData[evId][i] == 0xFFFF) break;
+    *totalVariations += 1;
+    *viewedVariations += EVFlags[AlbumEvData[evId][i]];
   }
 }
 

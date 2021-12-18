@@ -28,6 +28,7 @@ class SaveSystem : public SaveSystemBase {
   void SetTipStatus(int tipId, bool isLocked, bool isUnread, bool isNew);
   void GetReadMessagesCount(int* totalMessageCount, int* readMessageCount);
   void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount);
+  void GetEVStatus(int evId, int* totalVariations, int* viewedVariations);
   bool GetBgmFlag(int id);
 
  private:
