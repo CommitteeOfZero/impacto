@@ -23,8 +23,13 @@ using namespace Impacto::Vm::Interface;
 using namespace Impacto::UI::Widgets;
 
 void AlbumMenu::CharacterButtonOnClick(Button* target) {
-  if (!target->IsLocked) SwitchToCharacter(target->Id);
+  if (!(target->Id == YunoButtonIdx && target->IsLocked))
+    SwitchToCharacter(target->Id);
 }
+
+void AlbumMenu::ArrowUpOnClick(Widgets::Button* target) { MoveImageGrid(); }
+
+void AlbumMenu::ArrowDownOnClick(Widgets::Button* target) { MoveImageGrid(); }
 
 AlbumMenu::AlbumMenu() {
   FadeAnimation.Direction = 1;
@@ -32,11 +37,18 @@ AlbumMenu::AlbumMenu() {
   FadeAnimation.DurationIn = FadeInDuration;
   FadeAnimation.DurationOut = FadeOutDuration;
 
+  ArrowsAnimation.Direction = 1;
+  ArrowsAnimation.LoopMode = ALM_ReverseDirection;
+  ArrowsAnimation.DurationIn = ArrowsAnimationDuration;
+  ArrowsAnimation.DurationOut = ArrowsAnimationDuration;
+  ArrowsAnimation.StartIn();
+
   MainItems = new Group(this);
   SecondaryItems = new Group(this);
   SecondaryItems->FocusLock = false;
   ImageGrid = new Group(this);
   ImageGrid->RenderingBounds = ThumbnailGridBounds;
+  ImageGrid->WrapFocus = false;
   auto pos = InitialButtonPosition;
   int idx = 0;
 
@@ -51,10 +63,10 @@ AlbumMenu::AlbumMenu() {
 
     Sprite *sprite, *lockedSprite, *highlightedSprite, *highlightedLockedSprite;
     if (idx == YunoButtonIdx || idx == SuzuButtonIdx) {
-      sprite = &CharacterButtonSprites[i];
-      lockedSprite = &CharacterButtonSprites[i + 1];
-      highlightedSprite = &HighlightedCharacterButtonSprites[i];
-      highlightedLockedSprite = &HighlightedCharacterButtonSprites[i + 1];
+      sprite = &CharacterButtonSprites[i + 1];
+      lockedSprite = &CharacterButtonSprites[i];
+      highlightedSprite = &HighlightedCharacterButtonSprites[i + 1];
+      highlightedLockedSprite = &HighlightedCharacterButtonSprites[i];
       i += 1;
     } else {
       sprite = &CharacterButtonSprites[i];
@@ -70,6 +82,22 @@ AlbumMenu::AlbumMenu() {
     pos += ButtonMargin;
     idx += 1;
   }
+
+  Arrows = new Group(this);
+  Arrows->FocusLock = false;
+  Sprite nullSprite = Sprite();
+  nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
+  ArrowUpButton = new Button(0, ArrowUp, ArrowUp, nullSprite, ArrowUpPosition);
+  ArrowUpButton->DisabledSprite = nullSprite;
+  ArrowUpButton->OnClickHandler =
+      std::bind(&AlbumMenu::ArrowUpOnClick, this, std::placeholders::_1);
+  ArrowDownButton =
+      new Button(1, ArrowDown, ArrowDown, nullSprite, ArrowDownPosition);
+  ArrowDownButton->DisabledSprite = nullSprite;
+  ArrowDownButton->OnClickHandler =
+      std::bind(&AlbumMenu::ArrowDownOnClick, this, std::placeholders::_1);
+  Arrows->Add(ArrowUpButton);
+  Arrows->Add(ArrowDownButton);
 }
 
 void AlbumMenu::Show() {
@@ -77,6 +105,25 @@ void AlbumMenu::Show() {
     State = Showing;
     FadeAnimation.StartIn();
     MainItems->Show();
+
+    auto suzuButton =
+        static_cast<Button*>(MainItems->Children.at(SuzuButtonIdx));
+    suzuButton->IsLocked = !GetFlag(830);
+
+    int endIdx = YunoButtonIdx == CharacterPortraitCount
+                     ? EventCgCount
+                     : ThumbnailOffsets[YunoButtonIdx + 1];
+    int totalEvVariations = 0, viewedEvVariations = 0;
+    for (int i = ThumbnailOffsets[YunoButtonIdx]; i < endIdx; i++) {
+      int total, viewed;
+      SaveSystem::GetEVStatus(i, &total, &viewed);
+      totalEvVariations += total;
+      viewedEvVariations += viewed;
+    }
+    auto yunoButton =
+        static_cast<Button*>(MainItems->Children.at(YunoButtonIdx));
+    yunoButton->IsLocked = viewedEvVariations == 0;
+
     if (UI::FocusedMenu != 0) {
       LastFocusedMenu = UI::FocusedMenu;
       LastFocusedMenu->IsFocused = false;
@@ -103,7 +150,15 @@ void AlbumMenu::Hide() {
 void AlbumMenu::UpdateInput() {
   Menu::UpdateInput();
   if (State == Shown) {
-    if (SelectedCharacterId != -1) ImageGrid->UpdateInput();
+    if (SelectedCharacterId != -1) {
+      ImageGrid->UpdateInput();
+      Arrows->UpdateInput();
+      if ((PADinputButtonWentDown & PAD1DOWN ||
+           PADinputButtonWentDown & PAD1UP) &&
+          ImageGrid->HasFocus) {
+        MoveImageGrid();
+      }
+    }
     if (PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B) {
       if (SelectedCharacterId == -1) {
         SetFlag(SF_ALBUMEND, true);
@@ -132,7 +187,18 @@ void AlbumMenu::Update(float dt) {
 
   if (State != Hidden) {
     MainItems->Update(dt);
-    if (SelectedCharacterId != -1) ImageGrid->Update(dt);
+    if (SelectedCharacterId != -1) {
+      ArrowsAnimation.Update(dt);
+      ImageGrid->Update(dt);
+      if (ImageGrid->Bounds.Y == MaximumImageGridY) {
+        ArrowUpButton->Enabled = false;
+      } else if (ImageGrid->Bounds.Y == MinimumImageGridY) {
+        ArrowDownButton->Enabled = false;
+      } else {
+        ArrowUpButton->Enabled = true;
+        ArrowDownButton->Enabled = true;
+      }
+    }
   }
 }
 
@@ -146,6 +212,9 @@ void AlbumMenu::Render() {
     SecondaryItems->Render();
     ImageGrid->Tint = col;
     ImageGrid->Render();
+    Arrows->Tint =
+        glm::vec4(1.0f, 1.0f, 1.0f, glm::step(0.5f, ArrowsAnimation.Progress));
+    Arrows->Render();
   }
 }
 
@@ -154,11 +223,13 @@ void AlbumMenu::SwitchToCharacter(int id) {
   if (id == -1) {
     SecondaryItems->Hide();
     ImageGrid->Hide();
+    Arrows->Hide();
     MainItems->Show();
   } else {
     LoadCharacter(id);
     MainItems->Hide();
     SecondaryItems->Show();
+    Arrows->Show();
     ImageGrid->Show();
   }
 }
@@ -166,6 +237,7 @@ void AlbumMenu::SwitchToCharacter(int id) {
 void AlbumMenu::LoadCharacter(int id) {
   ImageGrid->Clear();
   SecondaryItems->Clear();
+  ImageGrid->Bounds = ThumbnailGridBounds;
   // Others category portrait is split into two sprites
   if (id < CharacterPortraitCount) {
     SecondaryItems->Add(new Label(
@@ -191,7 +263,7 @@ void AlbumMenu::LoadCharacter(int id) {
   int idx = 0;
   auto pos = ThumbnailGridFirstPosition;
   for (int i = ThumbnailOffsets[id]; i < endIdx; i++) {
-    if (idx && idx % 3 == 0) {
+    if (idx && idx % ThumbnailsPerRow == 0) {
       row += 1;
       pos.x = ThumbnailGridFirstPosition.x;
       pos.y += ThumbnailGridMargin.y;
@@ -201,12 +273,13 @@ void AlbumMenu::LoadCharacter(int id) {
     auto button = new Widgets::MO6TW::AlbumThumbnailButton(
         i, Thumbnails[i], LockedThumbnail, ThumbnailHighlightTopLeft,
         ThumbnailHighlightTopRight, ThumbnailHighlightBottomLeft,
-        ThumbnailHighlightBottomRight, ThumbnailBorder, pos);
+        ThumbnailHighlightBottomRight, ThumbnailBorder, viewedEvVariations,
+        totalEvVariations, pos);
     pos.x += ThumbnailGridMargin.x;
     button->IsLocked = viewedEvVariations == 0;
     ImageGrid->Add(button, FDIR_RIGHT);
     if (row != 1) {
-      button->SetFocus(ImageGrid->Children.at(idx - 3), FDIR_UP);
+      button->SetFocus(ImageGrid->Children.at(idx - ThumbnailsPerRow), FDIR_UP);
     }
     idx += 1;
   }
@@ -217,17 +290,31 @@ void AlbumMenu::LoadCharacter(int id) {
   for (const auto& el : ImageGrid->Children) {
     if (row != totalRows) {
       Widget* focusTarget;
-      if ((idx + 3) > ImageGrid->Children.size() - 1)
+      if ((idx + ThumbnailsPerRow) > ImageGrid->Children.size() - 1)
         focusTarget = ImageGrid->Children.back();
       else
-        focusTarget = ImageGrid->Children.at(idx + 3);
+        focusTarget = ImageGrid->Children.at(idx + ThumbnailsPerRow);
       el->SetFocus(focusTarget, FDIR_DOWN);
     }
 
     idx += 1;
-    if (idx % 3 == 0) {
+    if (idx % ThumbnailsPerRow == 0) {
       row += 1;
     }
+  }
+
+  MaximumImageGridY = ImageGrid->Bounds.Y;
+  MinimumImageGridY =
+      ImageGrid->Bounds.Y - (row - ThumbnailsPerColumn) * ThumbnailGridMargin.y;
+}
+
+void AlbumMenu::MoveImageGrid() {
+  auto focusedEl = CurrentlyFocusedElement;
+  if (focusedEl->Bounds.Y < ImageGrid->RenderingBounds.Y) {
+    ImageGrid->Move(glm::vec2(0.0f, ThumbnailGridMargin.y));
+  } else if (focusedEl->Bounds.Y + focusedEl->Bounds.Height >
+             ImageGrid->RenderingBounds.Y + ImageGrid->RenderingBounds.Height) {
+    ImageGrid->Move(glm::vec2(0.0f, -ThumbnailGridMargin.y));
   }
 }
 

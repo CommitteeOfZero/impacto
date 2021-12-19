@@ -48,7 +48,14 @@ void Widget::MoveTo(glm::vec2 pos) {
   Bounds.Y = pos.y;
 }
 
-Widget* Widget::GetFocus(FocusDirection dir) { return FocusElements[dir]; }
+Widget* Widget::GetFocus(FocusDirection dir) {
+  if (FocusElements[dir] && FocusElements[dir]->Enabled)
+    return FocusElements[dir];
+  else if (FocusElements[dir])
+    return FocusElements[dir]->FocusElements[dir];
+  else
+    return FocusElements[dir];
+}
 
 void Widget::SetFocus(Widget* widget, FocusDirection dir) {
   FocusElements[dir] = widget;

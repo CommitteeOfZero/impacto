@@ -13,22 +13,19 @@ void TitleButton::Render() {
   glm::vec4 white(1.0f);
   white.a = Tint.a;
 
-  if (HasFocus) {
+  if (HasFocus && Enabled) {
     Renderer2D::DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y + 1.0f),
                            black);
     Renderer2D::DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), white);
+  } else if (Enabled) {
+    Renderer2D::DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y + 1.0f),
+                           black);
+    Renderer2D::DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), white);
   } else {
-    if (Enabled) {
-      Renderer2D::DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y + 1.0f),
-                             black);
-      Renderer2D::DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y),
-                             white);
-    } else {
-      Renderer2D::DrawSprite(DisabledSprite,
-                             glm::vec2(Bounds.X, Bounds.Y + 1.0f), black);
-      Renderer2D::DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y),
-                             white);
-    }
+    Renderer2D::DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y + 1.0f),
+                           black);
+    Renderer2D::DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y),
+                           white);
   }
 }
 

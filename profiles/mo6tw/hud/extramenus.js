@@ -167,6 +167,8 @@ root.ExtraMenus = {
         OthersPortraitBottomPart: "AlbumMenuOthersPortraitBottom",
         PortraitPosition: { X: 1282, Y: 80 },
         OthersPortraitPosition: { X: 1282, Y: 124 },
+        ThumbnailsPerRow: 3,
+        ThumbnailsPerColumn: 3,
         Thumbnails: [],
         ThumbnailOffsets: [0, 20, 37, 53, 65, 78],
         LockedThumbnail: "AlbumMenuLockedThumbnail",
@@ -178,6 +180,15 @@ root.ExtraMenus = {
         ThumbnailGridFirstPosition: { X: 154, Y: 130 },
         ThumbnailGridMargin: { X: 262, Y: 188 },
         ThumbnailGridBounds: { X: 127, Y: 106, Width: 810, Height: 550 },
+        ArrowsAnimationDuration: 0.2,
+        ArrowUp: "AlbumMenuArrowUp",
+        ArrowUpPosition: { X: 519, Y: 84 },
+        ArrowDown: "AlbumMenuArrowDown",
+        ArrowDownPosition: { X: 519, Y: 665 },
+        ThumbnailButtonBorderOffset: { X: -8, Y: -9 },
+        ThumbnailButtonTextFontSize: 21,
+        ThumbnailButtonTextColorIndex: 0,
+        ThumbnailButtonTextOffset: { X: -6, Y: -6 },
         FadeInDuration: 0.2,
         FadeOutDuration: 0.2
     }
@@ -743,4 +754,13 @@ root.Sprites["AlbumMenuThumbnailHighlightBottomLeft"] = {
 root.Sprites["AlbumMenuThumbnailHighlightBottomRight"] = {
     Sheet: "Album",
     Bounds: { X: 1449, Y: 905, Width: 22, Height: 22 }
+};
+
+root.Sprites["AlbumMenuArrowUp"] = {
+    Sheet: "Album",
+    Bounds: { X: 1473, Y: 881, Width: 34, Height: 22 }
+};
+root.Sprites["AlbumMenuArrowDown"] = {
+    Sheet: "Album",
+    Bounds: { X: 1473, Y: 905, Width: 34, Height: 22 }
 };

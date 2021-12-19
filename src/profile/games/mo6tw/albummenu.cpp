@@ -28,6 +28,8 @@ Sprite OthersPortraitTopPart;
 Sprite OthersPortraitBottomPart;
 glm::vec2 PortraitPosition;
 glm::vec2 OthersPortraitPosition;
+int ThumbnailsPerRow;
+int ThumbnailsPerColumn;
 Sprite Thumbnails[EventCgCount];
 int ThumbnailOffsets[CharacterCount];
 Sprite LockedThumbnail;
@@ -39,6 +41,15 @@ Sprite ThumbnailHighlightBottomRight;
 glm::vec2 ThumbnailGridFirstPosition;
 glm::vec2 ThumbnailGridMargin;
 RectF ThumbnailGridBounds;
+float ArrowsAnimationDuration;
+Sprite ArrowUp;
+glm::vec2 ArrowUpPosition;
+Sprite ArrowDown;
+glm::vec2 ArrowDownPosition;
+glm::vec2 ThumbnailButtonBorderOffset;
+int ThumbnailButtonTextFontSize;
+int ThumbnailButtonTextColorIndex;
+glm::vec2 ThumbnailButtonTextOffset;
 
 float FadeInDuration;
 float FadeOutDuration;
@@ -97,6 +108,8 @@ void Configure() {
   OthersPortraitBottomPart = EnsureGetMemberSprite("OthersPortraitBottomPart");
   PortraitPosition = EnsureGetMemberVec2("PortraitPosition");
   OthersPortraitPosition = EnsureGetMemberVec2("OthersPortraitPosition");
+  ThumbnailsPerRow = EnsureGetMemberInt("ThumbnailsPerRow");
+  ThumbnailsPerColumn = EnsureGetMemberInt("ThumbnailsPerColumn");
   GetMemberSpriteArray(Thumbnails, EventCgCount, "Thumbnails");
   GetMemberIntArray(ThumbnailOffsets, CharacterCount, "ThumbnailOffsets");
   LockedThumbnail = EnsureGetMemberSprite("LockedThumbnail");
@@ -113,6 +126,18 @@ void Configure() {
       EnsureGetMemberVec2("ThumbnailGridFirstPosition");
   ThumbnailGridMargin = EnsureGetMemberVec2("ThumbnailGridMargin");
   ThumbnailGridBounds = EnsureGetMemberRectF("ThumbnailGridBounds");
+  ArrowsAnimationDuration = EnsureGetMemberFloat("ArrowsAnimationDuration");
+  ArrowUp = EnsureGetMemberSprite("ArrowUp");
+  ArrowUpPosition = EnsureGetMemberVec2("ArrowUpPosition");
+  ArrowDown = EnsureGetMemberSprite("ArrowDown");
+  ArrowDownPosition = EnsureGetMemberVec2("ArrowDownPosition");
+  ThumbnailButtonBorderOffset =
+      EnsureGetMemberVec2("ThumbnailButtonBorderOffset");
+  ThumbnailButtonTextFontSize =
+      EnsureGetMemberInt("ThumbnailButtonTextFontSize");
+  ThumbnailButtonTextColorIndex =
+      EnsureGetMemberInt("ThumbnailButtonTextColorIndex");
+  ThumbnailButtonTextOffset = EnsureGetMemberVec2("ThumbnailButtonTextOffset");
 
   FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
   FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");

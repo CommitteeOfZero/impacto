@@ -44,24 +44,16 @@ void Button::Render() {
         HighlightSprite,
         glm::vec2(Bounds.X + HighlightOffset.x, Bounds.Y + HighlightOffset.y),
         Tint, glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
-    if (IsLocked) {
-      Renderer2D::DrawSprite(LockedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
-    } else {
-      Renderer2D::DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y),
-                             Tint);
-    }
+  }
+
+  if (IsLocked) {
+    Renderer2D::DrawSprite(LockedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+  } else if (HasFocus && Enabled) {
+    Renderer2D::DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+  } else if (Enabled) {
+    Renderer2D::DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
   } else {
-    if (Enabled) {
-      if (IsLocked) {
-        Renderer2D::DrawSprite(LockedSprite, glm::vec2(Bounds.X, Bounds.Y),
-                               Tint);
-      } else {
-        Renderer2D::DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y),
-                               Tint);
-      }
-    } else
-      Renderer2D::DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y),
-                             Tint);
+    Renderer2D::DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
   }
 
   if (HasText) {
