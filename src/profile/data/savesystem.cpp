@@ -116,6 +116,8 @@ void Configure() {
         AlbumData[i][j][cgSpriteCount] = 0xFFFF;
         Pop();
       }
+      // End marker
+      AlbumData[i][subDataCount][0] = 0xFFFF;
       Pop();
     }
     Pop();

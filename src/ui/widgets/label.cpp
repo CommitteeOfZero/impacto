@@ -51,11 +51,11 @@ void Label::Render() {
 }
 
 void Label::Move(glm::vec2 relativePosition) {
-  Widget::Move(relativePosition);
   for (int i = 0; i < TextLength; i++) {
     Text[i].DestRect.X += relativePosition.x;
     Text[i].DestRect.Y += relativePosition.y;
   }
+  Widget::Move(relativePosition);
 }
 
 void Label::MoveTo(glm::vec2 pos) {

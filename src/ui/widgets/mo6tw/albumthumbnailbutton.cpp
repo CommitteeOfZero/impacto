@@ -52,13 +52,13 @@ void AlbumThumbnailButton::Render() {
 }
 
 void AlbumThumbnailButton::Move(glm::vec2 relativePosition) {
-  Widget::Move(relativePosition);
   InfoText->Move(relativePosition);
+  Widget::Move(relativePosition);
 }
 
 void AlbumThumbnailButton::MoveTo(glm::vec2 pos) {
-  Widget::MoveTo(pos);
   InfoText->MoveTo(pos);
+  Widget::MoveTo(pos);
 }
 
 }  // namespace MO6TW

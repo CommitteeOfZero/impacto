@@ -14,7 +14,7 @@ enum WidgetType { WT_NORMAL, WT_GROUP };
 
 class Widget {
  public:
-  bool Enabled = false;
+  bool Enabled = true;
   bool HasFocus = false;
   bool Hovered = false;
 

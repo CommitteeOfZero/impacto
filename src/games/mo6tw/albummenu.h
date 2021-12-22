@@ -3,6 +3,7 @@
 #include "../../ui/menu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
+#include "../../ui/widgets/cgviewer.h"
 
 namespace Impacto {
 namespace UI {
@@ -21,6 +22,7 @@ class AlbumMenu : public Menu {
   void CharacterButtonOnClick(Widgets::Button* target);
   void ArrowUpOnClick(Widgets::Button* target);
   void ArrowDownOnClick(Widgets::Button* target);
+  void CgOnClick(Widgets::Button* target);
 
  private:
   Widgets::Group* MainItems;
@@ -30,10 +32,14 @@ class AlbumMenu : public Menu {
   Widgets::Button* ArrowUpButton;
   Widgets::Button* ArrowDownButton;
 
+  Widgets::Group* CgViewerGroup;
+  Widgets::CgViewer* CgViewerWidget;
+
   float MinimumImageGridY;
   float MaximumImageGridY;
 
   int SelectedCharacterId = -1;
+  bool ShowCgViewer = false;
 
   Animation FadeAnimation;
   Animation ArrowsAnimation;

@@ -10,6 +10,7 @@
 #include "../../vm/interface/input.h"
 #include "../../ui/widgets/mo6tw/albumcharacterbutton.h"
 #include "../../ui/widgets/mo6tw/albumthumbnailbutton.h"
+#include "../../profile/data/savesystem.h"
 
 namespace Impacto {
 namespace UI {
@@ -31,6 +32,12 @@ void AlbumMenu::ArrowUpOnClick(Widgets::Button* target) { MoveImageGrid(); }
 
 void AlbumMenu::ArrowDownOnClick(Widgets::Button* target) { MoveImageGrid(); }
 
+void AlbumMenu::CgOnClick(Widgets::Button* target) {
+  ShowCgViewer = true;
+  CgViewerWidget->LoadCgSprites("bg",
+                                Profile::SaveSystem::AlbumData[target->Id]);
+}
+
 AlbumMenu::AlbumMenu() {
   FadeAnimation.Direction = 1;
   FadeAnimation.LoopMode = ALM_Stop;
@@ -42,6 +49,10 @@ AlbumMenu::AlbumMenu() {
   ArrowsAnimation.DurationIn = ArrowsAnimationDuration;
   ArrowsAnimation.DurationOut = ArrowsAnimationDuration;
   ArrowsAnimation.StartIn();
+
+  CgViewerWidget = new CgViewer();
+  CgViewerGroup = new Group(this);
+  CgViewerGroup->Add(CgViewerWidget, FDIR_DOWN);
 
   MainItems = new Group(this);
   SecondaryItems = new Group(this);
@@ -150,9 +161,7 @@ void AlbumMenu::Hide() {
 void AlbumMenu::UpdateInput() {
   Menu::UpdateInput();
   if (State == Shown) {
-    if (SelectedCharacterId != -1) {
-      ImageGrid->UpdateInput();
-      Arrows->UpdateInput();
+    if (SelectedCharacterId != -1 && !ShowCgViewer) {
       if ((PADinputButtonWentDown & PAD1DOWN ||
            PADinputButtonWentDown & PAD1UP) &&
           ImageGrid->HasFocus) {
@@ -160,7 +169,10 @@ void AlbumMenu::UpdateInput() {
       }
     }
     if (PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B) {
-      if (SelectedCharacterId == -1) {
+      if (CgViewerGroup->IsShown) {
+        CgViewerGroup->Hide();
+        ShowCgViewer = false;
+      } else if (SelectedCharacterId == -1) {
         SetFlag(SF_ALBUMEND, true);
       } else {
         SwitchToCharacter(-1);
@@ -188,15 +200,20 @@ void AlbumMenu::Update(float dt) {
   if (State != Hidden) {
     MainItems->Update(dt);
     if (SelectedCharacterId != -1) {
-      ArrowsAnimation.Update(dt);
-      ImageGrid->Update(dt);
-      if (ImageGrid->Bounds.Y == MaximumImageGridY) {
-        ArrowUpButton->Enabled = false;
-      } else if (ImageGrid->Bounds.Y == MinimumImageGridY) {
-        ArrowDownButton->Enabled = false;
+      if (ShowCgViewer) {
+        if (!CgViewerGroup->IsShown) CgViewerGroup->Show();
+        CgViewerGroup->Update(dt);
       } else {
-        ArrowUpButton->Enabled = true;
-        ArrowDownButton->Enabled = true;
+        ArrowsAnimation.Update(dt);
+        ImageGrid->Update(dt);
+        if (ImageGrid->Bounds.Y == MaximumImageGridY) {
+          ArrowUpButton->Enabled = false;
+        } else if (ImageGrid->Bounds.Y == MinimumImageGridY) {
+          ArrowDownButton->Enabled = false;
+        } else {
+          ArrowUpButton->Enabled = true;
+          ArrowDownButton->Enabled = true;
+        }
       }
     }
   }
@@ -215,6 +232,7 @@ void AlbumMenu::Render() {
     Arrows->Tint =
         glm::vec4(1.0f, 1.0f, 1.0f, glm::step(0.5f, ArrowsAnimation.Progress));
     Arrows->Render();
+    CgViewerGroup->Render();
   }
 }
 
@@ -257,6 +275,9 @@ void AlbumMenu::LoadCharacter(int id) {
             OthersPortraitPosition.y + OthersPortraitTopPart.ScaledHeight())));
   }
 
+  auto cgOnClick =
+      std::bind(&AlbumMenu::CgOnClick, this, std::placeholders::_1);
+
   int row = 1;
   int endIdx =
       id == CharacterPortraitCount ? EventCgCount : ThumbnailOffsets[id + 1];
@@ -277,6 +298,7 @@ void AlbumMenu::LoadCharacter(int id) {
         totalEvVariations, pos);
     pos.x += ThumbnailGridMargin.x;
     button->IsLocked = viewedEvVariations == 0;
+    button->OnClickHandler = cgOnClick;
     ImageGrid->Add(button, FDIR_RIGHT);
     if (row != 1) {
       button->SetFocus(ImageGrid->Children.at(idx - ThumbnailsPerRow), FDIR_UP);
