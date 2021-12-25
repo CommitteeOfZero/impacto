@@ -71,6 +71,7 @@ class SaveSystemBase {
   virtual void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) = 0;
   virtual void GetEVStatus(int evId, int* totalVariations,
                            int* viewedVariations) = 0;
+  virtual bool GetEVVariationIsUnlocked(int evId, int variationIdx) = 0;
   virtual bool GetBgmFlag(int id) = 0;
 
   SaveFileEntryBase* FullSaveEntries[MaxSaveEntries];
@@ -93,6 +94,7 @@ void SetTipStatus(int tipId, bool isLocked, bool isUnread, bool isNew);
 void GetReadMessagesCount(int* totalMessageCount, int* readMessageCount);
 void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount);
 void GetEVStatus(int evId, int* totalVariations, int* viewedVariations);
+bool GetEVVariationIsUnlocked(int evId, int variationIdx);
 bool GetBgmFlag(int id);
 
 }  // namespace SaveSystem

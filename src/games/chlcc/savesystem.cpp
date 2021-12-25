@@ -384,6 +384,9 @@ void SaveSystem::GetReadMessagesCount(int* totalMessageCount,
 void SaveSystem::GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) {}
 void SaveSystem::GetEVStatus(int evId, int* totalVariations,
                              int* viewedVariations) {}
+bool SaveSystem::GetEVVariationIsUnlocked(int evId, int variationIdx) {
+  return true;
+}
 bool SaveSystem::GetBgmFlag(int id) { return true; }
 
 }  // namespace CHLCC

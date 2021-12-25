@@ -600,6 +600,11 @@ void SaveSystem::GetEVStatus(int evId, int* totalVariations,
   }
 }
 
+bool SaveSystem::GetEVVariationIsUnlocked(int evId, int variationIdx) {
+  if (AlbumEvData[evId][variationIdx] == 0xFFFF) return false;
+  return EVFlags[AlbumEvData[evId][variationIdx]];
+}
+
 bool SaveSystem::GetBgmFlag(int id) { return BGMFlags[id]; }
 
 }  // namespace MO6TW

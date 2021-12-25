@@ -23,6 +23,7 @@ class AlbumMenu : public Menu {
   void ArrowUpOnClick(Widgets::Button* target);
   void ArrowDownOnClick(Widgets::Button* target);
   void CgOnClick(Widgets::Button* target);
+  void OnCgVariationEnd(Widgets::CgViewer* target);
 
  private:
   Widgets::Group* MainItems;

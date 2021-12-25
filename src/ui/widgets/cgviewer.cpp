@@ -14,8 +14,24 @@ using namespace Impacto::Vm::Interface;
 float const CgMovementStep = 10.0f;
 float const ScrollwheelDeltaDivider = 10.0f;
 float const ScaleStep = 0.01f;
+float const MouseAdvanceTime = 0.2f;
 
-CgViewer::CgViewer() {}
+CgViewer::CgViewer() {
+  FadeAnimation.Direction = 1;
+  FadeAnimation.LoopMode = ALM_Stop;
+  FadeAnimation.DurationIn = 0.5f;
+  FadeAnimation.DurationOut = 0.5f;
+}
+
+void CgViewer::Show() {
+  FadeAnimation.StartIn();
+  Widget::Show();
+}
+
+void CgViewer::Hide() {
+  FadeAnimation.StartOut();
+  Widget::Hide();
+}
 
 void CgViewer::UpdateInput() {
   if (PADinputMouseIsDown & PAD1A) {
@@ -45,26 +61,60 @@ void CgViewer::UpdateInput() {
   Scale =
       Scale < MinScale[CurrentVariation] ? MinScale[CurrentVariation] : Scale;
 
-  if (PADinputButtonWentDown & PAD1A || PADinputMouseWentDown & PAD1A) {
-    CurrentVariation += 1;
-    if (CurrentVariation == VariationCount) {
-      CurrentVariation = 0;
+  bool mouseAdvance = false;
+  if (PADinputMouseWentDown & PAD1A) {
+    if (MouseDownTime == 0.0f) {
+      MouseDownTime =
+          SDL_GetPerformanceCounter() / (float)SDL_GetPerformanceFrequency();
+    }
+  }
+
+  if (MouseDownTime != 0.0f && !(PADinputMouseIsDown & PAD1A)) {
+    float currentTime =
+        SDL_GetPerformanceCounter() / (float)SDL_GetPerformanceFrequency();
+    if (currentTime - MouseDownTime < MouseAdvanceTime) {
+      mouseAdvance = true;
+    }
+    MouseDownTime = 0.0f;
+  }
+
+  if (PADinputButtonWentDown & PAD1A || mouseAdvance) {
+    while (true) {
+      CurrentVariation += 1;
+      if (CurrentVariation == VariationCount) {
+        if (OnVariationEndHandler) OnVariationEndHandler(this);
+        CurrentVariation = 0;
+      }
+      if (SaveSystem::GetEVVariationIsUnlocked(EvId, CurrentVariation)) break;
+    }
+    for (int i = 0; i < CgCount[CurrentVariation]; i++) {
+      CgSprites[CurrentVariation][i].BaseScale.x = Scale;
+      CgSprites[CurrentVariation][i].BaseScale.y = Scale;
     }
   }
 }
 
 void CgViewer::Update(float dt) {
   Widget::Update(dt);
+  FadeAnimation.Update(dt);
+  RectF screen = RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight);
+  auto pointBefore = screen.Center() - Position;
+  auto pointAfter =
+      pointBefore * (Scale / CgSprites[CurrentVariation][0].BaseScale.x);
+  auto diff = pointAfter - pointBefore;
   for (int i = 0; i < CgCount[CurrentVariation]; i++) {
     CgSprites[CurrentVariation][i].BaseScale.x = Scale;
     CgSprites[CurrentVariation][i].BaseScale.y = Scale;
   }
+  Position -= diff;
 }
 
 void CgViewer::Render() {
+  glm::vec4 col(1.0f, 1.0f, 1.0f,
+                glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress));
   Renderer2D::DrawRect(
       RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-      glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+      glm::vec4(0.0f, 0.0f, 0.0f, col.a));
   for (int i = 0; i < CgCount[CurrentVariation]; i++) {
     auto pos =
         i == 0
@@ -72,14 +122,16 @@ void CgViewer::Render() {
             : glm::vec2(Position.x,
                         Position.y +
                             CgSprites[CurrentVariation][i - 1].ScaledHeight());
-    Renderer2D::DrawSprite(CgSprites[CurrentVariation][i], pos);
+    Renderer2D::DrawSprite(CgSprites[CurrentVariation][i], pos, col);
   }
 }
 
 void CgViewer::LoadCgSprites(
-    std::string mountPoint,
+    int evId, std::string mountPoint,
     uint16_t loadIds[][Profile::SaveSystem::MaxCGSprites]) {
   Clear();
+
+  EvId = evId;
 
   int variationIdx = 0;
   while (loadIds[variationIdx][0] != 0xFFFF) {

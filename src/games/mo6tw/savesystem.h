@@ -29,6 +29,7 @@ class SaveSystem : public SaveSystemBase {
   void GetReadMessagesCount(int* totalMessageCount, int* readMessageCount);
   void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount);
   void GetEVStatus(int evId, int* totalVariations, int* viewedVariations);
+  bool GetEVVariationIsUnlocked(int evId, int variationIdx);
   bool GetBgmFlag(int id);
 
  private:

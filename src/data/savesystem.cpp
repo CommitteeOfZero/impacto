@@ -71,6 +71,11 @@ void GetEVStatus(int evId, int* totalVariations, int* viewedVariations) {
     Implementation->GetEVStatus(evId, totalVariations, viewedVariations);
 }
 
+bool GetEVVariationIsUnlocked(int evId, int variationIdx) {
+  if (Implementation)
+    return Implementation->GetEVVariationIsUnlocked(evId, variationIdx);
+}
+
 bool GetBgmFlag(int id) {
   if (Implementation) return Implementation->GetBgmFlag(id);
 }

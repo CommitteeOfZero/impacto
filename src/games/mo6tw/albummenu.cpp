@@ -34,8 +34,13 @@ void AlbumMenu::ArrowDownOnClick(Widgets::Button* target) { MoveImageGrid(); }
 
 void AlbumMenu::CgOnClick(Widgets::Button* target) {
   ShowCgViewer = true;
-  CgViewerWidget->LoadCgSprites("bg",
+  CgViewerWidget->LoadCgSprites(target->Id, "bg",
                                 Profile::SaveSystem::AlbumData[target->Id]);
+}
+
+void AlbumMenu::OnCgVariationEnd(Widgets::CgViewer* target) {
+  CgViewerGroup->Hide();
+  ShowCgViewer = false;
 }
 
 AlbumMenu::AlbumMenu() {
@@ -51,6 +56,8 @@ AlbumMenu::AlbumMenu() {
   ArrowsAnimation.StartIn();
 
   CgViewerWidget = new CgViewer();
+  CgViewerWidget->OnVariationEndHandler =
+      std::bind(&AlbumMenu::OnCgVariationEnd, this, std::placeholders::_1);
   CgViewerGroup = new Group(this);
   CgViewerGroup->Add(CgViewerWidget, FDIR_DOWN);
 
@@ -249,6 +256,7 @@ void AlbumMenu::SwitchToCharacter(int id) {
     SecondaryItems->Show();
     Arrows->Show();
     ImageGrid->Show();
+    FocusStart[FDIR_DOWN] = ImageGrid;
   }
 }
 
@@ -332,11 +340,14 @@ void AlbumMenu::LoadCharacter(int id) {
 
 void AlbumMenu::MoveImageGrid() {
   auto focusedEl = CurrentlyFocusedElement;
-  if (focusedEl->Bounds.Y < ImageGrid->RenderingBounds.Y) {
-    ImageGrid->Move(glm::vec2(0.0f, ThumbnailGridMargin.y));
-  } else if (focusedEl->Bounds.Y + focusedEl->Bounds.Height >
-             ImageGrid->RenderingBounds.Y + ImageGrid->RenderingBounds.Height) {
-    ImageGrid->Move(glm::vec2(0.0f, -ThumbnailGridMargin.y));
+  if (focusedEl) {
+    if (focusedEl->Bounds.Y < ImageGrid->RenderingBounds.Y) {
+      ImageGrid->Move(glm::vec2(0.0f, ThumbnailGridMargin.y));
+    } else if (focusedEl->Bounds.Y + focusedEl->Bounds.Height >
+               ImageGrid->RenderingBounds.Y +
+                   ImageGrid->RenderingBounds.Height) {
+      ImageGrid->Move(glm::vec2(0.0f, -ThumbnailGridMargin.y));
+    }
   }
 }
 
