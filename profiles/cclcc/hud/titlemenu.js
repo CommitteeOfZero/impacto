@@ -15,10 +15,12 @@ root.TitleMenu = {
     MenuX: 27,
     MenuY: 26,
     ItemHighlightSprite: "TitleMenuItemHighlight",
-    ItemHighlightOffsetX: 328,
+    ItemHighlightOffsetX: 174,
     ItemHighlightOffsetY: 7,
+    ItemHighlightPointerSprite: "TitleMenuPointerItemHighlight",
+    ItemHighlightPointerY: 89,
     ItemPadding: 56,
-    ItemYBase: 328,
+    ItemYBase: 335,
     MenuEntriesSprites: [],
     MenuEntriesHighlightedSprites: [],
     MenuEntriesNum: 5
@@ -53,6 +55,11 @@ for (var i = 0; i < 5; i++) {
 root.Sprites["TitleMenuItemHighlight"] = {
     Sheet: "TitleChip",
     Bounds: { X: 896, Y: 64, Width: 638, Height: 50 },
+};
+
+root.Sprites["TitleMenuPointerItemHighlight"] = {
+    Sheet: "TitleChip",
+    Bounds: { X: 805, Y: 78, Width: 56, Height: 36 },
 };
 
 root.Sprites["TitleMenuBackground"] = {

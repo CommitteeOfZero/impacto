@@ -25,12 +25,24 @@ using namespace Impacto::UI::Widgets::CCLCC;
 
 void TitleMenu::MenuButtonOnClick(Widgets::Button* target) {
   ScrWork[SW_TITLECUR1] = target->Id;
+  SetFlag(SF_TITLEEND, 1);
   ChoiceMade = true;
 }
 
-void TitleMenu::SecondaryButtonOnClick(Widgets::Button* target) {
-  ScrWork[SW_TITLECUR2] = target->Id;
-  ChoiceMade = true;
+void TitleMenu::ContinueButtonOnClick(Widgets::Button* target) {
+  ContinueItems->Show();
+  ContinueItems->Tint.a = 0.0f;
+  MainItems->HasFocus = false;
+  CurrentlyFocusedElement = Load;
+  Load->HasFocus = true;
+}
+
+void TitleMenu::ExtraButtonOnClick(Widgets::Button* target) {
+  ExtraItems->Show();
+  ExtraItems->Tint.a = 0.0f;
+  MainItems->HasFocus = false;
+  CurrentlyFocusedElement = Tips;
+  Tips->HasFocus = true;
 }
 
 TitleMenu::TitleMenu() {
@@ -40,8 +52,10 @@ TitleMenu::TitleMenu() {
 
   auto onClick =
       std::bind(&TitleMenu::MenuButtonOnClick, this, std::placeholders::_1);
-  auto secondaryOnClick = std::bind(&TitleMenu::SecondaryButtonOnClick, this,
-                                    std::placeholders::_1);
+  auto continueOnClick =
+      std::bind(&TitleMenu::ContinueButtonOnClick, this, std::placeholders::_1);
+  auto extraOnClick =
+      std::bind(&TitleMenu::ExtraButtonOnClick, this, std::placeholders::_1);
 
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
@@ -49,9 +63,10 @@ TitleMenu::TitleMenu() {
   // NewGame menu button
   NewGame = new TitleButton(
       0, MenuEntriesSprites[0], MenuEntriesHSprites[0], ItemHighlightSprite,
-      glm::vec2(((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress)) +
-                    ItemHighlightOffsetX,
-                ((ItemYBase - 1.0f) + (0 * ItemPadding))));
+      glm::vec2(
+          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
+              ItemHighlightOffsetX,
+          (ItemYBase + (0 * ItemPadding))));
   NewGame->OnClickHandler = onClick;
   MainItems->Add(NewGame, FDIR_DOWN);
 
@@ -60,8 +75,8 @@ TitleMenu::TitleMenu() {
       1, MenuEntriesSprites[1], MenuEntriesHSprites[1], ItemHighlightSprite,
       glm::vec2(((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress)) +
                     ItemHighlightOffsetX,
-                ((ItemYBase - 1.0f) + (1 * ItemPadding))));
-  Continue->OnClickHandler = onClick;
+                (ItemYBase + (1 * ItemPadding))));
+  Continue->OnClickHandler = continueOnClick;
   MainItems->Add(Continue, FDIR_DOWN);
 
   // Extra menu button
@@ -69,8 +84,8 @@ TitleMenu::TitleMenu() {
       2, MenuEntriesSprites[2], MenuEntriesHSprites[2], ItemHighlightSprite,
       glm::vec2(((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress)) +
                     ItemHighlightOffsetX,
-                ((ItemYBase - 1.0f) + (2 * ItemPadding))));
-  Extra->OnClickHandler = onClick;
+                (ItemYBase + (2 * ItemPadding))));
+  Extra->OnClickHandler = extraOnClick;
   MainItems->Add(Extra, FDIR_DOWN);
 
   // Config menu button
@@ -78,7 +93,7 @@ TitleMenu::TitleMenu() {
       3, MenuEntriesSprites[3], MenuEntriesHSprites[3], ItemHighlightSprite,
       glm::vec2(((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress)) +
                     ItemHighlightOffsetX,
-                ((ItemYBase - 1.0f) + (3 * ItemPadding))));
+                (ItemYBase + (3 * ItemPadding))));
   Config->OnClickHandler = onClick;
   MainItems->Add(Config, FDIR_DOWN);
 
@@ -87,7 +102,7 @@ TitleMenu::TitleMenu() {
       4, MenuEntriesSprites[4], MenuEntriesHSprites[4], ItemHighlightSprite,
       glm::vec2(((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress)) +
                     ItemHighlightOffsetX,
-                ((ItemYBase - 1.0f) + (4 * ItemPadding))));
+                (ItemYBase + (4 * ItemPadding))));
   Help->OnClickHandler = onClick;
   MainItems->Add(Help, FDIR_DOWN);
 }

@@ -27,12 +27,15 @@ class TitleMenu : public Menu {
   Animation SpinningCircleAnimation;
 
   void MenuButtonOnClick(Widgets::Button* target);
-  void SecondaryButtonOnClick(Widgets::Button* target);
+  void ContinueButtonOnClick(Widgets::Button* target);
+  void ExtraButtonOnClick(Widgets::Button* target);
 
   void DrawTitleMenuBackGraphics();
   void DrawMainMenuBackGraphics();
 
  private:
+  Widgets::Group* CurrentSubMenu = 0;
+
   Widgets::Group* MainItems;
   Widgets::CCLCC::TitleButton* NewGame;
   Widgets::CCLCC::TitleButton* Continue;

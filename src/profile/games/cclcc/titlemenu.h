@@ -13,6 +13,7 @@ extern Sprite CopyrightTextSprite;
 extern Sprite MainBackgroundSprite;
 extern Sprite MenuSprite;
 extern Sprite ItemHighlightSprite;
+extern Sprite ItemHighlightPointerSprite;
 
 extern float CopyrightTextX;
 extern float CopyrightTextY;
@@ -22,10 +23,9 @@ extern float ItemHighlightOffsetX;
 extern float ItemHighlightOffsetY;
 extern float ItemYBase;
 extern float ItemPadding;
+extern float ItemHighlightPointerY;
 
 void Configure();
-
-
 
 }  // namespace TitleMenu
 }  // namespace CCLCC

@@ -18,6 +18,7 @@ Sprite MainBackgroundSprite;
 Sprite CopyrightTextSprite;
 Sprite MenuSprite;
 Sprite ItemHighlightSprite;
+Sprite ItemHighlightPointerSprite;
 
 float CopyrightTextX;
 float CopyrightTextY;
@@ -27,6 +28,7 @@ float ItemHighlightOffsetX;
 float ItemHighlightOffsetY;
 float ItemYBase;
 float ItemPadding;
+float ItemHighlightPointerY;
 
 static void GetMemberSpriteArray(Sprite* arr, uint32_t count,
                                  char const* name) {
@@ -55,8 +57,13 @@ void Configure() {
   MenuX = EnsureGetMemberFloat("MenuX");
   MenuY = EnsureGetMemberFloat("MenuY");
   ItemHighlightSprite = EnsureGetMemberSprite("ItemHighlightSprite");
+  ItemHighlightOffsetX = EnsureGetMemberFloat("ItemHighlightOffsetX");
+  ItemHighlightOffsetY = EnsureGetMemberFloat("ItemHighlightOffsetY");
   ItemYBase = EnsureGetMemberFloat("ItemYBase");
   ItemPadding = EnsureGetMemberFloat("ItemPadding");
+  ItemHighlightPointerSprite =
+      EnsureGetMemberSprite("ItemHighlightPointerSprite");
+  ItemHighlightPointerY = EnsureGetMemberFloat("ItemHighlightPointerY");
 
   UI::CCLCC::TitleMenu* menu = new UI::CCLCC::TitleMenu();
   menu->PressToStartAnimation.DurationIn =

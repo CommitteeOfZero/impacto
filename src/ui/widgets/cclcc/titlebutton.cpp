@@ -12,12 +12,15 @@ using namespace Impacto::Profile::CCLCC::TitleMenu;
 
 void TitleButton::Render() {
   if (HasFocus) {
-    //if (!IsSubButton) {  // Main buttons
+    // if (!IsSubButton) {  // Main buttons
     Renderer2D::DrawSprite(HighlightSprite,
-                            glm::vec2(Bounds.X, Bounds.Y),
-                            Tint);
-    Renderer2D::DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y),
-                            Tint);
+                           glm::vec2(Bounds.X - ItemHighlightOffsetX,
+                                     Bounds.Y - ItemHighlightOffsetY),
+                           Tint);
+    Renderer2D::DrawSprite(
+        ItemHighlightPointerSprite,
+        glm::vec2(Bounds.X - ItemHighlightPointerY, Bounds.Y), Tint);
+    Renderer2D::DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
     /*} else {  // Sub buttons
       Renderer2D::DrawSprite(
           HighlightSprite,
@@ -36,7 +39,6 @@ void TitleButton::Render() {
                              Tint);
     }
   }
-
 }
 
 }  // namespace CCLCC
