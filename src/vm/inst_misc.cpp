@@ -447,15 +447,12 @@ VmInstruction(InstTitleMenuNew) {
                  "STUB instruction TitleMenu(type: Init)\n");
       break;
     case 1:  // Main
-             // Hack to kickstart into "New Game"
-             /*if (ScrWork[SW_TITLEMODE] == 3) {
-               if (((Interface::PADinputButtonWentDown & Interface::PAD1A) ||
-                    (Interface::PADinputMouseWentDown & Interface::PAD1A))) {
-                 ScrWork[2139] = 0;
-                 SetFlag(1241, 1);
-               }
-             } else*/
-      if (ScrWork[SW_TITLEMODE] == 1 && ScrWork[SW_TITLEDISPCT] == 60) {
+      if (ScrWork[SW_TITLEMODE] == 3) {
+        if (!UI::TitleMenuPtr->AllowsScriptInput) {
+          ResetInstruction;
+          BlockThread;
+        }
+      } else if (ScrWork[SW_TITLEMODE] == 1 && ScrWork[SW_TITLEDISPCT] == 60) {
         // Check "PRESS TO START" here
         if (((Interface::PADinputButtonWentDown & Interface::PAD1A) ||
              (Interface::PADinputMouseWentDown & Interface::PAD1A))) {

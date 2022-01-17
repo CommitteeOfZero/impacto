@@ -29,23 +29,25 @@ using namespace Impacto::UI::Widgets::CCLCC;
 void TitleMenu::MenuButtonOnClick(Widgets::Button* target) {
   ScrWork[SW_TITLECUR1] = target->Id;
   SetFlag(SF_TITLEEND, 1);
-  ChoiceMade = true;
+  AllowsScriptInput = true;
 }
 
 void TitleMenu::ContinueButtonOnClick(Widgets::Button* target) {
-  ShowContinueItems();
-  ChoiceMade = true;
+  CurrentSubMenu = ContinueItems;
+  AllowsScriptInput = false;
 }
 
 void TitleMenu::ExtraButtonOnClick(Widgets::Button* target) {
-  ShowExtraItems();
-  ChoiceMade = true;
+  CurrentSubMenu = ExtraItems;
+  AllowsScriptInput = false;
 }
 
 TitleMenu::TitleMenu() {
   MainItems = new Widgets::Group(this);
   ContinueItems = new Widgets::Group(this);
+  ContinueItems->WrapFocus = false;
   ExtraItems = new Widgets::Group(this);
+  ExtraItems->WrapFocus = false;
 
   auto onClick =
       std::bind(&TitleMenu::MenuButtonOnClick, this, std::placeholders::_1);
@@ -111,7 +113,7 @@ TitleMenu::TitleMenu() {
                                    (ItemYBase + (2 * ItemPadding))));
   Load->OnClickHandler = onClick;
   Load->IsSubButton = true;
-  ContinueItems->Add(Load, FDIR_DOWN);
+  ContinueItems->Add(Load, FDIR_RIGHT);
 
   // QuickLoad secondary Continue menu button
   QuickLoad =
@@ -122,7 +124,7 @@ TitleMenu::TitleMenu() {
                                 (ItemYBase + (2 * ItemPadding))));
   QuickLoad->OnClickHandler = onClick;
   QuickLoad->IsSubButton = true;
-  ContinueItems->Add(QuickLoad, FDIR_DOWN);
+  ContinueItems->Add(QuickLoad, FDIR_RIGHT);
 
   // Tips secondary Extra menu button
   Tips = new TitleButton(30, TipsSprite, TipsHighlightSprite, nullSprite,
@@ -132,7 +134,7 @@ TitleMenu::TitleMenu() {
                                    (ItemYBase + (3 * ItemPadding))));
   Tips->OnClickHandler = onClick;
   Tips->IsSubButton = true;
-  ExtraItems->Add(Tips, FDIR_DOWN);
+  ExtraItems->Add(Tips, FDIR_RIGHT);
 
   // Library secondary Extra menu button
   Library =
@@ -143,7 +145,7 @@ TitleMenu::TitleMenu() {
                                 (ItemYBase + (3 * ItemPadding))));
   Library->OnClickHandler = onClick;
   Library->IsSubButton = true;
-  ExtraItems->Add(Library, FDIR_DOWN);
+  ExtraItems->Add(Library, FDIR_RIGHT);
 
   // EndingList secondary Extra menu button
   EndingList = new TitleButton(
@@ -154,7 +156,7 @@ TitleMenu::TitleMenu() {
                 (ItemYBase + (3 * ItemPadding))));
   EndingList->OnClickHandler = onClick;
   EndingList->IsSubButton = true;
-  ExtraItems->Add(EndingList, FDIR_DOWN);
+  ExtraItems->Add(EndingList, FDIR_RIGHT);
 }
 
 void TitleMenu::Show() {
@@ -166,6 +168,7 @@ void TitleMenu::Show() {
     }
     IsFocused = true;
     UI::FocusedMenu = this;
+    AllowsScriptInput = true;
     if (PressToStartAnimation.State == AS_Stopped) {
       PressToStartAnimation.StartIn();
       SmokeAnimation.StartIn();
@@ -183,6 +186,7 @@ void TitleMenu::Hide() {
       UI::FocusedMenu = 0;
     }
     IsFocused = false;
+    AllowsScriptInput = true;
   }
 }
 
@@ -197,6 +201,7 @@ void TitleMenu::UpdateInput() {
       if (CurrentSubMenu == ExtraItems) {
         HideExtraItems();
       }
+      AllowsScriptInput = true;
     }
   }
 }
@@ -218,20 +223,6 @@ void TitleMenu::Update(float dt) {
   }
 
   if (State != Hidden && GetFlag(SF_TITLEMODE)) {
-    MainItems->Update(dt);
-    ContinueItems->Update(dt);
-    ExtraItems->Update(dt);
-
-    MainItems->Tint.a =
-        glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
-    MainItems->Update(dt);
-    ContinueItems->Tint.a =
-        glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
-    ContinueItems->Update(dt);
-    ExtraItems->Tint.a =
-        glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
-    ExtraItems->Update(dt);
-
     switch (ScrWork[SW_TITLEMODE]) {
       case 1: {
         PressToStartAnimation.DurationIn = PressToStartAnimDurationIn;
@@ -242,6 +233,24 @@ void TitleMenu::Update(float dt) {
         PressToStartAnimation.DurationOut = PressToStartAnimDurationOut;
       } break;
       case 3: {  // Main Menu Fade In
+        MainItems->Tint.a =
+            glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
+        MainItems->Update(dt);
+        ContinueItems->Tint.a =
+            glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
+        ContinueItems->Update(dt);
+        ExtraItems->Tint.a =
+            glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
+        ExtraItems->Update(dt);
+
+        if (CurrentSubMenu && !CurrentSubMenu->IsShown) {
+          if (CurrentSubMenu == ContinueItems) {
+            ShowContinueItems();
+          } else if (CurrentSubMenu == ExtraItems) {
+            ShowExtraItems();
+          }
+        }
+
         if (!MainItems->IsShown) {
           MainItems->Show();
           MainItems->Tint.a = 0.0f;

@@ -23,6 +23,7 @@ class Menu {
 
   bool IsFocused = false;
   bool ChoiceMade = false;
+  bool AllowsScriptInput = true;
 
   Menu* LastFocusedMenu = 0;
   Widget* FocusStart[4] = {0, 0, 0, 0};
