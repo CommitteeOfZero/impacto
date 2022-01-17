@@ -12,25 +12,22 @@ using namespace Impacto::Profile::CCLCC::TitleMenu;
 
 void TitleButton::Render() {
   if (HasFocus) {
-    // if (!IsSubButton) {  // Main buttons
-    Renderer2D::DrawSprite(HighlightSprite,
-                           glm::vec2(Bounds.X - ItemHighlightOffsetX,
-                                     Bounds.Y - ItemHighlightOffsetY),
-                           Tint);
-    Renderer2D::DrawSprite(
-        ItemHighlightPointerSprite,
-        glm::vec2(Bounds.X - ItemHighlightPointerY, Bounds.Y), Tint);
-    Renderer2D::DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
-    /*} else {  // Sub buttons
+    if (!IsSubButton) {  // Main buttons
+      Renderer2D::DrawSprite(HighlightSprite,
+                             glm::vec2(Bounds.X - ItemHighlightOffsetX,
+                                       Bounds.Y - ItemHighlightOffsetY),
+                             Tint);
       Renderer2D::DrawSprite(
-          HighlightSprite,
-          glm::vec2(SecondaryItemHighlightX, Bounds.Y - ItemHighlightOffsetY),
-          Tint);
+          ItemHighlightPointerSprite,
+          glm::vec2(Bounds.X - ItemHighlightPointerY, Bounds.Y), Tint);
       Renderer2D::DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y),
                              Tint);
-      Renderer2D::DrawSprite(LineDecoration,
-                             glm::vec2(SecondaryMenuLineX, LineY), Tint);
-    }*/
+    } else {  // Sub buttons
+      Renderer2D::DrawSprite(HighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
+                             Tint);
+      Renderer2D::DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y),
+                             Tint);
+    }
   } else {
     if (Enabled) {
       Renderer2D::DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);

@@ -12,6 +12,7 @@
 #include "../../profile/games/cclcc/titlemenu.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/game.h"
+#include "../../vm/interface/input.h"
 
 namespace Impacto {
 namespace UI {
@@ -20,6 +21,8 @@ namespace CCLCC {
 using namespace Impacto::Profile::TitleMenu;
 using namespace Impacto::Profile::CCLCC::TitleMenu;
 using namespace Impacto::Profile::ScriptVars;
+
+using namespace Impacto::Vm::Interface;
 
 using namespace Impacto::UI::Widgets::CCLCC;
 
@@ -30,19 +33,13 @@ void TitleMenu::MenuButtonOnClick(Widgets::Button* target) {
 }
 
 void TitleMenu::ContinueButtonOnClick(Widgets::Button* target) {
-  ContinueItems->Show();
-  ContinueItems->Tint.a = 0.0f;
-  MainItems->HasFocus = false;
-  CurrentlyFocusedElement = Load;
-  Load->HasFocus = true;
+  ShowContinueItems();
+  ChoiceMade = true;
 }
 
 void TitleMenu::ExtraButtonOnClick(Widgets::Button* target) {
-  ExtraItems->Show();
-  ExtraItems->Tint.a = 0.0f;
-  MainItems->HasFocus = false;
-  CurrentlyFocusedElement = Tips;
-  Tips->HasFocus = true;
+  ShowExtraItems();
+  ChoiceMade = true;
 }
 
 TitleMenu::TitleMenu() {
@@ -90,7 +87,7 @@ TitleMenu::TitleMenu() {
 
   // Config menu button
   Config = new TitleButton(
-      3, MenuEntriesSprites[3], MenuEntriesHSprites[3], ItemHighlightSprite,
+      20, MenuEntriesSprites[3], MenuEntriesHSprites[3], ItemHighlightSprite,
       glm::vec2(((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress)) +
                     ItemHighlightOffsetX,
                 (ItemYBase + (3 * ItemPadding))));
@@ -99,12 +96,65 @@ TitleMenu::TitleMenu() {
 
   // Help menu button
   Help = new TitleButton(
-      4, MenuEntriesSprites[4], MenuEntriesHSprites[4], ItemHighlightSprite,
+      40, MenuEntriesSprites[4], MenuEntriesHSprites[4], ItemHighlightSprite,
       glm::vec2(((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress)) +
                     ItemHighlightOffsetX,
                 (ItemYBase + (4 * ItemPadding))));
   Help->OnClickHandler = onClick;
   MainItems->Add(Help, FDIR_DOWN);
+
+  // Load secondary Continue menu button
+  Load = new TitleButton(10, LoadSprite, LoadHighlightSprite, nullSprite,
+                         glm::vec2(((SecondaryFirstItemHighlightOffsetX *
+                                     SecondaryItemsFadeInAnimation.Progress)) +
+                                       SecondaryFirstItemHighlightOffsetX,
+                                   (ItemYBase + (2 * ItemPadding))));
+  Load->OnClickHandler = onClick;
+  Load->IsSubButton = true;
+  ContinueItems->Add(Load, FDIR_DOWN);
+
+  // QuickLoad secondary Continue menu button
+  QuickLoad =
+      new TitleButton(11, QuickLoadSprite, QuickLoadHighlightSprite, nullSprite,
+                      glm::vec2(((SecondarySecondItemHighlightOffsetX *
+                                  SecondaryItemsFadeInAnimation.Progress)) +
+                                    SecondarySecondItemHighlightOffsetX,
+                                (ItemYBase + (2 * ItemPadding))));
+  QuickLoad->OnClickHandler = onClick;
+  QuickLoad->IsSubButton = true;
+  ContinueItems->Add(QuickLoad, FDIR_DOWN);
+
+  // Tips secondary Extra menu button
+  Tips = new TitleButton(30, TipsSprite, TipsHighlightSprite, nullSprite,
+                         glm::vec2(((SecondaryFirstItemHighlightOffsetX *
+                                     SecondaryItemsFadeInAnimation.Progress)) +
+                                       SecondaryFirstItemHighlightOffsetX,
+                                   (ItemYBase + (3 * ItemPadding))));
+  Tips->OnClickHandler = onClick;
+  Tips->IsSubButton = true;
+  ExtraItems->Add(Tips, FDIR_DOWN);
+
+  // Library secondary Extra menu button
+  Library =
+      new TitleButton(31, LibrarySprite, LibraryHighlightSprite, nullSprite,
+                      glm::vec2(((SecondarySecondItemHighlightOffsetX *
+                                  SecondaryItemsFadeInAnimation.Progress)) +
+                                    SecondarySecondItemHighlightOffsetX,
+                                (ItemYBase + (3 * ItemPadding))));
+  Library->OnClickHandler = onClick;
+  Library->IsSubButton = true;
+  ExtraItems->Add(Library, FDIR_DOWN);
+
+  // EndingList secondary Extra menu button
+  EndingList = new TitleButton(
+      32, EndingListSprite, EndingListHighlightSprite, nullSprite,
+      glm::vec2(((SecondaryThirdItemHighlightOffsetX *
+                  SecondaryItemsFadeInAnimation.Progress)) +
+                    SecondaryThirdItemHighlightOffsetX,
+                (ItemYBase + (3 * ItemPadding))));
+  EndingList->OnClickHandler = onClick;
+  EndingList->IsSubButton = true;
+  ExtraItems->Add(EndingList, FDIR_DOWN);
 }
 
 void TitleMenu::Show() {
@@ -118,7 +168,7 @@ void TitleMenu::Show() {
     UI::FocusedMenu = this;
     if (PressToStartAnimation.State == AS_Stopped) {
       PressToStartAnimation.StartIn();
-      SpinningCircleAnimation.StartIn();
+      SmokeAnimation.StartIn();
     }
   }
 }
@@ -136,54 +186,96 @@ void TitleMenu::Hide() {
   }
 }
 
+void TitleMenu::UpdateInput() {
+  Menu::UpdateInput();
+  if (CurrentSubMenu) {
+    if ((PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B) &&
+        CurrentSubMenu->IsShown) {
+      if (CurrentSubMenu == ContinueItems) {
+        HideContinueItems();
+      }
+      if (CurrentSubMenu == ExtraItems) {
+        HideExtraItems();
+      }
+    }
+  }
+}
+
 void TitleMenu::Update(float dt) {
   UpdateInput();
 
   PressToStartAnimation.Update(dt);
   PrimaryFadeAnimation.Update(dt);
   SecondaryFadeAnimation.Update(dt);
+  SmokeAnimation.Update(dt);
 
   if (GetFlag(SF_TITLEMODE)) {
     Show();
   } else {
+    ItemsFadeInAnimation.StartOut();
+    SecondaryItemsFadeInAnimation.StartOut();
     Hide();
   }
 
   if (State != Hidden && GetFlag(SF_TITLEMODE)) {
     MainItems->Update(dt);
-    /*MainItems->Tint.a =
+    ContinueItems->Update(dt);
+    ExtraItems->Update(dt);
+
+    MainItems->Tint.a =
         glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
+    MainItems->Update(dt);
     ContinueItems->Tint.a =
         glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
     ContinueItems->Update(dt);
     ExtraItems->Tint.a =
         glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
-    ExtraItems->Update(dt);*/
+    ExtraItems->Update(dt);
 
     switch (ScrWork[SW_TITLEMODE]) {
+      case 1: {
+        PressToStartAnimation.DurationIn = PressToStartAnimDurationIn;
+        PressToStartAnimation.DurationOut = PressToStartAnimDurationOut;
+      } break;
+      case 2: {
+        PressToStartAnimation.DurationIn = PressToStartAnimDurationIn;
+        PressToStartAnimation.DurationOut = PressToStartAnimDurationOut;
+      } break;
       case 3: {  // Main Menu Fade In
         if (!MainItems->IsShown) {
           MainItems->Show();
+          MainItems->Tint.a = 0.0f;
           CurrentlyFocusedElement = NewGame;
           NewGame->HasFocus = true;
+          PrimaryFadeAnimation.DurationIn = PrimaryFadeInDuration;
+          PrimaryFadeAnimation.DurationOut = PrimaryFadeOutDuration;
+          PrimaryFadeAnimation.StartIn();
         }
       } break;
     }
   }
-}
+}  // namespace CCLCC
 
 void TitleMenu::Render() {
   if (State != Hidden && GetFlag(SF_TITLEMODE)) {
     switch (ScrWork[SW_TITLEMODE]) {
       case 1: {  // Press to start
-        DrawTitleMenuBackGraphics();
-        glm::vec4 col = glm::vec4(1.0f);
-        col.a = glm::smoothstep(0.0f, 1.0f, PressToStartAnimation.Progress);
-        Renderer2D::DrawSprite(PressToStartSprite,
-                               glm::vec2(PressToStartX, PressToStartY), col);
+        DrawMainBackground();
+        DrawStartButton();
+        DrawSmoke(SmokeOpacityNormal);
+        Renderer2D::DrawSprite(CopyrightTextSprite,
+                               glm::vec2(CopyrightTextX, CopyrightTextY));
+        Renderer2D::DrawRect(
+            RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+            glm::vec4(1.0f, 1.0f, 1.0f,
+                      1.0f - ScrWork[SW_TITLEDISPCT] / 60.0f));
       } break;
       case 2: {  // Transition between Press to start and menus
-        DrawTitleMenuBackGraphics();
+        DrawMainBackground();
+        DrawStartButton();
+        DrawSmoke(SmokeOpacityNormal);
+        Renderer2D::DrawSprite(CopyrightTextSprite,
+                               glm::vec2(CopyrightTextX, CopyrightTextY));
       } break;
       case 3: {  // MenuItems Fade In
         if (ItemsFadeInAnimation.IsOut() &&
@@ -192,14 +284,18 @@ void TitleMenu::Render() {
         else if (ItemsFadeInAnimation.State != AS_Playing)
           ItemsFadeInAnimation.StartOut();
         DrawMainMenuBackGraphics();
+        DrawSmoke(SmokeOpacityNormal);
         MainItems->Render();
+        ContinueItems->Render();
+        ExtraItems->Render();
       } break;
-      case 4: {  // Main Menu
-        DrawTitleMenuBackGraphics();
-        MainItems->Render();
+      case 4: {
       } break;
       case 11: {  // Initial Fade In
-        DrawTitleMenuBackGraphics();
+        DrawMainBackground(ScrWork[SW_TITLEDISPCT] / 32.0f);
+        DrawSmoke(ScrWork[SW_TITLEDISPCT] / 128.0f);
+        Renderer2D::DrawSprite(CopyrightTextSprite,
+                               glm::vec2(CopyrightTextX, CopyrightTextY));
       } break;
     }
 
@@ -211,10 +307,15 @@ void TitleMenu::Render() {
   }
 }
 
-inline void TitleMenu::DrawTitleMenuBackGraphics() {
+inline void TitleMenu::DrawMainBackground(float opacity) {
   Renderer2D::DrawSprite(BackgroundSprite, glm::vec2(0.0f));
-  Renderer2D::DrawSprite(CopyrightTextSprite,
-                         glm::vec2(CopyrightTextX, CopyrightTextY));
+  Renderer2D::DrawSprite(
+      OverlaySprite,
+      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+      glm::vec4(1.0f));
+}
+
+inline void TitleMenu::DrawStartButton() {
   glm::vec4 col = glm::vec4(1.0f);
   col.a = glm::smoothstep(0.0f, 1.0f, PressToStartAnimation.Progress);
   Renderer2D::DrawSprite(PressToStartSprite,
@@ -224,6 +325,85 @@ inline void TitleMenu::DrawTitleMenuBackGraphics() {
 inline void TitleMenu::DrawMainMenuBackGraphics() {
   Renderer2D::DrawSprite(MainBackgroundSprite, glm::vec2(0.0f));
   Renderer2D::DrawSprite(MenuSprite, glm::vec2(MenuX, MenuY));
+  Renderer2D::DrawSprite(
+      OverlaySprite,
+      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+      glm::vec4(1.0f));
+}
+
+inline void TitleMenu::DrawSmoke(float opacity) {
+  glm::vec4 col = glm::vec4(1.0f);
+  col.a = opacity;
+  SmokeSprite.Bounds = RectF(
+      SmokeBoundsWidth - (SmokeAnimationBoundsXMax * SmokeAnimation.Progress) +
+          SmokeAnimationBoundsXOffset,
+      SmokeBoundsY,
+      SmokeBoundsWidth -
+          (SmokeAnimationBoundsXMax * (1.0f - SmokeAnimation.Progress)),
+      SmokeBoundsHeight);
+  Renderer2D::DrawSprite(SmokeSprite, glm::vec2(SmokeX, SmokeY), col);
+  SmokeSprite.Bounds = RectF(
+      SmokeBoundsX, SmokeBoundsY,
+      SmokeBoundsWidth - (SmokeAnimationBoundsXMax * SmokeAnimation.Progress),
+      SmokeBoundsHeight);
+  Renderer2D::DrawSprite(
+      SmokeSprite,
+      glm::vec2(SmokeBoundsWidth - (SmokeAnimationBoundsXMax *
+                                    (1.0f - SmokeAnimation.Progress)),
+                SmokeY),
+      col);
+}
+
+void TitleMenu::ShowContinueItems() {
+  ContinueItems->Show();
+  ContinueItems->Tint.a = 0.0f;
+  MainItems->HasFocus = false;
+  CurrentlyFocusedElement = Load;
+  CurrentSubMenu = ContinueItems;
+  Load->HasFocus = true;
+  SecondaryFadeAnimation.StartIn();
+
+  Extra->Move(glm::vec2(0.0f, ItemPadding));
+  Config->Move(glm::vec2(0.0f, ItemPadding));
+  Help->Move(glm::vec2(0.0f, ItemPadding));
+}
+
+void TitleMenu::HideContinueItems() {
+  ContinueItems->Hide();
+  MainItems->HasFocus = true;
+  CurrentlyFocusedElement = Continue;
+  CurrentSubMenu = 0;
+  ContinueItems->HasFocus = true;
+  SecondaryFadeAnimation.StartOut();
+
+  Extra->Move(glm::vec2(0.0f, -ItemPadding));
+  Config->Move(glm::vec2(0.0f, -ItemPadding));
+  Help->Move(glm::vec2(0.0f, -ItemPadding));
+}
+
+void TitleMenu::ShowExtraItems() {
+  ExtraItems->Show();
+  ExtraItems->Tint.a = 0.0f;
+  MainItems->HasFocus = false;
+  CurrentlyFocusedElement = Tips;
+  CurrentSubMenu = ExtraItems;
+  Tips->HasFocus = true;
+  SecondaryFadeAnimation.StartIn();
+
+  Config->Move(glm::vec2(0, ItemPadding));
+  Help->Move(glm::vec2(0, ItemPadding));
+}
+
+void TitleMenu::HideExtraItems() {
+  ExtraItems->Hide();
+  MainItems->HasFocus = true;
+  CurrentlyFocusedElement = Extra;
+  CurrentSubMenu = 0;
+  ExtraItems->HasFocus = true;
+  SecondaryFadeAnimation.StartOut();
+
+  Config->Move(glm::vec2(0, -ItemPadding));
+  Help->Move(glm::vec2(0, -ItemPadding));
 }
 
 }  // namespace CCLCC

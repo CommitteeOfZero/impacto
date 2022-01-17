@@ -16,6 +16,7 @@ class TitleMenu : public Menu {
 
   void Show();
   void Hide();
+  void UpdateInput();
   void Update(float dt);
   void Render();
 
@@ -24,14 +25,16 @@ class TitleMenu : public Menu {
   Animation SecondaryFadeAnimation;
   Animation ItemsFadeInAnimation;
   Animation SecondaryItemsFadeInAnimation;
-  Animation SpinningCircleAnimation;
+  Animation SmokeAnimation;
 
   void MenuButtonOnClick(Widgets::Button* target);
   void ContinueButtonOnClick(Widgets::Button* target);
   void ExtraButtonOnClick(Widgets::Button* target);
 
-  void DrawTitleMenuBackGraphics();
+  void DrawMainBackground(float opacity = 1.0f);
+  void DrawStartButton();
   void DrawMainMenuBackGraphics();
+  void DrawSmoke(float opacity);
 
  private:
   Widgets::Group* CurrentSubMenu = 0;
@@ -46,11 +49,15 @@ class TitleMenu : public Menu {
   Widgets::Group* ContinueItems;
   Widgets::CCLCC::TitleButton* Load;
   Widgets::CCLCC::TitleButton* QuickLoad;
+  void ShowContinueItems();
+  void HideContinueItems();
 
   Widgets::Group* ExtraItems;
   Widgets::CCLCC::TitleButton* Tips;
   Widgets::CCLCC::TitleButton* Library;
   Widgets::CCLCC::TitleButton* EndingList;
+  void ShowExtraItems();
+  void HideExtraItems();
 };
 
 }  // namespace CCLCC

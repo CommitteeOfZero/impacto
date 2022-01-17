@@ -52,7 +52,6 @@ TitleMenu::TitleMenu() {
               ItemHighlightOffsetX,
           ((ItemYBase - 1.0f) + (0 * ItemPadding))));
   Start->OnClickHandler = onClick;
-
   MainItems->Add(Start, FDIR_DOWN);
 
   // Load menu button

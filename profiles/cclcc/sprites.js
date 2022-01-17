@@ -4,7 +4,7 @@ root.SpriteSheets = {
         DesignWidth: 3072,
         DesignHeight: 1536
     },
-  	"MesBox": {
+    "MesBox": {
         Path: { Mount: "system", Id: 21 },
         DesignWidth: 1920,
         DesignHeight: 600
@@ -29,13 +29,18 @@ root.SpriteSheets = {
         DesignWidth: 2048,
         DesignHeight: 800
     },
+    "MenuChip": {
+        Path: { Mount: "system", Id: 20 },
+        DesignWidth: 4096,
+        DesignHeight: 2048
+    },
     "SysMesBox": {
         Path: { Mount: "system", Id: 27 },
         DesignWidth: 2048,
         DesignHeight: 1528
     },
     "Backlog": {
-        Path: {Mount: "system", Id: 6 },
+        Path: { Mount: "system", Id: 6 },
         DesignWidth: 2048,
         DesignHeight: 720
     }

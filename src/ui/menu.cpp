@@ -59,8 +59,7 @@ void Menu::AdvanceFocus(FocusDirection dir) {
   }
 
   auto el = CurrentlyFocusedElement->GetFocus(dir);
-  if (el && el->GetType() == WT_GROUP)
-    el = el->GetFocus(dir);
+  if (el && el->GetType() == WT_GROUP) el = el->GetFocus(dir);
 
   if (el) {
     CurrentlyFocusedElement->HasFocus = false;

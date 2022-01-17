@@ -73,5 +73,5 @@ root.Sprites["TitleMenuOverlay"] = {
 
 root.Sprites["TitleMenuSmoke"] = {
     Sheet: "MenuChip",
-    Bounds: { X: 20, Y: 1800, Width: 1920, Height: 500 },
+    Bounds: { X: 0, Y: 1900, Width: 2000, Height: 410 },
 };
