@@ -12,6 +12,7 @@ extern uint32_t StartScriptBuffer;
 extern Impacto::Vm::InstructionSet GameInstructionSet;
 extern bool UseReturnIds;
 extern bool UseMsbStrings;
+extern bool UseSeparateMsbArchive;
 extern int ScrWorkChaStructSize;
 extern int ScrWorkBgStructSize;
 extern int MaxLinkedBgBuffers;

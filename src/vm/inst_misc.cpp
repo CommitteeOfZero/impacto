@@ -454,7 +454,11 @@ VmInstruction(InstTitleMenuNew) {
           ScrWork[2139] = 0;
           SetFlag(1241, 1);
         }
-      } else if (ScrWork[SW_TITLEMODE] == 1 && ScrWork[SW_TITLEDISPCT] == 60) {
+      } else if (ScrWork[SW_TITLEMODE] == 1 &&
+                 ScrWork[SW_TITLEDISPCT] ==
+                     (Profile::Vm::GameInstructionSet == +InstructionSet::CC
+                          ? 60
+                          : 400)) {
         // Check "PRESS TO START" here
         if (((Interface::PADinputButtonWentDown & Interface::PAD1A) ||
              (Interface::PADinputMouseWentDown & Interface::PAD1A))) {
@@ -523,7 +527,8 @@ VmInstruction(InstSetPlayMode) {
 }
 VmInstruction(InstSetEVflag) {
   StartInstruction;
-  if (Profile::Vm::GameInstructionSet == +InstructionSet::MO8) {
+  if (Profile::Vm::GameInstructionSet == +InstructionSet::MO8 ||
+      Profile::Vm::GameInstructionSet == +InstructionSet::CHN) {
     PopUint8(unk01);
   }
   PopExpression(arg1);

@@ -71,7 +71,7 @@ VmInstruction(InstScriptLoad) {
   PopExpression(scriptId);
   if (Profile::Vm::UseMsbStrings) {
     LoadMsb(bufferId, scriptId);
-    scriptId += 1;
+    if (!Profile::Vm::UseSeparateMsbArchive) scriptId += 1;
   }
   LoadScript(bufferId, scriptId);
 }

@@ -465,7 +465,8 @@ VmInstruction(InstNameID) {
   switch (type) {
     case 0:
       if (Profile::Vm::GameInstructionSet == +InstructionSet::CC ||
-          Profile::Vm::GameInstructionSet == +InstructionSet::MO8) {
+          Profile::Vm::GameInstructionSet == +InstructionSet::MO8 ||
+          Profile::Vm::GameInstructionSet == +InstructionSet::CHN) {
         PopLocalLabel(namePlateDataBlock);
       } else if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW) {
         PopExpression(arg1);
@@ -492,7 +493,8 @@ VmInstruction(InstTips) {
   switch (type) {
     case 0: {  // TipsDataInit
       PopLocalLabel(tipsDataAdr);
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::MO8) {
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::MO8 ||
+          Profile::Vm::GameInstructionSet == +InstructionSet::CHN) {
         PopLocalLabel(tipsDataAdr1);
       }
 
@@ -541,6 +543,14 @@ VmInstruction(InstSetRevMes) {
       PopExpression(arg1);
       PopExpression(arg2);
       PopString(message);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction SetRevMes(type: %i, arg1: %i, arg2: %i)\n",
+                 type, arg1, arg2);
+    } break;
+    case 0x81: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(message);
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SetRevMes(type: %i, arg1: %i, arg2: %i)\n",
                  type, arg1, arg2);

@@ -187,6 +187,7 @@ set(Impacto_Src
     src/texture/plainloader.cpp
     src/texture/stbiloader.cpp
     src/texture/ddsloader.cpp
+    src/texture/webpdecode.cpp
 
     src/vm/vm.cpp
     src/vm/expression.cpp
@@ -546,6 +547,7 @@ elseif(NX)
     find_package(ZLIB REQUIRED)
     find_package(OggVorbis REQUIRED)
     find_package(FFMPEG REQUIRED)
+    find_package(WebP REQUIRED)
 
     include_directories(${OGGVORBIS_INCLUDE_DIRS})
 
@@ -557,6 +559,7 @@ elseif(NX)
         vorbisfile
         vorbis
         ogg
+        webp
         EGL
         glapi
         drm_nouveau
@@ -571,6 +574,7 @@ else()
     find_package(ZLIB REQUIRED)
     find_package(OggVorbis REQUIRED)
     find_package(FFMPEG REQUIRED)
+    find_package(WebP REQUIRED)
 
     include_directories(${OGGVORBIS_INCLUDE_DIRS})
 
@@ -584,13 +588,14 @@ else()
         ${SDL2_LIBRARIES}
         ZLIB::ZLIB
         ${OGGVORBIS_LIBRARIES}
+        ${WebP_LIBRARIES}
     )
 
     if(VCPKG_TOOLCHAIN)
         list(APPEND Impacto_Libs
             glm::glm
         )
-    elseif(NOT APPLE) # If we don't do this it decides to link glm as a library on macOS for some reason        
+    elseif(NOT APPLE) # If we don't do this it decides to link glm as a library on macOS for some reason
         list(APPEND Impacto_Libs
             glm
         )
@@ -604,6 +609,7 @@ include_directories(${LIBATRAC9_INCLUDE_DIR})
 include_directories(${OPENAL_INCLUDE_DIR})
 include_directories(${FFMPEG_INCLUDE_DIRS})
 include_directories(${SDL2_INCLUDE_DIRS})
+include_directories(${WebP_INCLUDE_DIRS})
 include_directories(vendor/include)
 include_directories(vendor/duktape/include)
 include_directories(vendor/pcg/include)

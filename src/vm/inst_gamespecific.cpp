@@ -781,6 +781,236 @@ VmInstruction(InstUnk103DMO8) {
              arg1);
 }
 
+VmInstruction(InstUnk1037Noah) {
+  StartInstruction;
+  PopUint8(type);
+  switch (type) {
+    case 0x0: {
+      PopExpression(arg1);
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_00\n");
+    } break;
+    case 0x1: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_01\n");
+    } break;
+    case 0x2: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_01\n");
+    } break;
+    case 0x3: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      PopExpression(arg4);
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_03");
+    } break;
+    case 0x4: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_04");
+    } break;
+    case 0x5: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_05");
+    } break;
+    case 0x6: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_06");
+    } break;
+    case 0x7: {
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_07");
+    } break;
+    case 0x8: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_08");
+    } break;
+    case 0x9: {
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_09");
+    } break;
+    case 0xA: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      PopExpression(arg4);
+      PopExpression(arg5);
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_0A");
+    } break;
+    case 0xB: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      PopExpression(arg4);
+      PopExpression(arg5);
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_0B");
+    } break;
+    case 0xC: {
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_0C");
+    } break;
+    case 0xD: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_0D");
+    } break;
+    case 0xE: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      PopExpression(arg4);
+      PopExpression(arg5);
+      PopExpression(arg6);
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_0E");
+    } break;
+    case 0xF: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_0F");
+    } break;
+    case 0x10: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_10");
+    } break;
+    case 0x11: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_13");
+    } break;
+    case 0x12: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      PopExpression(arg4);
+      PopExpression(arg5);
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_12");
+    } break;
+    case 0x13: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      PopExpression(arg4);
+      PopExpression(arg5);
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_13");
+    } break;
+    case 0x14: {
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_14");
+    } break;
+    case 0x15: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_05");
+    } break;
+    case 0x16: {
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_16");
+    } break;
+    case 0x17: {
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_07");
+    } break;
+    case 0x18: {
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_18");
+    } break;
+    case 0x19: {
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_19");
+    } break;
+    case 0x1A: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_1A");
+    } break;
+    case 0x1B: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_1B");
+    } break;
+    case 0x1C: {
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_1C");
+    } break;
+    case 0x1E: {
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_1E");
+    } break;
+    case 0x1F: {
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_1F");
+    } break;
+    case 0x20: {
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_20");
+    } break;
+    case 0x21: {
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_21");
+    } break;
+    case 0x22: {
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_22");
+    } break;
+    case 0x28: {
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_28");
+    } break;
+    case 0x29: {
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_29");
+    } break;
+    case 0x2A: {
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_2A");
+    } break;
+    case 0x2B: {
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_2B");
+    } break;
+    case 0x2C: {
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_2C");
+    } break;
+    case 0x52: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      PopExpression(arg4);
+      PopExpression(arg5);
+      PopExpression(arg6);
+      PopExpression(arg7);
+      PopExpression(arg8);
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_53");
+    } break;
+    case 0x53: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      PopExpression(arg4);
+      PopExpression(arg5);
+      PopExpression(arg6);
+      PopExpression(arg7);
+      PopExpression(arg8);
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_53");
+    } break;
+    case 0x78: {
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_78");
+    } break;
+    case 0x81: {
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_81");
+    } break;
+    case 0x8C: {
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_8C");
+    } break;
+    case 0x8D: {
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_8D");
+    } break;
+    case 0x8E: {
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_8E");
+    } break;
+    case 0x8F: {
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_8F");
+    } break;
+    case 0x90: {
+      ImpLogSlow(LL_Warning, LC_VMStub, "1037_90");
+    } break;
+  }
+}
+
 }  // namespace Vm
 
 }  // namespace Impacto

@@ -11,6 +11,7 @@ Impacto::Vm::InstructionSet GameInstructionSet =
     Impacto::Vm::InstructionSet::RNE;
 bool UseReturnIds = true;
 bool UseMsbStrings = false;
+bool UseSeparateMsbArchive = false;
 int ScrWorkChaStructSize;
 int ScrWorkBgStructSize;
 int MaxLinkedBgBuffers = 1;
@@ -24,6 +25,7 @@ void Configure() {
       EnsureGetMemberInt("GameInstructionSet"));
   UseReturnIds = EnsureGetMemberBool("UseReturnIds");
   TryGetMemberBool("UseMsbStrings", UseMsbStrings);
+  TryGetMemberBool("UseSeparateMsbArchive", UseSeparateMsbArchive);
   ScrWorkChaStructSize = EnsureGetMemberInt("ScrWorkChaStructSize");
   ScrWorkBgStructSize = EnsureGetMemberInt("ScrWorkBgStructSize");
   TryGetMemberInt("MaxLinkedBgBuffers", MaxLinkedBgBuffers);

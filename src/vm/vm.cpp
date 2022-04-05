@@ -18,6 +18,7 @@
 #include "opcodetables_dash.h"
 #include "opcodetables_cc.h"
 #include "opcodetables_sgps3.h"
+#include "opcodetables_chn.h"
 #include "../profile/game.h"
 #include "../profile/vm.h"
 #include "../profile/scriptinput.h"
@@ -134,6 +135,12 @@ void Init() {
       OpcodeTableUser1 = OpcodeTableUser1_MO8;
       break;
     }
+    case InstructionSet::CHN: {
+      OpcodeTableSystem = OpcodeTableSystem_CHN;
+      OpcodeTableGraph = OpcodeTableGraph_CHN;
+      OpcodeTableUser1 = OpcodeTableUser1_CHN;
+      break;
+    }
     default: {
       ImpLog(LL_Fatal, LC_VM, "Unsupported instruction set\n");
       Window::Shutdown();
@@ -162,7 +169,10 @@ void Init() {
   bool res =
       LoadScript(Profile::Vm::StartScriptBuffer, Profile::Vm::StartScript);
   if (Profile::Vm::UseMsbStrings) {
-    res = LoadMsb(Profile::Vm::StartScriptBuffer, Profile::Vm::StartScript - 1);
+    res = LoadMsb(Profile::Vm::StartScriptBuffer,
+                  Profile::Vm::UseSeparateMsbArchive
+                      ? Profile::Vm::StartScript
+                      : Profile::Vm::StartScript - 1);
   }
   if (res) {
     Sc3VmThread* startupThd = CreateThread(0);
@@ -196,13 +206,15 @@ bool LoadScript(uint32_t bufferId, uint32_t scriptId) {
 
 bool LoadMsb(uint32_t bufferId, uint32_t fileId) {
   Io::FileMeta meta;
-  Io::VfsGetMeta("script", fileId, &meta);
+  std::string mountPoint =
+      Profile::Vm::UseSeparateMsbArchive ? "mes" : "script";
+  Io::VfsGetMeta(mountPoint.c_str(), fileId, &meta);
   ImpLogSlow(LL_Debug, LC_VM, "Loading msb file \"%s\"\n",
              meta.FileName.c_str());
 
   void* file;
   int64_t fileSize;
-  IoError err = Io::VfsSlurp("script", fileId, &file, &fileSize);
+  IoError err = Io::VfsSlurp(mountPoint.c_str(), fileId, &file, &fileSize);
   if (err != IoError_OK) {
     ImpLog(LL_Error, LC_VM, "Could not read msb file for %d\n", fileId);
     return false;

@@ -18,6 +18,7 @@ VmInstruction(InstUnk100FMO6);
 VmInstruction(InstUnk1010MO6);
 VmInstruction(InstUnk1011MO6);
 VmInstruction(InstUnk1037);
+VmInstruction(InstUnk1037Noah);
 VmInstruction(InstUnk1037MO7);
 VmInstruction(InstMapSystem);
 VmInstruction(InstPhoneSG);
