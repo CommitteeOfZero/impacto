@@ -1,5 +1,7 @@
 var sv = root.ScriptVars;
 
+sv.SW_TITLECUR1 = 2139;
+sv.SW_TITLECUR2 = 2140; //Actual guess
 sv.SW_BG1POSX_OFS = 2400;
 sv.SW_BG1POSY_OFS = 2401;
 sv.SW_BG1SX_OFS = 2402;

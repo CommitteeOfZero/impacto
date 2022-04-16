@@ -70,10 +70,13 @@ set(Impacto_Src
     src/profile/games/dash/titlemenu.cpp
 
     src/profile/games/chlcc/titlemenu.cpp
+    src/profile/games/chlcc/savemenu.cpp
     src/profile/games/chlcc/sysmesbox.cpp
 
     src/profile/games/cc/titlemenu.cpp
     src/profile/games/cc/sysmesbox.cpp
+
+    src/profile/games/cclcc/titlemenu.cpp
 
     src/profile/games/mo6tw/dialoguebox.cpp
     src/profile/games/mo6tw/sysmesbox.cpp
@@ -99,11 +102,14 @@ set(Impacto_Src
     src/games/dash/titlemenu.cpp
 
     src/games/chlcc/titlemenu.cpp
+    src/games/chlcc/savemenu.cpp
     src/games/chlcc/sysmesbox.cpp
     src/games/chlcc/savesystem.cpp
 
     src/games/cc/titlemenu.cpp
     src/games/cc/sysmesbox.cpp
+
+    src/games/cclcc/titlemenu.cpp
 
     src/games/mo6tw/dialoguebox.cpp
     src/games/mo6tw/sysmesbox.cpp
@@ -153,7 +159,9 @@ set(Impacto_Src
     src/ui/widgets/mo6tw/actorsvoicebutton.cpp
     src/ui/widgets/mo6tw/albumcharacterbutton.cpp
     src/ui/widgets/chlcc/titlebutton.cpp
+    src/ui/widgets/chlcc/saveentrybutton.cpp
     src/ui/widgets/rne/sysmenubutton.cpp
+    src/ui/widgets/cclcc/titlebutton.cpp
 
     src/nuklear_impl.cpp
     src/stbi_impl.c
@@ -305,10 +313,13 @@ set(Impacto_Header
     src/profile/games/dash/titlemenu.h
 
     src/profile/games/chlcc/titlemenu.h
+    src/profile/games/chlcc/savemenu.h
     src/profile/games/chlcc/sysmesbox.h
 
     src/profile/games/cc/titlemenu.h
     src/profile/games/cc/sysmesbox.h
+
+    src/profile/games/cclcc/titlemenu.h
 
     src/profile/games/mo6tw/dialoguebox.h
     src/profile/games/mo6tw/sysmesbox.h
@@ -334,11 +345,14 @@ set(Impacto_Header
     src/games/dash/titlemenu.h
 
     src/games/chlcc/titlemenu.h
+    src/games/chlcc/savemenu.h
     src/games/chlcc/sysmesbox.h
     src/games/chlcc/savesystem.h
 
     src/games/cc/titlemenu.h
     src/games/cc/sysmesbox.h
+
+    src/games/cclcc/titlemenu.h
 
     src/games/mo6tw/dialoguebox.h
     src/games/mo6tw/sysmesbox.h
@@ -388,7 +402,9 @@ set(Impacto_Header
     src/ui/widgets/mo6tw/actorsvoicebutton.h
     src/ui/widgets/mo6tw/albumcharacterbutton.h
     src/ui/widgets/chlcc/titlebutton.h
+    src/ui/widgets/chlcc/saveentrybutton.h
     src/ui/widgets/rne/sysmenubutton.h
+    src/ui/widgets/cclcc/titlebutton.h
 
     src/3d/camera.h
     src/3d/model.h
