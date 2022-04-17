@@ -63,6 +63,12 @@ float SecondaryFirstItemHighlightOffsetX;
 float SecondarySecondItemHighlightOffsetX;
 float SecondaryThirdItemHighlightOffsetX;
 float ItemHighlightPointerY;
+float TitleAnimationDurationIn;
+float TitleAnimationDurationOut;
+
+int TitleAnimationStartFrame;
+int TitleAnimationFrameCount;
+int TitleAnimationFileId;
 
 static void GetMemberSpriteArray(Sprite* arr, uint32_t count,
                                  char const* name) {
@@ -141,6 +147,12 @@ void Configure() {
       EnsureGetMemberSprite("ItemHighlightPointerSprite");
   ItemHighlightPointerY = EnsureGetMemberFloat("ItemHighlightPointerY");
 
+  TitleAnimationDurationIn = EnsureGetMemberFloat("TitleAnimationDurationIn");
+  TitleAnimationDurationOut = EnsureGetMemberFloat("TitleAnimationDurationOut");
+  TitleAnimationStartFrame = EnsureGetMemberInt("TitleAnimationStartFrame");
+  TitleAnimationFrameCount = EnsureGetMemberInt("TitleAnimationFrameCount");
+  TitleAnimationFileId = EnsureGetMemberInt("TitleAnimationFileId");
+
   UI::CCLCC::TitleMenu* menu = new UI::CCLCC::TitleMenu();
   menu->PressToStartAnimation.DurationIn =
       Profile::TitleMenu::PressToStartAnimDurationIn;
@@ -163,6 +175,12 @@ void Configure() {
   menu->SmokeAnimation.LoopMode = ALM_Loop;
   menu->SmokeAnimation.DurationIn = SmokeAnimationDurationIn;
   menu->SmokeAnimation.DurationOut = SmokeAnimationDurationOut;
+
+  menu->TitleAnimation.DurationIn = TitleAnimationDurationIn;
+  menu->TitleAnimation.DurationOut = TitleAnimationDurationOut;
+
+  menu->TitleAnimationSprite.MountPoint = "system";
+  menu->TitleAnimationSprite.LoadAsync(TitleAnimationFileId);
 
   UI::TitleMenuPtr = menu;
 

@@ -55,6 +55,11 @@ root.TitleMenu = {
     LibraryHighlightSprite: "TitleMenuLibraryHighlight",
     EndingListSprite: "TitleMenuEndingList",
     EndingListHighlightSprite: "TitleMenuEndingListHighlight",
+    TitleAnimationDurationIn: 0.6,
+    TitleAnimationDurationOut: 0.3,
+    TitleAnimationStartFrame: 15,
+    TitleAnimationFrameCount: 20,
+    TitleAnimationFileId: 32,
     MenuEntriesSprites: [],
     MenuEntriesHighlightedSprites: [],
     MenuEntriesNum: 5

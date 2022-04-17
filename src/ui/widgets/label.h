@@ -36,7 +36,7 @@ class Label : public Widget {
   Sprite LabelSprite;
   int FontSize;
   ProcessedTextGlyph Text[255];
-  int TextLength;
+  int TextLength = 0;
   float TextWidth = 0.0f;
   bool Outline = false;
   int ColorIndex;

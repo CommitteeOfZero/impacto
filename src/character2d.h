@@ -37,6 +37,8 @@ class Character2D : public Loadable<Character2D> {
   void Update(float dt);
   void Render(int chaId, int layer);
 
+  std::string MountPoint = "chara";
+
  protected:
   bool LoadSync(uint32_t charaId);
   void UnloadSync();

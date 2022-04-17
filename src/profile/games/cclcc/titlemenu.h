@@ -58,6 +58,12 @@ extern float SecondaryFirstItemHighlightOffsetX;
 extern float SecondarySecondItemHighlightOffsetX;
 extern float SecondaryThirdItemHighlightOffsetX;
 extern float ItemHighlightPointerY;
+extern float TitleAnimationDurationIn;
+extern float TitleAnimationDurationOut;
+
+extern int TitleAnimationStartFrame;
+extern int TitleAnimationFrameCount;
+extern int TitleAnimationFileId;
 
 void Configure();
 

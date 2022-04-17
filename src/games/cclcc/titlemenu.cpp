@@ -12,6 +12,7 @@
 #include "../../profile/games/cclcc/titlemenu.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/game.h"
+#include "../../profile/vm.h"
 #include "../../vm/interface/input.h"
 
 namespace Impacto {
@@ -89,7 +90,7 @@ TitleMenu::TitleMenu() {
 
   // Config menu button
   Config = new TitleButton(
-      20, MenuEntriesSprites[3], MenuEntriesHSprites[3], ItemHighlightSprite,
+      30, MenuEntriesSprites[3], MenuEntriesHSprites[3], ItemHighlightSprite,
       glm::vec2(((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress)) +
                     ItemHighlightOffsetX,
                 (ItemYBase + (3 * ItemPadding))));
@@ -127,7 +128,7 @@ TitleMenu::TitleMenu() {
   ContinueItems->Add(QuickLoad, FDIR_RIGHT);
 
   // Tips secondary Extra menu button
-  Tips = new TitleButton(30, TipsSprite, TipsHighlightSprite, nullSprite,
+  Tips = new TitleButton(20, TipsSprite, TipsHighlightSprite, nullSprite,
                          glm::vec2(((SecondaryFirstItemHighlightOffsetX *
                                      SecondaryItemsFadeInAnimation.Progress)) +
                                        SecondaryFirstItemHighlightOffsetX,
@@ -138,7 +139,7 @@ TitleMenu::TitleMenu() {
 
   // Library secondary Extra menu button
   Library =
-      new TitleButton(31, LibrarySprite, LibraryHighlightSprite, nullSprite,
+      new TitleButton(21, LibrarySprite, LibraryHighlightSprite, nullSprite,
                       glm::vec2(((SecondarySecondItemHighlightOffsetX *
                                   SecondaryItemsFadeInAnimation.Progress)) +
                                     SecondarySecondItemHighlightOffsetX,
@@ -149,7 +150,7 @@ TitleMenu::TitleMenu() {
 
   // EndingList secondary Extra menu button
   EndingList = new TitleButton(
-      32, EndingListSprite, EndingListHighlightSprite, nullSprite,
+      22, EndingListSprite, EndingListHighlightSprite, nullSprite,
       glm::vec2(((SecondaryThirdItemHighlightOffsetX *
                   SecondaryItemsFadeInAnimation.Progress)) +
                     SecondaryThirdItemHighlightOffsetX,
@@ -213,6 +214,10 @@ void TitleMenu::Update(float dt) {
   PrimaryFadeAnimation.Update(dt);
   SecondaryFadeAnimation.Update(dt);
   SmokeAnimation.Update(dt);
+  TitleAnimation.Update(dt);
+  TitleAnimationSprite.Update(dt);
+  TitleAnimationSprite.OffsetX = 0.0f;
+  TitleAnimationSprite.OffsetY = 0.0f;
 
   if (GetFlag(SF_TITLEMODE)) {
     Show();
@@ -229,10 +234,18 @@ void TitleMenu::Update(float dt) {
         PressToStartAnimation.DurationOut = PressToStartAnimDurationOut;
       } break;
       case 2: {
-        PressToStartAnimation.DurationIn = PressToStartAnimDurationIn;
-        PressToStartAnimation.DurationOut = PressToStartAnimDurationOut;
+        if (TitleAnimation.IsIn())
+          TitleAnimation.StartOut();
+        else if (TitleAnimation.IsOut())
+          TitleAnimation.StartIn();
+        TitleAnimationSprite.Show = true;
+        TitleAnimationSprite.Face =
+            (TitleAnimationStartFrame +
+             (int)(TitleAnimationFrameCount * TitleAnimation.Progress))
+            << 16;
       } break;
       case 3: {  // Main Menu Fade In
+        TitleAnimationSprite.Show = false;
         MainItems->Tint.a =
             glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
         MainItems->Update(dt);
@@ -280,11 +293,14 @@ void TitleMenu::Render() {
                       1.0f - ScrWork[SW_TITLEDISPCT] / 60.0f));
       } break;
       case 2: {  // Transition between Press to start and menus
-        DrawMainBackground();
-        DrawStartButton();
+        Renderer2D::DrawSprite(MainBackgroundSprite, glm::vec2(0.0f));
+        // TODO: Rewrite the Character2D class to separate out the MVL parser so
+        // we don't have to do this
+        // 500 is just a random value to throw it beyond any actual data
+        ScrWork[SW_CHA1ALPHA + Profile::Vm::ScrWorkChaStructSize * 500] = 256;
+        ScrWork[SW_CHA1ALPHA_OFS + 10 * 500] = 0;
+        TitleAnimationSprite.Render(500, -1);
         DrawSmoke(SmokeOpacityNormal);
-        Renderer2D::DrawSprite(CopyrightTextSprite,
-                               glm::vec2(CopyrightTextX, CopyrightTextY));
       } break;
       case 3: {  // MenuItems Fade In
         if (ItemsFadeInAnimation.IsOut() &&

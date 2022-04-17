@@ -24,7 +24,7 @@ SDL_Window* SDLWindow = NULL;
 SDL_GLContext GLContext = NULL;
 bool WindowDimensionsChanged;
 
-GraphicsApi GraphicsApiHint = GfxApi_ForceDesktopGLES;
+GraphicsApi GraphicsApiHint = GfxApi_ForceNativeGLES;
 GraphicsApi ActualGraphicsApi;
 
 bool GLDebug = false;

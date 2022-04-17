@@ -18,7 +18,7 @@ bool Character2D::LoadSync(uint32_t charaId) {
   int fileId = charaId & 0xFFFF;
 
   Io::InputStream* stream;
-  int64_t err = Io::VfsOpen("chara", fileId, &stream);
+  int64_t err = Io::VfsOpen(MountPoint, fileId, &stream);
   if (err != IoError_OK) return false;
   CharaTexture.Load(stream);
   delete stream;
@@ -29,7 +29,7 @@ bool Character2D::LoadSync(uint32_t charaId) {
     LipFrame = 1;
     EyeFrame = 1;
 
-    err = Io::VfsOpen("chara", fileId + 1, &stream);
+    err = Io::VfsOpen(MountPoint, fileId + 1, &stream);
     if (err != IoError_OK) return false;
 
     OffsetX = Profile::DesignWidth / 2;

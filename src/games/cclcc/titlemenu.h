@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../animation.h"
+#include "../../character2d.h"
 #include "../../ui/menu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
@@ -26,6 +27,8 @@ class TitleMenu : public Menu {
   Animation ItemsFadeInAnimation;
   Animation SecondaryItemsFadeInAnimation;
   Animation SmokeAnimation;
+  Animation TitleAnimation;
+  Character2D TitleAnimationSprite;
 
   void MenuButtonOnClick(Widgets::Button* target);
   void ContinueButtonOnClick(Widgets::Button* target);
