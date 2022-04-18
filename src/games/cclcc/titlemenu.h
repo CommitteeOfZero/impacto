@@ -36,7 +36,7 @@ class TitleMenu : public Menu {
 
   void DrawMainBackground(float opacity = 1.0f);
   void DrawStartButton();
-  void DrawMainMenuBackGraphics();
+  void DrawMainMenuBackGraphics(bool isTransition);
   void DrawSmoke(float opacity);
 
  private:

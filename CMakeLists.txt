@@ -75,8 +75,10 @@ set(Impacto_Src
 
     src/profile/games/cc/titlemenu.cpp
     src/profile/games/cc/sysmesbox.cpp
-
+    
+    src/profile/games/cclcc/dialoguebox.cpp
     src/profile/games/cclcc/titlemenu.cpp
+    src/profile/games/cclcc/savemenu.cpp
 
     src/profile/games/mo6tw/dialoguebox.cpp
     src/profile/games/mo6tw/sysmesbox.cpp
@@ -109,7 +111,9 @@ set(Impacto_Src
     src/games/cc/titlemenu.cpp
     src/games/cc/sysmesbox.cpp
 
+    src/games/cclcc/dialoguebox.cpp
     src/games/cclcc/titlemenu.cpp
+    src/games/cclcc/savemenu.cpp
 
     src/games/mo6tw/dialoguebox.cpp
     src/games/mo6tw/sysmesbox.cpp
@@ -161,6 +165,7 @@ set(Impacto_Src
     src/ui/widgets/chlcc/titlebutton.cpp
     src/ui/widgets/chlcc/saveentrybutton.cpp
     src/ui/widgets/rne/sysmenubutton.cpp
+    src/ui/widgets/cc/titlebutton.cpp
     src/ui/widgets/cclcc/titlebutton.cpp
 
     src/nuklear_impl.cpp
@@ -319,7 +324,9 @@ set(Impacto_Header
     src/profile/games/cc/titlemenu.h
     src/profile/games/cc/sysmesbox.h
 
+    src/profile/games/cclcc/dialoguebox.h
     src/profile/games/cclcc/titlemenu.h
+    src/profile/games/cclcc/savemenu.h
 
     src/profile/games/mo6tw/dialoguebox.h
     src/profile/games/mo6tw/sysmesbox.h
@@ -352,7 +359,9 @@ set(Impacto_Header
     src/games/cc/titlemenu.h
     src/games/cc/sysmesbox.h
 
+    src/games/cclcc/dialoguebox.h
     src/games/cclcc/titlemenu.h
+    src/games/cclcc/savemenu.h
 
     src/games/mo6tw/dialoguebox.h
     src/games/mo6tw/sysmesbox.h
@@ -404,6 +413,7 @@ set(Impacto_Header
     src/ui/widgets/chlcc/titlebutton.h
     src/ui/widgets/chlcc/saveentrybutton.h
     src/ui/widgets/rne/sysmenubutton.h
+    src/ui/widgets/cc/titlebutton.h
     src/ui/widgets/cclcc/titlebutton.h
 
     src/3d/camera.h
