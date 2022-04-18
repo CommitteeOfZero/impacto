@@ -1,6 +1,8 @@
 #include "savemenu.h"
 #include "../profile_internal.h"
 #include "../games/mo6tw/savemenu.h"
+#include "../games/chlcc/savemenu.h"
+#include "../games/cclcc/savemenu.h"
 #include "../../ui/ui.h"
 #include "../../log.h"
 #include "../../window.h"
@@ -45,6 +47,10 @@ void Configure() {
 
     if (Type == +SaveMenuType::MO6TW) {
       MO6TW::SaveMenu::Configure();
+    } else if (Type == +SaveMenuType::CHLCC) {
+      CHLCC::SaveMenu::Configure();
+    } else if (Type == +SaveMenuType::CCLCC) {
+      CCLCC::SaveMenu::Configure();
     }
 
     Pop();

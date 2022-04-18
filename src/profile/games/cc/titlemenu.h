@@ -14,6 +14,19 @@ extern Sprite CopyrightSprite;
 extern Sprite FenceSprite;
 extern Sprite OverlaySprite;
 extern Sprite SmokeSprite;
+extern Sprite ItemHighlightSprite;
+extern Sprite ItemHighlightPointerSprite;
+extern Sprite LoadSprite;
+extern Sprite LoadHighlightSprite;
+extern Sprite QuickLoadSprite;
+extern Sprite QuickLoadHighlightSprite;
+extern Sprite TipsSprite;
+extern Sprite TipsHighlightSprite;
+extern Sprite LibrarySprite;
+extern Sprite LibraryHighlightSprite;
+extern Sprite EndingListSprite;
+extern Sprite EndingListHighlightSprite;
+extern Sprite MenuSprite;
 
 extern float PressToStartAnimFastDurationIn;
 extern float PressToStartAnimFastDurationOut;
@@ -47,6 +60,16 @@ extern float SmokeAnimationDurationIn;
 extern float SmokeAnimationDurationOut;
 extern float MoveLeftAnimationDurationIn;
 extern float MoveLeftAnimationDurationOut;
+extern float ItemHighlightOffsetX;
+extern float ItemHighlightOffsetY;
+extern float ItemPadding;
+extern float ItemYBase;
+extern float SecondaryFirstItemHighlightOffsetX;
+extern float SecondarySecondItemHighlightOffsetX;
+extern float SecondaryThirdItemHighlightOffsetX;
+extern float ItemHighlightPointerY;
+extern float MenuX;
+extern float MenuY;
 
 }  // namespace TitleMenu
 }  // namespace CC

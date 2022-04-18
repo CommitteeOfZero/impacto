@@ -1,9 +1,9 @@
-root.LayerCount = 100;
+﻿root.LayerCount = 100;
 root.GameFeatures = GameFeature.Sc3VirtualMachine | GameFeature.Renderer2D | GameFeature.Input | GameFeature.Audio | GameFeature.Nuklear | GameFeature.Video;
 root.DesignWidth = 1280;
 root.DesignHeight = 720;
 
-root.WindowName = "CHAOS;HEAD LOVE CHU CHU";
+root.WindowName = "CHAOS;HEAD Love Chu☆Chu!";
 
 root.CharaIsMvl = false;
 root.LayFileBigEndian = true;
@@ -14,9 +14,9 @@ root.Vm = {
     StartScript: 0,
     StartScriptBuffer: 0,
     GameInstructionSet: InstructionSet.CHLCC,
-	UseReturnIds: false,
-	ScrWorkChaStructSize: 20,
-	ScrWorkBgStructSize: 20
+    UseReturnIds: false,
+    ScrWorkChaStructSize: 20,
+    ScrWorkBgStructSize: 20
 };
 
 include('common/scriptinput.js');
@@ -36,6 +36,7 @@ include('chlcc/hud/datedisplay.js');
 include('chlcc/hud/titlemenu.js');
 include('chlcc/hud/backlogmenu.js');
 //include('chlcc/hud/systemmenu.js');
+include('chlcc/hud/savemenu.js');
 include('chlcc/hud/sysmesboxdisplay.js');
 include('chlcc/hud/selectiondisplay.js');
 include('chlcc/hud/tipsmenu.js');

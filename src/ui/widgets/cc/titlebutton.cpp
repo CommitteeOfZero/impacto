@@ -13,11 +13,13 @@ using namespace Impacto::Profile::CC::TitleMenu;
 void TitleButton::Render() {
   if (HasFocus) {
     if (!IsSubButton) {  // Main buttons
-      Renderer2D::DrawSprite(HighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
+      Renderer2D::DrawSprite(HighlightSprite,
+                             glm::vec2(Bounds.X - ItemHighlightOffsetX,
+                                       Bounds.Y - ItemHighlightOffsetY),
                              Tint);
-      /*Renderer2D::DrawSprite(
+      Renderer2D::DrawSprite(
           ItemHighlightPointerSprite,
-          glm::vec2(Bounds.X - ItemHighlightPointerY, Bounds.Y), Tint);*/
+          glm::vec2(Bounds.X - ItemHighlightPointerY, Bounds.Y), Tint);
       Renderer2D::DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y),
                              Tint);
     } else {  // Sub buttons

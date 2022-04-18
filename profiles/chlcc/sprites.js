@@ -19,6 +19,11 @@ root.SpriteSheets = {
         DesignWidth: 2048,
         DesignHeight: 1024
     },
+    "Save": {
+        Path: { Mount: "system", Id: 18 },
+        DesignWidth: 2048,
+        DesignHeight: 1024
+    },
     "TitleBg1": {
         Path: { Mount: "system", Id: 19 },
         DesignWidth: 1280,
@@ -30,7 +35,7 @@ root.SpriteSheets = {
         DesignHeight: 720
     },
     "Backlog": {
-        Path: {Mount: "system", Id: 6 },
+        Path: { Mount: "system", Id: 6 },
         DesignWidth: 2048,
         DesignHeight: 720
     }

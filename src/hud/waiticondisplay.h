@@ -6,7 +6,8 @@
 namespace Impacto {
 namespace WaitIconDisplay {
 
-BETTER_ENUM(WaitIconType, int, None, SpriteAnim, Rotate, RotateZ)
+BETTER_ENUM(WaitIconType, int, None, SpriteAnim, SpriteAnimFixed, Rotate,
+            RotateZ)
 
 void Init();
 void Update(float dt);
