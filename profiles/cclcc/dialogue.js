@@ -3,6 +3,11 @@ root.Sprites["ADVBox"] = {
     Bounds: { X: 0, Y: 0, Width: 1920, Height: 281 }
 };
 
+root.Sprites["WaitIconSpriteFixed"] = {
+    Sheet: "Data",
+    Bounds: { X: 1977, Y: 937, Width: 126, Height: 95 },
+};
+
 root.Dialogue = {
     REVBounds: { X: 0, Y: 0, Width: 960, Height: 400 },
     REVNameFontSize: 24,
@@ -19,9 +24,10 @@ root.Dialogue = {
     ADVNameAlignment: TextAlignment.Left,
     ADVNameFontSize: 33,
     ADVNamePos: { X: 173, Y: 773 },
-    WaitIconSpriteAnim: "WaitIconSpriteAnimDef",
     WaitIconCurrentType: WaitIconType.SpriteAnimFixed,
-    //WaitIconAnimationDuration: 0.7,
+    WaitIconSpriteAnim: "WaitIconSpriteAnim",
+    WaitIconSprite: "WaitIconSpriteFixed",
+    WaitIconAnimationDuration: 0.7,
     WaitIconOffset: { X: 1600, Y: 910 },
     DialogueFont: "Default",
     DefaultFontSize: 36,
@@ -69,13 +75,8 @@ root.Dialogue = {
     ColorTagIsUint8: false
 };
 
-/*root.Sprites["WaitIconSprite"] = {
-    Sheet: "Data",
-    Bounds: { X: 1977, Y: 937, Width: 126, Height: 95 },
-};*/
-
 MakeAnimation({
-    Name: "WaitIconSpriteAnimDef",
+    Name: "WaitIconSpriteAnim",
     Sheet: "Data",
     FirstFrameX: 864, //1114
     FirstFrameY: 877,
@@ -83,12 +84,11 @@ MakeAnimation({
     ColWidth: 216,
     FrameHeight: 185,
     RowHeight: 185,
-    Frames: 6,
-    Duration: 1.5,
+    Frames: 10,
+    Duration: 1,
     Rows: 1,
-    Columns: 6,
-    PrimaryDirection: AnimationDirections.Right,
-    // SecondaryDirection: AnimationDirections.Right
+    Columns: 10,
+    PrimaryDirection: AnimationDirections.Right
 });
 
 include('cclcc/nametag.js');

@@ -6,6 +6,7 @@
 #include "../games/mo6tw/actorsvoicemenu.h"
 #include "../games/mo6tw/musicmenu.h"
 #include "../games/mo6tw/albummenu.h"
+#include "../games/cclcc/clearlistmenu.h"
 
 namespace Impacto {
 namespace Profile {
@@ -29,6 +30,8 @@ void Configure() {
 
       if (ClearListType == +ClearListMenuType::MO6TW) {
         MO6TW::ClearListMenu::Configure();
+      } else if (ClearListType == +ClearListMenuType::CCLCC) {
+        CCLCC::ClearListMenu::Configure();
       }
 
       Pop();

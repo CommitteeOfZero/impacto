@@ -79,6 +79,8 @@ set(Impacto_Src
     src/profile/games/cclcc/dialoguebox.cpp
     src/profile/games/cclcc/titlemenu.cpp
     src/profile/games/cclcc/savemenu.cpp
+    src/profile/games/cclcc/tipsmenu.cpp
+    src/profile/games/cclcc/clearlistmenu.cpp
 
     src/profile/games/mo6tw/dialoguebox.cpp
     src/profile/games/mo6tw/sysmesbox.cpp
@@ -114,6 +116,8 @@ set(Impacto_Src
     src/games/cclcc/dialoguebox.cpp
     src/games/cclcc/titlemenu.cpp
     src/games/cclcc/savemenu.cpp
+    src/games/cclcc/tipsmenu.cpp
+    src/games/cclcc/clearlistmenu.cpp
 
     src/games/mo6tw/dialoguebox.cpp
     src/games/mo6tw/sysmesbox.cpp
@@ -327,6 +331,8 @@ set(Impacto_Header
     src/profile/games/cclcc/dialoguebox.h
     src/profile/games/cclcc/titlemenu.h
     src/profile/games/cclcc/savemenu.h
+    src/profile/games/cclcc/tipsmenu.h
+    src/profile/games/cclcc/clearlistmenu.h
 
     src/profile/games/mo6tw/dialoguebox.h
     src/profile/games/mo6tw/sysmesbox.h
@@ -362,6 +368,8 @@ set(Impacto_Header
     src/games/cclcc/dialoguebox.h
     src/games/cclcc/titlemenu.h
     src/games/cclcc/savemenu.h
+    src/games/cclcc/tipsmenu.h
+    src/games/cclcc/clearlistmenu.h
 
     src/games/mo6tw/dialoguebox.h
     src/games/mo6tw/sysmesbox.h

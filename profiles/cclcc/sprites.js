@@ -48,6 +48,21 @@ root.SpriteSheets = {
         Path: { Mount: "system", Id: 28 },
         DesignWidth: 2048,
         DesignHeight: 2048
+    },
+    "ClearList": {
+        Path: { Mount: "system", Id: 3 },
+        DesignWidth: 4096,
+        DesignHeight: 2324
+    },
+    "MenuBG": {
+        Path: { Mount: "system", Id: 19 },
+        DesignWidth: 3000,
+        DesignHeight: 1500
+    },
+    "MovMenu": {
+        Path: { Mount: "system", Id: 22 },
+        DesignWidth: 3072,
+        DesignHeight: 1228
     }
 };
 

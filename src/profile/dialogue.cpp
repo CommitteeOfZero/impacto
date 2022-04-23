@@ -105,8 +105,11 @@ void Configure() {
 
   WaitIconCurrentType = WaitIconDisplay::WaitIconType::_from_integral_unchecked(
       EnsureGetMemberInt("WaitIconCurrentType"));
-  if (WaitIconCurrentType == +WaitIconDisplay::WaitIconType::SpriteAnim ||
-      WaitIconCurrentType == +WaitIconDisplay::WaitIconType::SpriteAnimFixed) {
+  if (WaitIconCurrentType == +WaitIconDisplay::WaitIconType::SpriteAnim) {
+    WaitIconSpriteAnim = EnsureGetMemberAnimation("WaitIconSpriteAnim");
+  } else if (WaitIconCurrentType ==
+             +WaitIconDisplay::WaitIconType::SpriteAnimFixed) {
+    WaitIconSprite = EnsureGetMemberSprite("WaitIconSprite");
     WaitIconSpriteAnim = EnsureGetMemberAnimation("WaitIconSpriteAnim");
   } else {
     WaitIconSprite = EnsureGetMemberSprite("WaitIconSprite");

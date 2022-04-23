@@ -247,7 +247,7 @@ void TitleMenu::Render() {
   if (State != Hidden && GetFlag(SF_TITLEMODE)) {
     switch (ScrWork[SW_TITLEMODE]) {
       case 1: {  // Press to start
-        DrawMainBackground();
+        DrawMainBackground(true);
         DrawStartButton();
         Renderer2D::DrawSprite(
             OverlaySprite,
@@ -259,7 +259,7 @@ void TitleMenu::Render() {
                       1.0f - ScrWork[SW_TITLEDISPCT] / 60.0f));
       } break;
       case 2: {  // Transition between Press to start and menus
-        DrawMainBackground();
+        DrawMainBackground(true);
         DrawStartButton();
         Renderer2D::DrawSprite(
             OverlaySprite,
@@ -291,6 +291,7 @@ void TitleMenu::Render() {
         Renderer2D::DrawSprite(
             OverlaySprite,
             RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight));
+        Renderer2D::DrawSprite(MenuSprite, glm::vec2(MenuX, MenuY));
         if (!GetFlag(SF_CLR_TRUE_CC)) {
           DrawSmoke(SmokeOpacityNormal);
         }
@@ -321,7 +322,6 @@ inline void TitleMenu::DrawMainBackground(float opacity) {
   col.a = opacity;
   Renderer2D::DrawSprite(BackgroundSprite, glm::vec2(BackgroundX, BackgroundY),
                          col);
-  Renderer2D::DrawSprite(MenuSprite, glm::vec2(MenuX, MenuY));
   Renderer2D::DrawSprite(FenceSprite, glm::vec2(FenceX, FenceY), col);
   Renderer2D::DrawSprite(CopyrightSprite, glm::vec2(CopyrightX, CopyrightY),
                          col);

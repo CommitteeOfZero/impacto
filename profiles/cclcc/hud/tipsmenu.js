@@ -1,7 +1,9 @@
 root.TipsMenu = {
-    Type: TipsMenuType.None,
+    Type: TipsMenuType.CCLCC,
     DrawType: DrawComponentType.SystemMenu,
-    BackgroundSprite: "TipsMenuBackground"
+    BackgroundSprite: "TipsMenuBackground",
+    FadeInDuration: 0.2,
+    FadeOutDuration: 0.2
 };
 
 root.Sprites["TipsMenuBackground"] = {

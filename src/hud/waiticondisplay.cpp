@@ -20,7 +20,7 @@ void Init() {
     SpriteAnim.StartIn();
   } else if (WaitIconCurrentType == +WaitIconType::SpriteAnimFixed) {
     SpriteAnim = WaitIconSpriteAnim.Instantiate();
-    SpriteAnim.LoopMode = ALM_Stop;
+    SpriteAnim.LoopMode = ALM_Loop;
     SpriteAnim.StartIn();
   } else {
     SimpleAnim.DurationIn = WaitIconAnimationDuration;
@@ -46,10 +46,12 @@ void Render(glm::vec2 pos, glm::vec4 opacityTint) {
         opacityTint);
   } else if (WaitIconCurrentType == +WaitIconType::SpriteAnimFixed) {
     // TODO: CCLCC only for now
-    Renderer2D::DrawSprite(SpriteAnim.CurrentSprite(),
+    /*Renderer2D::DrawSprite(
+        SpriteAnim.CurrentSprite(),
+        glm::vec2(WaitIconOffset.x - 50, WaitIconOffset.y - 50), opacityTint);*/
+    Renderer2D::DrawSprite(WaitIconSprite,
                            glm::vec2(WaitIconOffset.x, WaitIconOffset.y),
-                           opacityTint);
-
+                           opacityTint, glm::vec2(1.0f));
   } else if (WaitIconCurrentType == +WaitIconType::RotateZ) {
     // TODO: MO6TW only for now
     glm::vec3 euler(SimpleAnim.Progress * 2.0f * M_PI, 0, 0.6f);
@@ -75,7 +77,7 @@ void Render(glm::vec2 pos, glm::vec4 opacityTint) {
         glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y),
         opacityTint, glm::vec2(1.0f), SimpleAnim.Progress * 2.0f * M_PI);
   }
-}
+}  // namespace WaitIconDisplay
 
 }  // namespace WaitIconDisplay
 }  // namespace Impacto
