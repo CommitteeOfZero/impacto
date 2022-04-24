@@ -37,5 +37,6 @@ include('cclcc/hud/titlemenu.js');
 include('cclcc/hud/backlogmenu.js');
 include('cclcc/hud/sysmesboxdisplay.js');
 include('cclcc/hud/selectiondisplay.js');
+include('cclcc/hud/optionsmenu.js');
 include('cclcc/hud/tipsmenu.js');
 include('cclcc/hud/extramenus.js');

@@ -30,7 +30,7 @@ class TipsMenu : public UI::TipsMenu {
   void NextTipPage();
 
  private:
-  Impacto::TipsSystem::TipsDataRecord* Records;
+  /*Impacto::TipsSystem::TipsDataRecord* Records;
 
   int CurrentTipPage = 1;
   int CurrentPageIdx = 0;
@@ -41,7 +41,7 @@ class TipsMenu : public UI::TipsMenu {
   Widgets::Group* TipViewItems;
   Widgets::Label* PageSeparator;
   Widgets::Label* CurrentPage;
-  Widgets::Label* TotalPages;
+  Widgets::Label* TotalPages;*/
 };
 
 }  // namespace CCLCC

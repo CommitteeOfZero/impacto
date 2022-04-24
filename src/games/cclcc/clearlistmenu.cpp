@@ -10,6 +10,7 @@
 #include "../../vm/vm.h"
 #include "../../vm/interface/input.h"
 #include "../../data/savesystem.h"
+#include "../../profile/game.h"
 
 namespace Impacto {
 namespace UI {
@@ -59,17 +60,25 @@ void ClearListMenu::Hide() {
 void ClearListMenu::Update(float dt) {
   // UpdateInput();
   FadeAnimation.Update(dt);
-  if (ScrWork[2142] != 32 && State == Shown && ScrWork[2148] == 7) {
+  if (ScrWork[2147] < 32 && State == Shown && ScrWork[2148] == 7) {
     Hide();
-  } else if (ScrWork[2142] == 32 && State == Hidden && ScrWork[2148] == 7) {
+  } else if (ScrWork[2147] >= 32 && State == Hidden && ScrWork[2148] == 7) {
     Show();
   }
 }
 
 void ClearListMenu::Render() {
-  if (State != Hidden && ScrWork[2142] == 32 && ScrWork[2148] == 7) {
-    glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-    Renderer2D::DrawSprite(BackgroundSprite, glm::vec2(0.0f), col);
+  if (State != Hidden && ScrWork[2147] >= 32 && ScrWork[2148] == 7) {
+    glm::vec4 transition(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
+    glm::vec4 maskTint = glm::vec4(1.0f);
+    maskTint.a = 0.85f;
+    Renderer2D::DrawSprite(BackgroundSprite, glm::vec2(0.0f));
+    Renderer2D::DrawSprite(ClearListBookLayerSprite, glm::vec2(0.0f), transition);
+    Renderer2D::DrawSprite(
+        ClearListMaskSprite,
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight), maskTint);
+    Renderer2D::DrawSprite(ClearListGuideSprite,
+                           glm::vec2(ClearListGuideX, ClearListGuideY), transition);
   }
 }
 

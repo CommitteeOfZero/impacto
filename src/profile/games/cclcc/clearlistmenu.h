@@ -8,9 +8,14 @@ namespace CCLCC {
 namespace ClearListMenu {
 
 extern Sprite BackgroundSprite;
+extern Sprite ClearListBookLayerSprite;
+extern Sprite ClearListGuideSprite;
+extern Sprite ClearListMaskSprite;
 
 extern float FadeInDuration;
 extern float FadeOutDuration;
+extern int ClearListGuideX;
+extern int ClearListGuideY;
 
 void Configure();
 
