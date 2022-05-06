@@ -14,6 +14,7 @@
 #include "../audio/audiochannel.h"
 #include "../profile/vm.h"
 #include "../hud/saveicondisplay.h"
+#include "../hud/tipsnotification.h"
 #include "../data/savesystem.h"
 #include "../data/tipssystem.h"
 #include "../ui/ui.h"
@@ -458,6 +459,7 @@ VmInstruction(InstEncyclopedia) {
   ImpLogSlow(LL_Warning, LC_VMStub,
              "STUB instruction Encyclopedia(tipId: %i)\n", tipId);
   TipsSystem::SetTipLockedState(tipId, false);
+  TipsNotification::AddTip(tipId);
 }
 VmInstruction(InstNameID) {
   StartInstruction;

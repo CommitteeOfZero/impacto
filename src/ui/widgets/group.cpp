@@ -169,6 +169,14 @@ void Group::MoveTo(glm::vec2 pos) {
   Widget::MoveTo(pos);
 }
 
+void Group::Move(glm::vec2 relativePosition, float duration) {
+  Widget::Move(relativePosition, duration);
+}
+
+void Group::MoveTo(glm::vec2 pos, float duration) {
+  Widget::MoveTo(pos, duration);
+}
+
 void Group::Clear() {
   for (auto el : Children) {
     delete el;

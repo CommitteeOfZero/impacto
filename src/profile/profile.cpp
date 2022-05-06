@@ -17,6 +17,7 @@
 #include "../hud/datedisplay.h"
 #include "../hud/waiticondisplay.h"
 #include "../hud/dialoguebox.h"
+#include "../hud/tipsnotification.h"
 #include "../3d/model.h"
 
 namespace Impacto {
@@ -171,6 +172,7 @@ void MakeJsonProfile(std::string const& name) {
   DefineEnumInt<UI::ActorsVoiceMenuType>(ctx);
   DefineEnumInt<DateDisplay::DateDisplayType>(ctx);
   DefineEnumInt<WaitIconDisplay::WaitIconType>(ctx);
+  DefineEnumInt<TipsNotification::TipsNotificationType>(ctx);
   DefineEnumInt<DialogueBoxType>(ctx);
   DefineEnumInt<UI::SysMesBoxType>(ctx);
   DefineEnumInt<FontType>(ctx);

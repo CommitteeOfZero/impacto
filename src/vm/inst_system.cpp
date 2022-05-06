@@ -20,6 +20,7 @@
 #include "../profile/dialogue.h"
 #include "../profile/vm.h"
 #include "../profile/ui/sysmesbox.h"
+#include "../profile/hud/tipsnotification.h"
 #include "../hud/saveicondisplay.h"
 #include "../inputsystem.h"
 #include "interface/input.h"
@@ -504,6 +505,10 @@ VmInstruction(InstMSinit) {
 
   if (initType == 5) {
     UI::BacklogMenuPtr->Clear();
+  }
+
+  if (initType == 10) {
+    Profile::TipsNotification::CreateInstance();
   }
 
   if (initType == 2 &&

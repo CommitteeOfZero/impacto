@@ -39,3 +39,4 @@ include('chlcc/hud/backlogmenu.js');
 include('chlcc/hud/sysmesboxdisplay.js');
 include('chlcc/hud/selectiondisplay.js');
 include('chlcc/hud/tipsmenu.js');
+include('chlcc/hud/tipsnotification.js');

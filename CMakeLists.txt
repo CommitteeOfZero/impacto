@@ -51,6 +51,7 @@ set(Impacto_Src
     src/profile/hud/saveicon.cpp
     src/profile/hud/loadingdisplay.cpp
     src/profile/hud/datedisplay.cpp
+    src/profile/hud/tipsnotification.cpp
 
     src/profile/ui/systemmenu.cpp
     src/profile/ui/titlemenu.cpp
@@ -90,6 +91,7 @@ set(Impacto_Src
     src/profile/games/mo6tw/actorsvoicemenu.cpp
     src/profile/games/mo6tw/musicmenu.cpp
     src/profile/games/mo6tw/albummenu.cpp
+    src/profile/games/mo6tw/tipsnotification.cpp
 
     src/profile/games/darling/sysmesbox.cpp
 
@@ -125,6 +127,7 @@ set(Impacto_Src
     src/games/mo6tw/actorsvoicemenu.cpp
     src/games/mo6tw/musicmenu.cpp
     src/games/mo6tw/albummenu.cpp
+    src/games/mo6tw/tipsnotification.cpp
 
     src/games/darling/sysmesbox.cpp
 
@@ -133,6 +136,7 @@ set(Impacto_Src
     src/hud/saveicondisplay.cpp
     src/hud/loadingdisplay.cpp
     src/hud/waiticondisplay.cpp
+    src/hud/tipsnotification.cpp
 
     src/ui/ui.cpp
     src/ui/widget.cpp
@@ -294,6 +298,7 @@ set(Impacto_Header
     src/profile/hud/saveicon.h
     src/profile/hud/loadingdisplay.h
     src/profile/hud/datedisplay.h
+    src/profile/hud/tipsnotification.h
 
     src/profile/ui/systemmenu.h
     src/profile/ui/titlemenu.h
@@ -333,6 +338,7 @@ set(Impacto_Header
     src/profile/games/mo6tw/actorsvoicemenu.h
     src/profile/games/mo6tw/musicmenu.h
     src/profile/games/mo6tw/albummenu.h
+    src/profile/games/mo6tw/tipsnotification.h
 
     src/profile/games/darling/sysmesbox.h
 
@@ -368,6 +374,7 @@ set(Impacto_Header
     src/games/mo6tw/actorsvoicemenu.h
     src/games/mo6tw/musicmenu.h
     src/games/mo6tw/albummenu.h
+    src/games/mo6tw/tipsnotification.h
 
     src/games/darling/sysmesbox.h
 
@@ -376,6 +383,7 @@ set(Impacto_Header
     src/hud/saveicondisplay.h
     src/hud/loadingdisplay.h
     src/hud/waiticondisplay.h
+    src/hud/tipsnotification.h
 
     src/ui/ui.h
     src/ui/menu.h

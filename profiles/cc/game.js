@@ -41,3 +41,4 @@ include('cc/hud/backlogmenu.js');
 include('cc/hud/sysmesboxdisplay.js');
 include('cc/hud/selectiondisplay.js');
 include('cc/hud/tipsmenu.js');
+include('cc/hud/tipsnotification.js');

@@ -43,3 +43,4 @@ include('mo6tw/hud/backlogmenu.js');
 include('mo6tw/hud/optionsmenu.js');
 include('mo6tw/hud/tipsmenu.js');
 include('mo6tw/hud/extramenus.js');
+include('mo6tw/hud/tipsnotification.js');

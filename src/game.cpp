@@ -25,6 +25,7 @@
 #include "hud/datedisplay.h"
 #include "hud/saveicondisplay.h"
 #include "hud/loadingdisplay.h"
+#include "hud/tipsnotification.h"
 #include "io/memorystream.h"
 
 #include "profile/profile.h"
@@ -133,6 +134,7 @@ static void Init() {
     Profile::TipsMenu::Configure();
     Profile::ExtraMenus::Configure();
     DateDisplay::Init();
+    TipsNotification::Init();
   }
 
   Profile::ClearJsonProfile();
@@ -220,6 +222,7 @@ void Update(float dt) {
     SaveIconDisplay::Update(dt);
     LoadingDisplay::Update(dt);
     DateDisplay::Update(dt);
+    TipsNotification::Update(dt);
   }
 
   if (Profile::GameFeatures & GameFeature::Audio) {
@@ -418,6 +421,7 @@ void Render() {
             //////////////////////////////
           }
           DateDisplay::Render();
+          TipsNotification::Render();
           Video::VideoRender(ScrWork[SW_MOVIEALPHA] / 256.0f);
           break;
         }
