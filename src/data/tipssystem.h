@@ -30,6 +30,8 @@ class TipsSystemBase {
   virtual void SetTipUnreadState(int id, bool state) = 0;
   virtual void SetTipNewState(int id, bool state) = 0;
 
+  virtual bool GetTipLockedState(int id) = 0;
+
   TipsDataRecord* Records;
   int TipEntryCount = 0;
 };
@@ -42,6 +44,8 @@ void UpdateTipRecords();
 void SetTipLockedState(int id, bool state);
 void SetTipUnreadState(int id, bool state);
 void SetTipNewState(int id, bool state);
+
+bool GetTipLockedState(int id);
 
 TipsDataRecord* GetTipRecords();
 TipsDataRecord* GetTipRecord(int id);

@@ -16,6 +16,8 @@ class TipsSystem : public TipsSystemBase {
   void SetTipLockedState(int id, bool state);
   void SetTipUnreadState(int id, bool state);
   void SetTipNewState(int id, bool state);
+
+  bool GetTipLockedState(int id);
 };
 
 }  // namespace MO6TW

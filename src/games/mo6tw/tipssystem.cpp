@@ -82,5 +82,7 @@ void TipsSystem::SetTipNewState(int id, bool state) {
                            Records[id].IsNew);
 }
 
+bool TipsSystem::GetTipLockedState(int id) { return Records[id].IsLocked; }
+
 }  // namespace MO6TW
 }  // namespace Impacto

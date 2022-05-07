@@ -31,6 +31,10 @@ void SetTipNewState(int id, bool state) {
   if (Implementation) Implementation->SetTipNewState(id, state);
 }
 
+bool GetTipLockedState(int id) {
+  if (Implementation) return Implementation->GetTipLockedState(id);
+}
+
 TipsDataRecord* GetTipRecords() {
   if (Implementation)
     return Implementation->Records;

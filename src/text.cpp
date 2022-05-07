@@ -12,9 +12,13 @@
 #include "profile/charset.h"
 #include "profile/dialogue.h"
 #include "profile/game.h"
+#include "profile/vm.h"
+
+#include "data/tipssystem.h"
 
 #include "hud/waiticondisplay.h"
 #include "hud/dialoguebox.h"
+#include "hud/tipsnotification.h"
 #include "games/mo6tw/dialoguebox.h"
 
 #include "../vendor/utf8-cpp/utf8.h"
@@ -44,6 +48,7 @@ enum StringTokenType : uint8_t {
   STT_SetLeftMargin = 0x12,
   STT_GetHardcodedValue = 0x13,
   STT_EvaluateExpression = 0x15,
+  STT_UnlockTip = 0x16,
   STT_Present_0x18 = 0x18,
   STT_AutoForward = 0x19,
   STT_AutoForward_1A = 0x1A,
@@ -95,7 +100,8 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
     case STT_SetFontSize:
     case STT_SetTopMargin:
     case STT_SetLeftMargin:
-    case STT_GetHardcodedValue: {
+    case STT_GetHardcodedValue:
+    case STT_UnlockTip: {
       Type = (StringTokenType)c;
       Val_Uint16 = SDL_SwapBE16(*(uint16_t*)(ctx->Ip));
       ctx->Ip += 2;
@@ -453,6 +459,14 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice) {
       case STT_SetColor: {
         assert(token.Val_Expr < ColorCount);
         CurrentColors = ColorTable[token.Val_Expr];
+        break;
+      }
+      case STT_UnlockTip: {
+        if ((Mode == DPM_ADV || Mode == DPM_NVL) &&
+            TipsSystem::GetTipLockedState(token.Val_Uint16)) {
+          TipsSystem::SetTipLockedState(token.Val_Uint16, false);
+          TipsNotification::AddTip(token.Val_Uint16);
+        }
         break;
       }
       case STT_Character: {

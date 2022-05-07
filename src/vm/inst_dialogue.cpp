@@ -456,10 +456,10 @@ VmInstruction(InstSetDic) {
 VmInstruction(InstEncyclopedia) {
   StartInstruction;
   PopExpression(tipId);
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction Encyclopedia(tipId: %i)\n", tipId);
-  TipsSystem::SetTipLockedState(tipId, false);
-  TipsNotification::AddTip(tipId);
+  if (TipsSystem::GetTipLockedState(tipId)) {
+    TipsSystem::SetTipLockedState(tipId, false);
+    TipsNotification::AddTip(tipId);
+  }
 }
 VmInstruction(InstNameID) {
   StartInstruction;

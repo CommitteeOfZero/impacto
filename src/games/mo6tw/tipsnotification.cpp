@@ -96,7 +96,7 @@ void TipsNotification::Render() {
     float smoothedFade = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
     AlertTitle->Tint.a = smoothedFade;
     AlertTitle->Render();
-    if (Timer.Progress > 0.0f) {
+    if (Timer.State == AS_Playing || FadeAnimation.Direction == -1) {
       Notification->Tint.a = smoothedFade;
       Notification->Render();
     }
