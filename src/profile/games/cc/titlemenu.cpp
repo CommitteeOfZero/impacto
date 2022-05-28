@@ -18,6 +18,19 @@ Sprite CopyrightSprite;
 Sprite FenceSprite;
 Sprite OverlaySprite;
 Sprite SmokeSprite;
+Sprite ItemHighlightSprite;
+Sprite ItemHighlightPointerSprite;
+Sprite LoadSprite;
+Sprite LoadHighlightSprite;
+Sprite QuickLoadSprite;
+Sprite QuickLoadHighlightSprite;
+Sprite TipsSprite;
+Sprite TipsHighlightSprite;
+Sprite LibrarySprite;
+Sprite LibraryHighlightSprite;
+Sprite EndingListSprite;
+Sprite EndingListHighlightSprite;
+Sprite MenuSprite;
 
 float PressToStartAnimFastDurationIn;
 float PressToStartAnimFastDurationOut;
@@ -51,6 +64,16 @@ float SmokeAnimationDurationIn;
 float SmokeAnimationDurationOut;
 float MoveLeftAnimationDurationIn;
 float MoveLeftAnimationDurationOut;
+float ItemHighlightOffsetX;
+float ItemHighlightOffsetY;
+float ItemPadding;
+float ItemYBase;
+float SecondaryFirstItemHighlightOffsetX;
+float SecondarySecondItemHighlightOffsetX;
+float SecondaryThirdItemHighlightOffsetX;
+float ItemHighlightPointerY;
+float MenuX;
+float MenuY;
 
 void Configure() {
   BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
@@ -58,6 +81,19 @@ void Configure() {
   CopyrightSprite = EnsureGetMemberSprite("CopyrightSprite");
   OverlaySprite = EnsureGetMemberSprite("OverlaySprite");
   SmokeSprite = EnsureGetMemberSprite("SmokeSprite");
+  ItemHighlightSprite = EnsureGetMemberSprite("ItemHighlightSprite");
+  LoadSprite = EnsureGetMemberSprite("LoadSprite");
+  LoadHighlightSprite = EnsureGetMemberSprite("LoadHighlightSprite");
+  QuickLoadSprite = EnsureGetMemberSprite("QuickLoadSprite");
+  QuickLoadHighlightSprite = EnsureGetMemberSprite("QuickLoadHighlightSprite");
+  TipsSprite = EnsureGetMemberSprite("TipsSprite");
+  TipsHighlightSprite = EnsureGetMemberSprite("TipsHighlightSprite");
+  LibrarySprite = EnsureGetMemberSprite("LibrarySprite");
+  LibraryHighlightSprite = EnsureGetMemberSprite("LibraryHighlightSprite");
+  EndingListSprite = EnsureGetMemberSprite("EndingListSprite");
+  EndingListHighlightSprite =
+      EnsureGetMemberSprite("EndingListHighlightSprite");
+  MenuSprite = EnsureGetMemberSprite("MenuSprite");
 
   PressToStartAnimFastDurationIn =
       EnsureGetMemberFloat("PressToStartAnimFastDurationIn");
@@ -96,6 +132,21 @@ void Configure() {
       EnsureGetMemberFloat("MoveLeftAnimationDurationIn");
   MoveLeftAnimationDurationOut =
       EnsureGetMemberFloat("MoveLeftAnimationDurationOut");
+  ItemHighlightOffsetX = EnsureGetMemberFloat("ItemHighlightOffsetX");
+  ItemHighlightOffsetY = EnsureGetMemberFloat("ItemHighlightOffsetY");
+  ItemPadding = EnsureGetMemberFloat("ItemPadding");
+  ItemYBase = EnsureGetMemberFloat("ItemYBase");
+  SecondaryFirstItemHighlightOffsetX =
+      EnsureGetMemberFloat("SecondaryFirstItemHighlightOffsetX");
+  SecondarySecondItemHighlightOffsetX =
+      EnsureGetMemberFloat("SecondarySecondItemHighlightOffsetX");
+  SecondaryThirdItemHighlightOffsetX =
+      EnsureGetMemberFloat("SecondaryThirdItemHighlightOffsetX");
+  ItemHighlightPointerSprite =
+      EnsureGetMemberSprite("ItemHighlightPointerSprite");
+  ItemHighlightPointerY = EnsureGetMemberFloat("ItemHighlightPointerY");
+  MenuX = EnsureGetMemberFloat("MenuX");
+  MenuY = EnsureGetMemberFloat("MenuY");
 
   UI::CC::TitleMenu* menu = new UI::CC::TitleMenu();
   menu->PressToStartAnimation.DurationIn =
@@ -103,6 +154,7 @@ void Configure() {
   menu->PressToStartAnimation.DurationOut =
       Profile::TitleMenu::PressToStartAnimDurationOut;
   menu->PressToStartAnimation.LoopMode = ALM_ReverseDirection;
+
   menu->SmokeAnimation.LoopMode = ALM_Loop;
   menu->SmokeAnimation.DurationIn = SmokeAnimationDurationIn;
   menu->SmokeAnimation.DurationOut = SmokeAnimationDurationOut;

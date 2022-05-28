@@ -1,6 +1,7 @@
 #include "tipsmenu.h"
 #include "../profile_internal.h"
 #include "../games/mo6tw/tipsmenu.h"
+#include "../games/cclcc/tipsmenu.h"
 #include "../../ui/ui.h"
 #include "../../log.h"
 #include "../../window.h"
@@ -33,6 +34,8 @@ void Configure() {
 
     if (Type == +TipsMenuType::MO6TW) {
       MO6TW::TipsMenu::Configure();
+    } else if (Type == +TipsMenuType::CCLCC) {
+      CCLCC::TipsMenu::Configure();
     } else {
       UI::TipsMenuPtr = new UI::TipsMenu();
     }

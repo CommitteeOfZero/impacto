@@ -293,14 +293,14 @@ void TitleMenu::Render() {
                       1.0f - ScrWork[SW_TITLEDISPCT] / 60.0f));
       } break;
       case 2: {  // Transition between Press to start and menus
-        Renderer2D::DrawSprite(MainBackgroundSprite, glm::vec2(0.0f));
+        DrawMainMenuBackGraphics(true);
+        DrawSmoke(SmokeOpacityNormal);
         // TODO: Rewrite the Character2D class to separate out the MVL parser so
         // we don't have to do this
         // 500 is just a random value to throw it beyond any actual data
         ScrWork[SW_CHA1ALPHA + Profile::Vm::ScrWorkChaStructSize * 500] = 256;
         ScrWork[SW_CHA1ALPHA_OFS + 10 * 500] = 0;
         TitleAnimationSprite.Render(500, -1);
-        DrawSmoke(SmokeOpacityNormal);
       } break;
       case 3: {  // MenuItems Fade In
         if (ItemsFadeInAnimation.IsOut() &&
@@ -308,7 +308,7 @@ void TitleMenu::Render() {
           ItemsFadeInAnimation.StartIn();
         else if (ItemsFadeInAnimation.State != AS_Playing)
           ItemsFadeInAnimation.StartOut();
-        DrawMainMenuBackGraphics();
+        DrawMainMenuBackGraphics(false);
         DrawSmoke(SmokeOpacityNormal);
         MainItems->Render();
         ContinueItems->Render();
@@ -347,9 +347,11 @@ inline void TitleMenu::DrawStartButton() {
                          glm::vec2(PressToStartX, PressToStartY), col);
 }
 
-inline void TitleMenu::DrawMainMenuBackGraphics() {
+inline void TitleMenu::DrawMainMenuBackGraphics(bool isTransition) {
   Renderer2D::DrawSprite(MainBackgroundSprite, glm::vec2(0.0f));
-  Renderer2D::DrawSprite(MenuSprite, glm::vec2(MenuX, MenuY));
+  if (!isTransition) {
+    Renderer2D::DrawSprite(MenuSprite, glm::vec2(MenuX, MenuY));
+  }
   Renderer2D::DrawSprite(
       OverlaySprite,
       RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),

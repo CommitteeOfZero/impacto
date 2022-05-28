@@ -5,6 +5,7 @@
 #include "../ui/ui.h"
 
 #include "games/mo6tw/dialoguebox.h"
+#include "games/cclcc/dialoguebox.h"
 
 namespace Impacto {
 namespace Profile {
@@ -84,6 +85,8 @@ void Configure() {
   switch (DialogueBoxCurrentType) {
     case DialogueBoxType::MO6TW:
       Profile::MO6TW::DialogueBox::Configure();
+    case DialogueBoxType::CCLCC:
+      Profile::CCLCC::DialogueBox::Configure();
   }
 
   NVLBoxMaxOpacity = EnsureGetMemberFloat("NVLBoxMaxOpacity");
@@ -103,6 +106,10 @@ void Configure() {
   WaitIconCurrentType = WaitIconDisplay::WaitIconType::_from_integral_unchecked(
       EnsureGetMemberInt("WaitIconCurrentType"));
   if (WaitIconCurrentType == +WaitIconDisplay::WaitIconType::SpriteAnim) {
+    WaitIconSpriteAnim = EnsureGetMemberAnimation("WaitIconSpriteAnim");
+  } else if (WaitIconCurrentType ==
+             +WaitIconDisplay::WaitIconType::SpriteAnimFixed) {
+    WaitIconSprite = EnsureGetMemberSprite("WaitIconSprite");
     WaitIconSpriteAnim = EnsureGetMemberAnimation("WaitIconSpriteAnim");
   } else {
     WaitIconSprite = EnsureGetMemberSprite("WaitIconSprite");

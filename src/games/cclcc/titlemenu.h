@@ -34,11 +34,6 @@ class TitleMenu : public Menu {
   void ContinueButtonOnClick(Widgets::Button* target);
   void ExtraButtonOnClick(Widgets::Button* target);
 
-  void DrawMainBackground(float opacity = 1.0f);
-  void DrawStartButton();
-  void DrawMainMenuBackGraphics();
-  void DrawSmoke(float opacity);
-
  private:
   Widgets::Group* CurrentSubMenu = 0;
 
@@ -61,6 +56,11 @@ class TitleMenu : public Menu {
   Widgets::CCLCC::TitleButton* EndingList;
   void ShowExtraItems();
   void HideExtraItems();
+
+  void DrawMainBackground(float opacity = 1.0f);
+  void DrawStartButton();
+  void DrawMainMenuBackGraphics(bool isTransition);
+  void DrawSmoke(float opacity);
 };
 
 }  // namespace CCLCC

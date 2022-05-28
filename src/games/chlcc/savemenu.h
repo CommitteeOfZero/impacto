@@ -20,7 +20,7 @@ class SaveMenu : public Menu {
   void MenuButtonOnClick(Widgets::Button* target);
 
  private:
-  //WidgetGroup* MainItems;
+  Widgets::Group* MainItems;
   Animation FadeAnimation;
 };
 

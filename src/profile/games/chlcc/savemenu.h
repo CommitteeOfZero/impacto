@@ -10,7 +10,7 @@ namespace SaveMenu {
 int const EntriesPerRow = 2;
 int const RowsPerPage = 4;
 
-/*extern Sprite QuickLoadTextSprite;
+extern Sprite QuickLoadTextSprite;
 extern Sprite LoadTextSprite;
 extern Sprite SaveTextSprite;
 extern glm::vec2 MenuTitleTextPos;
@@ -20,7 +20,7 @@ extern Sprite QuickLoadEntryHighlightedSprite;
 extern Sprite SaveEntrySprite;
 extern Sprite SaveEntryHighlightedSprite;
 extern Sprite LoadEntrySprite;
-extern Sprite LoadEntryHighlightedSprite;*/
+extern Sprite LoadEntryHighlightedSprite;
 
 void Configure();
 

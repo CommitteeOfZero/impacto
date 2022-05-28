@@ -3,6 +3,11 @@ root.Sprites["ADVBox"] = {
     Bounds: { X: 0, Y: 0, Width: 1920, Height: 281 }
 };
 
+root.Sprites["WaitIconSpriteFixed"] = {
+    Sheet: "Data",
+    Bounds: { X: 1977, Y: 937, Width: 126, Height: 95 },
+};
+
 root.Dialogue = {
     REVBounds: { X: 0, Y: 0, Width: 960, Height: 400 },
     REVNameFontSize: 24,
@@ -19,11 +24,13 @@ root.Dialogue = {
     ADVNameAlignment: TextAlignment.Left,
     ADVNameFontSize: 33,
     ADVNamePos: { X: 173, Y: 773 },
-    WaitIconSpriteAnim: "WaitIconSpriteAnimDef",
-	WaitIconCurrentType: WaitIconType.SpriteAnim,
-    WaitIconOffset: { X: 0, Y: 0 },
+    WaitIconCurrentType: WaitIconType.SpriteAnimFixed,
+    WaitIconSpriteAnim: "WaitIconSpriteAnim",
+    WaitIconSprite: "WaitIconSpriteFixed",
+    WaitIconAnimationDuration: 0.7,
+    WaitIconOffset: { X: 1600, Y: 910 },
     DialogueFont: "Default",
-    DefaultFontSize: 48,
+    DefaultFontSize: 36,
     RubyFontSize: 21,
     RubyYOffset: -27,
     ColorTable: [
@@ -69,20 +76,19 @@ root.Dialogue = {
 };
 
 MakeAnimation({
-    Name: "WaitIconSpriteAnimDef",
-    Sheet: "MesBox",
-    FirstFrameX: 0,
-    FirstFrameY: 1919,
-    FrameWidth: 64,
-    ColWidth: 64,
-    FrameHeight: 64,
-    RowHeight: 64,
-    Frames: 44,
-    Duration: 5.0,
-    Rows: 2,
-    Columns: 32,
-    PrimaryDirection: AnimationDirections.Right,
-	SecondaryDirection: AnimationDirections.Down
+    Name: "WaitIconSpriteAnim",
+    Sheet: "Data",
+    FirstFrameX: 864, //1114
+    FirstFrameY: 877,
+    FrameWidth: 190,
+    ColWidth: 216,
+    FrameHeight: 185,
+    RowHeight: 185,
+    Frames: 10,
+    Duration: 1,
+    Rows: 1,
+    Columns: 10,
+    PrimaryDirection: AnimationDirections.Right
 });
 
-include('dash/nametag.js');
+include('cclcc/nametag.js');

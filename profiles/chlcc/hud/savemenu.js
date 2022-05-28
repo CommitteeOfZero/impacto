@@ -1,7 +1,8 @@
 root.SaveMenu = {
     Type: SaveMenuType.CHLCC,
+    DrawType: DrawComponentType.SystemMenu,
     SaveMenuBackgroundSprite: "SaveMenuBackground",
-	EmptyThumbnailSprite: "EmptyThumbnail",
+    EmptyThumbnailSprite: "EmptyThumbnail",
     QuickLoadTextSprite: "QuickLoadText",
     LoadTextSprite: "LoadText",
     SaveTextSprite: "SaveText",

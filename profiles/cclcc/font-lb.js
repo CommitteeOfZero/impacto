@@ -4,8 +4,8 @@ root.Fonts = {
         ForegroundSheet: "FontLBForeground",
         OutlineSheet: "FontLBOutline",
         Columns: 64,
-        Rows: 50,
-        Widths: "games/rne/font-lb/widths.bin",
+        Rows: 125,
+        Widths: "games/cc/font-lb/widths.bin",
         DesignColWidth: 48,
         OutlineOffset: { X: -4, Y: -4 },
         LineSpacing: 14,
@@ -15,13 +15,13 @@ root.Fonts = {
 delete root.SpriteSheets["Font"];
 
 root.SpriteSheets["FontLBForeground"] = {
-    Path: "games/rne/font-lb/foreground.png",
+    Path: "games/cc/font-lb/foreground.png",
     DesignWidth: 3072,
-    DesignHeight: 2400
+    DesignHeight: 6000
 };
 
 root.SpriteSheets["FontLBOutline"] = {
-    Path: "games/rne/font-lb/outline.png",
+    Path: "games/cc/font-lb/outline.png",
     DesignWidth: 3648,
-    DesignHeight: 2852
+    DesignHeight: 7128
 };

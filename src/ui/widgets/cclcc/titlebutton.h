@@ -16,7 +16,7 @@ class TitleButton : public Widgets::Button {
   bool IsSubButton = false;
 };
 
-}  // namespace CHLCC
+}  // namespace CCLCC
 }  // namespace Widgets
 }  // namespace UI
 }  // namespace Impacto
