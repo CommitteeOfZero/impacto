@@ -83,6 +83,9 @@ void Background2D::Render(int bgId, int layer) {
     glm::vec4 col = glm::vec4(1.0f);
     if (GameInstructionSet == +Vm::InstructionSet::Dash) {
       col.a = ScrWork[SW_BG1ALPHA + ScrWorkBgStructSize * bgId] / 256.0f;
+    } else if (GameInstructionSet == +Vm::InstructionSet::CC) {
+      if (ScrWork[SW_BGEFF_MODE + 30 * bgId] == 1)
+        col.a = ScrWork[SW_BGEFF_ALPHA + 30 * bgId] / 256.0f;
     }
     int renderType = ScrWork[SW_BG1FADETYPE + ScrWorkBgStructSize * bgId];
     BackgroundRenderTable[renderType](this, bgId, col);

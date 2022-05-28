@@ -1,7 +1,9 @@
 #include "tipsnotification.h"
 #include "../profile_internal.h"
 #include "../games/mo6tw/tipsnotification.h"
+#include "../games/cclcc/tipsnotification.h"
 #include "../../games/mo6tw/tipsnotification.h"
+#include "../../games/cclcc/tipsnotification.h"
 
 namespace Impacto {
 namespace Profile {
@@ -25,11 +27,16 @@ void Configure() {
   Type = TipsNotificationType::_from_integral_unchecked(
       EnsureGetMemberInt("Type"));
 
-  if (Type == +TipsNotificationType::MO6TW) {
-    MO6TW::TipsNotification::Configure();
-  } else {
-    Pop();
-    return;
+  switch (Type) {
+    case TipsNotificationType::MO6TW:
+      MO6TW::TipsNotification::Configure();
+      break;
+    case TipsNotificationType::CCLCC:
+      CCLCC::TipsNotification::Configure();
+      break;
+    default:
+      Pop();
+      return;
   }
 
   TextTableId = EnsureGetMemberInt("TextTableId");
@@ -46,10 +53,19 @@ void Configure() {
 }
 
 void CreateInstance() {
-  if (!Impacto::TipsNotification::Implementation &&
-      Type == +TipsNotificationType::MO6TW) {
-    Impacto::TipsNotification::Implementation =
-        new Impacto::MO6TW::TipsNotification;
+  if (!Impacto::TipsNotification::Implementation) {
+    switch (Type) {
+      case TipsNotificationType::MO6TW:
+        Impacto::TipsNotification::Implementation =
+            new Impacto::MO6TW::TipsNotification;
+        break;
+      // case TipsNotificationType::CCLCC:
+      //   Impacto::TipsNotification::Implementation =
+      //       new Impacto::CCLCC::TipsNotification;
+      //   break;
+      default:
+        return;
+    }
   }
 }
 

@@ -76,13 +76,14 @@ set(Impacto_Src
 
     src/profile/games/cc/titlemenu.cpp
     src/profile/games/cc/sysmesbox.cpp
-    
+
     src/profile/games/cclcc/dialoguebox.cpp
     src/profile/games/cclcc/titlemenu.cpp
     src/profile/games/cclcc/savemenu.cpp
     src/profile/games/cclcc/optionsmenu.cpp
     src/profile/games/cclcc/tipsmenu.cpp
     src/profile/games/cclcc/clearlistmenu.cpp
+    src/profile/games/cclcc/tipsnotification.cpp
 
     src/profile/games/mo6tw/dialoguebox.cpp
     src/profile/games/mo6tw/sysmesbox.cpp
@@ -122,6 +123,7 @@ set(Impacto_Src
     src/games/cclcc/optionsmenu.cpp
     src/games/cclcc/tipsmenu.cpp
     src/games/cclcc/clearlistmenu.cpp
+    src/games/cclcc/tipsnotification.cpp
 
     src/games/mo6tw/dialoguebox.cpp
     src/games/mo6tw/sysmesbox.cpp
@@ -341,6 +343,7 @@ set(Impacto_Header
     src/profile/games/cclcc/optionsmenu.h
     src/profile/games/cclcc/tipsmenu.h
     src/profile/games/cclcc/clearlistmenu.h
+    src/profile/games/cclcc/tipsnotification.h
 
     src/profile/games/mo6tw/dialoguebox.h
     src/profile/games/mo6tw/sysmesbox.h

@@ -435,17 +435,17 @@ VmInstruction(InstSetDic) {
   PopUint8(type);
   PopExpression(tipId);
   switch (type) {
-    case 0:  // NewTip
-      TipsSystem::SetTipLockedState(tipId, false);
+    case 0:    // NewTip
+    case 1: {  // Check
+      if (TipsSystem::GetTipLockedState(tipId)) {
+        TipsSystem::SetTipLockedState(tipId, false);
+        TipsNotification::AddTip(tipId);
+      }
+      if (type == 1) {
+        PopExpression(flagId);
+      }
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SetDic(type: NewTip, tipId: %i)\n", tipId);
-      break;
-    case 1: {  // Check
-      PopExpression(flagId);
-      ImpLogSlow(
-          LL_Warning, LC_VMStub,
-          "STUB instruction SetDic(type: Check, tipId: %i, flagId: %i)\n",
-          tipId, flagId);
     } break;
     case 2:  // SetDic02
       ImpLogSlow(LL_Warning, LC_VMStub,

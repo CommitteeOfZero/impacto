@@ -8,7 +8,7 @@
 namespace Impacto {
 namespace TipsNotification {
 
-BETTER_ENUM(TipsNotificationType, int, None, MO6TW)
+BETTER_ENUM(TipsNotificationType, int, None, MO6TW, CCLCC)
 
 class TipsNotificationBase {
  public:

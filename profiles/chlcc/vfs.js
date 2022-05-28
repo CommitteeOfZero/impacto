@@ -1,6 +1,6 @@
 root.Vfs = {
     Mounts: {
-        "script": ["games/chlcc/gamedata/script.cls"],
+        "script": ["games/chlcc/gamedata/script.cpk"],
         "system": ["games/chlcc/gamedata/system.cpk"],
         "bgm": ["games/chlcc/gamedata/bgm.cpk"],
         "se": ["games/chlcc/gamedata/se.cpk"],

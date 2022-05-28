@@ -229,6 +229,8 @@ root.ScriptVars = {
     SW_AR_ROTMIN: 6412,
     SW_AR_ROTMAX: 6413,
     SW_POKECOMIRUOHFOV: 6428,
+    SW_BGEFF_ALPHA: 6613,
+    SW_BGEFF_MODE: 6614,
     SW_SAVEMENUMODE: 7999, // This is our own
     //FlagWork
     SF_CLR_END1: 801,

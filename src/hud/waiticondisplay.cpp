@@ -77,7 +77,7 @@ void Render(glm::vec2 pos, glm::vec4 opacityTint) {
         glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y),
         opacityTint, glm::vec2(1.0f), SimpleAnim.Progress * 2.0f * M_PI);
   }
-}  // namespace WaitIconDisplay
+}
 
 }  // namespace WaitIconDisplay
 }  // namespace Impacto
