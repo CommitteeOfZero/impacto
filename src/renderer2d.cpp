@@ -14,6 +14,7 @@ static GLuint ShaderProgramSprite;
 static GLuint ShaderProgramSpriteInverted;
 static GLuint ShaderProgramMaskedSprite;
 static GLuint ShaderProgramYUVFrame;
+static GLuint ShaderProgramCCMessageBox;
 
 GLuint YUVFrameCbLocation;
 GLuint YUVFrameCrLocation;
@@ -21,7 +22,14 @@ GLuint YUVFrameIsAlphaLocation;
 GLuint MaskedIsInvertedLocation;
 GLuint MaskedIsSameTextureLocation;
 
-enum Renderer2DMode { R2D_None, R2D_Sprite, R2D_SpriteInverted, R2D_YUVFrame };
+enum Renderer2DMode {
+  R2D_None,
+  R2D_Sprite,
+  R2D_SpriteInverted,
+  R2D_YUVFrame,
+  R2D_Masked,
+  R2D_CCMessageBox
+};
 
 struct VertexBufferSprites {
   glm::vec2 Position;
@@ -152,6 +160,8 @@ void Init() {
   YUVFrameCrLocation = glGetUniformLocation(ShaderProgramYUVFrame, "Cr");
   YUVFrameIsAlphaLocation =
       glGetUniformLocation(ShaderProgramYUVFrame, "IsAlpha");
+  ShaderProgramCCMessageBox = ShaderCompile("CCMessageBoxSprite");
+  glUniform1i(glGetUniformLocation(ShaderProgramCCMessageBox, "ColorMap"), 0);
 
   // No-mipmapping sampler
   glGenSamplers(1, &Sampler);
@@ -457,7 +467,10 @@ void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
   // Do we have space for one more sprite quad?
   EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
 
-  Flush();
+  if (CurrentMode != R2D_Masked) {
+    Flush();
+    CurrentMode = R2D_Masked;
+  }
   glBindVertexArray(VAOSprites);
   glUseProgram(ShaderProgramMaskedSprite);
   glUniform1i(glGetUniformLocation(ShaderProgramMaskedSprite, "Mask"), 2);
@@ -491,6 +504,78 @@ void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
               sizeof(VertexBufferSprites));
   }
   QuadSetUV(sprite.Bounds, sprite.Bounds.Width, sprite.Bounds.Height,
+            (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites));
+
+  QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
+                  sizeof(VertexBufferSprites));
+
+  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
+}
+
+void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
+                      glm::vec2 topLeft, glm::vec4 tint, int alpha,
+                      int fadeRange, float effectCt, bool isScreencap,
+                      glm::vec2 scale) {
+  RectF scaledDest(topLeft.x, topLeft.y,
+                   scale.x * sprite.Bounds.Width * sprite.BaseScale.x,
+                   scale.y * sprite.Bounds.Height * sprite.BaseScale.y);
+  DrawCCMessageBox(sprite, mask, scaledDest, tint, alpha, fadeRange, effectCt,
+                   isScreencap);
+}
+
+void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
+                      RectF const& dest, glm::vec4 tint, int alpha,
+                      int fadeRange, float effectCt, bool isScreencap) {
+  if (!Drawing) {
+    ImpLog(LL_Error, LC_Render,
+           "Renderer2D::DrawCCMessageBox() called before BeginFrame()\n");
+    return;
+  }
+
+  if (alpha < 0) alpha = 0;
+  if (alpha > fadeRange + 256) alpha = fadeRange + 256;
+
+  float alphaRange = 256.0f / fadeRange;
+  float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
+
+  // Do we have space for one more sprite quad?
+  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
+
+  if (CurrentMode != R2D_CCMessageBox) {
+    Flush();
+    CurrentMode = R2D_CCMessageBox;
+  }
+  glBindVertexArray(VAOSprites);
+  glUseProgram(ShaderProgramCCMessageBox);
+  glUniform1i(glGetUniformLocation(ShaderProgramCCMessageBox, "Mask"), 2);
+  glUniform4f(glGetUniformLocation(ShaderProgramCCMessageBox, "Alpha"),
+              alphaRange, constAlpha, effectCt, 0.0f);
+
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
+
+  glActiveTexture(GL_TEXTURE2);
+  glBindTexture(GL_TEXTURE_2D, mask.Sheet.Texture);
+  glBindSampler(2, Sampler);
+
+  // OK, all good, make quad
+
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
+  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
+
+  IndexBufferFill += 6;
+
+  if (isScreencap) {
+    QuadSetUVFlipped(sprite.Bounds, sprite.Sheet.DesignWidth,
+                     sprite.Sheet.DesignHeight, (uintptr_t)&vertices[0].UV,
+                     sizeof(VertexBufferSprites));
+  } else {
+    QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth,
+              sprite.Sheet.DesignHeight, (uintptr_t)&vertices[0].UV,
+              sizeof(VertexBufferSprites));
+  }
+  QuadSetUV(mask.Bounds, mask.Sheet.DesignWidth, mask.Sheet.DesignHeight,
             (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites));
 
   QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,

@@ -1,15 +1,20 @@
 #pragma once
 
 #include "../../hud/dialoguebox.h"
+#include "../../animation.h"
 
 namespace Impacto {
-namespace CCLCC {
+namespace CC {
 
 class DialogueBox : public Impacto::DialogueBox {
  public:
+  void Update(float dt) override;
   void Render(DialoguePageMode mode, bool hasName, float nameWidth,
               float opacity) override;
+
+ private:
+  Animation TextBoxEffect;
 };
 
-}  // namespace CCLCC
+}  // namespace CC
 }  // namespace Impacto

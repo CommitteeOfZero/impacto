@@ -1,6 +1,11 @@
 root.Sprites["ADVBox"] = {
     Sheet: "MesBox",
-    Bounds: { X: 0, Y: 0, Width: 1920, Height: 281 }
+    Bounds: { X: 0, Y: 1, Width: 1920, Height: 298 }
+};
+
+root.Sprites["ADVBoxMask"] = {
+    Sheet: "MesBox",
+    Bounds: { X: 0, Y: 301, Width: 1920, Height: 298 }
 };
 
 root.Sprites["WaitIconSpriteFixed"] = {
@@ -14,12 +19,14 @@ root.Dialogue = {
     REVNameColor: 24,
     REVNameOffset: 34,
     NVLBounds: { X: 188, Y: 128, Width: 1536, Height: 600 },
-    ADVBounds: { X: 295, Y: 828, Width: 1440, Height: 270 },
+    ADVBounds: { X: 330, Y: 815, Width: 1440, Height: 270 },
     ADVBoxSprite: "ADVBox",
-    ADVBoxPos: { X: 0, Y: 781 },
+    ADVBoxMask: "ADVBoxMask",
+    ADVBoxEffectDuration: 10,
+    ADVBoxPos: { X: 0, Y: 760 },
     FadeOutDuration: 0.33,
     FadeInDuration: 0.33,
-    DialogueBoxCurrentType: DialogueBoxType.Plain,
+    DialogueBoxCurrentType: DialogueBoxType.CC,
     NVLBoxMaxOpacity: 0.55,
     ADVNameAlignment: TextAlignment.Left,
     ADVNameFontSize: 33,
@@ -28,7 +35,7 @@ root.Dialogue = {
     WaitIconSpriteAnim: "WaitIconSpriteAnim",
     WaitIconSprite: "WaitIconSpriteFixed",
     WaitIconAnimationDuration: 0.7,
-    WaitIconOffset: { X: 1600, Y: 910 },
+    WaitIconOffset: { X: 1624, Y: 955 },
     DialogueFont: "Default",
     DefaultFontSize: 36,
     RubyFontSize: 21,

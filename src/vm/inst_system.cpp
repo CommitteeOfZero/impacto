@@ -552,6 +552,8 @@ VmInstruction(InstMSinit) {
   if (Profile::Vm::GameInstructionSet == +InstructionSet::MO7) {
     ScrWork[SW_SHORTCUT] = 0xFFFF;
   }
+
+  ScrWork[SW_SINSTALL_ALL] = 100;
 }
 VmInstruction(InstSaveSlot) {
   StartInstruction;

@@ -5,7 +5,7 @@
 
 namespace Impacto {
 
-BETTER_ENUM(DialogueBoxType, int, None, Plain, Dash, MO6TW, CCLCC)
+BETTER_ENUM(DialogueBoxType, int, None, Plain, Dash, MO6TW, CC)
 
 enum DialogueBoxState { Hidden, Hiding, Showing, Shown };
 

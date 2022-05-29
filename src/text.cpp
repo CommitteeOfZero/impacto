@@ -20,6 +20,7 @@
 #include "hud/dialoguebox.h"
 #include "hud/tipsnotification.h"
 #include "games/mo6tw/dialoguebox.h"
+#include "games/cc/dialoguebox.h"
 
 #include "../vendor/utf8-cpp/utf8.h"
 
@@ -213,6 +214,9 @@ void DialoguePage::Init() {
   switch (DialogueBoxCurrentType) {
     case DialogueBoxType::MO6TW:
       TextBox = new MO6TW::DialogueBox();
+      break;
+    case DialogueBoxType::CC:
+      TextBox = new CC::DialogueBox();
       break;
     default:
       TextBox = new DialogueBox();
@@ -599,6 +603,7 @@ void DialoguePage::Update(float dt) {
     }
   }
 
+  TextBox->Update(dt);
   FadeAnimation.Update(dt);
   WaitIconDisplay::Update(dt);
 }

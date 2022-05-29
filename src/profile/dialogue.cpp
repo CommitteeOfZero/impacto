@@ -5,7 +5,7 @@
 #include "../ui/ui.h"
 
 #include "games/mo6tw/dialoguebox.h"
-#include "games/cclcc/dialoguebox.h"
+#include "games/cc/dialoguebox.h"
 
 namespace Impacto {
 namespace Profile {
@@ -85,8 +85,8 @@ void Configure() {
   switch (DialogueBoxCurrentType) {
     case DialogueBoxType::MO6TW:
       Profile::MO6TW::DialogueBox::Configure();
-    case DialogueBoxType::CCLCC:
-      Profile::CCLCC::DialogueBox::Configure();
+    case DialogueBoxType::CC:
+      Profile::CC::DialogueBox::Configure();
   }
 
   NVLBoxMaxOpacity = EnsureGetMemberFloat("NVLBoxMaxOpacity");

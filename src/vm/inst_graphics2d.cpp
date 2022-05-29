@@ -224,6 +224,7 @@ VmInstruction(InstBGrelease) {
   PopExpression(bufferId);
   bufferId = Interface::GetBufferId(bufferId);
   int surfId = ScrWork[SW_BG1SURF + bufferId];
+  ScrWork[SW_BG1NO + ScrWorkBgStructSize * bufferId] = 0xFFFF;
   if (Backgrounds2D[surfId]->Status == LS_Loaded) {
     Backgrounds2D[surfId]->Unload();
   }
@@ -330,6 +331,7 @@ VmInstruction(InstCHArelease) {
   PopExpression(bufferId);
   bufferId = Interface::GetBufferId(bufferId);
   int surfId = ScrWork[SW_CHA1SURF + bufferId];
+  ScrWork[SW_CHA1NO + ScrWorkChaStructSize * bufferId] = 0xFFFF;
   if (Characters2D[surfId].Status == LS_Loaded) {
     Characters2D[surfId].Unload();
   }

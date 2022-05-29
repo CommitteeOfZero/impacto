@@ -74,10 +74,10 @@ set(Impacto_Src
     src/profile/games/chlcc/savemenu.cpp
     src/profile/games/chlcc/sysmesbox.cpp
 
+    src/profile/games/cc/dialoguebox.cpp
     src/profile/games/cc/titlemenu.cpp
     src/profile/games/cc/sysmesbox.cpp
 
-    src/profile/games/cclcc/dialoguebox.cpp
     src/profile/games/cclcc/titlemenu.cpp
     src/profile/games/cclcc/savemenu.cpp
     src/profile/games/cclcc/optionsmenu.cpp
@@ -114,10 +114,10 @@ set(Impacto_Src
     src/games/chlcc/sysmesbox.cpp
     src/games/chlcc/savesystem.cpp
 
+    src/games/cc/dialoguebox.cpp
     src/games/cc/titlemenu.cpp
     src/games/cc/sysmesbox.cpp
 
-    src/games/cclcc/dialoguebox.cpp
     src/games/cclcc/titlemenu.cpp
     src/games/cclcc/savemenu.cpp
     src/games/cclcc/optionsmenu.cpp
@@ -334,10 +334,10 @@ set(Impacto_Header
     src/profile/games/chlcc/savemenu.h
     src/profile/games/chlcc/sysmesbox.h
 
+    src/profile/games/cc/dialoguebox.h
     src/profile/games/cc/titlemenu.h
     src/profile/games/cc/sysmesbox.h
 
-    src/profile/games/cclcc/dialoguebox.h
     src/profile/games/cclcc/titlemenu.h
     src/profile/games/cclcc/savemenu.h
     src/profile/games/cclcc/optionsmenu.h
@@ -374,10 +374,10 @@ set(Impacto_Header
     src/games/chlcc/sysmesbox.h
     src/games/chlcc/savesystem.h
 
+    src/games/cc/dialoguebox.h
     src/games/cc/titlemenu.h
     src/games/cc/sysmesbox.h
 
-    src/games/cclcc/dialoguebox.h
     src/games/cclcc/titlemenu.h
     src/games/cclcc/savemenu.h
     src/games/cclcc/optionsmenu.h

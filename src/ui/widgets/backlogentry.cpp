@@ -21,7 +21,7 @@ BacklogEntry::BacklogEntry(int id, uint8_t* str, int audioId, glm::vec2 pos) {
   AudioId = audioId;
 
   BacklogPage = new DialoguePage();
-  BacklogPage->Glyphs = new ProcessedTextGlyph[255];
+  BacklogPage->Glyphs = new ProcessedTextGlyph[512];
   BacklogPage->Clear();
   BacklogPage->Mode = DPM_REV;
 
