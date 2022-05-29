@@ -39,3 +39,4 @@ include('darling/hud/backlogmenu.js');
 include('darling/hud/sysmesboxdisplay.js');
 include('darling/hud/selectiondisplay.js');
 include('darling/hud/tipsmenu.js');
+include('darling/hud/tipsnotification.js');

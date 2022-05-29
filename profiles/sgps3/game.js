@@ -40,3 +40,4 @@ include('sgps3/hud/backlogmenu.js');
 include('sgps3/hud/sysmesboxdisplay.js');
 include('sgps3/hud/selectiondisplay.js');
 include('sgps3/hud/tipsmenu.js');
+include('sgps3/hud/tipsnotification.js');

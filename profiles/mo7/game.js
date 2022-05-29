@@ -40,3 +40,4 @@ include('mo7/hud/backlogmenu.js');
 include('mo7/hud/sysmesboxdisplay.js');
 include('mo7/hud/selectiondisplay.js');
 include('mo7/hud/tipsmenu.js');
+include('mo7/hud/tipsnotification.js');

@@ -39,3 +39,4 @@ include('mo8/hud/backlogmenu.js');
 include('mo8/hud/sysmesboxdisplay.js');
 include('mo8/hud/selectiondisplay.js');
 include('mo8/hud/tipsmenu.js');
+include('mo8/hud/tipsnotification.js');

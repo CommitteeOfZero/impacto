@@ -36,3 +36,4 @@ include('rne/hud/sysmesboxdisplay.js');
 include('rne/scene3d/scene3d.js');
 include('rne/hud/selectiondisplay.js');
 include('rne/hud/tipsmenu.js');
+include('rne/hud/tipsnotification.js');

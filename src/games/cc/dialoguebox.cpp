@@ -27,7 +27,7 @@ void DialogueBox::Update(float dt) {
 void DialogueBox::Render(DialoguePageMode mode, bool hasName, float nameWidth,
                          float opacity) {
   glm::vec4 col = ScrWorkGetColor(SW_MESWINDOW_COLOR);
-  col.a = opacity;
+  col.a = 1.0f;
   if (mode == DPM_ADV) {
     Renderer2D::DrawCCMessageBox(ADVBoxSprite, ADVBoxMask, ADVBoxPos, col,
                                  opacity * 272, 16, TextBoxEffect.Progress);
