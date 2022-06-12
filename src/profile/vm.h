@@ -16,6 +16,7 @@ extern bool UseSeparateMsbArchive;
 extern int ScrWorkChaStructSize;
 extern int ScrWorkBgStructSize;
 extern int MaxLinkedBgBuffers;
+extern int SystemScriptBuffer;
 
 void Configure();
 

@@ -28,6 +28,7 @@ float NVLBoxMaxOpacity;
 TextAlignment ADVNameAlignment = TextAlignment::Left;
 float ADVNameFontSize;
 glm::vec2 ADVNamePos;
+bool ADVBoxShowName = true;
 
 float REVNameFontSize;
 int REVNameColor;
@@ -75,6 +76,8 @@ void Configure() {
 
   ADVBoxSprite = EnsureGetMemberSprite("ADVBoxSprite");
   ADVBoxPos = EnsureGetMemberVec2("ADVBoxPos");
+
+  TryGetMemberBool("ADVBoxShowName", ADVBoxShowName);
 
   FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
   FadeInDuration = EnsureGetMemberFloat("FadeInDuration");

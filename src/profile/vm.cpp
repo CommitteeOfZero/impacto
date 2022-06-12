@@ -15,6 +15,7 @@ bool UseSeparateMsbArchive = false;
 int ScrWorkChaStructSize;
 int ScrWorkBgStructSize;
 int MaxLinkedBgBuffers = 1;
+int SystemScriptBuffer = 1;
 
 void Configure() {
   EnsurePushMemberOfType("Vm", kObjectType);
@@ -29,6 +30,7 @@ void Configure() {
   ScrWorkChaStructSize = EnsureGetMemberInt("ScrWorkChaStructSize");
   ScrWorkBgStructSize = EnsureGetMemberInt("ScrWorkBgStructSize");
   TryGetMemberInt("MaxLinkedBgBuffers", MaxLinkedBgBuffers);
+  TryGetMemberInt("SystemScriptBuffer", SystemScriptBuffer);
 
   Pop();
 }

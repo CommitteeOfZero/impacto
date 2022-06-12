@@ -19,6 +19,7 @@
 #include "../data/tipssystem.h"
 #include "../ui/ui.h"
 #include "interface/input.h"
+#include "../text.h"
 
 namespace Impacto {
 
@@ -470,6 +471,8 @@ VmInstruction(InstNameID) {
           Profile::Vm::GameInstructionSet == +InstructionSet::MO8 ||
           Profile::Vm::GameInstructionSet == +InstructionSet::CHN) {
         PopLocalLabel(namePlateDataBlock);
+        if (!Profile::Vm::UseMsbStrings)
+          InitNamePlateData((uint16_t*)namePlateDataBlock);
       } else if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW) {
         PopExpression(arg1);
         PopExpression(arg2);

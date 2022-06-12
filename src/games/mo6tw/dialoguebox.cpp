@@ -15,7 +15,7 @@ using namespace Impacto::Profile::Dialogue;
 using namespace Impacto::Profile::MO6TW::DialogueBox;
 
 void DialogueBox::Render(DialoguePageMode mode, bool hasName, float nameWidth,
-                         float opacity) {
+                         uint32_t nameId, float opacity) {
   glm::vec4 col = ScrWorkGetColor(SW_MESWINDOW_COLOR);
   col.a = opacity;
   if (mode == DPM_ADV) {

@@ -22,6 +22,12 @@ root.Dialogue = {
     ADVBounds: { X: 330, Y: 815, Width: 1440, Height: 270 },
     ADVBoxSprite: "ADVBox",
     ADVBoxMask: "ADVBoxMask",
+    ADVBoxNamePlateMainSprites: [],
+    ADVBoxNamePlateLabelSprites: [],
+    ADVBoxNamePlateMainPos: { X: 0, Y: 780 },
+    ADVBoxNamePlateLabelPos: { X: 0, Y: 998 },
+    ADVBoxShowName: false,
+    ADVBoxNamePlateCount: 47,
     ADVBoxEffectDuration: 10,
     ADVBoxPos: { X: 0, Y: 760 },
     FadeOutDuration: 0.33,
@@ -97,5 +103,47 @@ MakeAnimation({
     Columns: 10,
     PrimaryDirection: AnimationDirections.Right
 });
+
+var namePlateMainX = 0;
+var namePlateMainY = 0;
+var namePlateLabelX = 3600;
+var namePlateLabelY = 0;
+var namePlateMainWidth = 448;
+var namePlateMainHeight = 232;
+var namePlateLabelWidth = 310;
+var namePlateLabelHeight = 40;
+for (var i = 1; i < 48; i++) {
+    root.Sprites["ADVBoxNamePlateMain" + i] = {
+        Sheet: "NamePlate",
+        Bounds: {
+            X: namePlateMainX,
+            Y: namePlateMainY,
+            Width: namePlateMainWidth,
+            Height: namePlateMainHeight
+        }
+    };
+    root.Dialogue.ADVBoxNamePlateMainSprites.push("ADVBoxNamePlateMain" + i);
+
+    if (i % 8 == 0) {
+        namePlateMainY += namePlateMainHeight;
+        namePlateMainX = 0;
+    }
+    else {
+        namePlateMainX += namePlateMainWidth;
+    }
+
+    root.Sprites["ADVBoxNamePlateLabel" + i] = {
+        Sheet: "NamePlate",
+        Bounds: {
+            X: namePlateLabelX,
+            Y: namePlateLabelY,
+            Width: namePlateLabelWidth,
+            Height: namePlateLabelHeight
+        }
+    };
+    root.Dialogue.ADVBoxNamePlateLabelSprites.push("ADVBoxNamePlateLabel" + i);
+
+    namePlateLabelY += namePlateLabelHeight;
+}
 
 include('cclcc/nametag.js');

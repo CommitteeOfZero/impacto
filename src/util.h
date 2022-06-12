@@ -59,6 +59,8 @@ RectF DesignToNDC(RectF const& rect);
 
 glm::vec4 RgbIntToFloat(uint32_t rgb);
 
+uint32_t GetHashCode(uint8_t* data, int length);
+
 char* DumpMat4(glm::mat4* matrix, const char* columnSeparator = "\t",
                const char* rowSeparator = "\n");
 

@@ -4,6 +4,7 @@
 #include "animation.h"
 #include "vm/thread.h"
 #include <enum.h>
+#include <flat_hash_map.hpp>
 
 #include "audio/audiosystem.h"
 #include "audio/audiostream.h"
@@ -81,6 +82,7 @@ struct DialoguePage {
   int Length;
 
   int NameLength;
+  int NameId;
   bool HasName;
   ProcessedTextGlyph Name[DialogueMaxNameLength];
 
@@ -129,5 +131,9 @@ int TextLayoutPlainString(std::string str, ProcessedTextGlyph* outGlyphs,
                           float opacity, glm::vec2 pos, TextAlignment alignment,
                           float blockWidth = 0.0f);
 void TextGetSc3String(std::string str, uint16_t* out);
+
+extern ska::flat_hash_map<uint32_t, uint32_t> NamePlateData;
+void InitNamePlateData(uint16_t* data);
+uint32_t GetNameId(uint8_t* name, int nameLength);
 
 }  // namespace Impacto

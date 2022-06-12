@@ -8,7 +8,7 @@ namespace MO6TW {
 class DialogueBox : public Impacto::DialogueBox {
  public:
   void Render(DialoguePageMode mode, bool hasName, float nameWidth,
-              float opacity) override;
+              uint32_t nameId, float opacity) override;
 };
 
 }  // namespace MO6TW

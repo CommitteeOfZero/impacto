@@ -32,6 +32,7 @@ extern float ADVNameFontSize;
 // e.g. if ADVNameAlignment == TextAlignment::Right, name will *end* at
 // ADVNamePos.x
 extern glm::vec2 ADVNamePos;
+extern bool ADVBoxShowName;
 
 extern float REVNameFontSize;
 extern int REVNameColor;

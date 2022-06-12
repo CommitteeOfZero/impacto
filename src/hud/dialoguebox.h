@@ -1,6 +1,7 @@
 #pragma once
 
 #include <enum.h>
+#include <flat_hash_map.hpp>
 #include "../text.h"
 
 namespace Impacto {
@@ -15,7 +16,7 @@ class DialogueBox {
   virtual void Hide();
   virtual void Update(float dt);
   virtual void Render(DialoguePageMode mode, bool hasName, float nameWidth,
-                      float opacity);
+                      uint32_t nameId, float opacity);
 
   DialogueBoxState State;
 };

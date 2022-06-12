@@ -10,7 +10,7 @@ class DialogueBox : public Impacto::DialogueBox {
  public:
   void Update(float dt) override;
   void Render(DialoguePageMode mode, bool hasName, float nameWidth,
-              float opacity) override;
+              uint32_t nameId, float opacity) override;
 
  private:
   Animation TextBoxEffect;

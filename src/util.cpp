@@ -84,6 +84,15 @@ glm::vec4 RgbIntToFloat(uint32_t rgb) {
   return result;
 }
 
+uint32_t GetHashCode(uint8_t* data, int length) {
+  uint32_t hash = 2166136261;
+  for (int i = 0; i < length; i++) {
+    hash = (hash ^ data[i]) * 16777619;
+  }
+
+  return hash;
+}
+
 char* DumpMat4(glm::mat4* matrix, const char* columnSeparator,
                const char* rowSeparator) {
   size_t reqSz =

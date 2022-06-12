@@ -43,6 +43,11 @@ root.SpriteSheets = {
         Path: {Mount: "system", Id: 6 },
         DesignWidth: 2048,
         DesignHeight: 720
+    },
+    "NamePlate": {
+        Path: { Mount: "system", Id: 23 },
+        DesignWidth: 4096,
+        DesignHeight: 2268
     }
 };
 

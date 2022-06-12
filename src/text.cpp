@@ -32,6 +32,8 @@ using namespace Impacto::Profile::ScriptVars;
 DialoguePage* DialoguePages;
 DialogueBox* TextBox;
 
+ska::flat_hash_map<uint32_t, uint32_t> NamePlateData;
+
 enum StringTokenType : uint8_t {
   STT_LineBreak = 0x00,
   STT_CharacterNameStart = 0x01,
@@ -560,6 +562,8 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice) {
     uint8_t* oldIp = ctx->Ip;
     ctx->Ip = (uint8_t*)name;
 
+    NameId = GetNameId((uint8_t*)name, NameLength * 2);
+
     float fontSize = ADVNameFontSize;
     glm::vec2 pos = ADVNamePos;
     TextAlignment alignment = ADVNameAlignment;
@@ -624,7 +628,7 @@ void DialoguePage::Render() {
     }
   }
 
-  TextBox->Render(Mode, HasName, width, opacityTint.a);
+  TextBox->Render(Mode, HasName, width, NameId, opacityTint.a);
 
   glm::vec4 col = ScrWorkGetColor(SW_MESWINDOW_COLOR);
   col.a = opacityTint.a;
@@ -632,8 +636,10 @@ void DialoguePage::Render() {
   Renderer2D::DrawProcessedText(Glyphs, Length, DialogueFont, opacityTint.a,
                                 true);
 
-  Renderer2D::DrawProcessedText(Name, NameLength, DialogueFont, opacityTint.a,
-                                true);
+  if (ADVBoxShowName) {
+    Renderer2D::DrawProcessedText(Name, NameLength, DialogueFont, opacityTint.a,
+                                  true);
+  }
 
   // Wait icon
   if (Typewriter.Progress == 1.0f && Length > 0) {
@@ -815,6 +821,30 @@ void TextGetSc3String(std::string str, uint16_t* out) {
   out[sc3Idx++] = 0xFF;
 
   assert(sc3Idx == sc3StrLength);
+}
+
+void InitNamePlateData(uint16_t* data) {
+  int idx = 0;
+  do {
+    uint16_t id = data[idx];
+    uint16_t stringId = data[idx + 1];
+    idx += 2;
+    uint8_t* name = Vm::ScriptGetStrAddress(
+        Vm::ScriptBuffers[Profile::Vm::SystemScriptBuffer], stringId);
+    Vm::Sc3VmThread dummy;
+    dummy.Ip = name;
+    int nameLength = (TextGetStringLength(&dummy) - 1) * 2;
+    uint32_t nameHash = GetHashCode(name, nameLength);
+    NamePlateData[nameHash] = id;
+  } while (data[idx] != 0xFFFF);
+}
+
+uint32_t GetNameId(uint8_t* name, int nameLength) {
+  uint32_t nameHash = GetHashCode(name, nameLength);
+  if (NamePlateData.find(nameHash) != NamePlateData.end())
+    return NamePlateData[nameHash];
+  else
+    return 0;
 }
 
 }  // namespace Impacto

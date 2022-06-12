@@ -25,12 +25,18 @@ void DialogueBox::Update(float dt) {
 }
 
 void DialogueBox::Render(DialoguePageMode mode, bool hasName, float nameWidth,
-                         float opacity) {
+                         uint32_t nameId, float opacity) {
   glm::vec4 col = ScrWorkGetColor(SW_MESWINDOW_COLOR);
   col.a = 1.0f;
   if (mode == DPM_ADV) {
     Renderer2D::DrawCCMessageBox(ADVBoxSprite, ADVBoxMask, ADVBoxPos, col,
                                  opacity * 272, 16, TextBoxEffect.Progress);
+    if (hasName) {
+      Renderer2D::DrawSprite(NamePlateMainSprites[nameId],
+                             ADVBoxNamePlateMainPos);
+      Renderer2D::DrawSprite(NamePlateLabelSprites[nameId],
+                             ADVBoxNamePlateLabelPos);
+    }
   } else {
     glm::vec4 nvlBoxTint(0.0f, 0.0f, 0.0f, opacity * NVLBoxMaxOpacity);
     Renderer2D::DrawRect(

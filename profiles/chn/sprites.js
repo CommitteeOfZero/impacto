@@ -30,9 +30,9 @@ root.SpriteSheets = {
         DesignHeight: 2048
     },
     "MenuChip": {
-        Path: { Mount: "system", Id: 19 },
+        Path: { Mount: "system", Id: 29 },
         DesignWidth: 4096,
-        DesignHeight: 3072
+        DesignHeight: 4096
     },
     "SysMesBox": {
         Path: { Mount: "system", Id: 61 },
