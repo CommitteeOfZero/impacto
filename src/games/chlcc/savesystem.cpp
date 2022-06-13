@@ -28,6 +28,12 @@ SaveError SaveSystem::MountSaveFile() {
 
   WorkingSaveEntry = new SaveFileEntry();
 
+  stream->Seek(0x14, SEEK_SET);
+
+  Io::ReadArrayLE<uint8_t>(&FlagWork[100], stream, 50);
+  Io::ReadArrayLE<uint8_t>(&FlagWork[460], stream, 40);
+  Io::ReadArrayBE<int>(&ScrWork[600], stream, 400);
+
   stream->Seek(0x3b06, SEEK_SET);  // TODO: Actually load system data
 
   for (int i = 0; i < MaxSaveEntries; i++) {

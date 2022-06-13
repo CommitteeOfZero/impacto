@@ -46,6 +46,10 @@ VmInstruction(InstUnk012D) {
   StartInstruction;
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk012D()\n");
 }
+VmInstruction(InstUnk1035CHLCC) {
+  StartInstruction;
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction InstUnk1035CHLCC()\n");
+}
 VmInstruction(InstUnk012FMO8) {
   StartInstruction;
   PopUint8(type);

@@ -586,7 +586,7 @@ InstructionProc static OpcodeTableUser1_CHLCC[256] = {
     InstNameID,            // 10 32
     InstTips,              // 10 33
     InstTitleMenuOld,      // 10 34
-    InstDummy,             // 10 35
+    InstUnk1035CHLCC,      // 10 35
     InstBGeffect,          // 10 36
     InstPhoneSG,           // 10 37
     InstUnk1038Darling,    // 10 38
