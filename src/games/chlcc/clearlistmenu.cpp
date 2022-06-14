@@ -74,7 +74,7 @@ void ClearListMenu::Update(float dt) {
 inline void ClearListMenu::DrawPlayTime(int totalSeconds) {
   int hours = totalSeconds / 3600;
   int minutes = (totalSeconds % 3600) / 60;
-  int seconds = (totalSeconds % 3600) % 3600;
+  int seconds = (totalSeconds % 3600) % 60;
   if (hours > 99) {
     hours = 99;
     minutes = 59;
