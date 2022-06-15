@@ -19,6 +19,7 @@ extern Sprite ClearListLabel;
 extern glm::vec2 TimePositions[6];
 extern glm::vec2 EndingCountPosition;
 extern glm::vec2 TIPSCountPositions[2];
+extern glm::vec2 AlbumPositions[3];
 extern Sprite Digits[10];
 extern glm::vec2 ListPosition;
 extern Sprite EndingList;

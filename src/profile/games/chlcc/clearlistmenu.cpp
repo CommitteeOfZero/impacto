@@ -21,6 +21,7 @@ Sprite ClearListLabel;
 glm::vec2 TimePositions[6];
 glm::vec2 EndingCountPosition;
 glm::vec2 TIPSCountPositions[2];
+glm::vec2 AlbumPositions[3];
 Sprite Digits[10];
 glm::vec2 ListPosition;
 Sprite EndingList;
@@ -76,6 +77,7 @@ void Configure() {
   EndingCountPosition = EnsureGetMemberVec2("EndingCountPosition");
   GetVec2SpriteArray(TIPSCountPositions, 2, "TIPSCountPositions");
   GetMemberSpriteArray(Digits, 10, "Digits");
+  GetVec2SpriteArray(AlbumPositions, 3, "AlbumPositions");
   ListPosition = EnsureGetMemberVec2("ListPosition");
   EndingList = EnsureGetMemberSprite("EndingList");
   GetVec2SpriteArray(BoxPositions, Endings, "BoxPositions");

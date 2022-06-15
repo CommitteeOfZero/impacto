@@ -4,7 +4,7 @@
 #include "../../profile/scriptvars.h"
 #include "../../renderer2d.h"
 #include "../../ui/ui.h"
-#include "../../util.h"
+#include "../../data/savesystem.h"
 
 namespace Impacto {
 namespace UI {
@@ -53,6 +53,7 @@ void ClearListMenu::Render() {
     Renderer2D::DrawSprite(ClearListLabel, LabelPosition, col);
     DrawPlayTime(ScrWork[SW_PLAYTIME]);
     DrawEndingCount();
+    DrawAlbumCompletion();
     DrawEndingTree();
   }
 }
@@ -75,6 +76,7 @@ inline void ClearListMenu::DrawPlayTime(int totalSeconds) {
   int hours = totalSeconds / 3600;
   int minutes = (totalSeconds % 3600) / 60;
   int seconds = (totalSeconds % 3600) % 60;
+
   if (hours > 99) {
     hours = 99;
     minutes = 59;
@@ -108,6 +110,21 @@ inline void ClearListMenu::DrawTIPSCount() {
   Renderer2D::DrawSprite(Digits[TIPSCount % 10], TIPSCountPositions[1]);
 }
 
+inline void ClearListMenu::DrawAlbumCompletion() {
+  int totalCount = 0, unlockedCount = 0;
+  SaveSystem::GetViewedEVsCount(&totalCount, &unlockedCount);
+  int percentage = unlockedCount * 100 / totalCount;
+  if (percentage == 0 && (unlockedCount) != 0) {
+    percentage = 1;
+  }
+  if (percentage / 100 != 0) {
+    Renderer2D::DrawSprite(Digits[percentage / 100], AlbumPositions[0]);
+    Renderer2D::DrawSprite(Digits[(percentage / 10) % 10], AlbumPositions[1]);
+  } else if (percentage / 10 != 0) {
+    Renderer2D::DrawSprite(Digits[(percentage / 10) % 10], AlbumPositions[1]);
+  }
+  Renderer2D::DrawSprite(Digits[percentage % 10], AlbumPositions[2]);
+}
 inline void ClearListMenu::DrawEndingTree() {
   for (int i = 0; i < 8; i++) {
     Renderer2D::DrawSprite(EndingBox, BoxPositions[i]);

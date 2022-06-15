@@ -22,6 +22,7 @@ class ClearListMenu : public Menu {
   inline void DrawPlayTime(int totalSeconds);
   inline void DrawEndingCount();
   inline void DrawTIPSCount();
+  inline void DrawAlbumCompletion();
   inline void DrawEndingTree();
 
 };

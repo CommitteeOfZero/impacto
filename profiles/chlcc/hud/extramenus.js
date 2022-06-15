@@ -13,6 +13,11 @@ root.ExtraMenus = {
             { X: 1079, Y: 69 }, { X: 1099, Y: 69 },
             { X: 1148, Y: 69 }, { X: 1168, Y: 69 },
         ],
+        AlbumPositions: [
+            { X: 1125, Y: 152 },
+            { X: 1145, Y: 152 },
+            { X: 1165, Y: 152 }
+        ],
         EndingCountPosition: { X: 1159, Y: 96 },
         TIPSCountPositions: [
             { X: 1125, Y: 124 }, { X: 1145, Y: 124 },
