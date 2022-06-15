@@ -113,6 +113,9 @@ inline void ClearListMenu::DrawTIPSCount() {
 inline void ClearListMenu::DrawAlbumCompletion() {
   int totalCount = 0, unlockedCount = 0;
   SaveSystem::GetViewedEVsCount(&totalCount, &unlockedCount);
+  //The 9 bonus CGs after 100% completion don't count
+  totalCount -= 9;
+  unlockedCount = unlockedCount <= totalCount ? unlockedCount : totalCount;
   int percentage = unlockedCount * 100 / totalCount;
   if (percentage == 0 && (unlockedCount) != 0) {
     percentage = 1;
