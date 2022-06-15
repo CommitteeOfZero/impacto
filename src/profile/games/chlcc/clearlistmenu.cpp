@@ -5,11 +5,10 @@
 #include "../../../games/chlcc/clearlistmenu.h"
 #include "../../../window.h"
 
-
 namespace Impacto {
 namespace Profile {
 namespace CHLCC {
-namespace ClearListMenu{
+namespace ClearListMenu {
 
 uint32_t BackgroundColor;
 Sprite BackgroundFilter;
@@ -32,7 +31,7 @@ Sprite EndingThumbnails[Endings];
 Sprite LockedThumbnail;
 
 static void GetVec2SpriteArray(glm::vec2* arr, uint32_t count,
-                                 char const* name) {
+                               char const* name) {
   EnsurePushMemberOfType(name, kArrayType);
 
   if (TopVal().Size() != count) {

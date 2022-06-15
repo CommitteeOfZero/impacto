@@ -5,9 +5,9 @@
 #include "../../ui/widgets/label.h"
 #include "../../profile/games/chlcc/clearlistmenu.h"
 
-namespace Impacto{
+namespace Impacto {
 namespace UI {
-namespace CHLCC{
+namespace CHLCC {
 
 class ClearListMenu : public Menu {
  public:
@@ -24,7 +24,6 @@ class ClearListMenu : public Menu {
   inline void DrawTIPSCount();
   inline void DrawAlbumCompletion();
   inline void DrawEndingTree();
-
 };
 
 }  // namespace CHLCC

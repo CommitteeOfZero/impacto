@@ -6,10 +6,10 @@ root.ExtraMenus = {
         ErinSprite: "Erin",
         ErinPosition: { X: 301, Y: 0 },
         ClearListLabel: "ClearListLabel",
-        LabelPosition: { X: 800 , Y: 44 },
+        LabelPosition: { X: 800, Y: 44 },
         Digits: [],
         TimePositions: [
-            { X:  988, Y: 69 }, { X: 1008, Y: 69 },
+            { X: 988, Y: 69 }, { X: 1008, Y: 69 },
             { X: 1079, Y: 69 }, { X: 1099, Y: 69 },
             { X: 1148, Y: 69 }, { X: 1168, Y: 69 },
         ],
@@ -54,7 +54,7 @@ for (var i = 0; i <= 9; i++) {
     root.Sprites["Digit" + i] = {
         Sheet: "ClearListLabels",
         Bounds: {
-            X: 211 + 22*i,
+            X: 211 + 22 * i,
             Y: 729,
             Width: 20,
             Height: 30
@@ -75,7 +75,7 @@ root.Sprites["EndingList"] = {
 
 root.Sprites["EndingBox"] = {
     Sheet: "ClearListLabels",
-    Bounds: { X: 1, Y: 761, Width: 198, Height: 96}
+    Bounds: { X: 1, Y: 761, Width: 198, Height: 96 }
 }
 
 var thumbnailXOffest = 30;
@@ -88,7 +88,7 @@ for (var i = 0; i < bp.length; i++) {
 
 root.Sprites["LockedThumbnail"] = {
     Sheet: "ClearListLabels",
-    Bounds: { X: 729, Y: 1, Width: 160, Height: 90}
+    Bounds: { X: 729, Y: 1, Width: 160, Height: 90 }
 }
 
 var firstX = 729;
@@ -111,7 +111,7 @@ for (var i = 1; i <= 8; i++) {
 
 //Reorganize to be in the flag order (801 -> 808)
 //Yes I know it's bad
-et =  root.ExtraMenus.ClearListMenu.EndingThumbnails;
+et = root.ExtraMenus.ClearListMenu.EndingThumbnails;
 temp = et[0];
 et[0] = et[1];
 et[1] = temp;

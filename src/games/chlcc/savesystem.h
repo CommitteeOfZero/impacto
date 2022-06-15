@@ -31,6 +31,7 @@ class SaveSystem : public SaveSystemBase {
   void GetEVStatus(int evId, int* totalVariations, int* viewedVariations);
   bool GetEVVariationIsUnlocked(int evId, int variationIdx);
   bool GetBgmFlag(int id);
+
  private:
   bool EVFlags[1200];
 };

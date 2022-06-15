@@ -5,7 +5,7 @@
 namespace Impacto {
 namespace Profile {
 namespace CHLCC {
-namespace ClearListMenu{
+namespace ClearListMenu {
 
 int const Endings = 8;
 

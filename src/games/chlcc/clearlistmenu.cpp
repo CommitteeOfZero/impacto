@@ -17,8 +17,7 @@ using namespace Impacto::UI::Widgets;
 ClearListMenu::ClearListMenu() {}
 
 void ClearListMenu::Show() {
-
-  //TODO: Fix not being able to return to the main menu
+  // TODO: Fix not being able to return to the main menu
 
   if (State != Shown) {
     State = Showing;
@@ -47,7 +46,8 @@ void ClearListMenu::Hide() {
 void ClearListMenu::Render() {
   if (State != Hidden) {
     glm::vec4 col(1.0f, 1.0f, 1.0f, 1.0f);
-    Renderer2D::DrawRect(RectF(0.0f, 0.0f, 1280, 720), RgbIntToFloat(BackgroundColor));
+    Renderer2D::DrawRect(RectF(0.0f, 0.0f, 1280, 720),
+                         RgbIntToFloat(BackgroundColor));
     Renderer2D::DrawSprite(ErinSprite, ErinPosition, col);
     Renderer2D::DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280, 720), col);
     Renderer2D::DrawSprite(ClearListLabel, LabelPosition, col);
@@ -82,11 +82,8 @@ inline void ClearListMenu::DrawPlayTime(int totalSeconds) {
     minutes = 59;
     seconds = 59;
   }
-  int time[6] = {
-      hours   / 10, hours   % 10,
-      minutes / 10, minutes % 10,
-      seconds / 10, seconds % 10
-  };
+  int time[6] = {hours / 10,   hours % 10,   minutes / 10,
+                 minutes % 10, seconds / 10, seconds % 10};
   for (int idx = 0; idx < 6; idx++) {
     if (!(idx % 2 == 0 && time[idx] == 0))
       Renderer2D::DrawSprite(Digits[time[idx]], TimePositions[idx]);
@@ -113,7 +110,7 @@ inline void ClearListMenu::DrawTIPSCount() {
 inline void ClearListMenu::DrawAlbumCompletion() {
   int totalCount = 0, unlockedCount = 0;
   SaveSystem::GetViewedEVsCount(&totalCount, &unlockedCount);
-  //The 9 bonus CGs after 100% completion don't count
+  // The 9 bonus CGs after 100% completion don't count
   totalCount -= 9;
   unlockedCount = unlockedCount <= totalCount ? unlockedCount : totalCount;
   int percentage = unlockedCount * 100 / totalCount;
@@ -131,7 +128,7 @@ inline void ClearListMenu::DrawAlbumCompletion() {
 inline void ClearListMenu::DrawEndingTree() {
   for (int i = 0; i < 8; i++) {
     Renderer2D::DrawSprite(EndingBox, BoxPositions[i]);
-    //Flag for the 1st ending, they are contiguous
+    // Flag for the 1st ending, they are contiguous
     if (GetFlag(SF_CLR_END1 + i)) {
       Renderer2D::DrawSprite(EndingThumbnails[i], ThumbnailPositions[i]);
     } else {
