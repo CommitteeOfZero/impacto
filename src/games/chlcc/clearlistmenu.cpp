@@ -5,6 +5,7 @@
 #include "../../renderer2d.h"
 #include "../../ui/ui.h"
 #include "../../data/savesystem.h"
+#include "../../data/tipssystem.h"
 
 namespace Impacto {
 namespace UI {
@@ -13,6 +14,7 @@ namespace CHLCC {
 using namespace Impacto::Profile::CHLCC::ClearListMenu;
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::UI::Widgets;
+using namespace Impacto::TipsSystem;
 
 ClearListMenu::ClearListMenu() {}
 
@@ -53,6 +55,7 @@ void ClearListMenu::Render() {
     Renderer2D::DrawSprite(ClearListLabel, LabelPosition, col);
     DrawPlayTime(ScrWork[SW_PLAYTIME]);
     DrawEndingCount();
+    DrawTIPSCount();
     DrawAlbumCompletion();
     DrawEndingTree();
   }
@@ -99,12 +102,15 @@ inline void ClearListMenu::DrawEndingCount() {
 }
 
 inline void ClearListMenu::DrawTIPSCount() {
-  // TODO: retrieve tip number
-  int TIPSCount = 0;
-  if (TIPSCount / 10 != 0) {
-    Renderer2D::DrawSprite(Digits[TIPSCount / 10], TIPSCountPositions[0]);
+  int unlockedTipsCount = 0;
+  int totalTips = GetTipCount();
+  for (int idx = 0; idx < totalTips ; idx++) {
+    unlockedTipsCount += GetTipLockedState(idx) ? 0 : 1;
   }
-  Renderer2D::DrawSprite(Digits[TIPSCount % 10], TIPSCountPositions[1]);
+  if (unlockedTipsCount / 10 != 0) {
+    Renderer2D::DrawSprite(Digits[unlockedTipsCount / 10], TIPSCountPositions[0]);
+  }
+  Renderer2D::DrawSprite(Digits[unlockedTipsCount % 10], TIPSCountPositions[1]);
 }
 
 inline void ClearListMenu::DrawAlbumCompletion() {

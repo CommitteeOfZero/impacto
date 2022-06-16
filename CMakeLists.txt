@@ -124,6 +124,7 @@ set(Impacto_Src
     src/games/cclcc/savemenu.cpp
     src/games/cclcc/optionsmenu.cpp
     src/games/cclcc/tipsmenu.cpp
+    src/games/chlcc/tipssystem.cpp
     src/games/cclcc/clearlistmenu.cpp
     src/games/cclcc/tipsnotification.cpp
 
@@ -376,6 +377,7 @@ set(Impacto_Header
     src/games/chlcc/savemenu.h
     src/games/chlcc/sysmesbox.h
     src/games/chlcc/savesystem.h
+    src/games/chlcc/tipssystem.h
     src/games/chlcc/clearlistmenu.h
 
     src/games/cc/dialoguebox.h

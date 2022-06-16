@@ -7,7 +7,7 @@
 namespace Impacto {
 namespace TipsSystem {
 
-BETTER_ENUM(TipsSystemType, int, None, MO6TW)
+BETTER_ENUM(TipsSystemType, int, None, MO6TW, CHLCC)
 
 int const MaxTipStrings = 10;
 

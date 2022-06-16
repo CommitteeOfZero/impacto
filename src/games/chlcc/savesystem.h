@@ -33,6 +33,7 @@ class SaveSystem : public SaveSystemBase {
   bool GetBgmFlag(int id);
 
  private:
+  uint8_t GameExtraData[1024];
   bool EVFlags[1200];
 };
 

@@ -47,6 +47,9 @@ SaveError SaveSystem::MountSaveFile() {
     EVFlags[8 * i + 7] = val >> 7;
   }
 
+  stream->Seek(0x358E, SEEK_SET);
+  Io::ReadArrayLE<uint8_t>(GameExtraData, stream, 1024);
+
   stream->Seek(0x3b06, SEEK_SET);  // TODO: Actually load system data
 
   for (int i = 0; i < MaxSaveEntries; i++) {
@@ -395,11 +398,21 @@ int SaveSystem::GetSaveTitle(SaveType type, int id) {
   }
 }
 
-uint32_t SaveSystem::GetTipStatus(int tipId) { return 0; }
+uint32_t SaveSystem::GetTipStatus(int tipId) {
+    tipId *= 3;
+    return (((GameExtraData[tipId >> 3] & Flbit[tipId & 7]) != 0) |
+            (2 *
+             ((Flbit[(tipId + 2) & 7] & GameExtraData[(tipId + 2) >> 3]) != 0))) &
+           0xFB |
+           (4 *
+            ((GameExtraData[(tipId + 1) >> 3] & Flbit[(tipId + 1) & 7]) != 0));
+}
+
 void SaveSystem::SetTipStatus(int tipId, bool isLocked, bool isUnread,
                               bool isNew) {}
 void SaveSystem::GetReadMessagesCount(int* totalMessageCount,
                                       int* readMessageCount) {}
+
 void SaveSystem::GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) {
   for (int i = 0; i < MaxAlbumEntries; i++) {
     if (AlbumEvData[i][0] == 0xFFFF) break;
