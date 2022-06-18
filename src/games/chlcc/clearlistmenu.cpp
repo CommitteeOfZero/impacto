@@ -20,6 +20,16 @@ using namespace Impacto::Profile;
 
 ClearListMenu::ClearListMenu() {
 
+  CircleScale.Direction = 1;
+  CircleScale.LoopMode = ALM_Stop;
+  CircleScale.DurationIn = CircleScaleDuration;
+  CircleScale.StartIn();
+
+  FilterAlpha.Direction = 1;
+  FilterAlpha.LoopMode = ALM_Stop;
+  FilterAlpha.DurationIn = FilterAlphaDuration;
+  FilterAlpha.StartIn();
+
   RedBarKickIn.Direction = 1;
   RedBarKickIn.LoopMode = ALM_Stop;
   RedBarKickIn.DurationIn = RedBarKickInTime;
@@ -63,20 +73,22 @@ void ClearListMenu::Hide() {
 
 void ClearListMenu::Render() {
   if (State != Hidden) {
-    //    Renderer2D::DrawRect(RectF(0.0f, 0.0f, 1280, 720),
-    //                         RgbIntToFloat(BackgroundColor));
-    //    Renderer2D::DrawSprite(ErinSprite, ErinPosition);
-    //    Renderer2D::DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280, 720)); Renderer2D::DrawSprite(ClearListLabel, LabelPosition);
-    //    DrawPlayTime(ScrWork[SW_PLAYTIME]);
-    //    DrawEndingCount();
-    //    DrawTIPSCount();
-    //    DrawAlbumCompletion();
-    //    DrawEndingTree();
-    //    DrawRedBar();
-    for (auto & CirclePosition : CirclePositions) {
-      Renderer2D::DrawSprite(CircleSprite, CirclePosition);
+    if (!CircleScale.IsIn() && CircleScale.State == AS_Playing) {
+      DrawCircles();
+    } else {
+      Renderer2D::DrawRect(RectF(0.0f, 0.0f, 1280, 720), RgbIntToFloat(BackgroundColor));
     }
-    Renderer2D::DrawThing(BackgroundFilter, RectF(0.0f, 0.0f, 1280, 720), 256, 1, RgbIntToFloat(BackgroundColor));
+    glm::vec3 tint = {1, 1, 1};
+    Renderer2D::DrawSprite(ErinSprite, ErinPosition);
+    Renderer2D::DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280, 720),
+                           glm::vec4(tint, FilterAlpha.Progress));
+    DrawRedBar();
+    Renderer2D::DrawSprite(ClearListLabel, LabelPosition);
+    DrawPlayTime(ScrWork[SW_PLAYTIME]);
+    DrawEndingCount();
+    DrawTIPSCount();
+    DrawAlbumCompletion();
+    DrawEndingTree();
   }
 }
 
@@ -95,9 +107,39 @@ void ClearListMenu::Update(float dt) {
   }
 
   if (State != Hidden) {
+    CircleScale.Update(dt);
+    FilterAlpha.Update(dt);
     RedBarKickIn.Update(dt);
     RedBarAnimation.Update(dt);
   }
+}
+
+inline void ClearListMenu::DrawCircles() {
+  int line = 0;
+  float y = CircleStartPosition.y;
+  int resetCounter = 0;
+  do {
+    int counter = resetCounter;
+    int col = 0;
+    float x = CircleStartPosition.x;
+    do {
+      if (counter + 1 <= (CircleScale.Progress * 64)) {
+        float scale = ((CircleScale.Progress * 64) - (counter + 1)) * 16;
+        scale = scale > 320 ? 320 : scale;
+        scale = (scale * 256) / 106;
+        Renderer2D::DrawSprite(
+            CircleSprite, RectF(x + (CircleSprite.Bounds.Width-scale)/2,
+                                y + (CircleSprite.Bounds.Height-scale)/2,
+                                scale, scale));
+        x += CircleOffset;
+      }
+      col += 1;
+      counter += 2;
+    } while (col < 7);
+    line += 1;
+    y += CircleOffset;
+    resetCounter += 2;
+  } while (line < 4);
 }
 
 inline void ClearListMenu::DrawPlayTime(int totalSeconds) {

@@ -12,10 +12,13 @@ namespace ClearListMenu {
 
 uint32_t BackgroundColor;
 Sprite CircleSprite;
-glm::vec2 CirclePositions[28];
-Sprite BackgroundFilter;
+glm::vec2 CircleStartPosition;
+float CircleOffset;
+float CircleScaleDuration;
 glm::vec2 ErinPosition;
 Sprite ErinSprite;
+Sprite BackgroundFilter;
+float FilterAlphaDuration;
 
 glm::vec2 LabelPosition;
 Sprite ClearListLabel;
@@ -76,10 +79,13 @@ static void GetMemberSpriteArray(Sprite* arr, uint32_t count,
 void Configure() {
   BackgroundColor = EnsureGetMemberUint("BackgroundColor");
   CircleSprite = EnsureGetMemberSprite("CircleSprite");
-  GetMemberVec2Array(CirclePositions, 28, "CirclePositions");
+  CircleStartPosition = EnsureGetMemberVec2("CircleStartPosition");
+  CircleOffset = EnsureGetMemberFloat("CircleOffset");
+  CircleScaleDuration = EnsureGetMemberFloat("CircleScaleDuration");
   ErinPosition = EnsureGetMemberVec2("ErinPosition");
   ErinSprite = EnsureGetMemberSprite("ErinSprite");
   BackgroundFilter = EnsureGetMemberSprite("BackgroundFilter");
+  FilterAlphaDuration = EnsureGetMemberFloat("FilterAlphaDuration");
 
   LabelPosition = EnsureGetMemberVec2("LabelPosition");
   ClearListLabel = EnsureGetMemberSprite("ClearListLabel");

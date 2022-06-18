@@ -4,10 +4,14 @@ root.ExtraMenus = {
         Type: ClearListMenuType.CHLCC,
         BackgroundColor: 0x405f80,
         CircleSprite: "Circle",
-        CirclePositions: [],
+        CircleStartPosition: { X: 20, Y: 20 },
+        CircleOffset: 200,
+        CircleScaleDuration: 96/60,
         ErinSprite: "Erin",
         ErinPosition: { X: 301, Y: 0 },
         ErinAnimationDuration: 52/60,
+        BackgroundFilter: "ClearListFilter",
+        FilterAlphaDuration: 32/60,
         ClearListLabel: "ClearListLabel",
         LabelPosition: { X: 800, Y: 44 },
         Digits: [],
@@ -25,7 +29,6 @@ root.ExtraMenus = {
         TIPSCountPositions: [
             { X: 1125, Y: 124 }, { X: 1145, Y: 124 },
         ],
-        BackgroundFilter: "ClearListFilter",
         EndingList: "EndingList",
         ListPosition: { X: 0, Y: 0 },
         EndingBox: "EndingBox",
@@ -51,12 +54,6 @@ root.ExtraMenus = {
 root.Sprites["Circle"] = {
     Sheet: "ClearListLabels",
     Bounds: { X: 1, Y: 917, Width: 106, Height: 106 }
-}
-
-for (var i = 0; i < 4; i++) {
-    for (var j = 0; j < 7; j++) {
-        root.ExtraMenus.ClearListMenu.CirclePositions.push({ X: 20+200*j, Y: 20+200*i });
-    }
 }
 
 root.Sprites["Erin"] = {

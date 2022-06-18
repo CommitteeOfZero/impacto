@@ -28,9 +28,6 @@ void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
                       int fadeRange, bool isScreencap = false,
                       bool isInverted = false, bool isSameTexture = false);
 
-void DrawThing(Sprite const& sprite, RectF const& dest, int alpha,
-               int fadeRange, glm::vec4 color);
-
 void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                       glm::vec2 topLeft, glm::vec4 tint, int alpha,
                       int fadeRange, float effectCt, bool isScreencap = false,
