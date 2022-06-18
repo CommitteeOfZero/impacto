@@ -2,6 +2,7 @@
 
 #include "../../profile/games/chlcc/clearlistmenu.h"
 #include "../../profile/scriptvars.h"
+#include "../../profile/profile_internal.h"
 #include "../../renderer2d.h"
 #include "../../ui/ui.h"
 #include "../../data/savesystem.h"
@@ -15,8 +16,23 @@ using namespace Impacto::Profile::CHLCC::ClearListMenu;
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::UI::Widgets;
 using namespace Impacto::TipsSystem;
+using namespace Impacto::Profile;
 
-ClearListMenu::ClearListMenu() {}
+ClearListMenu::ClearListMenu() {
+
+  RedBarKickIn.Direction = 1;
+  RedBarKickIn.LoopMode = ALM_Stop;
+  RedBarKickIn.DurationIn = RedBarKickInTime;
+  RedBarKickIn.StartIn();
+
+  RedBarAnimation.Direction = 1;
+  RedBarAnimation.LoopMode = ALM_Stop;
+  RedBarAnimation.DurationIn = RedBarAnimationDuration;
+
+  RedBarSprite = InitialRedBarSprite;
+  RedBarPosition = InitialRedBarPosition;
+
+}
 
 void ClearListMenu::Show() {
   // TODO: Fix not being able to return to the main menu
@@ -47,21 +63,25 @@ void ClearListMenu::Hide() {
 
 void ClearListMenu::Render() {
   if (State != Hidden) {
-    glm::vec4 col(1.0f, 1.0f, 1.0f, 1.0f);
-    Renderer2D::DrawRect(RectF(0.0f, 0.0f, 1280, 720),
-                         RgbIntToFloat(BackgroundColor));
-    Renderer2D::DrawSprite(ErinSprite, ErinPosition, col);
-    Renderer2D::DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280, 720), col);
-    Renderer2D::DrawSprite(ClearListLabel, LabelPosition, col);
-    DrawPlayTime(ScrWork[SW_PLAYTIME]);
-    DrawEndingCount();
-    DrawTIPSCount();
-    DrawAlbumCompletion();
-    DrawEndingTree();
+    //    Renderer2D::DrawRect(RectF(0.0f, 0.0f, 1280, 720),
+    //                         RgbIntToFloat(BackgroundColor));
+    //    Renderer2D::DrawSprite(ErinSprite, ErinPosition);
+    //    Renderer2D::DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280, 720)); Renderer2D::DrawSprite(ClearListLabel, LabelPosition);
+    //    DrawPlayTime(ScrWork[SW_PLAYTIME]);
+    //    DrawEndingCount();
+    //    DrawTIPSCount();
+    //    DrawAlbumCompletion();
+    //    DrawEndingTree();
+    //    DrawRedBar();
+    for (auto & CirclePosition : CirclePositions) {
+      Renderer2D::DrawSprite(CircleSprite, CirclePosition);
+    }
+    Renderer2D::DrawThing(BackgroundFilter, RectF(0.0f, 0.0f, 1280, 720), 256, 1, RgbIntToFloat(BackgroundColor));
   }
 }
 
 void ClearListMenu::Update(float dt) {
+
   if (ScrWork[SW_PLAYDATA_ALPHA] < 256 && State == Shown) {
     Hide();
   } else if (ScrWork[SW_PLAYDATA_ALPHA] == 256 && State == Hidden) {
@@ -72,6 +92,11 @@ void ClearListMenu::Update(float dt) {
     State = Shown;
   else {
     State = Hidden;
+  }
+
+  if (State != Hidden) {
+    RedBarKickIn.Update(dt);
+    RedBarAnimation.Update(dt);
   }
 }
 
@@ -131,6 +156,7 @@ inline void ClearListMenu::DrawAlbumCompletion() {
   }
   Renderer2D::DrawSprite(Digits[percentage % 10], AlbumPositions[2]);
 }
+
 inline void ClearListMenu::DrawEndingTree() {
   for (int i = 0; i < 8; i++) {
     Renderer2D::DrawSprite(EndingBox, BoxPositions[i]);
@@ -143,6 +169,27 @@ inline void ClearListMenu::DrawEndingTree() {
   }
   Renderer2D::DrawSprite(EndingList, ListPosition);
 }
+
+inline void ClearListMenu::DrawRedBar() {
+  if (RedBarKickIn.IsIn() && !RedBarAnimation.IsIn()) {
+    RedBarAnimation.StartIn();
+  }
+  if (RedBarAnimation.IsIn()) {
+    Renderer2D::DrawSprite(InitialRedBarSprite, InitialRedBarPosition);
+  } else if (RedBarAnimation.State == AS_Playing) {
+    float pixelPerAdvanceLeft = 935 * RedBarAnimation.Progress + 62;
+    RedBarSprite.Bounds.X = 1825 - pixelPerAdvanceLeft;
+    RedBarSprite.Bounds.Width = pixelPerAdvanceLeft;
+    RedBarPosition.x = 1059 - pixelPerAdvanceLeft;
+    Renderer2D::DrawSprite(RedBarSprite, RedBarPosition);
+    float pixelPerAdvanceRight = 195 * RedBarAnimation.Progress + 13;
+    RedBarSprite.Bounds.X = 1826;
+    RedBarSprite.Bounds.Width = pixelPerAdvanceRight;
+    RedBarPosition = RightRedBarPosition;
+    Renderer2D::DrawSprite(RedBarSprite, RedBarPosition);
+  }
+}
+
 
 }  // namespace CHLCC
 }  // namespace UI

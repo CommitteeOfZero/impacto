@@ -11,6 +11,8 @@ namespace CHLCC {
 namespace ClearListMenu {
 
 uint32_t BackgroundColor;
+Sprite CircleSprite;
+glm::vec2 CirclePositions[28];
 Sprite BackgroundFilter;
 glm::vec2 ErinPosition;
 Sprite ErinSprite;
@@ -29,8 +31,15 @@ Sprite EndingBox;
 glm::vec2 ThumbnailPositions[Endings];
 Sprite EndingThumbnails[Endings];
 Sprite LockedThumbnail;
+glm::vec2 InitialRedBarPosition;
+glm::vec2 RightRedBarPosition;
+Sprite InitialRedBarSprite;
+glm::vec2 RedBarPosition;
+Sprite RedBarSprite;
+float RedBarKickInTime;
+float RedBarAnimationDuration;
 
-static void GetVec2SpriteArray(glm::vec2* arr, uint32_t count,
+static void GetMemberVec2Array(glm::vec2* arr, uint32_t count,
                                char const* name) {
   EnsurePushMemberOfType(name, kArrayType);
 
@@ -66,24 +75,31 @@ static void GetMemberSpriteArray(Sprite* arr, uint32_t count,
 
 void Configure() {
   BackgroundColor = EnsureGetMemberUint("BackgroundColor");
+  CircleSprite = EnsureGetMemberSprite("CircleSprite");
+  GetMemberVec2Array(CirclePositions, 28, "CirclePositions");
   ErinPosition = EnsureGetMemberVec2("ErinPosition");
   ErinSprite = EnsureGetMemberSprite("ErinSprite");
   BackgroundFilter = EnsureGetMemberSprite("BackgroundFilter");
 
   LabelPosition = EnsureGetMemberVec2("LabelPosition");
   ClearListLabel = EnsureGetMemberSprite("ClearListLabel");
-  GetVec2SpriteArray(TimePositions, 6, "TimePositions");
+  GetMemberVec2Array(TimePositions, 6, "TimePositions");
   EndingCountPosition = EnsureGetMemberVec2("EndingCountPosition");
-  GetVec2SpriteArray(TIPSCountPositions, 2, "TIPSCountPositions");
+  GetMemberVec2Array(TIPSCountPositions, 2, "TIPSCountPositions");
   GetMemberSpriteArray(Digits, 10, "Digits");
-  GetVec2SpriteArray(AlbumPositions, 3, "AlbumPositions");
+  GetMemberVec2Array(AlbumPositions, 3, "AlbumPositions");
   ListPosition = EnsureGetMemberVec2("ListPosition");
   EndingList = EnsureGetMemberSprite("EndingList");
-  GetVec2SpriteArray(BoxPositions, Endings, "BoxPositions");
+  GetMemberVec2Array(BoxPositions, Endings, "BoxPositions");
   EndingBox = EnsureGetMemberSprite("EndingBox");
-  GetVec2SpriteArray(ThumbnailPositions, Endings, "ThumbnailPositions");
+  GetMemberVec2Array(ThumbnailPositions, Endings, "ThumbnailPositions");
   GetMemberSpriteArray(EndingThumbnails, Endings, "EndingThumbnails");
   LockedThumbnail = EnsureGetMemberSprite("LockedThumbnail");
+  InitialRedBarPosition = EnsureGetMemberVec2("InitialRedBarPosition");
+  RightRedBarPosition = EnsureGetMemberVec2("RightRedBarPosition");
+  InitialRedBarSprite = EnsureGetMemberSprite("RedBarSprite");
+  RedBarKickInTime = EnsureGetMemberFloat("RedBarKickInTime");
+  RedBarAnimationDuration = EnsureGetMemberFloat("RedBarAnimationDuration");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMemberInt("DrawType"));

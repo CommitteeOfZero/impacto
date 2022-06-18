@@ -13,6 +13,7 @@ static bool IsInit = false;
 static GLuint ShaderProgramSprite;
 static GLuint ShaderProgramSpriteInverted;
 static GLuint ShaderProgramMaskedSprite;
+static GLuint ShaderProgramTest;
 static GLuint ShaderProgramYUVFrame;
 static GLuint ShaderProgramCCMessageBox;
 
@@ -154,6 +155,7 @@ void Init() {
       glGetUniformLocation(ShaderProgramMaskedSprite, "IsInverted");
   MaskedIsSameTextureLocation =
       glGetUniformLocation(ShaderProgramMaskedSprite, "IsSameTexture");
+  ShaderProgramTest = ShaderCompile("Test");
   ShaderProgramYUVFrame = ShaderCompile("YUVFrame");
   glUniform1i(glGetUniformLocation(ShaderProgramYUVFrame, "Luma"), 0);
   YUVFrameCbLocation = glGetUniformLocation(ShaderProgramYUVFrame, "Cb");
@@ -446,6 +448,65 @@ void DrawSprite(Sprite const& sprite, RectF const& dest, glm::vec4 tint,
                   sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
+}
+
+
+void DrawThing(Sprite const& sprite, RectF const& dest, int alpha,
+               int fadeRange, glm::vec4 color) {
+
+  if (!Drawing) {
+    ImpLog(LL_Error, LC_Render,
+           "Renderer2D::DrawThing() called before BeginFrame()\n");
+    return;
+  }
+
+  if (alpha < 0) alpha = 0;
+  if (alpha > fadeRange + 256) alpha = fadeRange + 256;
+
+  float alphaRange = 256.0f / fadeRange;
+  float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
+
+  // Do we have space for one more sprite quad?
+  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
+
+  Sprite screencap;
+  CaptureScreencap(screencap);
+
+  Flush();
+
+
+  glBindVertexArray(VAOSprites);
+  glUseProgram(ShaderProgramTest);
+  glUniform1i(glGetUniformLocation(ShaderProgramTest, "ColorMap"), 0);
+  glUniform1i(glGetUniformLocation(ShaderProgramTest, "Mask"), 2);
+  glUniform4f(glGetUniformLocation(ShaderProgramTest, "Color"), color.r,
+              color.g, color.b, 1.0f);
+  glUniform1f(glGetUniformLocation(ShaderProgramTest, "AlphaRange"), alphaRange);
+  glUniform1f(glGetUniformLocation(ShaderProgramTest, "ConstAlpha"), constAlpha);
+  glUniform1f(glGetUniformLocation(ShaderProgramTest, "AlphaChk"), 100);
+
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
+
+  glActiveTexture(GL_TEXTURE2);
+  glBindTexture(GL_TEXTURE_2D, screencap.Sheet.Texture);
+  glBindSampler(2, Sampler);
+
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
+  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
+
+  IndexBufferFill += 6;
+
+  QuadSetUVFlipped(screencap.Bounds, screencap.Sheet.DesignWidth,
+                   screencap.Sheet.DesignHeight, (uintptr_t)&vertices[0].UV,
+                   sizeof(VertexBufferSprites));
+
+  QuadSetUV(screencap.Bounds, screencap.Bounds.Width, screencap.Bounds.Height,
+            (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites));
+
+  QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
+                  sizeof(VertexBufferSprites));
 }
 
 void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,

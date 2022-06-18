@@ -10,6 +10,8 @@ namespace ClearListMenu {
 int const Endings = 8;
 
 extern uint32_t BackgroundColor;
+extern Sprite CircleSprite;
+extern glm::vec2 CirclePositions[28];
 extern glm::vec2 ErinPosition;
 extern Sprite ErinSprite;
 extern Sprite BackgroundFilter;
@@ -28,6 +30,13 @@ extern Sprite EndingBox;
 extern glm::vec2 ThumbnailPositions[Endings];
 extern Sprite EndingThumbnails[Endings];
 extern Sprite LockedThumbnail;
+extern glm::vec2 InitialRedBarPosition;
+extern glm::vec2 RightRedBarPosition;
+extern Sprite InitialRedBarSprite;
+extern glm::vec2 RedBarPosition;
+extern Sprite RedBarSprite;
+extern float RedBarKickInTime;
+extern float RedBarAnimationDuration;
 
 void Configure();
 

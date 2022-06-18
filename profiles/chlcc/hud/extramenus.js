@@ -3,8 +3,11 @@ root.ExtraMenus = {
         DrawType: DrawComponentType.SystemMenu,
         Type: ClearListMenuType.CHLCC,
         BackgroundColor: 0x405f80,
+        CircleSprite: "Circle",
+        CirclePositions: [],
         ErinSprite: "Erin",
         ErinPosition: { X: 301, Y: 0 },
+        ErinAnimationDuration: 52/60,
         ClearListLabel: "ClearListLabel",
         LabelPosition: { X: 800, Y: 44 },
         Digits: [],
@@ -34,15 +37,31 @@ root.ExtraMenus = {
         ],
         EndingThumbnails: [],
         ThumbnailPositions: [],
-        LockedThumbnail: "LockedThumbnail"
+        LockedThumbnail: "LockedThumbnail",
+        InitialRedBarPosition: { X: 0, Y: 538 },
+        RightRedBarPosition: { X: 1059, Y: 538 },
+        RedBarSprite: "RedBar",
+        RedBarKickInTime: 47/60,
+        RedBarAnimationDuration: 16/60
     }
 }
 
 //Clear list
 
+root.Sprites["Circle"] = {
+    Sheet: "ClearListLabels",
+    Bounds: { X: 1, Y: 917, Width: 106, Height: 106 }
+}
+
+for (var i = 0; i < 4; i++) {
+    for (var j = 0; j < 7; j++) {
+        root.ExtraMenus.ClearListMenu.CirclePositions.push({ X: 20+200*j, Y: 20+200*i });
+    }
+}
+
 root.Sprites["Erin"] = {
     Sheet: "ClearList",
-    Bounds: { X: 641, Y: 1, Width: 978, Height: 792 }
+    Bounds: { X: 641, Y: 1, Width: 978, Height: 798 }
 }
 
 root.Sprites["ClearListLabel"] = {
@@ -121,3 +140,8 @@ et[4] = et[6];
 et[6] = temp;
 et[6] = et[7];
 et[7] = temp;
+
+root.Sprites["RedBar"] = {
+    Sheet: "ClearList",
+    Bounds: { X: 767, Y: 913, Width: 1280, Height: 110 },
+}

@@ -24,6 +24,11 @@ class ClearListMenu : public Menu {
   inline void DrawTIPSCount();
   inline void DrawAlbumCompletion();
   inline void DrawEndingTree();
+
+  inline void DrawRedBar();
+
+  Animation RedBarKickIn;
+  Animation RedBarAnimation;
 };
 
 }  // namespace CHLCC
