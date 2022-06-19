@@ -100,16 +100,14 @@ void ClearListMenu::Update(float dt) {
 }
 
 inline void ClearListMenu::DrawCircles() {
-  int line = 0;
   float y = CircleStartPosition.y;
   int resetCounter = 0;
-  do {
+  for (int line = 0; line < 4; line++) {
     int counter = resetCounter;
-    int col = 0;
     float x = CircleStartPosition.x;
-    do {
-      if (counter + 1 <= (MenuTransition.Progress * 48)) {
-        float scale = ((MenuTransition.Progress * 48) - (counter + 1)) * 16;
+    for (int col = 0; col < 7; col++) {
+      if (counter + 1 <= (MenuTransition.Progress * 32)) {
+        float scale = ((MenuTransition.Progress * 32) - (counter + 1)) * 16;
         scale = scale > 320 ? 320 : scale;
         scale = (scale * 256) / 106;
         Renderer2D::DrawSprite(
@@ -118,13 +116,11 @@ inline void ClearListMenu::DrawCircles() {
                                 scale, scale));
         x += CircleOffset;
       }
-      col += 1;
       counter += 2;
-    } while (col < 7);
-    line += 1;
+    }
     y += CircleOffset;
     resetCounter += 2;
-  } while (line < 4);
+  }
 }
 
 inline void ClearListMenu::DrawRedBar() {
