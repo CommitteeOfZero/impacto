@@ -20,24 +20,10 @@ using namespace Impacto::Profile;
 
 ClearListMenu::ClearListMenu() {
 
-  CircleScale.Direction = 1;
-  CircleScale.LoopMode = ALM_Stop;
-  CircleScale.DurationIn = CircleScaleDuration;
-  CircleScale.StartIn();
-
-  FilterAlpha.Direction = 1;
-  FilterAlpha.LoopMode = ALM_Stop;
-  FilterAlpha.DurationIn = FilterAlphaDuration;
-  FilterAlpha.StartIn();
-
-  RedBarKickIn.Direction = 1;
-  RedBarKickIn.LoopMode = ALM_Stop;
-  RedBarKickIn.DurationIn = RedBarKickInTime;
-  RedBarKickIn.StartIn();
-
-  RedBarAnimation.Direction = 1;
-  RedBarAnimation.LoopMode = ALM_Stop;
-  RedBarAnimation.DurationIn = RedBarAnimationDuration;
+  MenuTransition.Direction =1;
+  MenuTransition.LoopMode = ALM_Stop;
+  MenuTransition.DurationIn = MenuTransitionDuration;
+  MenuTransition.StartIn();
 
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;
@@ -73,15 +59,17 @@ void ClearListMenu::Hide() {
 
 void ClearListMenu::Render() {
   if (State != Hidden) {
-    if (!CircleScale.IsIn() && CircleScale.State == AS_Playing) {
-      DrawCircles();
-    } else {
+    if (MenuTransition.IsIn()) {
       Renderer2D::DrawRect(RectF(0.0f, 0.0f, 1280, 720), RgbIntToFloat(BackgroundColor));
+    } else {
+      DrawCircles();
     }
     glm::vec3 tint = {1, 1, 1};
-    Renderer2D::DrawSprite(ErinSprite, ErinPosition);
+    DrawErin();
+    //Alpha goes from 0 to 1 in half the time
+    float alpha = MenuTransition.Progress < 0.5 ? MenuTransition.Progress * 2 : 1;
     Renderer2D::DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280, 720),
-                           glm::vec4(tint, FilterAlpha.Progress));
+                           glm::vec4(tint, alpha));
     DrawRedBar();
     Renderer2D::DrawSprite(ClearListLabel, LabelPosition);
     DrawPlayTime(ScrWork[SW_PLAYTIME]);
@@ -107,10 +95,7 @@ void ClearListMenu::Update(float dt) {
   }
 
   if (State != Hidden) {
-    CircleScale.Update(dt);
-    FilterAlpha.Update(dt);
-    RedBarKickIn.Update(dt);
-    RedBarAnimation.Update(dt);
+    MenuTransition.Update(dt);
   }
 }
 
@@ -123,8 +108,8 @@ inline void ClearListMenu::DrawCircles() {
     int col = 0;
     float x = CircleStartPosition.x;
     do {
-      if (counter + 1 <= (CircleScale.Progress * 64)) {
-        float scale = ((CircleScale.Progress * 64) - (counter + 1)) * 16;
+      if (counter + 1 <= (MenuTransition.Progress * 48)) {
+        float scale = ((MenuTransition.Progress * 48) - (counter + 1)) * 16;
         scale = scale > 320 ? 320 : scale;
         scale = (scale * 256) / 106;
         Renderer2D::DrawSprite(
@@ -140,6 +125,35 @@ inline void ClearListMenu::DrawCircles() {
     y += CircleOffset;
     resetCounter += 2;
   } while (line < 4);
+}
+
+inline void ClearListMenu::DrawRedBar() {
+  if (MenuTransition.IsIn()) {
+    Renderer2D::DrawSprite(InitialRedBarSprite, InitialRedBarPosition);
+  } else if (MenuTransition.Progress > 0.734){
+    float pixelPerAdvanceLeft = (MenuTransition.Progress * 64 * 1059 - 0xc26d) / 17.0;
+    RedBarSprite.Bounds.X = 1826 - pixelPerAdvanceLeft;
+    RedBarSprite.Bounds.Width = pixelPerAdvanceLeft;
+    RedBarPosition.x = 1059 - pixelPerAdvanceLeft;
+    Renderer2D::DrawSprite(RedBarSprite, RedBarPosition);
+    float pixelPerAdvanceRight = (MenuTransition.Progress * 64 * 221 - 0x2893) / 17.0;
+    RedBarSprite.Bounds.X = 1826;
+    RedBarSprite.Bounds.Width = pixelPerAdvanceRight;
+    RedBarPosition = RightRedBarPosition;
+    Renderer2D::DrawSprite(RedBarSprite, RedBarPosition);
+  }
+}
+
+inline void ClearListMenu::DrawErin() {
+  float y = 0;
+  if (MenuTransition.Progress < 0.781f ) {
+    y = 800;
+    if (MenuTransition.Progress > 0.25f) {
+      //Approximation from the original function, which was a bigger mess
+      y = glm::mix(-20, 720, 0.998938f - 0.998267 * sin(3.97835f - 3.27549 * MenuTransition.Progress));
+    }
+  }
+  Renderer2D::DrawSprite(ErinSprite, glm::vec2(ErinPosition.x, y + 1));
 }
 
 inline void ClearListMenu::DrawPlayTime(int totalSeconds) {
@@ -210,26 +224,6 @@ inline void ClearListMenu::DrawEndingTree() {
     }
   }
   Renderer2D::DrawSprite(EndingList, ListPosition);
-}
-
-inline void ClearListMenu::DrawRedBar() {
-  if (RedBarKickIn.IsIn() && !RedBarAnimation.IsIn()) {
-    RedBarAnimation.StartIn();
-  }
-  if (RedBarAnimation.IsIn()) {
-    Renderer2D::DrawSprite(InitialRedBarSprite, InitialRedBarPosition);
-  } else if (RedBarAnimation.State == AS_Playing) {
-    float pixelPerAdvanceLeft = 935 * RedBarAnimation.Progress + 62;
-    RedBarSprite.Bounds.X = 1825 - pixelPerAdvanceLeft;
-    RedBarSprite.Bounds.Width = pixelPerAdvanceLeft;
-    RedBarPosition.x = 1059 - pixelPerAdvanceLeft;
-    Renderer2D::DrawSprite(RedBarSprite, RedBarPosition);
-    float pixelPerAdvanceRight = 195 * RedBarAnimation.Progress + 13;
-    RedBarSprite.Bounds.X = 1826;
-    RedBarSprite.Bounds.Width = pixelPerAdvanceRight;
-    RedBarPosition = RightRedBarPosition;
-    Renderer2D::DrawSprite(RedBarSprite, RedBarPosition);
-  }
 }
 
 

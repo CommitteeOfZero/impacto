@@ -10,15 +10,19 @@ namespace Profile {
 namespace CHLCC {
 namespace ClearListMenu {
 
+float MenuTransitionDuration;
 uint32_t BackgroundColor;
 Sprite CircleSprite;
 glm::vec2 CircleStartPosition;
 float CircleOffset;
-float CircleScaleDuration;
 glm::vec2 ErinPosition;
 Sprite ErinSprite;
 Sprite BackgroundFilter;
-float FilterAlphaDuration;
+glm::vec2 InitialRedBarPosition;
+glm::vec2 RightRedBarPosition;
+Sprite InitialRedBarSprite;
+glm::vec2 RedBarPosition;
+Sprite RedBarSprite;
 
 glm::vec2 LabelPosition;
 Sprite ClearListLabel;
@@ -34,13 +38,6 @@ Sprite EndingBox;
 glm::vec2 ThumbnailPositions[Endings];
 Sprite EndingThumbnails[Endings];
 Sprite LockedThumbnail;
-glm::vec2 InitialRedBarPosition;
-glm::vec2 RightRedBarPosition;
-Sprite InitialRedBarSprite;
-glm::vec2 RedBarPosition;
-Sprite RedBarSprite;
-float RedBarKickInTime;
-float RedBarAnimationDuration;
 
 static void GetMemberVec2Array(glm::vec2* arr, uint32_t count,
                                char const* name) {
@@ -77,15 +74,14 @@ static void GetMemberSpriteArray(Sprite* arr, uint32_t count,
 }
 
 void Configure() {
+  MenuTransitionDuration = EnsureGetMemberFloat("TransitionDuration");
   BackgroundColor = EnsureGetMemberUint("BackgroundColor");
   CircleSprite = EnsureGetMemberSprite("CircleSprite");
   CircleStartPosition = EnsureGetMemberVec2("CircleStartPosition");
   CircleOffset = EnsureGetMemberFloat("CircleOffset");
-  CircleScaleDuration = EnsureGetMemberFloat("CircleScaleDuration");
   ErinPosition = EnsureGetMemberVec2("ErinPosition");
   ErinSprite = EnsureGetMemberSprite("ErinSprite");
   BackgroundFilter = EnsureGetMemberSprite("BackgroundFilter");
-  FilterAlphaDuration = EnsureGetMemberFloat("FilterAlphaDuration");
 
   LabelPosition = EnsureGetMemberVec2("LabelPosition");
   ClearListLabel = EnsureGetMemberSprite("ClearListLabel");
@@ -104,8 +100,6 @@ void Configure() {
   InitialRedBarPosition = EnsureGetMemberVec2("InitialRedBarPosition");
   RightRedBarPosition = EnsureGetMemberVec2("RightRedBarPosition");
   InitialRedBarSprite = EnsureGetMemberSprite("RedBarSprite");
-  RedBarKickInTime = EnsureGetMemberFloat("RedBarKickInTime");
-  RedBarAnimationDuration = EnsureGetMemberFloat("RedBarAnimationDuration");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMemberInt("DrawType"));

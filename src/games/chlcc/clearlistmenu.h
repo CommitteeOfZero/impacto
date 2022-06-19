@@ -21,6 +21,7 @@ class ClearListMenu : public Menu {
  private:
 
   inline void DrawCircles();
+  inline void DrawErin();
   inline void DrawRedBar();
 
   inline void DrawPlayTime(int totalSeconds);
@@ -29,10 +30,7 @@ class ClearListMenu : public Menu {
   inline void DrawAlbumCompletion();
   inline void DrawEndingTree();
 
-  Animation CircleScale;
-  Animation FilterAlpha;
-  Animation RedBarKickIn;
-  Animation RedBarAnimation;
+  Animation MenuTransition;
 };
 
 }  // namespace CHLCC

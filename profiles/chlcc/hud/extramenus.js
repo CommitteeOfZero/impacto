@@ -2,16 +2,17 @@ root.ExtraMenus = {
     ClearListMenu: {
         DrawType: DrawComponentType.SystemMenu,
         Type: ClearListMenuType.CHLCC,
+        TransitionDuration: 64/40,
         BackgroundColor: 0x405f80,
         CircleSprite: "Circle",
         CircleStartPosition: { X: 20, Y: 20 },
         CircleOffset: 200,
-        CircleScaleDuration: 96/60,
         ErinSprite: "Erin",
         ErinPosition: { X: 301, Y: 0 },
-        ErinAnimationDuration: 52/60,
         BackgroundFilter: "ClearListFilter",
-        FilterAlphaDuration: 32/60,
+        InitialRedBarPosition: { X: 0, Y: 538 },
+        RightRedBarPosition: { X: 1059, Y: 538 },
+        RedBarSprite: "RedBar",
         ClearListLabel: "ClearListLabel",
         LabelPosition: { X: 800, Y: 44 },
         Digits: [],
@@ -41,11 +42,6 @@ root.ExtraMenus = {
         EndingThumbnails: [],
         ThumbnailPositions: [],
         LockedThumbnail: "LockedThumbnail",
-        InitialRedBarPosition: { X: 0, Y: 538 },
-        RightRedBarPosition: { X: 1059, Y: 538 },
-        RedBarSprite: "RedBar",
-        RedBarKickInTime: 47/60,
-        RedBarAnimationDuration: 16/60
     }
 }
 

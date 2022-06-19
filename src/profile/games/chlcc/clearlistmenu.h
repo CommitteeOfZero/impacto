@@ -9,15 +9,17 @@ namespace ClearListMenu {
 
 int const Endings = 8;
 
+extern float MenuTransitionDuration;
 extern uint32_t BackgroundColor;
 extern Sprite CircleSprite;
 extern glm::vec2 CircleStartPosition;
 extern float CircleOffset;
-extern float CircleScaleDuration;
 extern glm::vec2 ErinPosition;
 extern Sprite ErinSprite;
 extern Sprite BackgroundFilter;
-extern float FilterAlphaDuration;
+extern Sprite InitialRedBarSprite;
+extern glm::vec2 RedBarPosition;
+extern Sprite RedBarSprite;
 
 extern glm::vec2 LabelPosition;
 extern Sprite ClearListLabel;
@@ -35,11 +37,6 @@ extern Sprite EndingThumbnails[Endings];
 extern Sprite LockedThumbnail;
 extern glm::vec2 InitialRedBarPosition;
 extern glm::vec2 RightRedBarPosition;
-extern Sprite InitialRedBarSprite;
-extern glm::vec2 RedBarPosition;
-extern Sprite RedBarSprite;
-extern float RedBarKickInTime;
-extern float RedBarAnimationDuration;
 
 void Configure();
 
