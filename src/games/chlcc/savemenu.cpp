@@ -146,15 +146,15 @@ void SaveMenu::Update(float dt) {
   UpdateInput();
 
   FadeAnimation.Update(dt);
-  if (ScrWork[SW_FILEALPHA] < 256 && State == Shown) {
+  if (!GetFlag(SF_SAVEMENU) && State == Shown) {
     Hide();
-  } else if (ScrWork[SW_FILEALPHA] == 256 && State == Hidden) {
+  } else if (GetFlag(SF_SAVEMENU) && State == Hidden) {
     Show();
   }
 
-  if (ScrWork[SW_FILEALPHA] == 256 && FadeAnimation.IsIn())
+  if (GetFlag(SF_SAVEMENU) && FadeAnimation.IsIn())
     State = Shown;
-  else if (ScrWork[SW_FILEALPHA] == 0 && FadeAnimation.IsOut())
+  else if (!GetFlag(SF_SAVEMENU) && FadeAnimation.IsOut())
     State = Hidden;
 
   if (State == Shown && IsFocused) {
