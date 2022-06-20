@@ -22,7 +22,7 @@ ClearListMenu::ClearListMenu() {
   MenuTransition.Direction = 1;
   MenuTransition.LoopMode = ALM_Stop;
   MenuTransition.DurationIn = MenuTransitionDuration;
-  MenuTransition.StartIn();
+  MenuTransition.DurationOut = MenuTransitionDuration;
 
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;
@@ -32,6 +32,7 @@ void ClearListMenu::Show() {
   // TODO: Fix not being able to return to the main menu
 
   if (State != Shown) {
+    if (State != Showing) MenuTransition.StartIn();
     State = Showing;
     if (UI::FocusedMenu != 0) {
       LastFocusedMenu = UI::FocusedMenu;
@@ -44,6 +45,7 @@ void ClearListMenu::Show() {
 
 void ClearListMenu::Hide() {
   if (State != Hidden) {
+    if (State != Hiding) MenuTransition.StartOut();
     State = Hiding;
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
@@ -56,7 +58,7 @@ void ClearListMenu::Hide() {
 }
 
 void ClearListMenu::Render() {
-  if (State != Hidden && ScrWork[SW_FILEALPHA] != 0) {
+  if (State != Hidden) {
     if (MenuTransition.IsIn()) {
       Renderer2D::DrawRect(RectF(0.0f, 0.0f, 1280, 720),
                            RgbIntToFloat(BackgroundColor));
@@ -93,17 +95,16 @@ void ClearListMenu::Render() {
 }
 
 void ClearListMenu::Update(float dt) {
-  if (!GetFlag(SF_CLEARLISTMENU) && ScrWork[SW_SYSMENUCT] < 10000 &&
-      State == Shown) {
+  if (ScrWork[SW_SYSMENUCT] < 10000 && State == Shown) {
     Hide();
   } else if (GetFlag(SF_CLEARLISTMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
              State == Hidden) {
     Show();
   }
 
-  if (ScrWork[SW_SYSMENUCT] == 0 && State == Hiding)
+  if (MenuTransition.IsOut() && State == Hiding)
     State = Hidden;
-  else if (ScrWork[SW_SYSMENUCT] == 10000 && State == Showing) {
+  else if (MenuTransition.IsIn() && State == Showing) {
     State = Shown;
   }
 
