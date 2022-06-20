@@ -56,7 +56,7 @@ void ClearListMenu::Hide() {
 }
 
 void ClearListMenu::Render() {
-  if (State != Hidden) {
+  if (State != Hidden && ScrWork[SW_FILEALPHA] != 0) {
     if (MenuTransition.IsIn()) {
       Renderer2D::DrawRect(RectF(0.0f, 0.0f, 1280, 720),
                            RgbIntToFloat(BackgroundColor));
@@ -93,16 +93,18 @@ void ClearListMenu::Render() {
 }
 
 void ClearListMenu::Update(float dt) {
-  if (ScrWork[SW_PLAYDATA_ALPHA] < 256 && State == Shown) {
+  if (!GetFlag(SF_CLEARLISTMENU) && ScrWork[SW_SYSMENUCT] < 10000 &&
+      State == Shown) {
     Hide();
-  } else if (ScrWork[SW_PLAYDATA_ALPHA] == 256 && State == Hidden) {
+  } else if (GetFlag(SF_CLEARLISTMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
+             State == Hidden) {
     Show();
   }
 
-  if (ScrWork[SW_PLAYDATA_ALPHA] == 256)
-    State = Shown;
-  else if (ScrWork[SW_PLAYDATA_ALPHA] == 0) {
+  if (ScrWork[SW_SYSMENUCT] == 0 && State == Hiding)
     State = Hidden;
+  else if (ScrWork[SW_SYSMENUCT] == 10000 && State == Showing) {
+    State = Shown;
   }
 
   if (State != Hidden) {
