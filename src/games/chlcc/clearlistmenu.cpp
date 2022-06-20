@@ -19,15 +19,13 @@ using namespace Impacto::TipsSystem;
 using namespace Impacto::Profile;
 
 ClearListMenu::ClearListMenu() {
-
-  MenuTransition.Direction =1;
+  MenuTransition.Direction = 1;
   MenuTransition.LoopMode = ALM_Stop;
   MenuTransition.DurationIn = MenuTransitionDuration;
   MenuTransition.StartIn();
 
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;
-
 }
 
 void ClearListMenu::Show() {
@@ -60,14 +58,16 @@ void ClearListMenu::Hide() {
 void ClearListMenu::Render() {
   if (State != Hidden) {
     if (MenuTransition.IsIn()) {
-      Renderer2D::DrawRect(RectF(0.0f, 0.0f, 1280, 720), RgbIntToFloat(BackgroundColor));
+      Renderer2D::DrawRect(RectF(0.0f, 0.0f, 1280, 720),
+                           RgbIntToFloat(BackgroundColor));
     } else {
       DrawCircles();
     }
     glm::vec3 tint = {1, 1, 1};
     DrawErin();
-    //Alpha goes from 0 to 1 in half the time
-    float alpha = MenuTransition.Progress < 0.5 ? MenuTransition.Progress * 2 : 1;
+    // Alpha goes from 0 to 1 in half the time
+    float alpha =
+        MenuTransition.Progress < 0.5 ? MenuTransition.Progress * 2 : 1;
     Renderer2D::DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280, 720),
                            glm::vec4(tint, alpha));
     DrawRedBar();
@@ -81,7 +81,6 @@ void ClearListMenu::Render() {
 }
 
 void ClearListMenu::Update(float dt) {
-
   if (ScrWork[SW_PLAYDATA_ALPHA] < 256 && State == Shown) {
     Hide();
   } else if (ScrWork[SW_PLAYDATA_ALPHA] == 256 && State == Hidden) {
@@ -111,9 +110,9 @@ inline void ClearListMenu::DrawCircles() {
         scale = scale > 320 ? 320 : scale;
         scale = (scale * 256) / 106;
         Renderer2D::DrawSprite(
-            CircleSprite, RectF(x + (CircleSprite.Bounds.Width-scale)/2,
-                                y + (CircleSprite.Bounds.Height-scale)/2,
-                                scale, scale));
+            CircleSprite,
+            RectF(x + (CircleSprite.Bounds.Width - scale) / 2,
+                  y + (CircleSprite.Bounds.Height - scale) / 2, scale, scale));
         x += CircleOffset;
       }
       counter += 2;
@@ -126,13 +125,15 @@ inline void ClearListMenu::DrawCircles() {
 inline void ClearListMenu::DrawRedBar() {
   if (MenuTransition.IsIn()) {
     Renderer2D::DrawSprite(InitialRedBarSprite, InitialRedBarPosition);
-  } else if (MenuTransition.Progress > 0.734){
-    float pixelPerAdvanceLeft = (MenuTransition.Progress * 64 * 1059 - 0xc26d) / 17.0;
+  } else if (MenuTransition.Progress > 0.734) {
+    float pixelPerAdvanceLeft =
+        (MenuTransition.Progress * 64 * 1059 - 0xc26d) / 17.0;
     RedBarSprite.Bounds.X = 1826 - pixelPerAdvanceLeft;
     RedBarSprite.Bounds.Width = pixelPerAdvanceLeft;
     RedBarPosition.x = 1059 - pixelPerAdvanceLeft;
     Renderer2D::DrawSprite(RedBarSprite, RedBarPosition);
-    float pixelPerAdvanceRight = (MenuTransition.Progress * 64 * 221 - 0x2893) / 17.0;
+    float pixelPerAdvanceRight =
+        (MenuTransition.Progress * 64 * 221 - 0x2893) / 17.0;
     RedBarSprite.Bounds.X = 1826;
     RedBarSprite.Bounds.Width = pixelPerAdvanceRight;
     RedBarPosition = RightRedBarPosition;
@@ -142,11 +143,14 @@ inline void ClearListMenu::DrawRedBar() {
 
 inline void ClearListMenu::DrawErin() {
   float y = 0;
-  if (MenuTransition.Progress < 0.781f ) {
+  if (MenuTransition.Progress < 0.781f) {
     y = 800;
     if (MenuTransition.Progress > 0.25f) {
-      //Approximation from the original function, which was a bigger mess
-      y = glm::mix(-20, 720, 0.998938f - 0.998267 * sin(3.97835f - 3.27549 * MenuTransition.Progress));
+      // Approximation from the original function, which was a bigger mess
+      y = glm::mix(
+          -20, 720,
+          0.998938f -
+              0.998267 * sin(3.97835f - 3.27549 * MenuTransition.Progress));
     }
   }
   Renderer2D::DrawSprite(ErinSprite, glm::vec2(ErinPosition.x, y + 1));
@@ -181,11 +185,12 @@ inline void ClearListMenu::DrawEndingCount() {
 inline void ClearListMenu::DrawTIPSCount() {
   int unlockedTipsCount = 0;
   int totalTips = GetTipCount();
-  for (int idx = 0; idx < totalTips ; idx++) {
+  for (int idx = 0; idx < totalTips; idx++) {
     unlockedTipsCount += GetTipLockedState(idx) ? 0 : 1;
   }
   if (unlockedTipsCount / 10 != 0) {
-    Renderer2D::DrawSprite(Digits[unlockedTipsCount / 10], TIPSCountPositions[0]);
+    Renderer2D::DrawSprite(Digits[unlockedTipsCount / 10],
+                           TIPSCountPositions[0]);
   }
   Renderer2D::DrawSprite(Digits[unlockedTipsCount % 10], TIPSCountPositions[1]);
 }
@@ -221,7 +226,6 @@ inline void ClearListMenu::DrawEndingTree() {
   }
   Renderer2D::DrawSprite(EndingList, ListPosition);
 }
-
 
 }  // namespace CHLCC
 }  // namespace UI
