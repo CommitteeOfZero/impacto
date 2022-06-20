@@ -71,12 +71,24 @@ void ClearListMenu::Render() {
     Renderer2D::DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280, 720),
                            glm::vec4(tint, alpha));
     DrawRedBar();
-    Renderer2D::DrawSprite(ClearListLabel, LabelPosition);
-    DrawPlayTime(ScrWork[SW_PLAYTIME]);
-    DrawEndingCount();
-    DrawTIPSCount();
-    DrawAlbumCompletion();
-    DrawEndingTree();
+    int yOffset = 0;
+    if (MenuTransition.Progress >= 0.255f) {
+      if (MenuTransition.Progress <= 0.72f) {
+        // Approximated function from the original, another mess
+        yOffset = glm::mix(
+            -720, 0,
+            1.00397f * std::sin(3.97161f - 3.26438f * MenuTransition.Progress) -
+                0.00295643f);
+      }
+      Renderer2D::DrawSprite(
+          ClearListLabel,
+          glm::vec2(LabelPosition.x, LabelPosition.y + yOffset));
+      DrawPlayTime(yOffset);
+      DrawEndingCount(yOffset);
+      DrawTIPSCount(yOffset);
+      DrawAlbumCompletion(yOffset);
+      DrawEndingTree(yOffset);
+    }
   }
 }
 
@@ -89,7 +101,7 @@ void ClearListMenu::Update(float dt) {
 
   if (ScrWork[SW_PLAYDATA_ALPHA] == 256)
     State = Shown;
-  else {
+  else if (ScrWork[SW_PLAYDATA_ALPHA] == 0) {
     State = Hidden;
   }
 
@@ -156,7 +168,8 @@ inline void ClearListMenu::DrawErin() {
   Renderer2D::DrawSprite(ErinSprite, glm::vec2(ErinPosition.x, y + 1));
 }
 
-inline void ClearListMenu::DrawPlayTime(int totalSeconds) {
+inline void ClearListMenu::DrawPlayTime(int yOffset) {
+  int totalSeconds = ScrWork[SW_PLAYTIME];
   int hours = totalSeconds / 3600;
   int minutes = (totalSeconds % 3600) / 60;
   int seconds = (totalSeconds % 3600) % 60;
@@ -168,34 +181,41 @@ inline void ClearListMenu::DrawPlayTime(int totalSeconds) {
   }
   int time[6] = {hours / 10,   hours % 10,   minutes / 10,
                  minutes % 10, seconds / 10, seconds % 10};
+
   for (int idx = 0; idx < 6; idx++) {
-    if (!(idx % 2 == 0 && time[idx] == 0))
-      Renderer2D::DrawSprite(Digits[time[idx]], TimePositions[idx]);
+    if (!(idx % 2 == 0 && time[idx] == 0)) {
+      glm::vec2 position(TimePositions[idx].x, TimePositions[idx].y + yOffset);
+      Renderer2D::DrawSprite(Digits[time[idx]], position);
+    }
   }
 }
 
-inline void ClearListMenu::DrawEndingCount() {
+inline void ClearListMenu::DrawEndingCount(int yOffset) {
   int unlockedEndingCount = 0;
   for (int i = 0; i < Endings; i++) {
     unlockedEndingCount += GetFlag(SF_CLR_END1 + i);
   }
-  Renderer2D::DrawSprite(Digits[unlockedEndingCount], EndingCountPosition);
+  glm::vec2 position(EndingCountPosition.x, EndingCountPosition.y + yOffset);
+  Renderer2D::DrawSprite(Digits[unlockedEndingCount], position);
 }
 
-inline void ClearListMenu::DrawTIPSCount() {
+inline void ClearListMenu::DrawTIPSCount(int yOffset) {
   int unlockedTipsCount = 0;
   int totalTips = GetTipCount();
   for (int idx = 0; idx < totalTips; idx++) {
     unlockedTipsCount += GetTipLockedState(idx) ? 0 : 1;
   }
   if (unlockedTipsCount / 10 != 0) {
-    Renderer2D::DrawSprite(Digits[unlockedTipsCount / 10],
-                           TIPSCountPositions[0]);
+    Renderer2D::DrawSprite(
+        Digits[unlockedTipsCount / 10],
+        glm::vec2(TIPSCountPositions[0].x, TIPSCountPositions[0].y + yOffset));
   }
-  Renderer2D::DrawSprite(Digits[unlockedTipsCount % 10], TIPSCountPositions[1]);
+  Renderer2D::DrawSprite(
+      Digits[unlockedTipsCount % 10],
+      glm::vec2(TIPSCountPositions[1].x, TIPSCountPositions[1].y + yOffset));
 }
 
-inline void ClearListMenu::DrawAlbumCompletion() {
+inline void ClearListMenu::DrawAlbumCompletion(int yOffset) {
   int totalCount = 0, unlockedCount = 0;
   SaveSystem::GetViewedEVsCount(&totalCount, &unlockedCount);
   // The 9 bonus CGs after 100% completion don't count
@@ -206,25 +226,37 @@ inline void ClearListMenu::DrawAlbumCompletion() {
     percentage = 1;
   }
   if (percentage / 100 != 0) {
-    Renderer2D::DrawSprite(Digits[percentage / 100], AlbumPositions[0]);
-    Renderer2D::DrawSprite(Digits[(percentage / 10) % 10], AlbumPositions[1]);
+    Renderer2D::DrawSprite(
+        Digits[percentage / 100],
+        glm::vec2(AlbumPositions[0].x, AlbumPositions[0].y + yOffset));
+    Renderer2D::DrawSprite(
+        Digits[(percentage / 10) % 10],
+        glm::vec2(AlbumPositions[1].x, AlbumPositions[1].y + yOffset));
   } else if (percentage / 10 != 0) {
-    Renderer2D::DrawSprite(Digits[(percentage / 10) % 10], AlbumPositions[1]);
+    Renderer2D::DrawSprite(
+        Digits[(percentage / 10) % 10],
+        glm::vec2(AlbumPositions[1].x, AlbumPositions[1].y + yOffset));
   }
-  Renderer2D::DrawSprite(Digits[percentage % 10], AlbumPositions[2]);
+  Renderer2D::DrawSprite(
+      Digits[percentage % 10],
+      glm::vec2(AlbumPositions[2].x, AlbumPositions[2].y + yOffset));
 }
 
-inline void ClearListMenu::DrawEndingTree() {
+inline void ClearListMenu::DrawEndingTree(int yOffset) {
   for (int i = 0; i < 8; i++) {
-    Renderer2D::DrawSprite(EndingBox, BoxPositions[i]);
+    glm::vec2 boxPosition(BoxPositions[i].x, BoxPositions[i].y + yOffset);
+    glm::vec2 thumbnailPosition(ThumbnailPositions[i].x,
+                                ThumbnailPositions[i].y + yOffset);
+    Renderer2D::DrawSprite(EndingBox, boxPosition);
     // Flag for the 1st ending, they are contiguous
     if (GetFlag(SF_CLR_END1 + i)) {
-      Renderer2D::DrawSprite(EndingThumbnails[i], ThumbnailPositions[i]);
+      Renderer2D::DrawSprite(EndingThumbnails[i], thumbnailPosition);
     } else {
-      Renderer2D::DrawSprite(LockedThumbnail, ThumbnailPositions[i]);
+      Renderer2D::DrawSprite(LockedThumbnail, thumbnailPosition);
     }
   }
-  Renderer2D::DrawSprite(EndingList, ListPosition);
+  glm::vec2 listPosition(ListPosition.x, ListPosition.y + yOffset);
+  Renderer2D::DrawSprite(EndingList, listPosition);
 }
 
 }  // namespace CHLCC

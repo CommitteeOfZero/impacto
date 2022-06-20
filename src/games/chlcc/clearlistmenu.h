@@ -19,16 +19,15 @@ class ClearListMenu : public Menu {
   void Render();
 
  private:
-
   inline void DrawCircles();
   inline void DrawErin();
   inline void DrawRedBar();
 
-  inline void DrawPlayTime(int totalSeconds);
-  inline void DrawEndingCount();
-  inline void DrawTIPSCount();
-  inline void DrawAlbumCompletion();
-  inline void DrawEndingTree();
+  inline void DrawPlayTime(int yOffset);
+  inline void DrawEndingCount(int yOffset);
+  inline void DrawTIPSCount(int yOffset);
+  inline void DrawAlbumCompletion(int yOffset);
+  inline void DrawEndingTree(int yOffset);
 
   Animation MenuTransition;
 };
