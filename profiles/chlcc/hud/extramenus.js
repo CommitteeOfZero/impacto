@@ -15,6 +15,12 @@ root.ExtraMenus = {
         RedBarSprite: "RedBar",
         RedBarLabelPosition: {X: 1067, Y: 573},
         RedBarLabel: "RedBarLabel",
+        MenuTitleTextRightPos: {X: 788, Y: 127},
+        MenuTitleTextLeftPos: {X: 1, Y: 1},
+        MenuTitleTextAngle: 4.45,
+        TitleFadeInDuration: 40 / 60,
+        TitleFadeOutDuration: 28 / 60,
+        MenuTitleText: "MenuTitleText",
         ClearListLabel: "ClearListLabel",
         LabelPosition: {X: 800, Y: 44},
         Digits: [],
@@ -44,6 +50,8 @@ root.ExtraMenus = {
         EndingThumbnails: [],
         ThumbnailPositions: [],
         LockedThumbnail: "LockedThumbnail",
+        ButtonPromptPosition: {X: 1112, Y: 650},
+        ButtonPromptSprite: "ButtonPrompt"
     }
 }
 
@@ -67,6 +75,11 @@ root.Sprites["RedBar"] = {
 root.Sprites["RedBarLabel"] = {
     Sheet: "ClearList",
     Bounds: {X: 506, Y: 469, Width: 133, Height: 74}
+}
+
+root.Sprites["MenuTitleText"] = {
+    Sheet: "ClearListLabels",
+    Bounds: {X: 607, Y: 1, Width: 120, Height: 912}
 }
 
 root.Sprites["ClearListLabel"] = {
@@ -148,3 +161,8 @@ et[4] = et[6];
 et[6] = temp;
 et[6] = et[7];
 et[7] = temp;
+
+root.Sprites["ButtonPrompt"] = {
+    Sheet: "ClearListLabels",
+    Bounds: {X: 1, Y: 729, Width: 208, Height: 30}
+}

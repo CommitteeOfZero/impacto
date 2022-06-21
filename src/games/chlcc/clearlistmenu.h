@@ -23,6 +23,8 @@ class ClearListMenu : public Menu {
   inline void DrawErin();
   inline void DrawRedBar();
   inline void DrawRedBarLabel();
+  inline void DrawMenuTitleRight();
+  inline void DrawMenuTitleLeft();
 
   inline void DrawPlayTime(int yOffset);
   inline void DrawEndingCount(int yOffset);
@@ -30,7 +32,10 @@ class ClearListMenu : public Menu {
   inline void DrawAlbumCompletion(int yOffset);
   inline void DrawEndingTree(int yOffset);
 
+  inline void DrawButtonPrompt();
+
   Animation MenuTransition;
+  Animation TitleFade;
 };
 
 }  // namespace CHLCC

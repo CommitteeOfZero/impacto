@@ -24,6 +24,12 @@ extern glm::vec2 RedBarPosition;
 extern Sprite RedBarSprite;
 extern glm::vec2 RedBarLabelPosition;
 extern Sprite RedBarLabel;
+extern glm::vec2 MenuTitleTextRightPosition;
+extern glm::vec2 MenuTitleTextLeftPosition;
+extern float MenuTitleTextAngle;
+extern float TitleFadeInDuration;
+extern float TitleFadeOutDuration;
+extern Sprite MenuTitleText;
 
 extern glm::vec2 LabelPosition;
 extern Sprite ClearListLabel;
@@ -39,6 +45,8 @@ extern Sprite EndingBox;
 extern glm::vec2 ThumbnailPositions[Endings];
 extern Sprite EndingThumbnails[Endings];
 extern Sprite LockedThumbnail;
+extern glm::vec2 ButtonPromptPosition;
+extern Sprite ButtonPromptSprite;
 
 void Configure();
 

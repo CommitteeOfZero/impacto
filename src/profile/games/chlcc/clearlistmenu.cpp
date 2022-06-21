@@ -25,6 +25,12 @@ glm::vec2 RedBarPosition;
 Sprite RedBarSprite;
 glm::vec2 RedBarLabelPosition;
 Sprite RedBarLabel;
+glm::vec2 MenuTitleTextRightPosition;
+glm::vec2 MenuTitleTextLeftPosition;
+float MenuTitleTextAngle;
+float TitleFadeInDuration;
+float TitleFadeOutDuration;
+Sprite MenuTitleText;
 
 glm::vec2 LabelPosition;
 Sprite ClearListLabel;
@@ -40,6 +46,8 @@ Sprite EndingBox;
 glm::vec2 ThumbnailPositions[Endings];
 Sprite EndingThumbnails[Endings];
 Sprite LockedThumbnail;
+glm::vec2 ButtonPromptPosition;
+Sprite ButtonPromptSprite;
 
 static void GetMemberVec2Array(glm::vec2* arr, uint32_t count,
                                char const* name) {
@@ -89,6 +97,12 @@ void Configure() {
   InitialRedBarSprite = EnsureGetMemberSprite("RedBarSprite");
   RedBarLabelPosition = EnsureGetMemberVec2("RedBarLabelPosition");
   RedBarLabel = EnsureGetMemberSprite("RedBarLabel");
+  MenuTitleTextRightPosition = EnsureGetMemberVec2("MenuTitleTextRightPos");
+  MenuTitleTextLeftPosition = EnsureGetMemberVec2("MenuTitleTextLeftPos");
+  MenuTitleTextAngle = EnsureGetMemberFloat("MenuTitleTextAngle");
+  TitleFadeInDuration = EnsureGetMemberFloat("TitleFadeInDuration");
+  TitleFadeOutDuration = EnsureGetMemberFloat("TitleFadeOutDuration");
+  MenuTitleText = EnsureGetMemberSprite("MenuTitleText");
 
   LabelPosition = EnsureGetMemberVec2("LabelPosition");
   ClearListLabel = EnsureGetMemberSprite("ClearListLabel");
@@ -104,6 +118,8 @@ void Configure() {
   GetMemberVec2Array(ThumbnailPositions, Endings, "ThumbnailPositions");
   GetMemberSpriteArray(EndingThumbnails, Endings, "EndingThumbnails");
   LockedThumbnail = EnsureGetMemberSprite("LockedThumbnail");
+  ButtonPromptPosition = EnsureGetMemberVec2("ButtonPromptPosition");
+  ButtonPromptSprite = EnsureGetMemberSprite("ButtonPromptSprite");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMemberInt("DrawType"));

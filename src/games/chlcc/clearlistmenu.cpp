@@ -24,6 +24,11 @@ ClearListMenu::ClearListMenu() {
   MenuTransition.DurationIn = MenuTransitionDuration;
   MenuTransition.DurationOut = MenuTransitionDuration;
 
+  TitleFade.Direction = 1;
+  TitleFade.LoopMode = ALM_Stop;
+  TitleFade.DurationIn = TitleFadeInDuration;
+  TitleFade.DurationOut = TitleFadeOutDuration;
+
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;
 }
@@ -45,7 +50,9 @@ void ClearListMenu::Show() {
 
 void ClearListMenu::Hide() {
   if (State != Hidden) {
-    if (State != Hiding) MenuTransition.StartOut();
+    if (State != Hiding) {
+      MenuTransition.StartOut();
+    }
     State = Hiding;
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
@@ -65,8 +72,8 @@ void ClearListMenu::Render() {
     } else {
       DrawCircles();
     }
-    glm::vec3 tint = {1, 1, 1};
     DrawErin();
+    glm::vec3 tint = {1, 1, 1};
     // Alpha goes from 0 to 1 in half the time
     float alpha =
         MenuTransition.Progress < 0.5 ? MenuTransition.Progress * 2 : 1;
@@ -74,6 +81,8 @@ void ClearListMenu::Render() {
                            glm::vec4(tint, alpha));
     DrawRedBar();
     DrawRedBarLabel();
+    DrawMenuTitleRight();
+    DrawMenuTitleLeft();
     int yOffset = 0;
     if (MenuTransition.Progress >= 0.255f) {
       if (MenuTransition.Progress <= 0.72f) {
@@ -91,6 +100,7 @@ void ClearListMenu::Render() {
       DrawTIPSCount(yOffset);
       DrawAlbumCompletion(yOffset);
       DrawEndingTree(yOffset);
+      DrawButtonPrompt();
     }
   }
 }
@@ -111,6 +121,13 @@ void ClearListMenu::Update(float dt) {
 
   if (State != Hidden) {
     MenuTransition.Update(dt);
+    if (MenuTransition.Direction == -1 && MenuTransition.Progress <= 0.72f) {
+      TitleFade.StartOut();
+    } else if (MenuTransition.IsIn() &&
+               (TitleFade.Direction == 1 || TitleFade.IsOut())) {
+      TitleFade.StartIn();
+    }
+    TitleFade.Update(dt);
   }
 }
 
@@ -136,6 +153,21 @@ inline void ClearListMenu::DrawCircles() {
     y += CircleOffset;
     resetCounter += 2;
   }
+}
+
+inline void ClearListMenu::DrawErin() {
+  float y = 0;
+  if (MenuTransition.Progress < 0.781f) {
+    y = 800;
+    if (MenuTransition.Progress > 0.25f) {
+      // Approximation from the original function, which was a bigger mess
+      y = glm::mix(
+          -20, 720,
+          0.998938f -
+              0.998267 * sin(3.97835f - 3.27549 * MenuTransition.Progress));
+    }
+  }
+  Renderer2D::DrawSprite(ErinSprite, glm::vec2(ErinPosition.x, y + 1));
 }
 
 inline void ClearListMenu::DrawRedBar() {
@@ -169,19 +201,25 @@ inline void ClearListMenu::DrawRedBarLabel() {
   }
 };
 
-inline void ClearListMenu::DrawErin() {
-  float y = 0;
-  if (MenuTransition.Progress < 0.781f) {
-    y = 800;
-    if (MenuTransition.Progress > 0.25f) {
-      // Approximation from the original function, which was a bigger mess
-      y = glm::mix(
-          -20, 720,
-          0.998938f -
-              0.998267 * sin(3.97835f - 3.27549 * MenuTransition.Progress));
+inline void ClearListMenu::DrawMenuTitleRight() {
+  if (MenuTransition.Progress > 0.36f) {
+    float x = MenuTitleTextRightPosition.x;
+    float y = MenuTitleTextRightPosition.y;
+    if (MenuTransition.Progress < 0.72f) {
+      x = x - 572 * (4 * MenuTransition.Progress - 3);
+      y = y + 460 * (4 * MenuTransition.Progress - 3) / 3;
     }
+    Renderer2D::DrawSprite(MenuTitleText, glm::vec2(x, y), glm::vec4(1.0f),
+                           glm::vec2(1.0f), MenuTitleTextAngle);
   }
-  Renderer2D::DrawSprite(ErinSprite, glm::vec2(ErinPosition.x, y + 1));
+}
+
+inline void ClearListMenu::DrawMenuTitleLeft() {
+  float y = glm::mix(
+      1, 693,
+      1.04937f * std::sin(1.62531f * TitleFade.Progress + 3.14933f) + 1.0494f);
+  Renderer2D::DrawSprite(MenuTitleText,
+                         glm::vec2(MenuTitleTextLeftPosition.x, y));
 }
 
 inline void ClearListMenu::DrawPlayTime(int yOffset) {
@@ -273,6 +311,17 @@ inline void ClearListMenu::DrawEndingTree(int yOffset) {
   }
   glm::vec2 listPosition(ListPosition.x, ListPosition.y + yOffset);
   Renderer2D::DrawSprite(EndingList, listPosition);
+}
+
+inline void ClearListMenu::DrawButtonPrompt() {
+  if (MenuTransition.IsIn()) {
+    Renderer2D::DrawSprite(ButtonPromptSprite, ButtonPromptPosition);
+  } else if (MenuTransition.Progress > 0.734f) {
+    float x = ButtonPromptPosition.x;
+    x = x - 2560 * MenuTransition.Progress + 2561;
+    Renderer2D::DrawSprite(ButtonPromptSprite,
+                           glm::vec2(x, ButtonPromptPosition.y));
+  }
 }
 
 }  // namespace CHLCC
