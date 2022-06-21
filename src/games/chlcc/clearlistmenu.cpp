@@ -73,6 +73,7 @@ void ClearListMenu::Render() {
     Renderer2D::DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280, 720),
                            glm::vec4(tint, alpha));
     DrawRedBar();
+    DrawRedBarLabel();
     int yOffset = 0;
     if (MenuTransition.Progress >= 0.255f) {
       if (MenuTransition.Progress <= 0.72f) {
@@ -155,6 +156,18 @@ inline void ClearListMenu::DrawRedBar() {
     Renderer2D::DrawSprite(RedBarSprite, RedBarPosition);
   }
 }
+
+inline void ClearListMenu::DrawRedBarLabel() {
+  if (MenuTransition.Progress > 0.35f) {
+    float x = RedBarLabelPosition.x;
+    float y = RedBarLabelPosition.y;
+    if (MenuTransition.Progress < 0.751f) {
+      x = -572 * (MenuTransition.Progress * 4 - 3) + x;
+      y = y + (460 * (MenuTransition.Progress * 4 - 3)) / 3;
+    }
+    Renderer2D::DrawSprite(RedBarLabel, glm::vec2(x, y));
+  }
+};
 
 inline void ClearListMenu::DrawErin() {
   float y = 0;

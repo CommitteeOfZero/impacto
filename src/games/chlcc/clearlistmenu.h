@@ -22,6 +22,7 @@ class ClearListMenu : public Menu {
   inline void DrawCircles();
   inline void DrawErin();
   inline void DrawRedBar();
+  inline void DrawRedBarLabel();
 
   inline void DrawPlayTime(int yOffset);
   inline void DrawEndingCount(int yOffset);

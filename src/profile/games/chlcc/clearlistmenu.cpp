@@ -23,6 +23,8 @@ glm::vec2 RightRedBarPosition;
 Sprite InitialRedBarSprite;
 glm::vec2 RedBarPosition;
 Sprite RedBarSprite;
+glm::vec2 RedBarLabelPosition;
+Sprite RedBarLabel;
 
 glm::vec2 LabelPosition;
 Sprite ClearListLabel;
@@ -82,6 +84,11 @@ void Configure() {
   ErinPosition = EnsureGetMemberVec2("ErinPosition");
   ErinSprite = EnsureGetMemberSprite("ErinSprite");
   BackgroundFilter = EnsureGetMemberSprite("BackgroundFilter");
+  InitialRedBarPosition = EnsureGetMemberVec2("InitialRedBarPosition");
+  RightRedBarPosition = EnsureGetMemberVec2("RightRedBarPosition");
+  InitialRedBarSprite = EnsureGetMemberSprite("RedBarSprite");
+  RedBarLabelPosition = EnsureGetMemberVec2("RedBarLabelPosition");
+  RedBarLabel = EnsureGetMemberSprite("RedBarLabel");
 
   LabelPosition = EnsureGetMemberVec2("LabelPosition");
   ClearListLabel = EnsureGetMemberSprite("ClearListLabel");
@@ -97,9 +104,6 @@ void Configure() {
   GetMemberVec2Array(ThumbnailPositions, Endings, "ThumbnailPositions");
   GetMemberSpriteArray(EndingThumbnails, Endings, "EndingThumbnails");
   LockedThumbnail = EnsureGetMemberSprite("LockedThumbnail");
-  InitialRedBarPosition = EnsureGetMemberVec2("InitialRedBarPosition");
-  RightRedBarPosition = EnsureGetMemberVec2("RightRedBarPosition");
-  InitialRedBarSprite = EnsureGetMemberSprite("RedBarSprite");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMemberInt("DrawType"));

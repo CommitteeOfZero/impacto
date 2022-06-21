@@ -17,9 +17,13 @@ extern float CircleOffset;
 extern glm::vec2 ErinPosition;
 extern Sprite ErinSprite;
 extern Sprite BackgroundFilter;
+extern glm::vec2 InitialRedBarPosition;
 extern Sprite InitialRedBarSprite;
+extern glm::vec2 RightRedBarPosition;
 extern glm::vec2 RedBarPosition;
 extern Sprite RedBarSprite;
+extern glm::vec2 RedBarLabelPosition;
+extern Sprite RedBarLabel;
 
 extern glm::vec2 LabelPosition;
 extern Sprite ClearListLabel;
@@ -35,8 +39,6 @@ extern Sprite EndingBox;
 extern glm::vec2 ThumbnailPositions[Endings];
 extern Sprite EndingThumbnails[Endings];
 extern Sprite LockedThumbnail;
-extern glm::vec2 InitialRedBarPosition;
-extern glm::vec2 RightRedBarPosition;
 
 void Configure();
 

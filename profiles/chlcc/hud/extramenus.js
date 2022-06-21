@@ -13,6 +13,8 @@ root.ExtraMenus = {
         InitialRedBarPosition: {X: 0, Y: 538},
         RightRedBarPosition: {X: 1059, Y: 538},
         RedBarSprite: "RedBar",
+        RedBarLabelPosition: {X: 1067, Y: 573},
+        RedBarLabel: "RedBarLabel",
         ClearListLabel: "ClearListLabel",
         LabelPosition: {X: 800, Y: 44},
         Digits: [],
@@ -55,6 +57,16 @@ root.Sprites["Circle"] = {
 root.Sprites["Erin"] = {
     Sheet: "ClearList",
     Bounds: {X: 641, Y: 1, Width: 978, Height: 798}
+}
+
+root.Sprites["RedBar"] = {
+    Sheet: "ClearList",
+    Bounds: {X: 767, Y: 913, Width: 1280, Height: 110}
+}
+
+root.Sprites["RedBarLabel"] = {
+    Sheet: "ClearList",
+    Bounds: {X: 506, Y: 469, Width: 133, Height: 74}
 }
 
 root.Sprites["ClearListLabel"] = {
@@ -136,8 +148,3 @@ et[4] = et[6];
 et[6] = temp;
 et[6] = et[7];
 et[7] = temp;
-
-root.Sprites["RedBar"] = {
-    Sheet: "ClearList",
-    Bounds: {X: 767, Y: 913, Width: 1280, Height: 110},
-}
