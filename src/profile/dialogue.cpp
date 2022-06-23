@@ -88,8 +88,10 @@ void Configure() {
   switch (DialogueBoxCurrentType) {
     case DialogueBoxType::MO6TW:
       Profile::MO6TW::DialogueBox::Configure();
+      break;
     case DialogueBoxType::CC:
       Profile::CC::DialogueBox::Configure();
+      break;
   }
 
   NVLBoxMaxOpacity = EnsureGetMemberFloat("NVLBoxMaxOpacity");
