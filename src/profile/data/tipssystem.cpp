@@ -2,6 +2,7 @@
 #include "../profile_internal.h"
 
 #include "../../games/mo6tw/tipssystem.h"
+#include "../../games/chlcc/tipssystem.h"
 
 namespace Impacto {
 namespace Profile {
@@ -26,6 +27,9 @@ void Configure() {
     switch (Type) {
       case TipsSystemType::MO6TW:
         Implementation = new Impacto::MO6TW::TipsSystem();
+        break;
+      case TipsSystemType::CHLCC:
+        Implementation = new Impacto::CHLCC::TipsSystem();
         break;
     }
   }

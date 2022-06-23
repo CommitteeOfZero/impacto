@@ -13,6 +13,7 @@ static bool IsInit = false;
 static GLuint ShaderProgramSprite;
 static GLuint ShaderProgramSpriteInverted;
 static GLuint ShaderProgramMaskedSprite;
+static GLuint ShaderProgramTest;
 static GLuint ShaderProgramYUVFrame;
 static GLuint ShaderProgramCCMessageBox;
 
@@ -154,6 +155,7 @@ void Init() {
       glGetUniformLocation(ShaderProgramMaskedSprite, "IsInverted");
   MaskedIsSameTextureLocation =
       glGetUniformLocation(ShaderProgramMaskedSprite, "IsSameTexture");
+  ShaderProgramTest = ShaderCompile("Test");
   ShaderProgramYUVFrame = ShaderCompile("YUVFrame");
   glUniform1i(glGetUniformLocation(ShaderProgramYUVFrame, "Luma"), 0);
   YUVFrameCbLocation = glGetUniformLocation(ShaderProgramYUVFrame, "Cb");

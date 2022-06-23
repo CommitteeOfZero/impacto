@@ -21,6 +21,7 @@
 #include "../profile/vm.h"
 #include "../profile/ui/sysmesbox.h"
 #include "../profile/hud/tipsnotification.h"
+#include "../profile/data/tipssystem.h"
 #include "../hud/saveicondisplay.h"
 #include "../inputsystem.h"
 #include "interface/input.h"
@@ -32,6 +33,8 @@ namespace Impacto {
 
 namespace Vm {
 
+using namespace Impacto::SaveSystem;
+using namespace Impacto::TipsSystem;
 using namespace Impacto::Profile::ScriptVars;
 
 VmInstruction(InstDummy) {}
@@ -216,6 +219,9 @@ VmInstruction(InstSave) {
                    // 67, 70, 71, 74, 76
     case 32:
       ScrWork[SW_SAVEERRORCODE] = SaveSystem::MountSaveFile();
+      if (ScrWork[SW_SAVEERRORCODE] == SaveOK) {
+        UpdateTipRecords();
+      }
       break;
     case 40:  // SystemDataCheck
       if (Profile::Vm::GameInstructionSet == +InstructionSet::RNE) {

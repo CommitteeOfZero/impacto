@@ -7,6 +7,7 @@
 #include "../games/mo6tw/musicmenu.h"
 #include "../games/mo6tw/albummenu.h"
 #include "../games/cclcc/clearlistmenu.h"
+#include "../games/chlcc/clearlistmenu.h"
 
 namespace Impacto {
 namespace Profile {
@@ -32,6 +33,8 @@ void Configure() {
         MO6TW::ClearListMenu::Configure();
       } else if (ClearListType == +ClearListMenuType::CCLCC) {
         CCLCC::ClearListMenu::Configure();
+      } else if (ClearListType == +ClearListMenuType::CHLCC) {
+        CHLCC::ClearListMenu::Configure();
       }
 
       Pop();

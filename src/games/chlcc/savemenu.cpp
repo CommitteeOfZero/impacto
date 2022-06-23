@@ -146,16 +146,19 @@ void SaveMenu::Update(float dt) {
   UpdateInput();
 
   FadeAnimation.Update(dt);
-  if (ScrWork[SW_FILEALPHA] < 256 && State == Shown) {
+  if (!GetFlag(SF_SAVEMENU) && ScrWork[SW_SYSMENUCT] < 10000 &&
+      State == Shown) {
     Hide();
-  } else if (ScrWork[SW_FILEALPHA] == 256 && State == Hidden) {
+  } else if (GetFlag(SF_SAVEMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
+             State == Hidden) {
     Show();
   }
 
-  if (ScrWork[SW_FILEALPHA] == 256 && FadeAnimation.IsIn())
-    State = Shown;
-  else if (ScrWork[SW_FILEALPHA] == 0 && FadeAnimation.IsOut())
+  if (ScrWork[SW_SYSMENUCT] == 0 && State == Hiding)
     State = Hidden;
+  else if (ScrWork[SW_SYSMENUCT] == 10000 && State == Showing) {
+    State = Shown;
+  }
 
   if (State == Shown && IsFocused) {
     MainItems->Update(dt);
@@ -163,7 +166,7 @@ void SaveMenu::Update(float dt) {
 }
 
 void SaveMenu::Render() {
-  if (State != Hidden) {
+  if (State != Hidden && ScrWork[SW_FILEALPHA] != 0) {
     glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
     Renderer2D::DrawSprite(SaveMenuBackgroundSprite, glm::vec2(0.0f), col);
     switch (ScrWork[SW_SAVEMENUMODE]) {

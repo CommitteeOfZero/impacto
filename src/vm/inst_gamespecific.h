@@ -12,6 +12,7 @@ VmInstruction(InstUnk0053);
 VmInstruction(InstUnk0054);
 VmInstruction(InstUnk011F);
 VmInstruction(InstUnk012D);
+VmInstruction(InstUnk1035CHLCC);
 VmInstruction(InstUnk012FMO8);
 VmInstruction(InstGeotag);
 VmInstruction(InstUnk100FMO6);

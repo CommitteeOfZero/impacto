@@ -38,7 +38,18 @@ root.SpriteSheets = {
         Path: { Mount: "system", Id: 6 },
         DesignWidth: 2048,
         DesignHeight: 720
+    },
+    "ClearList": {
+        Path: { Mount: "system", Id: 13 },
+        DesignWidth: 2048,
+        DesignHeight: 1024,
+    },
+    "ClearListLabels": {
+        Path: { Mount: "system", Id: 4 },
+        DesignWidth: 2048,
+        DesignHeight: 1024
     }
+
 };
 
 root.Sprites = {};

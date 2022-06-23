@@ -28,6 +28,28 @@ SaveError SaveSystem::MountSaveFile() {
 
   WorkingSaveEntry = new SaveFileEntry();
 
+  stream->Seek(0x14, SEEK_SET);
+
+  Io::ReadArrayLE<uint8_t>(&FlagWork[100], stream, 50);
+  Io::ReadArrayLE<uint8_t>(&FlagWork[460], stream, 40);
+  Io::ReadArrayBE<int>(&ScrWork[600], stream, 400);
+
+  stream->Seek(0x7DA, SEEK_SET);
+  for (int i = 0; i < 150; i++) {
+    auto val = Io::ReadU8(stream);
+    EVFlags[8 * i] = val & 1;
+    EVFlags[8 * i + 1] = (val & 2) != 0;
+    EVFlags[8 * i + 2] = (val & 4) != 0;
+    EVFlags[8 * i + 3] = (val & 8) != 0;
+    EVFlags[8 * i + 4] = (val & 0x10) != 0;
+    EVFlags[8 * i + 5] = (val & 0x20) != 0;
+    EVFlags[8 * i + 6] = (val & 0x40) != 0;
+    EVFlags[8 * i + 7] = val >> 7;
+  }
+
+  stream->Seek(0x358E, SEEK_SET);
+  Io::ReadArrayLE<uint8_t>(GameExtraData, stream, 1024);
+
   stream->Seek(0x3b06, SEEK_SET);  // TODO: Actually load system data
 
   for (int i = 0; i < MaxSaveEntries; i++) {
@@ -376,12 +398,31 @@ int SaveSystem::GetSaveTitle(SaveType type, int id) {
   }
 }
 
-uint32_t SaveSystem::GetTipStatus(int tipId) { return 0; }
+uint32_t SaveSystem::GetTipStatus(int tipId) {
+    tipId *= 3;
+    return (((GameExtraData[tipId >> 3] & Flbit[tipId & 7]) != 0) |
+            (2 *
+             ((Flbit[(tipId + 2) & 7] & GameExtraData[(tipId + 2) >> 3]) != 0))) &
+           0xFB |
+           (4 *
+            ((GameExtraData[(tipId + 1) >> 3] & Flbit[(tipId + 1) & 7]) != 0));
+}
+
 void SaveSystem::SetTipStatus(int tipId, bool isLocked, bool isUnread,
                               bool isNew) {}
 void SaveSystem::GetReadMessagesCount(int* totalMessageCount,
                                       int* readMessageCount) {}
-void SaveSystem::GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) {}
+
+void SaveSystem::GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) {
+  for (int i = 0; i < MaxAlbumEntries; i++) {
+    if (AlbumEvData[i][0] == 0xFFFF) break;
+    for (int j = 0; j < MaxAlbumSubEntries; j++) {
+      if (AlbumEvData[i][j] == 0xFFFF) break;
+      *totalEVCount += 1;
+      *viewedEVCount += EVFlags[AlbumEvData[i][j]];
+    }
+  }
+}
 void SaveSystem::GetEVStatus(int evId, int* totalVariations,
                              int* viewedVariations) {}
 bool SaveSystem::GetEVVariationIsUnlocked(int evId, int variationIdx) {
