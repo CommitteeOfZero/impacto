@@ -21,6 +21,8 @@ extern glm::vec2 InitialRedBarPosition;
 extern Sprite InitialRedBarSprite;
 extern glm::vec2 RightRedBarPosition;
 extern glm::vec2 RedBarPosition;
+extern float RedBarDivision;
+extern float RedBarBaseX;
 extern Sprite RedBarSprite;
 extern glm::vec2 RedBarLabelPosition;
 extern Sprite RedBarLabel;

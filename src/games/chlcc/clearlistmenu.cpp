@@ -80,12 +80,10 @@ void ClearListMenu::Render() {
     Renderer2D::DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280, 720),
                            glm::vec4(tint, alpha));
     DrawRedBar();
-    DrawRedBarLabel();
-    DrawMenuTitleRight();
-    DrawMenuTitleLeft();
+    DrawTitles();
     int yOffset = 0;
-    if (MenuTransition.Progress >= 0.255f) {
-      if (MenuTransition.Progress <= 0.72f) {
+    if (MenuTransition.Progress > 0.22f) {
+      if (MenuTransition.Progress < 0.72f) {
         // Approximated function from the original, another mess
         yOffset = glm::mix(
             -720, 0,
@@ -134,14 +132,17 @@ void ClearListMenu::Update(float dt) {
 inline void ClearListMenu::DrawCircles() {
   float y = CircleStartPosition.y;
   int resetCounter = 0;
+  // Give the whole range that mimics ScrWork[SW_SYSMENUCT] given that the
+  // duration is totalframes/60
+  float progress = MenuTransition.Progress * MenuTransitionDuration * 60;
   for (int line = 0; line < 4; line++) {
     int counter = resetCounter;
     float x = CircleStartPosition.x;
     for (int col = 0; col < 7; col++) {
-      if (counter + 1 <= (MenuTransition.Progress * 32)) {
-        float scale = ((MenuTransition.Progress * 32) - (counter + 1)) * 16;
-        scale = scale > 320 ? 320 : scale;
-        scale = (scale * 256) / 106;
+      if (counter + 1 <= (progress)) {
+        float scale = ((progress) - (counter + 1)) * 16;
+        scale = scale <= 320 ? scale : 320;
+        scale *= CircleSprite.Bounds.Height / 106;
         Renderer2D::DrawSprite(
             CircleSprite,
             RectF(x + (CircleSprite.Bounds.Width - scale) / 2,
@@ -157,9 +158,9 @@ inline void ClearListMenu::DrawCircles() {
 
 inline void ClearListMenu::DrawErin() {
   float y = 0;
-  if (MenuTransition.Progress < 0.781f) {
+  if (MenuTransition.Progress < 0.78f) {
     y = 800;
-    if (MenuTransition.Progress > 0.25f) {
+    if (MenuTransition.Progress > 0.22f) {
       // Approximation from the original function, which was a bigger mess
       y = glm::mix(
           -20, 720,
@@ -173,53 +174,46 @@ inline void ClearListMenu::DrawErin() {
 inline void ClearListMenu::DrawRedBar() {
   if (MenuTransition.IsIn()) {
     Renderer2D::DrawSprite(InitialRedBarSprite, InitialRedBarPosition);
-  } else if (MenuTransition.Progress > 0.734) {
-    float pixelPerAdvanceLeft =
-        (MenuTransition.Progress * 64 * 1059 - 0xc26d) / 17.0;
-    RedBarSprite.Bounds.X = 1826 - pixelPerAdvanceLeft;
+  } else if (MenuTransition.Progress > 0.70f) {
+    // Give the whole range that mimics ScrWork[SW_SYSMENUCT] given that the
+    // duration is totalframes/60
+    float progress = MenuTransition.Progress * MenuTransitionDuration * 60;
+    float pixelPerAdvanceLeft = RedBarBaseX * (progress - 47) / 17.0;
+    RedBarSprite.Bounds.X = RedBarDivision - pixelPerAdvanceLeft;
     RedBarSprite.Bounds.Width = pixelPerAdvanceLeft;
-    RedBarPosition.x = 1059 - pixelPerAdvanceLeft;
+    RedBarPosition.x = RedBarBaseX - pixelPerAdvanceLeft;
     Renderer2D::DrawSprite(RedBarSprite, RedBarPosition);
-    float pixelPerAdvanceRight =
-        (MenuTransition.Progress * 64 * 221 - 0x2893) / 17.0;
-    RedBarSprite.Bounds.X = 1826;
+    float pixelPerAdvanceRight = 13 * (progress - 47);
+    RedBarSprite.Bounds.X = RedBarDivision;
     RedBarSprite.Bounds.Width = pixelPerAdvanceRight;
     RedBarPosition = RightRedBarPosition;
     Renderer2D::DrawSprite(RedBarSprite, RedBarPosition);
   }
 }
 
-inline void ClearListMenu::DrawRedBarLabel() {
-  if (MenuTransition.Progress > 0.35f) {
-    float x = RedBarLabelPosition.x;
-    float y = RedBarLabelPosition.y;
-    if (MenuTransition.Progress < 0.751f) {
-      x = -572 * (MenuTransition.Progress * 4 - 3) + x;
-      y = y + (460 * (MenuTransition.Progress * 4 - 3)) / 3;
-    }
-    Renderer2D::DrawSprite(RedBarLabel, glm::vec2(x, y));
-  }
-};
-
-inline void ClearListMenu::DrawMenuTitleRight() {
-  if (MenuTransition.Progress > 0.36f) {
-    float x = MenuTitleTextRightPosition.x;
-    float y = MenuTitleTextRightPosition.y;
+inline void ClearListMenu::DrawTitles() {
+  if (MenuTransition.Progress > 0.34f) {
+    float labelX = RedBarLabelPosition.x;
+    float labelY = RedBarLabelPosition.y;
+    float rightTitleX = MenuTitleTextRightPosition.x;
+    float rightTitleY = MenuTitleTextRightPosition.y;
+    float leftTitleY =
+        glm::mix(1, 693,
+                 1.04937f * std::sin(1.62531f * TitleFade.Progress + 3.14933f) +
+                     1.0494f);
     if (MenuTransition.Progress < 0.72f) {
-      x = x - 572 * (4 * MenuTransition.Progress - 3);
-      y = y + 460 * (4 * MenuTransition.Progress - 3) / 3;
+      labelX -= 572 * (MenuTransition.Progress * 4 - 3);
+      rightTitleX -= 572 * (MenuTransition.Progress * 4 - 3);
+      labelY += 460 * (MenuTransition.Progress * 4 - 3) / 3;
+      rightTitleY += 460 * (MenuTransition.Progress * 4 - 3) / 3;
     }
-    Renderer2D::DrawSprite(MenuTitleText, glm::vec2(x, y), glm::vec4(1.0f),
-                           glm::vec2(1.0f), MenuTitleTextAngle);
+    Renderer2D::DrawSprite(RedBarLabel, glm::vec2(labelX, labelY));
+    Renderer2D::DrawSprite(MenuTitleText, glm::vec2(rightTitleX, rightTitleY),
+                           glm::vec4(1.0f), glm::vec2(1.0f),
+                           MenuTitleTextAngle);
+    Renderer2D::DrawSprite(MenuTitleText,
+                           glm::vec2(MenuTitleTextLeftPosition.x, leftTitleY));
   }
-}
-
-inline void ClearListMenu::DrawMenuTitleLeft() {
-  float y = glm::mix(
-      1, 693,
-      1.04937f * std::sin(1.62531f * TitleFade.Progress + 3.14933f) + 1.0494f);
-  Renderer2D::DrawSprite(MenuTitleText,
-                         glm::vec2(MenuTitleTextLeftPosition.x, y));
 }
 
 inline void ClearListMenu::DrawPlayTime(int yOffset) {
@@ -317,8 +311,7 @@ inline void ClearListMenu::DrawButtonPrompt() {
   if (MenuTransition.IsIn()) {
     Renderer2D::DrawSprite(ButtonPromptSprite, ButtonPromptPosition);
   } else if (MenuTransition.Progress > 0.734f) {
-    float x = ButtonPromptPosition.x;
-    x = x - 2560 * MenuTransition.Progress + 2561;
+    float x = ButtonPromptPosition.x - 2560 * MenuTransition.Progress + 2561;
     Renderer2D::DrawSprite(ButtonPromptSprite,
                            glm::vec2(x, ButtonPromptPosition.y));
   }

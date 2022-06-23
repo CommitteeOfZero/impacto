@@ -22,6 +22,8 @@ glm::vec2 InitialRedBarPosition;
 glm::vec2 RightRedBarPosition;
 Sprite InitialRedBarSprite;
 glm::vec2 RedBarPosition;
+float RedBarDivision;
+float RedBarBaseX;
 Sprite RedBarSprite;
 glm::vec2 RedBarLabelPosition;
 Sprite RedBarLabel;
@@ -95,6 +97,8 @@ void Configure() {
   InitialRedBarPosition = EnsureGetMemberVec2("InitialRedBarPosition");
   RightRedBarPosition = EnsureGetMemberVec2("RightRedBarPosition");
   InitialRedBarSprite = EnsureGetMemberSprite("RedBarSprite");
+  RedBarDivision = EnsureGetMemberFloat("RedBarDivision");
+  RedBarBaseX = EnsureGetMemberFloat("RedBarBaseX");
   RedBarLabelPosition = EnsureGetMemberVec2("RedBarLabelPosition");
   RedBarLabel = EnsureGetMemberSprite("RedBarLabel");
   MenuTitleTextRightPosition = EnsureGetMemberVec2("MenuTitleTextRightPos");

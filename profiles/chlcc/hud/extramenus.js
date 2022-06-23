@@ -12,6 +12,8 @@ root.ExtraMenus = {
         BackgroundFilter: "ClearListFilter",
         InitialRedBarPosition: {X: 0, Y: 538},
         RightRedBarPosition: {X: 1059, Y: 538},
+        RedBarDivision: 1826,
+        RedBarBaseX: 1059,
         RedBarSprite: "RedBar",
         RedBarLabelPosition: {X: 1067, Y: 573},
         RedBarLabel: "RedBarLabel",
