@@ -469,10 +469,8 @@ void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
   // Do we have space for one more sprite quad?
   EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
 
-  if (CurrentMode != R2D_Masked) {
-    Flush();
-    CurrentMode = R2D_Masked;
-  }
+  Flush();
+  CurrentMode = R2D_Masked;
   glBindVertexArray(VAOSprites);
   glUseProgram(ShaderProgramMaskedSprite);
   glUniform1i(glGetUniformLocation(ShaderProgramMaskedSprite, "Mask"), 2);
