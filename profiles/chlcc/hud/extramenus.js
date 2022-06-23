@@ -8,7 +8,7 @@ root.ExtraMenus = {
         CircleStartPosition: {X: 20, Y: 20},
         CircleOffset: 200,
         ErinSprite: "Erin",
-        ErinPosition: {X: 301, Y: 0},
+        ErinPosition: {X: 301, Y: 1},
         BackgroundFilter: "ClearListFilter",
         InitialRedBarPosition: {X: 0, Y: 538},
         RightRedBarPosition: {X: 1059, Y: 538},

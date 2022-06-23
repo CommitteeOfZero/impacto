@@ -19,12 +19,12 @@ using namespace Impacto::TipsSystem;
 using namespace Impacto::Profile;
 
 ClearListMenu::ClearListMenu() {
-  MenuTransition.Direction = 1;
+  MenuTransition.Direction = 1.0f;
   MenuTransition.LoopMode = ALM_Stop;
   MenuTransition.DurationIn = MenuTransitionDuration;
   MenuTransition.DurationOut = MenuTransitionDuration;
 
-  TitleFade.Direction = 1;
+  TitleFade.Direction = 1.0f;
   TitleFade.LoopMode = ALM_Stop;
   TitleFade.DurationIn = TitleFadeInDuration;
   TitleFade.DurationOut = TitleFadeOutDuration;
@@ -67,17 +67,17 @@ void ClearListMenu::Hide() {
 void ClearListMenu::Render() {
   if (State != Hidden) {
     if (MenuTransition.IsIn()) {
-      Renderer2D::DrawRect(RectF(0.0f, 0.0f, 1280, 720),
+      Renderer2D::DrawRect(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                            RgbIntToFloat(BackgroundColor));
     } else {
       DrawCircles();
     }
     DrawErin();
-    glm::vec3 tint = {1, 1, 1};
+    glm::vec3 tint = {1.0f, 1.0f, 1.0f};
     // Alpha goes from 0 to 1 in half the time
     float alpha =
-        MenuTransition.Progress < 0.5 ? MenuTransition.Progress * 2 : 1;
-    Renderer2D::DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280, 720),
+        MenuTransition.Progress < 0.5f ? MenuTransition.Progress * 2.0f : 1.0f;
+    Renderer2D::DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                            glm::vec4(tint, alpha));
     DrawRedBar();
     DrawTitles();
@@ -86,7 +86,7 @@ void ClearListMenu::Render() {
       if (MenuTransition.Progress < 0.72f) {
         // Approximated function from the original, another mess
         yOffset = glm::mix(
-            -720, 0,
+            -720.0f, 0.0f,
             1.00397f * std::sin(3.97161f - 3.26438f * MenuTransition.Progress) -
                 0.00295643f);
       }
@@ -119,10 +119,10 @@ void ClearListMenu::Update(float dt) {
 
   if (State != Hidden) {
     MenuTransition.Update(dt);
-    if (MenuTransition.Direction == -1 && MenuTransition.Progress <= 0.72f) {
+    if (MenuTransition.Direction == -1.0f && MenuTransition.Progress <= 0.72f) {
       TitleFade.StartOut();
     } else if (MenuTransition.IsIn() &&
-               (TitleFade.Direction == 1 || TitleFade.IsOut())) {
+               (TitleFade.Direction == 1.0f || TitleFade.IsOut())) {
       TitleFade.StartIn();
     }
     TitleFade.Update(dt);
@@ -134,19 +134,19 @@ inline void ClearListMenu::DrawCircles() {
   int resetCounter = 0;
   // Give the whole range that mimics ScrWork[SW_SYSMENUCT] given that the
   // duration is totalframes/60
-  float progress = MenuTransition.Progress * MenuTransitionDuration * 60;
+  float progress = MenuTransition.Progress * MenuTransitionDuration * 60.0f;
   for (int line = 0; line < 4; line++) {
     int counter = resetCounter;
     float x = CircleStartPosition.x;
     for (int col = 0; col < 7; col++) {
       if (counter + 1 <= (progress)) {
-        float scale = ((progress) - (counter + 1)) * 16;
-        scale = scale <= 320 ? scale : 320;
-        scale *= CircleSprite.Bounds.Height / 106;
+        float scale = ((progress) - (counter + 1.0f)) * 16.0f;
+        scale = scale <= 320.0f ? scale : 320.0f;
+        scale *= CircleSprite.Bounds.Height / 106.0f;
         Renderer2D::DrawSprite(
-            CircleSprite,
-            RectF(x + (CircleSprite.Bounds.Width - scale) / 2,
-                  y + (CircleSprite.Bounds.Height - scale) / 2, scale, scale));
+            CircleSprite, RectF(x + (CircleSprite.Bounds.Width - scale) / 2.0f,
+                                y + (CircleSprite.Bounds.Height - scale) / 2.0f,
+                                scale, scale));
         x += CircleOffset;
       }
       counter += 2;
@@ -157,18 +157,18 @@ inline void ClearListMenu::DrawCircles() {
 }
 
 inline void ClearListMenu::DrawErin() {
-  float y = 0;
+  float y = ErinPosition.y;
   if (MenuTransition.Progress < 0.78f) {
-    y = 800;
+    y = 801.0f;
     if (MenuTransition.Progress > 0.22f) {
       // Approximation from the original function, which was a bigger mess
       y = glm::mix(
-          -20, 720,
+          -19.0f, 721.0f,
           0.998938f -
-              0.998267 * sin(3.97835f - 3.27549 * MenuTransition.Progress));
+              0.998267f * sin(3.97835f - 3.27549f * MenuTransition.Progress));
     }
   }
-  Renderer2D::DrawSprite(ErinSprite, glm::vec2(ErinPosition.x, y + 1));
+  Renderer2D::DrawSprite(ErinSprite, glm::vec2(ErinPosition.x, y));
 }
 
 inline void ClearListMenu::DrawRedBar() {
@@ -177,13 +177,13 @@ inline void ClearListMenu::DrawRedBar() {
   } else if (MenuTransition.Progress > 0.70f) {
     // Give the whole range that mimics ScrWork[SW_SYSMENUCT] given that the
     // duration is totalframes/60
-    float progress = MenuTransition.Progress * MenuTransitionDuration * 60;
-    float pixelPerAdvanceLeft = RedBarBaseX * (progress - 47) / 17.0;
+    float progress = MenuTransition.Progress * MenuTransitionDuration * 60.0f;
+    float pixelPerAdvanceLeft = RedBarBaseX * (progress - 47.0f) / 17.0f;
     RedBarSprite.Bounds.X = RedBarDivision - pixelPerAdvanceLeft;
     RedBarSprite.Bounds.Width = pixelPerAdvanceLeft;
     RedBarPosition.x = RedBarBaseX - pixelPerAdvanceLeft;
     Renderer2D::DrawSprite(RedBarSprite, RedBarPosition);
-    float pixelPerAdvanceRight = 13 * (progress - 47);
+    float pixelPerAdvanceRight = 13.0f * (progress - 47.0f);
     RedBarSprite.Bounds.X = RedBarDivision;
     RedBarSprite.Bounds.Width = pixelPerAdvanceRight;
     RedBarPosition = RightRedBarPosition;
@@ -198,14 +198,14 @@ inline void ClearListMenu::DrawTitles() {
     float rightTitleX = MenuTitleTextRightPosition.x;
     float rightTitleY = MenuTitleTextRightPosition.y;
     float leftTitleY =
-        glm::mix(1, 693,
+        glm::mix(1.0f, 693.0f,
                  1.04937f * std::sin(1.62531f * TitleFade.Progress + 3.14933f) +
                      1.0494f);
     if (MenuTransition.Progress < 0.72f) {
-      labelX -= 572 * (MenuTransition.Progress * 4 - 3);
-      rightTitleX -= 572 * (MenuTransition.Progress * 4 - 3);
-      labelY += 460 * (MenuTransition.Progress * 4 - 3) / 3;
-      rightTitleY += 460 * (MenuTransition.Progress * 4 - 3) / 3;
+      labelX -= 572.0f * (MenuTransition.Progress * 4.0f - 3.0f);
+      rightTitleX -= 572.0f * (MenuTransition.Progress * 4.0f - 3.0f);
+      labelY += 460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f;
+      rightTitleY += 460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f;
     }
     Renderer2D::DrawSprite(RedBarLabel, glm::vec2(labelX, labelY));
     Renderer2D::DrawSprite(MenuTitleText, glm::vec2(rightTitleX, rightTitleY),
@@ -311,7 +311,8 @@ inline void ClearListMenu::DrawButtonPrompt() {
   if (MenuTransition.IsIn()) {
     Renderer2D::DrawSprite(ButtonPromptSprite, ButtonPromptPosition);
   } else if (MenuTransition.Progress > 0.734f) {
-    float x = ButtonPromptPosition.x - 2560 * MenuTransition.Progress + 2561;
+    float x =
+        ButtonPromptPosition.x - 2560.0f * MenuTransition.Progress + 2561.0f;
     Renderer2D::DrawSprite(ButtonPromptSprite,
                            glm::vec2(x, ButtonPromptPosition.y));
   }
