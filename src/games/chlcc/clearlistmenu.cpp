@@ -34,10 +34,8 @@ ClearListMenu::ClearListMenu() {
 }
 
 void ClearListMenu::Show() {
-  // TODO: Fix not being able to return to the main menu
-
   if (State != Shown) {
-    if (State != Showing) MenuTransition.StartIn();
+    MenuTransition.StartIn();
     State = Showing;
     if (UI::FocusedMenu != 0) {
       LastFocusedMenu = UI::FocusedMenu;
@@ -50,9 +48,7 @@ void ClearListMenu::Show() {
 
 void ClearListMenu::Hide() {
   if (State != Hidden) {
-    if (State != Hiding) {
-      MenuTransition.StartOut();
-    }
+    MenuTransition.StartOut();
     State = Hiding;
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
@@ -142,7 +138,6 @@ inline void ClearListMenu::DrawCircles() {
       if (counter + 1 <= (progress)) {
         float scale = ((progress) - (counter + 1.0f)) * 16.0f;
         scale = scale <= 320.0f ? scale : 320.0f;
-        scale *= CircleSprite.Bounds.Height / 106.0f;
         Renderer2D::DrawSprite(
             CircleSprite, RectF(x + (CircleSprite.Bounds.Width - scale) / 2.0f,
                                 y + (CircleSprite.Bounds.Height - scale) / 2.0f,
@@ -197,10 +192,9 @@ inline void ClearListMenu::DrawTitles() {
     float labelY = RedBarLabelPosition.y;
     float rightTitleX = MenuTitleTextRightPosition.x;
     float rightTitleY = MenuTitleTextRightPosition.y;
-    float leftTitleY =
-        glm::mix(1.0f, 693.0f,
-                 1.04937f * std::sin(1.62531f * TitleFade.Progress + 3.14933f) +
-                     1.0494f);
+    float leftTitleY = glm::mix(
+        1.0f, 721.0f,
+        1.01011f * std::sin(1.62223f * TitleFade.Progress + 3.152f) + 1.01012f);
     if (MenuTransition.Progress < 0.72f) {
       labelX -= 572.0f * (MenuTransition.Progress * 4.0f - 3.0f);
       rightTitleX -= 572.0f * (MenuTransition.Progress * 4.0f - 3.0f);

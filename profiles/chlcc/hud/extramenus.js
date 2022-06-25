@@ -9,7 +9,7 @@ root.ExtraMenus = {
         CircleOffset: 200,
         ErinSprite: "Erin",
         ErinPosition: {X: 301, Y: 1},
-        BackgroundFilter: "ClearListFilter",
+        BackgroundFilter: "BackgroundFilter",
         InitialRedBarPosition: {X: 0, Y: 538},
         RightRedBarPosition: {X: 1059, Y: 538},
         RedBarDivision: 1826,
@@ -102,7 +102,7 @@ for (var i = 0; i <= 9; i++) {
     root.ExtraMenus.ClearListMenu.Digits.push("Digit" + i);
 }
 
-root.Sprites["ClearListFilter"] = {
+root.Sprites["BackgroundFilter"] = {
     Sheet: "ClearList",
     Bounds: {X: 0, Y: 0, Width: 640, Height: 360}
 }
