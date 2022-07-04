@@ -8,99 +8,115 @@ namespace UI {
 namespace Widgets {
 namespace CHLCC {
 
+glm::vec4 SaveEntryButton::FocusedAlpha = glm::vec4(1.0f);
+Animation SaveEntryButton::FocusedAlphaFade;
+
+SaveEntryButton::SaveEntryButton(int id, Sprite const& norm,
+                                 Sprite const& focused, Sprite const& highlight,
+                                 glm::vec2 pos)
+    : Widgets::Button(id, norm, focused, highlight, pos),
+      NormalSpriteLabel(norm, pos),
+      FocusedSpriteLabel(focused, pos) {}
+
 void SaveEntryButton::Render() {
+  NormalSpriteLabel.Render();
   if (HasFocus) {
-    Renderer2D::DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
-  } else {
-    if (Enabled) {
-      Renderer2D::DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
-    } else {
-      Renderer2D::DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y),
-                             Tint);
-    }
+    FocusedSpriteLabel.Tint = FocusedAlpha;
+    FocusedSpriteLabel.Render();
   }
-
+  ThumbnailLabel.Render();
+  EntryNumberHint.Render();
   if (EntryActive) {
-    Renderer2D::DrawProcessedText(SceneTitle, SceneTitleLength,
-                                  Profile::Dialogue::DialogueFont, Tint.a, true,
-                                  true);
-    Renderer2D::DrawProcessedText(PlayTimeHint, PlayTimeHintLength,
-                                  Profile::Dialogue::DialogueFont, Tint.a, true,
-                                  true);
-    Renderer2D::DrawProcessedText(PlayTime, PlayTimeLength,
-                                  Profile::Dialogue::DialogueFont, Tint.a, true,
-                                  true);
-    Renderer2D::DrawProcessedText(SaveDateHint, SaveDateHintLength,
-                                  Profile::Dialogue::DialogueFont, Tint.a, true,
-                                  true);
-    Renderer2D::DrawProcessedText(SaveDate, SaveDateLength,
-                                  Profile::Dialogue::DialogueFont, Tint.a, true,
-                                  true);
+    SceneTitle.Render();
+    PlayTimeHint.Render();
+    PlayTime.Render();
+    SaveDateHint.Render();
+    SaveDate.Render();
   } else {
-    Renderer2D::DrawProcessedText(SceneTitle, SceneTitleLength,
-                                  Profile::Dialogue::DialogueFont, Tint.a, true,
-                                  true);
+    SceneTitle.Render();
   }
+}
 
-  Renderer2D::DrawSprite(Thumbnail,
-                         glm::vec2(Bounds.X + 41.0f, Bounds.Y + 5.0f), Tint);
+void SaveEntryButton::AddEntryNumberHintText(uint8_t* str, int fontSize,
+                                             bool outline) {
+  EntryNumberHint = Label(str, glm::vec2(Bounds.X + 210.0f, Bounds.Y + 11),
+                          fontSize, outline, 0);
 }
 
 void SaveEntryButton::AddSceneTitleText(uint8_t* str, int fontSize,
                                         bool outline) {
-  Impacto::Vm::Sc3VmThread dummy;
-  dummy.Ip = str;
   if (EntryActive) {
-    SceneTitleLength = TextLayoutPlainLine(
-        &dummy, 255, SceneTitle, Profile::Dialogue::DialogueFont, fontSize,
-        Profile::Dialogue::ColorTable[0], 1.0f,
-        glm::vec2(Bounds.X + 228.0f, Bounds.Y + 10.0f), TextAlignment::Left);
+    SceneTitle = Label(str, glm::vec2(Bounds.X + 210.0f, Bounds.Y + 36.0f),
+                       fontSize, outline, 0);
   } else {
-    SceneTitleLength = TextLayoutPlainLine(
-        &dummy, 255, SceneTitle, Profile::Dialogue::DialogueFont, fontSize,
-        Profile::Dialogue::ColorTable[0], 1.0f,
-        glm::vec2(Bounds.X + 228.0f, Bounds.Y + 50.0f), TextAlignment::Left);
+    SceneTitle = Label(str, glm::vec2(Bounds.X + 295.0f, Bounds.Y + 46.0f),
+                       fontSize, outline, 0);
   }
 }
 
 void SaveEntryButton::AddPlayTimeHintText(uint8_t* str, int fontSize,
                                           bool outline) {
-  Impacto::Vm::Sc3VmThread dummy;
-  dummy.Ip = str;
-  PlayTimeHintLength = TextLayoutPlainLine(
-      &dummy, 255, PlayTimeHint, Profile::Dialogue::DialogueFont, fontSize,
-      Profile::Dialogue::ColorTable[0], 1.0f,
-      glm::vec2(Bounds.X + 238.0f, Bounds.Y + 45.0f), TextAlignment::Left);
+  PlayTimeHint = Label(str, glm::vec2(Bounds.X + 260.0f, Bounds.Y + 68.0f),
+                       fontSize, outline, 0);
 }
 
-void SaveEntryButton::AddPlayTimeText(uint8_t* str, int fontSize,
+void SaveEntryButton::AddPlayTimeText(std::string str, int fontSize,
                                       bool outline) {
-  Impacto::Vm::Sc3VmThread dummy;
-  dummy.Ip = str;
-  PlayTimeLength = TextLayoutPlainLine(
-      &dummy, 255, PlayTime, Profile::Dialogue::DialogueFont, fontSize,
-      Profile::Dialogue::ColorTable[0], 1.0f,
-      glm::vec2(Bounds.X + 372.0f, Bounds.Y + 61.0f), TextAlignment::Left);
+  // Spacing is currently set for the C;HLCC font, more or less
+  PlayTime = Label(str, glm::vec2(Bounds.X + 420.0f, Bounds.Y + 68.0f),
+                   fontSize, outline, 0);
 }
 
 void SaveEntryButton::AddSaveDateHintText(uint8_t* str, int fontSize,
                                           bool outline) {
-  Impacto::Vm::Sc3VmThread dummy;
-  dummy.Ip = str;
-  SaveDateHintLength = TextLayoutPlainLine(
-      &dummy, 255, SaveDateHint, Profile::Dialogue::DialogueFont, fontSize,
-      Profile::Dialogue::ColorTable[0], 1.0f,
-      glm::vec2(Bounds.X + 238.0f, Bounds.Y + 75.0f), TextAlignment::Left);
+  SaveDateHint = Label(str, glm::vec2(Bounds.X + 260.0f, Bounds.Y + 85.0f),
+                       fontSize, outline, 0);
 }
 
-void SaveEntryButton::AddSaveDateText(uint8_t* str, int fontSize,
+void SaveEntryButton::AddSaveDateText(std::string str, int fontSize,
                                       bool outline) {
-  Impacto::Vm::Sc3VmThread dummy;
-  dummy.Ip = str;
-  SaveDateLength = TextLayoutPlainLine(
-      &dummy, 255, SaveDate, Profile::Dialogue::DialogueFont, fontSize,
-      Profile::Dialogue::ColorTable[0], 1.0f,
-      glm::vec2(Bounds.X + 283.0f, Bounds.Y + 93.0f), TextAlignment::Left);
+  // Spacing is currently set for the C;HLCC font, more or less
+  SaveDate = Label(str, glm::vec2(Bounds.X + 340.0f, Bounds.Y + 85.0f),
+                   fontSize, outline, 0);
+}
+
+void SaveEntryButton::AddThumbnail(Sprite thumbnail,
+                                   glm::vec2 relativePosition) {
+  ThumbnailLabel =
+      Label(thumbnail, glm::vec2(Bounds.X, Bounds.Y) + relativePosition);
+}
+
+void SaveEntryButton::Move(glm::vec2 relativePosition) {
+  NormalSpriteLabel.Move(relativePosition);
+  FocusedSpriteLabel.Move(relativePosition);
+  ThumbnailLabel.Move(relativePosition);
+  EntryNumberHint.Move(relativePosition);
+  SceneTitle.Move(relativePosition);
+  PlayTimeHint.Move(relativePosition);
+  PlayTime.Move(relativePosition);
+  SaveDateHint.Move(relativePosition);
+  SaveDate.Move(relativePosition);
+}
+
+void SaveEntryButton::FocusedAlphaFadeStart() {
+  if (FocusedAlphaFade.State == AS_Stopped) {
+    FocusedAlphaFade.Direction = 1;
+    FocusedAlphaFade.DurationIn = 0.5f;
+    FocusedAlphaFade.DurationOut = 0.5f;
+    FocusedAlphaFade.LoopMode = ALM_ReverseDirection;
+    FocusedAlphaFade.StartIn();
+  }
+}
+
+void SaveEntryButton::FocusedAlphaFadeReset() {
+  FocusedAlphaFade.State = AS_Stopped;
+  FocusedAlphaFade.Progress = 0.0f;
+}
+
+void SaveEntryButton::UpdateFocusedAlphaFade(float dt) {
+  FocusedAlphaFade.Update(dt);
+  FocusedAlpha =
+      glm::vec4(glm::vec3(1.0f), ((FocusedAlphaFade.Progress * 30) + 1) / 85);
 }
 
 }  // namespace CHLCC

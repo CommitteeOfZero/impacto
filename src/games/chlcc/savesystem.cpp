@@ -47,6 +47,12 @@ SaveError SaveSystem::MountSaveFile() {
     EVFlags[8 * i + 7] = val >> 7;
   }
 
+  stream->Seek(0xbc2, SEEK_SET);
+  Io::ReadArrayLE<uint8_t>(BGMFlags, stream, 100);
+
+  stream->Seek(0xc26, SEEK_SET);
+  Io::ReadArrayLE<uint8_t>(MessageFlags, stream, 10000);
+
   stream->Seek(0x358E, SEEK_SET);
   Io::ReadArrayLE<uint8_t>(GameExtraData, stream, 1024);
 
@@ -65,8 +71,7 @@ SaveError SaveSystem::MountSaveFile() {
     uint8_t saveYear = Io::ReadLE<uint8_t>(stream);
     uint8_t saveSecond = Io::ReadLE<uint8_t>(stream);
     QuickSaveEntries[i]->SaveDate =
-        std::tm{saveSecond, saveMinute,    saveHour,
-                saveDay,    saveMonth - 1, saveYear + 100};
+        std::tm{saveSecond, saveMinute, saveHour, saveDay, saveMonth, saveYear};
     Io::ReadLE<uint16_t>(stream);
     QuickSaveEntries[i]->PlayTime = Io::ReadLE<uint32_t>(stream);
     QuickSaveEntries[i]->SwTitle = Io::ReadLE<uint16_t>(stream);
@@ -114,8 +119,7 @@ SaveError SaveSystem::MountSaveFile() {
     uint8_t saveYear = Io::ReadLE<uint8_t>(stream);
     uint8_t saveSecond = Io::ReadLE<uint8_t>(stream);
     FullSaveEntries[i]->SaveDate =
-        std::tm{saveSecond, saveMinute,    saveHour,
-                saveDay,    saveMonth - 1, saveYear + 100};
+        std::tm{saveSecond, saveMinute, saveHour, saveDay, saveMonth, saveYear};
     Io::ReadLE<uint16_t>(stream);
     FullSaveEntries[i]->PlayTime = Io::ReadLE<uint32_t>(stream);
     FullSaveEntries[i]->SwTitle = Io::ReadLE<uint16_t>(stream);
@@ -223,6 +227,24 @@ void SaveSystem::WriteSaveFile() {
   //    // TODO: We don't have writing to file...
   //  }
   //}
+}
+
+uint32_t SaveSystem::GetSavePlayTime(SaveType type, int id) {
+  switch (type) {
+    case SaveFull:
+      return ((SaveFileEntry*)FullSaveEntries[id])->PlayTime;
+    case SaveQuick:
+      return ((SaveFileEntry*)QuickSaveEntries[id])->PlayTime;
+  }
+}
+
+tm SaveSystem::GetSaveDate(SaveType type, int id) {
+  switch (type) {
+    case SaveFull:
+      return ((SaveFileEntry*)FullSaveEntries[id])->SaveDate;
+    case SaveQuick:
+      return ((SaveFileEntry*)QuickSaveEntries[id])->SaveDate;
+  }
 }
 
 void SaveSystem::SaveMemory() {

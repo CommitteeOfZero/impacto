@@ -39,6 +39,14 @@ void WriteSaveFile() {
   if (Implementation) Implementation->WriteSaveFile();
 }
 
+uint32_t GetSavePlayTime(SaveType type, int id) {
+  if (Implementation) return Implementation->GetSavePlayTime(type, id);
+}
+
+tm GetSaveDate(SaveType type, int id) {
+  if (Implementation) return Implementation->GetSaveDate(type, id);
+}
+
 uint8_t GetSaveSatus(SaveType type, int id) {
   if (Implementation) return Implementation->GetSaveSatus(type, id);
 }

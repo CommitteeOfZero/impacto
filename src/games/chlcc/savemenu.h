@@ -3,6 +3,7 @@
 #include "../../ui/menu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
+#include "../../data/savesystem.h"
 
 namespace Impacto {
 namespace UI {
@@ -20,8 +21,15 @@ class SaveMenu : public Menu {
   void MenuButtonOnClick(Widgets::Button* target);
 
  private:
+  inline void DrawCircles();
+  inline void DrawErin();
+  inline void DrawRedBar();
+  inline void DrawTitles();
+
   Widgets::Group* MainItems;
-  Animation FadeAnimation;
+  Animation MenuTransition;
+  Animation TitleFade;
+  SaveSystem::SaveType EntryType;
 };
 
 }  // namespace CHLCC

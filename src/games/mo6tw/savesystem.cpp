@@ -517,6 +517,24 @@ void SaveSystem::LoadMemory(SaveType type, int id) {
     }
 }
 
+uint32_t SaveSystem::GetSavePlayTime(SaveType type, int id) {
+  switch (type) {
+    case SaveFull:
+      return ((SaveFileEntry*)FullSaveEntries[id])->PlayTime;
+    case SaveQuick:
+      return ((SaveFileEntry*)QuickSaveEntries[id])->PlayTime;
+  }
+}
+
+tm SaveSystem::GetSaveDate(SaveType type, int id) {
+  switch (type) {
+    case SaveFull:
+      return ((SaveFileEntry*)FullSaveEntries[id])->SaveDate;
+    case SaveQuick:
+      return ((SaveFileEntry*)QuickSaveEntries[id])->SaveDate;
+  }
+}
+
 uint8_t SaveSystem::GetSaveSatus(SaveType type, int id) {
   switch (type) {
     case SaveQuick:

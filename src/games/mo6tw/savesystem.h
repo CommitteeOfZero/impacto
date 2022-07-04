@@ -22,6 +22,8 @@ class SaveSystem : public SaveSystemBase {
   void LoadMemory(SaveType type, int id);
   void FlushWorkingSaveEntry(SaveType type, int id);
   void WriteSaveFile();
+  uint32_t GetSavePlayTime(SaveType type, int id);
+  tm GetSaveDate(SaveType type, int id);
   uint8_t GetSaveSatus(SaveType type, int id);
   int GetSaveTitle(SaveType type, int id);
   uint32_t GetTipStatus(int tipId);

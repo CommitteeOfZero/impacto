@@ -61,6 +61,8 @@ class SaveSystemBase {
   virtual void LoadMemory(SaveType type, int id) = 0;
   virtual void FlushWorkingSaveEntry(SaveType type, int id) = 0;
   virtual void WriteSaveFile() = 0;
+  virtual uint32_t GetSavePlayTime(SaveType type, int id) = 0;
+  virtual tm GetSaveDate(SaveType type, int id) = 0;
   virtual uint8_t GetSaveSatus(SaveType type, int id) = 0;
   virtual int GetSaveTitle(SaveType type, int id) = 0;
   virtual uint32_t GetTipStatus(int tipId) = 0;
@@ -87,6 +89,8 @@ void SaveMemory();
 void LoadMemory(SaveType type, int id);
 void FlushWorkingSaveEntry(SaveType type, int id);
 void WriteSaveFile();
+uint32_t GetSavePlayTime(SaveType type, int id);
+tm GetSaveDate(SaveType type, int id);
 uint8_t GetSaveSatus(SaveType type, int id);
 int GetSaveTitle(SaveType type, int id);
 uint32_t GetTipStatus(int tipId);

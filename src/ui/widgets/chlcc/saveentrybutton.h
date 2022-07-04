@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../button.h"
+#include "../label.h"
 
 namespace Impacto {
 namespace UI {
@@ -10,30 +11,35 @@ namespace CHLCC {
 class SaveEntryButton : public Widgets::Button {
  public:
   SaveEntryButton(int id, Sprite const& norm, Sprite const& focused,
-                  Sprite const& highlight, glm::vec2 pos)
-      : Widgets::Button(id, norm, focused, highlight, pos) {}
+                  Sprite const& highlight, glm::vec2 pos);
   void Render() override;
+  void AddEntryNumberHintText(uint8_t* str, int fontSize, bool outline);
   void AddPlayTimeHintText(uint8_t* str, int fontSize, bool outline);
-  void AddPlayTimeText(uint8_t* str, int fontSize, bool outline);
+  void AddPlayTimeText(std::string str, int fontSize, bool outline);
   void AddSaveDateHintText(uint8_t* str, int fontSize, bool outline);
-  void AddSaveDateText(uint8_t* str, int fontSize, bool outline);
+  void AddSaveDateText(std::string str, int fontSize, bool outline);
   void AddSceneTitleText(uint8_t* str, int fontSize, bool outline);
+  void AddThumbnail(Sprite thumbnail, glm::vec2 relativePosition);
+  void Move(glm::vec2 pos);
 
-  Sprite Thumbnail;
+  static void FocusedAlphaFadeStart();
+  static void FocusedAlphaFadeReset();
+  static void UpdateFocusedAlphaFade(float dt);
 
   bool EntryActive = false;
 
  private:
-  ProcessedTextGlyph SceneTitle[255];
-  int SceneTitleLength;
-  ProcessedTextGlyph PlayTimeHint[64];
-  int PlayTimeHintLength;
-  ProcessedTextGlyph PlayTime[255];
-  int PlayTimeLength;
-  ProcessedTextGlyph SaveDateHint[64];
-  int SaveDateHintLength;
-  ProcessedTextGlyph SaveDate[255];
-  int SaveDateLength;
+  Label NormalSpriteLabel;
+  Label FocusedSpriteLabel;
+  static glm::vec4 FocusedAlpha;
+  static Animation FocusedAlphaFade;
+  Label ThumbnailLabel;
+  Label EntryNumberHint;
+  Label SceneTitle;
+  Label PlayTimeHint;
+  Label PlayTime;
+  Label SaveDateHint;
+  Label SaveDate;
 };
 
 }  // namespace MO6TW

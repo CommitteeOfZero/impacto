@@ -22,6 +22,8 @@ class SaveSystem : public SaveSystemBase {
   void LoadMemory(SaveType type, int id);
   void FlushWorkingSaveEntry(SaveType type, int id);
   void WriteSaveFile();
+  uint32_t GetSavePlayTime(SaveType type, int id);
+  tm GetSaveDate(SaveType type, int id);
   uint8_t GetSaveSatus(SaveType type, int id);
   int GetSaveTitle(SaveType type, int id);
   uint32_t GetTipStatus(int tipId);
@@ -34,7 +36,9 @@ class SaveSystem : public SaveSystemBase {
 
  private:
   uint8_t GameExtraData[1024];
+  uint8_t MessageFlags[10000];
   bool EVFlags[1200];
+  uint8_t BGMFlags[100];
 };
 
 }  // namespace CHLCC
