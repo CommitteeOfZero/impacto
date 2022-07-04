@@ -62,6 +62,7 @@ namespace Game {
 uint8_t DrawComponents[Vm::MaxThreads];
 
 bool ShouldQuit = false;
+float UpdateSecondCounter = 0.0f;
 
 static void Init() {
   WorkQueue::Init();
@@ -169,6 +170,14 @@ void Shutdown() {
   Window::Shutdown();
 }
 
+void UpdateGameState(float dt) {
+  UpdateSecondCounter += dt;
+  if (UpdateSecondCounter >= 1) {
+    ScrWork[SW_PLAYTIME]++;
+    UpdateSecondCounter -= 1.0f;
+  }
+}
+
 void Update(float dt) {
   SDL_Event e;
   if (Profile::GameFeatures & GameFeature::Nuklear) {
@@ -211,6 +220,7 @@ void Update(float dt) {
   }
 
   if (Profile::GameFeatures & GameFeature::Sc3VirtualMachine) {
+    UpdateGameState(dt);
     Vm::Update();
 
     for (DrawComponentType value : DrawComponentType::_values()) {
