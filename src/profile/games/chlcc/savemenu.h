@@ -7,6 +7,7 @@ namespace Profile {
 namespace CHLCC {
 namespace SaveMenu {
 
+int const Pages = 8;
 int const EntriesPerPage = 6;
 
 extern Sprite CircleSprite;

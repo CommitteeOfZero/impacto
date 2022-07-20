@@ -26,6 +26,9 @@ class SaveMenu : public Menu {
   inline void DrawRedBar();
   inline void DrawTitles();
 
+  std::vector<Widgets::Group*> FullSavePages;
+  std::vector<Widgets::Group*> QuickSavePages;
+  std::vector<Widgets::Group*>* SavePages;
   Widgets::Group* MainItems;
   Animation MenuTransition;
   Animation TitleFade;

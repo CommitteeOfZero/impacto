@@ -13,10 +13,10 @@ Animation SaveEntryButton::FocusedAlphaFade;
 
 SaveEntryButton::SaveEntryButton(int id, Sprite const& norm,
                                  Sprite const& focused, Sprite const& highlight,
-                                 glm::vec2 pos)
+                                 glm::vec2 pos, int page)
     : Widgets::Button(id, norm, focused, highlight, pos),
-      NormalSpriteLabel(norm, pos),
-      FocusedSpriteLabel(focused, pos) {}
+      FocusedSpriteLabel(focused, pos),
+      Page(page) {}
 
 void SaveEntryButton::Render() {
   NormalSpriteLabel.Render();
@@ -26,6 +26,7 @@ void SaveEntryButton::Render() {
   }
   ThumbnailLabel.Render();
   EntryNumberHint.Render();
+  EntryNumber.Render();
   if (EntryActive) {
     SceneTitle.Render();
     PlayTimeHint.Render();
@@ -37,53 +38,61 @@ void SaveEntryButton::Render() {
   }
 }
 
+int SaveEntryButton::GetPage() const { return Page; }
+
+void SaveEntryButton::AddNormalSpriteLabel(Sprite norm, glm::vec2 pos) {
+  NormalSpriteLabel = Label(norm, pos);
+}
+
 void SaveEntryButton::AddEntryNumberHintText(uint8_t* str, int fontSize,
-                                             bool outline) {
-  EntryNumberHint = Label(str, glm::vec2(Bounds.X + 210.0f, Bounds.Y + 11),
-                          fontSize, outline, 0);
+                                             bool outline, glm::vec2 pos) {
+  EntryNumberHint =
+      Label(str, pos + glm::vec2(210.0f, 11.0f), fontSize, outline, 0);
+}
+
+void SaveEntryButton::AddEntryNumberText(std::string str, int fontSize,
+                                         bool outline, glm::vec2 pos) {
+  EntryNumber =
+      Label(str, pos + glm::vec2(250.0f, 11.0f), fontSize, outline, 0);
 }
 
 void SaveEntryButton::AddSceneTitleText(uint8_t* str, int fontSize,
-                                        bool outline) {
+                                        bool outline, glm::vec2 pos) {
   if (EntryActive) {
-    SceneTitle = Label(str, glm::vec2(Bounds.X + 210.0f, Bounds.Y + 36.0f),
-                       fontSize, outline, 0);
+    SceneTitle =
+        Label(str, pos + glm::vec2(210.0f, 36.0f), fontSize, outline, 0);
   } else {
-    SceneTitle = Label(str, glm::vec2(Bounds.X + 295.0f, Bounds.Y + 46.0f),
-                       fontSize, outline, 0);
+    SceneTitle =
+        Label(str, pos + glm::vec2(295.0f, 46.0f), fontSize, outline, 0);
   }
 }
 
 void SaveEntryButton::AddPlayTimeHintText(uint8_t* str, int fontSize,
-                                          bool outline) {
-  PlayTimeHint = Label(str, glm::vec2(Bounds.X + 260.0f, Bounds.Y + 68.0f),
-                       fontSize, outline, 0);
+                                          bool outline, glm::vec2 pos) {
+  PlayTimeHint =
+      Label(str, pos + glm::vec2(260.0f, 68.0f), fontSize, outline, 0);
 }
 
 void SaveEntryButton::AddPlayTimeText(std::string str, int fontSize,
-                                      bool outline) {
+                                      bool outline, glm::vec2 pos) {
   // Spacing is currently set for the C;HLCC font, more or less
-  PlayTime = Label(str, glm::vec2(Bounds.X + 420.0f, Bounds.Y + 68.0f),
-                   fontSize, outline, 0);
+  PlayTime = Label(str, pos + glm::vec2(420.0f, 68.0f), fontSize, outline, 0);
 }
 
 void SaveEntryButton::AddSaveDateHintText(uint8_t* str, int fontSize,
-                                          bool outline) {
-  SaveDateHint = Label(str, glm::vec2(Bounds.X + 260.0f, Bounds.Y + 85.0f),
-                       fontSize, outline, 0);
+                                          bool outline, glm::vec2 pos) {
+  SaveDateHint =
+      Label(str, pos + glm::vec2(260.0f, 85.0f), fontSize, outline, 0);
 }
 
 void SaveEntryButton::AddSaveDateText(std::string str, int fontSize,
-                                      bool outline) {
+                                      bool outline, glm::vec2 pos) {
   // Spacing is currently set for the C;HLCC font, more or less
-  SaveDate = Label(str, glm::vec2(Bounds.X + 340.0f, Bounds.Y + 85.0f),
-                   fontSize, outline, 0);
+  SaveDate = Label(str, pos + glm::vec2(340.0f, 85.0f), fontSize, outline, 0);
 }
 
-void SaveEntryButton::AddThumbnail(Sprite thumbnail,
-                                   glm::vec2 relativePosition) {
-  ThumbnailLabel =
-      Label(thumbnail, glm::vec2(Bounds.X, Bounds.Y) + relativePosition);
+void SaveEntryButton::AddThumbnail(Sprite thumbnail, glm::vec2 pos) {
+  ThumbnailLabel = Label(thumbnail, pos);
 }
 
 void SaveEntryButton::Move(glm::vec2 relativePosition) {
@@ -91,6 +100,7 @@ void SaveEntryButton::Move(glm::vec2 relativePosition) {
   FocusedSpriteLabel.Move(relativePosition);
   ThumbnailLabel.Move(relativePosition);
   EntryNumberHint.Move(relativePosition);
+  EntryNumber.Move(relativePosition);
   SceneTitle.Move(relativePosition);
   PlayTimeHint.Move(relativePosition);
   PlayTime.Move(relativePosition);
