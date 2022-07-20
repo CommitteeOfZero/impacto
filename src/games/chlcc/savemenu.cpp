@@ -200,7 +200,7 @@ void SaveMenu::Show() {
     for (auto mainItems : *SavePages) {
       mainItems->Bounds = RectF(0.0f, 0.0f, 1280.0f, 720.0f);
       for (auto widget : mainItems->Children) {
-        auto saveEntryButton = dynamic_cast<SaveEntryButton*>(widget);
+        auto saveEntryButton = static_cast<SaveEntryButton*>(widget);
         saveEntryButton->AddNormalSpriteLabel(entrySprite,
                                               EntryPositions[idx % 6]);
         saveEntryButton->AddEntryNumberHintText(
@@ -306,7 +306,7 @@ void SaveMenu::Update(float dt) {
     SavePages->at(CurrentPage)->Update(dt);
     SaveEntryButton::UpdateFocusedAlphaFade(dt);
     auto currentlyFocusedButton =
-        dynamic_cast<SaveEntryButton*>(CurrentlyFocusedElement);
+        static_cast<SaveEntryButton*>(CurrentlyFocusedElement);
     if (currentlyFocusedButton) {
       int newPage = currentlyFocusedButton->GetPage();
       if (newPage != CurrentPage) {
