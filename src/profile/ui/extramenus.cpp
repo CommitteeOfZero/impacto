@@ -62,7 +62,7 @@ void Configure() {
 
       if (MusicType == +MusicMenuType::MO6TW) {
         MO6TW::MusicMenu::Configure();
-      } else if (AlbumType == +AlbumMenuType::CHLCC) {
+      } else if (MusicType == +MusicMenuType::CHLCC) {
         CHLCC::MusicMenu::Configure();
       }
 

@@ -39,7 +39,6 @@ MusicMenu::MusicMenu() {
 }
 
 void MusicMenu::Show() {
-  ScrWork[SW_MOVIEID] = 255;
   if (State != Shown) {
     if (State != Showing) MenuTransition.StartIn();
     State = Showing;
