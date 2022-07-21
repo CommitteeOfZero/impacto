@@ -39,15 +39,40 @@ root.SpriteSheets = {
         DesignWidth: 2048,
         DesignHeight: 720
     },
-    "ClearList": {
+    "Main": {
         Path: { Mount: "system", Id: 13 },
         DesignWidth: 2048,
         DesignHeight: 1024,
     },
-    "ClearListLabels": {
+    "ClearList": {
         Path: { Mount: "system", Id: 4 },
         DesignWidth: 2048,
         DesignHeight: 1024
+    },
+    "Movie": {
+        Path: { Mount: "system", Id: 14 },
+        DesignWidth: 2048,
+        DesignHeight: 1024
+    },
+    "CG": {
+        Path: { Mount: "system", Id: 0 },
+        DesignWidth: 2048,
+        DesignHeight: 1024
+    },
+    "Sound": {
+        Path: { Mount: "system", Id: 15 },
+        DesignWidth: 2048,
+        DesignHeight: 1024
+    },
+    "Tips": {
+        Path: { Mount: "system", Id: 11 },
+        DesignWidth: 2048,
+        DesignHeight: 1024
+    },
+    "Trophy": {
+        Path: { Mount: "system", Id: 24 },
+        DesignWidth: 1120,
+        DesignHeight: 896
     }
 
 };

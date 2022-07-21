@@ -8,6 +8,9 @@
 #include "../games/mo6tw/albummenu.h"
 #include "../games/cclcc/clearlistmenu.h"
 #include "../games/chlcc/clearlistmenu.h"
+#include "../games/chlcc/moviemenu.h"
+#include "../games/chlcc/musicmenu.h"
+#include "../games/chlcc/albummenu.h"
 
 namespace Impacto {
 namespace Profile {
@@ -46,6 +49,8 @@ void Configure() {
 
       if (AlbumType == +AlbumMenuType::MO6TW) {
         MO6TW::AlbumMenu::Configure();
+      } else if (AlbumType == +AlbumMenuType::CHLCC) {
+        CHLCC::AlbumMenu::Configure();
       }
 
       Pop();
@@ -57,6 +62,8 @@ void Configure() {
 
       if (MusicType == +MusicMenuType::MO6TW) {
         MO6TW::MusicMenu::Configure();
+      } else if (AlbumType == +AlbumMenuType::CHLCC) {
+        CHLCC::MusicMenu::Configure();
       }
 
       Pop();
@@ -68,6 +75,8 @@ void Configure() {
 
       if (MovieType == +MovieMenuType::MO6TW) {
         MO6TW::MovieMenu::Configure();
+      } else if (MovieType == +MovieMenuType::CHLCC) {
+        CHLCC::MovieMenu::Configure();
       }
 
       Pop();
