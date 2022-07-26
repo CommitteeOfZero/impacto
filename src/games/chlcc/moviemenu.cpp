@@ -39,7 +39,7 @@ MovieMenu::MovieMenu() {
 }
 
 void MovieMenu::Show() {
-  ScrWork[SW_MOVIEID] = 255;
+  ScrWork[SW_MOVIEMODE_CUR] = 255;
   if (State != Shown) {
     if (State != Showing) MenuTransition.StartIn();
     State = Showing;
