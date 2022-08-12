@@ -42,7 +42,9 @@ class TitleMenu : public Menu {
   Widgets::CHLCC::TitleButton* SubLoad;
   Widgets::CHLCC::TitleButton* QuickLoad;
 
-  Widgets::Group* ExtraItems;
+  Widgets::Group* CurrentExtraItems;
+  Widgets::Group* LockedExtraItems;
+  Widgets::Group* UnlockedExtraItems;
   Widgets::CHLCC::TitleButton* ClearList;
   Widgets::CHLCC::TitleButton* CGLibrary;
   Widgets::CHLCC::TitleButton* SoundLibrary;

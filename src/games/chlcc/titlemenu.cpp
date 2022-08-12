@@ -36,7 +36,8 @@ void TitleMenu::SecondaryButtonOnClick(Widgets::Button* target) {
 TitleMenu::TitleMenu() {
   MainItems = new Widgets::Group(this);
   LoadItems = new Widgets::Group(this);
-  ExtraItems = new Widgets::Group(this);
+  LockedExtraItems = new Widgets::Group(this);
+  UnlockedExtraItems = new Widgets::Group(this);
   SystemItems = new Widgets::Group(this);
 
   auto onClick =
@@ -104,6 +105,8 @@ TitleMenu::TitleMenu() {
   SubLoad->LineY = SecondaryMenuLoadQuickLineY;
   LoadItems->Add(SubLoad, FDIR_DOWN);
 
+  //Locked Extra Menus
+
   // Clear List secondary Extra menu button
   ClearList = new TitleButton(0, MenuEntriesSprites[6], MenuEntriesHSprites[6],
                               SecondaryItemHighlightSprite,
@@ -112,7 +115,39 @@ TitleMenu::TitleMenu() {
   ClearList->IsSubButton = true;
   ClearList->LineDecoration = LineSprites[0];
   ClearList->LineY = SecondaryMenuExtraClearY;
-  ExtraItems->Add(ClearList, FDIR_DOWN);
+  LockedExtraItems->Add(ClearList, FDIR_DOWN);
+
+  // Tips secondary Extra menu button
+  Tips = new TitleButton(1, MenuEntriesSprites[10], MenuEntriesHSprites[10],
+                         SecondaryItemHighlightSprite,
+                         glm::vec2(SecondaryItemX, ItemCGLibraryY));
+  Tips->OnClickHandler = secondaryOnClick;
+  Tips->IsSubButton = true;
+  Tips->LineDecoration = LineSprites[1];
+  Tips->LineY = SecondaryMenuExtraCGY;
+  LockedExtraItems->Add(Tips, FDIR_DOWN);
+
+  // Trophy secondary Extra menu button
+  Trophy = new TitleButton(2, MenuEntriesSprites[11], MenuEntriesHSprites[11],
+                           SecondaryItemHighlightSprite,
+                           glm::vec2(SecondaryItemX, ItemSoundLibraryY));
+  Trophy->OnClickHandler = secondaryOnClick;
+  Trophy->IsSubButton = true;
+  Trophy->LineDecoration = LineSprites[2];
+  Trophy->LineY = SecondaryMenuExtraSoundY;
+  LockedExtraItems->Add(Trophy, FDIR_DOWN);
+  
+  //Unlocked Extra Menus
+
+  // Clear List secondary Extra menu button
+  ClearList = new TitleButton(0, MenuEntriesSprites[6], MenuEntriesHSprites[6],
+                              SecondaryItemHighlightSprite,
+                              glm::vec2(SecondaryItemX, ItemClearListY));
+  ClearList->OnClickHandler = secondaryOnClick;
+  ClearList->IsSubButton = true;
+  ClearList->LineDecoration = LineSprites[0];
+  ClearList->LineY = SecondaryMenuExtraClearY;
+  UnlockedExtraItems->Add(ClearList, FDIR_DOWN);
 
   // CG Library secondary Extra menu button
   CGLibrary = new TitleButton(1, MenuEntriesSprites[7], MenuEntriesHSprites[7],
@@ -122,7 +157,7 @@ TitleMenu::TitleMenu() {
   CGLibrary->IsSubButton = true;
   CGLibrary->LineDecoration = LineSprites[1];
   CGLibrary->LineY = SecondaryMenuExtraCGY;
-  ExtraItems->Add(CGLibrary, FDIR_DOWN);
+  UnlockedExtraItems->Add(CGLibrary, FDIR_DOWN);
 
   // Sound Library secondary Extra menu button
   SoundLibrary =
@@ -133,7 +168,7 @@ TitleMenu::TitleMenu() {
   SoundLibrary->IsSubButton = true;
   SoundLibrary->LineDecoration = LineSprites[2];
   SoundLibrary->LineY = SecondaryMenuExtraSoundY;
-  ExtraItems->Add(SoundLibrary, FDIR_DOWN);
+  UnlockedExtraItems->Add(SoundLibrary, FDIR_DOWN);
 
   // Movie Library secondary Extra menu button
   MovieLibrary =
@@ -144,7 +179,7 @@ TitleMenu::TitleMenu() {
   MovieLibrary->IsSubButton = true;
   MovieLibrary->LineDecoration = LineSprites[3];
   MovieLibrary->LineY = SecondaryMenuExtraMovieY;
-  ExtraItems->Add(MovieLibrary, FDIR_DOWN);
+  UnlockedExtraItems->Add(MovieLibrary, FDIR_DOWN);
 
   // Tips secondary Extra menu button
   Tips = new TitleButton(4, MenuEntriesSprites[10], MenuEntriesHSprites[10],
@@ -154,7 +189,7 @@ TitleMenu::TitleMenu() {
   Tips->IsSubButton = true;
   Tips->LineDecoration = LineSprites[4];
   Tips->LineY = SecondaryMenuExtraTipsY;
-  ExtraItems->Add(Tips, FDIR_DOWN);
+  UnlockedExtraItems->Add(Tips, FDIR_DOWN);
 
   // Trophy secondary Extra menu button
   Trophy = new TitleButton(5, MenuEntriesSprites[11], MenuEntriesHSprites[11],
@@ -164,7 +199,7 @@ TitleMenu::TitleMenu() {
   Trophy->IsSubButton = true;
   Trophy->LineDecoration = LineSprites[5];
   Trophy->LineY = SecondaryMenuExtraTrophyY;
-  ExtraItems->Add(Trophy, FDIR_DOWN);
+  UnlockedExtraItems->Add(Trophy, FDIR_DOWN);
 
   // Option secondary System menu button
   Config = new TitleButton(0, MenuEntriesSprites[12], MenuEntriesHSprites[12],
@@ -185,10 +220,14 @@ TitleMenu::TitleMenu() {
   SystemSave->LineDecoration = LineSprites[3];
   SystemSave->LineY = SecondaryMenuSystemSaveY;
   SystemItems->Add(SystemSave, FDIR_DOWN);
+
+  CurrentExtraItems = LockedExtraItems;
 }
 
 void TitleMenu::Show() {
   if (State != Shown) {
+    CurrentExtraItems = GetFlag(SF_EXTRA_ENA) ? UnlockedExtraItems : LockedExtraItems;
+    ClearList = static_cast<TitleButton*>(CurrentExtraItems->Children[0]);
     State = Shown;
     if (UI::FocusedMenu != 0) {
       LastFocusedMenu = UI::FocusedMenu;
@@ -218,7 +257,6 @@ void TitleMenu::Hide() {
 
 void TitleMenu::Update(float dt) {
   UpdateInput();
-
   PressToStartAnimation.Update(dt);
   SpinningCircleAnimation.Update(dt);
   PrimaryFadeAnimation.Update(dt);
@@ -239,9 +277,9 @@ void TitleMenu::Update(float dt) {
     LoadItems->Tint.a =
         glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
     LoadItems->Update(dt);
-    ExtraItems->Tint.a =
+    CurrentExtraItems->Tint.a =
         glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
-    ExtraItems->Update(dt);
+    CurrentExtraItems->Update(dt);
     SystemItems->Tint.a =
         glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
     SystemItems->Update(dt);
@@ -288,22 +326,21 @@ void TitleMenu::Update(float dt) {
         }
       } break;
       case 9: {  // Secondary menu Extra Fade In
-        if (!ExtraItems->IsShown && ScrWork[SW_TITLECT] == 0) {
-          ExtraItems->Show();
-          ExtraItems->Tint.a = 0.0f;
+        if (!CurrentExtraItems->IsShown && ScrWork[SW_TITLECT] == 0) {
+          CurrentExtraItems->Show();
+          CurrentExtraItems->Tint.a = 0.0f;
           MainItems->HasFocus = false;
           CurrentlyFocusedElement = ClearList;
           ClearList->HasFocus = true;
-
           SecondaryFadeAnimation.DurationIn = SecondaryFadeInDuration;
           SecondaryFadeAnimation.DurationOut = SecondaryFadeOutDuration;
           SecondaryFadeAnimation.StartIn();
 
-        } else if (ExtraItems->IsShown && ScrWork[SW_TITLECT] == 32) {
+        } else if (CurrentExtraItems->IsShown && ScrWork[SW_TITLECT] == 32) {
           SecondaryFadeAnimation.StartOut();
 
         } else if (ScrWork[SW_TITLECT] == 0) {
-          ExtraItems->Hide();
+          CurrentExtraItems->Hide();
           MainItems->HasFocus = true;
         }
       } break;
@@ -382,7 +419,7 @@ void TitleMenu::Render() {
         } break;
         case 10: {  // Secondary menu EXTRAS
           DrawTitleMenuBackGraphics();
-          ExtraItems->Render();
+          CurrentExtraItems->Render();
           MainItems->Render();
         } break;
         case 11: {  // Secondary menu SYSTEM Fade In
