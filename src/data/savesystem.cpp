@@ -43,6 +43,10 @@ uint32_t GetSavePlayTime(SaveType type, int id) {
   if (Implementation) return Implementation->GetSavePlayTime(type, id);
 }
 
+uint8_t GetSaveFlags(SaveType type, int id) {
+  if (Implementation) return Implementation->GetSaveFlags(type, id);
+}
+
 tm GetSaveDate(SaveType type, int id) {
   if (Implementation) return Implementation->GetSaveDate(type, id);
 }

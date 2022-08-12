@@ -23,6 +23,7 @@ class SaveSystem : public SaveSystemBase {
   void FlushWorkingSaveEntry(SaveType type, int id);
   void WriteSaveFile();
   uint32_t GetSavePlayTime(SaveType type, int id);
+  uint8_t GetSaveFlags(SaveType type, int id);
   tm GetSaveDate(SaveType type, int id);
   uint8_t GetSaveSatus(SaveType type, int id);
   int GetSaveTitle(SaveType type, int id);

@@ -1,6 +1,9 @@
 root.SaveMenu = {
     Type: SaveMenuType.CHLCC,
     DrawType: DrawComponentType.SystemMenu,
+    SaveBackgroundColor: 0xff8e99,
+    LoadBackgroundColor: 0x50b5ff,
+    QuickLoadBackgroundColor: 0x01b06c,
     SaveCircle: "PinkCircle",
     LoadCircle: "LightBlueCircle",
     QuickLoadCircle: "GreenCircle",
@@ -41,9 +44,37 @@ root.SaveMenu = {
     SaveEntrySprite: "SaveEntry",
     LoadEntrySprite: "LoadEntry",
     EntryHighlightedSprite: "EntryHighlighted",
+    LockedSymbolSprite: "LockedSymbol",
     ThumbnailRelativePos: {X: 21, Y: 12},
     FadeInDuration: 64 / 60,
-    FadeOutDuration: 64 / 60
+    FadeOutDuration: 64 / 60,
+    PageNumBackgroundPos: {X: 1090, Y: 61},
+    PageNumBackground: "PageNumBackground",
+    CurrentPageNumPos: {X: 1133, Y: 65},
+    BigDigits: [],
+    PageNumSeparatorSlashPos: {X: 1161, Y: 90},
+    PageNumSeparatorSlash: "PageNumSeparatorSlash",
+    MaxPageNumPos: {X: 1179, Y: 90},
+    MaxPageNum: "MaxPageNum",
+    ButtonPromptPosition: {X: 853, Y: 651},
+    ButtonPrompt: "SaveButtonPrompt",
+    SelectDataFadeDuration: 110 / 60,
+    SelectDataTextPositions: [
+        {X: 94, Y: 51}, {X: 109, Y: 51},
+        {X: 122, Y: 51}, {X: 134, Y: 51},
+        {X: 147, Y: 51}, {X: 161, Y: 51},
+        {X: 180, Y: 51}, {X: 199, Y: 51},
+        {X: 213, Y: 51}, {X: 228, Y: 51}
+    ],
+    SelectDataText: [],
+    EntryNumberHintTextRelativePos: {X: 210, Y: 11},
+    EntryNumberTextRelativePos: {X: 250, Y: 11},
+    SceneTitleTextRelativePos: {X: 210, Y: 36},
+    NoDataTextRelativePos: {X: 295, Y: 46},
+    PlayTimeHintTextRelativePos: {X: 260, Y: 68},
+    PlayTimeTextRelativePos: {X: 420, Y: 68},
+    SaveDateHintTextRelativePos: {X: 260, Y: 85},
+    SaveDateTextRelativePos: {X: 340, Y: 85}
 };
 
 root.Sprites["PinkCircle"] = {
@@ -72,7 +103,7 @@ root.Sprites["RedBar"] = {
 };
 
 root.Sprites["BackgroundFilter"] = {
-    Sheet: "ClearList",
+    Sheet: "Main",
     Bounds: {X: 0, Y: 0, Width: 640, Height: 360}
 };
 
@@ -128,3 +159,98 @@ root.Sprites["EntryHighlighted"] = {
     Sheet: "Save",
     Bounds: {X: 1077, Y: 349, Width: 532, Height: 116}
 };
+
+root.Sprites["LockedSymbol"] = {
+    Sheet: "Save",
+    Bounds: {X: 463, Y: 581, Width: 28, Height: 28}
+};
+
+root.Sprites["PageNumBackground"] = {
+    Sheet: "Save",
+    Bounds: {X: 1, Y: 611, Width: 204, Height: 57}
+};
+
+for (var i = 0; i <= 9; i++) {
+    root.Sprites["BigDigit" + i] = {
+        Sheet: "Data",
+        Bounds: {X: i * 36 + 371, Y: 1, Width: 34, Height: 48}
+    };
+    root.SaveMenu.BigDigits.push("BigDigit" + i)
+}
+
+root.Sprites["PageNumSeparatorSlash"] = {
+    Sheet: "Data",
+    Bounds: {X: 173, Y: 67, Width: 16, Height: 22}
+};
+
+root.Sprites["MaxPageNum"] = {
+    Sheet: "Data",
+    Bounds: {X: 335, Y: 67, Width: 16, Height: 22}
+};
+
+root.Sprites["SaveButtonPrompt"] = {
+    Sheet: "Save",
+    Bounds: {X: 1, Y: 581, Width: 430, Height: 28}
+};
+
+// This is a mess
+
+root.Sprites["SaveMenuFadeTextS"] = {
+    Sheet: "Save",
+    Bounds: {X: 1, Y: 670, Width: 18, Height: 55}
+};
+root.SaveMenu.SelectDataText.push("SaveMenuFadeTextS")
+
+root.Sprites["SaveMenuFadeTextE"] = {
+    Sheet: "Save",
+    Bounds: {X: 21, Y: 670, Width: 16, Height: 55}
+};
+root.SaveMenu.SelectDataText.push("SaveMenuFadeTextE")
+
+root.Sprites["SaveMenuFadeTextL"] = {
+    Sheet: "Save",
+    Bounds: {X: 39, Y: 670, Width: 15, Height: 55}
+};
+root.SaveMenu.SelectDataText.push("SaveMenuFadeTextL")
+
+root.Sprites["SaveMenuFadeTextE2"] = {
+    Sheet: "Save",
+    Bounds: {X: 56, Y: 670, Width: 16, Height: 55}
+};
+root.SaveMenu.SelectDataText.push("SaveMenuFadeTextE2")
+
+root.Sprites["SaveMenuFadeTextC"] = {
+    Sheet: "Save",
+    Bounds: {X: 74, Y: 670, Width: 17, Height: 55}
+};
+root.SaveMenu.SelectDataText.push("SaveMenuFadeTextC")
+
+root.Sprites["SaveMenuFadeTextT"] = {
+    Sheet: "Save",
+    Bounds: {X: 93, Y: 670, Width: 22, Height: 55}
+};
+root.SaveMenu.SelectDataText.push("SaveMenuFadeTextT")
+
+root.Sprites["SaveMenuFadeTextD"] = {
+    Sheet: "Save",
+    Bounds: {X: 117, Y: 670, Width: 22, Height: 55}
+};
+root.SaveMenu.SelectDataText.push("SaveMenuFadeTextD")
+
+root.Sprites["SaveMenuFadeTextA"] = {
+    Sheet: "Save",
+    Bounds: {X: 141, Y: 670, Width: 17, Height: 55}
+};
+root.SaveMenu.SelectDataText.push("SaveMenuFadeTextA")
+
+root.Sprites["SaveMenuFadeTextT2"] = {
+    Sheet: "Save",
+    Bounds: {X: 159, Y: 670, Width: 18, Height: 55}
+};
+root.SaveMenu.SelectDataText.push("SaveMenuFadeTextT2")
+
+root.Sprites["SaveMenuFadeTextA2"] = {
+    Sheet: "Save",
+    Bounds: {X: 179, Y: 670, Width: 20, Height: 55}
+};
+root.SaveMenu.SelectDataText.push("SaveMenuFadeTextA2")

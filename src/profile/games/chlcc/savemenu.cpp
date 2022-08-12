@@ -13,6 +13,10 @@ namespace Profile {
 namespace CHLCC {
 namespace SaveMenu {
 
+uint32_t BackgroundColor;
+uint32_t SaveBackgroundColor;
+uint32_t LoadBackgroundColor;
+uint32_t QuickLoadBackgroundColor;
 Sprite CircleSprite;
 Sprite SaveCircle;
 Sprite LoadCircle;
@@ -48,7 +52,31 @@ Sprite QuickLoadEntrySprite;
 Sprite SaveEntrySprite;
 Sprite LoadEntrySprite;
 Sprite EntryHighlightedSprite;
+Sprite LockedSymbolSprite;
 glm::vec2 ThumbnailRelativePos;
+glm::vec2 PageNumBackgroundPos;
+Sprite PageNumBackgroundSprite;
+glm::vec2 CurrentPageNumPos;
+Sprite BigDigits[10];
+glm::vec2 PageNumSeparatorSlashPos;
+Sprite PageNumSeparatorSlashSprite;
+glm::vec2 MaxPageNumPos;
+Sprite MaxPageNumSprite;
+glm::vec2 ButtonPromptPosition;
+Sprite ButtonPromptSprite;
+float SelectDataFadeDuration;
+// 10 letters in "SELECT DATA"
+glm::vec2 SelectDataTextPositions[10];
+Sprite SelectDataTextSprites[10];
+
+glm::vec2 EntryNumberHintTextRelativePos;
+glm::vec2 EntryNumberTextRelativePos;
+glm::vec2 SceneTitleTextRelativePos;
+glm::vec2 NoDataTextRelativePos;
+glm::vec2 PlayTimeHintTextRelativePos;
+glm::vec2 PlayTimeTextRelativePos;
+glm::vec2 SaveDateHintTextRelativePos;
+glm::vec2 SaveDateTextRelativePos;
 
 static void GetMemberVec2Array(glm::vec2* arr, uint32_t count,
                                char const* name) {
@@ -67,7 +95,27 @@ static void GetMemberVec2Array(glm::vec2* arr, uint32_t count,
   Pop();
 }
 
+static void GetMemberSpriteArray(Sprite* arr, uint32_t count,
+                                 char const* name) {
+  EnsurePushMemberOfType(name, kArrayType);
+
+  if (TopVal().Size() != count) {
+    ImpLog(LL_Fatal, LC_Profile, "Expected to have %d sprites for %s\n", count,
+           name);
+    Window::Shutdown();
+  }
+
+  for (uint32_t i = 0; i < count; i++) {
+    arr[i] = EnsureGetArrayElementSprite(i);
+  }
+
+  Pop();
+}
+
 void Configure() {
+  SaveBackgroundColor = EnsureGetMemberUint("SaveBackgroundColor");
+  LoadBackgroundColor = EnsureGetMemberUint("LoadBackgroundColor");
+  QuickLoadBackgroundColor = EnsureGetMemberUint("QuickLoadBackgroundColor");
   SaveCircle = EnsureGetMemberSprite("SaveCircle");
   LoadCircle = EnsureGetMemberSprite("LoadCircle");
   QuickLoadCircle = EnsureGetMemberSprite("QuickLoadCircle");
@@ -98,7 +146,35 @@ void Configure() {
   SaveEntrySprite = EnsureGetMemberSprite("SaveEntrySprite");
   LoadEntrySprite = EnsureGetMemberSprite("LoadEntrySprite");
   EntryHighlightedSprite = EnsureGetMemberSprite("EntryHighlightedSprite");
+  LockedSymbolSprite = EnsureGetMemberSprite("LockedSymbolSprite");
   ThumbnailRelativePos = EnsureGetMemberVec2("ThumbnailRelativePos");
+  PageNumBackgroundPos = EnsureGetMemberVec2("PageNumBackgroundPos");
+  PageNumBackgroundSprite = EnsureGetMemberSprite("PageNumBackground");
+  CurrentPageNumPos = EnsureGetMemberVec2("CurrentPageNumPos");
+  GetMemberSpriteArray(BigDigits, 10, "BigDigits");
+  PageNumSeparatorSlashPos = EnsureGetMemberVec2("PageNumSeparatorSlashPos");
+  PageNumSeparatorSlashSprite = EnsureGetMemberSprite("PageNumSeparatorSlash");
+  MaxPageNumPos = EnsureGetMemberVec2("MaxPageNumPos");
+  MaxPageNumSprite = EnsureGetMemberSprite("MaxPageNum");
+  ButtonPromptPosition = EnsureGetMemberVec2("ButtonPromptPosition");
+  ButtonPromptSprite = EnsureGetMemberSprite("ButtonPrompt");
+  SelectDataFadeDuration = EnsureGetMemberFloat("SelectDataFadeDuration");
+  // 10 letters in "SELECT DATA"
+  GetMemberVec2Array(SelectDataTextPositions, 10, "SelectDataTextPositions");
+  GetMemberSpriteArray(SelectDataTextSprites, 10, "SelectDataText");
+
+  EntryNumberHintTextRelativePos =
+      EnsureGetMemberVec2("EntryNumberHintTextRelativePos");
+  EntryNumberTextRelativePos =
+      EnsureGetMemberVec2("EntryNumberTextRelativePos");
+  SceneTitleTextRelativePos = EnsureGetMemberVec2("SceneTitleTextRelativePos");
+  NoDataTextRelativePos = EnsureGetMemberVec2("NoDataTextRelativePos");
+  PlayTimeHintTextRelativePos =
+      EnsureGetMemberVec2("PlayTimeHintTextRelativePos");
+  PlayTimeTextRelativePos = EnsureGetMemberVec2("PlayTimeTextRelativePos");
+  SaveDateHintTextRelativePos =
+      EnsureGetMemberVec2("SaveDateHintTextRelativePos");
+  SaveDateTextRelativePos = EnsureGetMemberVec2("SaveDateTextRelativePos");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMemberInt("DrawType"));

@@ -526,6 +526,15 @@ uint32_t SaveSystem::GetSavePlayTime(SaveType type, int id) {
   }
 }
 
+uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) {
+  switch (type) {
+    case SaveFull:
+      return ((SaveFileEntry*)FullSaveEntries[id])->Flags;
+    case SaveQuick:
+      return ((SaveFileEntry*)QuickSaveEntries[id])->Flags;
+  }
+}
+
 tm SaveSystem::GetSaveDate(SaveType type, int id) {
   switch (type) {
     case SaveFull:

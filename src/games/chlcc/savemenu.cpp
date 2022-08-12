@@ -22,7 +22,6 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::UI::Widgets::CHLCC;
 
 Widget* EntryGrid[EntriesPerPage];
-int CurrentPage = 0;
 
 void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
   if ((SaveSystem::GetSaveSatus(EntryType, target->Id) != 0) ||
@@ -43,6 +42,10 @@ SaveMenu::SaveMenu() {
   TitleFade.DurationIn = TitleFadeInDuration;
   TitleFade.DurationOut = TitleFadeOutDuration;
 
+  SelectDataTextFade.Direction = 1;
+  SelectDataTextFade.LoopMode = ALM_Loop;
+  SelectDataTextFade.DurationIn = SelectDataFadeDuration;
+
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;
 
@@ -56,9 +59,10 @@ SaveMenu::SaveMenu() {
     MainItems->WrapFocus = false;
 
     for (int j = 0; j < EntriesPerPage; j++) {
-      SaveEntryButton* saveEntryButton = new SaveEntryButton(
-          i * EntriesPerPage + j, QuickLoadEntrySprite, EntryHighlightedSprite,
-          QuickLoadEntrySprite, EntryPositions[j], i);
+      SaveEntryButton* saveEntryButton =
+          new SaveEntryButton(i * EntriesPerPage + j, QuickLoadEntrySprite,
+                              EntryHighlightedSprite, QuickLoadEntrySprite,
+                              EntryPositions[j], i, false, LockedSymbolSprite);
       saveEntryButton->OnClickHandler = onClick;
       saveEntryButton->AddThumbnail(EmptyThumbnailSprite, ThumbnailRelativePos);
       MainItems->Add(saveEntryButton);
@@ -117,7 +121,7 @@ SaveMenu::SaveMenu() {
     for (int j = 0; j < EntriesPerPage; j++) {
       SaveEntryButton* saveEntryButton = new SaveEntryButton(
           i * EntriesPerPage + j, SaveEntrySprite, EntryHighlightedSprite,
-          SaveEntrySprite, EntryPositions[j], i);
+          SaveEntrySprite, EntryPositions[j], i, true, LockedSymbolSprite);
       saveEntryButton->OnClickHandler = onClick;
       MainItems->Add(saveEntryButton);
       EntryGrid[j] = saveEntryButton;
@@ -168,91 +172,105 @@ SaveMenu::SaveMenu() {
   }
 }
 
+void SaveMenu::UpdateEntry(SaveEntryButton* saveEntryButton) {
+  Sprite entrySprite;
+  switch (ScrWork[SW_SAVEMENUMODE]) {
+    case 0:
+      entrySprite = QuickLoadEntrySprite;
+      break;
+    case 1:
+      entrySprite = SaveEntrySprite;
+      break;
+    case 2:
+      entrySprite = LoadEntrySprite;
+      break;
+  }
+  int idx = saveEntryButton->Id;
+  uint8_t lock = SaveSystem::GetSaveFlags(EntryType, idx);
+  saveEntryButton->IsLocked = lock == 1;
+  saveEntryButton->AddNormalSpriteLabel(entrySprite, EntryPositions[idx % 6]);
+  saveEntryButton->AddEntryNumberHintText(
+      Vm::ScriptGetTextTableStrAddress(0, 6), 18, true,
+      EntryNumberHintTextRelativePos);
+  char tempNo[3];
+  sprintf(tempNo, "%02d", idx + 1);
+  saveEntryButton->AddEntryNumberText(std::string(tempNo), 18, true,
+                                      EntryNumberTextRelativePos);
+  saveEntryButton->AddThumbnail(EmptyThumbnailSprite,
+                                EntryPositions[idx % 6] + ThumbnailRelativePos);
+  if (SaveSystem::GetSaveSatus(EntryType, idx) != 0) {
+    saveEntryButton->EntryActive = true;
+    saveEntryButton->AddSceneTitleText(
+        Vm::ScriptGetTextTableStrAddress(
+            1, SaveSystem::GetSaveTitle(EntryType, idx)),
+        24, true, SceneTitleTextRelativePos, NoDataTextRelativePos);
+    saveEntryButton->AddPlayTimeHintText(Vm::ScriptGetTextTableStrAddress(0, 2),
+                                         18, true, PlayTimeHintTextRelativePos);
+    uint32_t time = SaveSystem::GetSavePlayTime(EntryType, idx);
+    uint32_t hours = time / 3600;
+    uint32_t minutes = (time % 3600) / 60;
+    uint32_t seconds = (time % 3600) % 60;
+    char temp[10];
+    sprintf(temp, "%3d:%02d:%02d", hours, minutes, seconds);
+    saveEntryButton->AddPlayTimeText(std::string(temp), 18, true,
+                                     PlayTimeTextRelativePos);
+    saveEntryButton->AddSaveDateHintText(Vm::ScriptGetTextTableStrAddress(0, 3),
+                                         18, true, SaveDateHintTextRelativePos);
+    tm date = SaveSystem::GetSaveDate(EntryType, idx);
+    char tempDate[20];
+    sprintf(tempDate, "%4d/%2d/%2d %02d:%02d:%02d", date.tm_year, date.tm_mon,
+            date.tm_mday, date.tm_hour, date.tm_min, date.tm_sec);
+    saveEntryButton->AddSaveDateText(std::string(tempDate), 18, true,
+                                     SaveDateTextRelativePos);
+  } else {
+    saveEntryButton->AddSceneTitleText(Vm::ScriptGetTextTableStrAddress(0, 1),
+                                       24, true, SceneTitleTextRelativePos,
+                                       NoDataTextRelativePos);
+  }
+}
+
 void SaveMenu::Show() {
   if (State != Shown) {
-    Sprite entrySprite;
-    CurrentPage = 0;
     switch (ScrWork[SW_SAVEMENUMODE]) {
       case 0:
         EntryType = SaveSystem::SaveQuick;
         SavePages = &QuickSavePages;
+        BackgroundColor = QuickLoadBackgroundColor;
         CircleSprite = QuickLoadCircle;
         MenuTitleTextSprite = QuickLoadTextSprite;
-        entrySprite = QuickLoadEntrySprite;
+        CurrentPage = &CurrentQuickSavePage;
         break;
       case 1:
         EntryType = SaveSystem::SaveFull;
         SavePages = &FullSavePages;
+        BackgroundColor = SaveBackgroundColor;
         CircleSprite = SaveCircle;
         MenuTitleTextSprite = SaveTextSprite;
-        entrySprite = SaveEntrySprite;
+        CurrentPage = &CurrentFullSavePage;
         break;
       case 2:
         EntryType = SaveSystem::SaveFull;
         SavePages = &FullSavePages;
+        BackgroundColor = LoadBackgroundColor;
         CircleSprite = LoadCircle;
         MenuTitleTextSprite = LoadTextSprite;
-        entrySprite = LoadEntrySprite;
+        CurrentPage = &CurrentFullSavePage;
         break;
     }
 
-    int idx = 0;
     for (auto mainItems : *SavePages) {
       mainItems->Bounds = RectF(0.0f, 0.0f, 1280.0f, 720.0f);
       for (auto widget : mainItems->Children) {
         auto saveEntryButton = static_cast<SaveEntryButton*>(widget);
-        saveEntryButton->AddNormalSpriteLabel(entrySprite,
-                                              EntryPositions[idx % 6]);
-        saveEntryButton->AddEntryNumberHintText(
-            Vm::ScriptGetTextTableStrAddress(0, 6), 18, true,
-            EntryPositions[idx % 6]);
-        char tempNo[3];
-        sprintf(tempNo, "%02d", idx + 1);
-        saveEntryButton->AddEntryNumberText(std::string(tempNo), 18, true,
-                                            EntryPositions[idx % 6]);
-        saveEntryButton->AddThumbnail(
-            EmptyThumbnailSprite,
-            EntryPositions[idx % 6] + ThumbnailRelativePos);
-        if (SaveSystem::GetSaveSatus(EntryType, idx) != 0) {
-          saveEntryButton->EntryActive = true;
-          saveEntryButton->AddSceneTitleText(
-              Vm::ScriptGetTextTableStrAddress(
-                  1, SaveSystem::GetSaveTitle(EntryType, idx)),
-              24, true, EntryPositions[idx % 6]);
-          saveEntryButton->AddPlayTimeHintText(
-              Vm::ScriptGetTextTableStrAddress(0, 2), 18, true,
-              EntryPositions[idx % 6]);
-          uint32_t time = SaveSystem::GetSavePlayTime(EntryType, idx);
-          uint32_t hours = time / 3600;
-          uint32_t minutes = (time % 3600) / 60;
-          uint32_t seconds = (time % 3600) % 60;
-          char temp[10];
-          sprintf(temp, "%3d:%02d:%02d", hours, minutes, seconds);
-          saveEntryButton->AddPlayTimeText(std::string(temp), 18, true,
-                                           EntryPositions[idx % 6]);
-          saveEntryButton->AddSaveDateHintText(
-              Vm::ScriptGetTextTableStrAddress(0, 3), 18, true,
-              EntryPositions[idx % 6]);
-          tm date = SaveSystem::GetSaveDate(EntryType, idx);
-          char tempDate[20];
-          sprintf(tempDate, "%4d/%2d/%2d %2d:%2d:%2d", date.tm_year,
-                  date.tm_mon, date.tm_mday, date.tm_hour, date.tm_min,
-                  date.tm_sec);
-          saveEntryButton->AddSaveDateText(std::string(tempDate), 18, true,
-                                           EntryPositions[idx % 6]);
-        } else {
-          saveEntryButton->AddSceneTitleText(
-              Vm::ScriptGetTextTableStrAddress(0, 1), 24, true,
-              EntryPositions[idx % 6]);
-        }
-        idx++;
+        UpdateEntry(saveEntryButton);
       }
     }
 
     State = Showing;
     MenuTransition.StartIn();
-    SavePages->at(CurrentPage)->Show();
-    CurrentlyFocusedElement = SavePages->at(CurrentPage)->Children[0];
+    SelectDataTextFade.StartIn();
+    SavePages->at(*CurrentPage)->Show();
+    CurrentlyFocusedElement = SavePages->at(*CurrentPage)->Children[0];
     SavePages->at(0)->Children[0]->HasFocus = true;
     if (UI::FocusedMenu != 0) {
       LastFocusedMenu = UI::FocusedMenu;
@@ -288,7 +306,7 @@ void SaveMenu::Update(float dt) {
 
   if (ScrWork[SW_SYSMENUCT] == 0 && State == Hiding) {
     State = Hidden;
-    SavePages->at(CurrentPage)->Hide();
+    SavePages->at(*CurrentPage)->Hide();
   } else if (ScrWork[SW_SYSMENUCT] == 10000 && State == Showing) {
     State = Shown;
     SaveEntryButton::FocusedAlphaFadeStart();
@@ -296,6 +314,7 @@ void SaveMenu::Update(float dt) {
 
   if (State != Hidden) {
     MenuTransition.Update(dt);
+    SelectDataTextFade.Update(dt);
     if (MenuTransition.Direction == -1.0f && MenuTransition.Progress <= 0.72f) {
       TitleFade.StartOut();
     } else if (MenuTransition.IsIn() &&
@@ -303,16 +322,16 @@ void SaveMenu::Update(float dt) {
       TitleFade.StartIn();
     }
     TitleFade.Update(dt);
-    SavePages->at(CurrentPage)->Update(dt);
+    SavePages->at(*CurrentPage)->Update(dt);
     SaveEntryButton::UpdateFocusedAlphaFade(dt);
     auto currentlyFocusedButton =
         static_cast<SaveEntryButton*>(CurrentlyFocusedElement);
     if (currentlyFocusedButton) {
       int newPage = currentlyFocusedButton->GetPage();
-      if (newPage != CurrentPage) {
-        SavePages->at(CurrentPage)->Hide();
-        CurrentPage = newPage;
-        SavePages->at(CurrentPage)->Show();
+      if (newPage != *CurrentPage) {
+        SavePages->at(*CurrentPage)->Hide();
+        *CurrentPage = newPage;
+        SavePages->at(*CurrentPage)->Show();
         currentlyFocusedButton->HasFocus = true;
         CurrentlyFocusedElement = currentlyFocusedButton;
       }
@@ -324,7 +343,12 @@ void SaveMenu::Render() {
   if (State != Hidden && ScrWork[SW_FILEALPHA] != 0) {
     glm::vec3 tint(1.0f);
     glm::vec4 col(1.0f, 1.0f, 1.0f, 1.0f);
-    DrawCircles();
+    if (MenuTransition.IsIn()) {
+      Renderer2D::DrawRect(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
+                           RgbIntToFloat(BackgroundColor));
+    } else {
+      DrawCircles();
+    }
     DrawErin();
     float alpha =
         MenuTransition.Progress < 0.5f ? MenuTransition.Progress * 2.0f : 1.0f;
@@ -332,7 +356,7 @@ void SaveMenu::Render() {
                            glm::vec4(tint, alpha));
     DrawRedBar();
     DrawTitles();
-    int yOffset = 0;
+    float yOffset = 0;
     if (MenuTransition.Progress > 0.22f) {
       if (MenuTransition.Progress < 0.72f) {
         // Approximated function from the original, another mess
@@ -341,11 +365,14 @@ void SaveMenu::Render() {
             1.00397f * std::sin(3.97161f - 3.26438f * MenuTransition.Progress) -
                 0.00295643f);
       }
-      SavePages->at(CurrentPage)->MoveTo(glm::vec2(0, yOffset));
-      SavePages->at(CurrentPage)->Tint = col;
-      SavePages->at(CurrentPage)->Render();
+      SavePages->at(*CurrentPage)->MoveTo(glm::vec2(0, yOffset));
+      SavePages->at(*CurrentPage)->Tint = col;
+      SavePages->at(*CurrentPage)->Render();
       Renderer2D::DrawSprite(SaveListSprite,
                              SaveListPosition + glm::vec2(0, yOffset));
+      DrawPageNumber(yOffset);
+      DrawButtonPrompt();
+      DrawSelectData(yOffset);
     }
   }
 }
@@ -433,6 +460,44 @@ inline void SaveMenu::DrawTitles() {
                            glm::vec2(1.0f), MenuTitleTextAngle);
     Renderer2D::DrawSprite(MenuTitleTextSprite,
                            glm::vec2(MenuTitleTextLeftPos.x, leftTitleY));
+  }
+}
+
+inline void SaveMenu::DrawPageNumber(float yOffset) {
+  Renderer2D::DrawSprite(
+      PageNumBackgroundSprite,
+      glm::vec2(PageNumBackgroundPos.x, PageNumBackgroundPos.y + yOffset));
+  Renderer2D::DrawSprite(
+      BigDigits[*CurrentPage + 1],
+      glm::vec2(CurrentPageNumPos.x, CurrentPageNumPos.y + yOffset));
+  Renderer2D::DrawSprite(PageNumSeparatorSlashSprite,
+                         glm::vec2(PageNumSeparatorSlashPos.x,
+                                   PageNumSeparatorSlashPos.y + yOffset));
+  Renderer2D::DrawSprite(MaxPageNumSprite,
+                         glm::vec2(MaxPageNumPos.x, MaxPageNumPos.y + yOffset));
+}
+
+inline void SaveMenu::DrawButtonPrompt() {
+  if (MenuTransition.IsIn()) {
+    Renderer2D::DrawSprite(ButtonPromptSprite, ButtonPromptPosition);
+  } else if (MenuTransition.Progress > 0.734f) {
+    float x = ButtonPromptPosition.x - 2560.0f * (MenuTransition.Progress - 1);
+    Renderer2D::DrawSprite(ButtonPromptSprite,
+                           glm::vec2(x, ButtonPromptPosition.y));
+  }
+}
+
+inline void SaveMenu::DrawSelectData(float yOffset) {
+  float alpha;
+  for (int idx = 0; idx < 10; idx++) {
+    alpha = 1.0f;
+    if (SelectDataTextFade.Progress < 0.046f * (idx + 1)) {
+      alpha = (SelectDataTextFade.Progress - 0.046f * idx) / 0.046f;
+    }
+    Renderer2D::DrawSprite(SelectDataTextSprites[idx],
+                           glm::vec2(SelectDataTextPositions[idx].x,
+                                     SelectDataTextPositions[idx].y + yOffset),
+                           glm::vec4(glm::vec3(1.0f), alpha));
   }
 }
 

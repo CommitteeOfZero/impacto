@@ -76,7 +76,8 @@ SaveError SaveSystem::MountSaveFile() {
     QuickSaveEntries[i]->PlayTime = Io::ReadLE<uint32_t>(stream);
     QuickSaveEntries[i]->SwTitle = Io::ReadLE<uint16_t>(stream);
     Io::ReadLE<uint8_t>(stream);
-    stream->Seek(31, SEEK_CUR);
+    QuickSaveEntries[i]->Flags = Io::ReadLE<uint8_t>(stream);
+    stream->Seek(30, SEEK_CUR);
     Io::ReadArrayLE<uint8_t>(
         ((SaveFileEntry*)QuickSaveEntries[i])->FlagWorkScript1, stream, 50);
     Io::ReadArrayLE<uint8_t>(
@@ -124,7 +125,8 @@ SaveError SaveSystem::MountSaveFile() {
     FullSaveEntries[i]->PlayTime = Io::ReadLE<uint32_t>(stream);
     FullSaveEntries[i]->SwTitle = Io::ReadLE<uint16_t>(stream);
     Io::ReadLE<uint8_t>(stream);
-    stream->Seek(31, SEEK_CUR);
+    FullSaveEntries[i]->Flags = Io::ReadLE<uint8_t>(stream);
+    stream->Seek(30, SEEK_CUR);
     Io::ReadArrayLE<uint8_t>(
         ((SaveFileEntry*)FullSaveEntries[i])->FlagWorkScript1, stream, 50);
     Io::ReadArrayLE<uint8_t>(
@@ -235,6 +237,15 @@ uint32_t SaveSystem::GetSavePlayTime(SaveType type, int id) {
       return ((SaveFileEntry*)FullSaveEntries[id])->PlayTime;
     case SaveQuick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->PlayTime;
+  }
+}
+
+uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) {
+  switch (type) {
+    case SaveFull:
+      return ((SaveFileEntry*)FullSaveEntries[id])->Flags;
+    case SaveQuick:
+      return ((SaveFileEntry*)QuickSaveEntries[id])->Flags;
   }
 }
 
@@ -421,13 +432,13 @@ int SaveSystem::GetSaveTitle(SaveType type, int id) {
 }
 
 uint32_t SaveSystem::GetTipStatus(int tipId) {
-    tipId *= 3;
-    return (((GameExtraData[tipId >> 3] & Flbit[tipId & 7]) != 0) |
-            (2 *
-             ((Flbit[(tipId + 2) & 7] & GameExtraData[(tipId + 2) >> 3]) != 0))) &
-           0xFB |
-           (4 *
-            ((GameExtraData[(tipId + 1) >> 3] & Flbit[(tipId + 1) & 7]) != 0));
+  tipId *= 3;
+  return (((GameExtraData[tipId >> 3] & Flbit[tipId & 7]) != 0) |
+          (2 *
+           ((Flbit[(tipId + 2) & 7] & GameExtraData[(tipId + 2) >> 3]) != 0))) &
+             0xFB |
+         (4 *
+          ((GameExtraData[(tipId + 1) >> 3] & Flbit[(tipId + 1) & 7]) != 0));
 }
 
 void SaveSystem::SetTipStatus(int tipId, bool isLocked, bool isUnread,

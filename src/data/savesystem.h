@@ -40,6 +40,7 @@ class SaveFileEntryBase {
   std::tm SaveDate;
   uint32_t PlayTime;
   uint16_t SwTitle;
+  uint8_t Flags;
   uint32_t MainThreadExecPriority;
   uint32_t MainThreadGroupId;
   uint32_t MainThreadWaitCounter;
@@ -62,6 +63,7 @@ class SaveSystemBase {
   virtual void FlushWorkingSaveEntry(SaveType type, int id) = 0;
   virtual void WriteSaveFile() = 0;
   virtual uint32_t GetSavePlayTime(SaveType type, int id) = 0;
+  virtual uint8_t GetSaveFlags(SaveType type, int id) = 0;
   virtual tm GetSaveDate(SaveType type, int id) = 0;
   virtual uint8_t GetSaveSatus(SaveType type, int id) = 0;
   virtual int GetSaveTitle(SaveType type, int id) = 0;
@@ -90,6 +92,7 @@ void LoadMemory(SaveType type, int id);
 void FlushWorkingSaveEntry(SaveType type, int id);
 void WriteSaveFile();
 uint32_t GetSavePlayTime(SaveType type, int id);
+uint8_t GetSaveFlags(SaveType type, int id);
 tm GetSaveDate(SaveType type, int id);
 uint8_t GetSaveSatus(SaveType type, int id);
 int GetSaveTitle(SaveType type, int id);
