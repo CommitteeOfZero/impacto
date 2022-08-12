@@ -36,7 +36,7 @@ include('chlcc/hud/loadingdisplay.js');
 include('chlcc/hud/datedisplay.js');
 include('chlcc/hud/titlemenu.js');
 include('chlcc/hud/backlogmenu.js');
-//include('chlcc/hud/systemmenu.js');
+include('chlcc/hud/systemmenu.js');
 include('chlcc/hud/savemenu.js');
 include('chlcc/hud/sysmesboxdisplay.js');
 include('chlcc/hud/selectiondisplay.js');

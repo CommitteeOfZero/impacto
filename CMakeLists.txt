@@ -77,6 +77,7 @@ set(Impacto_Src
     src/profile/games/chlcc/moviemenu.cpp
     src/profile/games/chlcc/albummenu.cpp
     src/profile/games/chlcc/musicmenu.cpp
+    src/profile/games/chlcc/systemmenu.cpp
 
     src/profile/games/cc/dialoguebox.cpp
     src/profile/games/cc/titlemenu.cpp
@@ -122,6 +123,7 @@ set(Impacto_Src
     src/games/chlcc/moviemenu.cpp
     src/games/chlcc/albummenu.cpp
     src/games/chlcc/musicmenu.cpp
+    src/games/chlcc/systemmenu.cpp
 
     src/games/cc/dialoguebox.cpp
     src/games/cc/titlemenu.cpp
@@ -185,6 +187,7 @@ set(Impacto_Src
     src/ui/widgets/mo6tw/albumcharacterbutton.cpp
     src/ui/widgets/chlcc/titlebutton.cpp
     src/ui/widgets/chlcc/saveentrybutton.cpp
+    src/ui/widgets/chlcc/systemmenuentrybutton.cpp
     src/ui/widgets/rne/sysmenubutton.cpp
     src/ui/widgets/cc/titlebutton.cpp
     src/ui/widgets/cclcc/titlebutton.cpp
@@ -346,6 +349,7 @@ set(Impacto_Header
     src/profile/games/chlcc/moviemenu.h
     src/profile/games/chlcc/albummenu.h
     src/profile/games/chlcc/musicmenu.h
+    src/profile/games/chlcc/systemmenu.h
 
     src/profile/games/cc/dialoguebox.h
     src/profile/games/cc/titlemenu.h
@@ -391,6 +395,7 @@ set(Impacto_Header
     src/games/chlcc/moviemenu.h
     src/games/chlcc/albummenu.h
     src/games/chlcc/musicmenu.h
+    src/games/chlcc/systemmenu.h
 
     src/games/cc/dialoguebox.h
     src/games/cc/titlemenu.h
@@ -453,6 +458,7 @@ set(Impacto_Header
     src/ui/widgets/mo6tw/albumcharacterbutton.h
     src/ui/widgets/chlcc/titlebutton.h
     src/ui/widgets/chlcc/saveentrybutton.h
+    src/ui/widgets/chlcc/systemmenuentrybutton.h
     src/ui/widgets/rne/sysmenubutton.h
     src/ui/widgets/cc/titlebutton.h
     src/ui/widgets/cclcc/titlebutton.h

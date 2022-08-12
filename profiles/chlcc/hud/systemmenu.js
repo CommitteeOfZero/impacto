@@ -1,111 +1,86 @@
 root.SystemMenu = {
-    Type: SystemMenuType.RNE,
+    Type: SystemMenuType.CHLCC,
     DrawType: DrawComponentType.SystemMenu,
-    Background: {
-        DurationIn: 0.75,
-        DurationOut: 1.0,
-        Sprite: "SystemMenuBackground",
-        Seed: 0,
-        Rows: 7,
-        Columns: 12,
-        CenterY: 0.7,
-        VanishingPointX: 0.66,
-        Depth: 2,
-        MaxAngle: Math.PI / 2
-    },
-    ButtonBackgroundSprite: "SystemMenuButtonBackground",
-    SkyBackgroundSprite: "SystemMenuSkyBackground",
-    SkyArrowSprite: "SystemMenuSkyArrow",
-    SkyTextSprite: "SystemMenuSkyText",
-    ButtonPromptsSprite: "SystemMenuButtonPrompts",
-    SkyBackgroundBeginX: -80,
-    SkyBackgroundY: 0,
-    SkyTextBeginX: 287,
-    SkyTextY: 69,
-    ButtonBackgroundStartX: 1257,
-    ButtonBackgroundX: 0,
-    ButtonBackgroundY: 681,
-    ButtonBackgroundTargetWidth: 943,
-    ButtonBackgroundSprStartX: 1499,
+    BackgroundColor: 0xff9cb6,
+    BackgroundFilter: "BackgroundFilter",
+    FadeInDuration: 64 / 60,
+    FadeOutDuration: 64 / 60,
+    CircleStartPosition: {X: 20, Y: 20},
+    CircleSprite: "SystemMenuCircle",
+    CircleOffset: 200,
+    ErinPosition: {X: 301, Y: 1},
+    ErinSprite: "Erin",
+    TitleFadeInDuration: 40 / 60,
+    TitleFadeOutDuration: 28 / 60,
+
+    MenuEntriesNum: 8,
+    MenuEntriesHNum: 0,
+    // ----
+    //Not used since it isn't laid out in a way that would make it easier to use this
+    MenuEntriesX: 173,
+    MenuEntriesXOffset: 0,
+    MenuEntriesFirstY: 445,
+    MenuEntriesYPadding: 0,
+    // ----
+    FocusTint: 0xff9cb6,
+    MenuEntriesPositions: [
+        {X: 110, Y: 107}, {X: 110, Y: 183},
+        {X: 110, Y: 240}, {X: 110, Y: 263},
+        {X: 110, Y: 321}, {X: 110, Y: 408},
+        {X: 110, Y: 449}, {X: 110, Y: 475}
+    ],
     MenuEntriesSprites: [],
-    MenuEntriesHighlightedSprites: [],
-    MenuEntriesX: 0,
-    MenuEntriesXSkew: 20,
-    MenuEntriesXOffset: 100,
-    MenuEntriesFirstY: 220,
-    MenuEntriesYPadding: 50,
-    MenuEntriesTargetWidth: 417,
-    SkyInStartProgress: 0.285,
-    SkyOutStartProgress: 0.715,
-    SkyMoveDurationIn: 0.415,
-    SkyMoveDurationOut: 0.415,
-    EntriesMoveDurationIn: 0.4,
-    EntriesMoveDurationOut: 0.4,
-    HighlightDurationIn: 0.15,
-    HighlightDurationOut: 0.15,
-
 };
 
-for (var i = 0; i < 8; i++) {
-    root.Sprites["SystemMenuEntry" + i] = {
-        Sheet: "Data",
-        Bounds: {
-            X: 964,
-            Y: 296 + i * 38,
-            Width: root.SystemMenu.MenuEntriesTargetWidth,
-            Height: 26
-        },
-        BaseScale: { X: 1280 / 960, Y: 720 / 544 }
-    };
-    root.SystemMenu.MenuEntriesSprites.push("SystemMenuEntry" + i);
+root.Sprites["SystemMenuCircle"] = {
+    Sheet: "Main",
+    Bounds: {X: 533, Y: 361, Width: 106, Height: 106}
 }
 
-for (var i = 0; i < 8; i++) {
-    root.Sprites["SystemMenuEntryHighlighted" + i] = {
-        Sheet: "Data",
-        Bounds: {
-            X: 964,
-            Y: 2 + i * 38,
-            Width: root.SystemMenu.MenuEntriesTargetWidth,
-            Height: 26
-        },
-        BaseScale: { X: 1280 / 960, Y: 720 / 544 }
-    };
-    root.SystemMenu.MenuEntriesHighlightedSprites.push("SystemMenuEntryHighlighted" + i);
-}
-
-root.Sprites["SystemMenuBackground"] = {
-    Sheet: "Menu",
-    Bounds: { X: 0, Y: 0, Width: 960, Height: 544 },
-    BaseScale: { X: 1280 / 960, Y: 720 / 544 }
+root.Sprites["SystemMenuBacklog"] = {
+    Sheet: "Main",
+    Bounds: {X: 173, Y: 445, Width: 243, Height: 67}
 };
+root.SystemMenu.MenuEntriesSprites.push("SystemMenuBacklog")
 
-root.Sprites["SystemMenuButtonBackground"] = {
-    Sheet: "Menu",
-    Bounds: { X: root.SystemMenu.ButtonBackgroundSprStartX, Y: 975, Width: 0, Height: 30 },
-    BaseScale: { X: 1280 / 960, Y: 720 / 544 }
+root.Sprites["SystemMenuSave"] = {
+    Sheet: "Main",
+    Bounds: {X: 173, Y: 514, Width: 243, Height: 44}
 };
+root.SystemMenu.MenuEntriesSprites.push("SystemMenuSave")
 
-root.Sprites["SystemMenuSkyBackground"] = {
-    Sheet: "Data",
-    Bounds: { X: 1383, Y: 534, Width: 418, Height: 90 },
-    BaseScale: { X: 1280 / 960, Y: 720 / 544 }
+root.Sprites["SystemMenuLoad"] = {
+    Sheet: "Main",
+    Bounds: {X: 173, Y: 560, Width: 243, Height: 45}
 };
+root.SystemMenu.MenuEntriesSprites.push("SystemMenuLoad")
 
-root.Sprites["SystemMenuSkyArrow"] = {
-    Sheet: "Data",
-    Bounds: { X: 1802, Y: 534, Width: 70, Height: 90 },
-    BaseScale: { X: 1280 / 960, Y: 720 / 544 }
+root.Sprites["SystemMenuQuickSave"] = {
+    Sheet: "Main",
+    Bounds: {X: 173, Y: 607, Width: 243, Height: 75}
 };
+root.SystemMenu.MenuEntriesSprites.push("SystemMenuQuickSave")
 
-root.Sprites["SystemMenuSkyText"] = {
-    Sheet: "Data",
-    Bounds: { X: 1875, Y: 587, Width: 119, Height: 30 },
-    BaseScale: { X: 1280 / 960, Y: 720 / 544 }
+root.Sprites["SystemMenuQuickLoad"] = {
+    Sheet: "Main",
+    Bounds: {X: 173, Y: 684, Width: 243, Height: 73}
 };
+root.SystemMenu.MenuEntriesSprites.push("SystemMenuQuickLoad")
 
-root.Sprites["SystemMenuButtonPrompts"] = {
-    Sheet: "Menu",
-    Bounds: { X: 1231, Y: 528, Width: 400, Height: 21 },
-    BaseScale: { X: 1280 / 960, Y: 720 / 544 }
+root.Sprites["SystemMenuTips"] = {
+    Sheet: "Main",
+    Bounds: {X: 173, Y: 759, Width: 243, Height: 39}
 };
+root.SystemMenu.MenuEntriesSprites.push("SystemMenuTips")
+
+root.Sprites["SystemMenuConfig"] = {
+    Sheet: "Main",
+    Bounds: {X: 173, Y: 800, Width: 243, Height: 53}
+};
+root.SystemMenu.MenuEntriesSprites.push("SystemMenuConfig")
+
+root.Sprites["SystemMenuReturnTitle"] = {
+    Sheet: "Main",
+    Bounds: {X: 173, Y: 855, Width: 243, Height: 86}
+};
+root.SystemMenu.MenuEntriesSprites.push("SystemMenuReturnTitle")

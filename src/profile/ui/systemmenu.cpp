@@ -3,6 +3,7 @@
 #include "../games/rne/tilebackground.h"
 #include "../games/rne/systemmenu.h"
 #include "../games/mo6tw/systemmenu.h"
+#include "../games/chlcc/systemmenu.h"
 #include "../../ui/ui.h"
 #include "../../log.h"
 #include "../../window.h"
@@ -73,6 +74,8 @@ void Configure() {
       RNE::SystemMenu::Configure();
     } else if (Type == +SystemMenuType::MO6TW) {
       MO6TW::SystemMenu::Configure();
+    } else if (Type == +SystemMenuType::CHLCC) {
+      CHLCC::SystemMenu::Configure();
     }
 
     Pop();
