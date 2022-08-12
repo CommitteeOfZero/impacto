@@ -15,6 +15,8 @@ using namespace Impacto::Profile::ScriptVars;
 
 using namespace Impacto::UI::Widgets;
 
+using namespace Impacto::Vm::Interface;
+
 /*void MovieMenu::MovieButtonOnClick(Button* target) {
   auto movieButton =
   static_cast<Widgets::CHLCC::ImageThumbnailButton*>(target); if
@@ -40,7 +42,7 @@ AlbumMenu::AlbumMenu() {
 
 void AlbumMenu::Show() {
   if (State != Shown) {
-    if (State != Showing) MenuTransition.StartIn();
+    MenuTransition.StartIn();
     State = Showing;
     if (UI::FocusedMenu != 0) {
       LastFocusedMenu = UI::FocusedMenu;
@@ -53,9 +55,7 @@ void AlbumMenu::Show() {
 
 void AlbumMenu::Hide() {
   if (State != Hidden) {
-    if (State != Hiding) {
-      MenuTransition.StartOut();
-    }
+    MenuTransition.StartOut();
     State = Hiding;
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
@@ -106,7 +106,17 @@ void AlbumMenu::Render() {
   }
 }
 
+void AlbumMenu::UpdateInput() {
+  Menu::UpdateInput();
+  if (State == Shown) {
+    if (PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B) {
+      SetFlag(SF_ALBUMEND, true);
+    }
+  }
+}
+
 void AlbumMenu::Update(float dt) {
+  UpdateInput();
   if (ScrWork[SW_SYSMENUCT] < 10000 && State == Shown) {
     Hide();
   } else if (GetFlag(SF_ALBUMMENU) && ScrWork[SW_SYSMENUCT] > 0 &&

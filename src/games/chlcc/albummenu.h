@@ -3,6 +3,7 @@
 #include "../../ui/menu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
+#include "../../vm/interface/input.h"
 //#include "../../ui/widgets/chlcc/imagethumbnailbutton.h"
 
 namespace Impacto {
@@ -15,7 +16,7 @@ class AlbumMenu : public Menu {
 
   void Show();
   void Hide();
-  // void UpdateInput();
+  void UpdateInput();
   void Update(float dt);
   void Render();
 
