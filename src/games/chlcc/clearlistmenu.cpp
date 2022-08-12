@@ -77,7 +77,7 @@ void ClearListMenu::Render() {
                            glm::vec4(tint, alpha));
     DrawRedBar();
     DrawTitles();
-    int yOffset = 0;
+    float yOffset = 0;
     if (MenuTransition.Progress > 0.22f) {
       if (MenuTransition.Progress < 0.72f) {
         // Approximated function from the original, another mess
@@ -210,7 +210,7 @@ inline void ClearListMenu::DrawTitles() {
   }
 }
 
-inline void ClearListMenu::DrawPlayTime(int yOffset) {
+inline void ClearListMenu::DrawPlayTime(float yOffset) {
   int totalSeconds = ScrWork[SW_PLAYTIME];
   int hours = totalSeconds / 3600;
   int minutes = (totalSeconds % 3600) / 60;
@@ -232,7 +232,7 @@ inline void ClearListMenu::DrawPlayTime(int yOffset) {
   }
 }
 
-inline void ClearListMenu::DrawEndingCount(int yOffset) {
+inline void ClearListMenu::DrawEndingCount(float yOffset) {
   int unlockedEndingCount = 0;
   for (int i = 0; i < Endings; i++) {
     unlockedEndingCount += GetFlag(SF_CLR_END1 + i);
@@ -241,7 +241,7 @@ inline void ClearListMenu::DrawEndingCount(int yOffset) {
   Renderer2D::DrawSprite(Digits[unlockedEndingCount], position);
 }
 
-inline void ClearListMenu::DrawTIPSCount(int yOffset) {
+inline void ClearListMenu::DrawTIPSCount(float yOffset) {
   int unlockedTipsCount = 0;
   int totalTips = GetTipCount();
   for (int idx = 0; idx < totalTips; idx++) {
@@ -257,7 +257,7 @@ inline void ClearListMenu::DrawTIPSCount(int yOffset) {
       glm::vec2(TIPSCountPositions[1].x, TIPSCountPositions[1].y + yOffset));
 }
 
-inline void ClearListMenu::DrawAlbumCompletion(int yOffset) {
+inline void ClearListMenu::DrawAlbumCompletion(float yOffset) {
   int totalCount = 0, unlockedCount = 0;
   SaveSystem::GetViewedEVsCount(&totalCount, &unlockedCount);
   // The 9 bonus CGs after 100% completion don't count
@@ -284,7 +284,7 @@ inline void ClearListMenu::DrawAlbumCompletion(int yOffset) {
       glm::vec2(AlbumPositions[2].x, AlbumPositions[2].y + yOffset));
 }
 
-inline void ClearListMenu::DrawEndingTree(int yOffset) {
+inline void ClearListMenu::DrawEndingTree(float yOffset) {
   for (int i = 0; i < 8; i++) {
     glm::vec2 boxPosition(BoxPositions[i].x, BoxPositions[i].y + yOffset);
     glm::vec2 thumbnailPosition(ThumbnailPositions[i].x,
@@ -305,8 +305,7 @@ inline void ClearListMenu::DrawButtonPrompt() {
   if (MenuTransition.IsIn()) {
     Renderer2D::DrawSprite(ButtonPromptSprite, ButtonPromptPosition);
   } else if (MenuTransition.Progress > 0.734f) {
-    float x =
-        ButtonPromptPosition.x - 2560.0f * MenuTransition.Progress + 2561.0f;
+    float x = ButtonPromptPosition.x - 2560.0f * (MenuTransition.Progress - 1);
     Renderer2D::DrawSprite(ButtonPromptSprite,
                            glm::vec2(x, ButtonPromptPosition.y));
   }

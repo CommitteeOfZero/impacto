@@ -24,11 +24,11 @@ class ClearListMenu : public Menu {
   inline void DrawRedBar();
   inline void DrawTitles();
 
-  inline void DrawPlayTime(int yOffset);
-  inline void DrawEndingCount(int yOffset);
-  inline void DrawTIPSCount(int yOffset);
-  inline void DrawAlbumCompletion(int yOffset);
-  inline void DrawEndingTree(int yOffset);
+  inline void DrawPlayTime(float yOffset);
+  inline void DrawEndingCount(float yOffset);
+  inline void DrawTIPSCount(float yOffset);
+  inline void DrawAlbumCompletion(float yOffset);
+  inline void DrawEndingTree(float yOffset);
 
   inline void DrawButtonPrompt();
 
