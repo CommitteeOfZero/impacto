@@ -87,7 +87,7 @@ jobs:
   steps:
   - script: |
       sudo apt-get -y update
-      sudo apt-get -y install libsdl2-dev libopenal-dev libogg-dev libvorbis-dev libavdevice-dev libavfilter-dev libavformat-dev libavcodec-dev libswscale-dev libswresample-dev libavresample-dev libavutil-dev libwebp-dev
+      sudo apt-get -y install libsdl2-dev libopenal-dev libogg-dev libvorbis-dev libavdevice-dev libavfilter-dev libavformat-dev libavcodec-dev libswscale-dev libswresample-dev libavutil-dev libwebp-dev
       sudo sed -i -e 's/-lSDL2 /-lSDL2/g' /usr/lib/x86_64-linux-gnu/cmake/SDL2/sdl2-config.cmake
       dpkg -l | grep sdl
       pushd vendor
