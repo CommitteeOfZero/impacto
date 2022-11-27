@@ -82,7 +82,7 @@ jobs:
   displayName: Linux x64 Build
 
   pool:
-    vmImage: 'ubuntu-18.04'
+    vmImage: 'ubuntu-22.04'
   
   steps:
   - script: |
@@ -258,7 +258,7 @@ jobs:
   condition: succeeded()
 
   pool:
-    vmImage: 'ubuntu-18.04'
+    vmImage: 'ubuntu-22.04'
   
   steps:
   - task: DownloadBuildArtifacts@0
@@ -324,7 +324,7 @@ jobs:
     )
 
   pool:
-    vmImage: 'ubuntu-18.04'
+    vmImage: 'ubuntu-22.04'
   
   steps:
   - powershell: |
