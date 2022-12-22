@@ -1,15 +1,16 @@
 #include <algorithm>
 
 #include "shader.h"
+#include "renderer.h"
 
-#include "impacto.h"
-#include "io/io.h"
-#include "log.h"
-#include "3d/model.h"
-#include "util.h"
-#include "window.h"
+#include "../../impacto.h"
+#include "../../io/io.h"
+#include "../../log.h"
+#include "../3d/model.h"
+#include "../../util.h"
 
 namespace Impacto {
+namespace OpenGL {
 
 static char const ShaderPath[] = "./shaders";
 static char const FragShaderExtension[] = "_frag.glsl";
@@ -33,7 +34,11 @@ static char const ShaderHeaderFrag[] =
     "float;\n#endif\n\n";
 static GLint const ShaderHeaderFragLength = sizeof(ShaderHeaderFrag) - 1;
 
-int PrintParameter(char* dest, int destSz, char const* name,
+ShaderCompiler::ShaderCompiler(GLWindow* window) {
+  Window = window;
+}
+
+int ShaderCompiler::PrintParameter(char* dest, int destSz, char const* name,
                    ShaderParameter const& param) {
   switch (param.Type) {
     case SPT_Float:
@@ -89,7 +94,7 @@ int PrintParameter(char* dest, int destSz, char const* name,
   }
 }
 
-GLuint ShaderAttach(GLuint program, GLenum shaderType, char const* path,
+GLuint ShaderCompiler::Attach(GLuint program, GLenum shaderType, char const* path,
                     char const* params) {
   ImpLog(LL_Debug, LC_Render, "Loading shader object (type %d) \"%s\"\n",
          shaderType, path);
@@ -109,7 +114,7 @@ GLuint ShaderAttach(GLuint program, GLenum shaderType, char const* path,
   }
 
   const GLchar* codeParts[4];
-  codeParts[0] = (Window::ActualGraphicsApi != Window::GfxApi_GL)
+  codeParts[0] = (Window->ActualGraphicsApi != GfxApi_GL)
                      ? ShaderHeaderES
                      : ShaderHeader;
   codeParts[1] =
@@ -118,7 +123,7 @@ GLuint ShaderAttach(GLuint program, GLenum shaderType, char const* path,
   codeParts[3] = source;
 
   GLint codeLengths[4];
-  codeLengths[0] = (Window::ActualGraphicsApi != Window::GfxApi_GL)
+  codeLengths[0] = (Window->ActualGraphicsApi != GfxApi_GL)
                        ? ShaderHeaderESLength
                        : ShaderHeaderLength;
   codeLengths[1] = shaderType == GL_VERTEX_SHADER ? ShaderHeaderVertLength
@@ -148,7 +153,7 @@ GLuint ShaderAttach(GLuint program, GLenum shaderType, char const* path,
   return shader;
 }
 
-GLuint ShaderCompile(char const* name, ShaderParamMap const& params) {
+GLuint ShaderCompiler::Compile(char const* name, ShaderParamMap const& params) {
   GLuint program = glCreateProgram();
   if (!program) {
     ImpLog(LL_Fatal, LC_Render, "Could not create shader program\n");
@@ -182,7 +187,7 @@ GLuint ShaderCompile(char const* name, ShaderParamMap const& params) {
   paramStr[paramSz - 1] = '\0';
 
   sprintf(fullPath, "%s/%s%s", ShaderPath, name, VertShaderExtension);
-  GLuint vs = ShaderAttach(program, GL_VERTEX_SHADER, fullPath, paramStr);
+  GLuint vs = Attach(program, GL_VERTEX_SHADER, fullPath, paramStr);
   if (!vs) {
     glDeleteProgram(program);
     ImpStackFree(paramStr);
@@ -190,7 +195,7 @@ GLuint ShaderCompile(char const* name, ShaderParamMap const& params) {
     return 0;
   }
   sprintf(fullPath, "%s/%s%s", ShaderPath, name, FragShaderExtension);
-  GLuint fs = ShaderAttach(program, GL_FRAGMENT_SHADER, fullPath, paramStr);
+  GLuint fs = Attach(program, GL_FRAGMENT_SHADER, fullPath, paramStr);
   if (!fs) {
     static GLchar errorLog[1024] = {};
     glGetProgramInfoLog(program, sizeof(errorLog), NULL, errorLog);
@@ -229,7 +234,7 @@ GLuint ShaderCompile(char const* name, ShaderParamMap const& params) {
   glGetProgramiv(program, GL_VALIDATE_STATUS, &result);
   if (!result) {
     glGetProgramInfoLog(program, sizeof(errorLog), NULL, errorLog);
-    ImpLog(LL_Fatal, LC_Render, "Shader program failed to validate: %s\n",
+    ImpLog(LL_Fatal, LC_Render, "ShaderCompiler program failed to validate: %s\n",
            errorLog);
     glDeleteProgram(program);
     return 0;
@@ -239,4 +244,5 @@ GLuint ShaderCompile(char const* name, ShaderParamMap const& params) {
   return program;
 }
 
+}  // namespace OpenGL
 }  // namespace Impacto

@@ -2,7 +2,7 @@
 
 #include "../../profile/ui/optionsmenu.h"
 #include "../../profile/games/cclcc/optionsmenu.h"
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
 #include "../../inputsystem.h"
@@ -68,7 +68,7 @@ void OptionsMenu::Update(float dt) {
 void OptionsMenu::Render() {
   if (State != Hidden && ScrWork[2147] >= 32 && ScrWork[2148] == 5) {
     // glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-    Renderer2D::DrawSprite(BackgroundSprite, glm::vec2(0.0f));
+    Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
   }
 }
 

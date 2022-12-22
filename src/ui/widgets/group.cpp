@@ -2,13 +2,14 @@
 
 #include "../../profile/game.h"
 #include "../../inputsystem.h"
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 
 namespace Impacto {
 namespace UI {
 namespace Widgets {
 
 Group::Group(Menu* ctx) {
+  Enabled = true;
   MenuContext = ctx;
   Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
   RenderingBounds =
@@ -95,8 +96,8 @@ void Group::Update(float dt) {
 
 void Group::Render() {
   if (IsShown) {
-    Renderer2D::EnableScissor();
-    Renderer2D::SetScissorRect(RenderingBounds);
+    Renderer->EnableScissor();
+    Renderer->SetScissorRect(RenderingBounds);
     for (const auto& el : Children) {
       if (RenderingBounds.Intersects(el->Bounds)) {
         auto tint = el->Tint;
@@ -105,7 +106,7 @@ void Group::Render() {
         el->Tint = tint;
       }
     }
-    Renderer2D::DisableScissor();
+    Renderer->DisableScissor();
   }
 }
 

@@ -1,95 +1,27 @@
-#include "renderer2d.h"
+#include "renderer.h"
 
-#include "log.h"
 #include "shader.h"
-#include "window.h"
-#include "texture/texture.h"
-#include "profile/game.h"
+#include "../../profile/game.h"
+#include "../../game.h"
+#include "3d/scene.h"
 
 namespace Impacto {
-namespace Renderer2D {
+namespace OpenGL {
 
-static bool IsInit = false;
-static GLuint ShaderProgramSprite;
-static GLuint ShaderProgramSpriteInverted;
-static GLuint ShaderProgramMaskedSprite;
-static GLuint ShaderProgramTest;
-static GLuint ShaderProgramYUVFrame;
-static GLuint ShaderProgramCCMessageBox;
-
-GLuint YUVFrameCbLocation;
-GLuint YUVFrameCrLocation;
-GLuint YUVFrameIsAlphaLocation;
-GLuint MaskedIsInvertedLocation;
-GLuint MaskedIsSameTextureLocation;
-
-enum Renderer2DMode {
-  R2D_None,
-  R2D_Sprite,
-  R2D_SpriteInverted,
-  R2D_YUVFrame,
-  R2D_Masked,
-  R2D_CCMessageBox
-};
-
-struct VertexBufferSprites {
-  glm::vec2 Position;
-  glm::vec2 UV;
-  glm::vec4 Tint;
-  glm::vec2 MaskUV;
-};
-
-static int const VertexBufferSize = 1024 * 1024;
-static int const IndexBufferCount =
-    VertexBufferSize / (4 * sizeof(VertexBufferSprites)) * 6;
-
-static void EnsureSpaceAvailable(int vertices, int vertexSize, int indices);
-static void EnsureTextureBound(GLuint texture);
-static void EnsureModeSprite(bool inverted);
-static void Flush();
-
-static inline void QuadSetUV(RectF const& spriteBounds, float designWidth,
-                             float designHeight, uintptr_t uvs, int stride);
-static inline void QuadSetUVFlipped(RectF const& spriteBounds,
-                                    float designWidth, float designHeight,
-                                    uintptr_t uvs, int stride);
-static inline void QuadSetPosition(RectF const& transformedQuad, float angle,
-                                   uintptr_t positions, int stride);
-static inline void QuadSetPosition3DRotated(RectF const& transformedQuad,
-                                            float depth,
-                                            glm::vec2 vanishingPoint,
-                                            bool stayInScreen, glm::quat rot,
-                                            uintptr_t positions, int stride);
-
-static void DrawProcessedText_BasicFont(ProcessedTextGlyph* text, int length,
-                                        BasicFont* font, float opacity,
-                                        bool outlined,
-                                        bool smoothstepGlyphOpacity);
-static void DrawProcessedText_LBFont(ProcessedTextGlyph* text, int length,
-                                     LBFont* font, float opacity, bool outlined,
-                                     bool smoothstepGlyphOpacity);
-
-static GLuint VBO;
-static GLuint IBO;
-static GLuint VAOSprites;
-
-static GLuint Sampler;
-
-static bool Drawing = false;
-
-static GLuint CurrentTexture = 0;
-static Renderer2DMode CurrentMode = R2D_None;
-static uint8_t VertexBuffer[VertexBufferSize];
-static int VertexBufferFill = 0;
-static uint16_t IndexBuffer[IndexBufferCount];
-static int IndexBufferFill = 0;
-
-static Sprite RectSprite;
-
-void Init() {
+void Renderer::InitImpl() {
   if (IsInit) return;
   ImpLog(LL_Info, LC_Render, "Initializing Renderer2D system\n");
   IsInit = true;
+
+  OpenGLWindow = new GLWindow();
+  OpenGLWindow->Init();
+  Window = (IWindow*)OpenGLWindow;
+
+  Shaders = new ShaderCompiler(OpenGLWindow);
+
+  if (Profile::GameFeatures & GameFeature::Scene3D) {
+    Scene = new Scene3D(OpenGLWindow, Shaders);
+  }
 
   // Fill index buffer with quads
   int index = 0;
@@ -145,24 +77,24 @@ void Init() {
   RectSprite = Sprite(rectSheet, 0.0f, 0.0f, 1.0f, 1.0f);
 
   // Set up sprite shader
-  ShaderProgramSprite = ShaderCompile("Sprite");
+  ShaderProgramSprite = Shaders->Compile("Sprite");
   glUniform1i(glGetUniformLocation(ShaderProgramSprite, "ColorMap"), 0);
-  ShaderProgramSpriteInverted = ShaderCompile("Sprite_inverted");
+  ShaderProgramSpriteInverted = Shaders->Compile("Sprite_inverted");
   glUniform1i(glGetUniformLocation(ShaderProgramSpriteInverted, "ColorMap"), 0);
-  ShaderProgramMaskedSprite = ShaderCompile("MaskedSprite");
+  ShaderProgramMaskedSprite = Shaders->Compile("MaskedSprite");
   glUniform1i(glGetUniformLocation(ShaderProgramMaskedSprite, "ColorMap"), 0);
   MaskedIsInvertedLocation =
       glGetUniformLocation(ShaderProgramMaskedSprite, "IsInverted");
   MaskedIsSameTextureLocation =
       glGetUniformLocation(ShaderProgramMaskedSprite, "IsSameTexture");
-  ShaderProgramTest = ShaderCompile("Test");
-  ShaderProgramYUVFrame = ShaderCompile("YUVFrame");
+  ShaderProgramTest = Shaders->Compile("Test");
+  ShaderProgramYUVFrame = Shaders->Compile("YUVFrame");
   glUniform1i(glGetUniformLocation(ShaderProgramYUVFrame, "Luma"), 0);
   YUVFrameCbLocation = glGetUniformLocation(ShaderProgramYUVFrame, "Cb");
   YUVFrameCrLocation = glGetUniformLocation(ShaderProgramYUVFrame, "Cr");
   YUVFrameIsAlphaLocation =
       glGetUniformLocation(ShaderProgramYUVFrame, "IsAlpha");
-  ShaderProgramCCMessageBox = ShaderCompile("CCMessageBoxSprite");
+  ShaderProgramCCMessageBox = Shaders->Compile("CCMessageBoxSprite");
   glUniform1i(glGetUniformLocation(ShaderProgramCCMessageBox, "ColorMap"), 0);
 
   // No-mipmapping sampler
@@ -172,19 +104,23 @@ void Init() {
   glSamplerParameteri(Sampler, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16);
 }
 
-void Shutdown() {
+void Renderer::ShutdownImpl() {
   if (!IsInit) return;
   if (VBO) glDeleteBuffers(1, &VBO);
   if (IBO) glDeleteBuffers(1, &IBO);
   if (VAOSprites) glDeleteVertexArrays(1, &VAOSprites);
   if (RectSprite.Sheet.Texture) glDeleteTextures(1, &RectSprite.Sheet.Texture);
   IsInit = false;
+
+  if (Profile::GameFeatures & GameFeature::Scene3D) {
+    Scene->Shutdown();
+  }
 }
 
-void BeginFrame() {
+void Renderer::BeginFrameImpl() {
   if (Drawing) {
     ImpLog(LL_Error, LC_Render,
-           "Renderer2D::BeginFrame() called before EndFrame()\n");
+           "Renderer->BeginFrame() called before EndFrame()\n");
     return;
   }
 
@@ -200,7 +136,7 @@ void BeginFrame() {
   glBindSampler(0, Sampler);
 }
 
-void EndFrame() {
+void Renderer::EndFrameImpl() {
   if (!Drawing) return;
   Flush();
   Drawing = false;
@@ -208,7 +144,7 @@ void EndFrame() {
   glBindSampler(0, 0);
 }
 
-void DrawSprite(Sprite const& sprite, glm::vec2 topLeft, glm::vec4 tint,
+void Renderer::DrawSpriteImpl(Sprite const& sprite, glm::vec2 topLeft, glm::vec4 tint,
                 glm::vec2 scale, float angle, bool inverted, bool isScreencap) {
   RectF scaledDest(topLeft.x, topLeft.y,
                    scale.x * sprite.Bounds.Width * sprite.BaseScale.x,
@@ -216,16 +152,16 @@ void DrawSprite(Sprite const& sprite, glm::vec2 topLeft, glm::vec4 tint,
   DrawSprite(sprite, scaledDest, tint, angle, inverted, isScreencap);
 }
 
-void DrawRect(RectF const& dest, glm::vec4 color, float angle) {
+void Renderer::DrawRectImpl(RectF const& dest, glm::vec4 color, float angle) {
   DrawSprite(RectSprite, dest, color, angle);
 }
 
-void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest, float depth,
+void Renderer::DrawSprite3DRotatedImpl(Sprite const& sprite, RectF const& dest, float depth,
                          glm::vec2 vanishingPoint, bool stayInScreen,
                          glm::quat rot, glm::vec4 tint, bool inverted) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
-           "Renderer2D::DrawSprite3DRotated() called before BeginFrame()\n");
+           "Renderer->DrawSprite3DRotated() called before BeginFrame()\n");
     return;
   }
 
@@ -255,7 +191,7 @@ void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest, float depth,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
-void DrawSprite3DRotated(Sprite const& sprite, glm::vec2 topLeft, float depth,
+void Renderer::DrawSprite3DRotatedImpl(Sprite const& sprite, glm::vec2 topLeft, float depth,
                          glm::vec2 vanishingPoint, bool stayInScreen,
                          glm::quat rot, glm::vec4 tint, glm::vec2 scale,
                          bool inverted) {
@@ -266,13 +202,13 @@ void DrawSprite3DRotated(Sprite const& sprite, glm::vec2 topLeft, float depth,
                       rot, tint, inverted);
 }
 
-void DrawRect3DRotated(RectF const& dest, float depth, glm::vec2 vanishingPoint,
+void Renderer::DrawRect3DRotatedImpl(RectF const& dest, float depth, glm::vec2 vanishingPoint,
                        bool stayInScreen, glm::quat rot, glm::vec4 color) {
   DrawSprite3DRotated(RectSprite, dest, depth, vanishingPoint, stayInScreen,
                       rot, color);
 }
 
-void DrawProcessedText_BasicFont(ProcessedTextGlyph* text, int length,
+void Renderer::DrawProcessedText_BasicFont(ProcessedTextGlyph* text, int length,
                                  BasicFont* font, float opacity, bool outlined,
                                  bool smoothstepGlyphOpacity) {
   // cruddy mages outline
@@ -308,7 +244,7 @@ void DrawProcessedText_BasicFont(ProcessedTextGlyph* text, int length,
   }
 }
 
-void DrawProcessedText_LBFont(ProcessedTextGlyph* text, int length,
+void Renderer::DrawProcessedText_LBFont(ProcessedTextGlyph* text, int length,
                               LBFont* font, float opacity, bool outlined,
                               bool smoothstepGlyphOpacity) {
   if (outlined) {
@@ -345,7 +281,7 @@ void DrawProcessedText_LBFont(ProcessedTextGlyph* text, int length,
   }
 }
 
-void DrawProcessedText(ProcessedTextGlyph* text, int length, Font* font,
+void Renderer::DrawProcessedTextImpl(ProcessedTextGlyph* text, int length, Font* font,
                        float opacity, bool outlined,
                        bool smoothstepGlyphOpacity) {
   switch (font->Type) {
@@ -360,12 +296,12 @@ void DrawProcessedText(ProcessedTextGlyph* text, int length, Font* font,
   }
 }
 
-void DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
+void Renderer::DrawCharacterMvlImpl(Sprite const& sprite, glm::vec2 topLeft,
                       int verticesCount, float* mvlVertices, int indicesCount,
                       uint16_t* mvlIndices, bool inverted, glm::vec4 tint) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
-           "Renderer2D::DrawCharacterMvl() called before BeginFrame()\n");
+           "Renderer->DrawCharacterMvl() called before BeginFrame()\n");
     return;
   }
 
@@ -406,11 +342,11 @@ void DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
                GL_STATIC_DRAW);
 }
 
-void DrawSprite(Sprite const& sprite, RectF const& dest, glm::vec4 tint,
+void Renderer::DrawSpriteImpl(Sprite const& sprite, RectF const& dest, glm::vec4 tint,
                 float angle, bool inverted, bool isScreencap) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
-           "Renderer2D::DrawSprite() called before BeginFrame()\n");
+           "Renderer->DrawSprite() called before BeginFrame()\n");
     return;
   }
 
@@ -450,13 +386,13 @@ void DrawSprite(Sprite const& sprite, RectF const& dest, glm::vec4 tint,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
-void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
+void Renderer::DrawMaskedSpriteImpl(Sprite const& sprite, Sprite const& mask,
                       RectF const& dest, glm::vec4 tint, int alpha,
                       int fadeRange, bool isScreencap, bool isInverted,
                       bool isSameTexture) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
-           "Renderer2D::DrawMaskedSprite() called before BeginFrame()\n");
+           "Renderer->DrawMaskedSprite() called before BeginFrame()\n");
     return;
   }
 
@@ -512,7 +448,7 @@ void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
-void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
+void Renderer::DrawCCMessageBoxImpl(Sprite const& sprite, Sprite const& mask,
                       glm::vec2 topLeft, glm::vec4 tint, int alpha,
                       int fadeRange, float effectCt, bool isScreencap,
                       glm::vec2 scale) {
@@ -523,12 +459,12 @@ void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                    isScreencap);
 }
 
-void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
+void Renderer::DrawCCMessageBoxImpl(Sprite const& sprite, Sprite const& mask,
                       RectF const& dest, glm::vec4 tint, int alpha,
                       int fadeRange, float effectCt, bool isScreencap) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
-           "Renderer2D::DrawCCMessageBox() called before BeginFrame()\n");
+           "Renderer->DrawCCMessageBox() called before BeginFrame()\n");
     return;
   }
 
@@ -584,7 +520,7 @@ void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
-static inline void QuadSetUVFlipped(RectF const& spriteBounds,
+inline void Renderer::QuadSetUVFlipped(RectF const& spriteBounds,
                                     float designWidth, float designHeight,
                                     uintptr_t uvs, int stride) {
   float topUV = (spriteBounds.Y / designHeight);
@@ -602,7 +538,7 @@ static inline void QuadSetUVFlipped(RectF const& spriteBounds,
   *(glm::vec2*)(uvs + 3 * stride) = glm::vec2(rightUV, topUV);
 }
 
-static inline void QuadSetUV(RectF const& spriteBounds, float designWidth,
+inline void Renderer::QuadSetUV(RectF const& spriteBounds, float designWidth,
                              float designHeight, uintptr_t uvs, int stride) {
   float topUV = (spriteBounds.Y / designHeight);
   float leftUV = (spriteBounds.X / designWidth);
@@ -619,7 +555,7 @@ static inline void QuadSetUV(RectF const& spriteBounds, float designWidth,
   *(glm::vec2*)(uvs + 3 * stride) = glm::vec2(rightUV, bottomUV);
 }
 
-static inline void QuadSetPosition(RectF const& transformedQuad, float angle,
+inline void Renderer::QuadSetPosition(RectF const& transformedQuad, float angle,
                                    uintptr_t positions, int stride) {
   glm::vec2 bottomLeft =
       glm::vec2(transformedQuad.X, transformedQuad.Y + transformedQuad.Height);
@@ -649,7 +585,7 @@ static inline void QuadSetPosition(RectF const& transformedQuad, float angle,
   *(glm::vec2*)(positions + 3 * stride) = DesignToNDC(bottomRight);
 }
 
-void QuadSetPosition3DRotated(RectF const& transformedQuad, float depth,
+void Renderer::QuadSetPosition3DRotated(RectF const& transformedQuad, float depth,
                               glm::vec2 vanishingPoint, bool stayInScreen,
                               glm::quat rot, uintptr_t positions, int stride) {
   float widthNormalized = transformedQuad.Width / (Profile::DesignWidth * 0.5f);
@@ -698,22 +634,22 @@ void QuadSetPosition3DRotated(RectF const& transformedQuad, float depth,
   }
 }
 
-static void EnsureSpaceAvailable(int vertices, int vertexSize, int indices) {
+void Renderer::EnsureSpaceAvailable(int vertices, int vertexSize, int indices) {
   if (VertexBufferFill + vertices * vertexSize > VertexBufferSize ||
       IndexBufferFill + indices > IndexBufferCount) {
     ImpLogSlow(
         LL_Trace, LC_Render,
-        "Renderer2D::EnsureSpaceAvailable flushing because buffers full at "
+        "Renderer->EnsureSpaceAvailable flushing because buffers full at "
         "VertexBufferFill=%08X,IndexBufferFill=%08X\n",
         VertexBufferFill, IndexBufferFill);
     Flush();
   }
 }
 
-static void EnsureTextureBound(GLuint texture) {
+void Renderer::EnsureTextureBound(GLuint texture) {
   if (CurrentTexture != texture) {
     ImpLogSlow(LL_Trace, LC_Render,
-               "Renderer2D::EnsureTextureBound flushing because texture %d is "
+               "Renderer->EnsureTextureBound flushing because texture %d is "
                "not %d\n",
                CurrentTexture, texture);
     Flush();
@@ -723,7 +659,7 @@ static void EnsureTextureBound(GLuint texture) {
   }
 }
 
-static void EnsureModeSprite(bool inverted) {
+void Renderer::EnsureModeSprite(bool inverted) {
   Renderer2DMode wantedMode = inverted ? R2D_SpriteInverted : R2D_Sprite;
   if (CurrentMode != wantedMode) {
     ImpLogSlow(
@@ -737,10 +673,10 @@ static void EnsureModeSprite(bool inverted) {
   }
 }
 
-static void Flush() {
+void Renderer::Flush() {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
-           "Renderer2D::Flush() called before BeginFrame()\n");
+           "Renderer->Flush() called before BeginFrame()\n");
     return;
   }
   if (VertexBufferFill > 0 && IndexBufferFill > 0) {
@@ -753,18 +689,18 @@ static void Flush() {
   VertexBufferFill = 0;
 }
 
-void DrawVideoTexture(YUVFrame const& tex, glm::vec2 topLeft, glm::vec4 tint,
+void Renderer::DrawVideoTextureImpl(YUVFrame const& tex, glm::vec2 topLeft, glm::vec4 tint,
                       glm::vec2 scale, float angle, bool alphaVideo) {
   RectF scaledDest(topLeft.x, topLeft.y, scale.x * tex.Width,
                    scale.y * tex.Height);
   DrawVideoTexture(tex, scaledDest, tint, angle, alphaVideo);
 }
 
-void DrawVideoTexture(YUVFrame const& tex, RectF const& dest, glm::vec4 tint,
+void Renderer::DrawVideoTextureImpl(YUVFrame const& tex, RectF const& dest, glm::vec4 tint,
                       float angle, bool alphaVideo) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
-           "Renderer2D::DrawVideoTexture() called before BeginFrame()\n");
+           "Renderer->DrawVideoTexture() called before BeginFrame()\n");
     return;
   }
 
@@ -811,34 +747,34 @@ void DrawVideoTexture(YUVFrame const& tex, RectF const& dest, glm::vec4 tint,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
-void CaptureScreencap(Sprite const& sprite) {
+void Renderer::CaptureScreencapImpl(Sprite const& sprite) {
   Flush();
-  Window::SwapRTs();
+  Window->SwapRTs();
   int prevTextureBinding;
   glGetIntegerv(GL_TEXTURE_BINDING_2D, &prevTextureBinding);
   glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
-  glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, Window::WindowWidth,
-                   Window::WindowHeight, 0);
+  glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, Window->WindowWidth,
+                   Window->WindowHeight, 0);
   glBindTexture(GL_TEXTURE_2D, prevTextureBinding);
-  Window::SwapRTs();
+  Window->SwapRTs();
 }
 
-void EnableScissor() {
+void Renderer::EnableScissorImpl() {
   Flush();
   glEnable(GL_SCISSOR_TEST);
 }
 
-void SetScissorRect(RectF const& rect) {
-  Rect viewport = Window::GetViewport();
+void Renderer::SetScissorRectImpl(RectF const& rect) {
+  Rect viewport = Window->GetViewport();
   glScissor((GLint)(rect.X),
             (GLint)((viewport.Height - (GLint)(rect.Y + rect.Height))),
             (GLint)(rect.Width), (GLint)(rect.Height));
 }
 
-void DisableScissor() {
+void Renderer::DisableScissorImpl() {
   Flush();
   glDisable(GL_SCISSOR_TEST);
 }
 
-}  // namespace Renderer2D
-}  // namespace Impacto
+} // OpenGL
+} // Impacto

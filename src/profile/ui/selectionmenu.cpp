@@ -1,7 +1,8 @@
 #include "selectionmenu.h"
 #include "../profile_internal.h"
 #include "../../ui/ui.h"
-#include "../../window.h"
+//#include "../../window.h"
+#include "../../renderer/renderer.h"
 #include "../../game.h"
 
 namespace Impacto {
@@ -38,7 +39,7 @@ static void GetMemberFloatArray(float* arr, uint32_t count, char const* name) {
   if (TopVal().Size() != count) {
     ImpLog(LL_Fatal, LC_Profile, "Expected to have %d floats for %s\n", count,
            name);
-    Window::Shutdown();
+    Renderer->Window->Shutdown();
   }
 
   for (uint32_t i = 0; i < count; i++) {

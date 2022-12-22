@@ -1,6 +1,6 @@
 #include "savesystem.h"
 #include "../profile_internal.h"
-#include "../../window.h"
+#include "../../renderer/renderer.h"
 
 #include "../../games/chlcc/savesystem.h"
 #include "../../games/mo6tw/savesystem.h"
@@ -61,7 +61,7 @@ void Configure() {
       auto const& _pair = TopVal();
       if (_pair.Size() != 2) {
         ImpLog(LL_Fatal, LC_Profile, "Expected two values\n");
-        Window::Shutdown();
+        Renderer->Window->Shutdown();
       }
       ScriptMessageData[i].LineCount = EnsureGetArrayElementUint(0);
       ScriptMessageData[i].SaveDataOffset = EnsureGetArrayElementUint(1);

@@ -1,6 +1,6 @@
 #include "albumthumbnailbutton.h"
 
-#include "../../../renderer2d.h"
+#include "../../../renderer/renderer.h"
 #include "../../../profile/dialogue.h"
 #include "../../../profile/games/mo6tw/albummenu.h"
 
@@ -44,7 +44,7 @@ AlbumThumbnailButton::AlbumThumbnailButton(
 }
 
 void AlbumThumbnailButton::Render() {
-  Renderer2D::DrawSprite(
+  Renderer->DrawSprite(
       Border, glm::vec2(Bounds.X, Bounds.Y) + ThumbnailButtonBorderOffset,
       Tint);
   ImageThumbnailButton::Render();

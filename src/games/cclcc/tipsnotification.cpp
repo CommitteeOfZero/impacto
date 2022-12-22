@@ -3,7 +3,7 @@
 #include "../../profile/scriptvars.h"
 #include "../../impacto.h"
 #include "../../mem.h"
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 #include "../../game.h"
 #include "../../profile/hud/tipsnotification.h"
 #include "../../profile/games/cclcc/tipsnotification.h"
@@ -77,7 +77,7 @@ void TipsNotification::Render() {
   if (FadeAnimation.IsOut()) return;
   if (FadeAnimation.Progress > 0.0f) {
     float smoothedFade = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
-    Renderer2D::DrawSprite(NotificationBackground, BackgroundPosition,
+    Renderer->DrawSprite(NotificationBackground, BackgroundPosition,
                            glm::vec4(1.0f, 1.0f, 1.0f, smoothedFade));
     if (Timer.State == AS_Playing || FadeAnimation.Direction == -1) {
       Notification->Tint.a = smoothedFade;

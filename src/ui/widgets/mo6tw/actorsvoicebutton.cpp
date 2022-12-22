@@ -1,6 +1,6 @@
 #include "actorsvoicebutton.h"
 
-#include "../../../renderer2d.h"
+#include "../../../renderer/renderer.h"
 
 namespace Impacto {
 namespace UI {
@@ -24,17 +24,17 @@ ActorsVoiceButton::ActorsVoiceButton(int id, Sprite const& norm,
 
 void ActorsVoiceButton::Render() {
   if (IsLocked) {
-    Renderer2D::DrawSprite(LockedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    Renderer->DrawSprite(LockedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
   } else {
-    Renderer2D::DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
   }
   if (HasFocus) {
     if (IsLocked) {
-      Renderer2D::DrawSprite(LockedHighlightSprite,
+      Renderer->DrawSprite(LockedHighlightSprite,
                              glm::vec2(Bounds.X, Bounds.Y), Tint);
 
     } else {
-      Renderer2D::DrawSprite(HighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
+      Renderer->DrawSprite(HighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
                              Tint);
     }
   }

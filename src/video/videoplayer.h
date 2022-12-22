@@ -8,6 +8,8 @@ extern "C" {
 
 #include "../impacto.h"
 #include "yuvframe.h"
+#include "../texture/texture.h"
+#include "../renderer/renderer.h"
 #include "alc.h"
 #include "al.h"
 

@@ -1,7 +1,8 @@
 #include "modelviewer.h"
 #include "game.h"
 
-#include "window.h"
+//#include "window.h"
+#include "renderer/renderer.h"
 #include "audio/audiosystem.h"
 #include "audio/audiostream.h"
 #include "audio/audiochannel.h"
@@ -68,13 +69,13 @@ void Init() {
 }
 
 void Update(float dt) {
-  if (Window::WindowDimensionsChanged) {
-    UiWindowWidth = Window::WindowWidth;
-    UiWindowHeight = Window::WindowHeight;
-    UiMsaaCount = Window::MsaaCount;
+  if (Renderer->Window->WindowDimensionsChanged) {
+    UiWindowWidth = Renderer->Window->WindowWidth;
+    UiWindowHeight = Renderer->Window->WindowHeight;
+    UiMsaaCount = Renderer->Window->MsaaCount;
   }
 
-  if (nk_begin(Nk, "Scene", nk_rect(20, 20, 300, Window::WindowHeight - 40),
+  if (nk_begin(Nk, "Scene", nk_rect(20, 20, 300, Renderer->Window->WindowHeight - 40),
                NK_WINDOW_BORDER | NK_WINDOW_TITLE)) {
     // FPS counter
     Frames++;
@@ -99,8 +100,8 @@ void Update(float dt) {
       nk_property_int(Nk, "MSAA", 0, &UiMsaaCount, 16, 0, 0);
 
       if (nk_button_label(Nk, "Resize")) {
-        Window::SetDimensions(UiWindowWidth, UiWindowHeight, UiMsaaCount,
-                              Window::RenderScale);
+        Renderer->Window->SetDimensions(UiWindowWidth, UiWindowHeight, UiMsaaCount,
+                              Renderer->Window->RenderScale);
       }
 
       nk_tree_pop(Nk);

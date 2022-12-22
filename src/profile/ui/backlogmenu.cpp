@@ -2,7 +2,6 @@
 #include "../profile_internal.h"
 #include "../../ui/ui.h"
 #include "../../log.h"
-#include "../../window.h"
 #include "../../game.h"
 
 namespace Impacto {

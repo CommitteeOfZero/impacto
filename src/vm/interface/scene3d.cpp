@@ -2,7 +2,7 @@
 
 #include "../../impacto.h"
 #include "../../profile/scriptvars.h"
-#include "../../3d/scene.h"
+#include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../util.h"
 
@@ -54,19 +54,19 @@ static void UpdateRenderableRot(int charId) {
         glm::vec3 lookat = LookAtEulerZYX(object, target);
         lookat.x = 0.0f;
 
-        Scene3D::Renderables[charId].ModelTransform.SetRotationFromEuler(
+        Renderer->Scene->Renderables[charId].ModelTransform.SetRotationFromEuler(
             lookat);
 
         ScrWorkSetAngle(30 * charId + SW_MDL1ROTY, lookat.y);
       } else {
-        Scene3D::Renderables[charId].ModelTransform.SetRotationFromEuler(
+        Renderer->Scene->Renderables[charId].ModelTransform.SetRotationFromEuler(
             ScrWorkGetAngleVec3(30 * charId + SW_MDL1ROTX,
                                 30 * charId + SW_MDL1ROTY,
                                 30 * charId + SW_MDL1ROTZ));
       }
     } break;
     case InstructionSet::Dash: {
-      Scene3D::Renderables[charId].ModelTransform.SetRotationFromEuler(
+      Renderer->Scene->Renderables[charId].ModelTransform.SetRotationFromEuler(
           ScrWorkGetAngleVec3(30 * charId + SW_MDL1ROTX,
                               30 * charId + SW_MDL1ROTY,
                               30 * charId + SW_MDL1ROTZ));
@@ -75,20 +75,20 @@ static void UpdateRenderableRot(int charId) {
 }
 
 static void UpdateRenderablePos(int charId) {
-  Scene3D::Renderables[charId].ModelTransform.Position =
+  Renderer->Scene->Renderables[charId].ModelTransform.Position =
       ScrWorkGetVec3(30 * charId + SW_MDL1POSX, 30 * charId + SW_MDL1POSY,
                      30 * charId + SW_MDL1POSZ);
 }
 
 static void UpdateRenderables() {
   for (int i = 0; i <= 8; i++) {
-    if (Scene3D::Renderables[i].Status == LS_Loaded) {
+    if (Renderer->Scene->Renderables[i].Status == LS_Loaded) {
       UpdateRenderableRot(i);
       UpdateRenderablePos(i);
       if (GetFlag(SF_IRUOENABLE) && GetFlag(SF_Pokecon_Open)) {
-        Scene3D::Renderables[i].IsVisible = GetFlag(SF_MDL1SHDISP + i);
+        Renderer->Scene->Renderables[i].IsVisible = GetFlag(SF_MDL1SHDISP + i);
       } else {
-        Scene3D::Renderables[i].IsVisible = GetFlag(SF_MDL1DISP + i);
+        Renderer->Scene->Renderables[i].IsVisible = GetFlag(SF_MDL1DISP + i);
       }
     }
   }
@@ -161,29 +161,29 @@ static void UpdateCamera() {
   lookatCam.x = -lookatCam.x;
 
   // Update position
-  Scene3D::MainCamera.CameraTransform.Position = posCam;
+  Renderer->Scene->MainCamera.CameraTransform.Position = posCam;
   // Update lookat
-  Scene3D::MainCamera.CameraTransform.SetRotationFromEuler(lookatCam);
+  Renderer->Scene->MainCamera.CameraTransform.SetRotationFromEuler(lookatCam);
   // Update fov
-  Scene3D::MainCamera.Fov =
+  Renderer->Scene->MainCamera.Fov =
       2.0f *
-      atanf(tanf(hFovRad / 2.0f) * (1.0f / Scene3D::MainCamera.AspectRatio));
+      atanf(tanf(hFovRad / 2.0f) * (1.0f / Renderer->Scene->MainCamera.AspectRatio));
 
   // Update lighting
   switch (Profile::Vm::GameInstructionSet) {
     case InstructionSet::RNE: {
-      Scene3D::Tint = ScrWorkGetColor(SW_MAINLIGHTCOLOR);
-      Scene3D::Tint.a = ScrWorkGetFloat(SW_MAINLIGHTWEIGHT);
-      Scene3D::LightPosition =
+      Renderer->Scene->Tint = ScrWorkGetColor(SW_MAINLIGHTCOLOR);
+      Renderer->Scene->Tint.a = ScrWorkGetFloat(SW_MAINLIGHTWEIGHT);
+      Renderer->Scene->LightPosition =
           ScrWorkGetVec3(SW_MAINLIGHTPOSX, SW_MAINLIGHTPOSY, SW_MAINLIGHTPOSZ);
-      Scene3D::DarkMode = (bool)ScrWork[SW_MAINLIGHTDARKMODE];
+      Renderer->Scene->DarkMode = (bool)ScrWork[SW_MAINLIGHTDARKMODE];
     } break;
     case InstructionSet::Dash: {
-      Scene3D::Tint.r = ScrWork[SW_LIGHT1_COLORR] / 255.0f;
-      Scene3D::Tint.g = ScrWork[SW_LIGHT1_COLORG] / 255.0f;
-      Scene3D::Tint.b = ScrWork[SW_LIGHT1_COLORB] / 255.0f;
-      Scene3D::Tint.a = 1.0f;
-      Scene3D::LightPosition =
+      Renderer->Scene->Tint.r = ScrWork[SW_LIGHT1_COLORR] / 255.0f;
+      Renderer->Scene->Tint.g = ScrWork[SW_LIGHT1_COLORG] / 255.0f;
+      Renderer->Scene->Tint.b = ScrWork[SW_LIGHT1_COLORB] / 255.0f;
+      Renderer->Scene->Tint.a = 1.0f;
+      Renderer->Scene->LightPosition =
           ScrWorkGetVec3(SW_LIGHT1_POSX, SW_LIGHT1_POSY, SW_LIGHT1_POSZ);
     } break;
   }

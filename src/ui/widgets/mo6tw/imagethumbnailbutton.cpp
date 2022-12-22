@@ -1,6 +1,6 @@
 #include "imagethumbnailbutton.h"
 
-#include "../../../renderer2d.h"
+#include "../../../renderer/renderer.h"
 #include "../../../profile/games/mo6tw/moviemenu.h"
 
 namespace Impacto {
@@ -56,34 +56,34 @@ void ImageThumbnailButton::Update(float dt) {
 
 void ImageThumbnailButton::Render() {
   if (!IsLocked) {
-    Renderer2D::DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
     if (IsSplit) {
-      Renderer2D::DrawSprite(
+      Renderer->DrawSprite(
           BottomPart,
           glm::vec2(Bounds.X, Bounds.Y + NormalSprite.ScaledHeight()), Tint);
     }
   } else {
-    Renderer2D::DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    Renderer->DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
   }
   if (HasFocus) {
     auto offset = 2.0f * glm::step(0.5f, HighlightAnimation.Progress);
-    Renderer2D::DrawSprite(
+    Renderer->DrawSprite(
         HighlightTopLeft,
         glm::vec2(Bounds.X - HighlightTopLeftOffset.x + offset,
                   Bounds.Y - HighlightTopLeftOffset.y + offset),
         Tint);
-    Renderer2D::DrawSprite(
+    Renderer->DrawSprite(
         HighlightTopRight,
         glm::vec2(Bounds.X + Bounds.Width - HighlightTopRightOffset.x - offset,
                   Bounds.Y - HighlightTopRightOffset.y + offset),
         Tint);
-    Renderer2D::DrawSprite(
+    Renderer->DrawSprite(
         HighlightBottomLeft,
         glm::vec2(
             Bounds.X - HighlightBottomLeftOffset.x + offset,
             Bounds.Y + Bounds.Height - HighlightBottomLeftOffset.y - offset),
         Tint);
-    Renderer2D::DrawSprite(
+    Renderer->DrawSprite(
         HighlightBottomRight,
         glm::vec2(
             Bounds.X + Bounds.Width - HighlightBottomRightOffset.x - offset,

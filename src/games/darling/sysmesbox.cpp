@@ -6,7 +6,7 @@
 #include "../../profile/game.h"
 #include "../../profile/scriptvars.h"
 #include "../../mem.h"
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 
 namespace Impacto {
 namespace UI {
@@ -138,14 +138,14 @@ void SysMesBox::Render() {
     if (maxWidth < BoxMinimumWidth) maxWidth = BoxMinimumWidth;
 
     float leftStartX = BoxMiddleBaseX - (maxWidth / 2.0f);
-    Renderer2D::DrawSprite(BoxPartLeft, glm::vec2(leftStartX, BoxY), col);
+    Renderer->DrawSprite(BoxPartLeft, glm::vec2(leftStartX, BoxY), col);
 
     BoxPartMiddle.BaseScale =
         glm::vec2((maxWidth - BoxRightBaseWidth) / BoxMiddleBaseWidth, 1.0f);
-    Renderer2D::DrawSprite(
+    Renderer->DrawSprite(
         BoxPartMiddle, glm::vec2(leftStartX + BoxRightRemainPad, BoxY), col);
 
-    Renderer2D::DrawSprite(
+    Renderer->DrawSprite(
         BoxPartRight,
         glm::vec2(leftStartX + maxWidth + BoxRightBaseWidth, BoxY), col);
 

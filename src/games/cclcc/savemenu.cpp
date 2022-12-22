@@ -2,7 +2,7 @@
 
 #include "../../profile/ui/savemenu.h"
 #include "../../profile/games/cclcc/savemenu.h"
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
 #include "../../inputsystem.h"
@@ -165,16 +165,16 @@ void SaveMenu::Update(float dt) {
 void SaveMenu::Render() {
   if (State != Hidden) {
     glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-    Renderer2D::DrawSprite(SaveMenuBackgroundSprite, glm::vec2(0.0f), col);
+    Renderer->DrawSprite(SaveMenuBackgroundSprite, glm::vec2(0.0f), col);
     /* switch (ScrWork[SW_SAVEMENUMODE]) {
        case 0:
-         Renderer2D::DrawSprite(QuickLoadTextSprite, MenuTitleTextPos, col);
+         Renderer->DrawSprite(QuickLoadTextSprite, MenuTitleTextPos, col);
          break;
        case 1:
-         Renderer2D::DrawSprite(SaveTextSprite, MenuTitleTextPos, col);
+         Renderer->DrawSprite(SaveTextSprite, MenuTitleTextPos, col);
          break;
        case 2:
-         Renderer2D::DrawSprite(LoadTextSprite, MenuTitleTextPos, col);
+         Renderer->DrawSprite(LoadTextSprite, MenuTitleTextPos, col);
          break;
      }
      MainItems->Tint = col;

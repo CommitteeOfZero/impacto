@@ -1,5 +1,5 @@
 #include "cgviewer.h"
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 #include "../../io/vfs.h"
 #include "../../inputsystem.h"
 #include "../../vm/interface/input.h"
@@ -112,7 +112,7 @@ void CgViewer::Update(float dt) {
 void CgViewer::Render() {
   glm::vec4 col(1.0f, 1.0f, 1.0f,
                 glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress));
-  Renderer2D::DrawRect(
+  Renderer->DrawRect(
       RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
       glm::vec4(0.0f, 0.0f, 0.0f, col.a));
   for (int i = 0; i < CgCount[CurrentVariation]; i++) {
@@ -122,7 +122,7 @@ void CgViewer::Render() {
             : glm::vec2(Position.x,
                         Position.y +
                             CgSprites[CurrentVariation][i - 1].ScaledHeight());
-    Renderer2D::DrawSprite(CgSprites[CurrentVariation][i], pos, col);
+    Renderer->DrawSprite(CgSprites[CurrentVariation][i], pos, col);
   }
 }
 

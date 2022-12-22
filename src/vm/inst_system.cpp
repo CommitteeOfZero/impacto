@@ -26,7 +26,6 @@
 #include "../inputsystem.h"
 #include "interface/input.h"
 #include "../data/savesystem.h"
-#include "../window.h"
 #include "../ui/ui.h"
 
 namespace Impacto {
@@ -281,7 +280,7 @@ VmInstruction(InstTerminate) {
   StartInstruction;
 
   ImpLog(LL_Info, LC_VM, "VM requested shutdown!\n");
-  Window::Shutdown();
+  Renderer->Window->Shutdown();
   // BlockThread;
   // ResetInstruction;
 }

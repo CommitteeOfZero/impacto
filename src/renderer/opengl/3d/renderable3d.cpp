@@ -3,15 +3,13 @@
 
 #include "renderable3d.h"
 
-#include "modelanimator.h"
-#include "scene.h"
-#include "camera.h"
-#include "../shader.h"
-#include "../log.h"
-
-#include "../profile/scene3d.h"
+#include "../../3d/camera.h"
+#include "../../3d/modelanimator.h"
+#include "../../../log.h"
+#include "../../../profile/scene3d.h"
 
 namespace Impacto {
+namespace OpenGL {
 
 enum SceneUniform {
   SU_ViewProjection = 0,
@@ -61,22 +59,26 @@ static MaterialType CurrentMaterial = MT_None;
 static bool CurrentMaterialIsDepthWrite = false;
 static bool CurrentMaterialIsBackfaceCull = false;
 
-void Renderable3D::Init() {
+static GLWindow* Window;
+
+void Renderable3D::Init(GLWindow* window, ShaderCompiler* shaderCompiler) {
   assert(IsInit == false);
   ImpLog(LL_Info, LC_Renderable3D, "Initializing Renderable3D system\n");
   IsInit = true;
+
+  Window = window;
 
   ShaderParamMap shaderParams;
   shaderParams["ModelMaxBonesPerMesh"] = ModelMaxBonesPerMesh;
   int isDaSH = (int)(Profile::Scene3D::Version == +LKMVersion::DaSH);
   shaderParams["DASH"] = ShaderParameter(isDaSH, true);
 
-  ShaderProgram = ShaderCompile("Renderable3D_Character", shaderParams);
-  ShaderProgramOutline = ShaderCompile("Renderable3D_Outline", shaderParams);
-  ShaderProgramEye = ShaderCompile("Renderable3D_Eye", shaderParams);
+  ShaderProgram = shaderCompiler->Compile("Renderable3D_Character", shaderParams);
+  ShaderProgramOutline = shaderCompiler->Compile("Renderable3D_Outline", shaderParams);
+  ShaderProgramEye = shaderCompiler->Compile("Renderable3D_Eye", shaderParams);
 
   ShaderProgramBackground =
-      ShaderCompile("Renderable3D_Background", shaderParams);
+      shaderCompiler->Compile("Renderable3D_Background", shaderParams);
 
   GLuint sceneUniformIndices[SU_Count];
   glGetUniformIndices(ShaderProgram, SU_Count, SceneUniformNames,
@@ -189,7 +191,7 @@ void Renderable3D::Init() {
   TextureDummy = texDummy.Submit();
 }
 
-void Renderable3D::BeginFrame(Camera* camera) {
+void Renderable3D::BeginFrame(IScene3D* scene, Camera* camera) {
   CurrentMaterial = MT_None;
 
   glBindBufferBase(GL_UNIFORM_BUFFER, 0, UBOScene);
@@ -197,15 +199,15 @@ void Renderable3D::BeginFrame(Camera* camera) {
          glm::value_ptr(camera->ViewProjection),
          sizeof(camera->ViewProjection));
   memcpy(SceneUniformBuffer + SceneUniformOffsets[SU_Tint],
-         glm::value_ptr(Scene3D::Tint), sizeof(Scene3D::Tint));
+         glm::value_ptr(scene->Tint), sizeof(scene->Tint));
   memcpy(SceneUniformBuffer + SceneUniformOffsets[SU_WorldLightPosition],
-         glm::value_ptr(Scene3D::LightPosition),
-         sizeof(Scene3D::LightPosition));
+         glm::value_ptr(scene->LightPosition),
+         sizeof(scene->LightPosition));
   memcpy(SceneUniformBuffer + SceneUniformOffsets[SU_WorldEyePosition],
          glm::value_ptr(camera->CameraTransform.Position),
          sizeof(camera->CameraTransform.Position));
   *(uint32_t*)(SceneUniformBuffer + SceneUniformOffsets[SU_DarkMode]) =
-      Scene3D::DarkMode;
+      scene->DarkMode;
   glBufferSubData(GL_UNIFORM_BUFFER, 0, SceneUniformBlockSize,
                   SceneUniformBuffer);
 
@@ -829,4 +831,5 @@ void Renderable3D::MainThreadOnLoad() {
   IsSubmitted = true;
 }
 
+}  // namespace OpenGL
 }  // namespace Impacto

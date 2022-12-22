@@ -1,5 +1,5 @@
 #include "scrollbar.h"
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 #include "../../inputsystem.h"
 #include "../../vm/interface/input.h"
 
@@ -131,12 +131,12 @@ void Scrollbar::UpdateInput() {
 }
 
 void Scrollbar::Render() {
-  Renderer2D::DrawSprite(TrackSprite, TrackBounds, Tint);
+  Renderer->DrawSprite(TrackSprite, TrackBounds, Tint);
   if (HasFill) {
-    Renderer2D::DrawSprite(FillSprite, glm::vec2(TrackBounds.X, TrackBounds.Y),
+    Renderer->DrawSprite(FillSprite, glm::vec2(TrackBounds.X, TrackBounds.Y),
                            Tint);
   }
-  Renderer2D::DrawSprite(ThumbSprite, glm::vec2(ThumbBounds.X, ThumbBounds.Y),
+  Renderer->DrawSprite(ThumbSprite, glm::vec2(ThumbBounds.X, ThumbBounds.Y),
                          Tint);
 }
 

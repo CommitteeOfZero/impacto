@@ -1,7 +1,6 @@
 #include "dialogue.h"
 #include "profile_internal.h"
 #include "../log.h"
-#include "../window.h"
 #include "../ui/ui.h"
 
 #include "games/mo6tw/dialoguebox.h"
@@ -148,7 +147,7 @@ void Configure() {
       auto const& _pair = TopVal();
       if (_pair.Size() != 2) {
         ImpLog(LL_Fatal, LC_Profile, "Expected two colors\n");
-        Window::Shutdown();
+        Renderer->Window->Shutdown();
       }
       ColorTable[i].TextColor = EnsureGetArrayElementUint(0);
       ColorTable[i].OutlineColor = EnsureGetArrayElementUint(1);

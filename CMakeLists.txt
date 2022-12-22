@@ -11,22 +11,27 @@ endif()
 set(Impacto_Src
     src/main.cpp
     src/log.cpp
-    src/shader.cpp
     src/util.cpp
-    src/window.cpp
     src/workqueue.cpp
     src/game.cpp
     src/mem.cpp
     src/modelviewer.cpp
     src/characterviewer.cpp
     src/spriteanimation.cpp
-    src/renderer2d.cpp
     src/background2d.cpp
     src/mask2d.cpp
     src/character2d.cpp
     src/text.cpp
     src/inputsystem.cpp
     src/glc.cpp
+
+    src/renderer/renderer.cpp
+
+    src/renderer/opengl/window.cpp
+    src/renderer/opengl/renderer.cpp
+    src/renderer/opengl/shader.cpp
+    src/renderer/opengl/3d/renderable3d.cpp
+    src/renderer/opengl/3d/scene.cpp
 
     src/data/savesystem.cpp
     src/data/tipssystem.cpp
@@ -195,13 +200,11 @@ set(Impacto_Src
     src/nuklear_impl.cpp
     src/stbi_impl.c
 
-    src/3d/camera.cpp
-    src/3d/model.cpp
-    src/3d/renderable3d.cpp
-    src/3d/transform.cpp
-    src/3d/scene.cpp
-    src/3d/animation.cpp
-    src/3d/modelanimator.cpp
+    src/renderer/3d/camera.cpp
+    src/renderer/3d/model.cpp
+    src/renderer/3d/transform.cpp
+    src/renderer/3d/animation.cpp
+    src/renderer/3d/modelanimator.cpp
 
     src/io/vfs.cpp
     src/io/assetpath.cpp
@@ -278,9 +281,7 @@ set(Impacto_Src
 set(Impacto_Header
     src/impacto.h
     src/log.h
-    src/shader.h
     src/util.h
-    src/window.h
     src/workqueue.h
     src/game.h
     src/mem.h
@@ -289,7 +290,6 @@ set(Impacto_Header
     src/spritesheet.h
     src/spriteanimation.h
     src/font.h
-    src/renderer2d.h
     src/background2d.h
     src/mask2d.h
     src/character2d.h
@@ -299,6 +299,15 @@ set(Impacto_Header
     src/glc.h
     src/rng.h
     src/animation.h
+
+    src/renderer/renderer.h
+    src/renderer/window.h
+
+    src/renderer/opengl/window.h
+    src/renderer/opengl/renderer.h
+    src/renderer/opengl/shader.h
+    src/renderer/opengl/3d/renderable3d.h
+    src/renderer/opengl/3d/scene.h
 
     src/data/savesystem.h
     src/data/tipssystem.h
@@ -463,13 +472,13 @@ set(Impacto_Header
     src/ui/widgets/cc/titlebutton.h
     src/ui/widgets/cclcc/titlebutton.h
 
-    src/3d/camera.h
-    src/3d/model.h
-    src/3d/renderable3d.h
-    src/3d/transform.h
-    src/3d/scene.h
-    src/3d/animation.h
-    src/3d/modelanimator.h
+    src/renderer/3d/camera.h
+    src/renderer/3d/model.h
+    src/renderer/3d/renderable3d.h
+    src/renderer/3d/transform.h
+    src/renderer/3d/scene.h
+    src/renderer/3d/animation.h
+    src/renderer/3d/modelanimator.h
 
     src/io/io.h
     src/io/vfs.h

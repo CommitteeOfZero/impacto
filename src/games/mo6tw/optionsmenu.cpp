@@ -2,7 +2,7 @@
 
 #include "../../profile/ui/optionsmenu.h"
 #include "../../profile/games/mo6tw/optionsmenu.h"
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
 #include "../../inputsystem.h"
@@ -387,55 +387,55 @@ void OptionsMenu::Render() {
   if (State != Hidden) {
     glm::vec4 col(1.0f, 1.0f, 1.0f,
                   glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress));
-    Renderer2D::DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
+    Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
     if (FirstPage->IsShown) {
       auto pos = FirstPageSectionHeaderPos;
-      Renderer2D::DrawSprite(
+      Renderer->DrawSprite(
           SectionHeaderSprites[0 + VoiceVolumeSlider->HasFocus], pos, col);
       pos.y += FirstPageSliderMargin;
-      Renderer2D::DrawSprite(
+      Renderer->DrawSprite(
           SectionHeaderSprites[2 + BGMVolumeSlider->HasFocus], pos, col);
       pos.y += FirstPageSliderMargin;
-      Renderer2D::DrawSprite(SectionHeaderSprites[4 + SEVolumeSlider->HasFocus],
+      Renderer->DrawSprite(SectionHeaderSprites[4 + SEVolumeSlider->HasFocus],
                              pos, col);
       pos.y += FirstPageSliderMargin;
-      Renderer2D::DrawSprite(
+      Renderer->DrawSprite(
           SectionHeaderSprites[6 + MovieVolumeSlider->HasFocus], pos, col);
       pos.y += FirstPageSliderMargin;
-      Renderer2D::DrawSprite(
+      Renderer->DrawSprite(
           SectionHeaderSprites[8 + CharacterVoiceToggles->HasFocus], pos, col);
 
       FirstPage->Tint = col;
       FirstPage->Render();
     } else if (SecondPage->IsShown) {
       auto pos = SecondPageSectionHeaderPos;
-      Renderer2D::DrawSprite(
+      Renderer->DrawSprite(
           SectionHeaderSprites[10 + MessageSpeedToggles->HasFocus], pos, col);
       pos += CheckboxMargin;
-      Renderer2D::DrawSprite(
+      Renderer->DrawSprite(
           SectionHeaderSprites[12 + AutoModeWaitTimeToggles->HasFocus], pos,
           col);
       pos += CheckboxMargin;
-      Renderer2D::DrawSprite(
+      Renderer->DrawSprite(
           SectionHeaderSprites[14 + SyncTextSpeedToVoiceToggles->HasFocus], pos,
           col);
       pos += CheckboxMargin;
-      Renderer2D::DrawSprite(
+      Renderer->DrawSprite(
           SectionHeaderSprites[16 + SkipVoiceAtNextLineToggles->HasFocus], pos,
           col);
       pos += CheckboxMargin;
       pos.x = SecondPageSectionHeaderPos.x;
-      Renderer2D::DrawSprite(
+      Renderer->DrawSprite(
           SectionHeaderSprites[18 + SkipModeToggles->HasFocus], pos, col);
       pos += CheckboxMargin;
-      Renderer2D::DrawSprite(
+      Renderer->DrawSprite(
           SectionHeaderSprites[20 + AutoSaveTriggerToggles->HasFocus], pos,
           col);
       pos += CheckboxMargin;
-      Renderer2D::DrawSprite(
+      Renderer->DrawSprite(
           SectionHeaderSprites[22 + ScreenSizeSlider->HasFocus], pos, col);
       pos += CheckboxMargin;
-      Renderer2D::DrawSprite(
+      Renderer->DrawSprite(
           SectionHeaderSprites[24 + TipsNotificationsToggles->HasFocus], pos,
           col);
 

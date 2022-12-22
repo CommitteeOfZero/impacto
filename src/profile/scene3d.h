@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include <flat_hash_map.hpp>
-#include "../3d/model.h"
+#include "../renderer/3d/model.h"
 
 namespace Impacto {
 namespace Profile {

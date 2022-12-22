@@ -3,7 +3,8 @@
 #include "../../../ui/ui.h"
 
 #include "../../../games/chlcc/moviemenu.h"
-#include "../../../window.h"
+//#include "../../../window.h"
+#include "../../../renderer/renderer.h"
 
 namespace Impacto {
 namespace Profile {
@@ -58,7 +59,7 @@ static void GetMemberVec2Array(glm::vec2* arr, uint32_t count,
   if (TopVal().Size() != count) {
     ImpLog(LL_Fatal, LC_Profile, "Expected to have %d vec2 for %s\n", count,
            name);
-    Window::Shutdown();
+    Renderer->Window->Shutdown();
   }
 
   for (uint32_t i = 0; i < count; i++) {
@@ -75,7 +76,7 @@ static void GetMemberSpriteArray(Sprite* arr, uint32_t count,
   if (TopVal().Size() != count) {
     ImpLog(LL_Fatal, LC_Profile, "Expected to have %d sprites for %s\n", count,
            name);
-    Window::Shutdown();
+    Renderer->Window->Shutdown();
   }
 
   for (uint32_t i = 0; i < count; i++) {

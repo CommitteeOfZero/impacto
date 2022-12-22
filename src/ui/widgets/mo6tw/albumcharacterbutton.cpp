@@ -1,6 +1,6 @@
 #include "albumcharacterbutton.h"
 
-#include "../../../renderer2d.h"
+#include "../../../renderer/renderer.h"
 
 namespace Impacto {
 namespace UI {
@@ -36,19 +36,19 @@ void AlbumCharacterButton::Update(float dt) {
 
 void AlbumCharacterButton::Render() {
   if (IsLocked) {
-    Renderer2D::DrawSprite(LockedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    Renderer->DrawSprite(LockedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
   } else {
-    Renderer2D::DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
   }
 
   glm::vec4 col = Tint;
   col.a = glm::smoothstep(0.0f, 1.0f, HighlightAnimation.Progress);
   if (HasFocus) {
     if (IsLocked) {
-      Renderer2D::DrawSprite(LockedHighlightSprite,
+      Renderer->DrawSprite(LockedHighlightSprite,
                              glm::vec2(Bounds.X, Bounds.Y), col);
     } else {
-      Renderer2D::DrawSprite(HighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
+      Renderer->DrawSprite(HighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
                              col);
     }
   }

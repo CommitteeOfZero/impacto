@@ -6,7 +6,7 @@
 #include "../../profile/game.h"
 #include "../../profile/scriptvars.h"
 #include "../../mem.h"
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 
 namespace Impacto {
 namespace UI {
@@ -137,20 +137,20 @@ void SysMesBox::Render() {
     }
     if (maxWidth < BoxMinimumWidth) maxWidth = BoxMinimumWidth;
 
-    Renderer2D::DrawSprite(BoxPartLeft,
+    Renderer->DrawSprite(BoxPartLeft,
                            glm::vec2(BoxX - (maxWidth / 2.0f), BoxY), col);
 
     float remainWidth = maxWidth - BoxMiddleRemainBase;
     float currentX = BoxMiddleBaseX - (maxWidth / 2.0f);
     while (remainWidth >= BoxMiddleBaseWidth) {
-      Renderer2D::DrawSprite(BoxPartMiddle, glm::vec2(currentX, BoxY), col);
+      Renderer->DrawSprite(BoxPartMiddle, glm::vec2(currentX, BoxY), col);
       currentX += BoxMiddleBaseWidth;
       remainWidth -= BoxMiddleBaseWidth;
     }
 
     BoxPartRight.Bounds.X = BoxRightBaseX - (remainWidth + BoxRightRemainPad);
     BoxPartRight.Bounds.Width = (remainWidth + BoxRightRemainPad) - 1.0f;
-    Renderer2D::DrawSprite(BoxPartRight, glm::vec2(currentX, BoxY), col);
+    Renderer->DrawSprite(BoxPartRight, glm::vec2(currentX, BoxY), col);
 
     MessageItems->Tint.a = FadeAnimation.Progress;
     MessageItems->Render();

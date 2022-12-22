@@ -1,7 +1,7 @@
 #include "fonts.h"
 #include "profile_internal.h"
 #include "../log.h"
-#include "../window.h"
+#include "../renderer/renderer.h"
 
 namespace Impacto {
 namespace Profile {
@@ -75,7 +75,7 @@ void LoadFonts() {
         if (widthTablePath.Slurp((void**)&widthBin, &widthSz) != IoError_OK) {
           ImpLog(LL_Fatal, LC_Profile,
                  "Failed to load width table file for font %s\n", name.c_str());
-          Window::Shutdown();
+          Renderer->Window->Shutdown();
         }
         assert(widthSz == baseFont->Columns * baseFont->Rows);
         for (uint16_t i = 0; i < widthSz; i++) {

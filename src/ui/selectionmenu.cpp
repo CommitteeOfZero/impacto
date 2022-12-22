@@ -3,7 +3,7 @@
 #include "../profile/ui/selectionmenu.h"
 #include "../profile/dialogue.h"
 #include "../profile/game.h"
-#include "../renderer2d.h"
+#include "../renderer/renderer.h"
 
 namespace Impacto {
 namespace UI {
@@ -151,57 +151,57 @@ void SelectionMenu::Render() {
   if (State != Hidden) {
     glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
     if (IsPlain) {
-      Renderer2D::DrawSprite(
+      Renderer->DrawSprite(
           PlainSelectionFrameTopLeft,
           glm::vec2(ChoiceXMin - PlainSelectionFrameTopLeft.Bounds.Width,
                     Choices[0][0].DestRect.Y -
                         PlainSelectionFrameTopLeft.Bounds.Height),
           col);
-      Renderer2D::DrawSprite(
+      Renderer->DrawSprite(
           PlainSelectionFrameTopSide,
           RectF(ChoiceXMin,
                 Choices[0][0].DestRect.Y -
                     PlainSelectionFrameTopLeft.Bounds.Height,
                 ChoiceWidthMax, PlainSelectionFrameTopLeft.Bounds.Height),
           col);
-      Renderer2D::DrawSprite(
+      Renderer->DrawSprite(
           PlainSelectionFrameTopRight,
           glm::vec2(ChoiceXMin + ChoiceWidthMax,
                     Choices[0][0].DestRect.Y -
                         PlainSelectionFrameTopLeft.Bounds.Height),
           col);
-      Renderer2D::DrawSprite(
+      Renderer->DrawSprite(
           PlainSelectionFrameLeftSide,
           RectF(ChoiceXMin - PlainSelectionFrameTopLeft.Bounds.Width,
                 Choices[0][0].DestRect.Y,
                 PlainSelectionFrameTopLeft.Bounds.Width, ChoiceHeight),
           col);
-      Renderer2D::DrawSprite(
+      Renderer->DrawSprite(
           PlainSelectionFrameRightSide,
           RectF(ChoiceXMin + ChoiceWidthMax, Choices[0][0].DestRect.Y,
                 PlainSelectionFrameTopLeft.Bounds.Width, ChoiceHeight),
           col);
-      Renderer2D::DrawSprite(
+      Renderer->DrawSprite(
           PlainSelectionFrameBottomLeft,
           glm::vec2(ChoiceXMin - PlainSelectionFrameTopLeft.Bounds.Width,
                     Choices[0][0].DestRect.Y + ChoiceHeight),
           col);
-      Renderer2D::DrawSprite(PlainSelectionFrameBottomRight,
+      Renderer->DrawSprite(PlainSelectionFrameBottomRight,
                              glm::vec2(ChoiceXMin + ChoiceWidthMax,
                                        Choices[0][0].DestRect.Y + ChoiceHeight),
                              col);
-      Renderer2D::DrawSprite(
+      Renderer->DrawSprite(
           PlainSelectionFrameBottomSide,
           RectF(ChoiceXMin, Choices[0][0].DestRect.Y + ChoiceHeight,
                 ChoiceWidthMax, PlainSelectionFrameTopLeft.Bounds.Height),
           col);
-      Renderer2D::DrawSprite(PlainSelectionFrameMiddle,
+      Renderer->DrawSprite(PlainSelectionFrameMiddle,
                              RectF(ChoiceXMin, Choices[0][0].DestRect.Y,
                                    ChoiceWidthMax, ChoiceHeight),
                              col);
     } else {
       for (int i = 0; i < ChoiceCount; i++) {
-        Renderer2D::DrawSprite(
+        Renderer->DrawSprite(
             SelectionBackground,
             glm::vec2(SelectionBackgroundX,
                       CurrentSelBackgroundY + (i * SelectionYSpacing)),

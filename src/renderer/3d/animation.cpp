@@ -2,11 +2,11 @@
 
 #include "animation.h"
 
-#include "../io/io.h"
-#include "../log.h"
-#include "../util.h"
+#include "../../io/io.h"
+#include "../../log.h"
+#include "../../util.h"
 
-#include "../profile/scene3d.h"
+#include "../../profile/scene3d.h"
 
 namespace Impacto {
 

@@ -1,6 +1,5 @@
 #include "game.h"
 
-#include "window.h"
 #include "../vendor/nuklear/nuklear_sdl_gl3.h"
 #include "workqueue.h"
 #include "modelviewer.h"
@@ -16,11 +15,10 @@
 #include "audio/audiochannel.h"
 #include "audio/audiostream.h"
 #include "video/videosystem.h"
-#include "renderer2d.h"
 #include "background2d.h"
 #include "mask2d.h"
 #include "character2d.h"
-#include "3d/scene.h"
+#include "renderer/3d/scene.h"
 #include "mem.h"
 #include "hud/datedisplay.h"
 #include "hud/saveicondisplay.h"
@@ -70,12 +68,13 @@ static void Init() {
   Profile::LoadGameFromJson();
 
   Io::VfsInit();
-  Window::Init();
+  InitRenderer();
+  Renderer->Init();
 
   memset(DrawComponents, DrawComponentType::None, sizeof(DrawComponents));
 
   if (Profile::GameFeatures & GameFeature::Nuklear) {
-    Nk = nk_sdl_init(Window::SDLWindow, NkMaxVertexMemory, NkMaxElementMemory);
+    Nk = nk_sdl_init(Renderer->Window->SDLWindow, NkMaxVertexMemory, NkMaxElementMemory);
     struct nk_font_atlas* atlas;
     nk_sdl_font_stash_begin(&atlas);
     // no fonts => default font used, but we still have do the setup
@@ -90,10 +89,6 @@ static void Init() {
     Video::VideoInit();
   }
 
-  if (Profile::GameFeatures & GameFeature::Scene3D) {
-    Scene3D::Init();
-  }
-
   memset(ScrWork, 0, sizeof(ScrWork));
   memset(FlagWork, 0, sizeof(FlagWork));
 
@@ -104,7 +99,7 @@ static void Init() {
     Profile::LoadAnimations();
     DialoguePage::Init();
 
-    Renderer2D::Init();
+    Renderer->Init();
     Background2D::Init();
     Mask2D::Init();
   }
@@ -155,19 +150,15 @@ void Shutdown() {
     Video::VideoShutdown();
   }
 
-  if (Profile::GameFeatures & GameFeature::Scene3D) {
-    Scene3D::Shutdown();
-  }
-
   if (Profile::GameFeatures & GameFeature::Renderer2D) {
-    Renderer2D::Shutdown();
+    Renderer->Shutdown();
   }
 
   if (Profile::GameFeatures & GameFeature::Nuklear) {
     nk_sdl_shutdown();
   }
 
-  Window::Shutdown();
+  Renderer->Window->Shutdown();
 }
 
 void UpdateGameState(float dt) {
@@ -194,7 +185,7 @@ void Update(float dt) {
     if (Profile::GameFeatures & GameFeature::Nuklear) {
       SDL_Event e_nk;
       memcpy(&e_nk, &e, sizeof(SDL_Event));
-      Window::AdjustEventCoordinatesForNk(&e_nk);
+      Renderer->Window->AdjustEventCoordinatesForNk(&e_nk);
       if (nk_sdl_handle_event(&e_nk)) continue;
     }
 
@@ -244,7 +235,7 @@ void Update(float dt) {
   }
 
   if (Profile::GameFeatures & GameFeature::Scene3D) {
-    Scene3D::Update(dt);
+    Renderer->Scene->Update(dt);
   }
 
   if (Profile::GameFeatures & GameFeature::Renderer2D) {
@@ -271,15 +262,15 @@ static int FlagWorkIndexStart = 0;
 static int FlagWorkIndexEnd = 0;
 
 void Render() {
-  Window::Update();
+  Renderer->Window->Update();
 
-  Rect viewport = Window::GetViewport();
+  Rect viewport = Renderer->Window->GetViewport();
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   if (Profile::GameFeatures & GameFeature::Scene3D) {
-    Scene3D::Render();
+    Renderer->Scene->Render();
   }
 
   if ((Profile::GameFeatures & GameFeature::Nuklear) &&
@@ -300,7 +291,7 @@ void Render() {
 
     if (DebugWindowEnabled) {
       if (nk_begin(Nk, "Debug Editor",
-                   nk_rect(20, 20, 300, Window::WindowHeight - 40),
+                   nk_rect(20, 20, 300, Renderer->Window->WindowHeight - 40),
                    NK_WINDOW_BORDER | NK_WINDOW_TITLE)) {
         nk_layout_row_dynamic(Nk, 24, 1);
         char buffer[32];  // whatever
@@ -354,7 +345,7 @@ void Render() {
   }
 
   if (Profile::GameFeatures & GameFeature::Renderer2D) {
-    Renderer2D::BeginFrame();
+    Renderer->BeginFrame();
     for (int i = 0; i < Vm::MaxThreads; i++) {
       if (DrawComponents[i] == +DrawComponentType::None) break;
 
@@ -391,7 +382,7 @@ void Render() {
                 }
                 glm::vec4 col = ScrWorkGetColor(SW_MASK1COLOR);
                 col.a = glm::min(maskAlpha / 255.0f, 1.0f);
-                Renderer2D::DrawRect(
+                Renderer->DrawRect(
                     RectF(maskPosX, maskPosY, maskSizeX, maskSizeY), col);
               }
             }
@@ -400,7 +391,7 @@ void Render() {
               if (ScrWork[SW_EFF_CAP_BUF] && ScrWork[SW_EFF_CAP_PRI] == layer) {
                 int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF]);
                 if (Backgrounds2D[bufId]->Status == LS_Loaded) {
-                  Renderer2D::CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
+                  Renderer->CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
                 }
               }
 
@@ -408,7 +399,7 @@ void Render() {
                   ScrWork[SW_EFF_CAP_PRI2] == layer) {
                 int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF2]);
                 if (Backgrounds2D[bufId]->Status == LS_Loaded) {
-                  Renderer2D::CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
+                  Renderer->CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
                 }
               }
             }
@@ -423,7 +414,7 @@ void Render() {
           if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::Dash) {
             /////////// DaSH hack kind of? ///////
             if (GetFlag(SF_Pokecon_Disable) || GetFlag(SF_Pokecon_Open) ||
-                Scene3D::MainCamera.CameraTransform.Position !=
+                Renderer->Scene->MainCamera.CameraTransform.Position !=
                     Profile::Scene3D::DefaultCameraPosition)
               SetFlag(SF_DATEDISPLAY, 0);
             else
@@ -477,13 +468,13 @@ void Render() {
         menu->Render();
       }
     }
-    Renderer2D::EndFrame();
+    Renderer->EndFrame();
   }
 
   if (Profile::GameFeatures & GameFeature::CharacterViewer) {
-    Renderer2D::BeginFrame();
+    Renderer->BeginFrame();
     if (Backgrounds2D[0]->Status == LS_Loaded) {
-      Renderer2D::DrawSprite(
+      Renderer->DrawSprite(
           Backgrounds2D[0]->BgSprite,
           RectF(0.0f, 0.0f, Backgrounds2D[0]->BgSprite.ScaledWidth(),
                 Backgrounds2D[0]->BgSprite.ScaledHeight()));
@@ -493,23 +484,23 @@ void Render() {
       ScrWork[SW_CHA1ALPHA] = 256;
       Characters2D[0].Render(0, 0);
     }
-    Renderer2D::EndFrame();
+    Renderer->EndFrame();
   }
 
   if (Profile::GameFeatures & GameFeature::Nuklear) {
-    if (Window::GLDebug) {
+    //if (Renderer->Window->GLDebug) {
       // Nuklear spams these
-      glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0,
-                               NULL, GL_FALSE);
-    }
+    //  glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0,
+    //                           NULL, GL_FALSE);
+    //}
     nk_sdl_render(NK_ANTI_ALIASING_OFF, viewport.Width, viewport.Height);
-    if (Window::GLDebug) {
-      glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0,
-                               NULL, GL_TRUE);
-    }
+    //if (Renderer->Window->GLDebug) {
+    //  glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0,
+    //                           NULL, GL_TRUE);
+    //}
   }
 
-  Window::Draw();
+  Renderer->Window->Draw();
 }
 
 }  // namespace Game

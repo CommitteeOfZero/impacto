@@ -4,6 +4,7 @@
 #include "vm/vm.h"
 #include "io/vfs.h"
 #include "text.h"
+#include "renderer/renderer.h"
 #include <enum.h>
 
 #include <string>

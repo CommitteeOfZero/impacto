@@ -6,7 +6,7 @@
 #include "../../profile/game.h"
 #include "../../profile/scriptvars.h"
 #include "../../mem.h"
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 
 namespace Impacto {
 namespace UI {
@@ -137,7 +137,7 @@ void SysMesBox::Render() {
     }
     if (maxWidth < MinMaxMesWidth) maxWidth = MinMaxMesWidth;
 
-    Renderer2D::DrawSprite(Box, glm::vec2(BoxX, BoxY), col);
+    Renderer->DrawSprite(Box, glm::vec2(BoxX, BoxY), col);
 
     MessageItems->Tint.a = FadeAnimation.Progress;
     MessageItems->Render();

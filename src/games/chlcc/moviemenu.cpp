@@ -3,7 +3,7 @@
 #include "../../profile/games/chlcc/moviemenu.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/profile_internal.h"
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 #include "../../ui/ui.h"
 #include "../../data/savesystem.h"
 
@@ -71,7 +71,7 @@ void MovieMenu::Hide() {
 void MovieMenu::Render() {
   if (State != Hidden) {
     if (MenuTransition.IsIn()) {
-      Renderer2D::DrawRect(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
+      Renderer->DrawRect(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                            RgbIntToFloat(BackgroundColor));
     } else {
       DrawCircles();
@@ -81,7 +81,7 @@ void MovieMenu::Render() {
     // Alpha goes from 0 to 1 in half the time
     float alpha =
         MenuTransition.Progress < 0.5f ? MenuTransition.Progress * 2.0f : 1.0f;
-    Renderer2D::DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
+    Renderer->DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                            glm::vec4(tint, alpha));
     DrawRedBar();
     // DrawTitles();
@@ -94,7 +94,7 @@ void MovieMenu::Render() {
             1.00397f * std::sin(3.97161f - 3.26438f * MenuTransition.Progress) -
                 0.00295643f);
       }
-      /* Renderer2D::DrawSprite(
+      /* Renderer->DrawSprite(
            ClearListLabel,
            glm::vec2(LabelPosition.x, LabelPosition.y + yOffset));
        DrawPlayTime(yOffset);
@@ -147,7 +147,7 @@ inline void MovieMenu::DrawCircles() {
         float scale = ((progress) - (counter + 1.0f)) * 16.0f;
         scale = scale <= 320.0f ? scale : 320.0f;
         scale *= CircleSprite.Bounds.Height / 106.0f;
-        Renderer2D::DrawSprite(
+        Renderer->DrawSprite(
             CircleSprite, RectF(x + (CircleSprite.Bounds.Width - scale) / 2.0f,
                                 y + (CircleSprite.Bounds.Height - scale) / 2.0f,
                                 scale, scale));
@@ -172,12 +172,12 @@ inline void MovieMenu::DrawErin() {
               0.998267f * sin(3.97835f - 3.27549f * MenuTransition.Progress));
     }
   }
-  Renderer2D::DrawSprite(ErinSprite, glm::vec2(ErinPosition.x, y));
+  Renderer->DrawSprite(ErinSprite, glm::vec2(ErinPosition.x, y));
 }
 
 inline void MovieMenu::DrawRedBar() {
   if (MenuTransition.IsIn()) {
-    Renderer2D::DrawSprite(InitialRedBarSprite, InitialRedBarPosition);
+    Renderer->DrawSprite(InitialRedBarSprite, InitialRedBarPosition);
   } else if (MenuTransition.Progress > 0.70f) {
     // Give the whole range that mimics ScrWork[SW_SYSMENUCT] given that the
     // duration is totalframes/60
@@ -186,12 +186,12 @@ inline void MovieMenu::DrawRedBar() {
     RedBarSprite.Bounds.X = RedBarDivision - pixelPerAdvanceLeft;
     RedBarSprite.Bounds.Width = pixelPerAdvanceLeft;
     RedBarPosition.x = RedBarBaseX - pixelPerAdvanceLeft;
-    Renderer2D::DrawSprite(RedBarSprite, RedBarPosition);
+    Renderer->DrawSprite(RedBarSprite, RedBarPosition);
     float pixelPerAdvanceRight = 13.0f * (progress - 47.0f);
     RedBarSprite.Bounds.X = RedBarDivision;
     RedBarSprite.Bounds.Width = pixelPerAdvanceRight;
     RedBarPosition = RightRedBarPosition;
-    Renderer2D::DrawSprite(RedBarSprite, RedBarPosition);
+    Renderer->DrawSprite(RedBarSprite, RedBarPosition);
   }
 }
 
