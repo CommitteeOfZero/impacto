@@ -1,5 +1,5 @@
 #include "systemmenuentrybutton.h"
-#include "../../../renderer2d.h"
+#include "../../../renderer/renderer.h"
 
 namespace Impacto {
 namespace UI {
@@ -17,12 +17,12 @@ SystemMenuEntryButton::SystemMenuEntryButton(int id, Sprite const& norm,
 
 void SystemMenuEntryButton::Render() {
   if (HasFocus) {
-    Renderer2D::DrawSprite(
+    Renderer->DrawSprite(
         NormalSprite,
         glm::vec2(Bounds.X + HighlightOffset.x, Bounds.Y + HighlightOffset.y),
         RgbIntToFloat(0x888888));
   }
-  Renderer2D::DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y),
+  Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y),
                          HasFocus ? FocusTint : glm::vec4(1.0f));
 }
 

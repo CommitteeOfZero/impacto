@@ -1,6 +1,5 @@
 #include "savemenu.h"
 #include "../../profile_internal.h"
-#include "../../../window.h"
 #include "../../../log.h"
 
 #include "../../ui/savemenu.h"

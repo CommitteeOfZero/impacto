@@ -1,7 +1,7 @@
 #include "backlogmenu.h"
 
 #include "ui.h"
-#include "../renderer2d.h"
+#include "../renderer/renderer.h"
 #include "../mem.h"
 #include "../vm/interface/input.h"
 #include "../profile/scriptvars.h"
@@ -125,7 +125,7 @@ void BacklogMenu::Render() {
   if (State != Hidden) {
     glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
     MainItems->Tint = col;
-    Renderer2D::DrawSprite(BacklogBackground, glm::vec2(0.0f), col);
+    Renderer->DrawSprite(BacklogBackground, glm::vec2(0.0f), col);
     MainItems->Render();
     MainScrollbar->Render();
   }

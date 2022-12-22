@@ -57,7 +57,7 @@ Since each game has its own custom interface, UI elements are implemented using 
 Each UI element class implements an Update functions, which updates dynamic values, and a Render function, which draws sprites on the screen. For example, you can draw a simple sprite inside the Render function by using the following function (defined in `/src/renderer2d.h`):
 
 ```cpp
-Renderer2D::DrawSprite(Sprite, glm::vec2(X, Y));
+Renderer->DrawSprite(Sprite, glm::vec2(X, Y));
 ```
 
 Sprites are defined in profile configuration files. For example, in order to define a simple sprite that uses a texture from the system archive, do the following:

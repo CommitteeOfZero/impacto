@@ -1,6 +1,6 @@
 #include "titlebutton.h"
 
-#include "../../../renderer2d.h"
+#include "../../../renderer/renderer.h"
 #include "../../../profile/games/cc/titlemenu.h"
 
 namespace Impacto {
@@ -13,26 +13,26 @@ using namespace Impacto::Profile::CC::TitleMenu;
 void TitleButton::Render() {
   if (HasFocus) {
     if (!IsSubButton) {  // Main buttons
-      Renderer2D::DrawSprite(HighlightSprite,
+      Renderer->DrawSprite(HighlightSprite,
                              glm::vec2(Bounds.X - ItemHighlightOffsetX,
                                        Bounds.Y - ItemHighlightOffsetY),
                              Tint);
-      Renderer2D::DrawSprite(
+      Renderer->DrawSprite(
           ItemHighlightPointerSprite,
           glm::vec2(Bounds.X - ItemHighlightPointerY, Bounds.Y), Tint);
-      Renderer2D::DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y),
+      Renderer->DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y),
                              Tint);
     } else {  // Sub buttons
-      Renderer2D::DrawSprite(HighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
+      Renderer->DrawSprite(HighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
                              Tint);
-      Renderer2D::DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y),
+      Renderer->DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y),
                              Tint);
     }
   } else {
     if (Enabled) {
-      Renderer2D::DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+      Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
     } else {
-      Renderer2D::DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y),
+      Renderer->DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y),
                              Tint);
     }
   }

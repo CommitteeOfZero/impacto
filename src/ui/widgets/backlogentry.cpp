@@ -1,5 +1,5 @@
 #include "backlogentry.h"
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 #include "../../inputsystem.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
@@ -96,22 +96,22 @@ void BacklogEntry::Move(glm::vec2 relativePosition) {
 
 void BacklogEntry::Render() {
   if (HasFocus) {
-    Renderer2D::DrawSprite(
+    Renderer->DrawSprite(
         EntryHighlight,
         RectF(
             Bounds.X, Bounds.Y + Bounds.Height - EntryHighlight.ScaledHeight(),
             Profile::Dialogue::REVBounds.Width, EntryHighlight.ScaledHeight()));
   }
   if (AudioId != -1) {
-    Renderer2D::DrawSprite(
+    Renderer->DrawSprite(
         VoiceIcon, glm::vec2(Bounds.X - VoiceIcon.ScaledWidth(), Bounds.Y));
   }
   if (BacklogPage->HasName) {
-    Renderer2D::DrawProcessedText(BacklogPage->Name, BacklogPage->NameLength,
+    Renderer->DrawProcessedText(BacklogPage->Name, BacklogPage->NameLength,
                                   Profile::Dialogue::DialogueFont, Tint.a, true,
                                   true);
   }
-  Renderer2D::DrawProcessedText(BacklogPage->Glyphs, TextLength,
+  Renderer->DrawProcessedText(BacklogPage->Glyphs, TextLength,
                                 Profile::Dialogue::DialogueFont, Tint.a, true,
                                 true);
 }

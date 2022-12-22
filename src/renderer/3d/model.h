@@ -1,8 +1,8 @@
 #pragma once
 
 #include <enum.h>
-#include "../impacto.h"
-#include "../texture/texture.h"
+#include "../../impacto.h"
+#include "../../texture/texture.h"
 #include "transform.h"
 
 #include <glm/glm.hpp>

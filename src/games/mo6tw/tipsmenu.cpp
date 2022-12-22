@@ -1,6 +1,6 @@
 #include "tipsmenu.h"
 
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../vm/vm.h"
 #include "../../profile/scriptvars.h"
@@ -126,16 +126,16 @@ void TipsMenu::Update(float dt) {
 void TipsMenu::Render() {
   if (State != Hidden && ScrWork[SW_TIPSALPHA] > 0) {
     glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-    Renderer2D::DrawSprite(BackgroundSprite, glm::vec2(0.0f), col);
+    Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f), col);
     ItemsList->Render();
 
     if (CurrentlyDisplayedTipId != -1) {
       TipViewItems->Render();
-      Renderer2D::DrawProcessedText(TextPage->Glyphs, TextPage->Length,
+      Renderer->DrawProcessedText(TextPage->Glyphs, TextPage->Length,
                                     Profile::Dialogue::DialogueFont, col.a,
                                     true, true);
       if (ThumbnailSprite) {
-        Renderer2D::DrawSprite(*ThumbnailSprite, ThumbnailPosition, col);
+        Renderer->DrawSprite(*ThumbnailSprite, ThumbnailPosition, col);
       }
     }
   }

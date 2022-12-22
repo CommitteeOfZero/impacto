@@ -1,60 +1,23 @@
 #include "scene.h"
 
-#include "camera.h"
-#include "../log.h"
-#include "../window.h"
-#include "../workqueue.h"
-#include "../shader.h"
-#include "../glc.h"
+#include "../../3d/camera.h"
+#include "../../../log.h"
+#include "../renderer.h"
+#include "../../../workqueue.h"
+#include "../../../glc.h"
+#include "renderable3d.h"
 
-#include "../profile/scene3d.h"
+#include "../../../profile/scene3d.h"
 
 namespace Impacto {
-namespace Scene3D {
+namespace OpenGL {
 
-enum MSResolveMode {
-  MS_None,
-  // Use a framebuffer with multisample texture
-  MS_MultisampleTexture,
-  // Use a framebuffer with singlesample texture provided by
-  // EXT_multisampled_render_to_texture
-  MS_SinglesampleTextureExt,
-  // Use a framebuffer with multisample renderbuffer and blit to framebuffer
-  // with singlesample texture
-  MS_BlitFromRenderbuffer
-};
+Scene3D::Scene3D(GLWindow* window, ShaderCompiler* shaderCompiler) {
+  Window = window;
+  Shaders = shaderCompiler;
+}
 
-static bool IsInit = false;
-
-Camera MainCamera;
-
-Renderable3D *Renderables = 0;
-
-glm::vec3 LightPosition;
-glm::vec4 Tint;
-bool DarkMode;
-
-static void SetupFramebufferState();
-static void CleanFramebufferState();
-static void DrawToScreen();
-
-static MSResolveMode CheckMSResolveMode();
-
-static GLuint FBO = 0;
-static GLuint RenderTextureColor = 0;
-static GLuint RenderTextureDS = 0;
-
-// Only for MS_BlitFromRenderbuffer
-static GLuint FBOMultisample = 0;
-static GLuint RenderbufferColor = 0;
-static GLuint RenderbufferDS = 0;
-
-static GLuint VAOScreenFillingTriangle = 0;
-static GLuint VBOScreenFillingTriangle = 0;
-
-static GLuint ShaderProgram = 0;
-
-void Init() {
+void Scene3D::Init() {
   assert(IsInit == false);
   ImpLog(LL_Info, LC_Scene, "Initializing 3D scene system\n");
   IsInit = true;
@@ -63,7 +26,7 @@ void Init() {
 
   Renderables = new Renderable3D[Profile::Scene3D::MaxRenderables];
 
-  Renderable3D::Init();
+  Renderable3D::Init(Window, Shaders);
 
   MainCamera.Init();
 
@@ -91,7 +54,7 @@ void Init() {
   glEnableVertexAttribArray(1);
 }
 
-void Shutdown() {
+void Scene3D::Shutdown() {
   if (!IsInit) return;
   if (VBOScreenFillingTriangle) glDeleteBuffers(1, &VBOScreenFillingTriangle);
   if (VAOScreenFillingTriangle)
@@ -100,19 +63,19 @@ void Shutdown() {
   if (Renderables) delete[] Renderables;
 }
 
-void Update(float dt) {
+void Scene3D::Update(float dt) {
   for (int i = 0; i < Profile::Scene3D::MaxRenderables; i++) {
     if (Renderables[i].Status == LS_Loaded) {
       Renderables[i].Update(dt);
     }
   }
 }
-void Render() {
-  RectF viewport = Window::GetViewport();
+void Scene3D::Render() {
+  RectF viewport = Window->GetViewport();
   MainCamera.AspectRatio = viewport.Width / viewport.Height;
   MainCamera.Recalculate();
 
-  Renderable3D::BeginFrame(&MainCamera);
+  Renderable3D::BeginFrame(this, &MainCamera);
 
   for (int i = 0; i < Profile::Scene3D::MaxRenderables; i++) {
     if (Renderables[i].Status == LS_Loaded &&
@@ -135,13 +98,13 @@ void Render() {
   DrawToScreen();
 }
 
-static void SetupFramebufferState() {
-  Rect viewport = Window::GetViewport();
-  Rect scaledViewport = Window::GetScaledViewport();
+void Scene3D::SetupFramebufferState() {
+  Rect viewport = Window->GetViewport();
+  Rect scaledViewport = Window->GetScaledViewport();
 
   MSResolveMode msaa = CheckMSResolveMode();
 
-  if (Window::WindowDimensionsChanged) {
+  if (Window->WindowDimensionsChanged) {
     CleanFramebufferState();
 
     switch (msaa) {
@@ -156,21 +119,21 @@ static void SetupFramebufferState() {
                "Creating 3D scene framebuffer %dx%d (=> %dx%d), %dx MSAA using "
                "multisample texture\n",
                scaledViewport.Width, scaledViewport.Height, viewport.Width,
-               viewport.Height, Window::MsaaCount);
+               viewport.Height, Window->MsaaCount);
         break;
       case MS_SinglesampleTextureExt:
         ImpLog(LL_Info, LC_Render,
                "Creating 3D scene framebuffer %dx%d (=> %dx%d), %dx MSAA using "
                "multisampled_render_to_texture\n",
                scaledViewport.Width, scaledViewport.Height, viewport.Width,
-               viewport.Height, Window::MsaaCount);
+               viewport.Height, Window->MsaaCount);
         break;
       case MS_BlitFromRenderbuffer:
         ImpLog(LL_Info, LC_Render,
                "Creating 3D scene framebuffer %dx%d (=> %dx%d), %dx MSAA using "
                "blit from renderbuffer\n",
                scaledViewport.Width, scaledViewport.Height, viewport.Width,
-               viewport.Height, Window::MsaaCount);
+               viewport.Height, Window->MsaaCount);
         break;
     }
 
@@ -182,7 +145,7 @@ static void SetupFramebufferState() {
     if (msaa == MS_MultisampleTexture) {
       textureTarget = GL_TEXTURE_2D_MULTISAMPLE;
       glBindTexture(textureTarget, RenderTextureColor);
-      glTexImage2DMultisample(textureTarget, Window::MsaaCount, GL_RGBA,
+      glTexImage2DMultisample(textureTarget, Window->MsaaCount, GL_RGBA,
                               scaledViewport.Width, scaledViewport.Height,
                               GL_FALSE);
     } else {
@@ -198,7 +161,7 @@ static void SetupFramebufferState() {
     if (msaa == MS_SinglesampleTextureExt) {
       glFramebufferTexture2DMultisampleEXT(
           GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureTarget,
-          RenderTextureColor, 0, Window::MsaaCount);
+          RenderTextureColor, 0, Window->MsaaCount);
     } else {
       glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                              textureTarget, RenderTextureColor, 0);
@@ -214,7 +177,7 @@ static void SetupFramebufferState() {
         glBindRenderbuffer(GL_RENDERBUFFER, RenderbufferDS);
         if (msaa == MS_SinglesampleTextureExt) {
           glRenderbufferStorageMultisampleEXT(
-              GL_RENDERBUFFER, Window::MsaaCount, GL_DEPTH24_STENCIL8,
+              GL_RENDERBUFFER, Window->MsaaCount, GL_DEPTH24_STENCIL8,
               scaledViewport.Width, scaledViewport.Height);
         } else {
           glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8,
@@ -228,7 +191,7 @@ static void SetupFramebufferState() {
         textureTarget = GL_TEXTURE_2D_MULTISAMPLE;
         glGenTextures(1, &RenderTextureDS);
         glBindTexture(textureTarget, RenderTextureDS);
-        glTexImage2DMultisample(textureTarget, Window::MsaaCount,
+        glTexImage2DMultisample(textureTarget, Window->MsaaCount,
                                 GL_DEPTH_STENCIL, scaledViewport.Width,
                                 scaledViewport.Height, GL_FALSE);
         glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
@@ -238,14 +201,14 @@ static void SetupFramebufferState() {
 
     ShaderParamMap shaderParams;
     if (msaa == MS_MultisampleTexture) {
-      shaderParams["MultisampleCount"] = Window::MsaaCount;
+      shaderParams["MultisampleCount"] = Window->MsaaCount;
       shaderParams["MSAA_MODE_MULTISAMPLE_TEXTURE"] = ShaderParameter(1, true);
     }
     shaderParams["WindowDimensions"] =
         glm::vec2(viewport.Width, viewport.Height);
-    shaderParams["RenderScale"] = Window::RenderScale;
+    shaderParams["RenderScale"] = Window->RenderScale;
 
-    ShaderProgram = ShaderCompile("SceneToRT", shaderParams);
+    ShaderProgram = Shaders->Compile("SceneToRT", shaderParams);
     glUseProgram(ShaderProgram);
     glUniform1i(glGetUniformLocation(ShaderProgram, "Framebuffer3D"), 0);
 
@@ -259,7 +222,7 @@ static void SetupFramebufferState() {
       glGenRenderbuffers(1, &RenderbufferDS);
 
       glBindRenderbuffer(GL_RENDERBUFFER, RenderbufferColor);
-      glRenderbufferStorageMultisample(GL_RENDERBUFFER, Window::MsaaCount,
+      glRenderbufferStorageMultisample(GL_RENDERBUFFER, Window->MsaaCount,
                                        GL_RGBA8, scaledViewport.Width,
                                        scaledViewport.Height);
       glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
@@ -267,7 +230,7 @@ static void SetupFramebufferState() {
 
       glBindRenderbuffer(GL_RENDERBUFFER, RenderbufferDS);
       glRenderbufferStorageMultisample(
-          GL_RENDERBUFFER, Window::MsaaCount, GL_DEPTH24_STENCIL8,
+          GL_RENDERBUFFER, Window->MsaaCount, GL_DEPTH24_STENCIL8,
           scaledViewport.Width, scaledViewport.Height);
       glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER,
                                 GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER,
@@ -291,7 +254,7 @@ static void SetupFramebufferState() {
                       GL_ONE_MINUS_SRC_ALPHA);
 }
 
-static void CleanFramebufferState() {
+void Scene3D::CleanFramebufferState() {
   if (ShaderProgram) {
     glDeleteProgram(ShaderProgram);
     ShaderProgram = 0;
@@ -322,9 +285,9 @@ static void CleanFramebufferState() {
   }
 }
 
-static void DrawToScreen() {
-  Rect viewport = Window::GetViewport();
-  Rect scaledViewport = Window::GetScaledViewport();
+void Scene3D::DrawToScreen() {
+  Rect viewport = Window->GetViewport();
+  Rect scaledViewport = Window->GetScaledViewport();
 
   MSResolveMode msaa = CheckMSResolveMode();
 
@@ -341,7 +304,7 @@ static void DrawToScreen() {
       glInvalidateFramebuffer(GL_READ_FRAMEBUFFER, 2, attachments);
   }
 
-  GLC::BindFramebuffer(GL_DRAW_FRAMEBUFFER, Window::DrawRT);
+  //GLC::BindFramebuffer(GL_DRAW_FRAMEBUFFER, Renderer->Window->DrawRT);
   glViewport(0, 0, viewport.Width, viewport.Height);
 
   glEnable(GL_BLEND);
@@ -363,10 +326,10 @@ static void DrawToScreen() {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-static MSResolveMode CheckMSResolveMode() {
-  if (Window::MsaaCount == 0) return MS_None;
+MSResolveMode Scene3D::CheckMSResolveMode() {
+  if (Window->MsaaCount == 0) return MS_None;
 
-  if (Window::ActualGraphicsApi != Window::GfxApi_GL) {
+  if (Window->ActualGraphicsApi != GfxApi_GL) {
     if (GLAD_GL_EXT_multisampled_render_to_texture) {
       return MS_SinglesampleTextureExt;
     }

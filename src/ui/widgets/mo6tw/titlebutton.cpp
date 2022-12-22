@@ -1,6 +1,6 @@
 #include "titlebutton.h"
 
-#include "../../../renderer2d.h"
+#include "../../../renderer/renderer.h"
 
 namespace Impacto {
 namespace UI {
@@ -14,17 +14,17 @@ void TitleButton::Render() {
   white.a = Tint.a;
 
   if (HasFocus && Enabled) {
-    Renderer2D::DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y + 1.0f),
+    Renderer->DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y + 1.0f),
                            black);
-    Renderer2D::DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), white);
+    Renderer->DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), white);
   } else if (Enabled) {
-    Renderer2D::DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y + 1.0f),
+    Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y + 1.0f),
                            black);
-    Renderer2D::DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), white);
+    Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), white);
   } else {
-    Renderer2D::DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y + 1.0f),
+    Renderer->DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y + 1.0f),
                            black);
-    Renderer2D::DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y),
+    Renderer->DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y),
                            white);
   }
 }

@@ -2,7 +2,7 @@
 
 #include "../../profile/ui/systemmenu.h"
 #include "../../profile/games/mo6tw/systemmenu.h"
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
 #include "../../inputsystem.h"
@@ -94,7 +94,7 @@ void SystemMenu::Update(float dt) {
 void SystemMenu::Render() {
   if (State != Hidden && ScrWork[SW_SYSMENUALPHA] > 0) {
     glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-    Renderer2D::DrawSprite(SystemMenuBackgroundSprite,
+    Renderer->DrawSprite(SystemMenuBackgroundSprite,
                            glm::vec2(SystemMenuX, SystemMenuY), col);
     MainItems->Tint = col;
     MainItems->Render();

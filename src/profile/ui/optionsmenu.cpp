@@ -3,7 +3,6 @@
 #include "../games/mo6tw/optionsmenu.h"
 #include "../../ui/ui.h"
 #include "../../log.h"
-#include "../../window.h"
 
 namespace Impacto {
 namespace Profile {

@@ -1,6 +1,5 @@
 #include "tipsmenu.h"
 #include "../../profile_internal.h"
-#include "../../../window.h"
 #include "../../../log.h"
 #include "../../../text.h"
 
@@ -28,7 +27,7 @@ static void GetMemberSpriteArray(Sprite* arr, uint32_t count,
   if (TopVal().Size() != count) {
     ImpLog(LL_Fatal, LC_Profile, "Expected to have %d sprites for %s\n", count,
            name);
-    Window::Shutdown();
+    Renderer->Window->Shutdown();
   }
 
   for (uint32_t i = 0; i < count; i++) {

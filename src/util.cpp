@@ -1,5 +1,4 @@
 #include "util.h"
-#include "window.h"
 
 #include "profile/game.h"
 

@@ -1,17 +1,17 @@
 #include "model.h"
 
 #include "animation.h"
-#include "../io/vfs.h"
-#include "../io/io.h"
-#include "../log.h"
-#include "../texture/gxtloader.h"
+#include "../../io/vfs.h"
+#include "../../io/io.h"
+#include "../../log.h"
+#include "../../texture/gxtloader.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "../io/memorystream.h"
-#include "../io/uncompressedstream.h"
+#include "../../io/memorystream.h"
+#include "../../io/uncompressedstream.h"
 
-#include "../profile/scene3d.h"
+#include "../../profile/scene3d.h"
 
 using namespace Impacto::Io;
 

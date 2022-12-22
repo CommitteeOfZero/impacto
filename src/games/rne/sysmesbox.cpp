@@ -9,7 +9,7 @@
 #include "../../mem.h"
 #include "../../io/vfs.h"
 #include "../../inputsystem.h"
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 
 namespace Impacto {
 namespace UI {
@@ -234,35 +234,35 @@ void SysMesBox::Render() {
     glm::vec4 col(1.0f, 1.0f, 1.0f, 1.0f);
 
     if (BoxAnimCount > BoxDisplayStartCount) {
-      Renderer2D::DrawRect(
+      Renderer->DrawRect(
           RectF(BoxDisplayX, BoxTopY - 1.0f, BoxWidth, BoxHeight + 2.0f),
           glm::vec4(1.0f, 1.0f, 1.0f, 0.75f));
-      Renderer2D::DrawSprite(BoxDecorationTop,
+      Renderer->DrawSprite(BoxDecorationTop,
                              glm::vec2(BoxDisplayX, BoxTopY - 3.0f), col);
       if (Type == +SysMesBoxType::Dash) {
-        Renderer2D::DrawSprite(
+        Renderer->DrawSprite(
             BoxDecorationBottom,
             glm::vec2(BoxDisplayX,
                       BoxBottomY - BoxDecorationBottom.Bounds.Height + 3.0f),
             col);
       } else {
-        Renderer2D::DrawSprite(BoxDecorationBottom,
+        Renderer->DrawSprite(BoxDecorationBottom,
                                glm::vec2(BoxDisplayX, BoxBottomY - 3.0f), col);
       }
 
       if (BoxProgressCount > TextStartCount) {
         glm::vec4 texCol(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
         if (BoxHeight > TextDecorationStart) {
-          Renderer2D::DrawSprite(
+          Renderer->DrawSprite(
               TextDecoration,
               glm::vec2(BoxDisplayX, BoxTopY + TextDecorationTopYOffset),
               texCol);
-          Renderer2D::DrawSprite(
+          Renderer->DrawSprite(
               TextDecoration,
               glm::vec2(BoxDisplayX, BoxBottomY - TextDecorationBottomYOffset),
               texCol);
         }
-        Renderer2D::DrawSprite(MessageLabel,
+        Renderer->DrawSprite(MessageLabel,
                                glm::vec2(BoxDisplayX, BoxTopY + 3.0f), texCol);
 
         MessageItems->Tint.a = texCol.a;
@@ -272,11 +272,11 @@ void SysMesBox::Render() {
       }
 
     } else {
-      Renderer2D::DrawSprite(
+      Renderer->DrawSprite(
           Line1,
           glm::vec2(LineDisplayXBase - (LineLength / 2.0f), Line1DisplayY),
           col);
-      Renderer2D::DrawSprite(
+      Renderer->DrawSprite(
           Line2,
           glm::vec2(LineDisplayXBase - (LineLength / 2.0f), Line2DisplayY),
           col);

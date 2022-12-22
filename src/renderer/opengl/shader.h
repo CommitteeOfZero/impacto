@@ -4,8 +4,10 @@
 #include <glm/glm.hpp>
 #include <flat_hash_map.hpp>
 #include <string>
+#include "window.h"
 
 namespace Impacto {
+namespace OpenGL {
 
 enum ShaderParameterType {
   SPT_Int,
@@ -55,7 +57,20 @@ struct ShaderParameter {
 
 typedef ska::flat_hash_map<std::string, ShaderParameter> ShaderParamMap;
 
-GLuint ShaderCompile(char const* name,
-                     ShaderParamMap const& params = ShaderParamMap());
+class ShaderCompiler {
+ public:
+  ShaderCompiler(GLWindow* window);
+  GLuint Compile(char const* name,
+                 ShaderParamMap const& params = ShaderParamMap());
 
+ private:
+  GLWindow* Window;
+
+  int PrintParameter(char* dest, int destSz, char const* name,
+                     ShaderParameter const& param);
+  GLuint Attach(GLuint program, GLenum shaderType, char const* path,
+                char const* params);
+};
+
+}  // namespace OpenGL
 }  // namespace Impacto

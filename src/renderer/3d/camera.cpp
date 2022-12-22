@@ -3,9 +3,8 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 
-#include "../window.h"
-
-#include "../profile/scene3d.h"
+#include "../../util.h"
+#include "../../profile/scene3d.h"
 
 namespace Impacto {
 

@@ -1,6 +1,6 @@
 #include "sysmenubutton.h"
 
-#include "../../../renderer2d.h"
+#include "../../../renderer/renderer.h"
 
 namespace Impacto {
 namespace UI {
@@ -12,15 +12,15 @@ void SysMenuButton::Render() {
   black.a = Tint.a;
 
   if (HasFocus) {
-    Renderer2D::DrawSprite(HighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
+    Renderer->DrawSprite(HighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
                            Tint);
-    Renderer2D::DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    Renderer->DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
   } else {
     if (Enabled) {
-      Renderer2D::DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y),
+      Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y),
                              black);
     } else {
-      Renderer2D::DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y),
+      Renderer->DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y),
                              Tint);
     }
   }

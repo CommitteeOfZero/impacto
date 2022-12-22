@@ -1,6 +1,6 @@
 #include "scenelistentry.h"
 
-#include "../../../renderer2d.h"
+#include "../../../renderer/renderer.h"
 
 namespace Impacto {
 namespace UI {
@@ -23,7 +23,7 @@ SceneListEntry::SceneListEntry(int id, Widgets::Label* number,
 }
 
 void SceneListEntry::Render() {
-  if (HasFocus) Renderer2D::DrawSprite(HighlightSprite, Bounds, Tint);
+  if (HasFocus) Renderer->DrawSprite(HighlightSprite, Bounds, Tint);
   Number->Render();
   if (IsLocked) {
     LockedText->Render();

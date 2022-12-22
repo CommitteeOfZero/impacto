@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../io/inputstream.h"
+#include "../../io/inputstream.h"
 
 #include "model.h"
 

@@ -16,7 +16,7 @@ extern "C" {
 #include "../log.h"
 #include "yuvframe.h"
 #include "../texture/texture.h"
-#include "../renderer2d.h"
+#include "../renderer/renderer.h"
 
 namespace Impacto {
 namespace Video {

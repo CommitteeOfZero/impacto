@@ -1,5 +1,5 @@
 #include "button.h"
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 #include "../../inputsystem.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
@@ -40,24 +40,24 @@ void Button::UpdateInput() {
 
 void Button::Render() {
   if (HasFocus) {
-    Renderer2D::DrawSprite(
+    Renderer->DrawSprite(
         HighlightSprite,
         glm::vec2(Bounds.X + HighlightOffset.x, Bounds.Y + HighlightOffset.y),
         Tint, glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
   }
 
   if (IsLocked) {
-    Renderer2D::DrawSprite(LockedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    Renderer->DrawSprite(LockedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
   } else if (HasFocus && Enabled) {
-    Renderer2D::DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    Renderer->DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
   } else if (Enabled) {
-    Renderer2D::DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
   } else {
-    Renderer2D::DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    Renderer->DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
   }
 
   if (HasText) {
-    Renderer2D::DrawProcessedText(Text, TextLength,
+    Renderer->DrawProcessedText(Text, TextLength,
                                   Profile::Dialogue::DialogueFont, Tint.a,
                                   Outline, true);
   }

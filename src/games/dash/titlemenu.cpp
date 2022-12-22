@@ -2,7 +2,7 @@
 
 #include "../../profile/ui/titlemenu.h"
 #include "../../profile/games/dash/titlemenu.h"
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 #include "../../texture/texture.h"
 #include "../../spritesheet.h"
 #include "../../audio/audiosystem.h"
@@ -64,8 +64,8 @@ void TitleMenu::Render() {
   if (State != Hidden && GetFlag(SF_TITLEMODE)) {
     glm::vec4 col = glm::vec4(1.0f);
     col.a = glm::smoothstep(0.0f, 1.0f, PressToStartAnimation.Progress);
-    Renderer2D::DrawSprite(BackgroundSprite, glm::vec2(0.0f));
-    Renderer2D::DrawSprite(PressToStartSprite,
+    Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
+    Renderer->DrawSprite(PressToStartSprite,
                            glm::vec2(PressToStartX, PressToStartY), col);
   }
 }

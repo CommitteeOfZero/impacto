@@ -1,6 +1,5 @@
 #include "titlemenu.h"
 #include "../../../log.h"
-#include "../../../window.h"
 #include "../../profile_internal.h"
 
 #include "../../ui/titlemenu.h"

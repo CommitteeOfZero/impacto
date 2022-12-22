@@ -2,7 +2,7 @@
 #include "profile_internal.h"
 #include "../io/physicalfilestream.h"
 #include "../log.h"
-#include "../window.h"
+#include "../renderer/renderer.h"
 #include <flat_hash_map.hpp>
 
 #include <duktape.h>
@@ -18,7 +18,7 @@
 #include "../hud/waiticondisplay.h"
 #include "../hud/dialoguebox.h"
 #include "../hud/tipsnotification.h"
-#include "../3d/model.h"
+#include "../renderer/3d/model.h"
 
 namespace Impacto {
 namespace Profile {
@@ -28,7 +28,7 @@ static ska::flat_hash_set<std::string> IncludedFiles;
 static void DukFatal(void* udata, char const* msg) {
   ImpLog(LL_Fatal, LC_Profile, "JavaScript fatal error: %s\n",
          msg ? msg : "no message");
-  Window::Shutdown();
+  Renderer->Window->Shutdown();
 }
 
 static duk_ret_t DukPrint(duk_context* ctx) {
@@ -129,7 +129,7 @@ void MakeJsonProfile(std::string const& name) {
   if (err != IoError_OK) {
     ImpLog(LL_Fatal, LC_Profile, "Could not open profiles/%s/game.js\n",
            name.c_str());
-    Window::Shutdown();
+    Renderer->Window->Shutdown();
   }
 
   char* script = (char*)malloc(stream->Meta.Size);
@@ -137,7 +137,7 @@ void MakeJsonProfile(std::string const& name) {
   if (len < 0) {
     ImpLog(LL_Fatal, LC_Profile, "Could not open profiles/%s/game.js\n",
            name.c_str());
-    Window::Shutdown();
+    Renderer->Window->Shutdown();
   }
 
   duk_context* ctx = duk_create_heap(NULL, NULL, NULL, NULL, DukFatal);
@@ -188,7 +188,7 @@ void MakeJsonProfile(std::string const& name) {
   if (evalErr != 0) {
     ImpLog(LL_Fatal, LC_Profile, "JS profile execute error: %s\n",
            duk_safe_to_string(ctx, -1));
-    Window::Shutdown();
+    Renderer->Window->Shutdown();
   }
 
   ImpLog(LL_Info, LC_Profile, "JS profile execute success\n");

@@ -6,7 +6,7 @@
 #include "../../profile/game.h"
 #include "../../profile/scriptvars.h"
 #include "../../mem.h"
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 
 namespace Impacto {
 namespace UI {
@@ -196,7 +196,7 @@ void SysMesBox::Render() {
       float scale = (1.0f - alpha) + 1.0f;
       float width = SumoSealSprites[i].Bounds.Width * scale;
       float height = SumoSealSprites[i].Bounds.Height * scale;
-      Renderer2D::DrawSprite(
+      Renderer->DrawSprite(
           SumoSealSprites[i],
           RectF(SumoSealCenterPosX[i] - (width * 0.5f),
                 SumoSealCenterPosY[i] - (height * 0.5f), width, height),

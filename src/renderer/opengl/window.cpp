@@ -1,45 +1,19 @@
+#include "window.h"
+
 #include <glad/glad.h>
 #include <SDL_opengl.h>
 
-#include "window.h"
-#include "log.h"
-#include "glc.h"
+#include "../../log.h"
+#include "../../glc.h"
 
-#include "profile/game.h"
+#include "../../profile/game.h"
 
-#include "../vendor/nuklear/nuklear_sdl_gl3.h"
+#include "../../../vendor/nuklear/nuklear_sdl_gl3.h"
 
 namespace Impacto {
-namespace Window {
+namespace OpenGL {
 
-static bool IsInit = false;
-
-int WindowWidth = 0;
-int WindowHeight = 0;
-float DpiScaleX = 1;
-float DpiScaleY = 1;
-int MsaaCount = 0;
-float RenderScale = 1.0f;
-SDL_Window* SDLWindow = NULL;
-SDL_GLContext GLContext = NULL;
-bool WindowDimensionsChanged;
-
-GraphicsApi GraphicsApiHint = GfxApi_ForceNativeGLES;
-GraphicsApi ActualGraphicsApi;
-
-bool GLDebug = false;
-
-GLuint DrawRT = 0;
-GLuint ReadRT = 0;
-GLuint ReadRenderTexture = 0;
-static GLuint drawRenderTexture = 0;
-
-static int lastWidth = -1;
-static int lastHeight = -1;
-static int lastMsaa = 0;
-static float lastRenderScale = 1.0f;
-
-static void UpdateDimensions() {
+void GLWindow::UpdateDimensions() {
   WindowDimensionsChanged = false;
   SDL_GL_GetDrawableSize(SDLWindow, &WindowWidth, &WindowHeight);
   if (WindowWidth != lastWidth || WindowHeight != lastHeight ||
@@ -59,9 +33,10 @@ static void UpdateDimensions() {
   SDL_GetWindowSize(SDLWindow, &osWindowWidth, &osWindowHeight);
   DpiScaleX = (float)WindowWidth / (float)osWindowWidth;
   DpiScaleY = (float)WindowHeight / (float)osWindowHeight;
+  SDL_SetWindowInputFocus(SDLWindow);
 }
 
-RectF GetViewport() {
+RectF GLWindow::GetViewport() {
   RectF viewport;
   float scale = fmin((float)WindowWidth / Profile::DesignWidth,
                      (float)WindowHeight / Profile::DesignHeight);
@@ -72,7 +47,7 @@ RectF GetViewport() {
   return viewport;
 }
 
-RectF GetScaledViewport() {
+RectF GLWindow::GetScaledViewport() {
   RectF viewport = GetViewport();
   viewport.Width *= RenderScale;
   viewport.Height *= RenderScale;
@@ -81,7 +56,7 @@ RectF GetScaledViewport() {
   return viewport;
 }
 
-void AdjustEventCoordinatesForNk(SDL_Event* ev) {
+void GLWindow::AdjustEventCoordinatesForNk(SDL_Event* ev) {
   Rect viewport = GetViewport();
 
   if (ev->type == SDL_MOUSEMOTION) {
@@ -101,7 +76,7 @@ void AdjustEventCoordinatesForNk(SDL_Event* ev) {
   }
 }
 
-static void TryCreateGL(GraphicsApi api) {
+void GLWindow::TryCreateGL(GraphicsApi api) {
   if (GLContext != NULL) return;
 
   if (SDLWindow) {
@@ -191,7 +166,7 @@ static void TryCreateGL(GraphicsApi api) {
   }
 }
 
-void Init() {
+void GLWindow::Init() {
   assert(IsInit == false);
   ImpLog(LL_Info, LC_General, "Creating window\n");
   IsInit = true;
@@ -274,7 +249,7 @@ void Init() {
   SDL_GL_SetSwapInterval(0);
 }
 
-void SetDimensions(int width, int height, int msaa, float renderScale) {
+void GLWindow::SetDimensions(int width, int height, int msaa, float renderScale) {
   ImpLog(LL_Info, LC_General,
          "Attempting to change window dimensions to %d x %d, %dx MSAA, render "
          "scale %f\n",
@@ -288,7 +263,7 @@ void SetDimensions(int width, int height, int msaa, float renderScale) {
   RenderScale = renderScale;
 }
 
-static void CleanFBOs() {
+void GLWindow::CleanFBOs() {
   if (drawRenderTexture) glDeleteTextures(1, &drawRenderTexture);
   if (ReadRenderTexture) glDeleteTextures(1, &ReadRenderTexture);
   if (DrawRT) GLC::DeleteFramebuffers(1, &DrawRT);
@@ -297,7 +272,7 @@ static void CleanFBOs() {
   drawRenderTexture = ReadRenderTexture = DrawRT = ReadRT = 0;
 }
 
-void SwapRTs() {
+void GLWindow::SwapRTs() {
   GLuint temp;
 
   temp = DrawRT;
@@ -312,7 +287,7 @@ void SwapRTs() {
   GLC::BindFramebuffer(GL_READ_FRAMEBUFFER, ReadRT);
 }
 
-void Update() {
+void GLWindow::Update() {
   UpdateDimensions();
 
   Rect viewport = GetViewport();
@@ -360,7 +335,7 @@ void Update() {
   glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void Draw() {
+void GLWindow::Draw() {
   GLC::BindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   GLC::BindFramebuffer(GL_READ_FRAMEBUFFER, DrawRT);
 
@@ -374,7 +349,7 @@ void Draw() {
   SDL_GL_SwapWindow(SDLWindow);
 }
 
-void Shutdown() {
+void GLWindow::Shutdown() {
   CleanFBOs();
   SDL_GL_DeleteContext(GLContext);
   SDL_DestroyWindow(SDLWindow);
@@ -382,5 +357,6 @@ void Shutdown() {
   // TODO move exit to users
   exit(0);
 }
-}  // namespace Window
-}  // namespace Impacto
+
+} // OpenGL
+} // Impacto

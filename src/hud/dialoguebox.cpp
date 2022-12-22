@@ -1,6 +1,6 @@
 #include "dialoguebox.h"
 
-#include "../renderer2d.h"
+#include "../renderer/renderer.h"
 #include "../profile/dialogue.h"
 #include "../profile/game.h"
 #include "../mem.h"
@@ -22,16 +22,16 @@ void DialogueBox::Render(DialoguePageMode mode, bool hasName, float nameWidth,
   glm::vec4 col = ScrWorkGetColor(SW_MESWINDOW_COLOR);
   col.a = opacity;
   if (mode == DPM_ADV) {
-    Renderer2D::DrawSprite(ADVBoxSprite, ADVBoxPos, col);
+    Renderer->DrawSprite(ADVBoxSprite, ADVBoxPos, col);
   } else {
     glm::vec4 nvlBoxTint(0.0f, 0.0f, 0.0f, opacity * NVLBoxMaxOpacity);
-    Renderer2D::DrawRect(
+    Renderer->DrawRect(
         RectF(0, 0, Profile::DesignWidth, Profile::DesignHeight), nvlBoxTint);
   }
 
   if (mode == DPM_ADV && hasName) {
     if (HaveADVNameTag) {
-      Renderer2D::DrawSprite(ADVNameTag::LeftSprite, ADVNameTag::Position, col);
+      Renderer->DrawSprite(ADVNameTag::LeftSprite, ADVNameTag::Position, col);
     }
 
     if (HaveADVNameTag) {
@@ -42,12 +42,12 @@ void DialogueBox::Render(DialoguePageMode mode, bool hasName, float nameWidth,
       while (lineWidth > 0.0f) {
         Sprite lineSprite = ADVNameTag::LineSprite;
         lineSprite.SetScaledWidth(fminf(lineSprite.ScaledWidth(), lineWidth));
-        Renderer2D::DrawSprite(lineSprite,
+        Renderer->DrawSprite(lineSprite,
                                glm::vec2(lineX, ADVNameTag::Position.y), col);
         lineX += lineSprite.ScaledWidth();
         lineWidth -= lineSprite.ScaledWidth();
       }
-      Renderer2D::DrawSprite(ADVNameTag::RightSprite,
+      Renderer->DrawSprite(ADVNameTag::RightSprite,
                              glm::vec2(lineX, ADVNameTag::Position.y), col);
     }
   }

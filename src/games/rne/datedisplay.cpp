@@ -4,7 +4,7 @@
 #include "../../impacto.h"
 #include "../../mem.h"
 #include <ctime>
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 #include "../../game.h"
 #include "../../profile/hud/datedisplay.h"
 
@@ -40,45 +40,45 @@ void DateDisplay::Render() {
     glm::vec4 col(1.0f);
     col.a = smoothedFade;
 
-    Renderer2D::DrawSprite(
+    Renderer->DrawSprite(
         BackgroundSprite,
         glm::mix(BackgroundStartPos, BackgroundEndPos, smoothedFade), col);
 
     glm::vec2 pos(DateStartX, YearWeekY);
-    Renderer2D::DrawSprite(CloseBracketSprite, pos, col);
+    Renderer->DrawSprite(CloseBracketSprite, pos, col);
 
     pos.x -= WeekSprites[Week].ScaledWidth() + Spacing;
-    Renderer2D::DrawSprite(WeekSprites[Week], pos, col);
+    Renderer->DrawSprite(WeekSprites[Week], pos, col);
 
     pos.x -= OpenBracketSprite.ScaledWidth() + Spacing;
-    Renderer2D::DrawSprite(OpenBracketSprite, pos, col);
+    Renderer->DrawSprite(OpenBracketSprite, pos, col);
 
     pos.x -= YearNumSprites[Year % 10].ScaledWidth();
-    Renderer2D::DrawSprite(YearNumSprites[Year % 10], pos, col);
+    Renderer->DrawSprite(YearNumSprites[Year % 10], pos, col);
     pos.x -= YearNumSprites[Year / 10].ScaledWidth();
-    Renderer2D::DrawSprite(YearNumSprites[Year / 10], pos, col);
+    Renderer->DrawSprite(YearNumSprites[Year / 10], pos, col);
     pos.x -= YearNumSprites[0].ScaledWidth();
-    Renderer2D::DrawSprite(YearNumSprites[0], pos, col);
+    Renderer->DrawSprite(YearNumSprites[0], pos, col);
     pos.x -= YearNumSprites[2].ScaledWidth();
-    Renderer2D::DrawSprite(YearNumSprites[2], pos, col);
+    Renderer->DrawSprite(YearNumSprites[2], pos, col);
 
     pos.x -= DYSeparatorSprite.ScaledWidth();
-    Renderer2D::DrawSprite(DYSeparatorSprite, pos, col);
+    Renderer->DrawSprite(DYSeparatorSprite, pos, col);
 
     pos.y = MonthDayY;
     pos.x -= DayNumSprites[Day % 10].ScaledWidth() + Spacing;
-    Renderer2D::DrawSprite(DayNumSprites[Day % 10], pos, col);
+    Renderer->DrawSprite(DayNumSprites[Day % 10], pos, col);
     pos.x -= DayNumSprites[Day / 10].ScaledWidth();
-    Renderer2D::DrawSprite(DayNumSprites[Day / 10], pos, col);
+    Renderer->DrawSprite(DayNumSprites[Day / 10], pos, col);
 
     pos.x -= MDSeparatorSprite.ScaledWidth();
-    Renderer2D::DrawSprite(MDSeparatorSprite, pos, col);
+    Renderer->DrawSprite(MDSeparatorSprite, pos, col);
 
     pos.x -= MonthNumSprites[Month % 10].ScaledWidth() + Spacing;
-    Renderer2D::DrawSprite(MonthNumSprites[Month % 10], pos, col);
+    Renderer->DrawSprite(MonthNumSprites[Month % 10], pos, col);
     if (Month / 10 != 0) {
       pos.x -= MonthNumSprites[Month / 10].ScaledWidth();
-      Renderer2D::DrawSprite(MonthNumSprites[Month / 10], pos, col);
+      Renderer->DrawSprite(MonthNumSprites[Month / 10], pos, col);
     }
   }
 }

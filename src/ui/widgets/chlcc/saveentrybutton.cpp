@@ -1,6 +1,6 @@
 #include "saveentrybutton.h"
 
-#include "../../../renderer2d.h"
+#include "../../../renderer/renderer.h"
 #include "../../../profile/dialogue.h"
 
 namespace Impacto {

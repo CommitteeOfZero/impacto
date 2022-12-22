@@ -1,7 +1,6 @@
 #pragma once
 
 #include <flat_hash_map.hpp>
-#include "renderer2d.h"
 #include "texture/texture.h"
 #include "spritesheet.h"
 #include "loadable.h"
