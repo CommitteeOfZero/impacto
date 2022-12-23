@@ -28,7 +28,7 @@ static ska::flat_hash_set<std::string> IncludedFiles;
 static void DukFatal(void* udata, char const* msg) {
   ImpLog(LL_Fatal, LC_Profile, "JavaScript fatal error: %s\n",
          msg ? msg : "no message");
-  Renderer->Window->Shutdown();
+  Window->Shutdown();
 }
 
 static duk_ret_t DukPrint(duk_context* ctx) {
@@ -129,7 +129,7 @@ void MakeJsonProfile(std::string const& name) {
   if (err != IoError_OK) {
     ImpLog(LL_Fatal, LC_Profile, "Could not open profiles/%s/game.js\n",
            name.c_str());
-    Renderer->Window->Shutdown();
+    Window->Shutdown();
   }
 
   char* script = (char*)malloc(stream->Meta.Size);
@@ -137,7 +137,7 @@ void MakeJsonProfile(std::string const& name) {
   if (len < 0) {
     ImpLog(LL_Fatal, LC_Profile, "Could not open profiles/%s/game.js\n",
            name.c_str());
-    Renderer->Window->Shutdown();
+    Window->Shutdown();
   }
 
   duk_context* ctx = duk_create_heap(NULL, NULL, NULL, NULL, DukFatal);
@@ -188,7 +188,7 @@ void MakeJsonProfile(std::string const& name) {
   if (evalErr != 0) {
     ImpLog(LL_Fatal, LC_Profile, "JS profile execute error: %s\n",
            duk_safe_to_string(ctx, -1));
-    Renderer->Window->Shutdown();
+    Window->Shutdown();
   }
 
   ImpLog(LL_Info, LC_Profile, "JS profile execute success\n");

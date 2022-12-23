@@ -75,14 +75,14 @@ void Init() {
 }
 
 void Update(float dt) {
-  if (Renderer->Window->WindowDimensionsChanged) {
-    UiWindowWidth = Renderer->Window->WindowWidth;
-    UiWindowHeight = Renderer->Window->WindowHeight;
-    UiMsaaCount = Renderer->Window->MsaaCount;
+  if (Window->WindowDimensionsChanged) {
+    UiWindowWidth = Window->WindowWidth;
+    UiWindowHeight = Window->WindowHeight;
+    UiMsaaCount = Window->MsaaCount;
   }
 
   if (nk_begin(Nk, "Scene",
-               nk_rect(20, 20, 300, Renderer->Window->WindowHeight - 40),
+               nk_rect(20, 20, 300, Window->WindowHeight - 40),
                NK_WINDOW_BORDER | NK_WINDOW_TITLE)) {
     // FPS counter
     Frames++;
@@ -107,9 +107,9 @@ void Update(float dt) {
       nk_property_int(Nk, "MSAA", 0, &UiMsaaCount, 16, 0, 0);
 
       if (nk_button_label(Nk, "Resize")) {
-        Renderer->Window->SetDimensions(UiWindowWidth, UiWindowHeight,
+        Window->SetDimensions(UiWindowWidth, UiWindowHeight,
                                         UiMsaaCount,
-                                        Renderer->Window->RenderScale);
+                                        Window->RenderScale);
       }
 
       nk_tree_pop(Nk);

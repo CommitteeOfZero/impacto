@@ -90,7 +90,7 @@ void EnsurePushMember(char const* name) {
   if (!success) {
     ImpLog(LL_Fatal, LC_Profile, "Expected %s to have member %s\n",
            JsonStackPath, name);
-    Renderer->Window->Shutdown();
+    Window->Shutdown();
   }
 }
 
@@ -105,7 +105,7 @@ void AssertIs(Type type) {
     ImpLog(LL_Fatal, LC_Profile,
            "Expected %s to have type %s, actual type %s\n", JsonStackPath,
            kTypeNames[type], kTypeNames[actualType]);
-    Renderer->Window->Shutdown();
+    Window->Shutdown();
   }
 }
 
@@ -127,7 +127,7 @@ void AssertIsOneOf(std::initializer_list<Type> types) {
   ImpLog(LL_Fatal, LC_Profile,
          "Expected %s to have type in (%s), actual type %s\n", JsonStackPath,
          typeList, kTypeNames[actualType]);
-  Renderer->Window->Shutdown();
+  Window->Shutdown();
 }
 
 void PushMemberIterator(Value::ConstMemberIterator it) {
@@ -145,7 +145,7 @@ void EnsurePushMemberIteratorOfType(Value::ConstMemberIterator it, Type type) {
     bool success = TryGet##typeName(result);                                 \
     if (!success) {                                                          \
       ImpLog(LL_Fatal, LC_Profile, "Expected %s to be " typeDesc "\n");      \
-      Renderer->Window->Shutdown();                                                    \
+      Window->Shutdown();                                                    \
     }                                                                        \
     return result;                                                           \
   }                                                                          \
@@ -352,7 +352,7 @@ void LoadJsonString(char const* str) {
     ImpLog(LL_Fatal, LC_Profile,
            "Failed to parse JSON from profile (at %d): %s\n",
            Json.GetErrorOffset(), GetParseError_En(Json.GetParseError()));
-    Renderer->Window->Shutdown();
+    Window->Shutdown();
   }
 
   JsonStackPath[0] = '\0';

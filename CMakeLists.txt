@@ -23,13 +23,14 @@ set(Impacto_Src
     src/character2d.cpp
     src/text.cpp
     src/inputsystem.cpp
-    src/glc.cpp
 
     src/renderer/renderer.cpp
 
     src/renderer/opengl/window.cpp
     src/renderer/opengl/renderer.cpp
     src/renderer/opengl/shader.cpp
+    src/renderer/opengl/glc.cpp
+    src/renderer/opengl/yuvframe.cpp
     src/renderer/opengl/3d/renderable3d.cpp
     src/renderer/opengl/3d/scene.cpp
 
@@ -256,7 +257,6 @@ set(Impacto_Src
 
     src/video/videosystem.cpp
     src/video/videoplayer.cpp
-    src/video/yuvframe.cpp
     src/video/ffmpegstream.cpp
 
     vendor/glad/src/glad.c
@@ -296,16 +296,18 @@ set(Impacto_Header
     src/text.h
     src/loadable.h
     src/inputsystem.h
-    src/glc.h
     src/rng.h
     src/animation.h
 
     src/renderer/renderer.h
     src/renderer/window.h
+    src/renderer/yuvframe.h
 
     src/renderer/opengl/window.h
     src/renderer/opengl/renderer.h
     src/renderer/opengl/shader.h
+    src/renderer/opengl/glc.h
+    src/renderer/opengl/yuvframe.h
     src/renderer/opengl/3d/renderable3d.h
     src/renderer/opengl/3d/scene.h
 
@@ -530,7 +532,6 @@ set(Impacto_Header
 
     src/video/videosystem.h
     src/video/videoplayer.h
-    src/video/yuvframe.h
     src/video/ffmpegstream.h
 
     vendor/nuklear/nuklear.h

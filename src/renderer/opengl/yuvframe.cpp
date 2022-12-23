@@ -3,8 +3,9 @@
 #include <glad/glad.h>
 
 namespace Impacto {
+namespace OpenGL {
 
-void YUVFrame::Init(int width, int height) {
+void GLYUVFrame::Init(int width, int height) {
   Width = width;
   Height = height;
   GLuint yuv[3];
@@ -15,7 +16,7 @@ void YUVFrame::Init(int width, int height) {
   CrId = yuv[2];
 }
 
-void YUVFrame::Submit(void* luma, void* cb, void* cr) {
+void GLYUVFrame::Submit(void* luma, void* cb, void* cr) {
   glBindTexture(GL_TEXTURE_2D, LumaId);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, Width, Height, 0, GL_RED,
                GL_UNSIGNED_BYTE, luma);
@@ -27,7 +28,7 @@ void YUVFrame::Submit(void* luma, void* cb, void* cr) {
                GL_UNSIGNED_BYTE, cr);
 }
 
-void YUVFrame::Release() {
+void GLYUVFrame::Release() {
   GLuint yuv[3];
   yuv[0] = LumaId;
   yuv[1] = CbId;
@@ -35,4 +36,5 @@ void YUVFrame::Release() {
   glDeleteTextures(3, yuv);
 }
 
+}  // namespace OpenGL
 }  // namespace Impacto

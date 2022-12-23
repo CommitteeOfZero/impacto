@@ -5,15 +5,7 @@
 namespace Impacto {
 namespace OpenGL {
 
-enum GraphicsApi {
-  GfxApi_GL,
-  // Forces the use of a GLES driver (e.g. ANGLE on Windows)
-  GfxApi_ForceNativeGLES,
-  // Forces GLES context on desktop GL driver
-  GfxApi_ForceDesktopGLES
-};
-
-class GLWindow : public IWindow {
+class GLWindow : public BaseWindow {
  public:
   void Init() override;
   void SetDimensions(int width, int height, int msaa,
@@ -35,15 +27,10 @@ class GLWindow : public IWindow {
   // Texture associated with ReadRT
   GLuint ReadRenderTexture;
 
-  GraphicsApi GraphicsApiHint = GfxApi_ForceNativeGLES;
-  GraphicsApi ActualGraphicsApi;
-
  private:
   void UpdateDimensions() override;
   void TryCreateGL(GraphicsApi api);
   void CleanFBOs();
-
-  bool IsInit = false;
 
   bool GLDebug = false;
   GLuint drawRenderTexture = 0;

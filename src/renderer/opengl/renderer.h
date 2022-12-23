@@ -3,6 +3,8 @@
 #include "../renderer.h"
 #include "window.h"
 
+#include <map>
+
 #include "shader.h"
 
 namespace Impacto {
@@ -24,62 +26,59 @@ struct VertexBufferSprites {
   glm::vec2 MaskUV;
 };
 
-class Renderer : public IRenderer {
+class Renderer : public BaseRenderer {
  private:
-  void InitImpl();
-  void ShutdownImpl();
+  void InitImpl() override;
+  void ShutdownImpl() override;
 
-  void BeginFrameImpl();
-  void EndFrameImpl();
+  void BeginFrameImpl() override;
+  void EndFrameImpl() override;
 
-  void DrawSpriteImpl(Sprite const& sprite, RectF const& dest,
-                      glm::vec4 tint, float angle,
-                      bool inverted, bool isScreencap);
-  void DrawSpriteImpl(Sprite const& sprite, glm::vec2 topLeft,
-                      glm::vec4 tint, glm::vec2 scale, float angle,
-                      bool inverted, bool isScreencap);
-  void DrawRectImpl(RectF const& dest, glm::vec4 color, float angle);
+  uint32_t SubmitTextureImpl(TexFmt format, uint8_t* buffer, int width,
+                             int height) override;
+  void FreeTextureImpl(uint32_t id) override;
+  YUVFrame* CreateYUVFrameImpl(int width, int height) override;
+
+  void DrawSpriteImpl(Sprite const& sprite, RectF const& dest, glm::vec4 tint,
+                      float angle, bool inverted, bool isScreencap) override;
+  void DrawRectImpl(RectF const& dest, glm::vec4 color, float angle) override;
 
   void DrawMaskedSpriteImpl(Sprite const& sprite, Sprite const& mask,
                             RectF const& dest, glm::vec4 tint, int alpha,
-                            int fadeRange, bool isScreencap,
-                            bool isInverted, bool isSameTexture);
+                            int fadeRange, bool isScreencap, bool isInverted,
+                            bool isSameTexture) override;
 
-  void DrawCCMessageBoxImpl(Sprite const& sprite, Sprite const& mask,
-                            glm::vec2 topLeft, glm::vec4 tint, int alpha,
-                            int fadeRange, float effectCt, bool isScreencap,
-                            glm::vec2 scale);
   void DrawCCMessageBoxImpl(Sprite const& sprite, Sprite const& mask,
                             RectF const& dest, glm::vec4 tint, int alpha,
-                            int fadeRange, float effectCt, bool isScreencap);
+                            int fadeRange, float effectCt,
+                            bool isScreencap) override;
 
-  void DrawSprite3DRotatedImpl(Sprite const& sprite, RectF const& dest, float depth,
-                               glm::vec2 vanishingPoint, bool stayInScreen, glm::quat rot,
-                               glm::vec4 tint, bool inverted);
-  void DrawSprite3DRotatedImpl(Sprite const& sprite, glm::vec2 topLeft, float depth,
-                               glm::vec2 vanishingPoint, bool stayInScreen,
-                               glm::quat rot, glm::vec4 tint, glm::vec2 scale, bool inverted);
-  void DrawRect3DRotatedImpl(RectF const& dest, float depth, glm::vec2 vanishingPoint,
-                             bool stayInScreen, glm::quat rot, glm::vec4 color);
+  void DrawSprite3DRotatedImpl(Sprite const& sprite, RectF const& dest,
+                               float depth, glm::vec2 vanishingPoint,
+                               bool stayInScreen, glm::quat rot, glm::vec4 tint,
+                               bool inverted) override;
+  void DrawRect3DRotatedImpl(RectF const& dest, float depth,
+                             glm::vec2 vanishingPoint, bool stayInScreen,
+                             glm::quat rot, glm::vec4 color) override;
 
   void DrawProcessedTextImpl(ProcessedTextGlyph* text, int length, Font* font,
-                             float opacity, bool outlined, bool smoothstepGlyphOpacity);
+                             float opacity, bool outlined,
+                             bool smoothstepGlyphOpacity) override;
 
   void DrawCharacterMvlImpl(Sprite const& sprite, glm::vec2 topLeft,
-                            int verticesCount, float* mvlVertices, int indicesCount,
-                            uint16_t* mvlIndices, bool inverted, glm::vec4 tint);
+                            int verticesCount, float* mvlVertices,
+                            int indicesCount, uint16_t* mvlIndices,
+                            bool inverted, glm::vec4 tint) override;
 
-  void DrawVideoTextureImpl(YUVFrame const& tex, RectF const& dest,
-                            glm::vec4 tint, float angle, bool alphaVideo);
-  void DrawVideoTextureImpl(YUVFrame const& tex, glm::vec2 topLeft,
-                            glm::vec4 tint, glm::vec2 scale, float angle,
-                            bool alphaVideo);
+  void DrawVideoTextureImpl(YUVFrame* tex, RectF const& dest,
+                            glm::vec4 tint, float angle,
+                            bool alphaVideo) override;
 
-  void CaptureScreencapImpl(Sprite const& sprite);
+  void CaptureScreencapImpl(Sprite const& sprite) override;
 
-  void EnableScissorImpl();
-  void SetScissorRectImpl(RectF const& rect);
-  void DisableScissorImpl();
+  void EnableScissorImpl() override;
+  void SetScissorRectImpl(RectF const& rect) override;
+  void DisableScissorImpl() override;
 
   void EnsureSpaceAvailable(int vertices, int vertexSize, int indices);
   void EnsureTextureBound(GLuint texture);
@@ -88,25 +87,21 @@ class Renderer : public IRenderer {
 
   inline void QuadSetUV(RectF const& spriteBounds, float designWidth,
                         float designHeight, uintptr_t uvs, int stride);
-  inline void QuadSetUVFlipped(RectF const& spriteBounds,
-                               float designWidth, float designHeight,
-                               uintptr_t uvs, int stride);
+  inline void QuadSetUVFlipped(RectF const& spriteBounds, float designWidth,
+                               float designHeight, uintptr_t uvs, int stride);
   inline void QuadSetPosition(RectF const& transformedQuad, float angle,
                               uintptr_t positions, int stride);
   inline void QuadSetPosition3DRotated(RectF const& transformedQuad,
-                                       float depth,
-                                       glm::vec2 vanishingPoint,
+                                       float depth, glm::vec2 vanishingPoint,
                                        bool stayInScreen, glm::quat rot,
                                        uintptr_t positions, int stride);
 
   void DrawProcessedText_BasicFont(ProcessedTextGlyph* text, int length,
                                    BasicFont* font, float opacity,
-                                   bool outlined,
-                                   bool smoothstepGlyphOpacity);
+                                   bool outlined, bool smoothstepGlyphOpacity);
   void DrawProcessedText_LBFont(ProcessedTextGlyph* text, int length,
-                                       LBFont* font, float opacity, bool outlined,
-                                       bool smoothstepGlyphOpacity);
-
+                                LBFont* font, float opacity, bool outlined,
+                                bool smoothstepGlyphOpacity);
 
   GLWindow* OpenGLWindow;
 
@@ -148,5 +143,5 @@ class Renderer : public IRenderer {
   ShaderCompiler* Shaders;
 };
 
-} // OpenGL
-} // Impacto
+}  // namespace OpenGL
+}  // namespace Impacto

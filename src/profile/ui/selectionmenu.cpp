@@ -39,7 +39,7 @@ static void GetMemberFloatArray(float* arr, uint32_t count, char const* name) {
   if (TopVal().Size() != count) {
     ImpLog(LL_Fatal, LC_Profile, "Expected to have %d floats for %s\n", count,
            name);
-    Renderer->Window->Shutdown();
+    Window->Shutdown();
   }
 
   for (uint32_t i = 0; i < count; i++) {

@@ -12,7 +12,7 @@
 namespace Impacto {
 namespace OpenGL {
 
-static char const ShaderPath[] = "./shaders";
+static char const ShaderPath[] = "./shaders/opengl";
 static char const FragShaderExtension[] = "_frag.glsl";
 static char const VertShaderExtension[] = "_vert.glsl";
 
@@ -33,10 +33,6 @@ static char const ShaderHeaderFrag[] =
     "#define FRAGMENT_SHADER\n#ifdef GL_ES\nprecision mediump "
     "float;\n#endif\n\n";
 static GLint const ShaderHeaderFragLength = sizeof(ShaderHeaderFrag) - 1;
-
-ShaderCompiler::ShaderCompiler(GLWindow* window) {
-  Window = window;
-}
 
 int ShaderCompiler::PrintParameter(char* dest, int destSz, char const* name,
                    ShaderParameter const& param) {
@@ -114,7 +110,7 @@ GLuint ShaderCompiler::Attach(GLuint program, GLenum shaderType, char const* pat
   }
 
   const GLchar* codeParts[4];
-  codeParts[0] = (Window->ActualGraphicsApi != GfxApi_GL)
+  codeParts[0] = (ActualGraphicsApi != GfxApi_GL)
                      ? ShaderHeaderES
                      : ShaderHeader;
   codeParts[1] =
@@ -123,7 +119,7 @@ GLuint ShaderCompiler::Attach(GLuint program, GLenum shaderType, char const* pat
   codeParts[3] = source;
 
   GLint codeLengths[4];
-  codeLengths[0] = (Window->ActualGraphicsApi != GfxApi_GL)
+  codeLengths[0] = (ActualGraphicsApi != GfxApi_GL)
                        ? ShaderHeaderESLength
                        : ShaderHeaderLength;
   codeLengths[1] = shaderType == GL_VERTEX_SHADER ? ShaderHeaderVertLength

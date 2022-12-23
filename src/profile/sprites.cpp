@@ -32,7 +32,7 @@ void LoadSpritesheets() {
     if (err != IoError_OK) {
       ImpLog(LL_Fatal, LC_Profile, "Could not open spritesheet %s\n",
              name.c_str());
-      Renderer->Window->Shutdown();
+      Window->Shutdown();
     }
     Texture texture;
     if (!texture.Load(stream)) {

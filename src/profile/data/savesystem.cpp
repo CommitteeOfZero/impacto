@@ -61,7 +61,7 @@ void Configure() {
       auto const& _pair = TopVal();
       if (_pair.Size() != 2) {
         ImpLog(LL_Fatal, LC_Profile, "Expected two values\n");
-        Renderer->Window->Shutdown();
+        Window->Shutdown();
       }
       ScriptMessageData[i].LineCount = EnsureGetArrayElementUint(0);
       ScriptMessageData[i].SaveDataOffset = EnsureGetArrayElementUint(1);

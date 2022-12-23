@@ -178,7 +178,7 @@ void CgViewer::Clear() {
     for (int j = 0; j < CgCount[i]; j++) {
       if (CgSpriteSheets[i][j].DesignWidth != 0.0f &&
           CgSpriteSheets[i][j].DesignHeight != 0.0f) {
-        glDeleteTextures(1, &CgSpriteSheets[i][j].Texture);
+        Renderer->FreeTexture(CgSpriteSheets[i][j].Texture);
         CgSpriteSheets[i][j].DesignHeight = 0.0f;
         CgSpriteSheets[i][j].DesignWidth = 0.0f;
         CgSpriteSheets[i][j].Texture = 0;

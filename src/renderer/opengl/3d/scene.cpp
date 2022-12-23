@@ -2,9 +2,8 @@
 
 #include "../../3d/camera.h"
 #include "../../../log.h"
-#include "../renderer.h"
 #include "../../../workqueue.h"
-#include "../../../glc.h"
+#include "../glc.h"
 #include "renderable3d.h"
 
 #include "../../../profile/scene3d.h"
@@ -304,7 +303,7 @@ void Scene3D::DrawToScreen() {
       glInvalidateFramebuffer(GL_READ_FRAMEBUFFER, 2, attachments);
   }
 
-  //GLC::BindFramebuffer(GL_DRAW_FRAMEBUFFER, Renderer->Window->DrawRT);
+  //GLC::BindFramebuffer(GL_DRAW_FRAMEBUFFER, Window->DrawRT);
   glViewport(0, 0, viewport.Width, viewport.Height);
 
   glEnable(GL_BLEND);
@@ -329,7 +328,7 @@ void Scene3D::DrawToScreen() {
 MSResolveMode Scene3D::CheckMSResolveMode() {
   if (Window->MsaaCount == 0) return MS_None;
 
-  if (Window->ActualGraphicsApi != GfxApi_GL) {
+  if (ActualGraphicsApi != GfxApi_GL) {
     if (GLAD_GL_EXT_multisampled_render_to_texture) {
       return MS_SinglesampleTextureExt;
     }

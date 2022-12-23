@@ -74,7 +74,7 @@ static void Init() {
   memset(DrawComponents, DrawComponentType::None, sizeof(DrawComponents));
 
   if (Profile::GameFeatures & GameFeature::Nuklear) {
-    Nk = nk_sdl_init(Renderer->Window->SDLWindow, NkMaxVertexMemory, NkMaxElementMemory);
+    Nk = nk_sdl_init(Window->SDLWindow, NkMaxVertexMemory, NkMaxElementMemory);
     struct nk_font_atlas* atlas;
     nk_sdl_font_stash_begin(&atlas);
     // no fonts => default font used, but we still have do the setup
@@ -158,7 +158,7 @@ void Shutdown() {
     nk_sdl_shutdown();
   }
 
-  Renderer->Window->Shutdown();
+  Window->Shutdown();
 }
 
 void UpdateGameState(float dt) {
@@ -185,7 +185,7 @@ void Update(float dt) {
     if (Profile::GameFeatures & GameFeature::Nuklear) {
       SDL_Event e_nk;
       memcpy(&e_nk, &e, sizeof(SDL_Event));
-      Renderer->Window->AdjustEventCoordinatesForNk(&e_nk);
+      Window->AdjustEventCoordinatesForNk(&e_nk);
       if (nk_sdl_handle_event(&e_nk)) continue;
     }
 
@@ -262,12 +262,7 @@ static int FlagWorkIndexStart = 0;
 static int FlagWorkIndexEnd = 0;
 
 void Render() {
-  Renderer->Window->Update();
-
-  Rect viewport = Renderer->Window->GetViewport();
-
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  Window->Update();
 
   if (Profile::GameFeatures & GameFeature::Scene3D) {
     Renderer->Scene->Render();
@@ -291,7 +286,7 @@ void Render() {
 
     if (DebugWindowEnabled) {
       if (nk_begin(Nk, "Debug Editor",
-                   nk_rect(20, 20, 300, Renderer->Window->WindowHeight - 40),
+                   nk_rect(20, 20, 300, Window->WindowHeight - 40),
                    NK_WINDOW_BORDER | NK_WINDOW_TITLE)) {
         nk_layout_row_dynamic(Nk, 24, 1);
         char buffer[32];  // whatever
@@ -487,20 +482,7 @@ void Render() {
     Renderer->EndFrame();
   }
 
-  if (Profile::GameFeatures & GameFeature::Nuklear) {
-    //if (Renderer->Window->GLDebug) {
-      // Nuklear spams these
-    //  glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0,
-    //                           NULL, GL_FALSE);
-    //}
-    nk_sdl_render(NK_ANTI_ALIASING_OFF, viewport.Width, viewport.Height);
-    //if (Renderer->Window->GLDebug) {
-    //  glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0,
-    //                           NULL, GL_TRUE);
-    //}
-  }
-
-  Renderer->Window->Draw();
+  Window->Draw();
 }
 
 }  // namespace Game

@@ -59,13 +59,10 @@ typedef ska::flat_hash_map<std::string, ShaderParameter> ShaderParamMap;
 
 class ShaderCompiler {
  public:
-  ShaderCompiler(GLWindow* window);
   GLuint Compile(char const* name,
                  ShaderParamMap const& params = ShaderParamMap());
 
  private:
-  GLWindow* Window;
-
   int PrintParameter(char* dest, int destSz, char const* name,
                      ShaderParameter const& param);
   GLuint Attach(GLuint program, GLenum shaderType, char const* path,
