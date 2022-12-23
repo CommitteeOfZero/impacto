@@ -4,6 +4,7 @@
 #include "io/vfs.h"
 #include "util.h"
 #include "profile/game.h"
+#include "renderer/renderer.h"
 
 namespace Impacto {
 
@@ -39,7 +40,7 @@ bool Mask2D::LoadSync(uint32_t maskId) {
 }
 
 void Mask2D::UnloadSync() {
-  glDeleteTextures(1, &MaskSpriteSheet.Texture);
+  Renderer->FreeTexture(MaskSpriteSheet.Texture);
   MaskSpriteSheet.DesignHeight = 0.0f;
   MaskSpriteSheet.DesignWidth = 0.0f;
   MaskSpriteSheet.Texture = 0;

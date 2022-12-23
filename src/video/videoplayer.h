@@ -14,7 +14,7 @@ extern "C" {
 #include "../impacto.h"
 #include "../io/inputstream.h"
 #include "../log.h"
-#include "yuvframe.h"
+#include "../renderer/yuvframe.h"
 #include "../texture/texture.h"
 #include "../renderer/renderer.h"
 
@@ -96,7 +96,7 @@ class VideoPlayer {
 
   bool IsInit = false;
 
-  YUVFrame VideoTexture;
+  YUVFrame* VideoTexture;
 
   bool IsAlpha = false;
   bool Looping = false;

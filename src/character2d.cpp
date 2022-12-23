@@ -136,7 +136,7 @@ bool Character2D::LoadSync(uint32_t charaId) {
 }
 
 void Character2D::UnloadSync() {
-  glDeleteTextures(1, &CharaSpriteSheet.Texture);
+  Renderer->FreeTexture(CharaSpriteSheet.Texture);
   CharaSpriteSheet.DesignHeight = 0.0f;
   CharaSpriteSheet.DesignWidth = 0.0f;
   CharaSpriteSheet.Texture = 0;

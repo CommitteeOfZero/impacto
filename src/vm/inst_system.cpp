@@ -280,7 +280,7 @@ VmInstruction(InstTerminate) {
   StartInstruction;
 
   ImpLog(LL_Info, LC_VM, "VM requested shutdown!\n");
-  Renderer->Window->Shutdown();
+  Window->Shutdown();
   // BlockThread;
   // ResetInstruction;
 }

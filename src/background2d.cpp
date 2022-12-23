@@ -27,8 +27,8 @@ void Background2D::Init() {
   }
 
   for (int i = 0; i < MaxScreencaptures; i++) {
-    Screencaptures[i].LoadSolidColor(0xFF000000, Renderer->Window->WindowWidth,
-                                     Renderer->Window->WindowHeight);
+    Screencaptures[i].LoadSolidColor(0xFF000000, Window->WindowWidth,
+                                     Window->WindowHeight);
     Screencaptures[i].Status = LS_Loaded;
     Screencaptures[i].IsScreencap = true;
   }
@@ -54,7 +54,7 @@ void Background2D::LoadSolidColor(uint32_t color, int width, int height) {
 }
 
 void Background2D::UnloadSync() {
-  glDeleteTextures(1, &BgSpriteSheet.Texture);
+  Renderer->FreeTexture(BgSpriteSheet.Texture);
   BgSpriteSheet.DesignHeight = 0.0f;
   BgSpriteSheet.DesignWidth = 0.0f;
   BgSpriteSheet.Texture = 0;

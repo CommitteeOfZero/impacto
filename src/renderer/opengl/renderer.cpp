@@ -4,6 +4,7 @@
 #include "../../profile/game.h"
 #include "../../game.h"
 #include "3d/scene.h"
+#include "yuvframe.h"
 
 namespace Impacto {
 namespace OpenGL {
@@ -15,9 +16,9 @@ void Renderer::InitImpl() {
 
   OpenGLWindow = new GLWindow();
   OpenGLWindow->Init();
-  Window = (IWindow*)OpenGLWindow;
+  Window = (BaseWindow*)OpenGLWindow;
 
-  Shaders = new ShaderCompiler(OpenGLWindow);
+  Shaders = new ShaderCompiler();
 
   if (Profile::GameFeatures & GameFeature::Scene3D) {
     Scene = new Scene3D(OpenGLWindow, Shaders);
@@ -144,21 +145,57 @@ void Renderer::EndFrameImpl() {
   glBindSampler(0, 0);
 }
 
-void Renderer::DrawSpriteImpl(Sprite const& sprite, glm::vec2 topLeft, glm::vec4 tint,
-                glm::vec2 scale, float angle, bool inverted, bool isScreencap) {
-  RectF scaledDest(topLeft.x, topLeft.y,
-                   scale.x * sprite.Bounds.Width * sprite.BaseScale.x,
-                   scale.y * sprite.Bounds.Height * sprite.BaseScale.y);
-  DrawSprite(sprite, scaledDest, tint, angle, inverted, isScreencap);
+uint32_t Renderer::SubmitTextureImpl(TexFmt format, uint8_t* buffer, int width,
+                                     int height) {
+  uint32_t result;
+  glGenTextures(1, &result);
+  glBindTexture(GL_TEXTURE_2D, result);
+
+  // Anisotropic filtering
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                  GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16);
+
+  // Load in data
+  GLuint texFormat;
+  switch (format) {
+    case TexFmt_RGBA:
+      texFormat = GL_RGBA;
+      break;
+    case TexFmt_RGB:
+      texFormat = GL_RGB;
+      break;
+    case TexFmt_U8:
+      texFormat = GL_RED;
+  }
+  glTexImage2D(GL_TEXTURE_2D, 0, texFormat, width, height, 0, texFormat,
+               GL_UNSIGNED_BYTE, buffer);
+
+  // Build mip chain
+  // TODO do this ourselves outside of Submit(), this can easily cause a
+  // framedrop
+  glGenerateMipmap(GL_TEXTURE_2D);
+
+  return result;
+}
+
+void Renderer::FreeTextureImpl(uint32_t id) { glDeleteTextures(1, &id); }
+
+YUVFrame* Renderer::CreateYUVFrameImpl(int width, int height) {
+  auto frame = new GLYUVFrame();
+  frame->Init(width, height);
+  return (YUVFrame*)frame;
 }
 
 void Renderer::DrawRectImpl(RectF const& dest, glm::vec4 color, float angle) {
   DrawSprite(RectSprite, dest, color, angle);
 }
 
-void Renderer::DrawSprite3DRotatedImpl(Sprite const& sprite, RectF const& dest, float depth,
-                         glm::vec2 vanishingPoint, bool stayInScreen,
-                         glm::quat rot, glm::vec4 tint, bool inverted) {
+void Renderer::DrawSprite3DRotatedImpl(Sprite const& sprite, RectF const& dest,
+                                       float depth, glm::vec2 vanishingPoint,
+                                       bool stayInScreen, glm::quat rot,
+                                       glm::vec4 tint, bool inverted) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawSprite3DRotated() called before BeginFrame()\n");
@@ -191,26 +228,18 @@ void Renderer::DrawSprite3DRotatedImpl(Sprite const& sprite, RectF const& dest, 
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
-void Renderer::DrawSprite3DRotatedImpl(Sprite const& sprite, glm::vec2 topLeft, float depth,
-                         glm::vec2 vanishingPoint, bool stayInScreen,
-                         glm::quat rot, glm::vec4 tint, glm::vec2 scale,
-                         bool inverted) {
-  RectF scaledDest(topLeft.x, topLeft.y,
-                   scale.x * sprite.Bounds.Width * sprite.BaseScale.x,
-                   scale.y * sprite.Bounds.Height * sprite.BaseScale.y);
-  DrawSprite3DRotated(sprite, scaledDest, depth, vanishingPoint, stayInScreen,
-                      rot, tint, inverted);
-}
-
-void Renderer::DrawRect3DRotatedImpl(RectF const& dest, float depth, glm::vec2 vanishingPoint,
-                       bool stayInScreen, glm::quat rot, glm::vec4 color) {
+void Renderer::DrawRect3DRotatedImpl(RectF const& dest, float depth,
+                                     glm::vec2 vanishingPoint,
+                                     bool stayInScreen, glm::quat rot,
+                                     glm::vec4 color) {
   DrawSprite3DRotated(RectSprite, dest, depth, vanishingPoint, stayInScreen,
                       rot, color);
 }
 
 void Renderer::DrawProcessedText_BasicFont(ProcessedTextGlyph* text, int length,
-                                 BasicFont* font, float opacity, bool outlined,
-                                 bool smoothstepGlyphOpacity) {
+                                           BasicFont* font, float opacity,
+                                           bool outlined,
+                                           bool smoothstepGlyphOpacity) {
   // cruddy mages outline
   if (outlined) {
     for (int i = 0; i < length; i++) {
@@ -245,8 +274,9 @@ void Renderer::DrawProcessedText_BasicFont(ProcessedTextGlyph* text, int length,
 }
 
 void Renderer::DrawProcessedText_LBFont(ProcessedTextGlyph* text, int length,
-                              LBFont* font, float opacity, bool outlined,
-                              bool smoothstepGlyphOpacity) {
+                                        LBFont* font, float opacity,
+                                        bool outlined,
+                                        bool smoothstepGlyphOpacity) {
   if (outlined) {
     for (int i = 0; i < length; i++) {
       glm::vec4 color = RgbIntToFloat(text[i].Colors.OutlineColor);
@@ -281,9 +311,9 @@ void Renderer::DrawProcessedText_LBFont(ProcessedTextGlyph* text, int length,
   }
 }
 
-void Renderer::DrawProcessedTextImpl(ProcessedTextGlyph* text, int length, Font* font,
-                       float opacity, bool outlined,
-                       bool smoothstepGlyphOpacity) {
+void Renderer::DrawProcessedTextImpl(ProcessedTextGlyph* text, int length,
+                                     Font* font, float opacity, bool outlined,
+                                     bool smoothstepGlyphOpacity) {
   switch (font->Type) {
     case FontType::Basic:
       DrawProcessedText_BasicFont(text, length, (BasicFont*)font, opacity,
@@ -297,8 +327,9 @@ void Renderer::DrawProcessedTextImpl(ProcessedTextGlyph* text, int length, Font*
 }
 
 void Renderer::DrawCharacterMvlImpl(Sprite const& sprite, glm::vec2 topLeft,
-                      int verticesCount, float* mvlVertices, int indicesCount,
-                      uint16_t* mvlIndices, bool inverted, glm::vec4 tint) {
+                                    int verticesCount, float* mvlVertices,
+                                    int indicesCount, uint16_t* mvlIndices,
+                                    bool inverted, glm::vec4 tint) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawCharacterMvl() called before BeginFrame()\n");
@@ -342,8 +373,9 @@ void Renderer::DrawCharacterMvlImpl(Sprite const& sprite, glm::vec2 topLeft,
                GL_STATIC_DRAW);
 }
 
-void Renderer::DrawSpriteImpl(Sprite const& sprite, RectF const& dest, glm::vec4 tint,
-                float angle, bool inverted, bool isScreencap) {
+void Renderer::DrawSpriteImpl(Sprite const& sprite, RectF const& dest,
+                              glm::vec4 tint, float angle, bool inverted,
+                              bool isScreencap) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawSprite() called before BeginFrame()\n");
@@ -387,9 +419,9 @@ void Renderer::DrawSpriteImpl(Sprite const& sprite, RectF const& dest, glm::vec4
 }
 
 void Renderer::DrawMaskedSpriteImpl(Sprite const& sprite, Sprite const& mask,
-                      RectF const& dest, glm::vec4 tint, int alpha,
-                      int fadeRange, bool isScreencap, bool isInverted,
-                      bool isSameTexture) {
+                                    RectF const& dest, glm::vec4 tint,
+                                    int alpha, int fadeRange, bool isScreencap,
+                                    bool isInverted, bool isSameTexture) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawMaskedSprite() called before BeginFrame()\n");
@@ -449,19 +481,9 @@ void Renderer::DrawMaskedSpriteImpl(Sprite const& sprite, Sprite const& mask,
 }
 
 void Renderer::DrawCCMessageBoxImpl(Sprite const& sprite, Sprite const& mask,
-                      glm::vec2 topLeft, glm::vec4 tint, int alpha,
-                      int fadeRange, float effectCt, bool isScreencap,
-                      glm::vec2 scale) {
-  RectF scaledDest(topLeft.x, topLeft.y,
-                   scale.x * sprite.Bounds.Width * sprite.BaseScale.x,
-                   scale.y * sprite.Bounds.Height * sprite.BaseScale.y);
-  DrawCCMessageBox(sprite, mask, scaledDest, tint, alpha, fadeRange, effectCt,
-                   isScreencap);
-}
-
-void Renderer::DrawCCMessageBoxImpl(Sprite const& sprite, Sprite const& mask,
-                      RectF const& dest, glm::vec4 tint, int alpha,
-                      int fadeRange, float effectCt, bool isScreencap) {
+                                    RectF const& dest, glm::vec4 tint,
+                                    int alpha, int fadeRange, float effectCt,
+                                    bool isScreencap) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawCCMessageBox() called before BeginFrame()\n");
@@ -521,8 +543,8 @@ void Renderer::DrawCCMessageBoxImpl(Sprite const& sprite, Sprite const& mask,
 }
 
 inline void Renderer::QuadSetUVFlipped(RectF const& spriteBounds,
-                                    float designWidth, float designHeight,
-                                    uintptr_t uvs, int stride) {
+                                       float designWidth, float designHeight,
+                                       uintptr_t uvs, int stride) {
   float topUV = (spriteBounds.Y / designHeight);
   float leftUV = (spriteBounds.X / designWidth);
   float bottomUV = ((spriteBounds.Y + spriteBounds.Height) / designHeight);
@@ -539,7 +561,7 @@ inline void Renderer::QuadSetUVFlipped(RectF const& spriteBounds,
 }
 
 inline void Renderer::QuadSetUV(RectF const& spriteBounds, float designWidth,
-                             float designHeight, uintptr_t uvs, int stride) {
+                                float designHeight, uintptr_t uvs, int stride) {
   float topUV = (spriteBounds.Y / designHeight);
   float leftUV = (spriteBounds.X / designWidth);
   float bottomUV = ((spriteBounds.Y + spriteBounds.Height) / designHeight);
@@ -556,7 +578,7 @@ inline void Renderer::QuadSetUV(RectF const& spriteBounds, float designWidth,
 }
 
 inline void Renderer::QuadSetPosition(RectF const& transformedQuad, float angle,
-                                   uintptr_t positions, int stride) {
+                                      uintptr_t positions, int stride) {
   glm::vec2 bottomLeft =
       glm::vec2(transformedQuad.X, transformedQuad.Y + transformedQuad.Height);
   glm::vec2 topLeft = glm::vec2(transformedQuad.X, transformedQuad.Y);
@@ -585,9 +607,10 @@ inline void Renderer::QuadSetPosition(RectF const& transformedQuad, float angle,
   *(glm::vec2*)(positions + 3 * stride) = DesignToNDC(bottomRight);
 }
 
-void Renderer::QuadSetPosition3DRotated(RectF const& transformedQuad, float depth,
-                              glm::vec2 vanishingPoint, bool stayInScreen,
-                              glm::quat rot, uintptr_t positions, int stride) {
+void Renderer::QuadSetPosition3DRotated(RectF const& transformedQuad,
+                                        float depth, glm::vec2 vanishingPoint,
+                                        bool stayInScreen, glm::quat rot,
+                                        uintptr_t positions, int stride) {
   float widthNormalized = transformedQuad.Width / (Profile::DesignWidth * 0.5f);
   float heightNormalized =
       transformedQuad.Height / (Profile::DesignHeight * 0.5f);
@@ -689,15 +712,9 @@ void Renderer::Flush() {
   VertexBufferFill = 0;
 }
 
-void Renderer::DrawVideoTextureImpl(YUVFrame const& tex, glm::vec2 topLeft, glm::vec4 tint,
-                      glm::vec2 scale, float angle, bool alphaVideo) {
-  RectF scaledDest(topLeft.x, topLeft.y, scale.x * tex.Width,
-                   scale.y * tex.Height);
-  DrawVideoTexture(tex, scaledDest, tint, angle, alphaVideo);
-}
-
-void Renderer::DrawVideoTextureImpl(YUVFrame const& tex, RectF const& dest, glm::vec4 tint,
-                      float angle, bool alphaVideo) {
+void Renderer::DrawVideoTextureImpl(YUVFrame* tex, RectF const& dest,
+                                    glm::vec4 tint, float angle,
+                                    bool alphaVideo) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawVideoTexture() called before BeginFrame()\n");
@@ -719,16 +736,16 @@ void Renderer::DrawVideoTextureImpl(YUVFrame const& tex, RectF const& dest, glm:
 
   // Luma
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, tex.LumaId);
+  glBindTexture(GL_TEXTURE_2D, tex->LumaId);
 
   // Cb
   glActiveTexture(GL_TEXTURE2);
-  glBindTexture(GL_TEXTURE_2D, tex.CbId);
+  glBindTexture(GL_TEXTURE_2D, tex->CbId);
   glBindSampler(2, Sampler);
 
   // Cr
   glActiveTexture(GL_TEXTURE4);
-  glBindTexture(GL_TEXTURE_2D, tex.CrId);
+  glBindTexture(GL_TEXTURE_2D, tex->CrId);
   glBindSampler(4, Sampler);
 
   // OK, all good, make quad
@@ -739,7 +756,7 @@ void Renderer::DrawVideoTextureImpl(YUVFrame const& tex, RectF const& dest, glm:
 
   IndexBufferFill += 6;
 
-  QuadSetUV(RectF(0.0f, 0.0f, tex.Width, tex.Height), tex.Width, tex.Height,
+  QuadSetUV(RectF(0.0f, 0.0f, tex->Width, tex->Height), tex->Width, tex->Height,
             (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
   QuadSetPosition(dest, angle, (uintptr_t)&vertices[0].Position,
                   sizeof(VertexBufferSprites));
@@ -776,5 +793,5 @@ void Renderer::DisableScissorImpl() {
   glDisable(GL_SCISSOR_TEST);
 }
 
-} // OpenGL
-} // Impacto
+}  // namespace OpenGL
+}  // namespace Impacto

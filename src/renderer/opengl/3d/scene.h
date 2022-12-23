@@ -5,6 +5,7 @@
 #include "../../3d/scene.h"
 #include "../shader.h"
 #include "../window.h"
+#include "../renderer.h"
 
 namespace Impacto {
 namespace OpenGL {

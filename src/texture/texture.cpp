@@ -6,6 +6,8 @@
 
 #include "../log.h"
 
+#include "../renderer/renderer.h"
+
 #include "plainloader.h"
 
 namespace Impacto {
@@ -109,35 +111,7 @@ void Texture::LoadPoliticalCompass() {
 uint32_t Texture::Submit() {
   ImpLog(LL_Debug, LC_Render, "Submitting texture\n");
 
-  uint32_t result;
-  glGenTextures(1, &result);
-  glBindTexture(GL_TEXTURE_2D, result);
-
-  // Anisotropic filtering
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                  GL_LINEAR_MIPMAP_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16);
-
-  // Load in data
-  GLuint texFormat;
-  switch (Format) {
-    case TexFmt_RGBA:
-      texFormat = GL_RGBA;
-      break;
-    case TexFmt_RGB:
-      texFormat = GL_RGB;
-      break;
-    case TexFmt_U8:
-      texFormat = GL_RED;
-  }
-  glTexImage2D(GL_TEXTURE_2D, 0, texFormat, Width, Height, 0, texFormat,
-               GL_UNSIGNED_BYTE, Buffer);
-
-  // Build mip chain
-  // TODO do this ourselves outside of Submit(), this can easily cause a
-  // framedrop
-  glGenerateMipmap(GL_TEXTURE_2D);
+  uint32_t result = Renderer->SubmitTexture(Format, Buffer, Width, Height);
 
   // TODO I meant to do this elsewhere but we gotta do it somewhere
   free(Buffer);

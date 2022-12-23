@@ -1,6 +1,6 @@
 #pragma once
 
-#include "impacto.h"
+#include "../../impacto.h"
 
 namespace Impacto {
 namespace GLC {

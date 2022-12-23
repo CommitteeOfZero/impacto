@@ -5,10 +5,19 @@
 
 namespace Impacto {
 
-class IWindow {
+enum GraphicsApi {
+  GfxApi_GL,
+  // Forces the use of a GLES driver (e.g. ANGLE on Windows)
+  GfxApi_ForceNativeGLES,
+  // Forces GLES context on desktop GL driver
+  GfxApi_ForceDesktopGLES
+};
+
+class BaseWindow {
  public:
   virtual void Init() = 0;
-  virtual void SetDimensions(int width, int height, int msaa, float renderScale) = 0;
+  virtual void SetDimensions(int width, int height, int msaa,
+                             float renderScale) = 0;
   // Aspect ratio corrected viewport in window coordinates
   virtual RectF GetViewport() = 0;
   // Aspect ratio corrected viewport in window coordinates scaled by RenderScale
@@ -37,8 +46,9 @@ class IWindow {
 
   bool WindowDimensionsChanged;
 
- private:
+ protected:
   virtual void UpdateDimensions() = 0;
+  bool IsInit = false;
 };
 
-}
+}  // namespace Impacto

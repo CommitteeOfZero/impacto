@@ -147,7 +147,7 @@ void Configure() {
       auto const& _pair = TopVal();
       if (_pair.Size() != 2) {
         ImpLog(LL_Fatal, LC_Profile, "Expected two colors\n");
-        Renderer->Window->Shutdown();
+        Window->Shutdown();
       }
       ColorTable[i].TextColor = EnsureGetArrayElementUint(0);
       ColorTable[i].OutlineColor = EnsureGetArrayElementUint(1);

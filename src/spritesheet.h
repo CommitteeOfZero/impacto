@@ -12,7 +12,7 @@ struct SpriteSheet {
   float DesignWidth;
   float DesignHeight;
 
-  GLuint Texture = 0;
+  uint32_t Texture = 0;
 };
 
 // TODO replace BaseScale with scaled width/height and unscaled width/height
