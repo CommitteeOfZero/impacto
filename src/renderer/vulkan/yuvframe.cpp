@@ -65,13 +65,13 @@ void VkYUVFrame::Init(int width, int height) {
 
 void VkYUVFrame::Submit(void* luma, void* cb, void* cr) {
   int cbOffset = Width * Height;
-  int crOffset = (Width * Height) + ((Width / 2) + (Height / 2));
+  int crOffset = (Width * Height) + ((Width / 2) * (Height / 2));
 
   uint8_t* mappedStagingBuffer = (uint8_t*)MappedStagingBuffer;
 
   memcpy(mappedStagingBuffer, luma, cbOffset);
-  memcpy(mappedStagingBuffer + cbOffset, cb, (Width / 2) + (Height / 2));
-  memcpy(mappedStagingBuffer + crOffset, cr, (Width / 2) + (Height / 2));
+  memcpy(mappedStagingBuffer + cbOffset, cb, (Width / 2) * (Height / 2));
+  memcpy(mappedStagingBuffer + crOffset, cr, (Width / 2) * (Height / 2));
 
   ImmediateSubmit([&](VkCommandBuffer cmd) {
     VkExtent3D lumaImageExtent;

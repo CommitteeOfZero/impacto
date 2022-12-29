@@ -1250,6 +1250,12 @@ void Renderer::DrawVideoTextureImpl(YUVFrame* tex, RectF const& dest,
       CommandBuffers[CurrentFrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
       PipelineYUVFrame->PipelineLayout, 0, 1, &writeDescriptorSet);
 
+  SpritePushConstants constants = {};
+  constants.IsInverted = alphaVideo;
+  vkCmdPushConstants(
+      CommandBuffers[CurrentFrameIndex], CurrentPipeline->PipelineLayout,
+      VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SpritePushConstants), &constants);
+
   // OK, all good, make quad
 
   VertexBufferSprites* vertices =
