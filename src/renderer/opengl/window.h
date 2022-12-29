@@ -9,7 +9,7 @@ class GLWindow : public BaseWindow {
  public:
   void Init() override;
   void SetDimensions(int width, int height, int msaa,
-                             float renderScale) override;
+                     float renderScale) override;
   RectF GetViewport() override;
   RectF GetScaledViewport() override;
   void AdjustEventCoordinatesForNk(SDL_Event* ev) override;
@@ -34,12 +34,7 @@ class GLWindow : public BaseWindow {
 
   bool GLDebug = false;
   GLuint drawRenderTexture = 0;
-
-  int lastWidth = -1;
-  int lastHeight = -1;
-  int lastMsaa = 0;
-  float lastRenderScale = 1.0f;
 };
 
-} // OpenGL
-} // Impacto
+}  // namespace OpenGL
+}  // namespace Impacto

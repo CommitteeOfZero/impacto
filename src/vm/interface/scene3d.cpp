@@ -54,19 +54,19 @@ static void UpdateRenderableRot(int charId) {
         glm::vec3 lookat = LookAtEulerZYX(object, target);
         lookat.x = 0.0f;
 
-        Renderer->Scene->Renderables[charId].ModelTransform.SetRotationFromEuler(
-            lookat);
+        Renderer->Scene->Renderables[charId]
+            ->ModelTransform.SetRotationFromEuler(lookat);
 
         ScrWorkSetAngle(30 * charId + SW_MDL1ROTY, lookat.y);
       } else {
-        Renderer->Scene->Renderables[charId].ModelTransform.SetRotationFromEuler(
-            ScrWorkGetAngleVec3(30 * charId + SW_MDL1ROTX,
-                                30 * charId + SW_MDL1ROTY,
-                                30 * charId + SW_MDL1ROTZ));
+        Renderer->Scene->Renderables[charId]
+            ->ModelTransform.SetRotationFromEuler(ScrWorkGetAngleVec3(
+                30 * charId + SW_MDL1ROTX, 30 * charId + SW_MDL1ROTY,
+                30 * charId + SW_MDL1ROTZ));
       }
     } break;
     case InstructionSet::Dash: {
-      Renderer->Scene->Renderables[charId].ModelTransform.SetRotationFromEuler(
+      Renderer->Scene->Renderables[charId]->ModelTransform.SetRotationFromEuler(
           ScrWorkGetAngleVec3(30 * charId + SW_MDL1ROTX,
                               30 * charId + SW_MDL1ROTY,
                               30 * charId + SW_MDL1ROTZ));
@@ -75,20 +75,20 @@ static void UpdateRenderableRot(int charId) {
 }
 
 static void UpdateRenderablePos(int charId) {
-  Renderer->Scene->Renderables[charId].ModelTransform.Position =
+  Renderer->Scene->Renderables[charId]->ModelTransform.Position =
       ScrWorkGetVec3(30 * charId + SW_MDL1POSX, 30 * charId + SW_MDL1POSY,
                      30 * charId + SW_MDL1POSZ);
 }
 
 static void UpdateRenderables() {
-  for (int i = 0; i <= 8; i++) {
-    if (Renderer->Scene->Renderables[i].Status == LS_Loaded) {
+  for (int i = 0; i < Profile::Scene3D::MaxRenderables; i++) {
+    if (Renderer->Scene->Renderables[i]->Status == LS_Loaded) {
       UpdateRenderableRot(i);
       UpdateRenderablePos(i);
       if (GetFlag(SF_IRUOENABLE) && GetFlag(SF_Pokecon_Open)) {
-        Renderer->Scene->Renderables[i].IsVisible = GetFlag(SF_MDL1SHDISP + i);
+        Renderer->Scene->Renderables[i]->IsVisible = GetFlag(SF_MDL1SHDISP + i);
       } else {
-        Renderer->Scene->Renderables[i].IsVisible = GetFlag(SF_MDL1DISP + i);
+        Renderer->Scene->Renderables[i]->IsVisible = GetFlag(SF_MDL1DISP + i);
       }
     }
   }
@@ -166,8 +166,8 @@ static void UpdateCamera() {
   Renderer->Scene->MainCamera.CameraTransform.SetRotationFromEuler(lookatCam);
   // Update fov
   Renderer->Scene->MainCamera.Fov =
-      2.0f *
-      atanf(tanf(hFovRad / 2.0f) * (1.0f / Renderer->Scene->MainCamera.AspectRatio));
+      2.0f * atanf(tanf(hFovRad / 2.0f) *
+                   (1.0f / Renderer->Scene->MainCamera.AspectRatio));
 
   // Update lighting
   switch (Profile::Vm::GameInstructionSet) {

@@ -23,7 +23,10 @@ void Scene3D::Init() {
 
   Profile::Scene3D::Configure();
 
-  Renderables = new Renderable3D[Profile::Scene3D::MaxRenderables];
+  Renderables = new IRenderable3D*[Profile::Scene3D::MaxRenderables];
+  for (int i = 0; i < Profile::Scene3D::MaxRenderables; i++) {
+    Renderables[i] = new Renderable3D();
+  }
 
   Renderable3D::Init(Window, Shaders);
 
@@ -48,7 +51,7 @@ void Scene3D::Init() {
   // Position
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
   glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float),
-                        (void *)(2 * sizeof(float)));
+                        (void*)(2 * sizeof(float)));
   glEnableVertexAttribArray(0);
   glEnableVertexAttribArray(1);
 }
@@ -64,8 +67,8 @@ void Scene3D::Shutdown() {
 
 void Scene3D::Update(float dt) {
   for (int i = 0; i < Profile::Scene3D::MaxRenderables; i++) {
-    if (Renderables[i].Status == LS_Loaded) {
-      Renderables[i].Update(dt);
+    if (Renderables[i]->Status == LS_Loaded) {
+      Renderables[i]->Update(dt);
     }
   }
 }
@@ -77,9 +80,9 @@ void Scene3D::Render() {
   Renderable3D::BeginFrame(this, &MainCamera);
 
   for (int i = 0; i < Profile::Scene3D::MaxRenderables; i++) {
-    if (Renderables[i].Status == LS_Loaded &&
-        Renderables[i].StaticModel->Type == ModelType_Background) {
-      Renderables[i].Render();
+    if (Renderables[i]->Status == LS_Loaded &&
+        Renderables[i]->StaticModel->Type == ModelType_Background) {
+      Renderables[i]->Render();
     }
   }
 
@@ -88,9 +91,9 @@ void Scene3D::Render() {
   SetupFramebufferState();
 
   for (int i = 0; i < Profile::Scene3D::MaxRenderables; i++) {
-    if (Renderables[i].Status == LS_Loaded &&
-        Renderables[i].StaticModel->Type == ModelType_Character) {
-      Renderables[i].Render();
+    if (Renderables[i]->Status == LS_Loaded &&
+        Renderables[i]->StaticModel->Type == ModelType_Character) {
+      Renderables[i]->Render();
     }
   }
 
@@ -303,7 +306,7 @@ void Scene3D::DrawToScreen() {
       glInvalidateFramebuffer(GL_READ_FRAMEBUFFER, 2, attachments);
   }
 
-  //GLC::BindFramebuffer(GL_DRAW_FRAMEBUFFER, Window->DrawRT);
+  GLC::BindFramebuffer(GL_DRAW_FRAMEBUFFER, Window->DrawRT);
   glViewport(0, 0, viewport.Width, viewport.Height);
 
   glEnable(GL_BLEND);
@@ -340,5 +343,5 @@ MSResolveMode Scene3D::CheckMSResolveMode() {
                                    // faster, who'd've thunk..
 }
 
-}  // namespace Scene3D
+}  // namespace OpenGL
 }  // namespace Impacto

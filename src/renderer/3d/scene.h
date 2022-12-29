@@ -16,7 +16,7 @@ class IScene3D {
 
   Camera MainCamera;
 
-  IRenderable3D *Renderables;
+  IRenderable3D **Renderables;
 
   glm::vec3 LightPosition;
   glm::vec4 Tint;

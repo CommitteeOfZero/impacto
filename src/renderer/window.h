@@ -33,22 +33,27 @@ class BaseWindow {
 
   // Raw dimensions without aspect ratio correction. Only use for
   // setting/determining resolution and drawing to window framebuffer!
-  int WindowWidth;
-  int WindowHeight;
+  int WindowWidth = 0;
+  int WindowHeight = 0;
 
   // OS window dimensions * DpiScaleX/Y => WindowWidth/Height (real pixels)
   // Always 1 unless high DPI support is SDL_WINDOW_ALLOW_HIGHDPI
-  float DpiScaleX;
-  float DpiScaleY;
+  float DpiScaleX = 1.0f;
+  float DpiScaleY = 1.0f;
 
-  int MsaaCount;
-  float RenderScale;
+  int MsaaCount = 0;
+  float RenderScale = 1.0f;
 
   bool WindowDimensionsChanged;
 
  protected:
   virtual void UpdateDimensions() = 0;
   bool IsInit = false;
+
+  int lastWidth = -1;
+  int lastHeight = -1;
+  int lastMsaa = 0;
+  float lastRenderScale = 1.0f;
 };
 
 }  // namespace Impacto

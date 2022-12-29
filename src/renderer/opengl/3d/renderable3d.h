@@ -27,9 +27,9 @@ class Renderable3D : public IRenderable3D {
   void SwitchAnimation(int16_t animId, float transitionTime) override;
 
  protected:
-  bool LoadSync(uint32_t modelId);
-  void UnloadSync();
-  void MainThreadOnLoad();
+  bool LoadSync(uint32_t modelId) override;
+  void UnloadSync() override;
+  void MainThreadOnLoad() override;
 
  private:
   void Pose();
