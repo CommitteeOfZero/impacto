@@ -10,6 +10,9 @@
 namespace Impacto {
 namespace OpenGL {
 
+static int const NkMaxVertexMemory = 256 * 1024;
+static int const NkMaxElementMemory = 128 * 1024;
+
 enum Renderer2DMode {
   R2D_None,
   R2D_Sprite,
@@ -30,6 +33,10 @@ class Renderer : public BaseRenderer {
  private:
   void InitImpl() override;
   void ShutdownImpl() override;
+
+  void NuklearInitImpl() override;
+  void NuklearShutdownImpl() override;
+  int NuklearHandleEventImpl(SDL_Event* ev) override;
 
   void BeginFrameImpl() override;
   void EndFrameImpl() override;
@@ -61,18 +68,13 @@ class Renderer : public BaseRenderer {
                              glm::vec2 vanishingPoint, bool stayInScreen,
                              glm::quat rot, glm::vec4 color) override;
 
-  void DrawProcessedTextImpl(ProcessedTextGlyph* text, int length, Font* font,
-                             float opacity, bool outlined,
-                             bool smoothstepGlyphOpacity) override;
-
   void DrawCharacterMvlImpl(Sprite const& sprite, glm::vec2 topLeft,
                             int verticesCount, float* mvlVertices,
                             int indicesCount, uint16_t* mvlIndices,
                             bool inverted, glm::vec4 tint) override;
 
-  void DrawVideoTextureImpl(YUVFrame* tex, RectF const& dest,
-                            glm::vec4 tint, float angle,
-                            bool alphaVideo) override;
+  void DrawVideoTextureImpl(YUVFrame* tex, RectF const& dest, glm::vec4 tint,
+                            float angle, bool alphaVideo) override;
 
   void CaptureScreencapImpl(Sprite const& sprite) override;
 
@@ -96,19 +98,11 @@ class Renderer : public BaseRenderer {
                                        bool stayInScreen, glm::quat rot,
                                        uintptr_t positions, int stride);
 
-  void DrawProcessedText_BasicFont(ProcessedTextGlyph* text, int length,
-                                   BasicFont* font, float opacity,
-                                   bool outlined, bool smoothstepGlyphOpacity);
-  void DrawProcessedText_LBFont(ProcessedTextGlyph* text, int length,
-                                LBFont* font, float opacity, bool outlined,
-                                bool smoothstepGlyphOpacity);
-
   GLWindow* OpenGLWindow;
 
   GLuint ShaderProgramSprite;
   GLuint ShaderProgramSpriteInverted;
   GLuint ShaderProgramMaskedSprite;
-  GLuint ShaderProgramTest;
   GLuint ShaderProgramYUVFrame;
   GLuint ShaderProgramCCMessageBox;
 

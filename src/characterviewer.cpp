@@ -75,7 +75,7 @@ void Update(float dt) {
     UiMsaaCount = Window->MsaaCount;
   }
 
-  if (nk_begin(Nk, "Scene", nk_rect(20, 20, 300, Window->WindowHeight - 40),
+  if (nk_begin(Renderer->Nk, "Scene", nk_rect(20, 20, 300, Window->WindowHeight - 40),
                NK_WINDOW_BORDER | NK_WINDOW_TITLE)) {
     // FPS counter
     Frames++;
@@ -87,33 +87,33 @@ void Update(float dt) {
       Frames = 0;
     }
 
-    nk_layout_row_dynamic(Nk, 24, 1);
+    nk_layout_row_dynamic(Renderer->Nk, 24, 1);
     char buffer[32];  // whatever
     snprintf(buffer, 32, "FPS: %02.2f", FPS);
-    nk_label(Nk, buffer, NK_TEXT_ALIGN_CENTERED);
+    nk_label(Renderer->Nk, buffer, NK_TEXT_ALIGN_CENTERED);
 
-    if (nk_tree_push(Nk, NK_TREE_TAB, "Window", NK_MINIMIZED)) {
-      nk_layout_row_dynamic(Nk, 24, 1);
+    if (nk_tree_push(Renderer->Nk, NK_TREE_TAB, "Window", NK_MINIMIZED)) {
+      nk_layout_row_dynamic(Renderer->Nk, 24, 1);
 
-      nk_property_int(Nk, "Width", 0, &UiWindowWidth, 8192, 0, 0.0f);
-      nk_property_int(Nk, "Height", 0, &UiWindowHeight, 8192, 0, 0.0f);
-      nk_property_int(Nk, "MSAA", 0, &UiMsaaCount, 16, 0, 0);
+      nk_property_int(Renderer->Nk, "Width", 0, &UiWindowWidth, 8192, 0, 0.0f);
+      nk_property_int(Renderer->Nk, "Height", 0, &UiWindowHeight, 8192, 0, 0.0f);
+      nk_property_int(Renderer->Nk, "MSAA", 0, &UiMsaaCount, 16, 0, 0);
 
-      if (nk_button_label(Nk, "Resize")) {
+      if (nk_button_label(Renderer->Nk, "Resize")) {
         Window->SetDimensions(UiWindowWidth, UiWindowHeight, UiMsaaCount,
                               Window->RenderScale);
       }
 
-      nk_tree_pop(Nk);
+      nk_tree_pop(Renderer->Nk);
     }
 
-    if (nk_tree_push(Nk, NK_TREE_TAB, "Background", NK_MAXIMIZED)) {
-      nk_layout_row_dynamic(Nk, 24, 1);
+    if (nk_tree_push(Renderer->Nk, NK_TREE_TAB, "Background", NK_MAXIMIZED)) {
+      nk_layout_row_dynamic(Renderer->Nk, 24, 1);
 
       int LastBackground = CurrentBackground;
 
       CurrentBackground =
-          nk_combo(Nk, (const char**)BackgroundNames, BackgroundCount,
+          nk_combo(Renderer->Nk, (const char**)BackgroundNames, BackgroundCount,
                    CurrentBackground, 24, nk_vec2(200, 200));
 
       if (LastBackground != CurrentBackground ||
@@ -121,16 +121,16 @@ void Update(float dt) {
         Backgrounds2D[0]->LoadAsync(BackgroundIds[CurrentBackground]);
       }
 
-      nk_tree_pop(Nk);
+      nk_tree_pop(Renderer->Nk);
     }
 
-    if (nk_tree_push(Nk, NK_TREE_TAB, "Character", NK_MAXIMIZED)) {
-      nk_layout_row_dynamic(Nk, 24, 1);
+    if (nk_tree_push(Renderer->Nk, NK_TREE_TAB, "Character", NK_MAXIMIZED)) {
+      nk_layout_row_dynamic(Renderer->Nk, 24, 1);
 
       int LastCharacter = CurrentCharacter;
 
       CurrentCharacter =
-          nk_combo(Nk, (const char**)CharacterNames, CharacterCount,
+          nk_combo(Renderer->Nk, (const char**)CharacterNames, CharacterCount,
                    CurrentCharacter, 24, nk_vec2(200, 200));
 
       if (LastCharacter != CurrentCharacter ||
@@ -139,51 +139,51 @@ void Update(float dt) {
       }
       if (Characters2D[0].Status == LS_Loaded) Characters2D[0].Show = true;
 
-      nk_property_int(Nk, "Character X", -10000, &Characters2D[0].OffsetX,
+      nk_property_int(Renderer->Nk, "Character X", -10000, &Characters2D[0].OffsetX,
                       10000, 1, 5.0f);
-      nk_property_int(Nk, "Character Y", -10000, &Characters2D[0].OffsetY,
+      nk_property_int(Renderer->Nk, "Character Y", -10000, &Characters2D[0].OffsetY,
                       10000, 1, 5.0f);
 
       Characters2D[0].Face >>= 16;
-      nk_property_int(Nk, "Character Face", 1, &Characters2D[0].Face, 20, 1,
+      nk_property_int(Renderer->Nk, "Character Face", 1, &Characters2D[0].Face, 20, 1,
                       1.0f);
       Characters2D[0].Face <<= 16;
 
-      nk_property_int(Nk, "Character Eye", 0, &Characters2D[0].EyeFrame, 10, 1,
+      nk_property_int(Renderer->Nk, "Character Eye", 0, &Characters2D[0].EyeFrame, 10, 1,
                       1.0f);
 
-      nk_property_int(Nk, "Character Lip", 0, &Characters2D[0].LipFrame, 10, 1,
+      nk_property_int(Renderer->Nk, "Character Lip", 0, &Characters2D[0].LipFrame, 10, 1,
                       1.0f);
 
-      nk_tree_pop(Nk);
+      nk_tree_pop(Renderer->Nk);
     }
 
-    if (nk_tree_push(Nk, NK_TREE_TAB, "BGM", NK_MAXIMIZED)) {
-      nk_layout_row_dynamic(Nk, 24, 1);
+    if (nk_tree_push(Renderer->Nk, NK_TREE_TAB, "BGM", NK_MAXIMIZED)) {
+      nk_layout_row_dynamic(Renderer->Nk, 24, 1);
 
-      CurrentBgm = nk_combo(Nk, (const char**)BgmNames, BgmCount, CurrentBgm,
+      CurrentBgm = nk_combo(Renderer->Nk, (const char**)BgmNames, BgmCount, CurrentBgm,
                             24, nk_vec2(200, 200));
-      nk_checkbox_label(Nk, "Loop (takes effect on switch)", &BgmLoop);
-      if (nk_button_label(Nk, "Switch")) {
+      nk_checkbox_label(Renderer->Nk, "Loop (takes effect on switch)", &BgmLoop);
+      if (nk_button_label(Renderer->Nk, "Switch")) {
         BgmChangeQueued = true;
         Audio::Channels[Audio::AC_BGM0].Stop(BgmFadeOut);
       }
 
-      nk_property_float(Nk, "Master volume", 0.0f, &Audio::MasterVolume, 1.0f,
+      nk_property_float(Renderer->Nk, "Master volume", 0.0f, &Audio::MasterVolume, 1.0f,
                         0.01f, 0.01f);
-      nk_property_float(Nk, "BGM volume", 0.0f,
+      nk_property_float(Renderer->Nk, "BGM volume", 0.0f,
                         &Audio::GroupVolumes[Audio::ACG_BGM], 1.0f, 0.01f,
                         0.01f);
 
-      nk_property_float(Nk, "Fade out duration", 0.0f, &BgmFadeOut, 5.0f, 0.1f,
+      nk_property_float(Renderer->Nk, "Fade out duration", 0.0f, &BgmFadeOut, 5.0f, 0.1f,
                         0.02f);
-      nk_property_float(Nk, "Fade in duration", 0.0f, &BgmFadeIn, 5.0f, 0.1f,
+      nk_property_float(Renderer->Nk, "Fade in duration", 0.0f, &BgmFadeIn, 5.0f, 0.1f,
                         0.02f);
 
-      nk_tree_pop(Nk);
+      nk_tree_pop(Renderer->Nk);
     }
   }
-  nk_end(Nk);
+  nk_end(Renderer->Nk);
 
   if (BgmChangeQueued &&
       Audio::Channels[Audio::AC_BGM0].State == Audio::ACS_Stopped) {

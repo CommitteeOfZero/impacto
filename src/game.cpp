@@ -1,6 +1,5 @@
 #include "game.h"
 
-#include "../vendor/nuklear/nuklear_sdl_gl3.h"
 #include "workqueue.h"
 #include "modelviewer.h"
 #include "characterviewer.h"
@@ -51,11 +50,6 @@ namespace Impacto {
 
 using namespace Profile::ScriptVars;
 
-static int const NkMaxVertexMemory = 256 * 1024;
-static int const NkMaxElementMemory = 128 * 1024;
-
-nk_context* Nk = 0;
-
 namespace Game {
 uint8_t DrawComponents[Vm::MaxThreads];
 
@@ -73,12 +67,9 @@ static void Init() {
 
   memset(DrawComponents, DrawComponentType::None, sizeof(DrawComponents));
 
-  if (Profile::GameFeatures & GameFeature::Nuklear) {
-    Nk = nk_sdl_init(Window->SDLWindow, NkMaxVertexMemory, NkMaxElementMemory);
-    struct nk_font_atlas* atlas;
-    nk_sdl_font_stash_begin(&atlas);
-    // no fonts => default font used, but we still have do the setup
-    nk_sdl_font_stash_end();
+  if ((Profile::GameFeatures & GameFeature::Nuklear) &&
+      Renderer->NuklearSupported) {
+    Renderer->NuklearInit();
   }
 
   if (Profile::GameFeatures & GameFeature::Audio) {
@@ -150,12 +141,13 @@ void Shutdown() {
     Video::VideoShutdown();
   }
 
-  if (Profile::GameFeatures & GameFeature::Renderer2D) {
-    Renderer->Shutdown();
+  if ((Profile::GameFeatures & GameFeature::Nuklear) &&
+      Renderer->NuklearSupported) {
+    Renderer->NuklearShutdown();
   }
 
-  if (Profile::GameFeatures & GameFeature::Nuklear) {
-    nk_sdl_shutdown();
+  if (Profile::GameFeatures & GameFeature::Renderer2D) {
+    Renderer->Shutdown();
   }
 
   Window->Shutdown();
@@ -171,8 +163,9 @@ void UpdateGameState(float dt) {
 
 void Update(float dt) {
   SDL_Event e;
-  if (Profile::GameFeatures & GameFeature::Nuklear) {
-    nk_input_begin(Nk);
+  if ((Profile::GameFeatures & GameFeature::Nuklear) &&
+      Renderer->NuklearSupported) {
+    nk_input_begin(Renderer->Nk);
   }
   if (Profile::GameFeatures & GameFeature::Input) {
     Input::BeginFrame();
@@ -182,11 +175,9 @@ void Update(float dt) {
       ShouldQuit = true;
     }
 
-    if (Profile::GameFeatures & GameFeature::Nuklear) {
-      SDL_Event e_nk;
-      memcpy(&e_nk, &e, sizeof(SDL_Event));
-      Window->AdjustEventCoordinatesForNk(&e_nk);
-      if (nk_sdl_handle_event(&e_nk)) continue;
+    if ((Profile::GameFeatures & GameFeature::Nuklear) &&
+        Renderer->NuklearSupported) {
+      if (Renderer->NuklearHandleEvent(&e)) continue;
     }
 
     if (Profile::GameFeatures & GameFeature::Input) {
@@ -198,8 +189,9 @@ void Update(float dt) {
   if (Profile::GameFeatures & GameFeature::Input) {
     Input::EndFrame();
   }
-  if (Profile::GameFeatures & GameFeature::Nuklear) {
-    nk_input_end(Nk);
+  if ((Profile::GameFeatures & GameFeature::Nuklear) &&
+      Renderer->NuklearSupported) {
+    nk_input_end(Renderer->Nk);
   }
 
   if (Profile::GameFeatures & GameFeature::ModelViewer) {
@@ -284,58 +276,61 @@ void Render() {
       Frames = 0;
     }
 
-    if (DebugWindowEnabled) {
-      if (nk_begin(Nk, "Debug Editor",
+    if (DebugWindowEnabled && Renderer->NuklearSupported) {
+      if (nk_begin(Renderer->Nk, "Debug Editor",
                    nk_rect(20, 20, 300, Window->WindowHeight - 40),
                    NK_WINDOW_BORDER | NK_WINDOW_TITLE)) {
-        nk_layout_row_dynamic(Nk, 24, 1);
+        nk_layout_row_dynamic(Renderer->Nk, 24, 1);
         char buffer[32];  // whatever
         snprintf(buffer, 32, "FPS: %02.2f", FPS);
-        nk_label(Nk, buffer, NK_TEXT_ALIGN_CENTERED);
+        nk_label(Renderer->Nk, buffer, NK_TEXT_ALIGN_CENTERED);
 
-        nk_property_int(Nk, "ScrWork start index", 0, &ScrWorkIndexStart, 8000,
-                        1, 1.0f);
-        nk_property_int(Nk, "ScrWork end index", 0, &ScrWorkIndexEnd, 8000, 1,
-                        1.0f);
+        nk_property_int(Renderer->Nk, "ScrWork start index", 0,
+                        &ScrWorkIndexStart, 8000, 1, 1.0f);
+        nk_property_int(Renderer->Nk, "ScrWork end index", 0, &ScrWorkIndexEnd,
+                        8000, 1, 1.0f);
 
         if (ScrWorkIndexEnd < ScrWorkIndexStart)
           ScrWorkIndexEnd = ScrWorkIndexStart;
 
-        nk_property_int(Nk, "FlagWork start index", 0, &FlagWorkIndexStart,
-                        7000, 1, 0.0f);
-        nk_property_int(Nk, "FlagWork end index", 0, &FlagWorkIndexEnd, 7000, 1,
-                        0.0f);
+        nk_property_int(Renderer->Nk, "FlagWork start index", 0,
+                        &FlagWorkIndexStart, 7000, 1, 0.0f);
+        nk_property_int(Renderer->Nk, "FlagWork end index", 0,
+                        &FlagWorkIndexEnd, 7000, 1, 0.0f);
 
         if (FlagWorkIndexEnd < FlagWorkIndexStart)
           FlagWorkIndexEnd = FlagWorkIndexStart;
 
-        if (nk_tree_push(Nk, NK_TREE_TAB, "ScrWork Editor", NK_MINIMIZED)) {
-          nk_layout_row_dynamic(Nk, 24, 1);
+        if (nk_tree_push(Renderer->Nk, NK_TREE_TAB, "ScrWork Editor",
+                         NK_MINIMIZED)) {
+          nk_layout_row_dynamic(Renderer->Nk, 24, 1);
 
           for (int i = ScrWorkIndexStart; i <= ScrWorkIndexEnd; i++) {
             char buf[32];
             snprintf(buf, 32, "ScrWork[%d]", i);
-            nk_property_int(Nk, buf, INT_MIN, &ScrWork[i], INT_MAX, 1, 50.0f);
+            nk_property_int(Renderer->Nk, buf, INT_MIN, &ScrWork[i], INT_MAX, 1,
+                            50.0f);
           }
 
-          nk_tree_pop(Nk);
+          nk_tree_pop(Renderer->Nk);
         }
 
-        if (nk_tree_push(Nk, NK_TREE_TAB, "FlagWork Editor", NK_MINIMIZED)) {
-          nk_layout_row_dynamic(Nk, 24, 1);
+        if (nk_tree_push(Renderer->Nk, NK_TREE_TAB, "FlagWork Editor",
+                         NK_MINIMIZED)) {
+          nk_layout_row_dynamic(Renderer->Nk, 24, 1);
 
           for (int i = FlagWorkIndexStart; i <= FlagWorkIndexEnd; i++) {
             char buf[32];
             snprintf(buf, 32, "GetFlag(%d)", i);
             int flagVal = (int)GetFlag(i);
-            nk_checkbox_label(Nk, buf, &flagVal);
+            nk_checkbox_label(Renderer->Nk, buf, &flagVal);
             SetFlag(i, (bool)flagVal);
           }
 
-          nk_tree_pop(Nk);
+          nk_tree_pop(Renderer->Nk);
         }
       }
-      nk_end(Nk);
+      nk_end(Renderer->Nk);
     }
   }
 

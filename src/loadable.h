@@ -4,6 +4,9 @@
 
 namespace Impacto {
 
+// If you're looking for IRenderable3D loading, it's inside that class itself...
+// I'm so sorry
+
 enum LoadStatus { LS_Unloaded, LS_Loading, LS_Loaded };
 
 template <typename T>
@@ -31,7 +34,7 @@ class Loadable {
   }
 
  protected:
-  void LoadSync(uint32_t id);
+  bool LoadSync(uint32_t id);
   void UnloadSync();
   void MainThreadOnLoad();
 

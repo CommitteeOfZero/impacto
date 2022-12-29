@@ -17,6 +17,10 @@ class BaseRenderer {
   void Init();
   void Shutdown();
 
+  void NuklearInit();
+  void NuklearShutdown();
+  int NuklearHandleEvent(SDL_Event* ev);
+
   void BeginFrame();
   void EndFrame();
 
@@ -61,6 +65,12 @@ class BaseRenderer {
                          glm::vec2 vanishingPoint, bool stayInScreen,
                          glm::quat rot, glm::vec4 color);
 
+  void DrawProcessedText_BasicFont(ProcessedTextGlyph* text, int length,
+                                   BasicFont* font, float opacity,
+                                   bool outlined, bool smoothstepGlyphOpacity);
+  void DrawProcessedText_LBFont(ProcessedTextGlyph* text, int length,
+                                LBFont* font, float opacity, bool outlined,
+                                bool smoothstepGlyphOpacity);
   void DrawProcessedText(ProcessedTextGlyph* text, int length, Font* font,
                          float opacity = 1.0f, bool outlined = false,
                          bool smoothstepGlyphOpacity = true);
@@ -86,11 +96,18 @@ class BaseRenderer {
 
   bool IsInit = false;
 
+  bool NuklearSupported = false;
+  nk_context* Nk = 0;
+
   IScene3D* Scene = 0;
 
  private:
   virtual void InitImpl() = 0;
   virtual void ShutdownImpl() = 0;
+
+  virtual void NuklearInitImpl() = 0;
+  virtual void NuklearShutdownImpl() = 0;
+  virtual int NuklearHandleEventImpl(SDL_Event* ev) = 0;
 
   virtual void BeginFrameImpl() = 0;
   virtual void EndFrameImpl() = 0;
@@ -125,10 +142,6 @@ class BaseRenderer {
                                      glm::vec2 vanishingPoint,
                                      bool stayInScreen, glm::quat rot,
                                      glm::vec4 color) = 0;
-
-  virtual void DrawProcessedTextImpl(ProcessedTextGlyph* text, int length,
-                                     Font* font, float opacity, bool outlined,
-                                     bool smoothstepGlyphOpacity) = 0;
 
   virtual void DrawCharacterMvlImpl(Sprite const& sprite, glm::vec2 topLeft,
                                     int verticesCount, float* mvlVertices,

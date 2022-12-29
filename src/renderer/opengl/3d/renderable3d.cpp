@@ -73,8 +73,10 @@ void Renderable3D::Init(GLWindow* window, ShaderCompiler* shaderCompiler) {
   int isDaSH = (int)(Profile::Scene3D::Version == +LKMVersion::DaSH);
   shaderParams["DASH"] = ShaderParameter(isDaSH, true);
 
-  ShaderProgram = shaderCompiler->Compile("Renderable3D_Character", shaderParams);
-  ShaderProgramOutline = shaderCompiler->Compile("Renderable3D_Outline", shaderParams);
+  ShaderProgram =
+      shaderCompiler->Compile("Renderable3D_Character", shaderParams);
+  ShaderProgramOutline =
+      shaderCompiler->Compile("Renderable3D_Outline", shaderParams);
   ShaderProgramEye = shaderCompiler->Compile("Renderable3D_Eye", shaderParams);
 
   ShaderProgramBackground =
@@ -201,8 +203,7 @@ void Renderable3D::BeginFrame(IScene3D* scene, Camera* camera) {
   memcpy(SceneUniformBuffer + SceneUniformOffsets[SU_Tint],
          glm::value_ptr(scene->Tint), sizeof(scene->Tint));
   memcpy(SceneUniformBuffer + SceneUniformOffsets[SU_WorldLightPosition],
-         glm::value_ptr(scene->LightPosition),
-         sizeof(scene->LightPosition));
+         glm::value_ptr(scene->LightPosition), sizeof(scene->LightPosition));
   memcpy(SceneUniformBuffer + SceneUniformOffsets[SU_WorldEyePosition],
          glm::value_ptr(camera->CameraTransform.Position),
          sizeof(camera->CameraTransform.Position));
