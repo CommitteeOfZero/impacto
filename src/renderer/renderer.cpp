@@ -1,6 +1,7 @@
 #include "renderer.h"
 
 #include "opengl/renderer.h"
+#include "vulkan/renderer.h"
 
 namespace Impacto {
 
@@ -11,7 +12,7 @@ GraphicsApi GraphicsApiHint;
 GraphicsApi ActualGraphicsApi;
 
 void InitRenderer() {
-  Renderer = new OpenGL::Renderer();
+  Renderer = new Vulkan::Renderer();
   Renderer->Init();
 }
 

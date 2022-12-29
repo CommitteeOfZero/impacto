@@ -1,0 +1,271 @@
+#pragma once
+
+#include <vulkan/vulkan.h>
+#include <map>
+#include <array>
+
+#include "../../vendor/vma/vk_mem_alloc.h"
+
+#include "../renderer.h"
+#include "window.h"
+#include "pipeline.h"
+
+namespace Impacto {
+namespace Vulkan {
+
+const std::vector<const char*> validationLayers = {
+    "VK_LAYER_KHRONOS_validation"};
+
+#ifdef NDEBUG
+const bool EnableValidationLayers = false;
+#else
+const bool EnableValidationLayers = true;
+#endif
+
+int const MAX_FRAMES_IN_FLIGHT = 2;
+
+struct AllocatedBuffer {
+  VkBuffer Buffer;
+  VmaAllocation Allocation;
+};
+
+struct AllocatedImage {
+  VkImage Image;
+  VmaAllocation Allocation;
+};
+
+struct VkTexture {
+  AllocatedImage Image;
+  VkImageView ImageView;
+  VkDescriptorSet Descriptor;
+};
+
+struct UploadContext {
+  VkFence UploadFence;
+  VkCommandPool CommandPool;
+  VkCommandBuffer CommandBuffer;
+};
+
+struct SpritePushConstants {
+  VkBool32 IsInverted;
+  VkBool32 IsSameTexture;
+  glm::vec2 Alpha;
+};
+
+struct VertexBufferSprites {
+  glm::vec2 Position;
+  glm::vec2 UV;
+  glm::vec4 Tint;
+  glm::vec2 MaskUV;
+
+  static VkVertexInputBindingDescription getBindingDescription() {
+    VkVertexInputBindingDescription bindingDescription{};
+    bindingDescription.binding = 0;
+    bindingDescription.stride = sizeof(VertexBufferSprites);
+    bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+    return bindingDescription;
+  }
+
+  static std::array<VkVertexInputAttributeDescription, 4>
+  getAttributeDescriptions() {
+    std::array<VkVertexInputAttributeDescription, 4> attributeDescriptions{};
+
+    attributeDescriptions[0].binding = 0;
+    attributeDescriptions[0].location = 0;
+    attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+    attributeDescriptions[0].offset = offsetof(VertexBufferSprites, Position);
+
+    attributeDescriptions[1].binding = 0;
+    attributeDescriptions[1].location = 1;
+    attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
+    attributeDescriptions[1].offset = offsetof(VertexBufferSprites, UV);
+
+    attributeDescriptions[2].binding = 0;
+    attributeDescriptions[2].location = 2;
+    attributeDescriptions[2].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+    attributeDescriptions[2].offset = offsetof(VertexBufferSprites, Tint);
+
+    attributeDescriptions[3].binding = 0;
+    attributeDescriptions[3].location = 3;
+    attributeDescriptions[3].format = VK_FORMAT_R32G32_SFLOAT;
+    attributeDescriptions[3].offset = offsetof(VertexBufferSprites, MaskUV);
+
+    return attributeDescriptions;
+  }
+};
+
+struct VkQueueFamilies {
+  uint32_t GraphicsQueueIdx;
+  uint32_t PresentQueueIdx;
+};
+
+class Renderer : public BaseRenderer {
+ private:
+  void CreateInstance();
+  void SetupDebug();
+  void PickPhysicalDevice();
+  void CreateLogicalDevice();
+  void FindQueues();
+  void CreateSurface();
+  void CreateSwapChain();
+  void CreateImageViews();
+  void CreateRenderPass();
+  void CreateFramebuffers();
+  void CreateCommandPool();
+  void CreateCommandBuffer();
+  void CreateSyncObjects();
+  void CreateDescriptors();
+
+  AllocatedBuffer CreateBuffer(size_t allocSize, VkBufferUsageFlags usage,
+                               VmaMemoryUsage memoryUsage);
+  void CreateVertexBuffer();
+  void CreateIndexBuffer();
+
+  void PushVertices();
+  void PushIndices();
+
+  void InitImpl() override;
+  void ShutdownImpl() override;
+
+  void NuklearInitImpl() override;
+  void NuklearShutdownImpl() override;
+  int NuklearHandleEventImpl(SDL_Event* ev) override;
+
+  void BeginFrameImpl() override;
+  void EndFrameImpl() override;
+
+  uint32_t SubmitTextureImpl(TexFmt format, uint8_t* buffer, int width,
+                             int height) override;
+  void FreeTextureImpl(uint32_t id) override;
+  YUVFrame* CreateYUVFrameImpl(int width, int height) override;
+
+  void DrawSpriteImpl(Sprite const& sprite, RectF const& dest, glm::vec4 tint,
+                      float angle, bool inverted, bool isScreencap) override;
+  void DrawRectImpl(RectF const& dest, glm::vec4 color, float angle) override;
+
+  void DrawMaskedSpriteImpl(Sprite const& sprite, Sprite const& mask,
+                            RectF const& dest, glm::vec4 tint, int alpha,
+                            int fadeRange, bool isScreencap, bool isInverted,
+                            bool isSameTexture) override;
+
+  void DrawCCMessageBoxImpl(Sprite const& sprite, Sprite const& mask,
+                            RectF const& dest, glm::vec4 tint, int alpha,
+                            int fadeRange, float effectCt,
+                            bool isScreencap) override;
+
+  void DrawSprite3DRotatedImpl(Sprite const& sprite, RectF const& dest,
+                               float depth, glm::vec2 vanishingPoint,
+                               bool stayInScreen, glm::quat rot, glm::vec4 tint,
+                               bool inverted) override;
+  void DrawRect3DRotatedImpl(RectF const& dest, float depth,
+                             glm::vec2 vanishingPoint, bool stayInScreen,
+                             glm::quat rot, glm::vec4 color) override;
+
+  void DrawCharacterMvlImpl(Sprite const& sprite, glm::vec2 topLeft,
+                            int verticesCount, float* mvlVertices,
+                            int indicesCount, uint16_t* mvlIndices,
+                            bool inverted, glm::vec4 tint) override;
+
+  void DrawVideoTextureImpl(YUVFrame* tex, RectF const& dest, glm::vec4 tint,
+                            float angle, bool alphaVideo) override;
+
+  void CaptureScreencapImpl(Sprite const& sprite) override;
+
+  void EnableScissorImpl() override;
+  void SetScissorRectImpl(RectF const& rect) override;
+  void DisableScissorImpl() override;
+
+  void EnsureTextureBound(unsigned int texture);
+  void EnsureMode(Pipeline* pipeline, bool flush = true);
+  void Flush();
+
+  inline void QuadSetUV(RectF const& spriteBounds, float designWidth,
+                        float designHeight, uintptr_t uvs, int stride);
+  inline void QuadSetPosition(RectF const& transformedQuad, float angle,
+                              uintptr_t positions, int stride);
+  inline void QuadSetPosition3DRotated(RectF const& transformedQuad,
+                                       float depth, glm::vec2 vanishingPoint,
+                                       bool stayInScreen, glm::quat rot,
+                                       uintptr_t positions, int stride);
+
+  bool Drawing = false;
+
+  VulkanWindow* VkWindow;
+
+  VkDebugUtilsMessengerEXT DebugMessenger;
+
+  VkInstance Instance;
+  VkPhysicalDevice PhysicalDevice;
+  VkDevice Device;
+  VkQueueFamilies QueueIndices;
+  VkQueue GraphicsQueue;
+  VkQueue PresentQueue;
+
+  VmaAllocator Allocator;
+
+  VkSurfaceKHR Surface;
+
+  VkSwapchainKHR SwapChain;
+  std::vector<VkImage> SwapChainImages;
+  VkFormat SwapChainImageFormat;
+  VkExtent2D SwapChainExtent;
+  std::vector<VkImageView> SwapChainImageViews;
+  std::vector<VkFramebuffer> SwapChainFramebuffers;
+  VkRenderPass RenderPass;
+
+  VkCommandPool CommandPool;
+  VkCommandBuffer CommandBuffers[MAX_FRAMES_IN_FLIGHT];
+
+  uint32_t CurrentFrameIndex = 0;
+  uint32_t CurrentImageIndex = 0;
+
+  VkSemaphore ImageAvailableSemaphores[MAX_FRAMES_IN_FLIGHT];
+  VkSemaphore RenderFinishedSemaphores[MAX_FRAMES_IN_FLIGHT];
+  VkFence InFlightFences[MAX_FRAMES_IN_FLIGHT];
+
+  UploadContext MainUploadContext;
+  void ImmediateSubmit(std::function<void(VkCommandBuffer cmd)>&& function);
+
+  VkSampler Sampler;
+  PFN_vkCmdPushDescriptorSetKHR vkCmdPushDescriptorSetKHR;
+
+  VkDescriptorPool DescriptorPool;
+  VkDescriptorSetLayout SingleTextureSetLayout;
+  VkDescriptorSetLayout DoubleTextureSetLayout;
+
+  Pipeline* CurrentPipeline = 0;
+
+  Pipeline* PipelineSprite;
+  Pipeline* PipelineSpriteInverted;
+  Pipeline* PipelineMaskedSprite;
+  Pipeline* PipelineYUVFrame;
+  Pipeline* PipelineCCMessageBox;
+
+  AllocatedBuffer VertexBufferTest;
+  VkBuffer VertexBufferVk;
+  VkDeviceMemory VertexBufferMemory;
+  AllocatedBuffer IndexBufferTest;
+  VkBuffer IndexBufferVk;
+  VkDeviceMemory IndexBufferMemory;
+
+  uint32_t CurrentTexture = 0;
+  uint32_t NextTextureId = 1;
+  ska::flat_hash_map<uint32_t, VkTexture> Textures;
+
+  static int const VertexBufferSize = 4096 * 4096;
+  static int const IndexBufferCount =
+      VertexBufferSize / (4 * sizeof(VertexBufferSprites)) * 6;
+
+  uint8_t VertexBuffer[VertexBufferSize];
+  int VertexBufferFill = 0;
+  int VertexBufferOffset = 0;
+  uint16_t IndexBuffer[IndexBufferCount];
+  int IndexBufferFill = 0;
+  int IndexBufferOffset = 0;
+
+  Sprite RectSprite;
+};
+
+}  // namespace Vulkan
+}  // namespace Impacto

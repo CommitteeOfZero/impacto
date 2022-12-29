@@ -34,6 +34,10 @@ set(Impacto_Src
     src/renderer/opengl/3d/renderable3d.cpp
     src/renderer/opengl/3d/scene.cpp
 
+    src/renderer/vulkan/window.cpp
+    src/renderer/vulkan/renderer.cpp
+    src/renderer/vulkan/pipeline.cpp
+
     src/data/savesystem.cpp
     src/data/tipssystem.cpp
 
@@ -311,6 +315,10 @@ set(Impacto_Header
     src/renderer/opengl/3d/renderable3d.h
     src/renderer/opengl/3d/scene.h
 
+    src/renderer/vulkan/window.h
+    src/renderer/vulkan/renderer.h
+    src/renderer/vulkan/pipeline.h
+
     src/data/savesystem.h
     src/data/tipssystem.h
 
@@ -542,6 +550,8 @@ set(Impacto_Header
     vendor/squish/squish.h
 
     vendor/utf8-cpp/utf8.h
+
+    vendor/vma/vk_mem_alloc.h
 )
 
 if (WIN32)
@@ -658,6 +668,7 @@ else()
     find_package(OggVorbis REQUIRED)
     find_package(FFMPEG REQUIRED)
     find_package(WebP REQUIRED)
+    find_package(Vulkan REQUIRED)
 
     include_directories(${OGGVORBIS_INCLUDE_DIRS})
 
@@ -672,6 +683,7 @@ else()
         ZLIB::ZLIB
         ${OGGVORBIS_LIBRARIES}
         ${WebP_LIBRARIES}
+        ${Vulkan_LIBRARIES}
     )
 
     if(VCPKG_TOOLCHAIN)
@@ -693,6 +705,7 @@ include_directories(${OPENAL_INCLUDE_DIR})
 include_directories(${FFMPEG_INCLUDE_DIRS})
 include_directories(${SDL2_INCLUDE_DIRS})
 include_directories(${WebP_INCLUDE_DIRS})
+include_directories(${Vulkan_INCLUDE_DIRS})
 include_directories(vendor/include)
 include_directories(vendor/duktape/include)
 include_directories(vendor/pcg/include)
