@@ -4,11 +4,9 @@
 #include <vulkan/vk_enum_string_helper.h>
 #include <set>
 
-#define VMA_IMPLEMENTATION
-#include "../../vendor/vma/vk_mem_alloc.h"
-
 #include "../../profile/game.h"
 #include "../../game.h"
+#include "yuvframe.h"
 
 namespace Impacto {
 namespace Vulkan {
@@ -197,15 +195,14 @@ void Renderer::CreateLogicalDevice() {
   vkGetDeviceQueue(Device, QueueIndices.GraphicsQueueIdx, 0, &GraphicsQueue);
   vkGetDeviceQueue(Device, QueueIndices.PresentQueueIdx, 0, &PresentQueue);
 
-  VmaAllocatorCreateInfo allocatorInfo = {};
-  allocatorInfo.physicalDevice = PhysicalDevice;
-  allocatorInfo.device = Device;
-  allocatorInfo.instance = Instance;
-  vmaCreateAllocator(&allocatorInfo, &Allocator);
+  CreateAllocator(PhysicalDevice, Device, Instance);
 
   vkCmdPushDescriptorSetKHR =
       (PFN_vkCmdPushDescriptorSetKHR)vkGetDeviceProcAddr(
           Device, "vkCmdPushDescriptorSetKHR");
+
+  MainUploadContext.Device = Device;
+  MainUploadContext.GraphicsQueue = GraphicsQueue;
 }
 
 void Renderer::CreateSurface() {
@@ -412,69 +409,17 @@ void Renderer::CreateSyncObjects() {
 }
 
 void Renderer::CreateVertexBuffer() {
-  VertexBufferTest = CreateBuffer(
+  VertexBufferDevice = CreateBuffer(
       VertexBufferSize,
       VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
       VMA_MEMORY_USAGE_GPU_ONLY);
 }
 
 void Renderer::CreateIndexBuffer() {
-  IndexBufferTest = CreateBuffer(
+  IndexBufferDevice = CreateBuffer(
       IndexBufferCount * sizeof(uint16_t),
       VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
       VMA_MEMORY_USAGE_GPU_ONLY);
-}
-
-AllocatedBuffer Renderer::CreateBuffer(size_t allocSize,
-                                       VkBufferUsageFlags usage,
-                                       VmaMemoryUsage memoryUsage) {
-  // allocate vertex buffer
-  VkBufferCreateInfo bufferInfo = {};
-  bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-  bufferInfo.pNext = nullptr;
-  bufferInfo.size = allocSize;
-  bufferInfo.usage = usage;
-  VmaAllocationCreateInfo vmaallocInfo = {};
-  vmaallocInfo.usage = memoryUsage;
-
-  AllocatedBuffer newBuffer;
-
-  // allocate the buffer
-  vmaCreateBuffer(Allocator, &bufferInfo, &vmaallocInfo, &newBuffer.Buffer,
-                  &newBuffer.Allocation, nullptr);
-
-  return newBuffer;
-}
-
-void Renderer::ImmediateSubmit(
-    std::function<void(VkCommandBuffer cmd)>&& function) {
-  VkCommandBuffer cmd = MainUploadContext.CommandBuffer;
-  VkCommandBufferBeginInfo cmdBeginInfo = {};
-  cmdBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-  cmdBeginInfo.pNext = nullptr;
-  cmdBeginInfo.pInheritanceInfo = nullptr;
-  cmdBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-  vkBeginCommandBuffer(cmd, &cmdBeginInfo);
-  function(cmd);
-  vkEndCommandBuffer(cmd);
-
-  VkSubmitInfo submit = {};
-  submit.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-  submit.pNext = nullptr;
-  submit.waitSemaphoreCount = 0;
-  submit.pWaitSemaphores = nullptr;
-  submit.pWaitDstStageMask = nullptr;
-  submit.commandBufferCount = 1;
-  submit.pCommandBuffers = &MainUploadContext.CommandBuffer;
-  submit.signalSemaphoreCount = 0;
-  submit.pSignalSemaphores = nullptr;
-  vkQueueSubmit(GraphicsQueue, 1, &submit, MainUploadContext.UploadFence);
-
-  vkWaitForFences(Device, 1, &MainUploadContext.UploadFence, true, UINT64_MAX);
-  vkResetFences(Device, 1, &MainUploadContext.UploadFence);
-
-  vkResetCommandPool(Device, MainUploadContext.CommandPool, 0);
 }
 
 void Renderer::PushVertices() {
@@ -492,7 +437,7 @@ void Renderer::PushVertices() {
     copy.dstOffset = VertexBufferOffset;
     copy.srcOffset = 0;
     copy.size = VertexBufferFill;
-    vkCmdCopyBuffer(cmd, stagingBuffer.Buffer, VertexBufferTest.Buffer, 1,
+    vkCmdCopyBuffer(cmd, stagingBuffer.Buffer, VertexBufferDevice.Buffer, 1,
                     &copy);
   });
 
@@ -514,7 +459,7 @@ void Renderer::PushIndices() {
     copy.dstOffset = IndexBufferOffset;
     copy.srcOffset = 0;
     copy.size = bufferSize;
-    vkCmdCopyBuffer(cmd, stagingBuffer.Buffer, IndexBufferTest.Buffer, 1,
+    vkCmdCopyBuffer(cmd, stagingBuffer.Buffer, IndexBufferDevice.Buffer, 1,
                     &copy);
   });
 
@@ -571,6 +516,10 @@ void Renderer::CreateDescriptors() {
 
   vkCreateDescriptorSetLayout(Device, &texturesBindInfo, nullptr,
                               &DoubleTextureSetLayout);
+
+  textureBinds.descriptorCount = 3;
+  vkCreateDescriptorSetLayout(Device, &texturesBindInfo, nullptr,
+                              &TripleTextureSetLayout);
 }
 
 void Renderer::InitImpl() {
@@ -617,6 +566,11 @@ void Renderer::InitImpl() {
   PipelineMaskedSprite->CreateWithShader(
       "MaskedSprite", bindingDescription, attributeDescriptions.data(),
       attributeDescriptions.size(), DoubleTextureSetLayout);
+
+  PipelineYUVFrame = new Pipeline(Device, RenderPass);
+  PipelineYUVFrame->CreateWithShader(
+      "YUVFrame", bindingDescription, attributeDescriptions.data(),
+      attributeDescriptions.size(), TripleTextureSetLayout);
 
   CurrentPipeline = PipelineSprite;
 
@@ -834,18 +788,7 @@ uint32_t Renderer::SubmitTextureImpl(TexFmt format, uint8_t* buffer, int width,
   imageExtent.height = static_cast<uint32_t>(height);
   imageExtent.depth = 1;
 
-  VkImageCreateInfo dimgInfo = {};
-  dimgInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-  dimgInfo.pNext = nullptr;
-  dimgInfo.imageType = VK_IMAGE_TYPE_2D;
-  dimgInfo.format = imageFormat;
-  dimgInfo.extent = imageExtent;
-  dimgInfo.mipLevels = 1;
-  dimgInfo.arrayLayers = 1;
-  dimgInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-  dimgInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-  dimgInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-
+  VkImageCreateInfo dimgInfo = GetImageCreateInfo(imageFormat, imageExtent);
   AllocatedImage newImage{};
   VmaAllocationCreateInfo dimgAllocinfo = {};
   dimgAllocinfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
@@ -922,7 +865,11 @@ uint32_t Renderer::SubmitTextureImpl(TexFmt format, uint8_t* buffer, int width,
 
 void Renderer::FreeTextureImpl(uint32_t id) {}
 
-YUVFrame* Renderer::CreateYUVFrameImpl(int width, int height) { return 0; }
+YUVFrame* Renderer::CreateYUVFrameImpl(int width, int height) {
+  VideoFrameInternal = new VkYUVFrame();
+  VideoFrameInternal->Init(width, height);
+  return (YUVFrame*)VideoFrameInternal;
+}
 
 void Renderer::DrawRectImpl(RectF const& dest, glm::vec4 color, float angle) {
   DrawSprite(RectSprite, dest, color, angle);
@@ -1252,12 +1199,12 @@ void Renderer::Flush() {
 
     // I don't think there's any reason to rebind this every frame, but I'll
     // leave that for later
-    VkBuffer vertexBuffers[] = {VertexBufferTest.Buffer};
+    VkBuffer vertexBuffers[] = {VertexBufferDevice.Buffer};
     VkDeviceSize offsets[] = {(VkDeviceSize)VertexBufferOffset};
     vkCmdBindVertexBuffers(CommandBuffers[CurrentFrameIndex], 0, 1,
                            vertexBuffers, offsets);
     vkCmdBindIndexBuffer(CommandBuffers[CurrentFrameIndex],
-                         IndexBufferTest.Buffer, IndexBufferOffset,
+                         IndexBufferDevice.Buffer, IndexBufferOffset,
                          VK_INDEX_TYPE_UINT16);
 
     vkCmdDrawIndexed(CommandBuffers[CurrentFrameIndex], IndexBufferFill, 1, 0,
@@ -1277,6 +1224,46 @@ void Renderer::DrawVideoTextureImpl(YUVFrame* tex, RectF const& dest,
            "Renderer->DrawVideoTexture() called before BeginFrame()\n");
     return;
   }
+
+  EnsureMode(PipelineYUVFrame);
+
+  VkDescriptorImageInfo imageBufferInfo[3];
+  imageBufferInfo[0].sampler = Sampler;
+  imageBufferInfo[0].imageView = VideoFrameInternal->LumaImage.ImageView;
+  imageBufferInfo[0].imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+  imageBufferInfo[1].sampler = Sampler;
+  imageBufferInfo[1].imageView = VideoFrameInternal->CbImage.ImageView;
+  imageBufferInfo[1].imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+  imageBufferInfo[2].sampler = Sampler;
+  imageBufferInfo[2].imageView = VideoFrameInternal->CrImage.ImageView;
+  imageBufferInfo[2].imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+  VkWriteDescriptorSet writeDescriptorSet{};
+  writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+  writeDescriptorSet.dstSet = 0;
+  writeDescriptorSet.dstBinding = 0;
+  writeDescriptorSet.descriptorCount = 3;
+  writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+  writeDescriptorSet.pImageInfo = imageBufferInfo;
+
+  vkCmdPushDescriptorSetKHR(
+      CommandBuffers[CurrentFrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
+      PipelineYUVFrame->PipelineLayout, 0, 1, &writeDescriptorSet);
+
+  // OK, all good, make quad
+
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
+  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
+
+  IndexBufferFill += 6;
+
+  QuadSetUV(RectF(0.0f, 0.0f, tex->Width, tex->Height), tex->Width, tex->Height,
+            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
+  QuadSetPosition(dest, angle, (uintptr_t)&vertices[0].Position,
+                  sizeof(VertexBufferSprites));
+
+  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
 void Renderer::CaptureScreencapImpl(Sprite const& sprite) {}

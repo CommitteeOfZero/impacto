@@ -37,6 +37,8 @@ set(Impacto_Src
     src/renderer/vulkan/window.cpp
     src/renderer/vulkan/renderer.cpp
     src/renderer/vulkan/pipeline.cpp
+    src/renderer/vulkan/utils.cpp
+    src/renderer/vulkan/yuvframe.cpp
 
     src/data/savesystem.cpp
     src/data/tipssystem.cpp
@@ -318,6 +320,8 @@ set(Impacto_Header
     src/renderer/vulkan/window.h
     src/renderer/vulkan/renderer.h
     src/renderer/vulkan/pipeline.h
+    src/renderer/vulkan/utils.h
+    src/renderer/vulkan/yuvframe.h
 
     src/data/savesystem.h
     src/data/tipssystem.h

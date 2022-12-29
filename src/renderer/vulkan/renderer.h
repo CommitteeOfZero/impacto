@@ -4,11 +4,11 @@
 #include <map>
 #include <array>
 
-#include "../../vendor/vma/vk_mem_alloc.h"
-
 #include "../renderer.h"
+#include "utils.h"
 #include "window.h"
 #include "pipeline.h"
+#include "yuvframe.h"
 
 namespace Impacto {
 namespace Vulkan {
@@ -23,28 +23,6 @@ const bool EnableValidationLayers = true;
 #endif
 
 int const MAX_FRAMES_IN_FLIGHT = 2;
-
-struct AllocatedBuffer {
-  VkBuffer Buffer;
-  VmaAllocation Allocation;
-};
-
-struct AllocatedImage {
-  VkImage Image;
-  VmaAllocation Allocation;
-};
-
-struct VkTexture {
-  AllocatedImage Image;
-  VkImageView ImageView;
-  VkDescriptorSet Descriptor;
-};
-
-struct UploadContext {
-  VkFence UploadFence;
-  VkCommandPool CommandPool;
-  VkCommandBuffer CommandBuffer;
-};
 
 struct SpritePushConstants {
   VkBool32 IsInverted;
@@ -95,11 +73,6 @@ struct VertexBufferSprites {
   }
 };
 
-struct VkQueueFamilies {
-  uint32_t GraphicsQueueIdx;
-  uint32_t PresentQueueIdx;
-};
-
 class Renderer : public BaseRenderer {
  private:
   void CreateInstance();
@@ -117,8 +90,6 @@ class Renderer : public BaseRenderer {
   void CreateSyncObjects();
   void CreateDescriptors();
 
-  AllocatedBuffer CreateBuffer(size_t allocSize, VkBufferUsageFlags usage,
-                               VmaMemoryUsage memoryUsage);
   void CreateVertexBuffer();
   void CreateIndexBuffer();
 
@@ -202,8 +173,6 @@ class Renderer : public BaseRenderer {
   VkQueue GraphicsQueue;
   VkQueue PresentQueue;
 
-  VmaAllocator Allocator;
-
   VkSurfaceKHR Surface;
 
   VkSwapchainKHR SwapChain;
@@ -224,15 +193,13 @@ class Renderer : public BaseRenderer {
   VkSemaphore RenderFinishedSemaphores[MAX_FRAMES_IN_FLIGHT];
   VkFence InFlightFences[MAX_FRAMES_IN_FLIGHT];
 
-  UploadContext MainUploadContext;
-  void ImmediateSubmit(std::function<void(VkCommandBuffer cmd)>&& function);
-
   VkSampler Sampler;
   PFN_vkCmdPushDescriptorSetKHR vkCmdPushDescriptorSetKHR;
 
   VkDescriptorPool DescriptorPool;
   VkDescriptorSetLayout SingleTextureSetLayout;
   VkDescriptorSetLayout DoubleTextureSetLayout;
+  VkDescriptorSetLayout TripleTextureSetLayout;
 
   Pipeline* CurrentPipeline = 0;
 
@@ -242,25 +209,25 @@ class Renderer : public BaseRenderer {
   Pipeline* PipelineYUVFrame;
   Pipeline* PipelineCCMessageBox;
 
-  AllocatedBuffer VertexBufferTest;
-  VkBuffer VertexBufferVk;
-  VkDeviceMemory VertexBufferMemory;
-  AllocatedBuffer IndexBufferTest;
-  VkBuffer IndexBufferVk;
-  VkDeviceMemory IndexBufferMemory;
+  AllocatedBuffer VertexBufferDevice;
+  AllocatedBuffer IndexBufferDevice;
 
   uint32_t CurrentTexture = 0;
   uint32_t NextTextureId = 1;
   ska::flat_hash_map<uint32_t, VkTexture> Textures;
+
+  VkYUVFrame* VideoFrameInternal;
 
   static int const VertexBufferSize = 4096 * 4096;
   static int const IndexBufferCount =
       VertexBufferSize / (4 * sizeof(VertexBufferSprites)) * 6;
 
   uint8_t VertexBuffer[VertexBufferSize];
+  // uint8_t* VertexBuffer;
   int VertexBufferFill = 0;
   int VertexBufferOffset = 0;
   uint16_t IndexBuffer[IndexBufferCount];
+  // uint16_t* IndexBuffer;
   int IndexBufferFill = 0;
   int IndexBufferOffset = 0;
 
