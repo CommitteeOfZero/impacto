@@ -423,47 +423,27 @@ void Renderer::CreateIndexBuffer() {
 }
 
 void Renderer::PushVertices() {
-  auto stagingBuffer =
-      CreateBuffer(VertexBufferFill, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                   VMA_MEMORY_USAGE_CPU_ONLY);
-
-  void* data;
-  vmaMapMemory(Allocator, stagingBuffer.Allocation, &data);
-  memcpy(data, VertexBuffer, VertexBufferFill);
-  vmaUnmapMemory(Allocator, stagingBuffer.Allocation);
-
   ImmediateSubmit([=](VkCommandBuffer cmd) {
     VkBufferCopy copy;
     copy.dstOffset = VertexBufferOffset;
     copy.srcOffset = 0;
     copy.size = VertexBufferFill;
-    vkCmdCopyBuffer(cmd, stagingBuffer.Buffer, VertexBufferDevice.Buffer, 1,
-                    &copy);
+    vkCmdCopyBuffer(cmd, VertexBufferStaging.Buffer, VertexBufferDevice.Buffer,
+                    1, &copy);
   });
-
-  vmaDestroyBuffer(Allocator, stagingBuffer.Buffer, stagingBuffer.Allocation);
 }
 
 void Renderer::PushIndices() {
   const size_t bufferSize = IndexBufferFill * sizeof(uint16_t);
-  auto stagingBuffer = CreateBuffer(
-      bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
-
-  void* data;
-  vmaMapMemory(Allocator, stagingBuffer.Allocation, &data);
-  memcpy(data, IndexBuffer, (size_t)IndexBufferFill * sizeof(uint16_t));
-  vmaUnmapMemory(Allocator, stagingBuffer.Allocation);
 
   ImmediateSubmit([=](VkCommandBuffer cmd) {
     VkBufferCopy copy;
     copy.dstOffset = IndexBufferOffset;
     copy.srcOffset = 0;
     copy.size = bufferSize;
-    vkCmdCopyBuffer(cmd, stagingBuffer.Buffer, IndexBufferDevice.Buffer, 1,
+    vkCmdCopyBuffer(cmd, IndexBufferStaging.Buffer, IndexBufferDevice.Buffer, 1,
                     &copy);
   });
-
-  vmaDestroyBuffer(Allocator, stagingBuffer.Buffer, stagingBuffer.Allocation);
 }
 
 void Renderer::CreateDescriptors() {
@@ -578,6 +558,19 @@ void Renderer::InitImpl() {
     // Scene = new Scene3D(OpenGLWindow, Shaders);
   }
 
+  VertexBufferStaging =
+      CreateBuffer(VertexBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                   VMA_MEMORY_USAGE_CPU_ONLY);
+  IndexBufferStaging =
+      CreateBuffer(IndexBufferCount, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                   VMA_MEMORY_USAGE_CPU_ONLY);
+
+  void* data;
+  VkResult e = vmaMapMemory(Allocator, VertexBufferStaging.Allocation, &data);
+  VertexBuffer = (uint8_t*)data;
+  vmaMapMemory(Allocator, IndexBufferStaging.Allocation, &data);
+  IndexBuffer = (uint16_t*)data;
+
   // Fill index buffer with quads
   int index = 0;
   int vertex = 0;
@@ -629,6 +622,12 @@ void Renderer::ShutdownImpl() {
     vkDestroyFramebuffer(Device, framebuffer, nullptr);
   }
   vkDestroyRenderPass(Device, RenderPass, nullptr);
+  vmaUnmapMemory(Allocator, VertexBufferStaging.Allocation);
+  vmaDestroyBuffer(Allocator, VertexBufferStaging.Buffer,
+                   VertexBufferStaging.Allocation);
+  vmaUnmapMemory(Allocator, IndexBufferStaging.Allocation);
+  vmaDestroyBuffer(Allocator, IndexBufferStaging.Buffer,
+                   IndexBufferStaging.Allocation);
   for (auto imageView : SwapChainImageViews) {
     vkDestroyImageView(Device, imageView, nullptr);
   }

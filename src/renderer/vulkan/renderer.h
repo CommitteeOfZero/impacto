@@ -211,6 +211,8 @@ class Renderer : public BaseRenderer {
 
   AllocatedBuffer VertexBufferDevice;
   AllocatedBuffer IndexBufferDevice;
+  AllocatedBuffer VertexBufferStaging;
+  AllocatedBuffer IndexBufferStaging;
 
   uint32_t CurrentTexture = 0;
   uint32_t NextTextureId = 1;
@@ -222,12 +224,10 @@ class Renderer : public BaseRenderer {
   static int const IndexBufferCount =
       VertexBufferSize / (4 * sizeof(VertexBufferSprites)) * 6;
 
-  uint8_t VertexBuffer[VertexBufferSize];
-  // uint8_t* VertexBuffer;
+  uint8_t* VertexBuffer;
   int VertexBufferFill = 0;
   int VertexBufferOffset = 0;
-  uint16_t IndexBuffer[IndexBufferCount];
-  // uint16_t* IndexBuffer;
+  uint16_t* IndexBuffer;
   int IndexBufferFill = 0;
   int IndexBufferOffset = 0;
 

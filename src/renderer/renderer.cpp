@@ -1,7 +1,11 @@
 #include "renderer.h"
 
+#include "../profile/game.h"
+
 #include "opengl/renderer.h"
+#ifndef IMPACTO_DISABLE_VULKAN
 #include "vulkan/renderer.h"
+#endif
 
 namespace Impacto {
 
@@ -12,7 +16,21 @@ GraphicsApi GraphicsApiHint;
 GraphicsApi ActualGraphicsApi;
 
 void InitRenderer() {
-  Renderer = new Vulkan::Renderer();
+  switch (Profile::ActiveRenderer) {
+    case RendererType::OpenGL:
+      Renderer = new OpenGL::Renderer();
+      break;
+#ifndef IMPACTO_DISABLE_VULKAN
+    case RendererType::Vulkan:
+      Renderer = new Vulkan::Renderer();
+      break;
+#endif
+    default:
+      ImpLog(LL_Error, LC_Render,
+             "Unknown or unsupported renderer selected!\n");
+      exit(0);
+  }
+
   Renderer->Init();
 }
 

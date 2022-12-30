@@ -1,7 +1,11 @@
 #pragma once
 
+#include "../game.h"
+
 namespace Impacto {
 namespace Profile {
+
+extern RendererType ActiveRenderer;
 
 extern int LayerCount;
 extern int GameFeatures;

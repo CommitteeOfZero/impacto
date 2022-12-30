@@ -53,6 +53,14 @@ function BuildLibatrac9() {
     popd
 }
 
+function InstallVulkanSDK() {
+    Invoke-WebRequest -URI "https://sdk.lunarg.com/sdk/download/1.3.236.0/windows/VulkanSDK-1.3.236.0-Installer.exe" -OutFile "VulkanSDK-1.3.236.0-Installer.exe"
+    $vulkanInstall = "VulkanSDK-1.3.236.0-Installer.exe --accept-licenses --default-answer --confirm-command install"
+    Get-Command $vulkanInstall -ErrorAction SilentlyContinue
+    Remove-Item "VulkanSDK-1.3.236.0-Installer.exe"
+
+}
+
 function InstallPackages() {
     $vcpkg = "$VcpkgDir/vcpkg.exe"
     if (!(Get-Command $vcpkg -ErrorAction SilentlyContinue)) {
@@ -82,4 +90,5 @@ function InstallPackages() {
 }
 
 BuildLibatrac9
+InstallVulkanSDK
 InstallPackages

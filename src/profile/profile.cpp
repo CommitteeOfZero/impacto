@@ -153,6 +153,7 @@ void MakeJsonProfile(std::string const& name) {
   duk_put_global_string(ctx, "root");
 
   // Enums /sigh
+  DefineEnumInt<RendererType>(ctx);
   DefineEnumInt<TextAlignment>(ctx);
   DefineEnumInt<GameFeature>(ctx);
   DefineEnumInt<CharacterTypeFlags>(ctx);

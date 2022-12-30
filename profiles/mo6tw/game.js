@@ -1,3 +1,5 @@
+root.ActiveRenderer = RendererType.Vulkan;
+
 root.LayerCount = 100;
 root.GameFeatures = GameFeature.Sc3VirtualMachine | GameFeature.Renderer2D | GameFeature.Input | GameFeature.Audio | GameFeature.Nuklear | GameFeature.Video;
 root.DesignWidth = 1280;
