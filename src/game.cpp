@@ -334,8 +334,8 @@ void Render() {
     }
   }
 
+  Renderer->BeginFrame();
   if (Profile::GameFeatures & GameFeature::Renderer2D) {
-    Renderer->BeginFrame();
     for (int i = 0; i < Vm::MaxThreads; i++) {
       if (DrawComponents[i] == +DrawComponentType::None) break;
 
@@ -458,11 +458,9 @@ void Render() {
         menu->Render();
       }
     }
-    Renderer->EndFrame();
   }
 
   if (Profile::GameFeatures & GameFeature::CharacterViewer) {
-    Renderer->BeginFrame();
     if (Backgrounds2D[0]->Status == LS_Loaded) {
       Renderer->DrawSprite(
           Backgrounds2D[0]->BgSprite,
@@ -474,8 +472,8 @@ void Render() {
       ScrWork[SW_CHA1ALPHA] = 256;
       Characters2D[0].Render(0, 0);
     }
-    Renderer->EndFrame();
   }
+  Renderer->EndFrame();
 
   Window->Draw();
 }

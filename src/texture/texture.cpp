@@ -111,6 +111,8 @@ void Texture::LoadPoliticalCompass() {
 uint32_t Texture::Submit() {
   ImpLog(LL_Debug, LC_Render, "Submitting texture\n");
 
+  if (Buffer == NULL) return -1;
+
   uint32_t result = Renderer->SubmitTexture(Format, Buffer, Width, Height);
 
   // TODO I meant to do this elsewhere but we gotta do it somewhere

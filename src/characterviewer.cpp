@@ -75,7 +75,9 @@ void Update(float dt) {
     UiMsaaCount = Window->MsaaCount;
   }
 
-  if (nk_begin(Renderer->Nk, "Scene", nk_rect(20, 20, 300, Window->WindowHeight - 40),
+  if (Renderer->NuklearSupported &&
+      nk_begin(Renderer->Nk, "Scene",
+               nk_rect(20, 20, 300, Window->WindowHeight - 40),
                NK_WINDOW_BORDER | NK_WINDOW_TITLE)) {
     // FPS counter
     Frames++;
@@ -96,7 +98,8 @@ void Update(float dt) {
       nk_layout_row_dynamic(Renderer->Nk, 24, 1);
 
       nk_property_int(Renderer->Nk, "Width", 0, &UiWindowWidth, 8192, 0, 0.0f);
-      nk_property_int(Renderer->Nk, "Height", 0, &UiWindowHeight, 8192, 0, 0.0f);
+      nk_property_int(Renderer->Nk, "Height", 0, &UiWindowHeight, 8192, 0,
+                      0.0f);
       nk_property_int(Renderer->Nk, "MSAA", 0, &UiMsaaCount, 16, 0, 0);
 
       if (nk_button_label(Renderer->Nk, "Resize")) {
@@ -139,21 +142,21 @@ void Update(float dt) {
       }
       if (Characters2D[0].Status == LS_Loaded) Characters2D[0].Show = true;
 
-      nk_property_int(Renderer->Nk, "Character X", -10000, &Characters2D[0].OffsetX,
-                      10000, 1, 5.0f);
-      nk_property_int(Renderer->Nk, "Character Y", -10000, &Characters2D[0].OffsetY,
-                      10000, 1, 5.0f);
+      nk_property_int(Renderer->Nk, "Character X", -10000,
+                      &Characters2D[0].OffsetX, 10000, 1, 5.0f);
+      nk_property_int(Renderer->Nk, "Character Y", -10000,
+                      &Characters2D[0].OffsetY, 10000, 1, 5.0f);
 
       Characters2D[0].Face >>= 16;
-      nk_property_int(Renderer->Nk, "Character Face", 1, &Characters2D[0].Face, 20, 1,
-                      1.0f);
+      nk_property_int(Renderer->Nk, "Character Face", 1, &Characters2D[0].Face,
+                      20, 1, 1.0f);
       Characters2D[0].Face <<= 16;
 
-      nk_property_int(Renderer->Nk, "Character Eye", 0, &Characters2D[0].EyeFrame, 10, 1,
-                      1.0f);
+      nk_property_int(Renderer->Nk, "Character Eye", 0,
+                      &Characters2D[0].EyeFrame, 10, 1, 1.0f);
 
-      nk_property_int(Renderer->Nk, "Character Lip", 0, &Characters2D[0].LipFrame, 10, 1,
-                      1.0f);
+      nk_property_int(Renderer->Nk, "Character Lip", 0,
+                      &Characters2D[0].LipFrame, 10, 1, 1.0f);
 
       nk_tree_pop(Renderer->Nk);
     }
@@ -161,29 +164,40 @@ void Update(float dt) {
     if (nk_tree_push(Renderer->Nk, NK_TREE_TAB, "BGM", NK_MAXIMIZED)) {
       nk_layout_row_dynamic(Renderer->Nk, 24, 1);
 
-      CurrentBgm = nk_combo(Renderer->Nk, (const char**)BgmNames, BgmCount, CurrentBgm,
-                            24, nk_vec2(200, 200));
-      nk_checkbox_label(Renderer->Nk, "Loop (takes effect on switch)", &BgmLoop);
+      CurrentBgm = nk_combo(Renderer->Nk, (const char**)BgmNames, BgmCount,
+                            CurrentBgm, 24, nk_vec2(200, 200));
+      nk_checkbox_label(Renderer->Nk, "Loop (takes effect on switch)",
+                        &BgmLoop);
       if (nk_button_label(Renderer->Nk, "Switch")) {
         BgmChangeQueued = true;
         Audio::Channels[Audio::AC_BGM0].Stop(BgmFadeOut);
       }
 
-      nk_property_float(Renderer->Nk, "Master volume", 0.0f, &Audio::MasterVolume, 1.0f,
-                        0.01f, 0.01f);
+      nk_property_float(Renderer->Nk, "Master volume", 0.0f,
+                        &Audio::MasterVolume, 1.0f, 0.01f, 0.01f);
       nk_property_float(Renderer->Nk, "BGM volume", 0.0f,
                         &Audio::GroupVolumes[Audio::ACG_BGM], 1.0f, 0.01f,
                         0.01f);
 
-      nk_property_float(Renderer->Nk, "Fade out duration", 0.0f, &BgmFadeOut, 5.0f, 0.1f,
-                        0.02f);
-      nk_property_float(Renderer->Nk, "Fade in duration", 0.0f, &BgmFadeIn, 5.0f, 0.1f,
-                        0.02f);
+      nk_property_float(Renderer->Nk, "Fade out duration", 0.0f, &BgmFadeOut,
+                        5.0f, 0.1f, 0.02f);
+      nk_property_float(Renderer->Nk, "Fade in duration", 0.0f, &BgmFadeIn,
+                        5.0f, 0.1f, 0.02f);
 
       nk_tree_pop(Renderer->Nk);
     }
+  } else {
+    if (Characters2D[0].Status == LS_Unloaded) {
+      Backgrounds2D[0]->LoadAsync(BackgroundIds[0]);
+    }
+
+    if (Characters2D[0].Status == LS_Unloaded) {
+      Characters2D[0].LoadAsync(CharacterIds[0] | 0x10000);
+    }
+
+    if (Characters2D[0].Status == LS_Loaded) Characters2D[0].Show = true;
   }
-  nk_end(Renderer->Nk);
+  if (Renderer->NuklearSupported) nk_end(Renderer->Nk);
 
   if (BgmChangeQueued &&
       Audio::Channels[Audio::AC_BGM0].State == Audio::ACS_Stopped) {

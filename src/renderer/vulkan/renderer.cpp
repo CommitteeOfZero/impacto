@@ -138,6 +138,10 @@ void Renderer::FindQueues() {
                                          &presentSupport);
     if (presentSupport) QueueIndices.PresentQueueIdx = i;
 
+    if (QueueIndices.GraphicsQueueIdx != 0xFFFFFFFF &&
+        QueueIndices.PresentQueueIdx != 0xFFFFFFFF)
+      return;
+
     i++;
   }
 }
@@ -301,7 +305,7 @@ void Renderer::CreateRenderPass() {
   VkAttachmentDescription colorAttachment{};
   colorAttachment.format = SwapChainImageFormat;
   colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-  colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+  colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
   colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
   colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
   colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -409,41 +413,23 @@ void Renderer::CreateSyncObjects() {
 }
 
 void Renderer::CreateVertexBuffer() {
-  VertexBufferDevice = CreateBuffer(
-      VertexBufferSize,
-      VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-      VMA_MEMORY_USAGE_GPU_ONLY);
+  VertexBufferAlloc =
+      CreateBuffer(VertexBufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                   VMA_MEMORY_USAGE_CPU_ONLY);
+
+  void* data;
+  vmaMapMemory(Allocator, VertexBufferAlloc.Allocation, &data);
+  VertexBuffer = (uint8_t*)data;
 }
 
 void Renderer::CreateIndexBuffer() {
-  IndexBufferDevice = CreateBuffer(
-      IndexBufferCount * sizeof(uint16_t),
-      VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-      VMA_MEMORY_USAGE_GPU_ONLY);
-}
+  IndexBufferAlloc =
+      CreateBuffer(IndexBufferCount, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+                   VMA_MEMORY_USAGE_CPU_ONLY);
 
-void Renderer::PushVertices() {
-  ImmediateSubmit([=](VkCommandBuffer cmd) {
-    VkBufferCopy copy;
-    copy.dstOffset = VertexBufferOffset;
-    copy.srcOffset = 0;
-    copy.size = VertexBufferFill;
-    vkCmdCopyBuffer(cmd, VertexBufferStaging.Buffer, VertexBufferDevice.Buffer,
-                    1, &copy);
-  });
-}
-
-void Renderer::PushIndices() {
-  const size_t bufferSize = IndexBufferFill * sizeof(uint16_t);
-
-  ImmediateSubmit([=](VkCommandBuffer cmd) {
-    VkBufferCopy copy;
-    copy.dstOffset = IndexBufferOffset;
-    copy.srcOffset = 0;
-    copy.size = bufferSize;
-    vkCmdCopyBuffer(cmd, IndexBufferStaging.Buffer, IndexBufferDevice.Buffer, 1,
-                    &copy);
-  });
+  void* data;
+  vmaMapMemory(Allocator, IndexBufferAlloc.Allocation, &data);
+  IndexBuffer = (uint16_t*)data;
 }
 
 void Renderer::CreateDescriptors() {
@@ -552,39 +538,15 @@ void Renderer::InitImpl() {
       "YUVFrame", bindingDescription, attributeDescriptions.data(),
       attributeDescriptions.size(), TripleTextureSetLayout);
 
+  PipelineCCMessageBox = new Pipeline(Device, RenderPass);
+  PipelineCCMessageBox->CreateWithShader(
+      "CCMessageBoxSprite", bindingDescription, attributeDescriptions.data(),
+      attributeDescriptions.size(), DoubleTextureSetLayout);
+
   CurrentPipeline = PipelineSprite;
 
   if (Profile::GameFeatures & GameFeature::Scene3D) {
     // Scene = new Scene3D(OpenGLWindow, Shaders);
-  }
-
-  VertexBufferStaging =
-      CreateBuffer(VertexBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                   VMA_MEMORY_USAGE_CPU_ONLY);
-  IndexBufferStaging =
-      CreateBuffer(IndexBufferCount, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                   VMA_MEMORY_USAGE_CPU_ONLY);
-
-  void* data;
-  VkResult e = vmaMapMemory(Allocator, VertexBufferStaging.Allocation, &data);
-  VertexBuffer = (uint8_t*)data;
-  vmaMapMemory(Allocator, IndexBufferStaging.Allocation, &data);
-  IndexBuffer = (uint16_t*)data;
-
-  // Fill index buffer with quads
-  int index = 0;
-  int vertex = 0;
-  while (index + 6 <= IndexBufferCount) {
-    // bottom-left -> top-left -> top-right
-    IndexBuffer[index] = vertex + 0;
-    IndexBuffer[index + 1] = vertex + 1;
-    IndexBuffer[index + 2] = vertex + 2;
-    // bottom-left -> top-right -> bottom-right
-    IndexBuffer[index + 3] = vertex + 0;
-    IndexBuffer[index + 4] = vertex + 2;
-    IndexBuffer[index + 5] = vertex + 3;
-    index += 6;
-    vertex += 4;
   }
 
   // Make 1x1 white pixel for colored rectangles
@@ -617,17 +579,20 @@ void Renderer::ShutdownImpl() {
     Scene->Shutdown();
   }
 
+  for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+    vkWaitForFences(Device, 1, &InFlightFences[i], VK_TRUE, UINT64_MAX);
+  }
   vkDestroyCommandPool(Device, CommandPool, nullptr);
   for (auto framebuffer : SwapChainFramebuffers) {
     vkDestroyFramebuffer(Device, framebuffer, nullptr);
   }
   vkDestroyRenderPass(Device, RenderPass, nullptr);
-  vmaUnmapMemory(Allocator, VertexBufferStaging.Allocation);
-  vmaDestroyBuffer(Allocator, VertexBufferStaging.Buffer,
-                   VertexBufferStaging.Allocation);
-  vmaUnmapMemory(Allocator, IndexBufferStaging.Allocation);
-  vmaDestroyBuffer(Allocator, IndexBufferStaging.Buffer,
-                   IndexBufferStaging.Allocation);
+  vmaUnmapMemory(Allocator, VertexBufferAlloc.Allocation);
+  vmaDestroyBuffer(Allocator, VertexBufferAlloc.Buffer,
+                   VertexBufferAlloc.Allocation);
+  vmaUnmapMemory(Allocator, IndexBufferAlloc.Allocation);
+  vmaDestroyBuffer(Allocator, IndexBufferAlloc.Buffer,
+                   IndexBufferAlloc.Allocation);
   for (auto imageView : SwapChainImageViews) {
     vkDestroyImageView(Device, imageView, nullptr);
   }
@@ -677,17 +642,28 @@ void Renderer::BeginFrameImpl() {
   }
 
   VkRenderPassBeginInfo renderPassInfo{};
-  VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
   renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
   renderPassInfo.renderPass = RenderPass;
   renderPassInfo.framebuffer = SwapChainFramebuffers[CurrentImageIndex];
   renderPassInfo.renderArea.offset = {0, 0};
   renderPassInfo.renderArea.extent = SwapChainExtent;
-  renderPassInfo.clearValueCount = 1;
-  renderPassInfo.pClearValues = &clearColor;
+  renderPassInfo.clearValueCount = 0;
 
   vkCmdBeginRenderPass(CommandBuffers[CurrentFrameIndex], &renderPassInfo,
                        VK_SUBPASS_CONTENTS_INLINE);
+
+  VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
+  VkClearAttachment clearAttachments = {};
+  clearAttachments.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+  clearAttachments.clearValue = clearColor;
+  clearAttachments.colorAttachment = 0;
+  VkClearRect clearRect = {};
+  clearRect.layerCount = 1;
+  clearRect.rect.offset = {0, 0};
+  clearRect.rect.extent = SwapChainExtent;
+
+  vkCmdClearAttachments(CommandBuffers[CurrentFrameIndex], 1, &clearAttachments,
+                        1, &clearRect);
   vkCmdBindPipeline(CommandBuffers[CurrentFrameIndex],
                     VK_PIPELINE_BIND_POINT_GRAPHICS,
                     CurrentPipeline->GraphicsPipeline);
@@ -704,6 +680,8 @@ void Renderer::BeginFrameImpl() {
   scissor.offset = {0, 0};
   scissor.extent = SwapChainExtent;
   vkCmdSetScissor(CommandBuffers[CurrentFrameIndex], 0, 1, &scissor);
+  PreviousScissorRect =
+      RectF(0.0f, 0.0f, SwapChainExtent.width, SwapChainExtent.height);
 
   VertexBufferOffset = 0;
   IndexBufferOffset = 0;
@@ -760,16 +738,25 @@ uint32_t Renderer::SubmitTextureImpl(TexFmt format, uint8_t* buffer, int width,
                                      int height) {
   VkDeviceSize imageSize = 0;
   VkFormat imageFormat = VK_FORMAT_R8G8B8A8_SRGB;
+  uint8_t* newBuffer;
 
   switch (format) {
     case TexFmt_RGBA:
       imageSize = width * height * 4;
       imageFormat = VK_FORMAT_R8G8B8A8_UNORM;
       break;
-    case TexFmt_RGB:
-      imageSize = width * height * 3;
-      imageFormat = VK_FORMAT_R8G8B8_UNORM;
-      break;
+    case TexFmt_RGB: {
+      imageSize = width * height * 4;
+      imageFormat = VK_FORMAT_R8G8B8A8_UNORM;
+      newBuffer = (uint8_t*)malloc(imageSize);
+      int num = width * height;
+      for (int i = 0; i < num; i++) {
+        newBuffer[4 * i] = buffer[3 * i];
+        newBuffer[4 * i + 1] = buffer[3 * i + 1];
+        newBuffer[4 * i + 2] = buffer[3 * i + 2];
+        newBuffer[4 * i + 3] = 0xFF;
+      }
+    } break;
     case TexFmt_U8:
       imageSize = width * height;
       imageFormat = VK_FORMAT_R8_UNORM;
@@ -779,7 +766,12 @@ uint32_t Renderer::SubmitTextureImpl(TexFmt format, uint8_t* buffer, int width,
       imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
   void* data;
   vmaMapMemory(Allocator, stagingBuffer.Allocation, &data);
-  memcpy(data, buffer, static_cast<size_t>(imageSize));
+  if (format == TexFmt_RGB) {
+    memcpy(data, newBuffer, static_cast<size_t>(imageSize));
+    free(newBuffer);
+  } else {
+    memcpy(data, buffer, static_cast<size_t>(imageSize));
+  }
   vmaUnmapMemory(Allocator, stagingBuffer.Allocation);
 
   VkExtent3D imageExtent;
@@ -894,12 +886,12 @@ void Renderer::DrawSprite3DRotatedImpl(Sprite const& sprite, RectF const& dest,
   EnsureTextureBound(sprite.Sheet.Texture);
 
   // OK, all good, make quad
+  MakeQuad();
 
   VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferOffset +
+                             VertexBufferFill);
   VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  IndexBufferFill += 6;
 
   QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
             (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
@@ -927,6 +919,39 @@ void Renderer::DrawCharacterMvlImpl(Sprite const& sprite, glm::vec2 topLeft,
            "Renderer->DrawCharacterMvl() called before BeginFrame()\n");
     return;
   }
+
+  // Draw just the character with this since we need to rebind the index buffer
+  // anyway...
+  Flush();
+
+  // Are we in sprite mode?
+  if (inverted)
+    EnsureMode(PipelineSpriteInverted);
+  else
+    EnsureMode(PipelineSprite);
+
+  // Do we have the texture assigned?
+  EnsureTextureBound(sprite.Sheet.Texture);
+
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferOffset +
+                             VertexBufferFill);
+  VertexBufferFill += verticesCount * sizeof(VertexBufferSprites);
+
+  IndexBufferFill += indicesCount;
+
+  int indexBufferOffset = IndexBufferOffset / sizeof(uint16_t);
+  memcpy(IndexBuffer + indexBufferOffset, mvlIndices,
+         indicesCount * sizeof(mvlIndices[0]));
+
+  for (int i = 0; i < verticesCount; i++) {
+    vertices[i].Position = DesignToNDCNonFlipped(glm::vec2(
+        mvlVertices[i * 5] + topLeft.x, mvlVertices[i * 5 + 1] + topLeft.y));
+    vertices[i].UV = glm::vec2(mvlVertices[i * 5 + 3], mvlVertices[i * 5 + 4]);
+    vertices[i].Tint = tint;
+  }
+
+  Flush();
 }
 
 void Renderer::DrawSpriteImpl(Sprite const& sprite, RectF const& dest,
@@ -946,20 +971,16 @@ void Renderer::DrawSpriteImpl(Sprite const& sprite, RectF const& dest,
   else
     EnsureMode(PipelineSprite);
 
-  // if (isScreencap) {
-  //   Flush();
-  // }
-
   // Do we have the texture assigned?
   EnsureTextureBound(sprite.Sheet.Texture);
 
   // OK, all good, make quad
+  MakeQuad();
 
   VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferOffset +
+                             VertexBufferFill);
   VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  IndexBufferFill += 6;
 
   QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
             (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
@@ -1017,12 +1038,12 @@ void Renderer::DrawMaskedSpriteImpl(Sprite const& sprite, Sprite const& mask,
       VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SpritePushConstants), &constants);
 
   // OK, all good, make quad
+  MakeQuad();
 
   VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferOffset +
+                             VertexBufferFill);
   VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  IndexBufferFill += 6;
 
   QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
             (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
@@ -1043,6 +1064,81 @@ void Renderer::DrawCCMessageBoxImpl(Sprite const& sprite, Sprite const& mask,
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawCCMessageBox() called before BeginFrame()\n");
     return;
+  }
+
+  if (alpha < 0) alpha = 0;
+  if (alpha > fadeRange + 256) alpha = fadeRange + 256;
+
+  float alphaRange = 256.0f / fadeRange;
+  float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
+
+  EnsureMode(PipelineCCMessageBox);
+
+  VkDescriptorImageInfo imageBufferInfo[2];
+  imageBufferInfo[0].sampler = Sampler;
+  imageBufferInfo[0].imageView = Textures[sprite.Sheet.Texture].ImageView;
+  imageBufferInfo[0].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+  imageBufferInfo[1].sampler = Sampler;
+  imageBufferInfo[1].imageView = Textures[mask.Sheet.Texture].ImageView;
+  imageBufferInfo[1].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+  VkWriteDescriptorSet writeDescriptorSet{};
+  writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+  writeDescriptorSet.dstSet = 0;
+  writeDescriptorSet.dstBinding = 0;
+  writeDescriptorSet.descriptorCount = 2;
+  writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+  writeDescriptorSet.pImageInfo = imageBufferInfo;
+
+  vkCmdPushDescriptorSetKHR(
+      CommandBuffers[CurrentFrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
+      PipelineMaskedSprite->PipelineLayout, 0, 1, &writeDescriptorSet);
+
+  SpritePushConstants constants = {};
+  constants.CCBoxAlpha = glm::vec4(alphaRange, constAlpha, effectCt, 0.0f);
+  vkCmdPushConstants(
+      CommandBuffers[CurrentFrameIndex], CurrentPipeline->PipelineLayout,
+      VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SpritePushConstants), &constants);
+
+  // OK, all good, make quad
+  MakeQuad();
+
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferOffset +
+                             VertexBufferFill);
+  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
+
+  IndexBufferFill += 6;
+
+  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
+            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
+  QuadSetUV(mask.Bounds, mask.Sheet.DesignWidth, mask.Sheet.DesignHeight,
+            (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites));
+
+  QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
+                  sizeof(VertexBufferSprites));
+
+  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
+}
+
+inline void Renderer::MakeQuad() {
+  int indexBufferOffset = IndexBufferOffset / sizeof(uint16_t);
+  if (IndexBufferFill + 6 <= IndexBufferCount) {
+    // bottom-left -> top-left -> top-right
+    IndexBuffer[indexBufferOffset + IndexBufferFill] = VertexBufferCount + 0;
+    IndexBuffer[indexBufferOffset + IndexBufferFill + 1] =
+        VertexBufferCount + 1;
+    IndexBuffer[indexBufferOffset + IndexBufferFill + 2] =
+        VertexBufferCount + 2;
+    // bottom-left -> top-right -> bottom-right
+    IndexBuffer[indexBufferOffset + IndexBufferFill + 3] =
+        VertexBufferCount + 0;
+    IndexBuffer[indexBufferOffset + IndexBufferFill + 4] =
+        VertexBufferCount + 2;
+    IndexBuffer[indexBufferOffset + IndexBufferFill + 5] =
+        VertexBufferCount + 3;
+    IndexBufferFill += 6;
+    VertexBufferCount += 4;
   }
 }
 
@@ -1193,17 +1289,12 @@ void Renderer::Flush() {
   }
 
   if (VertexBufferFill > 0 && IndexBufferFill > 0) {
-    PushVertices();
-    PushIndices();
-
-    // I don't think there's any reason to rebind this every frame, but I'll
-    // leave that for later
-    VkBuffer vertexBuffers[] = {VertexBufferDevice.Buffer};
+    VkBuffer vertexBuffers[] = {VertexBufferAlloc.Buffer};
     VkDeviceSize offsets[] = {(VkDeviceSize)VertexBufferOffset};
     vkCmdBindVertexBuffers(CommandBuffers[CurrentFrameIndex], 0, 1,
                            vertexBuffers, offsets);
     vkCmdBindIndexBuffer(CommandBuffers[CurrentFrameIndex],
-                         IndexBufferDevice.Buffer, IndexBufferOffset,
+                         IndexBufferAlloc.Buffer, IndexBufferOffset,
                          VK_INDEX_TYPE_UINT16);
 
     vkCmdDrawIndexed(CommandBuffers[CurrentFrameIndex], IndexBufferFill, 1, 0,
@@ -1213,6 +1304,7 @@ void Renderer::Flush() {
   IndexBufferFill = 0;
   VertexBufferOffset += VertexBufferFill;
   VertexBufferFill = 0;
+  VertexBufferCount = 0;
 }
 
 void Renderer::DrawVideoTextureImpl(YUVFrame* tex, RectF const& dest,
@@ -1256,12 +1348,12 @@ void Renderer::DrawVideoTextureImpl(YUVFrame* tex, RectF const& dest,
       VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SpritePushConstants), &constants);
 
   // OK, all good, make quad
+  MakeQuad();
 
   VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferOffset +
+                             VertexBufferFill);
   VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  IndexBufferFill += 6;
 
   QuadSetUV(RectF(0.0f, 0.0f, tex->Width, tex->Height), tex->Width, tex->Height,
             (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
@@ -1271,13 +1363,120 @@ void Renderer::DrawVideoTextureImpl(YUVFrame* tex, RectF const& dest,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
-void Renderer::CaptureScreencapImpl(Sprite const& sprite) {}
+void Renderer::CaptureScreencapImpl(Sprite const& sprite) {
+  // Here we go...
+  Flush();
+  vkCmdEndRenderPass(CommandBuffers[CurrentFrameIndex]);
+
+  // Capture here
+  VkImageSubresourceRange range = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
+
+  VkImageMemoryBarrier imageBarrierToTransfer = {};
+  imageBarrierToTransfer.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+  imageBarrierToTransfer.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+  imageBarrierToTransfer.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+  imageBarrierToTransfer.image = Textures[sprite.Sheet.Texture].Image.Image;
+  imageBarrierToTransfer.subresourceRange = range;
+  imageBarrierToTransfer.srcAccessMask = 0;
+  imageBarrierToTransfer.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+  vkCmdPipelineBarrier(CommandBuffers[CurrentFrameIndex],
+                       VK_PIPELINE_STAGE_TRANSFER_BIT,
+                       VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0,
+                       nullptr, 1, &imageBarrierToTransfer);
+
+  imageBarrierToTransfer.oldLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+  imageBarrierToTransfer.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+  imageBarrierToTransfer.image = SwapChainImages[CurrentFrameIndex];
+  imageBarrierToTransfer.srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+  imageBarrierToTransfer.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+  vkCmdPipelineBarrier(CommandBuffers[CurrentFrameIndex],
+                       VK_PIPELINE_STAGE_TRANSFER_BIT,
+                       VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0,
+                       nullptr, 1, &imageBarrierToTransfer);
+
+  VkOffset3D blitSize;
+  blitSize.x = SwapChainExtent.width;
+  blitSize.y = SwapChainExtent.height;
+  blitSize.z = 1;
+  VkImageBlit imageBlitRegion{};
+  imageBlitRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+  imageBlitRegion.srcSubresource.layerCount = 1;
+  imageBlitRegion.srcOffsets[1] = blitSize;
+  imageBlitRegion.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+  imageBlitRegion.dstSubresource.layerCount = 1;
+  imageBlitRegion.dstOffsets[1] = blitSize;
+
+  vkCmdBlitImage(CommandBuffers[CurrentFrameIndex],
+                 SwapChainImages[CurrentFrameIndex],
+                 VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                 Textures[sprite.Sheet.Texture].Image.Image,
+                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageBlitRegion,
+                 VK_FILTER_LINEAR);
+
+  imageBarrierToTransfer.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+  imageBarrierToTransfer.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+  imageBarrierToTransfer.image = Textures[sprite.Sheet.Texture].Image.Image;
+  imageBarrierToTransfer.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+  imageBarrierToTransfer.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+  vkCmdPipelineBarrier(CommandBuffers[CurrentFrameIndex],
+                       VK_PIPELINE_STAGE_TRANSFER_BIT,
+                       VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0,
+                       nullptr, 1, &imageBarrierToTransfer);
+
+  imageBarrierToTransfer.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+  imageBarrierToTransfer.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+  imageBarrierToTransfer.image = SwapChainImages[CurrentFrameIndex];
+  imageBarrierToTransfer.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+  imageBarrierToTransfer.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+  vkCmdPipelineBarrier(CommandBuffers[CurrentFrameIndex],
+                       VK_PIPELINE_STAGE_TRANSFER_BIT,
+                       VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0,
+                       nullptr, 1, &imageBarrierToTransfer);
+
+  VkRenderPassBeginInfo renderPassInfo{};
+  renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+  renderPassInfo.renderPass = RenderPass;
+  renderPassInfo.framebuffer = SwapChainFramebuffers[CurrentImageIndex];
+  renderPassInfo.renderArea.offset = {0, 0};
+  renderPassInfo.renderArea.extent = SwapChainExtent;
+  renderPassInfo.clearValueCount = 0;
+
+  vkCmdBeginRenderPass(CommandBuffers[CurrentFrameIndex], &renderPassInfo,
+                       VK_SUBPASS_CONTENTS_INLINE);
+}
 
 void Renderer::EnableScissorImpl() {}
 
-void Renderer::SetScissorRectImpl(RectF const& rect) {}
+void Renderer::SetScissorRectImpl(RectF const& rect) {
+  if (rect.X != PreviousScissorRect.X && rect.Y != PreviousScissorRect.Y &&
+      rect.Width != PreviousScissorRect.Width &&
+      rect.Height != PreviousScissorRect.Height) {
+    Rect viewport = Window->GetViewport();
+    VkExtent2D scissorExtent;
+    scissorExtent.width = (int)(rect.Width);
+    scissorExtent.height = (int)(rect.Height);
+    VkRect2D scissor{};
+    scissor.offset = {(int)rect.X, (int)rect.Y};
+    scissor.extent = scissorExtent;
+    Flush();
+    vkCmdSetScissor(CommandBuffers[CurrentFrameIndex], 0, 1, &scissor);
+    PreviousScissorRect = rect;
+  }
+}
 
-void Renderer::DisableScissorImpl() {}
+void Renderer::DisableScissorImpl() {
+  if (PreviousScissorRect.X != 0.0f && PreviousScissorRect.Y != 0.0f &&
+      PreviousScissorRect.Width != SwapChainExtent.width &&
+      PreviousScissorRect.Height != SwapChainExtent.height) {
+    Flush();
+    VkRect2D scissor{};
+    scissor.offset = {0, 0};
+    scissor.extent = SwapChainExtent;
+    vkCmdSetScissor(CommandBuffers[CurrentFrameIndex], 0, 1, &scissor);
+    PreviousScissorRect =
+        RectF(0.0f, 0.0f, SwapChainExtent.width, SwapChainExtent.height);
+  }
+}
 
 }  // namespace Vulkan
 }  // namespace Impacto

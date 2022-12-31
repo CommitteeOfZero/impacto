@@ -46,6 +46,8 @@ void ImmediateSubmit(std::function<void(VkCommandBuffer cmd)>&& function) {
   cmdBeginInfo.pInheritanceInfo = nullptr;
   cmdBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
+  vkResetFences(MainUploadContext.Device, 1, &MainUploadContext.UploadFence);
+
   vkBeginCommandBuffer(cmd, &cmdBeginInfo);
   function(cmd);
   vkEndCommandBuffer(cmd);

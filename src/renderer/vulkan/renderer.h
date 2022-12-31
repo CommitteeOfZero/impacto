@@ -28,6 +28,7 @@ struct SpritePushConstants {
   VkBool32 IsInverted;
   VkBool32 IsSameTexture;
   glm::vec2 Alpha;
+  glm::vec4 CCBoxAlpha;
 };
 
 struct VertexBufferSprites {
@@ -93,9 +94,6 @@ class Renderer : public BaseRenderer {
   void CreateVertexBuffer();
   void CreateIndexBuffer();
 
-  void PushVertices();
-  void PushIndices();
-
   void InitImpl() override;
   void ShutdownImpl() override;
 
@@ -151,6 +149,7 @@ class Renderer : public BaseRenderer {
   void EnsureMode(Pipeline* pipeline, bool flush = true);
   void Flush();
 
+  inline void MakeQuad();
   inline void QuadSetUV(RectF const& spriteBounds, float designWidth,
                         float designHeight, uintptr_t uvs, int stride);
   inline void QuadSetPosition(RectF const& transformedQuad, float angle,
@@ -209,10 +208,8 @@ class Renderer : public BaseRenderer {
   Pipeline* PipelineYUVFrame;
   Pipeline* PipelineCCMessageBox;
 
-  AllocatedBuffer VertexBufferDevice;
-  AllocatedBuffer IndexBufferDevice;
-  AllocatedBuffer VertexBufferStaging;
-  AllocatedBuffer IndexBufferStaging;
+  AllocatedBuffer VertexBufferAlloc;
+  AllocatedBuffer IndexBufferAlloc;
 
   uint32_t CurrentTexture = 0;
   uint32_t NextTextureId = 1;
@@ -225,13 +222,17 @@ class Renderer : public BaseRenderer {
       VertexBufferSize / (4 * sizeof(VertexBufferSprites)) * 6;
 
   uint8_t* VertexBuffer;
+  uint16_t* IndexBuffer;
+
   int VertexBufferFill = 0;
   int VertexBufferOffset = 0;
-  uint16_t* IndexBuffer;
+  int VertexBufferCount = 0;
   int IndexBufferFill = 0;
   int IndexBufferOffset = 0;
 
   Sprite RectSprite;
+
+  RectF PreviousScissorRect;
 };
 
 }  // namespace Vulkan
