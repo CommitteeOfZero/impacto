@@ -11,7 +11,7 @@
 
 namespace Impacto {
 
-BETTER_ENUM(RendererType, int, OpenGL, Vulkan);
+BETTER_ENUM(RendererType, int, OpenGL, Vulkan, DirectX9);
 
 BETTER_ENUM(GameFeature, int, Nuklear = (1 << 0), Scene3D = (1 << 1),
             ModelViewer = (1 << 2), Sc3VirtualMachine = (1 << 3),

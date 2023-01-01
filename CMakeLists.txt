@@ -550,6 +550,9 @@ if (WIN32)
     list(APPEND Impacto_Src
         src/manifest_windows.manifest
     )
+
+    add_definitions(-DIMPACTO_ENABLE_DX9)
+    set(IMPACTO_ENABLE_DX9 ON)
 endif()
 
 if (NX)
@@ -739,6 +742,26 @@ if (NOT DEFINED IMPACTO_DISABLE_VULKAN)
         ${Vulkan_LIBRARIES}
     )
     include_directories(${Vulkan_INCLUDE_DIRS})
+endif()
+
+if (DEFINED IMPACTO_ENABLE_DX9)
+    list(APPEND Impacto_Src
+        src/renderer/dx9/renderer.cpp
+        src/renderer/dx9/window.cpp
+        src/renderer/dx9/shader.cpp
+        src/renderer/dx9/yuvframe.cpp
+    )
+    list(APPEND Impacto_Header
+        src/renderer/dx9/renderer.h
+        src/renderer/dx9/window.h
+        src/renderer/dx9/shader.h
+        src/renderer/dx9/yuvframe.h
+    )
+
+    list(APPEND Impacto_Libs
+        d3d9
+        d3dcompiler
+    )
 endif()
 
 add_executable (impacto ${Impacto_Src} ${Impacto_Header})
