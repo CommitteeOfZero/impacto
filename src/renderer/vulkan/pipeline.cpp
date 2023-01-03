@@ -16,6 +16,37 @@ static char const VertShaderExtension[] = "_vert.spv";
 Pipeline::Pipeline(VkDevice device, VkRenderPass renderPass) {
   Device = device;
   RenderPass = renderPass;
+
+  VkPipelineRasterizationStateCreateInfo rasterizer{};
+  rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+  rasterizer.depthClampEnable = VK_FALSE;
+  rasterizer.rasterizerDiscardEnable = VK_FALSE;
+  rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+  rasterizer.lineWidth = 1.0f;
+  rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+  rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+  rasterizer.depthBiasEnable = VK_FALSE;
+  RasterizerInfo = rasterizer;
+
+  VkPipelineDepthStencilStateCreateInfo depthStencil{};
+  depthStencil.sType =
+      VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+  depthStencil.depthTestEnable = VK_FALSE;
+  depthStencil.depthWriteEnable = VK_FALSE;
+  depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
+  depthStencil.depthBoundsTestEnable = VK_FALSE;
+  depthStencil.stencilTestEnable = VK_FALSE;
+  DepthStencilInfo = depthStencil;
+}
+
+void Pipeline::SetRasterizerInfo(
+    VkPipelineRasterizationStateCreateInfo rasterizerInfo) {
+  RasterizerInfo = rasterizerInfo;
+}
+
+void Pipeline::SetDepthStencilInfo(
+    VkPipelineDepthStencilStateCreateInfo depthStencilInfo) {
+  DepthStencilInfo = depthStencilInfo;
 }
 
 void Pipeline::CreateWithShader(
@@ -90,16 +121,6 @@ void Pipeline::CreateWithShader(
   viewportState.viewportCount = 1;
   viewportState.scissorCount = 1;
 
-  VkPipelineRasterizationStateCreateInfo rasterizer{};
-  rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-  rasterizer.depthClampEnable = VK_FALSE;
-  rasterizer.rasterizerDiscardEnable = VK_FALSE;
-  rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-  rasterizer.lineWidth = 1.0f;
-  rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-  rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
-  rasterizer.depthBiasEnable = VK_FALSE;
-
   VkPipelineMultisampleStateCreateInfo multisampling{};
   multisampling.sType =
       VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
@@ -168,10 +189,11 @@ void Pipeline::CreateWithShader(
   pipelineInfo.pVertexInputState = &vertexInputInfo;
   pipelineInfo.pInputAssemblyState = &inputAssembly;
   pipelineInfo.pViewportState = &viewportState;
-  pipelineInfo.pRasterizationState = &rasterizer;
+  pipelineInfo.pRasterizationState = &RasterizerInfo;
   pipelineInfo.pMultisampleState = &multisampling;
   pipelineInfo.pColorBlendState = &colorBlending;
   pipelineInfo.pDynamicState = &dynamicState;
+  pipelineInfo.pDepthStencilState = &DepthStencilInfo;
   pipelineInfo.layout = PipelineLayout;
   pipelineInfo.renderPass = RenderPass;
   pipelineInfo.subpass = 0;

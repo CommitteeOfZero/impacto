@@ -81,7 +81,8 @@ void Update(float dt) {
     UiMsaaCount = Window->MsaaCount;
   }
 
-  if (nk_begin(Renderer->Nk, "Scene",
+  if (Renderer->NuklearSupported &&
+      nk_begin(Renderer->Nk, "Scene",
                nk_rect(20, 20, 300, Window->WindowHeight - 40),
                NK_WINDOW_BORDER | NK_WINDOW_TITLE)) {
     // FPS counter
@@ -319,8 +320,16 @@ void Update(float dt) {
 
       nk_tree_pop(Renderer->Nk);
     }
+  } else {
+    if (Renderer->Scene->Renderables[0]->Status == LS_Loaded) {
+      Renderer->Scene->Renderables[0]->IsVisible = true;
+    }
+
+    if (Renderer->Scene->Renderables[1]->Status == LS_Loaded) {
+      Renderer->Scene->Renderables[1]->IsVisible = true;
+    }
   }
-  nk_end(Renderer->Nk);
+  if (Renderer->NuklearSupported) nk_end(Renderer->Nk);
 
   if (BgmChangeQueued &&
       Audio::Channels[Audio::AC_BGM0].State == Audio::ACS_Stopped) {

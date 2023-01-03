@@ -7,7 +7,6 @@
 #include "../renderer.h"
 #include "utils.h"
 #include "window.h"
-#include "pipeline.h"
 #include "yuvframe.h"
 
 namespace Impacto {
@@ -21,8 +20,6 @@ const bool EnableValidationLayers = false;
 #else
 const bool EnableValidationLayers = true;
 #endif
-
-int const MAX_FRAMES_IN_FLIGHT = 2;
 
 struct SpritePushConstants {
   VkBool32 IsInverted;
@@ -102,6 +99,7 @@ class Renderer : public BaseRenderer {
   int NuklearHandleEventImpl(SDL_Event* ev) override;
 
   void BeginFrameImpl() override;
+  void BeginFrame2DImpl() override;
   void EndFrameImpl() override;
 
   uint32_t SubmitTextureImpl(TexFmt format, uint8_t* buffer, int width,
@@ -185,22 +183,14 @@ class Renderer : public BaseRenderer {
   VkCommandPool CommandPool;
   VkCommandBuffer CommandBuffers[MAX_FRAMES_IN_FLIGHT];
 
-  uint32_t CurrentFrameIndex = 0;
-  uint32_t CurrentImageIndex = 0;
-
   VkSemaphore ImageAvailableSemaphores[MAX_FRAMES_IN_FLIGHT];
   VkSemaphore RenderFinishedSemaphores[MAX_FRAMES_IN_FLIGHT];
   VkFence InFlightFences[MAX_FRAMES_IN_FLIGHT];
-
-  VkSampler Sampler;
-  PFN_vkCmdPushDescriptorSetKHR vkCmdPushDescriptorSetKHR;
 
   VkDescriptorPool DescriptorPool;
   VkDescriptorSetLayout SingleTextureSetLayout;
   VkDescriptorSetLayout DoubleTextureSetLayout;
   VkDescriptorSetLayout TripleTextureSetLayout;
-
-  Pipeline* CurrentPipeline = 0;
 
   Pipeline* PipelineSprite;
   Pipeline* PipelineSpriteInverted;
@@ -213,7 +203,6 @@ class Renderer : public BaseRenderer {
 
   uint32_t CurrentTexture = 0;
   uint32_t NextTextureId = 1;
-  ska::flat_hash_map<uint32_t, VkTexture> Textures;
 
   VkYUVFrame* VideoFrameInternal;
 

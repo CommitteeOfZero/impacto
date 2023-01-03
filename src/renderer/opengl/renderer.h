@@ -39,6 +39,7 @@ class Renderer : public BaseRenderer {
   int NuklearHandleEventImpl(SDL_Event* ev) override;
 
   void BeginFrameImpl() override;
+  void BeginFrame2DImpl() override;
   void EndFrameImpl() override;
 
   uint32_t SubmitTextureImpl(TexFmt format, uint8_t* buffer, int width,

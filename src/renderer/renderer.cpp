@@ -56,6 +56,8 @@ int BaseRenderer::NuklearHandleEvent(SDL_Event* ev) {
 
 void BaseRenderer::BeginFrame() { BeginFrameImpl(); }
 
+void BaseRenderer::BeginFrame2D() { BeginFrame2DImpl(); }
+
 void BaseRenderer::EndFrame() { EndFrameImpl(); }
 
 uint32_t BaseRenderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,

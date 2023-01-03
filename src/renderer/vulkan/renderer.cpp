@@ -6,6 +6,7 @@
 
 #include "../../profile/game.h"
 #include "../../game.h"
+#include "3d/scene.h"
 #include "yuvframe.h"
 
 namespace Impacto {
@@ -546,7 +547,8 @@ void Renderer::InitImpl() {
   CurrentPipeline = PipelineSprite;
 
   if (Profile::GameFeatures & GameFeature::Scene3D) {
-    // Scene = new Scene3D(OpenGLWindow, Shaders);
+    Scene = new Scene3D(VkWindow, Device, RenderPass, CommandBuffers);
+    Scene->Init();
   }
 
   // Make 1x1 white pixel for colored rectangles
@@ -686,6 +688,8 @@ void Renderer::BeginFrameImpl() {
   VertexBufferOffset = 0;
   IndexBufferOffset = 0;
 }
+
+void Renderer::BeginFrame2DImpl() {}
 
 void Renderer::EndFrameImpl() {
   if (!Drawing) return;
@@ -1151,12 +1155,12 @@ inline void Renderer::QuadSetUV(RectF const& spriteBounds, float designWidth,
 
   // top-left
   *(glm::vec2*)(uvs + 0 * stride) = glm::vec2(leftUV, topUV);
-  // top-right
-  *(glm::vec2*)(uvs + 1 * stride) = glm::vec2(rightUV, topUV);
+  // bottom-left
+  *(glm::vec2*)(uvs + 1 * stride) = glm::vec2(leftUV, bottomUV);
   // bottom-right
   *(glm::vec2*)(uvs + 2 * stride) = glm::vec2(rightUV, bottomUV);
-  // bottom-left
-  *(glm::vec2*)(uvs + 3 * stride) = glm::vec2(leftUV, bottomUV);
+  // top-right
+  *(glm::vec2*)(uvs + 3 * stride) = glm::vec2(rightUV, topUV);
 }
 
 inline void Renderer::QuadSetPosition(RectF const& transformedQuad, float angle,
@@ -1181,12 +1185,12 @@ inline void Renderer::QuadSetPosition(RectF const& transformedQuad, float angle,
 
   // top-left
   *(glm::vec2*)(positions + 0 * stride) = DesignToNDCNonFlipped(topLeft);
-  // top-right
-  *(glm::vec2*)(positions + 1 * stride) = DesignToNDCNonFlipped(topRight);
+  // bottom-left
+  *(glm::vec2*)(positions + 1 * stride) = DesignToNDCNonFlipped(bottomLeft);
   // bottom-right
   *(glm::vec2*)(positions + 2 * stride) = DesignToNDCNonFlipped(bottomRight);
-  // bottom-left
-  *(glm::vec2*)(positions + 3 * stride) = DesignToNDCNonFlipped(bottomLeft);
+  // top-right
+  *(glm::vec2*)(positions + 3 * stride) = DesignToNDCNonFlipped(topRight);
 }
 
 void Renderer::QuadSetPosition3DRotated(RectF const& transformedQuad,

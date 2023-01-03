@@ -137,7 +137,9 @@ int Renderer::NuklearHandleEventImpl(SDL_Event* ev) {
   return nk_sdl_handle_event(&e_nk);
 }
 
-void Renderer::BeginFrameImpl() {
+void Renderer::BeginFrameImpl() {}
+
+void Renderer::BeginFrame2DImpl() {
   if (Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->BeginFrame() called before EndFrame()\n");

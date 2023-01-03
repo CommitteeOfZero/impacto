@@ -256,9 +256,13 @@ static int FlagWorkIndexEnd = 0;
 void Render() {
   Window->Update();
 
+  Renderer->BeginFrame();
+
   if (Profile::GameFeatures & GameFeature::Scene3D) {
     Renderer->Scene->Render();
   }
+
+  Renderer->BeginFrame2D();
 
   if ((Profile::GameFeatures & GameFeature::Nuklear) &&
       (Profile::GameFeatures & GameFeature::Sc3VirtualMachine)) {
@@ -334,7 +338,6 @@ void Render() {
     }
   }
 
-  Renderer->BeginFrame();
   if (Profile::GameFeatures & GameFeature::Renderer2D) {
     for (int i = 0; i < Vm::MaxThreads; i++) {
       if (DrawComponents[i] == +DrawComponentType::None) break;

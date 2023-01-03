@@ -132,6 +132,8 @@ void Renderer::BeginFrameImpl() {
   Device->BeginScene();
 }
 
+void Renderer::BeginFrame2DImpl() {}
+
 void Renderer::EndFrameImpl() {
   if (!Drawing) return;
   Flush();
@@ -595,7 +597,7 @@ void Renderer::EnsureTextureBound(uint32_t texture) {
 
 void Renderer::EnsureShader(Shader* shader, bool flush) {
   if (CurrentShader != shader) {
-    ImpLog(LL_Debug, LC_Render, "Renderer2D changing mode\n");
+    ImpLogSlow(LL_Debug, LC_Render, "Renderer2D changing mode\n");
     if (flush) Flush();
     shader->UseShader(Device);
     CurrentShader = shader;
@@ -689,7 +691,14 @@ void Renderer::EnableScissorImpl() {
   Device->SetRenderState(D3DRS_SCISSORTESTENABLE, true);
 }
 
-void Renderer::SetScissorRectImpl(RectF const& rect) {}
+void Renderer::SetScissorRectImpl(RectF const& rect) {
+  RECT rectW{};
+  rectW.left = rect.X;
+  rectW.top = rect.Y;
+  rectW.right = rect.X + rect.Width;
+  rectW.bottom = rect.Y + rect.Height;
+  Device->SetScissorRect(&rectW);
+}
 
 void Renderer::DisableScissorImpl() {
   Flush();

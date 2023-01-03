@@ -22,6 +22,7 @@ class BaseRenderer {
   int NuklearHandleEvent(SDL_Event* ev);
 
   void BeginFrame();
+  void BeginFrame2D();
   void EndFrame();
 
   uint32_t SubmitTexture(TexFmt format, uint8_t* buffer, int width, int height);
@@ -110,6 +111,7 @@ class BaseRenderer {
   virtual int NuklearHandleEventImpl(SDL_Event* ev) = 0;
 
   virtual void BeginFrameImpl() = 0;
+  virtual void BeginFrame2DImpl() = 0;
   virtual void EndFrameImpl() = 0;
 
   virtual uint32_t SubmitTextureImpl(TexFmt format, uint8_t* buffer, int width,

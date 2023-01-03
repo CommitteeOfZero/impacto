@@ -9,6 +9,17 @@ namespace Vulkan {
 VmaAllocator Allocator;
 UploadContext MainUploadContext;
 
+uint32_t CurrentFrameIndex = 0;
+uint32_t CurrentImageIndex = 0;
+
+Pipeline* CurrentPipeline = 0;
+
+VkSampler Sampler;
+
+PFN_vkCmdPushDescriptorSetKHR vkCmdPushDescriptorSetKHR;
+
+ska::flat_hash_map<uint32_t, VkTexture> Textures;
+
 void CreateAllocator(VkPhysicalDevice physicalDevice, VkDevice device,
                      VkInstance instance) {
   VmaAllocatorCreateInfo allocatorInfo = {};

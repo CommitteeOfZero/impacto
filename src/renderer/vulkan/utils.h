@@ -2,10 +2,23 @@
 
 #include <vulkan/vulkan.h>
 #include <functional>
+#include <flat_hash_map.hpp>
 #include "../../vendor/vma/vk_mem_alloc.h"
+#include "pipeline.h"
 
 namespace Impacto {
 namespace Vulkan {
+
+int const MAX_FRAMES_IN_FLIGHT = 2;
+
+extern uint32_t CurrentFrameIndex;
+extern uint32_t CurrentImageIndex;
+
+extern Pipeline* CurrentPipeline;
+
+extern VkSampler Sampler;
+
+extern PFN_vkCmdPushDescriptorSetKHR vkCmdPushDescriptorSetKHR;
 
 struct VkQueueFamilies {
   uint32_t GraphicsQueueIdx;
@@ -22,11 +35,13 @@ struct AllocatedImage {
   VmaAllocation Allocation;
 };
 
-struct VkTexture {
+typedef struct VkTexture {
   AllocatedImage Image;
   VkImageView ImageView;
   VkDescriptorSet Descriptor;
-};
+} VkTexture;
+
+extern ska::flat_hash_map<uint32_t, VkTexture> Textures;
 
 struct UploadContext {
   VkDevice Device;

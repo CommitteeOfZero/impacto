@@ -9,6 +9,9 @@ class Pipeline {
  public:
   Pipeline(VkDevice device, VkRenderPass renderPass);
   ~Pipeline();
+  void SetRasterizerInfo(VkPipelineRasterizationStateCreateInfo rasterizerInfo);
+  void Pipeline::SetDepthStencilInfo(
+      VkPipelineDepthStencilStateCreateInfo depthStencilInfo);
   void CreateWithShader(
       char const* name, VkVertexInputBindingDescription bindingDescription,
       VkVertexInputAttributeDescription* attributeDescriptions,
@@ -23,6 +26,8 @@ class Pipeline {
 
   VkDevice Device;
   VkRenderPass RenderPass;
+  VkPipelineRasterizationStateCreateInfo RasterizerInfo;
+  VkPipelineDepthStencilStateCreateInfo DepthStencilInfo;
 };
 
 }  // namespace Vulkan
