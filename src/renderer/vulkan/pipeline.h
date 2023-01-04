@@ -10,7 +10,7 @@ class Pipeline {
   Pipeline(VkDevice device, VkRenderPass renderPass);
   ~Pipeline();
   void SetRasterizerInfo(VkPipelineRasterizationStateCreateInfo rasterizerInfo);
-  void Pipeline::SetDepthStencilInfo(
+  void SetDepthStencilInfo(
       VkPipelineDepthStencilStateCreateInfo depthStencilInfo);
   void CreateWithShader(
       char const* name, VkVertexInputBindingDescription bindingDescription,

@@ -156,13 +156,14 @@ void Renderable3D::Init(VulkanWindow* window, VkDevice device,
                                 modelAttributeDescriptions, 5,
                                 ModelDescriptorSetLayout);
 
+  depthStencil.depthWriteEnable = VK_FALSE;
   PipelineOutline = new Pipeline(Device, renderPass);
+  PipelineOutline->SetDepthStencilInfo(depthStencil);
   PipelineOutline->SetRasterizerInfo(rasterizer);
   PipelineOutline->CreateWithShader(
       "Renderable3D_Outline", modelBindingDescription,
       modelAttributeDescriptions, 5, ModelDescriptorSetLayout);
 
-  depthStencil.depthWriteEnable = VK_FALSE;
   PipelineMainNoDepthWrite = new Pipeline(Device, renderPass);
   PipelineMainNoDepthWrite->SetDepthStencilInfo(depthStencil);
   PipelineMainNoDepthWrite->CreateWithShader(

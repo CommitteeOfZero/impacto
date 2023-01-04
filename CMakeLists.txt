@@ -727,6 +727,8 @@ if (NOT DEFINED IMPACTO_DISABLE_VULKAN)
         src/renderer/vulkan/pipeline.cpp
         src/renderer/vulkan/utils.cpp
         src/renderer/vulkan/yuvframe.cpp
+        src/renderer/vulkan/3d/renderable3d.cpp
+        src/renderer/vulkan/3d/scene.cpp
     )
     list(APPEND Impacto_Header
         src/renderer/vulkan/window.h
@@ -734,6 +736,8 @@ if (NOT DEFINED IMPACTO_DISABLE_VULKAN)
         src/renderer/vulkan/pipeline.h
         src/renderer/vulkan/utils.h
         src/renderer/vulkan/yuvframe.h
+        src/renderer/vulkan/3d/renderable3d.h
+        src/renderer/vulkan/3d/scene.h
     )
 
     find_package(Vulkan REQUIRED)

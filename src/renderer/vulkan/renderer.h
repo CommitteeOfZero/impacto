@@ -84,6 +84,7 @@ class Renderer : public BaseRenderer {
   void CreateRenderPass();
   void CreateFramebuffers();
   void CreateCommandPool();
+  void CreateDepthImage();
   void CreateCommandBuffer();
   void CreateSyncObjects();
   void CreateDescriptors();
@@ -178,6 +179,10 @@ class Renderer : public BaseRenderer {
   VkExtent2D SwapChainExtent;
   std::vector<VkImageView> SwapChainImageViews;
   std::vector<VkFramebuffer> SwapChainFramebuffers;
+
+  AllocatedImage DepthImage;
+  VkImageView DepthImageView;
+
   VkRenderPass RenderPass;
 
   VkCommandPool CommandPool;

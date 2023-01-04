@@ -48,7 +48,7 @@ struct UploadContext {
   VkQueue GraphicsQueue;
   VkFence UploadFence;
   VkCommandPool CommandPool;
-  VkCommandBuffer CommandBuffer;
+  alignas(16) VkCommandBuffer CommandBuffer;
 };
 
 extern VmaAllocator Allocator;

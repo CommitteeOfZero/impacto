@@ -8,7 +8,7 @@ void VkYUVFrame::Init(int width, int height) {
   Height = height;
 
   VkDeviceSize imageSize = width * height;
-  VkDeviceSize bufferSize = (width * height) + 2 * ((width / 2) * (height / 2));
+  VkDeviceSize bufferSize = imageSize + 2 * ((width / 2) * (height / 2));
   VkFormat imageFormat = VK_FORMAT_R8_UNORM;
 
   StagingBuffer = CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,

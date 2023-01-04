@@ -317,17 +317,47 @@ void Renderer::CreateRenderPass() {
   colorAttachmentRef.attachment = 0;
   colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
+  VkAttachmentDescription depthAttachment{};
+  depthAttachment.format = VK_FORMAT_D32_SFLOAT;
+  depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+  depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+  depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+  depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+  depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+  depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+  depthAttachment.finalLayout =
+      VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+  VkAttachmentReference depthAttachmentRef{};
+  depthAttachmentRef.attachment = 1;
+  depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
   VkSubpassDescription subpass{};
   subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
   subpass.colorAttachmentCount = 1;
   subpass.pColorAttachments = &colorAttachmentRef;
+  subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
+  VkSubpassDependency dependency{};
+  dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+  dependency.dstSubpass = 0;
+  dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT |
+                            VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+  dependency.srcAccessMask = 0;
+  dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT |
+                            VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+  dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
+                             VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+  VkAttachmentDescription attachments[2] = {colorAttachment, depthAttachment};
   VkRenderPassCreateInfo renderPassInfo{};
   renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-  renderPassInfo.attachmentCount = 1;
-  renderPassInfo.pAttachments = &colorAttachment;
+  renderPassInfo.attachmentCount = 2;
+  renderPassInfo.pAttachments = attachments;
   renderPassInfo.subpassCount = 1;
   renderPassInfo.pSubpasses = &subpass;
+  renderPassInfo.dependencyCount = 1;
+  renderPassInfo.pDependencies = &dependency;
 
   if (vkCreateRenderPass(Device, &renderPassInfo, nullptr, &RenderPass) !=
       VK_SUCCESS) {
@@ -339,12 +369,12 @@ void Renderer::CreateRenderPass() {
 void Renderer::CreateFramebuffers() {
   SwapChainFramebuffers.resize(SwapChainImageViews.size());
   for (size_t i = 0; i < SwapChainImageViews.size(); i++) {
-    VkImageView attachments[] = {SwapChainImageViews[i]};
+    VkImageView attachments[] = {SwapChainImageViews[i], DepthImageView};
 
     VkFramebufferCreateInfo framebufferInfo{};
     framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
     framebufferInfo.renderPass = RenderPass;
-    framebufferInfo.attachmentCount = 1;
+    framebufferInfo.attachmentCount = 2;
     framebufferInfo.pAttachments = attachments;
     framebufferInfo.width = SwapChainExtent.width;
     framebufferInfo.height = SwapChainExtent.height;
@@ -489,11 +519,43 @@ void Renderer::CreateDescriptors() {
                               &TripleTextureSetLayout);
 }
 
+void Renderer::CreateDepthImage() {
+  VkExtent3D imageExtent;
+  imageExtent.width = SwapChainExtent.width;
+  imageExtent.height = SwapChainExtent.height;
+  imageExtent.depth = 1;
+
+  VkImageCreateInfo dimgInfo =
+      GetImageCreateInfo(VK_FORMAT_D32_SFLOAT, imageExtent);
+  dimgInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+  dimgInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+  VmaAllocationCreateInfo dimgAllocinfo = {};
+  dimgAllocinfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+  vmaCreateImage(Allocator, &dimgInfo, &dimgAllocinfo, &DepthImage.Image,
+                 &DepthImage.Allocation, nullptr);
+
+  VkImageViewCreateInfo imageInfo = {};
+  imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+  imageInfo.pNext = nullptr;
+  imageInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+  imageInfo.image = DepthImage.Image;
+  imageInfo.format = VK_FORMAT_D32_SFLOAT;
+  imageInfo.subresourceRange.baseMipLevel = 0;
+  imageInfo.subresourceRange.levelCount = 1;
+  imageInfo.subresourceRange.baseArrayLayer = 0;
+  imageInfo.subresourceRange.layerCount = 1;
+  imageInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+  vkCreateImageView(Device, &imageInfo, nullptr, &DepthImageView);
+}
+
 void Renderer::InitImpl() {
   if (IsInit) return;
   ImpLog(LL_Info, LC_Render, "Initializing Renderer2D Vulkan system\n");
   IsInit = true;
   NuklearSupported = false;
+
+  CurrentFrameIndex = 0;
+  CurrentImageIndex = 0;
 
   VkWindow = new VulkanWindow();
   VkWindow->Init();
@@ -507,6 +569,7 @@ void Renderer::InitImpl() {
 
   CreateSwapChain();
   CreateImageViews();
+  CreateDepthImage();
   CreateRenderPass();
   CreateFramebuffers();
   CreateCommandPool();
@@ -573,8 +636,6 @@ void Renderer::InitImpl() {
 
 void Renderer::ShutdownImpl() {
   if (!IsInit) return;
-  //  if (RectSprite.Sheet.Texture) glDeleteTextures(1,
-  //  &RectSprite.Sheet.Texture);
   IsInit = false;
 
   if (Profile::GameFeatures & GameFeature::Scene3D) {
@@ -584,10 +645,15 @@ void Renderer::ShutdownImpl() {
   for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
     vkWaitForFences(Device, 1, &InFlightFences[i], VK_TRUE, UINT64_MAX);
   }
-  vkDestroyCommandPool(Device, CommandPool, nullptr);
-  for (auto framebuffer : SwapChainFramebuffers) {
-    vkDestroyFramebuffer(Device, framebuffer, nullptr);
+  for (auto element : Textures) {
+    FreeTextureImpl(element.first);
   }
+  for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+    vkDestroySemaphore(Device, RenderFinishedSemaphores[i], nullptr);
+    vkDestroySemaphore(Device, ImageAvailableSemaphores[i], nullptr);
+    vkDestroyFence(Device, InFlightFences[i], nullptr);
+  }
+  vkDestroyCommandPool(Device, CommandPool, nullptr);
   vkDestroyRenderPass(Device, RenderPass, nullptr);
   vmaUnmapMemory(Allocator, VertexBufferAlloc.Allocation);
   vmaDestroyBuffer(Allocator, VertexBufferAlloc.Buffer,
@@ -595,6 +661,11 @@ void Renderer::ShutdownImpl() {
   vmaUnmapMemory(Allocator, IndexBufferAlloc.Allocation);
   vmaDestroyBuffer(Allocator, IndexBufferAlloc.Buffer,
                    IndexBufferAlloc.Allocation);
+  vkDestroyImageView(Device, DepthImageView, nullptr);
+  vmaDestroyImage(Allocator, DepthImage.Image, DepthImage.Allocation);
+  for (auto framebuffer : SwapChainFramebuffers) {
+    vkDestroyFramebuffer(Device, framebuffer, nullptr);
+  }
   for (auto imageView : SwapChainImageViews) {
     vkDestroyImageView(Device, imageView, nullptr);
   }
@@ -655,16 +726,20 @@ void Renderer::BeginFrameImpl() {
                        VK_SUBPASS_CONTENTS_INLINE);
 
   VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
-  VkClearAttachment clearAttachments = {};
-  clearAttachments.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-  clearAttachments.clearValue = clearColor;
-  clearAttachments.colorAttachment = 0;
+  VkClearAttachment clearAttachments[2] = {};
+  clearAttachments[0].aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+  clearAttachments[0].clearValue = clearColor;
+  clearAttachments[0].colorAttachment = 0;
+  VkClearValue clearDepth = {};
+  clearDepth.depthStencil = {1.0f, 0};
+  clearAttachments[1].aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+  clearAttachments[1].clearValue = clearDepth;
   VkClearRect clearRect = {};
   clearRect.layerCount = 1;
   clearRect.rect.offset = {0, 0};
   clearRect.rect.extent = SwapChainExtent;
 
-  vkCmdClearAttachments(CommandBuffers[CurrentFrameIndex], 1, &clearAttachments,
+  vkCmdClearAttachments(CommandBuffers[CurrentFrameIndex], 2, clearAttachments,
                         1, &clearRect);
   vkCmdBindPipeline(CommandBuffers[CurrentFrameIndex],
                     VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -858,7 +933,15 @@ uint32_t Renderer::SubmitTextureImpl(TexFmt format, uint8_t* buffer, int width,
   return id;
 }
 
-void Renderer::FreeTextureImpl(uint32_t id) {}
+void Renderer::FreeTextureImpl(uint32_t id) {
+  // TODO: I need to figure this out... images are getting destroyed but are
+  // still used in draw somehow
+
+  // vmaDestroyImage(Allocator, Textures[id].Image.Image,
+  //                Textures[id].Image.Allocation);
+  // vkDestroyImageView(Device, Textures[id].ImageView, nullptr);
+  // Textures.erase(id);
+}
 
 YUVFrame* Renderer::CreateYUVFrameImpl(int width, int height) {
   VideoFrameInternal = new VkYUVFrame();
@@ -879,6 +962,8 @@ void Renderer::DrawSprite3DRotatedImpl(Sprite const& sprite, RectF const& dest,
            "Renderer->DrawSprite3DRotated() called before BeginFrame()\n");
     return;
   }
+
+  if (Textures.count(sprite.Sheet.Texture) == 0) return;
 
   // Are we in sprite mode?
   if (inverted)
@@ -924,6 +1009,8 @@ void Renderer::DrawCharacterMvlImpl(Sprite const& sprite, glm::vec2 topLeft,
     return;
   }
 
+  if (Textures.count(sprite.Sheet.Texture) == 0) return;
+
   // Draw just the character with this since we need to rebind the index buffer
   // anyway...
   Flush();
@@ -968,6 +1055,7 @@ void Renderer::DrawSpriteImpl(Sprite const& sprite, RectF const& dest,
   }
 
   if (!sprite.Sheet.Texture) return;
+  if (Textures.count(sprite.Sheet.Texture) == 0) return;
 
   // Are we in sprite mode?
   if (inverted)
@@ -1003,6 +1091,10 @@ void Renderer::DrawMaskedSpriteImpl(Sprite const& sprite, Sprite const& mask,
            "Renderer->DrawMaskedSprite() called before BeginFrame()\n");
     return;
   }
+
+  if (Textures.count(sprite.Sheet.Texture) == 0 ||
+      Textures.count(mask.Sheet.Texture) == 0)
+    return;
 
   if (alpha < 0) alpha = 0;
   if (alpha > fadeRange + 256) alpha = fadeRange + 256;
@@ -1069,6 +1161,10 @@ void Renderer::DrawCCMessageBoxImpl(Sprite const& sprite, Sprite const& mask,
            "Renderer->DrawCCMessageBox() called before BeginFrame()\n");
     return;
   }
+
+  if (Textures.count(sprite.Sheet.Texture) == 0 ||
+      Textures.count(mask.Sheet.Texture) == 0)
+    return;
 
   if (alpha < 0) alpha = 0;
   if (alpha > fadeRange + 256) alpha = fadeRange + 256;
@@ -1368,6 +1464,7 @@ void Renderer::DrawVideoTextureImpl(YUVFrame* tex, RectF const& dest,
 }
 
 void Renderer::CaptureScreencapImpl(Sprite const& sprite) {
+  if (Textures.count(sprite.Sheet.Texture)) return;
   // Here we go...
   Flush();
   vkCmdEndRenderPass(CommandBuffers[CurrentFrameIndex]);
