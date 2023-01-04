@@ -12,6 +12,7 @@ class Pipeline {
   void SetRasterizerInfo(VkPipelineRasterizationStateCreateInfo rasterizerInfo);
   void SetDepthStencilInfo(
       VkPipelineDepthStencilStateCreateInfo depthStencilInfo);
+  void SetPushConstants(VkPushConstantRange* pushConstantRange, int count);
   void CreateWithShader(
       char const* name, VkVertexInputBindingDescription bindingDescription,
       VkVertexInputAttributeDescription* attributeDescriptions,
@@ -28,6 +29,8 @@ class Pipeline {
   VkRenderPass RenderPass;
   VkPipelineRasterizationStateCreateInfo RasterizerInfo;
   VkPipelineDepthStencilStateCreateInfo DepthStencilInfo;
+  VkPushConstantRange* PushConstantRange = 0;
+  int PushConstantRangeCount = 0;
 };
 
 }  // namespace Vulkan

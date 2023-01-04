@@ -25,6 +25,13 @@ struct SpritePushConstants {
   VkBool32 IsInverted;
   VkBool32 IsSameTexture;
   glm::vec2 Alpha;
+};
+
+struct YUVFramePushConstants {
+  VkBool32 IsAlpha;
+};
+
+struct CCBoxPushConstants {
   glm::vec4 CCBoxAlpha;
 };
 

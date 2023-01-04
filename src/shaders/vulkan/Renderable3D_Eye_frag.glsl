@@ -24,23 +24,26 @@ layout(binding = 2) uniform Character3DMesh {
   bool HasShadowColorMap;
 };
 
+layout(push_constant) uniform constants
+{
+	bool IsDash;
+} PushConstants;
+
 const float FALLOFF_POWER = 0.8;
 const float HIGHLIGHT_TINT_INTENSITY = 0.6;
 
 void main() {
   vec4 eyeWhiteColor = texture(IrisColorMap[1], uv);
   vec4 irisColor = texture(IrisColorMap[0], uv);
-//#if DASH == 0
-//  vec4 irisSpecularColor = texture(IrisColorMap[3], uv);
-//#endif
   vec4 highlightColor = texture(IrisColorMap[2], uv);
 
   vec3 eyeColor = mix(eyeWhiteColor.rgb, irisColor.rgb, irisColor.a);
 
-//#if DASH == 0
-  // "Specular"
-//  eyeColor += irisSpecularColor.rgb * 0.1;
-//#endif
+  if (!PushConstants.IsDash) {
+	// "Specular"
+    vec4 irisSpecularColor = texture(IrisColorMap[3], uv);
+    eyeColor += irisSpecularColor.rgb * 0.1;
+  }
 
   // Tint
   vec3 baseTintColor = eyeColor * Tint.rgb;

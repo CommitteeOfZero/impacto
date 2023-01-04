@@ -11,9 +11,6 @@ layout(binding = 0) uniform sampler2D YUVFrame[3];
 layout(push_constant) uniform constants
 {
     bool IsAlpha;
-    bool IsSameTexture; // Unused
-    vec2 Alpha; // Unused
-	vec4 CCBoxAlpha; // Unused
 } PushConstants;
 
 const mat4 yuv_to_rgb_rec601 = mat4(

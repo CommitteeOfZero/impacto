@@ -26,6 +26,11 @@ layout(binding = 2) uniform Character3DMesh {
   bool HasShadowColorMap;
 };
 
+layout(push_constant) uniform constants
+{
+	bool IsDash;
+} PushConstants;
+
 const float FALLOFF_POWER = 0.8;
 
 const vec4 g_ToonFalloffGradVals = vec4(0.546875, 0.421875, 0.468750, 0.281250);
@@ -73,15 +78,11 @@ void main() {
       mix(toonFalloffGradParam.xz, toonFalloffGradParam.yw, maskParam);
 
   vec3 shadowColor;
-//#if DASH
-//  if (HasShadowColorMap) {
-//    shadowColor = texture(ColorMap[3], uv).rgb;
-//  } else {
-//#endif
+  if (PushConstants.IsDash && HasShadowColorMap) {
+    shadowColor = texture(ColorMap[3], uv).rgb;
+  } else {
     shadowColor = max(texColor.rgb, vec3(0.5)) * texColor.rgb;
-//#if DASH
-//  }
-//#endif
+  }
 
   vec3 toonColor = mix(shadowColor, texColor.rgb, toonFalloffInterpParam.x);
 

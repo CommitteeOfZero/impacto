@@ -12,6 +12,10 @@ namespace Vulkan {
 
 enum RenderPass { RP_Outline = 0, RP_First = 1, RP_Second = 2, RP_Count };
 
+struct PipelinePushConstants {
+  VkBool32 IsDash;
+};
+
 struct SceneUniformBufferType {
   alignas(16) glm::mat4 ViewProjection;
   alignas(16) glm::vec4 Tint;

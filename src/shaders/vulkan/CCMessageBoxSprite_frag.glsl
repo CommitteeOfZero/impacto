@@ -11,9 +11,6 @@ layout(binding = 0) uniform sampler2D ColorMap[2];
 
 layout(push_constant) uniform constants
 {
-	bool IsInverted;
-	bool IsSameTexture;
-	vec2 Alpha;
 	vec4 CCBoxAlpha;
 } PushConstants;
 

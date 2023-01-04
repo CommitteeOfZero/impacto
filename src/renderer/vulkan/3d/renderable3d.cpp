@@ -100,30 +100,58 @@ void Renderable3D::Init(VulkanWindow* window, VkDevice device,
 
   VkVertexInputBindingDescription modelBindingDescription{};
   modelBindingDescription.binding = 0;
-  modelBindingDescription.stride = sizeof(VertexBuffer);
+  modelBindingDescription.stride =
+      Profile::Scene3D::Version == +LKMVersion::DaSH ? sizeof(VertexBufferDaSH)
+                                                     : sizeof(VertexBuffer);
   modelBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
   VkVertexInputAttributeDescription modelAttributeDescriptions[5] = {};
-  modelAttributeDescriptions[0].binding = 0;
-  modelAttributeDescriptions[0].location = 0;
-  modelAttributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-  modelAttributeDescriptions[0].offset = offsetof(VertexBuffer, Position);
-  modelAttributeDescriptions[1].binding = 0;
-  modelAttributeDescriptions[1].location = 1;
-  modelAttributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-  modelAttributeDescriptions[1].offset = offsetof(VertexBuffer, Normal);
-  modelAttributeDescriptions[2].binding = 0;
-  modelAttributeDescriptions[2].location = 2;
-  modelAttributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-  modelAttributeDescriptions[2].offset = offsetof(VertexBuffer, UV);
-  modelAttributeDescriptions[3].binding = 0;
-  modelAttributeDescriptions[3].location = 3;
-  modelAttributeDescriptions[3].format = VK_FORMAT_R8G8B8A8_SINT;
-  modelAttributeDescriptions[3].offset = offsetof(VertexBuffer, BoneIndices);
-  modelAttributeDescriptions[4].binding = 0;
-  modelAttributeDescriptions[4].location = 4;
-  modelAttributeDescriptions[4].format = VK_FORMAT_R32G32B32A32_SFLOAT;
-  modelAttributeDescriptions[4].offset = offsetof(VertexBuffer, BoneWeights);
+  if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+    modelAttributeDescriptions[0].binding = 0;
+    modelAttributeDescriptions[0].location = 0;
+    modelAttributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+    modelAttributeDescriptions[0].offset = offsetof(VertexBufferDaSH, Position);
+    modelAttributeDescriptions[1].binding = 0;
+    modelAttributeDescriptions[1].location = 1;
+    modelAttributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+    modelAttributeDescriptions[1].offset = offsetof(VertexBufferDaSH, Normal);
+    modelAttributeDescriptions[2].binding = 0;
+    modelAttributeDescriptions[2].location = 2;
+    modelAttributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+    modelAttributeDescriptions[2].offset = offsetof(VertexBufferDaSH, UV);
+    modelAttributeDescriptions[3].binding = 0;
+    modelAttributeDescriptions[3].location = 3;
+    modelAttributeDescriptions[3].format = VK_FORMAT_R8G8B8A8_SINT;
+    modelAttributeDescriptions[3].offset =
+        offsetof(VertexBufferDaSH, BoneIndices);
+    modelAttributeDescriptions[4].binding = 0;
+    modelAttributeDescriptions[4].location = 4;
+    modelAttributeDescriptions[4].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+    modelAttributeDescriptions[4].offset =
+        offsetof(VertexBufferDaSH, BoneWeights);
+
+  } else {
+    modelAttributeDescriptions[0].binding = 0;
+    modelAttributeDescriptions[0].location = 0;
+    modelAttributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+    modelAttributeDescriptions[0].offset = offsetof(VertexBuffer, Position);
+    modelAttributeDescriptions[1].binding = 0;
+    modelAttributeDescriptions[1].location = 1;
+    modelAttributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+    modelAttributeDescriptions[1].offset = offsetof(VertexBuffer, Normal);
+    modelAttributeDescriptions[2].binding = 0;
+    modelAttributeDescriptions[2].location = 2;
+    modelAttributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+    modelAttributeDescriptions[2].offset = offsetof(VertexBuffer, UV);
+    modelAttributeDescriptions[3].binding = 0;
+    modelAttributeDescriptions[3].location = 3;
+    modelAttributeDescriptions[3].format = VK_FORMAT_R8G8B8A8_SINT;
+    modelAttributeDescriptions[3].offset = offsetof(VertexBuffer, BoneIndices);
+    modelAttributeDescriptions[4].binding = 0;
+    modelAttributeDescriptions[4].location = 4;
+    modelAttributeDescriptions[4].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+    modelAttributeDescriptions[4].offset = offsetof(VertexBuffer, BoneWeights);
+  }
 
   VkPipelineDepthStencilStateCreateInfo depthStencil{};
   depthStencil.sType =
@@ -144,13 +172,21 @@ void Renderable3D::Init(VulkanWindow* window, VkDevice device,
   rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
   rasterizer.depthBiasEnable = VK_FALSE;
 
+  VkPushConstantRange pushConstant;
+  pushConstant.offset = 0;
+  pushConstant.size = sizeof(PipelinePushConstants);
+  pushConstant.stageFlags =
+      VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT;
+
   PipelineMain = new Pipeline(Device, renderPass);
+  PipelineMain->SetPushConstants(&pushConstant, 1);
   PipelineMain->SetDepthStencilInfo(depthStencil);
   PipelineMain->CreateWithShader(
       "Renderable3D_Character", modelBindingDescription,
       modelAttributeDescriptions, 5, ModelDescriptorSetLayout);
 
   PipelineEye = new Pipeline(Device, renderPass);
+  PipelineEye->SetPushConstants(&pushConstant, 1);
   PipelineEye->SetDepthStencilInfo(depthStencil);
   PipelineEye->CreateWithShader("Renderable3D_Eye", modelBindingDescription,
                                 modelAttributeDescriptions, 5,
@@ -158,6 +194,7 @@ void Renderable3D::Init(VulkanWindow* window, VkDevice device,
 
   depthStencil.depthWriteEnable = VK_FALSE;
   PipelineOutline = new Pipeline(Device, renderPass);
+  PipelineOutline->SetPushConstants(&pushConstant, 1);
   PipelineOutline->SetDepthStencilInfo(depthStencil);
   PipelineOutline->SetRasterizerInfo(rasterizer);
   PipelineOutline->CreateWithShader(
@@ -165,12 +202,14 @@ void Renderable3D::Init(VulkanWindow* window, VkDevice device,
       modelAttributeDescriptions, 5, ModelDescriptorSetLayout);
 
   PipelineMainNoDepthWrite = new Pipeline(Device, renderPass);
+  PipelineMainNoDepthWrite->SetPushConstants(&pushConstant, 1);
   PipelineMainNoDepthWrite->SetDepthStencilInfo(depthStencil);
   PipelineMainNoDepthWrite->CreateWithShader(
       "Renderable3D_Character", modelBindingDescription,
       modelAttributeDescriptions, 5, ModelDescriptorSetLayout);
 
   PipelineEyeNoDepthWrite = new Pipeline(Device, renderPass);
+  PipelineEyeNoDepthWrite->SetPushConstants(&pushConstant, 1);
   PipelineEyeNoDepthWrite->SetDepthStencilInfo(depthStencil);
   PipelineEyeNoDepthWrite->CreateWithShader(
       "Renderable3D_Eye", modelBindingDescription, modelAttributeDescriptions,
@@ -215,6 +254,7 @@ void Renderable3D::Init(VulkanWindow* window, VkDevice device,
   backgroundAttributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
   backgroundAttributeDescriptions[1].offset = offsetof(BgVertexBuffer, UV);
   PipelineBackground = new Pipeline(Device, renderPass);
+  PipelineBackground->SetPushConstants(&pushConstant, 1);
   PipelineBackground->CreateWithShader(
       "Renderable3D_Background", backgroundBindingDescription,
       backgroundAttributeDescriptions, 2, BgTextureSetLayout);
@@ -598,17 +638,17 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
       break;
     }
     case MT_Eye: {
-      int const eyeTextureTypes[] = {
-          TT_Eye_HighlightColorMap, TT_Eye_IrisColorMap,
-          TT_Eye_IrisSpecularColorMap, TT_Eye_WhiteColorMap};
+      int const eyeTextureTypes[] = {TT_Eye_IrisColorMap, TT_Eye_WhiteColorMap,
+                                     TT_Eye_HighlightColorMap,
+                                     TT_Eye_IrisSpecularColorMap};
       textureCount = 4;
       SetTextures(id, eyeTextureTypes, 4);
       break;
     }
     case MT_DaSH_Generic: {
       int const dashGenericTextureTypes[] = {
-          TT_DaSH_ColorMap, TT_DaSH_ShadowColorMap, TT_DaSH_GradientMaskMap,
-          TT_DaSH_SpecularColorMap};
+          TT_DaSH_ColorMap, TT_DaSH_GradientMaskMap, TT_DaSH_SpecularColorMap,
+          TT_DaSH_ShadowColorMap};
       textureCount = 4;
       SetTextures(id, dashGenericTextureTypes, 4);
       break;
@@ -622,9 +662,9 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
       break;
     }
     case MT_DaSH_Eye: {
-      int const dashEyeTextureTypes[] = {TT_DaSH_Eye_HighlightColorMap,
-                                         TT_DaSH_Eye_IrisColorMap,
-                                         TT_DaSH_Eye_WhiteColorMap};
+      int const dashEyeTextureTypes[] = {TT_DaSH_Eye_IrisColorMap,
+                                         TT_DaSH_Eye_WhiteColorMap,
+                                         TT_DaSH_Eye_HighlightColorMap};
       textureCount = 3;
       SetTextures(id, dashEyeTextureTypes, 3);
       break;
@@ -653,12 +693,7 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
         break;
       }
     }
-
-    // glDepthMask(GL_FALSE);
   }
-  // if (mesh.Flags & MeshFlag_DoubleSided && CurrentMaterialIsBackfaceCull) {
-  //  glDisable(GL_CULL_FACE);
-  //}
 
   WriteDescriptorSet[CurrentWriteDescriptorSet].sType =
       VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -675,6 +710,13 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
                             CurrentPipeline->PipelineLayout, 0,
                             CurrentWriteDescriptorSet, WriteDescriptorSet);
   CurrentWriteDescriptorSet = 0;
+
+  PipelinePushConstants pushConstants{Profile::Scene3D::Version ==
+                                      +LKMVersion::DaSH};
+  vkCmdPushConstants(CommandBuffers[CurrentFrameIndex],
+                     CurrentPipeline->PipelineLayout,
+                     VK_SHADER_STAGE_FRAGMENT_BIT, 0,
+                     sizeof(PipelinePushConstants), &pushConstants);
 
   VkBuffer vertexBuffers[] = {MeshVertexBuffers[id][CurrentFrameIndex].Buffer};
   VkDeviceSize offsets[] = {(VkDeviceSize)0};
@@ -706,11 +748,7 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
         break;
       }
     }
-    // glDepthMask(GL_TRUE);
   }
-  // if (mesh.Flags & MeshFlag_DoubleSided && CurrentMaterialIsBackfaceCull) {
-  //  glEnable(GL_CULL_FACE);
-  //}
 
   if (pass != RP_Outline) DrawMesh(id, RP_Outline);
 }
@@ -803,22 +841,10 @@ void Renderable3D::UseMaterial(MaterialType type) {
     }
   }
 
-  // if (type == MT_Outline || type == MT_Generic || type == MT_Eye) {
-  //  glEnable(GL_CULL_FACE);
-  //  GLenum side = type == MT_Outline ? GL_FRONT : GL_BACK;
-  //  glCullFace(side);
-  //  CurrentMaterialIsBackfaceCull = side == GL_BACK;
-  //} else {
-  //  glDisable(GL_CULL_FACE);
-  //  CurrentMaterialIsBackfaceCull = false;
-  //}
-
   if (type == MT_Outline) {
     CurrentMaterialIsDepthWrite = false;
-    // glDepthMask(GL_FALSE);
   } else {
     CurrentMaterialIsDepthWrite = true;
-    // glDepthMask(GL_TRUE);
   }
 
   CurrentMaterial = type;
@@ -889,13 +915,6 @@ void Renderable3D::UnloadSync() {
         vmaDestroyBuffer(Allocator, ModelUniformBuffers[i].Buffer,
                          ModelUniformBuffers[i].Allocation);
       }
-      // glDeleteBuffers(StaticModel->MeshCount, IBOs);
-      // glDeleteBuffers(StaticModel->MeshCount, VBOs);
-      // glDeleteBuffers(StaticModel->MeshCount, MorphVBOs);
-      // glDeleteBuffers(StaticModel->MeshCount, UBOs);
-      // glDeleteVertexArrays(StaticModel->MeshCount, VAOs);
-      // glDeleteTextures(StaticModel->TextureCount, TexBuffers);
-      // glDeleteBuffers(1, &UBOModel);
     }
     delete StaticModel;
     StaticModel = 0;
@@ -948,17 +967,31 @@ void Renderable3D::MainThreadOnLoad() {
       MeshUniformBuffersMapped[i][j] = (uint8_t*)data;
 
       if (StaticModel->Type == ModelType_Character) {
-        MeshVertexBuffers[i][j] = CreateBuffer(
-            sizeof(VertexBuffer) * StaticModel->Meshes[i].VertexCount,
-            VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
-        void* data;
-        vmaMapMemory(Allocator, MeshVertexBuffers[i][j].Allocation, &data);
-        MeshVertexBuffersMapped[i][j] = (uint8_t*)data;
-        memcpy(MeshVertexBuffersMapped[i][j],
-               (VertexBuffer*)StaticModel->VertexBuffers +
-                   StaticModel->Meshes[i].VertexOffset,
-               sizeof(VertexBuffer) * StaticModel->Meshes[i].VertexCount);
-        vmaUnmapMemory(Allocator, MeshVertexBuffers[i][j].Allocation);
+        if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+          MeshVertexBuffers[i][j] = CreateBuffer(
+              sizeof(VertexBufferDaSH) * StaticModel->Meshes[i].VertexCount,
+              VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
+          void* data;
+          vmaMapMemory(Allocator, MeshVertexBuffers[i][j].Allocation, &data);
+          MeshVertexBuffersMapped[i][j] = (uint8_t*)data;
+          memcpy(MeshVertexBuffersMapped[i][j],
+                 (VertexBufferDaSH*)StaticModel->VertexBuffers +
+                     StaticModel->Meshes[i].VertexOffset,
+                 sizeof(VertexBufferDaSH) * StaticModel->Meshes[i].VertexCount);
+          vmaUnmapMemory(Allocator, MeshVertexBuffers[i][j].Allocation);
+        } else {
+          MeshVertexBuffers[i][j] = CreateBuffer(
+              sizeof(VertexBuffer) * StaticModel->Meshes[i].VertexCount,
+              VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
+          void* data;
+          vmaMapMemory(Allocator, MeshVertexBuffers[i][j].Allocation, &data);
+          MeshVertexBuffersMapped[i][j] = (uint8_t*)data;
+          memcpy(MeshVertexBuffersMapped[i][j],
+                 (VertexBuffer*)StaticModel->VertexBuffers +
+                     StaticModel->Meshes[i].VertexOffset,
+                 sizeof(VertexBuffer) * StaticModel->Meshes[i].VertexCount);
+          vmaUnmapMemory(Allocator, MeshVertexBuffers[i][j].Allocation);
+        }
       } else if (StaticModel->Type == ModelType_Background) {
         MeshVertexBuffers[i][j] = CreateBuffer(
             sizeof(BgVertexBuffer) * StaticModel->Meshes[i].VertexCount,

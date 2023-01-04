@@ -2,9 +2,7 @@
 #pragma shader_stage(fragment)
 
 layout(location = 0) in vec2 uv;
-#if DASH
 layout(location = 1) in vec2 uvNoise;
-#endif
 
 layout(location = 0) out vec4 color;
 
@@ -27,28 +25,32 @@ layout(binding = 2) uniform Character3DMesh {
   bool HasShadowColorMap;
 };
 
+layout(push_constant) uniform constants
+{
+	bool IsDash;
+} PushConstants;
+
 void main() {
   vec4 texColor = texture(ColorMap[0], uv);
   if (texColor.a <= 0.1) discard;
 
-//#if DASH
-  // These vary by scene - also seen: 0.75 and 1275, 0.58824 and 1.81818
-//  vec3 factor1 = vec3(0.70588);
-//  vec3 factor2 = vec3(8.0);
+  if (PushConstants.IsDash) {
+    vec3 factor1 = vec3(0.70588);
+    vec3 factor2 = vec3(8.0);
 
-//  vec3 c1 =
-//      factor1 * texColor.rgb + clamp(texColor.rgb * factor2, 0.0, 1.0) * 0.25;
-  // 0.4, 0.2, 0.2 is from mesh info unk9
-//  vec3 c2 = clamp(c1 + vec3(0.4, 0.2, 0.2) + vec3(-1.0), 0.0, 1.0);
-//  vec3 c3 = -c1 + c2;
+    vec3 c1 =
+        factor1 * texColor.rgb + clamp(texColor.rgb * factor2, 0.0, 1.0) * 0.25;
+    // 0.4, 0.2, 0.2 is from mesh info unk9
+    vec3 c2 = clamp(c1 + vec3(0.4, 0.2, 0.2) + vec3(-1.0), 0.0, 1.0);
+    vec3 c3 = -c1 + c2;
 
-//  float noiseFactor = texture(ColorMap[1], uvNoise).r;
+    float noiseFactor = texture(ColorMap[1], uvNoise).r;
 
-//  color = vec4(c3 * noiseFactor + c1, 1.0);
-//#else
-  const vec4 outlineColor = vec4(0.46484375, 0.27734375, 0.22265625, 1.0);
-  color = outlineColor * texColor;
-//#endif
+    color = vec4(c3 * noiseFactor + c1, 1.0);
+  } else {
+    const vec4 outlineColor = vec4(0.46484375, 0.27734375, 0.22265625, 1.0);
+    color = outlineColor * texColor;
+  }
 
   color.a *= ModelOpacity;
 }

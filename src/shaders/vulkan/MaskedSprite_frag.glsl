@@ -14,7 +14,6 @@ layout(push_constant) uniform constants
 	bool IsInverted;
 	bool IsSameTexture;
 	vec2 Alpha;
-	vec4 CCBoxAlpha;
 } PushConstants;
 
 void main() { 

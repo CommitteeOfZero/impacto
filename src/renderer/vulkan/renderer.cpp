@@ -592,17 +592,32 @@ void Renderer::InitImpl() {
       "Sprite_inverted", bindingDescription, attributeDescriptions.data(),
       attributeDescriptions.size(), SingleTextureSetLayout);
 
+  VkPushConstantRange maskedSpritePushConstant;
+  maskedSpritePushConstant.offset = 0;
+  maskedSpritePushConstant.size = sizeof(SpritePushConstants);
+  maskedSpritePushConstant.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
   PipelineMaskedSprite = new Pipeline(Device, RenderPass);
+  PipelineMaskedSprite->SetPushConstants(&maskedSpritePushConstant, 1);
   PipelineMaskedSprite->CreateWithShader(
       "MaskedSprite", bindingDescription, attributeDescriptions.data(),
       attributeDescriptions.size(), DoubleTextureSetLayout);
 
+  VkPushConstantRange yuvFramePushConstants;
+  yuvFramePushConstants.offset = 0;
+  yuvFramePushConstants.size = sizeof(YUVFramePushConstants);
+  yuvFramePushConstants.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
   PipelineYUVFrame = new Pipeline(Device, RenderPass);
+  PipelineYUVFrame->SetPushConstants(&yuvFramePushConstants, 1);
   PipelineYUVFrame->CreateWithShader(
       "YUVFrame", bindingDescription, attributeDescriptions.data(),
       attributeDescriptions.size(), TripleTextureSetLayout);
 
+  VkPushConstantRange ccBoxPushConstant;
+  ccBoxPushConstant.offset = 0;
+  ccBoxPushConstant.size = sizeof(CCBoxPushConstants);
+  ccBoxPushConstant.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
   PipelineCCMessageBox = new Pipeline(Device, RenderPass);
+  PipelineCCMessageBox->SetPushConstants(&ccBoxPushConstant, 1);
   PipelineCCMessageBox->CreateWithShader(
       "CCMessageBoxSprite", bindingDescription, attributeDescriptions.data(),
       attributeDescriptions.size(), DoubleTextureSetLayout);
@@ -1194,11 +1209,11 @@ void Renderer::DrawCCMessageBoxImpl(Sprite const& sprite, Sprite const& mask,
       CommandBuffers[CurrentFrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
       PipelineMaskedSprite->PipelineLayout, 0, 1, &writeDescriptorSet);
 
-  SpritePushConstants constants = {};
+  CCBoxPushConstants constants = {};
   constants.CCBoxAlpha = glm::vec4(alphaRange, constAlpha, effectCt, 0.0f);
   vkCmdPushConstants(
       CommandBuffers[CurrentFrameIndex], CurrentPipeline->PipelineLayout,
-      VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SpritePushConstants), &constants);
+      VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(CCBoxPushConstants), &constants);
 
   // OK, all good, make quad
   MakeQuad();
@@ -1441,11 +1456,12 @@ void Renderer::DrawVideoTextureImpl(YUVFrame* tex, RectF const& dest,
       CommandBuffers[CurrentFrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
       PipelineYUVFrame->PipelineLayout, 0, 1, &writeDescriptorSet);
 
-  SpritePushConstants constants = {};
-  constants.IsInverted = alphaVideo;
-  vkCmdPushConstants(
-      CommandBuffers[CurrentFrameIndex], CurrentPipeline->PipelineLayout,
-      VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SpritePushConstants), &constants);
+  YUVFramePushConstants constants = {};
+  constants.IsAlpha = alphaVideo;
+  vkCmdPushConstants(CommandBuffers[CurrentFrameIndex],
+                     CurrentPipeline->PipelineLayout,
+                     VK_SHADER_STAGE_FRAGMENT_BIT, 0,
+                     sizeof(YUVFramePushConstants), &constants);
 
   // OK, all good, make quad
   MakeQuad();

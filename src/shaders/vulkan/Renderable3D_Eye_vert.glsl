@@ -25,6 +25,11 @@ layout(binding = 2) uniform Character3DMesh {
   bool HasShadowColorMap;
 };
 
+layout(push_constant) uniform constants
+{
+	bool IsDash;
+} PushConstants;
+
 void main() {
   // Accumulated skinning, thanks
   // https://developer.nvidia.com/gpugems/GPUGems/gpugems_ch04.html

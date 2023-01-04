@@ -49,6 +49,12 @@ void Pipeline::SetDepthStencilInfo(
   DepthStencilInfo = depthStencilInfo;
 }
 
+void Pipeline::SetPushConstants(VkPushConstantRange* pushConstantRange,
+                                int count) {
+  PushConstantRange = pushConstantRange;
+  PushConstantRangeCount = count;
+}
+
 void Pipeline::CreateWithShader(
     char const* name, VkVertexInputBindingDescription bindingDescription,
     VkVertexInputAttributeDescription* attributeDescriptions,
@@ -164,17 +170,10 @@ void Pipeline::CreateWithShader(
 
   VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
   pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-  pipelineLayoutInfo.pushConstantRangeCount = 0;
   pipelineLayoutInfo.setLayoutCount = 1;
   pipelineLayoutInfo.pSetLayouts = texturedSetLayouts;
-
-  VkPushConstantRange pushConstant;
-  pushConstant.offset = 0;
-  pushConstant.size = sizeof(SpritePushConstants);
-  pushConstant.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
-  pipelineLayoutInfo.pPushConstantRanges = &pushConstant;
-  pipelineLayoutInfo.pushConstantRangeCount = 1;
+  pipelineLayoutInfo.pPushConstantRanges = PushConstantRange;
+  pipelineLayoutInfo.pushConstantRangeCount = PushConstantRangeCount;
 
   if (vkCreatePipelineLayout(Device, &pipelineLayoutInfo, nullptr,
                              &PipelineLayout) != VK_SUCCESS) {

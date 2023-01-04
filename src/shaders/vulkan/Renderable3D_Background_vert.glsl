@@ -10,6 +10,11 @@ layout(binding = 0) uniform UniformBufferObject {
     mat4 MVP;
 } ubo;
 
+layout(push_constant) uniform constants
+{
+	bool IsDash;
+} PushConstants;
+
 void main() {
   vec4 test = ubo.MVP * vec4(Position, 1.0);
   test.y = -test.y;
