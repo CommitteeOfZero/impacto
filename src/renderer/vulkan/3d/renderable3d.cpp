@@ -329,13 +329,36 @@ void Renderable3D::InitMeshAnimStatus() {
       totalMorphedVertices += StaticModel->Meshes[i].VertexCount;
     }
   }
-  CurrentMorphedVertices = (MorphVertexBuffer*)malloc(
-      totalMorphedVertices * sizeof(MorphVertexBuffer));
+  if (totalMorphedVertices > 0) {
+    for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+      if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+        CurrentMorphedVerticesVk[i] = CreateBuffer(
+            totalMorphedVertices * sizeof(VertexBufferDaSH),
+            VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
+      } else {
+        CurrentMorphedVerticesVk[i] = CreateBuffer(
+            totalMorphedVertices * sizeof(VertexBuffer),
+            VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
+      }
+      vmaMapMemory(Allocator, CurrentMorphedVerticesVk[i].Allocation,
+                   &CurrentMorphedVerticesVkMapped[i]);
+    }
+  }
   ReloadDefaultMeshAnimStatus();
 }
 
 void Renderable3D::ReloadDefaultMeshAnimStatus() {
-  MorphVertexBuffer* currentMorphedVertex = CurrentMorphedVertices;
+  void* currentMorphedVertex;
+  if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+    currentMorphedVertex =
+        ((VertexBufferDaSH*)CurrentMorphedVerticesVkMapped[CurrentFrameIndex]);
+  } else {
+    currentMorphedVertex =
+        ((VertexBuffer*)CurrentMorphedVerticesVkMapped[CurrentFrameIndex]);
+  }
+  VertexBuffer* currentMorphedVertexRNE = (VertexBuffer*)currentMorphedVertex;
+  VertexBufferDaSH* currentMorphedVertexDaSH =
+      (VertexBufferDaSH*)currentMorphedVertex;
 
   for (int i = 0; i < StaticModel->MeshCount; i++) {
     MeshAnimStatus[i].Visible = 1.0f;
@@ -373,8 +396,19 @@ void Renderable3D::CalculateMorphedVertices(int id) {
   AnimatedMesh* prevAnimStatus = &PrevMeshAnimStatus[id];
   if (mesh->MorphTargetCount == 0) return;
 
-  MorphVertexBuffer* currentMorphedVertex =
-      CurrentMorphedVertices + animStatus->MorphedVerticesOffset;
+  void* currentMorphedVertex;
+  if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+    currentMorphedVertex =
+        ((VertexBufferDaSH*)CurrentMorphedVerticesVkMapped[CurrentFrameIndex]) +
+        animStatus->MorphedVerticesOffset;
+  } else {
+    currentMorphedVertex =
+        ((VertexBuffer*)CurrentMorphedVerticesVkMapped[CurrentFrameIndex]) +
+        animStatus->MorphedVerticesOffset;
+  }
+  VertexBuffer* currentMorphedVertexRNE = (VertexBuffer*)currentMorphedVertex;
+  VertexBufferDaSH* currentMorphedVertexDaSH =
+      (VertexBufferDaSH*)currentMorphedVertex;
 
   void* currentVertex;
   if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
@@ -390,15 +424,15 @@ void Renderable3D::CalculateMorphedVertices(int id) {
 
   for (int j = 0; j < mesh->VertexCount; j++) {
     if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
-      currentMorphedVertex->Position = currentVertexDaSH->Position;
-      currentMorphedVertex->Normal = currentVertexDaSH->Normal;
+      memcpy(currentMorphedVertexDaSH, currentVertexDaSH,
+             sizeof(VertexBufferDaSH));
+      currentMorphedVertexDaSH++;
       currentVertexDaSH++;
     } else {
-      currentMorphedVertex->Position = currentVertexRNE->Position;
-      currentMorphedVertex->Normal = currentVertexRNE->Normal;
+      memcpy(currentMorphedVertexRNE, currentVertexRNE, sizeof(VertexBuffer));
+      currentMorphedVertexRNE++;
       currentVertexRNE++;
     }
-    currentMorphedVertex++;
   }
 
   for (int k = 0; k < mesh->MorphTargetCount; k++) {
@@ -413,8 +447,18 @@ void Renderable3D::CalculateMorphedVertices(int id) {
 
     if (influence == 0.0f) continue;
 
-    currentMorphedVertex =
-        CurrentMorphedVertices + animStatus->MorphedVerticesOffset;
+    if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+      currentMorphedVertex =
+          ((VertexBufferDaSH*)
+               CurrentMorphedVerticesVkMapped[CurrentFrameIndex]) +
+          animStatus->MorphedVerticesOffset;
+    } else {
+      currentMorphedVertex =
+          ((VertexBuffer*)CurrentMorphedVerticesVkMapped[CurrentFrameIndex]) +
+          animStatus->MorphedVerticesOffset;
+    }
+    currentMorphedVertexRNE = (VertexBuffer*)currentMorphedVertex;
+    currentMorphedVertexDaSH = (VertexBufferDaSH*)currentMorphedVertex;
 
     if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
       currentVertex =
@@ -433,23 +477,24 @@ void Renderable3D::CalculateMorphedVertices(int id) {
 
     for (int j = 0; j < mesh->VertexCount; j++) {
       if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
-        currentMorphedVertex->Position +=
+        currentMorphedVertexDaSH->Position +=
             (currentMorphTargetVbo->Position - currentVertexDaSH->Position) *
             influence;
-        currentMorphedVertex->Normal +=
+        currentMorphedVertexDaSH->Normal +=
             (currentMorphTargetVbo->Normal - currentVertexDaSH->Normal) *
             influence;
         currentVertexDaSH++;
+        currentMorphedVertexDaSH++;
       } else {
-        currentMorphedVertex->Position +=
+        currentMorphedVertexRNE->Position +=
             (currentMorphTargetVbo->Position - currentVertexRNE->Position) *
             influence;
-        currentMorphedVertex->Normal +=
+        currentMorphedVertexRNE->Normal +=
             (currentMorphTargetVbo->Normal - currentVertexRNE->Normal) *
             influence;
         currentVertexRNE++;
+        currentMorphedVertexRNE++;
       }
-      currentMorphedVertex++;
       currentMorphTargetVbo++;
     }
   }
@@ -715,13 +760,26 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
                                       +LKMVersion::DaSH};
   vkCmdPushConstants(CommandBuffers[CurrentFrameIndex],
                      CurrentPipeline->PipelineLayout,
-                     VK_SHADER_STAGE_FRAGMENT_BIT, 0,
-                     sizeof(PipelinePushConstants), &pushConstants);
+                     VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT,
+                     0, sizeof(PipelinePushConstants), &pushConstants);
 
-  VkBuffer vertexBuffers[] = {MeshVertexBuffers[id][CurrentFrameIndex].Buffer};
-  VkDeviceSize offsets[] = {(VkDeviceSize)0};
-  vkCmdBindVertexBuffers(CommandBuffers[CurrentFrameIndex], 0, 1, vertexBuffers,
-                         offsets);
+  if (StaticModel->Meshes[id].MorphTargetCount > 0) {
+    VkBuffer vertexBuffers[] = {
+        CurrentMorphedVerticesVk[CurrentFrameIndex].Buffer};
+    size_t stride = Profile::Scene3D::Version == +LKMVersion::DaSH
+                        ? sizeof(VertexBufferDaSH)
+                        : sizeof(VertexBuffer);
+    VkDeviceSize offsets[] = {
+        (VkDeviceSize)(MeshAnimStatus[id].MorphedVerticesOffset * stride)};
+    vkCmdBindVertexBuffers(CommandBuffers[CurrentFrameIndex], 0, 1,
+                           vertexBuffers, offsets);
+  } else {
+    VkBuffer vertexBuffers[] = {
+        MeshVertexBuffers[id][CurrentFrameIndex].Buffer};
+    VkDeviceSize offsets[] = {(VkDeviceSize)0};
+    vkCmdBindVertexBuffers(CommandBuffers[CurrentFrameIndex], 0, 1,
+                           vertexBuffers, offsets);
+  }
   vkCmdBindIndexBuffer(CommandBuffers[CurrentFrameIndex],
                        MeshIndexBuffers[id][CurrentFrameIndex].Buffer, 0,
                        VK_INDEX_TYPE_UINT16);
@@ -918,6 +976,14 @@ void Renderable3D::UnloadSync() {
     }
     delete StaticModel;
     StaticModel = 0;
+  }
+  for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+    if (CurrentMorphedVerticesVkMapped[i]) {
+      vmaUnmapMemory(Allocator, CurrentMorphedVerticesVk[i].Allocation);
+      CurrentMorphedVerticesVkMapped[i] = 0;
+      vmaDestroyBuffer(Allocator, CurrentMorphedVerticesVk[i].Buffer,
+                       CurrentMorphedVerticesVk[i].Allocation);
+    }
   }
   if (CurrentMorphedVertices) {
     free(CurrentMorphedVertices);

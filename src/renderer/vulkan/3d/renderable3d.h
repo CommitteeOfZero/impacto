@@ -97,6 +97,9 @@ class Renderable3D : public IRenderable3D {
   int CurrentWriteDescriptorSet = 0;
   VkWriteDescriptorSet WriteDescriptorSet[4];
 
+  AllocatedBuffer CurrentMorphedVerticesVk[MAX_FRAMES_IN_FLIGHT];
+  void* CurrentMorphedVerticesVkMapped[MAX_FRAMES_IN_FLIGHT];
+
   uint32_t TexBuffers[ModelMaxTexturesPerModel];
 
   bool UniformsUpdated[ModelMaxMeshesPerModel];
