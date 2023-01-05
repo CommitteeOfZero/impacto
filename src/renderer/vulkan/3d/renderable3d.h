@@ -81,11 +81,8 @@ class Renderable3D : public IRenderable3D {
                                    [MAX_FRAMES_IN_FLIGHT];
   AllocatedBuffer MeshVertexBuffers[ModelMaxMeshesPerModel]
                                    [MAX_FRAMES_IN_FLIGHT];
-  uint8_t* MeshVertexBuffersMapped[ModelMaxMeshesPerModel]
-                                  [MAX_FRAMES_IN_FLIGHT];
   AllocatedBuffer MeshIndexBuffers[ModelMaxMeshesPerModel]
                                   [MAX_FRAMES_IN_FLIGHT];
-  uint8_t* MeshIndexBuffersMapped[ModelMaxMeshesPerModel][MAX_FRAMES_IN_FLIGHT];
 
   AllocatedBuffer BackgroundMvpBuffers[ModelMaxMeshesPerModel]
                                       [MAX_FRAMES_IN_FLIGHT];

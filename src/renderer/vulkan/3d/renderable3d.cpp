@@ -39,6 +39,8 @@ static VkCommandBuffer* CommandBuffers;
 static VkDescriptorSetLayout ModelDescriptorSetLayout;
 static VkDescriptorSetLayout BgTextureSetLayout;
 
+static uint32_t StagingBufferSize = 4096 * 4096;
+
 void Renderable3D::Init(VulkanWindow* window, VkDevice device,
                         VkRenderPass renderPass,
                         VkCommandBuffer* commandBuffers) {
@@ -1023,6 +1025,13 @@ void Renderable3D::MainThreadOnLoad() {
     ModelUniformBuffersMapped[i] = (uint8_t*)data;
   }
 
+  auto stagingBuffer =
+      CreateBuffer(StagingBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                   VMA_MEMORY_USAGE_CPU_ONLY);
+
+  void* stagingBufferMapped;
+  vmaMapMemory(Allocator, stagingBuffer.Allocation, &stagingBufferMapped);
+
   for (int i = 0; i < StaticModel->MeshCount; i++) {
     for (int j = 0; j < MAX_FRAMES_IN_FLIGHT; j++) {
       MeshUniformBuffers[i][j] = CreateBuffer(
@@ -1032,55 +1041,67 @@ void Renderable3D::MainThreadOnLoad() {
       vmaMapMemory(Allocator, MeshUniformBuffers[i][j].Allocation, &data);
       MeshUniformBuffersMapped[i][j] = (uint8_t*)data;
 
+      uint32_t vertexCopySize = 0;
+
       if (StaticModel->Type == ModelType_Character) {
         if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
           MeshVertexBuffers[i][j] = CreateBuffer(
               sizeof(VertexBufferDaSH) * StaticModel->Meshes[i].VertexCount,
               VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
-          void* data;
-          vmaMapMemory(Allocator, MeshVertexBuffers[i][j].Allocation, &data);
-          MeshVertexBuffersMapped[i][j] = (uint8_t*)data;
-          memcpy(MeshVertexBuffersMapped[i][j],
+          vertexCopySize =
+              sizeof(VertexBufferDaSH) * StaticModel->Meshes[i].VertexCount;
+
+          memcpy(stagingBufferMapped,
                  (VertexBufferDaSH*)StaticModel->VertexBuffers +
                      StaticModel->Meshes[i].VertexOffset,
                  sizeof(VertexBufferDaSH) * StaticModel->Meshes[i].VertexCount);
-          vmaUnmapMemory(Allocator, MeshVertexBuffers[i][j].Allocation);
         } else {
           MeshVertexBuffers[i][j] = CreateBuffer(
               sizeof(VertexBuffer) * StaticModel->Meshes[i].VertexCount,
-              VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
-          void* data;
-          vmaMapMemory(Allocator, MeshVertexBuffers[i][j].Allocation, &data);
-          MeshVertexBuffersMapped[i][j] = (uint8_t*)data;
-          memcpy(MeshVertexBuffersMapped[i][j],
+              VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_ONLY);
+          vertexCopySize =
+              sizeof(VertexBuffer) * StaticModel->Meshes[i].VertexCount;
+
+          memcpy(stagingBufferMapped,
                  (VertexBuffer*)StaticModel->VertexBuffers +
                      StaticModel->Meshes[i].VertexOffset,
                  sizeof(VertexBuffer) * StaticModel->Meshes[i].VertexCount);
-          vmaUnmapMemory(Allocator, MeshVertexBuffers[i][j].Allocation);
         }
       } else if (StaticModel->Type == ModelType_Background) {
         MeshVertexBuffers[i][j] = CreateBuffer(
             sizeof(BgVertexBuffer) * StaticModel->Meshes[i].VertexCount,
-            VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
-        void* data;
-        vmaMapMemory(Allocator, MeshVertexBuffers[i][j].Allocation, &data);
-        MeshVertexBuffersMapped[i][j] = (uint8_t*)data;
-        memcpy(MeshVertexBuffersMapped[i][j],
+            VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_ONLY);
+        vertexCopySize =
+            sizeof(BgVertexBuffer) * StaticModel->Meshes[i].VertexCount;
+
+        memcpy(stagingBufferMapped,
                (BgVertexBuffer*)StaticModel->VertexBuffers +
                    StaticModel->Meshes[i].VertexOffset,
                sizeof(BgVertexBuffer) * StaticModel->Meshes[i].VertexCount);
-        vmaUnmapMemory(Allocator, MeshVertexBuffers[i][j].Allocation);
       }
 
       MeshIndexBuffers[i][j] = CreateBuffer(
           sizeof(uint16_t) * StaticModel->Meshes[i].IndexCount,
-          VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
-      vmaMapMemory(Allocator, MeshIndexBuffers[i][j].Allocation, &data);
-      MeshIndexBuffersMapped[i][j] = (uint8_t*)data;
-      memcpy(MeshIndexBuffersMapped[i][j],
+          VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_ONLY);
+
+      memcpy((uint8_t*)stagingBufferMapped + vertexCopySize,
              StaticModel->Indices + StaticModel->Meshes[i].IndexOffset,
              sizeof(uint16_t) * StaticModel->Meshes[i].IndexCount);
-      vmaUnmapMemory(Allocator, MeshIndexBuffers[i][j].Allocation);
+
+      ImmediateSubmit([=](VkCommandBuffer cmd) {
+        VkBufferCopy copy;
+        copy.dstOffset = 0;
+        copy.srcOffset = 0;
+        copy.size = vertexCopySize;
+        vkCmdCopyBuffer(cmd, stagingBuffer.Buffer,
+                        MeshVertexBuffers[i][j].Buffer, 1, &copy);
+
+        copy.dstOffset = 0;
+        copy.srcOffset = vertexCopySize;
+        copy.size = sizeof(uint16_t) * StaticModel->Meshes[i].IndexCount;
+        vkCmdCopyBuffer(cmd, stagingBuffer.Buffer,
+                        MeshIndexBuffers[i][j].Buffer, 1, &copy);
+      });
     }
   }
 
@@ -1091,6 +1112,9 @@ void Renderable3D::MainThreadOnLoad() {
              "Submitting texture %d for model %d failed\n", i, StaticModel->Id);
     }
   }
+
+  vmaUnmapMemory(Allocator, stagingBuffer.Allocation);
+  vmaDestroyBuffer(Allocator, stagingBuffer.Buffer, stagingBuffer.Allocation);
 
   IsSubmitted = true;
 }
