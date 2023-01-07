@@ -94,7 +94,7 @@ class Renderer : public BaseRenderer {
   void CreateRenderPass();
   void CreateFramebuffers();
   void CreateCommandPool();
-  void CreateDepthImage();
+  void CreateColorAndDepthImage();
   void CreateCommandBuffer();
   void CreateSyncObjects();
   void CreateDescriptors();
@@ -192,6 +192,8 @@ class Renderer : public BaseRenderer {
   std::vector<VkImageView> SwapChainImageViews;
   std::vector<VkFramebuffer> SwapChainFramebuffers;
 
+  AllocatedImage ColorImage;
+  VkImageView ColorImageView;
   AllocatedImage DepthImage;
   VkImageView DepthImageView;
 

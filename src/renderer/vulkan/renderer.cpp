@@ -307,13 +307,13 @@ void Renderer::CreateImageViews() {
 void Renderer::CreateRenderPass() {
   VkAttachmentDescription colorAttachment{};
   colorAttachment.format = SwapChainImageFormat;
-  colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+  colorAttachment.samples = (VkSampleCountFlagBits)Window->MsaaCount;
   colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
   colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
   colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
   colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
   colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-  colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+  colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
   VkAttachmentReference colorAttachmentRef{};
   colorAttachmentRef.attachment = 0;
@@ -321,7 +321,7 @@ void Renderer::CreateRenderPass() {
 
   VkAttachmentDescription depthAttachment{};
   depthAttachment.format = VK_FORMAT_D32_SFLOAT;
-  depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+  depthAttachment.samples = (VkSampleCountFlagBits)Window->MsaaCount;
   depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
   depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
   depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -334,11 +334,26 @@ void Renderer::CreateRenderPass() {
   depthAttachmentRef.attachment = 1;
   depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
+  VkAttachmentDescription colorAttachmentResolve{};
+  colorAttachmentResolve.format = SwapChainImageFormat;
+  colorAttachmentResolve.samples = VK_SAMPLE_COUNT_1_BIT;
+  colorAttachmentResolve.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+  colorAttachmentResolve.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+  colorAttachmentResolve.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+  colorAttachmentResolve.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+  colorAttachmentResolve.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+  colorAttachmentResolve.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+  VkAttachmentReference colorAttachmentResolveRef{};
+  colorAttachmentResolveRef.attachment = 2;
+  colorAttachmentResolveRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
   VkSubpassDescription subpass{};
   subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
   subpass.colorAttachmentCount = 1;
   subpass.pColorAttachments = &colorAttachmentRef;
   subpass.pDepthStencilAttachment = &depthAttachmentRef;
+  subpass.pResolveAttachments = &colorAttachmentResolveRef;
 
   VkSubpassDependency dependency{};
   dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -351,10 +366,11 @@ void Renderer::CreateRenderPass() {
   dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
                              VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
-  VkAttachmentDescription attachments[2] = {colorAttachment, depthAttachment};
+  VkAttachmentDescription attachments[3] = {colorAttachment, depthAttachment,
+                                            colorAttachmentResolve};
   VkRenderPassCreateInfo renderPassInfo{};
   renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-  renderPassInfo.attachmentCount = 2;
+  renderPassInfo.attachmentCount = 3;
   renderPassInfo.pAttachments = attachments;
   renderPassInfo.subpassCount = 1;
   renderPassInfo.pSubpasses = &subpass;
@@ -371,12 +387,13 @@ void Renderer::CreateRenderPass() {
 void Renderer::CreateFramebuffers() {
   SwapChainFramebuffers.resize(SwapChainImageViews.size());
   for (size_t i = 0; i < SwapChainImageViews.size(); i++) {
-    VkImageView attachments[] = {SwapChainImageViews[i], DepthImageView};
+    VkImageView attachments[] = {ColorImageView, DepthImageView,
+                                 SwapChainImageViews[i]};
 
     VkFramebufferCreateInfo framebufferInfo{};
     framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
     framebufferInfo.renderPass = RenderPass;
-    framebufferInfo.attachmentCount = 2;
+    framebufferInfo.attachmentCount = 3;
     framebufferInfo.pAttachments = attachments;
     framebufferInfo.width = SwapChainExtent.width;
     framebufferInfo.height = SwapChainExtent.height;
@@ -521,16 +538,43 @@ void Renderer::CreateDescriptors() {
                               &TripleTextureSetLayout);
 }
 
-void Renderer::CreateDepthImage() {
+void Renderer::CreateColorAndDepthImage() {
   VkExtent3D imageExtent;
   imageExtent.width = SwapChainExtent.width;
   imageExtent.height = SwapChainExtent.height;
   imageExtent.depth = 1;
 
+  // Color image
+  VkImageCreateInfo cimgInfo =
+      GetImageCreateInfo(SwapChainImageFormat, imageExtent);
+  cimgInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+  cimgInfo.usage = VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT |
+                   VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+  cimgInfo.samples = (VkSampleCountFlagBits)Window->MsaaCount;
+  VmaAllocationCreateInfo cimgAllocinfo = {};
+  cimgAllocinfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+  vmaCreateImage(Allocator, &cimgInfo, &cimgAllocinfo, &ColorImage.Image,
+                 &ColorImage.Allocation, nullptr);
+
+  VkImageViewCreateInfo colorImageInfo = {};
+  colorImageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+  colorImageInfo.pNext = nullptr;
+  colorImageInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+  colorImageInfo.image = ColorImage.Image;
+  colorImageInfo.format = SwapChainImageFormat;
+  colorImageInfo.subresourceRange.baseMipLevel = 0;
+  colorImageInfo.subresourceRange.levelCount = 1;
+  colorImageInfo.subresourceRange.baseArrayLayer = 0;
+  colorImageInfo.subresourceRange.layerCount = 1;
+  colorImageInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+  vkCreateImageView(Device, &colorImageInfo, nullptr, &ColorImageView);
+
+  // Depth image
   VkImageCreateInfo dimgInfo =
       GetImageCreateInfo(VK_FORMAT_D32_SFLOAT, imageExtent);
   dimgInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
   dimgInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+  dimgInfo.samples = (VkSampleCountFlagBits)Window->MsaaCount;
   VmaAllocationCreateInfo dimgAllocinfo = {};
   dimgAllocinfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
   vmaCreateImage(Allocator, &dimgInfo, &dimgAllocinfo, &DepthImage.Image,
@@ -593,7 +637,7 @@ void Renderer::InitImpl() {
 
   CreateSwapChain();
   CreateImageViews();
-  CreateDepthImage();
+  CreateColorAndDepthImage();
   CreateRenderPass();
   CreateFramebuffers();
   CreateCommandPool();
@@ -704,6 +748,8 @@ void Renderer::ShutdownImpl() {
                    IndexBufferAlloc.Allocation);
   vkDestroyImageView(Device, DepthImageView, nullptr);
   vmaDestroyImage(Allocator, DepthImage.Image, DepthImage.Allocation);
+  vkDestroyImageView(Device, ColorImageView, nullptr);
+  vmaDestroyImage(Allocator, ColorImage.Image, ColorImage.Allocation);
   CleanupSwapChain();
   vkDestroySurfaceKHR(Instance, Surface, nullptr);
   vkDestroyDevice(Device, nullptr);

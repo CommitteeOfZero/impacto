@@ -329,7 +329,7 @@ void Scene3D::DrawToScreen() {
 }
 
 MSResolveMode Scene3D::CheckMSResolveMode() {
-  if (Window->MsaaCount == 0) return MS_None;
+  if (Window->MsaaCount == 1) return MS_None;
 
   if (ActualGraphicsApi != GfxApi_GL) {
     if (GLAD_GL_EXT_multisampled_render_to_texture) {
