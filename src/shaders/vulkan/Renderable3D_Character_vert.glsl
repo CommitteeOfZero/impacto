@@ -41,7 +41,7 @@ void main() {
                            Bones[BoneIndices.w] * BoneWeights.w;
 
   mat4 transform = Model * skeletalTransform;
-  mat3 normalMatrix = mat3(transpose(transform));
+  mat3 normalMatrix = mat3(transform);
 
   vec4 worldPosition = transform * vec4(Position, 1.0);
   worldFragPosition = worldPosition.xyz;

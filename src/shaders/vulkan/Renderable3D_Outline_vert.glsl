@@ -47,7 +47,7 @@ void main() {
                            Bones[BoneIndices.w] * BoneWeights.w;
 
   mat4 transform = Model * skeletalTransform;
-  mat3 normalMatrix = mat3(transpose(inverse(transform)));
+  mat3 normalMatrix = mat3(inverse(transform));
 
   vec3 worldNormal = normalMatrix * Normal;
 
