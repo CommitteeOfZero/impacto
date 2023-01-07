@@ -5,6 +5,7 @@
 
 #include "../../util.h"
 #include "../../profile/scene3d.h"
+#include "../../profile/game.h"
 
 namespace Impacto {
 
@@ -44,7 +45,12 @@ void Camera::Recalculate() {
         CameraTransform.Matrix());  // move the world, not the camera
   }
 
-  Projection = glm::perspective(Fov, AspectRatio, Near, Far);
+  if (Profile::ActiveRenderer == +RendererType::OpenGL) {
+    Projection = glm::perspective(Fov, AspectRatio, Near, Far);
+  } else {
+    Projection = glm::perspectiveRH_ZO(Fov, AspectRatio, Near, Far);
+    Projection[1][1] *= -1.0f;
+  }
   ViewProjection = Projection * View;
 }
 

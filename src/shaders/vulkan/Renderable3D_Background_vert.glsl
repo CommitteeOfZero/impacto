@@ -16,8 +16,6 @@ layout(push_constant) uniform constants
 } PushConstants;
 
 void main() {
-  vec4 test = ubo.MVP * vec4(Position, 1.0);
-  test.y = -test.y;
-  gl_Position = test;
+  gl_Position = ubo.MVP * vec4(Position, 1.0);
   uv = UV;
 }

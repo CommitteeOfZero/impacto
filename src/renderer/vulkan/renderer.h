@@ -79,6 +79,9 @@ struct VertexBufferSprites {
 };
 
 class Renderer : public BaseRenderer {
+ public:
+  void RecreateSwapChain();
+
  private:
   void CreateInstance();
   void SetupDebug();
@@ -98,6 +101,8 @@ class Renderer : public BaseRenderer {
 
   void CreateVertexBuffer();
   void CreateIndexBuffer();
+
+  void CleanupSwapChain();
 
   void InitImpl() override;
   void ShutdownImpl() override;
@@ -235,6 +240,8 @@ class Renderer : public BaseRenderer {
 
   RectF PreviousScissorRect;
 };
+
+extern Renderer* MainRendererInstance;
 
 }  // namespace Vulkan
 }  // namespace Impacto

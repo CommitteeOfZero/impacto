@@ -47,7 +47,6 @@ void main() {
   worldFragPosition = worldPosition.xyz;
 
   gl_Position = ViewProjection * worldPosition;
-  gl_Position.y = -gl_Position.y;
   worldNormal = normalMatrix * Normal;
   uv = UV;
 }

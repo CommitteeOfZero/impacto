@@ -43,7 +43,6 @@ void main() {
   vec4 worldPosition = transform * vec4(Position, 1.0);
 
   gl_Position = ViewProjection * worldPosition;
-  gl_Position.y = -gl_Position.y;
 
   uv = UV;
 }

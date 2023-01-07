@@ -12,6 +12,8 @@
 namespace Impacto {
 namespace Vulkan {
 
+Renderer* MainRendererInstance;
+
 static VKAPI_ATTR VkBool32 VKAPI_CALL
 debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
               VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -548,6 +550,28 @@ void Renderer::CreateDepthImage() {
   vkCreateImageView(Device, &imageInfo, nullptr, &DepthImageView);
 }
 
+void Renderer::CleanupSwapChain() {
+  for (size_t i = 0; i < SwapChainFramebuffers.size(); i++) {
+    vkDestroyFramebuffer(Device, SwapChainFramebuffers[i], nullptr);
+  }
+
+  for (size_t i = 0; i < SwapChainImageViews.size(); i++) {
+    vkDestroyImageView(Device, SwapChainImageViews[i], nullptr);
+  }
+
+  vkDestroySwapchainKHR(Device, SwapChain, nullptr);
+}
+
+void Renderer::RecreateSwapChain() {
+  vkDeviceWaitIdle(Device);
+
+  CleanupSwapChain();
+
+  CreateSwapChain();
+  CreateImageViews();
+  CreateFramebuffers();
+}
+
 void Renderer::InitImpl() {
   if (IsInit) return;
   ImpLog(LL_Info, LC_Render, "Initializing Renderer2D Vulkan system\n");
@@ -647,6 +671,8 @@ void Renderer::InitImpl() {
   samplerInfo.anisotropyEnable = VK_TRUE;
   samplerInfo.maxAnisotropy = 16;
   vkCreateSampler(Device, &samplerInfo, nullptr, &Sampler);
+
+  MainRendererInstance = this;
 }
 
 void Renderer::ShutdownImpl() {
@@ -678,13 +704,7 @@ void Renderer::ShutdownImpl() {
                    IndexBufferAlloc.Allocation);
   vkDestroyImageView(Device, DepthImageView, nullptr);
   vmaDestroyImage(Allocator, DepthImage.Image, DepthImage.Allocation);
-  for (auto framebuffer : SwapChainFramebuffers) {
-    vkDestroyFramebuffer(Device, framebuffer, nullptr);
-  }
-  for (auto imageView : SwapChainImageViews) {
-    vkDestroyImageView(Device, imageView, nullptr);
-  }
-  vkDestroySwapchainKHR(Device, SwapChain, nullptr);
+  CleanupSwapChain();
   vkDestroySurfaceKHR(Instance, Surface, nullptr);
   vkDestroyDevice(Device, nullptr);
   if (EnableValidationLayers) {
@@ -712,11 +732,12 @@ void Renderer::BeginFrameImpl() {
 
   vkWaitForFences(Device, 1, &InFlightFences[CurrentFrameIndex], VK_TRUE,
                   UINT64_MAX);
-  vkResetFences(Device, 1, &InFlightFences[CurrentFrameIndex]);
 
   vkAcquireNextImageKHR(Device, SwapChain, UINT64_MAX,
                         ImageAvailableSemaphores[CurrentFrameIndex],
                         VK_NULL_HANDLE, &CurrentImageIndex);
+
+  vkResetFences(Device, 1, &InFlightFences[CurrentFrameIndex]);
 
   VkCommandBufferBeginInfo beginInfo{};
   beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;

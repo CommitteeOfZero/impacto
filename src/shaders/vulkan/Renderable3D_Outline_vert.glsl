@@ -62,7 +62,6 @@ void main() {
 
   gl_Position = ViewProjection * worldPosition;
   gl_Position += viewNormal * OutlineThickness;
-  gl_Position.y = -gl_Position.y;
 
   uv = UV;
 

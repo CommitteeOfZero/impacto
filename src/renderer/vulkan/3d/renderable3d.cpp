@@ -579,9 +579,12 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
 
   UseMesh(id);
 
+  VkDescriptorBufferInfo bgMvpBufferInfo{};
+  VkDescriptorBufferInfo sceneBufferInfo{};
+  VkDescriptorBufferInfo modelBufferInfo{};
+  VkDescriptorBufferInfo meshBufferInfo{};
   switch (CurrentMaterial) {
     case MT_Background: {
-      VkDescriptorBufferInfo bgMvpBufferInfo{};
       bgMvpBufferInfo.buffer =
           BackgroundMvpBuffers[id][CurrentFrameIndex].Buffer;
       bgMvpBufferInfo.offset = 0;
@@ -605,7 +608,6 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
     case MT_DaSH_Face:
     case MT_DaSH_Skin:
     case MT_DaSH_Eye: {
-      VkDescriptorBufferInfo sceneBufferInfo{};
       sceneBufferInfo.buffer = SceneUniformBuffers[CurrentFrameIndex].Buffer;
       sceneBufferInfo.offset = 0;
       sceneBufferInfo.range = sizeof(SceneUniformBufferType);
@@ -621,7 +623,6 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
           &sceneBufferInfo;
       CurrentWriteDescriptorSet += 1;
 
-      VkDescriptorBufferInfo modelBufferInfo{};
       modelBufferInfo.buffer = ModelUniformBuffers[CurrentFrameIndex].Buffer;
       modelBufferInfo.offset = 0;
       modelBufferInfo.range = sizeof(ModelUniformBufferType);
@@ -637,7 +638,6 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
           &modelBufferInfo;
       CurrentWriteDescriptorSet += 1;
 
-      VkDescriptorBufferInfo meshBufferInfo{};
       meshBufferInfo.buffer = MeshUniformBuffers[id][CurrentFrameIndex].Buffer;
       meshBufferInfo.offset = 0;
       meshBufferInfo.range = sizeof(MeshUniformBufferType);
@@ -1047,7 +1047,9 @@ void Renderable3D::MainThreadOnLoad() {
         if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
           MeshVertexBuffers[i][j] = CreateBuffer(
               sizeof(VertexBufferDaSH) * StaticModel->Meshes[i].VertexCount,
-              VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
+              VK_BUFFER_USAGE_TRANSFER_DST_BIT |
+                  VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+              VMA_MEMORY_USAGE_CPU_ONLY);
           vertexCopySize =
               sizeof(VertexBufferDaSH) * StaticModel->Meshes[i].VertexCount;
 
@@ -1058,7 +1060,9 @@ void Renderable3D::MainThreadOnLoad() {
         } else {
           MeshVertexBuffers[i][j] = CreateBuffer(
               sizeof(VertexBuffer) * StaticModel->Meshes[i].VertexCount,
-              VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_ONLY);
+              VK_BUFFER_USAGE_TRANSFER_DST_BIT |
+                  VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+              VMA_MEMORY_USAGE_GPU_ONLY);
           vertexCopySize =
               sizeof(VertexBuffer) * StaticModel->Meshes[i].VertexCount;
 
@@ -1070,7 +1074,9 @@ void Renderable3D::MainThreadOnLoad() {
       } else if (StaticModel->Type == ModelType_Background) {
         MeshVertexBuffers[i][j] = CreateBuffer(
             sizeof(BgVertexBuffer) * StaticModel->Meshes[i].VertexCount,
-            VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_ONLY);
+            VK_BUFFER_USAGE_TRANSFER_DST_BIT |
+                VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+            VMA_MEMORY_USAGE_GPU_ONLY);
         vertexCopySize =
             sizeof(BgVertexBuffer) * StaticModel->Meshes[i].VertexCount;
 
@@ -1082,7 +1088,8 @@ void Renderable3D::MainThreadOnLoad() {
 
       MeshIndexBuffers[i][j] = CreateBuffer(
           sizeof(uint16_t) * StaticModel->Meshes[i].IndexCount,
-          VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_ONLY);
+          VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+          VMA_MEMORY_USAGE_GPU_ONLY);
 
       memcpy((uint8_t*)stagingBufferMapped + vertexCopySize,
              StaticModel->Indices + StaticModel->Meshes[i].IndexOffset,

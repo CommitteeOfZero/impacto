@@ -3,12 +3,11 @@
 #include <SDL_vulkan.h>
 
 #include "../renderer.h"
-
 #include "../../log.h"
-
 #include "../../profile/game.h"
-
 #include "../../game.h"
+
+#include "renderer.h"
 
 namespace Impacto {
 namespace Vulkan {
@@ -34,6 +33,7 @@ void VulkanWindow::UpdateDimensions() {
   DpiScaleX = (float)WindowWidth / (float)osWindowWidth;
   DpiScaleY = (float)WindowHeight / (float)osWindowHeight;
   SDL_SetWindowInputFocus(SDLWindow);
+  MainRendererInstance->RecreateSwapChain();
 }
 
 RectF VulkanWindow::GetViewport() {
