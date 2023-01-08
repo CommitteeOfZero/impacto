@@ -8,14 +8,11 @@
 #include "../../../profile/scene3d.h"
 
 namespace Impacto {
-namespace Vulkan {
+namespace DirectX9 {
 
-Scene3D::Scene3D(VulkanWindow* window, VkDevice device, VkRenderPass renderPass,
-                 VkCommandBuffer* commandBuffers) {
+Scene3D::Scene3D(DirectX9Window* window, IDirect3DDevice9* device) {
   Window = window;
   Device = device;
-  RenderPass = renderPass;
-  CommandBuffers = commandBuffers;
 }
 
 void Scene3D::Init() {
@@ -30,7 +27,7 @@ void Scene3D::Init() {
     Renderables[i] = new Renderable3D();
   }
 
-  Renderable3D::Init(Window, Device, RenderPass, CommandBuffers);
+  Renderable3D::Init(Window, Device);
 
   MainCamera.Init();
 
@@ -78,5 +75,5 @@ void Scene3D::Render() {
   }
 }
 
-}  // namespace Vulkan
+}  // namespace DirectX9
 }  // namespace Impacto

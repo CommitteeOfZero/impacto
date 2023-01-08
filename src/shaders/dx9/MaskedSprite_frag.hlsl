@@ -1,6 +1,6 @@
-float2 Alpha : register(c10);
-int IsInverted : register(c11);
-int IsSameTexture : register(c12);
+float2 Alpha : register(c0);
+bool IsInverted : register(b0);
+bool IsSameTexture : register(b1);
 
 struct PS_INPUT {
   float4 position : POSITION;

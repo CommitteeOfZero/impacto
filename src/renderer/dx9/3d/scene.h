@@ -7,12 +7,11 @@
 #include "../renderer.h"
 
 namespace Impacto {
-namespace Vulkan {
+namespace DirectX9 {
 
 class Scene3D : public IScene3D {
  public:
-  Scene3D(VulkanWindow* window, VkDevice device, VkRenderPass renderPass,
-          VkCommandBuffer* commandBuffers);
+  Scene3D(DirectX9Window* window, IDirect3DDevice9* device);
 
   void Init();
   void Shutdown();
@@ -22,11 +21,9 @@ class Scene3D : public IScene3D {
  private:
   bool IsInit = false;
 
-  VulkanWindow* Window;
-  VkDevice Device;
-  VkRenderPass RenderPass;
-  VkCommandBuffer* CommandBuffers;
+  DirectX9Window* Window;
+  IDirect3DDevice9* Device;
 };
 
-}  // namespace Vulkan
+}  // namespace DirectX9
 }  // namespace Impacto

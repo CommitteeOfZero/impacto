@@ -11,7 +11,8 @@ static char const FragShaderExtension[] = "_frag.hlsl";
 static char const VertShaderExtension[] = "_vert.hlsl";
 
 void Shader::Compile(char const* name, IDirect3DDevice9* device,
-                     IDirect3DVertexDeclaration9* vertexDeclaration) {
+                     IDirect3DVertexDeclaration9* vertexDeclaration,
+                     D3D_SHADER_MACRO* macros) {
   ImpLog(LL_Debug, LC_Render, "Compiling shader \"%s\"\n", name);
 
   VertexDeclaration = vertexDeclaration;
@@ -37,7 +38,7 @@ void Shader::Compile(char const* name, IDirect3DDevice9* device,
     return;
   }
   auto result =
-      D3DCompile(source, sourceRawSz, nullptr, nullptr, nullptr, "main",
+      D3DCompile(source, sourceRawSz, nullptr, macros, nullptr, "main",
                  "vs_3_0", 0, 0, &vertexShaderBuffer, &errorBlob);
   if (FAILED(result)) {
     ImpLog(LL_Debug, LC_Render, "Failed to compile shader source file %s\n",
@@ -56,7 +57,7 @@ void Shader::Compile(char const* name, IDirect3DDevice9* device,
     ImpLog(LL_Debug, LC_Render, "Failed to read shader source file\n");
     return;
   }
-  result = D3DCompile(source, sourceRawSz, nullptr, nullptr, nullptr, "main",
+  result = D3DCompile(source, sourceRawSz, nullptr, macros, nullptr, "main",
                       "ps_3_0", 0, 0, &pixelShaderBuffer, &errorBlob);
   if (FAILED(result)) {
     ImpLog(LL_Debug, LC_Render, "Failed to compile shader source file %s\n",

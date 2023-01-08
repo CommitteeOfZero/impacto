@@ -1,6 +1,7 @@
 #pragma once
 
 #include <d3d9.h>
+#include <d3dcommon.h>
 
 namespace Impacto {
 namespace DirectX9 {
@@ -8,7 +9,8 @@ namespace DirectX9 {
 class Shader {
  public:
   void Compile(char const* name, IDirect3DDevice9* device,
-               IDirect3DVertexDeclaration9* vertexDeclaration);
+               IDirect3DVertexDeclaration9* vertexDeclaration,
+               D3D_SHADER_MACRO* macros = nullptr);
   void UseShader(IDirect3DDevice9* device);
 
  private:

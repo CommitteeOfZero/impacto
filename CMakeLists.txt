@@ -754,12 +754,16 @@ if (DEFINED IMPACTO_ENABLE_DX9)
         src/renderer/dx9/window.cpp
         src/renderer/dx9/shader.cpp
         src/renderer/dx9/yuvframe.cpp
+        src/renderer/dx9/3d/scene.cpp
+        src/renderer/dx9/3d/renderable3d.cpp
     )
     list(APPEND Impacto_Header
         src/renderer/dx9/renderer.h
         src/renderer/dx9/window.h
         src/renderer/dx9/shader.h
         src/renderer/dx9/yuvframe.h
+        src/renderer/dx9/3d/scene.h
+        src/renderer/dx9/3d/renderable3d.h
     )
 
     list(APPEND Impacto_Libs

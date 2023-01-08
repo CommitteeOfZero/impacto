@@ -1,4 +1,4 @@
-float4 Alpha : register(c10);
+float4 Alpha : register(c0);
 
 struct PS_INPUT {
   float4 position : POSITION;

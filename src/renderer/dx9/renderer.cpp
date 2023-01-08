@@ -4,6 +4,7 @@
 
 #include "../../profile/game.h"
 #include "../../game.h"
+#include "3d/scene.h"
 
 namespace Impacto {
 namespace DirectX9 {
@@ -51,13 +52,14 @@ void Renderer::InitImpl() {
 
   IDirect3DVertexDeclaration9* vertexDeclaration;
   std::vector<D3DVERTEXELEMENT9> vertexDeclDesc{
-      {0, 0, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION,
-       0},
-      {0, 8, D3DDECLTYPE_FLOAT4, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_COLOR, 0},
-      {0, 24, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD,
-       0},
-      {0, 32, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD,
-       1},
+      {0, offsetof(VertexBufferSprites, Position), D3DDECLTYPE_FLOAT2,
+       D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
+      {0, offsetof(VertexBufferSprites, Tint), D3DDECLTYPE_FLOAT4,
+       D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_COLOR, 0},
+      {0, offsetof(VertexBufferSprites, UV), D3DDECLTYPE_FLOAT2,
+       D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0},
+      {0, offsetof(VertexBufferSprites, MaskUV), D3DDECLTYPE_FLOAT2,
+       D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 1},
       D3DDECL_END()};
   Device->CreateVertexDeclaration(vertexDeclDesc.data(), &vertexDeclaration);
 
@@ -75,10 +77,10 @@ void Renderer::InitImpl() {
   CurrentShader = ShaderSprite;
   CurrentShader->UseShader(Device);
 
-  // if (Profile::GameFeatures & GameFeature::Scene3D) {
-  //   Scene = new Scene3D(OpenGLWindow, Shaders);
-  //   Scene->Init();
-  // }
+  if (Profile::GameFeatures & GameFeature::Scene3D) {
+    Scene = new Scene3D(DXWindow, Device);
+    Scene->Init();
+  }
 
   // Fill index buffer with quads
   int index = 0;
@@ -383,11 +385,11 @@ void Renderer::DrawMaskedSpriteImpl(Sprite const& sprite, Sprite const& mask,
 
   // This is cursed man, idk
   float alphaRes[] = {alphaRange, constAlpha};
-  float isSameTextureF = (float)isSameTexture;
-  float isInvertedF = (float)isInverted;
-  Device->SetPixelShaderConstantF(10, alphaRes, 1);
-  Device->SetPixelShaderConstantF(11, &isInvertedF, 1);
-  Device->SetPixelShaderConstantF(12, &isSameTextureF, 1);
+  BOOL isInvertedB = (BOOL)isInverted;
+  BOOL isSameTextureB = (BOOL)isSameTexture;
+  Device->SetPixelShaderConstantF(0, alphaRes, 1);
+  Device->SetPixelShaderConstantB(0, &isInvertedB, 1);
+  Device->SetPixelShaderConstantB(1, &isSameTextureB, 1);
 
   // OK, all good, make quad
 
@@ -435,7 +437,7 @@ void Renderer::DrawCCMessageBoxImpl(Sprite const& sprite, Sprite const& mask,
 
   // This is cursed man, idk
   float alphaRes[] = {alphaRange, constAlpha, effectCt, 0.0f};
-  Device->SetPixelShaderConstantF(10, alphaRes, 1);
+  Device->SetPixelShaderConstantF(0, alphaRes, 1);
 
   // OK, all good, make quad
 
@@ -665,8 +667,8 @@ void Renderer::DrawVideoTextureImpl(YUVFrame* tex, RectF const& dest,
   err = Device->SetTexture(2, VideoFrameInternal->Cr);
 
   // This is cursed man, idk
-  float alphaVideoF = (float)alphaVideo;
-  Device->SetPixelShaderConstantF(10, &alphaVideoF, 1);
+  BOOL alphaVideoB = (BOOL)alphaVideo;
+  Device->SetPixelShaderConstantB(0, &alphaVideoB, 1);
 
   // OK, all good, make quad
 
