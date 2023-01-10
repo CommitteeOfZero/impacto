@@ -750,6 +750,7 @@ endif()
 
 if (DEFINED IMPACTO_ENABLE_DX9)
     list(APPEND Impacto_Src
+        src/renderer/dx9/utils.cpp
         src/renderer/dx9/renderer.cpp
         src/renderer/dx9/window.cpp
         src/renderer/dx9/shader.cpp
@@ -758,6 +759,7 @@ if (DEFINED IMPACTO_ENABLE_DX9)
         src/renderer/dx9/3d/renderable3d.cpp
     )
     list(APPEND Impacto_Header
+        src/renderer/dx9/utils.h
         src/renderer/dx9/renderer.h
         src/renderer/dx9/window.h
         src/renderer/dx9/shader.h

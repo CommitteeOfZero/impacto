@@ -17,8 +17,8 @@ struct VS_INPUT {
   float3 Position : POSITION;
   float3 Normal : NORMAL;
   float2 UV : TEXCOORD0;
-  float4 BoneIndices : BLENDWEIGHT;
-  float4 BoneWeights : BLENDINDICES;
+  uint4 BoneIndices : BLENDINDICES;
+  float4 BoneWeights : BLENDWEIGHT;
 };
 
 struct VS_OUTPUT {

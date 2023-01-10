@@ -5,6 +5,7 @@
 #include "../shader.h"
 #include "../window.h"
 #include "../../3d/renderable3d.h"
+#include "../utils.h"
 
 namespace Impacto {
 namespace DirectX9 {
@@ -55,6 +56,8 @@ class Renderable3D : public IRenderable3D {
   void MainThreadOnLoad() override;
 
  private:
+  void SetSceneUniformValues();
+
   void Pose();
   void PoseBone(int16_t id);
 
@@ -67,7 +70,11 @@ class Renderable3D : public IRenderable3D {
   void SetTextures(int id, int const* textureUnits, int count);
   void DrawMesh(int id, RenderPass pass);
 
+  IDirect3DVertexBuffer9* MeshVertexBuffersDevice[ModelMaxMeshesPerModel];
+  IDirect3DIndexBuffer9* MeshIndexBuffersDevice[ModelMaxMeshesPerModel];
+
   void* CurrentMorphedVerticesDx;
+  IDirect3DVertexBuffer9* MorphedVerticesDevice;
 
   uint32_t TexBuffers[ModelMaxTexturesPerModel];
 

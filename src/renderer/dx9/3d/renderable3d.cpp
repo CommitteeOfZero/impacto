@@ -22,6 +22,9 @@ static Shader* ShaderBackground = 0;
 
 static glm::mat4 ViewProjection;
 
+static IScene3D* CurrentScene;
+static Camera* CurrentCamera;
+
 static bool IsInit = false;
 
 static MaterialType CurrentMaterial = MT_None;
@@ -52,7 +55,7 @@ void Renderable3D::Init(DirectX9Window* window, IDirect3DDevice9* device) {
          D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_NORMAL, 0},
         {0, offsetof(VertexBufferDaSH, UV), D3DDECLTYPE_FLOAT2,
          D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0},
-        {0, offsetof(VertexBufferDaSH, BoneIndices), D3DDECLTYPE_FLOAT4,
+        {0, offsetof(VertexBufferDaSH, BoneIndices), D3DDECLTYPE_UBYTE4,
          D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_BLENDINDICES, 0},
         {0, offsetof(VertexBufferDaSH, BoneWeights), D3DDECLTYPE_FLOAT4,
          D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_BLENDWEIGHT, 0},
@@ -67,7 +70,7 @@ void Renderable3D::Init(DirectX9Window* window, IDirect3DDevice9* device) {
          D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_NORMAL, 0},
         {0, offsetof(VertexBuffer, UV), D3DDECLTYPE_FLOAT2,
          D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0},
-        {0, offsetof(VertexBuffer, BoneIndices), D3DDECLTYPE_FLOAT4,
+        {0, offsetof(VertexBuffer, BoneIndices), D3DDECLTYPE_UBYTE4,
          D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_BLENDINDICES, 0},
         {0, offsetof(VertexBuffer, BoneWeights), D3DDECLTYPE_FLOAT4,
          D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_BLENDWEIGHT, 0},
@@ -106,6 +109,8 @@ void Renderable3D::Init(DirectX9Window* window, IDirect3DDevice9* device) {
 void Renderable3D::BeginFrame(IScene3D* scene, Camera* camera) {
   CurrentMaterial = MT_None;
 
+  CurrentScene = scene;
+  CurrentCamera = camera;
   /* SceneUniformBufferType entry{};
   entry.ViewProjection = camera->ViewProjection;
   entry.Tint = scene->Tint;
@@ -116,6 +121,34 @@ void Renderable3D::BeginFrame(IScene3D* scene, Camera* camera) {
          sizeof(SceneUniformBufferType));*/
 
   ViewProjection = camera->ViewProjection;
+}
+
+void Renderable3D::SetSceneUniformValues() {
+  if (StaticModel->Type != ModelType_Background) {
+    SceneUniformBufferType entry{};
+    entry.ViewProjection = CurrentCamera->ViewProjection;
+    entry.Tint = CurrentScene->Tint;
+    entry.WorldLightPosition = CurrentScene->LightPosition;
+    entry.WorldEyePosition = CurrentCamera->CameraTransform.Position;
+    entry.DarkMode = CurrentScene->DarkMode;
+
+    Device->SetPixelShaderConstantF(0, glm::value_ptr(entry.ViewProjection), 4);
+    Device->SetPixelShaderConstantF(4, glm::value_ptr(entry.Tint), 1);
+    Device->SetPixelShaderConstantF(5, glm::value_ptr(entry.WorldLightPosition),
+                                    1);
+    Device->SetPixelShaderConstantF(6, glm::value_ptr(entry.WorldEyePosition),
+                                    1);
+    Device->SetPixelShaderConstantB(0, (BOOL*)&entry.DarkMode, 1);
+
+    Device->SetVertexShaderConstantF(0, glm::value_ptr(entry.ViewProjection),
+                                     4);
+    Device->SetVertexShaderConstantF(4, glm::value_ptr(entry.Tint), 1);
+    Device->SetVertexShaderConstantF(
+        5, glm::value_ptr(entry.WorldLightPosition), 1);
+    Device->SetVertexShaderConstantF(6, glm::value_ptr(entry.WorldEyePosition),
+                                     1);
+    Device->SetVertexShaderConstantB(0, (BOOL*)&entry.DarkMode, 1);
+  }
 }
 
 bool Renderable3D::LoadSync(uint32_t modelId) {
@@ -170,27 +203,19 @@ void Renderable3D::InitMeshAnimStatus() {
   }
   if (totalMorphedVertices > 0) {
     if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
-      CurrentMorphedVerticesDx = (VertexBufferDaSH*)malloc(
-          totalMorphedVertices * sizeof(VertexBufferDaSH));
+      Device->CreateVertexBuffer(
+          totalMorphedVertices * sizeof(VertexBufferDaSH), 0, 0,
+          D3DPOOL_MANAGED, &MorphedVerticesDevice, NULL);
     } else {
-      CurrentMorphedVerticesDx =
-          (VertexBuffer*)malloc(totalMorphedVertices * sizeof(VertexBuffer));
+      Device->CreateVertexBuffer(totalMorphedVertices * sizeof(VertexBuffer), 0,
+                                 0, D3DPOOL_MANAGED, &MorphedVerticesDevice,
+                                 NULL);
     }
   }
   ReloadDefaultMeshAnimStatus();
 }
 
 void Renderable3D::ReloadDefaultMeshAnimStatus() {
-  void* currentMorphedVertex;
-  if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
-    currentMorphedVertex = ((VertexBufferDaSH*)CurrentMorphedVerticesDx);
-  } else {
-    currentMorphedVertex = ((VertexBuffer*)CurrentMorphedVerticesDx);
-  }
-  VertexBuffer* currentMorphedVertexRNE = (VertexBuffer*)currentMorphedVertex;
-  VertexBufferDaSH* currentMorphedVertexDaSH =
-      (VertexBufferDaSH*)currentMorphedVertex;
-
   for (int i = 0; i < StaticModel->MeshCount; i++) {
     MeshAnimStatus[i].Visible = 1.0f;
     if (StaticModel->Meshes[i].MorphTargetCount > 0) {
@@ -228,6 +253,7 @@ void Renderable3D::CalculateMorphedVertices(int id) {
   if (mesh->MorphTargetCount == 0) return;
 
   void* currentMorphedVertex;
+  auto res = MorphedVerticesDevice->Lock(0, 0, &CurrentMorphedVerticesDx, 0);
   if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
     currentMorphedVertex = ((VertexBufferDaSH*)CurrentMorphedVerticesDx) +
                            animStatus->MorphedVerticesOffset;
@@ -324,6 +350,8 @@ void Renderable3D::CalculateMorphedVertices(int id) {
       currentMorphTargetVbo++;
     }
   }
+
+  res = MorphedVerticesDevice->Unlock();
 }
 
 void Renderable3D::Pose() {
@@ -403,100 +431,18 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
 
   UseMesh(id);
 
-  /* VkDescriptorBufferInfo bgMvpBufferInfo{};
-  VkDescriptorBufferInfo sceneBufferInfo{};
-  VkDescriptorBufferInfo modelBufferInfo{};
-  VkDescriptorBufferInfo meshBufferInfo{};
-  switch (CurrentMaterial) {
-    case MT_Background: {
-      bgMvpBufferInfo.buffer =
-          BackgroundMvpBuffers[id][CurrentFrameIndex].Buffer;
-      bgMvpBufferInfo.offset = 0;
-      bgMvpBufferInfo.range = sizeof(BgMVPUniformBufferType);
-
-      WriteDescriptorSet[CurrentWriteDescriptorSet].sType =
-          VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-      WriteDescriptorSet[CurrentWriteDescriptorSet].dstSet = 0;
-      WriteDescriptorSet[CurrentWriteDescriptorSet].dstBinding = 0;
-      WriteDescriptorSet[CurrentWriteDescriptorSet].descriptorCount = 1;
-      WriteDescriptorSet[CurrentWriteDescriptorSet].descriptorType =
-          VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-      WriteDescriptorSet[CurrentWriteDescriptorSet].pBufferInfo =
-          &bgMvpBufferInfo;
-      CurrentWriteDescriptorSet += 1;
-    } break;
-    case MT_Generic:
-    case MT_Eye:
-    case MT_Outline:
-    case MT_DaSH_Generic:
-    case MT_DaSH_Face:
-    case MT_DaSH_Skin:
-    case MT_DaSH_Eye: {
-      sceneBufferInfo.buffer = SceneUniformBuffers[CurrentFrameIndex].Buffer;
-      sceneBufferInfo.offset = 0;
-      sceneBufferInfo.range = sizeof(SceneUniformBufferType);
-
-      WriteDescriptorSet[CurrentWriteDescriptorSet].sType =
-          VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-      WriteDescriptorSet[CurrentWriteDescriptorSet].dstSet = 0;
-      WriteDescriptorSet[CurrentWriteDescriptorSet].dstBinding = 0;
-      WriteDescriptorSet[CurrentWriteDescriptorSet].descriptorCount = 1;
-      WriteDescriptorSet[CurrentWriteDescriptorSet].descriptorType =
-          VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-      WriteDescriptorSet[CurrentWriteDescriptorSet].pBufferInfo =
-          &sceneBufferInfo;
-      CurrentWriteDescriptorSet += 1;
-
-      modelBufferInfo.buffer = ModelUniformBuffers[CurrentFrameIndex].Buffer;
-      modelBufferInfo.offset = 0;
-      modelBufferInfo.range = sizeof(ModelUniformBufferType);
-
-      WriteDescriptorSet[CurrentWriteDescriptorSet].sType =
-          VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-      WriteDescriptorSet[CurrentWriteDescriptorSet].dstSet = 0;
-      WriteDescriptorSet[CurrentWriteDescriptorSet].dstBinding = 1;
-      WriteDescriptorSet[CurrentWriteDescriptorSet].descriptorCount = 1;
-      WriteDescriptorSet[CurrentWriteDescriptorSet].descriptorType =
-          VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-      WriteDescriptorSet[CurrentWriteDescriptorSet].pBufferInfo =
-          &modelBufferInfo;
-      CurrentWriteDescriptorSet += 1;
-
-      meshBufferInfo.buffer = MeshUniformBuffers[id][CurrentFrameIndex].Buffer;
-      meshBufferInfo.offset = 0;
-      meshBufferInfo.range = sizeof(MeshUniformBufferType);
-
-      WriteDescriptorSet[CurrentWriteDescriptorSet].sType =
-          VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-      WriteDescriptorSet[CurrentWriteDescriptorSet].dstSet = 0;
-      WriteDescriptorSet[CurrentWriteDescriptorSet].dstBinding = 2;
-      WriteDescriptorSet[CurrentWriteDescriptorSet].descriptorCount = 1;
-      WriteDescriptorSet[CurrentWriteDescriptorSet].descriptorType =
-          VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-      WriteDescriptorSet[CurrentWriteDescriptorSet].pBufferInfo =
-          &meshBufferInfo;
-      CurrentWriteDescriptorSet += 1;
-
-    } break;
-  }
-
-  int textureCount = 0;
-
   switch (CurrentMaterial) {
     case MT_Background: {
       int const backgroundTextureTypes[] = {TT_ColorMap};
-      textureCount = 1;
       SetTextures(id, backgroundTextureTypes, 1);
       break;
     }
     case MT_Outline: {
       if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
         int const outlineTextureTypes[] = {TT_DaSH_ColorMap, TT_DaSH_NoiseMap};
-        textureCount = 2;
         SetTextures(id, outlineTextureTypes, 2);
       } else {
         int const outlineTextureTypes[] = {TT_ColorMap};
-        textureCount = 1;
         SetTextures(id, outlineTextureTypes, 1);
       }
       break;
@@ -504,7 +450,6 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
     case MT_Generic: {
       int const genericTextureTypes[] = {TT_ColorMap, TT_GradientMaskMap,
                                          TT_SpecularColorMap};
-      textureCount = 3;
       SetTextures(id, genericTextureTypes, 3);
       break;
     }
@@ -512,7 +457,6 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
       int const eyeTextureTypes[] = {TT_Eye_IrisColorMap, TT_Eye_WhiteColorMap,
                                      TT_Eye_HighlightColorMap,
                                      TT_Eye_IrisSpecularColorMap};
-      textureCount = 4;
       SetTextures(id, eyeTextureTypes, 4);
       break;
     }
@@ -520,7 +464,6 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
       int const dashGenericTextureTypes[] = {
           TT_DaSH_ColorMap, TT_DaSH_GradientMaskMap, TT_DaSH_SpecularColorMap,
           TT_DaSH_ShadowColorMap};
-      textureCount = 4;
       SetTextures(id, dashGenericTextureTypes, 4);
       break;
     }
@@ -528,7 +471,6 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
     case MT_DaSH_Skin: {
       int const dashGenericTextureTypes[] = {
           TT_DaSH_ColorMap, TT_DaSH_GradientMaskMap, TT_DaSH_SpecularColorMap};
-      textureCount = 3;
       SetTextures(id, dashGenericTextureTypes, 3);
       break;
     }
@@ -536,103 +478,37 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
       int const dashEyeTextureTypes[] = {TT_DaSH_Eye_IrisColorMap,
                                          TT_DaSH_Eye_WhiteColorMap,
                                          TT_DaSH_Eye_HighlightColorMap};
-      textureCount = 3;
       SetTextures(id, dashEyeTextureTypes, 3);
       break;
     }
   }
 
-  CurrentTextureBufferInfo = 0;
-
   if (mesh.Opacity < 0.9 && CurrentMaterialIsDepthWrite) {
-    switch (CurrentMaterial) {
-      case MT_Generic:
-      case MT_DaSH_Generic:
-      case MT_DaSH_Face:
-      case MT_DaSH_Skin: {
-        vkCmdBindPipeline(CommandBuffers[CurrentFrameIndex],
-                          VK_PIPELINE_BIND_POINT_GRAPHICS,
-                          PipelineMainNoDepthWrite->GraphicsPipeline);
-        CurrentPipeline = PipelineMainNoDepthWrite;
-      } break;
-      case MT_Eye:
-      case MT_DaSH_Eye: {
-        vkCmdBindPipeline(CommandBuffers[CurrentFrameIndex],
-                          VK_PIPELINE_BIND_POINT_GRAPHICS,
-                          PipelineEyeNoDepthWrite->GraphicsPipeline);
-        CurrentPipeline = PipelineEyeNoDepthWrite;
-        break;
-      }
-    }
+    Device->SetRenderState(D3DRS_ZWRITEENABLE, 0);
   }
 
-  WriteDescriptorSet[CurrentWriteDescriptorSet].sType =
-      VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-  WriteDescriptorSet[CurrentWriteDescriptorSet].dstSet = 0;
-  WriteDescriptorSet[CurrentWriteDescriptorSet].dstBinding = 3;
-  WriteDescriptorSet[CurrentWriteDescriptorSet].descriptorCount = textureCount;
-  WriteDescriptorSet[CurrentWriteDescriptorSet].descriptorType =
-      VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-  WriteDescriptorSet[CurrentWriteDescriptorSet].pImageInfo = TextureBufferInfo;
-  CurrentWriteDescriptorSet += 1;
-
-  vkCmdPushDescriptorSetKHR(CommandBuffers[CurrentFrameIndex],
-                            VK_PIPELINE_BIND_POINT_GRAPHICS,
-                            CurrentPipeline->PipelineLayout, 0,
-                            CurrentWriteDescriptorSet, WriteDescriptorSet);
-  CurrentWriteDescriptorSet = 0;
-
-  PipelinePushConstants pushConstants{Profile::Scene3D::Version ==
-                                      +LKMVersion::DaSH};
-  vkCmdPushConstants(CommandBuffers[CurrentFrameIndex],
-                     CurrentPipeline->PipelineLayout,
-                     VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT,
-                     0, sizeof(PipelinePushConstants), &pushConstants);
+  size_t stride = Profile::Scene3D::Version == +LKMVersion::DaSH
+                      ? sizeof(VertexBufferDaSH)
+                      : sizeof(VertexBuffer);
+  if (StaticModel->Type == ModelType_Background)
+    stride = sizeof(BgVertexBuffer);
 
   if (StaticModel->Meshes[id].MorphTargetCount > 0) {
-    VkBuffer vertexBuffers[] = {
-        CurrentMorphedVerticesVk[CurrentFrameIndex].Buffer};
-    size_t stride = Profile::Scene3D::Version == +LKMVersion::DaSH
-                        ? sizeof(VertexBufferDaSH)
-                        : sizeof(VertexBuffer);
-    VkDeviceSize offsets[] = {
-        (VkDeviceSize)(MeshAnimStatus[id].MorphedVerticesOffset * stride)};
-    vkCmdBindVertexBuffers(CommandBuffers[CurrentFrameIndex], 0, 1,
-                           vertexBuffers, offsets);
+    Device->SetStreamSource(0, MorphedVerticesDevice,
+                            MeshAnimStatus[id].MorphedVerticesOffset * stride,
+                            stride);
+
   } else {
-    VkBuffer vertexBuffers[] = {
-        MeshVertexBuffers[id][CurrentFrameIndex].Buffer};
-    VkDeviceSize offsets[] = {(VkDeviceSize)0};
-    vkCmdBindVertexBuffers(CommandBuffers[CurrentFrameIndex], 0, 1,
-                           vertexBuffers, offsets);
+    Device->SetStreamSource(0, MeshVertexBuffersDevice[id], 0, stride);
   }
-  vkCmdBindIndexBuffer(CommandBuffers[CurrentFrameIndex],
-                       MeshIndexBuffers[id][CurrentFrameIndex].Buffer, 0,
-                       VK_INDEX_TYPE_UINT16);
-  vkCmdDrawIndexed(CommandBuffers[CurrentFrameIndex], mesh.IndexCount, 1, 0, 0,
-                   0);
+  Device->SetIndices(MeshIndexBuffersDevice[id]);
+
+  Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, mesh.IndexCount, 0,
+                               mesh.IndexCount / 3);
 
   if (mesh.Opacity < 0.9 && CurrentMaterialIsDepthWrite) {
-    switch (CurrentMaterial) {
-      case MT_Generic:
-      case MT_DaSH_Generic:
-      case MT_DaSH_Face:
-      case MT_DaSH_Skin: {
-        vkCmdBindPipeline(CommandBuffers[CurrentFrameIndex],
-                          VK_PIPELINE_BIND_POINT_GRAPHICS,
-                          PipelineMain->GraphicsPipeline);
-        CurrentPipeline = PipelineMain;
-      } break;
-      case MT_Eye:
-      case MT_DaSH_Eye: {
-        vkCmdBindPipeline(CommandBuffers[CurrentFrameIndex],
-                          VK_PIPELINE_BIND_POINT_GRAPHICS,
-                          PipelineEye->GraphicsPipeline);
-        CurrentPipeline = PipelineEye;
-        break;
-      }
-    }
-  }*/
+    Device->SetRenderState(D3DRS_ZWRITEENABLE, 1);
+  }
 
   if (pass != RP_Outline) DrawMesh(id, RP_Outline);
 }
@@ -640,11 +516,7 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
 void Renderable3D::Render() {
   if (!IsUsed || !IsVisible) return;
 
-  LoadModelUniforms();
-
   memset(UniformsUpdated, 0, sizeof(UniformsUpdated));
-  // CurrentTextureBufferInfo = 0;
-  // CurrentWriteDescriptorSet = 0;
 
   for (int i = RP_First; i < RP_Count; i++) {
     for (int j = 0; j < StaticModel->MeshCount; j++) {
@@ -661,33 +533,21 @@ void Renderable3D::Render() {
 void Renderable3D::SetTextures(int id, int const* textureTypes, int count) {
   for (int i = 0; i < count; i++) {
     int t = textureTypes[i];
-    /*
     if (StaticModel->Meshes[id].Maps[t] >= 0) {
-      TextureBufferInfo[CurrentTextureBufferInfo].sampler = Sampler;
-      TextureBufferInfo[CurrentTextureBufferInfo].imageView =
-          Textures[TexBuffers[StaticModel->Meshes[id].Maps[t]]].ImageView;
-      TextureBufferInfo[CurrentTextureBufferInfo].imageLayout =
-          VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+      Device->SetTexture(i,
+                         Textures[TexBuffers[StaticModel->Meshes[id].Maps[t]]]);
     } else {
-      TextureBufferInfo[CurrentTextureBufferInfo].sampler = Sampler;
-      TextureBufferInfo[CurrentTextureBufferInfo].imageView =
-          Textures[TextureDummy].ImageView;
-      TextureBufferInfo[CurrentTextureBufferInfo].imageLayout =
-          VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+      Device->SetTexture(i, Textures[TextureDummy]);
     }
-    CurrentTextureBufferInfo += 1;
-    */
   }
 }
 
 void Renderable3D::LoadModelUniforms() {
   if (StaticModel->Type == ModelType_Character) {
-    /*
     ModelUniformBufferType entry{};
     entry.Model = ModelTransform.Matrix();
-    memcpy(ModelUniformBuffersMapped[CurrentFrameIndex], &entry,
-           sizeof(ModelUniformBufferType));
-           */
+    Device->SetVertexShaderConstantF(7, glm::value_ptr(entry.Model), 4);
+    Device->SetPixelShaderConstantF(7, glm::value_ptr(entry.Model), 4);
   }
 }
 
@@ -717,6 +577,15 @@ void Renderable3D::UseMaterial(MaterialType type) {
     }
   }
 
+  SetSceneUniformValues();
+  LoadModelUniforms();
+
+  if (type == MT_Outline) {
+    Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+  } else {
+    Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
+  }
+
   if (type == MT_Outline) {
     CurrentMaterialIsDepthWrite = false;
   } else {
@@ -731,7 +600,7 @@ void Renderable3D::UseMesh(int id) { LoadMeshUniforms(id); }
 void Renderable3D::LoadMeshUniforms(int id) {
   Mesh& mesh = StaticModel->Meshes[id];
 
-  /* if (StaticModel->Type == ModelType_Character) {
+  if (StaticModel->Type == ModelType_Character) {
     MeshUniformBufferType entry{};
     if (mesh.UsedBones > 0) {
       glm::mat4* outBone = entry.Bones;
@@ -748,59 +617,37 @@ void Renderable3D::LoadMeshUniforms(int id) {
     entry.HasShadowColorMap =
         mesh.Material == MT_DaSH_Generic && mesh.HasShadowColorMap;
 
-    Device->SetPixelShaderConstantF();
-    Device->SetPixelShaderConstantF();
-    memcpy(MeshUniformBuffersMapped[id][CurrentFrameIndex], &entry,
-           sizeof(MeshUniformBufferType));
+    Device->SetVertexShaderConstantB(1, (BOOL*)&entry.HasShadowColorMap, 1);
+    Device->SetVertexShaderConstantF(11, &entry.ModelOpacity, 1);
+    Device->SetVertexShaderConstantF(12, (float*)&entry.Bones,
+                                     4 * ModelMaxBonesPerMesh);
+
+    Device->SetPixelShaderConstantB(1, (BOOL*)&entry.HasShadowColorMap, 1);
+    Device->SetPixelShaderConstantF(11, &entry.ModelOpacity, 1);
+    Device->SetPixelShaderConstantF(12, (float*)&entry.Bones,
+                                    4 * ModelMaxBonesPerMesh);
   } else if (StaticModel->Type == ModelType_Background) {
     BgMVPUniformBufferType entry{};
     entry.MVP = ViewProjection * mesh.ModelTransform.Matrix();
-    memcpy(BackgroundMvpMapped[id][CurrentFrameIndex], &entry,
-           sizeof(BgMVPUniformBufferType));
-  }*/
+    Device->SetVertexShaderConstantF(0, glm::value_ptr(entry.MVP), 4);
+  }
 }
 
-void Renderable3D::UnloadSync() { /*
+void Renderable3D::UnloadSync() {
   Animator.CurrentAnimation = 0;
   PrevPoseWeight = 0.0f;
   if (StaticModel) {
     ImpLog(LL_Info, LC_Renderable3D, "Unloading model %d\n", StaticModel->Id);
     if (IsSubmitted) {
-      if (StaticModel->Type == ModelType_Background) {
-        for (int i = 0; i < StaticModel->MeshCount; i++) {
-          for (int j = 0; j < MAX_FRAMES_IN_FLIGHT; j++) {
-            vmaUnmapMemory(Allocator, BackgroundMvpBuffers[i][j].Allocation);
-            vmaDestroyBuffer(Allocator, BackgroundMvpBuffers[i][j].Buffer,
-                             BackgroundMvpBuffers[i][j].Allocation);
-          }
-        }
-      } else {
-        for (int i = 0; i < StaticModel->MeshCount; i++) {
-          for (int j = 0; j < MAX_FRAMES_IN_FLIGHT; j++) {
-            vmaUnmapMemory(Allocator, MeshUniformBuffers[i][j].Allocation);
-            vmaDestroyBuffer(Allocator, MeshUniformBuffers[i][j].Buffer,
-                             MeshUniformBuffers[i][j].Allocation);
-          }
-        }
-      }
-
-      for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-        vmaUnmapMemory(Allocator, ModelUniformBuffers[i].Allocation);
-        vmaDestroyBuffer(Allocator, ModelUniformBuffers[i].Buffer,
-                         ModelUniformBuffers[i].Allocation);
+      for (int i = 0; i < StaticModel->MeshCount; i++) {
+        MeshVertexBuffersDevice[i]->Release();
+        MeshIndexBuffersDevice[i]->Release();
       }
     }
     delete StaticModel;
     StaticModel = 0;
   }
-  for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-    if (CurrentMorphedVerticesVkMapped[i]) {
-      vmaUnmapMemory(Allocator, CurrentMorphedVerticesVk[i].Allocation);
-      CurrentMorphedVerticesVkMapped[i] = 0;
-      vmaDestroyBuffer(Allocator, CurrentMorphedVerticesVk[i].Buffer,
-                       CurrentMorphedVerticesVk[i].Allocation);
-    }
-  }
+  MorphedVerticesDevice->Release();
   if (CurrentMorphedVertices) {
     free(CurrentMorphedVertices);
     CurrentMorphedVertices = 0;
@@ -808,7 +655,7 @@ void Renderable3D::UnloadSync() { /*
   ModelTransform = Transform();
   IsSubmitted = false;
   IsUsed = false;
-  IsVisible = false;*/
+  IsVisible = false;
 }
 
 void Renderable3D::MainThreadOnLoad() {
@@ -816,114 +663,58 @@ void Renderable3D::MainThreadOnLoad() {
 
   ImpLog(LL_Info, LC_Renderable3D, "Submitting data to GPU for model ID %d\n",
          StaticModel->Id);
-  /*
-  if (StaticModel->Type == ModelType_Background) {
-    for (int i = 0; i < StaticModel->MeshCount; i++) {
-      for (int j = 0; j < MAX_FRAMES_IN_FLIGHT; j++) {
-        BackgroundMvpBuffers[i][j] = CreateBuffer(
-            sizeof(BgMVPUniformBufferType), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-            VMA_MEMORY_USAGE_CPU_ONLY);
-        void* data;
-        vmaMapMemory(Allocator, BackgroundMvpBuffers[i][j].Allocation, &data);
-        BackgroundMvpMapped[i][j] = (uint8_t*)data;
-      }
-    }
-  }
-
-  for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-    ModelUniformBuffers[i] = CreateBuffer(sizeof(ModelUniformBufferType),
-                                          VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                                          VMA_MEMORY_USAGE_CPU_ONLY);
-    void* data;
-    vmaMapMemory(Allocator, ModelUniformBuffers[i].Allocation, &data);
-    ModelUniformBuffersMapped[i] = (uint8_t*)data;
-  }
-
-  auto stagingBuffer =
-      CreateBuffer(StagingBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                   VMA_MEMORY_USAGE_CPU_ONLY);
-
-  void* stagingBufferMapped;
-  vmaMapMemory(Allocator, stagingBuffer.Allocation, &stagingBufferMapped);
 
   for (int i = 0; i < StaticModel->MeshCount; i++) {
-    for (int j = 0; j < MAX_FRAMES_IN_FLIGHT; j++) {
-      MeshUniformBuffers[i][j] = CreateBuffer(
-          sizeof(MeshUniformBufferType), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-          VMA_MEMORY_USAGE_CPU_ONLY);
-      void* data;
-      vmaMapMemory(Allocator, MeshUniformBuffers[i][j].Allocation, &data);
-      MeshUniformBuffersMapped[i][j] = (uint8_t*)data;
+    uint32_t vertexCopySize = 0;
 
-      uint32_t vertexCopySize = 0;
+    if (StaticModel->Type == ModelType_Character) {
+      if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+        Device->CreateVertexBuffer(
+            sizeof(VertexBufferDaSH) * StaticModel->Meshes[i].VertexCount, 0, 0,
+            D3DPOOL_MANAGED, &MeshVertexBuffersDevice[i], NULL);
 
-      if (StaticModel->Type == ModelType_Character) {
-        if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
-          MeshVertexBuffers[i][j] = CreateBuffer(
-              sizeof(VertexBufferDaSH) * StaticModel->Meshes[i].VertexCount,
-              VK_BUFFER_USAGE_TRANSFER_DST_BIT |
-                  VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-              VMA_MEMORY_USAGE_CPU_ONLY);
-          vertexCopySize =
-              sizeof(VertexBufferDaSH) * StaticModel->Meshes[i].VertexCount;
-
-          memcpy(stagingBufferMapped,
-                 (VertexBufferDaSH*)StaticModel->VertexBuffers +
-                     StaticModel->Meshes[i].VertexOffset,
-                 sizeof(VertexBufferDaSH) * StaticModel->Meshes[i].VertexCount);
-        } else {
-          MeshVertexBuffers[i][j] = CreateBuffer(
-              sizeof(VertexBuffer) * StaticModel->Meshes[i].VertexCount,
-              VK_BUFFER_USAGE_TRANSFER_DST_BIT |
-                  VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-              VMA_MEMORY_USAGE_GPU_ONLY);
-          vertexCopySize =
-              sizeof(VertexBuffer) * StaticModel->Meshes[i].VertexCount;
-
-          memcpy(stagingBufferMapped,
-                 (VertexBuffer*)StaticModel->VertexBuffers +
-                     StaticModel->Meshes[i].VertexOffset,
-                 sizeof(VertexBuffer) * StaticModel->Meshes[i].VertexCount);
-        }
-      } else if (StaticModel->Type == ModelType_Background) {
-        MeshVertexBuffers[i][j] = CreateBuffer(
-            sizeof(BgVertexBuffer) * StaticModel->Meshes[i].VertexCount,
-            VK_BUFFER_USAGE_TRANSFER_DST_BIT |
-                VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-            VMA_MEMORY_USAGE_GPU_ONLY);
-        vertexCopySize =
-            sizeof(BgVertexBuffer) * StaticModel->Meshes[i].VertexCount;
-
-        memcpy(stagingBufferMapped,
-               (BgVertexBuffer*)StaticModel->VertexBuffers +
+        VOID* pVoid;
+        auto res = MeshVertexBuffersDevice[i]->Lock(0, 0, (void**)&pVoid, 0);
+        memcpy(pVoid,
+               (VertexBufferDaSH*)StaticModel->VertexBuffers +
                    StaticModel->Meshes[i].VertexOffset,
-               sizeof(BgVertexBuffer) * StaticModel->Meshes[i].VertexCount);
+               sizeof(VertexBufferDaSH) * StaticModel->Meshes[i].VertexCount);
+        res = MeshVertexBuffersDevice[i]->Unlock();
+      } else {
+        Device->CreateVertexBuffer(
+            sizeof(VertexBuffer) * StaticModel->Meshes[i].VertexCount, 0, 0,
+            D3DPOOL_MANAGED, &MeshVertexBuffersDevice[i], NULL);
+
+        VOID* pVoid;
+        auto res = MeshVertexBuffersDevice[i]->Lock(0, 0, (void**)&pVoid, 0);
+        memcpy(pVoid,
+               (VertexBuffer*)StaticModel->VertexBuffers +
+                   StaticModel->Meshes[i].VertexOffset,
+               sizeof(VertexBuffer) * StaticModel->Meshes[i].VertexCount);
+        res = MeshVertexBuffersDevice[i]->Unlock();
       }
+    } else if (StaticModel->Type == ModelType_Background) {
+      Device->CreateVertexBuffer(
+          sizeof(BgVertexBuffer) * StaticModel->Meshes[i].VertexCount, 0, 0,
+          D3DPOOL_MANAGED, &MeshVertexBuffersDevice[i], NULL);
 
-      MeshIndexBuffers[i][j] = CreateBuffer(
-          sizeof(uint16_t) * StaticModel->Meshes[i].IndexCount,
-          VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-          VMA_MEMORY_USAGE_GPU_ONLY);
-
-      memcpy((uint8_t*)stagingBufferMapped + vertexCopySize,
-             StaticModel->Indices + StaticModel->Meshes[i].IndexOffset,
-             sizeof(uint16_t) * StaticModel->Meshes[i].IndexCount);
-
-      ImmediateSubmit([=](VkCommandBuffer cmd) {
-        VkBufferCopy copy;
-        copy.dstOffset = 0;
-        copy.srcOffset = 0;
-        copy.size = vertexCopySize;
-        vkCmdCopyBuffer(cmd, stagingBuffer.Buffer,
-                        MeshVertexBuffers[i][j].Buffer, 1, &copy);
-
-        copy.dstOffset = 0;
-        copy.srcOffset = vertexCopySize;
-        copy.size = sizeof(uint16_t) * StaticModel->Meshes[i].IndexCount;
-        vkCmdCopyBuffer(cmd, stagingBuffer.Buffer,
-                        MeshIndexBuffers[i][j].Buffer, 1, &copy);
-      });
+      VOID* pVoid;
+      auto res = MeshVertexBuffersDevice[i]->Lock(0, 0, (void**)&pVoid, 0);
+      memcpy(pVoid,
+             (BgVertexBuffer*)StaticModel->VertexBuffers +
+                 StaticModel->Meshes[i].VertexOffset,
+             sizeof(BgVertexBuffer) * StaticModel->Meshes[i].VertexCount);
+      res = MeshVertexBuffersDevice[i]->Unlock();
     }
+
+    Device->CreateIndexBuffer(
+        sizeof(uint16_t) * StaticModel->Meshes[i].IndexCount, 0, D3DFMT_INDEX16,
+        D3DPOOL_MANAGED, &MeshIndexBuffersDevice[i], NULL);
+    VOID* pVoid;
+    auto res = MeshIndexBuffersDevice[i]->Lock(0, 0, (void**)&pVoid, 0);
+    memcpy(pVoid, StaticModel->Indices + StaticModel->Meshes[i].IndexOffset,
+           sizeof(uint16_t) * StaticModel->Meshes[i].IndexCount);
+    res = MeshIndexBuffersDevice[i]->Unlock();
   }
 
   for (int i = 0; i < StaticModel->TextureCount; i++) {
@@ -933,9 +724,6 @@ void Renderable3D::MainThreadOnLoad() {
              "Submitting texture %d for model %d failed\n", i, StaticModel->Id);
     }
   }
-
-  vmaUnmapMemory(Allocator, stagingBuffer.Allocation);
-  vmaDestroyBuffer(Allocator, stagingBuffer.Buffer, stagingBuffer.Allocation);*/
 
   IsSubmitted = true;
 }

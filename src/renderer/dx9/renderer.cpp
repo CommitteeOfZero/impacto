@@ -5,6 +5,7 @@
 #include "../../profile/game.h"
 #include "../../game.h"
 #include "3d/scene.h"
+#include "utils.h"
 
 namespace Impacto {
 namespace DirectX9 {
@@ -30,6 +31,8 @@ void Renderer::InitImpl() {
   d3dpp.Windowed = TRUE;
   d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
   d3dpp.hDeviceWindow = hWnd;
+  d3dpp.EnableAutoDepthStencil = TRUE;
+  d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
 
   auto res = Interface->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
                                      D3DCREATE_HARDWARE_VERTEXPROCESSING,
@@ -97,6 +100,13 @@ void Renderer::InitImpl() {
     index += 6;
     vertex += 4;
   }
+
+  // Make 1x1 white pixel for colored rectangles
+  Texture rectTexture;
+  rectTexture.Load1x1(0xFF, 0xFF, 0xFF, 0xFF);
+  SpriteSheet rectSheet(1.0f, 1.0f);
+  rectSheet.Texture = rectTexture.Submit();
+  RectSprite = Sprite(rectSheet, 0.0f, 0.0f, 1.0f, 1.0f);
 }
 
 void Renderer::ShutdownImpl() {
@@ -130,11 +140,16 @@ void Renderer::BeginFrameImpl() {
   VertexBufferFill = 0;
   IndexBufferFill = 0;
 
-  Device->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
+  Device->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
+                D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
   Device->BeginScene();
 }
 
-void Renderer::BeginFrame2DImpl() {}
+void Renderer::BeginFrame2DImpl() {
+  Device->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
+  Device->SetRenderState(D3DRS_ZWRITEENABLE, 0);
+  Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+}
 
 void Renderer::EndFrameImpl() {
   if (!Drawing) return;
@@ -142,6 +157,8 @@ void Renderer::EndFrameImpl() {
   Drawing = false;
   Device->EndScene();
   Device->Present(NULL, NULL, NULL, NULL);
+  CurrentShader = 0;
+  CurrentTexture = -1;
 }
 
 uint32_t Renderer::SubmitTextureImpl(TexFmt format, uint8_t* buffer, int width,

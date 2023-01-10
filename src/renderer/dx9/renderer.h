@@ -102,7 +102,6 @@ class Renderer : public BaseRenderer {
 
   uint32_t CurrentTexture = 0;
   uint32_t NextTextureId = 1;
-  ska::flat_hash_map<uint32_t, IDirect3DTexture9*> Textures;
 
   DX9YUVFrame* VideoFrameInternal;
 

@@ -67,6 +67,8 @@ void Scene3D::Render() {
     }
   }
 
+  Device->SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE);
+
   for (int i = 0; i < Profile::Scene3D::MaxRenderables; i++) {
     if (Renderables[i]->Status == LS_Loaded &&
         Renderables[i]->StaticModel->Type == ModelType_Character) {

@@ -45,11 +45,11 @@ void Camera::Recalculate() {
         CameraTransform.Matrix());  // move the world, not the camera
   }
 
-  if (Profile::ActiveRenderer == +RendererType::OpenGL) {
-    Projection = glm::perspective(Fov, AspectRatio, Near, Far);
-  } else {
+  if (Profile::ActiveRenderer == +RendererType::Vulkan) {
     Projection = glm::perspectiveRH_ZO(Fov, AspectRatio, Near, Far);
     Projection[1][1] *= -1.0f;
+  } else {
+    Projection = glm::perspective(Fov, AspectRatio, Near, Far);
   }
   ViewProjection = Projection * View;
 }
