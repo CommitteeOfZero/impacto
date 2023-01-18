@@ -1,6 +1,5 @@
 #include "videosystem.h"
 #include "../log.h"
-#include <utility>
 
 namespace Impacto {
 namespace Video {

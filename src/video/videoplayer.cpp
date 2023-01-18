@@ -1,8 +1,18 @@
 #include "videoplayer.h"
+#include "ffmpegstream.h"
+
 #include "../log.h"
-#include <utility>
 #include "../profile/game.h"
-#include "../audio/audiosystem.h"
+#include "../renderer2d.h"
+#include "../io/inputstream.h"
+
+extern "C" {
+#include <libavcodec/avcodec.h>
+#include <libavutil/time.h>
+#include <libswscale/swscale.h>
+#include <libswresample/swresample.h>
+#include <libavformat/avformat.h>
+};
 
 namespace Impacto {
 namespace Video {
@@ -140,10 +150,9 @@ void VideoPlayer::Play(Io::InputStream* stream, bool looping, bool alpha) {
                                                  : AVDISCARD_ALL;
   }
 
-  AVCodec* codec = NULL;
   // Find and open the video codec
   if (videoStreamId != AVERROR_STREAM_NOT_FOUND) {
-    codec = avcodec_find_decoder(videoStream->codecpar->codec_id);
+    const auto codec = avcodec_find_decoder(videoStream->codecpar->codec_id);
     if (codec == NULL) {
       ImpLog(LL_Error, LC_Video, "Unsupported codec!\n");
       return;
@@ -161,7 +170,7 @@ void VideoPlayer::Play(Io::InputStream* stream, bool looping, bool alpha) {
 
   // Find and open the audio codec
   if (audioStreamId != AVERROR_STREAM_NOT_FOUND) {
-    codec = avcodec_find_decoder(audioStream->codecpar->codec_id);
+    const auto codec = avcodec_find_decoder(audioStream->codecpar->codec_id);
     if (codec == NULL) {
       ImpLog(LL_Error, LC_Video, "Unsupported codec!\n");
       return;

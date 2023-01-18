@@ -1,10 +1,6 @@
 #include "yuvframe.h"
 
-#include <string.h>
-
 #include <glad/glad.h>
-
-#include "../log.h"
 
 namespace Impacto {
 
