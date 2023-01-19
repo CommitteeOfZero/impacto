@@ -1,25 +1,29 @@
 #pragma once
 
-extern "C" {
-#include <libavformat/avformat.h>
-#include <libavutil/imgutils.h>
-#include <libavutil/time.h>
-#include <libswscale/swscale.h>
-#include <libswresample/swresample.h>
-};
-
-#include <queue>
-
-#include "ffmpegstream.h"
 #include "../impacto.h"
-#include "../io/inputstream.h"
-#include "../log.h"
 #include "yuvframe.h"
-#include "../texture/texture.h"
-#include "../renderer2d.h"
+#include "alc.h"
+#include "al.h"
+
+// Forward Decl
+struct SwrContext;
+struct SwsContext;
+struct AvMediaType;
+struct AVFormatContext;
+struct AVIOContext;
+enum AVMediaType;
+
+namespace Impacto {
+namespace Io {
+class InputStream;
+}
+}  // namespace Impacto
 
 namespace Impacto {
 namespace Video {
+
+// Forward Decl
+class FFmpegStream;
 
 class Clock {
  public:

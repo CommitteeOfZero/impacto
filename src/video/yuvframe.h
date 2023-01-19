@@ -1,9 +1,8 @@
 #pragma once
 
 #include "../impacto.h"
-#include <vector>
-#include "../io/inputstream.h"
-#include "../texture/texture.h"
+
+#include <glm/glm.hpp>
 
 namespace Impacto {
 

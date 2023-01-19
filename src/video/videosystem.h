@@ -2,8 +2,6 @@
 
 #include "videoplayer.h"
 #include "../impacto.h"
-#include "../io/inputstream.h"
-#include "../log.h"
 
 namespace Impacto {
 namespace Video {

@@ -1,13 +1,13 @@
 #pragma once
 
-extern "C" {
-#include <libavformat/avformat.h>
-#include <libavutil/imgutils.h>
-#include <libavutil/time.h>
-};
+#include "../impacto.h"
 
 #include <queue>
-#include "../impacto.h"
+
+struct AVFrame;
+struct AVPacket;
+struct AVCodecContext;
+struct AVStream;
 
 namespace Impacto {
 namespace Video {
