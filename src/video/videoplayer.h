@@ -1,5 +1,11 @@
 #pragma once
 
+#define __STDC_CONSTANT_MACROS
+
+extern "C" {
+#include <libavutil/avutil.h>
+}
+
 #include "../impacto.h"
 #include "yuvframe.h"
 #include "alc.h"
@@ -11,7 +17,6 @@ struct SwsContext;
 struct AvMediaType;
 struct AVFormatContext;
 struct AVIOContext;
-enum AVMediaType;
 
 namespace Impacto {
 namespace Io {
