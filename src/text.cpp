@@ -106,7 +106,7 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
     case STT_GetHardcodedValue:
     case STT_UnlockTip: {
       Type = (StringTokenType)c;
-      Val_Uint16 = SDL_SwapBE16((*(ctx->Ip + 1) << 8) | *ctx->Ip);
+      Val_Uint16 = (*ctx->Ip << 8) | *(ctx->Ip + 1);
       ctx->Ip += 2;
       bytesRead += 2;
       break;
