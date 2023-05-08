@@ -469,9 +469,8 @@ void ExpressionParser::GetTokens(Sc3VmThread* thd) {
             thd->Ip += 3;
             break;
           case 0x60:
-            curToken.Value =
-                SDL_SwapLE32(immValue[1] + (immValue[2] << 8) +
-                             (immValue[3] << 16) + (immValue[4] << 24));
+            curToken.Value = immValue[1] + (immValue[2] << 8) +
+                             (immValue[3] << 16) + (immValue[4] << 24);
             thd->Ip += 5;
             break;
           default:

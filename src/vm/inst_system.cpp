@@ -153,8 +153,8 @@ VmInstruction(InstMemberWrite) {
     PopUint8(index);
     uint32_t* thdElement = (uint32_t*)thread->GetMemberPointer(index);
     uint8_t* immValue = thread->Ip;
-    int value = SDL_SwapLE32(immValue[0] + (immValue[1] << 8) +
-                             (immValue[2] << 16) + (immValue[3] << 24));
+    int value = immValue[0] + (immValue[1] << 8) +
+                (immValue[2] << 16) + (immValue[3] << 24);
     thread->Ip += 4;
     *thdElement = value;
   } else {
