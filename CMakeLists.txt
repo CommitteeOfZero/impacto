@@ -551,13 +551,19 @@ if (WIN32)
         src/manifest_windows.manifest
     )
 
-    add_definitions(-DIMPACTO_ENABLE_DX9)
     set(IMPACTO_ENABLE_DX9 ON)
 endif()
 
+if (IMPACTO_ENABLE_DX9)
+    add_definitions(-DIMPACTO_ENABLE_DX9)
+endif()
+
 if (NX)
-    add_definitions(-DIMPACTO_DISABLE_VULKAN)
     set(IMPACTO_DISABLE_VULKAN ON)
+endif()
+
+if (IMPACTO_DISABLE_VULKAN)
+    add_definitions(-DIMPACTO_DISABLE_VULKAN)
 endif()
 
 # dependencies

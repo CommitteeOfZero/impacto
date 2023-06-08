@@ -3,7 +3,6 @@
 
 #include "../log.h"
 #include "../profile/game.h"
-#include "../renderer2d.h"
 #include "../io/inputstream.h"
 
 extern "C" {

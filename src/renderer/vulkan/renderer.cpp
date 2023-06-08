@@ -1,6 +1,6 @@
 #include "renderer.h"
 
-#include <SDL_Vulkan.h>
+#include <SDL_vulkan.h>
 #include <vulkan/vk_enum_string_helper.h>
 #include <set>
 

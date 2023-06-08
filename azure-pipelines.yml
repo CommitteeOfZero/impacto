@@ -6,6 +6,13 @@ jobs:
     vmImage: 'windows-2019'
 
   steps:
+  - script: |
+      cd /d C:\vcpkg
+      git log -1
+      git pull
+      git log -1
+      .\bootstrap-vcpkg.bat
+    displayName: git pull vcpkg and bootstrap-vcpkg
   - task: Cache@2
     displayName: Cache vcpkg packages
     inputs:
@@ -17,12 +24,24 @@ jobs:
       key: 'libatrac9'
       path: '$(Build.Repository.LocalPath)/vendor/LibAtrac9'
   - task: PowerShell@2
+    displayName: Setup Vulkan
+    inputs:
+      targetType: 'inline'
+      script: |
+        Invoke-WebRequest -Uri "https://sdk.lunarg.com/sdk/download/1.3.250.0/windows/VulkanSDK-1.3.250.0-Installer.exe" -OutFile VulkanSDK.exe
+        $installer = Start-Process -FilePath VulkanSDK.exe -Wait -PassThru -ArgumentList "--accept-licenses", "--default-answer", "--confirm-command install"
+        $installer.WaitForExit()
+  - task: PowerShell@2
     displayName: Build dependencies
+    env:
+      VULKAN_SDK: 'C:\\VulkanSDK\\1.3.250.0'
     inputs:
       filePath: 'build-deps.ps1'
       errorActionPreference: 'silentlyContinue'
   - task: run-cmake@0
     displayName: CMake build
+    env:
+      VULKAN_SDK: 'C:\\VulkanSDK\\1.3.250.0'
     inputs:
       cmakeListsOrSettingsJson: 'CMakeListsTxtBasic'
       cmakeToolchainPath: 'C:/vcpkg/scripts/buildsystems/vcpkg.cmake'
@@ -150,11 +169,19 @@ jobs:
 
   pool:
     vmImage: 'macOS-latest'
-  
+
+# mac os vulkan sdk temp
+#      pushd ~/Downloads
+#      curl https://sdk.lunarg.com/sdk/download/1.3.250.0/mac/vulkansdk-macos-1.3.250.0.dmg -o vulkansdk.dmg
+#      hdiutil attach vulkansdk.dmg
+#      pushd /Volumes/VulkanSDK
+#      sudo ./InstallVulkan.app/Contents/MacOS/InstallVulkan --root ~/VulkanSDK/1.3.250.0 --accept-licenses --default-answer --confirm-command install
+#      popd
+#      popd
+
   steps:
   - script: |
-      brew install openal-soft sdl2 glm ffmpeg@4 webp
-      brew link ffmpeg@4
+      brew install openal-soft sdl2 glm ffmpeg webp
       pushd vendor
       git clone https://github.com/Thealexbarney/LibAtrac9.git --depth 1
       cd LibAtrac9/C && make
@@ -163,7 +190,7 @@ jobs:
       cp bin/libatrac9.a ../libs/
       cp src/libatrac9.h ../include/libatrac9/
       popd
-      LIBATRAC9DIR=vendor/LibAtrac9 cmake -DOPENAL_LIBRARY=/usr/local/opt/openal-soft/lib/libopenal.dylib -DOPENAL_INCLUDE_DIR=/usr/local/opt/openal-soft/include/AL .
+      LIBATRAC9DIR=vendor/LibAtrac9 cmake -DOPENAL_LIBRARY=/usr/local/opt/openal-soft/lib/libopenal.dylib -DOPENAL_INCLUDE_DIR=/usr/local/opt/openal-soft/include/AL -DIMPACTO_DISABLE_VULKAN=ON .
       make -j2
   - task: CopyFiles@2
     displayName: Copy artifact
