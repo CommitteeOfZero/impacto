@@ -5,6 +5,8 @@
 namespace Impacto {
 namespace Profile {
 
+RendererType ActiveRenderer{RendererType::OpenGL};
+
 int LayerCount;
 int GameFeatures;
 
@@ -21,6 +23,9 @@ float DesignHeight;
 
 void LoadGameFromJson() {
   AssertIs(kObjectType);
+
+  ActiveRenderer = RendererType::_from_integral_unchecked(
+      EnsureGetMemberInt("ActiveRenderer"));
 
   LayerCount = EnsureGetMemberInt("LayerCount");
   GameFeatures = EnsureGetMemberInt("GameFeatures");

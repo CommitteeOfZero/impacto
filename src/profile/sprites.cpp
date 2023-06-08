@@ -2,7 +2,7 @@
 #include "profile_internal.h"
 #include "../io/assetpath.h"
 #include "../log.h"
-#include "../window.h"
+#include "../renderer/renderer.h"
 #include "../texture/texture.h"
 
 namespace Impacto {
@@ -32,7 +32,7 @@ void LoadSpritesheets() {
     if (err != IoError_OK) {
       ImpLog(LL_Fatal, LC_Profile, "Could not open spritesheet %s\n",
              name.c_str());
-      Window::Shutdown();
+      Window->Shutdown();
     }
     Texture texture;
     if (!texture.Load(stream)) {

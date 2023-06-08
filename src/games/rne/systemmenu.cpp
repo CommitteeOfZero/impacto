@@ -3,7 +3,7 @@
 #include "../../profile/ui/systemmenu.h"
 #include "../../profile/games/rne/systemmenu.h"
 #include "../../games/rne/tilebackground.h"
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
 #include "../../inputsystem.h"
@@ -150,17 +150,17 @@ void SystemMenu::Render() {
         SkyBackgroundBeginX +
             (SkyMoveAnimation.Progress * std::abs(SkyBackgroundBeginX)),
         SkyBackgroundY);
-    Renderer2D::DrawSprite(SkyBackgroundSprite, destSky, colSky);
-    Renderer2D::DrawSprite(SkyArrowSprite, destSky, colSky);
+    Renderer->DrawSprite(SkyBackgroundSprite, destSky, colSky);
+    Renderer->DrawSprite(SkyArrowSprite, destSky, colSky);
 
-    Renderer2D::DrawSprite(
+    Renderer->DrawSprite(
         SkyTextSprite,
         glm::vec2(SkyTextBeginX + (SkyMoveAnimation.Progress *
                                    std::abs(SkyBackgroundBeginX)),
                   SkyTextY),
         colSky);
 
-    Renderer2D::DrawSprite(
+    Renderer->DrawSprite(
         ButtonBackgroundSprite,
         glm::vec2(ButtonBackgroundStartX -
                       (ButtonBackgroundStartX * SkyMoveAnimation.Progress),
@@ -168,7 +168,7 @@ void SystemMenu::Render() {
         glm::vec4(1.0f));
 
     if (SkyMoveAnimation.IsIn()) {
-      Renderer2D::DrawSprite(ButtonPromptsSprite,
+      Renderer->DrawSprite(ButtonPromptsSprite,
                              glm::vec2(ButtonBackgroundX, ButtonBackgroundY),
                              glm::vec4(1.0f));
     }

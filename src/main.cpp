@@ -5,7 +5,6 @@
 #endif
 
 #include "log.h"
-#include "window.h"
 #include "game.h"
 
 #include "io/physicalfilestream.h"
@@ -48,7 +47,7 @@ int main(int argc, char* argv[]) {
   IoError err = Io::PhysicalFileStream::Create("profile.txt", &stream);
   if (err != IoError_OK) {
     ImpLog(LL_Fatal, LC_General, "Couldn't open profile.txt\n");
-    Window::Shutdown();
+    exit(0);
   }
 
   std::string profileName;

@@ -5,7 +5,6 @@
 #include "../games/cclcc/savemenu.h"
 #include "../../ui/ui.h"
 #include "../../log.h"
-#include "../../window.h"
 //#include "../../ui/nullmenu.h"
 
 namespace Impacto {

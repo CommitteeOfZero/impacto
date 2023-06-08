@@ -23,7 +23,6 @@
 #include "../profile/vm.h"
 #include "../profile/scriptinput.h"
 #include "../profile/scriptvars.h"
-#include "../window.h"
 
 namespace Impacto {
 namespace Vm {
@@ -143,7 +142,7 @@ void Init() {
     }
     default: {
       ImpLog(LL_Fatal, LC_VM, "Unsupported instruction set\n");
-      Window::Shutdown();
+      Window->Shutdown();
       break;
     }
   }

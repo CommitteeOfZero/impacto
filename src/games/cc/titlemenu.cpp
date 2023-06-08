@@ -6,7 +6,7 @@
 
 #include "../../profile/ui/titlemenu.h"
 #include "../../profile/games/cc/titlemenu.h"
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 #include "../../texture/texture.h"
 #include "../../spritesheet.h"
 #include "../../audio/audiosystem.h"
@@ -249,11 +249,11 @@ void TitleMenu::Render() {
       case 1: {  // Press to start
         DrawMainBackground(true);
         DrawStartButton();
-        Renderer2D::DrawSprite(
+        Renderer->DrawSprite(
             OverlaySprite,
             RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight));
         DrawSmoke(SmokeOpacityNormal);
-        Renderer2D::DrawRect(
+        Renderer->DrawRect(
             RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
             glm::vec4(1.0f, 1.0f, 1.0f,
                       1.0f - ScrWork[SW_TITLEDISPCT] / 60.0f));
@@ -261,7 +261,7 @@ void TitleMenu::Render() {
       case 2: {  // Transition between Press to start and menus
         DrawMainBackground(true);
         DrawStartButton();
-        Renderer2D::DrawSprite(
+        Renderer->DrawSprite(
             OverlaySprite,
             RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight));
         DrawSmoke(SmokeOpacityNormal);
@@ -280,18 +280,18 @@ void TitleMenu::Render() {
         FenceSprite.Bounds =
             RectF(FenceBoundsX - (FenceBoundsX * MoveLeftAnimation.Progress),
                   fenceBoundsY, FenceBoundsWidth, FenceBoundsHeight);
-        Renderer2D::DrawSprite(BackgroundSprite,
+        Renderer->DrawSprite(BackgroundSprite,
                                glm::vec2(BackgroundX, BackgroundY));
-        Renderer2D::DrawSprite(FenceSprite, glm::vec2(FenceX, FenceY));
-        Renderer2D::DrawSprite(
+        Renderer->DrawSprite(FenceSprite, glm::vec2(FenceX, FenceY));
+        Renderer->DrawSprite(
             CopyrightSprite,
             glm::vec2(CopyrightX +
                           (CopyrightXMoveOffset * MoveLeftAnimation.Progress),
                       CopyrightY));
-        Renderer2D::DrawSprite(
+        Renderer->DrawSprite(
             OverlaySprite,
             RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight));
-        Renderer2D::DrawSprite(MenuSprite, glm::vec2(MenuX, MenuY));
+        Renderer->DrawSprite(MenuSprite, glm::vec2(MenuX, MenuY));
         if (!GetFlag(SF_CLR_TRUE_CC)) {
           DrawSmoke(SmokeOpacityNormal);
         }
@@ -306,7 +306,7 @@ void TitleMenu::Render() {
       } break;
       case 11: {  // Initial Fade In
         DrawMainBackground(ScrWork[SW_TITLEDISPCT] / 32.0f);
-        Renderer2D::DrawSprite(
+        Renderer->DrawSprite(
             OverlaySprite,
             RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight));
         DrawSmoke(ScrWork[SW_TITLEDISPCT] / 128.0f);
@@ -320,17 +320,17 @@ void TitleMenu::Render() {
 inline void TitleMenu::DrawMainBackground(float opacity) {
   glm::vec4 col = glm::vec4(1.0f);
   col.a = opacity;
-  Renderer2D::DrawSprite(BackgroundSprite, glm::vec2(BackgroundX, BackgroundY),
+  Renderer->DrawSprite(BackgroundSprite, glm::vec2(BackgroundX, BackgroundY),
                          col);
-  Renderer2D::DrawSprite(FenceSprite, glm::vec2(FenceX, FenceY), col);
-  Renderer2D::DrawSprite(CopyrightSprite, glm::vec2(CopyrightX, CopyrightY),
+  Renderer->DrawSprite(FenceSprite, glm::vec2(FenceX, FenceY), col);
+  Renderer->DrawSprite(CopyrightSprite, glm::vec2(CopyrightX, CopyrightY),
                          col);
 }
 
 inline void TitleMenu::DrawStartButton() {
   glm::vec4 col = glm::vec4(1.0f);
   col.a = glm::smoothstep(0.0f, 1.0f, PressToStartAnimation.Progress);
-  Renderer2D::DrawSprite(PressToStartSprite,
+  Renderer->DrawSprite(PressToStartSprite,
                          glm::vec2(PressToStartX, PressToStartY), col);
 }
 
@@ -344,12 +344,12 @@ inline void TitleMenu::DrawSmoke(float opacity) {
       SmokeBoundsWidth -
           (SmokeAnimationBoundsXMax * (1.0f - SmokeAnimation.Progress)),
       SmokeBoundsHeight);
-  Renderer2D::DrawSprite(SmokeSprite, glm::vec2(SmokeX, SmokeY), col);
+  Renderer->DrawSprite(SmokeSprite, glm::vec2(SmokeX, SmokeY), col);
   SmokeSprite.Bounds = RectF(
       SmokeBoundsX, SmokeBoundsY,
       SmokeBoundsWidth - (SmokeAnimationBoundsXMax * SmokeAnimation.Progress),
       SmokeBoundsHeight);
-  Renderer2D::DrawSprite(
+  Renderer->DrawSprite(
       SmokeSprite,
       glm::vec2(SmokeBoundsWidth - (SmokeAnimationBoundsXMax *
                                     (1.0f - SmokeAnimation.Progress)),

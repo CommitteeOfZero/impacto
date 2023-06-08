@@ -1,7 +1,7 @@
 #include "label.h"
 #include "../../vm/thread.h"
 #include "../../profile/dialogue.h"
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 
 namespace Impacto {
 namespace UI {
@@ -42,11 +42,11 @@ void Label::Update(float dt) { Widget::Update(dt); }
 
 void Label::Render() {
   if (IsText) {
-    Renderer2D::DrawProcessedText(Text, TextLength,
+    Renderer->DrawProcessedText(Text, TextLength,
                                   Profile::Dialogue::DialogueFont, Tint.a,
                                   Outline, true);
   } else {
-    Renderer2D::DrawSprite(LabelSprite, Bounds, Tint);
+    Renderer->DrawSprite(LabelSprite, Bounds, Tint);
   }
 }
 

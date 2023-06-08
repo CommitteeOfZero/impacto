@@ -1,5 +1,6 @@
 #include "inputsystem.h"
-#include "window.h"
+//#include "window.h"
+#include "renderer/renderer.h"
 
 #include "profile/game.h"
 
@@ -62,14 +63,14 @@ void EndFrame() {
 }
 
 static glm::vec2 SDLMouseCoordsToDesign(int x, int y) {
-  RectF viewport = Window::GetViewport();
+  RectF viewport = Window->GetViewport();
   glm::vec2 result;
   result.x = ((float)x *
-              (Profile::DesignWidth / (viewport.Width * Window::DpiScaleX))) -
-             (viewport.X * Window::DpiScaleX);
+              (Profile::DesignWidth / (viewport.Width * Window->DpiScaleX))) -
+             (viewport.X * Window->DpiScaleX);
   result.y = ((float)y *
-              (Profile::DesignHeight / (viewport.Height * Window::DpiScaleY))) +
-             (viewport.Y * Window::DpiScaleY);
+              (Profile::DesignHeight / (viewport.Height * Window->DpiScaleY))) +
+             (viewport.Y * Window->DpiScaleY);
   return result;
 }
 
@@ -157,8 +158,8 @@ bool HandleEvent(SDL_Event const* ev) {
       CurrentInputDevice = IDEV_Touch;
       if (CurrentFinger == evt->fingerId && TouchIsDown) {
         CurTouchPos =
-            SDLMouseCoordsToDesign((int)(evt->x * (float)Window::WindowWidth),
-                                   (int)(evt->y * (float)Window::WindowHeight));
+            SDLMouseCoordsToDesign((int)(evt->x * (float)Window->WindowWidth),
+                                   (int)(evt->y * (float)Window->WindowHeight));
       }
       return true;
       break;
@@ -168,8 +169,8 @@ bool HandleEvent(SDL_Event const* ev) {
       CurrentInputDevice = IDEV_Touch;
       if (!TouchIsDown) {
         CurTouchPos =
-            SDLMouseCoordsToDesign((int)(evt->x * (float)Window::WindowWidth),
-                                   (int)(evt->y * (float)Window::WindowHeight));
+            SDLMouseCoordsToDesign((int)(evt->x * (float)Window->WindowWidth),
+                                   (int)(evt->y * (float)Window->WindowHeight));
         CurrentFinger = evt->fingerId;
         TouchIsDown = true;
         TouchWentDown = true;
@@ -182,8 +183,8 @@ bool HandleEvent(SDL_Event const* ev) {
       CurrentInputDevice = IDEV_Touch;
       if (CurrentFinger == evt->fingerId && TouchIsDown) {
         CurTouchPos =
-            SDLMouseCoordsToDesign((int)(evt->x * (float)Window::WindowWidth),
-                                   (int)(evt->y * (float)Window::WindowHeight));
+            SDLMouseCoordsToDesign((int)(evt->x * (float)Window->WindowWidth),
+                                   (int)(evt->y * (float)Window->WindowHeight));
         TouchIsDown = false;
       }
       return true;

@@ -1,6 +1,6 @@
 #include "systemmenu.h"
 #include "../../profile/games/chlcc/systemmenu.h"
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 #include "../../ui/ui.h"
 #include "../../vm/interface/input.h"
 #include "../../profile/ui/systemmenu.h"
@@ -114,7 +114,7 @@ void SystemMenu::Update(float dt) {
 void SystemMenu::Render() {
   if (State != Hidden) {
     if (MenuTransition.IsIn()) {
-      Renderer2D::DrawRect(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
+      Renderer->DrawRect(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                            RgbIntToFloat(BackgroundColor));
     } else {
       DrawCircles();
@@ -124,7 +124,7 @@ void SystemMenu::Render() {
     // Alpha goes from 0 to 1 in half the time
     float alpha =
         MenuTransition.Progress < 0.5f ? MenuTransition.Progress * 2.0f : 1.0f;
-    Renderer2D::DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
+    Renderer->DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                            glm::vec4(tint, alpha));
     float yOffset = 0;
     if (MenuTransition.Progress > 0.22f) {
@@ -155,7 +155,7 @@ inline void SystemMenu::DrawCircles() {
       if (counter + 1 <= (progress)) {
         float scale = ((progress) - (counter + 1.0f)) * 16.0f;
         scale = scale <= 320.0f ? scale : 320.0f;
-        Renderer2D::DrawSprite(
+        Renderer->DrawSprite(
             CircleSprite, RectF(x + (CircleSprite.Bounds.Width - scale) / 2.0f,
                                 y + (CircleSprite.Bounds.Height - scale) / 2.0f,
                                 scale, scale));
@@ -180,7 +180,7 @@ inline void SystemMenu::DrawErin() {
               0.998267f * sin(3.97835f - 3.27549f * MenuTransition.Progress));
     }
   }
-  Renderer2D::DrawSprite(ErinSprite, glm::vec2(ErinPosition.x, y));
+  Renderer->DrawSprite(ErinSprite, glm::vec2(ErinPosition.x, y));
 }
 
 }  // namespace CHLCC

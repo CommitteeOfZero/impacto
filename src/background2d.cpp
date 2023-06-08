@@ -8,7 +8,8 @@
 #include "profile/game.h"
 #include "profile/scriptvars.h"
 #include "profile/vm.h"
-#include "window.h"
+//#include "window.h"
+#include "renderer/renderer.h"
 
 namespace Impacto {
 
@@ -26,8 +27,8 @@ void Background2D::Init() {
   }
 
   for (int i = 0; i < MaxScreencaptures; i++) {
-    Screencaptures[i].LoadSolidColor(0xFF000000, Window::WindowWidth,
-                                     Window::WindowHeight);
+    Screencaptures[i].LoadSolidColor(0xFF000000, Window->WindowWidth,
+                                     Window->WindowHeight);
     Screencaptures[i].Status = LS_Loaded;
     Screencaptures[i].IsScreencap = true;
   }
@@ -53,7 +54,7 @@ void Background2D::LoadSolidColor(uint32_t color, int width, int height) {
 }
 
 void Background2D::UnloadSync() {
-  glDeleteTextures(1, &BgSpriteSheet.Texture);
+  Renderer->FreeTexture(BgSpriteSheet.Texture);
   BgSpriteSheet.DesignHeight = 0.0f;
   BgSpriteSheet.DesignWidth = 0.0f;
   BgSpriteSheet.Texture = 0;
@@ -93,14 +94,14 @@ void Background2D::Render(int bgId, int layer) {
 }
 
 BackgroundRenderer(RenderRegular) {
-  Renderer2D::DrawSprite(
+  Renderer->DrawSprite(
       bg->BgSprite,
       RectF(bg->DisplayCoords.x, bg->DisplayCoords.y,
             bg->BgSprite.ScaledWidth(), bg->BgSprite.ScaledHeight()),
       col, 0.0f, false, bg->IsScreencap);
   for (int i = 0; i < MaxLinkedBgBuffers; i++) {
     if (bg->Links[i].Direction != LD_Off && bg->Links[i].LinkedBuffer != NULL) {
-      Renderer2D::DrawSprite(
+      Renderer->DrawSprite(
           bg->Links[i].LinkedBuffer->BgSprite,
           RectF(bg->Links[i].DisplayCoords.x, bg->Links[i].DisplayCoords.y,
                 bg->Links[i].LinkedBuffer->BgSprite.ScaledWidth(),
@@ -111,7 +112,7 @@ BackgroundRenderer(RenderRegular) {
 }
 
 BackgroundRenderer(RenderMasked) {
-  Renderer2D::DrawMaskedSprite(
+  Renderer->DrawMaskedSprite(
       bg->BgSprite,
       Masks2D[ScrWork[SW_BG1MASKNO + ScrWorkBgStructSize * bgId]].MaskSprite,
       RectF(bg->DisplayCoords.x, bg->DisplayCoords.y,
@@ -122,7 +123,7 @@ BackgroundRenderer(RenderMasked) {
 }
 
 BackgroundRenderer(RenderMaskedInverted) {
-  Renderer2D::DrawMaskedSprite(
+  Renderer->DrawMaskedSprite(
       bg->BgSprite,
       Masks2D[ScrWork[SW_BG1MASKNO + ScrWorkBgStructSize * bgId]].MaskSprite,
       RectF(bg->DisplayCoords.x, bg->DisplayCoords.y,
@@ -138,14 +139,14 @@ BackgroundRenderer(RenderFade) {
              ScrWork[SW_BG1ALPHA_OFS + 10 * bgId])) >>
            8) /
           256.0f;
-  Renderer2D::DrawSprite(
+  Renderer->DrawSprite(
       bg->BgSprite,
       RectF(bg->DisplayCoords.x, bg->DisplayCoords.y,
             bg->BgSprite.ScaledWidth(), bg->BgSprite.ScaledHeight()),
       col, 0.0f, false, bg->IsScreencap);
   for (int i = 0; i < MaxLinkedBgBuffers; i++) {
     if (bg->Links[i].Direction != LD_Off && bg->Links[i].LinkedBuffer != NULL) {
-      Renderer2D::DrawSprite(
+      Renderer->DrawSprite(
           bg->Links[i].LinkedBuffer->BgSprite,
           RectF(bg->Links[i].DisplayCoords.x, bg->Links[i].DisplayCoords.y,
                 bg->Links[i].LinkedBuffer->BgSprite.ScaledWidth(),

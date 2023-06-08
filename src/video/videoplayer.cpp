@@ -3,7 +3,6 @@
 
 #include "../log.h"
 #include "../profile/game.h"
-#include "../renderer2d.h"
 #include "../io/inputstream.h"
 
 extern "C" {
@@ -165,7 +164,9 @@ void VideoPlayer::Play(Io::InputStream* stream, bool looping, bool alpha) {
 
     avcodec_open2(codecCtx, codec, &options);
     VideoStream = new FFmpegStream(videoStream, codecCtx);
-    VideoTexture.Init(codecCtx->width, codecCtx->height);
+    if (!VideoTexture)
+      VideoTexture =
+          Renderer->CreateYUVFrame(codecCtx->width, codecCtx->height);
   }
 
   // Find and open the audio codec
@@ -583,8 +584,8 @@ void VideoPlayer::Update(float dt) {
       VideoClock->Set(frame.Timestamp, frame.Serial);
       ExternalClock->SyncTo(VideoClock);
 
-      VideoTexture.Submit(frame.Frame->data[0], frame.Frame->data[1],
-                          frame.Frame->data[2]);
+      VideoTexture->Submit(frame.Frame->data[0], frame.Frame->data[1],
+                           frame.Frame->data[2]);
       PlaybackStarted = true;
       av_frame_free(&frame.Frame);
       SDL_LockMutex(VideoStream->FrameLock);
@@ -598,13 +599,13 @@ void VideoPlayer::Update(float dt) {
 
 void VideoPlayer::Render(float videoAlpha) {
   if (IsPlaying && PlaybackStarted) {
-    float widthScale = Profile::DesignWidth / VideoTexture.Width;
-    float heightScale = Profile::DesignHeight / VideoTexture.Height;
+    float widthScale = Profile::DesignWidth / VideoTexture->Width;
+    float heightScale = Profile::DesignHeight / VideoTexture->Height;
     glm::vec4 tint = glm::vec4(1.0f);
     if (IsAlpha) tint.a = videoAlpha;
-    Renderer2D::DrawVideoTexture(VideoTexture, glm::vec2(0.0f, 0.0f), tint,
-                                 glm::vec2(widthScale, heightScale), 0.0f,
-                                 IsAlpha);
+    Renderer->DrawVideoTexture(VideoTexture, glm::vec2(0.0f, 0.0f), tint,
+                               glm::vec2(widthScale, heightScale), 0.0f,
+                               IsAlpha);
   }
 }
 

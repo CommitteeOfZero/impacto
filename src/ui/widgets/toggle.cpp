@@ -1,7 +1,7 @@
 #include "toggle.h"
 #include "../../vm/thread.h"
 #include "../../profile/dialogue.h"
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 #include "../../inputsystem.h"
 #include "../../vm/interface/input.h"
 
@@ -59,23 +59,23 @@ void Toggle::Update(float dt) { Widget::Update(dt); }
 
 void Toggle::Render() {
   if (!*Value || IsCheckbox) {
-    Renderer2D::DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    Renderer->DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
   }
   if (*Value) {
-    Renderer2D::DrawSprite(EnabledSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    Renderer->DrawSprite(EnabledSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
   }
   if (HasFocus) {
     auto tint = Tint;
     if (IsCheckbox) tint.a *= 0.5f;
-    Renderer2D::DrawSprite(HighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
+    Renderer->DrawSprite(HighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
                            tint);
   }
   if (HasSpriteLabel) {
-    Renderer2D::DrawSprite(LabelSprite,
+    Renderer->DrawSprite(LabelSprite,
                            glm::vec2(Bounds.X, Bounds.Y) + LabelOffset, Tint);
   }
   if (HasTextLabel) {
-    Renderer2D::DrawProcessedText(Label, TextLength,
+    Renderer->DrawProcessedText(Label, TextLength,
                                   Profile::Dialogue::DialogueFont, Tint.a,
                                   Outline, true);
   }

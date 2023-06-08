@@ -2,7 +2,7 @@
 
 #include "../../profile/ui/titlemenu.h"
 #include "../../profile/games/rne/titlemenu.h"
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 #include "../../texture/texture.h"
 #include "../../spritesheet.h"
 #include "../../games/rne/tilebackground.h"
@@ -82,20 +82,20 @@ void TitleMenu::Render() {
     if (BackgroundAnimation->IsIn()) {
       glm::vec4 col = glm::vec4(1.0f);
       col.a = glm::smoothstep(0.0f, 1.0f, PressToStartAnimation.Progress);
-      Renderer2D::DrawSprite(PressToStartSprite,
+      Renderer->DrawSprite(PressToStartSprite,
                              glm::vec2(PressToStartX, PressToStartY), col);
 
-      Renderer2D::DrawSprite(LineSprite, glm::vec2(LineX, LineY),
+      Renderer->DrawSprite(LineSprite, glm::vec2(LineX, LineY),
                              glm::vec4(1.0f));
-      Renderer2D::DrawSprite(CopyrightSprite, glm::vec2(CopyrightX, CopyrightY),
+      Renderer->DrawSprite(CopyrightSprite, glm::vec2(CopyrightX, CopyrightY),
                              glm::vec4(1.0f));
-      Renderer2D::DrawSprite(EliteSprite, glm::vec2(EliteX, EliteY),
+      Renderer->DrawSprite(EliteSprite, glm::vec2(EliteX, EliteY),
                              glm::vec4(1.0f));
       if (ScrWork[SW_TITLECGNO] == 542) {
-        Renderer2D::DrawSprite(LogoSprite, glm::vec2(LogoX, LogoY),
+        Renderer->DrawSprite(LogoSprite, glm::vec2(LogoX, LogoY),
                                glm::vec4(1.0f), glm::vec2(1.0f), 0.0f, true);
       } else {
-        Renderer2D::DrawSprite(LogoSprite, glm::vec2(LogoX, LogoY),
+        Renderer->DrawSprite(LogoSprite, glm::vec2(LogoX, LogoY),
                                glm::vec4(1.0f));
       }
     }

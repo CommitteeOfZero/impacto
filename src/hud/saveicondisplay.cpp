@@ -1,7 +1,7 @@
 #include "saveicondisplay.h"
 
 #include "../impacto.h"
-#include "../renderer2d.h"
+#include "../renderer/renderer.h"
 #include "../game.h"
 #include "../spriteanimation.h"
 
@@ -61,11 +61,11 @@ void Render() {
 
   glm::vec4 col(1.0f);
   col.a = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
-  Renderer2D::DrawSprite(
+  Renderer->DrawSprite(
       Profile::SaveIcon::BackgroundSprite,
       Position + Profile::SaveIcon::BackgroundOffset,
       col * glm::vec4(1.0f, 1.0f, 1.0f, Profile::SaveIcon::BackgroundMaxAlpha));
-  Renderer2D::DrawSprite(SaveIconForeground.CurrentSprite(), Position, col);
+  Renderer->DrawSprite(SaveIconForeground.CurrentSprite(), Position, col);
 }
 
 }  // namespace SaveIconDisplay

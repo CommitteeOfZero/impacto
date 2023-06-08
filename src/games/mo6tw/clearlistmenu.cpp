@@ -4,7 +4,7 @@
 #include "../../profile/games/mo6tw/clearlistmenu.h"
 #include "../../profile/ui/backlogmenu.h"
 #include "../../profile/dialogue.h"
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
 #include "../../vm/vm.h"
@@ -155,7 +155,7 @@ void ClearListMenu::Update(float dt) {
 void ClearListMenu::Render() {
   if (State != Hidden) {
     glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-    Renderer2D::DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
+    Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
     MainItems->Tint = col;
     MainItems->Render();
     Arrows->Tint =

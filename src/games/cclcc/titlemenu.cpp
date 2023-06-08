@@ -4,7 +4,7 @@
 #include "../../spritesheet.h"
 #include "../../io/vfs.h"
 
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../inputsystem.h"
 #include "../../ui/widgets/label.h"
@@ -285,9 +285,9 @@ void TitleMenu::Render() {
         DrawMainBackground();
         DrawStartButton();
         DrawSmoke(SmokeOpacityNormal);
-        Renderer2D::DrawSprite(CopyrightTextSprite,
+        Renderer->DrawSprite(CopyrightTextSprite,
                                glm::vec2(CopyrightTextX, CopyrightTextY));
-        Renderer2D::DrawRect(
+        Renderer->DrawRect(
             RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
             glm::vec4(1.0f, 1.0f, 1.0f,
                       1.0f - ScrWork[SW_TITLEDISPCT] / 60.0f));
@@ -319,7 +319,7 @@ void TitleMenu::Render() {
       case 11: {  // Initial Fade In
         DrawMainBackground(ScrWork[SW_TITLEDISPCT] / 32.0f);
         DrawSmoke(ScrWork[SW_TITLEDISPCT] / 128.0f);
-        Renderer2D::DrawSprite(CopyrightTextSprite,
+        Renderer->DrawSprite(CopyrightTextSprite,
                                glm::vec2(CopyrightTextX, CopyrightTextY));
       } break;
     }
@@ -327,14 +327,14 @@ void TitleMenu::Render() {
     int maskAlpha = ScrWork[SW_TITLEMASKALPHA];
     glm::vec4 col = ScrWorkGetColor(SW_TITLEMASKCOLOR);
     col.a = glm::min(maskAlpha / 255.0f, 1.0f);
-    Renderer2D::DrawRect(
+    Renderer->DrawRect(
         RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight), col);
   }
 }
 
 inline void TitleMenu::DrawMainBackground(float opacity) {
-  Renderer2D::DrawSprite(BackgroundSprite, glm::vec2(0.0f));
-  Renderer2D::DrawSprite(
+  Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
+  Renderer->DrawSprite(
       OverlaySprite,
       RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
       glm::vec4(1.0f));
@@ -343,16 +343,16 @@ inline void TitleMenu::DrawMainBackground(float opacity) {
 inline void TitleMenu::DrawStartButton() {
   glm::vec4 col = glm::vec4(1.0f);
   col.a = glm::smoothstep(0.0f, 1.0f, PressToStartAnimation.Progress);
-  Renderer2D::DrawSprite(PressToStartSprite,
+  Renderer->DrawSprite(PressToStartSprite,
                          glm::vec2(PressToStartX, PressToStartY), col);
 }
 
 inline void TitleMenu::DrawMainMenuBackGraphics(bool isTransition) {
-  Renderer2D::DrawSprite(MainBackgroundSprite, glm::vec2(0.0f));
+  Renderer->DrawSprite(MainBackgroundSprite, glm::vec2(0.0f));
   if (!isTransition) {
-    Renderer2D::DrawSprite(MenuSprite, glm::vec2(MenuX, MenuY));
+    Renderer->DrawSprite(MenuSprite, glm::vec2(MenuX, MenuY));
   }
-  Renderer2D::DrawSprite(
+  Renderer->DrawSprite(
       OverlaySprite,
       RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
       glm::vec4(1.0f));
@@ -368,12 +368,12 @@ inline void TitleMenu::DrawSmoke(float opacity) {
       SmokeBoundsWidth -
           (SmokeAnimationBoundsXMax * (1.0f - SmokeAnimation.Progress)),
       SmokeBoundsHeight);
-  Renderer2D::DrawSprite(SmokeSprite, glm::vec2(SmokeX, SmokeY), col);
+  Renderer->DrawSprite(SmokeSprite, glm::vec2(SmokeX, SmokeY), col);
   SmokeSprite.Bounds = RectF(
       SmokeBoundsX, SmokeBoundsY,
       SmokeBoundsWidth - (SmokeAnimationBoundsXMax * SmokeAnimation.Progress),
       SmokeBoundsHeight);
-  Renderer2D::DrawSprite(
+  Renderer->DrawSprite(
       SmokeSprite,
       glm::vec2(SmokeBoundsWidth - (SmokeAnimationBoundsXMax *
                                     (1.0f - SmokeAnimation.Progress)),

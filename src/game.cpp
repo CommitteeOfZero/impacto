@@ -1,7 +1,5 @@
 #include "game.h"
 
-#include "window.h"
-#include "../vendor/nuklear/nuklear_sdl_gl3.h"
 #include "workqueue.h"
 #include "modelviewer.h"
 #include "characterviewer.h"
@@ -16,11 +14,10 @@
 #include "audio/audiochannel.h"
 #include "audio/audiostream.h"
 #include "video/videosystem.h"
-#include "renderer2d.h"
 #include "background2d.h"
 #include "mask2d.h"
 #include "character2d.h"
-#include "3d/scene.h"
+#include "renderer/3d/scene.h"
 #include "mem.h"
 #include "hud/datedisplay.h"
 #include "hud/saveicondisplay.h"
@@ -53,11 +50,6 @@ namespace Impacto {
 
 using namespace Profile::ScriptVars;
 
-static int const NkMaxVertexMemory = 256 * 1024;
-static int const NkMaxElementMemory = 128 * 1024;
-
-nk_context* Nk = 0;
-
 namespace Game {
 uint8_t DrawComponents[Vm::MaxThreads];
 
@@ -70,16 +62,14 @@ static void Init() {
   Profile::LoadGameFromJson();
 
   Io::VfsInit();
-  Window::Init();
+  InitRenderer();
+  Renderer->Init();
 
   memset(DrawComponents, DrawComponentType::None, sizeof(DrawComponents));
 
-  if (Profile::GameFeatures & GameFeature::Nuklear) {
-    Nk = nk_sdl_init(Window::SDLWindow, NkMaxVertexMemory, NkMaxElementMemory);
-    struct nk_font_atlas* atlas;
-    nk_sdl_font_stash_begin(&atlas);
-    // no fonts => default font used, but we still have do the setup
-    nk_sdl_font_stash_end();
+  if ((Profile::GameFeatures & GameFeature::Nuklear) &&
+      Renderer->NuklearSupported) {
+    Renderer->NuklearInit();
   }
 
   if (Profile::GameFeatures & GameFeature::Audio) {
@@ -88,10 +78,6 @@ static void Init() {
 
   if (Profile::GameFeatures & GameFeature::Video) {
     Video::VideoInit();
-  }
-
-  if (Profile::GameFeatures & GameFeature::Scene3D) {
-    Scene3D::Init();
   }
 
   memset(ScrWork, 0, sizeof(ScrWork));
@@ -104,7 +90,7 @@ static void Init() {
     Profile::LoadAnimations();
     DialoguePage::Init();
 
-    Renderer2D::Init();
+    Renderer->Init();
     Background2D::Init();
     Mask2D::Init();
   }
@@ -155,19 +141,16 @@ void Shutdown() {
     Video::VideoShutdown();
   }
 
-  if (Profile::GameFeatures & GameFeature::Scene3D) {
-    Scene3D::Shutdown();
+  if ((Profile::GameFeatures & GameFeature::Nuklear) &&
+      Renderer->NuklearSupported) {
+    Renderer->NuklearShutdown();
   }
 
   if (Profile::GameFeatures & GameFeature::Renderer2D) {
-    Renderer2D::Shutdown();
+    Renderer->Shutdown();
   }
 
-  if (Profile::GameFeatures & GameFeature::Nuklear) {
-    nk_sdl_shutdown();
-  }
-
-  Window::Shutdown();
+  Window->Shutdown();
 }
 
 void UpdateGameState(float dt) {
@@ -180,8 +163,9 @@ void UpdateGameState(float dt) {
 
 void Update(float dt) {
   SDL_Event e;
-  if (Profile::GameFeatures & GameFeature::Nuklear) {
-    nk_input_begin(Nk);
+  if ((Profile::GameFeatures & GameFeature::Nuklear) &&
+      Renderer->NuklearSupported) {
+    nk_input_begin(Renderer->Nk);
   }
   if (Profile::GameFeatures & GameFeature::Input) {
     Input::BeginFrame();
@@ -191,11 +175,9 @@ void Update(float dt) {
       ShouldQuit = true;
     }
 
-    if (Profile::GameFeatures & GameFeature::Nuklear) {
-      SDL_Event e_nk;
-      memcpy(&e_nk, &e, sizeof(SDL_Event));
-      Window::AdjustEventCoordinatesForNk(&e_nk);
-      if (nk_sdl_handle_event(&e_nk)) continue;
+    if ((Profile::GameFeatures & GameFeature::Nuklear) &&
+        Renderer->NuklearSupported) {
+      if (Renderer->NuklearHandleEvent(&e)) continue;
     }
 
     if (Profile::GameFeatures & GameFeature::Input) {
@@ -207,8 +189,9 @@ void Update(float dt) {
   if (Profile::GameFeatures & GameFeature::Input) {
     Input::EndFrame();
   }
-  if (Profile::GameFeatures & GameFeature::Nuklear) {
-    nk_input_end(Nk);
+  if ((Profile::GameFeatures & GameFeature::Nuklear) &&
+      Renderer->NuklearSupported) {
+    nk_input_end(Renderer->Nk);
   }
 
   if (Profile::GameFeatures & GameFeature::ModelViewer) {
@@ -244,7 +227,7 @@ void Update(float dt) {
   }
 
   if (Profile::GameFeatures & GameFeature::Scene3D) {
-    Scene3D::Update(dt);
+    Renderer->Scene->Update(dt);
   }
 
   if (Profile::GameFeatures & GameFeature::Renderer2D) {
@@ -271,16 +254,15 @@ static int FlagWorkIndexStart = 0;
 static int FlagWorkIndexEnd = 0;
 
 void Render() {
-  Window::Update();
+  Window->Update();
 
-  Rect viewport = Window::GetViewport();
-
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  Renderer->BeginFrame();
 
   if (Profile::GameFeatures & GameFeature::Scene3D) {
-    Scene3D::Render();
+    Renderer->Scene->Render();
   }
+
+  Renderer->BeginFrame2D();
 
   if ((Profile::GameFeatures & GameFeature::Nuklear) &&
       (Profile::GameFeatures & GameFeature::Sc3VirtualMachine)) {
@@ -298,63 +280,65 @@ void Render() {
       Frames = 0;
     }
 
-    if (DebugWindowEnabled) {
-      if (nk_begin(Nk, "Debug Editor",
-                   nk_rect(20, 20, 300, Window::WindowHeight - 40),
+    if (DebugWindowEnabled && Renderer->NuklearSupported) {
+      if (nk_begin(Renderer->Nk, "Debug Editor",
+                   nk_rect(20, 20, 300, Window->WindowHeight - 40),
                    NK_WINDOW_BORDER | NK_WINDOW_TITLE)) {
-        nk_layout_row_dynamic(Nk, 24, 1);
+        nk_layout_row_dynamic(Renderer->Nk, 24, 1);
         char buffer[32];  // whatever
         snprintf(buffer, 32, "FPS: %02.2f", FPS);
-        nk_label(Nk, buffer, NK_TEXT_ALIGN_CENTERED);
+        nk_label(Renderer->Nk, buffer, NK_TEXT_ALIGN_CENTERED);
 
-        nk_property_int(Nk, "ScrWork start index", 0, &ScrWorkIndexStart, 8000,
-                        1, 1.0f);
-        nk_property_int(Nk, "ScrWork end index", 0, &ScrWorkIndexEnd, 8000, 1,
-                        1.0f);
+        nk_property_int(Renderer->Nk, "ScrWork start index", 0,
+                        &ScrWorkIndexStart, 8000, 1, 1.0f);
+        nk_property_int(Renderer->Nk, "ScrWork end index", 0, &ScrWorkIndexEnd,
+                        8000, 1, 1.0f);
 
         if (ScrWorkIndexEnd < ScrWorkIndexStart)
           ScrWorkIndexEnd = ScrWorkIndexStart;
 
-        nk_property_int(Nk, "FlagWork start index", 0, &FlagWorkIndexStart,
-                        7000, 1, 0.0f);
-        nk_property_int(Nk, "FlagWork end index", 0, &FlagWorkIndexEnd, 7000, 1,
-                        0.0f);
+        nk_property_int(Renderer->Nk, "FlagWork start index", 0,
+                        &FlagWorkIndexStart, 7000, 1, 0.0f);
+        nk_property_int(Renderer->Nk, "FlagWork end index", 0,
+                        &FlagWorkIndexEnd, 7000, 1, 0.0f);
 
         if (FlagWorkIndexEnd < FlagWorkIndexStart)
           FlagWorkIndexEnd = FlagWorkIndexStart;
 
-        if (nk_tree_push(Nk, NK_TREE_TAB, "ScrWork Editor", NK_MINIMIZED)) {
-          nk_layout_row_dynamic(Nk, 24, 1);
+        if (nk_tree_push(Renderer->Nk, NK_TREE_TAB, "ScrWork Editor",
+                         NK_MINIMIZED)) {
+          nk_layout_row_dynamic(Renderer->Nk, 24, 1);
 
           for (int i = ScrWorkIndexStart; i <= ScrWorkIndexEnd; i++) {
             char buf[32];
             snprintf(buf, 32, "ScrWork[%d]", i);
-            nk_property_int(Nk, buf, INT_MIN, &ScrWork[i], INT_MAX, 1, 50.0f);
+            nk_property_int(Renderer->Nk, buf, INT_MIN, &ScrWork[i], INT_MAX, 1,
+                            50.0f);
           }
 
-          nk_tree_pop(Nk);
+          nk_tree_pop(Renderer->Nk);
         }
 
-        if (nk_tree_push(Nk, NK_TREE_TAB, "FlagWork Editor", NK_MINIMIZED)) {
-          nk_layout_row_dynamic(Nk, 24, 1);
+        if (nk_tree_push(Renderer->Nk, NK_TREE_TAB, "FlagWork Editor",
+                         NK_MINIMIZED)) {
+          nk_layout_row_dynamic(Renderer->Nk, 24, 1);
 
           for (int i = FlagWorkIndexStart; i <= FlagWorkIndexEnd; i++) {
             char buf[32];
             snprintf(buf, 32, "GetFlag(%d)", i);
             int flagVal = (int)GetFlag(i);
-            nk_checkbox_label(Nk, buf, &flagVal);
+            nk_checkbox_label(Renderer->Nk, buf, &flagVal);
             SetFlag(i, (bool)flagVal);
           }
 
-          nk_tree_pop(Nk);
+          nk_tree_pop(Renderer->Nk);
         }
       }
-      nk_end(Nk);
+      nk_end(Renderer->Nk);
     }
   }
 
   if (Profile::GameFeatures & GameFeature::Renderer2D) {
-    Renderer2D::BeginFrame();
     for (int i = 0; i < Vm::MaxThreads; i++) {
       if (DrawComponents[i] == +DrawComponentType::None) break;
 
@@ -391,7 +375,7 @@ void Render() {
                 }
                 glm::vec4 col = ScrWorkGetColor(SW_MASK1COLOR);
                 col.a = glm::min(maskAlpha / 255.0f, 1.0f);
-                Renderer2D::DrawRect(
+                Renderer->DrawRect(
                     RectF(maskPosX, maskPosY, maskSizeX, maskSizeY), col);
               }
             }
@@ -400,7 +384,7 @@ void Render() {
               if (ScrWork[SW_EFF_CAP_BUF] && ScrWork[SW_EFF_CAP_PRI] == layer) {
                 int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF]);
                 if (Backgrounds2D[bufId]->Status == LS_Loaded) {
-                  Renderer2D::CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
+                  Renderer->CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
                 }
               }
 
@@ -408,7 +392,7 @@ void Render() {
                   ScrWork[SW_EFF_CAP_PRI2] == layer) {
                 int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF2]);
                 if (Backgrounds2D[bufId]->Status == LS_Loaded) {
-                  Renderer2D::CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
+                  Renderer->CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
                 }
               }
             }
@@ -423,7 +407,7 @@ void Render() {
           if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::Dash) {
             /////////// DaSH hack kind of? ///////
             if (GetFlag(SF_Pokecon_Disable) || GetFlag(SF_Pokecon_Open) ||
-                Scene3D::MainCamera.CameraTransform.Position !=
+                Renderer->Scene->MainCamera.CameraTransform.Position !=
                     Profile::Scene3D::DefaultCameraPosition)
               SetFlag(SF_DATEDISPLAY, 0);
             else
@@ -477,13 +461,11 @@ void Render() {
         menu->Render();
       }
     }
-    Renderer2D::EndFrame();
   }
 
   if (Profile::GameFeatures & GameFeature::CharacterViewer) {
-    Renderer2D::BeginFrame();
     if (Backgrounds2D[0]->Status == LS_Loaded) {
-      Renderer2D::DrawSprite(
+      Renderer->DrawSprite(
           Backgrounds2D[0]->BgSprite,
           RectF(0.0f, 0.0f, Backgrounds2D[0]->BgSprite.ScaledWidth(),
                 Backgrounds2D[0]->BgSprite.ScaledHeight()));
@@ -493,23 +475,10 @@ void Render() {
       ScrWork[SW_CHA1ALPHA] = 256;
       Characters2D[0].Render(0, 0);
     }
-    Renderer2D::EndFrame();
   }
+  Renderer->EndFrame();
 
-  if (Profile::GameFeatures & GameFeature::Nuklear) {
-    if (Window::GLDebug) {
-      // Nuklear spams these
-      glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0,
-                               NULL, GL_FALSE);
-    }
-    nk_sdl_render(NK_ANTI_ALIASING_OFF, viewport.Width, viewport.Height);
-    if (Window::GLDebug) {
-      glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0,
-                               NULL, GL_TRUE);
-    }
-  }
-
-  Window::Draw();
+  Window->Draw();
 }
 
 }  // namespace Game

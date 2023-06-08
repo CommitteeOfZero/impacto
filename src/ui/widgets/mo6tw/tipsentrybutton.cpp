@@ -1,6 +1,6 @@
 #include "tipsentrybutton.h"
 
-#include "../../../renderer2d.h"
+#include "../../../renderer/renderer.h"
 #include "../../../profile/dialogue.h"
 #include "../../../profile/games/mo6tw/tipsmenu.h"
 #include "../../../text.h"
@@ -67,23 +67,23 @@ void TipsEntryButton::Update(float dt) {
 
 void TipsEntryButton::Render() {
   if (HasFocus) {
-    Renderer2D::DrawSprite(
+    Renderer->DrawSprite(
         HighlightSprite,
         glm::vec2(Bounds.X + HighlightOffset.x, Bounds.Y + HighlightOffset.y),
         Tint, glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
   }
 
-  Renderer2D::DrawProcessedText(TipNumber, TipNumberLength,
+  Renderer->DrawProcessedText(TipNumber, TipNumberLength,
                                 Profile::Dialogue::DialogueFont, Tint.a, true);
   if (TipEntryRecord->IsLocked) {
-    Renderer2D::DrawProcessedText(TipLockedText, TipLockedTextLength,
+    Renderer->DrawProcessedText(TipLockedText, TipLockedTextLength,
                                   Profile::Dialogue::DialogueFont, Tint.a,
                                   true);
   } else {
-    Renderer2D::DrawProcessedText(
+    Renderer->DrawProcessedText(
         TipName, TipNameLength, Profile::Dialogue::DialogueFont, Tint.a, true);
     if (TipEntryRecord->IsNew) {
-      Renderer2D::DrawProcessedText(NewText, NewTextLength,
+      Renderer->DrawProcessedText(NewText, NewTextLength,
                                     Profile::Dialogue::DialogueFont, Tint.a,
                                     true);
     }

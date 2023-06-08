@@ -55,6 +55,7 @@ struct Rect {
 };
 
 glm::vec2 DesignToNDC(glm::vec2 xy);
+glm::vec2 DesignToNDCNonFlipped(glm::vec2 xy);
 RectF DesignToNDC(RectF const& rect);
 
 glm::vec4 RgbIntToFloat(uint32_t rgb);

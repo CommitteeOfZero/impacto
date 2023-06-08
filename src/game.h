@@ -4,13 +4,14 @@
 #include "vm/vm.h"
 #include "io/vfs.h"
 #include "text.h"
+#include "renderer/renderer.h"
 #include <enum.h>
 
 #include <string>
 
 namespace Impacto {
 
-extern nk_context* Nk;
+BETTER_ENUM(RendererType, int, OpenGL, Vulkan, DirectX9);
 
 BETTER_ENUM(GameFeature, int, Nuklear = (1 << 0), Scene3D = (1 << 1),
             ModelViewer = (1 << 2), Sc3VirtualMachine = (1 << 3),

@@ -1,7 +1,7 @@
 #include "waiticondisplay.h"
 
 #include "../profile/dialogue.h"
-#include "../renderer2d.h"
+#include "../renderer/renderer.h"
 
 namespace Impacto {
 namespace WaitIconDisplay {
@@ -40,16 +40,16 @@ void Update(float dt) {
 }
 void Render(glm::vec2 pos, glm::vec4 opacityTint) {
   if (WaitIconCurrentType == +WaitIconType::SpriteAnim) {
-    Renderer2D::DrawSprite(
+    Renderer->DrawSprite(
         SpriteAnim.CurrentSprite(),
         glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y),
         opacityTint);
   } else if (WaitIconCurrentType == +WaitIconType::SpriteAnimFixed) {
     // TODO: CCLCC only for now
-    /*Renderer2D::DrawSprite(
+    /*Renderer->DrawSprite(
         SpriteAnim.CurrentSprite(),
         glm::vec2(WaitIconOffset.x - 50, WaitIconOffset.y - 50), opacityTint);*/
-    Renderer2D::DrawSprite(WaitIconSprite,
+    Renderer->DrawSprite(WaitIconSprite,
                            glm::vec2(WaitIconOffset.x, WaitIconOffset.y),
                            opacityTint, glm::vec2(1.0f));
   } else if (WaitIconCurrentType == +WaitIconType::RotateZ) {
@@ -62,17 +62,17 @@ void Render(glm::vec2 pos, glm::vec4 opacityTint) {
         (pos.x + WaitIconOffset.x) + (WaitIconSprite.ScaledWidth() / 2.0f),
         (pos.y + WaitIconOffset.y) + (WaitIconSprite.ScaledHeight() / 2.0f));
 
-    Renderer2D::DrawSprite3DRotated(
+    Renderer->DrawSprite3DRotated(
         WaitIconSprite,
         glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y), 1.0f,
         vanishingPoint, true, quat, opacityTint);
   } else if (WaitIconCurrentType == +WaitIconType::None) {
-    Renderer2D::DrawSprite(
+    Renderer->DrawSprite(
         WaitIconSprite,
         glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y),
         opacityTint, glm::vec2(1.0f));
   } else {
-    Renderer2D::DrawSprite(
+    Renderer->DrawSprite(
         WaitIconSprite,
         glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y),
         opacityTint, glm::vec2(1.0f), SimpleAnim.Progress * 2.0f * M_PI);

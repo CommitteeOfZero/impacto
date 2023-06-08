@@ -1,5 +1,5 @@
 #include "tilebackground.h"
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 #include "../../rng.h"
 #include "../../profile/game.h"
 #include "../../spritesheet.h"
@@ -15,7 +15,7 @@ void TileBackground::Init() {
 void TileBackground::Render() {
   if (Progress == 0) return;
   if (Progress == 1) {
-    Renderer2D::DrawSprite(BackgroundSprite, glm::vec2(0, 0));
+    Renderer->DrawSprite(BackgroundSprite, glm::vec2(0, 0));
     return;
   }
 
@@ -63,7 +63,7 @@ void TileBackground::Render() {
       tileSprite.Bounds.X = (float)x * tileSprite.Bounds.Width;
       tileSprite.Bounds.Y = (float)y * tileSprite.Bounds.Height;
 
-      Renderer2D::DrawSprite3DRotated(
+      Renderer->DrawSprite3DRotated(
           tileSprite,
           RectF((float)x * ColumnWidth, (float)y * RowHeight, ColumnWidth,
                 RowHeight),

@@ -1,6 +1,6 @@
 #include "saveentrybutton.h"
 
-#include "../../../renderer2d.h"
+#include "../../../renderer/renderer.h"
 #include "../../../profile/dialogue.h"
 
 namespace Impacto {
@@ -10,39 +10,39 @@ namespace MO6TW {
 
 void SaveEntryButton::Render() {
   if (HasFocus) {
-    Renderer2D::DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    Renderer->DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
   } else {
     if (Enabled) {
-      Renderer2D::DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+      Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
     } else {
-      Renderer2D::DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y),
+      Renderer->DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y),
                              Tint);
     }
   }
 
   if (EntryActive) {
-    Renderer2D::DrawProcessedText(SceneTitle, SceneTitleLength,
+    Renderer->DrawProcessedText(SceneTitle, SceneTitleLength,
                                   Profile::Dialogue::DialogueFont, Tint.a, true,
                                   true);
-    Renderer2D::DrawProcessedText(PlayTimeHint, PlayTimeHintLength,
+    Renderer->DrawProcessedText(PlayTimeHint, PlayTimeHintLength,
                                   Profile::Dialogue::DialogueFont, Tint.a, true,
                                   true);
-    Renderer2D::DrawProcessedText(PlayTime, PlayTimeLength,
+    Renderer->DrawProcessedText(PlayTime, PlayTimeLength,
                                   Profile::Dialogue::DialogueFont, Tint.a, true,
                                   true);
-    Renderer2D::DrawProcessedText(SaveDateHint, SaveDateHintLength,
+    Renderer->DrawProcessedText(SaveDateHint, SaveDateHintLength,
                                   Profile::Dialogue::DialogueFont, Tint.a, true,
                                   true);
-    Renderer2D::DrawProcessedText(SaveDate, SaveDateLength,
+    Renderer->DrawProcessedText(SaveDate, SaveDateLength,
                                   Profile::Dialogue::DialogueFont, Tint.a, true,
                                   true);
   } else {
-    Renderer2D::DrawProcessedText(SceneTitle, SceneTitleLength,
+    Renderer->DrawProcessedText(SceneTitle, SceneTitleLength,
                                   Profile::Dialogue::DialogueFont, Tint.a, true,
                                   true);
   }
 
-  Renderer2D::DrawSprite(Thumbnail,
+  Renderer->DrawSprite(Thumbnail,
                          glm::vec2(Bounds.X + 41.0f, Bounds.Y + 5.0f), Tint);
 }
 

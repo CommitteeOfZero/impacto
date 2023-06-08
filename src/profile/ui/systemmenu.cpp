@@ -6,7 +6,7 @@
 #include "../games/chlcc/systemmenu.h"
 #include "../../ui/ui.h"
 #include "../../log.h"
-#include "../../window.h"
+#include "../../renderer/renderer.h"
 
 namespace Impacto {
 namespace Profile {
@@ -35,7 +35,7 @@ static void GetMemberSpriteArray(Sprite* arr, uint32_t count,
   if (TopVal().Size() != count) {
     ImpLog(LL_Fatal, LC_Profile, "Expected to have %d sprites for %s\n", count,
            name);
-    Window::Shutdown();
+    Window->Shutdown();
   }
 
   for (uint32_t i = 0; i < count; i++) {

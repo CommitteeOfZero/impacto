@@ -1,6 +1,5 @@
 #include "tipsnotification.h"
 #include "../../../log.h"
-#include "../../../window.h"
 #include "../../profile_internal.h"
 
 namespace Impacto {

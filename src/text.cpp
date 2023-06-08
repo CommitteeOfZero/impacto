@@ -2,7 +2,6 @@
 #include "vm/expression.h"
 #include "log.h"
 #include "game.h"
-#include "renderer2d.h"
 #include "animation.h"
 #include "mem.h"
 #include "inputsystem.h"
@@ -633,11 +632,11 @@ void DialoguePage::Render() {
   glm::vec4 col = ScrWorkGetColor(SW_MESWINDOW_COLOR);
   col.a = opacityTint.a;
 
-  Renderer2D::DrawProcessedText(Glyphs, Length, DialogueFont, opacityTint.a,
+  Renderer->DrawProcessedText(Glyphs, Length, DialogueFont, opacityTint.a,
                                 true);
 
   if (ADVBoxShowName) {
-    Renderer2D::DrawProcessedText(Name, NameLength, DialogueFont, opacityTint.a,
+    Renderer->DrawProcessedText(Name, NameLength, DialogueFont, opacityTint.a,
                                   true);
   }
 

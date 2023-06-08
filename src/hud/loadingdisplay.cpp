@@ -1,7 +1,7 @@
 #include "loadingdisplay.h"
 
 #include "../impacto.h"
-#include "../renderer2d.h"
+#include "../renderer/renderer.h"
 #include "../game.h"
 #include "../mem.h"
 #include "../profile/scriptvars.h"
@@ -78,16 +78,16 @@ void Render() {
   col.a = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
 
   if (IsResourceLoad) {
-    Renderer2D::DrawSprite(ResourceLoadBg.CurrentSprite(),
+    Renderer->DrawSprite(ResourceLoadBg.CurrentSprite(),
                            Profile::LoadingDisplay::ResourceBgPos, col);
   } else {
-    Renderer2D::DrawSprite(SaveLoadBg.CurrentSprite(),
+    Renderer->DrawSprite(SaveLoadBg.CurrentSprite(),
                            Profile::LoadingDisplay::SaveBgPos, col);
   }
 
-  Renderer2D::DrawSprite(LoadingIcon.CurrentSprite(),
+  Renderer->DrawSprite(LoadingIcon.CurrentSprite(),
                          Profile::LoadingDisplay::IconPos, col);
-  Renderer2D::DrawSprite(LoadingText.CurrentSprite(),
+  Renderer->DrawSprite(LoadingText.CurrentSprite(),
                          Profile::LoadingDisplay::TextPos, col);
 }
 

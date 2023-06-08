@@ -1,5 +1,4 @@
 #include "util.h"
-#include "window.h"
 
 #include "profile/game.h"
 
@@ -62,6 +61,13 @@ glm::vec2 DesignToNDC(glm::vec2 xy) {
   glm::vec2 result;
   result.x = (xy.x / (Profile::DesignWidth * 0.5f)) - 1.0f;
   result.y = 1.0f - (xy.y / (Profile::DesignHeight * 0.5f));
+  return result;
+}
+
+glm::vec2 DesignToNDCNonFlipped(glm::vec2 xy) {
+  glm::vec2 result;
+  result.x = (xy.x / (Profile::DesignWidth * 0.5f)) - 1.0f;
+  result.y = (xy.y / (Profile::DesignHeight * 0.5f)) - 1.0f;
   return result;
 }
 

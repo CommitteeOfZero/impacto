@@ -3,7 +3,7 @@
 #include "../../profile/games/chlcc/clearlistmenu.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/profile_internal.h"
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 #include "../../ui/ui.h"
 #include "../../data/savesystem.h"
 #include "../../data/tipssystem.h"
@@ -63,7 +63,7 @@ void ClearListMenu::Hide() {
 void ClearListMenu::Render() {
   if (State != Hidden) {
     if (MenuTransition.IsIn()) {
-      Renderer2D::DrawRect(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
+      Renderer->DrawRect(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                            RgbIntToFloat(BackgroundColor));
     } else {
       DrawCircles();
@@ -73,7 +73,7 @@ void ClearListMenu::Render() {
     // Alpha goes from 0 to 1 in half the time
     float alpha =
         MenuTransition.Progress < 0.5f ? MenuTransition.Progress * 2.0f : 1.0f;
-    Renderer2D::DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
+    Renderer->DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                            glm::vec4(tint, alpha));
     DrawRedBar();
     DrawTitles();
@@ -86,7 +86,7 @@ void ClearListMenu::Render() {
             1.00397f * std::sin(3.97161f - 3.26438f * MenuTransition.Progress) -
                 0.00295643f);
       }
-      Renderer2D::DrawSprite(
+      Renderer->DrawSprite(
           ClearListLabel,
           glm::vec2(LabelPosition.x, LabelPosition.y + yOffset));
       DrawPlayTime(yOffset);
@@ -138,7 +138,7 @@ inline void ClearListMenu::DrawCircles() {
       if (counter + 1 <= (progress)) {
         float scale = ((progress) - (counter + 1.0f)) * 16.0f;
         scale = scale <= 320.0f ? scale : 320.0f;
-        Renderer2D::DrawSprite(
+        Renderer->DrawSprite(
             CircleSprite, RectF(x + (CircleSprite.Bounds.Width - scale) / 2.0f,
                                 y + (CircleSprite.Bounds.Height - scale) / 2.0f,
                                 scale, scale));
@@ -163,12 +163,12 @@ inline void ClearListMenu::DrawErin() {
               0.998267f * sin(3.97835f - 3.27549f * MenuTransition.Progress));
     }
   }
-  Renderer2D::DrawSprite(ErinSprite, glm::vec2(ErinPosition.x, y));
+  Renderer->DrawSprite(ErinSprite, glm::vec2(ErinPosition.x, y));
 }
 
 inline void ClearListMenu::DrawRedBar() {
   if (MenuTransition.IsIn()) {
-    Renderer2D::DrawSprite(InitialRedBarSprite, InitialRedBarPosition);
+    Renderer->DrawSprite(InitialRedBarSprite, InitialRedBarPosition);
   } else if (MenuTransition.Progress > 0.70f) {
     // Give the whole range that mimics ScrWork[SW_SYSMENUCT] given that the
     // duration is totalframes/60
@@ -177,12 +177,12 @@ inline void ClearListMenu::DrawRedBar() {
     RedBarSprite.Bounds.X = RedBarDivision - pixelPerAdvanceLeft;
     RedBarSprite.Bounds.Width = pixelPerAdvanceLeft;
     RedBarPosition.x = RedBarBaseX - pixelPerAdvanceLeft;
-    Renderer2D::DrawSprite(RedBarSprite, RedBarPosition);
+    Renderer->DrawSprite(RedBarSprite, RedBarPosition);
     float pixelPerAdvanceRight = 13.0f * (progress - 47.0f);
     RedBarSprite.Bounds.X = RedBarDivision;
     RedBarSprite.Bounds.Width = pixelPerAdvanceRight;
     RedBarPosition = RightRedBarPosition;
-    Renderer2D::DrawSprite(RedBarSprite, RedBarPosition);
+    Renderer->DrawSprite(RedBarSprite, RedBarPosition);
   }
 }
 
@@ -201,11 +201,11 @@ inline void ClearListMenu::DrawTitles() {
       labelY += 460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f;
       rightTitleY += 460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f;
     }
-    Renderer2D::DrawSprite(RedBarLabel, glm::vec2(labelX, labelY));
-    Renderer2D::DrawSprite(MenuTitleText, glm::vec2(rightTitleX, rightTitleY),
+    Renderer->DrawSprite(RedBarLabel, glm::vec2(labelX, labelY));
+    Renderer->DrawSprite(MenuTitleText, glm::vec2(rightTitleX, rightTitleY),
                            glm::vec4(1.0f), glm::vec2(1.0f),
                            MenuTitleTextAngle);
-    Renderer2D::DrawSprite(MenuTitleText,
+    Renderer->DrawSprite(MenuTitleText,
                            glm::vec2(MenuTitleTextLeftPosition.x, leftTitleY));
   }
 }
@@ -227,7 +227,7 @@ inline void ClearListMenu::DrawPlayTime(float yOffset) {
   for (int idx = 0; idx < 6; idx++) {
     if (!(idx % 2 == 0 && time[idx] == 0)) {
       glm::vec2 position(TimePositions[idx].x, TimePositions[idx].y + yOffset);
-      Renderer2D::DrawSprite(Digits[time[idx]], position);
+      Renderer->DrawSprite(Digits[time[idx]], position);
     }
   }
 }
@@ -238,7 +238,7 @@ inline void ClearListMenu::DrawEndingCount(float yOffset) {
     unlockedEndingCount += GetFlag(SF_CLR_END1 + i);
   }
   glm::vec2 position(EndingCountPosition.x, EndingCountPosition.y + yOffset);
-  Renderer2D::DrawSprite(Digits[unlockedEndingCount], position);
+  Renderer->DrawSprite(Digits[unlockedEndingCount], position);
 }
 
 inline void ClearListMenu::DrawTIPSCount(float yOffset) {
@@ -248,11 +248,11 @@ inline void ClearListMenu::DrawTIPSCount(float yOffset) {
     unlockedTipsCount += GetTipLockedState(idx) ? 0 : 1;
   }
   if (unlockedTipsCount / 10 != 0) {
-    Renderer2D::DrawSprite(
+    Renderer->DrawSprite(
         Digits[unlockedTipsCount / 10],
         glm::vec2(TIPSCountPositions[0].x, TIPSCountPositions[0].y + yOffset));
   }
-  Renderer2D::DrawSprite(
+  Renderer->DrawSprite(
       Digits[unlockedTipsCount % 10],
       glm::vec2(TIPSCountPositions[1].x, TIPSCountPositions[1].y + yOffset));
 }
@@ -268,18 +268,18 @@ inline void ClearListMenu::DrawAlbumCompletion(float yOffset) {
     percentage = 1;
   }
   if (percentage / 100 != 0) {
-    Renderer2D::DrawSprite(
+    Renderer->DrawSprite(
         Digits[percentage / 100],
         glm::vec2(AlbumPositions[0].x, AlbumPositions[0].y + yOffset));
-    Renderer2D::DrawSprite(
+    Renderer->DrawSprite(
         Digits[(percentage / 10) % 10],
         glm::vec2(AlbumPositions[1].x, AlbumPositions[1].y + yOffset));
   } else if (percentage / 10 != 0) {
-    Renderer2D::DrawSprite(
+    Renderer->DrawSprite(
         Digits[(percentage / 10) % 10],
         glm::vec2(AlbumPositions[1].x, AlbumPositions[1].y + yOffset));
   }
-  Renderer2D::DrawSprite(
+  Renderer->DrawSprite(
       Digits[percentage % 10],
       glm::vec2(AlbumPositions[2].x, AlbumPositions[2].y + yOffset));
 }
@@ -289,24 +289,24 @@ inline void ClearListMenu::DrawEndingTree(float yOffset) {
     glm::vec2 boxPosition(BoxPositions[i].x, BoxPositions[i].y + yOffset);
     glm::vec2 thumbnailPosition(ThumbnailPositions[i].x,
                                 ThumbnailPositions[i].y + yOffset);
-    Renderer2D::DrawSprite(EndingBox, boxPosition);
+    Renderer->DrawSprite(EndingBox, boxPosition);
     // Flag for the 1st ending, they are contiguous
     if (GetFlag(SF_CLR_END1 + i)) {
-      Renderer2D::DrawSprite(EndingThumbnails[i], thumbnailPosition);
+      Renderer->DrawSprite(EndingThumbnails[i], thumbnailPosition);
     } else {
-      Renderer2D::DrawSprite(LockedThumbnail, thumbnailPosition);
+      Renderer->DrawSprite(LockedThumbnail, thumbnailPosition);
     }
   }
   glm::vec2 listPosition(ListPosition.x, ListPosition.y + yOffset);
-  Renderer2D::DrawSprite(EndingList, listPosition);
+  Renderer->DrawSprite(EndingList, listPosition);
 }
 
 inline void ClearListMenu::DrawButtonPrompt() {
   if (MenuTransition.IsIn()) {
-    Renderer2D::DrawSprite(ButtonPromptSprite, ButtonPromptPosition);
+    Renderer->DrawSprite(ButtonPromptSprite, ButtonPromptPosition);
   } else if (MenuTransition.Progress > 0.734f) {
     float x = ButtonPromptPosition.x - 2560.0f * (MenuTransition.Progress - 1);
-    Renderer2D::DrawSprite(ButtonPromptSprite,
+    Renderer->DrawSprite(ButtonPromptSprite,
                            glm::vec2(x, ButtonPromptPosition.y));
   }
 }

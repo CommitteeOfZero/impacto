@@ -2,7 +2,7 @@
 
 #include "../../profile/ui/extramenus.h"
 #include "../../profile/games/mo6tw/albummenu.h"
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
 #include "../../data/savesystem.h"
@@ -229,7 +229,7 @@ void AlbumMenu::Update(float dt) {
 void AlbumMenu::Render() {
   if (State != Hidden) {
     glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-    Renderer2D::DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
+    Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
     MainItems->Tint = col;
     MainItems->Render();
     SecondaryItems->Tint = col;

@@ -8,7 +8,7 @@
 #include "../log.h"
 #include "../profile/scriptvars.h"
 
-#include "../3d/scene.h"
+#include "../renderer/3d/scene.h"
 
 #include "interface/scene3d.h"
 
@@ -18,7 +18,7 @@
 namespace Impacto {
 
 namespace Vm {
-	
+
 using namespace Impacto::Profile::ScriptVars;
 
 using namespace Interface;
@@ -39,7 +39,7 @@ VmInstruction(InstCHAload3D) {
       break;
   }
   PopExpression(modelId);
-  if (Scene3D::Renderables[bufferId].Status == LS_Loading) {
+  if (Renderer->Scene->Renderables[bufferId]->Status == LS_Loading) {
     ResetInstruction;
     BlockThread;
   } else if (ScrWork[SW_MDL1FILENO + 30 * bufferId] != modelId) {
@@ -53,7 +53,7 @@ VmInstruction(InstCHAload3D) {
       ScrWork[SW_MDL1CHANO + 30 * bufferId] = 0;
     }
 
-    Scene3D::Renderables[bufferId].LoadAsync(modelId);
+    Renderer->Scene->Renderables[bufferId]->LoadAsync(modelId);
     ResetInstruction;
     BlockThread;
   }
@@ -92,14 +92,17 @@ VmInstruction(InstCHAplayAnim3DMaybe) {
       PopUint8(unk01);
     } break;
   }
-  if (Scene3D::Renderables[bufferId].Status == LS_Loaded && animationId != 0) {
+  if (Renderer->Scene->Renderables[bufferId]->Status == LS_Loaded &&
+      animationId != 0) {
     // TODO shouldn't this wait for that renderable to be loaded?
-    if (Scene3D::Renderables[bufferId].Animator.IsPlaying &&
-        Scene3D::Renderables[bufferId].Animator.CurrentAnimation->OneShot) {
+    if (Renderer->Scene->Renderables[bufferId]->Animator.IsPlaying &&
+        Renderer->Scene->Renderables[bufferId]
+            ->Animator.CurrentAnimation->OneShot) {
       ResetInstruction;
       BlockThread;
     } else {
-      Scene3D::Renderables[bufferId].SwitchAnimation(animationId, 0.66f);
+      Renderer->Scene->Renderables[bufferId]->SwitchAnimation(animationId,
+                                                              0.66f);
     }
   }
 }
@@ -127,15 +130,17 @@ VmInstruction(InstCHAUnk02073D_Dash) {
     PopLocalLabel(arg3);
     uint16_t* dataArray = (uint16_t*)arg3;
     uint16_t testNum = dataArray[1];
-    if (Scene3D::Renderables[arg2].Status == LS_Loaded && testNum != 0) {
+    if (Renderer->Scene->Renderables[arg2]->Status == LS_Loaded &&
+        testNum != 0) {
       // TODO shouldn't this wait for that renderable to be loaded?
-      if (Scene3D::Renderables[arg2].Animator.IsPlaying &&
-          Scene3D::Renderables[arg2].Animator.CurrentAnimation->OneShot) {
+      if (Renderer->Scene->Renderables[arg2]->Animator.IsPlaying &&
+          Renderer->Scene->Renderables[arg2]
+              ->Animator.CurrentAnimation->OneShot) {
         ResetInstruction;
         BlockThread;
       } else {
         SetFlag(SF_MDL1DISP + arg2, true);
-        Scene3D::Renderables[arg2].SwitchAnimation(testNum, 0);
+        Renderer->Scene->Renderables[arg2]->SwitchAnimation(testNum, 0);
       }
     }
     ImpLogSlow(LL_Warning, LC_VMStub,

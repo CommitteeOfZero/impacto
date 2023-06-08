@@ -3,7 +3,7 @@
 #include "../../profile/scriptvars.h"
 #include "../../impacto.h"
 #include "../../mem.h"
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 #include "../../game.h"
 #include "../../profile/hud/tipsnotification.h"
 #include "../../profile/games/mo6tw/tipsnotification.h"

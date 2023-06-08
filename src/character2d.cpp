@@ -136,7 +136,7 @@ bool Character2D::LoadSync(uint32_t charaId) {
 }
 
 void Character2D::UnloadSync() {
-  glDeleteTextures(1, &CharaSpriteSheet.Texture);
+  Renderer->FreeTexture(CharaSpriteSheet.Texture);
   CharaSpriteSheet.DesignHeight = 0.0f;
   CharaSpriteSheet.DesignWidth = 0.0f;
   CharaSpriteSheet.Texture = 0;
@@ -209,7 +209,7 @@ void Character2D::Render(int chaId, int layer) {
     }
 
     if (Profile::CharaIsMvl) {
-      Renderer2D::DrawCharacterMvl(CharaSprite, glm::vec2(OffsetX, OffsetY),
+      Renderer->DrawCharacterMvl(CharaSprite, glm::vec2(OffsetX, OffsetY),
                                    MvlVerticesCount, MvlVertices,
                                    MvlIndicesCount, MvlIndices, false, col);
     } else {
@@ -219,7 +219,7 @@ void Character2D::Render(int chaId, int layer) {
           for (int i = 0; i < state.Count; i++) {
             CharaSprite.Bounds = RectF(state.TextureCoords[i].x,
                                        state.TextureCoords[i].y, 30.0f, 30.0f);
-            Renderer2D::DrawSprite(CharaSprite,
+            Renderer->DrawSprite(CharaSprite,
                                    glm::vec2(state.ScreenCoords[i].x + OffsetX,
                                              state.ScreenCoords[i].y + OffsetY),
                                    col);

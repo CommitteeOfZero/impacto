@@ -4,7 +4,6 @@
 #include "../games/cclcc/tipsmenu.h"
 #include "../../ui/ui.h"
 #include "../../log.h"
-#include "../../window.h"
 
 namespace Impacto {
 namespace Profile {

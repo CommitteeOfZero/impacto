@@ -2,7 +2,7 @@
 
 #include "../../profile/ui/savemenu.h"
 #include "../../profile/games/chlcc/savemenu.h"
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
 #include "../../inputsystem.h"
@@ -344,7 +344,7 @@ void SaveMenu::Render() {
     glm::vec3 tint(1.0f);
     glm::vec4 col(1.0f, 1.0f, 1.0f, 1.0f);
     if (MenuTransition.IsIn()) {
-      Renderer2D::DrawRect(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
+      Renderer->DrawRect(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                            RgbIntToFloat(BackgroundColor));
     } else {
       DrawCircles();
@@ -352,7 +352,7 @@ void SaveMenu::Render() {
     DrawErin();
     float alpha =
         MenuTransition.Progress < 0.5f ? MenuTransition.Progress * 2.0f : 1.0f;
-    Renderer2D::DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
+    Renderer->DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                            glm::vec4(tint, alpha));
     DrawRedBar();
     DrawTitles();
@@ -368,7 +368,7 @@ void SaveMenu::Render() {
       SavePages->at(*CurrentPage)->MoveTo(glm::vec2(0, yOffset));
       SavePages->at(*CurrentPage)->Tint = col;
       SavePages->at(*CurrentPage)->Render();
-      Renderer2D::DrawSprite(SaveListSprite,
+      Renderer->DrawSprite(SaveListSprite,
                              SaveListPosition + glm::vec2(0, yOffset));
       DrawPageNumber(yOffset);
       DrawButtonPrompt();
@@ -390,7 +390,7 @@ inline void SaveMenu::DrawCircles() {
       if (counter + 1 <= (progress)) {
         float scale = ((progress) - (counter + 1.0f)) * 16.0f;
         scale = scale <= 320.0f ? scale : 320.0f;
-        Renderer2D::DrawSprite(
+        Renderer->DrawSprite(
             CircleSprite, RectF(x + (CircleSprite.Bounds.Width - scale) / 2.0f,
                                 y + (CircleSprite.Bounds.Height - scale) / 2.0f,
                                 scale, scale));
@@ -415,12 +415,12 @@ inline void SaveMenu::DrawErin() {
               0.998267f * sin(3.97835f - 3.27549f * MenuTransition.Progress));
     }
   }
-  Renderer2D::DrawSprite(ErinSprite, glm::vec2(ErinPosition.x, y));
+  Renderer->DrawSprite(ErinSprite, glm::vec2(ErinPosition.x, y));
 }
 
 inline void SaveMenu::DrawRedBar() {
   if (MenuTransition.IsIn()) {
-    Renderer2D::DrawSprite(InitialRedBarSprite, InitialRedBarPosition);
+    Renderer->DrawSprite(InitialRedBarSprite, InitialRedBarPosition);
   } else if (MenuTransition.Progress > 0.70f) {
     // Give the whole range that mimics ScrWork[SW_SYSMENUCT] given that the
     // duration is totalframes/60
@@ -429,12 +429,12 @@ inline void SaveMenu::DrawRedBar() {
     RedBarSprite.Bounds.X = RedBarDivision - pixelPerAdvanceLeft;
     RedBarSprite.Bounds.Width = pixelPerAdvanceLeft;
     RedBarPosition.x = RedBarBaseX - pixelPerAdvanceLeft;
-    Renderer2D::DrawSprite(RedBarSprite, RedBarPosition);
+    Renderer->DrawSprite(RedBarSprite, RedBarPosition);
     float pixelPerAdvanceRight = 13.0f * (progress - 47.0f);
     RedBarSprite.Bounds.X = RedBarDivision;
     RedBarSprite.Bounds.Width = pixelPerAdvanceRight;
     RedBarPosition = RightRedBarPosition;
-    Renderer2D::DrawSprite(RedBarSprite, RedBarPosition);
+    Renderer->DrawSprite(RedBarSprite, RedBarPosition);
   }
 }
 
@@ -454,35 +454,35 @@ inline void SaveMenu::DrawTitles() {
       labelY += 460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f;
       rightTitleY += 460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f;
     }
-    Renderer2D::DrawSprite(RedBarLabel, glm::vec2(labelX, labelY));
-    Renderer2D::DrawSprite(MenuTitleTextSprite,
+    Renderer->DrawSprite(RedBarLabel, glm::vec2(labelX, labelY));
+    Renderer->DrawSprite(MenuTitleTextSprite,
                            glm::vec2(rightTitleX, rightTitleY), glm::vec4(1.0f),
                            glm::vec2(1.0f), MenuTitleTextAngle);
-    Renderer2D::DrawSprite(MenuTitleTextSprite,
+    Renderer->DrawSprite(MenuTitleTextSprite,
                            glm::vec2(MenuTitleTextLeftPos.x, leftTitleY));
   }
 }
 
 inline void SaveMenu::DrawPageNumber(float yOffset) {
-  Renderer2D::DrawSprite(
+  Renderer->DrawSprite(
       PageNumBackgroundSprite,
       glm::vec2(PageNumBackgroundPos.x, PageNumBackgroundPos.y + yOffset));
-  Renderer2D::DrawSprite(
+  Renderer->DrawSprite(
       BigDigits[*CurrentPage + 1],
       glm::vec2(CurrentPageNumPos.x, CurrentPageNumPos.y + yOffset));
-  Renderer2D::DrawSprite(PageNumSeparatorSlashSprite,
+  Renderer->DrawSprite(PageNumSeparatorSlashSprite,
                          glm::vec2(PageNumSeparatorSlashPos.x,
                                    PageNumSeparatorSlashPos.y + yOffset));
-  Renderer2D::DrawSprite(MaxPageNumSprite,
+  Renderer->DrawSprite(MaxPageNumSprite,
                          glm::vec2(MaxPageNumPos.x, MaxPageNumPos.y + yOffset));
 }
 
 inline void SaveMenu::DrawButtonPrompt() {
   if (MenuTransition.IsIn()) {
-    Renderer2D::DrawSprite(ButtonPromptSprite, ButtonPromptPosition);
+    Renderer->DrawSprite(ButtonPromptSprite, ButtonPromptPosition);
   } else if (MenuTransition.Progress > 0.734f) {
     float x = ButtonPromptPosition.x - 2560.0f * (MenuTransition.Progress - 1);
-    Renderer2D::DrawSprite(ButtonPromptSprite,
+    Renderer->DrawSprite(ButtonPromptSprite,
                            glm::vec2(x, ButtonPromptPosition.y));
   }
 }
@@ -494,7 +494,7 @@ inline void SaveMenu::DrawSelectData(float yOffset) {
     if (SelectDataTextFade.Progress < 0.046f * (idx + 1)) {
       alpha = (SelectDataTextFade.Progress - 0.046f * idx) / 0.046f;
     }
-    Renderer2D::DrawSprite(SelectDataTextSprites[idx],
+    Renderer->DrawSprite(SelectDataTextSprites[idx],
                            glm::vec2(SelectDataTextPositions[idx].x,
                                      SelectDataTextPositions[idx].y + yOffset),
                            glm::vec4(glm::vec3(1.0f), alpha));

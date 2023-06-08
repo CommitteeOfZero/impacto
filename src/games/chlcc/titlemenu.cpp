@@ -4,7 +4,7 @@
 #include "../../spritesheet.h"
 #include "../../io/vfs.h"
 
-#include "../../renderer2d.h"
+#include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../inputsystem.h"
 #include "../../ui/widgets/label.h"
@@ -383,7 +383,7 @@ void TitleMenu::Render() {
           DrawTitleMenuBackGraphics();
           glm::vec4 col = glm::vec4(1.0f);
           col.a = glm::smoothstep(0.0f, 1.0f, PressToStartAnimation.Progress);
-          Renderer2D::DrawSprite(PressToStartSprite,
+          Renderer->DrawSprite(PressToStartSprite,
                                  glm::vec2(PressToStartX, PressToStartY), col);
         } break;
         case 2: {  // Transition between Press to start and menus
@@ -437,35 +437,35 @@ void TitleMenu::Render() {
     int maskAlpha = ScrWork[SW_TITLEMASKALPHA];
     glm::vec4 col = ScrWorkGetColor(SW_TITLEMASKCOLOR);
     col.a = glm::min(maskAlpha / 255.0f, 1.0f);
-    Renderer2D::DrawRect(
+    Renderer->DrawRect(
         RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight), col);
   }
 }
 
 inline void TitleMenu::DrawTitleMenuBackGraphics() {
-  Renderer2D::DrawSprite(BackgroundSprite, glm::vec2(0.0f));
-  Renderer2D::DrawSprite(SpinningCircleSprite,
+  Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
+  Renderer->DrawSprite(SpinningCircleSprite,
                          glm::vec2(SpinningCircleX, SpinningCircleY),
                          glm::vec4(1.0f), glm::vec2(2.0f),
                          -SpinningCircleAnimation.Progress * 2.0f * M_PI);
-  Renderer2D::DrawSprite(DelusionADVUnderSprite,
+  Renderer->DrawSprite(DelusionADVUnderSprite,
                          glm::vec2(DelusionADVUnderX, DelusionADVUnderY));
-  Renderer2D::DrawSprite(DelusionADVSprite,
+  Renderer->DrawSprite(DelusionADVSprite,
                          glm::vec2(DelusionADVX, DelusionADVY));
-  Renderer2D::DrawSprite(SeiraUnderSprite, glm::vec2(SeiraUnderX, SeiraUnderY));
-  Renderer2D::DrawSprite(SeiraSprite, glm::vec2(SeiraX, SeiraY));
-  Renderer2D::DrawSprite(CHLogoSprite, glm::vec2(CHLogoX, CHLogoY));
-  Renderer2D::DrawSprite(LCCLogoUnderSprite,
+  Renderer->DrawSprite(SeiraUnderSprite, glm::vec2(SeiraUnderX, SeiraUnderY));
+  Renderer->DrawSprite(SeiraSprite, glm::vec2(SeiraX, SeiraY));
+  Renderer->DrawSprite(CHLogoSprite, glm::vec2(CHLogoX, CHLogoY));
+  Renderer->DrawSprite(LCCLogoUnderSprite,
                          glm::vec2(LCCLogoUnderX, LCCLogoUnderY));
-  Renderer2D::DrawSprite(ChuLeftLogoSprite,
+  Renderer->DrawSprite(ChuLeftLogoSprite,
                          glm::vec2(ChuLeftLogoX, ChuLeftLogoY));
-  Renderer2D::DrawSprite(ChuRightLogoSprite,
+  Renderer->DrawSprite(ChuRightLogoSprite,
                          glm::vec2(ChuRightLogoX, ChuRightLogoY));
-  Renderer2D::DrawSprite(LoveLogoSprite, glm::vec2(LoveLogoX, LoveLogoY));
-  Renderer2D::DrawSprite(StarLogoSprite, glm::vec2(StarLogoX, StarLogoY));
-  Renderer2D::DrawSprite(ExclMarkLogoSprite,
+  Renderer->DrawSprite(LoveLogoSprite, glm::vec2(LoveLogoX, LoveLogoY));
+  Renderer->DrawSprite(StarLogoSprite, glm::vec2(StarLogoX, StarLogoY));
+  Renderer->DrawSprite(ExclMarkLogoSprite,
                          glm::vec2(ExclMarkLogoX, ExclMarkLogoY));
-  Renderer2D::DrawSprite(CopyrightTextSprite,
+  Renderer->DrawSprite(CopyrightTextSprite,
                          glm::vec2(CopyrightTextX, CopyrightTextY));
 }
 
