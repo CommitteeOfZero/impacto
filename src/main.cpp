@@ -53,6 +53,7 @@ int main(int argc, char* argv[]) {
   std::string profileName;
   profileName.resize(stream->Meta.Size, '\0');
   profileName.resize(stream->Read(&profileName[0], stream->Meta.Size));
+  TrimString(profileName);
 
 #ifdef EMSCRIPTEN
   // Emscripten's EGL requests a window framebuffer with antialiasing by default

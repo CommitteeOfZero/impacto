@@ -32,6 +32,9 @@ cmake .
 make
 popd
 
+# Executable expects the shaders dir to be nearby
+cp -r src/shaders .
+
 # Build impacto
 LIBATRAC9DIR=vendor/LibAtrac9 cmake .
 make
