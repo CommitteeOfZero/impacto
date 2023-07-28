@@ -6,6 +6,7 @@
 
 #include "log.h"
 #include "game.h"
+#include "util.h"
 
 #include "io/physicalfilestream.h"
 
