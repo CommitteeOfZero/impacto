@@ -233,12 +233,28 @@ jobs:
   displayName: Switch Build
 
   pool:
-    name: 'SwitchBuild'
+    vmImage: 'ubuntu-22.04'
   
   steps:
+  - task: DownloadGitHubRelease@0
+    inputs:
+      connection: 'github'
+      userRepository: 'MrRevo3D/impacto'
+      defaultVersionType: 'specificTag'
+      version: 'buildtag'
+      downloadPath: '$(System.ArtifactsDirectory)'
+  - task: ExtractFiles@1
+    inputs:
+      archiveFilePatterns: '$(System.ArtifactsDirectory)/devkitpro.tar.gz'
+      destinationFolder: '/opt'
+      cleanDestinationFolder: false
+      overwriteExistingFiles: false
   - script: |
+      export DEVKITPRO=/opt/devkitpro
+      export DEVKITARM=/opt/devkitpro/devkitARM
+      export PATH="/opt/devkitpro/tools/bin:$PATH"
       cmake . -DCMAKE_TOOLCHAIN_FILE=HorizonNX.toolchain
-      make
+      make -j2
       elf2nro impacto impacto.nro
   - task: CopyFiles@2
     displayName: Copy artifact
