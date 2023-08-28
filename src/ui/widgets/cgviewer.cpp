@@ -115,13 +115,21 @@ void CgViewer::Render() {
   Renderer->DrawRect(
       RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
       glm::vec4(0.0f, 0.0f, 0.0f, col.a));
+  glm::vec2 pos;
   for (int i = 0; i < CgCount[CurrentVariation]; i++) {
-    auto pos =
-        i == 0
-            ? Position
-            : glm::vec2(Position.x,
-                        Position.y +
-                            CgSprites[CurrentVariation][i - 1].ScaledHeight());
+    if (i == 0)
+      pos = Position;
+    else {
+      pos =
+          HorizontalRendering[CurrentVariation]
+              ? glm::vec2(Position.x +
+                              CgSprites[CurrentVariation][i - 1].ScaledWidth(),
+                          Position.y)
+              : glm::vec2(
+                    Position.x,
+                    Position.y +
+                        CgSprites[CurrentVariation][i - 1].ScaledHeight());
+    }
     Renderer->DrawSprite(CgSprites[CurrentVariation][i], pos, col);
   }
 }
@@ -137,8 +145,14 @@ void CgViewer::LoadCgSprites(
   while (loadIds[variationIdx][0] != 0xFFFF) {
     int idx = 0;
     float totalHeight = 0.0f;
+    bool sideways = false;
 
     while (loadIds[variationIdx][idx] != 0xFFFF) {
+      if (loadIds[variationIdx][idx] == 0x51D3) {
+        sideways = true;
+        idx += 1;
+        continue;
+      }
       Io::InputStream* stream;
       int64_t err =
           Io::VfsOpen(mountPoint, loadIds[variationIdx][idx], &stream);
@@ -159,18 +173,30 @@ void CgViewer::LoadCgSprites(
     }
 
     MinScale[variationIdx] = Profile::DesignHeight / totalHeight;
-    CgCount[variationIdx] = idx;
+    CgCount[variationIdx] = idx - (int)(sideways);
+    HorizontalRendering[variationIdx] = sideways;
     variationIdx += 1;
+    sideways = false;
   }
 
   Scale = MinScale[0];
   CgSprites[CurrentVariation][0].BaseScale.x = Scale;
   CgSprites[CurrentVariation][0].BaseScale.y = Scale;
-  Position = glm::vec2(
-      (Profile::DesignWidth - CgSprites[CurrentVariation][0].ScaledWidth()) / 2,
-      0.0f);
+  Position =
+      HorizontalRendering[variationIdx]
+          ? glm::vec2(0.0f, (Profile::DesignHeight -
+                             CgSprites[CurrentVariation][0].ScaledHeight()) /
+                                2)
+          : glm::vec2((Profile::DesignWidth -
+                       CgSprites[CurrentVariation][0].ScaledWidth()) /
+                          2,
+                      0.0f);
   VariationCount = variationIdx;
   CurrentVariation = 0;
+}
+
+bool CgViewer::isOnLastVariation() const {
+  return CurrentVariation == VariationCount - 1;
 }
 
 void CgViewer::Clear() {

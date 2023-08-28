@@ -20,14 +20,6 @@ using namespace Impacto::UI::Widgets;
 using namespace Impacto::Vm::Interface;
 using namespace Impacto::UI::Widgets::CHLCC;
 
-/*void MovieMenu::MovieButtonOnClick(Button* target) {
-  auto movieButton =
-  static_cast<Widgets::CHLCC::ImageThumbnailButton*>(target); if
-  (!movieButton->IsLocked) { ScrWork[SW_MOVIEMODE_CUR] = movieButton->Id;
-  }
-
-}*/
-
 void AlbumMenu::OnCgVariationEnd(Widgets::CgViewer* target) {
   CgViewerGroup->Hide();
   ShowCgViewer = false;
@@ -36,7 +28,6 @@ void AlbumMenu::OnCgVariationEnd(Widgets::CgViewer* target) {
 void AlbumMenu::CgOnClick(Widgets::Button* target) {
   int total, viewed = 0;
   SaveSystem::GetEVStatus(target->Id, &total, &viewed);
-  VariationButtonGuide = total > 1;
 
   ShowCgViewer = true;
   CgViewerWidget->LoadCgSprites(target->Id, "bg",
@@ -375,8 +366,8 @@ void AlbumMenu::DrawButtonGuide() {
   }
   if (ShowCgViewer) {
     Renderer->DrawSprite(
-        (VariationButtonGuide ? CgViewerButtonGuideVariation
-                              : CgViewerButtonGuideNoVariation),
+        (CgViewerWidget->isOnLastVariation() ? CgViewerButtonGuideNoVariation
+                                             : CgViewerButtonGuideVariation),
         CgViewerButtonGuidePos);
   }
 }

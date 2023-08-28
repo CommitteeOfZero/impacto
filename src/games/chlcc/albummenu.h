@@ -49,7 +49,6 @@ class AlbumMenu : public Menu {
   Widgets::Group *CgViewerGroup;
   Widgets::CgViewer *CgViewerWidget;
   bool ShowCgViewer = false;
-  bool VariationButtonGuide = false;
 };
 
 }  // namespace CHLCC
