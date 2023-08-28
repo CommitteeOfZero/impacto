@@ -4,7 +4,7 @@
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
 #include "../../vm/interface/input.h"
-//#include "../../ui/widgets/chlcc/imagethumbnailbutton.h"
+#include "../../ui/widgets/cgviewer.h"
 
 namespace Impacto {
 namespace UI {
@@ -20,22 +20,36 @@ class AlbumMenu : public Menu {
   void Update(float dt);
   void Render();
 
-  // void MovieButtonOnClick(Widgets::Button* target);
-
  private:
-  // Widgets::Group* MainItems;
+  std::vector<Widgets::Group *> Pages;
 
   inline void DrawCircles();
   inline void DrawErin();
   inline void DrawRedBar();
-  // inline void DrawTitles();
+  inline void DrawTitles();
+  inline void DrawButtonGuide();
+
+  inline void DrawPage(const glm::vec2 &offset);
+
+  void UpdatePages();
 
   // void UpdateMovieEntries();
 
   // Animation FadeAnimation;
 
+  void CgOnClick(Widgets::Button *target);
+  void OnCgVariationEnd(Widgets::CgViewer *target);
+
   Animation MenuTransition;
   Animation TitleFade;
+
+  int CurrentPage;
+  int MaxReachablePage;
+
+  Widgets::Group *CgViewerGroup;
+  Widgets::CgViewer *CgViewerWidget;
+  bool ShowCgViewer = false;
+  bool VariationButtonGuide = false;
 };
 
 }  // namespace CHLCC

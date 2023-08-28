@@ -457,10 +457,21 @@ void SaveSystem::GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) {
   }
 }
 void SaveSystem::GetEVStatus(int evId, int* totalVariations,
-                             int* viewedVariations) {}
-bool SaveSystem::GetEVVariationIsUnlocked(int evId, int variationIdx) {
-  return true;
+                             int* viewedVariations) {
+  *totalVariations = 0;
+  *viewedVariations = 0;
+  for (int i = 0; i < MaxAlbumSubEntries; i++) {
+    if (AlbumEvData[evId][i] == 0xFFFF) break;
+    *totalVariations += 1;
+    *viewedVariations += EVFlags[AlbumEvData[evId][i]];
+  }
 }
+
+bool SaveSystem::GetEVVariationIsUnlocked(int evId, int variationIdx) {
+  if (AlbumEvData[evId][variationIdx] == 0xFFFF) return false;
+  return EVFlags[AlbumEvData[evId][variationIdx]];
+}
+
 bool SaveSystem::GetBgmFlag(int id) { return true; }
 
 }  // namespace CHLCC
