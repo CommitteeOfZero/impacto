@@ -23,6 +23,8 @@ void AlbumThumbnailButton::Render() {
     }
   }
   if (HasFocus) {
+    Renderer->DrawSprite(SelectionMarker,
+                         glm::vec2(Bounds.X, Bounds.Y) + SelectionMarkerOffset);
     Renderer->DrawSprite(HighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
                          FocusedAlpha);
   }

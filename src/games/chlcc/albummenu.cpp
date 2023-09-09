@@ -70,7 +70,7 @@ AlbumMenu::AlbumMenu() {
             glm::vec2(ThumbnailTemplatePosition.x + ThumbnailOffset.x * j,
                       ThumbnailTemplatePosition.y + ThumbnailOffset.y * i),
             0, 0, VariationUnlocked, VariationLocked, VariationTemplateOffset,
-            LockedCG);
+            LockedCG, SelectionMarkerSprite, SelectionMarkerRelativePos);
         button->OnClickHandler = cgOnClick;
         page->Add(button);
       }

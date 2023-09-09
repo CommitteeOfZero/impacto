@@ -61,6 +61,8 @@ extern float AlbumMenuTitleAngle;
 extern Sprite CgViewerButtonGuideVariation;
 extern Sprite CgViewerButtonGuideNoVariation;
 extern glm::vec2 CgViewerButtonGuidePos;
+extern Sprite SelectionMarkerSprite;
+extern glm::vec2 SelectionMarkerRelativePos;
 
 void Configure();
 

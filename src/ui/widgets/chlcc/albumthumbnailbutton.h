@@ -14,13 +14,16 @@ class AlbumThumbnailButton : public Button {
                        int totalVariations, int viewedVariations,
                        Sprite const& unlockedVariation,
                        Sprite const& lockedVariation, glm::vec2 variationOffset,
-                       Sprite locked)
+                       Sprite locked, Sprite SelectionMarker,
+                       glm::vec2 SelectionMarkerOffset)
       : Button(id, norm, focused, highlight, pos),
         totalVariations(totalVariations),
         viewedVariations(viewedVariations),
         VariationUnlocked(unlockedVariation),
         VariationLocked(lockedVariation),
-        VariationTemplateOffset(variationOffset) {
+        VariationTemplateOffset(variationOffset),
+        SelectionMarker(SelectionMarker),
+        SelectionMarkerOffset(SelectionMarkerOffset) {
     IsLocked = (viewedVariations == 0);
     LockedSprite = locked;
   }
@@ -38,6 +41,8 @@ class AlbumThumbnailButton : public Button {
   Sprite VariationUnlocked;
   Sprite VariationLocked;
   glm::vec2 VariationTemplateOffset;
+  Sprite SelectionMarker;
+  glm::vec2 SelectionMarkerOffset;
 
   static glm::vec4 FocusedAlpha;
   static Animation FocusedAlphaFade;

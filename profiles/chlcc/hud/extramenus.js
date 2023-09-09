@@ -139,7 +139,9 @@ root.ExtraMenus = {
         AlbumMenuTitleAngle: 4.45,
         CgViewerButtonGuideVariation: "CgViewerButtonGuideVariation",
         CgViewerButtonGuideNoVariation: "CgViewerButtonGuideNoVariation",
-        CgViewerButtonGuidePos: {X: 208, Y: 648}
+        CgViewerButtonGuidePos: {X: 208, Y: 648},
+        SelectionMarkerSprite: "SelectionMarkerSprite",
+        SelectionMarkerRelativePos: {X: -16, Y: 50}
     },
     MusicMenu: {
         DrawType: DrawComponentType.SystemMenu,
@@ -448,4 +450,9 @@ root.Sprites["CgViewerButtonGuideVariation"] = {
 root.Sprites["CgViewerButtonGuideNoVariation"] = {
     Sheet: "CG",
     Bounds: {X: 757, Y: 536, Width: 1190, Height: 38}
+}
+
+root.Sprites["SelectionMarkerSprite"] = {
+    Sheet: "CG",
+    Bounds: {X: 433, Y: 581, Width: 28, Height: 28}
 }
