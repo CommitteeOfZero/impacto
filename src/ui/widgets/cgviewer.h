@@ -40,7 +40,7 @@ class CgViewer : public Widget {
 
   int CgCount[MaxCgViewerVariations];
   bool HorizontalRendering[MaxCgViewerVariations];
-  glm::vec2 Position = glm::vec2(0.0f);
+  glm::vec2 Position[MaxCgViewerVariations];
   float Scale = 1.0f;
   float MinScale[MaxCgViewerVariations];
   int CurrentVariation = 0;

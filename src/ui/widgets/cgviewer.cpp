@@ -35,20 +35,20 @@ void CgViewer::Hide() {
 
 void CgViewer::UpdateInput() {
   if (PADinputMouseIsDown & PAD1A) {
-    Position += Input::CurMousePos - Input::PrevMousePos;
+    Position[CurrentVariation] += Input::CurMousePos - Input::PrevMousePos;
   }
 
   if (PADinputButtonIsDown & PAD1LEFT) {
-    Position.x -= CgMovementStep;
+    Position[CurrentVariation].x -= CgMovementStep;
   }
   if (PADinputButtonIsDown & PAD1RIGHT) {
-    Position.x += CgMovementStep;
+    Position[CurrentVariation].x += CgMovementStep;
   }
   if (PADinputButtonIsDown & PAD1UP) {
-    Position.y -= CgMovementStep;
+    Position[CurrentVariation].y -= CgMovementStep;
   }
   if (PADinputButtonIsDown & PAD1DOWN) {
-    Position.y += CgMovementStep;
+    Position[CurrentVariation].y += CgMovementStep;
   }
 
   Scale += Input::MouseWheelDeltaY / ScrollwheelDeltaDivider;
@@ -98,7 +98,7 @@ void CgViewer::Update(float dt) {
   Widget::Update(dt);
   FadeAnimation.Update(dt);
   RectF screen = RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight);
-  auto pointBefore = screen.Center() - Position;
+  auto pointBefore = screen.Center() - Position[CurrentVariation];
   auto pointAfter =
       pointBefore * (Scale / CgSprites[CurrentVariation][0].BaseScale.x);
   auto diff = pointAfter - pointBefore;
@@ -106,7 +106,7 @@ void CgViewer::Update(float dt) {
     CgSprites[CurrentVariation][i].BaseScale.x = Scale;
     CgSprites[CurrentVariation][i].BaseScale.y = Scale;
   }
-  Position -= diff;
+  Position[CurrentVariation] -= diff;
 }
 
 void CgViewer::Render() {
@@ -118,16 +118,16 @@ void CgViewer::Render() {
   glm::vec2 pos;
   for (int i = 0; i < CgCount[CurrentVariation]; i++) {
     if (i == 0)
-      pos = Position;
+      pos = Position[CurrentVariation];
     else {
       pos =
           HorizontalRendering[CurrentVariation]
-              ? glm::vec2(Position.x +
+              ? glm::vec2(Position[CurrentVariation].x +
                               CgSprites[CurrentVariation][i - 1].ScaledWidth(),
-                          Position.y)
+                          Position[CurrentVariation].y)
               : glm::vec2(
-                    Position.x,
-                    Position.y +
+                    Position[CurrentVariation].x,
+                    Position[CurrentVariation].y +
                         CgSprites[CurrentVariation][i - 1].ScaledHeight());
     }
     Renderer->DrawSprite(CgSprites[CurrentVariation][i], pos, col);
@@ -176,14 +176,13 @@ void CgViewer::LoadCgSprites(
     CgCount[variationIdx] = idx - (int)(sideways);
     HorizontalRendering[variationIdx] = sideways;
     variationIdx += 1;
-    sideways = false;
   }
 
   Scale = MinScale[0];
   CgSprites[CurrentVariation][0].BaseScale.x = Scale;
   CgSprites[CurrentVariation][0].BaseScale.y = Scale;
-  Position =
-      HorizontalRendering[variationIdx]
+  Position[CurrentVariation] =
+      HorizontalRendering[CurrentVariation]
           ? glm::vec2(0.0f, (Profile::DesignHeight -
                              CgSprites[CurrentVariation][0].ScaledHeight()) /
                                 2)
