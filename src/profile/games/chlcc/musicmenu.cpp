@@ -25,30 +25,17 @@ float RedBarDivision;
 float RedBarBaseX;
 Sprite RedBarSprite;
 glm::vec2 RedBarLabelPosition;
-Sprite RedBarLabel; /*
-glm::vec2 MenuTitleTextRightPosition;
-glm::vec2 MenuTitleTextLeftPosition;
-float MenuTitleTextAngle;*/
+Sprite RedBarLabel;
 float TitleFadeInDuration;
 float TitleFadeOutDuration;
-/*Sprite MenuTitleText;
-
-glm::vec2 LabelPosition;
-Sprite ClearListLabel;
-glm::vec2 TimePositions[6];
-glm::vec2 EndingCountPosition;
-glm::vec2 TIPSCountPositions[2];
-glm::vec2 AlbumPositions[3];
-Sprite Digits[10];
-glm::vec2 ListPosition;
-Sprite EndingList;
-glm::vec2 BoxPositions[Endings];
-Sprite EndingBox;
-glm::vec2 ThumbnailPositions[Endings];
-Sprite EndingThumbnails[Endings];
-Sprite LockedThumbnail;
-glm::vec2 ButtonPromptPosition;
-Sprite ButtonPromptSprite;*/
+Sprite TrackTree;
+glm::vec2 TrackTreePos;
+glm::vec2 TrackButtonPosTemplate;
+glm::vec2 TrackNameOffset;
+glm::vec2 ArtistOffset;
+glm::vec2 TrackOffset;
+Sprite TrackHighlight;
+int Playlist[MusicTrackCount];
 
 static void GetMemberVec2Array(glm::vec2* arr, uint32_t count,
                                char const* name) {
@@ -84,6 +71,22 @@ static void GetMemberSpriteArray(Sprite* arr, uint32_t count,
   Pop();
 }
 
+static void GetMemberIntArray(int* arr, uint32_t count, char const* name) {
+  EnsurePushMemberOfType(name, kArrayType);
+
+  if (TopVal().Size() != count) {
+    ImpLog(LL_Fatal, LC_Profile, "Expected to have %d ints for %s\n", count,
+           name);
+    Window->Shutdown();
+  }
+
+  for (uint32_t i = 0; i < count; i++) {
+    arr[i] = EnsureGetArrayElementInt(i);
+  }
+
+  Pop();
+}
+
 void Configure() {
   MenuTransitionDuration = EnsureGetMemberFloat("TransitionDuration");
   BackgroundColor = EnsureGetMemberUint("BackgroundColor");
@@ -100,29 +103,16 @@ void Configure() {
   RedBarBaseX = EnsureGetMemberFloat("RedBarBaseX");
   RedBarLabelPosition = EnsureGetMemberVec2("RedBarLabelPosition");
   RedBarLabel = EnsureGetMemberSprite("RedBarLabel");
-  /*MenuTitleTextRightPosition = EnsureGetMemberVec2("MenuTitleTextRightPos");
-  MenuTitleTextLeftPosition = EnsureGetMemberVec2("MenuTitleTextLeftPos");
-  MenuTitleTextAngle = EnsureGetMemberFloat("MenuTitleTextAngle");*/
   TitleFadeInDuration = EnsureGetMemberFloat("TitleFadeInDuration");
   TitleFadeOutDuration = EnsureGetMemberFloat("TitleFadeOutDuration");
-  /* MenuTitleText = EnsureGetMemberSprite("MenuTitleText");
-
-   LabelPosition = EnsureGetMemberVec2("LabelPosition");
-   ClearListLabel = EnsureGetMemberSprite("ClearListLabel");
-   GetMemberVec2Array(TimePositions, 6, "TimePositions");
-   EndingCountPosition = EnsureGetMemberVec2("EndingCountPosition");
-   GetMemberVec2Array(TIPSCountPositions, 2, "TIPSCountPositions");
-   GetMemberSpriteArray(Digits, 10, "Digits");
-   GetMemberVec2Array(AlbumPositions, 3, "AlbumPositions");
-   ListPosition = EnsureGetMemberVec2("ListPosition");
-   EndingList = EnsureGetMemberSprite("EndingList");
-   GetMemberVec2Array(BoxPositions, Endings, "BoxPositions");
-   EndingBox = EnsureGetMemberSprite("EndingBox");
-   GetMemberVec2Array(ThumbnailPositions, Endings, "ThumbnailPositions");
-   GetMemberSpriteArray(EndingThumbnails, Endings, "EndingThumbnails");
-   LockedThumbnail = EnsureGetMemberSprite("LockedThumbnail");
-   ButtonPromptPosition = EnsureGetMemberVec2("ButtonPromptPosition");
-   ButtonPromptSprite = EnsureGetMemberSprite("ButtonPromptSprite");*/
+  TrackTree = EnsureGetMemberSprite("TrackTreeSprite");
+  TrackTreePos = EnsureGetMemberVec2("TrackTreePos");
+  TrackButtonPosTemplate = EnsureGetMemberVec2("TrackButtonPosTemplate");
+  TrackNameOffset = EnsureGetMemberVec2("TrackNameOffset");
+  ArtistOffset = EnsureGetMemberVec2("ArtistOffset");
+  TrackOffset = EnsureGetMemberVec2("TrackOffset");
+  TrackHighlight = EnsureGetMemberSprite("TrackHighlight");
+  GetMemberIntArray(Playlist, MusicTrackCount, "Playlist");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMemberInt("DrawType"));

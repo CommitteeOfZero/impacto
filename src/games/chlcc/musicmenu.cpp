@@ -6,6 +6,9 @@
 #include "../../renderer/renderer.h"
 #include "../../ui/ui.h"
 #include "../../data/savesystem.h"
+#include "../../profile/dialogue.h"
+
+#include "../../ui/widgets/chlcc/trackselectbutton.h"
 
 namespace Impacto {
 namespace UI {
@@ -15,13 +18,11 @@ using namespace Impacto::Profile::ScriptVars;
 
 using namespace Impacto::UI::Widgets;
 
-/*void MusicMenu::MovieButtonOnClick(Button* target) {
-  auto movieButton =
-  static_cast<Widgets::CHLCC::ImageThumbnailButton*>(target); if
-  (!movieButton->IsLocked) { ScrWork[SW_MOVIEMODE_CUR] = movieButton->Id;
-  }
+void MusicMenu::MusicButtonOnClick(Button* target) {
+  if (target->IsLocked) return;
 
-}*/
+  SwitchToTrack(target->Id);
+}
 
 MusicMenu::MusicMenu() {
   MenuTransition.Direction = 1.0f;
@@ -36,18 +37,40 @@ MusicMenu::MusicMenu() {
 
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;
+
+  MainItems = new Group(this);
+  Sprite empty = Sprite();
+
+  auto onClick =
+      std::bind(&MusicMenu::MusicButtonOnClick, this, std::placeholders::_1);
+
+  for (int idx = 0; idx < MusicTrackCount; idx++) {
+    auto button = new Widgets::CHLCC::TrackSelectButton(
+        idx, TrackHighlight, TrackButtonPosTemplate + (float)idx * TrackOffset,
+        TrackNameOffset, ArtistOffset);
+    button->OnClickHandler = onClick;
+    MainItems->Add(button, FDIR_DOWN);
+  }
+
+  MainItems->Children.front()->SetFocus(MainItems->Children.back(), FDIR_UP);
+  MainItems->Children.back()->SetFocus(MainItems->Children.front(), FDIR_DOWN);
 }
 
 void MusicMenu::Show() {
   if (State != Shown) {
     if (State != Showing) MenuTransition.StartIn();
     State = Showing;
+    //    MainItems->Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
+    UpdateEntries();
+    MainItems->Show();
     if (UI::FocusedMenu != 0) {
       LastFocusedMenu = UI::FocusedMenu;
       LastFocusedMenu->IsFocused = false;
     }
     IsFocused = true;
     UI::FocusedMenu = this;
+    MainItems->Children.front()->HasFocus = true;
+    CurrentlyFocusedElement = MainItems->Children.front();
   }
 }
 
@@ -64,6 +87,7 @@ void MusicMenu::Hide() {
       UI::FocusedMenu = 0;
     }
     IsFocused = false;
+    InputEnabled = false;
   }
 }
 
@@ -71,42 +95,49 @@ void MusicMenu::Render() {
   if (State != Hidden) {
     if (MenuTransition.IsIn()) {
       Renderer->DrawRect(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-                           RgbIntToFloat(BackgroundColor));
+                         RgbIntToFloat(BackgroundColor));
     } else {
       DrawCircles();
     }
     DrawErin();
+    //    auto test = Vm::ScriptGetTextTableStrAddress(4, 1);
+    //    auto l = Label(test, glm::vec2(100, 100), 24, false);
+    //    l.Render();
     glm::vec3 tint = {1.0f, 1.0f, 1.0f};
     // Alpha goes from 0 to 1 in half the time
     float alpha =
         MenuTransition.Progress < 0.5f ? MenuTransition.Progress * 2.0f : 1.0f;
     Renderer->DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-                           glm::vec4(tint, alpha));
+                         glm::vec4(tint, alpha));
     DrawRedBar();
     // DrawTitles();
-    int yOffset = 0;
+    glm::vec2 offset(0.0f, 0.0f);
     if (MenuTransition.Progress > 0.22f) {
-      if (MenuTransition.Progress < 0.72f) {
+      if (MenuTransition.Progress < 0.73f) {
         // Approximated function from the original, another mess
-        yOffset = glm::mix(
-            -720.0f, 0.0f,
-            1.00397f * std::sin(3.97161f - 3.26438f * MenuTransition.Progress) -
-                0.00295643f);
+        offset = glm::vec2(
+            0.0f,
+            glm::mix(-720.0f, 0.0f,
+                     1.00397f * std::sin(3.97161f -
+                                         3.26438f * MenuTransition.Progress) -
+                         0.00295643f));
+
+        MainItems->RenderingBounds =
+            RectF(0.0f, TrackButtonPosTemplate.y + offset.y, 1280.0f,
+                  16 * TrackOffset.y + 1);
+        MainItems->MoveTo(offset);
+        for (auto button : MainItems->Children)
+          static_cast<Widgets::CHLCC::TrackSelectButton*>(button)->MoveTracks(
+              offset);
       }
-      /* Renderer->DrawSprite(
-           ClearListLabel,
-           glm::vec2(LabelPosition.x, LabelPosition.y + yOffset));
-       DrawPlayTime(yOffset);
-       DrawEndingCount(yOffset);
-       DrawTIPSCount(yOffset);
-       DrawAlbumCompletion(yOffset);
-       DrawEndingTree(yOffset);
-       DrawButtonPrompt();*/
+      MainItems->Render();
+      Renderer->DrawSprite(TrackTree, TrackTreePos + offset);
     }
   }
 }
 
 void MusicMenu::Update(float dt) {
+  UpdateInput();
   if (ScrWork[SW_SYSMENUCT] < 10000 && State == Shown) {
     Hide();
   } else if (GetFlag(SF_SOUNDMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
@@ -114,10 +145,18 @@ void MusicMenu::Update(float dt) {
     Show();
   }
 
-  if (MenuTransition.IsOut() && State == Hiding)
+  if (MenuTransition.IsOut() && State == Hiding) {
+    MainItems->Hide();
     State = Hidden;
-  else if (MenuTransition.IsIn() && State == Showing) {
+  } else if (MenuTransition.IsIn() && State == Showing) {
     State = Shown;
+    MainItems->RenderingBounds =
+        RectF(0.0f, TrackButtonPosTemplate.y, 1280.0f, 16 * TrackOffset.y + 1);
+    MainItems->MoveTo({0.0f, 0.0f});
+    for (auto el : MainItems->Children)
+      static_cast<Widgets::CHLCC::TrackSelectButton*>(el)->MoveTracks(
+          {0.0f, 0.0f});
+    InputEnabled = true;
   }
 
   if (State != Hidden) {
@@ -129,6 +168,34 @@ void MusicMenu::Update(float dt) {
       TitleFade.StartIn();
     }
     TitleFade.Update(dt);
+    if (InputEnabled) MainItems->Update(dt);
+  }
+}
+
+void MusicMenu::UpdateInput() {
+  Menu::UpdateInput();
+  if (State == Shown) {
+    MainItems->UpdateInput();
+    auto button = static_cast<Widgets::CHLCC::TrackSelectButton*>(
+        CurrentlyFocusedElement);
+    if (button == nullptr) return;
+
+    // Opposite of scroll direction
+    if (button->Id - CurrentLowerBound >= 16) {
+      CurrentLowerBound = button->Id - 15;
+      CurrentUpperBound = button->Id;
+    } else if (CurrentUpperBound - button->Id >= 16) {
+      CurrentLowerBound = button->Id;
+      CurrentUpperBound = button->Id + 15;
+    } else
+      return;
+
+    glm::vec2 offset(0.0f, -(float)CurrentLowerBound * TrackOffset.y);
+    MainItems->MoveTo(offset);
+    for (auto el : MainItems->Children) {
+      auto b = static_cast<Widgets::CHLCC::TrackSelectButton*>(el);
+      b->MoveTracks(offset);
+    }
   }
 }
 
@@ -164,7 +231,8 @@ inline void MusicMenu::DrawErin() {
   if (MenuTransition.Progress < 0.78f) {
     y = 801.0f;
     if (MenuTransition.Progress > 0.22f) {
-      // Approximation from the original function, which was a bigger mess
+      // Approximation from the original function, which was a bigger
+      // mess
       y = glm::mix(
           -19.0f, 721.0f,
           0.998938f -
@@ -192,6 +260,27 @@ inline void MusicMenu::DrawRedBar() {
     RedBarPosition = RightRedBarPosition;
     Renderer->DrawSprite(RedBarSprite, RedBarPosition);
   }
+}
+
+void MusicMenu::UpdateEntries() {
+  for (int idx = 0; idx < MainItems->Children.size(); idx++) {
+    auto button = static_cast<Widgets::CHLCC::TrackSelectButton*>(
+        MainItems->Children[idx]);
+    button->SetTrackText(Vm::ScriptGetTextTableStrAddress(4, idx * 3));
+    button->SetArtistText(Vm::ScriptGetTextTableStrAddress(4, idx * 3 + 1));
+  }
+}
+
+void MusicMenu::SwitchToTrack(int id) {
+  CurrentlyPlayingTrackId = id;
+  if (id == -1) {
+    Audio::Channels[Audio::AC_BGM0].Stop(0.5f);
+    return;
+  }
+  Io::InputStream* stream;
+  Io::VfsOpen("bgm", Playlist[id], &stream);
+  Audio::Channels[Audio::AC_BGM0].Play(Audio::AudioStream::Create(stream), 0,
+                                       0.5f);
 }
 
 }  // namespace CHLCC

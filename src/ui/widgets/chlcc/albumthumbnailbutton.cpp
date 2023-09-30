@@ -18,7 +18,7 @@ void AlbumThumbnailButton::Render() {
           (viewedVariations - variations > 0 ? VariationUnlocked
                                              : VariationLocked),
           glm::vec2(Bounds.X + VariationTemplateOffset.x -
-                        VariationUnlocked.Bounds.Width * variations,
+                        VariationUnlocked.Bounds.Width * (float)variations,
                     Bounds.Y + VariationTemplateOffset.y));
     }
   }

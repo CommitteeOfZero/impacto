@@ -8,6 +8,7 @@ namespace CHLCC {
 namespace MusicMenu {
 
 int const Endings = 8;
+int const MusicTrackCount = 45;
 
 extern float MenuTransitionDuration;
 extern uint32_t BackgroundColor;
@@ -25,30 +26,17 @@ extern float RedBarDivision;
 extern float RedBarBaseX;
 extern Sprite RedBarSprite;
 extern glm::vec2 RedBarLabelPosition;
-extern Sprite RedBarLabel; /*
-extern glm::vec2 MenuTitleTextRightPosition;
-extern glm::vec2 MenuTitleTextLeftPosition;
-extern float MenuTitleTextAngle;*/
+extern Sprite RedBarLabel;
 extern float TitleFadeInDuration;
-extern float TitleFadeOutDuration; /*
-extern Sprite MenuTitleText;
-
-extern glm::vec2 LabelPosition;
-extern Sprite ClearListLabel;
-extern glm::vec2 TimePositions[6];
-extern glm::vec2 EndingCountPosition;
-extern glm::vec2 TIPSCountPositions[2];
-extern glm::vec2 AlbumPositions[3];
-extern Sprite Digits[10];
-extern glm::vec2 ListPosition;
-extern Sprite EndingList;
-extern glm::vec2 BoxPositions[Endings];
-extern Sprite EndingBox;
-extern glm::vec2 ThumbnailPositions[Endings];
-extern Sprite EndingThumbnails[Endings];
-extern Sprite LockedThumbnail;
-extern glm::vec2 ButtonPromptPosition;
-extern Sprite ButtonPromptSprite;*/
+extern float TitleFadeOutDuration;
+extern Sprite TrackTree;
+extern glm::vec2 TrackTreePos;
+extern glm::vec2 TrackButtonPosTemplate;
+extern glm::vec2 TrackNameOffset;
+extern glm::vec2 ArtistOffset;
+extern glm::vec2 TrackOffset;
+extern Sprite TrackHighlight;
+extern int Playlist[MusicTrackCount];
 
 void Configure();
 

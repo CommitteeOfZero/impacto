@@ -162,7 +162,20 @@ root.ExtraMenus = {
         RedBarLabelPosition: {X: 1067, Y: 573},
         RedBarLabel: "RedBarLabel",
         TitleFadeInDuration: 40 / 60,
-        TitleFadeOutDuration: 28 / 60
+        TitleFadeOutDuration: 28 / 60,
+        TrackTreeSprite: "TrackTreeSprite",
+        TrackTreePos: {X: 0, Y: 0},
+        TrackButtonPosTemplate: {X: 94, Y: 170},
+        TrackNameOffset: {X: 95, Y: 5},
+        ArtistOffset: {X: 411, Y: 5},
+        TrackOffset: {X: 0, Y: 28},
+        TrackHighlight: "TrackHighlight",
+        Playlist:
+            [
+                8, 14, 26, 10, 28, 12, 20, 16, 18, 24, 22, 80, 76, 32, 34,
+                36, 38, 77, 41, 43, 78, 46, 49, 79, 51, 53, 56, 81, 59, 61,
+                63, 65, 82, 83, 84, 0, 1, 2, 4, 6, 85, 72, 74, 75, 71
+            ]
     }
 }
 
@@ -294,6 +307,16 @@ root.Sprites["CircleCG"] = {
 root.Sprites["CircleSound"] = {
     Sheet: "Sound",
     Bounds: {X: 1, Y: 917, Width: 106, Height: 106}
+}
+
+root.Sprites["TrackTreeSprite"] = {
+    Sheet: "Sound",
+    Bounds: {X: 1, Y: 1, Width: 802, Height: 608}
+}
+
+root.Sprites["TrackHighlight"] = {
+    Sheet: "Sound",
+    Bounds: {X: 1, Y: 693, Width: 676, Height: 29}
 }
 
 // Album Menu
