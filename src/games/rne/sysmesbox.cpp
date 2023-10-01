@@ -54,7 +54,7 @@ void SysMesBox::Show() {
     }
 
     Label* message = new Label(Messages[i], MessageLengths[i], MessageWidths[i],
-                               TextFontSize, false);
+                               TextFontSize, RO_None);
 
     MessageItems->Add(message, FDIR_DOWN);
   }
@@ -238,7 +238,7 @@ void SysMesBox::Render() {
           RectF(BoxDisplayX, BoxTopY - 1.0f, BoxWidth, BoxHeight + 2.0f),
           glm::vec4(1.0f, 1.0f, 1.0f, 0.75f));
       Renderer->DrawSprite(BoxDecorationTop,
-                             glm::vec2(BoxDisplayX, BoxTopY - 3.0f), col);
+                           glm::vec2(BoxDisplayX, BoxTopY - 3.0f), col);
       if (Type == +SysMesBoxType::Dash) {
         Renderer->DrawSprite(
             BoxDecorationBottom,
@@ -247,7 +247,7 @@ void SysMesBox::Render() {
             col);
       } else {
         Renderer->DrawSprite(BoxDecorationBottom,
-                               glm::vec2(BoxDisplayX, BoxBottomY - 3.0f), col);
+                             glm::vec2(BoxDisplayX, BoxBottomY - 3.0f), col);
       }
 
       if (BoxProgressCount > TextStartCount) {
@@ -263,7 +263,7 @@ void SysMesBox::Render() {
               texCol);
         }
         Renderer->DrawSprite(MessageLabel,
-                               glm::vec2(BoxDisplayX, BoxTopY + 3.0f), texCol);
+                             glm::vec2(BoxDisplayX, BoxTopY + 3.0f), texCol);
 
         MessageItems->Tint.a = texCol.a;
         MessageItems->Render();

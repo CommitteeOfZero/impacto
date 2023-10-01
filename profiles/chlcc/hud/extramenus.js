@@ -3,7 +3,7 @@ root.ExtraMenus = {
         DrawType: DrawComponentType.SystemMenu,
         Type: ClearListMenuType.CHLCC,
         TransitionDuration: 64 / 60,
-        BackgroundColor: 0x405f80,
+        BackgroundColor: 0x405f86,
         CircleSprite: "Circle",
         CircleStartPosition: {X: 20, Y: 20},
         CircleOffset: 200,

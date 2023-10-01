@@ -206,14 +206,14 @@ void ClearListMenu::InitMainPage() {
       glm::vec2(
           (EndingsLabelPosition.x - EndingCountWidth) + EndingCountPosition.x,
           EndingCountPosition.y),
-      FontSize, false, ClearListColorIndex));
+      FontSize, RO_None, ClearListColorIndex));
 
   MainPage->Add(new Label(
       separator,
       glm::vec2((EndingsLabelPosition.x - (EndingCountWidth + SeparatorWidth)) +
                     EndingCountPosition.x,
                 EndingCountPosition.y),
-      FontSize, false, ClearListColorIndex));
+      FontSize, RO_None, ClearListColorIndex));
 
   UnlockedEndingCount = new Label();
   MainPage->Add(UnlockedEndingCount);
@@ -228,13 +228,13 @@ void ClearListMenu::InitMainPage() {
                           glm::vec2((ScenesLabelPosition.x - SceneCountWidth) +
                                         SceneCountPosition.x,
                                     SceneCountPosition.y),
-                          FontSize, false, ClearListColorIndex));
+                          FontSize, RO_None, ClearListColorIndex));
   MainPage->Add(new Label(
       separator,
       glm::vec2((ScenesLabelPosition.x - (SceneCountWidth + SeparatorWidth)) +
                     SceneCountPosition.x,
                 SceneCountPosition.y),
-      FontSize, false, ClearListColorIndex));
+      FontSize, RO_None, ClearListColorIndex));
 
   UnlockedSceneCount = new Label();
   MainPage->Add(UnlockedSceneCount);
@@ -255,14 +255,14 @@ void ClearListMenu::InitMainPage() {
       (uint8_t*)sc3StringBuffer,
       glm::vec2((AlbumLabelPosition.x - AlbumCountWidth) + AlbumCountPosition.x,
                 AlbumCountPosition.y),
-      FontSize, false, ClearListColorIndex));
+      FontSize, RO_None, ClearListColorIndex));
 
   MainPage->Add(new Label(
       separator,
       glm::vec2((AlbumLabelPosition.x - (AlbumCountWidth + SeparatorWidth)) +
                     AlbumCountPosition.x,
                 AlbumCountPosition.y),
-      FontSize, false, ClearListColorIndex));
+      FontSize, RO_None, ClearListColorIndex));
 
   UnlockedAlbumCount = new Label();
   MainPage->Add(UnlockedAlbumCount);
@@ -277,7 +277,7 @@ void ClearListMenu::InitMainPage() {
                           glm::vec2(PlayTimeLabelPosition.x - SecondsTextWidth +
                                         PlayTimeSecondsTextPosition.x,
                                     PlayTimeSecondsTextPosition.y),
-                          FontSize, false, ClearListColorIndex));
+                          FontSize, RO_None, ClearListColorIndex));
 
   auto minutesText = Vm::ScriptGetTextTableStrAddress(PlayTimeTextTable,
                                                       PlayTimeMinutesTextEntry);
@@ -289,7 +289,7 @@ void ClearListMenu::InitMainPage() {
                 glm::vec2(PlayTimeLabelPosition.x - SecondsTextWidth -
                               MinutesTextWidth + PlayTimeMinutesTextPosition.x,
                           PlayTimeMinutesTextPosition.y),
-                FontSize, false, ClearListColorIndex));
+                FontSize, RO_None, ClearListColorIndex));
 
   auto hoursText = Vm::ScriptGetTextTableStrAddress(PlayTimeTextTable,
                                                     PlayTimeHoursTextEntry);
@@ -301,7 +301,7 @@ void ClearListMenu::InitMainPage() {
       glm::vec2(PlayTimeLabelPosition.x - SecondsTextWidth - MinutesTextWidth -
                     HoursTextWidth + PlayTimeHoursTextPosition.x,
                 PlayTimeHoursTextPosition.y),
-      FontSize, false, ClearListColorIndex);
+      FontSize, RO_None, ClearListColorIndex);
   HoursText->Tint.a = 0.0f;
   MainPage->Add(HoursText);
   PlaySeconds = new Label();
@@ -338,7 +338,7 @@ void ClearListMenu::UpdateEndingCount() {
        (EndingCountWidth + SeparatorWidth + unlockedEndingCountWidth)) +
       EndingCountPosition.x;
   UnlockedEndingCount->Bounds.Y = EndingCountPosition.y;
-  UnlockedEndingCount->SetText((uint8_t*)sc3StringBuffer, FontSize, false,
+  UnlockedEndingCount->SetText((uint8_t*)sc3StringBuffer, FontSize, RO_None,
                                ClearListColorIndex);
 }
 
@@ -361,7 +361,7 @@ void ClearListMenu::UpdateSceneCount() {
        (SceneCountWidth + SeparatorWidth + unlockedSceneCountWidth)) +
       SceneCountPosition.x;
   UnlockedSceneCount->Bounds.Y = SceneCountPosition.y;
-  UnlockedSceneCount->SetText((uint8_t*)sc3StringBuffer, FontSize, false,
+  UnlockedSceneCount->SetText((uint8_t*)sc3StringBuffer, FontSize, RO_None,
                               ClearListColorIndex);
 }
 
@@ -382,7 +382,7 @@ void ClearListMenu::UpdateAlbumCount() {
        (AlbumCountWidth + SeparatorWidth + unlockedAlbumCountWidth)) +
       AlbumCountPosition.x;
   UnlockedAlbumCount->Bounds.Y = AlbumCountPosition.y;
-  UnlockedAlbumCount->SetText((uint8_t*)sc3StringBuffer, FontSize, false,
+  UnlockedAlbumCount->SetText((uint8_t*)sc3StringBuffer, FontSize, RO_None,
                               ClearListColorIndex);
 }
 
@@ -402,7 +402,7 @@ void ClearListMenu::UpdateCompletionPercentage() {
   CompletionPercentage->Bounds.X =
       CompletionLabelPosition.x - percentageWidth + CompletionPosition.x;
   CompletionPercentage->Bounds.Y = CompletionPosition.y;
-  CompletionPercentage->SetText((uint8_t*)sc3StringBuffer, FontSize, false,
+  CompletionPercentage->SetText((uint8_t*)sc3StringBuffer, FontSize, RO_None,
                                 ClearListColorIndex);
 }
 
@@ -424,7 +424,7 @@ void ClearListMenu::UpdatePlayTime() {
                           (SecondsTextWidth + secondsWidth) +
                           PlayTimeSecondsPosition.x;
   PlaySeconds->Bounds.Y = PlayTimeSecondsPosition.y;
-  PlaySeconds->SetText((uint8_t*)sc3StringBuffer, FontSize, false,
+  PlaySeconds->SetText((uint8_t*)sc3StringBuffer, FontSize, RO_None,
                        ClearListColorIndex);
 
   sprintf(temp, "%2d", minutes);
@@ -436,7 +436,7 @@ void ClearListMenu::UpdatePlayTime() {
                           (SecondsTextWidth + MinutesTextWidth + minutesWidth) +
                           PlayTimeMinutesPosition.x;
   PlayMinutes->Bounds.Y = PlayTimeMinutesPosition.y;
-  PlayMinutes->SetText((uint8_t*)sc3StringBuffer, FontSize, false,
+  PlayMinutes->SetText((uint8_t*)sc3StringBuffer, FontSize, RO_None,
                        ClearListColorIndex);
 
   if (hours != 0) {
@@ -451,7 +451,7 @@ void ClearListMenu::UpdatePlayTime() {
                           MinutesTextWidth - (HoursTextWidth + hoursWidth) +
                           PlayTimeHoursPosition.x;
     PlayHours->Bounds.Y = PlayTimeHoursPosition.y;
-    PlayHours->SetText((uint8_t*)sc3StringBuffer, FontSize, false,
+    PlayHours->SetText((uint8_t*)sc3StringBuffer, FontSize, RO_None,
                        ClearListColorIndex);
   } else {
     PlayHours->Tint.a = 0.0f;
@@ -477,15 +477,15 @@ void ClearListMenu::InitEndingListPage() {
     sprintf(temp, "%2d", i + 1);
     auto numberLabel =
         new Label(std::string(temp), numberLabelPos, EndingsListTextFontSize,
-                  false, EndingsListTextColorIndex);
+                  RO_None, EndingsListTextColorIndex);
     numberLabelPos += EndingsListTextMargin;
 
     auto lockedLabel =
-        new Label(lockedText, textLabelPos, EndingsListTextFontSize, false,
+        new Label(lockedText, textLabelPos, EndingsListTextFontSize, RO_None,
                   EndingsListTextColorIndex);
     auto unlockedLabel = new Label(
         Vm::ScriptGetTextTableStrAddress(EndingsListTextTable, i), textLabelPos,
-        EndingsListTextFontSize, false, EndingsListTextColorIndex);
+        EndingsListTextFontSize, RO_None, EndingsListTextColorIndex);
     textLabelPos += EndingsListTextMargin;
 
     EndingNames[idx] = unlockedLabel;
@@ -538,15 +538,16 @@ void ClearListMenu::InitSceneTitlePage() {
                                                      SceneTitleLockedEntry);
   for (int i = 0; i < SceneCount; i++) {
     sprintf(temp, "%2d", i + 1);
-    auto numberLabel = new Label(std::string(temp), numberLabelPos,
-                                 SceneListFontSize, false, SceneListColorIndex);
+    auto numberLabel =
+        new Label(std::string(temp), numberLabelPos, SceneListFontSize, RO_None,
+                  SceneListColorIndex);
     numberLabelPos += SceneListTextMargin;
 
     auto lockedLabel = new Label(lockedText, textLabelPos, SceneListFontSize,
-                                 false, SceneListColorIndex);
-    auto unlockedLabel =
-        new Label(Vm::ScriptGetTextTableStrAddress(SceneListTextTable, i),
-                  textLabelPos, SceneListFontSize, false, SceneListColorIndex);
+                                 RO_None, SceneListColorIndex);
+    auto unlockedLabel = new Label(
+        Vm::ScriptGetTextTableStrAddress(SceneListTextTable, i), textLabelPos,
+        SceneListFontSize, RO_None, SceneListColorIndex);
     textLabelPos += SceneListTextMargin;
     SceneTitleItems->Add(new Widgets::MO6TW::SceneListEntry(
                              i, numberLabel, lockedLabel, unlockedLabel,

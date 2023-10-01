@@ -36,14 +36,14 @@ TipsNotification::TipsNotification() {
 
   auto textAlert =
       Vm::ScriptGetTextTableStrAddress(TextTableId, NotificationAlertMessageId);
-  TextAlert =
-      new Label(textAlert, AlertPosition, FontSize, true, AlertTextColorIndex);
+  TextAlert = new Label(textAlert, AlertPosition, FontSize, RO_Full,
+                        AlertTextColorIndex);
   AlertTitle->Add(TextAlert);
 
   auto textBefore = Vm::ScriptGetTextTableStrAddress(
       TextTableId, NotificationTextPart1MessageId);
   TextPartBefore =
-      new Label(textBefore, FinalNotificationPosition, FontSize, true, 0);
+      new Label(textBefore, FinalNotificationPosition, FontSize, RO_Full, 0);
   Notification->Add(TextPartBefore);
   auto textAfter = Vm::ScriptGetTextTableStrAddress(
       TextTableId, NotificationTextPart2MessageId);
@@ -51,7 +51,7 @@ TipsNotification::TipsNotification() {
       textAfter,
       glm::vec2(FinalNotificationPosition.x + TextPartBefore->Bounds.Width,
                 FinalNotificationPosition.y),
-      FontSize, true, 0);
+      FontSize, RO_Full, 0);
   Notification->Add(TextPartAfter);
   TipName = new Label();
   Notification->Add(TipName);
@@ -70,7 +70,7 @@ void TipsNotification::Update(float dt) {
   if (FadeAnimation.IsIn() && Timer.IsOut()) {
     Timer.StartIn();
     auto tipName = NotificationQueue.front();
-    TipName->SetText(tipName, FontSize, true, TipNameColorIndex);
+    TipName->SetText(tipName, FontSize, RO_Full, TipNameColorIndex);
     TipName->MoveTo(
         glm::vec2(FinalNotificationPosition.x + TextPartBefore->Bounds.Width,
                   FinalNotificationPosition.y));

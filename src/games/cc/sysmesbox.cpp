@@ -50,7 +50,7 @@ void SysMesBox::Show() {
     }
 
     Label* message = new Label(Messages[i], MessageLengths[i], MessageWidths[i],
-                               TextFontSize, true);
+                               TextFontSize, RO_Full);
 
     MessageItems->Add(message, FDIR_DOWN);
   }

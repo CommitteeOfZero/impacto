@@ -12,6 +12,8 @@ namespace Impacto {
 extern GraphicsApi GraphicsApiHint;
 extern GraphicsApi ActualGraphicsApi;
 
+enum RendererOutlineMode { RO_None, RO_BottomRight, RO_Full };
+
 class BaseRenderer {
  public:
   void Init();
@@ -68,12 +70,15 @@ class BaseRenderer {
 
   void DrawProcessedText_BasicFont(ProcessedTextGlyph* text, int length,
                                    BasicFont* font, float opacity,
-                                   bool outlined, bool smoothstepGlyphOpacity);
+                                   enum RendererOutlineMode outlineMode,
+                                   bool smoothstepGlyphOpacity);
   void DrawProcessedText_LBFont(ProcessedTextGlyph* text, int length,
-                                LBFont* font, float opacity, bool outlined,
+                                LBFont* font, float opacity,
+                                enum RendererOutlineMode outlineMode,
                                 bool smoothstepGlyphOpacity);
   void DrawProcessedText(ProcessedTextGlyph* text, int length, Font* font,
-                         float opacity = 1.0f, bool outlined = false,
+                         float opacity = 1.0f,
+                         enum RendererOutlineMode outlineMode = RO_None,
                          bool smoothstepGlyphOpacity = true);
 
   void DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,

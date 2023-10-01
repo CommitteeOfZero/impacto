@@ -52,63 +52,63 @@ void SaveEntryButton::AddNormalSpriteLabel(Sprite norm, glm::vec2 pos) {
   NormalSpriteLabel = Label(norm, pos);
 }
 
-void SaveEntryButton::AddEntryNumberHintText(uint8_t* str, int fontSize,
-                                             bool outline,
-                                             glm::vec2 relativePosition) {
+void SaveEntryButton::AddEntryNumberHintText(
+    uint8_t* str, int fontSize, enum RendererOutlineMode outlineMode,
+    glm::vec2 relativePosition) {
   EntryNumberHint = Label(str, glm::vec2(Bounds.X, Bounds.Y) + relativePosition,
-                          fontSize, outline, IsLocked ? 69 : 0);
+                          fontSize, outlineMode, IsLocked ? 69 : 0);
 }
 
 void SaveEntryButton::AddEntryNumberText(std::string str, int fontSize,
-                                         bool outline,
+                                         enum RendererOutlineMode outlineMode,
                                          glm::vec2 relativePosition) {
   EntryNumber = Label(str, glm::vec2(Bounds.X, Bounds.Y) + relativePosition,
-                      fontSize, outline, IsLocked ? 69 : 0);
+                      fontSize, outlineMode, IsLocked ? 69 : 0);
 }
 
 void SaveEntryButton::AddSceneTitleText(uint8_t* str, int fontSize,
-                                        bool outline,
+                                        enum RendererOutlineMode outlineMode,
                                         glm::vec2 relativeTitlePosition,
                                         glm::vec2 relativeNoDataPosition) {
   if (EntryActive) {
     SceneTitle =
         Label(str, glm::vec2(Bounds.X, Bounds.Y) + relativeTitlePosition,
-              fontSize, outline, IsLocked ? 69 : 0);
+              fontSize, outlineMode, IsLocked ? 69 : 0);
   } else {
     SceneTitle =
         Label(str, glm::vec2(Bounds.X, Bounds.Y) + relativeNoDataPosition,
-              fontSize, outline, 0);
+              fontSize, outlineMode, 0);
   }
 }
 
 void SaveEntryButton::AddPlayTimeHintText(uint8_t* str, int fontSize,
-                                          bool outline,
+                                          enum RendererOutlineMode outlineMode,
                                           glm::vec2 relativePosition) {
   PlayTimeHint = Label(str, glm::vec2(Bounds.X, Bounds.Y) + relativePosition,
-                       fontSize, outline, IsLocked ? 69 : 0);
+                       fontSize, outlineMode, IsLocked ? 69 : 0);
 }
 
 void SaveEntryButton::AddPlayTimeText(std::string str, int fontSize,
-                                      bool outline,
+                                      enum RendererOutlineMode outlineMode,
                                       glm::vec2 relativePosition) {
   // Spacing is currently set for the C;HLCC font, more or less
   PlayTime = Label(str, glm::vec2(Bounds.X, Bounds.Y) + relativePosition,
-                   fontSize, outline, IsLocked ? 69 : 0);
+                   fontSize, outlineMode, IsLocked ? 69 : 0);
 }
 
 void SaveEntryButton::AddSaveDateHintText(uint8_t* str, int fontSize,
-                                          bool outline,
+                                          enum RendererOutlineMode outlineMode,
                                           glm::vec2 relativePosition) {
   SaveDateHint = Label(str, glm::vec2(Bounds.X, Bounds.Y) + relativePosition,
-                       fontSize, outline, IsLocked ? 69 : 0);
+                       fontSize, outlineMode, IsLocked ? 69 : 0);
 }
 
 void SaveEntryButton::AddSaveDateText(std::string str, int fontSize,
-                                      bool outline,
+                                      enum RendererOutlineMode outlineMode,
                                       glm::vec2 relativePosition) {
   // Spacing is currently set for the C;HLCC font, more or less
   SaveDate = Label(str, glm::vec2(Bounds.X, Bounds.Y) + relativePosition,
-                   fontSize, outline, IsLocked ? 69 : 0);
+                   fontSize, outlineMode, IsLocked ? 69 : 0);
 }
 
 void SaveEntryButton::AddThumbnail(Sprite thumbnail, glm::vec2 pos) {

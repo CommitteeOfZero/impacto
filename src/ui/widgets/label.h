@@ -2,6 +2,7 @@
 
 #include "../widget.h"
 #include "../../text.h"
+#include "../../renderer/renderer.h"
 
 namespace Impacto {
 namespace UI {
@@ -11,12 +12,12 @@ class Label : public Widget {
  public:
   Label();
   Label(Sprite const& label, glm::vec2 pos);
-  Label(uint8_t* str, glm::vec2 pos, int fontSize, bool outline,
-        int colorIndex = 10);
+  Label(uint8_t* str, glm::vec2 pos, int fontSize,
+        enum RendererOutlineMode outlineMode, int colorIndex = 10);
   Label(ProcessedTextGlyph* str, int textLength, float textWidth, int fontSize,
-        bool outline);
-  Label(std::string str, glm::vec2 pos, int fontSize, bool outline,
-        int colorIndex = 10);
+        enum RendererOutlineMode outlineMode);
+  Label(std::string str, glm::vec2 pos, int fontSize,
+        enum RendererOutlineMode outlineMode, int colorIndex = 10);
 
   void Update(float dt) override;
   void UpdateInput();
@@ -25,11 +26,13 @@ class Label : public Widget {
   void MoveTo(glm::vec2 pos) override;
 
   void SetSprite(Sprite const& label);
-  void SetText(uint8_t* str, int fontSize, bool outline, int colorIndex = 10);
-  void SetText(std::string str, int fontSize, bool outline,
+  void SetText(uint8_t* str, int fontSize, enum RendererOutlineMode outlineMode,
                int colorIndex = 10);
+  void SetText(std::string str, int fontSize,
+               enum RendererOutlineMode outlineMode, int colorIndex = 10);
   void SetText(ProcessedTextGlyph* str, int textLength, float textWidth,
-               int fontSize, bool outline, int colorIndex = 10);
+               int fontSize, enum RendererOutlineMode outlineMode,
+               int colorIndex = 10);
 
  protected:
   bool IsText;
@@ -38,7 +41,7 @@ class Label : public Widget {
   ProcessedTextGlyph Text[255];
   int TextLength = 0;
   float TextWidth = 0.0f;
-  bool Outline = false;
+  enum RendererOutlineMode OutlineMode = RO_None;
   int ColorIndex;
 };
 

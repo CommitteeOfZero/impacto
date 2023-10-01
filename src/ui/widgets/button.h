@@ -5,6 +5,7 @@
 #include "../widget.h"
 #include "../../spritesheet.h"
 #include "../../text.h"
+#include "../../renderer/renderer.h"
 
 namespace Impacto {
 namespace UI {
@@ -19,9 +20,10 @@ class Button : public Widget {
   void UpdateInput();
   virtual void Render();
 
-  void SetText(uint8_t* str, int fontSize, bool outline, int colorIndex = 10);
+  void SetText(uint8_t* str, int fontSize, enum RendererOutlineMode outlineMode,
+               int colorIndex = 10);
   void SetText(ProcessedTextGlyph* str, int textLength, float textWidth,
-               int fontSize, bool outline);
+               int fontSize, enum RendererOutlineMode outlineMode);
 
   int Id;
   Sprite NormalSprite;
@@ -42,7 +44,7 @@ class Button : public Widget {
   ProcessedTextGlyph Text[255];
   int TextLength = 0;
   float TextWidth = 0.0f;
-  bool Outline = false;
+  enum RendererOutlineMode OutlineMode;
 };
 
 }  // namespace Widgets

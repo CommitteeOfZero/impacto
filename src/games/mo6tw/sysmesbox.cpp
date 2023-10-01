@@ -48,7 +48,7 @@ void SysMesBox::Show() {
     }
 
     Label* message = new Label(Messages[i], MessageLengths[i], MessageWidths[i],
-                               TextFontSize, true);
+                               TextFontSize, RO_Full);
 
     MessageItems->Add(message, FDIR_DOWN);
   }
@@ -77,7 +77,7 @@ void SysMesBox::Show() {
         glm::vec2(Choices[i][0].DestRect.X, Choices[i][0].DestRect.Y));
 
     choice->SetText(Choices[i], ChoiceLengths[i], ChoiceWidths[i],
-                    Profile::Dialogue::DefaultFontSize, true);
+                    Profile::Dialogue::DefaultFontSize, RO_Full);
     choice->OnClickHandler = onClick;
 
     ChoiceItems->Add(choice, FDIR_LEFT);
@@ -137,8 +137,8 @@ void SysMesBox::Render() {
     }
     if (maxWidth < BoxMinimumWidth) maxWidth = BoxMinimumWidth;
 
-    Renderer->DrawSprite(BoxPartLeft,
-                           glm::vec2(BoxX - (maxWidth / 2.0f), BoxY), col);
+    Renderer->DrawSprite(BoxPartLeft, glm::vec2(BoxX - (maxWidth / 2.0f), BoxY),
+                         col);
 
     float remainWidth = maxWidth - BoxMiddleRemainBase;
     float currentX = BoxMiddleBaseX - (maxWidth / 2.0f);

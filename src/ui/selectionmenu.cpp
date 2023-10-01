@@ -87,7 +87,7 @@ void SelectionMenu::Show() {
           glm::vec2(Choices[i][0].DestRect.X, Choices[i][0].DestRect.Y));
 
       choice->SetText(Choices[i], ChoiceLengths[i], ChoiceWidths[i],
-                      Profile::Dialogue::DefaultFontSize, true);
+                      Profile::Dialogue::DefaultFontSize, RO_Full);
       choice->OnClickHandler = onClick;
 
       ChoiceItems->Add(choice, FDIR_DOWN);
@@ -116,7 +116,7 @@ void SelectionMenu::Show() {
           glm::vec2(Choices[i][0].DestRect.X, Choices[i][0].DestRect.Y));
 
       choice->SetText(Choices[i], ChoiceLengths[i], ChoiceWidths[i],
-                      Profile::Dialogue::DefaultFontSize, true);
+                      Profile::Dialogue::DefaultFontSize, RO_Full);
       choice->OnClickHandler = onClick;
 
       ChoiceItems->Add(choice, FDIR_DOWN);
@@ -187,18 +187,18 @@ void SelectionMenu::Render() {
                     Choices[0][0].DestRect.Y + ChoiceHeight),
           col);
       Renderer->DrawSprite(PlainSelectionFrameBottomRight,
-                             glm::vec2(ChoiceXMin + ChoiceWidthMax,
-                                       Choices[0][0].DestRect.Y + ChoiceHeight),
-                             col);
+                           glm::vec2(ChoiceXMin + ChoiceWidthMax,
+                                     Choices[0][0].DestRect.Y + ChoiceHeight),
+                           col);
       Renderer->DrawSprite(
           PlainSelectionFrameBottomSide,
           RectF(ChoiceXMin, Choices[0][0].DestRect.Y + ChoiceHeight,
                 ChoiceWidthMax, PlainSelectionFrameTopLeft.Bounds.Height),
           col);
       Renderer->DrawSprite(PlainSelectionFrameMiddle,
-                             RectF(ChoiceXMin, Choices[0][0].DestRect.Y,
-                                   ChoiceWidthMax, ChoiceHeight),
-                             col);
+                           RectF(ChoiceXMin, Choices[0][0].DestRect.Y,
+                                 ChoiceWidthMax, ChoiceHeight),
+                           col);
     } else {
       for (int i = 0; i < ChoiceCount; i++) {
         Renderer->DrawSprite(

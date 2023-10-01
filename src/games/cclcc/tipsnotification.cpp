@@ -37,7 +37,7 @@ TipsNotification::TipsNotification() {
   auto textBefore = Vm::ScriptGetTextTableStrAddress(
       TextTableId, NotificationTextPart1MessageId);
   TextPartBefore =
-      new Label(textBefore, InitialNotificationPosition, FontSize, true, 0);
+      new Label(textBefore, InitialNotificationPosition, FontSize, RO_Full, 0);
   Notification->Add(TextPartBefore);
   auto textAfter = Vm::ScriptGetTextTableStrAddress(
       TextTableId, NotificationTextPart2MessageId);
@@ -45,7 +45,7 @@ TipsNotification::TipsNotification() {
       textAfter,
       glm::vec2(InitialNotificationPosition.x + TextPartBefore->Bounds.Width,
                 InitialNotificationPosition.y),
-      FontSize, true, 0);
+      FontSize, RO_Full, 0);
   Notification->Add(TextPartAfter);
   TipName = new Label();
   Notification->Add(TipName);
@@ -64,7 +64,7 @@ void TipsNotification::Update(float dt) {
   if (FadeAnimation.IsIn() && Timer.IsOut()) {
     Timer.StartIn();
     auto tipName = NotificationQueue.front();
-    TipName->SetText(tipName, FontSize, true, TipNameColorIndex);
+    TipName->SetText(tipName, FontSize, RO_Full, TipNameColorIndex);
     NotificationQueue.pop();
   }
   if (NotificationQueue.empty() && FadeAnimation.IsIn() && Timer.IsIn()) {
@@ -78,7 +78,7 @@ void TipsNotification::Render() {
   if (FadeAnimation.Progress > 0.0f) {
     float smoothedFade = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
     Renderer->DrawSprite(NotificationBackground, BackgroundPosition,
-                           glm::vec4(1.0f, 1.0f, 1.0f, smoothedFade));
+                         glm::vec4(1.0f, 1.0f, 1.0f, smoothedFade));
     if (Timer.State == AS_Playing || FadeAnimation.Direction == -1) {
       Notification->Tint.a = smoothedFade;
       Notification->Render();

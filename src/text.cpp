@@ -446,7 +446,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice) {
         break;
       }
       case STT_SetFontSize: {
-        FontSize = ((float)token.Val_Uint16) / 1000.0f;
+        FontSize = DefaultFontSize * (token.Val_Uint16 / 1000.0f);
         break;
       }
       case STT_RubyBaseStart: {
@@ -633,11 +633,11 @@ void DialoguePage::Render() {
   col.a = opacityTint.a;
 
   Renderer->DrawProcessedText(Glyphs, Length, DialogueFont, opacityTint.a,
-                                true);
+                              RO_Full);
 
   if (ADVBoxShowName) {
     Renderer->DrawProcessedText(Name, NameLength, DialogueFont, opacityTint.a,
-                                  true);
+                                RO_Full);
   }
 
   // Wait icon
@@ -704,7 +704,7 @@ int TextLayoutPlainLine(Vm::Sc3VmThread* ctx, int stringLength,
     ptg.DestRect.X = currentX;
     ptg.DestRect.Y = pos.y;
     ptg.DestRect.Width =
-        (fontSize / font->CellHeight) * font->Widths[ptg.CharId];
+        std::floor((fontSize / font->CellHeight) * font->Widths[ptg.CharId]);
     ptg.DestRect.Height = fontSize;
 
     currentX += ptg.DestRect.Width;
@@ -774,7 +774,8 @@ float TextGetPlainLineWidth(Vm::Sc3VmThread* ctx, Font* font, float fontSize) {
     if (token.Type == STT_EndOfString) break;
     if (token.Type != STT_Character) continue;
 
-    width += (fontSize / font->CellHeight) * font->Widths[token.Val_Uint16];
+    width += std::floor((fontSize / font->CellHeight) *
+                        font->Widths[token.Val_Uint16]);
   }
 
   return width;

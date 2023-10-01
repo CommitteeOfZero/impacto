@@ -190,11 +190,11 @@ void SaveMenu::UpdateEntry(SaveEntryButton* saveEntryButton) {
   saveEntryButton->IsLocked = lock == 1;
   saveEntryButton->AddNormalSpriteLabel(entrySprite, EntryPositions[idx % 6]);
   saveEntryButton->AddEntryNumberHintText(
-      Vm::ScriptGetTextTableStrAddress(0, 6), 18, true,
+      Vm::ScriptGetTextTableStrAddress(0, 6), 18, RO_BottomRight,
       EntryNumberHintTextRelativePos);
   char tempNo[3];
   sprintf(tempNo, "%02d", idx + 1);
-  saveEntryButton->AddEntryNumberText(std::string(tempNo), 18, true,
+  saveEntryButton->AddEntryNumberText(std::string(tempNo), 18, RO_BottomRight,
                                       EntryNumberTextRelativePos);
   saveEntryButton->AddThumbnail(EmptyThumbnailSprite,
                                 EntryPositions[idx % 6] + ThumbnailRelativePos);
@@ -203,29 +203,33 @@ void SaveMenu::UpdateEntry(SaveEntryButton* saveEntryButton) {
     saveEntryButton->AddSceneTitleText(
         Vm::ScriptGetTextTableStrAddress(
             1, SaveSystem::GetSaveTitle(EntryType, idx)),
-        24, true, SceneTitleTextRelativePos, NoDataTextRelativePos);
+        24, RO_BottomRight, SceneTitleTextRelativePos, NoDataTextRelativePos);
     saveEntryButton->AddPlayTimeHintText(Vm::ScriptGetTextTableStrAddress(0, 2),
-                                         18, true, PlayTimeHintTextRelativePos);
+                                         18, RO_BottomRight,
+                                         PlayTimeHintTextRelativePos);
     uint32_t time = SaveSystem::GetSavePlayTime(EntryType, idx);
     uint32_t hours = time / 3600;
     uint32_t minutes = (time % 3600) / 60;
     uint32_t seconds = (time % 3600) % 60;
     char temp[10];
     sprintf(temp, "%3d:%02d:%02d", hours, minutes, seconds);
-    saveEntryButton->AddPlayTimeText(std::string(temp), 18, true,
-                                     PlayTimeTextRelativePos);
+    saveEntryButton->AddPlayTimeText(
+        std::string(temp), 18, RO_BottomRight,
+        {PlayTimeTextRelativePos.x + (float)((hours < 10) * 10),
+         PlayTimeTextRelativePos.y});
     saveEntryButton->AddSaveDateHintText(Vm::ScriptGetTextTableStrAddress(0, 3),
-                                         18, true, SaveDateHintTextRelativePos);
+                                         18, RO_BottomRight,
+                                         SaveDateHintTextRelativePos);
     tm date = SaveSystem::GetSaveDate(EntryType, idx);
     char tempDate[20];
     sprintf(tempDate, "%4d/%2d/%2d %02d:%02d:%02d", date.tm_year, date.tm_mon,
             date.tm_mday, date.tm_hour, date.tm_min, date.tm_sec);
-    saveEntryButton->AddSaveDateText(std::string(tempDate), 18, true,
+    saveEntryButton->AddSaveDateText(std::string(tempDate), 18, RO_BottomRight,
                                      SaveDateTextRelativePos);
   } else {
-    saveEntryButton->AddSceneTitleText(Vm::ScriptGetTextTableStrAddress(0, 1),
-                                       24, true, SceneTitleTextRelativePos,
-                                       NoDataTextRelativePos);
+    saveEntryButton->AddSceneTitleText(
+        Vm::ScriptGetTextTableStrAddress(0, 1), 24, RO_BottomRight,
+        SceneTitleTextRelativePos, NoDataTextRelativePos);
   }
 }
 
@@ -345,7 +349,7 @@ void SaveMenu::Render() {
     glm::vec4 col(1.0f, 1.0f, 1.0f, 1.0f);
     if (MenuTransition.IsIn()) {
       Renderer->DrawRect(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-                           RgbIntToFloat(BackgroundColor));
+                         RgbIntToFloat(BackgroundColor));
     } else {
       DrawCircles();
     }
@@ -353,7 +357,7 @@ void SaveMenu::Render() {
     float alpha =
         MenuTransition.Progress < 0.5f ? MenuTransition.Progress * 2.0f : 1.0f;
     Renderer->DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-                           glm::vec4(tint, alpha));
+                         glm::vec4(tint, alpha));
     DrawRedBar();
     DrawTitles();
     float yOffset = 0;
@@ -369,7 +373,7 @@ void SaveMenu::Render() {
       SavePages->at(*CurrentPage)->Tint = col;
       SavePages->at(*CurrentPage)->Render();
       Renderer->DrawSprite(SaveListSprite,
-                             SaveListPosition + glm::vec2(0, yOffset));
+                           SaveListPosition + glm::vec2(0, yOffset));
       DrawPageNumber(yOffset);
       DrawButtonPrompt();
       DrawSelectData(yOffset);
@@ -456,10 +460,10 @@ inline void SaveMenu::DrawTitles() {
     }
     Renderer->DrawSprite(RedBarLabel, glm::vec2(labelX, labelY));
     Renderer->DrawSprite(MenuTitleTextSprite,
-                           glm::vec2(rightTitleX, rightTitleY), glm::vec4(1.0f),
-                           glm::vec2(1.0f), MenuTitleTextAngle);
+                         glm::vec2(rightTitleX, rightTitleY), glm::vec4(1.0f),
+                         glm::vec2(1.0f), MenuTitleTextAngle);
     Renderer->DrawSprite(MenuTitleTextSprite,
-                           glm::vec2(MenuTitleTextLeftPos.x, leftTitleY));
+                         glm::vec2(MenuTitleTextLeftPos.x, leftTitleY));
   }
 }
 
@@ -471,10 +475,10 @@ inline void SaveMenu::DrawPageNumber(float yOffset) {
       BigDigits[*CurrentPage + 1],
       glm::vec2(CurrentPageNumPos.x, CurrentPageNumPos.y + yOffset));
   Renderer->DrawSprite(PageNumSeparatorSlashSprite,
-                         glm::vec2(PageNumSeparatorSlashPos.x,
-                                   PageNumSeparatorSlashPos.y + yOffset));
+                       glm::vec2(PageNumSeparatorSlashPos.x,
+                                 PageNumSeparatorSlashPos.y + yOffset));
   Renderer->DrawSprite(MaxPageNumSprite,
-                         glm::vec2(MaxPageNumPos.x, MaxPageNumPos.y + yOffset));
+                       glm::vec2(MaxPageNumPos.x, MaxPageNumPos.y + yOffset));
 }
 
 inline void SaveMenu::DrawButtonPrompt() {
@@ -483,7 +487,7 @@ inline void SaveMenu::DrawButtonPrompt() {
   } else if (MenuTransition.Progress > 0.734f) {
     float x = ButtonPromptPosition.x - 2560.0f * (MenuTransition.Progress - 1);
     Renderer->DrawSprite(ButtonPromptSprite,
-                           glm::vec2(x, ButtonPromptPosition.y));
+                         glm::vec2(x, ButtonPromptPosition.y));
   }
 }
 
@@ -495,9 +499,9 @@ inline void SaveMenu::DrawSelectData(float yOffset) {
       alpha = (SelectDataTextFade.Progress - 0.046f * idx) / 0.046f;
     }
     Renderer->DrawSprite(SelectDataTextSprites[idx],
-                           glm::vec2(SelectDataTextPositions[idx].x,
-                                     SelectDataTextPositions[idx].y + yOffset),
-                           glm::vec4(glm::vec3(1.0f), alpha));
+                         glm::vec2(SelectDataTextPositions[idx].x,
+                                   SelectDataTextPositions[idx].y + yOffset),
+                         glm::vec4(glm::vec3(1.0f), alpha));
   }
 }
 

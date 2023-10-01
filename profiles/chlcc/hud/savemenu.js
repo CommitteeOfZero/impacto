@@ -67,14 +67,14 @@ root.SaveMenu = {
         {X: 213, Y: 51}, {X: 228, Y: 51}
     ],
     SelectDataText: [],
-    EntryNumberHintTextRelativePos: {X: 210, Y: 11},
-    EntryNumberTextRelativePos: {X: 250, Y: 11},
-    SceneTitleTextRelativePos: {X: 210, Y: 36},
-    NoDataTextRelativePos: {X: 295, Y: 46},
-    PlayTimeHintTextRelativePos: {X: 260, Y: 68},
-    PlayTimeTextRelativePos: {X: 420, Y: 68},
-    SaveDateHintTextRelativePos: {X: 260, Y: 85},
-    SaveDateTextRelativePos: {X: 340, Y: 85}
+    EntryNumberHintTextRelativePos: {X: 209, Y: 10},
+    EntryNumberTextRelativePos: {X: 249, Y: 10},
+    SceneTitleTextRelativePos: {X: 209, Y: 35},
+    NoDataTextRelativePos: {X: 294, Y: 45},
+    PlayTimeHintTextRelativePos: {X: 259, Y: 67},
+    PlayTimeTextRelativePos: {X: 419, Y: 67},
+    SaveDateHintTextRelativePos: {X: 259, Y: 84},
+    SaveDateTextRelativePos: {X: 339, Y: 84}
 };
 
 root.Sprites["PinkCircle"] = {

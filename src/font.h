@@ -42,7 +42,8 @@ class BasicFont : public Font {
     uint8_t row = id / Columns;
     uint8_t col = id % Columns;
     float width = Widths[id];
-    return Sprite(Sheet, col * CellWidth, row * CellHeight, width, CellHeight);
+    return Sprite(Sheet, col * CellWidth + 1, row * CellHeight + 1, width - 2,
+                  CellHeight - 2);
   }
 };
 

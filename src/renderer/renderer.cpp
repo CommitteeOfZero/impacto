@@ -144,12 +144,11 @@ void BaseRenderer::DrawRect3DRotated(RectF const& dest, float depth,
   DrawRect3DRotatedImpl(dest, depth, vanishingPoint, stayInScreen, rot, color);
 }
 
-void BaseRenderer::DrawProcessedText_BasicFont(ProcessedTextGlyph* text,
-                                               int length, BasicFont* font,
-                                               float opacity, bool outlined,
-                                               bool smoothstepGlyphOpacity) {
+void BaseRenderer::DrawProcessedText_BasicFont(
+    ProcessedTextGlyph* text, int length, BasicFont* font, float opacity,
+    enum RendererOutlineMode outlineMode, bool smoothstepGlyphOpacity) {
   // cruddy mages outline
-  if (outlined) {
+  if (outlineMode) {
     for (int i = 0; i < length; i++) {
       glm::vec4 color = RgbIntToFloat(text[i].Colors.OutlineColor);
       color.a = opacity;
@@ -160,12 +159,19 @@ void BaseRenderer::DrawProcessedText_BasicFont(ProcessedTextGlyph* text,
       }
       Sprite glyph = font->Glyph(text[i].CharId);
       RectF dest = text[i].DestRect;
-      dest.X -= 1;
-      dest.Y -= 1;
-      DrawSprite(glyph, dest, color);
-      dest.X += 2;
-      dest.Y += 2;
-      DrawSprite(glyph, dest, color);
+      switch (outlineMode) {
+        case RO_Full:
+          dest.X--;
+          dest.Y--;
+          DrawSprite(glyph, dest, color);
+          dest.X++;
+          dest.Y++;
+        case RO_BottomRight:
+          dest.X++;
+          dest.Y++;
+          DrawSprite(glyph, dest, color);
+          break;
+      }
     }
   }
 
@@ -181,11 +187,11 @@ void BaseRenderer::DrawProcessedText_BasicFont(ProcessedTextGlyph* text,
   }
 }
 
-void BaseRenderer::DrawProcessedText_LBFont(ProcessedTextGlyph* text,
-                                            int length, LBFont* font,
-                                            float opacity, bool outlined,
-                                            bool smoothstepGlyphOpacity) {
-  if (outlined) {
+void BaseRenderer::DrawProcessedText_LBFont(
+    ProcessedTextGlyph* text, int length, LBFont* font, float opacity,
+    enum RendererOutlineMode outlineMode, bool smoothstepGlyphOpacity) {
+  // TODO: implement outline mode properly
+  if (outlineMode) {
     for (int i = 0; i < length; i++) {
       glm::vec4 color = RgbIntToFloat(text[i].Colors.OutlineColor);
       color.a = opacity;
@@ -220,16 +226,17 @@ void BaseRenderer::DrawProcessedText_LBFont(ProcessedTextGlyph* text,
 }
 
 void BaseRenderer::DrawProcessedText(ProcessedTextGlyph* text, int length,
-                                     Font* font, float opacity, bool outlined,
+                                     Font* font, float opacity,
+                                     enum RendererOutlineMode outlineMode,
                                      bool smoothstepGlyphOpacity) {
   switch (font->Type) {
     case FontType::Basic:
       DrawProcessedText_BasicFont(text, length, (BasicFont*)font, opacity,
-                                  outlined, smoothstepGlyphOpacity);
+                                  outlineMode, smoothstepGlyphOpacity);
       break;
     case FontType::LB: {
-      DrawProcessedText_LBFont(text, length, (LBFont*)font, opacity, outlined,
-                               smoothstepGlyphOpacity);
+      DrawProcessedText_LBFont(text, length, (LBFont*)font, opacity,
+                               outlineMode, smoothstepGlyphOpacity);
     }
   }
 }

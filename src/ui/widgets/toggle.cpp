@@ -25,10 +25,10 @@ Toggle::Toggle(int id, bool* value, Sprite const& enabled,
 Toggle::Toggle(int id, bool* value, Sprite const& enabled,
                Sprite const& disabled, Sprite const& highlight, glm::vec2 pos,
                bool isCheckbox, uint8_t* str, glm::vec2 labelOfs, int fontSize,
-               bool outline)
+               enum RendererOutlineMode outlineMode)
     : Toggle(id, value, enabled, disabled, highlight, pos, isCheckbox) {
   HasTextLabel = true;
-  SetText(str, fontSize, outline);
+  SetText(str, fontSize, outlineMode);
 }
 
 Toggle::Toggle(int id, bool* value, Sprite const& enabled,
@@ -67,28 +67,28 @@ void Toggle::Render() {
   if (HasFocus) {
     auto tint = Tint;
     if (IsCheckbox) tint.a *= 0.5f;
-    Renderer->DrawSprite(HighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
-                           tint);
+    Renderer->DrawSprite(HighlightSprite, glm::vec2(Bounds.X, Bounds.Y), tint);
   }
   if (HasSpriteLabel) {
     Renderer->DrawSprite(LabelSprite,
-                           glm::vec2(Bounds.X, Bounds.Y) + LabelOffset, Tint);
+                         glm::vec2(Bounds.X, Bounds.Y) + LabelOffset, Tint);
   }
   if (HasTextLabel) {
     Renderer->DrawProcessedText(Label, TextLength,
-                                  Profile::Dialogue::DialogueFont, Tint.a,
-                                  Outline, true);
+                                Profile::Dialogue::DialogueFont, Tint.a,
+                                OutlineMode, true);
   }
 }
 
-void Toggle::SetText(uint8_t* str, int fontSize, bool outline) {
+void Toggle::SetText(uint8_t* str, int fontSize,
+                     enum RendererOutlineMode outlineMode) {
   Impacto::Vm::Sc3VmThread dummy;
   dummy.Ip = str;
   TextLength = TextLayoutPlainLine(
       &dummy, 255, Label, Profile::Dialogue::DialogueFont, fontSize,
       Profile::Dialogue::ColorTable[10], 1.0f,
       glm::vec2(Bounds.X, Bounds.Y) + LabelOffset, TextAlignment::Left);
-  Outline = outline;
+  OutlineMode = outlineMode;
   FontSize = fontSize;
   for (int i = 0; i < TextLength; i++) {
     TextWidth += Label[i].DestRect.Width;

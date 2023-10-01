@@ -1,7 +1,6 @@
 #include "label.h"
 #include "../../vm/thread.h"
 #include "../../profile/dialogue.h"
-#include "../../renderer/renderer.h"
 
 namespace Impacto {
 namespace UI {
@@ -16,24 +15,24 @@ Label::Label(Sprite const& label, glm::vec2 pos) {
       RectF(pos.x, pos.y, LabelSprite.Bounds.Width, LabelSprite.Bounds.Height);
 }
 
-Label::Label(uint8_t* str, glm::vec2 pos, int fontSize, bool outline,
-             int colorIndex) {
+Label::Label(uint8_t* str, glm::vec2 pos, int fontSize,
+             enum RendererOutlineMode outlineMode, int colorIndex) {
   FontSize = fontSize;
   Bounds = RectF(pos.x, pos.y, TextLength, FontSize);
-  SetText(str, fontSize, outline, colorIndex);
+  SetText(str, fontSize, outlineMode, colorIndex);
 }
 
 Label::Label(ProcessedTextGlyph* str, int textLength, float textWidth,
-             int fontSize, bool outline) {
+             int fontSize, enum RendererOutlineMode outlineMode) {
   FontSize = fontSize;
-  SetText(str, textLength, textWidth, fontSize, outline);
+  SetText(str, textLength, textWidth, fontSize, outlineMode);
 }
 
-Label::Label(std::string str, glm::vec2 pos, int fontSize, bool outline,
-             int colorIndex) {
+Label::Label(std::string str, glm::vec2 pos, int fontSize,
+             enum RendererOutlineMode outlineMode, int colorIndex) {
   FontSize = fontSize;
   Bounds = RectF(pos.x, pos.y, TextLength, FontSize);
-  SetText(str, fontSize, outline, colorIndex);
+  SetText(str, fontSize, outlineMode, colorIndex);
 }
 
 void Label::UpdateInput() {}
@@ -43,8 +42,8 @@ void Label::Update(float dt) { Widget::Update(dt); }
 void Label::Render() {
   if (IsText) {
     Renderer->DrawProcessedText(Text, TextLength,
-                                  Profile::Dialogue::DialogueFont, Tint.a,
-                                  Outline, true);
+                                Profile::Dialogue::DialogueFont, Tint.a,
+                                OutlineMode, true);
   } else {
     Renderer->DrawSprite(LabelSprite, Bounds, Tint);
   }
@@ -70,7 +69,8 @@ void Label::SetSprite(Sprite const& label) {
                  LabelSprite.Bounds.Height);
 }
 
-void Label::SetText(uint8_t* str, int fontSize, bool outline, int colorIndex) {
+void Label::SetText(uint8_t* str, int fontSize,
+                    enum RendererOutlineMode outlineMode, int colorIndex) {
   IsText = true;
   ColorIndex = colorIndex;
   Impacto::Vm::Sc3VmThread dummy;
@@ -79,7 +79,7 @@ void Label::SetText(uint8_t* str, int fontSize, bool outline, int colorIndex) {
       &dummy, 255, Text, Profile::Dialogue::DialogueFont, fontSize,
       Profile::Dialogue::ColorTable[ColorIndex], 1.0f,
       glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
-  Outline = outline;
+  OutlineMode = outlineMode;
   TextWidth = 0.0f;
   for (int i = 0; i < TextLength; i++) {
     TextWidth += Text[i].DestRect.Width;
@@ -88,25 +88,26 @@ void Label::SetText(uint8_t* str, int fontSize, bool outline, int colorIndex) {
 }
 
 void Label::SetText(ProcessedTextGlyph* str, int textLength, float textWidth,
-                    int fontSize, bool outline, int colorIndex) {
+                    int fontSize, enum RendererOutlineMode outlineMode,
+                    int colorIndex) {
   IsText = true;
   ColorIndex = colorIndex;
   TextLength = textLength;
   TextWidth = textWidth;
-  Outline = outline;
+  OutlineMode = outlineMode;
   memcpy(Text, str, TextLength * sizeof(ProcessedTextGlyph));
   Bounds = RectF(Text[0].DestRect.X, Text[0].DestRect.Y, TextWidth, fontSize);
 }
 
-void Label::SetText(std::string str, int fontSize, bool outline,
-                    int colorIndex) {
+void Label::SetText(std::string str, int fontSize,
+                    enum RendererOutlineMode outlineMode, int colorIndex) {
   IsText = true;
   ColorIndex = colorIndex;
   TextLength = TextLayoutPlainString(
       str, Text, Profile::Dialogue::DialogueFont, fontSize,
       Profile::Dialogue::ColorTable[ColorIndex], 1.0f,
       glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
-  Outline = outline;
+  OutlineMode = outlineMode;
   TextWidth = 0.0f;
   for (int i = 0; i < TextLength; i++) {
     TextWidth += Text[i].DestRect.Width;

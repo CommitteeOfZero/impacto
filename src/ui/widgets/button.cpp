@@ -58,12 +58,13 @@ void Button::Render() {
 
   if (HasText) {
     Renderer->DrawProcessedText(Text, TextLength,
-                                  Profile::Dialogue::DialogueFont, Tint.a,
-                                  Outline, true);
+                                Profile::Dialogue::DialogueFont, Tint.a,
+                                OutlineMode, true);
   }
 }
 
-void Button::SetText(uint8_t* str, int fontSize, bool outline, int colorIndex) {
+void Button::SetText(uint8_t* str, int fontSize,
+                     enum RendererOutlineMode outlineMode, int colorIndex) {
   HasText = true;
   Impacto::Vm::Sc3VmThread dummy;
   dummy.Ip = str;
@@ -71,7 +72,7 @@ void Button::SetText(uint8_t* str, int fontSize, bool outline, int colorIndex) {
       &dummy, 255, Text, Profile::Dialogue::DialogueFont, fontSize,
       Profile::Dialogue::ColorTable[colorIndex], 1.0f,
       glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
-  Outline = outline;
+  OutlineMode = outlineMode;
   for (int i = 0; i < TextLength; i++) {
     TextWidth += Text[i].DestRect.Width;
   }
@@ -79,11 +80,11 @@ void Button::SetText(uint8_t* str, int fontSize, bool outline, int colorIndex) {
 }
 
 void Button::SetText(ProcessedTextGlyph* str, int textLength, float textWidth,
-                     int fontSize, bool outline) {
+                     int fontSize, enum RendererOutlineMode outlineMode) {
   HasText = true;
   TextLength = textLength;
   TextWidth = textWidth;
-  Outline = outline;
+  OutlineMode = outlineMode;
   memcpy(Text, str, TextLength * sizeof(ProcessedTextGlyph));
   Bounds = RectF(Text[0].DestRect.X, Text[0].DestRect.Y, TextWidth, fontSize);
 }

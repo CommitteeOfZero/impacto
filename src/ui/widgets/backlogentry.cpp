@@ -108,12 +108,12 @@ void BacklogEntry::Render() {
   }
   if (BacklogPage->HasName) {
     Renderer->DrawProcessedText(BacklogPage->Name, BacklogPage->NameLength,
-                                  Profile::Dialogue::DialogueFont, Tint.a, true,
-                                  true);
+                                Profile::Dialogue::DialogueFont, Tint.a,
+                                RO_Full, true);
   }
   Renderer->DrawProcessedText(BacklogPage->Glyphs, TextLength,
-                                Profile::Dialogue::DialogueFont, Tint.a, true,
-                                true);
+                              Profile::Dialogue::DialogueFont, Tint.a, RO_Full,
+                              true);
 }
 
 }  // namespace Widgets
