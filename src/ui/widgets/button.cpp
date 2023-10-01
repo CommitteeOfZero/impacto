@@ -64,7 +64,7 @@ void Button::Render() {
 }
 
 void Button::SetText(uint8_t* str, int fontSize,
-                     enum RendererOutlineMode outlineMode, int colorIndex) {
+                     RendererOutlineMode outlineMode, int colorIndex) {
   HasText = true;
   Impacto::Vm::Sc3VmThread dummy;
   dummy.Ip = str;
@@ -80,7 +80,7 @@ void Button::SetText(uint8_t* str, int fontSize,
 }
 
 void Button::SetText(ProcessedTextGlyph* str, int textLength, float textWidth,
-                     int fontSize, enum RendererOutlineMode outlineMode) {
+                     int fontSize, RendererOutlineMode outlineMode) {
   HasText = true;
   TextLength = textLength;
   TextWidth = textWidth;

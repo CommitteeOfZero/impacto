@@ -16,20 +16,20 @@ Label::Label(Sprite const& label, glm::vec2 pos) {
 }
 
 Label::Label(uint8_t* str, glm::vec2 pos, int fontSize,
-             enum RendererOutlineMode outlineMode, int colorIndex) {
+             RendererOutlineMode outlineMode, int colorIndex) {
   FontSize = fontSize;
   Bounds = RectF(pos.x, pos.y, TextLength, FontSize);
   SetText(str, fontSize, outlineMode, colorIndex);
 }
 
 Label::Label(ProcessedTextGlyph* str, int textLength, float textWidth,
-             int fontSize, enum RendererOutlineMode outlineMode) {
+             int fontSize, RendererOutlineMode outlineMode) {
   FontSize = fontSize;
   SetText(str, textLength, textWidth, fontSize, outlineMode);
 }
 
 Label::Label(std::string str, glm::vec2 pos, int fontSize,
-             enum RendererOutlineMode outlineMode, int colorIndex) {
+             RendererOutlineMode outlineMode, int colorIndex) {
   FontSize = fontSize;
   Bounds = RectF(pos.x, pos.y, TextLength, FontSize);
   SetText(str, fontSize, outlineMode, colorIndex);
@@ -69,8 +69,8 @@ void Label::SetSprite(Sprite const& label) {
                  LabelSprite.Bounds.Height);
 }
 
-void Label::SetText(uint8_t* str, int fontSize,
-                    enum RendererOutlineMode outlineMode, int colorIndex) {
+void Label::SetText(uint8_t* str, int fontSize, RendererOutlineMode outlineMode,
+                    int colorIndex) {
   IsText = true;
   ColorIndex = colorIndex;
   Impacto::Vm::Sc3VmThread dummy;
@@ -88,7 +88,7 @@ void Label::SetText(uint8_t* str, int fontSize,
 }
 
 void Label::SetText(ProcessedTextGlyph* str, int textLength, float textWidth,
-                    int fontSize, enum RendererOutlineMode outlineMode,
+                    int fontSize, RendererOutlineMode outlineMode,
                     int colorIndex) {
   IsText = true;
   ColorIndex = colorIndex;
@@ -100,7 +100,7 @@ void Label::SetText(ProcessedTextGlyph* str, int textLength, float textWidth,
 }
 
 void Label::SetText(std::string str, int fontSize,
-                    enum RendererOutlineMode outlineMode, int colorIndex) {
+                    RendererOutlineMode outlineMode, int colorIndex) {
   IsText = true;
   ColorIndex = colorIndex;
   TextLength = TextLayoutPlainString(

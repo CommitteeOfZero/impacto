@@ -13,11 +13,11 @@ class Label : public Widget {
   Label();
   Label(Sprite const& label, glm::vec2 pos);
   Label(uint8_t* str, glm::vec2 pos, int fontSize,
-        enum RendererOutlineMode outlineMode, int colorIndex = 10);
+        RendererOutlineMode outlineMode, int colorIndex = 10);
   Label(ProcessedTextGlyph* str, int textLength, float textWidth, int fontSize,
-        enum RendererOutlineMode outlineMode);
+        RendererOutlineMode outlineMode);
   Label(std::string str, glm::vec2 pos, int fontSize,
-        enum RendererOutlineMode outlineMode, int colorIndex = 10);
+        RendererOutlineMode outlineMode, int colorIndex = 10);
 
   void Update(float dt) override;
   void UpdateInput();
@@ -26,12 +26,12 @@ class Label : public Widget {
   void MoveTo(glm::vec2 pos) override;
 
   void SetSprite(Sprite const& label);
-  void SetText(uint8_t* str, int fontSize, enum RendererOutlineMode outlineMode,
+  void SetText(uint8_t* str, int fontSize, RendererOutlineMode outlineMode,
                int colorIndex = 10);
-  void SetText(std::string str, int fontSize,
-               enum RendererOutlineMode outlineMode, int colorIndex = 10);
+  void SetText(std::string str, int fontSize, RendererOutlineMode outlineMode,
+               int colorIndex = 10);
   void SetText(ProcessedTextGlyph* str, int textLength, float textWidth,
-               int fontSize, enum RendererOutlineMode outlineMode,
+               int fontSize, RendererOutlineMode outlineMode,
                int colorIndex = 10);
 
  protected:
@@ -41,7 +41,7 @@ class Label : public Widget {
   ProcessedTextGlyph Text[255];
   int TextLength = 0;
   float TextWidth = 0.0f;
-  enum RendererOutlineMode OutlineMode = RO_None;
+  RendererOutlineMode OutlineMode = RO_None;
   int ColorIndex;
 };
 

@@ -144,9 +144,11 @@ void BaseRenderer::DrawRect3DRotated(RectF const& dest, float depth,
   DrawRect3DRotatedImpl(dest, depth, vanishingPoint, stayInScreen, rot, color);
 }
 
-void BaseRenderer::DrawProcessedText_BasicFont(
-    ProcessedTextGlyph* text, int length, BasicFont* font, float opacity,
-    enum RendererOutlineMode outlineMode, bool smoothstepGlyphOpacity) {
+void BaseRenderer::DrawProcessedText_BasicFont(ProcessedTextGlyph* text,
+                                               int length, BasicFont* font,
+                                               float opacity,
+                                               RendererOutlineMode outlineMode,
+                                               bool smoothstepGlyphOpacity) {
   // cruddy mages outline
   if (outlineMode) {
     for (int i = 0; i < length; i++) {
@@ -187,9 +189,11 @@ void BaseRenderer::DrawProcessedText_BasicFont(
   }
 }
 
-void BaseRenderer::DrawProcessedText_LBFont(
-    ProcessedTextGlyph* text, int length, LBFont* font, float opacity,
-    enum RendererOutlineMode outlineMode, bool smoothstepGlyphOpacity) {
+void BaseRenderer::DrawProcessedText_LBFont(ProcessedTextGlyph* text,
+                                            int length, LBFont* font,
+                                            float opacity,
+                                            RendererOutlineMode outlineMode,
+                                            bool smoothstepGlyphOpacity) {
   // TODO: implement outline mode properly
   if (outlineMode) {
     for (int i = 0; i < length; i++) {
@@ -227,7 +231,7 @@ void BaseRenderer::DrawProcessedText_LBFont(
 
 void BaseRenderer::DrawProcessedText(ProcessedTextGlyph* text, int length,
                                      Font* font, float opacity,
-                                     enum RendererOutlineMode outlineMode,
+                                     RendererOutlineMode outlineMode,
                                      bool smoothstepGlyphOpacity) {
   switch (font->Type) {
     case FontType::Basic:

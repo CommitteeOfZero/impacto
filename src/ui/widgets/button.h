@@ -20,10 +20,10 @@ class Button : public Widget {
   void UpdateInput();
   virtual void Render();
 
-  void SetText(uint8_t* str, int fontSize, enum RendererOutlineMode outlineMode,
+  void SetText(uint8_t* str, int fontSize, RendererOutlineMode outlineMode,
                int colorIndex = 10);
   void SetText(ProcessedTextGlyph* str, int textLength, float textWidth,
-               int fontSize, enum RendererOutlineMode outlineMode);
+               int fontSize, RendererOutlineMode outlineMode);
 
   int Id;
   Sprite NormalSprite;
@@ -44,7 +44,7 @@ class Button : public Widget {
   ProcessedTextGlyph Text[255];
   int TextLength = 0;
   float TextWidth = 0.0f;
-  enum RendererOutlineMode OutlineMode;
+  RendererOutlineMode OutlineMode;
 };
 
 }  // namespace Widgets

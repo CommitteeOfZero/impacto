@@ -25,7 +25,7 @@ Toggle::Toggle(int id, bool* value, Sprite const& enabled,
 Toggle::Toggle(int id, bool* value, Sprite const& enabled,
                Sprite const& disabled, Sprite const& highlight, glm::vec2 pos,
                bool isCheckbox, uint8_t* str, glm::vec2 labelOfs, int fontSize,
-               enum RendererOutlineMode outlineMode)
+               RendererOutlineMode outlineMode)
     : Toggle(id, value, enabled, disabled, highlight, pos, isCheckbox) {
   HasTextLabel = true;
   SetText(str, fontSize, outlineMode);
@@ -81,7 +81,7 @@ void Toggle::Render() {
 }
 
 void Toggle::SetText(uint8_t* str, int fontSize,
-                     enum RendererOutlineMode outlineMode) {
+                     RendererOutlineMode outlineMode) {
   Impacto::Vm::Sc3VmThread dummy;
   dummy.Ip = str;
   TextLength = TextLayoutPlainLine(

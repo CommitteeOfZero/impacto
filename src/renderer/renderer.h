@@ -70,15 +70,15 @@ class BaseRenderer {
 
   void DrawProcessedText_BasicFont(ProcessedTextGlyph* text, int length,
                                    BasicFont* font, float opacity,
-                                   enum RendererOutlineMode outlineMode,
+                                   RendererOutlineMode outlineMode,
                                    bool smoothstepGlyphOpacity);
   void DrawProcessedText_LBFont(ProcessedTextGlyph* text, int length,
                                 LBFont* font, float opacity,
-                                enum RendererOutlineMode outlineMode,
+                                RendererOutlineMode outlineMode,
                                 bool smoothstepGlyphOpacity);
   void DrawProcessedText(ProcessedTextGlyph* text, int length, Font* font,
                          float opacity = 1.0f,
-                         enum RendererOutlineMode outlineMode = RO_None,
+                         RendererOutlineMode outlineMode = RO_None,
                          bool smoothstepGlyphOpacity = true);
 
   void DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
