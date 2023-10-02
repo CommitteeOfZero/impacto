@@ -1547,7 +1547,7 @@ void Renderer::DrawVideoTextureImpl(YUVFrame* tex, RectF const& dest,
 }
 
 void Renderer::CaptureScreencapImpl(Sprite const& sprite) {
-  if (Textures.count(sprite.Sheet.Texture)) return;
+  if (Textures.count(sprite.Sheet.Texture) == 0) return;
   // Here we go...
   Flush();
   vkCmdEndRenderPass(CommandBuffers[CurrentFrameIndex]);
