@@ -724,5 +724,11 @@ void Renderer::DisableScissorImpl() {
   Device->SetRenderState(D3DRS_SCISSORTESTENABLE, false);
 }
 
+void Renderer::DrawCHLCCMenuBackgroundImpl(const Sprite& sprite,
+                                           const Sprite& mask,
+                                           const RectF& dest, float alpha) {
+  return;
+}
+
 }  // namespace DirectX9
 }  // namespace Impacto
