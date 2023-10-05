@@ -19,7 +19,7 @@ root.Dialogue = {
     REVNameColor: 24,
     REVNameOffset: 34,
     NVLBounds: { X: 188, Y: 128, Width: 1536, Height: 600 },
-    ADVBounds: { X: 330, Y: 815, Width: 1440, Height: 270 },
+    ADVBounds: { X: 330, Y: 815, Width: 1320, Height: 270 },
     ADVBoxSprite: "ADVBox",
     ADVBoxMask: "ADVBoxMask",
     ADVBoxNamePlateMainSprites: [],
