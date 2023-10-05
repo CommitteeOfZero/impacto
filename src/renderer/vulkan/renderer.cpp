@@ -690,6 +690,12 @@ void Renderer::InitImpl() {
       "CCMessageBoxSprite", bindingDescription, attributeDescriptions.data(),
       attributeDescriptions.size(), DoubleTextureSetLayout);
 
+  PipelineCHLCCMenuBackground = new Pipeline(Device, RenderPass);
+  PipelineCHLCCMenuBackground->SetPushConstants(&ccBoxPushConstant, 1);
+  PipelineCHLCCMenuBackground->CreateWithShader(
+      "CHLCCMenuBackground", bindingDescription, attributeDescriptions.data(),
+      attributeDescriptions.size(), DoubleTextureSetLayout);
+
   CurrentPipeline = PipelineSprite;
 
   if (Profile::GameFeatures & GameFeature::Scene3D) {
@@ -1303,6 +1309,71 @@ void Renderer::DrawCCMessageBoxImpl(Sprite const& sprite, Sprite const& mask,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
+void Renderer::DrawCHLCCMenuBackgroundImpl(const Sprite& sprite,
+                                           const Sprite& mask,
+                                           const RectF& dest, float alpha) {
+  if (!Drawing) {
+    ImpLog(LL_Error, LC_Render,
+           "Renderer->DrawCCMessageBox() called before BeginFrame()\n");
+    return;
+  }
+
+  if (Textures.count(sprite.Sheet.Texture) == 0 ||
+      Textures.count(mask.Sheet.Texture) == 0)
+    return;
+
+  if (alpha < 0.0f)
+    alpha = 0;
+  else if (alpha > 1.0f)
+    alpha = 1.0f;
+
+  EnsureMode(PipelineCHLCCMenuBackground);
+
+  VkDescriptorImageInfo imageBufferInfo[2];
+  imageBufferInfo[0].sampler = Sampler;
+  imageBufferInfo[0].imageView = Textures[sprite.Sheet.Texture].ImageView;
+  imageBufferInfo[0].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+  imageBufferInfo[1].sampler = Sampler;
+  imageBufferInfo[1].imageView = Textures[mask.Sheet.Texture].ImageView;
+  imageBufferInfo[1].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+  VkWriteDescriptorSet writeDescriptorSet{};
+  writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+  writeDescriptorSet.dstSet = 0;
+  writeDescriptorSet.dstBinding = 0;
+  writeDescriptorSet.descriptorCount = 2;
+  writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+  writeDescriptorSet.pImageInfo = imageBufferInfo;
+
+  vkCmdPushDescriptorSetKHR(
+      CommandBuffers[CurrentFrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
+      PipelineMaskedSprite->PipelineLayout, 0, 1, &writeDescriptorSet);
+
+  CCBoxPushConstants constants = {};
+  constants.CCBoxAlpha = glm::vec4(alpha, 0.0f, 0.0f, 0.0f);
+  vkCmdPushConstants(
+      CommandBuffers[CurrentFrameIndex], CurrentPipeline->PipelineLayout,
+      VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(CCBoxPushConstants), &constants);
+
+  // OK, all good, make quad
+  MakeQuad();
+
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferOffset +
+                             VertexBufferFill);
+  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
+
+  IndexBufferFill += 6;
+
+  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
+            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
+  QuadSetUV(mask.Bounds, mask.Sheet.DesignWidth, mask.Sheet.DesignHeight,
+            (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites));
+
+  QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
+                  sizeof(VertexBufferSprites));
+}
+
 inline void Renderer::MakeQuad() {
   int indexBufferOffset = IndexBufferOffset / sizeof(uint16_t);
   if (IndexBufferFill + 6 <= IndexBufferCount) {
@@ -1487,6 +1558,7 @@ void Renderer::Flush() {
   VertexBufferOffset += VertexBufferFill;
   VertexBufferFill = 0;
   VertexBufferCount = 0;
+  CurrentTexture = 0;
 }
 
 void Renderer::DrawVideoTextureImpl(YUVFrame* tex, RectF const& dest,
@@ -1660,11 +1732,6 @@ void Renderer::DisableScissorImpl() {
     PreviousScissorRect =
         RectF(0.0f, 0.0f, SwapChainExtent.width, SwapChainExtent.height);
   }
-}
-void Renderer::DrawCHLCCMenuBackgroundImpl(const Sprite& sprite,
-                                           const Sprite& mask,
-                                           const RectF& dest, float alpha) {
-  return;
 }
 
 }  // namespace Vulkan

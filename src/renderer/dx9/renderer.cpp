@@ -76,6 +76,9 @@ void Renderer::InitImpl() {
   ShaderYUVFrame->Compile("YUVFrame", Device, vertexDeclaration);
   ShaderCCMessageBox = new Shader();
   ShaderCCMessageBox->Compile("CCMessageBoxSprite", Device, vertexDeclaration);
+  ShaderCHLCCMenuBackground = new Shader();
+  ShaderCHLCCMenuBackground->Compile("CHLCCMenuBackground", Device,
+                                     vertexDeclaration);
 
   CurrentShader = ShaderSprite;
   CurrentShader->UseShader(Device);
@@ -475,6 +478,55 @@ void Renderer::DrawCCMessageBoxImpl(Sprite const& sprite, Sprite const& mask,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
+void Renderer::DrawCHLCCMenuBackgroundImpl(const Sprite& sprite,
+                                           const Sprite& mask,
+                                           const RectF& dest, float alpha) {
+  if (!Drawing) {
+    ImpLog(LL_Error, LC_Render,
+           "Renderer->DrawCHLCCMenuBackground() called before BeginFrame()\n");
+    return;
+  }
+
+  if (alpha < 0.0f)
+    alpha = 0;
+  else if (alpha > 1.0f)
+    alpha = 1.0f;
+
+  // Do we have space for one more sprite quad?
+  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
+
+  EnsureShader(ShaderCHLCCMenuBackground);
+
+  Device->SetTexture(0, Textures[sprite.Sheet.Texture]);
+  CurrentTexture = sprite.Sheet.Texture;
+  Device->SetTexture(1, Textures[mask.Sheet.Texture]);
+
+  // This is cursed man, idk
+  float alphaRes[] = {alpha, 0.0f, 0.0f, 0.0f};
+  Device->GetPixelShaderConstantF(0, alphaRes, 1);
+
+  // OK, all good, make quad
+
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
+  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
+
+  IndexBufferFill += 6;
+
+  QuadSetUVFlipped(sprite.Bounds, sprite.Sheet.DesignWidth,
+                   sprite.Sheet.DesignHeight, (uintptr_t)&vertices[0].UV,
+                   sizeof(VertexBufferSprites));
+
+  QuadSetUV(mask.Bounds, mask.Sheet.DesignWidth, mask.Sheet.DesignHeight,
+            (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites));
+
+  QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
+                  sizeof(VertexBufferSprites));
+
+  for (int i = 0; i < 4; i++)
+    vertices[i].Tint = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+}
+
 inline void Renderer::QuadSetUVFlipped(RectF const& spriteBounds,
                                        float designWidth, float designHeight,
                                        uintptr_t uvs, int stride) {
@@ -662,6 +714,7 @@ void Renderer::Flush() {
   }
   IndexBufferFill = 0;
   VertexBufferFill = 0;
+  CurrentTexture = -1;
 }
 
 void Renderer::DrawVideoTextureImpl(YUVFrame* tex, RectF const& dest,
@@ -722,12 +775,6 @@ void Renderer::SetScissorRectImpl(RectF const& rect) {
 void Renderer::DisableScissorImpl() {
   Flush();
   Device->SetRenderState(D3DRS_SCISSORTESTENABLE, false);
-}
-
-void Renderer::DrawCHLCCMenuBackgroundImpl(const Sprite& sprite,
-                                           const Sprite& mask,
-                                           const RectF& dest, float alpha) {
-  return;
 }
 
 }  // namespace DirectX9

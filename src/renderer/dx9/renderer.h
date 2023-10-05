@@ -102,6 +102,7 @@ class Renderer : public BaseRenderer {
   Shader* ShaderMaskedSprite;
   Shader* ShaderYUVFrame;
   Shader* ShaderCCMessageBox;
+  Shader* ShaderCHLCCMenuBackground;
 
   uint32_t CurrentTexture = 0;
   uint32_t NextTextureId = 1;

@@ -219,6 +219,7 @@ class Renderer : public BaseRenderer {
   Pipeline* PipelineMaskedSprite;
   Pipeline* PipelineYUVFrame;
   Pipeline* PipelineCCMessageBox;
+  Pipeline* PipelineCHLCCMenuBackground;
 
   AllocatedBuffer VertexBufferAlloc;
   AllocatedBuffer IndexBufferAlloc;

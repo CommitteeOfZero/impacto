@@ -699,6 +699,7 @@ void Renderer::Flush() {
   }
   IndexBufferFill = 0;
   VertexBufferFill = 0;
+  CurrentTexture = 0;
 }
 
 void Renderer::DrawVideoTextureImpl(YUVFrame* tex, RectF const& dest,
