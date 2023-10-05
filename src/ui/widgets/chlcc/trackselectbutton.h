@@ -12,13 +12,17 @@ namespace CHLCC {
 class TrackSelectButton : public Button {
  public:
   TrackSelectButton(int id, Sprite const &focused, glm::vec2 pos,
-                    glm::vec2 trackOffset, glm::vec2 artistOffset);
+                    glm::vec2 numOffset, glm::vec2 trackOffset,
+                    glm::vec2 artistOffset);
   void SetTrackText(uint8_t *str);
   void SetArtistText(uint8_t *str);
   void Render() override;
   void MoveTracks(glm::vec2 baseline);
 
  private:
+  Label TrackNum;
+  glm::vec2 TrackNumPos;
+
   Label TrackName;
   glm::vec2 TrackTextPos;
 

@@ -8,16 +8,20 @@
 #include "../../data/savesystem.h"
 #include "../../profile/dialogue.h"
 #include "../../background2d.h"
+#include "../../vm/interface/input.h"
 
 #include "../../ui/widgets/chlcc/trackselectbutton.h"
 
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
+
 using namespace Impacto::Profile::CHLCC::MusicMenu;
 using namespace Impacto::Profile::ScriptVars;
 
 using namespace Impacto::UI::Widgets;
+
+using namespace Impacto::Vm::Interface;
 
 void MusicMenu::MusicButtonOnClick(Button* target) {
   if (target->IsLocked) return;
@@ -39,6 +43,9 @@ MusicMenu::MusicMenu() {
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;
 
+  PlaymodeRepeatSprite = PlaymodeRepeat;
+  PlaymodeAllSprite = PlaymodeAll;
+
   MainItems = new Group(this);
   Sprite empty = Sprite();
 
@@ -48,7 +55,7 @@ MusicMenu::MusicMenu() {
   for (int idx = 0; idx < MusicTrackCount; idx++) {
     auto button = new Widgets::CHLCC::TrackSelectButton(
         idx, TrackHighlight, TrackButtonPosTemplate + (float)idx * TrackOffset,
-        TrackNameOffset, ArtistOffset);
+        TrackNumRelativePos, TrackNameOffset, ArtistOffset);
     button->OnClickHandler = onClick;
     MainItems->Add(button, FDIR_DOWN);
   }
@@ -61,7 +68,6 @@ void MusicMenu::Show() {
   if (State != Shown) {
     if (State != Showing) MenuTransition.StartIn();
     State = Showing;
-    //    MainItems->Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
     UpdateEntries();
     MainItems->Show();
     if (UI::FocusedMenu != 0) {
@@ -129,6 +135,8 @@ void MusicMenu::Render() {
       }
       MainItems->Render();
       Renderer->DrawSprite(TrackTree, TrackTreePos + offset);
+      Renderer->DrawSprite(PlaymodeRepeatSprite, PlaymodeRepeatPos + offset);
+      Renderer->DrawSprite(PlaymodeAllSprite, PlaymodeAllPos + offset);
     }
   }
 }
@@ -166,6 +174,29 @@ void MusicMenu::Update(float dt) {
     }
     TitleFade.Update(dt);
     if (InputEnabled) MainItems->Update(dt);
+    if (CurrentlyPlayingTrackId == -1) return;
+    if (PlaybackMode != MPM_RepeatOne && CurrentlyPlayingTrackId < 40 &&
+        abs(Audio::Channels[Audio::AC_BGM0].PositionInSeconds() -
+            PreviousPosition) > 1.0f) {
+      Audio::Channels[Audio::AC_BGM0].Stop(2.0f);
+    }
+    if (Audio::Channels[Audio::AC_BGM0].State == Audio::ACS_Stopped) {
+      int trackId;
+      if (PlaybackMode == MPM_One) {
+        trackId = -1;
+      } else {
+        trackId = GetNextTrackId(CurrentlyPlayingTrackId + 1);
+        if (trackId == MusicTrackCount) {
+          if (PlaybackMode == MPM_RepeatPlaylist) {
+            trackId = GetNextTrackId(0);
+          } else if (PlaybackMode == MPM_Playlist) {
+            trackId = -1;
+          }
+        }
+      }
+      SwitchToTrack(trackId);
+    }
+    PreviousPosition = Audio::Channels[Audio::AC_BGM0].PositionInSeconds();
   }
 }
 
@@ -173,6 +204,25 @@ void MusicMenu::UpdateInput() {
   Menu::UpdateInput();
   if (State == Shown) {
     MainItems->UpdateInput();
+
+    if (PADinputButtonWentDown & PAD1Y) {
+      auto mode = (int)PlaybackMode + 1;
+      if (mode > 3) mode = 0;
+      PlaybackMode = (MusicPlaybackMode)mode;
+      PlaymodeAllSprite = mode & 1 ? PlaymodeAllHighlight : PlaymodeAll;
+      PlaymodeRepeatSprite =
+          mode & 2 ? PlaymodeRepeatHighlight : PlaymodeRepeat;
+      if (PlaybackMode == MPM_RepeatOne) {
+        Audio::Channels[Audio::AC_BGM0].Looping = true;
+      } else {
+        Audio::Channels[Audio::AC_BGM0].Looping = false;
+      }
+    }
+
+    if (PADinputButtonWentDown & PAD1X) {
+      SwitchToTrack(-1);
+    }
+
     auto button = static_cast<Widgets::CHLCC::TrackSelectButton*>(
         CurrentlyFocusedElement);
     if (button == nullptr) return;
@@ -276,8 +326,25 @@ void MusicMenu::SwitchToTrack(int id) {
   }
   Io::InputStream* stream;
   Io::VfsOpen("bgm", Playlist[id], &stream);
-  Audio::Channels[Audio::AC_BGM0].Play(Audio::AudioStream::Create(stream), 0,
-                                       0.5f);
+  PreviousPosition = 0.0f;
+  Audio::Channels[Audio::AC_BGM0].Play(
+      Audio::AudioStream::Create(stream),
+      id >= 40 ? (PlaybackMode == MPM_RepeatOne) : true, 0.5f);
+}
+
+inline int MusicMenu::GetNextTrackId(int id) {
+  while (!SaveSystem::GetBgmFlag(Playlist[id])) {
+    id += 1;
+    if (id == MusicTrackCount) {
+      if (PlaybackMode == MPM_RepeatPlaylist) {
+        id = 0;
+      } else if (PlaybackMode == MPM_Playlist) {
+        id = -1;
+        break;
+      }
+    }
+  }
+  return id;
 }
 
 }  // namespace CHLCC

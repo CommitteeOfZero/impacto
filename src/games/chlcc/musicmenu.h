@@ -9,6 +9,13 @@ namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
+enum MusicPlaybackMode {
+  MPM_One,
+  MPM_Playlist,
+  MPM_RepeatOne,
+  MPM_RepeatPlaylist
+};
+
 class MusicMenu : public Menu {
  public:
   MusicMenu();
@@ -32,6 +39,7 @@ class MusicMenu : public Menu {
 
   void MusicButtonOnClick(Widgets::Button* target);
   void SwitchToTrack(int id);
+  inline int GetNextTrackId(int id);
 
   Animation MenuTransition;
   Animation TitleFade;
@@ -41,6 +49,10 @@ class MusicMenu : public Menu {
   int CurrentlyPlayingTrackId = -1;
   int CurrentLowerBound = 0;
   int CurrentUpperBound = 15;
+  float PreviousPosition = 0.0f;
+  MusicPlaybackMode PlaybackMode = MPM_One;
+  Sprite PlaymodeRepeatSprite;
+  Sprite PlaymodeAllSprite;
 };
 
 }  // namespace CHLCC

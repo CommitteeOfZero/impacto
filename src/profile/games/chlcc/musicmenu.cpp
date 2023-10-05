@@ -35,6 +35,13 @@ glm::vec2 TrackNameOffset;
 glm::vec2 ArtistOffset;
 glm::vec2 TrackOffset;
 Sprite TrackHighlight;
+glm::vec2 TrackNumRelativePos;
+glm::vec2 PlaymodeRepeatPos;
+glm::vec2 PlaymodeAllPos;
+Sprite PlaymodeRepeat;
+Sprite PlaymodeAll;
+Sprite PlaymodeRepeatHighlight;
+Sprite PlaymodeAllHighlight;
 int Playlist[MusicTrackCount];
 
 static void GetMemberVec2Array(glm::vec2* arr, uint32_t count,
@@ -112,6 +119,13 @@ void Configure() {
   ArtistOffset = EnsureGetMemberVec2("ArtistOffset");
   TrackOffset = EnsureGetMemberVec2("TrackOffset");
   TrackHighlight = EnsureGetMemberSprite("TrackHighlight");
+  TrackNumRelativePos = EnsureGetMemberVec2("TrackNumRelativePos");
+  PlaymodeRepeatPos = EnsureGetMemberVec2("PlaymodeRepeatPos");
+  PlaymodeAllPos = EnsureGetMemberVec2("PlaymodeAllPos");
+  PlaymodeRepeat = EnsureGetMemberSprite("PlaymodeRepeat");
+  PlaymodeAll = EnsureGetMemberSprite("PlaymodeAll");
+  PlaymodeRepeatHighlight = EnsureGetMemberSprite("PlaymodeRepeatHighlight");
+  PlaymodeAllHighlight = EnsureGetMemberSprite("PlaymodeAllHighlight");
   GetMemberIntArray(Playlist, MusicTrackCount, "Playlist");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(

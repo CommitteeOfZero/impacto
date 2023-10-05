@@ -170,6 +170,13 @@ root.ExtraMenus = {
         ArtistOffset: {X: 411, Y: 5},
         TrackOffset: {X: 0, Y: 28},
         TrackHighlight: "TrackHighlight",
+        TrackNumRelativePos: {X: 25, Y: 7},
+        PlaymodeRepeatPos: {X: 718, Y: 146},
+        PlaymodeAllPos: {X: 771, Y: 146},
+        PlaymodeRepeat: "PlaymodeRepeat",
+        PlaymodeAll: "PlaymodeAll",
+        PlaymodeRepeatHighlight: "PlaymodeRepeatHighlight",
+        PlaymodeAllHighlight: "PlaymodeAllHighlight",
         Playlist:
             [
                 8, 14, 26, 10, 28, 12, 20, 16, 18, 24, 22, 80, 76, 32, 34,
@@ -317,6 +324,26 @@ root.Sprites["TrackTreeSprite"] = {
 root.Sprites["TrackHighlight"] = {
     Sheet: "Sound",
     Bounds: {X: 1, Y: 693, Width: 676, Height: 29}
+}
+
+root.Sprites["PlaymodeRepeat"] = {
+    Sheet: "Sound",
+    Bounds: {X: 257, Y: 644, Width: 51, Height: 10}
+}
+
+root.Sprites["PlaymodeAll"] = {
+    Sheet: "Sound",
+    Bounds: {X: 310, Y: 644, Width: 28, Height: 10}
+}
+
+root.Sprites["PlaymodeRepeatHighlight"] = {
+    Sheet: "Sound",
+    Bounds: {X: 257, Y: 632, Width: 51, Height: 10}
+}
+
+root.Sprites["PlaymodeAllHighlight"] = {
+    Sheet: "Sound",
+    Bounds: {X: 310, Y: 632, Width: 28, Height: 10}
 }
 
 // Album Menu

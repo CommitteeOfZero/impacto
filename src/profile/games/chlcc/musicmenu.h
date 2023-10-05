@@ -36,6 +36,13 @@ extern glm::vec2 TrackNameOffset;
 extern glm::vec2 ArtistOffset;
 extern glm::vec2 TrackOffset;
 extern Sprite TrackHighlight;
+extern glm::vec2 TrackNumRelativePos;
+extern glm::vec2 PlaymodeRepeatPos;
+extern glm::vec2 PlaymodeAllPos;
+extern Sprite PlaymodeRepeat;
+extern Sprite PlaymodeAll;
+extern Sprite PlaymodeRepeatHighlight;
+extern Sprite PlaymodeAllHighlight;
 extern int Playlist[MusicTrackCount];
 
 void Configure();
