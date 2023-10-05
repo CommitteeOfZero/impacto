@@ -12,6 +12,7 @@
 
 #include "../../../vendor/nuklear/nuklear_sdl_gl3.h"
 #include "../../game.h"
+#include "../../profile/vm.h"
 
 namespace Impacto {
 namespace OpenGL {
@@ -252,7 +253,8 @@ void GLWindow::Init() {
   SDL_GL_SetSwapInterval(0);
 }
 
-void GLWindow::SetDimensions(int width, int height, int msaa, float renderScale) {
+void GLWindow::SetDimensions(int width, int height, int msaa,
+                             float renderScale) {
   ImpLog(LL_Info, LC_General,
          "Attempting to change window dimensions to %d x %d, %dx MSAA, render "
          "scale %f\n",
@@ -338,14 +340,19 @@ void GLWindow::Update() {
   glClear(GL_COLOR_BUFFER_BIT);
 
   glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::CHLCC) {
+    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+  } else {
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  }
 }
 
 void GLWindow::Draw() {
   if (Profile::GameFeatures & GameFeature::Nuklear) {
     Rect viewport = GetViewport();
     if (GLDebug) {
-    // Nuklear spams these
+      // Nuklear spams these
       glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0,
                                NULL, GL_FALSE);
     }
@@ -378,5 +385,5 @@ void GLWindow::Shutdown() {
   exit(0);
 }
 
-} // OpenGL
-} // Impacto
+}  // namespace OpenGL
+}  // namespace Impacto

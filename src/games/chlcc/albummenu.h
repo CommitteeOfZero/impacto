@@ -26,16 +26,12 @@ class AlbumMenu : public Menu {
   inline void DrawCircles();
   inline void DrawErin();
   inline void DrawRedBar();
-  inline void DrawTitles();
   inline void DrawButtonGuide();
 
   inline void DrawPage(const glm::vec2 &offset);
 
   void UpdatePages();
-
-  // void UpdateMovieEntries();
-
-  // Animation FadeAnimation;
+  void UpdateTitles();
 
   void CgOnClick(Widgets::Button *target);
   void OnCgVariationEnd(Widgets::CgViewer *target);
@@ -49,6 +45,10 @@ class AlbumMenu : public Menu {
   Widgets::Group *CgViewerGroup;
   Widgets::CgViewer *CgViewerWidget;
   bool ShowCgViewer = false;
+
+  glm::vec2 RedTitleLabelPos;
+  glm::vec2 RightTitlePos;
+  glm::vec2 LeftTitlePos;
 };
 
 }  // namespace CHLCC

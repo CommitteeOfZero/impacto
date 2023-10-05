@@ -62,6 +62,7 @@ int const MaxScreencaptures = 2;
 
 extern Background2D Backgrounds[MaxBackgrounds2D];
 extern Background2D Screencaptures[MaxScreencaptures];
+extern Background2D ShaderScreencapture;
 
 extern ska::flat_hash_map<int, Background2D*> Backgrounds2D;
 

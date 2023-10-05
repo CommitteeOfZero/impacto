@@ -7,6 +7,7 @@
 #include "../../ui/ui.h"
 #include "../../data/savesystem.h"
 #include "../../data/tipssystem.h"
+#include "../../background2d.h"
 
 namespace Impacto {
 namespace UI {
@@ -64,22 +65,32 @@ void ClearListMenu::Render() {
   if (State != Hidden) {
     if (MenuTransition.IsIn()) {
       Renderer->DrawRect(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-                           RgbIntToFloat(BackgroundColor));
+                         RgbIntToFloat(BackgroundColor));
     } else {
       DrawCircles();
     }
+
     DrawErin();
-    glm::vec3 tint = {1.0f, 1.0f, 1.0f};
-    // Alpha goes from 0 to 1 in half the time
-    float alpha =
-        MenuTransition.Progress < 0.5f ? MenuTransition.Progress * 2.0f : 1.0f;
-    Renderer->DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-                           glm::vec4(tint, alpha));
     DrawRedBar();
-    DrawTitles();
+
+    if (MenuTransition.Progress > 0.34f) {
+      Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
+      Renderer->DrawSprite(MenuTitleText, RightTitlePos, glm::vec4(1.0f),
+                           glm::vec2(1.0f), MenuTitleTextAngle);
+    }
+
+    Renderer->CaptureScreencap(ShaderScreencapture.BgSprite);
+    Renderer->DrawCHLCCMenuBackground(
+        ShaderScreencapture.BgSprite, BackgroundFilter,
+        RectF(0.0f, 0.0f, 1280.0f, 720.0f), MenuTransition.Progress);
+
+    if (MenuTransition.Progress > 0.34f) {
+      Renderer->DrawSprite(MenuTitleText, LeftTitlePos);
+    }
+
     float yOffset = 0;
     if (MenuTransition.Progress > 0.22f) {
-      if (MenuTransition.Progress < 0.72f) {
+      if (MenuTransition.Progress < 0.73f) {
         // Approximated function from the original, another mess
         yOffset = glm::mix(
             -720.0f, 0.0f,
@@ -122,6 +133,7 @@ void ClearListMenu::Update(float dt) {
       TitleFade.StartIn();
     }
     TitleFade.Update(dt);
+    UpdateTitles();
   }
 }
 
@@ -183,30 +195,6 @@ inline void ClearListMenu::DrawRedBar() {
     RedBarSprite.Bounds.Width = pixelPerAdvanceRight;
     RedBarPosition = RightRedBarPosition;
     Renderer->DrawSprite(RedBarSprite, RedBarPosition);
-  }
-}
-
-inline void ClearListMenu::DrawTitles() {
-  if (MenuTransition.Progress > 0.34f) {
-    float labelX = RedBarLabelPosition.x;
-    float labelY = RedBarLabelPosition.y;
-    float rightTitleX = MenuTitleTextRightPosition.x;
-    float rightTitleY = MenuTitleTextRightPosition.y;
-    float leftTitleY = glm::mix(
-        1.0f, 721.0f,
-        1.01011f * std::sin(1.62223f * TitleFade.Progress + 3.152f) + 1.01012f);
-    if (MenuTransition.Progress < 0.72f) {
-      labelX -= 572.0f * (MenuTransition.Progress * 4.0f - 3.0f);
-      rightTitleX -= 572.0f * (MenuTransition.Progress * 4.0f - 3.0f);
-      labelY += 460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f;
-      rightTitleY += 460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f;
-    }
-    Renderer->DrawSprite(RedBarLabel, glm::vec2(labelX, labelY));
-    Renderer->DrawSprite(MenuTitleText, glm::vec2(rightTitleX, rightTitleY),
-                           glm::vec4(1.0f), glm::vec2(1.0f),
-                           MenuTitleTextAngle);
-    Renderer->DrawSprite(MenuTitleText,
-                           glm::vec2(MenuTitleTextLeftPosition.x, leftTitleY));
   }
 }
 
@@ -307,8 +295,32 @@ inline void ClearListMenu::DrawButtonPrompt() {
   } else if (MenuTransition.Progress > 0.734f) {
     float x = ButtonPromptPosition.x - 2560.0f * (MenuTransition.Progress - 1);
     Renderer->DrawSprite(ButtonPromptSprite,
-                           glm::vec2(x, ButtonPromptPosition.y));
+                         glm::vec2(x, ButtonPromptPosition.y));
   }
+}
+
+void ClearListMenu::UpdateTitles() {
+  if (MenuTransition.Progress <= 0.34f) return;
+
+  RedTitleLabelPos = RedBarLabelPosition;
+  RightTitlePos = MenuTitleTextRightPosition;
+  LeftTitlePos = glm::vec2(
+      MenuTitleTextLeftPosition.x,
+      TitleFade.IsIn()
+          ? MenuTitleTextLeftPosition.y
+          : glm::mix(
+                1.0f, 721.0f,
+                1.01011f * std::sin(1.62223f * TitleFade.Progress + 3.152f) +
+                    1.01012f));
+
+  if (MenuTransition.Progress >= 0.73f) return;
+
+  RedTitleLabelPos +=
+      glm::vec2(-572.0f * (MenuTransition.Progress * 4.0f - 3.0f),
+                460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f);
+  RightTitlePos +=
+      glm::vec2(-572.0f * (MenuTransition.Progress * 4.0f - 3.0f),
+                460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f);
 }
 
 }  // namespace CHLCC

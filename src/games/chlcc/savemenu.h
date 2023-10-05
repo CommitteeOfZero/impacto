@@ -28,10 +28,11 @@ class SaveMenu : public Menu {
   inline void DrawCircles();
   inline void DrawErin();
   inline void DrawRedBar();
-  inline void DrawTitles();
   inline void DrawPageNumber(float yOffset);
   inline void DrawButtonPrompt();
   inline void DrawSelectData(float yOffset);
+
+  void UpdateTitles();
 
   int CurrentFullSavePage = 0;
   int CurrentQuickSavePage = 0;
@@ -45,6 +46,10 @@ class SaveMenu : public Menu {
   Animation TitleFade;
   Animation SelectDataTextFade;
   SaveSystem::SaveType EntryType;
+
+  glm::vec2 RedTitleLabelPos;
+  glm::vec2 RightTitlePos;
+  glm::vec2 LeftTitlePos;
 };
 
 }  // namespace CHLCC

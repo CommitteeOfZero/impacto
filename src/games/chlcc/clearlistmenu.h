@@ -22,7 +22,6 @@ class ClearListMenu : public Menu {
   inline void DrawCircles();
   inline void DrawErin();
   inline void DrawRedBar();
-  inline void DrawTitles();
 
   inline void DrawPlayTime(float yOffset);
   inline void DrawEndingCount(float yOffset);
@@ -32,8 +31,14 @@ class ClearListMenu : public Menu {
 
   inline void DrawButtonPrompt();
 
+  void UpdateTitles();
+
   Animation MenuTransition;
   Animation TitleFade;
+
+  glm::vec2 RedTitleLabelPos;
+  glm::vec2 RightTitlePos;
+  glm::vec2 LeftTitlePos;
 };
 
 }  // namespace CHLCC

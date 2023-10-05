@@ -279,4 +279,10 @@ void BaseRenderer::SetScissorRect(RectF const& rect) {
 
 void BaseRenderer::DisableScissor() { DisableScissorImpl(); }
 
+void BaseRenderer::DrawCHLCCMenuBackground(const Sprite& sprite,
+                                           const Sprite& mask,
+                                           const RectF& dest, float alpha) {
+  DrawCHLCCMenuBackgroundImpl(sprite, mask, dest, alpha);
+}
+
 }  // namespace Impacto

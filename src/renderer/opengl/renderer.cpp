@@ -99,6 +99,7 @@ void Renderer::InitImpl() {
       glGetUniformLocation(ShaderProgramYUVFrame, "IsAlpha");
   ShaderProgramCCMessageBox = Shaders->Compile("CCMessageBoxSprite");
   glUniform1i(glGetUniformLocation(ShaderProgramCCMessageBox, "ColorMap"), 0);
+  ShaderProgramCHLCCMenuBackground = Shaders->Compile("CHLCCMenuBackground");
 
   // No-mipmapping sampler
   glGenSamplers(1, &Sampler);
@@ -471,6 +472,63 @@ void Renderer::DrawCCMessageBoxImpl(Sprite const& sprite, Sprite const& mask,
                   sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
+}
+
+void Renderer::DrawCHLCCMenuBackgroundImpl(const Sprite& sprite,
+                                           const Sprite& mask,
+                                           const RectF& dest, float alpha) {
+  if (!Drawing) {
+    ImpLog(LL_Error, LC_Render,
+           "Renderer->DrawCHLCCMenuBackground() called before BeginFrame()\n");
+    return;
+  }
+
+  if (alpha < 0.0f)
+    alpha = 0;
+  else if (alpha > 1.0f)
+    alpha = 1.0f;
+
+  // Do we have space for one more sprite quad?
+  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
+
+  if (CurrentMode != R2D_CHLCCMenuBackground) {
+    Flush();
+    CurrentMode = R2D_CHLCCMenuBackground;
+  }
+
+  glBindVertexArray(VAOSprites);
+  glUseProgram(ShaderProgramCHLCCMenuBackground);
+  glUniform1i(glGetUniformLocation(ShaderProgramCCMessageBox, "ColorMap"), 0);
+  glUniform1i(glGetUniformLocation(ShaderProgramCCMessageBox, "Mask"), 2);
+  glUniform1f(glGetUniformLocation(ShaderProgramCHLCCMenuBackground, "Alpha"),
+              alpha);
+
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
+  glActiveTexture(GL_TEXTURE2);
+  glBindTexture(GL_TEXTURE_2D, mask.Sheet.Texture);
+  glBindSampler(2, Sampler);
+
+  // Do we have the texture assigned?
+  EnsureTextureBound(sprite.Sheet.Texture);
+
+  // OK, all good, make quad
+
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
+  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
+
+  IndexBufferFill += 6;
+
+  QuadSetUVFlipped(sprite.Bounds, sprite.Sheet.DesignWidth,
+                   sprite.Sheet.DesignHeight, (uintptr_t)&vertices[0].UV,
+                   sizeof(VertexBufferSprites));
+
+  QuadSetUV(mask.Bounds, mask.Sheet.DesignWidth, mask.Sheet.DesignHeight,
+            (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites));
+
+  QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
+                  sizeof(VertexBufferSprites));
 }
 
 inline void Renderer::QuadSetUVFlipped(RectF const& spriteBounds,

@@ -7,6 +7,7 @@
 #include "../../ui/ui.h"
 #include "../../data/savesystem.h"
 #include "../../profile/dialogue.h"
+#include "../../background2d.h"
 
 #include "../../ui/widgets/chlcc/trackselectbutton.h"
 
@@ -100,17 +101,13 @@ void MusicMenu::Render() {
       DrawCircles();
     }
     DrawErin();
-    //    auto test = Vm::ScriptGetTextTableStrAddress(4, 1);
-    //    auto l = Label(test, glm::vec2(100, 100), 24, false);
-    //    l.Render();
-    glm::vec3 tint = {1.0f, 1.0f, 1.0f};
-    // Alpha goes from 0 to 1 in half the time
-    float alpha =
-        MenuTransition.Progress < 0.5f ? MenuTransition.Progress * 2.0f : 1.0f;
-    Renderer->DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-                         glm::vec4(tint, alpha));
     DrawRedBar();
-    // DrawTitles();
+
+    Renderer->CaptureScreencap(ShaderScreencapture.BgSprite);
+    Renderer->DrawCHLCCMenuBackground(
+        ShaderScreencapture.BgSprite, BackgroundFilter,
+        RectF(0.0f, 0.0f, 1280.0f, 720.0f), MenuTransition.Progress);
+
     glm::vec2 offset(0.0f, 0.0f);
     if (MenuTransition.Progress > 0.22f) {
       if (MenuTransition.Progress < 0.73f) {

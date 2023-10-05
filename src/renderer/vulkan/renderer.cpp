@@ -1661,6 +1661,11 @@ void Renderer::DisableScissorImpl() {
         RectF(0.0f, 0.0f, SwapChainExtent.width, SwapChainExtent.height);
   }
 }
+void Renderer::DrawCHLCCMenuBackgroundImpl(const Sprite& sprite,
+                                           const Sprite& mask,
+                                           const RectF& dest, float alpha) {
+  return;
+}
 
 }  // namespace Vulkan
 }  // namespace Impacto

@@ -19,7 +19,8 @@ enum Renderer2DMode {
   R2D_SpriteInverted,
   R2D_YUVFrame,
   R2D_Masked,
-  R2D_CCMessageBox
+  R2D_CCMessageBox,
+  R2D_CHLCCMenuBackground
 };
 
 struct VertexBufferSprites {
@@ -60,6 +61,9 @@ class Renderer : public BaseRenderer {
                             RectF const& dest, glm::vec4 tint, int alpha,
                             int fadeRange, float effectCt,
                             bool isScreencap) override;
+
+  void DrawCHLCCMenuBackgroundImpl(const Sprite& sprite, const Sprite& mask,
+                                   const RectF& dest, float alpha) override;
 
   void DrawSprite3DRotatedImpl(Sprite const& sprite, RectF const& dest,
                                float depth, glm::vec2 vanishingPoint,
@@ -106,6 +110,7 @@ class Renderer : public BaseRenderer {
   GLuint ShaderProgramMaskedSprite;
   GLuint ShaderProgramYUVFrame;
   GLuint ShaderProgramCCMessageBox;
+  GLuint ShaderProgramCHLCCMenuBackground;
 
   GLuint YUVFrameCbLocation;
   GLuint YUVFrameCrLocation;

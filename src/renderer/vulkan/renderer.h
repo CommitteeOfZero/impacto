@@ -134,6 +134,9 @@ class Renderer : public BaseRenderer {
                             int fadeRange, float effectCt,
                             bool isScreencap) override;
 
+  void DrawCHLCCMenuBackgroundImpl(const Sprite& sprite, const Sprite& mask,
+                                   const RectF& dest, float alpha) override;
+
   void DrawSprite3DRotatedImpl(Sprite const& sprite, RectF const& dest,
                                float depth, glm::vec2 vanishingPoint,
                                bool stayInScreen, glm::quat rot, glm::vec4 tint,

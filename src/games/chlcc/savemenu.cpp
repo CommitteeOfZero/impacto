@@ -10,6 +10,7 @@
 #include "../../ui/widgets/chlcc/saveentrybutton.h"
 #include "../../data/savesystem.h"
 #include "../../vm/vm.h"
+#include "../../background2d.h"
 
 namespace Impacto {
 namespace UI {
@@ -326,6 +327,7 @@ void SaveMenu::Update(float dt) {
       TitleFade.StartIn();
     }
     TitleFade.Update(dt);
+    UpdateTitles();
     SavePages->at(*CurrentPage)->Update(dt);
     SaveEntryButton::UpdateFocusedAlphaFade(dt);
     auto currentlyFocusedButton =
@@ -345,8 +347,6 @@ void SaveMenu::Update(float dt) {
 
 void SaveMenu::Render() {
   if (State != Hidden && ScrWork[SW_FILEALPHA] != 0) {
-    glm::vec3 tint(1.0f);
-    glm::vec4 col(1.0f, 1.0f, 1.0f, 1.0f);
     if (MenuTransition.IsIn()) {
       Renderer->DrawRect(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                          RgbIntToFloat(BackgroundColor));
@@ -354,15 +354,26 @@ void SaveMenu::Render() {
       DrawCircles();
     }
     DrawErin();
-    float alpha =
-        MenuTransition.Progress < 0.5f ? MenuTransition.Progress * 2.0f : 1.0f;
-    Renderer->DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-                         glm::vec4(tint, alpha));
     DrawRedBar();
-    DrawTitles();
+
+    if (MenuTransition.Progress > 0.34f) {
+      Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
+      Renderer->DrawSprite(MenuTitleTextSprite, RightTitlePos, glm::vec4(1.0f),
+                           glm::vec2(1.0f), MenuTitleTextAngle);
+    }
+
+    Renderer->CaptureScreencap(ShaderScreencapture.BgSprite);
+    Renderer->DrawCHLCCMenuBackground(
+        ShaderScreencapture.BgSprite, BackgroundFilter,
+        RectF(0.0f, 0.0f, 1280.0f, 720.0f), MenuTransition.Progress);
+
+    if (MenuTransition.Progress > 0.34f) {
+      Renderer->DrawSprite(MenuTitleTextSprite, LeftTitlePos);
+    }
+
     float yOffset = 0;
     if (MenuTransition.Progress > 0.22f) {
-      if (MenuTransition.Progress < 0.72f) {
+      if (MenuTransition.Progress < 0.73f) {
         // Approximated function from the original, another mess
         yOffset = glm::mix(
             -720.0f, 0.0f,
@@ -370,7 +381,6 @@ void SaveMenu::Render() {
                 0.00295643f);
       }
       SavePages->at(*CurrentPage)->MoveTo(glm::vec2(0, yOffset));
-      SavePages->at(*CurrentPage)->Tint = col;
       SavePages->at(*CurrentPage)->Render();
       Renderer->DrawSprite(SaveListSprite,
                            SaveListPosition + glm::vec2(0, yOffset));
@@ -442,31 +452,6 @@ inline void SaveMenu::DrawRedBar() {
   }
 }
 
-inline void SaveMenu::DrawTitles() {
-  if (MenuTransition.Progress > 0.34f) {
-    float labelX = RedBarLabelPosition.x;
-    float labelY = RedBarLabelPosition.y;
-    float rightTitleX = MenuTitleTextRightPos.x;
-    float rightTitleY = MenuTitleTextRightPos.y -
-                        (MenuTitleTextSprite.Bounds.Height + 2.0f) / 2.0f;
-    float leftTitleY = glm::mix(
-        1.0f, 721.0f,
-        1.01011f * sin(1.62223f * TitleFade.Progress + 3.152f) + 1.01012f);
-    if (MenuTransition.Progress < 0.72f) {
-      labelX -= 572.0f * (MenuTransition.Progress * 4.0f - 3.0f);
-      rightTitleX -= 572.0f * (MenuTransition.Progress * 4.0f - 3.0f);
-      labelY += 460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f;
-      rightTitleY += 460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f;
-    }
-    Renderer->DrawSprite(RedBarLabel, glm::vec2(labelX, labelY));
-    Renderer->DrawSprite(MenuTitleTextSprite,
-                         glm::vec2(rightTitleX, rightTitleY), glm::vec4(1.0f),
-                         glm::vec2(1.0f), MenuTitleTextAngle);
-    Renderer->DrawSprite(MenuTitleTextSprite,
-                         glm::vec2(MenuTitleTextLeftPos.x, leftTitleY));
-  }
-}
-
 inline void SaveMenu::DrawPageNumber(float yOffset) {
   Renderer->DrawSprite(
       PageNumBackgroundSprite,
@@ -503,6 +488,31 @@ inline void SaveMenu::DrawSelectData(float yOffset) {
                                    SelectDataTextPositions[idx].y + yOffset),
                          glm::vec4(glm::vec3(1.0f), alpha));
   }
+}
+void SaveMenu::UpdateTitles() {
+  if (MenuTransition.Progress <= 0.34f) return;
+
+  RedTitleLabelPos = RedBarLabelPosition;
+  RightTitlePos =
+      MenuTitleTextRightPos -
+      glm::vec2(0.0f, (MenuTitleTextSprite.Bounds.Height + 2.0f) / 2.0f);
+  LeftTitlePos = glm::vec2(
+      MenuTitleTextLeftPos.x,
+      TitleFade.IsIn()
+          ? MenuTitleTextLeftPos.y
+          : glm::mix(
+                1.0f, 721.0f,
+                1.01011f * std::sin(1.62223f * TitleFade.Progress + 3.152f) +
+                    1.01012f));
+
+  if (MenuTransition.Progress >= 0.73f) return;
+
+  RedTitleLabelPos +=
+      glm::vec2(-572.0f * (MenuTransition.Progress * 4.0f - 3.0f),
+                460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f);
+  RightTitlePos +=
+      glm::vec2(-572.0f * (MenuTransition.Progress * 4.0f - 3.0f),
+                460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f);
 }
 
 }  // namespace CHLCC

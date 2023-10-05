@@ -8,6 +8,7 @@
 #include "../../data/savesystem.h"
 #include "../../ui/widgets/chlcc/albumthumbnailbutton.h"
 #include "../../ui/widgets/group.h"
+#include "../../background2d.h"
 
 namespace Impacto {
 namespace UI {
@@ -117,15 +118,25 @@ void AlbumMenu::Render() {
     } else {
       DrawCircles();
     }
+
     DrawErin();
-    glm::vec3 tint = {1.0f, 1.0f, 1.0f};
-    // Alpha goes from 0 to 1 in half the time
-    float alpha =
-        MenuTransition.Progress < 0.5f ? MenuTransition.Progress * 2.0f : 1.0f;
-    Renderer->DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-                         glm::vec4(tint, alpha));
     DrawRedBar();
-    DrawTitles();
+
+    if (MenuTransition.Progress > 0.34f) {
+      Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
+      Renderer->DrawSprite(AlbumMenuTitle, RightTitlePos, glm::vec4(1.0f),
+                           glm::vec2(1.0f), AlbumMenuTitleAngle);
+    }
+
+    Renderer->CaptureScreencap(ShaderScreencapture.BgSprite);
+    Renderer->DrawCHLCCMenuBackground(
+        ShaderScreencapture.BgSprite, BackgroundFilter,
+        RectF(0.0f, 0.0f, 1280.0f, 720.0f), MenuTransition.Progress);
+
+    if (MenuTransition.Progress > 0.34f) {
+      Renderer->DrawSprite(AlbumMenuTitle, LeftTitlePos);
+    }
+
     glm::vec2 offset(0.0f, 0.0f);
     if (MenuTransition.Progress > 0.22f) {
       if (MenuTransition.Progress < 0.72f) {
@@ -190,6 +201,7 @@ void AlbumMenu::Update(float dt) {
     }
 
     TitleFade.Update(dt);
+    UpdateTitles();
     AlbumThumbnailButton::UpdateFocusedAlphaFade(dt);
 
     if (ShowCgViewer) {
@@ -314,31 +326,7 @@ void AlbumMenu::UpdatePages() {
   }
 }
 
-inline void AlbumMenu::DrawTitles() {
-  if (MenuTransition.Progress > 0.34f) {
-    float labelX = RedBarLabelPosition.x;
-    float labelY = RedBarLabelPosition.y;
-    float rightTitleX = AlbumMenuTitleRightPos.x;
-    float rightTitleY = AlbumMenuTitleRightPos.y;
-    float leftTitleY = glm::mix(
-        1.0f, 721.0f,
-        1.01011f * std::sin(1.62223f * TitleFade.Progress + 3.152f) + 1.01012f);
-    if (MenuTransition.Progress < 0.72f) {
-      labelX -= 572.0f * (MenuTransition.Progress * 4.0f - 3.0f);
-      rightTitleX -= 572.0f * (MenuTransition.Progress * 4.0f - 3.0f);
-      labelY += 460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f;
-      rightTitleY += 460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f;
-    }
-    Renderer->DrawSprite(RedBarLabel, glm::vec2(labelX, labelY));
-    Renderer->DrawSprite(AlbumMenuTitle, glm::vec2(rightTitleX, rightTitleY),
-                         glm::vec4(1.0f), glm::vec2(1.0f), AlbumMenuTitleAngle);
-    Renderer->DrawSprite(AlbumMenuTitle,
-                         glm::vec2(AlbumMenuTitleLeftPos.x, leftTitleY));
-  }
-}
-
 inline void AlbumMenu::DrawPage(const glm::vec2& offset) {
-  Renderer->DrawSprite(CGList, CGListPosition + offset);
   Renderer->DrawSprite(PageCountLabel, PageLabelPosition + offset);
   Renderer->DrawSprite(PageNums[CurrentPage + 1], CurrentPageNumPos + offset);
   Renderer->DrawSprite(PageNumSeparatorSlash,
@@ -354,6 +342,8 @@ inline void AlbumMenu::DrawPage(const glm::vec2& offset) {
                                offset.y));
     }
   }
+
+  Renderer->DrawSprite(CGList, CGListPosition + offset);
   Pages[CurrentPage]->MoveTo(offset);
   Pages[CurrentPage]->Render();
 }
@@ -370,6 +360,30 @@ void AlbumMenu::DrawButtonGuide() {
                                              : CgViewerButtonGuideVariation),
         CgViewerButtonGuidePos);
   }
+}
+
+void AlbumMenu::UpdateTitles() {
+  if (MenuTransition.Progress <= 0.34f) return;
+
+  RedTitleLabelPos = RedBarLabelPosition;
+  RightTitlePos = AlbumMenuTitleRightPos;
+  LeftTitlePos = glm::vec2(
+      AlbumMenuTitleLeftPos.x,
+      TitleFade.IsIn()
+          ? AlbumMenuTitleLeftPos.y
+          : glm::mix(
+                1.0f, 721.0f,
+                1.01011f * std::sin(1.62223f * TitleFade.Progress + 3.152f) +
+                    1.01012f));
+
+  if (MenuTransition.Progress >= 0.73f) return;
+
+  RedTitleLabelPos +=
+      glm::vec2(-572.0f * (MenuTransition.Progress * 4.0f - 3.0f),
+                460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f);
+  RightTitlePos +=
+      glm::vec2(-572.0f * (MenuTransition.Progress * 4.0f - 3.0f),
+                460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f);
 }
 
 }  // namespace CHLCC

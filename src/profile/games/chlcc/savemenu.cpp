@@ -134,6 +134,7 @@ void Configure() {
   LoadTextSprite = EnsureGetMemberSprite("LoadTextSprite");
   SaveTextSprite = EnsureGetMemberSprite("SaveTextSprite");
   MenuTitleTextRightPos = EnsureGetMemberVec2("MenuTitleTextRightPos");
+  MenuTitleTextLeftPos = EnsureGetMemberVec2("MenuTitleTextLeftPos");
   MenuTitleTextAngle = EnsureGetMemberFloat("MenuTitleTextAngle");
   TitleFadeInDuration = EnsureGetMemberFloat("TitleFadeInDuration");
   TitleFadeOutDuration = EnsureGetMemberFloat("TitleFadeOutDuration");

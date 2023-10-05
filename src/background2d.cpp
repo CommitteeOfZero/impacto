@@ -8,7 +8,7 @@
 #include "profile/game.h"
 #include "profile/scriptvars.h"
 #include "profile/vm.h"
-//#include "window.h"
+// #include "window.h"
 #include "renderer/renderer.h"
 
 namespace Impacto {
@@ -18,6 +18,7 @@ using namespace Impacto::Profile::Vm;
 
 Background2D Backgrounds[MaxBackgrounds2D];
 Background2D Screencaptures[MaxScreencaptures];
+Background2D ShaderScreencapture;
 
 ska::flat_hash_map<int, Background2D*> Backgrounds2D;
 
@@ -32,6 +33,11 @@ void Background2D::Init() {
     Screencaptures[i].Status = LS_Loaded;
     Screencaptures[i].IsScreencap = true;
   }
+
+  ShaderScreencapture.LoadSolidColor(0xFF000000, Window->WindowWidth,
+                                     Window->WindowHeight);
+  ShaderScreencapture.Status = LS_Loaded;
+  ShaderScreencapture.IsScreencap = true;
 }
 
 bool Background2D::LoadSync(uint32_t bgId) {
