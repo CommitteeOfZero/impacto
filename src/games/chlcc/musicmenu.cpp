@@ -86,6 +86,7 @@ void MusicMenu::Hide() {
     if (State != Hiding) {
       MenuTransition.StartOut();
     }
+    Audio::Channels[Audio::AC_BGM0].Stop(0.0f);
     State = Hiding;
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
@@ -128,10 +129,13 @@ void MusicMenu::Render() {
         MainItems->RenderingBounds =
             RectF(0.0f, TrackButtonPosTemplate.y + offset.y, 1280.0f,
                   16 * TrackOffset.y + 1);
-        MainItems->MoveTo(offset);
+
+        glm::vec2 currentScroll(0.0f,
+                                -(float)CurrentLowerBound * TrackOffset.y);
+        MainItems->MoveTo(currentScroll + offset);
         for (auto button : MainItems->Children)
           static_cast<Widgets::CHLCC::TrackSelectButton*>(button)->MoveTracks(
-              offset);
+              currentScroll + offset);
       }
       MainItems->Render();
       Renderer->DrawSprite(TrackTree, TrackTreePos + offset);
