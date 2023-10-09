@@ -119,6 +119,12 @@ void MusicMenu::Render() {
     DrawErin();
     DrawRedBar();
 
+    if (MenuTransition.Progress > 0.34f) {
+      Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
+      Renderer->DrawSprite(SoundLibraryTitle, RightTitlePos, glm::vec4(1.0f),
+                           glm::vec2(1.0f), SoundLibraryTitleAngle);
+    }
+
     Renderer->CaptureScreencap(ShaderScreencapture.BgSprite);
     Renderer->DrawCHLCCMenuBackground(
         ShaderScreencapture.BgSprite, BackgroundFilter,
@@ -147,6 +153,11 @@ void MusicMenu::Render() {
               currentScroll + offset);
       }
       MainItems->Render();
+
+      if (MenuTransition.Progress > 0.34f) {
+        Renderer->DrawSprite(SoundLibraryTitle, LeftTitlePos);
+      }
+
       Renderer->DrawSprite(TrackTree, TrackTreePos + offset);
       Renderer->DrawSprite(PlaymodeRepeatSprite, PlaymodeRepeatPos + offset);
       Renderer->DrawSprite(PlaymodeAllSprite, PlaymodeAllPos + offset);
@@ -161,6 +172,15 @@ void MusicMenu::Render() {
       CurrentlyPlayingTrackArtist.Tint = tint;
       CurrentlyPlayingTrackArtist.Render();
       Renderer->DrawSprite(NowPlaying, temp, tint);
+      if (CurrentlyPlayingTrackId != -1 &&
+          CurrentlyPlayingTrackId >= CurrentLowerBound &&
+          CurrentlyPlayingTrackId <= CurrentUpperBound) {
+        Renderer->DrawSprite(
+            HighlightStar,
+            glm::vec2(MainItems->Children[CurrentlyPlayingTrackId]->Bounds.X,
+                      MainItems->Children[CurrentlyPlayingTrackId]->Bounds.Y) +
+                HighlightStarRelativePos);
+      }
     }
   }
 }
@@ -200,6 +220,7 @@ void MusicMenu::Update(float dt) {
     }
     TitleFade.Update(dt);
     NowPlayingAnimation.Update(dt);
+    UpdateTitles();
     if (InputEnabled) MainItems->Update(dt);
     if (CurrentlyPlayingTrackId == -1) return;
     if (PlaybackMode != MPM_RepeatOne && CurrentlyPlayingTrackId < 40 &&
@@ -382,6 +403,30 @@ inline int MusicMenu::GetNextTrackId(int id) {
     }
   }
   return id;
+}
+
+void MusicMenu::UpdateTitles() {
+  if (MenuTransition.Progress <= 0.34f) return;
+
+  RedTitleLabelPos = RedBarLabelPosition;
+  RightTitlePos = SoundLibraryTitleRightPos;
+  LeftTitlePos = glm::vec2(
+      SoundLibraryTitleLeftPos.x,
+      TitleFade.IsIn()
+          ? SoundLibraryTitleLeftPos.y
+          : glm::mix(
+                1.0f, 721.0f,
+                1.01011f * std::sin(1.62223f * TitleFade.Progress + 3.152f) +
+                    1.01012f));
+
+  if (MenuTransition.Progress >= 0.73f) return;
+
+  RedTitleLabelPos +=
+      glm::vec2(-572.0f * (MenuTransition.Progress * 4.0f - 3.0f),
+                460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f);
+  RightTitlePos +=
+      glm::vec2(-572.0f * (MenuTransition.Progress * 4.0f - 3.0f),
+                460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f);
 }
 
 }  // namespace CHLCC

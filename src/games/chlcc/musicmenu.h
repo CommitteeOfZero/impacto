@@ -36,7 +36,7 @@ class MusicMenu : public Menu {
   inline void DrawRedBar();
 
   void UpdateEntries();
-
+  void UpdateTitles();
   void MusicButtonOnClick(Widgets::Button* target);
   void SwitchToTrack(int id);
   inline int GetNextTrackId(int id);
@@ -56,6 +56,10 @@ class MusicMenu : public Menu {
   Sprite PlaymodeAllSprite;
   Widgets::Label CurrentlyPlayingTrackName;
   Widgets::Label CurrentlyPlayingTrackArtist;
+
+  glm::vec2 RedTitleLabelPos;
+  glm::vec2 RightTitlePos;
+  glm::vec2 LeftTitlePos;
 };
 
 }  // namespace CHLCC

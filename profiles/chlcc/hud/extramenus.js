@@ -170,7 +170,7 @@ root.ExtraMenus = {
         ArtistOffset: {X: 411, Y: 5},
         TrackOffset: {X: 0, Y: 28},
         TrackHighlight: "TrackHighlight",
-        TrackNumRelativePos: {X: 25, Y: 7},
+        TrackNumRelativePos: {X: 25, Y: 5},
         PlaymodeRepeatPos: {X: 718, Y: 146},
         PlaymodeAllPos: {X: 771, Y: 146},
         PlaymodeRepeat: "PlaymodeRepeat",
@@ -180,8 +180,14 @@ root.ExtraMenus = {
         NowPlaying: "NowPlaying",
         NowPlayingPos: {X: 745, Y: 44},
         NowPlayingAnimationDuration: 16 / 60,
-        PlayingTrackOffset: {X: 2, Y: 25},
-        PlayingTrackArtistOffset: {X: 2, Y: 59},
+        PlayingTrackOffset: {X: 1, Y: 25},
+        PlayingTrackArtistOffset: {X: 1, Y: 59},
+        SoundLibraryTitle: "SoundLibraryTitle",
+        SoundLibraryTitleLeftPos: {X: 1, Y: 1},
+        SoundLibraryTitleRightPos: {X: 787, Y: 103},
+        SoundLibraryTitleAngle: 4.45,
+        HighlightStar: "HighlightStar",
+        HighlightStarRelativePos: {X: 1, Y: 1},
         Playlist:
             [
                 8, 14, 26, 10, 28, 12, 20, 16, 18, 24, 22, 80, 76, 32, 34,
@@ -354,6 +360,16 @@ root.Sprites["PlaymodeAllHighlight"] = {
 root.Sprites["NowPlaying"] = {
     Sheet: "Sound",
     Bounds: {X: 1, Y: 611, Width: 656, Height: 19}
+}
+
+root.Sprites["SoundLibraryTitle"] = {
+    Sheet: "Sound",
+    Bounds: {X: 805, Y: 1, Width: 118, Height: 961}
+}
+
+root.Sprites["HighlightStar"] = {
+    Sheet: "Sound",
+    Bounds: {X: 216, Y: 632, Width: 23, Height: 23}
 }
 
 // Album Menu

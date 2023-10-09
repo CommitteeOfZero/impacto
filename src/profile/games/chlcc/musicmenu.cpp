@@ -47,6 +47,12 @@ glm::vec2 NowPlayingPos;
 float NowPlayingAnimationDuration;
 glm::vec2 PlayingTrackOffset;
 glm::vec2 PlayingTrackArtistOffset;
+Sprite SoundLibraryTitle;
+glm::vec2 SoundLibraryTitleLeftPos;
+glm::vec2 SoundLibraryTitleRightPos;
+float SoundLibraryTitleAngle;
+Sprite HighlightStar;
+glm::vec2 HighlightStarRelativePos;
 int Playlist[MusicTrackCount];
 
 static void GetMemberVec2Array(glm::vec2* arr, uint32_t count,
@@ -137,6 +143,12 @@ void Configure() {
       EnsureGetMemberFloat("NowPlayingAnimationDuration");
   PlayingTrackOffset = EnsureGetMemberVec2("PlayingTrackOffset");
   PlayingTrackArtistOffset = EnsureGetMemberVec2("PlayingTrackArtistOffset");
+  SoundLibraryTitle = EnsureGetMemberSprite("SoundLibraryTitle");
+  SoundLibraryTitleLeftPos = EnsureGetMemberVec2("SoundLibraryTitleLeftPos");
+  SoundLibraryTitleRightPos = EnsureGetMemberVec2("SoundLibraryTitleRightPos");
+  SoundLibraryTitleAngle = EnsureGetMemberFloat("SoundLibraryTitleAngle");
+  HighlightStar = EnsureGetMemberSprite("HighlightStar");
+  HighlightStarRelativePos = EnsureGetMemberVec2("HighlightStarRelativePos");
   GetMemberIntArray(Playlist, MusicTrackCount, "Playlist");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(

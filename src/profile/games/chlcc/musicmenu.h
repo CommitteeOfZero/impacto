@@ -48,6 +48,12 @@ extern glm::vec2 NowPlayingPos;
 extern float NowPlayingAnimationDuration;
 extern glm::vec2 PlayingTrackOffset;
 extern glm::vec2 PlayingTrackArtistOffset;
+extern Sprite SoundLibraryTitle;
+extern glm::vec2 SoundLibraryTitleLeftPos;
+extern glm::vec2 SoundLibraryTitleRightPos;
+extern float SoundLibraryTitleAngle;
+extern Sprite HighlightStar;
+extern glm::vec2 HighlightStarRelativePos;
 extern int Playlist[MusicTrackCount];
 
 void Configure();
