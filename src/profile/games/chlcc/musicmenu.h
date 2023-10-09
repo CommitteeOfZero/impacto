@@ -43,6 +43,11 @@ extern Sprite PlaymodeRepeat;
 extern Sprite PlaymodeAll;
 extern Sprite PlaymodeRepeatHighlight;
 extern Sprite PlaymodeAllHighlight;
+extern Sprite NowPlaying;
+extern glm::vec2 NowPlayingPos;
+extern float NowPlayingAnimationDuration;
+extern glm::vec2 PlayingTrackOffset;
+extern glm::vec2 PlayingTrackArtistOffset;
 extern int Playlist[MusicTrackCount];
 
 void Configure();

@@ -3,7 +3,7 @@
 #include "../../ui/menu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
-// #include "../../ui/widgets/chlcc/imagethumbnailbutton.h"
+#include "../../ui/widgets/label.h"
 
 namespace Impacto {
 namespace UI {
@@ -43,6 +43,7 @@ class MusicMenu : public Menu {
 
   Animation MenuTransition;
   Animation TitleFade;
+  Animation NowPlayingAnimation;
 
   bool InputEnabled = false;
 
@@ -53,6 +54,8 @@ class MusicMenu : public Menu {
   MusicPlaybackMode PlaybackMode = MPM_One;
   Sprite PlaymodeRepeatSprite;
   Sprite PlaymodeAllSprite;
+  Widgets::Label CurrentlyPlayingTrackName;
+  Widgets::Label CurrentlyPlayingTrackArtist;
 };
 
 }  // namespace CHLCC

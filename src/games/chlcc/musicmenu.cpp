@@ -40,6 +40,11 @@ MusicMenu::MusicMenu() {
   TitleFade.DurationIn = TitleFadeInDuration;
   TitleFade.DurationOut = TitleFadeOutDuration;
 
+  NowPlayingAnimation.Direction = 1.0f;
+  NowPlayingAnimation.LoopMode = ALM_Stop;
+  NowPlayingAnimation.DurationIn = NowPlayingAnimationDuration;
+  NowPlayingAnimation.DurationOut = NowPlayingAnimationDuration;
+
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;
 
@@ -70,6 +75,8 @@ void MusicMenu::Show() {
     State = Showing;
     UpdateEntries();
     MainItems->Show();
+    CurrentlyPlayingTrackName.Show();
+    CurrentlyPlayingTrackArtist.Show();
     if (UI::FocusedMenu != 0) {
       LastFocusedMenu = UI::FocusedMenu;
       LastFocusedMenu->IsFocused = false;
@@ -86,6 +93,8 @@ void MusicMenu::Hide() {
     if (State != Hiding) {
       MenuTransition.StartOut();
     }
+    CurrentlyPlayingTrackId = -1;
+    NowPlayingAnimation.StartOut();
     Audio::Channels[Audio::AC_BGM0].Stop(0.0f);
     State = Hiding;
     if (LastFocusedMenu != 0) {
@@ -141,6 +150,17 @@ void MusicMenu::Render() {
       Renderer->DrawSprite(TrackTree, TrackTreePos + offset);
       Renderer->DrawSprite(PlaymodeRepeatSprite, PlaymodeRepeatPos + offset);
       Renderer->DrawSprite(PlaymodeAllSprite, PlaymodeAllPos + offset);
+      glm::vec2 temp =
+          glm::vec2(15 * 16 * (1 - NowPlayingAnimation.Progress), offset.y) +
+          NowPlayingPos;
+      glm::vec4 tint(glm::vec3(1.0f), NowPlayingAnimation.Progress);
+      CurrentlyPlayingTrackName.MoveTo(temp + PlayingTrackOffset);
+      CurrentlyPlayingTrackName.Tint = tint;
+      CurrentlyPlayingTrackName.Render();
+      CurrentlyPlayingTrackArtist.MoveTo(temp + PlayingTrackArtistOffset);
+      CurrentlyPlayingTrackArtist.Tint = tint;
+      CurrentlyPlayingTrackArtist.Render();
+      Renderer->DrawSprite(NowPlaying, temp, tint);
     }
   }
 }
@@ -156,6 +176,8 @@ void MusicMenu::Update(float dt) {
 
   if (MenuTransition.IsOut() && State == Hiding) {
     MainItems->Hide();
+    CurrentlyPlayingTrackName.Hide();
+    CurrentlyPlayingTrackArtist.Hide();
     State = Hidden;
   } else if (MenuTransition.IsIn() && State == Showing) {
     State = Shown;
@@ -177,11 +199,14 @@ void MusicMenu::Update(float dt) {
       TitleFade.StartIn();
     }
     TitleFade.Update(dt);
+    NowPlayingAnimation.Update(dt);
     if (InputEnabled) MainItems->Update(dt);
     if (CurrentlyPlayingTrackId == -1) return;
     if (PlaybackMode != MPM_RepeatOne && CurrentlyPlayingTrackId < 40 &&
         abs(Audio::Channels[Audio::AC_BGM0].PositionInSeconds() -
             PreviousPosition) > 1.0f) {
+      CurrentlyPlayingTrackId = -1;
+      NowPlayingAnimation.StartOut();
       Audio::Channels[Audio::AC_BGM0].Stop(2.0f);
     }
     if (Audio::Channels[Audio::AC_BGM0].State == Audio::ACS_Stopped) {
@@ -325,11 +350,19 @@ void MusicMenu::UpdateEntries() {
 void MusicMenu::SwitchToTrack(int id) {
   CurrentlyPlayingTrackId = id;
   if (id == -1) {
+    NowPlayingAnimation.StartOut();
     Audio::Channels[Audio::AC_BGM0].Stop(0.5f);
     return;
   }
   Io::InputStream* stream;
   Io::VfsOpen("bgm", Playlist[id], &stream);
+  if (!NowPlayingAnimation.IsIn()) NowPlayingAnimation.StartIn();
+  CurrentlyPlayingTrackName =
+      Label(Vm::ScriptGetTextTableStrAddress(4, CurrentlyPlayingTrackId * 3),
+            NowPlayingPos + PlayingTrackOffset, 32, RO_None, 0);
+  CurrentlyPlayingTrackArtist = Label(
+      Vm::ScriptGetTextTableStrAddress(4, CurrentlyPlayingTrackId * 3 + 2),
+      NowPlayingPos + PlayingTrackArtistOffset, 20, RO_None, 0);
   PreviousPosition = 0.0f;
   Audio::Channels[Audio::AC_BGM0].Play(
       Audio::AudioStream::Create(stream),
