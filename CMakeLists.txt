@@ -282,7 +282,7 @@ set(Impacto_Src
         vendor/squish/singlecolourfit.cpp
         vendor/squish/squish.cpp
 
-        vendor/pugixml/pugixml.cpp
+        vendor/pugixml/src/pugixml.cpp
 )
 
 set(Impacto_Header
@@ -557,8 +557,8 @@ set(Impacto_Header
 
         vendor/vma/vk_mem_alloc.h
 
-        vendor/pugixml/pugixml.hpp
-        vendor/pugixml/pugiconfig.hpp
+        vendor/pugixml/include/pugixml.hpp
+        vendor/pugixml/include/pugiconfig.hpp
 )
 
 if (WIN32)
@@ -727,6 +727,8 @@ include_directories(${WebP_INCLUDE_DIRS})
 include_directories(vendor/include)
 include_directories(vendor/duktape/include)
 include_directories(vendor/pcg/include)
+include_directories(vendor/pcg/include)
+include_directories(vendor/pugixml/include)
 
 if (NOT DEFINED IMPACTO_DISABLE_MSPACK)
     list(APPEND Impacto_Src
