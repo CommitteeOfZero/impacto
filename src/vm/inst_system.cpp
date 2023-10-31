@@ -26,6 +26,7 @@
 #include "../inputsystem.h"
 #include "interface/input.h"
 #include "../data/savesystem.h"
+#include "../data/achievementsystem.h"
 #include "../ui/ui.h"
 
 namespace Impacto {
@@ -152,8 +153,8 @@ VmInstruction(InstMemberWrite) {
     PopUint8(index);
     uint32_t* thdElement = (uint32_t*)thread->GetMemberPointer(index);
     uint8_t* immValue = thread->Ip;
-    int value = immValue[0] + (immValue[1] << 8) +
-                (immValue[2] << 16) + (immValue[3] << 24);
+    int value = immValue[0] + (immValue[1] << 8) + (immValue[2] << 16) +
+                (immValue[3] << 24);
     thread->Ip += 4;
     *thdElement = value;
   } else {
@@ -218,6 +219,9 @@ VmInstruction(InstSave) {
                    // 67, 70, 71, 74, 76
     case 32:
       ScrWork[SW_SAVEERRORCODE] = SaveSystem::MountSaveFile();
+
+      AchievementSystem::MountAchievementFile();
+
       if (ScrWork[SW_SAVEERRORCODE] == SaveOK) {
         UpdateTipRecords();
       }

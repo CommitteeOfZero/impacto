@@ -25,6 +25,7 @@ include('common/scriptinput.js');
 include('common/scriptvars.js');
 include('chlcc/scriptvars.js');
 include('chlcc/savedata.js');
+include('chlcc/achievementsystem.js')
 include('chlcc/tipssystem.js');
 include('chlcc/vfs.js');
 include('chlcc/sprites.js');

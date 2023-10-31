@@ -102,6 +102,15 @@ inline double ReadSwap<double>(InputStream* stream) {
 }
 
 template <int count>
+inline void ReadArraySwap(int8_t* dest, InputStream* stream) {
+  ReadArrayWithoutSwap<count>(dest, stream);
+}
+
+inline void ReadArraySwap(int8_t* dest, InputStream* stream, int count) {
+  ReadArrayWithoutSwap(dest, stream, count);
+}
+
+template <int count>
 inline void ReadArraySwap(uint16_t* dest, InputStream* stream) {
   ReadArrayWithoutSwap<count>(dest, stream);
   for (int i = 0; i < count; i++) dest[i] = SDL_Swap16(dest[i]);

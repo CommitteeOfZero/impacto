@@ -13,6 +13,7 @@
 #include "../ui/ui.h"
 #include "../vm/vm.h"
 #include "../data/savesystem.h"
+#include "../data/achievementsystem.h"
 #include "../data/tipssystem.h"
 #include "../hud/datedisplay.h"
 #include "../hud/waiticondisplay.h"
@@ -160,6 +161,7 @@ void MakeJsonProfile(std::string const& name) {
   DefineEnumInt<Vm::InstructionSet>(ctx);
   DefineEnumUint<Game::DrawComponentType>(ctx);
   DefineEnumInt<SaveSystem::SaveDataType>(ctx);
+  DefineEnumInt<AchievementSystem::AchievementDataType>(ctx);
   DefineEnumInt<TipsSystem::TipsSystemType>(ctx);
   DefineEnumInt<UI::SystemMenuType>(ctx);
   DefineEnumInt<UI::TitleMenuType>(ctx);
