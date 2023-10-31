@@ -556,9 +556,6 @@ set(Impacto_Header
         vendor/utf8-cpp/utf8.h
 
         vendor/vma/vk_mem_alloc.h
-
-        vendor/pugixml/include/pugixml.hpp
-        vendor/pugixml/include/pugiconfig.hpp
 )
 
 if (WIN32)
@@ -726,7 +723,6 @@ include_directories(${SDL2_INCLUDE_DIRS})
 include_directories(${WebP_INCLUDE_DIRS})
 include_directories(vendor/include)
 include_directories(vendor/duktape/include)
-include_directories(vendor/pcg/include)
 include_directories(vendor/pcg/include)
 include_directories(vendor/pugixml/include)
 
