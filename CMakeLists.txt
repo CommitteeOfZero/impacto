@@ -43,6 +43,7 @@ set(Impacto_Src
 
         src/data/savesystem.cpp
         src/data/tipssystem.cpp
+        src/data/achievementsystem.cpp
 
         src/profile/profile.cpp
         src/profile/profile_internal.cpp
@@ -60,6 +61,7 @@ set(Impacto_Src
 
         src/profile/data/savesystem.cpp
         src/profile/data/tipssystem.cpp
+        src/profile/data/achievementsystem.cpp
 
         src/profile/hud/saveicon.cpp
         src/profile/hud/loadingdisplay.cpp
@@ -159,6 +161,7 @@ set(Impacto_Src
         src/games/chlcc/systemmenu.cpp
         src/games/chlcc/trophymenu.cpp
         src/games/chlcc/delusiontrigger.cpp
+        src/games/chlcc/achievementsystem.cpp
 
         src/games/cc/dialoguebox.cpp
         src/games/cc/titlemenu.cpp
@@ -316,6 +319,8 @@ set(Impacto_Src
         vendor/squish/rangefit.cpp
         vendor/squish/singlecolourfit.cpp
         vendor/squish/squish.cpp
+
+        vendor/pugixml/pugixml.cpp
 )
 
 set(Impacto_Header
@@ -346,6 +351,7 @@ set(Impacto_Header
 
         src/data/savesystem.h
         src/data/tipssystem.h
+        src/data/achievementsystem.h
 
         src/profile/profile.h
         src/profile/profile_internal.h
@@ -363,6 +369,7 @@ set(Impacto_Header
 
         src/profile/data/savesystem.h
         src/profile/data/tipssystem.h
+        src/profile/data/achievementsystem.h
 
         src/profile/hud/saveicon.h
         src/profile/hud/loadingdisplay.h
@@ -460,6 +467,7 @@ set(Impacto_Header
         src/games/chlcc/systemmenu.h
         src/games/chlcc/trophymenu.h
         src/games/chlcc/delusiontrigger.h
+        src/games/chlcc/achievementsystem.h
 
         src/games/cc/dialoguebox.h
         src/games/cc/titlemenu.h
@@ -610,6 +618,8 @@ set(Impacto_Header
         vendor/vma/vk_mem_alloc.h
 
         vendor/minilua/minilua.h
+        vendor/pugixml/pugixml.hpp
+        vendor/pugixml/pugiconfig.hpp
 )
 
 if (WIN32)

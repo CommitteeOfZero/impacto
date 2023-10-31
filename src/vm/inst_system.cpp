@@ -22,6 +22,7 @@
 #include "../hud/saveicondisplay.h"
 #include "interface/input.h"
 #include "../data/savesystem.h"
+#include "../data/achievementsystem.h"
 #include "../ui/ui.h"
 #include "../voicetable.h"
 
@@ -210,6 +211,7 @@ VmInstruction(InstCopyThreadWork) {
 
 inline void LoadSaveFile() {
   ScrWork[SW_SAVEERRORCODE] = SaveSystem::MountSaveFile();
+    AchievementSystem::MountAchievementFile();
   if (ScrWork[SW_SAVEERRORCODE] == SaveOK) {
     UpdateTipRecords();
   }
