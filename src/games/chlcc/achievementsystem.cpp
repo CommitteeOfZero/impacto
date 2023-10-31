@@ -69,7 +69,6 @@ AchievementError AchievementSystem::MountAchievementFile() {
       Trophies[id].ttype = Silver;
     else
       Trophies[id].ttype = Bronze;
-    auto a = trophy.select_node("name/text()[1]").node().value();
 
     strcpy(Trophies[id].name,
            trophy.select_node("name/text()[1]").node().value());
