@@ -472,7 +472,7 @@ bool SaveSystem::GetEVVariationIsUnlocked(int evId, int variationIdx) {
   return EVFlags[AlbumEvData[evId][variationIdx]];
 }
 
-bool SaveSystem::GetBgmFlag(int id) { return true; }
+bool SaveSystem::GetBgmFlag(int id) { return BGMFlags[id]; }
 
 }  // namespace CHLCC
 }  // namespace Impacto

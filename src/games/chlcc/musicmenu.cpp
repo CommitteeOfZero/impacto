@@ -54,14 +54,10 @@ MusicMenu::MusicMenu() {
   MainItems = new Group(this);
   Sprite empty = Sprite();
 
-  auto onClick =
-      std::bind(&MusicMenu::MusicButtonOnClick, this, std::placeholders::_1);
-
   for (int idx = 0; idx < MusicTrackCount; idx++) {
     auto button = new Widgets::CHLCC::TrackSelectButton(
         idx, TrackHighlight, TrackButtonPosTemplate + (float)idx * TrackOffset,
         TrackNumRelativePos, TrackNameOffset, ArtistOffset);
-    button->OnClickHandler = onClick;
     MainItems->Add(button, FDIR_DOWN);
   }
 
@@ -360,9 +356,19 @@ inline void MusicMenu::DrawRedBar() {
 }
 
 void MusicMenu::UpdateEntries() {
+  auto onClick =
+      std::bind(&MusicMenu::MusicButtonOnClick, this, std::placeholders::_1);
+
   for (int idx = 0; idx < MainItems->Children.size(); idx++) {
     auto button = static_cast<Widgets::CHLCC::TrackSelectButton*>(
         MainItems->Children[idx]);
+
+    if (!SaveSystem::GetBgmFlag(idx)) {
+      button->SetTrackText(Vm::ScriptGetTextTableStrAddress(0, 15));
+      continue;
+    }
+
+    button->OnClickHandler = onClick;
     button->SetTrackText(Vm::ScriptGetTextTableStrAddress(4, idx * 3));
     button->SetArtistText(Vm::ScriptGetTextTableStrAddress(4, idx * 3 + 1));
   }
