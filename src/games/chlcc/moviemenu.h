@@ -27,6 +27,8 @@ class MovieMenu : public Menu {
   inline void DrawCircles();
   inline void DrawErin();
   inline void DrawRedBar();
+  inline void DrawMovieTree(float yOffset);
+  inline void DrawButtonPrompt();
   // inline void DrawTitles();
 
   // void UpdateMovieEntries();

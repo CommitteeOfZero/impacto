@@ -150,6 +150,7 @@ inline void ClearListMenu::DrawCircles() {
       if (counter + 1 <= (progress)) {
         float scale = ((progress) - (counter + 1.0f)) * 16.0f;
         scale = scale <= 320.0f ? scale : 320.0f;
+        scale *= CircleSprite.Bounds.Height / 106.0f;
         Renderer->DrawSprite(
             CircleSprite, RectF(x + (CircleSprite.Bounds.Width - scale) / 2.0f,
                                 y + (CircleSprite.Bounds.Height - scale) / 2.0f,

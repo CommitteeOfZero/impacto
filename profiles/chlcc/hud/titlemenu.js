@@ -7,12 +7,12 @@ root.TitleMenu = {
     PressToStartAnimDurationOut: 0.5,
     PressToStartSprite: "TitleMenuPressToStart",
     BackgroundSprite: "TitleMenuBackground",
-	DelusionADVUnderSprite: "DelusionADVUnder",
-	DelusionADVUnderX: 78,
-	DelusionADVUnderY: 397,
-	DelusionADVSprite: "DelusionADV",
-	DelusionADVX: 76,
-	DelusionADVY: 394,
+    DelusionADVUnderSprite: "DelusionADVUnder", // "DelusionADVUnderEnglish" with the TLed assets, "DelusionADVUnder" with the original ones
+    DelusionADVUnderX: 78, //74 with the TLed assets, 78 with the original ones
+    DelusionADVUnderY: 394, //396 with the TLed assets, 394 with the original ones
+    DelusionADVSprite: "DelusionADVEnglish", // "DelusionADVEnglish" with the TLed assets, "DelusionADV" with the original ones
+    DelusionADVX: 76, //74 with the TLed assets, 76 with the original ones
+    DelusionADVY: 394, //396 with the TLed assets, 394 with the original ones
 	SeiraUnderSprite: "SeiraUnder",
 	SeiraUnderX: 733,
 	SeiraUnderY: 0,
@@ -32,8 +32,8 @@ root.TitleMenu = {
 	ChuRightLogoX: 500,
 	ChuRightLogoY: 316,
 	LoveLogoSprite: "LoveLogo",
-	LoveLogoX: 235,
-	LoveLogoY: 336,
+    LoveLogoX: 235, //231 with the TLed assets, 235 with the original ones
+    LoveLogoY: 336, //335 with the TLed assets, 336 with the original ones
 	StarLogoSprite: "StarLogo",
 	StarLogoX: 465,
 	StarLogoY: 316,
@@ -165,9 +165,19 @@ root.Sprites["DelusionADVUnder"] = {
     Bounds: { X: 1863, Y: 772, Width: 163, Height: 27 },
 };
 
+root.Sprites["DelusionADVUnderEnglish"] = {
+    Sheet: "Title",
+    Bounds: { X: 1862, Y: 785, Width: 157, Height: 37 },
+};
+
 root.Sprites["DelusionADV"] = {
     Sheet: "Title",
     Bounds: { X: 1863, Y: 728, Width: 163, Height: 27 },
+};
+
+root.Sprites["DelusionADVEnglish"] = {
+    Sheet: "Title",
+    Bounds: { X: 1862, Y: 734, Width: 153, Height: 33 },
 };
 
 root.Sprites["SeiraUnder"] = {

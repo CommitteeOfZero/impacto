@@ -77,13 +77,14 @@ void MovieMenu::Render() {
       DrawCircles();
     }
     DrawErin();
+    DrawRedBar();
+
     glm::vec3 tint = {1.0f, 1.0f, 1.0f};
     // Alpha goes from 0 to 1 in half the time
     float alpha =
         MenuTransition.Progress < 0.5f ? MenuTransition.Progress * 2.0f : 1.0f;
     Renderer->DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                            glm::vec4(tint, alpha));
-    DrawRedBar();
     // DrawTitles();
     int yOffset = 0;
     if (MenuTransition.Progress > 0.22f) {
@@ -94,15 +95,8 @@ void MovieMenu::Render() {
             1.00397f * std::sin(3.97161f - 3.26438f * MenuTransition.Progress) -
                 0.00295643f);
       }
-      /* Renderer->DrawSprite(
-           ClearListLabel,
-           glm::vec2(LabelPosition.x, LabelPosition.y + yOffset));
-       DrawPlayTime(yOffset);
-       DrawEndingCount(yOffset);
-       DrawTIPSCount(yOffset);
-       DrawAlbumCompletion(yOffset);
-       DrawEndingTree(yOffset);
-       DrawButtonPrompt();*/
+      DrawButtonPrompt();
+      DrawMovieTree(yOffset);
     }
   }
 }
@@ -192,6 +186,33 @@ inline void MovieMenu::DrawRedBar() {
     RedBarSprite.Bounds.Width = pixelPerAdvanceRight;
     RedBarPosition = RightRedBarPosition;
     Renderer->DrawSprite(RedBarSprite, RedBarPosition);
+  }
+}
+
+inline void MovieMenu::DrawMovieTree(float yOffset) {
+  for (int i = 0; i < 10; i++) {
+    glm::vec2 boxPosition(BoxPositions[i].x, BoxPositions[i].y + yOffset);
+    glm::vec2 thumbnailPosition(ThumbnailPositions[i].x,
+                                ThumbnailPositions[i].y + yOffset);
+    Renderer->DrawSprite(MovieBox, boxPosition);
+    // Needed to deal with the openings being part of the list (unlike the clearlist)
+    if ((i < 2 && GetFlag(SF_MOVIE_UNLOCK1)) || (GetFlag(SF_CLR_END1 + i - 2))) {
+      Renderer->DrawSprite(MoviesThumbnails[i], thumbnailPosition);
+    } else {
+      Renderer->DrawSprite(LockedThumbnail, thumbnailPosition);
+    }
+  }
+  glm::vec2 listPosition(ListPosition.x, ListPosition.y + yOffset);
+  Renderer->DrawSprite(MovieList, listPosition);
+}
+
+inline void MovieMenu::DrawButtonPrompt() {
+  if (MenuTransition.IsIn()) {
+    Renderer->DrawSprite(ButtonPromptSprite, ButtonPromptPosition);
+  } else if (MenuTransition.Progress > 0.734f) {
+    float x = ButtonPromptPosition.x - 2560.0f * (MenuTransition.Progress - 1);
+    Renderer->DrawSprite(ButtonPromptSprite,
+                         glm::vec2(x, ButtonPromptPosition.y));
   }
 }
 

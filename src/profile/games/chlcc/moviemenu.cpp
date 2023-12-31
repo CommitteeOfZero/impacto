@@ -27,30 +27,25 @@ float RedBarDivision;
 float RedBarBaseX;
 Sprite RedBarSprite;
 glm::vec2 RedBarLabelPosition;
-Sprite RedBarLabel; /*
+Sprite RedBarLabel;
 glm::vec2 MenuTitleTextRightPosition;
 glm::vec2 MenuTitleTextLeftPosition;
-float MenuTitleTextAngle;*/
+float MenuTitleTextAngle;
 float TitleFadeInDuration;
 float TitleFadeOutDuration;
-/*Sprite MenuTitleText;
+Sprite MenuTitleText;
 
 glm::vec2 LabelPosition;
-Sprite ClearListLabel;
-glm::vec2 TimePositions[6];
-glm::vec2 EndingCountPosition;
-glm::vec2 TIPSCountPositions[2];
-glm::vec2 AlbumPositions[3];
-Sprite Digits[10];
+Sprite MovieLabel;
 glm::vec2 ListPosition;
-Sprite EndingList;
-glm::vec2 BoxPositions[Endings];
-Sprite EndingBox;
-glm::vec2 ThumbnailPositions[Endings];
-Sprite EndingThumbnails[Endings];
+Sprite MovieList;
+glm::vec2 BoxPositions[Movies];
+Sprite MovieBox;
+glm::vec2 ThumbnailPositions[Movies];
+Sprite MoviesThumbnails[Movies];
 Sprite LockedThumbnail;
 glm::vec2 ButtonPromptPosition;
-Sprite ButtonPromptSprite;*/
+Sprite ButtonPromptSprite;
 
 static void GetMemberVec2Array(glm::vec2* arr, uint32_t count,
                                char const* name) {
@@ -102,29 +97,24 @@ void Configure() {
   RedBarBaseX = EnsureGetMemberFloat("RedBarBaseX");
   RedBarLabelPosition = EnsureGetMemberVec2("RedBarLabelPosition");
   RedBarLabel = EnsureGetMemberSprite("RedBarLabel");
-  /*MenuTitleTextRightPosition = EnsureGetMemberVec2("MenuTitleTextRightPos");
+  MenuTitleTextRightPosition = EnsureGetMemberVec2("MenuTitleTextRightPos");
   MenuTitleTextLeftPosition = EnsureGetMemberVec2("MenuTitleTextLeftPos");
-  MenuTitleTextAngle = EnsureGetMemberFloat("MenuTitleTextAngle");*/
+  MenuTitleTextAngle = EnsureGetMemberFloat("MenuTitleTextAngle");
   TitleFadeInDuration = EnsureGetMemberFloat("TitleFadeInDuration");
   TitleFadeOutDuration = EnsureGetMemberFloat("TitleFadeOutDuration");
-  /* MenuTitleText = EnsureGetMemberSprite("MenuTitleText");
+  MenuTitleText = EnsureGetMemberSprite("MenuTitleText");
 
-   LabelPosition = EnsureGetMemberVec2("LabelPosition");
-   ClearListLabel = EnsureGetMemberSprite("ClearListLabel");
-   GetMemberVec2Array(TimePositions, 6, "TimePositions");
-   EndingCountPosition = EnsureGetMemberVec2("EndingCountPosition");
-   GetMemberVec2Array(TIPSCountPositions, 2, "TIPSCountPositions");
-   GetMemberSpriteArray(Digits, 10, "Digits");
-   GetMemberVec2Array(AlbumPositions, 3, "AlbumPositions");
-   ListPosition = EnsureGetMemberVec2("ListPosition");
-   EndingList = EnsureGetMemberSprite("EndingList");
-   GetMemberVec2Array(BoxPositions, Endings, "BoxPositions");
-   EndingBox = EnsureGetMemberSprite("EndingBox");
-   GetMemberVec2Array(ThumbnailPositions, Endings, "ThumbnailPositions");
-   GetMemberSpriteArray(EndingThumbnails, Endings, "EndingThumbnails");
-   LockedThumbnail = EnsureGetMemberSprite("LockedThumbnail");
-   ButtonPromptPosition = EnsureGetMemberVec2("ButtonPromptPosition");
-   ButtonPromptSprite = EnsureGetMemberSprite("ButtonPromptSprite");*/
+  LabelPosition = EnsureGetMemberVec2("LabelPosition");
+  MovieLabel = EnsureGetMemberSprite("MovieLabel");
+  ListPosition = EnsureGetMemberVec2("ListPosition");
+  MovieList = EnsureGetMemberSprite("MovieList");
+  GetMemberVec2Array(BoxPositions, Movies, "BoxPositions");
+  MovieBox = EnsureGetMemberSprite("MovieBox");
+  GetMemberVec2Array(ThumbnailPositions, Movies, "ThumbnailPositions");
+  GetMemberSpriteArray(MoviesThumbnails, Movies, "MoviesThumbnails");
+  LockedThumbnail = EnsureGetMemberSprite("LockedThumbnail");
+  ButtonPromptPosition = EnsureGetMemberVec2("ButtonPromptPosition");
+  ButtonPromptSprite = EnsureGetMemberSprite("ButtonPromptSprite");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMemberInt("DrawType"));
