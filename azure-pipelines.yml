@@ -3,7 +3,7 @@ jobs:
   displayName: Windows x64 Build
 
   pool:
-    vmImage: 'windows-2019'
+    vmImage: 'windows-latest'
 
   steps:
   - script: |

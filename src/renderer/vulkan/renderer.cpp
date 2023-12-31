@@ -1,7 +1,6 @@
 #include "renderer.h"
 
 #include <SDL_vulkan.h>
-#include <vulkan/vk_enum_string_helper.h>
 #include <set>
 
 #include "../../profile/game.h"
@@ -78,8 +77,8 @@ void Renderer::CreateInstance() {
   VkResult result = vkCreateInstance(&instanceCreateInfo, nullptr, &Instance);
 
   if (result != VK_SUCCESS) {
-    ImpLog(LL_Error, LC_Render, "Failed to create Vulkan instance! %s",
-           string_VkResult(result));
+    ImpLog(LL_Error, LC_Render, "Failed to create Vulkan instance! 0x%04x\n",
+           result);
     Window->Shutdown();
   }
 }
@@ -881,8 +880,8 @@ void Renderer::EndFrameImpl() {
   VkResult res = vkQueueSubmit(GraphicsQueue, 1, &submitInfo,
                                InFlightFences[CurrentFrameIndex]);
   if (res != VK_SUCCESS) {
-    ImpLog(LL_Debug, LC_Render, "Failed to submit draw command buffer! %s\n",
-           string_VkResult(res));
+    ImpLog(LL_Debug, LC_Render,
+           "Failed to submit draw command buffer! 0x%04x\n", res);
     Window->Shutdown();
   }
 
