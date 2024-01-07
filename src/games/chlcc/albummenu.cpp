@@ -82,7 +82,7 @@ AlbumMenu::AlbumMenu() {
 
 void AlbumMenu::Show() {
   if (State != Shown) {
-    MenuTransition.StartIn();
+    if (State != Showing) MenuTransition.StartIn();
     UpdatePages();
     Pages[CurrentPage]->Show();
     State = Showing;

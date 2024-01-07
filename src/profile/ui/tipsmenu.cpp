@@ -1,6 +1,7 @@
 #include "tipsmenu.h"
 #include "../profile_internal.h"
 #include "../games/mo6tw/tipsmenu.h"
+#include "../games/chlcc/tipsmenu.h"
 #include "../games/cclcc/tipsmenu.h"
 #include "../../ui/ui.h"
 #include "../../log.h"
@@ -24,7 +25,7 @@ void Configure() {
 
     Type = TipsMenuType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
 
-    if (Type != +TipsMenuType::None) {
+    if (Type != +TipsMenuType::None && Type != +TipsMenuType::CHLCC) {
       FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
       FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
 
@@ -33,6 +34,8 @@ void Configure() {
 
     if (Type == +TipsMenuType::MO6TW) {
       MO6TW::TipsMenu::Configure();
+    } else if (Type == +TipsMenuType::CHLCC) {
+      CHLCC::TipsMenu::Configure();
     } else if (Type == +TipsMenuType::CCLCC) {
       CCLCC::TipsMenu::Configure();
     } else {
