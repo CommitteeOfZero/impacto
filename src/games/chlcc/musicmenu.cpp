@@ -154,6 +154,10 @@ void MusicMenu::Render() {
         Renderer->DrawSprite(SoundLibraryTitle, LeftTitlePos);
       }
 
+      for (int idx = 0; idx < 11; idx++) {
+        Renderer->DrawSprite(SelectSound[idx], SelectSoundPos[idx] + offset);
+      }
+
       Renderer->DrawSprite(TrackTree, TrackTreePos + offset);
       Renderer->DrawSprite(PlaymodeRepeatSprite, PlaymodeRepeatPos + offset);
       Renderer->DrawSprite(PlaymodeAllSprite, PlaymodeAllPos + offset);

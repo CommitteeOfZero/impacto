@@ -54,6 +54,8 @@ float SoundLibraryTitleAngle;
 Sprite HighlightStar;
 glm::vec2 HighlightStarRelativePos;
 int Playlist[MusicTrackCount];
+Sprite SelectSound[11];
+glm::vec2 SelectSoundPos[11];
 
 static void GetMemberVec2Array(glm::vec2* arr, uint32_t count,
                                char const* name) {
@@ -150,6 +152,8 @@ void Configure() {
   HighlightStar = EnsureGetMemberSprite("HighlightStar");
   HighlightStarRelativePos = EnsureGetMemberVec2("HighlightStarRelativePos");
   GetMemberIntArray(Playlist, MusicTrackCount, "Playlist");
+  GetMemberSpriteArray(SelectSound, 11, "SelectSound");
+  GetMemberVec2Array(SelectSoundPos, 11, "SelectSoundPos");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMemberInt("DrawType"));

@@ -35,6 +35,8 @@ float TitleFadeInDuration;
 float TitleFadeOutDuration;
 Sprite MenuTitleText;
 
+Sprite SelectMovie[11];
+glm::vec2 SelectMoviePos[11];
 glm::vec2 LabelPosition;
 Sprite MovieLabel;
 glm::vec2 ListPosition;
@@ -97,13 +99,16 @@ void Configure() {
   RedBarBaseX = EnsureGetMemberFloat("RedBarBaseX");
   RedBarLabelPosition = EnsureGetMemberVec2("RedBarLabelPosition");
   RedBarLabel = EnsureGetMemberSprite("RedBarLabel");
-  MenuTitleTextRightPosition = EnsureGetMemberVec2("MenuTitleTextRightPos");
+  MenuTitleTextRightPosition =
+      EnsureGetMemberVec2("MenuTitleTextRightPos");
   MenuTitleTextLeftPosition = EnsureGetMemberVec2("MenuTitleTextLeftPos");
   MenuTitleTextAngle = EnsureGetMemberFloat("MenuTitleTextAngle");
   TitleFadeInDuration = EnsureGetMemberFloat("TitleFadeInDuration");
   TitleFadeOutDuration = EnsureGetMemberFloat("TitleFadeOutDuration");
   MenuTitleText = EnsureGetMemberSprite("MenuTitleText");
 
+  GetMemberSpriteArray(SelectMovie, 11, "SelectMovie");
+  GetMemberVec2Array(SelectMoviePos, 11, "SelectMoviePos");
   LabelPosition = EnsureGetMemberVec2("LabelPosition");
   MovieLabel = EnsureGetMemberSprite("MovieLabel");
   ListPosition = EnsureGetMemberVec2("ListPosition");

@@ -29,7 +29,7 @@ class MovieMenu : public Menu {
   inline void DrawRedBar();
   inline void DrawMovieTree(float yOffset);
   inline void DrawButtonPrompt();
-  // inline void DrawTitles();
+  void UpdateTitles();
 
   // void UpdateMovieEntries();
 
@@ -37,6 +37,10 @@ class MovieMenu : public Menu {
 
   Animation MenuTransition;
   Animation TitleFade;
+
+  glm::vec2 RedTitleLabelPos;
+  glm::vec2 RightTitlePos;
+  glm::vec2 LeftTitlePos;
 };
 
 }  // namespace CHLCC

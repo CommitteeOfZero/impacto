@@ -10,8 +10,8 @@ root.TitleMenu = {
     DelusionADVUnderSprite: "DelusionADVUnder", // "DelusionADVUnderEnglish" with the TLed assets, "DelusionADVUnder" with the original ones
     DelusionADVUnderX: 78, //74 with the TLed assets, 78 with the original ones
     DelusionADVUnderY: 394, //396 with the TLed assets, 394 with the original ones
-    DelusionADVSprite: "DelusionADVEnglish", // "DelusionADVEnglish" with the TLed assets, "DelusionADV" with the original ones
-    DelusionADVX: 76, //74 with the TLed assets, 76 with the original ones
+    DelusionADVSprite: "DelusionADV", // "DelusionADVEnglish" with the TLed assets, "DelusionADV" with the original ones
+    DelusionADVX: 78, //74 with the TLed assets, 78 with the original ones
     DelusionADVY: 394, //396 with the TLed assets, 394 with the original ones
 	SeiraUnderSprite: "SeiraUnder",
 	SeiraUnderX: 733,

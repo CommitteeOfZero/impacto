@@ -15,12 +15,11 @@ using namespace Impacto::Profile::ScriptVars;
 
 using namespace Impacto::UI::Widgets;
 
-/*void MovieMenu::MovieButtonOnClick(Button* target) {
+/**void MovieMenu::MovieButtonOnClick(Button* target) {
   auto movieButton =
   static_cast<Widgets::CHLCC::ImageThumbnailButton*>(target); if
   (!movieButton->IsLocked) { ScrWork[SW_MOVIEMODE_CUR] = movieButton->Id;
   }
-
 }*/
 
 MovieMenu::MovieMenu() {
@@ -79,24 +78,39 @@ void MovieMenu::Render() {
     DrawErin();
     DrawRedBar();
 
+    if (MenuTransition.Progress > 0.34f) {
+      Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
+      Renderer->DrawSprite(MenuTitleText, RightTitlePos,
+                           glm::vec4(1.0f), glm::vec2(1.0f),
+                           MenuTitleTextAngle);
+      Renderer->DrawSprite(MenuTitleText, LeftTitlePos);
+    }
+
     glm::vec3 tint = {1.0f, 1.0f, 1.0f};
     // Alpha goes from 0 to 1 in half the time
     float alpha =
         MenuTransition.Progress < 0.5f ? MenuTransition.Progress * 2.0f : 1.0f;
     Renderer->DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                            glm::vec4(tint, alpha));
-    // DrawTitles();
-    int yOffset = 0;
+
+    glm::vec2 offset(0.0f, 0.0f);
     if (MenuTransition.Progress > 0.22f) {
       if (MenuTransition.Progress < 0.72f) {
         // Approximated function from the original, another mess
-        yOffset = glm::mix(
-            -720.0f, 0.0f,
-            1.00397f * std::sin(3.97161f - 3.26438f * MenuTransition.Progress) -
-                0.00295643f);
+        offset = glm::vec2(
+            0.0f,
+            glm::mix(-720.0f, 0.0f,
+                     1.00397f * std::sin(3.97161f -
+                                         3.26438f * MenuTransition.Progress) -
+                         0.00295643f));
+
       }
+      for (int idx = 0; idx < 11; idx++) {
+        Renderer->DrawSprite(SelectMovie[idx], SelectMoviePos[idx] + offset);   
+      }
+
       DrawButtonPrompt();
-      DrawMovieTree(yOffset);
+      DrawMovieTree(offset.y);
     }
   }
 }
@@ -124,6 +138,7 @@ void MovieMenu::Update(float dt) {
       TitleFade.StartIn();
     }
     TitleFade.Update(dt);
+    UpdateTitles();
   }
 }
 
@@ -214,6 +229,30 @@ inline void MovieMenu::DrawButtonPrompt() {
     Renderer->DrawSprite(ButtonPromptSprite,
                          glm::vec2(x, ButtonPromptPosition.y));
   }
+}
+
+void MovieMenu::UpdateTitles() {
+  if (MenuTransition.Progress <= 0.34f) return;
+
+  RedTitleLabelPos = RedBarLabelPosition;
+  RightTitlePos = MenuTitleTextRightPosition;
+  LeftTitlePos = glm::vec2(
+      MenuTitleTextLeftPosition.x,
+      TitleFade.IsIn()
+          ? MenuTitleTextLeftPosition.y
+          : glm::mix(
+                1.0f, 721.0f,
+                1.01011f * std::sin(1.62223f * TitleFade.Progress + 3.152f) +
+                    1.01012f));
+
+  if (MenuTransition.Progress >= 0.73f) return;
+
+  RedTitleLabelPos +=
+      glm::vec2(-572.0f * (MenuTransition.Progress * 4.0f - 3.0f),
+                460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f);
+  RightTitlePos +=
+      glm::vec2(-572.0f * (MenuTransition.Progress * 4.0f - 3.0f),
+                460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f);
 }
 
 }  // namespace CHLCC

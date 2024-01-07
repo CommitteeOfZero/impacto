@@ -33,6 +33,8 @@ extern float TitleFadeInDuration;
 extern float TitleFadeOutDuration;
 extern Sprite MenuTitleText;
 
+extern Sprite SelectMovie[11];
+extern glm::vec2 SelectMoviePos[11];
 extern glm::vec2 LabelPosition;
 extern Sprite MovieLabel;
 extern Sprite MovieList;

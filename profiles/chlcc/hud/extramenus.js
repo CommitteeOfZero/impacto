@@ -73,12 +73,12 @@ root.ExtraMenus = {
         RedBarSprite: "RedBar",
         RedBarLabelPosition: { X: 1067, Y: 573 },
         RedBarLabel: "RedBarLabel",
-        MenuTitleTextRightPos: { X: 788, Y: 127 },
-        MenuTitleTextLeftPos: { X: 1, Y: 1 },
+        MenuTitleTextRightPos: { X: 790, Y: 75 },
+        MenuTitleTextLeftPos: { X: 6, Y: 3 },
         MenuTitleTextAngle: 4.45,
         TitleFadeInDuration: 40 / 60,
         TitleFadeOutDuration: 28 / 60,//
-        MenuTitleText: "MenuTitleText",
+        MenuTitleText: "MovieMenuTitleText",
         MovieLabel: "MovieLabel",
         LabelPosition: { X: 800, Y: 44 },
         MovieList: "MovieList",
@@ -87,15 +87,29 @@ root.ExtraMenus = {
         BoxPositions: [
             { X: 93, Y: 127 }, { X: 93, Y: 255 },
             { X: 93, Y: 383 }, { X: 93, Y: 511 },
-            { X: 344, Y: 199 }, { X: 341, Y: 327 },
+            { X: 341, Y: 199 }, { X: 341, Y: 327 },
             { X: 341, Y: 455 }, { X: 589, Y: 127 },
             { X: 589, Y: 255 }, { X: 589, Y: 383 },
         ],
         MoviesThumbnails: [],
         ThumbnailPositions: [],
-        LockedThumbnail: "LockedThumbnail",
+        LockedThumbnail: "MovieLockedThumbnail",
         ButtonPromptPosition: { X: 1022, Y: 651 },
-        ButtonPromptSprite: "MovieButtonPrompt"
+        ButtonPromptSprite: "MovieButtonPrompt",
+        SelectMovie: [],
+        SelectMoviePos: [
+            { X: 94, Y: 51 },
+            { X: 109, Y: 51 },
+            { X: 122, Y: 51 },
+            { X: 134, Y: 51 },
+            { X: 147, Y: 51 },
+            { X: 161, Y: 51 },
+            { X: 180, Y: 51 },
+            { X: 199, Y: 51 },
+            { X: 213, Y: 51 },
+            { X: 229, Y: 51 },
+            { X: 233, Y: 52 },
+        ]
     },
     AlbumMenu: {
         DrawType: DrawComponentType.SystemMenu,
@@ -209,12 +223,25 @@ root.ExtraMenus = {
         SoundLibraryTitleAngle: 4.45,
         HighlightStar: "HighlightStar",
         HighlightStarRelativePos: { X: 1, Y: 1 },
-        Playlist:
-            [
+        Playlist: [
                 8, 14, 26, 10, 28, 12, 20, 16, 18, 24, 22, 80, 76, 32, 34,
                 36, 38, 77, 41, 43, 78, 46, 49, 79, 51, 53, 56, 81, 59, 61,
                 63, 65, 82, 83, 84, 0, 1, 2, 4, 6, 85, 72, 74, 75, 71
-            ]
+        ],
+        SelectSound: [],
+        SelectSoundPos: [
+            { X: 94, Y: 51 },
+            { X: 109, Y: 51 },
+            { X: 122, Y: 51 },
+            { X: 134, Y: 51 },
+            { X: 147, Y: 51 },
+            { X: 161, Y: 51 },
+            { X: 178, Y: 51 },
+            { X: 192, Y: 51 },
+            { X: 206, Y: 51 },
+            { X: 220, Y: 51 },
+            { X: 234, Y: 52 },
+        ],
     }
 }
 
@@ -363,6 +390,11 @@ root.Sprites["MovieList"] = {
     Bounds: { X: 1, Y: 1, Width: 611, Height: 585 }
 }
 
+root.Sprites["MovieMenuTitleText"] = {
+    Sheet: "Movie",
+    Bounds: { X: 612, Y: 3, Width: 115, Height: 1010 }
+}
+
 var firstX = 928;
 var firstY = 93;
 var yDelta = 92;
@@ -381,7 +413,7 @@ for (var i = 1; i <= 10; i++) {
     firstY += yDelta;
 }
 
-root.Sprites["LockedThumbnail"] = {
+root.Sprites["MovieLockedThumbnail"] = {
     Sheet: "Movie",
     Bounds: { X: 928, Y: 1, Width: 160, Height: 90 }
 }
@@ -391,11 +423,71 @@ root.Sprites["MovieButtonPrompt"] = {
     Bounds: { X: 1, Y: 686, Width: 282, Height: 28 }
 }
 
-//CGList
-root.Sprites["CircleCG"] = {
-    Sheet: "CG",
-    Bounds: { X: 1, Y: 917, Width: 106, Height: 106 }
+root.Sprites["SelectMovie0"] = {
+    Sheet: "Movie",
+    Bounds: { X: 1, Y: 597, Width: 15, Height: 57 }
 }
+root.ExtraMenus.MovieMenu.SelectMovie.push("SelectMovie0")
+
+root.Sprites["SelectMovie1"] = {
+    Sheet: "Movie",
+    Bounds: { X: 19, Y: 597, Width: 16, Height: 57 }
+}
+root.ExtraMenus.MovieMenu.SelectMovie.push("SelectMovie1")
+
+root.Sprites["SelectMovie2"] = {
+    Sheet: "Movie",
+    Bounds: { X: 37, Y: 597, Width: 15, Height: 57 }
+}
+root.ExtraMenus.MovieMenu.SelectMovie.push("SelectMovie2")
+
+root.Sprites["SelectMovie3"] = {
+    Sheet: "Movie",
+    Bounds: { X: 53, Y: 597, Width: 16, Height: 57 }
+}
+root.ExtraMenus.MovieMenu.SelectMovie.push("SelectMovie3")
+
+root.Sprites["SelectMovie4"] = {
+    Sheet: "Movie",
+    Bounds: { X: 72, Y: 597, Width: 17, Height: 57 }
+}
+root.ExtraMenus.MovieMenu.SelectMovie.push("SelectMovie4")
+
+root.Sprites["SelectMovie5"] = {
+    Sheet: "Movie",
+    Bounds: { X: 89, Y: 597, Width: 13, Height: 57 }
+}
+root.ExtraMenus.MovieMenu.SelectMovie.push("SelectMovie5")
+
+root.Sprites["SelectMovie6"] = {
+    Sheet: "Movie",
+    Bounds: { X: 114, Y: 597, Width: 21, Height: 57 }
+}
+root.ExtraMenus.MovieMenu.SelectMovie.push("SelectMovie6")
+
+root.Sprites["SelectMovie7"] = {
+    Sheet: "Movie",
+    Bounds: { X: 138, Y: 597, Width: 16, Height: 57 }
+}
+root.ExtraMenus.MovieMenu.SelectMovie.push("SelectMovie7")
+
+root.Sprites["SelectMovie8"] = {
+    Sheet: "Movie",
+    Bounds: { X: 157, Y: 597, Width: 15, Height: 57 }
+}
+root.ExtraMenus.MovieMenu.SelectMovie.push("SelectMovie8")
+
+root.Sprites["SelectMovie9"] = {
+    Sheet: "Movie",
+    Bounds: { X: 179, Y: 597, Width: 7, Height: 57 }
+}
+root.ExtraMenus.MovieMenu.SelectMovie.push("SelectMovie9")
+
+root.Sprites["SelectMovie10"] = {
+    Sheet: "Movie",
+    Bounds: { X: 189, Y: 597, Width: 16, Height: 57 }
+}
+root.ExtraMenus.MovieMenu.SelectMovie.push("SelectMovie10")
 
 //SoundList
 root.Sprites["CircleSound"] = {
@@ -448,7 +540,77 @@ root.Sprites["HighlightStar"] = {
     Bounds: { X: 216, Y: 632, Width: 23, Height: 23 }
 }
 
-// Album Menu
+root.Sprites["SelectSound0"] = {
+    Sheet: "Sound",
+    Bounds: { X: 2, Y: 633, Width: 15, Height: 58 }
+}
+root.ExtraMenus.MusicMenu.SelectSound.push("SelectSound0")
+
+root.Sprites["SelectSound1"] = {
+    Sheet: "Sound",
+    Bounds: { X: 20, Y: 633, Width: 16, Height: 58 }
+}
+root.ExtraMenus.MusicMenu.SelectSound.push("SelectSound1")
+
+root.Sprites["SelectSound2"] = {
+    Sheet: "Sound",
+    Bounds: { X: 38, Y: 633, Width: 15, Height: 58 }
+}
+root.ExtraMenus.MusicMenu.SelectSound.push("SelectSound2")
+
+root.Sprites["SelectSound3"] = {
+    Sheet: "Sound",
+    Bounds: { X: 54, Y: 633, Width: 16, Height: 58 }
+}
+root.ExtraMenus.MusicMenu.SelectSound.push("SelectSound3")
+
+root.Sprites["SelectSound4"] = {
+    Sheet: "Sound",
+    Bounds: { X: 73, Y: 633, Width: 15, Height: 58 }
+}
+root.ExtraMenus.MusicMenu.SelectSound.push("SelectSound4")
+
+root.Sprites["SelectSound5"] = {
+    Sheet: "Sound",
+    Bounds: { X: 90, Y: 633, Width: 13, Height: 58 }
+}
+root.ExtraMenus.MusicMenu.SelectSound.push("SelectSound5")
+
+root.Sprites["SelectSound6"] = {
+    Sheet: "Sound",
+    Bounds: { X: 116, Y: 633, Width: 16, Height: 58 }
+}
+root.ExtraMenus.MusicMenu.SelectSound.push("SelectSound6")
+
+root.Sprites["SelectSound7"] = {
+    Sheet: "Sound",
+    Bounds: { X: 136, Y: 633, Width: 16, Height: 58 }
+}
+root.ExtraMenus.MusicMenu.SelectSound.push("SelectSound7")
+
+root.Sprites["SelectSound8"] = {
+    Sheet: "Sound",
+    Bounds: { X: 156, Y: 633, Width: 17, Height: 58 }
+}
+root.ExtraMenus.MusicMenu.SelectSound.push("SelectSound8")
+
+root.Sprites["SelectSound9"] = {
+    Sheet: "Sound",
+    Bounds: { X: 176, Y: 633, Width: 18, Height: 58 }
+}
+root.ExtraMenus.MusicMenu.SelectSound.push("SelectSound9")
+
+root.Sprites["SelectSound10"] = {
+    Sheet: "Sound",
+    Bounds: { X: 197, Y: 633, Width: 17, Height: 58 }
+}
+root.ExtraMenus.MusicMenu.SelectSound.push("SelectSound10")
+
+//CGList
+root.Sprites["CircleCG"] = {
+    Sheet: "CG",
+    Bounds: { X: 1, Y: 917, Width: 106, Height: 106 }
+}
 
 root.Sprites["CGList"] = {
     Sheet: "CG",

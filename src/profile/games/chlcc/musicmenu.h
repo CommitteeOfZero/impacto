@@ -55,6 +55,8 @@ extern float SoundLibraryTitleAngle;
 extern Sprite HighlightStar;
 extern glm::vec2 HighlightStarRelativePos;
 extern int Playlist[MusicTrackCount];
+extern Sprite SelectSound[11];
+extern glm::vec2 SelectSoundPos[11];
 
 void Configure();
 
