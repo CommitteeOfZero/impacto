@@ -14,6 +14,7 @@ namespace Profile {
 namespace CHLCC {
 namespace TitleMenu {
 
+Sprite IntroBackgroundSprite;
 Sprite BackgroundSprite;
 Sprite DelusionADVUnderSprite;
 Sprite DelusionADVSprite;
@@ -121,6 +122,7 @@ static void GetMemberSpriteArray(Sprite* arr, uint32_t count,
 }
 
 void Configure() {
+  IntroBackgroundSprite = EnsureGetMemberSprite("IntroBackgroundSprite");
   BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
   DelusionADVUnderSprite = EnsureGetMemberSprite("DelusionADVUnderSprite");
   DelusionADVUnderX = EnsureGetMemberFloat("DelusionADVUnderX");

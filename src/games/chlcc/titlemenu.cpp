@@ -110,31 +110,31 @@ TitleMenu::TitleMenu() {
   // Clear List secondary Extra menu button
   ClearList = new TitleButton(0, MenuEntriesSprites[6], MenuEntriesHSprites[6],
                               SecondaryItemHighlightSprite,
-                              glm::vec2(SecondaryItemX, ItemClearListY));
+                              glm::vec2(SecondaryItemX, ItemSoundLibraryY));
   ClearList->OnClickHandler = secondaryOnClick;
   ClearList->IsSubButton = true;
-  ClearList->LineDecoration = LineSprites[0];
-  ClearList->LineY = SecondaryMenuExtraClearY;
+  ClearList->LineDecoration = LineSprites[2];
+  ClearList->LineY = SecondaryMenuExtraSoundY;
   LockedExtraItems->Add(ClearList, FDIR_DOWN);
 
   // Tips secondary Extra menu button
   Tips = new TitleButton(1, MenuEntriesSprites[10], MenuEntriesHSprites[10],
                          SecondaryItemHighlightSprite,
-                         glm::vec2(SecondaryItemX, ItemCGLibraryY));
+                         glm::vec2(SecondaryItemX, ItemMovieLibraryY));
   Tips->OnClickHandler = secondaryOnClick;
   Tips->IsSubButton = true;
-  Tips->LineDecoration = LineSprites[1];
-  Tips->LineY = SecondaryMenuExtraCGY;
+  Tips->LineDecoration = LineSprites[3];
+  Tips->LineY = SecondaryMenuExtraMovieY;
   LockedExtraItems->Add(Tips, FDIR_DOWN);
 
   // Trophy secondary Extra menu button
   Trophy = new TitleButton(2, MenuEntriesSprites[11], MenuEntriesHSprites[11],
                            SecondaryItemHighlightSprite,
-                           glm::vec2(SecondaryItemX, ItemSoundLibraryY));
+                           glm::vec2(SecondaryItemX, ItemTipsY));
   Trophy->OnClickHandler = secondaryOnClick;
   Trophy->IsSubButton = true;
-  Trophy->LineDecoration = LineSprites[2];
-  Trophy->LineY = SecondaryMenuExtraSoundY;
+  Trophy->LineDecoration = LineSprites[4];
+  Trophy->LineY = SecondaryMenuExtraTipsY;
   LockedExtraItems->Add(Trophy, FDIR_DOWN);
   
   //Unlocked Extra Menus
@@ -376,7 +376,9 @@ void TitleMenu::Render() {
   if (State != Hidden && GetFlag(SF_TITLEMODE)) {
     if (ScrWork[SW_MENUCT] < 64) {
       switch (ScrWork[SW_TITLEDISPCT]) {
-        case 0:  // Initial animation
+        case 0: { // Initial animation
+          Renderer->DrawSprite(IntroBackgroundSprite, glm::vec2(0.0f));
+        } break;
         case 1: {  // Press to start
           DrawTitleMenuBackGraphics();
           glm::vec4 col = glm::vec4(1.0f);

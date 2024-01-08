@@ -6,6 +6,7 @@ root.TitleMenu = {
     PressToStartAnimDurationIn: 0.5,
     PressToStartAnimDurationOut: 0.5,
     PressToStartSprite: "TitleMenuPressToStart",
+    IntroBackgroundSprite: "TitleMenuIntroBackground",
     BackgroundSprite: "TitleMenuBackground",
     DelusionADVUnderSprite: "DelusionADVUnder", // "DelusionADVUnderEnglish" with the TLed assets, "DelusionADVUnder" with the original ones
     DelusionADVUnderX: 78, //74 with the TLed assets, 78 with the original ones
@@ -233,6 +234,11 @@ root.Sprites["CopyrightText"] = {
 root.Sprites["SpinningCircle"] = {
     Sheet: "Title",
     Bounds: { X: 1366, Y: 1, Width: 681, Height: 681 },
+};
+
+root.Sprites["TitleMenuIntroBackground"] = {
+    Sheet: "TitleBg1",
+    Bounds: { X: 0, Y: 0, Width: 1280, Height: 720 },
 };
 
 root.Sprites["TitleMenuBackground"] = {

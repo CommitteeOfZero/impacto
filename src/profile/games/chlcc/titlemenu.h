@@ -12,6 +12,7 @@ void Configure();
 
 static int const LineEntriesNumMax = 32;
 
+extern Sprite IntroBackgroundSprite;
 extern Sprite BackgroundSprite;
 extern Sprite DelusionADVUnderSprite;
 extern Sprite DelusionADVSprite;
