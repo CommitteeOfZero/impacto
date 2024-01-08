@@ -1,6 +1,8 @@
 #include "optionsmenu.h"
 #include "../profile_internal.h"
 #include "../games/mo6tw/optionsmenu.h"
+#include "../games/chlcc/optionsmenu.h"
+#include "../games/cclcc/optionsmenu.h"
 #include "../../ui/ui.h"
 #include "../../log.h"
 
@@ -27,16 +29,22 @@ void Configure() {
     Type =
         OptionsMenuType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
 
-    FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
-    FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
+    if (Type != +OptionsMenuType::CHLCC) {
+      FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
+      FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
 
-    BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
-    SliderTrackSprite = EnsureGetMemberSprite("SliderTrackSprite");
-    SliderFillSprite = EnsureGetMemberSprite("SliderFillSprite");
-    SliderThumbSprite = EnsureGetMemberSprite("SliderThumbSprite");
+      BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
+      SliderTrackSprite = EnsureGetMemberSprite("SliderTrackSprite");
+      SliderFillSprite = EnsureGetMemberSprite("SliderFillSprite");
+      SliderThumbSprite = EnsureGetMemberSprite("SliderThumbSprite");
+    };
 
     if (Type == +OptionsMenuType::MO6TW) {
       MO6TW::OptionsMenu::Configure();
+    } else if (Type == +OptionsMenuType::CHLCC) {
+      CHLCC::OptionsMenu::Configure();
+    } else if (Type == +OptionsMenuType::CCLCC) {
+      CCLCC::OptionsMenu::Configure();
     }
 
     Pop();

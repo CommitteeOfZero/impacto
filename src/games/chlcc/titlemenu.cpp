@@ -351,7 +351,6 @@ void TitleMenu::Update(float dt) {
           MainItems->HasFocus = false;
           CurrentlyFocusedElement = Config;
           Config->HasFocus = true;
-
           SecondaryFadeAnimation.DurationIn = SecondaryFadeInDuration;
           SecondaryFadeAnimation.DurationOut = SecondaryFadeOutDuration;
           SecondaryFadeAnimation.StartIn();
@@ -378,7 +377,6 @@ void TitleMenu::Render() {
     if (ScrWork[SW_MENUCT] < 64) {
       switch (ScrWork[SW_TITLEDISPCT]) {
         case 0:  // Initial animation
-          break;
         case 1: {  // Press to start
           DrawTitleMenuBackGraphics();
           glm::vec4 col = glm::vec4(1.0f);

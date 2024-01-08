@@ -44,4 +44,5 @@ include('chlcc/hud/sysmesboxdisplay.js');
 include('chlcc/hud/selectiondisplay.js');
 include('chlcc/hud/tipsmenu.js');
 include('chlcc/hud/tipsnotification.js');
-include('chlcc/hud/extramenus.js')
+include('chlcc/hud/optionsmenu.js');
+include('chlcc/hud/extramenus.js');
