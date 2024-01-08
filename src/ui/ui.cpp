@@ -11,6 +11,7 @@ Menu* SystemMenuPtr = new NullMenu();
 Menu* TitleMenuPtr = new NullMenu();
 Menu* SaveMenuPtr = new NullMenu();
 Menu* OptionsMenuPtr = new NullMenu();
+Menu* TrophyMenuPtr = new NullMenu();
 
 SelectionMenu* SelectionMenuPtr = 0;
 SysMesBox* SysMesBoxPtr = 0;

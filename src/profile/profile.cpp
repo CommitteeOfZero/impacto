@@ -165,6 +165,7 @@ void MakeJsonProfile(std::string const& name) {
   DefineEnumInt<UI::TitleMenuType>(ctx);
   DefineEnumInt<UI::SaveMenuType>(ctx);
   DefineEnumInt<UI::OptionsMenuType>(ctx);
+  DefineEnumInt<UI::TrophyMenuType>(ctx);
   DefineEnumInt<UI::TipsMenuType>(ctx);
   DefineEnumInt<UI::ClearListMenuType>(ctx);
   DefineEnumInt<UI::AlbumMenuType>(ctx);

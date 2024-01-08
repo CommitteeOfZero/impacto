@@ -68,6 +68,7 @@ set(Impacto_Src
         src/profile/ui/optionsmenu.cpp
         src/profile/ui/tipsmenu.cpp
         src/profile/ui/extramenus.cpp
+        src/profile/ui/trophymenu.cpp
 
         src/profile/games/rne/tilebackground.cpp
         src/profile/games/rne/systemmenu.cpp
@@ -86,6 +87,7 @@ set(Impacto_Src
         src/profile/games/chlcc/tipsmenu.cpp
         src/profile/games/chlcc/optionsmenu.cpp
         src/profile/games/chlcc/systemmenu.cpp
+        src/profile/games/chlcc/trophymenu.cpp
 
         src/profile/games/cc/dialoguebox.cpp
         src/profile/games/cc/titlemenu.cpp
@@ -134,6 +136,7 @@ set(Impacto_Src
         src/games/chlcc/tipsmenu.cpp
         src/games/chlcc/optionsmenu.cpp
         src/games/chlcc/systemmenu.cpp
+        src/games/chlcc/trophymenu.cpp
 
         src/games/cc/dialoguebox.cpp
         src/games/cc/titlemenu.cpp
@@ -351,6 +354,7 @@ set(Impacto_Header
         src/profile/ui/optionsmenu.h
         src/profile/ui/tipsmenu.h
         src/profile/ui/extramenus.h
+        src/profile/ui/trophymenu.h
 
         src/profile/games/rne/tilebackground.h
         src/profile/games/rne/systemmenu.h
@@ -369,6 +373,7 @@ set(Impacto_Header
         src/profile/games/chlcc/tipsmenu.h
         src/profile/games/chlcc/optionsmenu.h
         src/profile/games/chlcc/systemmenu.h
+        src/profile/games/chlcc/trophymenu.h
 
         src/profile/games/cc/dialoguebox.h
         src/profile/games/cc/titlemenu.h
@@ -417,6 +422,7 @@ set(Impacto_Header
         src/games/chlcc/tipsmenu.h
         src/games/chlcc/optionsmenu.h
         src/games/chlcc/systemmenu.h
+        src/games/chlcc/trophymenu.h
 
         src/games/cc/dialoguebox.h
         src/games/cc/titlemenu.h

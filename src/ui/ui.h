@@ -23,6 +23,7 @@ BETTER_ENUM(AlbumMenuType, int, None, MO6TW, CHLCC)
 BETTER_ENUM(MusicMenuType, int, None, MO6TW, CHLCC)
 BETTER_ENUM(MovieMenuType, int, None, MO6TW, CHLCC)
 BETTER_ENUM(ActorsVoiceMenuType, int, None, MO6TW)
+BETTER_ENUM(TrophyMenuType, int, None, CHLCC)
 
 int const MaxExtraMenus = 10;
 
@@ -36,6 +37,7 @@ extern Menu* SystemMenuPtr;
 extern Menu* TitleMenuPtr;
 extern Menu* SaveMenuPtr;
 extern Menu* OptionsMenuPtr;
+extern Menu* TrophyMenuPtr;
 
 //
 extern SelectionMenu* SelectionMenuPtr;
