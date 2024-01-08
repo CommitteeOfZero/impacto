@@ -36,6 +36,15 @@ float MenuTitleTextAngle;
 float TitleFadeInDuration;
 float TitleFadeOutDuration;
 Sprite MenuTitleText;
+glm::vec2 TreePosition;
+Sprite TipsTree;
+glm::vec2 GradientPosition;
+Sprite TipsGradient;
+uint32_t EndOfGradientColor;
+glm::vec2 CurrentTipBackgroundPosition;
+Sprite CurrentTipBackgroundSprite;
+glm::vec2 ButtonPromptPosition;
+Sprite ButtonPromptSprite;
 
 static void GetMemberVec2Array(glm::vec2* arr, uint32_t count,
                                char const* name) {
@@ -93,6 +102,15 @@ void Configure() {
   TitleFadeInDuration = EnsureGetMemberFloat("TitleFadeInDuration");
   TitleFadeOutDuration = EnsureGetMemberFloat("TitleFadeOutDuration");
   MenuTitleText = EnsureGetMemberSprite("MenuTitleText");
+  TreePosition = EnsureGetMemberVec2("TreePosition");
+  TipsTree = EnsureGetMemberSprite("TipsTree");
+  GradientPosition = EnsureGetMemberVec2("GradientPosition");
+  TipsGradient = EnsureGetMemberSprite("TipsGradient");
+  EndOfGradientColor = EnsureGetMemberUint("EndOfGradientColor");
+  CurrentTipBackgroundPosition = EnsureGetMemberVec2("CurrentTipBackgroundPosition");
+  CurrentTipBackgroundSprite = EnsureGetMemberSprite("CurrentTipBackgroundSprite");
+  ButtonPromptPosition = EnsureGetMemberVec2("ButtonPromptPosition");
+  ButtonPromptSprite = EnsureGetMemberSprite("ButtonPromptSprite");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMemberInt("DrawType"));

@@ -30,6 +30,15 @@ extern float MenuTitleTextAngle;
 extern float TitleFadeInDuration;
 extern float TitleFadeOutDuration;
 extern Sprite MenuTitleText;
+extern glm::vec2 TreePosition;
+extern Sprite TipsTree;
+extern glm::vec2 GradientPosition;
+extern Sprite TipsGradient;
+extern uint32_t EndOfGradientColor;
+extern glm::vec2 CurrentTipBackgroundPosition;
+extern Sprite CurrentTipBackgroundSprite;
+extern glm::vec2 ButtonPromptPosition;
+extern Sprite ButtonPromptSprite;
 
 void Configure();
 

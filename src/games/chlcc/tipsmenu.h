@@ -33,6 +33,8 @@ class TipsMenu : public UI::TipsMenu {
   inline void DrawCircles();
   inline void DrawErin();
   inline void DrawRedBar();
+  inline void DrawTipsTree(float yOffset);
+  inline void DrawButtonPrompt();
   void UpdateTitles();
 
   Animation MenuTransition;

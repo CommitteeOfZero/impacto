@@ -83,7 +83,6 @@ void TipsMenu::Render() {
     Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
     Renderer->DrawSprite(MenuTitleText, RightTitlePos, glm::vec4(1.0f),
                          glm::vec2(1.0f), MenuTitleTextAngle);
-    Renderer->DrawSprite(MenuTitleText, LeftTitlePos);
   }
 
   glm::vec3 tint = {1.0f, 1.0f, 1.0f};
@@ -92,6 +91,24 @@ void TipsMenu::Render() {
       MenuTransition.Progress < 0.5f ? MenuTransition.Progress * 2.0f : 1.0f;
   Renderer->DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                        glm::vec4(tint, alpha));
+
+  glm::vec2 offset(0.0f, 0.0f);
+  if (MenuTransition.Progress > 0.22f) {
+    if (MenuTransition.Progress < 0.72f) {
+      // Approximated function from the original, another mess
+      offset = glm::vec2(
+          0.0f,
+          glm::mix(-720.0f, 0.0f,
+                   1.00397f * std::sin(3.97161f -
+                                       3.26438f * MenuTransition.Progress) -
+                       0.00295643f));
+    }
+    DrawTipsTree(offset.y);
+    if (MenuTransition.Progress > 0.34f) {
+      Renderer->DrawSprite(MenuTitleText, LeftTitlePos);
+    }
+    DrawButtonPrompt();
+  }
 }
 
 void TipsMenu::Update(float dt) {
@@ -186,6 +203,36 @@ inline void TipsMenu::DrawRedBar() {
     RedBarSprite.Bounds.Width = pixelPerAdvanceRight;
     RedBarPosition = RightRedBarPosition;
     Renderer->DrawSprite(RedBarSprite, RedBarPosition);
+  }
+}
+
+inline void TipsMenu::DrawTipsTree(float yOffset) {
+  glm::vec2 currentTipBackgroundPosition(
+      CurrentTipBackgroundPosition.x, CurrentTipBackgroundPosition.y + yOffset);
+  Renderer->DrawSprite(CurrentTipBackgroundSprite,
+                       currentTipBackgroundPosition);
+  glm::vec2 gradientPosition(GradientPosition.x, GradientPosition.y + yOffset);
+  Renderer->DrawSprite(TipsGradient, gradientPosition);
+  Renderer->DrawRect(
+      RectF(GradientPosition.x, TipsGradient.Bounds.Height + yOffset,
+            TipsGradient.Bounds.Width - 10.0f,
+                           720.0f - TipsGradient.Bounds.Height - 86.0f),
+      RgbIntToFloat(EndOfGradientColor));
+  Renderer->DrawRect(RectF(GradientPosition.x, 634.0f + yOffset,
+            TipsGradient.Bounds.Width,
+            86.0f),
+      RgbIntToFloat(EndOfGradientColor));
+  glm::vec2 treePosition(TreePosition.x, TreePosition.y + yOffset);
+  Renderer->DrawSprite(TipsTree, treePosition);
+}
+
+inline void TipsMenu::DrawButtonPrompt() {
+  if (MenuTransition.IsIn()) {
+    Renderer->DrawSprite(ButtonPromptSprite, ButtonPromptPosition);
+  } else if (MenuTransition.Progress > 0.734f) {
+    float x = ButtonPromptPosition.x - 2560.0f * (MenuTransition.Progress - 1);
+    Renderer->DrawSprite(ButtonPromptSprite,
+                         glm::vec2(x, ButtonPromptPosition.y));
   }
 }
 
