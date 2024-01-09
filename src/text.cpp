@@ -20,6 +20,7 @@
 #include "hud/tipsnotification.h"
 #include "games/mo6tw/dialoguebox.h"
 #include "games/chlcc/dialoguebox.h"
+#include "profile/games/chlcc/dialoguebox.h"
 #include "games/cc/dialoguebox.h"
 
 #include "../vendor/utf8-cpp/utf8.h"
@@ -318,6 +319,10 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, int nextLineStart) {
   }
 
   float lineHeight = DefaultFontSize;
+  // Erin DialogueBox
+  if (DialogueBoxType::CHLCC && Mode == DPM_REV) {
+    lineHeight = Impacto::Profile::CHLCC::DialogueBox::REVLineHeight;
+  }
   // Glyphs of different font sizes are bottom-aligned within the line
   for (int i = LastLineStart; i < nextLineStart; i++) {
     if (Glyphs[i].DestRect.Height > lineHeight)
@@ -328,6 +333,10 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, int nextLineStart) {
                            (lineHeight - Glyphs[i].DestRect.Height);
   }
   float lineSpacing = DialogueFont->LineSpacing;
+  // Erin DialogueBox
+  if (DialogueBoxType::CHLCC && Mode == DPM_REV) {
+    lineSpacing = Impacto::Profile::CHLCC::DialogueBox::REVLineSpacing;
+  }
   if (Mode == DPM_TIPS) lineSpacing = TipsLineSpacing;
   CurrentLineTop =
       CurrentLineTop + CurrentLineTopMargin + lineHeight + lineSpacing;
@@ -345,7 +354,7 @@ void DialoguePage::EndRubyBase(int lastBaseCharacter) {
 }
 
 void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice) {
-  if (Mode == DPM_ADV || NVLResetBeforeAdd || PrevMode != Mode) {
+  if (Mode == DPM_ADV || Mode == DPM_REV || NVLResetBeforeAdd || PrevMode != Mode) {
     Clear();
   }
   PrevMode = Mode;
@@ -359,6 +368,10 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice) {
   AutoForward = false;
 
   float FontSize = DefaultFontSize;
+  // Erin DialogueBox
+  if (DialogueBoxType::CHLCC && Mode == DPM_REV) {
+    FontSize = Impacto::Profile::CHLCC::DialogueBox::REVFontSize;
+  }
   TextParseState State = TPS_Normal;
   // TODO respect alignment
   TextAlignment Alignment = TextAlignment::Left;
@@ -397,7 +410,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice) {
       case STT_CharacterNameStart: {
         HasName = true;
         State = TPS_Name;
-        if (Mode == DPM_REV) {
+        if (!DialogueBoxType::CHLCC && Mode == DPM_REV) {
           CurrentLineTop += REVNameOffset;
         }
         break;
@@ -471,7 +484,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice) {
         break;
       }
       case STT_UnlockTip: {
-        if ((Mode == DPM_ADV || Mode == DPM_NVL) &&
+        if ((Mode == DPM_ADV || (DialogueBoxType::CHLCC && Mode == DPM_REV) || Mode == DPM_NVL) &&
             TipsSystem::GetTipLockedState(token.Val_Uint16)) {
           TipsSystem::SetTipLockedState(token.Val_Uint16, false);
           TipsNotification::AddTip(token.Val_Uint16);
@@ -557,6 +570,11 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice) {
   // Even if there is a name in the string it should not be
   // rendered when in NVL mode
   if (Mode == DPM_NVL) {
+    HasName = false;
+    NameLength = 0;
+  }
+
+  if (DialogueBoxType::CHLCC && Mode == DPM_REV) {
     HasName = false;
     NameLength = 0;
   }
@@ -649,7 +667,7 @@ void DialoguePage::Render() {
     WaitIconDisplay::Render(glm::vec2(Glyphs[Length - 1].DestRect.X +
                                           Glyphs[Length - 1].DestRect.Width,
                                       Glyphs[Length - 1].DestRect.Y),
-                            col);
+                            col, Mode);
   }
 }
 

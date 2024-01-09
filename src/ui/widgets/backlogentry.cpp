@@ -27,8 +27,11 @@ BacklogEntry::BacklogEntry(int id, uint8_t* str, int audioId, glm::vec2 pos) {
 
   Impacto::Vm::Sc3VmThread dummy;
   dummy.Ip = str;
-  Profile::Dialogue::REVBounds.X = pos.x;
-  Profile::Dialogue::REVBounds.Y = pos.y;
+  //CHLCC uses DPM_REV for the Erin DialogueBox
+  if (!DialogueBoxType::CHLCC) {
+    Profile::Dialogue::REVBounds.X = pos.x;
+    Profile::Dialogue::REVBounds.Y = pos.y;
+  }
   BacklogPage->AddString(&dummy);
   TextLength = BacklogPage->Length;
   float currentY = BacklogPage->Glyphs[0].DestRect.Y;

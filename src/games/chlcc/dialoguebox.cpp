@@ -34,10 +34,11 @@ void DialogueBox::Render(DialoguePageMode mode, bool hasName, float nameWidth,
     // On subsequent calls it's equal to 0 and *acts* as a boolean again.
     col.a = opacity;
     Renderer->DrawSprite(*advBoxSprite, ADVBoxPos, col);
-  } else {
-    glm::vec4 nvlBoxTint(0.0f, 0.0f, 0.0f, opacity * NVLBoxMaxOpacity);
-    Renderer->DrawRect(RectF(0, 0, Profile::DesignWidth, Profile::DesignHeight),
-                       nvlBoxTint);
+  }
+
+  if (mode == DPM_REV) {
+    glm::vec4 col = glm::vec4(1.0f);
+    Renderer->DrawSprite(REVBoxSprite, REVBoxPos, col);
   }
 
   if (mode == DPM_ADV && hasName) {
@@ -87,6 +88,12 @@ void DialogueBox::Render(DialoguePageMode mode, bool hasName, float nameWidth,
       Renderer->DrawSprite(*advNameTagRightSprite,
                            glm::vec2(lineX, advNameTagPosition->y), col);
     }
+  } 
+  
+  if (mode == DPM_NVL) {
+    glm::vec4 nvlBoxTint(0.0f, 0.0f, 0.0f, opacity * NVLBoxMaxOpacity);
+    Renderer->DrawRect(RectF(0, 0, Profile::DesignWidth, Profile::DesignHeight),
+                       nvlBoxTint);
   }
 }
 

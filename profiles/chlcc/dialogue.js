@@ -6,14 +6,20 @@ root.Sprites["SecondaryADVBox"] = {
     Sheet: "Data",
     Bounds: { X: 768, Y: 427, Width: 1280, Height: 206 },
 };
+root.Sprites["REVBox"] = {
+    Sheet: "Data",
+    Bounds: { X: 36, Y: 143, Width: 541, Height: 168 },
+};
 
 root.Dialogue = {
-    REVBounds: { X: 0, Y: 0, Width: 960, Height: 400 },
+    REVBounds: { X: 339, Y: 192, Width: 478, Height: 106 },
+    REVBoxSprite: "REVBox",
+    REVBoxPos: { X: 314, Y: 156 },
     REVNameFontSize: 24,
     REVNameColor: 24,
     REVNameOffset: 34,
     NVLBounds: { X: 125, Y: 85, Width: 1024, Height: 400 },
-    ADVBounds: { X: 161, Y: 546, Width: 960, Height: 180 },
+    ADVBounds: { X: 161, Y: 546, Width: 928, Height: 180 },
     ADVBoxSprite: "ADVBox",
     SecondaryADVBoxSprite:  "SecondaryADVBox",
     ADVBoxPos: { X: -1, Y: 512 },
@@ -25,9 +31,13 @@ root.Dialogue = {
     ADVNameFontSize: 29,
     ADVNamePos: { X: 132, Y: 470 },
     WaitIconSpriteAnim: "WaitIconSpriteAnimDef",
-	WaitIconCurrentType: WaitIconType.SpriteAnim,
+    WaitIconCurrentType: WaitIconType.SpriteAnim,
+    REVWaitIconOffset: { X: 4, Y: -4 },
     WaitIconOffset: { X: 4, Y: 4 },
     DialogueFont: "Default",
+    REVLineHeight: 24,
+    REVLineSpacing: 16,
+    REVFontSize: 24,
     DefaultFontSize: 32,
     RubyFontSize: 14,
     RubyYOffset: -18,

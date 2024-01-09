@@ -2,6 +2,7 @@
 
 #include "../profile/dialogue.h"
 #include "../renderer/renderer.h"
+#include "../profile/games/chlcc/dialoguebox.h"
 
 namespace Impacto {
 namespace WaitIconDisplay {
@@ -12,6 +13,7 @@ static Animation SimpleAnim;
 static SpriteAnimation SpriteAnim;
 
 using namespace Impacto::Profile::Dialogue;
+using namespace Impacto::Profile::CHLCC;
 
 void Init() {
   if (WaitIconCurrentType == +WaitIconType::SpriteAnim) {
@@ -38,13 +40,22 @@ void Update(float dt) {
     SimpleAnim.Update(dt);
   }
 }
-void Render(glm::vec2 pos, glm::vec4 opacityTint) {
+void Render(glm::vec2 pos, glm::vec4 opacityTint, DialoguePageMode mode) {
   if (WaitIconCurrentType == +WaitIconType::SpriteAnim) {
     if (DialogueBoxType::CHLCC) {
-      glm::vec4 col = glm::vec4(1.0);
-      Renderer->DrawSprite(
-          SpriteAnim.CurrentSprite(),
-          glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y), col);
+      // To deal with multiple DialogueBox
+      glm::vec4 col = glm::vec4(1.0f, 1.0f, 1.0f, opacityTint.w);
+      // Erin DialogueBox
+      if (mode == DPM_REV) {
+        Renderer->DrawSprite(SpriteAnim.CurrentSprite(),
+            glm::vec2(pos.x + Impacto::Profile::CHLCC::DialogueBox::REVWaitIconOffset.x,
+                      pos.y + Impacto::Profile::CHLCC::DialogueBox::REVWaitIconOffset.y),
+            col);
+      
+      } else {
+        Renderer->DrawSprite(SpriteAnim.CurrentSprite(),
+            glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y), col);
+      }
     } else {
       Renderer->DrawSprite(
           SpriteAnim.CurrentSprite(),

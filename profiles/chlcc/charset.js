@@ -26,7 +26,7 @@ for (var i = 0; i < spaces.length; i++) {
 
 // 、 。 ． ， ？ ！ 〜 ” ー ） 〕 ］ ｝ 〉 》 」 』 】☆ ★ ♪ 々 ぁ ぃ ぅ ぇ
 // ぉ っ ゃ ゅ ょ ァ ィ ゥ ェ ォ ッ ャ ュ ョ –
-var wordEndingPuncts = [
+/*var wordEndingPuncts = [
     0x00BE, 0x00BF, 0x00C1,
     0x00C0, 0x00C4, 0x00C5,
     0x00E4, 0x00CB, 0x00E5,
@@ -55,4 +55,4 @@ var wordStartingPuncts = [
 ];
 for (var i = 0; i < wordStartingPuncts.length; i++) {
     root.Charset.Flags[wordStartingPuncts[i]] |= CharacterTypeFlags.WordStartingPunct;
-}
+}*/
