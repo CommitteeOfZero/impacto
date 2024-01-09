@@ -40,10 +40,17 @@ void Update(float dt) {
 }
 void Render(glm::vec2 pos, glm::vec4 opacityTint) {
   if (WaitIconCurrentType == +WaitIconType::SpriteAnim) {
-    Renderer->DrawSprite(
-        SpriteAnim.CurrentSprite(),
-        glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y),
-        opacityTint);
+    if (DialogueBoxType::CHLCC) {
+      glm::vec4 col = glm::vec4(1.0);
+      Renderer->DrawSprite(
+          SpriteAnim.CurrentSprite(),
+          glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y), col);
+    } else {
+      Renderer->DrawSprite(
+          SpriteAnim.CurrentSprite(),
+          glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y),
+          opacityTint);
+    }
   } else if (WaitIconCurrentType == +WaitIconType::SpriteAnimFixed) {
     // TODO: CCLCC only for now
     /*Renderer->DrawSprite(

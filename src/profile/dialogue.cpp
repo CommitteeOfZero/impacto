@@ -4,6 +4,7 @@
 #include "../ui/ui.h"
 
 #include "games/mo6tw/dialoguebox.h"
+#include "games/chlcc/dialoguebox.h"
 #include "games/cc/dialoguebox.h"
 
 namespace Impacto {
@@ -87,6 +88,9 @@ void Configure() {
   switch (DialogueBoxCurrentType) {
     case DialogueBoxType::MO6TW:
       Profile::MO6TW::DialogueBox::Configure();
+      break;
+    case DialogueBoxType::CHLCC:
+      Profile::CHLCC::DialogueBox::Configure();
       break;
     case DialogueBoxType::CC:
       Profile::CC::DialogueBox::Configure();

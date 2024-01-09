@@ -19,6 +19,7 @@
 #include "hud/dialoguebox.h"
 #include "hud/tipsnotification.h"
 #include "games/mo6tw/dialoguebox.h"
+#include "games/chlcc/dialoguebox.h"
 #include "games/cc/dialoguebox.h"
 
 #include "../vendor/utf8-cpp/utf8.h"
@@ -215,6 +216,9 @@ void DialoguePage::Init() {
   switch (DialogueBoxCurrentType) {
     case DialogueBoxType::MO6TW:
       TextBox = new MO6TW::DialogueBox();
+      break;
+    case DialogueBoxType::CHLCC:
+      TextBox = new CHLCC::DialogueBox();
       break;
     case DialogueBoxType::CC:
       TextBox = new CC::DialogueBox();

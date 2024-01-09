@@ -28,3 +28,34 @@ MakeNameTag = function (desc) {
         BaseLineWidth: desc.BaseLineWidth
     };
 };
+
+MakeSecondaryNameTag = function (desc) {
+    root.Sprites["SecondaryADVNameTagLeft"] = {
+        Sheet: desc.Sheet,
+        Bounds: { X: desc.X, Y: desc.Y, Width: desc.LeftWidth, Height: desc.Height }
+    };
+    root.Sprites["SecondaryADVNameTagLine"] = {
+        Sheet: desc.Sheet,
+        Bounds: { X: desc.X + desc.LeftWidth, Y: desc.Y, Width: desc.LineWidth, Height: desc.Height }
+    };
+    root.Sprites["SecondaryADVNameTagRight"] = {
+        Sheet: desc.Sheet,
+        Bounds: { X: desc.X + desc.LeftWidth + desc.LineWidth, Y: desc.Y, Width: desc.RightWidth, Height: desc.Height }
+    };
+    if (desc.BaseScale !== undefined) {
+        root.Sprites["SecondaryADVNameTagLeft"].BaseScale = desc.BaseScale;
+        root.Sprites["SecondaryADVNameTagLine"].BaseScale = desc.BaseScale;
+        root.Sprites["SecondaryADVNameTagRight"].BaseScale = desc.BaseScale;
+    }
+
+    root.Dialogue.SecondaryADVNameTag = {
+        SecondaryPosition: {
+            X: desc.ScreenX,
+            Y: desc.ScreenY,
+        },
+        SecondaryLeftSprite: "SecondaryADVNameTagLeft",
+        SecondaryLineSprite: "SecondaryADVNameTagLine",
+        SecondaryRightSprite: "SecondaryADVNameTagRight",
+        SecondaryBaseLineWidth: desc.BaseLineWidth
+    };
+};

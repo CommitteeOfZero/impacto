@@ -2,6 +2,10 @@ root.Sprites["ADVBox"] = {
     Sheet: "Data",
     Bounds: { X: 768, Y: 815, Width: 1280, Height: 206 },
 };
+root.Sprites["SecondaryADVBox"] = {
+    Sheet: "Data",
+    Bounds: { X: 768, Y: 427, Width: 1280, Height: 206 },
+};
 
 root.Dialogue = {
     REVBounds: { X: 0, Y: 0, Width: 960, Height: 400 },
@@ -11,10 +15,11 @@ root.Dialogue = {
     NVLBounds: { X: 125, Y: 85, Width: 1024, Height: 400 },
     ADVBounds: { X: 161, Y: 546, Width: 960, Height: 180 },
     ADVBoxSprite: "ADVBox",
+    SecondaryADVBoxSprite:  "SecondaryADVBox",
     ADVBoxPos: { X: -1, Y: 512 },
     FadeOutDuration: 0.33,
     FadeInDuration: 0.33,
-    DialogueBoxCurrentType: DialogueBoxType.Plain,
+    DialogueBoxCurrentType: DialogueBoxType.CHLCC,
     NVLBoxMaxOpacity: 0.55,
     ADVNameAlignment: TextAlignment.Left,
     ADVNameFontSize: 29,
