@@ -328,19 +328,24 @@ void SaveMenu::Update(float dt) {
     }
     TitleFade.Update(dt);
     UpdateTitles();
-    SavePages->at(*CurrentPage)->Update(dt);
-    SaveEntryButton::UpdateFocusedAlphaFade(dt);
-    auto currentlyFocusedButton =
-        static_cast<SaveEntryButton*>(CurrentlyFocusedElement);
-    if (currentlyFocusedButton) {
-      int newPage = currentlyFocusedButton->GetPage();
-      if (newPage != *CurrentPage) {
-        SavePages->at(*CurrentPage)->Hide();
-        *CurrentPage = newPage;
-        SavePages->at(*CurrentPage)->Show();
-        currentlyFocusedButton->HasFocus = true;
-        CurrentlyFocusedElement = currentlyFocusedButton;
+    if (IsFocused) {
+      SavePages->at(*CurrentPage)->Update(dt);
+      SaveEntryButton::UpdateFocusedAlphaFade(dt);
+      auto currentlyFocusedButton =
+          static_cast<SaveEntryButton*>(CurrentlyFocusedElement);
+      if (currentlyFocusedButton) {
+        int newPage = currentlyFocusedButton->GetPage();
+        if (newPage != *CurrentPage) {
+          SavePages->at(*CurrentPage)->Hide();
+          *CurrentPage = newPage;
+          SavePages->at(*CurrentPage)->Show();
+          currentlyFocusedButton->HasFocus = true;
+          CurrentlyFocusedElement = currentlyFocusedButton;
+        }
       }
+    } else {
+      // We want to keep the fade even when the confirmation prompt appears
+      SaveEntryButton::UpdateFocusedAlphaFade(dt);
     }
   }
 }
