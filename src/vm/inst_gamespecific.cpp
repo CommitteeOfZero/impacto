@@ -7,6 +7,7 @@
 #include "../log.h"
 #include "../mem.h"
 #include "../profile/scriptvars.h"
+#include "../vm/interface/input.h"
 
 namespace Impacto {
 
@@ -744,28 +745,41 @@ VmInstruction(InstTwipo_Dash) {
 VmInstruction(InstDelusionTriggerCHLCC) {
   StartInstruction;
   PopUint8(type);
+  enum DELUSION_STATE {NEUTRAL, POSITIVE, NEGATIVE} delusionState;
+
   switch (type) {
     case 1: {
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction DelusionTriggerCHLCC(type: %i)\n");
+                 "STUB instruction DelusionTriggerCHLCC(type: %i)\n", type);
     } break;
     case 2: {
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction DelusionTriggerCHLCC(type: %i)\n");
+                 "STUB instruction DelusionTriggerCHLCC(type: %i)\n", type);
     } break;
     case 4: {
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction DelusionTriggerCHLCC(type: %i)\n");
+                 "STUB instruction DelusionTriggerCHLCC(type: %i)\n", type);
+      if(Interface::PADinputButtonWentDown & Interface::PAD1L2) {
+        
+      }
+      if (Interface::PADinputButtonWentDown & Interface::PAD1R2) {
+
+      }
+    } break;
+    case 5: {
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction DelusionTriggerCHLCC(type: %i)\n", type);
     } break;
     case 6: {
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction DelusionTriggerCHLCC(type: %i)\n");
+                 "STUB instruction DelusionTriggerCHLCC(type: %i)\n", type);
     } break;
     case 7: {
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction DelusionTriggerCHLCC(type: %i)\n");
+                 "STUB instruction DelusionTriggerCHLCC(type: %i)\n", type);
     } break;
   }
+  
 }
 VmInstruction(InstUnk103A) {
   StartInstruction;
