@@ -299,6 +299,7 @@ VmInstruction(InstCHAmove) {
     case 4: {
       PopExpression(arg1);
       PopExpression(destination);
+      ScrWork[destination] = 0;
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction CHAmoveChkEnd(arg1: %i, destination: %i)\n",
                  arg1, destination);
