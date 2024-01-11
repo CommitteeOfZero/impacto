@@ -38,7 +38,7 @@ static uint32_t PADcustom[] = {0x10000,
                                PAD1SELECT,
                                PAD1X,
                                0,
-                               PAD1L2,
+                               0, //temp disable PAD1L2
                                PAD1R3,
                                PAD1A | PAD1B | PAD1START,
                                PAD1A,
