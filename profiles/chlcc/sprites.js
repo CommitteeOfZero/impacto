@@ -34,6 +34,16 @@ root.SpriteSheets = {
         DesignWidth: 2048,
         DesignHeight: 1024
     },
+    "DelusionUnderlayer": {
+        Path: { Mount: "system", Id: 9 },
+        DesignWidth: 2048,
+        DesignHeight: 1024
+    },
+    "DelusionMask": {
+        Path: { Mount: "system", Id: 10 },
+        DesignWidth: 2048,
+        DesignHeight: 1024
+    },
     "Tips": {
         Path: { Mount: "system", Id: 11 },
         DesignWidth: 2048,

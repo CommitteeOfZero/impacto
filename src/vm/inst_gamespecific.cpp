@@ -8,6 +8,7 @@
 #include "../mem.h"
 #include "../profile/scriptvars.h"
 #include "../vm/interface/input.h"
+#include "../hud/delusiontrigger.h"
 
 namespace Impacto {
 
@@ -745,48 +746,21 @@ VmInstruction(InstTwipo_Dash) {
 VmInstruction(InstDelusionTriggerCHLCC) {
   StartInstruction;
   PopUint8(type);
-  enum DELUSION_STATE {NEUTRAL, POSITIVE, NEGATIVE};
   switch (type) {
     case 1: {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction DelusionTriggerCHLCC(type: %i)\n", type);
-      ScrWork[3430] = DELUSION_STATE::NEUTRAL;
-      ImpLogSlow(LL_Warning, LC_VMStub, "Delusion Trigger Set To %d\n", ScrWork[3430]);
+      DelusionTrigger::Reset();
     } break;
     case 2: {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction DelusionTriggerCHLCC(type: %i)\n", type);
+      DelusionTrigger::Show();
+      BlockThread;
     } break;
     case 4: {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction DelusionTriggerCHLCC(type: %i)\n", type);
-      if(Interface::PADinputButtonWentDown & Interface::PAD1L2) {
-        switch(ScrWork[3430]) {
-          case DELUSION_STATE::NEUTRAL:
-            ScrWork[3430] =  DELUSION_STATE::POSITIVE;
-            break;
-          case DELUSION_STATE::NEGATIVE:
-            ScrWork[3430] =  DELUSION_STATE::NEUTRAL;
-            break;
-          case DELUSION_STATE::POSITIVE:
-          default:
-            break;
-        }
-      }
-      else if (Interface::PADinputButtonWentDown & Interface::PAD1R2) {
-        switch(ScrWork[3430]) {
-          case DELUSION_STATE::NEUTRAL:
-            ScrWork[3430] =  DELUSION_STATE::NEGATIVE;
-            break;
-          case DELUSION_STATE::POSITIVE:
-            ScrWork[3430] =  DELUSION_STATE::NEUTRAL;
-            break;
-          case DELUSION_STATE::NEGATIVE:
-          default:
-            break;
-        }
-      }
-      ImpLogSlow(LL_Warning, LC_VMStub, "Delusion Trigger Set To %d\n", ScrWork[3430]);
     } break;
     case 5: {
       ImpLogSlow(LL_Warning, LC_VMStub,
@@ -797,11 +771,12 @@ VmInstruction(InstDelusionTriggerCHLCC) {
                  "STUB instruction DelusionTriggerCHLCC(type: %i)\n", type);
     } break;
     case 7: {
+      DelusionTrigger::Hide();
+      BlockThread;
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction DelusionTriggerCHLCC(type: %i)\n", type);
     } break;
   }
-  
 }
 VmInstruction(InstUnk103A) {
   StartInstruction;
