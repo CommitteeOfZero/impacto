@@ -52,10 +52,10 @@ root.SysMesBoxDisplay.BoxDecoration = name + "BoxDecoration";
 root.Sprites[name + "SelectionLeftPart"] = {
     Sheet: sheet,
     Bounds: {
-        X: 502,
-        Y: 51,
-        Width: 144,
-        Height: 38
+        X: 504,
+        Y: 53,
+        Width: 152,
+        Height: 33
     }
 };
 root.SysMesBoxDisplay.SelectionLeftPart = name + "SelectionLeftPart";
