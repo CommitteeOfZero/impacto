@@ -41,7 +41,7 @@ root.SpriteSheets = {
     },
     "DelusionMask": {
         Path: { Mount: "system", Id: 10 },
-        DesignWidth: 2048,
+        DesignWidth: 1024,
         DesignHeight: 1024
     },
     "Tips": {

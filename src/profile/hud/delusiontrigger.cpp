@@ -37,9 +37,10 @@ void Configure() {
   FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
   FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
 
+  BackgroundSpriteMask.Bounds.Y = BackgroundSprite.Bounds.Center().y - BackgroundSpriteMask.Bounds.Center().y;
+
   Pop();
 }
-
 void CreateInstance() {
   if (!Impacto::DelusionTrigger::Implementation) {
     switch (Type) {

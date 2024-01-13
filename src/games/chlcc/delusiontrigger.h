@@ -22,7 +22,12 @@ class DelusionTrigger : public DelusionTriggerBase {
   Animation TextAnimation;
   Animation ZoomAnimation;
 
-  SpriteAnimation TitleFade;
+  SpriteAnimation TextFade;
+  float maskScaleFactor;
+  float spinAngle;
+  float spinRate;
+  int spinDirection;
+  float underLayerAlpha;
 };
 
 }  // namespace CHLCC

@@ -133,6 +133,9 @@ class Renderer : public BaseRenderer {
                             RectF const& dest, glm::vec4 tint, int alpha,
                             int fadeRange, float effectCt,
                             bool isScreencap) override;
+                
+  void DrawCHLCCDelusionOverlayImpl(Sprite const& sprite, Sprite const& mask,
+                                    RectF const& dest, int alpha, int fadeRange, float angle) override {}
 
   void DrawCHLCCMenuBackgroundImpl(const Sprite& sprite, const Sprite& mask,
                                    const RectF& dest, float alpha) override;
