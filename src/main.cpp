@@ -41,7 +41,7 @@ int main(int argc, char* argv[]) {
 #endif
 
   LogSetConsole(true);
-  g_LogLevelConsole = LL_Max;
+  g_LogLevelConsole = LL_Debug;
   g_LogChannelsConsole = LC_All;
 
   Io::Stream* stream;
