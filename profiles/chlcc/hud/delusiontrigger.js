@@ -12,7 +12,7 @@ root.Sprites["BackgroundSprite"] = {
 }
 root.Sprites["ScreenMask"] = {
   Sheet: "DelusionUnderlayer",
-  Bounds: { X: 0, Y: 0, Width: 2048, Height: 1024 }
+  Bounds: { X: 0, Y: 0, Width: 1600, Height: 720 }
 }
 root.Sprites["BackgroundSpriteMask"] = {
   Sheet: "DelusionMask",
