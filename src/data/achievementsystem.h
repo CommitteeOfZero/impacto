@@ -1,26 +1,37 @@
 #pragma once
 
 #include "enum.h"
+#include "../spritesheet.h"
 
 namespace Impacto {
 namespace AchievementSystem {
 
 BETTER_ENUM(AchievementDataType, int, None, CHLCC)
 
-enum AchievementError { AchievementOK = 0, AchievementNotFound = 2 };
+class Achievement {
+ public:
+  Achievement(const std::string &name, const std::string &description,
+              const Sprite &icon)
+      : name(name), description(description), icon(icon) {}
+
+ private:
+  std::string name;
+  std::string description;
+  Sprite icon;
+};
 
 class AchievementSystemBase {
  public:
-  virtual AchievementError MountAchievementFile() = 0;
-
- private:
+  virtual bool MountAchievementFile() = 0;
+  //  virtual bool UnlockAchievement(int id) = 0;
+  //  virtual Achievement GetAchievement(int id) = 0;
 };
 
 extern AchievementSystemBase *Implementation;
 
 void Init();
 
-AchievementError MountAchievementFile();
+bool MountAchievementFile();
 
 }  // namespace AchievementSystem
 }  // namespace Impacto
