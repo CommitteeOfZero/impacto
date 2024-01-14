@@ -33,6 +33,9 @@ class DelusionTrigger : public DelusionTriggerBase {
   void UpdateShowing();
   void UpdateShown();
   void UpdateHiding();
+  void PlayClickSound();
+
+  int UnderlayerXOffset, UnderlayerXRate;
 };
 
 }  // namespace CHLCC
