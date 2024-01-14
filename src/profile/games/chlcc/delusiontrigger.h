@@ -7,9 +7,6 @@ namespace Profile {
 namespace CHLCC {
 namespace DelusionTrigger {
 
-extern float TextFadeInDuration;
-extern float TextFadeOutDuration;
-
 void Configure();
  
 }  // namespace DelusionTrigger

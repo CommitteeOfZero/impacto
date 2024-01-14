@@ -4,10 +4,6 @@ root.DelusionTrigger = {
   BackgroundSprite: "BackgroundSprite",
   BackgroundSpriteMask: "BackgroundSpriteMask",
   ScreenMask: "ScreenMask",
-  FadeInDuration: 4,
-  FadeOutDuration: 4,
-  TextFadeInDuration: 40 / 60,
-  TextFadeOutDuration: 28 / 60
 };
 
 root.Sprites["BackgroundSprite"] = {

@@ -11,9 +11,6 @@ extern Sprite BackgroundSprite;
 extern Sprite BackgroundSpriteMask;
 extern Sprite ScreenMask;
 
-extern float FadeInDuration;
-extern float FadeOutDuration;
-
 void Configure();
 
 void CreateInstance();

@@ -2,7 +2,7 @@ root.Input = {
 	// Keyboard
 	KB_PAD1A: 40,             // Return
 	KB_PAD1B: 42,             // Backspace
-	KB_PAD1X: 41,             // ESC
+	KB_PAD1X: 30,             // 1
 	KB_PAD1Y: 27,             // X
 	KB_PAD1SELECT: 229,       // RShift
 	KB_PAD1START: 88,         // Enter

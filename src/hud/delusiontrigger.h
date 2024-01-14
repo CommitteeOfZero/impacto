@@ -17,9 +17,7 @@ class DelusionTriggerBase {
   virtual void Render() = 0;
   virtual void Show() = 0;
   virtual void Hide() = 0;
-  virtual void Reset() = 0;
 
-  Animation FadeAnimation;
   STATE State;
   int &DelusionState;
 };
@@ -31,7 +29,6 @@ void Update(float dt);
 void Show();
 void Hide();
 void Render();
-void Reset();
 
 }  // namespace DelusionTrigger
 }  // namespace Impacto

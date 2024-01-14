@@ -34,8 +34,6 @@ void Configure() {
   BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
   BackgroundSpriteMask = EnsureGetMemberSprite("BackgroundSpriteMask");
   ScreenMask = EnsureGetMemberSprite("ScreenMask");
-  FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
-  FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
 
   BackgroundSpriteMask.Bounds.Y = BackgroundSprite.Bounds.Center().y - BackgroundSpriteMask.Bounds.Center().y;
 

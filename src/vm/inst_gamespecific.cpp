@@ -750,7 +750,6 @@ VmInstruction(InstDelusionTriggerCHLCC) {
     case 1: {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction DelusionTriggerCHLCC(type: %i)\n", type);
-      DelusionTrigger::Reset();
       DelusionTrigger::Show();
     } break;
     case 2: {
@@ -769,7 +768,7 @@ VmInstruction(InstDelusionTriggerCHLCC) {
     case 6: {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction DelusionTriggerCHLCC(type: %i)\n", type);
-      BlockThread;
+      DelusionTrigger::Hide();
     } break;
     case 7: {
       ImpLogSlow(LL_Warning, LC_VMStub,

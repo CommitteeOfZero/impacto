@@ -14,124 +14,254 @@ using namespace Impacto::Vm::Interface;
 
 DelusionTrigger::DelusionTrigger()
     : DelusionTriggerBase(ScrWork[3430], Hidden) {
-  FadeAnimation.Direction = 1;
-  FadeAnimation.LoopMode = ALM_Stop;
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
 
-  TextFade.Direction = 1.0f;
-  TextFade.LoopMode = ALM_Stop;
-  TextFade.DurationIn = TextFadeInDuration;
-  TextFade.DurationOut = TextFadeOutDuration;
-}
-
-void DelusionTrigger::Reset() {
-  ImpLogSlow(LL_Warning, LC_VMStub, "Resetting Delusion Trigger\n");
-  DelusionState = DELUSION_STATE::NEUTRAL;
+  TriggerOnTint = RgbIntToFloat(0xffb0ce);
 }
 
 void DelusionTrigger::Show() {
   if (State != Shown && State != Showing) {
     State = Showing;
     DelusionState = DELUSION_STATE::NEUTRAL;
-    maskScaleFactor = 0.1f;
-    spinAngle = 0.0f;
-    spinRate = 0.5f;
-    spinDirection = 1;
+    maskScaleFactor = 131072;
+    spinAngle = 0;
+    spinRate = 3072;
     underLayerAlpha = 0;
-    FadeAnimation.StartIn();
+    backgroundAlpha = 0;
+    AnimationState = 0;
+    AnimCounter = 0;
+    TriggerOnTintAlpha = 0;
     SetFlag(2511, 1);
+    SetFlag(2512, 0);
   }
 }
 void DelusionTrigger::Hide() {
   if (State != Hidden && State != Hiding) {
     State = Hiding;
+    AnimationState = 0;
     SetFlag(2511, 1);
-    FadeAnimation.StartOut();
+    SetFlag(2512, 0);
   }
+}
+
+void DelusionTrigger::UpdateHiding() {
+  if (AnimationState < 13) {
+    AnimCounter++;
+    switch (AnimationState) {
+      case 0:
+      case 4: {
+        maskScaleFactor -= 1760;
+        if (AnimCounter == 5) {
+          AnimationState++;
+          AnimCounter = 0;
+        }
+      } break;
+      default: {
+        if (AnimCounter == 5) {
+          AnimationState++;
+          AnimCounter = 0;
+        }
+      } break;
+      case 2:
+      case 6: {
+        maskScaleFactor += 1760;
+        if (AnimCounter == 5) {
+          AnimationState++;
+          AnimCounter = 0;
+        }
+      } break;
+      case 8: {
+        maskScaleFactor -= 3072;
+        if (AnimCounter == 14) {
+          AnimationState++;
+          AnimCounter = 0;
+        }
+      } break;
+      case 9: {
+        if(AnimCounter == 30) {
+          AnimCounter = 0;
+          AnimationState = (DelusionState == DELUSION_STATE::POSITIVE)? 11:
+                           (DelusionState == DELUSION_STATE::NEGATIVE)? 12: 10;
+        }
+      } break;
+      case 10: {
+        maskScaleFactor += 3072;
+        if(AnimCounter > 17) {
+          backgroundAlpha -= 16;
+        }
+        if(AnimCounter == 50) {
+          AnimCounter = 0;
+          AnimationState = 0;
+          SetFlag(2511, 0);
+          State = Hidden;
+        }
+      } break;
+      case 11: {
+        spinRate += 24;
+        maskScaleFactor += 1536;
+        if(AnimCounter > 67) {
+          backgroundAlpha -= 8;
+        }
+        if(AnimCounter == 100) {
+          AnimCounter = 0;
+          AnimationState = 0;
+          SetFlag(2511, 0);
+          State = Hidden;
+        }
+      } break;
+      case 12: {
+        spinRate -= 24;
+        maskScaleFactor += 1536;
+        if(AnimCounter > 67) {
+          backgroundAlpha -= 8;
+        }
+        if(AnimCounter == 100) {
+          AnimCounter = 0;
+          AnimationState = 0;
+          SetFlag(2511, 0);
+          State = Hidden;
+        }
+      } break;
+    }
+  }
+}
+
+void DelusionTrigger::UpdateShowing() {
+  switch (AnimationState) {
+    case 0: {
+      spinRate -= 24;
+      maskScaleFactor -= 736;
+
+      if (underLayerAlpha < 256) {
+        underLayerAlpha += 16;
+      }
+      if (backgroundAlpha < 256) {
+        backgroundAlpha += 16;
+      }
+
+      if (spinRate == 0) {
+        AnimationState += 1;
+        spinRate = -1024;
+      }
+    } break;
+    case 1:
+    case 3:
+    case 5: {
+      AnimCounter += 1;
+      if (AnimCounter == 5) {
+        AnimationState += 1;
+        spinRate = 0;
+        AnimCounter = 0;
+      }
+    } break;
+    case 2: {
+      AnimCounter += 1;
+      if (AnimCounter == 15) {
+        AnimationState += 1;
+        AnimCounter = 0;
+        spinRate = 1024;
+      }
+    } break;
+    case 4: {
+      AnimCounter += 1;
+      if (AnimCounter == 15) {
+        AnimationState += 1;
+        AnimCounter = 0;
+        spinRate = -1024;
+      }
+    } break;
+    case 6: {
+      AnimCounter += 1;
+      if (AnimCounter == 20) {
+        AnimationState += 1;
+        AnimCounter = 0;
+        spinRate = 5;
+      }
+    } break;
+    case 7: {
+      maskScaleFactor -= 1536;
+      AnimCounter += 1;
+      if (AnimCounter == 10) {
+        AnimationState += 1;
+        AnimCounter = 0;
+      }
+    } break;
+    case 8: {
+      maskScaleFactor += 3072;
+      if (maskScaleFactor > 79999) {
+        AnimationState = 0;
+        AnimCounter = 0;
+        SetFlag(2511, 0);
+        State = Shown;
+      }
+    } break;
+    default:
+      SetFlag(2511, 0);
+      State = Shown;
+  }
+}
+
+void DelusionTrigger::UpdateShown() {
+  if (PADinputButtonWentDown & PAD1L2) {
+    switch (ScrWork[3430]) {
+      case DELUSION_STATE::NEUTRAL:
+        ScrWork[3430] = DELUSION_STATE::POSITIVE;
+        break;
+      case DELUSION_STATE::NEGATIVE:
+        ScrWork[3430] = DELUSION_STATE::NEUTRAL;
+        break;
+      case DELUSION_STATE::POSITIVE:
+      default:
+        break;
+    }
+  } else if (PADinputButtonWentDown & PAD1R2) {
+    switch (ScrWork[3430]) {
+      case DELUSION_STATE::NEUTRAL:
+        ScrWork[3430] = DELUSION_STATE::NEGATIVE;
+        break;
+      case DELUSION_STATE::POSITIVE:
+        ScrWork[3430] = DELUSION_STATE::NEUTRAL;
+        break;
+      case DELUSION_STATE::NEGATIVE:
+      default:
+        break;
+    }
+  }
+
+  if (ScrWork[3430] != DELUSION_STATE::NEUTRAL) {
+    if (TriggerOnTintAlpha < 104) {
+      TriggerOnTintAlpha = TriggerOnTintAlpha + 4;
+    }
+    if (ScrWork[3430] == DELUSION_STATE::POSITIVE && spinRate < 40) {
+      spinRate = spinRate + 2;
+    } else if (ScrWork[3430] == DELUSION_STATE::NEGATIVE && spinRate > -40) {
+      spinRate = spinRate - 2;
+    }
+  } else {
+    if ((TriggerOnTintAlpha != 0)) {
+      TriggerOnTintAlpha -= 4;
+    }
+    if (spinRate < -5) {
+      spinRate = spinRate + 2;
+    }
+    if (spinRate > 5) {
+      spinRate = spinRate - 2;
+    }
+  }
+  SetFlag(2512, 0);
+  SetFlag(2511, 0);
 }
 
 void DelusionTrigger::Update(float dt) {
   if (State == Showing) {
-    if (FadeAnimation.IsIn()) {
-      State = Shown;
-      SetFlag(2511, 0);
-    } else {
-      underLayerAlpha =
-          FadeAnimation.Progress < 0.5f ? FadeAnimation.Progress : 0.5f;
-      if (FadeAnimation.Progress < 148 / 60 / FadeAnimation.DurationIn) {
-        maskScaleFactor += dt;
-      } else if (FadeAnimation.Progress >
-                    ((148 + 25) / 60.0f) / FadeAnimation.DurationIn &&
-                FadeAnimation.Progress <
-                    ((148 + 25 + 50) / 60.0f) / FadeAnimation.DurationIn) {
-        maskScaleFactor -= 1.75f * dt;
-
-      }
-    }
+    UpdateShowing();
   } else if (State == Hiding) {
-    if (FadeAnimation.IsOut()) {
-      State = Hidden;
-      SetFlag(2511, 0);
-      ImpLogSlow(LL_Warning, LC_VMStub, "Locking in delusion trigger %d\n",
-                 DelusionState);
-    } else {
-      underLayerAlpha =
-          FadeAnimation.Progress < 0.5f ? FadeAnimation.Progress : 0.5f;
-      if (FadeAnimation.Progress > (1 - 100 / 60.0f / FadeAnimation.DurationIn)) {
-        maskScaleFactor += dt;
-      } else if (FadeAnimation.Progress <
-                    ( 1 - ((100 + 25) / 60.0f) / FadeAnimation.DurationIn) && maskScaleFactor > 0) {
-        maskScaleFactor -= 2.5f * dt;
-      }
-    }
+    UpdateHiding();
   } else if (State == Shown) {
-    if (PADinputButtonWentDown & PAD1L2) {
-      switch (ScrWork[3430]) {
-        case DELUSION_STATE::NEUTRAL:
-          ScrWork[3430] = DELUSION_STATE::POSITIVE;
-          spinRate = 1.5f;
-          spinDirection = 1;
-          underLayerAlpha = 0.875f;
-          break;
-        case DELUSION_STATE::NEGATIVE:
-          ScrWork[3430] = DELUSION_STATE::NEUTRAL;
-          spinRate = 0.5f;
-          underLayerAlpha = 0.5f;
-          break;
-        case DELUSION_STATE::POSITIVE:
-        default:
-          break;
-      }
-    } else if (PADinputButtonWentDown & PAD1R2) {
-      switch (ScrWork[3430]) {
-        case DELUSION_STATE::NEUTRAL:
-          ScrWork[3430] = DELUSION_STATE::NEGATIVE;
-          spinRate = 1.5f;
-          spinDirection = -1;
-          underLayerAlpha = 0.875f;
-          break;
-        case DELUSION_STATE::POSITIVE:
-          ScrWork[3430] = DELUSION_STATE::NEUTRAL;
-          spinRate = 0.5f;
-          underLayerAlpha = 0.5f;
-          break;
-        case DELUSION_STATE::NEGATIVE:
-        default:
-          break;
-      }
-    }
-    ImpLogSlow(LL_Warning, LC_VMStub, "Delusion Trigger Set To %d\n",
-               ScrWork[3430]);
+    UpdateShown();
   }
 
   if (State != Hidden) {
-    FadeAnimation.Update(dt);
-    spinAngle -= spinDirection * spinRate * dt;
-    if (spinAngle > 2.0f * M_PI)
-      spinAngle -= 2.0f * M_PI;
-    else if (spinAngle < 0.0f)
-      spinAngle += 2.0f * M_PI;
+    spinAngle = (spinAngle + spinRate & 0xffff);
   }
 }
 
@@ -141,11 +271,10 @@ void DelusionTrigger::Render() {
   // float scalingFactor = 1;
   constexpr float aspect_ratio = 1280.0f / 720.0f;
 
-  ImpLogSlow(LL_Warning, LC_VMStub, "Scaling factor is %f\n", maskScaleFactor);
-
-  float newWidth =
-      BackgroundSpriteMask.Bounds.Width * maskScaleFactor * aspect_ratio;
-  float newHeight = BackgroundSpriteMask.Bounds.Height * maskScaleFactor;
+  float newWidth = BackgroundSpriteMask.Bounds.Width * 65535 / maskScaleFactor *
+                   aspect_ratio * 0.7;
+  float newHeight =
+      BackgroundSpriteMask.Bounds.Height * 65535 / maskScaleFactor * 0.7;
 
   float deltaWidth = newWidth - BackgroundSpriteMask.Bounds.Width;
   float deltaHeight = newHeight - BackgroundSpriteMask.Bounds.Height;
@@ -156,13 +285,16 @@ void DelusionTrigger::Render() {
   ScaledMask.Bounds.X = BackgroundSpriteMask.Bounds.X - deltaWidth / 2.0f;
   ScaledMask.Bounds.Y = BackgroundSpriteMask.Bounds.Y - deltaHeight / 2.0f;
 
-  Renderer->DrawSprite(ScreenMask,
-                             RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-                             glm::vec4(1.0f, 1.0f, 1.0f, underLayerAlpha));
+  TriggerOnTint[3] = TriggerOnTintAlpha * backgroundAlpha / 65536.0f;
+  Renderer->DrawRect(RectF(0.0f, 0.0f, 1280.0f, 720.0f), TriggerOnTint);
 
-  Renderer->DrawCHLCCDelusionOverlay(BackgroundSprite, ScaledMask,
-                                     RectF(0.0f, 0.0f, 1280.0f, 720.0f), 155,
-                                     32, spinAngle);
+  Renderer->DrawSprite(
+      ScreenMask, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
+      glm::vec4(1.0f, 1.0f, 1.0f, (backgroundAlpha * 160) / 65536.0));
+
+  Renderer->DrawCHLCCDelusionOverlay(
+      BackgroundSprite, ScaledMask, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
+      (backgroundAlpha * 160) >> 8, 20, spinAngle * 2 * M_PI / 65536.0f);
 }
 
 }  // namespace CHLCC

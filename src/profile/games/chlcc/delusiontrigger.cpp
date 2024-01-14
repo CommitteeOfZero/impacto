@@ -11,13 +11,7 @@ namespace Profile {
 namespace CHLCC {
 namespace DelusionTrigger {
 
-
-float TextFadeInDuration;
-float TextFadeOutDuration;
-
 void Configure() {
-  TextFadeInDuration = EnsureGetMemberFloat("TextFadeInDuration");
-  TextFadeOutDuration = EnsureGetMemberFloat("TextFadeOutDuration");
 }
 
 }  // namespace DelusionTrigger

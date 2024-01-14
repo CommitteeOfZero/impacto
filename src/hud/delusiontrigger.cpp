@@ -26,9 +26,5 @@ void Render() {
   if (Implementation) Implementation->Render();
 }
 
-void Reset() {
-  if (Implementation) Implementation->Reset();
-}
-
 }  // namespace DelusionTrigger
 }  // namespace Impacto

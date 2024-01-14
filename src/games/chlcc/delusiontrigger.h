@@ -15,19 +15,24 @@ class DelusionTrigger : public DelusionTriggerBase {
   void Hide();
   void Update(float dt);
   void Render();
-  void Reset();
 
  protected:
-  Animation SpinAnimation;
-  Animation TextAnimation;
-  Animation ZoomAnimation;
 
-  SpriteAnimation TextFade;
-  float maskScaleFactor;
-  float spinAngle;
-  float spinRate;
-  int spinDirection;
-  float underLayerAlpha;
+  int maskScaleFactor;
+  int spinAngle;
+  int spinRate;
+  int underLayerAlpha;
+  int backgroundAlpha;
+
+  int AnimCounter;
+  int AnimationState;
+
+  glm::vec4 TriggerOnTint;
+  int TriggerOnTintAlpha;
+  
+  void UpdateShowing();
+  void UpdateShown();
+  void UpdateHiding();
 };
 
 }  // namespace CHLCC
