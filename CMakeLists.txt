@@ -44,6 +44,7 @@ set(Impacto_Src
         src/data/savesystem.cpp
         src/data/tipssystem.cpp
         src/data/achievementsystem.cpp
+        src/data/achievementsystemps3.cpp
 
         src/profile/profile.cpp
         src/profile/profile_internal.cpp
@@ -352,6 +353,7 @@ set(Impacto_Header
         src/data/savesystem.h
         src/data/tipssystem.h
         src/data/achievementsystem.h
+        src/data/achievementsystemps3.h
 
         src/profile/profile.h
         src/profile/profile_internal.h

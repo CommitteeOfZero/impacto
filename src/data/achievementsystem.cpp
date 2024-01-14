@@ -10,11 +10,11 @@ AchievementSystemBase *Implementation = nullptr;
 
 void Init() { Configure(); }
 
-AchievementError MountAchievementFile() {
+bool MountAchievementFile() {
   if (Implementation)
     return Implementation->MountAchievementFile();
   else
-    return AchievementOK;
+    return false;
 }
 
 }  // namespace AchievementSystem
