@@ -36,6 +36,8 @@ class DelusionTrigger : public DelusionTriggerBase {
   void PlayClickSound();
 
   int UnderlayerXOffset, UnderlayerXRate;
+  int ShakeState;
+  int MaskOffsetX;
 };
 
 }  // namespace CHLCC

@@ -34,6 +34,8 @@ void DelusionTrigger::Show() {
     TriggerOnTintAlpha = 0;
     UnderlayerXOffset = 20000;
     UnderlayerXRate = 400;
+    ShakeState = 0;
+    MaskOffsetX = 0;
     SetFlag(2511, 1);
     SetFlag(2512, 0);
   }
@@ -216,11 +218,20 @@ void DelusionTrigger::PlayClickSound() {
 }
 
 void DelusionTrigger::UpdateShown() {
+  MaskOffsetX = (ShakeState == 1)?
+    0 : (ShakeState == 2)?
+    -16 : (ShakeState == 3)?
+    0 : (ShakeState == 4)?
+    18 : (ShakeState == 5)?
+    0 : (ShakeState == 6)?
+    -20 : 0;
+  ShakeState = (ShakeState == 0)? 0 : ShakeState - 1;
   if (PADinputButtonWentDown & PAD1L2) {
     switch (ScrWork[3430]) {
       case DELUSION_STATE::NEUTRAL:
         ScrWork[3430] = DELUSION_STATE::POSITIVE;
         PlayClickSound();
+        ShakeState = 6;
         break;
       case DELUSION_STATE::NEGATIVE:
         ScrWork[3430] = DELUSION_STATE::NEUTRAL;
@@ -234,6 +245,7 @@ void DelusionTrigger::UpdateShown() {
       case DELUSION_STATE::NEUTRAL:
         ScrWork[3430] = DELUSION_STATE::NEGATIVE;
         PlayClickSound();
+        ShakeState = 6;
         break;
       case DELUSION_STATE::POSITIVE:
         ScrWork[3430] = DELUSION_STATE::NEUTRAL;
@@ -319,7 +331,7 @@ void DelusionTrigger::Render() {
   ScaledMask.Bounds.Width = newWidth;
   ScaledMask.Bounds.Height = newHeight;
 
-  ScaledMask.Bounds.X = BackgroundSpriteMask.Bounds.X - deltaWidth / 2.0f;
+  ScaledMask.Bounds.X = MaskOffsetX+BackgroundSpriteMask.Bounds.X - deltaWidth / 2.0f;
   ScaledMask.Bounds.Y = BackgroundSpriteMask.Bounds.Y - deltaHeight / 2.0f;
 
   TriggerOnTint[3] = TriggerOnTintAlpha * backgroundAlpha / 65536.0f;
