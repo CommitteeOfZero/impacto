@@ -32,8 +32,8 @@ class Trophy : public Achievement {
   TrophyType ttype;
 
  public:
-  Trophy(const std::string name, const std::string description, bool hidden,
-         TrophyType ttype, const Sprite icon)
+  Trophy(const std::string &name, const std::string &description, bool hidden,
+         TrophyType ttype, const Sprite &icon)
       : Achievement(name, description, hidden, icon), ttype(ttype) {}
 };
 

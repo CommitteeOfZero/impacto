@@ -124,8 +124,7 @@ bool AchievementSystem::MountAchievementFile() {
 
     Sprite icon = Sprite(sheet, 0, 0, ICON_SIZE, ICON_SIZE);
 
-    Trophies[id] = new Trophy(std::move(name), std::move(description), hidden,
-                              ttype, std::move(icon));
+    Trophies[id] = new Trophy(name, description, hidden, ttype, icon);
   }
 
   delete stream;
