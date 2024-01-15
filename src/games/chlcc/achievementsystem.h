@@ -18,7 +18,7 @@ class AchievementSystem : public AchievementSystemPS3 {
 
  private:
   TrophyDataEntry TrophyDataEntries[TROPHY_DATA_ENTRY_NUM];
-  Trophy Trophies[TROPHY_NUM];
+  Trophy* Trophies[TROPHY_NUM];
 };
 }  // namespace CHLCC
 }  // namespace Impacto
