@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utility>
+
 #include "enum.h"
 #include "../spritesheet.h"
 
@@ -10,9 +12,12 @@ BETTER_ENUM(AchievementDataType, int, None, CHLCC)
 
 class Achievement {
  public:
-  Achievement(const std::string &name, const std::string &description,
-              bool hidden, const Sprite &icon)
-      : name(name), description(description), hidden(hidden), icon(icon) {}
+  Achievement(std::string name, std::string description, bool hidden,
+              const Sprite &icon)
+      : name(std::move(name)),
+        description(std::move(description)),
+        hidden(hidden),
+        icon(icon) {}
 
  protected:
   std::string name;
