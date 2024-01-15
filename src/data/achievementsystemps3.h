@@ -27,12 +27,14 @@ struct TrophyDataEntry {
   uint64_t size;
 };
 
-struct Trophy {
-  int id;
-  bool hidden;
+class Trophy : public Achievement {
+ private:
   TrophyType ttype;
-  char name[50];
-  char detail[50];
+
+ public:
+  Trophy(const std::string name, const std::string description, bool hidden,
+         TrophyType ttype, const Sprite icon)
+      : Achievement(name, description, hidden, icon), ttype(ttype) {}
 };
 
 class AchievementSystemPS3 : public AchievementSystemBase {

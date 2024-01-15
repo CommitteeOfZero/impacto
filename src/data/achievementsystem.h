@@ -11,12 +11,13 @@ BETTER_ENUM(AchievementDataType, int, None, CHLCC)
 class Achievement {
  public:
   Achievement(const std::string &name, const std::string &description,
-              const Sprite &icon)
-      : name(name), description(description), icon(icon) {}
+              bool hidden, const Sprite &icon)
+      : name(name), description(description), hidden(hidden), icon(icon) {}
 
- private:
+ protected:
   std::string name;
   std::string description;
+  bool hidden;
   Sprite icon;
 };
 
