@@ -285,4 +285,9 @@ void BaseRenderer::DrawCHLCCMenuBackground(const Sprite& sprite,
   DrawCHLCCMenuBackgroundImpl(sprite, mask, dest, alpha);
 }
 
+void BaseRenderer::DrawCHLCCDelusionOverlay(Sprite const& sprite, Sprite const& mask,
+                                    RectF const& dest, int alpha, int fadeRange, float angle) {
+  DrawCHLCCDelusionOverlayImpl(sprite, mask, dest, alpha, fadeRange, angle);
+}
+
 }  // namespace Impacto

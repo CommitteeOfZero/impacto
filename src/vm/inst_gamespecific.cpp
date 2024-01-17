@@ -7,6 +7,8 @@
 #include "../log.h"
 #include "../mem.h"
 #include "../profile/scriptvars.h"
+#include "../vm/interface/input.h"
+#include "../hud/delusiontrigger.h"
 
 namespace Impacto {
 
@@ -747,23 +749,31 @@ VmInstruction(InstDelusionTriggerCHLCC) {
   switch (type) {
     case 1: {
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction DelusionTriggerCHLCC(type: %i)\n");
+                 "STUB instruction DelusionTriggerCHLCC(type: %i)\n", type);
+      DelusionTrigger::Show();
     } break;
     case 2: {
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction DelusionTriggerCHLCC(type: %i)\n");
+                 "STUB instruction DelusionTriggerCHLCC(type: %i)\n", type);
+      BlockThread;
     } break;
     case 4: {
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction DelusionTriggerCHLCC(type: %i)\n");
+                 "STUB instruction DelusionTriggerCHLCC(type: %i)\n", type);
+    } break;
+    case 5: {
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction DelusionTriggerCHLCC(type: %i)\n", type);
     } break;
     case 6: {
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction DelusionTriggerCHLCC(type: %i)\n");
+                 "STUB instruction DelusionTriggerCHLCC(type: %i)\n", type);
+      DelusionTrigger::Hide();
     } break;
     case 7: {
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction DelusionTriggerCHLCC(type: %i)\n");
+                 "STUB instruction DelusionTriggerCHLCC(type: %i)\n", type);
+      BlockThread;
     } break;
   }
 }
