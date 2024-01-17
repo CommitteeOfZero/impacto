@@ -18,7 +18,8 @@ Sprite BackgroundSpriteMask;
 Sprite ScreenMask;
 
 void Configure() {
-  EnsurePushMemberOfType("DelusionTrigger", kObjectType);
+  if(!TryPushMember("DelusionTrigger")) return;
+  AssertIs(kObjectType);
 
   Type = DelusionTriggerType::_from_integral_unchecked(
       EnsureGetMemberInt("Type"));
@@ -51,6 +52,6 @@ void CreateInstance() {
   }
 }
 
-}  // namespace TipsNotification
+}  // namespace DelusionTrigger
 }  // namespace Profile
 }  // namespace Impacto
