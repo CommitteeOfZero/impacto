@@ -16,7 +16,7 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Vm::Interface;
 
 DelusionTrigger::DelusionTrigger()
-    : DelusionTriggerBase(ScrWork[3430], Hidden) {
+    : DelusionTriggerBase(ScrWork[SW_CHLCC_DELUSION_STATE], Hidden) {
   TriggerOnTint = RgbIntToFloat(0xffb0ce);
 }
 
@@ -218,37 +218,37 @@ void DelusionTrigger::PlayClickSound() {
 }
 
 void DelusionTrigger::UpdateShown() {
-  MaskOffsetX = (ShakeState == 1)?
-    0 : (ShakeState == 2)?
-    -16 : (ShakeState == 3)?
-    0 : (ShakeState == 4)?
-    18 : (ShakeState == 5)?
-    0 : (ShakeState == 6)?
-    -20 : 0;
-  ShakeState = (ShakeState == 0)? 0 : ShakeState - 1;
+  MaskOffsetX = (ShakeState == 1)   ? 0
+                : (ShakeState == 2) ? -16
+                : (ShakeState == 3) ? 0
+                : (ShakeState == 4) ? 18
+                : (ShakeState == 5) ? 0
+                : (ShakeState == 6) ? -20
+                                    : 0;
+  ShakeState = (ShakeState == 0) ? 0 : ShakeState - 1;
   if (PADinputButtonWentDown & PAD1L2) {
-    switch (ScrWork[3430]) {
+    switch (ScrWork[SW_CHLCC_DELUSION_STATE]) {
       case DELUSION_STATE::NEUTRAL:
-        ScrWork[3430] = DELUSION_STATE::POSITIVE;
+        ScrWork[SW_CHLCC_DELUSION_STATE] = DELUSION_STATE::POSITIVE;
         PlayClickSound();
         ShakeState = 6;
         break;
       case DELUSION_STATE::NEGATIVE:
-        ScrWork[3430] = DELUSION_STATE::NEUTRAL;
+        ScrWork[SW_CHLCC_DELUSION_STATE] = DELUSION_STATE::NEUTRAL;
         break;
       case DELUSION_STATE::POSITIVE:
       default:
         break;
     }
   } else if (PADinputButtonWentDown & PAD1R2) {
-    switch (ScrWork[3430]) {
+    switch (ScrWork[SW_CHLCC_DELUSION_STATE]) {
       case DELUSION_STATE::NEUTRAL:
-        ScrWork[3430] = DELUSION_STATE::NEGATIVE;
+        ScrWork[SW_CHLCC_DELUSION_STATE] = DELUSION_STATE::NEGATIVE;
         PlayClickSound();
         ShakeState = 6;
         break;
       case DELUSION_STATE::POSITIVE:
-        ScrWork[3430] = DELUSION_STATE::NEUTRAL;
+        ScrWork[SW_CHLCC_DELUSION_STATE] = DELUSION_STATE::NEUTRAL;
         break;
       case DELUSION_STATE::NEGATIVE:
       default:
@@ -256,18 +256,18 @@ void DelusionTrigger::UpdateShown() {
     }
   }
 
-  if (ScrWork[3430] != DELUSION_STATE::NEUTRAL) {
+  if (ScrWork[SW_CHLCC_DELUSION_STATE] != DELUSION_STATE::NEUTRAL) {
     if (TriggerOnTintAlpha < 104) {
       TriggerOnTintAlpha = TriggerOnTintAlpha + 4;
     }
-    if (ScrWork[3430] == DELUSION_STATE::POSITIVE) {
+    if (ScrWork[SW_CHLCC_DELUSION_STATE] == DELUSION_STATE::POSITIVE) {
       if (spinRate < 40) {
         spinRate = spinRate + 2;
       }
       if (UnderlayerXRate < 2400) {
         UnderlayerXRate += 100;
       }
-    } else if (ScrWork[3430] == DELUSION_STATE::NEGATIVE) {
+    } else if (ScrWork[SW_CHLCC_DELUSION_STATE] == DELUSION_STATE::NEGATIVE) {
       if (spinRate > -40) {
         spinRate = spinRate - 2;
       }
@@ -281,14 +281,12 @@ void DelusionTrigger::UpdateShown() {
     }
     if (spinRate < -5) {
       spinRate = spinRate + 2;
-    }
-    else if (spinRate > 5) {
+    } else if (spinRate > 5) {
       spinRate = spinRate - 2;
     }
     if (UnderlayerXRate < -400) {
       UnderlayerXRate += 100;
-    }
-    else if (UnderlayerXRate > 400) {
+    } else if (UnderlayerXRate > 400) {
       UnderlayerXRate -= 100;
     }
   }
@@ -306,9 +304,12 @@ void DelusionTrigger::Update(float dt) {
   }
 
   if (State != Hidden) {
-    for (UnderlayerXOffset = UnderlayerXOffset + UnderlayerXRate; UnderlayerXOffset < 0x2711; UnderlayerXOffset = UnderlayerXOffset + 10000) {
+    for (UnderlayerXOffset = UnderlayerXOffset + UnderlayerXRate;
+         UnderlayerXOffset < 0x2711;
+         UnderlayerXOffset = UnderlayerXOffset + 10000) {
     }
-    for (; 29999 < UnderlayerXOffset; UnderlayerXOffset = UnderlayerXOffset + -10000) {
+    for (; 29999 < UnderlayerXOffset;
+         UnderlayerXOffset = UnderlayerXOffset + -10000) {
     }
     spinAngle = (spinAngle + spinRate & 0xffff);
   }
@@ -331,7 +332,8 @@ void DelusionTrigger::Render() {
   ScaledMask.Bounds.Width = newWidth;
   ScaledMask.Bounds.Height = newHeight;
 
-  ScaledMask.Bounds.X = MaskOffsetX+BackgroundSpriteMask.Bounds.X - deltaWidth / 2.0f;
+  ScaledMask.Bounds.X =
+      MaskOffsetX + BackgroundSpriteMask.Bounds.X - deltaWidth / 2.0f;
   ScaledMask.Bounds.Y = BackgroundSpriteMask.Bounds.Y - deltaHeight / 2.0f;
 
   TriggerOnTint[3] = TriggerOnTintAlpha * backgroundAlpha / 65536.0f;
