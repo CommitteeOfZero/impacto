@@ -3,7 +3,6 @@
 #include "../../../ui/ui.h"
 
 #include "../../../games/chlcc/moviemenu.h"
-//#include "../../../window.h"
 #include "../../../renderer/renderer.h"
 
 namespace Impacto {
@@ -34,7 +33,10 @@ float MenuTitleTextAngle;
 float TitleFadeInDuration;
 float TitleFadeOutDuration;
 Sprite MenuTitleText;
+SpriteAnimationDef SelectedMovieAnimation;
+Sprite SelectedMovieYellowDot;
 
+float SelectMovieFadeDuration;
 Sprite SelectMovie[11];
 glm::vec2 SelectMoviePos[11];
 glm::vec2 LabelPosition;
@@ -106,7 +108,10 @@ void Configure() {
   TitleFadeInDuration = EnsureGetMemberFloat("TitleFadeInDuration");
   TitleFadeOutDuration = EnsureGetMemberFloat("TitleFadeOutDuration");
   MenuTitleText = EnsureGetMemberSprite("MenuTitleText");
+  SelectedMovieAnimation = EnsureGetMemberAnimation("SelectedMovieAnimation");
+  SelectedMovieYellowDot = EnsureGetMemberSprite("SelectedMovieYellowDot");
 
+  SelectMovieFadeDuration = EnsureGetMemberFloat("SelectMovieFadeDuration");
   GetMemberSpriteArray(SelectMovie, 11, "SelectMovie");
   GetMemberVec2Array(SelectMoviePos, 11, "SelectMoviePos");
   LabelPosition = EnsureGetMemberVec2("LabelPosition");

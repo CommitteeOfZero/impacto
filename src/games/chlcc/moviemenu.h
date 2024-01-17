@@ -3,7 +3,7 @@
 #include "../../ui/menu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
-//#include "../../ui/widgets/chlcc/imagethumbnailbutton.h"
+#include "../../ui/widgets/chlcc/moviemenuentrybutton.h"
 
 namespace Impacto {
 namespace UI {
@@ -15,28 +15,27 @@ class MovieMenu : public Menu {
 
   void Show();
   void Hide();
-  // void UpdateInput();
+  void UpdateInput();
   void Update(float dt);
   void Render();
 
-  // void MovieButtonOnClick(Widgets::Button* target);
+  void MovieButtonOnClick(Widgets::Button* target);
 
  private:
-  // Widgets::Group* MainItems;
+  Widgets::Group* MovieItems;
 
   inline void DrawCircles();
   inline void DrawErin();
   inline void DrawRedBar();
-  inline void DrawMovieTree(float yOffset);
   inline void DrawButtonPrompt();
+  inline void DrawSelectMovie(float yOffset);
   void UpdateTitles();
 
-  // void UpdateMovieEntries();
-
-  // Animation FadeAnimation;
+  void UpdateMovieEntries();
 
   Animation MenuTransition;
   Animation TitleFade;
+  Animation SelectMovieTextFade;
 
   glm::vec2 RedTitleLabelPos;
   glm::vec2 RightTitlePos;

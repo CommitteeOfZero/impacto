@@ -96,6 +96,9 @@ root.ExtraMenus = {
         LockedThumbnail: "MovieLockedThumbnail",
         ButtonPromptPosition: { X: 1022, Y: 651 },
         ButtonPromptSprite: "MovieButtonPrompt",
+        SelectedMovieAnimation: "SelectedMovieAnimDef",
+        SelectedMovieYellowDot: "SelectedMovieYellowDot",
+        SelectMovieFadeDuration: 110 / 60,
         SelectMovie: [],
         SelectMoviePos: [
             { X: 94, Y: 51 },
@@ -108,7 +111,7 @@ root.ExtraMenus = {
             { X: 199, Y: 51 },
             { X: 213, Y: 51 },
             { X: 229, Y: 51 },
-            { X: 233, Y: 52 },
+            { X: 234, Y: 51 },
         ]
     },
     AlbumMenu: {
@@ -387,12 +390,12 @@ root.Sprites["MovieLabel"] = {
 
 root.Sprites["MovieList"] = {
     Sheet: "Movie",
-    Bounds: { X: 1, Y: 1, Width: 611, Height: 585 }
+    Bounds: { X: 1, Y: 1, Width: 605, Height: 585 }
 }
 
 root.Sprites["MovieMenuTitleText"] = {
     Sheet: "Movie",
-    Bounds: { X: 612, Y: 3, Width: 115, Height: 1010 }
+    Bounds: { X: 609, Y: 3, Width: 116, Height: 1005 }
 }
 
 var firstX = 928;
@@ -488,6 +491,27 @@ root.Sprites["SelectMovie10"] = {
     Bounds: { X: 189, Y: 597, Width: 16, Height: 57 }
 }
 root.ExtraMenus.MovieMenu.SelectMovie.push("SelectMovie10")
+
+root.Sprites["SelectedMovieYellowDot"] = {
+    Sheet: "Movie",
+    Bounds: { X: 294, Y: 694, Width: 14, Height: 14 }
+}
+
+MakeAnimation({
+    Name: "SelectedMovieAnimDef",
+    Sheet: "Movie",
+    FirstFrameX: 728,
+    FirstFrameY: 125,
+    FrameWidth: 198,
+    ColWidth: 198,
+    FrameHeight: 124,
+    RowHeight: 124,
+    Frames: 7,
+    Duration: 0.2,
+    Rows: 7,
+    Columns: 1,
+    PrimaryDirection: AnimationDirections.Down,
+});
 
 //SoundList
 root.Sprites["CircleSound"] = {

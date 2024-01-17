@@ -13,14 +13,29 @@ namespace CHLCC {
 using namespace Impacto::Profile::CHLCC::MovieMenu;
 using namespace Impacto::Profile::ScriptVars;
 
-using namespace Impacto::UI::Widgets;
+using namespace Impacto::UI::Widgets::CHLCC;
 
-/**void MovieMenu::MovieButtonOnClick(Button* target) {
-  auto movieButton =
-  static_cast<Widgets::CHLCC::ImageThumbnailButton*>(target); if
-  (!movieButton->IsLocked) { ScrWork[SW_MOVIEMODE_CUR] = movieButton->Id;
+void MovieMenu::MovieButtonOnClick(Widgets::Button* target) {
+  auto movieButton = static_cast<MovieMenuEntryButton*>(target); 
+  if (!movieButton->IsLocked) {
+    switch (movieButton->Id) {
+      case 0: {
+        ScrWork[SW_MOVIEMODE_CUR] = 10;
+      } break;
+      case 4:
+      case 5:
+      case 6: {
+        ScrWork[SW_MOVIEMODE_CUR] = movieButton->Id;
+      } break;
+      case 7: {
+        ScrWork[SW_MOVIEMODE_CUR] = 3;
+      } break;
+      default: {
+        ScrWork[SW_MOVIEMODE_CUR] = movieButton->Id - 1;
+      }
+    }
   }
-}*/
+}
 
 MovieMenu::MovieMenu() {
   MenuTransition.Direction = 1.0f;
@@ -33,15 +48,43 @@ MovieMenu::MovieMenu() {
   TitleFade.DurationIn = TitleFadeInDuration;
   TitleFade.DurationOut = TitleFadeOutDuration;
 
+  SelectMovieTextFade.Direction = 1;
+  SelectMovieTextFade.LoopMode = ALM_Loop;
+  SelectMovieTextFade.DurationIn = SelectMovieFadeDuration;
+
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;
+
+  auto onClick =
+      std::bind(&MovieMenu::MovieButtonOnClick, this, std::placeholders::_1);
+
+  // Movie Buttons initialization
+  MovieItems = new Widgets::Group(this);
+  MovieItems->WrapFocus = false;
+
+  for (int i = 0; i < 10; i++) {
+    glm::vec2 thumbnailPosition(ThumbnailPositions[i].x,
+                                ThumbnailPositions[i].y);
+    glm::vec2 boxPosition(BoxPositions[i].x, BoxPositions[i].y);
+    MovieMenuEntryButton* movieMenuEntryButton = new MovieMenuEntryButton(
+        i, MoviesThumbnails[i], LockedThumbnail,
+        thumbnailPosition, boxPosition);
+    movieMenuEntryButton->OnClickHandler = onClick;
+    MovieItems->Add(movieMenuEntryButton);
+  }
+
 }
 
 void MovieMenu::Show() {
-  ScrWork[SW_MOVIEMODE_CUR] = 255;
   if (State != Shown) {
-    if (State != Showing) MenuTransition.StartIn();
+    if (State != Showing) {
+      MenuTransition.StartIn();
+      SelectMovieTextFade.StartIn();
+    }
+    MovieItems->Show();
     State = Showing;
+    UpdateMovieEntries();
+    ScrWork[SW_MOVIEMODE_CUR] = 255;
     if (UI::FocusedMenu != 0) {
       LastFocusedMenu = UI::FocusedMenu;
       LastFocusedMenu->IsFocused = false;
@@ -55,6 +98,7 @@ void MovieMenu::Hide() {
   if (State != Hidden) {
     if (State != Hiding) {
       MenuTransition.StartOut();
+      SelectMovieTextFade.StartOut();
     }
     State = Hiding;
     if (LastFocusedMenu != 0) {
@@ -93,25 +137,30 @@ void MovieMenu::Render() {
     Renderer->DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                            glm::vec4(tint, alpha));
 
-    glm::vec2 offset(0.0f, 0.0f);
+    float yOffset = 0;
     if (MenuTransition.Progress > 0.22f) {
-      if (MenuTransition.Progress < 0.72f) {
+      if (MenuTransition.Progress < 0.73f) {
         // Approximated function from the original, another mess
-        offset = glm::vec2(
-            0.0f,
-            glm::mix(-720.0f, 0.0f,
-                     1.00397f * std::sin(3.97161f -
-                                         3.26438f * MenuTransition.Progress) -
-                         0.00295643f));
-
-      }
-      for (int idx = 0; idx < 11; idx++) {
-        Renderer->DrawSprite(SelectMovie[idx], SelectMoviePos[idx] + offset);   
+        yOffset = glm::mix(
+            -720.0f, 0.0f,
+            1.00397f * std::sin(3.97161f - 3.26438f * MenuTransition.Progress) -
+                0.00295643f);
       }
 
+      MovieItems->MoveTo(glm::vec2(0, yOffset));
+      MovieItems->Render();
+      glm::vec2 listPosition(ListPosition.x, ListPosition.y + yOffset);
+      Renderer->DrawSprite(MovieList, listPosition);
       DrawButtonPrompt();
-      DrawMovieTree(offset.y);
+      DrawSelectMovie(yOffset);
     }
+  }
+}
+
+void MovieMenu::UpdateInput() {
+  Menu::UpdateInput();
+  if (State == Shown) {
+    MovieItems->UpdateInput();
   }
 }
 
@@ -123,14 +172,17 @@ void MovieMenu::Update(float dt) {
     Show();
   }
 
-  if (MenuTransition.IsOut() && State == Hiding)
+  if (MenuTransition.IsOut() && State == Hiding) {
     State = Hidden;
-  else if (MenuTransition.IsIn() && State == Showing) {
+    MovieItems->Hide();
+  } else if (MenuTransition.IsIn() && State == Showing) {
     State = Shown;
+    MovieItems->Show();
   }
 
   if (State != Hidden) {
     MenuTransition.Update(dt);
+    SelectMovieTextFade.Update(dt);
     if (MenuTransition.Direction == -1.0f && MenuTransition.Progress <= 0.72f) {
       TitleFade.StartOut();
     } else if (MenuTransition.IsIn() &&
@@ -138,6 +190,7 @@ void MovieMenu::Update(float dt) {
       TitleFade.StartIn();
     }
     TitleFade.Update(dt);
+    MovieItems->Update(dt);
     UpdateTitles();
   }
 }
@@ -204,23 +257,6 @@ inline void MovieMenu::DrawRedBar() {
   }
 }
 
-inline void MovieMenu::DrawMovieTree(float yOffset) {
-  for (int i = 0; i < 10; i++) {
-    glm::vec2 boxPosition(BoxPositions[i].x, BoxPositions[i].y + yOffset);
-    glm::vec2 thumbnailPosition(ThumbnailPositions[i].x,
-                                ThumbnailPositions[i].y + yOffset);
-    Renderer->DrawSprite(MovieBox, boxPosition);
-    // Needed to deal with the openings being part of the list (unlike the clearlist)
-    if ((i < 2 && GetFlag(SF_MOVIE_UNLOCK1)) || (GetFlag(SF_CLR_END1 + i - 2))) {
-      Renderer->DrawSprite(MoviesThumbnails[i], thumbnailPosition);
-    } else {
-      Renderer->DrawSprite(LockedThumbnail, thumbnailPosition);
-    }
-  }
-  glm::vec2 listPosition(ListPosition.x, ListPosition.y + yOffset);
-  Renderer->DrawSprite(MovieList, listPosition);
-}
-
 inline void MovieMenu::DrawButtonPrompt() {
   if (MenuTransition.IsIn()) {
     Renderer->DrawSprite(ButtonPromptSprite, ButtonPromptPosition);
@@ -228,6 +264,19 @@ inline void MovieMenu::DrawButtonPrompt() {
     float x = ButtonPromptPosition.x - 2560.0f * (MenuTransition.Progress - 1);
     Renderer->DrawSprite(ButtonPromptSprite,
                          glm::vec2(x, ButtonPromptPosition.y));
+  }
+}
+
+inline void MovieMenu::DrawSelectMovie(float yOffset) {
+  float alpha;
+  for (int idx = 0; idx < 11; idx++) {
+    alpha = 1.0f;
+    if (SelectMovieTextFade.Progress < 0.046f * (idx + 1)) {
+      alpha = (SelectMovieTextFade.Progress - 0.046f * idx) / 0.046f;
+    }
+    Renderer->DrawSprite(SelectMovie[idx],
+        glm::vec2(SelectMoviePos[idx].x, SelectMoviePos[idx].y + yOffset),
+                         glm::vec4(glm::vec3(1.0f), alpha));
   }
 }
 
@@ -253,6 +302,17 @@ void MovieMenu::UpdateTitles() {
   RightTitlePos +=
       glm::vec2(-572.0f * (MenuTransition.Progress * 4.0f - 3.0f),
                 460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f);
+}
+
+void MovieMenu::UpdateMovieEntries() {
+  for (auto el : MovieItems->Children) {
+    auto movieButton = static_cast<Widgets::CHLCC::MovieMenuEntryButton*>(el);
+    if (movieButton->Id == 0 || movieButton->Id == 1)
+      movieButton->IsLocked = false;
+    else
+      movieButton->IsLocked = !((GetFlag(SF_MOVIE_UNLOCK1)) ||
+                                (GetFlag(SF_CLR_END1 + movieButton->Id)));
+  }
 }
 
 }  // namespace CHLCC

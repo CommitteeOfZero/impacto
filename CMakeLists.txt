@@ -203,6 +203,7 @@ set(Impacto_Src
         src/ui/widgets/chlcc/titlebutton.cpp
         src/ui/widgets/chlcc/saveentrybutton.cpp
         src/ui/widgets/chlcc/systemmenuentrybutton.cpp
+        src/ui/widgets/chlcc/moviemenuentrybutton.cpp
         src/ui/widgets/chlcc/albumthumbnailbutton.cpp
         src/ui/widgets/chlcc/trackselectbutton.cpp
         src/ui/widgets/rne/sysmenubutton.cpp
@@ -490,6 +491,7 @@ set(Impacto_Header
         src/ui/widgets/chlcc/titlebutton.h
         src/ui/widgets/chlcc/saveentrybutton.h
         src/ui/widgets/chlcc/systemmenuentrybutton.h
+        src/ui/widgets/chlcc/moviemenuentrybutton.h
         src/ui/widgets/chlcc/albumthumbnailbutton.h
         src/ui/widgets/chlcc/trackselectbutton.h
         src/ui/widgets/rne/sysmenubutton.h

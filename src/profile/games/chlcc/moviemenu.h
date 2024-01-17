@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../../spritesheet.h"
+#include "../../../spriteanimation.h"
 
 namespace Impacto {
 namespace Profile {
@@ -32,7 +33,10 @@ extern float MenuTitleTextAngle;
 extern float TitleFadeInDuration;
 extern float TitleFadeOutDuration;
 extern Sprite MenuTitleText;
+extern SpriteAnimationDef SelectedMovieAnimation;
+extern Sprite SelectedMovieYellowDot;
 
+extern float SelectMovieFadeDuration;
 extern Sprite SelectMovie[11];
 extern glm::vec2 SelectMoviePos[11];
 extern glm::vec2 LabelPosition;

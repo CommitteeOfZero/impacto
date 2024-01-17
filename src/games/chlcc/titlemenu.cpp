@@ -244,7 +244,6 @@ void TitleMenu::Show() {
 void TitleMenu::Hide() {
   if (State != Hidden) {
     State = Hidden;
-    MainItems->Hide();
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
       LastFocusedMenu->IsFocused = true;
