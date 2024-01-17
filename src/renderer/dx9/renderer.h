@@ -50,7 +50,7 @@ class Renderer : public BaseRenderer {
                             bool isScreencap) override;
 
   void DrawCHLCCDelusionOverlayImpl(Sprite const& sprite, Sprite const& mask,
-                                    RectF const& dest, int alpha, int fadeRange, float angle) override {}
+                                    RectF const& dest, int alpha, int fadeRange, float angle) override;
 
   void DrawCHLCCMenuBackgroundImpl(const Sprite& sprite, const Sprite& mask,
                                    const RectF& dest, float alpha) override;
@@ -83,7 +83,7 @@ class Renderer : public BaseRenderer {
   void Flush();
 
   inline void QuadSetUV(RectF const& spriteBounds, float designWidth,
-                        float designHeight, uintptr_t uvs, int stride);
+                        float designHeight, uintptr_t uvs, int stride, float angle = 0.0f);
   inline void QuadSetUVFlipped(RectF const& spriteBounds, float designWidth,
                                float designHeight, uintptr_t uvs, int stride);
   inline void QuadSetPosition(RectF const& transformedQuad, float angle,

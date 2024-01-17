@@ -421,7 +421,7 @@ void Renderer::DrawCHLCCDelusionOverlayImpl(Sprite const& sprite, Sprite const& 
                                     RectF const& dest, int alpha, int fadeRange, float angle) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
-           "Renderer->DrawMaskedSprite() called before BeginFrame()\n");
+           "Renderer->DrawCHLCCDelusionOverlay() called before BeginFrame()\n");
     return;
   }
 
