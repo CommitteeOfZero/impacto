@@ -58,6 +58,7 @@ set(Impacto_Src
         src/profile/hud/loadingdisplay.cpp
         src/profile/hud/datedisplay.cpp
         src/profile/hud/tipsnotification.cpp
+        src/profile/hud/delusiontrigger.cpp
 
         src/profile/ui/systemmenu.cpp
         src/profile/ui/titlemenu.cpp
@@ -89,6 +90,7 @@ set(Impacto_Src
         src/profile/games/chlcc/optionsmenu.cpp
         src/profile/games/chlcc/systemmenu.cpp
         src/profile/games/chlcc/trophymenu.cpp
+        src/profile/games/chlcc/delusiontrigger.cpp
 
         src/profile/games/cc/dialoguebox.cpp
         src/profile/games/cc/titlemenu.cpp
@@ -139,6 +141,7 @@ set(Impacto_Src
         src/games/chlcc/optionsmenu.cpp
         src/games/chlcc/systemmenu.cpp
         src/games/chlcc/trophymenu.cpp
+        src/games/chlcc/delusiontrigger.cpp
 
         src/games/cc/dialoguebox.cpp
         src/games/cc/titlemenu.cpp
@@ -175,6 +178,7 @@ set(Impacto_Src
         src/hud/loadingdisplay.cpp
         src/hud/waiticondisplay.cpp
         src/hud/tipsnotification.cpp
+        src/hud/delusiontrigger.cpp
 
         src/ui/ui.cpp
         src/ui/widget.cpp
@@ -347,6 +351,7 @@ set(Impacto_Header
         src/profile/hud/loadingdisplay.h
         src/profile/hud/datedisplay.h
         src/profile/hud/tipsnotification.h
+        src/profile/hud/delusiontrigger.h
 
         src/profile/ui/systemmenu.h
         src/profile/ui/titlemenu.h
@@ -378,6 +383,7 @@ set(Impacto_Header
         src/profile/games/chlcc/optionsmenu.h
         src/profile/games/chlcc/systemmenu.h
         src/profile/games/chlcc/trophymenu.h
+        src/profile/games/chlcc/delusiontrigger.h
 
         src/profile/games/cc/dialoguebox.h
         src/profile/games/cc/titlemenu.h
@@ -428,6 +434,7 @@ set(Impacto_Header
         src/games/chlcc/optionsmenu.h
         src/games/chlcc/systemmenu.h
         src/games/chlcc/trophymenu.h
+        src/games/chlcc/delusiontrigger.h
 
         src/games/cc/dialoguebox.h
         src/games/cc/titlemenu.h
@@ -463,6 +470,7 @@ set(Impacto_Header
         src/hud/loadingdisplay.h
         src/hud/waiticondisplay.h
         src/hud/tipsnotification.h
+        src/hud/delusiontrigger.h
 
         src/ui/ui.h
         src/ui/menu.h

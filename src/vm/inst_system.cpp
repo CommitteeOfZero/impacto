@@ -21,6 +21,7 @@
 #include "../profile/vm.h"
 #include "../profile/ui/sysmesbox.h"
 #include "../profile/hud/tipsnotification.h"
+#include "../profile/hud/delusiontrigger.h"
 #include "../profile/data/tipssystem.h"
 #include "../hud/saveicondisplay.h"
 #include "../inputsystem.h"
@@ -514,6 +515,7 @@ VmInstruction(InstMSinit) {
 
   if (initType == 10) {
     Profile::TipsNotification::CreateInstance();
+    Profile::DelusionTrigger::CreateInstance();
   }
 
   if (initType == 2 &&

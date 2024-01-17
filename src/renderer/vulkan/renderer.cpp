@@ -1308,6 +1308,86 @@ void Renderer::DrawCCMessageBoxImpl(Sprite const& sprite, Sprite const& mask,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
+void Renderer::DrawCHLCCDelusionOverlayImpl(Sprite const& sprite, Sprite const& mask,
+                                    RectF const& dest, int alpha, int fadeRange, float angle) {
+  if (!Drawing) {
+    ImpLog(LL_Error, LC_Render,
+           "Renderer->DrawCHLCCDelusionOverlay() called before BeginFrame()\n");
+    return;
+  }
+
+  if (Textures.count(sprite.Sheet.Texture) == 0 ||
+      Textures.count(mask.Sheet.Texture) == 0)
+    return;
+
+  if (alpha < 0) alpha = 0;
+  if (alpha > fadeRange + 256) alpha = fadeRange + 256;
+
+  float alphaRange = 256.0f / fadeRange;
+  float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
+
+  Flush();
+  EnsureMode(PipelineMaskedSprite, false);
+
+  VkSamplerCreateInfo samplerInfo = {};
+  samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+  samplerInfo.pNext = nullptr;
+  samplerInfo.magFilter = VK_FILTER_LINEAR;
+  samplerInfo.minFilter = VK_FILTER_LINEAR;
+  samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+  samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+  samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+  samplerInfo.anisotropyEnable = VK_TRUE;
+  samplerInfo.maxAnisotropy = 16;
+
+  VkDescriptorImageInfo imageBufferInfo[2];
+  imageBufferInfo[0].sampler = Sampler;
+  imageBufferInfo[0].imageView = Textures[sprite.Sheet.Texture].ImageView;
+  imageBufferInfo[0].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+  vkCreateSampler(Device, &samplerInfo, nullptr, &imageBufferInfo[1].sampler);
+  imageBufferInfo[1].imageView = Textures[mask.Sheet.Texture].ImageView;
+  imageBufferInfo[1].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+  VkWriteDescriptorSet writeDescriptorSet{};
+  writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+  writeDescriptorSet.dstSet = 0;
+  writeDescriptorSet.dstBinding = 0;
+  writeDescriptorSet.descriptorCount = 2;
+  writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+  writeDescriptorSet.pImageInfo = imageBufferInfo;
+
+  vkCmdPushDescriptorSetKHR(
+      CommandBuffers[CurrentFrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
+      PipelineMaskedSprite->PipelineLayout, 0, 1, &writeDescriptorSet);
+
+  SpritePushConstants constants = {};
+  constants.Alpha = glm::vec2(alphaRange, constAlpha);
+  constants.IsInverted = true;
+  constants.IsSameTexture = false;
+  vkCmdPushConstants(
+      CommandBuffers[CurrentFrameIndex], CurrentPipeline->PipelineLayout,
+      VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SpritePushConstants), &constants);
+
+  // OK, all good, make quad
+  MakeQuad();
+
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferOffset +
+                             VertexBufferFill);
+  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
+
+  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
+            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
+  QuadSetUV(sprite.Bounds, sprite.Bounds.Width, sprite.Bounds.Height,
+            (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites), angle);
+
+  QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
+                  sizeof(VertexBufferSprites));
+
+  for (int i = 0; i < 4; i++) vertices[i].Tint = glm::vec4{1.0f};
+}
+
 void Renderer::DrawCHLCCMenuBackgroundImpl(const Sprite& sprite,
                                            const Sprite& mask,
                                            const RectF& dest, float alpha) {
@@ -1395,20 +1475,35 @@ inline void Renderer::MakeQuad() {
 }
 
 inline void Renderer::QuadSetUV(RectF const& spriteBounds, float designWidth,
-                                float designHeight, uintptr_t uvs, int stride) {
+                                float designHeight, uintptr_t uvs, int stride, float angle) {
   float topUV = (spriteBounds.Y / designHeight);
   float leftUV = (spriteBounds.X / designWidth);
   float bottomUV = ((spriteBounds.Y + spriteBounds.Height) / designHeight);
   float rightUV = ((spriteBounds.X + spriteBounds.Width) / designWidth);
 
-  // top-left
-  *(glm::vec2*)(uvs + 0 * stride) = glm::vec2(leftUV, topUV);
+  glm::vec2 bottomLeft(leftUV, bottomUV);
+  glm::vec2 topLeft(leftUV, topUV);
+  glm::vec2 topRight(rightUV, topUV);
+  glm::vec2 bottomRight(rightUV, bottomUV);
+
+  if (angle != 0.0f) {
+      glm::vec2 center = (bottomLeft + topRight) * 0.5f;  // Center of the quad
+      glm::mat2 rot = Rotate2D(angle);
+
+      bottomLeft = rot * (bottomLeft - center) + center;
+      topLeft = rot * (topLeft - center) + center;
+      topRight = rot * (topRight - center) + center;
+      bottomRight = rot * (bottomRight - center) + center;
+  }
+
   // bottom-left
-  *(glm::vec2*)(uvs + 1 * stride) = glm::vec2(leftUV, bottomUV);
-  // bottom-right
-  *(glm::vec2*)(uvs + 2 * stride) = glm::vec2(rightUV, bottomUV);
+  *(glm::vec2*)(uvs + 0 * stride) = bottomLeft;
+  // top-left
+  *(glm::vec2*)(uvs + 1 * stride) = topLeft;
   // top-right
-  *(glm::vec2*)(uvs + 3 * stride) = glm::vec2(rightUV, topUV);
+  *(glm::vec2*)(uvs + 2 * stride) = topRight;
+  // bottom-right
+  *(glm::vec2*)(uvs + 3 * stride) = bottomRight;
 }
 
 inline void Renderer::QuadSetPosition(RectF const& transformedQuad, float angle,

@@ -30,6 +30,10 @@ void UpdatePADInput() {
     int KBcode = PADToKeyboard[PADcode];
     int GPcode = PADToController[PADcode];
     int MScode = PADToMouse[PADcode];
+    if ((GPcode == PAD1L2 || GPcode == PAD1R2) && 
+        (Input::ControllerAxisWentDownLight[GPcode] ||
+         Input::KeyboardButtonIsDown[KBcode]))
+      PADinputButtonWentDown |= PADcode;
     if (Input::KeyboardButtonWentDown[KBcode] ||
         Input::ControllerButtonWentDown[GPcode])
       PADinputButtonWentDown |= PADcode;

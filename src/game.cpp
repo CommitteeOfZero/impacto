@@ -23,6 +23,7 @@
 #include "hud/saveicondisplay.h"
 #include "hud/loadingdisplay.h"
 #include "hud/tipsnotification.h"
+#include "hud/delusiontrigger.h"
 #include "io/memorystream.h"
 
 #include "profile/profile.h"
@@ -124,6 +125,7 @@ static void Init() {
     Profile::ExtraMenus::Configure();
     DateDisplay::Init();
     TipsNotification::Init();
+    DelusionTrigger::Init();
   }
 
   Profile::ClearJsonProfile();
@@ -218,6 +220,7 @@ void Update(float dt) {
     LoadingDisplay::Update(dt);
     DateDisplay::Update(dt);
     TipsNotification::Update(dt);
+    DelusionTrigger::Update(dt);
   }
 
   if (Profile::GameFeatures & GameFeature::Audio) {
@@ -418,6 +421,7 @@ void Render() {
           }
           DateDisplay::Render();
           TipsNotification::Render();
+          DelusionTrigger::Render();
           Video::VideoRender(ScrWork[SW_MOVIEALPHA] / 256.0f);
           break;
         }
