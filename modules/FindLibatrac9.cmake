@@ -6,6 +6,8 @@ set(_LIBATRAC9_SEARCH
   /opt/local # DarwinPorts
   /opt/csw # Blastwave
   /opt
+  /usr
+  /usr/local
 )
 
 foreach(search ${_LIBATRAC9_SEARCH})
