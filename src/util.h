@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <SDL_stdinc.h>
 #include <string>
+#include <cctype>
 
 // TODO own _malloca for gcc
 
@@ -156,6 +157,20 @@ inline bool StringEndsWithCi(std::string const& str,
   if (str.length() < ending.length()) return false;
   return 0 == SDL_strcasecmp(str.c_str() + str.length() - ending.length(),
                              ending.c_str());
+}
+
+// Trim whitespace in-place
+inline void TrimString(std::string& str) {
+  // from the left
+  str.erase(str.begin(),
+            std::find_if(str.begin(), str.end(),
+                         [](unsigned char c) { return !std::isspace(c); }));
+
+  // from the right
+  str.erase(std::find_if(str.rbegin(), str.rend(),
+                         [](unsigned char c) { return !std::isspace(c); })
+                .base(),
+            str.end());
 }
 
 }  // namespace Impacto
