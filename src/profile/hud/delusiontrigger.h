@@ -7,14 +7,10 @@ namespace Impacto {
 namespace Profile {
 namespace DelusionTrigger {
 
-extern Sprite BackgroundSprite;
-extern Sprite BackgroundSpriteMask;
-extern Sprite ScreenMask;
-
 void Configure();
 
 void CreateInstance();
 
-}  // namespace TipsNotification
+}  // namespace DelusionTrigger
 }  // namespace Profile
 }  // namespace Impacto

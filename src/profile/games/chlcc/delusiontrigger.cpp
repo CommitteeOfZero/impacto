@@ -11,7 +11,17 @@ namespace Profile {
 namespace CHLCC {
 namespace DelusionTrigger {
 
+Sprite BackgroundSprite;
+Sprite BackgroundSpriteMask;
+Sprite ScreenMask;
+
 void Configure() {
+  BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
+  BackgroundSpriteMask = EnsureGetMemberSprite("BackgroundSpriteMask");
+  ScreenMask = EnsureGetMemberSprite("ScreenMask");
+
+  BackgroundSpriteMask.Bounds.Y = BackgroundSprite.Bounds.Center().y -
+                                  BackgroundSpriteMask.Bounds.Center().y;
 }
 
 }  // namespace DelusionTrigger
