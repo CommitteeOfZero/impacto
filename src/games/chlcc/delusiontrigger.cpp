@@ -23,7 +23,7 @@ DelusionTrigger::DelusionTrigger()
 void DelusionTrigger::Show() {
   if (State != Shown && State != Showing) {
     State = Showing;
-    DelusionState = DELUSION_STATE::NEUTRAL;
+    DelusionState = DS_Neutral;
     maskScaleFactor = 131072;
     spinAngle = 0;
     spinRate = 3072;
@@ -85,9 +85,9 @@ void DelusionTrigger::UpdateHiding() {
       case 9: {
         if (AnimCounter == 30) {
           AnimCounter = 0;
-          AnimationState = (DelusionState == DELUSION_STATE::POSITIVE)   ? 11
-                           : (DelusionState == DELUSION_STATE::NEGATIVE) ? 12
-                                                                         : 10;
+          AnimationState = (DelusionState == DS_Positive)   ? 11
+                           : (DelusionState == DS_Negative) ? 12
+                                                            : 10;
         }
       } break;
       case 10: {
@@ -228,46 +228,46 @@ void DelusionTrigger::UpdateShown() {
   ShakeState = (ShakeState == 0) ? 0 : ShakeState - 1;
   if (PADinputButtonWentDown & PAD1L2) {
     switch (ScrWork[SW_CHLCC_DELUSION_STATE]) {
-      case DELUSION_STATE::NEUTRAL:
-        ScrWork[SW_CHLCC_DELUSION_STATE] = DELUSION_STATE::POSITIVE;
+      case DS_Neutral:
+        ScrWork[SW_CHLCC_DELUSION_STATE] = DS_Positive;
         PlayClickSound();
         ShakeState = 6;
         break;
-      case DELUSION_STATE::NEGATIVE:
-        ScrWork[SW_CHLCC_DELUSION_STATE] = DELUSION_STATE::NEUTRAL;
+      case DS_Negative:
+        ScrWork[SW_CHLCC_DELUSION_STATE] = DS_Neutral;
         break;
-      case DELUSION_STATE::POSITIVE:
+      case DS_Positive:
       default:
         break;
     }
   } else if (PADinputButtonWentDown & PAD1R2) {
     switch (ScrWork[SW_CHLCC_DELUSION_STATE]) {
-      case DELUSION_STATE::NEUTRAL:
-        ScrWork[SW_CHLCC_DELUSION_STATE] = DELUSION_STATE::NEGATIVE;
+      case DS_Neutral:
+        ScrWork[SW_CHLCC_DELUSION_STATE] = DS_Negative;
         PlayClickSound();
         ShakeState = 6;
         break;
-      case DELUSION_STATE::POSITIVE:
-        ScrWork[SW_CHLCC_DELUSION_STATE] = DELUSION_STATE::NEUTRAL;
+      case DS_Positive:
+        ScrWork[SW_CHLCC_DELUSION_STATE] = DS_Neutral;
         break;
-      case DELUSION_STATE::NEGATIVE:
+      case DS_Negative:
       default:
         break;
     }
   }
 
-  if (ScrWork[SW_CHLCC_DELUSION_STATE] != DELUSION_STATE::NEUTRAL) {
+  if (ScrWork[SW_CHLCC_DELUSION_STATE] != DS_Neutral) {
     if (TriggerOnTintAlpha < 104) {
       TriggerOnTintAlpha = TriggerOnTintAlpha + 4;
     }
-    if (ScrWork[SW_CHLCC_DELUSION_STATE] == DELUSION_STATE::POSITIVE) {
+    if (ScrWork[SW_CHLCC_DELUSION_STATE] == DS_Positive) {
       if (spinRate < 40) {
         spinRate = spinRate + 2;
       }
       if (UnderlayerXRate < 2400) {
         UnderlayerXRate += 100;
       }
-    } else if (ScrWork[SW_CHLCC_DELUSION_STATE] == DELUSION_STATE::NEGATIVE) {
+    } else if (ScrWork[SW_CHLCC_DELUSION_STATE] == DS_Negative) {
       if (spinRate > -40) {
         spinRate = spinRate - 2;
       }

@@ -593,14 +593,6 @@ if (APPLE OR LINUX)
     set(IMPACTO_DISABLE_DX9 ON)
 endif ()
 
-if (IMPACTO_DISABLE_DX9)
-    add_definitions(-DIMPACTO_DISABLE_DX9)
-endif ()
-
-if (IMPACTO_DISABLE_VULKAN)
-    add_definitions(-DIMPACTO_DISABLE_VULKAN)
-endif ()
-
 # dependencies
 
 if (WIN32)
@@ -819,7 +811,7 @@ if (NOT DEFINED IMPACTO_DISABLE_DX9)
             src/renderer/dx9/shader.h
             src/renderer/dx9/yuvframe.h
             src/renderer/dx9/3d/scene.h
-            src/renderer/dx9/3d/renderable3d.h
+            src/renderer/dx9/3d/renderable3d.h 
     )
 
     list(APPEND Impacto_Libs

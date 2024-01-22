@@ -16,7 +16,7 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::UI::Widgets::CHLCC;
 
 void MovieMenu::MovieButtonOnClick(Widgets::Button* target) {
-  auto movieButton = static_cast<MovieMenuEntryButton*>(target); 
+  auto movieButton = static_cast<MovieMenuEntryButton*>(target);
   if (!movieButton->IsLocked) {
     switch (movieButton->Id) {
       case 0: {
@@ -66,13 +66,12 @@ MovieMenu::MovieMenu() {
     glm::vec2 thumbnailPosition(ThumbnailPositions[i].x,
                                 ThumbnailPositions[i].y);
     glm::vec2 boxPosition(BoxPositions[i].x, BoxPositions[i].y);
-    MovieMenuEntryButton* movieMenuEntryButton = new MovieMenuEntryButton(
-        i, MoviesThumbnails[i], LockedThumbnail,
-        thumbnailPosition, boxPosition);
+    MovieMenuEntryButton* movieMenuEntryButton =
+        new MovieMenuEntryButton(i, MoviesThumbnails[i], LockedThumbnail,
+                                 thumbnailPosition, boxPosition);
     movieMenuEntryButton->OnClickHandler = onClick;
     MovieItems->Add(movieMenuEntryButton);
   }
-
 }
 
 void MovieMenu::Show() {
@@ -115,7 +114,7 @@ void MovieMenu::Render() {
   if (State != Hidden) {
     if (MenuTransition.IsIn()) {
       Renderer->DrawRect(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-                           RgbIntToFloat(BackgroundColor));
+                         RgbIntToFloat(BackgroundColor));
     } else {
       DrawCircles();
     }
@@ -124,9 +123,8 @@ void MovieMenu::Render() {
 
     if (MenuTransition.Progress > 0.34f) {
       Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
-      Renderer->DrawSprite(MenuTitleText, RightTitlePos,
-                           glm::vec4(1.0f), glm::vec2(1.0f),
-                           MenuTitleTextAngle);
+      Renderer->DrawSprite(MenuTitleText, RightTitlePos, glm::vec4(1.0f),
+                           glm::vec2(1.0f), MenuTitleTextAngle);
       Renderer->DrawSprite(MenuTitleText, LeftTitlePos);
     }
 
@@ -135,7 +133,7 @@ void MovieMenu::Render() {
     float alpha =
         MenuTransition.Progress < 0.5f ? MenuTransition.Progress * 2.0f : 1.0f;
     Renderer->DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-                           glm::vec4(tint, alpha));
+                         glm::vec4(tint, alpha));
 
     float yOffset = 0;
     if (MenuTransition.Progress > 0.22f) {
@@ -274,9 +272,10 @@ inline void MovieMenu::DrawSelectMovie(float yOffset) {
     if (SelectMovieTextFade.Progress < 0.046f * (idx + 1)) {
       alpha = (SelectMovieTextFade.Progress - 0.046f * idx) / 0.046f;
     }
-    Renderer->DrawSprite(SelectMovie[idx],
+    Renderer->DrawSprite(
+        SelectMovie[idx],
         glm::vec2(SelectMoviePos[idx].x, SelectMoviePos[idx].y + yOffset),
-                         glm::vec4(glm::vec3(1.0f), alpha));
+        glm::vec4(glm::vec3(1.0f), alpha));
   }
 }
 

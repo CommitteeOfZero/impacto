@@ -103,7 +103,7 @@ void Renderer::InitImpl() {
 
   // No-mipmapping sampler
   glGenSamplers(1, &Sampler);
-  
+
   // Don't wrap textures
   glSamplerParameteri(Sampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glSamplerParameteri(Sampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -388,7 +388,7 @@ void Renderer::DrawMaskedSpriteImpl(Sprite const& sprite, Sprite const& mask,
   glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
 
   glActiveTexture(GL_TEXTURE2);
-  glBindTexture(GL_TEXTURE_2D, mask.Sheet.Texture);  
+  glBindTexture(GL_TEXTURE_2D, mask.Sheet.Texture);
   glBindSampler(2, Sampler);
 
   // OK, all good, make quad
@@ -417,8 +417,10 @@ void Renderer::DrawMaskedSpriteImpl(Sprite const& sprite, Sprite const& mask,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
-void Renderer::DrawCHLCCDelusionOverlayImpl(Sprite const& sprite, Sprite const& mask,
-                                    RectF const& dest, int alpha, int fadeRange, float angle) {
+void Renderer::DrawCHLCCDelusionOverlayImpl(Sprite const& sprite,
+                                            Sprite const& mask,
+                                            RectF const& dest, int alpha,
+                                            int fadeRange, float angle) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawCHLCCDelusionOverlay() called before BeginFrame()\n");
@@ -448,7 +450,7 @@ void Renderer::DrawCHLCCDelusionOverlayImpl(Sprite const& sprite, Sprite const& 
   glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
 
   glActiveTexture(GL_TEXTURE2);
-  glBindTexture(GL_TEXTURE_2D, mask.Sheet.Texture);  
+  glBindTexture(GL_TEXTURE_2D, mask.Sheet.Texture);
   glBindSampler(2, Sampler);
 
   // OK, all good, make quad
@@ -459,9 +461,8 @@ void Renderer::DrawCHLCCDelusionOverlayImpl(Sprite const& sprite, Sprite const& 
 
   IndexBufferFill += 6;
 
-  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth,
-            sprite.Sheet.DesignHeight, (uintptr_t)&vertices[0].UV,
-            sizeof(VertexBufferSprites));
+  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
+            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
 
   QuadSetUV(mask.Bounds, mask.Sheet.DesignWidth, mask.Sheet.DesignHeight,
             (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites), angle);
@@ -610,7 +611,8 @@ inline void Renderer::QuadSetUVFlipped(RectF const& spriteBounds,
 }
 
 inline void Renderer::QuadSetUV(RectF const& spriteBounds, float designWidth,
-                                float designHeight, uintptr_t uvs, int stride, float angle) {
+                                float designHeight, uintptr_t uvs, int stride,
+                                float angle) {
   float topUV = (spriteBounds.Y / designHeight);
   float leftUV = (spriteBounds.X / designWidth);
   float bottomUV = ((spriteBounds.Y + spriteBounds.Height) / designHeight);
@@ -622,13 +624,13 @@ inline void Renderer::QuadSetUV(RectF const& spriteBounds, float designWidth,
   glm::vec2 bottomRight(rightUV, bottomUV);
 
   if (angle != 0.0f) {
-      glm::vec2 center = (bottomLeft + topRight) * 0.5f;  // Center of the quad
-      glm::mat2 rot = Rotate2D(angle);
+    glm::vec2 center = (bottomLeft + topRight) * 0.5f;  // Center of the quad
+    glm::mat2 rot = Rotate2D(angle);
 
-      bottomLeft = rot * (bottomLeft - center) + center;
-      topLeft = rot * (topLeft - center) + center;
-      topRight = rot * (topRight - center) + center;
-      bottomRight = rot * (bottomRight - center) + center;
+    bottomLeft = rot * (bottomLeft - center) + center;
+    topLeft = rot * (topLeft - center) + center;
+    topRight = rot * (topRight - center) + center;
+    bottomRight = rot * (bottomRight - center) + center;
   }
 
   // bottom-left

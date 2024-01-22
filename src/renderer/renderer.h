@@ -59,7 +59,8 @@ class BaseRenderer {
                                const RectF& dest, float alpha);
 
   void DrawCHLCCDelusionOverlay(Sprite const& sprite, Sprite const& mask,
-                                    RectF const& dest, int alpha, int fadeRange, float angle);
+                                RectF const& dest, int alpha, int fadeRange,
+                                float angle);
 
   void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest, float depth,
                            glm::vec2 vanishingPoint, bool stayInScreen,
@@ -146,9 +147,11 @@ class BaseRenderer {
                                     RectF const& dest, glm::vec4 tint,
                                     int alpha, int fadeRange, float effectCt,
                                     bool isScreencap) = 0;
-  
-  virtual void DrawCHLCCDelusionOverlayImpl(Sprite const& sprite, Sprite const& mask,
-                                    RectF const& dest, int alpha, int fadeRange, float angle) = 0;
+
+  virtual void DrawCHLCCDelusionOverlayImpl(Sprite const& sprite,
+                                            Sprite const& mask,
+                                            RectF const& dest, int alpha,
+                                            int fadeRange, float angle) = 0;
 
   virtual void DrawCHLCCMenuBackgroundImpl(const Sprite& sprite,
                                            const Sprite& mask,

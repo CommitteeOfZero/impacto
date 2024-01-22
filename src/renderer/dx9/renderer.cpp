@@ -478,9 +478,10 @@ void Renderer::DrawCCMessageBoxImpl(Sprite const& sprite, Sprite const& mask,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
-void Renderer::DrawCHLCCDelusionOverlayImpl(Sprite const& sprite, Sprite const& mask,
-                                  RectF const& dest, int alpha, int fadeRange,
-                                  float angle) {
+void Renderer::DrawCHLCCDelusionOverlayImpl(Sprite const& sprite,
+                                            Sprite const& mask,
+                                            RectF const& dest, int alpha,
+                                            int fadeRange, float angle) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawCHLCCDelusionOverlay() called before BeginFrame()\n");
@@ -503,8 +504,8 @@ void Renderer::DrawCHLCCDelusionOverlayImpl(Sprite const& sprite, Sprite const& 
   Device->SetTexture(1, Textures[mask.Sheet.Texture]);
 
   float alphaRes[] = {alphaRange, constAlpha};
-  BOOL isInvertedB = (BOOL)true;
-  BOOL isSameTextureB = (BOOL)false;
+  BOOL isInvertedB = (BOOL) true;
+  BOOL isSameTextureB = (BOOL) false;
   Device->SetSamplerState(1, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
   Device->SetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
   Device->SetPixelShaderConstantF(0, alphaRes, 1);
@@ -598,7 +599,8 @@ inline void Renderer::QuadSetUVFlipped(RectF const& spriteBounds,
 }
 
 inline void Renderer::QuadSetUV(RectF const& spriteBounds, float designWidth,
-                                float designHeight, uintptr_t uvs, int stride, float angle) {
+                                float designHeight, uintptr_t uvs, int stride,
+                                float angle) {
   float topUV = (spriteBounds.Y / designHeight);
   float leftUV = (spriteBounds.X / designWidth);
   float bottomUV = ((spriteBounds.Y + spriteBounds.Height) / designHeight);
@@ -610,13 +612,13 @@ inline void Renderer::QuadSetUV(RectF const& spriteBounds, float designWidth,
   glm::vec2 bottomRight(rightUV, bottomUV);
 
   if (angle != 0.0f) {
-      glm::vec2 center = (bottomLeft + topRight) * 0.5f;  // Center of the quad
-      glm::mat2 rot = Rotate2D(angle);
+    glm::vec2 center = (bottomLeft + topRight) * 0.5f;  // Center of the quad
+    glm::mat2 rot = Rotate2D(angle);
 
-      bottomLeft = rot * (bottomLeft - center) + center;
-      topLeft = rot * (topLeft - center) + center;
-      topRight = rot * (topRight - center) + center;
-      bottomRight = rot * (bottomRight - center) + center;
+    bottomLeft = rot * (bottomLeft - center) + center;
+    topLeft = rot * (topLeft - center) + center;
+    topRight = rot * (topRight - center) + center;
+    bottomRight = rot * (bottomRight - center) + center;
   }
 
   // bottom-left

@@ -10,16 +10,16 @@ BETTER_ENUM(DelusionTriggerType, int, None, CHLCC)
 
 class DelusionTriggerBase {
  public:
-  enum DELUSION_STATE { NEUTRAL, POSITIVE, NEGATIVE };
-  enum STATE { Hidden, Showing, Shown, Hiding };
-  DelusionTriggerBase(int& delusionState, STATE showState);
+  enum DelusionState { DS_Neutral, DS_Positive, DS_Negative };
+  enum UiState { Hidden, Showing, Shown, Hiding };
+  DelusionTriggerBase(int& delusionState, UiState showState);
   virtual void Update(float dt) = 0;
   virtual void Render() = 0;
   virtual void Show() = 0;
   virtual void Hide() = 0;
 
-  STATE State;
-  int &DelusionState;
+  UiState State;
+  int& DelusionState;
 };
 
 extern DelusionTriggerBase* Implementation;

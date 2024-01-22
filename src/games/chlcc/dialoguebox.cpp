@@ -26,7 +26,8 @@ void DialogueBox::Render(DialoguePageMode mode, bool hasName, float nameWidth,
         advBoxSprite = &SecondaryADVBoxSprite;
         break;
       case 0xFFFFFF:
-        // On the first loaded script, it forces 0xffffff for the normal textbox.
+        // On the first loaded script, it forces 0xffffff for the normal
+        // textbox.
         advBoxSprite = &ADVBoxSprite;
         col = ScrWorkGetColor(SW_MESWINDOW_COLOR);
         break;
@@ -88,8 +89,8 @@ void DialogueBox::Render(DialoguePageMode mode, bool hasName, float nameWidth,
       Renderer->DrawSprite(*advNameTagRightSprite,
                            glm::vec2(lineX, advNameTagPosition->y), col);
     }
-  } 
-  
+  }
+
   if (mode == DPM_NVL) {
     glm::vec4 nvlBoxTint(0.0f, 0.0f, 0.0f, opacity * NVLBoxMaxOpacity);
     Renderer->DrawRect(RectF(0, 0, Profile::DesignWidth, Profile::DesignHeight),
