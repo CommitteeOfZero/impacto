@@ -155,6 +155,7 @@ void MakeJsonProfile(std::string const& name) {
 
   // Enums /sigh
   DefineEnumInt<RendererType>(ctx);
+  DefineEnumInt<VideoPlayerType>(ctx);
   DefineEnumInt<TextAlignment>(ctx);
   DefineEnumInt<GameFeature>(ctx);
   DefineEnumInt<CharacterTypeFlags>(ctx);

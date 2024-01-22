@@ -239,6 +239,9 @@ VmInstruction(InstKeyboardOnJump) {
              "arg4: %i)\n",
              arg1, arg2, arg3, arg4);
 }
+VmInstruction(InstControlOnJump) { StartInstruction; }
+VmInstruction(InstGetControl) { StartInstruction; }
+VmInstruction(InstPackFileAddBind) { StartInstruction; }
 VmInstruction(InstLoadJump) {
   StartInstruction;
   PopExpression(scriptId);

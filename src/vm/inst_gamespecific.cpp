@@ -1044,6 +1044,7 @@ VmInstruction(InstUnk1037Noah) {
     } break;
   }
 }
+VmInstruction(InstMtrg) { StartInstruction; }
 
 }  // namespace Vm
 

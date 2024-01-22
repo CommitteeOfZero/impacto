@@ -9,7 +9,7 @@
 * `src/texture/gxtloader.cpp`: Unswizzling code based on [Scarlet](https://github.com/xdanieldzd/Scarlet/blob/d8aabf430307d35a81b131e40bb3c9a4828bdd7b/Scarlet/Drawing/ImageBinary.cs) and work by [FireyFly](http://xen.firefly.nu/up/rearrange.c.html) and [ryg](https://fgiesen.wordpress.com/2009/12/13/decoding-morton-codes/)
 * `src/texture/s3tc.cpp`: based on [s3tc-dxt-decompression](https://github.com/Benjamin-Dobell/s3tc-dxt-decompression)
 * `src/texture/ddsloader.cpp`: based on [OpenImageIO](https://github.com/OpenImageIO/oiio/tree/master/src/dds.imageio)
-* `src/video/videoplayer.cpp`: syncing code based on [FFplay](https://github.com/FFmpeg/FFmpeg/blob/master/fftools/ffplay.c)
+* `src/video/ffmpegplayer.cpp`: syncing code based on [FFplay](https://github.com/FFmpeg/FFmpeg/blob/master/fftools/ffplay.c)
 * `vendor/clHCA`: part of [vgmstream](https://github.com/losnoco/vgmstream)
 * `vendor/duktape`: [Duktape](https://github.com/svaarala/duktape)
 * `vendor/glad`: output from [glad](https://github.com/Dav1dde/glad) generator, patched for Switch support

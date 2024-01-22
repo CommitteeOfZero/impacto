@@ -558,6 +558,8 @@ VmInstruction(InstChkClearFlag) {
   StartInstruction;
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction ChkClearFlag()\n");
 }
+VmInstruction(InstScreenChange) { StartInstruction; }
+VmInstruction(InstExitGame) { StartInstruction; }
 
 }  // namespace Vm
 

@@ -48,7 +48,7 @@ VmInstruction(InstPlayMovie) {
     if (playMode == 3 || !playMode) flags |= 1;
     if (playMode == 5) flags |= 4;
     if ((playMode & 0xFFFFFFFD) == 0) flags = flags | 2;
-    Video::Players[0].Play(stream, flags & 8, flags & 4);
+    Video::Players[0]->Play(stream, flags & 8, flags & 4);
     BlockThread;
     ImpLogSlow(LL_Warning, LC_VMStub,
                "STUB instruction PlayMovie(playMode: %i, playView: %i, "
@@ -63,7 +63,7 @@ VmInstruction(InstPlayMovieOld) {
   PopExpression(movCancelFlag);
   Io::InputStream* stream;
   Io::VfsOpen("movie", playNo, &stream);
-  Video::Players[0].Play(stream, playMode == 5, playMode == 5);
+  Video::Players[0]->Play(stream, playMode == 5, playMode == 5);
   BlockThread;
   ImpLogSlow(LL_Warning, LC_VMStub,
              "STUB instruction PlayMovie(playMode: %i, playNo: %i, "
@@ -77,8 +77,8 @@ VmInstruction(InstMovieMain) {
     case 2:  // Stop
       if (Interface::PADinputButtonWentDown & Interface::PAD1A ||
           Interface::PADinputMouseWentDown & Interface::PAD1A) {
-        Video::Players[0].Stop();
-      } else if (Video::Players[0].IsPlaying) {
+        Video::Players[0]->Stop();
+      } else if (Video::Players[0]->IsPlaying) {
         ResetInstruction;
         BlockThread;
       }
@@ -88,9 +88,9 @@ VmInstruction(InstMovieMain) {
     case 3:  // StopWait
       if (Interface::PADinputButtonWentDown & Interface::PAD1A ||
           Interface::PADinputMouseWentDown & Interface::PAD1A) {
-        Video::Players[0].Stop();
+        Video::Players[0]->Stop();
         ScrWork[SW_MOVIEFRAME] = 255;
-      } else if (Video::Players[0].IsPlaying) {
+      } else if (Video::Players[0]->IsPlaying) {
         ResetInstruction;
         BlockThread;
       }
@@ -100,8 +100,8 @@ VmInstruction(InstMovieMain) {
     default:
       if (Interface::PADinputButtonWentDown & Interface::PAD1A ||
           Interface::PADinputMouseWentDown & Interface::PAD1A) {
-        Video::Players[0].Stop();
-      } else if (Video::Players[0].IsPlaying) {
+        Video::Players[0]->Stop();
+      } else if (Video::Players[0]->IsPlaying) {
         ResetInstruction;
         BlockThread;
       }

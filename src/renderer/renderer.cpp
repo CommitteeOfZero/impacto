@@ -6,7 +6,7 @@
 #ifndef IMPACTO_DISABLE_VULKAN
 #include "vulkan/renderer.h"
 #endif
-#ifdef IMPACTO_ENABLE_DX9
+#ifndef IMPACTO_DISABLE_DX9
 #include "dx9/renderer.h"
 #endif
 
@@ -28,7 +28,7 @@ void InitRenderer() {
       Renderer = new Vulkan::Renderer();
       break;
 #endif
-#ifdef IMPACTO_ENABLE_DX9
+#ifndef IMPACTO_DISABLE_DX9
     case RendererType::DirectX9:
       Renderer = new DirectX9::Renderer();
       break;

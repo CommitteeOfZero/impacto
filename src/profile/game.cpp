@@ -6,6 +6,7 @@ namespace Impacto {
 namespace Profile {
 
 RendererType ActiveRenderer{RendererType::OpenGL};
+VideoPlayerType VideoPlayer{VideoPlayerType::FFmpeg};
 
 int LayerCount;
 int GameFeatures;
@@ -43,6 +44,12 @@ void LoadGameFromJson() {
   if (!res) LayFileTexYMultiplier = 1.0f;
   res = TryGetMemberBool("UseScreenCapEffects", UseScreenCapEffects);
   if (!res) UseScreenCapEffects = true;
+  int videoPlayerType = -1;
+  res = TryGetMemberInt("VideoPlayerType", videoPlayerType);
+  if (!res)
+    VideoPlayer = VideoPlayerType::FFmpeg;
+  else
+    VideoPlayer = VideoPlayerType::_from_integral_unchecked(videoPlayerType);
 }
 
 }  // namespace Profile

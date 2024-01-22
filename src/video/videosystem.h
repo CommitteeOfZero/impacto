@@ -6,7 +6,9 @@
 namespace Impacto {
 namespace Video {
 
-extern VideoPlayer Players[2];
+enum VideoPlayerId { VP_Main = 0, VP_Secondary, VP_Count };
+
+extern VideoPlayer* Players[VP_Count];
 
 void VideoInit();
 void VideoUpdate(float dt);

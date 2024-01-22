@@ -273,7 +273,7 @@ set(Impacto_Src
 
         src/video/videosystem.cpp
         src/video/videoplayer.cpp
-        src/video/ffmpegstream.cpp
+        src/video/nullplayer.cpp
 
         vendor/glad/src/glad.c
 
@@ -564,7 +564,7 @@ set(Impacto_Header
 
         src/video/videosystem.h
         src/video/videoplayer.h
-        src/video/ffmpegstream.h
+        src/video/nullplayer.h
 
         vendor/nuklear/nuklear.h
         vendor/nuklear/nuklear_sdl_gl3.h
@@ -582,16 +582,19 @@ if (WIN32)
     list(APPEND Impacto_Src
             src/manifest_windows.manifest
     )
-
-    set(IMPACTO_ENABLE_DX9 ON)
 endif ()
 
-if (IMPACTO_ENABLE_DX9)
-    add_definitions(-DIMPACTO_ENABLE_DX9)
-endif ()
-
-if (NX)
+if (NX OR EMSCRIPTEN)
     set(IMPACTO_DISABLE_VULKAN ON)
+    set(IMPACTO_DISABLE_DX9 ON)
+endif ()
+
+if (APPLE OR LINUX)
+    set(IMPACTO_DISABLE_DX9 ON)
+endif ()
+
+if (IMPACTO_DISABLE_DX9)
+    add_definitions(-DIMPACTO_DISABLE_DX9)
 endif ()
 
 if (IMPACTO_DISABLE_VULKAN)
@@ -677,13 +680,11 @@ elseif (NX)
     find_package(SDL2 REQUIRED)
     find_package(ZLIB REQUIRED)
     find_package(OggVorbis REQUIRED)
-    find_package(FFMPEG REQUIRED)
     find_package(WebP REQUIRED)
 
     include_directories(${OGGVORBIS_INCLUDE_DIRS})
 
     list(APPEND Impacto_Libs
-            ${FFMPEG_LIBRARIES}
             ${SDL2_LIBRARIES}
             glm
             ZLIB::ZLIB
@@ -704,7 +705,6 @@ else ()
     find_package(SDL2 REQUIRED)
     find_package(ZLIB REQUIRED)
     find_package(OggVorbis REQUIRED)
-    find_package(FFMPEG REQUIRED)
     find_package(WebP REQUIRED)
 
     include_directories(${OGGVORBIS_INCLUDE_DIRS})
@@ -715,7 +715,6 @@ else ()
     endif ()
 
     list(APPEND Impacto_Libs
-            ${FFMPEG_LIBRARIES}
             ${SDL2_LIBRARIES}
             ZLIB::ZLIB
             ${OGGVORBIS_LIBRARIES}
@@ -738,12 +737,29 @@ endif ()
 include_directories(vendor/glad/include)
 include_directories(${LIBATRAC9_INCLUDE_DIR})
 include_directories(${OPENAL_INCLUDE_DIR})
-include_directories(${FFMPEG_INCLUDE_DIRS})
 include_directories(${SDL2_INCLUDE_DIRS})
 include_directories(${WebP_INCLUDE_DIRS})
 include_directories(vendor/include)
 include_directories(vendor/duktape/include)
 include_directories(vendor/pcg/include)
+
+if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
+    list(APPEND Impacto_Src
+            src/video/ffmpegplayer.cpp
+            src/video/ffmpegstream.cpp
+    )
+    list(APPEND Impacto_Header
+            src/video/ffmpegplayer.h
+            src/video/ffmpegstream.h
+    )
+
+    find_package(FFMPEG REQUIRED)
+
+    list(APPEND Impacto_Libs
+            ${FFMPEG_LIBRARIES}
+    )
+    include_directories(${FFMPEG_INCLUDE_DIRS})
+endif ()
 
 if (NOT DEFINED IMPACTO_DISABLE_MSPACK)
     list(APPEND Impacto_Src
@@ -786,7 +802,7 @@ if (NOT DEFINED IMPACTO_DISABLE_VULKAN)
     include_directories(${Vulkan_INCLUDE_DIRS})
 endif ()
 
-if (DEFINED IMPACTO_ENABLE_DX9)
+if (NOT DEFINED IMPACTO_DISABLE_DX9)
     list(APPEND Impacto_Src
             src/renderer/dx9/utils.cpp
             src/renderer/dx9/renderer.cpp

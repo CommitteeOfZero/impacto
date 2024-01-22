@@ -6,6 +6,7 @@ namespace Impacto {
 namespace Profile {
 
 extern RendererType ActiveRenderer;
+extern VideoPlayerType VideoPlayer;
 
 extern int LayerCount;
 extern int GameFeatures;
