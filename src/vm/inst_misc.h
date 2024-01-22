@@ -41,6 +41,8 @@ VmInstruction(InstSetCutin);
 VmInstruction(InstAchChkTitle);
 VmInstruction(InstSetSceneViewFlag);
 VmInstruction(InstChkClearFlag);
+VmInstruction(InstScreenChange);
+VmInstruction(InstExitGame);
 
 }  // namespace Vm
 

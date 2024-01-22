@@ -100,8 +100,8 @@ InstructionProc static OpcodeTableSystem_CC[256] = {
     InstUnk0052,              // 00 52
     InstClickOnJump,          // 00 53
     InstKeyboardOnJump,       // 00 54
-    InstReturnIfFlag,         // 00 55
-    InstDummy,                // 00 56
+    InstControlOnJump,        // 00 55
+    InstGetControl,           // 00 56
     InstDummy,                // 00 57
     InstDummy,                // 00 58
     InstDummy,                // 00 59
@@ -110,7 +110,7 @@ InstructionProc static OpcodeTableSystem_CC[256] = {
     InstDummy,                // 00 5C
     InstDummy,                // 00 5D
     InstDummy,                // 00 5E
-    InstDummy,                // 00 5F
+    InstPackFileAddBind,      // 00 5F
     InstDummy,                // 00 60
     InstDummy,                // 00 61
     InstDummy,                // 00 62
@@ -589,7 +589,7 @@ InstructionProc static OpcodeTableUser1_CC[256] = {
     InstDummy,             // 10 35
     InstBGeffect,          // 10 36
     InstMapSystem,         // 10 37
-    InstMail,              // 10 38
+    InstMtrg,              // 10 38
     InstTwipo_Dash,        // 10 39
     InstUnk103A,           // 10 3A
     InstDummy,             // 10 3B
@@ -597,8 +597,8 @@ InstructionProc static OpcodeTableUser1_CC[256] = {
     InstDummy,             // 10 3D
     InstDummy,             // 10 3E
     InstDummy,             // 10 3F
-    InstDummy,             // 10 40
-    InstDummy,             // 10 41
+    InstScreenChange,      // 10 40
+    InstExitGame,          // 10 41
     InstDummy,             // 10 42
     InstDummy,             // 10 43
     InstDummy,             // 10 44

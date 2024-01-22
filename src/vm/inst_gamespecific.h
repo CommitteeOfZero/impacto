@@ -24,6 +24,7 @@ VmInstruction(InstUnk1037MO7);
 VmInstruction(InstMapSystem);
 VmInstruction(InstPhoneSG);
 VmInstruction(InstMail);
+VmInstruction(InstMtrg);
 VmInstruction(InstUnk1038Darling);
 VmInstruction(InstUnk1038MO7);
 VmInstruction(InstTwipo);
