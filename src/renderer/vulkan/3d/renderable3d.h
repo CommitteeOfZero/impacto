@@ -1,7 +1,5 @@
 #pragma once
 
-#include <glad/glad.h>
-
 #include "../utils.h"
 #include "../pipeline.h"
 #include "../window.h"

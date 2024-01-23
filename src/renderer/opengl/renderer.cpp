@@ -850,9 +850,16 @@ void Renderer::EnableScissorImpl() {
 
 void Renderer::SetScissorRectImpl(RectF const& rect) {
   Rect viewport = Window->GetViewport();
-  glScissor((GLint)(rect.X),
-            (GLint)((viewport.Height - (GLint)(rect.Y + rect.Height))),
-            (GLint)(rect.Width), (GLint)(rect.Height));
+  float scale = fmin((float)Window->WindowWidth / Profile::DesignWidth,
+                     (float)Window->WindowHeight / Profile::DesignHeight);
+  float rectX = rect.X * scale;
+  float rectY = rect.Y * scale;
+  float rectWidth = rect.Width * scale;
+  float rectHeight = rect.Height * scale;
+
+  glScissor((GLint)(rectX),
+            (GLint)((viewport.Height - (GLint)(rectY + rectHeight))),
+            (GLint)(rectWidth), (GLint)(rectHeight));
 }
 
 void Renderer::DisableScissorImpl() {

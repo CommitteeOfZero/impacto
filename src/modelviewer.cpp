@@ -81,6 +81,7 @@ void Update(float dt) {
     UiMsaaCount = Window->MsaaCount;
   }
 
+#ifndef IMPACTO_DISABLE_OPENGL
   if (Renderer->NuklearSupported &&
       nk_begin(Renderer->Nk, "Scene",
                nk_rect(20, 20, 300, Window->WindowHeight - 40),
@@ -321,6 +322,7 @@ void Update(float dt) {
       nk_tree_pop(Renderer->Nk);
     }
   } else {
+#endif
     if (Renderer->Scene->Renderables[0]->Status == LS_Loaded) {
       Renderer->Scene->Renderables[0]->IsVisible = true;
     }
@@ -328,8 +330,10 @@ void Update(float dt) {
     if (Renderer->Scene->Renderables[1]->Status == LS_Loaded) {
       Renderer->Scene->Renderables[1]->IsVisible = true;
     }
+#ifndef IMPACTO_DISABLE_OPENGL
   }
   if (Renderer->NuklearSupported) nk_end(Renderer->Nk);
+#endif
 
   if (BgmChangeQueued &&
       Audio::Channels[Audio::AC_BGM0].State == Audio::ACS_Stopped) {

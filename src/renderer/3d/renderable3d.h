@@ -1,7 +1,5 @@
 #pragma once
 
-#include <glad/glad.h>
-
 #include "model.h"
 #include "modelanimator.h"
 #include "../../loadable.h"

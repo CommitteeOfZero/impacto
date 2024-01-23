@@ -2,8 +2,6 @@
 
 #include <string.h>
 
-#include <glad/glad.h>
-
 #include "../log.h"
 
 #include "../renderer/renderer.h"

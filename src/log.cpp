@@ -134,6 +134,7 @@ void LogSetFile(char* path) {
 
 void LogSetConsole(bool enabled) { LoggingToConsole = enabled; }
 
+#ifndef IMPACTO_DISABLE_OPENGL
 void GLAPIENTRY LogGLMessageCallback(GLenum source, GLenum type, GLuint id,
                                      GLenum severity, GLsizei length,
                                      const GLchar* message,
@@ -215,5 +216,6 @@ void GLAPIENTRY LogGLMessageCallback(GLenum source, GLenum type, GLuint id,
   ImpLog(level, LC_GL, "type=%s, source=%s, id=%d, message: %s\n", typeStr,
          sourceStr, id, message);
 }
+#endif
 
 }  // namespace Impacto

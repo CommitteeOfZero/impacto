@@ -647,7 +647,9 @@ void Renderable3D::UnloadSync() {
     delete StaticModel;
     StaticModel = 0;
   }
-  MorphedVerticesDevice->Release();
+  if (MorphedVerticesDevice) {
+    MorphedVerticesDevice->Release();
+  }
   if (CurrentMorphedVertices) {
     free(CurrentMorphedVertices);
     CurrentMorphedVertices = 0;

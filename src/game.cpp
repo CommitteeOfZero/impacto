@@ -69,10 +69,12 @@ static void Init() {
 
   memset(DrawComponents, DrawComponentType::None, sizeof(DrawComponents));
 
+#ifndef IMPACTO_DISABLE_OPENGL
   if ((Profile::GameFeatures & GameFeature::Nuklear) &&
       Renderer->NuklearSupported) {
     Renderer->NuklearInit();
   }
+#endif
 
   if (Profile::GameFeatures & GameFeature::Audio) {
     Audio::AudioInit();
@@ -145,10 +147,12 @@ void Shutdown() {
     Video::VideoShutdown();
   }
 
+#ifndef IMPACTO_DISABLE_OPENGL
   if ((Profile::GameFeatures & GameFeature::Nuklear) &&
       Renderer->NuklearSupported) {
     Renderer->NuklearShutdown();
   }
+#endif
 
   if (Profile::GameFeatures & GameFeature::Renderer2D) {
     Renderer->Shutdown();
@@ -167,10 +171,12 @@ void UpdateGameState(float dt) {
 
 void Update(float dt) {
   SDL_Event e;
+#ifndef IMPACTO_DISABLE_OPENGL
   if ((Profile::GameFeatures & GameFeature::Nuklear) &&
       Renderer->NuklearSupported) {
     nk_input_begin(Renderer->Nk);
   }
+#endif
   if (Profile::GameFeatures & GameFeature::Input) {
     Input::BeginFrame();
   }
@@ -179,10 +185,12 @@ void Update(float dt) {
       ShouldQuit = true;
     }
 
+#ifndef IMPACTO_DISABLE_OPENGL
     if ((Profile::GameFeatures & GameFeature::Nuklear) &&
         Renderer->NuklearSupported) {
       if (Renderer->NuklearHandleEvent(&e)) continue;
     }
+#endif
 
     if (Profile::GameFeatures & GameFeature::Input) {
       if (Input::HandleEvent(&e)) continue;
@@ -193,10 +201,12 @@ void Update(float dt) {
   if (Profile::GameFeatures & GameFeature::Input) {
     Input::EndFrame();
   }
+#ifndef IMPACTO_DISABLE_OPENGL
   if ((Profile::GameFeatures & GameFeature::Nuklear) &&
       Renderer->NuklearSupported) {
     nk_input_end(Renderer->Nk);
   }
+#endif
 
   if (Profile::GameFeatures & GameFeature::ModelViewer) {
     ModelViewer::Update(dt);
@@ -285,6 +295,7 @@ void Render() {
       Frames = 0;
     }
 
+#ifndef IMPACTO_DISABLE_OPENGL
     if (DebugWindowEnabled && Renderer->NuklearSupported) {
       if (nk_begin(Renderer->Nk, "Debug Editor",
                    nk_rect(20, 20, 300, Window->WindowHeight - 40),
@@ -341,6 +352,7 @@ void Render() {
       }
       nk_end(Renderer->Nk);
     }
+#endif
   }
 
   if (Profile::GameFeatures & GameFeature::Renderer2D) {
@@ -422,7 +434,9 @@ void Render() {
           DateDisplay::Render();
           TipsNotification::Render();
           DelusionTrigger::Render();
-          Video::VideoRender(ScrWork[SW_MOVIEALPHA] / 256.0f);
+          if (Profile::GameFeatures & GameFeature::Video) {
+            Video::VideoRender(ScrWork[SW_MOVIEALPHA] / 256.0f);
+          }
           break;
         }
         case DrawComponentType::ExtrasScenes: {

@@ -2,7 +2,9 @@
 
 #include "../profile/game.h"
 
+#ifndef IMPACTO_DISABLE_OPENGL
 #include "opengl/renderer.h"
+#endif
 #ifndef IMPACTO_DISABLE_VULKAN
 #include "vulkan/renderer.h"
 #endif
@@ -20,9 +22,11 @@ GraphicsApi ActualGraphicsApi;
 
 void InitRenderer() {
   switch (Profile::ActiveRenderer) {
+#ifndef IMPACTO_DISABLE_OPENGL
     case RendererType::OpenGL:
       Renderer = new OpenGL::Renderer();
       break;
+#endif
 #ifndef IMPACTO_DISABLE_VULKAN
     case RendererType::Vulkan:
       Renderer = new Vulkan::Renderer();

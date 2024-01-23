@@ -2,7 +2,9 @@
 
 #include "impacto.h"
 
+#ifndef IMPACTO_DISABLE_OPENGL
 #include <glad/glad.h>
+#endif
 
 namespace Impacto {
 
@@ -50,9 +52,11 @@ void ImpLog(LogLevel level, LogChannel channel, const char* format, ...);
 #define ImpLogSlow(...) (void)0
 #endif
 
+#ifndef IMPACTO_DISABLE_OPENGL
 void GLAPIENTRY LogGLMessageCallback(GLenum source, GLenum type, GLuint id,
                                      GLenum severity, GLsizei length,
                                      const GLchar* message,
                                      const void* userParam);
+#endif
 
 }  // namespace Impacto

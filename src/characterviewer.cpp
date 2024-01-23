@@ -75,6 +75,7 @@ void Update(float dt) {
     UiMsaaCount = Window->MsaaCount;
   }
 
+#ifndef IMPACTO_DISABLE_OPENGL
   if (Renderer->NuklearSupported &&
       nk_begin(Renderer->Nk, "Scene",
                nk_rect(20, 20, 300, Window->WindowHeight - 40),
@@ -187,6 +188,7 @@ void Update(float dt) {
       nk_tree_pop(Renderer->Nk);
     }
   } else {
+#endif
     if (Characters2D[0].Status == LS_Unloaded) {
       Backgrounds2D[0]->LoadAsync(BackgroundIds[0]);
     }
@@ -196,8 +198,10 @@ void Update(float dt) {
     }
 
     if (Characters2D[0].Status == LS_Loaded) Characters2D[0].Show = true;
+#ifndef IMPACTO_DISABLE_OPENGL
   }
   if (Renderer->NuklearSupported) nk_end(Renderer->Nk);
+#endif
 
   if (BgmChangeQueued &&
       Audio::Channels[Audio::AC_BGM0].State == Audio::ACS_Stopped) {

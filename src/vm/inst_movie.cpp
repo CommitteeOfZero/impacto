@@ -9,6 +9,7 @@
 #include "../log.h"
 #include "../mem.h"
 #include "../profile/scriptvars.h"
+#include "../profile/game.h"
 #include "../video/videosystem.h"
 #include "interface/input.h"
 
@@ -35,20 +36,22 @@ VmInstruction(InstPlayMovie) {
     PopUint8(playView);
     PopExpression(playNo);
     PopExpression(movCancelFlag);
-    Io::InputStream* stream;
-    Io::VfsOpen("movie", playNo, &stream);
-    int flags = 0;
-    if (playMode >= 8) {
-      playMode -= 8;
-      flags = 4;
+    if (Profile::GameFeatures & GameFeature::Video) {
+      Io::InputStream* stream;
+      Io::VfsOpen("movie", playNo, &stream);
+      int flags = 0;
+      if (playMode >= 8) {
+        playMode -= 8;
+        flags = 4;
+      }
+      if (playMode <= 5) {
+        if (44 & (1 << playMode)) flags |= 8;
+      }
+      if (playMode == 3 || !playMode) flags |= 1;
+      if (playMode == 5) flags |= 4;
+      if ((playMode & 0xFFFFFFFD) == 0) flags = flags | 2;
+      Video::Players[0]->Play(stream, flags & 8, flags & 4);
     }
-    if (playMode <= 5) {
-      if (44 & (1 << playMode)) flags |= 8;
-    }
-    if (playMode == 3 || !playMode) flags |= 1;
-    if (playMode == 5) flags |= 4;
-    if ((playMode & 0xFFFFFFFD) == 0) flags = flags | 2;
-    Video::Players[0]->Play(stream, flags & 8, flags & 4);
     BlockThread;
     ImpLogSlow(LL_Warning, LC_VMStub,
                "STUB instruction PlayMovie(playMode: %i, playView: %i, "
@@ -61,9 +64,11 @@ VmInstruction(InstPlayMovieOld) {
   PopUint8(playMode);
   PopExpression(playNo);
   PopExpression(movCancelFlag);
-  Io::InputStream* stream;
-  Io::VfsOpen("movie", playNo, &stream);
-  Video::Players[0]->Play(stream, playMode == 5, playMode == 5);
+  if (Profile::GameFeatures & GameFeature::Video) {
+    Io::InputStream* stream;
+    Io::VfsOpen("movie", playNo, &stream);
+    Video::Players[0]->Play(stream, playMode == 5, playMode == 5);
+  }
   BlockThread;
   ImpLogSlow(LL_Warning, LC_VMStub,
              "STUB instruction PlayMovie(playMode: %i, playNo: %i, "
@@ -75,35 +80,41 @@ VmInstruction(InstMovieMain) {
   PopUint8(type);
   switch (type) {
     case 2:  // Stop
-      if (Interface::PADinputButtonWentDown & Interface::PAD1A ||
-          Interface::PADinputMouseWentDown & Interface::PAD1A) {
-        Video::Players[0]->Stop();
-      } else if (Video::Players[0]->IsPlaying) {
-        ResetInstruction;
-        BlockThread;
+      if (Profile::GameFeatures & GameFeature::Video) {
+        if (Interface::PADinputButtonWentDown & Interface::PAD1A ||
+            Interface::PADinputMouseWentDown & Interface::PAD1A) {
+          Video::Players[0]->Stop();
+        } else if (Video::Players[0]->IsPlaying) {
+          ResetInstruction;
+          BlockThread;
+        }
       }
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MovieMain(type: Stop)\n");
       break;
     case 3:  // StopWait
-      if (Interface::PADinputButtonWentDown & Interface::PAD1A ||
-          Interface::PADinputMouseWentDown & Interface::PAD1A) {
-        Video::Players[0]->Stop();
-        ScrWork[SW_MOVIEFRAME] = 255;
-      } else if (Video::Players[0]->IsPlaying) {
-        ResetInstruction;
-        BlockThread;
+      if (Profile::GameFeatures & GameFeature::Video) {
+        if (Interface::PADinputButtonWentDown & Interface::PAD1A ||
+            Interface::PADinputMouseWentDown & Interface::PAD1A) {
+          Video::Players[0]->Stop();
+          ScrWork[SW_MOVIEFRAME] = 255;
+        } else if (Video::Players[0]->IsPlaying) {
+          ResetInstruction;
+          BlockThread;
+        }
       }
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MovieMain(type: StopWaitForSomething)\n");
       break;
     default:
-      if (Interface::PADinputButtonWentDown & Interface::PAD1A ||
-          Interface::PADinputMouseWentDown & Interface::PAD1A) {
-        Video::Players[0]->Stop();
-      } else if (Video::Players[0]->IsPlaying) {
-        ResetInstruction;
-        BlockThread;
+      if (Profile::GameFeatures & GameFeature::Video) {
+        if (Interface::PADinputButtonWentDown & Interface::PAD1A ||
+            Interface::PADinputMouseWentDown & Interface::PAD1A) {
+          Video::Players[0]->Stop();
+        } else if (Video::Players[0]->IsPlaying) {
+          ResetInstruction;
+          BlockThread;
+        }
       }
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MovieMain(type: %i)\n", type);

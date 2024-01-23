@@ -1,6 +1,8 @@
 #pragma once
 
-#include <glad/glad.h>
+#ifndef NOMINMAX
+#define NOMINMAX 1
+#endif
 
 #include "../shader.h"
 #include "../window.h"

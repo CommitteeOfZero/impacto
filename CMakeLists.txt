@@ -26,14 +26,6 @@ set(Impacto_Src
 
         src/renderer/renderer.cpp
 
-        src/renderer/opengl/window.cpp
-        src/renderer/opengl/renderer.cpp
-        src/renderer/opengl/shader.cpp
-        src/renderer/opengl/glc.cpp
-        src/renderer/opengl/yuvframe.cpp
-        src/renderer/opengl/3d/renderable3d.cpp
-        src/renderer/opengl/3d/scene.cpp
-
         src/data/savesystem.cpp
         src/data/tipssystem.cpp
 
@@ -214,7 +206,6 @@ set(Impacto_Src
         src/ui/widgets/cc/titlebutton.cpp
         src/ui/widgets/cclcc/titlebutton.cpp
 
-        src/nuklear_impl.cpp
         src/stbi_impl.c
 
         src/renderer/3d/camera.cpp
@@ -275,8 +266,6 @@ set(Impacto_Src
         src/video/videoplayer.cpp
         src/video/nullplayer.cpp
 
-        vendor/glad/src/glad.c
-
         vendor/clHCA/clHCA.c
 
         vendor/duktape/src/duktape.c
@@ -318,14 +307,6 @@ set(Impacto_Header
         src/renderer/renderer.h
         src/renderer/window.h
         src/renderer/yuvframe.h
-
-        src/renderer/opengl/window.h
-        src/renderer/opengl/renderer.h
-        src/renderer/opengl/shader.h
-        src/renderer/opengl/glc.h
-        src/renderer/opengl/yuvframe.h
-        src/renderer/opengl/3d/renderable3d.h
-        src/renderer/opengl/3d/scene.h
 
         src/data/savesystem.h
         src/data/tipssystem.h
@@ -566,9 +547,6 @@ set(Impacto_Header
         src/video/videoplayer.h
         src/video/nullplayer.h
 
-        vendor/nuklear/nuklear.h
-        vendor/nuklear/nuklear_sdl_gl3.h
-
         vendor/clHCA/clHCA.h
 
         vendor/squish/squish.h
@@ -668,31 +646,6 @@ if (EMSCRIPTEN)
     string(REPLACE "-O2" "" CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
 
     add_definitions(-DIMPACTO_OPENAL_INCLUDE_SUBDIR)
-elseif (NX)
-    find_package(SDL2 REQUIRED)
-    find_package(ZLIB REQUIRED)
-    find_package(OggVorbis REQUIRED)
-    find_package(WebP REQUIRED)
-
-    include_directories(${OGGVORBIS_INCLUDE_DIRS})
-
-    list(APPEND Impacto_Libs
-            ${SDL2_LIBRARIES}
-            glm
-            ZLIB::ZLIB
-            vorbisfile
-            vorbis
-            ogg
-            webp
-            EGL
-            glapi
-            drm_nouveau
-            nx
-    )
-
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--start-group") # workaround for SDL2 being last in the linker list
-
-    add_definitions(-DIMPACTO_OPENAL_INCLUDE_SUBDIR)
 else ()
     find_package(SDL2 REQUIRED)
     find_package(ZLIB REQUIRED)
@@ -701,32 +654,51 @@ else ()
 
     include_directories(${OGGVORBIS_INCLUDE_DIRS})
 
-    # Add this because apparently find_package(SDL2 REQUIRED) doesn't work right on Arch?
-    if ("${SDL2_LIBRARIES}" STREQUAL "")
-        set(SDL2_LIBRARIES "SDL2::SDL2")
-    endif ()
-
-    list(APPEND Impacto_Libs
-            ${SDL2_LIBRARIES}
-            ZLIB::ZLIB
-            ${OGGVORBIS_LIBRARIES}
-            ${WebP_LIBRARIES}
-    )
-
-    if (VCPKG_TOOLCHAIN)
+    if (NX)
         list(APPEND Impacto_Libs
-                glm::glm
-        )
-    elseif (NOT APPLE) # If we don't do this it decides to link glm as a library on macOS for some reason
-        list(APPEND Impacto_Libs
+                ${SDL2_LIBRARIES}
                 glm
+                ZLIB::ZLIB
+                vorbisfile
+                vorbis
+                ogg
+                webp
+                EGL
+                glapi
+                drm_nouveau
+                nx
         )
+    
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--start-group") # workaround for SDL2 being last in the linker list
+    
+        add_definitions(-DIMPACTO_OPENAL_INCLUDE_SUBDIR)
+    else ()
+        # Add this because apparently find_package(SDL2 REQUIRED) doesn't work right on Arch?
+        if ("${SDL2_LIBRARIES}" STREQUAL "")
+            set(SDL2_LIBRARIES "SDL2::SDL2")
+        endif ()
+    
+        list(APPEND Impacto_Libs
+                ${SDL2_LIBRARIES}
+                ZLIB::ZLIB
+                ${OGGVORBIS_LIBRARIES}
+                ${WebP_LIBRARIES}
+        )
+    
+        if (VCPKG_TOOLCHAIN)
+            list(APPEND Impacto_Libs
+                    glm::glm
+            )
+        elseif (NOT APPLE) # If we don't do this it decides to link glm as a library on macOS for some reason
+            list(APPEND Impacto_Libs
+                    glm
+            )
+        endif ()
+    
+        add_definitions(-DIMPACTO_OPENAL_HAVE_ALEXT)
     endif ()
-
-    add_definitions(-DIMPACTO_OPENAL_HAVE_ALEXT)
 endif ()
 
-include_directories(vendor/glad/include)
 include_directories(${LIBATRAC9_INCLUDE_DIR})
 include_directories(${OPENAL_INCLUDE_DIR})
 include_directories(${SDL2_INCLUDE_DIRS})
@@ -734,6 +706,36 @@ include_directories(${WebP_INCLUDE_DIRS})
 include_directories(vendor/include)
 include_directories(vendor/duktape/include)
 include_directories(vendor/pcg/include)
+
+if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
+    list(APPEND Impacto_Src
+            src/renderer/opengl/window.cpp
+            src/renderer/opengl/renderer.cpp
+            src/renderer/opengl/shader.cpp
+            src/renderer/opengl/glc.cpp
+            src/renderer/opengl/yuvframe.cpp
+            src/renderer/opengl/3d/renderable3d.cpp
+            src/renderer/opengl/3d/scene.cpp
+
+            src/nuklear_impl.cpp
+
+            vendor/glad/src/glad.c
+    )
+    list(APPEND Impacto_Header
+            src/renderer/opengl/window.h
+            src/renderer/opengl/renderer.h
+            src/renderer/opengl/shader.h
+            src/renderer/opengl/glc.h
+            src/renderer/opengl/yuvframe.h
+            src/renderer/opengl/3d/renderable3d.h
+            src/renderer/opengl/3d/scene.h
+
+            vendor/nuklear/nuklear.h
+            vendor/nuklear/nuklear_sdl_gl3.h
+    )
+
+    include_directories(vendor/glad/include)
+endif ()
 
 if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
     list(APPEND Impacto_Src
