@@ -10,7 +10,7 @@ class UncompressedStream : public InputStream {
   ~UncompressedStream();
 
   static IoError Create(InputStream* baseStream, int64_t baseStreamOffset,
-                        int64_t size, InputStream** out);
+                        int64_t size, InputStream** out, bool freeBase = true);
   int64_t Read(void* buffer, int64_t sz) override;
   int64_t Seek(int64_t offset, int origin) override;
   IoError Duplicate(InputStream** outStream) override;
@@ -21,6 +21,7 @@ class UncompressedStream : public InputStream {
 
   InputStream* BaseStream;
   int64_t BaseStreamOffset;
+  bool FreeBase;
 };
 
 }  // namespace Io

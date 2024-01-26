@@ -5,11 +5,13 @@
 namespace Impacto {
 namespace Io {
 
-UncompressedStream::~UncompressedStream() { delete BaseStream; }
+UncompressedStream::~UncompressedStream() {
+  if (FreeBase) delete BaseStream;
+}
 
 IoError UncompressedStream::Create(InputStream* baseStream,
                                    int64_t baseStreamOffset, int64_t size,
-                                   InputStream** out) {
+                                   InputStream** out, bool freeBase) {
   if (baseStreamOffset + size > baseStream->Meta.Size) return IoError_Fail;
   InputStream* dup;
   int64_t err = baseStream->Duplicate(&dup);
@@ -23,6 +25,7 @@ IoError UncompressedStream::Create(InputStream* baseStream,
   result->BaseStream = dup;
   result->BaseStreamOffset = baseStreamOffset;
   result->Meta.Size = size;
+  result->FreeBase = freeBase;
   *out = (InputStream*)result;
   return IoError_OK;
 }

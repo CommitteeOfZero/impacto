@@ -5,11 +5,17 @@
 #include "achievementsystem.h"
 
 #define PS3_MAGIC 0xDCA24D00
+#define TROPHY_TYPES "BSGP"
 
 namespace Impacto {
 namespace AchievementSystem {
 
-typedef enum { Bronze, Silver, Gold, Platinum } TrophyType;
+typedef enum {
+  Bronze = 'B',
+  Silver = 'S',
+  Gold = 'G',
+  Platinum = 'P'
+} TrophyType;
 
 // From: https://www.psdevwiki.com/ps3/TROPHY.TRP
 struct TrophyDataHeader {
