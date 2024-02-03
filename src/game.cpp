@@ -47,6 +47,7 @@
 #include "profile/ui/tipsmenu.h"
 #include "profile/ui/extramenus.h"
 #include "profile/ui/trophymenu.h"
+#include "profile/ui/mapsystem.h"
 
 namespace Impacto {
 
@@ -128,6 +129,7 @@ static void Init() {
     DateDisplay::Init();
     TipsNotification::Init();
     DelusionTrigger::Init();
+    UI::MapSystem::Init();
   }
 
   Profile::ClearProfile();
@@ -231,6 +233,7 @@ void Update(float dt) {
     DateDisplay::Update(dt);
     TipsNotification::Update(dt);
     DelusionTrigger::Update(dt);
+    UI::MapSystem::Update(dt);
   }
 
   if (Profile::GameFeatures & GameFeature::Audio) {
@@ -434,6 +437,7 @@ void Render() {
           DateDisplay::Render();
           TipsNotification::Render();
           DelusionTrigger::Render();
+          UI::MapSystem::Render();
           if (Profile::GameFeatures & GameFeature::Video) {
             Video::VideoRender(ScrWork[SW_MOVIEALPHA] / 256.0f);
           }

@@ -39,6 +39,12 @@ class BaseRenderer {
                   glm::vec2 scale = glm::vec2(1.0), float angle = 0.0f,
                   bool inverted = false, bool isScreencap = false);
 
+  void DrawSpriteCentered(Sprite const& sprite, glm::vec2 topLeft,
+                          glm::vec2 displayOffset,
+                          glm::vec4 tint = glm::vec4(1.0),
+                          glm::vec2 scale = glm::vec2(1.0), float angle = 0.0f,
+                          bool inverted = false);
+
   void DrawRect(RectF const& dest, glm::vec4 color, float angle = 0.0f);
 
   void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
@@ -135,6 +141,12 @@ class BaseRenderer {
   virtual void DrawSpriteImpl(Sprite const& sprite, RectF const& dest,
                               glm::vec4 tint, float angle, bool inverted,
                               bool isScreencap) = 0;
+
+  virtual void DrawSpriteCenteredImpl(Sprite const& sprite, glm::vec2 topLeft,
+                                      glm::vec2 displayOffset, glm::vec4 tint,
+                                      glm::vec2 scale, float angle,
+                                      bool inverted) = 0;
+
   virtual void DrawRectImpl(RectF const& dest, glm::vec4 color,
                             float angle) = 0;
 

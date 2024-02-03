@@ -81,6 +81,14 @@ void BaseRenderer::DrawSprite(Sprite const& sprite, RectF const& dest,
   DrawSpriteImpl(sprite, dest, tint, angle, inverted, isScreencap);
 }
 
+void BaseRenderer::DrawSpriteCentered(Sprite const& sprite, glm::vec2 topLeft,
+                                      glm::vec2 displayOffset, glm::vec4 tint,
+                                      glm::vec2 scale, float angle,
+                                      bool inverted) {
+  DrawSpriteCenteredImpl(sprite, topLeft, displayOffset, tint, scale, angle,
+                         inverted);
+}
+
 void BaseRenderer::DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
                               glm::vec4 tint, glm::vec2 scale, float angle,
                               bool inverted, bool isScreencap) {

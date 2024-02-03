@@ -50,6 +50,11 @@ class Renderer : public BaseRenderer {
 
   void DrawSpriteImpl(Sprite const& sprite, RectF const& dest, glm::vec4 tint,
                       float angle, bool inverted, bool isScreencap) override;
+
+  void DrawSpriteCenteredImpl(Sprite const& sprite, glm::vec2 topLeft,
+                              glm::vec2 displayOffset, glm::vec4 tint,
+                              glm::vec2 scale, float angle, bool inverted);
+
   void DrawRectImpl(RectF const& dest, glm::vec4 color, float angle) override;
 
   void DrawMaskedSpriteImpl(Sprite const& sprite, Sprite const& mask,
@@ -99,6 +104,13 @@ class Renderer : public BaseRenderer {
   inline void QuadSetUV(RectF const& spriteBounds, float designWidth,
                         float designHeight, uintptr_t uvs, int stride,
                         float angle = 0.0f);
+
+  inline void QuadSetPositionAroundPoint(RectF const& spriteBounds,
+                                         glm::vec2 topLeftPos,
+                                         glm::vec2 displayOffset,
+                                         glm::vec2 scale, float angle,
+                                         uintptr_t positions, int stride);
+
   inline void QuadSetUVFlipped(RectF const& spriteBounds, float designWidth,
                                float designHeight, uintptr_t uvs, int stride);
   inline void QuadSetPosition(RectF const& transformedQuad, float angle,

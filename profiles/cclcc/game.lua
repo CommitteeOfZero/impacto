@@ -43,3 +43,4 @@ include('cclcc/hud/optionsmenu.lua');
 include('cclcc/hud/tipsmenu.lua');
 include('cclcc/hud/extramenus.lua');
 include('cclcc/hud/tipsnotification.lua');
+include('cclcc/mapsystem.lua');
