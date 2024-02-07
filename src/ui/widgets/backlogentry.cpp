@@ -27,8 +27,8 @@ BacklogEntry::BacklogEntry(int id, uint8_t* str, int audioId, glm::vec2 pos) {
 
   Impacto::Vm::Sc3VmThread dummy;
   dummy.Ip = str;
-  //CHLCC uses DPM_REV for the Erin DialogueBox
-  if (!DialogueBoxType::CHLCC) {
+  // CHLCC uses DPM_REV for the Erin DialogueBox
+  if (Profile::Dialogue::DialogueBoxCurrentType != +DialogueBoxType::CHLCC) {
     Profile::Dialogue::REVBounds.X = pos.x;
     Profile::Dialogue::REVBounds.Y = pos.y;
   }
