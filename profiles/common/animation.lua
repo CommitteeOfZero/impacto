@@ -21,8 +21,8 @@ function MakeAnimation(desc)
         Duration = desc.Duration,
         Frames = {}
     }
-    local currentRow = 1
-    local currentCol = 1
+    local currentRow = 0
+    local currentCol = 0
     local needMoveSecondary = false
     for i = 1, desc.Frames do
         root.Sprites[desc.Name .. i] = {
