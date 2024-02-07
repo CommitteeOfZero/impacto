@@ -33,24 +33,8 @@ float SelectionYSpacing;
 float PlainSelectionYSpacing;
 float FadeAnimationDurationInOut;
 
-static void GetMemberFloatArray(float* arr, uint32_t count, char const* name) {
-  EnsurePushMemberOfType(name, kArrayType);
-
-  if (TopVal().Size() != count) {
-    ImpLog(LL_Fatal, LC_Profile, "Expected to have %d floats for %s\n", count,
-           name);
-    Window->Shutdown();
-  }
-
-  for (uint32_t i = 0; i < count; i++) {
-    arr[i] = EnsureGetArrayElementFloat(i);
-  }
-
-  Pop();
-}
-
 void Configure() {
-  EnsurePushMemberOfType("SelectionDisplay", kObjectType);
+  EnsurePushMemberOfType("SelectionDisplay", LUA_TTABLE);
 
   SelectionBackground = EnsureGetMemberSprite("SelectionBackgroundSprite");
   PlainSelectionFrameTopLeft =

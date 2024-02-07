@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rapidjson/document.h>
+#include "../minilua_impl.h"
 #include <initializer_list>
 #include <glm/glm.hpp>
 #include "../io/assetpath.h"
@@ -10,58 +10,60 @@
 #include "../font.h"
 #include "../spriteanimation.h"
 
-using namespace rapidjson;
-
 namespace Impacto {
 namespace Profile {
 
-extern Document Json;
-extern Value GlobalNull;
+extern lua_State* LuaState;
 
-#define JSON_GET_METHODS(typeName, nativeType)                              \
+#define LUA_GET_METHODS(typeName, nativeType)                               \
   bool TryGet##typeName(nativeType& out##typeName);                         \
   nativeType EnsureGet##typeName();                                         \
   bool TryGetMember##typeName(char const* name, nativeType& out##typeName); \
   nativeType EnsureGetMember##typeName(char const* name);                   \
-  bool TryGetArrayElement##typeName(uint32_t index,                         \
-                                    nativeType& out##typeName);             \
-  nativeType EnsureGetArrayElement##typeName(uint32_t index);
+  bool TryGetArrayElement##typeName(nativeType& out##typeName);             \
+  nativeType EnsureGetArrayElement##typeName();                             \
+  nativeType EnsureGetArrayElementByIndex##typeName(uint32_t index);
 
-Value const& TopVal();
+void LuaDumpStack();
 void Pop();
-void PushArrayElement(uint32_t i);
 bool TryPushMember(char const* name);
 void EnsurePushMember(char const* name);
-void EnsurePushMemberOfType(char const* name, Type type);
-void AssertIs(Type type);
-void AssertIsOneOf(std::initializer_list<Type> types);
-void PushMemberIterator(Value::ConstMemberIterator it);
-void EnsurePushMemberIteratorOfType(Value::ConstMemberIterator it, Type type);
+void EnsurePushMemberOfType(char const* name, int type);
+void AssertIs(int type);
+void PushInitialIndex();
+int PushNextTableElement();
 
-JSON_GET_METHODS(Bool, bool)
-JSON_GET_METHODS(Uint, uint32_t)
-JSON_GET_METHODS(Int, int32_t)
-JSON_GET_METHODS(Float, float)
-JSON_GET_METHODS(String, char const*)
+LUA_GET_METHODS(Bool, bool)
+LUA_GET_METHODS(Uint, uint32_t)
+LUA_GET_METHODS(Int, int32_t)
+LUA_GET_METHODS(Float, float)
+LUA_GET_METHODS(String, char const*)
 
-JSON_GET_METHODS(Vec2, glm::vec2)
-JSON_GET_METHODS(Vec3, glm::vec3)
-JSON_GET_METHODS(RectF, RectF)
-JSON_GET_METHODS(AssetPath, Io::AssetPath)
+void GetMemberIntArray(int* arr, uint32_t count, char const* name);
+void GetMemberFloatArray(float* arr, uint32_t count, char const* name);
 
-JSON_GET_METHODS(Sprite, Sprite)
-JSON_GET_METHODS(SpriteSheet, SpriteSheet)
-JSON_GET_METHODS(Font, Font*)
-JSON_GET_METHODS(Animation, SpriteAnimationDef)
+LUA_GET_METHODS(Vec2, glm::vec2)
+LUA_GET_METHODS(Vec3, glm::vec3)
+LUA_GET_METHODS(RectF, RectF)
+LUA_GET_METHODS(AssetPath, Io::AssetPath)
 
-uint32_t EnsureGetKeyUint(Value::ConstMemberIterator it);
-int32_t EnsureGetKeyInt(Value::ConstMemberIterator it);
-char const* EnsureGetKeyString(Value::ConstMemberIterator it);
+void GetMemberVec2Array(glm::vec2* arr, uint32_t count, char const* name);
 
-void LoadJsonString(char const* str);
-void ClearJsonProfileInternal();
+void GetMemberSpriteArray(Sprite* arr, uint32_t count, char const* name);
 
-#undef JSON_GET_METHODS
+LUA_GET_METHODS(Sprite, Sprite)
+LUA_GET_METHODS(SpriteSheet, SpriteSheet)
+LUA_GET_METHODS(Font, Font*)
+LUA_GET_METHODS(Animation, SpriteAnimationDef)
+
+uint32_t EnsureGetKeyUint();
+int32_t EnsureGetKeyInt();
+char const* EnsureGetKeyString();
+
+void ClearProfileInternal();
+
+#undef LUA_GET_METHODS
+#undef LUA_GET_METHODS
 
 }  // namespace Profile
 }  // namespace Impacto

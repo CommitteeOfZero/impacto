@@ -26,7 +26,7 @@ ActorsVoiceMenuType ActorsVoiceType = ActorsVoiceMenuType::None;
 
 void Configure() {
   if (TryPushMember("ExtraMenus")) {
-    AssertIs(kObjectType);
+    AssertIs(LUA_TTABLE);
 
     if (TryPushMember("ClearListMenu")) {
       ClearListType = ClearListMenuType::_from_integral_unchecked(

@@ -21,7 +21,7 @@ ska::flat_hash_map<uint32_t, CharacterDef> Characters;
 ska::flat_hash_map<uint32_t, uint32_t> ModelsToCharacters;
 
 void Configure() {
-  EnsurePushMemberOfType("Scene3D", kObjectType);
+  EnsurePushMemberOfType("Scene3D", LUA_TTABLE);
 
   Version = LKMVersion::_from_integral_unchecked(EnsureGetMemberInt("Version"));
 
@@ -29,7 +29,7 @@ void Configure() {
   AnimationDesignFrameRate = EnsureGetMemberFloat("AnimationDesignFrameRate");
 
   {
-    EnsurePushMemberOfType("DefaultCamera", kObjectType);
+    EnsurePushMemberOfType("DefaultCamera", LUA_TTABLE);
 
     DefaultCameraPosition = EnsureGetMemberVec3("Position");
     DefaultCameraTarget = EnsureGetMemberVec3("Target");
@@ -39,20 +39,17 @@ void Configure() {
   }
 
   if (TryPushMember("AnimationParseBlacklist")) {
-    AssertIs(kObjectType);
+    AssertIs(LUA_TTABLE);
 
-    auto const& _animationParseBlacklist = TopVal();
-    for (Value::ConstMemberIterator it = _animationParseBlacklist.MemberBegin();
-         it != _animationParseBlacklist.MemberEnd(); it++) {
-      uint32_t model = EnsureGetKeyUint(it);
-      EnsurePushMemberIteratorOfType(it, kArrayType);
-
-      uint32_t animCount = TopVal().Size();
-      for (uint32_t i = 0; i < animCount; i++) {
-        AnimationParseBlacklist.emplace_back(model,
-                                             EnsureGetArrayElementInt(i));
+    PushInitialIndex();
+    while (PushNextTableElement() != 0) {
+      uint32_t model = EnsureGetKeyUint();
+      AssertIs(LUA_TTABLE);
+      PushInitialIndex();
+      while (PushNextTableElement() != 0) {
+        AnimationParseBlacklist.emplace_back(model, EnsureGetArrayElementInt());
+        Pop();
       }
-
       Pop();
     }
 
@@ -62,41 +59,36 @@ void Configure() {
   // Characters
 
   {
-    EnsurePushMemberOfType("Characters", kObjectType);
+    EnsurePushMemberOfType("Characters", LUA_TTABLE);
 
-    auto const& _characters = TopVal();
-    for (Value::ConstMemberIterator it = _characters.MemberBegin();
-         it != _characters.MemberEnd(); it++) {
-      uint32_t charId = EnsureGetKeyUint(it);
-
-      EnsurePushMemberIteratorOfType(it, kObjectType);
+    PushInitialIndex();
+    while (PushNextTableElement() != 0) {
+      uint32_t charId = EnsureGetKeyUint();
 
       CharacterDef& character = Characters[charId];
       character.CharacterId = charId;
       character.IdleAnimation = EnsureGetMemberInt("IdleAnimation");
 
       {
-        EnsurePushMemberOfType("Models", kArrayType);
+        EnsurePushMemberOfType("Models", LUA_TTABLE);
 
-        uint32_t modelCount = TopVal().Size();
-        for (uint32_t i = 0; i < modelCount; i++) {
-          uint32_t modelId = EnsureGetArrayElementUint(i);
+        PushInitialIndex();
+        while (PushNextTableElement() != 0) {
+          uint32_t modelId = EnsureGetArrayElementUint();
           character.Models.push_back(modelId);
           ModelsToCharacters[modelId] = charId;
+          Pop();
         }
 
         Pop();
       }
 
       {
-        EnsurePushMemberOfType("Animations", kObjectType);
+        EnsurePushMemberOfType("Animations", LUA_TTABLE);
 
-        auto const& _anims = TopVal();
-        for (Value::ConstMemberIterator anim = _anims.MemberBegin();
-             anim != _anims.MemberEnd(); anim++) {
-          uint16_t animId = EnsureGetKeyInt(anim);
-
-          EnsurePushMemberIteratorOfType(anim, kObjectType);
+        PushInitialIndex();
+        while (PushNextTableElement() != 0) {
+          uint16_t animId = EnsureGetKeyInt();
 
           AnimationDef& animDef = character.Animations[animId];
           animDef.AnimId = animId;

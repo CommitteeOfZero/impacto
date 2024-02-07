@@ -6,23 +6,20 @@ namespace Impacto {
 namespace Profile {
 namespace Vfs {
 void Configure() {
-  EnsurePushMemberOfType("Vfs", kObjectType);
+  EnsurePushMemberOfType("Vfs", LUA_TTABLE);
 
   {
-    EnsurePushMemberOfType("Mounts", kObjectType);
+    EnsurePushMemberOfType("Mounts", LUA_TTABLE);
 
-    auto const& _mounts = TopVal();
+    PushInitialIndex();
+    while (PushNextTableElement() != 0) {
+      std::string name(EnsureGetKeyString());
 
-    for (Value::ConstMemberIterator it = _mounts.MemberBegin();
-         it != _mounts.MemberEnd(); it++) {
-      std::string name(EnsureGetKeyString(it));
-
-      EnsurePushMemberIteratorOfType(it, kArrayType);
-
-      uint32_t mountCount = TopVal().Size();
-      for (uint32_t i = 0; i < mountCount; i++) {
-        std::string file(EnsureGetArrayElementString(i));
+      PushInitialIndex();
+      while (PushNextTableElement() != 0) {
+        std::string file(EnsureGetArrayElementString());
         Io::VfsMount(name, file);
+        Pop();
       }
 
       Pop();

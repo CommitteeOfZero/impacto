@@ -21,7 +21,7 @@ uint16_t AlbumEvData[MaxAlbumEntries][MaxAlbumSubEntries];
 uint16_t AlbumData[MaxAlbumEntries][MaxAlbumSubEntries][MaxCGSprites];
 
 void Configure() {
-  EnsurePushMemberOfType("SaveData", kObjectType);
+  EnsurePushMemberOfType("SaveData", LUA_TTABLE);
 
   Type = SaveDataType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
 
@@ -37,34 +37,37 @@ void Configure() {
   SaveFilePath = EnsureGetMemberString("SaveFilePath");
 
   if (TryPushMember("StoryScriptIDs")) {
-    AssertIs(kArrayType);
+    AssertIs(LUA_TTABLE);
 
-    auto const& _storyScriptIds = TopVal();
-    StoryScriptCount = _storyScriptIds.Size();
+    StoryScriptCount = lua_rawlen(LuaState, -1);
     StoryScriptIDs = (uint32_t*)malloc(StoryScriptCount * sizeof(uint32_t));
-    for (uint32_t i = 0; i < StoryScriptCount; i++) {
-      StoryScriptIDs[i] = EnsureGetArrayElementInt(i);
+    PushInitialIndex();
+    while (PushNextTableElement() != 0) {
+      int i = EnsureGetKeyInt() - 1;
+      StoryScriptIDs[i] = EnsureGetArrayElementInt();
+      Pop();
     }
 
     Pop();
   }
 
   if (TryPushMember("ScriptMessageData")) {
-    AssertIs(kArrayType);
+    AssertIs(LUA_TTABLE);
 
-    auto const& _messageData = TopVal();
-    auto dataCount = _messageData.Size();
+    auto dataCount = lua_rawlen(LuaState, -1);
     ScriptMessageData = new ScriptMessageDataPair[dataCount];
-    for (uint32_t i = 0; i < dataCount; i++) {
-      PushArrayElement(i);
-      AssertIs(kArrayType);
-      auto const& _pair = TopVal();
-      if (_pair.Size() != 2) {
+    PushInitialIndex();
+    while (PushNextTableElement() != 0) {
+      int i = EnsureGetKeyInt() - 1;
+      AssertIs(LUA_TTABLE);
+      auto pairSize = lua_rawlen(LuaState, -1);
+      if (pairSize != 2) {
         ImpLog(LL_Fatal, LC_Profile, "Expected two values\n");
         Window->Shutdown();
       }
-      ScriptMessageData[i].LineCount = EnsureGetArrayElementUint(0);
-      ScriptMessageData[i].SaveDataOffset = EnsureGetArrayElementUint(1);
+      ScriptMessageData[i].LineCount = EnsureGetArrayElementByIndexUint(0);
+      ScriptMessageData[i].SaveDataOffset = EnsureGetArrayElementByIndexUint(1);
+
       Pop();
     }
 
@@ -72,17 +75,19 @@ void Configure() {
   }
 
   if (TryPushMember("AlbumEvData")) {
-    AssertIs(kArrayType);
+    AssertIs(LUA_TTABLE);
 
-    auto const& _albumEvData = TopVal();
-    auto dataCount = _albumEvData.Size();
-    for (uint32_t i = 0; i < dataCount; i++) {
-      PushArrayElement(i);
-      AssertIs(kArrayType);
-      auto const& _albumSubData = TopVal();
-      auto subDataCount = _albumSubData.Size();
-      for (uint32_t j = 0; j < subDataCount; j++) {
-        AlbumEvData[i][j] = EnsureGetArrayElementUint(j);
+    auto dataCount = lua_rawlen(LuaState, -1);
+    PushInitialIndex();
+    while (PushNextTableElement() != 0) {
+      int i = EnsureGetKeyInt() - 1;
+      AssertIs(LUA_TTABLE);
+      auto subDataCount = lua_rawlen(LuaState, -1);
+      PushInitialIndex();
+      while (PushNextTableElement() != 0) {
+        int j = EnsureGetKeyInt() - 1;
+        AlbumEvData[i][j] = EnsureGetArrayElementUint();
+        Pop();
       }
       // End marker
       AlbumEvData[i][subDataCount] = 0xFFFF;
@@ -95,22 +100,24 @@ void Configure() {
   }
 
   if (TryPushMember("AlbumData")) {
-    AssertIs(kArrayType);
+    AssertIs(LUA_TTABLE);
 
-    auto const& _albumData = TopVal();
-    auto dataCount = _albumData.Size();
-    for (uint32_t i = 0; i < dataCount; i++) {
-      PushArrayElement(i);
-      AssertIs(kArrayType);
-      auto const& _albumSubData = TopVal();
-      auto subDataCount = _albumSubData.Size();
-      for (uint32_t j = 0; j < subDataCount; j++) {
-        PushArrayElement(j);
-        AssertIs(kArrayType);
-        auto const& _albumCGSprites = TopVal();
-        auto cgSpriteCount = _albumCGSprites.Size();
-        for (uint32_t k = 0; k < cgSpriteCount; k++) {
-          AlbumData[i][j][k] = EnsureGetArrayElementUint(k);
+    auto dataCount = lua_rawlen(LuaState, -1);
+    PushInitialIndex();
+    while (PushNextTableElement() != 0) {
+      int i = EnsureGetKeyInt() - 1;
+      AssertIs(LUA_TTABLE);
+      auto subDataCount = lua_rawlen(LuaState, -1);
+      PushInitialIndex();
+      while (PushNextTableElement() != 0) {
+        int j = EnsureGetKeyInt() - 1;
+        AssertIs(LUA_TTABLE);
+        auto cgSpriteCount = lua_rawlen(LuaState, -1);
+        PushInitialIndex();
+        while (PushNextTableElement() != 0) {
+          int k = EnsureGetKeyInt() - 1;
+          AlbumData[i][j][k] = EnsureGetArrayElementUint();
+          Pop();
         }
         // End marker
         AlbumData[i][j][cgSpriteCount] = 0xFFFF;

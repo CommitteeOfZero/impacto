@@ -5,8 +5,6 @@
 #include "../renderer/renderer.h"
 #include <flat_hash_map.hpp>
 
-#include <duktape.h>
-
 #include "../font.h"
 #include "../text.h"
 #include "../game.h"
@@ -26,19 +24,14 @@ namespace Profile {
 
 static ska::flat_hash_set<std::string> IncludedFiles;
 
-static void DukFatal(void* udata, char const* msg) {
-  ImpLog(LL_Fatal, LC_Profile, "JavaScript fatal error: %s\n",
-         msg ? msg : "no message");
-  Window->Shutdown();
-}
-
-static duk_ret_t DukPrint(duk_context* ctx) {
-  ImpLog(LL_Info, LC_Profile, "JS: %s\n", duk_safe_to_string(ctx, 0));
+static int LuaPrint(lua_State* ctx) {
+  ImpLog(LL_Info, LC_Profile, "Lua: %s\n", lua_tostring(ctx, 1));
   return 0;
 }
 
-static duk_ret_t DukInclude(duk_context* ctx) {
-  std::string file = "profiles/" + std::string(duk_safe_to_string(ctx, 0));
+static int LuaInclude(lua_State* ctx) {
+  auto fileName = lua_tostring(ctx, 1);
+  std::string file = "profiles/" + std::string(fileName);
   if (IncludedFiles.find(file) != IncludedFiles.end()) {
     ImpLog(LL_Debug, LC_Profile, "File %s already included, skipping...\n",
            file.c_str());
@@ -52,11 +45,11 @@ static duk_ret_t DukInclude(duk_context* ctx) {
   IoError err = Io::PhysicalFileStream::Create(file, &stream);
   if (err != IoError_OK) {
     ImpLog(LL_Error, LC_Profile, "Could not open %s\n", file.c_str());
-    return DUK_RET_ERROR;
+    return 0;
   }
 
-  char const prefix[] = "(function() {";
-  char const suffix[] = "})();";
+  char const prefix[] = "do\n";
+  char const suffix[] = "\nend";
 
   char* script =
       (char*)malloc(strlen(prefix) + stream->Meta.Size + strlen(suffix));
@@ -69,144 +62,146 @@ static duk_ret_t DukInclude(duk_context* ctx) {
     delete stream;
 
     ImpLog(LL_Error, LC_Profile, "Could not open %s\n", file.c_str());
-    return DUK_RET_ERROR;
+    return 0;
   }
 
   len += strlen(prefix);
   memcpy(script + len, suffix, strlen(suffix));
   len += strlen(suffix);
 
-  int evalErr = duk_peval_lstring(ctx, script, len);
+  if (luaL_loadbuffer(LuaState, script, len, script)) {
+    ImpLog(LL_Fatal, LC_Profile, "Lua profile compile error: %s\n",
+           lua_tostring(ctx, -1));
+    lua_close(LuaState);
+    exit(0);
+  }
+  if (lua_pcall(ctx, 0, 0, 0)) {
+    ImpLog(LL_Fatal, LC_Profile, "Lua profile execute error: %s\n",
+           lua_tostring(ctx, -1));
+    lua_close(LuaState);
+    exit(0);
+  }
 
   free(script);
   delete stream;
 
-  if (evalErr != 0) {
-    ImpLog(LL_Error, LC_Profile, "JS include('%s') error: %s\n", file.c_str(),
-           duk_safe_to_string(ctx, -1));
-    duk_pop(ctx);
-    return DUK_RET_EVAL_ERROR;
-  } else {
-    ImpLog(LL_Debug, LC_Profile, "JS include('%s') success\n", file.c_str());
-    duk_pop(ctx);
-    return 0;
-  }
+  lua_pop(ctx, -1);
+
+  return 0;
 }
 
 template <typename Enum>
-static void DefineEnumDouble(duk_context* ctx) {
-  duk_idx_t obj_idx = duk_push_object(ctx);
+static void DefineEnumDouble(lua_State* ctx) {
+  lua_createtable(ctx, 0, 0);
   for (Enum value : Enum::_values()) {
-    duk_push_number(ctx, value._value);
-    duk_put_prop_string(ctx, obj_idx, value._to_string());
+    lua_pushnumber(ctx, value._value);
+    lua_setfield(ctx, -2, value._to_string());
   }
-  duk_put_global_string(ctx, Enum::_name());
+  lua_setglobal(ctx, Enum::_name());
 }
 
 template <typename Enum>
-static void DefineEnumInt(duk_context* ctx) {
-  duk_idx_t obj_idx = duk_push_object(ctx);
+static void DefineEnumInt(lua_State* ctx) {
+  lua_createtable(ctx, 0, 0);
   for (Enum value : Enum::_values()) {
-    duk_push_int(ctx, value._value);
-    duk_put_prop_string(ctx, obj_idx, value._to_string());
+    lua_pushinteger(ctx, value._value);
+    lua_setfield(ctx, -2, value._to_string());
   }
-  duk_put_global_string(ctx, Enum::_name());
+  lua_setglobal(ctx, Enum::_name());
 }
 
 template <typename Enum>
-static void DefineEnumUint(duk_context* ctx) {
-  duk_idx_t obj_idx = duk_push_object(ctx);
+static void DefineEnumUint(lua_State* ctx) {
+  lua_createtable(ctx, 0, 0);
   for (Enum value : Enum::_values()) {
-    duk_push_uint(ctx, value._value);
-    duk_put_prop_string(ctx, obj_idx, value._to_string());
+    lua_pushinteger(ctx, value._value);
+    lua_setfield(ctx, -2, value._to_string());
   }
-  duk_put_global_string(ctx, Enum::_name());
+  lua_setglobal(ctx, Enum::_name());
 }
 
 void MakeJsonProfile(std::string const& name) {
   Io::InputStream* stream;
   IoError err =
-      Io::PhysicalFileStream::Create("profiles/" + name + "/game.js", &stream);
+      Io::PhysicalFileStream::Create("profiles/" + name + "/game.lua", &stream);
   if (err != IoError_OK) {
-    ImpLog(LL_Fatal, LC_Profile, "Could not open profiles/%s/game.js\n",
+    ImpLog(LL_Fatal, LC_Profile, "Could not open profiles/%s/game.lua\n",
            name.c_str());
-    Window->Shutdown();
+    exit(0);
   }
 
-  char* script = (char*)malloc(stream->Meta.Size);
+  char* script = (char*)malloc(stream->Meta.Size) + 1;
   int64_t len = stream->Read(script, stream->Meta.Size);
   if (len < 0) {
-    ImpLog(LL_Fatal, LC_Profile, "Could not open profiles/%s/game.js\n",
+    ImpLog(LL_Fatal, LC_Profile, "Could not open profiles/%s/game.lua\n",
            name.c_str());
-    Window->Shutdown();
+    exit(0);
   }
 
-  duk_context* ctx = duk_create_heap(NULL, NULL, NULL, NULL, DukFatal);
+  LuaState = luaL_newstate();
 
   // Set up API
-  duk_push_c_function(ctx, DukPrint, 1);
-  duk_put_global_string(ctx, "print");
-  duk_push_c_function(ctx, DukInclude, 1);
-  duk_put_global_string(ctx, "include");
+  lua_pushcfunction(LuaState, LuaPrint);
+  lua_setglobal(LuaState, "print");
+  lua_pushcfunction(LuaState, LuaInclude);
+  lua_setglobal(LuaState, "include");
 
   // Root profile object
-  duk_push_object(ctx);
-  duk_put_global_string(ctx, "root");
+  lua_createtable(LuaState, 0, 0);
+  lua_setglobal(LuaState, "root");
 
   // Enums /sigh
-  DefineEnumInt<RendererType>(ctx);
-  DefineEnumInt<VideoPlayerType>(ctx);
-  DefineEnumInt<TextAlignment>(ctx);
-  DefineEnumInt<GameFeature>(ctx);
-  DefineEnumInt<CharacterTypeFlags>(ctx);
-  DefineEnumInt<Vm::InstructionSet>(ctx);
-  DefineEnumUint<Game::DrawComponentType>(ctx);
-  DefineEnumInt<SaveSystem::SaveDataType>(ctx);
-  DefineEnumInt<TipsSystem::TipsSystemType>(ctx);
-  DefineEnumInt<UI::SystemMenuType>(ctx);
-  DefineEnumInt<UI::TitleMenuType>(ctx);
-  DefineEnumInt<UI::SaveMenuType>(ctx);
-  DefineEnumInt<UI::OptionsMenuType>(ctx);
-  DefineEnumInt<UI::TrophyMenuType>(ctx);
-  DefineEnumInt<UI::TipsMenuType>(ctx);
-  DefineEnumInt<UI::ClearListMenuType>(ctx);
-  DefineEnumInt<UI::AlbumMenuType>(ctx);
-  DefineEnumInt<UI::MusicMenuType>(ctx);
-  DefineEnumInt<UI::MovieMenuType>(ctx);
-  DefineEnumInt<UI::ActorsVoiceMenuType>(ctx);
-  DefineEnumInt<DateDisplay::DateDisplayType>(ctx);
-  DefineEnumInt<WaitIconDisplay::WaitIconType>(ctx);
-  DefineEnumInt<TipsNotification::TipsNotificationType>(ctx);
-  DefineEnumInt<DelusionTrigger::DelusionTriggerType>(ctx);
-  DefineEnumInt<DialogueBoxType>(ctx);
-  DefineEnumInt<UI::SysMesBoxType>(ctx);
-  DefineEnumInt<FontType>(ctx);
-  DefineEnumInt<LKMVersion>(ctx);
+  DefineEnumInt<RendererType>(LuaState);
+  DefineEnumInt<VideoPlayerType>(LuaState);
+  DefineEnumInt<TextAlignment>(LuaState);
+  DefineEnumInt<GameFeature>(LuaState);
+  DefineEnumInt<CharacterTypeFlags>(LuaState);
+  DefineEnumInt<Vm::InstructionSet>(LuaState);
+  DefineEnumUint<Game::DrawComponentType>(LuaState);
+  DefineEnumInt<SaveSystem::SaveDataType>(LuaState);
+  DefineEnumInt<TipsSystem::TipsSystemType>(LuaState);
+  DefineEnumInt<UI::SystemMenuType>(LuaState);
+  DefineEnumInt<UI::TitleMenuType>(LuaState);
+  DefineEnumInt<UI::SaveMenuType>(LuaState);
+  DefineEnumInt<UI::OptionsMenuType>(LuaState);
+  DefineEnumInt<UI::TrophyMenuType>(LuaState);
+  DefineEnumInt<UI::TipsMenuType>(LuaState);
+  DefineEnumInt<UI::ClearListMenuType>(LuaState);
+  DefineEnumInt<UI::AlbumMenuType>(LuaState);
+  DefineEnumInt<UI::MusicMenuType>(LuaState);
+  DefineEnumInt<UI::MovieMenuType>(LuaState);
+  DefineEnumInt<UI::ActorsVoiceMenuType>(LuaState);
+  DefineEnumInt<DateDisplay::DateDisplayType>(LuaState);
+  DefineEnumInt<WaitIconDisplay::WaitIconType>(LuaState);
+  DefineEnumInt<TipsNotification::TipsNotificationType>(LuaState);
+  DefineEnumInt<DelusionTrigger::DelusionTriggerType>(LuaState);
+  DefineEnumInt<DialogueBoxType>(LuaState);
+  DefineEnumInt<UI::SysMesBoxType>(LuaState);
+  DefineEnumInt<FontType>(LuaState);
+  DefineEnumInt<LKMVersion>(LuaState);
 
   ImpLog(LL_Info, LC_Profile, "Starting profile %s\n", name.c_str());
 
-  int evalErr = duk_peval_lstring(ctx, script, len);
-
-  free(script);
-  delete stream;
-
-  if (evalErr != 0) {
-    ImpLog(LL_Fatal, LC_Profile, "JS profile execute error: %s\n",
-           duk_safe_to_string(ctx, -1));
-    Window->Shutdown();
+  if (luaL_loadbuffer(LuaState, script, len, script)) {
+    ImpLog(LL_Fatal, LC_Profile, "Lua profile compile error: %s\n",
+           lua_tostring(LuaState, -1));
+    lua_close(LuaState);
+    exit(0);
+  }
+  if (lua_pcall(LuaState, 0, 0, 0)) {
+    ImpLog(LL_Fatal, LC_Profile, "Lua profile execute error: %s\n",
+           lua_tostring(LuaState, -1));
+    lua_close(LuaState);
+    exit(0);
   }
 
-  ImpLog(LL_Info, LC_Profile, "JS profile execute success\n");
-  duk_get_global_string(ctx, "root");
+  // Push the global onto the stack to load all the values later
+  lua_getglobal(LuaState, "root");
 
-  char const* jsonStr = duk_json_encode(ctx, -1);
-
-  LoadJsonString(jsonStr);
-
-  duk_destroy_heap(ctx);
+  ImpLog(LL_Info, LC_Profile, "Lua profile execute success\n");
 }
 
-void ClearJsonProfile() { ClearJsonProfileInternal(); }
+void ClearProfile() { ClearProfileInternal(); }
 
 }  // namespace Profile
 }  // namespace Impacto

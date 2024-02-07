@@ -67,7 +67,7 @@ float BaseLineWidth;
 }  // namespace ADVNameTag
 
 void Configure() {
-  EnsurePushMemberOfType("Dialogue", kObjectType);
+  EnsurePushMemberOfType("Dialogue", LUA_TTABLE);
 
   NVLBounds = EnsureGetMemberRectF("NVLBounds");
   ADVBounds = EnsureGetMemberRectF("ADVBounds");
@@ -140,21 +140,23 @@ void Configure() {
   }
 
   {
-    EnsurePushMemberOfType("ColorTable", kArrayType);
+    EnsurePushMemberOfType("ColorTable", LUA_TTABLE);
 
-    auto const& _colors = TopVal();
-    ColorCount = _colors.Size();
+    ColorCount = lua_rawlen(LuaState, -1);
     ColorTable = new DialogueColorPair[ColorCount];
-    for (uint32_t i = 0; i < ColorCount; i++) {
-      PushArrayElement(i);
-      AssertIs(kArrayType);
-      auto const& _pair = TopVal();
-      if (_pair.Size() != 2) {
+    PushInitialIndex();
+    while (PushNextTableElement() != 0) {
+      int i = EnsureGetKeyInt() - 1;
+      AssertIs(LUA_TTABLE);
+
+      auto pairSize = lua_rawlen(LuaState, -1);
+      if (pairSize != 2) {
         ImpLog(LL_Fatal, LC_Profile, "Expected two colors\n");
         Window->Shutdown();
       }
-      ColorTable[i].TextColor = EnsureGetArrayElementUint(0);
-      ColorTable[i].OutlineColor = EnsureGetArrayElementUint(1);
+      ColorTable[i].TextColor = EnsureGetArrayElementByIndexUint(0);
+      ColorTable[i].OutlineColor = EnsureGetArrayElementByIndexUint(1);
+
       Pop();
     }
 
@@ -165,7 +167,7 @@ void Configure() {
 
   HaveADVNameTag = TryPushMember("ADVNameTag");
   if (HaveADVNameTag) {
-    AssertIs(kObjectType);
+    AssertIs(LUA_TTABLE);
 
     ADVNameTag::Position = EnsureGetMemberVec2("Position");
     ADVNameTag::LeftSprite = EnsureGetMemberSprite("LeftSprite");

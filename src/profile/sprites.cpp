@@ -12,14 +12,11 @@ ska::flat_hash_map<std::string, SpriteSheet> SpriteSheets;
 ska::flat_hash_map<std::string, Sprite> Sprites;
 
 void LoadSpritesheets() {
-  EnsurePushMemberOfType("SpriteSheets", kObjectType);
+  EnsurePushMemberOfType("SpriteSheets", LUA_TTABLE);
 
-  auto const& _spritesheets = TopVal();
-  for (Value::ConstMemberIterator it = _spritesheets.MemberBegin();
-       it != _spritesheets.MemberEnd(); it++) {
-    std::string name(EnsureGetKeyString(it));
-
-    EnsurePushMemberIteratorOfType(it, kObjectType);
+  PushInitialIndex();
+  while (PushNextTableElement() != 0) {
+    std::string name(EnsureGetKeyString());
 
     SpriteSheet& sheet = SpriteSheets[name];
     sheet.DesignWidth = EnsureGetMemberFloat("DesignWidth");
@@ -49,14 +46,11 @@ void LoadSpritesheets() {
 
   Pop();
 
-  EnsurePushMemberOfType("Sprites", kObjectType);
+  EnsurePushMemberOfType("Sprites", LUA_TTABLE);
 
-  auto const& _sprites = TopVal();
-  for (Value::ConstMemberIterator it = _sprites.MemberBegin();
-       it != _sprites.MemberEnd(); it++) {
-    std::string name(EnsureGetKeyString(it));
-
-    EnsurePushMemberIteratorOfType(it, kObjectType);
+  PushInitialIndex();
+  while (PushNextTableElement() != 0) {
+    std::string name(EnsureGetKeyString());
 
     Sprite& sprite = Sprites[name];
     sprite.Sheet = EnsureGetMemberSpriteSheet("Sheet");

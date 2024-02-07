@@ -11,35 +11,35 @@ uint8_t* Flags = 0;
 ska::flat_hash_map<uint32_t, uint16_t> CharacterToSc3;
 
 void Load() {
-  EnsurePushMemberOfType("Charset", kObjectType);
+  EnsurePushMemberOfType("Charset", LUA_TTABLE);
   {
-    EnsurePushMemberOfType("Flags", kArrayType);
+    EnsurePushMemberOfType("Flags", LUA_TTABLE);
 
-    auto const& _flags = TopVal();
-    uint32_t flagsCount = _flags.Size();
+    uint32_t flagsCount = lua_rawlen(LuaState, -1);
     Flags = (uint8_t*)malloc(flagsCount);
-    for (uint32_t i = 0; i < flagsCount; i++) {
-      Flags[i] = EnsureGetArrayElementInt(i);
+    PushInitialIndex();
+    while (PushNextTableElement() != 0) {
+      int i = EnsureGetKeyInt();
+      Flags[i] = EnsureGetArrayElementInt();
+      Pop();
     }
 
     Pop();
   }
 
   if (TryPushMember("CharacterToSc3")) {
-    AssertIs(kObjectType);
+    AssertIs(LUA_TTABLE);
 
-    auto const& _textToSc3Hash = TopVal();
-    for (Value::ConstMemberIterator it = _textToSc3Hash.MemberBegin();
-         it != _textToSc3Hash.MemberEnd(); it++) {
-      std::string key(EnsureGetKeyString(it));
+    PushInitialIndex();
+    while (PushNextTableElement() != 0) {
+      std::string key(EnsureGetKeyString());
 
       std::string::iterator strIt = key.begin();
       std::string::iterator strEnd = key.end();
       auto codePoint = utf8::next(strIt, strEnd);
 
-      EnsurePushMemberIteratorOfType(it, kNumberType);
-
-      CharacterToSc3[codePoint] = EnsureGetUint();
+      uint32_t test = EnsureGetArrayElementUint();
+      CharacterToSc3[codePoint] = test;
 
       Pop();
     }

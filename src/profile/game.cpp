@@ -23,7 +23,7 @@ float DesignWidth;
 float DesignHeight;
 
 void LoadGameFromJson() {
-  AssertIs(kObjectType);
+  AssertIs(LUA_TTABLE);
 
   ActiveRenderer = RendererType::_from_integral_unchecked(
       EnsureGetMemberInt("ActiveRenderer"));

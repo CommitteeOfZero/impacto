@@ -8,28 +8,27 @@ namespace Profile {
 ska::flat_hash_map<std::string, SpriteAnimationDef> Animations;
 
 void LoadAnimations() {
-  EnsurePushMemberOfType("Animations", kObjectType);
+  EnsurePushMemberOfType("Animations", LUA_TTABLE);
 
-  auto const& _animations = TopVal();
-  for (Value::ConstMemberIterator it = _animations.MemberBegin();
-       it != _animations.MemberEnd(); it++) {
-    std::string name(EnsureGetKeyString(it));
-
-    EnsurePushMemberIteratorOfType(it, kObjectType);
+  PushInitialIndex();
+  while (PushNextTableElement() != 0) {
+    std::string name(EnsureGetKeyString());
 
     SpriteAnimationDef& animation = Animations[name];
     animation.Duration = EnsureGetMemberFloat("Duration");
 
     {
-      EnsurePushMemberOfType("Frames", kArrayType);
+      EnsurePushMemberOfType("Frames", LUA_TTABLE);
 
-      auto const& _frames = TopVal();
-      animation.FrameCount = _frames.Size();
+      animation.FrameCount = lua_rawlen(LuaState, -1);
       animation.Frames = (Sprite*)malloc(animation.FrameCount * sizeof(Sprite));
-
-      for (uint32_t i = 0; i < animation.FrameCount; i++) {
-        animation.Frames[i] = EnsureGetArrayElementSprite(i);
+      PushInitialIndex();
+      while (PushNextTableElement() != 0) {
+        animation.Frames[EnsureGetKeyInt() - 1] = EnsureGetArrayElementSprite();
+        Pop();
       }
+
+      LuaDumpStack();
 
       Pop();
     }

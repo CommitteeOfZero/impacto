@@ -12,39 +12,6 @@ namespace Profile {
 namespace CCLCC {
 namespace OptionsMenu {
 
-static void GetMemberSpriteArray(Sprite* arr, uint32_t count,
-                                 char const* name) {
-  EnsurePushMemberOfType(name, kArrayType);
-
-  if (TopVal().Size() != count) {
-    ImpLog(LL_Fatal, LC_Profile, "Expected to have %d sprites for %s\n", count,
-           name);
-    Window->Shutdown();
-  }
-
-  for (uint32_t i = 0; i < count; i++) {
-    arr[i] = EnsureGetArrayElementSprite(i);
-  }
-
-  Pop();
-}
-
-static void GetMemberFloatArray(float* arr, uint32_t count, char const* name) {
-  EnsurePushMemberOfType(name, kArrayType);
-
-  if (TopVal().Size() != count) {
-    ImpLog(LL_Fatal, LC_Profile, "Expected to have %d floats for %s\n", count,
-           name);
-    Window->Shutdown();
-  }
-
-  for (uint32_t i = 0; i < count; i++) {
-    arr[i] = EnsureGetArrayElementFloat(i);
-  }
-
-  Pop();
-}
-
 void Configure() {
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMemberInt("DrawType"));

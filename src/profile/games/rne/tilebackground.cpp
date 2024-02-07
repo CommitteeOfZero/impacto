@@ -6,7 +6,7 @@ namespace Profile {
 namespace RNE {
 
 Impacto::RNE::TileBackground* ParseTileBackground() {
-  AssertIs(kObjectType);
+  AssertIs(LUA_TTABLE);
 
   Impacto::RNE::TileBackground* result = new Impacto::RNE::TileBackground();
 

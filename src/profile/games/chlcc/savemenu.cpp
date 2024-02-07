@@ -77,40 +77,6 @@ glm::vec2 PlayTimeTextRelativePos;
 glm::vec2 SaveDateHintTextRelativePos;
 glm::vec2 SaveDateTextRelativePos;
 
-static void GetMemberVec2Array(glm::vec2* arr, uint32_t count,
-                               char const* name) {
-  EnsurePushMemberOfType(name, kArrayType);
-
-  if (TopVal().Size() != count) {
-    ImpLog(LL_Fatal, LC_Profile, "Expected to have %d vec2 for %s\n", count,
-           name);
-    Window->Shutdown();
-  }
-
-  for (uint32_t i = 0; i < count; i++) {
-    arr[i] = EnsureGetArrayElementVec2(i);
-  }
-
-  Pop();
-}
-
-static void GetMemberSpriteArray(Sprite* arr, uint32_t count,
-                                 char const* name) {
-  EnsurePushMemberOfType(name, kArrayType);
-
-  if (TopVal().Size() != count) {
-    ImpLog(LL_Fatal, LC_Profile, "Expected to have %d sprites for %s\n", count,
-           name);
-    Window->Shutdown();
-  }
-
-  for (uint32_t i = 0; i < count; i++) {
-    arr[i] = EnsureGetArrayElementSprite(i);
-  }
-
-  Pop();
-}
-
 void Configure() {
   SaveBackgroundColor = EnsureGetMemberUint("SaveBackgroundColor");
   LoadBackgroundColor = EnsureGetMemberUint("LoadBackgroundColor");

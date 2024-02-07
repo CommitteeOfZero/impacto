@@ -1804,12 +1804,17 @@ void Renderer::SetScissorRectImpl(RectF const& rect) {
   if (rect.X != PreviousScissorRect.X && rect.Y != PreviousScissorRect.Y &&
       rect.Width != PreviousScissorRect.Width &&
       rect.Height != PreviousScissorRect.Height) {
-    Rect viewport = Window->GetViewport();
+    float scale = fmin((float)Window->WindowWidth / Profile::DesignWidth,
+                       (float)Window->WindowHeight / Profile::DesignHeight);
+    float rectX = rect.X * scale;
+    float rectY = rect.Y * scale;
+    float rectWidth = rect.Width * scale;
+    float rectHeight = rect.Height * scale;
     VkExtent2D scissorExtent;
-    scissorExtent.width = (int)(rect.Width);
-    scissorExtent.height = (int)(rect.Height);
+    scissorExtent.width = (int)(rectWidth);
+    scissorExtent.height = (int)(rectHeight);
     VkRect2D scissor{};
-    scissor.offset = {(int)rect.X, (int)rect.Y};
+    scissor.offset = {(int)rectX, (int)rectY};
     scissor.extent = scissorExtent;
     Flush();
     vkCmdSetScissor(CommandBuffers[CurrentFrameIndex], 0, 1, &scissor);

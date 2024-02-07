@@ -3,10 +3,7 @@
 #include <stack>
 
 #include "../log.h"
-//#include "../window.h"
 #include "../renderer/renderer.h"
-
-#include <rapidjson/error/en.h>
 
 #include "sprites.h"
 #include "fonts.h"
@@ -15,73 +12,40 @@
 namespace Impacto {
 namespace Profile {
 
-Document Json;
-Value GlobalNull;
+lua_State* LuaState;
 
-static char const* kTypeNames[] = {"Null",  "False",  "True",  "Object",
-                                   "Array", "String", "Number"};
-
-struct JsonStackItem {
-  JsonStackItem(Value const& val, char* pathEnd) : Val(val), PathEnd(pathEnd) {}
-
-  Value const& Val;
-  char* PathEnd;
-};
-
-std::stack<JsonStackItem> JsonStack;
-char JsonStackPath[1024] = {0};
-
-void PushValue(Value const& val, char const* name) {
-  ImpLogSlow(LL_Trace, LC_Profile, "PUSH %s\n", name);
-
-  assert(!JsonStack.empty());
-  char* pathEnd = JsonStack.top().PathEnd;
-  size_t nameLength = strlen(name);
-  assert((pathEnd + 1 + nameLength) - JsonStackPath < 1024);
-  *pathEnd = '/';
-  pathEnd++;
-  memcpy(pathEnd, name, strlen(name));
-  pathEnd += strlen(name);
-  *pathEnd = '\0';
-  JsonStack.emplace(val, pathEnd);
-}
-
-void PushValue(Value const& val, uint32_t name) {
-  char nameStr[11];
-  SDL_uitoa(name, nameStr, 10);
-  PushValue(val, nameStr);
-}
-
-Value const& TopVal() {
-  assert(!JsonStack.empty());
-  return JsonStack.top().Val;
-}
-
-void PushArrayElement(uint32_t i) { PushValue(TopVal()[i], i); }
-
-void Pop() {
-  assert(!JsonStack.empty());
-  JsonStack.pop();
-  char* pathEnd;
-  if (JsonStack.empty()) {
-    pathEnd = JsonStackPath;
-  } else {
-    pathEnd = JsonStack.top().PathEnd;
+void LuaDumpStack() {
+  ImpLog(LL_Debug, LC_Profile, "Current stack: \n");
+  int top = lua_gettop(LuaState);
+  for (int i = 1; i <= top; i++) {
+    printf("%d\t%s\t", i, luaL_typename(LuaState, i));
+    switch (lua_type(LuaState, i)) {
+      case LUA_TNUMBER:
+        printf("%g\n", lua_tonumber(LuaState, i));
+        break;
+      case LUA_TSTRING:
+        printf("%s\n", lua_tostring(LuaState, i));
+        break;
+      case LUA_TBOOLEAN:
+        printf("%s\n", (lua_toboolean(LuaState, i) ? "true" : "false"));
+        break;
+      case LUA_TNIL:
+        printf("%s\n", "nil");
+        break;
+      default:
+        printf("%p\n", lua_topointer(LuaState, i));
+        break;
+    }
   }
-
-  ImpLogSlow(LL_Trace, LC_Profile, "POP %s\n", pathEnd + 1);
-
-  *pathEnd = '\0';
 }
+
+void Pop() { lua_pop(LuaState, 1); }
 
 bool TryPushMember(char const* name) {
-  assert(!JsonStack.empty());
-  Value const& topVal = TopVal();
-  auto it = topVal.FindMember(name);
-  if (it == topVal.MemberEnd()) {
+  if (lua_getfield(LuaState, -1, name) == LUA_TNIL) {
+    Pop();
     return false;
   }
-  PushValue(it->value, name);
   return true;
 }
 
@@ -89,57 +53,28 @@ void EnsurePushMember(char const* name) {
   bool success = TryPushMember(name);
   if (!success) {
     ImpLog(LL_Fatal, LC_Profile, "Expected %s to have member %s\n",
-           JsonStackPath, name);
-    Window->Shutdown();
+           lua_tostring(LuaState, -1), name);
+    exit(0);
   }
 }
 
-void EnsurePushMemberOfType(char const* name, Type type) {
+void EnsurePushMemberOfType(char const* name, int type) {
   EnsurePushMember(name);
   AssertIs(type);
 }
 
-void AssertIs(Type type) {
-  Type actualType = TopVal().GetType();
+void AssertIs(int type) {
+  int actualType = lua_type(LuaState, -1);
   if (actualType != type) {
-    ImpLog(LL_Fatal, LC_Profile,
-           "Expected %s to have type %s, actual type %s\n", JsonStackPath,
-           kTypeNames[type], kTypeNames[actualType]);
-    Window->Shutdown();
+    exit(0);
   }
 }
 
-void AssertIsOneOf(std::initializer_list<Type> types) {
-  Type actualType = TopVal().GetType();
-  for (auto type : types) {
-    if (actualType == type) return;
-  }
+void PushInitialIndex() { lua_pushnil(LuaState); }
 
-  char typeList[80];  // should be enough given type name lengths
-  memset(typeList, 0, sizeof(typeList));
-  bool first = true;
-  for (auto type : types) {
-    if (!first) strcat(typeList, ", ");
-    first = false;
-    strcat(typeList, kTypeNames[type]);
-  }
+int PushNextTableElement() { return lua_next(LuaState, -2); }
 
-  ImpLog(LL_Fatal, LC_Profile,
-         "Expected %s to have type in (%s), actual type %s\n", JsonStackPath,
-         typeList, kTypeNames[actualType]);
-  Window->Shutdown();
-}
-
-void PushMemberIterator(Value::ConstMemberIterator it) {
-  PushValue(it->value, it->name.GetString());
-}
-
-void EnsurePushMemberIteratorOfType(Value::ConstMemberIterator it, Type type) {
-  PushMemberIterator(it);
-  AssertIs(type);
-}
-
-#define JSON_GET_METHODS(typeName, nativeType, typeDesc)                     \
+#define LUA_GET_METHODS(typeName, nativeType, typeDesc)                      \
   nativeType EnsureGet##typeName() {                                         \
     nativeType result;                                                       \
     bool success = TryGet##typeName(result);                                 \
@@ -161,15 +96,16 @@ void EnsurePushMemberIteratorOfType(Value::ConstMemberIterator it, Type type) {
     Pop();                                                                   \
     return result;                                                           \
   }                                                                          \
-  bool TryGetArrayElement##typeName(uint32_t index,                          \
-                                    nativeType& out##typeName) {             \
-    PushArrayElement(index);                                                 \
+  bool TryGetArrayElement##typeName(nativeType& out##typeName) {             \
     bool result = TryGet##typeName(out##typeName);                           \
-    Pop();                                                                   \
     return result;                                                           \
   }                                                                          \
-  nativeType EnsureGetArrayElement##typeName(uint32_t index) {               \
-    PushArrayElement(index);                                                 \
+  nativeType EnsureGetArrayElement##typeName() {                             \
+    nativeType result = EnsureGet##typeName();                               \
+    return result;                                                           \
+  }                                                                          \
+  nativeType EnsureGetArrayElementByIndex##typeName(uint32_t index) {        \
+    lua_rawgeti(LuaState, -1, index + 1);                                    \
     nativeType result = EnsureGet##typeName();                               \
     Pop();                                                                   \
     return result;                                                           \
@@ -177,7 +113,6 @@ void EnsurePushMemberIteratorOfType(Value::ConstMemberIterator it, Type type) {
 
 #define TRY_GET_ENTITY(typeName, nativeType, arrayName)        \
   bool TryGet##typeName(nativeType& out##typeName) {           \
-    Value const& val = TopVal();                               \
     char const* name##typeName;                                \
     if (!TryGetString(name##typeName)) return false;           \
                                                                \
@@ -189,9 +124,8 @@ void EnsurePushMemberIteratorOfType(Value::ConstMemberIterator it, Type type) {
   }
 
 bool TryGetBool(bool& outBool) {
-  Value const& val = TopVal();
-  if (val.IsBool()) {
-    outBool = val.GetBool();
+  if (lua_isboolean(LuaState, -1)) {
+    outBool = lua_toboolean(LuaState, -1);
     return true;
   }
   // TODO conversion?
@@ -199,109 +133,145 @@ bool TryGetBool(bool& outBool) {
   return false;
 }
 
-JSON_GET_METHODS(Bool, bool, "boolean")
+LUA_GET_METHODS(Bool, bool, "boolean")
 
 bool TryGetUint(uint32_t& outUint) {
-  Value const& val = TopVal();
-  if (val.IsUint()) {
-    outUint = val.GetUint();
+  if (lua_isinteger(LuaState, -1)) {
+    outUint = lua_tointeger(LuaState, -1);
     return true;
   }
-  if (val.IsString()) {
+  if (lua_isstring(LuaState, -1)) {
     char* endp;
-    outUint = SDL_strtoul(val.GetString(), &endp, 10);
+    outUint = SDL_strtoul(lua_tostring(LuaState, -1), &endp, 10);
     if (endp != 0) return true;
   }
 
   return false;
 }
 
-uint32_t EnsureGetKeyUint(Value::ConstMemberIterator it) {
-  PushValue(it->name, "(name)");
-  uint32_t result = EnsureGetUint();
-  Pop();
-  return result;
-}
-
-JSON_GET_METHODS(Uint, uint32_t, "unsigned integer convertible")
+LUA_GET_METHODS(Uint, uint32_t, "unsigned integer convertible")
 
 bool TryGetInt(int32_t& outInt) {
-  Value const& val = TopVal();
-  if (val.IsInt()) {
-    outInt = val.GetInt();
+  if (lua_isinteger(LuaState, -1)) {
+    outInt = lua_tointeger(LuaState, -1);
     return true;
   }
-  if (val.IsString()) {
+  if (lua_isstring(LuaState, -1)) {
     char* endp;
-    outInt = SDL_strtol(val.GetString(), &endp, 10);
+    outInt = SDL_strtol(lua_tostring(LuaState, -1), &endp, 10);
     if (endp != 0) return true;
   }
 
   return false;
 }
 
-int32_t EnsureGetKeyInt(Value::ConstMemberIterator it) {
-  PushValue(it->name, "(name)");
-  int32_t result = EnsureGetInt();
+void GetMemberIntArray(int* arr, uint32_t count, char const* name) {
+  EnsurePushMemberOfType(name, LUA_TTABLE);
+
+  if (lua_rawlen(LuaState, -1) != count) {
+    ImpLog(LL_Fatal, LC_Profile, "Expected to have %d ints for %s\n", count,
+           name);
+    Window->Shutdown();
+  }
+
+  PushInitialIndex();
+  while (PushNextTableElement()) {
+    int i = EnsureGetKeyInt() - 1;
+    arr[i] = EnsureGetArrayElementInt();
+    Pop();
+  }
+
   Pop();
-  return result;
 }
 
-JSON_GET_METHODS(Int, int32_t, "signed integer convertible")
+LUA_GET_METHODS(Int, int32_t, "signed integer convertible")
 
 bool TryGetFloat(float& outFloat) {
-  Value const& val = TopVal();
-  if (val.IsNumber()) {
-    outFloat = val.GetFloat();
-    return true;
+  if (lua_isnumber(LuaState, -1)) {
+    outFloat = lua_tonumber(LuaState, -1);
   }
-  if (val.IsString()) {
+  if (lua_isstring(LuaState, -1)) {
     char* endp;
-    outFloat = SDL_strtod(val.GetString(), &endp);
+    outFloat = SDL_strtod(lua_tostring(LuaState, -1), &endp);
     if (endp != 0) return true;
   }
 
   return false;
 }
 
-JSON_GET_METHODS(Float, float, "float convertible")
+void GetMemberFloatArray(float* arr, uint32_t count, char const* name) {
+  EnsurePushMemberOfType(name, LUA_TTABLE);
+
+  if (lua_rawlen(LuaState, -1) != count) {
+    ImpLog(LL_Fatal, LC_Profile, "Expected to have %d floats for %s\n", count,
+           name);
+    Window->Shutdown();
+  }
+
+  PushInitialIndex();
+  while (PushNextTableElement()) {
+    int i = EnsureGetKeyInt() - 1;
+    arr[i] = EnsureGetArrayElementFloat();
+    Pop();
+  }
+
+  Pop();
+}
+
+LUA_GET_METHODS(Float, float, "float convertible")
 
 bool TryGetString(char const*& outString) {
-  Value const& val = TopVal();
-  if (!val.IsString()) return false;
-  outString = val.GetString();
+  if (!lua_isstring(LuaState, -1)) return false;
+  outString = lua_tostring(LuaState, -1);
   return true;
 }
 
-char const* EnsureGetKeyString(Value::ConstMemberIterator it) {
-  // All object keys are parsed as strings
-  return it->name.GetString();
-}
+char const* EnsureGetKeyString() { return lua_tostring(LuaState, -2); }
 
-JSON_GET_METHODS(String, char const*, "string")
+int32_t EnsureGetKeyInt() { return lua_tointeger(LuaState, -2); }
+
+uint32_t EnsureGetKeyUint() { return (uint32_t)lua_tointeger(LuaState, -2); }
+
+LUA_GET_METHODS(String, char const*, "string")
 
 bool TryGetVec2(glm::vec2& outVec2) {
-  Value const& val = TopVal();
-  if (!val.IsObject()) return false;
+  if (!lua_istable(LuaState, -1)) return false;
 
   return TryGetMemberFloat("X", outVec2.x) && TryGetMemberFloat("Y", outVec2.y);
 }
 
-JSON_GET_METHODS(Vec2, glm::vec2, "Vec2")
+void GetMemberVec2Array(glm::vec2* arr, uint32_t count, char const* name) {
+  EnsurePushMemberOfType(name, LUA_TTABLE);
+
+  if (lua_rawlen(LuaState, -1) != count) {
+    ImpLog(LL_Fatal, LC_Profile, "Expected to have %d vec2 for %s\n", count,
+           name);
+    Window->Shutdown();
+  }
+
+  PushInitialIndex();
+  while (PushNextTableElement()) {
+    int i = EnsureGetKeyInt() - 1;
+    arr[i] = EnsureGetArrayElementVec2();
+    Pop();
+  }
+
+  Pop();
+}
+
+LUA_GET_METHODS(Vec2, glm::vec2, "Vec2")
 
 bool TryGetVec3(glm::vec3& outVec3) {
-  Value const& val = TopVal();
-  if (!val.IsObject()) return false;
+  if (!lua_istable(LuaState, -1)) return false;
 
   return TryGetMemberFloat("X", outVec3.x) &&
          TryGetMemberFloat("Y", outVec3.y) && TryGetMemberFloat("Z", outVec3.z);
 }
 
-JSON_GET_METHODS(Vec3, glm::vec3, "Vec3")
+LUA_GET_METHODS(Vec3, glm::vec3, "Vec3")
 
 bool TryGetRectF(RectF& outRectF) {
-  Value const& val = TopVal();
-  if (!val.IsObject()) return false;
+  if (!lua_istable(LuaState, -1)) return false;
 
   return TryGetMemberFloat("X", outRectF.X) &&
          TryGetMemberFloat("Y", outRectF.Y) &&
@@ -309,17 +279,16 @@ bool TryGetRectF(RectF& outRectF) {
          TryGetMemberFloat("Height", outRectF.Height);
 }
 
-JSON_GET_METHODS(RectF, RectF, "RectF")
+LUA_GET_METHODS(RectF, RectF, "RectF")
 
 bool TryGetAssetPath(Io::AssetPath& outPath) {
-  Value const& val = TopVal();
-  if (val.IsString()) {
+  if (lua_isstring(LuaState, -1)) {
     outPath.Mount = "";
     outPath.Id = 0;
-    outPath.FileName = val.GetString();
+    outPath.FileName = lua_tostring(LuaState, -1);
     return true;
   } else {
-    if (!val.IsObject()) return false;
+    if (!lua_istable(LuaState, -1)) return false;
 
     if (!TryGetMemberUint("Id", outPath.Id)) return false;
     char const* _mount;
@@ -329,41 +298,40 @@ bool TryGetAssetPath(Io::AssetPath& outPath) {
   }
 }
 
-JSON_GET_METHODS(AssetPath, Io::AssetPath, "AssetPath")
+LUA_GET_METHODS(AssetPath, Io::AssetPath, "AssetPath")
 
-TRY_GET_ENTITY(Sprite, Sprite, Sprites)
-JSON_GET_METHODS(Sprite, Sprite, "Sprite")
+void GetMemberSpriteArray(Sprite* arr, uint32_t count, char const* name) {
+  EnsurePushMemberOfType(name, LUA_TTABLE);
 
-TRY_GET_ENTITY(SpriteSheet, SpriteSheet, SpriteSheets)
-JSON_GET_METHODS(SpriteSheet, SpriteSheet, "SpriteSheet")
-
-TRY_GET_ENTITY(Font, Font*, Fonts)
-JSON_GET_METHODS(Font, Font*, "Font")
-
-TRY_GET_ENTITY(Animation, SpriteAnimationDef, Animations)
-JSON_GET_METHODS(Animation, SpriteAnimationDef, "Animation")
-
-void LoadJsonString(char const* str) {
-  GlobalNull.SetNull();
-
-  Json.Parse(str);
-
-  if (Json.HasParseError()) {
-    ImpLog(LL_Fatal, LC_Profile,
-           "Failed to parse JSON from profile (at %d): %s\n",
-           Json.GetErrorOffset(), GetParseError_En(Json.GetParseError()));
+  if (lua_rawlen(LuaState, -1) != count) {
+    ImpLog(LL_Fatal, LC_Profile, "Expected to have %d sprites for %s\n", count,
+           name);
     Window->Shutdown();
   }
 
-  JsonStackPath[0] = '\0';
-  JsonStack.emplace(Json, JsonStackPath);
+  PushInitialIndex();
+  while (PushNextTableElement()) {
+    int i = EnsureGetKeyInt() - 1;
+    arr[i] = EnsureGetArrayElementSprite();
+    Pop();
+  }
+
+  Pop();
 }
 
-void ClearJsonProfileInternal() {
-  while (!JsonStack.empty()) Pop();
-  JsonStackPath[0] = '\0';
-  Json.SetNull();
-}
+TRY_GET_ENTITY(Sprite, Sprite, Sprites)
+LUA_GET_METHODS(Sprite, Sprite, "Sprite")
+
+TRY_GET_ENTITY(SpriteSheet, SpriteSheet, SpriteSheets)
+LUA_GET_METHODS(SpriteSheet, SpriteSheet, "SpriteSheet")
+
+TRY_GET_ENTITY(Font, Font*, Fonts)
+LUA_GET_METHODS(Font, Font*, "Font")
+
+TRY_GET_ENTITY(Animation, SpriteAnimationDef, Animations)
+LUA_GET_METHODS(Animation, SpriteAnimationDef, "Animation")
+
+void ClearProfileInternal() { lua_close(LuaState); }
 
 }  // namespace Profile
 }  // namespace Impacto

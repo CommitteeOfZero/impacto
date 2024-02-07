@@ -27,29 +27,12 @@ uint8_t REVLineHeight;
 uint8_t REVLineSpacing;
 uint8_t REVFontSize;
 
-static void GetMemberSpriteArray(Sprite* arr, uint32_t count,
-                                 char const* name) {
-  EnsurePushMemberOfType(name, kArrayType);
-
-  if (TopVal().Size() != count) {
-    ImpLog(LL_Fatal, LC_Profile, "Expected to have %d sprites for %s\n", count,
-           name);
-    Window->Shutdown();
-  }
-
-  for (uint32_t i = 0; i < count; i++) {
-    arr[i] = EnsureGetArrayElementSprite(i);
-  }
-
-  Pop();
-}
-
 void Configure() {
   SecondaryADVBoxSprite = EnsureGetMemberSprite("SecondaryADVBoxSprite");
 
   HaveSecondaryADVNameTag = TryPushMember("SecondaryADVNameTag");
   if (HaveSecondaryADVNameTag) {
-    AssertIs(kObjectType);
+    AssertIs(LUA_TTABLE);
 
     SecondaryADVNameTag::Position = EnsureGetMemberVec2("SecondaryPosition");
     SecondaryADVNameTag::LeftSprite = EnsureGetMemberSprite("SecondaryLeftSprite");

@@ -16,7 +16,7 @@ int MaxTipsCount;
 uint32_t MaxTipDataSize;
 
 void Configure() {
-  EnsurePushMemberOfType("TipsSystem", kObjectType);
+  EnsurePushMemberOfType("TipsSystem", LUA_TTABLE);
 
   Type = TipsSystemType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
 

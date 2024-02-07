@@ -26,7 +26,7 @@ float FadeOutDuration;
 
 void Configure() {
   if (TryPushMember("BacklogMenu")) {
-    AssertIs(kObjectType);
+    AssertIs(LUA_TTABLE);
 
     BacklogBackground = EnsureGetMemberSprite("BacklogBackgroundSprite");
     EntryHighlight = EnsureGetMemberSprite("EntryHighlightSprite");

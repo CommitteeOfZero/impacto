@@ -51,7 +51,7 @@ int GP_PAD1R2;
 int GP_PAD1R3;
 
 void Configure() {
-  EnsurePushMemberOfType("Input", kObjectType);
+  EnsurePushMemberOfType("Input", LUA_TTABLE);
 
   KB_PAD1A = EnsureGetMemberInt("KB_PAD1A");
   KB_PAD1B = EnsureGetMemberInt("KB_PAD1B");
