@@ -11,7 +11,7 @@
 * `src/texture/ddsloader.cpp`: based on [OpenImageIO](https://github.com/OpenImageIO/oiio/tree/master/src/dds.imageio)
 * `src/video/ffmpegplayer.cpp`: syncing code based on [FFplay](https://github.com/FFmpeg/FFmpeg/blob/master/fftools/ffplay.c)
 * `vendor/clHCA`: part of [vgmstream](https://github.com/losnoco/vgmstream)
-* `vendor/duktape`: [Duktape](https://github.com/svaarala/duktape)
+* `vendor/minilua`: [minilua](https://github.com/edubart/minilua)
 * `vendor/glad`: output from [glad](https://github.com/Dav1dde/glad) generator, patched for Switch support
 * `vendor/include/rapidjson`: [RapidJSON](https://github.com/Tencent/rapidjson)
 * `vendor/include/enum.h`: [Better Enums](http://github.com/aantron/better-enums)
@@ -83,107 +83,30 @@ Copyright (c) 2012-2016, Anton Bachin. All rights reserved.
 
 Better Enums is distributed under the terms of the 2-clause BSD license. See below for license text.
 
-## Duktape
+## MiniLua
 
-https://duktape.org/duktape-2.3.0.tar.xz
+MIT License
 
-Copyright (c) 2013-2018 by Duktape authors. See below for license text (MIT).
+Copyright (c) 1994–2019 Lua.org, PUC-Rio.
+Copyright (c) 2020-2023 Eduardo Bart (https://github.com/edubart).
 
->     Copyright
->     =========
->
->     Duktape copyrights are held by its authors.  Each author has a copyright
->     to their contribution, and agrees to irrevocably license the contribution
->     under the Duktape ``LICENSE.txt``.
->
->     Authors
->     =======
->
->     Please include an e-mail address, a link to your GitHub profile, or something
->     similar to allow your contribution to be identified accurately.
->
->     The following people have contributed code, website contents, or Wiki contents,
->     and agreed to irrevocably license their contributions under the Duktape
->     ``LICENSE.txt`` (in order of appearance):
->
->     * Sami Vaarala <sami.vaarala@iki.fi>
->     * Niki Dobrev
->     * Andreas \u00d6man <andreas@lonelycoder.com>
->     * L\u00e1szl\u00f3 Lang\u00f3 <llango.u-szeged@partner.samsung.com>
->     * Legimet <legimet.calc@gmail.com>
->     * Karl Skomski <karl@skomski.com>
->     * Bruce Pascoe <fatcerberus1@gmail.com>
->     * Ren\u00e9 Hollander <rene@rene8888.at>
->     * Julien Hamaide (https://github.com/crazyjul)
->     * Sebastian G\u00f6tte (https://github.com/jaseg)
->     * Tomasz Magulski (https://github.com/magul)
->     * \D. Bohdan (https://github.com/dbohdan)
->     * Ond\u0159ej Jirman (https://github.com/megous)
->     * Sa\u00fal Ibarra Corretg\u00e9 <saghul@gmail.com>
->     * Jeremy HU <huxingyi@msn.com>
->     * Ole Andr\u00e9 Vadla Ravn\u00e5s (https://github.com/oleavr)
->     * Harold Brenes (https://github.com/harold-b)
->     * Oliver Crow (https://github.com/ocrow)
->     * Jakub Ch\u0142api\u0144ski (https://github.com/jchlapinski)
->     * Brett Vickers (https://github.com/beevik)
->     * Dominik Okwieka (https://github.com/okitec)
->     * Remko Tron\u00e7on (https://el-tramo.be)
->     * Romero Malaquias (rbsm@ic.ufal.br)
->     * Michael Drake <michael.drake@codethink.co.uk>
->     * Steven Don (https://github.com/shdon)
->     * Simon Stone (https://github.com/sstone1)
->     * \J. McC. (https://github.com/jmhmccr)
->     * Jakub Nowakowski (https://github.com/jimvonmoon)
->     * Tommy Nguyen (https://github.com/tn0502)
->     * Fabrice Fontaine (https://github.com/ffontaine)
->     * Christopher Hiller (https://github.com/boneskull)
->     * Gonzalo Diethelm (https://github.com/gonzus)
->     * Michal Kasperek (https://github.com/michalkas)
->     * Andrew Janke (https://github.com/apjanke)
->     * Steve Fan (https://github.com/stevefan1999)
->
->     Other contributions
->     ===================
->
->     The following people have contributed something other than code (e.g. reported
->     bugs, provided ideas, etc; roughly in order of appearance):
->
->     * Greg Burns
->     * Anthony Rabine
->     * Carlos Costa
->     * Aur\u00e9lien Bouilland
->     * Preet Desai (Pris Matic)
->     * judofyr (http://www.reddit.com/user/judofyr)
->     * Jason Woofenden
->     * Micha\u0142 Przyby\u015b
->     * Anthony Howe
->     * Conrad Pankoff
->     * Jim Schimpf
->     * Rajaran Gaunker (https://github.com/zimbabao)
->     * Andreas \u00d6man
->     * Doug Sanden
->     * Josh Engebretson (https://github.com/JoshEngebretson)
->     * Remo Eichenberger (https://github.com/remoe)
->     * Mamod Mehyar (https://github.com/mamod)
->     * David Demelier (https://github.com/markand)
->     * Tim Caswell (https://github.com/creationix)
->     * Mitchell Blank Jr (https://github.com/mitchblank)
->     * https://github.com/yushli
->     * Seo Sanghyeon (https://github.com/sanxiyn)
->     * Han ChoongWoo (https://github.com/tunz)
->     * Joshua Peek (https://github.com/josh)
->     * Bruce E. Pascoe (https://github.com/fatcerberus)
->     * https://github.com/Kelledin
->     * https://github.com/sstruchtrup
->     * Michael Drake (https://github.com/tlsa)
->     * https://github.com/chris-y
->     * Laurent Zubiaur (https://github.com/lzubiaur)
->     * Neil Kolban (https://github.com/nkolban)
->     * Wilhelm Wanecek (https://github.com/wanecek)
->     * Andrew Janke (https://github.com/apjanke)
->
->     If you are accidentally missing from this list, send me an e-mail
->     (``sami.vaarala@iki.fi``) and I'll fix the omission.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 ## Emscripten
 

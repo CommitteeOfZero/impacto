@@ -29,7 +29,7 @@
 #define LUA_USE_LINUX
 #elif defined(__APPLE__)
 #define LUA_USE_MACOSX
-#elif defined(__SWITCH__)
+#elif defined(__SWITCH__) || defined(PLATFORM_DREAMCAST)
 #define LUA_USE_C89
 #else /* probably a POSIX system */
 #define LUA_USE_POSIX
