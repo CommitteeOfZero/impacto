@@ -40,6 +40,7 @@ class MapSystemCCLCC : public Impacto::UI::MapSystem::MapSystemBase {
 
   void Update(float dt) override;
   void Render() override;
+  void RenderButtonGuide() override;
 
   struct MapPoolMember {
     int id;

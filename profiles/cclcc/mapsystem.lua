@@ -6,7 +6,8 @@ root.MapSystem = {
   MapPartsPhotosNum: 18,
   MapPartsArticlesNum: 16,
   MapPartsPinsNum: 12,
-  SelectedMapPoolTag: "SelectedMapPoolTag"
+  SelectedMapPoolTag: "SelectedMapPoolTag",
+  MapButtonGuide: "MapButtonGuide",
 };
 
 root.Sprites["MapBackground"] = {
@@ -17,6 +18,11 @@ root.Sprites["MapBackground"] = {
 root.Sprites["SelectedMapPoolTag"] = {
   Sheet: "MapParts",
   Bounds: { X: 1770, Y: 2832, Width: 172, Height: 228 }
+};
+
+root.Sprites["MapButtonGuide"] = {
+  Sheet: "Data",
+  Bounds: { X: 0, Y: 1177, Width: 1920, Height: 54 }
 };
 
 for i = 0, root.MapSystem.MapPartsPhotosNum do

@@ -370,7 +370,7 @@ void HandlePoolUpDownNav(int maxPoolRow, int poolType, bool isUp) {
     }
   } else {
     int tmpPoolIdx;
-    do {
+    while (true) {
       if (poolType == 3) {
         hoverMapPoolIdx =
             (hoverMapPoolIdx < 2) ? hoverMapPoolIdx + 2 : hoverMapPoolIdx - 2;
@@ -395,7 +395,7 @@ void HandlePoolUpDownNav(int maxPoolRow, int poolType, bool isUp) {
       tmpPoolIdx = rowNum * maxPoolRow;
 
       if (colNum >= 0 && colNum <= 2) {
-        int offsets[3][2] = {{1, 2}, {0, 2}, {1, 0}};
+        constexpr int offsets[3][2] = {{1, 2}, {0, 2}, {1, 0}};
 
         for (int i = 0; i < 2; ++i) {
           if ((MapPool[tmpPoolIdx + offsets[colNum][i]].id != 0xff &&
@@ -406,7 +406,7 @@ void HandlePoolUpDownNav(int maxPoolRow, int poolType, bool isUp) {
           if (colNum < 2 && poolType == 3) break;
         }
       }
-    } while (MapPoolDisp[tmpPoolIdx * 2].info.shown == 0);
+    }
     hoverMapPoolIdx = tmpPoolIdx;
   }
 }
@@ -421,7 +421,7 @@ void HandlePoolLeftRightNav(int maxPoolRow, int poolType, bool isLeft) {
     }
   } else {
     int mapId = hoverMapPoolIdx;
-    do {
+    while (true) {
       if (poolType == 3) {
         if (hoverMapPoolIdx != 3)
           mapId = (hoverMapPoolIdx == 0 || hoverMapPoolIdx == 2)
@@ -477,7 +477,7 @@ void HandlePoolLeftRightNav(int maxPoolRow, int poolType, bool isLeft) {
           }
         }
       }
-    } while (MapPoolDisp[mapId * 2].info.shown == 0);
+    }
     hoverMapPoolIdx = mapId;
   }
 }
@@ -813,12 +813,55 @@ void MapSystemCCLCC::MapFadeMain() {
   }
 }
 
-void MapSystemCCLCC::Update(float dt) {}
-
-void MapSystemCCLCC::Render() {
+void MapSystemCCLCC::Update(float dt) {
   if (ScrWork[6360] && GetFlag(2800)) {
     MapSetPos();
   }
+
+  if (ScrWork[0x1964] == 0) {
+    if (ScrWork[0x1965] == 0) {
+      ScrWork[0x1966] = 0;
+    } else {
+      ScrWork[0x1965]--;
+    }
+  } else {
+    ScrWork[0x1966] = ScrWork[0x1964];
+    if (ScrWork[0x1965] < 0x20) {
+      ScrWork[0x1965]++;
+    }
+  }
+}
+
+void MapSystemCCLCC::RenderButtonGuide() {
+  if (!GetFlag(1244) && !GetFlag(2487)) {
+    if (ScrWork[6501] != 0) {
+      float guideXWidth = (ScrWork[6501] * 1920) / 32;
+      MapButtonGuideSprite.Bounds.Width = guideXWidth;
+      Renderer->DrawSprite(MapButtonGuideSprite, glm::vec2{0.0f, 988.0f});
+      if (guideXWidth < 1920) {
+        Sprite MapButtonGuideSprite2 = MapButtonGuideSprite;
+        std::array<glm::vec4, 4> tints = {
+            glm::vec4{1.0f, 1.0f, 1.0f, 0.0f},
+            glm::vec4{1.0f, 1.0f, 1.0f, 1.0f},
+            glm::vec4{1.0f, 1.0f, 1.0f, 1.0f},
+            glm::vec4{1.0f, 1.0f, 1.0f, 0.0f},
+        };
+        MapButtonGuideSprite2.Bounds.X = guideXWidth;
+        MapButtonGuideSprite2.Bounds.Width = 60;
+
+        std::array<glm::vec2, 4> dest = {
+            glm::vec2{guideXWidth, 1042.0f},       // bottom left
+            glm::vec2{guideXWidth + 60, 1042.0f},  // bottom right
+            glm::vec2{guideXWidth, 988.0f},        // top left
+            glm::vec2{guideXWidth + 60, 988.0f},   // top right
+        };
+        Renderer->DrawSprite(MapButtonGuideSprite2, dest, tints, 0, false);
+      }
+    }
+  }
+}  // namespace CCLCC
+
+void MapSystemCCLCC::Render() {
   if (GetFlag(2800)) {
     // Render map bg
     MapBgSprite.Bounds = Rect(mapPosX, mapPosY, mapSizeX, mapSizeY);

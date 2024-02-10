@@ -11,6 +11,7 @@ static constexpr int MapPartsArticleSpritesNumMax = 16;
 static constexpr int MapPartsPinSpritesNumMax = 12;
 
 extern Sprite MapBgSprite;
+extern Sprite MapButtonGuideSprite;
 extern Sprite MapPartsPhotoSprites[MapPartsPhotoSpritesNumMax];
 extern Sprite MapPartsArticleSprites[MapPartsArticleSpritesNumMax];
 extern Sprite MapPartsPinSprites[MapPartsPinSpritesNumMax];

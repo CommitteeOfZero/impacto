@@ -453,6 +453,7 @@ void Render() {
           break;
         }
         case DrawComponentType::SystemIcons: {
+          UI::MapSystem::RenderButtonGuide();
           LoadingDisplay::Render();
           SaveIconDisplay::Render();
           break;

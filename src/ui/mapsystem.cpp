@@ -14,6 +14,11 @@ void Init() {
 void Render() {
   if (MapSystemPtr) MapSystemPtr->Render();
 }
+
+void RenderButtonGuide() {
+  if (MapSystemPtr) MapSystemPtr->RenderButtonGuide();
+}
+
 void MapInit() {
   if (MapSystemPtr) MapSystemPtr->MapInit();
 }

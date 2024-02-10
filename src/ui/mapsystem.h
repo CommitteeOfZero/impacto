@@ -9,6 +9,7 @@ class MapSystemBase {
   virtual void MapInit() = 0;
   virtual void Update(float dt) = 0;
   virtual void Render() = 0;
+  virtual void RenderButtonGuide() = 0;
   virtual void MapSetFadein(int arg1, int arg2) = 0;
   virtual void MapSetPool(int index, int id, int type) = 0;
   virtual void MapSetDisp(int id, int type) = 0;
@@ -38,6 +39,7 @@ bool MapPoolFadeEndChk_Wait();
 bool MapPlayerPhotoSelect(int arg1);
 void MapPoolShuffle(int arg1);
 void Render();
+void RenderButtonGuide();
 void Update(float dt);
 
 }  // namespace MapSystem

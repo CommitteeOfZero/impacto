@@ -38,6 +38,9 @@ class BaseRenderer {
                   glm::vec4 tint = glm::vec4(1.0),
                   glm::vec2 scale = glm::vec2(1.0), float angle = 0.0f,
                   bool inverted = false, bool isScreencap = false);
+  void DrawSprite(Sprite const& sprite, std::array<glm::vec2, 4> const& dest,
+                  const std::array<glm::vec4, 4>& tints, float angle = 0.0f,
+                  bool inverted = false, bool isScreencap = false);
 
   void DrawSpriteCentered(Sprite const& sprite, glm::vec2 topLeft,
                           glm::vec2 displayOffset,
@@ -141,6 +144,11 @@ class BaseRenderer {
   virtual void DrawSpriteImpl(Sprite const& sprite, RectF const& dest,
                               glm::vec4 tint, float angle, bool inverted,
                               bool isScreencap) = 0;
+
+  virtual void DrawSpriteImpl(Sprite const& sprite,
+                              std::array<glm::vec2, 4> const& dest,
+                              const std::array<glm::vec4, 4>& tints,
+                              float angle, bool inverted, bool isScreencap) = 0;
 
   virtual void DrawSpriteCenteredImpl(Sprite const& sprite, glm::vec2 topLeft,
                                       glm::vec2 displayOffset, glm::vec4 tint,

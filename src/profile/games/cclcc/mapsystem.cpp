@@ -11,6 +11,7 @@ namespace CCLCC {
 namespace MapSystem {
 
 Sprite MapBgSprite;
+Sprite MapButtonGuideSprite;
 Sprite MapPartsPhotoSprites[MapPartsPhotoSpritesNumMax];
 Sprite MapPartsArticleSprites[MapPartsArticleSpritesNumMax];
 Sprite MapPartsPinSprites[MapPartsPinSpritesNumMax];
@@ -28,6 +29,7 @@ void Configure() {
   int MapPartsPinsNum = EnsureGetMemberInt("MapPartsPinsNum");
   GetMemberSpriteArray(MapPartsPinSprites, MapPartsPinsNum,
                        "MapPartsPinSprites");
+  MapButtonGuideSprite = EnsureGetMemberSprite("MapButtonGuide");
 }
 
 }  // namespace MapSystem

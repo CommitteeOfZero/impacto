@@ -123,6 +123,11 @@ class Renderer : public BaseRenderer {
   void DrawSpriteImpl(Sprite const& sprite, RectF const& dest, glm::vec4 tint,
                       float angle, bool inverted, bool isScreencap) override;
 
+  void DrawSpriteImpl(Sprite const& sprite,
+                      std::array<glm::vec2, 4> const& dest,
+                      const std::array<glm::vec4, 4>& tints, float angle,
+                      bool inverted, bool isScreencap) override;
+
   void DrawSpriteCenteredImpl(Sprite const& sprite, glm::vec2 topLeft,
                               glm::vec2 displayOffset, glm::vec4 tint,
                               glm::vec2 scale, float angle, bool inverted);
@@ -181,6 +186,8 @@ class Renderer : public BaseRenderer {
                                          uintptr_t positions, int stride);
   inline void QuadSetPosition(RectF const& transformedQuad, float angle,
                               uintptr_t positions, int stride);
+  inline void QuadSetPosition(std::array<glm::vec2, 4> const& destQuad,
+                              float angle, uintptr_t positions, int stride);
   inline void QuadSetPosition3DRotated(RectF const& transformedQuad,
                                        float depth, glm::vec2 vanishingPoint,
                                        bool stayInScreen, glm::quat rot,
