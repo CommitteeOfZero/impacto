@@ -21,6 +21,13 @@ class MapSystemBase {
   virtual bool MapPoolFadeEndChk_Wait() = 0;
   virtual bool MapPlayerPhotoSelect(int arg1) = 0;
   virtual void MapPoolShuffle(int arg1) = 0;
+  virtual void MapZoomInit(int arg1, int arg2, int arg3) = 0;
+  virtual bool MapZoomMain() = 0;
+  virtual bool MapZoomInit3(int arg1, int arg2, int arg3, bool ex = false) = 0;
+  virtual bool MapZoomMain3() = 0;
+  virtual bool MapMoveAnimeInit2(int arg1, int arg2, int arg3) = 0;
+  virtual bool MapMoveAnimeMain2() = 0;
+  virtual void MapGetPos(int arg1, int arg2, int &arg3, int &arg4) = 0;
 };
 
 extern MapSystemBase* MapSystemPtr;
@@ -38,6 +45,13 @@ void MapPoolSetFadeout(int arg1, int arg2);
 bool MapPoolFadeEndChk_Wait();
 bool MapPlayerPhotoSelect(int arg1);
 void MapPoolShuffle(int arg1);
+void MapZoomInit(int arg1, int arg2, int arg3);
+bool MapZoomMain();
+bool MapZoomInit3(int arg1, int arg2, int arg3);
+bool MapZoomMain3();
+bool MapMoveAnimeInit2(int arg1, int arg2, int arg3);
+bool MapMoveAnimeMain2();
+void MapGetPos(int arg1, int arg2, int &arg3, int &arg4);
 void Render();
 void RenderButtonGuide();
 void Update(float dt);

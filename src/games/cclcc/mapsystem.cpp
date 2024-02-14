@@ -24,6 +24,8 @@ std::array<MapSystemCCLCC::MapPoolMember, 20> MapPool = {};
 std::array<MapSystemCCLCC::MapPoolDispStruct, 40> MapPoolDisp;
 std::array<MapSystemCCLCC::MapPartsDispStruct, 40> MapPartsDisp;
 
+std::array<int, 13> MapZoomCtAcc = {};
+
 std::array<int, 20> MapPoolCurCt = {};
 
 int MapPartsMax = 0;
@@ -31,10 +33,44 @@ int MapPartsMax = 0;
 int MapPoolCnt = 0;
 int selectedMapPoolIdx = 0xff;
 int hoverMapPoolIdx = 0xff;
-float mapSizeX;
-float mapSizeY;
+float MapBGWidth;
+float MapBGHeight;
 float mapPosX;
 float mapPosY;
+
+float MapZoomPosX;
+float MapZoomPosY;
+
+int MapZoomTo = 0;
+float MapZoomGx = 0;
+float MapZoomGy = 0;
+int MapZoomNow = 0;
+
+int MapZoomMode = 0;
+int MapZoomCt = 0;
+int MapZoomCtMax = 0;
+
+float MapZoomFromPosX = 0;
+float MapZoomFromPosY = 0;
+float MapZoomFromSize = 0;
+
+float MapZoomToPosX = 0;
+float MapZoomToPosY = 0;
+float MapZoomToSize = 0;
+
+float MapZoomNowPosX = 0;
+float MapZoomNowPosY = 0;
+float MapZoomNowSize = 0;
+
+int MapMoveMode = 0;
+float MapMoveStartSize = 0;
+float MapMoveFromPosX = 0;
+float MapMoveFromPosY = 0;
+float MapMoveToPosX = 0;
+float MapMoveToPosY = 0;
+float MapMoveCenterPosX = 0;
+float MapMoveCenterPosY = 0;
+float MapMoveLimitSize = 0;
 
 constexpr int MapIdMapping[11][4] = {
     // index 0 is map part for photos
@@ -253,7 +289,39 @@ bool MapSystemCCLCC::MapPoolFadeEndChk_Wait() {
 }
 void MapSystemCCLCC::MapMoveAnimeInit(int arg1, int arg2, int arg3) {}
 void MapSystemCCLCC::MapMoveAnimeMain() {}
-void MapSystemCCLCC::MapGetPos(int arg1, int arg2) {}
+void MapSystemCCLCC::MapGetPos(int arg1, int arg2, int& arg3, int& arg4) {
+  switch (arg2) {
+    case 0:
+      arg3 = PartsOffsetData[arg1][0][0];
+      arg4 = PartsOffsetData[arg1][0][1];
+      break;
+    case 1:
+    case 8:
+      arg3 = PartsOffsetData[arg1][0][2];
+      arg4 = PartsOffsetData[arg1][0][3];
+      break;
+    case 2:
+    case 9:
+      arg3 = PartsOffsetData[arg1][1][0];
+      arg4 = PartsOffsetData[arg1][1][1];
+      break;
+    case 3:
+    case 10:
+      arg3 = PartsOffsetData[arg1][1][2];
+      arg4 = PartsOffsetData[arg1][1][3];
+      break;
+    case 5:
+      arg3 = PartsOffsetData[arg1][2][2];
+      arg4 = PartsOffsetData[arg1][2][3];
+      break;
+    case 11:
+      arg3 = PartsOffsetData[arg1][2][0];
+      arg4 = PartsOffsetData[arg1][2][1];
+      break;
+    default:
+      break;
+  }
+}
 void MapSystemCCLCC::MapSetPool(int arg1, int arg2, int arg3) {
   MapPool[arg1].id = arg2;
   MapPool[arg1].type = arg3;
@@ -370,7 +438,7 @@ void HandlePoolUpDownNav(int maxPoolRow, int poolType, bool isUp) {
     }
   } else {
     int tmpPoolIdx;
-    while (true) {
+    do {
       if (poolType == 3) {
         hoverMapPoolIdx =
             (hoverMapPoolIdx < 2) ? hoverMapPoolIdx + 2 : hoverMapPoolIdx - 2;
@@ -406,7 +474,8 @@ void HandlePoolUpDownNav(int maxPoolRow, int poolType, bool isUp) {
           if (colNum < 2 && poolType == 3) break;
         }
       }
-    }
+    } while (MapPool[tmpPoolIdx].id == 0xff ||
+             MapPoolDisp[tmpPoolIdx * 2].info.shown != 1);
     hoverMapPoolIdx = tmpPoolIdx;
   }
 }
@@ -421,7 +490,7 @@ void HandlePoolLeftRightNav(int maxPoolRow, int poolType, bool isLeft) {
     }
   } else {
     int mapId = hoverMapPoolIdx;
-    while (true) {
+    do {
       if (poolType == 3) {
         if (hoverMapPoolIdx != 3)
           mapId = (hoverMapPoolIdx == 0 || hoverMapPoolIdx == 2)
@@ -477,7 +546,8 @@ void HandlePoolLeftRightNav(int maxPoolRow, int poolType, bool isLeft) {
           }
         }
       }
-    }
+    } while (MapPool[mapId].id == 0xff ||
+             MapPoolDisp[mapId * 2].info.shown != 1);
     hoverMapPoolIdx = mapId;
   }
 }
@@ -521,13 +591,304 @@ void MapSystemCCLCC::MapResetPool(int arg1) {
   MapPool[arg1].id = 0xff;
   MapPool[arg1].type = 0xff;
 }
+
+void getMapPos(float newSize, float newX, float newY, float& setX, float& setY,
+               float& setSize, float scaleX, float scaleY) {
+  setSize = (newSize < 100) ? 100 : (newSize > 800) ? 800 : newSize;
+  float mapWidth = MapBgSprite.Sheet.DesignWidth * 100.0f / setSize;
+  float mapHeight = MapBgSprite.Sheet.DesignHeight * 100.0f / setSize;
+  float offsetMapX = newX - mapWidth * 0.5f;
+  float offsetMapY = newY - mapHeight * 0.5f;
+
+  if (!GetFlag(2805)) {
+    if (offsetMapX > MapBgSprite.Sheet.DesignWidth - mapWidth)
+      offsetMapX = MapBgSprite.Sheet.DesignWidth - mapWidth;
+
+    if (offsetMapX < 0) offsetMapX = 0;
+
+    if (offsetMapY > MapBgSprite.Sheet.DesignHeight - mapHeight)
+      offsetMapY = MapBgSprite.Sheet.DesignHeight - mapHeight;
+
+    if (offsetMapY < 0) offsetMapY = 0;
+  }
+
+  setX = mapWidth * scaleX + offsetMapX;
+  setY = mapHeight * scaleY + offsetMapY;
+}
+
 void MapSystemCCLCC::MapSetGroupEx(int arg1, int arg2, int arg3) {}
-void MapSystemCCLCC::MapZoomInit(int arg1, int arg2, int arg3) {}
-void MapSystemCCLCC::MapZoomMain() {}
+void MapSystemCCLCC::MapZoomInit(int arg1, int arg2, int arg3) {
+  MapZoomTo = arg3 * 4;
+
+  float scaledX = static_cast<float>(arg1) * 1920.0f / 1280.0f;
+  float scaledY = static_cast<float>(arg2) * 1080.0f / 720.0f;
+  MapZoomGx = scaledX;
+  MapZoomGy = scaledY;
+
+  float zoomSize = 0.0f;
+  getMapPos(ScrWork[6362], ScrWork[6363], ScrWork[6364], MapZoomPosX,
+            MapZoomPosY, zoomSize, scaledX, scaledY);
+
+  MapZoomNow = zoomSize * 4;
+  int ticks = MapZoomNow;
+  int steps = 0;
+  if (MapZoomNow < MapZoomTo) {
+    for (; ticks < MapZoomTo; ticks = ticks / 400 + 1) {
+      steps = steps + 1;
+    }
+  } else if (MapZoomNow > MapZoomTo) {
+    for (; ticks < MapZoomTo; ticks = (ticks - ticks / 400) - 1) {
+      steps = steps + 1;
+    }
+  }
+
+  MapZoomCtAcc.fill(0);
+
+  for (int i = 6; i > 0; --i) {
+    int uVar10 = 0;
+    if (i != 0) {
+      uVar10 = 3 * i * (i + 1);  // Sum of first i multiples of 6
+    }
+
+    if (uVar10 <= steps) {
+      std::fill(MapZoomCtAcc.begin(), MapZoomCtAcc.begin() + i, 6);
+      int ivar9 = (steps - uVar10) / (i + 1);
+      MapZoomCtAcc[i] = ivar9;
+      steps = (steps - uVar10) - (ivar9 * i + ivar9);
+      if (steps != 0) {
+        MapZoomCtAcc[steps - 1]++;
+      }
+      return;
+    };
+  }
+  MapZoomCtAcc[0] = steps;
+  return;
+}
+
+bool MapSystemCCLCC::MapZoomMain() {
+  int max = (GetFlag(SF_MESALLSKIP) == 0) ? 1 : 4;
+
+  int zoomCounter = 0;
+  for (int i = 0; i < max; i++) {
+    int j = 0;
+    while (j < 13 && MapZoomCtAcc[j] != 0) {
+      j++;
+    }
+    if (j != 13) {
+      MapZoomCtAcc[j] -= 1;
+      int inc = (j + 1 < 8) ? j + 1 : 13 - j;
+      zoomCounter += inc;
+    }
+  }
+  if (MapZoomNow < MapZoomTo) {
+    for (int i = 0; i < zoomCounter; ++i) {
+      MapZoomNow = MapZoomNow + 1 + MapZoomNow / 400;
+    }
+    if (MapZoomNow > MapZoomTo) MapZoomNow = MapZoomTo;
+  } else if (MapZoomNow > MapZoomTo) {
+    for (int i = 0; i < zoomCounter; ++i) {
+      MapZoomNow = (MapZoomNow - 1) - MapZoomNow / 400;
+    }
+    if (MapZoomTo > MapZoomNow) MapZoomNow = MapZoomTo;
+  }
+  ScrWork[6362] = MapZoomNow + 5 >> 2;
+  float clampedSize = (ScrWork[6362] < 100)   ? 100
+                      : (ScrWork[6362] > 800) ? 800
+                                              : ScrWork[6362];
+  float newMapPosX = MapZoomPosX - (MapZoomGx / 1920.0 + -0.5) *
+                                       (MapBgSprite.Sheet.DesignWidth * 100.0) /
+                                       clampedSize;
+
+  float newMapPosY =
+      MapZoomPosY - (MapZoomGy / 1080.0 + -0.5) *
+                        (MapBgSprite.Sheet.DesignHeight * 100.0) / clampedSize;
+
+  ScrWork[6363] = newMapPosX;
+  ScrWork[6364] = newMapPosY;
+  return MapZoomTo == MapZoomNow;
+}
 void MapSystemCCLCC::MapZoomInit2(int arg1, int arg2) {}
-void MapSystemCCLCC::MapZoomMain3() {}
-void MapSystemCCLCC::MapZoomInit3(int arg1, int arg2, int arg3) {}
-void MapSystemCCLCC::MapMoveAnimeInit2(int arg1, int arg2, int arg3) {}
+bool MapSystemCCLCC::MapZoomMain3() {
+  int max = (GetFlag(SF_MESALLSKIP) == 0) ? 1 : 4;
+
+  int zoomCounter = 0;
+  for (int i = 0; i < max; i++) {
+    int j = std::find_if(MapZoomCtAcc.begin(), MapZoomCtAcc.end(),
+                         [](int x) { return x != 0; }) -
+            MapZoomCtAcc.begin();
+    if (j != 13) {
+      MapZoomCtAcc[j] -= 1;
+      int inc = (j + 1 < 8) ? j + 1 : 13 - j;
+      zoomCounter += inc;
+    }
+  }
+  int newZoomCt = MapZoomCt + zoomCounter;
+  if (MapZoomMode == 2 && MapZoomCt < 40) {
+    zoomCounter = (newZoomCt < 40) ? 0 : newZoomCt - 40;
+  }
+
+  MapZoomCt = newZoomCt;
+
+  if (MapZoomCt > MapZoomCtMax) {
+    MapZoomCt = MapZoomCtMax;
+  }
+
+  if (MapZoomFromSize < MapZoomToSize) {
+    for (int i = 0; i < zoomCounter; ++i) {
+      MapZoomNowSize += 1 + MapZoomNowSize / 1000;
+    }
+    if (MapZoomNowSize > MapZoomToSize) MapZoomNowSize = MapZoomToSize;
+  } else if (MapZoomFromSize > MapZoomToSize) {
+    for (int i = 0; i < zoomCounter; ++i) {
+      MapZoomNowSize -= 1 + MapZoomNowSize / 1000;
+    }
+    if (MapZoomNowSize < MapZoomToSize) MapZoomNowSize = MapZoomToSize;
+  }
+
+  MapZoomNowPosX = MapZoomFromPosX + (MapZoomToPosX - MapZoomFromPosX) *
+                                         ((float)MapZoomCt / MapZoomCtMax);
+
+  MapZoomNowPosY = MapZoomFromPosY + (MapZoomToPosY - MapZoomFromPosY) *
+                                         ((float)MapZoomCt / MapZoomCtMax);
+
+  ScrWork[6362] = (MapZoomNowSize + 5) / 10;
+  ScrWork[6363] = MapZoomNowPosX;
+  ScrWork[6364] = MapZoomNowPosY;
+  return MapZoomCt == MapZoomCtMax;
+}
+bool MapSystemCCLCC::MapZoomInit3(int arg1, int arg2, int arg3, bool ex) {
+  if (ex) {
+    MapZoomMode = 1;
+  } else {
+    MapZoomMode = 0;
+  }
+  MapZoomCt = 0;
+  float zoomSize = 0.0f;
+  float mapX = 0.0f;
+  float mapY = 0.0f;
+  getMapPos(ScrWork[6362], ScrWork[6363], ScrWork[6364], mapX, mapY, zoomSize,
+            0.5, 0.5);
+  MapZoomFromSize = 10 * zoomSize;
+  MapZoomFromPosX = mapX;
+  MapZoomFromPosY = mapY;
+
+  if (arg3 != 0) {
+    getMapPos(arg3, arg1, arg2, mapX, mapY, zoomSize, 0.5, 0.5);
+  } else {
+    getMapPos(zoomSize, arg1, arg2, mapX, mapY, zoomSize, 0.5, 0.5);
+  }
+
+  MapZoomToSize = 10 * zoomSize;
+  MapZoomToPosX = mapX;
+  MapZoomToPosY = mapY;
+
+  MapZoomNowSize = MapZoomFromSize;
+  MapZoomNowPosX = MapZoomFromPosX;
+  MapZoomNowPosY = MapZoomFromPosY;
+
+  if (MapZoomToPosX == MapZoomFromPosX && MapZoomToPosY == MapZoomFromPosY &&
+      MapZoomToSize == MapZoomFromSize) {
+    return false;
+  }
+
+  int steps = 0;
+  MapZoomCtMax = (ex) ? 40 : 0;
+  if (arg3 == 0) {
+    float mapPosDiag = sqrt(
+        (MapZoomToPosX - MapZoomFromPosX) * (MapZoomToPosX - MapZoomFromPosX) +
+        (MapZoomToPosY - MapZoomFromPosY) * (MapZoomToPosY - MapZoomFromPosY));
+    float mapBGNewHeight = MapBgSprite.Sheet.DesignHeight * 100.0 / zoomSize;
+    float mapBGNewWidth = MapBgSprite.Sheet.DesignWidth * 100.0 / zoomSize;
+    float mapBGDiag =
+        sqrt(mapBGNewHeight * mapBGNewHeight + mapBGNewWidth * mapBGNewWidth);
+
+    steps = mapPosDiag / (mapBGDiag / 400.0f);
+    if (steps == 0) {
+      MapZoomCtMax = 1;
+      MapZoomCtAcc[0] = 1;
+      std::fill(MapZoomCtAcc.begin() + 1, MapZoomCtAcc.end(), 1);
+      return true;
+    }
+    MapZoomCtMax += steps;
+  } else if (MapZoomFromSize < MapZoomToSize) {
+    for (int ticks = MapZoomFromSize; ticks < MapZoomToSize;
+         ticks += ticks / 1000 + 1) {
+      steps = steps + 1;
+    }
+  } else if (MapZoomFromSize > MapZoomToSize) {
+    for (int ticks = MapZoomFromSize; ticks > MapZoomToSize;
+         ticks -= ticks / 1000 + 1) {
+      steps = steps + 1;
+    }
+  }
+
+  MapZoomCtMax += steps;
+
+  std::fill(MapZoomCtAcc.begin(), MapZoomCtAcc.end(), 0);
+
+  for (int i = 6; i > 0; --i) {
+    int sixSum = 0;
+    if (i != 0) {
+      sixSum = 3 * i * (i + 1);  // Sum of first i multiples of 6
+    }
+    if (!ex) sixSum *= 2;
+    if (sixSum <= MapZoomCtMax) {
+      std::fill(MapZoomCtAcc.begin(), MapZoomCtAcc.begin() + i, 6);
+      if (!ex) std::fill(MapZoomCtAcc.end() - i - 1, MapZoomCtAcc.end(), 6);
+      int peakAcc = (MapZoomCtMax - sixSum) / (i + 1);
+      MapZoomCtAcc[i] = peakAcc;
+      int index = (MapZoomCtMax - sixSum) - peakAcc * (i + 1);
+      if (index != 0) {
+        MapZoomCtAcc[index - 1]++;
+      }
+      return true;
+    };
+  }
+  MapZoomCtAcc[0] = MapZoomCtMax;
+  return true;
+}
+
+bool MapSystemCCLCC::MapMoveAnimeInit2(int arg1, int arg2, int arg3) {
+  MapMoveMode = 0;
+  if (!arg3 || ScrWork[6362] < arg3) {
+    arg3 = ScrWork[6362];
+  }
+  getMapPos(ScrWork[6362], ScrWork[6363], ScrWork[6364], MapMoveFromPosX,
+            MapMoveFromPosY, MapMoveStartSize, 0.5, 0.5);
+  getMapPos(ScrWork[6362], arg1, arg2, MapMoveToPosX, MapMoveToPosY,
+            MapMoveStartSize, 0.5, 0.5);
+  if (arg3 == ScrWork[6362]) {
+    MapMoveMode = 99;
+    return MapZoomInit3(MapMoveToPosX, MapMoveToPosY, 0);
+  } else {
+    MapMoveCenterPosX = (arg1 + ScrWork[6363]) * 0.5f;
+    MapMoveCenterPosY = (arg2 + ScrWork[6364]) * 0.5f;
+    getMapPos(arg3, MapMoveCenterPosX, MapMoveCenterPosY, MapMoveCenterPosX,
+              MapMoveCenterPosY, MapMoveLimitSize, 0.5, 0.5);
+    return MapZoomInit3(MapMoveCenterPosX, MapMoveCenterPosY, MapMoveLimitSize,
+                        true);
+  }
+}
+
+bool MapSystemCCLCC::MapMoveAnimeMain2() {
+  bool ret = MapZoomMain3();
+  if (MapMoveMode != 0) {
+    return ret;
+  }
+  if (ret) {
+    if (MapMoveMode == 99) {
+      return true;
+    }
+    MapZoomInit3(MapMoveToPosX, MapMoveToPosY, MapMoveStartSize, true);
+    for (int i = 0; i < 6; ++i) {
+      MapZoomCtAcc[MapZoomCtAcc.size() - i - 1] = MapZoomCtAcc[i];
+    }
+    std::fill(MapZoomCtAcc.begin(), MapZoomCtAcc.begin() + 6, 0);
+    MapMoveMode++;
+    MapZoomMode = 2;
+  }
+  return false;
+}
 void MapSystemCCLCC::MapPlayerPotalSelectInit() {}
 bool MapSystemCCLCC::MapPlayerPotalSelect() { return false; }
 void MapSystemCCLCC::MapSystem_28() {}
@@ -556,35 +917,34 @@ void MapPoolDispPhoto(int poolId) {
   xOffset = xOffset - 16.0f - 82.0;
   yOffset = yOffset - 10.0f;
 
-  int hoverAnimState = 0;
   int alpha = 256;
   float shadowZoom, zoomMulti;
   if (MapPoolDisp[poolId * 2].info.shown) {
-    hoverAnimState = MapPoolDisp[poolId * 2].animState;
-    shadowZoom = 1;
-    zoomMulti = 1;
-    if (!(MapPoolDisp[poolId * 2].info.inOrOut ||
-          MapPoolDisp[poolId * 2].animState)) {
+    if (MapPoolDisp[poolId * 2].info.inOrOut ||
+        MapPoolDisp[poolId * 2].animState != 0) {
+      zoomMulti = 1.0f;
+      shadowZoom = 1.0f;
+    } else {
       zoomMulti = 16.0f - MapPoolDisp[poolId * 2].info.progress;
       shadowZoom = (zoomMulti) / 24.0f + 1.0f;
-      zoomMulti = zoomMulti / 16.0f + 1.0f;
+      zoomMulti = zoomMulti / 32.0f + 1.0f;
       alpha = MapPoolDisp[poolId * 2].info.progress * 16;
     }
   } else {
     zoomMulti = MapPoolDisp[poolId * 2].info.progress - 16.0f;
-    shadowZoom = (zoomMulti) / 24.0f + 1.0f;
-    zoomMulti = zoomMulti / 16.0f + 1.5f;
+    shadowZoom = (zoomMulti) / 24.0f + 1.6666f;
+    zoomMulti = zoomMulti / 32.0f + 1.5f;
     alpha = MapPoolDisp[poolId * 2].info.progress * -16 + 256;
   }
-  float scaledFactor = 1080.0f / mapSizeY;
+  float scaledFactor = 1080.0f / MapBGHeight;
   zoomMulti *= scaledFactor;
-  float xMapEdge = mapPosX + mapSizeX;
-  float yMapEdge = mapPosY + mapSizeY;
+  shadowZoom *= scaledFactor;
+  float xMapEdge = mapPosX + MapBGWidth;
+  float yMapEdge = mapPosY + MapBGHeight;
 
   if (mapPosX <= xOffset + displayedSprite.Bounds.Width &&
       mapPosY <= yOffset + displayedSprite.Bounds.Height &&
-      !std::isnan(xOffset) && !std::isnan(xMapEdge) && !std::isnan(yOffset) &&
-      !std::isnan(yMapEdge) && xOffset <= xMapEdge && yOffset <= yMapEdge) {
+      xOffset <= xMapEdge && yOffset <= yMapEdge) {
     float angle = MapPoolDisp[poolId * 2].angle * 2.0f * M_PI / 65536.0f;
 
     xOffset = xOffset - mapPosX;
@@ -597,6 +957,7 @@ void MapPoolDispPhoto(int poolId) {
       float selectedTagXOffset =
           (MapPoolCurCt[poolId] * 50.0f / 16.0f + 78.0f) * 2;
 
+      // HoverTag Tag
       Renderer->DrawSpriteCentered(
           SelectedMapPoolTagSprite,
           glm::vec2(scaledPosOffsetX - selectedTagXOffset,
@@ -611,7 +972,7 @@ void MapPoolDispPhoto(int poolId) {
         glm::vec2((xOffset + 82 + 3) * scaledFactor - 82,
                   (yOffset + 10 + 3) * scaledFactor - 10),
         glm::vec2{82, 10}, glm::vec4{0.0f, 0.0f, 0.0f, (alpha >> 1) / 256.0f},
-        glm::vec2{shadowZoom * scaledFactor, shadowZoom * scaledFactor}, angle);
+        glm::vec2{shadowZoom, shadowZoom}, angle);
     // Photo
     Renderer->DrawSpriteCentered(
         displayedSprite,
@@ -640,10 +1001,10 @@ void MapPoolDispPin(int poolId) {
     zoomMulti = zoomMulti / 16.0f + 1.5f;
     alpha = MapPoolDisp[poolDispIndex].info.progress * -16 + 256;
   }
-  float scaledFactor = 1080.0f / mapSizeY;
+  float scaledFactor = 1080.0f / MapBGHeight;
   zoomMulti *= scaledFactor;
-  float xMapEdge = mapPosX + mapSizeX;
-  float yMapEdge = mapPosY + mapSizeY;
+  float xMapEdge = mapPosX + MapBGWidth;
+  float yMapEdge = mapPosY + MapBGHeight;
 
   float xOffset = MapPoolPosOffsets[poolId][0] - 16.0f;
   float yOffset = MapPoolPosOffsets[poolId][1] - 29.0f;
@@ -694,7 +1055,7 @@ void MapDispArticle(int id) {
   float yPartOffset = PartsOffsetData[partId][2][1] - 16;
 
   if (mapPosX <= xPartOffset + 354.0 && mapPosY <= yPartOffset + 247.0) {
-    float scaledFactor = 1080.0f / mapSizeY;
+    float scaledFactor = 1080.0f / MapBGHeight;
     float angle = MapPartsDisp[id].angle * 2 * M_PI / 65536.0;
 
     xPartOffset = xPartOffset - mapPosX;
@@ -726,26 +1087,24 @@ void MapDispArticle(int id) {
 }
 
 void MapSystemCCLCC::MapSetPos() {
-  float fVar6 = ScrWork[6362];
-  float fVar7 = 100.0;
-  if (fVar6 >= 100.0) fVar7 = fVar6;
-  fVar6 = 800.0;
-  if (fVar7 <= 800.0) fVar6 = fVar7;
-  fVar7 = MapBgSprite.Sheet.DesignWidth;
-  float fVar8 = MapBgSprite.Sheet.DesignHeight;
+  float mapScaler = (ScrWork[6362] < 100)   ? 100
+                    : (ScrWork[6362] > 800) ? 800
+                                            : ScrWork[6362];
+  float MapSheetWidth = MapBgSprite.Sheet.DesignWidth;
+  float MapSheetHeight = MapBgSprite.Sheet.DesignHeight;
 
-  mapSizeX = fVar7 * 100.0 / fVar6;
-  mapSizeY = fVar8 * 100.0 / fVar6;
+  MapBGWidth = MapBgSprite.Sheet.DesignWidth * 100.0 / mapScaler;
+  MapBGHeight = MapBgSprite.Sheet.DesignHeight * 100.0 / mapScaler;
 
-  mapPosX = ScrWork[0x18db] - mapSizeX / 2;
-  mapPosY = ScrWork[0x18dc] - mapSizeY / 2;
+  mapPosX = ScrWork[0x18db] - MapBGWidth / 2;
+  mapPosY = ScrWork[0x18dc] - MapBGHeight / 2;
 
   if (!GetFlag(2805)) {
-    if (fVar7 < mapPosX + mapSizeX) {
-      mapPosX = fVar7 - mapSizeX;
+    if (mapPosX > MapSheetWidth - MapBGWidth) {
+      mapPosX = MapSheetWidth - MapBGWidth;
     }
-    if (fVar8 < mapPosY + mapSizeY) {
-      mapPosY = fVar8 - mapSizeY;
+    if (mapPosY > MapSheetHeight - MapBGHeight) {
+      mapPosY = MapSheetHeight - MapBGHeight;
     }
     if (mapPosX < 0.0) {
       mapPosX = 0.0;
@@ -772,39 +1131,36 @@ void MapSystemCCLCC::MapFadeMain() {
     auto& poolDispElem = MapPoolDisp[i];
     if (poolDispElem.info.inOrOut != poolDispElem.info.shown) {
       // MapFadeFl = 1;
-      if ((!GetFlag(SF_MESALLSKIP))) {
-        if (poolDispElem.animState == 0 || --poolDispElem.animState == 0) {
-          if (!poolDispElem.info.shown) {
-            if (poolDispElem.info.inOrOut) {
-              if (i % 2 == 1 && poolDispElem.info.progress == 16) {
-                Io::InputStream* stream;
-                int64_t err = Io::VfsOpen("sysse", 7, &stream);
-                if (err == IoError_OK) {
-                  Audio::Channels[Audio::AC_SSE].Play(
-                      Audio::AudioStream::Create(stream), false, 0.0f);
-                }
-              }
-              if (poolDispElem.info.progress == 0 ||
-                  --poolDispElem.info.progress == 0) {
-                poolDispElem.info.shown = 1;
-              }
-            }
-          } else {
-            if (i % 2 == 1 && poolDispElem.info.progress == 16) {
-              Io::InputStream* stream;
-              int64_t err = Io::VfsOpen("sysse", 9, &stream);
-              if (err == IoError_OK) {
-                Audio::Channels[Audio::AC_SSE].Play(
-                    Audio::AudioStream::Create(stream), false, 0.0f);
-              }
-            }
-            if (poolDispElem.info.progress == 0 ||
-                --poolDispElem.info.progress == 0) {
-              poolDispElem.info.shown = 0;
+      if (!GetFlag(SF_MESALLSKIP) &&
+          (poolDispElem.animState == 0 || --poolDispElem.animState == 0)) {
+        if (!poolDispElem.info.shown && poolDispElem.info.inOrOut) {
+          if (i % 2 == 1 && poolDispElem.info.progress == 16) {
+            Io::InputStream* stream;
+            int64_t err = Io::VfsOpen("sysse", 7, &stream);
+            if (err == IoError_OK) {
+              Audio::Channels[Audio::AC_SSE].Play(
+                  Audio::AudioStream::Create(stream), false, 0.0f);
             }
           }
+          if (poolDispElem.info.progress == 0 ||
+              --poolDispElem.info.progress == 0) {
+            poolDispElem.info.shown = 1;
+          }
+        } else if (poolDispElem.info.shown) {
+          if (i % 2 == 1 && poolDispElem.info.progress == 16) {
+            Io::InputStream* stream;
+            int64_t err = Io::VfsOpen("sysse", 9, &stream);
+            if (err == IoError_OK) {
+              Audio::Channels[Audio::AC_SSE].Play(
+                  Audio::AudioStream::Create(stream), false, 0.0f);
+            }
+          }
+          if (poolDispElem.info.progress == 0 ||
+              --poolDispElem.info.progress == 0) {
+            poolDispElem.info.shown = 0;
+          }
         }
-      } else {
+      } else if (GetFlag(SF_MESALLSKIP)) {
         poolDispElem.info.shown = poolDispElem.info.inOrOut;
         poolDispElem.info.progress = 0;
         poolDispElem.animState = 0;
@@ -864,7 +1220,9 @@ void MapSystemCCLCC::RenderButtonGuide() {
 void MapSystemCCLCC::Render() {
   if (GetFlag(2800)) {
     // Render map bg
-    MapBgSprite.Bounds = Rect(mapPosX, mapPosY, mapSizeX, mapSizeY);
+    MapBgSprite.Bounds =
+        Rect(static_cast<int>(mapPosX), static_cast<int>(mapPosY),
+             static_cast<int>(MapBGWidth), static_cast<int>(MapBGHeight));
     Renderer->DrawSprite(MapBgSprite, Rect(0, 0, 1920, 1080), glm::vec4{1.0f},
                          0.0f);
 

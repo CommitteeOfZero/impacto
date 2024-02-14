@@ -16,7 +16,7 @@ class MapSystemCCLCC : public Impacto::UI::MapSystem::MapSystemBase {
   bool MapFadeEndChk_Wait();
   void MapMoveAnimeInit(int arg1, int arg2, int arg3);
   void MapMoveAnimeMain();
-  void MapGetPos(int arg1, int arg2);
+  void MapGetPos(int arg1, int arg2, int &arg3, int &arg4) override;
   void MapSetPool(int arg1, int arg2, int arg3) override;
   void MapResetPoolAll(int arg1);
   bool MapPoolFadeEndChk_Wait();
@@ -28,12 +28,13 @@ class MapSystemCCLCC : public Impacto::UI::MapSystem::MapSystemBase {
   bool MapPlayerPhotoSelect(int arg1) override;
   void MapResetPool(int arg1) override;
   void MapSetGroupEx(int arg1, int arg2, int arg3);
-  void MapZoomInit(int arg1, int arg2, int arg3);
-  void MapZoomMain();
+  void MapZoomInit(int arg1, int arg2, int arg3) override;
+  bool MapZoomMain() override;
   void MapZoomInit2(int arg1, int arg2);
-  void MapZoomMain3();
-  void MapZoomInit3(int arg1, int arg2, int arg3);
-  void MapMoveAnimeInit2(int arg1, int arg2, int arg3);
+  bool MapZoomMain3();
+  bool MapZoomInit3(int arg1, int arg2, int arg3, bool ex = false) override;
+  bool MapMoveAnimeInit2(int arg1, int arg2, int arg3) override;
+  bool MapMoveAnimeMain2() override;
   void MapPlayerPotalSelectInit();
   bool MapPlayerPotalSelect();
   void MapSystem_28();

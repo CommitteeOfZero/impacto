@@ -66,6 +66,34 @@ void MapPoolShuffle(int arg1) {
   if (MapSystemPtr) return MapSystemPtr->MapPoolShuffle(arg1);
 }
 
+void MapZoomInit(int arg1, int arg2, int arg3) {
+  if (MapSystemPtr) MapSystemPtr->MapZoomInit(arg1, arg2, arg3);
+}
+
+bool MapZoomMain() {
+  if (MapSystemPtr) return MapSystemPtr->MapZoomMain();
+}
+
+bool MapZoomInit3(int arg1, int arg2, int arg3) {
+  if (MapSystemPtr) return MapSystemPtr->MapZoomInit3(arg1, arg2, arg3);
+}
+
+bool MapZoomMain3() {
+  if (MapSystemPtr) return MapSystemPtr->MapZoomMain3();
+}
+
+bool MapMoveAnimeInit2(int arg1, int arg2, int arg3) {
+  if (MapSystemPtr) return MapSystemPtr->MapMoveAnimeInit2(arg1, arg2, arg3);
+}
+
+bool MapMoveAnimeMain2() {
+  if (MapSystemPtr) return MapSystemPtr->MapMoveAnimeMain2();
+}
+
+void MapGetPos(int arg1, int arg2, int &arg3, int &arg4) {
+  if (MapSystemPtr) MapSystemPtr->MapGetPos(arg1, arg2, arg3, arg4);
+}
+
 void Update(float dt) {
   if (MapSystemPtr) MapSystemPtr->Update(dt);
 }
