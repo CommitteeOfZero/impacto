@@ -22,7 +22,7 @@ float FadeInDuration;
 float FadeOutDuration;
 
 void Configure() {
-  EnsurePushMemberOfType("TipsNotification", kObjectType);
+  EnsurePushMemberOfType("TipsNotification", LUA_TTABLE);
 
   Type = TipsNotificationType::_from_integral_unchecked(
       EnsureGetMemberInt("Type"));

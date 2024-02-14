@@ -26,7 +26,7 @@ float FadeOutDuration;
 
 void Configure() {
   if (TryPushMember("SysMesBoxDisplay")) {
-    AssertIs(kObjectType);
+    AssertIs(LUA_TTABLE);
 
     Type = SysMesBoxType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
 

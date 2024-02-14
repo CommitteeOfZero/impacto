@@ -16,7 +16,7 @@ float FadeOutDuration;
 
 void Configure() {
   if (!TryPushMember("DelusionTrigger")) return;
-  AssertIs(kObjectType);
+  AssertIs(LUA_TTABLE);
 
   Type =
       DelusionTriggerType::_from_integral_unchecked(EnsureGetMemberInt("Type"));

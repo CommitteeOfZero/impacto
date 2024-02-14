@@ -18,7 +18,7 @@ int MaxLinkedBgBuffers = 1;
 int SystemScriptBuffer = 1;
 
 void Configure() {
-  EnsurePushMemberOfType("Vm", kObjectType);
+  EnsurePushMemberOfType("Vm", LUA_TTABLE);
 
   StartScript = EnsureGetMemberUint("StartScript");
   StartScriptBuffer = EnsureGetMemberUint("StartScriptBuffer");

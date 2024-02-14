@@ -24,7 +24,7 @@ float FadeOutDuration;
 
 void Configure() {
   if (TryPushMember("OptionsMenu")) {
-    AssertIs(kObjectType);
+    AssertIs(LUA_TTABLE);
 
     Type =
         OptionsMenuType::_from_integral_unchecked(EnsureGetMemberInt("Type"));

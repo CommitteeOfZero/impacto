@@ -10,7 +10,7 @@ namespace ScriptVars {
 #undef V
 
 void Configure() {
-  EnsurePushMemberOfType("ScriptVars", kObjectType);
+  EnsurePushMemberOfType("ScriptVars", LUA_TTABLE);
 
 #define V(var) var = EnsureGetMemberInt(#var);
 #include "../scriptvars.h"

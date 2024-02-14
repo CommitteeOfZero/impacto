@@ -14,7 +14,7 @@ TrophyMenuType Type = TrophyMenuType::None;
 
 void Configure() {
   if (TryPushMember("TrophyMenu")) {
-    AssertIs(kObjectType);
+    AssertIs(LUA_TTABLE);
 
     Type =
         TrophyMenuType::_from_integral_unchecked(EnsureGetMemberInt("Type"));

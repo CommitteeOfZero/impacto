@@ -5,7 +5,7 @@
 #include "../../../games/mo6tw/musicmenu.h"
 #include "../../../text.h"
 #include "../../../game.h"
-//#include "../../../window.h"
+// #include "../../../window.h"
 #include "../../../renderer/renderer.h"
 
 namespace Impacto {
@@ -42,23 +42,6 @@ glm::vec2 TimerMargin;
 float FadeInDuration;
 float FadeOutDuration;
 
-static void GetMemberSpriteArray(Sprite* arr, uint32_t count,
-                                 char const* name) {
-  EnsurePushMemberOfType(name, kArrayType);
-
-  if (TopVal().Size() != count) {
-    ImpLog(LL_Fatal, LC_Profile, "Expected to have %d sprites for %s\n", count,
-           name);
-    Window->Shutdown();
-  }
-
-  for (uint32_t i = 0; i < count; i++) {
-    arr[i] = EnsureGetArrayElementSprite(i);
-  }
-
-  Pop();
-}
-
 void Configure() {
   BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
 
@@ -86,13 +69,15 @@ void Configure() {
   ScrollbarStart = EnsureGetMemberFloat("ScrollbarStart");
 
   {
-    EnsurePushMemberOfType("Playlist", kArrayType);
+    EnsurePushMemberOfType("Playlist", LUA_TTABLE);
 
-    auto const& _items = TopVal();
-    auto size = _items.Size();
+    auto size = lua_rawlen(LuaState, -1);
     assert(size == MusicTrackCount);
-    for (uint32_t i = 0; i < MusicTrackCount; i++) {
-      Playlist[i] = EnsureGetArrayElementInt(i);
+    PushInitialIndex();
+    while (PushNextTableElement() != 0) {
+      int i = EnsureGetKeyInt() - 1;
+      Playlist[i] = EnsureGetArrayElementInt();
+      Pop();
     }
 
     Pop();

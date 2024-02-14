@@ -130,7 +130,7 @@ static void Init() {
     DelusionTrigger::Init();
   }
 
-  Profile::ClearJsonProfile();
+  Profile::ClearProfile();
 }
 
 void InitFromProfile(std::string const& name) {

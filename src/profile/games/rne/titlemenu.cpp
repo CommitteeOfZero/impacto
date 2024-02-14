@@ -38,7 +38,7 @@ Animation PreTitleItemsAnimation;
 Animation PressToStartAnimation;
 
 void Configure() {
-  EnsurePushMemberOfType("Background", kObjectType);
+  EnsurePushMemberOfType("Background", LUA_TTABLE);
   BackgroundAnimation = RNE::ParseTileBackground();
   Pop();
 

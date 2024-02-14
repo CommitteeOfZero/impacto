@@ -14,7 +14,7 @@ float FadeInDuration;
 float FadeOutDuration;
 
 void Configure() {
-  EnsurePushMemberOfType("SaveIcon", kObjectType);
+  EnsurePushMemberOfType("SaveIcon", LUA_TTABLE);
 
   ForegroundAnimation = EnsureGetMemberAnimation("ForegroundAnimation");
   DefaultPosition = EnsureGetMemberVec2("DefaultPosition");

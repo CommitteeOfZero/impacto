@@ -23,6 +23,7 @@ set(Impacto_Src
         src/character2d.cpp
         src/text.cpp
         src/inputsystem.cpp
+        src/minilua_impl.cpp
 
         src/renderer/renderer.cpp
 
@@ -268,8 +269,6 @@ set(Impacto_Src
 
         vendor/clHCA/clHCA.c
 
-        vendor/duktape/src/duktape.c
-
         vendor/pcg/src/pcg_basic.c
 
         vendor/squish/alpha.cpp
@@ -303,6 +302,7 @@ set(Impacto_Header
         src/inputsystem.h
         src/rng.h
         src/animation.h
+        src/minilua_impl.h
 
         src/renderer/renderer.h
         src/renderer/window.h
@@ -554,6 +554,8 @@ set(Impacto_Header
         vendor/utf8-cpp/utf8.h
 
         vendor/vma/vk_mem_alloc.h
+
+        vendor/minilua/minilua.h
 )
 
 if (WIN32)
@@ -704,7 +706,6 @@ include_directories(${OPENAL_INCLUDE_DIR})
 include_directories(${SDL2_INCLUDE_DIRS})
 include_directories(${WebP_INCLUDE_DIRS})
 include_directories(vendor/include)
-include_directories(vendor/duktape/include)
 include_directories(vendor/pcg/include)
 
 if (NOT DEFINED IMPACTO_DISABLE_OPENGL)

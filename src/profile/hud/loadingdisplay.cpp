@@ -19,7 +19,7 @@ float FadeInDuration;
 float FadeOutDuration;
 
 void Configure() {
-  EnsurePushMemberOfType("LoadingDisplay", kObjectType);
+  EnsurePushMemberOfType("LoadingDisplay", LUA_TTABLE);
 
   ResourceLoadBgAnim = EnsureGetMemberAnimation("ResourceLoadBgAnim");
   SaveLoadBgAnim = EnsureGetMemberAnimation("SaveLoadBgAnim");

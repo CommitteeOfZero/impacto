@@ -9,14 +9,11 @@ namespace Profile {
 ska::flat_hash_map<std::string, Font*> Fonts;
 
 void LoadFonts() {
-  EnsurePushMemberOfType("Fonts", kObjectType);
+  EnsurePushMemberOfType("Fonts", LUA_TTABLE);
 
-  auto const& _fonts = TopVal();
-  for (Value::ConstMemberIterator it = _fonts.MemberBegin();
-       it != _fonts.MemberEnd(); it++) {
-    std::string name(EnsureGetKeyString(it));
-
-    EnsurePushMemberIteratorOfType(it, kObjectType);
+  PushInitialIndex();
+  while (PushNextTableElement() != 0) {
+    std::string name(EnsureGetKeyString());
 
     FontType type =
         FontType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
@@ -83,14 +80,15 @@ void LoadFonts() {
                                 actualColWidth / designColWidth;
         }
       } else {
-        AssertIs(kArrayType);
+        AssertIs(LUA_TTABLE);
 
-        auto const& _widths = TopVal();
-        uint32_t widthCount = _widths.Size();
-        for (uint32_t i = 0; i < widthCount; i++) {
+        PushInitialIndex();
+        while (PushNextTableElement() != 0) {
+          int i = EnsureGetKeyInt();
           baseFont->Widths[i] =
-              (EnsureGetArrayElementFloat(i) + extraLetterSpacing) *
+              (EnsureGetArrayElementFloat() + extraLetterSpacing) *
               actualColWidth / designColWidth;
+          Pop();
         }
       }
 
