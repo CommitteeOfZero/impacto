@@ -94,6 +94,22 @@ void MapGetPos(int arg1, int arg2, int &arg3, int &arg4) {
   if (MapSystemPtr) MapSystemPtr->MapGetPos(arg1, arg2, arg3, arg4);
 }
 
+void MapSetGroup(int arg1, int arg2, int arg3, int arg4) {
+  if (MapSystemPtr) MapSystemPtr->MapSetGroup(arg1, arg2, arg3, arg4);
+}
+
+void MapSetGroupEx(int arg1, int arg2, int arg3) {
+  if (MapSystemPtr) MapSystemPtr->MapSetGroupEx(arg1, arg2, arg3);
+}
+
+void MapSetFadeout(int arg1, int arg2) {
+  if (MapSystemPtr) MapSystemPtr->MapSetFadeout(arg1, arg2);
+}
+
+bool MapFadeEndChk_Wait() {
+  if (MapSystemPtr) return MapSystemPtr->MapFadeEndChk_Wait();
+}
+
 void Update(float dt) {
   if (MapSystemPtr) MapSystemPtr->Update(dt);
 }

@@ -1660,13 +1660,13 @@ inline void Renderer::QuadSetPosition(std::array<glm::vec2, 4> const& destQuad,
   }
 
   // bottom-left
-  *(glm::vec2*)(positions + 0 * stride) = DesignToNDC(bottomLeft);
+  *(glm::vec2*)(positions + 0 * stride) = DesignToNDCNonFlipped(bottomLeft);
   // top-left
-  *(glm::vec2*)(positions + 1 * stride) = DesignToNDC(topLeft);
+  *(glm::vec2*)(positions + 1 * stride) = DesignToNDCNonFlipped(topLeft);
   // top-right
-  *(glm::vec2*)(positions + 2 * stride) = DesignToNDC(topRight);
+  *(glm::vec2*)(positions + 2 * stride) = DesignToNDCNonFlipped(topRight);
   // bottom-right
-  *(glm::vec2*)(positions + 3 * stride) = DesignToNDC(bottomRight);
+  *(glm::vec2*)(positions + 3 * stride) = DesignToNDCNonFlipped(bottomRight);
 }
 
 void Renderer::QuadSetPosition3DRotated(RectF const& transformedQuad,

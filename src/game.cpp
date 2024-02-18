@@ -379,6 +379,9 @@ void Render() {
               int bufId = ScrWork[SW_CHA1SURF + i];
               Characters2D[bufId].Render(i, layer);
             }
+            if (ScrWork[6361] == layer && ScrWork[6360]) {
+              UI::MapSystem::Render();
+            }
             if (ScrWork[SW_MASK1PRI] == layer) {
               int maskAlpha =
                   ScrWork[SW_MASK1ALPHA_OFS] + ScrWork[SW_MASK1ALPHA];
@@ -437,7 +440,6 @@ void Render() {
           DateDisplay::Render();
           TipsNotification::Render();
           DelusionTrigger::Render();
-          UI::MapSystem::Render();
           if (Profile::GameFeatures & GameFeature::Video) {
             Video::VideoRender(ScrWork[SW_MOVIEALPHA] / 256.0f);
           }

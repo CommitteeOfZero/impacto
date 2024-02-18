@@ -706,7 +706,7 @@ inline void Renderer::QuadSetPositionAroundPoint(
   glm::vec2 bottomRight = glm::vec2(spriteBounds.X + spriteBounds.Width,
                                     spriteBounds.Y + spriteBounds.Height);
 
-  // reset origin to to left and add offset
+  // reset origin to top left
   bottomLeft -= topLeft;
   topRight -= topLeft;
   bottomRight -= topLeft;

@@ -15,6 +15,7 @@ Sprite MapButtonGuideSprite;
 Sprite MapPartsPhotoSprites[MapPartsPhotoSpritesNumMax];
 Sprite MapPartsArticleSprites[MapPartsArticleSpritesNumMax];
 Sprite MapPartsPinSprites[MapPartsPinSpritesNumMax];
+Sprite MapPartsTagSprites[MapPartsTagSpritesNumMax];
 Sprite SelectedMapPoolTagSprite;
 
 void Configure() {
@@ -30,6 +31,9 @@ void Configure() {
   GetMemberSpriteArray(MapPartsPinSprites, MapPartsPinsNum,
                        "MapPartsPinSprites");
   MapButtonGuideSprite = EnsureGetMemberSprite("MapButtonGuide");
+  int MapPartsTagsNum = EnsureGetMemberInt("MapPartsTagsNum");
+  GetMemberSpriteArray(MapPartsTagSprites, MapPartsTagsNum,
+                       "MapPartsTagSprites");
 }
 
 }  // namespace MapSystem

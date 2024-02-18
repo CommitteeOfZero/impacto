@@ -3,9 +3,11 @@ root.MapSystem = {
   MapPartsPhotoSprites: [],
   MapPartsArticleSprites: [],
   MapPartsPinSprites: [],
+  MapPartsTagSprites: [],
   MapPartsPhotosNum: 18,
   MapPartsArticlesNum: 16,
   MapPartsPinsNum: 12,
+  MapPartsTagsNum: 16,
   SelectedMapPoolTag: "SelectedMapPoolTag",
   MapButtonGuide: "MapButtonGuide",
 };
@@ -64,4 +66,16 @@ for i = 0, root.MapSystem.MapPartsPinsNum do
     },
   };
   root.MapSystem.MapPartsPinSprites[#root.MapSystem.MapPartsPinSprites + i] = "MapPartsPin" .. i;
+end
+for i = 0, root.MapSystem.MapPartsTagsNum do
+  root.Sprites["MapPartsTag" + i] = {
+    Sheet: "MapParts",
+    Bounds: {
+      X: (i % 2) * 97 + 1770,
+      Y: Math.floor(i / 2) * 34 + 318,
+      Width: 95,
+      Height: 32
+    },
+  };
+  root.MapSystem.MapPartsTagSprites[#root.MapSystem.MapPartsTagSprites + i] = "MapPartsTag" + i;
 end

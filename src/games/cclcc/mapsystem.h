@@ -9,8 +9,8 @@ class MapSystemCCLCC : public Impacto::UI::MapSystem::MapSystemBase {
   enum class MapBGState { Hidden, Showing, Shown, Hiding };
   void MapInit() override;
   void MapSetFadein(int arg1, int arg2) override;
-  void MapSetGroup(int arg1, int arg2, int arg3, int arg4);
-  void MapSetFadeout(int arg1, int arg2);
+  void MapSetGroup(int arg1, int arg2, int arg3, int arg4) override;
+  void MapSetFadeout(int arg1, int arg2) override;
   void MapSetDisp(int arg1, int arg2) override;
   void MapSetHide(int arg1, int arg2);
   bool MapFadeEndChk_Wait();
@@ -27,7 +27,7 @@ class MapSystemCCLCC : public Impacto::UI::MapSystem::MapSystemBase {
   void MapPoolSetFadeout(int arg1, int arg2);
   bool MapPlayerPhotoSelect(int arg1) override;
   void MapResetPool(int arg1) override;
-  void MapSetGroupEx(int arg1, int arg2, int arg3);
+  void MapSetGroupEx(int arg1, int arg2, int arg3) override;
   void MapZoomInit(int arg1, int arg2, int arg3) override;
   bool MapZoomMain() override;
   void MapZoomInit2(int arg1, int arg2);
@@ -43,9 +43,15 @@ class MapSystemCCLCC : public Impacto::UI::MapSystem::MapSystemBase {
   void Render() override;
   void RenderButtonGuide() override;
 
-  struct MapPoolMember {
+  struct MapPoolStruct {
     int id;
     int type;
+  };
+
+  struct MapGroupStruct {
+    int a;
+    int b;
+    int c;
   };
 
   struct MapPoolDispStruct {
@@ -72,6 +78,18 @@ class MapSystemCCLCC : public Impacto::UI::MapSystem::MapSystemBase {
     int dist;
   };
   MapBGState mapBgState = MapBGState::Hidden;
+
+  struct MapPositionState {
+    float x;
+    float y;
+    float size;
+  };
+
+  struct MapPositionTransitions {
+    MapPositionState Start;
+    MapPositionState Current;
+    MapPositionState End;
+  };
 
  private:
   void MapFadeMain();

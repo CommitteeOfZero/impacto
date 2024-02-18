@@ -28,6 +28,10 @@ class MapSystemBase {
   virtual bool MapMoveAnimeInit2(int arg1, int arg2, int arg3) = 0;
   virtual bool MapMoveAnimeMain2() = 0;
   virtual void MapGetPos(int arg1, int arg2, int &arg3, int &arg4) = 0;
+  virtual void MapSetGroup(int arg1, int arg2, int arg3, int arg4) = 0;
+  virtual void MapSetGroupEx(int arg1, int arg2, int arg3) = 0;
+  virtual void MapSetFadeout(int arg1, int arg2) = 0;
+  virtual bool MapFadeEndChk_Wait() = 0;
 };
 
 extern MapSystemBase* MapSystemPtr;
@@ -52,6 +56,11 @@ bool MapZoomMain3();
 bool MapMoveAnimeInit2(int arg1, int arg2, int arg3);
 bool MapMoveAnimeMain2();
 void MapGetPos(int arg1, int arg2, int &arg3, int &arg4);
+void MapSetGroup(int arg1, int arg2, int arg3, int arg4);
+void MapSetGroupEx(int arg1, int arg2, int arg3);
+void MapSetFadeout(int arg1, int arg2);
+bool MapFadeEndChk_Wait();
+
 void Render();
 void RenderButtonGuide();
 void Update(float dt);
