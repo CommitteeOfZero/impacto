@@ -1,6 +1,7 @@
 #pragma once
 #include "../../ui/mapsystem.h"
 #include "../../animation.h"
+#include "../../ui/widgets/button.h"
 #include <array>
 
 namespace Impacto {
@@ -49,6 +50,7 @@ class MapSystemCCLCC : public Impacto::UI::MapSystem::MapSystemBase {
   struct MapPoolStruct {
     int id;
     int type;
+    Widgets::Button button;
   };
 
   struct MapGroupStruct {
@@ -123,6 +125,7 @@ class MapSystemCCLCC : public Impacto::UI::MapSystem::MapSystemBase {
   float mapPosX;
   float mapPosY;
   int MapMoveMode = 0;
+  bool PhotoSelClick = false;
 };
 
 }  // namespace CCLCC

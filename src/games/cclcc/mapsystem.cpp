@@ -17,6 +17,7 @@ namespace UI {
 namespace CCLCC {
 using namespace Impacto::Vm::Interface;
 using namespace Impacto::UI::CCLCC;
+using namespace Impacto::UI::Widgets;
 using namespace Impacto::Profile::CCLCC::MapSystem;
 using namespace Impacto::Profile::ScriptVars;
 
@@ -485,6 +486,10 @@ void MapSystemCCLCC::MapResetPoolAll(int arg1) {
   for (int i = 0; i < 20; ++i) {
     MapPool[i].id = 0xff;
     MapPool[i].type = 0xff;
+    MapPool[i].button.Enabled = false;
+    MapPool[i].button.Id = 0xff;
+    MapPool[i].button.HasFocus = false;
+    MapPool[i].button.Bounds = {0, 0, 0, 0};
   }
   for (int i = 0; i < 40; ++i) {
     MapPoolDisp[i].state = Hidden;
@@ -565,6 +570,7 @@ void MapSystemCCLCC::MapPoolSetFadeout(int arg1, int arg2) {
 
 void MapSystemCCLCC::HandlePoolUpDownNav(int maxPoolRow, int poolType,
                                          bool isUp) {
+  PhotoSelClick = false;
   if (hoverMapPoolIdx == 0xff) {
     for (int i = 0; i < 10; ++i) {
       if (MapPool[i].id != 0xff && MapPoolDisp[i * 2].state == Shown) {
@@ -619,6 +625,7 @@ void MapSystemCCLCC::HandlePoolUpDownNav(int maxPoolRow, int poolType,
 
 void MapSystemCCLCC::HandlePoolLeftRightNav(int maxPoolRow, int poolType,
                                             bool isLeft) {
+  PhotoSelClick = false;
   if (hoverMapPoolIdx == 0xff) {
     for (int i = 0; i < 10; ++i) {
       if (MapPool[i].id != 0xff && MapPoolDisp[i * 2].state == Shown) {
@@ -693,11 +700,22 @@ void MapSystemCCLCC::HandlePoolLeftRightNav(int maxPoolRow, int poolType,
 
 bool MapSystemCCLCC::MapPlayerPhotoSelect(int arg1) {
   ScrWork[6500] = 2;
-
+  int oldHover = hoverMapPoolIdx;
   if (arg1 == 0) {
     int poolType = MapPool[0].type;
     int maxPoolRow =
         (poolType == 3) ? 2 : 3;  // 3 per row for photo, 2 for articles
+
+    if (PhotoSelClick) {
+      for (int i = 0; i < MapPool.size(); i++) {
+        if (MapPool[i].id != 0xff && MapPool[i].button.Enabled) {
+          MapPool[i].button.UpdateInput();
+          if (MapPool[i].button.Hovered) {
+            hoverMapPoolIdx = i;
+          }
+        }
+      }
+    }
 
     if (PADinputButtonWentDown & PAD1UP) {
       HandlePoolUpDownNav(maxPoolRow, poolType, true);
@@ -711,13 +729,30 @@ bool MapSystemCCLCC::MapPlayerPhotoSelect(int arg1) {
                (MapPoolCurCt[hoverMapPoolIdx] == 16)) {
       if (hoverMapPoolIdx != 0xff) {
         selectedMapPoolIdx = hoverMapPoolIdx;
-        ScrWork[6367] = hoverMapPoolIdx;
-        ScrWork[6368] = MapPool[selectedMapPoolIdx].id;
-        ScrWork[6381] = MapPool[selectedMapPoolIdx].type;
-        ScrWork[6500] = 0;
-        hoverMapPoolIdx = 0xff;
-        return true;
       }
+      PhotoSelClick = false;
+    } else if (!PhotoSelClick && PADinputMouseWentDown & PAD1A) {
+      PhotoSelClick = true;
+    }
+
+    if (oldHover != hoverMapPoolIdx) {
+      if (oldHover != 0xff) {
+        MapPool[oldHover].button.HasFocus = false;
+      }
+      if (hoverMapPoolIdx != 0xff) {
+        MapPool[hoverMapPoolIdx].button.HasFocus = true;
+      }
+    }
+
+    if (selectedMapPoolIdx != 0xff) {
+      ScrWork[6367] = hoverMapPoolIdx;
+      ScrWork[6368] = MapPool[selectedMapPoolIdx].id;
+      ScrWork[6381] = MapPool[selectedMapPoolIdx].type;
+      ScrWork[6500] = 0;
+      MapPool[hoverMapPoolIdx].button.HasFocus = false;
+      hoverMapPoolIdx = 0xff;
+      selectedMapPoolIdx = 0xff;
+      return true;
     }
   } else {
     ImpLogSlow(LL_Debug, LC_VMStub, "MapPlayerPhotoSelect: arg1 != 0\n");
@@ -728,6 +763,10 @@ bool MapSystemCCLCC::MapPlayerPhotoSelect(int arg1) {
 void MapSystemCCLCC::MapResetPool(int arg1) {
   MapPool[arg1].id = 0xff;
   MapPool[arg1].type = 0xff;
+  MapPool[arg1].button.Enabled = false;
+  MapPool[arg1].button.Id = 0xff;
+  MapPool[arg1].button.HasFocus = false;
+  MapPool[arg1].button.Bounds = {0, 0, 0, 0};
 }
 
 void getMapPos(float newSize, float newX, float newY, float& setX, float& setY,
@@ -1256,6 +1295,19 @@ void MapSystemCCLCC::MapPoolDispPhoto(int poolId) {
         glm::vec2(scaledPosOffsetX - 82, scaledPosOffsetY - 10),
         glm::vec2{82, 10}, glm::vec4{1.0f, 1.0f, 1.0f, alpha / 256.0f},
         glm::vec2{zoomMulti, zoomMulti}, angle);
+    if (!MapPool[poolId].button.Enabled) {
+      MapPool[poolId].button.Enabled = true;
+      MapPool[poolId].button.Id = poolId;
+      MapPool[poolId].button.OnClickHandler = [this](Button* button) {
+        selectedMapPoolIdx = button->Id;
+      };
+    }
+
+    MapPool[poolId].button.Bounds = {
+        zoomMulti * displayedSprite.Bounds.Width * -0.25f +
+            (scaledPosOffsetX - 82),
+        scaledPosOffsetY - 10, zoomMulti * displayedSprite.Bounds.Width,
+        zoomMulti * displayedSprite.Bounds.Height};
   }
 }
 
