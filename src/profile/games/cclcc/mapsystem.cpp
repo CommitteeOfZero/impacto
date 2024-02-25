@@ -17,6 +17,8 @@ Sprite MapPartsArticleSprites[MapPartsArticleSpritesNumMax];
 Sprite MapPartsPinSprites[MapPartsPinSpritesNumMax];
 Sprite MapPartsTagSprites[MapPartsTagSpritesNumMax];
 Sprite SelectedMapPoolTagSprite;
+Sprite MapLine;
+Sprite MapLineRed;
 float FadeAnimationDuration;
 
 void Configure() {
@@ -36,6 +38,8 @@ void Configure() {
   GetMemberSpriteArray(MapPartsTagSprites, MapPartsTagsNum,
                        "MapPartsTagSprites");
   FadeAnimationDuration = EnsureGetMemberFloat("FadeAnimationDuration");
+  MapLine = EnsureGetMemberSprite("MapLine");
+  MapLineRed = EnsureGetMemberSprite("MapLineRed");
 }
 
 }  // namespace MapSystem

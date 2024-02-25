@@ -1536,14 +1536,20 @@ void MapSystemCCLCC::MapDispLine(int id, int arg2) {
     float lineY2 = yOffset1 - sinf(angle) * dist * linePercent;
     float xPos = 0.5f * (xOffset1 + lineX2 - dist * linePercent) - mapPosX;
     float yPos = (yOffset1 + lineY2) / 2.0f - mapPosY - 5.0f;
-    float yPosShadow = (yOffset1 + lineY2) / 2.0f - mapPosY - 6.5f;
+    float yPosShadow =
+        (xDist < 0 && yDist < 0)
+            ? (yOffset1 + lineY2 - 5.0f) / 2.0f - mapPosY - 10.0f
+            : (yOffset1 + lineY2 + 5.0f) / 2.0f - mapPosY - 10.0f;
+
+    Sprite shortenedLine = MapLine;
+    shortenedLine.Bounds.Width = lineWidth;
 
     RectF lineShadowRect(xPos * scaledFactor, yPosShadow * scaledFactor,
-                         lineWidth * scaledFactor, 13.0f * scaledFactor);
-    Renderer->DrawRect(lineShadowRect, shadowTint, -angle);
+                         lineWidth * scaledFactor, 20.0f * scaledFactor);
+    Renderer->DrawSprite(shortenedLine, lineShadowRect, shadowTint, -angle);
     RectF lineRect(xPos * scaledFactor, yPos * scaledFactor,
                    lineWidth * scaledFactor, 10.0f * scaledFactor);
-    Renderer->DrawRect(lineRect, color, -angle);
+    Renderer->DrawSprite(shortenedLine, lineRect, color, -angle);
   }
 }
 
@@ -1750,7 +1756,7 @@ void MapSystemCCLCC::RenderButtonGuide() {
       }
     }
   }
-}  // namespace CCLCC
+}
 
 void MapSystemCCLCC::Render() {
   if (!GetFlag(2800)) {

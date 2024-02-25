@@ -18,6 +18,8 @@ extern Sprite MapPartsArticleSprites[MapPartsArticleSpritesNumMax];
 extern Sprite MapPartsPinSprites[MapPartsPinSpritesNumMax];
 extern Sprite MapPartsTagSprites[MapPartsTagSpritesNumMax];
 extern Sprite SelectedMapPoolTagSprite;
+extern Sprite MapLine;
+extern Sprite MapLineRed;
 
 extern float FadeAnimationDuration;
 

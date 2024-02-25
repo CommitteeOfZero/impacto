@@ -10,6 +10,8 @@ root.MapSystem = {
   MapPartsTagsNum: 16,
   SelectedMapPoolTag: "SelectedMapPoolTag",
   MapButtonGuide: "MapButtonGuide",
+  MapLineRed: "MapLineRed",
+  MapLine: "MapLine",
   FadeAnimationDuration: 16 / 60
 };
 
@@ -21,6 +23,16 @@ root.Sprites["MapBackground"] = {
 root.Sprites["SelectedMapPoolTag"] = {
   Sheet: "MapParts",
   Bounds: { X: 1770, Y: 2832, Width: 172, Height: 228 }
+};
+
+root.Sprites["MapLineRed"] = {
+  Sheet: "MapParts",
+  Bounds: { X: 1770, Y: 2832, Width: 2048, Height: 228 }
+};
+
+root.Sprites["MapLine"] = {
+  Sheet: "MapParts",
+  Bounds: { X: 0, Y: 13, Width: 2048, Height: 10 }
 };
 
 root.Sprites["MapButtonGuide"] = {
