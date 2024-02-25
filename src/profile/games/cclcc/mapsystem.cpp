@@ -17,6 +17,7 @@ Sprite MapPartsArticleSprites[MapPartsArticleSpritesNumMax];
 Sprite MapPartsPinSprites[MapPartsPinSpritesNumMax];
 Sprite MapPartsTagSprites[MapPartsTagSpritesNumMax];
 Sprite SelectedMapPoolTagSprite;
+float FadeAnimationDuration;
 
 void Configure() {
   MapBgSprite = EnsureGetMemberSprite("MapBackground");
@@ -34,6 +35,7 @@ void Configure() {
   int MapPartsTagsNum = EnsureGetMemberInt("MapPartsTagsNum");
   GetMemberSpriteArray(MapPartsTagSprites, MapPartsTagsNum,
                        "MapPartsTagSprites");
+  FadeAnimationDuration = EnsureGetMemberFloat("FadeAnimationDuration");
 }
 
 }  // namespace MapSystem

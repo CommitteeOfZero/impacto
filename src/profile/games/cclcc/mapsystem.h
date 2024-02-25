@@ -19,6 +19,8 @@ extern Sprite MapPartsPinSprites[MapPartsPinSpritesNumMax];
 extern Sprite MapPartsTagSprites[MapPartsTagSpritesNumMax];
 extern Sprite SelectedMapPoolTagSprite;
 
+extern float FadeAnimationDuration;
+
 void Configure();
 
 }  // namespace MapSystem

@@ -10,6 +10,7 @@ root.MapSystem = {
   MapPartsTagsNum: 16,
   SelectedMapPoolTag: "SelectedMapPoolTag",
   MapButtonGuide: "MapButtonGuide",
+  FadeAnimationDuration: 16 / 60
 };
 
 root.Sprites["MapBackground"] = {
