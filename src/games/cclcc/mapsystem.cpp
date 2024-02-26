@@ -25,21 +25,6 @@ inline float toFlt(double d) { return static_cast<float>(d); }
 inline float toFlt(int d) { return static_cast<float>(d); }
 inline int toInt(float f) { return static_cast<int>(f); }
 
-std::array<MapSystemCCLCC::MapPositionTransitions, 4> MapPosTransitions;
-enum { MapZoom1, MapZoom3, MapMove, MapMove2, MapPosTransitionsMax };
-
-float MapZoomPosX;
-float MapZoomPosY;
-
-int MapZoomTo = 0;
-float MapZoomGx = 0;
-float MapZoomGy = 0;
-int MapZoomNow = 0;
-
-int MapZoomMode = 0;
-int MapZoomCt = 0;
-int MapZoomCtMax = 0;
-
 constexpr int MapPhotoIdMap[11][4] = {
     // index 0 is map part for photos
     // index 3 is map part for article
@@ -275,24 +260,24 @@ void MapSystemCCLCC::MapSetFadeIn_Line(int arg1, int arg2) {
     }
     MapPartsDisp[MapPartsMax].fadeAnim.DurationIn =
         MapPartsDisp[MapPartsMax].dist / 60.0f;
-  MapPartsMax++;
-        for (int i = 0; i < MapPartsMax; i++) {
-          if (MapPartsDisp[i].partId == PartsIdMap[arg1][mappedId] &&
-              MapPartsDisp[i].type == 8) {
-            MapPartsDisp[i].delay = MapPartsDisp[MapPartsMax - 1].dist - 16;
-            MapPartsDisp[i].state = Hiding;
-            MapPartsDisp[i].fadeAnim.Progress = 1;
-            break;
-          }
-        }
-        MapPartsDisp[MapPartsMax].partId = PartsIdMap[arg1][mappedId];
-        MapPartsDisp[MapPartsMax].type = 8;
-        MapPartsDisp[MapPartsMax].state = Showing;
-        MapPartsDisp[MapPartsMax].fadeAnim.Progress = 0;
-        MapPartsDisp[MapPartsMax].delay = MapPartsDisp[MapPartsMax - 1].dist;
-        MapPartsDisp[MapPartsMax].angle = CALCrnd(12);
-        MapPartsMax++;
-        return;
+    MapPartsMax++;
+    for (int i = 0; i < MapPartsMax; i++) {
+      if (MapPartsDisp[i].partId == PartsIdMap[arg1][mappedId] &&
+          MapPartsDisp[i].type == 8) {
+        MapPartsDisp[i].delay = MapPartsDisp[MapPartsMax - 1].dist - 16;
+        MapPartsDisp[i].state = Hiding;
+        MapPartsDisp[i].fadeAnim.Progress = 1;
+        break;
+      }
+    }
+    MapPartsDisp[MapPartsMax].partId = PartsIdMap[arg1][mappedId];
+    MapPartsDisp[MapPartsMax].type = 8;
+    MapPartsDisp[MapPartsMax].state = Showing;
+    MapPartsDisp[MapPartsMax].fadeAnim.Progress = 0;
+    MapPartsDisp[MapPartsMax].delay = MapPartsDisp[MapPartsMax - 1].dist;
+    MapPartsDisp[MapPartsMax].angle = CALCrnd(12);
+    MapPartsMax++;
+    return;
   }
 }
 void MapSystemCCLCC::MapSetGroup(int arg1, int arg2, int arg3, int arg4) {
@@ -391,15 +376,15 @@ void MapSystemCCLCC::MapSetDisp(int arg1, int arg2) {
           PartsOffsetData[mappedId][0][2] - PartsOffsetData[arg1][0][2];
       float pos2 =
           PartsOffsetData[mappedId][0][3] - PartsOffsetData[arg1][0][3];
-    MapPartsDisp[MapPartsMax].dist =
-        toInt(sqrt(pos1 * pos1 + pos2 * pos2) / 200.0f * 16.0f);
+      MapPartsDisp[MapPartsMax].dist =
+          toInt(sqrt(pos1 * pos1 + pos2 * pos2) / 200.0f * 16.0f);
     }
     if (MapPartsDisp[MapPartsMax].dist < 16) {
       MapPartsDisp[MapPartsMax].dist = 16;
     }
     MapPartsDisp[MapPartsMax].fadeAnim.DurationOut =
         MapPartsDisp[MapPartsMax].dist / 60.0f;
-  MapPartsMax++;
+    MapPartsMax++;
   } else if (arg2 == 7) {
     float pos1 = PartsOffsetData[arg1][0][0] - PartsOffsetData[arg1][0][2];
     float pos2 = PartsOffsetData[arg1][0][1] - PartsOffsetData[arg1][0][3];
@@ -804,26 +789,30 @@ void MapSystemCCLCC::MapSetGroupEx(int arg1, int arg2, int arg3) {
   }
 }
 void MapSystemCCLCC::MapZoomInit(int arg1, int arg2, int arg3) {
-  MapZoomTo = arg3 * 4;
-
-  float scaledX = toFlt(arg1) * 1920.0f / 1280.0f;
-  float scaledY = toFlt(arg2) * 1080.0f / 720.0f;
-  MapZoomGx = scaledX;
-  MapZoomGy = scaledY;
+  MapPosTransitions[MapZoom].End = {toFlt(arg1) * 1920.0f / 1280.0f,
+                                    toFlt(arg2) * 1080.0f / 720.0f,
+                                    toFlt(arg3 * 4)};
 
   float zoomSize = 0.0f;
   getMapPos(toFlt(ScrWork[6362]), toFlt(ScrWork[6363]), toFlt(ScrWork[6364]),
-            MapZoomPosX, MapZoomPosY, zoomSize, scaledX, scaledY);
+            MapPosTransitions[MapZoom].Start.x,
+            MapPosTransitions[MapZoom].Start.y, zoomSize, toFlt(arg1) / 1280.0f,
+            toFlt(arg2) / 720.0f);
 
-  MapZoomNow = zoomSize * 4;
-  int ticks = MapZoomNow;
+  MapPosTransitions[MapZoom].Start.size = zoomSize * 4.0f;
+  MapPosTransitions[MapZoom].Current = MapPosTransitions[MapZoom].Start;
   int steps = 0;
-  if (MapZoomNow < MapZoomTo) {
-    for (; ticks < MapZoomTo; ticks = ticks / 400 + 1) {
+  if (MapPosTransitions[MapZoom].Current.size <
+      MapPosTransitions[MapZoom].End.size) {
+    for (int ticks = toInt(MapPosTransitions[MapZoom].Current.size);
+         ticks < MapPosTransitions[MapZoom].End.size; ticks = ticks / 400 + 1) {
       steps = steps + 1;
     }
-  } else if (MapZoomNow > MapZoomTo) {
-    for (; ticks < MapZoomTo; ticks = (ticks - ticks / 400) - 1) {
+  } else if (MapPosTransitions[MapZoom].Current.size >
+             MapPosTransitions[MapZoom].End.size) {
+    for (int ticks = toInt(MapPosTransitions[MapZoom].Current.size);
+         ticks < MapPosTransitions[MapZoom].End.size;
+         ticks = (ticks - ticks / 400) - 1) {
       steps = steps + 1;
     }
   }
@@ -866,32 +855,46 @@ bool MapSystemCCLCC::MapZoomMain() {
       zoomCounter += inc;
     }
   }
-  if (MapZoomNow < MapZoomTo) {
+  if (MapPosTransitions[MapZoom].Current.size <
+      MapPosTransitions[MapZoom].End.size) {
     for (int i = 0; i < zoomCounter; ++i) {
-      MapZoomNow = MapZoomNow + 1 + MapZoomNow / 400;
+      MapPosTransitions[MapZoom].Current.size =
+          MapPosTransitions[MapZoom].Current.size + 1 +
+          MapPosTransitions[MapZoom].Current.size / 400;
     }
-    if (MapZoomNow > MapZoomTo) MapZoomNow = MapZoomTo;
-  } else if (MapZoomNow > MapZoomTo) {
+    if (MapPosTransitions[MapZoom].Current.size >
+        MapPosTransitions[MapZoom].End.size)
+      MapPosTransitions[MapZoom].Current.size =
+          MapPosTransitions[MapZoom].End.size;
+  } else if (MapPosTransitions[MapZoom].Current.size >
+             MapPosTransitions[MapZoom].End.size) {
     for (int i = 0; i < zoomCounter; ++i) {
-      MapZoomNow = (MapZoomNow - 1) - MapZoomNow / 400;
+      MapPosTransitions[MapZoom].Current.size =
+          (MapPosTransitions[MapZoom].Current.size - 1) -
+          MapPosTransitions[MapZoom].Current.size / 400;
     }
-    if (MapZoomTo > MapZoomNow) MapZoomNow = MapZoomTo;
+    if (MapPosTransitions[MapZoom].End.size >
+        MapPosTransitions[MapZoom].Current.size)
+      MapPosTransitions[MapZoom].Current.size =
+          MapPosTransitions[MapZoom].End.size;
   }
-  ScrWork[6362] = (MapZoomNow + 5) >> 2;
+  ScrWork[6362] = (toInt(MapPosTransitions[MapZoom].Current.size) + 5) / 4;
   float clampedSize = (ScrWork[6362] < 100)   ? 100.0f
                       : (ScrWork[6362] > 800) ? 800.0f
                                               : ScrWork[6362];
-  float newMapPosX =
-      MapZoomPosX - (MapZoomGx / 1920.0f + -0.5f) *
-                        (MapBgSprite.Sheet.DesignWidth * 100.0f) / clampedSize;
+  float newMapPosX = MapPosTransitions[MapZoom].Current.x -
+                     (MapPosTransitions[MapZoom].End.x / 1920.0f + -0.5f) *
+                         (MapBgSprite.Sheet.DesignWidth * 100.0f) / clampedSize;
 
-  float newMapPosY =
-      MapZoomPosY - (MapZoomGy / 1080.0f + -0.5f) *
-                        (MapBgSprite.Sheet.DesignHeight * 100.0f) / clampedSize;
+  float newMapPosY = MapPosTransitions[MapZoom].Current.y -
+                     (MapPosTransitions[MapZoom].End.y / 1080.0f + -0.5f) *
+                         (MapBgSprite.Sheet.DesignHeight * 100.0f) /
+                         clampedSize;
 
   ScrWork[6363] = static_cast<int>(newMapPosX);
   ScrWork[6364] = static_cast<int>(newMapPosY);
-  return MapZoomTo == MapZoomNow;
+  return toInt(MapPosTransitions[MapZoom].End.size) ==
+         toInt(MapPosTransitions[MapZoom].Current.size);
 }
 void MapSystemCCLCC::MapZoomInit2(int arg1, int arg2) {}
 bool MapSystemCCLCC::MapZoomMain3() {
@@ -1129,19 +1132,19 @@ void MapSystemCCLCC::MapDispPhoto(int id, int arg2) {
                             FadeAnimationDuration;
     shadowZoom = (zoomMulti) / 24.0f + 1.0f;
     zoomMulti = zoomMulti / 32.0f + 1.0f;
-    alpha =
-        MapPartsDisp[id].fadeAnim.Progress * 60.0f * FadeAnimationDuration * 16;
+    alpha = toInt(MapPartsDisp[id].fadeAnim.Progress * 60.0f *
+                  FadeAnimationDuration * 16);
   } else if (MapPartsDisp[id].state == Showing) {
     zoomMulti =
         -MapPartsDisp[id].fadeAnim.Progress * 60.0f * FadeAnimationDuration;
     shadowZoom = (zoomMulti) / 24.0f + 1.6666f;
     zoomMulti = zoomMulti / 32.0f + 1.5f;
-    alpha =
-        MapPartsDisp[id].fadeAnim.Progress * 60.0f * FadeAnimationDuration * 16;
+    alpha = toInt(MapPartsDisp[id].fadeAnim.Progress * 60.0f *
+                  FadeAnimationDuration * 16);
   }
 
-  float xOffset = id;
-  float yOffset = id;
+  float xOffset = toFlt(id);
+  float yOffset = toFlt(id);
   int mappedId = id;
   int index = MapPartsDisp[id].partId;
   if (arg2 == 3) {
@@ -1174,16 +1177,16 @@ void MapSystemCCLCC::MapDispPhoto(int id, int arg2) {
   xOffset = xOffset - 16.0f - 82.0f;
   yOffset = yOffset - 10.0f;
 
-  float xMapEdge = mapPosX + MapBGWidth;
-  float yMapEdge = mapPosY + MapBGHeight;
+  float xMapEdge = MapPosX + MapBGWidth;
+  float yMapEdge = MapPosY + MapBGHeight;
 
-  if (mapPosX <= xOffset + displayedSprite.Bounds.Width &&
-      mapPosY <= yOffset + displayedSprite.Bounds.Height &&
+  if (MapPosX <= xOffset + displayedSprite.Bounds.Width &&
+      MapPosY <= yOffset + displayedSprite.Bounds.Height &&
       xOffset <= xMapEdge && yOffset <= yMapEdge) {
     float angle = toFlt(MapPartsDisp[mappedId].angle * 2.0f * M_PI / 65536.0f);
 
-    xOffset = xOffset - mapPosX;
-    yOffset = yOffset - mapPosY;
+    xOffset = xOffset - MapPosX;
+    yOffset = yOffset - MapPosY;
 
     float scaledPosOffsetX = (xOffset + 82) * scaledFactor;
     float scaledPosOffsetY = (yOffset + 10) * scaledFactor;
@@ -1193,7 +1196,7 @@ void MapSystemCCLCC::MapDispPhoto(int id, int arg2) {
         displayedSprite,
         glm::vec2((xOffset + 82 + 3) * scaledFactor - 82,
                   (yOffset + 10 + 3) * scaledFactor - 10),
-        glm::vec2{82, 10}, glm::vec4{0.0f, 0.0f, 0.0f, (alpha >> 1) / 256.0f},
+        glm::vec2{82, 10}, glm::vec4{0.0f, 0.0f, 0.0f, (alpha / 2) / 256.0f},
         glm::vec2{shadowZoom, shadowZoom}, angle);
     // Photo
     Renderer->DrawSpriteOffset(
@@ -1236,29 +1239,29 @@ void MapSystemCCLCC::MapPoolDispPhoto(int poolId) {
                             FadeAnimationDuration;
     shadowZoom = (zoomMulti) / 24.0f + 1.0f;
     zoomMulti = zoomMulti / 32.0f + 1.0f;
-    alpha = MapPoolDisp[poolId * 2].fadeAnim.Progress * 60.0f *
-            FadeAnimationDuration * 16;
+    alpha = toInt(MapPoolDisp[poolId * 2].fadeAnim.Progress * 60.0f *
+                  FadeAnimationDuration * 16);
   } else if (MapPoolDisp[poolId * 2].state == Showing) {
     zoomMulti = -MapPoolDisp[poolId * 2].fadeAnim.Progress * 60.0f *
                 FadeAnimationDuration;
     shadowZoom = (zoomMulti) / 24.0f + 1.6666f;
     zoomMulti = zoomMulti / 32.0f + 1.5f;
-    alpha = MapPoolDisp[poolId * 2].fadeAnim.Progress * 60.0f *
-            FadeAnimationDuration * 16;
+    alpha = toInt(MapPoolDisp[poolId * 2].fadeAnim.Progress * 60.0f *
+                  FadeAnimationDuration * 16);
   }
   float scaledFactor = 1080.0f / MapBGHeight;
   zoomMulti *= scaledFactor;
   shadowZoom *= scaledFactor;
-  float xMapEdge = mapPosX + MapBGWidth;
-  float yMapEdge = mapPosY + MapBGHeight;
+  float xMapEdge = MapPosX + MapBGWidth;
+  float yMapEdge = MapPosY + MapBGHeight;
 
-  if (mapPosX <= xOffset + displayedSprite.Bounds.Width &&
-      mapPosY <= yOffset + displayedSprite.Bounds.Height &&
+  if (MapPosX <= xOffset + displayedSprite.Bounds.Width &&
+      MapPosY <= yOffset + displayedSprite.Bounds.Height &&
       xOffset <= xMapEdge && yOffset <= yMapEdge) {
     float angle = toFlt(MapPoolDisp[poolId * 2].angle * 2.0f * M_PI / 65536.0f);
 
-    xOffset = xOffset - mapPosX;
-    yOffset = yOffset - mapPosY;
+    xOffset = xOffset - MapPosX;
+    yOffset = yOffset - MapPosY;
 
     float scaledPosOffsetX = (xOffset + 82) * scaledFactor;
     float scaledPosOffsetY = (yOffset + 10) * scaledFactor;
@@ -1316,28 +1319,28 @@ void MapSystemCCLCC::MapPoolDispPin(int poolId) {
     zoomMulti = 16.0f - MapPoolDisp[poolDispIndex].fadeAnim.Progress * 60.0f *
                             FadeAnimationDuration;
     zoomMulti = zoomMulti / 32.0f + 1.0f;
-    alpha = MapPoolDisp[poolDispIndex].fadeAnim.Progress * 60.0f *
-            FadeAnimationDuration * 16;
+    alpha = toInt(MapPoolDisp[poolDispIndex].fadeAnim.Progress * 60.0f *
+                  FadeAnimationDuration * 16);
   } else if (MapPoolDisp[poolDispIndex].state == Showing) {
     zoomMulti = -MapPoolDisp[poolDispIndex].fadeAnim.Progress * 60.0f *
                 FadeAnimationDuration;
     zoomMulti = zoomMulti / 32.0f + 1.5f;
-    alpha = MapPoolDisp[poolDispIndex].fadeAnim.Progress * 60.0f *
-            FadeAnimationDuration * 16;
+    alpha = toInt(MapPoolDisp[poolDispIndex].fadeAnim.Progress * 60.0f *
+                  FadeAnimationDuration * 16);
   }
   float scaledFactor = 1080.0f / MapBGHeight;
   zoomMulti *= scaledFactor;
-  float xMapEdge = mapPosX + MapBGWidth;
-  float yMapEdge = mapPosY + MapBGHeight;
+  float xMapEdge = MapPosX + MapBGWidth;
+  float yMapEdge = MapPosY + MapBGHeight;
 
   float xOffset = MapPoolPosOffsets[poolId][0] - 16.0f;
   float yOffset = MapPoolPosOffsets[poolId][1] - 29.0f;
 
-  if (mapPosX <= xOffset + displayedSprite.Bounds.Width &&
-      mapPosY <= yOffset + displayedSprite.Bounds.Height &&
+  if (MapPosX <= xOffset + displayedSprite.Bounds.Width &&
+      MapPosY <= yOffset + displayedSprite.Bounds.Height &&
       xOffset <= xMapEdge && yOffset <= yMapEdge) {
-    xOffset = xOffset - mapPosX;
-    yOffset = yOffset - mapPosY;
+    xOffset = xOffset - MapPosX;
+    yOffset = yOffset - MapPosY;
 
     float scaledPosOffsetX = (xOffset + 16.0f) * scaledFactor;
     float scaledPosOffsetY = (yOffset + 29.0f) * scaledFactor;
@@ -1361,20 +1364,20 @@ void MapSystemCCLCC::MapDispPin(int id) {
     zoomMulti = 16.0f - MapPartsDisp[id].fadeAnim.Progress * 60.0f *
                             FadeAnimationDuration;
     zoomMulti = zoomMulti / 32.0f + 1.0f;
-    alpha =
-        MapPartsDisp[id].fadeAnim.Progress * 60.0f * FadeAnimationDuration * 16;
+    alpha = toInt(MapPartsDisp[id].fadeAnim.Progress * 60.0f *
+                  FadeAnimationDuration * 16);
   } else if (MapPartsDisp[id].state == Showing) {
     zoomMulti =
         -MapPartsDisp[id].fadeAnim.Progress * 60.0f * FadeAnimationDuration;
     zoomMulti = zoomMulti / 32.0f + 1.5f;
-    alpha =
-        MapPartsDisp[id].fadeAnim.Progress * 60.0f * FadeAnimationDuration * 16;
+    alpha = toInt(MapPartsDisp[id].fadeAnim.Progress * 60.0f *
+                  FadeAnimationDuration * 16);
   }
 
   float scaledFactor = 1080.0f / MapBGHeight;
   zoomMulti *= scaledFactor;
-  float xMapEdge = mapPosX + MapBGWidth;
-  float yMapEdge = mapPosY + MapBGHeight;
+  float xMapEdge = MapPosX + MapBGWidth;
+  float yMapEdge = MapPosY + MapBGHeight;
 
   int mappedId = MapPartsDisp[id].partId;
   float xOffset, yOffset;
@@ -1405,11 +1408,11 @@ void MapSystemCCLCC::MapDispPin(int id) {
   xOffset = xOffset - 16.0f;
   yOffset = yOffset - 29.0f;
 
-  if (mapPosX <= xOffset + displayedSprite.Bounds.Width &&
-      mapPosY <= yOffset + displayedSprite.Bounds.Height &&
+  if (MapPosX <= xOffset + displayedSprite.Bounds.Width &&
+      MapPosY <= yOffset + displayedSprite.Bounds.Height &&
       xOffset <= xMapEdge && yOffset <= yMapEdge) {
-    xOffset = xOffset - mapPosX;
-    yOffset = yOffset - mapPosY;
+    xOffset = xOffset - MapPosX;
+    yOffset = yOffset - MapPosY;
 
     float scaledPosOffsetX = (xOffset + 16.0f) * scaledFactor;
     float scaledPosOffsetY = (yOffset + 29.0f) * scaledFactor;
@@ -1435,26 +1438,26 @@ void MapSystemCCLCC::MapDispArticle(int id) {
                             FadeAnimationDuration;
     shadowZoom = (zoomMulti) / 24.0f + 1.0f;
     zoomMulti = zoomMulti / 32.0f + 1.0f;
-    alpha =
-        MapPartsDisp[id].fadeAnim.Progress * 60.0f * FadeAnimationDuration * 16;
+    alpha = toInt(MapPartsDisp[id].fadeAnim.Progress * 60.0f *
+                  FadeAnimationDuration * 16);
   } else if (MapPartsDisp[id].state == Showing) {
     zoomMulti =
         -MapPartsDisp[id].fadeAnim.Progress * 60.0f * FadeAnimationDuration;
     shadowZoom = (zoomMulti) / 24.0f + 1.6666f;
     zoomMulti = zoomMulti / 32.0f + 1.5f;
-    alpha =
-        MapPartsDisp[id].fadeAnim.Progress * 60.0f * FadeAnimationDuration * 16;
+    alpha = toInt(MapPartsDisp[id].fadeAnim.Progress * 60.0f *
+                  FadeAnimationDuration * 16);
   }
 
   float xPartOffset = PartsOffsetData[partId][2][0] - 166;
   float yPartOffset = PartsOffsetData[partId][2][1] - 16;
 
-  if (mapPosX <= xPartOffset + 354.0 && mapPosY <= yPartOffset + 247.0) {
+  if (MapPosX <= xPartOffset + 354.0 && MapPosY <= yPartOffset + 247.0) {
     float scaledFactor = 1080.0f / MapBGHeight;
     float angle = toFlt(MapPartsDisp[id].angle * 2 * M_PI / 65536.0f);
 
-    xPartOffset = xPartOffset - mapPosX;
-    yPartOffset = yPartOffset - mapPosY;
+    xPartOffset = xPartOffset - MapPosX;
+    yPartOffset = yPartOffset - MapPosY;
 
     float displayShadowPhotoX = (xPartOffset + 166 + 3) * scaledFactor - 166;
     float displayShadowPhotoY = (yPartOffset + 16 + 3) * scaledFactor - 16;
@@ -1493,30 +1496,30 @@ void MapSystemCCLCC::MapDispTag(int id) {
                             FadeAnimationDuration;
     shadowZoom = (zoomMulti) / 24.0f + 1.0f;
     zoomMulti = zoomMulti / 32.0f + 1.0f;
-    alpha =
-        MapPartsDisp[id].fadeAnim.Progress * 60.0f * FadeAnimationDuration * 16;
+    alpha = toInt(MapPartsDisp[id].fadeAnim.Progress * 60.0f *
+                  FadeAnimationDuration * 16);
   } else if (MapPartsDisp[id].state == Showing) {
     zoomMulti =
         -MapPartsDisp[id].fadeAnim.Progress * 60.0f * FadeAnimationDuration;
     shadowZoom = (zoomMulti) / 24.0f + 1.6666f;
     zoomMulti = zoomMulti / 32.0f + 1.5f;
-    alpha =
-        MapPartsDisp[id].fadeAnim.Progress * 60.0f * FadeAnimationDuration * 16;
+    alpha = toInt(MapPartsDisp[id].fadeAnim.Progress * 60.0f *
+                  FadeAnimationDuration * 16);
   }
   float scaledFactor = 1080.0f / MapBGHeight;
   zoomMulti *= scaledFactor;
   shadowZoom *= scaledFactor;
-  float xMapEdge = mapPosX + MapBGWidth;
-  float yMapEdge = mapPosY + MapBGHeight;
+  float xMapEdge = MapPosX + MapBGWidth;
+  float yMapEdge = MapPosY + MapBGHeight;
 
   float xOffset = PartsOffsetData[MapPartsDisp[id].partId][2][2] - 47.0f;
   float yOffset = PartsOffsetData[MapPartsDisp[id].partId][2][3] - 17.0f;
 
-  if (mapPosX <= xOffset + displayedSprite.Bounds.Width &&
-      mapPosY <= yOffset + displayedSprite.Bounds.Height &&
+  if (MapPosX <= xOffset + displayedSprite.Bounds.Width &&
+      MapPosY <= yOffset + displayedSprite.Bounds.Height &&
       xOffset <= xMapEdge && yOffset <= yMapEdge) {
-    xOffset = xOffset - mapPosX;
-    yOffset = yOffset - mapPosY;
+    xOffset = xOffset - MapPosX;
+    yOffset = yOffset - MapPosY;
     float angle = toFlt(MapPartsDisp[id].angle * 2 * M_PI / 65536.0f);
 
     float shadowScaledPosOffsetX = (xOffset + 2.0f + 46.0f) * scaledFactor;
@@ -1579,22 +1582,22 @@ void MapSystemCCLCC::MapDispLine(int id, int arg2) {
   float yDist = yOffset1 - yOffset2;
   float dist = sqrt(xDist * xDist + yDist * yDist);
 
-  float xMapEdge = mapPosX + MapBGWidth;
-  float yMapEdge = mapPosY + MapBGHeight;
+  float xMapEdge = MapPosX + MapBGWidth;
+  float yMapEdge = MapPosY + MapBGHeight;
   float angle = atan2(yDist, xDist);
 
-  if (mapPosX <= xOffset2 + 20 && mapPosY <= yOffset2 + 20 &&
+  if (MapPosX <= xOffset2 + 20 && MapPosY <= yOffset2 + 20 &&
       xOffset2 <= xMapEdge && yOffset2 <= yMapEdge) {
     float lineWidth = abs(dist) * linePercent;
     glm::vec4 shadowTint = {0.0f, 0.0f, 0.0f, 0.5f};
     float lineX2 = xOffset1 + cosf(angle) * dist * linePercent;
     float lineY2 = yOffset1 - sinf(angle) * dist * linePercent;
-    float xPos = 0.5f * (xOffset1 + lineX2 - dist * linePercent) - mapPosX;
-    float yPos = (yOffset1 + lineY2) / 2.0f - mapPosY - 5.0f;
+    float xPos = 0.5f * (xOffset1 + lineX2 - dist * linePercent) - MapPosX;
+    float yPos = (yOffset1 + lineY2) / 2.0f - MapPosY - 5.0f;
     float yPosShadow =
         (xDist < 0 && yDist < 0)
-            ? (yOffset1 + lineY2 - 5.0f) / 2.0f - mapPosY - 10.0f
-            : (yOffset1 + lineY2 + 5.0f) / 2.0f - mapPosY - 10.0f;
+            ? (yOffset1 + lineY2 - 5.0f) / 2.0f - MapPosY - 10.0f
+            : (yOffset1 + lineY2 + 5.0f) / 2.0f - MapPosY - 10.0f;
 
     Sprite shortenedLine = MapLine;
     shortenedLine.Bounds.Width = lineWidth;
@@ -1629,21 +1632,21 @@ void MapSystemCCLCC::MapSetPos(float dt) {
   MapBGWidth = MapBgSprite.Sheet.DesignWidth * 100.0f / mapScaler;
   MapBGHeight = MapBgSprite.Sheet.DesignHeight * 100.0f / mapScaler;
 
-  mapPosX = ScrWork[0x18db] - MapBGWidth / 2;
-  mapPosY = ScrWork[0x18dc] - MapBGHeight / 2;
+  MapPosX = ScrWork[0x18db] - MapBGWidth / 2;
+  MapPosY = ScrWork[0x18dc] - MapBGHeight / 2;
 
   if (!GetFlag(2805)) {
-    if (mapPosX > MapSheetWidth - MapBGWidth) {
-      mapPosX = MapSheetWidth - MapBGWidth;
+    if (MapPosX > MapSheetWidth - MapBGWidth) {
+      MapPosX = MapSheetWidth - MapBGWidth;
     }
-    if (mapPosY > MapSheetHeight - MapBGHeight) {
-      mapPosY = MapSheetHeight - MapBGHeight;
+    if (MapPosY > MapSheetHeight - MapBGHeight) {
+      MapPosY = MapSheetHeight - MapBGHeight;
     }
-    if (mapPosX < 0.0) {
-      mapPosX = 0.0;
+    if (MapPosX < 0.0) {
+      MapPosX = 0.0;
     }
-    if (mapPosY < 0.0) {
-      mapPosY = 0.0;
+    if (MapPosY < 0.0) {
+      MapPosY = 0.0;
     }
   }
 
@@ -1804,7 +1807,7 @@ void MapSystemCCLCC::Render() {
   }
   // Render map bg
   MapBgSprite.Bounds =
-      Rect(static_cast<int>(mapPosX), static_cast<int>(mapPosY),
+      Rect(static_cast<int>(MapPosX), static_cast<int>(MapPosY),
            static_cast<int>(MapBGWidth), static_cast<int>(MapBGHeight));
   Renderer->DrawSprite(MapBgSprite, Rect(0, 0, 1920, 1080), glm::vec4{1.0f},
                        0.0f);

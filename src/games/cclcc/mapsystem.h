@@ -92,6 +92,7 @@ class MapSystemCCLCC : public Impacto::UI::MapSystem::MapSystemBase {
   };
 
  private:
+  enum MapPosEnum { MapZoom, MapZoom3, MapMove2, MapPosTransitionsMax };
   void MapFadeMain(float dt);
   void MapSetPos(float dt);
   void MapDispPhoto(int id, int arg2);
@@ -112,20 +113,26 @@ class MapSystemCCLCC : public Impacto::UI::MapSystem::MapSystemBase {
 
   std::array<MapSystemCCLCC::MapPoolStruct, 20> MapPool = {};
   std::array<MapSystemCCLCC::MapPoolDispStruct, 40> MapPoolDisp = {};
+  int MapPoolCnt = 0;
+
   std::array<MapSystemCCLCC::MapPartsDispStruct, 40> MapPartsDisp = {};
   std::array<MapSystemCCLCC::MapGroupStruct, 40> MapGroup = {};
-
-  std::array<int, 13> MapZoomCtAcc = {};
-
-  std::array<int, 20> MapPoolCurCt = {};
   int MapPartsMax = 0;
-  int MapPoolCnt = 0;
+
+  std::array<MapSystemCCLCC::MapPositionTransitions, 4> MapPosTransitions;
+  std::array<int, 13> MapZoomCtAcc = {};
+  std::array<int, 20> MapPoolCurCt = {};
+
+  int MapZoomMode = 0;
+  int MapZoomCt = 0;
+  int MapZoomCtMax = 0;
+
   int selectedMapPoolIdx = 0xff;
   int hoverMapPoolIdx = 0xff;
   float MapBGWidth;
   float MapBGHeight;
-  float mapPosX;
-  float mapPosY;
+  float MapPosX;
+  float MapPosY;
   int MapMoveMode = 0;
   bool PhotoSelClick = false;
 };
