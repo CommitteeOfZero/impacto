@@ -72,10 +72,10 @@ class MapSystemCCLCC : public Impacto::UI::MapSystem::MapSystemBase {
   struct MapPartsDispStruct {
     int partId;
     int type;
-    int shown;
-    int inOrOut;
+    Animation fadeAnim;
+    DisplayState state;
     int progress;
-    int animState;
+    int delay;
     int angle;
     int dist;
   };
