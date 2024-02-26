@@ -177,8 +177,11 @@ void MapSystemCCLCC::MapInit() {
   MapPartsMax = 0;
 
   MapResetPoolAll(0);
-  std::fill(MapPartsDisp.begin(), MapPartsDisp.end(),
-            MapPartsDispStruct{0xff, 0, Animation{}, Hidden, 0, 0, 0, 0});
+  for (auto itr = MapPartsDisp.begin(); itr != MapPartsDisp.end(); ++itr) {
+    *itr = MapPartsDispStruct{0xff, 0, Animation{}, Hidden, 0, 0, 0};
+    itr->fadeAnim.DurationIn = FadeAnimationDuration;
+    itr->fadeAnim.DurationOut = FadeAnimationDuration;
+  }
   for (int i = 0; i < MapGroup.size(); i++) {
     MapGroup[i] = MapGroupStruct{i, i, i};
   }
@@ -199,7 +202,7 @@ void MapSystemCCLCC::MapSetFadein(int arg1, int arg2) {
   MapPartsDisp[MapPartsMax].partId = arg1;
   MapPartsDisp[MapPartsMax].type = arg2;
   MapPartsDisp[MapPartsMax].state = Showing;
-  MapPartsDisp[MapPartsMax].progress = 16;
+  MapPartsDisp[MapPartsMax].fadeAnim.Progress = 0;
   MapPartsDisp[MapPartsMax].delay = 0;
   MapPartsDisp[MapPartsMax].angle = CALCrnd(12);
 
@@ -211,7 +214,8 @@ void MapSystemCCLCC::MapSetFadein(int arg1, int arg2) {
     if (MapPartsDisp[MapPartsMax].dist < 16) {
       MapPartsDisp[MapPartsMax].dist = 16;
     }
-    MapPartsDisp[MapPartsMax].progress = MapPartsDisp[MapPartsMax].dist;
+    MapPartsDisp[MapPartsMax].fadeAnim.DurationIn =
+        MapPartsDisp[MapPartsMax].dist / 60.0f;
 
   } else if (arg2 > 11 && arg2 < 15 || arg2 == 6) {
     int index = (arg2 == 6) ? 0 : arg2 - 11;
@@ -226,7 +230,8 @@ void MapSystemCCLCC::MapSetFadein(int arg1, int arg2) {
     if (MapPartsDisp[MapPartsMax].dist < 16) {
       MapPartsDisp[MapPartsMax].dist = 16;
     }
-    MapPartsDisp[MapPartsMax].progress = MapPartsDisp[MapPartsMax].dist;
+    MapPartsDisp[MapPartsMax].fadeAnim.DurationIn =
+        MapPartsDisp[MapPartsMax].dist / 60.0f;
   }
 
   if (arg2 == 5) {
@@ -243,16 +248,16 @@ void MapSystemCCLCC::MapSetFadein(int arg1, int arg2) {
         for (int i = 0; i < MapPartsMax; i++) {
           if (MapPartsDisp[i].partId == PartsIdMap[arg1][mappedId] &&
               MapPartsDisp[i].type == 8) {
-            MapPartsDisp[i].progress = 16;
             MapPartsDisp[i].delay = MapPartsDisp[MapPartsMax - 1].dist - 16;
             MapPartsDisp[i].state = Hiding;
+            MapPartsDisp[i].fadeAnim.Progress = 1;
             break;
           }
         }
         MapPartsDisp[MapPartsMax].partId = PartsIdMap[arg1][mappedId];
         MapPartsDisp[MapPartsMax].type = 8;
         MapPartsDisp[MapPartsMax].state = Showing;
-        MapPartsDisp[MapPartsMax].progress = 16;
+        MapPartsDisp[MapPartsMax].fadeAnim.Progress = 0;
         MapPartsDisp[MapPartsMax].delay = MapPartsDisp[MapPartsMax - 1].dist;
         MapPartsDisp[MapPartsMax].angle = CALCrnd(12);
         MapPartsMax++;
@@ -262,9 +267,9 @@ void MapSystemCCLCC::MapSetFadein(int arg1, int arg2) {
     } else {
       for (int i = 0; i < MapPartsMax; ++i) {
         if (MapPartsDisp[i].partId == arg1 && MapPartsDisp[i].type == 0) {
-          MapPartsDisp[i].progress = 16;
           MapPartsDisp[i].delay = MapPartsDisp[MapPartsMax - 1].dist - 16;
           MapPartsDisp[i].state = Hiding;
+          MapPartsDisp[i].fadeAnim.Progress = 1;
           break;
         }
       }
@@ -273,7 +278,7 @@ void MapSystemCCLCC::MapSetFadein(int arg1, int arg2) {
     MapPartsDisp[MapPartsMax].partId = arg1;
     MapPartsDisp[MapPartsMax].type = 0;
     MapPartsDisp[MapPartsMax].state = Showing;
-    MapPartsDisp[MapPartsMax].progress = 16;
+    MapPartsDisp[MapPartsMax].fadeAnim.Progress = 0;
     MapPartsDisp[MapPartsMax].angle = CALCrnd(12);
     MapPartsDisp[MapPartsMax].delay = MapPartsDisp[MapPartsMax - 1].dist;
     MapPartsMax++;
@@ -286,7 +291,7 @@ void MapSystemCCLCC::MapSetFadein(int arg1, int arg2) {
     MapPartsDisp[MapPartsMax].partId = arg1;
     MapPartsDisp[MapPartsMax].type = arg2 + 7;
     MapPartsDisp[MapPartsMax].state = Showing;
-    MapPartsDisp[MapPartsMax].progress = 16;
+    MapPartsDisp[MapPartsMax].fadeAnim.Progress = 0;
     MapPartsDisp[MapPartsMax].delay = 16;
     MapPartsDisp[MapPartsMax].angle = CALCrnd(12);
     MapPartsMax++;
@@ -306,7 +311,7 @@ void MapSystemCCLCC::MapSetFadeout(int arg1, int arg2) {
         if (MapPartsDisp[i].partId == arg1 &&
             MapPartsDisp[i].type == arg2 + 7) {
           MapPartsDisp[i].state = Hiding;
-          MapPartsDisp[i].progress = 16;
+          MapPartsDisp[i].fadeAnim.Progress = 1;
           MapPartsDisp[i].delay = 0;
           flag = true;
           break;
@@ -317,7 +322,7 @@ void MapSystemCCLCC::MapSetFadeout(int arg1, int arg2) {
     for (int i = 0; i < MapPartsMax; ++i) {
       if (MapPartsDisp[i].partId == arg1 && MapPartsDisp[i].type == 0) {
         MapPartsDisp[i].state = Hiding;
-        MapPartsDisp[i].progress = 16;
+        MapPartsDisp[i].fadeAnim.Progress = 1;
         MapPartsDisp[i].delay = 0;
         flag = true;
         break;
@@ -327,7 +332,8 @@ void MapSystemCCLCC::MapSetFadeout(int arg1, int arg2) {
     for (int i = 0; i < MapPartsMax; ++i) {
       if (MapPartsDisp[i].partId == arg1 && MapPartsDisp[i].type == 7) {
         MapPartsDisp[i].state = Hiding;
-        MapPartsDisp[i].progress = MapPartsDisp[i].dist;
+        MapPartsDisp[i].fadeAnim.Progress = 1;
+        MapPartsDisp[i].fadeAnim.DurationOut = MapPartsDisp[i].dist / 60.0f;
         MapPartsDisp[i].delay = 16;
         break;
       }
@@ -337,8 +343,10 @@ void MapSystemCCLCC::MapSetFadeout(int arg1, int arg2) {
   for (int i = 0; i < MapPartsMax; ++i) {
     if (MapPartsDisp[i].partId == arg1 && MapPartsDisp[i].type == arg2) {
       MapPartsDisp[i].state = Hiding;
+      MapPartsDisp[i].fadeAnim.Progress = 1;
       MapPartsDisp[i].delay = flag ? 16 : 0;
-      MapPartsDisp[i].progress = (arg2 == 7) ? MapPartsDisp[i].dist : 16;
+      MapPartsDisp[i].fadeAnim.DurationOut =
+          (arg2 == 7) ? MapPartsDisp[i].dist / 60.0f : 16.0f / 60.0f;
       return;
     }
   }
@@ -354,7 +362,6 @@ void MapSystemCCLCC::MapSetDisp(int arg1, int arg2) {
   MapPartsDisp[MapPartsMax].partId = arg1;
   MapPartsDisp[MapPartsMax].type = arg2;
   MapPartsDisp[MapPartsMax].state = Shown;
-  MapPartsDisp[MapPartsMax].progress = 0;
   MapPartsDisp[MapPartsMax].delay = 0;
   MapPartsDisp[MapPartsMax].angle = CALCrnd(12);
 
@@ -366,7 +373,8 @@ void MapSystemCCLCC::MapSetDisp(int arg1, int arg2) {
     if (MapPartsDisp[MapPartsMax].dist < 16) {
       MapPartsDisp[MapPartsMax].dist = 16;
     }
-    MapPartsDisp[MapPartsMax].progress = MapPartsDisp[MapPartsMax].dist;
+    MapPartsDisp[MapPartsMax].fadeAnim.DurationOut =
+        MapPartsDisp[MapPartsMax].dist / 60.0f;
 
   } else if (arg2 > 11 && arg2 < 15 || arg2 == 6) {
     int index = (arg2 == 6) ? 0 : arg2 - 11;
@@ -381,7 +389,8 @@ void MapSystemCCLCC::MapSetDisp(int arg1, int arg2) {
     if (MapPartsDisp[MapPartsMax].dist < 16) {
       MapPartsDisp[MapPartsMax].dist = 16;
     }
-    MapPartsDisp[MapPartsMax].progress = MapPartsDisp[MapPartsMax].dist;
+    MapPartsDisp[MapPartsMax].fadeAnim.DurationOut =
+        MapPartsDisp[MapPartsMax].dist / 60.0f;
   }
 
   if (arg2 == 5) {
@@ -401,7 +410,6 @@ void MapSystemCCLCC::MapSetDisp(int arg1, int arg2) {
     MapPartsDisp[MapPartsMax].partId = arg1;
     MapPartsDisp[MapPartsMax].type = 0;
     MapPartsDisp[MapPartsMax].state = Shown;
-    MapPartsDisp[MapPartsMax].progress = 0;
     MapPartsDisp[MapPartsMax].angle = CALCrnd(12);
     MapPartsDisp[MapPartsMax].delay = 0;
     MapPartsMax++;
@@ -413,8 +421,8 @@ void MapSystemCCLCC::MapSetDisp(int arg1, int arg2) {
     }
     MapPartsDisp[MapPartsMax].partId = arg1;
     MapPartsDisp[MapPartsMax].type = arg2 + 7;
-    MapPartsDisp[MapPartsMax].state = Shown;
-    MapPartsDisp[MapPartsMax].progress = 16;
+    MapPartsDisp[MapPartsMax].state = Showing;
+    MapPartsDisp[MapPartsMax].fadeAnim.Progress = 0;
     MapPartsDisp[MapPartsMax].delay = 0;
     MapPartsDisp[MapPartsMax].angle = CALCrnd(12);
     MapPartsMax++;
@@ -494,7 +502,6 @@ bool MapSystemCCLCC::MapFadeEndChk_Wait() {
   for (int i = 0; i < MapPartsMax; ++i) {
     if (MapPartsDisp[i].state == Showing || MapPartsDisp[i].state == Hiding)
       return false;
-    if (MapPartsDisp[i].progress != 0) return false;
     if (MapPartsDisp[i].delay != 0) return false;
   }
   return true;
@@ -533,9 +540,9 @@ void MapSystemCCLCC::MapPoolSetFadein(int arg1, int arg2) {
     if (MapPhotoIdMap[MapPool[arg2].id][MapPool[arg2].type] < 1000) {
       if (MapPoolDisp[poolPinIndex].state == Hidden) {
         MapPoolDisp[poolPinIndex].state = Showing;
+        MapPoolDisp[poolPinIndex].fadeAnim.Progress = 0;
         MapPoolDisp[poolPinIndex].delay = 16;
         MapPoolDisp[poolPinIndex].pinId = CALCrnd(12);
-        MapPoolDisp[poolPinIndex].fadeAnim.Progress = 0;
       }
     } else {
       MapPoolDisp[poolPinIndex].state = Hidden;
@@ -1118,20 +1125,23 @@ bool MapSystemCCLCC::MapMoveAnimeMain2() {
 void MapSystemCCLCC::MapPlayerPotalSelectInit() {}
 bool MapSystemCCLCC::MapPlayerPotalSelect() { return false; }
 void MapSystemCCLCC::MapSystem_28() {}
-
 void MapSystemCCLCC::MapDispPhoto(int id, int arg2) {
   int alpha = 256;
   float shadowZoom = 1.0f, zoomMulti = 1.0f;
   if (MapPartsDisp[id].state == Hiding && !MapPartsDisp[id].delay) {
-    zoomMulti = 16.0f - MapPartsDisp[id].progress;
+    zoomMulti = 16.0f - MapPartsDisp[id].fadeAnim.Progress * 60.0f *
+                            FadeAnimationDuration;
     shadowZoom = (zoomMulti) / 24.0f + 1.0f;
     zoomMulti = zoomMulti / 32.0f + 1.0f;
-    alpha = MapPartsDisp[id].progress * 16;
+    alpha =
+        MapPartsDisp[id].fadeAnim.Progress * 60.0f * FadeAnimationDuration * 16;
   } else if (MapPartsDisp[id].state == Showing) {
-    zoomMulti = MapPartsDisp[id].progress - 16.0f;
+    zoomMulti =
+        -MapPartsDisp[id].fadeAnim.Progress * 60.0f * FadeAnimationDuration;
     shadowZoom = (zoomMulti) / 24.0f + 1.6666f;
     zoomMulti = zoomMulti / 32.0f + 1.5f;
-    alpha = MapPartsDisp[id].progress * -16 + 256;
+    alpha =
+        MapPartsDisp[id].fadeAnim.Progress * 60.0f * FadeAnimationDuration * 16;
   }
 
   float xOffset = id;
@@ -1352,14 +1362,19 @@ void MapSystemCCLCC::MapDispPin(int id) {
   int alpha = 256;
   float zoomMulti = 1.0f;
   if (MapPartsDisp[id].state == Hiding && !MapPartsDisp[id].delay) {
-    zoomMulti = 16.0f - MapPartsDisp[id].progress;
+    zoomMulti = 16.0f - MapPartsDisp[id].fadeAnim.Progress * 60.0f *
+                            FadeAnimationDuration;
     zoomMulti = zoomMulti / 32.0f + 1.0f;
-    alpha = MapPartsDisp[id].progress * 16;
+    alpha =
+        MapPartsDisp[id].fadeAnim.Progress * 60.0f * FadeAnimationDuration * 16;
   } else if (MapPartsDisp[id].state == Showing) {
-    zoomMulti = MapPartsDisp[id].progress - 16.0f;
+    zoomMulti =
+        -MapPartsDisp[id].fadeAnim.Progress * 60.0f * FadeAnimationDuration;
     zoomMulti = zoomMulti / 32.0f + 1.5f;
-    alpha = MapPartsDisp[id].progress * -16 + 256;
+    alpha =
+        MapPartsDisp[id].fadeAnim.Progress * 60.0f * FadeAnimationDuration * 16;
   }
+
   float scaledFactor = 1080.0f / MapBGHeight;
   zoomMulti *= scaledFactor;
   float xMapEdge = mapPosX + MapBGWidth;
@@ -1419,17 +1434,20 @@ void MapSystemCCLCC::MapDispArticle(int id) {
   int alpha = 256;
   float shadowZoom = 1.0f;
   float zoomMulti = 1.0f;
-  if (MapPartsDisp[id].state == Hiding && !MapPoolDisp[id].delay) {
-    zoomMulti = toFlt(16 - MapPartsDisp[id].progress);
-    shadowZoom = zoomMulti / 24.0f + 1.0f;
+  if (MapPartsDisp[id].state == Hiding && !MapPartsDisp[id].delay) {
+    zoomMulti = 16.0f - MapPartsDisp[id].fadeAnim.Progress * 60.0f *
+                            FadeAnimationDuration;
+    shadowZoom = (zoomMulti) / 24.0f + 1.0f;
     zoomMulti = zoomMulti / 32.0f + 1.0f;
-    alpha = MapPartsDisp[id].progress * 16;
-
+    alpha =
+        MapPartsDisp[id].fadeAnim.Progress * 60.0f * FadeAnimationDuration * 16;
   } else if (MapPartsDisp[id].state == Showing) {
-    zoomMulti = toFlt(MapPartsDisp[id].progress - 16);
-    shadowZoom = zoomMulti / 24.0f + 1.6666f;
+    zoomMulti =
+        -MapPartsDisp[id].fadeAnim.Progress * 60.0f * FadeAnimationDuration;
+    shadowZoom = (zoomMulti) / 24.0f + 1.6666f;
     zoomMulti = zoomMulti / 32.0f + 1.5f;
-    alpha = MapPartsDisp[id].progress * -16 + 256;
+    alpha =
+        MapPartsDisp[id].fadeAnim.Progress * 60.0f * FadeAnimationDuration * 16;
   }
 
   float xPartOffset = PartsOffsetData[partId][2][0] - 166;
@@ -1475,13 +1493,19 @@ void MapSystemCCLCC::MapDispTag(int id) {
   float zoomMulti = 1.0f;
   float shadowZoom = 1.0f;
   if (MapPartsDisp[id].state == Hiding && !MapPartsDisp[id].delay) {
-    shadowZoom = (16.0f - MapPartsDisp[id].progress) / 24.0f + 1.0f;
-    zoomMulti = (16.0f - MapPartsDisp[id].progress) / 32.0f + 1.0f;
-    alpha = MapPartsDisp[id].progress * 16;
+    zoomMulti = 16.0f - MapPartsDisp[id].fadeAnim.Progress * 60.0f *
+                            FadeAnimationDuration;
+    shadowZoom = (zoomMulti) / 24.0f + 1.0f;
+    zoomMulti = zoomMulti / 32.0f + 1.0f;
+    alpha =
+        MapPartsDisp[id].fadeAnim.Progress * 60.0f * FadeAnimationDuration * 16;
   } else if (MapPartsDisp[id].state == Showing) {
-    shadowZoom = (MapPartsDisp[id].progress - 16.0f) / 24.0f + 1.6666f;
-    zoomMulti = (MapPartsDisp[id].progress - 16.0f) / 32.0f + 1.5f;
-    alpha = MapPartsDisp[id].progress * -16 + 256;
+    zoomMulti =
+        -MapPartsDisp[id].fadeAnim.Progress * 60.0f * FadeAnimationDuration;
+    shadowZoom = (zoomMulti) / 24.0f + 1.6666f;
+    zoomMulti = zoomMulti / 32.0f + 1.5f;
+    alpha =
+        MapPartsDisp[id].fadeAnim.Progress * 60.0f * FadeAnimationDuration * 16;
   }
   float scaledFactor = 1080.0f / MapBGHeight;
   zoomMulti *= scaledFactor;
@@ -1545,9 +1569,12 @@ void MapSystemCCLCC::MapDispLine(int id, int arg2) {
 
   float linePercent = 1.0f;
   if (MapPartsDisp[id].state == Hiding && !MapPartsDisp[id].delay) {
-    linePercent = toFlt(MapPartsDisp[id].progress) / MapPartsDisp[id].dist;
+    linePercent = toFlt(MapPartsDisp[id].fadeAnim.Progress * 60.0f *
+                        FadeAnimationDuration) /
+                  MapPartsDisp[id].dist;
   } else if (MapPartsDisp[id].state == Showing) {
-    linePercent = toFlt(MapPartsDisp[id].dist - MapPartsDisp[id].progress) /
+    linePercent = toFlt(MapPartsDisp[id].fadeAnim.Progress * 60.0f *
+                        FadeAnimationDuration) /
                   MapPartsDisp[id].dist;
   }
   float scaledFactor = 1080.0f / MapBGHeight;
@@ -1645,32 +1672,36 @@ void MapSystemCCLCC::MapFadeMain(float dt) {
     if (!GetFlag(SF_MESALLSKIP) &&
         (partsDispElem.delay == 0 || --partsDispElem.delay == 0)) {
       if (partsDispElem.state == Showing) {
-        if (partsDispElem.progress == 16 &&
-            (partsDispElem.type == 0 ||
-             partsDispElem.type >= 8 && partsDispElem.type <= 11)) {
-          Io::InputStream* stream;
-          if (Io::VfsOpen("sysse", 7, &stream) == IoError_OK)
-            Audio::Channels[Audio::AC_SSE].Play(
-                Audio::AudioStream::Create(stream), false, 0.0f);
-        }
-        if (partsDispElem.progress == 0 || --partsDispElem.progress == 0)
+        if (partsDispElem.fadeAnim.IsIn()) {
           partsDispElem.state = Shown;
-      } else if (partsDispElem.state == Hiding) {
-        if (partsDispElem.progress == 16 &&
-            (partsDispElem.type == 0 ||
-             partsDispElem.type >= 8 && partsDispElem.type <= 11)) {
-          Io::InputStream* stream;
-          if (Io::VfsOpen("sysse", 9, &stream) == IoError_OK)
-            Audio::Channels[Audio::AC_SSE].Play(
-                Audio::AudioStream::Create(stream), false, 0.0f);
+        } else if (partsDispElem.fadeAnim.State == AS_Stopped) {
+          if (partsDispElem.type == 0 ||
+              partsDispElem.type >= 8 && partsDispElem.type <= 11) {
+            Io::InputStream* stream;
+            if (Io::VfsOpen("sysse", 7, &stream) == IoError_OK)
+              Audio::Channels[Audio::AC_SSE].Play(
+                  Audio::AudioStream::Create(stream), false, 0.0f);
+          }
+          partsDispElem.fadeAnim.StartIn(true);
         }
-        if (partsDispElem.progress == 0 || --partsDispElem.progress == 0) {
+      } else if (partsDispElem.state == Hiding) {
+        if (partsDispElem.fadeAnim.IsOut()) {
           partsDispElem.state = Hidden;
+        } else if (partsDispElem.fadeAnim.State == AS_Stopped) {
+          if (partsDispElem.type == 0 ||
+              partsDispElem.type >= 8 && partsDispElem.type <= 11) {
+            Io::InputStream* stream;
+            if (Io::VfsOpen("sysse", 9, &stream) == IoError_OK)
+              Audio::Channels[Audio::AC_SSE].Play(
+                  Audio::AudioStream::Create(stream), false, 0.0f);
+          }
+          partsDispElem.fadeAnim.StartOut(true);
         }
       }
+      partsDispElem.fadeAnim.Update(dt);
+
     } else if (GetFlag(SF_MESALLSKIP)) {
       partsDispElem.state = partsDispElem.state == Showing ? Shown : Hidden;
-      partsDispElem.progress = 0;
       partsDispElem.delay = 0;
     }
   }

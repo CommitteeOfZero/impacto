@@ -17,7 +17,7 @@ class MapSystemCCLCC : public Impacto::UI::MapSystem::MapSystemBase {
   void MapSetFadeout(int arg1, int arg2) override;
   void MapSetDisp(int arg1, int arg2) override;
   void MapSetHide(int arg1, int arg2);
-  bool MapFadeEndChk_Wait();
+  bool MapFadeEndChk_Wait() override;
   void MapMoveAnimeInit(int arg1, int arg2, int arg3);
   void MapMoveAnimeMain();
   void MapGetPos(int arg1, int arg2, int &arg3, int &arg4) override;
@@ -74,7 +74,6 @@ class MapSystemCCLCC : public Impacto::UI::MapSystem::MapSystemBase {
     int type;
     Animation fadeAnim;
     DisplayState state;
-    int progress;
     int delay;
     int angle;
     int dist;
