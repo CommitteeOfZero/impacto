@@ -107,6 +107,9 @@ class MapSystemCCLCC : public Impacto::UI::MapSystem::MapSystemBase {
   void HandlePoolUpDownNav(int maxPoolRow, int poolType, bool isUp);
   void HandlePoolLeftRightNav(int maxPoolRow, int poolType, bool isLeft);
 
+  void MapSetFadeIn_PhotoArticle(int arg1, int arg2);
+  void MapSetFadeIn_Line(int arg1, int arg2);
+
   std::array<MapSystemCCLCC::MapPoolStruct, 20> MapPool = {};
   std::array<MapSystemCCLCC::MapPoolDispStruct, 40> MapPoolDisp = {};
   std::array<MapSystemCCLCC::MapPartsDispStruct, 40> MapPartsDisp = {};
