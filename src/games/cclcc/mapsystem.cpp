@@ -1594,16 +1594,15 @@ void MapSystemCCLCC::MapDispLine(int id, int arg2) {
     float lineY2 = yOffset1 - sinf(angle) * dist * linePercent;
     float xPos = 0.5f * (xOffset1 + lineX2 - dist * linePercent) - MapPosX;
     float yPos = (yOffset1 + lineY2) / 2.0f - MapPosY - 5.0f;
-    float yPosShadow =
-        (xDist < 0 && yDist < 0)
-            ? (yOffset1 + lineY2 - 5.0f) / 2.0f - MapPosY - 10.0f
-            : (yOffset1 + lineY2 + 5.0f) / 2.0f - MapPosY - 10.0f;
+    float yPosShadow = (xDist < 0 && yDist < 0)
+                           ? (yOffset1 + lineY2 - 5.0f) / 2.0f - MapPosY - 5.0f
+                           : (yOffset1 + lineY2 + 5.0f) / 2.0f - MapPosY - 5.0f;
 
     Sprite shortenedLine = MapLine;
     shortenedLine.Bounds.Width = lineWidth;
 
     RectF lineShadowRect(xPos * scaledFactor, yPosShadow * scaledFactor,
-                         lineWidth * scaledFactor, 20.0f * scaledFactor);
+                         lineWidth * scaledFactor, 10.0f * scaledFactor);
     Renderer->DrawSprite(shortenedLine, lineShadowRect, shadowTint, -angle);
     RectF lineRect(xPos * scaledFactor, yPos * scaledFactor,
                    lineWidth * scaledFactor, 10.0f * scaledFactor);
