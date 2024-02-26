@@ -370,10 +370,10 @@ void Renderer::DrawSpriteImpl(Sprite const& sprite,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
 }
 
-void Renderer::DrawSpriteCenteredImpl(Sprite const& sprite, glm::vec2 topLeft,
-                                      glm::vec2 displayOffset, glm::vec4 tint,
-                                      glm::vec2 scale, float angle,
-                                      bool inverted) {
+void Renderer::DrawSpriteOffsetImpl(Sprite const& sprite, glm::vec2 topLeft,
+                                    glm::vec2 displayOffset, glm::vec4 tint,
+                                    glm::vec2 scale, float angle,
+                                    bool inverted) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawSprite() called before BeginFrame()\n");
@@ -400,9 +400,9 @@ void Renderer::DrawSpriteCenteredImpl(Sprite const& sprite, glm::vec2 topLeft,
   QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
             (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
 
-  QuadSetPositionAroundPoint(sprite.Bounds, topLeft, displayOffset, scale,
-                             angle, (uintptr_t)&vertices[0].Position,
-                             sizeof(VertexBufferSprites));
+  QuadSetPositionOffset(sprite.Bounds, topLeft, displayOffset, scale, angle,
+                        (uintptr_t)&vertices[0].Position,
+                        sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
@@ -695,9 +695,11 @@ inline void Renderer::QuadSetUV(RectF const& spriteBounds, float designWidth,
   *(glm::vec2*)(uvs + 3 * stride) = bottomRight;
 }
 
-inline void Renderer::QuadSetPositionAroundPoint(
-    RectF const& spriteBounds, glm::vec2 displayXY, glm::vec2 displayOffset,
-    glm::vec2 scale, float angle, uintptr_t positions, int stride) {
+inline void Renderer::QuadSetPositionOffset(RectF const& spriteBounds,
+                                            glm::vec2 displayXY,
+                                            glm::vec2 displayOffset,
+                                            glm::vec2 scale, float angle,
+                                            uintptr_t positions, int stride) {
   glm::vec2 bottomLeft =
       glm::vec2(spriteBounds.X, spriteBounds.Y + spriteBounds.Height);
   glm::vec2 topLeft = glm::vec2(spriteBounds.X, spriteBounds.Y);
@@ -730,11 +732,11 @@ inline void Renderer::QuadSetPositionAroundPoint(
   bottomRight = bottomRight * scale;
 
   // Translate to the desired screen position
-  glm::vec2 newCenter = displayXY - displayOffset * scale + displayOffset;
-  bottomLeft += newCenter;
-  topLeft += newCenter;
-  topRight += newCenter;
-  bottomRight += newCenter;
+  glm::vec2 newPos = displayXY - displayOffset * scale + displayOffset;
+  bottomLeft += newPos;
+  topLeft += newPos;
+  topRight += newPos;
+  bottomRight += newPos;
 
   // Store the transformed positions
   *(glm::vec2*)(positions + 0 * stride) = DesignToNDC(bottomLeft);

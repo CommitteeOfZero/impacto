@@ -1195,14 +1195,14 @@ void MapSystemCCLCC::MapDispPhoto(int id, int arg2) {
     float scaledPosOffsetY = (yOffset + 10) * scaledFactor;
 
     // Shadow
-    Renderer->DrawSpriteCentered(
+    Renderer->DrawSpriteOffset(
         displayedSprite,
         glm::vec2((xOffset + 82 + 3) * scaledFactor - 82,
                   (yOffset + 10 + 3) * scaledFactor - 10),
         glm::vec2{82, 10}, glm::vec4{0.0f, 0.0f, 0.0f, (alpha >> 1) / 256.0f},
         glm::vec2{shadowZoom, shadowZoom}, angle);
     // Photo
-    Renderer->DrawSpriteCentered(
+    Renderer->DrawSpriteOffset(
         displayedSprite,
         glm::vec2(scaledPosOffsetX - 82, scaledPosOffsetY - 10),
         glm::vec2{82, 10}, glm::vec4{1.0f, 1.0f, 1.0f, alpha / 256.0f},
@@ -1274,7 +1274,7 @@ void MapSystemCCLCC::MapPoolDispPhoto(int poolId) {
           (MapPoolCurCt[poolId] * 50.0f / 16.0f + 78.0f) * 2;
 
       // HoverTag Tag
-      Renderer->DrawSpriteCentered(
+      Renderer->DrawSpriteOffset(
           SelectedMapPoolTagSprite,
           glm::vec2(scaledPosOffsetX - selectedTagXOffset,
                     scaledPosOffsetY - 18),
@@ -1283,14 +1283,14 @@ void MapSystemCCLCC::MapPoolDispPhoto(int poolId) {
           glm::vec2{zoomMulti / 2.0, zoomMulti / 2.0}, angle);
     }
     // Shadow
-    Renderer->DrawSpriteCentered(
+    Renderer->DrawSpriteOffset(
         displayedSprite,
         glm::vec2((xOffset + 82 + 3) * scaledFactor - 82,
                   (yOffset + 10 + 3) * scaledFactor - 10),
         glm::vec2{82, 10}, glm::vec4{0.0f, 0.0f, 0.0f, (alpha >> 1) / 256.0f},
         glm::vec2{shadowZoom, shadowZoom}, angle);
     // Photo
-    Renderer->DrawSpriteCentered(
+    Renderer->DrawSpriteOffset(
         displayedSprite,
         glm::vec2(scaledPosOffsetX - 82, scaledPosOffsetY - 10),
         glm::vec2{82, 10}, glm::vec4{1.0f, 1.0f, 1.0f, alpha / 256.0f},
@@ -1351,7 +1351,7 @@ void MapSystemCCLCC::MapPoolDispPin(int poolId) {
     glm::vec4 color = RgbIntToFloat(Tints[poolId]);
     color[3] = alpha / 256.0f;
 
-    Renderer->DrawSpriteCentered(
+    Renderer->DrawSpriteOffset(
         displayedSprite,
         glm::vec2(scaledPosOffsetX - 16.0f, scaledPosOffsetY - 29.0f),
         glm::vec2{16.0f, 29.0f}, color, glm::vec2{zoomMulti, zoomMulti}, 0);
@@ -1421,7 +1421,7 @@ void MapSystemCCLCC::MapDispPin(int id) {
     glm::vec4 color = RgbIntToFloat(Tints[mappedId + 27]);
     color[3] = alpha / 256.0f;
 
-    Renderer->DrawSpriteCentered(
+    Renderer->DrawSpriteOffset(
         displayedSprite,
         glm::vec2(scaledPosOffsetX - 16.0f, scaledPosOffsetY - 29.0f),
         glm::vec2{16.0f, 29.0f}, color, glm::vec2{zoomMulti, zoomMulti}, 0);
@@ -1467,7 +1467,7 @@ void MapSystemCCLCC::MapDispArticle(int id) {
     float displayPhotoY = scaledPosOffsetY - 16;
 
     // Shadow
-    Renderer->DrawSpriteCentered(
+    Renderer->DrawSpriteOffset(
         MapPartsArticleSprites[partId],
         glm::vec2(displayShadowPhotoX, displayShadowPhotoY), glm::vec2{166, 16},
         glm::vec4{0.0f, 0.0f, 0.0f, (alpha >> 1) / 256.0f},
@@ -1475,7 +1475,7 @@ void MapSystemCCLCC::MapDispArticle(int id) {
                   shadowZoom * scaledFactor * 0.5},
         angle);
     // Photo
-    Renderer->DrawSpriteCentered(MapPartsArticleSprites[partId],
+    Renderer->DrawSpriteOffset(MapPartsArticleSprites[partId],
                                  glm::vec2(displayPhotoX, displayPhotoY),
                                  glm::vec2{166, 16}, glm::vec4{1.0f},
                                  glm::vec2{zoomMulti * 0.5 * scaledFactor,
@@ -1520,7 +1520,7 @@ void MapSystemCCLCC::MapDispTag(int id) {
     float shadowScaledPosOffsetX = (xOffset + 2.0f + 46.0f) * scaledFactor;
     float shadowScaledPosOffsetY = (yOffset + 2.0f + 16.0f) * scaledFactor;
     // Shadow
-    Renderer->DrawSpriteCentered(displayedSprite,
+    Renderer->DrawSpriteOffset(displayedSprite,
                                  glm::vec2(shadowScaledPosOffsetX - 46.0f,
                                            shadowScaledPosOffsetY - 16.0f),
                                  glm::vec2{46.0f, 16.0f},
@@ -1530,7 +1530,7 @@ void MapSystemCCLCC::MapDispTag(int id) {
     float scaledPosOffsetY = (yOffset + 16.0f) * scaledFactor;
 
     // Tag
-    Renderer->DrawSpriteCentered(
+    Renderer->DrawSpriteOffset(
         displayedSprite,
         glm::vec2(scaledPosOffsetX - 46.0f, scaledPosOffsetY - 16.0f),
         glm::vec2{46.0f, 16.0f}, {1.0f, 1.0f, 1.0f, alpha / 256.0f},

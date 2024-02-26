@@ -128,9 +128,9 @@ class Renderer : public BaseRenderer {
                       const std::array<glm::vec4, 4>& tints, float angle,
                       bool inverted, bool isScreencap) override;
 
-  void DrawSpriteCenteredImpl(Sprite const& sprite, glm::vec2 topLeft,
-                              glm::vec2 displayOffset, glm::vec4 tint,
-                              glm::vec2 scale, float angle, bool inverted);
+  void DrawSpriteOffsetImpl(Sprite const& sprite, glm::vec2 topLeft,
+                            glm::vec2 displayOffset, glm::vec4 tint,
+                            glm::vec2 scale, float angle, bool inverted);
 
   void DrawRectImpl(RectF const& dest, glm::vec4 color, float angle) override;
 
@@ -179,11 +179,11 @@ class Renderer : public BaseRenderer {
   inline void MakeQuad();
   inline void QuadSetUV(RectF const& spriteBounds, float designWidth,
                         float designHeight, uintptr_t uvs, int stride, float angle = 0.0f);
-  inline void QuadSetPositionAroundPoint(RectF const& spriteBounds,
-                                         glm::vec2 topLeftPos,
-                                         glm::vec2 displayOffset,
-                                         glm::vec2 scale, float angle,
-                                         uintptr_t positions, int stride);
+  inline void QuadSetPositionOffset(RectF const& spriteBounds,
+                                    glm::vec2 topLeftPos,
+                                    glm::vec2 displayOffset, glm::vec2 scale,
+                                    float angle, uintptr_t positions,
+                                    int stride);
   inline void QuadSetPosition(RectF const& transformedQuad, float angle,
                               uintptr_t positions, int stride);
   inline void QuadSetPosition(std::array<glm::vec2, 4> const& destQuad,
