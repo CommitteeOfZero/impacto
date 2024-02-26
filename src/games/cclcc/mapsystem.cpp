@@ -25,6 +25,9 @@ inline float toFlt(double d) { return static_cast<float>(d); }
 inline float toFlt(int d) { return static_cast<float>(d); }
 inline int toInt(float f) { return static_cast<int>(f); }
 
+// TODO, add the scrwork and flag indices to the scriptvars file
+
+// TODO, move this crap to the lua file
 constexpr int MapPhotoIdMap[11][4] = {
     // index 0 is map part for photos
     // index 3 is map part for article

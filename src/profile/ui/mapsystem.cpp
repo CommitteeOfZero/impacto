@@ -11,7 +11,7 @@ namespace MapSystem {
 
 void Configure() {
   if (!TryPushMember("MapSystem")) return;
-  AssertIs(kObjectType);
+  AssertIs(LUA_TTABLE);
   CCLCC::MapSystem::Configure();
   Pop();
 }
