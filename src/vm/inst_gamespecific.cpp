@@ -309,15 +309,12 @@ VmInstruction(InstMapSystem) {
   PopUint8(type);
   switch (type) {
     case 1:
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapInit()\n");
       Impacto::UI::MapSystem::MapInit();
       break;
     case 2: {
       PopExpression(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub, "MapSetFadein(arg1: %i, arg2: %i)\n",
-                 arg1, arg2);
-      Impacto::UI::MapSystem::MapSetFadeIn(arg1, arg2);
+      Impacto::UI::MapSystem::MapSetFadein(arg1, arg2);
     } break;
     case 3: {
       PopExpression(arg1);
@@ -333,17 +330,11 @@ VmInstruction(InstMapSystem) {
     case 4: {
       PopExpression(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MapSetFadeout(arg1: %i, arg2: %i)\n", arg1,
-                 arg2);
       Impacto::UI::MapSystem::MapSetFadeout(arg1, arg2);
     } break;
     case 5: {
       PopExpression(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MapSetDisp(arg1: %i, arg2: %i)\n", arg1,
-                 arg2);
       Impacto::UI::MapSystem::MapSetDisp(arg1, arg2);
     } break;
     case 6: {
@@ -352,10 +343,9 @@ VmInstruction(InstMapSystem) {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MapSetHide(arg1: %i, arg2: %i)\n", arg1,
                  arg2);
+      Impacto::UI::MapSystem::MapSetHide(arg1, arg2);
     } break;
     case 7:
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MapFadeEndChk_Wait\n");
       if (!Impacto::UI::MapSystem::MapFadeEndChk_Wait()) {
         ResetInstruction;
         BlockThread;
@@ -369,16 +359,18 @@ VmInstruction(InstMapSystem) {
           LL_Warning, LC_VMStub,
           "STUB instruction MapMoveAnimeInit(arg1: %i, arg2: %i, arg3: %i)\n",
           arg1, arg2, arg3);
+      Impacto::UI::MapSystem::MapMoveAnimeInit(arg1, arg2, arg3);
     } break;
     case 9:
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapMoveAnimeMain\n");
+      if (!Impacto::UI::MapSystem::MapMoveAnimeMain()) {
+        ResetInstruction;
+        BlockThread;
+      }
       break;
     case 0xA: {
       PopExpression(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MapGetPos(arg1: %i, arg2: %i)\n", arg1,
-                 arg2);
       Impacto::UI::MapSystem::MapGetPos(arg1, arg2, ScrWork[6365],
                                         ScrWork[6366]);
 
@@ -388,21 +380,13 @@ VmInstruction(InstMapSystem) {
       PopExpression(arg2);
       PopExpression(arg3);
       PopExpression(arg4);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MapSetPool(arg1: %i, arg2: %i, arg3: %i, "
-                 "arg4: %i)\n",
-                 arg1, arg2, arg3, arg4);
       Impacto::UI::MapSystem::MapSetPool(arg2 + arg1 * 10, arg3, arg4);
     } break;
     case 0xC: {
       PopExpression(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MapResetPoolAll(arg1: %i)\n", arg1);
       Impacto::UI::MapSystem::MapResetPoolAll(arg1);
     } break;
     case 0xD:
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MapPoolFadeEndChk_Wait\n");
       if (!Impacto::UI::MapSystem::MapPoolFadeEndChk_Wait()) {
         ResetInstruction;
         BlockThread;
@@ -410,8 +394,6 @@ VmInstruction(InstMapSystem) {
       break;
     case 0xE: {
       PopExpression(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MapPoolShuffle(arg1: %i)\n", arg1);
       Impacto::UI::MapSystem::MapPoolShuffle(arg1);
     } break;
     case 0xF: {
@@ -428,27 +410,20 @@ VmInstruction(InstMapSystem) {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MapPoolSetHide(arg1: %i, arg2: %i)\n", arg1,
                  arg2);
+      Impacto::UI::MapSystem::MapPoolSetHide(arg1, arg2);
     } break;
     case 0x11: {
       PopExpression(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MapPoolSetFadein(arg1: %i, arg2: %i)\n",
-                 arg1, arg2);
       Impacto::UI::MapSystem::MapPoolSetFadein(arg1, arg2);
     } break;
     case 0x12: {
       PopExpression(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MapPoolSetFadeout(arg1: %i, arg2: %i)\n",
-                 arg1, arg2);
       Impacto::UI::MapSystem::MapPoolSetFadeout(arg1, arg2);
     } break;
     case 0x13: {
       PopExpression(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MapPlayerPhotoSelect(arg1: %i)\n", arg1);
       if (!Impacto::UI::MapSystem::MapPlayerPhotoSelect(arg1)) {
         ResetInstruction;
         BlockThread;
@@ -457,9 +432,6 @@ VmInstruction(InstMapSystem) {
     case 0x14: {
       PopExpression(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MapResetPool(arg1: %i, arg2: %i)\n", arg1,
-                 arg2);
       Impacto::UI::MapSystem::MapResetPool(arg1 * 10 + arg2);
     } break;
     case 0x15: {
@@ -501,9 +473,14 @@ VmInstruction(InstMapSystem) {
           LL_Warning, LC_VMStub,
           "STUB instruction MapZoomInit2(arg1: %i, arg2: %i, arg3: %i)\n", arg1,
           arg2, arg3);
+      if (arg1 != ScrWork[6363] || arg2 != ScrWork[6364] ||
+          arg3 != ScrWork[6362]) {
+        Impacto::UI::MapSystem::MapZoomInit2(arg1, arg2);
+      } else {
+        thread->Ip += 3;
+      }
     } break;
     case 0x19:
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapZoomMain3\n");
       if (!Impacto::UI::MapSystem::MapZoomMain3()) {
         ResetInstruction;
         BlockThread;
@@ -513,10 +490,6 @@ VmInstruction(InstMapSystem) {
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
-      ImpLogSlow(
-          LL_Warning, LC_VMStub,
-          "STUB instruction MapZoomInit3(arg1: %i, arg2: %i, arg3: %i)\n", arg1,
-          arg2, arg3);
       if (arg1 != ScrWork[6363] || arg2 != ScrWork[6364] ||
           arg3 != ScrWork[6362]) {
         if (!Impacto::UI::MapSystem::MapZoomInit3(arg1, arg2, arg3)) {
@@ -530,10 +503,6 @@ VmInstruction(InstMapSystem) {
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
-      ImpLogSlow(
-          LL_Warning, LC_VMStub,
-          "STUB instruction MapMoveAnimeInit2(arg1: %i, arg2: %i, arg3: %i)\n",
-          arg1, arg2, arg3);
       if (arg1 != ScrWork[6363] || arg2 != ScrWork[6364] ||
           arg3 != ScrWork[6362]) {
         if (!Impacto::UI::MapSystem::MapMoveAnimeInit2(arg1, arg2, arg3)) {
@@ -544,7 +513,6 @@ VmInstruction(InstMapSystem) {
       }
     } break;
     case 0x1C:
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapMoveAnimeMain2\n");
       if (!Impacto::UI::MapSystem::MapMoveAnimeMain2()) {
         ResetInstruction;
         BlockThread;
@@ -553,13 +521,19 @@ VmInstruction(InstMapSystem) {
     case 0x1E:
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MapPlayerPotalSelectInit\n");
+      Impacto::UI::MapSystem::MapPlayerPotalSelectInit();
       break;
     case 0x1F:
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MapPlayerPotalSelect\n");
+      if (!Impacto::UI::MapSystem::MapPlayerPotalSelect()) {
+        ResetInstruction;
+        BlockThread;
+      }
       break;
     case 0x28:
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapSystem_28\n");
+      Impacto::UI::MapSystem::MapSystem_28();
       break;
   }
 }

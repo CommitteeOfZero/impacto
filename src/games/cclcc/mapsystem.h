@@ -12,40 +12,42 @@ class MapSystemCCLCC : public Impacto::UI::MapSystem::MapSystemBase {
 
  public:
   void MapInit() override;
-  void MapSetFadein(int arg1, int arg2) override;
-  void MapSetGroup(int arg1, int arg2, int arg3, int arg4) override;
-  void MapSetFadeout(int arg1, int arg2) override;
-  void MapSetDisp(int arg1, int arg2) override;
-  void MapSetHide(int arg1, int arg2);
-  bool MapFadeEndChk_Wait() override;
-  void MapMoveAnimeInit(int arg1, int arg2, int arg3);
-  void MapMoveAnimeMain();
-  void MapGetPos(int arg1, int arg2, int &arg3, int &arg4) override;
-  void MapSetPool(int arg1, int arg2, int arg3) override;
+  void MapSetFadein(int partId, int partType) override;
+  void MapSetGroup(int index, int mappedId1, int mappedId2,
+                   int mappedId3) override;
+  void MapSetFadeout(int partId, int partType) override;
+  void MapSetDisp(int partId, int partType) override;
+  void MapSetHide(int arg1, int arg2) override;
+  bool MapPoolFadeEndChk_Wait() override;
+  void MapMoveAnimeInit(int arg1, int arg2, int arg3) override;
+  bool MapMoveAnimeMain() override;
+  void MapGetPos(int partId, int partType, int& getX, int& getY) override;
+  void MapSetPool(int index, int id, int type) override;
   void MapResetPoolAll(int arg1) override;
-  bool MapPoolFadeEndChk_Wait();
-  void MapPoolShuffle(int arg1) override;
+  bool MapFadeEndChk_Wait() override;
+  void MapPoolShuffle(int param_1) override;
   void MapPoolSetDisp(int arg1, int arg2) override;
-  void MapPoolSetHide(int arg1, int arg2);
-  void MapPoolSetFadein(int arg1, int arg2) override;
-  void MapPoolSetFadeout(int arg1, int arg2) override;
-  bool MapPlayerPhotoSelect(int arg1) override;
-  void MapResetPool(int arg1) override;
-  void MapSetGroupEx(int arg1, int arg2, int arg3) override;
-  void MapZoomInit(int arg1, int arg2, int arg3) override;
+  void MapPoolSetHide(int arg1, int arg2) override;
+  void MapPoolSetFadein(int unused, int poolIdx) override;
+  void MapPoolSetFadeout(int unused, int poolIdx) override;
+  bool MapPlayerPhotoSelect(int unused) override;
+  void MapResetPool(int poolIdx) override;
+  void MapSetGroupEx(int index, int type, int mappedId) override;
+  void MapZoomInit(int mapX, int mapY, int size) override;
   bool MapZoomMain() override;
-  void MapZoomInit2(int arg1, int arg2);
+  void MapZoomInit2(int arg1, int arg2) override;
   bool MapZoomMain3() override;
-  bool MapZoomInit3(int arg1, int arg2, int arg3, bool ex = false) override;
-  bool MapMoveAnimeInit2(int arg1, int arg2, int arg3) override;
+  bool MapZoomInit3(int setMapX, int setMapY, int setMapSize,
+                    bool halfZoom = false) override;
+  bool MapMoveAnimeInit2(int setMapX, int setMapY,
+                         int setTransitionSize) override;
   bool MapMoveAnimeMain2() override;
-  void MapPlayerPotalSelectInit();
-  bool MapPlayerPotalSelect();
-  void MapSystem_28();
-
+  void MapPlayerPotalSelectInit() override;
+  bool MapPlayerPotalSelect() override;
+  void MapSystem_28() override;
   void Update(float dt) override;
-  void Render() override;
   void RenderButtonGuide() override;
+  void Render() override;
 
   struct MapPoolStruct {
     int id;
@@ -54,9 +56,9 @@ class MapSystemCCLCC : public Impacto::UI::MapSystem::MapSystemBase {
   };
 
   struct MapGroupStruct {
-    int a;
-    int b;
-    int c;
+    int groupId1;
+    int groupId2;
+    int groupId3;
   };
 
   struct MapPoolDispStruct {
@@ -108,8 +110,8 @@ class MapSystemCCLCC : public Impacto::UI::MapSystem::MapSystemBase {
   void HandlePoolUpDownNav(int maxPoolRow, int poolType, bool isUp);
   void HandlePoolLeftRightNav(int maxPoolRow, int poolType, bool isLeft);
 
-  void MapSetFadeIn_PhotoArticle(int arg1, int arg2);
-  void MapSetFadeIn_Line(int arg1, int arg2);
+  void MapSetFadein_PhotoArticle(int arg1, int arg2);
+  void MapSetFadein_Line(int arg1, int arg2);
 
   std::array<MapSystemCCLCC::MapPoolStruct, 20> MapPool = {};
   std::array<MapSystemCCLCC::MapPoolDispStruct, 40> MapPoolDisp = {};

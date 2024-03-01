@@ -10,109 +10,80 @@ void Init() {
   Profile::MapSystem::Configure();
   Profile::MapSystem::CreateInstance();
 }
-
-void Render() {
-  if (MapSystemPtr) MapSystemPtr->Render();
+void MapInit() { return MapSystemPtr->MapInit(); }
+void MapSetFadein(int partId, int partType) {
+  return MapSystemPtr->MapSetFadein(partId, partType);
 }
-
-void RenderButtonGuide() {
-  if (MapSystemPtr) MapSystemPtr->RenderButtonGuide();
+void MapSetGroup(int index, int mappedId1, int mappedId2, int mappedId3) {
+  return MapSystemPtr->MapSetGroup(index, mappedId1, mappedId2, mappedId3);
 }
-
-void MapInit() {
-  if (MapSystemPtr) MapSystemPtr->MapInit();
+void MapSetFadeout(int partId, int partType) {
+  return MapSystemPtr->MapSetFadeout(partId, partType);
 }
-void MapSetFadeIn(int arg1, int arg2) {
-  if (MapSystemPtr) MapSystemPtr->MapSetFadein(arg1, arg2);
+void MapSetDisp(int partId, int partType) {
+  return MapSystemPtr->MapSetDisp(partId, partType);
 }
-
+void MapSetHide(int arg1, int arg2) {
+  return MapSystemPtr->MapSetHide(arg1, arg2);
+}
+bool MapPoolFadeEndChk_Wait() { return MapSystemPtr->MapPoolFadeEndChk_Wait(); }
+void MapMoveAnimeInit(int arg1, int arg2, int arg3) {
+  return MapSystemPtr->MapMoveAnimeInit(arg1, arg2, arg3);
+}
+bool MapMoveAnimeMain() { return MapSystemPtr->MapMoveAnimeMain(); }
+void MapGetPos(int partId, int partType, int& getX, int& getY) {
+  return MapSystemPtr->MapGetPos(partId, partType, getX, getY);
+}
 void MapSetPool(int index, int id, int type) {
-  if (MapSystemPtr) MapSystemPtr->MapSetPool(index, id, type);
+  return MapSystemPtr->MapSetPool(index, id, type);
 }
-
-void MapSetDisp(int arg1, int arg2) {
-  if (MapSystemPtr) MapSystemPtr->MapSetDisp(arg1, arg2);
+void MapResetPoolAll(int arg1) { return MapSystemPtr->MapResetPoolAll(arg1); }
+bool MapFadeEndChk_Wait() { return MapSystemPtr->MapFadeEndChk_Wait(); }
+void MapPoolShuffle(int param_1) {
+  return MapSystemPtr->MapPoolShuffle(param_1);
 }
-
-void MapResetPool(int index) {
-  if (MapSystemPtr) MapSystemPtr->MapResetPool(index);
-}
-
-void MapResetPoolAll(int index) {
-  if (MapSystemPtr) MapSystemPtr->MapResetPoolAll(index);
-}
-
 void MapPoolSetDisp(int arg1, int arg2) {
-  if (MapSystemPtr) MapSystemPtr->MapPoolSetDisp(arg1, arg2);
+  return MapSystemPtr->MapPoolSetDisp(arg1, arg2);
 }
-
-void MapPoolSetFadein(int arg1, int arg2) {
-  if (MapSystemPtr) MapSystemPtr->MapPoolSetFadein(arg1, arg2);
+void MapPoolSetHide(int arg1, int arg2) {
+  return MapSystemPtr->MapPoolSetHide(arg1, arg2);
 }
-
-void MapPoolSetFadeout(int arg1, int arg2) {
-  if (MapSystemPtr) MapSystemPtr->MapPoolSetFadeout(arg1, arg2);
+void MapPoolSetFadein(int unused, int poolIdx) {
+  return MapSystemPtr->MapPoolSetFadein(unused, poolIdx);
 }
-
-bool MapPoolFadeEndChk_Wait() {
-  if (MapSystemPtr) return MapSystemPtr->MapPoolFadeEndChk_Wait();
+void MapPoolSetFadeout(int unused, int poolIdx) {
+  return MapSystemPtr->MapPoolSetFadeout(unused, poolIdx);
 }
-
-bool MapPlayerPhotoSelect(int arg1) {
-  if (MapSystemPtr) return MapSystemPtr->MapPlayerPhotoSelect(arg1);
+bool MapPlayerPhotoSelect(int unused) {
+  return MapSystemPtr->MapPlayerPhotoSelect(unused);
 }
-
-void MapPoolShuffle(int arg1) {
-  if (MapSystemPtr) return MapSystemPtr->MapPoolShuffle(arg1);
+void MapResetPool(int poolIdx) { return MapSystemPtr->MapResetPool(poolIdx); }
+void MapSetGroupEx(int index, int type, int mappedId) {
+  return MapSystemPtr->MapSetGroupEx(index, type, mappedId);
 }
-
-void MapZoomInit(int arg1, int arg2, int arg3) {
-  if (MapSystemPtr) MapSystemPtr->MapZoomInit(arg1, arg2, arg3);
+void MapZoomInit(int mapX, int mapY, int size) {
+  return MapSystemPtr->MapZoomInit(mapX, mapY, size);
 }
-
-bool MapZoomMain() {
-  if (MapSystemPtr) return MapSystemPtr->MapZoomMain();
+bool MapZoomMain() { return MapSystemPtr->MapZoomMain(); }
+void MapZoomInit2(int arg1, int arg2) {
+  return MapSystemPtr->MapZoomInit2(arg1, arg2);
 }
-
-bool MapZoomInit3(int arg1, int arg2, int arg3) {
-  if (MapSystemPtr) return MapSystemPtr->MapZoomInit3(arg1, arg2, arg3);
+bool MapZoomMain3() { return MapSystemPtr->MapZoomMain3(); }
+bool MapZoomInit3(int setMapX, int setMapY, int setMapSize, bool halfZoom) {
+  return MapSystemPtr->MapZoomInit3(setMapX, setMapY, setMapSize, halfZoom);
 }
-
-bool MapZoomMain3() {
-  if (MapSystemPtr) return MapSystemPtr->MapZoomMain3();
+bool MapMoveAnimeInit2(int setMapX, int setMapY, int setTransitionSize) {
+  return MapSystemPtr->MapMoveAnimeInit2(setMapX, setMapY, setTransitionSize);
 }
-
-bool MapMoveAnimeInit2(int arg1, int arg2, int arg3) {
-  if (MapSystemPtr) return MapSystemPtr->MapMoveAnimeInit2(arg1, arg2, arg3);
+bool MapMoveAnimeMain2() { return MapSystemPtr->MapMoveAnimeMain2(); }
+void MapPlayerPotalSelectInit() {
+  return MapSystemPtr->MapPlayerPotalSelectInit();
 }
-
-bool MapMoveAnimeMain2() {
-  if (MapSystemPtr) return MapSystemPtr->MapMoveAnimeMain2();
-}
-
-void MapGetPos(int arg1, int arg2, int &arg3, int &arg4) {
-  if (MapSystemPtr) MapSystemPtr->MapGetPos(arg1, arg2, arg3, arg4);
-}
-
-void MapSetGroup(int arg1, int arg2, int arg3, int arg4) {
-  if (MapSystemPtr) MapSystemPtr->MapSetGroup(arg1, arg2, arg3, arg4);
-}
-
-void MapSetGroupEx(int arg1, int arg2, int arg3) {
-  if (MapSystemPtr) MapSystemPtr->MapSetGroupEx(arg1, arg2, arg3);
-}
-
-void MapSetFadeout(int arg1, int arg2) {
-  if (MapSystemPtr) MapSystemPtr->MapSetFadeout(arg1, arg2);
-}
-
-bool MapFadeEndChk_Wait() {
-  if (MapSystemPtr) return MapSystemPtr->MapFadeEndChk_Wait();
-}
-
-void Update(float dt) {
-  if (MapSystemPtr) MapSystemPtr->Update(dt);
-}
+bool MapPlayerPotalSelect() { return MapSystemPtr->MapPlayerPotalSelect(); }
+void MapSystem_28() { return MapSystemPtr->MapSystem_28(); }
+void Update(float dt) { return MapSystemPtr->Update(dt); }
+void RenderButtonGuide() { return MapSystemPtr->RenderButtonGuide(); }
+void Render() { return MapSystemPtr->Render(); }
 
 }  // namespace MapSystem
 }  // namespace UI
