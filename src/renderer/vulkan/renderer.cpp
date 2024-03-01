@@ -1135,6 +1135,20 @@ void Renderer::DrawCharacterMvlImpl(Sprite const& sprite, glm::vec2 topLeft,
 void Renderer::DrawSpriteImpl(Sprite const& sprite, RectF const& dest,
                               glm::vec4 tint, float angle, bool inverted,
                               bool isScreencap) {
+  std::array<glm::vec4, 4> tints = {tint, tint, tint, tint};
+  std::array<glm::vec2, 4> destQuad = {
+      glm::vec2{dest.X, dest.Y + dest.Height},
+      glm::vec2{dest.X, dest.Y},
+      glm::vec2{dest.X + dest.Width, dest.Y},
+      glm::vec2{dest.X + dest.Width, dest.Y + dest.Height},
+  };
+  DrawSpriteImpl(sprite, destQuad, tints, angle, inverted, isScreencap);
+}
+
+void Renderer::DrawSpriteImpl(Sprite const& sprite,
+                              std::array<glm::vec2, 4> const& dest,
+                              std::array<glm::vec4, 4> const& tints,
+                              float angle, bool inverted, bool isScreencap) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawSprite() called before BeginFrame()\n");
@@ -1165,6 +1179,46 @@ void Renderer::DrawSpriteImpl(Sprite const& sprite, RectF const& dest,
             (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
   QuadSetPosition(dest, angle, (uintptr_t)&vertices[0].Position,
                   sizeof(VertexBufferSprites));
+
+  for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
+}
+
+void Renderer::DrawSpriteOffsetImpl(Sprite const& sprite, glm::vec2 topLeft,
+                                    glm::vec2 centerSprite, glm::vec4 tint,
+                                    glm::vec2 scale, float angle,
+                                    bool inverted) {
+  if (!Drawing) {
+    ImpLog(LL_Error, LC_Render,
+           "Renderer->DrawSprite() called before BeginFrame()\n");
+    return;
+  }
+
+  if (!sprite.Sheet.Texture) return;
+  if (Textures.count(sprite.Sheet.Texture) == 0) return;
+
+  // Are we in sprite mode?
+  if (inverted)
+    EnsureMode(PipelineSpriteInverted);
+  else
+    EnsureMode(PipelineSprite);
+
+  // Do we have the texture assigned?
+  EnsureTextureBound(sprite.Sheet.Texture);
+
+  // OK, all good, make quad
+  MakeQuad();
+
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferOffset +
+                             VertexBufferFill);
+  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
+
+  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
+            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
+
+  QuadSetPositionOffset(sprite.Bounds, topLeft, centerSprite, scale, angle,
+                        (uintptr_t)&vertices[0].Position,
+                        sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
@@ -1509,6 +1563,56 @@ inline void Renderer::QuadSetUV(RectF const& spriteBounds, float designWidth,
   *(glm::vec2*)(uvs + 3 * stride) = topRight;
 }
 
+inline void Renderer::QuadSetPositionOffset(RectF const& spriteBounds,
+                                            glm::vec2 displayXY,
+                                            glm::vec2 displayOffset,
+                                            glm::vec2 scale, float angle,
+                                            uintptr_t positions, int stride) {
+  glm::vec2 bottomLeft =
+      glm::vec2(spriteBounds.X, spriteBounds.Y + spriteBounds.Height);
+  glm::vec2 topLeft = glm::vec2(spriteBounds.X, spriteBounds.Y);
+  glm::vec2 topRight =
+      glm::vec2(spriteBounds.X + spriteBounds.Width, spriteBounds.Y);
+  glm::vec2 bottomRight = glm::vec2(spriteBounds.X + spriteBounds.Width,
+                                    spriteBounds.Y + spriteBounds.Height);
+
+  // reset origin to to left and add offset
+  bottomLeft -= topLeft;
+  topRight -= topLeft;
+  bottomRight -= topLeft;
+  topLeft -= topLeft;
+
+  // Rotate
+  if (angle != 0.0f) {
+    glm::mat2 rot = Rotate2D(angle);
+    glm::vec2 center = (bottomLeft + topRight) * 0.5f;
+
+    bottomLeft = rot * (bottomLeft - center) + center;
+    topLeft = rot * (topLeft - center) + center;
+    topRight = rot * (topRight - center) + center;
+    bottomRight = rot * (bottomRight - center) + center;
+  }
+
+  // Scale
+  bottomLeft = bottomLeft * scale;
+  topLeft = topLeft * scale;
+  topRight = topRight * scale;
+  bottomRight = bottomRight * scale;
+
+  // Translate to the desired screen position
+  glm::vec2 newPos = displayXY - displayOffset * scale + displayOffset;
+  bottomLeft += newPos;
+  topLeft += newPos;
+  topRight += newPos;
+  bottomRight += newPos;
+
+  // Store the transformed positions
+  *(glm::vec2*)(positions + 0 * stride) = DesignToNDCNonFlipped(bottomLeft);
+  *(glm::vec2*)(positions + 1 * stride) = DesignToNDCNonFlipped(topLeft);
+  *(glm::vec2*)(positions + 2 * stride) = DesignToNDCNonFlipped(topRight);
+  *(glm::vec2*)(positions + 3 * stride) = DesignToNDCNonFlipped(bottomRight);
+}
+
 inline void Renderer::QuadSetPosition(RectF const& transformedQuad, float angle,
                                       uintptr_t positions, int stride) {
   glm::vec2 bottomLeft =
@@ -1537,6 +1641,34 @@ inline void Renderer::QuadSetPosition(RectF const& transformedQuad, float angle,
   *(glm::vec2*)(positions + 2 * stride) = DesignToNDCNonFlipped(bottomRight);
   // top-right
   *(glm::vec2*)(positions + 3 * stride) = DesignToNDCNonFlipped(topRight);
+}
+
+inline void Renderer::QuadSetPosition(std::array<glm::vec2, 4> const& destQuad,
+                                      float angle, uintptr_t positions,
+                                      int stride) {
+  glm::vec2 bottomLeft = destQuad[0];
+  glm::vec2 topLeft = destQuad[1];
+  glm::vec2 topRight = destQuad[2];
+  glm::vec2 bottomRight = destQuad[3];
+
+  if (angle != 0.0f) {
+    glm::vec2 center = (bottomLeft + topRight) * 0.5f;
+    glm::mat2 rot = Rotate2D(angle);
+
+    bottomLeft = rot * (bottomLeft - center) + center;
+    topLeft = rot * (topLeft - center) + center;
+    topRight = rot * (topRight - center) + center;
+    bottomRight = rot * (bottomRight - center) + center;
+  }
+
+  // bottom-left
+  *(glm::vec2*)(positions + 0 * stride) = DesignToNDCNonFlipped(bottomLeft);
+  // top-left
+  *(glm::vec2*)(positions + 1 * stride) = DesignToNDCNonFlipped(topLeft);
+  // top-right
+  *(glm::vec2*)(positions + 2 * stride) = DesignToNDCNonFlipped(topRight);
+  // bottom-right
+  *(glm::vec2*)(positions + 3 * stride) = DesignToNDCNonFlipped(bottomRight);
 }
 
 void Renderer::QuadSetPosition3DRotated(RectF const& transformedQuad,

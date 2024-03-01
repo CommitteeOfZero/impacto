@@ -47,6 +47,7 @@
 #include "profile/ui/tipsmenu.h"
 #include "profile/ui/extramenus.h"
 #include "profile/ui/trophymenu.h"
+#include "profile/ui/mapsystem.h"
 
 namespace Impacto {
 
@@ -128,6 +129,7 @@ static void Init() {
     DateDisplay::Init();
     TipsNotification::Init();
     DelusionTrigger::Init();
+    UI::MapSystem::Init();
   }
 
   Profile::ClearProfile();
@@ -231,6 +233,7 @@ void Update(float dt) {
     DateDisplay::Update(dt);
     TipsNotification::Update(dt);
     DelusionTrigger::Update(dt);
+    UI::MapSystem::Update(dt);
   }
 
   if (Profile::GameFeatures & GameFeature::Audio) {
@@ -376,6 +379,9 @@ void Render() {
               int bufId = ScrWork[SW_CHA1SURF + i];
               Characters2D[bufId].Render(i, layer);
             }
+            if (ScrWork[6361] == layer && ScrWork[6360]) {
+              UI::MapSystem::Render();
+            }
             if (ScrWork[SW_MASK1PRI] == layer) {
               int maskAlpha =
                   ScrWork[SW_MASK1ALPHA_OFS] + ScrWork[SW_MASK1ALPHA];
@@ -449,6 +455,7 @@ void Render() {
           break;
         }
         case DrawComponentType::SystemIcons: {
+          UI::MapSystem::RenderButtonGuide();
           LoadingDisplay::Render();
           SaveIconDisplay::Render();
           break;

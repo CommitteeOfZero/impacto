@@ -68,6 +68,16 @@ root.SpriteSheets = {
         Path = { Mount = "system", Id = 24 },
         DesignWidth = 4096,
         DesignHeight = 2048
+    },
+    ["MapBG"] = {
+        Path = { Mount = "system", Id = 16 },
+        DesignWidth = 3378,
+        DesignHeight = 1900
+    },
+    ["MapParts"] = {
+        Path = { Mount = "system", Id = 18 },
+        DesignWidth = 2048,
+        DesignHeight = 3072
     }
 };
 
