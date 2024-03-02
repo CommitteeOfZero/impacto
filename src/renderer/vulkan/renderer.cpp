@@ -1607,10 +1607,10 @@ inline void Renderer::QuadSetPositionOffset(RectF const& spriteBounds,
   bottomRight += newPos;
 
   // Store the transformed positions
-  *(glm::vec2*)(positions + 0 * stride) = DesignToNDCNonFlipped(bottomLeft);
-  *(glm::vec2*)(positions + 1 * stride) = DesignToNDCNonFlipped(topLeft);
-  *(glm::vec2*)(positions + 2 * stride) = DesignToNDCNonFlipped(topRight);
-  *(glm::vec2*)(positions + 3 * stride) = DesignToNDCNonFlipped(bottomRight);
+  *(glm::vec2*)(positions + 0 * stride) = DesignToNDCNonFlipped(topLeft);
+  *(glm::vec2*)(positions + 1 * stride) = DesignToNDCNonFlipped(bottomLeft);
+  *(glm::vec2*)(positions + 2 * stride) = DesignToNDCNonFlipped(bottomRight);
+  *(glm::vec2*)(positions + 3 * stride) = DesignToNDCNonFlipped(topRight);
 }
 
 inline void Renderer::QuadSetPosition(RectF const& transformedQuad, float angle,
@@ -1662,13 +1662,13 @@ inline void Renderer::QuadSetPosition(std::array<glm::vec2, 4> const& destQuad,
   }
 
   // bottom-left
-  *(glm::vec2*)(positions + 0 * stride) = DesignToNDCNonFlipped(bottomLeft);
+  *(glm::vec2*)(positions + 0 * stride) = DesignToNDCNonFlipped(topLeft);
   // top-left
-  *(glm::vec2*)(positions + 1 * stride) = DesignToNDCNonFlipped(topLeft);
+  *(glm::vec2*)(positions + 1 * stride) = DesignToNDCNonFlipped(bottomLeft);
   // top-right
-  *(glm::vec2*)(positions + 2 * stride) = DesignToNDCNonFlipped(topRight);
+  *(glm::vec2*)(positions + 2 * stride) = DesignToNDCNonFlipped(bottomRight);
   // bottom-right
-  *(glm::vec2*)(positions + 3 * stride) = DesignToNDCNonFlipped(bottomRight);
+  *(glm::vec2*)(positions + 3 * stride) = DesignToNDCNonFlipped(topRight);
 }
 
 void Renderer::QuadSetPosition3DRotated(RectF const& transformedQuad,
