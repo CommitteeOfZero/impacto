@@ -167,6 +167,10 @@ void FFmpegPlayer::Play(Io::InputStream* stream, bool looping, bool alpha) {
     if (!VideoTexture)
       VideoTexture =
           Renderer->CreateYUVFrame(codecCtx->width, codecCtx->height);
+    else {
+      VideoTexture->Width = codecCtx->width;
+      VideoTexture->Height = codecCtx->height;
+    }
   }
 
   // Find and open the audio codec
