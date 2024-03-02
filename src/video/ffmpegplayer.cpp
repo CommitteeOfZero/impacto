@@ -252,6 +252,7 @@ void FFmpegPlayer::Read() {
   while (!AbortRequest) {
     if (SeekRequest) {
       SeekRequest = false;
+      ReaderEOF = false;
 
       int64_t timestamp = SeekPosition * AV_TIME_BASE;
       avformat_seek_file(FormatContext, -1, timestamp - 1 * AV_TIME_BASE,
@@ -492,7 +493,6 @@ void FFmpegPlayer::Stop() {
 void FFmpegPlayer::Seek(int64_t pos) {
   SeekRequest = true;
   SeekPosition = pos;
-  ReaderEOF = false;
   SDL_CondSignal(ReadCond);
 }
 
