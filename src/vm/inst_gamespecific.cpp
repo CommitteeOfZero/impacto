@@ -1126,7 +1126,41 @@ VmInstruction(InstUnk1037Noah) {
     } break;
   }
 }
-VmInstruction(InstMtrg) { StartInstruction; }
+VmInstruction(InstMtrg) {
+  StartInstruction;
+  PopUint8(type);
+  switch (type) {
+    case 0: {
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction MtrgStart(type: %i)\n", type);
+      DelusionTrigger::Show();
+    } break;
+    case 1: {
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction MtrgEnd_Wait(type: %i)\n", type);
+      DelusionTrigger::Hide();
+    } break;
+    case 2: {
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Mtrg_02(type: %i)\n",
+                 type);
+    } break;
+    case 3: {
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction MtrgStop_Wait(type: %i)\n", type);
+      DelusionTrigger::Hide();
+    } break;
+    case 4: {
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Mtrg_04_Wait(type: %i)\n", type);
+      BlockThread;
+    } break;
+    case 5: {
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction MtrgSetEvent(type: %i)\n", type);
+      BlockThread;
+    } break;
+  }
+}
 
 }  // namespace Vm
 
