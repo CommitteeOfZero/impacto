@@ -337,8 +337,9 @@ void FFmpegPlayer::Decode(AVMediaType avType) {
     case AVMEDIA_TYPE_VIDEO:
       stream = VideoStream;
       frameRate = av_guess_frame_rate(FormatContext, stream->stream, NULL);
-      duration =
-          (frameRate.num && frameRate.den ? av_q2d(frameRate) / 1000.0 : 0.0);
+      duration = (frameRate.num && frameRate.den
+                      ? av_q2d({frameRate.den, frameRate.num})
+                      : 0.0);
       break;
     case AVMEDIA_TYPE_AUDIO:
       stream = AudioStream;
@@ -399,8 +400,12 @@ void FFmpegPlayer::Decode(AVMediaType avType) {
       if (ret >= 0) {
         AVFrameItem item;
         item.Serial = stream->PacketQueueSerial;
-        item.Timestamp =
-            frame->best_effort_timestamp * av_q2d(stream->stream->time_base);
+        if (frame->best_effort_timestamp == AV_NOPTS_VALUE) {
+          item.Timestamp = NAN;
+        } else {
+          item.Timestamp =
+              frame->best_effort_timestamp * av_q2d(stream->stream->time_base);
+        }
         item.Duration = duration;
         item.Frame = av_frame_alloc();
         av_frame_move_ref(item.Frame, frame);
@@ -565,6 +570,8 @@ void FFmpegPlayer::Update(float dt) {
       double duration;
       if (PreviousFrameTimestamp == -1) {
         duration = 0.0;
+      } else if (isnan(frame.Timestamp)) {
+        duration = frame.Duration;
       } else {
         duration = frame.Timestamp - PreviousFrameTimestamp;
       }
@@ -585,8 +592,10 @@ void FFmpegPlayer::Update(float dt) {
       }
       PreviousFrameTimestamp = frame.Timestamp;
 
-      VideoClock->Set(frame.Timestamp, frame.Serial);
-      ExternalClock->SyncTo(VideoClock);
+      if (!isnan(frame.Timestamp)) {
+        VideoClock->Set(frame.Timestamp, frame.Serial);
+        ExternalClock->SyncTo(VideoClock);
+      }
 
       VideoTexture->Submit(frame.Frame->data[0], frame.Frame->data[1],
                            frame.Frame->data[2]);
