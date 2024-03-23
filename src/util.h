@@ -173,4 +173,18 @@ inline void TrimString(std::string& str) {
             str.end());
 }
 
+template <typename T>
+T UnalignedRead(void* ptr) {
+  static_assert(std::is_pod<T>::value, "!std::is_pod<T>");
+  T value;
+  memcpy(&value, ptr, sizeof value);
+  return value;
+}
+
+template <typename T>
+void UnalignedWrite(void* ptr, T value) {
+  static_assert(std::is_pod<T>::value, "!std::is_pod<T>");
+  memcpy(ptr, &value, sizeof value);
+}
+
 }  // namespace Impacto

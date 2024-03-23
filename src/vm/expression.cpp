@@ -209,8 +209,8 @@ int ExpressionNode::Evaluate(Sc3VmThread* thd) {
       rightVal = RightExpr->Evaluate(thd);
       if (leftVal >= 0) {
         uint8_t* scrBuf = ScriptBuffers[thd->ScriptBufferId];
-        int* dataArray = (int*)&scrBuf[leftVal];
-        return dataArray[rightVal];
+        uint8_t* dataArray = (uint8_t*)&scrBuf[leftVal];
+        return UnalignedRead<int>(&dataArray[rightVal * sizeof(int)]);
       } else {
         ImpLogSlow(LL_Warning, LC_Expr, "STUB token %02X evaluate\n", ExprType);
         // TODO: Handle this
@@ -222,7 +222,8 @@ int ExpressionNode::Evaluate(Sc3VmThread* thd) {
     case ET_FuncFarLabelTable:
       return 0;
     case ET_FuncThreadVars:
-      return *(uint32_t*)(thd->GetMemberPointer(RightExpr->Evaluate(thd)));
+      return UnalignedRead<uint32_t>(
+          thd->GetMemberPointer(RightExpr->Evaluate(thd)));
     case ET_FuncDMA:
     case ET_FuncUnk2F:
     case ET_FuncUnk30:
@@ -301,8 +302,8 @@ void ExpressionNode::AssignValue(Sc3VmThread* thd) {
       SetFlag(index, leftVal);
       break;
     case ET_FuncThreadVars: {
-      uint32_t* thdWork = (uint32_t*)thd->GetMemberPointer(index);
-      *(thdWork) = leftVal;
+      void* thdWork = thd->GetMemberPointer(index);
+      UnalignedWrite<int>(thdWork, leftVal);
       break;
     }
     case ET_FuncDMA:

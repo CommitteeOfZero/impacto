@@ -28,8 +28,6 @@ void LoadAnimations() {
         Pop();
       }
 
-      LuaDumpStack();
-
       Pop();
     }
 

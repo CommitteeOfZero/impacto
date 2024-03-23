@@ -151,17 +151,17 @@ VmInstruction(InstMemberWrite) {
   StartInstruction;
   if (noExpressions) {
     PopUint8(index);
-    uint32_t* thdElement = (uint32_t*)thread->GetMemberPointer(index);
+    void* thdElement = thread->GetMemberPointer(index);
     uint8_t* immValue = thread->Ip;
     int value = immValue[0] + (immValue[1] << 8) + (immValue[2] << 16) +
                 (immValue[3] << 24);
     thread->Ip += 4;
-    *thdElement = value;
+    UnalignedWrite<uint32_t>(thdElement, value);
   } else {
     PopExpression(index);
-    uint32_t* thdElement = (uint32_t*)thread->GetMemberPointer(index);
+    void* thdElement = thread->GetMemberPointer(index);
     PopExpression(value);
-    *thdElement = value;
+    UnalignedWrite<uint32_t>(thdElement, value);
   }
 }
 VmInstruction(InstThreadControl) {

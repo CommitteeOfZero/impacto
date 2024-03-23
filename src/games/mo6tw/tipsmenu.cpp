@@ -150,8 +150,8 @@ void TipsMenu::Init() {
   Group *pageItems = new Group(this);
 
   // String of characters by which tips are sorted, taken from _system script
-  auto sortString = (uint16_t *)Vm::ScriptGetTextTableStrAddress(
-      SortStringTable, SortStringIndex);
+  auto sortString =
+      Vm::ScriptGetTextTableStrAddress(SortStringTable, SortStringIndex);
 
   Records = TipsSystem::GetTipRecords();
   auto recordCount = TipsSystem::GetTipCount();
@@ -179,7 +179,8 @@ void TipsMenu::Init() {
     // name inside a predefined template
     if (record->SortLetterIndex != currentCategoryId) {
       currentCategoryId = record->SortLetterIndex;
-      CategoryString[1] = sortString[currentCategoryId];
+      CategoryString[1] = UnalignedRead<uint16_t>(
+          &sortString[currentCategoryId * sizeof(uint16_t)]);
 
       Label *categoryLabel = new Label();
       categoryLabel->Bounds.X = TipListEntryBounds.X;

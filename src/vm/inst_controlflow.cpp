@@ -28,7 +28,7 @@ VmInstruction(InstJumpTable) {
       ScriptBuffers[thread->ScriptBufferId], dataLabelNum);
   uint8_t* labelAdr = ScriptGetLabelAddress(
       ScriptBuffers[thread->ScriptBufferId],
-      SDL_SwapLE16(*(uint16_t*)(dataAdr + 2 * labelNumIndex)));
+      SDL_SwapLE16(UnalignedRead<uint16_t>(dataAdr + 2 * labelNumIndex)));
 
   thread->Ip = labelAdr;
 }
