@@ -1,14 +1,54 @@
 root.TitleMenu = {
-    Type = TitleMenuType.Dash,
+    Type = TitleMenuType.MO8,
     DrawType = DrawComponentType.SystemMenu,
     PressToStartX = 744,
     PressToStartY = 586,
-    PressToStartAnimDurationIn = 0.7,
-    PressToStartAnimDurationOut = 0.7,
+    LogoX = 560,
+    LogoY = 24,
+    MenuEntriesNum = 13,
+    MenuEntriesSprites = {},
+    MenuEntriesHighlightedSprites = {},
+    MenuEntriesX = 744,
+    MenuEntriesFirstY = 586,
+    MenuEntriesYPadding = 80,
+    NewGameSpriteIndex = 10,
+    ContinueSpriteIndex = 9,
+    OptionSpriteIndex = 8,
+    PressToStartAnimated = false,
+    PressToStartAnimDurationIn = 0,
+    PressToStartAnimDurationOut = 0,
     PressToStartSprite = "TitleMenuPressToStart",
     BackgroundSprite = "TitleMenuBackground",
-    MenuEntriesNum = 0
+    LogoSprite = "TitleMenuLogo"
 };
+
+for i = 1, 8 do
+    root.Sprites["MenuEntry" .. i] = {
+        Sheet = "TitleChip",
+        Bounds = {
+            X = 0,
+            Y = 308 + (i * 80),
+            Width = 430,
+            Height = 80
+        }
+    };
+    root.TitleMenu.MenuEntriesSprites[#root.TitleMenu.MenuEntriesSprites + 1] = "MenuEntry" .. i;
+end
+
+for i = 0, 4 do
+    root.Sprites["MenuEntry" .. (i + 10)] = {
+        Sheet = "TitleChip",
+        Bounds = {
+            X = 430,
+            Y = 308 + (i * 80),
+            Width = 430,
+            Height = 80
+        }
+    };
+    root.TitleMenu.MenuEntriesSprites[#root.TitleMenu.MenuEntriesSprites + 1] = "MenuEntry" .. (i + 10);
+end
+
+root.TitleMenu.MenuEntriesHighlightedSprites = root.TitleMenu.MenuEntriesSprites;
 
 root.Sprites["TitleMenuPressToStart"] = {
     Sheet = "TitleChip",
@@ -18,4 +58,9 @@ root.Sprites["TitleMenuPressToStart"] = {
 root.Sprites["TitleMenuBackground"] = {
     Sheet = "Title",
     Bounds = { X = 0, Y = 0, Width = 1920, Height = 1080 },
+};
+
+root.Sprites["TitleMenuLogo"] = {
+    Sheet = "TitleChip",
+    Bounds = { X = 0, Y = 0, Width = 800, Height = 300 },
 };

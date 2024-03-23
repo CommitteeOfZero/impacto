@@ -463,24 +463,25 @@ VmInstruction(InstTitleMenuNew) {
           ScrWork[SW_TITLEMODE] = 2;
           ScrWork[SW_TITLEDISPCT] = 0;
           ScrWork[SW_TITLEMOVIECT] = 0;
-          SetFlag(1241, 1);
+          SetFlag(SF_TITLEEND, 1);
         }
       }
       if (Profile::Vm::GameInstructionSet == +InstructionSet::MO8) {
-        if (ScrWork[SW_TITLEMODE] == 5) {
-          if (((Interface::PADinputButtonWentDown & Interface::PAD1A) ||
-               (Interface::PADinputMouseWentDown & Interface::PAD1A))) {
-            ScrWork[2139] = 0;
-            SetFlag(1241, 1);
-          }
-        } else if (ScrWork[SW_TITLEMODE] == 1) {
+        if (ScrWork[SW_TITLEMODE] == 1) {
+          ScrWork[SW_TITLEMOVIECT] += 1;
           // Check "PRESS TO START" here
           if (((Interface::PADinputButtonWentDown & Interface::PAD1A) ||
                (Interface::PADinputMouseWentDown & Interface::PAD1A))) {
+            Io::InputStream* stream;
+            int64_t err = Io::VfsOpen("sysse", 0, &stream);
+            if (err == IoError_OK) {
+              Audio::Channels[Audio::AC_SSE].Play(
+                  Audio::AudioStream::Create(stream), false, 0.0f);
+            }
             ScrWork[SW_TITLEMODE] = 2;
             ScrWork[SW_TITLEDISPCT] = 0;
             ScrWork[SW_TITLEMOVIECT] = 0;
-            SetFlag(1241, 1);
+            SetFlag(SF_TITLEEND, 1);
           }
         }
       }
