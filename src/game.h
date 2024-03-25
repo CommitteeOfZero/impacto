@@ -20,6 +20,8 @@ BETTER_ENUM(GameFeature, int, Nuklear = (1 << 0), Scene3D = (1 << 1),
 
 BETTER_ENUM(VideoPlayerType, int, FFmpeg);
 
+BETTER_ENUM(AudioBackendType, int, OpenAL);
+
 namespace Game {
 
 BETTER_ENUM(DrawComponentType, uint8_t, Text = 0x0, Main = 0x1,
