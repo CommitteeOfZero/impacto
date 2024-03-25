@@ -7,6 +7,7 @@ namespace Profile {
 
 RendererType ActiveRenderer{RendererType::OpenGL};
 VideoPlayerType VideoPlayer{VideoPlayerType::FFmpeg};
+AudioBackendType ActiveAudioBackend{AudioBackendType::OpenAL};
 
 int LayerCount;
 int GameFeatures;
@@ -44,6 +45,13 @@ void LoadGameFromJson() {
   if (!res) LayFileTexYMultiplier = 1.0f;
   res = TryGetMemberBool("UseScreenCapEffects", UseScreenCapEffects);
   if (!res) UseScreenCapEffects = true;
+  int audioBackendType = -1;
+  res = TryGetMemberInt("AudioBackendType", audioBackendType);
+  if (!res)
+    ActiveAudioBackend = AudioBackendType::OpenAL;
+  else
+    ActiveAudioBackend =
+        AudioBackendType::_from_integral_unchecked(audioBackendType);
   int videoPlayerType = -1;
   res = TryGetMemberInt("VideoPlayerType", videoPlayerType);
   if (!res)

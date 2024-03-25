@@ -475,7 +475,7 @@ VmInstruction(InstTitleMenuNew) {
             Io::InputStream* stream;
             int64_t err = Io::VfsOpen("sysse", 0, &stream);
             if (err == IoError_OK) {
-              Audio::Channels[Audio::AC_SSE].Play(
+              Audio::Channels[Audio::AC_SSE]->Play(
                   Audio::AudioStream::Create(stream), false, 0.0f);
             }
             ScrWork[SW_TITLEMODE] = 2;

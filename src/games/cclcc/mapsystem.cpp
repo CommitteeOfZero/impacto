@@ -1691,7 +1691,7 @@ void MapSystemCCLCC::MapFadeMain(float dt) {
               partsDispElem.type >= 8 && partsDispElem.type <= 11) {
             Io::InputStream* stream;
             if (Io::VfsOpen("sysse", 7, &stream) == IoError_OK)
-              Audio::Channels[Audio::AC_SSE].Play(
+              Audio::Channels[Audio::AC_SSE]->Play(
                   Audio::AudioStream::Create(stream), false, 0.0f);
           }
           partsDispElem.fadeAnim.StartIn(true);
@@ -1704,7 +1704,7 @@ void MapSystemCCLCC::MapFadeMain(float dt) {
               partsDispElem.type >= 8 && partsDispElem.type <= 11) {
             Io::InputStream* stream;
             if (Io::VfsOpen("sysse", 9, &stream) == IoError_OK)
-              Audio::Channels[Audio::AC_SSE].Play(
+              Audio::Channels[Audio::AC_SSE]->Play(
                   Audio::AudioStream::Create(stream), false, 0.0f);
           }
           partsDispElem.fadeAnim.StartOut(true);
@@ -1739,7 +1739,7 @@ void MapSystemCCLCC::MapFadeMain(float dt) {
             Io::InputStream* stream;
             int64_t err = Io::VfsOpen("sysse", 7, &stream);
             if (err == IoError_OK) {
-              Audio::Channels[Audio::AC_SSE].Play(
+              Audio::Channels[Audio::AC_SSE]->Play(
                   Audio::AudioStream::Create(stream), false, 0.0f);
             }
           }
@@ -1754,7 +1754,7 @@ void MapSystemCCLCC::MapFadeMain(float dt) {
             Io::InputStream* stream;
             int64_t err = Io::VfsOpen("sysse", 9, &stream);
             if (err == IoError_OK) {
-              Audio::Channels[Audio::AC_SSE].Play(
+              Audio::Channels[Audio::AC_SSE]->Play(
                   Audio::AudioStream::Create(stream), false, 0.0f);
             }
           }

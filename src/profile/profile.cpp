@@ -153,6 +153,7 @@ void MakeJsonProfile(std::string const& name) {
   // Enums /sigh
   DefineEnumInt<RendererType>(LuaState);
   DefineEnumInt<VideoPlayerType>(LuaState);
+  DefineEnumInt<AudioBackendType>(LuaState);
   DefineEnumInt<TextAlignment>(LuaState);
   DefineEnumInt<GameFeature>(LuaState);
   DefineEnumInt<CharacterTypeFlags>(LuaState);

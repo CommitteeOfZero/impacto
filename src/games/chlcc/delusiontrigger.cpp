@@ -211,9 +211,9 @@ void DelusionTrigger::PlayClickSound() {
   Impacto::Io::InputStream* stream;
   Impacto::Io::VfsOpen("se", 19, &stream);
   ScrWork[SW_SEREQNO + 0] = 19;
-  Impacto::Audio::Channels[Audio::AC_SE0 + 0].Volume =
+  Impacto::Audio::Channels[Audio::AC_SE0 + 0]->Volume =
       (ScrWork[SW_SEVOL + 0] / 100.0f) * 0.3f;
-  Impacto::Audio::Channels[Audio::AC_SE0 + 0].Play(
+  Impacto::Audio::Channels[Audio::AC_SE0 + 0]->Play(
       Impacto::Audio::AudioStream::Create(stream), false, 0.0f);
 }
 

@@ -2,7 +2,6 @@
 #ifndef IMPACTO_DISABLE_FFMPEG
 #include "ffmpegplayer.h"
 #endif
-#include "nullplayer.h"
 #include "../profile/game.h"
 #include "../log.h"
 
@@ -34,7 +33,7 @@ void VideoInit() {
              "No suitable video player found! Using a null one, which means "
              "you will not see any videos.\n");
       for (int i = 0; i < VP_Count; i++) {
-        Players[i] = new NullPlayer();
+        Players[i] = new VideoPlayer();
       }
     } break;
   }

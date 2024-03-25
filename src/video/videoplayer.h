@@ -12,13 +12,13 @@ class VideoPlayer {
  public:
   static VideoPlayer* Create(Io::InputStream* stream);
 
-  virtual void Init() = 0;
-  virtual void Play(Io::InputStream* stream, bool loop, bool alpha) = 0;
-  virtual void Stop() = 0;
-  virtual void Seek(int64_t pos) = 0;
+  virtual void Init(){};
+  virtual void Play(Io::InputStream* stream, bool loop, bool alpha){};
+  virtual void Stop(){};
+  virtual void Seek(int64_t pos){};
 
-  virtual void Update(float dt) = 0;
-  virtual void Render(float videoAlpha) = 0;
+  virtual void Update(float dt){};
+  virtual void Render(float videoAlpha){};
 
   bool IsPlaying;
 

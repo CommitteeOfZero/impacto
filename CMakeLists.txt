@@ -264,7 +264,6 @@ set(Impacto_Src
         src/vm/interface/input.cpp
 
         src/audio/audiosystem.cpp
-        src/audio/audiochannel.cpp
         src/audio/audiostream.cpp
         src/audio/vorbisaudiostream.cpp
         src/audio/atrac9audiostream.cpp
@@ -273,7 +272,6 @@ set(Impacto_Src
 
         src/video/videosystem.cpp
         src/video/videoplayer.cpp
-        src/video/nullplayer.cpp
 
         vendor/clHCA/clHCA.c
 
@@ -549,11 +547,13 @@ set(Impacto_Header
         src/vm/interface/scene2d.h
         src/vm/interface/input.h
 
+        src/audio/audiobackend.h
         src/audio/audiosystem.h
         src/audio/audiocommon.h
         src/audio/audiochannel.h
         src/audio/audiostream.h
         src/audio/buffering.h
+        src/audio/ffmpegaudioplayer.h
         src/audio/vorbisaudiostream.h
         src/audio/atrac9audiostream.h
         src/audio/adxaudiostream.h
@@ -561,7 +561,6 @@ set(Impacto_Header
 
         src/video/videosystem.h
         src/video/videoplayer.h
-        src/video/nullplayer.h
 
         vendor/clHCA/clHCA.h
 
@@ -610,19 +609,37 @@ endif ()
 
 find_package(Libatrac9 REQUIRED)
 find_package(glm REQUIRED)
-find_package(OpenAL REQUIRED)
 
 if (NX) # avoid CMAKE_DL_LIBS for NX
     set(Impacto_Libs
             ${LIBATRAC9_LIBRARY}
-            ${OPENAL_LIBRARY}
     )
 else ()
     set(Impacto_Libs
             ${CMAKE_DL_LIBS}
             ${LIBATRAC9_LIBRARY}
+    )
+endif ()
+
+if (NOT DEFINED IMPACTO_DISABLE_OPENAL)
+    find_package(OpenAL REQUIRED)
+
+    list(APPEND Impacto_Libs
             ${OPENAL_LIBRARY}
     )
+
+    list(APPEND Impacto_Src
+            src/audio/openal/audiobackend.cpp
+            src/audio/openal/audiochannel.cpp
+            src/audio/openal/ffmpegaudioplayer.cpp
+    )
+    list(APPEND Impacto_Header
+            src/audio/openal/audiobackend.h
+            src/audio/openal/audiochannel.h
+            src/audio/openal/audiocommon.h
+            src/audio/openal/ffmpegaudioplayer.h
+    )
+
 endif ()
 
 if (EMSCRIPTEN)
@@ -718,7 +735,9 @@ else ()
 endif ()
 
 include_directories(${LIBATRAC9_INCLUDE_DIR})
-include_directories(${OPENAL_INCLUDE_DIR})
+if (NOT DEFINED IMPACTO_DISABLE_OPENAL)
+    include_directories(${OPENAL_INCLUDE_DIR})
+endif ()
 include_directories(${SDL2_INCLUDE_DIRS})
 include_directories(${WebP_INCLUDE_DIRS})
 include_directories(vendor/include)

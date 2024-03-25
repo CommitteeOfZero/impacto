@@ -91,7 +91,7 @@ void MusicMenu::Hide() {
     }
     CurrentlyPlayingTrackId = -1;
     NowPlayingAnimation.StartOut();
-    Audio::Channels[Audio::AC_BGM0].Stop(0.0f);
+    Audio::Channels[Audio::AC_BGM0]->Stop(0.0f);
     State = Hiding;
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
@@ -224,13 +224,13 @@ void MusicMenu::Update(float dt) {
     if (InputEnabled) MainItems->Update(dt);
     if (CurrentlyPlayingTrackId == -1) return;
     if (PlaybackMode != MPM_RepeatOne && CurrentlyPlayingTrackId < 40 &&
-        abs(Audio::Channels[Audio::AC_BGM0].PositionInSeconds() -
+        abs(Audio::Channels[Audio::AC_BGM0]->PositionInSeconds() -
             PreviousPosition) > 1.0f) {
       CurrentlyPlayingTrackId = -1;
       NowPlayingAnimation.StartOut();
-      Audio::Channels[Audio::AC_BGM0].Stop(2.0f);
+      Audio::Channels[Audio::AC_BGM0]->Stop(2.0f);
     }
-    if (Audio::Channels[Audio::AC_BGM0].State == Audio::ACS_Stopped) {
+    if (Audio::Channels[Audio::AC_BGM0]->State == Audio::ACS_Stopped) {
       int trackId;
       if (PlaybackMode == MPM_One) {
         trackId = -1;
@@ -246,7 +246,7 @@ void MusicMenu::Update(float dt) {
       }
       SwitchToTrack(trackId);
     }
-    PreviousPosition = Audio::Channels[Audio::AC_BGM0].PositionInSeconds();
+    PreviousPosition = Audio::Channels[Audio::AC_BGM0]->PositionInSeconds();
   }
 }
 
@@ -263,9 +263,9 @@ void MusicMenu::UpdateInput() {
       PlaymodeRepeatSprite =
           mode & 2 ? PlaymodeRepeatHighlight : PlaymodeRepeat;
       if (PlaybackMode == MPM_RepeatOne) {
-        Audio::Channels[Audio::AC_BGM0].Looping = true;
+        Audio::Channels[Audio::AC_BGM0]->Looping = true;
       } else {
-        Audio::Channels[Audio::AC_BGM0].Looping = false;
+        Audio::Channels[Audio::AC_BGM0]->Looping = false;
       }
     }
 
@@ -382,7 +382,7 @@ void MusicMenu::SwitchToTrack(int id) {
   CurrentlyPlayingTrackId = id;
   if (id == -1) {
     NowPlayingAnimation.StartOut();
-    Audio::Channels[Audio::AC_BGM0].Stop(0.5f);
+    Audio::Channels[Audio::AC_BGM0]->Stop(0.5f);
     return;
   }
   Io::InputStream* stream;
@@ -395,7 +395,7 @@ void MusicMenu::SwitchToTrack(int id) {
       Vm::ScriptGetTextTableStrAddress(4, CurrentlyPlayingTrackId * 3 + 2),
       NowPlayingPos + PlayingTrackArtistOffset, 20, RO_None, 0);
   PreviousPosition = 0.0f;
-  Audio::Channels[Audio::AC_BGM0].Play(
+  Audio::Channels[Audio::AC_BGM0]->Play(
       Audio::AudioStream::Create(stream),
       id >= 40 ? (PlaybackMode == MPM_RepeatOne) : true, 0.5f);
 }

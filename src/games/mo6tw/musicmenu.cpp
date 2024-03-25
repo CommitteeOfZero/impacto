@@ -141,9 +141,9 @@ void MusicMenu::UpdateInput() {
       if (mode > 3) mode = 0;
       PlaybackMode = (MusicPlaybackMode)mode;
       if (PlaybackMode == MPM_RepeatOne) {
-        Audio::Channels[Audio::AC_BGM0].Looping = true;
+        Audio::Channels[Audio::AC_BGM0]->Looping = true;
       } else {
-        Audio::Channels[Audio::AC_BGM0].Looping = false;
+        Audio::Channels[Audio::AC_BGM0]->Looping = false;
       }
       PlaybackModeLabel->SetSprite(PlaybackModeLabels[PlaybackMode]);
     }
@@ -177,7 +177,7 @@ void MusicMenu::Update(float dt) {
 
     UpdateMusicTimer();
     if (CurrentlyPlayingTrackId != -1 &&
-        Audio::Channels[Audio::AC_BGM0].State == Audio::ACS_Stopped) {
+        Audio::Channels[Audio::AC_BGM0]->State == Audio::ACS_Stopped) {
       int trackId;
       if (PlaybackMode == MPM_One) {
         trackId = -1;
@@ -217,10 +217,10 @@ void MusicMenu::UpdateMusicEntries() {
 }
 
 void MusicMenu::UpdateMusicTimer() {
-  if (Audio::Channels[Audio::AC_BGM0].State == Audio::ACS_Stopped) {
+  if (Audio::Channels[Audio::AC_BGM0]->State == Audio::ACS_Stopped) {
     Timer->Hide();
   } else {
-    int position = Audio::Channels[Audio::AC_BGM0].PositionInSeconds();
+    int position = Audio::Channels[Audio::AC_BGM0]->PositionInSeconds();
     auto seconds = position % 3600 % 60;
     auto minutes = position % 3600 / 60;
     auto hours = position / 3600;
@@ -237,7 +237,7 @@ void MusicMenu::UpdateMusicTimer() {
 void MusicMenu::SwitchToTrack(int id) {
   CurrentlyPlayingTrackId = id;
   if (id == -1) {
-    Audio::Channels[Audio::AC_BGM0].Stop(0.5f);
+    Audio::Channels[Audio::AC_BGM0]->Stop(0.5f);
     Thumbnail->SetSprite(NullSprite);
     CurrentlyPlaying->SetSprite(NullSprite);
     Timer->Hide();
@@ -246,8 +246,8 @@ void MusicMenu::SwitchToTrack(int id) {
 
   Io::InputStream* stream;
   Io::VfsOpen("bgm", Playlist[id], &stream);
-  Audio::Channels[Audio::AC_BGM0].Play(Audio::AudioStream::Create(stream),
-                                       PlaybackMode == MPM_RepeatOne, 0.5f);
+  Audio::Channels[Audio::AC_BGM0]->Play(Audio::AudioStream::Create(stream),
+                                        PlaybackMode == MPM_RepeatOne, 0.5f);
   Thumbnail->SetSprite(Thumbnails[id]);
   CurrentlyPlaying->SetSprite(ItemNames[id]);
   Timer->Show();

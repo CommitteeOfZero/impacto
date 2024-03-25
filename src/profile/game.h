@@ -7,6 +7,7 @@ namespace Profile {
 
 extern RendererType ActiveRenderer;
 extern VideoPlayerType VideoPlayer;
+extern AudioBackendType ActiveAudioBackend;
 
 extern int LayerCount;
 extern int GameFeatures;

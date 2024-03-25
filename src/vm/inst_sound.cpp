@@ -33,14 +33,14 @@ VmInstruction(InstBGMplay) {
 
     Io::InputStream* stream;
     Io::VfsOpen("bgm", track, &stream);
-    Audio::Channels[Audio::AC_BGM0].Play(Audio::AudioStream::Create(stream),
+    Audio::Channels[Audio::AC_BGM0]->Play(Audio::AudioStream::Create(stream),
                                          (bool)loop, 0.0f);
   }
 }
 VmInstruction(InstBGMstop) {
   StartInstruction;
   PopUint8(channel);
-  Audio::Channels[Audio::AC_BGM0 + channel].Stop(1.0f);
+  Audio::Channels[Audio::AC_BGM0 + channel]->Stop(1.0f);
   ScrWork[SW_BGMREQNO] = 0xFFFF;
 }
 VmInstruction(InstSEplay) {
@@ -53,9 +53,9 @@ VmInstruction(InstSEplay) {
     Io::InputStream* stream;
     Io::VfsOpen("se", effect, &stream);
     ScrWork[SW_SEREQNO + channel] = effect;
-    Audio::Channels[Audio::AC_SE0 + channel].Volume =
+    Audio::Channels[Audio::AC_SE0 + channel]->Volume =
         (ScrWork[SW_SEVOL + channel] / 100.0f) * 0.3f;
-    Audio::Channels[Audio::AC_SE0 + channel].Play(
+    Audio::Channels[Audio::AC_SE0 + channel]->Play(
         Audio::AudioStream::Create(stream), (bool)loop, 0.0f);
   } else {
     ImpLogSlow(LL_Warning, LC_VMStub,
@@ -70,15 +70,15 @@ VmInstruction(InstSEplayMO6) {
   PopExpression(loop);
   Io::InputStream* stream;
   Io::VfsOpen("se", effect, &stream);
-  Audio::Channels[Audio::AC_SE0 + channel].Volume =
+  Audio::Channels[Audio::AC_SE0 + channel]->Volume =
       (ScrWork[SW_SEVOL + channel] / 100.0f) * 0.3f;
-  Audio::Channels[Audio::AC_SE0 + channel].Play(
+  Audio::Channels[Audio::AC_SE0 + channel]->Play(
       Audio::AudioStream::Create(stream), (bool)loop, 0.0f);
 }
 VmInstruction(InstSEstop) {
   StartInstruction;
   PopUint8(channel);
-  Audio::Channels[Audio::AC_SE0 + channel].Stop(1.0f);
+  Audio::Channels[Audio::AC_SE0 + channel]->Stop(1.0f);
   ScrWork[SW_SEREQNO + channel] = 0xFFFF;
 }
 VmInstruction(InstSSEplay) {
@@ -90,13 +90,13 @@ VmInstruction(InstSSEplay) {
   Io::InputStream* stream;
   int64_t err = Io::VfsOpen("sysse", sysSeId, &stream);
   if (err == IoError_OK) {
-    Audio::Channels[Audio::AC_SSE].Play(Audio::AudioStream::Create(stream),
+    Audio::Channels[Audio::AC_SSE]->Play(Audio::AudioStream::Create(stream),
                                         false, 0.0f);
   }
 }
 VmInstruction(InstSSEstop) {
   StartInstruction;
-  Audio::Channels[Audio::AC_SSE].Stop(1.0f);
+  Audio::Channels[Audio::AC_SSE]->Stop(1.0f);
 }
 VmInstruction(InstBGMflag) {
   StartInstruction;
@@ -111,7 +111,7 @@ VmInstruction(InstVoicePlay) {
   PopExpression(arg2);
   Io::InputStream* stream;
   Io::VfsOpen("voice", arg1, &stream);
-  Audio::Channels[Audio::AC_VOICE0 + channel].Play(
+  Audio::Channels[Audio::AC_VOICE0 + channel]->Play(
       Audio::AudioStream::Create(stream), (bool)arg2, 0.0f);
 }
 VmInstruction(InstVoicePlayOld) {
@@ -120,13 +120,13 @@ VmInstruction(InstVoicePlayOld) {
   PopExpression(arg1);
   Io::InputStream* stream;
   Io::VfsOpen("voice", arg1, &stream);
-  Audio::Channels[Audio::AC_VOICE0 + channel].Play(
+  Audio::Channels[Audio::AC_VOICE0 + channel]->Play(
       Audio::AudioStream::Create(stream), false, 0.0f);
 }
 VmInstruction(InstVoiceStop) {
   StartInstruction;
   PopUint8(channel);
-  Audio::Channels[Audio::AC_VOICE0 + channel].Stop(0.0f);
+  Audio::Channels[Audio::AC_VOICE0 + channel]->Stop(0.0f);
 }
 VmInstruction(InstVoiceStopNew) {
   StartInstruction;

@@ -171,7 +171,7 @@ void Update(float dt) {
                         &BgmLoop);
       if (nk_button_label(Renderer->Nk, "Switch")) {
         BgmChangeQueued = true;
-        Audio::Channels[Audio::AC_BGM0].Stop(BgmFadeOut);
+        Audio::Channels[Audio::AC_BGM0]->Stop(BgmFadeOut);
       }
 
       nk_property_float(Renderer->Nk, "Master volume", 0.0f,
@@ -204,10 +204,10 @@ void Update(float dt) {
 #endif
 
   if (BgmChangeQueued &&
-      Audio::Channels[Audio::AC_BGM0].State == Audio::ACS_Stopped) {
+      Audio::Channels[Audio::AC_BGM0]->State == Audio::ACS_Stopped) {
     Io::InputStream* stream;
     Io::VfsOpen("bgm", BgmIds[CurrentBgm], &stream);
-    Audio::Channels[Audio::AC_BGM0].Play(Audio::AudioStream::Create(stream),
+    Audio::Channels[Audio::AC_BGM0]->Play(Audio::AudioStream::Create(stream),
                                          BgmLoop, BgmFadeIn);
     BgmChangeQueued = false;
   }

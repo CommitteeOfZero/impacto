@@ -7,20 +7,24 @@ namespace Audio {
 
 class AudioChannel {
  public:
-  ~AudioChannel();
+  virtual ~AudioChannel(){};
 
-  void Init(AudioChannelId id, AudioChannelGroup group);
+  virtual void Init(AudioChannelId id, AudioChannelGroup group) {
+    Id = id;
+    Group = group;
+    State = ACS_Stopped;
+  };
 
   // Stream is automatically deleted when playback is stopped
-  void Play(AudioStream* stream, bool loop, float fadeInDuration);
-  void FillBuffers();
-  void Stop(float fadeOutDuration);
+  virtual void Play(AudioStream* stream, bool loop, float fadeInDuration){};
+  virtual void FillBuffers(){};
+  virtual void Stop(float fadeOutDuration){};
 
-  void Update(float dt);
+  virtual void Update(float dt){};
 
-  float PositionInSeconds() const;
+  virtual float PositionInSeconds() const { return 0.0f; };
   // may be negative for no fixed duration, 0 for no audio
-  float DurationInSeconds() const;
+  virtual float DurationInSeconds() const { return 0.0f; };
 
   AudioChannelId Id;
   AudioChannelGroup Group;
@@ -34,31 +38,6 @@ class AudioChannel {
   int Position = 0;
 
   bool Looping;
-
- private:
-  void SetGain();
-  int SamplesPerBuffer() const;
-
-  static int const AudioBufferSize = 64 * 1024;
-  static int const AudioBufferCount = 3;
-
-  ALuint BufferIds[AudioBufferCount];
-  uint8_t HostBuffer[AudioBufferSize];
-  int FirstFreeBuffer;
-  // Unqueued buffers that have not been filled since being dequeued
-  int FreeBufferCount;
-  // In AudioStream samples
-  int BufferStartPositions[AudioBufferCount];
-
-  AudioStream* CurrentStream = 0;
-  bool IsInit = false;
-
-  bool FinishedDecode;
-
-  float FadeDuration = 0.0f;
-  float FadeCompletion = 0.0f;
-
-  ALCuint Source;
 };
 
 }  // namespace Audio

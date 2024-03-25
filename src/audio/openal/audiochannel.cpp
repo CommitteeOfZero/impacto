@@ -1,12 +1,13 @@
 #include <algorithm>
 
 #include "audiochannel.h"
-#include "audiosystem.h"
-#include "audiostream.h"
-#include "../log.h"
+#include "../audiosystem.h"
+#include "../audiostream.h"
+#include "../../log.h"
 
 namespace Impacto {
 namespace Audio {
+namespace OpenAL {
 
 static ALenum ToALFormat(int channels, int bitdepth) {
   if (channels == 2 && bitdepth == 16) return AL_FORMAT_STEREO16;
@@ -243,5 +244,6 @@ float AudioChannel::DurationInSeconds() const {
   return (float)CurrentStream->Duration / (float)CurrentStream->SampleRate;
 }
 
+}  // namespace OpenAL
 }  // namespace Audio
 }  // namespace Impacto

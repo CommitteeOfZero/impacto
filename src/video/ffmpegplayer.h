@@ -13,8 +13,6 @@ extern "C" {
 #include "../texture/texture.h"
 #include "../renderer/renderer.h"
 #include "videoplayer.h"
-#include "alc.h"
-#include "al.h"
 
 // Forward Decl
 struct SwrContext;
@@ -26,6 +24,12 @@ struct AVIOContext;
 namespace Impacto {
 namespace Io {
 class InputStream;
+}
+}  // namespace Impacto
+
+namespace Impacto {
+namespace Audio {
+class FFmpegAudioPlayer;
 }
 }  // namespace Impacto
 
@@ -89,24 +93,12 @@ class FFmpegPlayer : public VideoPlayer {
   AVFormatContext* FormatContext = 0;
   AVIOContext* IoContext = 0;
   SwsContext* ImgConvertContext;
-  SwrContext* AudioConvertContext;
   Clock* VideoClock;
   Clock* ExternalClock;
-  Clock* AudioClock;
 
   Clock* MasterClock;
 
-  ALCuint ALSource;
-  static int const AudioBufferSize = 256 * 8192;
-  static int const AudioBufferCount = 3;
-  ALuint BufferIds[AudioBufferCount];
-  uint8_t HostBuffer[AudioBufferSize];
-  int FirstFreeBuffer = 0;
-  int FreeBufferCount = AudioBufferCount;
-  int BufferStartPositions[AudioBufferCount];
-  bool First = true;
-  uint8_t** AudioBuffer;
-  int AudioLinesize;
+  Audio::FFmpegAudioPlayer* AudioPlayer;
 
   bool IsInit = false;
 
@@ -119,6 +111,7 @@ class FFmpegPlayer : public VideoPlayer {
   double PreviousFrameTimestamp = 0.0;
   double FrameTimer = 0.0;
   double MaxFrameDuration;
+  bool NoAudio = false;
 };
 
 }  // namespace Video
