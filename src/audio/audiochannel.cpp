@@ -18,8 +18,8 @@ void AudioChannel::Play(std::string const& mountpoint,
     Play(AudioStream::Create(stream), loop, fadeInDuration);
   } else {
     ImpLog(LL_Error, LC_Audio,
-           "Could not open audio file %s from mountpoint %s!\n", fileName,
-           mountpoint);
+           "Could not open audio file %s from mountpoint %s!\n",
+           fileName.c_str(), mountpoint.c_str());
   }
 }
 
@@ -32,7 +32,7 @@ void AudioChannel::Play(std::string const& mountpoint, uint32_t fileId,
   } else {
     ImpLog(LL_Error, LC_Audio,
            "Could not open audio file with ID %d from mountpoint %s!\n", fileId,
-           mountpoint);
+           mountpoint.c_str());
   }
 }
 
