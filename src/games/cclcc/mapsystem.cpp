@@ -1490,11 +1490,11 @@ void MapSystemCCLCC::MapDispArticle(int id) {
         angle);
     // Photo
     Renderer->DrawSpriteOffset(MapPartsArticleSprites[partId],
-                                 glm::vec2(displayPhotoX, displayPhotoY),
-                                 glm::vec2{166, 16}, glm::vec4{1.0f},
-                                 glm::vec2{zoomMulti * 0.5 * scaledFactor,
-                                           zoomMulti * 0.5 * scaledFactor},
-                                 angle);
+                               glm::vec2(displayPhotoX, displayPhotoY),
+                               glm::vec2{166, 16}, glm::vec4{1.0f},
+                               glm::vec2{zoomMulti * 0.5 * scaledFactor,
+                                         zoomMulti * 0.5 * scaledFactor},
+                               angle);
   }
 }
 
@@ -1539,11 +1539,11 @@ void MapSystemCCLCC::MapDispTag(int id) {
     float shadowScaledPosOffsetY = (yOffset + 2.0f + 16.0f) * scaledFactor;
     // Shadow
     Renderer->DrawSpriteOffset(displayedSprite,
-                                 glm::vec2(shadowScaledPosOffsetX - 46.0f,
-                                           shadowScaledPosOffsetY - 16.0f),
-                                 glm::vec2{46.0f, 16.0f},
-                                 {0.0f, 0.0f, 0.0f, alpha / 2 / 256.0f},
-                                 glm::vec2{shadowZoom, shadowZoom}, angle);
+                               glm::vec2(shadowScaledPosOffsetX - 46.0f,
+                                         shadowScaledPosOffsetY - 16.0f),
+                               glm::vec2{46.0f, 16.0f},
+                               {0.0f, 0.0f, 0.0f, alpha / 2 / 256.0f},
+                               glm::vec2{shadowZoom, shadowZoom}, angle);
     float scaledPosOffsetX = (xOffset + 46.0f) * scaledFactor;
     float scaledPosOffsetY = (yOffset + 16.0f) * scaledFactor;
 
@@ -1645,8 +1645,8 @@ void MapSystemCCLCC::MapSetPos(float dt) {
   MapBGWidth = MapBgSprite.Sheet.DesignWidth * 100.0f / mapScaler;
   MapBGHeight = MapBgSprite.Sheet.DesignHeight * 100.0f / mapScaler;
 
-  MapPosX = ScrWork[0x18db] - MapBGWidth / 2;
-  MapPosY = ScrWork[0x18dc] - MapBGHeight / 2;
+  MapPosX = ScrWork[6363] - MapBGWidth / 2;
+  MapPosY = ScrWork[6364] - MapBGHeight / 2;
 
   if (!GetFlag(2805)) {
     if (MapPosX > MapSheetWidth - MapBGWidth) {
@@ -1689,10 +1689,7 @@ void MapSystemCCLCC::MapFadeMain(float dt) {
         } else if (partsDispElem.fadeAnim.State == AS_Stopped) {
           if (partsDispElem.type == 0 ||
               partsDispElem.type >= 8 && partsDispElem.type <= 11) {
-            Io::InputStream* stream;
-            if (Io::VfsOpen("sysse", 7, &stream) == IoError_OK)
-              Audio::Channels[Audio::AC_SSE]->Play(
-                  Audio::AudioStream::Create(stream), false, 0.0f);
+            Audio::Channels[Audio::AC_SSE]->Play("sysse", 7, false, 0.0f);
           }
           partsDispElem.fadeAnim.StartIn(true);
         }
@@ -1702,10 +1699,7 @@ void MapSystemCCLCC::MapFadeMain(float dt) {
         } else if (partsDispElem.fadeAnim.State == AS_Stopped) {
           if (partsDispElem.type == 0 ||
               partsDispElem.type >= 8 && partsDispElem.type <= 11) {
-            Io::InputStream* stream;
-            if (Io::VfsOpen("sysse", 9, &stream) == IoError_OK)
-              Audio::Channels[Audio::AC_SSE]->Play(
-                  Audio::AudioStream::Create(stream), false, 0.0f);
+            Audio::Channels[Audio::AC_SSE]->Play("sysse", 9, false, 0.0f);
           }
           partsDispElem.fadeAnim.StartOut(true);
         }
@@ -1736,12 +1730,7 @@ void MapSystemCCLCC::MapFadeMain(float dt) {
           poolDispElem.state = Shown;
         } else if (poolDispElem.fadeAnim.State == AS_Stopped) {
           if (i % 2 == 1) {
-            Io::InputStream* stream;
-            int64_t err = Io::VfsOpen("sysse", 7, &stream);
-            if (err == IoError_OK) {
-              Audio::Channels[Audio::AC_SSE]->Play(
-                  Audio::AudioStream::Create(stream), false, 0.0f);
-            }
+            Audio::Channels[Audio::AC_SSE]->Play("sysse", 7, false, 0.0f);
           }
           poolDispElem.fadeAnim.StartIn(true);
         }
@@ -1751,12 +1740,7 @@ void MapSystemCCLCC::MapFadeMain(float dt) {
           poolDispElem.state = Hidden;
         } else if (poolDispElem.fadeAnim.State == AS_Stopped) {
           if (i % 2 == 1) {
-            Io::InputStream* stream;
-            int64_t err = Io::VfsOpen("sysse", 9, &stream);
-            if (err == IoError_OK) {
-              Audio::Channels[Audio::AC_SSE]->Play(
-                  Audio::AudioStream::Create(stream), false, 0.0f);
-            }
+            Audio::Channels[Audio::AC_SSE]->Play("sysse", 9, false, 0.0f);
           }
           poolDispElem.fadeAnim.StartOut(true);
         }
@@ -1771,16 +1755,16 @@ void MapSystemCCLCC::Update(float dt) {
     MapSetPos(dt);
   }
 
-  if (ScrWork[0x1964] == 0) {
-    if (ScrWork[0x1965] == 0) {
-      ScrWork[0x1966] = 0;
+  if (ScrWork[6500] == 0) {
+    if (ScrWork[6501] == 0) {
+      ScrWork[6502] = 0;
     } else {
-      ScrWork[0x1965]--;
+      ScrWork[6501]--;
     }
   } else {
-    ScrWork[0x1966] = ScrWork[0x1964];
-    if (ScrWork[0x1965] < 0x20) {
-      ScrWork[0x1965]++;
+    ScrWork[6502] = ScrWork[6500];
+    if (ScrWork[6501] < 32) {
+      ScrWork[6501]++;
     }
   }
 }

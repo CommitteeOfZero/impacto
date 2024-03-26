@@ -31,10 +31,7 @@ VmInstruction(InstBGMplay) {
   if (ScrWork[SW_BGMREQNO] != track) {
     ScrWork[SW_BGMREQNO] = track;
 
-    Io::InputStream* stream;
-    Io::VfsOpen("bgm", track, &stream);
-    Audio::Channels[Audio::AC_BGM0]->Play(Audio::AudioStream::Create(stream),
-                                         (bool)loop, 0.0f);
+    Audio::Channels[Audio::AC_BGM0]->Play("bgm", track, (bool)loop, 0.0f);
   }
 }
 VmInstruction(InstBGMstop) {
@@ -50,13 +47,11 @@ VmInstruction(InstSEplay) {
   if (type != 2) {
     PopExpression(effect);
     PopExpression(loop);
-    Io::InputStream* stream;
-    Io::VfsOpen("se", effect, &stream);
     ScrWork[SW_SEREQNO + channel] = effect;
     Audio::Channels[Audio::AC_SE0 + channel]->Volume =
         (ScrWork[SW_SEVOL + channel] / 100.0f) * 0.3f;
-    Audio::Channels[Audio::AC_SE0 + channel]->Play(
-        Audio::AudioStream::Create(stream), (bool)loop, 0.0f);
+    Audio::Channels[Audio::AC_SE0 + channel]->Play("se", effect, (bool)loop,
+                                                   0.0f);
   } else {
     ImpLogSlow(LL_Warning, LC_VMStub,
                "STUB instruction SEplay(channel: %i, type: %i)\n", channel,
@@ -68,12 +63,10 @@ VmInstruction(InstSEplayMO6) {
   PopUint8(channel);
   PopExpression(effect);
   PopExpression(loop);
-  Io::InputStream* stream;
-  Io::VfsOpen("se", effect, &stream);
   Audio::Channels[Audio::AC_SE0 + channel]->Volume =
       (ScrWork[SW_SEVOL + channel] / 100.0f) * 0.3f;
-  Audio::Channels[Audio::AC_SE0 + channel]->Play(
-      Audio::AudioStream::Create(stream), (bool)loop, 0.0f);
+  Audio::Channels[Audio::AC_SE0 + channel]->Play("se", effect, (bool)loop,
+                                                 0.0f);
 }
 VmInstruction(InstSEstop) {
   StartInstruction;
@@ -87,12 +80,7 @@ VmInstruction(InstSSEplay) {
     PopUint8(channel);
   }
   PopExpression(sysSeId);
-  Io::InputStream* stream;
-  int64_t err = Io::VfsOpen("sysse", sysSeId, &stream);
-  if (err == IoError_OK) {
-    Audio::Channels[Audio::AC_SSE]->Play(Audio::AudioStream::Create(stream),
-                                        false, 0.0f);
-  }
+  Audio::Channels[Audio::AC_SSE]->Play("sysse", sysSeId, false, 0.0f);
 }
 VmInstruction(InstSSEstop) {
   StartInstruction;
@@ -107,21 +95,17 @@ VmInstruction(InstBGMflag) {
 VmInstruction(InstVoicePlay) {
   StartInstruction;
   PopUint8(channel);
-  PopExpression(arg1);
-  PopExpression(arg2);
-  Io::InputStream* stream;
-  Io::VfsOpen("voice", arg1, &stream);
-  Audio::Channels[Audio::AC_VOICE0 + channel]->Play(
-      Audio::AudioStream::Create(stream), (bool)arg2, 0.0f);
+  PopExpression(fileId);
+  PopExpression(loop);
+  Audio::Channels[Audio::AC_VOICE0 + channel]->Play("voice", fileId, (bool)loop,
+                                                    0.0f);
 }
 VmInstruction(InstVoicePlayOld) {
   StartInstruction;
   PopUint8(channel);
-  PopExpression(arg1);
-  Io::InputStream* stream;
-  Io::VfsOpen("voice", arg1, &stream);
-  Audio::Channels[Audio::AC_VOICE0 + channel]->Play(
-      Audio::AudioStream::Create(stream), false, 0.0f);
+  PopExpression(fileId);
+  Audio::Channels[Audio::AC_VOICE0 + channel]->Play("voice", fileId, false,
+                                                    0.0f);
 }
 VmInstruction(InstVoiceStop) {
   StartInstruction;
@@ -204,7 +188,7 @@ VmInstruction(InstSysVoicePlay) {
 VmInstruction(InstSysSeload) {
   StartInstruction;
   if (Profile::Vm::GameInstructionSet == +InstructionSet::MO8 ||
-    Profile::Vm::GameInstructionSet == +InstructionSet::CHN) {
+      Profile::Vm::GameInstructionSet == +InstructionSet::CHN) {
     PopUint8(arg1);
   }
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SysSeload()\n");

@@ -264,6 +264,7 @@ set(Impacto_Src
         src/vm/interface/input.cpp
 
         src/audio/audiosystem.cpp
+        src/audio/audiochannel.cpp
         src/audio/audiostream.cpp
         src/audio/vorbisaudiostream.cpp
         src/audio/atrac9audiostream.cpp

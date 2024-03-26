@@ -1,6 +1,7 @@
 #pragma once
 
 #include "audiocommon.h"
+#include <string>
 
 namespace Impacto {
 namespace Audio {
@@ -17,6 +18,10 @@ class AudioChannel {
 
   // Stream is automatically deleted when playback is stopped
   virtual void Play(AudioStream* stream, bool loop, float fadeInDuration){};
+  virtual void Play(std::string const& mountpoint, std::string const& fileName,
+                    bool loop, float fadeInDuration);
+  virtual void Play(std::string const& mountpoint, uint32_t fileId, bool loop,
+                    float fadeInDuration);
   virtual void FillBuffers(){};
   virtual void Stop(float fadeOutDuration){};
 

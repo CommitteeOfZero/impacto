@@ -151,11 +151,11 @@ VmInstruction(InstMes) {
       PopExpression(characterId);
       PopString(line);
       Io::InputStream* stream;
-      Io::VfsOpen("voice", audioId, &stream);
+      IoError err = Io::VfsOpen("voice", audioId, &stream);
       uint8_t* oldIp = thread->Ip;
       thread->Ip = line;
       DialoguePages[thread->DialoguePageId].AddString(
-          thread, Audio::AudioStream::Create(stream));
+          thread, err == IoError_OK ? Audio::AudioStream::Create(stream) : 0);
       thread->Ip = oldIp;
       UI::BacklogMenuPtr->AddMessage(line, audioId);
     } break;
@@ -183,11 +183,11 @@ VmInstruction(InstMes) {
       PopExpression(characterId);
       PopMsbString(line);
       Io::InputStream* stream;
-      Io::VfsOpen("voice", audioId, &stream);
+      IoError err = Io::VfsOpen("voice", audioId, &stream);
       uint8_t* oldIp = thread->Ip;
       thread->Ip = line;
       DialoguePages[thread->DialoguePageId].AddString(
-          thread, Audio::AudioStream::Create(stream));
+          thread, err == IoError_OK ? Audio::AudioStream::Create(stream) : 0);
       thread->Ip = oldIp;
     } break;
   }

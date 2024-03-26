@@ -385,8 +385,6 @@ void MusicMenu::SwitchToTrack(int id) {
     Audio::Channels[Audio::AC_BGM0]->Stop(0.5f);
     return;
   }
-  Io::InputStream* stream;
-  Io::VfsOpen("bgm", Playlist[id], &stream);
   if (!NowPlayingAnimation.IsIn()) NowPlayingAnimation.StartIn();
   CurrentlyPlayingTrackName =
       Label(Vm::ScriptGetTextTableStrAddress(4, CurrentlyPlayingTrackId * 3),
@@ -396,8 +394,8 @@ void MusicMenu::SwitchToTrack(int id) {
       NowPlayingPos + PlayingTrackArtistOffset, 20, RO_None, 0);
   PreviousPosition = 0.0f;
   Audio::Channels[Audio::AC_BGM0]->Play(
-      Audio::AudioStream::Create(stream),
-      id >= 40 ? (PlaybackMode == MPM_RepeatOne) : true, 0.5f);
+      "bgm", Playlist[id], id >= 40 ? (PlaybackMode == MPM_RepeatOne) : true,
+      0.5f);
 }
 
 inline int MusicMenu::GetNextTrackId(int id) {

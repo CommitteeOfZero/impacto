@@ -472,12 +472,7 @@ VmInstruction(InstTitleMenuNew) {
           // Check "PRESS TO START" here
           if (((Interface::PADinputButtonWentDown & Interface::PAD1A) ||
                (Interface::PADinputMouseWentDown & Interface::PAD1A))) {
-            Io::InputStream* stream;
-            int64_t err = Io::VfsOpen("sysse", 0, &stream);
-            if (err == IoError_OK) {
-              Audio::Channels[Audio::AC_SSE]->Play(
-                  Audio::AudioStream::Create(stream), false, 0.0f);
-            }
+            Audio::Channels[Audio::AC_SSE]->Play("sysse", 0, false, 0.0f);
             ScrWork[SW_TITLEMODE] = 2;
             ScrWork[SW_TITLEDISPCT] = 0;
             ScrWork[SW_TITLEMOVIECT] = 0;

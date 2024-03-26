@@ -244,9 +244,7 @@ void MusicMenu::SwitchToTrack(int id) {
     return;
   }
 
-  Io::InputStream* stream;
-  Io::VfsOpen("bgm", Playlist[id], &stream);
-  Audio::Channels[Audio::AC_BGM0]->Play(Audio::AudioStream::Create(stream),
+  Audio::Channels[Audio::AC_BGM0]->Play("bgm", Playlist[id],
                                         PlaybackMode == MPM_RepeatOne, 0.5f);
   Thumbnail->SetSprite(Thumbnails[id]);
   CurrentlyPlaying->SetSprite(ItemNames[id]);

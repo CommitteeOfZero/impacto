@@ -23,10 +23,7 @@ using namespace Impacto::UI::Widgets;
 
 void BacklogMenu::MenuButtonOnClick(Widgets::BacklogEntry* target) {
   if (target->AudioId != -1) {
-    Io::InputStream* stream;
-    Io::VfsOpen("voice", target->AudioId, &stream);
-    Audio::Channels[Audio::AC_REV]->Play(Audio::AudioStream::Create(stream),
-                                        false, 0.0f);
+    Audio::Channels[Audio::AC_REV]->Play("voice", target->AudioId, false, 0.0f);
   }
 }
 

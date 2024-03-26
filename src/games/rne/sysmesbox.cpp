@@ -90,20 +90,14 @@ void SysMesBox::Show() {
 
   if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::RNE) {
     if (!ScrWork[SW_SYSMESANIMCTCUR]) {
-      Io::InputStream* stream;
-      Io::VfsOpen("sysse", 16, &stream);
-      Audio::Channels[Audio::AC_SSE]->Play(Audio::AudioStream::Create(stream),
-                                          false, 0.0f);
+      Audio::Channels[Audio::AC_SSE]->Play("sysse", 16, false, 0.0f);
     }
   }
 }
 
 void SysMesBox::Hide() {
   if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::RNE) {
-    Io::InputStream* stream;
-    Io::VfsOpen("sysse", 29, &stream);
-    Audio::Channels[Audio::AC_SSE]->Play(Audio::AudioStream::Create(stream),
-                                        false, 0.0f);
+    Audio::Channels[Audio::AC_SSE]->Play("sysse", 29, false, 0.0f);
   }
   State = Hiding;
   if (LastFocusedMenu != 0) {
@@ -216,10 +210,7 @@ void SysMesBox::Update(float dt) {
 
     if (Input::KeyboardButtonWentDown[SDL_SCANCODE_RIGHT] ||
         Input::KeyboardButtonWentDown[SDL_SCANCODE_LEFT]) {
-      Io::InputStream* stream;
-      Io::VfsOpen("sysse", 1, &stream);
-      Audio::Channels[Audio::AC_SSE]->Play(Audio::AudioStream::Create(stream),
-                                          false, 0.0f);
+      Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0.0f);
     }
 
     if (IsFocused) {
