@@ -1,7 +1,9 @@
 #include "delusiontrigger.h"
 #include "../profile_internal.h"
 #include "../games/chlcc/delusiontrigger.h"
+#include "../games/cclcc/delusiontrigger.h"
 #include "../../games/chlcc/delusiontrigger.h"
+#include "../../games/cclcc/delusiontrigger.h"
 
 namespace Impacto {
 namespace Profile {
@@ -25,6 +27,9 @@ void Configure() {
     case DelusionTriggerType::CHLCC:
       CHLCC::DelusionTrigger::Configure();
       break;
+    case DelusionTriggerType::CCLCC:
+      CCLCC::DelusionTrigger::Configure();
+      break;
     default:
       Pop();
       return;
@@ -38,6 +43,9 @@ void CreateInstance() {
       case DelusionTriggerType::CHLCC:
         Impacto::DelusionTrigger::Implementation =
             new Impacto::CHLCC::DelusionTrigger;
+      case DelusionTriggerType::CCLCC:
+        Impacto::DelusionTrigger::Implementation =
+            new Impacto::CCLCC::DelusionTrigger;
         break;
       default:
         return;

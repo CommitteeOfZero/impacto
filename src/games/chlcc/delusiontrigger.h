@@ -5,9 +5,7 @@
 
 namespace Impacto {
 namespace CHLCC {
-using namespace Impacto::DelusionTrigger;
-
-class DelusionTrigger : public DelusionTriggerBase {
+class DelusionTrigger : public Impacto::DelusionTrigger::DelusionTriggerBase {
  public:
   DelusionTrigger();
 

@@ -560,15 +560,18 @@ VmInstruction(InstMSinit) {
   ScrWork[SW_SEVOL + 1] = 100;
   ScrWork[SW_SEVOL + 2] = 100;
 
-  ScrWork[SW_IRUOCAMERAHFOVCUR] = 40000;
-  ScrWork[SW_MAINCAMERAHFOVCUR] = 40000;
-  ScrWork[SW_AR_POSX] = 640;
-  ScrWork[SW_AR_POSY] = 360;
-  // Hack for now
-  ScrWork[SW_AR_ELVMIN] = -14674;
-  ScrWork[SW_AR_ELVMAX] = 13974;
-  ScrWork[SW_AR_ROTMIN] = -19588;
-  ScrWork[SW_AR_ROTMAX] = 19088;
+  if (Profile::Vm::GameInstructionSet == +InstructionSet::RNE ||
+      Profile::Vm::GameInstructionSet == +InstructionSet::Dash) {
+    ScrWork[SW_IRUOCAMERAHFOVCUR] = 40000;
+    ScrWork[SW_MAINCAMERAHFOVCUR] = 40000;
+    ScrWork[SW_AR_POSX] = 640;
+    ScrWork[SW_AR_POSY] = 360;
+    // Hack for now
+    ScrWork[SW_AR_ELVMIN] = -14674;
+    ScrWork[SW_AR_ELVMAX] = 13974;
+    ScrWork[SW_AR_ROTMIN] = -19588;
+    ScrWork[SW_AR_ROTMAX] = 19088;
+  }
 
   if (Profile::Vm::GameInstructionSet == +InstructionSet::MO7) {
     ScrWork[SW_SHORTCUT] = 0xFFFF;

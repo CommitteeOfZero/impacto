@@ -13,6 +13,11 @@ void Init() { Profile::DelusionTrigger::Configure(); }
 void Show() {
   if (Implementation) Implementation->Show();
 }
+
+bool Show(int param1, int param2, int param3) {
+  if (Implementation) return Implementation->Show(param1, param2, param3);
+}
+
 void Hide() {
   if (Implementation) Implementation->Hide();
 }

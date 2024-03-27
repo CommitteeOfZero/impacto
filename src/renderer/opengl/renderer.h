@@ -111,13 +111,11 @@ class Renderer : public BaseRenderer {
   inline void QuadSetUV(RectF const& spriteBounds, float designWidth,
                         float designHeight, uintptr_t uvs, int stride,
                         float angle = 0.0f);
-
   inline void QuadSetPositionOffset(RectF const& spriteBounds,
-                                    glm::vec2 topLeftPos,
+                                    glm::vec2 displayXY,
                                     glm::vec2 displayOffset, glm::vec2 scale,
                                     float angle, uintptr_t positions,
                                     int stride);
-
   inline void QuadSetUVFlipped(RectF const& spriteBounds, float designWidth,
                                float designHeight, uintptr_t uvs, int stride);
   inline void QuadSetPosition(RectF const& transformedQuad, float angle,

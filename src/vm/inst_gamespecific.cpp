@@ -8,6 +8,7 @@
 #include "../profile/scriptvars.h"
 #include "../hud/delusiontrigger.h"
 #include "../ui/mapsystem.h"
+#include "../../src/video/videosystem.h"
 
 namespace Impacto {
 
@@ -1211,30 +1212,70 @@ VmInstruction(InstMtrg) {
   PopUint8(type);
   switch (type) {
     case 0: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MtrgStart(type: %i)\n", type);
-      DelusionTrigger::Show();
+      if (!DelusionTrigger::Show(arg1, arg2, arg3)) {
+        BlockThread;
+      }
     } break;
     case 1: {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MtrgEnd_Wait(type: %i)\n", type);
       DelusionTrigger::Hide();
+      if (ScrWork[6413] != 0) {
+        ResetInstruction;
+      }
+      BlockThread;
     } break;
     case 2: {
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Mtrg_02(type: %i)\n",
                  type);
+
+      if (!Impacto::Video::Players[0]->IsPlaying) {
+        Impacto::Video::Players[0]->Stop();
+        SetFlag(2486, 0);
+        ScrWork[6333] = 0xffff;
+        ScrWork[6336] = 0xffff;
+        ScrWork[6344] = 0;
+        return;
+      }
+      if (GetFlag(SF_MESALLSKIP)) {
+        Impacto::Video::Players[0]->Stop();
+        if ((ScrWork[6333] != 0xffff) && (ScrWork[6336] != 0xffff)) {
+          return;
+        }
+        SetFlag(2486, 0);
+        ScrWork[6333] = 0xffff;
+        ScrWork[6336] = 0xffff;
+        ScrWork[6344] = 0;
+        return;
+      }
+
     } break;
     case 3: {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MtrgStop_Wait(type: %i)\n", type);
-      DelusionTrigger::Hide();
+      if (ScrWork[6412] != ScrWork[6416]) {
+        ResetInstruction;
+        BlockThread;
+      } else {
+        SetFlag(2821, 1);
+      }
     } break;
     case 4: {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction Mtrg_04_Wait(type: %i)\n", type);
+      if (ScrWork[6416] != 0xff) {
+        break;
+      }
+      ResetInstruction;
       BlockThread;
     } break;
     case 5: {
+      PopExpression(arg1);
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MtrgSetEvent(type: %i)\n", type);
       BlockThread;

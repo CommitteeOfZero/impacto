@@ -45,7 +45,8 @@ class Renderer : public BaseRenderer {
 
   void DrawSpriteOffsetImpl(Sprite const& sprite, glm::vec2 topLeft,
                             glm::vec2 displayOffset, glm::vec4 tint,
-                            glm::vec2 scale, float angle, bool inverted);
+                            glm::vec2 scale, float angle,
+                            bool inverted) override;
 
   void DrawRectImpl(RectF const& dest, glm::vec4 color, float angle) override;
 

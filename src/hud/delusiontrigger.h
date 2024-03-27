@@ -6,7 +6,7 @@
 namespace Impacto {
 namespace DelusionTrigger {
 
-BETTER_ENUM(DelusionTriggerType, int, None, CHLCC)
+BETTER_ENUM(DelusionTriggerType, int, None, CHLCC, CCLCC)
 
 class DelusionTriggerBase {
  public:
@@ -15,8 +15,9 @@ class DelusionTriggerBase {
   DelusionTriggerBase(int& delusionState, UiState showState);
   virtual void Update(float dt) = 0;
   virtual void Render() = 0;
-  virtual void Show() = 0;
   virtual void Hide() = 0;
+  virtual void Show(){};
+  virtual bool Show(int param1, int param2, int param3) { return true; };
 
   UiState State;
   int& DelusionState;
@@ -29,6 +30,7 @@ void Update(float dt);
 void Show();
 void Hide();
 void Render();
+bool Show(int param1, int param2, int param3);
 
 }  // namespace DelusionTrigger
 }  // namespace Impacto
