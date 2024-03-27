@@ -1,6 +1,6 @@
 root.SaveIcon = {
     ForegroundAnimation = "SaveIcon",
-    DefaultPosition = { X = 1729.5, Y = 34.5 },
+    DefaultPosition = { X = 1672, Y = 32 },
     BackgroundSprite = "SaveIconBg",
     BackgroundOffset = { X = -10.5, Y = -6 },
     BackgroundMaxAlpha = 0.5,
@@ -11,15 +11,15 @@ root.SaveIcon = {
 MakeAnimation({
     Name = "SaveIcon",
     Sheet = "Data",
-    FirstFrameX = 2965.5,
-    FirstFrameY = 1.5,
-    FrameWidth = 105,
-    ColWidth = 105,
-    FrameHeight = 105,
-    RowHeight = 108,
-    Frames = 8,
-    Duration = 0.4,
-    Rows = 8,
+    FirstFrameX = 312,
+    FirstFrameY = 634,
+    FrameWidth = 216,
+    ColWidth = 216,
+    FrameHeight = 56,
+    RowHeight = 64,
+    Frames = 4,
+    Duration = 0.7,
+    Rows = 4,
     Columns = 1,
     PrimaryDirection = AnimationDirections.Down
 });

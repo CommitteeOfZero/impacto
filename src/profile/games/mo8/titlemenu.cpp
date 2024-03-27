@@ -28,6 +28,7 @@ float MenuEntriesYPadding;
 bool PressToStartAnimated;
 
 Animation PressToStartAnimation;
+float PrimaryFadeAnimDuration;
 
 void Configure() {
   BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
@@ -46,11 +47,15 @@ void Configure() {
   PressToStartAnimation.DurationOut =
       Profile::TitleMenu::PressToStartAnimDurationOut;
   PressToStartAnimation.LoopMode = ALM_ReverseDirection;
+  PrimaryFadeAnimDuration = EnsureGetMemberFloat("PrimaryFadeAnimDuration");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMemberInt("DrawType"));
 
-  UI::TitleMenuPtr = new UI::MO8::TitleMenu();
+  UI::MO8::TitleMenu* menu = new UI::MO8::TitleMenu();
+  menu->PrimaryFadeAnimation.DurationIn = PrimaryFadeAnimDuration;
+  menu->PrimaryFadeAnimation.DurationOut = PrimaryFadeAnimDuration;
+  UI::TitleMenuPtr = menu;
   UI::Menus[drawType].push_back(UI::TitleMenuPtr);
 }
 

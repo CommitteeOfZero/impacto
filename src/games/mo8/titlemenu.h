@@ -18,6 +18,9 @@ class TitleMenu : public Menu {
   void Render();
 
   void MenuButtonOnClick(Widgets::Button* target);
+  void ContinueButtonOnClick(Widgets::Button* target);
+
+  Animation PrimaryFadeAnimation;
 
  private:
   Widgets::Group* MainItems;

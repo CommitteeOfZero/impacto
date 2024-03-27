@@ -27,6 +27,7 @@ extern float MenuEntriesYPadding;
 extern bool PressToStartAnimated;
 
 extern Animation PressToStartAnimation;
+extern float PrimaryFadeAnimDuration;
 
 }  // namespace TitleMenu
 }  // namespace MO8

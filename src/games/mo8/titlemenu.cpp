@@ -11,6 +11,7 @@
 #include "../../io/vfs.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
+#include "../../profile/game.h"
 #include "../../background2d.h"
 
 namespace Impacto {
@@ -26,6 +27,11 @@ using namespace Impacto::UI::Widgets;
 void TitleMenu::MenuButtonOnClick(Widgets::Button* target) {
   ScrWork[SW_TITLECUR] = target->Id;
   SetFlag(SF_TITLEEND, 1);
+  Audio::Channels[Audio::AC_SSE]->Play("sysse", 5, false, 0.0f);
+}
+
+void TitleMenu::ContinueButtonOnClick(Widgets::Button* target) {
+  Audio::Channels[Audio::AC_SSE]->Play("sysse", 5, false, 0.0f);
 }
 
 TitleMenu::TitleMenu() {
@@ -33,6 +39,8 @@ TitleMenu::TitleMenu() {
 
   auto onClick =
       std::bind(&TitleMenu::MenuButtonOnClick, this, std::placeholders::_1);
+  auto continueOnClick =
+      std::bind(&TitleMenu::ContinueButtonOnClick, this, std::placeholders::_1);
 
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
@@ -43,6 +51,7 @@ TitleMenu::TitleMenu() {
                        MenuEntriesHSprites[NewGameSpriteIndex + 1],
                        glm::vec2(MenuEntriesX, MenuEntriesFirstY));
   NewGame->OnClickHandler = onClick;
+  NewGame->HighlightOffset = glm::vec2(0.0f);
   MainItems->Add(NewGame, FDIR_DOWN);
   // Continue menu button
   Continue = new Button(
@@ -50,7 +59,8 @@ TitleMenu::TitleMenu() {
       MenuEntriesHSprites[ContinueSpriteIndex],
       MenuEntriesHSprites[NewGameSpriteIndex + 1],
       glm::vec2(MenuEntriesX, MenuEntriesFirstY + (1 * MenuEntriesYPadding)));
-  Continue->OnClickHandler = onClick;
+  Continue->OnClickHandler = continueOnClick;
+  Continue->HighlightOffset = glm::vec2(0.0f);
   MainItems->Add(Continue, FDIR_DOWN);
   // Options menu button
   Options = new Button(
@@ -59,6 +69,7 @@ TitleMenu::TitleMenu() {
       MenuEntriesHSprites[NewGameSpriteIndex + 1],
       glm::vec2(MenuEntriesX, MenuEntriesFirstY + (2 * MenuEntriesYPadding)));
   Options->OnClickHandler = onClick;
+  Options->HighlightOffset = glm::vec2(0.0f);
   MainItems->Add(Options, FDIR_DOWN);
 }
 
@@ -92,6 +103,7 @@ void TitleMenu::Hide() {
 void TitleMenu::Update(float dt) {
   UpdateInput();
 
+  PrimaryFadeAnimation.Update(dt);
   if (PressToStartAnimated) {
     PressToStartAnimation.Update(dt);
   }
@@ -105,8 +117,19 @@ void TitleMenu::Update(float dt) {
     MainItems->Update(dt);
 
     switch (ScrWork[SW_TITLEMODE]) {
+      case 0:
       case 2: {
-        MainItems->Show();
+        if (PrimaryFadeAnimation.State == AS_Stopped &&
+            ScrWork[SW_TITLEDISPCT] == 0)
+          PrimaryFadeAnimation.StartOut(true);
+      } break;
+      case 5: {
+        if (!MainItems->IsShown) MainItems->Show();
+      } break;
+      case 6: {
+        if (PrimaryFadeAnimation.State == AS_Stopped &&
+            ScrWork[SW_TITLEDISPCT] == 0)
+          PrimaryFadeAnimation.StartIn(true);
       } break;
     }
   }
@@ -117,6 +140,7 @@ void TitleMenu::Render() {
     Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
     Renderer->DrawSprite(LogoSprite, glm::vec2(LogoPositionX, LogoPositionY));
     switch (ScrWork[SW_TITLEMODE]) {
+      case 0:
       case 1: {  // Press to start
         glm::vec4 col = glm::vec4(1.0f);
         if (PressToStartAnimated) {
@@ -124,9 +148,27 @@ void TitleMenu::Render() {
         }
         Renderer->DrawSprite(PressToStartSprite,
                              glm::vec2(PressToStartX, PressToStartY), col);
+        glm::vec4 black = glm::vec4(0.0f);
+        black.a = glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
+        Renderer->DrawRect(
+            RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+            black);
       } break;
-      case 5: {
+      case 2: {  // Press to start fade
+        glm::vec4 col = glm::vec4(1.0f);
+        col.a = glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
+        Renderer->DrawSprite(PressToStartSprite,
+                             glm::vec2(PressToStartX, PressToStartY), col);
+      } break;
+      case 5:
+      case 6:
+      case 7: {  // Main and main fade out
         MainItems->Render();
+        glm::vec4 black = glm::vec4(0.0f);
+        black.a = glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
+        Renderer->DrawRect(
+            RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+            black);
       } break;
     }
   }
