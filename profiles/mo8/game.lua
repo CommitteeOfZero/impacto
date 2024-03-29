@@ -8,6 +8,7 @@ root.DesignHeight = 1080;
 root.WindowName = "Memories Off -Innocent Fille-";
 
 root.CharaIsMvl = true;
+root.UseMoviePriority = true;
 
 root.Vm = {
     StartScript = 7,

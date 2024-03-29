@@ -1,7 +1,7 @@
 #include "selectionmenu.h"
 #include "../profile_internal.h"
 #include "../../ui/ui.h"
-//#include "../../window.h"
+// #include "../../window.h"
 #include "../../renderer/renderer.h"
 #include "../../game.h"
 
@@ -20,6 +20,7 @@ Sprite PlainSelectionFrameBottomRight;
 Sprite PlainSelectionFrameBottomSide;
 Sprite PlainSelectionFrameMiddle;
 Sprite SelectionHighlight;
+Sprite SelectionFocused;
 
 int SelectionMaxCount;
 float SelectionBackgroundX;
@@ -32,6 +33,8 @@ float SelectionBackgroundY5;
 float SelectionYSpacing;
 float PlainSelectionYSpacing;
 float FadeAnimationDurationInOut;
+
+bool HighlightTextOnly = true;
 
 void Configure() {
   EnsurePushMemberOfType("SelectionDisplay", LUA_TTABLE);
@@ -55,7 +58,15 @@ void Configure() {
       EnsureGetMemberSprite("PlainSelectionFrameBottomSideSprite");
   PlainSelectionFrameMiddle =
       EnsureGetMemberSprite("PlainSelectionFrameMiddleSprite");
-  SelectionHighlight = EnsureGetMemberSprite("SelectionHighlightSprite");
+
+  Sprite nullSprite = Sprite();
+  nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
+  SelectionHighlight = nullSprite;
+  TryGetMemberSprite("SelectionHighlightSprite", SelectionHighlight);
+  SelectionFocused = nullSprite;
+  TryGetMemberSprite("SelectionFocusedSprite", SelectionFocused);
+
+  TryGetMemberBool("HighlightTextOnly", HighlightTextOnly);
 
   SelectionMaxCount = EnsureGetMemberInt("SelectionMaxCount");
   SelectionBackgroundX = EnsureGetMemberFloat("SelectionBackgroundX");

@@ -419,6 +419,12 @@ void Render() {
                 }
               }
             }
+
+            if (Profile::UseMoviePriority &&
+                (Profile::GameFeatures & GameFeature::Video) &&
+                ScrWork[SW_MOVIEPRI] == layer) {
+              Video::VideoRender(ScrWork[SW_MOVIEALPHA] / 256.0f);
+            }
           }
           if (GetFlag(SF_Pokecon_Open)) {
             SetFlag(SF_DATEDISPLAY, 0);
@@ -440,7 +446,13 @@ void Render() {
           DateDisplay::Render();
           TipsNotification::Render();
           DelusionTrigger::Render();
-          if (Profile::GameFeatures & GameFeature::Video) {
+          // MO8 uses those huge layer indexes for movie menu, it doesn't
+          // actually have 4000 layers
+          if ((Profile::GameFeatures & GameFeature::Video) &&
+              (!Profile::UseMoviePriority ||
+               (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::MO8 &&
+                (ScrWork[SW_MOVIEPRI] == 3000 ||
+                 ScrWork[SW_MOVIEPRI] == 4000)))) {
             Video::VideoRender(ScrWork[SW_MOVIEALPHA] / 256.0f);
           }
           break;

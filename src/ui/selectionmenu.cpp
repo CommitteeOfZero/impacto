@@ -112,12 +112,18 @@ void SelectionMenu::Show() {
       choiceY += SelectionYSpacing;
 
       Button* choice = new Button(
-          i, nullSprite, nullSprite, SelectionHighlight,
+          i, nullSprite, SelectionFocused, SelectionHighlight,
           glm::vec2(Choices[i][0].DestRect.X, Choices[i][0].DestRect.Y));
 
       choice->SetText(Choices[i], ChoiceLengths[i], ChoiceWidths[i],
                       Profile::Dialogue::DefaultFontSize, RO_Full);
       choice->OnClickHandler = onClick;
+      if (!HighlightTextOnly) {
+        choice->Bounds = RectF(SelectionBackgroundX,
+                               CurrentSelBackgroundY + (i * SelectionYSpacing),
+                               SelectionBackground.ScaledWidth(),
+                               SelectionBackground.ScaledHeight());
+      }
 
       ChoiceItems->Add(choice, FDIR_DOWN);
     }

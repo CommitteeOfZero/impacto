@@ -17,6 +17,7 @@ extern Sprite PlainSelectionFrameBottomRight;
 extern Sprite PlainSelectionFrameBottomSide;
 extern Sprite PlainSelectionFrameMiddle;
 extern Sprite SelectionHighlight;
+extern Sprite SelectionFocused;
 
 extern int SelectionMaxCount;
 extern float SelectionBackgroundX;
@@ -29,6 +30,8 @@ extern float SelectionBackgroundY5;
 extern float SelectionYSpacing;
 extern float PlainSelectionYSpacing;
 extern float FadeAnimationDurationInOut;
+
+extern bool HighlightTextOnly;
 
 void Configure();
 

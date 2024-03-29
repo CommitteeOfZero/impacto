@@ -17,6 +17,7 @@ char const* WindowName;
 bool LayFileBigEndian;
 bool CharaIsMvl;
 bool UseScreenCapEffects;
+bool UseMoviePriority = false;
 float LayFileTexXMultiplier;
 float LayFileTexYMultiplier;
 
@@ -45,6 +46,7 @@ void LoadGameFromJson() {
   if (!res) LayFileTexYMultiplier = 1.0f;
   res = TryGetMemberBool("UseScreenCapEffects", UseScreenCapEffects);
   if (!res) UseScreenCapEffects = true;
+  TryGetMemberBool("UseMoviePriority", UseMoviePriority);
   int audioBackendType = -1;
   res = TryGetMemberInt("AudioBackendType", audioBackendType);
   if (!res)
