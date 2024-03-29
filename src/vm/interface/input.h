@@ -73,7 +73,20 @@ extern int PADinputMouseWentDown;
 extern int PADinputButtonIsDown;
 extern int PADinputMouseIsDown;
 
+enum ControlType {
+  CT_OK = 0,
+  CT_Back = 2,
+  CT_NextMessage = 21,
+  CT_QuickSave = 26,
+  CT_MainMenu = 28,
+  CT_Backlog = 29,
+  CT_Tips = 30,
+  CT_LogoSkip = 39,
+  CT_ResetOptions = 40,
+};
+
 void UpdatePADInput();
+bool GetControlState(int controlId);
 
 }  // namespace Interface
 }  // namespace Vm

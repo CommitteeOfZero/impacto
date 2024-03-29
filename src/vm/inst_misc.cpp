@@ -447,39 +447,49 @@ VmInstruction(InstTitleMenuNew) {
                  "STUB instruction TitleMenu(type: Init)\n");
       break;
     case 1:  // Main
-      if (ScrWork[SW_TITLEMODE] == 3) {
-        if (!UI::TitleMenuPtr->AllowsScriptInput) {
-          ResetInstruction;
-          BlockThread;
-        }
-      } else if (ScrWork[SW_TITLEMODE] == 1 &&
-                 ScrWork[SW_TITLEDISPCT] ==
-                     (Profile::Vm::GameInstructionSet == +InstructionSet::CC
-                          ? 60
-                          : 400)) {
-        // Check "PRESS TO START" here
-        if (((Interface::PADinputButtonWentDown & Interface::PAD1A) ||
-             (Interface::PADinputMouseWentDown & Interface::PAD1A))) {
-          ScrWork[SW_TITLEMODE] = 2;
-          ScrWork[SW_TITLEDISPCT] = 0;
-          ScrWork[SW_TITLEMOVIECT] = 0;
-          SetFlag(SF_TITLEEND, 1);
-        }
-      }
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::MO8) {
-        if (ScrWork[SW_TITLEMODE] == 1) {
-          ScrWork[SW_TITLEMOVIECT] += 1;
-          // Check "PRESS TO START" here
-          if (((Interface::PADinputButtonWentDown & Interface::PAD1A) ||
-               (Interface::PADinputMouseWentDown & Interface::PAD1A))) {
-            Audio::Channels[Audio::AC_SSE]->Play("sysse", 0, false, 0.0f);
-            ScrWork[SW_TITLEMODE] = 2;
-            ScrWork[SW_TITLEDISPCT] = 0;
-            ScrWork[SW_TITLEMOVIECT] = 0;
-            SetFlag(SF_TITLEEND, 1);
+      switch (Profile::Vm::GameInstructionSet) {
+        case InstructionSet::CC:
+        case InstructionSet::CHN: {
+          if (ScrWork[SW_TITLEMODE] == 3) {
+            if (!UI::TitleMenuPtr->AllowsScriptInput) {
+              ResetInstruction;
+              BlockThread;
+            }
+          } else if (ScrWork[SW_TITLEMODE] == 1 &&
+                     ScrWork[SW_TITLEDISPCT] ==
+                         (Profile::Vm::GameInstructionSet == +InstructionSet::CC
+                              ? 60
+                              : 400)) {
+            // Check "PRESS TO START" here
+            if (((Interface::PADinputButtonWentDown & Interface::PAD1A) ||
+                 (Interface::PADinputMouseWentDown & Interface::PAD1A))) {
+              ScrWork[SW_TITLEMODE] = 2;
+              ScrWork[SW_TITLEDISPCT] = 0;
+              ScrWork[SW_TITLEMOVIECT] = 0;
+              SetFlag(SF_TITLEEND, 1);
+            }
           }
-        }
+        } break;
+        case InstructionSet::MO8: {
+          if (ScrWork[SW_TITLEMODE] == 1) {
+            ScrWork[SW_TITLEMOVIECT] += 1;
+            // Check "PRESS TO START" here
+            if (((Interface::PADinputButtonWentDown & Interface::PAD1A) ||
+                 (Interface::PADinputMouseWentDown & Interface::PAD1A))) {
+              Audio::Channels[Audio::AC_SSE]->Play("sysse", 0, false, 0.0f);
+              ScrWork[SW_TITLEMODE] = 2;
+              ScrWork[SW_TITLEDISPCT] = 0;
+              ScrWork[SW_TITLEMOVIECT] = 0;
+              SetFlag(SF_TITLEEND, 1);
+            }
+          } else if (ScrWork[SW_TITLEMODE] == 5 &&
+                     !UI::TitleMenuPtr->AllowsScriptInput) {
+            ResetInstruction;
+            BlockThread;
+          }
+        } break;
       }
+
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction TitleMenu(type: Main)\n");
       break;

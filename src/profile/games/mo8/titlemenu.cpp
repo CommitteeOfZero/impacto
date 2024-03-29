@@ -20,15 +20,27 @@ float LogoPositionY;
 int NewGameSpriteIndex;
 int ContinueSpriteIndex;
 int OptionSpriteIndex;
+int GallerySpriteIndex;
+int AlbumSpriteIndex;
+int MusicSpriteIndex;
+int ClearListSpriteIndex;
+int WarningSpriteIndex;
+int AdditionalSpriteIndex;
+int DLCSpriteIndex;
+int LoadSpriteIndex;
+int QuickLoadSpriteIndex;
 
 float MenuEntriesX;
 float MenuEntriesFirstY;
+float MenuEntriesGalleryFirstY;
 float MenuEntriesYPadding;
 
 bool PressToStartAnimated;
+bool HasAdditional;
 
 Animation PressToStartAnimation;
 float PrimaryFadeAnimDuration;
+float ItemFadeAnimDuration;
 
 void Configure() {
   BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
@@ -38,9 +50,20 @@ void Configure() {
   NewGameSpriteIndex = EnsureGetMemberInt("NewGameSpriteIndex");
   ContinueSpriteIndex = EnsureGetMemberInt("ContinueSpriteIndex");
   OptionSpriteIndex = EnsureGetMemberInt("OptionSpriteIndex");
+  GallerySpriteIndex = EnsureGetMemberInt("GallerySpriteIndex");
+  AlbumSpriteIndex = EnsureGetMemberInt("AlbumSpriteIndex");
+  MusicSpriteIndex = EnsureGetMemberInt("MusicSpriteIndex");
+  ClearListSpriteIndex = EnsureGetMemberInt("ClearListSpriteIndex");
+  WarningSpriteIndex = EnsureGetMemberInt("WarningSpriteIndex");
+  AdditionalSpriteIndex = EnsureGetMemberInt("AdditionalSpriteIndex");
+  DLCSpriteIndex = EnsureGetMemberInt("DLCSpriteIndex");
+  LoadSpriteIndex = EnsureGetMemberInt("LoadSpriteIndex");
+  QuickLoadSpriteIndex = EnsureGetMemberInt("QuickLoadSpriteIndex");
   MenuEntriesX = EnsureGetMemberFloat("MenuEntriesX");
   MenuEntriesFirstY = EnsureGetMemberFloat("MenuEntriesFirstY");
+  MenuEntriesGalleryFirstY = EnsureGetMemberFloat("MenuEntriesGalleryFirstY");
   MenuEntriesYPadding = EnsureGetMemberFloat("MenuEntriesYPadding");
+  HasAdditional = EnsureGetMemberBool("HasAdditional");
   PressToStartAnimated = EnsureGetMemberBool("PressToStartAnimated");
   PressToStartAnimation.DurationIn =
       Profile::TitleMenu::PressToStartAnimDurationIn;
@@ -48,6 +71,7 @@ void Configure() {
       Profile::TitleMenu::PressToStartAnimDurationOut;
   PressToStartAnimation.LoopMode = ALM_ReverseDirection;
   PrimaryFadeAnimDuration = EnsureGetMemberFloat("PrimaryFadeAnimDuration");
+  ItemFadeAnimDuration = EnsureGetMemberFloat("ItemFadeAnimDuration");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMemberInt("DrawType"));
@@ -55,6 +79,12 @@ void Configure() {
   UI::MO8::TitleMenu* menu = new UI::MO8::TitleMenu();
   menu->PrimaryFadeAnimation.DurationIn = PrimaryFadeAnimDuration;
   menu->PrimaryFadeAnimation.DurationOut = PrimaryFadeAnimDuration;
+  menu->MainItemsHideAnimation.DurationIn = ItemFadeAnimDuration;
+  menu->MainItemsHideAnimation.DurationOut = ItemFadeAnimDuration;
+  menu->ContinueItemsShowAnimation.DurationIn = ItemFadeAnimDuration;
+  menu->ContinueItemsShowAnimation.DurationOut = ItemFadeAnimDuration;
+  menu->GalleryItemsShowAnimation.DurationIn = ItemFadeAnimDuration;
+  menu->GalleryItemsShowAnimation.DurationOut = ItemFadeAnimDuration;
   UI::TitleMenuPtr = menu;
   UI::Menus[drawType].push_back(UI::TitleMenuPtr);
 }

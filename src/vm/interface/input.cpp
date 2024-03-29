@@ -51,6 +51,50 @@ void UpdatePADInput() {
   }
 }
 
+// TODO: Make this configurable per game
+// I have no idea why they have a million things for controls...
+bool GetControlState(int controlId) {
+  switch (controlId) {
+    case CT_OK: {
+      return (PADinputButtonWentDown & PADcustom[5]) ||
+             (PADinputMouseWentDown & PADcustom[5]);
+    }
+    case CT_Back: {
+      return (PADinputButtonWentDown & PADcustom[6]) ||
+             (PADinputMouseWentDown & PADcustom[6]);
+    }
+    case CT_NextMessage: {
+      return (PADinputButtonWentDown & PADcustom[23]) ||
+             (PADinputMouseWentDown & PADcustom[23]);
+    }
+    case CT_QuickSave: {
+      return (PADinputButtonWentDown & PADcustom[13]) ||
+             (PADinputMouseWentDown & PADcustom[13]);
+    }
+    case CT_MainMenu: {
+      return (PADinputButtonWentDown & PADcustom[10]) ||
+             (PADinputMouseWentDown & PADcustom[10]);
+    }
+    case CT_Backlog: {
+      return (PADinputButtonWentDown & PADcustom[12]) ||
+             (PADinputMouseWentDown & PADcustom[12]);
+    }
+    case CT_Tips: {
+      return false;
+    }
+    case CT_LogoSkip: {
+      return (PADinputButtonWentDown & PADcustom[14]) ||
+             (PADinputMouseWentDown & PADcustom[14]);
+    }
+    case CT_ResetOptions: {
+      return (PADinputButtonWentDown & PAD1Y) ||
+             (PADinputMouseWentDown & PAD1Y);
+    }
+    default:
+      return false;
+  }
+}
+
 }  // namespace Interface
 }  // namespace Vm
 }  // namespace Impacto

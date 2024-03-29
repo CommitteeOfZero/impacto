@@ -98,7 +98,7 @@ InstructionProc static OpcodeTableSystem_MO8[256] = {
     InstPressStartNew,        // 00 50
     InstGlobalSystemMessage,  // 00 51
     InstUnk0052,              // 00 52
-    InstClickOnJump,          // 00 53
+    InstControlOnJump,        // 00 53
     InstKeyboardOnJump,       // 00 54
     InstReturnIfFlag,         // 00 55
     InstDummy,                // 00 56

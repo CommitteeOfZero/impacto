@@ -19,15 +19,27 @@ extern float LogoPositionY;
 extern int NewGameSpriteIndex;
 extern int ContinueSpriteIndex;
 extern int OptionSpriteIndex;
+extern int GallerySpriteIndex;
+extern int AlbumSpriteIndex;
+extern int MusicSpriteIndex;
+extern int ClearListSpriteIndex;
+extern int WarningSpriteIndex;
+extern int AdditionalSpriteIndex;
+extern int DLCSpriteIndex;
+extern int LoadSpriteIndex;
+extern int QuickLoadSpriteIndex;
 
 extern float MenuEntriesX;
 extern float MenuEntriesFirstY;
 extern float MenuEntriesYPadding;
+extern float MenuEntriesGalleryFirstY;
 
 extern bool PressToStartAnimated;
+extern bool HasAdditional;
 
 extern Animation PressToStartAnimation;
 extern float PrimaryFadeAnimDuration;
+extern float ItemFadeAnimDuration;
 
 }  // namespace TitleMenu
 }  // namespace MO8

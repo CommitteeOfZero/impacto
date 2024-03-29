@@ -239,7 +239,15 @@ VmInstruction(InstKeyboardOnJump) {
              "arg4: %i)\n",
              arg1, arg2, arg3, arg4);
 }
-VmInstruction(InstControlOnJump) { StartInstruction; }
+VmInstruction(InstControlOnJump) {
+  StartInstruction;
+  PopUint8(controlStateTarget);
+  PopExpression(controlId);
+  PopLocalLabel(labelAdr);
+  if (controlStateTarget == Interface::GetControlState(controlId)) {
+    thread->Ip = labelAdr;
+  }
+}
 VmInstruction(InstGetControl) { StartInstruction; }
 VmInstruction(InstPackFileAddBind) { StartInstruction; }
 VmInstruction(InstLoadJump) {
