@@ -489,6 +489,10 @@ void FFmpegPlayer::Stop() {
     if (IoContext)
       reinterpret_cast<Io::InputStream*>(IoContext->opaque)->~InputStream();
     avio_context_free(&IoContext);
+    if (VideoTexture) {
+      VideoTexture->Release();
+      VideoTexture = 0;
+    }
   }
 }
 

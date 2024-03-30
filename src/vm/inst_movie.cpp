@@ -9,6 +9,7 @@
 #include "../log.h"
 #include "../mem.h"
 #include "../profile/scriptvars.h"
+#include "../profile/vm.h"
 #include "../profile/game.h"
 #include "../video/videosystem.h"
 #include "interface/input.h"
@@ -50,6 +51,7 @@ VmInstruction(InstPlayMovie) {
       if (playMode == 3 || !playMode) flags |= 1;
       if (playMode == 5) flags |= 4;
       if ((playMode & 0xFFFFFFFD) == 0) flags = flags | 2;
+      if (Video::Players[0]->IsPlaying) Video::Players[0]->Stop();
       Video::Players[0]->Play(stream, flags & 8, flags & 4);
     }
     BlockThread;
@@ -67,6 +69,7 @@ VmInstruction(InstPlayMovieOld) {
   if (Profile::GameFeatures & GameFeature::Video) {
     Io::InputStream* stream;
     Io::VfsOpen("movie", playNo, &stream);
+    if (Video::Players[0]->IsPlaying) Video::Players[0]->Stop();
     Video::Players[0]->Play(stream, playMode == 5, playMode == 5);
   }
   BlockThread;
@@ -81,12 +84,16 @@ VmInstruction(InstMovieMain) {
   switch (type) {
     case 2:  // Stop
       if (Profile::GameFeatures & GameFeature::Video) {
-        if (Interface::PADinputButtonWentDown & Interface::PAD1A ||
-            Interface::PADinputMouseWentDown & Interface::PAD1A) {
+        if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
+          if (Interface::PADinputButtonWentDown & Interface::PAD1A ||
+              Interface::PADinputMouseWentDown & Interface::PAD1A) {
+            Video::Players[0]->Stop();
+          } else if (Video::Players[0]->IsPlaying) {
+            ResetInstruction;
+            BlockThread;
+          }
+        } else {
           Video::Players[0]->Stop();
-        } else if (Video::Players[0]->IsPlaying) {
-          ResetInstruction;
-          BlockThread;
         }
       }
       ImpLogSlow(LL_Warning, LC_VMStub,

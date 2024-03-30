@@ -1023,11 +1023,12 @@ uint32_t Renderer::SubmitTextureImpl(TexFmt format, uint8_t* buffer, int width,
 void Renderer::FreeTextureImpl(uint32_t id) {
   // TODO: I need to figure this out... images are getting destroyed but are
   // still used in draw somehow
+  // UPDATE: This... seems to just work now? Keep an eye on it I guess
 
-  // vmaDestroyImage(Allocator, Textures[id].Image.Image,
-  //                Textures[id].Image.Allocation);
-  // vkDestroyImageView(Device, Textures[id].ImageView, nullptr);
-  // Textures.erase(id);
+  vmaDestroyImage(Allocator, Textures[id].Image.Image,
+                  Textures[id].Image.Allocation);
+  vkDestroyImageView(Device, Textures[id].ImageView, nullptr);
+  Textures.erase(id);
 }
 
 YUVFrame* Renderer::CreateYUVFrameImpl(int width, int height) {

@@ -14,10 +14,10 @@ namespace Impacto {
 struct Character2DState {
   int Count;
   // LAY
-  glm::vec2* ScreenCoords;
-  glm::vec2* TextureCoords;
+  glm::vec2* ScreenCoords = 0;
+  glm::vec2* TextureCoords = 0;
   // MVL
-  uint16_t* Indices;
+  uint16_t* Indices = 0;
 };
 
 int const MaxMvlIndices = 128 * 1024;

@@ -42,7 +42,7 @@ void Background2D::Init() {
 
 bool Background2D::LoadSync(uint32_t bgId) {
   if (bgId & 0xFF000000) {
-    BgTexture.Load1x1(bgId & 0xFF, (bgId >> 8) & 0xFF, (bgId >> 16) & 0xFF,
+    BgTexture.Load1x1((bgId >> 16) & 0xFF, (bgId >> 8) & 0xFF, bgId & 0xFF,
                       0xFF);
   } else {
     Io::InputStream* stream;

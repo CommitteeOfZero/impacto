@@ -41,7 +41,7 @@ enum DialoguePageMode : uint8_t {
   DPM_TIPS = 3
 };
 
-int const DialogueMaxNameLength = 32;
+int const DialogueMaxNameLength = 64;
 int const DialogueMaxRubyChunks = 32;
 int const DialogueMaxRubyChunkLength = 32;
 

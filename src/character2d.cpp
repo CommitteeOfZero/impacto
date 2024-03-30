@@ -147,6 +147,11 @@ void Character2D::UnloadSync() {
     free(MvlVertices);
   }
   MvlIndicesCount = 0;
+  for (auto state : States) {
+    if (state.second.Indices) free(state.second.Indices);
+    if (state.second.ScreenCoords) free(state.second.ScreenCoords);
+    if (state.second.TextureCoords) free(state.second.TextureCoords);
+  }
   States.clear();
   StatesToDraw.clear();
 }
