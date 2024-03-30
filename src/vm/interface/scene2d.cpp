@@ -3,7 +3,7 @@
 #include "../../profile/vm.h"
 #include "../../mem.h"
 #include "../../profile/game.h"
-//#include "../../window.h"
+// #include "../../window.h"
 #include "../../renderer/renderer.h"
 
 namespace Impacto {
@@ -38,9 +38,21 @@ void UpdateBackground2D() {
                    ScrWork[SW_BG1POSX_OFS + 10 * i];
         int posY = ScrWork[SW_BG1POSY + ScrWorkBgStructSize * i] +
                    ScrWork[SW_BG1POSY_OFS + 10 * i];
-        Backgrounds2D[bufId]->DisplayCoords =
-            glm::vec2(-(posX * (Profile::DesignWidth / 1280.0f)),
-                      -(posY * (Profile::DesignHeight / 720.0f)));
+        posX *= Profile::DesignWidth / 1280.0f;
+        posY *= Profile::DesignHeight / 720.0f;
+
+        // Ha ha, why don't we make all positioning do random things per game,
+        // wouldn't that be cool
+        if (GameInstructionSet == +InstructionSet::MO8) {
+          posX += (Backgrounds2D[bufId]->BgSprite.Bounds.Width -
+                   Profile::DesignWidth) *
+                  0.5f;
+          posY += (Backgrounds2D[bufId]->BgSprite.Bounds.Height -
+                   Profile::DesignHeight) *
+                  0.5f;
+        }
+
+        Backgrounds2D[bufId]->DisplayCoords = glm::vec2(-posX, -posY);
         Backgrounds2D[bufId]->BgSprite.BaseScale = glm::vec2(1.0f, 1.0f);
       } break;
       case 1: {
@@ -168,6 +180,10 @@ void LinkBuffers(int linkCode, int currentBufferId,
   }
 }
 
+static float BaseScaleValues[] = {
+    1.3f, 1.0f, 0.6f, 0.4f, 0.13f, 0.8f, 0.7f,
+};
+
 void UpdateCharacter2D() {
   for (int i = 0; i < MaxCharacters2D; i++) {
     if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW) {
@@ -189,7 +205,32 @@ void UpdateCharacter2D() {
          ScrWork[SW_CHA1POSY_OFS + 10 * i]) *
         (Profile::DesignHeight / 720.0f);
     if (Profile::Vm::GameInstructionSet == +InstructionSet::MO8) {
-      Characters2D[bufId].OffsetY = -Characters2D[bufId].OffsetY;
+      float baseScale = 1.0f;
+      if (ScrWork[SW_CHA1BASESIZE + ScrWorkChaStructSize * i] < 7) {
+        baseScale = BaseScaleValues[ScrWork[SW_CHA1BASESIZE +
+                                            ScrWorkChaStructSize * i]];
+      }
+      Characters2D[bufId].ScaleX =
+          baseScale *
+          (ScrWork[SW_CHA1SIZEX + ScrWorkChaStructSize * i] / 1000.0f);
+      Characters2D[bufId].ScaleY =
+          baseScale *
+          (ScrWork[SW_CHA1SIZEY + ScrWorkChaStructSize * i] / 1000.0f);
+
+      // ScrWork magic
+      Characters2D[bufId].RotationX =
+          ScrWork[SW_CHA1ROTX + ScrWorkChaStructSize * i] * M_PI *
+          (0.000030517578f);
+      Characters2D[bufId].RotationY =
+          ScrWork[SW_CHA1ROTY + ScrWorkChaStructSize * i] * M_PI *
+          (0.000030517578f);
+      Characters2D[bufId].RotationZ =
+          ScrWork[SW_CHA1ROTZ + ScrWorkChaStructSize * i] * M_PI *
+          (0.000030517578f);
+
+      // More magic, wouldn't be Mage... I'll excuse myself
+      Characters2D[bufId].OffsetY =
+          Characters2D[bufId].OffsetY - 228.0f - (baseScale * 1030.0f);
     }
     Characters2D[bufId].Face = ScrWork[SW_CHA1FACE + ScrWorkChaStructSize * i]
                                << 16;

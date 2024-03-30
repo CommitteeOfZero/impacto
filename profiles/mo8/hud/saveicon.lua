@@ -26,5 +26,5 @@ MakeAnimation({
 
 root.Sprites["SaveIconBg"] = {
     Sheet = "Data",
-    Bounds = { X = 2158.5, Y = 1.5, Width = 126, Height = 126 }
+    Bounds = { X = 2158.5, Y = 1.5, Width = 0, Height = 0 }
 };

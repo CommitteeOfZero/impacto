@@ -210,8 +210,9 @@ void Character2D::Render(int chaId, int layer) {
 
     if (Profile::CharaIsMvl) {
       Renderer->DrawCharacterMvl(CharaSprite, glm::vec2(OffsetX, OffsetY),
-                                   MvlVerticesCount, MvlVertices,
-                                   MvlIndicesCount, MvlIndices, false, col);
+                                 MvlVerticesCount, MvlVertices, MvlIndicesCount,
+                                 MvlIndices, false, col,
+                                 glm::vec2(ScaleX, ScaleY));
     } else {
       for (auto id : StatesToDraw) {
         if (States.count(id)) {
@@ -220,9 +221,9 @@ void Character2D::Render(int chaId, int layer) {
             CharaSprite.Bounds = RectF(state.TextureCoords[i].x,
                                        state.TextureCoords[i].y, 30.0f, 30.0f);
             Renderer->DrawSprite(CharaSprite,
-                                   glm::vec2(state.ScreenCoords[i].x + OffsetX,
-                                             state.ScreenCoords[i].y + OffsetY),
-                                   col);
+                                 glm::vec2(state.ScreenCoords[i].x + OffsetX,
+                                           state.ScreenCoords[i].y + OffsetY),
+                                 col);
           }
         }
       }

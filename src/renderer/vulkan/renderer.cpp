@@ -1089,7 +1089,8 @@ void Renderer::DrawRect3DRotatedImpl(RectF const& dest, float depth,
 void Renderer::DrawCharacterMvlImpl(Sprite const& sprite, glm::vec2 topLeft,
                                     int verticesCount, float* mvlVertices,
                                     int indicesCount, uint16_t* mvlIndices,
-                                    bool inverted, glm::vec4 tint) {
+                                    bool inverted, glm::vec4 tint,
+                                    glm::vec2 scale) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawCharacterMvl() called before BeginFrame()\n");
@@ -1122,11 +1123,51 @@ void Renderer::DrawCharacterMvlImpl(Sprite const& sprite, glm::vec2 topLeft,
   memcpy(IndexBuffer + indexBufferOffset, mvlIndices,
          indicesCount * sizeof(mvlIndices[0]));
 
-  for (int i = 0; i < verticesCount; i++) {
-    vertices[i].Position = DesignToNDCNonFlipped(glm::vec2(
-        mvlVertices[i * 5] + topLeft.x, mvlVertices[i * 5 + 1] + topLeft.y));
-    vertices[i].UV = glm::vec2(mvlVertices[i * 5 + 3], mvlVertices[i * 5 + 4]);
+  for (int i = 0; i < verticesCount; i += 4) {
+    glm::vec2 pos = glm::vec2(mvlVertices[i * 5], mvlVertices[i * 5 + 1]);
+    glm::vec2 bottomLeftV =
+        glm::vec2(mvlVertices[i * 5], mvlVertices[i * 5 + 1]);
+    glm::vec2 topLeftV =
+        glm::vec2(mvlVertices[(i + 1) * 5], mvlVertices[(i + 1) * 5 + 1]);
+    glm::vec2 topRightV =
+        glm::vec2(mvlVertices[(i + 2) * 5], mvlVertices[(i + 2) * 5 + 1]);
+    glm::vec2 bottomRightV =
+        glm::vec2(mvlVertices[(i + 3) * 5], mvlVertices[(i + 3) * 5 + 1]);
+
+    glm::vec2 bottomLeftUV =
+        glm::vec2(mvlVertices[i * 5 + 3], mvlVertices[i * 5 + 4]);
+    glm::vec2 topLeftUV =
+        glm::vec2(mvlVertices[(i + 1) * 5 + 3], mvlVertices[(i + 1) * 5 + 4]);
+    glm::vec2 topRightUV =
+        glm::vec2(mvlVertices[(i + 2) * 5 + 3], mvlVertices[(i + 2) * 5 + 4]);
+    glm::vec2 bottomRightUV =
+        glm::vec2(mvlVertices[(i + 3) * 5 + 3], mvlVertices[(i + 3) * 5 + 4]);
+
+    bottomLeftV *= scale;
+    bottomLeftV += topLeft;
+    topLeftV *= scale;
+    topLeftV += topLeft;
+    topRightV *= scale;
+    topRightV += topLeft;
+    bottomRightV *= scale;
+    bottomRightV += topLeft;
+
+    // top-left
+    vertices[i].Position = DesignToNDCNonFlipped(topLeftV);
+    vertices[i].UV = topLeftUV;
     vertices[i].Tint = tint;
+    // bottom-left
+    vertices[i + 1].Position = DesignToNDCNonFlipped(bottomLeftV);
+    vertices[i + 1].UV = bottomLeftUV;
+    vertices[i + 1].Tint = tint;
+    // bottom-right
+    vertices[i + 2].Position = DesignToNDCNonFlipped(bottomRightV);
+    vertices[i + 2].UV = bottomRightUV;
+    vertices[i + 2].Tint = tint;
+    // top-right
+    vertices[i + 3].Position = DesignToNDCNonFlipped(topRightV);
+    vertices[i + 3].UV = topRightUV;
+    vertices[i + 3].Tint = tint;
   }
 
   Flush();

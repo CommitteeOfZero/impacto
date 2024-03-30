@@ -143,9 +143,10 @@ class Renderer : public BaseRenderer {
                             RectF const& dest, glm::vec4 tint, int alpha,
                             int fadeRange, float effectCt,
                             bool isScreencap) override;
-                
+
   void DrawCHLCCDelusionOverlayImpl(Sprite const& sprite, Sprite const& mask,
-                                    RectF const& dest, int alpha, int fadeRange, float angle) override;
+                                    RectF const& dest, int alpha, int fadeRange,
+                                    float angle) override;
 
   void DrawCHLCCMenuBackgroundImpl(const Sprite& sprite, const Sprite& mask,
                                    const RectF& dest, float alpha) override;
@@ -161,7 +162,8 @@ class Renderer : public BaseRenderer {
   void DrawCharacterMvlImpl(Sprite const& sprite, glm::vec2 topLeft,
                             int verticesCount, float* mvlVertices,
                             int indicesCount, uint16_t* mvlIndices,
-                            bool inverted, glm::vec4 tint) override;
+                            bool inverted, glm::vec4 tint,
+                            glm::vec2 scale) override;
 
   void DrawVideoTextureImpl(YUVFrame* tex, RectF const& dest, glm::vec4 tint,
                             float angle, bool alphaVideo) override;
@@ -178,7 +180,8 @@ class Renderer : public BaseRenderer {
 
   inline void MakeQuad();
   inline void QuadSetUV(RectF const& spriteBounds, float designWidth,
-                        float designHeight, uintptr_t uvs, int stride, float angle = 0.0f);
+                        float designHeight, uintptr_t uvs, int stride,
+                        float angle = 0.0f);
   inline void QuadSetPositionOffset(RectF const& spriteBounds,
                                     glm::vec2 topLeftPos,
                                     glm::vec2 displayOffset, glm::vec2 scale,

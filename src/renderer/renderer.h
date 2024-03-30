@@ -100,7 +100,8 @@ class BaseRenderer {
   void DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
                         int verticesCount, float* mvlVertices, int indicesCount,
                         uint16_t* mvlIndices, bool inverted = false,
-                        glm::vec4 tint = glm::vec4(1.0));
+                        glm::vec4 tint = glm::vec4(1.0),
+                        glm::vec2 scale = glm::vec2(1.0f));
 
   void DrawVideoTexture(YUVFrame* tex, RectF const& dest,
                         glm::vec4 tint = glm::vec4(1.0), float angle = 0.0f,
@@ -189,7 +190,8 @@ class BaseRenderer {
   virtual void DrawCharacterMvlImpl(Sprite const& sprite, glm::vec2 topLeft,
                                     int verticesCount, float* mvlVertices,
                                     int indicesCount, uint16_t* mvlIndices,
-                                    bool inverted, glm::vec4 tint) = 0;
+                                    bool inverted, glm::vec4 tint,
+                                    glm::vec2 scale) = 0;
 
   virtual void DrawVideoTextureImpl(YUVFrame* tex, RectF const& dest,
                                     glm::vec4 tint, float angle,

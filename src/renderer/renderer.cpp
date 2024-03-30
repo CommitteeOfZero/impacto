@@ -267,9 +267,10 @@ void BaseRenderer::DrawProcessedText(ProcessedTextGlyph* text, int length,
 void BaseRenderer::DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
                                     int verticesCount, float* mvlVertices,
                                     int indicesCount, uint16_t* mvlIndices,
-                                    bool inverted, glm::vec4 tint) {
+                                    bool inverted, glm::vec4 tint,
+                                    glm::vec2 scale) {
   DrawCharacterMvlImpl(sprite, topLeft, verticesCount, mvlVertices,
-                       indicesCount, mvlIndices, inverted, tint);
+                       indicesCount, mvlIndices, inverted, tint, scale);
 }
 
 void BaseRenderer::DrawVideoTexture(YUVFrame* tex, RectF const& dest,

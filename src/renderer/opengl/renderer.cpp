@@ -267,7 +267,8 @@ void Renderer::DrawRect3DRotatedImpl(RectF const& dest, float depth,
 void Renderer::DrawCharacterMvlImpl(Sprite const& sprite, glm::vec2 topLeft,
                                     int verticesCount, float* mvlVertices,
                                     int indicesCount, uint16_t* mvlIndices,
-                                    bool inverted, glm::vec4 tint) {
+                                    bool inverted, glm::vec4 tint,
+                                    glm::vec2 scale) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawCharacterMvl() called before BeginFrame()\n");
@@ -298,8 +299,10 @@ void Renderer::DrawCharacterMvlImpl(Sprite const& sprite, glm::vec2 topLeft,
                mvlIndices, GL_STATIC_DRAW);
 
   for (int i = 0; i < verticesCount; i++) {
-    vertices[i].Position = DesignToNDC(glm::vec2(
-        mvlVertices[i * 5] + topLeft.x, mvlVertices[i * 5 + 1] + topLeft.y));
+    glm::vec2 pos = glm::vec2(mvlVertices[i * 5], mvlVertices[i * 5 + 1]);
+    pos *= scale;
+    pos += topLeft;
+    vertices[i].Position = DesignToNDC(pos);
     vertices[i].UV = glm::vec2(mvlVertices[i * 5 + 3], mvlVertices[i * 5 + 4]);
     vertices[i].Tint = tint;
   }
