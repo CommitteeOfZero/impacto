@@ -51,8 +51,9 @@ static int LuaInclude(lua_State* ctx) {
   char const prefix[] = "do\n";
   char const suffix[] = "\nend";
 
-  char* script =
-      (char*)malloc(strlen(prefix) + stream->Meta.Size + strlen(suffix));
+  size_t script_len = strlen(prefix) + stream->Meta.Size + strlen(suffix) + 1;
+  char* script = (char*)malloc(script_len);
+  script[script_len - 1] = '\0';
   memcpy(script, prefix, strlen(prefix));
 
   int64_t len = stream->Read(script + strlen(prefix), stream->Meta.Size);
@@ -130,7 +131,7 @@ void MakeJsonProfile(std::string const& name) {
     exit(0);
   }
 
-  char* script = (char*)malloc(stream->Meta.Size) + 1;
+  char* script = (char*)malloc(stream->Meta.Size + 1) + 1;
   int64_t len = stream->Read(script, stream->Meta.Size);
   if (len < 0) {
     ImpLog(LL_Fatal, LC_Profile, "Could not open profiles/%s/game.lua\n",
@@ -183,7 +184,7 @@ void MakeJsonProfile(std::string const& name) {
 
   ImpLog(LL_Info, LC_Profile, "Starting profile %s\n", name.c_str());
 
-  if (luaL_loadbuffer(LuaState, script, len, script)) {
+  if (luaL_loadbuffer(LuaState, script, len, name.c_str())) {
     ImpLog(LL_Fatal, LC_Profile, "Lua profile compile error: %s\n",
            lua_tostring(LuaState, -1));
     lua_close(LuaState);
