@@ -116,8 +116,8 @@ Widget* Group::GetFocus(FocusDirection dir) {
       return Children.front();
     else if (dir == FDIR_UP || dir == FDIR_LEFT)
       return Children.back();
-  } else
-    return 0;
+  }
+  return NULL;
 }
 
 void Group::Show() {
