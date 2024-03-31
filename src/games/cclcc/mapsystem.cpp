@@ -1,16 +1,15 @@
 #include "mapsystem.h"
+
 #include <array>
 #include <algorithm>
-#include <vector>
+#include <cstdint>
+#include <random>
+
 #include "../../mem.h"
-#include "../../inputsystem.h"
 #include "../../vm/interface/input.h"
-#include "../../game.h"
 #include "../../profile/scriptvars.h"
 
 #include "../../profile/games/cclcc/mapsystem.h"
-#include "../../profile/ui/mapsystem.h"
-#include <random>
 
 namespace Impacto {
 namespace UI {

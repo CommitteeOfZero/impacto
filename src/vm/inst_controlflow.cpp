@@ -3,7 +3,6 @@
 #include "inst_macros.inc"
 
 #include "expression.h"
-#include "../game.h"
 #include "../mem.h"
 #include "../log.h"
 #include "../profile/vm.h"

@@ -6,7 +6,6 @@
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
 #include "../../data/savesystem.h"
-#include "../../background2d.h"
 #include "../../vm/interface/input.h"
 #include "../../ui/widgets/mo6tw/albumcharacterbutton.h"
 #include "../../ui/widgets/mo6tw/albumthumbnailbutton.h"

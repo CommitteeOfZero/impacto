@@ -3,7 +3,6 @@
 
 #include "renderable3d.h"
 
-#include "../renderer.h"
 #include "../../3d/camera.h"
 #include "../../3d/modelanimator.h"
 #include "../../../log.h"

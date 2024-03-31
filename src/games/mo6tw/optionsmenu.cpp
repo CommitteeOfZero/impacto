@@ -5,11 +5,7 @@
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
-#include "../../inputsystem.h"
 #include "../../vm/interface/input.h"
-#include "../../ui/widgets/button.h"
-#include "../../vm/vm.h"
-#include "../../audio/audiochannel.h"
 
 namespace Impacto {
 namespace UI {

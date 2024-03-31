@@ -2,6 +2,8 @@
 #include "profile.h"
 #include "profile_internal.h"
 
+#include <cstdint>
+
 namespace Impacto {
 namespace Profile {
 

@@ -10,7 +10,6 @@
 #include "../log.h"
 #include "../hud/saveicondisplay.h"
 #include "../ui/ui.h"
-#include "../inputsystem.h"
 #include "../data/savesystem.h"
 
 #include "../profile/vm.h"

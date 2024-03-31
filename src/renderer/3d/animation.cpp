@@ -2,7 +2,6 @@
 
 #include "animation.h"
 
-#include "../../io/io.h"
 #include "../../log.h"
 #include "../../util.h"
 

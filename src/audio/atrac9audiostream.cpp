@@ -1,6 +1,5 @@
 #include "atrac9audiostream.h"
 #include "../log.h"
-#include "../util.h"
 
 using namespace Impacto::Io;
 

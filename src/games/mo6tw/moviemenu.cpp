@@ -5,7 +5,6 @@
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
-#include "../../data/savesystem.h"
 
 namespace Impacto {
 namespace UI {

@@ -2,8 +2,6 @@
 
 #include "../../ui/sysmesbox.h"
 #include "../../ui/widgets/button.h"
-#include "../../ui/widgets/label.h"
-#include "../../text.h"
 
 namespace Impacto {
 namespace UI {

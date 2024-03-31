@@ -1,7 +1,5 @@
 #include "profile_internal.h"
 
-#include <stack>
-
 #include "../log.h"
 #include "../renderer/renderer.h"
 

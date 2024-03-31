@@ -2,11 +2,9 @@
 
 #include "../../profile/games/chlcc/musicmenu.h"
 #include "../../profile/scriptvars.h"
-#include "../../profile/profile_internal.h"
 #include "../../renderer/renderer.h"
 #include "../../ui/ui.h"
 #include "../../data/savesystem.h"
-#include "../../profile/dialogue.h"
 #include "../../background2d.h"
 #include "../../vm/interface/input.h"
 

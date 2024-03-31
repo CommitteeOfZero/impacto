@@ -1,11 +1,13 @@
 #include "savesystem.h"
 
-#include <time.h>
 #include "../../io/physicalfilestream.h"
 #include "../../mem.h"
 #include "../../vm/vm.h"
 #include "../../profile/data/savesystem.h"
 #include "../../profile/scriptvars.h"
+
+#include <cstdint>
+#include <ctime>
 
 namespace Impacto {
 namespace CHLCC {

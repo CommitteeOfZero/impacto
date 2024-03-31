@@ -1,8 +1,8 @@
-#include <deque>
-
 #include "workqueue.h"
 
-#include "impacto.h"
+#include <cassert>
+#include <SDL_mutex.h>
+#include <SDL.h>
 
 namespace Impacto {
 namespace WorkQueue {

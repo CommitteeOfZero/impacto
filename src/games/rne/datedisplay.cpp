@@ -1,12 +1,11 @@
 #include "datedisplay.h"
 
 #include "../../profile/scriptvars.h"
-#include "../../impacto.h"
 #include "../../mem.h"
-#include <ctime>
 #include "../../renderer/renderer.h"
-#include "../../game.h"
 #include "../../profile/hud/datedisplay.h"
+
+#include <ctime>
 
 namespace Impacto {
 namespace RNE {

@@ -1,14 +1,13 @@
 #include "savesystem.h"
 
-#include "../io/physicalfilestream.h"
-#include "../mem.h"
-#include "../vm/vm.h"
 #include "../profile/data/savesystem.h"
+
+#include <cstdint>
+#include <ctime>
 
 namespace Impacto {
 namespace SaveSystem {
 
-using namespace Impacto::Vm;
 using namespace Impacto::Profile::SaveSystem;
 
 SaveSystemBase* Implementation = 0;

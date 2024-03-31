@@ -1,9 +1,5 @@
-#include "gxtloader.h"
-
 #include "../log.h"
-#include "../util.h"
 
-#include "s3tc.h"
 #include "bntxloader.h"
 #include "bcdecode.h"
 

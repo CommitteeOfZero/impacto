@@ -2,7 +2,6 @@
 
 #include "../log.h"
 #include "uncompressedstream.h"
-#include "vfs.h"
 #include <SDL_endian.h>
 
 namespace Impacto {

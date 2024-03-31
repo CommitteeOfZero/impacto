@@ -1,10 +1,7 @@
 #pragma once
 
-#include <functional>
-
 #include "../widget.h"
 #include "../../spritesheet.h"
-#include "../../text.h"
 
 namespace Impacto {
 namespace UI {
