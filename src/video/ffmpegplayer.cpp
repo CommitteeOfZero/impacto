@@ -117,6 +117,13 @@ void FFmpegPlayer::Init() {
 void FFmpegPlayer::Play(Io::InputStream* stream, bool looping, bool alpha) {
   // Don't do anything if we don't have the video system
   if (!IsInit) return;
+
+  if (stream == nullptr) {
+    ImpLog(LL_Error, LC_Video,
+           "InputStream was a nullptr! This means the caller is buggy. Backing "
+           "out.\n");
+    return;
+  }
   AbortRequest = false;
   SeekRequest = false;
   Looping = looping;

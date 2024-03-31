@@ -25,6 +25,7 @@ bool AudioBackend::Init() {
     alcCloseDevice(AlcDevice);
     return false;
   }
+  return true;
 }
 
 void AudioBackend::Shutdown() {
