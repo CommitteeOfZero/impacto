@@ -17,8 +17,8 @@ class Scrollbar : public Widget {
   Scrollbar(int id, glm::vec2 pos, float min, float max, float* value,
             ScrollbarDirection dir, Sprite const& track, Sprite const& thumb,
             Sprite const& fill, glm::vec2 thumbOffset = glm::vec2(0.0f, 0.0f));
-  void UpdateInput();
-  virtual void Render();
+  void UpdateInput() override;
+  virtual void Render() override;
 
   void Move(glm::vec2 relativePosition) override;
   void MoveTo(glm::vec2 pos) override;

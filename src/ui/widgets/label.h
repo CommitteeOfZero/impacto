@@ -20,8 +20,8 @@ class Label : public Widget {
         RendererOutlineMode outlineMode, int colorIndex = 10);
 
   void Update(float dt) override;
-  void UpdateInput();
-  void Render();
+  void UpdateInput() override;
+  void Render() override;
   void Move(glm::vec2 relativePosition) override;
   void MoveTo(glm::vec2 pos) override;
 

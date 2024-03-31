@@ -14,7 +14,7 @@ class BacklogEntry : public Widget {
   BacklogEntry(int id, uint8_t* str, int audioId, glm::vec2 pos);
   ~BacklogEntry();
 
-  void UpdateInput();
+  void UpdateInput() override;
   void Render() override;
 
   void Move(glm::vec2 relativePosition) override;
