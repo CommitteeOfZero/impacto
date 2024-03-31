@@ -23,7 +23,7 @@ set(Impacto_Src
         src/character2d.cpp
         src/text.cpp
         src/inputsystem.cpp
-        src/minilua_impl.cpp
+        src/minilua_impl.c
 
         src/renderer/renderer.cpp
 
