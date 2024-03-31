@@ -73,7 +73,8 @@ SaveError SaveSystem::MountSaveFile() {
     uint8_t saveYear = Io::ReadLE<uint8_t>(stream);
     uint8_t saveSecond = Io::ReadLE<uint8_t>(stream);
     QuickSaveEntries[i]->SaveDate =
-        std::tm{saveSecond, saveMinute, saveHour, saveDay, saveMonth, saveYear};
+        std::tm{saveSecond, saveMinute, saveHour, saveDay, saveMonth, saveYear,
+                0,          0,          0,        0,       0};
     Io::ReadLE<uint16_t>(stream);
     QuickSaveEntries[i]->PlayTime = Io::ReadLE<uint32_t>(stream);
     QuickSaveEntries[i]->SwTitle = Io::ReadLE<uint16_t>(stream);
@@ -122,7 +123,8 @@ SaveError SaveSystem::MountSaveFile() {
     uint8_t saveYear = Io::ReadLE<uint8_t>(stream);
     uint8_t saveSecond = Io::ReadLE<uint8_t>(stream);
     FullSaveEntries[i]->SaveDate =
-        std::tm{saveSecond, saveMinute, saveHour, saveDay, saveMonth, saveYear};
+        std::tm{saveSecond, saveMinute, saveHour, saveDay, saveMonth, saveYear,
+                0,          0,          0,        0,       0};
     Io::ReadLE<uint16_t>(stream);
     FullSaveEntries[i]->PlayTime = Io::ReadLE<uint32_t>(stream);
     FullSaveEntries[i]->SwTitle = Io::ReadLE<uint16_t>(stream);

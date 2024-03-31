@@ -206,7 +206,8 @@ static struct mspack_system LZXSys = {
     NULL,  // message
     &LZXalloc,
     &LZXfree,
-    &LZXCopy};
+    &LZXCopy,
+    NULL};
 
 int32_t LZXDecompress(uint8_t *CompressedBuffer, int CompressedSize,
                       uint8_t *UncompressedBuffer, int UncompressedSize,

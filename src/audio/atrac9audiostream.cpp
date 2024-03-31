@@ -143,7 +143,7 @@ AudioStream* Atrac9AudioStream::Create(InputStream* stream) {
     goto fail;
   }
 
-  container = {0};
+  container = {0, 0, 0, 0, false, 0, 0, {0, 0, 0, 0}, 0};
   if (!ParseAt9Riff(stream, &container)) {
     goto fail;
   }

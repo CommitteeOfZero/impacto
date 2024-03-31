@@ -177,7 +177,7 @@ static bool ParseAdxHeader(InputStream* stream, AdxHeaderInfo* info) {
 AudioStream* AdxAudioStream::Create(InputStream* stream) {
   AdxAudioStream* result = 0;
 
-  AdxHeaderInfo info = {0};
+  AdxHeaderInfo info = {0, 0, 0, false, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   if (!ParseAdxHeader(stream, &info)) goto fail;
 
   result = new AdxAudioStream;

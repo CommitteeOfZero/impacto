@@ -876,7 +876,7 @@ static int decode_bcn(BcnDecoderState *state, const uint8_t *src, int bytes,
 
 int BcnDecode(uint8_t *dst, int dst_size, const uint8_t *src, int src_size,
               int width, int height, int N, int dst_format, int flip) {
-  BcnDecoderState state = {0};
+  BcnDecoderState state = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   if (width == 0 || height == 0) {
     return 0;
   }
