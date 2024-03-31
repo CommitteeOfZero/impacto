@@ -82,7 +82,7 @@ void AudioChannel::Stop(float fadeOutDuration) {
   if (fadeOutDuration == 0.0f) {
     State = ACS_Stopped;
     // unqueue all buffers
-    alSourcei(Source, AL_BUFFER, NULL);
+    alSourcei(Source, AL_BUFFER, 0);
     alSourceStop(Source);
     // ugh, leftover state
     alDeleteSources(1, &Source);
