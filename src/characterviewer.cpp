@@ -9,6 +9,8 @@
 #include "background2d.h"
 #include "character2d.h"
 
+#include <cstdint>
+
 namespace Impacto {
 namespace CharacterViewer {
 
@@ -114,7 +116,7 @@ void Update(float dt) {
     if (nk_tree_push(Renderer->Nk, NK_TREE_TAB, "Background", NK_MAXIMIZED)) {
       nk_layout_row_dynamic(Renderer->Nk, 24, 1);
 
-      int LastBackground = CurrentBackground;
+      uint32_t LastBackground = CurrentBackground;
 
       CurrentBackground =
           nk_combo(Renderer->Nk, (const char**)BackgroundNames, BackgroundCount,
@@ -131,7 +133,7 @@ void Update(float dt) {
     if (nk_tree_push(Renderer->Nk, NK_TREE_TAB, "Character", NK_MAXIMIZED)) {
       nk_layout_row_dynamic(Renderer->Nk, 24, 1);
 
-      int LastCharacter = CurrentCharacter;
+      uint32_t LastCharacter = CurrentCharacter;
 
       CurrentCharacter =
           nk_combo(Renderer->Nk, (const char**)CharacterNames, CharacterCount,

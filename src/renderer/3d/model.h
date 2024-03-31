@@ -152,7 +152,7 @@ struct Mesh {
 
   int32_t Id;
 
-  int32_t VertexCount;
+  uint32_t VertexCount;
   // Offset (in sizeof(VertexBuffer) units) into Model.VertexBuffers
   int32_t VertexOffset;
   int32_t IndexCount;
@@ -197,13 +197,13 @@ class Model {
 
   ModelType Type;
 
-  int32_t MeshCount = 0;
+  uint32_t MeshCount = 0;
   Mesh Meshes[ModelMaxMeshesPerModel];
 
   int32_t VertexCount = 0;
   void* VertexBuffers = 0;
 
-  int32_t MorphTargetCount = 0;
+  uint32_t MorphTargetCount = 0;
   MorphTarget MorphTargets[ModelMaxMorphTargetsPerModel];
 
   int32_t MorphVertexCount = 0;
@@ -212,10 +212,10 @@ class Model {
   int32_t IndexCount = 0;
   uint16_t* Indices = 0;
 
-  int32_t TextureCount = 0;
+  uint32_t TextureCount = 0;
   Texture Textures[ModelMaxTexturesPerModel];
 
-  int32_t BoneCount = 0;
+  uint32_t BoneCount = 0;
   StaticBone Bones[ModelMaxBonesPerModel];
 
   int32_t RootBoneCount = 0;

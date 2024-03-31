@@ -268,7 +268,7 @@ VmInstruction(InstCase) {
   PopExpression(caseVal);
   PopLocalLabel(labelAdr);
 
-  if (SwitchValue == caseVal) {
+  if (static_cast<int>(SwitchValue) == caseVal) {
     thread->Ip = labelAdr;
   }
 }

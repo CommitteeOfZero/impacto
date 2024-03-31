@@ -111,7 +111,7 @@ IoError LzxStream::Duplicate(InputStream **outStream) {
 
 IoError LzxStream::FillBuffer() {
   uint32_t compressedBytes = ReadBE<uint32_t>(BaseStream);
-  if (compressedBytes > CompressedBufferSize) {
+  if (compressedBytes > static_cast<uint32_t>(CompressedBufferSize)) {
     // error: LZX block size larger than advertised
     return IoError_Fail;
   }

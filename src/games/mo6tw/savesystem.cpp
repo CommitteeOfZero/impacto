@@ -398,7 +398,7 @@ void SaveSystem::SaveMemory() {
           thd->Ip - ScriptBuffers[thd->ScriptBufferId];
       WorkingSaveEntry->MainThreadCallStackDepth = thd->CallStackDepth;
 
-      for (int j = 0; j < thd->CallStackDepth; j++) {
+      for (size_t j = 0; j < thd->CallStackDepth; j++) {
         WorkingSaveEntry->MainThreadReturnAddresses[j] =
             thd->ReturnAdresses[j] -
             ScriptBuffers[thd->ReturnScriptBufferIds[j]];
@@ -616,7 +616,7 @@ void SaveSystem::GetReadMessagesCount(int* totalMessageCount,
   for (int i = 0; i < StoryScriptCount; i++) {
     auto record = ScriptMessageData[StoryScriptIDs[i]];
     *totalMessageCount += record.LineCount;
-    for (int j = 0; j < record.LineCount; j++) {
+    for (size_t j = 0; j < record.LineCount; j++) {
       *readMessageCount +=
           ((*(uint8_t*)(MessageFlags + ((record.SaveDataOffset + i) >> 3)) &
             Flbit[(record.SaveDataOffset + i) & 7]) != 0);

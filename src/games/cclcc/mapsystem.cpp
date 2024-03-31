@@ -169,8 +169,9 @@ void MapSystemCCLCC::MapInit() {
     itr->fadeAnim.DurationIn = FadeAnimationDuration;
     itr->fadeAnim.DurationOut = FadeAnimationDuration;
   }
-  for (int i = 0; i < MapGroup.size(); i++) {
-    MapGroup[i] = MapGroupStruct{i, i, i};
+  for (size_t i = 0; i < MapGroup.size(); i++) {
+    int i_i = static_cast<int>(i);
+    MapGroup[i] = MapGroupStruct{i_i, i_i, i_i};
   }
   SetFlag(2801, 0);
   SetFlag(2802, 0);
@@ -252,9 +253,10 @@ void MapSystemCCLCC::MapSetFadein_Line(int partId, int partType) {
     return;
   } else if (partType == 6 || partType > 11 && partType < 15) {
     int index = (partType == 6) ? 0 : partType - 11;
-    int mappedId = (partId < sizeof(PartsIdMap) / sizeof(float[4]))
-                       ? static_cast<int>(PartsIdMap[partId][index])
-                       : 0;
+    int mappedId =
+        (static_cast<size_t>(partId) < sizeof(PartsIdMap) / sizeof(float[4]))
+            ? static_cast<int>(PartsIdMap[partId][index])
+            : 0;
     if (mappedId == 0xff) return;
     float pos1 =
         PartsOffsetData[mappedId][0][2] - PartsOffsetData[partId][0][2];
@@ -343,6 +345,7 @@ void MapSystemCCLCC::MapSetFadeout(int partId, int partType) {
   }
 }
 void MapSystemCCLCC::MapSetDisp(int partId, int partType) {
+  size_t partIdSt = static_cast<size_t>(partId);
   if (MapPartsMax != 0) {
     for (int i = 0; i < MapPartsMax; ++i) {
       if (MapPartsDisp[i].partId == partId &&
@@ -377,7 +380,7 @@ void MapSystemCCLCC::MapSetDisp(int partId, int partType) {
     MapPartsMax++;
   } else if (partType > 11 && partType < 15 || partType == 6) {
     int index = (partType == 6) ? 0 : partType - 11;
-    int mappedId = (partId < sizeof(PartsIdMap) / sizeof(float[4]))
+    int mappedId = (partIdSt < sizeof(PartsIdMap) / sizeof(float[4]))
                        ? static_cast<int>(PartsIdMap[partId][index])
                        : 0;
     if (mappedId != 0xff) {
@@ -697,7 +700,7 @@ bool MapSystemCCLCC::MapPlayerPhotoSelect(int unused) {
         (poolType == 3) ? 2 : 3;  // 3 per row for photo, 2 for articles
 
     if (PhotoSelClick) {
-      for (int i = 0; i < MapPool.size(); i++) {
+      for (size_t i = 0; i < MapPool.size(); i++) {
         if (MapPool[i].id != 0xff && MapPool[i].button.Enabled) {
           MapPool[i].button.UpdateInput();
           if (MapPool[i].button.Hovered) {
@@ -1556,7 +1559,7 @@ void MapSystemCCLCC::MapDispTag(int id) {
 }
 
 void MapSystemCCLCC::MapDispLine(int id, int partType) {
-  int index = MapPartsDisp[id].partId;
+  size_t index = static_cast<size_t>(MapPartsDisp[id].partId);
   float xOffset1 = PartsOffsetData[index][0][2];
   float yOffset1 = PartsOffsetData[index][0][3];
   float xOffset2, yOffset2;
@@ -1665,8 +1668,8 @@ void MapSystemCCLCC::MapSetPos(float dt) {
   // MapScaleMode use??
   MapFadeMain(dt);
 
-  for (int i = 0; i < MapPoolCurCt.size(); ++i) {
-    if (i == hoverMapPoolIdx) {
+  for (size_t i = 0; i < MapPoolCurCt.size(); ++i) {
+    if (static_cast<int>(i) == hoverMapPoolIdx) {
       MapPoolCurCt[i] += (MapPoolCurCt[i] >= 16) ? 0 : 2;
     } else if (MapPoolCurCt[i]) {
       MapPoolCurCt[i] -= 2;
@@ -1712,7 +1715,7 @@ void MapSystemCCLCC::MapFadeMain(float dt) {
   }
   MapPartsSort();
 
-  for (int i = 0; i < MapPoolDisp.size(); ++i) {
+  for (size_t i = 0; i < MapPoolDisp.size(); ++i) {
     auto& poolDispElem = MapPoolDisp[i];
     if (poolDispElem.state == Shown || poolDispElem.state == Hidden) {
       continue;

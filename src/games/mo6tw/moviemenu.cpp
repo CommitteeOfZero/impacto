@@ -80,7 +80,7 @@ MovieMenu::MovieMenu() {
   }
 
   row = 1;
-  int idx = 0;
+  size_t idx = 0;
   for (const auto& el : MainItems->Children) {
     if (row != totalRows) {
       Widget* focusTarget;

@@ -290,7 +290,7 @@ void SaveSystem::SaveMemory() {
           thd->Ip - ScriptBuffers[thd->ScriptBufferId];
       WorkingSaveEntry->MainThreadCallStackDepth = thd->CallStackDepth;
 
-      for (int j = 0; j < thd->CallStackDepth; j++) {
+      for (uint32_t j = 0; j < thd->CallStackDepth; j++) {
         WorkingSaveEntry->MainThreadReturnAddresses[j] =
             thd->ReturnAdresses[j] -
             ScriptBuffers[thd->ReturnScriptBufferIds[j]];

@@ -319,7 +319,8 @@ void AlbumMenu::LoadCharacter(int id) {
   for (const auto& el : ImageGrid->Children) {
     if (row != totalRows) {
       Widget* focusTarget;
-      if ((idx + ThumbnailsPerRow) > ImageGrid->Children.size() - 1)
+      if ((idx + ThumbnailsPerRow) >
+          static_cast<int>(ImageGrid->Children.size() - 1))
         focusTarget = ImageGrid->Children.back();
       else
         focusTarget = ImageGrid->Children.at(idx + ThumbnailsPerRow);

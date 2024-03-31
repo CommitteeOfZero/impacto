@@ -19,12 +19,12 @@ ska::flat_hash_map<int, ScrWorkAnimation> ScrWorkAnimations;
 std::vector<int> CurrentScrWorkAnimations;
 
 static void UpdateScrWorkAnimations() {
-  for (int i = 0; i < CurrentScrWorkAnimations.size(); i++) {
+  for (size_t i = 0; i < CurrentScrWorkAnimations.size(); i++) {
     int id = CurrentScrWorkAnimations[i];
     ScrWorkAnimations[id].MainAnimation.Update(
         1 /
         60.0f);  // TODO: Nice hack you have here (get the proper dt in there)
-    for (int i = 0; i < ScrWorkAnimations[id].AnimationData.size(); i++) {
+    for (size_t i = 0; i < ScrWorkAnimations[id].AnimationData.size(); i++) {
       ScrWork[ScrWorkAnimations[id].AnimationData[i].Target] = glm::mix(
           ScrWorkAnimations[id].AnimationData[i].From,
           ScrWorkAnimations[id].AnimationData[i].To,

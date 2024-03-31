@@ -301,7 +301,7 @@ LUA_GET_METHODS(AssetPath, Io::AssetPath, "AssetPath")
 void GetMemberSpriteArray(Sprite* arr, uint32_t count, char const* name) {
   EnsurePushMemberOfType(name, LUA_TTABLE);
 
-  int actualCount = lua_rawlen(LuaState, -1);
+  uint32_t actualCount = static_cast<uint32_t>(lua_rawlen(LuaState, -1));
   if (actualCount != count) {
     ImpLog(LL_Fatal, LC_Profile, "Expected to have %d sprites for %s, got %d\n",
            count, name, actualCount);

@@ -284,7 +284,7 @@ bool TextureLoadBNTX(InputStream* stream, Texture* outTexture) {
   uint64_t DictAddress = ReadLE<uint64_t>(stream);
   uint32_t StrDictLength = ReadLE<uint32_t>(stream);
 
-  for (int Index = 0; Index < TexturesCount; Index++) {
+  for (uint32_t Index = 0; Index < TexturesCount; Index++) {
     stream->Seek(InfoPtrsAddress + Index * 8, 0);
     uint64_t offset = ReadLE<uint64_t>(stream);
 

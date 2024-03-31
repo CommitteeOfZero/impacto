@@ -361,7 +361,7 @@ void MusicMenu::UpdateEntries() {
   auto onClick =
       std::bind(&MusicMenu::MusicButtonOnClick, this, std::placeholders::_1);
 
-  for (int idx = 0; idx < MainItems->Children.size(); idx++) {
+  for (size_t idx = 0; idx < MainItems->Children.size(); idx++) {
     auto button = static_cast<Widgets::CHLCC::TrackSelectButton*>(
         MainItems->Children[idx]);
 

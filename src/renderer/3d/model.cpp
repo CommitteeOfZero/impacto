@@ -96,7 +96,7 @@ Model::~Model() {
     free(AnimationIds);
   }
   if (AnimationNames) {
-    for (int i = 0; i < AnimationCount; i++) {
+    for (size_t i = 0; i < AnimationCount; i++) {
       if (AnimationNames[i]) free(AnimationNames[i]);
     }
     free(AnimationNames);

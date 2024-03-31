@@ -11,7 +11,7 @@ RendererType ActiveRenderer{RendererType::OpenGL};
 VideoPlayerType VideoPlayer{VideoPlayerType::FFmpeg};
 AudioBackendType ActiveAudioBackend{AudioBackendType::OpenAL};
 
-int LayerCount;
+uint32_t LayerCount;
 int GameFeatures;
 
 char const* WindowName;
