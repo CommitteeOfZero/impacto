@@ -354,6 +354,9 @@ void FFmpegPlayer::Decode(AVMediaType avType) {
     case AVMEDIA_TYPE_AUDIO:
       stream = AudioStream;
       break;
+    default:
+      ImpLog(LL_Warning, LC_Video, "Unknown media type, aborting!\n");
+      return;
   }
 
   while (!AbortRequest) {

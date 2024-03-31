@@ -187,10 +187,13 @@ void BaseRenderer::DrawProcessedText_BasicFont(ProcessedTextGlyph* text,
           DrawSprite(glyph, dest, color);
           dest.X++;
           dest.Y++;
+          break;
         case RO_BottomRight:
           dest.X++;
           dest.Y++;
           DrawSprite(glyph, dest, color);
+          break;
+        default:
           break;
       }
     }

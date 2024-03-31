@@ -518,6 +518,9 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
       SetTextures(id, dashEyeTextureTypes, 3);
       break;
     }
+    default:
+      ImpLog(LL_Warning, LC_Renderable3D, "Unknown texture type!\n");
+      break;
   }
 
   if (mesh.Opacity < 0.9 && CurrentMaterialIsDepthWrite) {
@@ -605,6 +608,9 @@ void Renderable3D::UseMaterial(MaterialType type) {
       glUseProgram(ShaderProgramEye);
       break;
     }
+    default:
+      ImpLog(LL_Warning, LC_Renderable3D, "Unknown texture type!\n");
+      break;
   }
 
   glEnable(GL_CULL_FACE);

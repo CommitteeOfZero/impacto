@@ -703,6 +703,9 @@ int TextGetMainCharacterCount(Vm::Sc3VmThread* ctx) {
         if (isMain) result++;
         break;
       }
+      default:
+        // Probably safe to ignore this
+        break;
     }
   } while (token.Type != STT_EndOfString);
   return result;

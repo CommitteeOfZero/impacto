@@ -417,6 +417,8 @@ VmInstruction(InstTitleMenu) {
     case 1:  // Main
       // Hack to kickstart into "New Game"
       switch (Profile::Vm::GameInstructionSet) {
+        default:
+          break;
         case InstructionSet::RNE:
         case InstructionSet::MO7:
           ScrWork[SW_TITLECUR1] = 0;
@@ -447,6 +449,8 @@ VmInstruction(InstTitleMenuNew) {
       break;
     case 1:  // Main
       switch (Profile::Vm::GameInstructionSet) {
+        default:
+          break;
         case InstructionSet::CC:
         case InstructionSet::CHN: {
           if (ScrWork[SW_TITLEMODE] == 3) {

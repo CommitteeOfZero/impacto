@@ -163,9 +163,11 @@ void AudioChannel::Update(float dt) {
 
 // TODO what easing functions do we want for this?
 void AudioChannel::SetGain() {
-  if (State == ACS_Stopped) return;
   float gain = MasterVolume * GroupVolumes[Group] * Volume;
   switch (State) {
+    case ACS_Stopped:
+    case ACS_Playing:
+      return;
     case ACS_FadingIn:
       gain *= powf(FadeCompletion, 3.0f);
       break;

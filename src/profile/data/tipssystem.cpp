@@ -31,6 +31,9 @@ void Configure() {
       case TipsSystemType::CHLCC:
         Implementation = new Impacto::CHLCC::TipsSystem();
         break;
+      case TipsSystemType::None:
+        ImpLog(LL_Warning, LC_Profile,
+               "Tips system type is None, not setting system implementation\n");
     }
   }
 

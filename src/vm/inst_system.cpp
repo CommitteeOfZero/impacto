@@ -288,6 +288,8 @@ VmInstruction(InstSystemMes) {
   StartInstruction;
   PopUint8(mode);
   switch (Profile::Vm::GameInstructionSet) {
+    default:
+      break;
     case InstructionSet::Dash:
     case InstructionSet::CC:
       PopUint8(unk01);
@@ -357,6 +359,10 @@ VmInstruction(InstSystemMes) {
       PopMsbString(message);
       UI::SysMesBoxPtr->AddMessage(message);
     } break;
+    default:
+      ImpLog(LL_Warning, LC_VMStub,
+             "Unknown mode for instruction SystemMes(mode: %i)\n", mode);
+      break;
   }
 }
 VmInstruction(InstGetNowTime) {

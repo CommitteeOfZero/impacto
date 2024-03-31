@@ -34,6 +34,8 @@ VmInstruction(InstCHAload3D) {
   StartInstruction;
   PopExpression(bufferId);
   switch (Profile::Vm::GameInstructionSet) {
+    default:
+      break;
     case InstructionSet::RNE:
       PopExpression(unk01);
       break;
@@ -85,6 +87,8 @@ VmInstruction(InstCHAplayAnim3DMaybe) {
   PopExpression(bufferId);
   PopExpression(animationId);
   switch (Profile::Vm::GameInstructionSet) {
+    default:
+      break;
     case InstructionSet::Dash: {
       PopUint16(unk01);
     } break;

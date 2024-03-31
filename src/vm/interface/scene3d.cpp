@@ -40,6 +40,8 @@ static void UpdateRenderableRot(int charId) {
   int pose = ScrWork[30 * charId + SW_MDL1TARDIR] - 30;
 
   switch (Profile::Vm::GameInstructionSet) {
+    default:
+      break;
     case InstructionSet::RNE: {
       if (pose >= 0) {
         glm::vec3 target = ScrWorkGetVec3(20 * pose + 5500, 20 * pose + 5501,
@@ -109,6 +111,8 @@ static void UpdateCamera() {
                                   SW_CAMSHTARDIR + 20 * camera);
 
   switch (Profile::Vm::GameInstructionSet) {
+    default:
+      break;
     case InstructionSet::Dash: {
       posCam += ScrWorkGetVec3(2580, 2581, 2582);
       lookatCam += ScrWorkGetAngleVec3(2583, 2584, 2585);
@@ -171,6 +175,8 @@ static void UpdateCamera() {
 
   // Update lighting
   switch (Profile::Vm::GameInstructionSet) {
+    default:
+      break;
     case InstructionSet::RNE: {
       Renderer->Scene->Tint = ScrWorkGetColor(SW_MAINLIGHTCOLOR);
       Renderer->Scene->Tint.a = ScrWorkGetFloat(SW_MAINLIGHTWEIGHT);

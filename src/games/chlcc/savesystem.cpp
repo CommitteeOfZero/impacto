@@ -25,7 +25,10 @@ SaveError SaveSystem::MountSaveFile() {
     case IoError_NotFound:
       return SaveNotFound;
     case IoError_Fail:
+    case IoError_Eof:
       return SaveCorrupted;
+    case IoError_OK:
+      break;
   };
 
   WorkingSaveEntry = new SaveFileEntry();

@@ -143,6 +143,8 @@ int BPPbyFormat(TextureFormatType format) {
       break;
     default:;
   }
+  ImpLog(LL_Warning, LC_TextureLoad, "Unknown texture format, returning 0!\n");
+  return 0;
 }
 
 TextureNX::TextureNX() {}
@@ -192,6 +194,8 @@ uint32_t TextureNX::GetPow2HeightInTexels() {
 
     case ASTC12x12:
       return (Pow2Height + 11) / 12;
+    default:
+      break;
   }
 
   return Pow2Height;
@@ -231,7 +235,12 @@ uint32_t TextureNX::GetBytesPerTexel() {
     case ASTC12x10:
     case ASTC12x12:
       return 16;
+    default:
+      break;
   }
+  ImpLog(LL_Warning, LC_TextureLoad,
+         "Unknown number of bytes per texel, returning 0!\n");
+  return 0;
 }
 
 uint32_t TextureNX::GetBlockHeight() { return 1 << BlockHeightLog2; }
@@ -400,6 +409,10 @@ bool TextureLoadBNTX(InputStream* stream, Texture* outTexture) {
 
         case TextureFormatType::R8G8B8A8:
 
+          break;
+
+        default:
+          ImpLog(LL_Warning, LC_TextureLoad, "Unknown texture format!\n");
           break;
       }
 

@@ -653,6 +653,9 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
       CurrentWriteDescriptorSet += 1;
 
     } break;
+    default:
+      ImpLog(LL_Warning, LC_Renderable3D, "Unknown material!\n");
+      break;
   }
 
   int textureCount = 0;
@@ -715,6 +718,9 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
       SetTextures(id, dashEyeTextureTypes, 3);
       break;
     }
+    default:
+      ImpLog(LL_Warning, LC_Renderable3D, "Unknown material!\n");
+      break;
   }
 
   CurrentTextureBufferInfo = 0;
@@ -738,6 +744,9 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
         CurrentPipeline = PipelineEyeNoDepthWrite;
         break;
       }
+      default:
+        ImpLog(LL_Warning, LC_Renderable3D, "Unknown material!\n");
+        break;
     }
   }
 
@@ -806,6 +815,9 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
         CurrentPipeline = PipelineEye;
         break;
       }
+      default:
+        ImpLog(LL_Warning, LC_Renderable3D, "Unknown material!\n");
+        break;
     }
   }
 
@@ -898,6 +910,9 @@ void Renderable3D::UseMaterial(MaterialType type) {
       CurrentPipeline = PipelineEye;
       break;
     }
+    default:
+      ImpLog(LL_Warning, LC_Renderable3D, "Unknown material!\n");
+      break;
   }
 
   if (type == MT_Outline) {
