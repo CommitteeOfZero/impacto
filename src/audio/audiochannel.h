@@ -2,6 +2,7 @@
 
 #include "audiocommon.h"
 #include <string>
+#include <cstdint>
 
 namespace Impacto {
 namespace Audio {
