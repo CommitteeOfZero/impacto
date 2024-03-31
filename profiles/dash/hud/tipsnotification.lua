@@ -1,3 +1,3 @@
 root.TipsNotification = {
-	Type = TipsNotificationType.None,
+    Type = TipsNotificationType.None,
 };

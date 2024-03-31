@@ -20,7 +20,7 @@ root.Dialogue = {
     ADVNameFontSize = 33,
     ADVNamePos = { X = 173, Y = 773 },
     WaitIconSpriteAnim = "WaitIconSpriteAnimDef",
-	WaitIconCurrentType = WaitIconType.SpriteAnim,
+    WaitIconCurrentType = WaitIconType.SpriteAnim,
     WaitIconOffset = { X = 0, Y = 0 },
     DialogueFont = "Default",
     DefaultFontSize = 48,
@@ -82,7 +82,7 @@ MakeAnimation({
     Rows = 2,
     Columns = 32,
     PrimaryDirection = AnimationDirections.Right,
-	SecondaryDirection = AnimationDirections.Down
+    SecondaryDirection = AnimationDirections.Down
 });
 
 include('dash/nametag.lua');

@@ -20,7 +20,7 @@ root.Dialogue = {
     ADVNameFontSize = 29,
     ADVNamePos = { X = 222, Y = 459 },
     WaitIconSpriteAnim = "WaitIconSpriteAnimDef",
-	WaitIconCurrentType = WaitIconType.SpriteAnim,
+    WaitIconCurrentType = WaitIconType.SpriteAnim,
     WaitIconOffset = { X = 4, Y = 4 },
     DialogueFont = "Default",
     DefaultFontSize = 32,

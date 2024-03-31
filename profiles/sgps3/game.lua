@@ -17,9 +17,9 @@ root.Vm = {
     StartScript = 2,
     StartScriptBuffer = 0,
     GameInstructionSet = InstructionSet.SGPS3,
-	UseReturnIds = false,
-	ScrWorkChaStructSize = 20,
-	ScrWorkBgStructSize = 20
+    UseReturnIds = false,
+    ScrWorkChaStructSize = 20,
+    ScrWorkBgStructSize = 20
 };
 
 include('common/scriptinput.lua');

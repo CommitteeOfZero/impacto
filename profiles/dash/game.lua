@@ -12,8 +12,8 @@ root.Vm = {
     StartScriptBuffer = 0,
     GameInstructionSet = InstructionSet.Dash,
     UseReturnIds = true,
-	ScrWorkChaStructSize = 40,
-	ScrWorkBgStructSize = 40,
+    ScrWorkChaStructSize = 40,
+    ScrWorkBgStructSize = 40,
     MaxLinkedBgBuffers = 2
 };
 

@@ -13,11 +13,11 @@ root.Vm = {
     StartScript = 1,
     StartScriptBuffer = 0,
     GameInstructionSet = InstructionSet.CHN,
-	UseReturnIds = true,
+    UseReturnIds = true,
     UseMsbStrings = true,
     UseSeparateMsbArchive = true,
-	ScrWorkChaStructSize = 40,
-	ScrWorkBgStructSize = 40,
+    ScrWorkChaStructSize = 40,
+    ScrWorkBgStructSize = 40,
     MaxLinkedBgBuffers = 2
 };
 

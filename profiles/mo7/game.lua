@@ -16,9 +16,9 @@ root.Vm = {
     StartScript = 0,
     StartScriptBuffer = 0,
     GameInstructionSet = InstructionSet.MO7,
-	UseReturnIds = true,
-	ScrWorkChaStructSize = 40,
-	ScrWorkBgStructSize = 40,
+    UseReturnIds = true,
+    ScrWorkChaStructSize = 40,
+    ScrWorkBgStructSize = 40,
     MaxLinkedBgBuffers = 2
 };
 

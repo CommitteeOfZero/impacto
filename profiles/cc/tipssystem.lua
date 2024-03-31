@@ -1,3 +1,3 @@
 root.TipsSystem = {
-	Type = TipsSystemType.None,
+    Type = TipsSystemType.None,
 };

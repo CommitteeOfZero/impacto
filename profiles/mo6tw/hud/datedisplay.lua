@@ -22,7 +22,7 @@ local weekFriWidth = 56;
 local weekHeight = 20;
 
 root.DateDisplay = {
-	Type = DateDisplayType.RNE,
+    Type = DateDisplayType.RNE,
     YearNumSprites = {},
     MonthNumSprites = {},
     DayNumSprites = {},

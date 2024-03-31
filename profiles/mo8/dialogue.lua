@@ -20,7 +20,7 @@ root.Dialogue = {
     ADVNameFontSize = 42,
     ADVNamePos = { X = 168, Y = 974 },
     WaitIconSpriteAnim = "WaitIconSpriteAnimDef",
-	WaitIconCurrentType = WaitIconType.SpriteAnim,
+    WaitIconCurrentType = WaitIconType.SpriteAnim,
     WaitIconOffset = { X = 0, Y = 0 },
     DialogueFont = "Default",
     DefaultFontSize = 48,
@@ -82,7 +82,7 @@ MakeAnimation({
     Rows = 1,
     Columns = 3,
     PrimaryDirection = AnimationDirections.Right,
-	SecondaryDirection = AnimationDirections.Down
+    SecondaryDirection = AnimationDirections.Down
 });
 
 include('mo8/nametag.lua');
