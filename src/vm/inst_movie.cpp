@@ -39,7 +39,12 @@ VmInstruction(InstPlayMovie) {
     PopExpression(movCancelFlag);
     if (Profile::GameFeatures & GameFeature::Video) {
       Io::InputStream* stream;
-      Io::VfsOpen("movie", playNo, &stream);
+      auto err = Io::VfsOpen("movie", playNo, &stream);
+      if (err != IoError_OK) {
+        ImpLog(LL_Error, LC_Video,
+               "Failed to open movie for playback: IO error %d\n", err);
+        return;
+      }
       int flags = 0;
       if (playMode >= 8) {
         playMode -= 8;
