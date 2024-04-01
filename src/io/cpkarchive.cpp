@@ -2,7 +2,6 @@
 
 #include "../log.h"
 #include "uncompressedstream.h"
-#include "vfs.h"
 #include <SDL_endian.h>
 
 namespace Impacto {
@@ -96,7 +95,7 @@ bool CpkArchive::ReadUtfBlock(
     columns.push_back(column);
   }
 
-  for (int i = 0; i < numRows; i++) {
+  for (uint32_t i = 0; i < numRows; i++) {
     UtfStream->Seek(rowsOffset + (i * rowLength), RW_SEEK_SET);
     ska::flat_hash_map<std::string, CpkCell> row;
     for (auto& column : columns) {
@@ -259,7 +258,7 @@ IoError CpkArchive::ReadItoc(int64_t itocOffset, int64_t contentOffset,
   std::vector<std::pair<uint32_t, FileMeta*>> fileVec(IdsToFiles.begin(),
                                                       IdsToFiles.end());
   std::sort(fileVec.begin(), fileVec.end());
-  for (const auto kv : fileVec) {
+  for (const auto& kv : fileVec) {
     int64_t size;
     CpkMetaEntry* entry = (CpkMetaEntry*)kv.second;
     if (entry->CompressedSize > 0) {
@@ -397,7 +396,7 @@ IoError CpkArchive::Create(InputStream* stream, VfsArchive** outArchive) {
                      headerUtfTable[0]["ContentOffset"].Uint64Val, alignVal);
   }
 
-  for (int i = 0; i < result->FileCount; i++) {
+  for (uint32_t i = 0; i < result->FileCount; i++) {
     result->NamesToIds[result->FileList[i].FileName] = result->FileList[i].Id;
   }
 

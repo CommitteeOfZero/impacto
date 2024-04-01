@@ -5,7 +5,6 @@
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
-#include "../../data/savesystem.h"
 
 namespace Impacto {
 namespace UI {
@@ -81,7 +80,7 @@ MovieMenu::MovieMenu() {
   }
 
   row = 1;
-  int idx = 0;
+  size_t idx = 0;
   for (const auto& el : MainItems->Children) {
     if (row != totalRows) {
       Widget* focusTarget;

@@ -4,7 +4,7 @@ namespace Impacto {
 namespace DelusionTrigger {
 
 DelusionTriggerBase::DelusionTriggerBase(int& delusionState, UiState showState)
-    : DelusionState(delusionState), State(showState){};
+    : State(showState), DelusionState(delusionState){};
 
 DelusionTriggerBase* Implementation = 0;
 

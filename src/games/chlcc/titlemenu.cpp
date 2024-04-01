@@ -375,7 +375,7 @@ void TitleMenu::Render() {
   if (State != Hidden && GetFlag(SF_TITLEMODE)) {
     if (ScrWork[SW_MENUCT] < 64) {
       switch (ScrWork[SW_TITLEDISPCT]) {
-        case 0: { // Initial animation
+        case 0: {  // Initial animation
           Renderer->DrawSprite(IntroBackgroundSprite, glm::vec2(0.0f));
         } break;
         case 1: {  // Press to start
@@ -383,12 +383,12 @@ void TitleMenu::Render() {
           glm::vec4 col = glm::vec4(1.0f);
           col.a = glm::smoothstep(0.0f, 1.0f, PressToStartAnimation.Progress);
           Renderer->DrawSprite(PressToStartSprite,
-                                 glm::vec2(PressToStartX, PressToStartY), col);
+                               glm::vec2(PressToStartX, PressToStartY), col);
         } break;
         case 2: {  // Transition between Press to start and menus
           DrawTitleMenuBackGraphics();
         } break;
-        case 3:  // MenuItems Fade In
+        case 3: {  // MenuItems Fade In
           if (ItemsFadeInAnimation.IsOut() &&
               ItemsFadeInAnimation.State != AS_Playing)
             ItemsFadeInAnimation.StartIn();
@@ -396,6 +396,7 @@ void TitleMenu::Render() {
             ItemsFadeInAnimation.StartOut();
           DrawTitleMenuBackGraphics();
           MainItems->Render();
+        } break;
         case 4: {  // Main Menu
           DrawTitleMenuBackGraphics();
           MainItems->Render();
@@ -406,7 +407,7 @@ void TitleMenu::Render() {
             SecondaryItemsFadeInAnimation.StartIn();
           else if (SecondaryItemsFadeInAnimation.State != AS_Playing)
             SecondaryItemsFadeInAnimation.StartOut();
-        }
+        } break;
         case 8: {  // Secondary menu LOAD
           DrawTitleMenuBackGraphics();
           LoadItems->Render();
@@ -424,7 +425,7 @@ void TitleMenu::Render() {
         case 11: {  // Secondary menu SYSTEM Fade In
           DrawTitleMenuBackGraphics();
           MainItems->Render();
-        }
+        } break;
         case 12: {  // Secondary menu SYSTEM
           DrawTitleMenuBackGraphics();
           SystemItems->Render();

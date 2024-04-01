@@ -3,7 +3,6 @@
 
 #include "renderable3d.h"
 
-#include "../renderer.h"
 #include "../../3d/camera.h"
 #include "../../3d/modelanimator.h"
 #include "../../../log.h"
@@ -16,8 +15,7 @@ static uint32_t TextureDummy = 0;
 
 // character
 static Pipeline *PipelineMain = 0, *PipelineOutline = 0, *PipelineEye = 0;
-static Pipeline *PipelineMainNoDepthWrite = 0, *PipelineOutlineNoDepthWrite = 0,
-                *PipelineEyeNoDepthWrite = 0;
+static Pipeline *PipelineMainNoDepthWrite = 0, *PipelineEyeNoDepthWrite = 0;
 
 // background
 static Pipeline* PipelineBackground = 0;
@@ -31,7 +29,6 @@ static bool IsInit = false;
 
 static MaterialType CurrentMaterial = MT_None;
 static bool CurrentMaterialIsDepthWrite = false;
-static bool CurrentMaterialIsBackfaceCull = false;
 
 static VulkanWindow* Window;
 static VkDevice Device;
@@ -325,7 +322,7 @@ void Renderable3D::MakePlane() {
 
 void Renderable3D::InitMeshAnimStatus() {
   int totalMorphedVertices = 0;
-  for (int i = 0; i < StaticModel->MeshCount; i++) {
+  for (uint32_t i = 0; i < StaticModel->MeshCount; i++) {
     MeshAnimStatus[i].MorphedVerticesOffset = totalMorphedVertices;
     if (StaticModel->Meshes[i].MorphTargetCount > 0) {
       totalMorphedVertices += StaticModel->Meshes[i].VertexCount;
@@ -350,6 +347,7 @@ void Renderable3D::InitMeshAnimStatus() {
 }
 
 void Renderable3D::ReloadDefaultMeshAnimStatus() {
+  /*
   void* currentMorphedVertex;
   if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
     currentMorphedVertex =
@@ -358,11 +356,13 @@ void Renderable3D::ReloadDefaultMeshAnimStatus() {
     currentMorphedVertex =
         ((VertexBuffer*)CurrentMorphedVerticesVkMapped[CurrentFrameIndex]);
   }
-  VertexBuffer* currentMorphedVertexRNE = (VertexBuffer*)currentMorphedVertex;
-  VertexBufferDaSH* currentMorphedVertexDaSH =
+  VertexBuffer* currentMorphedVertexRNE =
+  (VertexBuffer*)currentMorphedVertex; VertexBufferDaSH*
+  currentMorphedVertexDaSH =
       (VertexBufferDaSH*)currentMorphedVertex;
+  */
 
-  for (int i = 0; i < StaticModel->MeshCount; i++) {
+  for (uint32_t i = 0; i < StaticModel->MeshCount; i++) {
     MeshAnimStatus[i].Visible = 1.0f;
     if (StaticModel->Meshes[i].MorphTargetCount > 0) {
       for (int j = 0; j < StaticModel->Meshes[i].MorphTargetCount; j++) {
@@ -375,7 +375,7 @@ void Renderable3D::ReloadDefaultMeshAnimStatus() {
 void Renderable3D::SwitchAnimation(int16_t animId, float transitionTime) {
   if (Animator.CurrentAnimation != 0 && transitionTime > 0.0f) {
     PrevPoseWeight = 1.0f;
-    for (int i = 0; i < StaticModel->BoneCount; i++) {
+    for (uint32_t i = 0; i < StaticModel->BoneCount; i++) {
       PrevBoneTransforms[i] = CurrentPose[i].LocalTransform;
     }
     memcpy(PrevMeshAnimStatus, MeshAnimStatus, sizeof(MeshAnimStatus));
@@ -387,7 +387,7 @@ void Renderable3D::SwitchAnimation(int16_t animId, float transitionTime) {
 }
 
 void Renderable3D::ReloadDefaultBoneTransforms() {
-  for (int i = 0; i < StaticModel->BoneCount; i++) {
+  for (uint32_t i = 0; i < StaticModel->BoneCount; i++) {
     CurrentPose[i].LocalTransform = StaticModel->Bones[i].BaseTransform;
   }
 }
@@ -424,7 +424,7 @@ void Renderable3D::CalculateMorphedVertices(int id) {
   VertexBuffer* currentVertexRNE = (VertexBuffer*)currentVertex;
   VertexBufferDaSH* currentVertexDaSH = (VertexBufferDaSH*)currentVertex;
 
-  for (int j = 0; j < mesh->VertexCount; j++) {
+  for (uint32_t j = 0; j < mesh->VertexCount; j++) {
     if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
       memcpy(currentMorphedVertexDaSH, currentVertexDaSH,
              sizeof(VertexBufferDaSH));
@@ -477,7 +477,7 @@ void Renderable3D::CalculateMorphedVertices(int id) {
         StaticModel->MorphVertexBuffers +
         StaticModel->MorphTargets[mesh->MorphTargetIds[k]].VertexOffset;
 
-    for (int j = 0; j < mesh->VertexCount; j++) {
+    for (uint32_t j = 0; j < mesh->VertexCount; j++) {
       if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
         currentMorphedVertexDaSH->Position +=
             (currentMorphTargetVbo->Position - currentVertexDaSH->Position) *
@@ -555,7 +555,7 @@ void Renderable3D::Update(float dt) {
     if (PrevPoseWeight < 0.0f) PrevPoseWeight = 0.0f;
   }
 
-  for (int i = 0; i < StaticModel->MeshCount; i++) {
+  for (uint32_t i = 0; i < StaticModel->MeshCount; i++) {
     CalculateMorphedVertices(i);
   }
 }
@@ -654,6 +654,9 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
       CurrentWriteDescriptorSet += 1;
 
     } break;
+    default:
+      ImpLog(LL_Warning, LC_Renderable3D, "Unknown material!\n");
+      break;
   }
 
   int textureCount = 0;
@@ -716,6 +719,9 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
       SetTextures(id, dashEyeTextureTypes, 3);
       break;
     }
+    default:
+      ImpLog(LL_Warning, LC_Renderable3D, "Unknown material!\n");
+      break;
   }
 
   CurrentTextureBufferInfo = 0;
@@ -739,6 +745,9 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
         CurrentPipeline = PipelineEyeNoDepthWrite;
         break;
       }
+      default:
+        ImpLog(LL_Warning, LC_Renderable3D, "Unknown material!\n");
+        break;
     }
   }
 
@@ -807,6 +816,9 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
         CurrentPipeline = PipelineEye;
         break;
       }
+      default:
+        ImpLog(LL_Warning, LC_Renderable3D, "Unknown material!\n");
+        break;
     }
   }
 
@@ -823,7 +835,7 @@ void Renderable3D::Render() {
   CurrentWriteDescriptorSet = 0;
 
   for (int i = RP_First; i < RP_Count; i++) {
-    for (int j = 0; j < StaticModel->MeshCount; j++) {
+    for (size_t j = 0; j < StaticModel->MeshCount; j++) {
       DrawMesh(j, (RenderPass)i);
     }
   }
@@ -899,6 +911,9 @@ void Renderable3D::UseMaterial(MaterialType type) {
       CurrentPipeline = PipelineEye;
       break;
     }
+    default:
+      ImpLog(LL_Warning, LC_Renderable3D, "Unknown material!\n");
+      break;
   }
 
   if (type == MT_Outline) {
@@ -920,7 +935,7 @@ void Renderable3D::LoadMeshUniforms(int id) {
     if (!UniformsUpdated[id]) {
       if (mesh.UsedBones > 0) {
         glm::mat4* outBone = entry.Bones;
-        for (int j = 0; j < mesh.UsedBones; j++) {
+        for (uint32_t j = 0; j < mesh.UsedBones; j++) {
           memcpy(outBone, glm::value_ptr(CurrentPose[mesh.BoneMap[j]].Offset),
                  sizeof(glm::mat4));
           outBone++;
@@ -953,16 +968,16 @@ void Renderable3D::UnloadSync() {
     ImpLog(LL_Info, LC_Renderable3D, "Unloading model %d\n", StaticModel->Id);
     if (IsSubmitted) {
       if (StaticModel->Type == ModelType_Background) {
-        for (int i = 0; i < StaticModel->MeshCount; i++) {
-          for (int j = 0; j < MAX_FRAMES_IN_FLIGHT; j++) {
+        for (uint32_t i = 0; i < StaticModel->MeshCount; i++) {
+          for (uint32_t j = 0; j < MAX_FRAMES_IN_FLIGHT; j++) {
             vmaUnmapMemory(Allocator, BackgroundMvpBuffers[i][j].Allocation);
             vmaDestroyBuffer(Allocator, BackgroundMvpBuffers[i][j].Buffer,
                              BackgroundMvpBuffers[i][j].Allocation);
           }
         }
       } else {
-        for (int i = 0; i < StaticModel->MeshCount; i++) {
-          for (int j = 0; j < MAX_FRAMES_IN_FLIGHT; j++) {
+        for (uint32_t i = 0; i < StaticModel->MeshCount; i++) {
+          for (uint32_t j = 0; j < MAX_FRAMES_IN_FLIGHT; j++) {
             vmaUnmapMemory(Allocator, MeshUniformBuffers[i][j].Allocation);
             vmaDestroyBuffer(Allocator, MeshUniformBuffers[i][j].Buffer,
                              MeshUniformBuffers[i][j].Allocation);
@@ -1004,8 +1019,8 @@ void Renderable3D::MainThreadOnLoad() {
          StaticModel->Id);
 
   if (StaticModel->Type == ModelType_Background) {
-    for (int i = 0; i < StaticModel->MeshCount; i++) {
-      for (int j = 0; j < MAX_FRAMES_IN_FLIGHT; j++) {
+    for (uint32_t i = 0; i < StaticModel->MeshCount; i++) {
+      for (uint32_t j = 0; j < MAX_FRAMES_IN_FLIGHT; j++) {
         BackgroundMvpBuffers[i][j] = CreateBuffer(
             sizeof(BgMVPUniformBufferType), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
             VMA_MEMORY_USAGE_CPU_ONLY);
@@ -1032,8 +1047,8 @@ void Renderable3D::MainThreadOnLoad() {
   void* stagingBufferMapped;
   vmaMapMemory(Allocator, stagingBuffer.Allocation, &stagingBufferMapped);
 
-  for (int i = 0; i < StaticModel->MeshCount; i++) {
-    for (int j = 0; j < MAX_FRAMES_IN_FLIGHT; j++) {
+  for (uint32_t i = 0; i < StaticModel->MeshCount; i++) {
+    for (uint32_t j = 0; j < MAX_FRAMES_IN_FLIGHT; j++) {
       MeshUniformBuffers[i][j] = CreateBuffer(
           sizeof(MeshUniformBufferType), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
           VMA_MEMORY_USAGE_CPU_ONLY);
@@ -1112,7 +1127,7 @@ void Renderable3D::MainThreadOnLoad() {
     }
   }
 
-  for (int i = 0; i < StaticModel->TextureCount; i++) {
+  for (uint32_t i = 0; i < StaticModel->TextureCount; i++) {
     TexBuffers[i] = StaticModel->Textures[i].Submit();
     if (TexBuffers[i] == 0) {
       ImpLog(LL_Fatal, LC_Renderable3D,

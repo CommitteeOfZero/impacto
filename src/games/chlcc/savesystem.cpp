@@ -1,11 +1,13 @@
 #include "savesystem.h"
 
-#include <time.h>
 #include "../../io/physicalfilestream.h"
 #include "../../mem.h"
 #include "../../vm/vm.h"
 #include "../../profile/data/savesystem.h"
 #include "../../profile/scriptvars.h"
+
+#include <cstdint>
+#include <ctime>
 
 namespace Impacto {
 namespace CHLCC {
@@ -23,7 +25,10 @@ SaveError SaveSystem::MountSaveFile() {
     case IoError_NotFound:
       return SaveNotFound;
     case IoError_Fail:
+    case IoError_Eof:
       return SaveCorrupted;
+    case IoError_OK:
+      break;
   };
 
   WorkingSaveEntry = new SaveFileEntry();
@@ -70,8 +75,15 @@ SaveError SaveSystem::MountSaveFile() {
     uint8_t saveMinute = Io::ReadLE<uint8_t>(stream);
     uint8_t saveYear = Io::ReadLE<uint8_t>(stream);
     uint8_t saveSecond = Io::ReadLE<uint8_t>(stream);
-    QuickSaveEntries[i]->SaveDate =
-        std::tm{saveSecond, saveMinute, saveHour, saveDay, saveMonth, saveYear};
+    std::tm t{};
+    t.tm_sec = saveSecond;
+    t.tm_min = saveMinute;
+    t.tm_hour = saveHour;
+    t.tm_mday = saveDay;
+    t.tm_mon = saveMonth;
+    t.tm_year = saveYear;
+    QuickSaveEntries[i]->SaveDate = t;
+
     Io::ReadLE<uint16_t>(stream);
     QuickSaveEntries[i]->PlayTime = Io::ReadLE<uint32_t>(stream);
     QuickSaveEntries[i]->SwTitle = Io::ReadLE<uint16_t>(stream);
@@ -119,8 +131,15 @@ SaveError SaveSystem::MountSaveFile() {
     uint8_t saveMinute = Io::ReadLE<uint8_t>(stream);
     uint8_t saveYear = Io::ReadLE<uint8_t>(stream);
     uint8_t saveSecond = Io::ReadLE<uint8_t>(stream);
-    FullSaveEntries[i]->SaveDate =
-        std::tm{saveSecond, saveMinute, saveHour, saveDay, saveMonth, saveYear};
+    std::tm t{};
+    t.tm_sec = saveSecond;
+    t.tm_min = saveMinute;
+    t.tm_hour = saveHour;
+    t.tm_mday = saveDay;
+    t.tm_mon = saveMonth;
+    t.tm_year = saveYear;
+    FullSaveEntries[i]->SaveDate = t;
+
     Io::ReadLE<uint16_t>(stream);
     FullSaveEntries[i]->PlayTime = Io::ReadLE<uint32_t>(stream);
     FullSaveEntries[i]->SwTitle = Io::ReadLE<uint16_t>(stream);
@@ -237,6 +256,10 @@ uint32_t SaveSystem::GetSavePlayTime(SaveType type, int id) {
       return ((SaveFileEntry*)FullSaveEntries[id])->PlayTime;
     case SaveQuick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->PlayTime;
+    default:
+      ImpLog(LL_Error, LC_IO,
+             "Failed to get save play time: unknown save type, returning 0\n");
+      return 0;
   }
 }
 
@@ -246,6 +269,10 @@ uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) {
       return ((SaveFileEntry*)FullSaveEntries[id])->Flags;
     case SaveQuick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->Flags;
+    default:
+      ImpLog(LL_Error, LC_IO,
+             "Failed to get save flags: unknown save type, returning 0\n");
+      return 0;
   }
 }
 
@@ -255,6 +282,11 @@ tm SaveSystem::GetSaveDate(SaveType type, int id) {
       return ((SaveFileEntry*)FullSaveEntries[id])->SaveDate;
     case SaveQuick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->SaveDate;
+    default:
+      ImpLog(LL_Error, LC_IO,
+             "Failed to get save date: unknown save type, returning empty "
+             "timestamp\n");
+      return std::tm{};
   }
 }
 
@@ -283,7 +315,7 @@ void SaveSystem::SaveMemory() {
           thd->Ip - ScriptBuffers[thd->ScriptBufferId];
       WorkingSaveEntry->MainThreadCallStackDepth = thd->CallStackDepth;
 
-      for (int j = 0; j < thd->CallStackDepth; j++) {
+      for (uint32_t j = 0; j < thd->CallStackDepth; j++) {
         WorkingSaveEntry->MainThreadReturnAddresses[j] =
             thd->ReturnAdresses[j] -
             ScriptBuffers[thd->ReturnScriptBufferIds[j]];
@@ -306,6 +338,10 @@ void SaveSystem::LoadMemory(SaveType type, int id) {
     case SaveFull:
       entry = (SaveFileEntry*)FullSaveEntries[id];
       break;
+    default:
+      ImpLog(LL_Error, LC_IO,
+             "Failed to load save memory: unknown save type, doing nothing\n");
+      return;
   }
 
   if (entry != 0)
@@ -419,6 +455,10 @@ uint8_t SaveSystem::GetSaveSatus(SaveType type, int id) {
       return ((SaveFileEntry*)QuickSaveEntries[id])->Status;
     case SaveFull:
       return ((SaveFileEntry*)FullSaveEntries[id])->Status;
+    default:
+      ImpLog(LL_Error, LC_IO,
+             "Failed to get save status: unknown save type, returning 0\n");
+      return 0;
   }
 }
 
@@ -428,15 +468,19 @@ int SaveSystem::GetSaveTitle(SaveType type, int id) {
       return ((SaveFileEntry*)QuickSaveEntries[id])->SwTitle;
     case SaveFull:
       return ((SaveFileEntry*)FullSaveEntries[id])->SwTitle;
+    default:
+      ImpLog(LL_Error, LC_IO,
+             "Failed to get save title: unknown save type, returning 0\n");
+      return 0;
   }
 }
 
 uint32_t SaveSystem::GetTipStatus(int tipId) {
   tipId *= 3;
-  return (((GameExtraData[tipId >> 3] & Flbit[tipId & 7]) != 0) |
-          (2 *
-           ((Flbit[(tipId + 2) & 7] & GameExtraData[(tipId + 2) >> 3]) != 0))) &
-             0xFB |
+  return ((((GameExtraData[tipId >> 3] & Flbit[tipId & 7]) != 0) |
+           (2 * ((Flbit[(tipId + 2) & 7] & GameExtraData[(tipId + 2) >> 3]) !=
+                 0))) &
+          0xFB) |
          (4 *
           ((GameExtraData[(tipId + 1) >> 3] & Flbit[(tipId + 1) & 7]) != 0));
 }

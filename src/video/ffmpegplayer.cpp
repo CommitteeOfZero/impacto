@@ -24,7 +24,8 @@ int StreamRead(void* ptr, uint8_t* buf, int buf_size) {
   Io::InputStream* stream = reinterpret_cast<Io::InputStream*>(ptr);
 
   uint64_t bytesRead = stream->Read(buf, buf_size);
-  if ((bytesRead == IoError_Fail || bytesRead == IoError_Eof))
+  if ((bytesRead == static_cast<uint64_t>(IoError_Fail) ||
+       bytesRead == static_cast<uint64_t>(IoError_Eof)))
     return AVERROR_EOF;
 
   return bytesRead;
@@ -161,7 +162,7 @@ void FFmpegPlayer::Play(Io::InputStream* stream, bool looping, bool alpha) {
   if (audioStreamId != AVERROR_STREAM_NOT_FOUND)
     audioStream = FormatContext->streams[audioStreamId];
 
-  for (int j = 0; j < FormatContext->nb_streams; ++j) {
+  for (int j = 0; j < static_cast<int>(FormatContext->nb_streams); ++j) {
     FormatContext->streams[j]->discard =
         j == videoStreamId || j == audioStreamId ? AVDISCARD_DEFAULT
                                                  : AVDISCARD_ALL;
@@ -251,7 +252,6 @@ bool FFmpegPlayer::QueuesHaveEnoughPackets() {
 }
 
 void FFmpegPlayer::Read() {
-  int serial = 0;
   AVPacket* packet = av_packet_alloc();
   SDL_mutex* waitMutex = SDL_CreateMutex();
   if (!packet) {
@@ -354,6 +354,9 @@ void FFmpegPlayer::Decode(AVMediaType avType) {
     case AVMEDIA_TYPE_AUDIO:
       stream = AudioStream;
       break;
+    default:
+      ImpLog(LL_Warning, LC_Video, "Unknown media type, aborting!\n");
+      return;
   }
 
   while (!AbortRequest) {

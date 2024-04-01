@@ -41,7 +41,7 @@ void FFmpegAudioPlayer::Stop() { alSourceStop(ALSource); }
 void FFmpegAudioPlayer::Unload() {
   if (AudioBuffer) av_free(AudioBuffer);
   AudioBuffer = 0;
-  alSourcei(ALSource, AL_BUFFER, NULL);
+  alSourcei(ALSource, AL_BUFFER, 0);
   Stop();
   alDeleteSources(1, &ALSource);
   alGenSources(1, &ALSource);

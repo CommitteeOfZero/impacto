@@ -589,6 +589,23 @@ if (APPLE OR LINUX)
     set(IMPACTO_DISABLE_DX9 ON)
 endif ()
 
+if (IMPACTO_WARNINGS)
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        message(STATUS "Enabling warnings for clang")
+        add_compile_options(-Wall -Wextra -Wno-unused-parameter -Wno-nullability-completeness)
+    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        message(STATUS "Enabling warnings for GCC")
+        add_compile_options(-Wall -Wextra -Wno-unused-parameter)
+    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+        message(STATUS "Enabling warnings for MSVC")
+        add_compile_options(/Wall)
+    else ()
+        message(WARNING "Unknown compiler, not enabling warnings")
+    endif ()
+else ()
+    message(STATUS "NOT enabling compiler warnings, consider enabling them when developing")
+endif ()
+
 # dependencies
 
 if (WIN32)

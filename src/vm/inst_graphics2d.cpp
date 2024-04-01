@@ -284,6 +284,7 @@ VmInstruction(InstCHAmove) {
     case 1: {
       PopExpression(arg1);
       PopLocalLabel(seqDataBlock);
+      (void)seqDataBlock;
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction CHAmoveSetSeq(arg1: %i)\n", arg1);
     } break;

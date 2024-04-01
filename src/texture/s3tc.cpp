@@ -105,8 +105,6 @@ void BlockDecompressImageDXT1(uint32_t width, uint32_t height,
                               InputStream* inputStream, uint8_t* outputImage) {
   uint32_t blockCountX = (width + 3) / 4;
   uint32_t blockCountY = (height + 3) / 4;
-  uint32_t blockWidth = (width < 4) ? width : 4;
-  uint32_t blockHeight = (height < 4) ? height : 4;
 
   for (uint32_t j = 0; j < blockCountY; j++) {
     for (uint32_t i = 0; i < blockCountX; i++) {
@@ -120,8 +118,6 @@ void BlockDecompressImageDXT1VitaSwizzled(uint32_t width, uint32_t height,
                                           uint8_t* outputImage) {
   uint32_t blockCountX = (width + 3) / 4;
   uint32_t blockCountY = (height + 3) / 4;
-  uint32_t blockWidth = (width < 4) ? width : 4;
-  uint32_t blockHeight = (height < 4) ? height : 4;
 
   for (uint32_t j = 0; j < blockCountY; j++) {
     for (uint32_t i = 0; i < blockCountX; i++) {
@@ -243,8 +239,6 @@ void BlockDecompressImageDXT5(uint32_t width, uint32_t height,
                               InputStream* inputStream, uint8_t* outputImage) {
   uint32_t blockCountX = (width + 3) / 4;
   uint32_t blockCountY = (height + 3) / 4;
-  uint32_t blockWidth = (width < 4) ? width : 4;
-  uint32_t blockHeight = (height < 4) ? height : 4;
 
   for (uint32_t j = 0; j < blockCountY; j++) {
     for (uint32_t i = 0; i < blockCountX; i++) {
@@ -258,8 +252,6 @@ void BlockDecompressImageDXT5VitaSwizzled(uint32_t width, uint32_t height,
                                           uint8_t* outputImage) {
   uint32_t blockCountX = (width + 3) / 4;
   uint32_t blockCountY = (height + 3) / 4;
-  uint32_t blockWidth = (width < 4) ? width : 4;
-  uint32_t blockHeight = (height < 4) ? height : 4;
 
   for (uint32_t j = 0; j < blockCountY; j++) {
     for (uint32_t i = 0; i < blockCountX; i++) {

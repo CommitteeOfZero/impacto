@@ -19,12 +19,12 @@ ska::flat_hash_map<int, ScrWorkAnimation> ScrWorkAnimations;
 std::vector<int> CurrentScrWorkAnimations;
 
 static void UpdateScrWorkAnimations() {
-  for (int i = 0; i < CurrentScrWorkAnimations.size(); i++) {
+  for (size_t i = 0; i < CurrentScrWorkAnimations.size(); i++) {
     int id = CurrentScrWorkAnimations[i];
     ScrWorkAnimations[id].MainAnimation.Update(
         1 /
         60.0f);  // TODO: Nice hack you have here (get the proper dt in there)
-    for (int i = 0; i < ScrWorkAnimations[id].AnimationData.size(); i++) {
+    for (size_t i = 0; i < ScrWorkAnimations[id].AnimationData.size(); i++) {
       ScrWork[ScrWorkAnimations[id].AnimationData[i].Target] = glm::mix(
           ScrWorkAnimations[id].AnimationData[i].From,
           ScrWorkAnimations[id].AnimationData[i].To,
@@ -40,6 +40,8 @@ static void UpdateRenderableRot(int charId) {
   int pose = ScrWork[30 * charId + SW_MDL1TARDIR] - 30;
 
   switch (Profile::Vm::GameInstructionSet) {
+    default:
+      break;
     case InstructionSet::RNE: {
       if (pose >= 0) {
         glm::vec3 target = ScrWorkGetVec3(20 * pose + 5500, 20 * pose + 5501,
@@ -109,6 +111,11 @@ static void UpdateCamera() {
                                   SW_CAMSHTARDIR + 20 * camera);
 
   switch (Profile::Vm::GameInstructionSet) {
+    default:
+      // Calculations are game-specific, can't do anything reasonable here
+      ImpLog(LL_Error, LC_Render,
+             "Unknown instruction set, can't update camera!\n");
+      return;
     case InstructionSet::Dash: {
       posCam += ScrWorkGetVec3(2580, 2581, 2582);
       lookatCam += ScrWorkGetAngleVec3(2583, 2584, 2585);
@@ -171,6 +178,8 @@ static void UpdateCamera() {
 
   // Update lighting
   switch (Profile::Vm::GameInstructionSet) {
+    default:
+      break;
     case InstructionSet::RNE: {
       Renderer->Scene->Tint = ScrWorkGetColor(SW_MAINLIGHTCOLOR);
       Renderer->Scene->Tint.a = ScrWorkGetFloat(SW_MAINLIGHTWEIGHT);

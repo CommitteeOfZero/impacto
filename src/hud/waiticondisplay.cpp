@@ -7,8 +7,6 @@
 namespace Impacto {
 namespace WaitIconDisplay {
 
-static glm::vec2 Position;
-
 static Animation SimpleAnim;
 static SpriteAnimation SpriteAnim;
 

@@ -360,10 +360,13 @@ bool TextureLoadGXT(InputStream* stream, Texture* outTexture) {
   ImpLogSlow(LL_Debug, LC_TextureLoad, "Loading GXT texture\n");
 
   uint32_t version = ReadLE<uint32_t>(stream);
+  (void)version;
   uint32_t subtextureCount = ReadLE<uint32_t>(stream);
   assert(subtextureCount == 1);
   uint32_t subtexturesOffset = ReadLE<uint32_t>(stream);
+  (void)subtexturesOffset;
   uint32_t totalTexSize = ReadLE<uint32_t>(stream);
+  (void)totalTexSize;
   uint32_t p4Count = ReadLE<uint32_t>(stream);
   uint32_t p8Count = ReadLE<uint32_t>(stream);
   // padding

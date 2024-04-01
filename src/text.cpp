@@ -1,11 +1,8 @@
 #include "text.h"
 #include "vm/expression.h"
 #include "log.h"
-#include "game.h"
 #include "animation.h"
 #include "mem.h"
-#include "inputsystem.h"
-#include "vm/interface/input.h"
 #include "profile/scriptvars.h"
 
 #include "profile/charset.h"
@@ -119,8 +116,8 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
         Val_Expr = (*(uint8_t*)(ctx->Ip));
         ctx->Ip += 1;
         bytesRead += 1;
-        break;
       }
+      break;
     }
     case STT_EvaluateExpression: {
       Type = (StringTokenType)c;
@@ -302,15 +299,18 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, int nextLineStart) {
       RectF const& baseGlyphRect =
           Glyphs[RubyChunks[i].FirstBaseCharacter].DestRect;
       pos.x = baseGlyphRect.X;
+      /*
+       * This seems unused right now
       float blockWidth = 0.0f;
       for (int j = 0; j < RubyChunks[i].BaseLength; j++) {
         blockWidth +=
             Glyphs[RubyChunks[i].FirstBaseCharacter + j].DestRect.Width;
       }
-      int rubyLength =
-          TextLayoutPlainLine(ctx, RubyChunks[i].Length, RubyChunks[i].Text,
-                              DialogueFont, RubyFontSize, ColorTable[0], 1.0f,
-                              pos, TextAlignment::Block, blockWidth);
+    int rubyLength =
+        TextLayoutPlainLine(ctx, RubyChunks[i].Length, RubyChunks[i].Text,
+                            DialogueFont, RubyFontSize, ColorTable[0], 1.0f,
+                            pos, TextAlignment::Block, blockWidth);
+    */
     }
 
     ctx->Ip = oldIp;
@@ -686,7 +686,7 @@ int TextGetStringLength(Vm::Sc3VmThread* ctx) {
 }
 int TextGetMainCharacterCount(Vm::Sc3VmThread* ctx) {
   int result = 0;
-  StringToken token;
+  StringToken token;  // FIXME: Initialize token
   bool isMain = true;
   do {
     switch (token.Type) {
@@ -703,6 +703,9 @@ int TextGetMainCharacterCount(Vm::Sc3VmThread* ctx) {
         if (isMain) result++;
         break;
       }
+      default:
+        // Probably safe to ignore this
+        break;
     }
   } while (token.Type != STT_EndOfString);
   return result;

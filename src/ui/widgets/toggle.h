@@ -22,8 +22,8 @@ class Toggle : public Widget {
          Sprite const& label, glm::vec2 labelOfs);
 
   void Update(float dt) override;
-  void UpdateInput();
-  void Render();
+  void UpdateInput() override;
+  void Render() override;
 
   int Id;
   bool* Value;

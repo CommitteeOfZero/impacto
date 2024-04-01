@@ -33,8 +33,6 @@ class TipsMenu : public UI::TipsMenu {
   Impacto::TipsSystem::TipsDataRecord* Records;
 
   int CurrentTipPage = 1;
-  int CurrentPageIdx = 0;
-  int PageCount = 0;
 
   Sprite* ThumbnailSprite;
   Widgets::Carousel* ItemsList;

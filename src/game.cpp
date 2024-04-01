@@ -11,8 +11,6 @@
 #include "data/savesystem.h"
 #include "data/tipssystem.h"
 #include "audio/audiosystem.h"
-#include "audio/audiochannel.h"
-#include "audio/audiostream.h"
 #include "video/videosystem.h"
 #include "background2d.h"
 #include "mask2d.h"
@@ -24,7 +22,6 @@
 #include "hud/loadingdisplay.h"
 #include "hud/tipsnotification.h"
 #include "hud/delusiontrigger.h"
-#include "io/memorystream.h"
 
 #include "profile/profile.h"
 #include "profile/game.h"
@@ -36,7 +33,6 @@
 #include "profile/scene3d.h"
 #include "profile/vm.h"
 #include "profile/scriptvars.h"
-#include "profile/hud/datedisplay.h"
 #include "profile/ui/selectionmenu.h"
 #include "profile/ui/sysmesbox.h"
 #include "profile/ui/systemmenu.h"
@@ -379,10 +375,10 @@ void Render() {
               int bufId = ScrWork[SW_CHA1SURF + i];
               Characters2D[bufId].Render(i, layer);
             }
-            if (ScrWork[6361] == layer && ScrWork[6360]) {
+            if (ScrWork[6361] == static_cast<int>(layer) && ScrWork[6360]) {
               UI::MapSystem::Render();
             }
-            if (ScrWork[SW_MASK1PRI] == layer) {
+            if (ScrWork[SW_MASK1PRI] == static_cast<int>(layer)) {
               int maskAlpha =
                   ScrWork[SW_MASK1ALPHA_OFS] + ScrWork[SW_MASK1ALPHA];
               if (maskAlpha) {
@@ -404,7 +400,8 @@ void Render() {
             }
 
             if (Profile::UseScreenCapEffects) {
-              if (ScrWork[SW_EFF_CAP_BUF] && ScrWork[SW_EFF_CAP_PRI] == layer) {
+              if (ScrWork[SW_EFF_CAP_BUF] &&
+                  ScrWork[SW_EFF_CAP_PRI] == static_cast<int>(layer)) {
                 int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF]);
                 if (Backgrounds2D[bufId]->Status == LS_Loaded) {
                   Renderer->CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
@@ -412,7 +409,7 @@ void Render() {
               }
 
               if (ScrWork[SW_EFF_CAP_BUF2] &&
-                  ScrWork[SW_EFF_CAP_PRI2] == layer) {
+                  ScrWork[SW_EFF_CAP_PRI2] == static_cast<int>(layer)) {
                 int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF2]);
                 if (Backgrounds2D[bufId]->Status == LS_Loaded) {
                   Renderer->CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
@@ -422,7 +419,7 @@ void Render() {
 
             if (Profile::UseMoviePriority &&
                 (Profile::GameFeatures & GameFeature::Video) &&
-                ScrWork[SW_MOVIEPRI] == layer) {
+                ScrWork[SW_MOVIEPRI] == static_cast<int>(layer)) {
               Video::VideoRender(ScrWork[SW_MOVIEALPHA] / 256.0f);
             }
           }

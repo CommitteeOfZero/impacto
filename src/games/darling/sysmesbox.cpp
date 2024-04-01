@@ -3,7 +3,6 @@
 #include "../../profile/ui/sysmesbox.h"
 #include "../../profile/games/darling/sysmesbox.h"
 #include "../../profile/dialogue.h"
-#include "../../profile/game.h"
 #include "../../profile/scriptvars.h"
 #include "../../mem.h"
 #include "../../renderer/renderer.h"
@@ -130,7 +129,6 @@ void SysMesBox::Render() {
   if (State != Hidden) {
     glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
 
-    float diff = 0.0f;
     float maxWidth = FLT_MIN;
     for (int i = 0; i < MessageCount; i++) {
       if (maxWidth < MessageWidths[i]) maxWidth = MessageWidths[i];

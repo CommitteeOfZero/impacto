@@ -3,7 +3,6 @@
 #include "inst_macros.inc"
 
 #include "expression.h"
-#include "../game.h"
 #include "../mem.h"
 #include "../log.h"
 #include "../profile/vm.h"
@@ -234,6 +233,7 @@ VmInstruction(InstKeyboardOnJump) {
   PopExpression(arg2);
   PopExpression(arg3);
   PopLocalLabel(arg4);
+  (void)arg4;  // Unused
   ImpLogSlow(LL_Warning, LC_VMStub,
              "STUB instruction KeyboardOnJump(arg1: %i, arg2: %i, arg3: %i, "
              "arg4: %i)\n",
@@ -269,7 +269,7 @@ VmInstruction(InstCase) {
   PopExpression(caseVal);
   PopLocalLabel(labelAdr);
 
-  if (SwitchValue == caseVal) {
+  if (static_cast<int>(SwitchValue) == caseVal) {
     thread->Ip = labelAdr;
   }
 }

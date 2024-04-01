@@ -2,7 +2,6 @@
 
 #include "../../3d/camera.h"
 #include "../../../log.h"
-#include "../../../workqueue.h"
 #include "renderable3d.h"
 
 #include "../../../profile/scene3d.h"
@@ -42,6 +41,7 @@ void Scene3D::Init() {
       -1.0f, 3.0f,      0.0f, 2.0f
   };
   // clang-format on
+  (void)ScreenFillingTriangle;  // Currently unused
 }
 
 void Scene3D::Shutdown() {

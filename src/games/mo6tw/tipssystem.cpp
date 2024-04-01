@@ -19,7 +19,7 @@ void TipsSystem::DataInit(int scriptBufferId, uint8_t *tipsData) {
   auto scriptBuffer = ScriptBuffers[scriptBufferId];
 
   // String of characters by which tips are sorted, taken from _system script
-  auto sortString = (uint16_t *)ScriptGetTextTableStrAddress(2, 5);
+  // auto sortString = (uint16_t *)ScriptGetTextTableStrAddress(2, 5);
 
   int idx = 0;
 

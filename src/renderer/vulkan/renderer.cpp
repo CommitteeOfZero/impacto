@@ -1126,6 +1126,7 @@ void Renderer::DrawCharacterMvlImpl(Sprite const& sprite, glm::vec2 topLeft,
 
   for (int i = 0; i < verticesCount; i += 4) {
     glm::vec2 pos = glm::vec2(mvlVertices[i * 5], mvlVertices[i * 5 + 1]);
+    (void)pos;  // Currently unused
     glm::vec2 bottomLeftV =
         glm::vec2(mvlVertices[i * 5], mvlVertices[i * 5 + 1]);
     glm::vec2 topLeftV =

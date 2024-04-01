@@ -1,8 +1,8 @@
-#include <deque>
-
 #include "workqueue.h"
 
-#include "impacto.h"
+#include <cassert>
+#include <SDL_mutex.h>
+#include <SDL.h>
 
 namespace Impacto {
 namespace WorkQueue {
@@ -14,12 +14,12 @@ struct WorkItem {
   void Handle();
 };
 
-static int WorkCompletedEventType = -1;
+static Uint32 WorkCompletedEventType = 0;
 
 static void InitEventType() {
-  assert(WorkCompletedEventType == -1);
+  assert(WorkCompletedEventType == 0);
   WorkCompletedEventType = SDL_RegisterEvents(1);
-  assert(WorkCompletedEventType != -1);
+  assert(WorkCompletedEventType != 0);
 }
 
 #if IMPACTO_HAVE_THREADS

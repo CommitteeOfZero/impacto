@@ -1,6 +1,5 @@
 #include "expression.h"
 
-#include "../game.h"
 #include "../log.h"
 #include "../mem.h"
 
@@ -326,7 +325,7 @@ ExpressionNode* ExpressionParser::ParseSubExpression(int minPrecidence) {
   ExpressionNode* leftExpr = ParseTerm();
   if (leftExpr == nullptr) return leftExpr;
 
-  if (CurrentToken < Tokens.size()) {
+  if (static_cast<size_t>(CurrentToken) < Tokens.size()) {
     ExprToken peek = Tokens[CurrentToken];
     if ((peek.Type == ET_Increment || peek.Type == ET_Decrement) &&
         peek.Precedence >= minPrecidence) {
@@ -335,7 +334,7 @@ ExpressionNode* ExpressionParser::ParseSubExpression(int minPrecidence) {
       result->ExprType = peek.Type;
       result->LeftExpr = std::unique_ptr<ExpressionNode>(leftExpr);
       leftExpr = result;
-      if (CurrentToken >= Tokens.size()) return leftExpr;
+      if (static_cast<size_t>(CurrentToken) >= Tokens.size()) return leftExpr;
     }
 
     peek = Tokens[CurrentToken];
@@ -377,7 +376,7 @@ ExpressionNode* ExpressionParser::ParseSubExpression(int minPrecidence) {
           result->LeftExpr = std::unique_ptr<ExpressionNode>(leftExpr);
           result->RightExpr = std::unique_ptr<ExpressionNode>(rightExpr);
           leftExpr = result;
-          if (CurrentToken < Tokens.size())
+          if (static_cast<size_t>(CurrentToken) < Tokens.size())
             peek = Tokens[CurrentToken];
           else
             return leftExpr;

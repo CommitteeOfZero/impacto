@@ -32,6 +32,10 @@ void Configure() {
     case SaveDataType::MO6TW:
       Implementation = new Impacto::MO6TW::SaveSystem();
       break;
+    case SaveDataType::None:
+      ImpLog(LL_Warning, LC_Profile,
+             "Save data type is none, not setting implementation\n");
+      break;
   }
 
   SaveFilePath = EnsureGetMemberString("SaveFilePath");
@@ -102,7 +106,8 @@ void Configure() {
   if (TryPushMember("AlbumData")) {
     AssertIs(LUA_TTABLE);
 
-    auto dataCount = lua_rawlen(LuaState, -1);
+    // Unused for now
+    // auto dataCount = lua_rawlen(LuaState, -1);
     PushInitialIndex();
     while (PushNextTableElement() != 0) {
       int i = EnsureGetKeyInt() - 1;

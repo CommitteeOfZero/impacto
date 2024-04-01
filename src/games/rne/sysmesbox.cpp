@@ -3,11 +3,9 @@
 #include "../../profile/ui/sysmesbox.h"
 #include "../../profile/games/rne/sysmesbox.h"
 #include "../../profile/dialogue.h"
-#include "../../profile/game.h"
 #include "../../profile/vm.h"
 #include "../../profile/scriptvars.h"
 #include "../../mem.h"
-#include "../../io/vfs.h"
 #include "../../inputsystem.h"
 #include "../../renderer/renderer.h"
 
@@ -47,7 +45,6 @@ void SysMesBox::Show() {
 
   float textBeginY = TextMiddleY - (TextMarginY * (4 + MessageCount));
   for (int i = 0; i < MessageCount; i++) {
-    int lineLen;
     for (int j = 0; j < MessageLengths[i]; j++) {
       if (Messages[i][j].CharId == 0) break;
       Messages[i][j].DestRect.Y = textBeginY + (i * TextLineHeight);

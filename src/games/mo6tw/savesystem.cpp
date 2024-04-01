@@ -24,7 +24,10 @@ SaveError SaveSystem::MountSaveFile() {
     case IoError_NotFound:
       return SaveNotFound;
     case IoError_Fail:
+    case IoError_Eof:
       return SaveCorrupted;
+    case IoError_OK:
+      break;
   };
   stream = (Io::PhysicalFileStream*)instream;
 
@@ -72,9 +75,15 @@ SaveError SaveSystem::MountSaveFile() {
     uint8_t saveMinute = Io::ReadLE<uint8_t>(stream);
     uint8_t saveYear = Io::ReadLE<uint8_t>(stream);
     uint8_t saveSecond = Io::ReadLE<uint8_t>(stream);
-    QuickSaveEntries[i]->SaveDate =
-        std::tm{saveSecond, saveMinute,    saveHour,
-                saveDay,    saveMonth - 1, saveYear + 100};
+    std::tm t{};
+    t.tm_sec = saveSecond;
+    t.tm_min = saveMinute;
+    t.tm_hour = saveHour;
+    t.tm_mday = saveDay;
+    t.tm_mon = saveMonth - 1;
+    t.tm_year = saveYear + 100;
+    QuickSaveEntries[i]->SaveDate = t;
+
     Io::ReadLE<uint16_t>(stream);
     QuickSaveEntries[i]->PlayTime = Io::ReadLE<uint32_t>(stream);
     QuickSaveEntries[i]->SwTitle = Io::ReadLE<uint16_t>(stream);
@@ -123,9 +132,14 @@ SaveError SaveSystem::MountSaveFile() {
     uint8_t saveMinute = Io::ReadLE<uint8_t>(stream);
     uint8_t saveYear = Io::ReadLE<uint8_t>(stream);
     uint8_t saveSecond = Io::ReadLE<uint8_t>(stream);
-    FullSaveEntries[i]->SaveDate =
-        std::tm{saveSecond, saveMinute,    saveHour,
-                saveDay,    saveMonth - 1, saveYear + 100};
+    std::tm t{};
+    t.tm_sec = saveSecond;
+    t.tm_min = saveMinute;
+    t.tm_hour = saveHour;
+    t.tm_mday = saveDay;
+    t.tm_mon = saveMonth - 1;
+    t.tm_year = saveYear + 100;
+    FullSaveEntries[i]->SaveDate = t;
     Io::ReadLE<uint16_t>(stream);
     FullSaveEntries[i]->PlayTime = Io::ReadLE<uint32_t>(stream);
     FullSaveEntries[i]->SwTitle = Io::ReadLE<uint16_t>(stream);
@@ -222,6 +236,11 @@ void SaveSystem::WriteSaveFile() {
   Io::InputStream* instream;
   IoError err = Io::PhysicalFileStream::CreateWrite(SaveFilePath, &instream);
   auto err1 = SDL_GetError();
+  if (err != IoError_OK) {
+    ImpLog(LL_Error, LC_IO, "Failed to create save file, SDL error: %s\n",
+           err1);
+    return;
+  }
   stream = (Io::PhysicalFileStream*)instream;
 
   stream->Seek(0xbc2, SEEK_SET);
@@ -244,6 +263,12 @@ void SaveSystem::WriteSaveFile() {
       auto err =
           stream->Write(&QuickSaveEntries[i]->Status, sizeof(uint8_t), 1);
       auto err1 = SDL_GetError();
+      if (err != IoError_OK) {
+        ImpLog(LL_Error, LC_IO,
+               "Failed to write save entry to file, SDL error: %s\n", err1);
+        return;
+      }
+      // TODO: Add error checking
       stream->Write(&QuickSaveEntries[i]->Checksum, sizeof(uint16_t), 1);
       stream->Seek(1, SEEK_CUR);
       uint8_t mon = QuickSaveEntries[i]->SaveDate.tm_mon + 1;
@@ -379,7 +404,7 @@ void SaveSystem::SaveMemory() {
           thd->Ip - ScriptBuffers[thd->ScriptBufferId];
       WorkingSaveEntry->MainThreadCallStackDepth = thd->CallStackDepth;
 
-      for (int j = 0; j < thd->CallStackDepth; j++) {
+      for (size_t j = 0; j < thd->CallStackDepth; j++) {
         WorkingSaveEntry->MainThreadReturnAddresses[j] =
             thd->ReturnAdresses[j] -
             ScriptBuffers[thd->ReturnScriptBufferIds[j]];
@@ -523,6 +548,10 @@ uint32_t SaveSystem::GetSavePlayTime(SaveType type, int id) {
       return ((SaveFileEntry*)FullSaveEntries[id])->PlayTime;
     case SaveQuick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->PlayTime;
+    default:
+      ImpLog(LL_Error, LC_IO,
+             "Failed to read play time: Unknown save type, returning 0\n");
+      return 0;
   }
 }
 
@@ -532,6 +561,10 @@ uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) {
       return ((SaveFileEntry*)FullSaveEntries[id])->Flags;
     case SaveQuick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->Flags;
+    default:
+      ImpLog(LL_Error, LC_IO,
+             "Failed to read save flags: Unknown save type, returning 0\n");
+      return 0;
   }
 }
 
@@ -541,6 +574,11 @@ tm SaveSystem::GetSaveDate(SaveType type, int id) {
       return ((SaveFileEntry*)FullSaveEntries[id])->SaveDate;
     case SaveQuick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->SaveDate;
+    default:
+      ImpLog(LL_Error, LC_IO,
+             "Failed to read save date: Unknown save type, returning empty "
+             "time\n");
+      return std::tm{};
   }
 }
 
@@ -550,6 +588,10 @@ uint8_t SaveSystem::GetSaveSatus(SaveType type, int id) {
       return ((SaveFileEntry*)QuickSaveEntries[id])->Status;
     case SaveFull:
       return ((SaveFileEntry*)FullSaveEntries[id])->Status;
+    default:
+      ImpLog(LL_Error, LC_IO,
+             "Failed to read save status: Unknown save type, returning 0\n");
+      return 0;
   }
 }
 
@@ -559,15 +601,19 @@ int SaveSystem::GetSaveTitle(SaveType type, int id) {
       return ((SaveFileEntry*)QuickSaveEntries[id])->SwTitle;
     case SaveFull:
       return ((SaveFileEntry*)FullSaveEntries[id])->SwTitle;
+    default:
+      ImpLog(LL_Error, LC_IO,
+             "Failed to read save title: Unknown save type, returning 0\n");
+      return 0;
   }
 }
 
 uint32_t SaveSystem::GetTipStatus(int tipId) {
   tipId *= 3;
-  return (((GameExtraData[tipId >> 3] & Flbit[tipId & 7]) != 0) |
-          (2 *
-           ((Flbit[(tipId + 2) & 7] & GameExtraData[(tipId + 2) >> 3]) != 0))) &
-             0xFB |
+  return ((((GameExtraData[tipId >> 3] & Flbit[tipId & 7]) != 0) |
+           (2 * ((Flbit[(tipId + 2) & 7] & GameExtraData[(tipId + 2) >> 3]) !=
+                 0))) &
+          0xFB) |
          (4 *
           ((GameExtraData[(tipId + 1) >> 3] & Flbit[(tipId + 1) & 7]) != 0));
 }
@@ -597,7 +643,7 @@ void SaveSystem::GetReadMessagesCount(int* totalMessageCount,
   for (int i = 0; i < StoryScriptCount; i++) {
     auto record = ScriptMessageData[StoryScriptIDs[i]];
     *totalMessageCount += record.LineCount;
-    for (int j = 0; j < record.LineCount; j++) {
+    for (size_t j = 0; j < record.LineCount; j++) {
       *readMessageCount +=
           ((*(uint8_t*)(MessageFlags + ((record.SaveDataOffset + i) >> 3)) &
             Flbit[(record.SaveDataOffset + i) & 7]) != 0);

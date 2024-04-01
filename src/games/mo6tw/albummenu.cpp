@@ -6,7 +6,6 @@
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
 #include "../../data/savesystem.h"
-#include "../../background2d.h"
 #include "../../vm/interface/input.h"
 #include "../../ui/widgets/mo6tw/albumcharacterbutton.h"
 #include "../../ui/widgets/mo6tw/albumthumbnailbutton.h"
@@ -138,6 +137,8 @@ void AlbumMenu::Show() {
       totalEvVariations += total;
       viewedEvVariations += viewed;
     }
+    // Not used yet
+    (void)totalEvVariations;
     auto yunoButton =
         static_cast<Button*>(MainItems->Children.at(YunoButtonIdx));
     yunoButton->IsLocked = viewedEvVariations == 0;
@@ -320,7 +321,8 @@ void AlbumMenu::LoadCharacter(int id) {
   for (const auto& el : ImageGrid->Children) {
     if (row != totalRows) {
       Widget* focusTarget;
-      if ((idx + ThumbnailsPerRow) > ImageGrid->Children.size() - 1)
+      if ((idx + ThumbnailsPerRow) >
+          static_cast<int>(ImageGrid->Children.size() - 1))
         focusTarget = ImageGrid->Children.back();
       else
         focusTarget = ImageGrid->Children.at(idx + ThumbnailsPerRow);

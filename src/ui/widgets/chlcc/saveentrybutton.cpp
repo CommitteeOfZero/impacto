@@ -16,8 +16,8 @@ SaveEntryButton::SaveEntryButton(int id, Sprite const& norm,
                                  glm::vec2 pos, int page, uint8_t locked,
                                  Sprite lockedSymbol)
     : Widgets::Button(id, norm, focused, highlight, pos),
-      FocusedSpriteLabel(focused, pos),
       Page(page),
+      FocusedSpriteLabel(focused, pos),
       LockedSymbol(lockedSymbol,
                    glm::vec2(Bounds.X, Bounds.Y) + glm::vec2(205.0f, 79.0f)) {
   IsLocked = locked == 1;

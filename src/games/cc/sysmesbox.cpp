@@ -126,7 +126,6 @@ void SysMesBox::Update(float dt) {
   ScrWork[SW_SYSMESANIMCTCUR] = std::floor(BoxAnimCount);
 
   float animationProgress = FadeAnimation.Progress * AnimationSpeed;
-  int animationFrame = std::ceil(animationProgress);
 
   if (animationProgress > SealSpriteCount) {
     if (ChoiceCount == 2) {

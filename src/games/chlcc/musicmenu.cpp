@@ -2,11 +2,9 @@
 
 #include "../../profile/games/chlcc/musicmenu.h"
 #include "../../profile/scriptvars.h"
-#include "../../profile/profile_internal.h"
 #include "../../renderer/renderer.h"
 #include "../../ui/ui.h"
 #include "../../data/savesystem.h"
-#include "../../profile/dialogue.h"
 #include "../../background2d.h"
 #include "../../vm/interface/input.h"
 
@@ -52,7 +50,6 @@ MusicMenu::MusicMenu() {
   PlaymodeAllSprite = PlaymodeAll;
 
   MainItems = new Group(this);
-  Sprite empty = Sprite();
 
   for (int idx = 0; idx < MusicTrackCount; idx++) {
     auto button = new Widgets::CHLCC::TrackSelectButton(
@@ -363,7 +360,7 @@ void MusicMenu::UpdateEntries() {
   auto onClick =
       std::bind(&MusicMenu::MusicButtonOnClick, this, std::placeholders::_1);
 
-  for (int idx = 0; idx < MainItems->Children.size(); idx++) {
+  for (size_t idx = 0; idx < MainItems->Children.size(); idx++) {
     auto button = static_cast<Widgets::CHLCC::TrackSelectButton*>(
         MainItems->Children[idx]);
 

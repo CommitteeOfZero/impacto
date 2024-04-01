@@ -4,12 +4,10 @@
 #include "../../io/vfs.h"
 #include "../../io/io.h"
 #include "../../log.h"
-#include "../../texture/gxtloader.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "../../io/memorystream.h"
-#include "../../io/uncompressedstream.h"
 
 #include "../../profile/scene3d.h"
 
@@ -54,6 +52,11 @@ void Model::EnumerateModels() {
 
   std::map<uint32_t, std::string> listing;
   IoError err = VfsListFiles("model", listing);
+  if (err != IoError_OK) {
+    ImpLog(LL_Error, LC_Render, "Failed to list models from VFS: IO error %d\n",
+           err);
+    return;
+  }
 
   for (auto const& file : listing) {
     if (Profile::Scene3D::ModelsToCharacters.count(file.first) != 0) {
@@ -98,7 +101,7 @@ Model::~Model() {
     free(AnimationIds);
   }
   if (AnimationNames) {
-    for (int i = 0; i < AnimationCount; i++) {
+    for (size_t i = 0; i < AnimationCount; i++) {
       if (AnimationNames[i]) free(AnimationNames[i]);
     }
     free(AnimationNames);
@@ -475,7 +478,7 @@ Model* Model::Load(uint32_t modelId) {
   // Read skeleton
   for (uint32_t i = 0; i < result->BoneCount; i++) {
     uint32_t seekPos = BonesOffset + boneSize * i;
-    stream->Seek(BonesOffset + boneSize * i, RW_SEEK_SET);
+    stream->Seek(seekPos, RW_SEEK_SET);
     StaticBone* bone = &result->Bones[i];
 
     if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
@@ -597,9 +600,6 @@ Model* Model::Load(uint32_t modelId) {
       auto animId = anim.first;
 
       if (AnimationIsBlacklisted(modelId, animId)) continue;
-
-      int64_t animSize;
-      void* animData;
 
       if (!AnimationIsBlacklisted(modelId, animId)) {
         std::string animName;

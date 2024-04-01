@@ -1,6 +1,5 @@
 #include "atrac9audiostream.h"
 #include "../log.h"
-#include "../util.h"
 
 using namespace Impacto::Io;
 
@@ -144,7 +143,7 @@ AudioStream* Atrac9AudioStream::Create(InputStream* stream) {
     goto fail;
   }
 
-  container = {0};
+  container = {0, 0, 0, 0, false, 0, 0, {0, 0, 0, 0}, 0};
   if (!ParseAt9Riff(stream, &container)) {
     goto fail;
   }

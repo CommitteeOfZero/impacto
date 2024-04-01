@@ -2,7 +2,6 @@
 
 #include "animation.h"
 
-#include "../../io/io.h"
 #include "../../log.h"
 #include "../../util.h"
 
@@ -178,7 +177,7 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
 
       // Mesh group track
       std::vector<Mesh*> meshes;
-      for (int j = 0; j < model->MeshCount; j++) {
+      for (uint32_t j = 0; j < model->MeshCount; j++) {
         if (model->Meshes[j].GroupId == target.Id)
           meshes.push_back(&model->Meshes[j]);
       }
@@ -221,7 +220,7 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
                    morphInfluenceCounts[j], morphInfluenceOffsets[j]);
       }
 
-      for (int j = 0; j < meshes.size(); j++) {
+      for (size_t j = 0; j < meshes.size(); j++) {
         Mesh* mesh = meshes[j];
         MeshTrack* track = &result->MeshTracks[result->MeshTrackCount + j];
         memcpy(track->Name, target.Name, sizeof(target.Name));
@@ -268,13 +267,12 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
   result->QuatKeyframeCount = 0;
 
   int currentBoneTrack = 0;
-  int currentMeshTrack = 0;
   for (uint32_t i = 0; i < trackCount; i++) {
     uint32_t seekPos = tracksOffset + trackSize * i;
     stream->Seek(seekPos, RW_SEEK_SET);
     Target target = GetTarget(stream, model);
     if (target.Type == TargetType_Bone) {
-      if (i != TrackForBone[target.Id]) continue;
+      if (static_cast<int32_t>(i) != TrackForBone[target.Id]) continue;
 
       ImpLogSlow(LL_Trace, LC_ModelLoad,
                  "Interleaving rotations track %d bone %d\n", i, target.Id);
@@ -419,7 +417,7 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
     stream->Seek(seekPos, RW_SEEK_SET);
     Target target = GetTarget(stream, model);
     if (target.Type == TargetType_Bone) {
-      if (i != TrackForBone[target.Id]) continue;
+      if (static_cast<int32_t>(i) != TrackForBone[target.Id]) continue;
 
       BoneTrack* track = &result->BoneTracks[currentBoneTrack];
 

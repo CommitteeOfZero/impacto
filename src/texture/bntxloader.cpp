@@ -1,9 +1,5 @@
-#include "gxtloader.h"
-
 #include "../log.h"
-#include "../util.h"
 
-#include "s3tc.h"
 #include "bntxloader.h"
 #include "bcdecode.h"
 
@@ -147,6 +143,8 @@ int BPPbyFormat(TextureFormatType format) {
       break;
     default:;
   }
+  ImpLog(LL_Warning, LC_TextureLoad, "Unknown texture format, returning 0!\n");
+  return 0;
 }
 
 TextureNX::TextureNX() {}
@@ -196,6 +194,8 @@ uint32_t TextureNX::GetPow2HeightInTexels() {
 
     case ASTC12x12:
       return (Pow2Height + 11) / 12;
+    default:
+      break;
   }
 
   return Pow2Height;
@@ -235,7 +235,12 @@ uint32_t TextureNX::GetBytesPerTexel() {
     case ASTC12x10:
     case ASTC12x12:
       return 16;
+    default:
+      break;
   }
+  ImpLog(LL_Warning, LC_TextureLoad,
+         "Unknown number of bytes per texel, returning 0!\n");
+  return 0;
 }
 
 uint32_t TextureNX::GetBlockHeight() { return 1 << BlockHeightLog2; }
@@ -264,66 +269,94 @@ bool TextureLoadBNTX(InputStream* stream, Texture* outTexture) {
   stream->Seek(4, RW_SEEK_CUR);
   // uint64_t BnTxSignature = ReadLE<uint64_t>(stream);
   uint32_t DataLength = ReadLE<uint32_t>(stream);
+  (void)DataLength;
   uint16_t ByteOrderMark = ReadLE<uint16_t>(stream);
+  (void)ByteOrderMark;
   uint16_t FormatRevision = ReadLE<uint16_t>(stream);
+  (void)FormatRevision;
   uint32_t NameAddress = ReadLE<uint32_t>(stream);
+  (void)NameAddress;
   uint32_t StringsAddress = ReadLE<uint32_t>(stream);
+  (void)StringsAddress;
   uint32_t RelocAddress = ReadLE<uint32_t>(stream);
+  (void)RelocAddress;
   uint32_t FileLength = ReadLE<uint32_t>(stream);
+  (void)FileLength;
   uint32_t NXSignature = ReadLE<uint32_t>(stream);
+  (void)NXSignature;
 
   uint32_t TexturesCount = ReadLE<uint32_t>(stream);
   ImpLog(LL_Debug, LC_General, "%d\n", TexturesCount);
   uint64_t InfoPtrsAddress = ReadLE<uint64_t>(stream);
   uint64_t DataBlkAddress = ReadLE<uint64_t>(stream);
+  (void)DataBlkAddress;
   uint64_t DictAddress = ReadLE<uint64_t>(stream);
+  (void)DictAddress;
   uint32_t StrDictLength = ReadLE<uint32_t>(stream);
+  (void)StrDictLength;
 
-  for (int Index = 0; Index < TexturesCount; Index++) {
+  for (uint32_t Index = 0; Index < TexturesCount; Index++) {
     stream->Seek(InfoPtrsAddress + Index * 8, 0);
     uint64_t offset = ReadLE<uint64_t>(stream);
 
     stream->Seek(offset, 0);
 
     uint32_t BRTISignature = ReadLE<uint32_t>(stream);
+    (void)BRTISignature;
 
     // CheckSignature(L"BRTI", BRTISignature);
 
     uint32_t BRTILength0 = ReadLE<uint32_t>(stream);
+    (void)BRTILength0;
 
     uint64_t BRTILength1 = ReadLE<uint64_t>(stream);
+    (void)BRTILength1;
 
     uint8_t TileMode = ReadLE<uint8_t>(stream);
 
     uint8_t Dimensions = ReadLE<uint8_t>(stream);
+    (void)Dimensions;
 
     uint16_t unknown = ReadLE<uint16_t>(stream);
+    (void)unknown;
     uint16_t SwizzleSize = ReadLE<uint16_t>(stream);
+    (void)SwizzleSize;
     uint16_t MipmapCount = ReadLE<uint16_t>(stream);
     uint16_t MultiSampleCount = ReadLE<uint16_t>(stream);
+    (void)MultiSampleCount;
     uint16_t Reversed1A = ReadLE<uint16_t>(stream);
+    (void)Reversed1A;
 
     uint32_t Format = ReadLE<uint32_t>(stream);
 
     uint32_t AccessFlags = ReadLE<uint32_t>(stream);
+    (void)AccessFlags;
 
     uint32_t Width = ReadLE<uint32_t>(stream);
     uint32_t Height = ReadLE<uint32_t>(stream);
     uint32_t Depth = ReadLE<uint32_t>(stream);
+    (void)Depth;
     uint32_t ArrayCount = ReadLE<uint32_t>(stream);
     uint32_t BlockHeightLog2 = ReadLE<uint32_t>(stream);
     uint32_t Reserved38 = ReadLE<uint32_t>(stream);
+    (void)Reserved38;
     uint32_t Reserved3C = ReadLE<uint32_t>(stream);
+    (void)Reserved3C;
     uint32_t Reserved40 = ReadLE<uint32_t>(stream);
+    (void)Reserved40;
     uint32_t Reserved44 = ReadLE<uint32_t>(stream);
+    (void)Reserved44;
     uint32_t Reserved48 = ReadLE<uint32_t>(stream);
+    (void)Reserved48;
     uint32_t Reserved4C = ReadLE<uint32_t>(stream);
+    (void)Reserved4C;
     uint32_t DataLength = ReadLE<uint32_t>(stream);
     uint32_t Alignment = ReadLE<uint32_t>(stream);
     uint32_t ChannelTypes = ReadLE<uint32_t>(stream);
     uint32_t TextureType2 = ReadLE<uint32_t>(stream);
     uint64_t NameAddress = ReadLE<uint64_t>(stream);
     uint64_t ParentAddress = ReadLE<uint64_t>(stream);
+    (void)ParentAddress;
     uint64_t PtrsAddress = ReadLE<uint64_t>(stream);
 
     stream->Seek(NameAddress, 0);
@@ -404,6 +437,10 @@ bool TextureLoadBNTX(InputStream* stream, Texture* outTexture) {
 
         case TextureFormatType::R8G8B8A8:
 
+          break;
+
+        default:
+          ImpLog(LL_Warning, LC_TextureLoad, "Unknown texture format!\n");
           break;
       }
 

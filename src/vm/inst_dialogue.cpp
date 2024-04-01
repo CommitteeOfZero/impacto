@@ -4,14 +4,9 @@
 
 #include "expression.h"
 #include "../profile/scriptvars.h"
-#include "../profile/dialogue.h"
-#include "../game.h"
 #include "../mem.h"
-#include "../inputsystem.h"
 #include "../log.h"
-#include "../audio/audiosystem.h"
 #include "../audio/audiostream.h"
-#include "../audio/audiochannel.h"
 #include "../profile/vm.h"
 #include "../hud/saveicondisplay.h"
 #include "../hud/tipsnotification.h"
@@ -218,6 +213,7 @@ VmInstruction(InstSetMesModeFormat) {
   StartInstruction;
   PopExpression(id);
   PopLocalLabel(modeDataAdr);
+  (void)modeDataAdr;
   ImpLogSlow(LL_Warning, LC_VMStub,
              "STUB instruction SetMesModeFormat(id: %i)\n", id);
 }
@@ -225,6 +221,8 @@ VmInstruction(InstSetNGmoji) {
   StartInstruction;
   PopString(strAdr1);
   PopString(strAdr2);
+  (void)strAdr1;
+  (void)strAdr2;
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SetNGmoji()\n");
 }
 VmInstruction(InstMesRev) {
@@ -398,6 +396,7 @@ VmInstruction(InstSysSel) {
   PopUint8(type);  // TODO: Implement type 0, 1
   if (type >= 2) {
     PopString(arg1);
+    (void)arg1;
   }
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SysSel(type: %i)\n",
              type);
@@ -483,6 +482,7 @@ VmInstruction(InstNameID) {
       break;
     case 1: {
       PopLocalLabel(namePlateDataBlock);
+      (void)namePlateDataBlock;
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction NameID(type: %i)\n",
                  type);
     } break;
@@ -501,6 +501,7 @@ VmInstruction(InstTips) {
       if (Profile::Vm::GameInstructionSet == +InstructionSet::MO8 ||
           Profile::Vm::GameInstructionSet == +InstructionSet::CHN) {
         PopLocalLabel(tipsDataAdr1);
+        (void)tipsDataAdr1;
       }
 
       TipsSystem::DataInit(thread->ScriptBufferId, tipsDataAdr);
@@ -536,6 +537,7 @@ VmInstruction(InstSetRevMes) {
   switch (type) {
     case 0: {
       PopString(message);
+      (void)message;
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SetRevMes(type: %i)\n", type);
     } break;
@@ -548,6 +550,7 @@ VmInstruction(InstSetRevMes) {
       PopExpression(arg1);
       PopExpression(arg2);
       PopString(message);
+      (void)message;
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SetRevMes(type: %i, arg1: %i, arg2: %i)\n",
                  type, arg1, arg2);
@@ -562,11 +565,13 @@ VmInstruction(InstSetRevMes) {
     } break;
     case 2: {
       PopString(arg1);
+      (void)arg1;
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SetRevMes(type: %i)\n", type);
     } break;
     case 3: {
       PopString(arg1);
+      (void)arg1;
       PopExpression(arg2);
       PopExpression(arg3);
       PopExpression(arg4);

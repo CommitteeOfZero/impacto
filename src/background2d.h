@@ -22,7 +22,7 @@ enum LinkDirection {
 
 int const MaxLinks = 2;
 
-typedef class Background2D;
+class Background2D;
 
 struct LinkState {
   Background2D* LinkedBuffer;

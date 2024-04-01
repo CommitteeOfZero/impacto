@@ -57,7 +57,7 @@ static bool IsInit = false;
 
 static MaterialType CurrentMaterial = MT_None;
 static bool CurrentMaterialIsDepthWrite = false;
-static bool CurrentMaterialIsBackfaceCull = false;
+// static bool CurrentMaterialIsBackfaceCull = false;
 
 static GLWindow* Window;
 
@@ -259,7 +259,7 @@ void Renderable3D::MakePlane() {
 
 void Renderable3D::InitMeshAnimStatus() {
   int totalMorphedVertices = 0;
-  for (int i = 0; i < StaticModel->MeshCount; i++) {
+  for (uint32_t i = 0; i < StaticModel->MeshCount; i++) {
     MeshAnimStatus[i].MorphedVerticesOffset = totalMorphedVertices;
     if (StaticModel->Meshes[i].MorphTargetCount > 0) {
       totalMorphedVertices += StaticModel->Meshes[i].VertexCount;
@@ -271,9 +271,7 @@ void Renderable3D::InitMeshAnimStatus() {
 }
 
 void Renderable3D::ReloadDefaultMeshAnimStatus() {
-  MorphVertexBuffer* currentMorphedVertex = CurrentMorphedVertices;
-
-  for (int i = 0; i < StaticModel->MeshCount; i++) {
+  for (uint32_t i = 0; i < StaticModel->MeshCount; i++) {
     MeshAnimStatus[i].Visible = 1.0f;
     if (StaticModel->Meshes[i].MorphTargetCount > 0) {
       for (int j = 0; j < StaticModel->Meshes[i].MorphTargetCount; j++) {
@@ -286,7 +284,7 @@ void Renderable3D::ReloadDefaultMeshAnimStatus() {
 void Renderable3D::SwitchAnimation(int16_t animId, float transitionTime) {
   if (Animator.CurrentAnimation != 0 && transitionTime > 0.0f) {
     PrevPoseWeight = 1.0f;
-    for (int i = 0; i < StaticModel->BoneCount; i++) {
+    for (uint32_t i = 0; i < StaticModel->BoneCount; i++) {
       PrevBoneTransforms[i] = CurrentPose[i].LocalTransform;
     }
     memcpy(PrevMeshAnimStatus, MeshAnimStatus, sizeof(MeshAnimStatus));
@@ -298,7 +296,7 @@ void Renderable3D::SwitchAnimation(int16_t animId, float transitionTime) {
 }
 
 void Renderable3D::ReloadDefaultBoneTransforms() {
-  for (int i = 0; i < StaticModel->BoneCount; i++) {
+  for (uint32_t i = 0; i < StaticModel->BoneCount; i++) {
     CurrentPose[i].LocalTransform = StaticModel->Bones[i].BaseTransform;
   }
 }
@@ -324,7 +322,7 @@ void Renderable3D::CalculateMorphedVertices(int id) {
   VertexBuffer* currentVertexRNE = (VertexBuffer*)currentVertex;
   VertexBufferDaSH* currentVertexDaSH = (VertexBufferDaSH*)currentVertex;
 
-  for (int j = 0; j < mesh->VertexCount; j++) {
+  for (uint32_t j = 0; j < mesh->VertexCount; j++) {
     if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
       currentMorphedVertex->Position = currentVertexDaSH->Position;
       currentMorphedVertex->Normal = currentVertexDaSH->Normal;
@@ -367,7 +365,7 @@ void Renderable3D::CalculateMorphedVertices(int id) {
         StaticModel->MorphVertexBuffers +
         StaticModel->MorphTargets[mesh->MorphTargetIds[k]].VertexOffset;
 
-    for (int j = 0; j < mesh->VertexCount; j++) {
+    for (uint32_t j = 0; j < mesh->VertexCount; j++) {
       if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
         currentMorphedVertex->Position +=
             (currentMorphTargetVbo->Position - currentVertexDaSH->Position) *
@@ -444,7 +442,7 @@ void Renderable3D::Update(float dt) {
     if (PrevPoseWeight < 0.0f) PrevPoseWeight = 0.0f;
   }
 
-  for (int i = 0; i < StaticModel->MeshCount; i++) {
+  for (uint32_t i = 0; i < StaticModel->MeshCount; i++) {
     CalculateMorphedVertices(i);
   }
 }
@@ -518,6 +516,9 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
       SetTextures(id, dashEyeTextureTypes, 3);
       break;
     }
+    default:
+      ImpLog(LL_Warning, LC_Renderable3D, "Unknown texture type!\n");
+      break;
   }
 
   if (mesh.Opacity < 0.9 && CurrentMaterialIsDepthWrite) {
@@ -547,8 +548,8 @@ void Renderable3D::Render() {
   memset(VAOsUpdated, 0, sizeof(VAOsUpdated));
   memset(UniformsUpdated, 0, sizeof(UniformsUpdated));
 
-  for (int i = RP_First; i < RP_Count; i++) {
-    for (int j = 0; j < StaticModel->MeshCount; j++) {
+  for (uint32_t i = RP_First; i < RP_Count; i++) {
+    for (uint32_t j = 0; j < StaticModel->MeshCount; j++) {
       DrawMesh(j, (RenderPass)i);
     }
   }
@@ -605,6 +606,9 @@ void Renderable3D::UseMaterial(MaterialType type) {
       glUseProgram(ShaderProgramEye);
       break;
     }
+    default:
+      ImpLog(LL_Warning, LC_Renderable3D, "Unknown texture type!\n");
+      break;
   }
 
   glEnable(GL_CULL_FACE);
@@ -668,7 +672,7 @@ void Renderable3D::LoadMeshUniforms(int id) {
       if (mesh.UsedBones > 0) {
         glm::mat4* outBone =
             (glm::mat4*)(MeshUniformBuffer + MeshUniformOffsets[MSU_Bones]);
-        for (int j = 0; j < mesh.UsedBones; j++) {
+        for (uint32_t j = 0; j < mesh.UsedBones; j++) {
           memcpy(outBone, glm::value_ptr(CurrentPose[mesh.BoneMap[j]].Offset),
                  sizeof(glm::mat4));
           outBone++;
@@ -740,7 +744,7 @@ void Renderable3D::MainThreadOnLoad() {
   glBindBuffer(GL_UNIFORM_BUFFER, UBOModel);
   glBufferData(GL_UNIFORM_BUFFER, ModelUniformBlockSize, NULL, GL_DYNAMIC_DRAW);
 
-  for (int i = 0; i < StaticModel->MeshCount; i++) {
+  for (uint32_t i = 0; i < StaticModel->MeshCount; i++) {
     glBindBuffer(GL_UNIFORM_BUFFER, UBOs[i]);
     glBufferData(GL_UNIFORM_BUFFER, MeshUniformBlockSize, NULL,
                  GL_DYNAMIC_DRAW);
@@ -821,7 +825,7 @@ void Renderable3D::MainThreadOnLoad() {
                  GL_STATIC_DRAW);
   }
 
-  for (int i = 0; i < StaticModel->TextureCount; i++) {
+  for (uint32_t i = 0; i < StaticModel->TextureCount; i++) {
     TexBuffers[i] = StaticModel->Textures[i].Submit();
     if (TexBuffers[i] == 0) {
       ImpLog(LL_Fatal, LC_Renderable3D,

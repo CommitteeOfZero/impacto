@@ -1,3 +1,5 @@
+#include "io/io.h"
+#include "log.h"
 #include "modelviewer.h"
 #include "game.h"
 
@@ -8,6 +10,8 @@
 #include "audio/audiochannel.h"
 #include "background2d.h"
 #include "character2d.h"
+
+#include <cstdint>
 
 namespace Impacto {
 namespace CharacterViewer {
@@ -114,7 +118,7 @@ void Update(float dt) {
     if (nk_tree_push(Renderer->Nk, NK_TREE_TAB, "Background", NK_MAXIMIZED)) {
       nk_layout_row_dynamic(Renderer->Nk, 24, 1);
 
-      int LastBackground = CurrentBackground;
+      uint32_t LastBackground = CurrentBackground;
 
       CurrentBackground =
           nk_combo(Renderer->Nk, (const char**)BackgroundNames, BackgroundCount,
@@ -131,7 +135,7 @@ void Update(float dt) {
     if (nk_tree_push(Renderer->Nk, NK_TREE_TAB, "Character", NK_MAXIMIZED)) {
       nk_layout_row_dynamic(Renderer->Nk, 24, 1);
 
-      int LastCharacter = CurrentCharacter;
+      uint32_t LastCharacter = CurrentCharacter;
 
       CurrentCharacter =
           nk_combo(Renderer->Nk, (const char**)CharacterNames, CharacterCount,
@@ -214,6 +218,11 @@ void Update(float dt) {
 static void EnumerateBackgrounds() {
   std::map<uint32_t, std::string> listing;
   IoError err = Io::VfsListFiles("bg", listing);
+  if (err != IoError_OK) {
+    ImpLog(LL_Warning, LC_General,
+           "Failed to open backgrounds archive, aborting enumeration!\n");
+    return;
+  }
 
   BackgroundCount = listing.size();
 
@@ -231,6 +240,11 @@ static void EnumerateBackgrounds() {
 static void EnumerateCharacters() {
   std::map<uint32_t, std::string> listing;
   IoError err = Io::VfsListFiles("chara", listing);
+  if (err != IoError_OK) {
+    ImpLog(LL_Warning, LC_General,
+           "Failed to open character archive, aborting enumeration!\n");
+    return;
+  }
 
   CharacterCount = listing.size() / 2;
 
@@ -250,6 +264,11 @@ static void EnumerateCharacters() {
 static void EnumerateBgm() {
   std::map<uint32_t, std::string> listing;
   IoError err = Io::VfsListFiles("bgm", listing);
+  if (err != IoError_OK) {
+    ImpLog(LL_Warning, LC_General,
+           "Failed to open BGM archive, aborting enumeration!\n");
+    return;
+  }
 
   BgmCount = listing.size();
 

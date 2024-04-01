@@ -95,6 +95,10 @@ void Configure() {
     case DialogueBoxType::CC:
       Profile::CC::DialogueBox::Configure();
       break;
+    default:
+      ImpLog(LL_Warning, LC_General,
+             "Dialogue box is not implemented for the current profile yet!\n");
+      break;
   }
 
   NVLBoxMaxOpacity = EnsureGetMemberFloat("NVLBoxMaxOpacity");

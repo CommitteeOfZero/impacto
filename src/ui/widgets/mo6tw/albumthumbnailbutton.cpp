@@ -28,7 +28,7 @@ AlbumThumbnailButton::AlbumThumbnailButton(
   if (unlockedVariations > 0)
     sprintf(temp, "%d/%d", unlockedVariations, totalVariations);
   else
-    sprintf(temp, "??/??");
+    sprintf(temp, "\?\?/\?\?");
   TextGetSc3String(std::string(temp), sc3StringBuffer);
   dummy.Ip = (uint8_t*)sc3StringBuffer;
   InfoTextWidth = TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont,

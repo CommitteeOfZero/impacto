@@ -5,11 +5,7 @@
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
-#include "../../inputsystem.h"
 #include "../../vm/interface/input.h"
-#include "../../ui/widgets/button.h"
-#include "../../vm/vm.h"
-#include "../../audio/audiochannel.h"
 
 namespace Impacto {
 namespace UI {
@@ -152,7 +148,7 @@ OptionsMenu::OptionsMenu() {
     }
   }
   row = 1;
-  int idx = 0;
+  size_t idx = 0;
   for (const auto& el : CharacterVoiceToggles->Children) {
     if (row != totalRows) {
       Widget* focusTarget;
@@ -393,11 +389,11 @@ void OptionsMenu::Render() {
       Renderer->DrawSprite(
           SectionHeaderSprites[0 + VoiceVolumeSlider->HasFocus], pos, col);
       pos.y += FirstPageSliderMargin;
-      Renderer->DrawSprite(
-          SectionHeaderSprites[2 + BGMVolumeSlider->HasFocus], pos, col);
+      Renderer->DrawSprite(SectionHeaderSprites[2 + BGMVolumeSlider->HasFocus],
+                           pos, col);
       pos.y += FirstPageSliderMargin;
       Renderer->DrawSprite(SectionHeaderSprites[4 + SEVolumeSlider->HasFocus],
-                             pos, col);
+                           pos, col);
       pos.y += FirstPageSliderMargin;
       Renderer->DrawSprite(
           SectionHeaderSprites[6 + MovieVolumeSlider->HasFocus], pos, col);
@@ -425,8 +421,8 @@ void OptionsMenu::Render() {
           col);
       pos += CheckboxMargin;
       pos.x = SecondPageSectionHeaderPos.x;
-      Renderer->DrawSprite(
-          SectionHeaderSprites[18 + SkipModeToggles->HasFocus], pos, col);
+      Renderer->DrawSprite(SectionHeaderSprites[18 + SkipModeToggles->HasFocus],
+                           pos, col);
       pos += CheckboxMargin;
       Renderer->DrawSprite(
           SectionHeaderSprites[20 + AutoSaveTriggerToggles->HasFocus], pos,

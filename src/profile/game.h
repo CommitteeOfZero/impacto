@@ -2,6 +2,8 @@
 
 #include "../game.h"
 
+#include <cstdint>
+
 namespace Impacto {
 namespace Profile {
 
@@ -9,7 +11,7 @@ extern RendererType ActiveRenderer;
 extern VideoPlayerType VideoPlayer;
 extern AudioBackendType ActiveAudioBackend;
 
-extern int LayerCount;
+extern uint32_t LayerCount;
 extern int GameFeatures;
 
 extern char const* WindowName;

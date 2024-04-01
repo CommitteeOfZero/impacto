@@ -9,7 +9,6 @@
 #include "../../profile/ui/tipsmenu.h"
 #include "../../profile/games/mo6tw/tipsmenu.h"
 #include "../../ui/widgets/mo6tw/tipsentrybutton.h"
-#include "../../io/memorystream.h"
 #include "../../data/tipssystem.h"
 #include "../../vm/interface/input.h"
 
@@ -146,7 +145,7 @@ void TipsMenu::Init() {
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
   auto onClick = std::bind(&TipsMenu::TipOnClick, this, std::placeholders::_1);
-  int idx = 0, currentPage = 0, currentCategoryId = -1;
+  int currentPage = 0, currentCategoryId = -1;
   Group *pageItems = new Group(this);
 
   // String of characters by which tips are sorted, taken from _system script

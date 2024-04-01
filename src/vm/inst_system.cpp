@@ -7,24 +7,17 @@
 
 #include "expression.h"
 #include "../profile/scriptvars.h"
-#include "../game.h"
 #include "../mem.h"
 #include "../log.h"
 #include "../audio/audiosystem.h"
-#include "../audio/audiostream.h"
 #include "../audio/audiochannel.h"
 #include "../background2d.h"
-#include "../mask2d.h"
 #include "../character2d.h"
-#include "../text.h"
-#include "../profile/dialogue.h"
 #include "../profile/vm.h"
-#include "../profile/ui/sysmesbox.h"
 #include "../profile/hud/tipsnotification.h"
 #include "../profile/hud/delusiontrigger.h"
 #include "../profile/data/tipssystem.h"
 #include "../hud/saveicondisplay.h"
-#include "../inputsystem.h"
 #include "interface/input.h"
 #include "../data/savesystem.h"
 #include "../ui/ui.h"
@@ -295,6 +288,8 @@ VmInstruction(InstSystemMes) {
   StartInstruction;
   PopUint8(mode);
   switch (Profile::Vm::GameInstructionSet) {
+    default:
+      break;
     case InstructionSet::Dash:
     case InstructionSet::CC:
       PopUint8(unk01);
@@ -364,6 +359,10 @@ VmInstruction(InstSystemMes) {
       PopMsbString(message);
       UI::SysMesBoxPtr->AddMessage(message);
     } break;
+    default:
+      ImpLog(LL_Warning, LC_VMStub,
+             "Unknown mode for instruction SystemMes(mode: %i)\n", mode);
+      break;
   }
 }
 VmInstruction(InstGetNowTime) {

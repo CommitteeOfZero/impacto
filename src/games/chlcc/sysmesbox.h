@@ -2,8 +2,6 @@
 
 #include "../../ui/sysmesbox.h"
 #include "../../ui/widgets/button.h"
-#include "../../ui/widgets/label.h"
-#include "../../text.h"
 
 namespace Impacto {
 namespace UI {
@@ -16,7 +14,7 @@ class SysMesBox : public UI::SysMesBox {
   virtual void Update(float dt) override;
   virtual void Render() override;
 
-  virtual void Init();
+  virtual void Init() override;
   virtual void AddMessage(uint8_t* str) override;
   virtual void AddChoice(uint8_t* str) override;
 
