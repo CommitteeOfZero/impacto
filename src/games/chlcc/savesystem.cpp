@@ -440,10 +440,10 @@ int SaveSystem::GetSaveTitle(SaveType type, int id) {
 
 uint32_t SaveSystem::GetTipStatus(int tipId) {
   tipId *= 3;
-  return (((GameExtraData[tipId >> 3] & Flbit[tipId & 7]) != 0) |
-          (2 *
-           ((Flbit[(tipId + 2) & 7] & GameExtraData[(tipId + 2) >> 3]) != 0))) &
-             0xFB |
+  return ((((GameExtraData[tipId >> 3] & Flbit[tipId & 7]) != 0) |
+           (2 * ((Flbit[(tipId + 2) & 7] & GameExtraData[(tipId + 2) >> 3]) !=
+                 0))) &
+          0xFB) |
          (4 *
           ((GameExtraData[(tipId + 1) >> 3] & Flbit[(tipId + 1) & 7]) != 0));
 }

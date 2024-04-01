@@ -254,7 +254,7 @@ void MapSystemCCLCC::MapSetFadein_Line(int partId, int partType) {
     MapPartsDisp[MapPartsMax].delay = MapPartsDisp[MapPartsMax - 1].dist;
     MapPartsMax++;
     return;
-  } else if (partType == 6 || partType > 11 && partType < 15) {
+  } else if (partType == 6 || (partType > 11 && partType < 15)) {
     int index = (partType == 6) ? 0 : partType - 11;
     int mappedId =
         (static_cast<size_t>(partId) < sizeof(PartsIdMap) / sizeof(float[4]))
@@ -381,7 +381,7 @@ void MapSystemCCLCC::MapSetDisp(int partId, int partType) {
   } else if (partType == 5) {
     MapPartsDisp[MapPartsMax].angle = CALCrnd(1820) - 910;
     MapPartsMax++;
-  } else if (partType > 11 && partType < 15 || partType == 6) {
+  } else if ((partType > 11 && partType < 15) || partType == 6) {
     int index = (partType == 6) ? 0 : partType - 11;
     int mappedId = (partIdSt < sizeof(PartsIdMap) / sizeof(float[4]))
                        ? static_cast<int>(PartsIdMap[partId][index])
@@ -1693,7 +1693,7 @@ void MapSystemCCLCC::MapFadeMain(float dt) {
           partsDispElem.state = Shown;
         } else if (partsDispElem.fadeAnim.State == AS_Stopped) {
           if (partsDispElem.type == 0 ||
-              partsDispElem.type >= 8 && partsDispElem.type <= 11) {
+              (partsDispElem.type >= 8 && partsDispElem.type <= 11)) {
             Audio::Channels[Audio::AC_SSE]->Play("sysse", 7, false, 0.0f);
           }
           partsDispElem.fadeAnim.StartIn(true);
@@ -1703,7 +1703,7 @@ void MapSystemCCLCC::MapFadeMain(float dt) {
           partsDispElem.state = Hidden;
         } else if (partsDispElem.fadeAnim.State == AS_Stopped) {
           if (partsDispElem.type == 0 ||
-              partsDispElem.type >= 8 && partsDispElem.type <= 11) {
+              (partsDispElem.type >= 8 && partsDispElem.type <= 11)) {
             Audio::Channels[Audio::AC_SSE]->Play("sysse", 9, false, 0.0f);
           }
           partsDispElem.fadeAnim.StartOut(true);
@@ -1817,7 +1817,7 @@ void MapSystemCCLCC::Render() {
   // Render map parts
   for (int i = 0; i < MapPartsMax; ++i) {
     if (MapPartsDisp[i].state == Shown ||
-        MapPartsDisp[i].state == Showing && MapPartsDisp[i].delay == 0 ||
+        (MapPartsDisp[i].state == Showing && MapPartsDisp[i].delay == 0) ||
         MapPartsDisp[i].state == Hiding) {
       switch (MapPartsDisp[i].type) {
         case 1:
@@ -1871,16 +1871,16 @@ void MapSystemCCLCC::Render() {
   }
   for (int i = 0; i < MapPartsMax; ++i) {
     if (MapPartsDisp[i].state == Shown ||
-        MapPartsDisp[i].state == Showing && MapPartsDisp[i].delay == 0 ||
+        (MapPartsDisp[i].state == Showing && MapPartsDisp[i].delay == 0) ||
         MapPartsDisp[i].state == Hiding) {
       if (MapPartsDisp[i].type == 0 || MapPartsDisp[i].type == 8 ||
           MapPartsDisp[i].type == 11 ||
-          MapPartsDisp[i].type == 9 &&
-              (PartsOffsetData[MapPartsDisp[i].partId][1][0] ||
-               PartsOffsetData[MapPartsDisp[i].partId][1][1]) ||
-          MapPartsDisp[i].type == 10 &&
-              (PartsOffsetData[MapPartsDisp[i].partId][1][2] ||
-               PartsOffsetData[MapPartsDisp[i].partId][1][3])) {
+          (MapPartsDisp[i].type == 9 &&
+           (PartsOffsetData[MapPartsDisp[i].partId][1][0] ||
+            PartsOffsetData[MapPartsDisp[i].partId][1][1])) ||
+          (MapPartsDisp[i].type == 10 &&
+           (PartsOffsetData[MapPartsDisp[i].partId][1][2] ||
+            PartsOffsetData[MapPartsDisp[i].partId][1][3]))) {
         MapDispPin(i);
       }
     }
@@ -1889,13 +1889,14 @@ void MapSystemCCLCC::Render() {
   for (int i = 0; i < 20; ++i) {
     if (MapPoolDisp[i * 2].state == Shown ||
         MapPoolDisp[i * 2].state == Hiding ||
-        MapPoolDisp[i * 2].state == Showing && MapPoolDisp[i * 2].delay == 0) {
+        (MapPoolDisp[i * 2].state == Showing &&
+         MapPoolDisp[i * 2].delay == 0)) {
       MapPoolDispPhoto(i);
     }
     if (MapPoolDisp[i * 2 + 1].state == Shown ||
         MapPoolDisp[i * 2 + 1].state == Hiding ||
-        MapPoolDisp[i * 2 + 1].state == Showing &&
-            MapPoolDisp[i * 2 + 1].delay == 0) {
+        (MapPoolDisp[i * 2 + 1].state == Showing &&
+         MapPoolDisp[i * 2 + 1].delay == 0)) {
       MapPoolDispPin(i);
     }
   }
