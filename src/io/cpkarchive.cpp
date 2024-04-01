@@ -258,7 +258,7 @@ IoError CpkArchive::ReadItoc(int64_t itocOffset, int64_t contentOffset,
   std::vector<std::pair<uint32_t, FileMeta*>> fileVec(IdsToFiles.begin(),
                                                       IdsToFiles.end());
   std::sort(fileVec.begin(), fileVec.end());
-  for (const auto kv : fileVec) {
+  for (const auto& kv : fileVec) {
     int64_t size;
     CpkMetaEntry* entry = (CpkMetaEntry*)kv.second;
     if (entry->CompressedSize > 0) {
