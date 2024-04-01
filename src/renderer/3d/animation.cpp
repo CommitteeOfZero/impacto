@@ -267,7 +267,6 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
   result->QuatKeyframeCount = 0;
 
   int currentBoneTrack = 0;
-  int currentMeshTrack = 0;
   for (uint32_t i = 0; i < trackCount; i++) {
     uint32_t seekPos = tracksOffset + trackSize * i;
     stream->Seek(seekPos, RW_SEEK_SET);

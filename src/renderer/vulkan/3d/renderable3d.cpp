@@ -15,8 +15,7 @@ static uint32_t TextureDummy = 0;
 
 // character
 static Pipeline *PipelineMain = 0, *PipelineOutline = 0, *PipelineEye = 0;
-static Pipeline *PipelineMainNoDepthWrite = 0, *PipelineOutlineNoDepthWrite = 0,
-                *PipelineEyeNoDepthWrite = 0;
+static Pipeline *PipelineMainNoDepthWrite = 0, *PipelineEyeNoDepthWrite = 0;
 
 // background
 static Pipeline* PipelineBackground = 0;
@@ -30,7 +29,6 @@ static bool IsInit = false;
 
 static MaterialType CurrentMaterial = MT_None;
 static bool CurrentMaterialIsDepthWrite = false;
-static bool CurrentMaterialIsBackfaceCull = false;
 
 static VulkanWindow* Window;
 static VkDevice Device;
@@ -349,6 +347,7 @@ void Renderable3D::InitMeshAnimStatus() {
 }
 
 void Renderable3D::ReloadDefaultMeshAnimStatus() {
+  /*
   void* currentMorphedVertex;
   if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
     currentMorphedVertex =
@@ -357,9 +356,11 @@ void Renderable3D::ReloadDefaultMeshAnimStatus() {
     currentMorphedVertex =
         ((VertexBuffer*)CurrentMorphedVerticesVkMapped[CurrentFrameIndex]);
   }
-  VertexBuffer* currentMorphedVertexRNE = (VertexBuffer*)currentMorphedVertex;
-  VertexBufferDaSH* currentMorphedVertexDaSH =
+  VertexBuffer* currentMorphedVertexRNE =
+  (VertexBuffer*)currentMorphedVertex; VertexBufferDaSH*
+  currentMorphedVertexDaSH =
       (VertexBufferDaSH*)currentMorphedVertex;
+  */
 
   for (uint32_t i = 0; i < StaticModel->MeshCount; i++) {
     MeshAnimStatus[i].Visible = 1.0f;

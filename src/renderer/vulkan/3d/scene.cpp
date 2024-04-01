@@ -42,6 +42,7 @@ void Scene3D::Init() {
       -1.0f, 3.0f,      0.0f, 2.0f
   };
   // clang-format on
+  (void)ScreenFillingTriangle;  // Currently unused
 }
 
 void Scene3D::Shutdown() {

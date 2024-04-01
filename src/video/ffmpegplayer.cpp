@@ -252,7 +252,6 @@ bool FFmpegPlayer::QueuesHaveEnoughPackets() {
 }
 
 void FFmpegPlayer::Read() {
-  int serial = 0;
   AVPacket* packet = av_packet_alloc();
   SDL_mutex* waitMutex = SDL_CreateMutex();
   if (!packet) {

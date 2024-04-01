@@ -57,7 +57,7 @@ static bool IsInit = false;
 
 static MaterialType CurrentMaterial = MT_None;
 static bool CurrentMaterialIsDepthWrite = false;
-static bool CurrentMaterialIsBackfaceCull = false;
+// static bool CurrentMaterialIsBackfaceCull = false;
 
 static GLWindow* Window;
 
@@ -271,8 +271,6 @@ void Renderable3D::InitMeshAnimStatus() {
 }
 
 void Renderable3D::ReloadDefaultMeshAnimStatus() {
-  MorphVertexBuffer* currentMorphedVertex = CurrentMorphedVertices;
-
   for (uint32_t i = 0; i < StaticModel->MeshCount; i++) {
     MeshAnimStatus[i].Visible = 1.0f;
     if (StaticModel->Meshes[i].MorphTargetCount > 0) {
