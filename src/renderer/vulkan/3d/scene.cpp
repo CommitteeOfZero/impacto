@@ -2,7 +2,6 @@
 
 #include "../../3d/camera.h"
 #include "../../../log.h"
-#include "../../../workqueue.h"
 #include "renderable3d.h"
 
 #include "../../../profile/scene3d.h"

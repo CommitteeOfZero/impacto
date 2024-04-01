@@ -1,6 +1,7 @@
 #include "textarchive.h"
 
 #include "../log.h"
+#include "io.h"
 #include "physicalfilestream.h"
 #include "vfs.h"
 #include "../util.h"

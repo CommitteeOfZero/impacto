@@ -1,3 +1,5 @@
+#include "io/io.h"
+#include "log.h"
 #include "modelviewer.h"
 #include "game.h"
 

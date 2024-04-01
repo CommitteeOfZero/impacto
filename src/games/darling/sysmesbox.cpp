@@ -3,7 +3,6 @@
 #include "../../profile/ui/sysmesbox.h"
 #include "../../profile/games/darling/sysmesbox.h"
 #include "../../profile/dialogue.h"
-#include "../../profile/game.h"
 #include "../../profile/scriptvars.h"
 #include "../../mem.h"
 #include "../../renderer/renderer.h"

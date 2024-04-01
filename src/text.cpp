@@ -1,11 +1,8 @@
 #include "text.h"
 #include "vm/expression.h"
 #include "log.h"
-#include "game.h"
 #include "animation.h"
 #include "mem.h"
-#include "inputsystem.h"
-#include "vm/interface/input.h"
 #include "profile/scriptvars.h"
 
 #include "profile/charset.h"

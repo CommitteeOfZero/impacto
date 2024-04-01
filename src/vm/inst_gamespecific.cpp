@@ -3,11 +3,9 @@
 #include "inst_macros.inc"
 
 #include "expression.h"
-#include "../game.h"
 #include "../log.h"
 #include "../mem.h"
 #include "../profile/scriptvars.h"
-#include "../vm/interface/input.h"
 #include "../hud/delusiontrigger.h"
 #include "../ui/mapsystem.h"
 

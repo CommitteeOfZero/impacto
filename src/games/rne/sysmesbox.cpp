@@ -3,11 +3,9 @@
 #include "../../profile/ui/sysmesbox.h"
 #include "../../profile/games/rne/sysmesbox.h"
 #include "../../profile/dialogue.h"
-#include "../../profile/game.h"
 #include "../../profile/vm.h"
 #include "../../profile/scriptvars.h"
 #include "../../mem.h"
-#include "../../io/vfs.h"
 #include "../../inputsystem.h"
 #include "../../renderer/renderer.h"
 
