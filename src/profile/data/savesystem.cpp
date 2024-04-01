@@ -106,7 +106,8 @@ void Configure() {
   if (TryPushMember("AlbumData")) {
     AssertIs(LUA_TTABLE);
 
-    auto dataCount = lua_rawlen(LuaState, -1);
+    // Unused for now
+    // auto dataCount = lua_rawlen(LuaState, -1);
     PushInitialIndex();
     while (PushNextTableElement() != 0) {
       int i = EnsureGetKeyInt() - 1;

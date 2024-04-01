@@ -302,15 +302,18 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, int nextLineStart) {
       RectF const& baseGlyphRect =
           Glyphs[RubyChunks[i].FirstBaseCharacter].DestRect;
       pos.x = baseGlyphRect.X;
+      /*
+       * This seems unused right now
       float blockWidth = 0.0f;
       for (int j = 0; j < RubyChunks[i].BaseLength; j++) {
         blockWidth +=
             Glyphs[RubyChunks[i].FirstBaseCharacter + j].DestRect.Width;
       }
-      int rubyLength =
-          TextLayoutPlainLine(ctx, RubyChunks[i].Length, RubyChunks[i].Text,
-                              DialogueFont, RubyFontSize, ColorTable[0], 1.0f,
-                              pos, TextAlignment::Block, blockWidth);
+    int rubyLength =
+        TextLayoutPlainLine(ctx, RubyChunks[i].Length, RubyChunks[i].Text,
+                            DialogueFont, RubyFontSize, ColorTable[0], 1.0f,
+                            pos, TextAlignment::Block, blockWidth);
+    */
     }
 
     ctx->Ip = oldIp;
