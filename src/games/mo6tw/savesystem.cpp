@@ -548,6 +548,10 @@ uint32_t SaveSystem::GetSavePlayTime(SaveType type, int id) {
       return ((SaveFileEntry*)FullSaveEntries[id])->PlayTime;
     case SaveQuick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->PlayTime;
+    default:
+      ImpLog(LL_Error, LC_IO,
+             "Failed to read play time: Unknown save type, returning 0\n");
+      return 0;
   }
 }
 
@@ -557,6 +561,10 @@ uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) {
       return ((SaveFileEntry*)FullSaveEntries[id])->Flags;
     case SaveQuick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->Flags;
+    default:
+      ImpLog(LL_Error, LC_IO,
+             "Failed to read save flags: Unknown save type, returning 0\n");
+      return 0;
   }
 }
 
@@ -566,6 +574,11 @@ tm SaveSystem::GetSaveDate(SaveType type, int id) {
       return ((SaveFileEntry*)FullSaveEntries[id])->SaveDate;
     case SaveQuick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->SaveDate;
+    default:
+      ImpLog(LL_Error, LC_IO,
+             "Failed to read save date: Unknown save type, returning empty "
+             "time\n");
+      return std::tm{};
   }
 }
 
@@ -575,6 +588,10 @@ uint8_t SaveSystem::GetSaveSatus(SaveType type, int id) {
       return ((SaveFileEntry*)QuickSaveEntries[id])->Status;
     case SaveFull:
       return ((SaveFileEntry*)FullSaveEntries[id])->Status;
+    default:
+      ImpLog(LL_Error, LC_IO,
+             "Failed to read save status: Unknown save type, returning 0\n");
+      return 0;
   }
 }
 
@@ -584,6 +601,10 @@ int SaveSystem::GetSaveTitle(SaveType type, int id) {
       return ((SaveFileEntry*)QuickSaveEntries[id])->SwTitle;
     case SaveFull:
       return ((SaveFileEntry*)FullSaveEntries[id])->SwTitle;
+    default:
+      ImpLog(LL_Error, LC_IO,
+             "Failed to read save title: Unknown save type, returning 0\n");
+      return 0;
   }
 }
 

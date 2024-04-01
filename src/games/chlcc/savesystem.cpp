@@ -256,6 +256,10 @@ uint32_t SaveSystem::GetSavePlayTime(SaveType type, int id) {
       return ((SaveFileEntry*)FullSaveEntries[id])->PlayTime;
     case SaveQuick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->PlayTime;
+    default:
+      ImpLog(LL_Error, LC_IO,
+             "Failed to get save play time: unknown save type, returning 0\n");
+      return 0;
   }
 }
 
@@ -265,6 +269,10 @@ uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) {
       return ((SaveFileEntry*)FullSaveEntries[id])->Flags;
     case SaveQuick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->Flags;
+    default:
+      ImpLog(LL_Error, LC_IO,
+             "Failed to get save flags: unknown save type, returning 0\n");
+      return 0;
   }
 }
 
@@ -274,6 +282,11 @@ tm SaveSystem::GetSaveDate(SaveType type, int id) {
       return ((SaveFileEntry*)FullSaveEntries[id])->SaveDate;
     case SaveQuick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->SaveDate;
+    default:
+      ImpLog(LL_Error, LC_IO,
+             "Failed to get save date: unknown save type, returning empty "
+             "timestamp\n");
+      return std::tm{};
   }
 }
 
@@ -325,6 +338,10 @@ void SaveSystem::LoadMemory(SaveType type, int id) {
     case SaveFull:
       entry = (SaveFileEntry*)FullSaveEntries[id];
       break;
+    default:
+      ImpLog(LL_Error, LC_IO,
+             "Failed to load save memory: unknown save type, doing nothing\n");
+      return;
   }
 
   if (entry != 0)
@@ -438,6 +455,10 @@ uint8_t SaveSystem::GetSaveSatus(SaveType type, int id) {
       return ((SaveFileEntry*)QuickSaveEntries[id])->Status;
     case SaveFull:
       return ((SaveFileEntry*)FullSaveEntries[id])->Status;
+    default:
+      ImpLog(LL_Error, LC_IO,
+             "Failed to get save status: unknown save type, returning 0\n");
+      return 0;
   }
 }
 
@@ -447,6 +468,10 @@ int SaveSystem::GetSaveTitle(SaveType type, int id) {
       return ((SaveFileEntry*)QuickSaveEntries[id])->SwTitle;
     case SaveFull:
       return ((SaveFileEntry*)FullSaveEntries[id])->SwTitle;
+    default:
+      ImpLog(LL_Error, LC_IO,
+             "Failed to get save title: unknown save type, returning 0\n");
+      return 0;
   }
 }
 
