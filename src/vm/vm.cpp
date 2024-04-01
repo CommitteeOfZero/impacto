@@ -35,8 +35,6 @@ bool BlockCurrentScriptThread;
 uint32_t SwitchValue;
 TextTableEntry TextTable[16];
 
-static uint32_t LoadedScriptIds[MaxLoadedScripts];
-
 Sc3VmThread ThreadPool[MaxThreads];  // Main thread pool where all the
                                      // thread objects are stored
 static Sc3VmThread*
@@ -66,7 +64,6 @@ static void SortThreadExecTable();
 static void CreateThreadDrawTable();
 static void SortThreadDrawTable();
 static void DrawAllThreads();
-static void DestroyScriptThreads(uint32_t scriptBufferId);
 static void DestroyThreadGroup(uint32_t groupId);
 
 void Init() {
@@ -388,16 +385,6 @@ void DestroyThread(Sc3VmThread* thread) {
   NextFreeThreadCtx = thread;
   thread->PreviousContext = previous;
   thread->NextContext = next;
-}
-
-static void DestroyScriptThreads(uint32_t scriptBufferId) {
-  int cnt = 0;
-  while (ThreadTable[cnt]) {
-    if (ThreadTable[cnt]->ScriptBufferId == scriptBufferId) {
-      DestroyThread(ThreadTable[cnt]);
-    }
-    cnt++;
-  }
 }
 
 static void DestroyThreadGroup(uint32_t groupId) {

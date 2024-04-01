@@ -110,7 +110,9 @@ VmInstruction(InstGeotag) {
   switch (type) {
     case 0: {
       PopLocalLabel(label1);
+      (void)label1;
       PopLocalLabel(label2);
+      (void)label2;
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Geotag(type: %i)\n",
                  type);
     } break;
@@ -131,24 +133,28 @@ VmInstruction(InstGeotag) {
     case 3: {
       PopExpression(arg1);
       PopLocalLabel(label1);
+      (void)label1;
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction Geotag(type: %i, arg1: %i)\n", type, arg1);
     } break;
     case 4: {
       PopExpression(arg1);
       PopLocalLabel(label1);
+      (void)label1;
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction Geotag(type: %i, arg1: %i)\n", type, arg1);
     } break;
     case 5: {
       PopExpression(arg1);
       PopLocalLabel(label1);
+      (void)label1;
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction Geotag(type: %i, arg1: %i)\n", type, arg1);
     } break;
     case 6: {
       PopExpression(arg1);
       PopLocalLabel(label1);
+      (void)label1;
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction Geotag(type: %i, arg1: %i)\n", type, arg1);
     } break;
@@ -627,10 +633,15 @@ VmInstruction(InstMail) {
       break;
     case 3: {
       PopLocalLabel(label1);
+      (void)label1;
       PopLocalLabel(label2);
+      (void)label2;
       PopLocalLabel(label3);
+      (void)label3;
       PopLocalLabel(label4);
+      (void)label4;
       PopLocalLabel(label5);
+      (void)label5;
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Mail(type: %i)\n",
                  type);
     } break;
@@ -685,11 +696,13 @@ VmInstruction(InstMail) {
       break;
     case 71: {
       PopLocalLabel(label1);
+      (void)label1;
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Mail(type: %i)\n",
                  type);
     } break;
     case 72: {
       PopLocalLabel(label1);
+      (void)label1;
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Mail(type: %i)\n",
                  type);
     } break;
@@ -706,7 +719,10 @@ VmInstruction(InstMail) {
 VmInstruction(InstUnk1038Darling) {
   StartInstruction;
   PopUint8(type);
-  if (type == 0) PopUint16(arg1);
+  if (type == 0) {
+    PopUint16(arg1);
+    (void)arg1;
+  }
 }
 VmInstruction(InstUnk1038MO7) {
   StartInstruction;
@@ -721,7 +737,9 @@ VmInstruction(InstTwipo) {
   switch (type) {
     case 0: {
       PopLocalLabel(label1);
+      (void)label1;
       PopLocalLabel(label2);
+      (void)label2;
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Twipo(type: %i)\n",
                  type);
     } break;
@@ -730,12 +748,14 @@ VmInstruction(InstTwipo) {
     case 2: {
       PopExpression(arg1);
       PopLocalLabel(label1);
+      (void)label1;
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction Twipo(type: %i, arg1: %i)\n", type, arg1);
     } break;
     case 3: {
       PopExpression(arg1);
       PopLocalLabel(label1);
+      (void)label1;
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction Twipo(type: %i, arg1: %i)\n", type, arg1);
     } break;
@@ -777,8 +797,11 @@ VmInstruction(InstTwipo_Dash) {
   switch (type) {
     case 0: {
       PopLocalLabel(label1);
+      (void)label1;
       PopLocalLabel(label2);
+      (void)label2;
       PopLocalLabel(label3);
+      (void)label3;
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Twipo(type: %i)\n",
                  type);
     } break;
@@ -789,12 +812,14 @@ VmInstruction(InstTwipo_Dash) {
     case 2: {
       PopExpression(arg1);
       PopLocalLabel(label1);
+      (void)label1;
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction Twipo(type: %i, arg1: %i)\n", type, arg1);
     } break;
     case 3: {
       PopExpression(arg1);
       PopLocalLabel(label1);
+      (void)label1;
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction Twipo(type: %i, arg1: %i)\n", type, arg1);
     } break;

@@ -233,6 +233,7 @@ VmInstruction(InstKeyboardOnJump) {
   PopExpression(arg2);
   PopExpression(arg3);
   PopLocalLabel(arg4);
+  (void)arg4;  // Unused
   ImpLogSlow(LL_Warning, LC_VMStub,
              "STUB instruction KeyboardOnJump(arg1: %i, arg2: %i, arg3: %i, "
              "arg4: %i)\n",

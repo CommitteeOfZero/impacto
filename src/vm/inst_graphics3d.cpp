@@ -128,6 +128,7 @@ VmInstruction(InstCHAUnk02073D_Dash) {
     PopExpression(arg3);
     PopExpression(arg4);
     PopLocalLabel(arg5);
+    (void)arg5;
     ImpLogSlow(LL_Warning, LC_VMStub,
                "STUB instruction CHAUnk02073D_Dash(arg1: %i, arg2: %i, arg3: "
                "%i, arg4: %i, arg5: %i)\n",
@@ -249,7 +250,7 @@ VmInstruction(InstPositionObject_Dash) {
   float radius = ScrRealToFloat(radius_);
 
   // if(ObjectIsRenderable(parentObjId))
-  int parentRenderableId = ObjectIdToRenderableId(parentObjId);
+  // int parentRenderableId = ObjectIdToRenderableId(parentObjId);
   // if(ObjectIsRenderable(objectId))
   int renderableId = ObjectIdToRenderableId(objectId);
 
