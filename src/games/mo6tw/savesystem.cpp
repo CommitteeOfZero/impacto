@@ -75,17 +75,15 @@ SaveError SaveSystem::MountSaveFile() {
     uint8_t saveMinute = Io::ReadLE<uint8_t>(stream);
     uint8_t saveYear = Io::ReadLE<uint8_t>(stream);
     uint8_t saveSecond = Io::ReadLE<uint8_t>(stream);
-    QuickSaveEntries[i]->SaveDate = std::tm{saveSecond,
-                                            saveMinute,
-                                            saveHour,
-                                            saveDay,
-                                            saveMonth - 1,
-                                            saveYear + 100,
-                                            0,
-                                            0,
-                                            0,
-                                            0,
-                                            0};
+    std::tm t{};
+    t.tm_sec = saveSecond;
+    t.tm_min = saveMinute;
+    t.tm_hour = saveHour;
+    t.tm_mday = saveDay;
+    t.tm_mon = saveMonth - 1;
+    t.tm_year = saveYear + 100;
+    QuickSaveEntries[i]->SaveDate = t;
+
     Io::ReadLE<uint16_t>(stream);
     QuickSaveEntries[i]->PlayTime = Io::ReadLE<uint32_t>(stream);
     QuickSaveEntries[i]->SwTitle = Io::ReadLE<uint16_t>(stream);
@@ -134,17 +132,14 @@ SaveError SaveSystem::MountSaveFile() {
     uint8_t saveMinute = Io::ReadLE<uint8_t>(stream);
     uint8_t saveYear = Io::ReadLE<uint8_t>(stream);
     uint8_t saveSecond = Io::ReadLE<uint8_t>(stream);
-    FullSaveEntries[i]->SaveDate = std::tm{saveSecond,
-                                           saveMinute,
-                                           saveHour,
-                                           saveDay,
-                                           saveMonth - 1,
-                                           saveYear + 100,
-                                           0,
-                                           0,
-                                           0,
-                                           0,
-                                           0};
+    std::tm t{};
+    t.tm_sec = saveSecond;
+    t.tm_min = saveMinute;
+    t.tm_hour = saveHour;
+    t.tm_mday = saveDay;
+    t.tm_mon = saveMonth - 1;
+    t.tm_year = saveYear + 100;
+    FullSaveEntries[i]->SaveDate = t;
     Io::ReadLE<uint16_t>(stream);
     FullSaveEntries[i]->PlayTime = Io::ReadLE<uint32_t>(stream);
     FullSaveEntries[i]->SwTitle = Io::ReadLE<uint16_t>(stream);

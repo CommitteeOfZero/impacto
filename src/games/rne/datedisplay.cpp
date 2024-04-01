@@ -21,7 +21,10 @@ void DateDisplay::Update(float dt) {
       Year = (ScrWork[LR_DATE] / 10000);
       Month = (ScrWork[LR_DATE] - 10000 * Year) / 100;
       Day = (ScrWork[LR_DATE] - 10000 * Year) % 100;
-      std::tm time_in = {0, 0, 0, Day, Month - 1, Year + 100, 0, 0, 0, 0, 0};
+      std::tm time_in{};
+      time_in.tm_mday = Day;
+      time_in.tm_mon = Month - 1;
+      time_in.tm_year = Year + 100;
       std::time_t time_temp = std::mktime(&time_in);
       const std::tm* time_out = std::localtime(&time_temp);
       Week = time_out->tm_wday;
