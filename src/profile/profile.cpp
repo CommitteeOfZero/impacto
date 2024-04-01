@@ -53,6 +53,15 @@ static int LuaInclude(lua_State* ctx) {
 
   size_t script_len = strlen(prefix) + stream->Meta.Size + strlen(suffix) + 1;
   char* script = (char*)malloc(script_len);
+
+  if (script == NULL) {
+    delete stream;
+
+    ImpLog(LL_Error, LC_Profile, "Could not allocate memory for script: %s",
+           file.c_str());
+    return 0;
+  }
+
   script[script_len - 1] = '\0';
   memcpy(script, prefix, strlen(prefix));
 
@@ -131,13 +140,26 @@ void MakeJsonProfile(std::string const& name) {
     exit(0);
   }
 
-  char* script = (char*)malloc(stream->Meta.Size + 1) + 1;
+  char* script = (char*)malloc(stream->Meta.Size + 1);
+  if (script == NULL) {
+    delete stream;
+
+    ImpLog(LL_Error, LC_Profile,
+           "Could not allocate memory for script: profiles/%s/game.lua",
+           name.c_str());
+    exit(0);
+  }
+
   int64_t len = stream->Read(script, stream->Meta.Size);
   if (len < 0) {
+    delete stream;
+    free(script);
+
     ImpLog(LL_Fatal, LC_Profile, "Could not open profiles/%s/game.lua\n",
            name.c_str());
     exit(0);
   }
+  script[len] = '\0';
 
   LuaState = luaL_newstate();
 
@@ -196,6 +218,9 @@ void MakeJsonProfile(std::string const& name) {
     lua_close(LuaState);
     exit(0);
   }
+
+  delete stream;
+  free(script);
 
   // Push the global onto the stack to load all the values later
   lua_getglobal(LuaState, "root");
