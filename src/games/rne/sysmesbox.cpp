@@ -47,7 +47,6 @@ void SysMesBox::Show() {
 
   float textBeginY = TextMiddleY - (TextMarginY * (4 + MessageCount));
   for (int i = 0; i < MessageCount; i++) {
-    int lineLen;
     for (int j = 0; j < MessageLengths[i]; j++) {
       if (Messages[i][j].CharId == 0) break;
       Messages[i][j].DestRect.Y = textBeginY + (i * TextLineHeight);

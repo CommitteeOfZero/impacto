@@ -50,7 +50,6 @@ MusicMenu::MusicMenu() {
   PlaymodeAllSprite = PlaymodeAll;
 
   MainItems = new Group(this);
-  Sprite empty = Sprite();
 
   for (int idx = 0; idx < MusicTrackCount; idx++) {
     auto button = new Widgets::CHLCC::TrackSelectButton(

@@ -157,6 +157,9 @@ inline int CALCrnd(int max) {
 }
 
 void MapSystemCCLCC::MapInit() {
+  // Silence unused var warning, this table is probably going to be useful later
+  (void)MapArticleOffsets;
+
   ScrWork[6369] = 0;
   ScrWork[6370] = 0;
   ScrWork[6371] = 0;

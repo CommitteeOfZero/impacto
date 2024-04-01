@@ -130,7 +130,6 @@ void SysMesBox::Render() {
   if (State != Hidden) {
     glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
 
-    float diff = 0.0f;
     float maxWidth = FLT_MIN;
     for (int i = 0; i < MessageCount; i++) {
       if (maxWidth < MessageWidths[i]) maxWidth = MessageWidths[i];

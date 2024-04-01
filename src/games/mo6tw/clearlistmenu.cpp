@@ -532,7 +532,6 @@ void ClearListMenu::InitSceneTitlePage() {
   auto numberLabelPos = SceneListNumberInitialPosition;
   auto textLabelPos = SceneListTextInitialPosition;
 
-  int idx = 0;
   char temp[4];
   auto lockedText = Vm::ScriptGetTextTableStrAddress(SceneTitleLockedTable,
                                                      SceneTitleLockedEntry);

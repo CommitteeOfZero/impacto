@@ -115,7 +115,6 @@ class MapSystemCCLCC : public Impacto::UI::MapSystem::MapSystemBase {
 
   std::array<MapSystemCCLCC::MapPoolStruct, 20> MapPool = {};
   std::array<MapSystemCCLCC::MapPoolDispStruct, 40> MapPoolDisp = {};
-  int MapPoolCnt = 0;
 
   std::array<MapSystemCCLCC::MapPartsDispStruct, 40> MapPartsDisp = {};
   std::array<MapSystemCCLCC::MapGroupStruct, 40> MapGroup = {};

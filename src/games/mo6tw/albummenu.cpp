@@ -137,6 +137,8 @@ void AlbumMenu::Show() {
       totalEvVariations += total;
       viewedEvVariations += viewed;
     }
+    // Not used yet
+    (void)totalEvVariations;
     auto yunoButton =
         static_cast<Button*>(MainItems->Children.at(YunoButtonIdx));
     yunoButton->IsLocked = viewedEvVariations == 0;
