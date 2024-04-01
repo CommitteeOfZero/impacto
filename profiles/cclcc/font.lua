@@ -46,7 +46,7 @@ local westernWidths = {
 };
 
 for i = 0, (64 * 117) - 1 do
-    if i < #westernWidths - 1 then
+    if i <= #westernWidths then
         root.Fonts["Default"].Widths[i] = westernWidths[i] * 1.5;
     else
         root.Fonts["Default"].Widths[i] = root.Fonts["Default"].DesignColWidth;

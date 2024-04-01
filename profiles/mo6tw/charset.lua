@@ -21,7 +21,7 @@ root.Charset = {
 for i = 0, (64 * 37) - 1 do root.Charset.Flags[i] = 0; end
 
 local spaces = {[0]=0, 63};
-for i = 0, #spaces - 1 do
+for i = 0, #spaces do
     root.Charset.Flags[spaces[i]] = root.Charset.Flags[spaces[i]] | CharacterTypeFlags.Space;
 end
 
@@ -43,7 +43,7 @@ local wordEndingPuncts = {
     0x00F7, 0x00F8, 0x00F9,
     0x00FA, 0x0113
 };
-for i = 0, #wordEndingPuncts - 1 do
+for i = 0, #wordEndingPuncts do
     root.Charset.Flags[wordEndingPuncts[i]] = root.Charset.Flags[wordEndingPuncts[i]] | CharacterTypeFlags.WordEndingPunct;
 end
 
@@ -54,6 +54,6 @@ local wordStartingPuncts = {
     0x00D2, 0x00D4, 0x00D6,
     0x00D8, 0x00DA, 0x00DC
 };
-for i = 0, #wordStartingPuncts - 1 do
+for i = 0, #wordStartingPuncts do
     root.Charset.Flags[wordStartingPuncts[i]] = root.Charset.Flags[wordStartingPuncts[i]] | CharacterTypeFlags.WordStartingPunct;
 end

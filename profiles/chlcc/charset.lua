@@ -22,7 +22,7 @@ root.Charset = {
 for i = 0, (64 * 37) - 1 do root.Charset.Flags[i] = 0; end
 
 local spaces = {[0]=0, 63};
-for i = 0, #spaces - 1 do
+for i = 0, #spaces do
     root.Charset.Flags[spaces[i]] = root.Charset.Flags[spaces[i]] | CharacterTypeFlags.Space;
 end
 
