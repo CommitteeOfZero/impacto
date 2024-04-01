@@ -116,8 +116,8 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
         Val_Expr = (*(uint8_t*)(ctx->Ip));
         ctx->Ip += 1;
         bytesRead += 1;
-        break;
       }
+      break;
     }
     case STT_EvaluateExpression: {
       Type = (StringTokenType)c;
