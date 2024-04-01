@@ -1398,7 +1398,8 @@ void MapSystemCCLCC::MapDispPin(int id) {
   float yMapEdge = MapPosY + MapBGHeight;
 
   int mappedId = MapPartsDisp[id].partId;
-  float xOffset, yOffset;
+  float xOffset = 0.0;
+  float yOffset = 0.0;
   switch (MapPartsDisp[id].type) {
     case 0:
       xOffset = PartsOffsetData[mappedId][0][0];

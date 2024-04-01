@@ -686,7 +686,7 @@ int TextGetStringLength(Vm::Sc3VmThread* ctx) {
 }
 int TextGetMainCharacterCount(Vm::Sc3VmThread* ctx) {
   int result = 0;
-  StringToken token;
+  StringToken token;  // FIXME: Initialize token
   bool isMain = true;
   do {
     switch (token.Type) {
