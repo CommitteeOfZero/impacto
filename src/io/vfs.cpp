@@ -410,7 +410,10 @@ IoError VfsListFiles(std::string const& mountpoint,
   SDL_LockMutex(Lock);
 
   auto it = Mounts.find(mountpoint);
-  if (it == Mounts.end()) err = IoError_NotFound;
+  if (it == Mounts.end()) {
+    err = IoError_NotFound;
+    goto end;
+  }
 
   outListing.clear();
 

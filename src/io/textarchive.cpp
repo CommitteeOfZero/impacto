@@ -159,6 +159,11 @@ IoError TextArchive::Create(InputStream* stream, VfsArchive** outArchive) {
       result->TOC[lineId].FullPath = basePath + fullPath;
       result->TOC[lineId].FileName =
           line.substr(firstColLength + 1, secondColLength);
+    } else {
+      ImpLog(LL_Error, LC_IO,
+             "Archive %s could not be mounted as type %d is unknown\n",
+             stream->Meta.FileName.c_str(), type);
+      return IoError_Fail;
     }
 
     result->TOC[lineId].Size = -1;

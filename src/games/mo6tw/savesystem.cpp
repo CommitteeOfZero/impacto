@@ -241,6 +241,11 @@ void SaveSystem::WriteSaveFile() {
   Io::InputStream* instream;
   IoError err = Io::PhysicalFileStream::CreateWrite(SaveFilePath, &instream);
   auto err1 = SDL_GetError();
+  if (err != IoError_OK) {
+    ImpLog(LL_Error, LC_IO, "Failed to create save file, SDL error: %s\n",
+           err1);
+    return;
+  }
   stream = (Io::PhysicalFileStream*)instream;
 
   stream->Seek(0xbc2, SEEK_SET);
@@ -263,6 +268,12 @@ void SaveSystem::WriteSaveFile() {
       auto err =
           stream->Write(&QuickSaveEntries[i]->Status, sizeof(uint8_t), 1);
       auto err1 = SDL_GetError();
+      if (err != IoError_OK) {
+        ImpLog(LL_Error, LC_IO,
+               "Failed to write save entry to file, SDL error: %s\n", err1);
+        return;
+      }
+      // TODO: Add error checking
       stream->Write(&QuickSaveEntries[i]->Checksum, sizeof(uint16_t), 1);
       stream->Seek(1, SEEK_CUR);
       uint8_t mon = QuickSaveEntries[i]->SaveDate.tm_mon + 1;

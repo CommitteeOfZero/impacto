@@ -350,6 +350,11 @@ void Update(float dt) {
 static void EnumerateBgm() {
   std::map<uint32_t, std::string> listing;
   IoError err = Io::VfsListFiles("bgm", listing);
+  if (err != IoError_OK) {
+    ImpLog(LL_Warning, LC_General,
+           "Failed to list BGM archive files, stopping enumeration!\n");
+    return;
+  }
 
   BgmCount = listing.size();
 

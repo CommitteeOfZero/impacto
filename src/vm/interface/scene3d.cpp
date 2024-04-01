@@ -112,7 +112,10 @@ static void UpdateCamera() {
 
   switch (Profile::Vm::GameInstructionSet) {
     default:
-      break;
+      // Calculations are game-specific, can't do anything reasonable here
+      ImpLog(LL_Error, LC_Render,
+             "Unknown instruction set, can't update camera!\n");
+      return;
     case InstructionSet::Dash: {
       posCam += ScrWorkGetVec3(2580, 2581, 2582);
       lookatCam += ScrWorkGetAngleVec3(2583, 2584, 2585);

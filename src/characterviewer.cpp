@@ -218,6 +218,11 @@ void Update(float dt) {
 static void EnumerateBackgrounds() {
   std::map<uint32_t, std::string> listing;
   IoError err = Io::VfsListFiles("bg", listing);
+  if (err != IoError_OK) {
+    ImpLog(LL_Warning, LC_General,
+           "Failed to open backgrounds archive, aborting enumeration!\n");
+    return;
+  }
 
   BackgroundCount = listing.size();
 
@@ -235,6 +240,11 @@ static void EnumerateBackgrounds() {
 static void EnumerateCharacters() {
   std::map<uint32_t, std::string> listing;
   IoError err = Io::VfsListFiles("chara", listing);
+  if (err != IoError_OK) {
+    ImpLog(LL_Warning, LC_General,
+           "Failed to open character archive, aborting enumeration!\n");
+    return;
+  }
 
   CharacterCount = listing.size() / 2;
 
@@ -254,6 +264,11 @@ static void EnumerateCharacters() {
 static void EnumerateBgm() {
   std::map<uint32_t, std::string> listing;
   IoError err = Io::VfsListFiles("bgm", listing);
+  if (err != IoError_OK) {
+    ImpLog(LL_Warning, LC_General,
+           "Failed to open BGM archive, aborting enumeration!\n");
+    return;
+  }
 
   BgmCount = listing.size();
 

@@ -52,6 +52,11 @@ void Model::EnumerateModels() {
 
   std::map<uint32_t, std::string> listing;
   IoError err = VfsListFiles("model", listing);
+  if (err != IoError_OK) {
+    ImpLog(LL_Error, LC_Render, "Failed to list models from VFS: IO error %d\n",
+           err);
+    return;
+  }
 
   for (auto const& file : listing) {
     if (Profile::Scene3D::ModelsToCharacters.count(file.first) != 0) {
