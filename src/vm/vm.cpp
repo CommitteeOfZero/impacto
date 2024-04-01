@@ -64,6 +64,11 @@ static void SortThreadExecTable();
 static void CreateThreadDrawTable();
 static void SortThreadDrawTable();
 static void DrawAllThreads();
+// TODO: Make this static. It's only global to silence the unused function
+// warning, as it may be required for future games.
+// Alternatively, this could be marked
+// [[maybe_unused]] once the project has been upgraded to C++17.
+void DestroyScriptThreads(uint32_t scriptBufferId);
 static void DestroyThreadGroup(uint32_t groupId);
 
 void Init() {
@@ -385,6 +390,16 @@ void DestroyThread(Sc3VmThread* thread) {
   NextFreeThreadCtx = thread;
   thread->PreviousContext = previous;
   thread->NextContext = next;
+}
+
+void DestroyScriptThreads(uint32_t scriptBufferId) {
+  int cnt = 0;
+  while (ThreadTable[cnt]) {
+    if (ThreadTable[cnt]->ScriptBufferId == scriptBufferId) {
+      DestroyThread(ThreadTable[cnt]);
+    }
+    cnt++;
+  }
 }
 
 static void DestroyThreadGroup(uint32_t groupId) {
