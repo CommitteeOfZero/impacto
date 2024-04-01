@@ -187,6 +187,14 @@ void BaseRenderer::DrawProcessedText_BasicFont(ProcessedTextGlyph* text,
           DrawSprite(glyph, dest, color);
           dest.X++;
           dest.Y++;
+          /*
+          TODO: Replace with a fallthrough annoted via [[fallthrough]] once
+          we have C++17. Until then, there seems to be no way to silence the
+          implicit fallthrough warning in a way compatible with all compilers.
+          */
+          dest.X++;
+          dest.Y++;
+          DrawSprite(glyph, dest, color);
           break;
         case RO_BottomRight:
           dest.X++;
