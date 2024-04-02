@@ -46,7 +46,7 @@ glm::vec2 ArrowUpPosition;
 Sprite ArrowDown;
 glm::vec2 ArrowDownPosition;
 glm::vec2 ThumbnailButtonBorderOffset;
-int ThumbnailButtonTextFontSize;
+float ThumbnailButtonTextFontSize;
 int ThumbnailButtonTextColorIndex;
 glm::vec2 ThumbnailButtonTextOffset;
 
@@ -100,7 +100,7 @@ void Configure() {
   ThumbnailButtonBorderOffset =
       EnsureGetMemberVec2("ThumbnailButtonBorderOffset");
   ThumbnailButtonTextFontSize =
-      EnsureGetMemberInt("ThumbnailButtonTextFontSize");
+      EnsureGetMemberFloat("ThumbnailButtonTextFontSize");
   ThumbnailButtonTextColorIndex =
       EnsureGetMemberInt("ThumbnailButtonTextColorIndex");
   ThumbnailButtonTextOffset = EnsureGetMemberVec2("ThumbnailButtonTextOffset");

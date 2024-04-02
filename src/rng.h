@@ -18,7 +18,8 @@ class RNG {
   }
 
   float FloatBetween(float min, float maxExclusive) {
-    return (maxExclusive - min) * ldexpf(pcg32_random_r(&Pcg), -32) + min;
+    return (maxExclusive - min) * ldexpf((float)pcg32_random_r(&Pcg), -32) +
+           min;
   }
 
  private:

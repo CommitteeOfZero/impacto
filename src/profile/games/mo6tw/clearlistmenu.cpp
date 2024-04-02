@@ -15,7 +15,7 @@ Sprite WindowSprite;
 glm::vec2 WindowPosition;
 Sprite WindowSpritePartLeft;
 Sprite WindowSpritePartRight;
-int FontSize;
+float FontSize;
 int SeparatorTable;
 int SeparatorEntry;
 
@@ -54,7 +54,7 @@ int EndingCount;
 glm::vec2 EndingsListNumberInitialPosition;
 glm::vec2 EndingsListTextInitialPosition;
 glm::vec2 EndingsListTextMargin;
-int EndingsListTextFontSize;
+float EndingsListTextFontSize;
 int EndingsListTextLockedTable;
 int EndingsListTextLockedEntry;
 int EndingsListTextTable;
@@ -65,7 +65,7 @@ int SceneCount;
 glm::vec2 SceneListNumberInitialPosition;
 glm::vec2 SceneListTextInitialPosition;
 glm::vec2 SceneListTextMargin;
-int SceneListFontSize;
+float SceneListFontSize;
 int SceneListTextTable;
 RectF SceneTitleItemsRenderingBounds;
 int SceneListColorIndex;
@@ -93,7 +93,7 @@ void Configure() {
   WindowPosition = EnsureGetMemberVec2("WindowPosition");
   WindowSpritePartLeft = EnsureGetMemberSprite("WindowSpritePartLeft");
   WindowSpritePartRight = EnsureGetMemberSprite("WindowSpritePartRight");
-  FontSize = EnsureGetMemberInt("FontSize");
+  FontSize = EnsureGetMemberFloat("FontSize");
   SeparatorTable = EnsureGetMemberInt("SeparatorTable");
   SeparatorEntry = EnsureGetMemberInt("SeparatorEntry");
 
@@ -137,7 +137,7 @@ void Configure() {
   EndingsListTextInitialPosition =
       EnsureGetMemberVec2("EndingsListTextInitialPosition");
   EndingsListTextMargin = EnsureGetMemberVec2("EndingsListTextMargin");
-  EndingsListTextFontSize = EnsureGetMemberInt("EndingsListTextFontSize");
+  EndingsListTextFontSize = EnsureGetMemberFloat("EndingsListTextFontSize");
   EndingsListTextLockedTable = EnsureGetMemberInt("EndingsListTextLockedTable");
   EndingsListTextLockedEntry = EnsureGetMemberInt("EndingsListTextLockedEntry");
   EndingsListTextTable = EnsureGetMemberInt("EndingsListTextTable");
@@ -150,7 +150,7 @@ void Configure() {
   SceneListTextInitialPosition =
       EnsureGetMemberVec2("SceneListTextInitialPosition");
   SceneListTextMargin = EnsureGetMemberVec2("SceneListTextMargin");
-  SceneListFontSize = EnsureGetMemberInt("SceneListFontSize");
+  SceneListFontSize = EnsureGetMemberFloat("SceneListFontSize");
   SceneListTextTable = EnsureGetMemberInt("SceneListTextTable");
   SceneTitleItemsRenderingBounds =
       EnsureGetMemberRectF("SceneTitleItemsRenderingBounds");

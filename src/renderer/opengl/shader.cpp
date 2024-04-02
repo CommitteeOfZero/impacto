@@ -35,7 +35,7 @@ static char const ShaderHeaderFrag[] =
 static GLint const ShaderHeaderFragLength = sizeof(ShaderHeaderFrag) - 1;
 
 int ShaderCompiler::PrintParameter(char* dest, int destSz, char const* name,
-                   ShaderParameter const& param) {
+                                   ShaderParameter const& param) {
   switch (param.Type) {
     case SPT_Float:
       return snprintf(dest, destSz, "const float %s = %f;\n", name,
@@ -90,8 +90,8 @@ int ShaderCompiler::PrintParameter(char* dest, int destSz, char const* name,
   }
 }
 
-GLuint ShaderCompiler::Attach(GLuint program, GLenum shaderType, char const* path,
-                    char const* params) {
+GLuint ShaderCompiler::Attach(GLuint program, GLenum shaderType,
+                              char const* path, char const* params) {
   ImpLog(LL_Debug, LC_Render, "Loading shader object (type %d) \"%s\"\n",
          shaderType, path);
 
@@ -110,22 +110,20 @@ GLuint ShaderCompiler::Attach(GLuint program, GLenum shaderType, char const* pat
   }
 
   const GLchar* codeParts[4];
-  codeParts[0] = (ActualGraphicsApi != GfxApi_GL)
-                     ? ShaderHeaderES
-                     : ShaderHeader;
+  codeParts[0] =
+      (ActualGraphicsApi != GfxApi_GL) ? ShaderHeaderES : ShaderHeader;
   codeParts[1] =
       shaderType == GL_VERTEX_SHADER ? ShaderHeaderVert : ShaderHeaderFrag;
   codeParts[2] = params;
   codeParts[3] = source;
 
   GLint codeLengths[4];
-  codeLengths[0] = (ActualGraphicsApi != GfxApi_GL)
-                       ? ShaderHeaderESLength
-                       : ShaderHeaderLength;
+  codeLengths[0] = (ActualGraphicsApi != GfxApi_GL) ? ShaderHeaderESLength
+                                                    : ShaderHeaderLength;
   codeLengths[1] = shaderType == GL_VERTEX_SHADER ? ShaderHeaderVertLength
                                                   : ShaderHeaderFragLength;
-  codeLengths[2] = strlen(params);
-  codeLengths[3] = strlen(source);
+  codeLengths[2] = (GLint)strlen(params);
+  codeLengths[3] = (GLint)strlen(source);
 
   glShaderSource(shader, 4, codeParts, codeLengths);
 
@@ -230,8 +228,8 @@ GLuint ShaderCompiler::Compile(char const* name, ShaderParamMap const& params) {
   glGetProgramiv(program, GL_VALIDATE_STATUS, &result);
   if (!result) {
     glGetProgramInfoLog(program, sizeof(errorLog), NULL, errorLog);
-    ImpLog(LL_Fatal, LC_Render, "ShaderCompiler program failed to validate: %s\n",
-           errorLog);
+    ImpLog(LL_Fatal, LC_Render,
+           "ShaderCompiler program failed to validate: %s\n", errorLog);
     glDeleteProgram(program);
     return 0;
   }

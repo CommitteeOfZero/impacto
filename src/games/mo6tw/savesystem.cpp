@@ -401,13 +401,13 @@ void SaveSystem::SaveMemory() {
       WorkingSaveEntry->MainThreadGroupId = thd->GroupId << 16;
       WorkingSaveEntry->MainThreadGroupId |= thd->ScriptBufferId;
       WorkingSaveEntry->MainThreadIp =
-          thd->Ip - ScriptBuffers[thd->ScriptBufferId];
+          (uint32_t)(thd->Ip - ScriptBuffers[thd->ScriptBufferId]);
       WorkingSaveEntry->MainThreadCallStackDepth = thd->CallStackDepth;
 
       for (size_t j = 0; j < thd->CallStackDepth; j++) {
         WorkingSaveEntry->MainThreadReturnAddresses[j] =
-            thd->ReturnAdresses[j] -
-            ScriptBuffers[thd->ReturnScriptBufferIds[j]];
+            (uint32_t)(thd->ReturnAdresses[j] -
+                       ScriptBuffers[thd->ReturnScriptBufferIds[j]]);
         WorkingSaveEntry->MainThreadReturnBufIds[j] =
             thd->ReturnScriptBufferIds[j];
       }

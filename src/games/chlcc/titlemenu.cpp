@@ -105,7 +105,7 @@ TitleMenu::TitleMenu() {
   SubLoad->LineY = SecondaryMenuLoadQuickLineY;
   LoadItems->Add(SubLoad, FDIR_DOWN);
 
-  //Locked Extra Menus
+  // Locked Extra Menus
 
   // Clear List secondary Extra menu button
   ClearList = new TitleButton(0, MenuEntriesSprites[6], MenuEntriesHSprites[6],
@@ -136,8 +136,8 @@ TitleMenu::TitleMenu() {
   Trophy->LineDecoration = LineSprites[4];
   Trophy->LineY = SecondaryMenuExtraTipsY;
   LockedExtraItems->Add(Trophy, FDIR_DOWN);
-  
-  //Unlocked Extra Menus
+
+  // Unlocked Extra Menus
 
   // Clear List secondary Extra menu button
   ClearList = new TitleButton(0, MenuEntriesSprites[6], MenuEntriesHSprites[6],
@@ -226,7 +226,8 @@ TitleMenu::TitleMenu() {
 
 void TitleMenu::Show() {
   if (State != Shown) {
-    CurrentExtraItems = GetFlag(SF_EXTRA_ENA) ? UnlockedExtraItems : LockedExtraItems;
+    CurrentExtraItems =
+        GetFlag(SF_EXTRA_ENA) ? UnlockedExtraItems : LockedExtraItems;
     ClearList = static_cast<TitleButton*>(CurrentExtraItems->Children[0]);
     State = Shown;
     if (UI::FocusedMenu != 0) {
@@ -445,28 +446,28 @@ void TitleMenu::Render() {
 inline void TitleMenu::DrawTitleMenuBackGraphics() {
   Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
   Renderer->DrawSprite(SpinningCircleSprite,
-                         glm::vec2(SpinningCircleX, SpinningCircleY),
-                         glm::vec4(1.0f), glm::vec2(2.0f),
-                         -SpinningCircleAnimation.Progress * 2.0f * M_PI);
+                       glm::vec2(SpinningCircleX, SpinningCircleY),
+                       glm::vec4(1.0f), glm::vec2(2.0f),
+                       -SpinningCircleAnimation.Progress * 2.0f * (float)M_PI);
   Renderer->DrawSprite(DelusionADVUnderSprite,
-                         glm::vec2(DelusionADVUnderX, DelusionADVUnderY));
+                       glm::vec2(DelusionADVUnderX, DelusionADVUnderY));
   Renderer->DrawSprite(DelusionADVSprite,
-                         glm::vec2(DelusionADVX, DelusionADVY));
+                       glm::vec2(DelusionADVX, DelusionADVY));
   Renderer->DrawSprite(SeiraUnderSprite, glm::vec2(SeiraUnderX, SeiraUnderY));
   Renderer->DrawSprite(SeiraSprite, glm::vec2(SeiraX, SeiraY));
   Renderer->DrawSprite(CHLogoSprite, glm::vec2(CHLogoX, CHLogoY));
   Renderer->DrawSprite(LCCLogoUnderSprite,
-                         glm::vec2(LCCLogoUnderX, LCCLogoUnderY));
+                       glm::vec2(LCCLogoUnderX, LCCLogoUnderY));
   Renderer->DrawSprite(ChuLeftLogoSprite,
-                         glm::vec2(ChuLeftLogoX, ChuLeftLogoY));
+                       glm::vec2(ChuLeftLogoX, ChuLeftLogoY));
   Renderer->DrawSprite(ChuRightLogoSprite,
-                         glm::vec2(ChuRightLogoX, ChuRightLogoY));
+                       glm::vec2(ChuRightLogoX, ChuRightLogoY));
   Renderer->DrawSprite(LoveLogoSprite, glm::vec2(LoveLogoX, LoveLogoY));
   Renderer->DrawSprite(StarLogoSprite, glm::vec2(StarLogoX, StarLogoY));
   Renderer->DrawSprite(ExclMarkLogoSprite,
-                         glm::vec2(ExclMarkLogoX, ExclMarkLogoY));
+                       glm::vec2(ExclMarkLogoX, ExclMarkLogoY));
   Renderer->DrawSprite(CopyrightTextSprite,
-                         glm::vec2(CopyrightTextX, CopyrightTextY));
+                       glm::vec2(CopyrightTextX, CopyrightTextY));
 }
 
 }  // namespace CHLCC

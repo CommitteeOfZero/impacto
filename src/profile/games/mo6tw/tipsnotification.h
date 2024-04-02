@@ -18,7 +18,7 @@ extern float MoveAnimationDuration;
 
 extern int AlertTextColorIndex;
 extern int TipNameColorIndex;
-extern int FontSize;
+extern float FontSize;
 
 }  // namespace TipsNotification
 }  // namespace MO6TW

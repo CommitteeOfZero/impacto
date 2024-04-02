@@ -135,7 +135,7 @@ LUA_GET_METHODS(Bool, bool, "boolean")
 
 bool TryGetUint(uint32_t& outUint) {
   if (lua_isinteger(LuaState, -1)) {
-    outUint = lua_tointeger(LuaState, -1);
+    outUint = (uint32_t)lua_tointeger(LuaState, -1);
     return true;
   }
   if (lua_isstring(LuaState, -1)) {
@@ -151,7 +151,7 @@ LUA_GET_METHODS(Uint, uint32_t, "unsigned integer convertible")
 
 bool TryGetInt(int32_t& outInt) {
   if (lua_isinteger(LuaState, -1)) {
-    outInt = lua_tointeger(LuaState, -1);
+    outInt = (int32_t)lua_tointeger(LuaState, -1);
     return true;
   }
   if (lua_isstring(LuaState, -1)) {
@@ -186,11 +186,11 @@ LUA_GET_METHODS(Int, int32_t, "signed integer convertible")
 
 bool TryGetFloat(float& outFloat) {
   if (lua_isnumber(LuaState, -1)) {
-    outFloat = lua_tonumber(LuaState, -1);
+    outFloat = (float)lua_tonumber(LuaState, -1);
   }
   if (lua_isstring(LuaState, -1)) {
     char* endp;
-    outFloat = SDL_strtod(lua_tostring(LuaState, -1), &endp);
+    outFloat = (float)SDL_strtod(lua_tostring(LuaState, -1), &endp);
     if (endp != 0) return true;
   }
 
@@ -226,7 +226,7 @@ bool TryGetString(char const*& outString) {
 
 char const* EnsureGetKeyString() { return lua_tostring(LuaState, -2); }
 
-int32_t EnsureGetKeyInt() { return lua_tointeger(LuaState, -2); }
+int32_t EnsureGetKeyInt() { return (int32_t)lua_tointeger(LuaState, -2); }
 
 uint32_t EnsureGetKeyUint() { return (uint32_t)lua_tointeger(LuaState, -2); }
 

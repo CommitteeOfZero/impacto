@@ -64,15 +64,15 @@ void GLWindow::AdjustEventCoordinatesForNk(SDL_Event* ev) {
   Rect viewport = GetViewport();
 
   if (ev->type == SDL_MOUSEMOTION) {
-    ev->motion.x = (float)ev->motion.x * DpiScaleX;
-    ev->motion.y = (float)ev->motion.y * DpiScaleY;
+    ev->motion.x = (int32_t)((float)ev->motion.x * DpiScaleX);
+    ev->motion.y = (int32_t)((float)ev->motion.y * DpiScaleY);
 
     // skip over letter/pillarbox
     ev->motion.x -= viewport.X;
     ev->motion.y += viewport.Y;
   } else if (ev->type == SDL_MOUSEBUTTONDOWN || ev->type == SDL_MOUSEBUTTONUP) {
-    ev->button.x = (float)ev->button.x * DpiScaleX;
-    ev->button.y = (float)ev->button.y * DpiScaleY;
+    ev->button.x = (int32_t)((float)ev->button.x * DpiScaleX);
+    ev->button.y = (int32_t)((float)ev->button.y * DpiScaleY);
 
     // skip over letter/pillarbox
     ev->button.x -= viewport.X;
@@ -261,8 +261,8 @@ void GLWindow::SetDimensions(int width, int height, int msaa,
          width, height, msaa, renderScale);
   assert(width > 0 && height > 0 && msaa >= 0 && renderScale > 0.0f);
 
-  SDL_SetWindowSize(SDLWindow, (float)width / DpiScaleX,
-                    (float)height / DpiScaleY);
+  SDL_SetWindowSize(SDLWindow, (int)((float)width / DpiScaleX),
+                    (int)((float)height / DpiScaleY));
 
   MsaaCount = msaa;
   RenderScale = renderScale;

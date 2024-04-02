@@ -238,7 +238,7 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
         memcpy(track->MorphTargetIds, morphTargetIds,
                morphTargetCount * sizeof(uint16_t));
       }
-      result->MeshTrackCount += meshes.size();
+      result->MeshTrackCount += (int)meshes.size();
     }
   }
 
@@ -390,7 +390,7 @@ ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
 
       rotationTrack.shrink_to_fit();
       rotationTracks.push_back(rotationTrack);
-      track->KeyCounts[BKT_Rotate] = rotationTrack.size();
+      track->KeyCounts[BKT_Rotate] = (uint16_t)rotationTrack.size();
       track->KeyOffsets[BKT_Rotate] = result->QuatKeyframeCount;
       result->QuatKeyframeCount += track->KeyCounts[BKT_Rotate];
 

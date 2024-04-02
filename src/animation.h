@@ -46,7 +46,7 @@ class Animation {
   virtual void StartOutImpl() {}
   virtual void UpdateImpl(float dt) {
     if (GetFlag(Profile::ScriptVars::SF_MESALLSKIP) && State != AS_Stopped) {
-      Progress = Direction == 1 ? 1 : 0;
+      Progress = Direction == 1 ? 1.0f : 0.0f;
     }
     AddDelta(dt);
   }

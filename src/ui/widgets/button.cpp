@@ -63,7 +63,7 @@ void Button::Render() {
   }
 }
 
-void Button::SetText(uint8_t* str, int fontSize,
+void Button::SetText(uint8_t* str, float fontSize,
                      RendererOutlineMode outlineMode, int colorIndex) {
   HasText = true;
   Impacto::Vm::Sc3VmThread dummy;
@@ -80,7 +80,7 @@ void Button::SetText(uint8_t* str, int fontSize,
 }
 
 void Button::SetText(ProcessedTextGlyph* str, int textLength, float textWidth,
-                     int fontSize, RendererOutlineMode outlineMode) {
+                     float fontSize, RendererOutlineMode outlineMode) {
   HasText = true;
   TextLength = textLength;
   TextWidth = textWidth;

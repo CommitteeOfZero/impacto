@@ -71,7 +71,7 @@ void Renderer::CreateInstance() {
   if (EnableValidationLayers) {
     extensionNames.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
   }
-  instanceCreateInfo.enabledExtensionCount = extensionNames.size();
+  instanceCreateInfo.enabledExtensionCount = (uint32_t)extensionNames.size();
   instanceCreateInfo.ppEnabledExtensionNames = extensionNames.data();
 
   VkResult result = vkCreateInstance(&instanceCreateInfo, nullptr, &Instance);
@@ -182,7 +182,7 @@ void Renderer::CreateLogicalDevice() {
       static_cast<uint32_t>(queueCreateInfos.size());
   createInfo.pQueueCreateInfos = queueCreateInfos.data();
   createInfo.pEnabledFeatures = &deviceFeatures;
-  createInfo.enabledExtensionCount = deviceExtensions.size();
+  createInfo.enabledExtensionCount = (uint32_t)deviceExtensions.size();
   createInfo.ppEnabledExtensionNames = deviceExtensions.data();
   if (EnableValidationLayers) {
     createInfo.enabledLayerCount =
@@ -844,8 +844,8 @@ void Renderer::BeginFrameImpl() {
   scissor.offset = {0, 0};
   scissor.extent = SwapChainExtent;
   vkCmdSetScissor(CommandBuffers[CurrentFrameIndex], 0, 1, &scissor);
-  PreviousScissorRect =
-      RectF(0.0f, 0.0f, SwapChainExtent.width, SwapChainExtent.height);
+  PreviousScissorRect = RectF(0.0f, 0.0f, (float)SwapChainExtent.width,
+                              (float)SwapChainExtent.height);
 
   VertexBufferOffset = 0;
   IndexBufferOffset = 0;
@@ -1031,7 +1031,7 @@ void Renderer::FreeTextureImpl(uint32_t id) {
   Textures.erase(id);
 }
 
-YUVFrame* Renderer::CreateYUVFrameImpl(int width, int height) {
+YUVFrame* Renderer::CreateYUVFrameImpl(float width, float height) {
   VideoFrameInternal = new VkYUVFrame();
   VideoFrameInternal->Init(width, height);
   return (YUVFrame*)VideoFrameInternal;
@@ -2006,8 +2006,8 @@ void Renderer::DisableScissorImpl() {
     scissor.offset = {0, 0};
     scissor.extent = SwapChainExtent;
     vkCmdSetScissor(CommandBuffers[CurrentFrameIndex], 0, 1, &scissor);
-    PreviousScissorRect =
-        RectF(0.0f, 0.0f, SwapChainExtent.width, SwapChainExtent.height);
+    PreviousScissorRect = RectF(0.0f, 0.0f, (float)SwapChainExtent.width,
+                                (float)SwapChainExtent.height);
   }
 }
 

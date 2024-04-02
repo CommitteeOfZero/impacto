@@ -18,7 +18,7 @@ extern float TimerDuration;
 extern float MoveAnimationDuration;
 
 extern int TipNameColorIndex;
-extern int FontSize;
+extern float FontSize;
 
 }  // namespace TipsNotification
 }  // namespace CCLCC

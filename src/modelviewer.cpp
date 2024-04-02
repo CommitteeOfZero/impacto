@@ -85,7 +85,7 @@ void Update(float dt) {
 #ifndef IMPACTO_DISABLE_OPENGL
   if (Renderer->NuklearSupported &&
       nk_begin(Renderer->Nk, "Scene",
-               nk_rect(20, 20, 300, Window->WindowHeight - 40),
+               nk_rect(20.0f, 20.0f, 300.0f, Window->WindowHeight - 40.0f),
                NK_WINDOW_BORDER | NK_WINDOW_TITLE)) {
     // FPS counter
     Frames++;

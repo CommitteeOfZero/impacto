@@ -297,7 +297,7 @@ void Render() {
 #ifndef IMPACTO_DISABLE_OPENGL
     if (DebugWindowEnabled && Renderer->NuklearSupported) {
       if (nk_begin(Renderer->Nk, "Debug Editor",
-                   nk_rect(20, 20, 300, Window->WindowHeight - 40),
+                   nk_rect(20.0f, 20.0f, 300.0f, Window->WindowHeight - 40.0f),
                    NK_WINDOW_BORDER | NK_WINDOW_TITLE)) {
         nk_layout_row_dynamic(Renderer->Nk, 24, 1);
         char buffer[32];  // whatever
@@ -382,13 +382,13 @@ void Render() {
               int maskAlpha =
                   ScrWork[SW_MASK1ALPHA_OFS] + ScrWork[SW_MASK1ALPHA];
               if (maskAlpha) {
-                int maskPosX = ScrWork[SW_MASK1POSX];
-                int maskPosY = ScrWork[SW_MASK1POSY];
-                int maskSizeX = ScrWork[SW_MASK1SIZEX];
-                int maskSizeY = ScrWork[SW_MASK1SIZEY];
+                float maskPosX = (float)ScrWork[SW_MASK1POSX];
+                float maskPosY = (float)ScrWork[SW_MASK1POSY];
+                float maskSizeX = (float)ScrWork[SW_MASK1SIZEX];
+                float maskSizeY = (float)ScrWork[SW_MASK1SIZEY];
                 if (!maskSizeX || !maskSizeY) {
-                  maskPosX = 0;
-                  maskPosY = 0;
+                  maskPosX = 0.0f;
+                  maskPosY = 0.0f;
                   maskSizeX = Profile::DesignWidth;
                   maskSizeY = Profile::DesignHeight;
                 }

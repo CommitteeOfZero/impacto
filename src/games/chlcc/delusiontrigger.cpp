@@ -318,10 +318,10 @@ void DelusionTrigger::Render() {
   // float scalingFactor = 1;
   constexpr float aspect_ratio = 1280.0f / 720.0f;
 
-  float newWidth = BackgroundSpriteMask.Bounds.Width * 65535 / maskScaleFactor *
-                   aspect_ratio * 0.7;
+  float newWidth = BackgroundSpriteMask.Bounds.Width * 65535.0f /
+                   maskScaleFactor * aspect_ratio * 0.7f;
   float newHeight =
-      BackgroundSpriteMask.Bounds.Height * 65535 / maskScaleFactor * 0.7;
+      BackgroundSpriteMask.Bounds.Height * 65535.0f / maskScaleFactor * 0.7f;
 
   float deltaWidth = newWidth - BackgroundSpriteMask.Bounds.Width;
   float deltaHeight = newHeight - BackgroundSpriteMask.Bounds.Height;
@@ -343,7 +343,7 @@ void DelusionTrigger::Render() {
 
   Renderer->DrawCHLCCDelusionOverlay(
       BackgroundSprite, ScaledMask, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-      (backgroundAlpha * 160) >> 8, 20, spinAngle * 2 * M_PI / 65536.0f);
+      (backgroundAlpha * 160) >> 8, 20, spinAngle * 2 * (float)M_PI / 65536.0f);
 }
 
 }  // namespace CHLCC

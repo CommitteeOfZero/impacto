@@ -32,8 +32,8 @@ bool Character2D::LoadSync(uint32_t charaId) {
     err = Io::VfsOpen(MountPoint, fileId + 1, &stream);
     if (err != IoError_OK) return false;
 
-    OffsetX = Profile::DesignWidth / 2;
-    OffsetY = Profile::DesignHeight / 2;
+    OffsetX = Profile::DesignWidth / 2.0f;
+    OffsetY = Profile::DesignHeight / 2.0f;
 
     Io::ReadLE<int>(stream);
     int stateCount = Io::ReadLE<int>(stream);
@@ -52,7 +52,7 @@ bool Character2D::LoadSync(uint32_t charaId) {
       char name[32];
       Io::ReadArrayLE<char>(name, stream, 32);
       int id = 0;
-      int idx = strlen(name) - 2;
+      int idx = (int)strlen(name) - 2;
       if (isdigit(name[idx])) {
         id = atoi(&name[idx]);
       } else if (name[idx] == 'L') {  // Lip
@@ -68,7 +68,7 @@ bool Character2D::LoadSync(uint32_t charaId) {
       }
       States[id].Count = count;
 
-      long back = stream->Position;
+      int64_t back = stream->Position;
 
       stream->Seek(start, SEEK_SET);
       States[id].Indices = (uint16_t*)malloc(sizeof(uint16_t) * count);
@@ -92,8 +92,8 @@ bool Character2D::LoadSync(uint32_t charaId) {
 
     Face = charaId;
 
-    OffsetX = Profile::DesignWidth / 2;
-    OffsetY = Profile::DesignHeight / 2;
+    OffsetX = Profile::DesignWidth / 2.0f;
+    OffsetY = Profile::DesignHeight / 2.0f;
 
     int (*StreamReadInt)(Io::InputStream*);
     float (*StreamReadFloat)(Io::InputStream*);
@@ -112,7 +112,7 @@ bool Character2D::LoadSync(uint32_t charaId) {
       int start = StreamReadInt(stream);
       int count = StreamReadInt(stream);
 
-      long back = stream->Position;
+      int64_t back = stream->Position;
 
       States[id].Count = count;
       States[id].ScreenCoords = (glm::vec2*)malloc(count * sizeof(glm::vec2));
@@ -158,8 +158,8 @@ void Character2D::UnloadSync() {
 
 void Character2D::MainThreadOnLoad() {
   CharaSpriteSheet.Texture = CharaTexture.Submit();
-  CharaSpriteSheet.DesignWidth = CharaTexture.Width;
-  CharaSpriteSheet.DesignHeight = CharaTexture.Height;
+  CharaSpriteSheet.DesignWidth = (float)CharaTexture.Width;
+  CharaSpriteSheet.DesignHeight = (float)CharaTexture.Height;
   CharaSprite.Sheet = CharaSpriteSheet;
   CharaSprite.BaseScale = glm::vec2(1.0f);
   CharaSprite.Bounds = RectF(0.0f, 0.0f, CharaSpriteSheet.DesignWidth,

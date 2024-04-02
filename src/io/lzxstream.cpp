@@ -43,7 +43,7 @@ IoError LzxStream::Create(InputStream *baseStream, int64_t offset, int64_t size,
   int32_t uncompressedBlockSize = ReadBE<int32_t>(dup);
   int32_t compressedBlockSize = ReadBE<int32_t>(dup);
 
-  int32_t compressedOffset = offset + 48;
+  int64_t compressedOffset = offset + 48;
 
   if (compressedSize + 48 > size) {
     delete dup;
@@ -125,20 +125,19 @@ IoError LzxStream::FillBuffer() {
   }
   CompressedPosition += compressedBytes;
 
-  uint32_t bufPos = 0;
+  int64_t bufPos = 0;
   while (bufPos < compressedBytes) {
-    uint32_t read =
-        BaseStream->Read(CompressedBuffer, compressedBytes - bufPos);
+    int64_t read = BaseStream->Read(CompressedBuffer, compressedBytes - bufPos);
     if (read <= 0) return IoError_Fail;
     bufPos += read;
   }
 
   int64_t remaining_bytes = UncompressedSize - UncompressedPosition;
-  int32_t expected_bytes = BufferSize;
+  int64_t expected_bytes = BufferSize;
   if (BufferSize > remaining_bytes) expected_bytes = remaining_bytes;
   int32_t result =
-      LZXDecompress(CompressedBuffer, compressedBytes, Buffer, expected_bytes,
-                    WindowSize, CompressionPartitionSize);
+      LZXDecompress(CompressedBuffer, compressedBytes, Buffer,
+                    (int)expected_bytes, WindowSize, CompressionPartitionSize);
   if (result < 0) return IoError_Fail;
   UncompressedPosition += result;
 

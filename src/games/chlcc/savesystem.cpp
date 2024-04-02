@@ -312,13 +312,13 @@ void SaveSystem::SaveMemory() {
       WorkingSaveEntry->MainThreadGroupId = thd->GroupId << 16;
       WorkingSaveEntry->MainThreadGroupId |= thd->ScriptBufferId;
       WorkingSaveEntry->MainThreadIp =
-          thd->Ip - ScriptBuffers[thd->ScriptBufferId];
+          static_cast<uint32_t>(thd->Ip - ScriptBuffers[thd->ScriptBufferId]);
       WorkingSaveEntry->MainThreadCallStackDepth = thd->CallStackDepth;
 
       for (uint32_t j = 0; j < thd->CallStackDepth; j++) {
         WorkingSaveEntry->MainThreadReturnAddresses[j] =
-            thd->ReturnAdresses[j] -
-            ScriptBuffers[thd->ReturnScriptBufferIds[j]];
+            static_cast<uint32_t>(thd->ReturnAdresses[j] -
+                                  ScriptBuffers[thd->ReturnScriptBufferIds[j]]);
         WorkingSaveEntry->MainThreadReturnBufIds[j] =
             thd->ReturnScriptBufferIds[j];
       }

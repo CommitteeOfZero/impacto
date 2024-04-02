@@ -3,12 +3,13 @@
 namespace Impacto {
 namespace Vulkan {
 
-void VkYUVFrame::Init(int width, int height) {
+void VkYUVFrame::Init(float width, float height) {
   Width = width;
   Height = height;
 
-  VkDeviceSize imageSize = width * height;
-  VkDeviceSize bufferSize = imageSize + 2 * ((width / 2) * (height / 2));
+  VkDeviceSize imageSize = (VkDeviceSize)(width * height);
+  VkDeviceSize bufferSize =
+      imageSize + 2 * (((VkDeviceSize)width / 2) * ((VkDeviceSize)height / 2));
   VkFormat imageFormat = VK_FORMAT_R8_UNORM;
 
   StagingBuffer = CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
@@ -64,14 +65,16 @@ void VkYUVFrame::Init(int width, int height) {
 }
 
 void VkYUVFrame::Submit(void* luma, void* cb, void* cr) {
-  int cbOffset = Width * Height;
-  int crOffset = (Width * Height) + ((Width / 2) * (Height / 2));
+  int cbOffset = (int)(Width * Height);
+  int crOffset = (int)((Width * Height) + ((Width / 2) * (Height / 2)));
 
   uint8_t* mappedStagingBuffer = (uint8_t*)MappedStagingBuffer;
 
   memcpy(mappedStagingBuffer, luma, cbOffset);
-  memcpy(mappedStagingBuffer + cbOffset, cb, (Width / 2) * (Height / 2));
-  memcpy(mappedStagingBuffer + crOffset, cr, (Width / 2) * (Height / 2));
+  memcpy(mappedStagingBuffer + cbOffset, cb,
+         (size_t)((Width / 2) * (Height / 2)));
+  memcpy(mappedStagingBuffer + crOffset, cr,
+         (size_t)((Width / 2) * (Height / 2)));
 
   ImmediateSubmit([&](VkCommandBuffer cmd) {
     VkExtent3D lumaImageExtent;
@@ -130,7 +133,7 @@ void VkYUVFrame::Submit(void* luma, void* cb, void* cr) {
                          VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0,
                          nullptr, 1, &imageBarrierToTransfer);
 
-    copyRegion.bufferOffset = Width * Height;
+    copyRegion.bufferOffset = (VkDeviceSize)(Width * Height);
     copyRegion.imageExtent = cbCrImageExtent;
     vkCmdCopyBufferToImage(cmd, StagingBuffer.Buffer, CbImage.Image.Image,
                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1,

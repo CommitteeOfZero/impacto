@@ -27,8 +27,8 @@ class Character2D : public Loadable<Character2D> {
 
  public:
   Sprite CharaSprite;
-  int OffsetX;
-  int OffsetY;
+  float OffsetX;
+  float OffsetY;
   float ScaleX = 1.0f;
   float ScaleY = 1.0f;
   float RotationX = 0.0f;

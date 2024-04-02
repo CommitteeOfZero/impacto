@@ -124,7 +124,7 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
       uint8_t* oldIp = ctx->Ip;
       // TODO is this really okay to do in parsing code?
       Vm::ExpressionEval(ctx, &Val_Expr);
-      bytesRead += (ctx->Ip - oldIp);
+      bytesRead += (int)(ctx->Ip - oldIp);
       break;
     }
 
@@ -818,7 +818,7 @@ int TextLayoutPlainString(std::string str, ProcessedTextGlyph* outGlyphs,
   std::string::iterator strIt = str.begin();
   std::string::iterator strEnd = str.end();
 
-  int sc3StrLength = utf8::distance(strIt, strEnd) + 1;
+  int sc3StrLength = (int)utf8::distance(strIt, strEnd) + 1;
   uint16_t* sc3StrPtr = (uint16_t*)malloc(sizeof(uint16_t) * sc3StrLength);
 
   TextGetSc3String(str, sc3StrPtr);
@@ -839,7 +839,7 @@ void TextGetSc3String(std::string str, uint16_t* out) {
   std::string::iterator strIt = str.begin();
   std::string::iterator strEnd = str.end();
 
-  int sc3StrLength = utf8::distance(strIt, strEnd) + 1;
+  int sc3StrLength = (int)utf8::distance(strIt, strEnd) + 1;
 
   int sc3Idx = 0;
   while (strIt != strEnd) {

@@ -73,9 +73,9 @@ void FFmpegAudioPlayer::FillAudioBuffers() {
 
       if (firstFrame) {
         BufferStartPositions[FirstFreeBuffer] =
-            aFrame.Frame->best_effort_timestamp *
-            av_q2d(Player->AudioStream->stream->time_base) *
-            aFrame.Frame->sample_rate;
+            (int)(aFrame.Frame->best_effort_timestamp *
+                  av_q2d(Player->AudioStream->stream->time_base) *
+                  aFrame.Frame->sample_rate);
         firstFrame = false;
       }
 
@@ -85,7 +85,7 @@ void FFmpegAudioPlayer::FillAudioBuffers() {
           (int64_t)aFrame.Frame->nb_samples + delay, aFrame.Frame->sample_rate,
           aFrame.Frame->sample_rate, AV_ROUND_UP);
       int outputSamples =
-          swr_convert(AudioConvertContext, AudioBuffer, samplesPerCh,
+          swr_convert(AudioConvertContext, AudioBuffer, (int)samplesPerCh,
                       (const uint8_t**)aFrame.Frame->extended_data,
                       aFrame.Frame->nb_samples);
 

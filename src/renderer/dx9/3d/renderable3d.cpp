@@ -195,7 +195,7 @@ void Renderable3D::MakePlane() {
 
 void Renderable3D::InitMeshAnimStatus() {
   int totalMorphedVertices = 0;
-  for (int i = 0; i < StaticModel->MeshCount; i++) {
+  for (uint32_t i = 0; i < StaticModel->MeshCount; i++) {
     MeshAnimStatus[i].MorphedVerticesOffset = totalMorphedVertices;
     if (StaticModel->Meshes[i].MorphTargetCount > 0) {
       totalMorphedVertices += StaticModel->Meshes[i].VertexCount;
@@ -216,10 +216,10 @@ void Renderable3D::InitMeshAnimStatus() {
 }
 
 void Renderable3D::ReloadDefaultMeshAnimStatus() {
-  for (int i = 0; i < StaticModel->MeshCount; i++) {
+  for (uint32_t i = 0; i < StaticModel->MeshCount; i++) {
     MeshAnimStatus[i].Visible = 1.0f;
     if (StaticModel->Meshes[i].MorphTargetCount > 0) {
-      for (int j = 0; j < StaticModel->Meshes[i].MorphTargetCount; j++) {
+      for (uint8_t j = 0; j < StaticModel->Meshes[i].MorphTargetCount; j++) {
         MeshAnimStatus[i].MorphInfluences[j] = 0.0f;
       }
     }
@@ -229,7 +229,7 @@ void Renderable3D::ReloadDefaultMeshAnimStatus() {
 void Renderable3D::SwitchAnimation(int16_t animId, float transitionTime) {
   if (Animator.CurrentAnimation != 0 && transitionTime > 0.0f) {
     PrevPoseWeight = 1.0f;
-    for (int i = 0; i < StaticModel->BoneCount; i++) {
+    for (uint32_t i = 0; i < StaticModel->BoneCount; i++) {
       PrevBoneTransforms[i] = CurrentPose[i].LocalTransform;
     }
     memcpy(PrevMeshAnimStatus, MeshAnimStatus, sizeof(MeshAnimStatus));
@@ -241,7 +241,7 @@ void Renderable3D::SwitchAnimation(int16_t animId, float transitionTime) {
 }
 
 void Renderable3D::ReloadDefaultBoneTransforms() {
-  for (int i = 0; i < StaticModel->BoneCount; i++) {
+  for (uint32_t i = 0; i < StaticModel->BoneCount; i++) {
     CurrentPose[i].LocalTransform = StaticModel->Bones[i].BaseTransform;
   }
 }
@@ -277,7 +277,7 @@ void Renderable3D::CalculateMorphedVertices(int id) {
   VertexBuffer* currentVertexRNE = (VertexBuffer*)currentVertex;
   VertexBufferDaSH* currentVertexDaSH = (VertexBufferDaSH*)currentVertex;
 
-  for (int j = 0; j < mesh->VertexCount; j++) {
+  for (uint32_t j = 0; j < mesh->VertexCount; j++) {
     if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
       memcpy(currentMorphedVertexDaSH, currentVertexDaSH,
              sizeof(VertexBufferDaSH));
@@ -290,7 +290,7 @@ void Renderable3D::CalculateMorphedVertices(int id) {
     }
   }
 
-  for (int k = 0; k < mesh->MorphTargetCount; k++) {
+  for (uint8_t k = 0; k < mesh->MorphTargetCount; k++) {
     float influence;
     if (PrevPoseWeight > 0.0f) {
       influence = glm::mix(prevAnimStatus->MorphInfluences[k],
@@ -327,7 +327,7 @@ void Renderable3D::CalculateMorphedVertices(int id) {
         StaticModel->MorphVertexBuffers +
         StaticModel->MorphTargets[mesh->MorphTargetIds[k]].VertexOffset;
 
-    for (int j = 0; j < mesh->VertexCount; j++) {
+    for (uint32_t j = 0; j < mesh->VertexCount; j++) {
       if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
         currentMorphedVertexDaSH->Position +=
             (currentMorphTargetVbo->Position - currentVertexDaSH->Position) *
@@ -407,7 +407,7 @@ void Renderable3D::Update(float dt) {
     if (PrevPoseWeight < 0.0f) PrevPoseWeight = 0.0f;
   }
 
-  for (int i = 0; i < StaticModel->MeshCount; i++) {
+  for (uint32_t i = 0; i < StaticModel->MeshCount; i++) {
     CalculateMorphedVertices(i);
   }
 }
@@ -494,12 +494,13 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
     stride = sizeof(BgVertexBuffer);
 
   if (StaticModel->Meshes[id].MorphTargetCount > 0) {
-    Device->SetStreamSource(0, MorphedVerticesDevice,
-                            MeshAnimStatus[id].MorphedVerticesOffset * stride,
-                            stride);
+    Device->SetStreamSource(
+        0, MorphedVerticesDevice,
+        (UINT)(MeshAnimStatus[id].MorphedVerticesOffset * stride),
+        (UINT)stride);
 
   } else {
-    Device->SetStreamSource(0, MeshVertexBuffersDevice[id], 0, stride);
+    Device->SetStreamSource(0, MeshVertexBuffersDevice[id], 0, (UINT)stride);
   }
   Device->SetIndices(MeshIndexBuffersDevice[id]);
 
@@ -519,7 +520,7 @@ void Renderable3D::Render() {
   memset(UniformsUpdated, 0, sizeof(UniformsUpdated));
 
   for (int i = RP_First; i < RP_Count; i++) {
-    for (int j = 0; j < StaticModel->MeshCount; j++) {
+    for (uint32_t j = 0; j < StaticModel->MeshCount; j++) {
       DrawMesh(j, (RenderPass)i);
     }
   }
@@ -604,7 +605,7 @@ void Renderable3D::LoadMeshUniforms(int id) {
     MeshUniformBufferType entry{};
     if (mesh.UsedBones > 0) {
       glm::mat4* outBone = entry.Bones;
-      for (int j = 0; j < mesh.UsedBones; j++) {
+      for (uint32_t j = 0; j < mesh.UsedBones; j++) {
         memcpy(outBone, glm::value_ptr(CurrentPose[mesh.BoneMap[j]].Offset),
                sizeof(glm::mat4));
         outBone++;
@@ -639,7 +640,7 @@ void Renderable3D::UnloadSync() {
   if (StaticModel) {
     ImpLog(LL_Info, LC_Renderable3D, "Unloading model %d\n", StaticModel->Id);
     if (IsSubmitted) {
-      for (int i = 0; i < StaticModel->MeshCount; i++) {
+      for (uint32_t i = 0; i < StaticModel->MeshCount; i++) {
         MeshVertexBuffersDevice[i]->Release();
         MeshIndexBuffersDevice[i]->Release();
       }
@@ -666,7 +667,7 @@ void Renderable3D::MainThreadOnLoad() {
   ImpLog(LL_Info, LC_Renderable3D, "Submitting data to GPU for model ID %d\n",
          StaticModel->Id);
 
-  for (int i = 0; i < StaticModel->MeshCount; i++) {
+  for (uint32_t i = 0; i < StaticModel->MeshCount; i++) {
     uint32_t vertexCopySize = 0;
 
     if (StaticModel->Type == ModelType_Character) {
@@ -719,7 +720,7 @@ void Renderable3D::MainThreadOnLoad() {
     res = MeshIndexBuffersDevice[i]->Unlock();
   }
 
-  for (int i = 0; i < StaticModel->TextureCount; i++) {
+  for (uint32_t i = 0; i < StaticModel->TextureCount; i++) {
     TexBuffers[i] = StaticModel->Textures[i].Submit();
     if (TexBuffers[i] == 0) {
       ImpLog(LL_Fatal, LC_Renderable3D,

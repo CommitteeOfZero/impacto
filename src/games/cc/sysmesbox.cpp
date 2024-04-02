@@ -118,12 +118,12 @@ void SysMesBox::Update(float dt) {
   } else if (State == Showing) {
     BoxAnimCount = FadeAnimation.Progress * ScrWork[SW_SYSMESANIMCTF];
     if (BoxAnimCount >= ScrWork[SW_SYSMESANIMCTF]) {
-      BoxAnimCount = ScrWork[SW_SYSMESANIMCTF];
+      BoxAnimCount = (float)ScrWork[SW_SYSMESANIMCTF];
       State = Shown;
     }
   }
 
-  ScrWork[SW_SYSMESANIMCTCUR] = std::floor(BoxAnimCount);
+  ScrWork[SW_SYSMESANIMCTCUR] = (int)std::floor(BoxAnimCount);
 
   float animationProgress = FadeAnimation.Progress * AnimationSpeed;
 
@@ -185,7 +185,8 @@ void SysMesBox::Update(float dt) {
 
 void SysMesBox::Render() {
   if (State != Hidden) {
-    int animationFrame = std::ceil(FadeAnimation.Progress * AnimationSpeed);
+    int animationFrame =
+        (int)std::ceil(FadeAnimation.Progress * AnimationSpeed);
     int totalSeals =
         animationFrame > SealSpriteCount ? SealSpriteCount : animationFrame;
     for (int i = 0; i < totalSeals; i++) {

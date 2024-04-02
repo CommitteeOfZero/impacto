@@ -20,10 +20,10 @@ class Button : public Widget {
   void UpdateInput();
   virtual void Render();
 
-  void SetText(uint8_t* str, int fontSize, RendererOutlineMode outlineMode,
+  void SetText(uint8_t* str, float fontSize, RendererOutlineMode outlineMode,
                int colorIndex = 10);
   void SetText(ProcessedTextGlyph* str, int textLength, float textWidth,
-               int fontSize, RendererOutlineMode outlineMode);
+               float fontSize, RendererOutlineMode outlineMode);
 
   int Id;
   Sprite NormalSprite;

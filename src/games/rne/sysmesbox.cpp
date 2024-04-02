@@ -120,12 +120,12 @@ void SysMesBox::Update(float dt) {
   } else if (State == Showing) {
     BoxAnimCount += AnimationSpeed * dt;
     if (BoxAnimCount >= ScrWork[SW_SYSMESANIMCTF]) {
-      BoxAnimCount = ScrWork[SW_SYSMESANIMCTF];
+      BoxAnimCount = (float)ScrWork[SW_SYSMESANIMCTF];
       State = Shown;
     }
   }
 
-  ScrWork[SW_SYSMESANIMCTCUR] = std::floor(BoxAnimCount);
+  ScrWork[SW_SYSMESANIMCTCUR] = (int)std::floor(BoxAnimCount);
 
   if (State != Hidden) {
     float linePosX = LinePositionXFirst;

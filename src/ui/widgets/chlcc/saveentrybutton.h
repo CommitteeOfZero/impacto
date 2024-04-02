@@ -19,25 +19,25 @@ class SaveEntryButton : public Widgets::Button {
   void Render() override;
   int GetPage() const;
   void AddNormalSpriteLabel(Sprite norm, glm::vec2 pos);
-  void AddEntryNumberHintText(uint8_t* str, int fontSize,
+  void AddEntryNumberHintText(uint8_t* str, float fontSize,
                               RendererOutlineMode outlineMode,
                               glm::vec2 relativePosition);
-  void AddEntryNumberText(std::string str, int fontSize,
+  void AddEntryNumberText(std::string str, float fontSize,
                           RendererOutlineMode outlineMode,
                           glm::vec2 relativePosition);
-  void AddPlayTimeHintText(uint8_t* str, int fontSize,
+  void AddPlayTimeHintText(uint8_t* str, float fontSize,
                            RendererOutlineMode outlineMode,
                            glm::vec2 relativePosition);
-  void AddPlayTimeText(std::string str, int fontSize,
+  void AddPlayTimeText(std::string str, float fontSize,
                        RendererOutlineMode outlineMode,
                        glm::vec2 relativePosition);
-  void AddSaveDateHintText(uint8_t* str, int fontSize,
+  void AddSaveDateHintText(uint8_t* str, float fontSize,
                            RendererOutlineMode outlineMode,
                            glm::vec2 relativePosition);
-  void AddSaveDateText(std::string str, int fontSize,
+  void AddSaveDateText(std::string str, float fontSize,
                        RendererOutlineMode outlineMode,
                        glm::vec2 relativePosition);
-  void AddSceneTitleText(uint8_t* str, int fontSize,
+  void AddSceneTitleText(uint8_t* str, float fontSize,
                          RendererOutlineMode outlineMode,
                          glm::vec2 relativeTitlePosition,
                          glm::vec2 relativeNoDataPosition);

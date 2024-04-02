@@ -9,7 +9,7 @@ namespace Profile {
 namespace CHLCC {
 namespace SystemMenu {
 
-extern float BackgroundColor;
+extern uint32_t BackgroundColor;
 extern Sprite BackgroundFilter;
 extern glm::vec2 CircleStartPosition;
 extern Sprite CircleSprite;

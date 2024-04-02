@@ -16,7 +16,7 @@ float TimerDuration;
 float MoveAnimationDuration;
 
 int TipNameColorIndex;
-int FontSize;
+float FontSize;
 
 void Configure() {
   NotificationBackground = EnsureGetMemberSprite("NotificationBackground");
@@ -29,7 +29,7 @@ void Configure() {
   TimerDuration = EnsureGetMemberFloat("TimerDuration");
 
   TipNameColorIndex = EnsureGetMemberInt("TipNameColorIndex");
-  FontSize = EnsureGetMemberInt("FontSize");
+  FontSize = EnsureGetMemberFloat("FontSize");
 }
 
 }  // namespace TipsNotification

@@ -160,8 +160,8 @@ void CgViewer::LoadCgSprites(
       CgTexture.Load(stream);
       delete stream;
       CgSpriteSheets[variationIdx][idx].Texture = CgTexture.Submit();
-      CgSpriteSheets[variationIdx][idx].DesignWidth = CgTexture.Width;
-      CgSpriteSheets[variationIdx][idx].DesignHeight = CgTexture.Height;
+      CgSpriteSheets[variationIdx][idx].DesignWidth = (float)CgTexture.Width;
+      CgSpriteSheets[variationIdx][idx].DesignHeight = (float)CgTexture.Height;
       CgSprites[variationIdx][idx].Sheet = CgSpriteSheets[variationIdx][idx];
       CgSprites[variationIdx][idx].BaseScale = glm::vec2(1.0f);
       CgSprites[variationIdx][idx].Bounds =

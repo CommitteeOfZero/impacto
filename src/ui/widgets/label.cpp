@@ -15,23 +15,23 @@ Label::Label(Sprite const& label, glm::vec2 pos) {
       RectF(pos.x, pos.y, LabelSprite.Bounds.Width, LabelSprite.Bounds.Height);
 }
 
-Label::Label(uint8_t* str, glm::vec2 pos, int fontSize,
+Label::Label(uint8_t* str, glm::vec2 pos, float fontSize,
              RendererOutlineMode outlineMode, int colorIndex) {
   FontSize = fontSize;
-  Bounds = RectF(pos.x, pos.y, TextLength, FontSize);
+  Bounds = RectF(pos.x, pos.y, (float)TextLength, FontSize);
   SetText(str, fontSize, outlineMode, colorIndex);
 }
 
 Label::Label(ProcessedTextGlyph* str, int textLength, float textWidth,
-             int fontSize, RendererOutlineMode outlineMode) {
+             float fontSize, RendererOutlineMode outlineMode) {
   FontSize = fontSize;
   SetText(str, textLength, textWidth, fontSize, outlineMode);
 }
 
-Label::Label(std::string str, glm::vec2 pos, int fontSize,
+Label::Label(std::string str, glm::vec2 pos, float fontSize,
              RendererOutlineMode outlineMode, int colorIndex) {
   FontSize = fontSize;
-  Bounds = RectF(pos.x, pos.y, TextLength, FontSize);
+  Bounds = RectF(pos.x, pos.y, (float)TextLength, FontSize);
   SetText(str, fontSize, outlineMode, colorIndex);
 }
 
@@ -69,8 +69,8 @@ void Label::SetSprite(Sprite const& label) {
                  LabelSprite.Bounds.Height);
 }
 
-void Label::SetText(uint8_t* str, int fontSize, RendererOutlineMode outlineMode,
-                    int colorIndex) {
+void Label::SetText(uint8_t* str, float fontSize,
+                    RendererOutlineMode outlineMode, int colorIndex) {
   IsText = true;
   ColorIndex = colorIndex;
   Impacto::Vm::Sc3VmThread dummy;
@@ -88,7 +88,7 @@ void Label::SetText(uint8_t* str, int fontSize, RendererOutlineMode outlineMode,
 }
 
 void Label::SetText(ProcessedTextGlyph* str, int textLength, float textWidth,
-                    int fontSize, RendererOutlineMode outlineMode,
+                    float fontSize, RendererOutlineMode outlineMode,
                     int colorIndex) {
   IsText = true;
   ColorIndex = colorIndex;
@@ -99,7 +99,7 @@ void Label::SetText(ProcessedTextGlyph* str, int textLength, float textWidth,
   Bounds = RectF(Text[0].DestRect.X, Text[0].DestRect.Y, TextWidth, fontSize);
 }
 
-void Label::SetText(std::string str, int fontSize,
+void Label::SetText(std::string str, float fontSize,
                     RendererOutlineMode outlineMode, int colorIndex) {
   IsText = true;
   ColorIndex = colorIndex;

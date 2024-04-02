@@ -43,7 +43,7 @@ void Configure() {
   if (TryPushMember("StoryScriptIDs")) {
     AssertIs(LUA_TTABLE);
 
-    StoryScriptCount = lua_rawlen(LuaState, -1);
+    StoryScriptCount = (int)lua_rawlen(LuaState, -1);
     StoryScriptIDs = (uint32_t*)malloc(StoryScriptCount * sizeof(uint32_t));
     PushInitialIndex();
     while (PushNextTableElement() != 0) {

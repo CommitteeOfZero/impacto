@@ -11,7 +11,7 @@ namespace Profile {
 namespace CHLCC {
 namespace SystemMenu {
 
-float BackgroundColor;
+uint32_t BackgroundColor;
 Sprite BackgroundFilter;
 glm::vec2 CircleStartPosition;
 Sprite CircleSprite;
@@ -24,7 +24,7 @@ uint32_t FocusTint;
 glm::vec2 MenuEntriesPositions[MenuEntriesNum];
 
 void Configure() {
-  BackgroundColor = EnsureGetMemberFloat("BackgroundColor");
+  BackgroundColor = EnsureGetMemberUint("BackgroundColor");
   BackgroundFilter = EnsureGetMemberSprite("BackgroundFilter");
   CircleStartPosition = EnsureGetMemberVec2("CircleStartPosition");
   CircleSprite = EnsureGetMemberSprite("CircleSprite");

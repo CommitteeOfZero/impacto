@@ -46,7 +46,7 @@ class Renderer : public BaseRenderer {
   uint32_t SubmitTextureImpl(TexFmt format, uint8_t* buffer, int width,
                              int height) override;
   void FreeTextureImpl(uint32_t id) override;
-  YUVFrame* CreateYUVFrameImpl(int width, int height) override;
+  YUVFrame* CreateYUVFrameImpl(float width, float height) override;
 
   void DrawSpriteImpl(Sprite const& sprite, RectF const& dest, glm::vec4 tint,
                       float angle, bool inverted, bool isScreencap) override;

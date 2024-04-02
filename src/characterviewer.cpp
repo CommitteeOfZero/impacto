@@ -82,7 +82,7 @@ void Update(float dt) {
 #ifndef IMPACTO_DISABLE_OPENGL
   if (Renderer->NuklearSupported &&
       nk_begin(Renderer->Nk, "Scene",
-               nk_rect(20, 20, 300, Window->WindowHeight - 40),
+               nk_rect(20.0f, 20.0f, 300.0f, Window->WindowHeight - 40.0f),
                NK_WINDOW_BORDER | NK_WINDOW_TITLE)) {
     // FPS counter
     Frames++;
@@ -147,10 +147,10 @@ void Update(float dt) {
       }
       if (Characters2D[0].Status == LS_Loaded) Characters2D[0].Show = true;
 
-      nk_property_int(Renderer->Nk, "Character X", -10000,
-                      &Characters2D[0].OffsetX, 10000, 1, 5.0f);
-      nk_property_int(Renderer->Nk, "Character Y", -10000,
-                      &Characters2D[0].OffsetY, 10000, 1, 5.0f);
+      nk_property_float(Renderer->Nk, "Character X", -10000.0f,
+                        &Characters2D[0].OffsetX, 10000.0f, 1.0f, 5.0f);
+      nk_property_float(Renderer->Nk, "Character Y", -10000.0f,
+                        &Characters2D[0].OffsetY, 10000.0f, 1.0f, 5.0f);
 
       Characters2D[0].Face >>= 16;
       nk_property_int(Renderer->Nk, "Character Face", 1, &Characters2D[0].Face,
@@ -224,7 +224,7 @@ static void EnumerateBackgrounds() {
     return;
   }
 
-  BackgroundCount = listing.size();
+  BackgroundCount = (uint32_t)listing.size();
 
   BackgroundNames = (char**)malloc(BackgroundCount * sizeof(char*));
   BackgroundIds = (uint32_t*)malloc(BackgroundCount * sizeof(uint32_t));
@@ -246,7 +246,7 @@ static void EnumerateCharacters() {
     return;
   }
 
-  CharacterCount = listing.size() / 2;
+  CharacterCount = (uint32_t)listing.size() / 2;
 
   CharacterNames = (char**)malloc(CharacterCount * sizeof(char*));
   CharacterIds = (uint32_t*)malloc(CharacterCount * sizeof(uint32_t));
@@ -270,7 +270,7 @@ static void EnumerateBgm() {
     return;
   }
 
-  BgmCount = listing.size();
+  BgmCount = (uint32_t)listing.size();
 
   BgmNames = (char**)malloc(BgmCount * sizeof(char*));
   BgmIds = (uint32_t*)malloc(BgmCount * sizeof(uint32_t));

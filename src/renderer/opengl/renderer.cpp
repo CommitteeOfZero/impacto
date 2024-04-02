@@ -210,7 +210,7 @@ uint32_t Renderer::SubmitTextureImpl(TexFmt format, uint8_t* buffer, int width,
 
 void Renderer::FreeTextureImpl(uint32_t id) { glDeleteTextures(1, &id); }
 
-YUVFrame* Renderer::CreateYUVFrameImpl(int width, int height) {
+YUVFrame* Renderer::CreateYUVFrameImpl(float width, float height) {
   auto frame = new GLYUVFrame();
   frame->Init(width, height);
   return (YUVFrame*)frame;

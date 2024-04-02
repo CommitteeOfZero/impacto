@@ -39,7 +39,7 @@ IoError ZlibStream::Create(InputStream* baseStream, int64_t compressedOffset,
 bool ZlibStream::Init() {
   int64_t read = BaseStream->Read(InputBuffer, ZlibStreamInputBufferSize);
   if (read < 0) return false;
-  ZlibState.avail_in = read;
+  ZlibState.avail_in = (uint32_t)read;
   ZlibState.next_in = InputBuffer;
   int zErr;
   zErr = inflateInit(&ZlibState);
@@ -113,7 +113,7 @@ IoError ZlibStream::Duplicate(InputStream** outStream) {
 IoError ZlibStream::FillBuffer() {
   int zErr;
 
-  ZlibState.avail_out = BufferSize;
+  ZlibState.avail_out = (uint32_t)BufferSize;
   ZlibState.next_out = Buffer;
   int64_t lastTotal = ZlibState.total_out;
 
@@ -123,7 +123,7 @@ IoError ZlibStream::FillBuffer() {
       if (read < 0) return (IoError)read;
       if (read == 0) return IoError_Eof;
       ZlibState.next_in = InputBuffer;
-      ZlibState.avail_in = read;
+      ZlibState.avail_in = (uint32_t)read;
     }
 
     zErr = inflate(&ZlibState, Z_SYNC_FLUSH);

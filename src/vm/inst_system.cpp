@@ -451,18 +451,18 @@ VmInstruction(InstCalc) {
     case 0: {  // CalcSin
       PopExpression(dest);
       PopExpression(angle);
-      ScrWork[dest] = (std::sin(angle / (65536 / (2 * M_PI)))) * 65536;
+      ScrWork[dest] = ((int)std::sin(angle / (65536 / (2 * M_PI)))) * 65536;
     } break;
     case 1: {  // CalcCos
       PopExpression(dest);
       PopExpression(angle);
-      ScrWork[dest] = (std::cos(angle / (65536 / (2 * M_PI)))) * 65536;
+      ScrWork[dest] = ((int)std::cos(angle / (65536 / (2 * M_PI)))) * 65536;
     } break;
     case 2: {  // CalcAtan2
       PopExpression(dest);
       PopExpression(x);
       PopExpression(y);
-      ScrWork[dest] = atan2(x, y);
+      ScrWork[dest] = (int)atan2(x, y);
     } break;
     case 3: {  // CalcSinL
       PopExpression(dest);
@@ -470,7 +470,8 @@ VmInstruction(InstCalc) {
       PopExpression(angle);
       PopExpression(offset);
       ScrWork[dest] =
-          offset + base * ((std::sin(angle / (65536 / (2 * M_PI)))) * 65536);
+          offset +
+          base * ((int)(std::sin(angle / (65536 / (2 * M_PI)))) * 65536);
     } break;
     case 4: {  // CalcCosL
       PopExpression(dest);
@@ -478,7 +479,8 @@ VmInstruction(InstCalc) {
       PopExpression(angle);
       PopExpression(offset);
       ScrWork[dest] =
-          offset + base * ((std::cos(angle / (65536 / (2 * M_PI)))) * 65536);
+          offset +
+          base * ((int)(std::cos(angle / (65536 / (2 * M_PI)))) * 65536);
     } break;
     case 5: {  // CalcRound
       PopExpression(dest);
@@ -486,7 +488,7 @@ VmInstruction(InstCalc) {
       PopExpression(multiplier);
       PopExpression(divider);
       ScrWork[dest] =
-          (((((multiplier * value) * 10.0) / divider) + 5.0) / 10.0);
+          (int)((((((multiplier * value) * 10.0) / divider) + 5.0) / 10.0));
     } break;
     case 6: {  // CalcAccel
       PopExpression(dest);

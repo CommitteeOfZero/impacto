@@ -29,7 +29,7 @@ class BaseRenderer {
 
   uint32_t SubmitTexture(TexFmt format, uint8_t* buffer, int width, int height);
   void FreeTexture(uint32_t id);
-  YUVFrame* CreateYUVFrame(int width, int height);
+  YUVFrame* CreateYUVFrame(float width, float height);
 
   void DrawSprite(Sprite const& sprite, RectF const& dest,
                   glm::vec4 tint = glm::vec4(1.0), float angle = 0.0f,
@@ -140,7 +140,7 @@ class BaseRenderer {
                                      int height) = 0;
   virtual void FreeTextureImpl(uint32_t id) = 0;
 
-  virtual YUVFrame* CreateYUVFrameImpl(int width, int height) = 0;
+  virtual YUVFrame* CreateYUVFrameImpl(float width, float height) = 0;
 
   virtual void DrawSpriteImpl(Sprite const& sprite, RectF const& dest,
                               glm::vec4 tint, float angle, bool inverted,

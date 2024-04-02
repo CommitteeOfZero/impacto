@@ -228,7 +228,7 @@ uint32_t Renderer::SubmitTextureImpl(TexFmt format, uint8_t* buffer, int width,
 
 void Renderer::FreeTextureImpl(uint32_t id) {}
 
-YUVFrame* Renderer::CreateYUVFrameImpl(int width, int height) {
+YUVFrame* Renderer::CreateYUVFrameImpl(float width, float height) {
   VideoFrameInternal = new DX9YUVFrame(Device);
   VideoFrameInternal->Init(width, height);
   return (YUVFrame*)VideoFrameInternal;
@@ -970,10 +970,10 @@ void Renderer::EnableScissorImpl() {
 
 void Renderer::SetScissorRectImpl(RectF const& rect) {
   RECT rectW{};
-  rectW.left = rect.X;
-  rectW.top = rect.Y;
-  rectW.right = rect.X + rect.Width;
-  rectW.bottom = rect.Y + rect.Height;
+  rectW.left = (LONG)rect.X;
+  rectW.top = (LONG)rect.Y;
+  rectW.right = (LONG)(rect.X + rect.Width);
+  rectW.bottom = (LONG)(rect.Y + rect.Height);
   Device->SetScissorRect(&rectW);
 }
 

@@ -112,7 +112,7 @@ static bool ParseAt9Riff(InputStream* stream, At9ContainerInfo* info) {
         break;
       }
       case dataMagic: {
-        info->StreamDataOffset = stream->Position;
+        info->StreamDataOffset = (int)stream->Position;
         goto breakLoop;
       }
       default: {

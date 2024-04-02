@@ -364,14 +364,15 @@ void MusicMenu::UpdateEntries() {
     auto button = static_cast<Widgets::CHLCC::TrackSelectButton*>(
         MainItems->Children[idx]);
 
-    if (!SaveSystem::GetBgmFlag(idx)) {
+    if (!SaveSystem::GetBgmFlag((int)idx)) {
       button->SetTrackText(Vm::ScriptGetTextTableStrAddress(0, 15));
       continue;
     }
 
     button->OnClickHandler = onClick;
-    button->SetTrackText(Vm::ScriptGetTextTableStrAddress(4, idx * 3));
-    button->SetArtistText(Vm::ScriptGetTextTableStrAddress(4, idx * 3 + 1));
+    button->SetTrackText(Vm::ScriptGetTextTableStrAddress(4, (int)idx * 3));
+    button->SetArtistText(
+        Vm::ScriptGetTextTableStrAddress(4, (int)idx * 3 + 1));
   }
 }
 

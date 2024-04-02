@@ -707,7 +707,7 @@ bool MapSystemCCLCC::MapPlayerPhotoSelect(int unused) {
         if (MapPool[i].id != 0xff && MapPool[i].button.Enabled) {
           MapPool[i].button.UpdateInput();
           if (MapPool[i].button.Hovered) {
-            hoverMapPoolIdx = i;
+            hoverMapPoolIdx = (int)i;
           }
         }
       }

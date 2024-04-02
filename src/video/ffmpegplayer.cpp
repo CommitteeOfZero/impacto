@@ -28,7 +28,7 @@ int StreamRead(void* ptr, uint8_t* buf, int buf_size) {
        bytesRead == static_cast<uint64_t>(IoError_Eof)))
     return AVERROR_EOF;
 
-  return bytesRead;
+  return (int)bytesRead;
 }
 
 int64_t StreamSeek(void* ptr, int64_t pos, int origin) {
@@ -184,11 +184,11 @@ void FFmpegPlayer::Play(Io::InputStream* stream, bool looping, bool alpha) {
     avcodec_open2(codecCtx, codec, &options);
     VideoStream = new FFmpegStream(videoStream, codecCtx);
     if (!VideoTexture)
-      VideoTexture =
-          Renderer->CreateYUVFrame(codecCtx->width, codecCtx->height);
+      VideoTexture = Renderer->CreateYUVFrame((float)codecCtx->width,
+                                              (float)codecCtx->height);
     else {
-      VideoTexture->Width = codecCtx->width;
-      VideoTexture->Height = codecCtx->height;
+      VideoTexture->Width = (float)codecCtx->width;
+      VideoTexture->Height = (float)codecCtx->height;
     }
   }
 
@@ -207,9 +207,9 @@ void FFmpegPlayer::Play(Io::InputStream* stream, bool looping, bool alpha) {
 
     avcodec_open2(codecCtx, codec, &options);
     AudioStream = new FFmpegStream(audioStream, codecCtx);
-    AudioStream->Duration = audioStream->duration *
-                            av_q2d(audioStream->time_base) *
-                            codecCtx->sample_rate;
+    AudioStream->Duration =
+        (int)(audioStream->duration * av_q2d(audioStream->time_base) *
+              codecCtx->sample_rate);
 
     AudioPlayer->InitConvertContext(codecCtx);
   }
@@ -239,9 +239,9 @@ void FFmpegPlayer::Play(Io::InputStream* stream, bool looping, bool alpha) {
 
 bool FFmpegPlayer::QueuesHaveEnoughPackets() {
   SDL_LockMutex(VideoStream->PacketLock);
-  int videoQueueSize = VideoStream->PacketQueue.size();
+  size_t videoQueueSize = VideoStream->PacketQueue.size();
   SDL_UnlockMutex(VideoStream->PacketLock);
-  int audioQueueSize = 0;
+  size_t audioQueueSize = 0;
   if (AudioStream) {
     SDL_LockMutex(AudioStream->PacketLock);
     audioQueueSize = AudioStream->PacketQueue.size();

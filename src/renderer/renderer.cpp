@@ -71,7 +71,7 @@ uint32_t BaseRenderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
 
 void BaseRenderer::FreeTexture(uint32_t id) { FreeTextureImpl(id); }
 
-YUVFrame* BaseRenderer::CreateYUVFrame(int width, int height) {
+YUVFrame* BaseRenderer::CreateYUVFrame(float width, float height) {
   return CreateYUVFrameImpl(width, height);
 }
 

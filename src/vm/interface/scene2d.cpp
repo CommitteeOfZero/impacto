@@ -34,10 +34,10 @@ void UpdateBackground2D() {
     // resolution, that's why that's hardcoded here
     switch (ScrWork[SW_BG1DISPMODE + ScrWorkBgStructSize * i]) {
       case 0: {
-        int posX = ScrWork[SW_BG1POSX + ScrWorkBgStructSize * i] +
-                   ScrWork[SW_BG1POSX_OFS + 10 * i];
-        int posY = ScrWork[SW_BG1POSY + ScrWorkBgStructSize * i] +
-                   ScrWork[SW_BG1POSY_OFS + 10 * i];
+        float posX = (float)(ScrWork[SW_BG1POSX + ScrWorkBgStructSize * i] +
+                             ScrWork[SW_BG1POSX_OFS + 10 * i]);
+        float posY = (float)(ScrWork[SW_BG1POSY + ScrWorkBgStructSize * i] +
+                             ScrWork[SW_BG1POSY_OFS + 10 * i]);
         posX *= Profile::DesignWidth / 1280.0f;
         posY *= Profile::DesignHeight / 720.0f;
 
@@ -219,13 +219,13 @@ void UpdateCharacter2D() {
 
       // ScrWork magic
       Characters2D[bufId].RotationX =
-          ScrWork[SW_CHA1ROTX + ScrWorkChaStructSize * i] * M_PI *
+          ScrWork[SW_CHA1ROTX + ScrWorkChaStructSize * i] * (float)M_PI *
           (0.000030517578f);
       Characters2D[bufId].RotationY =
-          ScrWork[SW_CHA1ROTY + ScrWorkChaStructSize * i] * M_PI *
+          ScrWork[SW_CHA1ROTY + ScrWorkChaStructSize * i] * (float)M_PI *
           (0.000030517578f);
       Characters2D[bufId].RotationZ =
-          ScrWork[SW_CHA1ROTZ + ScrWorkChaStructSize * i] * M_PI *
+          ScrWork[SW_CHA1ROTZ + ScrWorkChaStructSize * i] * (float)M_PI *
           (0.000030517578f);
 
       // More magic, wouldn't be Mage... I'll excuse myself

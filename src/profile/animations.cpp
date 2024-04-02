@@ -20,7 +20,7 @@ void LoadAnimations() {
     {
       EnsurePushMemberOfType("Frames", LUA_TTABLE);
 
-      animation.FrameCount = lua_rawlen(LuaState, -1);
+      animation.FrameCount = (uint32_t)lua_rawlen(LuaState, -1);
       animation.Frames = (Sprite*)malloc(animation.FrameCount * sizeof(Sprite));
       PushInitialIndex();
       while (PushNextTableElement() != 0) {

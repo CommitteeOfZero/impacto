@@ -92,7 +92,7 @@ inline glm::vec3 LookAtEulerZYX(glm::vec3 from, glm::vec3 to,
 
   result.x =
       atan2f(forward.y, sqrtf(forward.x * forward.x + forward.z * forward.z));
-  result.y = atan2f(forward.x, forward.z) - M_PI;
+  result.y = atan2f(forward.x, forward.z) - (float)M_PI;
 
   return result;
 }
@@ -143,8 +143,8 @@ inline float NormalizeDeg(float deg) {
 }
 inline float NormalizeRad(float rad) {
   rad = fmodf(rad + (float)M_PI, 2.0f * (float)M_PI);
-  if (rad < 0) rad += 2.0 * M_PI;
-  return rad - M_PI;
+  if (rad < 0) rad += 2.0f * (float)M_PI;
+  return rad - (float)M_PI;
 }
 
 inline bool StringEndsWith(std::string const& str, std::string const& ending) {

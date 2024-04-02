@@ -19,7 +19,8 @@ RectF::RectF() {}
 RectF::RectF(float x, float y, float width, float height)
     : X(x), Y(y), Width(width), Height(height) {}
 RectF::RectF(Rect const& rect)
-    : RectF(rect.X, rect.Y, rect.Width, rect.Height) {}
+    : RectF((float)rect.X, (float)rect.Y, (float)rect.Width,
+            (float)rect.Height) {}
 
 glm::vec2 RectF::Center() const {
   return glm::vec2(X + Width / 2.0f, Y + Height / 2.0f);

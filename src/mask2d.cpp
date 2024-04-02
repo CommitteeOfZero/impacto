@@ -29,8 +29,8 @@ bool Mask2D::LoadSync(uint32_t maskId) {
     MaskSpriteSheet.DesignWidth = Profile::DesignWidth;
     MaskSpriteSheet.DesignHeight = Profile::DesignHeight;
   } else {
-    MaskSpriteSheet.DesignWidth = MaskTexture.Width;
-    MaskSpriteSheet.DesignHeight = MaskTexture.Height;
+    MaskSpriteSheet.DesignWidth = (float)MaskTexture.Width;
+    MaskSpriteSheet.DesignHeight = (float)MaskTexture.Height;
   }
   MaskSprite.Sheet = MaskSpriteSheet;
   MaskSprite.BaseScale = glm::vec2(1.0f);

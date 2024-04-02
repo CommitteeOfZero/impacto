@@ -49,7 +49,7 @@ extern glm::vec2 ArrowUpPosition;
 extern Sprite ArrowDown;
 extern glm::vec2 ArrowDownPosition;
 extern glm::vec2 ThumbnailButtonBorderOffset;
-extern int ThumbnailButtonTextFontSize;
+extern float ThumbnailButtonTextFontSize;
 extern int ThumbnailButtonTextColorIndex;
 extern glm::vec2 ThumbnailButtonTextOffset;
 

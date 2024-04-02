@@ -11,10 +11,10 @@ static size_t OvRwRead(void* ptr, size_t size, size_t nmemb, void* datasource) {
   return ((InputStream*)datasource)->Read(ptr, size * nmemb) / size;
 }
 static int OvRwSeek(void* datasource, ogg_int64_t offset, int whence) {
-  return ((InputStream*)datasource)->Seek(offset, whence);
+  return (long)(((InputStream*)datasource)->Seek(offset, whence));
 }
 static long OvRwTell(void* datasource) {
-  return ((InputStream*)datasource)->Position;
+  return (long)(((InputStream*)datasource)->Position);
 }
 ov_callbacks OvRwCallbacks = {OvRwRead, OvRwSeek, NULL, OvRwTell};
 
@@ -63,7 +63,7 @@ fail:
 }
 
 void VorbisAudioStream::InitWithInfo(vorbis_info* info) {
-  Duration = ov_pcm_total(&Vf, -1);
+  Duration = (int)ov_pcm_total(&Vf, -1);
   LoopEnd = Duration;
   ChannelCount = info->channels;
 
@@ -126,7 +126,7 @@ int VorbisAudioStream::Read(void* buffer, int samples) {
 
 void VorbisAudioStream::Seek(int samples) {
   ov_pcm_seek(&Vf, samples);
-  ReadPosition = ov_pcm_tell(&Vf);
+  ReadPosition = (int)ov_pcm_tell(&Vf);
 }
 
 bool VorbisAudioStream::_registered =

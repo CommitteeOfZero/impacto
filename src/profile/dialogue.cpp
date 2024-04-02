@@ -146,7 +146,7 @@ void Configure() {
   {
     EnsurePushMemberOfType("ColorTable", LUA_TTABLE);
 
-    ColorCount = lua_rawlen(LuaState, -1);
+    ColorCount = (int)lua_rawlen(LuaState, -1);
     ColorTable = new DialogueColorPair[ColorCount];
     PushInitialIndex();
     while (PushNextTableElement() != 0) {

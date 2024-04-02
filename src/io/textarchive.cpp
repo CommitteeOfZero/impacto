@@ -149,7 +149,7 @@ IoError TextArchive::Create(InputStream* stream, VfsArchive** outArchive) {
       if (firstColLength == std::string::npos ||
           firstColLength == line.length() - 1)
         continue;
-      size_t secondColLength = line.find(firstColLength + 1, ',');
+      size_t secondColLength = line.find(',', firstColLength + 1);
       if (secondColLength == std::string::npos ||
           secondColLength == line.length() - 1)
         continue;

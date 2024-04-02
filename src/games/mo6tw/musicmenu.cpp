@@ -220,7 +220,7 @@ void MusicMenu::UpdateMusicTimer() {
   if (Audio::Channels[Audio::AC_BGM0]->State == Audio::ACS_Stopped) {
     Timer->Hide();
   } else {
-    int position = Audio::Channels[Audio::AC_BGM0]->PositionInSeconds();
+    int position = (int)Audio::Channels[Audio::AC_BGM0]->PositionInSeconds();
     auto seconds = position % 3600 % 60;
     auto minutes = position % 3600 / 60;
     auto hours = position / 3600;

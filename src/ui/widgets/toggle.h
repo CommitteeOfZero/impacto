@@ -16,7 +16,7 @@ class Toggle : public Widget {
          Sprite const& highlight, glm::vec2 pos, bool isCheckbox);
   Toggle(int id, bool* value, Sprite const& enabled, Sprite const& disabled,
          Sprite const& highlight, glm::vec2 pos, bool isCheckbox, uint8_t* str,
-         glm::vec2 labelOfs, int fontSize, RendererOutlineMode outlineMode);
+         glm::vec2 labelOfs, float fontSize, RendererOutlineMode outlineMode);
   Toggle(int id, bool* value, Sprite const& enabled, Sprite const& disabled,
          Sprite const& highlight, glm::vec2 pos, bool isCheckbox,
          Sprite const& label, glm::vec2 labelOfs);
@@ -30,7 +30,7 @@ class Toggle : public Widget {
   std::function<void(Toggle*)> OnClickHandler;
 
  private:
-  void SetText(uint8_t* str, int fontSize, RendererOutlineMode outlineMode);
+  void SetText(uint8_t* str, float fontSize, RendererOutlineMode outlineMode);
 
   Sprite EnabledSprite;
   Sprite DisabledSprite;
@@ -45,7 +45,7 @@ class Toggle : public Widget {
 
   bool HasTextLabel = false;
   ProcessedTextGlyph Label[255];
-  int FontSize;
+  float FontSize;
   int TextLength;
   float TextWidth = 0.0f;
   RendererOutlineMode OutlineMode;

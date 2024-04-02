@@ -46,11 +46,11 @@ void Group::Add(Widget* widget, FocusDirection dir) {
     if (!FocusStart[dir]) FocusStart[dir] = el;
     if (!FocusStart[oppositeDir]) FocusStart[oppositeDir] = el;
   } else {
-    FirstFocusableElementId = Children.size();
+    FirstFocusableElementId = (int)Children.size();
   }
 
   Add(widget);
-  LastFocusableElementId = Children.size() - 1;
+  LastFocusableElementId = (int)Children.size() - 1;
   if (WrapFocus) {
     auto firstEl = Children.at(FirstFocusableElementId);
     widget->SetFocus(firstEl, dir);

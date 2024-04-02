@@ -45,7 +45,7 @@ void SaveEntryButton::Render() {
                        Tint);
 }
 
-void SaveEntryButton::AddSceneTitleText(uint8_t* str, int fontSize,
+void SaveEntryButton::AddSceneTitleText(uint8_t* str, float fontSize,
                                         bool outline) {
   Impacto::Vm::Sc3VmThread dummy;
   dummy.Ip = str;
@@ -62,7 +62,7 @@ void SaveEntryButton::AddSceneTitleText(uint8_t* str, int fontSize,
   }
 }
 
-void SaveEntryButton::AddPlayTimeHintText(uint8_t* str, int fontSize,
+void SaveEntryButton::AddPlayTimeHintText(uint8_t* str, float fontSize,
                                           bool outline) {
   Impacto::Vm::Sc3VmThread dummy;
   dummy.Ip = str;
@@ -72,7 +72,7 @@ void SaveEntryButton::AddPlayTimeHintText(uint8_t* str, int fontSize,
       glm::vec2(Bounds.X + 238.0f, Bounds.Y + 45.0f), TextAlignment::Left);
 }
 
-void SaveEntryButton::AddPlayTimeText(uint8_t* str, int fontSize,
+void SaveEntryButton::AddPlayTimeText(uint8_t* str, float fontSize,
                                       bool outline) {
   Impacto::Vm::Sc3VmThread dummy;
   dummy.Ip = str;
@@ -82,7 +82,7 @@ void SaveEntryButton::AddPlayTimeText(uint8_t* str, int fontSize,
       glm::vec2(Bounds.X + 372.0f, Bounds.Y + 61.0f), TextAlignment::Left);
 }
 
-void SaveEntryButton::AddSaveDateHintText(uint8_t* str, int fontSize,
+void SaveEntryButton::AddSaveDateHintText(uint8_t* str, float fontSize,
                                           bool outline) {
   Impacto::Vm::Sc3VmThread dummy;
   dummy.Ip = str;
@@ -92,7 +92,7 @@ void SaveEntryButton::AddSaveDateHintText(uint8_t* str, int fontSize,
       glm::vec2(Bounds.X + 238.0f, Bounds.Y + 75.0f), TextAlignment::Left);
 }
 
-void SaveEntryButton::AddSaveDateText(uint8_t* str, int fontSize,
+void SaveEntryButton::AddSaveDateText(uint8_t* str, float fontSize,
                                       bool outline) {
   Impacto::Vm::Sc3VmThread dummy;
   dummy.Ip = str;

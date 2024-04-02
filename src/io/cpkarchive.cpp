@@ -471,19 +471,19 @@ static uint32_t get_next_bits(char* input, int* offset_p, uint32_t* bit_pool_p,
 
 // Based on https://github.com/hcs64/vgm_ripping/tree/master/multi/utf_tab
 
-static IoError DecompressLayla(char* input, uint32_t compressedSize,
-                               char* output, uint32_t uncompressedSize) {
+static IoError DecompressLayla(char* input, int64_t compressedSize,
+                               char* output, int64_t uncompressedSize) {
   int uncompressed_size = SDL_SwapLE32(*(uint32_t*)(input + 8));
   uint32_t compressedStreamLength = SDL_SwapLE32(*(uint32_t*)(input + 12));
   uint32_t compressedOffset = 16;
-  uint32_t prefixOffset = compressedOffset + compressedStreamLength;
+  int64_t prefixOffset = compressedOffset + compressedStreamLength;
   if (compressedSize < prefixOffset || compressedSize - prefixOffset != 0x100) {
     ImpLog(LL_Debug, LC_IO, "CPK unexpected end of LAYLA stream\n");
     return IoError_Fail;
   }
   memcpy(output, input + compressedOffset + compressedStreamLength, 0x100);
 
-  int input_end = (compressedSize - 0x100 - 1);
+  int input_end = ((int)compressedSize - 0x100 - 1);
   int input_offset = input_end;
   int output_end = 0x100 + uncompressed_size - 1;
   uint32_t bit_pool = 0;

@@ -7,7 +7,7 @@ namespace Impacto {
 namespace TexLoad {
 
 int StbiRead(void* user, char* data, int size) {
-  return ((Io::InputStream*)user)->Read(data, size);
+  return (int)(((Io::InputStream*)user)->Read(data, size));
 }
 void StbiSkip(void* user, int n) {
   ((Io::InputStream*)user)->Seek(n, RW_SEEK_CUR);

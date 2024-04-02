@@ -836,7 +836,7 @@ void Renderable3D::Render() {
 
   for (int i = RP_First; i < RP_Count; i++) {
     for (size_t j = 0; j < StaticModel->MeshCount; j++) {
-      DrawMesh(j, (RenderPass)i);
+      DrawMesh((int)j, (RenderPass)i);
     }
   }
 

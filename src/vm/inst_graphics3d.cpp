@@ -201,7 +201,7 @@ VmInstruction(InstPositionObject) {
 
     if (parentObjId != 1 && parentObjId != 2) {
       // I don't even know
-      theta += M_PI;
+      theta += (float)M_PI;
     }
 
     theta = NormalizeRad(theta);
@@ -325,14 +325,14 @@ VmInstruction(InstUnk0210) {
       for (int i = 1; i <= 29; i++) arg5 += i;
     }
     if (arg1 & 1) {
-      someGlobalFloat1 = ScrWork[SW_MAINCAMERAROTX];
-      someGlobalFloat2 = arg3;
-      someGlobalFloat3 = (arg3 - ScrWork[SW_MAINCAMERAROTX]) / arg5;
+      someGlobalFloat1 = (float)ScrWork[SW_MAINCAMERAROTX];
+      someGlobalFloat2 = (float)arg3;
+      someGlobalFloat3 = (arg3 - (float)ScrWork[SW_MAINCAMERAROTX]) / arg5;
     }
     if (arg1 & 2) {
-      someGlobalFloat4 = ScrWork[SW_MAINCAMERAROTY];
-      someGlobalFloat5 = arg4;
-      someGlobalFloat6 = (arg4 - ScrWork[SW_MAINCAMERAROTY]) / arg5;
+      someGlobalFloat4 = (float)ScrWork[SW_MAINCAMERAROTY];
+      someGlobalFloat5 = (float)arg4;
+      someGlobalFloat6 = (arg4 - (float)ScrWork[SW_MAINCAMERAROTY]) / arg5;
     }
   } else {
     if (arg1 & 1) {
@@ -347,7 +347,7 @@ VmInstruction(InstUnk0210) {
         arg5 = someGlobalFloat1 + (someGlobalFloat3 * 30.0f);
       }
       someGlobalFloat2 = arg5;
-      ScrWork[SW_MAINCAMERAROTX] = arg5;
+      ScrWork[SW_MAINCAMERAROTX] = (int)arg5;
     }
     if (arg1 & 2) {
       float arg5;
@@ -361,7 +361,7 @@ VmInstruction(InstUnk0210) {
         arg5 = someGlobalFloat4 + (someGlobalFloat6 * 30.0f);
       }
       someGlobalFloat5 = arg5;
-      ScrWork[SW_MAINCAMERAROTY] = arg5;
+      ScrWork[SW_MAINCAMERAROTY] = (int)arg5;
     }
   }
 }

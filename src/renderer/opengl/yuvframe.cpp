@@ -5,7 +5,7 @@
 namespace Impacto {
 namespace OpenGL {
 
-void GLYUVFrame::Init(int width, int height) {
+void GLYUVFrame::Init(float width, float height) {
   Width = width;
   Height = height;
   GLuint yuv[3];
@@ -18,14 +18,14 @@ void GLYUVFrame::Init(int width, int height) {
 
 void GLYUVFrame::Submit(void* luma, void* cb, void* cr) {
   glBindTexture(GL_TEXTURE_2D, LumaId);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, Width, Height, 0, GL_RED,
-               GL_UNSIGNED_BYTE, luma);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, (GLsizei)Width, (GLsizei)Height, 0,
+               GL_RED, GL_UNSIGNED_BYTE, luma);
   glBindTexture(GL_TEXTURE_2D, CbId);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, Width / 2, Height / 2, 0, GL_RED,
-               GL_UNSIGNED_BYTE, cb);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, (GLsizei)(Width / 2),
+               (GLsizei)(Height / 2), 0, GL_RED, GL_UNSIGNED_BYTE, cb);
   glBindTexture(GL_TEXTURE_2D, CrId);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, Width / 2, Height / 2, 0, GL_RED,
-               GL_UNSIGNED_BYTE, cr);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, (GLsizei)(Width / 2),
+               (GLsizei)(Height / 2), 0, GL_RED, GL_UNSIGNED_BYTE, cr);
 }
 
 void GLYUVFrame::Release() {

@@ -16,7 +16,7 @@ float MoveAnimationDuration;
 
 int AlertTextColorIndex;
 int TipNameColorIndex;
-int FontSize;
+float FontSize;
 
 void Configure() {
   AlertPosition = EnsureGetMemberVec2("AlertPosition");
@@ -30,7 +30,7 @@ void Configure() {
 
   AlertTextColorIndex = EnsureGetMemberInt("AlertTextColorIndex");
   TipNameColorIndex = EnsureGetMemberInt("TipNameColorIndex");
-  FontSize = EnsureGetMemberInt("FontSize");
+  FontSize = EnsureGetMemberFloat("FontSize");
 }
 
 }  // namespace TipsNotification

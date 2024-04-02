@@ -30,17 +30,18 @@ void DialogueBox::Render(DialoguePageMode mode, bool hasName, float nameWidth,
   col.a = 1.0f;
   if (mode == DPM_ADV) {
     Renderer->DrawCCMessageBox(ADVBoxSprite, ADVBoxMask, ADVBoxPos, col,
-                                 opacity * 272, 16, TextBoxEffect.Progress);
+                               (int)(opacity * 272.0f), 16,
+                               TextBoxEffect.Progress);
     if (hasName) {
       Renderer->DrawSprite(NamePlateMainSprites[nameId],
-                             ADVBoxNamePlateMainPos);
+                           ADVBoxNamePlateMainPos);
       Renderer->DrawSprite(NamePlateLabelSprites[nameId],
-                             ADVBoxNamePlateLabelPos);
+                           ADVBoxNamePlateLabelPos);
     }
   } else {
     glm::vec4 nvlBoxTint(0.0f, 0.0f, 0.0f, opacity * NVLBoxMaxOpacity);
-    Renderer->DrawRect(
-        RectF(0, 0, Profile::DesignWidth, Profile::DesignHeight), nvlBoxTint);
+    Renderer->DrawRect(RectF(0, 0, Profile::DesignWidth, Profile::DesignHeight),
+                       nvlBoxTint);
   }
 }
 

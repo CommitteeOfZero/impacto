@@ -15,7 +15,7 @@ void Load() {
   {
     EnsurePushMemberOfType("Flags", LUA_TTABLE);
 
-    uint32_t flagsCount = lua_rawlen(LuaState, -1);
+    uint32_t flagsCount = (uint32_t)lua_rawlen(LuaState, -1);
     Flags = (uint8_t*)malloc(flagsCount + 1);
     PushInitialIndex();
     while (PushNextTableElement() != 0) {

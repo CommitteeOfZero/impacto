@@ -7,7 +7,7 @@ namespace OpenGL {
 
 class GLYUVFrame : public YUVFrame {
  public:
-  void Init(int width, int height) override;
+  void Init(float width, float height) override;
 
   void Submit(void* luma, void* cb, void* cr) override;
   void Release() override;
