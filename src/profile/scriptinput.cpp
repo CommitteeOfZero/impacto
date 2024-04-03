@@ -50,6 +50,12 @@ int GP_PAD1R1;
 int GP_PAD1R2;
 int GP_PAD1R3;
 
+int PADcustomType;
+int PADcustomSizeA;
+int PADcustomSizeB;
+uint32_t PADcustomA[64];
+uint32_t PADcustomB[64];
+
 void Configure() {
   EnsurePushMemberOfType("Input", LUA_TTABLE);
 
@@ -128,6 +134,12 @@ void Configure() {
   PADToController[PAD1R3] = GP_PAD1R3;
 
   Pop();
+
+  PADcustomType = EnsureGetMemberInt("PADcustomType");
+  PADcustomSizeA = EnsureGetMemberInt("PADcustomSizeA");
+  PADcustomSizeB = EnsureGetMemberInt("PADcustomSizeB");
+  GetMemberUintArray(PADcustomA, PADcustomSizeA, "PADcustomA");
+  GetMemberUintArray(PADcustomB, PADcustomSizeB, "PADcustomB");
 }
 
 }  // namespace ScriptInput

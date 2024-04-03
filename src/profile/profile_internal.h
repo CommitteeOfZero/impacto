@@ -39,6 +39,7 @@ LUA_GET_METHODS(Int, int32_t)
 LUA_GET_METHODS(Float, float)
 LUA_GET_METHODS(String, char const*)
 
+void GetMemberUintArray(uint32_t* arr, uint32_t count, char const* name);
 void GetMemberIntArray(int* arr, uint32_t count, char const* name);
 void GetMemberFloatArray(float* arr, uint32_t count, char const* name);
 

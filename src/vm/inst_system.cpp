@@ -7,6 +7,7 @@
 
 #include "expression.h"
 #include "../profile/scriptvars.h"
+#include "../profile/scriptinput.h"
 #include "../mem.h"
 #include "../log.h"
 #include "../audio/audiosystem.h"
@@ -251,6 +252,7 @@ VmInstruction(InstVoiceTableLoadMaybe) {
 }
 VmInstruction(InstSetPadCustom) {
   StartInstruction;
+  Interface::UpdatePADcustomType(Profile::ScriptInput::PADcustomType);
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SetPadCustom()\n");
 }
 VmInstruction(InstMwait) {

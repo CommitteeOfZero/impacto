@@ -48,6 +48,12 @@ extern int GP_PAD1R1;
 extern int GP_PAD1R2;
 extern int GP_PAD1R3;
 
+extern int PADcustomType;
+extern int PADcustomSizeA;
+extern int PADcustomSizeB;
+extern uint32_t PADcustomA[];
+extern uint32_t PADcustomB[];
+
 void Configure();
 
 }  // namespace ScriptInput
