@@ -25,48 +25,7 @@ enum PADinput {
   PAD1Y = 0x8000
 };
 
-// Type A control bindings, used by scripts
-static uint32_t PADcustom[] = {0x10000,
-                               0x20000,
-                               0x40000,
-                               0x80000,
-                               PAD1A | PAD1START,
-                               PAD1A,
-                               PAD1B,
-                               PAD1R1,
-                               PAD1START,
-                               PAD1SELECT,
-                               PAD1X,
-                               0,
-                               0,  // temp disable PAD1L2
-                               PAD1R3,
-                               PAD1A | PAD1B | PAD1START,
-                               PAD1A,
-                               PAD1B,
-                               PAD1X,
-                               PAD1Y,
-                               PAD1R1,
-                               PAD1R2,
-                               PAD1L1,
-                               PAD1Y,
-                               0xF1000,
-                               PAD1R1,
-                               PAD1L1,
-                               PAD1A,
-                               PAD1B,
-                               0x100000 | PAD1UP,
-                               0x200000 | PAD1DOWN,
-                               0x400000 | PAD1LEFT,
-                               0x800000 | PAD1RIGHT,
-                               0x1000000,
-                               0x2000000,
-                               0x4000000,
-                               0x8000000,
-                               0x20000000,
-                               0x40000000,
-                               0x80000000,
-                               0,
-                               0};
+extern uint32_t* PADcustom;
 
 extern int PADinputButtonWentDown;
 extern int PADinputMouseWentDown;
@@ -86,6 +45,7 @@ enum ControlType {
 };
 
 void UpdatePADInput();
+void UpdatePADcustomType(int type);
 bool GetControlState(int controlId);
 
 }  // namespace Interface

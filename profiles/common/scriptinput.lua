@@ -37,3 +37,74 @@ root.Input = {
     GP_PAD1R2=5, --Triggers are on axis, not button	  
     GP_PAD1R3=8,
 }
+
+root.PADinput = {
+    PAD1UP = 1,
+    PAD1DOWN = 2,
+    PAD1LEFT = 4,
+    PAD1RIGHT = 8,
+    PAD1START = 0x10,
+    PAD1SELECT = 0x20,
+    PAD1L3 = 0x40,
+    PAD1R3 = 0x80,
+    PAD1L1 = 0x100,
+    PAD1R1 = 0x200,
+    PAD1L2 = 0x400,
+    PAD1R2 = 0x800,
+    PAD1A = 0x1000,
+    PAD1B = 0x2000,
+    PAD1X = 0x4000,
+    PAD1Y = 0x8000
+};
+
+-- Default to cclcc profile
+root.PADcustomType = 0;
+root.PADcustomSizeA = 43;
+root.PADcustomSizeB = 0;
+root.PADcustomA = {
+  0x10000,
+  0x20000,
+  0x40000,
+  0x80000,
+  root.PADinput.PAD1A | root.PADinput.PAD1START,
+  root.PADinput.PAD1A,
+  root.PADinput.PAD1B,
+  root.PADinput.PAD1L1,
+  root.PADinput.PAD1R1,
+  root.PADinput.PAD1X,
+  root.PADinput.PAD1START,
+  0,
+  root.PADinput.PAD1Y,
+  root.PADinput.PAD1R3,
+  root.PADinput.PAD1A | root.PADinput.PAD1B,
+  root.PADinput.PAD1A,
+  root.PADinput.PAD1B,
+  root.PADinput.PAD1X,
+  root.PADinput.PAD1Y,
+  0,
+  0,
+  root.PADinput.PAD1SELECT,
+  0,
+  root.PADinput.PAD1A,
+  0,
+  0,
+  0,
+  0,
+  0x100000 | root.PADinput.PAD1UP,
+  0x200000 | root.PADinput.PAD1DOWN,
+  0x400000 | root.PADinput.PAD1LEFT,
+  0x800000 | root.PADinput.PAD1RIGHT,
+  0x1000000,
+  0x2000000,
+  0x4000000,
+  0x8000000,
+  root.PADinput.PAD1L2,
+  root.PADinput.PAD1R2,
+  0x40000 | root.PADinput.PAD1L2,
+  0x80000 | root.PADinput.PAD1R2,
+  0xF1000,
+  root.PADinput.PAD1L1,
+  root.PADinput.PAD1R1,
+}
+
+root.PADcustomB = {};

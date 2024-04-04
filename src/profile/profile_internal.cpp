@@ -147,6 +147,25 @@ bool TryGetUint(uint32_t& outUint) {
   return false;
 }
 
+void GetMemberUintArray(uint32_t* arr, uint32_t count, char const* name) {
+  EnsurePushMemberOfType(name, LUA_TTABLE);
+
+  if (lua_rawlen(LuaState, -1) != count) {
+    ImpLog(LL_Fatal, LC_Profile, "Expected to have %d ints for %s\n", count,
+           name);
+    Window->Shutdown();
+  }
+
+  PushInitialIndex();
+  while (PushNextTableElement()) {
+    int i = EnsureGetKeyUint() - 1;
+    arr[i] = EnsureGetArrayElementUint();
+    Pop();
+  }
+
+  Pop();
+}
+
 LUA_GET_METHODS(Uint, uint32_t, "unsigned integer convertible")
 
 bool TryGetInt(int32_t& outInt) {
