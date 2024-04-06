@@ -85,17 +85,16 @@ TitleMenu::TitleMenu() {
   Options->OnClickHandler = onClick;
   Options->HighlightOffset = glm::vec2(0.0f);
   MainItems->Add(Options, FDIR_DOWN);
-  if (GetFlag(SF_CLR_FLAG)) {
-    //  Gallery menu button
-    Gallery = new Button(
-        0, MenuEntriesSprites[GallerySpriteIndex],
-        MenuEntriesHSprites[GallerySpriteIndex],
-        MenuEntriesHSprites[NewGameSpriteIndex + 1],
-        glm::vec2(MenuEntriesX, MenuEntriesFirstY + (3 * MenuEntriesYPadding)));
-    Gallery->OnClickHandler = galleryOnClick;
-    Gallery->HighlightOffset = glm::vec2(0.0f);
-    MainItems->Add(Gallery, FDIR_DOWN);
-  }
+  //  Gallery menu button
+  Gallery = new Button(
+      0, MenuEntriesSprites[GallerySpriteIndex],
+      MenuEntriesHSprites[GallerySpriteIndex],
+      MenuEntriesHSprites[NewGameSpriteIndex + 1],
+      glm::vec2(MenuEntriesX, MenuEntriesFirstY + (3 * MenuEntriesYPadding)));
+  Gallery->OnClickHandler = galleryOnClick;
+  Gallery->HighlightOffset = glm::vec2(0.0f);
+  Gallery->Enabled = false;
+  MainItems->Add(Gallery, FDIR_DOWN);
 
   // Continue buttons
   // Load button
@@ -177,7 +176,7 @@ TitleMenu::TitleMenu() {
   }
   // DLC button
   DLCButton =
-      new Button(35, MenuEntriesSprites[DLCSpriteIndex],
+      new Button(35 - (!HasAdditional), MenuEntriesSprites[DLCSpriteIndex],
                  MenuEntriesHSprites[DLCSpriteIndex],
                  MenuEntriesHSprites[NewGameSpriteIndex + 1],
                  glm::vec2(MenuEntriesX, MenuEntriesGalleryFirstY +
@@ -231,6 +230,8 @@ void TitleMenu::Update(float dt) {
   }
 
   if (State != Hidden && GetFlag(SF_TITLEMODE)) {
+    Gallery->Tint = glm::vec4(1.0f, 1.0f, 1.0f, GetFlag(803) ? 1.0f : 0.0f);
+    Gallery->Enabled = GetFlag(803);
     MainItems->Update(dt);
     ContinueItems->Update(dt);
     GalleryItems->Update(dt);

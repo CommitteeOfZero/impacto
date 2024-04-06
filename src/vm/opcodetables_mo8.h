@@ -110,7 +110,7 @@ InstructionProc static OpcodeTableSystem_MO8[256] = {
     InstDummy,                // 00 5C
     InstDummy,                // 00 5D
     InstDummy,                // 00 5E
-    InstDummy,                // 00 5F
+    InstUnk005F,              // 00 5F
     InstDummy,                // 00 60
     InstDummy,                // 00 61
     InstDummy,                // 00 62
@@ -318,10 +318,10 @@ InstructionProc static OpcodeTableGraph_MO8[256] = {
     InstLoadMovie,         // 01 29
     InstPlayMovieMemory,   // 01 2A
     InstSFDpause,          // 01 2B
-    InstPlayMovie,         // 01 2C
-    InstUnk012D,           // 01 2D
+    InstRINNS,             // 01 2C
+    InstRINNSMain,         // 01 2D
     InstDummy,             // 01 2E
-    InstUnk012FMO8,        // 01 2F
+    InstChatMO8,           // 01 2F
     InstDummy,             // 01 30
     InstDummy,             // 01 31
     InstDummy,             // 01 32

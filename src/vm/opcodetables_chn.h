@@ -321,7 +321,7 @@ InstructionProc static OpcodeTableGraph_CHN[256] = {
     InstPlayMovie,         // 01 2C
     InstUnk012D,           // 01 2D
     InstDummy,             // 01 2E
-    InstUnk012FMO8,        // 01 2F
+    InstChatMO8,           // 01 2F
     InstDummy,             // 01 30
     InstDummy,             // 01 31
     InstDummy,             // 01 32

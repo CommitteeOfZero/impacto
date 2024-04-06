@@ -39,6 +39,33 @@ VmInstruction(InstUnk0054) {
   ImpLogSlow(LL_Warning, LC_VMStub,
              "STUB instruction Unk0054(arg1: %i, arg2: %i)\n", arg1, arg2);
 }
+VmInstruction(InstUnk005F) {
+  StartInstruction;
+  PopUint8(type);
+  switch (type) {
+    case 0: {
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk005F(type: %i)\n",
+                 type);
+    } break;
+    case 1: {
+      PopExpression(arg1);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Unk005F(type: %i, arg1: %i)\n", type, arg1);
+    } break;
+    case 2: {
+      PopExpression(arg1);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Unk005F(type: %i, arg1: %i)\n", type, arg1);
+    } break;
+    case 3: {
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Unk012FMO8(type: %i)\n", type);
+    } break;
+  }
+
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk005F(type: %i)\n",
+             type);
+}
 VmInstruction(InstUnk011F) {
   StartInstruction;
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk011F()\n");
@@ -51,43 +78,90 @@ VmInstruction(InstUnk1035CHLCC) {
   StartInstruction;
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction InstUnk1035CHLCC()\n");
 }
-VmInstruction(InstUnk012FMO8) {
+VmInstruction(InstRINNS) {
+  StartInstruction;
+  PopUint8(type);
+  switch (type) {
+    case 0: {  // RINNSInit
+      PopUint16(arg1);
+      PopUint8(arg2);
+      PopExpression(arg3);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction RINNSInit(arg1: %i, arg2: %i, "
+                 "arg3: %i)\n",
+                 arg1, arg2, arg3);
+    } break;
+    case 0x81: {  // RINNSAddID
+      PopExpression(arg1);
+      PopExpression(arg2);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction RINNSAddID(arg1: %i, arg2: %i)\n", arg1,
+                 arg2);
+    } break;
+    case 0x91: {  // RINNSTimeupLogID
+      PopExpression(arg1);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction RINNSTimeupLogID(arg1: %i, arg2: %i)\n",
+                 arg1);
+    } break;
+  }
+}
+VmInstruction(InstRINNSMain) {
   StartInstruction;
   PopUint8(type);
   switch (type) {
     case 0: {
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Unk012FMO8(type: %i)\n", type);
+                 "STUB instruction RINNSMain(type: %i)\n", type);
     } break;
     case 1: {
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction RINNSMain(type: %i)\n", type);
+    } break;
+    case 2: {
+      PopExpression(arg1);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction RINNSMain(type: %i, arg1: %i)\n", type,
+                 arg1);
+    } break;
+  }
+}
+VmInstruction(InstChatMO8) {
+  StartInstruction;
+  PopUint8(type);
+  switch (type) {
+    case 0: {  // ChatInit
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction ChatMO8(type: %i)\n",
+                 type);
+    } break;
+    case 1: {  // ChatAdd
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
       PopExpression(arg4);
+      PopUint8(arg5);
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Unk012FMO8(type: %i, arg1: %i, arg2: %i, "
-                 "arg3: %i, arg4: %i)\n",
-                 type, arg1, arg2, arg3, arg4);
+                 "STUB instruction ChatMO8(type: %i, arg1: %i, arg2: %i, "
+                 "arg3: %i, arg4: %i, arg5: %i)\n",
+                 type, arg1, arg2, arg3, arg4, arg5);
     } break;
     case 2: {
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Unk012FMO8(type: %i)\n", type);
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction ChatMO8(type: %i)\n",
+                 type);
     } break;
     case 3: {
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Unk012FMO8(type: %i)\n", type);
+      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction ChatMO8(type: %i)\n",
+                 type);
     } break;
     case 4: {
       PopExpression(arg1);
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Unk012FMO8(type: %i, arg1: %i)\n", type,
-                 arg1);
+                 "STUB instruction ChatMO8(type: %i, arg1: %i)\n", type, arg1);
     } break;
     case 5: {
       PopExpression(arg1);
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Unk012FMO8(type: %i, arg1: %i)\n", type,
-                 arg1);
+                 "STUB instruction ChatMO8(type: %i, arg1: %i)\n", type, arg1);
     } break;
     case 6: {
       PopExpression(arg1);
@@ -96,7 +170,7 @@ VmInstruction(InstUnk012FMO8) {
       PopExpression(arg4);
       PopExpression(arg5);
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Unk012FMO8(type: %i, arg1: %i, arg2: %i, "
+                 "STUB instruction ChatMO8(type: %i, arg1: %i, arg2: %i, "
                  "arg3: %i, arg4: %i, arg5: %i)\n",
                  type, arg1, arg2, arg3, arg4, arg5);
     } break;
