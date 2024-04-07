@@ -83,6 +83,20 @@ VmInstruction(InstPlayMovieOld) {
              "movCancelFlag: %i)\n",
              playMode, playNo, movCancelFlag);
 }
+VmInstruction(InstMovie) {
+  StartInstruction;
+  PopUint8(type);
+  switch (type) {
+    case 0: {  // Restart
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Movie(type: Restart)\n");
+    } break;
+    case 1: {  // Pause
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Movie(type: Pause)\n");
+    } break;
+  }
+}
 VmInstruction(InstMovieMain) {
   StartInstruction;
   PopUint8(type);

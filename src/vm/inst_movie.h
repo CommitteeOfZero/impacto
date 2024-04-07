@@ -8,6 +8,7 @@ namespace Vm {
 
 VmInstruction(InstPlayMovie);
 VmInstruction(InstPlayMovieOld);
+VmInstruction(InstMovie);
 VmInstruction(InstMovieMain);
 VmInstruction(InstLoadMovie);
 VmInstruction(InstPlayMovieMemory);

@@ -259,6 +259,11 @@ void TitleMenu::Update(float dt) {
             ScrWork[SW_TITLEDISPCT] == 0)
           PrimaryFadeAnimation.StartIn(true);
       } break;
+      case 11: {
+        if (PrimaryFadeAnimation.IsIn()) {
+          PrimaryFadeAnimation.StartOut(true);
+        }
+      } break;
     }
   }
 }

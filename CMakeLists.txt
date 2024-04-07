@@ -113,6 +113,7 @@ set(Impacto_Src
         src/profile/games/mo6tw/tipsnotification.cpp
 
         src/profile/games/mo8/titlemenu.cpp
+        src/profile/games/mo8/systemmenu.cpp
 
         src/profile/games/darling/sysmesbox.cpp
 
@@ -169,6 +170,7 @@ set(Impacto_Src
         src/games/mo6tw/tipsnotification.cpp
 
         src/games/mo8/titlemenu.cpp
+        src/games/mo8/systemmenu.cpp
 
         src/games/darling/sysmesbox.cpp
 
@@ -401,6 +403,7 @@ set(Impacto_Header
         src/profile/games/mo6tw/tipsnotification.h
 
         src/profile/games/mo8/titlemenu.h
+        src/profile/games/mo8/systemmenu.h
 
         src/profile/games/darling/sysmesbox.h
 
@@ -456,6 +459,7 @@ set(Impacto_Header
         src/games/mo6tw/tipsnotification.h
 
         src/games/mo8/titlemenu.h
+        src/games/mo8/systemmenu.h
 
         src/games/darling/sysmesbox.h
         

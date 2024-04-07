@@ -362,6 +362,10 @@ VmInstruction(InstSystemMes) {
       PopMsbString(message);
       UI::SysMesBoxPtr->AddMessage(message);
     } break;
+    case 0x84: {  // SystemMesSetSel
+      PopMsbString(message);
+      UI::SysMesBoxPtr->AddChoice(message);
+    } break;
     default:
       ImpLog(LL_Warning, LC_VMStub,
              "Unknown mode for instruction SystemMes(mode: %i)\n", mode);

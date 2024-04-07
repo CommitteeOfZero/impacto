@@ -37,7 +37,7 @@ include('mo8/hud/saveicon.lua');
 include('mo8/hud/loadingdisplay.lua');
 include('mo8/hud/datedisplay.lua');
 include('mo8/hud/titlemenu.lua');
---include('mo8/hud/systemmenu.lua');
+include('mo8/hud/systemmenu.lua');
 include('mo8/hud/backlogmenu.lua');
 include('mo8/hud/sysmesboxdisplay.lua');
 include('mo8/hud/selectiondisplay.lua');

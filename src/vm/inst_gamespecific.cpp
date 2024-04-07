@@ -39,32 +39,31 @@ VmInstruction(InstUnk0054) {
   ImpLogSlow(LL_Warning, LC_VMStub,
              "STUB instruction Unk0054(arg1: %i, arg2: %i)\n", arg1, arg2);
 }
-VmInstruction(InstUnk005F) {
+VmInstruction(InstAddContents) {
   StartInstruction;
   PopUint8(type);
   switch (type) {
     case 0: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk005F(type: %i)\n",
-                 type);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction AddContents(type: %i)\n", type);
     } break;
-    case 1: {
+    case 1: {  // CheckDownloadComp
       PopExpression(arg1);
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Unk005F(type: %i, arg1: %i)\n", type, arg1);
+                 "STUB instruction AddContents(type: %i, arg1: %i)\n", type,
+                 arg1);
     } break;
-    case 2: {
+    case 2: {  // OpenContents
       PopExpression(arg1);
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Unk005F(type: %i, arg1: %i)\n", type, arg1);
+                 "STUB instruction AddContents(type: %i, arg1: %i)\n", type,
+                 arg1);
     } break;
-    case 3: {
+    case 3: {  // CloseContents
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Unk012FMO8(type: %i)\n", type);
+                 "STUB instruction AddContents(type: %i)\n", type);
     } break;
   }
-
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk005F(type: %i)\n",
-             type);
 }
 VmInstruction(InstUnk011F) {
   StartInstruction;

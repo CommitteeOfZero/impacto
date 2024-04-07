@@ -33,6 +33,11 @@ root.SpriteSheets = {
         Path = {Mount = "system", Id = 6 },
         DesignWidth = 2048,
         DesignHeight = 720
+    },
+    ["MenuChip"] = {
+        Path = {Mount = "system", Id = 12 },
+        DesignWidth = 2048,
+        DesignHeight = 1024
     }
 };
 

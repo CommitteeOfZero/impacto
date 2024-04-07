@@ -4,6 +4,7 @@
 #include "../games/rne/systemmenu.h"
 #include "../games/mo6tw/systemmenu.h"
 #include "../games/chlcc/systemmenu.h"
+#include "../games/mo8/systemmenu.h"
 #include "../../ui/ui.h"
 #include "../../log.h"
 #include "../../renderer/renderer.h"
@@ -59,6 +60,8 @@ void Configure() {
       MO6TW::SystemMenu::Configure();
     } else if (Type == +SystemMenuType::CHLCC) {
       CHLCC::SystemMenu::Configure();
+    } else if (Type == +SystemMenuType::MO8) {
+      MO8::SystemMenu::Configure();
     }
 
     Pop();

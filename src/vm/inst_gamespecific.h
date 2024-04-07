@@ -10,7 +10,7 @@ VmInstruction(InstUnk0041);
 VmInstruction(InstUnk0052);
 VmInstruction(InstUnk0053);
 VmInstruction(InstUnk0054);
-VmInstruction(InstUnk005F);
+VmInstruction(InstAddContents);
 VmInstruction(InstUnk011F);
 VmInstruction(InstRINNS);
 VmInstruction(InstRINNSMain);
