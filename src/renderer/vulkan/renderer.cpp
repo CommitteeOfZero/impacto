@@ -1392,8 +1392,6 @@ void Renderer::DrawCCMessageBoxImpl(Sprite const& sprite, Sprite const& mask,
                              VertexBufferFill);
   VertexBufferFill += 4 * sizeof(VertexBufferSprites);
 
-  IndexBufferFill += 6;
-
   QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
             (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
   QuadSetUV(mask.Bounds, mask.Sheet.DesignWidth, mask.Sheet.DesignHeight,
@@ -1540,8 +1538,6 @@ void Renderer::DrawCHLCCMenuBackgroundImpl(const Sprite& sprite,
       (VertexBufferSprites*)(VertexBuffer + VertexBufferOffset +
                              VertexBufferFill);
   VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  IndexBufferFill += 6;
 
   QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
             (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
