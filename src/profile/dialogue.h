@@ -68,6 +68,10 @@ extern Sprite RightSprite;
 extern float BaseLineWidth;
 }  // namespace ADVNameTag
 
+extern bool HasSpeakerPortraits;
+extern float SpeakerPortraitBaseOffsetX;
+extern float SpeakerPortraitBaseOffsetY;
+
 void Configure();
 
 }  // namespace Dialogue

@@ -478,6 +478,46 @@ VmInstruction(InstBGeffectMO7) {
              type);
 }
 
+VmInstruction(InstFACEload) {
+  StartInstruction;
+  PopUint8(type);
+  switch (type) {
+    case 0: {
+      PopExpression(bufferId);
+      PopExpression(faceId);
+      int actualBufId = Interface::GetBufferId(bufferId) -
+                        Profile::Vm::SpeakerPortraitsScrWorkOffset;
+      int chaBufId = ScrWork[SW_FACE1SURF + actualBufId];
+      if (((faceId & 0xFFFF0000) >> 16) == 0) {
+        faceId = (ScrWork[SW_FACEEX1FACE + 5 * actualBufId] << 16) | faceId;
+      }
+      if (SpeakerPortraits[chaBufId].Status == LS_Loading) {
+        ResetInstruction;
+        BlockThread;
+      } else if (ScrWork[SW_FACEEX1NO + 5 * actualBufId] != (faceId & 0xFFFF)) {
+        ScrWork[SW_FACEEX1NO + 5 * actualBufId] = faceId & 0xFFFF;
+        ScrWork[SW_FACEEX1FACE + 5 * actualBufId] = faceId >> 16;
+        SpeakerPortraits[chaBufId].MountPoint = "face";
+        SpeakerPortraits[chaBufId].LoadAsync(faceId);
+        ResetInstruction;
+        BlockThread;
+      }
+    } break;
+  }
+}
+
+VmInstruction(InstFACErelease) {
+  StartInstruction;
+  PopExpression(bufferId);
+  bufferId = Interface::GetBufferId(bufferId) -
+             Profile::Vm::SpeakerPortraitsScrWorkOffset;
+  int surfId = ScrWork[SW_FACE1SURF + bufferId];
+  ScrWork[SW_FACEEX1NO + 5 * bufferId] = 0xFFFF;
+  if (SpeakerPortraits[surfId].Status == LS_Loaded) {
+    SpeakerPortraits[surfId].Unload();
+  }
+}
+
 }  // namespace Vm
 
 }  // namespace Impacto

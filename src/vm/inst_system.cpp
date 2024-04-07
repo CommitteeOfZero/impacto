@@ -15,6 +15,7 @@
 #include "../background2d.h"
 #include "../character2d.h"
 #include "../profile/vm.h"
+#include "../profile/dialogue.h"
 #include "../profile/hud/tipsnotification.h"
 #include "../profile/hud/delusiontrigger.h"
 #include "../profile/data/tipssystem.h"
@@ -537,6 +538,12 @@ VmInstruction(InstMSinit) {
   for (int i = 0; i < MaxCharacters2D; i++) {
     ScrWork[SW_CHA1SURF + i] = i;
     ScrWork[SW_CHA1ALPHA + Profile::Vm::ScrWorkChaStructSize * i] = 256;
+  }
+
+  if (Profile::Dialogue::HasSpeakerPortraits) {
+    for (int i = 0; i < MaxSpeakerPortraits; i++) {
+      ScrWork[SW_FACE1SURF + i] = i;
+    }
   }
 
   ScrWork[SW_MESWINDOW_COLOR] = 0xFFFFFF;

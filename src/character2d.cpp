@@ -14,6 +14,8 @@ using namespace Impacto::Profile::Vm;
 
 Character2D Characters2D[MaxCharacters2D];
 
+Character2D SpeakerPortraits[MaxSpeakerPortraits];
+
 bool Character2D::LoadSync(uint32_t charaId) {
   int fileId = charaId & 0xFFFF;
 
@@ -200,23 +202,12 @@ void Character2D::Update(float dt) {
   }
 }
 
-void Character2D::Render(int chaId, int layer) {
+void Character2D::Render(int layer) {
   if (Status == LS_Loaded && Layer == layer && Show) {
-    glm::vec4 col(1.0f);
-    col.a = (ScrWork[SW_CHA1ALPHA + Profile::Vm::ScrWorkChaStructSize * chaId] +
-             ScrWork[SW_CHA1ALPHA_OFS + 10 * chaId]) /
-            256.0f;
-    if (ScrWork[SW_CHA1FADETYPE + Profile::Vm::ScrWorkChaStructSize * chaId] ==
-        1) {
-      col.a =
-          ScrWork[SW_CHA1FADECT + Profile::Vm::ScrWorkChaStructSize * chaId] /
-          256.0f;
-    }
-
     if (Profile::CharaIsMvl) {
       Renderer->DrawCharacterMvl(CharaSprite, glm::vec2(OffsetX, OffsetY),
                                  MvlVerticesCount, MvlVertices, MvlIndicesCount,
-                                 MvlIndices, false, col,
+                                 MvlIndices, false, Tint,
                                  glm::vec2(ScaleX, ScaleY));
     } else {
       for (auto id : StatesToDraw) {
@@ -228,7 +219,7 @@ void Character2D::Render(int chaId, int layer) {
             Renderer->DrawSprite(CharaSprite,
                                  glm::vec2(state.ScreenCoords[i].x + OffsetX,
                                            state.ScreenCoords[i].y + OffsetY),
-                                 col);
+                                 Tint);
           }
         }
       }

@@ -17,6 +17,7 @@ extern int ScrWorkChaStructSize;
 extern int ScrWorkBgStructSize;
 extern int MaxLinkedBgBuffers;
 extern int SystemScriptBuffer;
+extern int SpeakerPortraitsScrWorkOffset;
 
 void Configure();
 

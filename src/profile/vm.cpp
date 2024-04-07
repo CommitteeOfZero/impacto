@@ -16,6 +16,7 @@ int ScrWorkChaStructSize;
 int ScrWorkBgStructSize;
 int MaxLinkedBgBuffers = 1;
 int SystemScriptBuffer = 1;
+int SpeakerPortraitsScrWorkOffset = 8;
 
 void Configure() {
   EnsurePushMemberOfType("Vm", LUA_TTABLE);
@@ -31,6 +32,8 @@ void Configure() {
   ScrWorkBgStructSize = EnsureGetMemberInt("ScrWorkBgStructSize");
   TryGetMemberInt("MaxLinkedBgBuffers", MaxLinkedBgBuffers);
   TryGetMemberInt("SystemScriptBuffer", SystemScriptBuffer);
+  TryGetMemberInt("SpeakerPortraitsScrWorkOffset",
+                  SpeakerPortraitsScrWorkOffset);
 
   Pop();
 }

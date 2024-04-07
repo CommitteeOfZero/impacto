@@ -5,6 +5,9 @@
 #include "../profile/game.h"
 #include "../mem.h"
 #include "../profile/scriptvars.h"
+#include "../profile/vm.h"
+#include "../vm/vm.h"
+#include "../character2d.h"
 
 namespace Impacto {
 
@@ -30,11 +33,20 @@ void DialogueBox::Render(DialoguePageMode mode, bool hasName, float nameWidth,
   }
 
   if (mode == DPM_ADV && hasName) {
-    if (HaveADVNameTag) {
-      Renderer->DrawSprite(ADVNameTag::LeftSprite, ADVNameTag::Position, col);
+    if (HasSpeakerPortraits) {
+      // Draw Face
+      for (int i = 0; i < MaxSpeakerPortraits; i++) {
+        int bufId = ScrWork[SW_FACE1SURF + i];
+        SpeakerPortraits[bufId].Tint = col;
+        SpeakerPortraits[bufId].OffsetX += SpeakerPortraitBaseOffsetX;
+        SpeakerPortraits[bufId].OffsetY += SpeakerPortraitBaseOffsetY;
+        SpeakerPortraits[bufId].Render(-1);
+      }
     }
 
     if (HaveADVNameTag) {
+      Renderer->DrawSprite(ADVNameTag::LeftSprite, ADVNameTag::Position, col);
+
       // Name graphic additional length
       float lineWidth = nameWidth - ADVNameTag::BaseLineWidth;
       float lineX =

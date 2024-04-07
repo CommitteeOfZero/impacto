@@ -978,22 +978,6 @@ VmInstruction(InstUnk103A) {
     } break;
   }
 }
-
-VmInstruction(InstUnk103CMO8) {
-  StartInstruction;
-  PopUint8(type);
-  PopExpression(arg1);
-  PopExpression(arg2);
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction Unk103CMO8(arg1: %i, arg2: %i)\n", arg1, arg2);
-}
-VmInstruction(InstUnk103DMO8) {
-  StartInstruction;
-  PopExpression(arg1);
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk103DMO8(arg1: %i)\n",
-             arg1);
-}
-
 VmInstruction(InstUnk1037Noah) {
   StartInstruction;
   PopUint8(type);

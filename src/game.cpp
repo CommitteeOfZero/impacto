@@ -254,6 +254,11 @@ void Update(float dt) {
     for (int i = 0; i < MaxCharacters2D; i++) {
       if (Characters2D[i].Show) Characters2D[i].Update(dt);
     }
+    if (Profile::Dialogue::HasSpeakerPortraits) {
+      for (int i = 0; i < MaxSpeakerPortraits; i++) {
+        if (SpeakerPortraits[i].Show) SpeakerPortraits[i].Update(dt);
+      }
+    }
   }
 }
 
@@ -373,7 +378,7 @@ void Render() {
             }
             for (int i = 0; i < MaxCharacters2D; i++) {
               int bufId = ScrWork[SW_CHA1SURF + i];
-              Characters2D[bufId].Render(i, layer);
+              Characters2D[bufId].Render(layer);
             }
             if (ScrWork[6361] == static_cast<int>(layer) && ScrWork[6360]) {
               UI::MapSystem::Render();
@@ -509,7 +514,7 @@ void Render() {
     if (Characters2D[0].Status == LS_Loaded) {
       Characters2D[0].Layer = 0;
       ScrWork[SW_CHA1ALPHA] = 256;
-      Characters2D[0].Render(0, 0);
+      Characters2D[0].Render(0);
     }
   }
   Renderer->EndFrame();

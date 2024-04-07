@@ -593,8 +593,8 @@ InstructionProc static OpcodeTableUser1_CHN[256] = {
     InstTwipo_Dash,        // 10 39
     InstUnk103A,           // 10 3A
     InstDummy,             // 10 3B
-    InstUnk103CMO8,        // 10 3C
-    InstUnk103DMO8,        // 10 3D
+    InstFACEload,          // 10 3C
+    InstFACErelease,       // 10 3D
     InstDummy,             // 10 3E
     InstSysSeload,         // 10 3F
     InstDummy,             // 10 40

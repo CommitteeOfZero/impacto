@@ -23,6 +23,7 @@
 #include "../profile/vm.h"
 #include "../profile/scriptinput.h"
 #include "../profile/scriptvars.h"
+#include "../profile/dialogue.h"
 
 namespace Impacto {
 namespace Vm {
@@ -314,6 +315,9 @@ void Update() {
     Interface::UpdateScene3D();
   } else {
     Interface::UpdateCharacter2D();
+  }
+  if (Profile::Dialogue::HasSpeakerPortraits) {
+    Interface::UpdateSpeakerPortraits();
   }
   Interface::UpdateBackground2D();
 }

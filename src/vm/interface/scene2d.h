@@ -11,6 +11,8 @@ void UpdateBackground2D();
 
 void UpdateCharacter2D();
 
+void UpdateSpeakerPortraits();
+
 // Because yes
 inline int GetBufferId(int bufIdByScript) {
   return (int)std::log2(bufIdByScript);

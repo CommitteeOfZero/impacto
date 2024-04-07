@@ -286,7 +286,7 @@ void TitleMenu::Render() {
         DrawStartButton();
         DrawSmoke(SmokeOpacityNormal);
         Renderer->DrawSprite(CopyrightTextSprite,
-                               glm::vec2(CopyrightTextX, CopyrightTextY));
+                             glm::vec2(CopyrightTextX, CopyrightTextY));
         Renderer->DrawRect(
             RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
             glm::vec4(1.0f, 1.0f, 1.0f,
@@ -295,12 +295,7 @@ void TitleMenu::Render() {
       case 2: {  // Transition between Press to start and menus
         DrawMainMenuBackGraphics(true);
         DrawSmoke(SmokeOpacityNormal);
-        // TODO: Rewrite the Character2D class to separate out the MVL parser so
-        // we don't have to do this
-        // 500 is just a random value to throw it beyond any actual data
-        ScrWork[SW_CHA1ALPHA + Profile::Vm::ScrWorkChaStructSize * 500] = 256;
-        ScrWork[SW_CHA1ALPHA_OFS + 10 * 500] = 0;
-        TitleAnimationSprite.Render(500, -1);
+        TitleAnimationSprite.Render(-1);
       } break;
       case 3: {  // MenuItems Fade In
         if (ItemsFadeInAnimation.IsOut() &&
@@ -320,7 +315,7 @@ void TitleMenu::Render() {
         DrawMainBackground(ScrWork[SW_TITLEDISPCT] / 32.0f);
         DrawSmoke(ScrWork[SW_TITLEDISPCT] / 128.0f);
         Renderer->DrawSprite(CopyrightTextSprite,
-                               glm::vec2(CopyrightTextX, CopyrightTextY));
+                             glm::vec2(CopyrightTextX, CopyrightTextY));
       } break;
     }
 
@@ -344,7 +339,7 @@ inline void TitleMenu::DrawStartButton() {
   glm::vec4 col = glm::vec4(1.0f);
   col.a = glm::smoothstep(0.0f, 1.0f, PressToStartAnimation.Progress);
   Renderer->DrawSprite(PressToStartSprite,
-                         glm::vec2(PressToStartX, PressToStartY), col);
+                       glm::vec2(PressToStartX, PressToStartY), col);
 }
 
 inline void TitleMenu::DrawMainMenuBackGraphics(bool isTransition) {

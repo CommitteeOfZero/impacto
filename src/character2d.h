@@ -39,8 +39,9 @@ class Character2D : public Loadable<Character2D> {
   int EyeFrame;
   bool Show;
   int Layer;
+  glm::vec4 Tint = glm::vec4(1.0f);
   void Update(float dt);
-  void Render(int chaId, int layer);
+  void Render(int layer);
 
   std::string MountPoint = "chara";
 
@@ -65,5 +66,9 @@ class Character2D : public Loadable<Character2D> {
 int const MaxCharacters2D = 16;
 
 extern Character2D Characters2D[MaxCharacters2D];
+
+int const MaxSpeakerPortraits = 2;
+
+extern Character2D SpeakerPortraits[MaxSpeakerPortraits];
 
 }  // namespace Impacto

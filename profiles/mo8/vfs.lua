@@ -9,6 +9,7 @@ root.Vfs = {
         ["bg"] = {"games/mo8/gamedata/bg.cpk"},
         ["chara"] = {"games/mo8/gamedata/chara.cpk"},
         ["mask"] = {"games/mo8/gamedata/mask.cpk"},
-        ["movie"] = {"games/mo8/gamedata/movie.cls"}
+        ["movie"] = {"games/mo8/gamedata/movie.cls"},
+        ["face"] = {"games/mo8/gamedata/face.cpk"}
     }
 };

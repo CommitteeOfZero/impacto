@@ -30,6 +30,8 @@ VmInstruction(InstBGfadeExpInit);
 VmInstruction(InstBGeffectWave);
 VmInstruction(InstBGeffect);
 VmInstruction(InstBGeffectMO7);
+VmInstruction(InstFACEload);
+VmInstruction(InstFACErelease);
 
 }  // namespace Vm
 

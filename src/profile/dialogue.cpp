@@ -66,6 +66,10 @@ float LineFactor;
 float BaseLineWidth;
 }  // namespace ADVNameTag
 
+bool HasSpeakerPortraits = false;
+float SpeakerPortraitBaseOffsetX = 250.0f;
+float SpeakerPortraitBaseOffsetY = 600.0f;
+
 void Configure() {
   EnsurePushMemberOfType("Dialogue", LUA_TTABLE);
 
@@ -168,6 +172,8 @@ void Configure() {
   }
 
   ColorTagIsUint8 = EnsureGetMemberBool("ColorTagIsUint8");
+
+  TryGetMemberBool("HasSpeakerPortraits", HasSpeakerPortraits);
 
   HaveADVNameTag = TryPushMember("ADVNameTag");
   if (HaveADVNameTag) {

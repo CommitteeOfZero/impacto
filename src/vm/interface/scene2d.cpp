@@ -234,6 +234,31 @@ void UpdateCharacter2D() {
     }
     Characters2D[bufId].Face = ScrWork[SW_CHA1FACE + ScrWorkChaStructSize * i]
                                << 16;
+
+    Characters2D[bufId].Tint.a =
+        (ScrWork[SW_CHA1ALPHA + Profile::Vm::ScrWorkChaStructSize * i] +
+         ScrWork[SW_CHA1ALPHA_OFS + 10 * i]) /
+        256.0f;
+    if (ScrWork[SW_CHA1FADETYPE + Profile::Vm::ScrWorkChaStructSize * i] == 1) {
+      Characters2D[bufId].Tint.a =
+          ScrWork[SW_CHA1FADECT + Profile::Vm::ScrWorkChaStructSize * i] /
+          256.0f;
+    }
+  }
+}
+
+void UpdateSpeakerPortraits() {
+  for (int i = 0; i < MaxSpeakerPortraits; i++) {
+    int bufId = ScrWork[SW_FACE1SURF + i];
+
+    SpeakerPortraits[bufId].Show = GetFlag(SF_FACEEX1DISP + i);
+    SpeakerPortraits[bufId].OffsetX =
+        ScrWork[SW_FACEPOSX] * (Profile::DesignWidth / 1280.0f);
+    SpeakerPortraits[bufId].OffsetY =
+        ScrWork[SW_FACEPOSY] * (Profile::DesignHeight / 720.0f);
+    SpeakerPortraits[bufId].ScaleX = 1.0f;
+    SpeakerPortraits[bufId].ScaleY = 1.0f;
+    SpeakerPortraits[bufId].Face = ScrWork[SW_FACEEX1FACE + 5 * i] << 16;
   }
 }
 
