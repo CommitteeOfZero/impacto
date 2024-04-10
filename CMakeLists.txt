@@ -788,11 +788,12 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
 
     if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
         list(APPEND Impacto_Src
-                vendor/imgui/backends/imgui_impl_opengl3.cpp
+                vendor/imgui_custom/backends/imgui_impl_opengl3.cpp
         )
         list(APPEND Impacto_Header
-                vendor/imgui/backends/imgui_impl_opengl3.h
+                vendor/imgui_custom/backends/imgui_impl_opengl3.h
         )
+        include_directories(vendor/imgui_custom/backends)
     endif ()
 
     if (NOT DEFINED IMPACTO_DISABLE_VULKAN)
@@ -802,6 +803,7 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
         list(APPEND Impacto_Header
                 vendor/imgui/backends/imgui_impl_vulkan.h
         )
+        include_directories(vendor/imgui/backends)
     endif ()
 
     if (NOT DEFINED IMPACTO_DISABLE_DX9)
@@ -811,10 +813,10 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
         list(APPEND Impacto_Header
                 vendor/imgui/backends/imgui_impl_dx9.h
         )
+        include_directories(vendor/imgui/backends)
     endif ()
 
     include_directories(vendor/imgui)
-    include_directories(vendor/imgui/backends)
 endif ()
 
 if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
