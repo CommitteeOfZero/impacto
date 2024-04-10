@@ -7,6 +7,9 @@
 namespace Impacto {
 namespace ModelViewer {
 
+extern uint32_t CurrentModel;
+extern uint32_t CurrentBackground;
+
 void Init();
 void Update(float dt);
 

@@ -12,7 +12,6 @@ class DirectX9Window : public BaseWindow {
                      float renderScale) override;
   RectF GetViewport() override;
   RectF GetScaledViewport() override;
-  void AdjustEventCoordinatesForNk(SDL_Event* ev) override;
   void SwapRTs() override;
   void Update() override;
   void Draw() override;

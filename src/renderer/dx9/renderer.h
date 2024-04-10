@@ -22,9 +22,9 @@ class Renderer : public BaseRenderer {
   void InitImpl() override;
   void ShutdownImpl() override;
 
-  void NuklearInitImpl() override;
-  void NuklearShutdownImpl() override;
-  int NuklearHandleEventImpl(SDL_Event* ev) override;
+#ifndef IMPACTO_DISABLE_IMGUI
+  void ImGuiBeginFrameImpl() override;
+#endif
 
   void BeginFrameImpl() override;
   void BeginFrame2DImpl() override;
@@ -78,7 +78,8 @@ class Renderer : public BaseRenderer {
   void DrawCharacterMvlImpl(Sprite const& sprite, glm::vec2 topLeft,
                             int verticesCount, float* mvlVertices,
                             int indicesCount, uint16_t* mvlIndices,
-                            bool inverted, glm::vec4 tint, glm::vec2 scale) override;
+                            bool inverted, glm::vec4 tint,
+                            glm::vec2 scale) override;
 
   void DrawVideoTextureImpl(YUVFrame* tex, RectF const& dest, glm::vec4 tint,
                             float angle, bool alphaVideo) override;

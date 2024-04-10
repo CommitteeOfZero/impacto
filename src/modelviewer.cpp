@@ -19,11 +19,11 @@ static void EnumerateBgm();
 
 static glm::vec3 CameraPosition;
 static glm::vec3 CameraTarget;
-static int TrackCamera;
-static nk_colorf UiTintColor;
-static uint32_t CurrentModel;
+static bool TrackCamera;
+static glm::vec4 UiTintColor;
+uint32_t CurrentModel;
 static uint32_t CurrentAnim;
-static uint32_t CurrentBackground;
+uint32_t CurrentBackground;
 static uint32_t CurrentBgm;
 static int UiWindowWidth;
 static int UiWindowHeight;
@@ -37,11 +37,6 @@ static bool BgmChangeQueued;
 static float BgmFadeOut;
 static float BgmFadeIn;
 static int BgmLoop;
-
-// FPS counter
-static float LastTime;
-static int Frames;
-static float FPS;
 
 void Init() {
   Model::EnumerateModels();
@@ -60,19 +55,18 @@ void Init() {
   BgmFadeIn = 0.0f;
   BgmLoop = true;
 
-  UiTintColor = {0.784f, 0.671f, 0.6f, 0.9f};
+  UiTintColor = glm::vec4(0.784f, 0.671f, 0.6f, 0.9f);
 
   Renderer->Scene->Renderables[0]->LoadAsync(g_BackgroundModelIds[0]);
-  Renderer->Scene->Renderables[1]->LoadAsync(g_ModelIds[0]);
+  Renderer->Scene->Renderables[1]->LoadAsync(g_ModelIds[2]);
 
   Renderer->Scene->Tint = glm::vec4(0.784f, 0.671f, 0.6f, 0.9f);
   Renderer->Scene->LightPosition = glm::vec3(-2.85f, 16.68f, 6.30f);
   Renderer->Scene->DarkMode = false;
 
-  LastTime = (float)((double)SDL_GetPerformanceCounter() /
-                     (double)SDL_GetPerformanceFrequency());
-  Frames = 0;
-  FPS = 0.0f;
+  UiWindowWidth = Window->WindowWidth;
+  UiWindowHeight = Window->WindowHeight;
+  UiMsaaCount = Window->MsaaCount;
 }
 
 void Update(float dt) {
@@ -82,139 +76,170 @@ void Update(float dt) {
     UiMsaaCount = Window->MsaaCount;
   }
 
-#ifndef IMPACTO_DISABLE_OPENGL
-  if (Renderer->NuklearSupported &&
-      nk_begin(Renderer->Nk, "Scene",
-               nk_rect(20.0f, 20.0f, 300.0f, Window->WindowHeight - 40.0f),
-               NK_WINDOW_BORDER | NK_WINDOW_TITLE)) {
-    // FPS counter
-    Frames++;
-    float time = (float)((double)SDL_GetPerformanceCounter() /
-                         (double)SDL_GetPerformanceFrequency());
-    if (time - LastTime >= 2.0f) {
-      FPS = (float)Frames / (time - LastTime);
-      LastTime = time;
-      Frames = 0;
+  if (Renderer->Scene->Renderables[0]->Status == LS_Loaded) {
+    if (g_BackgroundModelIds[CurrentBackground] !=
+        Renderer->Scene->Renderables[0]->StaticModel->Id) {
+      Renderer->Scene->Renderables[0]->LoadAsync(
+          g_BackgroundModelIds[CurrentBackground]);
     }
+  }
 
-    nk_layout_row_dynamic(Renderer->Nk, 24, 1);
-    char buffer[32];  // whatever
-    snprintf(buffer, 32, "FPS: %02.2f", FPS);
-    nk_label(Renderer->Nk, buffer, NK_TEXT_ALIGN_CENTERED);
+#ifndef IMPACTO_DISABLE_IMGUI
+  if (ImGui::Begin("Scene", nullptr,
+                   ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove |
+                       ImGuiWindowFlags_NoResize)) {
+    ImGui::SetWindowSize(ImVec2(300.0f, Window->WindowHeight - 40.0f),
+                         ImGuiCond_Once);
+    ImGui::SetWindowPos(ImVec2(20.0f, 20.0f), ImGuiCond_Once);
+    ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
 
-    if (nk_tree_push(Renderer->Nk, NK_TREE_TAB, "Window", NK_MINIMIZED)) {
-      nk_layout_row_dynamic(Renderer->Nk, 24, 1);
+    ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
+                ImGui::GetIO().Framerate);
+    ImGui::Dummy(ImVec2(0.0f, 20.0f));
 
-      nk_property_int(Renderer->Nk, "Width", 0, &UiWindowWidth, 8192, 0, 0.0f);
-      nk_property_int(Renderer->Nk, "Height", 0, &UiWindowHeight, 8192, 0,
-                      0.0f);
-      nk_property_int(Renderer->Nk, "MSAA", 0, &UiMsaaCount, 16, 0, 0);
-
-      if (nk_button_label(Renderer->Nk, "Resize")) {
+    if (ImGui::CollapsingHeader("Window")) {
+      ImGui::Spacing();
+      ImGui::Text("Width");
+      ImGui::DragInt("##Width", &UiWindowWidth, 0.1f, 0, 8192, "%d",
+                     ImGuiSliderFlags_AlwaysClamp);
+      ImGui::Spacing();
+      ImGui::Text("Height");
+      ImGui::DragInt("##Height", &UiWindowHeight, 0.1f, 0, 8192, "%d",
+                     ImGuiSliderFlags_AlwaysClamp);
+      ImGui::Spacing();
+      ImGui::Text("MSAA");
+      ImGui::DragInt("##MSAA", &UiMsaaCount, 0.01f, 0, 16, "%d",
+                     ImGuiSliderFlags_AlwaysClamp);
+      ImGui::Spacing();
+      if (ImGui::Button("Resize",
+                        ImVec2(ImGui::GetContentRegionAvail().x, 0.0f))) {
         Window->SetDimensions(UiWindowWidth, UiWindowHeight, UiMsaaCount,
                               Window->RenderScale);
       }
-
-      nk_tree_pop(Renderer->Nk);
     }
 
-    if (nk_tree_push(Renderer->Nk, NK_TREE_TAB, "Camera", NK_MINIMIZED)) {
-      nk_layout_row_dynamic(Renderer->Nk, 24, 1);
+    ImGui::Spacing();
 
-      if (nk_button_label(Renderer->Nk, "Reset")) {
+    if (ImGui::CollapsingHeader("Camera")) {
+      ImGui::Spacing();
+      if (ImGui::Button("Reset")) {
         CameraPosition = Profile::Scene3D::DefaultCameraPosition;
         CameraTarget = Profile::Scene3D::DefaultCameraTarget;
       }
+      ImGui::Spacing();
+      ImGui::Text("Camera X");
+      ImGui::SliderFloat("##cameraX", &CameraPosition.x, -1500.0f, 1500.0f);
+      ImGui::Spacing();
+      ImGui::Text("Camera Y");
+      ImGui::SliderFloat("##cameraY", &CameraPosition.y, -1500.0f, 1500.0f);
+      ImGui::Spacing();
+      ImGui::Text("Camera Z");
+      ImGui::SliderFloat("##cameraZ", &CameraPosition.z, -1500.0f, 1500.0f);
 
-      nk_property_float(Renderer->Nk, "Camera X", -1500.0f, &CameraPosition.x,
-                        1500.0f, 1.0f, 0.2f);
-      nk_property_float(Renderer->Nk, "Camera Y", -1500.0f, &CameraPosition.y,
-                        1500.0f, 1.0f, 0.2f);
-      nk_property_float(Renderer->Nk, "Camera Z", -1500.0f, &CameraPosition.z,
-                        1500.0f, 1.0f, 0.2f);
-
-      nk_property_float(Renderer->Nk, "Camera target X", -1500.0f,
-                        &CameraTarget.x, 1500.0f, 1.0f, 0.2f);
-      nk_property_float(Renderer->Nk, "Camera target Y", -1500.0f,
-                        &CameraTarget.y, 1500.0f, 1.0f, 0.2f);
-      nk_property_float(Renderer->Nk, "Camera target Z", -1500.0f,
-                        &CameraTarget.z, 1500.0f, 1.0f, 0.2f);
-
-      nk_tree_pop(Renderer->Nk);
+      ImGui::Spacing();
+      ImGui::Text("Camera target X");
+      ImGui::SliderFloat("##cameraTargetX", &CameraTarget.x, -1500.0f, 1500.0f);
+      ImGui::Spacing();
+      ImGui::Text("Camera target Y");
+      ImGui::SliderFloat("##cameraTargetY", &CameraTarget.y, -1500.0f, 1500.0f);
+      ImGui::Spacing();
+      ImGui::Text("Camera target Z");
+      ImGui::SliderFloat("##cameraTargetZ", &CameraTarget.z, -1500.0f, 1500.0f);
     }
 
-    if (nk_tree_push(Renderer->Nk, NK_TREE_TAB, "Light", NK_MINIMIZED)) {
-      nk_layout_row_dynamic(Renderer->Nk, 24, 1);
+    ImGui::Spacing();
 
-      int darkMode = (int)Renderer->Scene->DarkMode;
-      nk_checkbox_label(Renderer->Nk, "DarkMode", &darkMode);
-      Renderer->Scene->DarkMode = (bool)darkMode;
+    if (ImGui::CollapsingHeader("Light")) {
+      ImGui::Spacing();
+      ImGui::Checkbox("DarkMode", &Renderer->Scene->DarkMode);
+      ImGui::Spacing();
+      ImGui::Text("LightPosition.x");
+      ImGui::SliderFloat("##lightPosX", &Renderer->Scene->LightPosition.x,
+                         -40.0f, 40.0f);
+      ImGui::Spacing();
+      ImGui::Text("LightPosition.y");
+      ImGui::SliderFloat("##lightPosY", &Renderer->Scene->LightPosition.y,
+                         -40.0f, 40.0f);
+      ImGui::Spacing();
+      ImGui::Text("LightPosition.z");
+      ImGui::SliderFloat("##lightPosZ", &Renderer->Scene->LightPosition.z,
+                         -40.0f, 40.0f);
 
-      nk_property_float(Renderer->Nk, "LightPosition.x", -40.0f,
-                        &Renderer->Scene->LightPosition.x, 40.0f, 1.0f, 0.02f);
-      nk_property_float(Renderer->Nk, "LightPosition.y", -40.0f,
-                        &Renderer->Scene->LightPosition.y, 40.0f, 1.0f, 0.02f);
-      nk_property_float(Renderer->Nk, "LightPosition.z", -40.0f,
-                        &Renderer->Scene->LightPosition.z, 40.0f, 1.0f, 0.02f);
+      ImGui::Spacing();
+      float lightTint[] = {UiTintColor.r, UiTintColor.g, UiTintColor.b,
+                           UiTintColor.a};
+      ImGui::ColorEdit4("Tint", lightTint);
+      UiTintColor.r = lightTint[0];
+      UiTintColor.g = lightTint[1];
+      UiTintColor.b = lightTint[2];
+      UiTintColor.a = lightTint[3];
 
-      nk_layout_row_dynamic(Renderer->Nk, 120, 1);
-      nk_color_pick(Renderer->Nk, &UiTintColor, NK_RGBA);
-      nk_layout_row_dynamic(Renderer->Nk, 24, 1);
-      nk_property_float(Renderer->Nk, "Tint.R", 0.0f, &UiTintColor.r, 1.0f,
-                        0.01f, 0.005f);
-      nk_property_float(Renderer->Nk, "Tint.G", 0.0f, &UiTintColor.g, 1.0f,
-                        0.01f, 0.005f);
-      nk_property_float(Renderer->Nk, "Tint.B", 0.0f, &UiTintColor.b, 1.0f,
-                        0.01f, 0.005f);
-      nk_property_float(Renderer->Nk, "Tint.A", 0.0f, &UiTintColor.a, 1.0f,
-                        0.01f, 0.005f);
+      ImGui::Spacing();
+      ImGui::Text("Tint.R");
+      ImGui::SliderFloat("##tintR", &UiTintColor.r, 0.0f, 1.0f);
+      ImGui::Spacing();
+      ImGui::Text("Tint.G");
+      ImGui::SliderFloat("##tintG", &UiTintColor.g, -0.0f, 1.0f);
+      ImGui::Spacing();
+      ImGui::Text("Tint.B");
+      ImGui::SliderFloat("##tintB", &UiTintColor.b, -0.0f, 1.0f);
+      ImGui::Spacing();
+      ImGui::Text("Tint.A");
+      ImGui::SliderFloat("##tintA", &UiTintColor.a, -0.0f, 1.0f);
       Renderer->Scene->Tint.r = UiTintColor.r;
       Renderer->Scene->Tint.g = UiTintColor.g;
       Renderer->Scene->Tint.b = UiTintColor.b;
       Renderer->Scene->Tint.a = UiTintColor.a;
-
-      nk_tree_pop(Renderer->Nk);
     }
 
     if (Renderer->Scene->Renderables[0]->Status == LS_Loaded) {
       Renderer->Scene->Renderables[0]->IsVisible = true;
 
-      if (nk_tree_push(Renderer->Nk, NK_TREE_TAB, "Background", NK_MAXIMIZED)) {
-        nk_layout_row_dynamic(Renderer->Nk, 24, 1);
+      if (ImGui::CollapsingHeader("Background",
+                                  ImGuiTreeNodeFlags_DefaultOpen)) {
+        ImGui::Spacing();
 
-        CurrentBackground = nk_combo(
-            Renderer->Nk, (const char**)g_BackgroundModelNames,
-            g_BackgroundModelCount, CurrentBackground, 24, nk_vec2(200, 200));
+        const char* comboPreviewValue =
+            g_BackgroundModelNames[CurrentBackground];
+        if (ImGui::BeginCombo("##backgroundCombo", comboPreviewValue)) {
+          for (uint32_t i = 0; i < g_BackgroundModelCount; i++) {
+            const bool isSelected = (CurrentBackground == i);
+            if (ImGui::Selectable(g_BackgroundModelNames[i], isSelected))
+              CurrentBackground = i;
+            if (isSelected) ImGui::SetItemDefaultFocus();
+          }
+          ImGui::EndCombo();
+        }
+
         if (g_BackgroundModelIds[CurrentBackground] !=
             Renderer->Scene->Renderables[0]->StaticModel->Id) {
           Renderer->Scene->Renderables[0]->LoadAsync(
               g_BackgroundModelIds[CurrentBackground]);
         }
-
-        nk_tree_pop(Renderer->Nk);
       }
     }
+
+    ImGui::Spacing();
 
     if (Renderer->Scene->Renderables[1]->Status == LS_Loaded) {
       Renderer->Scene->Renderables[1]->IsVisible = true;
 
-      if (nk_tree_push(Renderer->Nk, NK_TREE_TAB, "Model", NK_MAXIMIZED)) {
-        nk_layout_row_dynamic(Renderer->Nk, 24, 1);
+      if (ImGui::CollapsingHeader("Model", ImGuiTreeNodeFlags_DefaultOpen)) {
+        ImGui::Spacing();
+        ImGui::Text("Model X");
+        ImGui::SliderFloat("##modelX", &Renderer->Scene->LightPosition.x,
+                           -40.0f, 40.0f);
+        ImGui::Spacing();
+        ImGui::Text("Model Y");
+        ImGui::SliderFloat("##modelY", &Renderer->Scene->LightPosition.y,
+                           -40.0f, 40.0f);
+        ImGui::Spacing();
+        ImGui::Text("Model Z");
+        ImGui::SliderFloat("##modelZ", &Renderer->Scene->LightPosition.z,
+                           -40.0f, 40.0f);
 
-        nk_property_float(
-            Renderer->Nk, "Model X", -40.0f,
-            &Renderer->Scene->Renderables[1]->ModelTransform.Position.x, 40.0f,
-            1.0f, 0.02f);
-        nk_property_float(
-            Renderer->Nk, "Model Y", 0.0f,
-            &Renderer->Scene->Renderables[1]->ModelTransform.Position.y, 40.0f,
-            1.0f, 0.02f);
-        nk_property_float(
-            Renderer->Nk, "Model Z", -40.0f,
-            &Renderer->Scene->Renderables[1]->ModelTransform.Position.z, 40.0f,
-            1.0f, 0.02f);
-
-        nk_checkbox_label(Renderer->Nk, "Track camera", &TrackCamera);
+        ImGui::Spacing();
+        ImGui::Checkbox("Track camera", &TrackCamera);
         if (TrackCamera) {
           Renderer->Scene->Renderables[1]->ModelTransform.SetRotationFromEuler(
               LookAtEulerZYX(
@@ -226,114 +251,148 @@ void Update(float dt) {
               glm::quat();
         }
 
-        CurrentModel =
-            nk_combo(Renderer->Nk, (const char**)g_ModelNames, g_ModelCount,
-                     CurrentModel, 24, nk_vec2(200, 200));
+        ImGui::Spacing();
+
+        const char* comboPreviewValue = g_ModelNames[CurrentModel];
+        if (ImGui::BeginCombo("##modelCombo", comboPreviewValue)) {
+          for (uint32_t i = 0; i < g_ModelCount; i++) {
+            const bool isSelected = (CurrentModel == i);
+            if (ImGui::Selectable(g_ModelNames[i], isSelected))
+              CurrentModel = i;
+            if (isSelected) ImGui::SetItemDefaultFocus();
+          }
+          ImGui::EndCombo();
+        }
+
         if (g_ModelIds[CurrentModel] !=
             Renderer->Scene->Renderables[1]->StaticModel->Id) {
           CurrentAnim = 0;
           Renderer->Scene->Renderables[1]->LoadAsync(g_ModelIds[CurrentModel]);
         }
-
-        nk_tree_pop(Renderer->Nk);
       }
 
-      if (nk_tree_push(Renderer->Nk, NK_TREE_TAB, "Animation", NK_MAXIMIZED)) {
-        nk_layout_row_dynamic(Renderer->Nk, 24, 1);
+      if (ImGui::CollapsingHeader("Animation",
+                                  ImGuiTreeNodeFlags_DefaultOpen)) {
+        ImGui::Spacing();
+        ImGui::Checkbox("Playing",
+                        &Renderer->Scene->Renderables[1]->Animator.IsPlaying);
 
-        int isPlaying =
-            (int)Renderer->Scene->Renderables[1]->Animator.IsPlaying;
-        nk_checkbox_label(Renderer->Nk, "Playing", &isPlaying);
-        Renderer->Scene->Renderables[1]->Animator.IsPlaying = (bool)isPlaying;
-
-        int tweening = (int)Renderer->Scene->Renderables[1]->Animator.Tweening;
-        nk_checkbox_label(Renderer->Nk, "Tweening", &tweening);
-        Renderer->Scene->Renderables[1]->Animator.Tweening = (bool)tweening;
+        ImGui::Spacing();
+        ImGui::Checkbox("Tweening",
+                        &Renderer->Scene->Renderables[1]->Animator.Tweening);
 
         if (Renderer->Scene->Renderables[1]->Animator.CurrentAnimation) {
-          nk_property_float(
-              Renderer->Nk, "Loop start", 0.0f,
-              &Renderer->Scene->Renderables[1]->Animator.LoopStart,
-              Renderer->Scene->Renderables[1]->Animator.LoopEnd, 1.0f, 0.2f);
-          nk_property_float(Renderer->Nk, "Loop end", 0.0f,
-                            &Renderer->Scene->Renderables[1]->Animator.LoopEnd,
-                            Renderer->Scene->Renderables[1]
-                                ->Animator.CurrentAnimation->Duration,
-                            1.0f, 0.2f);
+          ImGui::Spacing();
+          ImGui::Text("Loop start");
+          ImGui::SliderFloat(
+              "##loopStart",
+              &Renderer->Scene->Renderables[1]->Animator.LoopStart, 0.0f,
+              Renderer->Scene->Renderables[1]->Animator.LoopEnd);
+          ImGui::Spacing();
+          ImGui::Text("Loop end");
+          ImGui::SliderFloat("##loopEnd",
+                             &Renderer->Scene->Renderables[1]->Animator.LoopEnd,
+                             0.0f,
+                             Renderer->Scene->Renderables[1]
+                                 ->Animator.CurrentAnimation->Duration);
 
           // Nice hack
           float backup = Renderer->Scene->Renderables[1]->Animator.CurrentTime;
-          nk_property_float(
-              Renderer->Nk, "Current time", 0.0f,
-              &Renderer->Scene->Renderables[1]->Animator.CurrentTime,
+          ImGui::Spacing();
+          ImGui::Text("Current time");
+          ImGui::SliderFloat(
+              "##currentTime",
+              &Renderer->Scene->Renderables[1]->Animator.CurrentTime, 0.0f,
               Renderer->Scene->Renderables[1]
-                  ->Animator.CurrentAnimation->Duration,
-              1.0f, 0.2f);
+                  ->Animator.CurrentAnimation->Duration);
           if (backup != Renderer->Scene->Renderables[1]->Animator.CurrentTime) {
             Renderer->Scene->Renderables[1]->Animator.Seek(
                 Renderer->Scene->Renderables[1]->Animator.CurrentTime);
           }
 
-          int oneShot = (int)Renderer->Scene->Renderables[1]->Animator.OneShot;
-          nk_checkbox_label(Renderer->Nk, "OneShot", &oneShot);
-          Renderer->Scene->Renderables[1]->Animator.OneShot = oneShot;
+          ImGui::Spacing();
+          ImGui::Checkbox("OneShot",
+                          &Renderer->Scene->Renderables[1]->Animator.OneShot);
 
-          CurrentAnim = nk_combo(
-              Renderer->Nk,
-              (const char**)Renderer->Scene->Renderables[1]
-                  ->StaticModel->AnimationNames,
-              Renderer->Scene->Renderables[1]->StaticModel->AnimationCount,
-              CurrentAnim, 24, nk_vec2(200, 200));
-
-          if (nk_button_label(Renderer->Nk, "Switch")) {
+          ImGui::Spacing();
+          const char* comboPreviewValue =
+              Renderer->Scene->Renderables[1]
+                  ->StaticModel->AnimationNames[CurrentAnim];
+          if (ImGui::BeginCombo("##animationCombo", comboPreviewValue)) {
+            for (uint32_t i = 0;
+                 i <
+                 Renderer->Scene->Renderables[1]->StaticModel->AnimationCount;
+                 i++) {
+              const bool isSelected = (CurrentAnim == i);
+              if (ImGui::Selectable(Renderer->Scene->Renderables[1]
+                                        ->StaticModel->AnimationNames[i],
+                                    isSelected))
+                CurrentAnim = i;
+              if (isSelected) ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+          }
+          ImGui::Spacing();
+          if (ImGui::Button("Switch")) {
             Renderer->Scene->Renderables[1]->SwitchAnimation(
                 Renderer->Scene->Renderables[1]
                     ->StaticModel->AnimationIds[CurrentAnim],
                 0.66f);
           }
         }
-
-        nk_tree_pop(Renderer->Nk);
       }
     }
 
-    if (nk_tree_push(Renderer->Nk, NK_TREE_TAB, "BGM", NK_MAXIMIZED)) {
-      nk_layout_row_dynamic(Renderer->Nk, 24, 1);
+    ImGui::Spacing();
 
-      CurrentBgm = nk_combo(Renderer->Nk, (const char**)BgmNames, BgmCount,
-                            CurrentBgm, 24, nk_vec2(200, 200));
-      nk_checkbox_label(Renderer->Nk, "Loop (takes effect on switch)",
-                        &BgmLoop);
-      if (nk_button_label(Renderer->Nk, "Switch")) {
+    if (ImGui::CollapsingHeader("BGM", ImGuiTreeNodeFlags_DefaultOpen)) {
+      const char* comboPreviewValue = BgmNames[CurrentBgm];
+
+      ImGui::Spacing();
+      if (ImGui::BeginCombo("##bgmCombo", comboPreviewValue)) {
+        for (uint32_t i = 0; i < BgmCount; i++) {
+          const bool isSelected = (CurrentBgm == i);
+          if (ImGui::Selectable(BgmNames[i], isSelected)) CurrentBgm = i;
+          if (isSelected) ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+      }
+      ImGui::Spacing();
+      bool bgmLoop = (bool)BgmLoop;
+      ImGui::Checkbox("Loop (takes effect on switch)", &bgmLoop);
+      BgmLoop = (int)bgmLoop;
+      ImGui::Spacing();
+      if (ImGui::Button("Switch##switchBgm")) {
         BgmChangeQueued = true;
         Audio::Channels[Audio::AC_BGM0]->Stop(BgmFadeOut);
       }
-
-      nk_property_float(Renderer->Nk, "Master volume", 0.0f,
-                        &Audio::MasterVolume, 1.0f, 0.01f, 0.01f);
-      nk_property_float(Renderer->Nk, "BGM volume", 0.0f,
-                        &Audio::GroupVolumes[Audio::ACG_BGM], 1.0f, 0.01f,
-                        0.01f);
-
-      nk_property_float(Renderer->Nk, "Fade out duration", 0.0f, &BgmFadeOut,
-                        5.0f, 0.1f, 0.02f);
-      nk_property_float(Renderer->Nk, "Fade in duration", 0.0f, &BgmFadeIn,
-                        5.0f, 0.1f, 0.02f);
-
-      nk_tree_pop(Renderer->Nk);
-    }
-  } else {
-#endif
-    if (Renderer->Scene->Renderables[0]->Status == LS_Loaded) {
-      Renderer->Scene->Renderables[0]->IsVisible = true;
+      ImGui::Spacing();
+      ImGui::Text("Master volume");
+      ImGui::SliderFloat("##masterVolume", &Audio::MasterVolume, 0.0f, 1.0f);
+      ImGui::Spacing();
+      ImGui::Text("BGM volume");
+      ImGui::SliderFloat("##bgmVolume", &Audio::GroupVolumes[Audio::ACG_BGM],
+                         0.0f, 1.0f);
+      ImGui::Spacing();
+      ImGui::Text("Fade out duration");
+      ImGui::SliderFloat("##fadeOutDur", &BgmFadeOut, 0.0f, 5.0f);
+      ImGui::Spacing();
+      ImGui::Text("Fade in duration");
+      ImGui::SliderFloat("##fadeInDur", &BgmFadeIn, 0.0f, 5.0f);
     }
 
-    if (Renderer->Scene->Renderables[1]->Status == LS_Loaded) {
-      Renderer->Scene->Renderables[1]->IsVisible = true;
-    }
-#ifndef IMPACTO_DISABLE_OPENGL
+    ImGui::Spacing();
   }
-  if (Renderer->NuklearSupported) nk_end(Renderer->Nk);
+
+  ImGui::End();
+#else
+  if (Renderer->Scene->Renderables[0]->Status == LS_Loaded) {
+    Renderer->Scene->Renderables[0]->IsVisible = true;
+  }
+
+  if (Renderer->Scene->Renderables[1]->Status == LS_Loaded) {
+    Renderer->Scene->Renderables[1]->IsVisible = true;
+  }
 #endif
 
   if (BgmChangeQueued &&
@@ -356,7 +415,7 @@ static void EnumerateBgm() {
     return;
   }
 
-  BgmCount = listing.size();
+  BgmCount = (uint32_t)listing.size();
 
   BgmNames = (char**)malloc(BgmCount * sizeof(char*));
   BgmIds = (uint32_t*)malloc(BgmCount * sizeof(uint32_t));

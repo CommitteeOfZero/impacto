@@ -23,7 +23,6 @@ static void EnumerateCharacters();
 static uint32_t CurrentCharacter;
 static uint32_t CurrentBackground;
 static uint32_t CurrentBgm;
-static nk_colorf UiTintColor;
 static int UiWindowWidth;
 static int UiWindowHeight;
 static int UiMsaaCount;
@@ -35,7 +34,7 @@ static bool BgmChangeQueued;
 
 static float BgmFadeOut;
 static float BgmFadeIn;
-static int BgmLoop;
+static bool BgmLoop;
 
 static char** BackgroundNames = 0;
 static uint32_t* BackgroundIds = 0;
@@ -44,11 +43,6 @@ static uint32_t BackgroundCount = 0;
 static char** CharacterNames = 0;
 static uint32_t* CharacterIds = 0;
 static uint32_t CharacterCount = 0;
-
-// FPS counter
-static float LastTime;
-static int Frames;
-static float FPS;
 
 void Init() {
   EnumerateBgm();
@@ -64,12 +58,9 @@ void Init() {
   BgmFadeIn = 0.0f;
   BgmLoop = true;
 
-  UiTintColor = {0.784f, 0.671f, 0.6f, 0.9f};
-
-  LastTime = (float)((double)SDL_GetPerformanceCounter() /
-                     (double)SDL_GetPerformanceFrequency());
-  Frames = 0;
-  FPS = 0.0f;
+  UiWindowWidth = Window->WindowWidth;
+  UiWindowHeight = Window->WindowHeight;
+  UiMsaaCount = Window->MsaaCount;
 }
 
 void Update(float dt) {
@@ -79,67 +70,79 @@ void Update(float dt) {
     UiMsaaCount = Window->MsaaCount;
   }
 
-#ifndef IMPACTO_DISABLE_OPENGL
-  if (Renderer->NuklearSupported &&
-      nk_begin(Renderer->Nk, "Scene",
-               nk_rect(20.0f, 20.0f, 300.0f, Window->WindowHeight - 40.0f),
-               NK_WINDOW_BORDER | NK_WINDOW_TITLE)) {
-    // FPS counter
-    Frames++;
-    float time = (float)((double)SDL_GetPerformanceCounter() /
-                         (double)SDL_GetPerformanceFrequency());
-    if (time - LastTime >= 2.0f) {
-      FPS = (float)Frames / (time - LastTime);
-      LastTime = time;
-      Frames = 0;
-    }
+#ifndef IMPACTO_DISABLE_IMGUI
+  if (ImGui::Begin("Scene", nullptr,
+                   ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove |
+                       ImGuiWindowFlags_NoResize)) {
+    ImGui::SetWindowSize(ImVec2(300.0f, Window->WindowHeight - 40.0f),
+                         ImGuiCond_Once);
+    ImGui::SetWindowPos(ImVec2(20.0f, 20.0f), ImGuiCond_Once);
+    ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
 
-    nk_layout_row_dynamic(Renderer->Nk, 24, 1);
-    char buffer[32];  // whatever
-    snprintf(buffer, 32, "FPS: %02.2f", FPS);
-    nk_label(Renderer->Nk, buffer, NK_TEXT_ALIGN_CENTERED);
+    ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
+                ImGui::GetIO().Framerate);
+    ImGui::Dummy(ImVec2(0.0f, 20.0f));
 
-    if (nk_tree_push(Renderer->Nk, NK_TREE_TAB, "Window", NK_MINIMIZED)) {
-      nk_layout_row_dynamic(Renderer->Nk, 24, 1);
-
-      nk_property_int(Renderer->Nk, "Width", 0, &UiWindowWidth, 8192, 0, 0.0f);
-      nk_property_int(Renderer->Nk, "Height", 0, &UiWindowHeight, 8192, 0,
-                      0.0f);
-      nk_property_int(Renderer->Nk, "MSAA", 0, &UiMsaaCount, 16, 0, 0);
-
-      if (nk_button_label(Renderer->Nk, "Resize")) {
+    if (ImGui::CollapsingHeader("Window")) {
+      ImGui::Spacing();
+      ImGui::Text("Width");
+      ImGui::DragInt("##Width", &UiWindowWidth, 0.005f, 0, 8192, "%d",
+                     ImGuiSliderFlags_AlwaysClamp);
+      ImGui::Spacing();
+      ImGui::Text("Height");
+      ImGui::DragInt("##Height", &UiWindowHeight, 0.005f, 0, 8192, "%d",
+                     ImGuiSliderFlags_AlwaysClamp);
+      ImGui::Spacing();
+      ImGui::Text("MSAA");
+      ImGui::DragInt("##MSAA", &UiMsaaCount, 0.005f, 0, 16, "%d",
+                     ImGuiSliderFlags_AlwaysClamp);
+      ImGui::Spacing();
+      if (ImGui::Button("Resize",
+                        ImVec2(ImGui::GetContentRegionAvail().x, 0.0f))) {
         Window->SetDimensions(UiWindowWidth, UiWindowHeight, UiMsaaCount,
                               Window->RenderScale);
       }
-
-      nk_tree_pop(Renderer->Nk);
     }
 
-    if (nk_tree_push(Renderer->Nk, NK_TREE_TAB, "Background", NK_MAXIMIZED)) {
-      nk_layout_row_dynamic(Renderer->Nk, 24, 1);
+    ImGui::Spacing();
 
+    if (ImGui::CollapsingHeader("Background", ImGuiTreeNodeFlags_DefaultOpen)) {
       uint32_t LastBackground = CurrentBackground;
 
-      CurrentBackground =
-          nk_combo(Renderer->Nk, (const char**)BackgroundNames, BackgroundCount,
-                   CurrentBackground, 24, nk_vec2(200, 200));
+      const char* comboPreviewValue = BackgroundNames[CurrentBackground];
+
+      ImGui::Spacing();
+      if (ImGui::BeginCombo("##backgroundCombo", comboPreviewValue)) {
+        for (uint32_t i = 0; i < BackgroundCount; i++) {
+          const bool isSelected = (CurrentBackground == i);
+          if (ImGui::Selectable(BackgroundNames[i], isSelected))
+            CurrentBackground = i;
+          if (isSelected) ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+      }
 
       if (LastBackground != CurrentBackground ||
           Characters2D[0].Status == LS_Unloaded) {
         Backgrounds2D[0]->LoadAsync(BackgroundIds[CurrentBackground]);
       }
-
-      nk_tree_pop(Renderer->Nk);
     }
 
-    if (nk_tree_push(Renderer->Nk, NK_TREE_TAB, "Character", NK_MAXIMIZED)) {
-      nk_layout_row_dynamic(Renderer->Nk, 24, 1);
-
+    if (ImGui::CollapsingHeader("Character", ImGuiTreeNodeFlags_DefaultOpen)) {
       uint32_t LastCharacter = CurrentCharacter;
 
-      CurrentCharacter =
-          nk_combo(Renderer->Nk, (const char**)CharacterNames, CharacterCount,
-                   CurrentCharacter, 24, nk_vec2(200, 200));
+      const char* comboPreviewValue = CharacterNames[CurrentCharacter];
+
+      ImGui::Spacing();
+      if (ImGui::BeginCombo("##characterCombo", comboPreviewValue)) {
+        for (uint32_t i = 0; i < CharacterCount; i++) {
+          const bool isSelected = (CurrentCharacter == i);
+          if (ImGui::Selectable(CharacterNames[i], isSelected))
+            CurrentCharacter = i;
+          if (isSelected) ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+      }
 
       if (LastCharacter != CurrentCharacter ||
           Characters2D[0].Status == LS_Unloaded) {
@@ -147,64 +150,77 @@ void Update(float dt) {
       }
       if (Characters2D[0].Status == LS_Loaded) Characters2D[0].Show = true;
 
-      nk_property_float(Renderer->Nk, "Character X", -10000.0f,
-                        &Characters2D[0].OffsetX, 10000.0f, 1.0f, 5.0f);
-      nk_property_float(Renderer->Nk, "Character Y", -10000.0f,
-                        &Characters2D[0].OffsetY, 10000.0f, 1.0f, 5.0f);
-
+      ImGui::Spacing();
+      ImGui::Text("Character X");
+      ImGui::SliderFloat("##characterX", &Characters2D[0].OffsetX, -5000.0f,
+                         5000.0f);
+      ImGui::Spacing();
+      ImGui::Text("Character Y");
+      ImGui::SliderFloat("##characterY", &Characters2D[0].OffsetY, -5000.0f,
+                         5000.0f);
+      ImGui::Spacing();
       Characters2D[0].Face >>= 16;
-      nk_property_int(Renderer->Nk, "Character Face", 1, &Characters2D[0].Face,
-                      20, 1, 1.0f);
+      ImGui::Text("Character Face");
+      ImGui::InputInt("##characterFace", &Characters2D[0].Face);
       Characters2D[0].Face <<= 16;
-
-      nk_property_int(Renderer->Nk, "Character Eye", 0,
-                      &Characters2D[0].EyeFrame, 10, 1, 1.0f);
-
-      nk_property_int(Renderer->Nk, "Character Lip", 0,
-                      &Characters2D[0].LipFrame, 10, 1, 1.0f);
-
-      nk_tree_pop(Renderer->Nk);
+      ImGui::Spacing();
+      ImGui::Text("Character Eye");
+      ImGui::InputInt("##characterEye", &Characters2D[0].EyeFrame);
+      ImGui::Spacing();
+      ImGui::Text("Character Lip");
+      ImGui::InputInt("##characterLip", &Characters2D[0].LipFrame);
     }
 
-    if (nk_tree_push(Renderer->Nk, NK_TREE_TAB, "BGM", NK_MAXIMIZED)) {
-      nk_layout_row_dynamic(Renderer->Nk, 24, 1);
+    ImGui::Spacing();
 
-      CurrentBgm = nk_combo(Renderer->Nk, (const char**)BgmNames, BgmCount,
-                            CurrentBgm, 24, nk_vec2(200, 200));
-      nk_checkbox_label(Renderer->Nk, "Loop (takes effect on switch)",
-                        &BgmLoop);
-      if (nk_button_label(Renderer->Nk, "Switch")) {
+    if (ImGui::CollapsingHeader("BGM", ImGuiTreeNodeFlags_DefaultOpen)) {
+      const char* comboPreviewValue = BgmNames[CurrentBgm];
+
+      ImGui::Spacing();
+      if (ImGui::BeginCombo("##bgmCombo", comboPreviewValue)) {
+        for (uint32_t i = 0; i < BgmCount; i++) {
+          const bool isSelected = (CurrentBgm == i);
+          if (ImGui::Selectable(BgmNames[i], isSelected)) CurrentBgm = i;
+          if (isSelected) ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+      }
+      ImGui::Spacing();
+      ImGui::Checkbox("Loop (takes effect on switch)", &BgmLoop);
+      ImGui::Spacing();
+      if (ImGui::Button("Switch")) {
         BgmChangeQueued = true;
         Audio::Channels[Audio::AC_BGM0]->Stop(BgmFadeOut);
       }
-
-      nk_property_float(Renderer->Nk, "Master volume", 0.0f,
-                        &Audio::MasterVolume, 1.0f, 0.01f, 0.01f);
-      nk_property_float(Renderer->Nk, "BGM volume", 0.0f,
-                        &Audio::GroupVolumes[Audio::ACG_BGM], 1.0f, 0.01f,
-                        0.01f);
-
-      nk_property_float(Renderer->Nk, "Fade out duration", 0.0f, &BgmFadeOut,
-                        5.0f, 0.1f, 0.02f);
-      nk_property_float(Renderer->Nk, "Fade in duration", 0.0f, &BgmFadeIn,
-                        5.0f, 0.1f, 0.02f);
-
-      nk_tree_pop(Renderer->Nk);
-    }
-  } else {
-#endif
-    if (Characters2D[0].Status == LS_Unloaded) {
-      Backgrounds2D[0]->LoadAsync(BackgroundIds[0]);
+      ImGui::Spacing();
+      ImGui::Text("Master volume");
+      ImGui::SliderFloat("##masterVolume", &Audio::MasterVolume, 0.0f, 1.0f);
+      ImGui::Spacing();
+      ImGui::Text("BGM volume");
+      ImGui::SliderFloat("##bgmVolume", &Audio::GroupVolumes[Audio::ACG_BGM],
+                         0.0f, 1.0f);
+      ImGui::Spacing();
+      ImGui::Text("Fade out duration");
+      ImGui::SliderFloat("##fadeOutDur", &BgmFadeOut, 0.0f, 5.0f);
+      ImGui::Spacing();
+      ImGui::Text("Fade in duration");
+      ImGui::SliderFloat("##fadeInDur", &BgmFadeIn, 0.0f, 5.0f);
     }
 
-    if (Characters2D[0].Status == LS_Unloaded) {
-      Characters2D[0].LoadAsync(CharacterIds[0] | 0x10000);
-    }
-
-    if (Characters2D[0].Status == LS_Loaded) Characters2D[0].Show = true;
-#ifndef IMPACTO_DISABLE_OPENGL
+    ImGui::Spacing();
   }
-  if (Renderer->NuklearSupported) nk_end(Renderer->Nk);
+
+  ImGui::End();
+#else
+  if (Characters2D[0].Status == LS_Unloaded) {
+    Backgrounds2D[0]->LoadAsync(BackgroundIds[0]);
+  }
+
+  if (Characters2D[0].Status == LS_Unloaded) {
+    Characters2D[0].LoadAsync(CharacterIds[0] | 0x10000);
+  }
+
+  if (Characters2D[0].Status == LS_Loaded) Characters2D[0].Show = true;
 #endif
 
   if (BgmChangeQueued &&

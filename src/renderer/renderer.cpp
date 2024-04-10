@@ -50,13 +50,9 @@ void BaseRenderer::Init() { InitImpl(); }
 
 void BaseRenderer::Shutdown() { ShutdownImpl(); }
 
-void BaseRenderer::NuklearInit() { NuklearInitImpl(); }
-
-void BaseRenderer::NuklearShutdown() { NuklearShutdownImpl(); }
-
-int BaseRenderer::NuklearHandleEvent(SDL_Event* ev) {
-  return NuklearHandleEventImpl(ev);
-}
+#ifndef IMPACTO_DISABLE_IMGUI
+void BaseRenderer::ImGuiBeginFrame() { ImGuiBeginFrameImpl(); }
+#endif
 
 void BaseRenderer::BeginFrame() { BeginFrameImpl(); }
 

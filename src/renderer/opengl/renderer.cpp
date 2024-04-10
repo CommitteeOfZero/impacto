@@ -6,7 +6,9 @@
 #include "../../game.h"
 #include "3d/scene.h"
 #include "yuvframe.h"
-#include "../../../vendor/nuklear/nuklear_sdl_gl3.h"
+#ifndef IMPACTO_DISABLE_IMGUI
+#include "imgui_impl_opengl3.h"
+#endif
 
 namespace Impacto {
 namespace OpenGL {
@@ -15,7 +17,6 @@ void Renderer::InitImpl() {
   if (IsInit) return;
   ImpLog(LL_Info, LC_Render, "Initializing Renderer2D system\n");
   IsInit = true;
-  NuklearSupported = true;
 
   OpenGLWindow = new GLWindow();
   OpenGLWindow->Init();
@@ -127,22 +128,13 @@ void Renderer::ShutdownImpl() {
   }
 }
 
-void Renderer::NuklearInitImpl() {
-  Nk = nk_sdl_init(Window->SDLWindow, NkMaxVertexMemory, NkMaxElementMemory);
-  struct nk_font_atlas* atlas;
-  nk_sdl_font_stash_begin(&atlas);
-  // no fonts => default font used, but we still have do the setup
-  nk_sdl_font_stash_end();
+#ifndef IMPACTO_DISABLE_IMGUI
+void Renderer::ImGuiBeginFrameImpl() {
+  ImGui_ImplOpenGL3_NewFrame();
+  ImGui_ImplSDL2_NewFrame();
+  ImGui::NewFrame();
 }
-
-void Renderer::NuklearShutdownImpl() { nk_sdl_shutdown(); }
-
-int Renderer::NuklearHandleEventImpl(SDL_Event* ev) {
-  SDL_Event e_nk;
-  memcpy(&e_nk, ev, sizeof(SDL_Event));
-  Window->AdjustEventCoordinatesForNk(&e_nk);
-  return nk_sdl_handle_event(&e_nk);
-}
+#endif
 
 void Renderer::BeginFrameImpl() {}
 

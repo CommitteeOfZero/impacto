@@ -55,23 +55,35 @@ uint8_t DrawComponents[Vm::MaxThreads];
 bool ShouldQuit = false;
 float UpdateSecondCounter = 0.0f;
 
+static bool DebugWindowEnabled = false;
+static bool DebugWindowMinimized = true;
+static int ScrWorkIndexStart = 0;
+static int ScrWorkIndexEnd = 0;
+static int FlagWorkIndexStart = 0;
+static int FlagWorkIndexEnd = 0;
+
 static void Init() {
   WorkQueue::Init();
 
   Profile::LoadGameFromJson();
 
   Io::VfsInit();
+
+#ifndef IMPACTO_DISABLE_IMGUI
+  IMGUI_CHECKVERSION();
+  ImGui::CreateContext();
+  ImGuiIO& io = ImGui::GetIO();
+  io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+  io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+#endif
+
   InitRenderer();
-  Renderer->Init();
+
+#ifndef IMPACTO_DISABLE_IMGUI
+  io.FontGlobalScale = 1.5f;
+#endif
 
   memset(DrawComponents, DrawComponentType::None, sizeof(DrawComponents));
-
-#ifndef IMPACTO_DISABLE_OPENGL
-  if ((Profile::GameFeatures & GameFeature::Nuklear) &&
-      Renderer->NuklearSupported) {
-    Renderer->NuklearInit();
-  }
-#endif
 
   if (Profile::GameFeatures & GameFeature::Audio) {
     Audio::AudioInit();
@@ -91,7 +103,6 @@ static void Init() {
     Profile::LoadAnimations();
     DialoguePage::Init();
 
-    Renderer->Init();
     Background2D::Init();
     Mask2D::Init();
   }
@@ -145,13 +156,6 @@ void Shutdown() {
     Video::VideoShutdown();
   }
 
-#ifndef IMPACTO_DISABLE_OPENGL
-  if ((Profile::GameFeatures & GameFeature::Nuklear) &&
-      Renderer->NuklearSupported) {
-    Renderer->NuklearShutdown();
-  }
-#endif
-
   if (Profile::GameFeatures & GameFeature::Renderer2D) {
     Renderer->Shutdown();
   }
@@ -169,12 +173,6 @@ void UpdateGameState(float dt) {
 
 void Update(float dt) {
   SDL_Event e;
-#ifndef IMPACTO_DISABLE_OPENGL
-  if ((Profile::GameFeatures & GameFeature::Nuklear) &&
-      Renderer->NuklearSupported) {
-    nk_input_begin(Renderer->Nk);
-  }
-#endif
   if (Profile::GameFeatures & GameFeature::Input) {
     Input::BeginFrame();
   }
@@ -183,11 +181,10 @@ void Update(float dt) {
       ShouldQuit = true;
     }
 
-#ifndef IMPACTO_DISABLE_OPENGL
-    if ((Profile::GameFeatures & GameFeature::Nuklear) &&
-        Renderer->NuklearSupported) {
-      if (Renderer->NuklearHandleEvent(&e)) continue;
-    }
+#ifndef IMPACTO_DISABLE_IMGUI
+    if (ImGui_ImplSDL2_ProcessEvent(&e) && DebugWindowEnabled &&
+        !DebugWindowMinimized)
+      continue;
 #endif
 
     if (Profile::GameFeatures & GameFeature::Input) {
@@ -199,11 +196,9 @@ void Update(float dt) {
   if (Profile::GameFeatures & GameFeature::Input) {
     Input::EndFrame();
   }
-#ifndef IMPACTO_DISABLE_OPENGL
-  if ((Profile::GameFeatures & GameFeature::Nuklear) &&
-      Renderer->NuklearSupported) {
-    nk_input_end(Renderer->Nk);
-  }
+
+#ifndef IMPACTO_DISABLE_IMGUI
+  Renderer->ImGuiBeginFrame();
 #endif
 
   if (Profile::GameFeatures & GameFeature::ModelViewer) {
@@ -262,16 +257,6 @@ void Update(float dt) {
   }
 }
 
-static bool DebugWindowEnabled = false;
-// FPS counter
-static float LastTime;
-static int Frames = 0;
-static float FPS = 0.0f;
-static int ScrWorkIndexStart = 0;
-static int ScrWorkIndexEnd = 0;
-static int FlagWorkIndexStart = 0;
-static int FlagWorkIndexEnd = 0;
-
 void Render() {
   Window->Update();
 
@@ -283,81 +268,77 @@ void Render() {
 
   Renderer->BeginFrame2D();
 
-  if ((Profile::GameFeatures & GameFeature::Nuklear) &&
-      (Profile::GameFeatures & GameFeature::Sc3VirtualMachine)) {
-    if (Input::KeyboardButtonWentDown[SDL_SCANCODE_E] ||
-        Input::ControllerButtonWentDown[SDL_CONTROLLER_BUTTON_Y])
+#ifndef IMPACTO_DISABLE_IMGUI
+  if (Profile::GameFeatures & GameFeature::Sc3VirtualMachine) {
+    if ((Input::KeyboardButtonWentDown[SDL_SCANCODE_E] ||
+         Input::ControllerButtonWentDown[SDL_CONTROLLER_BUTTON_Y]) &&
+        !DebugWindowEnabled)
       DebugWindowEnabled = !DebugWindowEnabled;
 
-    // FPS counter
-    Frames++;
-    float time = (float)((double)SDL_GetPerformanceCounter() /
-                         (double)SDL_GetPerformanceFrequency());
-    if (time - LastTime >= 2.0f) {
-      FPS = (float)Frames / (time - LastTime);
-      LastTime = time;
-      Frames = 0;
-    }
+    DebugWindowMinimized = true;
+    if (DebugWindowEnabled) {
+      if (ImGui::Begin("Debug Editor", &DebugWindowEnabled)) {
+        DebugWindowMinimized = false;
+        ImGui::SetWindowSize(ImVec2(300.0f, Window->WindowHeight - 40.0f),
+                             ImGuiCond_Once);
+        ImGui::SetWindowPos(ImVec2(20.0f, 20.0f), ImGuiCond_Once);
+        ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
 
-#ifndef IMPACTO_DISABLE_OPENGL
-    if (DebugWindowEnabled && Renderer->NuklearSupported) {
-      if (nk_begin(Renderer->Nk, "Debug Editor",
-                   nk_rect(20.0f, 20.0f, 300.0f, Window->WindowHeight - 40.0f),
-                   NK_WINDOW_BORDER | NK_WINDOW_TITLE)) {
-        nk_layout_row_dynamic(Renderer->Nk, 24, 1);
-        char buffer[32];  // whatever
-        snprintf(buffer, 32, "FPS: %02.2f", FPS);
-        nk_label(Renderer->Nk, buffer, NK_TEXT_ALIGN_CENTERED);
+        ImGui::Text("%.3f ms/frame (%.1f FPS)",
+                    1000.0f / ImGui::GetIO().Framerate,
+                    ImGui::GetIO().Framerate);
+        ImGui::Dummy(ImVec2(0.0f, 10.0f));
 
-        nk_property_int(Renderer->Nk, "ScrWork start index", 0,
-                        &ScrWorkIndexStart, 8000, 1, 1.0f);
-        nk_property_int(Renderer->Nk, "ScrWork end index", 0, &ScrWorkIndexEnd,
-                        8000, 1, 1.0f);
+        ImGui::Spacing();
+        ImGui::Text("ScrWork start index");
+        ImGui::DragInt("##ScrWorkStartIndex", &ScrWorkIndexStart, 0.5f, 0, 8000,
+                       "%d", ImGuiSliderFlags_AlwaysClamp);
+        ImGui::Spacing();
+        ImGui::Text("ScrWork end index");
+        ImGui::DragInt("##ScrWorkEndIndex", &ScrWorkIndexEnd, 0.5f, 0, 8000,
+                       "%d", ImGuiSliderFlags_AlwaysClamp);
 
         if (ScrWorkIndexEnd < ScrWorkIndexStart)
           ScrWorkIndexEnd = ScrWorkIndexStart;
 
-        nk_property_int(Renderer->Nk, "FlagWork start index", 0,
-                        &FlagWorkIndexStart, 7000, 1, 0.0f);
-        nk_property_int(Renderer->Nk, "FlagWork end index", 0,
-                        &FlagWorkIndexEnd, 7000, 1, 0.0f);
+        ImGui::Spacing();
+        ImGui::Text("FlagWork start index");
+        ImGui::DragInt("##FlagWorkStartIndex", &FlagWorkIndexStart, 0.5f, 0,
+                       7000, "%d", ImGuiSliderFlags_AlwaysClamp);
+        ImGui::Spacing();
+        ImGui::Text("FlagWork end index");
+        ImGui::DragInt("##FlagWorkEndIndex", &FlagWorkIndexEnd, 0.5f, 0, 7000,
+                       "%d", ImGuiSliderFlags_AlwaysClamp);
 
         if (FlagWorkIndexEnd < FlagWorkIndexStart)
           FlagWorkIndexEnd = FlagWorkIndexStart;
 
-        if (nk_tree_push(Renderer->Nk, NK_TREE_TAB, "ScrWork Editor",
-                         NK_MINIMIZED)) {
-          nk_layout_row_dynamic(Renderer->Nk, 24, 1);
+        ImGui::PopItemWidth();
 
+        if (ImGui::CollapsingHeader("ScrWork Editor")) {
           for (int i = ScrWorkIndexStart; i <= ScrWorkIndexEnd; i++) {
+            ImGui::Spacing();
             char buf[32];
             snprintf(buf, 32, "ScrWork[%d]", i);
-            nk_property_int(Renderer->Nk, buf, INT_MIN, &ScrWork[i], INT_MAX, 1,
-                            50.0f);
+            ImGui::InputInt(buf, &ScrWork[i]);
           }
-
-          nk_tree_pop(Renderer->Nk);
         }
 
-        if (nk_tree_push(Renderer->Nk, NK_TREE_TAB, "FlagWork Editor",
-                         NK_MINIMIZED)) {
-          nk_layout_row_dynamic(Renderer->Nk, 24, 1);
-
+        if (ImGui::CollapsingHeader("FlagWork Editor")) {
           for (int i = FlagWorkIndexStart; i <= FlagWorkIndexEnd; i++) {
+            ImGui::Spacing();
             char buf[32];
             snprintf(buf, 32, "GetFlag(%d)", i);
-            int flagVal = (int)GetFlag(i);
-            nk_checkbox_label(Renderer->Nk, buf, &flagVal);
-            SetFlag(i, (bool)flagVal);
+            bool flagVal = GetFlag(i);
+            ImGui::Checkbox(buf, &flagVal);
+            SetFlag(i, flagVal);
           }
-
-          nk_tree_pop(Renderer->Nk);
         }
       }
-      nk_end(Renderer->Nk);
+      ImGui::End();
     }
-#endif
   }
+#endif
 
   if (Profile::GameFeatures & GameFeature::Renderer2D) {
     for (int i = 0; i < Vm::MaxThreads; i++) {
