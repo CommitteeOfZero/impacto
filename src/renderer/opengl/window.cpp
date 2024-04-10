@@ -11,7 +11,7 @@
 #include "../../profile/game.h"
 
 #ifndef IMPACTO_DISABLE_IMGUI
-#include "imgui_impl_opengl3.h"
+#include "../../vendor/imgui_custom/backends/imgui_impl_opengl3.h"
 #endif
 #include "../../game.h"
 #include "../../profile/vm.h"
