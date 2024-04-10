@@ -56,6 +56,10 @@
 #ifndef __gl3w_h_
 #define __gl3w_h_
 
+#if defined(__SWITCH__)
+#include <EGL/egl.h>
+#endif
+
 // Adapted from KHR/khrplatform.h to avoid including entire file.
 #ifndef __khrplatform_h_
 typedef          float         khronos_float_t;
@@ -661,7 +665,6 @@ static GL3WglProc get_proc(const char *proc)
     return res;
 }
 #elif defined(__SWITCH__)
-#include <EGL/egl.h>
 
 static GL3WglProc (*glx_get_proc_address)(const GLubyte *);
 
@@ -675,7 +678,7 @@ static void close_libgl(void) {}
 
 static GL3WglProc get_proc(const char *proc)
 {
-    Gl3WglProc res;
+    GL3WglProc res;
     res = glx_get_proc_address((const GLubyte *)proc);
     return res;
 }
