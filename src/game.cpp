@@ -79,10 +79,6 @@ static void Init() {
 
   InitRenderer();
 
-#ifndef IMPACTO_DISABLE_IMGUI
-  io.FontGlobalScale = 1.5f;
-#endif
-
   memset(DrawComponents, DrawComponentType::None, sizeof(DrawComponents));
 
   if (Profile::GameFeatures & GameFeature::Audio) {

@@ -21,9 +21,9 @@ static glm::vec3 CameraPosition;
 static glm::vec3 CameraTarget;
 static bool TrackCamera;
 static glm::vec4 UiTintColor;
-uint32_t CurrentModel;
+static uint32_t CurrentModel;
 static uint32_t CurrentAnim;
-uint32_t CurrentBackground;
+static uint32_t CurrentBackground;
 static uint32_t CurrentBgm;
 static int UiWindowWidth;
 static int UiWindowHeight;
@@ -58,7 +58,7 @@ void Init() {
   UiTintColor = glm::vec4(0.784f, 0.671f, 0.6f, 0.9f);
 
   Renderer->Scene->Renderables[0]->LoadAsync(g_BackgroundModelIds[0]);
-  Renderer->Scene->Renderables[1]->LoadAsync(g_ModelIds[2]);
+  Renderer->Scene->Renderables[1]->LoadAsync(g_ModelIds[0]);
 
   Renderer->Scene->Tint = glm::vec4(0.784f, 0.671f, 0.6f, 0.9f);
   Renderer->Scene->LightPosition = glm::vec3(-2.85f, 16.68f, 6.30f);
