@@ -166,8 +166,10 @@ void AudioChannel::SetGain() {
   float gain = MasterVolume * GroupVolumes[Group] * Volume;
   switch (State) {
     case ACS_Stopped:
-    case ACS_Playing:
       return;
+    case ACS_Playing:
+      // Nothing
+      break;
     case ACS_FadingIn:
       gain *= powf(FadeCompletion, 3.0f);
       break;

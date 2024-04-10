@@ -72,6 +72,26 @@ extern bool HasSpeakerPortraits;
 extern float SpeakerPortraitBaseOffsetX;
 extern float SpeakerPortraitBaseOffsetY;
 
+extern bool HasAutoButton;
+extern Sprite AutoButtonSprite;
+extern Sprite AutoButtonActiveSprite;
+extern glm::vec2 AutoButtonPosition;
+
+extern bool HasSkipButton;
+extern Sprite SkipButtonSprite;
+extern Sprite SkipButtonActiveSprite;
+extern glm::vec2 SkipButtonPosition;
+
+extern bool HasBacklogButton;
+extern Sprite BacklogButtonSprite;
+extern Sprite BacklogButtonActiveSprite;
+extern glm::vec2 BacklogButtonPosition;
+
+extern bool HasMenuButton;
+extern Sprite MenuButtonSprite;
+extern Sprite MenuButtonActiveSprite;
+extern glm::vec2 MenuButtonPosition;
+
 void Configure();
 
 }  // namespace Dialogue

@@ -66,7 +66,27 @@ root.Dialogue = {
     MaxPageSize = 2000,
     PageCount = 3,
     ColorTagIsUint8 = false,
-    HasSpeakerPortraits = true
+    HasSpeakerPortraits = true,
+    
+    HasAutoButton = true,
+    AutoButtonSprite = "AutoButton",
+    AutoButtonActiveSprite = "AutoButtonActive",
+    AutoButtonPosition = { X = 1786, Y = 792 },
+    
+    HasSkipButton = true,
+    SkipButtonSprite = "SkipButton",
+    SkipButtonActiveSprite = "SkipButtonActive",
+    SkipButtonPosition = { X = 1786, Y = 860 },
+    
+    HasBacklogButton = true,
+    BacklogButtonSprite = "BacklogButton",
+    BacklogButtonActiveSprite = "BacklogButtonActive",
+    BacklogButtonPosition = { X = 1786, Y = 928 },
+    
+    HasMenuButton = true,
+    MenuButtonSprite = "MenuButton",
+    MenuButtonActiveSprite = "MenuButtonActive",
+    MenuButtonPosition = { X = 1786, Y = 996 }
 };
 
 MakeAnimation({
@@ -79,11 +99,51 @@ MakeAnimation({
     FrameHeight = 64,
     RowHeight = 64,
     Frames = 3,
-    Duration = 3.0,
+    Duration = 9.0,
     Rows = 1,
     Columns = 3,
     PrimaryDirection = AnimationDirections.Right,
     SecondaryDirection = AnimationDirections.Down
 });
+
+root.Sprites["AutoButton"] = {
+    Sheet = "MesBox",
+    Bounds = { X = 770, Y = 330, Width = 68, Height = 66 },
+};
+
+root.Sprites["AutoButtonActive"] = {
+    Sheet = "MesBox",
+    Bounds = { X = 846, Y = 404, Width = 68, Height = 66 },
+};
+
+root.Sprites["SkipButton"] = {
+    Sheet = "MesBox",
+    Bounds = { X = 618, Y = 404, Width = 68, Height = 66 },
+};
+
+root.Sprites["SkipButtonActive"] = {
+    Sheet = "MesBox",
+    Bounds = { X = 618, Y = 330, Width = 68, Height = 66 },
+};
+
+root.Sprites["BacklogButton"] = {
+    Sheet = "MesBox",
+    Bounds = { X = 770, Y = 404, Width = 68, Height = 66 },
+};
+
+root.Sprites["BacklogButtonActive"] = {
+    Sheet = "MesBox",
+    Bounds = { X = 846, Y = 330, Width = 68, Height = 66 },
+};
+
+root.Sprites["MenuButton"] = {
+    Sheet = "MesBox",
+    Bounds = { X = 694, Y = 404, Width = 68, Height = 66 },
+};
+
+root.Sprites["MenuButtonActive"] = {
+    Sheet = "MesBox",
+    Bounds = { X = 694, Y = 330, Width = 68, Height = 66 },
+};
 
 include('mo8/nametag.lua');

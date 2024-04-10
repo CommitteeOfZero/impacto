@@ -3,6 +3,7 @@
 #include <enum.h>
 #include <flat_hash_map.hpp>
 #include "../text.h"
+#include "../ui/widgets/button.h"
 
 namespace Impacto {
 
@@ -12,6 +13,7 @@ enum DialogueBoxState { Hidden, Hiding, Showing, Shown };
 
 class DialogueBox {
  public:
+  virtual void Init();
   virtual void Show();
   virtual void Hide();
   virtual void Update(float dt);
@@ -19,6 +21,11 @@ class DialogueBox {
                       uint32_t nameId, float opacity);
 
   DialogueBoxState State;
+
+ private:
+  std::vector<UI::Widgets::Button*> ControlButtons;
+  virtual void UpdateControlButtons(float dt);
+  virtual void RenderControlButtons(glm::vec4 col);
 };
 
 }  // namespace Impacto

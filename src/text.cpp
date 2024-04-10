@@ -226,6 +226,8 @@ void DialoguePage::Init() {
       break;
   }
 
+  TextBox->Init();
+
   WaitIconDisplay::Init();
 
   for (int i = 0; i < Profile::Dialogue::PageCount; i++) {

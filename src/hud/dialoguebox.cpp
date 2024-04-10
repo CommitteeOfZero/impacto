@@ -14,11 +14,41 @@ namespace Impacto {
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Dialogue;
 
+void DialogueBox::Init() {
+  Sprite nullSprite = Sprite();
+  nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
+
+  if (HasAutoButton) {
+    UI::Widgets::Button* autoButton = new UI::Widgets::Button(
+        0, AutoButtonSprite, AutoButtonSprite, nullSprite, AutoButtonPosition);
+    ControlButtons.push_back(autoButton);
+  }
+
+  if (HasSkipButton) {
+    UI::Widgets::Button* skipButton = new UI::Widgets::Button(
+        0, SkipButtonSprite, SkipButtonSprite, nullSprite, SkipButtonPosition);
+    ControlButtons.push_back(skipButton);
+  }
+
+  if (HasBacklogButton) {
+    UI::Widgets::Button* backlogButton =
+        new UI::Widgets::Button(0, BacklogButtonSprite, BacklogButtonSprite,
+                                nullSprite, BacklogButtonPosition);
+    ControlButtons.push_back(backlogButton);
+  }
+
+  if (HasMenuButton) {
+    UI::Widgets::Button* menuButton = new UI::Widgets::Button(
+        0, MenuButtonSprite, MenuButtonSprite, nullSprite, MenuButtonPosition);
+    ControlButtons.push_back(menuButton);
+  }
+}
+
 void DialogueBox::Show() {}
 
 void DialogueBox::Hide() {}
 
-void DialogueBox::Update(float dt) {}
+void DialogueBox::Update(float dt) { UpdateControlButtons(dt); }
 
 void DialogueBox::Render(DialoguePageMode mode, bool hasName, float nameWidth,
                          uint32_t nameId, float opacity) {
@@ -26,6 +56,7 @@ void DialogueBox::Render(DialoguePageMode mode, bool hasName, float nameWidth,
   col.a = opacity;
   if (mode == DPM_ADV) {
     Renderer->DrawSprite(ADVBoxSprite, ADVBoxPos, col);
+    RenderControlButtons(col);
   } else {
     glm::vec4 nvlBoxTint(0.0f, 0.0f, 0.0f, opacity * NVLBoxMaxOpacity);
     Renderer->DrawRect(RectF(0, 0, Profile::DesignWidth, Profile::DesignHeight),
@@ -62,6 +93,20 @@ void DialogueBox::Render(DialoguePageMode mode, bool hasName, float nameWidth,
       Renderer->DrawSprite(ADVNameTag::RightSprite,
                            glm::vec2(lineX, ADVNameTag::Position.y), col);
     }
+  }
+}
+
+void DialogueBox::UpdateControlButtons(float dt) {
+  for (auto button : ControlButtons) {
+    button->UpdateInput();
+    button->Update(dt);
+  }
+}
+
+void DialogueBox::RenderControlButtons(glm::vec4 col) {
+  for (auto button : ControlButtons) {
+    button->Tint = col;
+    button->Render();
   }
 }
 

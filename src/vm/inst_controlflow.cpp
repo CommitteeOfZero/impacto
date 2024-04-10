@@ -254,6 +254,10 @@ VmInstruction(InstLoadJump) {
   StartInstruction;
   PopExpression(scriptId);
   PopUint16(labelNum);
+  if (Profile::Vm::UseMsbStrings) {
+    LoadMsb(thread->ScriptBufferId, scriptId);
+    if (!Profile::Vm::UseSeparateMsbArchive) scriptId += 1;
+  }
   LoadScript(thread->ScriptBufferId, scriptId);
   uint8_t* labelAdr =
       ScriptGetLabelAddress(ScriptBuffers[thread->ScriptBufferId], labelNum);

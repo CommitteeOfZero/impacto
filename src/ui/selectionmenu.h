@@ -26,10 +26,10 @@ class SelectionMenu : public Menu {
   Widgets::Group* ChoiceItems;
   Animation FadeAnimation;
   bool IsPlain;
-  ProcessedTextGlyph Choices[15][255];
+  ProcessedTextGlyph Choices[20][255];
   int ChoiceCount = 0;
-  int ChoiceLengths[15];
-  float ChoiceWidths[15];
+  int ChoiceLengths[20];
+  float ChoiceWidths[20];
 
   float CurrentSelBackgroundY = 0.0f;
   float ChoiceHeight = 0.0f;

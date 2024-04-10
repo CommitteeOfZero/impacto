@@ -70,6 +70,26 @@ bool HasSpeakerPortraits = false;
 float SpeakerPortraitBaseOffsetX = 250.0f;
 float SpeakerPortraitBaseOffsetY = 600.0f;
 
+bool HasAutoButton = false;
+Sprite AutoButtonSprite;
+Sprite AutoButtonActiveSprite;
+glm::vec2 AutoButtonPosition;
+
+bool HasSkipButton = false;
+Sprite SkipButtonSprite;
+Sprite SkipButtonActiveSprite;
+glm::vec2 SkipButtonPosition;
+
+bool HasBacklogButton = false;
+Sprite BacklogButtonSprite;
+Sprite BacklogButtonActiveSprite;
+glm::vec2 BacklogButtonPosition;
+
+bool HasMenuButton = false;
+Sprite MenuButtonSprite;
+Sprite MenuButtonActiveSprite;
+glm::vec2 MenuButtonPosition;
+
 void Configure() {
   EnsurePushMemberOfType("Dialogue", LUA_TTABLE);
 
@@ -85,6 +105,35 @@ void Configure() {
 
   FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
   FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
+
+  TryGetMemberBool("HasAutoButton", HasAutoButton);
+  if (HasAutoButton) {
+    AutoButtonSprite = EnsureGetMemberSprite("AutoButtonSprite");
+    AutoButtonActiveSprite = EnsureGetMemberSprite("AutoButtonActiveSprite");
+    AutoButtonPosition = EnsureGetMemberVec2("AutoButtonPosition");
+  }
+
+  TryGetMemberBool("HasSkipButton", HasSkipButton);
+  if (HasSkipButton) {
+    SkipButtonSprite = EnsureGetMemberSprite("SkipButtonSprite");
+    SkipButtonActiveSprite = EnsureGetMemberSprite("SkipButtonActiveSprite");
+    SkipButtonPosition = EnsureGetMemberVec2("SkipButtonPosition");
+  }
+
+  TryGetMemberBool("HasBacklogButton", HasBacklogButton);
+  if (HasBacklogButton) {
+    BacklogButtonSprite = EnsureGetMemberSprite("BacklogButtonSprite");
+    BacklogButtonActiveSprite =
+        EnsureGetMemberSprite("BacklogButtonActiveSprite");
+    BacklogButtonPosition = EnsureGetMemberVec2("BacklogButtonPosition");
+  }
+
+  TryGetMemberBool("HasMenuButton", HasMenuButton);
+  if (HasMenuButton) {
+    MenuButtonSprite = EnsureGetMemberSprite("MenuButtonSprite");
+    MenuButtonActiveSprite = EnsureGetMemberSprite("MenuButtonActiveSprite");
+    MenuButtonPosition = EnsureGetMemberVec2("MenuButtonPosition");
+  }
 
   DialogueBoxCurrentType = DialogueBoxType::_from_integral_unchecked(
       EnsureGetMemberInt("DialogueBoxCurrentType"));
