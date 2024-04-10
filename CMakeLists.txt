@@ -765,6 +765,58 @@ include_directories(${WebP_INCLUDE_DIRS})
 include_directories(vendor/include)
 include_directories(vendor/pcg/include)
 
+if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
+    list(APPEND Impacto_Src
+            vendor/imgui/imgui.cpp
+            vendor/imgui/imgui_demo.cpp
+            vendor/imgui/imgui_draw.cpp
+            vendor/imgui/imgui_tables.cpp
+            vendor/imgui/imgui_widgets.cpp
+            vendor/imgui/misc/cpp/imgui_stdlib.cpp
+            vendor/imgui/backends/imgui_impl_sdl2.cpp
+    )
+    list(APPEND Impacto_Header
+            vendor/imgui/imconfig.h
+            vendor/imgui/imgui.h
+            vendor/imgui/imgui_internal.h
+            vendor/imgui/imstb_rectpack.h
+            vendor/imgui/imstb_textedit.h
+            vendor/imgui/imstb_truetype.h
+            vendor/imgui/misc/cpp/imgui_stdlib.h
+            vendor/imgui/backends/imgui_impl_sdl2.h
+    )
+
+    if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
+        list(APPEND Impacto_Src
+                vendor/imgui/backends/imgui_impl_opengl3.cpp
+        )
+        list(APPEND Impacto_Header
+                vendor/imgui/backends/imgui_impl_opengl3.h
+        )
+    endif ()
+
+    if (NOT DEFINED IMPACTO_DISABLE_VULKAN)
+        list(APPEND Impacto_Src
+                vendor/imgui/backends/imgui_impl_vulkan.cpp
+        )
+        list(APPEND Impacto_Header
+                vendor/imgui/backends/imgui_impl_vulkan.h
+        )
+    endif ()
+
+    if (NOT DEFINED IMPACTO_DISABLE_DX9)
+        list(APPEND Impacto_Src
+                vendor/imgui/backends/imgui_impl_dx9.cpp
+        )
+        list(APPEND Impacto_Header
+                vendor/imgui/backends/imgui_impl_dx9.h
+        )
+    endif ()
+
+    include_directories(vendor/imgui)
+    include_directories(vendor/imgui/backends)
+endif ()
+
 if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
     list(APPEND Impacto_Src
             src/renderer/opengl/window.cpp
@@ -774,8 +826,6 @@ if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
             src/renderer/opengl/yuvframe.cpp
             src/renderer/opengl/3d/renderable3d.cpp
             src/renderer/opengl/3d/scene.cpp
-
-            src/nuklear_impl.cpp
 
             vendor/glad/src/glad.c
     )
@@ -787,9 +837,6 @@ if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
             src/renderer/opengl/yuvframe.h
             src/renderer/opengl/3d/renderable3d.h
             src/renderer/opengl/3d/scene.h
-
-            vendor/nuklear/nuklear.h
-            vendor/nuklear/nuklear_sdl_gl3.h
     )
 
     include_directories(vendor/glad/include)

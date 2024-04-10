@@ -8,6 +8,10 @@
 #include "3d/scene.h"
 #include "utils.h"
 
+#ifndef IMPACTO_DISABLE_IMGUI
+#include "imgui_impl_dx9.h"
+#endif
+
 namespace Impacto {
 namespace DirectX9 {
 
@@ -15,7 +19,6 @@ void Renderer::InitImpl() {
   if (IsInit) return;
   ImpLog(LL_Info, LC_Render, "Initializing Renderer2D DirectX 9 system\n");
   IsInit = true;
-  NuklearSupported = false;
 
   DXWindow = new DirectX9Window();
   DXWindow->Init();
@@ -111,6 +114,12 @@ void Renderer::InitImpl() {
   SpriteSheet rectSheet(1.0f, 1.0f);
   rectSheet.Texture = rectTexture.Submit();
   RectSprite = Sprite(rectSheet, 0.0f, 0.0f, 1.0f, 1.0f);
+
+#ifndef IMPACTO_DISABLE_IMGUI
+  // Setup Platform/Renderer backends
+  ImGui_ImplSDL2_InitForD3D(DXWindow->SDLWindow);
+  ImGui_ImplDX9_Init(Device);
+#endif
 }
 
 void Renderer::ShutdownImpl() {
@@ -127,11 +136,13 @@ void Renderer::ShutdownImpl() {
   Interface->Release();
 }
 
-void Renderer::NuklearInitImpl() {}
-
-void Renderer::NuklearShutdownImpl() {}
-
-int Renderer::NuklearHandleEventImpl(SDL_Event* ev) { return 0; }
+#ifndef IMPACTO_DISABLE_IMGUI
+void Renderer::ImGuiBeginFrameImpl() {
+  ImGui_ImplDX9_NewFrame();
+  ImGui_ImplSDL2_NewFrame();
+  ImGui::NewFrame();
+}
+#endif
 
 void Renderer::BeginFrameImpl() {
   if (Drawing) {
@@ -159,6 +170,12 @@ void Renderer::EndFrameImpl() {
   if (!Drawing) return;
   Flush();
   Drawing = false;
+
+#ifndef IMPACTO_DISABLE_IMGUI
+  ImGui::Render();
+  ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
+#endif
+
   Device->EndScene();
   Device->Present(NULL, NULL, NULL, NULL);
   CurrentShader = 0;

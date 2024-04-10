@@ -17,7 +17,7 @@
 * `vendor/include/enum.h`: [Better Enums](http://github.com/aantron/better-enums)
 * `vendor/include/flat_hash_map.hpp`: [flat_hash_map](https://github.com/skarupke/flat_hash_map/blob/4ba60d1302288fae0257d07a5c079e8033372501/flat_hash_map.hpp) (with PR #18)
 * `vendor/include/stb_image.h`: [stb_image](https://github.com/nothings/stb)
-* `vendor/nuklear`: [Nuklear](https://github.com/Immediate-Mode-UI/Nuklear), modified sample code in `nuklear_sdl_gl3.h`
+* `vendor/imgui`: [Dear ImGui](https://github.com/ocornut/imgui)
 * `vendor/pcg`: [PCG Random Number Generation, Minimal C Edition](https://github.com/imneme/pcg-c-basic)
 * `vendor/squish`: [Squish](http://sjbrown.co.uk/?code=squish)
 * `vendor/utf8-cpp`: [UTF8-CPP](http://utfcpp.sourceforge.net/)
@@ -695,30 +695,31 @@ https://github.com/Thealexbarney/LibAtrac9 or system version
 
 Copyright (c) 2018 Alex Barney. See below for license text (MIT).
 
-## Nuklear
+## Dear ImGui
 
-https://github.com/Immediate-Mode-UI/Nuklear/blob/9ee9dca307bf48d8fa08474a1e5a8354dd5b4310/nuklear.h
+https://github.com/ocornut/imgui
 
->     This software is available under 2 licenses -- choose whichever you prefer.
->     ------------------------------------------------------------------------------
->     ALTERNATIVE A - MIT License
->     Copyright (c) 2016-2018 Micha Mettke
-
-See below for license text.
-
->     ## Credits
->     Developed by Micha Mettke and every direct or indirect github contributor. <br /><br />
+>     The MIT License (MIT)
 >
->     Embeds [stb_texedit](https://github.com/nothings/stb/blob/master/stb_textedit.h), [stb_truetype](https://github.com/nothings/stb/blob/master/stb_truetype.h) and [stb_rectpack](https://github.com/nothings/stb/blob/master/stb_rect_pack.h) by Sean Barret (public domain) <br />
->     Uses [stddoc.c](https://github.com/r-lyeh/stddoc.c) from r-lyeh@github.com for documentation generation <br /><br />
->     Embeds ProggyClean.ttf font by Tristan Grimmer (MIT license). <br />
+>     Copyright (c) 2014-2024 Omar Cornut
 >
->     Big thank you to Omar Cornut (ocornut@github) for his [imgui library](https://github.com/ocornut/imgui) and
->     giving me the inspiration for this library, Casey Muratori for handmade hero
->     and his original immediate mode graphical user interface idea and Sean
->     Barret for his amazing single header libraries which restored my faith
->     in libraries and brought me to create some of my own. Finally Apoorva Joshi
->     for his single header file packer.
+>     Permission is hereby granted, free of charge, to any person obtaining a copy
+>     of this software and associated documentation files (the "Software"), to deal
+>     in the Software without restriction, including without limitation the rights
+>     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+>     copies of the Software, and to permit persons to whom the Software is
+>     furnished to do so, subject to the following conditions:
+>
+>     The above copyright notice and this permission notice shall be included in all
+>     copies or substantial portions of the Software.
+>
+>     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+>     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+>     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+>     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+>     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+>     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+>     SOFTWARE.
 
 ## Ogg
 

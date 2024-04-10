@@ -8,6 +8,10 @@
 #include "3d/scene.h"
 #include "yuvframe.h"
 
+#ifndef IMPACTO_DISABLE_IMGUI
+#include "imgui_impl_vulkan.h"
+#endif
+
 namespace Impacto {
 namespace Vulkan {
 
@@ -490,7 +494,7 @@ void Renderer::CreateDescriptors() {
 
   VkDescriptorPoolCreateInfo poolInfo = {};
   poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-  poolInfo.flags = 0;
+  poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
   poolInfo.maxSets = 100;
   poolInfo.poolSizeCount = (uint32_t)sizes.size();
   poolInfo.pPoolSizes = sizes.data();
@@ -619,7 +623,6 @@ void Renderer::InitImpl() {
   if (IsInit) return;
   ImpLog(LL_Info, LC_Render, "Initializing Renderer2D Vulkan system\n");
   IsInit = true;
-  NuklearSupported = false;
 
   CurrentFrameIndex = 0;
   CurrentImageIndex = 0;
@@ -721,6 +724,25 @@ void Renderer::InitImpl() {
   samplerInfo.maxAnisotropy = 16;
   vkCreateSampler(Device, &samplerInfo, nullptr, &Sampler);
 
+#ifndef IMPACTO_DISABLE_IMGUI
+  // Setup Platform/Renderer backends
+  ImGui_ImplSDL2_InitForVulkan(VkWindow->SDLWindow);
+
+  ImGui_ImplVulkan_InitInfo imguiInfo = {};
+  imguiInfo.Instance = Instance;
+  imguiInfo.PhysicalDevice = PhysicalDevice;
+  imguiInfo.Device = Device;
+  imguiInfo.QueueFamily = QueueIndices.PresentQueueIdx;
+  imguiInfo.Queue = PresentQueue;
+  imguiInfo.DescriptorPool = DescriptorPool;
+  imguiInfo.RenderPass = RenderPass;
+  imguiInfo.Subpass = 0;
+  imguiInfo.MinImageCount = 2;
+  imguiInfo.ImageCount = 2;
+  imguiInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+  ImGui_ImplVulkan_Init(&imguiInfo);
+#endif
+
   MainRendererInstance = this;
 }
 
@@ -764,11 +786,13 @@ void Renderer::ShutdownImpl() {
   vkDestroyInstance(Instance, nullptr);
 }
 
-void Renderer::NuklearInitImpl() {}
-
-void Renderer::NuklearShutdownImpl() {}
-
-int Renderer::NuklearHandleEventImpl(SDL_Event* ev) { return 0; }
+#ifndef IMPACTO_DISABLE_IMGUI
+void Renderer::ImGuiBeginFrameImpl() {
+  ImGui_ImplVulkan_NewFrame();
+  ImGui_ImplSDL2_NewFrame();
+  ImGui::NewFrame();
+}
+#endif
 
 void Renderer::BeginFrameImpl() {
   if (Drawing) {
@@ -856,6 +880,12 @@ void Renderer::BeginFrame2DImpl() {}
 void Renderer::EndFrameImpl() {
   if (!Drawing) return;
   Flush();
+
+#ifndef IMPACTO_DISABLE_IMGUI
+  ImGui::Render();
+  ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(),
+                                  CommandBuffers[CurrentFrameIndex]);
+#endif
 
   vkCmdEndRenderPass(CommandBuffers[CurrentFrameIndex]);
   if (vkEndCommandBuffer(CommandBuffers[CurrentFrameIndex]) != VK_SUCCESS) {

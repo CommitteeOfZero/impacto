@@ -19,9 +19,9 @@ class BaseRenderer {
   void Init();
   void Shutdown();
 
-  void NuklearInit();
-  void NuklearShutdown();
-  int NuklearHandleEvent(SDL_Event* ev);
+#ifndef IMPACTO_DISABLE_IMGUI
+  void ImGuiBeginFrame();
+#endif
 
   void BeginFrame();
   void BeginFrame2D();
@@ -119,18 +119,15 @@ class BaseRenderer {
 
   bool IsInit = false;
 
-  bool NuklearSupported = false;
-  nk_context* Nk = 0;
-
   IScene3D* Scene = 0;
 
  private:
   virtual void InitImpl() = 0;
   virtual void ShutdownImpl() = 0;
 
-  virtual void NuklearInitImpl() = 0;
-  virtual void NuklearShutdownImpl() = 0;
-  virtual int NuklearHandleEventImpl(SDL_Event* ev) = 0;
+#ifndef IMPACTO_DISABLE_IMGUI
+  virtual void ImGuiBeginFrameImpl() = 0;
+#endif
 
   virtual void BeginFrameImpl() = 0;
   virtual void BeginFrame2DImpl() = 0;
