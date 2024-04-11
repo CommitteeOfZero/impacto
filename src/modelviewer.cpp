@@ -227,16 +227,22 @@ void Update(float dt) {
       if (ImGui::CollapsingHeader("Model", ImGuiTreeNodeFlags_DefaultOpen)) {
         ImGui::Spacing();
         ImGui::Text("Model X");
-        ImGui::SliderFloat("##modelX", &Renderer->Scene->LightPosition.x,
-                           -40.0f, 40.0f);
+        ImGui::SliderFloat(
+            "##modelX",
+            &Renderer->Scene->Renderables[1]->ModelTransform.Position.x, -40.0f,
+            40.0f);
         ImGui::Spacing();
         ImGui::Text("Model Y");
-        ImGui::SliderFloat("##modelY", &Renderer->Scene->LightPosition.y,
-                           -40.0f, 40.0f);
+        ImGui::SliderFloat(
+            "##modelY",
+            &Renderer->Scene->Renderables[1]->ModelTransform.Position.y, -40.0f,
+            40.0f);
         ImGui::Spacing();
         ImGui::Text("Model Z");
-        ImGui::SliderFloat("##modelZ", &Renderer->Scene->LightPosition.z,
-                           -40.0f, 40.0f);
+        ImGui::SliderFloat(
+            "##modelZ",
+            &Renderer->Scene->Renderables[1]->ModelTransform.Position.z, -40.0f,
+            40.0f);
 
         ImGui::Spacing();
         ImGui::Checkbox("Track camera", &TrackCamera);

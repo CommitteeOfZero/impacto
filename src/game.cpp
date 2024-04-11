@@ -5,6 +5,7 @@
 #include "characterviewer.h"
 #include "log.h"
 #include "inputsystem.h"
+#include "debugmenu.h"
 
 #include "ui/ui.h"
 
@@ -54,13 +55,6 @@ uint8_t DrawComponents[Vm::MaxThreads];
 
 bool ShouldQuit = false;
 float UpdateSecondCounter = 0.0f;
-
-static bool DebugWindowEnabled = false;
-static bool DebugWindowMinimized = true;
-static int ScrWorkIndexStart = 0;
-static int ScrWorkIndexEnd = 0;
-static int FlagWorkIndexStart = 0;
-static int FlagWorkIndexEnd = 0;
 
 static void Init() {
   WorkQueue::Init();
@@ -178,8 +172,11 @@ void Update(float dt) {
     }
 
 #ifndef IMPACTO_DISABLE_IMGUI
-    if (ImGui_ImplSDL2_ProcessEvent(&e) && DebugWindowEnabled &&
-        !DebugWindowMinimized)
+    bool joystickEvent =
+        e.type == SDL_JOYBUTTONDOWN || e.type == SDL_JOYBUTTONUP ||
+        e.type == SDL_JOYAXISMOTION || e.type == SDL_JOYHATMOTION;
+    if ((ImGui_ImplSDL2_ProcessEvent(&e) || joystickEvent) &&
+        DebugMenu::DebugMenuShown && !DebugMenu::DebugMenuMinimized)
       continue;
 #endif
 
@@ -265,74 +262,8 @@ void Render() {
   Renderer->BeginFrame2D();
 
 #ifndef IMPACTO_DISABLE_IMGUI
-  if (Profile::GameFeatures & GameFeature::Sc3VirtualMachine) {
-    if ((Input::KeyboardButtonWentDown[SDL_SCANCODE_E] ||
-         Input::ControllerButtonWentDown[SDL_CONTROLLER_BUTTON_Y]) &&
-        !DebugWindowEnabled)
-      DebugWindowEnabled = !DebugWindowEnabled;
-
-    DebugWindowMinimized = true;
-    if (DebugWindowEnabled) {
-      if (ImGui::Begin("Debug Editor", &DebugWindowEnabled)) {
-        DebugWindowMinimized = false;
-        ImGui::SetWindowSize(ImVec2(300.0f, Window->WindowHeight - 40.0f),
-                             ImGuiCond_Once);
-        ImGui::SetWindowPos(ImVec2(20.0f, 20.0f), ImGuiCond_Once);
-        ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
-
-        ImGui::Text("%.3f ms/frame (%.1f FPS)",
-                    1000.0f / ImGui::GetIO().Framerate,
-                    ImGui::GetIO().Framerate);
-        ImGui::Dummy(ImVec2(0.0f, 10.0f));
-
-        ImGui::Spacing();
-        ImGui::Text("ScrWork start index");
-        ImGui::DragInt("##ScrWorkStartIndex", &ScrWorkIndexStart, 0.5f, 0, 8000,
-                       "%d", ImGuiSliderFlags_AlwaysClamp);
-        ImGui::Spacing();
-        ImGui::Text("ScrWork end index");
-        ImGui::DragInt("##ScrWorkEndIndex", &ScrWorkIndexEnd, 0.5f, 0, 8000,
-                       "%d", ImGuiSliderFlags_AlwaysClamp);
-
-        if (ScrWorkIndexEnd < ScrWorkIndexStart)
-          ScrWorkIndexEnd = ScrWorkIndexStart;
-
-        ImGui::Spacing();
-        ImGui::Text("FlagWork start index");
-        ImGui::DragInt("##FlagWorkStartIndex", &FlagWorkIndexStart, 0.5f, 0,
-                       7000, "%d", ImGuiSliderFlags_AlwaysClamp);
-        ImGui::Spacing();
-        ImGui::Text("FlagWork end index");
-        ImGui::DragInt("##FlagWorkEndIndex", &FlagWorkIndexEnd, 0.5f, 0, 7000,
-                       "%d", ImGuiSliderFlags_AlwaysClamp);
-
-        if (FlagWorkIndexEnd < FlagWorkIndexStart)
-          FlagWorkIndexEnd = FlagWorkIndexStart;
-
-        ImGui::PopItemWidth();
-
-        if (ImGui::CollapsingHeader("ScrWork Editor")) {
-          for (int i = ScrWorkIndexStart; i <= ScrWorkIndexEnd; i++) {
-            ImGui::Spacing();
-            char buf[32];
-            snprintf(buf, 32, "ScrWork[%d]", i);
-            ImGui::InputInt(buf, &ScrWork[i]);
-          }
-        }
-
-        if (ImGui::CollapsingHeader("FlagWork Editor")) {
-          for (int i = FlagWorkIndexStart; i <= FlagWorkIndexEnd; i++) {
-            ImGui::Spacing();
-            char buf[32];
-            snprintf(buf, 32, "GetFlag(%d)", i);
-            bool flagVal = GetFlag(i);
-            ImGui::Checkbox(buf, &flagVal);
-            SetFlag(i, flagVal);
-          }
-        }
-      }
-      ImGui::End();
-    }
+  if (Profile::GameFeatures & GameFeature::DebugMenu) {
+    DebugMenu::Show();
   }
 #endif
 

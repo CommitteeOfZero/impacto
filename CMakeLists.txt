@@ -23,6 +23,7 @@ set(Impacto_Src
         src/character2d.cpp
         src/text.cpp
         src/inputsystem.cpp
+        src/debugmenu.cpp
         src/minilua_impl.c
 
         src/renderer/renderer.cpp
@@ -309,6 +310,7 @@ set(Impacto_Header
         src/text.h
         src/loadable.h
         src/inputsystem.h
+        src/debugmenu.h
         src/rng.h
         src/animation.h
         src/minilua_impl.h
