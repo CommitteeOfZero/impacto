@@ -40,6 +40,7 @@ TextTableEntry TextTable[16];
 uint32_t DebugThreadId = -1;
 bool DebuggerBreak = false;
 bool DebuggerStepRequest = false;
+bool DebuggerContinueRequest = false;
 std::map<int, uint32_t> DebuggerBreakpoints;
 #endif
 
@@ -462,7 +463,8 @@ void RunThread(Sc3VmThread* thread) {
 
 #ifndef IMPACTO_DISABLE_IMGUI
   if (DebugThreadId == thread->Id) {
-    if (DebuggerBreak && !DebuggerStepRequest) return;
+    if (DebuggerBreak && !DebuggerStepRequest && !DebuggerContinueRequest)
+      return;
   }
 #endif
 
@@ -472,12 +474,17 @@ void RunThread(Sc3VmThread* thread) {
     if (DebugThreadId == thread->Id) {
       auto scriptIp = thread->Ip - ScriptBuffers[thread->ScriptBufferId];
       for (auto breakpoint : DebuggerBreakpoints) {
-        if (scriptIp == breakpoint.second && !DebuggerStepRequest) {
+        if (scriptIp == breakpoint.second && !DebuggerStepRequest &&
+            !DebuggerContinueRequest) {
           DebuggerBreak = true;
           return;
         }
       }
       DebuggerStepRequest = false;
+      if (DebuggerContinueRequest) {
+        DebuggerContinueRequest = false;
+        DebuggerBreak = false;
+      }
     }
 #endif
 

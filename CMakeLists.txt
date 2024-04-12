@@ -23,7 +23,6 @@ set(Impacto_Src
         src/character2d.cpp
         src/text.cpp
         src/inputsystem.cpp
-        src/debugmenu.cpp
         src/minilua_impl.c
 
         src/renderer/renderer.cpp
@@ -310,7 +309,6 @@ set(Impacto_Header
         src/text.h
         src/loadable.h
         src/inputsystem.h
-        src/debugmenu.h
         src/rng.h
         src/animation.h
         src/minilua_impl.h
@@ -769,6 +767,8 @@ include_directories(vendor/pcg/include)
 
 if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
     list(APPEND Impacto_Src
+            src/debugmenu.cpp
+
             vendor/imgui/imgui.cpp
             vendor/imgui/imgui_demo.cpp
             vendor/imgui/imgui_draw.cpp
@@ -778,6 +778,8 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
             vendor/imgui/backends/imgui_impl_sdl2.cpp
     )
     list(APPEND Impacto_Header
+            src/debugmenu.h
+
             vendor/imgui/imconfig.h
             vendor/imgui/imgui.h
             vendor/imgui/imgui_internal.h
