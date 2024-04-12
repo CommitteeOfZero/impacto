@@ -172,11 +172,9 @@ void Update(float dt) {
     }
 
 #ifndef IMPACTO_DISABLE_IMGUI
-    bool joystickEvent =
-        e.type == SDL_JOYBUTTONDOWN || e.type == SDL_JOYBUTTONUP ||
-        e.type == SDL_JOYAXISMOTION || e.type == SDL_JOYHATMOTION;
-    if ((ImGui_ImplSDL2_ProcessEvent(&e) || joystickEvent) &&
-        DebugMenu::DebugMenuShown && !DebugMenu::DebugMenuMinimized)
+    ImGuiIO& io = ImGui::GetIO();
+    if (ImGui_ImplSDL2_ProcessEvent(&e) &&
+        (io.WantCaptureKeyboard || io.WantCaptureMouse))
       continue;
 #endif
 
