@@ -1,6 +1,7 @@
 #pragma once
 
 #include "thread.h"
+#include "../io/vfs.h"
 #include <enum.h>
 
 #define VmInstruction(name) void name(Sc3VmThread* thread)
@@ -38,6 +39,8 @@ void RunThread(Sc3VmThread* thread);
 extern uint8_t* ScriptBuffers[MaxLoadedScripts];
 extern uint8_t* MsbBuffers[MaxLoadedScripts];
 
+extern Io::FileMeta LoadedScriptMetas[MaxLoadedScripts];
+
 extern Sc3VmThread ThreadPool[MaxThreads];
 
 extern bool BlockCurrentScriptThread;
@@ -49,6 +52,13 @@ struct TextTableEntry {
 };
 
 extern TextTableEntry TextTable[16];
+
+#ifndef IMPACTO_DISABLE_IMGUI
+extern uint32_t DebugThreadId;
+extern bool DebuggerBreak;
+extern bool DebuggerStepRequest;
+extern std::map<int, uint32_t> DebuggerBreakpoints;
+#endif
 
 }  // namespace Vm
 }  // namespace Impacto

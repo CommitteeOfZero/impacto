@@ -1,15 +1,18 @@
 #include "debugmenu.h"
 
 #include "imgui.h"
+#include <sstream>
 
+#include "game.h"
 #include "mem.h"
 #include "inputsystem.h"
+#include "vm/vm.h"
+#include "io/vfs.h"
 
 namespace Impacto {
 namespace DebugMenu {
 
 bool DebugMenuShown = false;
-bool DebugMenuMinimized = true;
 
 static int ScrWorkNumberFormat = 0;
 static int ScrWorkIndexStart = 0;
@@ -17,19 +20,77 @@ static int ScrWorkIndexEnd = 0;
 static int FlagWorkIndexStart = 0;
 static int FlagWorkIndexEnd = 0;
 
+static std::map<uint32_t, std::map<int, int>> ScriptDebugByteCodePosToLine;
+static std::map<uint32_t, std::map<int, int>> ScriptDebugLineToByteCodePos;
+static std::map<uint32_t, std::vector<std::string>> ScriptDebugSource;
+
+static void HelpMarker(const char* desc) {
+  ImGui::TextDisabled("(?)");
+  if (ImGui::BeginItemTooltip()) {
+    ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+    ImGui::TextUnformatted(desc);
+    ImGui::PopTextWrapPos();
+    ImGui::EndTooltip();
+  }
+}
+
+static void ParseScriptDebugData(uint32_t scriptId) {
+  if (ScriptDebugSource.find(scriptId) != ScriptDebugSource.end()) return;
+
+  Io::InputStream* stream;
+  if (Io::VfsOpen("scriptdbg", scriptId, &stream) != IoError_OK) return;
+
+  std::map<int, int> byteCodePosToLine;
+  std::map<int, int> lineToByteCodePos;
+  std::vector<std::string> sourceLines;
+
+  std::string content;
+  content.resize(stream->Meta.Size);
+  int64_t size = stream->Read(&content[0], stream->Meta.Size);
+  content.resize(size);
+
+  std::istringstream ss = std::istringstream(content, std::ios::in);
+  int lineId = 0;
+  for (std::string line; std::getline(ss, line); lineId++) {
+    if (line.empty()) continue;
+
+    if (line[line.size() - 1] == '\r') line.pop_back();
+    size_t firstColLength = line.find(',');
+
+    if (firstColLength == std::string::npos ||
+        firstColLength == line.length() - 1)
+      continue;
+
+    size_t secondColLength = line.find(',', firstColLength + 1);
+    if (secondColLength == std::string::npos ||
+        secondColLength == line.length() - 1)
+      continue;
+
+    uint32_t byteCodePos = std::atoi(line.substr(0, firstColLength).c_str());
+
+    std::string sourceLine =
+        line.substr(secondColLength + 2, line.length() - secondColLength);
+
+    sourceLines.push_back(sourceLine);
+    byteCodePosToLine[byteCodePos] = lineId;
+    lineToByteCodePos[lineId] = byteCodePos;
+  }
+
+  ScriptDebugByteCodePosToLine[scriptId] = byteCodePosToLine;
+  ScriptDebugLineToByteCodePos[scriptId] = lineToByteCodePos;
+  ScriptDebugSource[scriptId] = sourceLines;
+}
+
 void Show() {
-  if (((Input::KeyboardButtonIsDown[SDL_SCANCODE_LCTRL] &&
+  if (((Input::KeyboardButtonIsDown[SDL_SCANCODE_LALT] &&
         Input::KeyboardButtonWentDown[SDL_SCANCODE_D]) ||
        (Input::ControllerButtonWentDown[SDL_CONTROLLER_BUTTON_RIGHTSHOULDER] &&
         Input::ControllerButtonWentDown[SDL_CONTROLLER_BUTTON_Y])) &&
       !DebugMenuShown)
     DebugMenuShown = true;
 
-  DebugMenuMinimized = true;
   if (DebugMenuShown) {
     if (ImGui::Begin("Debug Menu", &DebugMenuShown)) {
-      DebugMenuMinimized = false;
-
       ImGui::Text("%.3f ms/frame (%.1f FPS)",
                   1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
@@ -38,17 +99,20 @@ void Show() {
           ShowScriptVariablesEditor();
           ImGui::EndTabItem();
         }
-        if (ImGui::BeginTabItem("Objects (BG, Models, etc.)")) {
+        if (ImGui::BeginTabItem("Objects")) {
           ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("UI")) {
           ImGui::EndTabItem();
         }
-        if (ImGui::BeginTabItem("Script Debugger (?)")) {
+        if (ImGui::BeginTabItem("Script Debugger")) {
+          ShowScriptDebugger();
           ImGui::EndTabItem();
         }
         ImGui::EndTabBar();
       }
+    } else {
+      Vm::DebugThreadId = -1;
     }
 
     ImGui::End();
@@ -177,9 +241,7 @@ void ShowScriptVariablesEditor() {
       ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
 
   if (ImGui::CollapsingHeader("ScrWork Editor")) {
-    bool sameLine = false;
     for (int i = ScrWorkIndexStart; i <= ScrWorkIndexEnd; i++) {
-      if (sameLine) ImGui::SameLine();
       ImGui::PushID(i);
       float width = 0.0f;
       char buf[32];
@@ -212,6 +274,274 @@ void ShowScriptVariablesEditor() {
       ImGui::PopID();
     }
   }
+
+  ImGui::PopItemWidth();
+}
+
+static int ScriptDebuggerSelectedThreadId = -1;
+static int ThreadVarsNumberFormat = 0;
+static bool AutoScrollSourceView = true;
+
+void ShowScriptDebugger() {
+  if (ScriptDebuggerSelectedThreadId == -1) {
+    int firstThreadId = 0;
+    for (int i = 0; i < Vm::MaxThreads; i++) {
+      if (Vm::ThreadPool[i].Ip != 0) {
+        firstThreadId = i;
+        break;
+      }
+    }
+    ScriptDebuggerSelectedThreadId = firstThreadId;
+  }
+
+  char comboPreviewValue[128];
+  auto groupType = ThreadGroupType::_from_integral_nothrow(
+      Vm::ThreadPool[ScriptDebuggerSelectedThreadId].GroupId);
+  if (groupType) {
+    snprintf(
+        comboPreviewValue, 128, "[%s][%d] %s", groupType.value()._to_string(),
+        Vm::ThreadPool[ScriptDebuggerSelectedThreadId].Id,
+        Vm::LoadedScriptMetas[Vm::ThreadPool[ScriptDebuggerSelectedThreadId]
+                                  .ScriptBufferId]
+            .FileName.c_str());
+  } else {
+    snprintf(
+        comboPreviewValue, 128, "[%d][%d] %s",
+        Vm::ThreadPool[ScriptDebuggerSelectedThreadId].GroupId,
+        Vm::ThreadPool[ScriptDebuggerSelectedThreadId].Id,
+        Vm::LoadedScriptMetas[Vm::ThreadPool[ScriptDebuggerSelectedThreadId]
+                                  .ScriptBufferId]
+            .FileName.c_str());
+  }
+
+  if (ImGui::BeginCombo("Thread##vmThreadCombo", comboPreviewValue,
+                        ImGuiComboFlags_WidthFitPreview)) {
+    for (int i = 0; i < Vm::MaxThreads; i++) {
+      if (Vm::ThreadPool[i].Ip != 0) {
+        const bool isSelected = (ScriptDebuggerSelectedThreadId == i);
+        auto groupType =
+            ThreadGroupType::_from_integral_nothrow(Vm::ThreadPool[i].GroupId);
+        if (groupType) {
+          snprintf(comboPreviewValue, 128, "[%s][%d] %s",
+                   groupType.value()._to_string(), Vm::ThreadPool[i].Id,
+                   Vm::LoadedScriptMetas[Vm::ThreadPool[i].ScriptBufferId]
+                       .FileName.c_str());
+        } else {
+          snprintf(comboPreviewValue, 128, "[%d][%d] %s",
+                   Vm::ThreadPool[i].GroupId, Vm::ThreadPool[i].Id,
+                   Vm::LoadedScriptMetas[Vm::ThreadPool[i].ScriptBufferId]
+                       .FileName.c_str());
+        }
+        if (ImGui::Selectable(comboPreviewValue, isSelected))
+          ScriptDebuggerSelectedThreadId = i;
+        if (isSelected) ImGui::SetItemDefaultFocus();
+      }
+    }
+    ImGui::EndCombo();
+  }
+
+  ImGui::SeparatorText("Thread flags:");
+  if (ImGui::BeginTable("tableThreadFlags", 3, ImGuiTableFlags_None)) {
+    ImGui::TableNextColumn();
+    if (ImGui::CheckboxFlags(
+            "Destroy", &Vm::ThreadPool[ScriptDebuggerSelectedThreadId].Flags,
+            Vm::TF_Destroy))
+      ScriptDebuggerSelectedThreadId = 0;
+    ImGui::SameLine();
+    HelpMarker("Setting this will DESTROY the thread IMMEDIATELY!");
+    ImGui::CheckboxFlags("Animate",
+                         &Vm::ThreadPool[ScriptDebuggerSelectedThreadId].Flags,
+                         Vm::TF_Animate);
+    ImGui::TableNextColumn();
+    ImGui::CheckboxFlags("Display",
+                         &Vm::ThreadPool[ScriptDebuggerSelectedThreadId].Flags,
+                         Vm::TF_Display);
+    ImGui::CheckboxFlags("Pause",
+                         &Vm::ThreadPool[ScriptDebuggerSelectedThreadId].Flags,
+                         Vm::TF_Pause);
+    ImGui::TableNextColumn();
+    ImGui::CheckboxFlags("Message",
+                         &Vm::ThreadPool[ScriptDebuggerSelectedThreadId].Flags,
+                         Vm::TF_Message);
+    ImGui::EndTable();
+  }
+
+  ImGui::SeparatorText("Thread data:");
+  if (ImGui::BeginTable("tableThreadData", 3, ImGuiTableFlags_None)) {
+    ImGui::TableNextColumn();
+    ImGui::Text("ID: %d", Vm::ThreadPool[ScriptDebuggerSelectedThreadId].Id);
+    ImGui::Text(
+        "IP: %08X",
+        Vm::ThreadPool[ScriptDebuggerSelectedThreadId].Ip -
+            Vm::ScriptBuffers[Vm::ThreadPool[ScriptDebuggerSelectedThreadId]
+                                  .ScriptBufferId]);
+    ImGui::Text("ExecPriority: %d",
+                Vm::ThreadPool[ScriptDebuggerSelectedThreadId].ExecPriority);
+
+    ImGui::TableNextColumn();
+    auto drawType = Game::DrawComponentType::_from_integral_nothrow(
+        Vm::ThreadPool[ScriptDebuggerSelectedThreadId].DrawType);
+    if (drawType) {
+      ImGui::Text("DrawType: %s", drawType.value()._to_string());
+    } else {
+      ImGui::Text("DrawType: %d",
+                  Vm::ThreadPool[ScriptDebuggerSelectedThreadId].DrawType);
+    }
+    ImGui::Text("DrawPriority: %d",
+                Vm::ThreadPool[ScriptDebuggerSelectedThreadId].DrawPriority);
+    ImGui::Text("Alpha: %d",
+                Vm::ThreadPool[ScriptDebuggerSelectedThreadId].Alpha);
+
+    ImGui::TableNextColumn();
+    auto groupType = ThreadGroupType::_from_integral_nothrow(
+        Vm::ThreadPool[ScriptDebuggerSelectedThreadId].GroupId);
+    if (groupType) {
+      ImGui::Text("Group: %s", groupType.value()._to_string());
+    } else {
+      ImGui::Text("Group: %d",
+                  Vm::ThreadPool[ScriptDebuggerSelectedThreadId].GroupId);
+    }
+    ImGui::Text("DialoguePageId: %d",
+                Vm::ThreadPool[ScriptDebuggerSelectedThreadId].DialoguePageId);
+    ImGui::Text("WaitCounter: %d",
+                Vm::ThreadPool[ScriptDebuggerSelectedThreadId].WaitCounter);
+
+    ImGui::EndTable();
+  }
+
+  ImGui::Spacing();
+  if (ImGui::TreeNode("Source View")) {
+    uint32_t scriptId =
+        Vm::LoadedScriptMetas[Vm::ThreadPool[ScriptDebuggerSelectedThreadId]
+                                  .ScriptBufferId]
+            .Id;
+    uint32_t scriptIp =
+        Vm::ThreadPool[ScriptDebuggerSelectedThreadId].Ip -
+        Vm::ScriptBuffers[Vm::ThreadPool[ScriptDebuggerSelectedThreadId]
+                              .ScriptBufferId];
+
+    ParseScriptDebugData(scriptId);
+    if (ScriptDebugSource.find(scriptId) != ScriptDebugSource.end()) {
+      auto byteCodePosTable = ScriptDebugByteCodePosToLine[scriptId];
+      auto lineToByteCodePosTable = ScriptDebugLineToByteCodePos[scriptId];
+      auto currentLine = byteCodePosTable.lower_bound(scriptIp);
+      int currentLineNum = -1;
+      if (currentLine != byteCodePosTable.end()) {
+        currentLineNum = currentLine->second;
+      }
+
+      Vm::DebugThreadId = ScriptDebuggerSelectedThreadId;
+      ImGui::Checkbox("Auto scroll source view", &AutoScrollSourceView);
+      ImGui::SameLine();
+      if (Vm::DebuggerBreak) {
+        if (ImGui::Button("Continue")) Vm::DebuggerBreak = false;
+      } else {
+        if (ImGui::Button("Break")) Vm::DebuggerBreak = true;
+      }
+      ImGui::SameLine();
+      ImGui::BeginDisabled(!Vm::DebuggerBreak);
+      if (ImGui::Button("Step"))
+        Vm::DebuggerStepRequest = true;
+      else
+        Vm::DebuggerStepRequest = false;
+      ImGui::EndDisabled();
+      ImGui::SameLine();
+      if (ImGui::Button("Clear breakpoints")) {
+        Vm::DebuggerBreakpoints.clear();
+      }
+
+      ImGui::BeginChild("SourceScrollRegion",
+                        ImVec2(ImGui::GetContentRegionAvail().x,
+                               ImGui::GetContentRegionAvail().y * 0.9f),
+                        ImGuiChildFlags_None);
+      if (ImGui::BeginTable(
+              "Source", 1,
+              ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_Borders)) {
+        int lineNum = 0;
+        for (auto line : ScriptDebugSource[scriptId]) {
+          ImGui::TableNextRow();
+          ImGui::TableNextColumn();
+          ImGui::PushStyleColor(ImGuiCol_Header,
+                                ImVec4(1.0f, 0.0f, 0.0f, 0.65f));
+          bool isBreakpoint = Vm::DebuggerBreakpoints.find(lineNum) !=
+                              Vm::DebuggerBreakpoints.end();
+          ImGui::Selectable(line.c_str(), &isBreakpoint,
+                            ImGuiSelectableFlags_SpanAllColumns);
+          if (isBreakpoint) {
+            Vm::DebuggerBreakpoints[lineNum] = lineToByteCodePosTable[lineNum];
+          } else {
+            Vm::DebuggerBreakpoints.erase(lineNum);
+          }
+          ImGui::PopStyleColor();
+          if (currentLineNum == lineNum) {
+            ImGui::TableSetBgColor(
+                ImGuiTableBgTarget_CellBg,
+                ImGui::GetColorU32(ImVec4(0.0f, 0.7f, 0.0f, 0.65f)));
+          }
+          lineNum++;
+        }
+        ImGui::EndTable();
+      }
+      if (AutoScrollSourceView)
+        ImGui::SetScrollY((currentLineNum - 5) *
+                          ImGui::GetTextLineHeightWithSpacing());
+      ImGui::EndChild();
+    }
+    ImGui::TreePop();
+  }
+
+  ImGui::Spacing();
+  if (ImGui::TreeNode("Call Stack")) {
+    for (int i =
+             Vm::ThreadPool[ScriptDebuggerSelectedThreadId].CallStackDepth - 1;
+         i >= 0; i--) {
+      ImGui::Text(
+          "%s - %08X",
+          Vm::LoadedScriptMetas[Vm::ThreadPool[ScriptDebuggerSelectedThreadId]
+                                    .ReturnScriptBufferIds[i]]
+              .FileName.c_str(),
+          Vm::ThreadPool[ScriptDebuggerSelectedThreadId].ReturnAdresses[i] -
+              Vm::ScriptBuffers[Vm::ThreadPool[ScriptDebuggerSelectedThreadId]
+                                    .ReturnScriptBufferIds[i]]);
+    }
+
+    ImGui::TreePop();
+  }
+  ImGui::Spacing();
+
+  ImGuiStyle& style = ImGui::GetStyle();
+  float windowVisibleX2 =
+      ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
+  ImGui::PushItemWidth(10.0f * ImGui::GetFontSize());
+
+  if (ImGui::TreeNode("Variables")) {
+    ImGui::Text("Display number format");
+    ImGui::SameLine();
+    ImGui::RadioButton("DEC", &ThreadVarsNumberFormat, 0);
+    ImGui::SameLine();
+    ImGui::RadioButton("HEX", &ThreadVarsNumberFormat, 1);
+
+    for (int i = 0; i < Vm::MaxThreadVars; i++) {
+      ImGui::PushID(i);
+      char buf[32];
+      snprintf(buf, 32, "Vars[%02d]", i);
+      int one = 1;
+      ImGui::InputScalar(
+          buf, ImGuiDataType_S32,
+          &Vm::ThreadPool[ScriptDebuggerSelectedThreadId].Variables[i], &one, 0,
+          ThreadVarsNumberFormat == 1 ? "%08X" : "%d");
+      float lastX2 = ImGui::GetItemRectMax().x;
+      float nextButtonX2 =
+          lastX2 + style.ItemSpacing.x + ImGui::GetItemRectSize().x;
+      if (i + 1 < Vm::MaxThreadVars && nextButtonX2 < windowVisibleX2)
+        ImGui::SameLine();
+      ImGui::PopID();
+    }
+
+    ImGui::TreePop();
+  }
+
+  ImGui::PopItemWidth();
 }
 
 }  // namespace DebugMenu
