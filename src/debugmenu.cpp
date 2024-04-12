@@ -416,9 +416,10 @@ void ShowScriptDebugger() {
                                   .ScriptBufferId]
             .Id;
     uint32_t scriptIp =
-        Vm::ThreadPool[ScriptDebuggerSelectedThreadId].Ip -
-        Vm::ScriptBuffers[Vm::ThreadPool[ScriptDebuggerSelectedThreadId]
-                              .ScriptBufferId];
+        (uint32_t)(Vm::ThreadPool[ScriptDebuggerSelectedThreadId].Ip -
+                   Vm::ScriptBuffers
+                       [Vm::ThreadPool[ScriptDebuggerSelectedThreadId]
+                            .ScriptBufferId]);
 
     ParseScriptDebugData(scriptId);
     if (ScriptDebugSource.find(scriptId) != ScriptDebugSource.end()) {
@@ -450,6 +451,34 @@ void ShowScriptDebugger() {
         Vm::DebuggerBreakpoints.clear();
       }
 
+      if (ImGui::TreeNode("Breakpoint List")) {
+        if (ImGui::BeginTable(
+                "BreakpointList", 1,
+                ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_Borders)) {
+          char buf[256];
+          for (auto it = Vm::DebuggerBreakpoints.cbegin(), nextIt = it;
+               it != Vm::DebuggerBreakpoints.cend(); it = nextIt) {
+            ++nextIt;
+            ImGui::TableNextRow();
+            ImGui::TableNextColumn();
+            Io::FileMeta scriptMeta;
+            Io::VfsGetMeta("script", it->second.first, &scriptMeta);
+            bool isBreakpoint = true;
+            snprintf(buf, 256, "%08lX - %d - %s - %s", it->second.second,
+                     it->first, scriptMeta.FileName.c_str(),
+                     ScriptDebugSource[it->second.first][it->first].c_str());
+            ImGui::Selectable(buf, &isBreakpoint,
+                              ImGuiSelectableFlags_SpanAllColumns);
+            if (!isBreakpoint) {
+              Vm::DebuggerBreakpoints.erase(it);
+            }
+          }
+          ImGui::EndTable();
+        }
+
+        ImGui::TreePop();
+      }
+
       ImGui::BeginChild("SourceScrollRegion",
                         ImVec2(ImGui::GetContentRegionAvail().x,
                                ImGui::GetContentRegionAvail().y * 0.9f),
@@ -459,17 +488,29 @@ void ShowScriptDebugger() {
               ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_Borders)) {
         int lineNum = 0;
         for (auto line : ScriptDebugSource[scriptId]) {
+          ImGui::PushID(lineNum);
           ImGui::TableNextRow();
           ImGui::TableNextColumn();
           ImGui::PushStyleColor(ImGuiCol_Header,
                                 ImVec4(1.0f, 0.0f, 0.0f, 0.65f));
           bool isBreakpoint = Vm::DebuggerBreakpoints.find(lineNum) !=
                               Vm::DebuggerBreakpoints.end();
+          isBreakpoint =
+              isBreakpoint &&
+              Vm::DebuggerBreakpoints.find(lineNum)->second.first == scriptId;
           ImGui::Selectable(line.c_str(), &isBreakpoint,
                             ImGuiSelectableFlags_SpanAllColumns);
           if (isBreakpoint) {
-            Vm::DebuggerBreakpoints[lineNum] = lineToByteCodePosTable[lineNum];
-          } else {
+            Vm::DebuggerBreakpoints[lineNum] = std::make_pair(
+                Vm::LoadedScriptMetas
+                    [Vm::ThreadPool[ScriptDebuggerSelectedThreadId]
+                         .ScriptBufferId]
+                        .Id,
+                lineToByteCodePosTable[lineNum]);
+          } else if (Vm::DebuggerBreakpoints.find(lineNum) !=
+                         Vm::DebuggerBreakpoints.end() &&
+                     Vm::DebuggerBreakpoints.find(lineNum)->second.first ==
+                         scriptId) {
             Vm::DebuggerBreakpoints.erase(lineNum);
           }
           ImGui::PopStyleColor();
@@ -479,6 +520,7 @@ void ShowScriptDebugger() {
                 ImGui::GetColorU32(ImVec4(0.0f, 0.7f, 0.0f, 0.65f)));
           }
           lineNum++;
+          ImGui::PopID();
         }
         ImGui::EndTable();
       }
@@ -495,6 +537,7 @@ void ShowScriptDebugger() {
     for (int i =
              Vm::ThreadPool[ScriptDebuggerSelectedThreadId].CallStackDepth - 1;
          i >= 0; i--) {
+      ImGui::PushID(i);
       ImGui::Text(
           "%s - %08X",
           Vm::LoadedScriptMetas[Vm::ThreadPool[ScriptDebuggerSelectedThreadId]
@@ -503,6 +546,7 @@ void ShowScriptDebugger() {
           Vm::ThreadPool[ScriptDebuggerSelectedThreadId].ReturnAdresses[i] -
               Vm::ScriptBuffers[Vm::ThreadPool[ScriptDebuggerSelectedThreadId]
                                     .ReturnScriptBufferIds[i]]);
+      ImGui::PopID();
     }
 
     ImGui::TreePop();

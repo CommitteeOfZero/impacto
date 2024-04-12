@@ -41,7 +41,7 @@ uint32_t DebugThreadId = -1;
 bool DebuggerBreak = false;
 bool DebuggerStepRequest = false;
 bool DebuggerContinueRequest = false;
-std::map<int, uint32_t> DebuggerBreakpoints;
+std::map<int, std::pair<uint32_t, uint32_t>> DebuggerBreakpoints;
 #endif
 
 Sc3VmThread ThreadPool[MaxThreads];  // Main thread pool where all the
@@ -474,7 +474,9 @@ void RunThread(Sc3VmThread* thread) {
     if (DebugThreadId == thread->Id) {
       auto scriptIp = thread->Ip - ScriptBuffers[thread->ScriptBufferId];
       for (auto breakpoint : DebuggerBreakpoints) {
-        if (scriptIp == breakpoint.second && !DebuggerStepRequest &&
+        uint32_t currentScriptId = LoadedScriptMetas[thread->ScriptBufferId].Id;
+        if (currentScriptId == breakpoint.second.first &&
+            scriptIp == breakpoint.second.second && !DebuggerStepRequest &&
             !DebuggerContinueRequest) {
           DebuggerBreak = true;
           return;

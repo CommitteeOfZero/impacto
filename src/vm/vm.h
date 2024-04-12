@@ -58,7 +58,7 @@ extern uint32_t DebugThreadId;
 extern bool DebuggerBreak;
 extern bool DebuggerStepRequest;
 extern bool DebuggerContinueRequest;
-extern std::map<int, uint32_t> DebuggerBreakpoints;
+extern std::map<int, std::pair<uint32_t, uint32_t>> DebuggerBreakpoints;
 #endif
 
 }  // namespace Vm
