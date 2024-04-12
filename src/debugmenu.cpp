@@ -249,7 +249,7 @@ void ShowScriptVariablesEditor() {
       int one = 1;
       int ten = 10;
       ImGui::InputScalar(buf, ImGuiDataType_S32, &ScrWork[i], &one, &ten,
-                         ScrWorkNumberFormat == 1 ? "%08X" : "%d");
+                         ScrWorkNumberFormat == 1 ? "%08lX" : "%d");
       float lastX2 = ImGui::GetItemRectMax().x;
       float nextButtonX2 =
           lastX2 + style.ItemSpacing.x + ImGui::GetItemRectSize().x;
@@ -371,7 +371,7 @@ void ShowScriptDebugger() {
     ImGui::TableNextColumn();
     ImGui::Text("ID: %d", Vm::ThreadPool[ScriptDebuggerSelectedThreadId].Id);
     ImGui::Text(
-        "IP: %08X",
+        "IP: %08lX",
         Vm::ThreadPool[ScriptDebuggerSelectedThreadId].Ip -
             Vm::ScriptBuffers[Vm::ThreadPool[ScriptDebuggerSelectedThreadId]
                                   .ScriptBufferId]);
@@ -434,7 +434,7 @@ void ShowScriptDebugger() {
       ImGui::Checkbox("Auto scroll source view", &AutoScrollSourceView);
       ImGui::SameLine();
       if (Vm::DebuggerBreak) {
-        if (ImGui::Button("Continue")) Vm::DebuggerBreak = false;
+        if (ImGui::Button("Continue")) Vm::DebuggerContinueRequest = true;
       } else {
         if (ImGui::Button("Break")) Vm::DebuggerBreak = true;
       }
