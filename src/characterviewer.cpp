@@ -114,10 +114,12 @@ void Update(float dt) {
       ImGui::Spacing();
       if (ImGui::BeginCombo("##backgroundCombo", comboPreviewValue)) {
         for (uint32_t i = 0; i < BackgroundCount; i++) {
+          ImGui::PushID(i);
           const bool isSelected = (CurrentBackground == i);
           if (ImGui::Selectable(BackgroundNames[i], isSelected))
             CurrentBackground = i;
           if (isSelected) ImGui::SetItemDefaultFocus();
+          ImGui::PopID();
         }
         ImGui::EndCombo();
       }
@@ -136,10 +138,12 @@ void Update(float dt) {
       ImGui::Spacing();
       if (ImGui::BeginCombo("##characterCombo", comboPreviewValue)) {
         for (uint32_t i = 0; i < CharacterCount; i++) {
+          ImGui::PushID(i);
           const bool isSelected = (CurrentCharacter == i);
           if (ImGui::Selectable(CharacterNames[i], isSelected))
             CurrentCharacter = i;
           if (isSelected) ImGui::SetItemDefaultFocus();
+          ImGui::PopID();
         }
         ImGui::EndCombo();
       }
@@ -179,9 +183,11 @@ void Update(float dt) {
       ImGui::Spacing();
       if (ImGui::BeginCombo("##bgmCombo", comboPreviewValue)) {
         for (uint32_t i = 0; i < BgmCount; i++) {
+          ImGui::PushID(i);
           const bool isSelected = (CurrentBgm == i);
           if (ImGui::Selectable(BgmNames[i], isSelected)) CurrentBgm = i;
           if (isSelected) ImGui::SetItemDefaultFocus();
+          ImGui::PopID();
         }
         ImGui::EndCombo();
       }
