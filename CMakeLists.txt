@@ -1,8 +1,21 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.11)
 
 project("impacto")
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/modules")
+
+if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
+    include(FetchContent)
+    FetchContent_Declare(
+            ImGui
+            GIT_REPOSITORY "https://github.com/ocornut/imgui.git"
+            GIT_TAG "1db579d458da29fa43376af9d88d486910d9406a"
+      SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui
+
+    )
+
+    FetchContent_MakeAvailable(ImGui)
+endif ()
 
 if (EMSCRIPTEN)
     list(APPEND CMAKE_MODULE_PATH ${EMSCRIPTEN_ROOT_PATH}/cmake/Modules)
