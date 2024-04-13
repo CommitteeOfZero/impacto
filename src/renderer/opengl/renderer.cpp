@@ -181,12 +181,15 @@ uint32_t Renderer::SubmitTextureImpl(TexFmt format, uint8_t* buffer, int width,
   GLuint texFormat;
   switch (format) {
     case TexFmt_RGBA:
+      glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
       texFormat = GL_RGBA;
       break;
     case TexFmt_RGB:
+      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
       texFormat = GL_RGB;
       break;
     case TexFmt_U8:
+      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
       texFormat = GL_RED;
   }
   glTexImage2D(GL_TEXTURE_2D, 0, texFormat, width, height, 0, texFormat,
