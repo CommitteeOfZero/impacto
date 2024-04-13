@@ -80,11 +80,16 @@ IoError MpkArchive::Create(InputStream* stream, VfsArchive** outArchive) {
   for (uint32_t i = 0; i < FileCount; i++) {
     uint32_t Compression = ReadLE<uint32_t>(stream);
     uint32_t Id = ReadLE<uint32_t>(stream);
+
     if (Compression != 1 && Compression != 0) {
       ImpLog(LL_Error, LC_IO, "Unknown MPK compression type %d on file %d\n",
              Id, Compression);
       stream->Seek(0x100 - 8, RW_SEEK_SET);
       continue;
+    }
+    if (result->IdsToFiles.find(Id) != result->IdsToFiles.end()) {
+      ImpLog(LL_Error, LC_IO, "Duplicate MPK file ID %d\n", Id);
+      break;
     }
 
     MpkMetaEntry* entry = &result->TOC[i];
