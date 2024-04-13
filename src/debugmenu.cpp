@@ -24,6 +24,11 @@ static std::map<uint32_t, std::map<int, int>> ScriptDebugByteCodePosToLine;
 static std::map<uint32_t, std::map<int, int>> ScriptDebugLineToByteCodePos;
 static std::map<uint32_t, std::vector<std::string>> ScriptDebugSource;
 
+static bool ScriptVariablesEditorShown = false;
+static bool ObjectViewerShown = false;
+static bool UiViewerShown = false;
+static bool ScriptDebuggerShown = false;
+
 static void HelpMarker(const char* desc) {
   ImGui::TextDisabled("(?)");
   if (ImGui::BeginItemTooltip()) {
@@ -83,6 +88,90 @@ static void ParseScriptDebugData(uint32_t scriptId) {
   delete stream;
 }
 
+void ShowSingleWindow() {
+  if (ImGui::Begin("Debug Menu", &DebugMenuShown)) {
+    ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
+                ImGui::GetIO().Framerate);
+
+    if (ImGui::BeginTabBar("DebugTabBar", ImGuiTabBarFlags_None)) {
+      if (ImGui::BeginTabItem("\"Debug Editer\"")) {
+        ShowScriptVariablesEditor();
+        ImGui::EndTabItem();
+      }
+      if (ImGui::BeginTabItem("Objects")) {
+        ImGui::EndTabItem();
+      }
+      if (ImGui::BeginTabItem("UI")) {
+        ImGui::EndTabItem();
+      }
+      if (ImGui::BeginTabItem("Script Debugger")) {
+        ShowScriptDebugger();
+        ImGui::EndTabItem();
+      }
+      ImGui::EndTabBar();
+    }
+  }
+
+  ImGui::End();
+}
+
+void ShowDockableArea() {
+  if (ImGui::Begin("Debug Menu##DebugMenuDockArea", &DebugMenuShown,
+                   ImGuiWindowFlags_MenuBar)) {
+    if (ImGui::BeginMenuBar()) {
+      if (ImGui::BeginMenu("Tools")) {
+        ImGui::MenuItem("\"Debug Editer\"", NULL, &ScriptVariablesEditorShown);
+        ImGui::MenuItem("Objects", NULL, &ObjectViewerShown);
+        ImGui::MenuItem("UI", NULL, &UiViewerShown);
+        ImGui::MenuItem("Script Debugger", NULL, &ScriptDebuggerShown);
+        ImGui::EndMenu();
+      }
+      ImGui::EndMenuBar();
+    }
+
+    ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
+                ImGui::GetIO().Framerate);
+  }
+  ImGui::End();
+
+  if (ScriptVariablesEditorShown) {
+    if (ImGui::Begin("\"Debug Editer\"##ScriptVarEditorWindow"),
+        &ScriptVariablesEditorShown) {
+      ShowScriptVariablesEditor();
+    }
+    ImGui::End();
+  }
+
+  if (ObjectViewerShown) {
+    if (ImGui::Begin("Objects##ObjectViewerWindow"), &ObjectViewerShown) {
+      ImGui::Text("Not available");
+    }
+    ImGui::End();
+  }
+
+  if (UiViewerShown) {
+    if (ImGui::Begin("UI##UIViewerWindow"), &UiViewerShown) {
+      ImGui::Text("Not available");
+    }
+    ImGui::End();
+  }
+
+  if (ScriptDebuggerShown) {
+    if (ImGui::Begin("Script Debugger##ScriptDebuggerWindow"),
+        &ScriptDebuggerShown) {
+      ShowScriptDebugger();
+    }
+    ImGui::End();
+  }
+
+  if (!DebugMenuShown) {
+    ScriptVariablesEditorShown = false;
+    ObjectViewerShown = false;
+    UiViewerShown = false;
+    ScriptDebuggerShown = false;
+  }
+}
+
 void Show() {
   if (((Input::KeyboardButtonIsDown[SDL_SCANCODE_LALT] &&
         Input::KeyboardButtonWentDown[SDL_SCANCODE_D]) ||
@@ -91,35 +180,14 @@ void Show() {
       !DebugMenuShown)
     DebugMenuShown = true;
 
-  ImGui::ShowDemoWindow();
-
   if (DebugMenuShown) {
-    if (ImGui::Begin("Debug Menu", &DebugMenuShown)) {
-      ImGui::Text("%.3f ms/frame (%.1f FPS)",
-                  1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-
-      if (ImGui::BeginTabBar("MyTabBar", ImGuiTabBarFlags_None)) {
-        if (ImGui::BeginTabItem("\"Debug Editer\"")) {
-          ShowScriptVariablesEditor();
-          ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("Objects")) {
-          ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("UI")) {
-          ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("Script Debugger")) {
-          ShowScriptDebugger();
-          ImGui::EndTabItem();
-        }
-        ImGui::EndTabBar();
-      }
+    if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_DockingEnable) {
+      ShowDockableArea();
     } else {
-      Vm::DebugThreadId = -1;
+      ShowSingleWindow();
     }
-
-    ImGui::End();
+  } else {
+    Vm::DebugThreadId = -1;
   }
 }
 

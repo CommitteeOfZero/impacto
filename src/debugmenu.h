@@ -15,6 +15,8 @@ BETTER_ENUM(ThreadGroupType, uint8_t, Root = 0x0, System = 0x1, GameSys = 0x2,
             Script3 = 0x7, Script4 = 0x8, None = 0xFF)
 
 void Show();
+void ShowDockableArea();
+void ShowSingleWindow();
 void ShowScriptVariablesEditor();
 void ShowScriptDebugger();
 
