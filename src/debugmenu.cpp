@@ -79,6 +79,8 @@ static void ParseScriptDebugData(uint32_t scriptId) {
   ScriptDebugByteCodePosToLine[scriptId] = byteCodePosToLine;
   ScriptDebugLineToByteCodePos[scriptId] = lineToByteCodePos;
   ScriptDebugSource[scriptId] = sourceLines;
+
+  delete stream;
 }
 
 void Show() {
@@ -88,6 +90,8 @@ void Show() {
         Input::ControllerButtonWentDown[SDL_CONTROLLER_BUTTON_Y])) &&
       !DebugMenuShown)
     DebugMenuShown = true;
+
+  ImGui::ShowDemoWindow();
 
   if (DebugMenuShown) {
     if (ImGui::Begin("Debug Menu", &DebugMenuShown)) {
@@ -479,55 +483,59 @@ void ShowScriptDebugger() {
         ImGui::TreePop();
       }
 
-      ImGui::BeginChild("SourceScrollRegion",
-                        ImVec2(ImGui::GetContentRegionAvail().x,
-                               ImGui::GetContentRegionAvail().y * 0.9f),
-                        ImGuiChildFlags_None);
       if (ImGui::BeginTable(
-              "Source", 1,
-              ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_Borders)) {
-        int lineNum = 0;
-        for (auto line : ScriptDebugSource[scriptId]) {
-          ImGui::PushID(lineNum);
-          ImGui::TableNextRow();
-          ImGui::TableNextColumn();
-          ImGui::PushStyleColor(ImGuiCol_Header,
-                                ImVec4(1.0f, 0.0f, 0.0f, 0.65f));
-          bool isBreakpoint = Vm::DebuggerBreakpoints.find(lineNum) !=
-                              Vm::DebuggerBreakpoints.end();
-          isBreakpoint =
-              isBreakpoint &&
-              Vm::DebuggerBreakpoints.find(lineNum)->second.first == scriptId;
-          ImGui::Selectable(line.c_str(), &isBreakpoint,
-                            ImGuiSelectableFlags_SpanAllColumns);
-          if (isBreakpoint) {
-            Vm::DebuggerBreakpoints[lineNum] = std::make_pair(
-                Vm::LoadedScriptMetas
-                    [Vm::ThreadPool[ScriptDebuggerSelectedThreadId]
-                         .ScriptBufferId]
-                        .Id,
-                lineToByteCodePosTable[lineNum]);
-          } else if (Vm::DebuggerBreakpoints.find(lineNum) !=
-                         Vm::DebuggerBreakpoints.end() &&
-                     Vm::DebuggerBreakpoints.find(lineNum)->second.first ==
-                         scriptId) {
-            Vm::DebuggerBreakpoints.erase(lineNum);
+              "Source", 2,
+              ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_Borders |
+                  ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollY,
+              ImVec2(ImGui::GetContentRegionAvail().x,
+                     ImGui::GetContentRegionAvail().y * 0.9f))) {
+        ImGuiListClipper clipper;
+        clipper.Begin(ScriptDebugSource[scriptId].size());
+        while (clipper.Step()) {
+          for (int row = clipper.DisplayStart; row < clipper.DisplayEnd;
+               row++) {
+            ImGui::PushID(row);
+            ImGui::TableNextRow();
+            ImGui::TableNextColumn();
+            ImGui::Text("%d", row + 1);
+            ImGui::TableNextColumn();
+            ImGui::PushStyleColor(ImGuiCol_Header,
+                                  ImVec4(1.0f, 0.0f, 0.0f, 0.65f));
+            bool isBreakpoint = Vm::DebuggerBreakpoints.find(row) !=
+                                Vm::DebuggerBreakpoints.end();
+            isBreakpoint =
+                isBreakpoint &&
+                Vm::DebuggerBreakpoints.find(row)->second.first == scriptId;
+            ImGui::Selectable(ScriptDebugSource[scriptId][row].c_str(),
+                              &isBreakpoint,
+                              ImGuiSelectableFlags_SpanAllColumns);
+            if (isBreakpoint) {
+              Vm::DebuggerBreakpoints[row] = std::make_pair(
+                  Vm::LoadedScriptMetas
+                      [Vm::ThreadPool[ScriptDebuggerSelectedThreadId]
+                           .ScriptBufferId]
+                          .Id,
+                  lineToByteCodePosTable[row]);
+            } else if (Vm::DebuggerBreakpoints.find(row) !=
+                           Vm::DebuggerBreakpoints.end() &&
+                       Vm::DebuggerBreakpoints.find(row)->second.first ==
+                           scriptId) {
+              Vm::DebuggerBreakpoints.erase(row);
+            }
+            ImGui::PopStyleColor();
+            if (currentLineNum == row) {
+              ImGui::TableSetBgColor(
+                  ImGuiTableBgTarget_RowBg0,
+                  ImGui::GetColorU32(ImVec4(0.0f, 0.7f, 0.0f, 0.65f)));
+            }
+            ImGui::PopID();
           }
-          ImGui::PopStyleColor();
-          if (currentLineNum == lineNum) {
-            ImGui::TableSetBgColor(
-                ImGuiTableBgTarget_CellBg,
-                ImGui::GetColorU32(ImVec4(0.0f, 0.7f, 0.0f, 0.65f)));
-          }
-          lineNum++;
-          ImGui::PopID();
         }
+        if (AutoScrollSourceView)
+          ImGui::SetScrollY((currentLineNum - 5) *
+                            ImGui::GetTextLineHeightWithSpacing());
         ImGui::EndTable();
       }
-      if (AutoScrollSourceView)
-        ImGui::SetScrollY((currentLineNum - 5) *
-                          ImGui::GetTextLineHeightWithSpacing());
-      ImGui::EndChild();
     }
     ImGui::TreePop();
   }
