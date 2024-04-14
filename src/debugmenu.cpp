@@ -261,20 +261,22 @@ void ShowScriptVariablesEditor() {
 
     ImGui::PushButtonRepeat(true);
     ImGui::SameLine();
-    if (ImGui::Button("+1##IncreaseFlagWorkEndIndex")) FlagWorkIndexStart += 1;
+    if (ImGui::Button("+1##IncreaseFlagWorkStartIndex"))
+      FlagWorkIndexStart += 1;
     ImGui::SameLine();
-    if (ImGui::Button("-1##DecreaseFlagWorkEndIndex")) FlagWorkIndexStart -= 1;
+    if (ImGui::Button("-1##DecreaseFlagWorkStartIndex"))
+      FlagWorkIndexStart -= 1;
     ImGui::SameLine();
-    if (ImGui::Button("+100##IncreaseFlagWorkEndIndex1"))
+    if (ImGui::Button("+100##IncreaseFlagWorkStartIndex1"))
       FlagWorkIndexStart += 100;
     ImGui::SameLine();
-    if (ImGui::Button("-100##DecreaseFlagWorkEndIndex1"))
+    if (ImGui::Button("-100##DecreaseFlagWorkStartIndex1"))
       FlagWorkIndexStart -= 100;
     ImGui::SameLine();
-    if (ImGui::Button("+1000##IncreaseFlagWorkEndIndex2"))
+    if (ImGui::Button("+1000##IncreaseFlagWorkStartIndex2"))
       FlagWorkIndexStart += 1000;
     ImGui::SameLine();
-    if (ImGui::Button("-1000##DecreaseFlagWorkEndIndex2"))
+    if (ImGui::Button("-1000##DecreaseFlagWorkStartIndex2"))
       FlagWorkIndexStart -= 1000;
     ImGui::PopButtonRepeat();
 
