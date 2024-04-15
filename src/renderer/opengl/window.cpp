@@ -133,9 +133,8 @@ void GLWindow::TryCreateGL(GraphicsApi api) {
   windowFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
 #endif
 
-  SDLWindow =
-      SDL_CreateWindow(Profile::WindowName, SDL_WINDOWPOS_UNDEFINED,
-                       SDL_WINDOWPOS_UNDEFINED, 1920, 1080, windowFlags);
+  SDLWindow = SDL_CreateWindow(Profile::WindowName, SDL_WINDOWPOS_UNDEFINED,
+                               SDL_WINDOWPOS_UNDEFINED, 1280, 720, windowFlags);
 
   if (SDLWindow == NULL) {
     ImpLog(LL_Error, LC_General, "Window creation failed: %s\n",
@@ -153,7 +152,6 @@ void GLWindow::TryCreateGL(GraphicsApi api) {
   }
 
 #ifndef IMPACTO_DISABLE_IMGUI
-  // Setup Platform/Renderer backends
   ImGui_ImplSDL2_InitForOpenGL(SDLWindow, GLContext);
   ImGui_ImplOpenGL3_Init();
 #endif

@@ -75,9 +75,8 @@ void VulkanWindow::Init() {
   windowFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
 #endif
 
-  SDLWindow =
-      SDL_CreateWindow(Profile::WindowName, SDL_WINDOWPOS_UNDEFINED,
-                       SDL_WINDOWPOS_UNDEFINED, 1920, 1080, windowFlags);
+  SDLWindow = SDL_CreateWindow(Profile::WindowName, SDL_WINDOWPOS_UNDEFINED,
+                               SDL_WINDOWPOS_UNDEFINED, 1280, 720, windowFlags);
 
   if (SDLWindow == NULL) {
     ImpLog(LL_Error, LC_General, SDL_GetError());
