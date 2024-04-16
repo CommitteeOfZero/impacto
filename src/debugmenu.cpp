@@ -353,11 +353,14 @@ void ShowScriptVariablesEditor() {
 }
 
 static int ScriptDebuggerSelectedThreadId = -1;
+static int ScriptDebuggerSelectedScriptId = -1;
 static int ThreadVarsNumberFormat = 0;
 static bool AutoScrollSourceView = true;
+static std::map<uint32_t, std::string> ScriptFilesListing;
 
 void ShowScriptDebugger() {
-  if (ScriptDebuggerSelectedThreadId == -1) {
+  if (ScriptDebuggerSelectedThreadId == -1 ||
+      Vm::ThreadPool[ScriptDebuggerSelectedThreadId].Ip == 0) {
     int firstThreadId = 0;
     for (int i = 0; i < Vm::MaxThreads; i++) {
       if (Vm::ThreadPool[i].Ip != 0) {
@@ -366,6 +369,10 @@ void ShowScriptDebugger() {
       }
     }
     ScriptDebuggerSelectedThreadId = firstThreadId;
+    ScriptDebuggerSelectedScriptId =
+        Vm::LoadedScriptMetas[Vm::ThreadPool[ScriptDebuggerSelectedThreadId]
+                                  .ScriptBufferId]
+            .Id;
   }
 
   char comboPreviewValue[128];
@@ -406,12 +413,54 @@ void ShowScriptDebugger() {
                    Vm::LoadedScriptMetas[Vm::ThreadPool[i].ScriptBufferId]
                        .FileName.c_str());
         }
-        if (ImGui::Selectable(comboPreviewValue, isSelected))
+        if (ImGui::Selectable(comboPreviewValue, isSelected)) {
           ScriptDebuggerSelectedThreadId = i;
+          AutoScrollSourceView = true;
+        }
         if (isSelected) ImGui::SetItemDefaultFocus();
       }
     }
     ImGui::EndCombo();
+  }
+
+  ImGui::SameLine();
+  if (ScriptFilesListing.size() == 0) {
+    IoError err = Io::VfsListFiles("script", ScriptFilesListing);
+    if (err != IoError_OK) {
+      ImpLog(LL_Warning, LC_General, "Failed to open script archive!\n");
+      return;
+    }
+  }
+
+  snprintf(comboPreviewValue, 128, "[%d] %s", ScriptDebuggerSelectedScriptId,
+           ScriptFilesListing[ScriptDebuggerSelectedScriptId].c_str());
+  if (ImGui::BeginCombo("Script##vmScriptCombo", comboPreviewValue,
+                        ImGuiComboFlags_WidthFitPreview)) {
+    for (auto const& file : ScriptFilesListing) {
+      const bool isSelected = (ScriptDebuggerSelectedScriptId == file.first);
+      snprintf(comboPreviewValue, 128, "[%d] %s", file.first,
+               file.second.c_str());
+      if (ImGui::Selectable(comboPreviewValue, isSelected)) {
+        ScriptDebuggerSelectedScriptId = file.first;
+        if (ScriptDebuggerSelectedScriptId !=
+            Vm::LoadedScriptMetas[Vm::ThreadPool[ScriptDebuggerSelectedThreadId]
+                                      .ScriptBufferId]
+                .Id) {
+          AutoScrollSourceView = false;
+        }
+      }
+      if (isSelected) {
+        ImGui::SetItemDefaultFocus();
+      }
+    }
+    ImGui::EndCombo();
+  }
+
+  if (AutoScrollSourceView) {
+    ScriptDebuggerSelectedScriptId =
+        Vm::LoadedScriptMetas[Vm::ThreadPool[ScriptDebuggerSelectedThreadId]
+                                  .ScriptBufferId]
+            .Id;
   }
 
   ImGui::SeparatorText("Thread flags:");
@@ -485,10 +534,7 @@ void ShowScriptDebugger() {
 
   ImGui::Spacing();
   if (ImGui::TreeNode("Source View")) {
-    uint32_t scriptId =
-        Vm::LoadedScriptMetas[Vm::ThreadPool[ScriptDebuggerSelectedThreadId]
-                                  .ScriptBufferId]
-            .Id;
+    uint32_t scriptId = ScriptDebuggerSelectedScriptId;
     uint32_t scriptIp =
         (uint32_t)(Vm::ThreadPool[ScriptDebuggerSelectedThreadId].Ip -
                    Vm::ScriptBuffers
@@ -509,16 +555,24 @@ void ShowScriptDebugger() {
       ImGui::Checkbox("Auto scroll source view", &AutoScrollSourceView);
       ImGui::SameLine();
       if (Vm::DebuggerBreak) {
-        if (ImGui::Button("Continue")) Vm::DebuggerContinueRequest = true;
+        if (ImGui::Button("Continue")) {
+          AutoScrollSourceView = true;
+          Vm::DebuggerContinueRequest = true;
+        }
       } else {
-        if (ImGui::Button("Break")) Vm::DebuggerBreak = true;
+        if (ImGui::Button("Break")) {
+          AutoScrollSourceView = true;
+          Vm::DebuggerBreak = true;
+        }
       }
       ImGui::SameLine();
       ImGui::BeginDisabled(!Vm::DebuggerBreak);
-      if (ImGui::Button("Step"))
+      if (ImGui::Button("Step")) {
+        AutoScrollSourceView = true;
         Vm::DebuggerStepRequest = true;
-      else
+      } else {
         Vm::DebuggerStepRequest = false;
+      }
       ImGui::EndDisabled();
       ImGui::SameLine();
       if (ImGui::Button("Clear breakpoints")) {
@@ -580,12 +634,8 @@ void ShowScriptDebugger() {
                               &isBreakpoint,
                               ImGuiSelectableFlags_SpanAllColumns);
             if (isBreakpoint) {
-              Vm::DebuggerBreakpoints[row] = std::make_pair(
-                  Vm::LoadedScriptMetas
-                      [Vm::ThreadPool[ScriptDebuggerSelectedThreadId]
-                           .ScriptBufferId]
-                          .Id,
-                  lineToByteCodePosTable[row]);
+              Vm::DebuggerBreakpoints[row] =
+                  std::make_pair(scriptId, lineToByteCodePosTable[row]);
             } else if (Vm::DebuggerBreakpoints.find(row) !=
                            Vm::DebuggerBreakpoints.end() &&
                        Vm::DebuggerBreakpoints.find(row)->second.first ==
@@ -593,7 +643,11 @@ void ShowScriptDebugger() {
               Vm::DebuggerBreakpoints.erase(row);
             }
             ImGui::PopStyleColor();
-            if (currentLineNum == row) {
+            if (scriptId == Vm::LoadedScriptMetas
+                                [Vm::ThreadPool[ScriptDebuggerSelectedThreadId]
+                                     .ScriptBufferId]
+                                    .Id &&
+                currentLineNum == row) {
               ImGui::TableSetBgColor(
                   ImGuiTableBgTarget_RowBg0,
                   ImGui::GetColorU32(ImVec4(0.0f, 0.7f, 0.0f, 0.65f)));

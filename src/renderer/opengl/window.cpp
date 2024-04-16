@@ -351,6 +351,14 @@ void GLWindow::Draw() {
                     viewport.Height + viewport.Y, GL_COLOR_BUFFER_BIT,
                     GL_NEAREST);
 
+#ifndef IMPACTO_DISABLE_IMGUI
+  if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+    ImGui::UpdatePlatformWindows();
+    ImGui::RenderPlatformWindowsDefault();
+    SDL_GL_MakeCurrent(SDLWindow, GLContext);
+  }
+#endif
+
   SDL_GL_SwapWindow(SDLWindow);
 }
 

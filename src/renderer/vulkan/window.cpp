@@ -97,7 +97,14 @@ void VulkanWindow::SwapRTs() {}
 
 void VulkanWindow::Update() {}
 
-void VulkanWindow::Draw() {}
+void VulkanWindow::Draw() {
+#ifndef IMPACTO_DISABLE_IMGUI
+  if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+    ImGui::UpdatePlatformWindows();
+    ImGui::RenderPlatformWindowsDefault();
+  }
+#endif
+}
 
 void VulkanWindow::Shutdown() {
   SDL_DestroyWindow(SDLWindow);
