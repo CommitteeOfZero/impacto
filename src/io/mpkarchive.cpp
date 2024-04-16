@@ -87,14 +87,8 @@ IoError MpkArchive::Create(InputStream* stream, VfsArchive** outArchive) {
       stream->Seek(0x100 - 8, RW_SEEK_SET);
       continue;
     }
-    if (result->IdsToFiles.find(Id) != result->IdsToFiles.end()) {
-      ImpLog(LL_Error, LC_IO, "Duplicate MPK file ID %d\n", Id);
-      break;
-    }
 
     MpkMetaEntry* entry = &result->TOC[i];
-    result->IdsToFiles[Id] = entry;
-
     entry->Compressed = Compression;
     entry->Id = Id;
     entry->Offset = ReadLE<uint64_t>(stream);
@@ -104,6 +98,16 @@ IoError MpkArchive::Create(InputStream* stream, VfsArchive** outArchive) {
     name[MpkMaxPath - 1] = '\0';
     entry->FileName = std::string(name);
 
+    if (result->IdsToFiles.find(Id) != result->IdsToFiles.end()) {
+      ImpLog(LL_Error, LC_IO, "Duplicate MPK file ID %d\n", Id);
+      continue;
+    }
+    if (!entry->Offset) {
+      ImpLog(LL_Error, LC_IO, "Reached end of ToC\n");
+      break;
+    }
+
+    result->IdsToFiles[Id] = entry;
     result->NamesToIds[entry->FileName] = Id;
   }
 
