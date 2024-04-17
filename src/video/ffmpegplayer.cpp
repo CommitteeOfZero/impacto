@@ -463,9 +463,7 @@ void FFmpegPlayer::Decode(AVMediaType avType) {
       ret = avcodec_send_packet(stream->CodecContext, packet.Packet);
       if (ret >= 0) {
         av_packet_free(&packet.Packet);
-        SDL_LockMutex(stream->PacketLock);
         stream->PacketQueue.pop();
-        SDL_UnlockMutex(stream->PacketLock);
       }
     }
     SDL_UnlockMutex(stream->PacketLock);

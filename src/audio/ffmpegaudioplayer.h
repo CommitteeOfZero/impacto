@@ -26,7 +26,7 @@ class FFmpegAudioPlayer {
 
   Video::Clock* AudioClock;
 
-  SwrContext* AudioConvertContext;
+  SwrContext* AudioConvertContext = 0;
 
   Video::FFmpegPlayer* Player;
 };

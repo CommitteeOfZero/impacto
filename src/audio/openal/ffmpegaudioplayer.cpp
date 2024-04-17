@@ -26,13 +26,20 @@ void FFmpegAudioPlayer::Init() {
 }
 
 void FFmpegAudioPlayer::InitConvertContext(AVCodecContext* codecCtx) {
-  AudioConvertContext =
-      swr_alloc_set_opts(NULL, AV_CH_LAYOUT_STEREO, AV_SAMPLE_FMT_S16,
-                         codecCtx->sample_rate, AV_CH_LAYOUT_STEREO,
-                         codecCtx->sample_fmt, codecCtx->sample_rate, 0, NULL);
+  AVChannelLayout stereoFormat;
+  av_channel_layout_default(&stereoFormat, 2);
+  int res = swr_alloc_set_opts2(&AudioConvertContext, &stereoFormat,
+                                AV_SAMPLE_FMT_S16, codecCtx->sample_rate,
+                                &stereoFormat, codecCtx->sample_fmt,
+                                codecCtx->sample_rate, 0, NULL);
+  if (res) {
+    ImpLog(LL_Error, LC_Video, "Could not create audio convert context!\n");
+    return;
+  }
+
   swr_init(AudioConvertContext);
   av_samples_alloc_array_and_samples(&AudioBuffer, &AudioLinesize,
-                                     codecCtx->channels, 32000,
+                                     codecCtx->ch_layout.nb_channels, 32000,
                                      AV_SAMPLE_FMT_S16, 0);
 }
 
