@@ -18,6 +18,8 @@ class DelusionTriggerBase {
   virtual void Hide() = 0;
   virtual void Show(){};
   virtual bool Show(int param1, int param2, int param3) { return true; };
+  virtual bool CheckTransitionAnimationComplete() { return true; };
+  virtual bool CheckStartTransitionComplete() { return true; };
 
   UiState State;
   int& DelusionState;
@@ -31,6 +33,8 @@ void Show();
 void Hide();
 void Render();
 bool Show(int param1, int param2, int param3);
+bool CheckTransitionAnimationComplete();
+bool CheckStartTransitionComplete();
 
 }  // namespace DelusionTrigger
 }  // namespace Impacto

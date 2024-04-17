@@ -18,6 +18,14 @@ bool Show(int param1, int param2, int param3) {
   if (Implementation) return Implementation->Show(param1, param2, param3);
 }
 
+bool CheckTransitionAnimationComplete() {
+  if (Implementation) return Implementation->CheckTransitionAnimationComplete();
+}
+
+bool CheckStartTransitionComplete() {
+  if (Implementation) return Implementation->CheckStartTransitionComplete();
+}
+
 void Hide() {
   if (Implementation) Implementation->Hide();
 }

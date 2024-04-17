@@ -1218,6 +1218,7 @@ VmInstruction(InstMtrg) {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MtrgStart(type: %i)\n", type);
       if (!DelusionTrigger::Show(arg1, arg2, arg3)) {
+        ResetInstruction;
         BlockThread;
       }
     } break;
@@ -1258,7 +1259,7 @@ VmInstruction(InstMtrg) {
     case 3: {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MtrgStop_Wait(type: %i)\n", type);
-      if (ScrWork[6412] != ScrWork[6416]) {
+      if (!DelusionTrigger::CheckTransitionAnimationComplete()) {
         ResetInstruction;
         BlockThread;
       } else {
@@ -1267,12 +1268,11 @@ VmInstruction(InstMtrg) {
     } break;
     case 4: {
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Mtrg_04_Wait(type: %i)\n", type);
-      if (ScrWork[6416] != 0xff) {
-        break;
+                 "STUB instruction MtrgStart_Wait(type: %i)\n", type);
+      if (!DelusionTrigger::CheckStartTransitionComplete()) {
+        ResetInstruction;
+        BlockThread;
       }
-      ResetInstruction;
-      BlockThread;
     } break;
     case 5: {
       PopExpression(arg1);
