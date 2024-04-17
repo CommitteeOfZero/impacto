@@ -427,6 +427,7 @@ void Render() {
                 ScrWork[SW_MOVIEPRI] == static_cast<int>(layer)) {
               Video::VideoRender(ScrWork[SW_MOVIEALPHA] / 256.0f);
             }
+            if (ScrWork[6417] == layer) DelusionTrigger::Render();
           }
           if (GetFlag(SF_Pokecon_Open)) {
             SetFlag(SF_DATEDISPLAY, 0);
@@ -447,7 +448,6 @@ void Render() {
           }
           DateDisplay::Render();
           TipsNotification::Render();
-          DelusionTrigger::Render();
           // MO8 uses those huge layer indexes for movie menu, it doesn't
           // actually have 4000 layers
           if ((Profile::GameFeatures & GameFeature::Video) &&

@@ -13,6 +13,21 @@ void Init() { Profile::DelusionTrigger::Configure(); }
 void Show() {
   if (Implementation) Implementation->Show();
 }
+
+bool Show(int bgMtrgSelBufferId, int bgMtrgNegaPosiBufferId, int param3) {
+  if (Implementation)
+    return Implementation->Show(bgMtrgSelBufferId, bgMtrgNegaPosiBufferId,
+                                param3);
+}
+
+bool CheckTransitionAnimationComplete() {
+  if (Implementation) return Implementation->CheckTransitionAnimationComplete();
+}
+
+bool CheckStartTransitionComplete() {
+  if (Implementation) return Implementation->CheckStartTransitionComplete();
+}
+
 void Hide() {
   if (Implementation) Implementation->Hide();
 }

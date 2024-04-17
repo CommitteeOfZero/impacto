@@ -720,12 +720,11 @@ inline void Renderer::QuadSetPositionOffset(RectF const& spriteBounds,
   // Rotate
   if (angle != 0.0f) {
     glm::mat2 rot = Rotate2D(angle);
-    glm::vec2 center = (bottomLeft + topRight) * 0.5f;
 
-    bottomLeft = rot * (bottomLeft - center) + center;
-    topLeft = rot * (topLeft - center) + center;
-    topRight = rot * (topRight - center) + center;
-    bottomRight = rot * (bottomRight - center) + center;
+    bottomLeft = rot * (bottomLeft - displayOffset) + displayOffset;
+    topLeft = rot * (topLeft - displayOffset) + displayOffset;
+    topRight = rot * (topRight - displayOffset) + displayOffset;
+    bottomRight = rot * (bottomRight - displayOffset) + displayOffset;
   }
 
   // Scale
