@@ -31,6 +31,8 @@ class DelusionTrigger : public Impacto::DelusionTrigger::DelusionTriggerBase {
   void RenderNeutralToPositiveTransition(Sprite& bgSprite, float spinAngle,
                                          int spinAlpha);
   void RenderStartTransition(Sprite& bgSprite, float spinAngle, int spinAlpha);
+  void RenderEndNeutralTransition(Sprite& bgSprite, float spinAngle,
+                                  int spinAlpha);
   void RenderStable(Sprite& bgSprite, float spinAngle, int spinAlpha);
 };
 

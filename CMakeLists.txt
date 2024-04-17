@@ -433,7 +433,7 @@ set(Impacto_Header
         src/games/chlcc/systemmenu.h
         src/games/chlcc/trophymenu.h
         src/games/chlcc/delusiontrigger.h
-        
+
         src/games/cc/dialoguebox.h
         src/games/cc/titlemenu.h
         src/games/cc/sysmesbox.h

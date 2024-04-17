@@ -17,7 +17,7 @@ DelusionTrigger::DelusionTrigger()
     : DelusionTriggerBase(ScrWork[6412], UiState::Hidden) {}
 
 bool DelusionTrigger::Show(int bgMtrgSelBufferId, int bgMtrgNegaPosiBufferId,
-                           int param_3) {
+                           int param3) {
   // TODO, scrwork 6413 (mtrgSelCounter) & scrwork 6415 (mtrgNegaPosiCounter) to
   // use delta time
 
@@ -27,7 +27,7 @@ bool DelusionTrigger::Show(int bgMtrgSelBufferId, int bgMtrgNegaPosiBufferId,
   ScrWork[6413] = 0;
   LastDelusionState = 0xff;
   ScrWork[6415] = 0x40;
-  ScrWork[6414] = param_3;
+  ScrWork[6414] = param3;
   SetFlag(2820, 1);
   ScrWork[6344] = 48;
   SetFlag(2821, 0);
@@ -159,25 +159,25 @@ void DelusionTrigger::RenderStable(Sprite& bgSprite, float spinAngle,
     if ((ScrWork[6414] == 0) || (ScrWork[6414] == 1)) {
       bgSprite.Bounds.X = 1024;
       Renderer->DrawSpriteOffset(bgSprite, {-800, -109}, {600, 557},
-                                 {1.0f, 1.0f, 1.0f, (float)spinAlpha / 255.0f},
+                                 {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f},
                                  {1.0, 1.0}, spinAngle);
     }
     if ((ScrWork[6414] == 0) || (ScrWork[6414] == 2)) {
       bgSprite.Bounds.X = 0;
       Renderer->DrawSpriteOffset(bgSprite, {1696.0f, -109.0f}, {424, 557},
-                                 {1.0f, 1.0f, 1.0f, (float)spinAlpha / 255.0f},
+                                 {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f},
                                  {1.0, 1.0}, spinAngle);
     }
   } else if (DelusionState == DS_Positive) {
     bgSprite.Bounds.X = 1024;
     Renderer->DrawSpriteOffset(
         bgSprite, glm::vec2{448, -109.0f}, glm::vec2{600, 557.0f},
-        {1.0f, 1.0f, 1.0f, (float)spinAlpha / 255.0f}, {1.8, 1.8}, spinAngle);
+        {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f}, {1.8, 1.8}, spinAngle);
   } else if (DelusionState == DS_Negative) {
     bgSprite.Bounds.X = 0;
     Renderer->DrawSpriteOffset(
         bgSprite, glm::vec2{448, -109.0f}, glm::vec2{424, 557.0f},
-        {1.0f, 1.0f, 1.0f, (float)spinAlpha / 255.0f}, {1.8, 1.8}, spinAngle);
+        {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f}, {1.8, 1.8}, spinAngle);
   }
 }
 
@@ -188,7 +188,7 @@ void DelusionTrigger::RenderNeutralToPositiveTransition(Sprite& bgSprite,
   float topLeftX = 448.0f - (float)((ScrWork[6415] * 1248) >> 6);
   Renderer->DrawSpriteOffset(
       bgSprite, glm::vec2{topLeftX, -109.0f}, {600, 557},
-      {1.0f, 1.0f, 1.0f, (float)spinAlpha / 255.0f},
+      {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f},
       {1.8 - ScrWork[6415] * 0.8 / 64, 1.8 - ScrWork[6415] * 0.8 / 64},
       spinAngle);
   if (ScrWork[6414] == 0) {
@@ -196,7 +196,7 @@ void DelusionTrigger::RenderNeutralToPositiveTransition(Sprite& bgSprite,
     float centerX = 2944.0f - (float)((ScrWork[6415] * 1248) >> 6);
     Renderer->DrawSpriteOffset(
         bgSprite, glm::vec2{centerX, -109.0f}, glm::vec2{424.0f, 557.0f},
-        {1.0f, 1.0f, 1.0f, (float)spinAlpha / 255.0f}, {1, 1}, spinAngle);
+        {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f}, {1, 1}, spinAngle);
   }
 }
 
@@ -207,7 +207,7 @@ void DelusionTrigger::RenderNeutralToNegativeTransition(Sprite& bgSprite,
   float topLeftX = (float)((ScrWork[6415] * 1248) >> 6) + 448.0f;
   Renderer->DrawSpriteOffset(
       bgSprite, glm::vec2{topLeftX, -109.0f}, {424, 557},
-      {1.0f, 1.0f, 1.0f, (float)spinAlpha / 255.0f},
+      {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f},
       {1.8 - ScrWork[6415] * 0.8 / 64, 1.8 - ScrWork[6415] * 0.8 / 64},
       spinAngle);
   if (ScrWork[6414] == 0) {
@@ -215,7 +215,7 @@ void DelusionTrigger::RenderNeutralToNegativeTransition(Sprite& bgSprite,
     float topLeftX = (float)((ScrWork[6415] * 1248) >> 6) - 2048.0f;
     Renderer->DrawSpriteOffset(
         bgSprite, glm::vec2{topLeftX, -109.0f}, glm::vec2{600.0f, 557.0f},
-        {1.0f, 1.0f, 1.0f, (float)spinAlpha / 255.0f}, {1, 1}, spinAngle);
+        {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f}, {1, 1}, spinAngle);
   }
 }
 
@@ -227,14 +227,14 @@ void DelusionTrigger::RenderPositiveToNeutralTransition(Sprite& bgSprite,
 
   float topLeftX = (float)((ScrWork[6415] * 1248) >> 6) - 800.0f;
   Renderer->DrawSpriteOffset(bgSprite, glm::vec2{topLeftX, -109.0f}, {600, 557},
-                             {1.0f, 1.0f, 1.0f, (float)spinAlpha / 255.0f},
+                             {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f},
                              {scale, scale}, spinAngle);
   if ((ScrWork[6414] == 0)) {
     bgSprite.Bounds.X = 0;
     float centerX = (float)((ScrWork[6415] * 1248) >> 6) + 1696.0f;
     Renderer->DrawSpriteOffset(
         bgSprite, glm::vec2{centerX, -109.0f}, glm::vec2{424.0f, 557.0f},
-        {1.0f, 1.0f, 1.0f, (float)spinAlpha / 255.0f}, {1, 1}, spinAngle);
+        {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f}, {1, 1}, spinAngle);
   }
 }
 
@@ -246,14 +246,33 @@ void DelusionTrigger::RenderNegativeToNeutralTransition(Sprite& bgSprite,
 
   float topLeftX = 1696.0f - (float)((ScrWork[6415] * 1248) >> 6);
   Renderer->DrawSpriteOffset(bgSprite, glm::vec2{topLeftX, -109.0f}, {424, 557},
-                             {1.0f, 1.0f, 1.0f, (float)spinAlpha / 255.0f},
+                             {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f},
                              {scale, scale}, spinAngle);
   if ((ScrWork[6414] == 0)) {
     bgSprite.Bounds.X = 1024;
     float centerX = -800.0f - (float)((ScrWork[6415] * 1248) >> 6);
     Renderer->DrawSpriteOffset(
         bgSprite, glm::vec2{centerX, -109.0f}, glm::vec2{600.0f, 557.0f},
-        {1.0f, 1.0f, 1.0f, (float)spinAlpha / 255.0f}, {1, 1}, spinAngle);
+        {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f}, {1, 1}, spinAngle);
+  }
+}
+
+void DelusionTrigger::RenderEndNeutralTransition(Sprite& bgSprite,
+                                                 float spinAngle,
+                                                 int spinAlpha) {
+  if ((ScrWork[6414] == 0) || (ScrWork[6414] == 1)) {
+    bgSprite.Bounds.X = 1024;
+    float topLeftX = (float)((ScrWork[6413] * 1248) >> 5) - 2048.0f;
+    Renderer->DrawSpriteOffset(
+        bgSprite, glm::vec2{topLeftX, -109.0f}, glm::vec2{600.0f, 557.0f},
+        {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f}, {1, 1}, spinAngle);
+  }
+  if ((ScrWork[6414] == 0) || (ScrWork[6414] == 2)) {
+    bgSprite.Bounds.X = 0;
+    float topLeftX = 2944.0f - (float)((ScrWork[6415] * 1248) >> 5);
+    Renderer->DrawSpriteOffset(
+        bgSprite, glm::vec2{topLeftX, -109.0f}, glm::vec2{424.0f, 557.0f},
+        {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f}, {1, 1}, spinAngle);
   }
 }
 
@@ -309,23 +328,9 @@ void DelusionTrigger::Render() {
       RenderNegativeToNeutralTransition(
           Backgrounds2D[bgMtrgNegaPosiIdx]->BgSprite, spinAngle, spinAlpha);
     }
-  } else if (DelusionState == 0) {
-    if ((ScrWork[6414] == 0) || (ScrWork[6414] == 1)) {
-      Backgrounds2D[bgMtrgNegaPosiIdx]->BgSprite.Bounds.X = 1024;
-      float centerX = (float)((ScrWork[6415] * 1248) >> 6) - 2048.0f;
-      Renderer->DrawSpriteOffset(
-          Backgrounds2D[bgMtrgNegaPosiIdx]->BgSprite,
-          glm::vec2{centerX, -109.0f}, glm::vec2{600.0f, 557.0f},
-          {1.0f, 1.0f, 1.0f, (float)spinAlpha / 255.0f}, {1, 1}, spinAngle);
-    }
-    if ((ScrWork[6414] == 0) || (ScrWork[6414] == 2)) {
-      Backgrounds2D[bgMtrgNegaPosiIdx]->BgSprite.Bounds.X = 0;
-      float centerX = 2944.0f - (float)((ScrWork[6415] * 1248) >> 6);
-      Renderer->DrawSpriteOffset(
-          Backgrounds2D[bgMtrgNegaPosiIdx]->BgSprite,
-          glm::vec2{centerX, -109.0f}, glm::vec2{424.0f, 557.0f},
-          {1.0f, 1.0f, 1.0f, (float)spinAlpha / 255.0f}, {1, 1}, spinAngle);
-    }
+  } else if (DelusionState == DS_Neutral) {
+    RenderEndNeutralTransition(Backgrounds2D[bgMtrgNegaPosiIdx]->BgSprite,
+                               spinAngle, spinAlpha);
   }
 }
 
