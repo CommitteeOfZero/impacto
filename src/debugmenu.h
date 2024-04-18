@@ -19,6 +19,7 @@ void ShowDockableArea();
 void ShowSingleWindow();
 void ShowScriptVariablesEditor();
 void ShowScriptDebugger();
+void ShowObjects();
 
 }  // namespace DebugMenu
 }  // namespace Impacto

@@ -8,6 +8,9 @@
 #include "inputsystem.h"
 #include "vm/vm.h"
 #include "io/vfs.h"
+#include "background2d.h"
+#include "character2d.h"
+#include "profile/sprites.h"
 
 namespace Impacto {
 namespace DebugMenu {
@@ -35,6 +38,33 @@ static void HelpMarker(const char* desc) {
     ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
     ImGui::TextUnformatted(desc);
     ImGui::PopTextWrapPos();
+    ImGui::EndTooltip();
+  }
+}
+
+static void ImageTooltip(ImVec2 pos, ImTextureID textureId, float texWidth,
+                         float texHeight) {
+  if (ImGui::BeginItemTooltip()) {
+    float regionSz = 32.0f;
+    float regionX = ImGui::GetIO().MousePos.x - pos.x - regionSz * 0.5f;
+    float regionY = ImGui::GetIO().MousePos.y - pos.y - regionSz * 0.5f;
+    float zoom = 6.0f;
+    if (regionX < 0.0f) {
+      regionX = 0.0f;
+    } else if (regionX > texWidth - regionSz) {
+      regionX = texWidth - regionSz;
+    }
+    if (regionY < 0.0f) {
+      regionY = 0.0f;
+    } else if (regionY > texHeight - regionSz) {
+      regionY = texHeight - regionSz;
+    }
+    ImGui::Text("Min: (%.2f, %.2f)", regionX, regionY);
+    ImGui::Text("Max: (%.2f, %.2f)", regionX + regionSz, regionY + regionSz);
+    ImVec2 uv0 = ImVec2((regionX) / texWidth, (regionY) / texHeight);
+    ImVec2 uv1 = ImVec2((regionX + regionSz) / texWidth,
+                        (regionY + regionSz) / texHeight);
+    ImGui::Image(textureId, ImVec2(regionSz * zoom, regionSz * zoom), uv0, uv1);
     ImGui::EndTooltip();
   }
 }
@@ -99,6 +129,7 @@ void ShowSingleWindow() {
         ImGui::EndTabItem();
       }
       if (ImGui::BeginTabItem("Objects")) {
+        ShowObjects();
         ImGui::EndTabItem();
       }
       if (ImGui::BeginTabItem("UI")) {
@@ -144,7 +175,7 @@ void ShowDockableArea() {
 
   if (ObjectViewerShown) {
     if (ImGui::Begin("Objects##ObjectViewerWindow"), &ObjectViewerShown) {
-      ImGui::Text("Not available");
+      ShowObjects();
     }
     ImGui::End();
   }
@@ -714,6 +745,181 @@ void ShowScriptDebugger() {
       ImGui::PopID();
     }
 
+    ImGui::TreePop();
+  }
+
+  ImGui::PopItemWidth();
+}
+
+static ska::flat_hash_map<uint32_t, std::vector<std::string>>
+    SpritesBySpriteSheet;
+
+void ShowObjects() {
+  ImGui::ShowDemoWindow();
+  ImGui::PushItemWidth(10.0f * ImGui::GetFontSize());
+
+  if (SpritesBySpriteSheet.size() == 0) {
+    for (const auto& sprite : Profile::Sprites) {
+      SpritesBySpriteSheet[sprite.second.Sheet.Texture].push_back(sprite.first);
+    }
+  }
+
+  if (ImGui::TreeNode("SpriteSheets")) {
+    for (const auto& spriteSheet : Profile::SpriteSheets) {
+      if (ImGui::TreeNode(spriteSheet.first.c_str())) {
+        ImGui::PushID(spriteSheet.second.Texture);
+        float texWidth = spriteSheet.second.DesignWidth * 0.4f;
+        float texHeight = spriteSheet.second.DesignHeight * 0.4f;
+        // Only OpenGL for now
+        if (Profile::ActiveRenderer == +RendererType::OpenGL) {
+          ImVec2 pos = ImGui::GetCursorScreenPos();
+          ImGui::Image((ImTextureID)spriteSheet.second.Texture,
+                       ImVec2(texWidth, texHeight));
+          ImageTooltip(pos, (ImTextureID)spriteSheet.second.Texture, texWidth,
+                       texHeight);
+        }
+
+        ImGui::Spacing();
+        ImGui::Text("Texture: width -> %f, height -> %f",
+                    spriteSheet.second.DesignWidth,
+                    spriteSheet.second.DesignHeight);
+
+        if (ImGui::TreeNode("Sprites")) {
+          for (const auto& spriteName :
+               SpritesBySpriteSheet[spriteSheet.second.Texture]) {
+            const auto& sprite = Profile::Sprites[spriteName];
+            if (ImGui::TreeNode(spriteName.c_str())) {
+              float texWidth = sprite.Sheet.DesignWidth;
+              float texHeight = sprite.Sheet.DesignHeight;
+              // Only OpenGL for now
+              if (Profile::ActiveRenderer == +RendererType::OpenGL) {
+                ImVec2 pos = ImGui::GetCursorScreenPos();
+                ImGui::Image(
+                    (ImTextureID)sprite.Sheet.Texture,
+                    ImVec2(sprite.Bounds.Width, sprite.Bounds.Height),
+                    ImVec2(sprite.Bounds.X / texWidth,
+                           sprite.Bounds.Y / texHeight),
+                    ImVec2(
+                        (sprite.Bounds.X + sprite.Bounds.Width) / texWidth,
+                        (sprite.Bounds.Y + sprite.Bounds.Height) / texHeight));
+              }
+
+              ImGui::Spacing();
+              ImGui::Text(
+                  "Bounds: x -> %f, y -> %f,\n\twidth -> %f, height -> %f",
+                  sprite.Bounds.X, sprite.Bounds.Y, sprite.Bounds.Width,
+                  sprite.Bounds.Height);
+
+              ImGui::TreePop();
+            }
+          }
+          ImGui::TreePop();
+        }
+
+        ImGui::PopID();
+
+        ImGui::TreePop();
+      }
+    }
+    ImGui::TreePop();
+  }
+
+  HelpMarker(
+      "These values are read-only as everything here is controlled by "
+      "scripts.");
+  if (ImGui::TreeNode("Backgrounds")) {
+    for (int i = 0; i < MaxBackgrounds2D; i++) {
+      ImGui::PushID(i);
+      if (ImGui::TreeNode("Background", "Background %d", i)) {
+        if (Backgrounds[i].Status == LS_Loaded) {
+          float texWidth = Backgrounds[i].BgSprite.Sheet.DesignWidth * 0.4f;
+          float texHeight = Backgrounds[i].BgSprite.Sheet.DesignHeight * 0.4f;
+          // Only OpenGL for now
+          if (Profile::ActiveRenderer == +RendererType::OpenGL) {
+            ImVec2 pos = ImGui::GetCursorScreenPos();
+            ImGui::Image((ImTextureID)Backgrounds[i].BgSprite.Sheet.Texture,
+                         ImVec2(texWidth, texHeight));
+            ImageTooltip(pos,
+                         (ImTextureID)Backgrounds[i].BgSprite.Sheet.Texture,
+                         texWidth, texHeight);
+          }
+        }
+
+        ImGui::Spacing();
+        ImGui::Text("Status: %d", Backgrounds[i].Status);
+        ImGui::Spacing();
+        ImGui::Text("Texture: width -> %f, height -> %f",
+                    Backgrounds[i].BgSprite.Sheet.DesignWidth,
+                    Backgrounds[i].BgSprite.Sheet.DesignHeight);
+        ImGui::Spacing();
+        ImGui::Text("IsShown: %d", Backgrounds[i].Show);
+        ImGui::Spacing();
+        ImGui::Text("Layer: %d", Backgrounds[i].Layer);
+        ImGui::Spacing();
+        ImGui::Text("Display coords: x -> %f, y -> %f",
+                    Backgrounds[i].DisplayCoords.x,
+                    Backgrounds[i].DisplayCoords.y);
+        ImGui::Spacing();
+        ImGui::Text("Sprite: x -> %f, y -> %f,\n\twidth -> %f, height -> %f",
+                    Backgrounds[i].BgSprite.Bounds.X,
+                    Backgrounds[i].BgSprite.Bounds.Y,
+                    Backgrounds[i].BgSprite.Bounds.Width,
+                    Backgrounds[i].BgSprite.Bounds.Height);
+        ImGui::Spacing();
+        ImGui::Text("Scale: x -> %f, y -> %f",
+                    Backgrounds[i].BgSprite.BaseScale.x,
+                    Backgrounds[i].BgSprite.BaseScale.y);
+
+        ImGui::TreePop();
+      }
+      ImGui::PopID();
+    }
+    ImGui::TreePop();
+  }
+
+  if (ImGui::TreeNode("Characters")) {
+    for (int i = 0; i < MaxCharacters2D; i++) {
+      ImGui::PushID(i);
+      if (ImGui::TreeNode("Character", "Character %d", i)) {
+        if (Characters2D[i].Status == LS_Loaded) {
+          float texWidth = Characters2D[i].CharaSprite.Sheet.DesignWidth * 0.4f;
+          float texHeight =
+              Characters2D[i].CharaSprite.Sheet.DesignHeight * 0.4f;
+          // Only OpenGL for now
+          if (Profile::ActiveRenderer == +RendererType::OpenGL) {
+            ImVec2 pos = ImGui::GetCursorScreenPos();
+            ImGui::Image((ImTextureID)Characters2D[i].CharaSprite.Sheet.Texture,
+                         ImVec2(texWidth, texHeight));
+            ImageTooltip(pos,
+                         (ImTextureID)Characters2D[i].CharaSprite.Sheet.Texture,
+                         texWidth, texHeight);
+          }
+        }
+
+        ImGui::Spacing();
+        ImGui::Text("Status: %d", Characters2D[i].Status);
+        ImGui::Spacing();
+        ImGui::Text("Texture: width -> %f, height -> %f",
+                    Characters2D[i].CharaSprite.Sheet.DesignWidth,
+                    Characters2D[i].CharaSprite.Sheet.DesignHeight);
+        ImGui::Spacing();
+        ImGui::Text("IsShown: %d", Characters2D[i].Show);
+        ImGui::Spacing();
+        ImGui::Text("Layer: %d", Characters2D[i].Layer);
+        ImGui::Spacing();
+        ImGui::Text("Display coords: x -> %f, y -> %f", Characters2D[i].OffsetX,
+                    Characters2D[i].OffsetY);
+        ImGui::Spacing();
+        ImGui::Text("Scale: x -> %f, y -> %f", Characters2D[i].ScaleX,
+                    Characters2D[i].ScaleY);
+        ImGui::Spacing();
+        ImGui::Text("Face: %d", Characters2D[i].Face);
+        ImGui::Spacing();
+
+        ImGui::TreePop();
+      }
+      ImGui::PopID();
+    }
     ImGui::TreePop();
   }
 
