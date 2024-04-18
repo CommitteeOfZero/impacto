@@ -724,6 +724,7 @@ else ()
                 vorbis
                 ogg
                 webp
+                dav1d
                 EGL
                 glapi
                 drm_nouveau
