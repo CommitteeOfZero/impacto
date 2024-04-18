@@ -107,12 +107,12 @@ jobs:
   
   steps:
   - script: |
-      sudo apt-get -y update && sudo apt-get -y install wget git cmake build-essential
-      wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo tee /etc/apt/trusted.gpg.d/lunarg.asc
-      sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list http://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list
-      sudo apt-get -y update
-      sudo apt-get -y install libsdl2-dev libopenal-dev libogg-dev libvorbis-dev libavdevice-dev libavfilter-dev libavformat-dev libavcodec-dev libswscale-dev libswresample-dev libavutil-dev libwebp-dev vulkan-sdk
-      sudo sed -i -e 's/-lSDL2 /-lSDL2/g' /usr/lib/x86_64-linux-gnu/cmake/SDL2/sdl2-config.cmake
+      apt-get -y update && apt-get -y install wget git cmake build-essential
+      wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | tee /etc/apt/trusted.gpg.d/lunarg.asc
+      wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list http://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list
+      apt-get -y update
+      apt-get -y install libsdl2-dev libopenal-dev libogg-dev libvorbis-dev libavdevice-dev libavfilter-dev libavformat-dev libavcodec-dev libswscale-dev libswresample-dev libavutil-dev libwebp-dev vulkan-sdk
+      sed -i -e 's/-lSDL2 /-lSDL2/g' /usr/lib/x86_64-linux-gnu/cmake/SDL2/sdl2-config.cmake
       dpkg -l | grep sdl
       pushd vendor
       git clone https://github.com/Thealexbarney/LibAtrac9.git --depth 1
