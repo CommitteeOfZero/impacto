@@ -18,8 +18,8 @@ class DelusionTrigger : public Impacto::DelusionTrigger::DelusionTriggerBase {
   bool CheckStartTransitionComplete() override;
 
  private:
-  int MtrgAlphaCt;
-  int MtrgAng;
+  int MtrgAlphaCt = 0;
+  int MtrgAng = 0;
   int LastDelusionState = 0xFF;
 
   void RenderPositiveToNeutralTransition(Sprite& bgSprite, float spinAngle,

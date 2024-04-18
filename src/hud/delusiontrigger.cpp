@@ -18,14 +18,17 @@ bool Show(int bgMtrgSelBufferId, int bgMtrgNegaPosiBufferId, int param3) {
   if (Implementation)
     return Implementation->Show(bgMtrgSelBufferId, bgMtrgNegaPosiBufferId,
                                 param3);
+  return true;
 }
 
 bool CheckTransitionAnimationComplete() {
   if (Implementation) return Implementation->CheckTransitionAnimationComplete();
+  return true;
 }
 
 bool CheckStartTransitionComplete() {
   if (Implementation) return Implementation->CheckStartTransitionComplete();
+  return true;
 }
 
 void Hide() {

@@ -229,7 +229,7 @@ void DelusionTrigger::RenderPositiveToNeutralTransition(Sprite& bgSprite,
   Renderer->DrawSpriteOffset(bgSprite, glm::vec2{topLeftX, -109.0f}, {600, 557},
                              {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f},
                              {scale, scale}, spinAngle);
-  if ((ScrWork[6414] == 0)) {
+  if (ScrWork[6414] == 0) {
     bgSprite.Bounds.X = 0;
     float centerX = (float)((ScrWork[6415] * 1248) >> 6) + 1696.0f;
     Renderer->DrawSpriteOffset(
@@ -248,7 +248,7 @@ void DelusionTrigger::RenderNegativeToNeutralTransition(Sprite& bgSprite,
   Renderer->DrawSpriteOffset(bgSprite, glm::vec2{topLeftX, -109.0f}, {424, 557},
                              {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f},
                              {scale, scale}, spinAngle);
-  if ((ScrWork[6414] == 0)) {
+  if (ScrWork[6414] == 0) {
     bgSprite.Bounds.X = 1024;
     float centerX = -800.0f - (float)((ScrWork[6415] * 1248) >> 6);
     Renderer->DrawSpriteOffset(
