@@ -103,7 +103,9 @@ jobs:
   pool:
     vmImage: 'ubuntu-22.04'
 
-  container: ubuntu:23.10
+  container:
+    image: ubuntu:23.10
+    options: --user root
   
   steps:
   - script: |
