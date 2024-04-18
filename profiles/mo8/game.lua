@@ -1,7 +1,7 @@
 root.ActiveRenderer = RendererType.OpenGL;
 
 root.LayerCount = 100;
-root.GameFeatures = GameFeature.Sc3VirtualMachine | GameFeature.Renderer2D | GameFeature.Input | GameFeature.Audio | GameFeature.Nuklear | GameFeature.Video;
+root.GameFeatures = GameFeature.Sc3VirtualMachine | GameFeature.Renderer2D | GameFeature.Input | GameFeature.Audio | GameFeature.Video | GameFeature.DebugMenu;
 root.DesignWidth = 1920;
 root.DesignHeight = 1080;
 

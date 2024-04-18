@@ -22,8 +22,6 @@ class BaseWindow {
   virtual RectF GetViewport() = 0;
   // Aspect ratio corrected viewport in window coordinates scaled by RenderScale
   virtual RectF GetScaledViewport() = 0;
-  // Convert input events from window coordinates to viewport coordinates
-  virtual void AdjustEventCoordinatesForNk(SDL_Event* ev) = 0;
   virtual void SwapRTs() = 0;
   virtual void Update() = 0;
   virtual void Draw() = 0;

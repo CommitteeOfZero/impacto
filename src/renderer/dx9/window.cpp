@@ -8,6 +8,10 @@
 
 #include "../../game.h"
 
+#ifndef IMPACTO_DISABLE_IMGUI
+#include "imgui_impl_dx9.h"
+#endif
+
 namespace Impacto {
 namespace DirectX9 {
 
@@ -54,26 +58,6 @@ RectF DirectX9Window::GetScaledViewport() {
   return viewport;
 }
 
-void DirectX9Window::AdjustEventCoordinatesForNk(SDL_Event* ev) {
-  Rect viewport = GetViewport();
-
-  if (ev->type == SDL_MOUSEMOTION) {
-    ev->motion.x = (int32_t)((float)ev->motion.x * DpiScaleX);
-    ev->motion.y = (int32_t)((float)ev->motion.y * DpiScaleY);
-
-    // skip over letter/pillarbox
-    ev->motion.x -= viewport.X;
-    ev->motion.y += viewport.Y;
-  } else if (ev->type == SDL_MOUSEBUTTONDOWN || ev->type == SDL_MOUSEBUTTONUP) {
-    ev->button.x = (int32_t)((float)ev->button.x * DpiScaleX);
-    ev->button.y = (int32_t)((float)ev->button.y * DpiScaleY);
-
-    // skip over letter/pillarbox
-    ev->button.x -= viewport.X;
-    ev->button.y += viewport.Y;
-  }
-}
-
 void DirectX9Window::Init() {
   assert(IsInit == false);
   ImpLog(LL_Info, LC_General, "Creating window\n");
@@ -115,7 +99,14 @@ void DirectX9Window::SwapRTs() {}
 
 void DirectX9Window::Update() {}
 
-void DirectX9Window::Draw() {}
+void DirectX9Window::Draw() {
+#ifndef IMPACTO_DISABLE_IMGUI
+  if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+    ImGui::UpdatePlatformWindows();
+    ImGui::RenderPlatformWindowsDefault();
+  }
+#endif
+}
 
 void DirectX9Window::Shutdown() {
   SDL_DestroyWindow(SDLWindow);

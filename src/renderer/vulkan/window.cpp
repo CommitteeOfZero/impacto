@@ -56,26 +56,6 @@ RectF VulkanWindow::GetScaledViewport() {
   return viewport;
 }
 
-void VulkanWindow::AdjustEventCoordinatesForNk(SDL_Event* ev) {
-  Rect viewport = GetViewport();
-
-  if (ev->type == SDL_MOUSEMOTION) {
-    ev->motion.x = (int32_t)((float)ev->motion.x * DpiScaleX);
-    ev->motion.y = (int32_t)((float)ev->motion.y * DpiScaleY);
-
-    // skip over letter/pillarbox
-    ev->motion.x -= viewport.X;
-    ev->motion.y += viewport.Y;
-  } else if (ev->type == SDL_MOUSEBUTTONDOWN || ev->type == SDL_MOUSEBUTTONUP) {
-    ev->button.x = (int32_t)((float)ev->button.x * DpiScaleX);
-    ev->button.y = (int32_t)((float)ev->button.y * DpiScaleY);
-
-    // skip over letter/pillarbox
-    ev->button.x -= viewport.X;
-    ev->button.y += viewport.Y;
-  }
-}
-
 void VulkanWindow::Init() {
   assert(IsInit == false);
   ImpLog(LL_Info, LC_General, "Creating window\n");
@@ -117,7 +97,14 @@ void VulkanWindow::SwapRTs() {}
 
 void VulkanWindow::Update() {}
 
-void VulkanWindow::Draw() {}
+void VulkanWindow::Draw() {
+#ifndef IMPACTO_DISABLE_IMGUI
+  if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+    ImGui::UpdatePlatformWindows();
+    ImGui::RenderPlatformWindowsDefault();
+  }
+#endif
+}
 
 void VulkanWindow::Shutdown() {
   SDL_DestroyWindow(SDLWindow);

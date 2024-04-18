@@ -10,7 +10,9 @@
 
 #include "../../profile/game.h"
 
-#include "../../../vendor/nuklear/nuklear_sdl_gl3.h"
+#ifndef IMPACTO_DISABLE_IMGUI
+#include "../../vendor/imgui_custom/backends/imgui_impl_opengl3.h"
+#endif
 #include "../../game.h"
 #include "../../profile/vm.h"
 
@@ -58,26 +60,6 @@ RectF GLWindow::GetScaledViewport() {
   viewport.X *= RenderScale;
   viewport.Y *= RenderScale;
   return viewport;
-}
-
-void GLWindow::AdjustEventCoordinatesForNk(SDL_Event* ev) {
-  Rect viewport = GetViewport();
-
-  if (ev->type == SDL_MOUSEMOTION) {
-    ev->motion.x = (int32_t)((float)ev->motion.x * DpiScaleX);
-    ev->motion.y = (int32_t)((float)ev->motion.y * DpiScaleY);
-
-    // skip over letter/pillarbox
-    ev->motion.x -= viewport.X;
-    ev->motion.y += viewport.Y;
-  } else if (ev->type == SDL_MOUSEBUTTONDOWN || ev->type == SDL_MOUSEBUTTONUP) {
-    ev->button.x = (int32_t)((float)ev->button.x * DpiScaleX);
-    ev->button.y = (int32_t)((float)ev->button.y * DpiScaleY);
-
-    // skip over letter/pillarbox
-    ev->button.x -= viewport.X;
-    ev->button.y += viewport.Y;
-  }
 }
 
 void GLWindow::TryCreateGL(GraphicsApi api) {
@@ -168,6 +150,11 @@ void GLWindow::TryCreateGL(GraphicsApi api) {
   } else {
     ActualGraphicsApi = api;
   }
+
+#ifndef IMPACTO_DISABLE_IMGUI
+  ImGui_ImplSDL2_InitForOpenGL(SDLWindow, GLContext);
+  ImGui_ImplOpenGL3_Init();
+#endif
 }
 
 void GLWindow::Init() {
@@ -349,19 +336,10 @@ void GLWindow::Update() {
 }
 
 void GLWindow::Draw() {
-  if (Profile::GameFeatures & GameFeature::Nuklear) {
-    Rect viewport = GetViewport();
-    if (GLDebug) {
-      // Nuklear spams these
-      glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0,
-                               NULL, GL_FALSE);
-    }
-    nk_sdl_render(NK_ANTI_ALIASING_OFF, viewport.Width, viewport.Height);
-    if (GLDebug) {
-      glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0,
-                               NULL, GL_TRUE);
-    }
-  }
+#ifndef IMPACTO_DISABLE_IMGUI
+  ImGui::Render();
+  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+#endif
 
   GLC::BindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   GLC::BindFramebuffer(GL_READ_FRAMEBUFFER, DrawRT);
@@ -372,6 +350,14 @@ void GLWindow::Draw() {
                     viewport.Y, viewport.Width + viewport.X,
                     viewport.Height + viewport.Y, GL_COLOR_BUFFER_BIT,
                     GL_NEAREST);
+
+#ifndef IMPACTO_DISABLE_IMGUI
+  if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+    ImGui::UpdatePlatformWindows();
+    ImGui::RenderPlatformWindowsDefault();
+    SDL_GL_MakeCurrent(SDLWindow, GLContext);
+  }
+#endif
 
   SDL_GL_SwapWindow(SDLWindow);
 }

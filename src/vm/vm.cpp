@@ -2,7 +2,6 @@
 
 #include "expression.h"
 #include "../log.h"
-#include "../io/vfs.h"
 #include "../io/io.h"
 #include "../game.h"
 #include "../mem.h"
@@ -32,9 +31,18 @@ using namespace Profile::ScriptVars;
 
 uint8_t* ScriptBuffers[MaxLoadedScripts];
 uint8_t* MsbBuffers[MaxLoadedScripts];
+Io::FileMeta LoadedScriptMetas[MaxLoadedScripts];
 bool BlockCurrentScriptThread;
 uint32_t SwitchValue;
 TextTableEntry TextTable[16];
+
+#ifndef IMPACTO_DISABLE_IMGUI
+uint32_t DebugThreadId = -1;
+bool DebuggerBreak = false;
+bool DebuggerStepRequest = false;
+bool DebuggerContinueRequest = false;
+std::map<int, std::pair<uint32_t, uint32_t>> DebuggerBreakpoints;
+#endif
 
 Sc3VmThread ThreadPool[MaxThreads];  // Main thread pool where all the
                                      // thread objects are stored
@@ -203,6 +211,7 @@ bool LoadScript(uint32_t bufferId, uint32_t scriptId) {
   }
   ScriptBuffers[bufferId] = (uint8_t*)file;
   ScrWork[SW_SCRIPTNO0 + bufferId] = scriptId;
+  LoadedScriptMetas[bufferId] = meta;
   return true;
 }
 
@@ -452,8 +461,35 @@ void RunThread(Sc3VmThread* thread) {
 
   ImpLog(LL_Trace, LC_VM, "Running thread ID = %i\n", thread->Id);
 
+#ifndef IMPACTO_DISABLE_IMGUI
+  if (DebugThreadId == thread->Id) {
+    if (DebuggerBreak && !DebuggerStepRequest && !DebuggerContinueRequest)
+      return;
+  }
+#endif
+
   BlockCurrentScriptThread = 0;
   do {
+#ifndef IMPACTO_DISABLE_IMGUI
+    if (DebugThreadId == thread->Id) {
+      auto scriptIp = thread->Ip - ScriptBuffers[thread->ScriptBufferId];
+      for (const auto& breakpoint : DebuggerBreakpoints) {
+        uint32_t currentScriptId = LoadedScriptMetas[thread->ScriptBufferId].Id;
+        if (currentScriptId == breakpoint.second.first &&
+            scriptIp == breakpoint.second.second && !DebuggerStepRequest &&
+            !DebuggerContinueRequest) {
+          DebuggerBreak = true;
+          return;
+        }
+      }
+      DebuggerStepRequest = false;
+      if (DebuggerContinueRequest) {
+        DebuggerContinueRequest = false;
+        DebuggerBreak = false;
+      }
+    }
+#endif
+
     scrVal = thread->Ip;
     opcodeGrp = *scrVal;
     if ((uint8_t)opcodeGrp == 0xFE) {
@@ -496,6 +532,10 @@ void RunThread(Sc3VmThread* thread) {
         }
       }
     }
+#ifndef IMPACTO_DISABLE_IMGUI
+    if (DebugThreadId == thread->Id && DebuggerBreak)
+      BlockCurrentScriptThread = 1;
+#endif
   } while (!BlockCurrentScriptThread);
 }
 
