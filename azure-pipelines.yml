@@ -103,15 +103,10 @@ jobs:
   pool:
     vmImage: 'ubuntu-22.04'
 
-  container: ubuntu:23.10
+  container: 'mrrevo3d/impacto-build:latest'
   
   steps:
   - script: |
-      wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo tee /etc/apt/trusted.gpg.d/lunarg.asc
-      sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list http://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list
-      sudo apt-get -y update
-      sudo apt-get -y install libsdl2-dev libopenal-dev libogg-dev libvorbis-dev libavdevice-dev libavfilter-dev libavformat-dev libavcodec-dev libswscale-dev libswresample-dev libavutil-dev libwebp-dev vulkan-sdk
-      sudo sed -i -e 's/-lSDL2 /-lSDL2/g' /usr/lib/x86_64-linux-gnu/cmake/SDL2/sdl2-config.cmake
       dpkg -l | grep sdl
       pushd vendor
       git clone https://github.com/Thealexbarney/LibAtrac9.git --depth 1
@@ -122,7 +117,7 @@ jobs:
       cp src/libatrac9.h ../include/libatrac9/
       popd
       pushd vendor
-      git clone -b "0.9.9.8" https://github.com/g-truc/glm.git --depth 1
+      git clone -b "0.9.9.3" https://github.com/g-truc/glm.git --depth 1
       cd glm
       cmake -DGLM_TEST_ENABLE=false .
       make -j2
