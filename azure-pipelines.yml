@@ -117,7 +117,7 @@ jobs:
       cp src/libatrac9.h ../include/libatrac9/
       popd
       pushd vendor
-      git clone -b "0.9.9.8" https://github.com/g-truc/glm.git --depth 1
+      git clone -b "0.9.9.3" https://github.com/g-truc/glm.git --depth 1
       cd glm
       cmake -DGLM_TEST_ENABLE=false .
       make -j2
