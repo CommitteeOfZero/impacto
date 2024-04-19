@@ -36,6 +36,14 @@ void VulkanWindow::UpdateDimensions() {
   MainRendererInstance->RecreateSwapChain();
 }
 
+void VulkanWindow::ToggleFullscreen() {
+  if (SDL_GetWindowFlags(SDLWindow) & SDL_WINDOW_FULLSCREEN) {
+    SDL_SetWindowFullscreen(SDLWindow, 0);
+  } else {
+    SDL_SetWindowFullscreen(SDLWindow, SDL_WINDOW_FULLSCREEN);
+  }
+}
+
 RectF VulkanWindow::GetViewport() {
   RectF viewport;
   float scale = fmin((float)WindowWidth / Profile::DesignWidth,

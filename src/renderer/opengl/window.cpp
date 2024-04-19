@@ -255,6 +255,14 @@ void GLWindow::SetDimensions(int width, int height, int msaa,
   RenderScale = renderScale;
 }
 
+void GLWindow::ToggleFullscreen() {
+  if (SDL_GetWindowFlags(SDLWindow) & SDL_WINDOW_FULLSCREEN) {
+    SDL_SetWindowFullscreen(SDLWindow, 0);
+  } else {
+    SDL_SetWindowFullscreen(SDLWindow, SDL_WINDOW_FULLSCREEN);
+  }
+}
+
 void GLWindow::CleanFBOs() {
   if (drawRenderTexture) glDeleteTextures(1, &drawRenderTexture);
   if (ReadRenderTexture) glDeleteTextures(1, &ReadRenderTexture);

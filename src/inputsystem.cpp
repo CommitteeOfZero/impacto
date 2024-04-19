@@ -1,5 +1,5 @@
 #include "inputsystem.h"
-//#include "window.h"
+// #include "window.h"
 #include "renderer/renderer.h"
 
 #include "profile/game.h"
@@ -37,6 +37,8 @@ bool TouchIsDown = false;
 bool TouchWentDown = false;
 
 static SDL_FingerID CurrentFinger = 0;
+
+bool fullscreenToggle = false;
 
 void BeginFrame() {
   memset(ControllerButtonWentDown, false, sizeof(ControllerButtonWentDown));
@@ -110,10 +112,32 @@ bool HandleEvent(SDL_Event const* ev) {
       return true;
       break;
     }
-    case SDL_KEYDOWN:
+    case SDL_KEYDOWN: {
+      SDL_KeyboardEvent const* evt = &ev->key;
+      CurrentInputDevice = IDEV_Keyboard;
+      // Alt+Enter fullscreen toggle
+      if (evt->keysym.mod & KMOD_ALT && evt->keysym.sym == SDLK_RETURN &&
+          !fullscreenToggle) {
+        Window->ToggleFullscreen();
+        fullscreenToggle = true;
+        return true;
+      }
+
+      KeyboardButtonWentDown[evt->keysym.scancode] =
+          (evt->state == SDL_PRESSED &&
+           !KeyboardButtonIsDown[evt->keysym.scancode]);
+      KeyboardButtonIsDown[evt->keysym.scancode] = evt->state == SDL_PRESSED;
+    } break;
     case SDL_KEYUP: {
       SDL_KeyboardEvent const* evt = &ev->key;
       CurrentInputDevice = IDEV_Keyboard;
+      // Alt+Enter fullscreen toggle
+      if (evt->keysym.mod & KMOD_ALT && evt->keysym.sym == SDLK_RETURN &&
+          fullscreenToggle) {
+        fullscreenToggle = false;
+        return true;
+      }
+
       KeyboardButtonWentDown[evt->keysym.scancode] =
           (evt->state == SDL_PRESSED &&
            !KeyboardButtonIsDown[evt->keysym.scancode]);
