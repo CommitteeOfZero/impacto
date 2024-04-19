@@ -236,6 +236,19 @@ void ApplyCursorForFrame() {
   }
 }
 
+void BaseWindow::ToggleFullscreen() {
+  if (UserConfig::GetActiveGame().empty()) return;
+  auto& gameSettings = UserConfig::ActiveGameSettings();
+  if (CurrentMode == DisplayMode::Windowed) {
+    gameSettings.Display = UserConfig::CommonSettings.PreferBorderless
+                               ? DisplayMode::Borderless
+                               : DisplayMode::Fullscreen;
+  } else {
+    gameSettings.Display = DisplayMode::Windowed;
+  }
+  ApplyWindowSettings(true);
+}
+
 SDL_Rect BaseWindow::GetDisplayBounds(std::optional<SDL_WindowFlags> flags) {
   SDL_Rect result{};
   bool haveBounds;
@@ -346,6 +359,8 @@ void BaseWindow::UpdateDisplayMode() {
   }
 
   if (CurrentMode == DisplayMode::Fullscreen) {
+    UserConfig::CommonSettings.PreferBorderless = false;
+
 #ifdef __APPLE__
     SDL_SetWindowFullscreenMode(SDLWindow, NULL);
     SDL_SetWindowFullscreen(SDLWindow, true);
@@ -359,6 +374,8 @@ void BaseWindow::UpdateDisplayMode() {
     SDL_SetWindowFullscreen(SDLWindow, true);
 #endif
   } else if (CurrentMode == DisplayMode::Borderless) {
+    UserConfig::CommonSettings.PreferBorderless = true;
+
 #ifdef __APPLE__
     const bool fauxBorderless = true;
 #else

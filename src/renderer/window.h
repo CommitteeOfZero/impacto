@@ -49,6 +49,7 @@ class BaseWindow {
   void ApplyWindowSettings(bool loadSettings = false);
   void Update();
   bool HandleWindowEvents(SDL_Event const* evt);
+  void ToggleFullscreen();
 
   SDL_Window* SDLWindow;
 

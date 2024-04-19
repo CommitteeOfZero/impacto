@@ -76,6 +76,7 @@ struct Config {
   bool LoggingToConsole = GetDefaultLogToConsole();
   bool LoggingToFile = GetDefaultLogToFile();
   bool SwapConfirmCancelButtons = false;
+  bool PreferBorderless = false;
 };
 struct AdvancedConfig {
   RendererType ActiveRenderer = RendererType::OpenGL;

@@ -180,6 +180,21 @@ static void HandleFlicks(SDL_TouchFingerEvent const& fingerUpEvent,
   }
 }
 
+static bool HandleKeyEvent(SDL_KeyboardEvent const* evt) {
+  CurrentInputDevice = Device::Keyboard;
+#if !defined(__ANDROID__) && !defined(__SWITCH__)
+  // Alt+Enter fullscreen toggle
+  if (evt->mod & SDL_KMOD_ALT && evt->key == SDLK_RETURN && evt->down) {
+    Window->ToggleFullscreen();
+    return true;
+  }
+#endif
+  KeyboardButtonWentDown[evt->scancode] =
+      (evt->down && !KeyboardButtonIsDown[evt->scancode]);
+  KeyboardButtonIsDown[evt->scancode] = evt->down;
+  return true;
+}
+
 bool HandleEvent(SDL_Event const* ev) {
   switch (ev->type) {
     case SDL_EVENT_GAMEPAD_ADDED: {
@@ -219,11 +234,7 @@ bool HandleEvent(SDL_Event const* ev) {
     case SDL_EVENT_KEY_DOWN:
     case SDL_EVENT_KEY_UP: {
       SDL_KeyboardEvent const* evt = &ev->key;
-      CurrentInputDevice = Device::Keyboard;
-      KeyboardButtonWentDown[evt->scancode] =
-          (evt->down && !KeyboardButtonIsDown[evt->scancode]);
-      KeyboardButtonIsDown[evt->scancode] = evt->down;
-      return true;
+      return HandleKeyEvent(evt);
     }
     case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
     case SDL_EVENT_GAMEPAD_BUTTON_UP: {
