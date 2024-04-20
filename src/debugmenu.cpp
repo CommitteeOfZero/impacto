@@ -754,6 +754,19 @@ void ShowScriptDebugger() {
 static ska::flat_hash_map<uint32_t, std::vector<std::string>>
     SpritesBySpriteSheet;
 
+static void ShowSprite(const Sprite* sprite) {
+  if (Profile::ActiveRenderer == +RendererType::OpenGL) {
+    float texWidth = sprite->Sheet.DesignWidth;
+    float texHeight = sprite->Sheet.DesignHeight;
+    ImGui::Image(
+        (ImTextureID)sprite->Sheet.Texture,
+        ImVec2(sprite->Bounds.Width, sprite->Bounds.Height),
+        ImVec2(sprite->Bounds.X / texWidth, sprite->Bounds.Y / texHeight),
+        ImVec2((sprite->Bounds.X + sprite->Bounds.Width) / texWidth,
+               (sprite->Bounds.Y + sprite->Bounds.Height) / texHeight));
+  }
+}
+
 void ShowObjects() {
   ImGui::ShowDemoWindow();
   ImGui::PushItemWidth(10.0f * ImGui::GetFontSize());
@@ -780,35 +793,20 @@ void ShowObjects() {
         }
 
         ImGui::Spacing();
-        ImGui::Text("Texture: width -> %f, height -> %f",
-                    spriteSheet.second.DesignWidth,
-                    spriteSheet.second.DesignHeight);
+        ImGui::BulletText("Texture: (width: %f, height: %f)",
+                          spriteSheet.second.DesignWidth,
+                          spriteSheet.second.DesignHeight);
 
         if (ImGui::TreeNode("Sprites")) {
           for (const auto& spriteName :
                SpritesBySpriteSheet[spriteSheet.second.Texture]) {
             const auto& sprite = Profile::Sprites[spriteName];
             if (ImGui::TreeNode(spriteName.c_str())) {
-              float texWidth = sprite.Sheet.DesignWidth;
-              float texHeight = sprite.Sheet.DesignHeight;
-              // Only OpenGL for now
-              if (Profile::ActiveRenderer == +RendererType::OpenGL) {
-                ImVec2 pos = ImGui::GetCursorScreenPos();
-                ImGui::Image(
-                    (ImTextureID)sprite.Sheet.Texture,
-                    ImVec2(sprite.Bounds.Width, sprite.Bounds.Height),
-                    ImVec2(sprite.Bounds.X / texWidth,
-                           sprite.Bounds.Y / texHeight),
-                    ImVec2(
-                        (sprite.Bounds.X + sprite.Bounds.Width) / texWidth,
-                        (sprite.Bounds.Y + sprite.Bounds.Height) / texHeight));
-              }
-
+              ShowSprite(&sprite);
               ImGui::Spacing();
-              ImGui::Text(
-                  "Bounds: x -> %f, y -> %f,\n\twidth -> %f, height -> %f",
-                  sprite.Bounds.X, sprite.Bounds.Y, sprite.Bounds.Width,
-                  sprite.Bounds.Height);
+              ImGui::BulletText("Bounds: (x: %f, y: %f, width: %f, height: %f)",
+                                sprite.Bounds.X, sprite.Bounds.Y,
+                                sprite.Bounds.Width, sprite.Bounds.Height);
 
               ImGui::TreePop();
             }
@@ -846,29 +844,29 @@ void ShowObjects() {
         }
 
         ImGui::Spacing();
-        ImGui::Text("Status: %d", Backgrounds[i].Status);
+        ImGui::BulletText("Status: %d", Backgrounds[i].Status);
         ImGui::Spacing();
-        ImGui::Text("Texture: width -> %f, height -> %f",
-                    Backgrounds[i].BgSprite.Sheet.DesignWidth,
-                    Backgrounds[i].BgSprite.Sheet.DesignHeight);
+        ImGui::BulletText("Texture: (width: %f, height: %f)",
+                          Backgrounds[i].BgSprite.Sheet.DesignWidth,
+                          Backgrounds[i].BgSprite.Sheet.DesignHeight);
         ImGui::Spacing();
-        ImGui::Text("IsShown: %d", Backgrounds[i].Show);
+        ImGui::BulletText("IsShown: %d", Backgrounds[i].Show);
         ImGui::Spacing();
-        ImGui::Text("Layer: %d", Backgrounds[i].Layer);
+        ImGui::BulletText("Layer: %d", Backgrounds[i].Layer);
         ImGui::Spacing();
-        ImGui::Text("Display coords: x -> %f, y -> %f",
-                    Backgrounds[i].DisplayCoords.x,
-                    Backgrounds[i].DisplayCoords.y);
+        ImGui::BulletText("Display coords: (x: %f, y: %f)",
+                          Backgrounds[i].DisplayCoords.x,
+                          Backgrounds[i].DisplayCoords.y);
         ImGui::Spacing();
-        ImGui::Text("Sprite: x -> %f, y -> %f,\n\twidth -> %f, height -> %f",
-                    Backgrounds[i].BgSprite.Bounds.X,
-                    Backgrounds[i].BgSprite.Bounds.Y,
-                    Backgrounds[i].BgSprite.Bounds.Width,
-                    Backgrounds[i].BgSprite.Bounds.Height);
+        ImGui::BulletText("Sprite: (x: %f, y: %f, width: %f, height: %f)",
+                          Backgrounds[i].BgSprite.Bounds.X,
+                          Backgrounds[i].BgSprite.Bounds.Y,
+                          Backgrounds[i].BgSprite.Bounds.Width,
+                          Backgrounds[i].BgSprite.Bounds.Height);
         ImGui::Spacing();
-        ImGui::Text("Scale: x -> %f, y -> %f",
-                    Backgrounds[i].BgSprite.BaseScale.x,
-                    Backgrounds[i].BgSprite.BaseScale.y);
+        ImGui::BulletText("Scale: (x: %f, y: %f)",
+                          Backgrounds[i].BgSprite.BaseScale.x,
+                          Backgrounds[i].BgSprite.BaseScale.y);
 
         ImGui::TreePop();
       }
@@ -897,23 +895,23 @@ void ShowObjects() {
         }
 
         ImGui::Spacing();
-        ImGui::Text("Status: %d", Characters2D[i].Status);
+        ImGui::BulletText("Status: %d", Characters2D[i].Status);
         ImGui::Spacing();
-        ImGui::Text("Texture: width -> %f, height -> %f",
-                    Characters2D[i].CharaSprite.Sheet.DesignWidth,
-                    Characters2D[i].CharaSprite.Sheet.DesignHeight);
+        ImGui::BulletText("Texture: (width: %f, height: %f)",
+                          Characters2D[i].CharaSprite.Sheet.DesignWidth,
+                          Characters2D[i].CharaSprite.Sheet.DesignHeight);
         ImGui::Spacing();
-        ImGui::Text("IsShown: %d", Characters2D[i].Show);
+        ImGui::BulletText("IsShown: %d", Characters2D[i].Show);
         ImGui::Spacing();
-        ImGui::Text("Layer: %d", Characters2D[i].Layer);
+        ImGui::BulletText("Layer: %d", Characters2D[i].Layer);
         ImGui::Spacing();
-        ImGui::Text("Display coords: x -> %f, y -> %f", Characters2D[i].OffsetX,
-                    Characters2D[i].OffsetY);
+        ImGui::BulletText("Display coords: (x: %f, y: %f)",
+                          Characters2D[i].OffsetX, Characters2D[i].OffsetY);
         ImGui::Spacing();
-        ImGui::Text("Scale: x -> %f, y -> %f", Characters2D[i].ScaleX,
-                    Characters2D[i].ScaleY);
+        ImGui::BulletText("Scale: (x: %f, y: %f)", Characters2D[i].ScaleX,
+                          Characters2D[i].ScaleY);
         ImGui::Spacing();
-        ImGui::Text("Face: %d", Characters2D[i].Face);
+        ImGui::BulletText("Face: %d", Characters2D[i].Face);
         ImGui::Spacing();
 
         ImGui::TreePop();

@@ -82,13 +82,14 @@ uint32_t GetTipStatus(int tipId) {
 
 void SetTipStatus(int tipId, bool isLocked, bool isUnread, bool isNew) {
   if (Implementation)
-    Implementation->SetTipStatus(tipId, isLocked, isUnread, isNew);
+    return Implementation->SetTipStatus(tipId, isLocked, isUnread, isNew);
   ImpLog(LL_Warning, LC_VMStub, "%s: save system not implemented\n", __func__);
 }
 
 void GetReadMessagesCount(int* totalMessageCount, int* readMessageCount) {
   if (Implementation)
-    Implementation->GetReadMessagesCount(totalMessageCount, readMessageCount);
+    return Implementation->GetReadMessagesCount(totalMessageCount,
+                                                readMessageCount);
   ImpLog(LL_Warning, LC_VMStub,
          "%s: save system not implemented, returning 0\n", __func__);
   *totalMessageCount = 0;
@@ -97,7 +98,7 @@ void GetReadMessagesCount(int* totalMessageCount, int* readMessageCount) {
 
 void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) {
   if (Implementation)
-    Implementation->GetViewedEVsCount(totalEVCount, viewedEVCount);
+    return Implementation->GetViewedEVsCount(totalEVCount, viewedEVCount);
   ImpLog(LL_Warning, LC_VMStub,
          "%s: save system not implemented, returning 0\n", __func__);
   *totalEVCount = 0;
@@ -106,7 +107,7 @@ void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) {
 
 void GetEVStatus(int evId, int* totalVariations, int* viewedVariations) {
   if (Implementation)
-    Implementation->GetEVStatus(evId, totalVariations, viewedVariations);
+    return Implementation->GetEVStatus(evId, totalVariations, viewedVariations);
   ImpLog(LL_Warning, LC_VMStub,
          "%s: save system not implemented, returning 0\n", __func__);
   *totalVariations = 0;
