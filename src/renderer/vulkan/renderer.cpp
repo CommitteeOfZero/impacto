@@ -619,7 +619,7 @@ void Renderer::RecreateSwapChain() {
   CreateFramebuffers();
 }
 
-void Renderer::InitImpl() {
+void Renderer::Init() {
   if (IsInit) return;
   ImpLog(LL_Info, LC_Render, "Initializing Renderer2D Vulkan system\n");
   IsInit = true;
@@ -746,7 +746,7 @@ void Renderer::InitImpl() {
   MainRendererInstance = this;
 }
 
-void Renderer::ShutdownImpl() {
+void Renderer::Shutdown() {
   if (!IsInit) return;
   IsInit = false;
 
@@ -758,7 +758,7 @@ void Renderer::ShutdownImpl() {
     vkWaitForFences(Device, 1, &InFlightFences[i], VK_TRUE, UINT64_MAX);
   }
   for (auto element : Textures) {
-    FreeTextureImpl(element.first);
+    FreeTexture(element.first);
   }
   for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
     vkDestroySemaphore(Device, RenderFinishedSemaphores[i], nullptr);
@@ -787,14 +787,14 @@ void Renderer::ShutdownImpl() {
 }
 
 #ifndef IMPACTO_DISABLE_IMGUI
-void Renderer::ImGuiBeginFrameImpl() {
+void Renderer::ImGuiBeginFrame() {
   ImGui_ImplVulkan_NewFrame();
   ImGui_ImplSDL2_NewFrame();
   ImGui::NewFrame();
 }
 #endif
 
-void Renderer::BeginFrameImpl() {
+void Renderer::BeginFrame() {
   if (Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->BeginFrame() called before EndFrame()\n");
@@ -875,9 +875,9 @@ void Renderer::BeginFrameImpl() {
   IndexBufferOffset = 0;
 }
 
-void Renderer::BeginFrame2DImpl() {}
+void Renderer::BeginFrame2D() {}
 
-void Renderer::EndFrameImpl() {
+void Renderer::EndFrame() {
   if (!Drawing) return;
   Flush();
 
@@ -930,7 +930,7 @@ void Renderer::EndFrameImpl() {
   Drawing = false;
 }
 
-uint32_t Renderer::SubmitTextureImpl(TexFmt format, uint8_t* buffer, int width,
+uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
                                      int height) {
   VkDeviceSize imageSize = 0;
   VkFormat imageFormat = VK_FORMAT_R8G8B8A8_SRGB;
@@ -1050,7 +1050,7 @@ uint32_t Renderer::SubmitTextureImpl(TexFmt format, uint8_t* buffer, int width,
   return id;
 }
 
-void Renderer::FreeTextureImpl(uint32_t id) {
+void Renderer::FreeTexture(uint32_t id) {
   // TODO: I need to figure this out... images are getting destroyed but are
   // still used in draw somehow
   // UPDATE: This... seems to just work now? Keep an eye on it I guess
@@ -1061,17 +1061,17 @@ void Renderer::FreeTextureImpl(uint32_t id) {
   Textures.erase(id);
 }
 
-YUVFrame* Renderer::CreateYUVFrameImpl(float width, float height) {
+YUVFrame* Renderer::CreateYUVFrame(float width, float height) {
   VideoFrameInternal = new VkYUVFrame();
   VideoFrameInternal->Init(width, height);
   return (YUVFrame*)VideoFrameInternal;
 }
 
-void Renderer::DrawRectImpl(RectF const& dest, glm::vec4 color, float angle) {
+void Renderer::DrawRect(RectF const& dest, glm::vec4 color, float angle) {
   DrawSprite(RectSprite, dest, color, angle);
 }
 
-void Renderer::DrawSprite3DRotatedImpl(Sprite const& sprite, RectF const& dest,
+void Renderer::DrawSprite3DRotated(Sprite const& sprite, RectF const& dest,
                                        float depth, glm::vec2 vanishingPoint,
                                        bool stayInScreen, glm::quat rot,
                                        glm::vec4 tint, bool inverted) {
@@ -1109,7 +1109,7 @@ void Renderer::DrawSprite3DRotatedImpl(Sprite const& sprite, RectF const& dest,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
-void Renderer::DrawRect3DRotatedImpl(RectF const& dest, float depth,
+void Renderer::DrawRect3DRotated(RectF const& dest, float depth,
                                      glm::vec2 vanishingPoint,
                                      bool stayInScreen, glm::quat rot,
                                      glm::vec4 color) {
@@ -1117,7 +1117,7 @@ void Renderer::DrawRect3DRotatedImpl(RectF const& dest, float depth,
                       rot, color);
 }
 
-void Renderer::DrawCharacterMvlImpl(Sprite const& sprite, glm::vec2 topLeft,
+void Renderer::DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
                                     int verticesCount, float* mvlVertices,
                                     int indicesCount, uint16_t* mvlIndices,
                                     bool inverted, glm::vec4 tint,
@@ -1205,7 +1205,7 @@ void Renderer::DrawCharacterMvlImpl(Sprite const& sprite, glm::vec2 topLeft,
   Flush();
 }
 
-void Renderer::DrawSpriteImpl(Sprite const& sprite, RectF const& dest,
+void Renderer::DrawSprite(Sprite const& sprite, RectF const& dest,
                               glm::vec4 tint, float angle, bool inverted,
                               bool isScreencap) {
   std::array<glm::vec4, 4> tints = {tint, tint, tint, tint};
@@ -1215,10 +1215,10 @@ void Renderer::DrawSpriteImpl(Sprite const& sprite, RectF const& dest,
       glm::vec2{dest.X + dest.Width, dest.Y},
       glm::vec2{dest.X + dest.Width, dest.Y + dest.Height},
   };
-  DrawSpriteImpl(sprite, destQuad, tints, angle, inverted, isScreencap);
+  DrawSprite(sprite, destQuad, tints, angle, inverted, isScreencap);
 }
 
-void Renderer::DrawSpriteImpl(Sprite const& sprite,
+void Renderer::DrawSprite(Sprite const& sprite,
                               std::array<glm::vec2, 4> const& dest,
                               std::array<glm::vec4, 4> const& tints,
                               float angle, bool inverted, bool isScreencap) {
@@ -1256,7 +1256,7 @@ void Renderer::DrawSpriteImpl(Sprite const& sprite,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
 }
 
-void Renderer::DrawSpriteOffsetImpl(Sprite const& sprite, glm::vec2 topLeft,
+void Renderer::DrawSpriteOffset(Sprite const& sprite, glm::vec2 topLeft,
                                     glm::vec2 centerSprite, glm::vec4 tint,
                                     glm::vec2 scale, float angle,
                                     bool inverted) {
@@ -1296,7 +1296,7 @@ void Renderer::DrawSpriteOffsetImpl(Sprite const& sprite, glm::vec2 topLeft,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
-void Renderer::DrawMaskedSpriteImpl(Sprite const& sprite, Sprite const& mask,
+void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
                                     RectF const& dest, glm::vec4 tint,
                                     int alpha, int fadeRange, bool isScreencap,
                                     bool isInverted, bool isSameTexture) {
@@ -1366,7 +1366,7 @@ void Renderer::DrawMaskedSpriteImpl(Sprite const& sprite, Sprite const& mask,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
-void Renderer::DrawCCMessageBoxImpl(Sprite const& sprite, Sprite const& mask,
+void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                                     RectF const& dest, glm::vec4 tint,
                                     int alpha, int fadeRange, float effectCt,
                                     bool isScreencap) {
@@ -1433,7 +1433,7 @@ void Renderer::DrawCCMessageBoxImpl(Sprite const& sprite, Sprite const& mask,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
-void Renderer::DrawCHLCCDelusionOverlayImpl(Sprite const& sprite,
+void Renderer::DrawCHLCCDelusionOverlay(Sprite const& sprite,
                                             Sprite const& mask,
                                             RectF const& dest, int alpha,
                                             int fadeRange, float angle) {
@@ -1515,7 +1515,7 @@ void Renderer::DrawCHLCCDelusionOverlayImpl(Sprite const& sprite,
   for (int i = 0; i < 4; i++) vertices[i].Tint = glm::vec4{1.0f};
 }
 
-void Renderer::DrawCHLCCMenuBackgroundImpl(const Sprite& sprite,
+void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite,
                                            const Sprite& mask,
                                            const RectF& dest, float alpha) {
   if (!Drawing) {
@@ -1858,7 +1858,7 @@ void Renderer::Flush() {
   CurrentTexture = 0;
 }
 
-void Renderer::DrawVideoTextureImpl(YUVFrame* tex, RectF const& dest,
+void Renderer::DrawVideoTexture(YUVFrame* tex, RectF const& dest,
                                     glm::vec4 tint, float angle,
                                     bool alphaVideo) {
   if (!Drawing) {
@@ -1915,7 +1915,7 @@ void Renderer::DrawVideoTextureImpl(YUVFrame* tex, RectF const& dest,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
-void Renderer::CaptureScreencapImpl(Sprite const& sprite) {
+void Renderer::CaptureScreencap(Sprite const& sprite) {
   if (Textures.count(sprite.Sheet.Texture) == 0) return;
   // Here we go...
   Flush();
@@ -1998,9 +1998,9 @@ void Renderer::CaptureScreencapImpl(Sprite const& sprite) {
                        VK_SUBPASS_CONTENTS_INLINE);
 }
 
-void Renderer::EnableScissorImpl() {}
+void Renderer::EnableScissor() {}
 
-void Renderer::SetScissorRectImpl(RectF const& rect) {
+void Renderer::SetScissorRect(RectF const& rect) {
   if (rect.X != PreviousScissorRect.X && rect.Y != PreviousScissorRect.Y &&
       rect.Width != PreviousScissorRect.Width &&
       rect.Height != PreviousScissorRect.Height) {
@@ -2022,7 +2022,7 @@ void Renderer::SetScissorRectImpl(RectF const& rect) {
   }
 }
 
-void Renderer::DisableScissorImpl() {
+void Renderer::DisableScissor() {
   if (PreviousScissorRect.X != 0.0f && PreviousScissorRect.Y != 0.0f &&
       PreviousScissorRect.Width != SwapChainExtent.width &&
       PreviousScissorRect.Height != SwapChainExtent.height) {

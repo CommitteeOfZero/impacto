@@ -15,7 +15,7 @@
 namespace Impacto {
 namespace DirectX9 {
 
-void Renderer::InitImpl() {
+void Renderer::Init() {
   if (IsInit) return;
   ImpLog(LL_Info, LC_Render, "Initializing Renderer2D DirectX 9 system\n");
   IsInit = true;
@@ -122,7 +122,7 @@ void Renderer::InitImpl() {
 #endif
 }
 
-void Renderer::ShutdownImpl() {
+void Renderer::Shutdown() {
   if (!IsInit) return;
   IsInit = false;
 
@@ -137,14 +137,14 @@ void Renderer::ShutdownImpl() {
 }
 
 #ifndef IMPACTO_DISABLE_IMGUI
-void Renderer::ImGuiBeginFrameImpl() {
+void Renderer::ImGuiBeginFrame() {
   ImGui_ImplDX9_NewFrame();
   ImGui_ImplSDL2_NewFrame();
   ImGui::NewFrame();
 }
 #endif
 
-void Renderer::BeginFrameImpl() {
+void Renderer::BeginFrame() {
   if (Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->BeginFrame() called before EndFrame()\n");
@@ -160,13 +160,13 @@ void Renderer::BeginFrameImpl() {
   Device->BeginScene();
 }
 
-void Renderer::BeginFrame2DImpl() {
+void Renderer::BeginFrame2D() {
   Device->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
   Device->SetRenderState(D3DRS_ZWRITEENABLE, 0);
   Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 }
 
-void Renderer::EndFrameImpl() {
+void Renderer::EndFrame() {
   if (!Drawing) return;
   Flush();
   Drawing = false;
@@ -182,8 +182,8 @@ void Renderer::EndFrameImpl() {
   CurrentTexture = -1;
 }
 
-uint32_t Renderer::SubmitTextureImpl(TexFmt format, uint8_t* buffer, int width,
-                                     int height) {
+uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
+                                 int height) {
   int imageSize = 0;
   D3DFORMAT imageFormat = D3DFMT_A1;
   uint8_t* newBuffer;
@@ -243,22 +243,22 @@ uint32_t Renderer::SubmitTextureImpl(TexFmt format, uint8_t* buffer, int width,
   return id;
 }
 
-void Renderer::FreeTextureImpl(uint32_t id) {}
+void Renderer::FreeTexture(uint32_t id) {}
 
-YUVFrame* Renderer::CreateYUVFrameImpl(float width, float height) {
+YUVFrame* Renderer::CreateYUVFrame(float width, float height) {
   VideoFrameInternal = new DX9YUVFrame(Device);
   VideoFrameInternal->Init(width, height);
   return (YUVFrame*)VideoFrameInternal;
 }
 
-void Renderer::DrawRectImpl(RectF const& dest, glm::vec4 color, float angle) {
+void Renderer::DrawRect(RectF const& dest, glm::vec4 color, float angle) {
   DrawSprite(RectSprite, dest, color, angle);
 }
 
-void Renderer::DrawSprite3DRotatedImpl(Sprite const& sprite, RectF const& dest,
-                                       float depth, glm::vec2 vanishingPoint,
-                                       bool stayInScreen, glm::quat rot,
-                                       glm::vec4 tint, bool inverted) {
+void Renderer::DrawSprite3DRotated(Sprite const& sprite, RectF const& dest,
+                                   float depth, glm::vec2 vanishingPoint,
+                                   bool stayInScreen, glm::quat rot,
+                                   glm::vec4 tint, bool inverted) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawSprite3DRotated() called before BeginFrame()\n");
@@ -294,19 +294,18 @@ void Renderer::DrawSprite3DRotatedImpl(Sprite const& sprite, RectF const& dest,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
-void Renderer::DrawRect3DRotatedImpl(RectF const& dest, float depth,
-                                     glm::vec2 vanishingPoint,
-                                     bool stayInScreen, glm::quat rot,
-                                     glm::vec4 color) {
+void Renderer::DrawRect3DRotated(RectF const& dest, float depth,
+                                 glm::vec2 vanishingPoint, bool stayInScreen,
+                                 glm::quat rot, glm::vec4 color) {
   DrawSprite3DRotated(RectSprite, dest, depth, vanishingPoint, stayInScreen,
                       rot, color);
 }
 
-void Renderer::DrawCharacterMvlImpl(Sprite const& sprite, glm::vec2 topLeft,
-                                    int verticesCount, float* mvlVertices,
-                                    int indicesCount, uint16_t* mvlIndices,
-                                    bool inverted, glm::vec4 tint,
-                                    glm::vec2 scale) {
+void Renderer::DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
+                                int verticesCount, float* mvlVertices,
+                                int indicesCount, uint16_t* mvlIndices,
+                                bool inverted, glm::vec4 tint,
+                                glm::vec2 scale) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawCharacterMvl() called before BeginFrame()\n");
@@ -362,9 +361,9 @@ void Renderer::DrawCharacterMvlImpl(Sprite const& sprite, glm::vec2 topLeft,
   }
 }
 
-void Renderer::DrawSpriteImpl(Sprite const& sprite, RectF const& dest,
-                              glm::vec4 tint, float angle, bool inverted,
-                              bool isScreencap) {
+void Renderer::DrawSprite(Sprite const& sprite, RectF const& dest,
+                          glm::vec4 tint, float angle, bool inverted,
+                          bool isScreencap) {
   std::array<glm::vec4, 4> tints = {tint, tint, tint, tint};
   std::array<glm::vec2, 4> destQuad = {
       glm::vec2{dest.X, dest.Y + dest.Height},
@@ -372,13 +371,13 @@ void Renderer::DrawSpriteImpl(Sprite const& sprite, RectF const& dest,
       glm::vec2{dest.X + dest.Width, dest.Y},
       glm::vec2{dest.X + dest.Width, dest.Y + dest.Height},
   };
-  DrawSpriteImpl(sprite, destQuad, tints, angle, inverted, isScreencap);
+  DrawSprite(sprite, destQuad, tints, angle, inverted, isScreencap);
 }
 
-void Renderer::DrawSpriteImpl(Sprite const& sprite,
-                              std::array<glm::vec2, 4> const& dest,
-                              const std::array<glm::vec4, 4>& tints,
-                              float angle, bool inverted, bool isScreencap) {
+void Renderer::DrawSprite(Sprite const& sprite,
+                          std::array<glm::vec2, 4> const& dest,
+                          const std::array<glm::vec4, 4>& tints, float angle,
+                          bool inverted, bool isScreencap) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawSprite() called before BeginFrame()\n");
@@ -413,10 +412,9 @@ void Renderer::DrawSpriteImpl(Sprite const& sprite,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
 }
 
-void Renderer::DrawSpriteOffsetImpl(Sprite const& sprite, glm::vec2 topLeft,
-                                    glm::vec2 displayOffset, glm::vec4 tint,
-                                    glm::vec2 scale, float angle,
-                                    bool inverted) {
+void Renderer::DrawSpriteOffset(Sprite const& sprite, glm::vec2 topLeft,
+                                glm::vec2 displayOffset, glm::vec4 tint,
+                                glm::vec2 scale, float angle, bool inverted) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawSprite() called before BeginFrame()\n");
@@ -453,10 +451,10 @@ void Renderer::DrawSpriteOffsetImpl(Sprite const& sprite, glm::vec2 topLeft,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
-void Renderer::DrawMaskedSpriteImpl(Sprite const& sprite, Sprite const& mask,
-                                    RectF const& dest, glm::vec4 tint,
-                                    int alpha, int fadeRange, bool isScreencap,
-                                    bool isInverted, bool isSameTexture) {
+void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
+                                RectF const& dest, glm::vec4 tint, int alpha,
+                                int fadeRange, bool isScreencap,
+                                bool isInverted, bool isSameTexture) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawMaskedSprite() called before BeginFrame()\n");
@@ -505,10 +503,10 @@ void Renderer::DrawMaskedSpriteImpl(Sprite const& sprite, Sprite const& mask,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
-void Renderer::DrawCCMessageBoxImpl(Sprite const& sprite, Sprite const& mask,
-                                    RectF const& dest, glm::vec4 tint,
-                                    int alpha, int fadeRange, float effectCt,
-                                    bool isScreencap) {
+void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
+                                RectF const& dest, glm::vec4 tint, int alpha,
+                                int fadeRange, float effectCt,
+                                bool isScreencap) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawCCMessageBox() called before BeginFrame()\n");
@@ -553,10 +551,9 @@ void Renderer::DrawCCMessageBoxImpl(Sprite const& sprite, Sprite const& mask,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
-void Renderer::DrawCHLCCDelusionOverlayImpl(Sprite const& sprite,
-                                            Sprite const& mask,
-                                            RectF const& dest, int alpha,
-                                            int fadeRange, float angle) {
+void Renderer::DrawCHLCCDelusionOverlay(Sprite const& sprite,
+                                        Sprite const& mask, RectF const& dest,
+                                        int alpha, int fadeRange, float angle) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawCHLCCDelusionOverlay() called before BeginFrame()\n");
@@ -606,9 +603,8 @@ void Renderer::DrawCHLCCDelusionOverlayImpl(Sprite const& sprite,
   for (int i = 0; i < 4; i++) vertices[i].Tint = glm::vec4{1.0f};
 }
 
-void Renderer::DrawCHLCCMenuBackgroundImpl(const Sprite& sprite,
-                                           const Sprite& mask,
-                                           const RectF& dest, float alpha) {
+void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
+                                       const RectF& dest, float alpha) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawCHLCCMenuBackground() called before BeginFrame()\n");
@@ -938,9 +934,8 @@ void Renderer::Flush() {
   CurrentTexture = -1;
 }
 
-void Renderer::DrawVideoTextureImpl(YUVFrame* tex, RectF const& dest,
-                                    glm::vec4 tint, float angle,
-                                    bool alphaVideo) {
+void Renderer::DrawVideoTexture(YUVFrame* tex, RectF const& dest,
+                                glm::vec4 tint, float angle, bool alphaVideo) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawVideoTexture() called before BeginFrame()\n");
@@ -977,14 +972,14 @@ void Renderer::DrawVideoTextureImpl(YUVFrame* tex, RectF const& dest,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
-void Renderer::CaptureScreencapImpl(Sprite const& sprite) { Flush(); }
+void Renderer::CaptureScreencap(Sprite const& sprite) { Flush(); }
 
-void Renderer::EnableScissorImpl() {
+void Renderer::EnableScissor() {
   Flush();
   Device->SetRenderState(D3DRS_SCISSORTESTENABLE, true);
 }
 
-void Renderer::SetScissorRectImpl(RectF const& rect) {
+void Renderer::SetScissorRect(RectF const& rect) {
   RECT rectW{};
   rectW.left = (LONG)rect.X;
   rectW.top = (LONG)rect.Y;
@@ -993,7 +988,7 @@ void Renderer::SetScissorRectImpl(RectF const& rect) {
   Device->SetScissorRect(&rectW);
 }
 
-void Renderer::DisableScissorImpl() {
+void Renderer::DisableScissor() {
   Flush();
   Device->SetRenderState(D3DRS_SCISSORTESTENABLE, false);
 }

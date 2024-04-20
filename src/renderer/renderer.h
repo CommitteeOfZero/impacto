@@ -9,6 +9,9 @@
 
 namespace Impacto {
 
+extern BaseRenderer* Renderer;
+extern BaseWindow* Window;
+
 extern GraphicsApi GraphicsApiHint;
 extern GraphicsApi ActualGraphicsApi;
 
@@ -16,73 +19,80 @@ enum RendererOutlineMode { RO_None, RO_BottomRight, RO_Full };
 
 class BaseRenderer {
  public:
-  void Init();
-  void Shutdown();
+  virtual void Init() = 0;
+  virtual void Shutdown() = 0;
 
 #ifndef IMPACTO_DISABLE_IMGUI
-  void ImGuiBeginFrame();
+  virtual void ImGuiBeginFrame() = 0;
 #endif
 
-  void BeginFrame();
-  void BeginFrame2D();
-  void EndFrame();
+  virtual void BeginFrame() = 0;
+  virtual void BeginFrame2D() = 0;
+  virtual void EndFrame() = 0;
 
-  uint32_t SubmitTexture(TexFmt format, uint8_t* buffer, int width, int height);
-  void FreeTexture(uint32_t id);
-  YUVFrame* CreateYUVFrame(float width, float height);
+  virtual uint32_t SubmitTexture(TexFmt format, uint8_t* buffer, int width,
+                                 int height) = 0;
+  virtual void FreeTexture(uint32_t id) = 0;
+  virtual YUVFrame* CreateYUVFrame(float width, float height) = 0;
 
-  void DrawSprite(Sprite const& sprite, RectF const& dest,
-                  glm::vec4 tint = glm::vec4(1.0), float angle = 0.0f,
-                  bool inverted = false, bool isScreencap = false);
+  virtual void DrawSprite(Sprite const& sprite, RectF const& dest,
+                          glm::vec4 tint = glm::vec4(1.0), float angle = 0.0f,
+                          bool inverted = false, bool isScreencap = false) = 0;
   void DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
                   glm::vec4 tint = glm::vec4(1.0),
                   glm::vec2 scale = glm::vec2(1.0), float angle = 0.0f,
                   bool inverted = false, bool isScreencap = false);
-  void DrawSprite(Sprite const& sprite, std::array<glm::vec2, 4> const& dest,
-                  const std::array<glm::vec4, 4>& tints, float angle = 0.0f,
-                  bool inverted = false, bool isScreencap = false);
+  virtual void DrawSprite(Sprite const& sprite,
+                          std::array<glm::vec2, 4> const& dest,
+                          const std::array<glm::vec4, 4>& tints,
+                          float angle = 0.0f, bool inverted = false,
+                          bool isScreencap = false) = 0;
 
-  void DrawSpriteOffset(Sprite const& sprite, glm::vec2 topLeft,
-                        glm::vec2 displayOffset,
-                        glm::vec4 tint = glm::vec4(1.0),
-                        glm::vec2 scale = glm::vec2(1.0), float angle = 0.0f,
-                        bool inverted = false);
+  virtual void DrawSpriteOffset(Sprite const& sprite, glm::vec2 topLeft,
+                                glm::vec2 displayOffset,
+                                glm::vec4 tint = glm::vec4(1.0),
+                                glm::vec2 scale = glm::vec2(1.0),
+                                float angle = 0.0f, bool inverted = false) = 0;
 
-  void DrawRect(RectF const& dest, glm::vec4 color, float angle = 0.0f);
+  virtual void DrawRect(RectF const& dest, glm::vec4 color,
+                        float angle = 0.0f) = 0;
 
-  void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
-                        RectF const& dest, glm::vec4 tint, int alpha,
-                        int fadeRange, bool isScreencap = false,
-                        bool isInverted = false, bool isSameTexture = false);
+  virtual void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
+                                RectF const& dest, glm::vec4 tint, int alpha,
+                                int fadeRange, bool isScreencap = false,
+                                bool isInverted = false,
+                                bool isSameTexture = false) = 0;
 
   void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                         glm::vec2 topLeft, glm::vec4 tint, int alpha,
                         int fadeRange, float effectCt, bool isScreencap = false,
                         glm::vec2 scale = glm::vec2(1.0));
-  void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
-                        RectF const& dest, glm::vec4 tint, int alpha,
-                        int fadeRange, float effectCt,
-                        bool isScreencap = false);
+  virtual void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
+                                RectF const& dest, glm::vec4 tint, int alpha,
+                                int fadeRange, float effectCt,
+                                bool isScreencap = false) = 0;
 
-  void DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
-                               const RectF& dest, float alpha);
+  virtual void DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
+                                       const RectF& dest, float alpha) = 0;
 
-  void DrawCHLCCDelusionOverlay(Sprite const& sprite, Sprite const& mask,
-                                RectF const& dest, int alpha, int fadeRange,
-                                float angle);
+  virtual void DrawCHLCCDelusionOverlay(Sprite const& sprite,
+                                        Sprite const& mask, RectF const& dest,
+                                        int alpha, int fadeRange,
+                                        float angle) = 0;
 
-  void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest, float depth,
-                           glm::vec2 vanishingPoint, bool stayInScreen,
-                           glm::quat rot, glm::vec4 tint = glm::vec4(1.0f),
-                           bool inverted = false);
+  virtual void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest,
+                                   float depth, glm::vec2 vanishingPoint,
+                                   bool stayInScreen, glm::quat rot,
+                                   glm::vec4 tint = glm::vec4(1.0f),
+                                   bool inverted = false) = 0;
   void DrawSprite3DRotated(Sprite const& sprite, glm::vec2 topLeft, float depth,
                            glm::vec2 vanishingPoint, bool stayInScreen,
                            glm::quat rot, glm::vec4 tint = glm::vec4(1.0f),
                            glm::vec2 scale = glm::vec2(1.0f),
                            bool inverted = false);
-  void DrawRect3DRotated(RectF const& dest, float depth,
-                         glm::vec2 vanishingPoint, bool stayInScreen,
-                         glm::quat rot, glm::vec4 color);
+  virtual void DrawRect3DRotated(RectF const& dest, float depth,
+                                 glm::vec2 vanishingPoint, bool stayInScreen,
+                                 glm::quat rot, glm::vec4 color) = 0;
 
   void DrawProcessedText_BasicFont(ProcessedTextGlyph* text, int length,
                                    BasicFont* font, float opacity,
@@ -97,112 +107,32 @@ class BaseRenderer {
                          RendererOutlineMode outlineMode = RO_None,
                          bool smoothstepGlyphOpacity = true);
 
-  void DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
-                        int verticesCount, float* mvlVertices, int indicesCount,
-                        uint16_t* mvlIndices, bool inverted = false,
-                        glm::vec4 tint = glm::vec4(1.0),
-                        glm::vec2 scale = glm::vec2(1.0f));
+  virtual void DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
+                                int verticesCount, float* mvlVertices,
+                                int indicesCount, uint16_t* mvlIndices,
+                                bool inverted = false,
+                                glm::vec4 tint = glm::vec4(1.0),
+                                glm::vec2 scale = glm::vec2(1.0f)) = 0;
 
-  void DrawVideoTexture(YUVFrame* tex, RectF const& dest,
-                        glm::vec4 tint = glm::vec4(1.0), float angle = 0.0f,
-                        bool alphaVideo = false);
+  virtual void DrawVideoTexture(YUVFrame* tex, RectF const& dest,
+                                glm::vec4 tint = glm::vec4(1.0),
+                                float angle = 0.0f,
+                                bool alphaVideo = false) = 0;
   void DrawVideoTexture(YUVFrame* tex, glm::vec2 topLeft,
                         glm::vec4 tint = glm::vec4(1.0),
                         glm::vec2 scale = glm::vec2(1.0), float angle = 0.0f,
                         bool alphaVideo = false);
 
-  void CaptureScreencap(Sprite const& sprite);
+  virtual void CaptureScreencap(Sprite const& sprite) = 0;
 
-  void EnableScissor();
-  void SetScissorRect(RectF const& rect);
-  void DisableScissor();
+  virtual void EnableScissor() = 0;
+  virtual void SetScissorRect(RectF const& rect) = 0;
+  virtual void DisableScissor() = 0;
 
   bool IsInit = false;
 
   IScene3D* Scene = 0;
-
- private:
-  virtual void InitImpl() = 0;
-  virtual void ShutdownImpl() = 0;
-
-#ifndef IMPACTO_DISABLE_IMGUI
-  virtual void ImGuiBeginFrameImpl() = 0;
-#endif
-
-  virtual void BeginFrameImpl() = 0;
-  virtual void BeginFrame2DImpl() = 0;
-  virtual void EndFrameImpl() = 0;
-
-  virtual uint32_t SubmitTextureImpl(TexFmt format, uint8_t* buffer, int width,
-                                     int height) = 0;
-  virtual void FreeTextureImpl(uint32_t id) = 0;
-
-  virtual YUVFrame* CreateYUVFrameImpl(float width, float height) = 0;
-
-  virtual void DrawSpriteImpl(Sprite const& sprite, RectF const& dest,
-                              glm::vec4 tint, float angle, bool inverted,
-                              bool isScreencap) = 0;
-
-  virtual void DrawSpriteImpl(Sprite const& sprite,
-                              std::array<glm::vec2, 4> const& dest,
-                              const std::array<glm::vec4, 4>& tints,
-                              float angle, bool inverted, bool isScreencap) = 0;
-
-  virtual void DrawSpriteOffsetImpl(Sprite const& sprite, glm::vec2 topLeft,
-                                    glm::vec2 displayOffset, glm::vec4 tint,
-                                    glm::vec2 scale, float angle,
-                                    bool inverted) = 0;
-
-  virtual void DrawRectImpl(RectF const& dest, glm::vec4 color,
-                            float angle) = 0;
-
-  virtual void DrawMaskedSpriteImpl(Sprite const& sprite, Sprite const& mask,
-                                    RectF const& dest, glm::vec4 tint,
-                                    int alpha, int fadeRange, bool isScreencap,
-                                    bool isInverted, bool isSameTexture) = 0;
-
-  virtual void DrawCCMessageBoxImpl(Sprite const& sprite, Sprite const& mask,
-                                    RectF const& dest, glm::vec4 tint,
-                                    int alpha, int fadeRange, float effectCt,
-                                    bool isScreencap) = 0;
-
-  virtual void DrawCHLCCDelusionOverlayImpl(Sprite const& sprite,
-                                            Sprite const& mask,
-                                            RectF const& dest, int alpha,
-                                            int fadeRange, float angle) = 0;
-
-  virtual void DrawCHLCCMenuBackgroundImpl(const Sprite& sprite,
-                                           const Sprite& mask,
-                                           const RectF& dest, float alpha) = 0;
-
-  virtual void DrawSprite3DRotatedImpl(Sprite const& sprite, RectF const& dest,
-                                       float depth, glm::vec2 vanishingPoint,
-                                       bool stayInScreen, glm::quat rot,
-                                       glm::vec4 tint, bool inverted) = 0;
-  virtual void DrawRect3DRotatedImpl(RectF const& dest, float depth,
-                                     glm::vec2 vanishingPoint,
-                                     bool stayInScreen, glm::quat rot,
-                                     glm::vec4 color) = 0;
-
-  virtual void DrawCharacterMvlImpl(Sprite const& sprite, glm::vec2 topLeft,
-                                    int verticesCount, float* mvlVertices,
-                                    int indicesCount, uint16_t* mvlIndices,
-                                    bool inverted, glm::vec4 tint,
-                                    glm::vec2 scale) = 0;
-
-  virtual void DrawVideoTextureImpl(YUVFrame* tex, RectF const& dest,
-                                    glm::vec4 tint, float angle,
-                                    bool alphaVideo) = 0;
-
-  virtual void CaptureScreencapImpl(Sprite const& sprite) = 0;
-
-  virtual void EnableScissorImpl() = 0;
-  virtual void SetScissorRectImpl(RectF const& rect) = 0;
-  virtual void DisableScissorImpl() = 0;
 };
-
-extern BaseRenderer* Renderer;
-extern BaseWindow* Window;
 
 void InitRenderer();
 

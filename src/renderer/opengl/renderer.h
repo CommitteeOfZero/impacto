@@ -31,78 +31,82 @@ struct VertexBufferSprites {
 };
 
 class Renderer : public BaseRenderer {
- private:
-  void InitImpl() override;
-  void ShutdownImpl() override;
+ public:
+  void Init() override;
+  void Shutdown() override;
 
 #ifndef IMPACTO_DISABLE_IMGUI
-  void ImGuiBeginFrameImpl() override;
+  void ImGuiBeginFrame() override;
 #endif
 
-  void BeginFrameImpl() override;
-  void BeginFrame2DImpl() override;
-  void EndFrameImpl() override;
+  void BeginFrame() override;
+  void BeginFrame2D() override;
+  void EndFrame() override;
 
-  uint32_t SubmitTextureImpl(TexFmt format, uint8_t* buffer, int width,
-                             int height) override;
-  void FreeTextureImpl(uint32_t id) override;
-  YUVFrame* CreateYUVFrameImpl(float width, float height) override;
+  uint32_t SubmitTexture(TexFmt format, uint8_t* buffer, int width,
+                         int height) override;
+  void FreeTexture(uint32_t id) override;
+  YUVFrame* CreateYUVFrame(float width, float height) override;
 
-  void DrawSpriteImpl(Sprite const& sprite, RectF const& dest, glm::vec4 tint,
-                      float angle, bool inverted, bool isScreencap) override;
+  void DrawSprite(Sprite const& sprite, RectF const& dest,
+                  glm::vec4 tint = glm::vec4(1.0), float angle = 0.0f,
+                  bool inverted = false, bool isScreencap = false) override;
 
-  void DrawSpriteImpl(Sprite const& sprite,
-                      std::array<glm::vec2, 4> const& dest,
-                      const std::array<glm::vec4, 4>& tints, float angle,
-                      bool inverted, bool isScreencap) override;
+  void DrawSprite(Sprite const& sprite, std::array<glm::vec2, 4> const& dest,
+                  const std::array<glm::vec4, 4>& tints, float angle = 0.0f,
+                  bool inverted = false, bool isScreencap = false) override;
 
-  void DrawSpriteOffsetImpl(Sprite const& sprite, glm::vec2 topLeft,
-                            glm::vec2 displayOffset, glm::vec4 tint,
-                            glm::vec2 scale, float angle,
-                            bool inverted) override;
+  void DrawSpriteOffset(Sprite const& sprite, glm::vec2 topLeft,
+                        glm::vec2 displayOffset,
+                        glm::vec4 tint = glm::vec4(1.0),
+                        glm::vec2 scale = glm::vec2(1.0), float angle = 0.0f,
+                        bool inverted = false) override;
 
-  void DrawRectImpl(RectF const& dest, glm::vec4 color, float angle) override;
+  void DrawRect(RectF const& dest, glm::vec4 color,
+                float angle = 0.0f) override;
 
-  void DrawMaskedSpriteImpl(Sprite const& sprite, Sprite const& mask,
-                            RectF const& dest, glm::vec4 tint, int alpha,
-                            int fadeRange, bool isScreencap, bool isInverted,
-                            bool isSameTexture) override;
+  void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
+                        RectF const& dest, glm::vec4 tint, int alpha,
+                        int fadeRange, bool isScreencap = false,
+                        bool isInverted = false,
+                        bool isSameTexture = false) override;
 
-  void DrawCCMessageBoxImpl(Sprite const& sprite, Sprite const& mask,
-                            RectF const& dest, glm::vec4 tint, int alpha,
-                            int fadeRange, float effectCt,
-                            bool isScreencap) override;
+  void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
+                        RectF const& dest, glm::vec4 tint, int alpha,
+                        int fadeRange, float effectCt,
+                        bool isScreencap = false) override;
 
-  void DrawCHLCCMenuBackgroundImpl(const Sprite& sprite, const Sprite& mask,
-                                   const RectF& dest, float alpha) override;
+  void DrawCHLCCDelusionOverlay(Sprite const& sprite, Sprite const& mask,
+                                RectF const& dest, int alpha, int fadeRange,
+                                float angle) override;
 
-  void DrawCHLCCDelusionOverlayImpl(Sprite const& sprite, Sprite const& mask,
-                                    RectF const& dest, int alpha, int fadeRange,
-                                    float angle) override;
+  void DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
+                               const RectF& dest, float alpha) override;
 
-  void DrawSprite3DRotatedImpl(Sprite const& sprite, RectF const& dest,
-                               float depth, glm::vec2 vanishingPoint,
-                               bool stayInScreen, glm::quat rot, glm::vec4 tint,
-                               bool inverted) override;
-  void DrawRect3DRotatedImpl(RectF const& dest, float depth,
-                             glm::vec2 vanishingPoint, bool stayInScreen,
-                             glm::quat rot, glm::vec4 color) override;
+  void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest, float depth,
+                           glm::vec2 vanishingPoint, bool stayInScreen,
+                           glm::quat rot, glm::vec4 tint = glm::vec4(1.0f),
+                           bool inverted = false) override;
+  void DrawRect3DRotated(RectF const& dest, float depth,
+                         glm::vec2 vanishingPoint, bool stayInScreen,
+                         glm::quat rot, glm::vec4 color) override;
 
-  void DrawCharacterMvlImpl(Sprite const& sprite, glm::vec2 topLeft,
-                            int verticesCount, float* mvlVertices,
-                            int indicesCount, uint16_t* mvlIndices,
-                            bool inverted, glm::vec4 tint,
-                            glm::vec2 scale) override;
+  void DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
+                        int verticesCount, float* mvlVertices, int indicesCount,
+                        uint16_t* mvlIndices, bool inverted, glm::vec4 tint,
+                        glm::vec2 scale) override;
 
-  void DrawVideoTextureImpl(YUVFrame* tex, RectF const& dest, glm::vec4 tint,
-                            float angle, bool alphaVideo) override;
+  void DrawVideoTexture(YUVFrame* tex, RectF const& dest,
+                        glm::vec4 tint = glm::vec4(1.0), float angle = 0.0f,
+                        bool alphaVideo = false) override;
 
-  void CaptureScreencapImpl(Sprite const& sprite) override;
+  void CaptureScreencap(Sprite const& sprite) override;
 
-  void EnableScissorImpl() override;
-  void SetScissorRectImpl(RectF const& rect) override;
-  void DisableScissorImpl() override;
+  void EnableScissor() override;
+  void SetScissorRect(RectF const& rect) override;
+  void DisableScissor() override;
 
+ private:
   void EnsureSpaceAvailable(int vertices, int vertexSize, int indices);
   void EnsureTextureBound(GLuint texture);
   void EnsureModeSprite(bool inverted);

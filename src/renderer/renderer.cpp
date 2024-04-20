@@ -46,71 +46,13 @@ void InitRenderer() {
   Renderer->Init();
 }
 
-void BaseRenderer::Init() { InitImpl(); }
-
-void BaseRenderer::Shutdown() { ShutdownImpl(); }
-
-#ifndef IMPACTO_DISABLE_IMGUI
-void BaseRenderer::ImGuiBeginFrame() { ImGuiBeginFrameImpl(); }
-#endif
-
-void BaseRenderer::BeginFrame() { BeginFrameImpl(); }
-
-void BaseRenderer::BeginFrame2D() { BeginFrame2DImpl(); }
-
-void BaseRenderer::EndFrame() { EndFrameImpl(); }
-
-uint32_t BaseRenderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
-                                     int height) {
-  return SubmitTextureImpl(format, buffer, width, height);
-}
-
-void BaseRenderer::FreeTexture(uint32_t id) { FreeTextureImpl(id); }
-
-YUVFrame* BaseRenderer::CreateYUVFrame(float width, float height) {
-  return CreateYUVFrameImpl(width, height);
-}
-
-void BaseRenderer::DrawSprite(Sprite const& sprite, RectF const& dest,
-                              glm::vec4 tint, float angle, bool inverted,
-                              bool isScreencap) {
-  DrawSpriteImpl(sprite, dest, tint, angle, inverted, isScreencap);
-}
-
-void BaseRenderer::DrawSprite(Sprite const& sprite,
-                              std::array<glm::vec2, 4> const& dest,
-                              const std::array<glm::vec4, 4>& tints,
-                              float angle, bool inverted, bool isScreencap) {
-  DrawSpriteImpl(sprite, dest, tints, angle, inverted, isScreencap);
-}
-
-void BaseRenderer::DrawSpriteOffset(Sprite const& sprite, glm::vec2 topLeft,
-                                    glm::vec2 displayOffset, glm::vec4 tint,
-                                    glm::vec2 scale, float angle,
-                                    bool inverted) {
-  DrawSpriteOffsetImpl(sprite, topLeft, displayOffset, tint, scale, angle,
-                       inverted);
-}
-
 void BaseRenderer::DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
                               glm::vec4 tint, glm::vec2 scale, float angle,
                               bool inverted, bool isScreencap) {
   RectF scaledDest(topLeft.x, topLeft.y,
                    scale.x * sprite.Bounds.Width * sprite.BaseScale.x,
                    scale.y * sprite.Bounds.Height * sprite.BaseScale.y);
-  DrawSpriteImpl(sprite, scaledDest, tint, angle, inverted, isScreencap);
-}
-
-void BaseRenderer::DrawRect(RectF const& dest, glm::vec4 color, float angle) {
-  DrawRectImpl(dest, color, angle);
-}
-
-void BaseRenderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
-                                    RectF const& dest, glm::vec4 tint,
-                                    int alpha, int fadeRange, bool isScreencap,
-                                    bool isInverted, bool isSameTexture) {
-  DrawMaskedSpriteImpl(sprite, mask, dest, tint, alpha, fadeRange, isScreencap,
-                       isInverted, isSameTexture);
+  DrawSprite(sprite, scaledDest, tint, angle, inverted, isScreencap);
 }
 
 void BaseRenderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
@@ -120,24 +62,8 @@ void BaseRenderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
   RectF scaledDest(topLeft.x, topLeft.y,
                    scale.x * sprite.Bounds.Width * sprite.BaseScale.x,
                    scale.y * sprite.Bounds.Height * sprite.BaseScale.y);
-  DrawCCMessageBoxImpl(sprite, mask, scaledDest, tint, alpha, fadeRange,
-                       effectCt, isScreencap);
-}
-
-void BaseRenderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
-                                    RectF const& dest, glm::vec4 tint,
-                                    int alpha, int fadeRange, float effectCt,
-                                    bool isScreencap) {
-  DrawCCMessageBoxImpl(sprite, mask, dest, tint, alpha, fadeRange, effectCt,
-                       isScreencap);
-}
-
-void BaseRenderer::DrawSprite3DRotated(Sprite const& sprite, RectF const& dest,
-                                       float depth, glm::vec2 vanishingPoint,
-                                       bool stayInScreen, glm::quat rot,
-                                       glm::vec4 tint, bool inverted) {
-  DrawSprite3DRotatedImpl(sprite, dest, depth, vanishingPoint, stayInScreen,
-                          rot, tint, inverted);
+  DrawCCMessageBox(sprite, mask, scaledDest, tint, alpha, fadeRange, effectCt,
+                   isScreencap);
 }
 
 void BaseRenderer::DrawSprite3DRotated(Sprite const& sprite, glm::vec2 topLeft,
@@ -148,15 +74,8 @@ void BaseRenderer::DrawSprite3DRotated(Sprite const& sprite, glm::vec2 topLeft,
   RectF scaledDest(topLeft.x, topLeft.y,
                    scale.x * sprite.Bounds.Width * sprite.BaseScale.x,
                    scale.y * sprite.Bounds.Height * sprite.BaseScale.y);
-  DrawSprite3DRotatedImpl(sprite, scaledDest, depth, vanishingPoint,
-                          stayInScreen, rot, tint, inverted);
-}
-
-void BaseRenderer::DrawRect3DRotated(RectF const& dest, float depth,
-                                     glm::vec2 vanishingPoint,
-                                     bool stayInScreen, glm::quat rot,
-                                     glm::vec4 color) {
-  DrawRect3DRotatedImpl(dest, depth, vanishingPoint, stayInScreen, rot, color);
+  DrawSprite3DRotated(sprite, scaledDest, depth, vanishingPoint, stayInScreen,
+                      rot, tint, inverted);
 }
 
 void BaseRenderer::DrawProcessedText_BasicFont(ProcessedTextGlyph* text,
@@ -271,52 +190,12 @@ void BaseRenderer::DrawProcessedText(ProcessedTextGlyph* text, int length,
   }
 }
 
-void BaseRenderer::DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
-                                    int verticesCount, float* mvlVertices,
-                                    int indicesCount, uint16_t* mvlIndices,
-                                    bool inverted, glm::vec4 tint,
-                                    glm::vec2 scale) {
-  DrawCharacterMvlImpl(sprite, topLeft, verticesCount, mvlVertices,
-                       indicesCount, mvlIndices, inverted, tint, scale);
-}
-
-void BaseRenderer::DrawVideoTexture(YUVFrame* tex, RectF const& dest,
-                                    glm::vec4 tint, float angle,
-                                    bool alphaVideo) {
-  DrawVideoTextureImpl(tex, dest, tint, angle, alphaVideo);
-}
-
 void BaseRenderer::DrawVideoTexture(YUVFrame* tex, glm::vec2 topLeft,
                                     glm::vec4 tint, glm::vec2 scale,
                                     float angle, bool alphaVideo) {
   RectF scaledDest(topLeft.x, topLeft.y, scale.x * tex->Width,
                    scale.y * tex->Height);
-  DrawVideoTextureImpl(tex, scaledDest, tint, angle, alphaVideo);
-}
-
-void BaseRenderer::CaptureScreencap(Sprite const& sprite) {
-  CaptureScreencapImpl(sprite);
-}
-
-void BaseRenderer::EnableScissor() { EnableScissorImpl(); }
-
-void BaseRenderer::SetScissorRect(RectF const& rect) {
-  SetScissorRectImpl(rect);
-}
-
-void BaseRenderer::DisableScissor() { DisableScissorImpl(); }
-
-void BaseRenderer::DrawCHLCCMenuBackground(const Sprite& sprite,
-                                           const Sprite& mask,
-                                           const RectF& dest, float alpha) {
-  DrawCHLCCMenuBackgroundImpl(sprite, mask, dest, alpha);
-}
-
-void BaseRenderer::DrawCHLCCDelusionOverlay(Sprite const& sprite,
-                                            Sprite const& mask,
-                                            RectF const& dest, int alpha,
-                                            int fadeRange, float angle) {
-  DrawCHLCCDelusionOverlayImpl(sprite, mask, dest, alpha, fadeRange, angle);
+  DrawVideoTexture(tex, scaledDest, tint, angle, alphaVideo);
 }
 
 }  // namespace Impacto
