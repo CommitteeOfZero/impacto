@@ -9,9 +9,6 @@
 
 namespace Impacto {
 
-extern BaseRenderer* Renderer;
-extern BaseWindow* Window;
-
 extern GraphicsApi GraphicsApiHint;
 extern GraphicsApi ActualGraphicsApi;
 
@@ -133,6 +130,9 @@ class BaseRenderer {
 
   IScene3D* Scene = 0;
 };
+
+extern BaseRenderer* Renderer;
+extern BaseWindow* Window;
 
 void InitRenderer();
 
