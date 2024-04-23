@@ -9,6 +9,10 @@ namespace Io {
 
 // TODO *optional* buffering
 
+#ifdef IMPACTO_SDL1_COMPAT
+int64_t SDL_RWsize(SDL_RWops *context);
+#endif
+
 class PhysicalFileStream : public InputStream,
                            public Buffering<PhysicalFileStream> {
   friend class Buffering<PhysicalFileStream>;

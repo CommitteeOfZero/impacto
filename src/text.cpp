@@ -66,7 +66,7 @@ struct StringToken {
   StringTokenType Type;
 
   uint16_t Val_Uint16;
-  int Val_Expr;
+  int32_t Val_Expr;
 
   int Read(Vm::Sc3VmThread* ctx);
 };

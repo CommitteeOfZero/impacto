@@ -12,31 +12,31 @@ TipsSystemBase* Implementation = 0;
 void Init() { Configure(); }
 
 void DataInit(int scriptBufferId, uint8_t* tipsData) {
-  if (Implementation) Implementation->DataInit(scriptBufferId, tipsData);
+  if (Implementation) return Implementation->DataInit(scriptBufferId, tipsData);
   ImpLog(LL_Warning, LC_VMStub,
          "%s: tips system not implemented, doing nothing\n", __func__);
 }
 
 void UpdateTipRecords() {
-  if (Implementation) Implementation->UpdateTipRecords();
+  if (Implementation) return Implementation->UpdateTipRecords();
   ImpLog(LL_Warning, LC_VMStub,
          "%s: tips system not implemented, doing nothing\n", __func__);
 }
 
 void SetTipLockedState(int id, bool state) {
-  if (Implementation) Implementation->SetTipLockedState(id, state);
+  if (Implementation) return Implementation->SetTipLockedState(id, state);
   ImpLog(LL_Warning, LC_VMStub,
          "%s: tips system not implemented, doing nothing\n", __func__);
 }
 
 void SetTipUnreadState(int id, bool state) {
-  if (Implementation) Implementation->SetTipUnreadState(id, state);
+  if (Implementation) return Implementation->SetTipUnreadState(id, state);
   ImpLog(LL_Warning, LC_VMStub,
          "%s: tips system not implemented, doing nothing\n", __func__);
 }
 
 void SetTipNewState(int id, bool state) {
-  if (Implementation) Implementation->SetTipNewState(id, state);
+  if (Implementation) return Implementation->SetTipNewState(id, state);
   ImpLog(LL_Warning, LC_VMStub,
          "%s: tips system not implemented, doing nothing\n", __func__);
 }

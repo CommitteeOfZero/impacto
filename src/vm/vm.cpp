@@ -457,7 +457,7 @@ void RunThread(Sc3VmThread* thread) {
   uint32_t opcodeGrp;
   uint32_t opcode;
   uint32_t opcodeGrp1;
-  int calDummy;
+  int32_t calDummy;
 
   ImpLog(LL_Trace, LC_VM, "Running thread ID = %i\n", thread->Id);
 

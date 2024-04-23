@@ -6,7 +6,7 @@ namespace Impacto {
 
 namespace Vm {
 
-int ExpressionEval(Sc3VmThread* thread, int* result);
+int32_t ExpressionEval(Sc3VmThread* thread, int32_t* result);
 
 }  // namespace Vm
 

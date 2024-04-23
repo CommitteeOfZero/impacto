@@ -28,6 +28,17 @@ extern int MouseWheelDeltaY;
 extern glm::vec2 PrevTouchPos;
 extern glm::vec2 CurTouchPos;
 
+#ifdef IMPACTO_SDL1_COMPAT
+#define SDL_CONTROLLER_AXIS_MAX 6
+#define SDL_CONTROLLER_BUTTON_MAX 15
+#define SDL_NUM_SCANCODES SDLK_LAST
+
+#define SDL_SCANCODE_LEFT SDLK_LEFT
+#define SDL_SCANCODE_RIGHT SDLK_RIGHT
+#define SDL_SCANCODE_D SDLK_d
+
+#endif
+
 extern float ControllerAxis[SDL_CONTROLLER_AXIS_MAX];
 
 extern bool MouseButtonWentDown[MouseButtonsMax];
@@ -41,9 +52,11 @@ extern bool ControllerAxisWentDownHeavy[SDL_CONTROLLER_AXIS_MAX];
 extern bool KeyboardButtonWentDown[SDL_NUM_SCANCODES];
 extern bool KeyboardButtonIsDown[SDL_NUM_SCANCODES];
 
+#ifndef IMPACTO_SDL1_COMPAT
 // TODO multitouch
 extern bool TouchIsDown;
 extern bool TouchWentDown;
+#endif
 
 }  // namespace Input
 }  // namespace Impacto

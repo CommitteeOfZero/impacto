@@ -7,6 +7,11 @@
 #include "openal/audiochannel.h"
 #endif
 
+#ifdef PLATFORM_DREAMCAST
+#include "dreamcast/audiobackend.h"
+#include "dreamcast/audiochannel.h"
+#endif
+
 #include <utility>
 
 namespace Impacto {
@@ -39,6 +44,14 @@ void AudioInit() {
       Backend = new OpenAL::AudioBackend();
       for (int i = 0; i < AC_Count; i++) {
         Channels[i] = new OpenAL::AudioChannel();
+      }
+    } break;
+#endif
+#ifdef PLATFORM_DREAMCAST
+    case AudioBackendType::Dreamcast: {
+      Backend = new Dreamcast::AudioBackend();
+      for (int i = 0; i < AC_Count; i++) {
+        Channels[i] = new Dreamcast::AudioChannel();
       }
     } break;
 #endif

@@ -2,7 +2,7 @@
 
 namespace Impacto {
 
-int ScrWork[ScrWorkSize];
+int32_t ScrWork[ScrWorkSize];
 uint8_t FlagWork[FlagWorkSize];
 
 void SetFlag(uint32_t flagId, uint32_t value) {

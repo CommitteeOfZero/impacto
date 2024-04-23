@@ -94,7 +94,7 @@ class Renderer : public BaseRenderer {
   void EndFrame() override;
 
   uint32_t SubmitTexture(TexFmt format, uint8_t* buffer, int width,
-                         int height) override;
+                         int height, uint32_t bufferSize) override;
   void FreeTexture(uint32_t id) override;
   YUVFrame* CreateYUVFrame(float width, float height) override;
 

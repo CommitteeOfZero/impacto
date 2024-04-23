@@ -18,6 +18,7 @@
 #include "character2d.h"
 #include "renderer/3d/scene.h"
 #include "mem.h"
+#include "vm/interface/scene2d.h"
 #include "hud/datedisplay.h"
 #include "hud/saveicondisplay.h"
 #include "hud/loadingdisplay.h"
@@ -318,7 +319,8 @@ void Render() {
             if (Profile::UseScreenCapEffects) {
               if (ScrWork[SW_EFF_CAP_BUF] &&
                   ScrWork[SW_EFF_CAP_PRI] == static_cast<int>(layer)) {
-                int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF]);
+                int32_t bufId =
+                    Vm::Interface::GetBufferId((ScrWork[SW_EFF_CAP_BUF]));
                 if (Backgrounds2D[bufId]->Status == LS_Loaded) {
                   Renderer->CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
                 }
@@ -326,7 +328,8 @@ void Render() {
 
               if (ScrWork[SW_EFF_CAP_BUF2] &&
                   ScrWork[SW_EFF_CAP_PRI2] == static_cast<int>(layer)) {
-                int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF2]);
+                int32_t bufId =
+                    Vm::Interface::GetBufferId((ScrWork[SW_EFF_CAP_BUF2]));
                 if (Backgrounds2D[bufId]->Status == LS_Loaded) {
                   Renderer->CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
                 }

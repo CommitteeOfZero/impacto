@@ -9,6 +9,10 @@
 namespace Impacto {
 namespace Audio {
 
+#ifdef PLATFORM_DREAMCAST
+int const AuidoStreamRegistrySize = 10;
+#endif
+
 class AudioStream {
  public:
   virtual ~AudioStream() {
@@ -33,16 +37,20 @@ class AudioStream {
   int Duration = -1;
   int ReadPosition = 0;
 
+  Io::InputStream* BaseStream = 0;
+
  protected:
   typedef AudioStream* (*AudioStreamCreator)(Io::InputStream* stream);
   static bool AddAudioStreamCreator(AudioStreamCreator c);
 
   AudioStream(){};
 
-  Io::InputStream* BaseStream = 0;
-
  private:
+#ifdef PLATFORM_DREAMCAST
+  static AudioStreamCreator Registry[AuidoStreamRegistrySize];
+#else
   static std::vector<AudioStreamCreator> Registry;
+#endif
 };
 
 }  // namespace Audio

@@ -10,12 +10,22 @@
 
 namespace Impacto {
 
+#ifdef PLATFORM_DREAMCAST
+int CurrentRegistryIdx = 0;
+#endif
+
 bool Texture::Load(Io::InputStream* stream) {
   using namespace TexLoad;
 
+#ifdef PLATFORM_DREAMCAST
+  for (int i = 0; i < CurrentRegistryIdx; i++) {
+    if (Registry[i](stream, this)) return true;
+  }
+#else
   for (auto f : Registry) {
     if (f(stream, this)) return true;
   }
+#endif
 
   // no registry for this one, since it has no real magic - we must try it last
   if (TextureIsPlain(stream)) return TextureLoadPlain(stream, this);
@@ -46,11 +56,18 @@ void Texture::Init(TexFmt fmt, int width, int height) {
 }
 
 void Texture::Load1x1(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) {
+#ifdef PLATFORM_DREAMCAST
+  uint8_t tempBuf[4] = {red, green, blue, alpha};
+  uint32_t color;
+  memcpy(&color, tempBuf, sizeof(uint32_t));
+  LoadSolidColor(8, 8, color);
+#else
   Init(TexFmt_RGBA, 1, 1);
   Buffer[0] = red;
   Buffer[1] = green;
   Buffer[2] = blue;
   Buffer[3] = alpha;
+#endif
 }
 
 void Texture::LoadSolidColor(int width, int height, uint32_t color) {
@@ -65,7 +82,11 @@ void Texture::LoadSolidColor(int width, int height, uint32_t color) {
 }
 
 void Texture::LoadCheckerboard() {
+#ifdef PLATFORM_DREAMCAST
+  Init(TexFmt_U8, 16, 16);
+#else
   Init(TexFmt_U8, 128, 128);
+#endif
   uint8_t color = 0xFF;
   uint8_t* out = Buffer;
   for (int y = 0; y < Height; y++) {
@@ -79,7 +100,11 @@ void Texture::LoadCheckerboard() {
 }
 
 void Texture::LoadPoliticalCompass() {
+#ifdef PLATFORM_DREAMCAST
+  Init(TexFmt_RGBA, 32, 32);
+#else
   Init(TexFmt_RGBA, 512, 512);
+#endif
 
   for (int x = 0; x < Width / 2; x++) {
     for (int y = 0; y < Height / 2; y++) {
@@ -111,7 +136,8 @@ uint32_t Texture::Submit() {
 
   if (Buffer == NULL) return -1;
 
-  uint32_t result = Renderer->SubmitTexture(Format, Buffer, Width, Height);
+  uint32_t result =
+      Renderer->SubmitTexture(Format, Buffer, Width, Height, BufferSize);
 
   // TODO I meant to do this elsewhere but we gotta do it somewhere
   free(Buffer);
@@ -120,10 +146,20 @@ uint32_t Texture::Submit() {
 }
 
 bool Texture::AddTextureLoader(Texture::TextureLoader c) {
+#ifdef PLATFORM_DREAMCAST
+  if (CurrentRegistryIdx == TextureRegistrySize) return true;
+
+  Registry[CurrentRegistryIdx++] = c;
+#else
   Registry.push_back(c);
+#endif
   return true;
 }
 
+#ifdef PLATFORM_DREAMCAST
+Texture::TextureLoader Texture::Registry[TextureRegistrySize];
+#else
 std::vector<Texture::TextureLoader> Texture::Registry;
+#endif
 
 }  // namespace Impacto

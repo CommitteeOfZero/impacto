@@ -11,8 +11,8 @@ class SaveFileEntry : public SaveFileEntryBase {
  public:
   uint8_t FlagWorkScript1[50];   // 50 bytes from &FlagWork[50]
   uint8_t FlagWorkScript2[100];  // 100 bytes from &FlagWork[300]
-  int ScrWorkScript1[300];       // 1200 bytes from &ScrWork[300]
-  int ScrWorkScript2[1300];      // 5200 bytes from &ScrWork[2300]
+  int32_t ScrWorkScript1[300];       // 1200 bytes from &ScrWork[300]
+  int32_t ScrWorkScript2[1300];      // 5200 bytes from &ScrWork[2300]
 };
 
 class SaveSystem : public SaveSystemBase {

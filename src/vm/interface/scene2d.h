@@ -14,11 +14,15 @@ void UpdateCharacter2D();
 void UpdateSpeakerPortraits();
 
 // Because yes
-inline int GetBufferId(int bufIdByScript) {
-  return (int)std::log2(bufIdByScript);
+inline int32_t GetBufferId(int32_t bufIdByScript) {
+#ifdef PLATFORM_DREAMCAST
+  return (int32_t)log2(bufIdByScript);
+#else
+  return (int32_t)std::log2(bufIdByScript);
+#endif
 }
-inline int GetScriptBufferId(int bufIdBySurf) {
-  return (int)std::pow(2, bufIdBySurf);
+inline int32_t GetScriptBufferId(int32_t bufIdBySurf) {
+  return (int32_t)std::pow(2, bufIdBySurf);
 }
 
 // Meh

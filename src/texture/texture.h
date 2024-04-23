@@ -6,7 +6,11 @@
 
 namespace Impacto {
 
-enum TexFmt { TexFmt_RGB, TexFmt_RGBA, TexFmt_U8 };
+enum TexFmt { TexFmt_RGB, TexFmt_RGBA, TexFmt_U8, TexFmt_DC_A, TexFmt_DC };
+
+#ifdef PLATFORM_DREAMCAST
+int const TextureRegistrySize = 10;
+#endif
 
 struct Texture {
   int Width;
@@ -29,7 +33,11 @@ struct Texture {
   static bool AddTextureLoader(TextureLoader c);
 
  private:
+#ifdef PLATFORM_DREAMCAST
+  static TextureLoader Registry[TextureRegistrySize];
+#else
   static std::vector<TextureLoader> Registry;
+#endif
 };
 
 }  // namespace Impacto

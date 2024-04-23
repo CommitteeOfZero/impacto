@@ -2,18 +2,26 @@
 
 #include "../renderer.h"
 #include "window.h"
-#include "shader.h"
-#include "yuvframe.h"
 
-#include <d3d9.h>
+#include <map>
 
 namespace Impacto {
-namespace DirectX9 {
+namespace LegacyOpenGL {
+
+enum Renderer2DMode {
+  R2D_None,
+  R2D_Sprite,
+  R2D_SpriteInverted,
+  R2D_YUVFrame,
+  R2D_Masked,
+  R2D_CCMessageBox,
+  R2D_CHLCCMenuBackground
+};
 
 struct VertexBufferSprites {
   glm::vec2 Position;
-  glm::vec4 Tint;
   glm::vec2 UV;
+  glm::vec4 Tint;
   glm::vec2 MaskUV;
 };
 
@@ -22,16 +30,12 @@ class Renderer : public BaseRenderer {
   void Init() override;
   void Shutdown() override;
 
-#ifndef IMPACTO_DISABLE_IMGUI
-  void ImGuiBeginFrame() override;
-#endif
-
   void BeginFrame() override;
   void BeginFrame2D() override;
   void EndFrame() override;
 
-  uint32_t SubmitTexture(TexFmt format, uint8_t* buffer, int width,
-                         int height, uint32_t bufferSize) override;
+  uint32_t SubmitTexture(TexFmt format, uint8_t* buffer, int width, int height,
+                         uint32_t bufferSize) override;
   void FreeTexture(uint32_t id) override;
   YUVFrame* CreateYUVFrame(float width, float height) override;
 
@@ -96,17 +100,19 @@ class Renderer : public BaseRenderer {
  private:
   void EnsureSpaceAvailable(int vertices, int vertexSize, int indices);
   void EnsureTextureBound(uint32_t texture);
-  void Renderer::EnsureShader(Shader* shader, bool flush = true);
+  void EnsureModeSprite(bool inverted);
   void Flush();
 
   inline void QuadSetUV(RectF const& spriteBounds, float designWidth,
                         float designHeight, uintptr_t uvs, int stride,
                         float angle = 0.0f);
+
   inline void QuadSetPositionOffset(RectF const& spriteBounds,
                                     glm::vec2 topLeftPos,
                                     glm::vec2 displayOffset, glm::vec2 scale,
                                     float angle, uintptr_t positions,
                                     int stride);
+
   inline void QuadSetUVFlipped(RectF const& spriteBounds, float designWidth,
                                float designHeight, uintptr_t uvs, int stride);
   inline void QuadSetPosition(RectF const& transformedQuad, float angle,
@@ -118,41 +124,23 @@ class Renderer : public BaseRenderer {
                                        bool stayInScreen, glm::quat rot,
                                        uintptr_t positions, int stride);
 
-  DirectX9Window* DXWindow;
-
-  IDirect3D9* Interface;
-  IDirect3DDevice9* Device;
-
-  Shader* CurrentShader;
-
-  Shader* ShaderSprite;
-  Shader* ShaderSpriteInverted;
-  Shader* ShaderMaskedSprite;
-  Shader* ShaderYUVFrame;
-  Shader* ShaderCCMessageBox;
-  Shader* ShaderCHLCCMenuBackground;
-
-  uint32_t CurrentTexture = 0;
-  uint32_t NextTextureId = 1;
-
-  DX9YUVFrame* VideoFrameInternal;
+  LegacyGLWindow* OpenGLWindow;
 
   bool Drawing = false;
 
-  static int const VertexBufferSize = 1024 * 1024;
+  static int const VertexBufferSize = 128 * 128;
   static int const IndexBufferCount =
       VertexBufferSize / (4 * sizeof(VertexBufferSprites)) * 6;
 
+  uint32_t CurrentTexture = 0;
+  Renderer2DMode CurrentMode = R2D_None;
   uint8_t VertexBuffer[VertexBufferSize];
-  IDirect3DVertexBuffer9* VertexBufferDevice;
   int VertexBufferFill = 0;
   uint16_t IndexBuffer[IndexBufferCount];
-  IDirect3DIndexBuffer9* IndexBufferDevice;
-  IDirect3DIndexBuffer9* IndexBufferMvl;
   int IndexBufferFill = 0;
 
   Sprite RectSprite;
 };
 
-}  // namespace DirectX9
+}  // namespace LegacyOpenGL
 }  // namespace Impacto

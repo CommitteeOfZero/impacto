@@ -5,11 +5,31 @@
 namespace Impacto {
 namespace Io {
 
+#ifdef IMPACTO_SDL1_COMPAT
+int64_t SDL_RWsize(SDL_RWops* context) {
+  int64_t pos, size;
+
+  pos = SDL_RWseek(context, 0, RW_SEEK_CUR);
+  if (pos < 0) {
+    return -1;
+  }
+  size = SDL_RWseek(context, 0, RW_SEEK_END);
+
+  SDL_RWseek(context, pos, RW_SEEK_SET);
+  return size;
+}
+#endif
+
 PhysicalFileStream::~PhysicalFileStream() { SDL_RWclose(RW); }
 
 IoError PhysicalFileStream::Create(std::string const& fileName,
                                    InputStream** out) {
+#ifdef PLATFORM_DREAMCAST
+  std::string fullPath = "/cd/" + fileName;
+  SDL_RWops* rw = SDL_RWFromFile(fullPath.c_str(), "rb");
+#else
   SDL_RWops* rw = SDL_RWFromFile(fileName.c_str(), "rb");
+#endif
   if (!rw) return IoError_Fail;
   int64_t size = SDL_RWsize(rw);
   if (size <= 0) return IoError_Fail;

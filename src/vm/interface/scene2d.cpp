@@ -123,7 +123,7 @@ void LinkBuffers(int linkCode, int currentBufferId,
   if (srcBufId == GetScriptBufferId(currentBufferId)) {
     int dir = (linkCode >> 16) & 0xFF;
     for (int i = 0; i < MaxLinkedBgBuffers; i++) {
-      int childBufId = (linkCode >> (i * 24)) & 0xFF;
+      int32_t childBufId = (linkCode >> (i * 24)) & 0xFF;
       if (childBufId != 0) {
         childBufId = GetBufferId(childBufId);
         Background2D* childBuf =

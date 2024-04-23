@@ -34,7 +34,12 @@ IoError TextArchive::Open(FileMeta* file, InputStream** outStream) {
 
 IoError TextArchive::GetCurrentSize(FileMeta* file, int64_t* outSize) {
   TextMetaEntry* entry = (TextMetaEntry*)file;
+#ifdef PLATFORM_DREAMCAST
+  std::string fullPath = "/cd/" + entry->FullPath;
+  SDL_RWops* rw = SDL_RWFromFile(fullPath.c_str(), "rb");
+#else
   SDL_RWops* rw = SDL_RWFromFile(entry->FullPath.c_str(), "rb");
+#endif
   if (!rw) {
     ImpLog(
         LL_Error, LC_IO,

@@ -12,11 +12,11 @@ Impacto::Vm::InstructionSet GameInstructionSet =
 bool UseReturnIds = true;
 bool UseMsbStrings = false;
 bool UseSeparateMsbArchive = false;
-int ScrWorkChaStructSize;
-int ScrWorkBgStructSize;
-int MaxLinkedBgBuffers = 1;
-int SystemScriptBuffer = 1;
-int SpeakerPortraitsScrWorkOffset = 8;
+int32_t ScrWorkChaStructSize;
+int32_t ScrWorkBgStructSize;
+int32_t MaxLinkedBgBuffers = 1;
+int32_t SystemScriptBuffer = 1;
+int32_t SpeakerPortraitsScrWorkOffset = 8;
 
 void Configure() {
   EnsurePushMemberOfType("Vm", LUA_TTABLE);

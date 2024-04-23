@@ -18,7 +18,11 @@ static Uint32 WorkCompletedEventType = 0;
 
 static void InitEventType() {
   assert(WorkCompletedEventType == 0);
+#ifdef IMPACTO_SDL1_COMPAT
+  WorkCompletedEventType = SDL_USEREVENT;
+#else
   WorkCompletedEventType = SDL_RegisterEvents(1);
+#endif
   assert(WorkCompletedEventType != 0);
 }
 

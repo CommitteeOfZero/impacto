@@ -7,6 +7,13 @@
 #include <SDL_endian.h>
 #include <glm/glm.hpp>
 
+#ifdef IMPACTO_SDL1_COMPAT
+inline float SDL_SwapFloat(float x) {
+  uint32_t swapped = SDL_Swap32(*(uint32_t*)&x);
+  return *(float*)&swapped;
+}
+#endif
+
 namespace Impacto {
 namespace Io {
 

@@ -37,7 +37,7 @@ SaveError SaveSystem::MountSaveFile() {
 
   Io::ReadArrayLE<uint8_t>(&FlagWork[100], stream, 50);
   Io::ReadArrayLE<uint8_t>(&FlagWork[460], stream, 40);
-  Io::ReadArrayBE<int>(&ScrWork[600], stream, 400);
+  Io::ReadArrayBE<int32_t>(&ScrWork[600], stream, 400);
 
   stream->Seek(0x7DA, SEEK_SET);
   for (int i = 0; i < 150; i++) {
@@ -94,9 +94,9 @@ SaveError SaveSystem::MountSaveFile() {
         ((SaveFileEntry*)QuickSaveEntries[i])->FlagWorkScript1, stream, 50);
     Io::ReadArrayLE<uint8_t>(
         ((SaveFileEntry*)QuickSaveEntries[i])->FlagWorkScript2, stream, 100);
-    Io::ReadArrayBE<int>(((SaveFileEntry*)QuickSaveEntries[i])->ScrWorkScript1,
+    Io::ReadArrayBE<int32_t>(((SaveFileEntry*)QuickSaveEntries[i])->ScrWorkScript1,
                          stream, 300);
-    Io::ReadArrayBE<int>(((SaveFileEntry*)QuickSaveEntries[i])->ScrWorkScript2,
+    Io::ReadArrayBE<int32_t>(((SaveFileEntry*)QuickSaveEntries[i])->ScrWorkScript2,
                          stream, 1300);
     QuickSaveEntries[i]->MainThreadExecPriority = Io::ReadBE<uint32_t>(stream);
     QuickSaveEntries[i]->MainThreadGroupId = Io::ReadBE<uint32_t>(stream);
@@ -113,7 +113,7 @@ SaveError SaveSystem::MountSaveFile() {
       QuickSaveEntries[i]->MainThreadReturnBufIds[j] =
           Io::ReadBE<uint32_t>(stream);
     }
-    Io::ReadArrayBE<int>(QuickSaveEntries[i]->MainThreadVariables, stream, 16);
+    Io::ReadArrayBE<int32_t>(QuickSaveEntries[i]->MainThreadVariables, stream, 16);
     QuickSaveEntries[i]->MainThreadDialoguePageId =
         Io::ReadBE<uint32_t>(stream);
     stream->Seek(1428, SEEK_CUR);
@@ -150,9 +150,9 @@ SaveError SaveSystem::MountSaveFile() {
         ((SaveFileEntry*)FullSaveEntries[i])->FlagWorkScript1, stream, 50);
     Io::ReadArrayLE<uint8_t>(
         ((SaveFileEntry*)FullSaveEntries[i])->FlagWorkScript2, stream, 100);
-    Io::ReadArrayBE<int>(((SaveFileEntry*)FullSaveEntries[i])->ScrWorkScript1,
+    Io::ReadArrayBE<int32_t>(((SaveFileEntry*)FullSaveEntries[i])->ScrWorkScript1,
                          stream, 300);
-    Io::ReadArrayBE<int>(((SaveFileEntry*)FullSaveEntries[i])->ScrWorkScript2,
+    Io::ReadArrayBE<int32_t>(((SaveFileEntry*)FullSaveEntries[i])->ScrWorkScript2,
                          stream, 1300);
     FullSaveEntries[i]->MainThreadExecPriority = Io::ReadBE<uint32_t>(stream);
     FullSaveEntries[i]->MainThreadGroupId = Io::ReadBE<uint32_t>(stream);
@@ -168,7 +168,7 @@ SaveError SaveSystem::MountSaveFile() {
       FullSaveEntries[i]->MainThreadReturnBufIds[j] =
           Io::ReadBE<uint32_t>(stream);
     }
-    Io::ReadArrayBE<int>(FullSaveEntries[i]->MainThreadVariables, stream, 16);
+    Io::ReadArrayBE<int32_t>(FullSaveEntries[i]->MainThreadVariables, stream, 16);
     FullSaveEntries[i]->MainThreadDialoguePageId = Io::ReadBE<uint32_t>(stream);
     stream->Seek(1428, SEEK_CUR);
   }

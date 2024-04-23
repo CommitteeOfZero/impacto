@@ -49,14 +49,14 @@ void LoadGameFromJson() {
   res = TryGetMemberBool("UseScreenCapEffects", UseScreenCapEffects);
   if (!res) UseScreenCapEffects = true;
   TryGetMemberBool("UseMoviePriority", UseMoviePriority);
-  int audioBackendType = -1;
+  int32_t audioBackendType = -1;
   res = TryGetMemberInt("AudioBackendType", audioBackendType);
   if (!res)
     ActiveAudioBackend = AudioBackendType::OpenAL;
   else
     ActiveAudioBackend =
         AudioBackendType::_from_integral_unchecked(audioBackendType);
-  int videoPlayerType = -1;
+  int32_t videoPlayerType = -1;
   res = TryGetMemberInt("VideoPlayerType", videoPlayerType);
   if (!res)
     VideoPlayer = VideoPlayerType::FFmpeg;

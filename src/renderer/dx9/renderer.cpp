@@ -183,7 +183,7 @@ void Renderer::EndFrame() {
 }
 
 uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
-                                 int height) {
+                                 int height, uint32_t bufferSize) {
   int imageSize = 0;
   D3DFORMAT imageFormat = D3DFMT_A1;
   uint8_t* newBuffer;

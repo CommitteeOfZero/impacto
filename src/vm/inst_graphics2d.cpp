@@ -90,8 +90,8 @@ VmInstruction(InstBGload) {
   StartInstruction;
   PopExpression(bufferId);
   PopExpression(backgroundId);
-  int actualBufId = Interface::GetBufferId(bufferId);
-  int bgBufId = ScrWork[SW_BG1SURF + actualBufId];
+  int32_t actualBufId = Interface::GetBufferId(bufferId);
+  int32_t bgBufId = ScrWork[SW_BG1SURF + actualBufId];
   if (Backgrounds2D[bgBufId]->Status == LS_Loading) {
     ResetInstruction;
     BlockThread;
@@ -118,7 +118,7 @@ VmInstruction(InstBGswap) {
 
   int counter = 0;
   do {
-    int temp =
+    int32_t temp =
         ScrWork[SW_BG1POSX + (srcBufferId * ScrWorkBgStructSize) + counter];
     ScrWork[SW_BG1POSX + (srcBufferId * ScrWorkBgStructSize) + counter] =
         ScrWork[SW_BG1POSX + (dstBufferId * ScrWorkBgStructSize) + counter];
@@ -126,7 +126,7 @@ VmInstruction(InstBGswap) {
     counter++;
   } while (counter != ScrWorkBgStructSize);
 
-  int tempb = ScrWork[SW_BG1SURF + srcBufferId];
+  int32_t tempb = ScrWork[SW_BG1SURF + srcBufferId];
   ScrWork[SW_BG1SURF + srcBufferId] = ScrWork[SW_BG1SURF + dstBufferId];
   ScrWork[SW_BG1SURF + dstBufferId] = tempb;
 }
@@ -143,7 +143,7 @@ VmInstruction(InstBGsetLink) {
   PopUint8(id);
   PopExpression(arg1);
   PopExpression(arg2);
-  int arg3 = 0;
+  int32_t arg3 = 0;
   if (id >= 4) {
     ExpressionEval(thread, &arg3);
     id -= 4;
@@ -206,7 +206,7 @@ VmInstruction(InstCHAswap) {
 
   int counter = 0;
   do {
-    int temp =
+    int32_t temp =
         ScrWork[SW_CHA1POSX + (srcBufferId * ScrWorkChaStructSize) + counter];
     ScrWork[SW_CHA1POSX + (srcBufferId * ScrWorkChaStructSize) + counter] =
         ScrWork[SW_CHA1POSX + (dstBufferId * ScrWorkChaStructSize) + counter];
@@ -215,7 +215,7 @@ VmInstruction(InstCHAswap) {
     counter++;
   } while (counter != ScrWorkChaStructSize);
 
-  int tempb = ScrWork[SW_CHA1SURF + srcBufferId];
+  int32_t tempb = ScrWork[SW_CHA1SURF + srcBufferId];
   ScrWork[SW_CHA1SURF + srcBufferId] = ScrWork[SW_CHA1SURF + dstBufferId];
   ScrWork[SW_CHA1SURF + dstBufferId] = tempb;
 }
@@ -223,7 +223,7 @@ VmInstruction(InstBGrelease) {
   StartInstruction;
   PopExpression(bufferId);
   bufferId = Interface::GetBufferId(bufferId);
-  int surfId = ScrWork[SW_BG1SURF + bufferId];
+  int32_t surfId = ScrWork[SW_BG1SURF + bufferId];
   ScrWork[SW_BG1NO + ScrWorkBgStructSize * bufferId] = 0xFFFF;
   if (Backgrounds2D[surfId]->Status == LS_Loaded) {
     Backgrounds2D[surfId]->Unload();
@@ -237,8 +237,8 @@ VmInstruction(InstBGcopy) {
   srcBufferId = Interface::GetBufferId(srcBufferId);
   dstBufferId = Interface::GetBufferId(dstBufferId);
 
-  int bgId = ScrWork[SW_BG1NO + ScrWorkBgStructSize * srcBufferId];
-  int dstSurfId = ScrWork[SW_BG1SURF + dstBufferId];
+  int32_t bgId = ScrWork[SW_BG1NO + ScrWorkBgStructSize * srcBufferId];
+  int32_t dstSurfId = ScrWork[SW_BG1SURF + dstBufferId];
 
   if (Backgrounds2D[dstSurfId]->Status == LS_Loading) {
     ResetInstruction;
@@ -258,9 +258,9 @@ VmInstruction(InstCHAcopy) {
   srcBufferId = Interface::GetBufferId(srcBufferId);
   dstBufferId = Interface::GetBufferId(dstBufferId);
 
-  int chaId = (ScrWork[SW_CHA1FACE + ScrWorkBgStructSize * srcBufferId] << 16) +
+  int32_t chaId = (ScrWork[SW_CHA1FACE + ScrWorkBgStructSize * srcBufferId] << 16) +
               ScrWork[SW_CHA1NO + ScrWorkBgStructSize * srcBufferId];
-  int dstSurfId = ScrWork[SW_CHA1SURF + dstBufferId];
+  int32_t dstSurfId = ScrWork[SW_CHA1SURF + dstBufferId];
 
   if (Characters2D[dstSurfId].Status == LS_Loading) {
     ResetInstruction;
@@ -332,7 +332,7 @@ VmInstruction(InstCHArelease) {
   StartInstruction;
   PopExpression(bufferId);
   bufferId = Interface::GetBufferId(bufferId);
-  int surfId = ScrWork[SW_CHA1SURF + bufferId];
+  int32_t surfId = ScrWork[SW_CHA1SURF + bufferId];
   ScrWork[SW_CHA1NO + ScrWorkChaStructSize * bufferId] = 0xFFFF;
   if (Characters2D[surfId].Status == LS_Loaded) {
     Characters2D[surfId].Unload();
@@ -485,9 +485,9 @@ VmInstruction(InstFACEload) {
     case 0: {
       PopExpression(bufferId);
       PopExpression(faceId);
-      int actualBufId = Interface::GetBufferId(bufferId) -
+      int32_t actualBufId = Interface::GetBufferId(bufferId) -
                         Profile::Vm::SpeakerPortraitsScrWorkOffset;
-      int chaBufId = ScrWork[SW_FACE1SURF + actualBufId];
+      int32_t chaBufId = ScrWork[SW_FACE1SURF + actualBufId];
       if (((faceId & 0xFFFF0000) >> 16) == 0) {
         faceId = (ScrWork[SW_FACEEX1FACE + 5 * actualBufId] << 16) | faceId;
       }
@@ -511,7 +511,7 @@ VmInstruction(InstFACErelease) {
   PopExpression(bufferId);
   bufferId = Interface::GetBufferId(bufferId) -
              Profile::Vm::SpeakerPortraitsScrWorkOffset;
-  int surfId = ScrWork[SW_FACE1SURF + bufferId];
+  int32_t surfId = ScrWork[SW_FACE1SURF + bufferId];
   ScrWork[SW_FACEEX1NO + 5 * bufferId] = 0xFFFF;
   if (SpeakerPortraits[surfId].Status == LS_Loaded) {
     SpeakerPortraits[surfId].Unload();

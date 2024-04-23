@@ -54,8 +54,8 @@ class Character2D : public Loadable<Character2D> {
   Texture CharaTexture;
   SpriteSheet CharaSpriteSheet;
 
-  ska::flat_hash_map<int, Character2DState> States;
-  std::vector<int> StatesToDraw;
+  ska::flat_hash_map<int32_t, Character2DState> States;
+  std::vector<int32_t> StatesToDraw;
 
   float* MvlVertices;
   uint16_t MvlIndices[MaxMvlIndices];

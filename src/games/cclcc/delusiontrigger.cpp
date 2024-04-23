@@ -282,8 +282,8 @@ void DelusionTrigger::Render() {
   }
   MtrgAlphaCt = (MtrgAlphaCt + 1) & 0x1f;
   MtrgAng = (MtrgAng + 100) & 0xffff;
-  int mtrgSelActualBufferId = Vm::Interface::GetBufferId(ScrWork[6410]);
-  int bgMtrgSelIdx = ScrWork[SW_BG1SURF + mtrgSelActualBufferId];
+  int32_t mtrgSelActualBufferId = Vm::Interface::GetBufferId(ScrWork[6410]);
+  int32_t bgMtrgSelIdx = ScrWork[SW_BG1SURF + mtrgSelActualBufferId];
   float mtrgSelAlpha = ((ScrWork[6413] * 8) & 0xffffff) / 256.0f;
   if (ScrWork[6413] < 32) {
     float scale = 2.0f - (ScrWork[6413] / 32.0f);
@@ -297,12 +297,12 @@ void DelusionTrigger::Render() {
   }
 
   float spinAngle = MtrgAng / 65535.0f * 2.0f * float(M_PI);
-  int mtrgNegaPosiBufId = Vm::Interface::GetBufferId(ScrWork[6411]);
-  int bgMtrgNegaPosiIdx = ScrWork[SW_BG1SURF + mtrgNegaPosiBufId];
+  int32_t mtrgNegaPosiBufId = Vm::Interface::GetBufferId(ScrWork[6411]);
+  int32_t bgMtrgNegaPosiIdx = ScrWork[SW_BG1SURF + mtrgNegaPosiBufId];
   Backgrounds2D[bgMtrgNegaPosiIdx]->BgSprite.Bounds.Width = 1024;
   Backgrounds2D[bgMtrgNegaPosiIdx]->BgSprite.Bounds.Height = 1024;
 
-  int spinAlpha = (MtrgAlphaCt < 16) ? MtrgAlphaCt : 32 - MtrgAlphaCt;
+  int32_t spinAlpha = (MtrgAlphaCt < 16) ? MtrgAlphaCt : 32 - MtrgAlphaCt;
   spinAlpha = (spinAlpha * 192 >> 4) + 64;
 
   if (GetFlag(2820)) {

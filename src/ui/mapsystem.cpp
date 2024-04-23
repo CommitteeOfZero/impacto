@@ -11,68 +11,68 @@ void Init() {
   Profile::MapSystem::CreateInstance();
 }
 void MapInit() { return MapSystemPtr->MapInit(); }
-void MapSetFadein(int partId, int partType) {
+void MapSetFadein(int32_t partId, int32_t partType) {
   return MapSystemPtr->MapSetFadein(partId, partType);
 }
-void MapSetGroup(int index, int mappedId1, int mappedId2, int mappedId3) {
+void MapSetGroup(int32_t index, int32_t mappedId1, int32_t mappedId2, int32_t mappedId3) {
   return MapSystemPtr->MapSetGroup(index, mappedId1, mappedId2, mappedId3);
 }
-void MapSetFadeout(int partId, int partType) {
+void MapSetFadeout(int32_t partId, int32_t partType) {
   return MapSystemPtr->MapSetFadeout(partId, partType);
 }
-void MapSetDisp(int partId, int partType) {
+void MapSetDisp(int32_t partId, int32_t partType) {
   return MapSystemPtr->MapSetDisp(partId, partType);
 }
-void MapSetHide(int arg1, int arg2) {
+void MapSetHide(int32_t arg1, int32_t arg2) {
   return MapSystemPtr->MapSetHide(arg1, arg2);
 }
 bool MapPoolFadeEndChk_Wait() { return MapSystemPtr->MapPoolFadeEndChk_Wait(); }
-void MapMoveAnimeInit(int arg1, int arg2, int arg3) {
+void MapMoveAnimeInit(int32_t arg1, int32_t arg2, int32_t arg3) {
   return MapSystemPtr->MapMoveAnimeInit(arg1, arg2, arg3);
 }
 bool MapMoveAnimeMain() { return MapSystemPtr->MapMoveAnimeMain(); }
-void MapGetPos(int partId, int partType, int& getX, int& getY) {
+void MapGetPos(int32_t partId, int32_t partType, int32_t& getX, int32_t& getY) {
   return MapSystemPtr->MapGetPos(partId, partType, getX, getY);
 }
-void MapSetPool(int index, int id, int type) {
+void MapSetPool(int32_t index, int32_t id, int32_t type) {
   return MapSystemPtr->MapSetPool(index, id, type);
 }
-void MapResetPoolAll(int arg1) { return MapSystemPtr->MapResetPoolAll(arg1); }
+void MapResetPoolAll(int32_t arg1) { return MapSystemPtr->MapResetPoolAll(arg1); }
 bool MapFadeEndChk_Wait() { return MapSystemPtr->MapFadeEndChk_Wait(); }
-void MapPoolShuffle(int param_1) {
+void MapPoolShuffle(int32_t param_1) {
   return MapSystemPtr->MapPoolShuffle(param_1);
 }
-void MapPoolSetDisp(int arg1, int arg2) {
+void MapPoolSetDisp(int32_t arg1, int32_t arg2) {
   return MapSystemPtr->MapPoolSetDisp(arg1, arg2);
 }
-void MapPoolSetHide(int arg1, int arg2) {
+void MapPoolSetHide(int32_t arg1, int32_t arg2) {
   return MapSystemPtr->MapPoolSetHide(arg1, arg2);
 }
-void MapPoolSetFadein(int unused, int poolIdx) {
+void MapPoolSetFadein(int32_t unused, int32_t poolIdx) {
   return MapSystemPtr->MapPoolSetFadein(unused, poolIdx);
 }
-void MapPoolSetFadeout(int unused, int poolIdx) {
+void MapPoolSetFadeout(int32_t unused, int32_t poolIdx) {
   return MapSystemPtr->MapPoolSetFadeout(unused, poolIdx);
 }
-bool MapPlayerPhotoSelect(int unused) {
+bool MapPlayerPhotoSelect(int32_t unused) {
   return MapSystemPtr->MapPlayerPhotoSelect(unused);
 }
-void MapResetPool(int poolIdx) { return MapSystemPtr->MapResetPool(poolIdx); }
-void MapSetGroupEx(int index, int type, int mappedId) {
+void MapResetPool(int32_t poolIdx) { return MapSystemPtr->MapResetPool(poolIdx); }
+void MapSetGroupEx(int32_t index, int32_t type, int32_t mappedId) {
   return MapSystemPtr->MapSetGroupEx(index, type, mappedId);
 }
-void MapZoomInit(int mapX, int mapY, int size) {
+void MapZoomInit(int32_t mapX, int32_t mapY, int32_t size) {
   return MapSystemPtr->MapZoomInit(mapX, mapY, size);
 }
 bool MapZoomMain() { return MapSystemPtr->MapZoomMain(); }
-void MapZoomInit2(int arg1, int arg2) {
+void MapZoomInit2(int32_t arg1, int32_t arg2) {
   return MapSystemPtr->MapZoomInit2(arg1, arg2);
 }
 bool MapZoomMain3() { return MapSystemPtr->MapZoomMain3(); }
-bool MapZoomInit3(int setMapX, int setMapY, int setMapSize, bool halfZoom) {
+bool MapZoomInit3(int32_t setMapX, int32_t setMapY, int32_t setMapSize, bool halfZoom) {
   return MapSystemPtr->MapZoomInit3(setMapX, setMapY, setMapSize, halfZoom);
 }
-bool MapMoveAnimeInit2(int setMapX, int setMapY, int setTransitionSize) {
+bool MapMoveAnimeInit2(int32_t setMapX, int32_t setMapY, int32_t setTransitionSize) {
   return MapSystemPtr->MapMoveAnimeInit2(setMapX, setMapY, setTransitionSize);
 }
 bool MapMoveAnimeMain2() { return MapSystemPtr->MapMoveAnimeMain2(); }

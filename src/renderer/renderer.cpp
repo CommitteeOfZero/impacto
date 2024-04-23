@@ -11,6 +11,9 @@
 #ifndef IMPACTO_DISABLE_DX9
 #include "dx9/renderer.h"
 #endif
+#ifdef IMPACTO_ENABLE_LEGACY_OPENGL
+#include "legacy_opengl/renderer.h"
+#endif
 
 namespace Impacto {
 
@@ -35,6 +38,11 @@ void InitRenderer() {
 #ifndef IMPACTO_DISABLE_DX9
     case RendererType::DirectX9:
       Renderer = new DirectX9::Renderer();
+      break;
+#endif
+#ifdef IMPACTO_ENABLE_LEGACY_OPENGL
+    case RendererType::LegacyOpenGL:
+      Renderer = new LegacyOpenGL::Renderer();
       break;
 #endif
     default:

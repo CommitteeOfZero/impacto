@@ -1,33 +1,45 @@
 #include "renderer.h"
 
 #include <array>
-#include "shader.h"
 #include "../../profile/game.h"
 #include "../../game.h"
-#include "3d/scene.h"
-#include "yuvframe.h"
-#ifndef IMPACTO_DISABLE_IMGUI
-#include "../../vendor/imgui_custom/backends/imgui_impl_opengl3.h"
+
+#ifdef PLATFORM_DREAMCAST
+#include <kos.h>
+
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include <GL/glkos.h>
+#include <GL/glext.h>
 #endif
 
 namespace Impacto {
-namespace OpenGL {
+namespace LegacyOpenGL {
 
 void Renderer::Init() {
   if (IsInit) return;
-  ImpLog(LL_Info, LC_Render, "Initializing Renderer2D system\n");
+  // Warning for anyone looking into this, everything here is kind of scuffed
+  // and basically just enough to get something running, I'll try to improve it
+  // and maybe even implement everything in the future - Revo
+  ImpLog(LL_Info, LC_Render, "Initializing Insane Renderer2D system\n");
   IsInit = true;
 
-  OpenGLWindow = new GLWindow();
+  OpenGLWindow = new LegacyGLWindow();
   OpenGLWindow->Init();
   Window = (BaseWindow*)OpenGLWindow;
 
-  Shaders = new ShaderCompiler();
-
   if (Profile::GameFeatures & GameFeature::Scene3D) {
-    Scene = new Scene3D(OpenGLWindow, Shaders);
-    Scene->Init();
+    // Ha ha, yeah, not right now
+    // Scene = new Scene3D(OpenGLWindow, Shaders);
+    // Scene->Init();
   }
+
+  // Make 1x1 white pixel for colored rectangles
+  Texture rectTexture;
+  rectTexture.Load1x1(0xFF, 0xFF, 0xFF, 0xFF);
+  SpriteSheet rectSheet(1.0f, 1.0f);
+  rectSheet.Texture = rectTexture.Submit();
+  RectSprite = Sprite(rectSheet, 0.0f, 0.0f, 1.0f, 1.0f);
 
   // Fill index buffer with quads
   int index = 0;
@@ -44,97 +56,15 @@ void Renderer::Init() {
     index += 6;
     vertex += 4;
   }
-
-  // Generate buffers
-  glGenBuffers(1, &VBO);
-  glGenBuffers(1, &IBO);
-  glGenVertexArrays(1, &VAOSprites);
-
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, VertexBufferSize, NULL, GL_STREAM_DRAW);
-
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-               IndexBufferCount * sizeof(IndexBuffer[0]), IndexBuffer,
-               GL_STATIC_DRAW);
-
-  // Specify vertex layouts
-  glBindVertexArray(VAOSprites);
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(VertexBufferSprites),
-                        (void*)offsetof(VertexBufferSprites, Position));
-  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(VertexBufferSprites),
-                        (void*)offsetof(VertexBufferSprites, UV));
-  glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(VertexBufferSprites),
-                        (void*)offsetof(VertexBufferSprites, Tint));
-  glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(VertexBufferSprites),
-                        (void*)offsetof(VertexBufferSprites, MaskUV));
-  glEnableVertexAttribArray(0);
-  glEnableVertexAttribArray(1);
-  glEnableVertexAttribArray(2);
-  glEnableVertexAttribArray(3);
-
-  // Make 1x1 white pixel for colored rectangles
-  Texture rectTexture;
-  rectTexture.Load1x1(0xFF, 0xFF, 0xFF, 0xFF);
-  SpriteSheet rectSheet(1.0f, 1.0f);
-  rectSheet.Texture = rectTexture.Submit();
-  RectSprite = Sprite(rectSheet, 0.0f, 0.0f, 1.0f, 1.0f);
-
-  // Set up sprite shader
-  ShaderProgramSprite = Shaders->Compile("Sprite");
-  glUniform1i(glGetUniformLocation(ShaderProgramSprite, "ColorMap"), 0);
-  ShaderProgramSpriteInverted = Shaders->Compile("Sprite_inverted");
-  glUniform1i(glGetUniformLocation(ShaderProgramSpriteInverted, "ColorMap"), 0);
-  ShaderProgramMaskedSprite = Shaders->Compile("MaskedSprite");
-  glUniform1i(glGetUniformLocation(ShaderProgramMaskedSprite, "ColorMap"), 0);
-  MaskedIsInvertedLocation =
-      glGetUniformLocation(ShaderProgramMaskedSprite, "IsInverted");
-  MaskedIsSameTextureLocation =
-      glGetUniformLocation(ShaderProgramMaskedSprite, "IsSameTexture");
-  ShaderProgramYUVFrame = Shaders->Compile("YUVFrame");
-  glUniform1i(glGetUniformLocation(ShaderProgramYUVFrame, "Luma"), 0);
-  YUVFrameCbLocation = glGetUniformLocation(ShaderProgramYUVFrame, "Cb");
-  YUVFrameCrLocation = glGetUniformLocation(ShaderProgramYUVFrame, "Cr");
-  YUVFrameIsAlphaLocation =
-      glGetUniformLocation(ShaderProgramYUVFrame, "IsAlpha");
-  ShaderProgramCCMessageBox = Shaders->Compile("CCMessageBoxSprite");
-  glUniform1i(glGetUniformLocation(ShaderProgramCCMessageBox, "ColorMap"), 0);
-  ShaderProgramCHLCCMenuBackground = Shaders->Compile("CHLCCMenuBackground");
-
-  // No-mipmapping sampler
-  glGenSamplers(1, &Sampler);
-
-  // Don't wrap textures
-  glSamplerParameteri(Sampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glSamplerParameteri(Sampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-  glSamplerParameteri(Sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glSamplerParameteri(Sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glSamplerParameteri(Sampler, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16);
 }
 
 void Renderer::Shutdown() {
-  if (!IsInit) return;
-  if (VBO) glDeleteBuffers(1, &VBO);
-  if (IBO) glDeleteBuffers(1, &IBO);
-  if (VAOSprites) glDeleteVertexArrays(1, &VAOSprites);
-  if (RectSprite.Sheet.Texture) glDeleteTextures(1, &RectSprite.Sheet.Texture);
   IsInit = false;
 
   if (Profile::GameFeatures & GameFeature::Scene3D) {
-    Scene->Shutdown();
+    // Scene->Shutdown();
   }
 }
-
-#ifndef IMPACTO_DISABLE_IMGUI
-void Renderer::ImGuiBeginFrame() {
-  ImGui_ImplOpenGL3_NewFrame();
-  ImGui_ImplSDL2_NewFrame();
-  ImGui::NewFrame();
-}
-#endif
 
 void Renderer::BeginFrame() {}
 
@@ -151,65 +81,62 @@ void Renderer::BeginFrame2D() {
   VertexBufferFill = 0;
   IndexBufferFill = 0;
 
-  glDisable(GL_CULL_FACE);
-
-  // TODO should we really be making this global?
-  glBindSampler(0, Sampler);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void Renderer::EndFrame() {
   if (!Drawing) return;
   Flush();
   Drawing = false;
-
-  glBindSampler(0, 0);
 }
 
 uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
                                  int height, uint32_t bufferSize) {
-  uint32_t result;
+  unsigned int result;
   glGenTextures(1, &result);
   glBindTexture(GL_TEXTURE_2D, result);
 
-  // Anisotropic filtering
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                  GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16);
 
   // Load in data
   GLuint texFormat;
   switch (format) {
     case TexFmt_RGBA:
-      glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
       texFormat = GL_RGBA;
       break;
     case TexFmt_RGB:
-      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
       texFormat = GL_RGB;
       break;
     case TexFmt_U8:
-      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
       texFormat = GL_RED;
+      break;
+#ifdef PLATFORM_DREAMCAST
+    case TexFmt_DC_A:
+      texFormat = GL_COMPRESSED_ARGB_4444_VQ_TWID_KOS;
+      break;
+    case TexFmt_DC:
+      texFormat = GL_COMPRESSED_RGB_565_VQ_TWID_KOS;
+      break;
+#endif
   }
-  glTexImage2D(GL_TEXTURE_2D, 0, texFormat, width, height, 0, texFormat,
-               GL_UNSIGNED_BYTE, buffer);
-
-  // Build mip chain
-  // TODO do this ourselves outside of Submit(), this can easily cause a
-  // framedrop
-  glGenerateMipmap(GL_TEXTURE_2D);
+  if (format == TexFmt_DC || format == TexFmt_DC_A) {
+    glCompressedTexImage2D(GL_TEXTURE_2D, 0, texFormat, width, height, 0,
+                           bufferSize, buffer);
+  } else {
+    glTexImage2D(GL_TEXTURE_2D, 0, texFormat, width, height, 0, texFormat,
+                 GL_UNSIGNED_BYTE, buffer);
+  }
 
   return result;
 }
 
-void Renderer::FreeTexture(uint32_t id) { glDeleteTextures(1, &id); }
-
-YUVFrame* Renderer::CreateYUVFrame(float width, float height) {
-  auto frame = new GLYUVFrame();
-  frame->Init(width, height);
-  return (YUVFrame*)frame;
+void Renderer::FreeTexture(uint32_t id) {
+  unsigned int idd = (unsigned int)id;
+  glDeleteTextures(1, &idd);
 }
+
+YUVFrame* Renderer::CreateYUVFrame(float width, float height) { return NULL; }
 
 void Renderer::DrawRect(RectF const& dest, glm::vec4 color, float angle) {
   DrawSprite(RectSprite, dest, color, angle);
@@ -224,31 +151,6 @@ void Renderer::DrawSprite3DRotated(Sprite const& sprite, RectF const& dest,
            "Renderer->DrawSprite3DRotated() called before BeginFrame()\n");
     return;
   }
-
-  // Do we have space for one more sprite quad?
-  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
-
-  // Are we in sprite mode?
-  EnsureModeSprite(inverted);
-
-  // Do we have the texture assigned?
-  EnsureTextureBound(sprite.Sheet.Texture);
-
-  // OK, all good, make quad
-
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
-  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  IndexBufferFill += 6;
-
-  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetPosition3DRotated(dest, depth, vanishingPoint, stayInScreen, rot,
-                           (uintptr_t)&vertices[0].Position,
-                           sizeof(VertexBufferSprites));
-
-  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
 void Renderer::DrawRect3DRotated(RectF const& dest, float depth,
@@ -268,44 +170,6 @@ void Renderer::DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
            "Renderer->DrawCharacterMvl() called before BeginFrame()\n");
     return;
   }
-
-  // Draw just the character with this since we need to rebind the index buffer
-  // anyway...
-  Flush();
-
-  // Do we have space for the whole character?
-  EnsureSpaceAvailable(verticesCount, sizeof(VertexBufferSprites),
-                       indicesCount);
-
-  // Are we in sprite mode?
-  EnsureModeSprite(inverted);
-
-  // Do we have the texture assigned?
-  EnsureTextureBound(sprite.Sheet.Texture);
-
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
-  VertexBufferFill += verticesCount * sizeof(VertexBufferSprites);
-
-  IndexBufferFill += indicesCount;
-
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesCount * sizeof(mvlIndices[0]),
-               mvlIndices, GL_STATIC_DRAW);
-
-  for (int i = 0; i < verticesCount; i++) {
-    glm::vec2 pos = glm::vec2(mvlVertices[i * 5], mvlVertices[i * 5 + 1]);
-    pos *= scale;
-    pos += topLeft;
-    vertices[i].Position = DesignToNDC(pos);
-    vertices[i].UV = glm::vec2(mvlVertices[i * 5 + 3], mvlVertices[i * 5 + 4]);
-    vertices[i].Tint = tint;
-  }
-
-  // Flush again and bind back our buffer
-  Flush();
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-               IndexBufferCount * sizeof(IndexBuffer[0]), IndexBuffer,
-               GL_STATIC_DRAW);
 }
 
 void Renderer::DrawSprite(Sprite const& sprite, RectF const& dest,
@@ -330,7 +194,6 @@ void Renderer::DrawSprite(Sprite const& sprite,
            "Renderer->DrawSprite() called before BeginFrame()\n");
     return;
   }
-
   // Do we have space for one more sprite quad?
   EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
 
@@ -422,22 +285,25 @@ void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
   // Do we have space for one more sprite quad?
   EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
 
-  Flush();
-  CurrentMode = R2D_Masked;
-  glBindVertexArray(VAOSprites);
-  glUseProgram(ShaderProgramMaskedSprite);
-  glUniform1i(glGetUniformLocation(ShaderProgramMaskedSprite, "Mask"), 2);
-  glUniform2f(glGetUniformLocation(ShaderProgramMaskedSprite, "Alpha"),
-              alphaRange, constAlpha);
-  glUniform1i(MaskedIsInvertedLocation, isInverted);
-  glUniform1i(MaskedIsSameTextureLocation, isSameTexture);
+  // Do we have the texture assigned?
+  EnsureTextureBound(sprite.Sheet.Texture);
 
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
-
-  glActiveTexture(GL_TEXTURE2);
-  glBindTexture(GL_TEXTURE_2D, mask.Sheet.Texture);
-  glBindSampler(2, Sampler);
+  //  Flush();
+  //  CurrentMode = R2D_Masked;
+  //  glBindVertexArray(VAOSprites);
+  //  glUseProgram(ShaderProgramMaskedSprite);
+  //  glUniform1i(glGetUniformLocation(ShaderProgramMaskedSprite, "Mask"), 2);
+  //  glUniform2f(glGetUniformLocation(ShaderProgramMaskedSprite, "Alpha"),
+  //              alphaRange, constAlpha);
+  //  glUniform1i(MaskedIsInvertedLocation, isInverted);
+  //  glUniform1i(MaskedIsSameTextureLocation, isSameTexture);
+  //
+  //  glActiveTexture(GL_TEXTURE0);
+  //  glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
+  //
+  //  glActiveTexture(GL_TEXTURE2);
+  //  glBindTexture(GL_TEXTURE_2D, mask.Sheet.Texture);
+  //  glBindSampler(2, Sampler);
 
   // OK, all good, make quad
 
@@ -479,45 +345,6 @@ void Renderer::DrawCHLCCDelusionOverlay(Sprite const& sprite,
 
   float alphaRange = 256.0f / fadeRange;
   float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
-
-  // Do we have space for one more sprite quad?
-  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
-
-  Flush();
-  CurrentMode = R2D_Masked;
-  glBindVertexArray(VAOSprites);
-  glUseProgram(ShaderProgramMaskedSprite);
-  glUniform1i(glGetUniformLocation(ShaderProgramMaskedSprite, "Mask"), 2);
-  glUniform2f(glGetUniformLocation(ShaderProgramMaskedSprite, "Alpha"),
-              alphaRange, constAlpha);
-  glUniform1i(MaskedIsInvertedLocation, true);
-  glUniform1i(MaskedIsSameTextureLocation, false);
-
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
-
-  glActiveTexture(GL_TEXTURE2);
-  glBindTexture(GL_TEXTURE_2D, mask.Sheet.Texture);
-  glBindSampler(2, Sampler);
-
-  // OK, all good, make quad
-
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
-  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  IndexBufferFill += 6;
-
-  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
-
-  QuadSetUV(mask.Bounds, mask.Sheet.DesignWidth, mask.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites), angle);
-
-  QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
-                  sizeof(VertexBufferSprites));
-
-  for (int i = 0; i < 4; i++) vertices[i].Tint = glm::vec4{1.0f};
 }
 
 void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
@@ -535,51 +362,6 @@ void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
 
   float alphaRange = 256.0f / fadeRange;
   float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
-
-  // Do we have space for one more sprite quad?
-  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
-
-  if (CurrentMode != R2D_CCMessageBox) {
-    Flush();
-    CurrentMode = R2D_CCMessageBox;
-  }
-  glBindVertexArray(VAOSprites);
-  glUseProgram(ShaderProgramCCMessageBox);
-  glUniform1i(glGetUniformLocation(ShaderProgramCCMessageBox, "Mask"), 2);
-  glUniform4f(glGetUniformLocation(ShaderProgramCCMessageBox, "Alpha"),
-              alphaRange, constAlpha, effectCt, 0.0f);
-
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
-
-  glActiveTexture(GL_TEXTURE2);
-  glBindTexture(GL_TEXTURE_2D, mask.Sheet.Texture);
-  glBindSampler(2, Sampler);
-
-  // OK, all good, make quad
-
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
-  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  IndexBufferFill += 6;
-
-  if (isScreencap) {
-    QuadSetUVFlipped(sprite.Bounds, sprite.Sheet.DesignWidth,
-                     sprite.Sheet.DesignHeight, (uintptr_t)&vertices[0].UV,
-                     sizeof(VertexBufferSprites));
-  } else {
-    QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth,
-              sprite.Sheet.DesignHeight, (uintptr_t)&vertices[0].UV,
-              sizeof(VertexBufferSprites));
-  }
-  QuadSetUV(mask.Bounds, mask.Sheet.DesignWidth, mask.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites));
-
-  QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
-                  sizeof(VertexBufferSprites));
-
-  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
 void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
@@ -594,48 +376,6 @@ void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
     alpha = 0;
   else if (alpha > 1.0f)
     alpha = 1.0f;
-
-  // Do we have space for one more sprite quad?
-  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
-
-  if (CurrentMode != R2D_CHLCCMenuBackground) {
-    Flush();
-    CurrentMode = R2D_CHLCCMenuBackground;
-  }
-
-  glBindVertexArray(VAOSprites);
-  glUseProgram(ShaderProgramCHLCCMenuBackground);
-  glUniform1i(glGetUniformLocation(ShaderProgramCCMessageBox, "ColorMap"), 0);
-  glUniform1i(glGetUniformLocation(ShaderProgramCCMessageBox, "Mask"), 2);
-  glUniform1f(glGetUniformLocation(ShaderProgramCHLCCMenuBackground, "Alpha"),
-              alpha);
-
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
-  glActiveTexture(GL_TEXTURE2);
-  glBindTexture(GL_TEXTURE_2D, mask.Sheet.Texture);
-  glBindSampler(2, Sampler);
-
-  // Do we have the texture assigned?
-  EnsureTextureBound(sprite.Sheet.Texture);
-
-  // OK, all good, make quad
-
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
-  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  IndexBufferFill += 6;
-
-  QuadSetUVFlipped(sprite.Bounds, sprite.Sheet.DesignWidth,
-                   sprite.Sheet.DesignHeight, (uintptr_t)&vertices[0].UV,
-                   sizeof(VertexBufferSprites));
-
-  QuadSetUV(mask.Bounds, mask.Sheet.DesignWidth, mask.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites));
-
-  QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
-                  sizeof(VertexBufferSprites));
 }
 
 inline void Renderer::QuadSetUVFlipped(RectF const& spriteBounds,
@@ -711,11 +451,12 @@ inline void Renderer::QuadSetPositionOffset(RectF const& spriteBounds,
   // Rotate
   if (angle != 0.0f) {
     glm::mat2 rot = Rotate2D(angle);
+    glm::vec2 center = (bottomLeft + topRight) * 0.5f;
 
-    bottomLeft = rot * (bottomLeft - displayOffset) + displayOffset;
-    topLeft = rot * (topLeft - displayOffset) + displayOffset;
-    topRight = rot * (topRight - displayOffset) + displayOffset;
-    bottomRight = rot * (bottomRight - displayOffset) + displayOffset;
+    bottomLeft = rot * (bottomLeft - center) + center;
+    topLeft = rot * (topLeft - center) + center;
+    topRight = rot * (topRight - center) + center;
+    bottomRight = rot * (bottomRight - center) + center;
   }
 
   // Scale
@@ -858,14 +599,14 @@ void Renderer::EnsureSpaceAvailable(int vertices, int vertexSize, int indices) {
   }
 }
 
-void Renderer::EnsureTextureBound(GLuint texture) {
+void Renderer::EnsureTextureBound(uint32_t texture) {
   if (CurrentTexture != texture) {
-    ImpLogSlow(LL_Trace, LC_Render,
+    ImpLogSlow(LL_Debug, LC_Render,
                "Renderer->EnsureTextureBound flushing because texture %d is "
                "not %d\n",
                CurrentTexture, texture);
     Flush();
-    glActiveTexture(GL_TEXTURE0);
+    // glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
     CurrentTexture = texture;
   }
@@ -879,8 +620,6 @@ void Renderer::EnsureModeSprite(bool inverted) {
         "Renderer2D flushing because mode %d is not R2D_Sprite/inverted\n",
         CurrentMode);
     Flush();
-    glBindVertexArray(VAOSprites);
-    glUseProgram(inverted ? ShaderProgramSpriteInverted : ShaderProgramSprite);
     CurrentMode = wantedMode;
   }
 }
@@ -891,12 +630,25 @@ void Renderer::Flush() {
            "Renderer->Flush() called before BeginFrame()\n");
     return;
   }
+
   if (VertexBufferFill > 0 && IndexBufferFill > 0) {
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    // TODO: better to specify the whole thing or just this?
-    glBufferSubData(GL_ARRAY_BUFFER, 0, VertexBufferFill, VertexBuffer);
-    glDrawElements(GL_TRIANGLES, IndexBufferFill, GL_UNSIGNED_SHORT, 0);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    VertexBufferSprites* vertices = (VertexBufferSprites*)VertexBuffer;
+    glTexCoordPointer(2, GL_FLOAT, sizeof(VertexBufferSprites),
+                      &vertices[0].UV);
+    glColorPointer(4, GL_FLOAT, sizeof(VertexBufferSprites), &vertices[0].Tint);
+    glVertexPointer(2, GL_FLOAT, sizeof(VertexBufferSprites), VertexBuffer);
+    glDrawElements(GL_TRIANGLES, IndexBufferFill, GL_UNSIGNED_SHORT,
+                   IndexBuffer);
+
+    glDisableClientState(GL_COLOR_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
   }
+
   IndexBufferFill = 0;
   VertexBufferFill = 0;
   CurrentTexture = 0;
@@ -909,68 +661,22 @@ void Renderer::DrawVideoTexture(YUVFrame* tex, RectF const& dest,
            "Renderer->DrawVideoTexture() called before BeginFrame()\n");
     return;
   }
-
-  // Do we have space for one more sprite quad?
-  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
-
-  if (CurrentMode != R2D_YUVFrame) {
-    Flush();
-    CurrentMode = R2D_YUVFrame;
-  }
-  glBindVertexArray(VAOSprites);
-  glUseProgram(ShaderProgramYUVFrame);
-  glUniform1i(YUVFrameCbLocation, 2);
-  glUniform1i(YUVFrameCrLocation, 4);
-  glUniform1i(YUVFrameIsAlphaLocation, alphaVideo);
-
-  // Luma
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, tex->LumaId);
-
-  // Cb
-  glActiveTexture(GL_TEXTURE2);
-  glBindTexture(GL_TEXTURE_2D, tex->CbId);
-  glBindSampler(2, Sampler);
-
-  // Cr
-  glActiveTexture(GL_TEXTURE4);
-  glBindTexture(GL_TEXTURE_2D, tex->CrId);
-  glBindSampler(4, Sampler);
-
-  // OK, all good, make quad
-
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
-  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  IndexBufferFill += 6;
-
-  QuadSetUV(RectF(0.0f, 0.0f, tex->Width, tex->Height), tex->Width, tex->Height,
-            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetPosition(dest, angle, (uintptr_t)&vertices[0].Position,
-                  sizeof(VertexBufferSprites));
-
-  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
 void Renderer::CaptureScreencap(Sprite const& sprite) {
-  Flush();
-  Window->SwapRTs();
-  int prevTextureBinding;
-  glGetIntegerv(GL_TEXTURE_BINDING_2D, &prevTextureBinding);
-  glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
-  glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, Window->WindowWidth,
-                   Window->WindowHeight, 0);
-  glBindTexture(GL_TEXTURE_2D, prevTextureBinding);
-  Window->SwapRTs();
+  // Flush();
 }
 
 void Renderer::EnableScissor() {
+// Doesn't work on Dreamcast for now :(
+#ifndef PLATFROM_DREAMCAST
   Flush();
   glEnable(GL_SCISSOR_TEST);
+#endif
 }
 
 void Renderer::SetScissorRect(RectF const& rect) {
+#ifndef PLATFROM_DREAMCAST
   Rect viewport = Window->GetViewport();
   float scale = fmin((float)Window->WindowWidth / Profile::DesignWidth,
                      (float)Window->WindowHeight / Profile::DesignHeight);
@@ -982,12 +688,15 @@ void Renderer::SetScissorRect(RectF const& rect) {
   glScissor((GLint)(rectX),
             (GLint)((viewport.Height - (GLint)(rectY + rectHeight))),
             (GLint)(rectWidth), (GLint)(rectHeight));
+#endif
 }
 
 void Renderer::DisableScissor() {
+#ifndef PLATFROM_DREAMCAST
   Flush();
   glDisable(GL_SCISSOR_TEST);
+#endif
 }
 
-}  // namespace OpenGL
+}  // namespace LegacyOpenGL
 }  // namespace Impacto

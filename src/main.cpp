@@ -10,6 +10,12 @@
 
 #include "io/physicalfilestream.h"
 
+#ifdef PLATFORM_DREAMCAST
+#include <kos.h>
+
+KOS_INIT_FLAGS(INIT_DEFAULT);
+#endif
+
 using namespace Impacto;
 
 static uint64_t t;

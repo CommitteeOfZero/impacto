@@ -11,7 +11,7 @@
 
 namespace Impacto {
 
-BETTER_ENUM(RendererType, int, OpenGL, Vulkan, DirectX9);
+BETTER_ENUM(RendererType, int, OpenGL, Vulkan, DirectX9, LegacyOpenGL);
 
 BETTER_ENUM(GameFeature, int, DebugMenu = (1 << 0), Scene3D = (1 << 1),
             ModelViewer = (1 << 2), Sc3VirtualMachine = (1 << 3),
@@ -19,9 +19,9 @@ BETTER_ENUM(GameFeature, int, DebugMenu = (1 << 0), Scene3D = (1 << 1),
             CharacterViewer = (1 << 7), Video = (1 << 8),
             DebugMenuMultiViewport = (1 << 9))
 
-BETTER_ENUM(VideoPlayerType, int, FFmpeg);
+BETTER_ENUM(VideoPlayerType, int32_t, FFmpeg);
 
-BETTER_ENUM(AudioBackendType, int, OpenAL);
+BETTER_ENUM(AudioBackendType, int32_t, OpenAL, Dreamcast);
 
 namespace Game {
 

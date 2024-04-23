@@ -51,7 +51,7 @@ class SaveFileEntryBase {
   uint32_t MainThreadCallStackDepth;
   uint32_t MainThreadReturnAddresses[8];
   uint32_t MainThreadReturnBufIds[8];
-  int MainThreadVariables[16];
+  int32_t MainThreadVariables[16];
   uint32_t MainThreadDialoguePageId;
 };
 

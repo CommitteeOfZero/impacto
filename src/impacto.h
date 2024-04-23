@@ -22,3 +22,8 @@
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #endif
+
+#ifdef IMPACTO_SDL1_COMPAT
+inline uint32_t SDL_GetPerformanceCounter() { return SDL_GetTicks(); }
+inline uint32_t SDL_GetPerformanceFrequency() { return 1000.0f; }
+#endif

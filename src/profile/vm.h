@@ -13,11 +13,11 @@ extern Impacto::Vm::InstructionSet GameInstructionSet;
 extern bool UseReturnIds;
 extern bool UseMsbStrings;
 extern bool UseSeparateMsbArchive;
-extern int ScrWorkChaStructSize;
-extern int ScrWorkBgStructSize;
-extern int MaxLinkedBgBuffers;
-extern int SystemScriptBuffer;
-extern int SpeakerPortraitsScrWorkOffset;
+extern int32_t ScrWorkChaStructSize;
+extern int32_t ScrWorkBgStructSize;
+extern int32_t MaxLinkedBgBuffers;
+extern int32_t SystemScriptBuffer;
+extern int32_t SpeakerPortraitsScrWorkOffset;
 
 void Configure();
 

@@ -28,7 +28,7 @@ class BaseRenderer {
   virtual void EndFrame() = 0;
 
   virtual uint32_t SubmitTexture(TexFmt format, uint8_t* buffer, int width,
-                                 int height) = 0;
+                                 int height, uint32_t bufferSize) = 0;
   virtual void FreeTexture(uint32_t id) = 0;
   virtual YUVFrame* CreateYUVFrame(float width, float height) = 0;
 

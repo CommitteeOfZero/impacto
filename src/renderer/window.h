@@ -27,7 +27,11 @@ class BaseWindow {
   virtual void Draw() = 0;
   virtual void Shutdown() = 0;
 
+#ifdef IMPACTO_SDL1_COMPAT
+  SDL_Surface* SDLWindow;
+#else
   SDL_Window* SDLWindow;
+#endif
 
   // Raw dimensions without aspect ratio correction. Only use for
   // setting/determining resolution and drawing to window framebuffer!

@@ -10,6 +10,7 @@ namespace Profile {
 
 ska::flat_hash_map<std::string, SpriteSheet> SpriteSheets;
 ska::flat_hash_map<std::string, Sprite> Sprites;
+uint32_t CheckerboardTexture = -1;
 
 void LoadSpritesheets() {
   EnsurePushMemberOfType("SpriteSheets", LUA_TTABLE);
@@ -24,22 +25,30 @@ void LoadSpritesheets() {
 
     Io::AssetPath asset = EnsureGetMemberAssetPath("Path");
 
-    Io::InputStream* stream;
-    IoError err = asset.Open(&stream);
-    if (err != IoError_OK) {
-      ImpLog(LL_Fatal, LC_Profile, "Could not open spritesheet %s\n",
-             name.c_str());
-      Window->Shutdown();
-    }
+    Io::InputStream* stream = 0;
     Texture texture;
-    if (!texture.Load(stream)) {
+    IoError err = asset.Open(&stream);
+    bool isFailed = false;
+    if (err != IoError_OK) {
+      ImpLog(LL_Fatal, LC_Profile,
+             "Could not open spritesheet %s, using fallback\n", name.c_str());
+      isFailed = true;
+      if (CheckerboardTexture == -1) texture.LoadCheckerboard();
+    } else if (!texture.Load(stream)) {
       ImpLog(LL_Error, LC_Profile,
              "Spritesheet %s texture could not be imported, using fallback\n",
              name.c_str());
-      texture.LoadCheckerboard();
+      isFailed = true;
+      delete stream;
+      if (CheckerboardTexture == -1) texture.LoadCheckerboard();
     }
-    delete stream;
-    sheet.Texture = texture.Submit();
+    if (isFailed) {
+      if (CheckerboardTexture == -1) CheckerboardTexture = texture.Submit();
+      sheet.Texture = CheckerboardTexture;
+    } else {
+      sheet.Texture = texture.Submit();
+      delete stream;
+    }
 
     Pop();
   }

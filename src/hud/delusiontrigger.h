@@ -12,7 +12,7 @@ class DelusionTriggerBase {
  public:
   enum DelusionState { DS_Neutral, DS_Positive, DS_Negative };
   enum UiState { Hidden, Showing, Shown, Hiding };
-  DelusionTriggerBase(int& delusionState, UiState showState);
+  DelusionTriggerBase(int32_t& delusionState, UiState showState);
   virtual void Update(float dt) = 0;
   virtual void Render() = 0;
   virtual void Hide() = 0;
@@ -25,7 +25,7 @@ class DelusionTriggerBase {
   virtual bool CheckStartTransitionComplete() { return true; };
 
   UiState State;
-  int& DelusionState;
+  int32_t& DelusionState;
 };
 
 extern DelusionTriggerBase* Implementation;

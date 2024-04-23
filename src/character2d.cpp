@@ -37,18 +37,18 @@ bool Character2D::LoadSync(uint32_t charaId) {
     OffsetX = Profile::DesignWidth / 2.0f;
     OffsetY = Profile::DesignHeight / 2.0f;
 
-    Io::ReadLE<int>(stream);
-    int stateCount = Io::ReadLE<int>(stream);
+    Io::ReadLE<int32_t>(stream);
+    int32_t stateCount = Io::ReadLE<int32_t>(stream);
 
     // Skip to state data
     stream->Seek(0x68, SEEK_CUR);
 
-    MvlVerticesCount = Io::ReadLE<int>(stream);
-    int vertexOffset = Io::ReadLE<int>(stream);
+    MvlVerticesCount = Io::ReadLE<int32_t>(stream);
+    int32_t vertexOffset = Io::ReadLE<int32_t>(stream);
 
     for (int i = 0; i < stateCount; i++) {
-      int count = Io::ReadLE<int>(stream);
-      int start = Io::ReadLE<int>(stream);
+      int32_t count = Io::ReadLE<int32_t>(stream);
+      int32_t start = Io::ReadLE<int32_t>(stream);
 
       // I... couldn't come up with anything better
       char name[32];
@@ -97,13 +97,13 @@ bool Character2D::LoadSync(uint32_t charaId) {
     OffsetX = Profile::DesignWidth / 2.0f;
     OffsetY = Profile::DesignHeight / 2.0f;
 
-    int (*StreamReadInt)(Io::InputStream*);
+    int32_t (*StreamReadInt)(Io::InputStream*);
     float (*StreamReadFloat)(Io::InputStream*);
     if (Profile::LayFileBigEndian) {
-      StreamReadInt = &Io::ReadBE<int>;
+      StreamReadInt = &Io::ReadBE<int32_t>;
       StreamReadFloat = &Io::ReadBE<float>;
     } else {
-      StreamReadInt = &Io::ReadLE<int>;
+      StreamReadInt = &Io::ReadLE<int32_t>;
       StreamReadFloat = &Io::ReadLE<float>;
     }
     int stateCount = StreamReadInt(stream);

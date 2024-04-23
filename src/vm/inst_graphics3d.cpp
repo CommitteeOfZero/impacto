@@ -304,7 +304,7 @@ VmInstruction(InstUnk0210) {
   StartInstruction;
   PopUint8(arg1);
   PopExpression(arg2);
-  int arg3, arg4;
+  int32_t arg3, arg4;
   if (arg1 & 0x10) {
     ExpressionEval(thread, &arg3);
     ExpressionEval(thread, &arg4);
@@ -317,7 +317,7 @@ VmInstruction(InstUnk0210) {
              "%i, arg4: %i)\n",
              arg1, arg2, arg3, arg4);
   if (arg1 & 4) {
-    int arg5 = 0;
+    int32_t arg5 = 0;
     if (arg2 <= 29) {
       for (int i = 1; i <= arg2; i++) arg5 += i;
     } else {

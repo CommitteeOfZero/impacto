@@ -32,11 +32,15 @@ bool ControllerAxisWentDownHeavy[SDL_CONTROLLER_AXIS_MAX] = {0};
 bool KeyboardButtonWentDown[SDL_NUM_SCANCODES] = {0};
 bool KeyboardButtonIsDown[SDL_NUM_SCANCODES] = {0};
 
+#ifdef IMPACTO_SDL1_COMPAT
+static SDL_Joystick* Controller = 0;
+#else
 // TODO multitouch
 bool TouchIsDown = false;
 bool TouchWentDown = false;
 
 static SDL_FingerID CurrentFinger = 0;
+#endif
 
 void BeginFrame() {
   memset(ControllerButtonWentDown, false, sizeof(ControllerButtonWentDown));
@@ -46,7 +50,12 @@ void BeginFrame() {
          sizeof(ControllerAxisWentDownHeavy));
   memset(MouseButtonWentDown, false, sizeof(MouseButtonWentDown));
   memset(KeyboardButtonWentDown, false, sizeof(KeyboardButtonWentDown));
+#ifdef IMPACTO_SDL1_COMPAT
+  // Try to open first controller each frame
+  if (!Controller) Controller = SDL_JoystickOpen(0);
+#else
   TouchWentDown = false;
+#endif
 
   PrevMousePos = CurMousePos;
   PrevTouchPos = CurTouchPos;
@@ -76,54 +85,15 @@ static glm::vec2 SDLMouseCoordsToDesign(int x, int y) {
 
 bool HandleEvent(SDL_Event const* ev) {
   switch (ev->type) {
-    case SDL_CONTROLLERDEVICEADDED: {
-      SDL_ControllerDeviceEvent const* evt = &ev->cdevice;
-      CurrentInputDevice = IDEV_Controller;
-      SDL_GameControllerOpen(evt->which);
-      return true;
-      break;
-    }
-    case SDL_MOUSEMOTION: {
-      SDL_MouseMotionEvent const* evt = &ev->motion;
-      CurMousePos = SDLMouseCoordsToDesign(evt->x, evt->y);
-      CurrentInputDevice = IDEV_Mouse;
-      return true;
-      break;
-    }
-    case SDL_MOUSEBUTTONDOWN:
-    case SDL_MOUSEBUTTONUP: {
-      SDL_MouseButtonEvent const* evt = &ev->button;
-      CurMousePos = SDLMouseCoordsToDesign(evt->x, evt->y);
-      CurrentInputDevice = IDEV_Mouse;
-      MouseButtonWentDown[evt->button] =
-          (evt->state == SDL_PRESSED && !MouseButtonIsDown[evt->button]);
-      MouseButtonIsDown[evt->button] = evt->state == SDL_PRESSED;
-      return true;
-      break;
-    }
-    // TODO respect direction?
-    case SDL_MOUSEWHEEL: {
-      SDL_MouseWheelEvent const* evt = &ev->wheel;
-      CurrentInputDevice = IDEV_Mouse;
-      MouseWheelDeltaX += evt->x;
-      MouseWheelDeltaY += evt->y;
-      return true;
-      break;
-    }
-    case SDL_KEYDOWN:
-    case SDL_KEYUP: {
-      SDL_KeyboardEvent const* evt = &ev->key;
-      CurrentInputDevice = IDEV_Keyboard;
-      KeyboardButtonWentDown[evt->keysym.scancode] =
-          (evt->state == SDL_PRESSED &&
-           !KeyboardButtonIsDown[evt->keysym.scancode]);
-      KeyboardButtonIsDown[evt->keysym.scancode] = evt->state == SDL_PRESSED;
-      return true;
-      break;
-    }
+#ifdef IMPACTO_SDL1_COMPAT
+    case SDL_JOYBUTTONDOWN:
+    case SDL_JOYBUTTONUP: {
+      SDL_JoyButtonEvent const* evt = &ev->jbutton;
+#else
     case SDL_CONTROLLERBUTTONDOWN:
     case SDL_CONTROLLERBUTTONUP: {
       SDL_ControllerButtonEvent const* evt = &ev->cbutton;
+#endif
       CurrentInputDevice = IDEV_Controller;
       ControllerButtonWentDown[evt->button] =
           (evt->state == SDL_PRESSED && !ControllerButtonIsDown[evt->button]);
@@ -131,8 +101,13 @@ bool HandleEvent(SDL_Event const* ev) {
       return true;
       break;
     }
+#ifdef IMPACTO_SDL1_COMPAT
+    case SDL_JOYAXISMOTION: {
+      SDL_JoyAxisEvent const* evt = &ev->jaxis;
+#else
     case SDL_CONTROLLERAXISMOTION: {
       SDL_ControllerAxisEvent const* evt = &ev->caxis;
+#endif
       CurrentInputDevice = IDEV_Controller;
       float newVal = (float)evt->value / (float)INT16_MAX;
       float newWeight = fabsf(newVal);
@@ -150,6 +125,23 @@ bool HandleEvent(SDL_Event const* ev) {
       ControllerAxisIsDownHeavy[evt->axis] =
           newWeight >= ControllerAxisHeavyThreshold;
       ControllerAxis[evt->axis] = newVal;
+      return true;
+      break;
+    }
+#ifndef IMPACTO_SDL1_COMPAT
+    case SDL_CONTROLLERDEVICEADDED: {
+      SDL_ControllerDeviceEvent const* evt = &ev->cdevice;
+      CurrentInputDevice = IDEV_Controller;
+      SDL_GameControllerOpen(evt->which);
+      return true;
+      break;
+    }
+    // TODO respect direction?
+    case SDL_MOUSEWHEEL: {
+      SDL_MouseWheelEvent const* evt = &ev->wheel;
+      CurrentInputDevice = IDEV_Mouse;
+      MouseWheelDeltaX += evt->x;
+      MouseWheelDeltaY += evt->y;
       return true;
       break;
     }
@@ -187,6 +179,55 @@ bool HandleEvent(SDL_Event const* ev) {
                                    (int)(evt->y * (float)Window->WindowHeight));
         TouchIsDown = false;
       }
+      return true;
+      break;
+    }
+#else
+    case SDL_JOYHATMOTION: {
+      SDL_JoyHatEvent const* evt = &ev->jhat;
+      CurrentInputDevice = IDEV_Controller;
+      ControllerButtonWentDown[11] =
+          (evt->value & SDL_HAT_UP) && !ControllerButtonIsDown[11];
+      ControllerButtonIsDown[11] = (bool)(evt->value & SDL_HAT_UP);
+      ControllerButtonWentDown[12] =
+          (evt->value & SDL_HAT_DOWN) && !ControllerButtonIsDown[12];
+      ControllerButtonIsDown[12] = (bool)(evt->value & SDL_HAT_DOWN);
+      ControllerButtonWentDown[13] =
+          (evt->value & SDL_HAT_LEFT) && !ControllerButtonIsDown[13];
+      ControllerButtonIsDown[13] = (bool)(evt->value & SDL_HAT_LEFT);
+      ControllerButtonWentDown[14] =
+          (evt->value & SDL_HAT_RIGHT) && !ControllerButtonIsDown[14];
+      ControllerButtonIsDown[14] = (bool)(evt->value & SDL_HAT_RIGHT);
+      return true;
+      break;
+    }
+#endif
+    case SDL_MOUSEMOTION: {
+      SDL_MouseMotionEvent const* evt = &ev->motion;
+      CurMousePos = SDLMouseCoordsToDesign(evt->x, evt->y);
+      CurrentInputDevice = IDEV_Mouse;
+      return true;
+      break;
+    }
+    case SDL_MOUSEBUTTONDOWN:
+    case SDL_MOUSEBUTTONUP: {
+      SDL_MouseButtonEvent const* evt = &ev->button;
+      CurMousePos = SDLMouseCoordsToDesign(evt->x, evt->y);
+      CurrentInputDevice = IDEV_Mouse;
+      MouseButtonWentDown[evt->button] =
+          (evt->state == SDL_PRESSED && !MouseButtonIsDown[evt->button]);
+      MouseButtonIsDown[evt->button] = evt->state == SDL_PRESSED;
+      return true;
+      break;
+    }
+    case SDL_KEYDOWN:
+    case SDL_KEYUP: {
+      SDL_KeyboardEvent const* evt = &ev->key;
+      CurrentInputDevice = IDEV_Keyboard;
+      KeyboardButtonWentDown[evt->keysym.scancode] =
+          (evt->state == SDL_PRESSED &&
+           !KeyboardButtonIsDown[evt->keysym.scancode]);
+      KeyboardButtonIsDown[evt->keysym.scancode] = evt->state == SDL_PRESSED;
       return true;
       break;
     }

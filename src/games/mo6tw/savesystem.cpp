@@ -112,7 +112,8 @@ SaveError SaveSystem::MountSaveFile() {
       QuickSaveEntries[i]->MainThreadReturnBufIds[j] =
           Io::ReadLE<uint32_t>(stream);
     }
-    Io::ReadArrayLE<int>(QuickSaveEntries[i]->MainThreadVariables, stream, 16);
+    Io::ReadArrayLE<int32_t>(QuickSaveEntries[i]->MainThreadVariables, stream,
+                             16);
     // QuickSaveEntries[i]->MainThreadDialoguePageId =
     //    Io::ReadLE<uint32_t>(stream);
     stream->Seek(204, SEEK_CUR);
@@ -167,7 +168,8 @@ SaveError SaveSystem::MountSaveFile() {
       FullSaveEntries[i]->MainThreadReturnBufIds[j] =
           Io::ReadLE<uint32_t>(stream);
     }
-    Io::ReadArrayLE<int>(FullSaveEntries[i]->MainThreadVariables, stream, 16);
+    Io::ReadArrayLE<int32_t>(FullSaveEntries[i]->MainThreadVariables, stream,
+                             16);
     // FullSaveEntries[i]->MainThreadDialoguePageId =
     // Io::ReadLE<uint32_t>(stream);
     stream->Seek(204, SEEK_CUR);

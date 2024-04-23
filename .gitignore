@@ -25,6 +25,9 @@ bld/
 [Ll]og/
 [Ii]nstall/
 cmake-build-*/
+_deps/
+CMakeFiles/
+CMakeCache.txt
 
 # Visual Studio 2015 cache/options directory
 .vs/
