@@ -171,6 +171,7 @@ VmInstruction(InstMes) {
       thread->Ip = line;
       DialoguePages[thread->DialoguePageId].AddString(thread);
       thread->Ip = oldIp;
+      UI::BacklogMenuPtr->AddMessage(line);
     } break;
     case 0x83: {  // LoadVoicedDialogueMSB
       PopExpression(audioId);
@@ -184,6 +185,7 @@ VmInstruction(InstMes) {
       DialoguePages[thread->DialoguePageId].AddString(
           thread, err == IoError_OK ? Audio::AudioStream::Create(stream) : 0);
       thread->Ip = oldIp;
+      UI::BacklogMenuPtr->AddMessage(line);
     } break;
   }
 }

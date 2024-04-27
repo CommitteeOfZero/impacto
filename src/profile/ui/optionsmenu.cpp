@@ -1,6 +1,7 @@
 #include "optionsmenu.h"
 #include "../profile_internal.h"
 #include "../games/mo6tw/optionsmenu.h"
+#include "../games/mo8/optionsmenu.h"
 #include "../games/chlcc/optionsmenu.h"
 #include "../games/cclcc/optionsmenu.h"
 #include "../../ui/ui.h"
@@ -45,6 +46,8 @@ void Configure() {
       CHLCC::OptionsMenu::Configure();
     } else if (Type == +OptionsMenuType::CCLCC) {
       CCLCC::OptionsMenu::Configure();
+    } else if (Type == +OptionsMenuType::MO8) {
+      MO8::OptionsMenu::Configure();
     }
 
     Pop();

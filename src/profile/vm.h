@@ -13,6 +13,7 @@ extern Impacto::Vm::InstructionSet GameInstructionSet;
 extern bool UseReturnIds;
 extern bool UseMsbStrings;
 extern bool UseSeparateMsbArchive;
+extern bool RestartMaskUsesThreadAlpha;
 extern int ScrWorkChaStructSize;
 extern int ScrWorkBgStructSize;
 extern int MaxLinkedBgBuffers;

@@ -41,6 +41,7 @@ uint32_t DebugThreadId = -1;
 bool DebuggerBreak = false;
 bool DebuggerStepRequest = false;
 bool DebuggerContinueRequest = false;
+bool DebuggerAlwaysBlock = false;
 std::map<int, std::pair<uint32_t, uint32_t>> DebuggerBreakpoints;
 #endif
 
@@ -300,8 +301,6 @@ static void SortThreadExecTable() {
 }
 
 void Update() {
-  Interface::UpdatePADInput();
-
   CreateThreadExecTable();
   SortThreadExecTable();
 
@@ -376,6 +375,10 @@ static void DrawAllThreads() {
   while (ThreadTable[cnt]) {
     if (ThreadTable[cnt]->Flags & TF_Display) {
       Game::DrawComponents[cnt] = ThreadTable[cnt]->DrawType;
+      if (Profile::Vm::RestartMaskUsesThreadAlpha &&
+          ThreadTable[cnt]->DrawType == +Game::DrawComponentType::Mask) {
+        ScrWork[SW_RESTARTMASK] = ThreadTable[cnt]->Alpha;
+      }
     }
     cnt++;
   }
@@ -533,7 +536,7 @@ void RunThread(Sc3VmThread* thread) {
       }
     }
 #ifndef IMPACTO_DISABLE_IMGUI
-    if (DebugThreadId == thread->Id && DebuggerBreak)
+    if (DebugThreadId == thread->Id && (DebuggerBreak || DebuggerAlwaysBlock))
       BlockCurrentScriptThread = 1;
 #endif
   } while (!BlockCurrentScriptThread);

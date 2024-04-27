@@ -18,6 +18,7 @@
 #include "character2d.h"
 #include "renderer/3d/scene.h"
 #include "mem.h"
+#include "vm/interface/input.h"
 #include "hud/datedisplay.h"
 #include "hud/saveicondisplay.h"
 #include "hud/loadingdisplay.h"
@@ -206,8 +207,8 @@ void Update(float dt) {
   }
 
   if (Profile::GameFeatures & GameFeature::Sc3VirtualMachine) {
+    Vm::Interface::UpdatePADInput();
     UpdateGameState(dt);
-    Vm::Update();
 
     for (DrawComponentType value : DrawComponentType::_values()) {
       for (auto const& menu : UI::Menus[value]) {
@@ -221,6 +222,8 @@ void Update(float dt) {
     TipsNotification::Update(dt);
     DelusionTrigger::Update(dt);
     UI::MapSystem::Update(dt);
+
+    Vm::Update();
   }
 
   if (Profile::GameFeatures & GameFeature::Audio) {
@@ -373,7 +376,10 @@ void Render() {
         case DrawComponentType::ExtrasScenes: {
           break;
         }
-        case DrawComponentType::SystemText: {
+        case DrawComponentType::Mask: {
+          Renderer->DrawRect(
+              RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+              glm::vec4(0.0f, 0.0f, 0.0f, (ScrWork[SW_RESTARTMASK] / 256.0f)));
           break;
         }
         case DrawComponentType::SaveMenu: {

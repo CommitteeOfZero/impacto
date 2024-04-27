@@ -235,21 +235,26 @@ void TitleMenu::Update(float dt) {
     Memories->Enabled = (GetFlag(860) || GetFlag(861) || GetFlag(862) ||
                          GetFlag(863) || GetFlag(864));
 
-    MainItems->Tint.a =
-        glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
-    MainItems->Update(dt);
-    ContinueItems->Tint.a =
-        glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
-    ContinueItems->Update(dt);
-    SystemItems->Tint.a =
-        glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
-    SystemItems->Update(dt);
-    ExtraStoryItems->Tint.a =
-        glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
-    ExtraStoryItems->Update(dt);
-    MemoriesItems->Tint.a =
-        glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
-    MemoriesItems->Update(dt);
+    // Do not update these when it's not the time to update them (press to
+    // start portion)
+    if (ScrWork[SW_TITLEDISPCT] != 1 && ScrWork[SW_TITLEDISPCT] != 20 &&
+        ScrWork[SW_TITLEDISPCT] != 21) {
+      MainItems->Tint.a =
+          glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
+      MainItems->Update(dt);
+      ContinueItems->Tint.a =
+          glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
+      ContinueItems->Update(dt);
+      SystemItems->Tint.a =
+          glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
+      SystemItems->Update(dt);
+      ExtraStoryItems->Tint.a =
+          glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
+      ExtraStoryItems->Update(dt);
+      MemoriesItems->Tint.a =
+          glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
+      MemoriesItems->Update(dt);
+    }
 
     switch (ScrWork[SW_TITLEDISPCT]) {
       case 0: {
@@ -381,11 +386,11 @@ void TitleMenu::Render() {
               glm::vec4(1.0f), 287, 32, false, false, true);
           Renderer->DrawSprite(LogoSprite, glm::vec2(LogoX, LogoY));
           Renderer->DrawSprite(CopyrightSprite,
-                                 glm::vec2(CopyrightX, CopyrightY));
+                               glm::vec2(CopyrightX, CopyrightY));
           glm::vec4 col = glm::vec4(1.0f);
           col.a = glm::smoothstep(0.0f, 1.0f, PressToStartAnimation.Progress);
           Renderer->DrawSprite(PressToStartSprite,
-                                 glm::vec2(PressToStartX, PressToStartY), col);
+                               glm::vec2(PressToStartX, PressToStartY), col);
         } break;
         case 2: {
           Renderer->DrawMaskedSprite(
@@ -395,7 +400,7 @@ void TitleMenu::Render() {
               glm::vec4(1.0f), 287, 32, false, false, true);
           Renderer->DrawSprite(LogoSprite, glm::vec2(LogoX, LogoY));
           Renderer->DrawSprite(CopyrightSprite,
-                                 glm::vec2(CopyrightX, CopyrightY));
+                               glm::vec2(CopyrightX, CopyrightY));
         } break;
         case 3:    // Main Menu Fade In
         case 4: {  // Main Menu
@@ -459,7 +464,7 @@ void TitleMenu::Render() {
                     LogoSprite.ScaledHeight()),
               glm::vec4(1.0f), 287, 16);
           Renderer->DrawSprite(CopyrightSprite,
-                                 glm::vec2(CopyrightX, CopyrightY));
+                               glm::vec2(CopyrightX, CopyrightY));
           Renderer->DrawMaskedSprite(
               MenuBackgroundSprite, MenuBackgroundSprite,
               RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),

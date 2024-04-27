@@ -30,14 +30,24 @@ root.SpriteSheets = {
         DesignHeight = 1024
     },
     ["Backlog"] = {
-        Path = {Mount = "system", Id = 6 },
+        Path = {Mount = "system", Id = 2 },
         DesignWidth = 2048,
-        DesignHeight = 720
+        DesignHeight = 2048
     },
     ["MenuChip"] = {
         Path = {Mount = "system", Id = 12 },
         DesignWidth = 2048,
         DesignHeight = 1024
+    },
+    ["Options"] = {
+        Path = {Mount = "system", Id = 19 },
+        DesignWidth = 4096,
+        DesignHeight = 4096
+    },
+    ["Save"] = {
+        Path = {Mount = "system", Id = 20 },
+        DesignWidth = 2048,
+        DesignHeight = 2048
     }
 };
 

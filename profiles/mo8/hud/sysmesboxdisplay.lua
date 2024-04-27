@@ -11,14 +11,14 @@ root.SysMesBoxDisplay = {
     TextX = 942,
     TextLineHeight = 34,
     TextMarginY = 14,
-    ChoicePadding = 40,
-    ChoiceY = 365,
-    ChoiceXBase = 680,
+    ChoicePadding = 60,
+    ChoiceY = 647,
+    ChoiceXBase = 1211,
     MinMaxMesWidth = 294,
     MinHighlightWidth = 48,
     HighlightBaseWidth = 144,
-    HighlightYOffset = 2,
-    HighlightXOffset = 11,
+    HighlightYOffset = 12,
+    HighlightXOffset = 0,
     HighlightXBase = 658,
     HighlightXStep = 132,
     HighlightRightPartSpriteWidth = 24,
@@ -52,10 +52,10 @@ root.SysMesBoxDisplay.BoxDecoration = name .. "BoxDecoration";
 root.Sprites[name .. "SelectionLeftPart"] = {
     Sheet = sheet,
     Bounds = {
-        X = 502,
-        Y = 51,
-        Width = 144,
-        Height = 38
+        X = 820,
+        Y = 666,
+        Width = 91,
+        Height = 32
     }
 };
 root.SysMesBoxDisplay.SelectionLeftPart = name .. "SelectionLeftPart";
@@ -63,10 +63,10 @@ root.SysMesBoxDisplay.SelectionLeftPart = name .. "SelectionLeftPart";
 root.Sprites[name .. "SelectionRightPart"] = {
     Sheet = sheet,
     Bounds = {
-        X = 634,
-        Y = 51,
-        Width = 24,
-        Height = 38
+        X = 820,
+        Y = 666,
+        Width = 91,
+        Height = 32
     }
 };
 root.SysMesBoxDisplay.SelectionRightPart = name .. "SelectionRightPart";
@@ -74,10 +74,10 @@ root.SysMesBoxDisplay.SelectionRightPart = name .. "SelectionRightPart";
 root.Sprites[name .. "SelectionMiddlePart"] = {
     Sheet = sheet,
     Bounds = {
-        X = 515,
-        Y = 51,
-        Width = 132,
-        Height = 38
+        X = 820,
+        Y = 666,
+        Width = 91,
+        Height = 32
     }
 };
 root.SysMesBoxDisplay.SelectionMiddlePart = name .. "SelectionMiddlePart";

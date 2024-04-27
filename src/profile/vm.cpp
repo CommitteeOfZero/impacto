@@ -12,6 +12,7 @@ Impacto::Vm::InstructionSet GameInstructionSet =
 bool UseReturnIds = true;
 bool UseMsbStrings = false;
 bool UseSeparateMsbArchive = false;
+bool RestartMaskUsesThreadAlpha = false;
 int ScrWorkChaStructSize;
 int ScrWorkBgStructSize;
 int MaxLinkedBgBuffers = 1;
@@ -34,6 +35,7 @@ void Configure() {
   TryGetMemberInt("SystemScriptBuffer", SystemScriptBuffer);
   TryGetMemberInt("SpeakerPortraitsScrWorkOffset",
                   SpeakerPortraitsScrWorkOffset);
+  TryGetMemberBool("RestartMaskUsesThreadAlpha", RestartMaskUsesThreadAlpha);
 
   Pop();
 }

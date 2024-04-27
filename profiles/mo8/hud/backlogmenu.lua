@@ -1,13 +1,13 @@
 root.BacklogMenu = {
-    DrawType = DrawComponentType.ExtrasScenes,
+    DrawType = DrawComponentType.SystemMenu,
     BacklogBackgroundSprite = "BacklogBackground",
     EntryHighlightSprite = "EntryHighlight",
     VoiceIconSprite = "VoiceIcon",
     ScrollbarTrackSprite = "ScrollbarTrack",
     ScrollbarThumbSprite = "ScrollbarThumb",
-    ScrollbarPosition = { X = 1165, Y = 98 },
-    EntriesStart = { X = 163, Y = 85 },
-    RenderingBounds = { X = 87, Y = 83, Width = 1055, Height = 590 },
+    ScrollbarPosition = { X = 1748, Y = 177 },
+    EntriesStart = { X = 245, Y = 167 },
+    RenderingBounds = { X = 87, Y = 145, Width = 1750, Height = 720 },
     EntryYPadding = 22,
     FadeInDuration = 0.2,
     FadeOutDuration = 0.2
@@ -15,7 +15,7 @@ root.BacklogMenu = {
 
 root.Sprites["BacklogBackground"] = {
     Sheet = "Backlog",
-    Bounds = { X = 0, Y = 0, Width = 1280, Height = 720 },
+    Bounds = { X = 0, Y = 0, Width = 1920, Height = 1080 },
 };
 
 root.Sprites["VoiceIcon"] = {

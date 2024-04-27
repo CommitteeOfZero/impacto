@@ -175,21 +175,21 @@ void CgViewer::LoadCgSprites(
     MinScale[variationIdx] = Profile::DesignHeight / totalHeight;
     CgCount[variationIdx] = idx - (int)(sideways);
     HorizontalRendering[variationIdx] = sideways;
+    CgSprites[variationIdx][0].BaseScale.x = MinScale[variationIdx];
+    CgSprites[variationIdx][0].BaseScale.y = MinScale[variationIdx];
+    Position[variationIdx] =
+        HorizontalRendering[variationIdx]
+            ? glm::vec2(0.0f, (Profile::DesignHeight -
+                               CgSprites[variationIdx][0].ScaledHeight()) /
+                                  2)
+            : glm::vec2((Profile::DesignWidth -
+                         CgSprites[variationIdx][0].ScaledWidth()) /
+                            2,
+                        0.0f);
     variationIdx += 1;
   }
 
   Scale = MinScale[0];
-  CgSprites[CurrentVariation][0].BaseScale.x = Scale;
-  CgSprites[CurrentVariation][0].BaseScale.y = Scale;
-  Position[CurrentVariation] =
-      HorizontalRendering[CurrentVariation]
-          ? glm::vec2(0.0f, (Profile::DesignHeight -
-                             CgSprites[CurrentVariation][0].ScaledHeight()) /
-                                2)
-          : glm::vec2((Profile::DesignWidth -
-                       CgSprites[CurrentVariation][0].ScaledWidth()) /
-                          2,
-                      0.0f);
   VariationCount = variationIdx;
   CurrentVariation = 0;
 }

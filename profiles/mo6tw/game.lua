@@ -1,4 +1,4 @@
-root.ActiveRenderer = RendererType.Vulkan;
+root.ActiveRenderer = RendererType.OpenGL;
 
 root.LayerCount = 100;
 root.GameFeatures = GameFeature.Sc3VirtualMachine | GameFeature.Renderer2D | GameFeature.Input | GameFeature.Audio | GameFeature.Video;
@@ -18,6 +18,7 @@ root.Vm = {
     StartScriptBuffer=0,
     GameInstructionSet=InstructionSet.MO6TW,
     UseReturnIds=false,
+    RestartMaskUsesThreadAlpha=true,
     ScrWorkChaStructSize=20,
     ScrWorkBgStructSize=20
 };

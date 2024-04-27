@@ -75,14 +75,16 @@ void UpdateBackground2D() {
         float scale = (ScrWork[SW_BG1SIZE + ScrWorkBgStructSize * i] +
                        ScrWork[SW_BG1SIZE_OFS + 10 * i]) /
                       1000.0f;
+        float posX = (float)(ScrWork[SW_BG1POSX + ScrWorkBgStructSize * i] +
+                             ScrWork[SW_BG1POSX_OFS + 10 * i]);
+        float posY = (float)(ScrWork[SW_BG1POSY + ScrWorkBgStructSize * i] +
+                             ScrWork[SW_BG1POSY_OFS + 10 * i]);
+        posX = posX * (Profile::DesignWidth / 1280.0f) -
+               (Backgrounds2D[bufId]->BgSprite.ScaledWidth() / 2.0f);
+        posY = posY * (Profile::DesignHeight / 720.0f) -
+               (Backgrounds2D[bufId]->BgSprite.ScaledHeight() / 2.0f);
         Backgrounds2D[bufId]->BgSprite.BaseScale = glm::vec2(scale, scale);
-        Backgrounds2D[bufId]->DisplayCoords = glm::vec2(
-            ScrWork[SW_BG1POSX + ScrWorkBgStructSize * i] *
-                    (Profile::DesignWidth / 1280.0f) -
-                (Backgrounds2D[bufId]->BgSprite.ScaledWidth() / 2.0f),
-            ScrWork[SW_BG1POSY + ScrWorkBgStructSize * i] *
-                    (Profile::DesignHeight / 720.0f) -
-                (Backgrounds2D[bufId]->BgSprite.ScaledHeight() / 2.0f));
+        Backgrounds2D[bufId]->DisplayCoords = glm::vec2(posX, posY);
       } break;
       case 4: {
         float posX = (ScrWork[SW_BG1POSX + ScrWorkBgStructSize * i] +

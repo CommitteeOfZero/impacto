@@ -229,7 +229,7 @@ void TitleMenu::Update(float dt) {
     Hide();
   }
 
-  if (State != Hidden && GetFlag(SF_TITLEMODE)) {
+  if (State != Hidden && GetFlag(SF_TITLEMODE) && ScrWork[SW_TITLEMODE] != 1) {
     Gallery->Tint = glm::vec4(1.0f, 1.0f, 1.0f, GetFlag(803) ? 1.0f : 0.0f);
     Gallery->Enabled = GetFlag(803);
     MainItems->Update(dt);
@@ -289,13 +289,16 @@ void TitleMenu::Render() {
       } break;
       case 2: {  // Press to start fade
         glm::vec4 col = glm::vec4(1.0f);
-        col.a = glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
+        col.a = glm::smoothstep(
+            0.0f, 1.0f,
+            ScrWork[SW_TITLEDISPCT] > 0 ? PrimaryFadeAnimation.Progress : 1.0f);
         Renderer->DrawSprite(PressToStartSprite,
                              glm::vec2(PressToStartX, PressToStartY), col);
       } break;
       case 5:
       case 6:
-      case 7: {  // Main and main fade out
+      case 7:
+      case 11: {  // Main and main fade out
         MainItems->Tint = glm::vec4(
             1.0f, 1.0f, 1.0f,
             glm::smoothstep(1.0f, 0.0f, MainItemsHideAnimation.Progress));

@@ -74,6 +74,7 @@ void SysMesBox::Show() {
     Button* choice = new Button(
         i, nullSprite, nullSprite, SelectionLeftPart,
         glm::vec2(Choices[i][0].DestRect.X, Choices[i][0].DestRect.Y));
+    choice->HighlightOffset = glm::vec2(HighlightXOffset, HighlightYOffset);
 
     choice->SetText(Choices[i], ChoiceLengths[i], ChoiceWidths[i],
                     Profile::Dialogue::DefaultFontSize, RO_Full);

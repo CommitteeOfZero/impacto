@@ -609,6 +609,8 @@ void ShowScriptDebugger() {
       if (ImGui::Button("Clear breakpoints")) {
         Vm::DebuggerBreakpoints.clear();
       }
+      ImGui::SameLine();
+      ImGui::Checkbox("Always block thread", &Vm::DebuggerAlwaysBlock);
 
       if (ImGui::TreeNode("Breakpoint List")) {
         if (ImGui::BeginTable(

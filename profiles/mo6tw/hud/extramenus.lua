@@ -379,13 +379,13 @@ end
 
 -- I don't fucking know, do you know?
 -- I don't, fuck.
-local temp = root.ExtraMenus.MovieMenu.UnlockedMovieThumbnailSprites[6];
-root.ExtraMenus.MovieMenu.UnlockedMovieThumbnailSprites[6] = root.ExtraMenus.MovieMenu.UnlockedMovieThumbnailSprites[7];
-root.ExtraMenus.MovieMenu.UnlockedMovieThumbnailSprites[7] = temp;
+local temp = root.ExtraMenus.MovieMenu.UnlockedMovieThumbnailSprites[7];
+root.ExtraMenus.MovieMenu.UnlockedMovieThumbnailSprites[7] = root.ExtraMenus.MovieMenu.UnlockedMovieThumbnailSprites[8];
+root.ExtraMenus.MovieMenu.UnlockedMovieThumbnailSprites[8] = temp;
 
-temp = root.ExtraMenus.MovieMenu.LockedMovieThumbnailSprites[6];
-root.ExtraMenus.MovieMenu.LockedMovieThumbnailSprites[6] = root.ExtraMenus.MovieMenu.LockedMovieThumbnailSprites[7];
-root.ExtraMenus.MovieMenu.LockedMovieThumbnailSprites[7] = temp;
+temp = root.ExtraMenus.MovieMenu.LockedMovieThumbnailSprites[7];
+root.ExtraMenus.MovieMenu.LockedMovieThumbnailSprites[7] = root.ExtraMenus.MovieMenu.LockedMovieThumbnailSprites[8];
+root.ExtraMenus.MovieMenu.LockedMovieThumbnailSprites[8] = temp;
 
 -- Actors Voice menu
 
@@ -673,9 +673,9 @@ for i = 1, 6 do
     end
 end
 
-temp = root.ExtraMenus.AlbumMenu.CharacterPortraits[3];
-root.ExtraMenus.AlbumMenu.CharacterPortraits[3] = root.ExtraMenus.AlbumMenu.CharacterPortraits[4];
-root.ExtraMenus.AlbumMenu.CharacterPortraits[4] = temp;
+temp = root.ExtraMenus.AlbumMenu.CharacterPortraits[4];
+root.ExtraMenus.AlbumMenu.CharacterPortraits[4] = root.ExtraMenus.AlbumMenu.CharacterPortraits[5];
+root.ExtraMenus.AlbumMenu.CharacterPortraits[5] = temp;
 
 root.Sprites["AlbumMenuOthersPortraitTop"] = {
     Sheet = "Album2",

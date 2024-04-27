@@ -113,8 +113,10 @@ void TipsMenu::Update(float dt) {
   else if (ScrWork[SW_TIPSALPHA] == 0 && FadeAnimation.IsOut())
     State = Hidden;
 
-  ItemsList->Tint.a = FadeAnimation.Progress;
-  TipViewItems->Tint.a = FadeAnimation.Progress;
+  if (State != Hidden) {
+    ItemsList->Tint.a = FadeAnimation.Progress;
+    TipViewItems->Tint.a = FadeAnimation.Progress;
+  }
 
   if (State == Shown) {
     ItemsList->Update(dt);
