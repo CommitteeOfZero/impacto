@@ -128,6 +128,8 @@ set(Impacto_Src
 
         src/profile/games/mo8/titlemenu.cpp
         src/profile/games/mo8/systemmenu.cpp
+        src/profile/games/mo8/optionsmenu.cpp
+        src/profile/games/mo8/savemenu.cpp
 
         src/profile/games/darling/sysmesbox.cpp
 
@@ -186,6 +188,8 @@ set(Impacto_Src
 
         src/games/mo8/titlemenu.cpp
         src/games/mo8/systemmenu.cpp
+        src/games/mo8/optionsmenu.cpp
+        src/games/mo8/savemenu.cpp
 
         src/games/darling/sysmesbox.cpp
 
@@ -420,6 +424,8 @@ set(Impacto_Header
 
         src/profile/games/mo8/titlemenu.h
         src/profile/games/mo8/systemmenu.h
+        src/profile/games/mo8/optionsmenu.h
+        src/profile/games/mo8/savemenu.h
 
         src/profile/games/darling/sysmesbox.h
 
@@ -477,6 +483,8 @@ set(Impacto_Header
 
         src/games/mo8/titlemenu.h
         src/games/mo8/systemmenu.h
+        src/games/mo8/optionsmenu.h
+        src/games/mo8/savemenu.h
 
         src/games/darling/sysmesbox.h
         
