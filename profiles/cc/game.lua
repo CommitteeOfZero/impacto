@@ -6,6 +6,7 @@ root.DesignWidth = 1920;
 root.DesignHeight = 1080;
 
 root.WindowName = "CHAOS;CHILD";
+root.UseMoviePriority = true;
 
 root.CharaIsMvl = false;
 root.LayFileBigEndian = false;

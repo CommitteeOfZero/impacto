@@ -559,6 +559,7 @@ VmInstruction(InstMSinit) {
   ScrWork[SW_SEVOL] = 100;
   ScrWork[SW_SEVOL + 1] = 100;
   ScrWork[SW_SEVOL + 2] = 100;
+  ScrWork[SW_MOVIEALPHA] = 256;
 
   if (Profile::Vm::GameInstructionSet == +InstructionSet::RNE ||
       Profile::Vm::GameInstructionSet == +InstructionSet::Dash) {
