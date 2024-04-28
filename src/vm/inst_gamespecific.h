@@ -33,6 +33,7 @@ VmInstruction(InstUnk1038MO7);
 VmInstruction(InstTwipo);
 VmInstruction(InstTwipo_Dash);
 VmInstruction(InstDelusionTriggerCHLCC);
+VmInstruction(InstYesNoTriggerCCLCC);
 VmInstruction(InstUnk103A);
 
 }  // namespace Vm

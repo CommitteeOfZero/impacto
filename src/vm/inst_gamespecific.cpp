@@ -8,7 +8,8 @@
 #include "../profile/scriptvars.h"
 #include "../hud/delusiontrigger.h"
 #include "../ui/mapsystem.h"
-#include "../../src/video/videosystem.h"
+#include "../video/videosystem.h"
+#include "../profile/vm.h"
 
 namespace Impacto {
 
@@ -956,6 +957,64 @@ VmInstruction(InstDelusionTriggerCHLCC) {
     } break;
   }
 }
+
+VmInstruction(InstYesNoTriggerCCLCC) {
+  StartInstruction;
+  PopUint8(type);
+  switch (type) {
+    case 0: {
+      PopExpression(arg1);  // 0, 1, 2, 3
+      PopExpression(arg2);
+      PopExpression(arg3);
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Unk103A(type: %i, arg1: %i, arg2: %i, "
+                 "arg3: %i)\n",
+                 type, arg1, arg2, arg3);
+    } break;
+    case 1: {
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction YesNoTriggerCCLCC(type: %i)\n", type);
+    } break;
+    case 2: {
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction YesNoTriggerCCLCC(type: %i)\n", type);
+      BlockThread;
+    } break;
+    case 3: {
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction YesNoTriggerCCLCC(type: %i)\n", type);
+    } break;
+    case 4: {
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction YesNoTriggerCCLCC(type: %i)\n", type);
+    } break;
+    case 5: {
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction YesNoTriggerCCLCC(type: %i)\n", type);
+    } break;
+    case 6: {
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction YesNoTriggerCCLCC(type: %i)\n", type);
+    } break;
+    case 7: {
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction YesNoTriggerCCLCC(type: %i)\n", type);
+    } break;
+    case 8: {
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction YesNoTriggerCCLCC(type: %i)\n", type);
+    } break;
+    case 10: {
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction YesNoTriggerCCLCC(type: %i)\n", type);
+    } break;
+    default: {
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction YesNoTriggerCCLCC(type: %i)\n", type);
+    } break;
+  }
+}
+
 VmInstruction(InstUnk103A) {
   StartInstruction;
   PopUint8(type);
