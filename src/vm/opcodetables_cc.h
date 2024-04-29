@@ -591,7 +591,7 @@ InstructionProc static OpcodeTableUser1_CC[256] = {
     InstMapSystem,         // 10 37
     InstMtrg,              // 10 38
     InstTwipo_Dash,        // 10 39
-    InstUnk103A,           // 10 3A
+    InstYesNoTriggerCCLCC, // 10 3A
     InstDummy,             // 10 3B
     InstDummy,             // 10 3C
     InstDummy,             // 10 3D

@@ -584,7 +584,7 @@ void FFmpegPlayer::Render(float videoAlpha) {
     float widthScale = Profile::DesignWidth / VideoTexture->Width;
     float heightScale = Profile::DesignHeight / VideoTexture->Height;
     glm::vec4 tint = glm::vec4(1.0f);
-    if (IsAlpha) tint.a = videoAlpha;
+    tint.a = videoAlpha;
     Renderer->DrawVideoTexture(VideoTexture, glm::vec2(0.0f, 0.0f), tint,
                                glm::vec2(widthScale, heightScale), 0.0f,
                                IsAlpha);

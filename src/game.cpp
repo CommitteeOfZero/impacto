@@ -337,9 +337,22 @@ void Render() {
             }
 
             if (Profile::UseMoviePriority &&
-                (Profile::GameFeatures & GameFeature::Video) &&
-                ScrWork[SW_MOVIEPRI] == static_cast<int>(layer)) {
-              Video::VideoRender(ScrWork[SW_MOVIEALPHA] / 256.0f);
+                (Profile::GameFeatures & GameFeature::Video)) {
+              int videoAlpha;
+              if (ScrWork[SW_MOVIEPRI] == static_cast<int>(layer)) {
+                videoAlpha = ScrWork[SW_MOVIEALPHA];
+              } else if (ScrWork[SW_MOVIEPRI2] == static_cast<int>(layer)) {
+                videoAlpha = ScrWork[SW_MOVIEALPHA2];
+              } else if (ScrWork[SW_MOVIEPRI3] == static_cast<int>(layer)) {
+                videoAlpha = ScrWork[SW_MOVIEALPHA3];
+              } else if (ScrWork[SW_MOVIEPRI4] == static_cast<int>(layer)) {
+                videoAlpha = ScrWork[SW_MOVIEALPHA4];
+              } else {
+                videoAlpha = 0;
+              }
+              if (videoAlpha > 0) {
+                Video::VideoRender(videoAlpha / 256.0f);
+              }
             }
             if (ScrWork[6417] == layer) DelusionTrigger::Render();
           }

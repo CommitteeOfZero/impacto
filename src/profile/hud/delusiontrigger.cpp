@@ -43,6 +43,7 @@ void CreateInstance() {
       case DelusionTriggerType::CHLCC:
         Impacto::DelusionTrigger::Implementation =
             new Impacto::CHLCC::DelusionTrigger;
+        break;
       case DelusionTriggerType::CCLCC:
         Impacto::DelusionTrigger::Implementation =
             new Impacto::CCLCC::DelusionTrigger;

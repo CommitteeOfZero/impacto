@@ -27,7 +27,7 @@ Run `.\build-deps.ps1` from a PowerShell prompt.
         "msvc_x64_x64"
       ],
       "buildRoot": "C:\\full\\path\\to\\impacto-build\\build\\${name}",
-      "installRoot": "C:\\full\path\\to\\impacto-build\\install\\${name}",
+      "installRoot": "C:\\full\\path\\to\\impacto-build\\install\\${name}",
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": ""
@@ -44,6 +44,82 @@ Run `.\build-deps.ps1` from a PowerShell prompt.
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": ""
+    }
+  ]
+}
+```
+
+## CMakePresets.json for VSCode or other IDEs
+
+```json
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 11
+  },
+  "configurePresets": [
+    {
+      "name": "x64-Release",
+      "description": "x64 Release",
+      "hidden": false,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/impacto-build/build/${presetName}",
+      "environment": {
+        "VCPKG_ROOT": "${sourceDir}/build/vcpkg/"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_TOOLCHAIN_FILE": {
+          "type": "FILEPATH",
+          "value": "${sourceDir}/build/vcpkg/scripts/buildsystems/vcpkg.cmake"
+        },
+        "CMAKE_PREFIX_PATH": "${sourceDir}/build/vcpkg/installed/x64-windows/",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/impacto-build/build/${presetName}",
+        "CMAKE_C_COMPILER": "cl.exe",
+        "CMAKE_CXX_COMPILER": "cl.exe"
+      }
+    },
+    {
+      "name": "x64-Debug",
+      "description": "x64 Debug",
+      "hidden": false,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/impacto-build/build/${presetName}",
+      "environment": {
+        "VCPKG_ROOT": "${sourceDir}/impacto/build/vcpkg/"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_TOOLCHAIN_FILE": {
+          "type": "FILEPATH",
+          "value": "${sourceDir}/build/vcpkg/scripts/buildsystems/vcpkg.cmake"
+        },
+        "CMAKE_PREFIX_PATH": "${sourceDir}/build/vcpkg/installed/x64-windows/",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/impacto-build/build/${presetName}",
+        "CMAKE_C_COMPILER": "cl.exe",
+        "CMAKE_CXX_COMPILER": "cl.exe"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "x64-Release",
+      "description": "x64 Release",
+      "configurePreset": "x64-Release",
+      "targets": [
+        "install"
+      ]
+    },
+    {
+      "name": "x64-Debug",
+      "description": "x64 Debug",
+      "configurePreset": "x64-Debug",
+      "targets": [
+        "install"
+      ]
     }
   ]
 }
