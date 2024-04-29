@@ -103,7 +103,9 @@ VmInstruction(InstMovieMain) {
   switch (type) {
     case 2:  // Stop
       if (Profile::GameFeatures & GameFeature::Video) {
-        if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
+        if (Profile::Vm::GameInstructionSet == +InstructionSet::MO8) {
+          Video::Players[0]->Stop();
+        } else {
           if (Interface::PADinputButtonWentDown & Interface::PAD1A ||
               Interface::PADinputMouseWentDown & Interface::PAD1A) {
             Video::Players[0]->Stop();
@@ -111,8 +113,6 @@ VmInstruction(InstMovieMain) {
             ResetInstruction;
             BlockThread;
           }
-        } else {
-          Video::Players[0]->Stop();
         }
       }
       ImpLogSlow(LL_Warning, LC_VMStub,
