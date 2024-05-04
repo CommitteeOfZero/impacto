@@ -229,7 +229,8 @@ void TitleMenu::Update(float dt) {
     Hide();
   }
 
-  if (State != Hidden && GetFlag(SF_TITLEMODE) && ScrWork[SW_TITLEMODE] != 1) {
+  if (State != Hidden && IsFocused && GetFlag(SF_TITLEMODE) &&
+      ScrWork[SW_TITLEMODE] != 1) {
     Gallery->Tint = glm::vec4(1.0f, 1.0f, 1.0f, GetFlag(803) ? 1.0f : 0.0f);
     Gallery->Enabled = GetFlag(803);
     MainItems->Update(dt);

@@ -43,6 +43,8 @@ class Group : public Widget {
   void Move(glm::vec2 relativePosition, float duration) override;
   void MoveTo(glm::vec2 pos, float duration) override;
 
+  Widget* GetFirstFocusableChild();
+
  private:
   Menu* MenuContext;
   int FirstFocusableElementId = -1;

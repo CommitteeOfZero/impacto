@@ -18,6 +18,7 @@ class Scrollbar : public Widget {
             ScrollbarDirection dir, Sprite const& track, Sprite const& thumb,
             Sprite const& fill, glm::vec2 thumbOffset = glm::vec2(0.0f, 0.0f));
   void UpdateInput() override;
+  void Update(float dt) override;
   virtual void Render() override;
 
   void Move(glm::vec2 relativePosition) override;
@@ -33,6 +34,8 @@ class Scrollbar : public Widget {
   float MaxValue;
   float* Value;
 
+  bool FillBeforeTrack = false;
+
  protected:
   float Step = 0.0f;
   float TrackProgress = 0.0f;
@@ -42,6 +45,8 @@ class Scrollbar : public Widget {
   RectF ThumbBounds;
   bool Scrolling = false;
   bool HasFill = false;
+
+  void UpdatePosition();
 };
 
 }  // namespace Widgets

@@ -215,6 +215,7 @@ set(Impacto_Src
         src/ui/widgets/backlogentry.cpp
         src/ui/widgets/scrollbar.cpp
         src/ui/widgets/toggle.cpp
+        src/ui/widgets/optiongroup.cpp
         src/ui/widgets/group.cpp
         src/ui/widgets/carousel.cpp
         src/ui/widgets/cgviewer.cpp
@@ -510,6 +511,7 @@ set(Impacto_Header
         src/ui/widgets/backlogentry.h
         src/ui/widgets/scrollbar.h
         src/ui/widgets/toggle.h
+        src/ui/widgets/optiongroup.h
         src/ui/widgets/group.h
         src/ui/widgets/carousel.h
         src/ui/widgets/cgviewer.h

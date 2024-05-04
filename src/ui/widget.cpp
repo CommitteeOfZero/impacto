@@ -14,7 +14,10 @@ void Widget::Update(float dt) {
 }
 
 void Widget::Show() {}
-void Widget::Hide() {}
+void Widget::Hide() {
+  HasFocus = false;
+  Hovered = false;
+}
 
 WidgetType Widget::GetType() { return WT_NORMAL; }
 

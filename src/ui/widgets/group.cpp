@@ -186,6 +186,10 @@ void Group::Clear() {
   LastFocusableElementId = -1;
 }
 
+Widget* Group::GetFirstFocusableChild() {
+  return Children.at(FirstFocusableElementId);
+}
+
 }  // namespace Widgets
 }  // namespace UI
 }  // namespace Impacto
