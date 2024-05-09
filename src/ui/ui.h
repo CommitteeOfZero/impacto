@@ -24,7 +24,6 @@ BETTER_ENUM(MusicMenuType, int, None, MO6TW, CHLCC)
 BETTER_ENUM(MovieMenuType, int, None, MO6TW, CHLCC)
 BETTER_ENUM(ActorsVoiceMenuType, int, None, MO6TW)
 BETTER_ENUM(TrophyMenuType, int, None, CHLCC)
-BETTER_ENUM(DelusionTriggerType, int, None, CHLCC)
 
 int const MaxExtraMenus = 10;
 

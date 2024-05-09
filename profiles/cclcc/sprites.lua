@@ -78,7 +78,33 @@ root.SpriteSheets = {
         Path = { Mount = "system", Id = 18 },
         DesignWidth = 2048,
         DesignHeight = 3072
-    }
+    },
+    ["YesNoBG0"] = {
+        Path = { Mount = "system", Id = 35 },
+        DesignWidth = 3840,
+        DesignHeight = 2160
+    },
+    ["YesNoBG1"] = {
+        Path = { Mount = "system", Id = 36 },
+        DesignWidth = 3840,
+        DesignHeight = 2160
+    },
+    ["YesNoBG2"] = {
+        Path = { Mount = "system", Id = 37 },
+        DesignWidth = 3840,
+        DesignHeight = 2160
+    },
+    ["YesNoBG3"] = {
+        Path = { Mount = "system", Id = 38 },
+        DesignWidth = 3840,
+        DesignHeight = 2160
+    },
+    ["YesNoChip"] = {
+        Path = { Mount = "system", Id = 39 },
+        DesignWidth = 1536,
+        DesignHeight = 2400
+    },
+    
 };
 
 root.Sprites = {};
