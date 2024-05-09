@@ -134,9 +134,7 @@ static void Init() {
     TipsNotification::Init();
     DelusionTrigger::Init();
     UI::MapSystem::Init();
-    if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::CC) {
-      CCLCC::YesNoTrigger::Init();
-    }
+    CCLCC::YesNoTrigger::Init();
   }
 
   Profile::ClearProfile();

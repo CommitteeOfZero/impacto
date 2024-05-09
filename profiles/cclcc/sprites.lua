@@ -79,27 +79,27 @@ root.SpriteSheets = {
         DesignWidth = 2048,
         DesignHeight = 3072
     },
-    ["YNTRG_BG0"] = {
+    ["YesNoBG0"] = {
         Path = { Mount = "system", Id = 35 },
         DesignWidth = 3840,
         DesignHeight = 2160
     },
-    ["YNTRG_BG1"] = {
+    ["YesNoBG1"] = {
         Path = { Mount = "system", Id = 36 },
         DesignWidth = 3840,
         DesignHeight = 2160
     },
-    ["YNTRG_BG2"] = {
+    ["YesNoBG2"] = {
         Path = { Mount = "system", Id = 37 },
         DesignWidth = 3840,
         DesignHeight = 2160
     },
-    ["YNTRG_BG3"] = {
+    ["YesNoBG3"] = {
         Path = { Mount = "system", Id = 38 },
         DesignWidth = 3840,
         DesignHeight = 2160
     },
-    ["YNTRG_CHIP"] = {
+    ["YesNoChip"] = {
         Path = { Mount = "system", Id = 39 },
         DesignWidth = 1536,
         DesignHeight = 2400

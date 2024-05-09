@@ -182,10 +182,10 @@ void YesNoTrigger::Render() {
     glm::vec4 chipTint = glm::vec4(1.0f, 1.0f, 1.0f, alpha / 255.0f);
 
     if (bgType == BGType::BG0 || bgType == BGType::BG1) {
-      ActiveYesChip = (selection == YesNoSelect::YES) ? &YN1_YesChipLarge
-                                                      : &YN1_YesChipSmall;
+      ActiveYesChip =
+          (selection == YesNoSelect::YES) ? &YN1YesChipLarge : &YN1YesChipSmall;
       ActiveNoChip =
-          (selection == YesNoSelect::NO) ? &YN1_NoChipLarge : &YN1_NoChipSmall;
+          (selection == YesNoSelect::NO) ? &YN1NoChipLarge : &YN1NoChipSmall;
 
       if (selection == YesNoSelect::YES) {
         starPos = {chipYesX - 132, chipYesY - 166};
@@ -194,10 +194,10 @@ void YesNoTrigger::Render() {
       }
 
     } else if (bgType == BGType::BG2 || bgType == BGType::BG3) {
-      ActiveYesChip = (selection == YesNoSelect::YES) ? &YN2_YesChipLarge
-                                                      : &YN2_YesChipSmall;
+      ActiveYesChip =
+          (selection == YesNoSelect::YES) ? &YN2YesChipLarge : &YN2YesChipSmall;
       ActiveNoChip =
-          (selection == YesNoSelect::NO) ? &YN2_NoChipLarge : &YN2_NoChipSmall;
+          (selection == YesNoSelect::NO) ? &YN2NoChipLarge : &YN2NoChipSmall;
 
       if (selection == YesNoSelect::YES) {
         starPos = {chipYesX - 92, chipYesY - 147};
