@@ -34,9 +34,8 @@ bool hasInit = false;
 
 void Init() { hasInit = Profile::CCLCC::YesNoTrigger::Configure(); }
 
-void YesNoTrigger::updateYesNoPos(float startX, float startY, float startScale,
-                                  float targetX, float targetY,
-                                  float targetScale, float transition) {
+void updateYesNoPos(float startX, float startY, float startScale, float targetX,
+                    float targetY, float targetScale, float transition) {
   float boundedScale = (targetScale < 1.0)   ? 1.0f
                        : (targetScale > 3.0) ? 3.0f
                                              : targetScale;
@@ -49,7 +48,7 @@ void YesNoTrigger::updateYesNoPos(float startX, float startY, float startScale,
   bgScale = startScale + smoothTransition * (boundedScale - startScale);
 }
 
-void YesNoTrigger::Update(float dt) {
+void Update(float dt) {
   if (!hasInit || ScrWork[2147] != 0 || ScrWork[2142] != 0 ||
       ScrWork[6433] == 0 || !hasStarted) {
     return;
@@ -139,7 +138,7 @@ void YesNoTrigger::Update(float dt) {
   ScrWork[6434] = targetArrIndex;
 }
 
-void YesNoTrigger::Render() {
+void Render() {
   if (!hasInit || ScrWork[6433] == 0 || disp == false) {
     return;
   }
