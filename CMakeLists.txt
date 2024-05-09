@@ -111,6 +111,7 @@ set(Impacto_Src
         src/profile/games/cclcc/tipsnotification.cpp
         src/profile/games/cclcc/mapsystem.cpp
         src/profile/games/cclcc/delusiontrigger.cpp
+        src/profile/games/cclcc/yesnotrigger.cpp
 
         src/profile/games/mo6tw/dialoguebox.cpp
         src/profile/games/mo6tw/sysmesbox.cpp
@@ -169,6 +170,7 @@ set(Impacto_Src
         src/games/cclcc/tipsnotification.cpp
         src/games/cclcc/mapsystem.cpp
         src/games/cclcc/delusiontrigger.cpp
+        src/games/cclcc/yesnotrigger.cpp
 
         src/games/mo6tw/dialoguebox.cpp
         src/games/mo6tw/sysmesbox.cpp

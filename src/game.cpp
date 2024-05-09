@@ -24,6 +24,7 @@
 #include "hud/loadingdisplay.h"
 #include "hud/tipsnotification.h"
 #include "hud/delusiontrigger.h"
+#include "games/cclcc/yesnotrigger.h"
 
 #include "profile/profile.h"
 #include "profile/game.h"
@@ -133,6 +134,9 @@ static void Init() {
     TipsNotification::Init();
     DelusionTrigger::Init();
     UI::MapSystem::Init();
+    if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::CC) {
+      CCLCC::YesNoTrigger::Init();
+    }
   }
 
   Profile::ClearProfile();
@@ -222,6 +226,7 @@ void Update(float dt) {
     TipsNotification::Update(dt);
     DelusionTrigger::Update(dt);
     UI::MapSystem::Update(dt);
+    CCLCC::YesNoTrigger::Update(dt);
 
     Vm::Update();
   }
@@ -355,6 +360,7 @@ void Render() {
               }
             }
             if (ScrWork[6417] == layer) DelusionTrigger::Render();
+            if (ScrWork[6437] == layer) CCLCC::YesNoTrigger::Render();
           }
           if (GetFlag(SF_Pokecon_Open)) {
             SetFlag(SF_DATEDISPLAY, 0);
