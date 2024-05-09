@@ -96,7 +96,7 @@ class Renderer : public BaseRenderer {
  private:
   void EnsureSpaceAvailable(int vertices, int vertexSize, int indices);
   void EnsureTextureBound(uint32_t texture);
-  void Renderer::EnsureShader(Shader* shader, bool flush = true);
+  void EnsureShader(Shader* shader, bool flush = true);
   void Flush();
 
   inline void QuadSetUV(RectF const& spriteBounds, float designWidth,
