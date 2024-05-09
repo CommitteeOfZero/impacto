@@ -187,4 +187,9 @@ void UnalignedWrite(void* ptr, T value) {
   memcpy(ptr, &value, sizeof value);
 }
 
+template <class Enum>
+constexpr std::underlying_type_t<Enum> to_underlying(Enum e) noexcept {
+  return static_cast<std::underlying_type_t<Enum>>(e);
+}
+
 }  // namespace Impacto

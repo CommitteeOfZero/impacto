@@ -40,11 +40,6 @@ enum class BGType { BG0, BG1, BG2, BG3 };
 
 void updateYesNoPos(float startX, float startY, float startScale, float targetX,
                     float targetY, float targetScale, float transition);
-
-template <class Enum>
-constexpr std::underlying_type_t<Enum> to_underlying(Enum e) noexcept {
-  return static_cast<std::underlying_type_t<Enum>>(e);
-};
 };  // namespace YesNoTrigger
 
 }  // namespace CCLCC
