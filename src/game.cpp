@@ -282,7 +282,8 @@ void Render() {
 
       switch (DrawComponents[i]) {
         case DrawComponentType::Text: {
-          DialoguePages[0].Render();
+          for (int i = 0; i < Profile::Dialogue::PageCount; i++)
+            DialoguePages[i].Render();
           break;
         }
         case DrawComponentType::Main: {
