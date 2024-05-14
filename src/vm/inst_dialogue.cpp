@@ -79,6 +79,7 @@ VmInstruction(InstMesSetID) {
                  "STUB instruction MesSetID(type: SetSavePoint1, "
                  "savePointId: %i, arg1: %i)\n",
                  savePointId, dialoguePageId);
+      thread->DialoguePageId = dialoguePageId;
     } break;
     case 2: {  // SetPage
       PopExpression(dialoguePageId);
@@ -116,7 +117,7 @@ VmInstruction(InstMes) {
   if (DialoguePages[thread->DialoguePageId].FadeAnimation.IsOut() &&
       GetFlag(thread->DialoguePageId + SF_MESWINDOW0OPENFL)) {
     DialoguePages[thread->DialoguePageId].Mode =
-        (DialoguePageMode)ScrWork[SW_MESMODE0];
+        (DialoguePageMode)ScrWork[thread->DialoguePageId * 10 + SW_MESMODE0];
     DialoguePages[thread->DialoguePageId].FadeAnimation.StartIn(true);
   }
 
@@ -276,8 +277,8 @@ VmInstruction(InstMessWindow) {
       break;
     case 1:  // ShowCurrent
       if (!currentPage->FadeAnimation.IsIn()) {
-        currentPage->Mode =
-            (DialoguePageMode)ScrWork[SW_MESMODE0];  // Only for page 0 for now
+        currentPage->Mode = (DialoguePageMode)
+            ScrWork[thread->DialoguePageId * 10 + SW_MESMODE0];
         currentPage->FadeAnimation.StartIn(true);
         SetFlag(thread->DialoguePageId + SF_MESWINDOW0OPENFL, 1);
       }
