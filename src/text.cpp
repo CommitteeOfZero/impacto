@@ -262,7 +262,8 @@ void DialoguePage::Clear() {
 
 enum TextParseState { TPS_Normal, TPS_Name, TPS_Ruby };
 
-void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, int nextLineStart) {
+void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, int nextLineStart,
+                              const RectF& boxBounds, TextAlignment alignment) {
   EndRubyBase(nextLineStart - 1);
 
   // Lay out all ruby chunks on this line (before we change CurrentLineTop and
@@ -333,6 +334,18 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, int nextLineStart) {
   for (int i = LastLineStart; i < nextLineStart; i++) {
     Glyphs[i].DestRect.Y = CurrentLineTop + CurrentLineTopMargin +
                            (lineHeight - Glyphs[i].DestRect.Height);
+    float lastGlyphX = Glyphs[nextLineStart - 1].DestRect.X +
+                       Glyphs[nextLineStart - 1].DestRect.Width;
+    switch (alignment) {
+      case TextAlignment::Center:
+        Glyphs[i].DestRect.X += (boxBounds.Width - lastGlyphX) / 2.0f;
+        break;
+      case TextAlignment::Right:
+        Glyphs[i].DestRect.X += boxBounds.Width - lastGlyphX;
+        break;
+      default:
+        break;
+    }
   }
   float lineSpacing = DialogueFont->LineSpacing;
   // Erin DialogueBox
@@ -405,7 +418,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice) {
     switch (token.Type) {
       case STT_LineBreak:
       case STT_AltLineBreak: {
-        FinishLine(ctx, Length);
+        FinishLine(ctx, Length, BoxBounds, Alignment);
         LastWordStart = Length;
         CurrentX = 0.0f;
         break;
@@ -450,13 +463,13 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice) {
       case STT_SetLeftMargin: {
         float addX = token.Val_Uint16;
         if (CurrentX + addX > BoxBounds.Width) {
-          FinishLine(ctx, Length);
+          FinishLine(ctx, Length, BoxBounds, Alignment);
           LastWordStart = Length;
           addX -= (BoxBounds.Width - CurrentX);
           CurrentX = 0.0f;
         }
         while (addX > BoxBounds.Width) {
-          FinishLine(ctx, Length);
+          FinishLine(ctx, Length, BoxBounds, Alignment);
           addX -= BoxBounds.Width;
         }
         CurrentX += addX;
@@ -539,7 +552,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice) {
               // Word doesn't fit on a line, gotta break in the middle of it
               ptg.DestRect.X = BoxBounds.X;
               CurrentX = ptg.DestRect.Width;
-              FinishLine(ctx, Length - 1);
+              FinishLine(ctx, Length - 1, BoxBounds, Alignment);
               LastWordStart = Length - 1;
             } else {
               int firstNonSpace = LastWordStart;
@@ -548,7 +561,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice) {
                 if (!(Glyphs[i].Flags() & CharacterTypeFlags::Space)) break;
                 firstNonSpace = i + 1;
               }
-              FinishLine(ctx, firstNonSpace);
+              FinishLine(ctx, firstNonSpace, BoxBounds, Alignment);
               LastWordStart = firstNonSpace;
               CurrentX = 0.0f;
               for (int i = firstNonSpace; i < Length; i++) {
@@ -571,7 +584,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice) {
     }
   } while (token.Type != STT_EndOfString);
 
-  FinishLine(ctx, Length);
+  FinishLine(ctx, Length, BoxBounds, Alignment);
   CurrentX = 0.0f;
 
   // Even if there is a name in the string it should not be
