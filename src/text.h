@@ -103,7 +103,8 @@ struct DialoguePage {
   void Render();
 
  private:
-  void FinishLine(Vm::Sc3VmThread* ctx, int nextLineStart);
+  void FinishLine(Vm::Sc3VmThread* ctx, int nextLineStart,
+                  const RectF& boxBounds, TextAlignment alignment);
   void EndRubyBase(int lastBaseCharacter);
 
   bool BuildingRubyBase;
