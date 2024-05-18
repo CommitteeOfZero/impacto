@@ -42,7 +42,7 @@ class AudioStream {
   Io::InputStream* BaseStream = 0;
 
  private:
-  static std::vector<AudioStreamCreator> Registry;
+  static std::vector<AudioStreamCreator>& GetRegistry();
 };
 
 }  // namespace Audio

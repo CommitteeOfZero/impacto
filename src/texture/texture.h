@@ -29,7 +29,7 @@ struct Texture {
   static bool AddTextureLoader(TextureLoader c);
 
  private:
-  static std::vector<TextureLoader> Registry;
+  static std::vector<TextureLoader>& GetRegistry();
 };
 
 }  // namespace Impacto

@@ -10,10 +10,15 @@
 
 namespace Impacto {
 
+std::vector<Texture::TextureLoader>& Texture::GetRegistry() {
+  static std::vector<TextureLoader> registry;
+  return registry;
+}
+
 bool Texture::Load(Io::InputStream* stream) {
   using namespace TexLoad;
 
-  for (auto f : Registry) {
+  for (auto f : GetRegistry()) {
     if (f(stream, this)) return true;
   }
 
@@ -120,10 +125,8 @@ uint32_t Texture::Submit() {
 }
 
 bool Texture::AddTextureLoader(Texture::TextureLoader c) {
-  Registry.push_back(c);
+  GetRegistry().push_back(c);
   return true;
 }
-
-std::vector<Texture::TextureLoader> Texture::Registry;
 
 }  // namespace Impacto

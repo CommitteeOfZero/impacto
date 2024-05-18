@@ -21,7 +21,7 @@ char* Timestamp() {
   tm* ptm = gmtime(&timestamp);
 
   char* buffer = (char*)malloc(20);
-  strftime(buffer, 20, "%F %T", ptm);
+  strftime(buffer, 20, "%Y-%m-%d %H:%M:%S", ptm);
   return buffer;
 }
 

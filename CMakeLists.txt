@@ -10,7 +10,7 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
             ImGui
             GIT_REPOSITORY "https://github.com/ocornut/imgui.git"
             GIT_TAG "1db579d458da29fa43376af9d88d486910d9406a"
-      SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui
+            SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui
 
     )
 
@@ -84,7 +84,7 @@ set(Impacto_Src
         src/profile/games/rne/sysmesbox.cpp
 
         src/profile/games/dash/titlemenu.cpp
-        
+
         src/profile/games/chlcc/dialoguebox.cpp
         src/profile/games/chlcc/titlemenu.cpp
         src/profile/games/chlcc/savemenu.cpp
@@ -141,7 +141,7 @@ set(Impacto_Src
         src/games/rne/sysmesbox.cpp
 
         src/games/dash/titlemenu.cpp
-        
+
         src/games/chlcc/dialoguebox.cpp
         src/games/chlcc/titlemenu.cpp
         src/games/chlcc/savemenu.cpp
@@ -383,7 +383,7 @@ set(Impacto_Header
         src/profile/games/rne/sysmesbox.h
 
         src/profile/games/dash/titlemenu.h
-        
+
         src/profile/games/chlcc/dialoguebox.h
         src/profile/games/chlcc/titlemenu.h
         src/profile/games/chlcc/savemenu.h
@@ -397,11 +397,11 @@ set(Impacto_Header
         src/profile/games/chlcc/systemmenu.h
         src/profile/games/chlcc/trophymenu.h
         src/profile/games/chlcc/delusiontrigger.h
-        
+
         src/profile/games/cc/dialoguebox.h
         src/profile/games/cc/titlemenu.h
         src/profile/games/cc/sysmesbox.h
-        
+
         src/profile/games/cclcc/titlemenu.h
         src/profile/games/cclcc/savemenu.h
         src/profile/games/cclcc/optionsmenu.h
@@ -439,7 +439,7 @@ set(Impacto_Header
         src/games/rne/sysmesbox.h
 
         src/games/dash/titlemenu.h
-        
+
         src/games/chlcc/dialoguebox.h
         src/games/chlcc/titlemenu.h
         src/games/chlcc/savemenu.h
@@ -459,7 +459,7 @@ set(Impacto_Header
         src/games/cc/dialoguebox.h
         src/games/cc/titlemenu.h
         src/games/cc/sysmesbox.h
-        
+
         src/games/cclcc/titlemenu.h
         src/games/cclcc/savemenu.h
         src/games/cclcc/optionsmenu.h
@@ -490,7 +490,7 @@ set(Impacto_Header
         src/games/mo8/savemenu.h
 
         src/games/darling/sysmesbox.h
-        
+
         src/hud/dialoguebox.h
         src/hud/datedisplay.h
         src/hud/saveicondisplay.h
@@ -498,7 +498,7 @@ set(Impacto_Header
         src/hud/waiticondisplay.h
         src/hud/tipsnotification.h
         src/hud/delusiontrigger.h
-        
+
         src/ui/ui.h
         src/ui/mapsystem.h
         src/ui/menu.h
@@ -534,7 +534,7 @@ set(Impacto_Header
         src/ui/widgets/rne/sysmenubutton.h
         src/ui/widgets/cc/titlebutton.h
         src/ui/widgets/cclcc/titlebutton.h
-        
+
         src/renderer/3d/camera.h
         src/renderer/3d/model.h
         src/renderer/3d/renderable3d.h
@@ -755,23 +755,23 @@ else ()
                 drm_nouveau
                 nx
         )
-    
+
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--start-group") # workaround for SDL2 being last in the linker list
-    
+
         add_definitions(-DIMPACTO_OPENAL_INCLUDE_SUBDIR)
     else ()
         # Add this because apparently find_package(SDL2 REQUIRED) doesn't work right on Arch?
         if ("${SDL2_LIBRARIES}" STREQUAL "")
             set(SDL2_LIBRARIES "SDL2::SDL2")
         endif ()
-    
+
         list(APPEND Impacto_Libs
                 ${SDL2_LIBRARIES}
                 ZLIB::ZLIB
                 ${OGGVORBIS_LIBRARIES}
                 ${WebP_LIBRARIES}
         )
-    
+
         if (VCPKG_TOOLCHAIN)
             list(APPEND Impacto_Libs
                     glm::glm
@@ -781,7 +781,7 @@ else ()
                     glm
             )
         endif ()
-    
+
         add_definitions(-DIMPACTO_OPENAL_HAVE_ALEXT)
     endif ()
 endif ()
@@ -952,7 +952,7 @@ if (NOT DEFINED IMPACTO_DISABLE_DX9)
             src/renderer/dx9/shader.h
             src/renderer/dx9/yuvframe.h
             src/renderer/dx9/3d/scene.h
-            src/renderer/dx9/3d/renderable3d.h 
+            src/renderer/dx9/3d/renderable3d.h
     )
 
     list(APPEND Impacto_Libs

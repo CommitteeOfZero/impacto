@@ -4,8 +4,13 @@
 namespace Impacto {
 namespace Audio {
 
+std::vector<AudioStream::AudioStreamCreator>& AudioStream::GetRegistry() {
+  static std::vector<AudioStreamCreator> registry;
+  return registry;
+}
+
 AudioStream* AudioStream::Create(Io::InputStream* stream) {
-  for (auto f : Registry) {
+  for (auto f : GetRegistry()) {
     AudioStream* result = f(stream);
     if (result) return result;
   }
@@ -14,11 +19,9 @@ AudioStream* AudioStream::Create(Io::InputStream* stream) {
 }
 
 bool AudioStream::AddAudioStreamCreator(AudioStreamCreator c) {
-  Registry.push_back(c);
+  GetRegistry().push_back(c);
   return true;
 }
-
-std::vector<AudioStream::AudioStreamCreator> AudioStream::Registry;
 
 }  // namespace Audio
 }  // namespace Impacto

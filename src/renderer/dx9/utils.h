@@ -2,6 +2,7 @@
 
 #include <d3d9.h>
 #include <map>
+#include <cstdint>
 
 namespace Impacto {
 namespace DirectX9 {
