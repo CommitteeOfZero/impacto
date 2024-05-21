@@ -640,7 +640,7 @@ else ()
 endif ()
 
 if (IMPACTO_ASAN)
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
         message(STATUS "Enabling ASAN/UBSAN for clang")
         add_compile_options(-fsanitize=address,undefined)
         add_link_options(-fsanitize=address,undefined)

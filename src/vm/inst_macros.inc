@@ -9,15 +9,15 @@
 
 #define BlockThread BlockCurrentScriptThread = true
 
-#define PopUint8(name)                                       \
-  uint8_t name = *thread->Ip;                                \
-  /* Sometimes needed by subsequent code, silence warning */ \
-  (void)name;                                                \
+#define PopUint8(name)                                                    \
+  uint8_t name = *thread->Ip;                                             \
+  /* Sometimes needed by subsequent code, silence warning */              \
+  (void)name;                                                             \
   thread->Ip++
-#define PopUint16(name)                                      \
-  uint16_t name = SDL_SwapLE16(*(uint16_t*)thread->Ip);      \
-  /* Sometimes needed by subsequent code, silence warning */ \
-  (void)name;                                                \
+#define PopUint16(name)                                                   \
+  uint16_t name = SDL_SwapLE16(UnalignedRead<uint16_t>(thread->Ip));      \
+  /* Sometimes needed by subsequent code, silence warning */              \
+  (void)name;                                                             \
   thread->Ip += 2
 #define PopLocalLabel(name)                                             \
   uint8_t* name;                                                        \

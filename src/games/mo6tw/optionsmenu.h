@@ -36,7 +36,7 @@ class OptionsMenu : public Menu {
   Widgets::Scrollbar* MovieVolumeSlider;
   Widgets::Group* FirstPage;
   Widgets::Group* CharacterVoiceToggles;
-  bool VoiceTest[13];
+  bool VoiceTest[13] = {0};
 
   Widgets::Scrollbar* ScreenSizeSlider;
   Widgets::Group* SecondPage;

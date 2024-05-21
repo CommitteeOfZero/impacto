@@ -262,6 +262,8 @@ paket-files/
 .idea/
 *.sln.iml
 
+.luarc.json
+
 # CodeRush
 .cr/
 
