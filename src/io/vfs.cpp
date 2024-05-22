@@ -280,6 +280,7 @@ static IoError OpenInternal(std::string const& mountpoint, VfsArchive* archive,
     (*outStream)->Meta.ArchiveFileName = archive->BaseStream->Meta.FileName;
     (*outStream)->Meta.ArchiveMountPoint = mountpoint;
     (*outStream)->Meta.FileName = origMeta->FileName;
+    (*outStream)->Meta.Id = origMeta->Id;
   } else {
     ImpLog(LL_Error, LC_IO,
            "Opening \"%s\" (%d) from mountpoint \"%s\" (archive file \"%s\") "
