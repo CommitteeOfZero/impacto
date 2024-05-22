@@ -5,6 +5,8 @@
 #include "../../profile/game.h"
 // #include "../../window.h"
 #include "../../renderer/renderer.h"
+#include "../../voicetable.h"
+#include "../../text.h"
 
 namespace Impacto {
 namespace Vm {
@@ -186,6 +188,62 @@ static float BaseScaleValues[] = {
     1.3f, 1.0f, 0.6f, 0.4f, 0.13f, 0.8f, 0.7f,
 };
 
+static int curEyeFrame[16]{};
+static int curMouthIndex[3]{19, 19, 19};
+
+constexpr static int animeTable[20][2] = {
+    {1, 10}, {2, 5},  {1, 10}, {2, 4}, {1, 7}, {2, 6}, {1, 9},
+    {2, 8},  {1, 15}, {0, 2},  {1, 9}, {2, 3}, {1, 7}, {0, 2},
+    {1, 10}, {2, 5},  {1, 7},  {2, 5}, {1, 7}, {2, 3}};
+
+uint8_t GetSoundLevel() {
+  if (Audio::Channels[Audio::AC_VOICE0]->State != Audio::ACS_Playing ||
+      Audio::Channels[Audio::AC_VOICE0]->DurationInSeconds() -
+              Audio::Channels[Audio::AC_VOICE0]->PositionInSeconds() <
+          FLT_EPSILON)
+    return 0;
+  int audioPos = Audio::Channels[Audio::AC_VOICE0]->PositionInSeconds() * 6;
+
+  int fileId =
+      Audio::Channels[Audio::AC_VOICE0]->GetStream()->GetBaseStream()->Meta.Id;
+  uint8_t voiceData = VoiceTableData.GetVoiceData(fileId, audioPos / 4);
+  uint8_t result = (voiceData >> (audioPos * 2 & 6)) & 3;
+  return result;
+}
+
+void UpdateEyeMouth2D() {
+  static int eyeCounter[16]{};
+  static int mouthCounter[3]{};
+  for (size_t i = 0; i < 16; i++) {
+    if (eyeCounter[i] == 0) {
+      if (++curEyeFrame[i] == 3) {
+        curEyeFrame[i] = 0;
+        eyeCounter[i] = ((rand() & 0x7FFF) * 230 >> 15) + 200;
+      } else {
+        eyeCounter[i] = 4;
+      }
+    } else {
+      eyeCounter[i]--;
+    }
+  }
+  for (size_t i = 0; i < 3; i++) {
+    /* TODO: Add the reset flags for the counters from scrcommessync once it's
+     * implemented*/
+
+    // Pause check
+    if ((ScrWork[2113] & 4) == 0) {
+      if (mouthCounter[i] == 0) {
+        if (++curMouthIndex[i] == 20) {
+          curMouthIndex[i] = 0;
+        }
+        mouthCounter[i] = animeTable[curMouthIndex[i]][1];
+      } else {
+        mouthCounter[i]--;
+      }
+    }
+  }
+}
+
 void UpdateCharacter2D() {
   for (int i = 0; i < MaxCharacters2D; i++) {
     if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW) {
@@ -245,6 +303,41 @@ void UpdateCharacter2D() {
       Characters2D[bufId].Tint.a =
           ScrWork[SW_CHA1FADECT + Profile::Vm::ScrWorkChaStructSize * i] /
           256.0f;
+    }
+
+    uint32_t chaIndexMask = 1 << i & 0x1f;
+    if (ScrWork[SW_CHA1SCRIPTEYEFRAME +
+                i * Profile::Vm::ScrWorkChaStructSize] == 0xff) {
+      Characters2D[bufId].EyeFrame = curEyeFrame[i];
+    } else {
+      Characters2D[bufId].EyeFrame =
+          ScrWork[SW_CHA1SCRIPTEYEFRAME +
+                  i * Profile::Vm::ScrWorkChaStructSize];
+    }
+    if (ScrWork[SW_CHA1SCRIPTLIPFRAME +
+                i * Profile::Vm::ScrWorkChaStructSize] != 0xff) {
+      Characters2D[bufId].LipFrame =
+          ScrWork[SW_CHA1SCRIPTLIPFRAME +
+                  i * Profile::Vm::ScrWorkChaStructSize];
+      return;
+    } else {
+      bool charSpeaking = false;
+      for (size_t dialogPageId = 0; dialogPageId < DialoguePageCount;
+           dialogPageId++) {
+        if (chaIndexMask & DialoguePages[dialogPageId].AnimationId) {
+          if (GetSoundLevel() > 0) {
+            Characters2D[bufId].LipFrame =
+                animeTable[curMouthIndex[dialogPageId]][0];
+          } else {
+            Characters2D[bufId].LipFrame = 0;
+          }
+          charSpeaking = true;
+          break;
+        }
+      }
+      if (!charSpeaking) {
+        Characters2D[bufId].LipFrame = 0;
+      }
     }
   }
 }

@@ -322,6 +322,7 @@ void Update() {
   if (Profile::GameFeatures & GameFeature::Scene3D) {
     Interface::UpdateScene3D();
   } else {
+    Interface::UpdateEyeMouth2D();
     Interface::UpdateCharacter2D();
   }
   if (Profile::Dialogue::HasSpeakerPortraits) {

@@ -21,6 +21,8 @@ class AudioStream {
   virtual int Read(void* buffer, int samples) = 0;
   virtual void Seek(int samples) = 0;
 
+  const Io::InputStream* GetBaseStream() const { return BaseStream; }
+
   int BytesPerSample() const { return (BitDepth / 8) * ChannelCount; }
 
   int ChannelCount;

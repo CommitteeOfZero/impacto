@@ -27,6 +27,8 @@ AudioChannel::~AudioChannel() {
   alDeleteBuffers(AudioBufferCount, BufferIds);
 }
 
+const AudioStream* AudioChannel::GetStream() const { return CurrentStream; }
+
 void AudioChannel::Init(AudioChannelId id, AudioChannelGroup group) {
   assert(IsInit == false);
   Id = id;
