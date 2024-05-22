@@ -150,6 +150,7 @@ VmInstruction(InstMes) {
       IoError err = Io::VfsOpen("voice", audioId, &stream);
       uint8_t* oldIp = thread->Ip;
       thread->Ip = line;
+      ScrWork[2100 + thread->DialoguePageId] = animationId;
       DialoguePages[thread->DialoguePageId].AddString(
           thread, err == IoError_OK ? Audio::AudioStream::Create(stream) : 0);
       thread->Ip = oldIp;
@@ -162,6 +163,7 @@ VmInstruction(InstMes) {
       PopString(line);
       uint8_t* oldIp = thread->Ip;
       thread->Ip = line;
+      ScrWork[2100 + thread->DialoguePageId] = animationId;
       DialoguePages[thread->DialoguePageId].AddString(thread);
       thread->Ip = oldIp;
     } break;

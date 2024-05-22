@@ -9,6 +9,7 @@ namespace Interface {
 
 void UpdateBackground2D();
 
+void UpdateEyeMouth2D();
 void UpdateCharacter2D();
 
 void UpdateSpeakerPortraits();
