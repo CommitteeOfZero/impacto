@@ -194,7 +194,7 @@ void Character2D::Update(float dt) {
     StatesToDraw.push_back(0x40000000 | ((Face & 0xFFFF0000) >> 8) |
                            LipFrame);  // Just mouth
     StatesToDraw.push_back(0x60000000 | ((Face & 0xFFFF0000) >> 8) |
-                           EyeFrame +
+                           3 * EyeFrame +
                                LipFrame);  // Both eyes and mouth (3 frames of
                                            // mouth with each frame of the eyes)
     StatesToDraw.push_back(0x30000000 | ((Face & 0xFFFF0000) >> 8));
