@@ -24,6 +24,8 @@ class AudioChannel : public Audio::AudioChannel {
   // may be negative for no fixed duration, 0 for no audio
   float DurationInSeconds() const override;
 
+  const AudioStream* GetStream() const override;
+
  private:
   void SetGain();
   int SamplesPerBuffer() const;

@@ -32,9 +32,10 @@ class AudioChannel {
   // may be negative for no fixed duration, 0 for no audio
   virtual float DurationInSeconds() const { return 0.0f; };
 
+  virtual const AudioStream* GetStream() const { return nullptr; };
+
   AudioChannelId Id;
   AudioChannelGroup Group;
-
   AudioChannelState State;
 
   float Volume = 1.0f;
