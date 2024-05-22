@@ -23,6 +23,7 @@
 #include "interface/input.h"
 #include "../data/savesystem.h"
 #include "../ui/ui.h"
+#include "../voicetable.h"
 
 namespace Impacto {
 
@@ -247,9 +248,17 @@ VmInstruction(InstSaveIconLoad) {
 }
 VmInstruction(InstVoiceTableLoadMaybe) {
   StartInstruction;
-  PopExpression(arg1);
+  PopExpression(fileId);
+  if (VoiceTableData.Status == LS_Loading) {
+    ResetInstruction;
+    BlockThread;
+  } else if (VoiceTableData.Status == LS_Unloaded) {
+    VoiceTableData.LoadAsync(fileId);
+    ResetInstruction;
+    BlockThread;
+  }
   ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction VoiceTableLoad(arg1: %i)\n", arg1);
+             "STUB instruction VoiceTableLoad(arg1: %i)\n", fileId);
 }
 VmInstruction(InstSetPadCustom) {
   StartInstruction;

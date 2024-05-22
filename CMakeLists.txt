@@ -37,6 +37,7 @@ set(Impacto_Src
         src/text.cpp
         src/inputsystem.cpp
         src/minilua_impl.c
+        src/voicetable.cpp
 
         src/renderer/renderer.cpp
 
