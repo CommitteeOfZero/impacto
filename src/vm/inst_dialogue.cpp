@@ -150,9 +150,9 @@ VmInstruction(InstMes) {
       IoError err = Io::VfsOpen("voice", audioId, &stream);
       uint8_t* oldIp = thread->Ip;
       thread->Ip = line;
-      ScrWork[2100 + thread->DialoguePageId] = animationId;
       DialoguePages[thread->DialoguePageId].AddString(
-          thread, err == IoError_OK ? Audio::AudioStream::Create(stream) : 0);
+          thread, err == IoError_OK ? Audio::AudioStream::Create(stream) : 0,
+          animationId);
       thread->Ip = oldIp;
       UI::BacklogMenuPtr->AddMessage(line, audioId);
     } break;
@@ -163,8 +163,7 @@ VmInstruction(InstMes) {
       PopString(line);
       uint8_t* oldIp = thread->Ip;
       thread->Ip = line;
-      ScrWork[2100 + thread->DialoguePageId] = animationId;
-      DialoguePages[thread->DialoguePageId].AddString(thread);
+      DialoguePages[thread->DialoguePageId].AddString(thread, 0, animationId);
       thread->Ip = oldIp;
     } break;
     case 0x80: {  // LoadDialogueMSB
@@ -186,7 +185,8 @@ VmInstruction(InstMes) {
       uint8_t* oldIp = thread->Ip;
       thread->Ip = line;
       DialoguePages[thread->DialoguePageId].AddString(
-          thread, err == IoError_OK ? Audio::AudioStream::Create(stream) : 0);
+          thread, err == IoError_OK ? Audio::AudioStream::Create(stream) : 0,
+          animationId);
       thread->Ip = oldIp;
       UI::BacklogMenuPtr->AddMessage(line);
     } break;

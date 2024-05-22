@@ -27,6 +27,7 @@ namespace Impacto {
 using namespace Impacto::Profile::Dialogue;
 using namespace Impacto::Profile::ScriptVars;
 
+int DialoguePageCount = 0;
 DialoguePage* DialoguePages;
 DialogueBox* TextBox;
 
@@ -234,6 +235,7 @@ void DialoguePage::Init() {
     DialoguePages[i].Clear();
     DialoguePages[i].Mode = DPM_NVL;
     DialoguePages[i].Id = i;
+    DialoguePages[i].AnimationId = 0;
     DialoguePages[i].FadeAnimation.DurationIn = FadeInDuration;
     DialoguePages[i].FadeAnimation.DurationOut = FadeOutDuration;
   }
@@ -368,7 +370,9 @@ void DialoguePage::EndRubyBase(int lastBaseCharacter) {
   }
 }
 
-void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice) {
+void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
+                             int animId) {
+  AnimationId = animId;
   if (Mode == DPM_ADV || Mode == DPM_REV || NVLResetBeforeAdd ||
       PrevMode != Mode) {
     Clear();

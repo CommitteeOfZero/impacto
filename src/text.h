@@ -73,6 +73,7 @@ struct DialoguePage {
   static void Init();
 
   int Id;
+  int AnimationId;
 
   Animation FadeAnimation;
   TypewriterEffect Typewriter;
@@ -98,7 +99,8 @@ struct DialoguePage {
   bool AutoForward;
 
   void Clear();
-  void AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice = 0);
+  void AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice = 0,
+                 int animId = 0);
   void Update(float dt);
   void Render();
 
@@ -118,6 +120,7 @@ struct DialoguePage {
 };
 
 extern DialoguePage* DialoguePages;
+extern int DialoguePageCount;
 
 int TextGetStringLength(Vm::Sc3VmThread* ctx);
 int TextGetMainCharacterCount(Vm::Sc3VmThread* ctx);

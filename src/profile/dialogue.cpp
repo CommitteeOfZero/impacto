@@ -192,6 +192,7 @@ void Configure() {
   PageCount = EnsureGetMemberInt("PageCount");
 
   Impacto::DialoguePages = new DialoguePage[PageCount];
+  Impacto::DialoguePageCount = PageCount;
   for (int i = 0; i < PageCount; i++) {
     Impacto::DialoguePages[i].Glyphs = new ProcessedTextGlyph[MaxPageSize];
   }

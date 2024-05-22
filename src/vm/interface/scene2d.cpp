@@ -6,6 +6,7 @@
 // #include "../../window.h"
 #include "../../renderer/renderer.h"
 #include "../../voicetable.h"
+#include "../../text.h"
 
 namespace Impacto {
 namespace Vm {
@@ -205,7 +206,7 @@ uint8_t GetSoundLevel() {
 
   int fileId =
       Audio::Channels[Audio::AC_VOICE0]->GetStream()->GetBaseStream()->Meta.Id;
-  uint8_t voiceData = VoiceTableData.getVoiceData(fileId, audioPos / 4);
+  uint8_t voiceData = VoiceTableData.GetVoiceData(fileId, audioPos / 4);
   uint8_t result = (voiceData >> (audioPos * 2 & 6)) & 3;
   return result;
 }
@@ -305,31 +306,37 @@ void UpdateCharacter2D() {
     }
 
     uint32_t chaIndexMask = 1 << i & 0x1f;
-    int audioLevel = 0;
-    if (ScrWork[5118 + i * Profile::Vm::ScrWorkChaStructSize] == 0xff) {
-      Characters2D[bufId].EyeFrame = curEyeFrame[i] + 1;
+    if (ScrWork[SW_CHA1SCRIPTEYEFRAME +
+                i * Profile::Vm::ScrWorkChaStructSize] == 0xff) {
+      Characters2D[bufId].EyeFrame = curEyeFrame[i];
     } else {
       Characters2D[bufId].EyeFrame =
-          ScrWork[5118 + i * Profile::Vm::ScrWorkChaStructSize] + 1;
+          ScrWork[SW_CHA1SCRIPTEYEFRAME +
+                  i * Profile::Vm::ScrWorkChaStructSize];
     }
-    if (ScrWork[5119 + i * Profile::Vm::ScrWorkChaStructSize] != 0xff) {
-      audioLevel = ScrWork[5119 + i * Profile::Vm::ScrWorkChaStructSize];
+    if (ScrWork[SW_CHA1SCRIPTLIPFRAME +
+                i * Profile::Vm::ScrWorkChaStructSize] != 0xff) {
+      Characters2D[bufId].LipFrame =
+          ScrWork[SW_CHA1SCRIPTLIPFRAME +
+                  i * Profile::Vm::ScrWorkChaStructSize];
       return;
     } else {
       bool charSpeaking = false;
-      for (size_t j = 0; j < 3; j++) {
-        if (chaIndexMask & ScrWork[2100 + j]) {
+      for (size_t dialogPageId = 0; dialogPageId < DialoguePageCount;
+           dialogPageId++) {
+        if (chaIndexMask & DialoguePages[dialogPageId].AnimationId) {
           if (GetSoundLevel() > 0) {
-            Characters2D[bufId].LipFrame = animeTable[curMouthIndex[j]][0] + 1;
+            Characters2D[bufId].LipFrame =
+                animeTable[curMouthIndex[dialogPageId]][0];
           } else {
-            Characters2D[bufId].LipFrame = 1;
+            Characters2D[bufId].LipFrame = 0;
           }
           charSpeaking = true;
           break;
         }
       }
       if (!charSpeaking) {
-        Characters2D[bufId].LipFrame = 1;
+        Characters2D[bufId].LipFrame = 0;
       }
     }
   }

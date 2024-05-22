@@ -17,7 +17,7 @@ class VoiceTable : public Loadable<VoiceTable> {
   friend class Loadable<VoiceTable>;
 
  public:
-  uint8_t getVoiceData(uint32_t id, size_t index) {
+  uint8_t GetVoiceData(uint32_t id, size_t index) {
     return lipSyncData[tableOfContents[id].dataIndex * 4 + index];
   }
 

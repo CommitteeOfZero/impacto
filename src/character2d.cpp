@@ -28,8 +28,6 @@ bool Character2D::LoadSync(uint32_t charaId) {
   if (Profile::CharaIsMvl) {
     // MVL format
     Face = charaId;
-    LipFrame = 1;
-    EyeFrame = 1;
 
     err = Io::VfsOpen(MountPoint, fileId + 1, &stream);
     if (err != IoError_OK) return false;
@@ -61,12 +59,12 @@ bool Character2D::LoadSync(uint32_t charaId) {
         idx -= 2;
         id = atoi(&name[idx]);
         idx += 3;
-        id = (0x40000000 | (id << 8)) | atoi(&name[idx]);
+        id = (0x40000000 | (id << 8)) | (atoi(&name[idx]) - 1);
       } else if (name[idx] == 'E') {  // Eye
         idx -= 2;
         id = atoi(&name[idx]);
         idx += 3;
-        id = (0x30000000 | (id << 8)) | atoi(&name[idx]);
+        id = (0x30000000 | (id << 8)) | (atoi(&name[idx]) - 1);
       }
       States[id].Count = count;
 
@@ -196,8 +194,9 @@ void Character2D::Update(float dt) {
     StatesToDraw.push_back(0x40000000 | ((Face & 0xFFFF0000) >> 8) |
                            LipFrame);  // Just mouth
     StatesToDraw.push_back(0x60000000 | ((Face & 0xFFFF0000) >> 8) |
-                           EyeFrame);  // Both eyes and mouth (3 frames of mouth
-                                       // with each frame of the eyes)
+                           EyeFrame +
+                               LipFrame);  // Both eyes and mouth (3 frames of
+                                           // mouth with each frame of the eyes)
     StatesToDraw.push_back(0x30000000 | ((Face & 0xFFFF0000) >> 8));
   }
 }
