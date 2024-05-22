@@ -299,7 +299,8 @@ void FFmpegPlayer::Read() {
         SDL_LockMutex(VideoStream->PacketLock);
         VideoStream->PacketQueue.push(item);
         SDL_UnlockMutex(VideoStream->PacketLock);
-      } else if (packet->stream_index == AudioStream->stream->index) {
+      } else if (AudioStream != nullptr &&
+                 packet->stream_index == AudioStream->stream->index) {
         AVPacketItem item;
         item.Packet = av_packet_alloc();
         av_packet_move_ref(item.Packet, packet);

@@ -306,18 +306,18 @@ void UpdateCharacter2D() {
     }
 
     uint32_t chaIndexMask = 1 << i & 0x1f;
-    if (ScrWork[SW_CHA1SCRIPTEYEFRAME +
+    if (ScrWork[SW_CHA1ANIME_EYE +
                 i * Profile::Vm::ScrWorkChaStructSize] == 0xff) {
       Characters2D[bufId].EyeFrame = curEyeFrame[i];
     } else {
       Characters2D[bufId].EyeFrame =
-          ScrWork[SW_CHA1SCRIPTEYEFRAME +
+          ScrWork[SW_CHA1ANIME_EYE +
                   i * Profile::Vm::ScrWorkChaStructSize];
     }
-    if (ScrWork[SW_CHA1SCRIPTLIPFRAME +
+    if (ScrWork[SW_CHA1ANIME_MOUTH +
                 i * Profile::Vm::ScrWorkChaStructSize] != 0xff) {
       Characters2D[bufId].LipFrame =
-          ScrWork[SW_CHA1SCRIPTLIPFRAME +
+          ScrWork[SW_CHA1ANIME_MOUTH +
                   i * Profile::Vm::ScrWorkChaStructSize];
       return;
     } else {

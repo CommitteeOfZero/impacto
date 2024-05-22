@@ -8,6 +8,7 @@ root.DesignHeight = 720;
 root.WindowName = "CHAOS;HEAD Love Chu☆Chu!";
 
 root.CharaIsMvl = false;
+root.UseMoviePriority = true;
 root.LayFileBigEndian = true;
 root.LayFileTexXMultiplier = 2048;
 root.LayFileTexYMultiplier = 1024;

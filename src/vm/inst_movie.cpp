@@ -58,6 +58,7 @@ VmInstruction(InstPlayMovie) {
       if ((playMode & 0xFFFFFFFD) == 0) flags = flags | 2;
       if (Video::Players[0]->IsPlaying) Video::Players[0]->Stop();
       Video::Players[0]->Play(stream, flags & 8, flags & 4);
+      SetFlag(SF_MOVIEPLAY, true);
     }
     BlockThread;
     ImpLogSlow(LL_Warning, LC_VMStub,
@@ -101,22 +102,26 @@ VmInstruction(InstMovieMain) {
   StartInstruction;
   PopUint8(type);
   switch (type) {
-    case 2:  // Stop
+    case 0:
       if (Profile::GameFeatures & GameFeature::Video) {
-        if (Profile::Vm::GameInstructionSet == +InstructionSet::MO8) {
+        if (Interface::PADinputButtonWentDown & Interface::PAD1A ||
+            Interface::PADinputMouseWentDown & Interface::PAD1A) {
           Video::Players[0]->Stop();
-        } else {
-          if (Interface::PADinputButtonWentDown & Interface::PAD1A ||
-              Interface::PADinputMouseWentDown & Interface::PAD1A) {
-            Video::Players[0]->Stop();
-          } else if (Video::Players[0]->IsPlaying) {
-            ResetInstruction;
-            BlockThread;
-          }
+          SetFlag(SF_MOVIEPLAY, false);
+        } else if (Video::Players[0]->IsPlaying) {
+          ResetInstruction;
+          BlockThread;
         }
       }
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MovieMain(type: Stop)\n");
+      break;
+    case 1:
+      thread->ScriptParam = GetFlag(SF_MOVIEPLAY);
+      break;
+    case 2:  // Stop
+      if (Profile::GameFeatures & GameFeature::Video) {
+        Video::Players[0]->Stop();
+        SetFlag(SF_MOVIEPLAY, false);
+      }
       break;
     case 3:  // StopWait
       if (Profile::GameFeatures & GameFeature::Video) {
@@ -124,26 +129,9 @@ VmInstruction(InstMovieMain) {
             Interface::PADinputMouseWentDown & Interface::PAD1A) {
           Video::Players[0]->Stop();
           ScrWork[SW_MOVIEFRAME] = 255;
-        } else if (Video::Players[0]->IsPlaying) {
-          ResetInstruction;
-          BlockThread;
+          SetFlag(SF_MOVIEPLAY, false);
         }
       }
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MovieMain(type: StopWaitForSomething)\n");
-      break;
-    default:
-      if (Profile::GameFeatures & GameFeature::Video) {
-        if (Interface::PADinputButtonWentDown & Interface::PAD1A ||
-            Interface::PADinputMouseWentDown & Interface::PAD1A) {
-          Video::Players[0]->Stop();
-        } else if (Video::Players[0]->IsPlaying) {
-          ResetInstruction;
-          BlockThread;
-        }
-      }
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MovieMain(type: %i)\n", type);
       break;
   }
 }

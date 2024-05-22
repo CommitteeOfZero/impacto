@@ -1050,6 +1050,7 @@ if (WIN32)
             PATTERN "CMakeFiles" EXCLUDE
             PATTERN "include" EXCLUDE
             PATTERN "Testing" EXCLUDE
+            PATTERN "_deps" EXCLUDE
     )
     install(FILES ${LIBATRAC9_INCLUDE_DIR}/../bin/${LIBATRAC9_ARCH}/libatrac9.dll DESTINATION .)
 endif ()

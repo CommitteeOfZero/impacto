@@ -19,6 +19,7 @@ root.Vm = {
 
 include('common/scriptinput.lua');
 include('common/scriptvars.lua');
+include('dash/scriptinput.lua');
 include('dash/scriptvars.lua');
 include('dash/savedata.lua');
 include('dash/tipssystem.lua');
