@@ -58,21 +58,22 @@ function InstallPackages() {
     if (!(Get-Command $vcpkg -ErrorAction SilentlyContinue)) {
         $vcpkg = "vcpkg"
     }
+
+    mkdir build -Force | Out-Null
+    pushd build
     if (!(Get-Command $vcpkg  -ErrorAction SilentlyContinue)) {
-        if (!(Test-Path build/vcpkg)) {
-            mkdir build -Force | Out-Null
-            pushd build
             & git clone https://github.com/Microsoft/vcpkg.git --depth 1
             pushd vcpkg
             ./bootstrap-vcpkg -disableMetrics
             popd
-            popd
-        }
         $vcpkg = "build/vcpkg/vcpkg.exe"
         $local_vcpkg = $true
+    } else {
+        mkdir vcpkg -Force | Out-Null
     }
+    popd
 
-    & $vcpkg install sdl2 sdl2[vulkan] vulkan openal-soft libogg libvorbis zlib glm ffmpeg libwebp --triplet $Arch-windows
+    & $vcpkg install --triplet $Arch-windows --vcpkg-root="build/vcpkg/" --x-install-root="build/vcpkg/installed"
     if ($local_vcpkg) {
         & $vcpkg integrate install
         Write-Output "Cleaning up..."
