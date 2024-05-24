@@ -54,7 +54,7 @@ void TitleMenu::Update(float dt) {
   UpdateInput();
 
   PressToStartAnimation.Update(dt);
-  if (GetFlag(SF_TITLEMODE)) {
+  if (GetFlag(SF_TITLEMODE) && ScrWork[SW_TITLEDISPCT] == 2) {
     Show();
   } else {
     Hide();
@@ -66,7 +66,7 @@ void TitleMenu::Render() {
     col.a = glm::smoothstep(0.0f, 1.0f, PressToStartAnimation.Progress);
     Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
     Renderer->DrawSprite(PressToStartSprite,
-                           glm::vec2(PressToStartX, PressToStartY), col);
+                         glm::vec2(PressToStartX, PressToStartY), col);
   }
 }
 

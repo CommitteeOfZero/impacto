@@ -59,6 +59,9 @@ VmInstruction(InstPlayMovie) {
       if (Video::Players[0]->IsPlaying) Video::Players[0]->Stop();
       Video::Players[0]->Play(stream, flags & 8, flags & 4);
       SetFlag(SF_MOVIEPLAY, true);
+      // TODO: Hack, implement this properly
+      ScrWork[SW_MOVIEFRAME] = 0;
+      ScrWork[SW_MOVIETOTALFRAME] = 255;
     }
     BlockThread;
     ImpLogSlow(LL_Warning, LC_VMStub,
@@ -104,8 +107,9 @@ VmInstruction(InstMovieMain) {
   switch (type) {
     case 0:
       if (Profile::GameFeatures & GameFeature::Video) {
-        if (Interface::PADinputButtonWentDown & Interface::PAD1A ||
-            Interface::PADinputMouseWentDown & Interface::PAD1A) {
+        if ((Interface::PADinputButtonWentDown & Interface::PAD1A ||
+             Interface::PADinputMouseWentDown & Interface::PAD1A) ||
+            !Video::Players[0]->IsPlaying) {
           Video::Players[0]->Stop();
           SetFlag(SF_MOVIEPLAY, false);
         } else if (Video::Players[0]->IsPlaying) {
@@ -125,8 +129,9 @@ VmInstruction(InstMovieMain) {
       break;
     case 3:  // StopWait
       if (Profile::GameFeatures & GameFeature::Video) {
-        if (Interface::PADinputButtonWentDown & Interface::PAD1A ||
-            Interface::PADinputMouseWentDown & Interface::PAD1A) {
+        if ((Interface::PADinputButtonWentDown & Interface::PAD1A ||
+             Interface::PADinputMouseWentDown & Interface::PAD1A) ||
+            !Video::Players[0]->IsPlaying) {
           Video::Players[0]->Stop();
           ScrWork[SW_MOVIEFRAME] = 255;
           SetFlag(SF_MOVIEPLAY, false);
