@@ -112,14 +112,20 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
     }
 
     case STT_SetColor: {
+      Type = (StringTokenType)c;
       if (ColorTagIsUint8) {
-        Type = (StringTokenType)c;
         Val_Expr = (*(uint8_t*)(ctx->Ip));
         ctx->Ip += 1;
         bytesRead += 1;
+      } else {
+        uint8_t* oldIp = ctx->Ip;
+        // TODO is this really okay to do in parsing code?
+        Vm::ExpressionEval(ctx, &Val_Expr);
+        bytesRead += (int)(ctx->Ip - oldIp);
       }
       break;
     }
+
     case STT_EvaluateExpression: {
       Type = (StringTokenType)c;
       uint8_t* oldIp = ctx->Ip;
