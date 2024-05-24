@@ -143,12 +143,7 @@ for i = 1, 47 do
     };
     root.Dialogue.ADVBoxNamePlateLabelSprites[#root.Dialogue.ADVBoxNamePlateLabelSprites + 1] = "ADVBoxNamePlateLabel" .. i;
 
-    if i % 2 == 0 then
-        namePlateLabelX = 3600;
-        namePlateLabelY = namePlateLabelY + namePlateLabelHeight;
-    else
-        namePlateLabelX = namePlateLabelX + namePlateLabelWidth;
-    end
+    namePlateLabelY = namePlateLabelY + namePlateLabelHeight;
 end
 
 include('cclcc/nametag.lua');
