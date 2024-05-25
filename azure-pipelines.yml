@@ -17,7 +17,7 @@ jobs:
     displayName: Cache vcpkg packages
     inputs:
       key: 'vcpkg-deps'
-      path: 'C:/vcpkg/installed'
+      path: '$(Build.Repository.LocalPath)/vcpkg_installed'
   - task: Cache@2
     displayName: Cache LibAtrac9
     inputs:
