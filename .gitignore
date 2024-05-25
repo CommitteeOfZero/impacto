@@ -25,6 +25,7 @@ bld/
 [Ll]og/
 [Ii]nstall/
 cmake-build-*/
+vcpkg_installed/
 
 # Visual Studio 2015 cache/options directory
 .vs/
