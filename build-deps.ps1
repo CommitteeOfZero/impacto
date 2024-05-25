@@ -69,11 +69,7 @@ function InstallPackages() {
             popd
         }
         $vcpkg = "build/vcpkg/vcpkg.exe"
-        $local_vcpkg = $true
-    }
-
-    & $vcpkg install --triplet $Arch-windows
-    if ($local_vcpkg) {
+        & $vcpkg install --triplet $Arch-windows
         & $vcpkg integrate install
         Write-Output "Cleaning up..."
         Remove-Item build/vcpkg/downloads -Recurse

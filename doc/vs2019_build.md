@@ -14,41 +14,7 @@ Run `.\build-deps.ps1` from a PowerShell prompt.
 
 ## Visual Studio 2019 CMake project setup
 
-- Put following `CMakeSettings.json` in the repository root (don't worry, it's gitignored) and change paths accordingly (the directories will be created automatically upon building):
-
-```json
-{
-  "configurations": [
-    {
-      "name": "x64-Release",
-      "generator": "Ninja",
-      "configurationType": "RelWithDebInfo",
-      "inheritEnvironments": [
-        "msvc_x64_x64"
-      ],
-      "buildRoot": "C:\\full\\path\\to\\impacto-build\\build\\${name}",
-      "installRoot": "C:\\full\\path\\to\\impacto-build\\install\\${name}",
-      "cmakeCommandArgs": "",
-      "buildCommandArgs": "",
-      "ctestCommandArgs": ""
-    },
-    {
-      "name": "x64-Debug",
-      "generator": "Ninja",
-      "configurationType": "Debug",
-      "inheritEnvironments": [
-        "msvc_x64_x64"
-      ],
-      "buildRoot": "C:\\full\\path\\to\\impacto-build\\build\\${name}",
-      "installRoot": "C:\\full\\path\\to\\impacto-build\\install\\${name}",
-      "cmakeCommandArgs": "",
-      "buildCommandArgs": "",
-      "ctestCommandArgs": ""
-    }
-  ]
-}
-```
-
+- Put following `CMakePresets.json` in the repository root (don't worry, it's gitignored).
 ## CMakePresets.json for VSCode or other IDEs
 
 ```json
@@ -65,20 +31,19 @@ Run `.\build-deps.ps1` from a PowerShell prompt.
       "hidden": false,
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/impacto-build/build/${presetName}",
-      "environment": {
-        "VCPKG_ROOT": "${sourceDir}/build/vcpkg/"
-      },
+      // Include this if vcpkg was locally cloned
+      // "environment": {
+      //   "VCPKG_ROOT": "${sourceDir}/impacto/build/vcpkg/"
+      // },
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-        "CMAKE_TOOLCHAIN_FILE": {
-          "type": "FILEPATH",
-          "value": "${sourceDir}/build/vcpkg/scripts/buildsystems/vcpkg.cmake"
-        },
+        "CMAKE_TOOLCHAIN_FILE": "${env:VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
         "CMAKE_PREFIX_PATH": "${sourceDir}/build/vcpkg/installed/x64-windows/",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/impacto-build/build/${presetName}",
         "CMAKE_C_COMPILER": "cl.exe",
-        "CMAKE_CXX_COMPILER": "cl.exe"
+        "CMAKE_CXX_COMPILER": "cl.exe",
+        "VCPKG_INSTALLED_DIR": "${sourceDir}/vcpkg_installed"
       }
     },
     {
@@ -87,20 +52,19 @@ Run `.\build-deps.ps1` from a PowerShell prompt.
       "hidden": false,
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/impacto-build/build/${presetName}",
-      "environment": {
-        "VCPKG_ROOT": "${sourceDir}/impacto/build/vcpkg/"
-      },
+      // Include this if vcpkg was locally cloned
+      // "environment": {
+      //   "VCPKG_ROOT": "${sourceDir}/impacto/build/vcpkg/"
+      // },
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_TOOLCHAIN_FILE": {
-          "type": "FILEPATH",
-          "value": "${sourceDir}/build/vcpkg/scripts/buildsystems/vcpkg.cmake"
-        },
+        "CMAKE_TOOLCHAIN_FILE": "${env:VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
         "CMAKE_PREFIX_PATH": "${sourceDir}/build/vcpkg/installed/x64-windows/",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/impacto-build/build/${presetName}",
         "CMAKE_C_COMPILER": "cl.exe",
-        "CMAKE_CXX_COMPILER": "cl.exe"
+        "CMAKE_CXX_COMPILER": "cl.exe",
+        "VCPKG_INSTALLED_DIR": "${sourceDir}/vcpkg_installed"
       }
     }
   ],
