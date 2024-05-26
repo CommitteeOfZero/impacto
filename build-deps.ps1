@@ -59,7 +59,7 @@ function InstallPackages() {
         $vcpkg = "vcpkg"
     }
     # Visual studio's vcpkg doesn't support classic mode
-    if(("${env:VSINSTALLDIR}VC\vcpkg" -ne "${env:VCPKG_ROOT}") -or !(Get-Command $vcpkg -ErrorAction SilentlyContinue)) {
+    if(("${env:VSINSTALLDIR}VC\vcpkg" -eq "${env:VCPKG_ROOT}") -or !(Get-Command $vcpkg -ErrorAction SilentlyContinue)) {
         if (!(Test-Path build/vcpkg)) {
             mkdir build -Force | Out-Null
             pushd build
