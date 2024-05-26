@@ -58,7 +58,8 @@ function InstallPackages() {
     if (!(Get-Command $vcpkg -ErrorAction SilentlyContinue)) {
         $vcpkg = "vcpkg"
     }
-    if (!(Get-Command $vcpkg  -ErrorAction SilentlyContinue)) {
+    # Visual studio's vcpkg doesn't support classic mode
+    if(("${env:VSINSTALLDIR}VC\vcpkg" -ne "${env:VCPKG_ROOT}") -or !(Get-Command $vcpkg -ErrorAction SilentlyContinue)) {
         if (!(Test-Path build/vcpkg)) {
             mkdir build -Force | Out-Null
             pushd build
@@ -71,6 +72,7 @@ function InstallPackages() {
         $vcpkg = "build/vcpkg/vcpkg.exe"
         $local_vcpkg = $true
     }
+    
 
     & $vcpkg install sdl2 sdl2[vulkan] vulkan openal-soft libogg libvorbis zlib glm ffmpeg libwebp --triplet $Arch-windows
     if ($local_vcpkg) {
