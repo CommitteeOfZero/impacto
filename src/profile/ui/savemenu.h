@@ -12,11 +12,6 @@ extern Impacto::UI::SaveMenuType Type;
 extern Sprite SaveMenuBackgroundSprite;
 extern Sprite EmptyThumbnailSprite;
 
-extern float EntryStartX;
-extern float EntryXPadding;
-extern float EntryStartY;
-extern float EntryYPadding;
-
 extern float FadeInDuration;
 extern float FadeOutDuration;
 

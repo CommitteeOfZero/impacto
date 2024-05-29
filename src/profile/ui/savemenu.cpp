@@ -19,11 +19,6 @@ SaveMenuType Type = SaveMenuType::None;
 Sprite SaveMenuBackgroundSprite;
 Sprite EmptyThumbnailSprite;
 
-float EntryStartX;
-float EntryXPadding;
-float EntryStartY;
-float EntryYPadding;
-
 float FadeInDuration;
 float FadeOutDuration;
 
@@ -36,11 +31,6 @@ void Configure() {
     SaveMenuBackgroundSprite =
         EnsureGetMemberSprite("SaveMenuBackgroundSprite");
     EmptyThumbnailSprite = EnsureGetMemberSprite("EmptyThumbnailSprite");
-
-    EntryStartX = EnsureGetMemberFloat("EntryStartX");
-    EntryXPadding = EnsureGetMemberFloat("EntryXPadding");
-    EntryStartY = EnsureGetMemberFloat("EntryStartY");
-    EntryYPadding = EnsureGetMemberFloat("EntryYPadding");
 
     FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
     FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");

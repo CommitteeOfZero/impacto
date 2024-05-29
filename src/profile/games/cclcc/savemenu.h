@@ -1,26 +1,37 @@
 #pragma once
 
 #include "../../../spritesheet.h"
+#include <enum.h>
 
 namespace Impacto {
 namespace Profile {
 namespace CCLCC {
 namespace SaveMenu {
+BETTER_ENUM(SaveMenuPageType, int, QuickLoad, Save, Load)
+
+int const Pages = 6;
+
+extern float EntryStartXL;
+extern float EntryStartXR;
+extern float EntryStartYL;
+extern float EntryStartYR;
+extern float EntryYPadding;
 
 int const EntriesPerRow = 2;
 int const RowsPerPage = 4;
+extern Sprite BackgroundSprite;
 
-/*extern Sprite QuickLoadTextSprite;
-extern Sprite LoadTextSprite;
-extern Sprite SaveTextSprite;
-extern glm::vec2 MenuTitleTextPos;
-
-extern Sprite QuickLoadEntrySprite;
-extern Sprite QuickLoadEntryHighlightedSprite;
-extern Sprite SaveEntrySprite;
-extern Sprite SaveEntryHighlightedSprite;
-extern Sprite LoadEntrySprite;
-extern Sprite LoadEntryHighlightedSprite;*/
+extern Sprite MenuTextSprite[3];
+extern Sprite EntryHighlightedBoxSprite[3];
+extern Sprite EntryHighlightedTextSprite[3];
+extern Sprite EntrySlotsSprite[3];
+extern Sprite ButtonGuideSprite[3];
+extern Sprite NumberDigitSprite[3][10];
+extern Sprite NoDataSprite[3];
+extern Sprite BrokenDataSprite[3];
+extern Sprite SlotLockedSprite[3];
+extern Sprite PageNumSprite[3][6];
+extern Sprite SaveTimeSprite[3];
 
 void Configure();
 
