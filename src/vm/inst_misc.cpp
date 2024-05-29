@@ -311,6 +311,8 @@ VmInstruction(InstSaveMenu) {
   switch (type) {
     case 0: {  // SaveMenuInit
       PopUint8(arg1);
+      ScrWork[SW_SAVEMENUMODE] = arg1;
+      ScrWork[SW_SAVEFILESTATUS] = 0;
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SaveMenu(type: SaveMenuInit)\n");
     } break;

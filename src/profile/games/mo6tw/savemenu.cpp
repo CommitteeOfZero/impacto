@@ -11,6 +11,10 @@ namespace Impacto {
 namespace Profile {
 namespace MO6TW {
 namespace SaveMenu {
+float EntryStartX;
+float EntryXPadding;
+float EntryStartY;
+float EntryYPadding;
 
 Sprite QuickLoadTextSprite;
 Sprite LoadTextSprite;
@@ -25,6 +29,10 @@ Sprite LoadEntrySprite;
 Sprite LoadEntryHighlightedSprite;
 
 void Configure() {
+  EntryStartX = EnsureGetMemberFloat("EntryStartX");
+  EntryXPadding = EnsureGetMemberFloat("EntryXPadding");
+  EntryStartY = EnsureGetMemberFloat("EntryStartY");
+  EntryYPadding = EnsureGetMemberFloat("EntryYPadding");
   QuickLoadTextSprite = EnsureGetMemberSprite("QuickLoadTextSprite");
   LoadTextSprite = EnsureGetMemberSprite("LoadTextSprite");
   SaveTextSprite = EnsureGetMemberSprite("SaveTextSprite");

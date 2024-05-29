@@ -11,6 +11,10 @@ namespace Impacto {
 namespace Profile {
 namespace CHLCC {
 namespace SaveMenu {
+float EntryStartX;
+float EntryXPadding;
+float EntryStartY;
+float EntryYPadding;
 
 uint32_t BackgroundColor;
 uint32_t SaveBackgroundColor;
@@ -78,6 +82,10 @@ glm::vec2 SaveDateHintTextRelativePos;
 glm::vec2 SaveDateTextRelativePos;
 
 void Configure() {
+  EntryStartX = EnsureGetMemberFloat("EntryStartX");
+  EntryXPadding = EnsureGetMemberFloat("EntryXPadding");
+  EntryStartY = EnsureGetMemberFloat("EntryStartY");
+  EntryYPadding = EnsureGetMemberFloat("EntryYPadding");
   SaveBackgroundColor = EnsureGetMemberUint("SaveBackgroundColor");
   LoadBackgroundColor = EnsureGetMemberUint("LoadBackgroundColor");
   QuickLoadBackgroundColor = EnsureGetMemberUint("QuickLoadBackgroundColor");

@@ -12,6 +12,11 @@ namespace Profile {
 namespace MO8 {
 namespace SaveMenu {
 
+float EntryStartX;
+float EntryXPadding;
+float EntryStartY;
+float EntryYPadding;
+
 Sprite QuickLoadTextSprite;
 Sprite LoadTextSprite;
 Sprite SaveTextSprite;
@@ -25,6 +30,11 @@ Sprite BackButtonHighlightedSprite;
 glm::vec2 BackButtonPosition;
 
 void Configure() {
+  EntryStartX = EnsureGetMemberFloat("EntryStartX");
+  EntryXPadding = EnsureGetMemberFloat("EntryXPadding");
+  EntryStartY = EnsureGetMemberFloat("EntryStartY");
+  EntryYPadding = EnsureGetMemberFloat("EntryYPadding");
+
   QuickLoadTextSprite = EnsureGetMemberSprite("QuickLoadTextSprite");
   LoadTextSprite = EnsureGetMemberSprite("LoadTextSprite");
   SaveTextSprite = EnsureGetMemberSprite("SaveTextSprite");

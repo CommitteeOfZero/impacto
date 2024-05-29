@@ -104,6 +104,21 @@ root.SpriteSheets = {
         DesignWidth = 1536,
         DesignHeight = 2400
     },
+    ["LoadMenu"] = {
+        Path = { Mount = "system", Id = 15},
+        DesignWidth = 2048,
+        DesignHeight = 2048
+    },
+    ["QuickLoadMenu"] = {
+        Path = { Mount = "system", Id = 25},
+        DesignWidth = 2048,
+        DesignHeight = 2048
+    },
+    ["SaveMenu"] = {
+        Path = { Mount = "system", Id = 26},
+        DesignWidth = 2048,
+        DesignHeight = 2048
+    },
     
 };
 

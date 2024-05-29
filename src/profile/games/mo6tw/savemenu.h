@@ -10,6 +10,11 @@ namespace SaveMenu {
 int const EntriesPerRow = 2;
 int const RowsPerPage = 4;
 
+extern float EntryStartX;
+extern float EntryXPadding;
+extern float EntryStartY;
+extern float EntryYPadding;
+
 extern Sprite QuickLoadTextSprite;
 extern Sprite LoadTextSprite;
 extern Sprite SaveTextSprite;
