@@ -3,6 +3,7 @@
 #include "../../ui/menu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
+#include "../../profile/games/cclcc/savemenu.h"
 
 namespace Impacto {
 namespace UI {
@@ -20,8 +21,10 @@ class SaveMenu : public Menu {
   void MenuButtonOnClick(Widgets::Button* target);
 
  private:
-  Widgets::Group* MainItems;
+  int CurrentPage = 0;
+  Widgets::Group* MainItems[Profile::CCLCC::SaveMenu::Pages]{};
   Animation FadeAnimation;
+  bool HasCleared = true;
 };
 
 }  // namespace CCLCC

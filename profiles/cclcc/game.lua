@@ -46,5 +46,6 @@ include('cclcc/hud/tipsmenu.lua');
 include('cclcc/hud/extramenus.lua');
 include('cclcc/hud/tipsnotification.lua');
 include('cclcc/hud/delusiontrigger.lua');
+include('cclcc/hud/savemenu.lua');
 include('cclcc/mapsystem.lua');
 include('cclcc/yesnotrigger.lua');

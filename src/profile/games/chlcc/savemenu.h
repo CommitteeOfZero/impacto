@@ -10,6 +10,11 @@ namespace SaveMenu {
 int const Pages = 8;
 int const EntriesPerPage = 6;
 
+extern float EntryStartX;
+extern float EntryXPadding;
+extern float EntryStartY;
+extern float EntryYPadding;
+
 extern uint32_t BackgroundColor;
 extern uint32_t SaveBackgroundColor;
 extern uint32_t LoadBackgroundColor;
