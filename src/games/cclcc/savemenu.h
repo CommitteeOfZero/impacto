@@ -22,9 +22,9 @@ class SaveMenu : public Menu {
 
  private:
   int CurrentPage = 0;
-  Widgets::Group* MainItems[Profile::CCLCC::SaveMenu::Pages];
+  Widgets::Group* MainItems[Profile::CCLCC::SaveMenu::Pages]{};
   Animation FadeAnimation;
-  bool HasCleared = false;
+  bool HasCleared = true;
 };
 
 }  // namespace CCLCC

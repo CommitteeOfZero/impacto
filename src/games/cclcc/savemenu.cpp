@@ -42,6 +42,7 @@ void SaveMenu::Show() {
       std::bind(&SaveMenu::MenuButtonOnClick, this, std::placeholders::_1);
 
   if (State != Shown) {
+    HasCleared = false;
     State = Showing;
     FadeAnimation.StartIn();
     int id = 0;
@@ -183,18 +184,6 @@ void SaveMenu::Hide() {
     }
     IsFocused = false;
   }
-  if (State == Hidden && !HasCleared) {
-    for (int p = 0; p < Pages; ++p) {
-      for (int i = 0; i < RowsPerPage; i++) {
-        for (int j = 0; j < EntriesPerRow; j++) {
-          delete EntryGrid[p][i][j];
-        }
-      }
-      MainItems[p]->Clear();
-    }
-    CurrentlyFocusedElement = nullptr;
-    HasCleared = true;
-  }
 }
 
 void SaveMenu::Update(float dt) {
@@ -226,6 +215,15 @@ void SaveMenu::Update(float dt) {
       CurrentlyFocusedElement = focusedElem;
       CurrentlyFocusedElement->HasFocus = true;
     }
+  }
+  if (State == Hidden && !HasCleared) {
+    for (int p = 0; p < Pages; ++p) {
+      MainItems[p]->Clear();
+      delete MainItems[p];
+      MainItems[p] = nullptr;
+    }
+    CurrentlyFocusedElement = nullptr;
+    HasCleared = true;
   }
 }
 
