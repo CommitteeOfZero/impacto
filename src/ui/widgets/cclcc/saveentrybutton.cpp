@@ -2,24 +2,29 @@
 
 #include "../../../renderer/renderer.h"
 #include "../../../profile/dialogue.h"
+#include "../../../profile/games/cclcc/savemenu.h"
 
 namespace Impacto {
 namespace UI {
 namespace Widgets {
 namespace CCLCC {
+using namespace Impacto::Profile::CCLCC::SaveMenu;
+using namespace Impacto::Profile::ScriptVars;
 
 glm::vec4 SaveEntryButton::FocusedAlpha = glm::vec4(1.0f);
 Animation SaveEntryButton::FocusedAlphaFade;
 
 SaveEntryButton::SaveEntryButton(int id, Sprite const& focusedBox,
-                                 Sprite const& focusedText, glm::vec2 pos,
-                                 uint8_t locked, Sprite lockedSymbol)
+                                 Sprite const& focusedText, int page,
+                                 glm::vec2 pos, uint8_t locked,
+                                 Sprite lockedSymbol)
     : Widgets::Button(
           id,
           Sprite(SpriteSheet(), focusedBox.Bounds.X, focusedBox.Bounds.Y,
                  focusedBox.Bounds.Width, focusedBox.Bounds.Height),
           Sprite(SpriteSheet(), 0, 0, 0, 0), focusedBox, pos),
       FocusedSpriteLabel(focusedText, glm::vec2{pos.x, pos.y - 34}),
+      Page(page),
       LockedSymbol(lockedSymbol,
                    glm::vec2(Bounds.X, Bounds.Y) + glm::vec2(205.0f, 79.0f)) {
   DisabledSprite = NormalSprite;
@@ -35,6 +40,15 @@ void SaveEntryButton::Render() {
         HighlightSprite,
         glm::vec2(Bounds.X + HighlightOffset.x, Bounds.Y + HighlightOffset.y),
         Tint, glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
+
+    Renderer->DrawSprite(
+        NumberDigitSprite[ScrWork[SW_SAVEMENUMODE]][(Id + 1) / 10],
+        glm::vec2(Bounds.X + 20 + 668 + 32 + 1, Bounds.Y + 20 + 99 + 1), Tint,
+        glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
+    Renderer->DrawSprite(
+        NumberDigitSprite[ScrWork[SW_SAVEMENUMODE]][(Id + 1) % 10],
+        glm::vec2(Bounds.X + 20 + 668 + 64 + 1, Bounds.Y + 20 + 99 + 1), Tint,
+        glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
   }
   ThumbnailLabel.Render();
   EntryNumberHint.Render();
@@ -52,6 +66,8 @@ void SaveEntryButton::Render() {
     SceneTitle.Render();
   }
 }
+
+int SaveEntryButton::GetPage() const { return Page; }
 
 void SaveEntryButton::AddNormalSpriteLabel(Sprite norm, glm::vec2 pos) {
   NormalSpriteLabel = Label(norm, pos);

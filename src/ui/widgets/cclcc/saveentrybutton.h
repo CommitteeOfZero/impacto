@@ -14,7 +14,7 @@ namespace CCLCC {
 class SaveEntryButton : public Widgets::Button {
  public:
   SaveEntryButton(int id, Sprite const& focusedBox, Sprite const& focusedText,
-                  glm::vec2 pos, uint8_t locked, Sprite lockedSymbol);
+                  int page, glm::vec2 pos, uint8_t locked, Sprite lockedSymbol);
   void Render() override;
   int GetPage() const;
   void AddNormalSpriteLabel(Sprite norm, glm::vec2 pos);
