@@ -980,11 +980,19 @@ void Renderer::EnableScissor() {
 }
 
 void Renderer::SetScissorRect(RectF const& rect) {
+  Rect viewport = Window->GetViewport();
+  float scale = fmin((float)Window->WindowWidth / Profile::DesignWidth,
+                     (float)Window->WindowHeight / Profile::DesignHeight);
+  float rectX = rect.X * scale;
+  float rectY = rect.Y * scale;
+  float rectWidth = rect.Width * scale;
+  float rectHeight = rect.Height * scale;
+
   RECT rectW{};
-  rectW.left = (LONG)rect.X;
-  rectW.top = (LONG)rect.Y;
-  rectW.right = (LONG)(rect.X + rect.Width);
-  rectW.bottom = (LONG)(rect.Y + rect.Height);
+  rectW.left = (LONG)rectX;
+  rectW.top = (LONG)rectY;
+  rectW.right = (LONG)(rect.X + rectWidth);
+  rectW.bottom = (LONG)(rect.Y + rectHeight);
   Device->SetScissorRect(&rectW);
 }
 
