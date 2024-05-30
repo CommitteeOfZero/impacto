@@ -9,7 +9,7 @@ namespace CCLCC {
 namespace SaveMenu {
 BETTER_ENUM(SaveMenuPageType, int, QuickLoad, Save, Load)
 
-int const Pages = 6;
+int const static Pages = 6;
 
 extern float EntryStartXL;
 extern float EntryStartXR;
@@ -17,8 +17,8 @@ extern float EntryStartYL;
 extern float EntryStartYR;
 extern float EntryYPadding;
 
-int const EntriesPerRow = 2;
-int const RowsPerPage = 4;
+int const static EntriesPerRow = 2;
+int const static RowsPerPage = 4;
 extern Sprite BackgroundSprite;
 
 extern Sprite MenuTextSprite[3];
