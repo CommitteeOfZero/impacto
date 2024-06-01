@@ -244,9 +244,9 @@ void MapSystemCCLCC::MapLoad(uint8_t* data, int& dataSize) {
     dataSize += 4;
     float conversionFactor = FadeAnimationDuration * 60.0f;
     MapPoolDisp[i].fadeAnim.Progress =
-        (MapPoolDisp[i].state == Hiding || MapPoolDisp[i].state == Hidden)
+        (MapPoolDisp[i].state == Hiding || MapPoolDisp[i].state == Shown)
             ? progress / conversionFactor
-        : (MapPoolDisp[i].state == Showing || MapPoolDisp[i].state == Shown)
+        : (MapPoolDisp[i].state == Showing || MapPoolDisp[i].state == Hidden)
             ? 1 - progress / conversionFactor
             : 0;
     MapPoolDisp[i].fadeAnim.Direction = inOrOut;
@@ -282,6 +282,117 @@ void MapSystemCCLCC::MapLoad(uint8_t* data, int& dataSize) {
   assert(dataSize == 0x6ac8);
 }
 
+void MapSystemCCLCC::MapSave(uint8_t* data, int& dataSize) {
+  dataSize = 0;
+  memmove(data, &MapGroup, sizeof(MapGroup));
+  dataSize += sizeof(MapGroup);
+  for (int i = 0; i < MapPartsDisp.size(); i++) {
+    data[dataSize] = MapPartsDisp[i].partId;
+    dataSize += 4;
+    data[dataSize] = MapPartsDisp[i].type;
+    dataSize += 4;
+    switch (MapPartsDisp[i].state) {
+      case Shown:
+        data[dataSize] = 1;
+        dataSize += 4;
+        data[dataSize] = 1;
+        break;
+      case Showing:
+        data[dataSize] = 0;
+        dataSize += 4;
+        data[dataSize] = 1;
+        break;
+      case Hiding:
+        data[dataSize] = 1;
+        dataSize += 4;
+        data[dataSize] = 0;
+        break;
+      case Hidden:
+        data[dataSize] = 0;
+        dataSize += 4;
+        data[dataSize] = 0;
+        break;
+    }
+    dataSize += 4;
+    data[dataSize] =
+        (MapPartsDisp[i].state == Hiding || MapPartsDisp[i].state == Hidden)
+            ? MapPartsDisp[i].fadeAnim.Progress * FadeAnimationDuration * 60.0f
+        : (MapPartsDisp[i].state == Showing || MapPartsDisp[i].state == Shown)
+            ? (1 - MapPartsDisp[i].fadeAnim.Progress) * FadeAnimationDuration *
+                  60.0f
+            : 0;
+    dataSize += 4;
+    data[dataSize] = MapPartsDisp[i].delay;
+    dataSize += 4;
+    data[dataSize] = MapPartsDisp[i].angle;
+    dataSize += 4;
+    data[dataSize] = MapPartsDisp[i].dist;
+    dataSize += 4;
+  }
+  dataSize += (800 - MapPartsDisp.size()) * 32;
+  assert(dataSize == 0x65e0);
+  for (int i = 0; i < MapPoolDisp.size(); i++) {
+    switch (MapPoolDisp[i].state) {
+      case Shown:
+        data[dataSize] = 1;
+        dataSize += 4;
+        data[dataSize] = 1;
+        break;
+      case Showing:
+        data[dataSize] = 0;
+        dataSize += 4;
+        data[dataSize] = 1;
+        break;
+      case Hiding:
+        data[dataSize] = 1;
+        dataSize += 4;
+        data[dataSize] = 0;
+        break;
+      case Hidden:
+        data[dataSize] = 0;
+        dataSize += 4;
+        data[dataSize] = 0;
+        break;
+    }
+    dataSize += 4;
+    data[dataSize] =
+        (MapPoolDisp[i].state == Hiding || MapPoolDisp[i].state == Shown)
+            ? MapPoolDisp[i].fadeAnim.Progress * FadeAnimationDuration * 60.0f
+        : (MapPoolDisp[i].state == Showing || MapPoolDisp[i].state == Hidden)
+            ? (1 - MapPoolDisp[i].fadeAnim.Progress) * FadeAnimationDuration *
+                  60.0f
+            : 0;
+    dataSize += 4;
+    data[dataSize] = MapPoolDisp[i].delay;
+    dataSize += 4;
+    data[dataSize] = MapPoolDisp[i].angle;
+    dataSize += 4;
+    dataSize += 4;  // padding?
+  }
+  assert(dataSize == 0x69a0);
+  for (int i = 0; i < MapPool.size(); i++) {
+    data[dataSize] = MapPool[i].id;
+    dataSize += 4;
+    data[dataSize] = MapPool[i].type;
+    dataSize += 4;
+  }
+  assert(dataSize == 0x6a40);
+  memmove(data + dataSize, &MapPoolCurCt, sizeof(MapPoolCurCt));
+  dataSize += sizeof(MapPoolCurCt);
+  assert(dataSize == 0x6a90);
+  dataSize += 24;  // MapMoveAnimeInit and MapMoveAnimeMain which uses
+                   // MapMoveAnime are not called in cclcc
+  assert(dataSize == 0x6aa8);
+  data[dataSize] = MapPartsMax;
+  dataSize += 4;
+  data[dataSize] = HoverMapPoolIdx;
+  dataSize += 4;
+  data[dataSize] = SelectedMapPoolIdx;
+  dataSize += 4;
+  assert(dataSize == 0x6ab4);
+  dataSize += 20;  // Variables used by MapMoveAnimeInit and MapMoveAnimeMain
+  assert(dataSize == 0x6ac8);
+}
 void MapSystemCCLCC::MapSetFadein(int partId, int partType) {
   if (MapPartsMax != 0) {
     for (int i = 0; i < MapPartsMax; ++i) {

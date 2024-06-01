@@ -13,6 +13,7 @@ class MapSystemCCLCC : public Impacto::UI::MapSystem::MapSystemBase {
  public:
   void MapInit() override;
   void MapLoad(uint8_t* data, int& dataSize) override;
+  void MapSave(uint8_t* data, int& dataSize) override;
   void MapSetFadein(int partId, int partType) override;
   void MapSetGroup(int index, int mappedId1, int mappedId2,
                    int mappedId3) override;
