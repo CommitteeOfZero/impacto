@@ -9,11 +9,12 @@
 #include "util.h"
 
 #include "io/physicalfilestream.h"
+#include "profile/profile.h"
+#include "profile/profile_internal.h"
 
 using namespace Impacto;
 
 static uint64_t t;
-
 void GameLoop() {
   // TODO: Better FPS lock
   uint64_t t2;
@@ -45,16 +46,16 @@ int main(int argc, char* argv[]) {
   g_LogChannelsConsole = LC_All;
 
   Io::InputStream* stream;
-  IoError err = Io::PhysicalFileStream::Create("profile.txt", &stream);
+  IoError err =
+    Io::PhysicalFileStream::Create("profiles/common/config.lua", &stream);
   if (err != IoError_OK) {
-    ImpLog(LL_Fatal, LC_General, "Couldn't open profile.txt\n");
+    ImpLog(LL_Fatal, LC_General, "Couldn't open profiles/common/config.lua\n");
     exit(0);
   }
 
-  std::string profileName;
-  profileName.resize(stream->Meta.Size, '\0');
-  profileName.resize(stream->Read(&profileName[0], stream->Meta.Size));
-  TrimString(profileName);
+  Profile::ReadLuaFile(stream, "common/config.lua", false);
+
+  const char* profileName = Profile::EnsureGetMemberString("Game");
 
 #ifdef EMSCRIPTEN
   // Emscripten's EGL requests a window framebuffer with antialiasing by default

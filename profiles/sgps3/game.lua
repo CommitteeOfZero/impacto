@@ -24,6 +24,7 @@ root.Vm = {
 
 include('common/scriptinput.lua');
 include('common/scriptvars.lua');
+include('sgps3/config.lua');
 include('sgps3/scriptvars.lua');
 include('sgps3/savedata.lua');
 include('sgps3/tipssystem.lua');

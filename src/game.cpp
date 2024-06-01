@@ -61,7 +61,7 @@ float UpdateSecondCounter = 0.0f;
 static void Init() {
   WorkQueue::Init();
 
-  Profile::LoadGameFromJson();
+  Profile::LoadGameFromLua();
 
   Io::VfsInit();
 
@@ -141,7 +141,7 @@ static void Init() {
 }
 
 void InitFromProfile(std::string const& name) {
-  Profile::MakeJsonProfile(name);
+  Profile::MakeLuaProfile(name);
   Init();
 }
 

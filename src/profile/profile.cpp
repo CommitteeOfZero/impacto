@@ -130,22 +130,13 @@ static void DefineEnumUint(lua_State* ctx) {
   lua_setglobal(ctx, Enum::_name());
 }
 
-void MakeJsonProfile(std::string const& name) {
-  Io::InputStream* stream;
-  IoError err =
-      Io::PhysicalFileStream::Create("profiles/" + name + "/game.lua", &stream);
-  if (err != IoError_OK) {
-    ImpLog(LL_Fatal, LC_Profile, "Could not open profiles/%s/game.lua\n",
-           name.c_str());
-    exit(0);
-  }
-
+void ReadLuaFile(Io::InputStream* stream, std::string const& name, bool needsEnum) {
   char* script = (char*)malloc(stream->Meta.Size + 1);
   if (script == NULL) {
     delete stream;
 
     ImpLog(LL_Error, LC_Profile,
-           "Could not allocate memory for script: profiles/%s/game.lua",
+           "Could not allocate memory for script: profiles/%s",
            name.c_str());
     exit(0);
   }
@@ -155,7 +146,7 @@ void MakeJsonProfile(std::string const& name) {
     delete stream;
     free(script);
 
-    ImpLog(LL_Fatal, LC_Profile, "Could not open profiles/%s/game.lua\n",
+    ImpLog(LL_Fatal, LC_Profile, "Could not open profiles/%s\n",
            name.c_str());
     exit(0);
   }
@@ -174,35 +165,37 @@ void MakeJsonProfile(std::string const& name) {
   lua_setglobal(LuaState, "root");
 
   // Enums /sigh
-  DefineEnumInt<RendererType>(LuaState);
-  DefineEnumInt<VideoPlayerType>(LuaState);
-  DefineEnumInt<AudioBackendType>(LuaState);
-  DefineEnumInt<TextAlignment>(LuaState);
-  DefineEnumInt<GameFeature>(LuaState);
-  DefineEnumInt<CharacterTypeFlags>(LuaState);
-  DefineEnumInt<Vm::InstructionSet>(LuaState);
-  DefineEnumUint<Game::DrawComponentType>(LuaState);
-  DefineEnumInt<SaveSystem::SaveDataType>(LuaState);
-  DefineEnumInt<TipsSystem::TipsSystemType>(LuaState);
-  DefineEnumInt<UI::SystemMenuType>(LuaState);
-  DefineEnumInt<UI::TitleMenuType>(LuaState);
-  DefineEnumInt<UI::SaveMenuType>(LuaState);
-  DefineEnumInt<UI::OptionsMenuType>(LuaState);
-  DefineEnumInt<UI::TrophyMenuType>(LuaState);
-  DefineEnumInt<UI::TipsMenuType>(LuaState);
-  DefineEnumInt<UI::ClearListMenuType>(LuaState);
-  DefineEnumInt<UI::AlbumMenuType>(LuaState);
-  DefineEnumInt<UI::MusicMenuType>(LuaState);
-  DefineEnumInt<UI::MovieMenuType>(LuaState);
-  DefineEnumInt<UI::ActorsVoiceMenuType>(LuaState);
-  DefineEnumInt<DateDisplay::DateDisplayType>(LuaState);
-  DefineEnumInt<WaitIconDisplay::WaitIconType>(LuaState);
-  DefineEnumInt<TipsNotification::TipsNotificationType>(LuaState);
-  DefineEnumInt<DelusionTrigger::DelusionTriggerType>(LuaState);
-  DefineEnumInt<DialogueBoxType>(LuaState);
-  DefineEnumInt<UI::SysMesBoxType>(LuaState);
-  DefineEnumInt<FontType>(LuaState);
-  DefineEnumInt<LKMVersion>(LuaState);
+  if (needsEnum) {
+    DefineEnumInt<RendererType>(LuaState);
+    DefineEnumInt<VideoPlayerType>(LuaState);
+    DefineEnumInt<AudioBackendType>(LuaState);
+    DefineEnumInt<TextAlignment>(LuaState);
+    DefineEnumInt<GameFeature>(LuaState);
+    DefineEnumInt<CharacterTypeFlags>(LuaState);
+    DefineEnumInt<Vm::InstructionSet>(LuaState);
+    DefineEnumUint<Game::DrawComponentType>(LuaState);
+    DefineEnumInt<SaveSystem::SaveDataType>(LuaState);
+    DefineEnumInt<TipsSystem::TipsSystemType>(LuaState);
+    DefineEnumInt<UI::SystemMenuType>(LuaState);
+    DefineEnumInt<UI::TitleMenuType>(LuaState);
+    DefineEnumInt<UI::SaveMenuType>(LuaState);
+    DefineEnumInt<UI::OptionsMenuType>(LuaState);
+    DefineEnumInt<UI::TrophyMenuType>(LuaState);
+    DefineEnumInt<UI::TipsMenuType>(LuaState);
+    DefineEnumInt<UI::ClearListMenuType>(LuaState);
+    DefineEnumInt<UI::AlbumMenuType>(LuaState);
+    DefineEnumInt<UI::MusicMenuType>(LuaState);
+    DefineEnumInt<UI::MovieMenuType>(LuaState);
+    DefineEnumInt<UI::ActorsVoiceMenuType>(LuaState);
+    DefineEnumInt<DateDisplay::DateDisplayType>(LuaState);
+    DefineEnumInt<WaitIconDisplay::WaitIconType>(LuaState);
+    DefineEnumInt<TipsNotification::TipsNotificationType>(LuaState);
+    DefineEnumInt<DelusionTrigger::DelusionTriggerType>(LuaState);
+    DefineEnumInt<DialogueBoxType>(LuaState);
+    DefineEnumInt<UI::SysMesBoxType>(LuaState);
+    DefineEnumInt<FontType>(LuaState);
+    DefineEnumInt<LKMVersion>(LuaState);
+  }
 
   ImpLog(LL_Info, LC_Profile, "Starting profile %s\n", name.c_str());
 
@@ -226,6 +219,18 @@ void MakeJsonProfile(std::string const& name) {
   lua_getglobal(LuaState, "root");
 
   ImpLog(LL_Info, LC_Profile, "Lua profile execute success\n");
+}
+
+void MakeLuaProfile(std::string const& name) {
+  Io::InputStream* stream;
+  IoError err =
+      Io::PhysicalFileStream::Create("profiles/" + name + "/game.lua", &stream);
+  if (err != IoError_OK) {
+    ImpLog(LL_Fatal, LC_Profile, "Could not open profiles/%s/game.lua\n",
+           name.c_str());
+    exit(0);
+  }
+  ReadLuaFile(stream, name + "/game.lua", true);
 }
 
 void ClearProfile() { ClearProfileInternal(); }

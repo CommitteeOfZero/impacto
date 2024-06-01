@@ -23,6 +23,7 @@ root.Vm = {
 
 include('common/scriptinput.lua');
 include('common/scriptvars.lua');
+include('darling/config.lua');
 include('darling/scriptvars.lua');
 include('darling/savedata.lua');
 include('darling/tipssystem.lua');
