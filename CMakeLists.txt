@@ -172,6 +172,7 @@ set(Impacto_Src
         src/games/cclcc/mapsystem.cpp
         src/games/cclcc/delusiontrigger.cpp
         src/games/cclcc/yesnotrigger.cpp
+        src/games/cclcc/savesystem.cpp
 
         src/games/mo6tw/dialoguebox.cpp
         src/games/mo6tw/sysmesbox.cpp

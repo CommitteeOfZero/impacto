@@ -213,11 +213,24 @@ VmInstruction(InstSave) {
   switch (type) {  // TODO: Types 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
                    // 16, 20, 21, 72, 30, 31, 32, 33, 34, 35, 41, 50, 51, 66,
                    // 67, 70, 71, 74, 76
-    case 32:
-      ScrWork[SW_SAVEERRORCODE] = SaveSystem::MountSaveFile();
-      if (ScrWork[SW_SAVEERRORCODE] == SaveOK) {
-        UpdateTipRecords();
+    case 3: {
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
+        ScrWork[SW_SAVEERRORCODE] = SaveSystem::MountSaveFile();
+        if (ScrWork[SW_SAVEERRORCODE] == SaveOK) {
+          UpdateTipRecords();
+        }
       }
+    } break;
+    case 4: {
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
+        ScrWork[SW_SAVEERRORCODE] = SaveSystem::MountSaveFile();
+        if (ScrWork[SW_SAVEERRORCODE] == SaveOK) {
+          UpdateTipRecords();
+        }
+      }
+
+    } break;
+    case 32:
       break;
     case 40:  // SystemDataCheck
       if (Profile::Vm::GameInstructionSet == +InstructionSet::RNE) {

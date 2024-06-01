@@ -39,8 +39,9 @@ class SaveFileEntryBase {
   uint32_t Checksum;
   std::tm SaveDate;
   uint32_t PlayTime;
-  uint16_t SwTitle;
+  uint32_t SwTitle;
   uint8_t Flags;
+  uint32_t SaveType;
   uint32_t MainThreadExecPriority;
   uint32_t MainThreadGroupId;
   uint32_t MainThreadWaitCounter;
@@ -51,6 +52,7 @@ class SaveFileEntryBase {
   uint32_t MainThreadCallStackDepth;
   uint32_t MainThreadReturnAddresses[8];
   uint32_t MainThreadReturnBufIds[8];
+  uint32_t MainThreadWaitCounter2;
   int MainThreadVariables[16];
   uint32_t MainThreadDialoguePageId;
 };
