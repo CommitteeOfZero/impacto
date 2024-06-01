@@ -697,7 +697,7 @@ void DialoguePage::Render() {
     WaitIconDisplay::Render(glm::vec2(Glyphs[Length - 1].DestRect.X +
                                           Glyphs[Length - 1].DestRect.Width,
                                       Glyphs[Length - 1].DestRect.Y),
-                            col, Mode);
+                            col.a, Mode);
   }
 }
 
