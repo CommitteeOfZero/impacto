@@ -409,6 +409,9 @@ VmInstruction(InstLoadData) {
     case 0:
     case 10: {
       PopExpression(arg1);
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
+        PopExpression(arg2);
+      }
       Impacto::SaveSystem::SaveType saveType =
           ScrWork[SW_SAVEMENUMODE] == 0 ? SaveSystem::SaveType::SaveQuick
                                         : SaveSystem::SaveType::SaveFull;

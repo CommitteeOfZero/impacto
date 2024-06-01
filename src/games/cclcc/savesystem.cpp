@@ -39,7 +39,7 @@ SaveError SaveSystem::MountSaveFile() {
 
   Io::ReadArrayLE<uint8_t>(&FlagWork[100], stream, 50);
   Io::ReadArrayLE<uint8_t>(&FlagWork[460], stream, 40);
-  Io::ReadArrayBE<int>(&ScrWork[600], stream, 400);
+  Io::ReadArrayLE<int>(&ScrWork[600], stream, 400);
 
   stream->Seek(0x7DA, SEEK_SET);
   for (int i = 0; i < 150; i++) {
@@ -353,21 +353,27 @@ void SaveSystem::LoadMemory(SaveType type, int id) {
 
       int threadId = ScrWork[SW_MAINTHDP];
       Sc3VmThread* thd = &ThreadPool[threadId & 0x7FFFFFFF];
+
+      // Load scripts
+      if (ScrWork[SW_SVSCRNO1] != 65535) LoadScript(2, ScrWork[SW_SVSCRNO1]);
+      if (ScrWork[SW_SVSCRNO2] != 65535) LoadScript(3, ScrWork[SW_SVSCRNO2]);
+      if (ScrWork[SW_SVSCRNO4] != 65535) LoadScript(5, ScrWork[SW_SVSCRNO4]);
+
+      ScrWork[SW_SVSCRNO1] = 65535;
+      ScrWork[SW_SVSCRNO2] = 65535;
+      ScrWork[SW_SVSCRNO4] = 65535;
+
       if (thd->GroupId - 5 < 3) {
         thd->ExecPriority = entry->MainThreadExecPriority;
         thd->WaitCounter = entry->MainThreadWaitCounter;
         thd->ScriptParam = entry->MainThreadScriptParam;
         thd->GroupId = entry->MainThreadGroupId;
         thd->ScriptBufferId = entry->MainThreadScriptBufferId;
-        LoadScript(thd->ScriptBufferId,
-                   ScrWork[SW_SVBGMNO - 1 + thd->ScriptBufferId]);
         thd->Ip =
             ScriptGetRetAddress(ScriptBuffers[entry->MainThreadScriptBufferId],
                                 entry->MainThreadIp);
         thd->CallStackDepth = entry->MainThreadCallStackDepth;
 
-        LoadScript(entry->MainThreadReturnBufIds[0],
-                   ScrWork[SW_SVBGMNO - 1 + entry->MainThreadScriptBufferId]);
         thd->CallStackDepth++;
         thd->ReturnScriptBufferIds[0] = entry->MainThreadReturnBufIds[0];
         thd->ReturnAdresses[0] =
