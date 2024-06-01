@@ -130,7 +130,7 @@ SaveError SaveSystem::MountSaveFile() {
         entryArray[i]->MainThreadReturnBufIds[j] = Io::ReadLE<uint32_t>(stream);
       }
       Io::ReadLE<uint32_t>(stream);
-      entryArray[i]->MainThreadWaitCounter2 = Io::ReadLE<uint32_t>(stream);
+      entryArray[i]->MainThreadScriptBufferId = Io::ReadLE<uint32_t>(stream);
       Io::ReadArrayBE<int>(entryArray[i]->MainThreadVariables, stream, 16);
       entryArray[i]->MainThreadDialoguePageId = Io::ReadLE<uint32_t>(stream);
       assert(stream->Position - startPos == 0x3a04);
@@ -179,10 +179,11 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id) {
       for (int j = 0; j < 8; j++) {
         entry->MainThreadReturnAddresses[j] =
             WorkingSaveEntry->MainThreadReturnAddresses[j];
+      }
+      for (int j = 0; j < 8; j++) {
         entry->MainThreadReturnBufIds[j] =
             WorkingSaveEntry->MainThreadReturnBufIds[j];
       }
-
       memcpy(entry->MainThreadVariables, WorkingSaveEntry->MainThreadVariables,
              64);
       entry->MainThreadDialoguePageId =
@@ -283,10 +284,11 @@ void SaveSystem::SaveMemory() {
         WorkingSaveEntry->MainThreadReturnAddresses[j] =
             static_cast<uint32_t>(thd->ReturnAdresses[j] -
                                   ScriptBuffers[thd->ReturnScriptBufferIds[j]]);
+      }
+      for (uint32_t j = 0; j < thd->CallStackDepth; j++) {
         WorkingSaveEntry->MainThreadReturnBufIds[j] =
             thd->ReturnScriptBufferIds[j];
       }
-
       memcpy(WorkingSaveEntry->MainThreadVariables, thd->Variables, 64);
       WorkingSaveEntry->MainThreadDialoguePageId = thd->DialoguePageId;
     }
@@ -356,11 +358,13 @@ void SaveSystem::LoadMemory(SaveType type, int id) {
         thd->ScriptBufferId = entry->MainThreadGroupId & 0xFFFF;
         LoadScript(thd->ScriptBufferId,
                    ScrWork[SW_SVBGMNO - 1 + thd->ScriptBufferId]);
-        thd->Ip = ScriptBuffers[thd->ScriptBufferId] + entry->MainThreadIp;
-        // thd->CallStackDepth = entry->MainThreadCallStackDepth;
+        thd->Ip =
+            ScriptGetRetAddress(ScriptBuffers[entry->MainThreadScriptBufferId],
+                                entry->MainThreadIp);
+        thd->CallStackDepth = entry->MainThreadCallStackDepth;
 
         LoadScript(entry->MainThreadReturnBufIds[0],
-                   ScrWork[SW_SVBGMNO - 1 + entry->MainThreadReturnBufIds[0]]);
+                   ScrWork[SW_SVBGMNO - 1 + entry->MainThreadScriptBufferId]);
         thd->CallStackDepth++;
         thd->ReturnScriptBufferIds[0] = entry->MainThreadReturnBufIds[0];
         thd->ReturnAdresses[0] =
