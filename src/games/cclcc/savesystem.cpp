@@ -355,12 +355,12 @@ void SaveSystem::LoadMemory(SaveType type, int id) {
         thd->GroupId = entry->MainThreadGroupId >> 16;
         thd->ScriptBufferId = entry->MainThreadGroupId & 0xFFFF;
         LoadScript(thd->ScriptBufferId,
-                   ScrWork[SW_SCRIPTNO0 + thd->ScriptBufferId]);
+                   ScrWork[SW_SVBGMNO - 1 + thd->ScriptBufferId]);
         thd->Ip = ScriptBuffers[thd->ScriptBufferId] + entry->MainThreadIp;
         // thd->CallStackDepth = entry->MainThreadCallStackDepth;
 
         LoadScript(entry->MainThreadReturnBufIds[0],
-                   ScrWork[SW_SCRIPTNO0 + entry->MainThreadReturnBufIds[0]]);
+                   ScrWork[SW_SVBGMNO - 1 + entry->MainThreadReturnBufIds[0]]);
         thd->CallStackDepth++;
         thd->ReturnScriptBufferIds[0] = entry->MainThreadReturnBufIds[0];
         thd->ReturnAdresses[0] =
