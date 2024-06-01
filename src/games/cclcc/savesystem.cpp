@@ -105,14 +105,17 @@ SaveError SaveSystem::MountSaveFile() {
       stream->Seek(0x58, SEEK_CUR);
       Io::ReadArrayLE<uint8_t>(((SaveFileEntry*)entryArray[i])->FlagWorkScript1,
                                stream, 50);
+      assert(stream->Position - startPos == 178);
       Io::ReadArrayLE<uint8_t>(((SaveFileEntry*)entryArray[i])->FlagWorkScript2,
                                stream, 100);
-      Io::ReadArrayBE<int>(((SaveFileEntry*)entryArray[i])->ScrWorkScript1,
+      Io::ReadLE<uint16_t>(stream);
+      assert(stream->Position - startPos == 280);
+      Io::ReadArrayLE<int>(((SaveFileEntry*)entryArray[i])->ScrWorkScript1,
                            stream, 600);
-      Io::ReadArrayBE<int>(((SaveFileEntry*)entryArray[i])->ScrWorkScript2,
+      assert(stream->Position - startPos == 2680);
+      Io::ReadArrayLE<int>(((SaveFileEntry*)entryArray[i])->ScrWorkScript2,
                            stream, 3000);
 
-      Io::ReadLE<uint16_t>(stream);
       assert(stream->Position - startPos == 0x3958);
       entryArray[i]->MainThreadExecPriority = Io::ReadLE<uint32_t>(stream);
       entryArray[i]->MainThreadGroupId = Io::ReadLE<uint32_t>(stream);
