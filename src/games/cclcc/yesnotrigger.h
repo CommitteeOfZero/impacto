@@ -33,7 +33,13 @@ void Update(float dt);
 void Render();
 void Reset();
 
-enum class YesNoState { Init, ZoomStart, MainInput, PanToNext, Complete };
+enum class YesNoState {
+  Init = 1,
+  ZoomStart,
+  MainInput,
+  PanToNext,
+  Complete = 6
+};
 extern YesNoState state;
 
 enum class BGType { BG0, BG1, BG2, BG3 };
