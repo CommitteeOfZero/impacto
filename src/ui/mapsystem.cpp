@@ -11,6 +11,9 @@ void Init() {
   Profile::MapSystem::CreateInstance();
 }
 void MapInit() { return MapSystemPtr->MapInit(); }
+void MapLoad(uint8_t* data, int& dataSize) {
+  return MapSystemPtr->MapLoad(data, dataSize);
+}
 void MapSetFadein(int partId, int partType) {
   return MapSystemPtr->MapSetFadein(partId, partType);
 }

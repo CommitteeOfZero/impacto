@@ -13,6 +13,7 @@ class SaveFileEntry : public SaveFileEntryBase {
   uint8_t FlagWorkScript2[100];  // 100 bytes from &FlagWork[300]
   int ScrWorkScript1[600];       // 2400 bytes from &ScrWork[1000]
   int ScrWorkScript2[3000];      // 12000 bytes from &ScrWork[4300]
+  uint8_t MapLoadData[0x6ac8];
 };
 
 class SaveSystem : public SaveSystemBase {

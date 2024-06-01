@@ -6,6 +6,7 @@
 #include "../../profile/data/savesystem.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/vm.h"
+#include "../../ui/mapsystem.h"
 
 #include <cstdint>
 #include <ctime>
@@ -138,7 +139,11 @@ SaveError SaveSystem::MountSaveFile() {
       Io::ReadArrayBE<int>(entryArray[i]->MainThreadVariables, stream, 16);
       entryArray[i]->MainThreadDialoguePageId = Io::ReadLE<uint32_t>(stream);
       assert(stream->Position - startPos == 0x3a04);
-      stream->Seek(40580, SEEK_CUR);
+      stream->Seek(1212, SEEK_CUR);
+      assert(stream->Position - startPos == 0x3ec0);
+      Io::ReadArrayLE<uint8_t>(((SaveFileEntry*)entryArray[i])->MapLoadData,
+                               stream, 0x6ac8);
+      stream->Seek(12032, SEEK_CUR);
     }
   }
   return SaveOK;
@@ -323,7 +328,8 @@ void SaveSystem::LoadMemory(SaveType type, int id) {
       memcpy(&FlagWork[300], entry->FlagWorkScript2, 100);
       memcpy(&ScrWork[1000], entry->ScrWorkScript1, 2400);
       memcpy(&ScrWork[4300], entry->ScrWorkScript2, 12000);
-
+      int dataSize = 0;
+      UI::MapSystem::MapLoad(entry->MapLoadData, dataSize);
       // TODO: What to do about this mess I wonder...
       ScrWork[SW_SVSENO] = ScrWork[SW_SEREQNO];
       ScrWork[SW_SVSENO + 1] = ScrWork[SW_SEREQNO + 1];
