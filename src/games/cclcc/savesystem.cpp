@@ -283,11 +283,12 @@ void SaveSystem::SaveMemory() {
       WorkingSaveEntry->MainThreadCallStackDepth = thd->CallStackDepth;
 
       for (int i = 0; i < thd->CallStackDepth; i++) {
-        WorkingSaveEntry->MainThreadReturnBufIds[i] =
-            thd->ReturnScriptBufferIds[i];
-        thd->ReturnAddresses[i] = ScriptGetRetAddress(
-            ScriptBuffers[WorkingSaveEntry->MainThreadReturnBufIds[i]],
-            WorkingSaveEntry->MainThreadReturnAddresses[i]);
+        // TODO change this when retaddresses is changed to returnids
+        // WorkingSaveEntry->MainThreadReturnBufIds[i] =
+        //     thd->ReturnScriptBufferIds[i];
+        // thd->ReturnAddresses[i] = ScriptGetRetAddress(
+        //     ScriptBuffers[WorkingSaveEntry->MainThreadReturnBufIds[i]],
+        //     WorkingSaveEntry->MainThreadReturnAddresses[i]);
       }
       for (size_t j = 0; j < thd->CallStackDepth; j++) {
         WorkingSaveEntry->MainThreadReturnAddresses[j] =
