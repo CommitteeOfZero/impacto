@@ -14,7 +14,8 @@ namespace CCLCC {
 class SaveEntryButton : public Widgets::Button {
  public:
   SaveEntryButton(int id, Sprite const& focusedBox, Sprite const& focusedText,
-                  int page, glm::vec2 pos, uint8_t locked, Sprite lockedSymbol);
+                  int page, glm::vec2 pos, uint8_t locked, Sprite lockedSymbol,
+                  int saveStatus, Sprite NoDataSprite, Sprite BrokenDataSprite);
   void Render() override;
   int GetPage() const;
   void AddNormalSpriteLabel(Sprite norm, glm::vec2 pos);
@@ -47,8 +48,6 @@ class SaveEntryButton : public Widgets::Button {
   static void FocusedAlphaFadeReset();
   static void UpdateFocusedAlphaFade(float dt);
 
-  bool EntryActive = false;
-
  private:
   int Page;
   Label NormalSpriteLabel;
@@ -64,6 +63,10 @@ class SaveEntryButton : public Widgets::Button {
   Label PlayTime;
   Label SaveDateHint;
   Label SaveDate;
+
+  int SaveStatus;
+  Label NoDataSymbol;
+  Label BrokenDataSymbol;
 };
 
 }  // namespace CCLCC

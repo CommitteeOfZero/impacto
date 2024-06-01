@@ -1,5 +1,7 @@
 #include "savemenu.h"
 
+#include <iomanip>
+#include <sstream>
 #include "../../profile/ui/savemenu.h"
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
@@ -22,11 +24,15 @@ using namespace Impacto::UI::Widgets::CCLCC;
 Widget* EntryGrid[Pages][RowsPerPage][EntriesPerRow];
 
 void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
-  if ((SaveSystem::GetSaveSatus(SaveSystem::SaveType::SaveFull, target->Id) !=
-       0) ||
-      ScrWork[SW_SAVEMENUMODE] == 1) {
+  Impacto::SaveSystem::SaveType saveType =
+      ScrWork[SW_SAVEMENUMODE] == SaveMenuPageType::QuickLoad
+          ? SaveSystem::SaveType::SaveQuick
+          : SaveSystem::SaveType::SaveFull;
+  int SaveStatus = SaveSystem::GetSaveSatus(saveType, target->Id);
+  if (SaveStatus == 1 || ScrWork[SW_SAVEMENUMODE] == 1) {
     ScrWork[SW_SAVEFILENO] = target->Id;
     ChoiceMade = true;
+    SetFlag(1245, target->IsLocked);
   }
 }
 
@@ -53,6 +59,10 @@ void SaveMenu::Show() {
       for (int i = 0; i < RowsPerPage; i++) {
         // Start on right col
         for (int j = EntriesPerRow - 1; j >= 0; j--) {
+          Impacto::SaveSystem::SaveType saveType =
+              ScrWork[SW_SAVEMENUMODE] == SaveMenuPageType::QuickLoad
+                  ? SaveSystem::SaveType::SaveQuick
+                  : SaveSystem::SaveType::SaveFull;
           glm::vec2 buttonPos =
               (j == 0)
                   ? glm::vec2{EntryStartXL, EntryStartYL + (i * EntryYPadding)}
@@ -60,30 +70,41 @@ void SaveMenu::Show() {
           SaveEntryButton* saveEntryButton = new SaveEntryButton(
               id, EntryHighlightedBoxSprite[ScrWork[SW_SAVEMENUMODE]],
               EntryHighlightedTextSprite[ScrWork[SW_SAVEMENUMODE]], p,
-              buttonPos, false, SlotLockedSprite[ScrWork[SW_SAVEMENUMODE]]);
+              buttonPos, false, SlotLockedSprite[ScrWork[SW_SAVEMENUMODE]],
+              SaveSystem::GetSaveSatus(saveType, id),
+              NoDataSprite[ScrWork[SW_SAVEMENUMODE]],
+              BrokenDataSprite[ScrWork[SW_SAVEMENUMODE]]);
 
           saveEntryButton->OnClickHandler = onClick;
-          // if (SaveSystem::GetSaveSatus(SaveSystem::SaveType::SaveFull, id)
-          // != 0) { saveEntryButton->EntryActive = true;
-          // saveEntryButton->AddSceneTitleText(
-          //     Vm::ScriptGetTextTableStrAddress(
-          //         1,
-          //         SaveSystem::GetSaveTitle(SaveSystem::SaveType::SaveFull,
-          //         id)),
-          //     20, RO_BottomRight, );
-          // saveEntryButton->AddPlayTimeHintText(
-          //     Vm::ScriptGetTextTableStrAddress(0, 2), 16, true);
-          // saveEntryButton->AddPlayTimeText(
-          //     Vm::ScriptGetTextTableStrAddress(0, 15), 16, true);
-          // saveEntryButton->AddSaveDateHintText(
-          //     Vm::ScriptGetTextTableStrAddress(0, 3), 16, true);
-          // saveEntryButton->AddSaveDateText(
-          //     Vm::ScriptGetTextTableStrAddress(0, 14), 16, true);
-          // } else {
-          // saveEntryButton->AddSceneTitleText(
-          //     Vm::ScriptGetTextTableStrAddress(0, 1), 24, true);
-          // }
-          // saveEntryButton->Thumbnail = EmptyThumbnailSprite;
+
+          if (SaveSystem::GetSaveSatus(saveType, id) != 0) {
+            saveEntryButton->AddSceneTitleText(
+                Vm::ScriptGetTextTableStrAddress(
+                    1, SaveSystem::GetSaveTitle(saveType, id)),
+                24, RO_BottomRight, {20, 20}, {5, 5});
+            // saveEntryButton->AddPlayTimeHintText(
+            //     Vm::ScriptGetTextTableStrAddress(0, 2), 18, RO_BottomRight,
+            //     PlayTimeHintTextRelativePos);
+            // uint32_t time = SaveSystem::GetSavePlayTime(saveType, id);
+            // uint32_t hours = time / 3600;
+            // uint32_t minutes = (time % 3600) / 60;
+            // uint32_t seconds = (time % 3600) % 60;
+            // char temp[10];
+            // sprintf(temp, "%3d:%02d:%02d", hours, minutes, seconds);
+            // saveEntryButton->AddPlayTimeText(
+            //     std::string(temp), 18, RO_BottomRight,
+            //     {PlayTimeTextRelativePos.x + (float)((hours < 10) * 10),
+            //      PlayTimeTextRelativePos.y});
+            // saveEntryButton->AddSaveDateHintText(
+            //     Vm::ScriptGetTextTableStrAddress(0, 3), 18, RO_BottomRight,
+            //     SaveDateHintTextRelativePos);
+            tm date = SaveSystem::GetSaveDate(saveType, id);
+            std::stringstream dateStr;
+            dateStr << std::put_time(&date, "%Y/%m/%d %H:%M:%S");
+            saveEntryButton->AddSaveDateText(
+                dateStr.str(), 32, RO_Full,
+                {20 + 290 * 1280.0 / 1920, (71 + 120) * 1280.0 / 1920});
+          }
           id++;
 
           EntryGrid[p][i][j] = saveEntryButton;
