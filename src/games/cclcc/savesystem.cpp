@@ -466,7 +466,7 @@ bool SaveSystem::GetEVVariationIsUnlocked(int evId, int variationIdx) {
 bool SaveSystem::GetBgmFlag(int id) { return BGMFlags[id]; }
 
 void SaveSystem::SetCheckpointId(int id) {
-  WorkingSaveEntry->MainThreadIp = id;
+  if (WorkingSaveEntry != nullptr) WorkingSaveEntry->MainThreadIp = id;
 }
 
 }  // namespace CCLCC
