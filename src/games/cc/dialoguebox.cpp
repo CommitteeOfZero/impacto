@@ -26,7 +26,7 @@ void DialogueBox::Update(float dt) {
 
 void DialogueBox::Render(DialoguePageMode mode, bool hasName, float nameWidth,
                          uint32_t nameId, float opacity) {
-  glm::vec4 col = ScrWorkGetColor(SW_MESWINDOW_COLOR);
+  glm::vec4 col{1.0f, 1.0f, 1.0f, 1.0f};
   col.a = 1.0f;
   if (mode == DPM_ADV) {
     Renderer->DrawCCMessageBox(ADVBoxSprite, ADVBoxMask, ADVBoxPos, col,
