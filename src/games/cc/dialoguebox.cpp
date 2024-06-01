@@ -26,8 +26,7 @@ void DialogueBox::Update(float dt) {
 
 void DialogueBox::Render(DialoguePageMode mode, bool hasName, float nameWidth,
                          uint32_t nameId, float opacity) {
-  glm::vec4 col{1.0f, 1.0f, 1.0f, 1.0f};
-  col.a = 1.0f;
+  const glm::vec4 col = glm::vec4(1.0f);
   if (mode == DPM_ADV) {
     Renderer->DrawCCMessageBox(ADVBoxSprite, ADVBoxMask, ADVBoxPos, col,
                                (int)(opacity * 272.0f), 16,

@@ -38,11 +38,11 @@ void Update(float dt) {
     SimpleAnim.Update(dt);
   }
 }
-void Render(glm::vec2 pos, float alpha, DialoguePageMode mode) {
-  glm::vec4 col = glm::vec4(1.0f, 1.0f, 1.0f, alpha);
+void Render(glm::vec2 pos, glm::vec4 opacityTint, DialoguePageMode mode) {
   if (WaitIconCurrentType == +WaitIconType::SpriteAnim) {
     if (DialogueBoxCurrentType == +DialogueBoxType::CHLCC) {
       // To deal with multiple DialogueBox
+      glm::vec4 col = glm::vec4(1.0f, 1.0f, 1.0f, opacityTint.a);
       // Erin DialogueBox
       if (mode == DPM_REV) {
         Renderer->DrawSprite(
@@ -62,7 +62,8 @@ void Render(glm::vec2 pos, float alpha, DialoguePageMode mode) {
     } else {
       Renderer->DrawSprite(
           SpriteAnim.CurrentSprite(),
-          glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y), col);
+          glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y),
+          opacityTint);
     }
   } else if (WaitIconCurrentType == +WaitIconType::SpriteAnimFixed) {
     // TODO: CCLCC only for now
@@ -70,8 +71,8 @@ void Render(glm::vec2 pos, float alpha, DialoguePageMode mode) {
         SpriteAnim.CurrentSprite(),
         glm::vec2(WaitIconOffset.x - 50, WaitIconOffset.y - 50), opacityTint);*/
     Renderer->DrawSprite(WaitIconSprite,
-                         glm::vec2(WaitIconOffset.x, WaitIconOffset.y), col,
-                         glm::vec2(1.0f));
+                         glm::vec2(WaitIconOffset.x, WaitIconOffset.y),
+                         opacityTint, glm::vec2(1.0f));
   } else if (WaitIconCurrentType == +WaitIconType::RotateZ) {
     // TODO: MO6TW only for now
     glm::vec3 euler(SimpleAnim.Progress * 2.0f * M_PI, 0, 0.6f);
@@ -85,17 +86,17 @@ void Render(glm::vec2 pos, float alpha, DialoguePageMode mode) {
     Renderer->DrawSprite3DRotated(
         WaitIconSprite,
         glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y), 1.0f,
-        vanishingPoint, true, quat, col);
+        vanishingPoint, true, quat, opacityTint);
   } else if (WaitIconCurrentType == +WaitIconType::None) {
     Renderer->DrawSprite(
         WaitIconSprite,
-        glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y), col,
-        glm::vec2(1.0f));
+        glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y),
+        opacityTint, glm::vec2(1.0f));
   } else {
     Renderer->DrawSprite(
         WaitIconSprite,
-        glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y), col,
-        glm::vec2(1.0f), SimpleAnim.Progress * 2.0f * (float)M_PI);
+        glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y),
+        opacityTint, glm::vec2(1.0f), SimpleAnim.Progress * 2.0f * (float)M_PI);
   }
 }
 
