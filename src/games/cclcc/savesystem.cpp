@@ -133,6 +133,7 @@ SaveError SaveSystem::MountSaveFile() {
         entryArray[i]->MainThreadReturnBufIds[j] = Io::ReadLE<uint32_t>(stream);
       }
       Io::ReadLE<uint32_t>(stream);
+      assert(stream->Position - startPos == 0x39bc);
       entryArray[i]->MainThreadScriptBufferId = Io::ReadLE<uint32_t>(stream);
       Io::ReadArrayBE<int>(entryArray[i]->MainThreadVariables, stream, 16);
       entryArray[i]->MainThreadDialoguePageId = Io::ReadLE<uint32_t>(stream);
@@ -370,9 +371,8 @@ void SaveSystem::LoadMemory(SaveType type, int id) {
         thd->CallStackDepth++;
         thd->ReturnScriptBufferIds[0] = entry->MainThreadReturnBufIds[0];
         thd->ReturnAdresses[0] =
-            ScriptBuffers[entry->MainThreadReturnBufIds[0]] +
-            entry->MainThreadReturnAddresses[0];
-
+            ScriptGetRetAddress(ScriptBuffers[entry->MainThreadReturnBufIds[0]],
+                                entry->MainThreadReturnAddresses[0]);
         memcpy(thd->Variables, entry->MainThreadVariables, 64);
         thd->DialoguePageId = entry->MainThreadDialoguePageId;
       }
