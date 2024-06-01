@@ -63,6 +63,9 @@ VmInstruction(InstMesSetID) {
     case 0: {  // SetSavePointPage0
       if (Profile::Vm::UseReturnIds) {
         PopUint16(savePointId);
+        if (!GetFlag(1288)) {
+          SaveSystem::SetCheckpointId(savePointId);
+        }
         ImpLogSlow(
             LL_Warning, LC_VMStub,
             "STUB instruction MesSetID(type: SetSavePoint, savePointId: %i)\n",
@@ -79,6 +82,9 @@ VmInstruction(InstMesSetID) {
                  "STUB instruction MesSetID(type: SetSavePoint1, "
                  "savePointId: %i, arg1: %i)\n",
                  savePointId, dialoguePageId);
+      if (!GetFlag(1288 + dialoguePageId)) {
+        SaveSystem::SetCheckpointId(savePointId);
+      }
       thread->DialoguePageId = dialoguePageId;
     } break;
     case 2: {  // SetPage
@@ -336,7 +342,17 @@ VmInstruction(InstSel) {
       if (Profile::Vm::GameInstructionSet == +InstructionSet::Dash ||
           Profile::Vm::GameInstructionSet == +InstructionSet::CC ||
           Profile::Vm::GameInstructionSet == +InstructionSet::MO8) {
-        PopUint16(unused);
+        PopUint16(savepointid);
+        // Not sure if this is right
+        if (GetFlag(1288 + thread->DialoguePageId) == 0) {
+          if (ScrWork[SW_TITLE] != 0xffff) {
+            SaveSystem::SetCheckpointId(savepointid);
+            SaveSystem::SaveMemory();
+            SetFlag(1206, 1);
+            SetFlag(1285, 1);
+            BlockThread;
+          }
+        }
       }
       PopExpression(arg1);
       UI::SelectionMenuPtr->Init((bool)arg1);

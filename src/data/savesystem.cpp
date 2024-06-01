@@ -129,5 +129,9 @@ bool GetBgmFlag(int id) {
   return false;
 }
 
+void SetCheckpointId(int id) {
+  if (Implementation) Implementation->SetCheckpointId(id);
+}
+
 }  // namespace SaveSystem
 }  // namespace Impacto

@@ -8,6 +8,7 @@ class MapSystemBase {
  public:
   virtual void MapInit() = 0;
   virtual void MapLoad(uint8_t* data, int& dataSize) = 0;
+  virtual void MapSave(uint8_t* data, int& dataSize) = 0;
   virtual void MapSetFadein(int partId, int partType) = 0;
   virtual void MapSetGroup(int index, int mappedId1, int mappedId2,
                            int mappedId3) = 0;
@@ -49,6 +50,7 @@ class MapSystemBase {
 extern MapSystemBase* MapSystemPtr;
 void Init();
 void MapLoad(uint8_t* data, int& dataSize);
+void MapSave(uint8_t* data, int& dataSize);
 void MapInit();
 void MapSetFadein(int partId, int partType);
 void MapSetGroup(int index, int mappedId1, int mappedId2, int mappedId3);

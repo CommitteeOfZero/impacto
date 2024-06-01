@@ -265,6 +265,8 @@ tm SaveSystem::GetSaveDate(SaveType type, int id) {
 }
 
 void SaveSystem::SaveMemory() {
+  // TODO: Sys save data
+
   if (WorkingSaveEntry != 0) {
     WorkingSaveEntry->Status = 1;
 
@@ -273,34 +275,32 @@ void SaveSystem::SaveMemory() {
 
     memcpy(WorkingSaveEntry->FlagWorkScript1, &FlagWork[50], 50);
     memcpy(WorkingSaveEntry->FlagWorkScript2, &FlagWork[300], 100);
-    memcpy(WorkingSaveEntry->ScrWorkScript1, &ScrWork[300], 1200);
-    memcpy(WorkingSaveEntry->ScrWorkScript2, &ScrWork[2300], 5200);
-
+    memcpy(WorkingSaveEntry->ScrWorkScript1, &ScrWork[1000], 2400);
+    memcpy(WorkingSaveEntry->ScrWorkScript2, &ScrWork[4300], 12000);
     int threadId = ScrWork[SW_MAINTHDP];
     Sc3VmThread* thd = &ThreadPool[threadId & 0x7FFFFFFF];
-    if (thd != 0 &&
-        (thd->GroupId == 4 || thd->GroupId == 5 || thd->GroupId == 6)) {
-      WorkingSaveEntry->MainThreadExecPriority = thd->ExecPriority;
-      WorkingSaveEntry->MainThreadWaitCounter = thd->WaitCounter;
-      WorkingSaveEntry->MainThreadScriptParam = thd->ScriptParam;
-      WorkingSaveEntry->MainThreadGroupId = thd->GroupId << 16;
-      WorkingSaveEntry->MainThreadGroupId |= thd->ScriptBufferId;
-      WorkingSaveEntry->MainThreadIp =
-          static_cast<uint32_t>(thd->Ip - ScriptBuffers[thd->ScriptBufferId]);
+    if (thd->GroupId - 5 < 3) {
       WorkingSaveEntry->MainThreadCallStackDepth = thd->CallStackDepth;
 
-      for (uint32_t j = 0; j < thd->CallStackDepth; j++) {
-        WorkingSaveEntry->MainThreadReturnAddresses[j] =
-            static_cast<uint32_t>(thd->ReturnAddresses[j] -
-                                  ScriptBuffers[thd->ReturnScriptBufferIds[j]]);
+      for (int i = 0; i < thd->CallStackDepth; i++) {
+        WorkingSaveEntry->MainThreadReturnBufIds[i] =
+            thd->ReturnScriptBufferIds[i];
+        thd->ReturnAddresses[i] = ScriptGetRetAddress(
+            ScriptBuffers[WorkingSaveEntry->MainThreadReturnBufIds[i]],
+            WorkingSaveEntry->MainThreadReturnAddresses[i]);
       }
-      for (uint32_t j = 0; j < thd->CallStackDepth; j++) {
+      for (size_t j = 0; j < thd->CallStackDepth; j++) {
+        WorkingSaveEntry->MainThreadReturnAddresses[j] =
+            (uint32_t)(thd->ReturnAddresses[j] -
+                       ScriptBuffers[thd->ReturnScriptBufferIds[j]]);
         WorkingSaveEntry->MainThreadReturnBufIds[j] =
             thd->ReturnScriptBufferIds[j];
       }
       memcpy(WorkingSaveEntry->MainThreadVariables, thd->Variables, 64);
       WorkingSaveEntry->MainThreadDialoguePageId = thd->DialoguePageId;
     }
+    int size = 0;
+    UI::MapSystem::MapSave(WorkingSaveEntry->MapLoadData, size);
   }
 }
 
@@ -464,6 +464,10 @@ bool SaveSystem::GetEVVariationIsUnlocked(int evId, int variationIdx) {
 }
 
 bool SaveSystem::GetBgmFlag(int id) { return BGMFlags[id]; }
+
+void SaveSystem::SetCheckpointId(int id) {
+  WorkingSaveEntry->MainThreadIp = id;
+}
 
 }  // namespace CCLCC
 }  // namespace Impacto

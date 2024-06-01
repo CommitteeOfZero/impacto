@@ -538,7 +538,7 @@ VmInstruction(InstMSinit) {
       initType);  // TODO: There's only one type in R;NE - initType <= 10
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MSinit(initType: %i)\n",
              initType);
-
+  SaveSystem::SetCheckpointId(0xffff);
   if (initType == 5) {
     UI::BacklogMenuPtr->Clear();
   }
@@ -655,6 +655,7 @@ VmInstruction(InstAutoSave) {
     case 10: {  // SetCheckpointId
       if (Profile::Vm::UseReturnIds) {
         PopUint16(checkpointId);
+        SaveSystem::SetCheckpointId(checkpointId);
         ImpLogSlow(LL_Warning, LC_VMStub,
                    "STUB instruction AutoSave(type: %i, checkpointId: %i)\n",
                    type, checkpointId);
