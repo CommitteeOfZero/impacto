@@ -58,10 +58,10 @@ VmInstruction(InstCall) {
   if (thread->CallStackDepth != MaxCallStackDepth) {
     if (Profile::Vm::UseReturnIds) {
       PopUint16(retNum);
-      thread->ReturnAdresses[thread->CallStackDepth] =
+      thread->ReturnAddresses[thread->CallStackDepth] =
           ScriptGetRetAddress(ScriptBuffers[thread->ScriptBufferId], retNum);
     } else {
-      thread->ReturnAdresses[thread->CallStackDepth] = thread->Ip;
+      thread->ReturnAddresses[thread->CallStackDepth] = thread->Ip;
     }
     thread->ReturnScriptBufferIds[thread->CallStackDepth++] =
         thread->ScriptBufferId;
@@ -86,10 +86,10 @@ VmInstruction(InstCallFar) {
   if (thread->CallStackDepth != MaxCallStackDepth) {
     if (Profile::Vm::UseReturnIds) {
       PopUint16(retNum);
-      thread->ReturnAdresses[thread->CallStackDepth] =
+      thread->ReturnAddresses[thread->CallStackDepth] =
           ScriptGetRetAddress(ScriptBuffers[thread->ScriptBufferId], retNum);
     } else {
-      thread->ReturnAdresses[thread->CallStackDepth] = thread->Ip;
+      thread->ReturnAddresses[thread->CallStackDepth] = thread->Ip;
     }
     thread->ReturnScriptBufferIds[thread->CallStackDepth++] =
         thread->ScriptBufferId;
@@ -105,7 +105,7 @@ VmInstruction(InstReturn) {
     thread->CallStackDepth--;
     uint32_t retBufferId =
         thread->ReturnScriptBufferIds[thread->CallStackDepth];
-    thread->Ip = thread->ReturnAdresses[thread->CallStackDepth];
+    thread->Ip = thread->ReturnAddresses[thread->CallStackDepth];
     thread->ScriptBufferId = retBufferId;
   } else {
     ImpLog(LL_Error, LC_VM, "Return error, call stack empty.\n");
@@ -120,7 +120,7 @@ VmInstruction(InstReturnIfFlag) {
       thread->CallStackDepth--;
       uint32_t retBufferId =
           thread->ReturnScriptBufferIds[thread->CallStackDepth];
-      thread->Ip = thread->ReturnAdresses[thread->CallStackDepth];
+      thread->Ip = thread->ReturnAddresses[thread->CallStackDepth];
       thread->ScriptBufferId = retBufferId;
     }
   } else {

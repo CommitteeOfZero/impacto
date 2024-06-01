@@ -524,7 +524,7 @@ void RunThread(Sc3VmThread* thread) {
           thread->CallStackDepth--;
           uint32_t retBufferId =
               thread->ReturnScriptBufferIds[thread->CallStackDepth];
-          thread->Ip = thread->ReturnAdresses[thread->CallStackDepth];
+          thread->Ip = thread->ReturnAddresses[thread->CallStackDepth];
           thread->ScriptBufferId = retBufferId;
         } else {
           ImpLog(LL_Error, LC_VM,
