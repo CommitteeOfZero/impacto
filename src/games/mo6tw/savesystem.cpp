@@ -406,7 +406,7 @@ void SaveSystem::SaveMemory() {
 
       for (size_t j = 0; j < thd->CallStackDepth; j++) {
         WorkingSaveEntry->MainThreadReturnAddresses[j] =
-            (uint32_t)(thd->ReturnAdresses[j] -
+            (uint32_t)(thd->ReturnAddresses[j] -
                        ScriptBuffers[thd->ReturnScriptBufferIds[j]]);
         WorkingSaveEntry->MainThreadReturnBufIds[j] =
             thd->ReturnScriptBufferIds[j];
@@ -524,7 +524,7 @@ void SaveSystem::LoadMemory(SaveType type, int id) {
                    ScrWork[2004 + entry->MainThreadReturnBufIds[0]]);
         thd->CallStackDepth++;
         thd->ReturnScriptBufferIds[0] = entry->MainThreadReturnBufIds[0];
-        thd->ReturnAdresses[0] =
+        thd->ReturnAddresses[0] =
             ScriptBuffers[entry->MainThreadReturnBufIds[0]] +
             entry->MainThreadReturnAddresses[0];
 

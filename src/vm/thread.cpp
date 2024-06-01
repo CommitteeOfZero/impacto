@@ -24,7 +24,7 @@ void* Sc3VmThread::GetMemberPointer(uint32_t offset) {
     case TO_RetCount:
       return &CallStackDepth;
     case TO_RetAddr:
-      return &ReturnAdresses;
+      return &ReturnAddresses;
     case TO_RetScrBuf:
       return &ReturnScriptBufferIds;
     case TO_DrawPri:

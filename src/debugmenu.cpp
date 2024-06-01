@@ -708,7 +708,7 @@ void ShowScriptDebugger() {
           Vm::LoadedScriptMetas[Vm::ThreadPool[ScriptDebuggerSelectedThreadId]
                                     .ReturnScriptBufferIds[i]]
               .FileName.c_str(),
-          Vm::ThreadPool[ScriptDebuggerSelectedThreadId].ReturnAdresses[i] -
+          Vm::ThreadPool[ScriptDebuggerSelectedThreadId].ReturnAddresses[i] -
               Vm::ScriptBuffers[Vm::ThreadPool[ScriptDebuggerSelectedThreadId]
                                     .ReturnScriptBufferIds[i]]);
       ImGui::PopID();

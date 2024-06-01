@@ -286,7 +286,7 @@ void SaveSystem::SaveMemory() {
 
       for (uint32_t j = 0; j < thd->CallStackDepth; j++) {
         WorkingSaveEntry->MainThreadReturnAddresses[j] =
-            static_cast<uint32_t>(thd->ReturnAdresses[j] -
+            static_cast<uint32_t>(thd->ReturnAddresses[j] -
                                   ScriptBuffers[thd->ReturnScriptBufferIds[j]]);
       }
       for (uint32_t j = 0; j < thd->CallStackDepth; j++) {
@@ -374,11 +374,16 @@ void SaveSystem::LoadMemory(SaveType type, int id) {
                                 entry->MainThreadIp);
         thd->CallStackDepth = entry->MainThreadCallStackDepth;
 
-        thd->CallStackDepth++;
-        thd->ReturnScriptBufferIds[0] = entry->MainThreadReturnBufIds[0];
-        thd->ReturnAdresses[0] =
-            ScriptGetRetAddress(ScriptBuffers[entry->MainThreadReturnBufIds[0]],
-                                entry->MainThreadReturnAddresses[0]);
+        for (int i = 0; i < thd->CallStackDepth; i++) {
+          thd->ReturnScriptBufferIds[i] = entry->MainThreadReturnBufIds[i];
+          thd->ReturnAddresses[i] = ScriptGetRetAddress(
+              ScriptBuffers[entry->MainThreadReturnBufIds[i]],
+              entry->MainThreadReturnAddresses[i]);
+        }
+        for (int i = thd->CallStackDepth; i < MaxCallStackDepth; i++) {
+          thd->ReturnScriptBufferIds[i] = 0;
+          thd->ReturnAddresses[i] = nullptr;
+        }
         memcpy(thd->Variables, entry->MainThreadVariables, 64);
         thd->DialoguePageId = entry->MainThreadDialoguePageId;
       }
