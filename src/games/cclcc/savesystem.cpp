@@ -349,13 +349,12 @@ void SaveSystem::LoadMemory(SaveType type, int id) {
 
       int threadId = ScrWork[SW_MAINTHDP];
       Sc3VmThread* thd = &ThreadPool[threadId & 0x7FFFFFFF];
-      if (thd != 0 &&
-          (thd->GroupId == 4 || thd->GroupId == 5 || thd->GroupId == 6)) {
+      if (thd->GroupId - 5 < 3) {
         thd->ExecPriority = entry->MainThreadExecPriority;
         thd->WaitCounter = entry->MainThreadWaitCounter;
         thd->ScriptParam = entry->MainThreadScriptParam;
-        thd->GroupId = entry->MainThreadGroupId >> 16;
-        thd->ScriptBufferId = entry->MainThreadGroupId & 0xFFFF;
+        thd->GroupId = entry->MainThreadGroupId;
+        thd->ScriptBufferId = entry->MainThreadScriptBufferId;
         LoadScript(thd->ScriptBufferId,
                    ScrWork[SW_SVBGMNO - 1 + thd->ScriptBufferId]);
         thd->Ip =
