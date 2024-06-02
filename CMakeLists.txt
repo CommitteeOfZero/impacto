@@ -989,7 +989,7 @@ target_link_libraries(impacto PUBLIC ${Impacto_Libs})
 
 # compiler/dependency configuration
 
-set_property(TARGET impacto PROPERTY CXX_STANDARD 14)
+set_property(TARGET impacto PROPERTY CXX_STANDARD 17)
 
 if (EMSCRIPTEN)
     set(CMAKE_EXECUTABLE_SUFFIX ".html")
