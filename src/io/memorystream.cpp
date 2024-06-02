@@ -24,6 +24,15 @@ int64_t MemoryStream::Read(void* buffer, int64_t sz) {
   return sz;
 }
 
+int64_t MemoryStream::Write(void* buffer, int64_t sz, int cnt) {
+  if (sz < 0) return IoError_Fail;
+  if (Position == Meta.Size) return IoError_Eof;
+  sz = std::min(Meta.Size - Position, sz);
+  memcpy((uint8_t*)Memory + Position, buffer, sz);
+  Position += sz;
+  return sz;
+}
+
 int64_t MemoryStream::Seek(int64_t offset, int origin) {
   int64_t newPos = Position;
   if (origin == RW_SEEK_SET) {
