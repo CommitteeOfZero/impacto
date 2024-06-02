@@ -65,7 +65,7 @@ struct Sc3VmThread {
   uint32_t CallStackDepth;
   union {
     uint8_t* ReturnAddresses[MaxCallStackDepth];
-    uint8_t ReturnIds[MaxCallStackDepth];
+    uint16_t ReturnIds[MaxCallStackDepth];
   };
   uint32_t ReturnScriptBufferIds[MaxCallStackDepth];
   uint32_t DrawPriority;
