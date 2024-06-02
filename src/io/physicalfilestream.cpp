@@ -32,6 +32,7 @@ IoError PhysicalFileStream::CreateWrite(std::string const& fileName,
   result->Meta.Size = size;
   result->SourceFileName = fileName;
   result->Meta.FileName = fileName;
+  result->IsWrite = true;
   *out = (Stream*)result;
   return IoError_OK;
 }
