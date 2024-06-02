@@ -11,6 +11,7 @@
 #include "background2d.h"
 #include "character2d.h"
 #include "profile/sprites.h"
+#include "profile/vm.h"
 
 namespace Impacto {
 namespace DebugMenu {
@@ -703,14 +704,18 @@ void ShowScriptDebugger() {
              Vm::ThreadPool[ScriptDebuggerSelectedThreadId].CallStackDepth - 1;
          i >= 0; i--) {
       ImGui::PushID(i);
+      auto& thd = Vm::ThreadPool[ScriptDebuggerSelectedThreadId];
+      uint8_t* returnAddress =
+          (Profile::Vm::UseReturnIds)
+              ? thd.ReturnAddresses[i]
+              : Vm::ScriptGetRetAddress(
+                    Vm::ScriptBuffers[thd.ReturnScriptBufferIds[i]],
+                    thd.ReturnIds[i]);
+
       ImGui::Text(
           "%s - %08X",
-          Vm::LoadedScriptMetas[Vm::ThreadPool[ScriptDebuggerSelectedThreadId]
-                                    .ReturnScriptBufferIds[i]]
-              .FileName.c_str(),
-          Vm::ThreadPool[ScriptDebuggerSelectedThreadId].ReturnAddresses[i] -
-              Vm::ScriptBuffers[Vm::ThreadPool[ScriptDebuggerSelectedThreadId]
-                                    .ReturnScriptBufferIds[i]]);
+          Vm::LoadedScriptMetas[thd.ReturnScriptBufferIds[i]].FileName.c_str(),
+          returnAddress - Vm::ScriptBuffers[thd.ReturnScriptBufferIds[i]]);
       ImGui::PopID();
     }
 

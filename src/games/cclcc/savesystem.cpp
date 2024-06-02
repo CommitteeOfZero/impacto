@@ -1,5 +1,6 @@
 #include "savesystem.h"
 
+#include "../../io/inputstream.h"
 #include "../../io/physicalfilestream.h"
 #include "../../mem.h"
 #include "../../vm/vm.h"
@@ -127,8 +128,7 @@ SaveError SaveSystem::MountSaveFile() {
       entryArray[i]->MainThreadLoopAdr = Io::ReadLE<uint32_t>(stream);
       entryArray[i]->MainThreadCallStackDepth = Io::ReadLE<uint32_t>(stream);
       for (int j = 0; j < 8; j++) {
-        entryArray[i]->MainThreadReturnAddresses[j] =
-            Io::ReadLE<uint32_t>(stream);
+        entryArray[i]->MainThreadReturnIds[j] = Io::ReadLE<uint32_t>(stream);
       }
       for (int j = 0; j < 8; j++) {
         entryArray[i]->MainThreadReturnBufIds[j] = Io::ReadLE<uint32_t>(stream);
@@ -171,10 +171,10 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id) {
       entry->PlayTime = WorkingSaveEntry->PlayTime;
       entry->SwTitle = WorkingSaveEntry->SwTitle;
 
-      memcpy(entry->FlagWorkScript1, WorkingSaveEntry->FlagWorkScript1, 50);
-      memcpy(entry->FlagWorkScript2, WorkingSaveEntry->FlagWorkScript2, 100);
-      memcpy(entry->ScrWorkScript1, WorkingSaveEntry->ScrWorkScript1, 1200);
-      memcpy(entry->ScrWorkScript2, WorkingSaveEntry->ScrWorkScript2, 5200);
+      memcpy(entry->FlagWorkScript1, &FlagWork[50], 50);
+      memcpy(entry->FlagWorkScript2, &FlagWork[300], 100);
+      memcpy(entry->ScrWorkScript1, &ScrWork[1000], 2400);
+      memcpy(entry->ScrWorkScript2, &ScrWork[4300], 12000);
 
       entry->MainThreadExecPriority = WorkingSaveEntry->MainThreadExecPriority;
       entry->MainThreadWaitCounter = WorkingSaveEntry->MainThreadWaitCounter;
@@ -186,15 +186,16 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id) {
           WorkingSaveEntry->MainThreadCallStackDepth;
 
       for (int j = 0; j < 8; j++) {
-        entry->MainThreadReturnAddresses[j] =
-            WorkingSaveEntry->MainThreadReturnAddresses[j];
-      }
-      for (int j = 0; j < 8; j++) {
+        entry->MainThreadReturnIds[j] =
+            WorkingSaveEntry->MainThreadReturnIds[j];
         entry->MainThreadReturnBufIds[j] =
             WorkingSaveEntry->MainThreadReturnBufIds[j];
       }
+
       memcpy(entry->MainThreadVariables, WorkingSaveEntry->MainThreadVariables,
              64);
+      memcpy(entry->MapLoadData, WorkingSaveEntry->MapLoadData,
+             sizeof(entry->MapLoadData));
       entry->MainThreadDialoguePageId =
           WorkingSaveEntry->MainThreadDialoguePageId;
     }
@@ -202,26 +203,98 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id) {
 }
 
 void SaveSystem::WriteSaveFile() {
-  // Io::InputStream* stream;
-  // IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream);
+  Io::PhysicalFileStream* stream;
+  IoError err = Io::PhysicalFileStream::CreateWrite(
+      SaveFilePath, reinterpret_cast<Io::InputStream**>(stream));
 
-  // stream->Seek(0x3b06, SEEK_SET);  // TODO: Actually save system data
+  stream->Seek(0x387c, SEEK_SET);  // TODO: Actually save system data
 
-  // for (int i = 0; i < MaxSaveEntries; i++) {
-  //  if (QuickSaveEntries[i]->Status == 0) {
-  //    stream->Seek(0x2000, SEEK_CUR);
-  //  } else {
-  //    // TODO: We don't have writing to file...
-  //  }
-  //}
+  SaveFileEntryBase** entryTypes[] = {FullSaveEntries, QuickSaveEntries};
+  for (auto* entryArray : entryTypes) {
+    int64_t saveDataPos = stream->Position;
+    for (int i = 0; i < MaxSaveEntries; i++) {
+      SaveFileEntry* entry = (SaveFileEntry*)entryArray[i];
+      if (entry->Status == 0) {
+        stream->Seek(0xD888, SEEK_CUR);
+      } else {
+        // int64_t startPos = stream->Position;
+        // assert(startPos - saveDataPos == 0xd888 * i);
+        // uint8_t buffer[0xd888] = {0};
+        // uint64_t bufferPos = 0;
+        // buffer[bufferPos] stream->Write(&entry->Status,
+        // sizeof(entry->Status),
+        //                                 1);
+        // stream->Write(&entry->Checksum, sizeof(entry->Checksum), 1);
+        // Io::ReadLE<uint32_t>(stream);
+        // uint16_t saveYear = Io::ReadLE<uint16_t>(stream);
+        // uint8_t saveDay = Io::ReadLE<uint8_t>(stream);
+        // uint8_t saveMonth = Io::ReadLE<uint8_t>(stream);
+        // uint8_t saveSecond = Io::ReadLE<uint8_t>(stream);
+        // uint8_t saveMinute = Io::ReadLE<uint8_t>(stream);
+        // uint8_t saveHour = Io::ReadLE<uint8_t>(stream);
+        // std::tm t{};
+        // t.tm_sec = saveSecond;
+        // t.tm_min = saveMinute;
+        // t.tm_hour = saveHour;
+        // t.tm_mday = saveDay;
+        // t.tm_mon = saveMonth - 1;
+        // t.tm_year = saveYear - 1900;
+        // entryArray[i]->SaveDate = t;
 
-  // for (int i = 0; i < MaxSaveEntries; i++) {
-  //  if (FullSaveEntries[i]->Status == 0) {
-  //    stream->Seek(0x2000, SEEK_CUR);
-  //  } else {
-  //    // TODO: We don't have writing to file...
-  //  }
-  //}
+        // Io::ReadLE<uint8_t>(stream);
+        // entryArray[i]->PlayTime = Io::ReadLE<uint32_t>(stream);
+        // entryArray[i]->SwTitle = Io::ReadLE<uint32_t>(stream);
+        // Io::ReadLE<uint32_t>(stream);
+        // entryArray[i]->Flags = Io::ReadLE<uint8_t>(stream);
+        // stream->Seek(7, SEEK_CUR);
+        // entryArray[i]->SaveType = Io::ReadLE<uint32_t>(stream);
+        // assert(stream->Position - startPos == 0x28);
+        // stream->Seek(0x58, SEEK_CUR);
+        // Io::ReadArrayLE<uint8_t>(
+        //     ((SaveFileEntry*)entryArray[i])->FlagWorkScript1, stream, 50);
+        // assert(stream->Position - startPos == 178);
+        // Io::ReadArrayLE<uint8_t>(
+        //     ((SaveFileEntry*)entryArray[i])->FlagWorkScript2, stream, 100);
+        // Io::ReadLE<uint16_t>(stream);
+        // assert(stream->Position - startPos == 280);
+        // Io::ReadArrayLE<int>(((SaveFileEntry*)entryArray[i])->ScrWorkScript1,
+        //                      stream, 600);
+        // assert(stream->Position - startPos == 2680);
+        // Io::ReadArrayLE<int>(((SaveFileEntry*)entryArray[i])->ScrWorkScript2,
+        //                      stream, 3000);
+
+        // assert(stream->Position - startPos == 0x3958);
+        // entryArray[i]->MainThreadExecPriority = Io::ReadLE<uint32_t>(stream);
+        // entryArray[i]->MainThreadGroupId = Io::ReadLE<uint32_t>(stream);
+        // entryArray[i]->MainThreadWaitCounter = Io::ReadLE<uint32_t>(stream);
+        // entryArray[i]->MainThreadScriptParam = Io::ReadLE<uint32_t>(stream);
+        // entryArray[i]->MainThreadIp = Io::ReadLE<uint32_t>(stream);
+        // entryArray[i]->MainThreadLoopCounter = Io::ReadLE<uint32_t>(stream);
+        // entryArray[i]->MainThreadLoopAdr = Io::ReadLE<uint32_t>(stream);
+        // entryArray[i]->MainThreadCallStackDepth =
+        // Io::ReadLE<uint32_t>(stream); for (int j = 0; j < 8; j++) {
+        //   entryArray[i]->MainThreadReturnIds[j] =
+        //   Io::ReadLE<uint32_t>(stream);
+        // }
+        // for (int j = 0; j < 8; j++) {
+        //   entryArray[i]->MainThreadReturnBufIds[j] =
+        //       Io::ReadLE<uint32_t>(stream);
+        // }
+        // Io::ReadLE<uint32_t>(stream);
+        // assert(stream->Position - startPos == 0x39bc);
+        // entryArray[i]->MainThreadScriptBufferId =
+        // Io::ReadLE<uint32_t>(stream);
+        // Io::ReadArrayBE<int>(entryArray[i]->MainThreadVariables, stream, 16);
+        // entryArray[i]->MainThreadDialoguePageId =
+        // Io::ReadLE<uint32_t>(stream); assert(stream->Position - startPos ==
+        // 0x3a04); stream->Seek(1212, SEEK_CUR); assert(stream->Position -
+        // startPos == 0x3ec0);
+        // Io::ReadArrayLE<uint8_t>(((SaveFileEntry*)entryArray[i])->MapLoadData,
+        //                          stream, 0x6ac8);
+        // stream->Seek(12032, SEEK_CUR);
+      }
+    }
+  }
 }
 
 uint32_t SaveSystem::GetSavePlayTime(SaveType type, int id) {
@@ -283,19 +356,15 @@ void SaveSystem::SaveMemory() {
       WorkingSaveEntry->MainThreadCallStackDepth = thd->CallStackDepth;
 
       for (int i = 0; i < thd->CallStackDepth; i++) {
-        // TODO change this when retaddresses is changed to returnids
-        // WorkingSaveEntry->MainThreadReturnBufIds[i] =
-        //     thd->ReturnScriptBufferIds[i];
-        // thd->ReturnAddresses[i] = ScriptGetRetAddress(
-        //     ScriptBuffers[WorkingSaveEntry->MainThreadReturnBufIds[i]],
-        //     WorkingSaveEntry->MainThreadReturnAddresses[i]);
+        WorkingSaveEntry->MainThreadReturnBufIds[i] =
+            thd->ReturnScriptBufferIds[i];
+        WorkingSaveEntry->MainThreadReturnIds[i] = thd->ReturnIds[i];
       }
-      for (size_t j = 0; j < thd->CallStackDepth; j++) {
-        WorkingSaveEntry->MainThreadReturnAddresses[j] =
-            (uint32_t)(thd->ReturnAddresses[j] -
-                       ScriptBuffers[thd->ReturnScriptBufferIds[j]]);
-        WorkingSaveEntry->MainThreadReturnBufIds[j] =
-            thd->ReturnScriptBufferIds[j];
+      for (size_t i = 0; i < thd->CallStackDepth; i++) {
+        WorkingSaveEntry->MainThreadReturnBufIds[i] =
+            thd->ReturnScriptBufferIds[i];
+        WorkingSaveEntry->MainThreadReturnIds[i] = thd->ReturnIds[i];
+        ;
       }
       memcpy(WorkingSaveEntry->MainThreadVariables, thd->Variables, 64);
       WorkingSaveEntry->MainThreadDialoguePageId = thd->DialoguePageId;
@@ -383,14 +452,9 @@ void SaveSystem::LoadMemory(SaveType type, int id) {
 
         for (int i = 0; i < thd->CallStackDepth; i++) {
           thd->ReturnScriptBufferIds[i] = entry->MainThreadReturnBufIds[i];
-          thd->ReturnAddresses[i] = ScriptGetRetAddress(
-              ScriptBuffers[entry->MainThreadReturnBufIds[i]],
-              entry->MainThreadReturnAddresses[i]);
+          thd->ReturnIds[i] = entry->MainThreadReturnIds[i];
         }
-        for (int i = thd->CallStackDepth; i < MaxCallStackDepth; i++) {
-          thd->ReturnScriptBufferIds[i] = 0;
-          thd->ReturnAddresses[i] = nullptr;
-        }
+
         memcpy(thd->Variables, entry->MainThreadVariables, 64);
         thd->DialoguePageId = entry->MainThreadDialoguePageId;
       }

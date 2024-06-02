@@ -63,7 +63,10 @@ struct Sc3VmThread {
   uint32_t LoopCounter;
   uint16_t LoopLabelNum;
   uint32_t CallStackDepth;
-  uint8_t* ReturnAddresses[MaxCallStackDepth];
+  union {
+    uint8_t* ReturnAddresses[MaxCallStackDepth];
+    uint8_t ReturnIds[MaxCallStackDepth];
+  };
   uint32_t ReturnScriptBufferIds[MaxCallStackDepth];
   uint32_t DrawPriority;
   uint8_t DrawType;

@@ -50,7 +50,10 @@ class SaveFileEntryBase {
   uint32_t MainThreadLoopCounter;
   uint32_t MainThreadLoopAdr;
   uint32_t MainThreadCallStackDepth;
-  uint32_t MainThreadReturnAddresses[8];
+  union {
+    uint32_t MainThreadReturnAddresses[8];
+    uint32_t MainThreadReturnIds[8];
+  };
   uint32_t MainThreadReturnBufIds[8];
   uint32_t MainThreadScriptBufferId;
   int MainThreadVariables[16];
