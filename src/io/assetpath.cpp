@@ -5,7 +5,7 @@
 namespace Impacto {
 namespace Io {
 
-IoError AssetPath::Open(InputStream** outStream) {
+IoError AssetPath::Open(Stream** outStream) {
   if (Mount.empty()) {
     return PhysicalFileStream::Create(FileName, outStream);
   } else {
@@ -19,7 +19,7 @@ IoError AssetPath::Open(InputStream** outStream) {
 
 IoError AssetPath::Slurp(void** outMemory, int64_t* outSize) {
   if (Mount.empty()) {
-    InputStream* stream;
+    Stream* stream;
     IoError err = PhysicalFileStream::Create(FileName, &stream);
     if (err != IoError_OK) return err;
     *outMemory = malloc(stream->Meta.Size);

@@ -8,12 +8,12 @@ ZlibStream::~ZlibStream() {
   inflateEnd(&ZlibState);
 }
 
-IoError ZlibStream::Create(InputStream* baseStream, int64_t compressedOffset,
+IoError ZlibStream::Create(Stream* baseStream, int64_t compressedOffset,
                            int64_t compressedSize, int64_t uncompressedSize,
-                           InputStream** out) {
+                           Stream** out) {
   if (compressedOffset + compressedSize > baseStream->Meta.Size)
     return IoError_Fail;
-  InputStream* dup;
+  Stream* dup;
   int64_t err = baseStream->Duplicate(&dup);
   if (err != IoError_OK) return (IoError)err;
   err = dup->Seek(compressedOffset, RW_SEEK_SET);
@@ -32,7 +32,7 @@ IoError ZlibStream::Create(InputStream* baseStream, int64_t compressedOffset,
     delete result;
     return IoError_Fail;
   }
-  *out = (InputStream*)result;
+  *out = (Stream*)result;
   return IoError_OK;
 }
 
@@ -81,8 +81,8 @@ int64_t ZlibStream::Seek(int64_t offset, int origin) {
   return Position;
 }
 
-IoError ZlibStream::Duplicate(InputStream** outStream) {
-  InputStream* dup;
+IoError ZlibStream::Duplicate(Stream** outStream) {
+  Stream* dup;
   int64_t err = BaseStream->Duplicate(&dup);
   if (err != IoError_OK) return (IoError)err;
   err = dup->Seek(CompressedOffset, RW_SEEK_SET);
@@ -106,7 +106,7 @@ IoError ZlibStream::Duplicate(InputStream** outStream) {
     delete result;
     return IoError_Fail;
   }
-  *outStream = (InputStream*)result;
+  *outStream = (Stream*)result;
   return IoError_OK;
 }
 

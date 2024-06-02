@@ -131,8 +131,7 @@ inline void calc_shifts(int mask, int& left, int& right) {
   left = 8 - i;
 }
 
-bool internal_readimg(InputStream* stream, unsigned char* dst, int w, int h,
-                      int d) {
+bool internal_readimg(Stream* stream, unsigned char* dst, int w, int h, int d) {
   if (m_dds.fmt.flags & DDS_PF_FOURCC) {
     // compressed image
     int flags = 0;
@@ -196,7 +195,7 @@ bool internal_readimg(InputStream* stream, unsigned char* dst, int w, int h,
   return true;
 }
 
-bool TextureLoadDDS(InputStream* stream, Texture* outTexture) {
+bool TextureLoadDDS(Stream* stream, Texture* outTexture) {
   stream->Seek(0, RW_SEEK_SET);
 
   m_dds.fourCC = ReadLE<uint32_t>(stream);

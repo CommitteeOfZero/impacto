@@ -29,10 +29,10 @@ class CpkArchive : public VfsArchive {
  public:
   ~CpkArchive();
 
-  IoError Open(FileMeta* file, InputStream** outStream) override;
+  IoError Open(FileMeta* file, Stream** outStream) override;
   IoError Slurp(FileMeta* file, void** outBuffer, int64_t* outSize) override;
 
-  static IoError Create(InputStream* stream, VfsArchive** outArchive);
+  static IoError Create(Stream* stream, VfsArchive** outArchive);
 
  private:
   IoError ReadToc(int64_t tocOffset, int64_t contentOffset);

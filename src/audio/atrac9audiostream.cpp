@@ -32,7 +32,7 @@ static const uint8_t Atrac9Guid[] = {0xD2, 0x42, 0xE1, 0x47, 0xBA, 0x36,
                                      0x4F, 0x8C, 0x83, 0x6C};
 
 // http://www.piclist.com/techref/io/serial/midi/wave.html
-static bool ParseAt9Riff(InputStream* stream, At9ContainerInfo* info) {
+static bool ParseAt9Riff(Stream* stream, At9ContainerInfo* info) {
   if (ReadBE<uint32_t>(stream) != RIFFMagic) return false;
   uint32_t remaining = ReadLE<uint32_t>(stream) - 4;
   if (ReadBE<uint32_t>(stream) != WAVEMagic) return false;
@@ -130,7 +130,7 @@ breakLoop:
   return true;
 }
 
-AudioStream* Atrac9AudioStream::Create(InputStream* stream) {
+AudioStream* Atrac9AudioStream::Create(Stream* stream) {
   Atrac9AudioStream* result = 0;
 
   At9ContainerInfo container;

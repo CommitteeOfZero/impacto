@@ -6,7 +6,7 @@
 
 namespace Impacto {
 bool VoiceTable::LoadSync(uint32_t id) {
-  Io::InputStream* stream;
+  Io::Stream* stream;
   int64_t err = Io::VfsOpen("system", id, &stream);
   if (err != IoError_OK) return false;
   uint16_t voiceFileCount = Io::ReadBE<uint16_t>(stream);

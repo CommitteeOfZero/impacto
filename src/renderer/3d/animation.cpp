@@ -45,7 +45,7 @@ struct Target {
   uint16_t Id;
 };
 
-Target GetTarget(InputStream* stream, Model* model) {
+Target GetTarget(Stream* stream, Model* model) {
   Target result;
   result.Type = TargetType_NotFound;
 
@@ -74,7 +74,7 @@ Target GetTarget(InputStream* stream, Model* model) {
   return result;
 }
 
-ModelAnimation* ModelAnimation::Load(InputStream* stream, Model* model,
+ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
                                      int16_t animId) {
   int trackSize, trackCountsOffset, trackOffsetsOffset;
   if (Profile::Scene3D::Version == +LKMVersion::DaSH) {

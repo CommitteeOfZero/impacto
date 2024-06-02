@@ -2,7 +2,7 @@
 
 #include "audiocommon.h"
 #include "../impacto.h"
-#include "../io/inputstream.h"
+#include "../io/stream.h"
 
 #include <vector>
 
@@ -15,13 +15,13 @@ class AudioStream {
     if (BaseStream) delete BaseStream;
   }
 
-  static AudioStream* Create(Io::InputStream* stream);
+  static AudioStream* Create(Io::Stream* stream);
 
   // Returns number of samples read
   virtual int Read(void* buffer, int samples) = 0;
   virtual void Seek(int samples) = 0;
 
-  const Io::InputStream* GetBaseStream() const { return BaseStream; }
+  const Io::Stream* GetBaseStream() const { return BaseStream; }
 
   int BytesPerSample() const { return (BitDepth / 8) * ChannelCount; }
 
@@ -36,12 +36,12 @@ class AudioStream {
   int ReadPosition = 0;
 
  protected:
-  typedef AudioStream* (*AudioStreamCreator)(Io::InputStream* stream);
+  typedef AudioStream* (*AudioStreamCreator)(Io::Stream* stream);
   static bool AddAudioStreamCreator(AudioStreamCreator c);
 
   AudioStream(){};
 
-  Io::InputStream* BaseStream = 0;
+  Io::Stream* BaseStream = 0;
 
  private:
   static std::vector<AudioStreamCreator>& GetRegistry();

@@ -8,17 +8,17 @@ namespace Impacto {
 namespace Audio {
 
 static size_t OvRwRead(void* ptr, size_t size, size_t nmemb, void* datasource) {
-  return ((InputStream*)datasource)->Read(ptr, size * nmemb) / size;
+  return ((Stream*)datasource)->Read(ptr, size * nmemb) / size;
 }
 static int OvRwSeek(void* datasource, ogg_int64_t offset, int whence) {
-  return (long)(((InputStream*)datasource)->Seek(offset, whence));
+  return (long)(((Stream*)datasource)->Seek(offset, whence));
 }
 static long OvRwTell(void* datasource) {
-  return (long)(((InputStream*)datasource)->Position);
+  return (long)(((Stream*)datasource)->Position);
 }
 ov_callbacks OvRwCallbacks = {OvRwRead, OvRwSeek, NULL, OvRwTell};
 
-AudioStream* VorbisAudioStream::Create(InputStream* stream) {
+AudioStream* VorbisAudioStream::Create(Stream* stream) {
   VorbisAudioStream* result = 0;
   OggVorbis_File Vf;
   bool VfOpen = false;

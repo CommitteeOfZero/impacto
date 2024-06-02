@@ -17,7 +17,7 @@ AfsArchive::~AfsArchive() {
   if (TOC) delete[] TOC;
 }
 
-IoError AfsArchive::Open(FileMeta* file, InputStream** outStream) {
+IoError AfsArchive::Open(FileMeta* file, Stream** outStream) {
   AfsMetaEntry* entry = (AfsMetaEntry*)file;
   IoError err = UncompressedStream::Create(BaseStream, entry->Offset,
                                            entry->Size, outStream);
@@ -29,7 +29,7 @@ IoError AfsArchive::Open(FileMeta* file, InputStream** outStream) {
   return err;
 }
 
-IoError AfsArchive::Create(InputStream* stream, VfsArchive** outArchive) {
+IoError AfsArchive::Create(Stream* stream, VfsArchive** outArchive) {
   ImpLog(LL_Trace, LC_IO, "Trying to mount \"%s\" as AFS\n",
          stream->Meta.FileName.c_str());
 

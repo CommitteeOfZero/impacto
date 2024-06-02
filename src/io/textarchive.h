@@ -11,10 +11,10 @@ struct TextMetaEntry;
 class TextArchive : public VfsArchive {
  public:
   ~TextArchive();
-  IoError Open(FileMeta* file, InputStream** outStream) override;
+  IoError Open(FileMeta* file, Stream** outStream) override;
   IoError GetCurrentSize(FileMeta* file, int64_t* outSize) override;
 
-  static IoError Create(InputStream* stream, VfsArchive** outArchive);
+  static IoError Create(Stream* stream, VfsArchive** outArchive);
 
  private:
   TextMetaEntry* TOC = 0;

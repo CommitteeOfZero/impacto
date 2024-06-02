@@ -38,7 +38,7 @@ VmInstruction(InstPlayMovie) {
     PopExpression(playNo);
     PopExpression(movCancelFlag);
     if (Profile::GameFeatures & GameFeature::Video) {
-      Io::InputStream* stream;
+      Io::Stream* stream;
       auto err = Io::VfsOpen("movie", playNo, &stream);
       if (err != IoError_OK) {
         ImpLog(LL_Error, LC_Video,
@@ -76,7 +76,7 @@ VmInstruction(InstPlayMovieOld) {
   PopExpression(playNo);
   PopExpression(movCancelFlag);
   if (Profile::GameFeatures & GameFeature::Video) {
-    Io::InputStream* stream;
+    Io::Stream* stream;
     Io::VfsOpen("movie", playNo, &stream);
     if (Video::Players[0]->IsPlaying) Video::Players[0]->Stop();
     Video::Players[0]->Play(stream, playMode == 5, playMode == 5);

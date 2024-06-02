@@ -4,7 +4,7 @@
 namespace Impacto {
 namespace Video {
 
-VideoPlayer* VideoPlayer::Create(Io::InputStream* stream) {
+VideoPlayer* VideoPlayer::Create(Io::Stream* stream) {
   for (auto f : Registry) {
     VideoPlayer* result = f(stream);
     if (result) return result;

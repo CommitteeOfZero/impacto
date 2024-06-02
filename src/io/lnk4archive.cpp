@@ -20,7 +20,7 @@ Lnk4Archive::~Lnk4Archive() {
   if (TOC) delete[] TOC;
 }
 
-IoError Lnk4Archive::Open(FileMeta* file, InputStream** outStream) {
+IoError Lnk4Archive::Open(FileMeta* file, Stream** outStream) {
   Lnk4MetaEntry* entry = (Lnk4MetaEntry*)file;
 #ifndef IMPACTO_DISABLE_MSPACK
   IoError err =
@@ -41,7 +41,7 @@ IoError Lnk4Archive::Open(FileMeta* file, InputStream** outStream) {
   return err;
 }
 
-IoError Lnk4Archive::Create(InputStream* stream, VfsArchive** outArchive) {
+IoError Lnk4Archive::Create(Stream* stream, VfsArchive** outArchive) {
   ImpLog(LL_Trace, LC_IO, "Trying to mount \"%s\" as LNK4\n",
          stream->Meta.FileName.c_str());
 

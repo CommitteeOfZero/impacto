@@ -18,7 +18,7 @@ SaveFileEntry* WorkingSaveEntry = 0;
 
 SaveError SaveSystem::MountSaveFile() {
   Io::PhysicalFileStream* stream;
-  Io::InputStream* instream;
+  Io::Stream* instream;
   IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &instream);
   switch (err) {
     case IoError_NotFound:
@@ -232,7 +232,7 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id) {
 
 void SaveSystem::WriteSaveFile() {
   Io::PhysicalFileStream* stream;
-  Io::InputStream* instream;
+  Io::Stream* instream;
   IoError err = Io::PhysicalFileStream::CreateWrite(SaveFilePath, &instream);
   auto err1 = SDL_GetError();
   if (err != IoError_OK) {

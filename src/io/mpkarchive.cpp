@@ -21,7 +21,7 @@ MpkArchive::~MpkArchive() {
   if (TOC) delete[] TOC;
 }
 
-IoError MpkArchive::Open(FileMeta* file, InputStream** outStream) {
+IoError MpkArchive::Open(FileMeta* file, Stream** outStream) {
   MpkMetaEntry* entry = (MpkMetaEntry*)file;
   IoError err;
   if (entry->Compressed) {
@@ -42,7 +42,7 @@ IoError MpkArchive::Open(FileMeta* file, InputStream** outStream) {
   return err;
 }
 
-IoError MpkArchive::Create(InputStream* stream, VfsArchive** outArchive) {
+IoError MpkArchive::Create(Stream* stream, VfsArchive** outArchive) {
   ImpLog(LL_Trace, LC_IO, "Trying to mount \"%s\" as MPK\n",
          stream->Meta.FileName.c_str());
 

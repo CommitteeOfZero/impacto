@@ -3,7 +3,7 @@
 
 #include "../log.h"
 #include "../profile/game.h"
-#include "../io/inputstream.h"
+#include "../io/stream.h"
 #include "../audio/ffmpegaudioplayer.h"
 #ifndef IMPACTO_DISABLE_OPENAL
 #include "../audio/openal/ffmpegaudioplayer.h"
@@ -21,7 +21,7 @@ namespace Impacto {
 namespace Video {
 
 int StreamRead(void* ptr, uint8_t* buf, int buf_size) {
-  Io::InputStream* stream = reinterpret_cast<Io::InputStream*>(ptr);
+  Io::Stream* stream = reinterpret_cast<Io::Stream*>(ptr);
 
   uint64_t bytesRead = stream->Read(buf, buf_size);
   if ((bytesRead == static_cast<uint64_t>(IoError_Fail) ||
@@ -32,7 +32,7 @@ int StreamRead(void* ptr, uint8_t* buf, int buf_size) {
 }
 
 int64_t StreamSeek(void* ptr, int64_t pos, int origin) {
-  Io::InputStream* stream = reinterpret_cast<Io::InputStream*>(ptr);
+  Io::Stream* stream = reinterpret_cast<Io::Stream*>(ptr);
 
   if (origin == AVSEEK_SIZE) return stream->Meta.Size;
   int64_t newPos = stream->Seek(pos, origin);
@@ -115,13 +115,13 @@ void FFmpegPlayer::Init() {
   IsInit = true;
 }
 
-void FFmpegPlayer::Play(Io::InputStream* stream, bool looping, bool alpha) {
+void FFmpegPlayer::Play(Io::Stream* stream, bool looping, bool alpha) {
   // Don't do anything if we don't have the video system
   if (!IsInit) return;
 
   if (stream == nullptr) {
     ImpLog(LL_Error, LC_Video,
-           "InputStream was a nullptr! This means the caller is buggy. Backing "
+           "Stream was a nullptr! This means the caller is buggy. Backing "
            "out.\n");
     return;
   }
@@ -495,8 +495,7 @@ void FFmpegPlayer::Stop() {
     FrameTimer = 0.0;
     PreviousFrameTimestamp = 0.0;
     avformat_close_input(&FormatContext);
-    if (IoContext)
-      reinterpret_cast<Io::InputStream*>(IoContext->opaque)->~InputStream();
+    if (IoContext) reinterpret_cast<Io::Stream*>(IoContext->opaque)->~Stream();
     avio_context_free(&IoContext);
     if (VideoTexture) {
       VideoTexture->Release();

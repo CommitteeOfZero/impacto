@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
   g_LogLevelConsole = LL_Max;
   g_LogChannelsConsole = LC_All;
 
-  Io::InputStream* stream;
+  Io::Stream* stream;
   IoError err = Io::PhysicalFileStream::Create("profile.txt", &stream);
   if (err != IoError_OK) {
     ImpLog(LL_Fatal, LC_General, "Couldn't open profile.txt\n");

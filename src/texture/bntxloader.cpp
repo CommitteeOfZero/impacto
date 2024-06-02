@@ -256,7 +256,7 @@ uint8_t* BCnDecompress(uint8_t* dataBuff, TextureNX element, int n) {
   return dst;
 }
 
-bool TextureLoadBNTX(InputStream* stream, Texture* outTexture) {
+bool TextureLoadBNTX(Stream* stream, Texture* outTexture) {
   // Read metadata
 
   if (ReadBE<uint32_t>(stream) != magic) {

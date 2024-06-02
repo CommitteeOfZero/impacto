@@ -40,10 +40,10 @@ int64_t MemoryStream::Seek(int64_t offset, int origin) {
   return newPos;
 }
 
-IoError MemoryStream::Duplicate(InputStream** outStream) {
+IoError MemoryStream::Duplicate(Stream** outStream) {
   MemoryStream* result = new MemoryStream(*this);
   result->FreeOnClose = false;
-  *outStream = (InputStream*)result;
+  *outStream = (Stream*)result;
   return IoError_OK;
 }
 

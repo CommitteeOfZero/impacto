@@ -41,7 +41,7 @@ static int LuaInclude(lua_State* ctx) {
   IncludedFiles.insert(file);
   ImpLog(LL_Debug, LC_Profile, "Including %s\n", file.c_str());
 
-  Io::InputStream* stream;
+  Io::Stream* stream;
   IoError err = Io::PhysicalFileStream::Create(file, &stream);
   if (err != IoError_OK) {
     ImpLog(LL_Error, LC_Profile, "Could not open %s\n", file.c_str());
@@ -131,7 +131,7 @@ static void DefineEnumUint(lua_State* ctx) {
 }
 
 void MakeLuaProfile(std::string const& name) {
-  Io::InputStream* stream;
+  Io::Stream* stream;
   IoError err =
       Io::PhysicalFileStream::Create("profiles/" + name + "/game.lua", &stream);
   if (err != IoError_OK) {

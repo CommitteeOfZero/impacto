@@ -5,7 +5,7 @@
 #include "texture/texture.h"
 #include "spritesheet.h"
 #include "loadable.h"
-#include "io/inputstream.h"
+#include "io/stream.h"
 #include "profile/game.h"
 #include <vector>
 
