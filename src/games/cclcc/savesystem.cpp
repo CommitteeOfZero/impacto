@@ -217,81 +217,62 @@ void SaveSystem::WriteSaveFile() {
       if (entry->Status == 0) {
         stream->Seek(0xD888, SEEK_CUR);
       } else {
-        // int64_t startPos = stream->Position;
-        // assert(startPos - saveDataPos == 0xd888 * i);
-        // uint8_t buffer[0xd888] = {0};
-        // uint64_t bufferPos = 0;
-        // buffer[bufferPos] stream->Write(&entry->Status,
-        // sizeof(entry->Status),
-        //                                 1);
-        // stream->Write(&entry->Checksum, sizeof(entry->Checksum), 1);
-        // Io::ReadLE<uint32_t>(stream);
-        // uint16_t saveYear = Io::ReadLE<uint16_t>(stream);
-        // uint8_t saveDay = Io::ReadLE<uint8_t>(stream);
-        // uint8_t saveMonth = Io::ReadLE<uint8_t>(stream);
-        // uint8_t saveSecond = Io::ReadLE<uint8_t>(stream);
-        // uint8_t saveMinute = Io::ReadLE<uint8_t>(stream);
-        // uint8_t saveHour = Io::ReadLE<uint8_t>(stream);
-        // std::tm t{};
-        // t.tm_sec = saveSecond;
-        // t.tm_min = saveMinute;
-        // t.tm_hour = saveHour;
-        // t.tm_mday = saveDay;
-        // t.tm_mon = saveMonth - 1;
-        // t.tm_year = saveYear - 1900;
-        // entryArray[i]->SaveDate = t;
+        int64_t startPos = stream->Position;
+        assert(startPos - saveDataPos == 0xd888 * i);
+        Io::WriteLE<uint16_t>(stream, entry->Status);
+        Io::WriteLE<uint16_t>(stream, entry->Checksum);
+        Io::WriteLE<uint32_t>(stream, 0);
 
-        // Io::ReadLE<uint8_t>(stream);
-        // entryArray[i]->PlayTime = Io::ReadLE<uint32_t>(stream);
-        // entryArray[i]->SwTitle = Io::ReadLE<uint32_t>(stream);
-        // Io::ReadLE<uint32_t>(stream);
-        // entryArray[i]->Flags = Io::ReadLE<uint8_t>(stream);
-        // stream->Seek(7, SEEK_CUR);
-        // entryArray[i]->SaveType = Io::ReadLE<uint32_t>(stream);
-        // assert(stream->Position - startPos == 0x28);
-        // stream->Seek(0x58, SEEK_CUR);
-        // Io::ReadArrayLE<uint8_t>(
-        //     ((SaveFileEntry*)entryArray[i])->FlagWorkScript1, stream, 50);
-        // assert(stream->Position - startPos == 178);
-        // Io::ReadArrayLE<uint8_t>(
-        //     ((SaveFileEntry*)entryArray[i])->FlagWorkScript2, stream, 100);
-        // Io::ReadLE<uint16_t>(stream);
-        // assert(stream->Position - startPos == 280);
-        // Io::ReadArrayLE<int>(((SaveFileEntry*)entryArray[i])->ScrWorkScript1,
-        //                      stream, 600);
-        // assert(stream->Position - startPos == 2680);
-        // Io::ReadArrayLE<int>(((SaveFileEntry*)entryArray[i])->ScrWorkScript2,
-        //                      stream, 3000);
+        Io::WriteLE<uint16_t>(stream, entry->SaveDate.tm_year + 1900);
+        Io::WriteLE<uint8_t>(stream, entry->SaveDate.tm_mday);
+        Io::WriteLE<uint8_t>(stream, entry->SaveDate.tm_mon + 1);
+        Io::WriteLE<uint8_t>(stream, entry->SaveDate.tm_sec);
+        Io::WriteLE<uint8_t>(stream, entry->SaveDate.tm_min);
+        Io::WriteLE<uint8_t>(stream, entry->SaveDate.tm_hour);
+        Io::WriteLE<uint8_t>(stream, 0);
 
-        // assert(stream->Position - startPos == 0x3958);
-        // entryArray[i]->MainThreadExecPriority = Io::ReadLE<uint32_t>(stream);
-        // entryArray[i]->MainThreadGroupId = Io::ReadLE<uint32_t>(stream);
-        // entryArray[i]->MainThreadWaitCounter = Io::ReadLE<uint32_t>(stream);
-        // entryArray[i]->MainThreadScriptParam = Io::ReadLE<uint32_t>(stream);
-        // entryArray[i]->MainThreadIp = Io::ReadLE<uint32_t>(stream);
-        // entryArray[i]->MainThreadLoopCounter = Io::ReadLE<uint32_t>(stream);
-        // entryArray[i]->MainThreadLoopAdr = Io::ReadLE<uint32_t>(stream);
-        // entryArray[i]->MainThreadCallStackDepth =
-        // Io::ReadLE<uint32_t>(stream); for (int j = 0; j < 8; j++) {
-        //   entryArray[i]->MainThreadReturnIds[j] =
-        //   Io::ReadLE<uint32_t>(stream);
-        // }
-        // for (int j = 0; j < 8; j++) {
-        //   entryArray[i]->MainThreadReturnBufIds[j] =
-        //       Io::ReadLE<uint32_t>(stream);
-        // }
-        // Io::ReadLE<uint32_t>(stream);
-        // assert(stream->Position - startPos == 0x39bc);
-        // entryArray[i]->MainThreadScriptBufferId =
-        // Io::ReadLE<uint32_t>(stream);
-        // Io::ReadArrayBE<int>(entryArray[i]->MainThreadVariables, stream, 16);
-        // entryArray[i]->MainThreadDialoguePageId =
-        // Io::ReadLE<uint32_t>(stream); assert(stream->Position - startPos ==
-        // 0x3a04); stream->Seek(1212, SEEK_CUR); assert(stream->Position -
-        // startPos == 0x3ec0);
-        // Io::ReadArrayLE<uint8_t>(((SaveFileEntry*)entryArray[i])->MapLoadData,
-        //                          stream, 0x6ac8);
-        // stream->Seek(12032, SEEK_CUR);
+        Io::WriteLE<uint32_t>(stream, entry->PlayTime);
+        Io::WriteLE<uint32_t>(stream, entry->SwTitle);
+        Io::WriteLE<uint32_t>(stream, 0);
+        Io::WriteLE<uint8_t>(stream, entry->Flags);
+        stream->Seek(7, SEEK_CUR);
+        Io::WriteLE<uint32_t>(stream, entry->SaveType);
+        assert(stream->Position - startPos == 0x28);
+        stream->Seek(0x58, SEEK_CUR);
+        Io::WriteArrayLE<uint8_t>(entry->FlagWorkScript1, stream, 50);
+        assert(stream->Position - startPos == 178);
+        Io::WriteArrayLE<uint8_t>(entry->FlagWorkScript2, stream, 100);
+        Io::WriteLE<uint16_t>(stream, 0);
+        assert(stream->Position - startPos == 280);
+        Io::WriteArrayLE<int>(entry->ScrWorkScript1, stream, 600);
+        assert(stream->Position - startPos == 2680);
+        Io::WriteArrayLE<int>(entry->ScrWorkScript2, stream, 3000);
+
+        assert(stream->Position - startPos == 0x3958);
+        Io::WriteLE<uint32_t>(stream, entry->MainThreadExecPriority);
+        Io::WriteLE<uint32_t>(stream, entry->MainThreadGroupId);
+        Io::WriteLE<uint32_t>(stream, entry->MainThreadWaitCounter);
+        Io::WriteLE<uint32_t>(stream, entry->MainThreadScriptParam);
+        Io::WriteLE<uint32_t>(stream, entry->MainThreadIp);
+        Io::WriteLE<uint32_t>(stream, entry->MainThreadLoopCounter);
+        Io::WriteLE<uint32_t>(stream, entry->MainThreadLoopAdr);
+        Io::WriteLE<uint32_t>(stream, entry->MainThreadCallStackDepth);
+        for (int j = 0; j < 8; j++) {
+          Io::WriteLE<uint32_t>(stream, entry->MainThreadReturnIds[j]);
+        }
+        for (int j = 0; j < 8; j++) {
+          Io::WriteLE<uint32_t>(stream, entry->MainThreadReturnBufIds[j]);
+        }
+        Io::WriteLE<uint32_t>(stream, 0);
+        assert(stream->Position - startPos == 0x39bc);
+        Io::WriteLE<uint32_t>(stream, entry->MainThreadScriptBufferId);
+        Io::WriteArrayBE<int>(entry->MainThreadVariables, stream, 16);
+        Io::WriteLE<uint32_t>(stream, entry->MainThreadDialoguePageId);
+        assert(stream->Position - startPos == 0x3a04);
+        stream->Seek(1212, SEEK_CUR);
+        assert(stream->Position - startPos == 0x3ec0);
+        Io::WriteArrayLE<uint8_t>(entry->MapLoadData, stream, 0x6ac8);
+        stream->Seek(12032, SEEK_CUR);
       }
     }
   }
