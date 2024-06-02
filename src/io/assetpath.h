@@ -1,6 +1,6 @@
 #pragma once
 
-#include "inputstream.h"
+#include "stream.h"
 
 namespace Impacto {
 namespace Io {
@@ -11,7 +11,7 @@ class AssetPath {
   std::string FileName = "";
   uint32_t Id = 0;
 
-  IoError Open(InputStream** outStream);
+  IoError Open(Stream** outStream);
   IoError Slurp(void** outMemory, int64_t* outSize);
 };
 

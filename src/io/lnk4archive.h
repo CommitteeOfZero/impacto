@@ -10,9 +10,9 @@ struct Lnk4MetaEntry;
 class Lnk4Archive : public VfsArchive {
  public:
   ~Lnk4Archive();
-  IoError Open(FileMeta* file, InputStream** outStream) override;
+  IoError Open(FileMeta* file, Stream** outStream) override;
 
-  static IoError Create(InputStream* stream, VfsArchive** outArchive);
+  static IoError Create(Stream* stream, VfsArchive** outArchive);
 
  private:
   Lnk4MetaEntry* TOC = 0;

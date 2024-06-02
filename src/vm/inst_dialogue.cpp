@@ -152,7 +152,7 @@ VmInstruction(InstMes) {
       PopExpression(animationId);
       PopExpression(characterId);
       PopString(line);
-      Io::InputStream* stream;
+      Io::Stream* stream;
       IoError err = Io::VfsOpen("voice", audioId, &stream);
       uint8_t* oldIp = thread->Ip;
       thread->Ip = line;
@@ -186,7 +186,7 @@ VmInstruction(InstMes) {
       PopExpression(animationId);
       PopExpression(characterId);
       PopMsbString(line);
-      Io::InputStream* stream;
+      Io::Stream* stream;
       IoError err = Io::VfsOpen("voice", audioId, &stream);
       uint8_t* oldIp = thread->Ip;
       thread->Ip = line;

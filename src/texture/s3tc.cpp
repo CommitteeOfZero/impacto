@@ -33,9 +33,9 @@ namespace TexLoad {
 using namespace Impacto::Io;
 
 void DecompressBlockDXT1(uint32_t startX, uint32_t startY, uint32_t imageWidth,
-                         InputStream* inputStream, uint8_t* outputImage) {
-  uint16_t color0 = ReadLE<uint16_t>(inputStream);
-  uint16_t color1 = ReadLE<uint16_t>(inputStream);
+                         Stream* stream, uint8_t* outputImage) {
+  uint16_t color0 = ReadLE<uint16_t>(stream);
+  uint16_t color1 = ReadLE<uint16_t>(stream);
 
   uint32_t temp;
 
@@ -53,7 +53,7 @@ void DecompressBlockDXT1(uint32_t startX, uint32_t startY, uint32_t imageWidth,
   temp = (color1 & 0x001F) * 255 + 16;
   uint8_t b1 = (uint8_t)((temp / 32 + temp) / 32);
 
-  uint32_t code = ReadLE<uint32_t>(inputStream);
+  uint32_t code = ReadLE<uint32_t>(stream);
 
   uint8_t r, g, b,a;
 
@@ -101,20 +101,20 @@ void DecompressBlockDXT1(uint32_t startX, uint32_t startY, uint32_t imageWidth,
   }
 }
 
-void BlockDecompressImageDXT1(uint32_t width, uint32_t height,
-                              InputStream* inputStream, uint8_t* outputImage) {
+void BlockDecompressImageDXT1(uint32_t width, uint32_t height, Stream* stream,
+                              uint8_t* outputImage) {
   uint32_t blockCountX = (width + 3) / 4;
   uint32_t blockCountY = (height + 3) / 4;
 
   for (uint32_t j = 0; j < blockCountY; j++) {
     for (uint32_t i = 0; i < blockCountX; i++) {
-      DecompressBlockDXT1(i * 4, j * 4, width, inputStream, outputImage);
+      DecompressBlockDXT1(i * 4, j * 4, width, stream, outputImage);
     }
   }
 }
 
 void BlockDecompressImageDXT1VitaSwizzled(uint32_t width, uint32_t height,
-                                          InputStream* inputStream,
+                                          Stream* stream,
                                           uint8_t* outputImage) {
   uint32_t blockCountX = (width + 3) / 4;
   uint32_t blockCountY = (height + 3) / 4;
@@ -123,26 +123,26 @@ void BlockDecompressImageDXT1VitaSwizzled(uint32_t width, uint32_t height,
     for (uint32_t i = 0; i < blockCountX; i++) {
       int x = i, y = j;
       VitaUnswizzle(&x, &y, blockCountX, blockCountY);
-      DecompressBlockDXT1(x * 4, y * 4, width, inputStream, outputImage);
+      DecompressBlockDXT1(x * 4, y * 4, width, stream, outputImage);
     }
   }
 }
 
 // TODO: Kai's eyes are broken, a problem in here might be why
 void DecompressBlockDXT5(uint32_t startX, uint32_t startY, uint32_t imageWidth,
-                         InputStream* inputStream, uint8_t* outputImage) {
-  uint8_t alpha0 = ReadU8(inputStream);
-  uint8_t alpha1 = ReadU8(inputStream);
+                         Stream* stream, uint8_t* outputImage) {
+  uint8_t alpha0 = ReadU8(stream);
+  uint8_t alpha1 = ReadU8(stream);
 
   uint8_t alphaBits[6];
-  inputStream->Read(alphaBits, 6);
+  stream->Read(alphaBits, 6);
 
   uint32_t alphaCode1 = alphaBits[2] | (alphaBits[3] << 8) |
                         (alphaBits[4] << 16) | (alphaBits[5] << 24);
   uint16_t alphaCode2 = alphaBits[0] | (alphaBits[1] << 8);
 
-  uint16_t color0 = ReadLE<uint16_t>(inputStream);
-  uint16_t color1 = ReadLE<uint16_t>(inputStream);
+  uint16_t color0 = ReadLE<uint16_t>(stream);
+  uint16_t color1 = ReadLE<uint16_t>(stream);
 
   uint32_t temp;
 
@@ -160,7 +160,7 @@ void DecompressBlockDXT5(uint32_t startX, uint32_t startY, uint32_t imageWidth,
   temp = (color1 & 0x001F) * 255 + 16;
   uint8_t b1 = (uint8_t)((temp / 32 + temp) / 32);
 
-  uint32_t code = ReadLE<uint32_t>(inputStream);
+  uint32_t code = ReadLE<uint32_t>(stream);
 
   uint8_t r, g, b, a;
 
@@ -235,20 +235,20 @@ void DecompressBlockDXT5(uint32_t startX, uint32_t startY, uint32_t imageWidth,
   }
 }
 
-void BlockDecompressImageDXT5(uint32_t width, uint32_t height,
-                              InputStream* inputStream, uint8_t* outputImage) {
+void BlockDecompressImageDXT5(uint32_t width, uint32_t height, Stream* stream,
+                              uint8_t* outputImage) {
   uint32_t blockCountX = (width + 3) / 4;
   uint32_t blockCountY = (height + 3) / 4;
 
   for (uint32_t j = 0; j < blockCountY; j++) {
     for (uint32_t i = 0; i < blockCountX; i++) {
-      DecompressBlockDXT5(i * 4, j * 4, width, inputStream, outputImage);
+      DecompressBlockDXT5(i * 4, j * 4, width, stream, outputImage);
     }
   }
 }
 
 void BlockDecompressImageDXT5VitaSwizzled(uint32_t width, uint32_t height,
-                                          InputStream* inputStream,
+                                          Stream* stream,
                                           uint8_t* outputImage) {
   uint32_t blockCountX = (width + 3) / 4;
   uint32_t blockCountY = (height + 3) / 4;
@@ -257,7 +257,7 @@ void BlockDecompressImageDXT5VitaSwizzled(uint32_t width, uint32_t height,
     for (uint32_t i = 0; i < blockCountX; i++) {
       int x = i, y = j;
       VitaUnswizzle(&x, &y, blockCountX, blockCountY);
-      DecompressBlockDXT5(x * 4, y * 4, width, inputStream, outputImage);
+      DecompressBlockDXT5(x * 4, y * 4, width, stream, outputImage);
     }
   }
 }

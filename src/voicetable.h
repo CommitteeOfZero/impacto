@@ -5,7 +5,7 @@
 #include <map>
 #include <vector>
 #include "loadable.h"
-#include "io/inputstream.h"
+#include "io/stream.h"
 
 namespace Impacto {
 struct VoiceMeta {

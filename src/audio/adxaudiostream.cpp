@@ -93,7 +93,7 @@ bool AdxAudioStream::DecodeBuffer() {
   return true;
 }
 
-static bool ParseAdxHeader(InputStream* stream, AdxHeaderInfo* info) {
+static bool ParseAdxHeader(Stream* stream, AdxHeaderInfo* info) {
   uint8_t header[0x34];
   stream->Read(header, 0x34);
 
@@ -174,7 +174,7 @@ static bool ParseAdxHeader(InputStream* stream, AdxHeaderInfo* info) {
   return true;
 }
 
-AudioStream* AdxAudioStream::Create(InputStream* stream) {
+AudioStream* AdxAudioStream::Create(Stream* stream) {
   AdxAudioStream* result = 0;
 
   AdxHeaderInfo info = {0, 0, 0, false, 0, 0, 0, 0, 0, 0, 0, 0, 0};

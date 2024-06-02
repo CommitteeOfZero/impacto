@@ -73,7 +73,7 @@ static void ImageTooltip(ImVec2 pos, ImTextureID textureId, float texWidth,
 static void ParseScriptDebugData(uint32_t scriptId) {
   if (ScriptDebugSource.find(scriptId) != ScriptDebugSource.end()) return;
 
-  Io::InputStream* stream;
+  Io::Stream* stream;
   if (Io::VfsOpen("scriptdbg", scriptId, &stream) != IoError_OK) return;
 
   std::map<int, int> byteCodePosToLine;

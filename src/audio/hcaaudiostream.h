@@ -23,7 +23,7 @@ class HcaAudioStream : public AudioStream,
   bool DecodeBuffer();
 
  private:
-  static AudioStream* Create(Io::InputStream* stream);
+  static AudioStream* Create(Io::Stream* stream);
   HcaAudioStream() {}
 
   void InitWithInfo(clHCA_stInfo* info);

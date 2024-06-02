@@ -9,7 +9,7 @@ std::vector<AudioStream::AudioStreamCreator>& AudioStream::GetRegistry() {
   return registry;
 }
 
-AudioStream* AudioStream::Create(Io::InputStream* stream) {
+AudioStream* AudioStream::Create(Io::Stream* stream) {
   for (auto f : GetRegistry()) {
     AudioStream* result = f(stream);
     if (result) return result;

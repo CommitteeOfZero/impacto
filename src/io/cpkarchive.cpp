@@ -346,7 +346,7 @@ IoError CpkArchive::ReadEtoc(int64_t etocOffset) {
   return IoError_OK;
 }
 
-IoError CpkArchive::Create(InputStream* stream, VfsArchive** outArchive) {
+IoError CpkArchive::Create(Stream* stream, VfsArchive** outArchive) {
   ImpLog(LL_Trace, LC_IO, "Trying to mount \"%s\" as CPK\n",
          stream->Meta.FileName.c_str());
 
@@ -410,7 +410,7 @@ fail:
   return IoError_Fail;
 }
 
-IoError CpkArchive::Open(FileMeta* file, InputStream** outStream) {
+IoError CpkArchive::Open(FileMeta* file, Stream** outStream) {
   CpkMetaEntry* entry = (CpkMetaEntry*)file;
 
   IoError err;

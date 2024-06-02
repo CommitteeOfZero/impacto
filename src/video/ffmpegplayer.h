@@ -7,7 +7,7 @@ extern "C" {
 }
 
 #include "../impacto.h"
-#include "../io/inputstream.h"
+#include "../io/stream.h"
 #include "../log.h"
 #include "../renderer/yuvframe.h"
 #include "../texture/texture.h"
@@ -23,7 +23,7 @@ struct AVIOContext;
 
 namespace Impacto {
 namespace Io {
-class InputStream;
+class Stream;
 }
 }  // namespace Impacto
 
@@ -60,7 +60,7 @@ class FFmpegPlayer : public VideoPlayer {
 
   void Init() override;
 
-  void Play(Io::InputStream* stream, bool loop, bool alpha) override;
+  void Play(Io::Stream* stream, bool loop, bool alpha) override;
   void Stop() override;
   void Seek(int64_t pos) override;
 

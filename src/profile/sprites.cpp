@@ -24,7 +24,7 @@ void LoadSpritesheets() {
 
     Io::AssetPath asset = EnsureGetMemberAssetPath("Path");
 
-    Io::InputStream* stream;
+    Io::Stream* stream;
     IoError err = asset.Open(&stream);
     if (err != IoError_OK) {
       ImpLog(LL_Fatal, LC_Profile, "Could not open spritesheet %s\n",

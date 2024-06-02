@@ -15,7 +15,7 @@ std::vector<Texture::TextureLoader>& Texture::GetRegistry() {
   return registry;
 }
 
-bool Texture::Load(Io::InputStream* stream) {
+bool Texture::Load(Io::Stream* stream) {
   using namespace TexLoad;
 
   for (auto f : GetRegistry()) {

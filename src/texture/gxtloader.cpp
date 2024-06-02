@@ -157,7 +157,7 @@ void VitaUnswizzle(int* x, int* y, int width, int height) {
 
 /* clang-format on */
 
-bool GXTLoadSubtexture(InputStream* stream, Texture* outTexture,
+bool GXTLoadSubtexture(Stream* stream, Texture* outTexture,
                        SubtextureHeader* stx, uint8_t* p4Palettes,
                        uint8_t* p8Palettes, uint32_t p4count) {
   memset(outTexture, 0, sizeof(*outTexture));
@@ -349,7 +349,7 @@ bool GXTLoadSubtexture(InputStream* stream, Texture* outTexture,
 
 static uint32_t const magic = 0x47585400;
 
-bool TextureLoadGXT(InputStream* stream, Texture* outTexture) {
+bool TextureLoadGXT(Stream* stream, Texture* outTexture) {
   // Read metadata
 
   if (ReadBE<uint32_t>(stream) != magic) {

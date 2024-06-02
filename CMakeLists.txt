@@ -551,7 +551,7 @@ set(Impacto_Header
         src/io/buffering.h
         src/io/filemeta.h
         src/io/assetpath.h
-        src/io/inputstream.h
+        src/io/stream.h
         src/io/vfsarchive.h
         src/io/memorystream.h
         src/io/physicalfilestream.h

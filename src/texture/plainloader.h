@@ -5,7 +5,7 @@
 
 namespace Impacto {
 namespace TexLoad {
-bool TextureIsPlain(Io::InputStream* stream);
-bool TextureLoadPlain(Io::InputStream* stream, Texture* outTexture);
+bool TextureIsPlain(Io::Stream* stream);
+bool TextureLoadPlain(Io::Stream* stream, Texture* outTexture);
 }  // namespace TexLoad
 }  // namespace Impacto

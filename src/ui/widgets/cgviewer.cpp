@@ -153,7 +153,7 @@ void CgViewer::LoadCgSprites(
         idx += 1;
         continue;
       }
-      Io::InputStream* stream;
+      Io::Stream* stream;
       int64_t err =
           Io::VfsOpen(mountPoint, loadIds[variationIdx][idx], &stream);
       if (err != IoError_OK) return;

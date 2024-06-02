@@ -1,6 +1,6 @@
 #pragma once
 
-#include "inputstream.h"
+#include "stream.h"
 #include <SDL_rwops.h>
 #include "buffering.h"
 
@@ -9,18 +9,17 @@ namespace Io {
 
 // TODO *optional* buffering
 
-class PhysicalFileStream : public InputStream,
-                           public Buffering<PhysicalFileStream> {
+class PhysicalFileStream : public Stream, public Buffering<PhysicalFileStream> {
   friend class Buffering<PhysicalFileStream>;
 
  public:
   ~PhysicalFileStream();
 
-  static IoError Create(std::string const& fileName, InputStream** out);
-  static IoError CreateWrite(std::string const& fileName, InputStream** out);
+  static IoError Create(std::string const& fileName, Stream** out);
+  static IoError CreateWrite(std::string const& fileName, Stream** out);
   int64_t Read(void* buffer, int64_t sz) override;
   int64_t Seek(int64_t offset, int origin) override;
-  IoError Duplicate(InputStream** outStream) override;
+  IoError Duplicate(Stream** outStream) override;
   int64_t Write(void* buffer, int64_t sz, int cnt);
 
  protected:

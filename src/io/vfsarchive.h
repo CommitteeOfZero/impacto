@@ -1,6 +1,6 @@
 #pragma once
 
-#include "inputstream.h"
+#include "stream.h"
 #include <flat_hash_map.hpp>
 
 namespace Impacto {
@@ -13,7 +13,7 @@ class VfsArchive {
   // Meta.ArchiveFileName, Meta.ArchiveMountPoint, Meta.FileName are set by VFS,
   // not by the archiver.
   // These methods are only ever called with FileMeta* found in IdsToFiles.
-  virtual IoError Open(FileMeta* file, InputStream** outStream) = 0;
+  virtual IoError Open(FileMeta* file, Stream** outStream) = 0;
 
   virtual IoError Slurp(FileMeta* file, void** outBuffer, int64_t* outSize);
   // If the size of a file is uncertain when the archive is first opened (e.g.
@@ -27,7 +27,7 @@ class VfsArchive {
   std::string MountPoint;
 
   bool IsInit = false;
-  InputStream* BaseStream = 0;
+  Stream* BaseStream = 0;
 };
 
 }  // namespace Io

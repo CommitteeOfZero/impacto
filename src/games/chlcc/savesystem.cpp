@@ -19,7 +19,7 @@ using namespace Impacto::Profile::ScriptVars;
 SaveFileEntry* WorkingSaveEntry = 0;
 
 SaveError SaveSystem::MountSaveFile() {
-  Io::InputStream* stream;
+  Io::Stream* stream;
   IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream);
   switch (err) {
     case IoError_NotFound:
@@ -228,7 +228,7 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id) {
 }
 
 void SaveSystem::WriteSaveFile() {
-  // Io::InputStream* stream;
+  // Io::Stream* stream;
   // IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream);
 
   // stream->Seek(0x3b06, SEEK_SET);  // TODO: Actually save system data

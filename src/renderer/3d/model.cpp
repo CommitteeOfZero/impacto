@@ -247,7 +247,7 @@ Model* Model::Load(uint32_t modelId) {
 
   // We read the whole file at once for speed, but we still want a stream for
   // convenience
-  InputStream* stream = new MemoryStream(file, fileSize, true);
+  Stream* stream = new MemoryStream(file, fileSize, true);
 
   Model* result = new Model;
   result->Id = modelId;
@@ -570,7 +570,7 @@ Model* Model::Load(uint32_t modelId) {
                size);
     void* gxt = malloc(size);
     stream->Read(gxt, size);
-    InputStream* gxtStream = new MemoryStream(gxt, size, true);
+    Stream* gxtStream = new MemoryStream(gxt, size, true);
     if (!result->Textures[i].Load(gxtStream)) {
       ImpLog(LL_Debug, LC_ModelLoad,
              "Texture %d failed to load, falling back to 1x1 pixel\n", i);
@@ -613,7 +613,7 @@ Model* Model::Load(uint32_t modelId) {
           continue;
         }
 
-        InputStream* animStream = new MemoryStream(animData, animSize, true);
+        Stream* animStream = new MemoryStream(animData, animSize, true);
         animStream->Meta.FileName = animName;
         ModelAnimation* anim = ModelAnimation::Load(animStream, result, animId);
         delete animStream;

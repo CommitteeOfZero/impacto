@@ -17,7 +17,7 @@ enum PlainPixelMode : uint32_t {
   Plain_8Bit_Alpha2 = 8 | (2 << 16)
 };
 
-bool TextureIsPlain(InputStream* stream) {
+bool TextureIsPlain(Stream* stream) {
   stream->Seek(4, RW_SEEK_SET);
   uint32_t mode = ReadLE<uint32_t>(stream);
   bool result = (mode == Plain_8Bit_Paletted || mode == Plain_32Bit_ARGB ||
@@ -26,7 +26,7 @@ bool TextureIsPlain(InputStream* stream) {
   return result;
 }
 
-bool TextureLoadPlain(InputStream* stream, Texture* outTexture) {
+bool TextureLoadPlain(Stream* stream, Texture* outTexture) {
   uint16_t width = ReadLE<uint16_t>(stream);
   uint16_t height = ReadLE<uint16_t>(stream);
   PlainPixelMode mode = (PlainPixelMode)ReadLE<uint32_t>(stream);
