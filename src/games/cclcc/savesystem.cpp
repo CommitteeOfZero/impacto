@@ -167,40 +167,7 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id) {
 
   if (WorkingSaveEntry != 0) {
     if (entry != 0) {
-      entry->Status = 1;
-      entry->Checksum = WorkingSaveEntry->Checksum;
-      entry->SaveDate = WorkingSaveEntry->SaveDate;
-      entry->PlayTime = WorkingSaveEntry->PlayTime;
-      entry->SwTitle = WorkingSaveEntry->SwTitle;
-
-      memcpy(entry->FlagWorkScript1, &FlagWork[50], 50);
-      memcpy(entry->FlagWorkScript2, &FlagWork[300], 100);
-      memcpy(entry->ScrWorkScript1, &ScrWork[1000], 2400);
-      memcpy(entry->ScrWorkScript2, &ScrWork[4300], 12000);
-
-      entry->MainThreadExecPriority = WorkingSaveEntry->MainThreadExecPriority;
-      entry->MainThreadWaitCounter = WorkingSaveEntry->MainThreadWaitCounter;
-      entry->MainThreadScriptParam = WorkingSaveEntry->MainThreadScriptParam;
-      entry->MainThreadGroupId = WorkingSaveEntry->MainThreadGroupId;
-      entry->MainThreadScriptBufferId =
-          WorkingSaveEntry->MainThreadScriptBufferId;
-      entry->MainThreadIp = WorkingSaveEntry->MainThreadIp;
-      entry->MainThreadCallStackDepth =
-          WorkingSaveEntry->MainThreadCallStackDepth;
-
-      for (int j = 0; j < 8; j++) {
-        entry->MainThreadReturnIds[j] =
-            WorkingSaveEntry->MainThreadReturnIds[j];
-        entry->MainThreadReturnBufIds[j] =
-            WorkingSaveEntry->MainThreadReturnBufIds[j];
-      }
-
-      memcpy(entry->MainThreadVariables, WorkingSaveEntry->MainThreadVariables,
-             64);
-      memcpy(entry->MapLoadData, WorkingSaveEntry->MapLoadData,
-             sizeof(entry->MapLoadData));
-      entry->MainThreadDialoguePageId =
-          WorkingSaveEntry->MainThreadDialoguePageId;
+      *entry = *WorkingSaveEntry;
     }
   }
 }
