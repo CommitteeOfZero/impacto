@@ -411,11 +411,9 @@ VmInstruction(InstLoadData) {
       PopExpression(arg1);
       if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
         PopExpression(arg2);
+        SaveSystem::LoadMemory(static_cast<SaveSystem::SaveType>(arg1), arg2);
       }
-      Impacto::SaveSystem::SaveType saveType =
-          ScrWork[SW_SAVEMENUMODE] == 0 ? SaveSystem::SaveType::SaveQuick
-                                        : SaveSystem::SaveType::SaveFull;
-      SaveSystem::LoadMemory(saveType, arg1);
+
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction LoadData(type: %i, arg1: %i)\n", type, arg1);
     } break;
