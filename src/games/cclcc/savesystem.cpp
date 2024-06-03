@@ -146,6 +146,7 @@ SaveError SaveSystem::MountSaveFile() {
       stream->Seek(12032, SEEK_CUR);
     }
   }
+  delete stream;
   return SaveOK;
 }
 
@@ -167,7 +168,8 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id) {
   if (WorkingSaveEntry != 0) {
     if (entry != 0) {
       entry->Status = 1;
-
+      entry->Checksum = WorkingSaveEntry->Checksum;
+      entry->SaveDate = WorkingSaveEntry->SaveDate;
       entry->PlayTime = WorkingSaveEntry->PlayTime;
       entry->SwTitle = WorkingSaveEntry->SwTitle;
 
@@ -180,7 +182,8 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id) {
       entry->MainThreadWaitCounter = WorkingSaveEntry->MainThreadWaitCounter;
       entry->MainThreadScriptParam = WorkingSaveEntry->MainThreadScriptParam;
       entry->MainThreadGroupId = WorkingSaveEntry->MainThreadGroupId;
-      entry->MainThreadGroupId = WorkingSaveEntry->MainThreadGroupId;
+      entry->MainThreadScriptBufferId =
+          WorkingSaveEntry->MainThreadScriptBufferId;
       entry->MainThreadIp = WorkingSaveEntry->MainThreadIp;
       entry->MainThreadCallStackDepth =
           WorkingSaveEntry->MainThreadCallStackDepth;
@@ -203,9 +206,12 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id) {
 }
 
 void SaveSystem::WriteSaveFile() {
-  Io::PhysicalFileStream* stream;
-  IoError err = Io::PhysicalFileStream::CreateWrite(
-      SaveFilePath, reinterpret_cast<Io::Stream**>(stream));
+  Io::Stream* stream;
+  IoError err = Io::PhysicalFileStream::CreateWrite(SaveFilePath, &stream);
+  if (err != IoError_OK) {
+    ImpLog(LL_Error, LC_IO, "Failed to open save file for writing\n");
+    return;
+  }
 
   stream->Seek(0x387c, SEEK_SET);  // TODO: Actually save system data
 
@@ -276,6 +282,7 @@ void SaveSystem::WriteSaveFile() {
       }
     }
   }
+  delete stream;
 }
 
 uint32_t SaveSystem::GetSavePlayTime(SaveType type, int id) {
@@ -323,9 +330,13 @@ void SaveSystem::SaveMemory() {
 
   if (WorkingSaveEntry != 0) {
     WorkingSaveEntry->Status = 1;
-
-    WorkingSaveEntry->PlayTime = ScrWork[2304];
-    WorkingSaveEntry->SwTitle = ScrWork[2300];
+    WorkingSaveEntry->Checksum = 0;  // CalculateChecksum(0);
+    time_t rawtime;
+    time(&rawtime);
+    tm* timeinfo = localtime(&rawtime);
+    WorkingSaveEntry->SaveDate = *timeinfo;
+    WorkingSaveEntry->PlayTime = ScrWork[SW_PLAYTIME];
+    WorkingSaveEntry->SwTitle = ScrWork[SW_TITLE];
 
     memcpy(WorkingSaveEntry->FlagWorkScript1, &FlagWork[50], 50);
     memcpy(WorkingSaveEntry->FlagWorkScript2, &FlagWork[300], 100);
@@ -334,18 +345,17 @@ void SaveSystem::SaveMemory() {
     int threadId = ScrWork[SW_MAINTHDP];
     Sc3VmThread* thd = &ThreadPool[threadId & 0x7FFFFFFF];
     if (thd->GroupId - 5 < 3) {
+      WorkingSaveEntry->MainThreadExecPriority = thd->ExecPriority;
+      WorkingSaveEntry->MainThreadWaitCounter = thd->WaitCounter;
+      WorkingSaveEntry->MainThreadScriptParam = thd->ScriptParam;
+      WorkingSaveEntry->MainThreadGroupId = thd->GroupId;
+      WorkingSaveEntry->MainThreadScriptBufferId = thd->ScriptBufferId;
+      // Checkpoint id should already be set by SetCheckpointId
       WorkingSaveEntry->MainThreadCallStackDepth = thd->CallStackDepth;
-
       for (int i = 0; i < thd->CallStackDepth; i++) {
         WorkingSaveEntry->MainThreadReturnBufIds[i] =
             thd->ReturnScriptBufferIds[i];
         WorkingSaveEntry->MainThreadReturnIds[i] = thd->ReturnIds[i];
-      }
-      for (size_t i = 0; i < thd->CallStackDepth; i++) {
-        WorkingSaveEntry->MainThreadReturnBufIds[i] =
-            thd->ReturnScriptBufferIds[i];
-        WorkingSaveEntry->MainThreadReturnIds[i] = thd->ReturnIds[i];
-        ;
       }
       memcpy(WorkingSaveEntry->MainThreadVariables, thd->Variables, 64);
       WorkingSaveEntry->MainThreadDialoguePageId = thd->DialoguePageId;

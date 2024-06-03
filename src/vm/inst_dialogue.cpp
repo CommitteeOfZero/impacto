@@ -343,16 +343,16 @@ VmInstruction(InstSel) {
           Profile::Vm::GameInstructionSet == +InstructionSet::CC ||
           Profile::Vm::GameInstructionSet == +InstructionSet::MO8) {
         PopUint16(savepointid);
-        // Not sure if this is right
-        if (GetFlag(1288 + thread->DialoguePageId) == 0) {
-          if (ScrWork[SW_TITLE] != 0xffff) {
-            SaveSystem::SetCheckpointId(savepointid);
-            SaveSystem::SaveMemory();
-            SetFlag(1206, 1);
-            SetFlag(1285, 1);
-            BlockThread;
-          }
+        // 1288 + dialog page's field 5 in decompile?
+        // if (GetFlag(1288 + thread->DialoguePageId) == 0) {
+        if (ScrWork[SW_TITLE] != 0xffff) {
+          SaveSystem::SetCheckpointId(savepointid);
+          SaveSystem::SaveMemory();
+          SetFlag(1206, 1);
+          SetFlag(1285, 1);
+          BlockThread;
         }
+        // }
       }
       PopExpression(arg1);
       UI::SelectionMenuPtr->Init((bool)arg1);
