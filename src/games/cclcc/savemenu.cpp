@@ -1,7 +1,5 @@
 #include "savemenu.h"
 
-#include <iomanip>
-#include <sstream>
 #include "../../profile/ui/savemenu.h"
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
@@ -71,40 +69,10 @@ void SaveMenu::Show() {
               id, EntryHighlightedBoxSprite[ScrWork[SW_SAVEMENUMODE]],
               EntryHighlightedTextSprite[ScrWork[SW_SAVEMENUMODE]], p,
               buttonPos, false, SlotLockedSprite[ScrWork[SW_SAVEMENUMODE]],
-              SaveSystem::GetSaveSatus(saveType, id),
-              NoDataSprite[ScrWork[SW_SAVEMENUMODE]],
+              saveType, NoDataSprite[ScrWork[SW_SAVEMENUMODE]],
               BrokenDataSprite[ScrWork[SW_SAVEMENUMODE]]);
 
           saveEntryButton->OnClickHandler = onClick;
-
-          if (SaveSystem::GetSaveSatus(saveType, id) != 0) {
-            saveEntryButton->AddSceneTitleText(
-                Vm::ScriptGetTextTableStrAddress(
-                    1, SaveSystem::GetSaveTitle(saveType, id)),
-                24, RO_BottomRight, {20, 20}, {5, 5});
-            // saveEntryButton->AddPlayTimeHintText(
-            //     Vm::ScriptGetTextTableStrAddress(0, 2), 18, RO_BottomRight,
-            //     PlayTimeHintTextRelativePos);
-            // uint32_t time = SaveSystem::GetSavePlayTime(saveType, id);
-            // uint32_t hours = time / 3600;
-            // uint32_t minutes = (time % 3600) / 60;
-            // uint32_t seconds = (time % 3600) % 60;
-            // char temp[10];
-            // sprintf(temp, "%3d:%02d:%02d", hours, minutes, seconds);
-            // saveEntryButton->AddPlayTimeText(
-            //     std::string(temp), 18, RO_BottomRight,
-            //     {PlayTimeTextRelativePos.x + (float)((hours < 10) * 10),
-            //      PlayTimeTextRelativePos.y});
-            // saveEntryButton->AddSaveDateHintText(
-            //     Vm::ScriptGetTextTableStrAddress(0, 3), 18, RO_BottomRight,
-            //     SaveDateHintTextRelativePos);
-            tm date = SaveSystem::GetSaveDate(saveType, id);
-            std::stringstream dateStr;
-            dateStr << std::put_time(&date, "%Y/%m/%d %H:%M:%S");
-            saveEntryButton->AddSaveDateText(
-                dateStr.str(), 32, RO_Full,
-                {20 + 290 * 1280.0 / 1920, (71 + 120) * 1280.0 / 1920});
-          }
           id++;
 
           EntryGrid[p][i][j] = saveEntryButton;

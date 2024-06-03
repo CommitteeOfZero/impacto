@@ -5,6 +5,7 @@
 #include "../button.h"
 #include "../label.h"
 #include "../../../renderer/renderer.h"
+#include "../../../data/savesystem.h"
 
 namespace Impacto {
 namespace UI {
@@ -15,32 +16,16 @@ class SaveEntryButton : public Widgets::Button {
  public:
   SaveEntryButton(int id, Sprite const& focusedBox, Sprite const& focusedText,
                   int page, glm::vec2 pos, uint8_t locked, Sprite lockedSymbol,
-                  int saveStatus, Sprite NoDataSprite, Sprite BrokenDataSprite);
+                  SaveSystem::SaveType saveType, Sprite NoDataSprite,
+                  Sprite BrokenDataSprite);
   void Render() override;
   int GetPage() const;
   void AddNormalSpriteLabel(Sprite norm, glm::vec2 pos);
-  void AddEntryNumberHintText(uint8_t* str, float fontSize,
-                              RendererOutlineMode outlineMode,
-                              glm::vec2 relativePosition);
-  void AddEntryNumberText(std::string str, float fontSize,
-                          RendererOutlineMode outlineMode,
-                          glm::vec2 relativePosition);
-  void AddPlayTimeHintText(uint8_t* str, float fontSize,
-                           RendererOutlineMode outlineMode,
-                           glm::vec2 relativePosition);
-  void AddPlayTimeText(std::string str, float fontSize,
-                       RendererOutlineMode outlineMode,
-                       glm::vec2 relativePosition);
-  void AddSaveDateHintText(uint8_t* str, float fontSize,
-                           RendererOutlineMode outlineMode,
-                           glm::vec2 relativePosition);
   void AddSaveDateText(std::string str, float fontSize,
                        RendererOutlineMode outlineMode,
                        glm::vec2 relativePosition);
-  void AddSceneTitleText(uint8_t* str, float fontSize,
-                         RendererOutlineMode outlineMode,
-                         glm::vec2 relativeTitlePosition,
-                         glm::vec2 relativeNoDataPosition);
+  void RenderSceneTitleText();
+  void RenderSaveDateText();
   void AddThumbnail(Sprite thumbnail, glm::vec2 pos);
   void Move(glm::vec2 pos) override;
 
@@ -56,15 +41,7 @@ class SaveEntryButton : public Widgets::Button {
   static glm::vec4 FocusedAlpha;
   static Animation FocusedAlphaFade;
   Label ThumbnailLabel;
-  Label EntryNumberHint;
-  Label EntryNumber;
-  Label SceneTitle;
-  Label PlayTimeHint;
-  Label PlayTime;
-  Label SaveDateHint;
-  Label SaveDate;
-
-  int SaveStatus;
+  SaveSystem::SaveType Type;
   Label NoDataSymbol;
   Label BrokenDataSymbol;
 };
