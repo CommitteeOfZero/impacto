@@ -183,8 +183,8 @@ void MapSystemCCLCC::MapInit() {
   SetFlag(2805, 0);
 }
 
-void MapSystemCCLCC::MapLoad(uint8_t* data, int& dataSize) {
-  dataSize = 0;
+int MapSystemCCLCC::MapLoad(uint8_t* data) {
+  int dataSize = 0;
   memmove(&MapGroup, data, sizeof(MapGroup));
   dataSize += sizeof(MapGroup);
   for (int i = 0; i < MapPartsDisp.size(); i++) {
@@ -280,10 +280,11 @@ void MapSystemCCLCC::MapLoad(uint8_t* data, int& dataSize) {
   assert(dataSize == 0x6ab4);
   dataSize += 20;  // Variables used by MapMoveAnimeInit and MapMoveAnimeMain
   assert(dataSize == 0x6ac8);
+  return dataSize;
 }
 
-void MapSystemCCLCC::MapSave(uint8_t* data, int& dataSize) {
-  dataSize = 0;
+int MapSystemCCLCC::MapSave(uint8_t* data) {
+  int dataSize = 0;
   memmove(data, &MapGroup, sizeof(MapGroup));
   dataSize += sizeof(MapGroup);
   for (int i = 0; i < MapPartsDisp.size(); i++) {
@@ -392,6 +393,7 @@ void MapSystemCCLCC::MapSave(uint8_t* data, int& dataSize) {
   assert(dataSize == 0x6ab4);
   dataSize += 20;  // Variables used by MapMoveAnimeInit and MapMoveAnimeMain
   assert(dataSize == 0x6ac8);
+  return dataSize;
 }
 void MapSystemCCLCC::MapSetFadein(int partId, int partType) {
   if (MapPartsMax != 0) {

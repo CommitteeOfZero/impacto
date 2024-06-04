@@ -8,6 +8,7 @@
 #include "../../profile/scriptvars.h"
 #include "../../profile/vm.h"
 #include "../../ui/mapsystem.h"
+#include "yesnotrigger.h"
 
 #include <cstdint>
 #include <ctime>
@@ -143,7 +144,9 @@ SaveError SaveSystem::MountSaveFile() {
       assert(stream->Position - startPos == 0x3ec0);
       Io::ReadArrayLE<uint8_t>(((SaveFileEntry*)entryArray[i])->MapLoadData,
                                stream, 0x6ac8);
-      stream->Seek(12032, SEEK_CUR);
+      Io::ReadArrayLE<uint8_t>(((SaveFileEntry*)entryArray[i])->YesNoData,
+                               stream, 0x54);
+      stream->Seek(11948, SEEK_CUR);
     }
   }
   delete stream;
@@ -245,7 +248,8 @@ void SaveSystem::WriteSaveFile() {
         stream->Seek(1212, SEEK_CUR);
         assert(stream->Position - startPos == 0x3ec0);
         Io::WriteArrayLE<uint8_t>(entry->MapLoadData, stream, 0x6ac8);
-        stream->Seek(12032, SEEK_CUR);
+        Io::WriteArrayLE<uint8_t>(entry->YesNoData, stream, 0x54);
+        stream->Seek(11948, SEEK_CUR);
       }
     }
   }
@@ -327,8 +331,8 @@ void SaveSystem::SaveMemory() {
       memcpy(WorkingSaveEntry->MainThreadVariables, thd->Variables, 64);
       WorkingSaveEntry->MainThreadDialoguePageId = thd->DialoguePageId;
     }
-    int size = 0;
-    UI::MapSystem::MapSave(WorkingSaveEntry->MapLoadData, size);
+    UI::MapSystem::MapSave(WorkingSaveEntry->MapLoadData);
+    CCLCC::YesNoTrigger::YesNoTriggerPtr->Save(WorkingSaveEntry->YesNoData);
   }
 }
 
@@ -356,8 +360,8 @@ void SaveSystem::LoadMemory(SaveType type, int id) {
       memcpy(&FlagWork[300], entry->FlagWorkScript2, 100);
       memcpy(&ScrWork[1000], entry->ScrWorkScript1, 2400);
       memcpy(&ScrWork[4300], entry->ScrWorkScript2, 12000);
-      int dataSize = 0;
-      UI::MapSystem::MapLoad(entry->MapLoadData, dataSize);
+      UI::MapSystem::MapLoad(entry->MapLoadData);
+      CCLCC::YesNoTrigger::YesNoTriggerPtr->Load(entry->YesNoData);
       // TODO: What to do about this mess I wonder...
       ScrWork[SW_SVSENO] = ScrWork[SW_SEREQNO];
       ScrWork[SW_SVSENO + 1] = ScrWork[SW_SEREQNO + 1];
@@ -368,22 +372,11 @@ void SaveSystem::LoadMemory(SaveType type, int id) {
       ScrWork[SW_SVSCRNO2] = ScrWork[SW_SCRIPTNO3];
       ScrWork[SW_SVSCRNO3] = ScrWork[SW_SCRIPTNO4];
       ScrWork[SW_SVSCRNO4] = ScrWork[SW_SCRIPTNO5];
-      ScrWork[SW_SVBGNO1] = ScrWork[SW_BG1NO + ScrWorkBgStructSize * 0];
-      ScrWork[SW_SVBGNO1 + 1] = ScrWork[SW_BG1NO + ScrWorkBgStructSize * 1];
-      ScrWork[SW_SVBGNO1 + 2] = ScrWork[SW_BG1NO + ScrWorkBgStructSize * 2];
-      ScrWork[SW_SVBGNO1 + 3] = ScrWork[SW_BG1NO + ScrWorkBgStructSize * 3];
-      ScrWork[SW_SVBGNO1 + 4] = ScrWork[SW_BG1NO + ScrWorkBgStructSize * 4];
-      ScrWork[SW_SVBGNO1 + 5] = ScrWork[SW_BG1NO + ScrWorkBgStructSize * 5];
-      ScrWork[SW_SVBGNO1 + 6] = ScrWork[SW_BG1NO + ScrWorkBgStructSize * 6];
-      ScrWork[SW_SVBGNO1 + 7] = ScrWork[SW_BG1NO + ScrWorkBgStructSize * 7];
-      ScrWork[SW_SVCHANO1] = ScrWork[SW_CHA1NO + ScrWorkChaStructSize * 0];
-      ScrWork[SW_SVCHANO1 + 1] = ScrWork[SW_CHA1NO + ScrWorkChaStructSize * 1];
-      ScrWork[SW_SVCHANO1 + 2] = ScrWork[SW_CHA1NO + ScrWorkChaStructSize * 2];
-      ScrWork[SW_SVCHANO1 + 3] = ScrWork[SW_CHA1NO + ScrWorkChaStructSize * 3];
-      ScrWork[SW_SVCHANO1 + 4] = ScrWork[SW_CHA1NO + ScrWorkChaStructSize * 4];
-      ScrWork[SW_SVCHANO1 + 5] = ScrWork[SW_CHA1NO + ScrWorkChaStructSize * 5];
-      ScrWork[SW_SVCHANO1 + 6] = ScrWork[SW_CHA1NO + ScrWorkChaStructSize * 6];
-      ScrWork[SW_SVCHANO1 + 7] = ScrWork[SW_CHA1NO + ScrWorkChaStructSize * 7];
+      for (int i = 0; i < 8; i++) {
+        ScrWork[SW_SVBGNO1 + i] = ScrWork[SW_BG1NO + i * ScrWorkBgStructSize];
+        ScrWork[SW_SVCHANO1 + i] =
+            ScrWork[SW_CHA1NO + i * ScrWorkChaStructSize];
+      }
 
       int threadId = ScrWork[SW_MAINTHDP];
       Sc3VmThread* thd = &ThreadPool[threadId & 0x7FFFFFFF];
