@@ -11,11 +11,11 @@ void Init() {
   Profile::MapSystem::CreateInstance();
 }
 void MapInit() { return MapSystemPtr->MapInit(); }
-void MapLoad(uint8_t* data, int& dataSize) {
-  return MapSystemPtr->MapLoad(data, dataSize);
+int MapLoad(uint8_t* data) {
+  return MapSystemPtr->MapLoad(data);
 }
-void MapSave(uint8_t* data, int& dataSize) {
-  return MapSystemPtr->MapSave(data, dataSize);
+int MapSave(uint8_t* data) {
+  return MapSystemPtr->MapSave(data);
 }
 void MapSetFadein(int partId, int partType) {
   return MapSystemPtr->MapSetFadein(partId, partType);

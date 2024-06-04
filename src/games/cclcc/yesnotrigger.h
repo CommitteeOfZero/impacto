@@ -35,8 +35,8 @@ class YesNoTrigger {
   void Update(float dt);
   void Render();
   void Reset();
-  void Load(uint8_t* data, int& dataSize);
-  void Save(uint8_t* data, int& dataSize);
+  int Load(uint8_t* data);
+  int Save(uint8_t* data);
 
   YesNoState State = YesNoState::None;
   bool Display = false;
