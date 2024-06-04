@@ -960,10 +960,10 @@ VmInstruction(InstDelusionTriggerCHLCC) {
 }
 
 VmInstruction(InstYesNoTriggerCCLCC) {
-  using namespace CCLCC::YesNoTrigger;
   StartInstruction;
   PopUint8(type);
-
+  using CCLCC::YesNoTrigger;
+  using YesNoState = CCLCC::YesNoTrigger::YesNoState;
   switch (type) {
     case 0: {
       PopExpression(arg1);  // 0, 1, 2, 3
@@ -973,7 +973,7 @@ VmInstruction(InstYesNoTriggerCCLCC) {
                  "STUB instruction Unk103A(type: %i, arg1: %i, arg2: %i, "
                  "arg3: %i)\n",
                  type, arg1, arg2, arg3);
-      Start(arg1, arg2, arg3);
+      YesNoTrigger::YesNoTriggerPtr->Start(arg1, arg2, arg3);
     } break;
     case 1: {
       ImpLogSlow(LL_Warning, LC_VMStub,
@@ -983,17 +983,18 @@ VmInstruction(InstYesNoTriggerCCLCC) {
     case 2: {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction YesNoTriggerCCLCC(type: %i)\n", type);
-      Show();
+      YesNoTrigger::YesNoTriggerPtr->Show();
       BlockThread;
     } break;
     case 3: {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction YesNoTriggerCCLCC(type: %i)\n", type);
+      YesNoTrigger::YesNoTriggerPtr->Hide();
     } break;
     case 4: {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction YesNoTriggerCCLCC(type: %i)\n", type);
-      if (state != YesNoState::MainInput) {
+      if (YesNoTrigger::YesNoTriggerPtr->State != YesNoState::MainInput) {
         ResetInstruction;
         BlockThread;
       }
@@ -1001,12 +1002,12 @@ VmInstruction(InstYesNoTriggerCCLCC) {
     case 5: {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction YesNoTriggerCCLCC(type: %i)\n", type);
-      allowInput = true;
+      YesNoTrigger::YesNoTriggerPtr->AllowInput = true;
     } break;
     case 6: {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction YesNoTriggerCCLCC(type: %i)\n", type);
-      if (state == YesNoState::MainInput) {
+      if (YesNoTrigger::YesNoTriggerPtr->State == YesNoState::MainInput) {
         ResetInstruction;
         BlockThread;
       }
@@ -1014,16 +1015,17 @@ VmInstruction(InstYesNoTriggerCCLCC) {
     case 7: {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction YesNoTriggerCCLCC(type: %i)\n", type);
-      goToNextQuestion = true;
+      YesNoTrigger::YesNoTriggerPtr->GoToNextQuestion = true;
     } break;
     case 8: {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction YesNoTriggerCCLCC(type: %i)\n", type);
       PopLocalLabel(branchAddress);
-      if (state == YesNoState::PanToNext || state == YesNoState::ZoomStart) {
+      if (YesNoTrigger::YesNoTriggerPtr->State == YesNoState::PanToNext ||
+          YesNoTrigger::YesNoTriggerPtr->State == YesNoState::ZoomStart) {
         ResetInstruction;
         BlockThread;
-      } else if (state != YesNoState::Complete) {
+      } else if (YesNoTrigger::YesNoTriggerPtr->State != YesNoState::Complete) {
         thread->Ip = branchAddress;
         BlockThread;
       }
@@ -1032,7 +1034,7 @@ VmInstruction(InstYesNoTriggerCCLCC) {
     case 10: {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction YesNoTriggerCCLCC(type: %i)\n", type);
-      Reset();
+      YesNoTrigger::YesNoTriggerPtr->Reset();
 
     } break;
     default: {

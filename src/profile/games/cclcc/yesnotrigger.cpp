@@ -3,7 +3,6 @@
 #include "../../profile_internal.h"
 #include "../../../renderer/renderer.h"
 
-using namespace Impacto::CCLCC::YesNoTrigger;
 namespace Impacto {
 namespace Profile {
 namespace CCLCC {
@@ -26,8 +25,8 @@ Sprite YesNoBgMask;
 
 glm::vec2 BackgroundPositions[BackgroundPositionsNum];
 
-YesNoPositions YesNoData1[YesNoDataSize];
-YesNoPositions YesNoData2[YesNoDataSize];
+Impacto::CCLCC::YesNoTrigger::YesNoPositions YesNoData1[YesNoDataSize];
+Impacto::CCLCC::YesNoTrigger::YesNoPositions YesNoData2[YesNoDataSize];
 
 bool Configure() {
   if (!TryPushMember("YesNoTrigger")) return false;
@@ -57,16 +56,16 @@ bool Configure() {
     while (PushNextTableElement()) {
       AssertIs(LUA_TTABLE);
       int i = EnsureGetKeyUint() - 1;
-      YesNoData1[i].bgXPos = EnsureGetMemberFloat("bgXpos");
-      YesNoData1[i].bgYPos = EnsureGetMemberFloat("bgYpos");
-      YesNoData1[i].nextYesIndex = EnsureGetMemberUint("index");
-      YesNoData1[i].nextNoIndex = EnsureGetMemberUint("index2");
-      YesNoData1[i].chipYesXPos = EnsureGetMemberFloat("yesChipX");
-      YesNoData1[i].chipYesYPos = EnsureGetMemberFloat("yesChipY");
-      YesNoData1[i].chipNoXPos = EnsureGetMemberFloat("noChipX");
-      YesNoData1[i].chipNoYPos = EnsureGetMemberFloat("noChipY");
-      YesNoData1[i].bubbleXPos = EnsureGetMemberFloat("bubbleX");
-      YesNoData1[i].bubbleYPos = EnsureGetMemberFloat("bubbleY");
+      YesNoData1[i].BgPos.x = EnsureGetMemberFloat("bgXpos");
+      YesNoData1[i].BgPos.y = EnsureGetMemberFloat("bgYpos");
+      YesNoData1[i].NextYesIndex = EnsureGetMemberUint("index");
+      YesNoData1[i].NextNoIndex = EnsureGetMemberUint("index2");
+      YesNoData1[i].ChipYesPos.x = EnsureGetMemberFloat("yesChipX");
+      YesNoData1[i].ChipYesPos.y = EnsureGetMemberFloat("yesChipY");
+      YesNoData1[i].ChipNoPos.x = EnsureGetMemberFloat("noChipX");
+      YesNoData1[i].ChipNoPos.y = EnsureGetMemberFloat("noChipY");
+      YesNoData1[i].BubblePos.x = EnsureGetMemberFloat("bubbleX");
+      YesNoData1[i].BubblePos.y = EnsureGetMemberFloat("bubbleY");
       Pop();
     }
 
@@ -81,16 +80,16 @@ bool Configure() {
     while (PushNextTableElement()) {
       AssertIs(LUA_TTABLE);
       int i = EnsureGetKeyUint() - 1;
-      YesNoData2[i].bgXPos = EnsureGetMemberFloat("bgXpos");
-      YesNoData2[i].bgYPos = EnsureGetMemberFloat("bgYpos");
-      YesNoData2[i].nextYesIndex = EnsureGetMemberUint("index");
-      YesNoData2[i].nextNoIndex = EnsureGetMemberUint("index2");
-      YesNoData2[i].chipYesXPos = EnsureGetMemberFloat("yesChipX");
-      YesNoData2[i].chipYesYPos = EnsureGetMemberFloat("yesChipY");
-      YesNoData2[i].chipNoXPos = EnsureGetMemberFloat("noChipX");
-      YesNoData2[i].chipNoYPos = EnsureGetMemberFloat("noChipY");
-      YesNoData2[i].bubbleXPos = EnsureGetMemberFloat("bubbleX");
-      YesNoData2[i].bubbleYPos = EnsureGetMemberFloat("bubbleY");
+      YesNoData2[i].BgPos.x = EnsureGetMemberFloat("bgXpos");
+      YesNoData2[i].BgPos.y = EnsureGetMemberFloat("bgYpos");
+      YesNoData2[i].NextYesIndex = EnsureGetMemberUint("index");
+      YesNoData2[i].NextNoIndex = EnsureGetMemberUint("index2");
+      YesNoData2[i].ChipYesPos.x = EnsureGetMemberFloat("yesChipX");
+      YesNoData2[i].ChipYesPos.y = EnsureGetMemberFloat("yesChipY");
+      YesNoData2[i].ChipNoPos.x = EnsureGetMemberFloat("noChipX");
+      YesNoData2[i].ChipNoPos.y = EnsureGetMemberFloat("noChipY");
+      YesNoData1[i].BubblePos.x = EnsureGetMemberFloat("bubbleX");
+      YesNoData1[i].BubblePos.y = EnsureGetMemberFloat("bubbleY");
       Pop();
     }
 
@@ -98,6 +97,7 @@ bool Configure() {
   }
 
   Pop();
+  return true;
 }
 
 }  // namespace YesNoTrigger
