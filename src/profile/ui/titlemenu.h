@@ -7,7 +7,7 @@ namespace Impacto {
 namespace Profile {
 namespace TitleMenu {
 
-static int const MenuEntriesNumMax = 32;
+constexpr int MenuEntriesNumMax = 32;
 
 extern Impacto::UI::TitleMenuType Type;
 

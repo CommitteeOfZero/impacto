@@ -9,7 +9,7 @@ namespace SystemMenu {
 
 void Configure();
 
-static int const MenuEntriesNumMax = 16;
+constexpr int MenuEntriesNumMax = 16;
 
 extern Sprite SystemMenuBackgroundSprite;
 extern Sprite MenuEntriesLSprites[MenuEntriesNumMax];
