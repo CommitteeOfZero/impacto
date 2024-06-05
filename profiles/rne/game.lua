@@ -19,6 +19,7 @@ root.Vm = {
 
 include('common/scriptinput.lua')
 include('common/scriptvars.lua');
+include('rne/config.lua');
 include('rne/savedata.lua');
 include('rne/tipssystem.lua');
 include('rne/vfs.lua');
