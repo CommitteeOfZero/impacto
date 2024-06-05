@@ -76,9 +76,12 @@ void DirectX9Window::Init() {
 #if IMPACTO_USE_SDL_HIGHDPI
   windowFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
 #endif
+  if (Profile::Fullscreen) {
+    windowFlags |= SDL_WINDOW_FULLSCREEN;
+  }
 
   SDLWindow = SDL_CreateWindow(Profile::WindowName, SDL_WINDOWPOS_UNDEFINED,
-                               SDL_WINDOWPOS_UNDEFINED, 1280, 720, windowFlags);
+                               SDL_WINDOWPOS_UNDEFINED, Profile::ResolutionWidth, Profile::ResolutionHeight, windowFlags);
 
   if (SDLWindow == NULL) {
     ImpLog(LL_Error, LC_General, SDL_GetError());

@@ -130,7 +130,7 @@ static void DefineEnumUint(lua_State* ctx) {
   lua_setglobal(ctx, Enum::_name());
 }
 
-void MakeJsonProfile(std::string const& name) {
+void MakeLuaProfile(std::string const& name) {
   Io::InputStream* stream;
   IoError err =
       Io::PhysicalFileStream::Create("profiles/" + name + "/game.lua", &stream);

@@ -28,7 +28,14 @@ extern float LayFileTexYMultiplier;
 extern float DesignWidth;
 extern float DesignHeight;
 
-void LoadGameFromJson();
+// This is for user configuration with realboot
+extern char const* Language;
+extern int ResolutionWidth;
+extern int ResolutionHeight;
+extern bool Fullscreen;
+extern char const* Subtitles;
+
+void LoadGameFromLua();
 
 }  // namespace Profile
 }  // namespace Impacto

@@ -25,6 +25,7 @@ root.Vm = {
 
 include('common/scriptinput.lua');
 include('common/scriptvars.lua');
+include('cc/config.lua');
 include('cc/scriptvars.lua');
 include('cc/savedata.lua');
 include('cc/tipssystem.lua');
