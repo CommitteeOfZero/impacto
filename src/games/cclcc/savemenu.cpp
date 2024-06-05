@@ -179,11 +179,13 @@ void SaveMenu::Update(float dt) {
   UpdateInput();
   FadeAnimation.Update(dt);
 
-  if (ScrWork[2147] < 32 && State == Shown &&
-      (ScrWork[2148] == 0 || ScrWork[2148] == 3 || ScrWork[2148] == 4)) {
+  if (ScrWork[SW_SYSSUBMENUCT] < 32 && State == Shown &&
+      (ScrWork[SW_SYSSUBMENUNO] == 0 || ScrWork[SW_SYSSUBMENUNO] == 3 ||
+       ScrWork[SW_SYSSUBMENUNO] == 4)) {
     Hide();
-  } else if (ScrWork[2147] >= 32 && State == Hidden &&
-             (ScrWork[2148] == 0 || ScrWork[2148] == 3 || ScrWork[2148] == 4)) {
+  } else if (ScrWork[SW_SYSSUBMENUCT] >= 32 && State == Hidden &&
+             (ScrWork[SW_SYSSUBMENUNO] == 0 || ScrWork[SW_SYSSUBMENUNO] == 3 ||
+              ScrWork[SW_SYSSUBMENUNO] == 4)) {
     Show();
   }
 
@@ -227,12 +229,13 @@ void SaveMenu::Render() {
 
     MainItems[CurrentPage]->Tint = col;
     MainItems[CurrentPage]->Render();
-    glm::vec2 pageNumPos = {(ScrWork[2147] * 200 * 0.0625 - 400) + 1313 + 1,
-                            866 + 1};
+    glm::vec2 pageNumPos = {
+        (ScrWork[SW_SYSSUBMENUCT] * 200 * 0.0625 - 400) + 1313 + 1, 866 + 1};
     Renderer->DrawSprite(PageNumSprite[ScrWork[SW_SAVEMENUMODE]][CurrentPage],
                          pageNumPos, col);
     Renderer->DrawSprite(ButtonGuideSprite[ScrWork[SW_SAVEMENUMODE]],
-                         {ScrWork[2147] * 200 * 0.0625 - 400, 989}, col);
+                         {ScrWork[SW_SYSSUBMENUCT] * 200 * 0.0625 - 400, 989},
+                         col);
   }
 }
 
