@@ -104,6 +104,7 @@ set(Impacto_Src
         src/profile/games/cc/titlemenu.cpp
         src/profile/games/cc/sysmesbox.cpp
 
+        src/profile/games/cclcc/systemmenu.cpp
         src/profile/games/cclcc/titlemenu.cpp
         src/profile/games/cclcc/savemenu.cpp
         src/profile/games/cclcc/optionsmenu.cpp
@@ -173,6 +174,7 @@ set(Impacto_Src
         src/games/cclcc/delusiontrigger.cpp
         src/games/cclcc/yesnotrigger.cpp
         src/games/cclcc/savesystem.cpp
+        src/games/cclcc/systemmenu.cpp
 
         src/games/mo6tw/dialoguebox.cpp
         src/games/mo6tw/sysmesbox.cpp
@@ -241,6 +243,7 @@ set(Impacto_Src
         src/ui/widgets/cc/titlebutton.cpp
         src/ui/widgets/cclcc/titlebutton.cpp
         src/ui/widgets/cclcc/saveentrybutton.cpp
+        src/ui/widgets/cclcc/sysmenubutton.cpp
 
         src/stbi_impl.c
 
