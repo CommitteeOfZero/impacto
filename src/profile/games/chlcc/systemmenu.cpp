@@ -21,7 +21,7 @@ Sprite ErinSprite;
 float TitleFadeInDuration;
 float TitleFadeOutDuration;
 uint32_t FocusTint;
-glm::vec2 MenuEntriesPositions[MenuEntriesNum];
+glm::vec2 MenuEntriesPositions[MenuEntriesNumMax];
 
 void Configure() {
   BackgroundColor = EnsureGetMemberUint("BackgroundColor");
@@ -34,7 +34,7 @@ void Configure() {
   TitleFadeInDuration = EnsureGetMemberFloat("TitleFadeInDuration");
   TitleFadeOutDuration = EnsureGetMemberFloat("TitleFadeOutDuration");
   FocusTint = EnsureGetMemberUint("FocusTint");
-  GetMemberVec2Array(MenuEntriesPositions, MenuEntriesNum,
+  GetMemberVec2Array(MenuEntriesPositions, Profile::SystemMenu::MenuEntriesNum,
                      "MenuEntriesPositions");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(

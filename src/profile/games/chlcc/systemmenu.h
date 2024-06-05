@@ -2,12 +2,11 @@
 
 #include "../../../spritesheet.h"
 
-int const MenuEntriesNum = 8;
-
 namespace Impacto {
 namespace Profile {
 namespace CHLCC {
 namespace SystemMenu {
+constexpr int MenuEntriesNumMax = 8;
 
 extern uint32_t BackgroundColor;
 extern Sprite BackgroundFilter;
@@ -19,7 +18,7 @@ extern Sprite ErinSprite;
 extern float TitleFadeInDuration;
 extern float TitleFadeOutDuration;
 extern uint32_t FocusTint;
-extern glm::vec2 MenuEntriesPositions[MenuEntriesNum];
+extern glm::vec2 MenuEntriesPositions[MenuEntriesNumMax];
 
 void Configure();
 
