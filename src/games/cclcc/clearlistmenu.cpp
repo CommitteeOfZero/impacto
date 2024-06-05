@@ -60,15 +60,18 @@ void ClearListMenu::Hide() {
 void ClearListMenu::Update(float dt) {
   // UpdateInput();
   FadeAnimation.Update(dt);
-  if (ScrWork[2147] < 32 && State == Shown && ScrWork[2148] == 7) {
+  if (ScrWork[SW_SYSSUBMENUCT] < 32 && State == Shown &&
+      ScrWork[SW_SYSSUBMENUNO] == 7) {
     Hide();
-  } else if (ScrWork[2147] >= 32 && State == Hidden && ScrWork[2148] == 7) {
+  } else if (ScrWork[SW_SYSSUBMENUCT] >= 32 && State == Hidden &&
+             ScrWork[SW_SYSSUBMENUNO] == 7) {
     Show();
   }
 }
 
 void ClearListMenu::Render() {
-  if (State != Hidden && ScrWork[2147] >= 32 && ScrWork[2148] == 7) {
+  if (State != Hidden && ScrWork[SW_SYSSUBMENUCT] >= 32 &&
+      ScrWork[SW_SYSSUBMENUNO] == 7) {
     glm::vec4 transition(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
     glm::vec4 maskTint = glm::vec4(1.0f);
     maskTint.a = 0.85f;

@@ -8,6 +8,7 @@ namespace Impacto {
 namespace CCLCC {
 using namespace Profile::CCLCC::YesNoTrigger;
 using namespace Vm::Interface;
+using namespace Impacto::Profile::ScriptVars;
 
 YesNoTrigger *YesNoTrigger::YesNoTriggerPtr = nullptr;
 
@@ -128,8 +129,8 @@ void YesNoTrigger::UpdateYesNoPos(float startX, float startY, float startScale,
 }
 
 void YesNoTrigger::Update(float dt) {
-  if (ScrWork[2147] != 0 || ScrWork[2142] != 0 || ScrWork[6433] == 0 ||
-      !HasStarted) {
+  if (ScrWork[SW_SYSSUBMENUCT] != 0 || ScrWork[2142] != 0 ||
+      ScrWork[6433] == 0 || !HasStarted) {
     return;
   }
 
