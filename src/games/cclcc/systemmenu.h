@@ -24,7 +24,7 @@ class SystemMenu : public Menu {
   inline void DrawErin();
   Widgets::Group* MainItems;
   Animation MenuTransition;
-  Animation TitleFade;
+  Animation MenuFade;
 };
 
 }  // namespace CCLCC
