@@ -129,7 +129,7 @@ void YesNoTrigger::UpdateYesNoPos(float startX, float startY, float startScale,
 }
 
 void YesNoTrigger::Update(float dt) {
-  if (ScrWork[SW_SYSSUBMENUCT] != 0 || ScrWork[2142] != 0 ||
+  if (ScrWork[SW_SYSSUBMENUCT] != 0 || ScrWork[SW_SYSMENUCT] != 0 ||
       ScrWork[6433] == 0 || !HasStarted) {
     return;
   }
