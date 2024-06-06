@@ -74,16 +74,21 @@ void TipsMenu::UpdateInput() {
 void TipsMenu::Update(float dt) {
   UpdateInput();
   FadeAnimation.Update(dt);
-  if (ScrWork[2142] != 32 && State == Shown && ScrWork[SW_SYSSUBMENUNO] == 2) {
+  if (ScrWork[SW_SYSMENUCT] != 32 && State == Shown &&
+      ScrWork[SW_SYSSUBMENUNO] == 2) {
     Hide();
-  } else if (ScrWork[2142] == 32 && State == Hidden &&
+  } else if (ScrWork[SW_SYSMENUCT] == 32 && State == Hidden &&
              ScrWork[SW_SYSSUBMENUNO] == 2) {
+
+
+
     Show();
   }
 }
 
 void TipsMenu::Render() {
-  if (State != Hidden && ScrWork[2142] == 32 && ScrWork[SW_SYSSUBMENUNO] == 2) {
+  if (State != Hidden && ScrWork[SW_SYSMENUCT] == 32 &&
+      ScrWork[SW_SYSSUBMENUNO] == 2) {
     glm::vec4 transition(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
     glm::vec4 maskTint = glm::vec4(1.0f);
     maskTint.a = 0.85f;
