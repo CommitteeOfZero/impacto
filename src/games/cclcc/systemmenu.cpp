@@ -30,10 +30,10 @@ SystemMenu::SystemMenu() {
   MenuTransition.DurationIn = FadeInDuration;
   MenuTransition.DurationOut = FadeOutDuration;
 
-  TitleFade.Direction = 1.0f;
-  TitleFade.LoopMode = ALM_Stop;
-  TitleFade.DurationIn = TitleFadeInDuration;
-  TitleFade.DurationOut = TitleFadeOutDuration;
+  MenuFade.Direction = 1.0f;
+  MenuFade.LoopMode = ALM_Stop;
+  MenuFade.DurationIn = TitleFadeInDuration;
+  MenuFade.DurationOut = TitleFadeOutDuration;
 
   auto onClick =
       std::bind(&SystemMenu::MenuButtonOnClick, this, std::placeholders::_1);
@@ -71,6 +71,7 @@ void SystemMenu::Hide() {
   if (State != Hidden) {
     State = Hiding;
     MenuTransition.StartOut();
+    MainItems->Hide();
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
       LastFocusedMenu->IsFocused = true;
@@ -83,28 +84,32 @@ void SystemMenu::Hide() {
 
 void SystemMenu::Update(float dt) {
   UpdateInput();
-  MainItems->UpdateInput();
 
-  if (GetFlag(SF_TITLEMODE) == 0 && ScrWork[SW_SYSMENUCT] >= 16 &&
-      State == Hidden) {
+  if (State == Hidden && !GetFlag(SF_TITLEMODE) && ScrWork[SW_SYSMENUCT] != 0) {
     Show();
-  } else if (ScrWork[SW_SYSMENUCT] < 16 && State == Shown) {
+    return;
+  } else if (State == Shown &&
+             (GetFlag(SF_TITLEMODE) || ScrWork[SW_SYSMENUCT] == 0)) {
     Hide();
+    return;
   }
-  if (MenuTransition.IsIn())
+  if (MenuTransition.IsIn() && State == Showing) {
     State = Shown;
-  else if (MenuTransition.IsOut())
+    return;
+  } else if (MenuTransition.IsOut() && State == Hiding) {
     State = Hidden;
+    return;
+  }
 
   if (State != Hidden) {
     MenuTransition.Update(dt);
     if (MenuTransition.Direction == -1.0f && MenuTransition.Progress <= 0.72f) {
-      TitleFade.StartOut();
+      MenuFade.StartOut();
     } else if (MenuTransition.IsIn() &&
-               (TitleFade.Direction == 1.0f || TitleFade.IsOut())) {
-      TitleFade.StartIn();
+               (MenuFade.Direction == 1.0f || MenuFade.IsOut())) {
+      MenuFade.StartIn();
     }
-    TitleFade.Update(dt);
+    MenuFade.Update(dt);
   }
 
   if (State == Shown && IsFocused) {
@@ -112,7 +117,7 @@ void SystemMenu::Update(float dt) {
   }
 }
 void SystemMenu::Render() {
-  if (State != Hidden) {
+  if (State != Hidden && !GetFlag(SF_TITLEMODE)) {
     if (MenuTransition.IsIn()) {
     }
     glm::vec3 tint = {1.0f, 1.0f, 1.0f};
