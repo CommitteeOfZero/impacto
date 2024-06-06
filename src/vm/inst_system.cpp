@@ -637,20 +637,41 @@ VmInstruction(InstAutoSave) {
   switch (type) {
     case 0:  // QuickSave
       SaveIconDisplay::ShowFor(2.4f);
+      if (ScrWork[SW_TITLE] == 0xffff) break;
+      SaveSystem::SaveMemory();
+      if (ScrWork[2112] != 1) {
+        // TODO: Quicksave(1)
+      }
+      SetFlag(1285, 1);
+      ScrWork[2112] = 0;
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction AutoSave(type: QuickSave)\n");
       break;
     case 1:  // AutoSaveRestart (?)
+      if (ScrWork[SW_TITLE] == 0xffff) break;
+      SaveSystem::SaveMemory();
+      if ((ScrWork[2112] != 3)) {
+        // TODO: Quicksave(3)
+      }
+      SetFlag(1285, 1);
+      ScrWork[2112] = 0;
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction AutoSave(type: %i)\n",
                  type);
       break;
     case 3:  // DisableAutoSave
+      // Check quicksave, quicksave(0)
+      SetFlag(1285, 0);
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction AutoSave(type: %i)\n",
                  type);
       break;
     case 5:  // EnableAutoSave
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction AutoSave(type: %i)\n",
                  type);
+      if (ScrWork[SW_TITLE] != 0xffff) {
+        SaveSystem::SaveMemory();
+        SetFlag(1285, 1);
+        ScrWork[2112] = 0;
+      }
       break;
     case 10: {  // SetCheckpointId
       if (Profile::Vm::UseReturnIds) {
@@ -666,8 +687,15 @@ VmInstruction(InstAutoSave) {
     } break;
     case 2:
     case 4:
+    case 6:
+    case 7:
+    case 8:
+    case 9:
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction AutoSave(arg1: %i)\n",
                  type);
+      break;
+    default:
+      // More quicksave cases here
       break;
   }
 }

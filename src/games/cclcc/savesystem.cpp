@@ -171,6 +171,9 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id) {
   if (WorkingSaveEntry != 0) {
     if (entry != 0) {
       *entry = *WorkingSaveEntry;
+      time_t rawtime;
+      time(&rawtime);
+      entry->SaveDate = *localtime(&rawtime);
     }
   }
 }
