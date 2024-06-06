@@ -23,6 +23,7 @@ root.Vm = {
 
 include('common/scriptinput.lua');
 include('common/scriptvars.lua');
+include('mo8/config.lua');
 include('mo8/scriptvars.lua');
 include('mo8/savedata.lua');
 include('mo8/tipssystem.lua');

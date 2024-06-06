@@ -26,7 +26,13 @@ float LayFileTexYMultiplier;
 float DesignWidth;
 float DesignHeight;
 
-void LoadGameFromJson() {
+char const* Language;
+int ResolutionWidth;
+int ResolutionHeight;
+bool Fullscreen;
+char const* Subtitles;
+
+void LoadGameFromLua() {
   AssertIs(LUA_TTABLE);
 
   ActiveRenderer = RendererType::_from_integral_unchecked(
@@ -37,6 +43,12 @@ void LoadGameFromJson() {
   WindowName = EnsureGetMemberString("WindowName");
   DesignWidth = EnsureGetMemberFloat("DesignWidth");
   DesignHeight = EnsureGetMemberFloat("DesignHeight");
+
+  Language = EnsureGetMemberString("Language");
+  ResolutionWidth = EnsureGetMemberInt("ResolutionWidth");
+  ResolutionHeight = EnsureGetMemberInt("ResolutionHeight");
+  Fullscreen = EnsureGetMemberBool("Fullscreen");
+  Subtitles = EnsureGetMemberString("Subtitles");
 
   bool res = TryGetMemberBool("LayFileBigEndian", LayFileBigEndian);
   if (!res) LayFileBigEndian = false;

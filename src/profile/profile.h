@@ -5,7 +5,7 @@
 namespace Impacto {
 namespace Profile {
 
-void MakeJsonProfile(std::string const& name);
+void MakeLuaProfile(std::string const& name);
 void ClearProfile();
 
 }  // namespace Profile
