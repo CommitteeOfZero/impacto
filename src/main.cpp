@@ -9,12 +9,11 @@
 #include "util.h"
 
 #include "io/physicalfilestream.h"
-#include "profile/profile.h"
-#include "profile/profile_internal.h"
 
 using namespace Impacto;
 
 static uint64_t t;
+
 void GameLoop() {
   // TODO: Better FPS lock
   uint64_t t2;
