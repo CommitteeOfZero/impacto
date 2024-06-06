@@ -2,7 +2,7 @@
 
 #include "audiostream.h"
 
-#include "../io/inputstream.h"
+#include "../io/stream.h"
 #include "../io/vfs.h"
 #include "../log.h"
 
@@ -12,7 +12,7 @@ namespace Audio {
 void AudioChannel::Play(std::string const& mountpoint,
                         std::string const& fileName, bool loop,
                         float fadeInDuration) {
-  Io::InputStream* stream;
+  Io::Stream* stream;
   IoError err = Io::VfsOpen(mountpoint, fileName, &stream);
   if (err == IoError_OK) {
     Play(AudioStream::Create(stream), loop, fadeInDuration);
@@ -25,7 +25,7 @@ void AudioChannel::Play(std::string const& mountpoint,
 
 void AudioChannel::Play(std::string const& mountpoint, uint32_t fileId,
                         bool loop, float fadeInDuration) {
-  Io::InputStream* stream;
+  Io::Stream* stream;
   IoError err = Io::VfsOpen(mountpoint, fileId, &stream);
   if (err == IoError_OK) {
     Play(AudioStream::Create(stream), loop, fadeInDuration);

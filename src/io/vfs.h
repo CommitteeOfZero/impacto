@@ -8,7 +8,7 @@
 #include "io.h"
 
 // only these for new vfs
-#include "inputstream.h"
+#include "stream.h"
 #include <flat_hash_map.hpp>
 #include <map>
 
@@ -26,7 +26,7 @@ namespace Io {
 // static overrides, the model CPKs get mounted later. For other things, we
 // might want to mount a patch archive when a user changes a setting in-game.
 
-// The public interface of vfs.h is threadsafe. Individual InputStreams are not.
+// The public interface of vfs.h is threadsafe. Individual Streams are not.
 // Duplicate() them if you need to use them on multiple threads.
 
 void VfsInit();
@@ -48,9 +48,8 @@ IoError VfsGetMeta(std::string const& mountpoint, std::string const& fileName,
 IoError VfsGetMeta(std::string const& mountpoint, uint32_t id,
                    FileMeta* outMeta);
 IoError VfsOpen(std::string const& mountpoint, std::string const& fileName,
-                InputStream** outStream);
-IoError VfsOpen(std::string const& mountpoint, uint32_t id,
-                InputStream** outStream);
+                Stream** outStream);
+IoError VfsOpen(std::string const& mountpoint, uint32_t id, Stream** outStream);
 IoError VfsSlurp(std::string const& mountpoint, std::string const& fileName,
                  void** outMemory, int64_t* outSize);
 IoError VfsSlurp(std::string const& mountpoint, uint32_t id, void** outMemory,

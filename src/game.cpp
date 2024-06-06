@@ -224,7 +224,8 @@ void Update(float dt) {
     TipsNotification::Update(dt);
     DelusionTrigger::Update(dt);
     UI::MapSystem::Update(dt);
-    CCLCC::YesNoTrigger::Update(dt);
+    if (CCLCC::YesNoTrigger::YesNoTriggerPtr)
+      CCLCC::YesNoTrigger::YesNoTriggerPtr->Update(dt);
 
     Vm::Update();
   }
@@ -368,7 +369,10 @@ void Render() {
               }
             }
             if (ScrWork[6417] == layer) DelusionTrigger::Render();
-            if (ScrWork[6437] == layer) CCLCC::YesNoTrigger::Render();
+            if (CCLCC::YesNoTrigger::YesNoTriggerPtr &&
+                ScrWork[6437] == layer) {
+              CCLCC::YesNoTrigger::YesNoTriggerPtr->Render();
+            }
           }
           if (GetFlag(SF_Pokecon_Open)) {
             SetFlag(SF_DATEDISPLAY, 0);

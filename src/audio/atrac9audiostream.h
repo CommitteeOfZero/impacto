@@ -24,7 +24,7 @@ class Atrac9AudioStream : public AudioStream,
   bool DecodeBuffer();
 
  private:
-  static AudioStream* Create(Io::InputStream* stream);
+  static AudioStream* Create(Io::Stream* stream);
   Atrac9AudioStream() {}
 
   void InitWithInfo(At9ContainerInfo* container, Atrac9CodecInfo* codecinfo);

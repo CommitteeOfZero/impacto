@@ -24,7 +24,7 @@ struct Sprite {
       : Sheet(sheet), Bounds(x, y, width, height), BaseScale(baseScale) {}
 
   SpriteSheet Sheet;
-  RectF Bounds;
+  RectF Bounds{0.0f, 0.0f, 0.0f, 0.0f};
   glm::vec2 BaseScale;
 
   float ScaledWidth() { return Bounds.Width * BaseScale.x; }

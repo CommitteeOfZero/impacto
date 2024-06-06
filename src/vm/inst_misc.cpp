@@ -13,7 +13,7 @@
 #include "../data/savesystem.h"
 
 #include "../profile/vm.h"
-
+#include "../profile/games/cclcc/savemenu.h"
 namespace Impacto {
 
 namespace Vm {
@@ -87,7 +87,8 @@ VmInstruction(InstSystemMenu) {
              mode);
   switch (mode) {
     case 0:
-      UI::SystemMenuPtr->Show();
+      // TODO: Randomize SystemMenuBgPos here
+      ScrWork[SW_SYSMENUCNO] = 0;  // Don't know if needed
       break;
     case 1: {
       if (!UI::SystemMenuPtr->ChoiceMade) {
@@ -317,6 +318,24 @@ VmInstruction(InstSaveMenu) {
                  "STUB instruction SaveMenu(type: SaveMenuInit)\n");
     } break;
     case 1:  // SaveMenuMain
+      if (!UI::SaveMenuPtr->ChoiceMade) {
+        if (!((Interface::PADinputButtonWentDown & Interface::PAD1B) ||
+              (Interface::PADinputMouseWentDown & Interface::PAD1B))) {
+          ResetInstruction;
+          BlockThread;
+        }
+      } else {
+        UI::SaveMenuPtr->ChoiceMade = false;
+        Interface::PADinputButtonWentDown |= Interface::PAD1A;
+        Impacto::SaveSystem::SaveType saveType =
+            ScrWork[SW_SAVEMENUMODE] ==
+                    Profile::CCLCC::SaveMenu::SaveMenuPageType::QuickLoad
+                ? SaveSystem::SaveType::SaveQuick
+                : SaveSystem::SaveType::SaveFull;
+
+        ScrWork[SW_SAVEFILESTATUS] =
+            SaveSystem::GetSaveStatus(saveType, ScrWork[SW_SAVEFILENO]);
+      }
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SaveMenu(type: SaveMenuMain)\n");
       break;
@@ -367,7 +386,7 @@ VmInstruction(InstSaveMenuOld) {
       } else {
         UI::SaveMenuPtr->ChoiceMade = false;
         Interface::PADinputButtonWentDown |= Interface::PAD1A;
-        ScrWork[SW_SAVEFILESTATUS] = SaveSystem::GetSaveSatus(
+        ScrWork[SW_SAVEFILESTATUS] = SaveSystem::GetSaveStatus(
             SaveSystem::SaveType::SaveFull, ScrWork[SW_SAVEFILENO]);
       }
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SaveMenu(type: %i)\n",
@@ -391,6 +410,11 @@ VmInstruction(InstLoadData) {
     case 0:
     case 10: {
       PopExpression(arg1);
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
+        PopExpression(arg2);
+        SaveSystem::LoadMemory(static_cast<SaveSystem::SaveType>(arg1), arg2);
+      }
+
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction LoadData(type: %i, arg1: %i)\n", type, arg1);
     } break;

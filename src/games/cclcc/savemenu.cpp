@@ -22,11 +22,15 @@ using namespace Impacto::UI::Widgets::CCLCC;
 Widget* EntryGrid[Pages][RowsPerPage][EntriesPerRow];
 
 void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
-  if ((SaveSystem::GetSaveSatus(SaveSystem::SaveType::SaveFull, target->Id) !=
-       0) ||
-      ScrWork[SW_SAVEMENUMODE] == 1) {
+  Impacto::SaveSystem::SaveType saveType =
+      ScrWork[SW_SAVEMENUMODE] == SaveMenuPageType::QuickLoad
+          ? SaveSystem::SaveType::SaveQuick
+          : SaveSystem::SaveType::SaveFull;
+  int SaveStatus = SaveSystem::GetSaveStatus(saveType, target->Id);
+  if (SaveStatus == 1 || ScrWork[SW_SAVEMENUMODE] == 1) {
     ScrWork[SW_SAVEFILENO] = target->Id;
     ChoiceMade = true;
+    SetFlag(1245, target->IsLocked);
   }
 }
 
@@ -53,6 +57,10 @@ void SaveMenu::Show() {
       for (int i = 0; i < RowsPerPage; i++) {
         // Start on right col
         for (int j = EntriesPerRow - 1; j >= 0; j--) {
+          Impacto::SaveSystem::SaveType saveType =
+              ScrWork[SW_SAVEMENUMODE] == SaveMenuPageType::QuickLoad
+                  ? SaveSystem::SaveType::SaveQuick
+                  : SaveSystem::SaveType::SaveFull;
           glm::vec2 buttonPos =
               (j == 0)
                   ? glm::vec2{EntryStartXL, EntryStartYL + (i * EntryYPadding)}
@@ -60,30 +68,11 @@ void SaveMenu::Show() {
           SaveEntryButton* saveEntryButton = new SaveEntryButton(
               id, EntryHighlightedBoxSprite[ScrWork[SW_SAVEMENUMODE]],
               EntryHighlightedTextSprite[ScrWork[SW_SAVEMENUMODE]], p,
-              buttonPos, false, SlotLockedSprite[ScrWork[SW_SAVEMENUMODE]]);
+              buttonPos, false, SlotLockedSprite[ScrWork[SW_SAVEMENUMODE]],
+              saveType, NoDataSprite[ScrWork[SW_SAVEMENUMODE]],
+              BrokenDataSprite[ScrWork[SW_SAVEMENUMODE]]);
 
           saveEntryButton->OnClickHandler = onClick;
-          // if (SaveSystem::GetSaveSatus(SaveSystem::SaveType::SaveFull, id)
-          // != 0) { saveEntryButton->EntryActive = true;
-          // saveEntryButton->AddSceneTitleText(
-          //     Vm::ScriptGetTextTableStrAddress(
-          //         1,
-          //         SaveSystem::GetSaveTitle(SaveSystem::SaveType::SaveFull,
-          //         id)),
-          //     20, RO_BottomRight, );
-          // saveEntryButton->AddPlayTimeHintText(
-          //     Vm::ScriptGetTextTableStrAddress(0, 2), 16, true);
-          // saveEntryButton->AddPlayTimeText(
-          //     Vm::ScriptGetTextTableStrAddress(0, 15), 16, true);
-          // saveEntryButton->AddSaveDateHintText(
-          //     Vm::ScriptGetTextTableStrAddress(0, 3), 16, true);
-          // saveEntryButton->AddSaveDateText(
-          //     Vm::ScriptGetTextTableStrAddress(0, 14), 16, true);
-          // } else {
-          // saveEntryButton->AddSceneTitleText(
-          //     Vm::ScriptGetTextTableStrAddress(0, 1), 24, true);
-          // }
-          // saveEntryButton->Thumbnail = EmptyThumbnailSprite;
           id++;
 
           EntryGrid[p][i][j] = saveEntryButton;
@@ -190,11 +179,13 @@ void SaveMenu::Update(float dt) {
   UpdateInput();
   FadeAnimation.Update(dt);
 
-  if (ScrWork[2147] < 32 && State == Shown &&
-      (ScrWork[2148] == 0 || ScrWork[2148] == 3 || ScrWork[2148] == 4)) {
+  if (ScrWork[SW_SYSSUBMENUCT] < 32 && State == Shown &&
+      (ScrWork[SW_SYSSUBMENUNO] == 0 || ScrWork[SW_SYSSUBMENUNO] == 3 ||
+       ScrWork[SW_SYSSUBMENUNO] == 4)) {
     Hide();
-  } else if (ScrWork[2147] >= 32 && State == Hidden &&
-             (ScrWork[2148] == 0 || ScrWork[2148] == 3 || ScrWork[2148] == 4)) {
+  } else if (ScrWork[SW_SYSSUBMENUCT] >= 32 && State == Hidden &&
+             (ScrWork[SW_SYSSUBMENUNO] == 0 || ScrWork[SW_SYSSUBMENUNO] == 3 ||
+              ScrWork[SW_SYSSUBMENUNO] == 4)) {
     Show();
   }
 
@@ -238,12 +229,13 @@ void SaveMenu::Render() {
 
     MainItems[CurrentPage]->Tint = col;
     MainItems[CurrentPage]->Render();
-    glm::vec2 pageNumPos = {(ScrWork[2147] * 200 * 0.0625 - 400) + 1313 + 1,
-                            866 + 1};
+    glm::vec2 pageNumPos = {
+        (ScrWork[SW_SYSSUBMENUCT] * 200 * 0.0625 - 400) + 1313 + 1, 866 + 1};
     Renderer->DrawSprite(PageNumSprite[ScrWork[SW_SAVEMENUMODE]][CurrentPage],
                          pageNumPos, col);
     Renderer->DrawSprite(ButtonGuideSprite[ScrWork[SW_SAVEMENUMODE]],
-                         {ScrWork[2147] * 200 * 0.0625 - 400, 989}, col);
+                         {ScrWork[SW_SYSSUBMENUCT] * 200 * 0.0625 - 400, 989},
+                         col);
   }
 }
 

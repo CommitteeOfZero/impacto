@@ -25,7 +25,7 @@ class AdxAudioStream : public AudioStream,
   uint8_t EncodedBuffer[256] = {0};
 
  private:
-  static AudioStream* Create(Io::InputStream* stream);
+  static AudioStream* Create(Io::Stream* stream);
   AdxAudioStream() {}
   void InitWithInfo(AdxHeaderInfo* info);
   void SetCoefficients(double cutoff, double sampleRate);

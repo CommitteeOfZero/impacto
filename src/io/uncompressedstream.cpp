@@ -7,11 +7,10 @@ namespace Io {
 
 UncompressedStream::~UncompressedStream() { delete BaseStream; }
 
-IoError UncompressedStream::Create(InputStream* baseStream,
-                                   int64_t baseStreamOffset, int64_t size,
-                                   InputStream** out) {
+IoError UncompressedStream::Create(Stream* baseStream, int64_t baseStreamOffset,
+                                   int64_t size, Stream** out) {
   if (baseStreamOffset + size > baseStream->Meta.Size) return IoError_Fail;
-  InputStream* dup;
+  Stream* dup;
   int64_t err = baseStream->Duplicate(&dup);
   if (err != IoError_OK) return (IoError)err;
   err = dup->Seek(baseStreamOffset, RW_SEEK_SET);
@@ -23,7 +22,7 @@ IoError UncompressedStream::Create(InputStream* baseStream,
   result->BaseStream = dup;
   result->BaseStreamOffset = baseStreamOffset;
   result->Meta.Size = size;
-  *out = (InputStream*)result;
+  *out = (Stream*)result;
   return IoError_OK;
 }
 
@@ -54,13 +53,13 @@ int64_t UncompressedStream::Seek(int64_t offset, int origin) {
   return Position;
 }
 
-IoError UncompressedStream::Duplicate(InputStream** outStream) {
-  InputStream* baseDup;
+IoError UncompressedStream::Duplicate(Stream** outStream) {
+  Stream* baseDup;
   IoError err = BaseStream->Duplicate(&baseDup);
   if (err != IoError_OK) return err;
   UncompressedStream* result = new UncompressedStream(*this);
   result->BaseStream = baseDup;
-  *outStream = (InputStream*)result;
+  *outStream = (Stream*)result;
   return IoError_OK;
 }
 

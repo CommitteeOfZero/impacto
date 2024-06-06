@@ -12,6 +12,8 @@ class MapSystemCCLCC : public Impacto::UI::MapSystem::MapSystemBase {
 
  public:
   void MapInit() override;
+  int MapLoad(uint8_t* data) override;
+  int MapSave(uint8_t* data) override;
   void MapSetFadein(int partId, int partType) override;
   void MapSetGroup(int index, int mappedId1, int mappedId2,
                    int mappedId3) override;
@@ -62,13 +64,13 @@ class MapSystemCCLCC : public Impacto::UI::MapSystem::MapSystemBase {
   };
 
   struct MapPoolDispStruct {
+    Animation fadeAnim;
+    DisplayState state;
+    int delay;
     union {
       int angle;
       int pinId;
     };
-    Animation fadeAnim;
-    DisplayState state;
-    int delay;
   };
 
   struct MapPartsDispStruct {
@@ -128,8 +130,8 @@ class MapSystemCCLCC : public Impacto::UI::MapSystem::MapSystemBase {
   int MapZoomCt = 0;
   int MapZoomCtMax = 0;
 
-  int selectedMapPoolIdx = 0xff;
-  int hoverMapPoolIdx = 0xff;
+  int SelectedMapPoolIdx = 0xff;
+  int HoverMapPoolIdx = 0xff;
   float MapBGWidth;
   float MapBGHeight;
   float MapPosX;

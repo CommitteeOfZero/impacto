@@ -45,7 +45,7 @@ bool Background2D::LoadSync(uint32_t bgId) {
     BgTexture.Load1x1((bgId >> 16) & 0xFF, (bgId >> 8) & 0xFF, bgId & 0xFF,
                       0xFF);
   } else {
-    Io::InputStream* stream;
+    Io::Stream* stream;
     int64_t err = Io::VfsOpen("bg", bgId, &stream);
     if (err != IoError_OK) return false;
     BgTexture.Load(stream);

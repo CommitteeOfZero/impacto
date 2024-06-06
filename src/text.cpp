@@ -681,7 +681,8 @@ void DialoguePage::Render() {
 
   TextBox->Render(Mode, HasName, width, NameId, opacityTint.a);
 
-  glm::vec4 col = ScrWorkGetColor(SW_MESWINDOW_COLOR);
+  // TODO: Figure out what's up with text box coloring
+  glm::vec4 col = glm::vec4(1.0f);  // ScrWorkGetColor(SW_MESWINDOW_COLOR);
   col.a = opacityTint.a;
 
   Renderer->DrawProcessedText(Glyphs, Length, DialogueFont, opacityTint.a,

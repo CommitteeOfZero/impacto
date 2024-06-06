@@ -19,7 +19,7 @@ using namespace Impacto::Profile::ScriptVars;
 SaveFileEntry* WorkingSaveEntry = 0;
 
 SaveError SaveSystem::MountSaveFile() {
-  Io::InputStream* stream;
+  Io::Stream* stream;
   IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream);
   switch (err) {
     case IoError_NotFound:
@@ -228,7 +228,7 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id) {
 }
 
 void SaveSystem::WriteSaveFile() {
-  // Io::InputStream* stream;
+  // Io::Stream* stream;
   // IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream);
 
   // stream->Seek(0x3b06, SEEK_SET);  // TODO: Actually save system data
@@ -317,7 +317,7 @@ void SaveSystem::SaveMemory() {
 
       for (uint32_t j = 0; j < thd->CallStackDepth; j++) {
         WorkingSaveEntry->MainThreadReturnAddresses[j] =
-            static_cast<uint32_t>(thd->ReturnAdresses[j] -
+            static_cast<uint32_t>(thd->ReturnAddresses[j] -
                                   ScriptBuffers[thd->ReturnScriptBufferIds[j]]);
         WorkingSaveEntry->MainThreadReturnBufIds[j] =
             thd->ReturnScriptBufferIds[j];
@@ -439,7 +439,7 @@ void SaveSystem::LoadMemory(SaveType type, int id) {
                    ScrWork[2004 + entry->MainThreadReturnBufIds[0]]);
         thd->CallStackDepth++;
         thd->ReturnScriptBufferIds[0] = entry->MainThreadReturnBufIds[0];
-        thd->ReturnAdresses[0] =
+        thd->ReturnAddresses[0] =
             ScriptBuffers[entry->MainThreadReturnBufIds[0]] +
             entry->MainThreadReturnAddresses[0];
 
@@ -449,12 +449,16 @@ void SaveSystem::LoadMemory(SaveType type, int id) {
     }
 }
 
-uint8_t SaveSystem::GetSaveSatus(SaveType type, int id) {
+uint8_t SaveSystem::GetSaveStatus(SaveType type, int id) {
   switch (type) {
     case SaveQuick:
-      return ((SaveFileEntry*)QuickSaveEntries[id])->Status;
+      return QuickSaveEntries[id] != nullptr
+                 ? ((SaveFileEntry*)QuickSaveEntries[id])->Status
+                 : 0;
     case SaveFull:
-      return ((SaveFileEntry*)FullSaveEntries[id])->Status;
+      return FullSaveEntries[id] != nullptr
+                 ? ((SaveFileEntry*)FullSaveEntries[id])->Status
+                 : 0;
     default:
       ImpLog(LL_Error, LC_IO,
              "Failed to get save status: unknown save type, returning 0\n");

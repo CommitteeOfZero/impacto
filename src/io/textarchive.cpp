@@ -21,7 +21,7 @@ TextArchive::~TextArchive() {
   if (TOC) delete[] TOC;
 }
 
-IoError TextArchive::Open(FileMeta* file, InputStream** outStream) {
+IoError TextArchive::Open(FileMeta* file, Stream** outStream) {
   TextMetaEntry* entry = (TextMetaEntry*)file;
   IoError err = PhysicalFileStream::Create(entry->FullPath, outStream);
   if (err != IoError_OK) {
@@ -55,7 +55,7 @@ IoError TextArchive::GetCurrentSize(FileMeta* file, int64_t* outSize) {
   return IoError_OK;
 }
 
-IoError TextArchive::Create(InputStream* stream, VfsArchive** outArchive) {
+IoError TextArchive::Create(Stream* stream, VfsArchive** outArchive) {
   ImpLog(LL_Trace, LC_IO, "Trying to mount \"%s\" as text archive\n",
          stream->Meta.FileName.c_str());
 

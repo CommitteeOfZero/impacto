@@ -16,15 +16,13 @@
 namespace Impacto {
 namespace Io {
 
-typedef IoError (*VfsArchiveFactory)(InputStream* stream,
-                                     VfsArchive** outArchive);
+typedef IoError (*VfsArchiveFactory)(Stream* stream, VfsArchive** outArchive);
 
 static std::vector<VfsArchiveFactory> Archivers;
 static ska::flat_hash_map<std::string, std::vector<VfsArchive*>> Mounts;
 static SDL_mutex* Lock;
 
-static IoError MountInternal(std::string const& mountpoint,
-                             InputStream* stream) {
+static IoError MountInternal(std::string const& mountpoint, Stream* stream) {
   VfsArchive* archive;
   IoError err = IoError_Fail;
   for (auto archiver : Archivers) {
@@ -77,7 +75,7 @@ IoError VfsMount(std::string const& mountpoint,
     goto end;
   }
 
-  InputStream* archiveFile;
+  Stream* archiveFile;
   err = PhysicalFileStream::Create(archiveFileName, &archiveFile);
   if (err != IoError_OK) {
     ImpLog(LL_Debug, LC_IO, "Could not open physical file \"%s\"\n",
@@ -99,7 +97,7 @@ IoError VfsMountMemory(std::string const& mountpoint,
                        std::string const& archiveFileName, void* memory,
                        int64_t size, bool freeOnClose) {
   IoError err;
-  InputStream* archiveFile;
+  Stream* archiveFile;
 
   SDL_LockMutex(Lock);
 
@@ -257,7 +255,7 @@ end:
 }
 
 static IoError OpenInternal(std::string const& mountpoint, VfsArchive* archive,
-                            FileMeta* origMeta, InputStream** outStream) {
+                            FileMeta* origMeta, Stream** outStream) {
   IoError err;
 
   ImpLogSlow(
@@ -292,7 +290,7 @@ static IoError OpenInternal(std::string const& mountpoint, VfsArchive* archive,
 }
 
 IoError VfsOpen(std::string const& mountpoint, std::string const& fileName,
-                InputStream** outStream) {
+                Stream** outStream) {
   IoError err;
   SDL_LockMutex(Lock);
 
@@ -316,7 +314,7 @@ end:
 }
 
 IoError VfsOpen(std::string const& mountpoint, uint32_t id,
-                InputStream** outStream) {
+                Stream** outStream) {
   IoError err;
   SDL_LockMutex(Lock);
 
@@ -346,7 +344,7 @@ IoError SlurpInternal(VfsArchive* archive, FileMeta* origMeta, void** outMemory,
   if (err != IoError_OK) {
     ImpLogSlow(LL_Debug, LC_IO, "VfsArchive->Slurp() failed, trying open\n");
 
-    InputStream* stream;
+    Stream* stream;
     err = archive->Open(origMeta, &stream);
     if (err != IoError_OK) return err;
     *outMemory = malloc(stream->Meta.Size);

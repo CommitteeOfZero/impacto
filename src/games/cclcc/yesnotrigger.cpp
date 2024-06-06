@@ -6,36 +6,116 @@
 
 namespace Impacto {
 namespace CCLCC {
-namespace YesNoTrigger {
 using namespace Profile::CCLCC::YesNoTrigger;
 using namespace Vm::Interface;
+using namespace Impacto::Profile::ScriptVars;
 
-bool disp = false;
-bool hasStarted = false;
-bool allowInput = false;
-bool goToNextQuestion = false;
-bool dispChips = false;
+YesNoTrigger *YesNoTrigger::YesNoTriggerPtr = nullptr;
 
-int chipsAngle;
-float bgTransition;
-enum class YesNoSelect { NONE = -1, YES = 0, NO = 1 } selection;
+void YesNoTrigger::Init() {
+  if (Profile::CCLCC::YesNoTrigger::Configure()) {
+    YesNoTriggerPtr = new YesNoTrigger();
+  }
+}
 
-float bgSpriteX;
-float bgSpriteY;
-float bgScale;
-int arrIndex = 0;
-int targetArrIndex = 0;
-BGType bgType;
-YesNoState state;
-YesNoPositions *dispPosArr;
+int YesNoTrigger::Load(uint8_t *data) {
+  int dataSize = 0;
+  if (YesNoTriggerPtr == nullptr) {
+    return dataSize;
+  }
+  dataSize += 4;
+  memcpy(&YesNoTriggerPtr->BgType, data + dataSize, sizeof(BGType));
+  dataSize += 12;
+  YesNoTriggerPtr->Display = data[dataSize++];
+  YesNoTriggerPtr->HasStarted = data[dataSize++];
+  YesNoTriggerPtr->DispSel = data[dataSize++];
+  YesNoTriggerPtr->AllowInput = data[dataSize++];
+  YesNoTriggerPtr->GoToNextQuestion = data[dataSize++];
+  dataSize += 3;
+  memcpy(&YesNoTriggerPtr->Selection, data + dataSize, sizeof(YesNoSelect));
+  dataSize += 4;
+  memcpy(&YesNoTriggerPtr->StarAngle, data + dataSize, sizeof(int));
+  dataSize += 4;
+  float bgSpritePosX, bgSpritePosY;
+  memcpy(&bgSpritePosX, data + dataSize, sizeof(float));
+  dataSize += 4;
+  memcpy(&bgSpritePosY, data + dataSize, sizeof(float));
+  dataSize += 4;
+  YesNoTriggerPtr->BgSpritePos = glm::vec2(bgSpritePosX, bgSpritePosY);
+  memcpy(&YesNoTriggerPtr->BgSpriteScale, data + dataSize, sizeof(float));
+  dataSize += 16;
+  memcpy(&YesNoTriggerPtr->BgTransition, data + dataSize, sizeof(float));
+  dataSize += 4;
+  memcpy(&YesNoTriggerPtr->State, data + dataSize, sizeof(YesNoState));
+  dataSize += 8;
+  memcpy(&YesNoTriggerPtr->CurArrIndex, data + dataSize, sizeof(int));
+  dataSize += 4;
+  memcpy(&YesNoTriggerPtr->TargetArrIndex, data + dataSize, sizeof(int));
+  dataSize += 12;
+  assert(dataSize == 0x54);
+  if (YesNoTriggerPtr->State != YesNoState::None &&
+      YesNoTriggerPtr->State != YesNoState::Complete) {
+    switch (YesNoTriggerPtr->BgType) {
+      case BGType::BG0:
+        YesNoTriggerPtr->ActiveBackground = YesNoBackground0;
+        YesNoTriggerPtr->DispPosArr = YesNoData1;
+        break;
+      case BGType::BG1:
+        YesNoTriggerPtr->ActiveBackground = YesNoBackground1;
+        YesNoTriggerPtr->DispPosArr = YesNoData1;
+        break;
+      case BGType::BG2:
+        YesNoTriggerPtr->ActiveBackground = YesNoBackground2;
+        YesNoTriggerPtr->DispPosArr = YesNoData2;
+        break;
+      case BGType::BG3:
+        YesNoTriggerPtr->ActiveBackground = YesNoBackground3;
+        YesNoTriggerPtr->DispPosArr = YesNoData2;
+        break;
+    }
+  }
+  return dataSize;
+}
 
-Sprite ActiveBackground;
-bool hasInit = false;
+int YesNoTrigger::Save(uint8_t *data) {
+  int dataSize = 0;
+  if (YesNoTriggerPtr == nullptr) {
+    return dataSize;
+  }
+  dataSize += 4;
+  memcpy(data + dataSize, &YesNoTriggerPtr->BgType, sizeof(BGType));
+  dataSize += 12;
+  data[dataSize++] = YesNoTriggerPtr->Display;
+  data[dataSize++] = YesNoTriggerPtr->HasStarted;
+  data[dataSize++] = YesNoTriggerPtr->DispSel;
+  data[dataSize++] = YesNoTriggerPtr->AllowInput;
+  data[dataSize++] = YesNoTriggerPtr->GoToNextQuestion;
+  dataSize += 3;
+  memcpy(data + dataSize, &YesNoTriggerPtr->Selection, sizeof(YesNoSelect));
+  dataSize += 4;
+  memcpy(data + dataSize, &YesNoTriggerPtr->StarAngle, sizeof(int));
+  dataSize += 4;
+  memcpy(data + dataSize, &YesNoTriggerPtr->BgSpritePos.x, sizeof(float));
+  dataSize += 4;
+  memcpy(data + dataSize, &YesNoTriggerPtr->BgSpritePos.y, sizeof(float));
+  dataSize += 4;
+  memcpy(data + dataSize, &YesNoTriggerPtr->BgSpriteScale, sizeof(float));
+  dataSize += 16;
+  memcpy(data + dataSize, &YesNoTriggerPtr->BgTransition, sizeof(float));
+  dataSize += 4;
+  memcpy(data + dataSize, &YesNoTriggerPtr->State, sizeof(YesNoState));
+  dataSize += 8;
+  memcpy(data + dataSize, &YesNoTriggerPtr->CurArrIndex, sizeof(int));
+  dataSize += 4;
+  memcpy(data + dataSize, &YesNoTriggerPtr->TargetArrIndex, sizeof(int));
+  dataSize += 12;
+  assert(dataSize == 0x54);
+  return dataSize;
+}
 
-void Init() { hasInit = Profile::CCLCC::YesNoTrigger::Configure(); }
-
-void updateYesNoPos(float startX, float startY, float startScale, float targetX,
-                    float targetY, float targetScale, float transition) {
+void YesNoTrigger::UpdateYesNoPos(float startX, float startY, float startScale,
+                                  float targetX, float targetY,
+                                  float targetScale, float transition) {
   float boundedScale = (targetScale < 1.0)   ? 1.0f
                        : (targetScale > 3.0) ? 3.0f
                                              : targetScale;
@@ -43,48 +123,49 @@ void updateYesNoPos(float startX, float startY, float startScale, float targetX,
   float smoothTransition = cos(transition * static_cast<float>(M_PI));
   smoothTransition = (1.0f - smoothTransition) * 0.5f;
 
-  bgSpriteX = startX + smoothTransition * (targetX - startX);
-  bgSpriteY = startY + smoothTransition * (targetY - startY);
-  bgScale = startScale + smoothTransition * (boundedScale - startScale);
+  BgSpritePos.x = startX + smoothTransition * (targetX - startX);
+  BgSpritePos.y = startY + smoothTransition * (targetY - startY);
+  BgSpriteScale = startScale + smoothTransition * (boundedScale - startScale);
 }
 
-void Update(float dt) {
-  if (!hasInit || ScrWork[2147] != 0 || ScrWork[2142] != 0 ||
-      ScrWork[6433] == 0 || !hasStarted) {
+void YesNoTrigger::Update(float dt) {
+  if (ScrWork[SW_SYSSUBMENUCT] != 0 || ScrWork[SW_SYSMENUCT] != 0 ||
+      ScrWork[6433] == 0 || !HasStarted) {
     return;
   }
 
-  chipsAngle += 400;
-  if (chipsAngle < 0 || chipsAngle > 65536) {
-    chipsAngle = 65536;
+  StarAngle += 400;
+  if (StarAngle < 0 || StarAngle > 65536) {
+    StarAngle = 0;
   }
-  switch (state) {
+  switch (State) {
     case YesNoState::Init:
-      state = YesNoState::ZoomStart;
+      State = YesNoState::ZoomStart;
       break;
     case YesNoState::ZoomStart:
-      bgTransition += 0.01f;
-      updateYesNoPos(0.0f, 0.0f, 1.0f, dispPosArr[0].bgXPos,
-                     dispPosArr[0].bgYPos, 3.0f, bgTransition);
-      if (bgTransition >= 1.0f) {
-        bgTransition = 1.0f;
-        state = YesNoState::MainInput;
+      BgTransition += 0.01f;
+      UpdateYesNoPos(0.0f, 0.0f, 1.0f, DispPosArr[0].BgPos.x,
+                     DispPosArr[0].BgPos.y, 3.0f, BgTransition);
+      if (BgTransition >= 1.0f) {
+        BgTransition = 1.0f;
+        State = YesNoState::MainInput;
       }
       break;
     case YesNoState::MainInput:
-      if (allowInput) {
-        dispChips = true;
+      if (AllowInput) {
+        DispSel = true;
         if (PADinputButtonWentDown &
             (PAD1UP | PAD1DOWN | PAD1LEFT | PAD1RIGHT)) {
-          if (selection == YesNoSelect::NONE) {
-            selection = YesNoSelect::YES;
-          } else if (selection == YesNoSelect::YES) {
-            selection = YesNoSelect::NO;
+          if (Selection == YesNoSelect::NONE) {
+            Selection = YesNoSelect::YES;
+          } else if (Selection == YesNoSelect::YES) {
+            Selection = YesNoSelect::NO;
           } else {
-            selection = YesNoSelect::YES;
+            Selection = YesNoSelect::YES;
           }
-          if (bgType == BGType::BG0 && (arrIndex == 11 || arrIndex == 12)) {
-            selection = YesNoSelect::YES;
+          if (BgType == BGType::BG0 &&
+              (CurArrIndex == 11 || CurArrIndex == 12)) {
+            Selection = YesNoSelect::YES;
             Audio::Channels[Audio::AC_SSE]->Play("sysse", 4, false, 0.0f);
           } else {
             Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0.0f);
@@ -92,59 +173,60 @@ void Update(float dt) {
         }
         // TODO: Mouse stuff
         if (PADinputButtonWentDown & PADcustom[5] &&
-            selection != YesNoSelect::NONE) {
-          state = YesNoState::PanToNext;
-          arrIndex = targetArrIndex;
-          if (selection == YesNoSelect::YES) {
-            targetArrIndex = dispPosArr[arrIndex].nextYesIndex;
+            Selection != YesNoSelect::NONE) {
+          State = YesNoState::PanToNext;
+          CurArrIndex = TargetArrIndex;
+          if (Selection == YesNoSelect::YES) {
+            TargetArrIndex = DispPosArr[CurArrIndex].NextYesIndex;
           } else {
-            targetArrIndex = dispPosArr[arrIndex].nextNoIndex;
+            TargetArrIndex = DispPosArr[CurArrIndex].NextNoIndex;
           }
-          bgTransition = 0.0f;
-          dispChips = false;
-          allowInput = false;
-          selection = YesNoSelect::NONE;
-          ScrWork[6432] = to_underlying(selection);
+          BgTransition = 0.0f;
+          DispSel = false;
+          AllowInput = false;
+          Selection = YesNoSelect::NONE;
+          ScrWork[6432] = to_underlying(Selection);
           Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0.0f);
         }
       }
       break;
     case YesNoState::PanToNext:
-      if (goToNextQuestion) {
-        bgTransition += 0.03f;
-        updateYesNoPos(dispPosArr[arrIndex].bgXPos, dispPosArr[arrIndex].bgYPos,
-                       3.0f, dispPosArr[targetArrIndex].bgXPos,
-                       dispPosArr[targetArrIndex].bgYPos, 3.0f, bgTransition);
-        if (bgTransition >= 1.0f) {
-          bgTransition = 1.0f;
-          if (dispPosArr[targetArrIndex].nextYesIndex == 0 ||
-              dispPosArr[targetArrIndex].nextNoIndex == 0) {
-            state = YesNoState::Complete;
+      if (GoToNextQuestion) {
+        BgTransition += 0.03f;
+        UpdateYesNoPos(DispPosArr[CurArrIndex].BgPos.x,
+                       DispPosArr[CurArrIndex].BgPos.y, 3.0f,
+                       DispPosArr[TargetArrIndex].BgPos.x,
+                       DispPosArr[TargetArrIndex].BgPos.y, 3.0f, BgTransition);
+        if (BgTransition >= 1.0f) {
+          BgTransition = 1.0f;
+          if (DispPosArr[TargetArrIndex].NextYesIndex == 0 ||
+              DispPosArr[TargetArrIndex].NextNoIndex == 0) {
+            State = YesNoState::Complete;
           } else {
-            state = YesNoState::MainInput;
+            State = YesNoState::MainInput;
           }
-          goToNextQuestion = false;
+          GoToNextQuestion = false;
         }
       }
       break;
     default:
       break;
   }
-  if (bgScale < 1.0f) {
-    bgScale = 1.0f;
-  } else if (bgScale > 3.0f) {
-    bgScale = 3.0f;
+  if (BgSpriteScale < 1.0f) {
+    BgSpriteScale = 1.0f;
+  } else if (BgSpriteScale > 3.0f) {
+    BgSpriteScale = 3.0f;
   }
-  ScrWork[6434] = targetArrIndex;
+  ScrWork[6434] = TargetArrIndex;
 }
 
-void Render() {
-  if (!hasInit || ScrWork[6433] == 0 || disp == false) {
+void YesNoTrigger::Render() {
+  if (ScrWork[6433] == 0 || Display == false) {
     return;
   }
 
-  float bgWidth = 3840.0f / bgScale;
-  float bgHeight = 2160.0f / bgScale;
+  float bgWidth = 3840.0f / BgSpriteScale;
+  float bgHeight = 2160.0f / BgSpriteScale;
   float bgXOffset = (3840.0f - bgWidth) / 2.0f;
   float bgYOffset = (2160.0f - bgHeight) / 2.0f - 46.0f;
   float alpha = static_cast<float>(ScrWork[6433] << 3);
@@ -156,60 +238,61 @@ void Render() {
   glm::vec4 bgtint = glm::vec4(1.0f, 1.0f, 1.0f, alpha / 255.0f);
   glm::vec2 starPos;
   ActiveBackground.Bounds =
-      Rect(static_cast<int>(bgSpriteX + bgXOffset),
-           static_cast<int>(bgSpriteY + bgYOffset), static_cast<int>(bgWidth),
-           static_cast<int>(bgHeight));
+      Rect(static_cast<int>(BgSpritePos.x + bgXOffset),
+           static_cast<int>(BgSpritePos.y + bgYOffset),
+           static_cast<int>(bgWidth), static_cast<int>(bgHeight));
 
   Renderer->DrawSprite(ActiveBackground, Rect(0, 0, 1920, 1080), bgtint, 0.0f);
 
-  if (dispChips) {
+  if (DispSel) {
     float chipYesX =
-        (dispPosArr[targetArrIndex].chipYesXPos - ActiveBackground.Bounds.X) *
-        0.5f * bgScale;
+        (DispPosArr[TargetArrIndex].ChipYesPos.x - ActiveBackground.Bounds.X) *
+        0.5f * BgSpriteScale;
     float chipYesY =
-        (dispPosArr[targetArrIndex].chipYesYPos - ActiveBackground.Bounds.Y) *
-        0.5f * bgScale;
+        (DispPosArr[TargetArrIndex].ChipYesPos.y - ActiveBackground.Bounds.Y) *
+        0.5f * BgSpriteScale;
 
     float chipNoX =
-        (dispPosArr[targetArrIndex].chipNoXPos - ActiveBackground.Bounds.X) *
-        0.5f * bgScale;
+        (DispPosArr[TargetArrIndex].ChipNoPos.x - ActiveBackground.Bounds.X) *
+        0.5f * BgSpriteScale;
     float chipNoY =
-        (dispPosArr[targetArrIndex].chipNoYPos - ActiveBackground.Bounds.Y) *
-        0.5f * bgScale;
+        (DispPosArr[TargetArrIndex].ChipNoPos.y - ActiveBackground.Bounds.Y) *
+        0.5f * BgSpriteScale;
     Sprite *ActiveYesChip;
     Sprite *ActiveNoChip;
     glm::vec4 chipTint = glm::vec4(1.0f, 1.0f, 1.0f, alpha / 255.0f);
 
-    if (bgType == BGType::BG0 || bgType == BGType::BG1) {
+    if (BgType == BGType::BG0 || BgType == BGType::BG1) {
       ActiveYesChip =
-          (selection == YesNoSelect::YES) ? &YN1YesChipLarge : &YN1YesChipSmall;
+          (Selection == YesNoSelect::YES) ? &YN1YesChipLarge : &YN1YesChipSmall;
       ActiveNoChip =
-          (selection == YesNoSelect::NO) ? &YN1NoChipLarge : &YN1NoChipSmall;
+          (Selection == YesNoSelect::NO) ? &YN1NoChipLarge : &YN1NoChipSmall;
 
-      if (selection == YesNoSelect::YES) {
+      if (Selection == YesNoSelect::YES) {
         starPos = {chipYesX - 132, chipYesY - 166};
-      } else if (selection == YesNoSelect::NO) {
+      } else if (Selection == YesNoSelect::NO) {
         starPos = {chipNoX - 132, chipNoY - 166};
       }
 
-    } else if (bgType == BGType::BG2 || bgType == BGType::BG3) {
+    } else if (BgType == BGType::BG2 || BgType == BGType::BG3) {
       ActiveYesChip =
-          (selection == YesNoSelect::YES) ? &YN2YesChipLarge : &YN2YesChipSmall;
+          (Selection == YesNoSelect::YES) ? &YN2YesChipLarge : &YN2YesChipSmall;
       ActiveNoChip =
-          (selection == YesNoSelect::NO) ? &YN2NoChipLarge : &YN2NoChipSmall;
+          (Selection == YesNoSelect::NO) ? &YN2NoChipLarge : &YN2NoChipSmall;
 
-      if (selection == YesNoSelect::YES) {
+      if (Selection == YesNoSelect::YES) {
         starPos = {chipYesX - 92, chipYesY - 147};
-      } else if (selection == YesNoSelect::NO) {
+      } else if (Selection == YesNoSelect::NO) {
         starPos = {chipNoX - 92, chipNoY - 147};
       }
     }
-    float yesChipWidthX = 0.5f * bgScale * ActiveYesChip->Bounds.Width;
-    float yesChipWidthY = 0.5f * bgScale * ActiveYesChip->Bounds.Height;
-    float noChipWidthX = 0.5f * bgScale * ActiveNoChip->Bounds.Width;
-    float noChipWidthY = 0.5f * bgScale * ActiveNoChip->Bounds.Height;
-    if (selection != YesNoSelect::NONE) {
-      Renderer->DrawSprite(StarChip, starPos, chipTint);
+    float yesChipWidthX = 0.5f * BgSpriteScale * ActiveYesChip->Bounds.Width;
+    float yesChipWidthY = 0.5f * BgSpriteScale * ActiveYesChip->Bounds.Height;
+    float noChipWidthX = 0.5f * BgSpriteScale * ActiveNoChip->Bounds.Width;
+    float noChipWidthY = 0.5f * BgSpriteScale * ActiveNoChip->Bounds.Height;
+    if (Selection != YesNoSelect::NONE) {
+      Renderer->DrawSprite(StarChip, starPos, chipTint, {1.0, 1.0},
+                           StarAngle / 65536.0f);
     }
     Renderer->DrawSprite(*ActiveYesChip,
                          Rect(chipYesX, chipYesY, yesChipWidthX, yesChipWidthY),
@@ -222,66 +305,56 @@ void Render() {
   Renderer->DrawSprite(YesNoBgMask, Rect(0, 0, 1920, 1080), maskTint, 0.0f);
 }
 
-void Start(int type, int bgBufId, int chipsBufId) {
-  if (!hasInit) {
-    return;
-  }
+void YesNoTrigger::Start(int type, int bgBufId, int chipsBufId) {
   // bgBufId & chipsBufId are unused
-  hasStarted = false;
-  disp = false;
-  state = YesNoState::Init;
+  HasStarted = false;
+  Display = false;
+  State = YesNoState::Init;
   if (type == 0 || type == 1) {
-    dispPosArr = YesNoData1;
+    DispPosArr = YesNoData1;
   } else if (type == 2 || type == 3) {
-    dispPosArr = YesNoData2;
+    DispPosArr = YesNoData2;
   }
 
-  bgType = static_cast<BGType>(type);
-  if (bgType == BGType::BG0) {
+  BgType = static_cast<BGType>(type);
+  if (BgType == BGType::BG0) {
     ActiveBackground = YesNoBackground0;
-  } else if (bgType == BGType::BG1) {
+  } else if (BgType == BGType::BG1) {
     ActiveBackground = YesNoBackground1;
-  } else if (bgType == BGType::BG2) {
+  } else if (BgType == BGType::BG2) {
     ActiveBackground = YesNoBackground2;
-  } else if (bgType == BGType::BG3) {
+  } else if (BgType == BGType::BG3) {
     ActiveBackground = YesNoBackground3;
   }
 
-  dispChips = false;
-  allowInput = false;
-  goToNextQuestion = false;
+  DispSel = false;
+  AllowInput = false;
+  GoToNextQuestion = false;
 }
 
-void Show() {
-  if (!hasInit) {
-    return;
-  }
-  bgTransition = 0.0f;
-  targetArrIndex = 0;
-  selection = YesNoSelect::NONE;
-  disp = true;
-  hasStarted = true;
+void YesNoTrigger::Show() {
+  BgTransition = 0.0f;
+  TargetArrIndex = 0;
+  Selection = YesNoSelect::NONE;
+  Display = true;
+  HasStarted = true;
 }
 
-void Reset() {
-  if (!hasInit) {
-    return;
-  }
-  bgTransition = 0.0f;
-  float newX = dispPosArr[0].bgXPos;
-  float newY = dispPosArr[0].bgYPos;
-  disp = true;
-  targetArrIndex = 0;
-  selection = YesNoSelect::NONE;
-  updateYesNoPos(0.0f, 0.0f, 1.0f, newX, newY, 3.0f, 0.0f);
+void YesNoTrigger::Reset() {
+  BgTransition = 0.0f;
+  float newX = DispPosArr[0].BgPos.x;
+  float newY = DispPosArr[0].BgPos.y;
+  Display = true;
+  TargetArrIndex = 0;
+  Selection = YesNoSelect::NONE;
+  UpdateYesNoPos(0.0f, 0.0f, 1.0f, newX, newY, 3.0f, 0.0f);
 }
 
-void Hide() {
-  if (!hasInit) {
-    return;
-  }
+void YesNoTrigger::Hide() {
+  Display = false;
+  HasStarted = false;
+  State = YesNoState::Complete;
 }
 
-}  // namespace YesNoTrigger
 }  // namespace CCLCC
 }  // namespace Impacto

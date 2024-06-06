@@ -10,9 +10,9 @@ struct AfsMetaEntry;
 class AfsArchive : public VfsArchive {
  public:
   ~AfsArchive();
-  IoError Open(FileMeta* file, InputStream** outStream) override;
+  IoError Open(FileMeta* file, Stream** outStream) override;
 
-  static IoError Create(InputStream* stream, VfsArchive** outArchive);
+  static IoError Create(Stream* stream, VfsArchive** outArchive);
 
  private:
   AfsMetaEntry* TOC = 0;

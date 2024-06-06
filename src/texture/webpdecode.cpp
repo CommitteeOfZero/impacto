@@ -1,12 +1,12 @@
 #include "texture.h"
-#include "../io/inputstream.h"
+#include "../io/stream.h"
 #include "../log.h"
 #include <webp/decode.h>
 
 namespace Impacto {
 namespace TexLoad {
 
-bool TextureLoadWebP(Io::InputStream* stream, Texture* outTexture) {
+bool TextureLoadWebP(Io::Stream* stream, Texture* outTexture) {
   stream->Seek(0, RW_SEEK_END);
   size_t dataSize = stream->Position;
   stream->Seek(0, RW_SEEK_SET);

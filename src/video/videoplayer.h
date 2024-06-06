@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../impacto.h"
-#include "../io/inputstream.h"
+#include "../io/stream.h"
 
 #include <vector>
 
@@ -10,10 +10,10 @@ namespace Video {
 
 class VideoPlayer {
  public:
-  static VideoPlayer* Create(Io::InputStream* stream);
+  static VideoPlayer* Create(Io::Stream* stream);
 
   virtual void Init(){};
-  virtual void Play(Io::InputStream* stream, bool loop, bool alpha){};
+  virtual void Play(Io::Stream* stream, bool loop, bool alpha) {};
   virtual void Stop(){};
   virtual void Seek(int64_t pos){};
 
@@ -23,7 +23,7 @@ class VideoPlayer {
   bool IsPlaying;
 
  protected:
-  typedef VideoPlayer* (*VideoPlayerCreator)(Io::InputStream* stream);
+  typedef VideoPlayer* (*VideoPlayerCreator)(Io::Stream* stream);
   static bool AddVideoPlayerCreator(VideoPlayerCreator c);
 
  private:

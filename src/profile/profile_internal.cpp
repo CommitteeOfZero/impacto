@@ -259,10 +259,10 @@ bool TryGetVec2(glm::vec2& outVec2) {
 
 void GetMemberVec2Array(glm::vec2* arr, uint32_t count, char const* name) {
   EnsurePushMemberOfType(name, LUA_TTABLE);
-
-  if (lua_rawlen(LuaState, -1) != count) {
-    ImpLog(LL_Fatal, LC_Profile, "Expected to have %d vec2 for %s\n", count,
-           name);
+  uint32_t actualCount = lua_rawlen(LuaState, -1);
+  if (actualCount != count) {
+    ImpLog(LL_Fatal, LC_Profile, "Expected to have %d vec2 for %s, got %d\n",
+           count, name, actualCount);
     Window->Shutdown();
   }
 

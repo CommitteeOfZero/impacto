@@ -104,6 +104,7 @@ set(Impacto_Src
         src/profile/games/cc/titlemenu.cpp
         src/profile/games/cc/sysmesbox.cpp
 
+        src/profile/games/cclcc/systemmenu.cpp
         src/profile/games/cclcc/titlemenu.cpp
         src/profile/games/cclcc/savemenu.cpp
         src/profile/games/cclcc/optionsmenu.cpp
@@ -172,6 +173,8 @@ set(Impacto_Src
         src/games/cclcc/mapsystem.cpp
         src/games/cclcc/delusiontrigger.cpp
         src/games/cclcc/yesnotrigger.cpp
+        src/games/cclcc/savesystem.cpp
+        src/games/cclcc/systemmenu.cpp
 
         src/games/mo6tw/dialoguebox.cpp
         src/games/mo6tw/sysmesbox.cpp
@@ -240,6 +243,7 @@ set(Impacto_Src
         src/ui/widgets/cc/titlebutton.cpp
         src/ui/widgets/cclcc/titlebutton.cpp
         src/ui/widgets/cclcc/saveentrybutton.cpp
+        src/ui/widgets/cclcc/sysmenubutton.cpp
 
         src/stbi_impl.c
 
@@ -550,7 +554,7 @@ set(Impacto_Header
         src/io/buffering.h
         src/io/filemeta.h
         src/io/assetpath.h
-        src/io/inputstream.h
+        src/io/stream.h
         src/io/vfsarchive.h
         src/io/memorystream.h
         src/io/physicalfilestream.h
@@ -988,7 +992,7 @@ target_link_libraries(impacto PUBLIC ${Impacto_Libs})
 
 # compiler/dependency configuration
 
-set_property(TARGET impacto PROPERTY CXX_STANDARD 14)
+set_property(TARGET impacto PROPERTY CXX_STANDARD 17)
 
 if (EMSCRIPTEN)
     set(CMAKE_EXECUTABLE_SUFFIX ".html")

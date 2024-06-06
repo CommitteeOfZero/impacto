@@ -17,23 +17,27 @@ class SaveFileEntry : public SaveFileEntryBase {
 
 class SaveSystem : public SaveSystemBase {
  public:
-  SaveError MountSaveFile();
-  void SaveMemory();
-  void LoadMemory(SaveType type, int id);
-  void FlushWorkingSaveEntry(SaveType type, int id);
-  void WriteSaveFile();
-  uint32_t GetSavePlayTime(SaveType type, int id);
-  uint8_t GetSaveFlags(SaveType type, int id);
-  tm GetSaveDate(SaveType type, int id);
-  uint8_t GetSaveSatus(SaveType type, int id);
-  int GetSaveTitle(SaveType type, int id);
-  uint32_t GetTipStatus(int tipId);
-  void SetTipStatus(int tipId, bool isLocked, bool isUnread, bool isNew);
-  void GetReadMessagesCount(int* totalMessageCount, int* readMessageCount);
-  void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount);
-  void GetEVStatus(int evId, int* totalVariations, int* viewedVariations);
-  bool GetEVVariationIsUnlocked(int evId, int variationIdx);
-  bool GetBgmFlag(int id);
+  SaveError MountSaveFile() override;
+  void SaveMemory() override;
+  void LoadMemory(SaveType type, int id) override;
+  void FlushWorkingSaveEntry(SaveType type, int id) override;
+  void WriteSaveFile() override;
+  uint32_t GetSavePlayTime(SaveType type, int id) override;
+  uint8_t GetSaveFlags(SaveType type, int id) override;
+  tm GetSaveDate(SaveType type, int id) override;
+  uint8_t GetSaveStatus(SaveType type, int id) override;
+  int GetSaveTitle(SaveType type, int id) override;
+  uint32_t GetTipStatus(int tipId) override;
+  void SetTipStatus(int tipId, bool isLocked, bool isUnread,
+                    bool isNew) override;
+  void GetReadMessagesCount(int* totalMessageCount,
+                            int* readMessageCount) override;
+  void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) override;
+  void GetEVStatus(int evId, int* totalVariations,
+                   int* viewedVariations) override;
+  bool GetEVVariationIsUnlocked(int evId, int variationIdx) override;
+  bool GetBgmFlag(int id) override;
+  void SetCheckpointId(int id) override {}
 
  private:
   uint8_t GameExtraData[1024];

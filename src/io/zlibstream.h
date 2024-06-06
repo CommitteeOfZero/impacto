@@ -1,13 +1,13 @@
 #pragma once
 
-#include "inputstream.h"
+#include "stream.h"
 #include "buffering.h"
 #include <zlib.h>
 
 namespace Impacto {
 namespace Io {
 
-class ZlibStream : public InputStream, public Buffering<ZlibStream> {
+class ZlibStream : public Stream, public Buffering<ZlibStream> {
   friend class Buffering<ZlibStream>;
 
  public:
@@ -15,12 +15,12 @@ class ZlibStream : public InputStream, public Buffering<ZlibStream> {
 
   bool IsSeekSlow = true;
 
-  static IoError Create(InputStream* baseStream, int64_t compressedOffset,
+  static IoError Create(Stream* baseStream, int64_t compressedOffset,
                         int64_t compressedSize, int64_t uncompressedSize,
-                        InputStream** out);
+                        Stream** out);
   int64_t Read(void* buffer, int64_t sz) override;
   int64_t Seek(int64_t offset, int origin) override;
-  IoError Duplicate(InputStream** outStream) override;
+  IoError Duplicate(Stream** outStream) override;
 
  protected:
   static int64_t const ZlibStreamBufferSize = 128 * 1024;
@@ -33,7 +33,7 @@ class ZlibStream : public InputStream, public Buffering<ZlibStream> {
 
   bool Init();
 
-  InputStream* BaseStream;
+  Stream* BaseStream;
   int64_t CompressedOffset;
   int64_t CompressedSize;
 

@@ -182,6 +182,219 @@ void MapSystemCCLCC::MapInit() {
   SetFlag(2804, 0);
   SetFlag(2805, 0);
 }
+
+int MapSystemCCLCC::MapLoad(uint8_t* data) {
+  int dataSize = 0;
+  memmove(&MapGroup, data, sizeof(MapGroup));
+  dataSize += sizeof(MapGroup);
+  for (int i = 0; i < MapPartsDisp.size(); i++) {
+    MapPartsDisp[i].partId = data[dataSize];
+    dataSize += 4;
+    MapPartsDisp[i].type = data[dataSize];
+    dataSize += 4;
+    int shown = data[dataSize];
+    dataSize += 4;
+
+    int inOrOut = data[dataSize];
+    dataSize += 4;
+    if (shown == 1 && inOrOut == 1) {
+      MapPartsDisp[i].state = Shown;
+    } else if (shown == 0 && inOrOut == 1) {
+      MapPartsDisp[i].state = Showing;
+    } else if (shown == 1 && inOrOut == 0) {
+      MapPartsDisp[i].state = Hiding;
+    } else {
+      MapPartsDisp[i].state = Hidden;
+    }
+    int progress = data[dataSize];
+    dataSize += 4;
+    float conversionFactor = FadeAnimationDuration * 60.0f;
+    MapPartsDisp[i].fadeAnim.Progress =
+        (MapPartsDisp[i].state == Hiding || MapPartsDisp[i].state == Hidden)
+            ? progress / conversionFactor
+        : (MapPartsDisp[i].state == Showing || MapPartsDisp[i].state == Shown)
+            ? 1 - progress / conversionFactor
+            : 0;
+    MapPartsDisp[i].fadeAnim.Direction = inOrOut;
+    MapPartsDisp[i].delay = data[dataSize];
+    dataSize += 4;
+    MapPartsDisp[i].angle = data[dataSize];
+    dataSize += 4;
+    MapPartsDisp[i].dist = data[dataSize];
+    dataSize += 4;
+  }
+  dataSize += (800 - MapPartsDisp.size()) * 32;
+  assert(dataSize == 0x65e0);
+  for (int i = 0; i < MapPoolDisp.size(); i++) {
+    int show = data[dataSize];
+    dataSize += 4;
+    int inOrOut = data[dataSize];
+    dataSize += 4;
+    if (show == 1 && inOrOut == 1) {
+      MapPoolDisp[i].state = Shown;
+    } else if (show == 0 && inOrOut == 1) {
+      MapPoolDisp[i].state = Showing;
+    } else if (show == 1 && inOrOut == 0) {
+      MapPoolDisp[i].state = Hiding;
+    } else {
+      MapPoolDisp[i].state = Hidden;
+    }
+
+    int progress = data[dataSize];
+    dataSize += 4;
+    float conversionFactor = FadeAnimationDuration * 60.0f;
+    MapPoolDisp[i].fadeAnim.Progress =
+        (MapPoolDisp[i].state == Hiding || MapPoolDisp[i].state == Shown)
+            ? progress / conversionFactor
+        : (MapPoolDisp[i].state == Showing || MapPoolDisp[i].state == Hidden)
+            ? 1 - progress / conversionFactor
+            : 0;
+    MapPoolDisp[i].fadeAnim.Direction = inOrOut;
+    MapPoolDisp[i].delay = data[dataSize];
+    dataSize += 4;
+    MapPoolDisp[i].angle = data[dataSize];
+    dataSize += 4;
+    dataSize += 4;  // padding?
+  }
+  assert(dataSize == 0x69a0);
+  for (int i = 0; i < MapPool.size(); i++) {
+    MapPool[i].id = data[dataSize];
+    dataSize += 4;
+    MapPool[i].type = data[dataSize];
+    dataSize += 4;
+    MapPool[i].button.Enabled = false;
+  }
+  assert(dataSize == 0x6a40);
+  memmove(&MapPoolCurCt, data + dataSize, sizeof(MapPoolCurCt));
+  dataSize += sizeof(MapPoolCurCt);
+  assert(dataSize == 0x6a90);
+  dataSize += 24;  // MapMoveAnimeInit and MapMoveAnimeMain which uses
+                   // MapMoveAnime are not called in cclcc
+  assert(dataSize == 0x6aa8);
+  MapPartsMax = data[dataSize];
+  dataSize += 4;
+  HoverMapPoolIdx = data[dataSize];
+  dataSize += 4;
+  SelectedMapPoolIdx = data[dataSize];
+  dataSize += 4;
+  assert(dataSize == 0x6ab4);
+  dataSize += 20;  // Variables used by MapMoveAnimeInit and MapMoveAnimeMain
+  assert(dataSize == 0x6ac8);
+  return dataSize;
+}
+
+int MapSystemCCLCC::MapSave(uint8_t* data) {
+  int dataSize = 0;
+  memmove(data, &MapGroup, sizeof(MapGroup));
+  dataSize += sizeof(MapGroup);
+  for (int i = 0; i < MapPartsDisp.size(); i++) {
+    data[dataSize] = MapPartsDisp[i].partId;
+    dataSize += 4;
+    data[dataSize] = MapPartsDisp[i].type;
+    dataSize += 4;
+    switch (MapPartsDisp[i].state) {
+      case Shown:
+        data[dataSize] = 1;
+        dataSize += 4;
+        data[dataSize] = 1;
+        break;
+      case Showing:
+        data[dataSize] = 0;
+        dataSize += 4;
+        data[dataSize] = 1;
+        break;
+      case Hiding:
+        data[dataSize] = 1;
+        dataSize += 4;
+        data[dataSize] = 0;
+        break;
+      case Hidden:
+        data[dataSize] = 0;
+        dataSize += 4;
+        data[dataSize] = 0;
+        break;
+    }
+    dataSize += 4;
+    data[dataSize] =
+        (MapPartsDisp[i].state == Hiding || MapPartsDisp[i].state == Hidden)
+            ? MapPartsDisp[i].fadeAnim.Progress * FadeAnimationDuration * 60.0f
+        : (MapPartsDisp[i].state == Showing || MapPartsDisp[i].state == Shown)
+            ? (1 - MapPartsDisp[i].fadeAnim.Progress) * FadeAnimationDuration *
+                  60.0f
+            : 0;
+    dataSize += 4;
+    data[dataSize] = MapPartsDisp[i].delay;
+    dataSize += 4;
+    data[dataSize] = MapPartsDisp[i].angle;
+    dataSize += 4;
+    data[dataSize] = MapPartsDisp[i].dist;
+    dataSize += 4;
+  }
+  dataSize += (800 - MapPartsDisp.size()) * 32;
+  assert(dataSize == 0x65e0);
+  for (int i = 0; i < MapPoolDisp.size(); i++) {
+    switch (MapPoolDisp[i].state) {
+      case Shown:
+        data[dataSize] = 1;
+        dataSize += 4;
+        data[dataSize] = 1;
+        break;
+      case Showing:
+        data[dataSize] = 0;
+        dataSize += 4;
+        data[dataSize] = 1;
+        break;
+      case Hiding:
+        data[dataSize] = 1;
+        dataSize += 4;
+        data[dataSize] = 0;
+        break;
+      case Hidden:
+        data[dataSize] = 0;
+        dataSize += 4;
+        data[dataSize] = 0;
+        break;
+    }
+    dataSize += 4;
+    data[dataSize] =
+        (MapPoolDisp[i].state == Hiding || MapPoolDisp[i].state == Shown)
+            ? MapPoolDisp[i].fadeAnim.Progress * FadeAnimationDuration * 60.0f
+        : (MapPoolDisp[i].state == Showing || MapPoolDisp[i].state == Hidden)
+            ? (1 - MapPoolDisp[i].fadeAnim.Progress) * FadeAnimationDuration *
+                  60.0f
+            : 0;
+    dataSize += 4;
+    data[dataSize] = MapPoolDisp[i].delay;
+    dataSize += 4;
+    data[dataSize] = MapPoolDisp[i].angle;
+    dataSize += 4;
+    dataSize += 4;  // padding?
+  }
+  assert(dataSize == 0x69a0);
+  for (int i = 0; i < MapPool.size(); i++) {
+    data[dataSize] = MapPool[i].id;
+    dataSize += 4;
+    data[dataSize] = MapPool[i].type;
+    dataSize += 4;
+  }
+  assert(dataSize == 0x6a40);
+  memmove(data + dataSize, &MapPoolCurCt, sizeof(MapPoolCurCt));
+  dataSize += sizeof(MapPoolCurCt);
+  assert(dataSize == 0x6a90);
+  dataSize += 24;  // MapMoveAnimeInit and MapMoveAnimeMain which uses
+                   // MapMoveAnime are not called in cclcc
+  assert(dataSize == 0x6aa8);
+  data[dataSize] = MapPartsMax;
+  dataSize += 4;
+  data[dataSize] = HoverMapPoolIdx;
+  dataSize += 4;
+  data[dataSize] = SelectedMapPoolIdx;
+  dataSize += 4;
+  assert(dataSize == 0x6ab4);
+  dataSize += 20;  // Variables used by MapMoveAnimeInit and MapMoveAnimeMain
+  assert(dataSize == 0x6ac8);
+  return dataSize;
+}
 void MapSystemCCLCC::MapSetFadein(int partId, int partType) {
   if (MapPartsMax != 0) {
     for (int i = 0; i < MapPartsMax; ++i) {
@@ -567,10 +780,10 @@ void MapSystemCCLCC::MapPoolSetFadeout(int unused, int poolIdx) {
 void MapSystemCCLCC::HandlePoolUpDownNav(int maxPoolRow, int poolType,
                                          bool isUp) {
   PhotoSelClick = false;
-  if (hoverMapPoolIdx == 0xff) {
+  if (HoverMapPoolIdx == 0xff) {
     for (int i = 0; i < 10; ++i) {
       if (MapPool[i].id != 0xff && MapPoolDisp[i * 2].state == Shown) {
-        hoverMapPoolIdx = i;
+        HoverMapPoolIdx = i;
         return;
       }
     }
@@ -578,26 +791,26 @@ void MapSystemCCLCC::HandlePoolUpDownNav(int maxPoolRow, int poolType,
     int tmpPoolIdx;
     do {
       if (poolType == 3) {
-        hoverMapPoolIdx =
-            (hoverMapPoolIdx < 2) ? hoverMapPoolIdx + 2 : hoverMapPoolIdx - 2;
+        HoverMapPoolIdx =
+            (HoverMapPoolIdx < 2) ? HoverMapPoolIdx + 2 : HoverMapPoolIdx - 2;
       } else {
         if (isUp)
-          hoverMapPoolIdx =
-              (hoverMapPoolIdx < 3) ? hoverMapPoolIdx + 6 : hoverMapPoolIdx - 3;
+          HoverMapPoolIdx =
+              (HoverMapPoolIdx < 3) ? HoverMapPoolIdx + 6 : HoverMapPoolIdx - 3;
         else
-          hoverMapPoolIdx =
-              (hoverMapPoolIdx < 6) ? hoverMapPoolIdx + 3 : hoverMapPoolIdx - 6;
+          HoverMapPoolIdx =
+              (HoverMapPoolIdx < 6) ? HoverMapPoolIdx + 3 : HoverMapPoolIdx - 6;
         if (MapPoolDisp[18].state == Shown && MapPool[9].id != 0xff) {
-          hoverMapPoolIdx = 9;
+          HoverMapPoolIdx = 9;
           return;
         }
       }
-      if (MapPool[hoverMapPoolIdx].id != 0xff &&
-          MapPoolDisp[hoverMapPoolIdx * 2].state == Shown) {
+      if (MapPool[HoverMapPoolIdx].id != 0xff &&
+          MapPoolDisp[HoverMapPoolIdx * 2].state == Shown) {
         return;
       }
-      int colNum = hoverMapPoolIdx % maxPoolRow;
-      int rowNum = hoverMapPoolIdx / maxPoolRow;
+      int colNum = HoverMapPoolIdx % maxPoolRow;
+      int rowNum = HoverMapPoolIdx / maxPoolRow;
       tmpPoolIdx = rowNum * maxPoolRow;
 
       if (colNum >= 0 && colNum <= 2) {
@@ -615,52 +828,52 @@ void MapSystemCCLCC::HandlePoolUpDownNav(int maxPoolRow, int poolType,
       }
     } while (MapPool[tmpPoolIdx].id == 0xff ||
              MapPoolDisp[tmpPoolIdx * 2].state != Shown);
-    hoverMapPoolIdx = tmpPoolIdx;
+    HoverMapPoolIdx = tmpPoolIdx;
   }
 }
 
 void MapSystemCCLCC::HandlePoolLeftRightNav(int maxPoolRow, int poolType,
                                             bool isLeft) {
   PhotoSelClick = false;
-  if (hoverMapPoolIdx == 0xff) {
+  if (HoverMapPoolIdx == 0xff) {
     for (int i = 0; i < 10; ++i) {
       if (MapPool[i].id != 0xff && MapPoolDisp[i * 2].state == Shown) {
-        hoverMapPoolIdx = i;
+        HoverMapPoolIdx = i;
         return;
       }
     }
   } else {
-    int mapId = hoverMapPoolIdx;
+    int mapId = HoverMapPoolIdx;
     do {
       if (poolType == 3) {
-        if (hoverMapPoolIdx != 3)
-          mapId = (hoverMapPoolIdx == 0 || hoverMapPoolIdx == 2)
-                      ? hoverMapPoolIdx + 1
-                      : hoverMapPoolIdx - 1;
+        if (HoverMapPoolIdx != 3)
+          mapId = (HoverMapPoolIdx == 0 || HoverMapPoolIdx == 2)
+                      ? HoverMapPoolIdx + 1
+                      : HoverMapPoolIdx - 1;
         else
           mapId = 2;
       } else {
-        if (hoverMapPoolIdx == 9) {
+        if (HoverMapPoolIdx == 9) {
           mapId = (isLeft) ? 6 : 8;
         } else {
           if (isLeft) {
-            if (hoverMapPoolIdx % 3 == 0) {
-              mapId = hoverMapPoolIdx + 2;
+            if (HoverMapPoolIdx % 3 == 0) {
+              mapId = HoverMapPoolIdx + 2;
             } else {
-              mapId = hoverMapPoolIdx - 1;
+              mapId = HoverMapPoolIdx - 1;
             }
           } else {
-            if (hoverMapPoolIdx % 3 == 2) {
-              mapId = hoverMapPoolIdx - 2;
+            if (HoverMapPoolIdx % 3 == 2) {
+              mapId = HoverMapPoolIdx - 2;
             } else {
-              mapId = hoverMapPoolIdx + 1;
+              mapId = HoverMapPoolIdx + 1;
             }
           }
         }
       }
-      hoverMapPoolIdx = mapId;
-      if (MapPool[hoverMapPoolIdx].id != 0xff &&
-          MapPoolDisp[hoverMapPoolIdx * 2].state == Shown)
+      HoverMapPoolIdx = mapId;
+      if (MapPool[HoverMapPoolIdx].id != 0xff &&
+          MapPoolDisp[HoverMapPoolIdx * 2].state == Shown)
         break;
 
       int rowNum = mapId / maxPoolRow;
@@ -671,7 +884,7 @@ void MapSystemCCLCC::HandlePoolLeftRightNav(int maxPoolRow, int poolType,
                              {-maxPoolRow, -2 * maxPoolRow}};
 
         for (int i = 0; i < 2; ++i) {
-          mapId = hoverMapPoolIdx + offsets[rowNum][i];
+          mapId = HoverMapPoolIdx + offsets[rowNum][i];
 
           if (MapPool[mapId].id != 0xff &&
               MapPoolDisp[mapId * 2].state == Shown) {
@@ -679,9 +892,9 @@ void MapSystemCCLCC::HandlePoolLeftRightNav(int maxPoolRow, int poolType,
           }
         }
 
-        if ((rowNum == 2 && hoverMapPoolIdx == maxPoolRow * 2) ||
-            (rowNum == 1 && hoverMapPoolIdx == 3) ||
-            (rowNum == 0 && hoverMapPoolIdx == 0)) {
+        if ((rowNum == 2 && HoverMapPoolIdx == maxPoolRow * 2) ||
+            (rowNum == 1 && HoverMapPoolIdx == 3) ||
+            (rowNum == 0 && HoverMapPoolIdx == 0)) {
           if (MapPoolDisp[18].state == Shown && MapPool[9].id != 0xff) {
             mapId = 9;
             break;
@@ -690,13 +903,13 @@ void MapSystemCCLCC::HandlePoolLeftRightNav(int maxPoolRow, int poolType,
       }
     } while (MapPool[mapId].id == 0xff ||
              MapPoolDisp[mapId * 2].state != Shown);
-    hoverMapPoolIdx = mapId;
+    HoverMapPoolIdx = mapId;
   }
 }
 
 bool MapSystemCCLCC::MapPlayerPhotoSelect(int unused) {
   ScrWork[6500] = 2;
-  int oldHover = hoverMapPoolIdx;
+  int oldHover = HoverMapPoolIdx;
   if (unused == 0) {
     int poolType = MapPool[0].type;
     int maxPoolRow =
@@ -707,7 +920,7 @@ bool MapSystemCCLCC::MapPlayerPhotoSelect(int unused) {
         if (MapPool[i].id != 0xff && MapPool[i].button.Enabled) {
           MapPool[i].button.UpdateInput();
           if (MapPool[i].button.Hovered) {
-            hoverMapPoolIdx = (int)i;
+            HoverMapPoolIdx = (int)i;
           }
         }
       }
@@ -721,33 +934,33 @@ bool MapSystemCCLCC::MapPlayerPhotoSelect(int unused) {
       HandlePoolLeftRightNav(maxPoolRow, poolType, true);
     } else if (PADinputButtonWentDown & PAD1RIGHT) {
       HandlePoolLeftRightNav(maxPoolRow, poolType, false);
-    } else if (PADinputButtonWentDown & PAD1A && (hoverMapPoolIdx != 0xff) &&
-               (MapPoolCurCt[hoverMapPoolIdx] == 16)) {
-      if (hoverMapPoolIdx != 0xff) {
-        selectedMapPoolIdx = hoverMapPoolIdx;
+    } else if (PADinputButtonWentDown & PAD1A && (HoverMapPoolIdx != 0xff) &&
+               (MapPoolCurCt[HoverMapPoolIdx] == 16)) {
+      if (HoverMapPoolIdx != 0xff) {
+        SelectedMapPoolIdx = HoverMapPoolIdx;
       }
       PhotoSelClick = false;
     } else if (!PhotoSelClick && PADinputMouseWentDown & PAD1A) {
       PhotoSelClick = true;
     }
 
-    if (oldHover != hoverMapPoolIdx) {
+    if (oldHover != HoverMapPoolIdx) {
       if (oldHover != 0xff) {
         MapPool[oldHover].button.HasFocus = false;
       }
-      if (hoverMapPoolIdx != 0xff) {
-        MapPool[hoverMapPoolIdx].button.HasFocus = true;
+      if (HoverMapPoolIdx != 0xff) {
+        MapPool[HoverMapPoolIdx].button.HasFocus = true;
       }
     }
 
-    if (selectedMapPoolIdx != 0xff) {
-      ScrWork[6367] = selectedMapPoolIdx;
-      ScrWork[6368] = MapPool[selectedMapPoolIdx].id;
-      ScrWork[6381] = MapPool[selectedMapPoolIdx].type;
+    if (SelectedMapPoolIdx != 0xff) {
+      ScrWork[6367] = SelectedMapPoolIdx;
+      ScrWork[6368] = MapPool[SelectedMapPoolIdx].id;
+      ScrWork[6381] = MapPool[SelectedMapPoolIdx].type;
       ScrWork[6500] = 0;
-      MapPool[selectedMapPoolIdx].button.HasFocus = false;
-      hoverMapPoolIdx = 0xff;
-      selectedMapPoolIdx = 0xff;
+      MapPool[SelectedMapPoolIdx].button.HasFocus = false;
+      HoverMapPoolIdx = 0xff;
+      SelectedMapPoolIdx = 0xff;
       return true;
     }
   } else {
@@ -1314,7 +1527,7 @@ void MapSystemCCLCC::MapPoolDispPhoto(int poolId) {
       MapPool[poolId].button.Enabled = true;
       MapPool[poolId].button.Id = poolId;
       MapPool[poolId].button.OnClickHandler = [this](Button* button) {
-        selectedMapPoolIdx = button->Id;
+        SelectedMapPoolIdx = button->Id;
       };
     }
 
@@ -1673,7 +1886,7 @@ void MapSystemCCLCC::MapSetPos(float dt) {
   MapFadeMain(dt);
 
   for (size_t i = 0; i < MapPoolCurCt.size(); ++i) {
-    if (static_cast<int>(i) == hoverMapPoolIdx) {
+    if (static_cast<int>(i) == HoverMapPoolIdx) {
       MapPoolCurCt[i] += (MapPoolCurCt[i] >= 16) ? 0 : 2;
     } else if (MapPoolCurCt[i]) {
       MapPoolCurCt[i] -= 2;

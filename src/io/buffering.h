@@ -1,6 +1,6 @@
 #pragma once
 
-#include "inputstream.h"
+#include "stream.h"
 #include <algorithm>
 #include <string.h>
 

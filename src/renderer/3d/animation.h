@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../io/inputstream.h"
+#include "../../io/stream.h"
 
 #include "model.h"
 
@@ -62,8 +62,7 @@ struct MeshTrack {
 
 class ModelAnimation {
  public:
-  static ModelAnimation* Load(Io::InputStream* stream, Model* model,
-                              int16_t animId);
+  static ModelAnimation* Load(Io::Stream* stream, Model* model, int16_t animId);
   ~ModelAnimation();
 
   // Per-model ID

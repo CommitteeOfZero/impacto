@@ -8,10 +8,10 @@ namespace Io {
 
 LzxStream::~LzxStream() { free(CompressedBuffer); }
 
-IoError LzxStream::Create(InputStream *baseStream, int64_t offset, int64_t size,
-                          InputStream **out) {
+IoError LzxStream::Create(Stream *baseStream, int64_t offset, int64_t size,
+                          Stream **out) {
   if (offset + size > baseStream->Meta.Size) return IoError_Fail;
-  InputStream *dup;
+  Stream *dup;
   int64_t err = baseStream->Duplicate(&dup);
   if (err != IoError_OK) return (IoError)err;
   err = dup->Seek(offset, RW_SEEK_SET);
@@ -63,7 +63,7 @@ IoError LzxStream::Create(InputStream *baseStream, int64_t offset, int64_t size,
   result->CompressionPartitionSize = compressionPartitionSize;
   result->CompressedBuffer = (uint8_t *)malloc(compressedBlockSize);
   result->CompressedBufferSize = compressedBlockSize;
-  *out = (InputStream *)result;
+  *out = (Stream *)result;
   return IoError_OK;
 }
 
@@ -102,14 +102,14 @@ int64_t LzxStream::Seek(int64_t offset, int origin) {
   return Position;
 }
 
-IoError LzxStream::Duplicate(InputStream **outStream) {
-  InputStream *dup;
+IoError LzxStream::Duplicate(Stream **outStream) {
+  Stream *dup;
   int64_t err = BaseStream->Duplicate(&dup);
   if (err != IoError_OK) return (IoError)err;
   LzxStream *result = new LzxStream(*this);
   result->CompressedBuffer = (uint8_t *)malloc(CompressedBufferSize);
   result->BaseStream = dup;
-  *outStream = (InputStream *)result;
+  *outStream = (Stream *)result;
   return IoError_OK;
 }
 

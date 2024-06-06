@@ -1,8 +1,11 @@
 #include "saveentrybutton.h"
 
+#include <iomanip>
+#include <sstream>
 #include "../../../renderer/renderer.h"
 #include "../../../profile/dialogue.h"
 #include "../../../profile/games/cclcc/savemenu.h"
+#include "../../../vm/vm.h"
 
 namespace Impacto {
 namespace UI {
@@ -10,6 +13,7 @@ namespace Widgets {
 namespace CCLCC {
 using namespace Impacto::Profile::CCLCC::SaveMenu;
 using namespace Impacto::Profile::ScriptVars;
+using namespace Impacto::SaveSystem;
 
 glm::vec4 SaveEntryButton::FocusedAlpha = glm::vec4(1.0f);
 Animation SaveEntryButton::FocusedAlphaFade;
@@ -17,7 +21,9 @@ Animation SaveEntryButton::FocusedAlphaFade;
 SaveEntryButton::SaveEntryButton(int id, Sprite const& focusedBox,
                                  Sprite const& focusedText, int page,
                                  glm::vec2 pos, uint8_t locked,
-                                 Sprite lockedSymbol)
+                                 Sprite lockedSymbol,
+                                 SaveSystem::SaveType saveType,
+                                 Sprite NoDataSprite, Sprite BrokenDataSprite)
     : Widgets::Button(
           id,
           Sprite(SpriteSheet(), focusedBox.Bounds.X, focusedBox.Bounds.Y,
@@ -26,7 +32,13 @@ SaveEntryButton::SaveEntryButton(int id, Sprite const& focusedBox,
       FocusedSpriteLabel(focusedText, glm::vec2{pos.x, pos.y - 34}),
       Page(page),
       LockedSymbol(lockedSymbol,
-                   glm::vec2(Bounds.X, Bounds.Y) + glm::vec2(205.0f, 79.0f)) {
+                   glm::vec2(Bounds.X, Bounds.Y) + glm::vec2(205.0f, 79.0f)),
+      Type(saveType),
+      NoDataSymbol(NoDataSprite, glm::vec2(Bounds.X, Bounds.Y) +
+                                     glm::vec2(211.0f, 20.0f + 1.0f - 12.0f)),
+      BrokenDataSymbol(BrokenDataSprite,
+                       glm::vec2(Bounds.X, Bounds.Y) +
+                           glm::vec2(211.0f, 20.0f + 1.0f - 12.0f)) {
   DisabledSprite = NormalSprite;
   IsLocked = locked == 1;
 }
@@ -51,85 +63,46 @@ void SaveEntryButton::Render() {
         glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
   }
   ThumbnailLabel.Render();
-  EntryNumberHint.Render();
-  EntryNumber.Render();
-  if (EntryActive) {
+  uint8_t saveStatus = SaveSystem::GetSaveStatus(Type, Id);
+  if (saveStatus == 1) {
     if (IsLocked) {
       LockedSymbol.Render();
     }
-    SceneTitle.Render();
-    PlayTimeHint.Render();
-    PlayTime.Render();
-    SaveDateHint.Render();
-    SaveDate.Render();
+    RenderSceneTitleText();
+    RenderSaveDateText();
+  } else if (saveStatus == 0) {
+    NoDataSymbol.Render();
   } else {
-    SceneTitle.Render();
+    BrokenDataSymbol.Render();
   }
 }
 
 int SaveEntryButton::GetPage() const { return Page; }
 
-void SaveEntryButton::AddNormalSpriteLabel(Sprite norm, glm::vec2 pos) {
-  NormalSpriteLabel = Label(norm, pos);
+void SaveEntryButton::RenderSceneTitleText() {
+  // TODO actually make this look correct
+  uint8_t* strAddr =
+      Vm::ScriptGetTextTableStrAddress(1, SaveSystem::GetSaveTitle(Type, Id));
+  float fontSize = 24;
+  RendererOutlineMode outlineMode = RO_BottomRight;
+  glm::vec2 relativeTitlePosition = {20, 20};
+  Label(strAddr, glm::vec2(Bounds.X, Bounds.Y) + relativeTitlePosition,
+        fontSize, outlineMode, IsLocked ? 69 : 0)
+      .Render();
 }
 
-void SaveEntryButton::AddEntryNumberHintText(uint8_t* str, float fontSize,
-                                             RendererOutlineMode outlineMode,
-                                             glm::vec2 relativePosition) {
-  EntryNumberHint = Label(str, glm::vec2(Bounds.X, Bounds.Y) + relativePosition,
-                          fontSize, outlineMode, IsLocked ? 69 : 0);
-}
+void SaveEntryButton::RenderSaveDateText() {
+  tm date = SaveSystem::GetSaveDate(Type, Id);
+  std::stringstream dateStr;
+  float fontSize = 32;
+  RendererOutlineMode outlineMode = RO_Full;
+  glm::vec2 relativePosition{20 + 290 * 1280.0 / 1920,
+                             (71 + 120) * 1280.0 / 1920};
+  dateStr << std::put_time(&date, "%Y/%m/%d %H:%M:%S");
 
-void SaveEntryButton::AddEntryNumberText(std::string str, float fontSize,
-                                         RendererOutlineMode outlineMode,
-                                         glm::vec2 relativePosition) {
-  EntryNumber = Label(str, glm::vec2(Bounds.X, Bounds.Y) + relativePosition,
-                      fontSize, outlineMode, IsLocked ? 69 : 0);
-}
-
-void SaveEntryButton::AddSceneTitleText(uint8_t* str, float fontSize,
-                                        RendererOutlineMode outlineMode,
-                                        glm::vec2 relativeTitlePosition,
-                                        glm::vec2 relativeNoDataPosition) {
-  if (EntryActive) {
-    SceneTitle =
-        Label(str, glm::vec2(Bounds.X, Bounds.Y) + relativeTitlePosition,
-              fontSize, outlineMode, IsLocked ? 69 : 0);
-  } else {
-    SceneTitle =
-        Label(str, glm::vec2(Bounds.X, Bounds.Y) + relativeNoDataPosition,
-              fontSize, outlineMode, 0);
-  }
-}
-
-void SaveEntryButton::AddPlayTimeHintText(uint8_t* str, float fontSize,
-                                          RendererOutlineMode outlineMode,
-                                          glm::vec2 relativePosition) {
-  PlayTimeHint = Label(str, glm::vec2(Bounds.X, Bounds.Y) + relativePosition,
-                       fontSize, outlineMode, IsLocked ? 69 : 0);
-}
-
-void SaveEntryButton::AddPlayTimeText(std::string str, float fontSize,
-                                      RendererOutlineMode outlineMode,
-                                      glm::vec2 relativePosition) {
-  // Spacing is currently set for the C;HLCC font, more or less
-  PlayTime = Label(str, glm::vec2(Bounds.X, Bounds.Y) + relativePosition,
-                   fontSize, outlineMode, IsLocked ? 69 : 0);
-}
-
-void SaveEntryButton::AddSaveDateHintText(uint8_t* str, float fontSize,
-                                          RendererOutlineMode outlineMode,
-                                          glm::vec2 relativePosition) {
-  SaveDateHint = Label(str, glm::vec2(Bounds.X, Bounds.Y) + relativePosition,
-                       fontSize, outlineMode, IsLocked ? 69 : 0);
-}
-
-void SaveEntryButton::AddSaveDateText(std::string str, float fontSize,
-                                      RendererOutlineMode outlineMode,
-                                      glm::vec2 relativePosition) {
-  // Spacing is currently set for the C;HLCC font, more or less
-  SaveDate = Label(str, glm::vec2(Bounds.X, Bounds.Y) + relativePosition,
-                   fontSize, outlineMode, IsLocked ? 69 : 0);
+  Label(dateStr.str(), glm::vec2(Bounds.X, Bounds.Y) + relativePosition,
+        fontSize, outlineMode, IsLocked ? 69 : 0)
+      .Render();
 }
 
 void SaveEntryButton::AddThumbnail(Sprite thumbnail, glm::vec2 pos) {
@@ -137,17 +110,11 @@ void SaveEntryButton::AddThumbnail(Sprite thumbnail, glm::vec2 pos) {
 }
 
 void SaveEntryButton::Move(glm::vec2 relativePosition) {
+  Button::Move(relativePosition);
   NormalSpriteLabel.Move(relativePosition);
   FocusedSpriteLabel.Move(relativePosition);
   LockedSymbol.Move(relativePosition);
   ThumbnailLabel.Move(relativePosition);
-  EntryNumberHint.Move(relativePosition);
-  EntryNumber.Move(relativePosition);
-  SceneTitle.Move(relativePosition);
-  PlayTimeHint.Move(relativePosition);
-  PlayTime.Move(relativePosition);
-  SaveDateHint.Move(relativePosition);
-  SaveDate.Move(relativePosition);
 }
 
 void SaveEntryButton::FocusedAlphaFadeStart() {

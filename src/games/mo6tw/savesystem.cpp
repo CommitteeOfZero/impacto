@@ -18,7 +18,7 @@ SaveFileEntry* WorkingSaveEntry = 0;
 
 SaveError SaveSystem::MountSaveFile() {
   Io::PhysicalFileStream* stream;
-  Io::InputStream* instream;
+  Io::Stream* instream;
   IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &instream);
   switch (err) {
     case IoError_NotFound:
@@ -107,7 +107,7 @@ SaveError SaveSystem::MountSaveFile() {
     QuickSaveEntries[i]->MainThreadCallStackDepth =
         Io::ReadLE<uint32_t>(stream);
     for (int j = 0; j < 8; j++) {
-      QuickSaveEntries[i]->MainThreadReturnAddresses[j] =
+      QuickSaveEntries[i]->MainThreadReturnIds[j] =
           Io::ReadLE<uint32_t>(stream);
       QuickSaveEntries[i]->MainThreadReturnBufIds[j] =
           Io::ReadLE<uint32_t>(stream);
@@ -162,8 +162,7 @@ SaveError SaveSystem::MountSaveFile() {
     FullSaveEntries[i]->MainThreadLoopAdr = Io::ReadLE<uint32_t>(stream);
     FullSaveEntries[i]->MainThreadCallStackDepth = Io::ReadLE<uint32_t>(stream);
     for (int j = 0; j < 8; j++) {
-      FullSaveEntries[i]->MainThreadReturnAddresses[j] =
-          Io::ReadLE<uint32_t>(stream);
+      FullSaveEntries[i]->MainThreadReturnIds[j] = Io::ReadLE<uint32_t>(stream);
       FullSaveEntries[i]->MainThreadReturnBufIds[j] =
           Io::ReadLE<uint32_t>(stream);
     }
@@ -217,8 +216,8 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id) {
           WorkingSaveEntry->MainThreadCallStackDepth;
 
       for (int j = 0; j < 8; j++) {
-        entry->MainThreadReturnAddresses[j] =
-            WorkingSaveEntry->MainThreadReturnAddresses[j];
+        entry->MainThreadReturnIds[j] =
+            WorkingSaveEntry->MainThreadReturnIds[j];
         entry->MainThreadReturnBufIds[j] =
             WorkingSaveEntry->MainThreadReturnBufIds[j];
       }
@@ -233,7 +232,7 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id) {
 
 void SaveSystem::WriteSaveFile() {
   Io::PhysicalFileStream* stream;
-  Io::InputStream* instream;
+  Io::Stream* instream;
   IoError err = Io::PhysicalFileStream::CreateWrite(SaveFilePath, &instream);
   auto err1 = SDL_GetError();
   if (err != IoError_OK) {
@@ -307,7 +306,7 @@ void SaveSystem::WriteSaveFile() {
       stream->Write(&QuickSaveEntries[i]->MainThreadCallStackDepth,
                     sizeof(uint32_t), 1);
       for (int j = 0; j < 8; j++) {
-        stream->Write(&QuickSaveEntries[i]->MainThreadReturnAddresses[j],
+        stream->Write(&QuickSaveEntries[i]->MainThreadReturnIds[j],
                       sizeof(uint32_t), 1);
         stream->Write(&QuickSaveEntries[i]->MainThreadReturnBufIds[j],
                       sizeof(uint32_t), 1);
@@ -364,7 +363,7 @@ void SaveSystem::WriteSaveFile() {
       stream->Write(&FullSaveEntries[i]->MainThreadCallStackDepth,
                     sizeof(uint32_t), 1);
       for (int j = 0; j < 8; j++) {
-        stream->Write(&FullSaveEntries[i]->MainThreadReturnAddresses[j],
+        stream->Write(&FullSaveEntries[i]->MainThreadReturnIds[j],
                       sizeof(uint32_t), 1);
         stream->Write(&FullSaveEntries[i]->MainThreadReturnBufIds[j],
                       sizeof(uint32_t), 1);
@@ -405,8 +404,8 @@ void SaveSystem::SaveMemory() {
       WorkingSaveEntry->MainThreadCallStackDepth = thd->CallStackDepth;
 
       for (size_t j = 0; j < thd->CallStackDepth; j++) {
-        WorkingSaveEntry->MainThreadReturnAddresses[j] =
-            (uint32_t)(thd->ReturnAdresses[j] -
+        WorkingSaveEntry->MainThreadReturnIds[j] =
+            (uint32_t)(thd->ReturnAddresses[j] -
                        ScriptBuffers[thd->ReturnScriptBufferIds[j]]);
         WorkingSaveEntry->MainThreadReturnBufIds[j] =
             thd->ReturnScriptBufferIds[j];
@@ -524,9 +523,9 @@ void SaveSystem::LoadMemory(SaveType type, int id) {
                    ScrWork[2004 + entry->MainThreadReturnBufIds[0]]);
         thd->CallStackDepth++;
         thd->ReturnScriptBufferIds[0] = entry->MainThreadReturnBufIds[0];
-        thd->ReturnAdresses[0] =
+        thd->ReturnAddresses[0] =
             ScriptBuffers[entry->MainThreadReturnBufIds[0]] +
-            entry->MainThreadReturnAddresses[0];
+            entry->MainThreadReturnIds[0];
 
         memcpy(thd->Variables, entry->MainThreadVariables, 64);
         thd->DialoguePageId = entry->MainThreadDialoguePageId;
@@ -582,12 +581,16 @@ tm SaveSystem::GetSaveDate(SaveType type, int id) {
   }
 }
 
-uint8_t SaveSystem::GetSaveSatus(SaveType type, int id) {
+uint8_t SaveSystem::GetSaveStatus(SaveType type, int id) {
   switch (type) {
     case SaveQuick:
-      return ((SaveFileEntry*)QuickSaveEntries[id])->Status;
+      return QuickSaveEntries[id] != nullptr
+                 ? ((SaveFileEntry*)QuickSaveEntries[id])->Status
+                 : 0;
     case SaveFull:
-      return ((SaveFileEntry*)FullSaveEntries[id])->Status;
+      return FullSaveEntries[id] != nullptr
+                 ? ((SaveFileEntry*)FullSaveEntries[id])->Status
+                 : 0;
     default:
       ImpLog(LL_Error, LC_IO,
              "Failed to read save status: Unknown save type, returning 0\n");

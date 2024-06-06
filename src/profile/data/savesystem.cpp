@@ -2,6 +2,7 @@
 #include "../profile_internal.h"
 #include "../../renderer/renderer.h"
 
+#include "../../games/cclcc/savesystem.h"
 #include "../../games/chlcc/savesystem.h"
 #include "../../games/mo6tw/savesystem.h"
 
@@ -33,6 +34,7 @@ void Configure() {
       Implementation = new Impacto::MO6TW::SaveSystem();
       break;
     case SaveDataType::CCLCC:
+      Implementation = new Impacto::CCLCC::SaveSystem();
     case SaveDataType::None:
       ImpLog(LL_Warning, LC_Profile,
              "Save data type is none, not setting implementation\n");

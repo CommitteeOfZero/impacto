@@ -42,7 +42,7 @@ void Render(glm::vec2 pos, glm::vec4 opacityTint, DialoguePageMode mode) {
   if (WaitIconCurrentType == +WaitIconType::SpriteAnim) {
     if (DialogueBoxCurrentType == +DialogueBoxType::CHLCC) {
       // To deal with multiple DialogueBox
-      glm::vec4 col = glm::vec4(1.0f, 1.0f, 1.0f, opacityTint.w);
+      glm::vec4 col = glm::vec4(1.0f, 1.0f, 1.0f, opacityTint.a);
       // Erin DialogueBox
       if (mode == DPM_REV) {
         Renderer->DrawSprite(

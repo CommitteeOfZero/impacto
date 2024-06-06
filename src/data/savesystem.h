@@ -39,8 +39,9 @@ class SaveFileEntryBase {
   uint32_t Checksum;
   std::tm SaveDate;
   uint32_t PlayTime;
-  uint16_t SwTitle;
+  uint32_t SwTitle;
   uint8_t Flags;
+  uint32_t SaveType;
   uint32_t MainThreadExecPriority;
   uint32_t MainThreadGroupId;
   uint32_t MainThreadWaitCounter;
@@ -49,8 +50,12 @@ class SaveFileEntryBase {
   uint32_t MainThreadLoopCounter;
   uint32_t MainThreadLoopAdr;
   uint32_t MainThreadCallStackDepth;
-  uint32_t MainThreadReturnAddresses[8];
+  union {
+    uint32_t MainThreadReturnAddresses[8];
+    uint32_t MainThreadReturnIds[8];
+  };
   uint32_t MainThreadReturnBufIds[8];
+  uint32_t MainThreadScriptBufferId;
   int MainThreadVariables[16];
   uint32_t MainThreadDialoguePageId;
 };
@@ -65,7 +70,7 @@ class SaveSystemBase {
   virtual uint32_t GetSavePlayTime(SaveType type, int id) = 0;
   virtual uint8_t GetSaveFlags(SaveType type, int id) = 0;
   virtual tm GetSaveDate(SaveType type, int id) = 0;
-  virtual uint8_t GetSaveSatus(SaveType type, int id) = 0;
+  virtual uint8_t GetSaveStatus(SaveType type, int id) = 0;
   virtual int GetSaveTitle(SaveType type, int id) = 0;
   virtual uint32_t GetTipStatus(int tipId) = 0;
   virtual void SetTipStatus(int tipId, bool isLocked, bool isUnread,
@@ -77,6 +82,7 @@ class SaveSystemBase {
                            int* viewedVariations) = 0;
   virtual bool GetEVVariationIsUnlocked(int evId, int variationIdx) = 0;
   virtual bool GetBgmFlag(int id) = 0;
+  virtual void SetCheckpointId(int id) = 0;
 
   SaveFileEntryBase* FullSaveEntries[MaxSaveEntries];
   SaveFileEntryBase* QuickSaveEntries[MaxSaveEntries];
@@ -94,7 +100,7 @@ void WriteSaveFile();
 uint32_t GetSavePlayTime(SaveType type, int id);
 uint8_t GetSaveFlags(SaveType type, int id);
 tm GetSaveDate(SaveType type, int id);
-uint8_t GetSaveSatus(SaveType type, int id);
+uint8_t GetSaveStatus(SaveType type, int id);
 int GetSaveTitle(SaveType type, int id);
 uint32_t GetTipStatus(int tipId);
 void SetTipStatus(int tipId, bool isLocked, bool isUnread, bool isNew);
@@ -103,6 +109,7 @@ void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount);
 void GetEVStatus(int evId, int* totalVariations, int* viewedVariations);
 bool GetEVVariationIsUnlocked(int evId, int variationIdx);
 bool GetBgmFlag(int id);
+void SetCheckpointId(int id);
 
 }  // namespace SaveSystem
 }  // namespace Impacto

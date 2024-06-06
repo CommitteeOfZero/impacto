@@ -25,7 +25,7 @@ using namespace Impacto::UI::Widgets;
 Widget* EntryGrid[RowsPerPage][EntriesPerRow];
 
 void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
-  if ((SaveSystem::GetSaveSatus(SaveSystem::SaveType::SaveFull, target->Id) !=
+  if ((SaveSystem::GetSaveStatus(SaveSystem::SaveType::SaveFull, target->Id) !=
        0) ||
       ScrWork[SW_SYSSUBMENUNO] == 4) {
     ScrWork[SW_SAVEFILENO] = target->Id;

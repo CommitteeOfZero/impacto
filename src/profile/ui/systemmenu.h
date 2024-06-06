@@ -9,7 +9,7 @@ namespace SystemMenu {
 
 extern Impacto::UI::SystemMenuType Type;
 
-static int const MenuEntriesNumMax = 16;
+constexpr int MenuEntriesNumMax = 16;
 
 extern Sprite MenuEntriesSprites[MenuEntriesNumMax];
 extern Sprite MenuEntriesHSprites[MenuEntriesNumMax];

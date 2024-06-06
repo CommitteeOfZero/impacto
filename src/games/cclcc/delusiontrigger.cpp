@@ -64,7 +64,8 @@ void DelusionTrigger::Update(float dt) {
     if (ScrWork[6413] < 32) {
       ScrWork[6413]++;
     } else {
-      if (GetFlag(2821) || ScrWork[2147] != 0 || ScrWork[2142] != 0) {
+      if (GetFlag(2821) || ScrWork[SW_SYSSUBMENUCT] != 0 ||
+          ScrWork[SW_SYSMENUCT] != 0) {
         return;
       }
 

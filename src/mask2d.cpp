@@ -19,7 +19,7 @@ void Mask2D::Init() {
 }
 
 bool Mask2D::LoadSync(uint32_t maskId) {
-  Io::InputStream* stream;
+  Io::Stream* stream;
   int64_t err = Io::VfsOpen("mask", maskId, &stream);
   if (err != IoError_OK) return false;
   MaskTexture.Load(stream);

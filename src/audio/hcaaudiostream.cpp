@@ -8,7 +8,7 @@ using namespace Impacto::Io;
 namespace Impacto {
 namespace Audio {
 
-AudioStream* HcaAudioStream::Create(InputStream* stream) {
+AudioStream* HcaAudioStream::Create(Stream* stream) {
   clHCA* Decoder = 0;
   HcaAudioStream* result = 0;
 

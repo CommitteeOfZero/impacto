@@ -19,7 +19,7 @@ Character2D SpeakerPortraits[MaxSpeakerPortraits];
 bool Character2D::LoadSync(uint32_t charaId) {
   int fileId = charaId & 0xFFFF;
 
-  Io::InputStream* stream;
+  Io::Stream* stream;
   int64_t err = Io::VfsOpen(MountPoint, fileId, &stream);
   if (err != IoError_OK) return false;
   CharaTexture.Load(stream);
@@ -95,8 +95,8 @@ bool Character2D::LoadSync(uint32_t charaId) {
     OffsetX = Profile::DesignWidth / 2.0f;
     OffsetY = Profile::DesignHeight / 2.0f;
 
-    int (*StreamReadInt)(Io::InputStream*);
-    float (*StreamReadFloat)(Io::InputStream*);
+    int (*StreamReadInt)(Io::Stream*);
+    float (*StreamReadFloat)(Io::Stream*);
     if (Profile::LayFileBigEndian) {
       StreamReadInt = &Io::ReadBE<int>;
       StreamReadFloat = &Io::ReadBE<float>;

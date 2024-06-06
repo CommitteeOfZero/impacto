@@ -1,7 +1,8 @@
 root.ActiveRenderer = RendererType.OpenGL;
 
 root.LayerCount = 100;
-root.GameFeatures = GameFeature.Sc3VirtualMachine | GameFeature.Renderer2D | GameFeature.Input | GameFeature.Audio | GameFeature.Video;
+root.GameFeatures = GameFeature.Sc3VirtualMachine | GameFeature.Renderer2D | GameFeature.Input | GameFeature.Audio |
+                        GameFeature.Video | GameFeature.DebugMenu;
 root.DesignWidth = 1920;
 root.DesignHeight = 1080;
 
@@ -22,13 +23,16 @@ root.Vm = {
 
 include('common/scriptinput.lua');
 include('common/scriptvars.lua');
+
+include('cclcc/scriptinput.lua');
 include('cclcc/scriptvars.lua');
 include('cclcc/config.lua');
-include('cclcc/scriptvars.lua');
+include('cclcc/sprites.lua');
 include('cclcc/savedata.lua');
 include('cclcc/tipssystem.lua');
 include('cclcc/vfs.lua');
-include('cclcc/sprites.lua');
+include('cclcc/mapsystem.lua');
+include('cclcc/yesnotrigger.lua');
 include('common/animation.lua');
 include('cclcc/charset.lua');
 --include('cclcc/font.lua');
@@ -47,6 +51,5 @@ include('cclcc/hud/tipsmenu.lua');
 include('cclcc/hud/extramenus.lua');
 include('cclcc/hud/tipsnotification.lua');
 include('cclcc/hud/delusiontrigger.lua');
+include('cclcc/hud/systemmenu.lua');
 include('cclcc/hud/savemenu.lua');
-include('cclcc/mapsystem.lua');
-include('cclcc/yesnotrigger.lua');

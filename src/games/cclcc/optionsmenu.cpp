@@ -58,15 +58,18 @@ void OptionsMenu::Update(float dt) {
   UpdateInput();
 
   FadeAnimation.Update(dt);
-  if (ScrWork[2147] < 32 && State == Shown && ScrWork[2148] == 5) {
+  if (ScrWork[SW_SYSSUBMENUCT] < 32 && State == Shown &&
+      ScrWork[SW_SYSSUBMENUNO] == 5) {
     Hide();
-  } else if (ScrWork[2147] >= 32 && State == Hidden && ScrWork[2148] == 5) {
+  } else if (ScrWork[SW_SYSSUBMENUCT] >= 32 && State == Hidden &&
+             ScrWork[SW_SYSSUBMENUNO] == 5) {
     Show();
   }
 }
 
 void OptionsMenu::Render() {
-  if (State != Hidden && ScrWork[2147] >= 32 && ScrWork[2148] == 5) {
+  if (State != Hidden && ScrWork[SW_SYSSUBMENUCT] >= 32 &&
+      ScrWork[SW_SYSSUBMENUNO] == 5) {
     // glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
     Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
   }

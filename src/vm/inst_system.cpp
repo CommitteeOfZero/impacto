@@ -207,18 +207,33 @@ VmInstruction(InstCopyThreadWork) {
     dstThread->Variables[beginIndex + i] = srcThread->Variables[beginIndex + i];
   }
 }
+
+inline void LoadSaveFile() {
+  ScrWork[SW_SAVEERRORCODE] = SaveSystem::MountSaveFile();
+  if (ScrWork[SW_SAVEERRORCODE] == SaveOK) {
+    UpdateTipRecords();
+  }
+}
+
 VmInstruction(InstSave) {
   StartInstruction;
   PopUint8(type);
   switch (type) {  // TODO: Types 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
                    // 16, 20, 21, 72, 30, 31, 32, 33, 34, 35, 41, 50, 51, 66,
                    // 67, 70, 71, 74, 76
-    case 32:
-      ScrWork[SW_SAVEERRORCODE] = SaveSystem::MountSaveFile();
-      if (ScrWork[SW_SAVEERRORCODE] == SaveOK) {
-        UpdateTipRecords();
-      }
+    case 3:
       break;
+    case 4: {
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
+        LoadSaveFile();
+      }
+    } break;
+    case 32: {
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW ||
+          Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
+        LoadSaveFile();
+      }
+    } break;
     case 40:  // SystemDataCheck
       if (Profile::Vm::GameInstructionSet == +InstructionSet::RNE) {
         PopExpression(unused1);
@@ -525,7 +540,7 @@ VmInstruction(InstMSinit) {
       initType);  // TODO: There's only one type in R;NE - initType <= 10
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MSinit(initType: %i)\n",
              initType);
-
+  SaveSystem::SetCheckpointId(0xffff);
   if (initType == 5) {
     UI::BacklogMenuPtr->Clear();
   }
@@ -624,24 +639,46 @@ VmInstruction(InstAutoSave) {
   switch (type) {
     case 0:  // QuickSave
       SaveIconDisplay::ShowFor(2.4f);
+      if (ScrWork[SW_TITLE] == 0xffff) break;
+      SaveSystem::SaveMemory();
+      if (ScrWork[2112] != 1) {
+        // TODO: Quicksave(1)
+      }
+      SetFlag(1285, 1);
+      ScrWork[2112] = 0;
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction AutoSave(type: QuickSave)\n");
       break;
     case 1:  // AutoSaveRestart (?)
+      if (ScrWork[SW_TITLE] == 0xffff) break;
+      SaveSystem::SaveMemory();
+      if ((ScrWork[2112] != 3)) {
+        // TODO: Quicksave(3)
+      }
+      SetFlag(1285, 1);
+      ScrWork[2112] = 0;
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction AutoSave(type: %i)\n",
                  type);
       break;
     case 3:  // DisableAutoSave
+      // Check quicksave, quicksave(0)
+      SetFlag(1285, 0);
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction AutoSave(type: %i)\n",
                  type);
       break;
     case 5:  // EnableAutoSave
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction AutoSave(type: %i)\n",
                  type);
+      if (ScrWork[SW_TITLE] != 0xffff) {
+        SaveSystem::SaveMemory();
+        SetFlag(1285, 1);
+        ScrWork[2112] = 0;
+      }
       break;
     case 10: {  // SetCheckpointId
       if (Profile::Vm::UseReturnIds) {
         PopUint16(checkpointId);
+        SaveSystem::SetCheckpointId(checkpointId);
         ImpLogSlow(LL_Warning, LC_VMStub,
                    "STUB instruction AutoSave(type: %i, checkpointId: %i)\n",
                    type, checkpointId);
@@ -652,8 +689,15 @@ VmInstruction(InstAutoSave) {
     } break;
     case 2:
     case 4:
+    case 6:
+    case 7:
+    case 8:
+    case 9:
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction AutoSave(arg1: %i)\n",
                  type);
+      break;
+    default:
+      // More quicksave cases here
       break;
   }
 }
