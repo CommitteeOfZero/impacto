@@ -26,7 +26,7 @@ void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
       ScrWork[SW_SAVEMENUMODE] == SaveMenuPageType::QuickLoad
           ? SaveSystem::SaveType::SaveQuick
           : SaveSystem::SaveType::SaveFull;
-  int SaveStatus = SaveSystem::GetSaveSatus(saveType, target->Id);
+  int SaveStatus = SaveSystem::GetSaveStatus(saveType, target->Id);
   if (SaveStatus == 1 || ScrWork[SW_SAVEMENUMODE] == 1) {
     ScrWork[SW_SAVEFILENO] = target->Id;
     ChoiceMade = true;

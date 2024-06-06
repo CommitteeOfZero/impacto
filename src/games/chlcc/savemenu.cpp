@@ -25,7 +25,7 @@ using namespace Impacto::UI::Widgets::CHLCC;
 Widget* EntryGrid[EntriesPerPage];
 
 void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
-  if ((SaveSystem::GetSaveSatus(EntryType, target->Id) != 0) ||
+  if ((SaveSystem::GetSaveStatus(EntryType, target->Id) != 0) ||
       ScrWork[SW_SAVEMENUMODE] == 1) {
     ScrWork[SW_SAVEFILENO] = target->Id;
     ChoiceMade = true;
@@ -199,7 +199,7 @@ void SaveMenu::UpdateEntry(SaveEntryButton* saveEntryButton) {
                                       EntryNumberTextRelativePos);
   saveEntryButton->AddThumbnail(EmptyThumbnailSprite,
                                 EntryPositions[idx % 6] + ThumbnailRelativePos);
-  if (SaveSystem::GetSaveSatus(EntryType, idx) != 0) {
+  if (SaveSystem::GetSaveStatus(EntryType, idx) != 0) {
     saveEntryButton->EntryActive = true;
     saveEntryButton->AddSceneTitleText(
         Vm::ScriptGetTextTableStrAddress(

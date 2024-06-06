@@ -63,7 +63,7 @@ void SaveEntryButton::Render() {
         glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
   }
   ThumbnailLabel.Render();
-  uint8_t saveStatus = SaveSystem::GetSaveSatus(Type, Id);
+  uint8_t saveStatus = SaveSystem::GetSaveStatus(Type, Id);
   if (saveStatus == 1) {
     if (IsLocked) {
       LockedSymbol.Render();

@@ -70,7 +70,7 @@ class SaveSystemBase {
   virtual uint32_t GetSavePlayTime(SaveType type, int id) = 0;
   virtual uint8_t GetSaveFlags(SaveType type, int id) = 0;
   virtual tm GetSaveDate(SaveType type, int id) = 0;
-  virtual uint8_t GetSaveSatus(SaveType type, int id) = 0;
+  virtual uint8_t GetSaveStatus(SaveType type, int id) = 0;
   virtual int GetSaveTitle(SaveType type, int id) = 0;
   virtual uint32_t GetTipStatus(int tipId) = 0;
   virtual void SetTipStatus(int tipId, bool isLocked, bool isUnread,
@@ -100,7 +100,7 @@ void WriteSaveFile();
 uint32_t GetSavePlayTime(SaveType type, int id);
 uint8_t GetSaveFlags(SaveType type, int id);
 tm GetSaveDate(SaveType type, int id);
-uint8_t GetSaveSatus(SaveType type, int id);
+uint8_t GetSaveStatus(SaveType type, int id);
 int GetSaveTitle(SaveType type, int id);
 uint32_t GetTipStatus(int tipId);
 void SetTipStatus(int tipId, bool isLocked, bool isUnread, bool isNew);

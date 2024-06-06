@@ -59,8 +59,8 @@ tm GetSaveDate(SaveType type, int id) {
   return *gmtime(0);
 }
 
-uint8_t GetSaveSatus(SaveType type, int id) {
-  if (Implementation) return Implementation->GetSaveSatus(type, id);
+uint8_t GetSaveStatus(SaveType type, int id) {
+  if (Implementation) return Implementation->GetSaveStatus(type, id);
   ImpLog(LL_Warning, LC_VMStub,
          "%s: save system not implemented, returning 0\n", __func__);
   return 0;

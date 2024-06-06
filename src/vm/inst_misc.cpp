@@ -334,7 +334,7 @@ VmInstruction(InstSaveMenu) {
                 : SaveSystem::SaveType::SaveFull;
 
         ScrWork[SW_SAVEFILESTATUS] =
-            SaveSystem::GetSaveSatus(saveType, ScrWork[SW_SAVEFILENO]);
+            SaveSystem::GetSaveStatus(saveType, ScrWork[SW_SAVEFILENO]);
       }
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SaveMenu(type: SaveMenuMain)\n");
@@ -386,7 +386,7 @@ VmInstruction(InstSaveMenuOld) {
       } else {
         UI::SaveMenuPtr->ChoiceMade = false;
         Interface::PADinputButtonWentDown |= Interface::PAD1A;
-        ScrWork[SW_SAVEFILESTATUS] = SaveSystem::GetSaveSatus(
+        ScrWork[SW_SAVEFILESTATUS] = SaveSystem::GetSaveStatus(
             SaveSystem::SaveType::SaveFull, ScrWork[SW_SAVEFILENO]);
       }
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SaveMenu(type: %i)\n",

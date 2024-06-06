@@ -415,12 +415,16 @@ void SaveSystem::LoadMemory(SaveType type, int id) {
     }
 }
 
-uint8_t SaveSystem::GetSaveSatus(SaveType type, int id) {
+uint8_t SaveSystem::GetSaveStatus(SaveType type, int id) {
   switch (type) {
     case SaveQuick:
-      return ((SaveFileEntry*)QuickSaveEntries[id])->Status;
+      return QuickSaveEntries[id] != nullptr
+                 ? ((SaveFileEntry*)QuickSaveEntries[id])->Status
+                 : 0;
     case SaveFull:
-      return ((SaveFileEntry*)FullSaveEntries[id])->Status;
+      return FullSaveEntries[id] != nullptr
+                 ? ((SaveFileEntry*)FullSaveEntries[id])->Status
+                 : 0;
     default:
       ImpLog(LL_Error, LC_IO,
              "Failed to get save status: unknown save type, returning 0\n");
