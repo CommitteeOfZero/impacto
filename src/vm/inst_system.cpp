@@ -224,9 +224,6 @@ VmInstruction(InstSave) {
     case 3:
       break;
     case 4: {
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
-        LoadSaveFile();
-      }
     } break;
     case 32: {
       if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW ||
@@ -249,6 +246,10 @@ VmInstruction(InstSave) {
                                         ScrWork[SW_SAVEFILENO]);
       SaveSystem::WriteSaveFile();
       break;
+    case 70:
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
+        LoadSaveFile();
+      }
     default:
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Save(type: %i)\n",
                  type);
@@ -550,8 +551,7 @@ VmInstruction(InstMSinit) {
     Profile::DelusionTrigger::CreateInstance();
   }
 
-  if (initType == 2 &&
-      Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW) {
+  if (initType == 2) {
     UI::BacklogMenuPtr->Clear();
     memset(&FlagWork, 0, 100);
     memset(&FlagWork[150], 0, 75);
