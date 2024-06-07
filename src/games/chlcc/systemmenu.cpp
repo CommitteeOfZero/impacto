@@ -87,6 +87,9 @@ void SystemMenu::Update(float dt) {
   MainItems->UpdateInput();
   if (ScrWork[SW_SYSMENUCT] < 10000 && State == Shown) {
     Hide();
+  } else if (GetFlag(SF_SYSTEMMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
+             State == Hidden) {
+    Show();
   }
 
   if (MenuTransition.IsOut() && State == Hiding) {

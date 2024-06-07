@@ -556,6 +556,18 @@ VmInstruction(InstMSinit) {
     memset(&FlagWork, 0, 100);
     memset(&FlagWork[150], 0, 75);
     memset(&FlagWork[300], 0, 100);
+
+    if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW ||
+        Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
+      std::fill(ScrWork, ScrWork + 600, 0);
+      std::fill(ScrWork + 1000, ScrWork + 1700, 0);
+      std::fill(ScrWork + 2300, ScrWork + 2320, 0);
+      std::fill(ScrWork + 2328, ScrWork + 3600, 0);
+    } else {
+      std::fill(ScrWork, ScrWork + 1600, 0);
+      std::fill(ScrWork + 2100, ScrWork + 3300, 0);
+      std::fill(ScrWork + 4347, ScrWork + 7300, 0);
+    }
   }
 
   for (int i = 0; i < MaxBackgrounds2D; i++) {
