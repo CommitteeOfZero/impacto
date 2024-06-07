@@ -327,14 +327,6 @@ VmInstruction(InstSaveMenu) {
       } else {
         UI::SaveMenuPtr->ChoiceMade = false;
         Interface::PADinputButtonWentDown |= Interface::PAD1A;
-        Impacto::SaveSystem::SaveType saveType =
-            ScrWork[SW_SAVEMENUMODE] ==
-                    Profile::CCLCC::SaveMenu::SaveMenuPageType::QuickLoad
-                ? SaveSystem::SaveType::SaveQuick
-                : SaveSystem::SaveType::SaveFull;
-
-        ScrWork[SW_SAVEFILESTATUS] =
-            SaveSystem::GetSaveStatus(saveType, ScrWork[SW_SAVEFILENO]);
       }
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SaveMenu(type: SaveMenuMain)\n");

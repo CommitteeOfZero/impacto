@@ -27,10 +27,15 @@ void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
           ? SaveSystem::SaveType::SaveQuick
           : SaveSystem::SaveType::SaveFull;
   int SaveStatus = SaveSystem::GetSaveStatus(saveType, target->Id);
-  if (SaveStatus == 1 || ScrWork[SW_SAVEMENUMODE] == 1) {
+  if (SaveStatus == 1 || ScrWork[SW_SAVEMENUMODE] == SaveMenuPageType::Save) {
     ScrWork[SW_SAVEFILENO] = target->Id;
+    ScrWork[SW_SAVEFILETYPE] = saveType;
+    ScrWork[SW_SAVEFILESTATUS] =
+        SaveSystem::GetSaveStatus(saveType, ScrWork[SW_SAVEFILENO]);
+
     ChoiceMade = true;
-    SetFlag(1245, target->IsLocked);
+    SetFlag(1245,
+            SaveSystem::GetSaveFlags(saveType, ScrWork[SW_SAVEFILENO]) & 1);
   }
 }
 
