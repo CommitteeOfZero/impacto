@@ -52,16 +52,16 @@ void SaveEntryButton::Render() {
         HighlightSprite,
         glm::vec2(Bounds.X + HighlightOffset.x, Bounds.Y + HighlightOffset.y),
         Tint, glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
-
-    Renderer->DrawSprite(
-        NumberDigitSprite[ScrWork[SW_SAVEMENUMODE]][(Id + 1) / 10],
-        glm::vec2(Bounds.X + 20 + 668 + 32 + 1, Bounds.Y + 20 + 99 + 1), Tint,
-        glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
-    Renderer->DrawSprite(
-        NumberDigitSprite[ScrWork[SW_SAVEMENUMODE]][(Id + 1) % 10],
-        glm::vec2(Bounds.X + 20 + 668 + 64 + 1, Bounds.Y + 20 + 99 + 1), Tint,
-        glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
   }
+
+  Renderer->DrawSprite(
+      NumberDigitSprite[ScrWork[SW_SAVEMENUMODE]][(Id + 1) / 10],
+      glm::vec2(Bounds.X + 20 + 668 + 32 + 1, Bounds.Y + 20 + 99 + 1), Tint,
+      glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
+  Renderer->DrawSprite(
+      NumberDigitSprite[ScrWork[SW_SAVEMENUMODE]][(Id + 1) % 10],
+      glm::vec2(Bounds.X + 20 + 668 + 64 + 1, Bounds.Y + 20 + 99 + 1), Tint,
+      glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
   ThumbnailLabel.Render();
   uint8_t saveStatus = SaveSystem::GetSaveStatus(Type, Id);
   if (saveStatus == 1) {
