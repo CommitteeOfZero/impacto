@@ -24,53 +24,52 @@ int YesNoTrigger::Load(uint8_t *data) {
     return dataSize;
   }
   dataSize += 4;
-  memcpy(&YesNoTriggerPtr->BgType, data + dataSize, sizeof(BGType));
+  memcpy(&BgType, data + dataSize, sizeof(BGType));
   dataSize += 12;
-  YesNoTriggerPtr->Display = data[dataSize++];
-  YesNoTriggerPtr->HasStarted = data[dataSize++];
-  YesNoTriggerPtr->DispSel = data[dataSize++];
-  YesNoTriggerPtr->AllowInput = data[dataSize++];
-  YesNoTriggerPtr->GoToNextQuestion = data[dataSize++];
+  Display = data[dataSize++];
+  HasStarted = data[dataSize++];
+  DispSel = data[dataSize++];
+  AllowInput = data[dataSize++];
+  GoToNextQuestion = data[dataSize++];
   dataSize += 3;
-  memcpy(&YesNoTriggerPtr->Selection, data + dataSize, sizeof(YesNoSelect));
+  memcpy(&Selection, data + dataSize, sizeof(YesNoSelect));
   dataSize += 4;
-  memcpy(&YesNoTriggerPtr->StarAngle, data + dataSize, sizeof(int));
+  memcpy(&StarAngle, data + dataSize, sizeof(int));
   dataSize += 4;
   float bgSpritePosX, bgSpritePosY;
   memcpy(&bgSpritePosX, data + dataSize, sizeof(float));
   dataSize += 4;
   memcpy(&bgSpritePosY, data + dataSize, sizeof(float));
   dataSize += 4;
-  YesNoTriggerPtr->BgSpritePos = glm::vec2(bgSpritePosX, bgSpritePosY);
-  memcpy(&YesNoTriggerPtr->BgSpriteScale, data + dataSize, sizeof(float));
+  BgSpritePos = glm::vec2(bgSpritePosX, bgSpritePosY);
+  memcpy(&BgSpriteScale, data + dataSize, sizeof(float));
   dataSize += 16;
-  memcpy(&YesNoTriggerPtr->BgTransition, data + dataSize, sizeof(float));
+  memcpy(&BgTransition, data + dataSize, sizeof(float));
   dataSize += 4;
-  memcpy(&YesNoTriggerPtr->State, data + dataSize, sizeof(YesNoState));
+  memcpy(&State, data + dataSize, sizeof(YesNoState));
   dataSize += 8;
-  memcpy(&YesNoTriggerPtr->CurArrIndex, data + dataSize, sizeof(int));
+  memcpy(&CurArrIndex, data + dataSize, sizeof(int));
   dataSize += 4;
-  memcpy(&YesNoTriggerPtr->TargetArrIndex, data + dataSize, sizeof(int));
+  memcpy(&TargetArrIndex, data + dataSize, sizeof(int));
   dataSize += 12;
   assert(dataSize == 0x54);
-  if (YesNoTriggerPtr->State != YesNoState::None &&
-      YesNoTriggerPtr->State != YesNoState::Complete) {
-    switch (YesNoTriggerPtr->BgType) {
+  if (State != YesNoState::None && State != YesNoState::Complete) {
+    switch (BgType) {
       case BGType::BG0:
-        YesNoTriggerPtr->ActiveBackground = YesNoBackground0;
-        YesNoTriggerPtr->DispPosArr = YesNoData1;
+        ActiveBackground = YesNoBackground0;
+        DispPosArr = YesNoData1;
         break;
       case BGType::BG1:
-        YesNoTriggerPtr->ActiveBackground = YesNoBackground1;
-        YesNoTriggerPtr->DispPosArr = YesNoData1;
+        ActiveBackground = YesNoBackground1;
+        DispPosArr = YesNoData1;
         break;
       case BGType::BG2:
-        YesNoTriggerPtr->ActiveBackground = YesNoBackground2;
-        YesNoTriggerPtr->DispPosArr = YesNoData2;
+        ActiveBackground = YesNoBackground2;
+        DispPosArr = YesNoData2;
         break;
       case BGType::BG3:
-        YesNoTriggerPtr->ActiveBackground = YesNoBackground3;
-        YesNoTriggerPtr->DispPosArr = YesNoData2;
+        ActiveBackground = YesNoBackground3;
+        DispPosArr = YesNoData2;
         break;
     }
   }
@@ -83,31 +82,31 @@ int YesNoTrigger::Save(uint8_t *data) {
     return dataSize;
   }
   dataSize += 4;
-  memcpy(data + dataSize, &YesNoTriggerPtr->BgType, sizeof(BGType));
+  memcpy(data + dataSize, &BgType, sizeof(BGType));
   dataSize += 12;
-  data[dataSize++] = YesNoTriggerPtr->Display;
-  data[dataSize++] = YesNoTriggerPtr->HasStarted;
-  data[dataSize++] = YesNoTriggerPtr->DispSel;
-  data[dataSize++] = YesNoTriggerPtr->AllowInput;
-  data[dataSize++] = YesNoTriggerPtr->GoToNextQuestion;
+  data[dataSize++] = Display;
+  data[dataSize++] = HasStarted;
+  data[dataSize++] = DispSel;
+  data[dataSize++] = AllowInput;
+  data[dataSize++] = GoToNextQuestion;
   dataSize += 3;
-  memcpy(data + dataSize, &YesNoTriggerPtr->Selection, sizeof(YesNoSelect));
+  memcpy(data + dataSize, &Selection, sizeof(YesNoSelect));
   dataSize += 4;
-  memcpy(data + dataSize, &YesNoTriggerPtr->StarAngle, sizeof(int));
+  memcpy(data + dataSize, &StarAngle, sizeof(int));
   dataSize += 4;
-  memcpy(data + dataSize, &YesNoTriggerPtr->BgSpritePos.x, sizeof(float));
+  memcpy(data + dataSize, &BgSpritePos.x, sizeof(float));
   dataSize += 4;
-  memcpy(data + dataSize, &YesNoTriggerPtr->BgSpritePos.y, sizeof(float));
+  memcpy(data + dataSize, &BgSpritePos.y, sizeof(float));
   dataSize += 4;
-  memcpy(data + dataSize, &YesNoTriggerPtr->BgSpriteScale, sizeof(float));
+  memcpy(data + dataSize, &BgSpriteScale, sizeof(float));
   dataSize += 16;
-  memcpy(data + dataSize, &YesNoTriggerPtr->BgTransition, sizeof(float));
+  memcpy(data + dataSize, &BgTransition, sizeof(float));
   dataSize += 4;
-  memcpy(data + dataSize, &YesNoTriggerPtr->State, sizeof(YesNoState));
+  memcpy(data + dataSize, &State, sizeof(YesNoState));
   dataSize += 8;
-  memcpy(data + dataSize, &YesNoTriggerPtr->CurArrIndex, sizeof(int));
+  memcpy(data + dataSize, &CurArrIndex, sizeof(int));
   dataSize += 4;
-  memcpy(data + dataSize, &YesNoTriggerPtr->TargetArrIndex, sizeof(int));
+  memcpy(data + dataSize, &TargetArrIndex, sizeof(int));
   dataSize += 12;
   assert(dataSize == 0x54);
   return dataSize;
