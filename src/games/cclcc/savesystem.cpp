@@ -75,7 +75,7 @@ SaveError SaveSystem::MountSaveFile() {
     int64_t saveDataPos = stream->Position;
     for (int i = 0; i < MaxSaveEntries; i++) {
       int64_t startPos = stream->Position;
-      assert(startPos - saveDataPos == 0xd888 * i);
+      assert(startPos - saveDataPos == 0x1b110 * i);
       entryArray[i] = new SaveFileEntry();
 
       entryArray[i]->Status = Io::ReadLE<uint16_t>(stream);
@@ -146,7 +146,7 @@ SaveError SaveSystem::MountSaveFile() {
                                stream, 0x6ac8);
       Io::ReadArrayLE<uint8_t>(((SaveFileEntry*)entryArray[i])->YesNoData,
                                stream, 0x54);
-      stream->Seek(11948, SEEK_CUR);
+      stream->Seek(67380, SEEK_CUR);
     }
   }
   delete stream;
@@ -194,10 +194,10 @@ void SaveSystem::WriteSaveFile() {
     for (int i = 0; i < MaxSaveEntries; i++) {
       SaveFileEntry* entry = (SaveFileEntry*)entryArray[i];
       if (entry->Status == 0) {
-        stream->Seek(0xD888, SEEK_CUR);
+        stream->Seek(0x1b110, SEEK_CUR);
       } else {
         int64_t startPos = stream->Position;
-        assert(startPos - saveDataPos == 0xd888 * i);
+        assert(startPos - saveDataPos == 0x1b110 * i);
         Io::WriteLE<uint16_t>(stream, entry->Status);
         Io::WriteLE<uint16_t>(stream, entry->Checksum);
         Io::WriteLE<uint32_t>(stream, 0);
@@ -252,7 +252,7 @@ void SaveSystem::WriteSaveFile() {
         assert(stream->Position - startPos == 0x3ec0);
         Io::WriteArrayLE<uint8_t>(entry->MapLoadData, stream, 0x6ac8);
         Io::WriteArrayLE<uint8_t>(entry->YesNoData, stream, 0x54);
-        stream->Seek(11948, SEEK_CUR);
+        stream->Seek(67380, SEEK_CUR);
       }
     }
   }
