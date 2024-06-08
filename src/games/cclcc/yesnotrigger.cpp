@@ -47,12 +47,16 @@ int YesNoTrigger::Load(uint8_t *data) {
   memcpy(&BgTransition, data + dataSize, sizeof(float));
   dataSize += 4;
   memcpy(&State, data + dataSize, sizeof(YesNoState));
-  dataSize += 8;
+  dataSize += 4;
+  // PS4 has 64-bit pointers, vita has 32-bit pointers...
+  dataSize += sizeof(DispPosArr);
   memcpy(&CurArrIndex, data + dataSize, sizeof(int));
   dataSize += 4;
   memcpy(&TargetArrIndex, data + dataSize, sizeof(int));
-  dataSize += 12;
-  assert(dataSize == 0x54);
+  dataSize += 4;
+  dataSize += sizeof(void *);  // buffer pointer in their struct
+  dataSize += 8;
+  assert(dataSize == 0x60);
   if (State != YesNoState::None && State != YesNoState::Complete) {
     switch (BgType) {
       case BGType::BG0:
@@ -103,12 +107,16 @@ int YesNoTrigger::Save(uint8_t *data) {
   memcpy(data + dataSize, &BgTransition, sizeof(float));
   dataSize += 4;
   memcpy(data + dataSize, &State, sizeof(YesNoState));
-  dataSize += 8;
+  dataSize += 4;
+  dataSize += sizeof(DispPosArr);
   memcpy(data + dataSize, &CurArrIndex, sizeof(int));
   dataSize += 4;
   memcpy(data + dataSize, &TargetArrIndex, sizeof(int));
-  dataSize += 12;
-  assert(dataSize == 0x54);
+  dataSize += 4;
+  dataSize += sizeof(void *);  // buffer pointer in their struct
+  dataSize += 8;
+
+  assert(dataSize == 0x60);
   return dataSize;
 }
 
