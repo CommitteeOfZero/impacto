@@ -475,17 +475,17 @@ void RunThread(Sc3VmThread* thread) {
   BlockCurrentScriptThread = 0;
   do {
 #ifndef IMPACTO_DISABLE_IMGUI
-    if (DebugThreadId == thread->Id) {
-      auto scriptIp = thread->Ip - ScriptBuffers[thread->ScriptBufferId];
-      for (const auto& breakpoint : DebuggerBreakpoints) {
-        uint32_t currentScriptId = LoadedScriptMetas[thread->ScriptBufferId].Id;
-        if (currentScriptId == breakpoint.second.first &&
-            scriptIp == breakpoint.second.second && !DebuggerStepRequest &&
-            !DebuggerContinueRequest) {
-          DebuggerBreak = true;
-          return;
-        }
+    auto scriptIp = thread->Ip - ScriptBuffers[thread->ScriptBufferId];
+    for (const auto& breakpoint : DebuggerBreakpoints) {
+      uint32_t currentScriptId = LoadedScriptMetas[thread->ScriptBufferId].Id;
+      if (currentScriptId == breakpoint.second.first &&
+          scriptIp == breakpoint.second.second && !DebuggerStepRequest &&
+          !DebuggerContinueRequest) {
+        DebuggerBreak = true;
+        return;
       }
+    }
+    if (DebugThreadId == thread->Id) {
       DebuggerStepRequest = false;
       if (DebuggerContinueRequest) {
         DebuggerContinueRequest = false;
