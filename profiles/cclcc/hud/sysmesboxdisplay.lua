@@ -40,10 +40,10 @@ root.SysMesBoxDisplay = {
 root.Sprites[name .. "ButtonYes"] = {
     Sheet = sheet,
     Bounds = {
-        X = 640,
-        Y = 1229,
-        Width = 232,
-        Height = 298
+        X = 672,
+        Y = 1153,
+        Width = 354,
+        Height = 376
     }
 };
 root.SysMesBoxDisplay.ButtonYes = name .. "ButtonYes";
@@ -51,10 +51,10 @@ root.SysMesBoxDisplay.ButtonYes = name .. "ButtonYes";
 root.Sprites[name .. "ButtonNo"] = {
     Sheet = sheet,
     Bounds = {
-        X = 1109,
-        Y = 1124,
-        Width = 244,
-        Height = 200
+        X = 1440,
+        Y = 1249,
+        Width = 256,
+        Height = 280
     }
 };
 root.SysMesBoxDisplay.ButtonNo = name .. "ButtonNo";
@@ -73,10 +73,10 @@ root.SysMesBoxDisplay.ButtonOK = name .. "ButtonOK";
 root.Sprites[name .. "ButtonYesHighlighted"] = {
     Sheet = sheet,
     Bounds = {
-        X = 874,
-        Y = 1229,
-        Width = 232,
-        Height = 298
+        X = 1064,
+        Y = 1153,
+        Width = 354,
+        Height = 376
     }
 };
 root.SysMesBoxDisplay.ButtonYesHighlighted = name .. "ButtonYesHighlighted";
@@ -84,10 +84,10 @@ root.SysMesBoxDisplay.ButtonYesHighlighted = name .. "ButtonYesHighlighted";
 root.Sprites[name .. "ButtonNoHighlighted"] = {
     Sheet = sheet,
     Bounds = {
-        X = 1109,
-        Y = 1326,
-        Width = 244,
-        Height = 200
+        X = 1729,
+        Y = 1249,
+        Width = 256,
+        Height = 280
     }
 };
 root.SysMesBoxDisplay.ButtonNoHighlighted = name .. "ButtonNoHighlighted";
@@ -95,7 +95,7 @@ root.SysMesBoxDisplay.ButtonNoHighlighted = name .. "ButtonNoHighlighted";
 root.Sprites[name .. "ButtonOKHighlighted"] = {
     Sheet = sheet,
     Bounds = {
-        X = 320,
+        X = 348,
         Y = 1229,
         Width = 318,
         Height = 298
