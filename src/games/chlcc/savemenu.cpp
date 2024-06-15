@@ -225,8 +225,8 @@ void SaveMenu::UpdateEntry(SaveEntryButton* saveEntryButton) {
                                          18, RO_BottomRight,
                                          SaveDateHintTextRelativePos);
     std::stringstream dateStr;
-    dateStr << std::put_time(&SaveSystem::GetSaveDate(EntryType, idx),
-                             "  %y/%m/%d %H:%M:%S");
+    tm date = SaveSystem::GetSaveDate(EntryType, idx);
+    dateStr << std::put_time(&date, "  %y/%m/%d %H:%M:%S");
     saveEntryButton->AddSaveDateText(dateStr.str(), 18, RO_BottomRight,
                                      SaveDateTextRelativePos);
   } else {
