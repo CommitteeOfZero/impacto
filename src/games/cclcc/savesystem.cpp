@@ -42,9 +42,10 @@ SaveError SaveSystem::MountSaveFile() {
 
   Io::ReadArrayLE<uint8_t>(&FlagWork[100], stream, 50);
   Io::ReadArrayLE<uint8_t>(&FlagWork[460], stream, 40);
-  Io::ReadArrayLE<int>(&ScrWork[600], stream, 400);
+  Io::ReadArrayLE<int>(&ScrWork[1600], stream, 400);
+  Io::ReadArrayLE<int>(&ScrWork[2000], stream, 100);
 
-  stream->Seek(0x7DA, SEEK_SET);
+  stream->Seek(0xC0E, SEEK_SET);
   for (int i = 0; i < 150; i++) {
     auto val = Io::ReadU8(stream);
     EVFlags[8 * i] = val & 1;
@@ -57,13 +58,15 @@ SaveError SaveSystem::MountSaveFile() {
     EVFlags[8 * i + 7] = val >> 7;
   }
 
-  stream->Seek(0xbc2, SEEK_SET);
+  stream->Seek(0xCA4, SEEK_SET);
   Io::ReadArrayLE<uint8_t>(BGMFlags, stream, 100);
 
-  stream->Seek(0xc26, SEEK_SET);
+  stream->Seek(0xd6c, SEEK_SET);
   Io::ReadArrayLE<uint8_t>(MessageFlags, stream, 10000);
 
-  stream->Seek(0x358E, SEEK_SET);
+  // EPnewList goes here
+
+  stream->Seek(0x347c, SEEK_SET);
   Io::ReadArrayLE<uint8_t>(GameExtraData, stream, 1024);
 
   stream->Seek(0x387c, SEEK_SET);  // TODO: Actually load system data
@@ -182,6 +185,37 @@ void SaveSystem::WriteSaveFile() {
     ImpLog(LL_Error, LC_IO, "Failed to open save file for writing\n");
     return;
   }
+
+  stream->Seek(0x14, SEEK_SET);
+
+  Io::WriteArrayLE<uint8_t>(&FlagWork[100], stream, 50);
+  Io::WriteArrayLE<uint8_t>(&FlagWork[460], stream, 40);
+  Io::WriteArrayLE<int>(&ScrWork[1600], stream, 400);
+  Io::WriteArrayLE<int>(&ScrWork[2000], stream, 100);
+
+  stream->Seek(0xC0E, SEEK_SET);
+  for (int i = 0; i < 150; i++) {
+    auto val = Io::ReadU8(stream);
+    EVFlags[8 * i] = val & 1;
+    EVFlags[8 * i + 1] = (val & 2) != 0;
+    EVFlags[8 * i + 2] = (val & 4) != 0;
+    EVFlags[8 * i + 3] = (val & 8) != 0;
+    EVFlags[8 * i + 4] = (val & 0x10) != 0;
+    EVFlags[8 * i + 5] = (val & 0x20) != 0;
+    EVFlags[8 * i + 6] = (val & 0x40) != 0;
+    EVFlags[8 * i + 7] = val >> 7;
+  }
+
+  stream->Seek(0xCA4, SEEK_SET);
+  Io::WriteArrayLE<uint8_t>(BGMFlags, stream, 100);
+
+  stream->Seek(0xd6c, SEEK_SET);
+  Io::WriteArrayLE<uint8_t>(MessageFlags, stream, 10000);
+
+  // EPnewList goes here
+
+  stream->Seek(0x347c, SEEK_SET);
+  Io::WriteArrayLE<uint8_t>(GameExtraData, stream, 1024);
 
   stream->Seek(0x387c, SEEK_SET);  // TODO: Actually save system data
 
