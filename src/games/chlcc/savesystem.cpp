@@ -405,6 +405,16 @@ void SaveSystem::LoadMemory(SaveType type, int id) {
       ScrWork[2066] = ScrWork[3235];
       ScrWork[2067] = ScrWork[3236];
 
+      if (ScrWork[SW_SVSCRNO1] != 65535) LoadScript(2, ScrWork[SW_SVSCRNO1]);
+      if (ScrWork[SW_SVSCRNO2] != 65535) LoadScript(3, ScrWork[SW_SVSCRNO2]);
+      if (ScrWork[SW_SVSCRNO3] != 65535) LoadScript(4, ScrWork[SW_SVSCRNO3]);
+      if (ScrWork[SW_SVSCRNO4] != 65535) LoadScript(5, ScrWork[SW_SVSCRNO4]);
+
+      ScrWork[SW_SVSCRNO1] = 65535;
+      ScrWork[SW_SVSCRNO2] = 65535;
+      ScrWork[SW_SVSCRNO3] = 65535;
+      ScrWork[SW_SVSCRNO4] = 65535;
+
       int threadId = ScrWork[SW_MAINTHDP];
       Sc3VmThread* thd = &ThreadPool[threadId & 0x7FFFFFFF];
       if (thd != 0 &&
@@ -414,13 +424,10 @@ void SaveSystem::LoadMemory(SaveType type, int id) {
         thd->ScriptParam = entry->MainThreadScriptParam;
         thd->GroupId = entry->MainThreadGroupId >> 16;
         thd->ScriptBufferId = entry->MainThreadGroupId & 0xFFFF;
-        LoadScript(thd->ScriptBufferId, ScrWork[2004 + thd->ScriptBufferId]);
         thd->Ip = ScriptBuffers[thd->ScriptBufferId] + entry->MainThreadIp;
         thd->CallStackDepth = entry->MainThreadCallStackDepth;
 
         for (int i = 0; i < thd->CallStackDepth; i++) {
-          LoadScript(entry->MainThreadReturnBufIds[i],
-                     ScrWork[2004 + entry->MainThreadReturnBufIds[i]]);
           thd->ReturnScriptBufferIds[i] = entry->MainThreadReturnBufIds[i];
           thd->ReturnAddresses[i] =
               ScriptBuffers[entry->MainThreadReturnBufIds[i]] +
