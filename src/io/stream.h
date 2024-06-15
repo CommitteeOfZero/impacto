@@ -230,7 +230,7 @@ template <typename T>
 inline void WriteArraySwap(T* src, Stream* stream, int count) {
   std::vector<T> swapped(src, src + count);
   for (int i = 0; i < count; i++) swapped[i] = SwapHelper(src[i]);
-  WriteArrayWithoutSwap<T>(src, stream, count);
+  WriteArrayWithoutSwap<T>(swapped.data(), stream, count);
 }
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
