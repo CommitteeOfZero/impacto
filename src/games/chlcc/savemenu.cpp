@@ -1,5 +1,8 @@
 #include "savemenu.h"
 
+#include <iomanip>
+#include <sstream>
+
 #include "../../profile/ui/savemenu.h"
 #include "../../profile/games/chlcc/savemenu.h"
 #include "../../renderer/renderer.h"
@@ -221,11 +224,10 @@ void SaveMenu::UpdateEntry(SaveEntryButton* saveEntryButton) {
     saveEntryButton->AddSaveDateHintText(Vm::ScriptGetTextTableStrAddress(0, 3),
                                          18, RO_BottomRight,
                                          SaveDateHintTextRelativePos);
-    tm date = SaveSystem::GetSaveDate(EntryType, idx);
-    char tempDate[20];
-    sprintf(tempDate, "%4d/%2d/%2d %02d:%02d:%02d", date.tm_year, date.tm_mon,
-            date.tm_mday, date.tm_hour, date.tm_min, date.tm_sec);
-    saveEntryButton->AddSaveDateText(std::string(tempDate), 18, RO_BottomRight,
+    std::stringstream dateStr;
+    dateStr << std::put_time(&SaveSystem::GetSaveDate(EntryType, idx),
+                             "  %y/%m/%d %H:%M:%S");
+    saveEntryButton->AddSaveDateText(dateStr.str(), 18, RO_BottomRight,
                                      SaveDateTextRelativePos);
   } else {
     saveEntryButton->AddSceneTitleText(

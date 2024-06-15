@@ -68,10 +68,7 @@ SaveError SaveSystem::MountSaveFile() {
 
   stream->Seek(0x387c, SEEK_SET);  // TODO: Actually load system data
 
-  Impacto::SaveSystem::SaveFileEntryBase** entryTypes[] = {FullSaveEntries,
-                                                           QuickSaveEntries};
-
-  for (auto& entryArray : entryTypes) {
+  for (auto& entryArray : {FullSaveEntries, QuickSaveEntries}) {
     int64_t saveDataPos = stream->Position;
     for (int i = 0; i < MaxSaveEntries; i++) {
       int64_t startPos = stream->Position;
@@ -188,8 +185,7 @@ void SaveSystem::WriteSaveFile() {
 
   stream->Seek(0x387c, SEEK_SET);  // TODO: Actually save system data
 
-  SaveFileEntryBase** entryTypes[] = {FullSaveEntries, QuickSaveEntries};
-  for (auto* entryArray : entryTypes) {
+  for (auto* entryArray : {FullSaveEntries, QuickSaveEntries}) {
     int64_t saveDataPos = stream->Position;
     for (int i = 0; i < MaxSaveEntries; i++) {
       SaveFileEntry* entry = (SaveFileEntry*)entryArray[i];
