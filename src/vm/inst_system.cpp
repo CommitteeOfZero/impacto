@@ -542,6 +542,17 @@ VmInstruction(InstMSinit) {
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MSinit(initType: %i)\n",
              initType);
   SaveSystem::SetCheckpointId(0xffff);
+  if (initType == 0) {
+    if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW ||
+        Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
+      memset(&FlagWork, 0, 500);
+      memset(&ScrWork, 0, 24000);
+    } else if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
+      memset(&FlagWork, 0, 1000);
+      memset(&ScrWork, 0, 32000);
+    }
+  }
+
   if (initType == 5) {
     UI::BacklogMenuPtr->Clear();
   }
