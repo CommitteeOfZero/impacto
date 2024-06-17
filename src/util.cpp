@@ -15,49 +15,6 @@ glm::mat2 Rotate2D(float angle) {
   return result;
 }
 
-RectF::RectF() {}
-RectF::RectF(float x, float y, float width, float height)
-    : X(x), Y(y), Width(width), Height(height) {}
-RectF::RectF(Rect const& rect)
-    : RectF((float)rect.X, (float)rect.Y, (float)rect.Width,
-            (float)rect.Height) {}
-
-glm::vec2 RectF::Center() const {
-  return glm::vec2(X + Width / 2.0f, Y + Height / 2.0f);
-}
-bool RectF::ContainsPoint(glm::vec2 point, float angle) const {
-  point -= Center();
-  if (angle != 0.0f) {
-    point = Rotate2D(-angle) * point;
-  }
-
-  return point.x >= -Width / 2.0f && point.x <= Width / 2.0f &&
-         point.y >= -Height / 2.0f && point.y <= Height / 2.0f;
-}
-
-bool RectF::Intersects(RectF const& rect) const {
-  return (X <= rect.X + rect.Width && rect.X <= X + Width &&
-          Y <= rect.Y + rect.Height && rect.Y <= Y + Height);
-}
-
-Rect::Rect() {}
-Rect::Rect(int x, int y, int width, int height)
-    : X(x), Y(y), Width(width), Height(height) {}
-Rect::Rect(RectF const& rect)
-    : Rect((int)rect.X, (int)rect.Y, (int)rect.Width, (int)rect.Height) {}
-
-glm::ivec2 Rect::Center() const {
-  return glm::ivec2(X + Width / 2, Y + Height / 2);
-}
-bool Rect::ContainsPoint(glm::ivec2 point, float angle) const {
-  point -= Center();
-  if (angle != 0.0f) {
-    point = (glm::ivec2)(Rotate2D(-angle) * (glm::vec2)point);
-  }
-  return point.x >= -Width / 2 && point.x <= Width / 2 &&
-         point.y >= -Height / 2 && point.y <= Height / 2;
-}
-
 glm::vec2 DesignToNDC(glm::vec2 xy) {
   glm::vec2 result;
   result.x = (xy.x / (Profile::DesignWidth * 0.5f)) - 1.0f;
@@ -79,15 +36,6 @@ RectF DesignToNDC(RectF const& rect) {
   result.Y = xy.y;
   result.Width = rect.Width / (Profile::DesignWidth * 0.5f);
   result.Height = rect.Height / (Profile::DesignHeight * 0.5f);
-  return result;
-}
-
-glm::vec4 RgbIntToFloat(uint32_t rgb) {
-  glm::vec4 result;
-  result.a = 1.0f;
-  result.r = (float)((rgb >> 16) & 0xFF) / 255.0f;
-  result.g = (float)((rgb >> 8) & 0xFF) / 255.0f;
-  result.b = (float)((rgb >> 0) & 0xFF) / 255.0f;
   return result;
 }
 
