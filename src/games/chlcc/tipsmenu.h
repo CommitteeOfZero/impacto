@@ -30,11 +30,11 @@ class TipsMenu : public UI::TipsMenu {
   void NextTipPage();
 
  private:
-  inline void DrawCircles();
-  inline void DrawErin();
-  inline void DrawRedBar();
-  inline void DrawTipsTree(float yOffset);
-  inline void DrawButtonPrompt();
+  void DrawCircles();
+  void DrawErin();
+  void DrawRedBar();
+  void DrawTipsTree(float yOffset);
+  void DrawButtonPrompt();
   void UpdateTitles();
 
   Animation MenuTransition;

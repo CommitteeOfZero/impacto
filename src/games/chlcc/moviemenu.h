@@ -24,11 +24,11 @@ class MovieMenu : public Menu {
  private:
   Widgets::Group* MovieItems;
 
-  inline void DrawCircles();
-  inline void DrawErin();
-  inline void DrawRedBar();
-  inline void DrawButtonPrompt();
-  inline void DrawSelectMovie(float yOffset);
+  void DrawCircles();
+  void DrawErin();
+  void DrawRedBar();
+  void DrawButtonPrompt();
+  void DrawSelectMovie(float yOffset);
   void UpdateTitles();
 
   void UpdateMovieEntries();

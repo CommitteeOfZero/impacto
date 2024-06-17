@@ -23,12 +23,12 @@ class AlbumMenu : public Menu {
  private:
   std::vector<Widgets::Group *> Pages;
 
-  inline void DrawCircles();
-  inline void DrawErin();
-  inline void DrawRedBar();
-  inline void DrawButtonGuide();
+  void DrawCircles();
+  void DrawErin();
+  void DrawRedBar();
+  void DrawButtonGuide();
 
-  inline void DrawPage(const glm::vec2 &offset);
+  void DrawPage(const glm::vec2 &offset);
 
   void UpdatePages();
   void UpdateTitles();

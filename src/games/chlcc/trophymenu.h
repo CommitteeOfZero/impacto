@@ -23,10 +23,10 @@ class TrophyMenu : public UI::Menu {
   void Render();
 
  private:
-  inline void DrawCircles();
-  inline void DrawErin();
-  inline void DrawRedBar();
-  inline void DrawButtonPrompt();
+  void DrawCircles();
+  void DrawErin();
+  void DrawRedBar();
+  void DrawButtonPrompt();
   void UpdateTitles();
 
   Animation MenuTransition;

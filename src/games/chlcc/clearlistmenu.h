@@ -19,17 +19,17 @@ class ClearListMenu : public Menu {
   void Render();
 
  private:
-  inline void DrawCircles();
-  inline void DrawErin();
-  inline void DrawRedBar();
+  void DrawCircles();
+  void DrawErin();
+  void DrawRedBar();
 
-  inline void DrawPlayTime(float yOffset);
-  inline void DrawEndingCount(float yOffset);
-  inline void DrawTIPSCount(float yOffset);
-  inline void DrawAlbumCompletion(float yOffset);
-  inline void DrawEndingTree(float yOffset);
+  void DrawPlayTime(float yOffset);
+  void DrawEndingCount(float yOffset);
+  void DrawTIPSCount(float yOffset);
+  void DrawAlbumCompletion(float yOffset);
+  void DrawEndingTree(float yOffset);
 
-  inline void DrawButtonPrompt();
+  void DrawButtonPrompt();
 
   void UpdateTitles();
 

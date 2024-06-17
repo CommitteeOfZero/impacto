@@ -20,8 +20,8 @@ class SystemMenu : public Menu {
   void MenuButtonOnClick(Widgets::Button* target);
 
  private:
-  inline void DrawCircles();
-  inline void DrawErin();
+  void DrawCircles();
+  void DrawErin();
   Widgets::Group* MainItems;
   Animation MenuTransition;
   Animation TitleFade;

@@ -32,7 +32,7 @@ class MusicMenu : public Menu {
   void UpdateMusicEntries();
   void UpdateMusicTimer();
   void SwitchToTrack(int id);
-  inline int GetNextTrackId(int id);
+  int GetNextTrackId(int id);
 
   Widgets::Group* MainItems;
   Widgets::Group* BackgroundItems;
