@@ -6,10 +6,10 @@ namespace Profile {
 namespace CCLCC {
 namespace MapSystem {
 
-static constexpr int MapPartsPhotoSpritesNumMax = 32;
-static constexpr int MapPartsArticleSpritesNumMax = 16;
-static constexpr int MapPartsPinSpritesNumMax = 12;
-static constexpr int MapPartsTagSpritesNumMax = 16;
+constexpr int MapPartsPhotoSpritesNumMax = 32;
+constexpr int MapPartsArticleSpritesNumMax = 16;
+constexpr int MapPartsPinSpritesNumMax = 12;
+constexpr int MapPartsTagSpritesNumMax = 16;
 
 extern Sprite MapBgSprite;
 extern Sprite MapButtonGuideSprite;
