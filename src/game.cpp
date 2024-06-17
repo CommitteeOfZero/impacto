@@ -162,6 +162,7 @@ void Shutdown() {
 }
 
 void UpdateGameState(float dt) {
+  static float UpdateSecondCounter = 0.0f;
   UpdateSecondCounter += dt;
   if (UpdateSecondCounter >= 1) {
     ScrWork[SW_PLAYTIME]++;
