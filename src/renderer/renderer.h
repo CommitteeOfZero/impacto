@@ -9,8 +9,8 @@
 
 namespace Impacto {
 
-extern GraphicsApi GraphicsApiHint;
-extern GraphicsApi ActualGraphicsApi;
+inline GraphicsApi GraphicsApiHint;
+inline GraphicsApi ActualGraphicsApi;
 
 enum RendererOutlineMode { RO_None, RO_BottomRight, RO_Full };
 
@@ -131,8 +131,8 @@ class BaseRenderer {
   IScene3D* Scene = 0;
 };
 
-extern BaseRenderer* Renderer;
-extern BaseWindow* Window;
+inline BaseRenderer* Renderer;
+inline BaseWindow* Window;
 
 void InitRenderer();
 

@@ -83,7 +83,7 @@ class FFmpegPlayer : public VideoPlayer {
   double GetTargetDelay(double duration);
   bool QueuesHaveEnoughPackets();
 
-  static int const FILESTREAMBUFFERSZ = 64 * 8192;
+  static int constexpr FILESTREAMBUFFERSZ = 64 * 8192;
   uint8_t* FileStreamBuffer;
   SDL_cond* ReadCond;
 

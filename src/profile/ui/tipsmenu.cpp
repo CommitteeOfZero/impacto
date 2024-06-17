@@ -12,13 +12,6 @@ namespace TipsMenu {
 
 using namespace Impacto::UI;
 
-TipsMenuType Type = TipsMenuType::None;
-
-Sprite BackgroundSprite;
-
-float FadeInDuration;
-float FadeOutDuration;
-
 void Configure() {
   if (TryPushMember("TipsMenu")) {
     AssertIs(LUA_TTABLE);

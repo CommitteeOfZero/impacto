@@ -11,11 +11,6 @@ namespace Profile {
 namespace CCLCC {
 namespace SystemMenu {
 
-Sprite MenuButtonGuide;
-float TitleFadeInDuration;
-float TitleFadeOutDuration;
-glm::vec2 MenuEntriesPositions[MenuEntriesNumMax];
-
 void Configure() {
   TitleFadeInDuration = EnsureGetMemberFloat("TitleFadeInDuration");
   TitleFadeOutDuration = EnsureGetMemberFloat("TitleFadeOutDuration");

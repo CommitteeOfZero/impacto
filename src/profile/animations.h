@@ -6,7 +6,7 @@
 namespace Impacto {
 namespace Profile {
 
-extern ska::flat_hash_map<std::string, SpriteAnimationDef> Animations;
+inline ska::flat_hash_map<std::string, SpriteAnimationDef> Animations;
 
 void LoadAnimations();
 

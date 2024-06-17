@@ -11,37 +11,6 @@ namespace Profile {
 namespace MO8 {
 namespace TitleMenu {
 
-Sprite BackgroundSprite;
-Sprite LogoSprite;
-
-float LogoPositionX;
-float LogoPositionY;
-
-int NewGameSpriteIndex;
-int ContinueSpriteIndex;
-int OptionSpriteIndex;
-int GallerySpriteIndex;
-int AlbumSpriteIndex;
-int MusicSpriteIndex;
-int ClearListSpriteIndex;
-int WarningSpriteIndex;
-int AdditionalSpriteIndex;
-int DLCSpriteIndex;
-int LoadSpriteIndex;
-int QuickLoadSpriteIndex;
-
-float MenuEntriesX;
-float MenuEntriesFirstY;
-float MenuEntriesGalleryFirstY;
-float MenuEntriesYPadding;
-
-bool PressToStartAnimated;
-bool HasAdditional;
-
-Animation PressToStartAnimation;
-float PrimaryFadeAnimDuration;
-float ItemFadeAnimDuration;
-
 void Configure() {
   BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
   LogoSprite = EnsureGetMemberSprite("LogoSprite");

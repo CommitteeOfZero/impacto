@@ -9,54 +9,6 @@ namespace Profile {
 namespace CHLCC {
 namespace MusicMenu {
 
-float MenuTransitionDuration;
-uint32_t BackgroundColor;
-Sprite CircleSprite;
-glm::vec2 CircleStartPosition;
-float CircleOffset;
-glm::vec2 ErinPosition;
-Sprite ErinSprite;
-Sprite BackgroundFilter;
-glm::vec2 InitialRedBarPosition;
-glm::vec2 RightRedBarPosition;
-Sprite InitialRedBarSprite;
-glm::vec2 RedBarPosition;
-float RedBarDivision;
-float RedBarBaseX;
-Sprite RedBarSprite;
-glm::vec2 RedBarLabelPosition;
-Sprite RedBarLabel;
-float TitleFadeInDuration;
-float TitleFadeOutDuration;
-Sprite TrackTree;
-glm::vec2 TrackTreePos;
-glm::vec2 TrackButtonPosTemplate;
-glm::vec2 TrackNameOffset;
-glm::vec2 ArtistOffset;
-glm::vec2 TrackOffset;
-Sprite TrackHighlight;
-glm::vec2 TrackNumRelativePos;
-glm::vec2 PlaymodeRepeatPos;
-glm::vec2 PlaymodeAllPos;
-Sprite PlaymodeRepeat;
-Sprite PlaymodeAll;
-Sprite PlaymodeRepeatHighlight;
-Sprite PlaymodeAllHighlight;
-Sprite NowPlaying;
-glm::vec2 NowPlayingPos;
-float NowPlayingAnimationDuration;
-glm::vec2 PlayingTrackOffset;
-glm::vec2 PlayingTrackArtistOffset;
-Sprite SoundLibraryTitle;
-glm::vec2 SoundLibraryTitleLeftPos;
-glm::vec2 SoundLibraryTitleRightPos;
-float SoundLibraryTitleAngle;
-Sprite HighlightStar;
-glm::vec2 HighlightStarRelativePos;
-int Playlist[MusicTrackCount];
-Sprite SelectSound[11];
-glm::vec2 SelectSoundPos[11];
-
 void Configure() {
   MenuTransitionDuration = EnsureGetMemberFloat("TransitionDuration");
   BackgroundColor = EnsureGetMemberUint("BackgroundColor");

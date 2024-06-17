@@ -7,19 +7,19 @@ namespace Impacto {
 namespace Profile {
 namespace BacklogMenu {
 
-extern Sprite BacklogBackground;
-extern Sprite EntryHighlight;
-extern Sprite VoiceIcon;
-extern Sprite ScrollbarTrack;
-extern Sprite ScrollbarThumb;
+inline Sprite BacklogBackground;
+inline Sprite EntryHighlight;
+inline Sprite VoiceIcon;
+inline Sprite ScrollbarTrack;
+inline Sprite ScrollbarThumb;
 
-extern float EntryYPadding;
-extern glm::vec2 EntriesStart;
-extern glm::vec2 ScrollbarPosition;
-extern RectF RenderingBounds;
+inline float EntryYPadding;
+inline glm::vec2 EntriesStart;
+inline glm::vec2 ScrollbarPosition;
+inline RectF RenderingBounds;
 
-extern float FadeInDuration;
-extern float FadeOutDuration;
+inline float FadeInDuration;
+inline float FadeOutDuration;
 
 void Configure();
 

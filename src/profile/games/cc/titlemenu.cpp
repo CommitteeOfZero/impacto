@@ -12,68 +12,6 @@ namespace Profile {
 namespace CC {
 namespace TitleMenu {
 
-Sprite BackgroundSprite;
-Sprite CopyrightSprite;
-Sprite FenceSprite;
-Sprite OverlaySprite;
-Sprite SmokeSprite;
-Sprite ItemHighlightSprite;
-Sprite ItemHighlightPointerSprite;
-Sprite LoadSprite;
-Sprite LoadHighlightSprite;
-Sprite QuickLoadSprite;
-Sprite QuickLoadHighlightSprite;
-Sprite TipsSprite;
-Sprite TipsHighlightSprite;
-Sprite LibrarySprite;
-Sprite LibraryHighlightSprite;
-Sprite EndingListSprite;
-Sprite EndingListHighlightSprite;
-Sprite MenuSprite;
-
-float PressToStartAnimFastDurationIn;
-float PressToStartAnimFastDurationOut;
-float BackgroundX;
-float BackgroundY;
-float BackgroundBoundsX;
-float BackgroundBoundsYNormal;
-float BackgroundBoundsYTrue;
-float BackgroundBoundsWidth;
-float BackgroundBoundsHeight;
-float FenceX;
-float FenceY;
-float FenceBoundsWidth;
-float FenceBoundsHeight;
-float FenceBoundsX;
-float FenceBoundsYNormal;
-float FenceBoundsYTrue;
-float CopyrightX;
-float CopyrightY;
-float CopyrightXMoveOffset;
-float SmokeOpacityNormal;
-float SmokeX;
-float SmokeY;
-float SmokeBoundsX;
-float SmokeBoundsY;
-float SmokeBoundsWidth;
-float SmokeBoundsHeight;
-float SmokeAnimationBoundsXOffset;
-float SmokeAnimationBoundsXMax;
-float SmokeAnimationDurationIn;
-float SmokeAnimationDurationOut;
-float MoveLeftAnimationDurationIn;
-float MoveLeftAnimationDurationOut;
-float ItemHighlightOffsetX;
-float ItemHighlightOffsetY;
-float ItemPadding;
-float ItemYBase;
-float SecondaryFirstItemHighlightOffsetX;
-float SecondarySecondItemHighlightOffsetX;
-float SecondaryThirdItemHighlightOffsetX;
-float ItemHighlightPointerY;
-float MenuX;
-float MenuY;
-
 void Configure() {
   BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
   FenceSprite = EnsureGetMemberSprite("FenceSprite");

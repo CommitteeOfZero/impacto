@@ -7,8 +7,6 @@ namespace TipsSystem {
 
 using namespace Impacto::Profile::TipsSystem;
 
-TipsSystemBase* Implementation = 0;
-
 void Init() { Configure(); }
 
 void DataInit(int scriptBufferId, uint8_t* tipsData) {

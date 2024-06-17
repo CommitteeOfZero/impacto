@@ -4,8 +4,6 @@ namespace Impacto {
 namespace UI {
 namespace MapSystem {
 
-MapSystemBase* MapSystemPtr = 0;
-
 void Init() {
   Profile::MapSystem::Configure();
   Profile::MapSystem::CreateInstance();

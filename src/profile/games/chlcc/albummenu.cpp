@@ -9,61 +9,6 @@ namespace Profile {
 namespace CHLCC {
 namespace AlbumMenu {
 
-float MenuTransitionDuration;
-uint32_t BackgroundColor;
-Sprite CircleSprite;
-glm::vec2 CircleStartPosition;
-float CircleOffset;
-glm::vec2 ErinPosition;
-Sprite ErinSprite;
-Sprite BackgroundFilter;
-glm::vec2 InitialRedBarPosition;
-glm::vec2 RightRedBarPosition;
-Sprite InitialRedBarSprite;
-glm::vec2 RedBarPosition;
-float RedBarDivision;
-float RedBarBaseX;
-Sprite RedBarSprite;
-glm::vec2 RedBarLabelPosition;
-Sprite RedBarLabel;
-float TitleFadeInDuration;
-float TitleFadeOutDuration;
-Sprite CGList;
-glm::vec2 CGListPosition;
-Sprite PageCountLabel;
-glm::vec2 PageLabelPosition;
-Sprite CGBox;
-glm::vec2 CGBoxTemplatePosition;
-Sprite AlbumThumbnails[63];
-glm::vec2 ThumbnailTemplatePosition;
-Sprite VariationUnlocked;
-Sprite VariationLocked;
-glm::vec2 VariationTemplateOffset;
-Sprite LockedCG;
-glm::vec2 ThumbnailOffset;
-Sprite ThumbnailHighlight;
-int32_t AlbumPages;
-int32_t EntriesPerPage;
-Sprite PageNums[10];
-glm::vec2 CurrentPageNumPos;
-glm::vec2 MaxPageNumPos;
-Sprite PageNumSeparatorSlash;
-glm::vec2 PageNumSeparatorSlashPos;
-Sprite ReachablePageNums[10];
-Sprite ButtonGuide;
-glm::vec2 ButtonGuidePos;
-Sprite SelectData[10];
-glm::vec2 SelectDataPos[10];
-Sprite AlbumMenuTitle;
-glm::vec2 AlbumMenuTitleRightPos;
-glm::vec2 AlbumMenuTitleLeftPos;
-float AlbumMenuTitleAngle;
-Sprite CgViewerButtonGuideVariation;
-Sprite CgViewerButtonGuideNoVariation;
-glm::vec2 CgViewerButtonGuidePos;
-Sprite SelectionMarkerSprite;
-glm::vec2 SelectionMarkerRelativePos;
-
 void Configure() {
   MenuTransitionDuration = EnsureGetMemberFloat("TransitionDuration");
   BackgroundColor = EnsureGetMemberUint("BackgroundColor");

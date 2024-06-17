@@ -7,21 +7,21 @@ namespace Impacto {
 namespace Profile {
 namespace TitleMenu {
 
-constexpr int MenuEntriesNumMax = 32;
+int constexpr MenuEntriesNumMax = 32;
 
-extern Impacto::UI::TitleMenuType Type;
+inline Impacto::UI::TitleMenuType Type = Impacto::UI::TitleMenuType::None;
 
-extern Sprite PressToStartSprite;
-extern Sprite MenuEntriesSprites[MenuEntriesNumMax];
-extern Sprite MenuEntriesHSprites[MenuEntriesNumMax];
+inline Sprite PressToStartSprite;
+inline Sprite MenuEntriesSprites[MenuEntriesNumMax];
+inline Sprite MenuEntriesHSprites[MenuEntriesNumMax];
 
-extern int MenuEntriesNum;
+inline int MenuEntriesNum;
 
-extern float PressToStartAnimDurationIn;
-extern float PressToStartAnimDurationOut;
+inline float PressToStartAnimDurationIn;
+inline float PressToStartAnimDurationOut;
 
-extern float PressToStartX;
-extern float PressToStartY;
+inline float PressToStartX;
+inline float PressToStartY;
 
 void Configure();
 

@@ -7,39 +7,39 @@ namespace Profile {
 namespace MO6TW {
 namespace OptionsMenu {
 
-int const VoiceToggleCount = 14;
-int const SectionHeaderSpriteCount = 13 * 2;
-int const CheckboxLabelCount = 14;
-int const AutoSaveTriggerXPosCount = 4;
+int constexpr VoiceToggleCount = 14;
+int constexpr SectionHeaderSpriteCount = 13 * 2;
+int constexpr CheckboxLabelCount = 14;
+int constexpr AutoSaveTriggerXPosCount = 4;
 
-extern Sprite VoiceToggleEnabledSprites[VoiceToggleCount];
-extern Sprite VoiceToggleDisabledSprites[VoiceToggleCount];
-extern Sprite VoiceToggleHighlightSprite;
+inline Sprite VoiceToggleEnabledSprites[VoiceToggleCount];
+inline Sprite VoiceToggleDisabledSprites[VoiceToggleCount];
+inline Sprite VoiceToggleHighlightSprite;
 
-extern glm::vec2 VoiceToggleStart;
-extern glm::vec2 VoiceTogglePadding;
-extern int VoiceTogglePerLine;
+inline glm::vec2 VoiceToggleStart;
+inline glm::vec2 VoiceTogglePadding;
+inline int VoiceTogglePerLine;
 
-extern Sprite SectionHeaderSprites[SectionHeaderSpriteCount];
+inline Sprite SectionHeaderSprites[SectionHeaderSpriteCount];
 
-extern Sprite CheckboxBoxSprite;
-extern Sprite CheckboxTickSprite;
-extern Sprite CheckboxLabelSprites[CheckboxLabelCount];
+inline Sprite CheckboxBoxSprite;
+inline Sprite CheckboxTickSprite;
+inline Sprite CheckboxLabelSprites[CheckboxLabelCount];
 
-extern glm::vec2 FirstPageSliderPos;
-extern float FirstPageSliderMargin;
-extern glm::vec2 SliderThumbOffset;
-extern glm::vec2 CheckboxLabelOffset;
-extern glm::vec2 CheckboxFirstPos;
-extern float CheckboxFirstSectionPaddingX;
-extern glm::vec2 CheckboxMargin;
-extern glm::vec2 CheckboxSecondPos;
-extern float CheckboxSecondSectionFirstPaddingX;
-extern float AutoSaveTriggerXPos[AutoSaveTriggerXPosCount];
-extern glm::vec2 ScreenSizeSliderPos;
-extern glm::vec2 TipsPos;
-extern glm::vec2 FirstPageSectionHeaderPos;
-extern glm::vec2 SecondPageSectionHeaderPos;
+inline glm::vec2 FirstPageSliderPos;
+inline float FirstPageSliderMargin;
+inline glm::vec2 SliderThumbOffset;
+inline glm::vec2 CheckboxLabelOffset;
+inline glm::vec2 CheckboxFirstPos;
+inline float CheckboxFirstSectionPaddingX;
+inline glm::vec2 CheckboxMargin;
+inline glm::vec2 CheckboxSecondPos;
+inline float CheckboxSecondSectionFirstPaddingX;
+inline float AutoSaveTriggerXPos[AutoSaveTriggerXPosCount];
+inline glm::vec2 ScreenSizeSliderPos;
+inline glm::vec2 TipsPos;
+inline glm::vec2 FirstPageSectionHeaderPos;
+inline glm::vec2 SecondPageSectionHeaderPos;
 
 void Configure();
 

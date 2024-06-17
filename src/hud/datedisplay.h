@@ -22,7 +22,7 @@ class DateDisplayBase {
   int Week = 0;
 };
 
-extern DateDisplayBase* Implementation;
+inline DateDisplayBase* Implementation = nullptr;
 
 void Init();
 void Update(float dt);

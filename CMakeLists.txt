@@ -207,7 +207,6 @@ set(Impacto_Src
         src/hud/tipsnotification.cpp
         src/hud/delusiontrigger.cpp
 
-        src/ui/ui.cpp
         src/ui/mapsystem.cpp
         src/ui/widget.cpp
         src/ui/menu.cpp
@@ -962,7 +961,6 @@ endif ()
 
 if (NOT DEFINED IMPACTO_DISABLE_DX9)
     list(APPEND Impacto_Src
-            src/renderer/dx9/utils.cpp
             src/renderer/dx9/renderer.cpp
             src/renderer/dx9/window.cpp
             src/renderer/dx9/shader.cpp

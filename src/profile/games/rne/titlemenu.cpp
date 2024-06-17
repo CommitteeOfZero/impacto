@@ -12,31 +12,6 @@ namespace Profile {
 namespace RNE {
 namespace TitleMenu {
 
-Sprite LineSprite;
-Sprite CopyrightSprite;
-Sprite EliteSprite;
-Sprite LogoSprite;
-
-float PreTitleAnimDurationIn;
-float PreTitleAnimDurationOut;
-
-float LineWidth;
-float CopyrightWidth;
-float EliteHeight;
-float LogoWidth;
-float LineX;
-float LineY;
-float CopyrightX;
-float CopyrightY;
-float EliteX;
-float EliteY;
-float LogoX;
-float LogoY;
-
-Animation* BackgroundAnimation = 0;
-Animation PreTitleItemsAnimation;
-Animation PressToStartAnimation;
-
 void Configure() {
   EnsurePushMemberOfType("Background", LUA_TTABLE);
   BackgroundAnimation = RNE::ParseTileBackground();

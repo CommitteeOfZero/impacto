@@ -24,7 +24,7 @@ enum SaveError {
 
 enum SaveType { SaveFull = 0, SaveQuick = 1 };
 
-int const MaxSaveEntries = 48;
+int constexpr MaxSaveEntries = 48;
 
 uint8_t const Flbit[] = {1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80};
 
@@ -88,7 +88,7 @@ class SaveSystemBase {
   SaveFileEntryBase* QuickSaveEntries[MaxSaveEntries];
 };
 
-extern SaveSystemBase* Implementation;
+inline SaveSystemBase* Implementation = nullptr;
 
 void Init();
 

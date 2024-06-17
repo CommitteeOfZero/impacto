@@ -256,8 +256,8 @@ class Renderer : public BaseRenderer {
 
   VkYUVFrame* VideoFrameInternal;
 
-  static int const VertexBufferSize = 4096 * 4096;
-  static int const IndexBufferCount =
+  static int constexpr VertexBufferSize = 4096 * 4096;
+  static int constexpr IndexBufferCount =
       VertexBufferSize / (4 * sizeof(VertexBufferSprites)) * 6;
 
   uint8_t* VertexBuffer;
@@ -274,7 +274,7 @@ class Renderer : public BaseRenderer {
   RectF PreviousScissorRect;
 };
 
-extern Renderer* MainRendererInstance;
+inline Renderer* MainRendererInstance;
 
 }  // namespace Vulkan
 }  // namespace Impacto

@@ -12,63 +12,6 @@ namespace Profile {
 namespace CCLCC {
 namespace TitleMenu {
 
-Sprite BackgroundSprite;
-Sprite MainBackgroundSprite;
-Sprite CopyrightTextSprite;
-Sprite OverlaySprite;
-Sprite SmokeSprite;
-Sprite MenuSprite;
-Sprite ItemHighlightSprite;
-Sprite ItemHighlightPointerSprite;
-Sprite LoadSprite;
-Sprite LoadHighlightSprite;
-Sprite QuickLoadSprite;
-Sprite QuickLoadHighlightSprite;
-Sprite TipsSprite;
-Sprite TipsHighlightSprite;
-Sprite LibrarySprite;
-Sprite LibraryHighlightSprite;
-Sprite EndingListSprite;
-Sprite EndingListHighlightSprite;
-
-float ItemFadeInDuration;
-float ItemFadeOutDuration;
-float SecondaryItemFadeInDuration;
-float SecondaryItemFadeOutDuration;
-float PrimaryFadeInDuration;
-float PrimaryFadeOutDuration;
-float SecondaryFadeInDuration;
-float SecondaryFadeOutDuration;
-float CopyrightTextX;
-float CopyrightTextY;
-float SmokeOpacityNormal;
-float SmokeX;
-float SmokeY;
-float SmokeBoundsX;
-float SmokeBoundsY;
-float SmokeBoundsWidth;
-float SmokeBoundsHeight;
-float SmokeAnimationBoundsXOffset;
-float SmokeAnimationBoundsXMax;
-float SmokeAnimationDurationIn;
-float SmokeAnimationDurationOut;
-float MenuX;
-float MenuY;
-float ItemHighlightOffsetX;
-float ItemHighlightOffsetY;
-float ItemPadding;
-float ItemYBase;
-float SecondaryFirstItemHighlightOffsetX;
-float SecondarySecondItemHighlightOffsetX;
-float SecondaryThirdItemHighlightOffsetX;
-float ItemHighlightPointerY;
-float TitleAnimationDurationIn;
-float TitleAnimationDurationOut;
-
-int TitleAnimationStartFrame;
-int TitleAnimationFrameCount;
-int TitleAnimationFileId;
-
 void Configure() {
   BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
   MainBackgroundSprite = EnsureGetMemberSprite("MainBackgroundSprite");

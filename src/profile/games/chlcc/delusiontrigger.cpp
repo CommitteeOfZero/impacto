@@ -11,10 +11,6 @@ namespace Profile {
 namespace CHLCC {
 namespace DelusionTrigger {
 
-Sprite BackgroundSprite;
-Sprite BackgroundSpriteMask;
-Sprite ScreenMask;
-
 void Configure() {
   BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
   BackgroundSpriteMask = EnsureGetMemberSprite("BackgroundSpriteMask");

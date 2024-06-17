@@ -8,7 +8,7 @@
 namespace Impacto {
 namespace Io {
 
-int const CpkMaxPath = 224;
+int constexpr CpkMaxPath = 224;
 
 struct CpkMetaEntry;
 

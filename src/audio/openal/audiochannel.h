@@ -30,8 +30,8 @@ class AudioChannel : public Audio::AudioChannel {
   void SetGain();
   int SamplesPerBuffer() const;
 
-  static int const AudioBufferSize = 64 * 1024;
-  static int const AudioBufferCount = 3;
+  static int constexpr AudioBufferSize = 64 * 1024;
+  static int constexpr AudioBufferCount = 3;
 
   ALuint BufferIds[AudioBufferCount];
   uint8_t HostBuffer[AudioBufferSize];

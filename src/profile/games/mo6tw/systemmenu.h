@@ -9,12 +9,12 @@ namespace SystemMenu {
 
 void Configure();
 
-extern Sprite SystemMenuBackgroundSprite;
-extern Sprite MenuEntriesHighlightedSprite;
+inline Sprite SystemMenuBackgroundSprite;
+inline Sprite MenuEntriesHighlightedSprite;
 
-extern float MenuEntriesTargetWidth;
-extern float SystemMenuX;
-extern float SystemMenuY;
+inline float MenuEntriesTargetWidth;
+inline float SystemMenuX;
+inline float SystemMenuY;
 
 }  // namespace SystemMenu
 }  // namespace MO6TW

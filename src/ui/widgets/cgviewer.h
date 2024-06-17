@@ -11,8 +11,8 @@ namespace Impacto {
 namespace UI {
 namespace Widgets {
 
-int const MaxCgViewerCgs = 3;
-int const MaxCgViewerVariations = 15;
+int constexpr MaxCgViewerCgs = 3;
+int constexpr MaxCgViewerVariations = 15;
 
 class CgViewer : public Widget {
  public:

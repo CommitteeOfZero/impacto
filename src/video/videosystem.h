@@ -8,7 +8,7 @@ namespace Video {
 
 enum VideoPlayerId { VP_Main = 0, VP_Secondary, VP_Count };
 
-extern VideoPlayer* Players[VP_Count];
+inline VideoPlayer* Players[VP_Count];
 
 void VideoInit();
 void VideoUpdate(float dt);

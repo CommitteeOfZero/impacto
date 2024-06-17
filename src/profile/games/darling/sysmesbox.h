@@ -10,23 +10,23 @@ namespace SysMesBox {
 
 void Configure();
 
-extern Sprite BoxPartLeft;
-extern Sprite BoxPartRight;
-extern Sprite BoxPartMiddle;
-extern Sprite BoxDecoration;
-extern Sprite SelectionHighlight;
+inline Sprite BoxPartLeft;
+inline Sprite BoxPartRight;
+inline Sprite BoxPartMiddle;
+inline Sprite BoxDecoration;
+inline Sprite SelectionHighlight;
 
-extern float BoxX;
-extern float BoxY;
-extern float ChoicePadding;
-extern float ChoiceY;
-extern float ChoiceXBase;
-extern float MinMaxMesWidth;
-extern float BoxMinimumWidth;
-extern float BoxMiddleBaseX;
-extern float BoxMiddleBaseWidth;
-extern float BoxRightBaseWidth;
-extern float BoxRightRemainPad;
+inline float BoxX;
+inline float BoxY;
+inline float ChoicePadding;
+inline float ChoiceY;
+inline float ChoiceXBase;
+inline float MinMaxMesWidth;
+inline float BoxMinimumWidth;
+inline float BoxMiddleBaseX;
+inline float BoxMiddleBaseWidth;
+inline float BoxRightBaseWidth;
+inline float BoxRightRemainPad;
 
 }  // namespace SysMesBox
 }  // namespace Darling

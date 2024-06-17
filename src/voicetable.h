@@ -32,5 +32,5 @@ class VoiceTable : public Loadable<VoiceTable> {
   std::vector<uint8_t> lipSyncData;
 };
 
-extern VoiceTable VoiceTableData;
+inline VoiceTable VoiceTableData;
 }  // namespace Impacto

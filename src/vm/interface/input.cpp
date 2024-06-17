@@ -16,13 +16,6 @@ namespace Interface {
 using namespace Impacto::Profile::ScriptInput;
 using namespace Impacto::Profile::ScriptVars;
 
-uint32_t* PADcustom = PADcustomA;
-
-int PADinputButtonWentDown = 0;
-int PADinputMouseWentDown = 0;
-int PADinputButtonIsDown = 0;
-int PADinputMouseIsDown = 0;
-
 void UpdatePADcustomType(int type) {
   if (type == 0) {
     PADcustom = PADcustomA;

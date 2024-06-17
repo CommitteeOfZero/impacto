@@ -9,7 +9,7 @@ namespace TipsSystem {
 
 BETTER_ENUM(TipsSystemType, int, None, MO6TW, CHLCC)
 
-int const MaxTipStrings = 10;
+int constexpr MaxTipStrings = 10;
 
 struct TipsDataRecord {
   uint16_t Id;
@@ -36,7 +36,7 @@ class TipsSystemBase {
   int TipEntryCount = 0;
 };
 
-extern TipsSystemBase* Implementation;
+inline TipsSystemBase* Implementation = nullptr;
 
 void Init();
 void DataInit(int scriptBufferId, uint8_t* tipsData);

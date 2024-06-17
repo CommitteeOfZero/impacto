@@ -12,31 +12,6 @@ namespace Profile {
 namespace MO6TW {
 namespace TitleMenu {
 
-Sprite BackgroundSprite;
-Sprite CopyrightSprite;
-Sprite LogoSprite;
-Sprite MenuBackgroundSprite;
-Sprite MenuItemLockedSprite;
-Sprite MenuItemLockedSpriteH;
-
-float MenuEntriesX;
-float MenuEntriesFirstY;
-float MenuEntriesYPadding;
-float MenuEntriesTargetWidth;
-float LogoX;
-float LogoY;
-float CopyrightX;
-float CopyrightY;
-float PrimaryFadeAnimDuration;
-glm::vec2 SecondaryMenuAnimTarget;
-float SecondaryMenuPadding;
-float SecondaryMenuAnimDuration;
-float SecondaryMenuAnimUnderX;
-float ExtraStoryItemCount;
-float ContinueItemCount;
-float MemoriesItemCount;
-float SystemItemCount;
-
 void Configure() {
   BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
   CopyrightSprite = EnsureGetMemberSprite("CopyrightSprite");

@@ -8,9 +8,9 @@ namespace UI {
 namespace Widgets {
 namespace MO6TW {
 
-int const TipNumberLength = 4;
-int const TipLockedTextLength = 3;
-int const NewTextLength = 3;
+int constexpr TipNumberLength = 4;
+int constexpr TipLockedTextLength = 3;
+int constexpr NewTextLength = 3;
 
 class TipsEntryButton : public Widgets::Button {
  public:

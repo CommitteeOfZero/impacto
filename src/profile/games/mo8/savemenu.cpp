@@ -12,23 +12,6 @@ namespace Profile {
 namespace MO8 {
 namespace SaveMenu {
 
-float EntryStartX;
-float EntryXPadding;
-float EntryStartY;
-float EntryYPadding;
-
-Sprite QuickLoadTextSprite;
-Sprite LoadTextSprite;
-Sprite SaveTextSprite;
-glm::vec2 MenuTitleTextPos;
-
-Sprite NextButtonSprite;
-Sprite NextButtonHighlightedSprite;
-glm::vec2 NextButtonPosition;
-Sprite BackButtonSprite;
-Sprite BackButtonHighlightedSprite;
-glm::vec2 BackButtonPosition;
-
 void Configure() {
   EntryStartX = EnsureGetMemberFloat("EntryStartX");
   EntryXPadding = EnsureGetMemberFloat("EntryXPadding");

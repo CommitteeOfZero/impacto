@@ -13,7 +13,7 @@
 namespace Impacto {
 namespace Profile {
 
-extern lua_State* LuaState;
+inline lua_State* LuaState;
 
 #define LUA_GET_METHODS(typeName, nativeType)                               \
   bool TryGet##typeName(nativeType& out##typeName);                         \

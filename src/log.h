@@ -37,10 +37,10 @@ enum LogChannel : uint32_t {
   LC_All = 0xFFFFFFFF
 };
 
-extern LogLevel g_LogLevelFile;
-extern LogLevel g_LogLevelConsole;
-extern uint32_t g_LogChannelsFile;
-extern uint32_t g_LogChannelsConsole;
+inline LogLevel g_LogLevelFile = LL_Off;
+inline LogLevel g_LogLevelConsole = LL_Off;
+inline uint32_t g_LogChannelsFile = 0;
+inline uint32_t g_LogChannelsConsole = 0;
 
 void LogSetFile(char* path);
 void LogSetConsole(bool enabled);

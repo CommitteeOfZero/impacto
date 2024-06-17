@@ -7,15 +7,15 @@ namespace Profile {
 namespace CCLCC {
 namespace ClearListMenu {
 
-extern Sprite BackgroundSprite;
-extern Sprite ClearListBookLayerSprite;
-extern Sprite ClearListGuideSprite;
-extern Sprite ClearListMaskSprite;
+inline Sprite BackgroundSprite;
+inline Sprite ClearListBookLayerSprite;
+inline Sprite ClearListGuideSprite;
+inline Sprite ClearListMaskSprite;
 
-extern float FadeInDuration;
-extern float FadeOutDuration;
-extern int ClearListGuideX;
-extern int ClearListGuideY;
+inline float FadeInDuration;
+inline float FadeOutDuration;
+inline int ClearListGuideX;
+inline int ClearListGuideY;
 
 void Configure();
 

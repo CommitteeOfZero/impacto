@@ -10,60 +10,6 @@ namespace Profile {
 namespace RNE {
 namespace SysMesBox {
 
-Sprite BoxDecorationTop;
-Sprite BoxDecorationBottom;
-Sprite TextDecoration;
-Sprite MessageLabel;
-Sprite Line1;
-Sprite Line2;
-Sprite ButtonYes;
-Sprite ButtonNo;
-Sprite ButtonOK;
-Sprite ButtonYesHighlighted;
-Sprite ButtonNoHighlighted;
-Sprite ButtonOKHighlighted;
-
-float LinePositionXFirst;
-float LinePositionX;
-float LinePositionMultiplier;
-float LineWidthFirst;
-float LineWidthBase;
-float LineWidthMultiplier;
-float Line1SpriteY;
-float Line2SpriteY;
-float LineSpriteHeight;
-float LineDisplayXBase;
-float Line1DisplayY;
-float Line2DisplayY;
-float BoxDisplayStartCount;
-float BoxHeightBase;
-float BoxHeightMultiplier;
-float BoxWidth;
-float BoxTextFontSize;
-float BoxTopYBase;
-float BoxDisplayX;
-float MessageLabelSpriteXBase;
-float MessageLabelSpriteY;
-float MessageLabelSpriteHeight;
-float MessageLabelSpriteMultiplier;
-float ButtonYesDisplayXBase;
-float ButtonRightDisplayXBase;
-float ButtonWidth;
-float ButtonYOffset;
-float ButtonYWidthBase;
-float ButtonRightWidthBase;
-float TextDecorationStart;
-float TextDecorationTopYOffset;
-float TextDecorationBottomYOffset;
-float TextFontSize;
-float TextMiddleY;
-float TextX;
-float TextLineHeight;
-float TextMarginY;
-float AnimationSpeed;
-float FadeInDuration;
-float FadeOutDuration;
-
 void Configure() {
   BoxDecorationTop = EnsureGetMemberSprite("BoxDecorationTop");
   BoxDecorationBottom = EnsureGetMemberSprite("BoxDecorationBottom");

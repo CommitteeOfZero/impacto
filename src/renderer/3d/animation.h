@@ -6,7 +6,7 @@
 
 namespace Impacto {
 
-int const AnimMaxMorphTargetsPerTrack = 16;
+int constexpr AnimMaxMorphTargetsPerTrack = 16;
 
 struct CoordKeyframe {
   float Time;

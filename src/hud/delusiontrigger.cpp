@@ -6,8 +6,6 @@ namespace DelusionTrigger {
 DelusionTriggerBase::DelusionTriggerBase(int& delusionState, UiState showState)
     : State(showState), DelusionState(delusionState){};
 
-DelusionTriggerBase* Implementation = 0;
-
 void Init() { Profile::DelusionTrigger::Configure(); }
 
 void Show() {

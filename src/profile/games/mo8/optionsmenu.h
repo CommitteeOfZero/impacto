@@ -7,81 +7,81 @@ namespace Profile {
 namespace MO8 {
 namespace OptionsMenu {
 
-extern Sprite NextButtonSprite;
-extern Sprite NextButtonHighlightedSprite;
-extern glm::vec2 NextButtonPosition;
-extern Sprite BackButtonSprite;
-extern Sprite BackButtonHighlightedSprite;
-extern glm::vec2 BackButtonPosition;
+inline Sprite NextButtonSprite;
+inline Sprite NextButtonHighlightedSprite;
+inline glm::vec2 NextButtonPosition;
+inline Sprite BackButtonSprite;
+inline Sprite BackButtonHighlightedSprite;
+inline glm::vec2 BackButtonPosition;
 
-extern Sprite ButtonHighlight;
-extern glm::vec2 PageLabelPosition;
-extern glm::vec2 ListStartingPosition;
-extern glm::vec2 ListPadding;
-extern glm::vec2 OptionGroupItemsOffset;
-extern glm::vec2 OptionGroupSliderOffset;
+inline Sprite ButtonHighlight;
+inline glm::vec2 PageLabelPosition;
+inline glm::vec2 ListStartingPosition;
+inline glm::vec2 ListPadding;
+inline glm::vec2 OptionGroupItemsOffset;
+inline glm::vec2 OptionGroupSliderOffset;
 
-static int const TextSpeedOptionsNumMax = 4;
+int constexpr TextSpeedOptionsNumMax = 4;
 
-extern Sprite TextPageLabel;
-extern Sprite TextSpeedOptionsLabel;
-extern Sprite TextSpeedOptionsLabelH;
-extern int TextSpeedOptionsNum;
-extern Sprite TextSpeedOptionsSprites[TextSpeedOptionsNumMax];
-extern Sprite TextSpeedOptionsHSprites[TextSpeedOptionsNumMax];
+inline Sprite TextPageLabel;
+inline Sprite TextSpeedOptionsLabel;
+inline Sprite TextSpeedOptionsLabelH;
+inline int TextSpeedOptionsNum;
+inline Sprite TextSpeedOptionsSprites[TextSpeedOptionsNumMax];
+inline Sprite TextSpeedOptionsHSprites[TextSpeedOptionsNumMax];
 
-static int const AutoModeOptionsNumMax = 3;
+int constexpr AutoModeOptionsNumMax = 3;
 
-extern Sprite AutoModeOptionsLabel;
-extern Sprite AutoModeOptionsLabelH;
-extern int AutoModeOptionsNum;
-extern Sprite AutoModeOptionsSprites[AutoModeOptionsNumMax];
-extern Sprite AutoModeOptionsHSprites[AutoModeOptionsNumMax];
+inline Sprite AutoModeOptionsLabel;
+inline Sprite AutoModeOptionsLabelH;
+inline int AutoModeOptionsNum;
+inline Sprite AutoModeOptionsSprites[AutoModeOptionsNumMax];
+inline Sprite AutoModeOptionsHSprites[AutoModeOptionsNumMax];
 
-static int const SkipModeOptionsNumMax = 3;
+int constexpr SkipModeOptionsNumMax = 3;
 
-extern Sprite SkipModeOptionsLabel;
-extern Sprite SkipModeOptionsLabelH;
-extern int SkipModeOptionsNum;
-extern Sprite SkipModeOptionsSprites[SkipModeOptionsNumMax];
-extern Sprite SkipModeOptionsHSprites[SkipModeOptionsNumMax];
+inline Sprite SkipModeOptionsLabel;
+inline Sprite SkipModeOptionsLabelH;
+inline int SkipModeOptionsNum;
+inline Sprite SkipModeOptionsSprites[SkipModeOptionsNumMax];
+inline Sprite SkipModeOptionsHSprites[SkipModeOptionsNumMax];
 
-static int const SoundOptionsNumMax = 2;
+int constexpr SoundOptionsNumMax = 2;
 
-extern int SoundModeOptionsNum;
-extern Sprite SoundPageLabel;
-extern Sprite SoundModeOptionsSprites[SoundOptionsNumMax];
-extern Sprite SoundModeOptionsHSprites[SoundOptionsNumMax];
+inline int SoundModeOptionsNum;
+inline Sprite SoundPageLabel;
+inline Sprite SoundModeOptionsSprites[SoundOptionsNumMax];
+inline Sprite SoundModeOptionsHSprites[SoundOptionsNumMax];
 
-extern Sprite VoiceSyncOptionsLabel;
-extern Sprite VoiceSyncOptionsLabelH;
+inline Sprite VoiceSyncOptionsLabel;
+inline Sprite VoiceSyncOptionsLabelH;
 
-extern Sprite VoiceSkipOptionsLabel;
-extern Sprite VoiceSkipOptionsLabelH;
+inline Sprite VoiceSkipOptionsLabel;
+inline Sprite VoiceSkipOptionsLabelH;
 
-extern Sprite VoiceHighlightOptionsLabel;
-extern Sprite VoiceHighlightOptionsLabelH;
+inline Sprite VoiceHighlightOptionsLabel;
+inline Sprite VoiceHighlightOptionsLabelH;
 
-extern Sprite BgmVolumeLabel;
-extern Sprite BgmVolumeLabelH;
-extern Sprite VoiceVolumeLabel;
-extern Sprite VoiceVolumeLabelH;
-extern Sprite SeVolumeLabel;
-extern Sprite SeVolumeLabelH;
-extern Sprite SystemSeVolumeLabel;
-extern Sprite SystemSeVolumeLabelH;
-extern Sprite CharacterVoiceVolumeLabel;
-extern Sprite CharacterVoiceVolumeLabelH;
+inline Sprite BgmVolumeLabel;
+inline Sprite BgmVolumeLabelH;
+inline Sprite VoiceVolumeLabel;
+inline Sprite VoiceVolumeLabelH;
+inline Sprite SeVolumeLabel;
+inline Sprite SeVolumeLabelH;
+inline Sprite SystemSeVolumeLabel;
+inline Sprite SystemSeVolumeLabelH;
+inline Sprite CharacterVoiceVolumeLabel;
+inline Sprite CharacterVoiceVolumeLabelH;
 
-extern Sprite OtherPageLabel;
+inline Sprite OtherPageLabel;
 
-static int const QuickSaveOptionsNumMax = 3;
+int constexpr QuickSaveOptionsNumMax = 3;
 
-extern Sprite QuickSaveOptionsLabel;
-extern Sprite QuickSaveOptionsLabelH;
-extern int QuickSaveOptionsNum;
-extern Sprite QuickSaveOptionsSprites[QuickSaveOptionsNumMax];
-extern Sprite QuickSaveOptionsHSprites[QuickSaveOptionsNumMax];
+inline Sprite QuickSaveOptionsLabel;
+inline Sprite QuickSaveOptionsLabelH;
+inline int QuickSaveOptionsNum;
+inline Sprite QuickSaveOptionsSprites[QuickSaveOptionsNumMax];
+inline Sprite QuickSaveOptionsHSprites[QuickSaveOptionsNumMax];
 
 void Configure();
 

@@ -5,10 +5,6 @@ namespace Impacto {
 namespace Profile {
 namespace ScriptVars {
 
-#define V(var) int var;
-#include "../scriptvars.h"
-#undef V
-
 void Configure() {
   EnsurePushMemberOfType("ScriptVars", LUA_TTABLE);
 

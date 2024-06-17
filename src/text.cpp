@@ -27,11 +27,7 @@ namespace Impacto {
 using namespace Impacto::Profile::Dialogue;
 using namespace Impacto::Profile::ScriptVars;
 
-int DialoguePageCount = 0;
-DialoguePage* DialoguePages;
-DialogueBox* TextBox;
-
-ska::flat_hash_map<uint32_t, uint32_t> NamePlateData;
+static DialogueBox* TextBox;
 
 enum StringTokenType : uint8_t {
   STT_LineBreak = 0x00,

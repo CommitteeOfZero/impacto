@@ -5,8 +5,6 @@
 namespace Impacto {
 namespace Profile {
 
-ska::flat_hash_map<std::string, SpriteAnimationDef> Animations;
-
 void LoadAnimations() {
   EnsurePushMemberOfType("Animations", LUA_TTABLE);
 

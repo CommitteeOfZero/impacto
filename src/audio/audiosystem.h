@@ -12,11 +12,11 @@ void AudioInit();
 void AudioUpdate(float dt);
 void AudioShutdown();
 
-extern AudioBackend* Backend;
+inline AudioBackend* Backend = nullptr;
 
-extern float MasterVolume;
-extern float GroupVolumes[ACG_Count];
-extern AudioChannel* Channels[AC_Count];
+inline float MasterVolume = 1.0f;
+inline float GroupVolumes[ACG_Count];
+inline AudioChannel* Channels[AC_Count];
 
 }  // namespace Audio
 }  // namespace Impacto

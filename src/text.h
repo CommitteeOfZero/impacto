@@ -41,9 +41,9 @@ enum DialoguePageMode : uint8_t {
   DPM_TIPS = 3
 };
 
-int const DialogueMaxNameLength = 64;
-int const DialogueMaxRubyChunks = 32;
-int const DialogueMaxRubyChunkLength = 32;
+int constexpr DialogueMaxNameLength = 64;
+int constexpr DialogueMaxRubyChunks = 32;
+int constexpr DialogueMaxRubyChunkLength = 32;
 
 struct RubyChunk {
   int FirstBaseCharacter;
@@ -119,8 +119,8 @@ struct DialoguePage {
   DialoguePageMode PrevMode = DPM_ADV;
 };
 
-extern DialoguePage* DialoguePages;
-extern int DialoguePageCount;
+inline DialoguePage* DialoguePages;
+inline int DialoguePageCount = 0;
 
 int TextGetStringLength(Vm::Sc3VmThread* ctx);
 int TextGetMainCharacterCount(Vm::Sc3VmThread* ctx);
@@ -136,7 +136,7 @@ int TextLayoutPlainString(std::string str, ProcessedTextGlyph* outGlyphs,
                           float blockWidth = 0.0f);
 void TextGetSc3String(std::string str, uint16_t* out);
 
-extern ska::flat_hash_map<uint32_t, uint32_t> NamePlateData;
+inline ska::flat_hash_map<uint32_t, uint32_t> NamePlateData;
 void InitNamePlateData(uint16_t* data);
 uint32_t GetNameId(uint8_t* name, int nameLength);
 

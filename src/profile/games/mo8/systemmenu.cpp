@@ -12,16 +12,6 @@ namespace Profile {
 namespace MO8 {
 namespace SystemMenu {
 
-Sprite SystemMenuBackgroundSprite;
-Sprite MenuEntriesLSprites[MenuEntriesNumMax];
-int MenuEntriesLNum;
-
-int ExitMenuButtonId;
-
-float MenuEntriesTargetWidth;
-float SystemMenuX;
-float SystemMenuY;
-
 void Configure() {
   MenuEntriesLNum = EnsureGetMemberInt("MenuEntriesLNum");
   if (MenuEntriesLNum > 0) {

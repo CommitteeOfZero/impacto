@@ -16,20 +16,6 @@ namespace SystemMenu {
 
 using namespace Impacto::UI;
 
-SystemMenuType Type = SystemMenuType::None;
-
-Sprite MenuEntriesSprites[MenuEntriesNumMax];
-Sprite MenuEntriesHSprites[MenuEntriesNumMax];
-
-int MenuEntriesNum;
-int MenuEntriesHNum;
-float MenuEntriesX;
-float MenuEntriesXOffset;
-float MenuEntriesFirstY;
-float MenuEntriesYPadding;
-float FadeInDuration = 0.5f;
-float FadeOutDuration = 0.5f;
-
 void Configure() {
   if (TryPushMember("SystemMenu")) {
     AssertIs(LUA_TTABLE);

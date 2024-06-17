@@ -22,7 +22,7 @@ using namespace Impacto::Profile::TitleMenu;
 using namespace Impacto::Profile::RNE::TitleMenu;
 using namespace Impacto::Profile::ScriptVars;
 
-static int const TitleBgBufferId = 3;
+static int constexpr TitleBgBufferId = 3;
 
 TitleMenu::TitleMenu() {}
 

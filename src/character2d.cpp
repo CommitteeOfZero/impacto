@@ -12,10 +12,6 @@ namespace Impacto {
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Vm;
 
-Character2D Characters2D[MaxCharacters2D];
-
-Character2D SpeakerPortraits[MaxSpeakerPortraits];
-
 bool Character2D::LoadSync(uint32_t charaId) {
   int fileId = charaId & 0xFFFF;
 

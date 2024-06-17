@@ -6,6 +6,8 @@
 namespace Impacto {
 namespace Profile {
 namespace DelusionTrigger {
+inline Impacto::DelusionTrigger::DelusionTriggerType Type =
+    Impacto::DelusionTrigger::DelusionTriggerType::None;
 
 void Configure();
 

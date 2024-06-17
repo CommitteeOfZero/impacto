@@ -10,26 +10,6 @@ namespace Profile {
 namespace CHLCC {
 namespace SysMesBox {
 
-Sprite Box;
-Sprite BoxDecoration;
-Sprite SelectionLeftPart;
-Sprite SelectionRightPart;
-Sprite SelectionMiddlePart;
-
-float BoxX;
-float BoxY;
-float ChoicePadding;
-float ChoiceY;
-float ChoiceXBase;
-float MinMaxMesWidth;
-float MinHighlightWidth;
-float HighlightBaseWidth;
-float HighlightRightPartSpriteWidth;
-float HighlightYOffset;
-float HighlightXOffset;
-float HighlightXBase;
-float HighlightXStep;
-
 void Configure() {
   Box = EnsureGetMemberSprite("Box");
   BoxDecoration = EnsureGetMemberSprite("BoxDecoration");
