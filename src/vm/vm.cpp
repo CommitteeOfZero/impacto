@@ -74,11 +74,7 @@ static void SortThreadExecTable();
 static void CreateThreadDrawTable();
 static void SortThreadDrawTable();
 static void DrawAllThreads();
-// TODO: Make this static. It's only global to silence the unused function
-// warning, as it may be required for future games.
-// Alternatively, this could be marked
-// [[maybe_unused]] once the project has been upgraded to C++17.
-void DestroyScriptThreads(uint32_t scriptBufferId);
+[[maybe_unused]] static void DestroyScriptThreads(uint32_t scriptBufferId);
 static void DestroyThreadGroup(uint32_t groupId);
 
 void Init() {
