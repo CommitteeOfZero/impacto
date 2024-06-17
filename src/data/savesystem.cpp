@@ -10,8 +10,6 @@ namespace SaveSystem {
 
 using namespace Impacto::Profile::SaveSystem;
 
-SaveSystemBase* Implementation = 0;
-
 void Init() { Configure(); }
 
 SaveError MountSaveFile() {

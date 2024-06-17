@@ -13,14 +13,6 @@ using namespace Impacto::TipsNotification;
 
 TipsNotificationType Type = TipsNotificationType::None;
 
-int TextTableId;
-int NotificationAlertMessageId;
-int NotificationTextPart1MessageId;
-int NotificationTextPart2MessageId;
-
-float FadeInDuration;
-float FadeOutDuration;
-
 void Configure() {
   EnsurePushMemberOfType("TipsNotification", LUA_TTABLE);
 

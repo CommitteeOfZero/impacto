@@ -8,10 +8,10 @@ namespace CCLCC {
 namespace SystemMenu {
 constexpr int MenuEntriesNumMax = 16;
 
-extern Sprite MenuButtonGuide;
-extern float TitleFadeInDuration;
-extern float TitleFadeOutDuration;
-extern glm::vec2 MenuEntriesPositions[MenuEntriesNumMax];
+inline Sprite MenuButtonGuide;
+inline float TitleFadeInDuration;
+inline float TitleFadeOutDuration;
+inline glm::vec2 MenuEntriesPositions[MenuEntriesNumMax];
 
 void Configure();
 

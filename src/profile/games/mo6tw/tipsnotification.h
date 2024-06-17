@@ -9,16 +9,16 @@ namespace TipsNotification {
 
 void Configure();
 
-extern glm::vec2 AlertPosition;
-extern glm::vec2 FinalNotificationPosition;
-extern glm::vec2 InitialNotificationPosition;
-extern RectF NotificationRenderingBounds;
-extern float TimerDuration;
-extern float MoveAnimationDuration;
+inline glm::vec2 AlertPosition;
+inline glm::vec2 FinalNotificationPosition;
+inline glm::vec2 InitialNotificationPosition;
+inline RectF NotificationRenderingBounds;
+inline float TimerDuration;
+inline float MoveAnimationDuration;
 
-extern int AlertTextColorIndex;
-extern int TipNameColorIndex;
-extern float FontSize;
+inline int AlertTextColorIndex;
+inline int TipNameColorIndex;
+inline float FontSize;
 
 }  // namespace TipsNotification
 }  // namespace MO6TW

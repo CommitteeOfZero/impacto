@@ -16,12 +16,6 @@ namespace Impacto {
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Vm;
 
-Background2D Backgrounds[MaxBackgrounds2D];
-Background2D Screencaptures[MaxScreencaptures];
-Background2D ShaderScreencapture;
-
-ska::flat_hash_map<int, Background2D*> Backgrounds2D;
-
 void Background2D::Init() {
   for (int i = 0; i < MaxBackgrounds2D; i++) {
     Backgrounds2D[i] = &Backgrounds[i];

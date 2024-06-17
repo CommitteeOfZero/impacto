@@ -7,31 +7,6 @@
 namespace Impacto {
 namespace Profile {
 
-RendererType ActiveRenderer{RendererType::OpenGL};
-VideoPlayerType VideoPlayer{VideoPlayerType::FFmpeg};
-AudioBackendType ActiveAudioBackend{AudioBackendType::OpenAL};
-
-uint32_t LayerCount;
-int GameFeatures;
-
-char const* WindowName;
-
-bool LayFileBigEndian;
-bool CharaIsMvl;
-bool UseScreenCapEffects;
-bool UseMoviePriority = false;
-float LayFileTexXMultiplier;
-float LayFileTexYMultiplier;
-
-float DesignWidth;
-float DesignHeight;
-
-char const* Language;
-int ResolutionWidth;
-int ResolutionHeight;
-bool Fullscreen;
-char const* Subtitles;
-
 void LoadGameFromLua() {
   AssertIs(LUA_TTABLE);
 

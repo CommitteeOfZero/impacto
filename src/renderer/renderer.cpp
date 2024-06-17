@@ -14,12 +14,6 @@
 
 namespace Impacto {
 
-BaseRenderer* Renderer;
-BaseWindow* Window;
-
-GraphicsApi GraphicsApiHint;
-GraphicsApi ActualGraphicsApi;
-
 void InitRenderer() {
   switch (Profile::ActiveRenderer) {
 #ifndef IMPACTO_DISABLE_OPENGL

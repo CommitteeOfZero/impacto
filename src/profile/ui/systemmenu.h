@@ -7,20 +7,20 @@ namespace Impacto {
 namespace Profile {
 namespace SystemMenu {
 
-extern Impacto::UI::SystemMenuType Type;
+inline Impacto::UI::SystemMenuType Type = Impacto::UI::SystemMenuType::None;
 
-constexpr int MenuEntriesNumMax = 16;
+int constexpr MenuEntriesNumMax = 16;
 
-extern Sprite MenuEntriesSprites[MenuEntriesNumMax];
-extern Sprite MenuEntriesHSprites[MenuEntriesNumMax];
-extern int MenuEntriesNum;
-extern int MenuEntriesHNum;
-extern float MenuEntriesX;
-extern float MenuEntriesXOffset;
-extern float MenuEntriesFirstY;
-extern float MenuEntriesYPadding;
-extern float FadeInDuration;
-extern float FadeOutDuration;
+inline Sprite MenuEntriesSprites[MenuEntriesNumMax];
+inline Sprite MenuEntriesHSprites[MenuEntriesNumMax];
+inline int MenuEntriesNum;
+inline int MenuEntriesHNum;
+inline float MenuEntriesX;
+inline float MenuEntriesXOffset;
+inline float MenuEntriesFirstY;
+inline float MenuEntriesYPadding;
+inline float FadeInDuration = 0.5f;
+inline float FadeOutDuration = 0.5f;
 
 void Configure();
 

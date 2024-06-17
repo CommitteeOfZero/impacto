@@ -6,13 +6,13 @@ namespace Impacto {
 namespace Profile {
 namespace SaveIcon {
 
-extern SpriteAnimationDef ForegroundAnimation;
-extern glm::vec2 DefaultPosition;
-extern Sprite BackgroundSprite;
-extern glm::vec2 BackgroundOffset;
-extern float BackgroundMaxAlpha;
-extern float FadeInDuration;
-extern float FadeOutDuration;
+inline SpriteAnimationDef ForegroundAnimation;
+inline glm::vec2 DefaultPosition;
+inline Sprite BackgroundSprite;
+inline glm::vec2 BackgroundOffset;
+inline float BackgroundMaxAlpha;
+inline float FadeInDuration;
+inline float FadeOutDuration;
 
 void Configure();
 

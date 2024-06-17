@@ -7,8 +7,8 @@ namespace Impacto {
 namespace Profile {
 namespace Charset {
 
-extern uint8_t *Flags;
-extern ska::flat_hash_map<uint32_t, uint16_t> CharacterToSc3;
+inline uint8_t *Flags = nullptr;
+inline ska::flat_hash_map<uint32_t, uint16_t> CharacterToSc3;
 
 void Load();
 

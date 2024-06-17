@@ -10,8 +10,6 @@
 namespace Impacto {
 namespace Profile {
 
-lua_State* LuaState;
-
 void LuaDumpStack() {
   ImpLog(LL_Debug, LC_Profile, "Current stack: \n");
   int top = lua_gettop(LuaState);

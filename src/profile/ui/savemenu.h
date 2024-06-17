@@ -7,13 +7,13 @@ namespace Impacto {
 namespace Profile {
 namespace SaveMenu {
 
-extern Impacto::UI::SaveMenuType Type;
+inline Impacto::UI::SaveMenuType Type = Impacto::UI::SaveMenuType::None;
 
-extern Sprite SaveMenuBackgroundSprite;
-extern Sprite EmptyThumbnailSprite;
+inline Sprite SaveMenuBackgroundSprite;
+inline Sprite EmptyThumbnailSprite;
 
-extern float FadeInDuration;
-extern float FadeOutDuration;
+inline float FadeInDuration;
+inline float FadeOutDuration;
 
 void Configure();
 

@@ -8,8 +8,6 @@
 
 namespace Impacto {
 
-Mask2D Masks2D[MaxMasks2D];
-
 void Mask2D::Init() {
   std::map<uint32_t, std::string> maskFiles;
   Io::VfsListFiles("mask", maskFiles);

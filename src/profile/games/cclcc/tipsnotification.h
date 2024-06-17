@@ -9,16 +9,16 @@ namespace TipsNotification {
 
 void Configure();
 
-extern Sprite NotificationBackground;
+inline Sprite NotificationBackground;
 
-extern glm::vec2 BackgroundPosition;
-extern glm::vec2 InitialNotificationPosition;
-extern RectF NotificationRenderingBounds;
-extern float TimerDuration;
-extern float MoveAnimationDuration;
+inline glm::vec2 BackgroundPosition;
+inline glm::vec2 InitialNotificationPosition;
+inline RectF NotificationRenderingBounds;
+inline float TimerDuration;
+inline float MoveAnimationDuration;
 
-extern int TipNameColorIndex;
-extern float FontSize;
+inline int TipNameColorIndex;
+inline float FontSize;
 
 }  // namespace TipsNotification
 }  // namespace CCLCC

@@ -9,52 +9,52 @@ namespace AlbumMenu {
 
 void Configure();
 
-int const CharacterButtonCount = 8;
-int const CharacterPortraitCount = 5;
-int const CharacterCount = 6;
-int const EventCgCount = 104;
+int constexpr CharacterButtonCount = 8;
+int constexpr CharacterPortraitCount = 5;
+int constexpr CharacterCount = 6;
+int constexpr EventCgCount = 104;
 
-extern Sprite BackgroundSprite;
+inline Sprite BackgroundSprite;
 
-extern Sprite CharacterButtonSprites[CharacterButtonCount];
-extern Sprite HighlightedCharacterButtonSprites[CharacterButtonCount];
-extern glm::vec2 InitialButtonPosition;
-extern float ButtonOddX;
-extern float ButtonEvenX;
-extern glm::vec2 ButtonMargin;
-extern float HighlightAnimationDuration;
-extern int YunoButtonIdx;
-extern int SuzuButtonIdx;
-extern Sprite CharacterPortraits[CharacterPortraitCount];
-extern Sprite OthersPortraitTopPart;
-extern Sprite OthersPortraitBottomPart;
-extern glm::vec2 PortraitPosition;
-extern glm::vec2 OthersPortraitPosition;
-extern int ThumbnailsPerRow;
-extern int ThumbnailsPerColumn;
-extern Sprite Thumbnails[EventCgCount];
-extern int ThumbnailOffsets[CharacterCount];
-extern Sprite LockedThumbnail;
-extern Sprite ThumbnailBorder;
-extern Sprite ThumbnailHighlightTopLeft;
-extern Sprite ThumbnailHighlightTopRight;
-extern Sprite ThumbnailHighlightBottomLeft;
-extern Sprite ThumbnailHighlightBottomRight;
-extern glm::vec2 ThumbnailGridFirstPosition;
-extern glm::vec2 ThumbnailGridMargin;
-extern RectF ThumbnailGridBounds;
-extern float ArrowsAnimationDuration;
-extern Sprite ArrowUp;
-extern glm::vec2 ArrowUpPosition;
-extern Sprite ArrowDown;
-extern glm::vec2 ArrowDownPosition;
-extern glm::vec2 ThumbnailButtonBorderOffset;
-extern float ThumbnailButtonTextFontSize;
-extern int ThumbnailButtonTextColorIndex;
-extern glm::vec2 ThumbnailButtonTextOffset;
+inline Sprite CharacterButtonSprites[CharacterButtonCount];
+inline Sprite HighlightedCharacterButtonSprites[CharacterButtonCount];
+inline glm::vec2 InitialButtonPosition;
+inline float ButtonOddX;
+inline float ButtonEvenX;
+inline glm::vec2 ButtonMargin;
+inline float HighlightAnimationDuration;
+inline int YunoButtonIdx;
+inline int SuzuButtonIdx;
+inline Sprite CharacterPortraits[CharacterPortraitCount];
+inline Sprite OthersPortraitTopPart;
+inline Sprite OthersPortraitBottomPart;
+inline glm::vec2 PortraitPosition;
+inline glm::vec2 OthersPortraitPosition;
+inline int ThumbnailsPerRow;
+inline int ThumbnailsPerColumn;
+inline Sprite Thumbnails[EventCgCount];
+inline int ThumbnailOffsets[CharacterCount];
+inline Sprite LockedThumbnail;
+inline Sprite ThumbnailBorder;
+inline Sprite ThumbnailHighlightTopLeft;
+inline Sprite ThumbnailHighlightTopRight;
+inline Sprite ThumbnailHighlightBottomLeft;
+inline Sprite ThumbnailHighlightBottomRight;
+inline glm::vec2 ThumbnailGridFirstPosition;
+inline glm::vec2 ThumbnailGridMargin;
+inline RectF ThumbnailGridBounds;
+inline float ArrowsAnimationDuration;
+inline Sprite ArrowUp;
+inline glm::vec2 ArrowUpPosition;
+inline Sprite ArrowDown;
+inline glm::vec2 ArrowDownPosition;
+inline glm::vec2 ThumbnailButtonBorderOffset;
+inline float ThumbnailButtonTextFontSize;
+inline int ThumbnailButtonTextColorIndex;
+inline glm::vec2 ThumbnailButtonTextOffset;
 
-extern float FadeInDuration;
-extern float FadeOutDuration;
+inline float FadeInDuration;
+inline float FadeOutDuration;
 
 }  // namespace AlbumMenu
 }  // namespace MO6TW

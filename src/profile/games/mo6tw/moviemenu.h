@@ -9,33 +9,33 @@ namespace MovieMenu {
 
 void Configure();
 
-int const MaxMovieThumbnails = 10;
+int constexpr MaxMovieThumbnails = 10;
 
-extern Sprite BackgroundSprite;
+inline Sprite BackgroundSprite;
 
-extern Sprite FirstOPTopPartSprite;
-extern Sprite FirstOPBottomPartSprite;
-extern Sprite SecondOPTopPartSprite;
-extern Sprite SecondOPBottomPartSprite;
-extern Sprite UnlockedMovieThumbnailSprites[MaxMovieThumbnails];
-extern Sprite LockedMovieThumbnailSprites[MaxMovieThumbnails];
-extern Sprite SelectionHighlightTopLeft;
-extern Sprite SelectionHighlightTopRight;
-extern Sprite SelectionHighlightBottomLeft;
-extern Sprite SelectionHighlightBottomRight;
-extern int ItemCount;
-extern int ItemsPerRow;
-extern glm::vec2 InitialItemPosition;
-extern glm::vec2 ItemOffset;
+inline Sprite FirstOPTopPartSprite;
+inline Sprite FirstOPBottomPartSprite;
+inline Sprite SecondOPTopPartSprite;
+inline Sprite SecondOPBottomPartSprite;
+inline Sprite UnlockedMovieThumbnailSprites[MaxMovieThumbnails];
+inline Sprite LockedMovieThumbnailSprites[MaxMovieThumbnails];
+inline Sprite SelectionHighlightTopLeft;
+inline Sprite SelectionHighlightTopRight;
+inline Sprite SelectionHighlightBottomLeft;
+inline Sprite SelectionHighlightBottomRight;
+inline int ItemCount;
+inline int ItemsPerRow;
+inline glm::vec2 InitialItemPosition;
+inline glm::vec2 ItemOffset;
 
-extern float HighlightAnimationDuration;
-extern glm::vec2 HighlightTopLeftOffset;
-extern glm::vec2 HighlightTopRightOffset;
-extern glm::vec2 HighlightBottomLeftOffset;
-extern glm::vec2 HighlightBottomRightOffset;
+inline float HighlightAnimationDuration;
+inline glm::vec2 HighlightTopLeftOffset;
+inline glm::vec2 HighlightTopRightOffset;
+inline glm::vec2 HighlightBottomLeftOffset;
+inline glm::vec2 HighlightBottomRightOffset;
 
-extern float FadeInDuration;
-extern float FadeOutDuration;
+inline float FadeInDuration;
+inline float FadeOutDuration;
 
 }  // namespace MovieMenu
 }  // namespace MO6TW

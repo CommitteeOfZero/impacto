@@ -9,17 +9,17 @@ namespace SystemMenu {
 
 void Configure();
 
-constexpr int MenuEntriesNumMax = 16;
+int constexpr MenuEntriesNumMax = 16;
 
-extern Sprite SystemMenuBackgroundSprite;
-extern Sprite MenuEntriesLSprites[MenuEntriesNumMax];
-extern int MenuEntriesLNum;
+inline Sprite SystemMenuBackgroundSprite;
+inline Sprite MenuEntriesLSprites[MenuEntriesNumMax];
+inline int MenuEntriesLNum;
 
-extern int ExitMenuButtonId;
+inline int ExitMenuButtonId;
 
-extern float MenuEntriesTargetWidth;
-extern float SystemMenuX;
-extern float SystemMenuY;
+inline float MenuEntriesTargetWidth;
+inline float SystemMenuX;
+inline float SystemMenuY;
 
 }  // namespace SystemMenu
 }  // namespace MO8

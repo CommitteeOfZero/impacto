@@ -13,16 +13,6 @@ namespace OptionsMenu {
 
 using namespace Impacto::UI;
 
-OptionsMenuType Type = OptionsMenuType::None;
-
-Sprite BackgroundSprite;
-Sprite SliderTrackSprite;
-Sprite SliderFillSprite;
-Sprite SliderThumbSprite;
-
-float FadeInDuration;
-float FadeOutDuration;
-
 void Configure() {
   if (TryPushMember("OptionsMenu")) {
     AssertIs(LUA_TTABLE);

@@ -12,13 +12,6 @@ namespace Profile {
 namespace MO6TW {
 namespace SystemMenu {
 
-Sprite SystemMenuBackgroundSprite;
-Sprite MenuEntriesHighlightedSprite;
-
-float MenuEntriesTargetWidth;
-float SystemMenuX;
-float SystemMenuY;
-
 void Configure() {
   MenuEntriesHighlightedSprite =
       EnsureGetMemberSprite("MenuEntriesHighlightedSprite");

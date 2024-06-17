@@ -13,39 +13,6 @@ namespace Profile {
 namespace CHLCC {
 namespace TipsMenu {
 
-float MenuTransitionDuration;
-uint32_t BackgroundColor;
-Sprite CircleSprite;
-glm::vec2 CircleStartPosition;
-float CircleOffset;
-glm::vec2 ErinPosition;
-Sprite ErinSprite;
-Sprite BackgroundFilter;
-glm::vec2 InitialRedBarPosition;
-glm::vec2 RightRedBarPosition;
-Sprite InitialRedBarSprite;
-glm::vec2 RedBarPosition;
-float RedBarDivision;
-float RedBarBaseX;
-Sprite RedBarSprite;
-glm::vec2 RedBarLabelPosition;
-Sprite RedBarLabel;
-glm::vec2 MenuTitleTextRightPosition;
-glm::vec2 MenuTitleTextLeftPosition;
-float MenuTitleTextAngle;
-float TitleFadeInDuration;
-float TitleFadeOutDuration;
-Sprite MenuTitleText;
-glm::vec2 TreePosition;
-Sprite TipsTree;
-glm::vec2 GradientPosition;
-Sprite TipsGradient;
-uint32_t EndOfGradientColor;
-glm::vec2 CurrentTipBackgroundPosition;
-Sprite CurrentTipBackgroundSprite;
-glm::vec2 ButtonPromptPosition;
-Sprite ButtonPromptSprite;
-
 void Configure() {
   MenuTransitionDuration = EnsureGetMemberFloat("TransitionDuration");
   BackgroundColor = EnsureGetMemberUint("BackgroundColor");

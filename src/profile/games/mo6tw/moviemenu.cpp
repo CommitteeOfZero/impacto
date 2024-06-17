@@ -12,32 +12,6 @@ namespace Profile {
 namespace MO6TW {
 namespace MovieMenu {
 
-Sprite BackgroundSprite;
-
-Sprite FirstOPTopPartSprite;
-Sprite FirstOPBottomPartSprite;
-Sprite SecondOPTopPartSprite;
-Sprite SecondOPBottomPartSprite;
-Sprite UnlockedMovieThumbnailSprites[MaxMovieThumbnails];
-Sprite LockedMovieThumbnailSprites[MaxMovieThumbnails];
-Sprite SelectionHighlightTopLeft;
-Sprite SelectionHighlightTopRight;
-Sprite SelectionHighlightBottomLeft;
-Sprite SelectionHighlightBottomRight;
-int ItemCount;
-int ItemsPerRow;
-glm::vec2 InitialItemPosition;
-glm::vec2 ItemOffset;
-
-float HighlightAnimationDuration;
-glm::vec2 HighlightTopLeftOffset;
-glm::vec2 HighlightTopRightOffset;
-glm::vec2 HighlightBottomLeftOffset;
-glm::vec2 HighlightBottomRightOffset;
-
-float FadeInDuration;
-float FadeOutDuration;
-
 void Configure() {
   BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
 

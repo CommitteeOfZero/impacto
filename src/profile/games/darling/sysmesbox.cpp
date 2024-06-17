@@ -10,24 +10,6 @@ namespace Profile {
 namespace Darling {
 namespace SysMesBox {
 
-Sprite BoxPartLeft;
-Sprite BoxPartRight;
-Sprite BoxPartMiddle;
-Sprite BoxDecoration;
-Sprite SelectionHighlight;
-
-float BoxX;
-float BoxY;
-float ChoicePadding;
-float ChoiceY;
-float ChoiceXBase;
-float MinMaxMesWidth;
-float BoxMinimumWidth;
-float BoxMiddleBaseX;
-float BoxMiddleBaseWidth;
-float BoxRightBaseWidth;
-float BoxRightRemainPad;
-
 void Configure() {
   SelectionHighlight = EnsureGetMemberSprite("SelectionHighlight");
 

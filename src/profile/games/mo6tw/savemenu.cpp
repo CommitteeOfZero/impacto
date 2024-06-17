@@ -11,22 +11,6 @@ namespace Impacto {
 namespace Profile {
 namespace MO6TW {
 namespace SaveMenu {
-float EntryStartX;
-float EntryXPadding;
-float EntryStartY;
-float EntryYPadding;
-
-Sprite QuickLoadTextSprite;
-Sprite LoadTextSprite;
-Sprite SaveTextSprite;
-glm::vec2 MenuTitleTextPos;
-
-Sprite QuickLoadEntrySprite;
-Sprite QuickLoadEntryHighlightedSprite;
-Sprite SaveEntrySprite;
-Sprite SaveEntryHighlightedSprite;
-Sprite LoadEntrySprite;
-Sprite LoadEntryHighlightedSprite;
 
 void Configure() {
   EntryStartX = EnsureGetMemberFloat("EntryStartX");

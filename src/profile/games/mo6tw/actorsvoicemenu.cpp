@@ -11,19 +11,6 @@ namespace Profile {
 namespace MO6TW {
 namespace ActorsVoiceMenu {
 
-Sprite BackgroundSprite;
-
-Sprite UnlockedSprites[ActorsVoiceCount];
-Sprite LockedSprites[ActorsVoiceCount];
-Sprite UnlockedHighlightedSprites[ActorsVoiceCount];
-Sprite LockedHighlightedSprites[ActorsVoiceCount];
-glm::vec2 InitialItemPosition;
-glm::vec2 ItemOffset;
-int CharacterBackgroundBufferId;
-
-float FadeInDuration;
-float FadeOutDuration;
-
 void Configure() {
   BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
 

@@ -6,8 +6,6 @@
 namespace Impacto {
 namespace Profile {
 
-ska::flat_hash_map<std::string, Font*> Fonts;
-
 void LoadFonts() {
   EnsurePushMemberOfType("Fonts", LUA_TTABLE);
 

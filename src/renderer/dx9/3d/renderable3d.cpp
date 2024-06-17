@@ -433,35 +433,36 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
 
   switch (CurrentMaterial) {
     case MT_Background: {
-      int const backgroundTextureTypes[] = {TT_ColorMap};
+      int constexpr backgroundTextureTypes[] = {TT_ColorMap};
       SetTextures(id, backgroundTextureTypes, 1);
       break;
     }
     case MT_Outline: {
       if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
-        int const outlineTextureTypes[] = {TT_DaSH_ColorMap, TT_DaSH_NoiseMap};
+        int constexpr outlineTextureTypes[] = {TT_DaSH_ColorMap,
+                                               TT_DaSH_NoiseMap};
         SetTextures(id, outlineTextureTypes, 2);
       } else {
-        int const outlineTextureTypes[] = {TT_ColorMap};
+        int constexpr outlineTextureTypes[] = {TT_ColorMap};
         SetTextures(id, outlineTextureTypes, 1);
       }
       break;
     }
     case MT_Generic: {
-      int const genericTextureTypes[] = {TT_ColorMap, TT_GradientMaskMap,
-                                         TT_SpecularColorMap};
+      int constexpr genericTextureTypes[] = {TT_ColorMap, TT_GradientMaskMap,
+                                             TT_SpecularColorMap};
       SetTextures(id, genericTextureTypes, 3);
       break;
     }
     case MT_Eye: {
-      int const eyeTextureTypes[] = {TT_Eye_IrisColorMap, TT_Eye_WhiteColorMap,
-                                     TT_Eye_HighlightColorMap,
-                                     TT_Eye_IrisSpecularColorMap};
+      int constexpr eyeTextureTypes[] = {
+          TT_Eye_IrisColorMap, TT_Eye_WhiteColorMap, TT_Eye_HighlightColorMap,
+          TT_Eye_IrisSpecularColorMap};
       SetTextures(id, eyeTextureTypes, 4);
       break;
     }
     case MT_DaSH_Generic: {
-      int const dashGenericTextureTypes[] = {
+      int constexpr dashGenericTextureTypes[] = {
           TT_DaSH_ColorMap, TT_DaSH_GradientMaskMap, TT_DaSH_SpecularColorMap,
           TT_DaSH_ShadowColorMap};
       SetTextures(id, dashGenericTextureTypes, 4);
@@ -469,15 +470,15 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
     }
     case MT_DaSH_Face:
     case MT_DaSH_Skin: {
-      int const dashGenericTextureTypes[] = {
+      int constexpr dashGenericTextureTypes[] = {
           TT_DaSH_ColorMap, TT_DaSH_GradientMaskMap, TT_DaSH_SpecularColorMap};
       SetTextures(id, dashGenericTextureTypes, 3);
       break;
     }
     case MT_DaSH_Eye: {
-      int const dashEyeTextureTypes[] = {TT_DaSH_Eye_IrisColorMap,
-                                         TT_DaSH_Eye_WhiteColorMap,
-                                         TT_DaSH_Eye_HighlightColorMap};
+      int constexpr dashEyeTextureTypes[] = {TT_DaSH_Eye_IrisColorMap,
+                                             TT_DaSH_Eye_WhiteColorMap,
+                                             TT_DaSH_Eye_HighlightColorMap};
       SetTextures(id, dashEyeTextureTypes, 3);
       break;
     }

@@ -9,16 +9,16 @@
 namespace Impacto {
 namespace Vulkan {
 
-int const MAX_FRAMES_IN_FLIGHT = 2;
+int constexpr MAX_FRAMES_IN_FLIGHT = 2;
 
-extern uint32_t CurrentFrameIndex;
-extern uint32_t CurrentImageIndex;
+inline uint32_t CurrentFrameIndex = 0;
+inline uint32_t CurrentImageIndex = 0;
 
-extern Pipeline* CurrentPipeline;
+inline Pipeline* CurrentPipeline = nullptr;
 
-extern VkSampler Sampler;
+inline VkSampler Sampler;
 
-extern PFN_vkCmdPushDescriptorSetKHR vkCmdPushDescriptorSetKHR;
+inline PFN_vkCmdPushDescriptorSetKHR vkCmdPushDescriptorSetKHR;
 
 struct VkQueueFamilies {
   uint32_t GraphicsQueueIdx;
@@ -41,7 +41,7 @@ typedef struct VkTexture {
   VkDescriptorSet Descriptor;
 } VkTexture;
 
-extern ska::flat_hash_map<uint32_t, VkTexture> Textures;
+inline ska::flat_hash_map<uint32_t, VkTexture> Textures;
 
 struct UploadContext {
   VkDevice Device;
@@ -51,8 +51,8 @@ struct UploadContext {
   alignas(16) VkCommandBuffer CommandBuffer;
 };
 
-extern VmaAllocator Allocator;
-extern UploadContext MainUploadContext;
+inline VmaAllocator Allocator;
+inline UploadContext MainUploadContext;
 
 void CreateAllocator(VkPhysicalDevice physicalDevice, VkDevice device,
                      VkInstance instance);

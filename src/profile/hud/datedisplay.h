@@ -7,28 +7,28 @@ namespace Impacto {
 namespace Profile {
 namespace DateDisplay {
 
-int const NumSpriteCount = 10;
-int const WeekSpriteCount = 7;
+int constexpr NumSpriteCount = 10;
+int constexpr WeekSpriteCount = 7;
 
-extern Sprite MonthNumSprites[NumSpriteCount];
-extern Sprite DayNumSprites[NumSpriteCount];
-extern Sprite YearNumSprites[NumSpriteCount];
-extern Sprite WeekSprites[WeekSpriteCount];
+inline Sprite MonthNumSprites[NumSpriteCount];
+inline Sprite DayNumSprites[NumSpriteCount];
+inline Sprite YearNumSprites[NumSpriteCount];
+inline Sprite WeekSprites[WeekSpriteCount];
 
-extern Sprite MDSeparatorSprite;
-extern Sprite DYSeparatorSprite;
-extern Sprite OpenBracketSprite;
-extern Sprite CloseBracketSprite;
-extern Sprite BackgroundSprite;
+inline Sprite MDSeparatorSprite;
+inline Sprite DYSeparatorSprite;
+inline Sprite OpenBracketSprite;
+inline Sprite CloseBracketSprite;
+inline Sprite BackgroundSprite;
 
-extern glm::vec2 BackgroundStartPos;
-extern glm::vec2 BackgroundEndPos;
-extern float DateStartX;
-extern float YearWeekY;
-extern float MonthDayY;
-extern float Spacing;
-extern float FadeInDuration;
-extern float FadeOutDuration;
+inline glm::vec2 BackgroundStartPos;
+inline glm::vec2 BackgroundEndPos;
+inline float DateStartX;
+inline float YearWeekY;
+inline float MonthDayY;
+inline float Spacing;
+inline float FadeInDuration;
+inline float FadeOutDuration;
 
 void Configure();
 

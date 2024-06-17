@@ -13,17 +13,6 @@ namespace SysMesBox {
 
 using namespace Impacto::UI;
 
-SysMesBoxType Type = SysMesBoxType::None;
-
-float TextFontSize;
-float TextMiddleY;
-float TextX;
-float TextLineHeight;
-float TextMarginY;
-float AnimationSpeed;
-float FadeInDuration;
-float FadeOutDuration;
-
 void Configure() {
   if (TryPushMember("SysMesBoxDisplay")) {
     AssertIs(LUA_TTABLE);

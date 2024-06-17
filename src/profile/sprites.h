@@ -6,8 +6,8 @@
 namespace Impacto {
 namespace Profile {
 
-extern ska::flat_hash_map<std::string, SpriteSheet> SpriteSheets;
-extern ska::flat_hash_map<std::string, Sprite> Sprites;
+inline ska::flat_hash_map<std::string, SpriteSheet> SpriteSheets;
+inline ska::flat_hash_map<std::string, Sprite> Sprites;
 
 void LoadSpritesheets();
 

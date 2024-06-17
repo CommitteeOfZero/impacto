@@ -5,21 +5,6 @@ namespace Impacto {
 namespace Profile {
 namespace Scene3D {
 
-LKMVersion Version = LKMVersion::RNE;
-
-int MaxRenderables;
-
-glm::vec3 DefaultCameraPosition;
-glm::vec3 DefaultCameraTarget;
-float DefaultFov;
-
-float AnimationDesignFrameRate;
-
-std::vector<std::pair<uint32_t, int16_t>> AnimationParseBlacklist;
-
-ska::flat_hash_map<uint32_t, CharacterDef> Characters;
-ska::flat_hash_map<uint32_t, uint32_t> ModelsToCharacters;
-
 void Configure() {
   EnsurePushMemberOfType("Scene3D", LUA_TTABLE);
 
@@ -43,7 +28,7 @@ void Configure() {
 
     PushInitialIndex();
     while (PushNextTableElement() != 0) {
-      uint32_t model = EnsureGetKeyUint();
+      const uint32_t model = EnsureGetKeyUint();
       AssertIs(LUA_TTABLE);
       PushInitialIndex();
       while (PushNextTableElement() != 0) {
@@ -63,7 +48,7 @@ void Configure() {
 
     PushInitialIndex();
     while (PushNextTableElement() != 0) {
-      uint32_t charId = EnsureGetKeyUint();
+      const uint32_t charId = EnsureGetKeyUint();
 
       CharacterDef& character = Characters[charId];
       character.CharacterId = charId;

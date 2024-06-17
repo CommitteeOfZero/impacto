@@ -8,25 +8,6 @@ namespace Profile {
 namespace CHLCC {
 namespace DialogueBox {
 
-Sprite SecondaryADVBoxSprite;
-
-bool HaveSecondaryADVNameTag;
-namespace SecondaryADVNameTag {
-glm::vec2 Position;
-Sprite LeftSprite;
-Sprite LineSprite;
-Sprite RightSprite;
-float LineFactor;
-float BaseLineWidth;
-}  // namespace SecondaryADVNameTag
-
-Sprite REVBoxSprite;
-glm::vec2 REVBoxPos;
-glm::vec2 REVWaitIconOffset;
-uint8_t REVLineHeight;
-uint8_t REVLineSpacing;
-uint8_t REVFontSize;
-
 void Configure() {
   SecondaryADVBoxSprite = EnsureGetMemberSprite("SecondaryADVBoxSprite");
 

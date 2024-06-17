@@ -12,35 +12,6 @@ namespace Profile {
 namespace MO6TW {
 namespace OptionsMenu {
 
-Sprite VoiceToggleEnabledSprites[VoiceToggleCount];
-Sprite VoiceToggleDisabledSprites[VoiceToggleCount];
-Sprite VoiceToggleHighlightSprite;
-
-glm::vec2 VoiceToggleStart;
-glm::vec2 VoiceTogglePadding;
-int VoiceTogglePerLine;
-
-Sprite SectionHeaderSprites[SectionHeaderSpriteCount];
-
-Sprite CheckboxBoxSprite;
-Sprite CheckboxTickSprite;
-Sprite CheckboxLabelSprites[CheckboxLabelCount];
-
-glm::vec2 FirstPageSliderPos;
-float FirstPageSliderMargin;
-glm::vec2 SliderThumbOffset;
-glm::vec2 CheckboxLabelOffset;
-glm::vec2 CheckboxFirstPos;
-float CheckboxFirstSectionPaddingX;
-glm::vec2 CheckboxMargin;
-glm::vec2 CheckboxSecondPos;
-float CheckboxSecondSectionFirstPaddingX;
-float AutoSaveTriggerXPos[AutoSaveTriggerXPosCount];
-glm::vec2 ScreenSizeSliderPos;
-glm::vec2 TipsPos;
-glm::vec2 FirstPageSectionHeaderPos;
-glm::vec2 SecondPageSectionHeaderPos;
-
 void Configure() {
   GetMemberSpriteArray(VoiceToggleEnabledSprites, VoiceToggleCount,
                        "VoiceToggleEnabledSprites");

@@ -9,30 +9,30 @@ namespace TitleMenu {
 
 void Configure();
 
-extern Sprite BackgroundSprite;
-extern Sprite CopyrightSprite;
-extern Sprite LogoSprite;
-extern Sprite MenuBackgroundSprite;
-extern Sprite MenuItemLockedSprite;
-extern Sprite MenuItemLockedSpriteH;
+inline Sprite BackgroundSprite;
+inline Sprite CopyrightSprite;
+inline Sprite LogoSprite;
+inline Sprite MenuBackgroundSprite;
+inline Sprite MenuItemLockedSprite;
+inline Sprite MenuItemLockedSpriteH;
 
-extern float MenuEntriesX;
-extern float MenuEntriesFirstY;
-extern float MenuEntriesYPadding;
-extern float MenuEntriesTargetWidth;
-extern float LogoX;
-extern float LogoY;
-extern float CopyrightX;
-extern float CopyrightY;
-extern float PrimaryFadeAnimDuration;
-extern glm::vec2 SecondaryMenuAnimTarget;
-extern float SecondaryMenuPadding;
-extern float SecondaryMenuAnimDuration;
-extern float SecondaryMenuAnimUnderX;
-extern float ExtraStoryItemCount;
-extern float ContinueItemCount;
-extern float MemoriesItemCount;
-extern float SystemItemCount;
+inline float MenuEntriesX;
+inline float MenuEntriesFirstY;
+inline float MenuEntriesYPadding;
+inline float MenuEntriesTargetWidth;
+inline float LogoX;
+inline float LogoY;
+inline float CopyrightX;
+inline float CopyrightY;
+inline float PrimaryFadeAnimDuration;
+inline glm::vec2 SecondaryMenuAnimTarget;
+inline float SecondaryMenuPadding;
+inline float SecondaryMenuAnimDuration;
+inline float SecondaryMenuAnimUnderX;
+inline float ExtraStoryItemCount;
+inline float ContinueItemCount;
+inline float MemoriesItemCount;
+inline float SystemItemCount;
 
 }  // namespace TitleMenu
 }  // namespace MO6TW

@@ -22,7 +22,7 @@ class TipsNotificationBase {
   std::queue<uint8_t*> NotificationQueue;
 };
 
-extern TipsNotificationBase* Implementation;
+inline TipsNotificationBase* Implementation = nullptr;
 
 void Init();
 void Update(float dt);

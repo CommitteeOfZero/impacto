@@ -7,33 +7,33 @@
 namespace Impacto {
 namespace Profile {
 
-extern RendererType ActiveRenderer;
-extern VideoPlayerType VideoPlayer;
-extern AudioBackendType ActiveAudioBackend;
+inline RendererType ActiveRenderer = RendererType::OpenGL;
+inline VideoPlayerType VideoPlayer = VideoPlayerType::FFmpeg;
+inline AudioBackendType ActiveAudioBackend = AudioBackendType::OpenAL;
 
-extern uint32_t LayerCount;
-extern int GameFeatures;
+inline uint32_t LayerCount;
+inline int GameFeatures;
 
-extern char const* WindowName;
+inline char const* WindowName;
 
-extern bool LayFileBigEndian;
-extern bool CharaIsMvl;
-extern bool UseScreenCapEffects;
-extern bool UseMoviePriority;
-extern float LayFileTexXMultiplier;
-extern float LayFileTexYMultiplier;
+inline bool LayFileBigEndian;
+inline bool CharaIsMvl;
+inline bool UseScreenCapEffects;
+inline bool UseMoviePriority = false;
+inline float LayFileTexXMultiplier;
+inline float LayFileTexYMultiplier;
 
 // The design coordinate system is: x,y from 0,0 to width,height,
 // origin is top left
-extern float DesignWidth;
-extern float DesignHeight;
+inline float DesignWidth;
+inline float DesignHeight;
 
 // This is for user configuration with realboot
-extern char const* Language;
-extern int ResolutionWidth;
-extern int ResolutionHeight;
-extern bool Fullscreen;
-extern char const* Subtitles;
+inline char const* Language;
+inline int ResolutionWidth;
+inline int ResolutionHeight;
+inline bool Fullscreen;
+inline char const* Subtitles;
 
 void LoadGameFromLua();
 

@@ -20,7 +20,7 @@ struct Character2DState {
   uint16_t* Indices = 0;
 };
 
-int const MaxMvlIndices = 128 * 1024;
+int constexpr MaxMvlIndices = 128 * 1024;
 
 class Character2D : public Loadable<Character2D> {
   friend class Loadable<Character2D>;
@@ -63,12 +63,12 @@ class Character2D : public Loadable<Character2D> {
   int MvlIndicesCount;
 };
 
-int const MaxCharacters2D = 16;
+int constexpr MaxCharacters2D = 16;
 
-extern Character2D Characters2D[MaxCharacters2D];
+inline Character2D Characters2D[MaxCharacters2D];
 
-int const MaxSpeakerPortraits = 2;
+int constexpr MaxSpeakerPortraits = 2;
 
-extern Character2D SpeakerPortraits[MaxSpeakerPortraits];
+inline Character2D SpeakerPortraits[MaxSpeakerPortraits];
 
 }  // namespace Impacto

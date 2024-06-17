@@ -7,15 +7,15 @@ namespace Impacto {
 namespace Profile {
 namespace OptionsMenu {
 
-extern Impacto::UI::OptionsMenuType Type;
+inline Impacto::UI::OptionsMenuType Type = Impacto::UI::OptionsMenuType::None;
 
-extern Sprite BackgroundSprite;
-extern Sprite SliderTrackSprite;
-extern Sprite SliderFillSprite;
-extern Sprite SliderThumbSprite;
+inline Sprite BackgroundSprite;
+inline Sprite SliderTrackSprite;
+inline Sprite SliderFillSprite;
+inline Sprite SliderThumbSprite;
 
-extern float FadeInDuration;
-extern float FadeOutDuration;
+inline float FadeInDuration;
+inline float FadeOutDuration;
 
 void Configure();
 

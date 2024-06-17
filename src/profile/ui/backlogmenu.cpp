@@ -10,20 +10,6 @@ namespace BacklogMenu {
 
 using namespace Impacto::UI;
 
-Sprite BacklogBackground;
-Sprite EntryHighlight;
-Sprite VoiceIcon;
-Sprite ScrollbarThumb;
-Sprite ScrollbarTrack;
-
-float EntryYPadding;
-glm::vec2 EntriesStart;
-glm::vec2 ScrollbarPosition;
-RectF RenderingBounds;
-
-float FadeInDuration;
-float FadeOutDuration;
-
 void Configure() {
   if (TryPushMember("BacklogMenu")) {
     AssertIs(LUA_TTABLE);

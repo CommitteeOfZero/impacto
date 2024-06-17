@@ -28,7 +28,7 @@ class DelusionTriggerBase {
   int& DelusionState;
 };
 
-extern DelusionTriggerBase* Implementation;
+inline DelusionTriggerBase* Implementation = nullptr;
 
 void Init();
 void Update(float dt);

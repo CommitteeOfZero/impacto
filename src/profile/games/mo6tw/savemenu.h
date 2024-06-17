@@ -7,25 +7,25 @@ namespace Profile {
 namespace MO6TW {
 namespace SaveMenu {
 
-int const EntriesPerRow = 2;
-int const RowsPerPage = 4;
+int constexpr EntriesPerRow = 2;
+int constexpr RowsPerPage = 4;
 
-extern float EntryStartX;
-extern float EntryXPadding;
-extern float EntryStartY;
-extern float EntryYPadding;
+inline float EntryStartX;
+inline float EntryXPadding;
+inline float EntryStartY;
+inline float EntryYPadding;
 
-extern Sprite QuickLoadTextSprite;
-extern Sprite LoadTextSprite;
-extern Sprite SaveTextSprite;
-extern glm::vec2 MenuTitleTextPos;
+inline Sprite QuickLoadTextSprite;
+inline Sprite LoadTextSprite;
+inline Sprite SaveTextSprite;
+inline glm::vec2 MenuTitleTextPos;
 
-extern Sprite QuickLoadEntrySprite;
-extern Sprite QuickLoadEntryHighlightedSprite;
-extern Sprite SaveEntrySprite;
-extern Sprite SaveEntryHighlightedSprite;
-extern Sprite LoadEntrySprite;
-extern Sprite LoadEntryHighlightedSprite;
+inline Sprite QuickLoadEntrySprite;
+inline Sprite QuickLoadEntryHighlightedSprite;
+inline Sprite SaveEntrySprite;
+inline Sprite SaveEntryHighlightedSprite;
+inline Sprite LoadEntrySprite;
+inline Sprite LoadEntryHighlightedSprite;
 
 void Configure();
 

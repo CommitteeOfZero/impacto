@@ -16,8 +16,6 @@
 namespace Impacto {
 namespace DebugMenu {
 
-bool DebugMenuShown = false;
-
 static int ScrWorkNumberFormat = 0;
 static int ScrWorkIndexStart = 0;
 static int ScrWorkIndexEnd = 0;

@@ -10,36 +10,36 @@ namespace TitleMenu {
 
 void Configure();
 
-extern Sprite BackgroundSprite;
-extern Sprite LogoSprite;
+inline Sprite BackgroundSprite;
+inline Sprite LogoSprite;
 
-extern float LogoPositionX;
-extern float LogoPositionY;
+inline float LogoPositionX;
+inline float LogoPositionY;
 
-extern int NewGameSpriteIndex;
-extern int ContinueSpriteIndex;
-extern int OptionSpriteIndex;
-extern int GallerySpriteIndex;
-extern int AlbumSpriteIndex;
-extern int MusicSpriteIndex;
-extern int ClearListSpriteIndex;
-extern int WarningSpriteIndex;
-extern int AdditionalSpriteIndex;
-extern int DLCSpriteIndex;
-extern int LoadSpriteIndex;
-extern int QuickLoadSpriteIndex;
+inline int NewGameSpriteIndex;
+inline int ContinueSpriteIndex;
+inline int OptionSpriteIndex;
+inline int GallerySpriteIndex;
+inline int AlbumSpriteIndex;
+inline int MusicSpriteIndex;
+inline int ClearListSpriteIndex;
+inline int WarningSpriteIndex;
+inline int AdditionalSpriteIndex;
+inline int DLCSpriteIndex;
+inline int LoadSpriteIndex;
+inline int QuickLoadSpriteIndex;
 
-extern float MenuEntriesX;
-extern float MenuEntriesFirstY;
-extern float MenuEntriesYPadding;
-extern float MenuEntriesGalleryFirstY;
+inline float MenuEntriesX;
+inline float MenuEntriesFirstY;
+inline float MenuEntriesYPadding;
+inline float MenuEntriesGalleryFirstY;
 
-extern bool PressToStartAnimated;
-extern bool HasAdditional;
+inline bool PressToStartAnimated;
+inline bool HasAdditional;
 
-extern Animation PressToStartAnimation;
-extern float PrimaryFadeAnimDuration;
-extern float ItemFadeAnimDuration;
+inline Animation PressToStartAnimation;
+inline float PrimaryFadeAnimDuration;
+inline float ItemFadeAnimDuration;
 
 }  // namespace TitleMenu
 }  // namespace MO8

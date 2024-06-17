@@ -18,8 +18,8 @@ class Mask2D {
   SpriteSheet MaskSpriteSheet;
 };
 
-int const MaxMasks2D = 32;
+int constexpr MaxMasks2D = 32;
 
-extern Mask2D Masks2D[MaxMasks2D];
+inline Mask2D Masks2D[MaxMasks2D];
 
 }  // namespace Impacto

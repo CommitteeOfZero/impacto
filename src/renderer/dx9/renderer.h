@@ -139,8 +139,8 @@ class Renderer : public BaseRenderer {
 
   bool Drawing = false;
 
-  static int const VertexBufferSize = 1024 * 1024;
-  static int const IndexBufferCount =
+  static int constexpr VertexBufferSize = 1024 * 1024;
+  static int constexpr IndexBufferCount =
       VertexBufferSize / (4 * sizeof(VertexBufferSprites)) * 6;
 
   uint8_t VertexBuffer[VertexBufferSize];

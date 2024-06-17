@@ -5,19 +5,6 @@ namespace Impacto {
 namespace Profile {
 namespace LoadingDisplay {
 
-SpriteAnimationDef ResourceLoadBgAnim;
-SpriteAnimationDef SaveLoadBgAnim;
-SpriteAnimationDef LoadingIconAnim;
-SpriteAnimationDef LoadingTextAnim;
-
-glm::vec2 ResourceBgPos;
-glm::vec2 SaveBgPos;
-glm::vec2 IconPos;
-glm::vec2 TextPos;
-
-float FadeInDuration;
-float FadeOutDuration;
-
 void Configure() {
   EnsurePushMemberOfType("LoadingDisplay", LUA_TTABLE);
 

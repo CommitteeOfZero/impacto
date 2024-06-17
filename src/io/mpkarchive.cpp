@@ -9,7 +9,7 @@
 namespace Impacto {
 namespace Io {
 
-int const MpkMaxPath = 224;
+static int constexpr MpkMaxPath = 224;
 
 struct MpkMetaEntry : FileMeta {
   int64_t Offset;

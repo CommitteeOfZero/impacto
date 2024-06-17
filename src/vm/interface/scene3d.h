@@ -22,8 +22,8 @@ struct ScrWorkAnimation {
   bool AltTarget;
 };
 
-extern std::vector<int> CurrentScrWorkAnimations;
-extern ska::flat_hash_map<int, ScrWorkAnimation> ScrWorkAnimations;
+inline std::vector<int> CurrentScrWorkAnimations;
+inline ska::flat_hash_map<int, ScrWorkAnimation> ScrWorkAnimations;
 
 }  // namespace Interface
 }  // namespace Vm

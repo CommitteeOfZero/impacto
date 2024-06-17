@@ -8,48 +8,48 @@ namespace Profile {
 namespace CHLCC {
 namespace MovieMenu {
 
-int const Movies = 10;
+int constexpr Movies = 10;
 
-extern float MenuTransitionDuration;
-extern uint32_t BackgroundColor;
-extern Sprite CircleSprite;
-extern glm::vec2 CircleStartPosition;
-extern float CircleOffset;
-extern glm::vec2 ErinPosition;
-extern Sprite ErinSprite;
-extern Sprite BackgroundFilter;
-extern glm::vec2 InitialRedBarPosition;
-extern Sprite InitialRedBarSprite;
-extern glm::vec2 RightRedBarPosition;
-extern glm::vec2 RedBarPosition;
-extern float RedBarDivision;
-extern float RedBarBaseX;
-extern Sprite RedBarSprite;
-extern glm::vec2 RedBarLabelPosition;
-extern Sprite RedBarLabel;
-extern glm::vec2 MenuTitleTextRightPosition;
-extern glm::vec2 MenuTitleTextLeftPosition;
-extern float MenuTitleTextAngle;
-extern float TitleFadeInDuration;
-extern float TitleFadeOutDuration;
-extern Sprite MenuTitleText;
-extern SpriteAnimationDef SelectedMovieAnimation;
-extern Sprite SelectedMovieYellowDot;
+inline float MenuTransitionDuration;
+inline uint32_t BackgroundColor;
+inline Sprite CircleSprite;
+inline glm::vec2 CircleStartPosition;
+inline float CircleOffset;
+inline glm::vec2 ErinPosition;
+inline Sprite ErinSprite;
+inline Sprite BackgroundFilter;
+inline glm::vec2 InitialRedBarPosition;
+inline Sprite InitialRedBarSprite;
+inline glm::vec2 RightRedBarPosition;
+inline glm::vec2 RedBarPosition;
+inline float RedBarDivision;
+inline float RedBarBaseX;
+inline Sprite RedBarSprite;
+inline glm::vec2 RedBarLabelPosition;
+inline Sprite RedBarLabel;
+inline glm::vec2 MenuTitleTextRightPosition;
+inline glm::vec2 MenuTitleTextLeftPosition;
+inline float MenuTitleTextAngle;
+inline float TitleFadeInDuration;
+inline float TitleFadeOutDuration;
+inline Sprite MenuTitleText;
+inline SpriteAnimationDef SelectedMovieAnimation;
+inline Sprite SelectedMovieYellowDot;
 
-extern float SelectMovieFadeDuration;
-extern Sprite SelectMovie[11];
-extern glm::vec2 SelectMoviePos[11];
-extern glm::vec2 LabelPosition;
-extern Sprite MovieLabel;
-extern Sprite MovieList;
-extern glm::vec2 BoxPositions[Movies];
-extern glm::vec2 ListPosition;
-extern Sprite MovieBox;
-extern glm::vec2 ThumbnailPositions[Movies];
-extern Sprite MoviesThumbnails[Movies];
-extern Sprite LockedThumbnail;
-extern glm::vec2 ButtonPromptPosition;
-extern Sprite ButtonPromptSprite;
+inline float SelectMovieFadeDuration;
+inline Sprite SelectMovie[11];
+inline glm::vec2 SelectMoviePos[11];
+inline glm::vec2 LabelPosition;
+inline Sprite MovieLabel;
+inline Sprite MovieList;
+inline glm::vec2 BoxPositions[Movies];
+inline glm::vec2 ListPosition;
+inline Sprite MovieBox;
+inline glm::vec2 ThumbnailPositions[Movies];
+inline Sprite MoviesThumbnails[Movies];
+inline Sprite LockedThumbnail;
+inline glm::vec2 ButtonPromptPosition;
+inline Sprite ButtonPromptSprite;
 
 void Configure();
 

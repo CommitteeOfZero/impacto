@@ -10,47 +10,6 @@ namespace Profile {
 namespace CHLCC {
 namespace MovieMenu {
 
-float MenuTransitionDuration;
-uint32_t BackgroundColor;
-Sprite CircleSprite;
-glm::vec2 CircleStartPosition;
-float CircleOffset;
-glm::vec2 ErinPosition;
-Sprite ErinSprite;
-Sprite BackgroundFilter;
-glm::vec2 InitialRedBarPosition;
-glm::vec2 RightRedBarPosition;
-Sprite InitialRedBarSprite;
-glm::vec2 RedBarPosition;
-float RedBarDivision;
-float RedBarBaseX;
-Sprite RedBarSprite;
-glm::vec2 RedBarLabelPosition;
-Sprite RedBarLabel;
-glm::vec2 MenuTitleTextRightPosition;
-glm::vec2 MenuTitleTextLeftPosition;
-float MenuTitleTextAngle;
-float TitleFadeInDuration;
-float TitleFadeOutDuration;
-Sprite MenuTitleText;
-SpriteAnimationDef SelectedMovieAnimation;
-Sprite SelectedMovieYellowDot;
-
-float SelectMovieFadeDuration;
-Sprite SelectMovie[11];
-glm::vec2 SelectMoviePos[11];
-glm::vec2 LabelPosition;
-Sprite MovieLabel;
-glm::vec2 ListPosition;
-Sprite MovieList;
-glm::vec2 BoxPositions[Movies];
-Sprite MovieBox;
-glm::vec2 ThumbnailPositions[Movies];
-Sprite MoviesThumbnails[Movies];
-Sprite LockedThumbnail;
-glm::vec2 ButtonPromptPosition;
-Sprite ButtonPromptSprite;
-
 void Configure() {
   MenuTransitionDuration = EnsureGetMemberFloat("TransitionDuration");
   BackgroundColor = EnsureGetMemberUint("BackgroundColor");

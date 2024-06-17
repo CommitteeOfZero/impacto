@@ -5,14 +5,6 @@ namespace Impacto {
 namespace Profile {
 namespace SaveIcon {
 
-SpriteAnimationDef ForegroundAnimation;
-glm::vec2 DefaultPosition;
-Sprite BackgroundSprite;
-glm::vec2 BackgroundOffset;
-float BackgroundMaxAlpha;
-float FadeInDuration;
-float FadeOutDuration;
-
 void Configure() {
   EnsurePushMemberOfType("SaveIcon", LUA_TTABLE);
 

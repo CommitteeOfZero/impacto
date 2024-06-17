@@ -10,11 +10,6 @@ namespace TipsSystem {
 
 using namespace Impacto::TipsSystem;
 
-TipsSystemType Type = TipsSystemType::None;
-
-int MaxTipsCount;
-uint32_t MaxTipDataSize;
-
 void Configure() {
   EnsurePushMemberOfType("TipsSystem", LUA_TTABLE);
 

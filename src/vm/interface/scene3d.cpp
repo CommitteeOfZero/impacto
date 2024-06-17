@@ -15,9 +15,6 @@ namespace Interface {
 
 using namespace Impacto::Profile::ScriptVars;
 
-ska::flat_hash_map<int, ScrWorkAnimation> ScrWorkAnimations;
-std::vector<int> CurrentScrWorkAnimations;
-
 static void UpdateScrWorkAnimations() {
   for (size_t i = 0; i < CurrentScrWorkAnimations.size(); i++) {
     int id = CurrentScrWorkAnimations[i];

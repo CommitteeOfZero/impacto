@@ -47,7 +47,8 @@ class MapSystemBase {
   virtual void Render() = 0;
 };
 
-extern MapSystemBase* MapSystemPtr;
+inline MapSystemBase* MapSystemPtr = nullptr;
+
 void Init();
 int MapLoad(uint8_t* data);
 int MapSave(uint8_t* data);

@@ -14,47 +14,6 @@ namespace Profile {
 namespace MO6TW {
 namespace TipsMenu {
 
-Sprite TipThumbnails[ThumbnailCount];
-Sprite TipTextOnlyThumbnail;
-glm::vec2 ThumbnailPosition;
-uint16_t CategoryString[MaxCategoryString];
-
-int DefaultColorIndex;
-int UnreadColorIndex;
-RectF NameInitialBounds;
-float NameFontSize;
-RectF PronounciationInitialBounds;
-float PronounciationFontSize;
-RectF CategoryInitialBounds;
-float CategoryEndX;
-float CategoryFontSize;
-int SortStringTable;
-int SortStringIndex;
-float TipListInitialY;
-int TipListCategoriesPerPage;
-int TipListMaxPages;
-RectF TipListEntryBounds;
-float TipListEntryFontSize;
-float TipListYPadding;
-glm::vec2 TipListEntryHighlightOffset;
-float TipListEntryNameXOffset;
-std::string TipListEntryNewText;
-float TipListEntryNewOffset;
-int TipListEntryLockedTable;
-int TipListEntryLockedIndex;
-int NumberLabelStrTable;
-int NumberLabelStrIndex;
-glm::vec2 NumberLabelPosition;
-float NumberLabelFontSize;
-RectF NumberBounds;
-float NumberFontSize;
-int PageSeparatorTable;
-int PageSeparatorIndex;
-glm::vec2 PageSeparatorPosition;
-float PageSeparatorFontSize;
-RectF CurrentPageBounds;
-RectF TotalPagesBounds;
-
 void Configure() {
   GetMemberSpriteArray(TipThumbnails, 37, "Thumbnails");
   TipTextOnlyThumbnail = EnsureGetMemberSprite("TextOnlyThumbnail");

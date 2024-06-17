@@ -9,13 +9,13 @@ namespace DialogueBox {
 
 void Configure();
 
-extern Sprite ADVBoxPartLeft;
-extern Sprite ADVBoxPartRight;
-extern Sprite ADVBoxDecoration;
+inline Sprite ADVBoxPartLeft;
+inline Sprite ADVBoxPartRight;
+inline Sprite ADVBoxDecoration;
 
-extern glm::vec2 ADVBoxPartLeftPos;
-extern glm::vec2 ADVBoxPartRightPos;
-extern glm::vec2 ADVBoxDecorationPos;
+inline glm::vec2 ADVBoxPartLeftPos;
+inline glm::vec2 ADVBoxPartRightPos;
+inline glm::vec2 ADVBoxDecorationPos;
 
 }  // namespace DialogueBox
 }  // namespace MO6TW

@@ -12,15 +12,6 @@ namespace SaveSystem {
 
 using namespace Impacto::SaveSystem;
 
-SaveDataType Type = SaveDataType::None;
-
-std::string SaveFilePath;
-uint32_t* StoryScriptIDs;
-int StoryScriptCount;
-ScriptMessageDataPair* ScriptMessageData;
-uint16_t AlbumEvData[MaxAlbumEntries][MaxAlbumSubEntries];
-uint16_t AlbumData[MaxAlbumEntries][MaxAlbumSubEntries][MaxCGSprites];
-
 void Configure() {
   EnsurePushMemberOfType("SaveData", LUA_TTABLE);
 

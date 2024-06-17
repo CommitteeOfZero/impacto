@@ -14,14 +14,6 @@ namespace SaveMenu {
 
 using namespace Impacto::UI;
 
-SaveMenuType Type = SaveMenuType::None;
-
-Sprite SaveMenuBackgroundSprite;
-Sprite EmptyThumbnailSprite;
-
-float FadeInDuration;
-float FadeOutDuration;
-
 void Configure() {
   if (TryPushMember("SaveMenu")) {
     AssertIs(LUA_TTABLE);

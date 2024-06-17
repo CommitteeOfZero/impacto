@@ -12,26 +12,6 @@ using namespace Impacto::DateDisplay;
 
 DateDisplayType Type = DateDisplayType::None;
 
-Sprite MonthNumSprites[NumSpriteCount];
-Sprite DayNumSprites[NumSpriteCount];
-Sprite YearNumSprites[NumSpriteCount];
-Sprite WeekSprites[WeekSpriteCount];
-
-Sprite MDSeparatorSprite;
-Sprite DYSeparatorSprite;
-Sprite OpenBracketSprite;
-Sprite CloseBracketSprite;
-Sprite BackgroundSprite;
-
-glm::vec2 BackgroundStartPos;
-glm::vec2 BackgroundEndPos;
-float DateStartX;
-float YearWeekY;
-float MonthDayY;
-float Spacing;
-float FadeInDuration;
-float FadeOutDuration;
-
 void Configure() {
   EnsurePushMemberOfType("DateDisplay", LUA_TTABLE);
 

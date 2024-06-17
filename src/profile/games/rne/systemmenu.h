@@ -8,34 +8,34 @@ namespace Profile {
 namespace RNE {
 namespace SystemMenu {
 
-extern Sprite SkyBackgroundSprite;
-extern Sprite SkyArrowSprite;
-extern Sprite SkyTextSprite;
-extern Sprite ButtonBackgroundSprite;
-extern Sprite ButtonPromptsSprite;
-extern float ButtonBackgroundStartX;
-extern float ButtonBackgroundX;
-extern float ButtonBackgroundY;
-extern float ButtonBackgroundTargetWidth;
-extern float ButtonBackgroundSprStartX;
-extern float SkyBackgroundBeginX;
-extern float SkyBackgroundY;
-extern float SkyTextBeginX;
-extern float SkyTextY;
-extern float MenuEntriesXSkew;
-extern float MenuEntriesTargetWidth;
-extern float SkyInStartProgress;
-extern float SkyOutStartProgress;
-extern float SkyMoveDurationIn;
-extern float SkyMoveDurationOut;
-extern float EntriesMoveDurationIn;
-extern float EntriesMoveDurationOut;
-extern float HighlightDurationIn;
-extern float HighlightDurationOut;
-extern Animation* BackgroundAnimation;
-extern Animation SkyMoveAnimation;
-extern Animation EntriesMoveAnimation;
-extern Animation HighlightAnimation;
+inline Sprite SkyBackgroundSprite;
+inline Sprite SkyArrowSprite;
+inline Sprite SkyTextSprite;
+inline Sprite ButtonBackgroundSprite;
+inline Sprite ButtonPromptsSprite;
+inline float ButtonBackgroundStartX;
+inline float ButtonBackgroundX;
+inline float ButtonBackgroundY;
+inline float ButtonBackgroundTargetWidth;
+inline float ButtonBackgroundSprStartX;
+inline float SkyBackgroundBeginX;
+inline float SkyBackgroundY;
+inline float SkyTextBeginX;
+inline float SkyTextY;
+inline float MenuEntriesXSkew;
+inline float MenuEntriesTargetWidth;
+inline float SkyInStartProgress;
+inline float SkyOutStartProgress;
+inline float SkyMoveDurationIn;
+inline float SkyMoveDurationOut;
+inline float EntriesMoveDurationIn;
+inline float EntriesMoveDurationOut;
+inline float HighlightDurationIn;
+inline float HighlightDurationOut;
+inline Animation* BackgroundAnimation = nullptr;
+inline Animation SkyMoveAnimation;
+inline Animation EntriesMoveAnimation;
+inline Animation HighlightAnimation;
 
 void Configure();
 

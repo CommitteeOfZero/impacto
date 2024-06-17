@@ -9,17 +9,17 @@ namespace Impacto {
 namespace Profile {
 namespace Scene3D {
 
-extern LKMVersion Version;
+inline LKMVersion Version = LKMVersion::RNE;
 
-extern int MaxRenderables;
+inline int MaxRenderables;
 
-extern glm::vec3 DefaultCameraPosition;
-extern glm::vec3 DefaultCameraTarget;
-extern float DefaultFov;
+inline glm::vec3 DefaultCameraPosition;
+inline glm::vec3 DefaultCameraTarget;
+inline float DefaultFov;
 
-extern float AnimationDesignFrameRate;
+inline float AnimationDesignFrameRate;
 
-extern std::vector<std::pair<uint32_t, int16_t>> AnimationParseBlacklist;
+inline std::vector<std::pair<uint32_t, int16_t>> AnimationParseBlacklist;
 
 struct AnimationDef {
   uint32_t CharacterId;
@@ -37,8 +37,8 @@ class CharacterDef {
   ska::flat_hash_map<int16_t, AnimationDef> Animations;
 };
 
-extern ska::flat_hash_map<uint32_t, CharacterDef> Characters;
-extern ska::flat_hash_map<uint32_t, uint32_t> ModelsToCharacters;
+inline ska::flat_hash_map<uint32_t, CharacterDef> Characters;
+inline ska::flat_hash_map<uint32_t, uint32_t> ModelsToCharacters;
 
 void Configure();
 

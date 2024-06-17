@@ -1,4 +1,4 @@
-#include "optionsmenu.h"
+#include "extramenus.h"
 #include "../profile_internal.h"
 #include "../../ui/ui.h"
 #include "../games/mo6tw/clearlistmenu.h"
@@ -17,12 +17,6 @@ namespace Profile {
 namespace ExtraMenus {
 
 using namespace Impacto::UI;
-
-ClearListMenuType ClearListType = ClearListMenuType::None;
-AlbumMenuType AlbumType = AlbumMenuType::None;
-MusicMenuType MusicType = MusicMenuType::None;
-MovieMenuType MovieType = MovieMenuType::None;
-ActorsVoiceMenuType ActorsVoiceType = ActorsVoiceMenuType::None;
 
 void Configure() {
   if (TryPushMember("ExtraMenus")) {

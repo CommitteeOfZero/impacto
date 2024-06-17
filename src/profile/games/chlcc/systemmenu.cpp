@@ -11,18 +11,6 @@ namespace Profile {
 namespace CHLCC {
 namespace SystemMenu {
 
-uint32_t BackgroundColor;
-Sprite BackgroundFilter;
-glm::vec2 CircleStartPosition;
-Sprite CircleSprite;
-float CircleOffset;
-glm::vec2 ErinPosition;
-Sprite ErinSprite;
-float TitleFadeInDuration;
-float TitleFadeOutDuration;
-uint32_t FocusTint;
-glm::vec2 MenuEntriesPositions[MenuEntriesNumMax];
-
 void Configure() {
   BackgroundColor = EnsureGetMemberUint("BackgroundColor");
   BackgroundFilter = EnsureGetMemberSprite("BackgroundFilter");

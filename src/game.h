@@ -41,9 +41,9 @@ void Shutdown();
 void Update(float dt);
 void Render();
 
-extern uint8_t DrawComponents[Vm::MaxThreads];
+inline uint8_t DrawComponents[Vm::MaxThreads];
 
-extern bool ShouldQuit;
+inline bool ShouldQuit = false;
 }  // namespace Game
 
 }  // namespace Impacto

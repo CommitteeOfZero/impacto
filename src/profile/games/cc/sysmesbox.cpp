@@ -10,34 +10,6 @@ namespace Profile {
 namespace CC {
 namespace SysMesBox {
 
-Sprite SumoSealSprites[SealSpriteCount];
-
-Sprite ButtonYes;
-Sprite ButtonNo;
-Sprite ButtonOK;
-Sprite ButtonYesHighlighted;
-Sprite ButtonNoHighlighted;
-Sprite ButtonOKHighlighted;
-
-float SumoSealCenterPosX[SealSpriteCount];
-float SumoSealCenterPosY[SealSpriteCount];
-float ButtonYesCenterPosX;
-float ButtonYesCenterPosY;
-float ButtonNoCenterPosX;
-float ButtonNoCenterPosY;
-float ButtonOKCenterPosX;
-float ButtonOKCenterPosY;
-float AnimationSpeed;
-float AnimationProgressWidgetsStartOffset;
-float ButtonNoDisplayStart;
-float ButtonNoAnimationProgressOffset;
-float ButtonYesNoScaleMultiplier;
-float ButtonOKScaleMultiplier;
-float ButtonScaleMax;
-float ButtonYesAnimationProgressEnd;
-float ButtonYesNoAlphaDivider;
-float WidgetsAlphaMultiplier;
-
 void Configure() {
   GetMemberSpriteArray(SumoSealSprites, SealSpriteCount, "SumoSealSprites");
 

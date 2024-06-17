@@ -10,25 +10,25 @@ namespace SysMesBox {
 
 void Configure();
 
-extern Sprite Box;
-extern Sprite BoxDecoration;
-extern Sprite SelectionLeftPart;
-extern Sprite SelectionRightPart;
-extern Sprite SelectionMiddlePart;
+inline Sprite Box;
+inline Sprite BoxDecoration;
+inline Sprite SelectionLeftPart;
+inline Sprite SelectionRightPart;
+inline Sprite SelectionMiddlePart;
 
-extern float BoxX;
-extern float BoxY;
-extern float ChoicePadding;
-extern float ChoiceY;
-extern float ChoiceXBase;
-extern float MinMaxMesWidth;
-extern float MinHighlightWidth;
-extern float HighlightBaseWidth;
-extern float HighlightRightPartSpriteWidth;
-extern float HighlightYOffset;
-extern float HighlightXOffset;
-extern float HighlightXBase;
-extern float HighlightXStep;
+inline float BoxX;
+inline float BoxY;
+inline float ChoicePadding;
+inline float ChoiceY;
+inline float ChoiceXBase;
+inline float MinMaxMesWidth;
+inline float MinHighlightWidth;
+inline float HighlightBaseWidth;
+inline float HighlightRightPartSpriteWidth;
+inline float HighlightYOffset;
+inline float HighlightXOffset;
+inline float HighlightXBase;
+inline float HighlightXStep;
 
 }  // namespace SysMesBox
 }  // namespace CHLCC

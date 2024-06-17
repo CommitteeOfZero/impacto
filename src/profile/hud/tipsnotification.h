@@ -7,13 +7,13 @@ namespace Impacto {
 namespace Profile {
 namespace TipsNotification {
 
-extern int TextTableId;
-extern int NotificationAlertMessageId;
-extern int NotificationTextPart1MessageId;
-extern int NotificationTextPart2MessageId;
+inline int TextTableId;
+inline int NotificationAlertMessageId;
+inline int NotificationTextPart1MessageId;
+inline int NotificationTextPart2MessageId;
 
-extern float FadeInDuration;
-extern float FadeOutDuration;
+inline float FadeInDuration;
+inline float FadeOutDuration;
 
 void Configure();
 
