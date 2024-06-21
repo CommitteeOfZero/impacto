@@ -8,13 +8,8 @@ namespace Impacto {
 
 // TODO Color output in console?
 
-LogLevel g_LogLevelFile = LL_Off;
-LogLevel g_LogLevelConsole = LL_Off;
-uint32_t g_LogChannelsFile = 0;
-uint32_t g_LogChannelsConsole = 0;
-
-bool LoggingToConsole = false;
-bool LoggingToFile = false;
+static bool LoggingToConsole = false;
+static bool LoggingToFile = false;
 
 char* Timestamp() {
   time_t timestamp = time(NULL);

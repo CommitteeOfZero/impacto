@@ -11,48 +11,6 @@ namespace Profile {
 namespace MO6TW {
 namespace AlbumMenu {
 
-Sprite BackgroundSprite;
-
-Sprite CharacterButtonSprites[CharacterButtonCount];
-Sprite HighlightedCharacterButtonSprites[CharacterButtonCount];
-glm::vec2 InitialButtonPosition;
-float ButtonOddX;
-float ButtonEvenX;
-glm::vec2 ButtonMargin;
-float HighlightAnimationDuration;
-int YunoButtonIdx;
-int SuzuButtonIdx;
-Sprite CharacterPortraits[CharacterPortraitCount];
-Sprite OthersPortraitTopPart;
-Sprite OthersPortraitBottomPart;
-glm::vec2 PortraitPosition;
-glm::vec2 OthersPortraitPosition;
-int ThumbnailsPerRow;
-int ThumbnailsPerColumn;
-Sprite Thumbnails[EventCgCount];
-int ThumbnailOffsets[CharacterCount];
-Sprite LockedThumbnail;
-Sprite ThumbnailBorder;
-Sprite ThumbnailHighlightTopLeft;
-Sprite ThumbnailHighlightTopRight;
-Sprite ThumbnailHighlightBottomLeft;
-Sprite ThumbnailHighlightBottomRight;
-glm::vec2 ThumbnailGridFirstPosition;
-glm::vec2 ThumbnailGridMargin;
-RectF ThumbnailGridBounds;
-float ArrowsAnimationDuration;
-Sprite ArrowUp;
-glm::vec2 ArrowUpPosition;
-Sprite ArrowDown;
-glm::vec2 ArrowDownPosition;
-glm::vec2 ThumbnailButtonBorderOffset;
-float ThumbnailButtonTextFontSize;
-int ThumbnailButtonTextColorIndex;
-glm::vec2 ThumbnailButtonTextOffset;
-
-float FadeInDuration;
-float FadeOutDuration;
-
 void Configure() {
   BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
 

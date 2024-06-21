@@ -10,17 +10,6 @@ namespace Profile {
 namespace CCLCC {
 namespace MapSystem {
 
-Sprite MapBgSprite;
-Sprite MapButtonGuideSprite;
-Sprite MapPartsPhotoSprites[MapPartsPhotoSpritesNumMax];
-Sprite MapPartsArticleSprites[MapPartsArticleSpritesNumMax];
-Sprite MapPartsPinSprites[MapPartsPinSpritesNumMax];
-Sprite MapPartsTagSprites[MapPartsTagSpritesNumMax];
-Sprite SelectedMapPoolTagSprite;
-Sprite MapLine;
-Sprite MapLineRed;
-float FadeAnimationDuration;
-
 void Configure() {
   MapBgSprite = EnsureGetMemberSprite("MapBackground");
   int MapPartsPhotosNum = EnsureGetMemberInt("MapPartsPhotosNum");

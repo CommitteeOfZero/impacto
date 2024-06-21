@@ -7,7 +7,7 @@ namespace Impacto {
 namespace Profile {
 namespace TrophyMenu {
 
-extern Impacto::UI::TrophyMenuType Type;
+inline Impacto::UI::TrophyMenuType Type = Impacto::UI::TrophyMenuType::None;
 
 void Configure();
 

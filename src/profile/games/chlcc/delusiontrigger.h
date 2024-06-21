@@ -7,9 +7,9 @@ namespace Profile {
 namespace CHLCC {
 namespace DelusionTrigger {
 
-extern Sprite BackgroundSprite;
-extern Sprite BackgroundSpriteMask;
-extern Sprite ScreenMask;
+inline Sprite BackgroundSprite;
+inline Sprite BackgroundSpriteMask;
+inline Sprite ScreenMask;
 
 void Configure();
 

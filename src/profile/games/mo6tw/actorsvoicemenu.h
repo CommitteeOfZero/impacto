@@ -7,22 +7,22 @@ namespace Profile {
 namespace MO6TW {
 namespace ActorsVoiceMenu {
 
-int const ActorsVoiceCount = 8;
+int constexpr ActorsVoiceCount = 8;
 
 void Configure();
 
-extern Sprite BackgroundSprite;
+inline Sprite BackgroundSprite;
 
-extern Sprite UnlockedSprites[ActorsVoiceCount];
-extern Sprite LockedSprites[ActorsVoiceCount];
-extern Sprite UnlockedHighlightedSprites[ActorsVoiceCount];
-extern Sprite LockedHighlightedSprites[ActorsVoiceCount];
-extern glm::vec2 InitialItemPosition;
-extern glm::vec2 ItemOffset;
-extern int CharacterBackgroundBufferId;
+inline Sprite UnlockedSprites[ActorsVoiceCount];
+inline Sprite LockedSprites[ActorsVoiceCount];
+inline Sprite UnlockedHighlightedSprites[ActorsVoiceCount];
+inline Sprite LockedHighlightedSprites[ActorsVoiceCount];
+inline glm::vec2 InitialItemPosition;
+inline glm::vec2 ItemOffset;
+inline int CharacterBackgroundBufferId;
 
-extern float FadeInDuration;
-extern float FadeOutDuration;
+inline float FadeInDuration;
+inline float FadeOutDuration;
 
 }  // namespace ActorsVoiceMenu
 }  // namespace MO6TW

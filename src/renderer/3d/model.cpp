@@ -15,25 +15,17 @@ using namespace Impacto::Io;
 
 namespace Impacto {
 
-const uint32_t ModelFileCountsOffset = 0x24;
-const uint32_t ModelFileHeaderSize = 0x54;
-const uint32_t ModelFileMeshInfoSize = 0x18C;
-uint32_t const ModelFileMeshInfoSize_DaSH = 0x1A8;
-const uint32_t ModelFileBoneSize = 0x1D0;
-uint32_t const ModelFileBoneSize_DaSH = 0x1FC;
-const uint32_t MorphTargetInfoSize = 16;
-const uint32_t BoneBaseTransformOffset = 0x11C;
-uint32_t const BoneBaseTransformOffset_DaSH = 0x13C;
-uint32_t const MeshInfoCountsOffset = 0xE0;
-uint32_t const MeshInfoCountsOffset_DaSH = 0xF8;
-
-uint32_t* g_ModelIds;
-char** g_ModelNames;
-uint32_t g_ModelCount;
-
-uint32_t* g_BackgroundModelIds;
-char** g_BackgroundModelNames;
-uint32_t g_BackgroundModelCount;
+uint32_t constexpr ModelFileCountsOffset = 0x24;
+uint32_t constexpr ModelFileHeaderSize = 0x54;
+uint32_t constexpr ModelFileMeshInfoSize = 0x18C;
+uint32_t constexpr ModelFileMeshInfoSize_DaSH = 0x1A8;
+uint32_t constexpr ModelFileBoneSize = 0x1D0;
+uint32_t constexpr ModelFileBoneSize_DaSH = 0x1FC;
+uint32_t constexpr MorphTargetInfoSize = 16;
+uint32_t constexpr BoneBaseTransformOffset = 0x11C;
+uint32_t constexpr BoneBaseTransformOffset_DaSH = 0x13C;
+uint32_t constexpr MeshInfoCountsOffset = 0xE0;
+uint32_t constexpr MeshInfoCountsOffset_DaSH = 0xF8;
 
 bool AnimationIsBlacklisted(uint32_t modelId, int16_t animId) {
   for (auto p : Profile::Scene3D::AnimationParseBlacklist) {

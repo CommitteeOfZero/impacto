@@ -6,8 +6,8 @@ namespace Impacto {
 
 namespace Vm {
 
-int const MaxCallStackDepth = 8;
-int const MaxThreadVars = 32;
+int constexpr MaxCallStackDepth = 8;
+int constexpr MaxThreadVars = 32;
 
 enum ThreadStateFlag {  // Applies to both individual threads and thread groups
   TF_None = 0x0,

@@ -6,11 +6,11 @@
 
 namespace Impacto {
 
-static int const ScrWorkSize = 8000;
-static int const FlagWorkSize = 1000;
+int constexpr ScrWorkSize = 8000;
+int constexpr FlagWorkSize = 1000;
 
-extern int ScrWork[ScrWorkSize];
-extern uint8_t FlagWork[FlagWorkSize];
+inline int ScrWork[ScrWorkSize];
+inline uint8_t FlagWork[FlagWorkSize];
 
 inline float ScrRealToFloat(int scrReal) { return (float)scrReal / 1000.0f; }
 inline int FloatToScrReal(float f) { return (int)(f * 1000.0f); }

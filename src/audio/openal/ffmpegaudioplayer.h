@@ -23,8 +23,8 @@ class FFmpegAudioPlayer : public Audio::FFmpegAudioPlayer {
 
  private:
   ALCuint ALSource;
-  static int const AudioBufferSize = 256 * 8192;
-  static int const AudioBufferCount = 3;
+  static int constexpr AudioBufferSize = 256 * 8192;
+  static int constexpr AudioBufferCount = 3;
   ALuint BufferIds[AudioBufferCount];
   uint8_t HostBuffer[AudioBufferSize];
   int FirstFreeBuffer = 0;

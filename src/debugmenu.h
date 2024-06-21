@@ -7,7 +7,7 @@
 namespace Impacto {
 namespace DebugMenu {
 
-extern bool DebugMenuShown;
+inline bool DebugMenuShown = false;
 
 // This is only for debug info
 BETTER_ENUM(ThreadGroupType, uint8_t, Root = 0x0, System = 0x1, GameSys = 0x2,

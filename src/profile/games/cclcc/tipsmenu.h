@@ -7,13 +7,12 @@ namespace Profile {
 namespace CCLCC {
 namespace TipsMenu {
 
-extern Sprite TipsBookLayerSprite;
-extern Sprite TipsBookLayerSprite;
-extern Sprite TipsGuideSprite;
-extern Sprite TipsMaskSprite;
+inline Sprite TipsBookLayerSprite;
+inline Sprite TipsGuideSprite;
+inline Sprite TipsMaskSprite;
 
-extern int TipsGuideX;
-extern int TipsGuideY;
+inline int TipsGuideX;
+inline int TipsGuideY;
 
 void Configure();
 

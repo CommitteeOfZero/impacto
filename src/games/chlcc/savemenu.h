@@ -25,12 +25,12 @@ class SaveMenu : public Menu {
 
  private:
   void UpdateEntry(SaveEntryButton* saveEntryButton);
-  inline void DrawCircles();
-  inline void DrawErin();
-  inline void DrawRedBar();
-  inline void DrawPageNumber(float yOffset);
-  inline void DrawButtonPrompt();
-  inline void DrawSelectData(float yOffset);
+  void DrawCircles();
+  void DrawErin();
+  void DrawRedBar();
+  void DrawPageNumber(float yOffset);
+  void DrawButtonPrompt();
+  void DrawSelectData(float yOffset);
 
   void UpdateTitles();
 

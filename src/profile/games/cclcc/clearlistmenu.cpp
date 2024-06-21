@@ -10,16 +10,6 @@ namespace Profile {
 namespace CCLCC {
 namespace ClearListMenu {
 
-Sprite BackgroundSprite;
-Sprite ClearListBookLayerSprite;
-Sprite ClearListGuideSprite;
-Sprite ClearListMaskSprite;
-
-float FadeInDuration;
-float FadeOutDuration;
-int ClearListGuideX;
-int ClearListGuideY;
-
 void Configure() {
   BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
   ClearListBookLayerSprite = EnsureGetMemberSprite("ClearListBookLayerSprite");

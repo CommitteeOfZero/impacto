@@ -7,25 +7,25 @@ namespace Profile {
 namespace MO8 {
 namespace SaveMenu {
 
-int const EntriesPerRow = 2;
-int const RowsPerPage = 4;
+int constexpr EntriesPerRow = 2;
+int constexpr RowsPerPage = 4;
 
-extern float EntryStartX;
-extern float EntryXPadding;
-extern float EntryStartY;
-extern float EntryYPadding;
+inline float EntryStartX;
+inline float EntryXPadding;
+inline float EntryStartY;
+inline float EntryYPadding;
 
-extern Sprite QuickLoadTextSprite;
-extern Sprite LoadTextSprite;
-extern Sprite SaveTextSprite;
-extern glm::vec2 MenuTitleTextPos;
+inline Sprite QuickLoadTextSprite;
+inline Sprite LoadTextSprite;
+inline Sprite SaveTextSprite;
+inline glm::vec2 MenuTitleTextPos;
 
-extern Sprite NextButtonSprite;
-extern Sprite NextButtonHighlightedSprite;
-extern glm::vec2 NextButtonPosition;
-extern Sprite BackButtonSprite;
-extern Sprite BackButtonHighlightedSprite;
-extern glm::vec2 BackButtonPosition;
+inline Sprite NextButtonSprite;
+inline Sprite NextButtonHighlightedSprite;
+inline glm::vec2 NextButtonPosition;
+inline Sprite BackButtonSprite;
+inline Sprite BackButtonHighlightedSprite;
+inline glm::vec2 BackButtonPosition;
 
 void Configure();
 

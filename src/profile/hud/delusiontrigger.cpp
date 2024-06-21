@@ -11,11 +11,6 @@ namespace DelusionTrigger {
 
 using namespace Impacto::DelusionTrigger;
 
-DelusionTriggerType Type = DelusionTriggerType::None;
-
-float FadeInDuration;
-float FadeOutDuration;
-
 void Configure() {
   if (!TryPushMember("DelusionTrigger")) return;
   AssertIs(LUA_TTABLE);

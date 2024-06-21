@@ -10,9 +10,9 @@ namespace TitleMenu {
 
 void Configure();
 
-extern Sprite BackgroundSprite;
+inline Sprite BackgroundSprite;
 
-extern Animation PressToStartAnimation;
+inline Animation PressToStartAnimation;
 
 }  // namespace TitleMenu
 }  // namespace Dash

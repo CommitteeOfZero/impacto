@@ -25,25 +25,25 @@ BETTER_ENUM(MovieMenuType, int, None, MO6TW, CHLCC)
 BETTER_ENUM(ActorsVoiceMenuType, int, None, MO6TW)
 BETTER_ENUM(TrophyMenuType, int, None, CHLCC)
 
-int const MaxExtraMenus = 10;
+int constexpr MaxExtraMenus = 10;
 
-extern ska::flat_hash_map<uint8_t, std::vector<Menu*>> Menus;
+inline ska::flat_hash_map<uint8_t, std::vector<Menu*>> Menus;
 
 // Current focused menu
-extern Menu* FocusedMenu;
+inline Menu* FocusedMenu = nullptr;
 
 // Common menus
-extern Menu* SystemMenuPtr;
-extern Menu* TitleMenuPtr;
-extern Menu* SaveMenuPtr;
-extern Menu* OptionsMenuPtr;
-extern Menu* TrophyMenuPtr;
+inline Menu* SystemMenuPtr = new NullMenu();
+inline Menu* TitleMenuPtr = new NullMenu();
+inline Menu* SaveMenuPtr = new NullMenu();
+inline Menu* OptionsMenuPtr = new NullMenu();
+inline Menu* TrophyMenuPtr = new NullMenu();
 
 //
-extern SelectionMenu* SelectionMenuPtr;
-extern SysMesBox* SysMesBoxPtr;
-extern BacklogMenu* BacklogMenuPtr;
-extern TipsMenu* TipsMenuPtr;
+inline SelectionMenu* SelectionMenuPtr = nullptr;
+inline SysMesBox* SysMesBoxPtr = nullptr;
+inline BacklogMenu* BacklogMenuPtr = nullptr;
+inline TipsMenu* TipsMenuPtr = nullptr;
 
 }  // namespace UI
 }  // namespace Impacto

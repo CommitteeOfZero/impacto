@@ -7,12 +7,12 @@ namespace Impacto {
 namespace Profile {
 namespace TipsMenu {
 
-extern Impacto::UI::TipsMenuType Type;
+inline Impacto::UI::TipsMenuType Type = Impacto::UI::TipsMenuType::None;
 
-extern Sprite BackgroundSprite;
+inline Sprite BackgroundSprite;
 
-extern float FadeInDuration;
-extern float FadeOutDuration;
+inline float FadeInDuration;
+inline float FadeOutDuration;
 
 void Configure();
 

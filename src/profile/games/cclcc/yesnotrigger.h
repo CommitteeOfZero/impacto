@@ -9,27 +9,27 @@ namespace YesNoTrigger {
 
 bool Configure();
 
-const int BackgroundPositionsNum = 8;
-const int YesNoDataSize = 20;
+constexpr int BackgroundPositionsNum = 8;
+constexpr int YesNoDataSize = 20;
 
-extern Sprite YesNoBackground0;
-extern Sprite YesNoBackground1;
-extern Sprite YesNoBackground2;
-extern Sprite YesNoBackground3;
-extern Sprite YN1YesChipSmall;
-extern Sprite YN1YesChipLarge;
-extern Sprite YN1NoChipSmall;
-extern Sprite YN1NoChipLarge;
-extern Sprite YN2YesChipSmall;
-extern Sprite YN2YesChipLarge;
-extern Sprite YN2NoChipSmall;
-extern Sprite YN2NoChipLarge;
-extern Sprite StarChip;
-extern Sprite YesNoBgMask;
+inline Sprite YesNoBackground0;
+inline Sprite YesNoBackground1;
+inline Sprite YesNoBackground2;
+inline Sprite YesNoBackground3;
+inline Sprite YN1YesChipSmall;
+inline Sprite YN1YesChipLarge;
+inline Sprite YN1NoChipSmall;
+inline Sprite YN1NoChipLarge;
+inline Sprite YN2YesChipSmall;
+inline Sprite YN2YesChipLarge;
+inline Sprite YN2NoChipSmall;
+inline Sprite YN2NoChipLarge;
+inline Sprite StarChip;
+inline Sprite YesNoBgMask;
 
-extern glm::vec2 BackgroundPositions[BackgroundPositionsNum];
-extern Impacto::CCLCC::YesNoTrigger::YesNoPositions YesNoData1[YesNoDataSize];
-extern Impacto::CCLCC::YesNoTrigger::YesNoPositions YesNoData2[YesNoDataSize];
+inline glm::vec2 BackgroundPositions[BackgroundPositionsNum];
+inline Impacto::CCLCC::YesNoTrigger::YesNoPositions YesNoData1[YesNoDataSize];
+inline Impacto::CCLCC::YesNoTrigger::YesNoPositions YesNoData2[YesNoDataSize];
 
 }  // namespace YesNoTrigger
 }  // namespace CCLCC

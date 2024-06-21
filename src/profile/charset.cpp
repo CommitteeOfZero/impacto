@@ -7,9 +7,6 @@ namespace Impacto {
 namespace Profile {
 namespace Charset {
 
-uint8_t* Flags = 0;
-ska::flat_hash_map<uint32_t, uint16_t> CharacterToSc3;
-
 void Load() {
   EnsurePushMemberOfType("Charset", LUA_TTABLE);
   {

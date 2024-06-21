@@ -13,35 +13,6 @@ namespace Profile {
 namespace MO6TW {
 namespace MusicMenu {
 
-Sprite BackgroundSprite;
-
-Sprite Thumbnails[MusicTrackCount];
-glm::vec2 ThumbnailPosition;
-Sprite ItemsWindow;
-glm::vec2 ItemsWindowPosition;
-RectF ItemsWindowRenderingBounds;
-glm::vec2 MusicListMargin;
-glm::vec2 MusicListInitialPosition;
-Sprite PlaybackWindow;
-glm::vec2 PlaybackWindowPosition;
-Sprite PlaybackModeLabels[MusicPlaybackModeLabelCount];
-glm::vec2 PlaybackModeLabelPosition;
-glm::vec2 CurrentlyPlayingLabelPosition;
-Sprite ItemNames[MusicTrackCount];
-glm::vec2 ItemNameHighlightOffset;
-Sprite LockedItem;
-Sprite ScrollbarThumb;
-Sprite ScrollbarTrack;
-glm::vec2 ScrollbarPosition;
-float ScrollbarStart;
-int Playlist[MusicTrackCount];
-Sprite TimerChars[TimerCharCount];
-glm::vec2 TimerInitialPosition;
-glm::vec2 TimerMargin;
-
-float FadeInDuration;
-float FadeOutDuration;
-
 void Configure() {
   BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
 

@@ -16,20 +16,6 @@ namespace TitleMenu {
 
 using namespace Impacto::UI;
 
-TitleMenuType Type = TitleMenuType::None;
-
-Sprite PressToStartSprite;
-Sprite MenuEntriesSprites[MenuEntriesNumMax];
-Sprite MenuEntriesHSprites[MenuEntriesNumMax];
-
-int MenuEntriesNum;
-
-float PressToStartAnimDurationIn;
-float PressToStartAnimDurationOut;
-
-float PressToStartX;
-float PressToStartY;
-
 void Configure() {
   if (TryPushMember("TitleMenu")) {
     AssertIs(LUA_TTABLE);

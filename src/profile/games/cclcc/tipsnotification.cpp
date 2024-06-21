@@ -7,17 +7,6 @@ namespace Profile {
 namespace CCLCC {
 namespace TipsNotification {
 
-Sprite NotificationBackground;
-
-glm::vec2 BackgroundPosition;
-glm::vec2 InitialNotificationPosition;
-RectF NotificationRenderingBounds;
-float TimerDuration;
-float MoveAnimationDuration;
-
-int TipNameColorIndex;
-float FontSize;
-
 void Configure() {
   NotificationBackground = EnsureGetMemberSprite("NotificationBackground");
 

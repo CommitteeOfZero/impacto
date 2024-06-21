@@ -29,24 +29,6 @@ namespace Vm {
 
 using namespace Profile::ScriptVars;
 
-uint8_t* ScriptBuffers[MaxLoadedScripts];
-uint8_t* MsbBuffers[MaxLoadedScripts];
-Io::FileMeta LoadedScriptMetas[MaxLoadedScripts];
-bool BlockCurrentScriptThread;
-uint32_t SwitchValue;
-TextTableEntry TextTable[16];
-
-#ifndef IMPACTO_DISABLE_IMGUI
-uint32_t DebugThreadId = -1;
-bool DebuggerBreak = false;
-bool DebuggerStepRequest = false;
-bool DebuggerContinueRequest = false;
-bool DebuggerAlwaysBlock = false;
-std::map<int, std::pair<uint32_t, uint32_t>> DebuggerBreakpoints;
-#endif
-
-Sc3VmThread ThreadPool[MaxThreads];  // Main thread pool where all the
-                                     // thread objects are stored
 static Sc3VmThread*
     ThreadTable[MaxThreads];  // Table of ordered thread pointers
                               // to be executed or "drawn"
@@ -74,11 +56,7 @@ static void SortThreadExecTable();
 static void CreateThreadDrawTable();
 static void SortThreadDrawTable();
 static void DrawAllThreads();
-// TODO: Make this static. It's only global to silence the unused function
-// warning, as it may be required for future games.
-// Alternatively, this could be marked
-// [[maybe_unused]] once the project has been upgraded to C++17.
-void DestroyScriptThreads(uint32_t scriptBufferId);
+[[maybe_unused]] static void DestroyScriptThreads(uint32_t scriptBufferId);
 static void DestroyThreadGroup(uint32_t groupId);
 
 void Init() {

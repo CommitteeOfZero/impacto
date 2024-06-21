@@ -9,33 +9,6 @@ namespace Impacto {
 namespace Profile {
 namespace SelectionMenu {
 
-Sprite SelectionBackground;
-Sprite PlainSelectionFrameTopLeft;
-Sprite PlainSelectionFrameTopSide;
-Sprite PlainSelectionFrameTopRight;
-Sprite PlainSelectionFrameLeftSide;
-Sprite PlainSelectionFrameBottomLeft;
-Sprite PlainSelectionFrameRightSide;
-Sprite PlainSelectionFrameBottomRight;
-Sprite PlainSelectionFrameBottomSide;
-Sprite PlainSelectionFrameMiddle;
-Sprite SelectionHighlight;
-Sprite SelectionFocused;
-
-int SelectionMaxCount;
-float SelectionBackgroundX;
-float SelectionBackgroundY[15];
-float SelectionBackgroundY1;
-float SelectionBackgroundY2;
-float SelectionBackgroundY3;
-float SelectionBackgroundY4;
-float SelectionBackgroundY5;
-float SelectionYSpacing;
-float PlainSelectionYSpacing;
-float FadeAnimationDurationInOut;
-
-bool HighlightTextOnly = true;
-
 void Configure() {
   EnsurePushMemberOfType("SelectionDisplay", LUA_TTABLE);
 

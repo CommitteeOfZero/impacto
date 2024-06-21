@@ -9,53 +9,6 @@ namespace ScriptInput {
 
 using namespace Impacto::Vm::Interface;
 
-ska::flat_hash_map<int, int> PADToKeyboard;
-ska::flat_hash_map<int, int> PADToMouse;
-ska::flat_hash_map<int, int> PADToController;
-
-int KB_PAD1A;
-int KB_PAD1B;
-int KB_PAD1X;
-int KB_PAD1Y;
-int KB_PAD1SELECT;
-int KB_PAD1START;
-int KB_PAD1UP;
-int KB_PAD1DOWN;
-int KB_PAD1LEFT;
-int KB_PAD1RIGHT;
-int KB_PAD1L1;
-int KB_PAD1L2;
-int KB_PAD1L3;
-int KB_PAD1R1;
-int KB_PAD1R2;
-int KB_PAD1R3;
-
-int MS_PAD1A;
-int MS_PAD1B;
-
-int GP_PAD1A;
-int GP_PAD1B;
-int GP_PAD1X;
-int GP_PAD1Y;
-int GP_PAD1SELECT;
-int GP_PAD1START;
-int GP_PAD1UP;
-int GP_PAD1DOWN;
-int GP_PAD1LEFT;
-int GP_PAD1RIGHT;
-int GP_PAD1L1;
-int GP_PAD1L2;
-int GP_PAD1L3;
-int GP_PAD1R1;
-int GP_PAD1R2;
-int GP_PAD1R3;
-
-int PADcustomType;
-int PADcustomSizeA;
-int PADcustomSizeB;
-uint32_t PADcustomA[64];
-uint32_t PADcustomB[64];
-
 void Configure() {
   EnsurePushMemberOfType("Input", LUA_TTABLE);
 

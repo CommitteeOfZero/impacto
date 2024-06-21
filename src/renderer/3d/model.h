@@ -27,28 +27,28 @@ enum MeshFlag : uint32_t {
   MeshFlag_Later = (1 << 1)
 };
 
-int const ModelMaxChildrenPerBone = 133;
-int const ModelMaxMorphTargetsPerModel = 256;
-int const ModelMaxMorphTargetsPerMesh = 32;
-int const ModelUnknownsAfterMorphTargets = 12;
-int const ModelUnknownsAfterMorphTargets_DaSH = 4;
+int constexpr ModelMaxChildrenPerBone = 133;
+int constexpr ModelMaxMorphTargetsPerModel = 256;
+int constexpr ModelMaxMorphTargetsPerMesh = 32;
+int constexpr ModelUnknownsAfterMorphTargets = 12;
+int constexpr ModelUnknownsAfterMorphTargets_DaSH = 4;
 // TODO: How do we actually want to do this?
 // Character models generally have <300 bones. Some background models have >600
 // bones (what are these for? - some of them seem broken).
 // Dynamic array?
-int const ModelMaxBonesPerModel = 768;
-int const ModelMaxBonesPerMesh = 32;
-int const ModelMaxMeshesPerModel = 64;
-int const ModelMaxRootBones = 32;
-int const ModelMaxTexturesPerModel = 64;
+int constexpr ModelMaxBonesPerModel = 768;
+int constexpr ModelMaxBonesPerMesh = 32;
+int constexpr ModelMaxMeshesPerModel = 64;
+int constexpr ModelMaxRootBones = 32;
+int constexpr ModelMaxTexturesPerModel = 64;
 
-extern uint32_t* g_ModelIds;
-extern char** g_ModelNames;
-extern uint32_t g_ModelCount;
+inline uint32_t* g_ModelIds;
+inline char** g_ModelNames;
+inline uint32_t g_ModelCount;
 
-extern uint32_t* g_BackgroundModelIds;
-extern char** g_BackgroundModelNames;
-extern uint32_t g_BackgroundModelCount;
+inline uint32_t* g_BackgroundModelIds;
+inline char** g_BackgroundModelNames;
+inline uint32_t g_BackgroundModelCount;
 
 struct VertexBuffer {
   glm::vec3 Position;

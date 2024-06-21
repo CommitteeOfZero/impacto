@@ -25,41 +25,75 @@ glm::mat2 Rotate2D(float angle);
 struct Rect;
 
 struct RectF {
-  float X;
-  float Y;
-  float Width;
-  float Height;
+  float X = 0;
+  float Y = 0;
+  float Width = 0;
+  float Height = 0;
 
-  RectF();
-  RectF(float x, float y, float width, float height);
-  RectF(Rect const& rect);
+  constexpr RectF() {}
+  constexpr RectF(float x, float y, float width, float height)
+      : X(x), Y(y), Width(width), Height(height) {}
+  constexpr RectF(Rect const& rect);
 
-  glm::vec2 Center() const;
-  // Rect is rotated around center
-  bool ContainsPoint(glm::vec2 point, float angle = 0.0f) const;
-  bool Intersects(RectF const& rect) const;
+  // RectF is rotated around center
+  constexpr glm::vec2 Center() const {
+    return glm::vec2(X + Width / 2.0f, Y + Height / 2.0f);
+  }
+  constexpr bool ContainsPoint(glm::vec2 point, float angle = 0.0f) const {
+    point -= Center();
+    if (angle != 0.0f) {
+      point = Rotate2D(-angle) * point;
+    }
+
+    return point.x >= -Width / 2.0f && point.x <= Width / 2.0f &&
+           point.y >= -Height / 2.0f && point.y <= Height / 2.0f;
+  }
+
+  constexpr bool Intersects(RectF const& rect) const {
+    return (X <= rect.X + rect.Width && rect.X <= X + Width &&
+            Y <= rect.Y + rect.Height && rect.Y <= Y + Height);
+  }
 };
 
 struct Rect {
-  int X;
-  int Y;
-  int Width;
-  int Height;
+  int X = 0;
+  int Y = 0;
+  int Width = 0;
+  int Height = 0;
 
-  Rect();
-  Rect(int x, int y, int width, int height);
-  Rect(RectF const& rect);
+  constexpr Rect() {}
+  constexpr Rect(int x, int y, int width, int height)
+      : X(x), Y(y), Width(width), Height(height) {}
+  constexpr Rect(RectF const& rect)
+      : Rect((int)rect.X, (int)rect.Y, (int)rect.Width, (int)rect.Height) {}
 
-  glm::ivec2 Center() const;
   // Rect is rotated around center
-  bool ContainsPoint(glm::ivec2 point, float angle = 0.0f) const;
+  constexpr glm::ivec2 Center() const {
+    return glm::ivec2(X + Width / 2, Y + Height / 2);
+  }
+  constexpr bool ContainsPoint(glm::vec2 point, float angle = 0.0f) const {
+    point -= Center();
+    if (angle != 0.0f) {
+      point = (glm::ivec2)(Rotate2D(-angle) * (glm::vec2)point);
+    }
+    return point.x >= -Width / 2 && point.x <= Width / 2 &&
+           point.y >= -Height / 2 && point.y <= Height / 2;
+  }
 };
+
+inline constexpr RectF::RectF(Rect const& rect)
+    : RectF((float)rect.X, (float)rect.Y, (float)rect.Width,
+            (float)rect.Height) {}
 
 glm::vec2 DesignToNDC(glm::vec2 xy);
 glm::vec2 DesignToNDCNonFlipped(glm::vec2 xy);
 RectF DesignToNDC(RectF const& rect);
 
-glm::vec4 RgbIntToFloat(uint32_t rgb);
+constexpr glm::vec4 RgbIntToFloat(uint32_t rgb) {
+  return glm::vec4{(float)((rgb >> 16) & 0xFF) / 255.0f,
+                   (float)((rgb >> 8) & 0xFF) / 255.0f,
+                   (float)((rgb >> 0) & 0xFF) / 255.0f, 1.0f};
+}
 
 uint32_t GetHashCode(uint8_t* data, int length);
 
@@ -67,13 +101,12 @@ char* DumpMat4(glm::mat4* matrix, const char* columnSeparator = "\t",
                const char* rowSeparator = "\n");
 
 // Thanks https://graphics.stanford.edu/~seander/bithacks.html#IntegerLog
-inline int Uint32Log2(uint32_t v) {
+constexpr int Uint32Log2(uint32_t v) {
   unsigned int const b[] = {0x2, 0xC, 0xF0, 0xFF00, 0xFFFF0000};
   unsigned int const S[] = {1, 2, 4, 8, 16};
-  int i;
 
   unsigned int r = 0;       // result of log2(v) will go here
-  for (i = 4; i >= 0; i--)  // unroll for speed...
+  for (int i = 4; i >= 0; i--)  // unroll for speed...
   {
     if (v & b[i]) {
       v >>= S[i];
@@ -134,8 +167,8 @@ inline void eulerZYXToQuat(glm::vec3 const* zyx, glm::quat* quat) {
 #endif
 }
 
-inline float DegToRad(float deg) { return deg * (float)M_PI / 180.0f; }
-inline float RadToDeg(float rad) { return rad * 180.0f / (float)M_PI; }
+constexpr float DegToRad(float deg) { return deg * (float)M_PI / 180.0f; }
+constexpr float RadToDeg(float rad) { return rad * 180.0f / (float)M_PI; }
 inline float NormalizeDeg(float deg) {
   deg = fmodf(deg + 180, 360);
   if (deg < 0) deg += 360;

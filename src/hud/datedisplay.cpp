@@ -5,8 +5,6 @@
 namespace Impacto {
 namespace DateDisplay {
 
-DateDisplayBase* Implementation = 0;
-
 void Init() {
   Profile::DateDisplay::Configure();
   if (Implementation) {

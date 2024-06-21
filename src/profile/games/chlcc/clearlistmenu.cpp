@@ -9,47 +9,6 @@ namespace Profile {
 namespace CHLCC {
 namespace ClearListMenu {
 
-float MenuTransitionDuration;
-uint32_t BackgroundColor;
-Sprite CircleSprite;
-glm::vec2 CircleStartPosition;
-float CircleOffset;
-glm::vec2 ErinPosition;
-Sprite ErinSprite;
-Sprite BackgroundFilter;
-glm::vec2 InitialRedBarPosition;
-glm::vec2 RightRedBarPosition;
-Sprite InitialRedBarSprite;
-glm::vec2 RedBarPosition;
-float RedBarDivision;
-float RedBarBaseX;
-Sprite RedBarSprite;
-glm::vec2 RedBarLabelPosition;
-Sprite RedBarLabel;
-glm::vec2 MenuTitleTextRightPosition;
-glm::vec2 MenuTitleTextLeftPosition;
-float MenuTitleTextAngle;
-float TitleFadeInDuration;
-float TitleFadeOutDuration;
-Sprite MenuTitleText;
-
-glm::vec2 LabelPosition;
-Sprite ClearListLabel;
-glm::vec2 TimePositions[6];
-glm::vec2 EndingCountPosition;
-glm::vec2 TIPSCountPositions[2];
-glm::vec2 AlbumPositions[3];
-Sprite Digits[10];
-glm::vec2 ListPosition;
-Sprite EndingList;
-glm::vec2 BoxPositions[Endings];
-Sprite EndingBox;
-glm::vec2 ThumbnailPositions[Endings];
-Sprite EndingThumbnails[Endings];
-Sprite LockedThumbnail;
-glm::vec2 ButtonPromptPosition;
-Sprite ButtonPromptSprite;
-
 void Configure() {
   MenuTransitionDuration = EnsureGetMemberFloat("TransitionDuration");
   BackgroundColor = EnsureGetMemberUint("BackgroundColor");

@@ -6,7 +6,7 @@ namespace Impacto {
 namespace Profile {
 namespace ScriptVars {
 
-#define V(var) extern int var;
+#define V(var) inline int var;
 #include "../scriptvars.h"
 #undef V
 

@@ -23,7 +23,7 @@ class PhysicalFileStream : public Stream, public Buffering<PhysicalFileStream> {
   int64_t Write(void* buffer, int64_t sz, int cnt = 1) override;
 
  protected:
-  static int const PhysicalBufferSize = 16 * 1024;
+  static int constexpr PhysicalBufferSize = 16 * 1024;
   bool IsWrite = false;
   PhysicalFileStream() : Buffering(PhysicalBufferSize) {}
   PhysicalFileStream(PhysicalFileStream const& other) = default;

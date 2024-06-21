@@ -12,35 +12,6 @@ namespace Profile {
 namespace RNE {
 namespace SystemMenu {
 
-Sprite SkyBackgroundSprite;
-Sprite SkyArrowSprite;
-Sprite SkyTextSprite;
-Sprite ButtonBackgroundSprite;
-Sprite ButtonPromptsSprite;
-float ButtonBackgroundStartX;
-float ButtonBackgroundX;
-float ButtonBackgroundY;
-float ButtonBackgroundTargetWidth;
-float ButtonBackgroundSprStartX;
-float SkyBackgroundBeginX;
-float SkyBackgroundY;
-float SkyTextBeginX;
-float SkyTextY;
-float MenuEntriesXSkew;
-float MenuEntriesTargetWidth;
-float SkyInStartProgress;
-float SkyOutStartProgress;
-float SkyMoveDurationIn;
-float SkyMoveDurationOut;
-float EntriesMoveDurationIn;
-float EntriesMoveDurationOut;
-float HighlightDurationIn;
-float HighlightDurationOut;
-Animation* BackgroundAnimation = 0;
-Animation SkyMoveAnimation;
-Animation EntriesMoveAnimation;
-Animation HighlightAnimation;
-
 void Configure() {
   EnsurePushMemberOfType("Background", LUA_TTABLE);
   BackgroundAnimation = RNE::ParseTileBackground();

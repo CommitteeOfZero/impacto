@@ -12,25 +12,6 @@ namespace Profile {
 namespace CCLCC {
 namespace SaveMenu {
 
-float EntryStartXL;
-float EntryStartXR;
-float EntryStartYL;
-float EntryStartYR;
-float EntryYPadding;
-
-Sprite BackgroundSprite{};
-Sprite MenuTextSprite[3]{};
-Sprite EntryHighlightedBoxSprite[3]{};
-Sprite EntryHighlightedTextSprite[3]{};
-Sprite EntrySlotsSprite[3]{};
-Sprite ButtonGuideSprite[3]{};
-Sprite NumberDigitSprite[3][10]{};
-Sprite NoDataSprite[3]{};
-Sprite BrokenDataSprite[3]{};
-Sprite SlotLockedSprite[3]{};
-Sprite PageNumSprite[3][6]{};
-Sprite SaveTimeSprite[3]{};
-
 constexpr char const* SaveMenuTypeNames[] = {
     "QuickLoad",
     "Load",

@@ -8,33 +8,33 @@ namespace Profile {
 namespace CC {
 namespace SysMesBox {
 
-int const SealSpriteCount = 8;
-extern Sprite SumoSealSprites[SealSpriteCount];
+int constexpr SealSpriteCount = 8;
+inline Sprite SumoSealSprites[SealSpriteCount];
 
-extern Sprite ButtonYes;
-extern Sprite ButtonNo;
-extern Sprite ButtonOK;
-extern Sprite ButtonYesHighlighted;
-extern Sprite ButtonNoHighlighted;
-extern Sprite ButtonOKHighlighted;
+inline Sprite ButtonYes;
+inline Sprite ButtonNo;
+inline Sprite ButtonOK;
+inline Sprite ButtonYesHighlighted;
+inline Sprite ButtonNoHighlighted;
+inline Sprite ButtonOKHighlighted;
 
-extern float SumoSealCenterPosX[SealSpriteCount];
-extern float SumoSealCenterPosY[SealSpriteCount];
-extern float ButtonYesCenterPosX;
-extern float ButtonYesCenterPosY;
-extern float ButtonNoCenterPosX;
-extern float ButtonNoCenterPosY;
-extern float ButtonOKCenterPosX;
-extern float ButtonOKCenterPosY;
-extern float AnimationProgressWidgetsStartOffset;
-extern float ButtonNoDisplayStart;
-extern float ButtonNoAnimationProgressOffset;
-extern float ButtonYesNoScaleMultiplier;
-extern float ButtonOKScaleMultiplier;
-extern float ButtonScaleMax;
-extern float ButtonYesAnimationProgressEnd;
-extern float ButtonYesNoAlphaDivider;
-extern float WidgetsAlphaMultiplier;
+inline float SumoSealCenterPosX[SealSpriteCount];
+inline float SumoSealCenterPosY[SealSpriteCount];
+inline float ButtonYesCenterPosX;
+inline float ButtonYesCenterPosY;
+inline float ButtonNoCenterPosX;
+inline float ButtonNoCenterPosY;
+inline float ButtonOKCenterPosX;
+inline float ButtonOKCenterPosY;
+inline float AnimationProgressWidgetsStartOffset;
+inline float ButtonNoDisplayStart;
+inline float ButtonNoAnimationProgressOffset;
+inline float ButtonYesNoScaleMultiplier;
+inline float ButtonOKScaleMultiplier;
+inline float ButtonScaleMax;
+inline float ButtonYesAnimationProgressEnd;
+inline float ButtonYesNoAlphaDivider;
+inline float WidgetsAlphaMultiplier;
 
 void Configure();
 

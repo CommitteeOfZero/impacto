@@ -9,14 +9,14 @@
 
 namespace Impacto {
 
-int const HeaderSize = 0x30;
-int const HeaderDurationOffset = 0x24;
-int const TrackSize = 0xE8;
-int const TrackSize_DaSH = 0x108;
-int const TrackCountsOffset = 6;
-int const TrackCountsOffset_DaSH = 0x26;
-int const TrackOffsetsOffset = 0x68;
-int const TrackOffsetsOffset_DaSH = 0x88;
+static int constexpr HeaderSize = 0x30;
+static int constexpr HeaderDurationOffset = 0x24;
+static int constexpr TrackSize = 0xE8;
+static int constexpr TrackSize_DaSH = 0x108;
+static int constexpr TrackCountsOffset = 6;
+static int constexpr TrackCountsOffset_DaSH = 0x26;
+static int constexpr TrackOffsetsOffset = 0x68;
+static int constexpr TrackOffsetsOffset_DaSH = 0x88;
 
 enum TargetType {
   TargetType_Bone = 0,

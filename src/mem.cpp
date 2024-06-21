@@ -2,9 +2,6 @@
 
 namespace Impacto {
 
-int ScrWork[ScrWorkSize];
-uint8_t FlagWork[FlagWorkSize];
-
 void SetFlag(uint32_t flagId, uint32_t value) {
   if (flagId & 0x80000000) return;
 

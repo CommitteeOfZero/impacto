@@ -5,8 +5,6 @@
 namespace Impacto {
 namespace TipsNotification {
 
-TipsNotificationBase* Implementation = 0;
-
 void Init() { Profile::TipsNotification::Configure(); }
 
 void Update(float dt) {

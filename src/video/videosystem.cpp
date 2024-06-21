@@ -8,8 +8,6 @@
 namespace Impacto {
 namespace Video {
 
-VideoPlayer* Players[VP_Count];
-
 void VideoShutdown() {
   for (int i = 0; i < VP_Count; i++) {
     Players[i]->Stop();

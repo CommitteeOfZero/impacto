@@ -8,17 +8,17 @@ namespace CHLCC {
 namespace SystemMenu {
 constexpr int MenuEntriesNumMax = 8;
 
-extern uint32_t BackgroundColor;
-extern Sprite BackgroundFilter;
-extern glm::vec2 CircleStartPosition;
-extern Sprite CircleSprite;
-extern float CircleOffset;
-extern glm::vec2 ErinPosition;
-extern Sprite ErinSprite;
-extern float TitleFadeInDuration;
-extern float TitleFadeOutDuration;
-extern uint32_t FocusTint;
-extern glm::vec2 MenuEntriesPositions[MenuEntriesNumMax];
+inline uint32_t BackgroundColor;
+inline Sprite BackgroundFilter;
+inline glm::vec2 CircleStartPosition;
+inline Sprite CircleSprite;
+inline float CircleOffset;
+inline glm::vec2 ErinPosition;
+inline Sprite ErinSprite;
+inline float TitleFadeInDuration;
+inline float TitleFadeOutDuration;
+inline uint32_t FocusTint;
+inline glm::vec2 MenuEntriesPositions[MenuEntriesNumMax];
 
 void Configure();
 

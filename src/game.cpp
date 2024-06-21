@@ -53,10 +53,6 @@ namespace Impacto {
 using namespace Profile::ScriptVars;
 
 namespace Game {
-uint8_t DrawComponents[Vm::MaxThreads];
-
-bool ShouldQuit = false;
-float UpdateSecondCounter = 0.0f;
 
 static void Init() {
   WorkQueue::Init();
@@ -162,6 +158,7 @@ void Shutdown() {
 }
 
 void UpdateGameState(float dt) {
+  static float UpdateSecondCounter = 0.0f;
   UpdateSecondCounter += dt;
   if (UpdateSecondCounter >= 1) {
     ScrWork[SW_PLAYTIME]++;

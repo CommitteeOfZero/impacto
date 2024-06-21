@@ -6,10 +6,11 @@ namespace Impacto {
 namespace Profile {
 namespace TipsSystem {
 
-extern Impacto::TipsSystem::TipsSystemType Type;
+inline Impacto::TipsSystem::TipsSystemType Type =
+    Impacto::TipsSystem::TipsSystemType::None;
 
-extern int MaxTipsCount;
-extern uint32_t MaxTipDataSize;
+inline int MaxTipsCount;
+inline uint32_t MaxTipDataSize;
 
 void Configure();
 

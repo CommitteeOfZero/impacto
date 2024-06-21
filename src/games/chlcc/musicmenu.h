@@ -31,15 +31,15 @@ class MusicMenu : public Menu {
  private:
   Widgets::Group* MainItems;
 
-  inline void DrawCircles();
-  inline void DrawErin();
-  inline void DrawRedBar();
+  void DrawCircles();
+  void DrawErin();
+  void DrawRedBar();
 
   void UpdateEntries();
   void UpdateTitles();
   void MusicButtonOnClick(Widgets::Button* target);
   void SwitchToTrack(int id);
-  inline int GetNextTrackId(int id);
+  int GetNextTrackId(int id);
 
   Animation MenuTransition;
   Animation TitleFade;

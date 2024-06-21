@@ -13,13 +13,6 @@ namespace Profile {
 namespace CCLCC {
 namespace TipsMenu {
 
-Sprite TipsBookLayerSprite;
-Sprite TipsGuideSprite;
-Sprite TipsMaskSprite;
-
-int TipsGuideX;
-int TipsGuideY;
-
 void Configure() {
   TipsBookLayerSprite = EnsureGetMemberSprite("TipsBookLayerSprite");
   TipsGuideSprite = EnsureGetMemberSprite("TipsGuideSprite");

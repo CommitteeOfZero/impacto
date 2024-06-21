@@ -6,14 +6,6 @@ namespace Profile {
 namespace MO6TW {
 namespace DialogueBox {
 
-Sprite ADVBoxPartLeft;
-Sprite ADVBoxPartRight;
-Sprite ADVBoxDecoration;
-
-glm::vec2 ADVBoxPartLeftPos;
-glm::vec2 ADVBoxPartRightPos;
-glm::vec2 ADVBoxDecorationPos;
-
 void Configure() {
   ADVBoxPartLeft = EnsureGetMemberSprite("ADVBoxPartLeft");
   ADVBoxPartRight = EnsureGetMemberSprite("ADVBoxPartRight");

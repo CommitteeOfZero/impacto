@@ -11,9 +11,6 @@ namespace Profile {
 namespace Dash {
 namespace TitleMenu {
 
-Sprite BackgroundSprite;
-Animation PressToStartAnimation;
-
 void Configure() {
   BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
   PressToStartAnimation.DurationIn =

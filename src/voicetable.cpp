@@ -33,6 +33,4 @@ void VoiceTable::UnloadSync() {
 
 void VoiceTable::MainThreadOnLoad() {}
 
-VoiceTable VoiceTableData;
-
 }  // namespace Impacto

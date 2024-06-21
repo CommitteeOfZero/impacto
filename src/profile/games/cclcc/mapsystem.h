@@ -6,22 +6,22 @@ namespace Profile {
 namespace CCLCC {
 namespace MapSystem {
 
-static constexpr int MapPartsPhotoSpritesNumMax = 32;
-static constexpr int MapPartsArticleSpritesNumMax = 16;
-static constexpr int MapPartsPinSpritesNumMax = 12;
-static constexpr int MapPartsTagSpritesNumMax = 16;
+constexpr int MapPartsPhotoSpritesNumMax = 32;
+constexpr int MapPartsArticleSpritesNumMax = 16;
+constexpr int MapPartsPinSpritesNumMax = 12;
+constexpr int MapPartsTagSpritesNumMax = 16;
 
-extern Sprite MapBgSprite;
-extern Sprite MapButtonGuideSprite;
-extern Sprite MapPartsPhotoSprites[MapPartsPhotoSpritesNumMax];
-extern Sprite MapPartsArticleSprites[MapPartsArticleSpritesNumMax];
-extern Sprite MapPartsPinSprites[MapPartsPinSpritesNumMax];
-extern Sprite MapPartsTagSprites[MapPartsTagSpritesNumMax];
-extern Sprite SelectedMapPoolTagSprite;
-extern Sprite MapLine;
-extern Sprite MapLineRed;
+inline Sprite MapBgSprite;
+inline Sprite MapButtonGuideSprite;
+inline Sprite MapPartsPhotoSprites[MapPartsPhotoSpritesNumMax];
+inline Sprite MapPartsArticleSprites[MapPartsArticleSpritesNumMax];
+inline Sprite MapPartsPinSprites[MapPartsPinSpritesNumMax];
+inline Sprite MapPartsTagSprites[MapPartsTagSpritesNumMax];
+inline Sprite SelectedMapPoolTagSprite;
+inline Sprite MapLine;
+inline Sprite MapLineRed;
 
-extern float FadeAnimationDuration;
+inline float FadeAnimationDuration;
 
 void Configure();
 

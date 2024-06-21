@@ -10,8 +10,6 @@ namespace TrophyMenu {
 
 using namespace Impacto::UI;
 
-TrophyMenuType Type = TrophyMenuType::None;
-
 void Configure() {
   if (TryPushMember("TrophyMenu")) {
     AssertIs(LUA_TTABLE);

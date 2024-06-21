@@ -25,12 +25,12 @@ enum PADinput {
   PAD1Y = 0x8000
 };
 
-extern uint32_t* PADcustom;
+inline uint32_t* PADcustom = nullptr;
 
-extern int PADinputButtonWentDown;
-extern int PADinputMouseWentDown;
-extern int PADinputButtonIsDown;
-extern int PADinputMouseIsDown;
+inline int PADinputButtonWentDown = 0;
+inline int PADinputMouseWentDown = 0;
+inline int PADinputButtonIsDown = 0;
+inline int PADinputMouseIsDown = 0;
 
 enum ControlType {
   CT_OK = 0,

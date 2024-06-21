@@ -14,12 +14,6 @@ namespace Audio {
 
 static bool IsInit = false;
 
-AudioBackend* Backend = 0;
-
-float MasterVolume = 1.0f;
-float GroupVolumes[ACG_Count];
-AudioChannel* Channels[AC_Count];
-
 void AudioShutdown() {
   Backend->Shutdown();
   IsInit = false;

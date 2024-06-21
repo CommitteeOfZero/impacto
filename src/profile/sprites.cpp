@@ -8,9 +8,6 @@
 namespace Impacto {
 namespace Profile {
 
-ska::flat_hash_map<std::string, SpriteSheet> SpriteSheets;
-ska::flat_hash_map<std::string, Sprite> Sprites;
-
 void LoadSpritesheets() {
   EnsurePushMemberOfType("SpriteSheets", LUA_TTABLE);
 

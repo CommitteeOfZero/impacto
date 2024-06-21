@@ -9,29 +9,29 @@ namespace CCLCC {
 namespace SaveMenu {
 BETTER_ENUM(SaveMenuPageType, int, QuickLoad, Save, Load)
 
-int const static Pages = 6;
+int constexpr Pages = 6;
 
-extern float EntryStartXL;
-extern float EntryStartXR;
-extern float EntryStartYL;
-extern float EntryStartYR;
-extern float EntryYPadding;
+inline float EntryStartXL;
+inline float EntryStartXR;
+inline float EntryStartYL;
+inline float EntryStartYR;
+inline float EntryYPadding;
 
-int const static EntriesPerRow = 2;
-int const static RowsPerPage = 4;
-extern Sprite BackgroundSprite;
+int constexpr EntriesPerRow = 2;
+int constexpr RowsPerPage = 4;
+inline Sprite BackgroundSprite;
 
-extern Sprite MenuTextSprite[3];
-extern Sprite EntryHighlightedBoxSprite[3];
-extern Sprite EntryHighlightedTextSprite[3];
-extern Sprite EntrySlotsSprite[3];
-extern Sprite ButtonGuideSprite[3];
-extern Sprite NumberDigitSprite[3][10];
-extern Sprite NoDataSprite[3];
-extern Sprite BrokenDataSprite[3];
-extern Sprite SlotLockedSprite[3];
-extern Sprite PageNumSprite[3][6];
-extern Sprite SaveTimeSprite[3];
+inline Sprite MenuTextSprite[SaveMenuPageType::_size_constant];
+inline Sprite EntryHighlightedBoxSprite[SaveMenuPageType::_size_constant];
+inline Sprite EntryHighlightedTextSprite[SaveMenuPageType::_size_constant];
+inline Sprite EntrySlotsSprite[SaveMenuPageType::_size_constant];
+inline Sprite ButtonGuideSprite[SaveMenuPageType::_size_constant];
+inline Sprite NumberDigitSprite[SaveMenuPageType::_size_constant][10];
+inline Sprite NoDataSprite[SaveMenuPageType::_size_constant];
+inline Sprite BrokenDataSprite[SaveMenuPageType::_size_constant];
+inline Sprite SlotLockedSprite[SaveMenuPageType::_size_constant];
+inline Sprite PageNumSprite[SaveMenuPageType::_size_constant][6];
+inline Sprite SaveTimeSprite[SaveMenuPageType::_size_constant];
 
 void Configure();
 

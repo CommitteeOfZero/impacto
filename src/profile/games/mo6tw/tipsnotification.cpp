@@ -7,17 +7,6 @@ namespace Profile {
 namespace MO6TW {
 namespace TipsNotification {
 
-glm::vec2 AlertPosition;
-glm::vec2 FinalNotificationPosition;
-glm::vec2 InitialNotificationPosition;
-RectF NotificationRenderingBounds;
-float TimerDuration;
-float MoveAnimationDuration;
-
-int AlertTextColorIndex;
-int TipNameColorIndex;
-float FontSize;
-
 void Configure() {
   AlertPosition = EnsureGetMemberVec2("AlertPosition");
   FinalNotificationPosition = EnsureGetMemberVec2("FinalNotificationPosition");

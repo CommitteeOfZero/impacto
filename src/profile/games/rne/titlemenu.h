@@ -10,30 +10,30 @@ namespace TitleMenu {
 
 void Configure();
 
-extern Sprite LineSprite;
-extern Sprite CopyrightSprite;
-extern Sprite EliteSprite;
-extern Sprite LogoSprite;
+inline Sprite LineSprite;
+inline Sprite CopyrightSprite;
+inline Sprite EliteSprite;
+inline Sprite LogoSprite;
 
-extern float PreTitleAnimDurationIn;
-extern float PreTitleAnimDurationOut;
+inline float PreTitleAnimDurationIn;
+inline float PreTitleAnimDurationOut;
 
-extern float LineWidth;
-extern float CopyrightWidth;
-extern float EliteHeight;
-extern float LogoWidth;
-extern float LineX;
-extern float LineY;
-extern float CopyrightX;
-extern float CopyrightY;
-extern float EliteX;
-extern float EliteY;
-extern float LogoX;
-extern float LogoY;
+inline float LineWidth;
+inline float CopyrightWidth;
+inline float EliteHeight;
+inline float LogoWidth;
+inline float LineX;
+inline float LineY;
+inline float CopyrightX;
+inline float CopyrightY;
+inline float EliteX;
+inline float EliteY;
+inline float LogoX;
+inline float LogoY;
 
-extern Animation* BackgroundAnimation;
-extern Animation PreTitleItemsAnimation;
-extern Animation PressToStartAnimation;
+inline Animation* BackgroundAnimation = nullptr;
+inline Animation PreTitleItemsAnimation;
+inline Animation PressToStartAnimation;
 
 }  // namespace TitleMenu
 }  // namespace RNE

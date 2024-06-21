@@ -8,26 +8,6 @@ namespace Profile {
 namespace CCLCC {
 namespace YesNoTrigger {
 
-Sprite YesNoBackground0;
-Sprite YesNoBackground1;
-Sprite YesNoBackground2;
-Sprite YesNoBackground3;
-Sprite YN1YesChipSmall;
-Sprite YN1YesChipLarge;
-Sprite YN1NoChipSmall;
-Sprite YN1NoChipLarge;
-Sprite YN2YesChipSmall;
-Sprite YN2YesChipLarge;
-Sprite YN2NoChipSmall;
-Sprite YN2NoChipLarge;
-Sprite StarChip;
-Sprite YesNoBgMask;
-
-glm::vec2 BackgroundPositions[BackgroundPositionsNum];
-
-Impacto::CCLCC::YesNoTrigger::YesNoPositions YesNoData1[YesNoDataSize];
-Impacto::CCLCC::YesNoTrigger::YesNoPositions YesNoData2[YesNoDataSize];
-
 bool Configure() {
   if (!TryPushMember("YesNoTrigger")) return false;
   AssertIs(LUA_TTABLE);

@@ -11,86 +11,87 @@ namespace Impacto {
 namespace Profile {
 namespace Dialogue {
 
-extern RectF NVLBounds;
-extern RectF ADVBounds;
-extern RectF REVBounds;
-extern RectF TipsBounds;
+inline RectF NVLBounds;
+inline RectF ADVBounds;
+inline RectF REVBounds;
+inline RectF TipsBounds;
 
-extern Sprite ADVBoxSprite;
-extern glm::vec2 ADVBoxPos;
+inline Sprite ADVBoxSprite;
+inline glm::vec2 ADVBoxPos;
 
-extern float FadeOutDuration;
-extern float FadeInDuration;
+inline float FadeOutDuration;
+inline float FadeInDuration;
 
-extern DialogueBoxType DialogueBoxCurrentType;
+inline DialogueBoxType DialogueBoxCurrentType = DialogueBoxType::None;
 
-extern float NVLBoxMaxOpacity;
+inline float NVLBoxMaxOpacity;
 
-extern TextAlignment ADVNameAlignment;
-extern float ADVNameFontSize;
+inline TextAlignment ADVNameAlignment = TextAlignment::Left;
+inline float ADVNameFontSize;
 // Unlike most positions, this position is relative to alignment
 // e.g. if ADVNameAlignment == TextAlignment::Right, name will *end* at
 // ADVNamePos.x
-extern glm::vec2 ADVNamePos;
-extern bool ADVBoxShowName;
+inline glm::vec2 ADVNamePos;
+inline bool ADVBoxShowName = true;
 
-extern float REVNameFontSize;
-extern int REVNameColor;
-extern float REVNameOffset;
+inline float REVNameFontSize;
+inline int REVNameColor;
+inline float REVNameOffset;
 
-extern float TipsLineSpacing;
+inline float TipsLineSpacing;
 
-extern Sprite WaitIconSprite;
-extern SpriteAnimationDef WaitIconSpriteAnim;
-extern glm::vec2 WaitIconOffset;
-extern float WaitIconAnimationDuration;
-extern WaitIconDisplay::WaitIconType WaitIconCurrentType;
+inline Sprite WaitIconSprite;
+inline SpriteAnimationDef WaitIconSpriteAnim;
+inline glm::vec2 WaitIconOffset;
+inline float WaitIconAnimationDuration;
+inline WaitIconDisplay::WaitIconType WaitIconCurrentType =
+    WaitIconDisplay::WaitIconType::None;
 
-extern Font* DialogueFont;
-extern float DefaultFontSize;
-extern float RubyFontSize;
-extern float RubyYOffset;
+inline Font* DialogueFont;
+inline float DefaultFontSize;
+inline float RubyFontSize;
+inline float RubyYOffset;
 
-extern int ColorCount;
-extern DialogueColorPair* ColorTable;
+inline int ColorCount;
+inline DialogueColorPair* ColorTable;
 
-extern int MaxPageSize;
-extern int PageCount;
+inline int MaxPageSize;
+inline int PageCount;
 
-extern bool ColorTagIsUint8;
+inline bool ColorTagIsUint8;
 
-extern bool HaveADVNameTag;
+inline bool HaveADVNameTag;
 namespace ADVNameTag {
-extern glm::vec2 Position;
-extern Sprite LeftSprite;
-extern Sprite LineSprite;
-extern Sprite RightSprite;
-extern float BaseLineWidth;
+inline glm::vec2 Position;
+inline Sprite LeftSprite;
+inline Sprite LineSprite;
+inline Sprite RightSprite;
+inline float BaseLineWidth;
 }  // namespace ADVNameTag
 
-extern bool HasSpeakerPortraits;
-extern float SpeakerPortraitBaseOffsetX;
-extern float SpeakerPortraitBaseOffsetY;
+inline bool HasSpeakerPortraits = false;
+inline float SpeakerPortraitBaseOffsetX = 250.0f;
+inline float SpeakerPortraitBaseOffsetY = 600.0f;
 
-extern bool HasAutoButton;
-extern Sprite AutoButtonSprite;
-extern Sprite AutoButtonActiveSprite;
-extern glm::vec2 AutoButtonPosition;
+inline bool HasAutoButton = false;
+inline Sprite AutoButtonSprite;
+inline Sprite AutoButtonActiveSprite;
+inline glm::vec2 AutoButtonPosition;
 
-extern bool HasSkipButton;
-extern Sprite SkipButtonSprite;
-extern Sprite SkipButtonActiveSprite;
-extern glm::vec2 SkipButtonPosition;
+inline bool HasSkipButton = false;
+inline Sprite SkipButtonSprite;
+inline Sprite SkipButtonActiveSprite;
+inline glm::vec2 SkipButtonPosition;
 
-extern bool HasBacklogButton;
-extern Sprite BacklogButtonSprite;
-extern Sprite BacklogButtonActiveSprite;
-extern glm::vec2 BacklogButtonPosition;
+inline bool HasBacklogButton = false;
+inline Sprite BacklogButtonSprite;
+inline Sprite BacklogButtonActiveSprite;
+inline glm::vec2 BacklogButtonPosition;
 
-extern bool HasMenuButton;
-extern Sprite MenuButtonSprite;
-extern Sprite MenuButtonActiveSprite;
-extern glm::vec2 MenuButtonPosition;
+inline bool HasMenuButton = false;
+inline Sprite MenuButtonSprite;
+inline Sprite MenuButtonActiveSprite;
+inline glm::vec2 MenuButtonPosition;
 
 void Configure();
 

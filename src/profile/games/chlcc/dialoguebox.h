@@ -9,23 +9,23 @@ namespace DialogueBox {
 
 void Configure();
 
-extern Sprite SecondaryADVBoxSprite;
+inline Sprite SecondaryADVBoxSprite;
 
-extern bool HaveSecondaryADVNameTag;
+inline bool HaveSecondaryADVNameTag;
 namespace SecondaryADVNameTag {
-  extern glm::vec2 Position;
-  extern Sprite LeftSprite;
-  extern Sprite LineSprite;
-  extern Sprite RightSprite;
-  extern float BaseLineWidth;
+inline glm::vec2 Position;
+inline Sprite LeftSprite;
+inline Sprite LineSprite;
+inline Sprite RightSprite;
+inline float BaseLineWidth;
 }  // namespace SecondaryADVNameTag
 
-extern Sprite REVBoxSprite;
-extern glm::vec2 REVBoxPos;
-extern glm::vec2 REVWaitIconOffset;
-extern uint8_t REVLineSpacing;
-extern uint8_t REVLineHeight;
-extern uint8_t REVFontSize;
+inline Sprite REVBoxSprite;
+inline glm::vec2 REVBoxPos;
+inline glm::vec2 REVWaitIconOffset;
+inline uint8_t REVLineSpacing;
+inline uint8_t REVLineHeight;
+inline uint8_t REVFontSize;
 
 }  // namespace DialogueBox
 }  // namespace CHLCC

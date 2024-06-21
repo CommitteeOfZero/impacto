@@ -20,7 +20,7 @@ enum LinkDirection {
   LD_Down3
 };
 
-int const MaxLinks = 2;
+int constexpr MaxLinks = 2;
 
 class Background2D;
 
@@ -57,14 +57,14 @@ class Background2D : public Loadable<Background2D> {
 
 typedef void (*BackgroundRenderProc)(Background2D* bg, int bgId, glm::vec4 col);
 
-int const MaxBackgrounds2D = 8;
-int const MaxScreencaptures = 2;
+int constexpr MaxBackgrounds2D = 8;
+int constexpr MaxScreencaptures = 2;
 
-extern Background2D Backgrounds[MaxBackgrounds2D];
-extern Background2D Screencaptures[MaxScreencaptures];
-extern Background2D ShaderScreencapture;
+inline Background2D Backgrounds[MaxBackgrounds2D];
+inline Background2D Screencaptures[MaxScreencaptures];
+inline Background2D ShaderScreencapture;
 
-extern ska::flat_hash_map<int, Background2D*> Backgrounds2D;
+inline ska::flat_hash_map<int, Background2D*> Backgrounds2D;
 
 BackgroundRenderer(RenderRegular);
 BackgroundRenderer(RenderMasked);

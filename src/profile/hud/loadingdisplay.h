@@ -6,18 +6,18 @@ namespace Impacto {
 namespace Profile {
 namespace LoadingDisplay {
 
-extern SpriteAnimationDef ResourceLoadBgAnim;
-extern SpriteAnimationDef SaveLoadBgAnim;
-extern SpriteAnimationDef LoadingIconAnim;
-extern SpriteAnimationDef LoadingTextAnim;
+inline SpriteAnimationDef ResourceLoadBgAnim;
+inline SpriteAnimationDef SaveLoadBgAnim;
+inline SpriteAnimationDef LoadingIconAnim;
+inline SpriteAnimationDef LoadingTextAnim;
 
-extern glm::vec2 ResourceBgPos;
-extern glm::vec2 SaveBgPos;
-extern glm::vec2 IconPos;
-extern glm::vec2 TextPos;
+inline glm::vec2 ResourceBgPos;
+inline glm::vec2 SaveBgPos;
+inline glm::vec2 IconPos;
+inline glm::vec2 TextPos;
 
-extern float FadeInDuration;
-extern float FadeOutDuration;
+inline float FadeInDuration;
+inline float FadeOutDuration;
 
 void Configure();
 
