@@ -162,8 +162,8 @@ void MakeLuaProfile(std::string const& name) {
   script[len] = '\0';
 
   LuaState = luaL_newstate();
-
   // Set up API
+  luaL_openlibs(LuaState);
   lua_pushcfunction(LuaState, LuaPrint);
   lua_setglobal(LuaState, "print");
   lua_pushcfunction(LuaState, LuaInclude);
