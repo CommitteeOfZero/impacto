@@ -10,6 +10,7 @@ class GLWindow : public BaseWindow {
   void Init() override;
   void SetDimensions(int width, int height, int msaa,
                      float renderScale) override;
+  void ToggleFullscreen() override;
   RectF GetViewport() override;
   RectF GetScaledViewport() override;
   void SwapRTs() override;
