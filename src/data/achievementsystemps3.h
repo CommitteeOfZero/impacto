@@ -47,6 +47,7 @@ class Trophy : public Achievement {
 class AchievementSystemPS3 : public AchievementSystemBase {
  public:
   virtual bool MountAchievementFile() = 0;
+  virtual const Achievement *GetAchievement(int id) = 0;
 };
 
 }  // namespace AchievementSystem
