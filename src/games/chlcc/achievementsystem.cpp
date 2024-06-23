@@ -10,8 +10,8 @@
 #include "../../log.h"
 #include "../../texture/texture.h"
 
-#define ICON_START 3
-#define ICON_SIZE 240
+int constexpr ICON_START = 3;
+int constexpr ICON_SIZE = 240;
 
 using namespace Impacto::Profile::AchievementSystem;
 
@@ -129,7 +129,6 @@ bool AchievementSystem::MountAchievementFile() {
     sheet.Texture = texture.Submit();
 
     Sprite icon = Sprite(sheet, 0, 0, ICON_SIZE, ICON_SIZE);
-
     Trophies[id] =
         new Trophy(name, description, hidden, (TrophyType)ttype, icon);
   }
@@ -138,5 +137,9 @@ bool AchievementSystem::MountAchievementFile() {
   return true;
 }
 
+const Achievement* AchievementSystem::GetAchievement(int id) {
+  if (id < 0 || id >= TROPHY_NUM) return nullptr;
+  return Trophies[id];
+}
 }  // namespace CHLCC
 }  // namespace Impacto

@@ -6,8 +6,6 @@ namespace AchievementSystem {
 
 using namespace Impacto::Profile::AchievementSystem;
 
-AchievementSystemBase *Implementation = nullptr;
-
 void Init() { Configure(); }
 
 bool MountAchievementFile() {
@@ -15,6 +13,13 @@ bool MountAchievementFile() {
     return Implementation->MountAchievementFile();
   else
     return false;
+}
+
+const Achievement* GetAchievement(int id) {
+  if (Implementation)
+    return Implementation->GetAchievement(id);
+  else
+    return nullptr;
 }
 
 }  // namespace AchievementSystem
