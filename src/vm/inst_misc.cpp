@@ -45,7 +45,7 @@ VmInstruction(InstPresenceMO6) {
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Presence(arg1: %i)\n",
              arg1);
 }
-VmInstruction(InstAchievement) {
+VmInstruction(InstSetAchievement) {
   StartInstruction;
   PopUint8(type);
   if (type == 1) {
@@ -244,9 +244,21 @@ VmInstruction(InstHelp) {
 }
 VmInstruction(InstAchievementMenu) {
   StartInstruction;
-  PopUint8(arg1);
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction AchievementMenu(arg1: %i)\n", arg1);
+  PopUint8(type);
+  switch (type) {
+    case 0:  // Init
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction AchievementMenu(type: Init)\n");
+      break;
+    case 1:  // Main
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction AchievementMenu(type: Main)\n");
+      break;
+    case 0xA:  // ProfSetXboxEvent
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction AchievementMenu(type: ProfSetXboxEvent)\n");
+      break;
+  }
 }
 VmInstruction(InstSoundMenu) {
   StartInstruction;
