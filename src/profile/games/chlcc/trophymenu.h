@@ -32,6 +32,7 @@ inline float TitleFadeOutDuration;
 inline Sprite MenuTitleText;
 inline glm::vec2 ButtonPromptPosition;
 inline Sprite ButtonPromptSprite;
+inline Sprite DefaultTrophyIconSprite;
 
 void Configure();
 

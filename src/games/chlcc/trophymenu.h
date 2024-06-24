@@ -35,6 +35,10 @@ class TrophyMenu : public UI::Menu {
   glm::vec2 RedTitleLabelPos;
   glm::vec2 RightTitlePos;
   glm::vec2 LeftTitlePos;
+
+  Impacto::UI::Widgets::Group MainItems[9] = {this, this, this, this, this,
+                                              this, this, this, this};
+  int CurrentPage = 0;
 };
 
 }  // namespace CHLCC

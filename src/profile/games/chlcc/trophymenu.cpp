@@ -37,6 +37,7 @@ void Configure() {
   MenuTitleText = EnsureGetMemberSprite("MenuTitleText");
   ButtonPromptPosition = EnsureGetMemberVec2("ButtonPromptPosition");
   ButtonPromptSprite = EnsureGetMemberSprite("ButtonPromptSprite");
+  DefaultTrophyIconSprite = EnsureGetMemberSprite("DefaultTrophyIconSprite");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMemberInt("DrawType"));

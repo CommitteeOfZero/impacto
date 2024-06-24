@@ -161,6 +161,7 @@ set(Impacto_Src
         src/games/chlcc/optionsmenu.cpp
         src/games/chlcc/systemmenu.cpp
         src/games/chlcc/trophymenu.cpp
+        src/games/chlcc/trophymenuentry.cpp
         src/games/chlcc/delusiontrigger.cpp
         src/games/chlcc/achievementsystem.cpp
 
