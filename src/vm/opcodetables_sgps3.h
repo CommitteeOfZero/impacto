@@ -62,7 +62,7 @@ InstructionProc static OpcodeTableSystem_SGPS3[256] = {
     InstBGMflag,              // 00 2C
     InstUPLxTitle,            // 00 2D
     InstPresence,             // 00 2E
-    InstAchievement,          // 00 2F
+    InstSetAchievement,          // 00 2F
     InstSetPlayer,            // 00 30
     InstVoiceTableLoadMaybe,  // 00 31
     InstSetPadCustom,         // 00 32

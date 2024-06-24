@@ -62,7 +62,7 @@ InstructionProc static OpcodeTableSystem_CHLCC[256] = {
     InstBGMflag,              // 00 2C
     InstUPLxTitle,            // 00 2D
     InstPresence,             // 00 2E
-    InstAchievement,          // 00 2F
+    InstSetAchievement,       // 00 2F
     InstSetPlayer,            // 00 30
     InstVoiceTableLoadMaybe,  // 00 31
     InstSetPadCustom,         // 00 32
@@ -548,9 +548,9 @@ InstructionProc static OpcodeTableUser1_CHLCC[256] = {
     InstGameInfoInit,      // 10 0C
     InstCHAmove,           // 10 0D
     InstBGloadEx,          // 10 0E
-    InstDummy,             // 10 0F
-    InstBGrelease,         // 10 10
-    InstCHArelease,        // 10 11
+    InstEVload,            // 10 0F
+    InstEVinit,            // 10 10
+    InstEVset,             // 10 11
     InstClearFlagChkOld,   // 10 12
     InstOption,            // 10 13
     InstSystemDataReset,   // 10 14
@@ -560,8 +560,8 @@ InstructionProc static OpcodeTableUser1_CHLCC[256] = {
     InstDummy,             // 10 18
     InstDummy,             // 10 19
     InstDummy,             // 10 1A
-    InstHelp,              // 10 1B
-    InstAchievementMenu,   // 10 1C
+    InstAchievementMenu,   // 10 1B
+    InstDummy,             // 10 1C
     InstSoundMenu,         // 10 1D
     InstAllClear,          // 10 1E
     InstAlbum,             // 10 1F
