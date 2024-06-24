@@ -179,6 +179,24 @@ VmInstruction(InstClearFlagChk) {
   StartInstruction;
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction ClearFlagChk()\n");
 }
+VmInstruction(InstEVinit) {
+  StartInstruction;
+  PopUint8(arg1);
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction ClearFlagInit(arg1: %i)\n", arg1);
+}
+VmInstruction(InstEVload) {
+  StartInstruction;
+  PopUint8(arg1);
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction ClearFlagLoad(arg1: %i)\n", arg1);
+}
+VmInstruction(InstEVset) {
+  StartInstruction;
+  PopUint8(arg1);
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction ClearFlagSet(arg1: %i)\n",
+             arg1);
+}
 VmInstruction(InstClearFlagChkOld) {
   StartInstruction;
   PopUint8(arg1);
