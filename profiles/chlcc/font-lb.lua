@@ -1,5 +1,5 @@
 root.Fonts = {
-    "Default" = {
+    ["Default"] = {
         Type = FontType.LB,
         ForegroundSheet = "FontLBForeground",
         OutlineSheet = "FontLBOutline",
