@@ -12,6 +12,9 @@
 #include "../../data/tipssystem.h"
 #include "../../vm/interface/input.h"
 #include "../../profile/game.h"
+#include "../../data/achievementsystem.h"
+#include "trophymenuentry.h"
+#include "achievementsystem.h"
 
 namespace Impacto {
 namespace UI {
@@ -24,6 +27,7 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Vm::Interface;
 
 using namespace Impacto::UI::Widgets;
+using namespace Impacto::UI::Widgets::CHLCC;
 
 TrophyMenu::TrophyMenu() {
   MenuTransition.Direction = 1.0f;
@@ -50,6 +54,17 @@ void TrophyMenu::Show() {
     }
     IsFocused = true;
     UI::FocusedMenu = this;
+
+    for (int i = 0; i < 9; i++) {
+      for (int j = 0; j < 6; j++) {
+        int const index = i * 6 + j;
+        if (index >= Impacto::CHLCC::TROPHY_NUM) break;
+        TrophyMenuEntry *entry = new TrophyMenuEntry(index, 0);
+        MainItems[i].Add(entry);
+      }
+    }
+
+    MainItems[CurrentPage].Show();
   }
 }
 void TrophyMenu::Hide() {
@@ -106,9 +121,26 @@ void TrophyMenu::Render() {
     }
     DrawButtonPrompt();
   }
+  MainItems[CurrentPage].Render();
+}
+
+void TrophyMenu::UpdateInput() {
+  if (IsFocused) {
+    if (PADinputButtonWentDown & PAD1DOWN) {
+      MainItems[CurrentPage].Hide();
+      CurrentPage = (CurrentPage + 1) % 9;
+      MainItems[CurrentPage].Show();
+    } else if (PADinputButtonWentDown & PAD1UP) {
+      MainItems[CurrentPage].Hide();
+      CurrentPage = (CurrentPage + 8) % 9;
+      MainItems[CurrentPage].Show();
+    }
+  }
 }
 
 void TrophyMenu::Update(float dt) {
+  UpdateInput();
+
   if (ScrWork[SW_SYSMENUCT] < 10000 && State == Shown) {
     Hide();
   } else if (GetFlag(SF_ACHIEVEMENTMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
@@ -116,9 +148,12 @@ void TrophyMenu::Update(float dt) {
     Show();
   }
 
-  if (MenuTransition.IsOut() && State == Hiding)
+  if (MenuTransition.IsOut() && State == Hiding) {
     State = Hidden;
-  else if (MenuTransition.IsIn() && State == Showing) {
+    for (int i = 0; i < 9; i++) {
+      MainItems[i].Clear();
+    }
+  } else if (MenuTransition.IsIn() && State == Showing) {
     State = Shown;
   }
 

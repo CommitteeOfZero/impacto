@@ -3,12 +3,11 @@
 #include <cstdint>
 
 #include "../../data/achievementsystemps3.h"
-
-int constexpr TROPHY_DATA_ENTRY_NUM = 54;
-int constexpr TROPHY_NUM = 51;
-
 namespace Impacto {
 namespace CHLCC {
+
+int constexpr inline TROPHY_DATA_ENTRY_NUM = 54;
+int constexpr inline TROPHY_NUM = 51;
 
 using namespace Impacto::AchievementSystem;
 

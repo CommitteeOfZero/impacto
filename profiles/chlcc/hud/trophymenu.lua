@@ -24,6 +24,7 @@ root.TrophyMenu = {
     MenuTitleText = "MenuTitleTextTrophy",
     ButtonPromptSprite = "ButtonPromptTrophy",
     ButtonPromptPosition = { X = 1112, Y = 651 },
+    DefaultTrophyIconSprite = "DefaultTrophyIcon",
 };
 
 root.Sprites["CircleTrophy"] = {
@@ -59,4 +60,9 @@ root.Sprites["MenuTitleTextTrophy"] = {
 root.Sprites["ButtonPromptTrophy"] = {
     Sheet = "Trophy",
     Bounds = { X = 2, Y = 802, Width = 167, Height = 28 }
+}
+
+root.Sprites["DefaultTrophyIcon"] = {
+    Sheet = "Trophy",
+    Bounds = { X = 1, Y = 665, Width = 64, Height = 64 }
 }
