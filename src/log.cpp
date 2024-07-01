@@ -77,7 +77,7 @@ const char* ChannelToString(LogChannel channel) {
   }
 }
 
-void ConsoleWrite(const char* str) { printf("%s", str); }
+void ConsoleWrite(const char* str) { fprintf(stderr, "%s", str); }
 
 void ImpLog(LogLevel level, LogChannel channel, const char* format, ...) {
   assert(level > 0 && channel > 0);
