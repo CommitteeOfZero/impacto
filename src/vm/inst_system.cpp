@@ -211,7 +211,6 @@ VmInstruction(InstCopyThreadWork) {
 
 inline void LoadSaveFile() {
   ScrWork[SW_SAVEERRORCODE] = SaveSystem::MountSaveFile();
-    AchievementSystem::MountAchievementFile();
   if (ScrWork[SW_SAVEERRORCODE] == SaveOK) {
     UpdateTipRecords();
   }
@@ -247,6 +246,13 @@ VmInstruction(InstSave) {
       SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::SaveFull,
                                         ScrWork[SW_SAVEFILENO]);
       SaveSystem::WriteSaveFile();
+      break;
+    case 50:
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
+        AchievementSystem::MountAchievementFile();
+      }
+      break;
+    case 51:
       break;
     case 70:
       if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
