@@ -14,6 +14,7 @@ class Group : public Widget {
  public:
   Group(Menu* ctx);
   Group(Menu* ctx, glm::vec2 pos);
+  ~Group();
 
   std::vector<Widget*> Children;
   void Add(Widget* widget);

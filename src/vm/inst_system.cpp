@@ -22,6 +22,7 @@
 #include "../hud/saveicondisplay.h"
 #include "interface/input.h"
 #include "../data/savesystem.h"
+#include "../data/achievementsystem.h"
 #include "../ui/ui.h"
 #include "../voicetable.h"
 
@@ -245,6 +246,13 @@ VmInstruction(InstSave) {
       SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::SaveFull,
                                         ScrWork[SW_SAVEFILENO]);
       SaveSystem::WriteSaveFile();
+      break;
+    case 50:
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
+        AchievementSystem::MountAchievementFile();
+      }
+      break;
+    case 51:
       break;
     case 70:
       if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {

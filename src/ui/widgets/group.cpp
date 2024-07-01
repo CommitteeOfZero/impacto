@@ -20,6 +20,8 @@ Group::Group(Menu* ctx, glm::vec2 pos) : Group(ctx) {
   Bounds = RectF(pos.x, pos.y, 0.0f, 0.0f);
 }
 
+Group::~Group() { Clear(); }
+
 void Group::Add(Widget* widget) { Children.push_back(widget); }
 
 void Group::Add(Widget* widget, FocusDirection dir) {
