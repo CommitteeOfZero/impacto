@@ -25,6 +25,26 @@ root.TrophyMenu = {
     ButtonPromptSprite = "ButtonPromptTrophy",
     ButtonPromptPosition = { X = 1112, Y = 651 },
     DefaultTrophyIconSprite = "DefaultTrophyIcon",
+    TrophyEntryCardSprite = "TrophyEntryCard",
+    PlatinumTrophySprite = "PlatinumTrophy",
+    PlatinumTrophyPos = { X = 575, Y = 91},
+    GoldTrophySprite = "GoldTrophy",
+    GoldTrophyPos = { X =  649, Y = 91},
+    SilverTrophySprite = "SilverTrophy",
+    SilverTrophyPos = { X = 713, Y = 91},
+    BronzeTrophySprite = "BronzeTrophy",
+    BronzeTrophyPos = { X = 777, Y = 91},
+    TrophyEntriesBorderSprite = "TrophyEntriesBorder",
+    TrophyPageCtBoxSprite = "TrophyPageCtBox",
+    PageNumSeparatorSlashSprite = "PageNumSeparatorSlash",
+    
+    CurrentPageNumPos = { X = 1133, Y = 65 },
+    PageNumSeparatorSlashPos = { X = 1161, Y = 90 },
+    MaxPageNumPos = { X = 1179, Y = 90 },
+
+    PageNums = {},
+    ReachablePageNums = {},
+    TrophyCountHintLabelPos = { X = 298, Y = 97}
 };
 
 root.Sprites["CircleTrophy"] = {
@@ -66,3 +86,60 @@ root.Sprites["DefaultTrophyIcon"] = {
     Sheet = "Trophy",
     Bounds = { X = 1, Y = 665, Width = 64, Height = 64 }
 }
+
+root.Sprites["TrophyEntryCard"] = {
+    Sheet = "Trophy",
+    Bounds = { X = 1, Y = 577, Width = 830, Height = 70 }
+}
+
+root.Sprites["PlatinumTrophy"] = {
+    Sheet = "Trophy",
+    Bounds = { X = 33, Y = 737, Width = 30, Height = 30 }
+}
+
+root.Sprites["GoldTrophy"] = {
+    Sheet = "Trophy",
+    Bounds = { X = 65, Y = 737, Width = 30, Height = 30 }
+}
+
+root.Sprites["SilverTrophy"] = {
+    Sheet = "Trophy",
+    Bounds = { X = 97, Y = 737, Width = 30, Height = 30 }
+}
+
+root.Sprites["BronzeTrophy"] = {
+    Sheet = "Trophy",
+    Bounds = { X = 129, Y = 737, Width = 30, Height = 30 }
+}
+
+root.Sprites["TrophyEntriesBorder"] = {
+    Sheet = "Trophy",
+    Bounds = { X = 1, Y = 1, Width = 958, Height = 574 }
+}
+
+root.Sprites["TrophyPageCtBox"] = {
+    Sheet = "Trophy",
+    Bounds = { X = 1, Y = 833, Width =  204, Height = 57 }
+}
+
+for i = 0, 9 do
+    root.Sprites["PageNum" .. i] = {
+        Sheet = "Data",
+        Bounds = { X = i * 36 + 371, Y = 1, Width = 34, Height = 48 }
+    };
+    root.TrophyMenu.PageNums[#root.TrophyMenu.PageNums + 1] = "PageNum" .. i;
+end
+
+root.Sprites["PageNumSeparatorSlash"] = {
+    Sheet = "Data",
+    Bounds = { X = 173, Y = 67, Width = 16, Height = 22 }
+};
+
+for i = 0, 9 do
+    root.Sprites["ReachablePageNum" .. i] = {
+        Sheet = "Data",
+        Bounds = { X = 191 + 18 * i, Y = 67, Width = 16, Height = 22 }
+    };
+    root.TrophyMenu.ReachablePageNums[#root.TrophyMenu.ReachablePageNums + 1] = "ReachablePageNum" .. i;
+end
+

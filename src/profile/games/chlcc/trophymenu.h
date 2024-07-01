@@ -7,6 +7,8 @@ namespace Profile {
 namespace CHLCC {
 namespace TrophyMenu {
 
+int constexpr inline MaxTrophyPages = 9;
+
 inline float MenuTransitionDuration;
 inline uint32_t BackgroundColor;
 inline Sprite CircleSprite;
@@ -33,6 +35,24 @@ inline Sprite MenuTitleText;
 inline glm::vec2 ButtonPromptPosition;
 inline Sprite ButtonPromptSprite;
 inline Sprite DefaultTrophyIconSprite;
+inline Sprite TrophyEntryCardSprite;
+inline Sprite PlatinumTrophySprite;
+inline glm::vec2 PlatinumTrophyPos;
+inline Sprite GoldTrophySprite;
+inline glm::vec2 GoldTrophyPos;
+inline Sprite SilverTrophySprite;
+inline glm::vec2 SilverTrophyPos;
+inline Sprite BronzeTrophySprite;
+inline glm::vec2 BronzeTrophyPos;
+inline Sprite TrophyEntriesBorderSprite;
+inline Sprite TrophyPageCtBoxSprite;
+inline Sprite PageNums[10];
+inline Sprite ReachablePageNums[10];
+inline Sprite PageNumSeparatorSlash;
+inline glm::vec2 CurrentPageNumPos;
+inline glm::vec2 PageNumSeparatorPos;
+inline glm::vec2 MaxPageNumPos;
+inline glm::vec2 TrophyCountHintLabelPos;
 
 void Configure();
 

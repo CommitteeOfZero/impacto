@@ -43,6 +43,8 @@ void TrophyMenuEntry::UpdateOffset(glm::vec2 offset) {
 void TrophyMenuEntry::Update(float dt) { Widget::Update(dt); }
 
 void TrophyMenuEntry::Render() {
+  Renderer->DrawSprite(TrophyEntryCardSprite,
+                       Position + glm::vec2{91.0f, 0.0f});
   Renderer->DrawSprite(Icon, iconDest);
   NameLabel.Render();
   DescriptionLabel.Render();
@@ -50,6 +52,7 @@ void TrophyMenuEntry::Render() {
 
 void TrophyMenuEntry::Move(glm::vec2 relativePosition) {
   Widget::Move(relativePosition);
+  Position += relativePosition;
   NameLabel.Move(relativePosition);
   DescriptionLabel.Move(relativePosition);
   iconDest.X += relativePosition.x;
@@ -58,6 +61,7 @@ void TrophyMenuEntry::Move(glm::vec2 relativePosition) {
 
 void TrophyMenuEntry::MoveTo(glm::vec2 pos) {
   Widget::MoveTo(pos);
+  Position = pos;
   NameLabel.MoveTo(pos + glm::vec2{218.0f, 13.0f});
   DescriptionLabel.MoveTo(pos + glm::vec2{218.0f, 43.0f});
   iconDest.X = pos.x + 112.0f;
