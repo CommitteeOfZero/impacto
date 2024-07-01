@@ -6,6 +6,8 @@
 #include "../../ui/widgets/carousel.h"
 #include "../../ui/widgets/label.h"
 
+#include "../../profile/games/chlcc/trophymenu.h"
+
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
@@ -36,9 +38,13 @@ class TrophyMenu : public UI::Menu {
   glm::vec2 RightTitlePos;
   glm::vec2 LeftTitlePos;
 
-  Impacto::UI::Widgets::Group MainItems[9] = {this, this, this, this, this,
-                                              this, this, this, this};
+  Impacto::UI::Widgets::Group
+      MainItems[Impacto::Profile::CHLCC::TrophyMenu::MaxTrophyPages] = {
+          this, this, this, this, this, this, this, this, this};
   int CurrentPage = 0;
+
+  glm::vec2 Offset;
+  Impacto::UI::Widgets::Label TrophyCountHintLabel;
 };
 
 }  // namespace CHLCC

@@ -42,6 +42,8 @@ TrophyMenu::TrophyMenu() {
 
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;
+
+  TrophyCountHintLabel.Enabled = false;
 }
 
 void TrophyMenu::Show() {
@@ -55,7 +57,7 @@ void TrophyMenu::Show() {
     IsFocused = true;
     UI::FocusedMenu = this;
 
-    for (int i = 0; i < 9; i++) {
+    for (int i = 0; i < MaxTrophyPages; i++) {
       for (int j = 0; j < 6; j++) {
         int const index = i * 6 + j;
         if (index >= Impacto::CHLCC::TROPHY_NUM) break;
@@ -63,8 +65,13 @@ void TrophyMenu::Show() {
         MainItems[i].Add(entry);
       }
     }
-
+    Offset = glm::vec2(0.0f, -720.0f);
     MainItems[CurrentPage].Show();
+    if (!TrophyCountHintLabel.Enabled) {
+      TrophyCountHintLabel.Enabled = true;
+      TrophyCountHintLabel.SetText(Vm::ScriptGetTextTableStrAddress(0, 20), 20,
+                                   RO_Full, 0);
+    }
   }
 }
 void TrophyMenu::Hide() {
@@ -84,6 +91,7 @@ void TrophyMenu::Hide() {
 }
 
 void TrophyMenu::Render() {
+  if (State == Hidden) return;
   if (State != Hidden) {
     if (MenuTransition.IsIn()) {
       Renderer->DrawRect(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
@@ -108,36 +116,47 @@ void TrophyMenu::Render() {
   Renderer->DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                        glm::vec4(tint, alpha));
 
-  glm::vec2 offset(0.0f, 0.0f);
   if (MenuTransition.Progress > 0.22f) {
     if (MenuTransition.Progress < 0.72f) {
       // Approximated function from the original, another mess
-      offset = glm::vec2(
+      Offset = glm::vec2(
           0.0f,
           glm::mix(-720.0f, 0.0f,
                    1.00397f * std::sin(3.97161f -
                                        3.26438f * MenuTransition.Progress) -
                        0.00295643f));
-      for (auto* entry : MainItems[CurrentPage].Children) {
-        TrophyMenuEntry* trophyEntry = static_cast<TrophyMenuEntry*>(entry);
-        trophyEntry->UpdateOffset(offset);
-      }
     }
     DrawButtonPrompt();
   }
+  TrophyCountHintLabel.Render();
+  Renderer->DrawSprite(PlatinumTrophySprite, Offset + PlatinumTrophyPos);
+  Renderer->DrawSprite(GoldTrophySprite, Offset + GoldTrophyPos);
+  Renderer->DrawSprite(SilverTrophySprite, Offset + SilverTrophyPos);
+  Renderer->DrawSprite(BronzeTrophySprite, Offset + BronzeTrophyPos);
+
+  Renderer->DrawSprite(TrophyPageCtBoxSprite,
+                       Offset + glm::vec2(1090.0f, 60.0f));
+  Renderer->DrawSprite(PageNums[CurrentPage + 1], Offset + CurrentPageNumPos);
+  Renderer->DrawSprite(PageNumSeparatorSlash, Offset + PageNumSeparatorPos);
+  Renderer->DrawSprite(ReachablePageNums[MaxTrophyPages],
+                       Offset + MaxPageNumPos);
+
+  Renderer->DrawSprite(TrophyEntriesBorderSprite, Offset);
   MainItems[CurrentPage].Render();
 }
 
 void TrophyMenu::UpdateInput() {
   if (IsFocused) {
     if (PADinputButtonWentDown & PAD1DOWN) {
-      MainItems[CurrentPage].Hide();
-      CurrentPage = (CurrentPage + 1) % 9;
-      MainItems[CurrentPage].Show();
+      if (CurrentPage < 8) {
+        MainItems[CurrentPage++].Hide();
+        MainItems[CurrentPage].Show();
+      }
     } else if (PADinputButtonWentDown & PAD1UP) {
-      MainItems[CurrentPage].Hide();
-      CurrentPage = (CurrentPage + 8) % 9;
-      MainItems[CurrentPage].Show();
+      if (CurrentPage > 0) {
+        MainItems[CurrentPage--].Hide();
+        MainItems[CurrentPage].Show();
+      }
     }
   }
 }
@@ -171,6 +190,11 @@ void TrophyMenu::Update(float dt) {
     }
     TitleFade.Update(dt);
     UpdateTitles();
+    for (auto* entry : MainItems[CurrentPage].Children) {
+      TrophyMenuEntry* trophyEntry = static_cast<TrophyMenuEntry*>(entry);
+      trophyEntry->UpdateOffset(Offset);
+    }
+    TrophyCountHintLabel.MoveTo(Offset + TrophyCountHintLabelPos);
   }
 }
 
