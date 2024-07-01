@@ -59,7 +59,7 @@ void TrophyMenu::Show() {
       for (int j = 0; j < 6; j++) {
         int const index = i * 6 + j;
         if (index >= Impacto::CHLCC::TROPHY_NUM) break;
-        TrophyMenuEntry *entry = new TrophyMenuEntry(index, 0);
+        TrophyMenuEntry* entry = new TrophyMenuEntry(index);
         MainItems[i].Add(entry);
       }
     }
@@ -118,6 +118,10 @@ void TrophyMenu::Render() {
                    1.00397f * std::sin(3.97161f -
                                        3.26438f * MenuTransition.Progress) -
                        0.00295643f));
+      for (auto* entry : MainItems[CurrentPage].Children) {
+        TrophyMenuEntry* trophyEntry = static_cast<TrophyMenuEntry*>(entry);
+        trophyEntry->UpdateOffset(offset);
+      }
     }
     DrawButtonPrompt();
   }

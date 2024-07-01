@@ -12,12 +12,13 @@ namespace CHLCC {
 
 class TrophyMenuEntry : public Widget {
  public:
-  TrophyMenuEntry(int achievementId, float heightOffset);
+  TrophyMenuEntry(int achievementId);
   void Update(float dt) override;
   void UpdateInput() {};
   void Render() override;
   void Move(glm::vec2 relativePosition) override;
   void MoveTo(glm::vec2 pos) override;
+  void UpdateOffset(glm::vec2 offset);
 
  private:
   int AchievementId;
@@ -26,6 +27,7 @@ class TrophyMenuEntry : public Widget {
   Impacto::UI::Widgets::Label DescriptionLabel;
   Impacto::Sprite Icon;
   RectF iconDest;
+  glm::vec2 Offset;
 };
 }  // namespace CHLCC
 }  // namespace Widgets
