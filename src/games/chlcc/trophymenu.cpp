@@ -14,7 +14,6 @@
 #include "../../profile/game.h"
 #include "../../data/achievementsystem.h"
 #include "trophymenuentry.h"
-#include "achievementsystem.h"
 
 namespace Impacto {
 namespace UI {
@@ -60,7 +59,7 @@ void TrophyMenu::Show() {
     for (int i = 0; i < MaxTrophyPages; i++) {
       for (int j = 0; j < 6; j++) {
         int const index = i * 6 + j;
-        if (index >= Impacto::CHLCC::TROPHY_NUM) break;
+        if (index >= AchievementSystem::GetAchievementCount()) break;
         TrophyMenuEntry* entry = new TrophyMenuEntry(index);
         MainItems[i].Add(entry);
       }

@@ -3,6 +3,8 @@
 #include <cstdint>
 
 #include "achievementsystem.h"
+#include <vector>
+#include <memory>
 
 #define PS3_MAGIC 0xDCA24D00
 #define TROPHY_TYPES "BSGP"
@@ -46,8 +48,13 @@ class Trophy : public Achievement {
 
 class AchievementSystemPS3 : public AchievementSystemBase {
  public:
-  virtual bool MountAchievementFile() = 0;
-  virtual const Achievement *GetAchievement(int id) = 0;
+  bool MountAchievementFile() override;
+  const Achievement *GetAchievement(int id) override;
+  size_t GetAchievementCount() const override;
+
+ private:
+  std::vector<TrophyDataEntry> TrophyDataEntries;
+  std::vector<std::unique_ptr<Trophy>> Trophies;
 };
 
 }  // namespace AchievementSystem

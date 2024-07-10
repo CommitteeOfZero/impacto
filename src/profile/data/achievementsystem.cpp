@@ -1,7 +1,7 @@
 #include "achievementsystem.h"
 #include "../profile_internal.h"
 
-#include "../../games/chlcc/achievementsystem.h"
+#include "../../data/achievementsystemps3.h"
 
 namespace Impacto {
 namespace Profile {
@@ -17,7 +17,7 @@ void Configure() {
 
     switch (Type) {
       case AchievementDataType::CHLCC:
-        Implementation = new Impacto::CHLCC::AchievementSystem();
+        Implementation = new Impacto::AchievementSystem::AchievementSystemPS3();
         break;
     }
 

@@ -34,6 +34,7 @@ class AchievementSystemBase {
   virtual bool MountAchievementFile() = 0;
   //  virtual bool UnlockAchievement(int id) = 0;
   virtual const Achievement *GetAchievement(int id) = 0;
+  virtual size_t GetAchievementCount() const = 0;
 };
 
 inline AchievementSystemBase *Implementation = nullptr;
@@ -42,6 +43,7 @@ void Init();
 
 bool MountAchievementFile();
 const Achievement *GetAchievement(int id);
+size_t GetAchievementCount();
 
 }  // namespace AchievementSystem
 }  // namespace Impacto

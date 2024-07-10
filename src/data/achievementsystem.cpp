@@ -22,5 +22,11 @@ const Achievement* GetAchievement(int id) {
     return nullptr;
 }
 
+size_t GetAchievementCount() {
+  if (Implementation)
+    return Implementation->GetAchievementCount();
+  else
+    return 0;
+}
 }  // namespace AchievementSystem
 }  // namespace Impacto
