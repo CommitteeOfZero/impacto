@@ -13,7 +13,6 @@
 * `vendor/clHCA`: part of [vgmstream](https://github.com/losnoco/vgmstream)
 * `vendor/minilua`: [minilua](https://github.com/edubart/minilua)
 * `vendor/glad`: output from [glad](https://github.com/Dav1dde/glad) generator, patched for Switch support
-* `vendor/include/rapidjson`: [RapidJSON](https://github.com/Tencent/rapidjson)
 * `vendor/include/enum.h`: [Better Enums](http://github.com/aantron/better-enums)
 * `vendor/include/flat_hash_map.hpp`: [flat_hash_map](https://github.com/skarupke/flat_hash_map/blob/4ba60d1302288fae0257d07a5c079e8033372501/flat_hash_map.hpp) (with PR #18)
 * `vendor/include/stb_image.h`: [stb_image](https://github.com/nothings/stb)
@@ -22,6 +21,7 @@
 * `vendor/squish`: [Squish](http://sjbrown.co.uk/?code=squish)
 * `vendor/utf8-cpp`: [UTF8-CPP](http://utfcpp.sourceforge.net/)
 * `vendor/mspack`: [libmspack](https://www.cabextract.org.uk/libmspack/), only includes LZX decompressor to reduce code size
+* `vendor/pugixml`: [pugixml](https://github.com/zeux/pugixml) 
 
 All third-party code mentioned above is mandatory, included in the build process and compiled into the output executable for impacto on every supported platform and build configuration.
 
@@ -85,28 +85,10 @@ Better Enums is distributed under the terms of the 2-clause BSD license. See bel
 
 ## MiniLua
 
-MIT License
-
 Copyright (c) 1994–2019 Lua.org, PUC-Rio.
 Copyright (c) 2020-2023 Eduardo Bart (https://github.com/edubart).
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+See below for license text(MIT)
 
 ## Emscripten
 
@@ -699,27 +681,7 @@ Copyright (c) 2018 Alex Barney. See below for license text (MIT).
 
 https://github.com/ocornut/imgui
 
->     The MIT License (MIT)
->
->     Copyright (c) 2014-2024 Omar Cornut
->
->     Permission is hereby granted, free of charge, to any person obtaining a copy
->     of this software and associated documentation files (the "Software"), to deal
->     in the Software without restriction, including without limitation the rights
->     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
->     copies of the Software, and to permit persons to whom the Software is
->     furnished to do so, subject to the following conditions:
->
->     The above copyright notice and this permission notice shall be included in all
->     copies or substantial portions of the Software.
->
->     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
->     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
->     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
->     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
->     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
->     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
->     SOFTWARE.
+Copyright (c) 2014-2024 Omar Cornut. See below for license text (MIT).
 
 ## Ogg
 
@@ -794,14 +756,6 @@ https://github.com/imneme/pcg-c-basic/tree/bc39cd76ac3d541e618606bcc6e1e5ba5e5e6
 Copyright 2014 Melissa O'Neill <oneill@pcg-random.org>
 
 Licensed under the Apache License, Version 2.0. See below for license text.
-
-## RapidJSON
-
-https://github.com/Tencent/rapidjson/tree/v1.1.0
-
-Copyright (C) 2015 THL A29 Limited, a Tencent company, and Milo Yip. All rights reserved.
-
-Licensed under the MIT License. See below for license text.
 
 # Ryujinx
 
@@ -960,6 +914,14 @@ Copyright 2006 Nemanja Trifunovic
 https://www.cabextract.org.uk/libmspack/
 
 See below for license text (LGPLv2).
+
+## pugixml
+
+https://github.com/zeux/pugixml
+
+Copyright (c) 2006-2024 Arseny Kapoulkine
+
+See below for license text (MIT).
 
 # Generic license texts
 
