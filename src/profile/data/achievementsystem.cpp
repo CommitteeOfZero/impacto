@@ -16,7 +16,7 @@ void Configure() {
         EnsureGetMemberInt("Type"));
 
     switch (Type) {
-      case AchievementDataType::CHLCC:
+      case AchievementDataType::PS3:
         Implementation = new Impacto::AchievementSystem::AchievementSystemPS3();
         break;
     }

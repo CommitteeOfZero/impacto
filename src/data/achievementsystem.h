@@ -6,7 +6,7 @@
 namespace Impacto {
 namespace AchievementSystem {
 
-BETTER_ENUM(AchievementDataType, int, None, CHLCC)
+BETTER_ENUM(AchievementDataType, int, None, PS3)
 
 class Achievement {
  public:
