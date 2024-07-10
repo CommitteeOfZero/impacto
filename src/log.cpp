@@ -8,6 +8,7 @@ namespace Impacto {
 
 // TODO Color output in console?
 
+// TODO configurable stream/file logging
 static bool LoggingToConsole = false;
 static bool LoggingToFile = false;
 
@@ -77,7 +78,7 @@ const char* ChannelToString(LogChannel channel) {
   }
 }
 
-void ConsoleWrite(const char* str) { fprintf(stderr, "%s", str); }
+void ConsoleWrite(const char* str) { printf("%s", str); }
 
 void ImpLog(LogLevel level, LogChannel channel, const char* format, ...) {
   assert(level > 0 && channel > 0);
