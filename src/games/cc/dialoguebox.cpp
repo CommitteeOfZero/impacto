@@ -14,6 +14,19 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Dialogue;
 using namespace Impacto::Profile::CC::DialogueBox;
 
+void DialogueBox::Init() {
+  Impacto::DialogueBox::Init();
+
+  SkipAnimation = Profile::CC::DialogueBox::SkipAnimation.Instantiate();
+  AutoAnimation = Profile::CC::DialogueBox::AutoAnimation.Instantiate();
+  SkipAnimation.DurationIn = SkipAutoAnimationDuration;
+  AutoAnimation.DurationIn = SkipAutoAnimationDuration;
+  SkipAnimation.DurationOut = SkipAutoAnimationDuration;
+  AutoAnimation.DurationOut = SkipAutoAnimationDuration;
+  SkipAnimation.LoopMode = ALM_Stop;
+  AutoAnimation.LoopMode = ALM_Stop;
+}
+
 void DialogueBox::Update(float dt) {
   if (TextBoxEffect.State != AS_Playing) {
     TextBoxEffect.DurationIn = ADVBoxEffectDuration;
@@ -22,6 +35,18 @@ void DialogueBox::Update(float dt) {
   }
 
   TextBoxEffect.Update(dt);
+
+  if ((MesSkipMode & 0b11) && SkipAnimation.Direction == -1)
+    SkipAnimation.StartIn();
+  if (!(MesSkipMode & 0b11) && SkipAnimation.Direction == 1)
+    SkipAnimation.StartOut();
+  SkipAnimation.Update(dt);
+
+  if ((MesSkipMode & 0b100) && AutoAnimation.Direction == -1)
+    AutoAnimation.StartIn();
+  if (!(MesSkipMode & 0b100) && AutoAnimation.Direction == 1)
+    AutoAnimation.StartOut();
+  AutoAnimation.Update(dt);
 }
 
 void DialogueBox::Render(DialoguePageMode mode, bool hasName, float nameWidth,
@@ -42,6 +67,14 @@ void DialogueBox::Render(DialoguePageMode mode, bool hasName, float nameWidth,
     Renderer->DrawRect(RectF(0, 0, Profile::DesignWidth, Profile::DesignHeight),
                        nvlBoxTint);
   }
+
+  // Draw skip mode sprite
+  if (!SkipAnimation.IsOut())
+    Renderer->DrawSprite(SkipAnimation.CurrentSprite(), SkipIconPos);
+
+  // Draw auto mode sprite
+  if (!AutoAnimation.IsOut())
+    Renderer->DrawSprite(AutoAnimation.CurrentSprite(), AutoIconPos);
 }
 
 }  // namespace CC

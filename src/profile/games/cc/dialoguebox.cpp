@@ -19,6 +19,12 @@ void Configure() {
 
   ADVBoxNamePlateMainPos = EnsureGetMemberVec2("ADVBoxNamePlateMainPos");
   ADVBoxNamePlateLabelPos = EnsureGetMemberVec2("ADVBoxNamePlateLabelPos");
+
+  SkipAnimation = EnsureGetMemberAnimation("SkipAnimation");
+  AutoAnimation = EnsureGetMemberAnimation("AutoAnimation");
+  SkipIconPos = EnsureGetMemberVec2("SkipIconPos");
+  AutoIconPos = EnsureGetMemberVec2("AutoIconPos");
+  SkipAutoAnimationDuration = EnsureGetMemberFloat("SkipAutoAnimationDuration");
 }
 
 }  // namespace DialogueBox

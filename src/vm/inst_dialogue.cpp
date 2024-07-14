@@ -119,6 +119,11 @@ VmInstruction(InstMes) {
 
   StartInstruction;
 
+  if (!(ScrWork[10 * thread->DialoguePageId + 4362] & 0b1000000)) {
+    // TODO: check message read
+    ChkMesSkip();
+  }
+
   // After loading a save we need to make sure the textbox is actually shown
   if (DialoguePages[thread->DialoguePageId].FadeAnimation.IsOut() &&
       GetFlag(thread->DialoguePageId + SF_MESWINDOW0OPENFL)) {
@@ -601,6 +606,22 @@ VmInstruction(InstSetRevMes) {
                  "arg4: %i)\n",
                  type, arg2, arg3, arg4);
     } break;
+  }
+}
+
+void ChkMesSkip() {
+  if ( ((ScrWork[2113] & 0b101) == 0b001) && (ScrWork[SW_SYSMESALPHA] == 255) &&
+      !GetFlag(SF_UIHIDDEN)) {
+    // Force skip (currently implemented elsewhere)
+    // SetFlag(SF_MESALLSKIP, (Interface::PADinputButtonWentDown & Interface::PAD1R1) );
+
+    // Skip
+    if (Interface::PADinputButtonWentDown & Interface::PAD1L3)
+      MesSkipMode ^= 0b011;
+    
+    // Auto
+    if (Interface::PADinputButtonWentDown & Interface::PAD1SELECT)
+      MesSkipMode ^= 0b100;
   }
 }
 

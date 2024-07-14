@@ -29,6 +29,8 @@ VmInstruction(InstNameID);
 VmInstruction(InstTips);
 VmInstruction(InstSetRevMes);
 
+void ChkMesSkip();
+
 }  // namespace Vm
 
 }  // namespace Impacto

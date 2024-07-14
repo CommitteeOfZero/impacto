@@ -140,4 +140,12 @@ inline ska::flat_hash_map<uint32_t, uint32_t> NamePlateData;
 void InitNamePlateData(uint16_t* data);
 uint32_t GetNameId(uint8_t* name, int nameLength);
 
+/*
+Bitfield denoting the skip mode enabled:
+The first two bits indicate skip mode is enabled
+    (TODO: find out what the distinction between the two is)
+The third bit indicates auto mode is enabled
+*/
+inline int MesSkipMode;
+
 }  // namespace Impacto

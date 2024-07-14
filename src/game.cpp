@@ -20,6 +20,7 @@
 #include "renderer/3d/scene.h"
 #include "mem.h"
 #include "vm/interface/input.h"
+#include "vm/inst_dialogue.h"
 #include "hud/datedisplay.h"
 #include "hud/saveicondisplay.h"
 #include "hud/loadingdisplay.h"
@@ -166,6 +167,8 @@ void UpdateGameState(float dt) {
     ScrWork[SW_PLAYTIME]++;
     UpdateSecondCounter -= 1.0f;
   }
+
+  Vm::ChkMesSkip();
 }
 
 void Update(float dt) {

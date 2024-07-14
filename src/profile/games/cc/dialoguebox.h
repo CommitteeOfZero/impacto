@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../../spritesheet.h"
+#include "../../../spriteanimation.h"
 
 namespace Impacto {
 namespace Profile {
@@ -19,6 +20,12 @@ inline glm::vec2 ADVBoxNamePlateMainPos;
 inline glm::vec2 ADVBoxNamePlateLabelPos;
 
 inline float ADVBoxEffectDuration;
+
+inline SpriteAnimationDef SkipAnimation;
+inline SpriteAnimationDef AutoAnimation;
+inline glm::vec2 SkipIconPos;
+inline glm::vec2 AutoIconPos;
+inline float SkipAutoAnimationDuration;
 
 }  // namespace DialogueBox
 }  // namespace CC
