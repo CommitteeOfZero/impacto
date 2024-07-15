@@ -613,14 +613,14 @@ void ChkMesSkip() {
   if ( ((ScrWork[2113] & 0b101) == 0b001) && (ScrWork[SW_SYSMESALPHA] == 255) &&
       !GetFlag(SF_UIHIDDEN)) {
     // Force skip (currently implemented elsewhere)
-    // SetFlag(SF_MESALLSKIP, (Interface::PADinputButtonWentDown & Interface::PAD1R1) );
+    // SetFlag(SF_MESALLSKIP, (Interface::PADinputButtonWentDown & Interface::PAD1L1) );
 
     // Skip
-    if (Interface::PADinputButtonWentDown & Interface::PAD1L3)
+    if (Interface::PADinputButtonWentDown & Interface::PAD1R1)
       MesSkipMode ^= 0b011;
     
     // Auto
-    if (Interface::PADinputButtonWentDown & Interface::PAD1SELECT)
+    if (Interface::PADinputButtonWentDown & Interface::PAD1X)
       MesSkipMode ^= 0b100;
   }
 }
