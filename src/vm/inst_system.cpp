@@ -576,6 +576,8 @@ VmInstruction(InstMSinit) {
       memset(&FlagWork, 0, 1000);
       memset(&ScrWork, 0, 32000);
     }
+
+    ScrWork[SW_SYSMESALPHA] = 255;
   }
 
   if (initType == 5) {
