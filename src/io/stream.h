@@ -73,6 +73,11 @@ inline T SwapHelper(T value) {
     u.result = value;
     u.result_int = SDL_Swap64(u.result_int);
     return u.result;
+  } else if constexpr (std::is_same_v<int8_t, T> ||
+                       std::is_same_v<uint8_t, T>) {
+    return value;
+  } else {
+    static_assert(!sizeof(T*), "Unsupported type for SwapHelper");
   }
 }
 

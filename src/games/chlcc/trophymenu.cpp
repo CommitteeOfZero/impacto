@@ -12,6 +12,8 @@
 #include "../../data/tipssystem.h"
 #include "../../vm/interface/input.h"
 #include "../../profile/game.h"
+#include "../../data/achievementsystem.h"
+#include "trophymenuentry.h"
 
 namespace Impacto {
 namespace UI {
@@ -24,6 +26,7 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Vm::Interface;
 
 using namespace Impacto::UI::Widgets;
+using namespace Impacto::UI::Widgets::CHLCC;
 
 TrophyMenu::TrophyMenu() {
   MenuTransition.Direction = 1.0f;
@@ -38,6 +41,8 @@ TrophyMenu::TrophyMenu() {
 
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;
+
+  TrophyCountHintLabel.Enabled = false;
 }
 
 void TrophyMenu::Show() {
@@ -50,6 +55,22 @@ void TrophyMenu::Show() {
     }
     IsFocused = true;
     UI::FocusedMenu = this;
+
+    for (int i = 0; i < MaxTrophyPages; i++) {
+      for (int j = 0; j < 6; j++) {
+        int const index = i * 6 + j;
+        if (index >= AchievementSystem::GetAchievementCount()) break;
+        TrophyMenuEntry* entry = new TrophyMenuEntry(index);
+        MainItems[i].Add(entry);
+      }
+    }
+    Offset = glm::vec2(0.0f, -720.0f);
+    MainItems[CurrentPage].Show();
+    if (!TrophyCountHintLabel.Enabled) {
+      TrophyCountHintLabel.Enabled = true;
+      TrophyCountHintLabel.SetText(Vm::ScriptGetTextTableStrAddress(0, 20), 20,
+                                   RO_Full, 0);
+    }
   }
 }
 void TrophyMenu::Hide() {
@@ -69,6 +90,7 @@ void TrophyMenu::Hide() {
 }
 
 void TrophyMenu::Render() {
+  if (State == Hidden) return;
   if (State != Hidden) {
     if (MenuTransition.IsIn()) {
       Renderer->DrawRect(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
@@ -93,11 +115,10 @@ void TrophyMenu::Render() {
   Renderer->DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                        glm::vec4(tint, alpha));
 
-  glm::vec2 offset(0.0f, 0.0f);
   if (MenuTransition.Progress > 0.22f) {
     if (MenuTransition.Progress < 0.72f) {
       // Approximated function from the original, another mess
-      offset = glm::vec2(
+      Offset = glm::vec2(
           0.0f,
           glm::mix(-720.0f, 0.0f,
                    1.00397f * std::sin(3.97161f -
@@ -106,9 +127,42 @@ void TrophyMenu::Render() {
     }
     DrawButtonPrompt();
   }
+  TrophyCountHintLabel.Render();
+  Renderer->DrawSprite(PlatinumTrophySprite, Offset + PlatinumTrophyPos);
+  Renderer->DrawSprite(GoldTrophySprite, Offset + GoldTrophyPos);
+  Renderer->DrawSprite(SilverTrophySprite, Offset + SilverTrophyPos);
+  Renderer->DrawSprite(BronzeTrophySprite, Offset + BronzeTrophyPos);
+
+  Renderer->DrawSprite(TrophyPageCtBoxSprite,
+                       Offset + glm::vec2(1090.0f, 60.0f));
+  Renderer->DrawSprite(PageNums[CurrentPage + 1], Offset + CurrentPageNumPos);
+  Renderer->DrawSprite(PageNumSeparatorSlash, Offset + PageNumSeparatorPos);
+  Renderer->DrawSprite(ReachablePageNums[MaxTrophyPages],
+                       Offset + MaxPageNumPos);
+
+  Renderer->DrawSprite(TrophyEntriesBorderSprite, Offset);
+  MainItems[CurrentPage].Render();
+}
+
+void TrophyMenu::UpdateInput() {
+  if (IsFocused) {
+    if (PADinputButtonWentDown & PAD1DOWN) {
+      if (CurrentPage < 8) {
+        MainItems[CurrentPage++].Hide();
+        MainItems[CurrentPage].Show();
+      }
+    } else if (PADinputButtonWentDown & PAD1UP) {
+      if (CurrentPage > 0) {
+        MainItems[CurrentPage--].Hide();
+        MainItems[CurrentPage].Show();
+      }
+    }
+  }
 }
 
 void TrophyMenu::Update(float dt) {
+  UpdateInput();
+
   if (ScrWork[SW_SYSMENUCT] < 10000 && State == Shown) {
     Hide();
   } else if (GetFlag(SF_ACHIEVEMENTMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
@@ -116,9 +170,12 @@ void TrophyMenu::Update(float dt) {
     Show();
   }
 
-  if (MenuTransition.IsOut() && State == Hiding)
+  if (MenuTransition.IsOut() && State == Hiding) {
     State = Hidden;
-  else if (MenuTransition.IsIn() && State == Showing) {
+    for (int i = 0; i < 9; i++) {
+      MainItems[i].Clear();
+    }
+  } else if (MenuTransition.IsIn() && State == Showing) {
     State = Shown;
   }
 
@@ -132,6 +189,11 @@ void TrophyMenu::Update(float dt) {
     }
     TitleFade.Update(dt);
     UpdateTitles();
+    for (auto* entry : MainItems[CurrentPage].Children) {
+      TrophyMenuEntry* trophyEntry = static_cast<TrophyMenuEntry*>(entry);
+      trophyEntry->UpdateOffset(Offset);
+    }
+    TrophyCountHintLabel.MoveTo(Offset + TrophyCountHintLabelPos);
   }
 }
 

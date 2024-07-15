@@ -11,6 +11,7 @@
 #include "../ui/ui.h"
 #include "../vm/vm.h"
 #include "../data/savesystem.h"
+#include "../data/achievementsystem.h"
 #include "../data/tipssystem.h"
 #include "../hud/datedisplay.h"
 #include "../hud/waiticondisplay.h"
@@ -183,6 +184,7 @@ void MakeLuaProfile(std::string const& name) {
   DefineEnumInt<Vm::InstructionSet>(LuaState);
   DefineEnumUint<Game::DrawComponentType>(LuaState);
   DefineEnumInt<SaveSystem::SaveDataType>(LuaState);
+  DefineEnumInt<AchievementSystem::AchievementDataType>(LuaState);
   DefineEnumInt<TipsSystem::TipsSystemType>(LuaState);
   DefineEnumInt<UI::SystemMenuType>(LuaState);
   DefineEnumInt<UI::TitleMenuType>(LuaState);

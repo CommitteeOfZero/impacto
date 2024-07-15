@@ -10,6 +10,7 @@
 #include "ui/ui.h"
 
 #include "data/savesystem.h"
+#include "data/achievementsystem.h"
 #include "data/tipssystem.h"
 #include "audio/audiosystem.h"
 #include "video/videosystem.h"
@@ -114,6 +115,7 @@ static void Init() {
     Profile::SelectionMenu::Configure();
 
     SaveSystem::Init();
+    AchievementSystem::Init();
     TipsSystem::Init();
     SaveIconDisplay::Init();
     LoadingDisplay::Init();

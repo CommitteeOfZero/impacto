@@ -8,6 +8,7 @@ namespace Impacto {
 
 // TODO Color output in console?
 
+// TODO configurable stream/file logging
 static bool LoggingToConsole = false;
 static bool LoggingToFile = false;
 
