@@ -580,6 +580,10 @@ VmInstruction(InstMSinit) {
     ScrWork[SW_SYSMESALPHA] = 255;
   }
 
+  if (initType == 0 || initType == 1) {
+    ScrWork[2113] = 0;
+  }
+
   if (initType == 5) {
     UI::BacklogMenuPtr->Clear();
   }
