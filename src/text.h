@@ -147,5 +147,6 @@ The first two bits indicate skip mode is enabled
 The third bit indicates auto mode is enabled
 */
 inline int MesSkipMode;
+inline int SkipMode;
 
 }  // namespace Impacto

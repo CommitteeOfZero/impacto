@@ -574,8 +574,7 @@ VmInstruction(InstTitleMenuOld) {
 VmInstruction(InstSetPlayMode) {
   StartInstruction;
   PopExpression(arg1);
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SetPlayMode(arg1: %i)\n",
-             arg1);
+  MesSkipMode = (arg1 == 4) ? SkipMode + 1 : arg1;
 }
 VmInstruction(InstSetEVflag) {
   StartInstruction;
