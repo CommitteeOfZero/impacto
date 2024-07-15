@@ -479,9 +479,26 @@ VmInstruction(InstDebugSetup) {
 }
 VmInstruction(InstGlobalSystemMessage) {
   StartInstruction;
-  PopExpression(arg1);
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction GlobalSystemMessage(arg1: %i)\n", arg1);
+  PopUint8(type);
+  switch(type) {
+    case 0: {
+      PopExpression(alpha);
+      // TODO: set GlobalSystemMessageCur to 255
+      ScrWork[SW_SYSMESALPHA] = alpha;
+    } break;
+    case 1:
+      ScrWork[SW_SYSMESANIMCTCUR] += 8;
+      break;
+    case 2:
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction GlobalSystemMessage(type: 2)\n");
+      break;
+    case 3:
+      ScrWork[SW_SYSMESANIMCTCUR] -= 8;
+      if (!ScrWork[SW_SYSMESANIMCTCUR])
+        ScrWork[3370] = 255;
+      break;
+  }
 }
 // TODO find the value ranges for atan2
 VmInstruction(InstCalc) {
