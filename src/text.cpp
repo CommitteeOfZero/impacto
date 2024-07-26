@@ -654,6 +654,11 @@ void DialoguePage::Update(float dt) {
     }
   }
 
+  if (TextIsFullyOpaque() && MesSkipMode & SkipModeFlags::Auto) {
+    AutoWaitTime -= AutoSpeed * dt;
+    if (AutoWaitTime < 0) AutoWaitTime = 0;
+  }
+
   TextBox->Update(dt);
   FadeAnimation.Update(dt);
   WaitIconDisplay::Update(dt);

@@ -18,6 +18,8 @@ BETTER_ENUM(TextAlignment, int, Left = 0, Center, Right, Block)
 BETTER_ENUM(CharacterTypeFlags, uint8_t, Space = (1 << 0),
             WordStartingPunct = (1 << 1), WordEndingPunct = (1 << 2))
 
+BETTER_ENUM(SkipModeFlags, uint8_t, SkipRead = (1 << 0), SkipAll = (1 << 1), Auto = (1 << 2))
+
 // TODO: think about / profile memory access patterns
 
 struct DialogueColorPair {
@@ -98,6 +100,8 @@ struct DialoguePage {
   bool NVLResetBeforeAdd;
   bool AutoForward;
 
+  float AutoWaitTime;
+
   void Clear();
   void AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice = 0,
                  int animId = 0);
@@ -140,13 +144,11 @@ inline ska::flat_hash_map<uint32_t, uint32_t> NamePlateData;
 void InitNamePlateData(uint16_t* data);
 uint32_t GetNameId(uint8_t* name, int nameLength);
 
-/*
-Bitfield denoting the skip mode enabled:
-The first two bits indicate skip mode is enabled
-    (TODO: find out what the distinction between the two is)
-The third bit indicates auto mode is enabled
-*/
-inline int MesSkipMode;
-inline int SkipMode;
+// Bitfield denoting the skip mode, according to SkipModeFlags
+inline uint8_t MesSkipMode;
+
+// Speed to skip in auto mode (MessWaitSpeed);
+inline float AutoSpeed = 768 / 60;
+inline bool SkipMode;  // Skip unread text
 
 }  // namespace Impacto

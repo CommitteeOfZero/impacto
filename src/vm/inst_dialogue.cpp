@@ -202,6 +202,8 @@ VmInstruction(InstMes) {
       UI::BacklogMenuPtr->AddMessage(line);
     } break;
   }
+
+  DialoguePages[thread->DialoguePageId].AutoWaitTime = DialoguePages[thread->DialoguePageId].Length;
 }
 VmInstruction(InstMesMain) {
   StartInstruction;
@@ -217,9 +219,12 @@ VmInstruction(InstMesMain) {
     } else if (!((Interface::PADinputButtonWentDown & Interface::PAD1A ||
                   Interface::PADinputMouseWentDown & Interface::PAD1A) &&
                  currentPage->TextIsFullyOpaque())) {
-      if (!GetFlag(SF_MESALLSKIP)) {
-        ResetInstruction;
+      if (!GetFlag(SF_UIHIDDEN)) {
+        if (GetFlag(SF_MESALLSKIP)) return;
+        if (!currentPage->AutoWaitTime) return;
       }
+
+      ResetInstruction;
     }
     BlockThread;
   }
@@ -617,11 +622,14 @@ void ChkMesSkip() {
 
     // Skip
     if (Interface::PADinputButtonWentDown & Interface::PAD1R1)
-      MesSkipMode ^= 0b011;
+      if (MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll))
+        MesSkipMode &= SkipModeFlags::Auto; // Turn off all skip modes (leaving auto)
+      else
+        MesSkipMode |= (SkipMode ? SkipModeFlags::SkipAll : SkipModeFlags::SkipRead);
     
     // Auto
     if (Interface::PADinputButtonWentDown & Interface::PAD1X)
-      MesSkipMode ^= 0b100;
+      MesSkipMode ^= SkipModeFlags::Auto;
   }
 }
 
