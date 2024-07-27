@@ -8,7 +8,7 @@ root.Sprites["ADVBoxMask"] = {
     Bounds = { X = 0, Y = 301, Width = 1920, Height = 298 }
 };
 
-root.Sprites["WaitIconSpriteFixed"] = {
+root.Sprites["WaitIconSprite"] = {
     Sheet = "Data",
     Bounds = { X = 1, Y = 456, Width = 112, Height = 64 },
 };
@@ -37,7 +37,7 @@ root.Dialogue = {
     ADVNameAlignment = TextAlignment.Left,
     ADVNameFontSize = 33,
     ADVNamePos = { X = 173, Y = 773 },
-    WaitIconCurrentType = WaitIconType.SpriteAnimFixed,
+    WaitIconCurrentType = WaitIconType.None,
     WaitIconSpriteAnim = "WaitIconSpriteAnim",
     WaitIconSprite = "WaitIconSpriteFixed",
     WaitIconAnimationDuration = 0.7,
@@ -92,22 +92,6 @@ root.Dialogue = {
     PageCount = 3,
     ColorTagIsUint8 = false
 };
-
-MakeAnimation({
-    Name = "WaitIconSpriteAnim",
-    Sheet = "Data",
-    FirstFrameX = 864, --1114
-    FirstFrameY = 877,
-    FrameWidth = 190,
-    ColWidth = 216,
-    FrameHeight = 185,
-    RowHeight = 185,
-    Frames = 10,
-    Duration = 1,
-    Rows = 1,
-    Columns = 10,
-    PrimaryDirection = AnimationDirections.Right
-});
 
 MakeAnimation({
     Name = "SkipAnimation",
