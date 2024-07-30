@@ -8,11 +8,6 @@ root.Sprites["ADVBoxMask"] = {
     Bounds = { X = 0, Y = 301, Width = 1920, Height = 298 }
 };
 
-root.Sprites["WaitIconSpriteFixed"] = {
-    Sheet = "Data",
-    Bounds = { X = 1977, Y = 937, Width = 126, Height = 95 },
-};
-
 root.Dialogue = {
     REVBounds = { X = 0, Y = 0, Width = 960, Height = 400 },
     REVNameFontSize = 24,
@@ -39,9 +34,17 @@ root.Dialogue = {
     ADVNamePos = { X = 173, Y = 773 },
     WaitIconCurrentType = WaitIconType.SpriteAnimFixed,
     WaitIconSpriteAnim = "WaitIconSpriteAnim",
-    WaitIconSprite = "WaitIconSpriteFixed",
     WaitIconAnimationDuration = 0.7,
     WaitIconOffset = { X = 1624, Y = 955 },
+    WaitIconFixedSpriteId = 5,
+    AutoIconCurrentType = AutoIconType.SpriteAnimFixed,
+    AutoIconSpriteAnim = "AutoIconSpriteAnim",
+    AutoIconOffset = { X = 1570, Y = 690 }, -- Very much eyeballed
+    AutoIconFixedSpriteId = 5,
+    SkipIconCurrentType = SkipIconType.SpriteAnimFixed,
+    SkipIconSpriteAnim = "SkipIconSpriteAnim",
+    SkipIconOffset = { X = 1686, Y = 794 }, -- Very much eyeballed
+    SkipIconFixedSpriteId = 5,
     DialogueFont = "Default",
     DefaultFontSize = 36,
     RubyFontSize = 21,
@@ -103,6 +106,38 @@ MakeAnimation({
     Columns = 10,
     PrimaryDirection = AnimationDirections.Right
 });
+
+MakeAnimation({
+    Name = "AutoIconSpriteAnim",
+    Sheet = "Data",
+    FirstFrameX = 854,
+    FirstFrameY = 456,
+    FrameWidth = 215,
+    ColWidth = 215,
+    FrameHeight = 220,
+    RowHeight = 220,
+    Frames = 10,
+    Duration = 0.7,
+    Rows = 1,
+    Columns = 10,
+    PrimaryDirection = AnimationDirections.Right
+});
+
+MakeAnimation({
+    Name = "SkipIconSpriteAnim",
+    Sheet = "Data",
+    FirstFrameX = 854,
+    FirstFrameY = 676,
+    FrameWidth = 215,
+    ColWidth = 215,
+    FrameHeight = 220,
+    RowHeight = 220,
+    Frames = 10,
+    Duration = 0.7,
+    Rows = 1,
+    Columns = 10,
+    PrimaryDirection = AnimationDirections.Right
+})
 
 local namePlateMainX = 0;
 local namePlateMainY = 0;

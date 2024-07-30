@@ -16,9 +16,6 @@ class DialogueBox : public Impacto::DialogueBox {
 
  private:
   Animation TextBoxEffect;
-
-  SpriteAnimation SkipAnimation;
-  SpriteAnimation AutoAnimation;
 };
 
 }  // namespace CC

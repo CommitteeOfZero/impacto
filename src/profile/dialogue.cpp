@@ -95,8 +95,8 @@ void Configure() {
     WaitIconSpriteAnim = EnsureGetMemberAnimation("WaitIconSpriteAnim");
   } else if (WaitIconCurrentType ==
              +WaitIconDisplay::WaitIconType::SpriteAnimFixed) {
-    WaitIconSprite = EnsureGetMemberSprite("WaitIconSprite");
     WaitIconSpriteAnim = EnsureGetMemberAnimation("WaitIconSpriteAnim");
+    WaitIconFixedSpriteId = EnsureGetMemberInt("WaitIconFixedSpriteId");
   } else if (WaitIconCurrentType == +WaitIconDisplay::WaitIconType::None) {
     WaitIconSprite = EnsureGetMemberSprite("WaitIconSprite");
   } else {
@@ -105,6 +105,32 @@ void Configure() {
         EnsureGetMemberFloat("WaitIconAnimationDuration");
   }
   WaitIconOffset = EnsureGetMemberVec2("WaitIconOffset");
+
+  AutoIconCurrentType = AutoIconDisplay::AutoIconType::_from_integral_unchecked(
+      EnsureGetMemberInt("AutoIconCurrentType"));
+  if (AutoIconCurrentType == +AutoIconDisplay::AutoIconType::SpriteAnim) {
+    AutoIconSpriteAnim = EnsureGetMemberAnimation("AutoIconSpriteAnim");
+  } else if (AutoIconCurrentType ==
+             +AutoIconDisplay::AutoIconType::SpriteAnimFixed) {
+    AutoIconSpriteAnim = EnsureGetMemberAnimation("AutoIconSpriteAnim");
+    AutoIconFixedSpriteId = EnsureGetMemberInt("AutoIconFixedSpriteId");
+  } else if (AutoIconCurrentType == +AutoIconDisplay::AutoIconType::None) {
+    AutoIconSprite = EnsureGetMemberSprite("AutoIconSprite");
+  }
+  AutoIconOffset = EnsureGetMemberVec2("AutoIconOffset");
+
+  SkipIconCurrentType = SkipIconDisplay::SkipIconType::_from_integral_unchecked(
+      EnsureGetMemberInt("SkipIconCurrentType"));
+  if (SkipIconCurrentType == +SkipIconDisplay::SkipIconType::SpriteAnim) {
+    SkipIconSpriteAnim = EnsureGetMemberAnimation("SkipIconSpriteAnim");
+  } else if (SkipIconCurrentType ==
+             +SkipIconDisplay::SkipIconType::SpriteAnimFixed) {
+    SkipIconSpriteAnim = EnsureGetMemberAnimation("SkipIconSpriteAnim");
+    SkipIconFixedSpriteId = EnsureGetMemberInt("SkipIconFixedSpriteId");
+  } else if (SkipIconCurrentType == +SkipIconDisplay::SkipIconType::None) {
+    SkipIconSprite = EnsureGetMemberSprite("SkipIconSprite");
+  }
+  SkipIconOffset = EnsureGetMemberVec2("SkipIconOffset");
 
   DialogueFont = EnsureGetMemberFont("DialogueFont");
   DefaultFontSize = EnsureGetMemberFloat("DefaultFontSize");

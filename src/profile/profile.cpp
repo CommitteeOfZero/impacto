@@ -15,6 +15,8 @@
 #include "../data/tipssystem.h"
 #include "../hud/datedisplay.h"
 #include "../hud/waiticondisplay.h"
+#include "../hud/autoicondisplay.h"
+#include "../hud/skipicondisplay.h"
 #include "../hud/dialoguebox.h"
 #include "../hud/tipsnotification.h"
 #include "../hud/delusiontrigger.h"
@@ -199,6 +201,8 @@ void MakeLuaProfile(std::string const& name) {
   DefineEnumInt<UI::ActorsVoiceMenuType>(LuaState);
   DefineEnumInt<DateDisplay::DateDisplayType>(LuaState);
   DefineEnumInt<WaitIconDisplay::WaitIconType>(LuaState);
+  DefineEnumInt<AutoIconDisplay::AutoIconType>(LuaState);
+  DefineEnumInt<SkipIconDisplay::SkipIconType>(LuaState);
   DefineEnumInt<TipsNotification::TipsNotificationType>(LuaState);
   DefineEnumInt<DelusionTrigger::DelusionTriggerType>(LuaState);
   DefineEnumInt<DialogueBoxType>(LuaState);

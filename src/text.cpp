@@ -13,6 +13,8 @@
 #include "data/tipssystem.h"
 
 #include "hud/waiticondisplay.h"
+#include "hud/autoicondisplay.h"
+#include "hud/skipicondisplay.h"
 #include "hud/dialoguebox.h"
 #include "hud/tipsnotification.h"
 #include "games/mo6tw/dialoguebox.h"
@@ -232,6 +234,8 @@ void DialoguePage::Init() {
   TextBox->Init();
 
   WaitIconDisplay::Init();
+  AutoIconDisplay::Init();
+  SkipIconDisplay::Init();
 
   for (int i = 0; i < Profile::Dialogue::PageCount; i++) {
     DialoguePages[i].Clear();
@@ -661,7 +665,10 @@ void DialoguePage::Update(float dt) {
 
   TextBox->Update(dt);
   FadeAnimation.Update(dt);
+  
   WaitIconDisplay::Update(dt);
+  AutoIconDisplay::Update(dt);
+  SkipIconDisplay::Update(dt);
 }
 
 void DialoguePage::Render() {
@@ -701,6 +708,9 @@ void DialoguePage::Render() {
                                       Glyphs[Length - 1].DestRect.Y),
                             col, Mode);
   }
+
+  SkipIconDisplay::Render(col);
+  AutoIconDisplay::Render(col);
 }
 
 int TextGetStringLength(Vm::Sc3VmThread* ctx) {

@@ -38,15 +38,14 @@ root.Dialogue = {
     ADVNameFontSize = 33,
     ADVNamePos = { X = 173, Y = 773 },
     WaitIconCurrentType = WaitIconType.None,
-    WaitIconSpriteAnim = "WaitIconSpriteAnim",
-    WaitIconSprite = "WaitIconSpriteFixed",
-    WaitIconAnimationDuration = 0.7,
+    WaitIconSprite = "WaitIconSprite",
     WaitIconOffset = { X = 1578, Y = 940 },
-    SkipAnimation = "SkipAnimation",
-    AutoAnimation = "AutoAnimation",
-    SkipIconPos = { X = 1712, Y = 702 },
-    AutoIconPos = { X = 1570, Y = 696 },
-    SkipAutoAnimationDuration = 0.7,
+    AutoIconCurrentType = AutoIconType.SpriteAnim,
+    AutoIconSpriteAnim = "AutoIconSpriteAnim",
+    AutoIconOffset = { X = 1570, Y = 696 },
+    SkipIconCurrentType = SkipIconType.SpriteAnim,
+    SkipIconSpriteAnim = "SkipIconSpriteAnim",
+    SkipIconOffset = { X = 1712, Y = 702 },
     DialogueFont = "Default",
     DefaultFontSize = 48,
     RubyFontSize = 21,
@@ -94,7 +93,7 @@ root.Dialogue = {
 };
 
 MakeAnimation({
-    Name = "SkipAnimation",
+    Name = "SkipIconSpriteAnim",
     Sheet = "Data",
     FirstFrameX = 0,
     FirstFrameY = 812,
@@ -103,14 +102,14 @@ MakeAnimation({
     FrameHeight = 154,
     RowHeight = 154,
     Frames = 9,
-    Duration = root.Dialogue.SkipAutoAnimationDuration,
+    Duration = 0.7,
     Rows = 1,
     Columns = 9,
     PrimaryDirection = AnimationDirections.Right
 });
 
 MakeAnimation({
-    Name = "AutoAnimation",
+    Name = "AutoIconSpriteAnim",
     Sheet = "Data",
     FirstFrameX = 0,
     FirstFrameY = 966,
@@ -119,7 +118,7 @@ MakeAnimation({
     FrameHeight = 154,
     RowHeight = 154,
     Frames = 9,
-    Duration = root.Dialogue.SkipAutoAnimationDuration,
+    Duration = 0.7,
     Rows = 1,
     Columns = 9,
     PrimaryDirection = AnimationDirections.Right

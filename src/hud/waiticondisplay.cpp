@@ -9,6 +9,7 @@ namespace WaitIconDisplay {
 
 static Animation SimpleAnim;
 static SpriteAnimation SpriteAnim;
+static FixedSpriteAnimation FixedSpriteAnim;
 
 using namespace Impacto::Profile::Dialogue;
 using namespace Impacto::Profile::CHLCC;
@@ -20,8 +21,10 @@ void Init() {
     SpriteAnim.StartIn();
   } else if (WaitIconCurrentType == +WaitIconType::SpriteAnimFixed) {
     SpriteAnim = WaitIconSpriteAnim.Instantiate();
-    SpriteAnim.LoopMode = ALM_Loop;
-    SpriteAnim.StartIn();
+    SpriteAnim.LoopMode = ALM_Stop;
+    FixedSpriteAnim = static_cast<FixedSpriteAnimation&>(SpriteAnim);
+    FixedSpriteAnim.Def->FixSpriteId = WaitIconFixedSpriteId;
+    FixedSpriteAnim.StartIn();
   } else {
     SimpleAnim.DurationIn = WaitIconAnimationDuration;
     SimpleAnim.LoopMode = ALM_Loop;
@@ -33,7 +36,7 @@ void Update(float dt) {
   if (WaitIconCurrentType == +WaitIconType::SpriteAnim) {
     SpriteAnim.Update(dt);
   } else if (WaitIconCurrentType == +WaitIconType::SpriteAnimFixed) {
-    SpriteAnim.Update(dt);
+    FixedSpriteAnim.Update(dt);
   } else {
     SimpleAnim.Update(dt);
   }
@@ -66,13 +69,9 @@ void Render(glm::vec2 pos, glm::vec4 opacityTint, DialoguePageMode mode) {
           opacityTint);
     }
   } else if (WaitIconCurrentType == +WaitIconType::SpriteAnimFixed) {
-    // TODO: CCLCC only for now
-    /*Renderer->DrawSprite(
-        SpriteAnim.CurrentSprite(),
-        glm::vec2(WaitIconOffset.x - 50, WaitIconOffset.y - 50), opacityTint);*/
-    Renderer->DrawSprite(WaitIconSprite,
-                         glm::vec2(WaitIconOffset.x, WaitIconOffset.y),
-                         opacityTint, glm::vec2(1.0f));
+    Renderer->DrawSprite(
+        FixedSpriteAnim.CurrentSprite(),
+        glm::vec2(WaitIconOffset.x - 50, WaitIconOffset.y - 50), opacityTint);
   } else if (WaitIconCurrentType == +WaitIconType::RotateZ) {
     // TODO: MO6TW only for now
     glm::vec3 euler(SimpleAnim.Progress * 2.0f * M_PI, 0, 0.6f);
