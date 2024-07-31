@@ -48,7 +48,7 @@ void UpdatePADInput() {
     if (Input::MouseButtonIsDown[MScode]) PADinputMouseIsDown |= PADcode;
   }
 
-  if (PADinputButtonIsDown & PAD1R1) {
+  if (PADinputButtonIsDown & PAD1L1) {
     SetFlag(SF_MESALLSKIP, true);
   } else {
     SetFlag(SF_MESALLSKIP, false);
