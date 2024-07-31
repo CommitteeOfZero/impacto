@@ -18,7 +18,8 @@ BETTER_ENUM(TextAlignment, int, Left = 0, Center, Right, Block)
 BETTER_ENUM(CharacterTypeFlags, uint8_t, Space = (1 << 0),
             WordStartingPunct = (1 << 1), WordEndingPunct = (1 << 2))
 
-BETTER_ENUM(SkipModeFlags, uint8_t, SkipRead = (1 << 0), SkipAll = (1 << 1), Auto = (1 << 2))
+BETTER_ENUM(SkipModeFlags, uint8_t, SkipRead = (1 << 0), SkipAll = (1 << 1),
+            Auto = (1 << 2))
 
 // TODO: think about / profile memory access patterns
 
@@ -147,11 +148,12 @@ uint32_t GetNameId(uint8_t* name, int nameLength);
 // Bitfield denoting the skip mode, according to SkipModeFlags
 inline uint8_t MesSkipMode;
 
-// Speed to skip in auto mode (MessWaitSpeed);
+// Speed to skip in auto mode (MessWaitSpeed)
 inline float AutoSpeed = 768 / 60;
 inline bool SkipMode;  // Skip unread text
 
-// Stop skip mode when reaching a trigger (e.g. delusion trigger, phone trigger, etc.)
+// Stop skip mode when reaching a trigger
+// (e.g. delusion trigger, phone trigger, etc.)
 inline bool TriggerStopSkip = true;
 
 }  // namespace Impacto

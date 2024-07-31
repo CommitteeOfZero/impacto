@@ -665,7 +665,7 @@ void DialoguePage::Update(float dt) {
 
   TextBox->Update(dt);
   FadeAnimation.Update(dt);
-  
+
   WaitIconDisplay::Update(dt);
   AutoIconDisplay::Update(dt);
   SkipIconDisplay::Update(dt);

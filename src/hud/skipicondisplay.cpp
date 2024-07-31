@@ -28,16 +28,20 @@ void Init() {
 
 void Update(float dt) {
   if (SkipIconCurrentType == +SkipIconType::SpriteAnim) {
-    if ((MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll)) && SpriteAnim.Direction == -1)
+    if ((MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll)) &&
+        SpriteAnim.Direction == -1)
       SpriteAnim.StartIn();
-    if (!(MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll)) && SpriteAnim.Direction == 1)
+    if (!(MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll)) &&
+        SpriteAnim.Direction == 1)
       SpriteAnim.StartOut();
 
     SpriteAnim.Update(dt);
   } else if (SkipIconCurrentType == +SkipIconType::SpriteAnimFixed) {
-    if ((MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll)) && FixedSpriteAnim.Direction == -1)
+    if ((MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll)) &&
+        FixedSpriteAnim.Direction == -1)
       FixedSpriteAnim.StartIn();
-    if (!(MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll)) && FixedSpriteAnim.Direction == 1)
+    if (!(MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll)) &&
+        FixedSpriteAnim.Direction == 1)
       FixedSpriteAnim.StartOut();
 
     FixedSpriteAnim.Update(dt);
@@ -55,18 +59,21 @@ void Render(glm::vec4 opacityTint) {
                            glm::vec2(SkipIconOffset.x, SkipIconOffset.y), col);
     }
   } else if (SkipIconCurrentType == +SkipIconType::SpriteAnimFixed) {
-    if (!FixedSpriteAnim.IsOut() && !(FixedSpriteAnim.Direction == -1 &&
-        FixedSpriteAnim.Progress == FixedSpriteAnim.GetFixedSpriteProgress())) {
-      Renderer->DrawSprite(
-          FixedSpriteAnim.CurrentSprite(),
-          glm::vec2(SkipIconOffset.x, SkipIconOffset.y), opacityTint);
+    if (!FixedSpriteAnim.IsOut() &&
+        !(FixedSpriteAnim.Direction == -1 &&
+          FixedSpriteAnim.Progress ==
+              FixedSpriteAnim.GetFixedSpriteProgress())) {
+      Renderer->DrawSprite(FixedSpriteAnim.CurrentSprite(),
+                           glm::vec2(SkipIconOffset.x, SkipIconOffset.y),
+                           opacityTint);
     }
   } else if (SkipIconCurrentType == +SkipIconType::CHLCC) {
     if (MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll)) {
-      Renderer->DrawSprite(AutoSkipArrowsSprite,
+      Renderer->DrawSprite(
+          AutoSkipArrowsSprite, glm::vec2(SkipIconOffset.x, SkipIconOffset.y),
+          opacityTint, glm::vec2(1.0f), Progress * 2 * (float)M_PI);
+      Renderer->DrawSprite(SkipIconSprite,
                            glm::vec2(SkipIconOffset.x, SkipIconOffset.y),
-                           opacityTint, glm::vec2(1.0f), Progress * 2 * (float)M_PI);
-      Renderer->DrawSprite(SkipIconSprite, glm::vec2(SkipIconOffset.x, SkipIconOffset.y),
                            opacityTint);
     }
   }

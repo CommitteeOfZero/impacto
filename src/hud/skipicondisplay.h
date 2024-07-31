@@ -14,5 +14,5 @@ void Init();
 void Update(float dt);
 void Render(glm::vec4 opacityTint);
 
-} // namespace SkipIconDisplay
-} // namespace Impacto
+}  // namespace SkipIconDisplay
+}  // namespace Impacto

@@ -430,7 +430,7 @@ VmInstruction(InstGetSystemStatus) {
     case 5: {  // SYSSTAT_SKIP
       thread->ScriptParam = GetFlag(SF_MESALLSKIP);
     } break;
-    case 10: { // Auto mode bit
+    case 10: {  // Auto mode bit
       thread->ScriptParam = (MesSkipMode & SkipModeFlags::Auto) >> 2;
     }
     case 11: {
@@ -483,7 +483,7 @@ VmInstruction(InstDebugSetup) {
 VmInstruction(InstGlobalSystemMessage) {
   StartInstruction;
   PopUint8(type);
-  switch(type) {
+  switch (type) {
     case 0: {
       PopExpression(alpha);
       // TODO: set GlobalSystemMessageCur to 255
@@ -498,8 +498,7 @@ VmInstruction(InstGlobalSystemMessage) {
       break;
     case 3:
       ScrWork[SW_SYSMESANIMCTCUR] -= 8;
-      if (!ScrWork[SW_SYSMESANIMCTCUR])
-        ScrWork[3370] = 255;
+      if (!ScrWork[SW_SYSMESANIMCTCUR]) ScrWork[3370] = 255;
       break;
   }
 }

@@ -14,9 +14,7 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Dialogue;
 using namespace Impacto::Profile::CC::DialogueBox;
 
-void DialogueBox::Init() {
-  Impacto::DialogueBox::Init();
-}
+void DialogueBox::Init() { Impacto::DialogueBox::Init(); }
 
 void DialogueBox::Update(float dt) {
   if (TextBoxEffect.State != AS_Playing) {

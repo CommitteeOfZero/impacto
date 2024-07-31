@@ -15,8 +15,7 @@ void Show() {
 
 bool Show(int bgMtrgSelBufferId, int bgMtrgNegaPosiBufferId, int param3) {
   if (Implementation) {
-    if (TriggerStopSkip)
-      MesSkipMode &= SkipModeFlags::Auto;
+    if (TriggerStopSkip) MesSkipMode &= SkipModeFlags::Auto;
     return Implementation->Show(bgMtrgSelBufferId, bgMtrgNegaPosiBufferId,
                                 param3);
   }

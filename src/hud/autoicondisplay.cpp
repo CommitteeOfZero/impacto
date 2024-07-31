@@ -55,18 +55,21 @@ void Render(glm::vec4 opacityTint) {
                            glm::vec2(AutoIconOffset.x, AutoIconOffset.y), col);
     }
   } else if (AutoIconCurrentType == +AutoIconType::SpriteAnimFixed) {
-    if (!FixedSpriteAnim.IsOut() && !(FixedSpriteAnim.Direction == -1 &&
-        FixedSpriteAnim.Progress == FixedSpriteAnim.GetFixedSpriteProgress())) {
-      Renderer->DrawSprite(
-          FixedSpriteAnim.CurrentSprite(),
-          glm::vec2(AutoIconOffset.x, AutoIconOffset.y), opacityTint);
+    if (!FixedSpriteAnim.IsOut() &&
+        !(FixedSpriteAnim.Direction == -1 &&
+          FixedSpriteAnim.Progress ==
+              FixedSpriteAnim.GetFixedSpriteProgress())) {
+      Renderer->DrawSprite(FixedSpriteAnim.CurrentSprite(),
+                           glm::vec2(AutoIconOffset.x, AutoIconOffset.y),
+                           opacityTint);
     }
   } else if (AutoIconCurrentType == +AutoIconType::CHLCC) {
     if (MesSkipMode & SkipModeFlags::Auto) {
-      Renderer->DrawSprite(AutoSkipArrowsSprite,
+      Renderer->DrawSprite(
+          AutoSkipArrowsSprite, glm::vec2(AutoIconOffset.x, AutoIconOffset.y),
+          opacityTint, glm::vec2(1.0f), Progress * 2 * (float)M_PI);
+      Renderer->DrawSprite(AutoIconSprite,
                            glm::vec2(AutoIconOffset.x, AutoIconOffset.y),
-                           opacityTint, glm::vec2(1.0f), Progress * 2 * (float)M_PI);
-      Renderer->DrawSprite(AutoIconSprite, glm::vec2(AutoIconOffset.x, AutoIconOffset.y),
                            opacityTint);
     }
   }
