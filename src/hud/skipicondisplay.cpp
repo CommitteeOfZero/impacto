@@ -61,11 +61,6 @@ void Render(glm::vec4 opacityTint) {
           FixedSpriteAnim.CurrentSprite(),
           glm::vec2(SkipIconOffset.x, SkipIconOffset.y), opacityTint);
     }
-  } else if (SkipIconCurrentType == +SkipIconType::None) {
-    if (MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll))
-      Renderer->DrawSprite(SkipIconSprite,
-                           glm::vec2(SkipIconOffset.x, SkipIconOffset.y),
-                           opacityTint, glm::vec2(1.0f));
   } else if (SkipIconCurrentType == +SkipIconType::CHLCC) {
     if (MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll)) {
       Renderer->DrawSprite(AutoSkipArrowsSprite,

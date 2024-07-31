@@ -106,38 +106,50 @@ void Configure() {
   }
   WaitIconOffset = EnsureGetMemberVec2("WaitIconOffset");
 
+  int AutoIconCurrentTypeInt;
+  if (!TryGetMemberInt("AutoIconCurrentType", AutoIconCurrentTypeInt))
+    AutoIconCurrentTypeInt = 0;  // None
   AutoIconCurrentType = AutoIconDisplay::AutoIconType::_from_integral_unchecked(
-      EnsureGetMemberInt("AutoIconCurrentType"));
-  if (AutoIconCurrentType == +AutoIconDisplay::AutoIconType::SpriteAnim) {
-    AutoIconSpriteAnim = EnsureGetMemberAnimation("AutoIconSpriteAnim");
-  } else if (AutoIconCurrentType ==
-             +AutoIconDisplay::AutoIconType::SpriteAnimFixed) {
-    AutoIconSpriteAnim = EnsureGetMemberAnimation("AutoIconSpriteAnim");
-    AutoIconFixedSpriteId = EnsureGetMemberInt("AutoIconFixedSpriteId");
-  } else if (AutoIconCurrentType == +AutoIconDisplay::AutoIconType::None) {
-    AutoIconSprite = EnsureGetMemberSprite("AutoIconSprite");
-  } else if (AutoIconCurrentType == +AutoIconDisplay::AutoIconType::CHLCC) {
-    AutoIconSprite = EnsureGetMemberSprite("AutoIconSprite");
-    AutoIconRotationSpeed = EnsureGetMemberFloat("AutoIconRotationSpeed");
-    AutoSkipArrowsSprite = EnsureGetMemberSprite("AutoSkipArrowsSprite");
+      AutoIconCurrentTypeInt);
+  switch (AutoIconCurrentType) {
+    case AutoIconDisplay::AutoIconType::SpriteAnim:
+      AutoIconSpriteAnim = EnsureGetMemberAnimation("AutoIconSpriteAnim");
+      AutoIconOffset = EnsureGetMemberVec2("AutoIconOffset");
+      break;
+    case AutoIconDisplay::AutoIconType::SpriteAnimFixed:
+      AutoIconSpriteAnim = EnsureGetMemberAnimation("AutoIconSpriteAnim");
+      AutoIconFixedSpriteId = EnsureGetMemberInt("AutoIconFixedSpriteId");
+      AutoIconOffset = EnsureGetMemberVec2("AutoIconOffset");
+      break;
+    case AutoIconDisplay::AutoIconType::CHLCC:
+      AutoIconSprite = EnsureGetMemberSprite("AutoIconSprite");
+      AutoIconRotationSpeed = EnsureGetMemberFloat("AutoIconRotationSpeed");
+      AutoSkipArrowsSprite = EnsureGetMemberSprite("AutoSkipArrowsSprite");
+      AutoIconOffset = EnsureGetMemberVec2("AutoIconOffset");
+      break;
   }
-  AutoIconOffset = EnsureGetMemberVec2("AutoIconOffset");
 
+  int SkipIconCurrentTypeInt;
+  if (!TryGetMemberInt("SkipIconCurrentType", SkipIconCurrentTypeInt))
+    SkipIconCurrentTypeInt = 0;  // None
   SkipIconCurrentType = SkipIconDisplay::SkipIconType::_from_integral_unchecked(
-      EnsureGetMemberInt("SkipIconCurrentType"));
-  if (SkipIconCurrentType == +SkipIconDisplay::SkipIconType::SpriteAnim) {
-    SkipIconSpriteAnim = EnsureGetMemberAnimation("SkipIconSpriteAnim");
-  } else if (SkipIconCurrentType ==
-             +SkipIconDisplay::SkipIconType::SpriteAnimFixed) {
-    SkipIconSpriteAnim = EnsureGetMemberAnimation("SkipIconSpriteAnim");
-    SkipIconFixedSpriteId = EnsureGetMemberInt("SkipIconFixedSpriteId");
-  } else if (SkipIconCurrentType == +SkipIconDisplay::SkipIconType::None) {
-    SkipIconSprite = EnsureGetMemberSprite("SkipIconSprite");
-  } else if (SkipIconCurrentType == +SkipIconDisplay::SkipIconType::CHLCC) {
-    SkipIconSprite = EnsureGetMemberSprite("SkipIconSprite");
-    SkipIconRotationSpeed = EnsureGetMemberFloat("SkipIconRotationSpeed");
+      SkipIconCurrentTypeInt);
+  switch (SkipIconCurrentType) {
+    case SkipIconDisplay::SkipIconType::SpriteAnim:
+      SkipIconSpriteAnim = EnsureGetMemberAnimation("SkipIconSpriteAnim");
+      SkipIconOffset = EnsureGetMemberVec2("SkipIconOffset");
+      break;
+    case SkipIconDisplay::SkipIconType::SpriteAnimFixed:
+      SkipIconSpriteAnim = EnsureGetMemberAnimation("SkipIconSpriteAnim");
+      SkipIconFixedSpriteId = EnsureGetMemberInt("SkipIconFixedSpriteId");
+      SkipIconOffset = EnsureGetMemberVec2("SkipIconOffset");
+      break;
+    case SkipIconDisplay::SkipIconType::CHLCC:
+      SkipIconSprite = EnsureGetMemberSprite("SkipIconSprite");
+      SkipIconRotationSpeed = EnsureGetMemberFloat("SkipIconRotationSpeed");
+      SkipIconOffset = EnsureGetMemberVec2("SkipIconOffset");
+      break;
   }
-  SkipIconOffset = EnsureGetMemberVec2("SkipIconOffset");
 
   DialogueFont = EnsureGetMemberFont("DialogueFont");
   DefaultFontSize = EnsureGetMemberFloat("DefaultFontSize");
