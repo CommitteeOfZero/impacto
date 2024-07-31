@@ -8,7 +8,7 @@
 namespace Impacto {
 namespace AutoIconDisplay {
 
-BETTER_ENUM(AutoIconType, int, None, SpriteAnim, SpriteAnimFixed, Fixed)
+BETTER_ENUM(AutoIconType, int, None, SpriteAnim, SpriteAnimFixed, Fixed, CHLCC)
 
 void Init();
 void Update(float dt);

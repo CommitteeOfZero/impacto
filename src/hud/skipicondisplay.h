@@ -8,7 +8,7 @@
 namespace Impacto {
 namespace SkipIconDisplay {
 
-BETTER_ENUM(SkipIconType, int, None, SpriteAnim, SpriteAnimFixed, Fixed)
+BETTER_ENUM(SkipIconType, int, None, SpriteAnim, SpriteAnimFixed, Fixed, CHLCC)
 
 void Init();
 void Update(float dt);

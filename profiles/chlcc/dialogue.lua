@@ -10,6 +10,18 @@ root.Sprites["REVBox"] = {
     Sheet = "Data",
     Bounds = { X = 36, Y = 143, Width = 541, Height = 168 },
 };
+root.Sprites["AutoSkipArrowsSprite"] = {
+    Sheet = "Data",
+    Bounds = { X = 174, Y = 2, Width = 62, Height = 62 },
+};
+root.Sprites["AutoIconSprite"] = {
+    Sheet = "Data",
+    Bounds = { X = 240, Y = 2, Width = 62, Height = 62 },
+};
+root.Sprites["SkipIconSprite"] = {
+    Sheet = "Data",
+    Bounds = { X = 306, Y = 2, Width = 62, Height = 62 },
+};
 
 root.Dialogue = {
     REVBounds = { X = 339, Y = 192, Width = 478, Height = 106 },
@@ -32,6 +44,15 @@ root.Dialogue = {
     ADVNamePos = { X = 132, Y = 470 },
     WaitIconSpriteAnim = "WaitIconSpriteAnimDef",
     WaitIconCurrentType = WaitIconType.SpriteAnim,
+    AutoIconCurrentType = AutoIconType.CHLCC,
+    AutoIconSprite = "AutoIconSprite",
+    AutoIconOffset = { X = 1167, Y = 630 },
+    AutoIconRotationSpeed = 0.5 / 3,
+    SkipIconCurrentType = SkipIconType.CHLCC,
+    SkipIconSprite = "SkipIconSprite",
+    SkipIconOffset = { X = 1167, Y = 527 },
+    SkipIconRotationSpeed = 1.5 / 3,
+    AutoSkipArrowsSprite = "AutoSkipArrowsSprite",
     REVWaitIconOffset = { X = 4, Y = -4 },
     WaitIconOffset = { X = 4, Y = 4 },
     DialogueFont = "Default",

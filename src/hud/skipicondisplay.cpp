@@ -8,6 +8,7 @@ namespace SkipIconDisplay {
 
 static SpriteAnimation SpriteAnim;
 static FixedSpriteAnimation FixedSpriteAnim;
+static float Progress = 0.0f;
 
 using namespace Impacto::Profile::Dialogue;
 
@@ -40,6 +41,9 @@ void Update(float dt) {
       FixedSpriteAnim.StartOut();
 
     FixedSpriteAnim.Update(dt);
+  } else if (SkipIconCurrentType == +SkipIconType::CHLCC) {
+    Progress += dt * SkipIconRotationSpeed;
+    if (Progress > 1.0f) Progress = 0.0f;
   }
 }
 
@@ -55,13 +59,21 @@ void Render(glm::vec4 opacityTint) {
         FixedSpriteAnim.Progress == FixedSpriteAnim.GetFixedSpriteProgress())) {
       Renderer->DrawSprite(
           FixedSpriteAnim.CurrentSprite(),
-          glm::vec2(SkipIconOffset.x - 50, SkipIconOffset.y - 50), opacityTint);
+          glm::vec2(SkipIconOffset.x, SkipIconOffset.y), opacityTint);
     }
   } else if (SkipIconCurrentType == +SkipIconType::None) {
     if (MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll))
       Renderer->DrawSprite(SkipIconSprite,
                            glm::vec2(SkipIconOffset.x, SkipIconOffset.y),
                            opacityTint, glm::vec2(1.0f));
+  } else if (SkipIconCurrentType == +SkipIconType::CHLCC) {
+    if (MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll)) {
+      Renderer->DrawSprite(AutoSkipArrowsSprite,
+                           glm::vec2(SkipIconOffset.x, SkipIconOffset.y),
+                           opacityTint, glm::vec2(1.0f), Progress * 2 * (float)M_PI);
+      Renderer->DrawSprite(SkipIconSprite, glm::vec2(SkipIconOffset.x, SkipIconOffset.y),
+                           opacityTint);
+    }
   }
 }
 

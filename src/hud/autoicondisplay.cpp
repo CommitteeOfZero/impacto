@@ -8,6 +8,7 @@ namespace AutoIconDisplay {
 
 static SpriteAnimation SpriteAnim;
 static FixedSpriteAnimation FixedSpriteAnim;
+static float Progress = 0.0f;
 
 using namespace Impacto::Profile::Dialogue;
 
@@ -40,6 +41,9 @@ void Update(float dt) {
       FixedSpriteAnim.StartOut();
 
     FixedSpriteAnim.Update(dt);
+  } else if (AutoIconCurrentType == +AutoIconType::CHLCC) {
+    Progress += dt * AutoIconRotationSpeed;
+    if (Progress > 1.0f) Progress = 0.0f;
   }
 }
 
@@ -62,6 +66,14 @@ void Render(glm::vec4 opacityTint) {
       Renderer->DrawSprite(AutoIconSprite,
                            glm::vec2(AutoIconOffset.x, AutoIconOffset.y),
                            opacityTint, glm::vec2(1.0f));
+  } else if (AutoIconCurrentType == +AutoIconType::CHLCC) {
+    if (MesSkipMode & SkipModeFlags::Auto) {
+      Renderer->DrawSprite(AutoSkipArrowsSprite,
+                           glm::vec2(AutoIconOffset.x, AutoIconOffset.y),
+                           opacityTint, glm::vec2(1.0f), Progress * 2 * (float)M_PI);
+      Renderer->DrawSprite(AutoIconSprite, glm::vec2(AutoIconOffset.x, AutoIconOffset.y),
+                           opacityTint);
+    }
   }
 }
 

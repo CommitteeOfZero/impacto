@@ -54,6 +54,7 @@ inline Sprite AutoIconSprite;
 inline SpriteAnimationDef AutoIconSpriteAnim;
 inline glm::vec2 AutoIconOffset;
 inline int AutoIconFixedSpriteId;
+inline float AutoIconRotationSpeed;
 inline AutoIconDisplay::AutoIconType AutoIconCurrentType =
     AutoIconDisplay::AutoIconType::None;
 
@@ -61,8 +62,11 @@ inline Sprite SkipIconSprite;
 inline SpriteAnimationDef SkipIconSpriteAnim;
 inline glm::vec2 SkipIconOffset;
 inline int SkipIconFixedSpriteId;
+inline float SkipIconRotationSpeed;
 inline SkipIconDisplay::SkipIconType SkipIconCurrentType =
     SkipIconDisplay::SkipIconType::None;
+
+inline Sprite AutoSkipArrowsSprite;
 
 inline Font* DialogueFont;
 inline float DefaultFontSize;

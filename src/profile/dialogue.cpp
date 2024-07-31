@@ -116,6 +116,10 @@ void Configure() {
     AutoIconFixedSpriteId = EnsureGetMemberInt("AutoIconFixedSpriteId");
   } else if (AutoIconCurrentType == +AutoIconDisplay::AutoIconType::None) {
     AutoIconSprite = EnsureGetMemberSprite("AutoIconSprite");
+  } else if (AutoIconCurrentType == +AutoIconDisplay::AutoIconType::CHLCC) {
+    AutoIconSprite = EnsureGetMemberSprite("AutoIconSprite");
+    AutoIconRotationSpeed = EnsureGetMemberFloat("AutoIconRotationSpeed");
+    AutoSkipArrowsSprite = EnsureGetMemberSprite("AutoSkipArrowsSprite");
   }
   AutoIconOffset = EnsureGetMemberVec2("AutoIconOffset");
 
@@ -129,6 +133,9 @@ void Configure() {
     SkipIconFixedSpriteId = EnsureGetMemberInt("SkipIconFixedSpriteId");
   } else if (SkipIconCurrentType == +SkipIconDisplay::SkipIconType::None) {
     SkipIconSprite = EnsureGetMemberSprite("SkipIconSprite");
+  } else if (SkipIconCurrentType == +SkipIconDisplay::SkipIconType::CHLCC) {
+    SkipIconSprite = EnsureGetMemberSprite("SkipIconSprite");
+    SkipIconRotationSpeed = EnsureGetMemberFloat("SkipIconRotationSpeed");
   }
   SkipIconOffset = EnsureGetMemberVec2("SkipIconOffset");
 
