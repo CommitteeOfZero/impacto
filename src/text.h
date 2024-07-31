@@ -151,4 +151,7 @@ inline uint8_t MesSkipMode;
 inline float AutoSpeed = 768 / 60;
 inline bool SkipMode;  // Skip unread text
 
+// Stop skip mode when reaching a trigger (e.g. delusion trigger, phone trigger, etc.)
+inline bool TriggerStopSkip = true;
+
 }  // namespace Impacto
