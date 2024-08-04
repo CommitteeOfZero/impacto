@@ -8,6 +8,7 @@
 #ifndef IMPACTO_DISABLE_OPENAL
 #include "../audio/openal/ffmpegaudioplayer.h"
 #endif
+#include "../profile/scriptvars.h"
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -19,6 +20,8 @@ extern "C" {
 
 namespace Impacto {
 namespace Video {
+
+using namespace Impacto::Profile::ScriptVars;
 
 int StreamRead(void* ptr, uint8_t* buf, int buf_size) {
   Io::Stream* stream = reinterpret_cast<Io::Stream*>(ptr);
@@ -473,6 +476,8 @@ void FFmpegPlayer::Decode(AVMediaType avType) {
 
 void FFmpegPlayer::Stop() {
   if (IsPlaying) {
+    SetFlag(SF_MOVIEPLAY, false);
+
     IsPlaying = false;
     PlaybackStarted = false;
     AbortRequest = true;

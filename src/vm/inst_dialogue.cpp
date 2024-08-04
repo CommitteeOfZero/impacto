@@ -616,8 +616,8 @@ VmInstruction(InstSetRevMes) {
 }
 
 void ChkMesSkip() {
-  if (((ScrWork[2113] & 0b101) == 0b001) && (ScrWork[SW_SYSMESALPHA] == 255) &&
-      !GetFlag(SF_UIHIDDEN)) {
+  if (((ScrWork[SW_GAMESTATE] & 0b101) == 0b001) &&
+      (ScrWork[SW_SYSMESALPHA] == 255) && !GetFlag(SF_UIHIDDEN)) {
     // Force skip
     SetFlag(SF_MESALLSKIP,
             (Interface::PADinputButtonIsDown & Interface::PAD1L1));
