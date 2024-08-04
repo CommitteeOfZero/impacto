@@ -8,7 +8,7 @@ root.Sprites["ADVBoxMask"] = {
     Bounds = { X = 0, Y = 301, Width = 1920, Height = 298 }
 };
 
-root.Sprites["WaitIconSpriteFixed"] = {
+root.Sprites["WaitIconSprite"] = {
     Sheet = "Data",
     Bounds = { X = 1, Y = 456, Width = 112, Height = 64 },
 };
@@ -37,11 +37,15 @@ root.Dialogue = {
     ADVNameAlignment = TextAlignment.Left,
     ADVNameFontSize = 33,
     ADVNamePos = { X = 173, Y = 773 },
-    WaitIconCurrentType = WaitIconType.SpriteAnimFixed,
-    WaitIconSpriteAnim = "WaitIconSpriteAnim",
-    WaitIconSprite = "WaitIconSpriteFixed",
-    WaitIconAnimationDuration = 0.7,
+    WaitIconCurrentType = WaitIconType.None,
+    WaitIconSprite = "WaitIconSprite",
     WaitIconOffset = { X = 1578, Y = 940 },
+    AutoIconCurrentType = AutoIconType.SpriteAnim,
+    AutoIconSpriteAnim = "AutoIconSpriteAnim",
+    AutoIconOffset = { X = 1570, Y = 696 },
+    SkipIconCurrentType = SkipIconType.SpriteAnim,
+    SkipIconSpriteAnim = "SkipIconSpriteAnim",
+    SkipIconOffset = { X = 1712, Y = 702 },
     DialogueFont = "Default",
     DefaultFontSize = 48,
     RubyFontSize = 21,
@@ -89,18 +93,34 @@ root.Dialogue = {
 };
 
 MakeAnimation({
-    Name = "WaitIconSpriteAnim",
+    Name = "SkipIconSpriteAnim",
     Sheet = "Data",
-    FirstFrameX = 864, --1114
-    FirstFrameY = 877,
-    FrameWidth = 190,
-    ColWidth = 216,
-    FrameHeight = 185,
-    RowHeight = 185,
-    Frames = 10,
-    Duration = 1,
+    FirstFrameX = 0,
+    FirstFrameY = 812,
+    FrameWidth = 160,
+    ColWidth = 160,
+    FrameHeight = 154,
+    RowHeight = 154,
+    Frames = 9,
+    Duration = 0.7,
     Rows = 1,
-    Columns = 10,
+    Columns = 9,
+    PrimaryDirection = AnimationDirections.Right
+});
+
+MakeAnimation({
+    Name = "AutoIconSpriteAnim",
+    Sheet = "Data",
+    FirstFrameX = 0,
+    FirstFrameY = 966,
+    FrameWidth = 160,
+    ColWidth = 160,
+    FrameHeight = 154,
+    RowHeight = 154,
+    Frames = 9,
+    Duration = 0.7,
+    Rows = 1,
+    Columns = 9,
     PrimaryDirection = AnimationDirections.Right
 });
 

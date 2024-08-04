@@ -95,14 +95,61 @@ void Configure() {
     WaitIconSpriteAnim = EnsureGetMemberAnimation("WaitIconSpriteAnim");
   } else if (WaitIconCurrentType ==
              +WaitIconDisplay::WaitIconType::SpriteAnimFixed) {
-    WaitIconSprite = EnsureGetMemberSprite("WaitIconSprite");
     WaitIconSpriteAnim = EnsureGetMemberAnimation("WaitIconSpriteAnim");
+    WaitIconFixedSpriteId = EnsureGetMemberInt("WaitIconFixedSpriteId");
+  } else if (WaitIconCurrentType == +WaitIconDisplay::WaitIconType::None) {
+    WaitIconSprite = EnsureGetMemberSprite("WaitIconSprite");
   } else {
     WaitIconSprite = EnsureGetMemberSprite("WaitIconSprite");
     WaitIconAnimationDuration =
         EnsureGetMemberFloat("WaitIconAnimationDuration");
   }
   WaitIconOffset = EnsureGetMemberVec2("WaitIconOffset");
+
+  int AutoIconCurrentTypeInt;
+  if (!TryGetMemberInt("AutoIconCurrentType", AutoIconCurrentTypeInt))
+    AutoIconCurrentTypeInt = 0;  // None
+  AutoIconCurrentType = AutoIconDisplay::AutoIconType::_from_integral_unchecked(
+      AutoIconCurrentTypeInt);
+  switch (AutoIconCurrentType) {
+    case AutoIconDisplay::AutoIconType::SpriteAnim:
+      AutoIconSpriteAnim = EnsureGetMemberAnimation("AutoIconSpriteAnim");
+      AutoIconOffset = EnsureGetMemberVec2("AutoIconOffset");
+      break;
+    case AutoIconDisplay::AutoIconType::SpriteAnimFixed:
+      AutoIconSpriteAnim = EnsureGetMemberAnimation("AutoIconSpriteAnim");
+      AutoIconFixedSpriteId = EnsureGetMemberInt("AutoIconFixedSpriteId");
+      AutoIconOffset = EnsureGetMemberVec2("AutoIconOffset");
+      break;
+    case AutoIconDisplay::AutoIconType::CHLCC:
+      AutoIconSprite = EnsureGetMemberSprite("AutoIconSprite");
+      AutoIconRotationSpeed = EnsureGetMemberFloat("AutoIconRotationSpeed");
+      AutoSkipArrowsSprite = EnsureGetMemberSprite("AutoSkipArrowsSprite");
+      AutoIconOffset = EnsureGetMemberVec2("AutoIconOffset");
+      break;
+  }
+
+  int SkipIconCurrentTypeInt;
+  if (!TryGetMemberInt("SkipIconCurrentType", SkipIconCurrentTypeInt))
+    SkipIconCurrentTypeInt = 0;  // None
+  SkipIconCurrentType = SkipIconDisplay::SkipIconType::_from_integral_unchecked(
+      SkipIconCurrentTypeInt);
+  switch (SkipIconCurrentType) {
+    case SkipIconDisplay::SkipIconType::SpriteAnim:
+      SkipIconSpriteAnim = EnsureGetMemberAnimation("SkipIconSpriteAnim");
+      SkipIconOffset = EnsureGetMemberVec2("SkipIconOffset");
+      break;
+    case SkipIconDisplay::SkipIconType::SpriteAnimFixed:
+      SkipIconSpriteAnim = EnsureGetMemberAnimation("SkipIconSpriteAnim");
+      SkipIconFixedSpriteId = EnsureGetMemberInt("SkipIconFixedSpriteId");
+      SkipIconOffset = EnsureGetMemberVec2("SkipIconOffset");
+      break;
+    case SkipIconDisplay::SkipIconType::CHLCC:
+      SkipIconSprite = EnsureGetMemberSprite("SkipIconSprite");
+      SkipIconRotationSpeed = EnsureGetMemberFloat("SkipIconRotationSpeed");
+      SkipIconOffset = EnsureGetMemberVec2("SkipIconOffset");
+      break;
+  }
 
   DialogueFont = EnsureGetMemberFont("DialogueFont");
   DefaultFontSize = EnsureGetMemberFloat("DefaultFontSize");

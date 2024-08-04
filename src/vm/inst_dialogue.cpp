@@ -119,6 +119,11 @@ VmInstruction(InstMes) {
 
   StartInstruction;
 
+  if (!(ScrWork[10 * thread->DialoguePageId + 4362] & 0b1000000)) {
+    // TODO: check message read
+    ChkMesSkip();
+  }
+
   // After loading a save we need to make sure the textbox is actually shown
   if (DialoguePages[thread->DialoguePageId].FadeAnimation.IsOut() &&
       GetFlag(thread->DialoguePageId + SF_MESWINDOW0OPENFL)) {
@@ -197,6 +202,9 @@ VmInstruction(InstMes) {
       UI::BacklogMenuPtr->AddMessage(line);
     } break;
   }
+
+  DialoguePages[thread->DialoguePageId].AutoWaitTime =
+      DialoguePages[thread->DialoguePageId].Length;
 }
 VmInstruction(InstMesMain) {
   StartInstruction;
@@ -212,9 +220,12 @@ VmInstruction(InstMesMain) {
     } else if (!((Interface::PADinputButtonWentDown & Interface::PAD1A ||
                   Interface::PADinputMouseWentDown & Interface::PAD1A) &&
                  currentPage->TextIsFullyOpaque())) {
-      if (!GetFlag(SF_MESALLSKIP)) {
-        ResetInstruction;
+      if (!GetFlag(SF_UIHIDDEN)) {
+        if (GetFlag(SF_MESALLSKIP)) return;
+        if (!currentPage->AutoWaitTime) return;
       }
+
+      ResetInstruction;
     }
     BlockThread;
   }
@@ -601,6 +612,28 @@ VmInstruction(InstSetRevMes) {
                  "arg4: %i)\n",
                  type, arg2, arg3, arg4);
     } break;
+  }
+}
+
+void ChkMesSkip() {
+  if (((ScrWork[2113] & 0b101) == 0b001) && (ScrWork[SW_SYSMESALPHA] == 255) &&
+      !GetFlag(SF_UIHIDDEN)) {
+    // Force skip
+    SetFlag(SF_MESALLSKIP,
+            (Interface::PADinputButtonIsDown & Interface::PAD1L1));
+
+    // Skip
+    if (Interface::PADinputButtonWentDown & Interface::PAD1R1)
+      if (MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll))
+        // Turn off all skip modes (leaving auto)
+        MesSkipMode &= SkipModeFlags::Auto;
+      else
+        MesSkipMode |=
+            (SkipMode ? SkipModeFlags::SkipAll : SkipModeFlags::SkipRead);
+
+    // Auto
+    if (Interface::PADinputButtonWentDown & Interface::PAD1X)
+      MesSkipMode ^= SkipModeFlags::Auto;
   }
 }
 

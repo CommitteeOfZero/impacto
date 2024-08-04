@@ -47,12 +47,6 @@ void UpdatePADInput() {
       PADinputButtonIsDown |= PADcode;
     if (Input::MouseButtonIsDown[MScode]) PADinputMouseIsDown |= PADcode;
   }
-
-  if (PADinputButtonIsDown & PAD1R1) {
-    SetFlag(SF_MESALLSKIP, true);
-  } else {
-    SetFlag(SF_MESALLSKIP, false);
-  }
 }
 
 // TODO: Make this configurable per game

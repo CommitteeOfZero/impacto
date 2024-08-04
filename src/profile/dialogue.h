@@ -4,6 +4,8 @@
 #include "../spritesheet.h"
 #include "../text.h"
 #include "../hud/waiticondisplay.h"
+#include "../hud/autoicondisplay.h"
+#include "../hud/skipicondisplay.h"
 #include "../hud/dialoguebox.h"
 #include "../spriteanimation.h"
 
@@ -44,8 +46,27 @@ inline Sprite WaitIconSprite;
 inline SpriteAnimationDef WaitIconSpriteAnim;
 inline glm::vec2 WaitIconOffset;
 inline float WaitIconAnimationDuration;
+inline int WaitIconFixedSpriteId;
 inline WaitIconDisplay::WaitIconType WaitIconCurrentType =
     WaitIconDisplay::WaitIconType::None;
+
+inline Sprite AutoIconSprite;
+inline SpriteAnimationDef AutoIconSpriteAnim;
+inline glm::vec2 AutoIconOffset;
+inline int AutoIconFixedSpriteId;
+inline float AutoIconRotationSpeed;
+inline AutoIconDisplay::AutoIconType AutoIconCurrentType =
+    AutoIconDisplay::AutoIconType::None;
+
+inline Sprite SkipIconSprite;
+inline SpriteAnimationDef SkipIconSpriteAnim;
+inline glm::vec2 SkipIconOffset;
+inline int SkipIconFixedSpriteId;
+inline float SkipIconRotationSpeed;
+inline SkipIconDisplay::SkipIconType SkipIconCurrentType =
+    SkipIconDisplay::SkipIconType::None;
+
+inline Sprite AutoSkipArrowsSprite;
 
 inline Font* DialogueFont;
 inline float DefaultFontSize;

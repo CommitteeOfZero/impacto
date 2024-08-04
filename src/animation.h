@@ -23,13 +23,13 @@ class Animation {
     if (reset) Progress = 0;
     Direction = 1;
     State = AS_Playing;
-    StartInImpl();
+    StartInImpl(reset);
   }
   void StartOut(bool reset = false) {
     if (reset) Progress = 1;
     Direction = -1;
     State = AS_Playing;
-    StartOutImpl();
+    StartOutImpl(reset);
   }
   void Update(float dt) {
     if (State == AS_Stopped) return;
@@ -42,8 +42,8 @@ class Animation {
   bool IsIn() const { return Progress == 1 && State == AS_Stopped; }
 
  protected:
-  virtual void StartInImpl() {}
-  virtual void StartOutImpl() {}
+  virtual void StartInImpl(bool reset = false) {}
+  virtual void StartOutImpl(bool reset = false) {}
   virtual void UpdateImpl(float dt) {
     if (GetFlag(Profile::ScriptVars::SF_MESALLSKIP) && State != AS_Stopped) {
       Progress = Direction == 1 ? 1.0f : 0.0f;
