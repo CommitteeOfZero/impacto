@@ -620,10 +620,10 @@ void ChkMesSkip() {
       (ScrWork[SW_SYSMESALPHA] == 255) && !GetFlag(SF_UIHIDDEN)) {
     // Force skip
     SetFlag(SF_MESALLSKIP,
-            (Interface::PADinputButtonIsDown & Interface::PAD1L1));
+            (Interface::PADinputButtonIsDown & Interface::PADcustom[7]));
 
     // Skip
-    if (Interface::PADinputButtonWentDown & Interface::PAD1R1)
+    if (Interface::PADinputButtonWentDown & Interface::PADcustom[8])
       if (MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll))
         // Turn off all skip modes (leaving auto)
         MesSkipMode &= SkipModeFlags::Auto;
@@ -632,7 +632,7 @@ void ChkMesSkip() {
             (SkipMode ? SkipModeFlags::SkipAll : SkipModeFlags::SkipRead);
 
     // Auto
-    if (Interface::PADinputButtonWentDown & Interface::PAD1X)
+    if (Interface::PADinputButtonWentDown & Interface::PADcustom[9])
       MesSkipMode ^= SkipModeFlags::Auto;
   }
 }

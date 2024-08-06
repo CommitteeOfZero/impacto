@@ -134,6 +134,9 @@ static void Init() {
     DelusionTrigger::Init();
     UI::MapSystem::Init();
     CCLCC::YesNoTrigger::Init();
+
+    // Default controls
+    Vm::Interface::UpdatePADcustomType(0);
   }
 
   Profile::ClearProfile();
