@@ -709,8 +709,8 @@ void DialoguePage::Render() {
                             col, Mode);
   }
 
-  SkipIconDisplay::Render(col);
   AutoIconDisplay::Render(col);
+  SkipIconDisplay::Render(col);
 }
 
 int TextGetStringLength(Vm::Sc3VmThread* ctx) {

@@ -25,8 +25,8 @@ struct SpriteAnimation : public Animation {
   Similarly, if the animation is in and gets told to move out, it will
   play the out animation to completion.
   If either the in or out animation is playing, and it suddenly gets told
-  to do the other animation, it will reverse the currently playing animation
-  to completion instead.
+  to do the other animation, it will finish the currently playing animation
+  and then immediately move on to the requested animation.
 
   The progress is split up such that the interval
   [0, 1 - FixSpriteId / FrameCount] is the out animation (with 0 being fully

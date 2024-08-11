@@ -19,17 +19,22 @@ void FixedSpriteAnimation::StartOutImpl(bool reset) {
 }
 void FixedSpriteAnimation::UpdateImpl(float dt) {
   float fixedSpriteProgress = GetFixedSpriteProgress();
+  int animationRequest = Direction;
 
   if (Progress == 1.0f && Direction == -1 ||
       Progress == 0.0f && Direction == 1) {
     Progress = fixedSpriteProgress;
   }
 
-  bool ingoingAnim = (Progress > fixedSpriteProgress ||
-                      Progress == fixedSpriteProgress && Direction == 1);
+  // Always play both parts of the animation in the correct direction
+  // (At the start of the function "Direction" only signifies the
+  //  whether the in or out animation should be played; not the actual
+  //  direction of the animation)
+  if (Progress != fixedSpriteProgress)
+    Direction = Progress > fixedSpriteProgress ? 1 : -1;
 
   // Coordinate transformation and normalization for AddDelta
-  if (ingoingAnim) {
+  if (Direction == 1) {
     Progress = (Progress - fixedSpriteProgress) / (1.0f - fixedSpriteProgress);
     dt /= 1.0f - fixedSpriteProgress;
   } else {
@@ -40,10 +45,18 @@ void FixedSpriteAnimation::UpdateImpl(float dt) {
   SpriteAnimation::UpdateImpl(dt);
 
   // Revert coordinate transformation and normalization
-  if (ingoingAnim)
+  if (Direction == 1)
     Progress = Progress * (1.0f - fixedSpriteProgress) + fixedSpriteProgress;
   else
     Progress *= fixedSpriteProgress;
+
+  // Start requested animation after already playing, non-requested, animation
+  // has finished
+  bool progressAtExtremum = (Progress == 0.0f || Progress == 1.0f);
+  if (animationRequest != Direction && progressAtExtremum) {
+    Direction = animationRequest;
+    State = AS_Playing;
+  }
 }
 Sprite FixedSpriteAnimation::CurrentSprite() {
   int frame;
@@ -52,8 +65,7 @@ Sprite FixedSpriteAnimation::CurrentSprite() {
   if (Progress > fixedSpriteProgress)  // In animation
     frame = (int)((Progress - fixedSpriteProgress) * (float)Def->FrameCount);
   else if (Progress < fixedSpriteProgress)  // Out animation
-    frame = (int)((fixedSpriteProgress + (fixedSpriteProgress - Progress)) *
-                  (float)Def->FrameCount);
+    frame = (int)((1.0f - Progress) * (float)Def->FrameCount);
   else {  // Progress = fixedSpriteProgress
     frame = Def->FixSpriteId;
     if (Direction == -1) frame++;
