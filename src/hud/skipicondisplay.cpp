@@ -16,10 +16,12 @@ void Init() {
   if (SkipIconCurrentType == +SkipIconType::SpriteAnim) {
     SpriteAnim = SkipIconSpriteAnim.Instantiate();
     SpriteAnim.LoopMode = ALM_Stop;
+    SpriteAnim.SkipOnSkipMode = false;
     SpriteAnim.StartIn();
   } else if (SkipIconCurrentType == +SkipIconType::SpriteAnimFixed) {
     SpriteAnim = SkipIconSpriteAnim.Instantiate();
     SpriteAnim.LoopMode = ALM_Stop;
+    SpriteAnim.SkipOnSkipMode = false;
     FixedSpriteAnim = static_cast<FixedSpriteAnimation&>(SpriteAnim);
     FixedSpriteAnim.Def->FixSpriteId = SkipIconFixedSpriteId;
     FixedSpriteAnim.StartIn();

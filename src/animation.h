@@ -18,6 +18,8 @@ class Animation {
   float Progress = 0;
   AnimationState State = AS_Stopped;
   AnimationLoopMode LoopMode = ALM_Stop;
+  // Animation skips to the end when skip mode is enabled
+  bool SkipOnSkipMode = true;
 
   void StartIn(bool reset = false) {
     if (reset) Progress = 0;
@@ -45,7 +47,8 @@ class Animation {
   virtual void StartInImpl(bool reset = false) {}
   virtual void StartOutImpl(bool reset = false) {}
   virtual void UpdateImpl(float dt) {
-    if (GetFlag(Profile::ScriptVars::SF_MESALLSKIP) && State != AS_Stopped) {
+    if (SkipOnSkipMode && GetFlag(Profile::ScriptVars::SF_MESALLSKIP) &&
+        State != AS_Stopped) {
       Progress = Direction == 1 ? 1.0f : 0.0f;
     }
     AddDelta(dt);
