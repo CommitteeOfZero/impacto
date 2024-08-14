@@ -157,12 +157,15 @@ VmInstruction(InstMes) {
       PopExpression(animationId);
       PopExpression(characterId);
       PopString(line);
+
       Io::Stream* stream;
       IoError err = Io::VfsOpen("voice", audioId, &stream);
+      bool playAudio = (err == IoError_OK && !GetFlag(SF_MESALLSKIP));
+
       uint8_t* oldIp = thread->Ip;
       thread->Ip = line;
       DialoguePages[thread->DialoguePageId].AddString(
-          thread, err == IoError_OK ? Audio::AudioStream::Create(stream) : 0,
+          thread, playAudio ? Audio::AudioStream::Create(stream) : 0,
           animationId);
       thread->Ip = oldIp;
       UI::BacklogMenuPtr->AddMessage(line, audioId);
@@ -191,12 +194,15 @@ VmInstruction(InstMes) {
       PopExpression(animationId);
       PopExpression(characterId);
       PopMsbString(line);
+
       Io::Stream* stream;
       IoError err = Io::VfsOpen("voice", audioId, &stream);
+      bool playAudio = (err == IoError_OK && !GetFlag(SF_MESALLSKIP));
+
       uint8_t* oldIp = thread->Ip;
       thread->Ip = line;
       DialoguePages[thread->DialoguePageId].AddString(
-          thread, err == IoError_OK ? Audio::AudioStream::Create(stream) : 0,
+          thread, playAudio ? Audio::AudioStream::Create(stream) : 0,
           animationId);
       thread->Ip = oldIp;
       UI::BacklogMenuPtr->AddMessage(line);
@@ -212,7 +218,8 @@ VmInstruction(InstMesMain) {
   DialoguePage* currentPage = &DialoguePages[thread->DialoguePageId];
   if (type == 0) {  // Normal mode
     if ((Interface::PADinputButtonWentDown & Interface::PAD1A ||
-         Interface::PADinputMouseWentDown & Interface::PAD1A) &&
+         Interface::PADinputMouseWentDown & Interface::PAD1A ||
+         MesSkipMode & SkipModeFlags::SkipAll) &&
         !currentPage->TextIsFullyOpaque() &&
         !currentPage->Typewriter.IsCancelled) {
       currentPage->Typewriter.CancelRequested = true;
@@ -616,11 +623,13 @@ VmInstruction(InstSetRevMes) {
 }
 
 void ChkMesSkip() {
+  bool mesSkip = false;
+
   if (((ScrWork[SW_GAMESTATE] & 0b101) == 0b001) &&
       (ScrWork[SW_SYSMESALPHA] == 255) && !GetFlag(SF_UIHIDDEN)) {
     // Force skip
-    SetFlag(SF_MESALLSKIP,
-            (Interface::PADinputButtonIsDown & Interface::PADcustom[7]));
+    mesSkip |=
+        (bool)(Interface::PADinputButtonIsDown & Interface::PADcustom[7]);
 
     // Skip
     if (Interface::PADinputButtonWentDown & Interface::PADcustom[8])
@@ -635,6 +644,10 @@ void ChkMesSkip() {
     if (Interface::PADinputButtonWentDown & Interface::PADcustom[9])
       MesSkipMode ^= SkipModeFlags::Auto;
   }
+
+  mesSkip |= (bool)(MesSkipMode & SkipModeFlags::SkipAll);
+  SetFlag(SF_MESSKIP, mesSkip);
+  SetFlag(SF_MESALLSKIP, mesSkip);  // These two are seemingly identical?
 }
 
 }  // namespace Vm
