@@ -59,9 +59,6 @@ VmInstruction(InstPlayMovie) {
       if (Video::Players[0]->IsPlaying) Video::Players[0]->Stop();
       Video::Players[0]->Play(stream, flags & 8, flags & 4);
       SetFlag(SF_MOVIEPLAY, true);
-      // TODO: Hack, implement this properly
-      ScrWork[SW_MOVIEFRAME] = 0;
-      ScrWork[SW_MOVIETOTALFRAME] = 255;
     }
     BlockThread;
     ImpLogSlow(LL_Warning, LC_VMStub,
@@ -133,7 +130,7 @@ VmInstruction(InstMovieMain) {
              Interface::PADinputMouseWentDown & Interface::PAD1A) ||
             !Video::Players[0]->IsPlaying) {
           Video::Players[0]->Stop();
-          ScrWork[SW_MOVIEFRAME] = 255;
+          ScrWork[SW_MOVIEFRAME] = 65535;
           SetFlag(SF_MOVIEPLAY, false);
         }
       }

@@ -186,6 +186,11 @@ void FFmpegPlayer::Play(Io::Stream* stream, bool looping, bool alpha) {
 
     avcodec_open2(codecCtx, codec, &options);
     VideoStream = new FFmpegStream(videoStream, codecCtx);
+    // This is also not the place to do this
+    VideoStream->Duration =
+        (int)(videoStream->duration * av_q2d(videoStream->time_base) *
+              av_q2d(codecCtx->framerate));
+    ScrWork[SW_MOVIETOTALFRAME] = VideoStream->Duration;
     if (!VideoTexture)
       VideoTexture = Renderer->CreateYUVFrame((float)codecCtx->width,
                                               (float)codecCtx->height);
@@ -547,6 +552,12 @@ void FFmpegPlayer::Update(float dt) {
       } else if (isnan(frame.Timestamp)) {
         duration = frame.Duration;
       } else {
+        // Cool, right? This is totally how that's supposed to be done
+        // And when there's no timestamp, welp, too bad
+        int frameNum = (int)(frame.Timestamp / frame.Duration);
+        // This isn't the place for it but I can't think of anything right now
+        ScrWork[SW_MOVIEFRAME] = frameNum;
+
         duration = frame.Timestamp - PreviousFrameTimestamp;
       }
 
