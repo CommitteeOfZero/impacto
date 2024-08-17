@@ -1,6 +1,7 @@
 jobs:
 - job: win_x64_build
   displayName: Windows x64 Build
+  timeoutInMinutes: 120
 
   pool:
     vmImage: 'windows-2019'
