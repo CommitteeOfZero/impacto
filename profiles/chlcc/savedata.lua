@@ -134,5 +134,8 @@ root.SaveData = {
         {{416, 415}},
         {{418, 417}},
         {{419}}
-    }
+    },
+
+    StoryScriptIDs = {},
+    ScriptMessageData = {} -- Pairs of line count and offset into read flags array
 };
