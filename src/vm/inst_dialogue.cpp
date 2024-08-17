@@ -15,6 +15,7 @@
 #include "../ui/ui.h"
 #include "interface/input.h"
 #include "../text.h"
+#include "vm.h"
 
 namespace Impacto {
 
@@ -119,24 +120,33 @@ VmInstruction(InstMes) {
 
   StartInstruction;
 
-  if (!(ScrWork[10 * thread->DialoguePageId + 4362] & 0b1000000)) {
-    // TODO: check message read
-    ChkMesSkip();
-  }
+  DialoguePage dialoguePage = DialoguePages[thread->DialoguePageId];
+  uint32_t scriptId = LoadedScriptMetas[dialoguePage.Id].Id;
 
   // After loading a save we need to make sure the textbox is actually shown
-  if (DialoguePages[thread->DialoguePageId].FadeAnimation.IsOut() &&
+  if (dialoguePage.FadeAnimation.IsOut() &&
       GetFlag(thread->DialoguePageId + SF_MESWINDOW0OPENFL)) {
-    DialoguePages[thread->DialoguePageId].Mode =
+    dialoguePage.Mode =
         (DialoguePageMode)ScrWork[thread->DialoguePageId * 10 + SW_MESMODE0];
-    DialoguePages[thread->DialoguePageId].FadeAnimation.StartIn(true);
+    dialoguePage.FadeAnimation.StartIn(true);
   }
 
   PopUint8(type);
   switch (type) {
     case 0: {  // LoadDialogue
       PopExpression(characterId);
-      PopString(line);
+      PopUint16(lineId);
+      uint8_t* line =
+          ScriptGetStrAddress(ScriptBuffers[thread->ScriptBufferId], lineId);
+
+      if (!(ScrWork[10 * thread->DialoguePageId + 4362] & 0b1000000)) {
+        SetFlag(SF_MESREAD, SaveSystem::IsLineRead(scriptId, lineId));
+        ChkMesSkip();
+      }
+
+      ScrWork[2 * dialoguePage.Id + SW_LINEID] = lineId;
+      ScrWork[2 * dialoguePage.Id + SW_SCRIPTID] = scriptId;
+
       uint8_t* oldIp = thread->Ip;
       thread->Ip = line;
       DialoguePages[thread->DialoguePageId].AddString(thread);
@@ -146,7 +156,18 @@ VmInstruction(InstMes) {
     case 1: {  // LoadVoicedUnactedDialogue
       PopExpression(audioId);
       PopExpression(characterId);
-      PopString(line);
+      PopUint16(lineId);
+      uint8_t* line =
+          ScriptGetStrAddress(ScriptBuffers[thread->ScriptBufferId], lineId);
+
+      if (!(ScrWork[10 * thread->DialoguePageId + 4362] & 0b1000000)) {
+        SetFlag(SF_MESREAD, SaveSystem::IsLineRead(scriptId, lineId));
+        ChkMesSkip();
+      }
+
+      ScrWork[2 * dialoguePage.Id + SW_LINEID] = lineId;
+      ScrWork[2 * dialoguePage.Id + SW_SCRIPTID] = scriptId;
+
       uint8_t* oldIp = thread->Ip;
       thread->Ip = line;
       DialoguePages[thread->DialoguePageId].AddString(thread);
@@ -156,7 +177,17 @@ VmInstruction(InstMes) {
       PopExpression(audioId);
       PopExpression(animationId);
       PopExpression(characterId);
-      PopString(line);
+      PopUint16(lineId);
+      uint8_t* line =
+          ScriptGetStrAddress(ScriptBuffers[thread->ScriptBufferId], lineId);
+
+      if (!(ScrWork[10 * thread->DialoguePageId + 4362] & 0b1000000)) {
+        SetFlag(SF_MESREAD, SaveSystem::IsLineRead(scriptId, lineId));
+        ChkMesSkip();
+      }
+
+      ScrWork[2 * dialoguePage.Id + SW_LINEID] = lineId;
+      ScrWork[2 * dialoguePage.Id + SW_SCRIPTID] = scriptId;
 
       Io::Stream* stream;
       IoError err = Io::VfsOpen("voice", audioId, &stream);
@@ -174,7 +205,18 @@ VmInstruction(InstMes) {
       PopExpression(audioId);
       PopExpression(animationId);
       PopExpression(characterId);
-      PopString(line);
+      PopUint16(lineId);
+      uint8_t* line =
+          ScriptGetStrAddress(ScriptBuffers[thread->ScriptBufferId], lineId);
+
+      if (!(ScrWork[10 * thread->DialoguePageId + 4362] & 0b1000000)) {
+        SetFlag(SF_MESREAD, SaveSystem::IsLineRead(scriptId, lineId));
+        ChkMesSkip();
+      }
+
+      ScrWork[2 * dialoguePage.Id + SW_LINEID] = lineId;
+      ScrWork[2 * dialoguePage.Id + SW_SCRIPTID] = scriptId;
+
       uint8_t* oldIp = thread->Ip;
       thread->Ip = line;
       DialoguePages[thread->DialoguePageId].AddString(thread, 0, animationId);
@@ -182,7 +224,18 @@ VmInstruction(InstMes) {
     } break;
     case 0x80: {  // LoadDialogueMSB
       PopExpression(characterId);
-      PopMsbString(line);
+      PopUint16(lineId);
+      uint8_t* line =
+          MsbGetStrAddress(MsbBuffers[thread->ScriptBufferId], lineId);
+
+      if (!(ScrWork[10 * thread->DialoguePageId + 4362] & 0b1000000)) {
+        SetFlag(SF_MESREAD, SaveSystem::IsLineRead(scriptId, lineId));
+        ChkMesSkip();
+      }
+
+      ScrWork[2 * dialoguePage.Id + SW_LINEID] = lineId;
+      ScrWork[2 * dialoguePage.Id + SW_SCRIPTID] = scriptId;
+
       uint8_t* oldIp = thread->Ip;
       thread->Ip = line;
       DialoguePages[thread->DialoguePageId].AddString(thread);
@@ -193,7 +246,17 @@ VmInstruction(InstMes) {
       PopExpression(audioId);
       PopExpression(animationId);
       PopExpression(characterId);
-      PopMsbString(line);
+      PopUint16(lineId);
+      uint8_t* line =
+          MsbGetStrAddress(MsbBuffers[thread->ScriptBufferId], lineId);
+
+      if (!(ScrWork[10 * thread->DialoguePageId + 4362] & 0b1000000)) {
+        SetFlag(SF_MESREAD, SaveSystem::IsLineRead(scriptId, lineId));
+        ChkMesSkip();
+      }
+
+      ScrWork[2 * dialoguePage.Id + SW_LINEID] = lineId;
+      ScrWork[2 * dialoguePage.Id + SW_SCRIPTID] = scriptId;
 
       Io::Stream* stream;
       IoError err = Io::VfsOpen("voice", audioId, &stream);
@@ -228,12 +291,17 @@ VmInstruction(InstMesMain) {
                   Interface::PADinputMouseWentDown & Interface::PAD1A) &&
                  currentPage->TextIsFullyOpaque())) {
       if (!GetFlag(SF_UIHIDDEN)) {
-        if (GetFlag(SF_MESALLSKIP)) return;
-        if (!currentPage->AutoWaitTime) return;
+        if (GetFlag(SF_MESALLSKIP) || !currentPage->AutoWaitTime) {
+          SaveSystem::SetLineRead(ScrWork[2 * currentPage->Id + SW_SCRIPTID],
+                                  ScrWork[2 * currentPage->Id + SW_LINEID]);
+          return;
+        }
       }
 
       ResetInstruction;
     }
+    SaveSystem::SetLineRead(ScrWork[2 * currentPage->Id + SW_SCRIPTID],
+                            ScrWork[2 * currentPage->Id + SW_LINEID]);
     BlockThread;
   }
   // TODO: Type 1 - Skip mode(?)
@@ -646,6 +714,7 @@ void ChkMesSkip() {
   }
 
   mesSkip |= (bool)(MesSkipMode & SkipModeFlags::SkipAll);
+  mesSkip |= (MesSkipMode & SkipModeFlags::SkipRead) && GetFlag(SF_MESREAD);
   SetFlag(SF_MESSKIP, mesSkip);
   SetFlag(SF_MESALLSKIP, mesSkip);  // These two are seemingly identical?
 }

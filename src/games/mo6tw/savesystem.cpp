@@ -641,6 +641,29 @@ void SaveSystem::SetTipStatus(int tipId, bool isLocked, bool isUnread,
   }
 }
 
+void SaveSystem::SetLineRead(int scriptId, int lineId) {
+  if (scriptId >= StoryScriptCount) return;
+
+  int offset =
+      ScriptMessageData[StoryScriptIDs[scriptId]].SaveDataOffset + lineId;
+  if (offset == 0xFFFFFFFF) return;
+
+  // TODO: update some ScrWorks (2003, 2005 & 2006)
+
+  MessageFlags[offset >> 3] |= Flbit[offset & 0b111];
+}
+
+bool SaveSystem::IsLineRead(int scriptId, int lineId) {
+  if (scriptId >= StoryScriptCount) return false;
+
+  uint32_t offset =
+      ScriptMessageData[StoryScriptIDs[scriptId]].SaveDataOffset + lineId;
+  uint8_t flbit = Flbit[offset & 0b111];
+  uint8_t viewed = MessageFlags[offset >> 3];
+
+  return (bool)(flbit & viewed);
+}
+
 void SaveSystem::GetReadMessagesCount(int* totalMessageCount,
                                       int* readMessageCount) {
   for (int i = 0; i < StoryScriptCount; i++) {
@@ -648,8 +671,8 @@ void SaveSystem::GetReadMessagesCount(int* totalMessageCount,
     *totalMessageCount += record.LineCount;
     for (size_t j = 0; j < record.LineCount; j++) {
       *readMessageCount +=
-          ((*(uint8_t*)(MessageFlags + ((record.SaveDataOffset + i) >> 3)) &
-            Flbit[(record.SaveDataOffset + i) & 7]) != 0);
+          ((*(uint8_t*)(MessageFlags + ((record.SaveDataOffset + j) >> 3)) &
+            Flbit[(record.SaveDataOffset + j) & 7]) != 0);
     }
   }
 }
