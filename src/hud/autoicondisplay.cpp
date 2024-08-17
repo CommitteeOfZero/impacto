@@ -13,67 +13,87 @@ static float Progress = 0.0f;
 using namespace Impacto::Profile::Dialogue;
 
 void Init() {
-  if (AutoIconCurrentType == +AutoIconType::SpriteAnim) {
-    SpriteAnim = AutoIconSpriteAnim.Instantiate();
-    SpriteAnim.LoopMode = ALM_Stop;
-    SpriteAnim.SkipOnSkipMode = false;
-    SpriteAnim.StartIn();
-  } else if (AutoIconCurrentType == +AutoIconType::SpriteAnimFixed) {
-    SpriteAnim = AutoIconSpriteAnim.Instantiate();
-    SpriteAnim.LoopMode = ALM_Stop;
-    SpriteAnim.SkipOnSkipMode = false;
-    FixedSpriteAnim = static_cast<FixedSpriteAnimation&>(SpriteAnim);
-    FixedSpriteAnim.Def->FixSpriteId = AutoIconFixedSpriteId;
-    FixedSpriteAnim.StartIn();
+  switch (AutoIconCurrentType) {
+    case AutoIconType::SpriteAnim:
+      SpriteAnim = AutoIconSpriteAnim.Instantiate();
+      SpriteAnim.LoopMode = ALM_Stop;
+      SpriteAnim.SkipOnSkipMode = false;
+      SpriteAnim.StartIn();
+      break;
+
+    case AutoIconType::SpriteAnimFixed:
+      SpriteAnim = AutoIconSpriteAnim.Instantiate();
+      SpriteAnim.LoopMode = ALM_Stop;
+      SpriteAnim.SkipOnSkipMode = false;
+      FixedSpriteAnim = static_cast<FixedSpriteAnimation&>(SpriteAnim);
+      FixedSpriteAnim.Def->FixSpriteId = AutoIconFixedSpriteId;
+      FixedSpriteAnim.StartIn();
+      break;
   }
 }
 
 void Update(float dt) {
-  if (AutoIconCurrentType == +AutoIconType::SpriteAnim) {
-    if ((MesSkipMode & SkipModeFlags::Auto) && SpriteAnim.Direction == -1)
-      SpriteAnim.StartIn();
-    if (!(MesSkipMode & SkipModeFlags::Auto) && SpriteAnim.Direction == 1)
-      SpriteAnim.StartOut();
+  switch (AutoIconCurrentType) {
+    case AutoIconType::SpriteAnim:
+      if ((MesSkipMode & SkipModeFlags::Auto) && SpriteAnim.Direction == -1)
+        SpriteAnim.StartIn();
+      if (!(MesSkipMode & SkipModeFlags::Auto) && SpriteAnim.Direction == 1)
+        SpriteAnim.StartOut();
 
-    SpriteAnim.Update(dt);
-  } else if (AutoIconCurrentType == +AutoIconType::SpriteAnimFixed) {
-    if ((MesSkipMode & SkipModeFlags::Auto) && FixedSpriteAnim.Direction == -1)
-      FixedSpriteAnim.StartIn();
-    if (!(MesSkipMode & SkipModeFlags::Auto) && FixedSpriteAnim.Direction == 1)
-      FixedSpriteAnim.StartOut();
+      SpriteAnim.Update(dt);
+      break;
 
-    FixedSpriteAnim.Update(dt);
-  } else if (AutoIconCurrentType == +AutoIconType::CHLCC) {
-    Progress += dt * AutoIconRotationSpeed;
-    if (Progress > 1.0f) Progress = 0.0f;
+    case AutoIconType::SpriteAnimFixed:
+      if ((MesSkipMode & SkipModeFlags::Auto) &&
+          FixedSpriteAnim.Direction == -1)
+        FixedSpriteAnim.StartIn();
+      if (!(MesSkipMode & SkipModeFlags::Auto) &&
+          FixedSpriteAnim.Direction == 1)
+        FixedSpriteAnim.StartOut();
+
+      FixedSpriteAnim.Update(dt);
+      break;
+
+    case AutoIconType::CHLCC:
+      Progress += dt * AutoIconRotationSpeed;
+      Progress -= (int)Progress;  // Progress %= 1.0f
+      break;
   }
 }
 
 void Render(glm::vec4 opacityTint) {
-  if (AutoIconCurrentType == +AutoIconType::SpriteAnim) {
-    if (!SpriteAnim.IsOut()) {
-      glm::vec4 col = glm::vec4(1.0f, 1.0f, 1.0f, opacityTint.a);
-      Renderer->DrawSprite(SpriteAnim.CurrentSprite(),
-                           glm::vec2(AutoIconOffset.x, AutoIconOffset.y), col);
+  switch (AutoIconCurrentType) {
+    case AutoIconType::SpriteAnim: {
+      if (!SpriteAnim.IsOut()) {
+        glm::vec4 col = glm::vec4(1.0f, 1.0f, 1.0f, opacityTint.a);
+        Renderer->DrawSprite(SpriteAnim.CurrentSprite(),
+                             glm::vec2(AutoIconOffset.x, AutoIconOffset.y),
+                             col);
+      }
+      break;
     }
-  } else if (AutoIconCurrentType == +AutoIconType::SpriteAnimFixed) {
-    if (!FixedSpriteAnim.IsOut() &&
-        !(FixedSpriteAnim.Direction == -1 &&
-          FixedSpriteAnim.Progress ==
-              FixedSpriteAnim.GetFixedSpriteProgress())) {
-      Renderer->DrawSprite(FixedSpriteAnim.CurrentSprite(),
-                           glm::vec2(AutoIconOffset.x, AutoIconOffset.y),
-                           opacityTint);
-    }
-  } else if (AutoIconCurrentType == +AutoIconType::CHLCC) {
-    if (MesSkipMode & SkipModeFlags::Auto) {
-      Renderer->DrawSprite(
-          AutoSkipArrowsSprite, glm::vec2(AutoIconOffset.x, AutoIconOffset.y),
-          opacityTint, glm::vec2(1.0f), Progress * 2 * (float)M_PI);
-      Renderer->DrawSprite(AutoIconSprite,
-                           glm::vec2(AutoIconOffset.x, AutoIconOffset.y),
-                           opacityTint);
-    }
+
+    case AutoIconType::SpriteAnimFixed:
+      if (!FixedSpriteAnim.IsOut() &&
+          !(FixedSpriteAnim.Direction == -1 &&
+            FixedSpriteAnim.Progress ==
+                FixedSpriteAnim.GetFixedSpriteProgress())) {
+        Renderer->DrawSprite(FixedSpriteAnim.CurrentSprite(),
+                             glm::vec2(AutoIconOffset.x, AutoIconOffset.y),
+                             opacityTint);
+      }
+      break;
+
+    case AutoIconType::CHLCC:
+      if (MesSkipMode & SkipModeFlags::Auto) {
+        Renderer->DrawSprite(
+            AutoSkipArrowsSprite, glm::vec2(AutoIconOffset.x, AutoIconOffset.y),
+            opacityTint, glm::vec2(1.0f), Progress * 2 * (float)M_PI);
+        Renderer->DrawSprite(AutoIconSprite,
+                             glm::vec2(AutoIconOffset.x, AutoIconOffset.y),
+                             opacityTint);
+      }
+      break;
   }
 }
 
