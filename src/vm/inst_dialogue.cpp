@@ -279,29 +279,35 @@ VmInstruction(InstMesMain) {
   StartInstruction;
   PopUint8(type);
   DialoguePage* currentPage = &DialoguePages[thread->DialoguePageId];
+
+  bool advanceButtonWentDown =
+      Interface::PADinputButtonWentDown & Interface::PAD1A ||
+      Interface::PADinputMouseWentDown & Interface::PAD1A;
+
   if (type == 0) {  // Normal mode
-    if ((Interface::PADinputButtonWentDown & Interface::PAD1A ||
-         Interface::PADinputMouseWentDown & Interface::PAD1A ||
-         MesSkipMode & SkipModeFlags::SkipAll) &&
-        !currentPage->TextIsFullyOpaque() &&
-        !currentPage->Typewriter.IsCancelled) {
-      currentPage->Typewriter.CancelRequested = true;
-      ResetInstruction;
-    } else if (!((Interface::PADinputButtonWentDown & Interface::PAD1A ||
-                  Interface::PADinputMouseWentDown & Interface::PAD1A) &&
-                 currentPage->TextIsFullyOpaque())) {
+    if (!currentPage->TextIsFullyOpaque()) {
+      // Text is still appearing
+      if (advanceButtonWentDown || GetFlag(SF_MESALLSKIP)) {
+        if (!currentPage->Typewriter.IsCancelled) {
+          currentPage->Typewriter.CancelRequested = true;
+        }
+      }
+    } else {
+      // Text is fully opaque
       if (!GetFlag(SF_UIHIDDEN)) {
-        if (GetFlag(SF_MESALLSKIP) || !currentPage->AutoWaitTime) {
+        if (advanceButtonWentDown || GetFlag(SF_MESALLSKIP) ||
+            !currentPage->AutoWaitTime) {
+          // Advance to next line
           SaveSystem::SetLineRead(ScrWork[2 * currentPage->Id + SW_SCRIPTID],
                                   ScrWork[2 * currentPage->Id + SW_LINEID]);
+
+          BlockThread;
           return;
         }
       }
-
-      ResetInstruction;
     }
-    SaveSystem::SetLineRead(ScrWork[2 * currentPage->Id + SW_SCRIPTID],
-                            ScrWork[2 * currentPage->Id + SW_LINEID]);
+
+    ResetInstruction;
     BlockThread;
   }
   // TODO: Type 1 - Skip mode(?)
