@@ -28,21 +28,15 @@ VmInstruction(InstMesViewFlag) {
   PopUint8(type);
   switch (type) {
     case 0: {  // Set
-      PopExpression(arg1);
-      PopExpression(arg2);
-      ImpLogSlow(
-          LL_Warning, LC_VMStub,
-          "STUB instruction MesViewFlag(type: Set, arg1: %i, arg2: %i)\n", arg1,
-          arg2);
+      PopExpression(scriptId);
+      PopExpression(lineId);
+      SaveSystem::SetLineRead(scriptId, lineId);
     } break;
     case 1: {  // Check
-      PopExpression(dest);
-      PopExpression(arg1);
-      PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MesViewFlag(type: Check, dest: %i, arg1: "
-                 "%i, arg2: %i)\n",
-                 dest, arg1, arg2);
+      PopExpression(scrWorkEntry);
+      PopExpression(scriptId);
+      PopExpression(lineId);
+      ScrWork[scrWorkEntry] = SaveSystem::IsLineRead(scriptId, lineId);
     } break;
   }
 }
