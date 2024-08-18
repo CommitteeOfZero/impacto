@@ -120,7 +120,7 @@ VmInstruction(InstMes) {
 
   StartInstruction;
 
-  DialoguePage dialoguePage = DialoguePages[thread->DialoguePageId];
+  DialoguePage& dialoguePage = DialoguePages[thread->DialoguePageId];
   uint32_t scriptId = LoadedScriptMetas[dialoguePage.Id].Id;
 
   // After loading a save we need to make sure the textbox is actually shown
@@ -132,148 +132,44 @@ VmInstruction(InstMes) {
   }
 
   PopUint8(type);
-  switch (type) {
-    case 0: {  // LoadDialogue
-      PopExpression(characterId);
-      PopUint16(lineId);
-      uint8_t* line =
-          ScriptGetStrAddress(ScriptBuffers[thread->ScriptBufferId], lineId);
+  bool voiced = type & 1;
+  bool acted = type & (1 << 1);
+  bool MSB = type & (1 << 7);
 
-      if (!(ScrWork[10 * thread->DialoguePageId + 4362] & 0b1000000)) {
-        SetFlag(SF_MESREAD, SaveSystem::IsLineRead(scriptId, lineId));
-        ChkMesSkip();
-      }
+  int audioId = -1;
+  int animationId = 0;
+  if (voiced) ExpressionEval(thread, &audioId);
+  if (acted) ExpressionEval(thread, &animationId);
+  PopExpression(characterId);
+  PopUint16(lineId);
+  uint8_t* line =
+      MSB ? MsbGetStrAddress(MsbBuffers[thread->ScriptBufferId], lineId)
+          : ScriptGetStrAddress(ScriptBuffers[thread->ScriptBufferId], lineId);
 
-      ScrWork[2 * dialoguePage.Id + SW_LINEID] = lineId;
-      ScrWork[2 * dialoguePage.Id + SW_SCRIPTID] = scriptId;
-
-      uint8_t* oldIp = thread->Ip;
-      thread->Ip = line;
-      DialoguePages[thread->DialoguePageId].AddString(thread);
-      thread->Ip = oldIp;
-      UI::BacklogMenuPtr->AddMessage(line);
-    } break;
-    case 1: {  // LoadVoicedUnactedDialogue
-      PopExpression(audioId);
-      PopExpression(characterId);
-      PopUint16(lineId);
-      uint8_t* line =
-          ScriptGetStrAddress(ScriptBuffers[thread->ScriptBufferId], lineId);
-
-      if (!(ScrWork[10 * thread->DialoguePageId + 4362] & 0b1000000)) {
-        SetFlag(SF_MESREAD, SaveSystem::IsLineRead(scriptId, lineId));
-        ChkMesSkip();
-      }
-
-      ScrWork[2 * dialoguePage.Id + SW_LINEID] = lineId;
-      ScrWork[2 * dialoguePage.Id + SW_SCRIPTID] = scriptId;
-
-      uint8_t* oldIp = thread->Ip;
-      thread->Ip = line;
-      DialoguePages[thread->DialoguePageId].AddString(thread);
-      thread->Ip = oldIp;
-    } break;
-    case 3: {  // LoadVoicedDialogue
-      PopExpression(audioId);
-      PopExpression(animationId);
-      PopExpression(characterId);
-      PopUint16(lineId);
-      uint8_t* line =
-          ScriptGetStrAddress(ScriptBuffers[thread->ScriptBufferId], lineId);
-
-      if (!(ScrWork[10 * thread->DialoguePageId + 4362] & 0b1000000)) {
-        SetFlag(SF_MESREAD, SaveSystem::IsLineRead(scriptId, lineId));
-        ChkMesSkip();
-      }
-
-      ScrWork[2 * dialoguePage.Id + SW_LINEID] = lineId;
-      ScrWork[2 * dialoguePage.Id + SW_SCRIPTID] = scriptId;
-
-      Io::Stream* stream;
-      IoError err = Io::VfsOpen("voice", audioId, &stream);
-      bool playAudio = (err == IoError_OK && !GetFlag(SF_MESALLSKIP));
-
-      uint8_t* oldIp = thread->Ip;
-      thread->Ip = line;
-      DialoguePages[thread->DialoguePageId].AddString(
-          thread, playAudio ? Audio::AudioStream::Create(stream) : 0,
-          animationId);
-      thread->Ip = oldIp;
-      UI::BacklogMenuPtr->AddMessage(line, audioId);
-    } break;
-    case 0x0B: {  // LoadVoicedDialogue0B
-      PopExpression(audioId);
-      PopExpression(animationId);
-      PopExpression(characterId);
-      PopUint16(lineId);
-      uint8_t* line =
-          ScriptGetStrAddress(ScriptBuffers[thread->ScriptBufferId], lineId);
-
-      if (!(ScrWork[10 * thread->DialoguePageId + 4362] & 0b1000000)) {
-        SetFlag(SF_MESREAD, SaveSystem::IsLineRead(scriptId, lineId));
-        ChkMesSkip();
-      }
-
-      ScrWork[2 * dialoguePage.Id + SW_LINEID] = lineId;
-      ScrWork[2 * dialoguePage.Id + SW_SCRIPTID] = scriptId;
-
-      uint8_t* oldIp = thread->Ip;
-      thread->Ip = line;
-      DialoguePages[thread->DialoguePageId].AddString(thread, 0, animationId);
-      thread->Ip = oldIp;
-    } break;
-    case 0x80: {  // LoadDialogueMSB
-      PopExpression(characterId);
-      PopUint16(lineId);
-      uint8_t* line =
-          MsbGetStrAddress(MsbBuffers[thread->ScriptBufferId], lineId);
-
-      if (!(ScrWork[10 * thread->DialoguePageId + 4362] & 0b1000000)) {
-        SetFlag(SF_MESREAD, SaveSystem::IsLineRead(scriptId, lineId));
-        ChkMesSkip();
-      }
-
-      ScrWork[2 * dialoguePage.Id + SW_LINEID] = lineId;
-      ScrWork[2 * dialoguePage.Id + SW_SCRIPTID] = scriptId;
-
-      uint8_t* oldIp = thread->Ip;
-      thread->Ip = line;
-      DialoguePages[thread->DialoguePageId].AddString(thread);
-      thread->Ip = oldIp;
-      UI::BacklogMenuPtr->AddMessage(line);
-    } break;
-    case 0x83: {  // LoadVoicedDialogueMSB
-      PopExpression(audioId);
-      PopExpression(animationId);
-      PopExpression(characterId);
-      PopUint16(lineId);
-      uint8_t* line =
-          MsbGetStrAddress(MsbBuffers[thread->ScriptBufferId], lineId);
-
-      if (!(ScrWork[10 * thread->DialoguePageId + 4362] & 0b1000000)) {
-        SetFlag(SF_MESREAD, SaveSystem::IsLineRead(scriptId, lineId));
-        ChkMesSkip();
-      }
-
-      ScrWork[2 * dialoguePage.Id + SW_LINEID] = lineId;
-      ScrWork[2 * dialoguePage.Id + SW_SCRIPTID] = scriptId;
-
-      Io::Stream* stream;
-      IoError err = Io::VfsOpen("voice", audioId, &stream);
-      bool playAudio = (err == IoError_OK && !GetFlag(SF_MESALLSKIP));
-
-      uint8_t* oldIp = thread->Ip;
-      thread->Ip = line;
-      DialoguePages[thread->DialoguePageId].AddString(
-          thread, playAudio ? Audio::AudioStream::Create(stream) : 0,
-          animationId);
-      thread->Ip = oldIp;
-      UI::BacklogMenuPtr->AddMessage(line);
-    } break;
+  if (!(ScrWork[10 * thread->DialoguePageId + 4362] & (1 << 6))) {
+    SetFlag(SF_MESREAD, SaveSystem::IsLineRead(scriptId, lineId));
+    ChkMesSkip();
   }
 
-  DialoguePages[thread->DialoguePageId].AutoWaitTime =
-      DialoguePages[thread->DialoguePageId].Length;
+  ScrWork[2 * dialoguePage.Id + SW_LINEID] = lineId;
+  ScrWork[2 * dialoguePage.Id + SW_SCRIPTID] = scriptId;
+
+  Audio::AudioStream* audioStream = nullptr;
+  if (voiced) {
+    Io::Stream* stream;
+    IoError err = Io::VfsOpen("voice", audioId, &stream);
+
+    bool playAudio = (err == IoError_OK && !GetFlag(SF_MESALLSKIP));
+    if (playAudio) audioStream = Audio::AudioStream::Create(stream);
+  }
+
+  uint8_t* oldIp = thread->Ip;
+  thread->Ip = line;
+  dialoguePage.AddString(thread, audioStream, animationId);
+  thread->Ip = oldIp;
+  UI::BacklogMenuPtr->AddMessage(line, audioId);
+
+  dialoguePage.AutoWaitTime = (float)dialoguePage.Length;
 }
 VmInstruction(InstMesMain) {
   StartInstruction;
