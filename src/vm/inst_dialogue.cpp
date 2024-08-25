@@ -15,6 +15,7 @@
 #include "../ui/ui.h"
 #include "interface/input.h"
 #include "../text.h"
+#include "vm.h"
 
 namespace Impacto {
 
@@ -27,21 +28,15 @@ VmInstruction(InstMesViewFlag) {
   PopUint8(type);
   switch (type) {
     case 0: {  // Set
-      PopExpression(arg1);
-      PopExpression(arg2);
-      ImpLogSlow(
-          LL_Warning, LC_VMStub,
-          "STUB instruction MesViewFlag(type: Set, arg1: %i, arg2: %i)\n", arg1,
-          arg2);
+      PopExpression(scriptId);
+      PopExpression(lineId);
+      SaveSystem::SetLineRead(scriptId, lineId);
     } break;
     case 1: {  // Check
-      PopExpression(dest);
-      PopExpression(arg1);
-      PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MesViewFlag(type: Check, dest: %i, arg1: "
-                 "%i, arg2: %i)\n",
-                 dest, arg1, arg2);
+      PopExpression(scrWorkEntry);
+      PopExpression(scriptId);
+      PopExpression(lineId);
+      ScrWork[scrWorkEntry] = SaveSystem::IsLineRead(scriptId, lineId);
     } break;
   }
 }
@@ -119,114 +114,90 @@ VmInstruction(InstMes) {
 
   StartInstruction;
 
-  if (!(ScrWork[10 * thread->DialoguePageId + 4362] & 0b1000000)) {
-    // TODO: check message read
-    ChkMesSkip();
-  }
+  DialoguePage& dialoguePage = DialoguePages[thread->DialoguePageId];
+  uint32_t scriptId = LoadedScriptMetas[dialoguePage.Id].Id;
 
   // After loading a save we need to make sure the textbox is actually shown
-  if (DialoguePages[thread->DialoguePageId].FadeAnimation.IsOut() &&
+  if (dialoguePage.FadeAnimation.IsOut() &&
       GetFlag(thread->DialoguePageId + SF_MESWINDOW0OPENFL)) {
-    DialoguePages[thread->DialoguePageId].Mode =
+    dialoguePage.Mode =
         (DialoguePageMode)ScrWork[thread->DialoguePageId * 10 + SW_MESMODE0];
-    DialoguePages[thread->DialoguePageId].FadeAnimation.StartIn(true);
+    dialoguePage.FadeAnimation.StartIn(true);
   }
 
   PopUint8(type);
-  switch (type) {
-    case 0: {  // LoadDialogue
-      PopExpression(characterId);
-      PopString(line);
-      uint8_t* oldIp = thread->Ip;
-      thread->Ip = line;
-      DialoguePages[thread->DialoguePageId].AddString(thread);
-      thread->Ip = oldIp;
-      UI::BacklogMenuPtr->AddMessage(line);
-    } break;
-    case 1: {  // LoadVoicedUnactedDialogue
-      PopExpression(audioId);
-      PopExpression(characterId);
-      PopString(line);
-      uint8_t* oldIp = thread->Ip;
-      thread->Ip = line;
-      DialoguePages[thread->DialoguePageId].AddString(thread);
-      thread->Ip = oldIp;
-    } break;
-    case 3: {  // LoadVoicedDialogue
-      PopExpression(audioId);
-      PopExpression(animationId);
-      PopExpression(characterId);
-      PopString(line);
-      Io::Stream* stream;
-      IoError err = Io::VfsOpen("voice", audioId, &stream);
-      uint8_t* oldIp = thread->Ip;
-      thread->Ip = line;
-      DialoguePages[thread->DialoguePageId].AddString(
-          thread, err == IoError_OK ? Audio::AudioStream::Create(stream) : 0,
-          animationId);
-      thread->Ip = oldIp;
-      UI::BacklogMenuPtr->AddMessage(line, audioId);
-    } break;
-    case 0x0B: {  // LoadVoicedDialogue0B
-      PopExpression(audioId);
-      PopExpression(animationId);
-      PopExpression(characterId);
-      PopString(line);
-      uint8_t* oldIp = thread->Ip;
-      thread->Ip = line;
-      DialoguePages[thread->DialoguePageId].AddString(thread, 0, animationId);
-      thread->Ip = oldIp;
-    } break;
-    case 0x80: {  // LoadDialogueMSB
-      PopExpression(characterId);
-      PopMsbString(line);
-      uint8_t* oldIp = thread->Ip;
-      thread->Ip = line;
-      DialoguePages[thread->DialoguePageId].AddString(thread);
-      thread->Ip = oldIp;
-      UI::BacklogMenuPtr->AddMessage(line);
-    } break;
-    case 0x83: {  // LoadVoicedDialogueMSB
-      PopExpression(audioId);
-      PopExpression(animationId);
-      PopExpression(characterId);
-      PopMsbString(line);
-      Io::Stream* stream;
-      IoError err = Io::VfsOpen("voice", audioId, &stream);
-      uint8_t* oldIp = thread->Ip;
-      thread->Ip = line;
-      DialoguePages[thread->DialoguePageId].AddString(
-          thread, err == IoError_OK ? Audio::AudioStream::Create(stream) : 0,
-          animationId);
-      thread->Ip = oldIp;
-      UI::BacklogMenuPtr->AddMessage(line);
-    } break;
+  bool voiced = type & 1;
+  bool acted = type & (1 << 1);
+  bool MSB = type & (1 << 7);
+
+  int audioId = -1;
+  int animationId = 0;
+  if (voiced) ExpressionEval(thread, &audioId);
+  if (acted) ExpressionEval(thread, &animationId);
+  PopExpression(characterId);
+  PopUint16(lineId);
+  uint8_t* line =
+      MSB ? MsbGetStrAddress(MsbBuffers[thread->ScriptBufferId], lineId)
+          : ScriptGetStrAddress(ScriptBuffers[thread->ScriptBufferId], lineId);
+
+  if (!(ScrWork[10 * thread->DialoguePageId + 4362] & (1 << 6))) {
+    SetFlag(SF_MESREAD, SaveSystem::IsLineRead(scriptId, lineId));
+    ChkMesSkip();
   }
 
-  DialoguePages[thread->DialoguePageId].AutoWaitTime =
-      DialoguePages[thread->DialoguePageId].Length;
+  ScrWork[2 * dialoguePage.Id + SW_LINEID] = lineId;
+  ScrWork[2 * dialoguePage.Id + SW_SCRIPTID] = scriptId;
+
+  Audio::AudioStream* audioStream = nullptr;
+  if (voiced) {
+    Io::Stream* stream;
+    IoError err = Io::VfsOpen("voice", audioId, &stream);
+
+    bool playAudio = (err == IoError_OK && !GetFlag(SF_MESALLSKIP));
+    if (playAudio) audioStream = Audio::AudioStream::Create(stream);
+  }
+
+  uint8_t* oldIp = thread->Ip;
+  thread->Ip = line;
+  dialoguePage.AddString(thread, audioStream, animationId);
+  thread->Ip = oldIp;
+  UI::BacklogMenuPtr->AddMessage(line, audioId);
+
+  dialoguePage.AutoWaitTime = (float)dialoguePage.Length;
 }
 VmInstruction(InstMesMain) {
   StartInstruction;
   PopUint8(type);
   DialoguePage* currentPage = &DialoguePages[thread->DialoguePageId];
-  if (type == 0) {  // Normal mode
-    if ((Interface::PADinputButtonWentDown & Interface::PAD1A ||
-         Interface::PADinputMouseWentDown & Interface::PAD1A) &&
-        !currentPage->TextIsFullyOpaque() &&
-        !currentPage->Typewriter.IsCancelled) {
-      currentPage->Typewriter.CancelRequested = true;
-      ResetInstruction;
-    } else if (!((Interface::PADinputButtonWentDown & Interface::PAD1A ||
-                  Interface::PADinputMouseWentDown & Interface::PAD1A) &&
-                 currentPage->TextIsFullyOpaque())) {
-      if (!GetFlag(SF_UIHIDDEN)) {
-        if (GetFlag(SF_MESALLSKIP)) return;
-        if (!currentPage->AutoWaitTime) return;
-      }
 
-      ResetInstruction;
+  bool advanceButtonWentDown =
+      Interface::PADinputButtonWentDown & Interface::PAD1A ||
+      Interface::PADinputMouseWentDown & Interface::PAD1A;
+
+  if (type == 0) {  // Normal mode
+    if (!currentPage->TextIsFullyOpaque()) {
+      // Text is still appearing
+      if (advanceButtonWentDown || GetFlag(SF_MESALLSKIP)) {
+        if (!currentPage->Typewriter.IsCancelled) {
+          currentPage->Typewriter.CancelRequested = true;
+        }
+      }
+    } else {
+      // Text is fully opaque
+      if (!GetFlag(SF_UIHIDDEN)) {
+        if (advanceButtonWentDown || GetFlag(SF_MESALLSKIP) ||
+            !currentPage->AutoWaitTime) {
+          // Advance to next line
+          SaveSystem::SetLineRead(ScrWork[2 * currentPage->Id + SW_SCRIPTID],
+                                  ScrWork[2 * currentPage->Id + SW_LINEID]);
+
+          BlockThread;
+          return;
+        }
+      }
     }
+
+    ResetInstruction;
     BlockThread;
   }
   // TODO: Type 1 - Skip mode(?)
@@ -616,11 +587,13 @@ VmInstruction(InstSetRevMes) {
 }
 
 void ChkMesSkip() {
+  bool mesSkip = false;
+
   if (((ScrWork[SW_GAMESTATE] & 0b101) == 0b001) &&
       (ScrWork[SW_SYSMESALPHA] == 255) && !GetFlag(SF_UIHIDDEN)) {
     // Force skip
-    SetFlag(SF_MESALLSKIP,
-            (Interface::PADinputButtonIsDown & Interface::PADcustom[7]));
+    mesSkip |=
+        (bool)(Interface::PADinputButtonIsDown & Interface::PADcustom[7]);
 
     // Skip
     if (Interface::PADinputButtonWentDown & Interface::PADcustom[8])
@@ -635,6 +608,11 @@ void ChkMesSkip() {
     if (Interface::PADinputButtonWentDown & Interface::PADcustom[9])
       MesSkipMode ^= SkipModeFlags::Auto;
   }
+
+  mesSkip |= (bool)(MesSkipMode & SkipModeFlags::SkipAll);
+  mesSkip |= (MesSkipMode & SkipModeFlags::SkipRead) && GetFlag(SF_MESREAD);
+  SetFlag(SF_MESSKIP, mesSkip);
+  SetFlag(SF_MESALLSKIP, mesSkip);  // These two are seemingly identical?
 }
 
 }  // namespace Vm

@@ -641,15 +641,40 @@ void SaveSystem::SetTipStatus(int tipId, bool isLocked, bool isUnread,
   }
 }
 
+void SaveSystem::SetLineRead(int scriptId, int lineId) {
+  if (scriptId >= StoryScriptCount) return;
+
+  int offset =
+      ScriptMessageData[StoryScriptIDs[scriptId]].SaveDataOffset + lineId;
+  if (offset == 0xFFFFFFFF) return;
+
+  // TODO: update some ScrWorks (2003, 2005 & 2006)
+
+  MessageFlags[offset >> 3] |= Flbit[offset & 0b111];
+}
+
+bool SaveSystem::IsLineRead(int scriptId, int lineId) {
+  if (scriptId >= StoryScriptCount) return false;
+
+  uint32_t offset =
+      ScriptMessageData[StoryScriptIDs[scriptId]].SaveDataOffset + lineId;
+  uint8_t flbit = Flbit[offset & 0b111];
+  uint8_t viewed = MessageFlags[offset >> 3];
+
+  return (bool)(flbit & viewed);
+}
+
 void SaveSystem::GetReadMessagesCount(int* totalMessageCount,
                                       int* readMessageCount) {
-  for (int i = 0; i < StoryScriptCount; i++) {
-    auto record = ScriptMessageData[StoryScriptIDs[i]];
-    *totalMessageCount += record.LineCount;
-    for (size_t j = 0; j < record.LineCount; j++) {
-      *readMessageCount +=
-          ((*(uint8_t*)(MessageFlags + ((record.SaveDataOffset + i) >> 3)) &
-            Flbit[(record.SaveDataOffset + i) & 7]) != 0);
+  *totalMessageCount = 0;
+  *readMessageCount = 0;
+
+  for (int scriptId = 0; scriptId < StoryScriptCount; scriptId++) {
+    ScriptMessageDataPair script = ScriptMessageData[StoryScriptIDs[scriptId]];
+    *totalMessageCount += script.LineCount;
+
+    for (int lineId = 0; lineId < script.LineCount; lineId++) {
+      *readMessageCount += IsLineRead(scriptId, lineId);
     }
   }
 }

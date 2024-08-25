@@ -84,6 +84,18 @@ void SetTipStatus(int tipId, bool isLocked, bool isUnread, bool isNew) {
   ImpLog(LL_Warning, LC_VMStub, "%s: save system not implemented\n", __func__);
 }
 
+void SetLineRead(int scriptId, int lineId) {
+  if (Implementation) return Implementation->SetLineRead(scriptId, lineId);
+  ImpLog(LL_Warning, LC_VMStub, "%s: save system not implemented\n", __func__);
+}
+
+bool IsLineRead(int scriptId, int lineId) {
+  if (Implementation) return Implementation->IsLineRead(scriptId, lineId);
+  ImpLog(LL_Warning, LC_VMStub,
+         "%s: save system not implemented, returing false\n", __func__);
+  return false;
+}
+
 void GetReadMessagesCount(int* totalMessageCount, int* readMessageCount) {
   if (Implementation)
     return Implementation->GetReadMessagesCount(totalMessageCount,

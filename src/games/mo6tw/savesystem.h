@@ -30,6 +30,8 @@ class SaveSystem : public SaveSystemBase {
   uint32_t GetTipStatus(int tipId) override;
   void SetTipStatus(int tipId, bool isLocked, bool isUnread,
                     bool isNew) override;
+  void SetLineRead(int scriptId, int lineId) override;
+  bool IsLineRead(int scriptId, int lineId) override;
   void GetReadMessagesCount(int* totalMessageCount,
                             int* readMessageCount) override;
   void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) override;

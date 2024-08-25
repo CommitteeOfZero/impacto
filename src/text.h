@@ -146,11 +146,11 @@ void InitNamePlateData(uint16_t* data);
 uint32_t GetNameId(uint8_t* name, int nameLength);
 
 // Bitfield denoting the skip mode, according to SkipModeFlags
-inline uint8_t MesSkipMode;
+inline uint8_t MesSkipMode = 0;
 
 // Speed to skip in auto mode (MessWaitSpeed)
 inline float AutoSpeed = 768 / 60;
-inline bool SkipMode;  // Skip unread text
+inline bool SkipMode = false;  // Skip unread text
 
 // Stop skip mode when reaching a trigger
 // (e.g. delusion trigger, phone trigger, etc.)
