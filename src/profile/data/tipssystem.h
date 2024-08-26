@@ -10,7 +10,6 @@ inline Impacto::TipsSystem::TipsSystemType Type =
     Impacto::TipsSystem::TipsSystemType::None;
 
 inline int MaxTipsCount;
-inline uint32_t MaxTipDataSize;
 
 void Configure();
 

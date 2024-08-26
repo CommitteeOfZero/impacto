@@ -13,7 +13,8 @@ using namespace Impacto::Vm;
 using namespace Impacto::Profile::TipsSystem;
 using namespace Impacto::Io;
 
-void TipsSystem::DataInit(int scriptBufferId, uint8_t *tipsData) {
+void TipsSystem::DataInit(int scriptBufferId, uint8_t *tipsData,
+                          uint32_t tipsDataSize) {
   auto scriptBuffer = ScriptBuffers[scriptBufferId];
 
   // String of characters by which tips are sorted, taken from _system script
@@ -22,7 +23,7 @@ void TipsSystem::DataInit(int scriptBufferId, uint8_t *tipsData) {
   int idx = 0;
 
   // Read tips data from the script and create UI elements for each tip
-  MemoryStream *stream = new MemoryStream(tipsData, MaxTipDataSize);
+  MemoryStream *stream = new MemoryStream(tipsData, tipsDataSize);
   auto unk01 = ReadLE<uint16_t>(stream);
   while (unk01 != 255) {
     // Read tip entry from the data array

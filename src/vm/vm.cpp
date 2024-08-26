@@ -521,6 +521,26 @@ void RunThread(Sc3VmThread* thread) {
   } while (!BlockCurrentScriptThread);
 }
 
+uint32_t ScriptGetLabelSize(uint8_t* scriptBufferAdr, uint32_t labelNum) {
+  uint8_t* labelAddress = ScriptGetLabelAddress(scriptBufferAdr, labelNum);
+
+  uint8_t* labelTableAdr = (uint8_t*)&scriptBufferAdr[12];
+  uint8_t* nextLabelTableEntryAdr =
+      &labelTableAdr[(labelNum + 1) * sizeof(uint32_t)];
+  uint32_t nextLabelTableAdrRel =
+      SDL_SwapLE32(UnalignedRead<uint32_t>(nextLabelTableEntryAdr));
+  uint8_t* firstLabelAdr = ScriptGetLabelAddress(scriptBufferAdr, 0);
+
+  if (nextLabelTableEntryAdr == firstLabelAdr || nextLabelTableAdrRel == 0) {
+    uint32_t stringTableAdrRel =
+        SDL_SwapLE32(UnalignedRead<uint32_t>(&scriptBufferAdr[4]));
+    uint8_t* stringTableAdr = (uint8_t*)&scriptBufferAdr[stringTableAdrRel];
+    return stringTableAdr - labelAddress;
+  } else {
+    return &scriptBufferAdr[nextLabelTableAdrRel] - labelAddress;
+  }
+}
+
 uint8_t* ScriptGetLabelAddress(uint8_t* scriptBufferAdr, uint32_t labelNum) {
   uint8_t* labelTableAdr = (uint8_t*)&scriptBufferAdr[12];
   uint32_t labelAdrRel = SDL_SwapLE32(
