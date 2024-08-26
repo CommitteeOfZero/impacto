@@ -32,7 +32,6 @@ void Configure() {
   }
 
   TextTableId = EnsureGetMemberInt("TextTableId");
-  NotificationAlertMessageId = EnsureGetMemberInt("NotificationAlertMessageId");
   NotificationTextPart1MessageId =
       EnsureGetMemberInt("NotificationTextPart1MessageId");
   NotificationTextPart2MessageId =
