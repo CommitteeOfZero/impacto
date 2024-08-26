@@ -84,7 +84,7 @@ void SaveEntryButton::RenderSceneTitleText() {
   uint8_t* strAddr =
       Vm::ScriptGetTextTableStrAddress(1, SaveSystem::GetSaveTitle(Type, Id));
   float fontSize = 24;
-  RendererOutlineMode outlineMode = RO_BottomRight;
+  RendererOutlineMode outlineMode = RendererOutlineMode::RO_BottomRight;
   glm::vec2 relativeTitlePosition = {20, 20};
   Label(strAddr, glm::vec2(Bounds.X, Bounds.Y) + relativeTitlePosition,
         fontSize, outlineMode, IsLocked ? 69 : 0)
@@ -95,7 +95,7 @@ void SaveEntryButton::RenderSaveDateText() {
   tm date = SaveSystem::GetSaveDate(Type, Id);
   std::stringstream dateStr;
   float fontSize = 32;
-  RendererOutlineMode outlineMode = RO_Full;
+  RendererOutlineMode outlineMode = RendererOutlineMode::RO_Full;
   glm::vec2 relativePosition{20 + 290 * 1280.0 / 1920,
                              (71 + 120) * 1280.0 / 1920};
   dateStr << std::put_time(&date, "%Y/%m/%d %H:%M:%S");

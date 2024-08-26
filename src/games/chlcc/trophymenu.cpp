@@ -69,7 +69,7 @@ void TrophyMenu::Show() {
     if (!TrophyCountHintLabel.Enabled) {
       TrophyCountHintLabel.Enabled = true;
       TrophyCountHintLabel.SetText(Vm::ScriptGetTextTableStrAddress(0, 20), 20,
-                                   RO_Full, 0);
+                                   RendererOutlineMode::RO_Full, 0);
     }
   }
 }

@@ -384,12 +384,13 @@ void MusicMenu::SwitchToTrack(int id) {
     return;
   }
   if (!NowPlayingAnimation.IsIn()) NowPlayingAnimation.StartIn();
-  CurrentlyPlayingTrackName =
-      Label(Vm::ScriptGetTextTableStrAddress(4, CurrentlyPlayingTrackId * 3),
-            NowPlayingPos + PlayingTrackOffset, 32, RO_None, 0);
+  CurrentlyPlayingTrackName = Label(
+      Vm::ScriptGetTextTableStrAddress(4, CurrentlyPlayingTrackId * 3),
+      NowPlayingPos + PlayingTrackOffset, 32, RendererOutlineMode::RO_None, 0);
   CurrentlyPlayingTrackArtist = Label(
       Vm::ScriptGetTextTableStrAddress(4, CurrentlyPlayingTrackId * 3 + 2),
-      NowPlayingPos + PlayingTrackArtistOffset, 20, RO_None, 0);
+      NowPlayingPos + PlayingTrackArtistOffset, 20,
+      RendererOutlineMode::RO_None, 0);
   PreviousPosition = 0.0f;
   Audio::Channels[Audio::AC_BGM0]->Play(
       "bgm", Playlist[id], id >= 40 ? (PlaybackMode == MPM_RepeatOne) : true,
