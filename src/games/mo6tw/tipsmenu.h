@@ -30,8 +30,6 @@ class TipsMenu : public UI::TipsMenu {
   void NextTipPage();
 
  private:
-  Impacto::TipsSystem::TipsDataRecord* Records;
-
   int CurrentTipPage = 1;
 
   Sprite* ThumbnailSprite;
