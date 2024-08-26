@@ -13,8 +13,6 @@ using namespace Impacto::Vm;
 using namespace Impacto::Profile::TipsSystem;
 using namespace Impacto::Io;
 
-TipsSystem::TipsSystem() { Records = new TipsDataRecord[MaxTipsCount]; }
-
 void TipsSystem::DataInit(int scriptBufferId, uint8_t *tipsData) {
   auto scriptBuffer = ScriptBuffers[scriptBufferId];
 

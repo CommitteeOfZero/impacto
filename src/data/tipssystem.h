@@ -1,29 +1,33 @@
 #pragma once
 #include "../impacto.h"
 
+#include <vector>
+#include <array>
 #include <enum.h>
 #include "../log.h"
 
 namespace Impacto {
 namespace TipsSystem {
 
-BETTER_ENUM(TipsSystemType, int, None, MO6TW, CHLCC)
+BETTER_ENUM(TipsSystemType, int, None, MO6TW, CHLCC, CCLCC)
 
 int constexpr MaxTipStrings = 10;
 
 struct TipsDataRecord {
-  uint16_t Id;
-  uint16_t SortLetterIndex;
-  uint16_t ThumbnailIndex;
-  uint16_t NumberOfContentStrings;
-  uint8_t* StringPtrs[MaxTipStrings];
-  bool IsLocked;
-  bool IsUnread;
-  bool IsNew;
+  uint16_t Id = 0;
+  uint16_t SortLetterIndex = 0;
+  uint16_t ThumbnailIndex = 0;
+  uint16_t NumberOfContentStrings = 0;
+  std::array<uint8_t*, MaxTipStrings> StringPtrs = {};
+  bool IsLocked = true;
+  bool IsUnread = true;
+  bool IsNew = true;
 };
 
 class TipsSystemBase {
  public:
+  TipsSystemBase(int maxTipsCount) : Records(maxTipsCount) {}
+  virtual ~TipsSystemBase() {}
   virtual void DataInit(int scriptBufferId, uint8_t* tipsData) = 0;
   virtual void UpdateTipRecords() = 0;
   virtual void SetTipLockedState(int id, bool state) = 0;
@@ -32,7 +36,7 @@ class TipsSystemBase {
 
   virtual bool GetTipLockedState(int id) = 0;
 
-  TipsDataRecord* Records;
+  std::vector<TipsDataRecord> Records;
   int TipEntryCount = 0;
 };
 
@@ -47,7 +51,7 @@ void SetTipNewState(int id, bool state);
 
 bool GetTipLockedState(int id);
 
-TipsDataRecord* GetTipRecords();
+std::vector<TipsDataRecord>* GetTipRecords();
 TipsDataRecord* GetTipRecord(int id);
 int GetTipCount();
 
