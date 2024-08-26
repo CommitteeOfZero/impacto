@@ -28,7 +28,8 @@ class TipsSystemBase {
  public:
   TipsSystemBase(int maxTipsCount) : Records(maxTipsCount) {}
   virtual ~TipsSystemBase() {}
-  virtual void DataInit(int scriptBufferId, uint8_t* tipsData) = 0;
+  virtual void DataInit(int scriptBufferId, uint8_t* tipsData,
+                        uint32_t tipsDataSize) = 0;
   virtual void UpdateTipRecords() = 0;
   virtual void SetTipLockedState(int id, bool state) = 0;
   virtual void SetTipUnreadState(int id, bool state) = 0;
@@ -43,7 +44,7 @@ class TipsSystemBase {
 inline TipsSystemBase* Implementation = nullptr;
 
 void Init();
-void DataInit(int scriptBufferId, uint8_t* tipsData);
+void DataInit(int scriptBufferId, uint8_t* tipsData, uint32_t tipsDataSize);
 void UpdateTipRecords();
 void SetTipLockedState(int id, bool state);
 void SetTipUnreadState(int id, bool state);

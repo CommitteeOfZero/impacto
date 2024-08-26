@@ -18,6 +18,7 @@ int constexpr MaxLoadedScripts = 16;
 int constexpr MaxThreads = 100;
 int constexpr MaxThreadGroups = 12;
 
+uint32_t ScriptGetLabelSize(uint8_t* scriptBufferAdr, uint32_t labelNum);
 uint8_t* ScriptGetLabelAddress(uint8_t* scriptBufferAdr, uint32_t labelNum);
 uint32_t ScriptGetLabelAddressNum(uint8_t* scriptBufferAdr, uint32_t labelNum);
 uint8_t* ScriptGetStrAddress(uint8_t* scriptBufferAdr, uint32_t strNum);
