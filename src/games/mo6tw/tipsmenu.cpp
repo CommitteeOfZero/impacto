@@ -134,7 +134,7 @@ void TipsMenu::Render() {
       TipViewItems->Render();
       Renderer->DrawProcessedText(TextPage->Glyphs, TextPage->Length,
                                   Profile::Dialogue::DialogueFont, col.a,
-                                  RO_Full, true);
+                                  RendererOutlineMode::RO_Full, true);
       if (ThumbnailSprite) {
         Renderer->DrawSprite(*ThumbnailSprite, ThumbnailPosition, col);
       }
@@ -187,7 +187,7 @@ void TipsMenu::Init() {
       categoryLabel->Bounds.X = TipListEntryBounds.X;
       categoryLabel->Bounds.Y = currentY;
       categoryLabel->SetText((uint8_t *)CategoryString, TipListEntryFontSize,
-                             RO_Full, 0);
+                             RendererOutlineMode::RO_Full, 0);
       pageItems->Add(categoryLabel);
       currentY += TipListYPadding;
     }
@@ -209,8 +209,8 @@ void TipsMenu::Init() {
   // Number label
   NumberText = new Label(Vm::ScriptGetTextTableStrAddress(NumberLabelStrTable,
                                                           NumberLabelStrIndex),
-                         NumberLabelPosition, NumberLabelFontSize, RO_Full,
-                         DefaultColorIndex);
+                         NumberLabelPosition, NumberLabelFontSize,
+                         RendererOutlineMode::RO_Full, DefaultColorIndex);
   TipViewItems->Add(NumberText);
   // Tip number
   Number = new Label();
@@ -219,7 +219,8 @@ void TipsMenu::Init() {
   // Tip page separator
   PageSeparator = new Label(
       Vm::ScriptGetTextTableStrAddress(PageSeparatorTable, PageSeparatorIndex),
-      PageSeparatorPosition, PageSeparatorFontSize, RO_Full, DefaultColorIndex);
+      PageSeparatorPosition, PageSeparatorFontSize,
+      RendererOutlineMode::RO_Full, DefaultColorIndex);
   TipViewItems->Add(PageSeparator);
   // Current tip page
   CurrentPage = new Label();
@@ -238,18 +239,18 @@ void TipsMenu::SwitchToTipId(int id) {
   TipsSystem::SetTipNewState(id, false);
 
   auto tipRecord = &Records[id];
-  Name->SetText(tipRecord->StringPtrs[0], NameFontSize, RO_Full,
-                DefaultColorIndex);
+  Name->SetText(tipRecord->StringPtrs[0], NameFontSize,
+                RendererOutlineMode::RO_Full, DefaultColorIndex);
   Pronounciation->SetText(tipRecord->StringPtrs[1], PronounciationFontSize,
-                          RO_Full, DefaultColorIndex);
+                          RendererOutlineMode::RO_Full, DefaultColorIndex);
 
   Vm::Sc3VmThread dummy;
   dummy.Ip = tipRecord->StringPtrs[2];
   float categoryWidth = TextGetPlainLineWidth(
       &dummy, Profile::Dialogue::DialogueFont, CategoryFontSize);
   Category->Bounds.X = CategoryEndX - categoryWidth;
-  Category->SetText(tipRecord->StringPtrs[2], CategoryFontSize, RO_Full,
-                    DefaultColorIndex);
+  Category->SetText(tipRecord->StringPtrs[2], CategoryFontSize,
+                    RendererOutlineMode::RO_Full, DefaultColorIndex);
   if (tipRecord->ThumbnailIndex != 0xFFFF)
     ThumbnailSprite = &TipThumbnails[tipRecord->ThumbnailIndex];
   else
@@ -257,16 +258,16 @@ void TipsMenu::SwitchToTipId(int id) {
 
   char temp[5];
   sprintf(temp, "%4d", tipRecord->Id + 1);
-  Number->SetText(std::string(temp), NumberFontSize, RO_Full,
-                  DefaultColorIndex);
+  Number->SetText(std::string(temp), NumberFontSize,
+                  RendererOutlineMode::RO_Full, DefaultColorIndex);
 
   sprintf(temp, "%d", CurrentTipPage);
-  CurrentPage->SetText(std::string(temp), PageSeparatorFontSize, RO_Full,
-                       DefaultColorIndex);
+  CurrentPage->SetText(std::string(temp), PageSeparatorFontSize,
+                       RendererOutlineMode::RO_Full, DefaultColorIndex);
 
   sprintf(temp, "%d", tipRecord->NumberOfContentStrings);
-  TotalPages->SetText(std::string(temp), PageSeparatorFontSize, RO_Full,
-                      DefaultColorIndex);
+  TotalPages->SetText(std::string(temp), PageSeparatorFontSize,
+                      RendererOutlineMode::RO_Full, DefaultColorIndex);
 
   TextPage->Clear();
   dummy.Ip = tipRecord->StringPtrs[3];
@@ -285,8 +286,8 @@ void TipsMenu::NextTipPage() {
 
   char temp[5];
   sprintf(temp, "%d", CurrentTipPage);
-  CurrentPage->SetText(std::string(temp), PageSeparatorFontSize, RO_Full,
-                       DefaultColorIndex);
+  CurrentPage->SetText(std::string(temp), PageSeparatorFontSize,
+                       RendererOutlineMode::RO_Full, DefaultColorIndex);
 }
 
 }  // namespace MO6TW
