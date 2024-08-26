@@ -237,7 +237,7 @@ void TipsMenu::SwitchToTipId(int id) {
   TipsSystem::SetTipUnreadState(id, false);
   TipsSystem::SetTipNewState(id, false);
 
-  auto tipRecord = &Records[id];
+  auto tipRecord = TipsSystem::GetTipRecord(id);
   Name->SetText(tipRecord->StringPtrs[0], NameFontSize,
                 RendererOutlineMode::RO_Full, DefaultColorIndex);
   Pronounciation->SetText(tipRecord->StringPtrs[1], PronounciationFontSize,
@@ -275,12 +275,13 @@ void TipsMenu::SwitchToTipId(int id) {
 
 void TipsMenu::NextTipPage() {
   CurrentTipPage += 1;
-  if (CurrentTipPage > Records[CurrentlyDisplayedTipId].NumberOfContentStrings)
+  auto currentRecord = TipsSystem::GetTipRecord(CurrentlyDisplayedTipId);
+  if (CurrentTipPage > currentRecord->NumberOfContentStrings)
     CurrentTipPage = 1;
 
   TextPage->Clear();
   Vm::Sc3VmThread dummy;
-  dummy.Ip = Records[CurrentlyDisplayedTipId].StringPtrs[2 + CurrentTipPage];
+  dummy.Ip = currentRecord->StringPtrs[2 + CurrentTipPage];
   TextPage->AddString(&dummy);
 
   char temp[5];
