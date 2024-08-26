@@ -440,12 +440,14 @@ VmInstruction(InstSetDic) {
   switch (type) {
     case 0:    // NewTip
     case 1: {  // Check
-      if (TipsSystem::GetTipLockedState(tipId)) {
+      bool tipLocked = TipsSystem::GetTipLockedState(tipId);
+      if (tipLocked) {
         TipsSystem::SetTipLockedState(tipId, false);
         TipsNotification::AddTip(tipId);
       }
       if (type == 1) {
         PopExpression(flagId);
+        SetFlag(flagId, tipLocked);
       }
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SetDic(type: NewTip, tipId: %i)\n", tipId);
