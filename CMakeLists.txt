@@ -172,6 +172,7 @@ set(Impacto_Src
         src/games/cclcc/savemenu.cpp
         src/games/cclcc/optionsmenu.cpp
         src/games/cclcc/tipsmenu.cpp
+        src/games/cclcc/tipssystem.cpp
         src/games/cclcc/clearlistmenu.cpp
         src/games/cclcc/tipsnotification.cpp
         src/games/cclcc/mapsystem.cpp
