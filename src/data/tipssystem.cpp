@@ -1,6 +1,7 @@
 #include "tipssystem.h"
 
 #include "../profile/data/tipssystem.h"
+#include <vector>
 
 namespace Impacto {
 namespace TipsSystem {
@@ -46,18 +47,18 @@ bool GetTipLockedState(int id) {
   return false;
 }
 
-TipsDataRecord* GetTipRecords() {
-  if (Implementation) return Implementation->Records;
+std::vector<TipsDataRecord>* GetTipRecords() {
+  if (Implementation) return &Implementation->Records;
   ImpLog(LL_Warning, LC_VMStub,
          "%s: tips system not implemented, returning NULL\n", __func__);
-  return NULL;
+  return nullptr;
 }
 
 TipsDataRecord* GetTipRecord(int id) {
   if (Implementation) return &Implementation->Records[id];
   ImpLog(LL_Warning, LC_VMStub,
          "%s: tips system not implemented, returning NULL\n", __func__);
-  return NULL;
+  return nullptr;
 }
 
 int GetTipCount() {

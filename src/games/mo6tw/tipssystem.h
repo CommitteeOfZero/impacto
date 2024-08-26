@@ -9,7 +9,7 @@ using namespace Impacto::TipsSystem;
 
 class TipsSystem : public TipsSystemBase {
  public:
-  TipsSystem();
+  TipsSystem(int maxTipsCount) : TipsSystemBase(maxTipsCount) {};
 
   void DataInit(int scriptBufferId, uint8_t* tipsData);
   void UpdateTipRecords();
