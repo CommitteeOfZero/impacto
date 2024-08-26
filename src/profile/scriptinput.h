@@ -51,8 +51,8 @@ inline int GP_PAD1R3;
 inline int PADcustomType;
 inline int PADcustomSizeA;
 inline int PADcustomSizeB;
-inline uint32_t PADcustomA[64];
-inline uint32_t PADcustomB[64];
+inline uint32_t PADcustomA[65];
+inline uint32_t PADcustomB[65];
 
 void Configure();
 
