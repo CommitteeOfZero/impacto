@@ -194,11 +194,12 @@ void SaveMenu::UpdateEntry(SaveEntryButton* saveEntryButton) {
   saveEntryButton->IsLocked = lock == 1;
   saveEntryButton->AddNormalSpriteLabel(entrySprite, EntryPositions[idx % 6]);
   saveEntryButton->AddEntryNumberHintText(
-      Vm::ScriptGetTextTableStrAddress(0, 6), 18, RO_BottomRight,
-      EntryNumberHintTextRelativePos);
+      Vm::ScriptGetTextTableStrAddress(0, 6), 18,
+      RendererOutlineMode::RO_BottomRight, EntryNumberHintTextRelativePos);
   char tempNo[3];
   sprintf(tempNo, "%02d", idx + 1);
-  saveEntryButton->AddEntryNumberText(std::string(tempNo), 18, RO_BottomRight,
+  saveEntryButton->AddEntryNumberText(std::string(tempNo), 18,
+                                      RendererOutlineMode::RO_BottomRight,
                                       EntryNumberTextRelativePos);
   saveEntryButton->AddThumbnail(EmptyThumbnailSprite,
                                 EntryPositions[idx % 6] + ThumbnailRelativePos);
@@ -207,10 +208,11 @@ void SaveMenu::UpdateEntry(SaveEntryButton* saveEntryButton) {
     saveEntryButton->AddSceneTitleText(
         Vm::ScriptGetTextTableStrAddress(
             1, SaveSystem::GetSaveTitle(EntryType, idx)),
-        24, RO_BottomRight, SceneTitleTextRelativePos, NoDataTextRelativePos);
-    saveEntryButton->AddPlayTimeHintText(Vm::ScriptGetTextTableStrAddress(0, 2),
-                                         18, RO_BottomRight,
-                                         PlayTimeHintTextRelativePos);
+        24, RendererOutlineMode::RO_BottomRight, SceneTitleTextRelativePos,
+        NoDataTextRelativePos);
+    saveEntryButton->AddPlayTimeHintText(
+        Vm::ScriptGetTextTableStrAddress(0, 2), 18,
+        RendererOutlineMode::RO_BottomRight, PlayTimeHintTextRelativePos);
     uint32_t time = SaveSystem::GetSavePlayTime(EntryType, idx);
     uint32_t hours = time / 3600;
     uint32_t minutes = (time % 3600) / 60;
@@ -218,21 +220,23 @@ void SaveMenu::UpdateEntry(SaveEntryButton* saveEntryButton) {
     char temp[10];
     sprintf(temp, "%3d:%02d:%02d", hours, minutes, seconds);
     saveEntryButton->AddPlayTimeText(
-        std::string(temp), 18, RO_BottomRight,
+        std::string(temp), 18, RendererOutlineMode::RO_BottomRight,
         {PlayTimeTextRelativePos.x + (float)((hours < 10) * 10),
          PlayTimeTextRelativePos.y});
-    saveEntryButton->AddSaveDateHintText(Vm::ScriptGetTextTableStrAddress(0, 3),
-                                         18, RO_BottomRight,
-                                         SaveDateHintTextRelativePos);
+    saveEntryButton->AddSaveDateHintText(
+        Vm::ScriptGetTextTableStrAddress(0, 3), 18,
+        RendererOutlineMode::RO_BottomRight, SaveDateHintTextRelativePos);
     std::stringstream dateStr;
     tm date = SaveSystem::GetSaveDate(EntryType, idx);
     dateStr << std::put_time(&date, "  %y/%m/%d %H:%M:%S");
-    saveEntryButton->AddSaveDateText(dateStr.str(), 18, RO_BottomRight,
+    saveEntryButton->AddSaveDateText(dateStr.str(), 18,
+                                     RendererOutlineMode::RO_BottomRight,
                                      SaveDateTextRelativePos);
   } else {
-    saveEntryButton->AddSceneTitleText(
-        Vm::ScriptGetTextTableStrAddress(0, 1), 24, RO_BottomRight,
-        SceneTitleTextRelativePos, NoDataTextRelativePos);
+    saveEntryButton->AddSceneTitleText(Vm::ScriptGetTextTableStrAddress(0, 1),
+                                       24, RendererOutlineMode::RO_BottomRight,
+                                       SceneTitleTextRelativePos,
+                                       NoDataTextRelativePos);
   }
 }
 
