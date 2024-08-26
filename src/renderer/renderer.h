@@ -12,7 +12,7 @@ namespace Impacto {
 inline GraphicsApi GraphicsApiHint;
 inline GraphicsApi ActualGraphicsApi;
 
-enum RendererOutlineMode { RO_None, RO_BottomRight, RO_Full };
+enum class RendererOutlineMode { RO_None, RO_BottomRight, RO_Full };
 
 class BaseRenderer {
  public:
@@ -94,15 +94,23 @@ class BaseRenderer {
   void DrawProcessedText_BasicFont(ProcessedTextGlyph* text, int length,
                                    BasicFont* font, float opacity,
                                    RendererOutlineMode outlineMode,
-                                   bool smoothstepGlyphOpacity);
+                                   bool smoothstepGlyphOpacity,
+                                   float outlineOpacity);
   void DrawProcessedText_LBFont(ProcessedTextGlyph* text, int length,
                                 LBFont* font, float opacity,
                                 RendererOutlineMode outlineMode,
-                                bool smoothstepGlyphOpacity);
-  void DrawProcessedText(ProcessedTextGlyph* text, int length, Font* font,
-                         float opacity = 1.0f,
-                         RendererOutlineMode outlineMode = RO_None,
-                         bool smoothstepGlyphOpacity = true);
+                                bool smoothstepGlyphOpacity,
+                                float outlineOpacity);
+  void DrawProcessedText(
+      ProcessedTextGlyph* text, int length, Font* font, float opacity = 1.0f,
+      RendererOutlineMode outlineMode = RendererOutlineMode::RO_None,
+      bool smoothstepGlyphOpacity = true);
+
+  void DrawProcessedText(
+      ProcessedTextGlyph* text, int length, Font* font, float opacity,
+      float outlineOpacity,
+      RendererOutlineMode outlineMode = RendererOutlineMode::RO_None,
+      bool smoothstepGlyphOpacity = true);
 
   virtual void DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
                                 int verticesCount, float* mvlVertices,

@@ -22,23 +22,23 @@ void SaveEntryButton::Render() {
   if (EntryActive) {
     Renderer->DrawProcessedText(SceneTitle, SceneTitleLength,
                                 Profile::Dialogue::DialogueFont, Tint.a,
-                                RO_Full, true);
+                                RendererOutlineMode::RO_Full, true);
     Renderer->DrawProcessedText(PlayTimeHint, PlayTimeHintLength,
                                 Profile::Dialogue::DialogueFont, Tint.a,
-                                RO_Full, true);
+                                RendererOutlineMode::RO_Full, true);
     Renderer->DrawProcessedText(PlayTime, PlayTimeLength,
                                 Profile::Dialogue::DialogueFont, Tint.a,
-                                RO_Full, true);
+                                RendererOutlineMode::RO_Full, true);
     Renderer->DrawProcessedText(SaveDateHint, SaveDateHintLength,
                                 Profile::Dialogue::DialogueFont, Tint.a,
-                                RO_Full, true);
+                                RendererOutlineMode::RO_Full, true);
     Renderer->DrawProcessedText(SaveDate, SaveDateLength,
                                 Profile::Dialogue::DialogueFont, Tint.a,
-                                RO_Full, true);
+                                RendererOutlineMode::RO_Full, true);
   } else {
     Renderer->DrawProcessedText(SceneTitle, SceneTitleLength,
                                 Profile::Dialogue::DialogueFont, Tint.a,
-                                RO_Full, true);
+                                RendererOutlineMode::RO_Full, true);
   }
 
   Renderer->DrawSprite(Thumbnail, glm::vec2(Bounds.X + 41.0f, Bounds.Y + 5.0f),

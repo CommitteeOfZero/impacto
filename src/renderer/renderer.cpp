@@ -76,12 +76,13 @@ void BaseRenderer::DrawProcessedText_BasicFont(ProcessedTextGlyph* text,
                                                int length, BasicFont* font,
                                                float opacity,
                                                RendererOutlineMode outlineMode,
-                                               bool smoothstepGlyphOpacity) {
+                                               bool smoothstepGlyphOpacity,
+                                               float outlineOpacity) {
   // cruddy mages outline
-  if (outlineMode) {
+  if (outlineMode != RendererOutlineMode::RO_None) {
     for (int i = 0; i < length; i++) {
       glm::vec4 color = RgbIntToFloat(text[i].Colors.OutlineColor);
-      color.a = opacity;
+      color.a = outlineOpacity;
       if (smoothstepGlyphOpacity) {
         color.a *= glm::smoothstep(0.0f, 1.0f, text[i].Opacity);
       } else {
@@ -90,22 +91,14 @@ void BaseRenderer::DrawProcessedText_BasicFont(ProcessedTextGlyph* text,
       Sprite glyph = font->Glyph(text[i].CharId);
       RectF dest = text[i].DestRect;
       switch (outlineMode) {
-        case RO_Full:
+        case RendererOutlineMode::RO_Full:
           dest.X--;
           dest.Y--;
           DrawSprite(glyph, dest, color);
           dest.X++;
           dest.Y++;
-          /*
-          TODO: Replace with a fallthrough annoted via [[fallthrough]] once
-          we have C++17. Until then, there seems to be no way to silence the
-          implicit fallthrough warning in a way compatible with all compilers.
-          */
-          dest.X++;
-          dest.Y++;
-          DrawSprite(glyph, dest, color);
-          break;
-        case RO_BottomRight:
+          [[fallthrough]];
+        case RendererOutlineMode::RO_BottomRight:
           dest.X++;
           dest.Y++;
           DrawSprite(glyph, dest, color);
@@ -132,12 +125,13 @@ void BaseRenderer::DrawProcessedText_LBFont(ProcessedTextGlyph* text,
                                             int length, LBFont* font,
                                             float opacity,
                                             RendererOutlineMode outlineMode,
-                                            bool smoothstepGlyphOpacity) {
+                                            bool smoothstepGlyphOpacity,
+                                            float outlineOpacity) {
   // TODO: implement outline mode properly
-  if (outlineMode) {
+  if (outlineMode != RendererOutlineMode::RO_None) {
     for (int i = 0; i < length; i++) {
       glm::vec4 color = RgbIntToFloat(text[i].Colors.OutlineColor);
-      color.a = opacity;
+      color.a = outlineOpacity;
       if (smoothstepGlyphOpacity) {
         color.a *= glm::smoothstep(0.0f, 1.0f, text[i].Opacity);
       } else {
@@ -175,11 +169,30 @@ void BaseRenderer::DrawProcessedText(ProcessedTextGlyph* text, int length,
   switch (font->Type) {
     case FontType::Basic:
       DrawProcessedText_BasicFont(text, length, (BasicFont*)font, opacity,
-                                  outlineMode, smoothstepGlyphOpacity);
+                                  outlineMode, smoothstepGlyphOpacity, opacity);
       break;
     case FontType::LB: {
       DrawProcessedText_LBFont(text, length, (LBFont*)font, opacity,
-                               outlineMode, smoothstepGlyphOpacity);
+                               outlineMode, smoothstepGlyphOpacity, opacity);
+    }
+  }
+}
+
+void BaseRenderer::DrawProcessedText(ProcessedTextGlyph* text, int length,
+                                     Font* font, float opacity,
+                                     float outlineOpacity,
+                                     RendererOutlineMode outlineMode,
+                                     bool smoothstepGlyphOpacity) {
+  switch (font->Type) {
+    case FontType::Basic:
+      DrawProcessedText_BasicFont(text, length, (BasicFont*)font, opacity,
+                                  outlineMode, smoothstepGlyphOpacity,
+                                  outlineOpacity);
+      break;
+    case FontType::LB: {
+      DrawProcessedText_LBFont(text, length, (LBFont*)font, opacity,
+                               outlineMode, smoothstepGlyphOpacity,
+                               outlineOpacity);
     }
   }
 }
