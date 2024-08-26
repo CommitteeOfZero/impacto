@@ -10,15 +10,18 @@ namespace TipsNotification {
 void Configure() {
   NotificationBackground = EnsureGetMemberSprite("NotificationBackground");
 
-  BackgroundPosition = EnsureGetMemberVec2("BackgroundPosition");
-  InitialNotificationPosition =
-      EnsureGetMemberVec2("InitialNotificationPosition");
-  NotificationRenderingBounds =
-      EnsureGetMemberRectF("NotificationRenderingBounds");
+  BackgroundPositionX = EnsureGetMemberFloat("BackgroundPositionX");
+  BackgroundPositionYOffset = EnsureGetMemberFloat("BackgroundPositionYOffset");
+  NotificationPositionX = EnsureGetMemberFloat("NotificationPositionX");
+  NotificationPositionYOffset =
+      EnsureGetMemberFloat("NotificationPositionYOffset");
   TimerDuration = EnsureGetMemberFloat("TimerDuration");
 
-  TipNameColorIndex = EnsureGetMemberInt("TipNameColorIndex");
   FontSize = EnsureGetMemberFloat("FontSize");
+  TipNameColor = DialogueColorPair{EnsureGetMemberUint("TipNameTextColor"),
+                                   EnsureGetMemberUint("TipNameOutlineColor")};
+  NotificationTextTableColorIndex =
+      EnsureGetMemberInt("NotificationTextTableColorIndex");
 }
 
 }  // namespace TipsNotification

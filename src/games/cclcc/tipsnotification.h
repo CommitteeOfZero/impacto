@@ -20,13 +20,11 @@ class TipsNotification : public TipsNotificationBase {
  protected:
   Animation Timer;
 
-  UI::Widgets::Group* AlertTitle;
-  UI::Widgets::Group* Notification;
+  UI::Widgets::Label TextPartBefore;
+  UI::Widgets::Label TextPartAfter;
+  UI::Widgets::Label TipName;
 
-  UI::Widgets::Label* TextAlert;
-  UI::Widgets::Label* TextPartBefore;
-  UI::Widgets::Label* TextPartAfter;
-  UI::Widgets::Label* TipName;
+  float PositionY;
 };
 
 }  // namespace CCLCC
