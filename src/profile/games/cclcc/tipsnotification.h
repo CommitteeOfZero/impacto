@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../../../text.h"
 #include "../../../spritesheet.h"
 
 namespace Impacto {
@@ -11,13 +12,15 @@ void Configure();
 
 inline Sprite NotificationBackground;
 
-inline glm::vec2 BackgroundPosition;
-inline glm::vec2 InitialNotificationPosition;
-inline RectF NotificationRenderingBounds;
+inline float BackgroundPositionX;
+inline float BackgroundPositionYOffset;
+inline float NotificationPositionX;
+inline float NotificationPositionYOffset;
 inline float TimerDuration;
 inline float MoveAnimationDuration;
 
-inline int TipNameColorIndex;
+inline DialogueColorPair TipNameColor;
+inline int NotificationTextTableColorIndex;
 inline float FontSize;
 
 }  // namespace TipsNotification
