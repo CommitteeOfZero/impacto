@@ -50,10 +50,10 @@ void CreateInstance() {
         Impacto::TipsNotification::Implementation =
             new Impacto::MO6TW::TipsNotification;
         break;
-      // case TipsNotificationType::CCLCC:
-      //   Impacto::TipsNotification::Implementation =
-      //       new Impacto::CCLCC::TipsNotification;
-      //   break;
+      case TipsNotificationType::CCLCC:
+        Impacto::TipsNotification::Implementation =
+            new Impacto::CCLCC::TipsNotification;
+        break;
       default:
         return;
     }
