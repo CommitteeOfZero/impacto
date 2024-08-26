@@ -13,13 +13,13 @@ using namespace Impacto::Vm;
 using namespace Impacto::Profile::TipsSystem;
 using namespace Impacto::Io;
 
-void TipsSystem::DataInit(int scriptBufferId, uint8_t *tipsData) {
+void TipsSystem::DataInit(int scriptBufferId, uint8_t *tipsData,
+                          uint32_t tipsDataSize) {
   auto scriptBuffer = ScriptBuffers[scriptBufferId];
 
   int idx = 0;
-
   // Read tips data from the script and create UI elements for each tip
-  MemoryStream *stream = new MemoryStream(tipsData, MaxTipDataSize);
+  MemoryStream *stream = new MemoryStream(tipsData, tipsDataSize);
   auto numberOfContentStrings = ReadLE<uint16_t>(stream);
   while (numberOfContentStrings != 255) {
     // Read tip entry from the data array

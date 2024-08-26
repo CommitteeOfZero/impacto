@@ -18,7 +18,6 @@ void Configure() {
 
   if (Type != +TipsSystemType::None) {
     MaxTipsCount = EnsureGetMemberInt("MaxTipsCount");
-    MaxTipDataSize = EnsureGetMemberUint("MaxTipDataSize");
 
     switch (Type) {
       case TipsSystemType::MO6TW:
