@@ -9,6 +9,7 @@ namespace TipsNotification {
 
 void Configure() {
   AlertPosition = EnsureGetMemberVec2("AlertPosition");
+  NotificationAlertMessageId = EnsureGetMemberInt("NotificationAlertMessageId");
   FinalNotificationPosition = EnsureGetMemberVec2("FinalNotificationPosition");
   InitialNotificationPosition =
       EnsureGetMemberVec2("InitialNotificationPosition");

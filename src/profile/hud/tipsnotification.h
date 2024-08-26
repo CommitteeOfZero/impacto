@@ -8,7 +8,6 @@ namespace Profile {
 namespace TipsNotification {
 
 inline int TextTableId;
-inline int NotificationAlertMessageId;
 inline int NotificationTextPart1MessageId;
 inline int NotificationTextPart2MessageId;
 
