@@ -154,13 +154,12 @@ void TipsMenu::Init() {
   auto sortString =
       Vm::ScriptGetTextTableStrAddress(SortStringTable, SortStringIndex);
 
-  Records = TipsSystem::GetTipRecords();
   auto recordCount = TipsSystem::GetTipCount();
 
   float currentY = TipListInitialY;
 
   for (int i = 0; i < recordCount; i++) {
-    auto record = &Records[i];
+    auto record = TipsSystem::GetTipRecord(i);
 
     // In this case the tips are split into pages in UI with maximum of 5
     // categories per page, with each category being a character from
