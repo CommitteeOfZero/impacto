@@ -10,6 +10,7 @@ namespace TipsNotification {
 void Configure();
 
 inline glm::vec2 AlertPosition;
+inline int NotificationAlertMessageId;
 inline glm::vec2 FinalNotificationPosition;
 inline glm::vec2 InitialNotificationPosition;
 inline RectF NotificationRenderingBounds;
