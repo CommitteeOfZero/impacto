@@ -5,6 +5,8 @@
 #include "../renderer/renderer.h"
 #include <flat_hash_map.hpp>
 
+#include "ui/backlogmenu.h"
+#include "dialogue.h"
 #include "../font.h"
 #include "../text.h"
 #include "../game.h"
@@ -193,6 +195,8 @@ void MakeLuaProfile(std::string const& name) {
   DefineEnumInt<UI::SaveMenuType>(LuaState);
   DefineEnumInt<UI::OptionsMenuType>(LuaState);
   DefineEnumInt<UI::TrophyMenuType>(LuaState);
+  DefineEnumInt<BacklogMenu::BacklogMenuType>(LuaState);
+  DefineEnumInt<BacklogMenu::EntryHighlightLocationType>(LuaState);
   DefineEnumInt<UI::TipsMenuType>(LuaState);
   DefineEnumInt<UI::ClearListMenuType>(LuaState);
   DefineEnumInt<UI::AlbumMenuType>(LuaState);
@@ -209,6 +213,7 @@ void MakeLuaProfile(std::string const& name) {
   DefineEnumInt<UI::SysMesBoxType>(LuaState);
   DefineEnumInt<FontType>(LuaState);
   DefineEnumInt<LKMVersion>(LuaState);
+  DefineEnumInt<Dialogue::REVNameLocationType>(LuaState);
 
   ImpLog(LL_Info, LC_Profile, "Starting profile %s\n", name.c_str());
 

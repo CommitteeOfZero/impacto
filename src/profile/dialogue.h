@@ -36,9 +36,13 @@ inline float ADVNameFontSize;
 inline glm::vec2 ADVNamePos;
 inline bool ADVBoxShowName = true;
 
+BETTER_ENUM(REVNameLocationType, int, None, TopLeft, LeftTop)
+
 inline float REVNameFontSize;
 inline int REVNameColor;
 inline float REVNameOffset;
+inline REVNameLocationType REVNameLocation = REVNameLocationType::None;
+inline RendererOutlineMode REVOutlineMode = RendererOutlineMode::RO_Full;
 
 inline float TipsLineSpacing;
 inline int TipsColorIndex = 0;

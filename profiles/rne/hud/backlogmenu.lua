@@ -1,4 +1,5 @@
 root.BacklogMenu = {
+    Type = BacklogMenuType.None,
     DrawType = DrawComponentType.ExtrasScenes,
     BacklogBackgroundSprite = "BacklogBackground",
     EntryHighlightSprite = "EntryHighlight",

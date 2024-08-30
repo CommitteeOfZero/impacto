@@ -86,6 +86,9 @@ void Configure() {
   REVNameFontSize = EnsureGetMemberFloat("REVNameFontSize");
   REVNameColor = EnsureGetMemberInt("REVNameColor");
   REVNameOffset = EnsureGetMemberFloat("REVNameOffset");
+  REVNameLocation = REVNameLocationType::_from_integral_unchecked(
+      EnsureGetMemberInt("REVNameLocation"));
+  REVOutlineMode = RendererOutlineMode(EnsureGetMemberInt("REVOutlineMode"));
 
   TryGetMemberFloat("TipsLineSpacing", TipsLineSpacing);
   TryGetMemberInt("TipsColorIndex", TipsColorIndex);

@@ -30,6 +30,8 @@ root.Dialogue = {
     REVNameFontSize = 24,
     REVNameColor = 24,
     REVNameOffset = 34,
+    REVNameLocation = REVNameLocationType.TopLeft,
+    REVOutlineMode = 2,
     TipsLineSpacing = 5,
     NVLBounds = { X = 125, Y = 85, Width = 1024, Height = 400 },
     ADVBounds = { X = 161, Y = 522, Width = 960, Height = 180 },

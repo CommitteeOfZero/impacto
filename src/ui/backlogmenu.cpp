@@ -1,6 +1,7 @@
 #include "backlogmenu.h"
 
 #include "ui.h"
+#include "../profile/game.h"
 #include "../renderer/renderer.h"
 #include "../mem.h"
 #include "../vm/interface/input.h"
@@ -8,6 +9,8 @@
 #include "../profile/scriptinput.h"
 #include "../profile/dialogue.h"
 #include "../profile/ui/backlogmenu.h"
+#include "../profile/games/mo6tw/backlogmenu.h"
+#include "../profile/games/cc/backlogmenu.h"
 #include "../inputsystem.h"
 #include "../io/vfs.h"
 
@@ -30,9 +33,11 @@ void BacklogMenu::MenuButtonOnClick(Widgets::BacklogEntry* target) {
 BacklogMenu::BacklogMenu() {
   MainItems = new Widgets::Group(this, EntriesStart);
   MainItems->RenderingBounds = RenderingBounds;
+  MainItems->WrapFocus = false;
 
   MainScrollbar = new Scrollbar(0, ScrollbarPosition, 0.0f, 1.0f, &PageY,
-                                SBDIR_VERTICAL, ScrollbarTrack, ScrollbarThumb);
+                                SBDIR_VERTICAL, ScrollbarTrack, ScrollbarThumb,
+                                glm::vec2(0), ScrollbarThumbLength);
   MainScrollbar->Enabled = false;
   CurrentEntryPos = EntriesStart;
 
@@ -118,13 +123,70 @@ void BacklogMenu::Update(float dt) {
   }
 }
 
+void BacklogMenu::RenderHighlight() const {
+  if (EntryHighlightLocation == +EntryHighlightLocationType::None) return;
+
+  for (const Widget* const entry : MainItems->Children) {
+    if (!entry->HasFocus ||
+        !MainItems->RenderingBounds.Intersects(entry->Bounds))
+      continue;
+
+    RectF pos;
+
+    switch (EntryHighlightLocation) {
+      default:
+      case EntryHighlightLocationType::BottomLeftOfEntry:
+        pos = RectF(entry->Bounds.X,
+                    entry->Bounds.Y + entry->Bounds.Height -
+                        EntryHighlight.ScaledHeight(),
+                    Profile::Dialogue::REVBounds.Width,
+                    EntryHighlight.ScaledHeight());
+        break;
+      case EntryHighlightLocationType::TopLineLeftOfScreen:
+        pos = RectF(0.0f, entry->Bounds.Y, EntryHighlight.ScaledWidth(),
+                    EntryHighlight.ScaledHeight());
+        break;
+    }
+
+    Renderer->DrawSprite(EntryHighlight, pos);
+  }
+}
+
 void BacklogMenu::Render() {
-  if (State != Hidden) {
-    glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-    MainItems->Tint = col;
-    Renderer->DrawSprite(BacklogBackground, glm::vec2(0.0f), col);
-    MainItems->Render();
-    MainScrollbar->Render();
+  if (State == Hidden || Type == +BacklogMenuType::None) return;
+
+  switch (Type) {
+    case BacklogMenuType::MO6TW: {
+      glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
+      MainItems->Tint = col;
+
+      Renderer->DrawSprite(BacklogBackground, glm::vec2(0.0f), col);
+      RenderHighlight();
+      MainItems->Render();
+      MainScrollbar->Render();
+    }
+    case BacklogMenuType::CC: {
+      using namespace Impacto::Profile::CC::BacklogMenu;
+
+      glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
+      MainItems->Tint = col;
+
+      float backgroundY =
+          fmod(PageY - EntryYPadding - Profile::BacklogMenu::RenderingBounds.Y,
+               Profile::DesignHeight);
+      Renderer->DrawSprite(BacklogBackground, glm::vec2(0.0f, backgroundY),
+                           col);
+      Renderer->DrawSprite(BacklogBackground,
+                           glm::vec2(0.0f, backgroundY + Profile::DesignHeight),
+                           col);
+
+      RenderHighlight();
+      Renderer->DrawSprite(BacklogHeaderSprite, BacklogHeaderPosition, col);
+      // TODO: Draw gradient
+      MainItems->Render();
+      MainScrollbar->Render();
+      Renderer->DrawSprite(BacklogControlsSprite, BacklogControlsPosition, col);
+    }
   }
 }
 
@@ -134,8 +196,7 @@ void BacklogMenu::AddMessage(uint8_t* str, int audioId) {
         std::bind(&BacklogMenu::MenuButtonOnClick, this, std::placeholders::_1);
 
     auto backlogEntry =
-        new BacklogEntry(CurrentId, str, audioId,
-                         glm::vec2(CurrentEntryPos.x, CurrentEntryPos.y));
+        new BacklogEntry(CurrentId, str, audioId, CurrentEntryPos);
     CurrentId += 1;
     CurrentEntryPos.y += backlogEntry->TextHeight + EntryYPadding;
     backlogEntry->OnClickHandler = onClick;

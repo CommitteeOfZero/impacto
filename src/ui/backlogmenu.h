@@ -30,6 +30,8 @@ class BacklogMenu : public Menu {
   Widgets::Group* MainItems;
   Animation FadeAnimation;
   Widgets::Scrollbar* MainScrollbar;
+
+  void RenderHighlight() const;
 };
 
 }  // namespace UI

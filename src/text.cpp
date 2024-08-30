@@ -160,6 +160,22 @@ uint8_t ProcessedTextGlyph::Flags() const {
   return Profile::Charset::Flags[CharId];
 }
 
+void ProcessedTextGlyph::Move(ProcessedTextGlyph* text, size_t length,
+                              glm::vec2 relativePosition) {
+  for (int chr = 0; chr < length; chr++) {
+    text[chr].DestRect.X += relativePosition.x;
+    text[chr].DestRect.Y += relativePosition.y;
+  }
+}
+
+void ProcessedTextGlyph::MoveTo(ProcessedTextGlyph* text, size_t length,
+                                glm::vec2 position) {
+  glm::vec2 curPos = glm::vec2(text[0].DestRect.X, text[0].DestRect.Y);
+  glm::vec2 relativePosition = position - curPos;
+
+  Move(text, length, relativePosition);
+}
+
 void TypewriterEffect::Start(int firstGlyph, int glyphCount, float duration) {
   DurationIn = duration;
   FirstGlyph = firstGlyph;
@@ -401,7 +417,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
   }
   TextParseState State = TPS_Normal;
   // TODO respect alignment
-  TextAlignment Alignment = TextAlignment::Left;
+  Alignment = TextAlignment::Left;
   int LastWordStart = Glyphs.size();
   LastLineStart = Glyphs.size();
   DialogueColorPair CurrentColors = ColorTable[0];
@@ -439,7 +455,8 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
         Name.reserve(DialogueMaxNameLength);
         State = TPS_Name;
         if (DialogueBoxCurrentType != +DialogueBoxType::CHLCC &&
-            Mode == DPM_REV) {
+            Mode == DPM_REV &&
+            REVNameLocation != +REVNameLocationType::LeftTop) {
           CurrentLineTop += REVNameOffset;
         }
         break;
@@ -597,6 +614,12 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
   FinishLine(ctx, Glyphs.size(), BoxBounds, Alignment);
   CurrentX = 0.0f;
 
+  RectF boundingBox = Glyphs.empty() ? RectF() : Glyphs.begin()->DestRect;
+  for (const ProcessedTextGlyph& glyph : Glyphs) {
+    boundingBox = RectF::Coalesce(boundingBox, glyph.DestRect);
+  }
+  Dimensions = glm::vec2(boundingBox.Width, boundingBox.Height);
+
   // Even if there is a name in the string it should not be
   // rendered when in NVL mode
   if (Mode == DPM_NVL) {
@@ -621,9 +644,19 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
     int colorIndex = 0;
     if (Mode == DPM_REV) {
       fontSize = REVNameFontSize;
-      pos = glm::vec2(REVBounds.X, REVBounds.Y);
-      alignment = TextAlignment::Left;
       colorIndex = REVNameColor;
+
+      switch (REVNameLocation) {
+        case REVNameLocationType::None:
+        case REVNameLocationType::TopLeft:
+          pos = glm::vec2(REVBounds.X, REVBounds.Y);
+          alignment = TextAlignment::Left;
+          break;
+        case REVNameLocationType::LeftTop:
+          pos = glm::vec2(REVBounds.X - REVNameOffset, Glyphs[0].DestRect.Y);
+          alignment = TextAlignment::Right;
+          break;
+      }
     }
 
     Name = TextLayoutPlainLine(ctx, NameLength, DialogueFont, fontSize,

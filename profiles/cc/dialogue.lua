@@ -14,10 +14,12 @@ root.Sprites["WaitIconSprite"] = {
 };
 
 root.Dialogue = {
-    REVBounds = { X = 0, Y = 0, Width = 960, Height = 400 },
-    REVNameFontSize = 24,
-    REVNameColor = 24,
-    REVNameOffset = 34,
+    REVBounds = { X = 547, Y = 0, Width = 1043, Height = 400 },
+    REVNameFontSize = 48,
+    REVNameColor = 61, -- Unsure
+    REVNameOffset = 22,
+    REVNameLocation = REVNameLocationType.LeftTop,
+    REVOutlineMode = 1,
     NVLBounds = { X = 188, Y = 128, Width = 1536, Height = 600 },
     ADVBounds = { X = 330, Y = 795, Width = 1240, Height = 270 },
     ADVBoxSprite = "ADVBox",

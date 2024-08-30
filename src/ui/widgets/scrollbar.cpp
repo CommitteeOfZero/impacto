@@ -28,7 +28,7 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float min, float max, float* value,
 
 Scrollbar::Scrollbar(int id, glm::vec2 pos, float min, float max, float* value,
                      ScrollbarDirection dir, Sprite const& track,
-                     Sprite const& thumb, glm::vec2 thumbOffset)
+                     Sprite const& thumb, glm::vec2 thumbOffset, float thumbLength)
     : Id(id),
       MinValue(min),
       MaxValue(max),
@@ -37,6 +37,7 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float min, float max, float* value,
       TrackSprite(track),
       ThumbSprite(thumb),
       ThumbSpriteOffset(thumbOffset),
+      ThumbLength(thumbLength),
       HasTrack(true) {
   Enabled = true;
   Step = (MaxValue - MinValue) * 0.01f;
@@ -61,8 +62,9 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float min, float max, float* value,
 Scrollbar::Scrollbar(int id, glm::vec2 pos, float min, float max, float* value,
                      ScrollbarDirection dir, Sprite const& track,
                      Sprite const& thumb, Sprite const& fill,
-                     glm::vec2 thumbOffset)
-    : Scrollbar(id, pos, min, max, value, dir, track, thumb, thumbOffset) {
+                     glm::vec2 thumbOffset, float thumbLength)
+    : Scrollbar(id, pos, min, max, value, dir, track, thumb, thumbOffset,
+                thumbLength) {
   FillSprite = fill;
   HasFill = true;
   UpdatePosition();
@@ -110,16 +112,11 @@ void Scrollbar::UpdateInput() {
           trackP2 = TrackBounds.Width;
           break;
       }
-      float tmpVal =
-          MinValue + (((mouseP - trackP1) / trackP2) * (MaxValue - MinValue));
-      if (MaxValue < MinValue)
-        *Value = (tmpVal < MaxValue)   ? MaxValue
-                 : (tmpVal > MinValue) ? MinValue
-                                       : tmpVal;
-      else
-        *Value = (tmpVal > MaxValue)   ? MaxValue
-                 : (tmpVal < MinValue) ? MinValue
-                                       : tmpVal;
+
+      float thumbNormalizedLength =
+          (trackP2 - ThumbLength) / (MaxValue - MinValue);
+      *Value = MinValue + ((mouseP - (trackP1 + ThumbLength / 2.0f)) /
+                           thumbNormalizedLength);
     } else {
       Scrolling = false;
     }
@@ -166,15 +163,19 @@ void Scrollbar::UpdatePosition() {
     TrackProgress = 0.0f;
   }
 
+  float thumbNormalizedProgress =
+      (TrackProgress / Length) * (Length - ThumbLength);
   if (Direction == SBDIR_VERTICAL) {
     ThumbBounds.X = (TrackBounds.X + (TrackBounds.Width / 2.0f)) -
                     (ThumbSprite.ScaledWidth() / 2.0f);
     ThumbBounds.Y =
-        (TrackBounds.Y + TrackProgress) - (ThumbSprite.ScaledHeight() / 2.0f);
+        (TrackBounds.Y + ThumbLength / 2.0f + thumbNormalizedProgress) -
+        (ThumbSprite.ScaledHeight() / 2.0f);
     FillSprite.Bounds.Height = TrackProgress;
   } else if (Direction == SBDIR_HORIZONTAL) {
     ThumbBounds.X =
-        (TrackBounds.X + TrackProgress) - (ThumbSprite.ScaledWidth() / 2.0f);
+        (TrackBounds.X + ThumbLength / 2.0f + thumbNormalizedProgress) -
+        (ThumbSprite.ScaledWidth() / 2.0f);
     ThumbBounds.Y = (TrackBounds.Y + (TrackBounds.Height / 2.0f)) -
                     (ThumbSprite.ScaledHeight() / 2.0f);
     FillSprite.Bounds.Width = TrackProgress;

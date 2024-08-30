@@ -73,6 +73,8 @@ struct RectF {
   constexpr bool operator!=(RectF const& other) const {
     return !(*this == other);
   }
+
+  static RectF Coalesce(const RectF& first, const RectF& second);
 };
 
 struct Rect {

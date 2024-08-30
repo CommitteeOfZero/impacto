@@ -133,4 +133,18 @@ int ResizeImage(Rect const& srcRect, Rect const& dstRect,
   }
   return 0;
 }
+
+RectF RectF::Coalesce(const RectF& first, const RectF& second) {
+  RectF rect;
+
+  rect.X = std::min(first.X, second.X);
+  rect.Y = std::min(first.Y, second.Y);
+  rect.Width =
+      std::max(first.X + first.Width, second.X + second.Width) - rect.X;
+  rect.Height =
+      std::max(first.Y + first.Height, second.Y + second.Height) - rect.Y;
+
+  return rect;
+}
+
 }  // namespace Impacto

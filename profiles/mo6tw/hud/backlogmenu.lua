@@ -1,11 +1,15 @@
 root.BacklogMenu = {
+    Type = BacklogMenuType.MO6TW,
     DrawType = DrawComponentType.ExtrasScenes,
+    NametagLocation = BacklogNametagLocation.AboveLeftOfText;
     BacklogBackgroundSprite = "BacklogBackground",
     EntryHighlightSprite = "EntryHighlight",
+    EntryHighlightLocation = EntryHighlightLocationType.BottomLeftOfEntry,
     VoiceIconSprite = "VoiceIcon",
     ScrollbarTrackSprite = "ScrollbarTrack",
     ScrollbarThumbSprite = "ScrollbarThumb",
     ScrollbarPosition = { X = 1165, Y = 98 },
+    ScrollbarThumbLength = 0,
     EntriesStart = { X = 163, Y = 85 },
     RenderingBounds = { X = 87, Y = 83, Width = 1055, Height = 590 },
     EntryYPadding = 22,

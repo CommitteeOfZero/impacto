@@ -36,6 +36,9 @@ struct ProcessedTextGlyph {
   RectF DestRect;
 
   uint8_t Flags() const;
+
+  static void Move(ProcessedTextGlyph* text, size_t length, glm::vec2 relativePosition);
+  static void MoveTo(ProcessedTextGlyph* text, size_t length, glm::vec2 position);
 };
 
 enum DialoguePageMode : uint8_t {
@@ -84,6 +87,9 @@ struct DialoguePage {
   // TODO get rid of this
   bool TextIsFullyOpaque();
 
+  int Length;
+  glm::vec2 Dimensions;
+
   int NameLength;
   int NameId;
   bool HasName;
@@ -96,6 +102,7 @@ struct DialoguePage {
   std::vector<ProcessedTextGlyph> Glyphs;
 
   DialoguePageMode Mode;
+  TextAlignment Alignment = TextAlignment::Left;
 
   bool NVLResetBeforeAdd;
   bool AutoForward;

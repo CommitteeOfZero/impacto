@@ -15,7 +15,8 @@ namespace Widgets {
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::BacklogMenu;
 
-BacklogEntry::BacklogEntry(int id, uint8_t* str, int audioId, glm::vec2 pos) {
+BacklogEntry::BacklogEntry(int id, uint8_t* str, int audioId, glm::vec2 pos)
+    : Position(pos) {
   Enabled = true;
   Id = id;
   AudioId = audioId;
@@ -33,6 +34,29 @@ BacklogEntry::BacklogEntry(int id, uint8_t* str, int audioId, glm::vec2 pos) {
     Profile::Dialogue::REVBounds.Y = pos.y;
   }
   BacklogPage->AddString(&dummy);
+
+  TextLength = BacklogPage->Length;
+
+  if (TextLength > 0) {
+    Position = glm::vec2(BacklogPage->Glyphs[0].DestRect.X,
+                         BacklogPage->Glyphs[0].DestRect.Y);
+    for (int chr = 1; chr < TextLength; chr++) {
+      Position.x = std::min(Position.x, BacklogPage->Glyphs[chr].DestRect.X);
+      Position.y = std::min(Position.y, BacklogPage->Glyphs[chr].DestRect.Y);
+    }
+  }
+
+  switch (BacklogPage->Alignment) {
+    case TextAlignment::Left:
+      break;
+    case TextAlignment::Center: {
+      const RectF& revBounds = Profile::Dialogue::REVBounds;
+      pos.x = revBounds.X + (revBounds.Width - BacklogPage->Dimensions.x) / 2;
+      break;
+    }
+  }
+  MoveTo(pos);
+
   float currentY = BacklogPage->Glyphs[0].DestRect.Y;
   float currentWidth = 0.0f, maxWidth = 0.0f;
   for (int i = 0; i < BacklogPage->Glyphs.size(); i++) {
@@ -45,9 +69,11 @@ BacklogEntry::BacklogEntry(int id, uint8_t* str, int audioId, glm::vec2 pos) {
     }
     currentWidth += BacklogPage->Glyphs[i].DestRect.Width;
   }
+
   if (currentWidth > maxWidth) {
     maxWidth = currentWidth;
   }
+
   if (BacklogPage->HasName) {
     TextHeight = (BacklogPage->Glyphs.back().DestRect.Y +
                   BacklogPage->Glyphs.back().DestRect.Height) -
@@ -80,39 +106,34 @@ void BacklogEntry::UpdateInput() {
 }
 
 void BacklogEntry::Move(glm::vec2 relativePosition) {
+  Position += relativePosition;
   Widget::Move(relativePosition);
-  for (int i = 0; i < TextLength; i++) {
-    BacklogPage->Glyphs[i].DestRect.X += relativePosition.x;
-    BacklogPage->Glyphs[i].DestRect.Y += relativePosition.y;
-  }
-  if (BacklogPage->HasName) {
-    for (int i = 0; i < BacklogPage->NameLength; i++) {
-      BacklogPage->Name[i].DestRect.X += relativePosition.x;
-      BacklogPage->Name[i].DestRect.Y += relativePosition.y;
-    }
-  }
+  ProcessedTextGlyph::Move(BacklogPage->Glyphs, TextLength, relativePosition);
+  if (BacklogPage->HasName)
+    ProcessedTextGlyph::Move(BacklogPage->Name, BacklogPage->NameLength,
+                             relativePosition);
+}
+
+void BacklogEntry::MoveTo(glm::vec2 position) {
+  glm::vec2 relativePosition = position - Position;
+  Move(relativePosition);
 }
 
 void BacklogEntry::Render() {
-  if (HasFocus) {
-    Renderer->DrawSprite(
-        EntryHighlight,
-        RectF(
-            Bounds.X, Bounds.Y + Bounds.Height - EntryHighlight.ScaledHeight(),
-            Profile::Dialogue::REVBounds.Width, EntryHighlight.ScaledHeight()));
-  }
   if (AudioId != -1) {
     Renderer->DrawSprite(
         VoiceIcon, glm::vec2(Bounds.X - VoiceIcon.ScaledWidth(), Bounds.Y));
   }
+
   if (BacklogPage->HasName) {
     Renderer->DrawProcessedText(BacklogPage->Name,
                                 Profile::Dialogue::DialogueFont, Tint.a,
-                                RendererOutlineMode::RO_Full, true);
+                                Profile::Dialogue::REVOutlineMode, true);
   }
+
   Renderer->DrawProcessedText(BacklogPage->Glyphs,
                               Profile::Dialogue::DialogueFont, Tint.a,
-                              RendererOutlineMode::RO_Full, true);
+                              Profile::Dialogue::REVOutlineMode, true);
 }
 
 }  // namespace Widgets
