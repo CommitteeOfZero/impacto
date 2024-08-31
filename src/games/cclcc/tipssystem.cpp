@@ -15,6 +15,7 @@ using namespace Impacto::Io;
 
 void TipsSystem::DataInit(int scriptBufferId, uint8_t *tipsData,
                           uint32_t tipsDataSize) {
+  ScriptBufferId = scriptBufferId;
   auto scriptBuffer = ScriptBuffers[scriptBufferId];
 
   TipEntryCount = 0;
@@ -42,8 +43,8 @@ void TipsSystem::DataInit(int scriptBufferId, uint8_t *tipsData,
     numberOfContentStrings = ReadLE<uint16_t>(&stream);
     TipEntryCount += 1;
   }
-
-  // UI::TipsMenuPtr->Init();
+  Records.resize(TipEntryCount);
+  UI::TipsMenuPtr->Init();
 }
 
 void TipsSystem::UpdateTipRecords() {
