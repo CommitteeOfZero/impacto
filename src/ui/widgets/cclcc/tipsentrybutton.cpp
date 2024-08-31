@@ -30,17 +30,24 @@ TipsEntryButton::TipsEntryButton(int tipId, int dispId, RectF const& dest,
                         Profile::Dialogue::ColorTable[10], 1.0f,
                         glm::vec2(Bounds.X, Bounds.Y) + TipsEntryNumberOffset,
                         TextAlignment::Left);
-  SetText(TipEntryRecord->StringPtrs[1], 26, RendererOutlineMode::RO_Full, 10);
   Vm::Sc3VmThread dummy;
+  glm::vec2 nameDest = glm::vec2(Bounds.X, Bounds.Y) + TipsEntryNameOffset;
+  dummy.Ip = TipEntryRecord->StringPtrs[1];
+  HasText = true;
+  Text = new ProcessedTextGlyph[255];
+  TextLength = TextLayoutPlainLine(
+      &dummy, 255, Text, Profile::Dialogue::DialogueFont, 26,
+      Profile::Dialogue::ColorTable[10], 1.0f, nameDest, TextAlignment::Left);
+
   dummy.Ip = Vm::ScriptGetStrAddress(
       Impacto::Vm::ScriptBuffers[TipsSystem::GetTipsScriptBufferId()],
       TipsTextEntryLockedIndex);
   TextLayoutPlainLine(&dummy, TipLockedTextLength, TipLockedText.data(),
                       Profile::Dialogue::DialogueFont, 26,
-                      Profile::Dialogue::ColorTable[10], 1.0f,
-                      glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
-  Bounds = dest;  // Set bounds at end since SetText limits it to text width
+                      Profile::Dialogue::ColorTable[10], 1.0f, nameDest,
+                      TextAlignment::Left);
   HighlightOffset = TipsEntryHighlightOffset;
+  Bounds = dest;
 }
 
 void TipsEntryButton::Update(float dt) {
@@ -50,7 +57,7 @@ void TipsEntryButton::Update(float dt) {
     if (TipEntryRecord->IsUnread) {
       colorIndex = 7;
     }
-    for (int i = 0; i < TipNameLength; i++) {
+    for (int i = 0; i < TextLength; i++) {
       Text[i].Colors = Profile::Dialogue::ColorTable[colorIndex];
     }
     PrevUnreadState = TipEntryRecord->IsUnread;
