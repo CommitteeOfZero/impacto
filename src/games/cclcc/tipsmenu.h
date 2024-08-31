@@ -19,15 +19,8 @@ namespace CCLCC {
 enum TipsTabType {
   AllTips,
   UnlockedTips,
-  NewTips,
   UnreadTips,
-};
-
-struct SortByTipName {
-  SortByTipName();
-  bool operator()(int a, int b) const;
-  uint8_t* SortString;
-  ska::flat_hash_map<uint8_t, int> Sc3SortMap;
+  NewTips,
 };
 
 class TipsMenu : public UI::TipsMenu {
@@ -54,13 +47,14 @@ class TipsMenu : public UI::TipsMenu {
   int CurrentTabIdx = 0;
 
   TipsTabType CurrentTabType;
-  Widgets::Carousel TipViewItems;
-  std::set<int, SortByTipName>* SortedTipIds;
+  std::vector<int> SortedTipIds;
   std::array<Widgets::CCLCC::TipsTabGroup*, TabCount> TipsTabs;
   Widgets::Label* PageSeparator;
   Widgets::Label* CurrentPage;
   Widgets::Label* TotalPages;
   bool HasInitialized = false;
+
+  void SetActiveTab(TipsTabType type);
 };
 
 }  // namespace CCLCC
