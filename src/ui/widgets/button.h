@@ -44,8 +44,7 @@ class Button : public Widget {
 
  protected:
   bool HasText = false;
-
-  ProcessedTextGlyph Text[255];
+  ProcessedTextGlyph* Text = nullptr;
   int TextLength = 0;
   float TextWidth = 0.0f;
   RendererOutlineMode OutlineMode;
