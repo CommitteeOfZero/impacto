@@ -3,6 +3,7 @@
 #include "../../../renderer/renderer.h"
 #include "../../../profile/dialogue.h"
 #include "../../../profile/games/cclcc/tipsmenu.h"
+#include "../../../ui/ui.h"
 #include "../../../text.h"
 #include "../../../vm/vm.h"
 
@@ -15,38 +16,50 @@ using namespace Impacto::TipsSystem;
 using namespace Impacto::Profile::CCLCC::TipsMenu;
 using namespace Impacto::UI::CCLCC;
 
-TipsTabGroup::TipsTabGroup(Menu* ctx, TipsTabType type, RectF const dest,
-                           glm::vec2 tabPos, Sprite const& highlight)
-    : Group(ctx),
-      Type(type),
-      TabName(
-          Button(to_underlying(type), Sprite(), highlight, Sprite(), tabPos)),
-      TipsEntriesGroup(ctx, {dest.X, dest.Y + 100}) {
-  Bounds = dest;
-  TipsEntriesGroup.RenderingBounds =
-      RectF(dest.X, dest.Y + 100, dest.Width, dest.Height);
-  Add(&TipsEntriesGroup);
-  Add(&TabName);
-  TabName.HighlightSprite.Bounds.X += type * TipsHighlightedTabAdder;
+TipsTabGroup::TipsTabGroup(TipsTabType type,
+                           std::function<void(Widgets::Button*)> onClickHandler)
+    : Type(type),
+      TabName(Button(
+          type, TipsHighlightedTabSprite, Sprite(), Sprite(),
+          TipsTabNameDisplay + glm::vec2(type * TipsHighlightedTabAdder, 0))),
+      TipsEntriesGroup(this) {
+  TipsEntriesGroup.RenderingBounds = TipsTabBounds;
+  TipsEntriesGroup.Bounds = TipsTabBounds;
+  TipsEntriesGroup.WrapFocus = false;
+  TabName.NormalSprite.Bounds.X += type * TipsHighlightedTabAdder;
+  TabName.OnClickHandler = std::move(onClickHandler);
 }
 
 void TipsTabGroup::Update(float dt) {
   TabName.Update(dt);
+  TabName.UpdateInput();
   TipsEntriesGroup.Update(dt);
-  if (IsShown && !TabName.HasFocus) {
-    TabName.HasFocus = true;
+  TipsEntriesGroup.UpdateInput();
+  UpdateInput();
+  if (CurrentlyFocusedElement) {
+    if (CurrentlyFocusedElement->Bounds.Y <
+        TipsEntriesGroup.RenderingBounds.Y) {
+      TipsEntriesGroup.Move({0, CurrentlyFocusedElement->Bounds.Height});
+    } else if (CurrentlyFocusedElement->Bounds.Y >=
+               TipsEntriesGroup.RenderingBounds.Y +
+                   TipsEntriesGroup.RenderingBounds.Height) {
+      TipsEntriesGroup.Move({0, -CurrentlyFocusedElement->Bounds.Height});
+    }
   }
+
+  // Inverting since we want buttons to be clickable when the tab is not shown
+  TabName.HasFocus = State != Shown;
+  TabName.Enabled = Impacto::UI::TipsMenuPtr->IsFocused;
 }
 
 void TipsTabGroup::Render() {
-  if (IsShown) {
+  if (State == Shown) {
     TabName.Render();
     TipsEntriesGroup.Render();
   }
 }
 
-void TipsTabGroup::UpdateTipsEntries(
-    std::set<int, UI::CCLCC::SortByTipName> const& SortedTipIds) {
+void TipsTabGroup::UpdateTipsEntries(std::vector<int> const& SortedTipIds) {
   auto tipsFilterPredicate = [&](TipsSystem::TipsDataRecord const& record) {
     switch (Type) {
       case TipsTabType::AllTips:
@@ -68,14 +81,29 @@ void TipsTabGroup::UpdateTipsEntries(
       sortIndex++;
       continue;
     }
+    RectF buttonBounds = TipsEntryBounds;
+    buttonBounds.Y += EntriesCount * buttonBounds.Height;
     TipsEntryButton* button = new TipsEntryButton(
-        tipId, sortIndex++,
-        RectF(TipsEntryNameInitDisplay.x,
-              TipsEntryNameInitDisplay.y + EntriesCount * TipsEntryNameOffset,
-              TipsHighlightedSprite.Bounds.Width, TipsEntryNameOffset),
-        TipsHighlightedSprite);
+        tipId, sortIndex++, buttonBounds, TipsHighlightedSprite);
     EntriesCount++;
     TipsEntriesGroup.Add(button, FDIR_DOWN);
+  }
+}
+
+void TipsTabGroup::Show() {
+  if (State != Shown) {
+    State = Shown;
+    IsFocused = true;
+    TipsEntriesGroup.Show();
+    TabName.Show();
+  }
+}
+void TipsTabGroup::Hide() {
+  if (State != Hidden) {
+    State = Hidden;
+    IsFocused = false;
+    TipsEntriesGroup.Hide();
+    TabName.Hide();
   }
 }
 
