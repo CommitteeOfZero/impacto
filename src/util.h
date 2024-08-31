@@ -53,6 +53,14 @@ struct RectF {
     return (X <= rect.X + rect.Width && rect.X <= X + Width &&
             Y <= rect.Y + rect.Height && rect.Y <= Y + Height);
   }
+
+  constexpr bool operator==(RectF const& other) const {
+    return X == other.X && Y == other.Y && Width == other.Width &&
+           Height == other.Height;
+  }
+  constexpr bool operator!=(RectF const& other) const {
+    return !(*this == other);
+  }
 };
 
 struct Rect {
@@ -78,6 +86,20 @@ struct Rect {
     }
     return point.x >= -Width / 2 && point.x <= Width / 2 &&
            point.y >= -Height / 2 && point.y <= Height / 2;
+  }
+
+  constexpr bool Intersects(Rect const& rect) const {
+    return (X <= rect.X + rect.Width && rect.X <= X + Width &&
+            Y <= rect.Y + rect.Height && rect.Y <= Y + Height);
+  }
+
+  constexpr bool operator==(Rect const& other) const {
+    return X == other.X && Y == other.Y && Width == other.Width &&
+           Height == other.Height;
+  }
+
+  constexpr bool operator!=(Rect const& other) const {
+    return !(*this == other);
   }
 };
 
