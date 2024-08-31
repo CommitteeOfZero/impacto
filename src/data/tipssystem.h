@@ -39,6 +39,7 @@ class TipsSystemBase {
 
   std::vector<TipsDataRecord> Records;
   int TipEntryCount = 0;
+  uint8_t ScriptBufferId = 0;
 };
 
 inline TipsSystemBase* Implementation = nullptr;
@@ -49,7 +50,7 @@ void UpdateTipRecords();
 void SetTipLockedState(int id, bool state);
 void SetTipUnreadState(int id, bool state);
 void SetTipNewState(int id, bool state);
-
+uint8_t GetTipsScriptBufferId();
 bool GetTipLockedState(int id);
 
 std::vector<TipsDataRecord>* GetTipRecords();

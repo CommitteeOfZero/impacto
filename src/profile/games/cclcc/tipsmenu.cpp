@@ -17,9 +17,26 @@ void Configure() {
   TipsBookLayerSprite = EnsureGetMemberSprite("TipsBookLayerSprite");
   TipsGuideSprite = EnsureGetMemberSprite("TipsGuideSprite");
   TipsMaskSprite = EnsureGetMemberSprite("TipsMaskSprite");
+  TipsHighlightedSprite = EnsureGetMemberSprite("TipsHighlightedSprite");
+  TipsHighlightedTabSprite = EnsureGetMemberSprite("TipsHighlightedTabSprite");
+  TipsNewSprite = EnsureGetMemberSprite("TipsNewSprite");
+  TipsHighlightedTabAdder = EnsureGetMemberInt("TipsHighlightedTabAdder");
 
   TipsGuideX = EnsureGetMemberInt("TipsGuideX");
   TipsGuideY = EnsureGetMemberInt("TipsGuideY");
+
+  TipEntryNewOffset = EnsureGetMemberVec2("TipEntryNewOffset");
+
+  TipsTextTableIndex = EnsureGetMemberInt("TipsTextTableIndex");
+  TipsTextSortStringIndex = EnsureGetMemberInt("TipsTextSortStringIndex");
+  TipsTextEntryLockedIndex = EnsureGetMemberInt("TipsTextEntryLockedIndex");
+
+  TipsEntryNameInitDisplay = EnsureGetMemberVec2("TipsEntryNameInitDisplay");
+  TipsEntryNameOffset = EnsureGetMemberInt("TipsEntryNameOffset");
+  TipsEntryNumberOffset = EnsureGetMemberVec2("TipsEntryNumberOffset");
+  TipsEntryHighlightOffset = EnsureGetMemberVec2("TipsEntryHighlightOffset");
+  TipsTabBounds = EnsureGetMemberRectF("TipsTabBounds");
+  TipsTabNameDisplay = EnsureGetMemberVec2("TipsTabNameDisplay");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMemberInt("DrawType"));

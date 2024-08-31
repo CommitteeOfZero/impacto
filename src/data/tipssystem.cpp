@@ -69,5 +69,11 @@ int GetTipCount() {
   return 0;
 }
 
+uint8_t GetTipsScriptBufferId() {
+  if (Implementation) return Implementation->ScriptBufferId;
+  ImpLog(LL_Warning, LC_VMStub,
+         "%s: tips system not implemented, returning 0\n", __func__);
+  return 0;
+}
 }  // namespace TipsSystem
 }  // namespace Impacto
