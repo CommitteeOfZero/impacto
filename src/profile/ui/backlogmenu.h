@@ -24,6 +24,8 @@ inline Sprite ScrollbarThumb;
 
 inline float EntryYPadding;
 inline glm::vec2 EntriesStart;
+inline glm::vec2 EntryHighlightOffset;
+inline glm::vec2 VoiceIconOffset;
 inline glm::vec2 ScrollbarPosition;
 inline float ScrollbarThumbLength;
 inline RectF RenderingBounds;

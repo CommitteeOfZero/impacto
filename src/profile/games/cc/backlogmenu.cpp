@@ -8,6 +8,9 @@ namespace CC {
 namespace BacklogMenu {
 
 void Configure() {
+  BacklogBackgroundRepeatHeight =
+      EnsureGetMemberInt("BacklogBackgroundRepeatHeight");
+
   BacklogHeaderSprite = EnsureGetMemberSprite("BacklogHeaderSprite");
   BacklogHeaderPosition = EnsureGetMemberVec2("BacklogHeaderPosition");
 

@@ -148,6 +148,9 @@ void BacklogMenu::RenderHighlight() const {
         break;
     }
 
+    pos.X += EntryHighlightOffset.x;
+    pos.Y += EntryHighlightOffset.y;
+
     Renderer->DrawSprite(EntryHighlight, pos);
   }
 }
@@ -171,14 +174,14 @@ void BacklogMenu::Render() {
       glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
       MainItems->Tint = col;
 
+      int repeatHeight =
+          Profile::CC::BacklogMenu::BacklogBackgroundRepeatHeight;
       float backgroundY =
-          fmod(PageY - EntryYPadding - Profile::BacklogMenu::RenderingBounds.Y,
-               Profile::DesignHeight);
+          fmod(PageY - EntryYPadding - RenderingBounds.Y, repeatHeight);
       Renderer->DrawSprite(BacklogBackground, glm::vec2(0.0f, backgroundY),
                            col);
       Renderer->DrawSprite(BacklogBackground,
-                           glm::vec2(0.0f, backgroundY + Profile::DesignHeight),
-                           col);
+                           glm::vec2(0.0f, backgroundY + repeatHeight), col);
 
       RenderHighlight();
       Renderer->DrawSprite(BacklogHeaderSprite, BacklogHeaderPosition, col);

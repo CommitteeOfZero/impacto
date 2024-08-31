@@ -32,6 +32,7 @@ root.Dialogue = {
     REVNameOffset = 34,
     REVNameLocation = REVNameLocationType.TopLeft,
     REVOutlineMode = 2,
+    REVNameOutlineMode = 2,
     NVLBounds = { X = 125, Y = 85, Width = 1024, Height = 400 },
     ADVBounds = { X = 161, Y = 546, Width = 928, Height = 180 },
     ADVBoxSprite = "ADVBox",

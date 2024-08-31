@@ -43,6 +43,7 @@ inline int REVNameColor;
 inline float REVNameOffset;
 inline REVNameLocationType REVNameLocation = REVNameLocationType::None;
 inline RendererOutlineMode REVOutlineMode = RendererOutlineMode::RO_Full;
+inline RendererOutlineMode REVNameOutlineMode = RendererOutlineMode::RO_Full;
 
 inline float TipsLineSpacing;
 inline int TipsColorIndex = 0;

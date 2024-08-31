@@ -90,14 +90,14 @@ void BacklogEntry::MoveTo(glm::vec2 position) {
 
 void BacklogEntry::Render() {
   if (AudioId != -1) {
-    Renderer->DrawSprite(
-        VoiceIcon, glm::vec2(Bounds.X - VoiceIcon.ScaledWidth(), Bounds.Y));
+    Renderer->DrawSprite(VoiceIcon,
+        glm::vec2(Bounds.X - VoiceIcon.ScaledWidth(), Bounds.Y) + VoiceIconOffset);
   }
 
   if (BacklogPage->HasName) {
     Renderer->DrawProcessedText(BacklogPage->Name,
                                 Profile::Dialogue::DialogueFont, Tint.a,
-                                Profile::Dialogue::REVOutlineMode, true);
+                                Profile::Dialogue::REVNameOutlineMode, true);
   }
 
   Renderer->DrawProcessedText(BacklogPage->Glyphs,

@@ -9,6 +9,8 @@ namespace BacklogMenu {
 
 void Configure();
 
+inline int BacklogBackgroundRepeatHeight;
+
 inline Sprite BacklogHeaderSprite;
 inline glm::vec2 BacklogHeaderPosition;
 

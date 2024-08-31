@@ -89,6 +89,7 @@ void Configure() {
   REVNameLocation = REVNameLocationType::_from_integral_unchecked(
       EnsureGetMemberInt("REVNameLocation"));
   REVOutlineMode = RendererOutlineMode(EnsureGetMemberInt("REVOutlineMode"));
+  REVNameOutlineMode = RendererOutlineMode(EnsureGetMemberInt("REVNameOutlineMode"));
 
   TryGetMemberFloat("TipsLineSpacing", TipsLineSpacing);
   TryGetMemberInt("TipsColorIndex", TipsColorIndex);

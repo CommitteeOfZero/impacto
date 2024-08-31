@@ -42,6 +42,8 @@ void Configure() {
 
     EntryYPadding = EnsureGetMemberFloat("EntryYPadding");
     EntriesStart = EnsureGetMemberVec2("EntriesStart");
+    EntryHighlightOffset = EnsureGetMemberVec2("EntryHighlightOffset");
+    VoiceIconOffset = EnsureGetMemberVec2("VoiceIconOffset");
     ScrollbarPosition = EnsureGetMemberVec2("ScrollbarPosition");
     ScrollbarThumbLength = EnsureGetMemberFloat("ScrollbarThumbLength");
     RenderingBounds = EnsureGetMemberRectF("RenderingBounds");

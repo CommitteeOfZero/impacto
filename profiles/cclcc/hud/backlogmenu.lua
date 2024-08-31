@@ -1,40 +1,65 @@
 root.BacklogMenu = {
-    Type = BacklogMenuType.None,
-    DrawType = DrawComponentType.ExtrasScenes,
+    Type = BacklogMenuType.CC,
+    DrawType = DrawComponentType.SystemMenu,
     BacklogBackgroundSprite = "BacklogBackground",
+    BacklogBackgroundRepeatHeight = 1005,
+    BacklogHeaderSprite = "BacklogHeader",
+    BacklogHeaderPosition = { X = 0, Y = 0 },
+    BacklogAlphaMask = "BacklogAlphaMask",
+    BacklogControlsSprite = "BacklogControls",
+    BacklogControlsPosition = { X = 0, Y = 988 },
     EntryHighlightSprite = "EntryHighlight",
+    EntryHighlightLocation = EntryHighlightLocationType.TopLineLeftOfScreen,
+    EntryHighlightOffset = { X = 0, Y = -3 },
     VoiceIconSprite = "VoiceIcon",
+    VoiceIconOffset = { X = -16, Y = 0 },
     ScrollbarTrackSprite = "ScrollbarTrack",
     ScrollbarThumbSprite = "ScrollbarThumb",
-    ScrollbarPosition = { X = 1165, Y = 98 },
-    EntriesStart = { X = 163, Y = 85 },
-    RenderingBounds = { X = 87, Y = 83, Width = 1280, Height = 615 },
-    EntryYPadding = 22,
+    ScrollbarPosition = { X = 1656, Y = 40 },
+    ScrollbarThumbLength = 87,
+    EntriesStart = { X = 547, Y = 149 },
+    RenderingBounds = { X = 194, Y = 121, Width = 1531, Height = 868 },
+    EntryYPadding = 26,
     FadeInDuration = 0.2,
     FadeOutDuration = 0.2
 };
 
 root.Sprites["BacklogBackground"] = {
     Sheet = "Backlog",
-    Bounds = { X = 0, Y = 0, Width = 1280, Height = 720 },
+    Bounds = { X = 0, Y = 0, Width = 1920, Height = 1080 },
 };
+
+root.Sprites["BacklogHeader"] = {
+    Sheet = "Backlog",
+    Bounds = { X = 962, Y = 1210, Width = 542, Height = 542 },
+};
+
+root.Sprites["BacklogAlphaMask"] = {
+    Sheet = "BacklogMask",
+    Bounds = { X = 0, Y = 0, Width = 1920, Height = 1080 },
+};
+
+root.Sprites["BacklogControls"] = {
+    Sheet = "Backlog",
+    Bounds = { X = 0, Y = 1151, Width = 1920, Height = 59 },
+}
 
 root.Sprites["VoiceIcon"] = {
     Sheet = "Backlog",
-    Bounds = { X = 1281, Y = 1, Width = 30, Height = 30 },
+    Bounds = { X = 1521, Y = 1218, Width = 38, Height = 38 },
 };
 
 root.Sprites["EntryHighlight"] = {
-    Sheet = "Data",
-    Bounds = { X = 65, Y = 1, Width = 94, Height = 30 }
+    Sheet = "Backlog",
+    Bounds = { X = 0, Y = 1105, Width = 1920, Height = 44 }
 };
 
 root.Sprites["ScrollbarThumb"] = {
     Sheet = "Backlog",
-    Bounds = { X = 1281, Y = 32, Width = 30, Height = 30 },
+    Bounds = { X = 2027, Y = 1115, Width = 18, Height = 83 },
 };
 
 root.Sprites["ScrollbarTrack"] = {
     Sheet = "Backlog",
-    Bounds = { X = 1500, Y = 0, Width = 8, Height = 567 },
+    Bounds = { X = 2030, Y = 41, Width = 11, Height = 915 },
 };
