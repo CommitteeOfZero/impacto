@@ -66,6 +66,7 @@ void Button::Render() {
 void Button::SetText(uint8_t* str, float fontSize,
                      RendererOutlineMode outlineMode, int colorIndex) {
   HasText = true;
+  Text = new ProcessedTextGlyph[255];
   Impacto::Vm::Sc3VmThread dummy;
   dummy.Ip = str;
   TextLength = TextLayoutPlainLine(
@@ -83,6 +84,7 @@ void Button::SetText(ProcessedTextGlyph* str, int textLength, float textWidth,
                      float fontSize, RendererOutlineMode outlineMode) {
   HasText = true;
   TextLength = textLength;
+  Text = new ProcessedTextGlyph[TextLength];
   TextWidth = textWidth;
   OutlineMode = outlineMode;
   memcpy(Text, str, TextLength * sizeof(ProcessedTextGlyph));
@@ -90,9 +92,11 @@ void Button::SetText(ProcessedTextGlyph* str, int textLength, float textWidth,
 }
 
 void Button::Move(glm::vec2 relativePosition) {
-  for (int i = 0; i < TextLength; i++) {
-    Text[i].DestRect.X += relativePosition.x;
-    Text[i].DestRect.Y += relativePosition.y;
+  if (HasText) {
+    for (int i = 0; i < TextLength; i++) {
+      Text[i].DestRect.X += relativePosition.x;
+      Text[i].DestRect.Y += relativePosition.y;
+    }
   }
   Widget::Move(relativePosition);
 }
