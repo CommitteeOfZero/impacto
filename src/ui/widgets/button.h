@@ -17,8 +17,12 @@ class Button : public Widget {
   Button(int id, Sprite const& norm, Sprite const& focused,
          Sprite const& highlight, glm::vec2 pos);
 
-  void UpdateInput();
-  virtual void Render();
+  virtual void UpdateInput() override;
+  virtual void Render() override;
+  virtual void Move(glm::vec2 relativePosition) override;
+  virtual void Move(glm::vec2 relativePosition, float duration) override;
+  virtual void MoveTo(glm::vec2 pos) override;
+  virtual void MoveTo(glm::vec2 pos, float duration) override;
 
   void SetText(uint8_t* str, float fontSize, RendererOutlineMode outlineMode,
                int colorIndex = 10);
