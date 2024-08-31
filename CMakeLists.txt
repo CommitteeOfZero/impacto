@@ -250,6 +250,8 @@ set(Impacto_Src
         src/ui/widgets/cclcc/titlebutton.cpp
         src/ui/widgets/cclcc/saveentrybutton.cpp
         src/ui/widgets/cclcc/sysmenubutton.cpp
+        src/ui/widgets/cclcc/tipsentrybutton.cpp
+        src/ui/widgets/cclcc/tipstabgroup.cpp
 
         src/stbi_impl.c
 

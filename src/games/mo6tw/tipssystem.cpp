@@ -44,6 +44,7 @@ void TipsSystem::DataInit(int scriptBufferId, uint8_t *tipsData,
     unk01 = Io::ReadLE<uint16_t>(stream);
     idx += 1;
     TipEntryCount = idx;
+    Records.resize(TipEntryCount);
   }
 
   UI::TipsMenuPtr->Init();
