@@ -25,16 +25,16 @@ void Configure() {
   TipsGuideX = EnsureGetMemberInt("TipsGuideX");
   TipsGuideY = EnsureGetMemberInt("TipsGuideY");
 
-  TipEntryNewOffset = EnsureGetMemberVec2("TipEntryNewOffset");
-
   TipsTextTableIndex = EnsureGetMemberInt("TipsTextTableIndex");
   TipsTextSortStringIndex = EnsureGetMemberInt("TipsTextSortStringIndex");
   TipsTextEntryLockedIndex = EnsureGetMemberInt("TipsTextEntryLockedIndex");
 
-  TipsEntryNameInitDisplay = EnsureGetMemberVec2("TipsEntryNameInitDisplay");
-  TipsEntryNameOffset = EnsureGetMemberInt("TipsEntryNameOffset");
-  TipsEntryNumberOffset = EnsureGetMemberVec2("TipsEntryNumberOffset");
+  TipsEntryBounds = EnsureGetMemberRectF("TipsEntryBounds");
+  TipEntryNewOffset = EnsureGetMemberVec2("TipEntryNewOffset");
   TipsEntryHighlightOffset = EnsureGetMemberVec2("TipsEntryHighlightOffset");
+  TipsEntryNumberOffset = EnsureGetMemberVec2("TipsEntryNumberOffset");
+  TipsEntryNameOffset = EnsureGetMemberVec2("TipsEntryNameOffset");
+
   TipsTabBounds = EnsureGetMemberRectF("TipsTabBounds");
   TipsTabNameDisplay = EnsureGetMemberVec2("TipsTabNameDisplay");
 

@@ -20,11 +20,11 @@ inline int TipsTextTableIndex;
 inline int TipsTextSortStringIndex;
 inline int TipsTextEntryLockedIndex;
 
+inline RectF TipsEntryBounds;
 inline glm::vec2 TipEntryNewOffset;
-inline glm::vec2 TipsEntryNameInitDisplay;
+inline glm::vec2 TipsEntryNameOffset;
 inline glm::vec2 TipsEntryNumberOffset;
 inline glm::vec2 TipsEntryHighlightOffset;
-inline int TipsEntryNameOffset;
 inline RectF TipsTabBounds;
 
 inline Sprite TipsHighlightedTabSprite;
