@@ -15,6 +15,7 @@ using namespace Impacto::Io;
 
 void TipsSystem::DataInit(int scriptBufferId, uint8_t *tipsData,
                           uint32_t tipsDataSize) {
+  ScriptBufferId = scriptBufferId;
   auto scriptBuffer = ScriptBuffers[scriptBufferId];
 
   int idx = 0;
