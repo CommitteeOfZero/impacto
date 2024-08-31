@@ -89,6 +89,27 @@ void Button::SetText(ProcessedTextGlyph* str, int textLength, float textWidth,
   Bounds = RectF(Text[0].DestRect.X, Text[0].DestRect.Y, TextWidth, fontSize);
 }
 
+void Button::Move(glm::vec2 relativePosition) {
+  for (int i = 0; i < TextLength; i++) {
+    Text[i].DestRect.X += relativePosition.x;
+    Text[i].DestRect.Y += relativePosition.y;
+  }
+  Widget::Move(relativePosition);
+}
+
+void Button::Move(glm::vec2 relativePosition, float duration) {
+  Widget::Move(relativePosition, duration);
+}
+
+void Button::MoveTo(glm::vec2 pos) {
+  auto relativePosition = pos - glm::vec2(Bounds.X, Bounds.Y);
+  Move(relativePosition);
+}
+
+void Button::MoveTo(glm::vec2 pos, float duration) {
+  Widget::MoveTo(pos, duration);
+}
+
 }  // namespace Widgets
 }  // namespace UI
 }  // namespace Impacto
