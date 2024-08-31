@@ -37,8 +37,9 @@ struct ProcessedTextGlyph {
 
   uint8_t Flags() const;
 
-  static void Move(ProcessedTextGlyph* text, size_t length, glm::vec2 relativePosition);
-  static void MoveTo(ProcessedTextGlyph* text, size_t length, glm::vec2 position);
+  static void Move(std::vector<ProcessedTextGlyph>& text,
+                   glm::vec2 relativePosition);
+  static void MoveTo(std::vector<ProcessedTextGlyph>& text, glm::vec2 position);
 };
 
 enum DialoguePageMode : uint8_t {

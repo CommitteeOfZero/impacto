@@ -160,20 +160,21 @@ uint8_t ProcessedTextGlyph::Flags() const {
   return Profile::Charset::Flags[CharId];
 }
 
-void ProcessedTextGlyph::Move(ProcessedTextGlyph* text, size_t length,
+void ProcessedTextGlyph::Move(std::vector<ProcessedTextGlyph>& text,
                               glm::vec2 relativePosition) {
-  for (int chr = 0; chr < length; chr++) {
-    text[chr].DestRect.X += relativePosition.x;
-    text[chr].DestRect.Y += relativePosition.y;
+  for (ProcessedTextGlyph& chr : text) {
+    chr.DestRect.X += relativePosition.x;
+    chr.DestRect.Y += relativePosition.y;
   }
 }
 
-void ProcessedTextGlyph::MoveTo(ProcessedTextGlyph* text, size_t length,
+void ProcessedTextGlyph::MoveTo(std::vector<ProcessedTextGlyph>& text,
                                 glm::vec2 position) {
-  glm::vec2 curPos = glm::vec2(text[0].DestRect.X, text[0].DestRect.Y);
+  glm::vec2 curPos =
+      glm::vec2(text.begin()->DestRect.X, text.begin()->DestRect.Y);
   glm::vec2 relativePosition = position - curPos;
 
-  Move(text, length, relativePosition);
+  Move(text, relativePosition);
 }
 
 void TypewriterEffect::Start(int firstGlyph, int glyphCount, float duration) {

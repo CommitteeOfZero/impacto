@@ -16,10 +16,8 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::BacklogMenu;
 
 BacklogEntry::BacklogEntry(int id, uint8_t* str, int audioId, glm::vec2 pos)
-    : Position(pos) {
+    : Id(id), AudioId(audioId), Position(pos) {
   Enabled = true;
-  Id = id;
-  AudioId = audioId;
 
   BacklogPage = new DialoguePage();
   BacklogPage->Glyphs.reserve(512);
@@ -37,16 +35,19 @@ BacklogEntry::BacklogEntry(int id, uint8_t* str, int audioId, glm::vec2 pos)
 
   TextLength = BacklogPage->Length;
 
-  if (TextLength > 0) {
-    Position = glm::vec2(BacklogPage->Glyphs[0].DestRect.X,
-                         BacklogPage->Glyphs[0].DestRect.Y);
-    for (int chr = 1; chr < TextLength; chr++) {
-      Position.x = std::min(Position.x, BacklogPage->Glyphs[chr].DestRect.X);
-      Position.y = std::min(Position.y, BacklogPage->Glyphs[chr].DestRect.Y);
-    }
+  Bounds = !BacklogPage->Glyphs.empty() ? BacklogPage->Glyphs.begin()->DestRect
+                                        : RectF(pos.x, pos.y, 0, 0);
+  for (const ProcessedTextGlyph& glyph : BacklogPage->Glyphs) {
+    Bounds = RectF::Coalesce(Bounds, glyph.DestRect);
   }
+  Position = glm::vec2(Bounds.X, Bounds.Y);
+  for (const ProcessedTextGlyph& glyph : BacklogPage->Name) {
+    Bounds = RectF::Coalesce(Bounds, glyph.DestRect);
+  }
+  TextHeight = Bounds.Height;
 
   switch (BacklogPage->Alignment) {
+    default:
     case TextAlignment::Left:
       break;
     case TextAlignment::Center: {
@@ -56,37 +57,6 @@ BacklogEntry::BacklogEntry(int id, uint8_t* str, int audioId, glm::vec2 pos)
     }
   }
   MoveTo(pos);
-
-  float currentY = BacklogPage->Glyphs[0].DestRect.Y;
-  float currentWidth = 0.0f, maxWidth = 0.0f;
-  for (int i = 0; i < BacklogPage->Glyphs.size(); i++) {
-    if (currentY != BacklogPage->Glyphs[i].DestRect.Y) {
-      if (currentWidth > maxWidth) {
-        maxWidth = currentWidth;
-      }
-      currentWidth = 0.0f;
-      currentY = BacklogPage->Glyphs[i].DestRect.Y;
-    }
-    currentWidth += BacklogPage->Glyphs[i].DestRect.Width;
-  }
-
-  if (currentWidth > maxWidth) {
-    maxWidth = currentWidth;
-  }
-
-  if (BacklogPage->HasName) {
-    TextHeight = (BacklogPage->Glyphs.back().DestRect.Y +
-                  BacklogPage->Glyphs.back().DestRect.Height) -
-                 BacklogPage->Name[0].DestRect.Y;
-    Bounds = RectF(BacklogPage->Name[0].DestRect.X,
-                   BacklogPage->Name[0].DestRect.Y, maxWidth, TextHeight);
-  } else {
-    TextHeight = (BacklogPage->Glyphs.back().DestRect.Y +
-                  BacklogPage->Glyphs.back().DestRect.Height) -
-                 BacklogPage->Glyphs[0].DestRect.Y;
-    Bounds = RectF(BacklogPage->Glyphs[0].DestRect.X,
-                   BacklogPage->Glyphs[0].DestRect.Y, maxWidth, TextHeight);
-  }
 }
 
 BacklogEntry::~BacklogEntry() { delete BacklogPage; }
@@ -108,10 +78,9 @@ void BacklogEntry::UpdateInput() {
 void BacklogEntry::Move(glm::vec2 relativePosition) {
   Position += relativePosition;
   Widget::Move(relativePosition);
-  ProcessedTextGlyph::Move(BacklogPage->Glyphs, TextLength, relativePosition);
+  ProcessedTextGlyph::Move(BacklogPage->Glyphs, relativePosition);
   if (BacklogPage->HasName)
-    ProcessedTextGlyph::Move(BacklogPage->Name, BacklogPage->NameLength,
-                             relativePosition);
+    ProcessedTextGlyph::Move(BacklogPage->Name, relativePosition);
 }
 
 void BacklogEntry::MoveTo(glm::vec2 position) {
