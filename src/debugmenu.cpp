@@ -121,6 +121,8 @@ void ShowSingleWindow() {
   if (ImGui::Begin("Debug Menu", &DebugMenuShown)) {
     ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
                 ImGui::GetIO().Framerate);
+    ImGui::Text("Cursor Pos: (%.1f,%.1f)", ImGui::GetIO().MousePos.x,
+                ImGui::GetIO().MousePos.y);
 
     if (ImGui::BeginTabBar("DebugTabBar", ImGuiTabBarFlags_None)) {
       if (ImGui::BeginTabItem("\"Debug Editer\"")) {
