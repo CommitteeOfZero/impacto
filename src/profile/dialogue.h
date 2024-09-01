@@ -41,6 +41,7 @@ inline int REVNameColor;
 inline float REVNameOffset;
 
 inline float TipsLineSpacing;
+inline int TipsColorIndex = 0;
 
 inline Sprite WaitIconSprite;
 inline SpriteAnimationDef WaitIconSpriteAnim;
