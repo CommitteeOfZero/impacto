@@ -186,6 +186,7 @@ void Group::Clear() {
   }
   Children.clear();
   LastFocusableElementId = -1;
+  std::fill(std::begin(FocusStart), std::end(FocusStart), nullptr);
 }
 
 Widget* Group::GetFirstFocusableChild() {
