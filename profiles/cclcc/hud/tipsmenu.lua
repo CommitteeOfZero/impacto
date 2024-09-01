@@ -34,6 +34,9 @@ root.TipsMenu = {
     NumberFontSize = 44,
     PronounciationPos = { X = 1020, Y = 246},
     PronounciationFontSize = 26,
+
+    TipsEntryNameUnreadColor = 0x117733, 
+    TipsMenuDarkTextColor = 0x3e3e3c,
 };
 
 root.Sprites["TipsMenuBackground"] = {
