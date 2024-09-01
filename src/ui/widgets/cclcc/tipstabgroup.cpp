@@ -115,10 +115,11 @@ void TipsTabGroup::UpdateTipsEntries(std::vector<int> const& SortedTipIds) {
       sortIndex++;
       continue;
     }
+    bool dispNew = record.IsNew && !record.IsLocked;
     RectF buttonBounds = TipsEntryBounds;
     buttonBounds.Y += EntriesCount * buttonBounds.Height;
     TipsEntryButton* button = new TipsEntryButton(
-        tipId, sortIndex++, buttonBounds, TipsHighlightedSprite, record.IsNew);
+        tipId, sortIndex++, buttonBounds, TipsHighlightedSprite, dispNew);
     button->OnClickHandler = TipClickHandler;
     EntriesCount++;
     TipsEntriesGroup.Add(button, FDIR_DOWN);

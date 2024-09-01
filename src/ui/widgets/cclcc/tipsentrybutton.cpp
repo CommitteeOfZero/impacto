@@ -24,7 +24,7 @@ TipsEntryButton::TipsEntryButton(int tipId, int dispId, RectF const& dest,
   TipEntryRecord = TipsSystem::GetTipRecord(tipId);
   Enabled = true;
   HighlightOffset = {0, 0};
-  PrevUnreadState = TipEntryRecord->IsUnread;
+  PrevUnreadState = TipEntryRecord->IsUnread && !TipEntryRecord->IsLocked;
   int initialColorIndex = PrevUnreadState ? 7 : 10;
   char tipNumber[5];
   sprintf(tipNumber, "%03d.", dispId);
@@ -56,12 +56,13 @@ TipsEntryButton::TipsEntryButton(int tipId, int dispId, RectF const& dest,
 
 void TipsEntryButton::Update(float dt) {
   Button::Update(dt);
-  if (PrevUnreadState != TipEntryRecord->IsUnread) {
+  bool curUnreadState = TipEntryRecord->IsUnread && !TipEntryRecord->IsLocked;
+  if (PrevUnreadState != curUnreadState) {
     int colorIndex = (TipEntryRecord->IsUnread) ? 7 : 10;
     for (int i = 0; i < TextLength; i++) {
       Text[i].Colors = Profile::Dialogue::ColorTable[colorIndex];
     }
-    PrevUnreadState = TipEntryRecord->IsUnread;
+    PrevUnreadState = curUnreadState;
   }
 }
 
