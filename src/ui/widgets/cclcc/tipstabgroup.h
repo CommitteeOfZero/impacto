@@ -12,14 +12,23 @@ namespace UI {
 namespace Widgets {
 namespace CCLCC {
 
+class TipsTabButton : public Widgets::Button {
+ public:
+  TipsTabButton(Impacto::UI::CCLCC::TipsTabType type,
+                std::function<void(Widgets::Button*)> onClickHandler);
+  void UpdateInput() override;
+};
+
 class TipsTabGroup : public Menu {
  public:
   TipsTabGroup(Impacto::UI::CCLCC::TipsTabType type,
-               std::function<void(Widgets::Button*)> onClickHandler);
+               std::function<void(Widgets::Button*)> tabClickHandler,
+               std::function<void(Widgets::Button*)> tipClickHandler);
 
   void Show() override;
   void Hide() override;
   void Update(float dt) override;
+  void UpdateInput() override;
   void Render() override;
   void UpdateTipsEntries(std::vector<int> const& SortedTipIds);
   int GetTipEntriesCount() { return EntriesCount; }
@@ -27,8 +36,9 @@ class TipsTabGroup : public Menu {
  private:
   int EntriesCount = 0;
   Widgets::Group TipsEntriesGroup;
-  Widgets::Button TabName;
+  TipsTabButton TabName;
   Impacto::UI::CCLCC::TipsTabType Type;
+  std::function<void(Widgets::Button*)> TipClickHandler;
 };
 
 }  // namespace CCLCC
