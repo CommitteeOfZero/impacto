@@ -133,6 +133,15 @@ void TipsMenu::Show() {
     }
     IsFocused = true;
     UI::FocusedMenu = this;
+
+    for (int i = 0; i < TabCount; i++) {
+      TipsTabs[i]->UpdateTipsEntries(SortedTipIds);
+      if (TipsTabs[i]->GetTipEntriesCount() > 0) {
+        CurrentTabType = static_cast<TipsTabType>(i);
+      }
+    }
+    TipsTabs[CurrentTabType]->Show();
+    TipViewItems.Show();
   }
 }
 void TipsMenu::Hide() {
@@ -147,6 +156,8 @@ void TipsMenu::Hide() {
     }
     IsFocused = false;
     CurrentlyDisplayedTipId = -1;
+    TipsTabs[CurrentTabType]->Hide();
+    TipViewItems.Hide();
   }
 }
 
@@ -170,29 +181,13 @@ void TipsMenu::UpdateInput() {
 }
 
 void TipsMenu::Update(float dt) {
-  if (!HasInitialized) return;
+  if (!HasInitialized || State == Hidden) return;
   UpdateInput();
   for (int i = 0; i < TabCount; i++) {
     TipsTabs[i]->Update(dt);
   }
   FadeAnimation.Update(dt);
-  if (ScrWork[SW_SYSMENUCT] != 32 && State == Shown &&
-      ScrWork[SW_SYSSUBMENUNO] == 2) {
-    Hide();
-    TipsTabs[CurrentTabType]->Hide();
-    TipViewItems.Hide();
-  } else if (ScrWork[SW_SYSMENUCT] == 32 && State == Hidden &&
-             ScrWork[SW_SYSSUBMENUNO] == 2) {
-    Show();
-    for (int i = 0; i < TabCount; i++) {
-      TipsTabs[i]->UpdateTipsEntries(SortedTipIds);
-      if (TipsTabs[i]->GetTipEntriesCount() > 0) {
-        CurrentTabType = static_cast<TipsTabType>(i);
-      }
-    }
-    TipsTabs[CurrentTabType]->Show();
-    TipViewItems.Show();
-  } else if (State == Showing && FadeAnimation.Progress == 1.0f) {
+  if (State == Showing && FadeAnimation.Progress == 1.0f) {
     State = Shown;
   } else if (State == Hiding && FadeAnimation.Progress == 0.0f) {
     State = Hidden;

@@ -85,11 +85,8 @@ void SystemMenu::Hide() {
 void SystemMenu::Update(float dt) {
   UpdateInput();
 
-  if (State == Hidden && !GetFlag(SF_TITLEMODE) && ScrWork[SW_SYSMENUCT] != 0) {
-    Show();
-    return;
-  } else if (State == Shown &&
-             (GetFlag(SF_TITLEMODE) || ScrWork[SW_SYSMENUCT] == 0)) {
+  if (State == Shown && (GetFlag(SF_TITLEMODE) || ScrWork[SW_SYSMENUCT] == 0) ||
+      ScrWork[SW_SYSMENUALPHA] == 0) {
     Hide();
     return;
   }

@@ -66,9 +66,24 @@ void TipsTabGroup::UpdateInput() {
 }
 
 void TipsTabGroup::Update(float dt) {
+  if (!Impacto::UI::TipsMenuPtr->IsFocused ||
+      Impacto::UI::TipsMenuPtr->State == Hidden) {
+    TabName.Enabled = false;
+    TipsEntriesGroup.Enabled = false;
+    return;
+  }
+  TabName.Enabled = true;
   TabName.Update(dt);
   TabName.UpdateInput();
-  TipsEntriesGroup.Update(dt);
+  if (State != Shown) {
+    TipsEntriesGroup.Enabled = false;
+    // Inverting since we want buttons to be clickable when the tab is not shown
+    TabName.HasFocus = true;
+  } else {
+    TipsEntriesGroup.Enabled = true;
+    TabName.HasFocus = false;
+    TipsEntriesGroup.Update(dt);
+  }
   UpdateInput();
   if (CurrentlyFocusedElement) {
     if (CurrentlyFocusedElement->Bounds.Y <
@@ -80,9 +95,6 @@ void TipsTabGroup::Update(float dt) {
       TipsEntriesGroup.Move({0, -CurrentlyFocusedElement->Bounds.Height});
     }
   }
-  // Inverting since we want buttons to be clickable when the tab is not shown
-  TabName.HasFocus = State != Shown;
-  TabName.Enabled = Impacto::UI::TipsMenuPtr->IsFocused;
 }
 
 void TipsTabGroup::Render() {
@@ -123,10 +135,6 @@ void TipsTabGroup::UpdateTipsEntries(std::vector<int> const& SortedTipIds) {
     button->OnClickHandler = TipClickHandler;
     EntriesCount++;
     TipsEntriesGroup.Add(button, FDIR_DOWN);
-
-    if (Type == TipsTabType::NewTips) {
-      TipsSystem::SetTipNewState(tipId, false);
-    }
   }
 }
 

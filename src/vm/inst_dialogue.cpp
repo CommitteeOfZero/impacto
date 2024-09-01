@@ -520,6 +520,7 @@ VmInstruction(InstTips) {
     } break;
     case 1:  // TipsInit
       TipsSystem::UpdateTipRecords();
+      if (UI::TipsMenuPtr) UI::TipsMenuPtr->Show();
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction Tips(type: TipsInit)\n");
       break;
@@ -530,10 +531,12 @@ VmInstruction(InstTips) {
     case 3:  // TipsEnd
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction Tips(type: TipsEnd)\n");
+      if (UI::TipsMenuPtr) UI::TipsMenuPtr->Hide();
       break;
     case 4:  // TipsSet
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction Tips(type: TipsSet)\n");
+      TipsSystem::UpdateTipRecords();
       break;
     case 10:  // Tips_ProfSetXboxEvent
       ImpLogSlow(LL_Warning, LC_VMStub,
