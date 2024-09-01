@@ -443,6 +443,8 @@ VmInstruction(InstSetDic) {
       bool tipLocked = TipsSystem::GetTipLockedState(tipId);
       if (tipLocked) {
         TipsSystem::SetTipLockedState(tipId, false);
+        TipsSystem::SetTipNewState(tipId, true);
+        TipsSystem::SetTipUnreadState(tipId, true);
         TipsNotification::AddTip(tipId);
       }
       if (type == 1) {

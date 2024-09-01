@@ -26,6 +26,10 @@ using namespace Impacto::Vm::Interface;
 
 using namespace Impacto::UI::Widgets;
 using namespace Impacto::UI::Widgets::CCLCC;
+
+// Todo: correct audio sounds, scrollbars, fix menu not entering hide state
+// (not exclusive to this menu)
+
 struct SortByTipName {
   SortByTipName() {
     SortString = Vm::ScriptGetTextTableStrAddress(2, 10);
@@ -81,11 +85,37 @@ struct SortByTipName {
   ska::flat_hash_map<uint8_t, int> Sc3SortMap;
 };
 
-TipsMenu::TipsMenu() {
+TipsMenu::TipsMenu() : TipViewItems(this) {
   FadeAnimation.Direction = 1;
   FadeAnimation.LoopMode = ALM_Stop;
   FadeAnimation.DurationIn = FadeInDuration;
   FadeAnimation.DurationOut = FadeOutDuration;
+
+  Name = new Label();
+  Name->Bounds.X = NamePos.x;
+  Name->Bounds.Y = NamePos.y;
+
+  Pronounciation = new Label();
+  Pronounciation->Bounds.X = PronounciationPos.x;
+  Pronounciation->Bounds.Y = PronounciationPos.y;
+
+  Category = new Label();
+  Category->Bounds.X = CategoryPos.x;
+  Category->Bounds.Y = CategoryPos.y;
+
+  Number = new Label();
+  Number->Bounds.X = NumberPos.x;
+  Number->Bounds.Y = NumberPos.y;
+
+  TipViewItems.Add(Name);
+  TipViewItems.Add(Pronounciation);
+  TipViewItems.Add(Category);
+  TipViewItems.Add(Number);
+
+  TextPage.Glyphs = new ProcessedTextGlyph[Profile::Dialogue::MaxPageSize];
+  TextPage.Clear();
+  TextPage.Mode = DPM_TIPS;
+  TextPage.FadeAnimation.Progress = 1.0f;
 }
 
 void TipsMenu::Show() {
@@ -125,9 +155,11 @@ void TipsMenu::UpdateInput() {
     }
     if (PADinputButtonWentDown & PAD1R1) {
       SetActiveTab(static_cast<TipsTabType>((CurrentTabType + 1) % TabCount));
+      Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0);
     } else if (PADinputButtonWentDown & PAD1L1) {
       SetActiveTab(
           static_cast<TipsTabType>((CurrentTabType + TabCount - 1) % TabCount));
+      Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0);
     }
   }
 }
@@ -143,6 +175,7 @@ void TipsMenu::Update(float dt) {
       ScrWork[SW_SYSSUBMENUNO] == 2) {
     Hide();
     TipsTabs[CurrentTabType]->Hide();
+    TipViewItems.Hide();
   } else if (ScrWork[SW_SYSMENUCT] == 32 && State == Hidden &&
              ScrWork[SW_SYSSUBMENUNO] == 2) {
     Show();
@@ -153,10 +186,25 @@ void TipsMenu::Update(float dt) {
       }
     }
     TipsTabs[CurrentTabType]->Show();
+    TipViewItems.Show();
   } else if (State == Showing && FadeAnimation.Progress == 1.0f) {
     State = Shown;
   } else if (State == Hiding && FadeAnimation.Progress == 0.0f) {
     State = Hidden;
+  }
+  if (State == Shown && CurrentlyDisplayedTipId != -1) {
+    RectF lastCharDest = TextPage.Glyphs[TextPage.Length - 1].DestRect;
+
+    // TODO: Add buttons to scroll text
+    if (lastCharDest.Y + TipPageY < TextPage.BoxBounds.Y) {
+      TextPage.Move({0, lastCharDest.Height});
+      TipPageY += lastCharDest.Height;
+    } else if (lastCharDest.Y + TipPageY > TextPage.BoxBounds.Y +
+                                               TextPage.BoxBounds.Height +
+                                               lastCharDest.Height) {
+      TextPage.Move({0, -lastCharDest.Height});
+      TipPageY -= lastCharDest.Height;
+    }
   }
 }
 
@@ -179,6 +227,12 @@ void TipsMenu::Render() {
 
     Renderer->DrawSprite(TipsGuideSprite, glm::vec2(TipsGuideX, TipsGuideY),
                          transition);
+    if (CurrentlyDisplayedTipId != -1) {
+      TipViewItems.Render();
+      Renderer->DrawProcessedText(
+          TextPage.Glyphs, TextPage.Length, Profile::Dialogue::DialogueFont, 1,
+          1, TextPage.BoxBounds, RendererOutlineMode::RO_None, true);
+    }
   }
 }
 
@@ -191,12 +245,37 @@ void TipsMenu::Init() {
   for (int i = 0; i < TabCount; i++) {
     TipsTabType type = static_cast<TipsTabType>(i);
     TipsTabs[i] = new TipsTabGroup(
-        type, [this, type](Button*) { return SetActiveTab(type); });
+        type, [this, type](Button*) { SetActiveTab(type); },
+        [this](Button* target) { SwitchToTipId(target->Id); });
   }
   HasInitialized = true;
 }
 
-void TipsMenu::SwitchToTipId(int id) {}
+void TipsMenu::SwitchToTipId(int id) {
+  CurrentlyDisplayedTipId = id - 1;
+  int actualId = SortedTipIds[id - 1];
+  auto* record = TipsSystem::GetTipRecord(actualId);
+  if (record->IsLocked) return;
+
+  TipsSystem::SetTipUnreadState(actualId, false);
+  Category->SetText(record->StringPtrs[0], CategoryFontSize,
+                    RendererOutlineMode::RO_None, {0x3e3e3e, 0});
+  Name->SetText(record->StringPtrs[1], NameFontSize,
+                RendererOutlineMode::RO_None, {0x3e3e3e, 0});
+  Pronounciation->SetText(record->StringPtrs[2], PronounciationFontSize,
+                          RendererOutlineMode::RO_None, 0);
+
+  char temp[5];
+  sprintf(temp, "%4d", id);
+  Number->SetText(std::string(temp), NumberFontSize,
+                  RendererOutlineMode::RO_None, 0);
+
+  Vm::Sc3VmThread dummy;
+  dummy.Ip = record->StringPtrs[4];
+  TextPage.Clear();
+  TextPage.AddString(&dummy);
+  TipViewItems.HasFocus = true;
+}
 
 void TipsMenu::NextTipPage() {}
 

@@ -3,6 +3,8 @@
 #include "../../../renderer/renderer.h"
 #include "../../../profile/dialogue.h"
 #include "../../../profile/games/cclcc/tipsmenu.h"
+#include "../../../inputsystem.h"
+#include "../../../vm/interface/input.h"
 #include "../../../ui/ui.h"
 #include "../../../text.h"
 #include "../../../vm/vm.h"
@@ -16,25 +18,57 @@ using namespace Impacto::TipsSystem;
 using namespace Impacto::Profile::CCLCC::TipsMenu;
 using namespace Impacto::UI::CCLCC;
 
-TipsTabGroup::TipsTabGroup(TipsTabType type,
-                           std::function<void(Widgets::Button*)> onClickHandler)
-    : Type(type),
-      TabName(Button(
+TipsTabButton::TipsTabButton(
+    TipsTabType type, std::function<void(Widgets::Button*)> onClickHandler)
+
+    : Button(
           type, TipsHighlightedTabSprite, Sprite(), Sprite(),
-          TipsTabNameDisplay + glm::vec2(type * TipsHighlightedTabAdder, 0))),
-      TipsEntriesGroup(this) {
+          TipsTabNameDisplay + glm::vec2(type * TipsHighlightedTabAdder, 0)) {
+  OnClickHandler = std::move(onClickHandler);
+  NormalSprite.Bounds.X += type * TipsHighlightedTabAdder;
+}
+
+void TipsTabButton::UpdateInput() {
+  if (Enabled) {
+    if (Input::PrevMousePos != Input::CurMousePos) {
+      Hovered = Bounds.ContainsPoint(Input::CurMousePos);
+    }
+    if (OnClickHandler && HasFocus &&
+        ((Hovered &&
+          Vm::Interface::PADinputMouseWentDown & Vm::Interface::PAD1A))) {
+      OnClickHandler(this);
+    }
+  }
+}
+
+TipsTabGroup::TipsTabGroup(
+    TipsTabType type, std::function<void(Widgets::Button*)> tabClickHandler,
+    std::function<void(Widgets::Button*)> tipClickHandler)
+    : Type(type),
+      TabName(type, tabClickHandler),
+      TipsEntriesGroup(this),
+      TipClickHandler(tipClickHandler) {
   TipsEntriesGroup.RenderingBounds = TipsTabBounds;
-  TipsEntriesGroup.Bounds = TipsTabBounds;
   TipsEntriesGroup.WrapFocus = false;
-  TabName.NormalSprite.Bounds.X += type * TipsHighlightedTabAdder;
-  TabName.OnClickHandler = std::move(onClickHandler);
+}
+
+void TipsTabGroup::UpdateInput() {
+  using namespace Vm::Interface;
+  if (IsFocused) {
+    if (PADinputButtonWentDown & PAD1DOWN) {
+      AdvanceFocus(FDIR_DOWN);
+      Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0);
+    } else if (PADinputButtonWentDown & PAD1UP) {
+      AdvanceFocus(FDIR_UP);
+      Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0);
+    }
+  }
 }
 
 void TipsTabGroup::Update(float dt) {
   TabName.Update(dt);
   TabName.UpdateInput();
   TipsEntriesGroup.Update(dt);
-  TipsEntriesGroup.UpdateInput();
   UpdateInput();
   if (CurrentlyFocusedElement) {
     if (CurrentlyFocusedElement->Bounds.Y <
@@ -46,7 +80,6 @@ void TipsTabGroup::Update(float dt) {
       TipsEntriesGroup.Move({0, -CurrentlyFocusedElement->Bounds.Height});
     }
   }
-
   // Inverting since we want buttons to be clickable when the tab is not shown
   TabName.HasFocus = State != Shown;
   TabName.Enabled = Impacto::UI::TipsMenuPtr->IsFocused;
@@ -77,16 +110,22 @@ void TipsTabGroup::UpdateTipsEntries(std::vector<int> const& SortedTipIds) {
   EntriesCount = 0;
   TipsEntriesGroup.Clear();
   for (auto& tipId : SortedTipIds) {
-    if (!tipsFilterPredicate(*TipsSystem::GetTipRecord(tipId))) {
+    auto& record = *TipsSystem::GetTipRecord(tipId);
+    if (!tipsFilterPredicate(record)) {
       sortIndex++;
       continue;
     }
     RectF buttonBounds = TipsEntryBounds;
     buttonBounds.Y += EntriesCount * buttonBounds.Height;
     TipsEntryButton* button = new TipsEntryButton(
-        tipId, sortIndex++, buttonBounds, TipsHighlightedSprite);
+        tipId, sortIndex++, buttonBounds, TipsHighlightedSprite, record.IsNew);
+    button->OnClickHandler = TipClickHandler;
     EntriesCount++;
     TipsEntriesGroup.Add(button, FDIR_DOWN);
+
+    if (Type == TipsTabType::NewTips) {
+      TipsSystem::SetTipNewState(tipId, false);
+    }
   }
 }
 
@@ -96,12 +135,15 @@ void TipsTabGroup::Show() {
     IsFocused = true;
     TipsEntriesGroup.Show();
     TabName.Show();
+    CurrentlyFocusedElement = TipsEntriesGroup.GetFocus(FDIR_DOWN);
+    if (CurrentlyFocusedElement) CurrentlyFocusedElement->HasFocus = true;
   }
 }
 void TipsTabGroup::Hide() {
   if (State != Hidden) {
     State = Hidden;
     IsFocused = false;
+    TipsEntriesGroup.MoveTo({0, 0});
     TipsEntriesGroup.Hide();
     TabName.Hide();
   }
