@@ -18,7 +18,6 @@ class OptionsMenu : public UI::Menu {
 
   void Show();
   void Hide();
-  void UpdateInput();
   void Update(float dt);
   void Render();
 
