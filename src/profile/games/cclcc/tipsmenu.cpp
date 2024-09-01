@@ -47,6 +47,10 @@ void Configure() {
   NumberPos = EnsureGetMemberVec2("NumberPos");
   NumberFontSize = EnsureGetMemberInt("NumberFontSize");
 
+  TipsEntryNameUnreadColor = EnsureGetMemberUint("TipsEntryNameUnreadColor");
+
+  TipsMenuDarkTextColor = EnsureGetMemberUint("TipsMenuDarkTextColor");
+
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMemberInt("DrawType"));
 

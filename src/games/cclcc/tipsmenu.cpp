@@ -264,9 +264,9 @@ void TipsMenu::SwitchToTipId(int id) {
 
   TipsSystem::SetTipUnreadState(actualId, false);
   Category->SetText(record->StringPtrs[0], CategoryFontSize,
-                    RendererOutlineMode::RO_None, {0x3e3e3e, 0});
+                    RendererOutlineMode::RO_None, {TipsMenuDarkTextColor, 0});
   Name->SetText(record->StringPtrs[1], NameFontSize,
-                RendererOutlineMode::RO_None, {0x3e3e3e, 0});
+                RendererOutlineMode::RO_None, {TipsMenuDarkTextColor, 0});
   Pronounciation->SetText(record->StringPtrs[2], PronounciationFontSize,
                           RendererOutlineMode::RO_None, 0);
 

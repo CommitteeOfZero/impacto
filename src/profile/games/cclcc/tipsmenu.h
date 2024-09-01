@@ -40,6 +40,9 @@ inline int PronounciationFontSize;
 inline glm::vec2 NumberPos;
 inline int NumberFontSize;
 
+inline uint32_t TipsEntryNameUnreadColor;
+inline uint32_t TipsMenuDarkTextColor;
+
 void Configure();
 
 }  // namespace TipsMenu
