@@ -17,7 +17,7 @@ class Menu {
   virtual void Update(float dt) = 0;
   virtual void Render() = 0;
 
-  void UpdateInput();
+  virtual void UpdateInput();
 
   MenuState State = Hidden;
 
@@ -31,7 +31,7 @@ class Menu {
 
   uint8_t DrawType = Game::DrawComponentType::Main;
 
- private:
+ protected:
   void AdvanceFocus(FocusDirection dir);
 };
 
