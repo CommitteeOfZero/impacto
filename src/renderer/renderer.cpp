@@ -72,12 +72,10 @@ void BaseRenderer::DrawSprite3DRotated(Sprite const& sprite, glm::vec2 topLeft,
                       rot, tint, inverted);
 }
 
-void BaseRenderer::DrawProcessedText_BasicFont(ProcessedTextGlyph* text,
-                                               int length, BasicFont* font,
-                                               float opacity,
-                                               RendererOutlineMode outlineMode,
-                                               bool smoothstepGlyphOpacity,
-                                               float outlineOpacity) {
+void BaseRenderer::DrawProcessedText_BasicFont(
+    ProcessedTextGlyph* text, int length, BasicFont* font, float opacity,
+    RendererOutlineMode outlineMode, bool smoothstepGlyphOpacity,
+    float outlineOpacity, RectF bounds) {
   // cruddy mages outline
   if (outlineMode != RendererOutlineMode::RO_None) {
     for (int i = 0; i < length; i++) {
@@ -94,14 +92,18 @@ void BaseRenderer::DrawProcessedText_BasicFont(ProcessedTextGlyph* text,
         case RendererOutlineMode::RO_Full:
           dest.X--;
           dest.Y--;
-          DrawSprite(glyph, dest, color);
+          if (bounds.Intersects(dest)) {
+            DrawSprite(glyph, dest, color);
+          }
           dest.X++;
           dest.Y++;
           [[fallthrough]];
         case RendererOutlineMode::RO_BottomRight:
           dest.X++;
           dest.Y++;
-          DrawSprite(glyph, dest, color);
+          if (bounds.Intersects(dest)) {
+            DrawSprite(glyph, dest, color);
+          }
           break;
         default:
           break;
@@ -117,16 +119,16 @@ void BaseRenderer::DrawProcessedText_BasicFont(ProcessedTextGlyph* text,
     } else {
       color.a *= text[i].Opacity;
     }
-    DrawSprite(font->Glyph(text[i].CharId), text[i].DestRect, color);
+    if (bounds.Intersects(text[i].DestRect)) {
+      DrawSprite(font->Glyph(text[i].CharId), text[i].DestRect, color);
+    }
   }
 }
 
-void BaseRenderer::DrawProcessedText_LBFont(ProcessedTextGlyph* text,
-                                            int length, LBFont* font,
-                                            float opacity,
-                                            RendererOutlineMode outlineMode,
-                                            bool smoothstepGlyphOpacity,
-                                            float outlineOpacity) {
+void BaseRenderer::DrawProcessedText_LBFont(
+    ProcessedTextGlyph* text, int length, LBFont* font, float opacity,
+    RendererOutlineMode outlineMode, bool smoothstepGlyphOpacity,
+    float outlineOpacity, RectF bounds) {
   // TODO: implement outline mode properly
   if (outlineMode != RendererOutlineMode::RO_None) {
     for (int i = 0; i < length; i++) {
@@ -145,7 +147,9 @@ void BaseRenderer::DrawProcessedText_LBFont(ProcessedTextGlyph* text,
           text[i].DestRect.Y + scale * font->OutlineOffset.y,
           scale * font->OutlineCellWidth, scale * font->OutlineCellHeight);
 
-      DrawSprite(font->OutlineGlyph(text[i].CharId), outlineDest, color);
+      if (bounds.Intersects(outlineDest)) {
+        DrawSprite(font->OutlineGlyph(text[i].CharId), outlineDest, color);
+      }
     }
   }
 
@@ -157,8 +161,9 @@ void BaseRenderer::DrawProcessedText_LBFont(ProcessedTextGlyph* text,
     } else {
       color.a *= text[i].Opacity;
     }
-
-    DrawSprite(font->Glyph(text[i].CharId), text[i].DestRect, color);
+    if (bounds.Intersects(text[i].DestRect)) {
+      DrawSprite(font->Glyph(text[i].CharId), text[i].DestRect, color);
+    }
   }
 }
 
@@ -166,16 +171,9 @@ void BaseRenderer::DrawProcessedText(ProcessedTextGlyph* text, int length,
                                      Font* font, float opacity,
                                      RendererOutlineMode outlineMode,
                                      bool smoothstepGlyphOpacity) {
-  switch (font->Type) {
-    case FontType::Basic:
-      DrawProcessedText_BasicFont(text, length, (BasicFont*)font, opacity,
-                                  outlineMode, smoothstepGlyphOpacity, opacity);
-      break;
-    case FontType::LB: {
-      DrawProcessedText_LBFont(text, length, (LBFont*)font, opacity,
-                               outlineMode, smoothstepGlyphOpacity, opacity);
-    }
-  }
+  DrawProcessedText(text, length, font, opacity, opacity,
+                    RectF(0, 0, Profile::DesignWidth, Profile::DesignHeight),
+                    outlineMode, smoothstepGlyphOpacity);
 }
 
 void BaseRenderer::DrawProcessedText(ProcessedTextGlyph* text, int length,
@@ -183,16 +181,28 @@ void BaseRenderer::DrawProcessedText(ProcessedTextGlyph* text, int length,
                                      float outlineOpacity,
                                      RendererOutlineMode outlineMode,
                                      bool smoothstepGlyphOpacity) {
+  DrawProcessedText(text, length, font, opacity, outlineOpacity,
+                    RectF(0, 0, Profile::DesignWidth, Profile::DesignHeight),
+                    outlineMode, smoothstepGlyphOpacity);
+}
+
+void BaseRenderer::DrawProcessedText(ProcessedTextGlyph* text, int length,
+                                     Font* font, float opacity,
+                                     float outlineOpacity, RectF bounds,
+                                     RendererOutlineMode outlineMode,
+                                     bool smoothstepGlyphOpacity) {
   switch (font->Type) {
     case FontType::Basic:
-      DrawProcessedText_BasicFont(text, length, (BasicFont*)font, opacity,
-                                  outlineMode, smoothstepGlyphOpacity,
-                                  outlineOpacity);
+      DrawProcessedText_BasicFont(
+          text, length, (BasicFont*)font, opacity, outlineMode,
+          smoothstepGlyphOpacity, outlineOpacity,
+          RectF(0, 0, Profile::DesignWidth, Profile::DesignHeight));
       break;
     case FontType::LB: {
-      DrawProcessedText_LBFont(text, length, (LBFont*)font, opacity,
-                               outlineMode, smoothstepGlyphOpacity,
-                               outlineOpacity);
+      DrawProcessedText_LBFont(
+          text, length, (LBFont*)font, opacity, outlineMode,
+          smoothstepGlyphOpacity, outlineOpacity,
+          RectF(0, 0, Profile::DesignWidth, Profile::DesignHeight));
     }
   }
 }
