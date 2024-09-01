@@ -14,7 +14,7 @@ root.TipsMenu = {
 
     TipsEntryBounds = { X = 80, Y = 382, Width = 781, Height = 50},
     TipEntryNewOffset = { X = 0, Y = 1 },
-    TipsEntryHighlightOffset = { X = 41, Y = 0 },
+    TipsEntryHighlightOffset = { X = 41, Y = 3 },
     TipsEntryNumberOffset = { X = 41, Y = 8 },
     TipsEntryNameOffset = {X = 94, Y = 6},
     TipsTabBounds = {X = 0, Y = 382, Width = 890, Height = 545 },
@@ -25,6 +25,15 @@ root.TipsMenu = {
     TipsTextTableIndex = 2,
     TipsTextEntryLockedIndex = 7,
     TipsTextSortStringIndex = 10,
+
+    CategoryPos = { X = 1230, Y = 76},
+    CategoryFontSize = 32,
+    NamePos = { X = 1020, Y = 160},
+    NameFontSize = 40,
+    NumberPos = { X = 1807, Y = 84},
+    NumberFontSize = 44,
+    PronounciationPos = { X = 1020, Y = 246},
+    PronounciationFontSize = 26,
 };
 
 root.Sprites["TipsMenuBackground"] = {

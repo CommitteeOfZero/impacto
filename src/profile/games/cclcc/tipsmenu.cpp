@@ -38,6 +38,15 @@ void Configure() {
   TipsTabBounds = EnsureGetMemberRectF("TipsTabBounds");
   TipsTabNameDisplay = EnsureGetMemberVec2("TipsTabNameDisplay");
 
+  CategoryPos = EnsureGetMemberVec2("CategoryPos");
+  CategoryFontSize = EnsureGetMemberInt("CategoryFontSize");
+  NamePos = EnsureGetMemberVec2("NamePos");
+  NameFontSize = EnsureGetMemberInt("NameFontSize");
+  PronounciationPos = EnsureGetMemberVec2("PronounciationPos");
+  PronounciationFontSize = EnsureGetMemberInt("PronounciationFontSize");
+  NumberPos = EnsureGetMemberVec2("NumberPos");
+  NumberFontSize = EnsureGetMemberInt("NumberFontSize");
+
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMemberInt("DrawType"));
 

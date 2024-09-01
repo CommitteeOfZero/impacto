@@ -43,15 +43,15 @@ class TipsMenu : public UI::TipsMenu {
 
  private:
   constexpr int static TabCount = 4;
-  int CurrentTipPage = 1;
   int CurrentTabIdx = 0;
+  int TipPageY = 0;
 
   TipsTabType CurrentTabType;
   std::vector<int> SortedTipIds;
   std::array<Widgets::CCLCC::TipsTabGroup*, TabCount> TipsTabs;
-  Widgets::Label* PageSeparator;
-  Widgets::Label* CurrentPage;
-  Widgets::Label* TotalPages;
+
+  Widgets::Group TipViewItems;
+
   bool HasInitialized = false;
 
   void SetActiveTab(TipsTabType type);

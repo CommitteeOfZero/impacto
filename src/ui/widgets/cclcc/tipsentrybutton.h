@@ -14,8 +14,9 @@ int constexpr TipLockedTextLength = 10;
 class TipsEntryButton : public Widgets::Button {
  public:
   TipsEntryButton(int tipId, int dispId, RectF const& dest,
-                  Sprite const& highlight);
+                  Sprite const& highlight, bool isNew);
   void Update(float dt) override;
+  void UpdateInput() override;
   void Render() override;
   void Move(glm::vec2 pos) override;
   void MoveTo(glm::vec2 pos) override;
@@ -26,6 +27,7 @@ class TipsEntryButton : public Widgets::Button {
   std::array<ProcessedTextGlyph, TipNumberLength> TipNumber;
   std::array<ProcessedTextGlyph, TipLockedTextLength> TipLockedText;
   bool PrevUnreadState;
+  bool IsNewState;
 };
 
 }  // namespace CCLCC
