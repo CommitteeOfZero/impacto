@@ -72,6 +72,45 @@ void BaseRenderer::DrawSprite3DRotated(Sprite const& sprite, glm::vec2 topLeft,
                       rot, tint, inverted);
 }
 
+std::pair<Sprite, RectF> GetBoundedSprite(Sprite const& sprite, RectF bounds,
+                                          RectF dest) {
+  Sprite boundedSprite = sprite;
+  RectF boundedDest = dest;
+  float topDifference = dest.Y - bounds.Y;
+  float bottomDifference = (bounds.Y + bounds.Height) - (dest.Y + dest.Height);
+  float leftDifference = dest.X - bounds.X;
+  float rightDifference = (bounds.X + bounds.Width) - (dest.X + dest.Width);
+
+  float scaleX = dest.Width / sprite.Bounds.Width;
+  float scaleY = dest.Height / sprite.Bounds.Height;
+
+  if (topDifference < 0) {
+    boundedSprite.Bounds.Y -= topDifference / scaleY;
+    boundedSprite.Bounds.Height += topDifference / scaleY;
+    boundedDest.Y -= topDifference;
+    boundedDest.Height += topDifference;
+  }
+  if (bottomDifference < 0) {
+    boundedSprite.Bounds.Height += bottomDifference / scaleY;
+    boundedDest.Height += bottomDifference;
+  }
+  if (leftDifference < 0) {
+    boundedSprite.Bounds.X -= leftDifference;
+    boundedSprite.Bounds.Width += leftDifference / scaleX;
+    boundedDest.X -= leftDifference;
+    boundedDest.Width += leftDifference;
+  }
+  if (rightDifference < 0) {
+    boundedSprite.Bounds.Width += rightDifference / scaleX;
+    boundedDest.Width += rightDifference;
+  }
+  if (boundedSprite.Bounds.Width <= 0 || boundedSprite.Bounds.Height <= 0) {
+    boundedSprite.Bounds.Width = 0;
+    boundedSprite.Bounds.Height = 0;
+  }
+  return std::pair{boundedSprite, boundedDest};
+}
+
 void BaseRenderer::DrawProcessedText_BasicFont(
     ProcessedTextGlyph* text, int length, BasicFont* font, float opacity,
     RendererOutlineMode outlineMode, bool smoothstepGlyphOpacity,
@@ -89,22 +128,24 @@ void BaseRenderer::DrawProcessedText_BasicFont(
       Sprite glyph = font->Glyph(text[i].CharId);
       RectF dest = text[i].DestRect;
       switch (outlineMode) {
-        case RendererOutlineMode::RO_Full:
+        case RendererOutlineMode::RO_Full: {
           dest.X--;
           dest.Y--;
-          if (bounds.Intersects(dest)) {
-            DrawSprite(glyph, dest, color);
-          }
+          auto [boundedSprite, boundedDest] =
+              GetBoundedSprite(glyph, bounds, dest);
+          DrawSprite(boundedSprite, boundedDest, color);
+
           dest.X++;
           dest.Y++;
           [[fallthrough]];
-        case RendererOutlineMode::RO_BottomRight:
+        }
+        case RendererOutlineMode::RO_BottomRight: {
           dest.X++;
           dest.Y++;
-          if (bounds.Intersects(dest)) {
-            DrawSprite(glyph, dest, color);
-          }
-          break;
+          auto [boundedSprite, boundedDest] =
+              GetBoundedSprite(glyph, bounds, dest);
+          DrawSprite(boundedSprite, boundedDest, color);
+        } break;
         default:
           break;
       }
@@ -118,10 +159,11 @@ void BaseRenderer::DrawProcessedText_BasicFont(
       color.a *= glm::smoothstep(0.0f, 1.0f, text[i].Opacity);
     } else {
       color.a *= text[i].Opacity;
-    }
-    if (bounds.Intersects(text[i].DestRect)) {
-      DrawSprite(font->Glyph(text[i].CharId), text[i].DestRect, color);
-    }
+    };
+
+    auto [boundedSprite, boundedDest] =
+        GetBoundedSprite(font->Glyph(text[i].CharId), bounds, text[i].DestRect);
+    DrawSprite(boundedSprite, boundedDest, color);
   }
 }
 
@@ -147,9 +189,9 @@ void BaseRenderer::DrawProcessedText_LBFont(
           text[i].DestRect.Y + scale * font->OutlineOffset.y,
           scale * font->OutlineCellWidth, scale * font->OutlineCellHeight);
 
-      if (bounds.Intersects(outlineDest)) {
-        DrawSprite(font->OutlineGlyph(text[i].CharId), outlineDest, color);
-      }
+      auto [boundedSprite, boundedDest] = GetBoundedSprite(
+          font->OutlineGlyph(text[i].CharId), bounds, outlineDest);
+      DrawSprite(boundedSprite, boundedDest, color);
     }
   }
 
@@ -161,9 +203,9 @@ void BaseRenderer::DrawProcessedText_LBFont(
     } else {
       color.a *= text[i].Opacity;
     }
-    if (bounds.Intersects(text[i].DestRect)) {
-      DrawSprite(font->Glyph(text[i].CharId), text[i].DestRect, color);
-    }
+    auto [boundedSprite, boundedDest] =
+        GetBoundedSprite(font->Glyph(text[i].CharId), bounds, text[i].DestRect);
+    DrawSprite(boundedSprite, boundedDest, color);
   }
 }
 
