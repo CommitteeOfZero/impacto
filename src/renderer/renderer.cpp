@@ -193,16 +193,14 @@ void BaseRenderer::DrawProcessedText(ProcessedTextGlyph* text, int length,
                                      bool smoothstepGlyphOpacity) {
   switch (font->Type) {
     case FontType::Basic:
-      DrawProcessedText_BasicFont(
-          text, length, (BasicFont*)font, opacity, outlineMode,
-          smoothstepGlyphOpacity, outlineOpacity,
-          RectF(0, 0, Profile::DesignWidth, Profile::DesignHeight));
+      DrawProcessedText_BasicFont(text, length, (BasicFont*)font, opacity,
+                                  outlineMode, smoothstepGlyphOpacity,
+                                  outlineOpacity, bounds);
       break;
     case FontType::LB: {
-      DrawProcessedText_LBFont(
-          text, length, (LBFont*)font, opacity, outlineMode,
-          smoothstepGlyphOpacity, outlineOpacity,
-          RectF(0, 0, Profile::DesignWidth, Profile::DesignHeight));
+      DrawProcessedText_LBFont(text, length, (LBFont*)font, opacity,
+                               outlineMode, smoothstepGlyphOpacity,
+                               outlineOpacity, bounds);
     }
   }
 }
