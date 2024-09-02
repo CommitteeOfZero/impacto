@@ -224,9 +224,12 @@ void TipsMenu::Render() {
                          transition);
     if (CurrentlyDisplayedTipId != -1) {
       TipViewItems.Render();
-      Renderer->DrawProcessedText(
-          TextPage.Glyphs, TextPage.Length, Profile::Dialogue::DialogueFont, 1,
-          1, TextPage.BoxBounds, RendererOutlineMode::RO_None, true);
+      Renderer->EnableScissor();
+      Renderer->SetScissorRect(TextPage.BoxBounds);
+      Renderer->DrawProcessedText(TextPage.Glyphs, TextPage.Length,
+                                  Profile::Dialogue::DialogueFont, 1, 1,
+                                  RendererOutlineMode::RO_None, true);
+      Renderer->DisableScissor();
     }
 
     Renderer->DrawSprite(
