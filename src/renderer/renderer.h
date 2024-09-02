@@ -95,12 +95,12 @@ class BaseRenderer {
                                    BasicFont* font, float opacity,
                                    RendererOutlineMode outlineMode,
                                    bool smoothstepGlyphOpacity,
-                                   float outlineOpacity, RectF bounds);
+                                   float outlineOpacity);
   void DrawProcessedText_LBFont(ProcessedTextGlyph* text, int length,
                                 LBFont* font, float opacity,
                                 RendererOutlineMode outlineMode,
                                 bool smoothstepGlyphOpacity,
-                                float outlineOpacity, RectF bounds);
+                                float outlineOpacity);
   void DrawProcessedText(
       ProcessedTextGlyph* text, int length, Font* font, float opacity = 1.0f,
       RendererOutlineMode outlineMode = RendererOutlineMode::RO_None,
@@ -109,12 +109,6 @@ class BaseRenderer {
   void DrawProcessedText(
       ProcessedTextGlyph* text, int length, Font* font, float opacity,
       float outlineOpacity,
-      RendererOutlineMode outlineMode = RendererOutlineMode::RO_None,
-      bool smoothstepGlyphOpacity = true);
-
-  void DrawProcessedText(
-      ProcessedTextGlyph* text, int length, Font* font, float opacity,
-      float outlineOpacity, RectF bounds,
       RendererOutlineMode outlineMode = RendererOutlineMode::RO_None,
       bool smoothstepGlyphOpacity = true);
 
