@@ -90,8 +90,9 @@ void BacklogEntry::MoveTo(glm::vec2 position) {
 
 void BacklogEntry::Render() {
   if (AudioId != -1) {
-    Renderer->DrawSprite(VoiceIcon,
-        glm::vec2(Bounds.X - VoiceIcon.ScaledWidth(), Bounds.Y) + VoiceIconOffset);
+    Renderer->DrawSprite(
+        VoiceIcon, glm::vec2(Bounds.X - VoiceIcon.ScaledWidth(), Bounds.Y) +
+                       VoiceIconOffset);
   }
 
   if (BacklogPage->HasName) {

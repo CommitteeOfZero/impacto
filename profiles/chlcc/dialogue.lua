@@ -28,6 +28,7 @@ root.Dialogue = {
     REVBoxSprite = "REVBox",
     REVBoxPos = { X = 314, Y = 156 },
     REVNameFontSize = 24,
+    REVColor = 0,
     REVNameColor = 24,
     REVNameOffset = 34,
     REVNameLocation = REVNameLocationType.TopLeft,

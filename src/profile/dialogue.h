@@ -39,6 +39,7 @@ inline bool ADVBoxShowName = true;
 BETTER_ENUM(REVNameLocationType, int, None, TopLeft, LeftTop)
 
 inline float REVNameFontSize;
+inline int REVColor;
 inline int REVNameColor;
 inline float REVNameOffset;
 inline REVNameLocationType REVNameLocation = REVNameLocationType::None;

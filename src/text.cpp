@@ -422,6 +422,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
   int LastWordStart = Glyphs.size();
   LastLineStart = Glyphs.size();
   DialogueColorPair CurrentColors = ColorTable[0];
+  if (Mode == DPM_REV) CurrentColors = ColorTable[REVColor];
 
   if (Mode == DPM_ADV) {
     BoxBounds = ADVBounds;
@@ -526,6 +527,8 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
         break;
       }
       case STT_SetColor: {
+        if (Mode == DPM_REV) break;
+
         assert(token.Val_Expr < ColorCount);
         CurrentColors = ColorTable[token.Val_Expr];
         break;

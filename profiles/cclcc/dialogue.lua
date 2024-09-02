@@ -13,6 +13,7 @@ root.Dialogue = {
     TipsColorIndex = 10,
     REVBounds = { X = 547, Y = 0, Width = 1043, Height = 400 },
     REVNameFontSize = 42,
+    REVColor = 10, -- Absolute guess
     REVNameColor = 0,
     REVNameOffset = 18,
     REVNameLocation = REVNameLocationType.LeftTop,

@@ -16,6 +16,7 @@ root.Sprites["WaitIconSprite"] = {
 root.Dialogue = {
     REVBounds = { X = 547, Y = 0, Width = 1043, Height = 400 },
     REVNameFontSize = 48,
+    REVColor = 0,
     REVNameColor = 61, -- Unsure
     REVNameOffset = 22,
     REVNameLocation = REVNameLocationType.LeftTop,
