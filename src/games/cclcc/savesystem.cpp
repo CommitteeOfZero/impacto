@@ -478,15 +478,14 @@ int SaveSystem::GetSaveTitle(SaveType type, int id) {
 uint32_t SaveSystem::GetTipStatus(int tipId) {
   tipId *= 3;
   uint8_t lockStatus = (GameExtraData[tipId >> 3] & Flbit[tipId & 7]) != 0;
-  uint8_t unreadStatus =
-      (GameExtraData[(tipId + 2) >> 3] & Flbit[(tipId + 2) & 7]) != 0;
   uint8_t newStatus =
       (GameExtraData[(tipId + 1) >> 3] & Flbit[(tipId + 1) & 7]) != 0;
-  return (lockStatus | (2 * unreadStatus) & 0xFB) | (4 * newStatus);
+  uint8_t unreadStatus =
+      (GameExtraData[(tipId + 2) >> 3] & Flbit[(tipId + 2) & 7]) != 0;
+  return (lockStatus | (unreadStatus << 1)) | (newStatus << 2);
 }
 
 void SaveSystem::SetTipStatus(int tipId, bool isLocked, bool isUnread,
-
                               bool isNew) {
   tipId *= 3;
   if (isLocked) {
@@ -495,14 +494,14 @@ void SaveSystem::SetTipStatus(int tipId, bool isLocked, bool isUnread,
     GameExtraData[tipId >> 3] |= Flbit[tipId & 7];
   }
   if (isUnread) {
-    GameExtraData[(tipId + 1) >> 3] &= ~(Flbit[(tipId + 1) & 7]);
-  } else {
-    GameExtraData[(tipId + 1) >> 3] |= Flbit[(tipId + 1) & 7];
-  }
-  if (isNew) {
     GameExtraData[(tipId + 2) >> 3] &= ~(Flbit[(tipId + 2) & 7]);
   } else {
     GameExtraData[(tipId + 2) >> 3] |= Flbit[(tipId + 2) & 7];
+  }
+  if (isNew) {
+    GameExtraData[(tipId + 1) >> 3] &= ~(Flbit[(tipId + 1) & 7]);
+  } else {
+    GameExtraData[(tipId + 1) >> 3] |= Flbit[(tipId + 1) & 7];
   }
 }
 
