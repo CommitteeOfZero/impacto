@@ -135,6 +135,9 @@ void TipsTabGroup::UpdateTipsEntries(std::vector<int> const& SortedTipIds) {
     button->OnClickHandler = TipClickHandler;
     EntriesCount++;
     TipsEntriesGroup.Add(button, FDIR_DOWN);
+    if (Type == TipsTabType::NewTips) {
+      TipsSystem::SetTipNewState(tipId, false);
+    }
   }
 }
 
