@@ -27,8 +27,8 @@ using namespace Impacto::Vm::Interface;
 using namespace Impacto::UI::Widgets;
 using namespace Impacto::UI::Widgets::CCLCC;
 
-// Todo: correct audio sounds, scrollbars, fix menu not entering hide state
-// (not exclusive to this menu)
+// Todo: correct audio sounds, scrollbars, partial text rendering for out of
+// bounds text
 
 struct SortByTipName {
   SortByTipName() {
@@ -192,20 +192,20 @@ void TipsMenu::Update(float dt) {
   } else if (State == Hiding && FadeAnimation.Progress == 0.0f) {
     State = Hidden;
   }
-  if (State == Shown && CurrentlyDisplayedTipId != -1) {
-    RectF lastCharDest = TextPage.Glyphs[TextPage.Length - 1].DestRect;
+  // if (State == Shown && CurrentlyDisplayedTipId != -1) {
+  //   RectF lastCharDest = TextPage.Glyphs[TextPage.Length - 1].DestRect;
 
-    // TODO: Add buttons to scroll text
-    if (lastCharDest.Y + TipPageY < TextPage.BoxBounds.Y) {
-      TextPage.Move({0, lastCharDest.Height});
-      TipPageY += lastCharDest.Height;
-    } else if (lastCharDest.Y + TipPageY > TextPage.BoxBounds.Y +
-                                               TextPage.BoxBounds.Height +
-                                               lastCharDest.Height) {
-      TextPage.Move({0, -lastCharDest.Height});
-      TipPageY -= lastCharDest.Height;
-    }
-  }
+  //   // TODO: Add buttons to scroll text
+  //   if (lastCharDest.Y + TipPageY < TextPage.BoxBounds.Y) {
+  //     TextPage.Move({0, lastCharDest.Height});
+  //     TipPageY += lastCharDest.Height;
+  //   } else if (lastCharDest.Y + TipPageY > TextPage.BoxBounds.Y +
+  //                                              TextPage.BoxBounds.Height +
+  //                                              lastCharDest.Height) {
+  //     TextPage.Move({0, -lastCharDest.Height});
+  //     TipPageY -= lastCharDest.Height;
+  //   }
+  // }
 }
 
 void TipsMenu::Render() {
@@ -220,11 +220,6 @@ void TipsMenu::Render() {
     Renderer->DrawSprite(TipsBookLayerSprite, glm::vec2(0.0f), transition);
     TipsTabs[CurrentTabType]->Render();
 
-    Renderer->DrawSprite(
-        TipsMaskSprite,
-        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-        maskTint);
-
     Renderer->DrawSprite(TipsGuideSprite, glm::vec2(TipsGuideX, TipsGuideY),
                          transition);
     if (CurrentlyDisplayedTipId != -1) {
@@ -233,6 +228,11 @@ void TipsMenu::Render() {
           TextPage.Glyphs, TextPage.Length, Profile::Dialogue::DialogueFont, 1,
           1, TextPage.BoxBounds, RendererOutlineMode::RO_None, true);
     }
+
+    Renderer->DrawSprite(
+        TipsMaskSprite,
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+        maskTint);
   }
 }
 
