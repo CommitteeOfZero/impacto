@@ -26,6 +26,7 @@ void Configure() {
       break;
     case SaveDataType::CCLCC:
       Implementation = new Impacto::CCLCC::SaveSystem();
+      break;
     case SaveDataType::None:
       ImpLog(LL_Warning, LC_Profile,
              "Save data type is none, not setting implementation\n");
