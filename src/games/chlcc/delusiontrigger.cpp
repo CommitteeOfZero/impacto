@@ -341,9 +341,10 @@ void DelusionTrigger::Render() {
       ScreenMask, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
       glm::vec4(1.0f, 1.0f, 1.0f, (backgroundAlpha * 160) / 65536.0));
 
-  Renderer->DrawCHLCCDelusionOverlay(
+  Renderer->DrawMaskedSpriteOverlay(
       BackgroundSprite, ScaledMask, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-      (backgroundAlpha * 160) >> 8, 20, spinAngle * 2 * (float)M_PI / 65536.0f);
+      glm::vec4{1.0f}, (backgroundAlpha * 160) >> 8, 20, true,
+      spinAngle * 2 * (float)M_PI / 65536.0f);
 }
 
 }  // namespace CHLCC

@@ -19,8 +19,9 @@ enum Renderer2DMode {
   R2D_SpriteInverted,
   R2D_YUVFrame,
   R2D_Masked,
+  R2D_MaskedNoAlpha,
   R2D_CCMessageBox,
-  R2D_CHLCCMenuBackground
+  R2D_CHLCCMenuBackground,
 };
 
 struct VertexBufferSprites {
@@ -76,9 +77,10 @@ class Renderer : public BaseRenderer {
                         int fadeRange, float effectCt,
                         bool isScreencap = false) override;
 
-  void DrawCHLCCDelusionOverlay(Sprite const& sprite, Sprite const& mask,
-                                RectF const& dest, int alpha, int fadeRange,
-                                float angle) override;
+  void DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
+                               RectF const& dest, glm::vec4 tint, int alpha,
+                               int fadeRange, bool isInverted, float angle,
+                               bool useMaskAlpha);
 
   void DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
                                const RectF& dest, float alpha) override;
@@ -133,6 +135,7 @@ class Renderer : public BaseRenderer {
   GLuint ShaderProgramSprite;
   GLuint ShaderProgramSpriteInverted;
   GLuint ShaderProgramMaskedSprite;
+  GLuint ShaderProgramMaskedSpriteNoAlpha;
   GLuint ShaderProgramYUVFrame;
   GLuint ShaderProgramCCMessageBox;
   GLuint ShaderProgramCHLCCMenuBackground;
@@ -142,6 +145,7 @@ class Renderer : public BaseRenderer {
   GLuint YUVFrameIsAlphaLocation;
   GLuint MaskedIsInvertedLocation;
   GLuint MaskedIsSameTextureLocation;
+  GLuint MaskedNoAlphaIsInvertedLocation;
 
   GLuint VBO;
   GLuint IBO;

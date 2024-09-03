@@ -63,9 +63,10 @@ class Renderer : public BaseRenderer {
                         int fadeRange, float effectCt,
                         bool isScreencap = false) override;
 
-  void DrawCHLCCDelusionOverlay(Sprite const& sprite, Sprite const& mask,
-                                RectF const& dest, int alpha, int fadeRange,
-                                float angle) override;
+  void DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
+                               RectF const& dest, glm::vec4 tint, int alpha,
+                               int fadeRange, bool isInverted, float angle,
+                               bool useMaskAlpha) override;
 
   void DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
                                const RectF& dest, float alpha) override;
@@ -125,6 +126,7 @@ class Renderer : public BaseRenderer {
   Shader* ShaderSprite;
   Shader* ShaderSpriteInverted;
   Shader* ShaderMaskedSprite;
+  Shader* ShaderMaskedSpriteNoAlpha;
   Shader* ShaderYUVFrame;
   Shader* ShaderCCMessageBox;
   Shader* ShaderCHLCCMenuBackground;

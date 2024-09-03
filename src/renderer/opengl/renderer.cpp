@@ -84,22 +84,35 @@ void Renderer::Init() {
 
   // Set up sprite shader
   ShaderProgramSprite = Shaders->Compile("Sprite");
+  glUseProgram(ShaderProgramSprite);
   glUniform1i(glGetUniformLocation(ShaderProgramSprite, "ColorMap"), 0);
   ShaderProgramSpriteInverted = Shaders->Compile("Sprite_inverted");
   glUniform1i(glGetUniformLocation(ShaderProgramSpriteInverted, "ColorMap"), 0);
+
   ShaderProgramMaskedSprite = Shaders->Compile("MaskedSprite");
+  glUseProgram(ShaderProgramMaskedSprite);
   glUniform1i(glGetUniformLocation(ShaderProgramMaskedSprite, "ColorMap"), 0);
   MaskedIsInvertedLocation =
       glGetUniformLocation(ShaderProgramMaskedSprite, "IsInverted");
   MaskedIsSameTextureLocation =
       glGetUniformLocation(ShaderProgramMaskedSprite, "IsSameTexture");
+
+  ShaderProgramMaskedSpriteNoAlpha = Shaders->Compile("MaskedNoAlphaSprite");
+  glUseProgram(ShaderProgramMaskedSpriteNoAlpha);
+  glUniform1i(glGetUniformLocation(ShaderProgramMaskedSpriteNoAlpha, "ColorMap"), 0);
+  MaskedIsInvertedLocation =
+      glGetUniformLocation(ShaderProgramMaskedSpriteNoAlpha, "IsInverted");
+
   ShaderProgramYUVFrame = Shaders->Compile("YUVFrame");
+  glUseProgram(ShaderProgramYUVFrame);
   glUniform1i(glGetUniformLocation(ShaderProgramYUVFrame, "Luma"), 0);
   YUVFrameCbLocation = glGetUniformLocation(ShaderProgramYUVFrame, "Cb");
   YUVFrameCrLocation = glGetUniformLocation(ShaderProgramYUVFrame, "Cr");
   YUVFrameIsAlphaLocation =
       glGetUniformLocation(ShaderProgramYUVFrame, "IsAlpha");
+
   ShaderProgramCCMessageBox = Shaders->Compile("CCMessageBoxSprite");
+  glUseProgram(ShaderProgramCCMessageBox);
   glUniform1i(glGetUniformLocation(ShaderProgramCCMessageBox, "ColorMap"), 0);
   ShaderProgramCHLCCMenuBackground = Shaders->Compile("CHLCCMenuBackground");
 
@@ -465,12 +478,14 @@ void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
-void Renderer::DrawCHLCCDelusionOverlay(Sprite const& sprite,
-                                        Sprite const& mask, RectF const& dest,
-                                        int alpha, int fadeRange, float angle) {
+void Renderer::DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
+                                       RectF const& dest, glm::vec4 tint,
+                                       int alpha, int fadeRange,
+                                       bool isInverted, float angle,
+                                       bool useMaskAlpha) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
-           "Renderer->DrawCHLCCDelusionOverlay() called before BeginFrame()\n");
+           "Renderer->DrawMaskedSpriteOverlay() called before BeginFrame()\n");
     return;
   }
 
@@ -484,14 +499,24 @@ void Renderer::DrawCHLCCDelusionOverlay(Sprite const& sprite,
   EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
 
   Flush();
-  CurrentMode = R2D_Masked;
   glBindVertexArray(VAOSprites);
-  glUseProgram(ShaderProgramMaskedSprite);
-  glUniform1i(glGetUniformLocation(ShaderProgramMaskedSprite, "Mask"), 2);
-  glUniform2f(glGetUniformLocation(ShaderProgramMaskedSprite, "Alpha"),
-              alphaRange, constAlpha);
-  glUniform1i(MaskedIsInvertedLocation, true);
-  glUniform1i(MaskedIsSameTextureLocation, false);
+  if (useMaskAlpha) {
+    CurrentMode = R2D_Masked;
+    glUseProgram(ShaderProgramMaskedSprite);
+    glUniform1i(glGetUniformLocation(ShaderProgramMaskedSprite, "Mask"), 2);
+    glUniform2f(glGetUniformLocation(ShaderProgramMaskedSprite, "Alpha"),
+                alphaRange, constAlpha);
+    glUniform1i(MaskedIsInvertedLocation, isInverted);
+    glUniform1i(MaskedIsSameTextureLocation, false);
+  } else {
+    CurrentMode = R2D_MaskedNoAlpha;
+    glUseProgram(ShaderProgramMaskedSprite);
+    glUniform1i(glGetUniformLocation(ShaderProgramMaskedSpriteNoAlpha, "Mask"),
+                2);
+    glUniform2f(glGetUniformLocation(ShaderProgramMaskedSpriteNoAlpha, "Alpha"),
+                alphaRange, constAlpha);
+    glUniform1i(MaskedNoAlphaIsInvertedLocation, isInverted);
+  }
 
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
@@ -517,7 +542,7 @@ void Renderer::DrawCHLCCDelusionOverlay(Sprite const& sprite,
   QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
                   sizeof(VertexBufferSprites));
 
-  for (int i = 0; i < 4; i++) vertices[i].Tint = glm::vec4{1.0f};
+  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
 void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,

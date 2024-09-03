@@ -673,6 +673,17 @@ void Renderer::Init() {
       "MaskedSprite", bindingDescription, attributeDescriptions.data(),
       attributeDescriptions.size(), DoubleTextureSetLayout);
 
+  VkPushConstantRange maskedSpriteNoAlphaPushConstant;
+  maskedSpriteNoAlphaPushConstant.offset = 0;
+  maskedSpriteNoAlphaPushConstant.size = sizeof(MaskedNoAlphaPushConstants);
+  maskedSpriteNoAlphaPushConstant.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+  PipelineMaskedSpriteNoAlpha = new Pipeline(Device, RenderPass);
+  PipelineMaskedSpriteNoAlpha->SetPushConstants(
+      &maskedSpriteNoAlphaPushConstant, 1);
+  PipelineMaskedSpriteNoAlpha->CreateWithShader(
+      "MaskedSpriteNoAlpha", bindingDescription, attributeDescriptions.data(),
+      attributeDescriptions.size(), DoubleTextureSetLayout);
+
   VkPushConstantRange yuvFramePushConstants;
   yuvFramePushConstants.offset = 0;
   yuvFramePushConstants.size = sizeof(YUVFramePushConstants);
@@ -1434,13 +1445,14 @@ void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
-void Renderer::DrawCHLCCDelusionOverlay(Sprite const& sprite,
-                                            Sprite const& mask,
-                                            RectF const& dest, int alpha,
-                                            int fadeRange, float angle) {
+void Renderer::DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
+                                       RectF const& dest, glm::vec4 tint,
+                                       int alpha, int fadeRange,
+                                       bool isInverted, float angle,
+                                       bool useMaskAlpha) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
-           "Renderer->DrawCHLCCDelusionOverlay() called before BeginFrame()\n");
+           "Renderer->DrawMaskedSpriteOverlay() called before BeginFrame()\n");
     return;
   }
 
@@ -1455,7 +1467,6 @@ void Renderer::DrawCHLCCDelusionOverlay(Sprite const& sprite,
   float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
 
   Flush();
-  EnsureMode(PipelineMaskedSprite, false);
 
   VkSamplerCreateInfo samplerInfo = {};
   samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -1485,17 +1496,31 @@ void Renderer::DrawCHLCCDelusionOverlay(Sprite const& sprite,
   writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
   writeDescriptorSet.pImageInfo = imageBufferInfo;
 
-  vkCmdPushDescriptorSetKHR(
-      CommandBuffers[CurrentFrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
-      PipelineMaskedSprite->PipelineLayout, 0, 1, &writeDescriptorSet);
+  if (useMaskAlpha) {
+    EnsureMode(PipelineMaskedSprite, false);
+    vkCmdPushDescriptorSetKHR(
+        CommandBuffers[CurrentFrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
+        PipelineMaskedSprite->PipelineLayout, 0, 1, &writeDescriptorSet);
 
-  SpritePushConstants constants = {};
-  constants.Alpha = glm::vec2(alphaRange, constAlpha);
-  constants.IsInverted = true;
-  constants.IsSameTexture = false;
-  vkCmdPushConstants(
-      CommandBuffers[CurrentFrameIndex], CurrentPipeline->PipelineLayout,
-      VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SpritePushConstants), &constants);
+    SpritePushConstants constants = {};
+    constants.Alpha = glm::vec2(alphaRange, constAlpha);
+    constants.IsInverted = isInverted;
+    constants.IsSameTexture = false;
+    vkCmdPushConstants(CommandBuffers[CurrentFrameIndex],
+                       CurrentPipeline->PipelineLayout,
+                       VK_SHADER_STAGE_FRAGMENT_BIT, 0,
+                       sizeof(SpritePushConstants), &constants);
+
+  } else {
+    EnsureMode(PipelineMaskedSpriteNoAlpha, false);
+    MaskedNoAlphaPushConstants constants = {};
+    constants.Alpha = glm::vec2(alphaRange, constAlpha);
+    constants.IsInverted = isInverted;
+    vkCmdPushConstants(CommandBuffers[CurrentFrameIndex],
+                       CurrentPipeline->PipelineLayout,
+                       VK_SHADER_STAGE_FRAGMENT_BIT, 0,
+                       sizeof(MaskedNoAlphaPushConstants), &constants);
+  }
 
   // OK, all good, make quad
   MakeQuad();
@@ -1507,13 +1532,13 @@ void Renderer::DrawCHLCCDelusionOverlay(Sprite const& sprite,
 
   QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
             (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetUV(sprite.Bounds, sprite.Bounds.Width, sprite.Bounds.Height,
+  QuadSetUV(mask.Bounds, mask.Sheet.DesignWidth, mask.Sheet.DesignHeight,
             (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites), angle);
 
   QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
                   sizeof(VertexBufferSprites));
 
-  for (int i = 0; i < 4; i++) vertices[i].Tint = glm::vec4{1.0f};
+  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
 void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite,

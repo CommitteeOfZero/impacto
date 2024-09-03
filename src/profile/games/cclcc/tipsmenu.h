@@ -43,6 +43,8 @@ inline int NumberFontSize;
 inline uint32_t TipsEntryNameUnreadColor;
 inline uint32_t TipsMenuDarkTextColor;
 
+inline SpriteSheet TipsMaskSheet;
+
 void Configure();
 
 }  // namespace TipsMenu
