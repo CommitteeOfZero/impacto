@@ -435,8 +435,10 @@ void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
   // Do we have space for one more sprite quad?
   EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
 
-  Flush();
-  CurrentMode = R2D_Masked;
+  if (CurrentMode != R2D_Masked) {
+    Flush();
+    CurrentMode = R2D_Masked;
+  }
   glBindVertexArray(VAOSprites);
   glUseProgram(ShaderProgramMaskedSprite);
   glUniform1i(glGetUniformLocation(ShaderProgramMaskedSprite, "Mask"), 2);
@@ -498,10 +500,12 @@ void Renderer::DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
   // Do we have space for one more sprite quad?
   EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
 
-  Flush();
   glBindVertexArray(VAOSprites);
   if (useMaskAlpha) {
-    CurrentMode = R2D_Masked;
+    if (CurrentMode != R2D_Masked) {
+      Flush();
+      CurrentMode = R2D_Masked;
+    }
     glUseProgram(ShaderProgramMaskedSprite);
     glUniform1i(glGetUniformLocation(ShaderProgramMaskedSprite, "Mask"), 2);
     glUniform2f(glGetUniformLocation(ShaderProgramMaskedSprite, "Alpha"),
@@ -509,7 +513,10 @@ void Renderer::DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
     glUniform1i(MaskedIsInvertedLocation, isInverted);
     glUniform1i(MaskedIsSameTextureLocation, false);
   } else {
-    CurrentMode = R2D_MaskedNoAlpha;
+    if (CurrentMode != R2D_MaskedNoAlpha) {
+      Flush();
+      CurrentMode = R2D_MaskedNoAlpha;
+    }
     glUseProgram(ShaderProgramMaskedSpriteNoAlpha);
     glUniform1i(glGetUniformLocation(ShaderProgramMaskedSpriteNoAlpha, "Mask"),
                 2);
