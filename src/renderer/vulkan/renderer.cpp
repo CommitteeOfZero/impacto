@@ -1456,8 +1456,6 @@ void Renderer::DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
   float alphaRange = 256.0f / fadeRange;
   float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
 
-  Flush();
-
   VkSamplerCreateInfo samplerInfo = {};
   samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
   samplerInfo.pNext = nullptr;
@@ -1487,11 +1485,10 @@ void Renderer::DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
   writeDescriptorSet.pImageInfo = imageBufferInfo;
 
   if (useMaskAlpha) {
-    EnsureMode(PipelineMaskedSprite, false);
+    EnsureMode(PipelineMaskedSprite, true);
     vkCmdPushDescriptorSetKHR(
         CommandBuffers[CurrentFrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
-        PipelineMaskedSprite->PipelineLayout, 0, 1, &writeDescriptorSet);
-
+        CurrentPipeline->PipelineLayout, 0, 1, &writeDescriptorSet);
     SpritePushConstants constants = {};
     constants.Alpha = glm::vec2(alphaRange, constAlpha);
     constants.IsInverted = isInverted;
@@ -1502,7 +1499,10 @@ void Renderer::DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
                        sizeof(SpritePushConstants), &constants);
 
   } else {
-    EnsureMode(PipelineMaskedSpriteNoAlpha, false);
+    EnsureMode(PipelineMaskedSpriteNoAlpha, true);
+    vkCmdPushDescriptorSetKHR(
+        CommandBuffers[CurrentFrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
+        CurrentPipeline->PipelineLayout, 0, 1, &writeDescriptorSet);
     MaskedNoAlphaPushConstants constants = {};
     constants.Alpha = glm::vec2(alphaRange, constAlpha);
     constants.IsInverted = isInverted;

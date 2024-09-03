@@ -28,8 +28,8 @@ struct SpritePushConstants {
 };
 
 struct MaskedNoAlphaPushConstants {
-  VkBool32 IsInverted;
   glm::vec2 Alpha;
+  VkBool32 IsInverted;
 };
 
 struct YUVFramePushConstants {

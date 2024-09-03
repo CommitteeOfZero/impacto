@@ -39,7 +39,7 @@ class BaseWindow {
   float DpiScaleX = 1.0f;
   float DpiScaleY = 1.0f;
 
-  int MsaaCount = 1;
+  int MsaaCount = 4;
   float RenderScale = 1.0f;
 
   bool WindowDimensionsChanged;
