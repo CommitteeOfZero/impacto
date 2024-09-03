@@ -12,23 +12,25 @@ layout(binding = 0) uniform sampler2D ColorMap[2];
 layout(push_constant) uniform constants
 {
 	bool IsInverted;
-	bool IsSameTexture;
 	vec2 Alpha;
 } PushConstants;
+
+float rgbToLightness(vec3 rgb) {
+    float maxVal = max(max(rgb.r, rgb.g), rgb.b);
+    float minVal = min(min(rgb.r, rgb.g), rgb.b);
+    
+    return (maxVal + minVal) / 2.0;
+}
 
 void main() { 
 	color = texture(ColorMap[0], uv);
 	vec4 alp = texture(ColorMap[1], maskUV);
-	float maskAlpha = (alp.r + alp.g + alp.b) / 3.0;
+	float maskAlpha = rgbToLightness(alp.rgb);
 	if (PushConstants.IsInverted) maskAlpha = 1.0f - maskAlpha;
 	maskAlpha *= PushConstants.Alpha.x;
 	maskAlpha -= PushConstants.Alpha.y;
 	maskAlpha = clamp(maskAlpha,0.0,1.0);
-	if (PushConstants.IsSameTexture) {
-		color.a = maskAlpha;
-		color.a *= tint.a;
-	} else {
-		color *= tint;
-		color.a *= maskAlpha;
-	}
+	color *= tint;
+	color.a *= maskAlpha;
+	
 }

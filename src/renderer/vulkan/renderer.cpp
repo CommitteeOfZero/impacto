@@ -186,13 +186,6 @@ void Renderer::CreateLogicalDevice() {
   createInfo.pEnabledFeatures = &deviceFeatures;
   createInfo.enabledExtensionCount = (uint32_t)deviceExtensions.size();
   createInfo.ppEnabledExtensionNames = deviceExtensions.data();
-  if (EnableValidationLayers) {
-    createInfo.enabledLayerCount =
-        static_cast<uint32_t>(validationLayers.size());
-    createInfo.ppEnabledLayerNames = validationLayers.data();
-  } else {
-    createInfo.enabledLayerCount = 0;
-  }
 
   if (vkCreateDevice(PhysicalDevice, &createInfo, nullptr, &Device) !=
       VK_SUCCESS) {
