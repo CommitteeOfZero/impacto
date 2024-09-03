@@ -58,12 +58,18 @@ void SystemMenu::Show() {
     State = Showing;
     MenuTransition.StartIn();
     MainItems->Show();
-    if (UI::FocusedMenu != 0) {
-      LastFocusedMenu = UI::FocusedMenu;
-      LastFocusedMenu->IsFocused = false;
+
+    // If the function was called due to a submenu opening directly,
+    // then don't take over focus
+    if (!(ScrWork[SW_SYSMENUCT] == 32 && ScrWork[SW_SYSSUBMENUCT] ||
+          ScrWork[2151])) {
+      if (UI::FocusedMenu != 0) {
+        LastFocusedMenu = UI::FocusedMenu;
+        LastFocusedMenu->IsFocused = false;
+      }
+      IsFocused = true;
+      UI::FocusedMenu = this;
     }
-    IsFocused = true;
-    UI::FocusedMenu = this;
   }
 }
 
