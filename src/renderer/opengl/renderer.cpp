@@ -97,10 +97,10 @@ void Renderer::Init() {
   MaskedIsSameTextureLocation =
       glGetUniformLocation(ShaderProgramMaskedSprite, "IsSameTexture");
 
-  ShaderProgramMaskedSpriteNoAlpha = Shaders->Compile("MaskedNoAlphaSprite");
+  ShaderProgramMaskedSpriteNoAlpha = Shaders->Compile("MaskedSpriteNoAlpha");
   glUseProgram(ShaderProgramMaskedSpriteNoAlpha);
   glUniform1i(glGetUniformLocation(ShaderProgramMaskedSpriteNoAlpha, "ColorMap"), 0);
-  MaskedIsInvertedLocation =
+  MaskedNoAlphaIsInvertedLocation =
       glGetUniformLocation(ShaderProgramMaskedSpriteNoAlpha, "IsInverted");
 
   ShaderProgramYUVFrame = Shaders->Compile("YUVFrame");
@@ -510,7 +510,7 @@ void Renderer::DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
     glUniform1i(MaskedIsSameTextureLocation, false);
   } else {
     CurrentMode = R2D_MaskedNoAlpha;
-    glUseProgram(ShaderProgramMaskedSprite);
+    glUseProgram(ShaderProgramMaskedSpriteNoAlpha);
     glUniform1i(glGetUniformLocation(ShaderProgramMaskedSpriteNoAlpha, "Mask"),
                 2);
     glUniform2f(glGetUniformLocation(ShaderProgramMaskedSpriteNoAlpha, "Alpha"),
