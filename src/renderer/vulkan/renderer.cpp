@@ -354,7 +354,8 @@ void Renderer::CreateRenderPass() {
   subpass.colorAttachmentCount = 1;
   subpass.pColorAttachments = &colorAttachmentRef;
   subpass.pDepthStencilAttachment = &depthAttachmentRef;
-  subpass.pResolveAttachments = &colorAttachmentResolveRef;
+  if (Window->MsaaCount > 1)
+    subpass.pResolveAttachments = &colorAttachmentResolveRef;
 
   VkSubpassDependency dependency{};
   dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -371,7 +372,7 @@ void Renderer::CreateRenderPass() {
                                             colorAttachmentResolve};
   VkRenderPassCreateInfo renderPassInfo{};
   renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-  renderPassInfo.attachmentCount = 3;
+  renderPassInfo.attachmentCount = Window->MsaaCount > 1 ? 3 : 2;
   renderPassInfo.pAttachments = attachments;
   renderPassInfo.subpassCount = 1;
   renderPassInfo.pSubpasses = &subpass;
@@ -390,11 +391,13 @@ void Renderer::CreateFramebuffers() {
   for (size_t i = 0; i < SwapChainImageViews.size(); i++) {
     VkImageView attachments[] = {ColorImageView, DepthImageView,
                                  SwapChainImageViews[i]};
+    if (Window->MsaaCount == 1)
+      attachments[0] = attachments[2];
 
     VkFramebufferCreateInfo framebufferInfo{};
     framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
     framebufferInfo.renderPass = RenderPass;
-    framebufferInfo.attachmentCount = 3;
+    framebufferInfo.attachmentCount = Window->MsaaCount > 1 ? 3 : 2;
     framebufferInfo.pAttachments = attachments;
     framebufferInfo.width = SwapChainExtent.width;
     framebufferInfo.height = SwapChainExtent.height;
