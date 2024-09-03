@@ -11,8 +11,8 @@ layout(binding = 0) uniform sampler2D ColorMap[2];
 
 layout(push_constant) uniform constants
 {
-	bool IsInverted;
 	vec2 Alpha;
+	bool IsInverted;
 } PushConstants;
 
 float rgbToLightness(vec3 rgb) {
@@ -32,5 +32,4 @@ void main() {
 	maskAlpha = clamp(maskAlpha,0.0,1.0);
 	color *= tint;
 	color.a *= maskAlpha;
-	
 }
