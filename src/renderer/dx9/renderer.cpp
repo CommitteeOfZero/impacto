@@ -579,7 +579,6 @@ void Renderer::DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
   BOOL isSameTextureB = (BOOL) false;
   BOOL useMaskAlphaB = (BOOL)useMaskAlpha;
 
-  Flush();
   if (useMaskAlpha) {
     EnsureShader(ShaderMaskedSprite);
     Device->SetPixelShaderConstantB(1, &isSameTextureB, 1);
