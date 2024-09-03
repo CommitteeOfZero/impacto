@@ -51,6 +51,8 @@ void Configure() {
 
   TipsMenuDarkTextColor = EnsureGetMemberUint("TipsMenuDarkTextColor");
 
+  TipsMaskSheet = EnsureGetMemberSpriteSheet("TipsMask");
+
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMemberInt("DrawType"));
 

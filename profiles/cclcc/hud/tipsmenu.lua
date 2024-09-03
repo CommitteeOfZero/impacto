@@ -37,6 +37,8 @@ root.TipsMenu = {
 
     TipsEntryNameUnreadColor = 0x117733, 
     TipsMenuDarkTextColor = 0x3e3e3c,
+
+    TipsMask = "TipsMask",
 };
 
 root.Sprites["TipsMenuBackground"] = {
@@ -73,4 +75,10 @@ root.Sprites["TipsNewSprite"] = {
 root.Sprites["TipsHighlightedSprite"] = {
     Sheet = "Tips",
     Bounds = { X = 517, Y = 1208, Width = 740, Height = 40 }
+};
+
+root.SpriteSheets["TipsMask"] = {
+    Path = { Mount = "system", Id = 29 },
+    DesignWidth = 1920,
+    DesignHeight = 1080
 };
