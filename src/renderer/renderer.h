@@ -72,10 +72,12 @@ class BaseRenderer {
   virtual void DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
                                        const RectF& dest, float alpha) = 0;
 
-  virtual void DrawCHLCCDelusionOverlay(Sprite const& sprite,
-                                        Sprite const& mask, RectF const& dest,
-                                        int alpha, int fadeRange,
-                                        float angle) = 0;
+  virtual void DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
+                                       RectF const& dest, glm::vec4 tint,
+                                       int alpha, int fadeRange,
+                                       bool isInverted = false,
+                                       float angle = 0.0f,
+                                       bool useMaskAlpha = true) = 0;
 
   virtual void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest,
                                    float depth, glm::vec2 vanishingPoint,
@@ -95,22 +97,23 @@ class BaseRenderer {
                                    BasicFont* font, float opacity,
                                    RendererOutlineMode outlineMode,
                                    bool smoothstepGlyphOpacity,
-                                   float outlineOpacity);
+                                   float outlineOpacity,
+                                   SpriteSheet* maskedSheet);
   void DrawProcessedText_LBFont(ProcessedTextGlyph* text, int length,
                                 LBFont* font, float opacity,
                                 RendererOutlineMode outlineMode,
                                 bool smoothstepGlyphOpacity,
-                                float outlineOpacity);
+                                float outlineOpacity, SpriteSheet* maskedSheet);
   void DrawProcessedText(
       ProcessedTextGlyph* text, int length, Font* font, float opacity = 1.0f,
       RendererOutlineMode outlineMode = RendererOutlineMode::RO_None,
-      bool smoothstepGlyphOpacity = true);
+      bool smoothstepGlyphOpacity = true, SpriteSheet* maskedSheet = 0);
 
   void DrawProcessedText(
       ProcessedTextGlyph* text, int length, Font* font, float opacity,
       float outlineOpacity,
       RendererOutlineMode outlineMode = RendererOutlineMode::RO_None,
-      bool smoothstepGlyphOpacity = true);
+      bool smoothstepGlyphOpacity = true, SpriteSheet* maskedSheet = 0);
 
   virtual void DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
                                 int verticesCount, float* mvlVertices,
