@@ -66,6 +66,7 @@ void TipsTabGroup::UpdateInput() {
   if (IsFocused) {
     auto prevEntry = CurrentlyFocusedElement;
     TipsEntriesScrollbar->UpdateInput();
+    // Todo: left joystick axis control, and holding down button
     if (PADinputButtonWentDown & PAD1DOWN) {
       AdvanceFocus(FDIR_DOWN);
       if (CurrentlyFocusedElement != prevEntry) {
