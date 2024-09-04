@@ -1,6 +1,7 @@
 #include "tipssystem.h"
 
 #include "../profile/data/tipssystem.h"
+#include <vector>
 
 namespace Impacto {
 namespace TipsSystem {
@@ -9,8 +10,9 @@ using namespace Impacto::Profile::TipsSystem;
 
 void Init() { Configure(); }
 
-void DataInit(int scriptBufferId, uint8_t* tipsData) {
-  if (Implementation) Implementation->DataInit(scriptBufferId, tipsData);
+void DataInit(int scriptBufferId, uint8_t* tipsData, uint32_t tipsDataSize) {
+  if (Implementation)
+    Implementation->DataInit(scriptBufferId, tipsData, tipsDataSize);
   ImpLog(LL_Warning, LC_VMStub,
          "%s: tips system not implemented, doing nothing\n", __func__);
 }
@@ -46,18 +48,18 @@ bool GetTipLockedState(int id) {
   return false;
 }
 
-TipsDataRecord* GetTipRecords() {
-  if (Implementation) return Implementation->Records;
+std::vector<TipsDataRecord>* GetTipRecords() {
+  if (Implementation) return &Implementation->Records;
   ImpLog(LL_Warning, LC_VMStub,
          "%s: tips system not implemented, returning NULL\n", __func__);
-  return NULL;
+  return nullptr;
 }
 
 TipsDataRecord* GetTipRecord(int id) {
   if (Implementation) return &Implementation->Records[id];
   ImpLog(LL_Warning, LC_VMStub,
          "%s: tips system not implemented, returning NULL\n", __func__);
-  return NULL;
+  return nullptr;
 }
 
 int GetTipCount() {

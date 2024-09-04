@@ -24,50 +24,49 @@ TipsNotification::TipsNotification() {
   Timer.DurationIn = TimerDuration;
   Timer.LoopMode = ALM_Stop;
 
-  AlertTitle = new Group(NULL);
-  AlertTitle->FocusLock = true;
-  AlertTitle->IsShown = true;
-  AlertTitle->HasFocus = false;
-
-  Notification = new Group(NULL);
-  Notification->FocusLock = true;
-  Notification->IsShown = true;
-  Notification->HasFocus = false;
-
   auto textBefore = Vm::ScriptGetTextTableStrAddress(
       TextTableId, NotificationTextPart1MessageId);
-  TextPartBefore =
-      new Label(textBefore, InitialNotificationPosition, FontSize, RO_Full, 0);
-  Notification->Add(TextPartBefore);
+  TextPartBefore = Label(textBefore, {NotificationPositionX, 0}, FontSize,
+                         RendererOutlineMode::RO_BottomRight,
+                         NotificationTextTableColorIndex);
   auto textAfter = Vm::ScriptGetTextTableStrAddress(
       TextTableId, NotificationTextPart2MessageId);
-  TextPartAfter = new Label(
-      textAfter,
-      glm::vec2(InitialNotificationPosition.x + TextPartBefore->Bounds.Width,
-                InitialNotificationPosition.y),
-      FontSize, RO_Full, 0);
-  Notification->Add(TextPartAfter);
-  TipName = new Label();
-  Notification->Add(TipName);
-  Notification->Bounds.X = InitialNotificationPosition.x;
-  Notification->Bounds.Y = InitialNotificationPosition.y;
-  Notification->RenderingBounds = NotificationRenderingBounds;
+  TextPartAfter =
+      Label(textAfter, {NotificationPositionX + TextPartBefore.Bounds.Width, 0},
+            FontSize, RendererOutlineMode::RO_BottomRight,
+            NotificationTextTableColorIndex);
+  TipName = Label("", {NotificationPositionX, 0}, FontSize,
+                  RendererOutlineMode::RO_BottomRight, TipNameColor);
+
+  TextPartBefore.OutlineAlphaEnabled = true;
+  TextPartAfter.OutlineAlphaEnabled = true;
+  TipName.OutlineAlphaEnabled = true;
+  TextPartBefore.OutlineAlpha = 0.0f;
+  TextPartAfter.OutlineAlpha = 0.0f;
+  TipName.OutlineAlpha = 0.0f;
 }
 
 void TipsNotification::Update(float dt) {
   FadeAnimation.Update(dt);
   Timer.Update(dt);
-  Notification->Update(dt);
-  if (!NotificationQueue.empty() && !FadeAnimation.IsIn()) {
-    FadeAnimation.StartIn();
-  }
-  if (FadeAnimation.IsIn() && Timer.IsOut()) {
-    Timer.StartIn();
+  PositionY = static_cast<int>(FadeAnimation.Progress * 255 * 96) >> 8;
+
+  auto UpdateNotificationDisplay = [&]() {
     auto tipName = NotificationQueue.front();
-    TipName->SetText(tipName, FontSize, RO_Full, TipNameColorIndex);
+    TipName.SetText(tipName, FontSize, RendererOutlineMode::RO_BottomRight,
+                    TipNameColor);
+    Timer.DurationIn = TimerDuration + TipName.GetTextLength() * 0.1f;
     NotificationQueue.pop();
-  }
-  if (NotificationQueue.empty() && FadeAnimation.IsIn() && Timer.IsIn()) {
+  };
+  if (!NotificationQueue.empty()) {
+    if (Timer.IsOut()) {
+      UpdateNotificationDisplay();
+      Timer.StartIn();
+    }
+    if (FadeAnimation.IsOut()) {
+      FadeAnimation.StartIn();
+    }
+  } else if (FadeAnimation.IsIn() && Timer.IsIn()) {
     FadeAnimation.StartOut();
   }
   if (Timer.IsIn()) Timer.Progress = 0.0f;
@@ -77,18 +76,31 @@ void TipsNotification::Render() {
   if (FadeAnimation.IsOut()) return;
   if (FadeAnimation.Progress > 0.0f) {
     float smoothedFade = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
-    Renderer->DrawSprite(NotificationBackground, BackgroundPosition,
+    float bgYPos = PositionY - BackgroundPositionYOffset;
+    Renderer->DrawSprite(NotificationBackground, {BackgroundPositionX, bgYPos},
                          glm::vec4(1.0f, 1.0f, 1.0f, smoothedFade));
-    if (Timer.State == AS_Playing || FadeAnimation.Direction == -1) {
-      Notification->Tint.a = smoothedFade;
-      Notification->Render();
-    }
+    TipName.Tint.a = smoothedFade;
+    TextPartBefore.Tint.a = smoothedFade;
+    TextPartAfter.Tint.a = smoothedFade;
+    TipName.OutlineAlpha = smoothedFade / 3.0f;
+    TextPartBefore.OutlineAlpha = smoothedFade / 3.0f;
+    TextPartAfter.OutlineAlpha = smoothedFade / 3.0f;
+
+    float textYPos = (PositionY + NotificationPositionYOffset);
+    TextPartBefore.MoveTo({NotificationPositionX, textYPos});
+    float tipNameXPos = NotificationPositionX + TextPartBefore.Bounds.Width;
+    TipName.MoveTo({tipNameXPos, textYPos});
+    TextPartAfter.MoveTo({tipNameXPos + TipName.Bounds.Width, textYPos});
+
+    TipName.Render();
+    TextPartBefore.Render();
+    TextPartAfter.Render();
   }
 }
 
 void TipsNotification::AddTip(int tipId) {
-  auto record = &TipsSystem::GetTipRecords()[tipId];
-  NotificationQueue.push(record->StringPtrs[0]);
+  auto record = TipsSystem::GetTipRecord(tipId);
+  NotificationQueue.push(record->StringPtrs[1]);
 }
 
 }  // namespace CCLCC

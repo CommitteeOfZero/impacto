@@ -3,6 +3,7 @@
 
 #include "../../games/mo6tw/tipssystem.h"
 #include "../../games/chlcc/tipssystem.h"
+#include "../../games/cclcc/tipssystem.h"
 
 namespace Impacto {
 namespace Profile {
@@ -17,14 +18,16 @@ void Configure() {
 
   if (Type != +TipsSystemType::None) {
     MaxTipsCount = EnsureGetMemberInt("MaxTipsCount");
-    MaxTipDataSize = EnsureGetMemberUint("MaxTipDataSize");
 
     switch (Type) {
       case TipsSystemType::MO6TW:
-        Implementation = new Impacto::MO6TW::TipsSystem();
+        Implementation = new Impacto::MO6TW::TipsSystem(MaxTipsCount);
         break;
       case TipsSystemType::CHLCC:
-        Implementation = new Impacto::CHLCC::TipsSystem();
+        Implementation = new Impacto::CHLCC::TipsSystem(MaxTipsCount);
+        break;
+      case TipsSystemType::CCLCC:
+        Implementation = new Impacto::CCLCC::TipsSystem(MaxTipsCount);
         break;
       case TipsSystemType::None:
         ImpLog(LL_Warning, LC_Profile,

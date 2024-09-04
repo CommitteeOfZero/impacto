@@ -35,15 +35,35 @@ Label::Label(std::string str, glm::vec2 pos, float fontSize,
   SetText(str, fontSize, outlineMode, colorIndex);
 }
 
+Label::Label(uint8_t* str, glm::vec2 pos, float fontSize,
+             RendererOutlineMode outlineMode, DialogueColorPair colorPair) {
+  FontSize = fontSize;
+  Bounds = RectF(pos.x, pos.y, (float)TextLength, FontSize);
+  SetText(str, fontSize, outlineMode, colorPair);
+}
+
+Label::Label(std::string str, glm::vec2 pos, float fontSize,
+             RendererOutlineMode outlineMode, DialogueColorPair colorPair) {
+  FontSize = fontSize;
+  Bounds = RectF(pos.x, pos.y, (float)TextLength, FontSize);
+  SetText(str, fontSize, outlineMode, colorPair);
+}
+
 void Label::UpdateInput() {}
 
 void Label::Update(float dt) { Widget::Update(dt); }
 
 void Label::Render() {
   if (IsText) {
-    Renderer->DrawProcessedText(Text, TextLength,
-                                Profile::Dialogue::DialogueFont, Tint.a,
-                                OutlineMode, true);
+    if (OutlineAlphaEnabled) {
+      Renderer->DrawProcessedText(Text, TextLength,
+                                  Profile::Dialogue::DialogueFont, Tint.a,
+                                  OutlineAlpha, OutlineMode, true);
+    } else {
+      Renderer->DrawProcessedText(Text, TextLength,
+                                  Profile::Dialogue::DialogueFont, Tint.a,
+                                  OutlineMode, true);
+    }
   } else {
     Renderer->DrawSprite(LabelSprite, Bounds, Tint);
   }
@@ -69,29 +89,9 @@ void Label::SetSprite(Sprite const& label) {
                  LabelSprite.Bounds.Height);
 }
 
-void Label::SetText(uint8_t* str, float fontSize,
-                    RendererOutlineMode outlineMode, int colorIndex) {
-  IsText = true;
-  ColorIndex = colorIndex;
-  Impacto::Vm::Sc3VmThread dummy;
-  dummy.Ip = str;
-  TextLength = TextLayoutPlainLine(
-      &dummy, 255, Text, Profile::Dialogue::DialogueFont, fontSize,
-      Profile::Dialogue::ColorTable[ColorIndex], 1.0f,
-      glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
-  OutlineMode = outlineMode;
-  TextWidth = 0.0f;
-  for (int i = 0; i < TextLength; i++) {
-    TextWidth += Text[i].DestRect.Width;
-  }
-  Bounds = RectF(Text[0].DestRect.X, Text[0].DestRect.Y, TextWidth, fontSize);
-}
-
 void Label::SetText(ProcessedTextGlyph* str, int textLength, float textWidth,
-                    float fontSize, RendererOutlineMode outlineMode,
-                    int colorIndex) {
+                    float fontSize, RendererOutlineMode outlineMode) {
   IsText = true;
-  ColorIndex = colorIndex;
   TextLength = textLength;
   TextWidth = textWidth;
   OutlineMode = outlineMode;
@@ -101,12 +101,26 @@ void Label::SetText(ProcessedTextGlyph* str, int textLength, float textWidth,
 
 void Label::SetText(std::string str, float fontSize,
                     RendererOutlineMode outlineMode, int colorIndex) {
+  SetText(str, fontSize, outlineMode,
+          Profile::Dialogue::ColorTable[colorIndex]);
+}
+
+void Label::SetText(uint8_t* str, float fontSize,
+                    RendererOutlineMode outlineMode, int colorIndex) {
+  SetText(str, fontSize, outlineMode,
+          Profile::Dialogue::ColorTable[colorIndex]);
+}
+
+void Label::SetText(uint8_t* str, float fontSize,
+                    RendererOutlineMode outlineMode,
+                    DialogueColorPair colorPair) {
   IsText = true;
-  ColorIndex = colorIndex;
-  TextLength = TextLayoutPlainString(
-      str, Text, Profile::Dialogue::DialogueFont, fontSize,
-      Profile::Dialogue::ColorTable[ColorIndex], 1.0f,
-      glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
+  Impacto::Vm::Sc3VmThread dummy;
+  dummy.Ip = str;
+  FontSize = fontSize;
+  TextLength = TextLayoutPlainLine(
+      &dummy, 255, Text, Profile::Dialogue::DialogueFont, fontSize, colorPair,
+      1.0f, glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
   OutlineMode = outlineMode;
   TextWidth = 0.0f;
   for (int i = 0; i < TextLength; i++) {
@@ -115,6 +129,20 @@ void Label::SetText(std::string str, float fontSize,
   Bounds = RectF(Text[0].DestRect.X, Text[0].DestRect.Y, TextWidth, fontSize);
 }
 
+void Label::SetText(std::string str, float fontSize,
+                    RendererOutlineMode outlineMode,
+                    DialogueColorPair colorPair) {
+  IsText = true;
+  TextLength = TextLayoutPlainString(
+      str, Text, Profile::Dialogue::DialogueFont, fontSize, colorPair, 1.0f,
+      glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
+  OutlineMode = outlineMode;
+  TextWidth = 0.0f;
+  for (int i = 0; i < TextLength; i++) {
+    TextWidth += Text[i].DestRect.Width;
+  }
+  Bounds = RectF(Text[0].DestRect.X, Text[0].DestRect.Y, TextWidth, fontSize);
+}
 }  // namespace Widgets
 }  // namespace UI
 }  // namespace Impacto

@@ -1,3 +1,4 @@
 root.TipsSystem = {
-    Type = TipsSystemType.None,
+    Type = TipsSystemType.CCLCC,
+    MaxTipsCount = 300,
 };

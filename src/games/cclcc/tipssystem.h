@@ -3,7 +3,7 @@
 #include "../../data/tipssystem.h"
 
 namespace Impacto {
-namespace MO6TW {
+namespace CCLCC {
 
 using namespace Impacto::TipsSystem;
 
@@ -21,5 +21,5 @@ class TipsSystem : public TipsSystemBase {
   bool GetTipLockedState(int id) override;
 };
 
-}  // namespace MO6TW
+}  // namespace CCLCC
 }  // namespace Impacto
