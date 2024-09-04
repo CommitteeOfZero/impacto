@@ -7,7 +7,8 @@
 #include "../../ui/widgets/label.h"
 #include "../../data/tipssystem.h"
 #include "../../ui/widgets/cclcc/tipsentrybutton.h"
-#include <set>
+#include "../../ui/widgets/scrollbar.h"
+#include <vector>
 
 namespace Impacto::UI::Widgets::CCLCC {
 class TipsTabGroup;
@@ -44,12 +45,15 @@ class TipsMenu : public UI::TipsMenu {
  private:
   constexpr int static TabCount = 4;
   int CurrentTabIdx = 0;
-  int TipPageY = 0;
+  float TipPageY = 0;
+  glm::vec2 TipsScrollStartPos;
+  glm::vec2 TipsScrollTrackBounds;
 
   TipsTabType CurrentTabType;
   std::vector<int> SortedTipIds;
   std::array<Widgets::CCLCC::TipsTabGroup*, TabCount> TipsTabs;
 
+  Widgets::Scrollbar* TipsScrollbar = nullptr;
   Widgets::Group TipViewItems;
 
   int ScrollWheelYDelta = 0;
