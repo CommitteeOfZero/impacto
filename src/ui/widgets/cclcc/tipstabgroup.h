@@ -31,14 +31,19 @@ class TipsTabGroup : public Menu {
   void UpdateInput() override;
   void Render() override;
   void UpdateTipsEntries(std::vector<int> const& SortedTipIds);
-  int GetTipEntriesCount() { return EntriesCount; }
+  int GetTipEntriesCount() { return TipsEntryButtons.size(); }
 
  private:
-  int EntriesCount = 0;
   Widgets::Group TipsEntriesGroup;
   TipsTabButton TabName;
   Impacto::UI::CCLCC::TipsTabType Type;
   std::function<void(Widgets::Button*)> TipClickHandler;
+  Widgets::Scrollbar* TipsEntriesScrollbar = nullptr;
+  std::vector<TipsEntryButton*> TipsEntryButtons;
+  float ScrollPosY = 0.0f;
+
+  glm::vec2 TipsScrollStartPos;
+  glm::vec2 TipsScrollTrackBounds;
 };
 
 }  // namespace CCLCC

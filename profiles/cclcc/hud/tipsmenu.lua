@@ -39,9 +39,9 @@ root.TipsMenu = {
     TipsMenuDarkTextColor = 0x3e3e3c,
 
     TipsScrollThumbSprite = "TipsScrollThumb",
-    TipsScrollYStart = 382,
-    TipsScrollYEnd = 927,
-    TipsScrollEntriesX = 886,
+    TipsScrollYStart = 385,
+    TipsScrollYEnd = 930,
+    TipsScrollEntriesX = 896,
     TipsScrollDetailsX = 1783,
 
     TipsMask = "TipsMask",

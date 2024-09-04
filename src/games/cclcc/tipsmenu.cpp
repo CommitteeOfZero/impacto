@@ -28,8 +28,7 @@ using namespace Impacto::Vm::Interface;
 using namespace Impacto::UI::Widgets;
 using namespace Impacto::UI::Widgets::CCLCC;
 
-// Todo: correct audio sounds, scrollbars, partial text rendering for out of
-// bounds text
+// Todo: correct audio sounds
 
 struct SortByTipName {
   SortByTipName() {
@@ -122,6 +121,14 @@ TipsMenu::TipsMenu() : TipViewItems(this) {
   TextPage.Clear();
   TextPage.Mode = DPM_TIPS;
   TextPage.FadeAnimation.Progress = 1.0f;
+
+  TipsScrollStartPos = {
+      TipsScrollDetailsX,
+      TipsScrollYStart + TipsScrollThumbSprite.ScaledHeight() / 2.0f};
+
+  TipsScrollTrackBounds = {
+      TipsScrollThumbSprite.Bounds.Width,
+      TipsScrollYEnd - TipsScrollYStart - TipsScrollThumbSprite.ScaledHeight()};
 }
 
 void TipsMenu::Show() {
@@ -159,6 +166,8 @@ void TipsMenu::Hide() {
     CurrentlyDisplayedTipId = -1;
     TipsTabs[CurrentTabType]->Hide();
     TipViewItems.Hide();
+    delete TipsScrollbar;
+    TipsScrollbar = nullptr;
   }
 }
 
@@ -171,12 +180,19 @@ void TipsMenu::UpdateInput() {
       }
     }
     if (PADinputButtonWentDown & PAD1R1) {
-      SetActiveTab(static_cast<TipsTabType>((CurrentTabType + 1) % TabCount));
-      Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0);
+      TipsTabType type =
+          static_cast<TipsTabType>((CurrentTabType + 1) % TabCount);
+      while (!TipsTabs[type]->GetTipEntriesCount()) {
+        type = static_cast<TipsTabType>((type + 1) % TabCount);
+      }
+      SetActiveTab(type);
     } else if (PADinputButtonWentDown & PAD1L1) {
-      SetActiveTab(
-          static_cast<TipsTabType>((CurrentTabType + TabCount - 1) % TabCount));
-      Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0);
+      TipsTabType type =
+          static_cast<TipsTabType>((CurrentTabType + TabCount - 1) % TabCount);
+      while (!TipsTabs[type]->GetTipEntriesCount()) {
+        type = static_cast<TipsTabType>((type + TabCount - 1) % TabCount);
+      }
+      SetActiveTab(type);
     }
 
     if (CurrentlyDisplayedTipId != -1) {
@@ -197,23 +213,17 @@ void TipsMenu::UpdateInput() {
                             -Input::ControllerAxisLightThreshold ||
                         Input::KeyboardButtonIsDown[SDL_SCANCODE_RIGHTBRACKET];
 
-      int remainingScroll = (lastCharDest.Y + lastCharDest.Height) -
-                            (TextPage.BoxBounds.Y + TextPage.BoxBounds.Height) +
-                            lastCharDest.Height;  // Add 1 line of padding
-
-      int totalScrollDist = remainingScroll + TipPageY;
-
+      int remainingScroll = TipsScrollbar->MaxValue - TipPageY;
       if (upScroll && (TipPageY > 0)) {
         if (scrollDistance > TipPageY) {
           scrollDistance = TipPageY;
         }
-        TextPage.Move({0, scrollDistance});
         TipPageY -= scrollDistance;
-        ScrollPercentage = static_cast<float>(TipPageY) / totalScrollDist;
       } else if (downScroll && (remainingScroll > 0)) {
-        TextPage.Move({0, -scrollDistance});
+        if (scrollDistance > remainingScroll) {
+          scrollDistance = remainingScroll;
+        }
         TipPageY += scrollDistance;
-        ScrollPercentage = static_cast<float>(TipPageY) / totalScrollDist;
       }
     }
   }
@@ -221,7 +231,16 @@ void TipsMenu::UpdateInput() {
 
 void TipsMenu::Update(float dt) {
   if (!HasInitialized || State == Hidden) return;
+  float oldPageY = TipPageY;
   UpdateInput();
+  if (State == Shown && TipsScrollbar) {
+    TipsScrollbar->Update(dt);
+
+    TipsScrollbar->UpdateInput();
+    if (oldPageY != TipPageY) {
+      TextPage.Move({0, oldPageY - TipPageY});
+    }
+  }
   for (int i = 0; i < TabCount; i++) {
     TipsTabs[i]->Update(dt);
   }
@@ -252,15 +271,7 @@ void TipsMenu::Render() {
       Renderer->DrawProcessedText(
           TextPage.Glyphs, TextPage.Length, Profile::Dialogue::DialogueFont, 1,
           1, RendererOutlineMode::RO_None, true, &TipsMaskSheet);
-
-      int tipsScrollDetailsY =
-          TipsScrollYStart +
-          (TipsScrollYEnd - TipsScrollThumbSprite.Bounds.Height -
-           TipsScrollYStart) *
-              ScrollPercentage;
-      Renderer->DrawSprite(TipsScrollThumbSprite,
-                           glm::vec2(TipsScrollDetailsX, +tipsScrollDetailsY),
-                           transition);
+      TipsScrollbar->Render();
     }
 
     Renderer->DrawSprite(
@@ -286,10 +297,14 @@ void TipsMenu::Init() {
 }
 
 void TipsMenu::SwitchToTipId(int id) {
-  CurrentlyDisplayedTipId = id - 1;
   int actualId = SortedTipIds[id - 1];
   auto* record = TipsSystem::GetTipRecord(actualId);
-  if (record->IsLocked) return;
+
+  if (record->IsLocked) {
+    Audio::Channels[Audio::AC_SSE]->Play("sysse", 4, false, 0);
+    return;
+  }
+  CurrentlyDisplayedTipId = id - 1;
 
   TipsSystem::SetTipUnreadState(actualId, false);
   Category->SetText(record->StringPtrs[0], CategoryFontSize,
@@ -309,12 +324,29 @@ void TipsMenu::SwitchToTipId(int id) {
   TextPage.Clear();
   TextPage.AddString(&dummy);
   TipViewItems.HasFocus = true;
+
+  auto& lastGlyph = TextPage.Glyphs[TextPage.Length - 1];
+  int scrollDistance = lastGlyph.DestRect.Y + lastGlyph.DestRect.Height -
+                       (TextPage.BoxBounds.Y + TextPage.BoxBounds.Height) +
+                       lastGlyph.DestRect.Height;
+  ;
+  TipPageY = 0;
+  delete TipsScrollbar;
+  TipsScrollbar = new Scrollbar(
+      0, TipsScrollStartPos, 0, std::max(0, scrollDistance), &TipPageY,
+      SBDIR_VERTICAL, TipsScrollThumbSprite, TipsScrollTrackBounds);
+  TipsScrollbar->HasFocus = false;  // We want to manually control kb/pad input
+
+  Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
 }
 
 void TipsMenu::NextTipPage() {}
 
 void TipsMenu::SetActiveTab(TipsTabType type) {
-  if (!TipsTabs[type]->GetTipEntriesCount()) return;
+  if (type == CurrentTabType || !TipsTabs[type]->GetTipEntriesCount()) return;
+
+  Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0);
+
   TipsTabs[CurrentTabType]->Hide();
   TipsTabs[type]->Show();
   CurrentTabType = type;
