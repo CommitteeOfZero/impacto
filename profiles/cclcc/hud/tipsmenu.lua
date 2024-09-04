@@ -38,6 +38,12 @@ root.TipsMenu = {
     TipsEntryNameUnreadColor = 0x117733, 
     TipsMenuDarkTextColor = 0x3e3e3c,
 
+    TipsScrollThumbSprite = "TipsScrollThumb",
+    TipsScrollYStart = 382,
+    TipsScrollYEnd = 927,
+    TipsScrollEntriesX = 886,
+    TipsScrollDetailsX = 1783,
+
     TipsMask = "TipsMask",
 };
 
@@ -81,4 +87,9 @@ root.SpriteSheets["TipsMask"] = {
     Path = { Mount = "system", Id = 29 },
     DesignWidth = 1920,
     DesignHeight = 1080
+};
+
+root.Sprites["TipsScrollThumb"] = {
+    Sheet = "Tips",
+    Bounds = { X = 2016, Y = 994, Width = 11, Height = 40 }
 };
