@@ -52,8 +52,11 @@ class TipsMenu : public UI::TipsMenu {
 
   Widgets::Group TipViewItems;
 
-  bool HasInitialized = false;
+  int ScrollWheelYDelta = 0;
+  bool MouseInTextBounds = false;
 
+  float ScrollPercentage = 0.0f;
+  bool HasInitialized = false;
   void SetActiveTab(TipsTabType type);
 };
 
