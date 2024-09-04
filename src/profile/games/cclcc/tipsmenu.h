@@ -43,6 +43,12 @@ inline int NumberFontSize;
 inline uint32_t TipsEntryNameUnreadColor;
 inline uint32_t TipsMenuDarkTextColor;
 
+inline Sprite TipsScrollThumbSprite;
+inline int TipsScrollYStart;
+inline int TipsScrollYEnd;
+inline int TipsScrollEntriesX;
+inline int TipsScrollDetailsX;
+
 inline SpriteSheet TipsMaskSheet;
 
 void Configure();

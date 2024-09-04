@@ -3,6 +3,7 @@
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../vm/vm.h"
+#include "../../inputsystem.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/dialogue.h"
 #include "../../profile/ui/backlogmenu.h"
@@ -177,6 +178,44 @@ void TipsMenu::UpdateInput() {
           static_cast<TipsTabType>((CurrentTabType + TabCount - 1) % TabCount));
       Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0);
     }
+
+    if (CurrentlyDisplayedTipId != -1) {
+      RectF lastCharDest = TextPage.Glyphs[TextPage.Length - 1].DestRect;
+
+      int scrollDistance = 10;
+      if (Input::CurMousePos != Input::PrevMousePos) {
+        MouseInTextBounds =
+            TextPage.BoxBounds.ContainsPoint(Input::CurMousePos);
+      }
+
+      // Todo: Implement scroll wheel
+      bool upScroll = Input::ControllerAxis[SDL_CONTROLLER_AXIS_RIGHTY] >
+                          Input::ControllerAxisLightThreshold ||
+                      Input::KeyboardButtonIsDown[SDL_SCANCODE_LEFTBRACKET];
+
+      bool downScroll = Input::ControllerAxis[SDL_CONTROLLER_AXIS_RIGHTY] <
+                            -Input::ControllerAxisLightThreshold ||
+                        Input::KeyboardButtonIsDown[SDL_SCANCODE_RIGHTBRACKET];
+
+      int remainingScroll = (lastCharDest.Y + lastCharDest.Height) -
+                            (TextPage.BoxBounds.Y + TextPage.BoxBounds.Height) +
+                            lastCharDest.Height;  // Add 1 line of padding
+
+      int totalScrollDist = remainingScroll + TipPageY;
+
+      if (upScroll && (TipPageY > 0)) {
+        if (scrollDistance > TipPageY) {
+          scrollDistance = TipPageY;
+        }
+        TextPage.Move({0, scrollDistance});
+        TipPageY -= scrollDistance;
+        ScrollPercentage = static_cast<float>(TipPageY) / totalScrollDist;
+      } else if (downScroll && (remainingScroll > 0)) {
+        TextPage.Move({0, -scrollDistance});
+        TipPageY += scrollDistance;
+        ScrollPercentage = static_cast<float>(TipPageY) / totalScrollDist;
+      }
+    }
   }
 }
 
@@ -192,20 +231,6 @@ void TipsMenu::Update(float dt) {
   } else if (State == Hiding && FadeAnimation.Progress == 0.0f) {
     State = Hidden;
   }
-  // if (State == Shown && CurrentlyDisplayedTipId != -1) {
-  //   RectF lastCharDest = TextPage.Glyphs[TextPage.Length - 1].DestRect;
-
-  //   // TODO: Add buttons to scroll text
-  //   if (lastCharDest.Y + TipPageY < TextPage.BoxBounds.Y) {
-  //     TextPage.Move({0, lastCharDest.Height});
-  //     TipPageY += lastCharDest.Height;
-  //   } else if (lastCharDest.Y + TipPageY > TextPage.BoxBounds.Y +
-  //                                              TextPage.BoxBounds.Height +
-  //                                              lastCharDest.Height) {
-  //     TextPage.Move({0, -lastCharDest.Height});
-  //     TipPageY -= lastCharDest.Height;
-  //   }
-  // }
 }
 
 void TipsMenu::Render() {
@@ -227,6 +252,15 @@ void TipsMenu::Render() {
       Renderer->DrawProcessedText(
           TextPage.Glyphs, TextPage.Length, Profile::Dialogue::DialogueFont, 1,
           1, RendererOutlineMode::RO_None, true, &TipsMaskSheet);
+
+      int tipsScrollDetailsY =
+          TipsScrollYStart +
+          (TipsScrollYEnd - TipsScrollThumbSprite.Bounds.Height -
+           TipsScrollYStart) *
+              ScrollPercentage;
+      Renderer->DrawSprite(TipsScrollThumbSprite,
+                           glm::vec2(TipsScrollDetailsX, +tipsScrollDetailsY),
+                           transition);
     }
 
     Renderer->DrawSprite(

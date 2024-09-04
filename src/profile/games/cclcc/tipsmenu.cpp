@@ -48,8 +48,13 @@ void Configure() {
   NumberFontSize = EnsureGetMemberInt("NumberFontSize");
 
   TipsEntryNameUnreadColor = EnsureGetMemberUint("TipsEntryNameUnreadColor");
-
   TipsMenuDarkTextColor = EnsureGetMemberUint("TipsMenuDarkTextColor");
+
+  TipsScrollThumbSprite = EnsureGetMemberSprite("TipsScrollThumbSprite");
+  TipsScrollYStart = EnsureGetMemberInt("TipsScrollYStart");
+  TipsScrollYEnd = EnsureGetMemberInt("TipsScrollYEnd");
+  TipsScrollEntriesX = EnsureGetMemberInt("TipsScrollEntriesX");
+  TipsScrollDetailsX = EnsureGetMemberInt("TipsScrollDetailsX");
 
   TipsMaskSheet = EnsureGetMemberSpriteSheet("TipsMask");
 
