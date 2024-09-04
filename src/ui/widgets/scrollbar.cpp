@@ -111,9 +111,14 @@ void Scrollbar::UpdateInput() {
       }
       float tmpVal =
           MinValue + (((mouseP - trackP1) / trackP2) * (MaxValue - MinValue));
-      *Value = (tmpVal > MaxValue)   ? MaxValue
-               : (tmpVal < MinValue) ? MinValue
-                                     : tmpVal;
+      if (MaxValue < MinValue)
+        *Value = (tmpVal < MaxValue)   ? MaxValue
+                 : (tmpVal > MinValue) ? MinValue
+                                       : tmpVal;
+      else
+        *Value = (tmpVal > MaxValue)   ? MaxValue
+                 : (tmpVal < MinValue) ? MinValue
+                                       : tmpVal;
     } else {
       Scrolling = false;
     }

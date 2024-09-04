@@ -439,6 +439,9 @@ void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
     Flush();
     CurrentMode = R2D_Masked;
   }
+
+  EnsureTextureBound(sprite.Sheet.Texture);
+
   glBindVertexArray(VAOSprites);
   glUseProgram(ShaderProgramMaskedSprite);
   glUniform1i(glGetUniformLocation(ShaderProgramMaskedSprite, "Mask"), 2);

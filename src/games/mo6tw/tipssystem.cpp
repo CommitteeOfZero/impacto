@@ -38,14 +38,14 @@ void TipsSystem::DataInit(int scriptBufferId, uint8_t *tipsData,
       record.StringPtrs[i] =
           ScriptGetStrAddress(scriptBuffer, ReadLE<uint16_t>(stream));
     }
-    Records[idx] = record;
+    Records[idx] = std::move(record);
 
     // Next tip entry from the data array
     unk01 = Io::ReadLE<uint16_t>(stream);
     idx += 1;
     TipEntryCount = idx;
-    Records.resize(TipEntryCount);
   }
+  Records.resize(TipEntryCount);
 
   UI::TipsMenuPtr->Init();
 
