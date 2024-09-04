@@ -22,6 +22,7 @@ class TipsEntryButton : public Widgets::Button {
   void MoveTo(glm::vec2 pos) override;
 
   TipsSystem::TipsDataRecord const* TipEntryRecord;
+  bool PrevFocusState = false;
 
  private:
   std::array<ProcessedTextGlyph, TipNumberLength> TipNumber;
