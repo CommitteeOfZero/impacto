@@ -28,8 +28,6 @@ using namespace Impacto::Vm::Interface;
 using namespace Impacto::UI::Widgets;
 using namespace Impacto::UI::Widgets::CCLCC;
 
-// Todo: correct audio sounds
-
 struct SortByTipName {
   SortByTipName() {
     SortString = Vm::ScriptGetTextTableStrAddress(TipsTextTableIndex,
