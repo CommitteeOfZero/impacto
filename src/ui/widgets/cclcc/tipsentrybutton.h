@@ -9,7 +9,7 @@ namespace Widgets {
 namespace CCLCC {
 
 int constexpr TipNumberLength = 4;
-int constexpr TipLockedTextLength = 10;
+int constexpr TipLockedTextLength = 5;
 
 class TipsEntryButton : public Widgets::Button {
  public:
