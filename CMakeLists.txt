@@ -636,7 +636,7 @@ if (NX OR EMSCRIPTEN)
     set(IMPACTO_DISABLE_DX9 ON)
 endif ()
 
-if (APPLE OR LINUX)
+if (UNIX AND NOT CYGWIN)
     set(IMPACTO_DISABLE_DX9 ON)
 endif ()
 
