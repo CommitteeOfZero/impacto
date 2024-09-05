@@ -230,19 +230,27 @@ void TipsMenu::UpdateInput() {
 }
 
 void TipsMenu::Update(float dt) {
-  if (!HasInitialized || State == Hidden) return;
-  float oldPageY = TipPageY;
-  UpdateInput();
-  if (State == Shown && TipsScrollbar) {
-    TipsScrollbar->Update(dt);
-
-    TipsScrollbar->UpdateInput();
-    if (oldPageY != TipPageY) {
-      TextPage.Move({0, oldPageY - TipPageY});
-    }
+  if (!HasInitialized) return;
+  if (ScrWork[SW_SYSSUBMENUCT] < 32 && State == Shown &&
+      (ScrWork[SW_SYSSUBMENUNO] == 2)) {
+    Hide();
+  } else if (ScrWork[SW_SYSSUBMENUCT] >= 32 && State == Hidden &&
+             (ScrWork[SW_SYSSUBMENUNO] == 2)) {
+    Show();
   }
-  for (int i = 0; i < TabCount; i++) {
-    TipsTabs[i]->Update(dt);
+  if (State == Shown && ScrWork[SW_SYSSUBMENUNO] == 2) {
+    UpdateInput();
+    if (TipsScrollbar) {
+      float oldPageY = TipPageY;
+      TipsScrollbar->UpdateInput();
+      TipsScrollbar->Update(dt);
+      if (oldPageY != TipPageY) {
+        TextPage.Move({0, oldPageY - TipPageY});
+      }
+    }
+    for (int i = 0; i < TabCount; i++) {
+      TipsTabs[i]->Update(dt);
+    }
   }
   FadeAnimation.Update(dt);
   if (State == Showing && FadeAnimation.Progress == 1.0f) {
@@ -258,7 +266,7 @@ void TipsMenu::Render() {
       ScrWork[SW_SYSSUBMENUNO] == 2) {
     glm::vec4 transition(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
     glm::vec4 maskTint = glm::vec4(1.0f);
-    maskTint.a = 0.85f;
+    maskTint.a = 0.85f * FadeAnimation.Progress;
 
     Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
     Renderer->DrawSprite(TipsBookLayerSprite, glm::vec2(0.0f), transition);
@@ -269,8 +277,9 @@ void TipsMenu::Render() {
     if (CurrentlyDisplayedTipId != -1) {
       TipViewItems.Render();
       Renderer->DrawProcessedText(
-          TextPage.Glyphs, TextPage.Length, Profile::Dialogue::DialogueFont, 1,
-          1, RendererOutlineMode::RO_None, true, &TipsMaskSheet);
+          TextPage.Glyphs, TextPage.Length, Profile::Dialogue::DialogueFont,
+          FadeAnimation.Progress, FadeAnimation.Progress,
+          RendererOutlineMode::RO_None, true, &TipsMaskSheet);
       TipsScrollbar->Render();
     }
 
