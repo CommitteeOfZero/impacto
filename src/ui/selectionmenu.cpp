@@ -28,25 +28,22 @@ void SelectionMenu::Init(bool isPlain) {
   FadeAnimation.DurationOut = FadeAnimationDurationInOut;
   FadeAnimation.Direction = 1;
   FadeAnimation.LoopMode = ALM_Stop;
-
-  memset(Choices, 0, (15 * 255) * sizeof(ProcessedTextGlyph));
 }
 
 void SelectionMenu::AddChoice(uint8_t* str) {
   Impacto::Vm::Sc3VmThread dummy;
   dummy.Ip = str;
-  int len = TextLayoutPlainLine(
-      &dummy, 255, Choices[ChoiceCount], Profile::Dialogue::DialogueFont,
+  Choices[ChoiceCount] = TextLayoutPlainLine(
+      &dummy, 255, Profile::Dialogue::DialogueFont,
       Profile::Dialogue::DefaultFontSize, Profile::Dialogue::ColorTable[0],
       1.0f, glm::vec2(0.0f, 0.0f), TextAlignment::Left);
 
   float mesLen = 0.0f;
-  for (int i = 0; i < len; i++) {
+  for (int i = 0; i < Choices[ChoiceCount].size(); i++) {
     mesLen += Choices[ChoiceCount][i].DestRect.Width;
   }
 
   ChoiceWidths[ChoiceCount] = mesLen;
-  ChoiceLengths[ChoiceCount] = len;
   ChoiceCount++;
 }
 
@@ -70,7 +67,7 @@ void SelectionMenu::Show() {
       if (ChoiceWidths[i] > ChoiceWidthMax) ChoiceWidthMax = ChoiceWidths[i];
 
       diff = (Profile::DesignWidth - ChoiceWidths[i]) / 2.0f;
-      for (int j = 0; j < ChoiceLengths[i]; j++) {
+      for (int j = 0; j < Choices[i].size(); j++) {
         Choices[i][j].DestRect.X += diff;
         Choices[i][j].DestRect.Y = choiceY;
       }
@@ -86,7 +83,7 @@ void SelectionMenu::Show() {
           i, nullSprite, nullSprite, SelectionHighlight,
           glm::vec2(Choices[i][0].DestRect.X, Choices[i][0].DestRect.Y));
 
-      choice->SetText(Choices[i], ChoiceLengths[i], ChoiceWidths[i],
+      choice->SetText(Choices[i], ChoiceWidths[i],
                       Profile::Dialogue::DefaultFontSize,
                       RendererOutlineMode::RO_Full);
       choice->OnClickHandler = onClick;
@@ -106,7 +103,7 @@ void SelectionMenu::Show() {
 
     for (int i = 0; i < ChoiceCount; i++) {
       diff = (Profile::DesignWidth - ChoiceWidths[i]) / 2.0f;
-      for (int j = 0; j < ChoiceLengths[i]; j++) {
+      for (int j = 0; j < Choices[i].size(); j++) {
         Choices[i][j].DestRect.X += diff;
         Choices[i][j].DestRect.Y = choiceY;
       }
@@ -116,7 +113,7 @@ void SelectionMenu::Show() {
           i, nullSprite, SelectionFocused, SelectionHighlight,
           glm::vec2(Choices[i][0].DestRect.X, Choices[i][0].DestRect.Y));
 
-      choice->SetText(Choices[i], ChoiceLengths[i], ChoiceWidths[i],
+      choice->SetText(Choices[i], ChoiceWidths[i],
                       Profile::Dialogue::DefaultFontSize,
                       RendererOutlineMode::RO_Full);
       choice->OnClickHandler = onClick;

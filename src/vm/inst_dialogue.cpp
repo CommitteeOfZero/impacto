@@ -163,7 +163,7 @@ VmInstruction(InstMes) {
   thread->Ip = oldIp;
   UI::BacklogMenuPtr->AddMessage(line, audioId);
 
-  dialoguePage.AutoWaitTime = (float)dialoguePage.Length;
+  dialoguePage.AutoWaitTime = (float)dialoguePage.Glyphs.size();
 }
 VmInstruction(InstMesMain) {
   StartInstruction;

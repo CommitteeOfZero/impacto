@@ -115,7 +115,6 @@ TipsMenu::TipsMenu() : TipViewItems(this) {
   TipViewItems.Add(Category);
   TipViewItems.Add(Number);
 
-  TextPage.Glyphs = new ProcessedTextGlyph[Profile::Dialogue::MaxPageSize];
   TextPage.Clear();
   TextPage.Mode = DPM_TIPS;
   TextPage.FadeAnimation.Progress = 1.0f;
@@ -194,7 +193,7 @@ void TipsMenu::UpdateInput() {
     }
 
     if (CurrentlyDisplayedTipId != -1) {
-      RectF lastCharDest = TextPage.Glyphs[TextPage.Length - 1].DestRect;
+      RectF lastCharDest = TextPage.Glyphs.back().DestRect;
 
       int scrollDistance = 10;
       if (Input::CurMousePos != Input::PrevMousePos) {
@@ -242,7 +241,6 @@ void TipsMenu::Update(float dt) {
     float oldPageY = TipPageY;
     UpdateInput();
     if (TipsScrollbar) {
-      float oldPageY = TipPageY;
       TipsScrollbar->UpdateInput();
       TipsScrollbar->Update(dt);
       if (oldPageY != TipPageY) {
@@ -278,7 +276,7 @@ void TipsMenu::Render() {
     if (CurrentlyDisplayedTipId != -1) {
       TipViewItems.Render();
       Renderer->DrawProcessedText(
-          TextPage.Glyphs, TextPage.Length, Profile::Dialogue::DialogueFont,
+          TextPage.Glyphs, Profile::Dialogue::DialogueFont,
           FadeAnimation.Progress, FadeAnimation.Progress,
           RendererOutlineMode::RO_None, true, &TipsMaskSheet);
       TipsScrollbar->Render();
@@ -336,7 +334,7 @@ void TipsMenu::SwitchToTipId(int id) {
   TextPage.AddString(&dummy);
   TipViewItems.HasFocus = true;
 
-  auto& lastGlyph = TextPage.Glyphs[TextPage.Length - 1];
+  auto& lastGlyph = TextPage.Glyphs.back();
   int scrollDistance = lastGlyph.DestRect.Y + lastGlyph.DestRect.Height -
                        (TextPage.BoxBounds.Y + TextPage.BoxBounds.Height) +
                        lastGlyph.DestRect.Height;
