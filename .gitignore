@@ -25,6 +25,7 @@ bld/
 [Ll]og/
 [Ii]nstall/
 cmake-build-*/
+impacto-build/
 
 # Visual Studio 2015 cache/options directory
 .vs/
@@ -274,5 +275,6 @@ __pycache__/
 ###
 
 /CMakeSettings.json
+CMakeUserPresets.json
 vendor/LibAtrac9
 vendor/imgui

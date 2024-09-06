@@ -1,0 +1,70 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 23
+  },
+  "configurePresets": [
+    {
+      "name": "ninja-multi-default",
+      "description": "Multi-Config Ninja Configure Preset",
+      "hidden": false,
+      "generator": "Ninja Multi-Config",
+      "binaryDir": "impacto-build/${presetName}",
+      "installDir": "install/${presetName}",
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "YES"
+      }
+    },
+    {
+      "name": "ci-release",
+      "description": "Release build for CI",
+      "hidden": false,
+      "generator": "Ninja",
+      "binaryDir": "ci-build/${presetName}",
+      "installDir": "release/${presetName}",
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "CI-Build",
+      "description": "x64 Release",
+      "configurePreset": "ci-release",
+      "targets": [
+        "install"
+      ]
+    },
+    {
+      "name": "x64-Release-Symbols",
+      "description": "x64 Release with Debug Symbols",
+      "configurePreset": "ninja-multi-default",
+      "configuration": "RelWithDebInfo",
+      "targets": [
+        "install"
+      ]
+    },
+    {
+      "name": "x64-Release",
+      "description": "x64 Release",
+      "configurePreset": "ninja-multi-default",
+      "configuration": "Release",
+      "targets": [
+        "install"
+      ]
+    },
+    {
+      "name": "x64-Debug",
+      "description": "x64 Debug",
+      "configurePreset": "ninja-multi-default",
+      "configuration": "Debug",
+      "targets": [
+        "install"
+      ]
+    }
+  ]
+}
