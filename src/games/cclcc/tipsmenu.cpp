@@ -239,6 +239,7 @@ void TipsMenu::Update(float dt) {
     Show();
   }
   if (State == Shown && ScrWork[SW_SYSSUBMENUNO] == 2) {
+    float oldPageY = TipPageY;
     UpdateInput();
     if (TipsScrollbar) {
       float oldPageY = TipPageY;
