@@ -443,6 +443,8 @@ VmInstruction(InstSetDic) {
       bool tipLocked = TipsSystem::GetTipLockedState(tipId);
       if (tipLocked) {
         TipsSystem::SetTipLockedState(tipId, false);
+        TipsSystem::SetTipNewState(tipId, true);
+        TipsSystem::SetTipUnreadState(tipId, true);
         TipsNotification::AddTip(tipId);
       }
       if (type == 1) {
@@ -532,6 +534,7 @@ VmInstruction(InstTips) {
     case 4:  // TipsSet
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction Tips(type: TipsSet)\n");
+      TipsSystem::UpdateTipRecords();
       break;
     case 10:  // Tips_ProfSetXboxEvent
       ImpLogSlow(LL_Warning, LC_VMStub,

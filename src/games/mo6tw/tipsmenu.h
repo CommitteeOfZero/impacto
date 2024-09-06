@@ -32,9 +32,9 @@ class TipsMenu : public UI::TipsMenu {
  private:
   int CurrentTipPage = 1;
 
+  Widgets::Carousel ItemsList;
+  Widgets::Group TipViewItems;
   Sprite* ThumbnailSprite;
-  Widgets::Carousel* ItemsList;
-  Widgets::Group* TipViewItems;
   Widgets::Label* PageSeparator;
   Widgets::Label* CurrentPage;
   Widgets::Label* TotalPages;

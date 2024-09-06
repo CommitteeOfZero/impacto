@@ -6,10 +6,23 @@
 #include "../../ui/widgets/carousel.h"
 #include "../../ui/widgets/label.h"
 #include "../../data/tipssystem.h"
+#include "../../ui/widgets/cclcc/tipsentrybutton.h"
+#include "../../ui/widgets/scrollbar.h"
+#include <vector>
 
+namespace Impacto::UI::Widgets::CCLCC {
+class TipsTabGroup;
+}
 namespace Impacto {
 namespace UI {
 namespace CCLCC {
+
+enum TipsTabType {
+  AllTips,
+  UnlockedTips,
+  UnreadTips,
+  NewTips,
+};
 
 class TipsMenu : public UI::TipsMenu {
  public:
@@ -30,18 +43,25 @@ class TipsMenu : public UI::TipsMenu {
   void NextTipPage();
 
  private:
-  /*Impacto::TipsSystem::TipsDataRecord* Records;
+  constexpr int static TabCount = 4;
+  int CurrentTabIdx = 0;
+  float TipPageY = 0;
+  glm::vec2 TipsScrollStartPos;
+  glm::vec2 TipsScrollTrackBounds;
 
-  int CurrentTipPage = 1;
-  int CurrentPageIdx = 0;
-  int PageCount = 0;
+  TipsTabType CurrentTabType;
+  std::vector<int> SortedTipIds;
+  std::array<Widgets::CCLCC::TipsTabGroup*, TabCount> TipsTabs;
 
-  Sprite* ThumbnailSprite;
-  Widgets::Carousel* ItemsList;
-  Widgets::Group* TipViewItems;
-  Widgets::Label* PageSeparator;
-  Widgets::Label* CurrentPage;
-  Widgets::Label* TotalPages;*/
+  Widgets::Scrollbar* TipsScrollbar = nullptr;
+  Widgets::Group TipViewItems;
+
+  int ScrollWheelYDelta = 0;
+  bool MouseInTextBounds = false;
+
+  float ScrollPercentage = 0.0f;
+  bool HasInitialized = false;
+  void SetActiveTab(TipsTabType type);
 };
 
 }  // namespace CCLCC

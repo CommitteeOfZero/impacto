@@ -66,6 +66,7 @@ void Button::Render() {
 void Button::SetText(uint8_t* str, float fontSize,
                      RendererOutlineMode outlineMode, int colorIndex) {
   HasText = true;
+  Text = new ProcessedTextGlyph[255];
   Impacto::Vm::Sc3VmThread dummy;
   dummy.Ip = str;
   TextLength = TextLayoutPlainLine(
@@ -83,10 +84,34 @@ void Button::SetText(ProcessedTextGlyph* str, int textLength, float textWidth,
                      float fontSize, RendererOutlineMode outlineMode) {
   HasText = true;
   TextLength = textLength;
+  Text = new ProcessedTextGlyph[TextLength];
   TextWidth = textWidth;
   OutlineMode = outlineMode;
   memcpy(Text, str, TextLength * sizeof(ProcessedTextGlyph));
   Bounds = RectF(Text[0].DestRect.X, Text[0].DestRect.Y, TextWidth, fontSize);
+}
+
+void Button::Move(glm::vec2 relativePosition) {
+  if (HasText) {
+    for (int i = 0; i < TextLength; i++) {
+      Text[i].DestRect.X += relativePosition.x;
+      Text[i].DestRect.Y += relativePosition.y;
+    }
+  }
+  Widget::Move(relativePosition);
+}
+
+void Button::Move(glm::vec2 relativePosition, float duration) {
+  Widget::Move(relativePosition, duration);
+}
+
+void Button::MoveTo(glm::vec2 pos) {
+  auto relativePosition = pos - glm::vec2(Bounds.X, Bounds.Y);
+  Move(relativePosition);
+}
+
+void Button::MoveTo(glm::vec2 pos, float duration) {
+  Widget::MoveTo(pos, duration);
 }
 
 }  // namespace Widgets

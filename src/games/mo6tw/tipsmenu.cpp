@@ -30,33 +30,31 @@ void TipsMenu::TipOnClick(Button *target) {
   if (!tipEntry->TipEntryRecord->IsLocked) SwitchToTipId(target->Id);
 }
 
-TipsMenu::TipsMenu() {
+TipsMenu::TipsMenu() : ItemsList(CDIR_HORIZONTAL), TipViewItems(this) {
   FadeAnimation.Direction = 1;
   FadeAnimation.LoopMode = ALM_Stop;
   FadeAnimation.DurationIn = FadeInDuration;
   FadeAnimation.DurationOut = FadeOutDuration;
 
-  TipViewItems = new Group(this);
-  TipViewItems->FocusLock = false;
-  TipViewItems->IsShown = true;
+  TipViewItems.FocusLock = false;
+  TipViewItems.IsShown = true;
 
   Name = new Label();
   Name->Bounds = NameInitialBounds;
-  TipViewItems->Add(Name);
+  TipViewItems.Add(Name);
 
   Pronounciation = new Label();
   Pronounciation->Bounds = PronounciationInitialBounds;
-  TipViewItems->Add(Pronounciation);
+  TipViewItems.Add(Pronounciation);
 
   Category = new Label();
   Category->Bounds = CategoryInitialBounds;
-  TipViewItems->Add(Category);
+  TipViewItems.Add(Category);
 
-  TextPage = new DialoguePage();
-  TextPage->Glyphs = new ProcessedTextGlyph[Profile::Dialogue::MaxPageSize];
-  TextPage->Clear();
-  TextPage->Mode = DPM_TIPS;
-  TextPage->FadeAnimation.Progress = 1.0f;
+  TextPage.Glyphs = new ProcessedTextGlyph[Profile::Dialogue::MaxPageSize];
+  TextPage.Clear();
+  TextPage.Mode = DPM_TIPS;
+  TextPage.FadeAnimation.Progress = 1.0f;
 }
 
 void TipsMenu::Show() {
@@ -89,7 +87,7 @@ void TipsMenu::Hide() {
 void TipsMenu::UpdateInput() {
   Menu::UpdateInput();
   if (State == Shown) {
-    ItemsList->UpdateInput();
+    ItemsList.UpdateInput();
     if (CurrentlyDisplayedTipId != -1) {
       if (PADinputButtonWentDown & PAD1X) {
         NextTipPage();
@@ -104,8 +102,6 @@ void TipsMenu::Update(float dt) {
   FadeAnimation.Update(dt);
   if (ScrWork[SW_TIPSALPHA] < 256 && State == Shown) {
     Hide();
-  } else if (ScrWork[SW_TIPSALPHA] == 256 && State == Hidden) {
-    Show();
   }
 
   if (ScrWork[SW_TIPSALPHA] == 256 && FadeAnimation.IsIn())
@@ -114,13 +110,13 @@ void TipsMenu::Update(float dt) {
     State = Hidden;
 
   if (State != Hidden) {
-    ItemsList->Tint.a = FadeAnimation.Progress;
-    TipViewItems->Tint.a = FadeAnimation.Progress;
+    ItemsList.Tint.a = FadeAnimation.Progress;
+    TipViewItems.Tint.a = FadeAnimation.Progress;
   }
 
   if (State == Shown) {
-    ItemsList->Update(dt);
-    TipViewItems->Update(dt);
+    ItemsList.Update(dt);
+    TipViewItems.Update(dt);
   }
 }
 
@@ -128,11 +124,11 @@ void TipsMenu::Render() {
   if (State != Hidden && ScrWork[SW_TIPSALPHA] > 0) {
     glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
     Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f), col);
-    ItemsList->Render();
+    ItemsList.Render();
 
     if (CurrentlyDisplayedTipId != -1) {
-      TipViewItems->Render();
-      Renderer->DrawProcessedText(TextPage->Glyphs, TextPage->Length,
+      TipViewItems.Render();
+      Renderer->DrawProcessedText(TextPage.Glyphs, TextPage.Length,
                                   Profile::Dialogue::DialogueFont, col.a,
                                   RendererOutlineMode::RO_Full, true);
       if (ThumbnailSprite) {
@@ -143,7 +139,6 @@ void TipsMenu::Render() {
 }
 
 void TipsMenu::Init() {
-  ItemsList = new Carousel(CDIR_HORIZONTAL);
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
   auto onClick = std::bind(&TipsMenu::TipOnClick, this, std::placeholders::_1);
@@ -170,7 +165,7 @@ void TipsMenu::Init() {
       if (currentPage == 0) pageItems->Show();
       currentPage = page;
       currentY = TipListInitialY;
-      ItemsList->Add(pageItems);
+      ItemsList.Add(pageItems);
       pageItems = new Group(this);
     }
 
@@ -203,32 +198,32 @@ void TipsMenu::Init() {
   }
 
   // Add last category
-  ItemsList->Add(pageItems);
+  ItemsList.Add(pageItems);
 
   // Number label
   NumberText = new Label(Vm::ScriptGetTextTableStrAddress(NumberLabelStrTable,
                                                           NumberLabelStrIndex),
                          NumberLabelPosition, NumberLabelFontSize,
                          RendererOutlineMode::RO_Full, DefaultColorIndex);
-  TipViewItems->Add(NumberText);
+  TipViewItems.Add(NumberText);
   // Tip number
   Number = new Label();
   Number->Bounds = NumberBounds;
-  TipViewItems->Add(Number);
+  TipViewItems.Add(Number);
   // Tip page separator
   PageSeparator = new Label(
       Vm::ScriptGetTextTableStrAddress(PageSeparatorTable, PageSeparatorIndex),
       PageSeparatorPosition, PageSeparatorFontSize,
       RendererOutlineMode::RO_Full, DefaultColorIndex);
-  TipViewItems->Add(PageSeparator);
+  TipViewItems.Add(PageSeparator);
   // Current tip page
   CurrentPage = new Label();
   CurrentPage->Bounds = CurrentPageBounds;
-  TipViewItems->Add(CurrentPage);
+  TipViewItems.Add(CurrentPage);
   // Total tip pages
   TotalPages = new Label();
   TotalPages->Bounds = TotalPagesBounds;
-  TipViewItems->Add(TotalPages);
+  TipViewItems.Add(TotalPages);
 }
 
 void TipsMenu::SwitchToTipId(int id) {
@@ -268,9 +263,9 @@ void TipsMenu::SwitchToTipId(int id) {
   TotalPages->SetText(std::string(temp), PageSeparatorFontSize,
                       RendererOutlineMode::RO_Full, DefaultColorIndex);
 
-  TextPage->Clear();
+  TextPage.Clear();
   dummy.Ip = tipRecord->StringPtrs[3];
-  TextPage->AddString(&dummy);
+  TextPage.AddString(&dummy);
 }
 
 void TipsMenu::NextTipPage() {
@@ -279,10 +274,10 @@ void TipsMenu::NextTipPage() {
   if (CurrentTipPage > currentRecord->NumberOfContentStrings)
     CurrentTipPage = 1;
 
-  TextPage->Clear();
+  TextPage.Clear();
   Vm::Sc3VmThread dummy;
   dummy.Ip = currentRecord->StringPtrs[2 + CurrentTipPage];
-  TextPage->AddString(&dummy);
+  TextPage.AddString(&dummy);
 
   char temp[5];
   sprintf(temp, "%d", CurrentTipPage);

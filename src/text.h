@@ -103,10 +103,14 @@ struct DialoguePage {
 
   float AutoWaitTime;
 
+  RectF BoxBounds;
+
   void Clear();
   void AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice = 0,
                  int animId = 0);
   void Update(float dt);
+  void Move(glm::vec2 relativePos);
+  void MoveTo(glm::vec2 pos);
   void Render();
 
  private:
@@ -120,7 +124,6 @@ struct DialoguePage {
   float CurrentLineTop;
   float CurrentLineTopMargin;
   int LastLineStart;
-
   DialoguePageMode PrevMode = DPM_ADV;
 };
 

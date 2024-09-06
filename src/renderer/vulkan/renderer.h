@@ -27,6 +27,11 @@ struct SpritePushConstants {
   glm::vec2 Alpha;
 };
 
+struct MaskedNoAlphaPushConstants {
+  glm::vec2 Alpha;
+  VkBool32 IsInverted;
+};
+
 struct YUVFramePushConstants {
   VkBool32 IsAlpha;
 };
@@ -126,9 +131,10 @@ class Renderer : public BaseRenderer {
                         int fadeRange, float effectCt,
                         bool isScreencap = false) override;
 
-  void DrawCHLCCDelusionOverlay(Sprite const& sprite, Sprite const& mask,
-                                RectF const& dest, int alpha, int fadeRange,
-                                float angle) override;
+  void DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
+                               RectF const& dest, glm::vec4 tint, int alpha,
+                               int fadeRange, bool isInverted, float angle,
+                               bool useMaskAlpha);
 
   void DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
                                const RectF& dest, float alpha) override;
@@ -241,6 +247,7 @@ class Renderer : public BaseRenderer {
   Pipeline* PipelineSprite;
   Pipeline* PipelineSpriteInverted;
   Pipeline* PipelineMaskedSprite;
+  Pipeline* PipelineMaskedSpriteNoAlpha;
   Pipeline* PipelineYUVFrame;
   Pipeline* PipelineCCMessageBox;
   Pipeline* PipelineCHLCCMenuBackground;

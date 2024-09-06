@@ -76,6 +76,9 @@ void Renderer::Init() {
   ShaderSpriteInverted->Compile("Sprite_inverted", Device, vertexDeclaration);
   ShaderMaskedSprite = new Shader();
   ShaderMaskedSprite->Compile("MaskedSprite", Device, vertexDeclaration);
+  ShaderMaskedSpriteNoAlpha = new Shader();
+  ShaderMaskedSpriteNoAlpha->Compile("MaskedSpriteNoAlpha", Device,
+                                     vertexDeclaration);
   ShaderYUVFrame = new Shader();
   ShaderYUVFrame->Compile("YUVFrame", Device, vertexDeclaration);
   ShaderCCMessageBox = new Shader();
@@ -551,12 +554,14 @@ void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
-void Renderer::DrawCHLCCDelusionOverlay(Sprite const& sprite,
-                                        Sprite const& mask, RectF const& dest,
-                                        int alpha, int fadeRange, float angle) {
+void Renderer::DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
+                                       RectF const& dest, glm::vec4 tint,
+                                       int alpha, int fadeRange,
+                                       bool isInverted, float angle,
+                                       bool useMaskAlpha) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
-           "Renderer->DrawCHLCCDelusionOverlay() called before BeginFrame()\n");
+           "Renderer->DrawMaskedSpriteOverlay() called before BeginFrame()\n");
     return;
   }
 
@@ -569,20 +574,25 @@ void Renderer::DrawCHLCCDelusionOverlay(Sprite const& sprite,
   // Do we have space for one more sprite quad?
   EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
 
-  Flush();
-  EnsureShader(ShaderMaskedSprite);
+  float alphaRes[] = {alphaRange, constAlpha};
+  BOOL isInvertedB = (BOOL)isInverted;
+  BOOL isSameTextureB = (BOOL) false;
+  BOOL useMaskAlphaB = (BOOL)useMaskAlpha;
+
+  if (useMaskAlpha) {
+    EnsureShader(ShaderMaskedSprite);
+    Device->SetPixelShaderConstantB(1, &isSameTextureB, 1);
+  } else {
+    EnsureShader(ShaderMaskedSpriteNoAlpha);
+  }
 
   Device->SetTexture(0, Textures[sprite.Sheet.Texture]);
   Device->SetTexture(1, Textures[mask.Sheet.Texture]);
 
-  float alphaRes[] = {alphaRange, constAlpha};
-  BOOL isInvertedB = (BOOL) true;
-  BOOL isSameTextureB = (BOOL) false;
   Device->SetSamplerState(1, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
   Device->SetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
   Device->SetPixelShaderConstantF(0, alphaRes, 1);
   Device->SetPixelShaderConstantB(0, &isInvertedB, 1);
-  Device->SetPixelShaderConstantB(1, &isSameTextureB, 1);
 
   // OK, all good, make quad
 
@@ -594,13 +604,13 @@ void Renderer::DrawCHLCCDelusionOverlay(Sprite const& sprite,
 
   QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
             (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetUV(sprite.Bounds, sprite.Bounds.Width, sprite.Bounds.Height,
+  QuadSetUV(mask.Bounds, mask.Sheet.DesignWidth, mask.Sheet.DesignHeight,
             (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites), angle);
 
   QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
                   sizeof(VertexBufferSprites));
 
-  for (int i = 0; i < 4; i++) vertices[i].Tint = glm::vec4{1.0f};
+  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
 void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,

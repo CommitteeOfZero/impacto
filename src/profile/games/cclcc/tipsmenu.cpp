@@ -17,9 +17,46 @@ void Configure() {
   TipsBookLayerSprite = EnsureGetMemberSprite("TipsBookLayerSprite");
   TipsGuideSprite = EnsureGetMemberSprite("TipsGuideSprite");
   TipsMaskSprite = EnsureGetMemberSprite("TipsMaskSprite");
+  TipsHighlightedSprite = EnsureGetMemberSprite("TipsHighlightedSprite");
+  TipsHighlightedTabSprite = EnsureGetMemberSprite("TipsHighlightedTabSprite");
+  TipsNewSprite = EnsureGetMemberSprite("TipsNewSprite");
+  TipsHighlightedTabAdder = EnsureGetMemberInt("TipsHighlightedTabAdder");
 
   TipsGuideX = EnsureGetMemberInt("TipsGuideX");
   TipsGuideY = EnsureGetMemberInt("TipsGuideY");
+
+  TipsTextTableIndex = EnsureGetMemberInt("TipsTextTableIndex");
+  TipsTextSortStringIndex = EnsureGetMemberInt("TipsTextSortStringIndex");
+  TipsTextEntryLockedIndex = EnsureGetMemberInt("TipsTextEntryLockedIndex");
+
+  TipsEntryBounds = EnsureGetMemberRectF("TipsEntryBounds");
+  TipEntryNewOffset = EnsureGetMemberVec2("TipEntryNewOffset");
+  TipsEntryHighlightOffset = EnsureGetMemberVec2("TipsEntryHighlightOffset");
+  TipsEntryNumberOffset = EnsureGetMemberVec2("TipsEntryNumberOffset");
+  TipsEntryNameOffset = EnsureGetMemberVec2("TipsEntryNameOffset");
+
+  TipsTabBounds = EnsureGetMemberRectF("TipsTabBounds");
+  TipsTabNameDisplay = EnsureGetMemberVec2("TipsTabNameDisplay");
+
+  CategoryPos = EnsureGetMemberVec2("CategoryPos");
+  CategoryFontSize = EnsureGetMemberInt("CategoryFontSize");
+  NamePos = EnsureGetMemberVec2("NamePos");
+  NameFontSize = EnsureGetMemberInt("NameFontSize");
+  PronounciationPos = EnsureGetMemberVec2("PronounciationPos");
+  PronounciationFontSize = EnsureGetMemberInt("PronounciationFontSize");
+  NumberPos = EnsureGetMemberVec2("NumberPos");
+  NumberFontSize = EnsureGetMemberInt("NumberFontSize");
+
+  TipsEntryNameUnreadColor = EnsureGetMemberUint("TipsEntryNameUnreadColor");
+  TipsMenuDarkTextColor = EnsureGetMemberUint("TipsMenuDarkTextColor");
+
+  TipsScrollThumbSprite = EnsureGetMemberSprite("TipsScrollThumbSprite");
+  TipsScrollYStart = EnsureGetMemberInt("TipsScrollYStart");
+  TipsScrollYEnd = EnsureGetMemberInt("TipsScrollYEnd");
+  TipsScrollEntriesX = EnsureGetMemberInt("TipsScrollEntriesX");
+  TipsScrollDetailsX = EnsureGetMemberInt("TipsScrollDetailsX");
+
+  TipsMaskSheet = EnsureGetMemberSpriteSheet("TipsMask");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMemberInt("DrawType"));

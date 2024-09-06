@@ -88,6 +88,7 @@ void Configure() {
   REVNameOffset = EnsureGetMemberFloat("REVNameOffset");
 
   TryGetMemberFloat("TipsLineSpacing", TipsLineSpacing);
+  TryGetMemberInt("TipsColorIndex", TipsColorIndex);
 
   WaitIconCurrentType = WaitIconDisplay::WaitIconType::_from_integral_unchecked(
       EnsureGetMemberInt("WaitIconCurrentType"));

@@ -11,16 +11,33 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Vm::Interface;
 
 Scrollbar::Scrollbar(int id, glm::vec2 pos, float min, float max, float* value,
-                     ScrollbarDirection dir, Sprite const& track,
-                     Sprite const& thumb, glm::vec2 thumbOffset) {
+                     ScrollbarDirection dir, Sprite const& thumb,
+                     glm::vec2 trackBounds)
+    : Id(id),
+      MinValue(min),
+      MaxValue(max),
+      Value(value),
+      Direction(dir),
+      ThumbSprite(thumb),
+      TrackBounds(pos.x, pos.y, trackBounds.x, trackBounds.y) {
   Enabled = true;
-  Id = id;
-  MinValue = min;
-  MaxValue = max;
-  Value = value;
-  TrackSprite = track;
-  ThumbSprite = thumb;
-  Direction = dir;
+  Step = (MaxValue - MinValue) * 0.01f;
+  Length = Direction == SBDIR_VERTICAL ? trackBounds.y : trackBounds.x;
+}
+
+Scrollbar::Scrollbar(int id, glm::vec2 pos, float min, float max, float* value,
+                     ScrollbarDirection dir, Sprite const& track,
+                     Sprite const& thumb, glm::vec2 thumbOffset)
+    : Id(id),
+      MinValue(min),
+      MaxValue(max),
+      Value(value),
+      Direction(dir),
+      TrackSprite(track),
+      ThumbSprite(thumb),
+      ThumbSpriteOffset(thumbOffset),
+      HasTrack(true) {
+  Enabled = true;
   Step = (MaxValue - MinValue) * 0.01f;
   Length = Direction == SBDIR_VERTICAL ? TrackSprite.Bounds.Height
                                        : TrackSprite.Bounds.Width;
@@ -37,7 +54,6 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float min, float max, float* value,
     ThumbBounds.Y = (TrackBounds.Y + (TrackBounds.Height / 2.0f)) -
                     (ThumbSprite.ScaledHeight() / 2.0f);
   }
-  ThumbSpriteOffset = thumbOffset;
   UpdatePosition();
 }
 
@@ -93,9 +109,16 @@ void Scrollbar::UpdateInput() {
           trackP2 = TrackBounds.Width;
           break;
       }
-
-      *Value =
+      float tmpVal =
           MinValue + (((mouseP - trackP1) / trackP2) * (MaxValue - MinValue));
+      if (MaxValue < MinValue)
+        *Value = (tmpVal < MaxValue)   ? MaxValue
+                 : (tmpVal > MinValue) ? MinValue
+                                       : tmpVal;
+      else
+        *Value = (tmpVal > MaxValue)   ? MaxValue
+                 : (tmpVal < MinValue) ? MinValue
+                                       : tmpVal;
     } else {
       Scrolling = false;
     }
@@ -107,7 +130,9 @@ void Scrollbar::Render() {
     Renderer->DrawSprite(FillSprite, glm::vec2(TrackBounds.X, TrackBounds.Y),
                          Tint);
   }
-  Renderer->DrawSprite(TrackSprite, TrackBounds, Tint);
+  if (HasTrack) {
+    Renderer->DrawSprite(TrackSprite, TrackBounds, Tint);
+  }
   if (HasFill && !FillBeforeTrack) {
     Renderer->DrawSprite(FillSprite, glm::vec2(TrackBounds.X, TrackBounds.Y),
                          Tint);

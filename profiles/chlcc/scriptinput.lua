@@ -10,10 +10,10 @@ root.Input = {
   KB_PAD1DOWN=81,          -- Down
   KB_PAD1LEFT=80,          -- Left
   KB_PAD1RIGHT=79,         -- Right
-  KB_PAD1L1=8,             -- E
+  KB_PAD1L1=20,            -- Q
   KB_PAD1L2=29,            -- Z
   KB_PAD1L3=32,            -- 3
-  KB_PAD1R1=224,           -- LCTRL
+  KB_PAD1R1=8,             -- E
   KB_PAD1R2=6,             -- C
   KB_PAD1R3=65,            -- F8
   -- Mouse

@@ -88,11 +88,11 @@ VmInstruction(InstSystemMenu) {
   switch (mode) {
     case 0:
       if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW) {
-        UI::SystemMenuPtr->Show();
       } else {
         // TODO: Randomize SystemMenuBgPos here (only for Chaos)
         ScrWork[SW_SYSMENUCNO] = 0;  // Don't know if needed
       }
+      UI::SystemMenuPtr->Show();
       break;
     case 1: {
       if (!UI::SystemMenuPtr->ChoiceMade) {

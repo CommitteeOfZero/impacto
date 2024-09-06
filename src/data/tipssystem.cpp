@@ -12,31 +12,32 @@ void Init() { Configure(); }
 
 void DataInit(int scriptBufferId, uint8_t* tipsData, uint32_t tipsDataSize) {
   if (Implementation)
-    Implementation->DataInit(scriptBufferId, tipsData, tipsDataSize);
+    return Implementation->DataInit(scriptBufferId, tipsData, tipsDataSize);
+
   ImpLog(LL_Warning, LC_VMStub,
          "%s: tips system not implemented, doing nothing\n", __func__);
 }
 
 void UpdateTipRecords() {
-  if (Implementation) Implementation->UpdateTipRecords();
+  if (Implementation) return Implementation->UpdateTipRecords();
   ImpLog(LL_Warning, LC_VMStub,
          "%s: tips system not implemented, doing nothing\n", __func__);
 }
 
 void SetTipLockedState(int id, bool state) {
-  if (Implementation) Implementation->SetTipLockedState(id, state);
+  if (Implementation) return Implementation->SetTipLockedState(id, state);
   ImpLog(LL_Warning, LC_VMStub,
          "%s: tips system not implemented, doing nothing\n", __func__);
 }
 
 void SetTipUnreadState(int id, bool state) {
-  if (Implementation) Implementation->SetTipUnreadState(id, state);
+  if (Implementation) return Implementation->SetTipUnreadState(id, state);
   ImpLog(LL_Warning, LC_VMStub,
          "%s: tips system not implemented, doing nothing\n", __func__);
 }
 
 void SetTipNewState(int id, bool state) {
-  if (Implementation) Implementation->SetTipNewState(id, state);
+  if (Implementation) return Implementation->SetTipNewState(id, state);
   ImpLog(LL_Warning, LC_VMStub,
          "%s: tips system not implemented, doing nothing\n", __func__);
 }
@@ -69,5 +70,11 @@ int GetTipCount() {
   return 0;
 }
 
+uint8_t GetTipsScriptBufferId() {
+  if (Implementation) return Implementation->ScriptBufferId;
+  ImpLog(LL_Warning, LC_VMStub,
+         "%s: tips system not implemented, returning 0\n", __func__);
+  return 0;
+}
 }  // namespace TipsSystem
 }  // namespace Impacto

@@ -405,13 +405,13 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
   LastLineStart = Length;
   DialogueColorPair CurrentColors = ColorTable[0];
 
-  RectF BoxBounds;
   if (Mode == DPM_ADV) {
     BoxBounds = ADVBounds;
   } else if (Mode == DPM_REV) {
     BoxBounds = REVBounds;
   } else if (Mode == DPM_TIPS) {
     BoxBounds = TipsBounds;
+    CurrentColors = ColorTable[TipsColorIndex];
   } else {
     BoxBounds = NVLBounds;
   }
@@ -711,6 +711,25 @@ void DialoguePage::Render() {
 
   AutoIconDisplay::Render(col);
   SkipIconDisplay::Render(col);
+}
+
+void DialoguePage::Move(glm::vec2 relativePos) {
+  for (int i = 0; i < Length; i++) {
+    Glyphs[i].DestRect.X += relativePos.x;
+    Glyphs[i].DestRect.Y += relativePos.y;
+  }
+  if (HasName) {
+    for (int i = 0; i < NameLength; i++) {
+      Name[i].DestRect.X += relativePos.x;
+      Name[i].DestRect.Y += relativePos.y;
+    }
+  }
+}
+
+void DialoguePage::MoveTo(glm::vec2 pos) {
+  glm::vec2 relativePos =
+      pos - glm::vec2(Glyphs[0].DestRect.X, Glyphs[0].DestRect.Y);
+  Move(relativePos);
 }
 
 int TextGetStringLength(Vm::Sc3VmThread* ctx) {
