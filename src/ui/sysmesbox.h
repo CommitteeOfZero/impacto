@@ -26,12 +26,10 @@ class SysMesBox : public Menu {
   Widgets::Group* ChoiceItems;
 
   float BoxOpacity;
-  ProcessedTextGlyph Messages[8][255];
-  int MessageLengths[8];
-  float MessageWidths[8];
-  ProcessedTextGlyph Choices[8][255];
-  int ChoiceLengths[8];
-  float ChoiceWidths[8];
+  std::array<std::vector<ProcessedTextGlyph>, 8> Messages;
+  std::array<float, 8> MessageWidths;
+  std::array<std::vector<ProcessedTextGlyph>, 8> Choices;
+  std::array<float, 8> ChoiceWidths;
   float ChoiceX = 0.0f;
 
   Animation FadeAnimation;

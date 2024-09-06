@@ -73,12 +73,12 @@ void BaseRenderer::DrawSprite3DRotated(Sprite const& sprite, glm::vec2 topLeft,
 }
 
 void BaseRenderer::DrawProcessedText_BasicFont(
-    ProcessedTextGlyph* text, int length, BasicFont* font, float opacity,
+    tcb::span<const ProcessedTextGlyph> text, BasicFont* font, float opacity,
     RendererOutlineMode outlineMode, bool smoothstepGlyphOpacity,
     float outlineOpacity, SpriteSheet* maskedSheet) {
   // cruddy mages outline
   if (outlineMode != RendererOutlineMode::RO_None) {
-    for (int i = 0; i < length; i++) {
+    for (int i = 0; i < text.size(); i++) {
       glm::vec4 color = RgbIntToFloat(text[i].Colors.OutlineColor);
       color.a = outlineOpacity;
       if (smoothstepGlyphOpacity) {
@@ -123,7 +123,7 @@ void BaseRenderer::DrawProcessedText_BasicFont(
     }
   }
 
-  for (int i = 0; i < length; i++) {
+  for (int i = 0; i < text.size(); i++) {
     glm::vec4 color = RgbIntToFloat(text[i].Colors.TextColor);
     color.a = opacity;
     if (smoothstepGlyphOpacity) {
@@ -145,12 +145,12 @@ void BaseRenderer::DrawProcessedText_BasicFont(
 }
 
 void BaseRenderer::DrawProcessedText_LBFont(
-    ProcessedTextGlyph* text, int length, LBFont* font, float opacity,
+    tcb::span<const ProcessedTextGlyph> text, LBFont* font, float opacity,
     RendererOutlineMode outlineMode, bool smoothstepGlyphOpacity,
     float outlineOpacity, SpriteSheet* maskedSheet) {
   // TODO: implement outline mode properly
   if (outlineMode != RendererOutlineMode::RO_None) {
-    for (int i = 0; i < length; i++) {
+    for (int i = 0; i < text.size(); i++) {
       glm::vec4 color = RgbIntToFloat(text[i].Colors.OutlineColor);
       color.a = outlineOpacity;
       if (smoothstepGlyphOpacity) {
@@ -178,7 +178,7 @@ void BaseRenderer::DrawProcessedText_LBFont(
     }
   }
 
-  for (int i = 0; i < length; i++) {
+  for (int i = 0; i < text.size(); i++) {
     glm::vec4 color = RgbIntToFloat(text[i].Colors.TextColor);
     color.a = opacity;
     if (smoothstepGlyphOpacity) {
@@ -199,26 +199,24 @@ void BaseRenderer::DrawProcessedText_LBFont(
   }
 }
 
-void BaseRenderer::DrawProcessedText(ProcessedTextGlyph* text, int length,
+void BaseRenderer::DrawProcessedText(tcb::span<const ProcessedTextGlyph> text,
                                      Font* font, float opacity,
                                      RendererOutlineMode outlineMode,
                                      bool smoothstepGlyphOpacity,
                                      SpriteSheet* maskedSheet) {
   switch (font->Type) {
     case FontType::Basic:
-      DrawProcessedText_BasicFont(text, length, (BasicFont*)font, opacity,
-                                  outlineMode, smoothstepGlyphOpacity, opacity,
-                                  maskedSheet);
+      DrawProcessedText_BasicFont(text, (BasicFont*)font, opacity, outlineMode,
+                                  smoothstepGlyphOpacity, opacity, maskedSheet);
       break;
     case FontType::LB: {
-      DrawProcessedText_LBFont(text, length, (LBFont*)font, opacity,
-                               outlineMode, smoothstepGlyphOpacity, opacity,
-                               maskedSheet);
+      DrawProcessedText_LBFont(text, (LBFont*)font, opacity, outlineMode,
+                               smoothstepGlyphOpacity, opacity, maskedSheet);
     }
   }
 }
 
-void BaseRenderer::DrawProcessedText(ProcessedTextGlyph* text, int length,
+void BaseRenderer::DrawProcessedText(tcb::span<const ProcessedTextGlyph> text,
                                      Font* font, float opacity,
                                      float outlineOpacity,
                                      RendererOutlineMode outlineMode,
@@ -226,14 +224,14 @@ void BaseRenderer::DrawProcessedText(ProcessedTextGlyph* text, int length,
                                      SpriteSheet* maskedSheet) {
   switch (font->Type) {
     case FontType::Basic:
-      DrawProcessedText_BasicFont(text, length, (BasicFont*)font, opacity,
-                                  outlineMode, smoothstepGlyphOpacity,
-                                  outlineOpacity, maskedSheet);
+      DrawProcessedText_BasicFont(text, (BasicFont*)font, opacity, outlineMode,
+                                  smoothstepGlyphOpacity, outlineOpacity,
+                                  maskedSheet);
       break;
     case FontType::LB: {
-      DrawProcessedText_LBFont(text, length, (LBFont*)font, opacity,
-                               outlineMode, smoothstepGlyphOpacity,
-                               outlineOpacity, maskedSheet);
+      DrawProcessedText_LBFont(text, (LBFont*)font, opacity, outlineMode,
+                               smoothstepGlyphOpacity, outlineOpacity,
+                               maskedSheet);
     }
   }
 }

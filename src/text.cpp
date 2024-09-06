@@ -23,6 +23,7 @@
 #include "games/cc/dialoguebox.h"
 
 #include "../vendor/utf8-cpp/utf8.h"
+#include <memory>
 
 namespace Impacto {
 
@@ -248,7 +249,7 @@ void DialoguePage::Init() {
 }
 
 void DialoguePage::Clear() {
-  Length = 0;
+  Glyphs.clear();
   NameLength = 0;
   HasName = false;
   memset(RubyChunks, 0, sizeof(RubyChunk) * DialogueMaxRubyChunks);
@@ -299,9 +300,9 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, int nextLineStart,
         RectF const& baseGlyphRect =
             Glyphs[RubyChunks[i].FirstBaseCharacter + j].DestRect;
         pos.x = baseGlyphRect.Center().x;
-        TextLayoutPlainLine(ctx, 1, RubyChunks[i].Text + j, DialogueFont,
-                            RubyFontSize, ColorTable[0], 1.0f, pos,
-                            TextAlignment::Center);
+        TextLayoutPlainLine(ctx, 1, tcb::span(RubyChunks[i].Text + j, 1),
+                            DialogueFont, RubyFontSize, ColorTable[0], 1.0f,
+                            pos, TextAlignment::Center);
       }
     } else {
       // evenly space out all ruby characters over the block of base text
@@ -385,7 +386,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
   }
   PrevMode = Mode;
 
-  int typewriterStart = Length;
+  int typewriterStart = Glyphs.size();
 
   // TODO should we reset HasName here?
   // It shouldn't really matter since names are an ADV thing and we clear before
@@ -401,8 +402,8 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
   TextParseState State = TPS_Normal;
   // TODO respect alignment
   TextAlignment Alignment = TextAlignment::Left;
-  int LastWordStart = Length;
-  LastLineStart = Length;
+  int LastWordStart = Glyphs.size();
+  LastLineStart = Glyphs.size();
   DialogueColorPair CurrentColors = ColorTable[0];
 
   if (Mode == DPM_ADV) {
@@ -428,13 +429,14 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
     switch (token.Type) {
       case STT_LineBreak:
       case STT_AltLineBreak: {
-        FinishLine(ctx, Length, BoxBounds, Alignment);
-        LastWordStart = Length;
+        FinishLine(ctx, Glyphs.size(), BoxBounds, Alignment);
+        LastWordStart = Glyphs.size();
         CurrentX = 0.0f;
         break;
       }
       case STT_CharacterNameStart: {
         HasName = true;
+        Name.reserve(DialogueMaxNameLength);
         State = TPS_Name;
         if (DialogueBoxCurrentType != +DialogueBoxType::CHLCC &&
             Mode == DPM_REV) {
@@ -443,7 +445,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
         break;
       }
       case STT_RubyTextStart: {
-        EndRubyBase(Length - 1);
+        EndRubyBase(Glyphs.size() - 1);
         State = TPS_Ruby;
         break;
       }
@@ -458,7 +460,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
       case STT_RubyTextEnd: {
         // At least S;G uses [ruby-base]link text[ruby-text-end] for mails, with
         // no ruby-text-start
-        EndRubyBase(Length - 1);
+        EndRubyBase(Glyphs.size() - 1);
         State = TPS_Normal;
         break;
       }
@@ -473,13 +475,13 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
       case STT_SetLeftMargin: {
         float addX = token.Val_Uint16;
         if (CurrentX + addX > BoxBounds.Width) {
-          FinishLine(ctx, Length, BoxBounds, Alignment);
-          LastWordStart = Length;
+          FinishLine(ctx, Glyphs.size(), BoxBounds, Alignment);
+          LastWordStart = Glyphs.size();
           addX -= (BoxBounds.Width - CurrentX);
           CurrentX = 0.0f;
         }
         while (addX > BoxBounds.Width) {
-          FinishLine(ctx, Length, BoxBounds, Alignment);
+          FinishLine(ctx, Glyphs.size(), BoxBounds, Alignment);
           addX -= BoxBounds.Width;
         }
         CurrentX += addX;
@@ -496,8 +498,8 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
       case STT_RubyBaseStart: {
         CurrentRubyChunk = RubyChunkCount;
         RubyChunkCount++;
-        RubyChunks[CurrentRubyChunk].FirstBaseCharacter = Length;
-        LastWordStart = Length;
+        RubyChunks[CurrentRubyChunk].FirstBaseCharacter = Glyphs.size();
+        LastWordStart = Glyphs.size();
         break;
       }
       case STT_AutoForward:
@@ -533,8 +535,8 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
         } else {
           // TODO respect TA_Center
           // TODO what to do about left margin if text alignment is center?
-
-          ProcessedTextGlyph& ptg = Glyphs[Length];
+          Glyphs.push_back(ProcessedTextGlyph());
+          ProcessedTextGlyph& ptg = Glyphs.back();
           ptg.CharId = token.Val_Uint16;
           if (Mode == DPM_REV || Mode == DPM_TIPS)
             ptg.Opacity = 1.0f;
@@ -543,7 +545,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
           ptg.Colors = CurrentColors;
 
           if (ptg.Flags() & CharacterTypeFlags::WordStartingPunct) {
-            LastWordStart = Length;  // still *before* this character
+            LastWordStart = Glyphs.size();  // still *before* this character
           }
 
           ptg.DestRect.X = BoxBounds.X + CurrentX;
@@ -553,8 +555,6 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
 
           CurrentX += ptg.DestRect.Width;
 
-          Length++;
-
           // Line breaking
           if (ptg.DestRect.X + ptg.DestRect.Width >
               BoxBounds.X + BoxBounds.Width) {
@@ -562,19 +562,19 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
               // Word doesn't fit on a line, gotta break in the middle of it
               ptg.DestRect.X = BoxBounds.X;
               CurrentX = ptg.DestRect.Width;
-              FinishLine(ctx, Length - 1, BoxBounds, Alignment);
-              LastWordStart = Length - 1;
+              FinishLine(ctx, Glyphs.size() - 1, BoxBounds, Alignment);
+              LastWordStart = Glyphs.size() - 1;
             } else {
               int firstNonSpace = LastWordStart;
               // Skip spaces at start of (new) line
-              for (int i = LastWordStart; i < Length; i++) {
+              for (int i = LastWordStart; i < Glyphs.size(); i++) {
                 if (!(Glyphs[i].Flags() & CharacterTypeFlags::Space)) break;
                 firstNonSpace = i + 1;
               }
               FinishLine(ctx, firstNonSpace, BoxBounds, Alignment);
               LastWordStart = firstNonSpace;
               CurrentX = 0.0f;
-              for (int i = firstNonSpace; i < Length; i++) {
+              for (int i = firstNonSpace; i < Glyphs.size(); i++) {
                 Glyphs[i].DestRect.X = BoxBounds.X + CurrentX;
                 CurrentX += Glyphs[i].DestRect.Width;
               }
@@ -582,7 +582,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
           }
 
           if (ptg.Flags() & CharacterTypeFlags::WordEndingPunct) {
-            LastWordStart = Length;  // now after this character
+            LastWordStart = Glyphs.size();  // now after this character
           }
         }
       }
@@ -594,7 +594,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
     }
   } while (token.Type != STT_EndOfString);
 
-  FinishLine(ctx, Length, BoxBounds, Alignment);
+  FinishLine(ctx, Glyphs.size(), BoxBounds, Alignment);
   CurrentX = 0.0f;
 
   // Even if there is a name in the string it should not be
@@ -626,10 +626,9 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
       colorIndex = REVNameColor;
     }
 
-    int nameLength =
-        TextLayoutPlainLine(ctx, NameLength, Name, DialogueFont, fontSize,
-                            ColorTable[colorIndex], 1.0f, pos, alignment);
-    assert(nameLength == NameLength);
+    Name = TextLayoutPlainLine(ctx, NameLength, DialogueFont, fontSize,
+                               ColorTable[colorIndex], 1.0f, pos, alignment);
+    assert(NameLength == Name.size());
     ctx->Ip = oldIp;
   }
 
@@ -637,7 +636,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
     Audio::Channels[Audio::AC_VOICE0]->Play(voice, false, 0.0f);
   }
 
-  int typewriterCt = Length - typewriterStart;
+  int typewriterCt = Glyphs.size() - typewriterStart;
   float typewriterDur = 0.0f;
   if (voice != 0) {
     typewriterDur = Audio::Channels[Audio::AC_VOICE0]->DurationInSeconds();
@@ -651,7 +650,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
 void DialoguePage::Update(float dt) {
   Typewriter.Update(dt);
 
-  for (int i = 0; i < Length; i++) {
+  for (int i = 0; i < Glyphs.size(); i++) {
     Glyphs[i].Opacity = Typewriter.CalcOpacity(i);
     if (Glyphs[i].Opacity == 0.0f) {
       Typewriter.LastOpaqueCharacter = i;
@@ -693,20 +692,20 @@ void DialoguePage::Render() {
   glm::vec4 col = glm::vec4(1.0f);  // ScrWorkGetColor(SW_MESWINDOW_COLOR);
   col.a = opacityTint.a;
 
-  Renderer->DrawProcessedText(Glyphs, Length, DialogueFont, opacityTint.a,
+  Renderer->DrawProcessedText(Glyphs, DialogueFont, opacityTint.a,
                               RendererOutlineMode::RO_Full);
 
   if (ADVBoxShowName) {
-    Renderer->DrawProcessedText(Name, NameLength, DialogueFont, opacityTint.a,
+    Renderer->DrawProcessedText(Name, DialogueFont, opacityTint.a,
                                 RendererOutlineMode::RO_Full);
   }
 
   // Wait icon
-  if (Typewriter.Progress == 1.0f && Length > 0) {
-    WaitIconDisplay::Render(glm::vec2(Glyphs[Length - 1].DestRect.X +
-                                          Glyphs[Length - 1].DestRect.Width,
-                                      Glyphs[Length - 1].DestRect.Y),
-                            col, Mode);
+  if (Typewriter.Progress == 1.0f && Glyphs.size() > 0) {
+    WaitIconDisplay::Render(
+        glm::vec2(Glyphs.back().DestRect.X + Glyphs.back().DestRect.Width,
+                  Glyphs.back().DestRect.Y),
+        col, Mode);
   }
 
   AutoIconDisplay::Render(col);
@@ -714,7 +713,7 @@ void DialoguePage::Render() {
 }
 
 void DialoguePage::Move(glm::vec2 relativePos) {
-  for (int i = 0; i < Length; i++) {
+  for (int i = 0; i < Glyphs.size(); i++) {
     Glyphs[i].DestRect.X += relativePos.x;
     Glyphs[i].DestRect.Y += relativePos.y;
   }
@@ -768,7 +767,7 @@ int TextGetMainCharacterCount(Vm::Sc3VmThread* ctx) {
 }
 
 int TextLayoutPlainLine(Vm::Sc3VmThread* ctx, int stringLength,
-                        ProcessedTextGlyph* outGlyphs, Font* font,
+                        tcb::span<ProcessedTextGlyph> outGlyphs, Font* font,
                         float fontSize, DialogueColorPair colors, float opacity,
                         glm::vec2 pos, TextAlignment alignment,
                         float blockWidth) {
@@ -776,7 +775,6 @@ int TextLayoutPlainLine(Vm::Sc3VmThread* ctx, int stringLength,
   StringToken token;
 
   float currentX = 0;
-
   for (int i = 0; i < stringLength; i++) {
     token.Read(ctx);
     if (token.Type == STT_EndOfString) break;
@@ -797,9 +795,53 @@ int TextLayoutPlainLine(Vm::Sc3VmThread* ctx, int stringLength,
 
     characterCount++;
   }
+  assert(outGlyphs.size() >= characterCount);
+  // currentX is now line width
+  return TextLayoutAlignment(alignment, blockWidth, currentX, pos,
+                             characterCount, outGlyphs);
+}
+
+std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
+    Vm::Sc3VmThread* ctx, int maxLength, Font* font, float fontSize,
+    DialogueColorPair colors, float opacity, glm::vec2 pos,
+    TextAlignment alignment, float blockWidth) {
+  int characterCount = 0;
+  StringToken token;
+
+  float currentX = 0;
+  std::vector<ProcessedTextGlyph> outGlyphs;
+  outGlyphs.reserve(maxLength);
+  for (int i = 0; i < maxLength; i++) {
+    token.Read(ctx);
+    if (token.Type == STT_EndOfString) break;
+    if (token.Type != STT_Character) continue;
+
+    outGlyphs.push_back(ProcessedTextGlyph());
+    ProcessedTextGlyph& ptg = outGlyphs.back();
+    ptg.CharId = token.Val_Uint16;
+    ptg.Colors = colors;
+    ptg.Opacity = opacity;
+
+    ptg.DestRect.X = currentX;
+    ptg.DestRect.Y = pos.y;
+    ptg.DestRect.Width =
+        std::floor((fontSize / font->CellHeight) * font->Widths[ptg.CharId]);
+    ptg.DestRect.Height = fontSize;
+
+    currentX += ptg.DestRect.Width;
+
+    characterCount++;
+  }
 
   // currentX is now line width
+  TextLayoutAlignment(alignment, blockWidth, currentX, pos, characterCount,
+                      outGlyphs);
+  return outGlyphs;
+}
 
+int TextLayoutAlignment(Impacto::TextAlignment& alignment, float blockWidth,
+                        float currentX, glm::vec2& pos, int characterCount,
+                        tcb::span<Impacto::ProcessedTextGlyph> outGlyphs) {
   // Block alignment:
   //
   //  l  i  n  e
@@ -867,36 +909,50 @@ float TextGetPlainLineWidth(Vm::Sc3VmThread* ctx, Font* font, float fontSize) {
   return width;
 }
 
-int TextLayoutPlainString(std::string str, ProcessedTextGlyph* outGlyphs,
-                          Font* font, float fontSize, DialogueColorPair colors,
+int TextLayoutPlainString(std::string_view str,
+                          tcb::span<ProcessedTextGlyph> outGlyphs, Font* font,
+                          float fontSize, DialogueColorPair colors,
                           float opacity, glm::vec2 pos, TextAlignment alignment,
                           float blockWidth) {
-  std::string::iterator strIt = str.begin();
-  std::string::iterator strEnd = str.end();
+  std::string_view::iterator strIt = str.begin();
+  std::string_view::iterator strEnd = str.end();
 
   int sc3StrLength = (int)utf8::distance(strIt, strEnd) + 1;
-  uint16_t* sc3StrPtr = (uint16_t*)malloc(sizeof(uint16_t) * sc3StrLength);
+  std::unique_ptr<uint16_t[]> sc3StrPtr(new uint16_t[sc3StrLength]);
 
-  TextGetSc3String(str, sc3StrPtr);
+  TextGetSc3String(str,
+                   tcb::span(sc3StrPtr.get(), sc3StrPtr.get() + sc3StrLength));
 
   Vm::Sc3VmThread dummy;
-  dummy.Ip = (uint8_t*)sc3StrPtr;
-
-  int length =
-      TextLayoutPlainLine(&dummy, sc3StrLength, outGlyphs, font, fontSize,
-                          colors, opacity, pos, alignment, blockWidth);
-
-  free(sc3StrPtr);
-
-  return length;
+  dummy.Ip = reinterpret_cast<uint8_t*>(sc3StrPtr.get());
+  return TextLayoutPlainLine(&dummy, sc3StrLength, outGlyphs, font, fontSize,
+                             colors, opacity, pos, alignment, blockWidth);
 }
 
-void TextGetSc3String(std::string str, uint16_t* out) {
-  std::string::iterator strIt = str.begin();
-  std::string::iterator strEnd = str.end();
+std::vector<ProcessedTextGlyph> TextLayoutPlainString(
+    std::string_view str, Font* font, float fontSize, DialogueColorPair colors,
+    float opacity, glm::vec2 pos, TextAlignment alignment, float blockWidth) {
+  std::string_view::iterator strIt = str.begin();
+  std::string_view::iterator strEnd = str.end();
 
   int sc3StrLength = (int)utf8::distance(strIt, strEnd) + 1;
+  std::unique_ptr<uint16_t[]> sc3StrPtr(new uint16_t[sc3StrLength]);
 
+  TextGetSc3String(str,
+                   tcb::span(sc3StrPtr.get(), sc3StrPtr.get() + sc3StrLength));
+
+  Vm::Sc3VmThread dummy;
+  dummy.Ip = reinterpret_cast<uint8_t*>(sc3StrPtr.get());
+  return TextLayoutPlainLine(&dummy, sc3StrLength, font, fontSize, colors,
+                             opacity, pos, alignment, blockWidth);
+}
+
+void TextGetSc3String(std::string_view str, tcb::span<uint16_t> out) {
+  std::string_view::iterator strIt = str.begin();
+  std::string_view::iterator strEnd = str.end();
+
+  int sc3StrLength = (int)utf8::distance(strIt, strEnd) + 1;
+  assert(sc3StrLength <= out.size());
   int sc3Idx = 0;
   while (strIt != strEnd) {
     auto codePoint = utf8::next(strIt, strEnd);

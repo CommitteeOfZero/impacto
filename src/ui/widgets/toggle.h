@@ -44,9 +44,8 @@ class Toggle : public Widget {
   glm::vec2 LabelOffset;
 
   bool HasTextLabel = false;
-  ProcessedTextGlyph Label[255];
+  std::vector<ProcessedTextGlyph> Label;
   float FontSize;
-  int TextLength;
   float TextWidth = 0.0f;
   RendererOutlineMode OutlineMode;
 };

@@ -22,12 +22,10 @@ class TipsEntryButton : public Widgets::Button {
   Impacto::TipsSystem::TipsDataRecord* TipEntryRecord;
 
  private:
-  ProcessedTextGlyph TipNumber[TipNumberLength];
-  ProcessedTextGlyph TipName[255];
-  ProcessedTextGlyph TipLockedText[TipLockedTextLength];
-  ProcessedTextGlyph NewText[NewTextLength];
+  std::array<ProcessedTextGlyph, TipNumberLength> TipNumber;
+  std::array<ProcessedTextGlyph, TipLockedTextLength> TipLockedText;
+  std::array<ProcessedTextGlyph, NewTextLength> NewText;
 
-  int TipNameLength;
   bool PrevUnreadState;
 };
 

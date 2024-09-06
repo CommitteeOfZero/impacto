@@ -197,7 +197,7 @@ void ClearListMenu::InitMainPage() {
 
   // Ending count
   sprintf(temp, "%d", EndingCount);
-  TextGetSc3String(std::string(temp), sc3StringBuffer);
+  TextGetSc3String(temp, sc3StringBuffer);
   dummy.Ip = (uint8_t*)sc3StringBuffer;
   EndingCountWidth =
       TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
@@ -220,7 +220,7 @@ void ClearListMenu::InitMainPage() {
 
   // Scene count
   sprintf(temp, "%d", SceneCount);
-  TextGetSc3String(std::string(temp), sc3StringBuffer);
+  TextGetSc3String(temp, sc3StringBuffer);
   dummy.Ip = (uint8_t*)sc3StringBuffer;
   SceneCountWidth =
       TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
@@ -248,7 +248,7 @@ void ClearListMenu::InitMainPage() {
   int totalCount = 0, unlockedCount = 0;
   SaveSystem::GetViewedEVsCount(&totalCount, &unlockedCount);
   sprintf(temp, "%d", totalCount);
-  TextGetSc3String(std::string(temp), sc3StringBuffer);
+  TextGetSc3String(temp, sc3StringBuffer);
   dummy.Ip = (uint8_t*)sc3StringBuffer;
   AlbumCountWidth =
       TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
@@ -331,7 +331,7 @@ void ClearListMenu::UpdateEndingCount() {
     unlockedEndingCount += GetFlag(SF_CLR_END1 + i);
   }
   sprintf(temp, "%2d", unlockedEndingCount);
-  TextGetSc3String(std::string(temp), sc3StringBuffer);
+  TextGetSc3String(temp, sc3StringBuffer);
   dummy.Ip = (uint8_t*)sc3StringBuffer;
   float unlockedEndingCountWidth =
       TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
@@ -355,7 +355,7 @@ void ClearListMenu::UpdateSceneCount() {
     unlockedSceneCount += GetFlag(SF_SCN_CLR1 + i);
   }
   sprintf(temp, "%d", unlockedSceneCount);
-  TextGetSc3String(std::string(temp), sc3StringBuffer);
+  TextGetSc3String(temp, sc3StringBuffer);
   dummy.Ip = (uint8_t*)sc3StringBuffer;
   float unlockedSceneCountWidth =
       TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
@@ -377,7 +377,7 @@ void ClearListMenu::UpdateAlbumCount() {
   int totalCount = 0, unlockedCount = 0;
   SaveSystem::GetViewedEVsCount(&totalCount, &unlockedCount);
   sprintf(temp, "%d", unlockedCount);
-  TextGetSc3String(std::string(temp), sc3StringBuffer);
+  TextGetSc3String(temp, sc3StringBuffer);
   dummy.Ip = (uint8_t*)sc3StringBuffer;
   float unlockedAlbumCountWidth =
       TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
@@ -400,7 +400,7 @@ void ClearListMenu::UpdateCompletionPercentage() {
   SaveSystem::GetReadMessagesCount(&totalMessageCount, &readMessageCount);
   float readPercentage = readMessageCount / (float)totalMessageCount * 100.0f;
   sprintf(temp, "%.2f%%", readPercentage);
-  TextGetSc3String(std::string(temp), sc3StringBuffer);
+  TextGetSc3String(temp, sc3StringBuffer);
   dummy.Ip = (uint8_t*)sc3StringBuffer;
   float percentageWidth =
       TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
@@ -422,7 +422,7 @@ void ClearListMenu::UpdatePlayTime() {
   uint16_t sc3StringBuffer[10];
 
   sprintf(temp, "%2d", seconds);
-  TextGetSc3String(std::string(temp), sc3StringBuffer);
+  TextGetSc3String(temp, sc3StringBuffer);
   dummy.Ip = (uint8_t*)sc3StringBuffer;
   float secondsWidth =
       TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
@@ -434,7 +434,7 @@ void ClearListMenu::UpdatePlayTime() {
                        RendererOutlineMode::RO_None, ClearListColorIndex);
 
   sprintf(temp, "%2d", minutes);
-  TextGetSc3String(std::string(temp), sc3StringBuffer);
+  TextGetSc3String(temp, sc3StringBuffer);
   dummy.Ip = (uint8_t*)sc3StringBuffer;
   float minutesWidth =
       TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
@@ -449,7 +449,7 @@ void ClearListMenu::UpdatePlayTime() {
     HoursText->Tint.a = FadeAnimation.Progress;
     PlayHours->Tint.a = FadeAnimation.Progress;
     sprintf(temp, "%2d", hours);
-    TextGetSc3String(std::string(temp), sc3StringBuffer);
+    TextGetSc3String(temp, sc3StringBuffer);
     dummy.Ip = (uint8_t*)sc3StringBuffer;
     float hoursWidth = TextGetPlainLineWidth(
         &dummy, Profile::Dialogue::DialogueFont, FontSize);

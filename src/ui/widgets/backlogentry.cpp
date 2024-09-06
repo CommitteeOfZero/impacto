@@ -21,7 +21,7 @@ BacklogEntry::BacklogEntry(int id, uint8_t* str, int audioId, glm::vec2 pos) {
   AudioId = audioId;
 
   BacklogPage = new DialoguePage();
-  BacklogPage->Glyphs = new ProcessedTextGlyph[512];
+  BacklogPage->Glyphs.reserve(512);
   BacklogPage->Clear();
   BacklogPage->Mode = DPM_REV;
 
@@ -33,10 +33,9 @@ BacklogEntry::BacklogEntry(int id, uint8_t* str, int audioId, glm::vec2 pos) {
     Profile::Dialogue::REVBounds.Y = pos.y;
   }
   BacklogPage->AddString(&dummy);
-  TextLength = BacklogPage->Length;
   float currentY = BacklogPage->Glyphs[0].DestRect.Y;
   float currentWidth = 0.0f, maxWidth = 0.0f;
-  for (int i = 0; i < TextLength; i++) {
+  for (int i = 0; i < BacklogPage->Glyphs.size(); i++) {
     if (currentY != BacklogPage->Glyphs[i].DestRect.Y) {
       if (currentWidth > maxWidth) {
         maxWidth = currentWidth;
@@ -50,24 +49,21 @@ BacklogEntry::BacklogEntry(int id, uint8_t* str, int audioId, glm::vec2 pos) {
     maxWidth = currentWidth;
   }
   if (BacklogPage->HasName) {
-    TextHeight = (BacklogPage->Glyphs[TextLength - 1].DestRect.Y +
-                  BacklogPage->Glyphs[TextLength - 1].DestRect.Height) -
+    TextHeight = (BacklogPage->Glyphs.back().DestRect.Y +
+                  BacklogPage->Glyphs.back().DestRect.Height) -
                  BacklogPage->Name[0].DestRect.Y;
     Bounds = RectF(BacklogPage->Name[0].DestRect.X,
                    BacklogPage->Name[0].DestRect.Y, maxWidth, TextHeight);
   } else {
-    TextHeight = (BacklogPage->Glyphs[TextLength - 1].DestRect.Y +
-                  BacklogPage->Glyphs[TextLength - 1].DestRect.Height) -
+    TextHeight = (BacklogPage->Glyphs.back().DestRect.Y +
+                  BacklogPage->Glyphs.back().DestRect.Height) -
                  BacklogPage->Glyphs[0].DestRect.Y;
     Bounds = RectF(BacklogPage->Glyphs[0].DestRect.X,
                    BacklogPage->Glyphs[0].DestRect.Y, maxWidth, TextHeight);
   }
 }
 
-BacklogEntry::~BacklogEntry() {
-  delete BacklogPage->Glyphs;
-  delete BacklogPage;
-}
+BacklogEntry::~BacklogEntry() { delete BacklogPage; }
 
 void BacklogEntry::UpdateInput() {
   if (Enabled) {
@@ -110,11 +106,11 @@ void BacklogEntry::Render() {
         VoiceIcon, glm::vec2(Bounds.X - VoiceIcon.ScaledWidth(), Bounds.Y));
   }
   if (BacklogPage->HasName) {
-    Renderer->DrawProcessedText(BacklogPage->Name, BacklogPage->NameLength,
+    Renderer->DrawProcessedText(BacklogPage->Name,
                                 Profile::Dialogue::DialogueFont, Tint.a,
                                 RendererOutlineMode::RO_Full, true);
   }
-  Renderer->DrawProcessedText(BacklogPage->Glyphs, TextLength,
+  Renderer->DrawProcessedText(BacklogPage->Glyphs,
                               Profile::Dialogue::DialogueFont, Tint.a,
                               RendererOutlineMode::RO_Full, true);
 }

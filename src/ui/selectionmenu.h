@@ -26,10 +26,9 @@ class SelectionMenu : public Menu {
   Widgets::Group* ChoiceItems;
   Animation FadeAnimation;
   bool IsPlain;
-  ProcessedTextGlyph Choices[20][255];
+  std::array<std::vector<ProcessedTextGlyph>, 20> Choices;
+  std::array<float, 20> ChoiceWidths;
   int ChoiceCount = 0;
-  int ChoiceLengths[20];
-  float ChoiceWidths[20];
 
   float CurrentSelBackgroundY = 0.0f;
   float ChoiceHeight = 0.0f;

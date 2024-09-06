@@ -24,16 +24,11 @@ class SaveEntryButton : public Widgets::Button {
   bool EntryActive = false;
 
  private:
-  ProcessedTextGlyph SceneTitle[255];
-  int SceneTitleLength;
-  ProcessedTextGlyph PlayTimeHint[64];
-  int PlayTimeHintLength;
-  ProcessedTextGlyph PlayTime[255];
-  int PlayTimeLength;
-  ProcessedTextGlyph SaveDateHint[64];
-  int SaveDateHintLength;
-  ProcessedTextGlyph SaveDate[255];
-  int SaveDateLength;
+  std::vector<ProcessedTextGlyph> SceneTitle;
+  std::vector<ProcessedTextGlyph> PlayTimeHint;
+  std::vector<ProcessedTextGlyph> PlayTime;
+  std::vector<ProcessedTextGlyph> SaveDateHint;
+  std::vector<ProcessedTextGlyph> SaveDate;
 };
 
 }  // namespace MO6TW
