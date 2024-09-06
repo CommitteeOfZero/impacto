@@ -307,6 +307,7 @@ void TipsMenu::Init() {
 }
 
 void TipsMenu::SwitchToTipId(int id) {
+  if (id - 1 == CurrentlyDisplayedTipId) return;
   int actualId = SortedTipIds[id - 1];
   auto* record = TipsSystem::GetTipRecord(actualId);
 
