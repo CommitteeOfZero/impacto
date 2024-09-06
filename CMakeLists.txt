@@ -689,8 +689,10 @@ if (WIN32)
     set(LIBATRAC9_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/vendor/LibAtrac9/include")
 
     if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+        set(CMAKE_INSTALL_PREFIX "C:/Program Files/${CMAKE_PROJECT_NAME}")
         set(LIBATRAC9_ARCH "x64")
     else ()
+        set(CMAKE_INSTALL_PREFIX "C:/Program Files (x86)/${CMAKE_PROJECT_NAME}")
         set(LIBATRAC9_ARCH "x86")
     endif ()
 
@@ -1010,10 +1012,6 @@ set_property(TARGET impacto PROPERTY CXX_STANDARD 17)
 
 if (EMSCRIPTEN)
     set(CMAKE_EXECUTABLE_SUFFIX ".html")
-endif ()
-
-if (MSVC)
-    add_definitions(-DBETTER_ENUMS_NO_CONSTEXPR) # broken in MSVC 2017 apparently
 endif ()
 
 if (NX)

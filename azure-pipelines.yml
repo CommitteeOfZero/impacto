@@ -7,18 +7,11 @@ jobs:
     vmImage: 'windows-2019'
 
   steps:
-  - script: |
-      cd /d C:\vcpkg
-      git log -1
-      git pull
-      git log -1
-      .\bootstrap-vcpkg.bat
-    displayName: git pull vcpkg and bootstrap-vcpkg
   - task: Cache@2
     displayName: Cache vcpkg packages
     inputs:
       key: 'vcpkg-deps'
-      path: 'C:/vcpkg/installed'
+      path: 'C:/vcpkg'
   - task: Cache@2
     displayName: Cache LibAtrac9
     inputs:
@@ -39,24 +32,28 @@ jobs:
     inputs:
       filePath: 'build-deps.ps1'
       errorActionPreference: 'silentlyContinue'
+  - task: run-vcpkg@0
+    displayName: Setup Vcpkg
+    inputs:
+      vcpkgGitURL: http://github.com/microsoft/vcpkg.git
+      vcpkgGitCommitId: '0f88ecb8528605f91980b90a2c5bad88e3cb565f'
+      vcpkgArguments: "sdl2 sdl2[vulkan] vulkan openal-soft libogg libvorbis zlib glm ffmpeg libwebp"
+      vcpkgDirectory: 'c:/vcpkg'
+      vcpkgTriplet: 'x64-windows'
+      vcpkgArtifactIgnoreEntries: '!.git\ndownloads\nbuildtrees\n!vcpkgLastBuiltCommitId'
   - task: run-cmake@0
     displayName: CMake build
     env:
       VULKAN_SDK: 'C:\\VulkanSDK\\1.3.268.0'
     inputs:
+      useVcpkgToolchainFile: true
+      vcpkgTriplet: '$(RUNVCPKG_VCPKG_TRIPLET)'
       cmakeListsOrSettingsJson: 'CMakeListsTxtBasic'
-      cmakeToolchainPath: 'C:/vcpkg/scripts/buildsystems/vcpkg.cmake'
       cmakeBuildType: 'Release'
-      cmakeGenerator: 'VS16Win64'
+      cmakeGenerator: 'Ninja'
       buildDirectory: '$(Build.ArtifactStagingDirectory)/out/build'
       buildWithCMakeArgs: '--config Release --target install'
   
-  - task: CopyFiles@2
-    displayName: Copy dlls
-    inputs:
-      SourceFolder: 'C:/Program Files/impacto/Release'
-      Contents: '**'
-      TargetFolder: 'C:/Program Files/impacto'
   - task: CopyFiles@2
     displayName: Copy docs
     inputs:
@@ -66,25 +63,8 @@ jobs:
         README.md
         LICENSE
       TargetFolder: 'C:/Program Files/impacto'
-  - task: DeleteFiles@1
-    displayName: Remove leftovers
-    inputs:
-      SourceFolder: 'C:/Program Files/impacto/Release'
-      Contents: '**'
-      RemoveSourceFolder: true
-  - task: DeleteFiles@1
-    displayName: Remove leftovers
-    inputs:
-      SourceFolder: 'C:/Program Files/impacto/impacto.dir'
-      Contents: '**'
-      RemoveSourceFolder: true
-  - task: DeleteFiles@1
-    displayName: Remove leftovers
-    inputs:
-      SourceFolder: 'C:/Program Files/impacto/x64'
-      Contents: '**'
-      RemoveSourceFolder: true
   - task: ArchiveFiles@2
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
     displayName: Archive artifact
     inputs:
       rootFolderOrFile: 'C:/Program Files/impacto'
@@ -93,6 +73,7 @@ jobs:
       archiveFile: '$(Build.ArtifactStagingDirectory)/impacto-win-x64-$(version)-$(Build.SourceVersion).zip'
       replaceExistingArchive: true
   - task: PublishBuildArtifacts@1
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
     inputs:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)/impacto-win-x64-$(version)-$(Build.SourceVersion).zip'
       ArtifactName: 'release'
@@ -149,6 +130,7 @@ jobs:
         LICENSE
       TargetFolder: '$(Build.ArtifactStagingDirectory)/impacto'
   - task: ArchiveFiles@2
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
     displayName: Archive artifact
     inputs:
       rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/impacto'
@@ -157,6 +139,7 @@ jobs:
       archiveFile: '$(Build.ArtifactStagingDirectory)/impacto-linux-$(version)-$(Build.SourceVersion).zip'
       replaceExistingArchive: true
   - task: PublishBuildArtifacts@1
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
     inputs:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)/impacto-linux-$(version)-$(Build.SourceVersion).zip'
       ArtifactName: 'release'
@@ -214,6 +197,7 @@ jobs:
         LICENSE
       TargetFolder: '$(Build.ArtifactStagingDirectory)/impacto'
   - task: ArchiveFiles@2
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
     displayName: Archive artifact
     inputs:
       rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/impacto'
@@ -222,6 +206,7 @@ jobs:
       archiveFile: '$(Build.ArtifactStagingDirectory)/impacto-macos-$(version)-$(Build.SourceVersion).zip'
       replaceExistingArchive: true
   - task: PublishBuildArtifacts@1
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
     inputs:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)/impacto-macos-$(version)-$(Build.SourceVersion).zip'
       ArtifactName: 'release'
@@ -278,6 +263,7 @@ jobs:
         LICENSE
       TargetFolder: '$(Build.ArtifactStagingDirectory)/impacto'
   - task: ArchiveFiles@2
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
     displayName: Archive artifact
     inputs:
       rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/impacto'
@@ -286,6 +272,7 @@ jobs:
       archiveFile: '$(Build.ArtifactStagingDirectory)/impacto-switch-$(version)-$(Build.SourceVersion).zip'
       replaceExistingArchive: true
   - task: PublishBuildArtifacts@1
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
     inputs:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)/impacto-switch-$(version)-$(Build.SourceVersion).zip'
       ArtifactName: 'release'
@@ -298,7 +285,7 @@ jobs:
   - linux_x64_build
   - macos_build
   - switch_build
-  condition: succeeded()
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
 
   pool:
     vmImage: 'ubuntu-22.04'
