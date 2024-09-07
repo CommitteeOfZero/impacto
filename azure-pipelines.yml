@@ -5,13 +5,17 @@ jobs:
 
   pool:
     vmImage: 'windows-2019'
-
+  variables:
+    vcpkg_ports: 'sdl2 sdl2[vulkan] vulkan openal-soft libogg libvorbis zlib glm ffmpeg libwebp'
+    vcpkg_triplet: 'x64-windows'
+    vcpkg-dir: '$(Build.BinariesDirectory)/vcpkg'
+    vcpkg_commit_id: '0f88ecb8528605f91980b90a2c5bad88e3cb565f'
   steps:
   - task: Cache@2
     displayName: Cache vcpkg packages
     inputs:
-      key: 'vcpkg-deps'
-      path: 'C:/vcpkg'
+      key: 'vcpkg | $(Agent.OS) |  $(vcpkg_ports) | $(vcpkg_triplet) | $(vcpkg_commit_id)'
+      path: '$(vcpkg-dir)'
   - task: Cache@2
     displayName: Cache LibAtrac9
     inputs:
@@ -36,11 +40,10 @@ jobs:
     displayName: Setup Vcpkg
     inputs:
       vcpkgGitURL: http://github.com/microsoft/vcpkg.git
-      vcpkgGitCommitId: '0f88ecb8528605f91980b90a2c5bad88e3cb565f'
-      vcpkgArguments: "sdl2 sdl2[vulkan] vulkan openal-soft libogg libvorbis zlib glm ffmpeg libwebp"
-      vcpkgDirectory: 'c:/vcpkg'
-      vcpkgTriplet: 'x64-windows'
-      vcpkgArtifactIgnoreEntries: '!.git\ndownloads\nbuildtrees\n!vcpkgLastBuiltCommitId'
+      vcpkgGitCommitId: '$(vcpkg_commit_id)'
+      vcpkgArguments: '$(vcpkg_ports)'
+      vcpkgDirectory: '$(vcpkg-dir)'
+      vcpkgTriplet: '$(vcpkg_triplet)'
   - task: run-cmake@0
     displayName: CMake build
     env:
@@ -53,7 +56,7 @@ jobs:
       cmakeGenerator: 'Ninja'
       buildDirectory: '$(Build.ArtifactStagingDirectory)/out/build'
       buildWithCMakeArgs: '--config Release --target install'
-  
+
   - task: CopyFiles@2
     displayName: Copy docs
     inputs:
