@@ -7,7 +7,7 @@ jobs:
     vmImage: 'windows-2019'
   variables:
     vcpkg_ports: 'sdl2 sdl2[vulkan] vulkan openal-soft libogg libvorbis zlib glm ffmpeg libwebp'
-    vcpkg_triplet: 'x64-windows'
+    vcpkg_triplet: 'x64-windows-release'
     vcpkg-dir: '$(Build.BinariesDirectory)/vcpkg'
     vcpkg_commit_id: '0f88ecb8528605f91980b90a2c5bad88e3cb565f'
   steps:
