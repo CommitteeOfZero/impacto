@@ -35,6 +35,19 @@ VmInstruction(InstUnk0053) {
   ImpLogSlow(LL_Warning, LC_VMStub,
              "STUB instruction Unk0053(arg1: %i, arg2: %i)\n", arg1, arg2);
 }
+VmInstruction(InstUnk0053SG) {
+  StartInstruction;
+  PopUint8(type);
+  // FIXME: Could be that we should only pop one if type != 2 and != 3
+  PopUint16(arg1);
+  PopUint16(arg2);
+  PopUint16(arg3);
+  PopUint16(arg4);
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction Unk0053SG(type: %i, arg1: %i, arg2: %i, arg3: "
+             "%i, arg4: %i)\n",
+             type, arg1, arg2, arg3, arg4);
+}
 VmInstruction(InstUnk0054) {
   StartInstruction;
   PopExpression(arg1);
@@ -1064,6 +1077,18 @@ VmInstruction(InstUnk103A) {
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk103A(type: %i)\n",
                  type);
     } break;
+  }
+}
+VmInstruction(InstUnk103FSG) {
+  StartInstruction;
+  PopUint8(type);
+  switch (type) {
+    // TODO: Cases 0x00 to 0x1A
+    default: {
+      ImpLogSlow(LL_Warning, LC_VMStub,
+                 "STUB instruction Unk103FSteinsGate(type: %i)\n", type);
+      break;
+    }
   }
 }
 VmInstruction(InstUnk1037Noah) {

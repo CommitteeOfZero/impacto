@@ -139,6 +139,8 @@ set(Impacto_Src
 
         src/profile/games/darling/sysmesbox.cpp
 
+        src/profile/games/sg/titlemenu.cpp
+
         src/games/rne/tilebackground.cpp
         src/games/rne/datedisplay.cpp
         src/games/rne/systemmenu.cpp
@@ -204,6 +206,8 @@ set(Impacto_Src
 
         src/games/darling/sysmesbox.cpp
 
+        src/games/sg/titlemenu.cpp
+
         src/hud/dialoguebox.cpp
         src/hud/datedisplay.cpp
         src/hud/saveicondisplay.cpp
@@ -252,6 +256,7 @@ set(Impacto_Src
         src/ui/widgets/cclcc/sysmenubutton.cpp
         src/ui/widgets/cclcc/tipsentrybutton.cpp
         src/ui/widgets/cclcc/tipstabgroup.cpp
+        src/ui/widgets/sg/titlebutton.cpp
 
         src/stbi_impl.c
 
@@ -403,6 +408,8 @@ set(Impacto_Header
 
         src/profile/games/dash/titlemenu.h
 
+        src/profile/games/sg/titlemenu.h
+
         src/profile/games/chlcc/dialoguebox.h
         src/profile/games/chlcc/titlemenu.h
         src/profile/games/chlcc/savemenu.h
@@ -458,6 +465,8 @@ set(Impacto_Header
         src/games/rne/sysmesbox.h
 
         src/games/dash/titlemenu.h
+
+        src/games/sg/titlemenu.h
 
         src/games/chlcc/dialoguebox.h
         src/games/chlcc/titlemenu.h
@@ -555,6 +564,7 @@ set(Impacto_Header
         src/ui/widgets/rne/sysmenubutton.h
         src/ui/widgets/cc/titlebutton.h
         src/ui/widgets/cclcc/titlebutton.h
+        src/ui/widgets/sg/titlebutton.h
 
         src/renderer/3d/camera.h
         src/renderer/3d/model.h
