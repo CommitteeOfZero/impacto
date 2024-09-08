@@ -79,24 +79,28 @@ void Init() {
       OpcodeTableSystem = OpcodeTableSystem_Darling;
       OpcodeTableGraph = OpcodeTableGraph_Darling;
       OpcodeTableUser1 = OpcodeTableUser1_Darling;
+      OpcodeTableGraph3D = nullptr;
       break;
     }
     case InstructionSet::CHLCC: {
       OpcodeTableSystem = OpcodeTableSystem_CHLCC;
       OpcodeTableGraph = OpcodeTableGraph_CHLCC;
       OpcodeTableUser1 = OpcodeTableUser1_CHLCC;
+      OpcodeTableGraph3D = nullptr;
       break;
     }
     case InstructionSet::MO6TW: {
       OpcodeTableSystem = OpcodeTableSystem_MO6TW;
       OpcodeTableGraph = OpcodeTableGraph_MO6TW;
       OpcodeTableUser1 = OpcodeTableUser1_MO6TW;
+      OpcodeTableGraph3D = nullptr;
       break;
     }
     case InstructionSet::MO7: {
       OpcodeTableSystem = OpcodeTableSystem_MO7;
       OpcodeTableGraph = OpcodeTableGraph_MO7;
       OpcodeTableUser1 = OpcodeTableUser1_MO7;
+      OpcodeTableGraph3D = nullptr;
       break;
     }
     case InstructionSet::Dash: {
@@ -110,24 +114,28 @@ void Init() {
       OpcodeTableSystem = OpcodeTableSystem_CC;
       OpcodeTableGraph = OpcodeTableGraph_CC;
       OpcodeTableUser1 = OpcodeTableUser1_CC;
+      OpcodeTableGraph3D = nullptr;
       break;
     }
     case InstructionSet::SGPS3: {
       OpcodeTableSystem = OpcodeTableSystem_SGPS3;
       OpcodeTableGraph = OpcodeTableGraph_SGPS3;
       OpcodeTableUser1 = OpcodeTableUser1_SGPS3;
+      OpcodeTableGraph3D = nullptr;
       break;
     }
     case InstructionSet::MO8: {
       OpcodeTableSystem = OpcodeTableSystem_MO8;
       OpcodeTableGraph = OpcodeTableGraph_MO8;
       OpcodeTableUser1 = OpcodeTableUser1_MO8;
+      OpcodeTableGraph3D = nullptr;
       break;
     }
     case InstructionSet::CHN: {
       OpcodeTableSystem = OpcodeTableSystem_CHN;
       OpcodeTableGraph = OpcodeTableGraph_CHN;
       OpcodeTableUser1 = OpcodeTableUser1_CHN;
+      OpcodeTableGraph3D = nullptr;
       break;
     }
     default: {
@@ -179,7 +187,8 @@ void Init() {
 bool LoadScript(uint32_t bufferId, uint32_t scriptId) {
   Io::FileMeta meta;
   Io::VfsGetMeta("script", scriptId, &meta);
-  ImpLogSlow(LL_Debug, LC_VM, "Loading script \"%s\"\n", meta.FileName.c_str());
+  ImpLogSlow(LL_Debug, LC_VM, "Loading script \"%s\" into buffer %u\n",
+             meta.FileName.c_str(), bufferId);
 
   void* file;
   int64_t fileSize;
@@ -488,12 +497,18 @@ void RunThread(Sc3VmThread* thread) {
       if (opcodeGrp1 == 0x10) {
         OpcodeTableUser1[opcode](thread);
       } else if (opcodeGrp1 == 0x02) {
-        OpcodeTableGraph3D[opcode](thread);
+        if (OpcodeTableGraph3D == nullptr) {
+          ImpLog(
+              LL_Error, LC_VM,
+              "Encountered Graph3D opcode in game which shouldn't have any!\n");
+          goto badOpcode;
+        }
       } else if (opcodeGrp1 == 0x01) {
         OpcodeTableGraph[opcode](thread);
       } else if (!opcodeGrp1) {
         OpcodeTableSystem[opcode](thread);
       } else {
+      badOpcode:
         ImpLog(LL_Error, LC_VM,
                "Thread CRASH! Unknown opcode. Attempting recovery. Address: "
                "%016X Opcode: %02X:%02X ScriptBuffer: %i\n",

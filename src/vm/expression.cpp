@@ -323,7 +323,11 @@ ExpressionParser::ExpressionParser(Sc3VmThread* thd) {
 
 ExpressionNode* ExpressionParser::ParseSubExpression(int minPrecidence) {
   ExpressionNode* leftExpr = ParseTerm();
-  if (leftExpr == nullptr) return leftExpr;
+  if (leftExpr == nullptr) {
+    ImpLog(LL_Warning, LC_Expr,
+           "Failed to parse left expression, returning early!\n");
+    return leftExpr;
+  }
 
   if (static_cast<size_t>(CurrentToken) < Tokens.size()) {
     ExprToken peek = Tokens[CurrentToken];
@@ -430,6 +434,9 @@ ExpressionNode* ExpressionParser::ParseTerm() {
       term->Value = tok.Value;
       break;
     default:
+      ImpLog(LL_Warning, LC_Expr,
+             "Unknown expression token type %d, returning nullptr!\n",
+             tok.Type);
       return nullptr;
   }
 
