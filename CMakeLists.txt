@@ -1058,15 +1058,7 @@ target_include_directories(impacto PRIVATE ${PROJECT_BINARY_DIR}/include)
 install(TARGETS impacto RUNTIME DESTINATION .)
 
 if (WIN32)
-    install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/
-            DESTINATION .
-            FILES_MATCHING PATTERN "*.dll"
-            PATTERN ".cmake" EXCLUDE
-            PATTERN "CMakeFiles" EXCLUDE
-            PATTERN "include" EXCLUDE
-            PATTERN "Testing" EXCLUDE
-            PATTERN "_deps" EXCLUDE
-    )
+    x_vcpkg_install_local_dependencies(TARGETS impacto DESTINATION .)
     install(FILES ${LIBATRAC9_INCLUDE_DIR}/../bin/${LIBATRAC9_ARCH}/libatrac9.dll DESTINATION .)
 endif ()
 

@@ -6,15 +6,37 @@
   },
   "configurePresets": [
     {
-      "name": "ninja-multi-default",
-      "description": "Multi-Config Ninja Configure Preset",
-      "hidden": false,
-      "generator": "Ninja Multi-Config",
+      "name": "Base",
+      "description": "Default Base Configuration",
+      "hidden": true,
+      "generator": "Ninja",
       "binaryDir": "impacto-build/${presetName}",
       "installDir": "install/${presetName}",
       "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
       "cacheVariables": {
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "YES"
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "Release",
+      "description": "Default Release Build",
+      "hidden": false,
+      "inherits": [
+        "Base"
+      ],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "Debug",
+      "description": "Default Debug Build",
+      "hidden": false,
+      "inherits": [
+        "Base"
+      ],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
       }
     },
     {
@@ -40,19 +62,9 @@
       ]
     },
     {
-      "name": "x64-Release-Symbols",
-      "description": "x64 Release with Debug Symbols",
-      "configurePreset": "ninja-multi-default",
-      "configuration": "RelWithDebInfo",
-      "targets": [
-        "install"
-      ]
-    },
-    {
       "name": "x64-Release",
-      "description": "x64 Release",
-      "configurePreset": "ninja-multi-default",
-      "configuration": "Release",
+      "description": "x64 Release with Debug Symbols",
+      "configurePreset": "Release",
       "targets": [
         "install"
       ]
@@ -60,8 +72,7 @@
     {
       "name": "x64-Debug",
       "description": "x64 Debug",
-      "configurePreset": "ninja-multi-default",
-      "configuration": "Debug",
+      "configurePreset": "Debug",
       "targets": [
         "install"
       ]
