@@ -1,6 +1,5 @@
 param(
-    [ValidateSet("x64", "x86")][string]$Arch = "x64",
-    [string]$VcpkgDir = $env:VCPKG_INSTALLATION_ROOT
+    [ValidateSet("x64", "x86")][string]$Arch = "x64"
 )
 
 function SetEnv() {
@@ -15,19 +14,26 @@ function SetEnv() {
 }
 
 function BuildLibatrac9() {
+    echo "Starting LibAtrac9 Build..."
     if (!(Get-Command msbuild -ErrorAction SilentlyContinue)) {
         SetEnv
     }
     
+
     pushd "vendor"
     $repo_root = "LibAtrac9"
-    if (!(Test-Path $repo_root)) {
-        & git clone https://github.com/Thealexbarney/LibAtrac9.git --depth 1
+    $libatrac9_exists = Test-Path $repo_root
+    if (-not $libatrac9_exists) {
+        echo "Cloning LibAtrac9..."
+        & git clone https://github.com/Thealexbarney/LibAtrac9.git --depth 1        
     }
-    
     pushd $repo_root
     pushd "C"
-    & devenv /Upgrade libatrac9.sln
+    if ($env:AZURE_EXTENSION_DIR -eq $null -or -not $libatrac9_exists) {
+        echo "Upgrading LibAtrac9 project..."
+        & devenv /Upgrade libatrac9.sln
+    }
+
     $args = @(
         "/m",
         "/p:Configuration=Release",
@@ -35,9 +41,11 @@ function BuildLibatrac9() {
         "/p:WindowsTargetPlatformVersion=10.0",
         "/p:PlatformToolset=v142"
     )
+    echo "Building LibAtrac9..."
     & msbuild $args
     popd
     
+    echo "Copying LibAtrac9 dlls and headers..."
     $includedir = "include/libatrac9"
     mkdir $includedir -Force | Out-Null
     Get-ChildItem -Path "./C/src/*" -Include *.h | Copy-Item -Destination $includedir
@@ -54,13 +62,15 @@ function BuildLibatrac9() {
 }
 
 function InstallPackages() {
-    $vcpkg = "$VcpkgDir/vcpkg.exe"
+    $vcpkg = "$env:VCPKG_ROOT/vcpkg.exe"
     if (!(Get-Command $vcpkg -ErrorAction SilentlyContinue)) {
         $vcpkg = "vcpkg"
     }
-    # Visual studio's vcpkg doesn't support classic mode
-    if(("${env:VSINSTALLDIR}VC\vcpkg" -eq "${env:VCPKG_ROOT}") -or !(Get-Command $vcpkg -ErrorAction SilentlyContinue)) {
+
+    $local_vcpkg = $false
+    if(!(Get-Command $vcpkg -ErrorAction SilentlyContinue)) {
         if (!(Test-Path build/vcpkg)) {
+            echo "Cloning vcpkg..."
             mkdir build -Force | Out-Null
             pushd build
             & git clone https://github.com/Microsoft/vcpkg.git --depth 1
@@ -68,15 +78,13 @@ function InstallPackages() {
             ./bootstrap-vcpkg -disableMetrics
             popd
             popd
+            $vcpkg = "build/vcpkg/vcpkg.exe"
         }
-        $vcpkg = "build/vcpkg/vcpkg.exe"
         $local_vcpkg = $true
     }
-    
 
-    & $vcpkg install sdl2 sdl2[vulkan] vulkan openal-soft libogg libvorbis zlib glm ffmpeg libwebp --triplet $Arch-windows
+    & $vcpkg integrate install
     if ($local_vcpkg) {
-        & $vcpkg integrate install
         Write-Output "Cleaning up..."
         Remove-Item build/vcpkg/downloads -Recurse
         Remove-Item build/vcpkg/buildtrees -Recurse

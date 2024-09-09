@@ -1,0 +1,81 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 23
+  },
+  "configurePresets": [
+    {
+      "name": "Base",
+      "description": "Default Base Configuration",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "impacto-build/${presetName}",
+      "installDir": "install/${presetName}",
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "Release",
+      "description": "Default Release Build",
+      "hidden": false,
+      "inherits": [
+        "Base"
+      ],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "Debug",
+      "description": "Default Debug Build",
+      "hidden": false,
+      "inherits": [
+        "Base"
+      ],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "ci-release",
+      "description": "Release build for CI",
+      "hidden": false,
+      "generator": "Ninja",
+      "binaryDir": "ci-build/${presetName}",
+      "installDir": "release/${presetName}",
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "CI-Build",
+      "description": "x64 Release",
+      "configurePreset": "ci-release",
+      "targets": [
+        "install"
+      ]
+    },
+    {
+      "name": "x64-Release",
+      "description": "x64 Release with Debug Symbols",
+      "configurePreset": "Release",
+      "targets": [
+        "install"
+      ]
+    },
+    {
+      "name": "x64-Debug",
+      "description": "x64 Debug",
+      "configurePreset": "Debug",
+      "targets": [
+        "install"
+      ]
+    }
+  ]
+}

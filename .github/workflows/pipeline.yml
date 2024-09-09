@@ -1,0 +1,245 @@
+name: impacto
+on:
+  push:
+    branches:
+    - "*"
+    - "!separate_renderer"
+    tags:
+    - "*"
+
+env:
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
+
+jobs:
+  get_version:
+    name: Get Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+    - uses: actions/checkout@v3
+    - name: Git Version
+      id: version
+      uses: codacy/git-version@2.5.4
+  job-matrix:
+    name: ${{ matrix.os_name }}
+    runs-on: ${{ matrix.os }}
+    needs: get_version
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            os_name: windows
+            triplet: x64-windows-release
+          - os: ubuntu-latest
+            os_name: linux
+            triplet: x64-linux-dynamic
+          - os: macos-latest
+            os_name: macos-arm64
+            triplet: arm64-osx-dynamic
+          - os: macos-13
+            os_name: macos-x64
+            triplet: x64-osx-dynamic
+          - os: ubuntu-latest
+            os_name: switch
+            triplet: none
+    env:
+      VCPKG_DEFAULT_TRIPLET: ${{ matrix.triplet }}
+      vcpkgCommitId: '0f88ecb8528605f91980b90a2c5bad88e3cb565f'
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Download Switch deps
+      if: matrix.os_name == 'switch'
+      uses: blauqs/actions-download-asset@master
+      with:
+        repo: MrRevo3D/impacto
+        version: buildtag
+        file: devkitpro.tgz
+        out: /opt
+        token: ${{ secrets.SWITCH_BUILD_TOKEN }}
+
+    - name: Cache LibAtrac9
+      if: matrix.os_name != 'switch'
+      uses: actions/cache@v3
+      with:
+        key: libatrac9 | ${{ matrix.os_name }}
+        path: vendor/LibAtrac9
+        
+    - uses: lukka/get-cmake@latest
+    - name: Setup vcpkg
+      if: matrix.os_name != 'switch'
+      uses: lukka/run-vcpkg@v11
+      id: runvcpkg
+      with:
+        vcpkgDirectory: '${{ runner.workspace }}/build/vcpkg'
+        vcpkgGitCommitId: '${{ env.vcpkgCommitId }}'
+        vcpkgJsonGlob: '**/vcpkg.json'
+    - name: Build Atrac9 Windows
+      if: matrix.os == 'windows-latest'
+      run: |
+        ./build-deps.ps1 -Arg1 x64
+      shell: pwsh
+    - name: Setup Dependencies Linux/MacOS
+      if: contains(matrix.os_name, 'macos') || contains(matrix.os_name, 'linux')
+      run: |-
+        pushd vendor
+        if [ ! -d "LibAtrac9" ]; then
+          git clone https://github.com/Thealexbarney/LibAtrac9.git --depth 1
+        fi
+        cd LibAtrac9/C
+        if [[ "${{ matrix.os_name }}" == "macos"* ]]; then
+          sed -i '' -e 's/,--version-script=libatrac9.version//g' Makefile
+        fi
+        make
+        mkdir -p ../include/libatrac9
+        mkdir -p ../libs
+        cp bin/libatrac9.a ../libs/
+        cp src/libatrac9.h ../include/libatrac9/
+        popd
+        echo "LIBATRAC9DIR=${{ github.workspace }}/vendor/LibAtrac9" >> $GITHUB_ENV
+    - name: Install Dependencies Linux
+      run: sudo apt-get install nasm libx11-dev libxft-dev libxext-dev libwayland-dev libxkbcommon-dev libegl1-mesa-dev libibus-1.0-dev libxrandr-dev
+      if: matrix.os_name == 'linux'
+    - name: Install Dependencies Mac
+      run: brew install nasm
+      if: contains(matrix.os_name, 'macos')
+    - name: Run CMake with vcpkg.json manifest
+      if: matrix.os_name != 'switch'
+      uses: lukka/run-cmake@v10
+      with:
+        cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
+        configurePreset: ci-release
+        configurePresetAdditionalArgs: "['-DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }}', '-DVCPKG_HOST_TRIPLET=${{ matrix.triplet }}', '-DVCPKG_BUILD_TYPE=release']"
+        buildPreset: CI-Build
+
+    - name: Run Switch build
+      if: matrix.os_name == 'switch'
+      run: |-
+        tar -xzf /opt/devkitpro.tgz -C /opt
+        export DEVKITPRO=/opt/devkitpro
+        export DEVKITARM=/opt/devkitpro/devkitARM
+        export PATH="/opt/devkitpro/tools/bin:$PATH"
+        cmake . -DCMAKE_TOOLCHAIN_FILE=HorizonNX.toolchain
+        make -j2
+        elf2nro impacto impacto.nro
+        mkdir -p "${{ github.workspace }}/release/ci-release"
+        cp impacto.nro "${{ github.workspace }}/release/ci-release"
+        cp -r profiles "${{ github.workspace }}/release/ci-release"
+        cp -r games "${{ github.workspace }}/release/ci-release"
+    
+    - name: Copy docs
+      run: |
+        cp THIRDPARTY.md README.md LICENSE "${{ github.workspace }}/release/ci-release"
+      shell: bash
+    - name: Archive Artifacts
+      run: |
+        7z u impacto-${{ matrix.os_name }}-${{ needs.get_version.outputs.version }}-${{ github.sha }}.zip release/ci-release/*
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4.1.0
+      with:
+        path: impacto-${{ matrix.os_name }}-${{ needs.get_version.outputs.version }}-${{ github.sha }}.zip
+        name: release-${{ matrix.os_name }}
+
+    
+  publish_artifacts:
+    name: Publish Artifacts
+    runs-on: ubuntu-22.04
+    needs:
+    - get_version
+    - job-matrix
+    if: (needs.job-matrix.result == 'success') && (startsWith(github.ref, 'refs/tags') || github.ref == 'refs/heads/master')
+    steps:
+    - uses: actions/download-artifact@v4
+      with:
+        pattern: release-*
+        path: "${{ github.workspace }}/release"
+        merge-multiple: true
+    - name: Upload Release
+      uses: softprops/action-gh-release@v2
+      if: startsWith(github.ref, 'refs/tags') || (github.ref == 'refs/heads/master')
+      with:
+        Name: Latest ${{ env.BRANCH_NAME }} build
+        tag_name: ${{ needs.get_version.outputs.version }}
+        files:
+          ${{ github.workspace }}/release/*.zip
+        prerelease: true
+        fail_on_unmatched_files: true
+        target_commitish: ${{ github.sha }}
+    - name: Get current date
+      id: date
+      run: echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
+
+    - uses: tsickert/discord-webhook@v5.3.0
+      with:
+        webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        username: IMPACTO
+        avatar-url: https://cdn.discordapp.com/emojis/766988033127481344.png
+        embed-title : "${{ github.event.commits[0].author.name }}"
+        embed-color: 3659647
+        embed-timestamp: ${{ env.NOW }}
+        embed-description: |
+          Commit
+          `${{ github.event.head_commit.message }} (${{ github.sha }})`
+          from branch `${{ env.BRANCH_NAME }}` has been successfully built.
+
+          Release URL:
+          https://github.com/CommitteeOfZero/impacto/releases/tag/${{ needs.get_version.outputs.version }}
+
+          Details:
+          ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+  notify_fail:
+    name: Notify failure
+    runs-on: ubuntu-22.04
+    needs:
+    - job-matrix
+    if: always() && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled'))
+    steps:
+    - uses: actions/checkout@v2
+    - name: 'Get Jobs Status'
+      id: get_jobs_status
+      run: |
+        echo "Fetch workflow run jobs"
+        json_data=$(curl -s -H "Authorization: Bearer ${{ github.token }}" \
+                "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs")
+
+        
+        name_conclusion_array=($(echo "$json_data" | jq -r '
+          .jobs[] | 
+            select(.name | IN("macos-arm64", "linux", "windows", "switch", "macos-x64")) | 
+          "\(.name).\(.conclusion)"'))
+
+        for item in "${name_conclusion_array[@]}"; do
+            IFS='.' read -r name conclusion <<< "$item"
+            echo "$name=$conclusion" >> $GITHUB_OUTPUT
+        done
+
+    - name: Get current date
+      id: date
+      run: echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
+
+    - uses: tsickert/discord-webhook@v5.3.0
+      with:
+        webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        username: IMPACTO
+        avatar-url: https://cdn.discordapp.com/emojis/766988033127481344.png
+        embed-title : "${{ github.event.commits[0].author.name }}"
+        embed-color: 16711680
+        embed-timestamp: ${{ steps.date.outputs.NOW }}
+        embed-description: |
+          Commit
+          `${{ github.event.head_commit.message }} (${{ github.sha }})`
+          from branch `${{ env.BRANCH_NAME }}` has failed build.
+
+          Job status:
+          windows: ${{steps.get_jobs_status.outputs.windows}} 
+          linux: ${{steps.get_jobs_status.outputs.linux}} 
+          macos-arm64: ${{steps.get_jobs_status.outputs.macos-arm64}} 
+          macos-x64: ${{steps.get_jobs_status.outputs.macos-x64}} 
+          switch: ${{steps.get_jobs_status.outputs.switch}} 
+
+          Details:
+          ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

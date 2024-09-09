@@ -1,0 +1,22 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "builtin-baseline": "0f88ecb8528605f91980b90a2c5bad88e3cb565f",
+  "dependencies": [
+    "sdl2",
+    {
+      "name": "sdl2",
+      "default-features": true,
+      "features": [
+        "vulkan"
+      ]
+    },
+    "vulkan",
+    "openal-soft",
+    "libogg",
+    "libvorbis",
+    "zlib",
+    "glm",
+    "ffmpeg",
+    "libwebp"
+  ]
+}
