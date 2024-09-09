@@ -11,20 +11,9 @@ env:
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
 
 jobs:
-  get_version:
-    name: Get Version
-    runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.version.outputs.version }}
-    steps:
-    - uses: actions/checkout@v3
-    - name: Git Version
-      id: version
-      uses: codacy/git-version@2.5.4
   job-matrix:
     name: ${{ matrix.os_name }}
     runs-on: ${{ matrix.os }}
-    needs: get_version
     timeout-minutes: 120
     strategy:
       fail-fast: false
@@ -137,11 +126,11 @@ jobs:
       shell: bash
     - name: Archive Artifacts
       run: |
-        7z u impacto-${{ matrix.os_name }}-${{ needs.get_version.outputs.version }}-${{ github.sha }}.zip release/ci-release/*
+        7z u impacto-${{ matrix.os_name }}-${{ vars.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip release/ci-release/*
     - name: Upload Artifact
       uses: actions/upload-artifact@v4.1.0
       with:
-        path: impacto-${{ matrix.os_name }}-${{ needs.get_version.outputs.version }}-${{ github.sha }}.zip
+        path: impacto-${{ matrix.os_name }}-${{ vars.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip
         name: release-${{ matrix.os_name }}
 
     
@@ -149,7 +138,6 @@ jobs:
     name: Publish Artifacts
     runs-on: ubuntu-22.04
     needs:
-    - get_version
     - job-matrix
     if: (needs.job-matrix.result == 'success') && (startsWith(github.ref, 'refs/tags') || github.ref == 'refs/heads/master')
     steps:
@@ -163,7 +151,7 @@ jobs:
       if: startsWith(github.ref, 'refs/tags') || (github.ref == 'refs/heads/master')
       with:
         Name: Latest ${{ env.BRANCH_NAME }} build
-        tag_name: ${{ needs.get_version.outputs.version }}
+        tag_name: ${{ vars.VERSION }}${{ github.run_number }}
         files:
           ${{ github.workspace }}/release/*.zip
         prerelease: true
@@ -187,7 +175,7 @@ jobs:
           from branch `${{ env.BRANCH_NAME }}` has been successfully built.
 
           Release URL:
-          https://github.com/CommitteeOfZero/impacto/releases/tag/${{ needs.get_version.outputs.version }}
+          https://github.com/CommitteeOfZero/impacto/releases/tag/${{ vars.VERSION }}${{ github.run_number }}
 
           Details:
           ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
