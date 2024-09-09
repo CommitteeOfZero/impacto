@@ -502,6 +502,7 @@ void RunThread(Sc3VmThread* thread) {
               "Encountered Graph3D opcode in game which shouldn't have any!\n");
           goto badOpcode;
         }
+        OpcodeTableGraph3D[opcode](thread);
       } else if (opcodeGrp1 == 0x01) {
         OpcodeTableGraph[opcode](thread);
       } else if (!opcodeGrp1) {
