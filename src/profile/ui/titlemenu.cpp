@@ -58,7 +58,7 @@ void Configure() {
     } else if (Type == +TitleMenuType::SGHD) {
       SGHD::TitleMenu::Configure();
     } else {
-      ImpLog(LL_Fatal, LC_Profile, "Unknown title menu type in profile!\n");
+      ImpLog(LL_Warning, LC_Profile, "Unknown title menu type in profile!\n");
     }
 
     // if (Implementation != 0) {
