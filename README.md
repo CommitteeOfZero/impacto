@@ -27,3 +27,4 @@ If you're interested, [come join our Discord](https://discord.gg/rq4GGCh) to dis
 ## Legal stuff
 
 impacto source code as a whole is released under the liberal [ISC license](LICENSE). Some parts are based on or copied from third-party code under various licenses. Binary distributions or parts thereof may fall under more restrictive licensing terms. See [THIRDPARTY.md](THIRDPARTY.md) for details and attribution.
+
