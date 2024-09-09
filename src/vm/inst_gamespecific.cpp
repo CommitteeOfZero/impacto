@@ -35,7 +35,7 @@ VmInstruction(InstUnk0053) {
   ImpLogSlow(LL_Warning, LC_VMStub,
              "STUB instruction Unk0053(arg1: %i, arg2: %i)\n", arg1, arg2);
 }
-VmInstruction(InstUnk0053SG) {
+VmInstruction(InstUnk0053SGHD) {
   StartInstruction;
   PopUint8(type);
   // FIXME: Could be that we should only pop one if type != 2 and != 3
@@ -1079,7 +1079,7 @@ VmInstruction(InstUnk103A) {
     } break;
   }
 }
-VmInstruction(InstUnk103FSG) {
+VmInstruction(InstUnk103FSGHD) {
   StartInstruction;
   PopUint8(type);
   switch (type) {

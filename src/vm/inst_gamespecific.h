@@ -9,7 +9,7 @@ namespace Vm {
 VmInstruction(InstUnk0041);
 VmInstruction(InstUnk0052);
 VmInstruction(InstUnk0053);
-VmInstruction(InstUnk0053SG);
+VmInstruction(InstUnk0053SGHD);
 VmInstruction(InstUnk0054);
 VmInstruction(InstAddContents);
 VmInstruction(InstUnk011F);
@@ -36,7 +36,7 @@ VmInstruction(InstTwipo_Dash);
 VmInstruction(InstDelusionTriggerCHLCC);
 VmInstruction(InstYesNoTriggerCCLCC);
 VmInstruction(InstUnk103A);
-VmInstruction(InstUnk103FSG);
+VmInstruction(InstUnk103FSGHD);
 
 }  // namespace Vm
 

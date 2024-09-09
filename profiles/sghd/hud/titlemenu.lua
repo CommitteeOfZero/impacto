@@ -1,5 +1,5 @@
 root.TitleMenu = {
-    Type = TitleMenuType.SG,
+    Type = TitleMenuType.SGHD,
     DrawType = DrawComponentType.SystemMenu,
     PressToStartX = 72,
     PressToStartY = 595,
@@ -224,7 +224,7 @@ root.Sprites["TitleMenuSecondaryItemHighlight"] = {
 };
 
 root.TitleMenu = {
-    Type = TitleMenuType.SG,
+    Type = TitleMenuType.SGHD,
     DrawType = DrawComponentType.SystemMenu,
     BackgroundSprite = "TitleMenuBackground",
     BackgroundX = 0.0,

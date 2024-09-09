@@ -20,7 +20,7 @@ root.UseScreenCapEffects = false;
 root.Vm = {
     StartScript = 2, -- _STARTUP_WIN.SCX
     StartScriptBuffer = 0,
-    GameInstructionSet = InstructionSet.SG,
+    GameInstructionSet = InstructionSet.SGHD,
     UseReturnIds = true,
     ScrWorkChaStructSize = 40,
     ScrWorkBgStructSize = 40
@@ -28,24 +28,24 @@ root.Vm = {
 
 include('common/scriptinput.lua');
 include('common/scriptvars.lua');
-include('sg/config.lua');
-include('sg/scriptvars.lua');
-include('sg/savedata.lua');
-include('sg/tipssystem.lua');
-include('sg/vfs.lua');
-include('sg/sprites.lua');
+include('sghd/config.lua');
+include('sghd/scriptvars.lua');
+include('sghd/savedata.lua');
+include('sghd/tipssystem.lua');
+include('sghd/vfs.lua');
+include('sghd/sprites.lua');
 include('common/animation.lua');
-include('sg/charset.lua');
-include('sg/font.lua');
-include('sg/dialogue.lua');
-include('sg/nametag.lua');
-include('sg/hud/saveicon.lua');
-include('sg/hud/loadingdisplay.lua');
-include('sg/hud/datedisplay.lua');
-include('sg/hud/titlemenu.lua');
-include('sg/hud/systemmenu.lua');
-include('sg/hud/backlogmenu.lua');
-include('sg/hud/sysmesboxdisplay.lua');
-include('sg/hud/selectiondisplay.lua');
-include('sg/hud/tipsmenu.lua');
-include('sg/hud/tipsnotification.lua');
+include('sghd/charset.lua');
+include('sghd/font.lua');
+include('sghd/dialogue.lua');
+include('sghd/nametag.lua');
+include('sghd/hud/saveicon.lua');
+include('sghd/hud/loadingdisplay.lua');
+include('sghd/hud/datedisplay.lua');
+include('sghd/hud/titlemenu.lua');
+include('sghd/hud/systemmenu.lua');
+include('sghd/hud/backlogmenu.lua');
+include('sghd/hud/sysmesboxdisplay.lua');
+include('sghd/hud/selectiondisplay.lua');
+include('sghd/hud/tipsmenu.lua');
+include('sghd/hud/tipsnotification.lua');

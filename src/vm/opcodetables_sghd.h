@@ -13,7 +13,7 @@ namespace Impacto {
 
 namespace Vm {
 
-InstructionProc static OpcodeTableSystem_SG[256] = {
+InstructionProc static OpcodeTableSystem_SGHD[256] = {
     InstEnd,                  // 00 00
     InstCreateThread,         // 00 01
     InstKillThread,           // 00 02
@@ -97,7 +97,7 @@ InstructionProc static OpcodeTableSystem_SG[256] = {
     InstPressStart,           // 00 50
     InstGlobalSystemMessage,  // 00 51
     InstUnk0052,              // 00 52
-    InstUnk0053SG,            // 00 53
+    InstUnk0053SGHD,            // 00 53
     InstUnk0054,              // 00 54
     InstReturnIfFlag,         // 00 55
     InstDummy,                // 00 56
@@ -272,7 +272,7 @@ InstructionProc static OpcodeTableSystem_SG[256] = {
     InstDummy                 // 00 FF
 };
 
-InstructionProc static OpcodeTableGraph_SG[256] = {
+InstructionProc static OpcodeTableGraph_SGHD[256] = {
     InstCreateSurf,        // 01 00
     InstReleaseSurf,       // 01 01
     InstLoadPic,           // 01 02
@@ -531,7 +531,7 @@ InstructionProc static OpcodeTableGraph_SG[256] = {
     InstDummy              // 01 FF
 };
 
-InstructionProc static OpcodeTableUser1_SG[256] = {
+InstructionProc static OpcodeTableUser1_SGHD[256] = {
     InstMSinit,            // 10 00
     InstBGload,            // 10 01
     InstBGswap,            // 10 02
@@ -595,7 +595,7 @@ InstructionProc static OpcodeTableUser1_SG[256] = {
     InstDummy,             // 10 3C
     InstDummy,             // 10 3D
     InstDummy,             // 10 3E
-    InstUnk103FSG, // 10 3F
+    InstUnk103FSGHD, // 10 3F
     InstDummy,             // 10 40
     InstDummy,             // 10 41
     InstDummy,             // 10 42

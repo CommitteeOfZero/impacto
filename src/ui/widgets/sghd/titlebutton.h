@@ -5,7 +5,7 @@
 namespace Impacto {
 namespace UI {
 namespace Widgets {
-namespace SG {
+namespace SGHD {
 
 class TitleButton : public Widgets::Button {
  public:
@@ -16,7 +16,7 @@ class TitleButton : public Widgets::Button {
   bool IsSubButton = false;
 };
 
-}  // namespace SG
+}  // namespace SGHD
 }  // namespace Widgets
 }  // namespace UI
 }  // namespace Impacto

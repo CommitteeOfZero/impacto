@@ -16,7 +16,7 @@
 #include "opcodetables_mo8.h"
 #include "opcodetables_dash.h"
 #include "opcodetables_cc.h"
-#include "opcodetables_sg.h"
+#include "opcodetables_sghd.h"
 #include "opcodetables_sgps3.h"
 #include "opcodetables_chn.h"
 #include "../profile/game.h"
@@ -125,10 +125,10 @@ void Init() {
       OpcodeTableGraph3D = nullptr;
       break;
     }
-    case InstructionSet::SG: {
-      OpcodeTableSystem = OpcodeTableSystem_SG;
-      OpcodeTableGraph = OpcodeTableGraph_SG;
-      OpcodeTableUser1 = OpcodeTableUser1_SG;
+    case InstructionSet::SGHD: {
+      OpcodeTableSystem = OpcodeTableSystem_SGHD;
+      OpcodeTableGraph = OpcodeTableGraph_SGHD;
+      OpcodeTableUser1 = OpcodeTableUser1_SGHD;
       // The game uses some opcodes from here, but (probably) doesn't use 3D
       // graphics. Figure out what it's for.
       OpcodeTableGraph3D = nullptr;

@@ -1,14 +1,14 @@
 #include "titlebutton.h"
 
 #include "../../../renderer/renderer.h"
-#include "../../../profile/games/sg/titlemenu.h"
+#include "../../../profile/games/sghd/titlemenu.h"
 
 namespace Impacto {
 namespace UI {
 namespace Widgets {
-namespace SG {
+namespace SGHD {
 
-using namespace Impacto::Profile::SG::TitleMenu;
+using namespace Impacto::Profile::SGHD::TitleMenu;
 
 void TitleButton::Render() {
   /*
@@ -37,7 +37,7 @@ void TitleButton::Render() {
   */
 }
 
-}  // namespace SG
+}  // namespace SGHD
 }  // namespace Widgets
 }  // namespace UI
 }  // namespace Impacto

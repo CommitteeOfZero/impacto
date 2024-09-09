@@ -76,4 +76,4 @@ root.Dialogue = {
     ColorTagIsUint8 = true
 };
 
-include('sgps3/nametag.lua');
+include('sghd/nametag.lua');
