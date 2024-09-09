@@ -47,10 +47,10 @@ static Sc3VmThread*
 static Sc3VmThread* NextFreeThreadCtx;  // Next free thread context in the
                                         // thread pool
 
-static InstructionProc* OpcodeTableSystem;
-static InstructionProc* OpcodeTableUser1;
-static InstructionProc* OpcodeTableGraph;
-static InstructionProc* OpcodeTableGraph3D;
+static InstructionProc* OpcodeTableSystem = nullptr;
+static InstructionProc* OpcodeTableUser1 = nullptr;
+static InstructionProc* OpcodeTableGraph = nullptr;
+static InstructionProc* OpcodeTableGraph3D = nullptr;
 
 static void CreateThreadExecTable();
 static void SortThreadExecTable();
@@ -80,28 +80,24 @@ void Init() {
       OpcodeTableSystem = OpcodeTableSystem_Darling;
       OpcodeTableGraph = OpcodeTableGraph_Darling;
       OpcodeTableUser1 = OpcodeTableUser1_Darling;
-      OpcodeTableGraph3D = nullptr;
       break;
     }
     case InstructionSet::CHLCC: {
       OpcodeTableSystem = OpcodeTableSystem_CHLCC;
       OpcodeTableGraph = OpcodeTableGraph_CHLCC;
       OpcodeTableUser1 = OpcodeTableUser1_CHLCC;
-      OpcodeTableGraph3D = nullptr;
       break;
     }
     case InstructionSet::MO6TW: {
       OpcodeTableSystem = OpcodeTableSystem_MO6TW;
       OpcodeTableGraph = OpcodeTableGraph_MO6TW;
       OpcodeTableUser1 = OpcodeTableUser1_MO6TW;
-      OpcodeTableGraph3D = nullptr;
       break;
     }
     case InstructionSet::MO7: {
       OpcodeTableSystem = OpcodeTableSystem_MO7;
       OpcodeTableGraph = OpcodeTableGraph_MO7;
       OpcodeTableUser1 = OpcodeTableUser1_MO7;
-      OpcodeTableGraph3D = nullptr;
       break;
     }
     case InstructionSet::Dash: {
@@ -115,37 +111,30 @@ void Init() {
       OpcodeTableSystem = OpcodeTableSystem_CC;
       OpcodeTableGraph = OpcodeTableGraph_CC;
       OpcodeTableUser1 = OpcodeTableUser1_CC;
-      OpcodeTableGraph3D = nullptr;
       break;
     }
     case InstructionSet::SGPS3: {
       OpcodeTableSystem = OpcodeTableSystem_SGPS3;
       OpcodeTableGraph = OpcodeTableGraph_SGPS3;
       OpcodeTableUser1 = OpcodeTableUser1_SGPS3;
-      OpcodeTableGraph3D = nullptr;
       break;
     }
     case InstructionSet::SGHD: {
       OpcodeTableSystem = OpcodeTableSystem_SGHD;
       OpcodeTableGraph = OpcodeTableGraph_SGHD;
       OpcodeTableUser1 = OpcodeTableUser1_SGHD;
-      // The game uses some opcodes from here, but (probably) doesn't use 3D
-      // graphics. Figure out what it's for.
-      OpcodeTableGraph3D = nullptr;
       break;
     }
     case InstructionSet::MO8: {
       OpcodeTableSystem = OpcodeTableSystem_MO8;
       OpcodeTableGraph = OpcodeTableGraph_MO8;
       OpcodeTableUser1 = OpcodeTableUser1_MO8;
-      OpcodeTableGraph3D = nullptr;
       break;
     }
     case InstructionSet::CHN: {
       OpcodeTableSystem = OpcodeTableSystem_CHN;
       OpcodeTableGraph = OpcodeTableGraph_CHN;
       OpcodeTableUser1 = OpcodeTableUser1_CHN;
-      OpcodeTableGraph3D = nullptr;
       break;
     }
     default: {
