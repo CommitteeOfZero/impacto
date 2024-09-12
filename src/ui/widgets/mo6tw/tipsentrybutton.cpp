@@ -32,10 +32,10 @@ TipsEntryButton::TipsEntryButton(int id, TipsDataRecord* tipRecord,
                         glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
   Vm::Sc3VmThread dummy;
   dummy.Ip = tipRecord->StringPtrs[0];
-  TipNameLength = TextLayoutPlainLine(
-      &dummy, 255, TipName, Profile::Dialogue::DialogueFont,
-      TipListEntryFontSize, Profile::Dialogue::ColorTable[DefaultColorIndex],
-      1.0f, glm::vec2(Bounds.X + TipListEntryNameXOffset, Bounds.Y),
+  Text = TextLayoutPlainLine(
+      &dummy, 255, Profile::Dialogue::DialogueFont, TipListEntryFontSize,
+      Profile::Dialogue::ColorTable[DefaultColorIndex], 1.0f,
+      glm::vec2(Bounds.X + TipListEntryNameXOffset, Bounds.Y),
       TextAlignment::Left);
   TextLayoutPlainString(TipListEntryNewText, NewText,
                         Profile::Dialogue::DialogueFont, TipListEntryFontSize,
@@ -44,8 +44,8 @@ TipsEntryButton::TipsEntryButton(int id, TipsDataRecord* tipRecord,
                         TextAlignment::Left);
   dummy.Ip = Vm::ScriptGetTextTableStrAddress(TipListEntryLockedTable,
                                               TipListEntryLockedIndex);
-  TextLayoutPlainLine(&dummy, 255, TipLockedText,
-                      Profile::Dialogue::DialogueFont, TipListEntryFontSize,
+  TextLayoutPlainLine(&dummy, 3, TipLockedText, Profile::Dialogue::DialogueFont,
+                      TipListEntryFontSize,
                       Profile::Dialogue::ColorTable[UnreadColorIndex], 1.0f,
                       glm::vec2(Bounds.X + TipListEntryNameXOffset, Bounds.Y),
                       TextAlignment::Left);
@@ -58,8 +58,8 @@ void TipsEntryButton::Update(float dt) {
     if (TipEntryRecord->IsUnread) {
       colorIndex = UnreadColorIndex;
     }
-    for (int i = 0; i < TipNameLength; i++) {
-      TipName[i].Colors = Profile::Dialogue::ColorTable[colorIndex];
+    for (int i = 0; i < Text.size(); i++) {
+      Text[i].Colors = Profile::Dialogue::ColorTable[colorIndex];
     }
     PrevUnreadState = TipEntryRecord->IsUnread;
   }
@@ -73,21 +73,17 @@ void TipsEntryButton::Render() {
         Tint, glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
   }
 
-  Renderer->DrawProcessedText(TipNumber, TipNumberLength,
-                              Profile::Dialogue::DialogueFont, Tint.a,
-                              RendererOutlineMode::RO_Full);
+  Renderer->DrawProcessedText(TipNumber, Profile::Dialogue::DialogueFont,
+                              Tint.a, RendererOutlineMode::RO_Full);
   if (TipEntryRecord->IsLocked) {
-    Renderer->DrawProcessedText(TipLockedText, TipLockedTextLength,
-                                Profile::Dialogue::DialogueFont, Tint.a,
-                                RendererOutlineMode::RO_Full);
+    Renderer->DrawProcessedText(TipLockedText, Profile::Dialogue::DialogueFont,
+                                Tint.a, RendererOutlineMode::RO_Full);
   } else {
-    Renderer->DrawProcessedText(TipName, TipNameLength,
-                                Profile::Dialogue::DialogueFont, Tint.a,
+    Renderer->DrawProcessedText(Text, Profile::Dialogue::DialogueFont, Tint.a,
                                 RendererOutlineMode::RO_Full);
     if (TipEntryRecord->IsNew) {
-      Renderer->DrawProcessedText(NewText, NewTextLength,
-                                  Profile::Dialogue::DialogueFont, Tint.a,
-                                  RendererOutlineMode::RO_Full);
+      Renderer->DrawProcessedText(NewText, Profile::Dialogue::DialogueFont,
+                                  Tint.a, RendererOutlineMode::RO_Full);
     }
   }
 }

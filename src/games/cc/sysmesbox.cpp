@@ -43,14 +43,14 @@ void SysMesBox::Show() {
 
   for (int i = 0; i < MessageCount; i++) {
     diff = Messages[i][0].DestRect.X - ((TextX - maxWidth) / 2.0f);
-    for (int j = 0; j < MessageLengths[i]; j++) {
+    for (int j = 0; j < Messages[i].size(); j++) {
       if (Messages[i][j].CharId == 0) break;
       Messages[i][j].DestRect.X -= diff;
       Messages[i][j].DestRect.Y = textBeginY + (TextLineHeight * i);
     }
 
-    Label* message = new Label(Messages[i], MessageLengths[i], MessageWidths[i],
-                               TextFontSize, RendererOutlineMode::RO_Full);
+    Label* message = new Label(Messages[i], MessageWidths[i], TextFontSize,
+                               RendererOutlineMode::RO_Full);
 
     MessageItems->Add(message, FDIR_DOWN);
   }
@@ -223,40 +223,35 @@ void SysMesBox::Init() {
   FadeAnimation.DurationOut = FadeOutDuration;
   FadeAnimation.Direction = 1;
   FadeAnimation.LoopMode = ALM_Stop;
-
-  memset(Messages, 0, (8 * 255) * sizeof(ProcessedTextGlyph));
-  memset(Choices, 0, (8 * 255) * sizeof(ProcessedTextGlyph));
 }
 
 void SysMesBox::AddMessage(uint8_t* str) {
   Impacto::Vm::Sc3VmThread dummy;
   dummy.Ip = str;
-  int len = TextLayoutPlainLine(&dummy, 255, Messages[MessageCount],
-                                Profile::Dialogue::DialogueFont, TextFontSize,
-                                Profile::Dialogue::ColorTable[0], 1.0f,
-                                glm::vec2(TextX, 0.0f), TextAlignment::Left);
+  Messages[MessageCount] =
+      TextLayoutPlainLine(&dummy, 255, Profile::Dialogue::DialogueFont,
+                          TextFontSize, Profile::Dialogue::ColorTable[0], 1.0f,
+                          glm::vec2(TextX, 0.0f), TextAlignment::Left);
   float mesLen = 0.0f;
-  for (int i = 0; i < len; i++) {
+  for (int i = 0; i < Messages[MessageCount].size(); i++) {
     mesLen += Messages[MessageCount][i].DestRect.Width;
   }
   MessageWidths[MessageCount] = mesLen;
-  MessageLengths[MessageCount] = len;
   MessageCount++;
 }
 
 void SysMesBox::AddChoice(uint8_t* str) {
   Impacto::Vm::Sc3VmThread dummy;
   dummy.Ip = str;
-  int len = TextLayoutPlainLine(&dummy, 255, Choices[ChoiceCount],
-                                Profile::Dialogue::DialogueFont, TextFontSize,
-                                Profile::Dialogue::ColorTable[0], 1.0f,
-                                glm::vec2(TextX, 0.0f), TextAlignment::Left);
+  Choices[ChoiceCount] =
+      TextLayoutPlainLine(&dummy, 255, Profile::Dialogue::DialogueFont,
+                          TextFontSize, Profile::Dialogue::ColorTable[0], 1.0f,
+                          glm::vec2(TextX, 0.0f), TextAlignment::Left);
   float mesLen = 0.0f;
-  for (int i = 0; i < len; i++) {
+  for (int i = 0; i < Choices[ChoiceCount].size(); i++) {
     mesLen += Choices[ChoiceCount][i].DestRect.Width;
   }
   ChoiceWidths[ChoiceCount] = mesLen;
-  ChoiceLengths[ChoiceCount] = len;
   ChoiceCount++;
 }
 

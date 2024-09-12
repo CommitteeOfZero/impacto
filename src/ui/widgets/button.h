@@ -26,7 +26,7 @@ class Button : public Widget {
 
   void SetText(uint8_t* str, float fontSize, RendererOutlineMode outlineMode,
                int colorIndex = 10);
-  void SetText(ProcessedTextGlyph* str, int textLength, float textWidth,
+  void SetText(std::vector<ProcessedTextGlyph> text, float textWidth,
                float fontSize, RendererOutlineMode outlineMode);
 
   int Id;
@@ -44,8 +44,7 @@ class Button : public Widget {
 
  protected:
   bool HasText = false;
-  ProcessedTextGlyph* Text = nullptr;
-  int TextLength = 0;
+  std::vector<ProcessedTextGlyph> Text;
   float TextWidth = 0.0f;
   RendererOutlineMode OutlineMode;
 };

@@ -6,6 +6,7 @@
 #include "../spritesheet.h"
 #include "../text.h"
 #include "yuvframe.h"
+#include "../../vendor/span/span.hpp"
 
 namespace Impacto {
 
@@ -93,24 +94,26 @@ class BaseRenderer {
                                  glm::vec2 vanishingPoint, bool stayInScreen,
                                  glm::quat rot, glm::vec4 color) = 0;
 
-  void DrawProcessedText_BasicFont(ProcessedTextGlyph* text, int length,
+  void DrawProcessedText_BasicFont(tcb::span<const ProcessedTextGlyph> text,
                                    BasicFont* font, float opacity,
                                    RendererOutlineMode outlineMode,
                                    bool smoothstepGlyphOpacity,
                                    float outlineOpacity,
                                    SpriteSheet* maskedSheet);
-  void DrawProcessedText_LBFont(ProcessedTextGlyph* text, int length,
+
+  void DrawProcessedText_LBFont(tcb::span<const ProcessedTextGlyph> text,
                                 LBFont* font, float opacity,
                                 RendererOutlineMode outlineMode,
                                 bool smoothstepGlyphOpacity,
                                 float outlineOpacity, SpriteSheet* maskedSheet);
   void DrawProcessedText(
-      ProcessedTextGlyph* text, int length, Font* font, float opacity = 1.0f,
+      tcb::span<const ProcessedTextGlyph> text, Font* font,
+      float opacity = 1.0f,
       RendererOutlineMode outlineMode = RendererOutlineMode::RO_None,
       bool smoothstepGlyphOpacity = true, SpriteSheet* maskedSheet = 0);
 
   void DrawProcessedText(
-      ProcessedTextGlyph* text, int length, Font* font, float opacity,
+      tcb::span<const ProcessedTextGlyph> text, Font* font, float opacity,
       float outlineOpacity,
       RendererOutlineMode outlineMode = RendererOutlineMode::RO_None,
       bool smoothstepGlyphOpacity = true, SpriteSheet* maskedSheet = 0);

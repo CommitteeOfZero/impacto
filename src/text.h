@@ -9,6 +9,7 @@
 #include "audio/audiosystem.h"
 #include "audio/audiostream.h"
 #include "audio/audiochannel.h"
+#include "../vendor/span/span.hpp"
 
 namespace Impacto {
 
@@ -83,18 +84,16 @@ struct DialoguePage {
   // TODO get rid of this
   bool TextIsFullyOpaque();
 
-  int Length;
-
   int NameLength;
   int NameId;
   bool HasName;
-  ProcessedTextGlyph Name[DialogueMaxNameLength];
+  std::vector<ProcessedTextGlyph> Name;
 
   int RubyChunkCount;
   int CurrentRubyChunk;
   RubyChunk RubyChunks[DialogueMaxRubyChunks];
 
-  ProcessedTextGlyph* Glyphs;
+  std::vector<ProcessedTextGlyph> Glyphs;
 
   DialoguePageMode Mode;
 
@@ -133,16 +132,29 @@ inline int DialoguePageCount = 0;
 int TextGetStringLength(Vm::Sc3VmThread* ctx);
 int TextGetMainCharacterCount(Vm::Sc3VmThread* ctx);
 int TextLayoutPlainLine(Vm::Sc3VmThread* ctx, int stringLength,
-                        ProcessedTextGlyph* outGlyphs, Font* font,
+                        tcb::span<ProcessedTextGlyph> outGlyphs, Font* font,
                         float fontSize, DialogueColorPair colors, float opacity,
                         glm::vec2 pos, TextAlignment alignment,
                         float blockWidth = 0.0f);
+std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
+    Vm::Sc3VmThread* ctx, int maxLength, Font* font, float fontSize,
+    DialogueColorPair colors, float opacity, glm::vec2 pos,
+    TextAlignment alignment, float blockWidth = 0.0f);
+int TextLayoutAlignment(Impacto::TextAlignment& alignment, float blockWidth,
+                        float currentX, glm::vec2& pos, int characterCount,
+                        tcb::span<Impacto::ProcessedTextGlyph> outGlyphs);
 float TextGetPlainLineWidth(Vm::Sc3VmThread* ctx, Font* font, float fontSize);
-int TextLayoutPlainString(std::string str, ProcessedTextGlyph* outGlyphs,
-                          Font* font, float fontSize, DialogueColorPair colors,
+int TextLayoutPlainString(std::string_view str,
+                          tcb::span<ProcessedTextGlyph> outGlyphs, Font* font,
+                          float fontSize, DialogueColorPair colors,
                           float opacity, glm::vec2 pos, TextAlignment alignment,
                           float blockWidth = 0.0f);
-void TextGetSc3String(std::string str, uint16_t* out);
+std::vector<ProcessedTextGlyph> TextLayoutPlainString(
+    std::string_view str, Font* font, float fontSize, DialogueColorPair colors,
+    float opacity, glm::vec2 pos, TextAlignment alignment,
+    float blockWidth = 0.0f);
+
+void TextGetSc3String(std::string_view str, tcb::span<uint16_t> out);
 
 inline ska::flat_hash_map<uint32_t, uint32_t> NamePlateData;
 void InitNamePlateData(uint16_t* data);

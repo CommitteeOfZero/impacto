@@ -74,8 +74,7 @@ void Toggle::Render() {
                          glm::vec2(Bounds.X, Bounds.Y) + LabelOffset, Tint);
   }
   if (HasTextLabel) {
-    Renderer->DrawProcessedText(Label, TextLength,
-                                Profile::Dialogue::DialogueFont, Tint.a,
+    Renderer->DrawProcessedText(Label, Profile::Dialogue::DialogueFont, Tint.a,
                                 OutlineMode, true);
   }
 }
@@ -84,13 +83,13 @@ void Toggle::SetText(uint8_t* str, float fontSize,
                      RendererOutlineMode outlineMode) {
   Impacto::Vm::Sc3VmThread dummy;
   dummy.Ip = str;
-  TextLength = TextLayoutPlainLine(
-      &dummy, 255, Label, Profile::Dialogue::DialogueFont, fontSize,
-      Profile::Dialogue::ColorTable[10], 1.0f,
-      glm::vec2(Bounds.X, Bounds.Y) + LabelOffset, TextAlignment::Left);
+  Label = TextLayoutPlainLine(&dummy, 255, Profile::Dialogue::DialogueFont,
+                              fontSize, Profile::Dialogue::ColorTable[10], 1.0f,
+                              glm::vec2(Bounds.X, Bounds.Y) + LabelOffset,
+                              TextAlignment::Left);
   OutlineMode = outlineMode;
   FontSize = fontSize;
-  for (int i = 0; i < TextLength; i++) {
+  for (int i = 0; i < Label.size(); i++) {
     TextWidth += Label[i].DestRect.Width;
   }
 }

@@ -163,7 +163,7 @@ void Configure() {
   Impacto::DialoguePages = new DialoguePage[PageCount];
   Impacto::DialoguePageCount = PageCount;
   for (int i = 0; i < PageCount; i++) {
-    Impacto::DialoguePages[i].Glyphs = new ProcessedTextGlyph[MaxPageSize];
+    Impacto::DialoguePages[i].Glyphs.reserve(MaxPageSize);
   }
 
   {

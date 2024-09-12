@@ -28,27 +28,25 @@ TipsEntryButton::TipsEntryButton(int tipId, int dispId, RectF const& dest,
   PrevUnreadState = TipEntryRecord->IsUnread && !TipEntryRecord->IsLocked;
   char tipNumber[5];
   sprintf(tipNumber, "%03d.", dispId);
-  TextLayoutPlainString(std::string(tipNumber), TipNumber.data(),
-                        Profile::Dialogue::DialogueFont, 21,
-                        {TipsMenuDarkTextColor, 0}, 1.0f,
+  TextLayoutPlainString(tipNumber, TipNumber, Profile::Dialogue::DialogueFont,
+                        21, {TipsMenuDarkTextColor, 0}, 1.0f,
                         glm::vec2(Bounds.X, Bounds.Y) + TipsEntryNumberOffset,
                         TextAlignment::Left);
   Vm::Sc3VmThread dummy;
   glm::vec2 nameDest = glm::vec2(Bounds.X, Bounds.Y) + TipsEntryNameOffset;
   dummy.Ip = TipEntryRecord->StringPtrs[1];
   HasText = true;
-  Text = new ProcessedTextGlyph[255];
 
   uint32_t initColorName =
       PrevUnreadState ? TipsEntryNameUnreadColor : TipsMenuDarkTextColor;
-  TextLength = TextLayoutPlainLine(
-      &dummy, 255, Text, Profile::Dialogue::DialogueFont, 26,
-      {initColorName, 0}, 1.0f, nameDest, TextAlignment::Left);
+  Text = TextLayoutPlainLine(&dummy, 255, Profile::Dialogue::DialogueFont, 26,
+                             {initColorName, 0}, 1.0f, nameDest,
+                             TextAlignment::Left);
 
   dummy.Ip = Vm::ScriptGetStrAddress(
       Impacto::Vm::ScriptBuffers[TipsSystem::GetTipsScriptBufferId()],
       TipsTextEntryLockedIndex);
-  TextLayoutPlainLine(&dummy, TipLockedTextLength, TipLockedText.data(),
+  TextLayoutPlainLine(&dummy, TipLockedTextLength, TipLockedText,
                       Profile::Dialogue::DialogueFont, 26, {initColorName, 0},
                       1.0f, nameDest, TextAlignment::Left);
   HighlightOffset = TipsEntryHighlightOffset;
@@ -61,7 +59,7 @@ void TipsEntryButton::Update(float dt) {
   if (PrevUnreadState != curUnreadState) {
     uint32_t colorName =
         curUnreadState ? TipsEntryNameUnreadColor : TipsMenuDarkTextColor;
-    for (int i = 0; i < TextLength; i++) {
+    for (int i = 0; i < Text.size(); i++) {
       Text[i].Colors = {colorName, 0};
     }
     PrevUnreadState = curUnreadState;
@@ -95,16 +93,13 @@ void TipsEntryButton::Render() {
         Tint, glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
   }
 
-  Renderer->DrawProcessedText(TipNumber.data(), TipNumberLength,
-                              Profile::Dialogue::DialogueFont, Tint.a,
-                              RendererOutlineMode::RO_None);
+  Renderer->DrawProcessedText(TipNumber, Profile::Dialogue::DialogueFont,
+                              Tint.a, RendererOutlineMode::RO_None);
   if (TipEntryRecord->IsLocked) {
-    Renderer->DrawProcessedText(TipLockedText.data(), TipLockedTextLength,
-                                Profile::Dialogue::DialogueFont, Tint.a,
-                                RendererOutlineMode::RO_None);
+    Renderer->DrawProcessedText(TipLockedText, Profile::Dialogue::DialogueFont,
+                                Tint.a, RendererOutlineMode::RO_None);
   } else {
-    Renderer->DrawProcessedText(Text, TextLength,
-                                Profile::Dialogue::DialogueFont, Tint.a,
+    Renderer->DrawProcessedText(Text, Profile::Dialogue::DialogueFont, Tint.a,
                                 RendererOutlineMode::RO_None);
     if (IsNewState) {
       Renderer->DrawSprite(TipsNewSprite,

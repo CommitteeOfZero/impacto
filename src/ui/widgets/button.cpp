@@ -57,8 +57,7 @@ void Button::Render() {
   }
 
   if (HasText) {
-    Renderer->DrawProcessedText(Text, TextLength,
-                                Profile::Dialogue::DialogueFont, Tint.a,
+    Renderer->DrawProcessedText(Text, Profile::Dialogue::DialogueFont, Tint.a,
                                 OutlineMode, true);
   }
 }
@@ -66,34 +65,31 @@ void Button::Render() {
 void Button::SetText(uint8_t* str, float fontSize,
                      RendererOutlineMode outlineMode, int colorIndex) {
   HasText = true;
-  Text = new ProcessedTextGlyph[255];
   Impacto::Vm::Sc3VmThread dummy;
   dummy.Ip = str;
-  TextLength = TextLayoutPlainLine(
-      &dummy, 255, Text, Profile::Dialogue::DialogueFont, fontSize,
+  Text = TextLayoutPlainLine(
+      &dummy, 255, Profile::Dialogue::DialogueFont, fontSize,
       Profile::Dialogue::ColorTable[colorIndex], 1.0f,
       glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
   OutlineMode = outlineMode;
-  for (int i = 0; i < TextLength; i++) {
+  for (int i = 0; i < Text.size(); i++) {
     TextWidth += Text[i].DestRect.Width;
   }
   Bounds = RectF(Text[0].DestRect.X, Text[0].DestRect.Y, TextWidth, fontSize);
 }
 
-void Button::SetText(ProcessedTextGlyph* str, int textLength, float textWidth,
+void Button::SetText(std::vector<ProcessedTextGlyph> text, float textWidth,
                      float fontSize, RendererOutlineMode outlineMode) {
   HasText = true;
-  TextLength = textLength;
-  Text = new ProcessedTextGlyph[TextLength];
+  Text = std::move(text);
   TextWidth = textWidth;
   OutlineMode = outlineMode;
-  memcpy(Text, str, TextLength * sizeof(ProcessedTextGlyph));
   Bounds = RectF(Text[0].DestRect.X, Text[0].DestRect.Y, TextWidth, fontSize);
 }
 
 void Button::Move(glm::vec2 relativePosition) {
   if (HasText) {
-    for (int i = 0; i < TextLength; i++) {
+    for (int i = 0; i < Text.size(); i++) {
       Text[i].DestRect.X += relativePosition.x;
       Text[i].DestRect.Y += relativePosition.y;
     }

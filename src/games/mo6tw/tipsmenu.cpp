@@ -51,7 +51,7 @@ TipsMenu::TipsMenu() : ItemsList(CDIR_HORIZONTAL), TipViewItems(this) {
   Category->Bounds = CategoryInitialBounds;
   TipViewItems.Add(Category);
 
-  TextPage.Glyphs = new ProcessedTextGlyph[Profile::Dialogue::MaxPageSize];
+  TextPage.Glyphs.reserve(Profile::Dialogue::MaxPageSize);
   TextPage.Clear();
   TextPage.Mode = DPM_TIPS;
   TextPage.FadeAnimation.Progress = 1.0f;
@@ -102,6 +102,8 @@ void TipsMenu::Update(float dt) {
   FadeAnimation.Update(dt);
   if (ScrWork[SW_TIPSALPHA] < 256 && State == Shown) {
     Hide();
+  } else if (ScrWork[SW_TIPSALPHA] == 256 && State == Hidden) {
+    Show();
   }
 
   if (ScrWork[SW_TIPSALPHA] == 256 && FadeAnimation.IsIn())
@@ -128,7 +130,7 @@ void TipsMenu::Render() {
 
     if (CurrentlyDisplayedTipId != -1) {
       TipViewItems.Render();
-      Renderer->DrawProcessedText(TextPage.Glyphs, TextPage.Length,
+      Renderer->DrawProcessedText(TextPage.Glyphs,
                                   Profile::Dialogue::DialogueFont, col.a,
                                   RendererOutlineMode::RO_Full, true);
       if (ThumbnailSprite) {
