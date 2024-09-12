@@ -5,8 +5,8 @@ root.Fonts = {
         OutlineSheet = "FontLBOutline",
         Columns = 64,
         Rows = 50,
-        Widths = "games/rne/font-lb/widths.bin",
-        DesignColWidth = 48,
+        AdvanceWidths = "games/rne/font-lb/widths.bin",
+        AdvanceWidthsEmWidth = 48,
         OutlineOffset = { X = -4, Y = -4 },
         LineSpacing = 14,
     }

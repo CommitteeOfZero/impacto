@@ -159,12 +159,13 @@ void BaseRenderer::DrawProcessedText_LBFont(
         color.a *= text[i].Opacity;
       }
 
-      float scale = text[i].DestRect.Height / font->CellHeight;
+      float scaleX = text[i].DestRect.Width / font->BitmapEmWidth;
+      float scaleY = text[i].DestRect.Height / font->BitmapEmHeight;
 
       RectF outlineDest = RectF(
-          text[i].DestRect.X + scale * font->OutlineOffset.x,
-          text[i].DestRect.Y + scale * font->OutlineOffset.y,
-          scale * font->OutlineCellWidth, scale * font->OutlineCellHeight);
+          text[i].DestRect.X + scaleX * font->OutlineOffset.x,
+          text[i].DestRect.Y + scaleY * font->OutlineOffset.y,
+          scaleX * font->OutlineCellWidth, scaleY * font->OutlineCellHeight);
       if (maskedSheet) {
         Sprite mask;
         mask.Sheet = *maskedSheet;

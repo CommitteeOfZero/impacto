@@ -549,8 +549,8 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
           }
 
           ptg.DestRect.X = BoxBounds.X + CurrentX;
-          ptg.DestRect.Width = (FontSize / DialogueFont->CellHeight) *
-                               DialogueFont->Widths[ptg.CharId];
+          ptg.DestRect.Width = (FontSize / DialogueFont->BitmapEmWidth) *
+                               DialogueFont->AdvanceWidths[ptg.CharId];
           ptg.DestRect.Height = FontSize;
 
           CurrentX += ptg.DestRect.Width;
@@ -788,7 +788,7 @@ int TextLayoutPlainLine(Vm::Sc3VmThread* ctx, int stringLength,
     ptg.DestRect.X = currentX;
     ptg.DestRect.Y = pos.y;
     ptg.DestRect.Width =
-        std::floor((fontSize / font->CellHeight) * font->Widths[ptg.CharId]);
+        std::floor((fontSize / font->BitmapEmWidth) * font->AdvanceWidths[ptg.CharId]);
     ptg.DestRect.Height = fontSize;
 
     currentX += ptg.DestRect.Width;
@@ -825,7 +825,7 @@ std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
     ptg.DestRect.X = currentX;
     ptg.DestRect.Y = pos.y;
     ptg.DestRect.Width =
-        std::floor((fontSize / font->CellHeight) * font->Widths[ptg.CharId]);
+        std::floor((fontSize / font->CellHeight) * font->AdvanceWidths[ptg.CharId]);
     ptg.DestRect.Height = fontSize;
 
     currentX += ptg.DestRect.Width;
@@ -902,8 +902,8 @@ float TextGetPlainLineWidth(Vm::Sc3VmThread* ctx, Font* font, float fontSize) {
     if (token.Type == STT_EndOfString) break;
     if (token.Type != STT_Character) continue;
 
-    width += std::floor((fontSize / font->CellHeight) *
-                        font->Widths[token.Val_Uint16]);
+    width += std::floor((fontSize / font->BitmapEmWidth) *
+                        font->AdvanceWidths[token.Val_Uint16]);
   }
 
   return width;

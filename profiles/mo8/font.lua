@@ -4,13 +4,13 @@ root.Fonts = {
         Sheet = "Font",
         Columns = 64,
         Rows = 116,
-        Widths = {},
-        DesignColWidth = 48,
+        AdvanceWidths = {},
+        AdvanceWidthsEmWidth = 48,
         LineSpacing = 22,
     }
 };
 
-local westernWidths = {
+local westernAdvanceWidths = {
     [0]=0x20, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
         0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
         0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
@@ -39,9 +39,9 @@ local westernWidths = {
 };
 
 for i = 0, (64 * 116) - 1 do
-    if i <= #westernWidths then
-        root.Fonts["Default"].Widths[i] = westernWidths[i] * 1.5;
+    if i <= #westernAdvanceWidths then
+        root.Fonts["Default"].AdvanceWidths[i] = westernAdvanceWidths[i] * 1.5;
     else
-        root.Fonts["Default"].Widths[i] = root.Fonts["Default"].DesignColWidth;
+        root.Fonts["Default"].AdvanceWidths[i] = root.Fonts["Default"].AdvanceWidthsEmWidth;
     end
 end
