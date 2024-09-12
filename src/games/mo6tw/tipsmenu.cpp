@@ -102,6 +102,8 @@ void TipsMenu::Update(float dt) {
   FadeAnimation.Update(dt);
   if (ScrWork[SW_TIPSALPHA] < 256 && State == Shown) {
     Hide();
+  } else if (ScrWork[SW_TIPSALPHA] == 256 && State == Hidden) {
+    Show();
   }
 
   if (ScrWork[SW_TIPSALPHA] == 256 && FadeAnimation.IsIn())
