@@ -36,6 +36,9 @@ void LoadFonts() {
         font->ForegroundSheet = EnsureGetMemberSpriteSheet("ForegroundSheet");
         font->OutlineSheet = EnsureGetMemberSpriteSheet("OutlineSheet");
 
+        if (!TryGetMemberVec2("ForegroundOffset", font->ForegroundOffset)) {
+          font->ForegroundOffset = glm::vec2(0.0f);
+        }
         font->OutlineOffset = EnsureGetMemberVec2("OutlineOffset");
 
         break;

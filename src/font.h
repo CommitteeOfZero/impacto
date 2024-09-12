@@ -60,6 +60,7 @@ class LBFont : public Font {
   float OutlineCellHeight;
   float OutlineCellWidth;
 
+  glm::vec2 ForegroundOffset;
   glm::vec2 OutlineOffset;
 
   void CalculateDefaultSizes() override {
@@ -75,8 +76,7 @@ class LBFont : public Font {
   Sprite Glyph(uint16_t id) {
     uint8_t row = id / Columns;
     uint8_t col = id % Columns;
-    float width = AdvanceWidths[id];
-    return Sprite(ForegroundSheet, col * CellWidth, row * CellHeight, width,
+    return Sprite(ForegroundSheet, col * CellWidth, row * CellHeight, CellWidth,
                   CellHeight);
   }
 
