@@ -159,12 +159,13 @@ void BaseRenderer::DrawProcessedText_LBFont(
         color.a *= text[i].Opacity;
       }
 
-      float scale = text[i].DestRect.Height / font->CellHeight;
+      float scaleX = text[i].DestRect.Width / font->BitmapEmWidth;
+      float scaleY = text[i].DestRect.Height / font->BitmapEmHeight;
 
       RectF outlineDest = RectF(
-          text[i].DestRect.X + scale * font->OutlineOffset.x,
-          text[i].DestRect.Y + scale * font->OutlineOffset.y,
-          scale * font->OutlineCellWidth, scale * font->OutlineCellHeight);
+          text[i].DestRect.X + scaleX * font->OutlineOffset.x,
+          text[i].DestRect.Y + scaleY * font->OutlineOffset.y,
+          scaleX * font->OutlineCellWidth, scaleY * font->OutlineCellHeight);
       if (maskedSheet) {
         Sprite mask;
         mask.Sheet = *maskedSheet;
@@ -186,15 +187,23 @@ void BaseRenderer::DrawProcessedText_LBFont(
     } else {
       color.a *= text[i].Opacity;
     }
+
+    float scaleX = text[i].DestRect.Width / font->BitmapEmWidth;
+    float scaleY = text[i].DestRect.Height / font->BitmapEmHeight;
+
+    RectF foregroundDest = RectF(
+        text[i].DestRect.X + scaleX * font->ForegroundOffset.x,
+        text[i].DestRect.Y + scaleY * font->ForegroundOffset.y,
+        scaleX * font->CellWidth, scaleY * font->CellHeight);
     if (maskedSheet) {
       Sprite mask;
       mask.Sheet = *maskedSheet;
-      mask.Bounds = text[i].DestRect;
+      mask.Bounds = foregroundDest;
       DrawMaskedSpriteOverlay(font->Glyph(text[i].CharId), mask,
-                              text[i].DestRect, color, color.a * 255, 256,
+                              foregroundDest, color, color.a * 255, 256,
                               false, 0, false);
     } else {
-      DrawSprite(font->Glyph(text[i].CharId), text[i].DestRect, color);
+      DrawSprite(font->Glyph(text[i].CharId), foregroundDest, color);
     }
   }
 }

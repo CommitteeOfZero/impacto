@@ -36,6 +36,9 @@ void LoadFonts() {
         font->ForegroundSheet = EnsureGetMemberSpriteSheet("ForegroundSheet");
         font->OutlineSheet = EnsureGetMemberSpriteSheet("OutlineSheet");
 
+        if (!TryGetMemberVec2("ForegroundOffset", font->ForegroundOffset)) {
+          font->ForegroundOffset = glm::vec2(0.0f);
+        }
         font->OutlineOffset = EnsureGetMemberVec2("OutlineOffset");
 
         break;
@@ -47,12 +50,20 @@ void LoadFonts() {
 
     baseFont->CalculateDefaultSizes();
 
+    if (!TryGetMemberFloat("BitmapEmWidth", baseFont->BitmapEmWidth)) {
+      baseFont->BitmapEmWidth = baseFont->CellWidth;
+    }
+
+    if (!TryGetMemberFloat("BitmapEmHeight", baseFont->BitmapEmHeight)) {
+      baseFont->BitmapEmHeight = baseFont->CellHeight;
+    }
+
     baseFont->LineSpacing = EnsureGetMemberFloat("LineSpacing");
 
-    float designColWidth = EnsureGetMemberFloat("DesignColWidth");
-    float actualColWidth = baseFont->CellWidth;
+    float advanceWidthsEmWidth = EnsureGetMemberFloat("AdvanceWidthsEmWidth");
+    float bitmapEmWidth = baseFont->BitmapEmWidth;
 
-    baseFont->Widths =
+    baseFont->AdvanceWidths =
         (float*)malloc(baseFont->Columns * baseFont->Rows * sizeof(float));
 
     float extraLetterSpacing;
@@ -61,7 +72,7 @@ void LoadFonts() {
     }
 
     {
-      EnsurePushMember("Widths");
+      EnsurePushMember("AdvanceWidths");
 
       Io::AssetPath widthTablePath;
       if (TryGetAssetPath(widthTablePath)) {
@@ -74,8 +85,8 @@ void LoadFonts() {
         }
         assert(widthSz == baseFont->Columns * baseFont->Rows);
         for (uint16_t i = 0; i < widthSz; i++) {
-          baseFont->Widths[i] = ((float)widthBin[i] + extraLetterSpacing) *
-                                actualColWidth / designColWidth;
+          baseFont->AdvanceWidths[i] = ((float)widthBin[i] + extraLetterSpacing) *
+                                       bitmapEmWidth / advanceWidthsEmWidth;
         }
       } else {
         AssertIs(LUA_TTABLE);
@@ -83,9 +94,9 @@ void LoadFonts() {
         PushInitialIndex();
         while (PushNextTableElement() != 0) {
           int i = EnsureGetKeyInt();
-          baseFont->Widths[i] =
+          baseFont->AdvanceWidths[i] =
               (EnsureGetArrayElementFloat() + extraLetterSpacing) *
-              actualColWidth / designColWidth;
+              bitmapEmWidth / advanceWidthsEmWidth;
           Pop();
         }
       }

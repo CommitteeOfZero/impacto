@@ -15,10 +15,13 @@ class Font {
 
   uint8_t Columns;
   uint8_t Rows;
-  float* Widths;
+  float* AdvanceWidths;
 
   float CellHeight;
   float CellWidth;
+
+  float BitmapEmWidth;
+  float BitmapEmHeight;
 
   float LineSpacing;
 
@@ -41,9 +44,9 @@ class BasicFont : public Font {
   Sprite Glyph(uint16_t id) {
     uint8_t row = id / Columns;
     uint8_t col = id % Columns;
-    float width = Widths[id];
+    float width = AdvanceWidths[id];
     return Sprite(Sheet, col * CellWidth + 1, row * CellHeight + 1, width - 2,
-                  CellHeight - 2);
+                  BitmapEmHeight - 2);
   }
 };
 
@@ -57,6 +60,7 @@ class LBFont : public Font {
   float OutlineCellHeight;
   float OutlineCellWidth;
 
+  glm::vec2 ForegroundOffset;
   glm::vec2 OutlineOffset;
 
   void CalculateDefaultSizes() override {
@@ -72,8 +76,7 @@ class LBFont : public Font {
   Sprite Glyph(uint16_t id) {
     uint8_t row = id / Columns;
     uint8_t col = id % Columns;
-    float width = Widths[id];
-    return Sprite(ForegroundSheet, col * CellWidth, row * CellHeight, width,
+    return Sprite(ForegroundSheet, col * CellWidth, row * CellHeight, CellWidth,
                   CellHeight);
   }
 
