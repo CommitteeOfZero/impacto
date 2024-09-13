@@ -159,7 +159,7 @@ void BaseRenderer::DrawProcessedText_LBFont(
         color.a *= text[i].Opacity;
       }
 
-      float scaleX = text[i].DestRect.Width / font->BitmapEmWidth;
+      float scaleX = text[i].DestRect.Height / font->BitmapEmWidth;
       float scaleY = text[i].DestRect.Height / font->BitmapEmHeight;
 
       RectF outlineDest = RectF(
@@ -188,7 +188,7 @@ void BaseRenderer::DrawProcessedText_LBFont(
       color.a *= text[i].Opacity;
     }
 
-    float scaleX = text[i].DestRect.Width / font->BitmapEmWidth;
+    float scaleX = text[i].DestRect.Height / font->BitmapEmWidth;
     float scaleY = text[i].DestRect.Height / font->BitmapEmHeight;
 
     RectF foregroundDest = RectF(
