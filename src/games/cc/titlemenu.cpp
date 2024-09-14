@@ -317,7 +317,7 @@ void TitleMenu::Render() {
   }
 }
 
-inline void TitleMenu::DrawMainBackground(float opacity) {
+void TitleMenu::DrawMainBackground(float opacity) {
   glm::vec4 col = glm::vec4(1.0f);
   col.a = opacity;
   Renderer->DrawSprite(BackgroundSprite, glm::vec2(BackgroundX, BackgroundY),
@@ -327,14 +327,14 @@ inline void TitleMenu::DrawMainBackground(float opacity) {
                          col);
 }
 
-inline void TitleMenu::DrawStartButton() {
+void TitleMenu::DrawStartButton() {
   glm::vec4 col = glm::vec4(1.0f);
   col.a = glm::smoothstep(0.0f, 1.0f, PressToStartAnimation.Progress);
   Renderer->DrawSprite(PressToStartSprite,
                          glm::vec2(PressToStartX, PressToStartY), col);
 }
 
-inline void TitleMenu::DrawSmoke(float opacity) {
+void TitleMenu::DrawSmoke(float opacity) {
   glm::vec4 col = glm::vec4(1.0f);
   col.a = opacity;
   SmokeSprite.Bounds = RectF(
