@@ -7,6 +7,7 @@
 #include <SDL_stdinc.h>
 #include <string>
 #include <cctype>
+#include "../vendor/span/span.hpp"
 
 // TODO own _malloca for gcc
 
@@ -246,5 +247,8 @@ template <class Enum>
 constexpr std::underlying_type_t<Enum> to_underlying(Enum e) noexcept {
   return static_cast<std::underlying_type_t<Enum>>(e);
 }
+
+int ResizeImage(Rect const& srcRect, Rect const& dstRect, tcb::span<uint8_t> src,
+                tcb::span<uint8_t> dst, bool flipY = false);
 
 }  // namespace Impacto

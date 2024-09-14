@@ -6,6 +6,7 @@
 #include "../../vm/vm.h"
 #include "../../profile/data/savesystem.h"
 #include "../../profile/scriptvars.h"
+#include "../../renderer/renderer.h"
 
 namespace Impacto {
 namespace MO6TW {
@@ -32,6 +33,14 @@ SaveError SaveSystem::MountSaveFile() {
   stream = (Io::PhysicalFileStream*)instream;
 
   WorkingSaveEntry = new SaveFileEntry();
+  WorkingSaveThumbnail.Sheet =
+      SpriteSheet(Window->WindowWidth, Window->WindowHeight);
+  WorkingSaveThumbnail.Bounds =
+      RectF(0.0f, 0.0f, Window->WindowWidth, Window->WindowHeight);
+  Texture txt;
+  txt.LoadSolidColor(WorkingSaveThumbnail.Bounds.Width,
+                     WorkingSaveThumbnail.Bounds.Height, 0x000000);
+  WorkingSaveThumbnail.Sheet.Texture = txt.Submit();
 
   stream->Seek(0x14, SEEK_SET);
 
@@ -567,7 +576,17 @@ uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) {
   }
 }
 
-tm SaveSystem::GetSaveDate(SaveType type, int id) {
+tm const& SaveSystem::GetSaveDate(SaveType type, int id) {
+  static const tm t = []() {
+    tm t;
+    t.tm_sec = 0;
+    t.tm_min = 0;
+    t.tm_hour = 0;
+    t.tm_mday = 1;
+    t.tm_mon = 0;
+    t.tm_year = 0;
+    return t;
+  }();
   switch (type) {
     case SaveFull:
       return ((SaveFileEntry*)FullSaveEntries[id])->SaveDate;
@@ -577,7 +596,7 @@ tm SaveSystem::GetSaveDate(SaveType type, int id) {
       ImpLog(LL_Error, LC_IO,
              "Failed to read save date: Unknown save type, returning empty "
              "time\n");
-      return std::tm{};
+      return t;
   }
 }
 
@@ -708,5 +727,13 @@ bool SaveSystem::GetEVVariationIsUnlocked(int evId, int variationIdx) {
 
 bool SaveSystem::GetBgmFlag(int id) { return BGMFlags[id]; }
 
+Sprite const& SaveSystem::GetSaveThumbnail(SaveType type, int id) {
+  switch (type) {
+    case SaveQuick:
+      return ((SaveFileEntry*)QuickSaveEntries[id])->SaveThumbnail;
+    case SaveFull:
+      return ((SaveFileEntry*)FullSaveEntries[id])->SaveThumbnail;
+  }
+}
 }  // namespace MO6TW
 }  // namespace Impacto

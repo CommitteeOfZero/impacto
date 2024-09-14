@@ -1,17 +1,41 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.14)
 
 project("impacto")
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/modules")
+include(FetchContent)
+
+FetchContent_Declare(
+    fmt
+    GIT_REPOSITORY "https://github.com/fmtlib/fmt.git"
+    GIT_TAG "11.0.2"
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/fmtlib
+)
+
+FetchContent_Declare(
+    pugixml
+    GIT_REPOSITORY "https://github.com/zeux/pugixml.git"
+    GIT_TAG "v1.14"
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/pugixml
+)
+
+FetchContent_Declare(
+    utf8cpp
+    GIT_REPOSITORY "https://github.com/nemtrif/utfcpp"
+    GIT_TAG "v4.0.5"
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/utf8-cpp
+)
+
+FetchContent_MakeAvailable(fmt)
+FetchContent_MakeAvailable(pugixml)
+FetchContent_MakeAvailable(utf8cpp)
 
 if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
-    include(FetchContent)
     FetchContent_Declare(
             ImGui
             GIT_REPOSITORY "https://github.com/ocornut/imgui.git"
             GIT_TAG "1db579d458da29fa43376af9d88d486910d9406a"
             SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui
-
     )
 
     FetchContent_MakeAvailable(ImGui)
@@ -325,8 +349,6 @@ set(Impacto_Src
         vendor/squish/rangefit.cpp
         vendor/squish/singlecolourfit.cpp
         vendor/squish/squish.cpp
-
-        vendor/pugixml/src/pugixml.cpp
 )
 
 set(Impacto_Header
@@ -621,8 +643,6 @@ set(Impacto_Header
 
         vendor/squish/squish.h
 
-        vendor/utf8-cpp/utf8.h
-
         vendor/vma/vk_mem_alloc.h
         vendor/minilua/minilua.h
 )
@@ -833,62 +853,66 @@ include_directories(${SDL2_INCLUDE_DIRS})
 include_directories(${WebP_INCLUDE_DIRS})
 include_directories(vendor/include)
 include_directories(vendor/pcg/include)
-include_directories(vendor/pugixml/include)
+
+list(APPEND Impacto_Libs
+        fmt::fmt
+        pugixml::pugixml
+)
 
 if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
     list(APPEND Impacto_Src
             src/debugmenu.cpp
 
-            vendor/imgui/imgui.cpp
-            vendor/imgui/imgui_demo.cpp
-            vendor/imgui/imgui_draw.cpp
-            vendor/imgui/imgui_tables.cpp
-            vendor/imgui/imgui_widgets.cpp
-            vendor/imgui/misc/cpp/imgui_stdlib.cpp
-            vendor/imgui/backends/imgui_impl_sdl2.cpp
+            ${imgui_SOURCE_DIR}/imgui.cpp
+            ${imgui_SOURCE_DIR}/imgui_demo.cpp
+            ${imgui_SOURCE_DIR}/imgui_draw.cpp
+            ${imgui_SOURCE_DIR}/imgui_tables.cpp
+            ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+            ${imgui_SOURCE_DIR}/misc/cpp/imgui_stdlib.cpp
+            ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.cpp
     )
     list(APPEND Impacto_Header
             src/debugmenu.h
 
-            vendor/imgui/imconfig.h
-            vendor/imgui/imgui.h
-            vendor/imgui/imgui_internal.h
-            vendor/imgui/imstb_rectpack.h
-            vendor/imgui/imstb_textedit.h
-            vendor/imgui/imstb_truetype.h
-            vendor/imgui/misc/cpp/imgui_stdlib.h
-            vendor/imgui/backends/imgui_impl_sdl2.h
+            ${imgui_SOURCE_DIR}/imconfig.h
+            ${imgui_SOURCE_DIR}/imgui.h
+            ${imgui_SOURCE_DIR}/imgui_internal.h
+            ${imgui_SOURCE_DIR}/imstb_rectpack.h
+            ${imgui_SOURCE_DIR}/imstb_textedit.h
+            ${imgui_SOURCE_DIR}/imstb_truetype.h
+            ${imgui_SOURCE_DIR}/misc/cpp/imgui_stdlib.h
+            ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.h
     )
 
     if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
         list(APPEND Impacto_Src
-                vendor/imgui_custom/backends/imgui_impl_opengl3.cpp
+                ${imgui_SOURCE_DIR}_custom/backends/imgui_impl_opengl3.cpp
         )
         list(APPEND Impacto_Header
-                vendor/imgui_custom/backends/imgui_impl_opengl3.h
+                ${imgui_SOURCE_DIR}_custom/backends/imgui_impl_opengl3.h
         )
     endif ()
 
     if (NOT DEFINED IMPACTO_DISABLE_VULKAN)
         list(APPEND Impacto_Src
-                vendor/imgui/backends/imgui_impl_vulkan.cpp
+                ${imgui_SOURCE_DIR}/backends/imgui_impl_vulkan.cpp
         )
         list(APPEND Impacto_Header
-                vendor/imgui/backends/imgui_impl_vulkan.h
+                ${imgui_SOURCE_DIR}/backends/imgui_impl_vulkan.h
         )
     endif ()
 
     if (NOT DEFINED IMPACTO_DISABLE_DX9)
         list(APPEND Impacto_Src
-                vendor/imgui/backends/imgui_impl_dx9.cpp
+                ${imgui_SOURCE_DIR}/backends/imgui_impl_dx9.cpp
         )
         list(APPEND Impacto_Header
-                vendor/imgui/backends/imgui_impl_dx9.h
+                ${imgui_SOURCE_DIR}/backends/imgui_impl_dx9.h
         )
     endif ()
 
-    include_directories(vendor/imgui)
-    include_directories(vendor/imgui/backends)
+    include_directories(${imgui_SOURCE_DIR})
+    include_directories(${imgui_SOURCE_DIR}/backends)
 endif ()
 
 if (NOT DEFINED IMPACTO_DISABLE_OPENGL)

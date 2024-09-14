@@ -24,7 +24,7 @@ class SaveSystem : public SaveSystemBase {
   void WriteSaveFile() override;
   uint32_t GetSavePlayTime(SaveType type, int id) override;
   uint8_t GetSaveFlags(SaveType type, int id) override;
-  tm GetSaveDate(SaveType type, int id) override;
+  tm const& GetSaveDate(SaveType type, int id) override;
   uint8_t GetSaveStatus(SaveType type, int id) override;
   int GetSaveTitle(SaveType type, int id) override;
   uint32_t GetTipStatus(int tipId) override;
@@ -40,6 +40,7 @@ class SaveSystem : public SaveSystemBase {
   bool GetEVVariationIsUnlocked(int evId, int variationIdx) override;
   bool GetBgmFlag(int id) override;
   void SetCheckpointId(int id) override {}
+  Sprite const& GetSaveThumbnail(SaveType type, int id) override;
 
  private:
   uint8_t GameExtraData[1024];

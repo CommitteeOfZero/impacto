@@ -50,11 +50,22 @@ uint8_t GetSaveFlags(SaveType type, int id) {
   return 0;
 }
 
-tm GetSaveDate(SaveType type, int id) {
+tm const& GetSaveDate(SaveType type, int id) {
+  static tm t = [](){
+    tm t;
+    t.tm_sec = 0;
+    t.tm_min = 0;
+    t.tm_hour = 0;
+    t.tm_mday = 1;
+    t.tm_mon = 0;
+    t.tm_year = 0;
+    return t;
+  }();
+
   if (Implementation) return Implementation->GetSaveDate(type, id);
   ImpLog(LL_Warning, LC_VMStub,
          "%s: save system not implemented, returning dummy time\n", __func__);
-  return *gmtime(0);
+  return t;
 }
 
 uint8_t GetSaveStatus(SaveType type, int id) {
@@ -141,6 +152,29 @@ bool GetBgmFlag(int id) {
 
 void SetCheckpointId(int id) {
   if (Implementation) Implementation->SetCheckpointId(id);
+}
+
+int GetQuickSaveCount() {
+  if (Implementation) return Implementation->GetQuickSaveCount();
+  ImpLog(LL_Warning, LC_VMStub,
+         "%s: save system not implemented, returning 0\n", __func__);
+  return 0;
+}
+
+Sprite const& GetSaveThumbnail(SaveType type, int id) {
+  if (Implementation) return Implementation->GetSaveThumbnail(type, id);
+  ImpLog(LL_Warning, LC_VMStub,
+         "%s: save system not implemented, returning dummy sprite\n", __func__);
+  static Sprite dummy;
+  return dummy;
+}
+
+Sprite const& GetWorkingSaveThumbnail() {
+  if (Implementation) return Implementation->GetWorkingSaveThumbnail();
+  ImpLog(LL_Warning, LC_VMStub,
+         "%s: save system not implemented, returning dummy sprite\n", __func__);
+  static Sprite dummy;
+  return dummy;
 }
 
 }  // namespace SaveSystem

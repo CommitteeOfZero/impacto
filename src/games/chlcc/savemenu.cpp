@@ -227,7 +227,7 @@ void SaveMenu::UpdateEntry(SaveEntryButton* saveEntryButton) {
         Vm::ScriptGetTextTableStrAddress(0, 3), 18,
         RendererOutlineMode::RO_BottomRight, SaveDateHintTextRelativePos);
     std::stringstream dateStr;
-    tm date = SaveSystem::GetSaveDate(EntryType, idx);
+    tm const& date = SaveSystem::GetSaveDate(EntryType, idx);
     dateStr << std::put_time(&date, "  %y/%m/%d %H:%M:%S");
     saveEntryButton->AddSaveDateText(dateStr.str(), 18,
                                      RendererOutlineMode::RO_BottomRight,

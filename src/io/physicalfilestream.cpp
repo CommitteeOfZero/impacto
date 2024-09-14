@@ -11,7 +11,7 @@ IoError PhysicalFileStream::Create(std::string const& fileName, Stream** out) {
   SDL_RWops* rw = SDL_RWFromFile(fileName.c_str(), "rb");
   if (!rw) return IoError_Fail;
   int64_t size = SDL_RWsize(rw);
-  if (size <= 0) return IoError_Fail;
+  if (size < 0) return IoError_Fail;
   PhysicalFileStream* result = new PhysicalFileStream;
   result->RW = rw;
   result->Meta.Size = size;
@@ -22,11 +22,12 @@ IoError PhysicalFileStream::Create(std::string const& fileName, Stream** out) {
 }
 
 IoError PhysicalFileStream::CreateWrite(std::string const& fileName,
-                                        Stream** out) {
-  SDL_RWops* rw = SDL_RWFromFile(fileName.c_str(), "r+b");
+                                        Stream** out, bool exists) {
+  SDL_RWops* rw = (exists) ? SDL_RWFromFile(fileName.c_str(), "r+b")
+                           : SDL_RWFromFile(fileName.c_str(), "wb");
   if (!rw) return IoError_Fail;
   int64_t size = SDL_RWsize(rw);
-  if (size <= 0) return IoError_Fail;
+  if (size < 0) return IoError_Fail;
   PhysicalFileStream* result = new PhysicalFileStream;
   result->RW = rw;
   result->Meta.Size = size;

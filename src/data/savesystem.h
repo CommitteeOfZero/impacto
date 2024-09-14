@@ -5,6 +5,7 @@
 #include <enum.h>
 #include <ctime>
 #include "../log.h"
+#include "../spritesheet.h"
 
 namespace Impacto {
 namespace SaveSystem {
@@ -58,6 +59,7 @@ class SaveFileEntryBase {
   uint32_t MainThreadScriptBufferId;
   int MainThreadVariables[16];
   uint32_t MainThreadDialoguePageId;
+  Sprite SaveThumbnail;
 };
 
 class SaveSystemBase {
@@ -69,7 +71,7 @@ class SaveSystemBase {
   virtual void WriteSaveFile() = 0;
   virtual uint32_t GetSavePlayTime(SaveType type, int id) = 0;
   virtual uint8_t GetSaveFlags(SaveType type, int id) = 0;
-  virtual tm GetSaveDate(SaveType type, int id) = 0;
+  virtual tm const& GetSaveDate(SaveType type, int id) = 0;
   virtual uint8_t GetSaveStatus(SaveType type, int id) = 0;
   virtual int GetSaveTitle(SaveType type, int id) = 0;
   virtual uint32_t GetTipStatus(int tipId) = 0;
@@ -85,9 +87,15 @@ class SaveSystemBase {
   virtual bool GetEVVariationIsUnlocked(int evId, int variationIdx) = 0;
   virtual bool GetBgmFlag(int id) = 0;
   virtual void SetCheckpointId(int id) = 0;
+  virtual Sprite const& GetSaveThumbnail(SaveType type, int id) = 0;
+  int GetQuickSaveCount() { return QuickSaveCount; }
+  Sprite const& GetWorkingSaveThumbnail() { return WorkingSaveThumbnail; }
 
+ protected:
   SaveFileEntryBase* FullSaveEntries[MaxSaveEntries];
   SaveFileEntryBase* QuickSaveEntries[MaxSaveEntries];
+  int QuickSaveCount;
+  Sprite WorkingSaveThumbnail;
 };
 
 inline SaveSystemBase* Implementation = nullptr;
@@ -101,7 +109,7 @@ void FlushWorkingSaveEntry(SaveType type, int id);
 void WriteSaveFile();
 uint32_t GetSavePlayTime(SaveType type, int id);
 uint8_t GetSaveFlags(SaveType type, int id);
-tm GetSaveDate(SaveType type, int id);
+tm const& GetSaveDate(SaveType type, int id);
 uint8_t GetSaveStatus(SaveType type, int id);
 int GetSaveTitle(SaveType type, int id);
 uint32_t GetTipStatus(int tipId);
@@ -114,6 +122,9 @@ void GetEVStatus(int evId, int* totalVariations, int* viewedVariations);
 bool GetEVVariationIsUnlocked(int evId, int variationIdx);
 bool GetBgmFlag(int id);
 void SetCheckpointId(int id);
+int GetQuickSaveCount();
+Sprite const& GetSaveThumbnail(SaveType type, int id);
+Sprite const& GetWorkingSaveThumbnail();
 
 }  // namespace SaveSystem
 }  // namespace Impacto

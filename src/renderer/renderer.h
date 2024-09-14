@@ -30,6 +30,7 @@ class BaseRenderer {
 
   virtual uint32_t SubmitTexture(TexFmt format, uint8_t* buffer, int width,
                                  int height) = 0;
+  virtual std::vector<uint8_t> GetImageFromTexture( uint32_t texture, RectF dimensions) = 0;
   virtual void FreeTexture(uint32_t id) = 0;
   virtual YUVFrame* CreateYUVFrame(float width, float height) = 0;
 

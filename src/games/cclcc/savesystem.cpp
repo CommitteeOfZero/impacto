@@ -8,6 +8,8 @@
 #include "../../profile/scriptvars.h"
 #include "../../profile/vm.h"
 #include "../../ui/mapsystem.h"
+#include "../../renderer/renderer.h"
+
 #include "yesnotrigger.h"
 
 #include <cstdint>
@@ -37,6 +39,14 @@ SaveError SaveSystem::MountSaveFile() {
   };
 
   WorkingSaveEntry = new SaveFileEntry();
+  WorkingSaveThumbnail.Sheet =
+      SpriteSheet(Window->WindowWidth, Window->WindowHeight);
+  WorkingSaveThumbnail.Bounds =
+      RectF(0.0f, 0.0f, Window->WindowWidth, Window->WindowHeight);
+  Texture txt;
+  txt.LoadSolidColor(WorkingSaveThumbnail.Bounds.Width,
+                     WorkingSaveThumbnail.Bounds.Height, 0x000000);
+  WorkingSaveThumbnail.Sheet.Texture = txt.Submit();
 
   stream->Seek(0x14, SEEK_SET);
 
@@ -79,6 +89,9 @@ SaveError SaveSystem::MountSaveFile() {
       entryArray[i] = new SaveFileEntry();
 
       entryArray[i]->Status = Io::ReadLE<uint16_t>(stream);
+      if(entryArray[i]->Status == 1 && entryArray == QuickSaveEntries) {
+        QuickSaveCount++;
+      }
       // Not sure about these two
       entryArray[i]->Checksum = Io::ReadLE<uint16_t>(stream);
       Io::ReadLE<uint32_t>(stream);
@@ -146,7 +159,35 @@ SaveError SaveSystem::MountSaveFile() {
                                stream, 0x6ac8);
       Io::ReadArrayLE<uint8_t>(((SaveFileEntry*)entryArray[i])->YesNoData,
                                stream, 0x54);
-      stream->Seek(67380, SEEK_CUR);
+
+      auto& thumbnail = entryArray[i]->SaveThumbnail;
+      thumbnail.Sheet = SpriteSheet(SaveThumbnailWidth, SaveThumbnailHeight);
+      thumbnail.Bounds =
+          RectF(0.0f, 0.0f, SaveThumbnailWidth, SaveThumbnailHeight);
+
+      Texture tex;
+      tex.Init(TexFmt_RGB, SaveThumbnailWidth, SaveThumbnailHeight);
+
+      // CCLCC PS4 Save thumbnails are 240x135 RGB16
+      std::vector<uint16_t> thumbnailData(SaveThumbnailWidth *
+                                          SaveThumbnailHeight);
+
+      int thumbnailPadding = 0xA14;
+      stream->Seek(thumbnailPadding, SEEK_CUR);
+      Io::ReadArrayLE<uint16_t>(thumbnailData.data(), stream,
+                                thumbnailData.size());
+
+      for (int i = 0; i < thumbnailData.size(); i++) {
+        uint16_t pixel = thumbnailData[i];
+        uint8_t r = (pixel & 0xF800) >> 8;
+        uint8_t g = (pixel & 0x07E0) >> 3;
+        uint8_t b = (pixel & 0x001F) << 3;
+        tex.Buffer[3 * i] = r;
+        tex.Buffer[3 * i + 1] = g;
+        tex.Buffer[3 * i + 2] = b;
+      }
+
+      thumbnail.Sheet.Texture = tex.Submit();
     }
   }
   delete stream;
@@ -161,7 +202,7 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id) {
   SaveFileEntry* entry = 0;
   switch (type) {
     case SaveQuick:
-      entry = (SaveFileEntry*)QuickSaveEntries[id];
+      entry = (SaveFileEntry*)QuickSaveEntries[QuickSaveCount++];
       break;
     case SaveFull:
       entry = (SaveFileEntry*)FullSaveEntries[id];
@@ -170,10 +211,30 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id) {
 
   if (WorkingSaveEntry != 0) {
     if (entry != 0) {
+      Renderer->FreeTexture(entry->SaveThumbnail.Sheet.Texture);
       *entry = *WorkingSaveEntry;
       time_t rawtime;
       time(&rawtime);
       entry->SaveDate = *localtime(&rawtime);
+      auto captureBuffer = Renderer->GetImageFromTexture(
+          WorkingSaveThumbnail.Sheet.Texture, WorkingSaveThumbnail.Bounds);
+
+      Texture tex;
+      tex.Init(TexFmt_RGBA, SaveThumbnailWidth, SaveThumbnailHeight);
+
+      entry->SaveThumbnail.Sheet =
+          SpriteSheet(SaveThumbnailWidth, SaveThumbnailHeight);
+      entry->SaveThumbnail.Bounds =
+          RectF(0.0f, 0.0f, SaveThumbnailWidth, SaveThumbnailHeight);
+
+      int result = ResizeImage(
+          WorkingSaveThumbnail.Bounds, entry->SaveThumbnail.Bounds,
+          captureBuffer,
+          tcb::span{tex.Buffer, static_cast<size_t>(tex.BufferSize)}, true);
+      if (result < 0) {
+        ImpLog(LL_Error, LC_General, "Failed to resize save thumbnail\n");
+      }
+      entry->SaveThumbnail.Sheet.Texture = tex.Submit();
     }
   }
 }
@@ -282,7 +343,23 @@ void SaveSystem::WriteSaveFile() {
         assert(stream->Position - startPos == 0x3ec0);
         Io::WriteArrayLE<uint8_t>(entry->MapLoadData, stream, 0x6ac8);
         Io::WriteArrayLE<uint8_t>(entry->YesNoData, stream, 0x54);
-        stream->Seek(67380, SEEK_CUR);
+
+        // CCLCC PS4 Save thumbnails are 240x135 RGB16
+        std::vector<uint8_t> thumbnailData = Renderer->GetImageFromTexture(
+            entry->SaveThumbnail.Sheet.Texture, entry->SaveThumbnail.Bounds);
+
+
+
+        int thumbnailPadding = 0xA14;
+        stream->Seek(thumbnailPadding, SEEK_CUR);
+
+        for (int i = 0; i < thumbnailData.size(); i+=4) {
+          uint8_t r = thumbnailData[i];
+          uint8_t g = thumbnailData[i + 1];
+          uint8_t b = thumbnailData[i + 2];
+          uint16_t pixel = ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
+          Io::WriteLE<uint16_t>(stream, pixel);
+        }
       }
     }
   }
@@ -315,7 +392,17 @@ uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) {
   }
 }
 
-tm SaveSystem::GetSaveDate(SaveType type, int id) {
+tm const& SaveSystem::GetSaveDate(SaveType type, int id) {
+  static const tm t = []() {
+    tm t;
+    t.tm_sec = 0;
+    t.tm_min = 0;
+    t.tm_hour = 0;
+    t.tm_mday = 1;
+    t.tm_mon = 0;
+    t.tm_year = 0;
+    return t;
+  }();
   switch (type) {
     case SaveFull:
       return ((SaveFileEntry*)FullSaveEntries[id])->SaveDate;
@@ -323,9 +410,9 @@ tm SaveSystem::GetSaveDate(SaveType type, int id) {
       return ((SaveFileEntry*)QuickSaveEntries[id])->SaveDate;
     default:
       ImpLog(LL_Error, LC_IO,
-             "Failed to get save date: unknown save type, returning empty "
-             "timestamp\n");
-      return std::tm{};
+             "Failed to read save date: Unknown save type, returning empty "
+             "time\n");
+      return t;
   }
 }
 
@@ -575,5 +662,13 @@ void SaveSystem::SetCheckpointId(int id) {
   if (WorkingSaveEntry != nullptr) WorkingSaveEntry->MainThreadIp = id;
 }
 
+Sprite const& SaveSystem::GetSaveThumbnail(SaveType type, int id) {
+  switch (type) {
+    case SaveQuick:
+      return ((SaveFileEntry*)QuickSaveEntries[id])->SaveThumbnail;
+    case SaveFull:
+      return ((SaveFileEntry*)FullSaveEntries[id])->SaveThumbnail;
+  }
+}
 }  // namespace CCLCC
 }  // namespace Impacto

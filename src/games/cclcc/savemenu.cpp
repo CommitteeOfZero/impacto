@@ -10,6 +10,8 @@
 #include "../../data/savesystem.h"
 #include "../../vm/vm.h"
 
+#include "../../profile/games/cclcc/titlemenu.h"
+
 namespace Impacto {
 namespace UI {
 namespace CCLCC {
@@ -73,8 +75,8 @@ void SaveMenu::Show() {
           SaveEntryButton* saveEntryButton = new SaveEntryButton(
               id, EntryHighlightedBoxSprite[ScrWork[SW_SAVEMENUMODE]],
               EntryHighlightedTextSprite[ScrWork[SW_SAVEMENUMODE]], p,
-              buttonPos, false, SlotLockedSprite[ScrWork[SW_SAVEMENUMODE]],
-              saveType, NoDataSprite[ScrWork[SW_SAVEMENUMODE]],
+              buttonPos, SlotLockedSprite[ScrWork[SW_SAVEMENUMODE]], saveType,
+              NoDataSprite[ScrWork[SW_SAVEMENUMODE]],
               BrokenDataSprite[ScrWork[SW_SAVEMENUMODE]]);
 
           saveEntryButton->OnClickHandler = onClick;
@@ -226,7 +228,11 @@ void SaveMenu::Update(float dt) {
 void SaveMenu::Render() {
   if (State != Hidden) {
     glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-    Renderer->DrawSprite(SaveMenuBackgroundSprite, glm::vec2(0.0f), col);
+    if(LastFocusedMenu == TitleMenuPtr) {
+      Renderer->DrawSprite(Profile::CCLCC::TitleMenu::BackgroundSprite, glm::vec2(0.0f), col);
+    } else {
+      Renderer->DrawSprite(SaveMenuBackgroundSprite, glm::vec2(0.0f), col);
+    }
     Renderer->DrawSprite(MenuTextSprite[ScrWork[SW_SAVEMENUMODE]], {11, 10},
                          col);
     Renderer->DrawSprite(EntrySlotsSprite[ScrWork[SW_SAVEMENUMODE]], {135, 0},

@@ -59,7 +59,7 @@ void SaveEntryButton::AddEntryNumberHintText(uint8_t* str, float fontSize,
                           fontSize, outlineMode, IsLocked ? 69 : 0);
 }
 
-void SaveEntryButton::AddEntryNumberText(std::string str, float fontSize,
+void SaveEntryButton::AddEntryNumberText(std::string_view str, float fontSize,
                                          RendererOutlineMode outlineMode,
                                          glm::vec2 relativePosition) {
   EntryNumber = Label(str, glm::vec2(Bounds.X, Bounds.Y) + relativePosition,
@@ -88,7 +88,7 @@ void SaveEntryButton::AddPlayTimeHintText(uint8_t* str, float fontSize,
                        fontSize, outlineMode, IsLocked ? 69 : 0);
 }
 
-void SaveEntryButton::AddPlayTimeText(std::string str, float fontSize,
+void SaveEntryButton::AddPlayTimeText(std::string_view str, float fontSize,
                                       RendererOutlineMode outlineMode,
                                       glm::vec2 relativePosition) {
   // Spacing is currently set for the C;HLCC font, more or less
@@ -103,7 +103,7 @@ void SaveEntryButton::AddSaveDateHintText(uint8_t* str, float fontSize,
                        fontSize, outlineMode, IsLocked ? 69 : 0);
 }
 
-void SaveEntryButton::AddSaveDateText(std::string str, float fontSize,
+void SaveEntryButton::AddSaveDateText(std::string_view str, float fontSize,
                                       RendererOutlineMode outlineMode,
                                       glm::vec2 relativePosition) {
   // Spacing is currently set for the C;HLCC font, more or less
