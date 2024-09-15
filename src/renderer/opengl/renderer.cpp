@@ -227,7 +227,7 @@ std::vector<uint8_t> Renderer::GetImageFromTexture(uint32_t texture,
 int Renderer::GetImageFromTexture(uint32_t texture,
                                            RectF dimensions, tcb::span<uint8_t> outBuffer) {
   const int bufferSize = dimensions.Width * dimensions.Height * 4;
-  assert(outBuffer.size() >= bufferSize, "Buffer too small");
+  assert(outBuffer.size() >= bufferSize);
   glBindTexture(GL_TEXTURE_2D, texture);
 
   GLuint fbo;
