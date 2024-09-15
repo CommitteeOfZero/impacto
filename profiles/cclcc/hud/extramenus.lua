@@ -2,7 +2,7 @@ root.ExtraMenus = {
     ClearListMenu = {
         DrawType = DrawComponentType.SystemMenu,
         Type = ClearListMenuType.CCLCC,
-        BackgroundSprite = "ClearListBackground",
+        BackgroundSprite = "MenuBackground",
         FadeInDuration = 0.2,
         FadeOutDuration = 0.2,
         ClearListBookLayerSprite = "ClearListBookLayer",
@@ -10,11 +10,18 @@ root.ExtraMenus = {
         ClearListGuideX = 0,
         ClearListGuideY = 990,
         ClearListMaskSprite = "ClearListMask"
+    },
+    LibraryMenu = {
+        DrawType = DrawComponentType.SystemMenu,
+        Type = LibraryMenuType.CCLCC,
+        BackgroundSprite = "MenuBackground",
+        FadeInDuration = 0.2,
+        FadeOutDuration = 0.2,
     }
 }
 
 -- ClearList
-root.Sprites["ClearListBackground"] = {
+root.Sprites["MenuBackground"] = {
     Sheet = "Title",
     Bounds = { X = 0, Y = 1080, Width = 1920, Height = 1080 }
 };
