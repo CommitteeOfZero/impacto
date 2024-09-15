@@ -584,11 +584,11 @@ VmInstruction(InstMSinit) {
 
   if (initType == 0 || initType == 1) {
     ScrWork[2113] = 0;
-    DialoguePages[0].Clear();
-    DialoguePages[1].Clear();
-    DialoguePages[2].Clear();
-    DialoguePages[3].Clear();
-    DialoguePages[4].Clear();
+    for(int i = 0; i < DialoguePageCount; i++) {
+      DialoguePages[i].Clear();
+      DialoguePages[i].FadeAnimation.Progress = 0;
+      SetFlag(i + SF_MESWINDOW0OPENFL, 0);
+    }
   }
 
   if (initType == 5) {
