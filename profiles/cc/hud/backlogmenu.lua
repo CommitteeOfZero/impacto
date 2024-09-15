@@ -1,24 +1,32 @@
 root.BacklogMenu = {
     Type = BacklogMenuType.CC,
     DrawType = DrawComponentType.SystemMenu,
+
     BacklogBackgroundSprite = "BacklogBackground",
     BacklogBackgroundRepeatHeight = 1080,
+
     BacklogHeaderSprite = "BacklogHeader",
     BacklogHeaderPosition = { X = 0, Y = 0 },
+
     BacklogControlsSprite = "BacklogControls",
     BacklogControlsPosition = { X = 0, Y = 988 },
+
     EntryHighlightSprite = "EntryHighlight",
     EntryHighlightLocation = EntryHighlightLocationType.TopLineLeftOfScreen,
     EntryHighlightOffset = { X = 0, Y = 0 },
+
     VoiceIconSprite = "VoiceIcon",
-    VoiceIconOffset = { X = -16, Y = -4 },
+    VoiceIconOffset = { X = -7, Y = 3 },
+
     ScrollbarTrackSprite = "ScrollbarTrack",
     ScrollbarThumbSprite = "ScrollbarThumb",
     ScrollbarPosition = { X = 1656, Y = 40 },
     ScrollbarThumbLength = 87,
+
     EntriesStart = { X = 547, Y = 149 },
     RenderingBounds = { X = 194, Y = 121, Width = 1531, Height = 868 },
     EntryYPadding = 26,
+
     FadeInDuration = 0.2,
     FadeOutDuration = 0.2,
 
