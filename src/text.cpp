@@ -825,7 +825,7 @@ std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
     ptg.DestRect.X = currentX;
     ptg.DestRect.Y = pos.y;
     ptg.DestRect.Width =
-        std::floor((fontSize / font->CellHeight) * font->AdvanceWidths[ptg.CharId]);
+        std::floor((fontSize / font->BitmapEmWidth) * font->AdvanceWidths[ptg.CharId]);
     ptg.DestRect.Height = fontSize;
 
     currentX += ptg.DestRect.Width;
