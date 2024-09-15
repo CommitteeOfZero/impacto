@@ -37,6 +37,11 @@ class Renderer : public BaseRenderer {
     // TODO implement
     return std::vector<uint8_t>();
   }
+  int GetImageFromTexture(uint32_t texture,
+                                           RectF dimensions, tcb::span<uint8_t> outBuffer) override {
+    // TODO implement
+    return 0;
+  }
   void FreeTexture(uint32_t id) override;
   YUVFrame* CreateYUVFrame(float width, float height) override;
 
