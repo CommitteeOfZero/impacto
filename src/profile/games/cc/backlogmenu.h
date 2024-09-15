@@ -17,7 +17,7 @@ inline glm::vec2 BacklogHeaderPosition;
 inline Sprite BacklogControlsSprite;
 inline glm::vec2 BacklogControlsPosition;
 
-inline Sprite BacklogAlphaMask;
+inline SpriteSheet BacklogMaskSheet;
 
 }  // namespace BacklogMenu
 }  // namespace CC

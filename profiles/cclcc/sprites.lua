@@ -44,11 +44,6 @@ root.SpriteSheets = {
         DesignWidth = 2048,
         DesignHeight = 2048
     },
-    ["BacklogMask"] = {
-        Path = { Mount = "system", Id = 2 },
-        DesignWidth = 1920,
-        DesignHeight = 1080
-    },
     ["Tips"] = {
         Path = { Mount = "system", Id = 28 },
         DesignWidth = 2048,

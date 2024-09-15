@@ -17,7 +17,7 @@ void Configure() {
   BacklogControlsSprite = EnsureGetMemberSprite("BacklogControlsSprite");
   BacklogControlsPosition = EnsureGetMemberVec2("BacklogControlsPosition");
 
-  BacklogAlphaMask = EnsureGetMemberSprite("BacklogAlphaMask");
+  BacklogMaskSheet = EnsureGetMemberSpriteSheet("BacklogMask");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMemberInt("DrawType"));

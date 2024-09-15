@@ -5,7 +5,6 @@ root.BacklogMenu = {
     BacklogBackgroundRepeatHeight = 1005,
     BacklogHeaderSprite = "BacklogHeader",
     BacklogHeaderPosition = { X = 0, Y = 0 },
-    BacklogAlphaMask = "BacklogAlphaMask",
     BacklogControlsSprite = "BacklogControls",
     BacklogControlsPosition = { X = 0, Y = 988 },
     EntryHighlightSprite = "EntryHighlight",
@@ -21,7 +20,9 @@ root.BacklogMenu = {
     RenderingBounds = { X = 194, Y = 121, Width = 1531, Height = 868 },
     EntryYPadding = 26,
     FadeInDuration = 0.2,
-    FadeOutDuration = 0.2
+    FadeOutDuration = 0.2,
+
+    BacklogMask = "BacklogMask"
 };
 
 root.Sprites["BacklogBackground"] = {
@@ -34,9 +35,10 @@ root.Sprites["BacklogHeader"] = {
     Bounds = { X = 962, Y = 1210, Width = 542, Height = 542 },
 };
 
-root.Sprites["BacklogAlphaMask"] = {
-    Sheet = "BacklogMask",
-    Bounds = { X = 0, Y = 0, Width = 1920, Height = 1080 },
+root.SpriteSheets["BacklogMask"] = {
+    Path = { Mount = "system", Id = 2 },
+    DesignWidth = 1920,
+    DesignHeight = 1080
 };
 
 root.Sprites["BacklogControls"] = {

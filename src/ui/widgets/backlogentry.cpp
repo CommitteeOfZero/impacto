@@ -7,6 +7,7 @@
 #include "../../vm/thread.h"
 #include "../../profile/dialogue.h"
 #include "../../profile/ui/backlogmenu.h"
+#include "../../profile/games/cc/backlogmenu.h"
 
 namespace Impacto {
 namespace UI {
@@ -89,6 +90,15 @@ void BacklogEntry::MoveTo(glm::vec2 position) {
 }
 
 void BacklogEntry::Render() {
+  SpriteSheet* maskSheet = nullptr;
+
+  switch(Type) {
+    default:
+      break;
+    case BacklogMenuType::CC:
+      maskSheet = &Profile::CC::BacklogMenu::BacklogMaskSheet;
+  }
+
   if (AudioId != -1) {
     Renderer->DrawSprite(
         VoiceIcon, glm::vec2(Bounds.X - VoiceIcon.ScaledWidth(), Bounds.Y) +
@@ -98,12 +108,12 @@ void BacklogEntry::Render() {
   if (BacklogPage->HasName) {
     Renderer->DrawProcessedText(BacklogPage->Name,
                                 Profile::Dialogue::DialogueFont, Tint.a,
-                                Profile::Dialogue::REVNameOutlineMode, true);
+                                Profile::Dialogue::REVNameOutlineMode, true, maskSheet);
   }
 
   Renderer->DrawProcessedText(BacklogPage->Glyphs,
                               Profile::Dialogue::DialogueFont, Tint.a,
-                              Profile::Dialogue::REVOutlineMode, true);
+                              Profile::Dialogue::REVOutlineMode, true, maskSheet);
 }
 
 }  // namespace Widgets
