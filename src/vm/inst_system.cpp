@@ -584,6 +584,11 @@ VmInstruction(InstMSinit) {
 
   if (initType == 0 || initType == 1) {
     ScrWork[2113] = 0;
+    DialoguePages[0].Clear();
+    DialoguePages[1].Clear();
+    DialoguePages[2].Clear();
+    DialoguePages[3].Clear();
+    DialoguePages[4].Clear();
   }
 
   if (initType == 5) {
