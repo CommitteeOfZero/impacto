@@ -7,6 +7,7 @@
 #include <SDL_stdinc.h>
 #include <string>
 #include <cctype>
+#include <chrono>
 #include "../vendor/span/span.hpp"
 
 // TODO own _malloca for gcc

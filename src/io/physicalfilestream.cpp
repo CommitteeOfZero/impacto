@@ -98,6 +98,7 @@ IoError PhysicalFileStream::Duplicate(Stream** outStream) {
 }
 
 int64_t PhysicalFileStream::Write(void* buffer, int64_t sz, int cnt) {
+  //  Todo: buffered write  (SDL_RWwrite doesn't buffer system calls)
   int64_t written = SDL_RWwrite(RW, buffer, sz, cnt);
   Seek(sz * cnt, SEEK_CUR);
   return written;
