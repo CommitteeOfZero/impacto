@@ -17,6 +17,8 @@ jobs:
   lint:
     name: Run linters
     runs-on: ubuntu-latest
+    outputs:
+      commitid: ${{ steps.commit.outputs.commitid }}
 
     steps:
       - name: Check out Git repository
@@ -32,11 +34,18 @@ jobs:
           clang_format: true
           clang_format_auto_fix: true
           continue_on_error: false
+      
+      - name: Get latest commit
+        id: commit
+        run: |
+          SHA=$(git rev-parse HEAD)
+          echo "::set-output name=commitid::$SHA"
     
   job-matrix:
     name: ${{ matrix.os_name }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 120
+    needs: lint
     strategy:
       fail-fast: false
       matrix:
@@ -62,6 +71,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+      with:
+        ref: ${{ needs.lint.outputs.commitid }}
 
     - name: Download Switch deps
       if: matrix.os_name == 'switch'
