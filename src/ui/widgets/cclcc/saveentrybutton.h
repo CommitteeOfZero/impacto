@@ -15,19 +15,18 @@ namespace CCLCC {
 class SaveEntryButton : public Widgets::Button {
  public:
   SaveEntryButton(int id, Sprite const& focusedBox, Sprite const& focusedText,
-                  int page, glm::vec2 pos, uint8_t locked, Sprite lockedSymbol,
-                  SaveSystem::SaveType saveType, Sprite NoDataSprite,
-                  Sprite BrokenDataSprite);
+                  int page, glm::vec2 pos, Sprite lockedSymbol,
+                  SaveSystem::SaveType saveType, Sprite noDataSprite,
+                  Sprite brokenDataSprite);
   void Render() override;
   int GetPage() const;
   void AddNormalSpriteLabel(Sprite norm, glm::vec2 pos);
-  void AddSaveDateText(std::string str, float fontSize,
-                       RendererOutlineMode outlineMode,
-                       glm::vec2 relativePosition);
-  void RenderSceneTitleText();
-  void RenderSaveDateText();
+  void RefreshSaveDateText();
+  void RefreshSceneTitleText(int strIndex);
+  void RefreshCharacterRouteText(int strIndex);
   void AddThumbnail(Sprite thumbnail, glm::vec2 pos);
   void Move(glm::vec2 pos) override;
+  void Update(float dt) override;
 
   static void FocusedAlphaFadeStart();
   static void FocusedAlphaFadeReset();
@@ -40,10 +39,18 @@ class SaveEntryButton : public Widgets::Button {
   Label LockedSymbol;
   static glm::vec4 FocusedAlpha;
   static Animation FocusedAlphaFade;
-  Label ThumbnailLabel;
+  Sprite Thumbnail;
   SaveSystem::SaveType Type;
   Label NoDataSymbol;
   Label BrokenDataSymbol;
+
+  Label SaveDateLabel;
+  Label SceneTitleLabel;
+  Label CharacterRouteLabel;
+
+  int EntryId;
+  int SaveStatus;
+  bool IsLocked;
 };
 
 }  // namespace CCLCC

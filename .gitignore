@@ -279,3 +279,10 @@ __pycache__/
 CMakeUserPresets.json
 vendor/LibAtrac9
 vendor/imgui
+vendor/fmtlib
+vendor/pugixml
+vendor/utf8-cpp
+
+games/*/gamedata
+games/*/savedata
+games/*/trophydata

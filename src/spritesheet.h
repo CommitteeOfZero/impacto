@@ -9,8 +9,8 @@ struct SpriteSheet {
   SpriteSheet(float width, float height)
       : DesignWidth(width), DesignHeight(height) {}
 
-  float DesignWidth;
-  float DesignHeight;
+  float DesignWidth = 0;
+  float DesignHeight = 0;
 
   uint32_t Texture = 0;
 };

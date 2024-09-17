@@ -73,8 +73,8 @@ void SaveMenu::Show() {
           SaveEntryButton* saveEntryButton = new SaveEntryButton(
               id, EntryHighlightedBoxSprite[ScrWork[SW_SAVEMENUMODE]],
               EntryHighlightedTextSprite[ScrWork[SW_SAVEMENUMODE]], p,
-              buttonPos, false, SlotLockedSprite[ScrWork[SW_SAVEMENUMODE]],
-              saveType, NoDataSprite[ScrWork[SW_SAVEMENUMODE]],
+              buttonPos, SlotLockedSprite[ScrWork[SW_SAVEMENUMODE]], saveType,
+              NoDataSprite[ScrWork[SW_SAVEMENUMODE]],
               BrokenDataSprite[ScrWork[SW_SAVEMENUMODE]]);
 
           saveEntryButton->OnClickHandler = onClick;

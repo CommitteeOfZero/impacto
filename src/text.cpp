@@ -22,7 +22,7 @@
 #include "profile/games/chlcc/dialoguebox.h"
 #include "games/cc/dialoguebox.h"
 
-#include "../vendor/utf8-cpp/utf8.h"
+#include "../vendor/utf8-cpp/source/utf8.h"
 #include <memory>
 
 namespace Impacto {

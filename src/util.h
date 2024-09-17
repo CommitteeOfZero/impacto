@@ -7,6 +7,8 @@
 #include <SDL_stdinc.h>
 #include <string>
 #include <cctype>
+#include <chrono>
+#include "../vendor/span/span.hpp"
 
 // TODO own _malloca for gcc
 
@@ -17,6 +19,15 @@
 #define ImpStackAlloc malloc
 #define ImpStackFree free
 #endif
+
+#define TIME_CODE(code) \
+    do { \
+        auto start = std::chrono::high_resolution_clock::now(); \
+        code; \
+        auto end = std::chrono::high_resolution_clock::now(); \
+        std::chrono::duration<double> elapsed = end - start; \
+        ImpLog(LL_Info, LC_General, "Time elapsed: %f seconds\n", elapsed.count()); \
+    } while (0)
 
 namespace Impacto {
 
@@ -246,5 +257,8 @@ template <class Enum>
 constexpr std::underlying_type_t<Enum> to_underlying(Enum e) noexcept {
   return static_cast<std::underlying_type_t<Enum>>(e);
 }
+
+int ResizeImage(Rect const& srcRect, Rect const& dstRect, tcb::span<uint8_t> src,
+                tcb::span<uint8_t> dst, bool flipY = false);
 
 }  // namespace Impacto

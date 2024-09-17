@@ -99,7 +99,8 @@ void Renderer::Init() {
 
   ShaderProgramMaskedSpriteNoAlpha = Shaders->Compile("MaskedSpriteNoAlpha");
   glUseProgram(ShaderProgramMaskedSpriteNoAlpha);
-  glUniform1i(glGetUniformLocation(ShaderProgramMaskedSpriteNoAlpha, "ColorMap"), 0);
+  glUniform1i(
+      glGetUniformLocation(ShaderProgramMaskedSpriteNoAlpha, "ColorMap"), 0);
   MaskedNoAlphaIsInvertedLocation =
       glGetUniformLocation(ShaderProgramMaskedSpriteNoAlpha, "IsInverted");
 
@@ -214,6 +215,33 @@ uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
   glGenerateMipmap(GL_TEXTURE_2D);
 
   return result;
+}
+
+std::vector<uint8_t> Renderer::GetImageFromTexture(uint32_t texture,
+                                                   RectF dimensions) {
+  std::vector<uint8_t> result(dimensions.Width * dimensions.Height * 4);
+  GetImageFromTexture(texture, dimensions, result);
+  return result;
+}
+
+int Renderer::GetImageFromTexture(uint32_t texture, RectF dimensions,
+                                  tcb::span<uint8_t> outBuffer) {
+  const int bufferSize = dimensions.Width * dimensions.Height * 4;
+  assert(outBuffer.size() >= bufferSize);
+  glBindTexture(GL_TEXTURE_2D, texture);
+
+  GLuint fbo;
+  glGenFramebuffers(1, &fbo);
+  glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+                         texture, 0);
+  glReadPixels(dimensions.X, dimensions.Y, dimensions.X + dimensions.Width,
+               dimensions.Y + dimensions.Height, GL_RGBA, GL_UNSIGNED_BYTE,
+               outBuffer.data());
+
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glDeleteFramebuffers(1, &fbo);
+  return bufferSize;
 }
 
 void Renderer::FreeTexture(uint32_t id) { glDeleteTextures(1, &id); }

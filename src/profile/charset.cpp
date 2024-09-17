@@ -1,7 +1,7 @@
 #include "charset.h"
 #include "profile_internal.h"
 
-#include "../../vendor/utf8-cpp/utf8.h"
+#include "../../vendor/utf8-cpp/source/utf8.h"
 
 namespace Impacto {
 namespace Profile {

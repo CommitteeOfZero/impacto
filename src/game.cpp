@@ -379,6 +379,10 @@ void Render() {
               CCLCC::YesNoTrigger::YesNoTriggerPtr->Render();
             }
           }
+
+          if (SaveSystem::Implementation) {
+            Renderer->CaptureScreencap(SaveSystem::GetWorkingSaveThumbnail());
+          }
           if (GetFlag(SF_Pokecon_Open)) {
             SetFlag(SF_DATEDISPLAY, 0);
             // hack
