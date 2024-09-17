@@ -1,14 +1,11 @@
 name: impacto
 on:
+  pull_request_target:
   push:
     branches:
     - master
     tags:
     - "*"
-  pull_request_target:
-    branches: 
-    - master
-    types: [opened, reopened, synchronize]
 
 env:
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
