@@ -23,7 +23,7 @@ void SystemMenuEntryButton::Render() {
         RgbIntToFloat(0x888888));
   }
   Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y),
-                         HasFocus ? FocusTint : glm::vec4(1.0f));
+                       HasFocus ? FocusTint : glm::vec4(1.0f));
 }
 
 }  // namespace CHLCC

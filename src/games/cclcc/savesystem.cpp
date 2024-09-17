@@ -279,7 +279,8 @@ void SaveSystem::WriteSaveFile() {
   Io::WriteArrayLE<uint8_t>(GameExtraData, stream, 1024);
 
   stream->Seek(0x387c, SEEK_SET);  // TODO: Actually save system data
-  std::vector<uint8_t>  thumbnailData(SaveThumbnailWidth * SaveThumbnailHeight * 4);
+  std::vector<uint8_t> thumbnailData(SaveThumbnailWidth * SaveThumbnailHeight *
+                                     4);
   for (auto* entryArray : {FullSaveEntries, QuickSaveEntries}) {
     int64_t saveDataPos = stream->Position;
     for (int i = 0; i < MaxSaveEntries; i++) {
@@ -343,24 +344,26 @@ void SaveSystem::WriteSaveFile() {
         assert(stream->Position - startPos == 0x3ec0);
         Io::WriteArrayLE<uint8_t>(entry->MapLoadData, stream, 0x6ac8);
         Io::WriteArrayLE<uint8_t>(entry->YesNoData, stream, 0x54);
-        
+
         // CCLCC PS4 Save thumbnails are 240x135 RGB16
-          Renderer->GetImageFromTexture(
-              entry->SaveThumbnail.Sheet.Texture, entry->SaveThumbnail.Bounds, thumbnailData);
+        Renderer->GetImageFromTexture(entry->SaveThumbnail.Sheet.Texture,
+                                      entry->SaveThumbnail.Bounds,
+                                      thumbnailData);
 
-          int thumbnailPadding = 0xA14;
-          stream->Seek(thumbnailPadding, SEEK_CUR);
+        int thumbnailPadding = 0xA14;
+        stream->Seek(thumbnailPadding, SEEK_CUR);
 
-          for (int i = 0; i < thumbnailData.size(); i += 4) {
-            uint8_t r = thumbnailData[i];
-            uint8_t g = thumbnailData[i + 1];
-            uint8_t b = thumbnailData[i + 2];
-            uint16_t pixel = ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
-            pixel = SDL_SwapBE16(pixel);
-            thumbnailData[i/2] = pixel >> 8;
-            thumbnailData[i/2 + 1] = pixel & 0xFF;
-          }
-          Io::WriteArrayLE<uint8_t>(thumbnailData.data(), stream, thumbnailData.size() / 2);
+        for (int i = 0; i < thumbnailData.size(); i += 4) {
+          uint8_t r = thumbnailData[i];
+          uint8_t g = thumbnailData[i + 1];
+          uint8_t b = thumbnailData[i + 2];
+          uint16_t pixel = ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
+          pixel = SDL_SwapBE16(pixel);
+          thumbnailData[i / 2] = pixel >> 8;
+          thumbnailData[i / 2 + 1] = pixel & 0xFF;
+        }
+        Io::WriteArrayLE<uint8_t>(thumbnailData.data(), stream,
+                                  thumbnailData.size() / 2);
       }
     }
   }

@@ -2,19 +2,53 @@ name: impacto
 on:
   push:
     branches:
-    - "*"
-    - "!separate_renderer"
+    - "master"
     tags:
     - "*"
+  pull_request_target:
+    branches:
+    - "master"
 
 env:
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
 
+permissions:
+  checks: write
+  contents: write
+
 jobs:
+  lint:
+    name: Run linters
+    runs-on: ubuntu-latest
+    outputs:
+      commitid: ${{ steps.commit.outputs.commitid }}
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v4
+
+      - name: Install ClangFormat
+        run: sudo apt-get install -y clang-format
+
+      - name: Run linters
+        uses: wearerequired/lint-action@v2
+        with:
+          auto_fix: true
+          clang_format: true
+          clang_format_auto_fix: true
+          continue_on_error: false
+      
+      - name: Get latest commit
+        id: commit
+        run: |
+          SHA=$(git rev-parse HEAD)
+          echo "::set-output name=commitid::$SHA"
+    
   job-matrix:
     name: ${{ matrix.os_name }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 120
+    needs: lint
     strategy:
       fail-fast: false
       matrix:
@@ -40,6 +74,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+      with:
+        ref: ${{ needs.lint.outputs.commitid }}
 
     - name: Download Switch deps
       if: matrix.os_name == 'switch'

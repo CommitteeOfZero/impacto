@@ -27,7 +27,7 @@ void TipsSystem::DataInit(int scriptBufferId, uint8_t *tipsData,
     TipsDataRecord record;
     memset(&record, 0, sizeof(TipsDataRecord));
     record.Id = idx;
-    //TODO: record.SortLetterIndex
+    // TODO: record.SortLetterIndex
     record.NumberOfContentStrings = numberOfContentStrings;
     for (int i = 0; i < record.NumberOfContentStrings + 4; i++) {
       record.StringPtrs[i] =
@@ -41,7 +41,7 @@ void TipsSystem::DataInit(int scriptBufferId, uint8_t *tipsData,
     TipEntryCount = idx;
   }
 
-  //UI::TipsMenuPtr->Init();
+  // UI::TipsMenuPtr->Init();
 
   delete stream;
 }

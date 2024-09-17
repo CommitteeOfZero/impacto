@@ -216,12 +216,11 @@ inline void TipsMenu::DrawTipsTree(float yOffset) {
   Renderer->DrawRect(
       RectF(GradientPosition.x, TipsGradient.Bounds.Height + yOffset,
             TipsGradient.Bounds.Width - 10.0f,
-                           720.0f - TipsGradient.Bounds.Height - 86.0f),
+            720.0f - TipsGradient.Bounds.Height - 86.0f),
       RgbIntToFloat(EndOfGradientColor));
   Renderer->DrawRect(RectF(GradientPosition.x, 634.0f + yOffset,
-            TipsGradient.Bounds.Width,
-            86.0f),
-      RgbIntToFloat(EndOfGradientColor));
+                           TipsGradient.Bounds.Width, 86.0f),
+                     RgbIntToFloat(EndOfGradientColor));
   glm::vec2 treePosition(TreePosition.x, TreePosition.y + yOffset);
   Renderer->DrawSprite(TipsTree, treePosition);
 }

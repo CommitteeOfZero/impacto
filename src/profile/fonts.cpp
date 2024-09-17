@@ -85,8 +85,9 @@ void LoadFonts() {
         }
         assert(widthSz == baseFont->Columns * baseFont->Rows);
         for (uint16_t i = 0; i < widthSz; i++) {
-          baseFont->AdvanceWidths[i] = ((float)widthBin[i] + extraLetterSpacing) *
-                                       bitmapEmWidth / advanceWidthsEmWidth;
+          baseFont->AdvanceWidths[i] =
+              ((float)widthBin[i] + extraLetterSpacing) * bitmapEmWidth /
+              advanceWidthsEmWidth;
         }
       } else {
         AssertIs(LUA_TTABLE);

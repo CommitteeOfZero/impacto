@@ -32,13 +32,13 @@ class Renderer : public BaseRenderer {
 
   uint32_t SubmitTexture(TexFmt format, uint8_t* buffer, int width,
                          int height) override;
-  std::vector<uint8_t> GetImageFromTexture( uint32_t texture,
+  std::vector<uint8_t> GetImageFromTexture(uint32_t texture,
                                            RectF dimensions) override {
     // TODO implement
     return std::vector<uint8_t>();
   }
-  int GetImageFromTexture(uint32_t texture,
-                                           RectF dimensions, tcb::span<uint8_t> outBuffer) override {
+  int GetImageFromTexture(uint32_t texture, RectF dimensions,
+                          tcb::span<uint8_t> outBuffer) override {
     // TODO implement
     return 0;
   }

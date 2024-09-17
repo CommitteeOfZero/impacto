@@ -20,14 +20,15 @@
 #define ImpStackFree free
 #endif
 
-#define TIME_CODE(code) \
-    do { \
-        auto start = std::chrono::high_resolution_clock::now(); \
-        code; \
-        auto end = std::chrono::high_resolution_clock::now(); \
-        std::chrono::duration<double> elapsed = end - start; \
-        ImpLog(LL_Info, LC_General, "Time elapsed: %f seconds\n", elapsed.count()); \
-    } while (0)
+#define TIME_CODE(code)                                       \
+  do {                                                        \
+    auto start = std::chrono::high_resolution_clock::now();   \
+    code;                                                     \
+    auto end = std::chrono::high_resolution_clock::now();     \
+    std::chrono::duration<double> elapsed = end - start;      \
+    ImpLog(LL_Info, LC_General, "Time elapsed: %f seconds\n", \
+           elapsed.count());                                  \
+  } while (0)
 
 namespace Impacto {
 
@@ -138,7 +139,7 @@ constexpr int Uint32Log2(uint32_t v) {
   unsigned int const b[] = {0x2, 0xC, 0xF0, 0xFF00, 0xFFFF0000};
   unsigned int const S[] = {1, 2, 4, 8, 16};
 
-  unsigned int r = 0;       // result of log2(v) will go here
+  unsigned int r = 0;           // result of log2(v) will go here
   for (int i = 4; i >= 0; i--)  // unroll for speed...
   {
     if (v & b[i]) {
@@ -258,7 +259,8 @@ constexpr std::underlying_type_t<Enum> to_underlying(Enum e) noexcept {
   return static_cast<std::underlying_type_t<Enum>>(e);
 }
 
-int ResizeImage(Rect const& srcRect, Rect const& dstRect, tcb::span<uint8_t> src,
-                tcb::span<uint8_t> dst, bool flipY = false);
+int ResizeImage(Rect const& srcRect, Rect const& dstRect,
+                tcb::span<uint8_t> src, tcb::span<uint8_t> dst,
+                bool flipY = false);
 
 }  // namespace Impacto

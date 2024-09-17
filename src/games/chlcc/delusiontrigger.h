@@ -15,7 +15,6 @@ class DelusionTrigger : public Impacto::DelusionTrigger::DelusionTriggerBase {
   void Render();
 
  protected:
-
   int maskScaleFactor;
   int spinAngle;
   int spinRate;
@@ -27,7 +26,7 @@ class DelusionTrigger : public Impacto::DelusionTrigger::DelusionTriggerBase {
 
   glm::vec4 TriggerOnTint;
   int TriggerOnTintAlpha;
-  
+
   void UpdateShowing();
   void UpdateShown();
   void UpdateHiding();

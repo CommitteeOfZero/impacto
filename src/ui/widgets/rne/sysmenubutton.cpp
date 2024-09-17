@@ -12,16 +12,13 @@ void SysMenuButton::Render() {
   black.a = Tint.a;
 
   if (HasFocus) {
-    Renderer->DrawSprite(HighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
-                           Tint);
+    Renderer->DrawSprite(HighlightSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
     Renderer->DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
   } else {
     if (Enabled) {
-      Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y),
-                             black);
+      Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), black);
     } else {
-      Renderer->DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y),
-                             Tint);
+      Renderer->DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
     }
   }
 }

@@ -14,8 +14,7 @@ void Configure() {
   if (TryPushMember("TrophyMenu")) {
     AssertIs(LUA_TTABLE);
 
-    Type =
-        TrophyMenuType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
+    Type = TrophyMenuType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
 
     if (Type == +TrophyMenuType::CHLCC) {
       CHLCC::TrophyMenu::Configure();

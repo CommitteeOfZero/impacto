@@ -9,12 +9,8 @@ void Init() {
   Profile::MapSystem::CreateInstance();
 }
 void MapInit() { return MapSystemPtr->MapInit(); }
-int MapLoad(uint8_t* data) {
-  return MapSystemPtr->MapLoad(data);
-}
-int MapSave(uint8_t* data) {
-  return MapSystemPtr->MapSave(data);
-}
+int MapLoad(uint8_t* data) { return MapSystemPtr->MapLoad(data); }
+int MapSave(uint8_t* data) { return MapSystemPtr->MapSave(data); }
 void MapSetFadein(int partId, int partType) {
   return MapSystemPtr->MapSetFadein(partId, partType);
 }

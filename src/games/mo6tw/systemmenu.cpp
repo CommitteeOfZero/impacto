@@ -95,7 +95,7 @@ void SystemMenu::Render() {
   if (State != Hidden && ScrWork[SW_SYSMENUALPHA] > 0) {
     glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
     Renderer->DrawSprite(SystemMenuBackgroundSprite,
-                           glm::vec2(SystemMenuX, SystemMenuY), col);
+                         glm::vec2(SystemMenuX, SystemMenuY), col);
     MainItems->Tint = col;
     MainItems->Render();
   }

@@ -83,20 +83,20 @@ void TitleMenu::Render() {
       glm::vec4 col = glm::vec4(1.0f);
       col.a = glm::smoothstep(0.0f, 1.0f, PressToStartAnimation.Progress);
       Renderer->DrawSprite(PressToStartSprite,
-                             glm::vec2(PressToStartX, PressToStartY), col);
+                           glm::vec2(PressToStartX, PressToStartY), col);
 
       Renderer->DrawSprite(LineSprite, glm::vec2(LineX, LineY),
-                             glm::vec4(1.0f));
+                           glm::vec4(1.0f));
       Renderer->DrawSprite(CopyrightSprite, glm::vec2(CopyrightX, CopyrightY),
-                             glm::vec4(1.0f));
+                           glm::vec4(1.0f));
       Renderer->DrawSprite(EliteSprite, glm::vec2(EliteX, EliteY),
-                             glm::vec4(1.0f));
+                           glm::vec4(1.0f));
       if (ScrWork[SW_TITLECGNO] == 542) {
         Renderer->DrawSprite(LogoSprite, glm::vec2(LogoX, LogoY),
-                               glm::vec4(1.0f), glm::vec2(1.0f), 0.0f, true);
+                             glm::vec4(1.0f), glm::vec2(1.0f), 0.0f, true);
       } else {
         Renderer->DrawSprite(LogoSprite, glm::vec2(LogoX, LogoY),
-                               glm::vec4(1.0f));
+                             glm::vec4(1.0f));
       }
     }
   }

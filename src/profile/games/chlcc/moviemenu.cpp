@@ -26,8 +26,7 @@ void Configure() {
   RedBarBaseX = EnsureGetMemberFloat("RedBarBaseX");
   RedBarLabelPosition = EnsureGetMemberVec2("RedBarLabelPosition");
   RedBarLabel = EnsureGetMemberSprite("RedBarLabel");
-  MenuTitleTextRightPosition =
-      EnsureGetMemberVec2("MenuTitleTextRightPos");
+  MenuTitleTextRightPosition = EnsureGetMemberVec2("MenuTitleTextRightPos");
   MenuTitleTextLeftPosition = EnsureGetMemberVec2("MenuTitleTextLeftPos");
   MenuTitleTextAngle = EnsureGetMemberFloat("MenuTitleTextAngle");
   TitleFadeInDuration = EnsureGetMemberFloat("TitleFadeInDuration");

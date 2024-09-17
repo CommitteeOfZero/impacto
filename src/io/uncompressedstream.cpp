@@ -5,9 +5,7 @@
 namespace Impacto {
 namespace Io {
 
-UncompressedStream::~UncompressedStream() {
-  delete BaseStream;
-}
+UncompressedStream::~UncompressedStream() { delete BaseStream; }
 
 IoError UncompressedStream::Create(Stream* baseStream, int64_t baseStreamOffset,
                                    int64_t size, Stream** out) {

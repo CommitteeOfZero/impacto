@@ -10,7 +10,7 @@
 
 namespace Impacto {
 namespace LoadingDisplay {
-	
+
 using namespace Impacto::Profile::ScriptVars;
 
 static bool IsResourceLoad = false;
@@ -79,16 +79,16 @@ void Render() {
 
   if (IsResourceLoad) {
     Renderer->DrawSprite(ResourceLoadBg.CurrentSprite(),
-                           Profile::LoadingDisplay::ResourceBgPos, col);
+                         Profile::LoadingDisplay::ResourceBgPos, col);
   } else {
     Renderer->DrawSprite(SaveLoadBg.CurrentSprite(),
-                           Profile::LoadingDisplay::SaveBgPos, col);
+                         Profile::LoadingDisplay::SaveBgPos, col);
   }
 
   Renderer->DrawSprite(LoadingIcon.CurrentSprite(),
-                         Profile::LoadingDisplay::IconPos, col);
+                       Profile::LoadingDisplay::IconPos, col);
   Renderer->DrawSprite(LoadingText.CurrentSprite(),
-                         Profile::LoadingDisplay::TextPos, col);
+                       Profile::LoadingDisplay::TextPos, col);
 }
 
 }  // namespace LoadingDisplay

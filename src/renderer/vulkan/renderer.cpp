@@ -384,8 +384,7 @@ void Renderer::CreateFramebuffers() {
   for (size_t i = 0; i < SwapChainImageViews.size(); i++) {
     VkImageView attachments[] = {ColorImageView, DepthImageView,
                                  SwapChainImageViews[i]};
-    if (Window->MsaaCount == 1)
-      attachments[0] = attachments[2];
+    if (Window->MsaaCount == 1) attachments[0] = attachments[2];
 
     VkFramebufferCreateInfo framebufferInfo{};
     framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -936,7 +935,7 @@ void Renderer::EndFrame() {
 }
 
 uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
-                                     int height) {
+                                 int height) {
   VkDeviceSize imageSize = 0;
   VkFormat imageFormat = VK_FORMAT_R8G8B8A8_SRGB;
   uint8_t* newBuffer;
@@ -1077,9 +1076,9 @@ void Renderer::DrawRect(RectF const& dest, glm::vec4 color, float angle) {
 }
 
 void Renderer::DrawSprite3DRotated(Sprite const& sprite, RectF const& dest,
-                                       float depth, glm::vec2 vanishingPoint,
-                                       bool stayInScreen, glm::quat rot,
-                                       glm::vec4 tint, bool inverted) {
+                                   float depth, glm::vec2 vanishingPoint,
+                                   bool stayInScreen, glm::quat rot,
+                                   glm::vec4 tint, bool inverted) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawSprite3DRotated() called before BeginFrame()\n");
@@ -1115,18 +1114,17 @@ void Renderer::DrawSprite3DRotated(Sprite const& sprite, RectF const& dest,
 }
 
 void Renderer::DrawRect3DRotated(RectF const& dest, float depth,
-                                     glm::vec2 vanishingPoint,
-                                     bool stayInScreen, glm::quat rot,
-                                     glm::vec4 color) {
+                                 glm::vec2 vanishingPoint, bool stayInScreen,
+                                 glm::quat rot, glm::vec4 color) {
   DrawSprite3DRotated(RectSprite, dest, depth, vanishingPoint, stayInScreen,
                       rot, color);
 }
 
 void Renderer::DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
-                                    int verticesCount, float* mvlVertices,
-                                    int indicesCount, uint16_t* mvlIndices,
-                                    bool inverted, glm::vec4 tint,
-                                    glm::vec2 scale) {
+                                int verticesCount, float* mvlVertices,
+                                int indicesCount, uint16_t* mvlIndices,
+                                bool inverted, glm::vec4 tint,
+                                glm::vec2 scale) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawCharacterMvl() called before BeginFrame()\n");
@@ -1211,8 +1209,8 @@ void Renderer::DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
 }
 
 void Renderer::DrawSprite(Sprite const& sprite, RectF const& dest,
-                              glm::vec4 tint, float angle, bool inverted,
-                              bool isScreencap) {
+                          glm::vec4 tint, float angle, bool inverted,
+                          bool isScreencap) {
   std::array<glm::vec4, 4> tints = {tint, tint, tint, tint};
   std::array<glm::vec2, 4> destQuad = {
       glm::vec2{dest.X, dest.Y + dest.Height},
@@ -1224,9 +1222,9 @@ void Renderer::DrawSprite(Sprite const& sprite, RectF const& dest,
 }
 
 void Renderer::DrawSprite(Sprite const& sprite,
-                              std::array<glm::vec2, 4> const& dest,
-                              std::array<glm::vec4, 4> const& tints,
-                              float angle, bool inverted, bool isScreencap) {
+                          std::array<glm::vec2, 4> const& dest,
+                          std::array<glm::vec4, 4> const& tints, float angle,
+                          bool inverted, bool isScreencap) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawSprite() called before BeginFrame()\n");
@@ -1262,9 +1260,8 @@ void Renderer::DrawSprite(Sprite const& sprite,
 }
 
 void Renderer::DrawSpriteOffset(Sprite const& sprite, glm::vec2 topLeft,
-                                    glm::vec2 centerSprite, glm::vec4 tint,
-                                    glm::vec2 scale, float angle,
-                                    bool inverted) {
+                                glm::vec2 centerSprite, glm::vec4 tint,
+                                glm::vec2 scale, float angle, bool inverted) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawSprite() called before BeginFrame()\n");
@@ -1302,9 +1299,9 @@ void Renderer::DrawSpriteOffset(Sprite const& sprite, glm::vec2 topLeft,
 }
 
 void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
-                                    RectF const& dest, glm::vec4 tint,
-                                    int alpha, int fadeRange, bool isScreencap,
-                                    bool isInverted, bool isSameTexture) {
+                                RectF const& dest, glm::vec4 tint, int alpha,
+                                int fadeRange, bool isScreencap,
+                                bool isInverted, bool isSameTexture) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawMaskedSprite() called before BeginFrame()\n");
@@ -1372,9 +1369,9 @@ void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
 }
 
 void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
-                                    RectF const& dest, glm::vec4 tint,
-                                    int alpha, int fadeRange, float effectCt,
-                                    bool isScreencap) {
+                                RectF const& dest, glm::vec4 tint, int alpha,
+                                int fadeRange, float effectCt,
+                                bool isScreencap) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawCCMessageBox() called before BeginFrame()\n");
@@ -1534,9 +1531,8 @@ void Renderer::DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
-void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite,
-                                           const Sprite& mask,
-                                           const RectF& dest, float alpha) {
+void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
+                                       const RectF& dest, float alpha) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawCCMessageBox() called before BeginFrame()\n");
@@ -1878,8 +1874,7 @@ void Renderer::Flush() {
 }
 
 void Renderer::DrawVideoTexture(YUVFrame* tex, RectF const& dest,
-                                    glm::vec4 tint, float angle,
-                                    bool alphaVideo) {
+                                glm::vec4 tint, float angle, bool alphaVideo) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawVideoTexture() called before BeginFrame()\n");

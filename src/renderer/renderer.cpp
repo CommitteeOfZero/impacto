@@ -191,17 +191,16 @@ void BaseRenderer::DrawProcessedText_LBFont(
     float scaleX = text[i].DestRect.Height / font->BitmapEmWidth;
     float scaleY = text[i].DestRect.Height / font->BitmapEmHeight;
 
-    RectF foregroundDest = RectF(
-        text[i].DestRect.X + scaleX * font->ForegroundOffset.x,
-        text[i].DestRect.Y + scaleY * font->ForegroundOffset.y,
-        scaleX * font->CellWidth, scaleY * font->CellHeight);
+    RectF foregroundDest =
+        RectF(text[i].DestRect.X + scaleX * font->ForegroundOffset.x,
+              text[i].DestRect.Y + scaleY * font->ForegroundOffset.y,
+              scaleX * font->CellWidth, scaleY * font->CellHeight);
     if (maskedSheet) {
       Sprite mask;
       mask.Sheet = *maskedSheet;
       mask.Bounds = foregroundDest;
-      DrawMaskedSpriteOverlay(font->Glyph(text[i].CharId), mask,
-                              foregroundDest, color, color.a * 255, 256,
-                              false, 0, false);
+      DrawMaskedSpriteOverlay(font->Glyph(text[i].CharId), mask, foregroundDest,
+                              color, color.a * 255, 256, false, 0, false);
     } else {
       DrawSprite(font->Glyph(text[i].CharId), foregroundDest, color);
     }

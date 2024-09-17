@@ -24,8 +24,8 @@ Toggle::Toggle(int id, bool* value, Sprite const& enabled,
 
 Toggle::Toggle(int id, bool* value, Sprite const& enabled,
                Sprite const& disabled, Sprite const& highlight, glm::vec2 pos,
-               bool isCheckbox, uint8_t* str, glm::vec2 labelOfs, float fontSize,
-               RendererOutlineMode outlineMode)
+               bool isCheckbox, uint8_t* str, glm::vec2 labelOfs,
+               float fontSize, RendererOutlineMode outlineMode)
     : Toggle(id, value, enabled, disabled, highlight, pos, isCheckbox) {
   HasTextLabel = true;
   SetText(str, fontSize, outlineMode);

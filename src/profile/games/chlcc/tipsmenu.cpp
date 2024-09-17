@@ -40,8 +40,10 @@ void Configure() {
   GradientPosition = EnsureGetMemberVec2("GradientPosition");
   TipsGradient = EnsureGetMemberSprite("TipsGradient");
   EndOfGradientColor = EnsureGetMemberUint("EndOfGradientColor");
-  CurrentTipBackgroundPosition = EnsureGetMemberVec2("CurrentTipBackgroundPosition");
-  CurrentTipBackgroundSprite = EnsureGetMemberSprite("CurrentTipBackgroundSprite");
+  CurrentTipBackgroundPosition =
+      EnsureGetMemberVec2("CurrentTipBackgroundPosition");
+  CurrentTipBackgroundSprite =
+      EnsureGetMemberSprite("CurrentTipBackgroundSprite");
   ButtonPromptPosition = EnsureGetMemberVec2("ButtonPromptPosition");
   ButtonPromptSprite = EnsureGetMemberSprite("ButtonPromptSprite");
 
