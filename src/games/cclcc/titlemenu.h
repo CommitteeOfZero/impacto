@@ -57,9 +57,9 @@ class TitleMenu : public Menu {
   void ShowExtraItems();
   void HideExtraItems();
 
-  void DrawMainBackground(float opacity = 1.0f);
+  void DrawDISwordBackground(float opacity = 1.0f);
   void DrawStartButton();
-  void DrawMainMenuBackGraphics(bool isTransition);
+  void DrawMainMenuBackGraphics(bool drawMenuText = false);
   void DrawSmoke(float opacity);
 };
 

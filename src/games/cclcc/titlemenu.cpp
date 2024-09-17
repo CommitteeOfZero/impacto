@@ -282,7 +282,7 @@ void TitleMenu::Render() {
   if (State != Hidden && GetFlag(SF_TITLEMODE)) {
     switch (ScrWork[SW_TITLEMODE]) {
       case 1: {  // Press to start
-        DrawMainBackground();
+        DrawDISwordBackground();
         DrawStartButton();
         DrawSmoke(SmokeOpacityNormal);
         Renderer->DrawSprite(CopyrightTextSprite,
@@ -293,7 +293,7 @@ void TitleMenu::Render() {
                       1.0f - ScrWork[SW_TITLEDISPCT] / 60.0f));
       } break;
       case 2: {  // Transition between Press to start and menus
-        DrawMainMenuBackGraphics(true);
+        DrawMainMenuBackGraphics();
         DrawSmoke(SmokeOpacityNormal);
         TitleAnimationSprite.Render(-1);
       } break;
@@ -303,19 +303,40 @@ void TitleMenu::Render() {
           ItemsFadeInAnimation.StartIn();
         else if (ItemsFadeInAnimation.State != AS_Playing)
           ItemsFadeInAnimation.StartOut();
-        DrawMainMenuBackGraphics(false);
+        DrawMainMenuBackGraphics(true);
         DrawSmoke(SmokeOpacityNormal);
         MainItems->Render();
         ContinueItems->Render();
         ExtraItems->Render();
       } break;
       case 4: {
+        ImpLogSlow(LL_Warning, LC_VMStub,
+                   "TitleMenu::Render: Unimplemented title mode %d\n",
+                   ScrWork[SW_TITLEMODE]);
+      } break;
+      case 5: {
+        // Implement
+        DrawMainMenuBackGraphics();
+        DrawSmoke(SmokeOpacityNormal);
+        ImpLogSlow(LL_Warning, LC_VMStub,
+                   "TitleMenu::Render: Unimplemented title mode %d\n",
+                   ScrWork[SW_TITLEMODE]);
+      } break;
+      case 10: {
+        ImpLogSlow(LL_Warning, LC_VMStub,
+                   "TitleMenu::Render: Unimplemented title mode %d\n",
+                   ScrWork[SW_TITLEMODE]);
       } break;
       case 11: {  // Initial Fade In
-        DrawMainBackground(ScrWork[SW_TITLEDISPCT] / 32.0f);
+        DrawDISwordBackground(ScrWork[SW_TITLEDISPCT] / 32.0f);
         DrawSmoke(ScrWork[SW_TITLEDISPCT] / 128.0f);
         Renderer->DrawSprite(CopyrightTextSprite,
                              glm::vec2(CopyrightTextX, CopyrightTextY));
+      } break;
+      case 14: {
+        ImpLogSlow(LL_Warning, LC_VMStub,
+                   "TitleMenu::Render: Unimplemented title mode %d\n",
+                   ScrWork[SW_TITLEMODE]);
       } break;
     }
 
@@ -327,7 +348,7 @@ void TitleMenu::Render() {
   }
 }
 
-void TitleMenu::DrawMainBackground(float opacity) {
+void TitleMenu::DrawDISwordBackground(float opacity) {
   Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
   Renderer->DrawSprite(
       OverlaySprite,
@@ -342,9 +363,9 @@ void TitleMenu::DrawStartButton() {
                        glm::vec2(PressToStartX, PressToStartY), col);
 }
 
-void TitleMenu::DrawMainMenuBackGraphics(bool isTransition) {
+void TitleMenu::DrawMainMenuBackGraphics(bool drawMenuText) {
   Renderer->DrawSprite(MainBackgroundSprite, glm::vec2(0.0f));
-  if (!isTransition) {
+  if (drawMenuText) {
     Renderer->DrawSprite(MenuSprite, glm::vec2(MenuX, MenuY));
   }
   Renderer->DrawSprite(
