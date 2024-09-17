@@ -10,8 +10,6 @@
 #include "../../data/savesystem.h"
 #include "../../vm/vm.h"
 
-#include "../../profile/games/cclcc/titlemenu.h"
-
 namespace Impacto {
 namespace UI {
 namespace CCLCC {
@@ -228,11 +226,7 @@ void SaveMenu::Update(float dt) {
 void SaveMenu::Render() {
   if (State != Hidden) {
     glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-    if(LastFocusedMenu == TitleMenuPtr) {
-      Renderer->DrawSprite(Profile::CCLCC::TitleMenu::BackgroundSprite, glm::vec2(0.0f), col);
-    } else {
-      Renderer->DrawSprite(SaveMenuBackgroundSprite, glm::vec2(0.0f), col);
-    }
+    Renderer->DrawSprite(SaveMenuBackgroundSprite, glm::vec2(0.0f), col);
     Renderer->DrawSprite(MenuTextSprite[ScrWork[SW_SAVEMENUMODE]], {11, 10},
                          col);
     Renderer->DrawSprite(EntrySlotsSprite[ScrWork[SW_SAVEMENUMODE]], {135, 0},
