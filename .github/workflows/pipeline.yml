@@ -1,15 +1,8 @@
 name: impacto
 on:
-  pull_request_target:
-    branches:
-    - "master"
-    types:
-    - opened
-    - synchronize
-    - reopened
   push:
     branches:
-    - "master"
+    - "*"
     tags:
     - "*"
 
@@ -35,7 +28,7 @@ jobs:
         uses: wearerequired/lint-action@v2
         with:
           auto_fix: true
-          clang-format: true
+          clang_format: true
     
   job-matrix:
     name: ${{ matrix.os_name }}
