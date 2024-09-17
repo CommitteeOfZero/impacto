@@ -2,9 +2,12 @@ name: impacto
 on:
   push:
     branches:
-    - "*"
+    - "master"
     tags:
     - "*"
+  pull_request_target:
+    branches:
+    - "master"
 
 env:
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
