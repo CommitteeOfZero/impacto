@@ -64,7 +64,7 @@ void Configure() {
   UI::Menus[drawType].push_back(UI::TrophyMenuPtr);
 }
 
-}  // namespace OptionsMenu
+}  // namespace TrophyMenu
 }  // namespace CHLCC
 }  // namespace Profile
 }  // namespace Impacto

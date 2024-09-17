@@ -149,9 +149,9 @@ void SaveEntryButton::RefreshSaveDateText() {
   tm const& date = SaveSystem::GetSaveDate(Type, EntryId);
   float fontSize = 32;
   RendererOutlineMode outlineMode = RendererOutlineMode::RO_Full;
-  //Maybe fmt will merge my PR for space padded month
-  SaveDateLabel.SetText(fmt::format(FMT_STRING("{:%Y/%_m/%-e %H:%M:%S}"), date), fontSize, outlineMode,
-                        IsLocked ? 69 : 0);
+  // Maybe fmt will merge my PR for space padded month
+  SaveDateLabel.SetText(fmt::format(FMT_STRING("{:%Y/%_m/%-e %H:%M:%S}"), date),
+                        fontSize, outlineMode, IsLocked ? 69 : 0);
 }
 
 // TODO: Make this only refresh when saved

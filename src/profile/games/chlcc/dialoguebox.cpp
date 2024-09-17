@@ -16,10 +16,14 @@ void Configure() {
     AssertIs(LUA_TTABLE);
 
     SecondaryADVNameTag::Position = EnsureGetMemberVec2("SecondaryPosition");
-    SecondaryADVNameTag::LeftSprite = EnsureGetMemberSprite("SecondaryLeftSprite");
-    SecondaryADVNameTag::LineSprite = EnsureGetMemberSprite("SecondaryLineSprite");
-    SecondaryADVNameTag::RightSprite = EnsureGetMemberSprite("SecondaryRightSprite");
-    SecondaryADVNameTag::BaseLineWidth = EnsureGetMemberFloat("SecondaryBaseLineWidth");
+    SecondaryADVNameTag::LeftSprite =
+        EnsureGetMemberSprite("SecondaryLeftSprite");
+    SecondaryADVNameTag::LineSprite =
+        EnsureGetMemberSprite("SecondaryLineSprite");
+    SecondaryADVNameTag::RightSprite =
+        EnsureGetMemberSprite("SecondaryRightSprite");
+    SecondaryADVNameTag::BaseLineWidth =
+        EnsureGetMemberFloat("SecondaryBaseLineWidth");
 
     Pop();
   }

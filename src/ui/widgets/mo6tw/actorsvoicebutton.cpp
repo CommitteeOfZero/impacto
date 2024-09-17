@@ -30,12 +30,12 @@ void ActorsVoiceButton::Render() {
   }
   if (HasFocus) {
     if (IsLocked) {
-      Renderer->DrawSprite(LockedHighlightSprite,
-                             glm::vec2(Bounds.X, Bounds.Y), Tint);
+      Renderer->DrawSprite(LockedHighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
+                           Tint);
 
     } else {
       Renderer->DrawSprite(HighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
-                             Tint);
+                           Tint);
     }
   }
 }

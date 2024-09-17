@@ -118,7 +118,7 @@ void SystemMenu::Render() {
   if (State != Hidden) {
     if (MenuTransition.IsIn()) {
       Renderer->DrawRect(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-                           RgbIntToFloat(BackgroundColor));
+                         RgbIntToFloat(BackgroundColor));
     } else {
       DrawCircles();
     }
@@ -128,7 +128,7 @@ void SystemMenu::Render() {
     float alpha =
         MenuTransition.Progress < 0.5f ? MenuTransition.Progress * 2.0f : 1.0f;
     Renderer->DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-                           glm::vec4(tint, alpha));
+                         glm::vec4(tint, alpha));
     float yOffset = 0;
     if (MenuTransition.Progress > 0.22f) {
       if (MenuTransition.Progress < 0.72f) {

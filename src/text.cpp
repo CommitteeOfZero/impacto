@@ -787,8 +787,8 @@ int TextLayoutPlainLine(Vm::Sc3VmThread* ctx, int stringLength,
 
     ptg.DestRect.X = currentX;
     ptg.DestRect.Y = pos.y;
-    ptg.DestRect.Width =
-        std::floor((fontSize / font->BitmapEmWidth) * font->AdvanceWidths[ptg.CharId]);
+    ptg.DestRect.Width = std::floor((fontSize / font->BitmapEmWidth) *
+                                    font->AdvanceWidths[ptg.CharId]);
     ptg.DestRect.Height = fontSize;
 
     currentX += ptg.DestRect.Width;
@@ -824,8 +824,8 @@ std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
 
     ptg.DestRect.X = currentX;
     ptg.DestRect.Y = pos.y;
-    ptg.DestRect.Width =
-        std::floor((fontSize / font->BitmapEmWidth) * font->AdvanceWidths[ptg.CharId]);
+    ptg.DestRect.Width = std::floor((fontSize / font->BitmapEmWidth) *
+                                    font->AdvanceWidths[ptg.CharId]);
     ptg.DestRect.Height = fontSize;
 
     currentX += ptg.DestRect.Width;

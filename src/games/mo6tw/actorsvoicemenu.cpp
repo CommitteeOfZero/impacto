@@ -114,9 +114,8 @@ void ActorsVoiceMenu::Render() {
     MainItems->Tint = col;
     MainItems->Render();
     if (ScrWork[SW_ACTORVOICE_CUR] != 255) {
-      Renderer->DrawSprite(
-          Backgrounds2D[CharacterBackgroundBufferId]->BgSprite,
-          glm::vec2(0.0f, 0.0f), col);
+      Renderer->DrawSprite(Backgrounds2D[CharacterBackgroundBufferId]->BgSprite,
+                           glm::vec2(0.0f, 0.0f), col);
     }
   }
 }

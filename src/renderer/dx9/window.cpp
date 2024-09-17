@@ -80,8 +80,9 @@ void DirectX9Window::Init() {
     windowFlags |= SDL_WINDOW_FULLSCREEN;
   }
 
-  SDLWindow = SDL_CreateWindow(Profile::WindowName, SDL_WINDOWPOS_UNDEFINED,
-                               SDL_WINDOWPOS_UNDEFINED, Profile::ResolutionWidth, Profile::ResolutionHeight, windowFlags);
+  SDLWindow = SDL_CreateWindow(
+      Profile::WindowName, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+      Profile::ResolutionWidth, Profile::ResolutionHeight, windowFlags);
 
   if (SDLWindow == NULL) {
     ImpLog(LL_Error, LC_General, SDL_GetError());

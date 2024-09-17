@@ -51,7 +51,7 @@ uint8_t GetSaveFlags(SaveType type, int id) {
 }
 
 tm const& GetSaveDate(SaveType type, int id) {
-  static tm t = [](){
+  static tm t = []() {
     tm t;
     t.tm_sec = 0;
     t.tm_min = 0;

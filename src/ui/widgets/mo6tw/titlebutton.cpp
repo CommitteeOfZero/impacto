@@ -15,17 +15,16 @@ void TitleButton::Render() {
 
   if (HasFocus && Enabled) {
     Renderer->DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y + 1.0f),
-                           black);
+                         black);
     Renderer->DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), white);
   } else if (Enabled) {
     Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y + 1.0f),
-                           black);
+                         black);
     Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), white);
   } else {
     Renderer->DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y + 1.0f),
-                           black);
-    Renderer->DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y),
-                           white);
+                         black);
+    Renderer->DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y), white);
   }
 }
 

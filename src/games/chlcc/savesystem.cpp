@@ -33,11 +33,13 @@ SaveError SaveSystem::MountSaveFile() {
   };
 
   WorkingSaveEntry = new SaveFileEntry();
-  WorkingSaveThumbnail.Sheet = SpriteSheet(Window->WindowWidth, Window->WindowHeight);
-  WorkingSaveThumbnail.Bounds = RectF(0.0f, 0.0f, Window->WindowWidth,
-                                     Window->WindowHeight);
+  WorkingSaveThumbnail.Sheet =
+      SpriteSheet(Window->WindowWidth, Window->WindowHeight);
+  WorkingSaveThumbnail.Bounds =
+      RectF(0.0f, 0.0f, Window->WindowWidth, Window->WindowHeight);
   Texture txt;
-  txt.LoadSolidColor(WorkingSaveThumbnail.Bounds.Width, WorkingSaveThumbnail.Bounds.Height, 0x000000);
+  txt.LoadSolidColor(WorkingSaveThumbnail.Bounds.Width,
+                     WorkingSaveThumbnail.Bounds.Height, 0x000000);
   WorkingSaveThumbnail.Sheet.Texture = txt.Submit();
   stream->Seek(0x14, SEEK_SET);
 

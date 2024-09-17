@@ -12,15 +12,16 @@ namespace CHLCC {
 using namespace Impacto::Profile::CHLCC::MovieMenu;
 using namespace Impacto::Profile::ScriptVars;
 
-
-MovieMenuEntryButton::MovieMenuEntryButton(int id, Sprite const& movieThumbnail, Sprite const& lockedMovieThumbnail,
-                                           glm::vec2 thumbnailPos, glm::vec2 boxPos) {
-
+MovieMenuEntryButton::MovieMenuEntryButton(int id, Sprite const& movieThumbnail,
+                                           Sprite const& lockedMovieThumbnail,
+                                           glm::vec2 thumbnailPos,
+                                           glm::vec2 boxPos) {
   Id = id;
   NormalSprite = movieThumbnail;
   DisabledSprite = lockedMovieThumbnail;
   Enabled = true;
-  Bounds = RectF(boxPos.x, boxPos.y, MovieBox.ScaledWidth(), MovieBox.ScaledHeight());
+  Bounds = RectF(boxPos.x, boxPos.y, MovieBox.ScaledWidth(),
+                 MovieBox.ScaledHeight());
 
   MovieBoxAnim = SelectedMovieAnimation.Instantiate();
   MovieBoxAnim.Direction = 1;
@@ -45,8 +46,7 @@ void MovieMenuEntryButton::Render() {
     Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X + 20, Bounds.Y + 16),
                          Tint);
   } else {
-    Renderer->DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y),
-                         Tint);
+    Renderer->DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
   }
 }
 

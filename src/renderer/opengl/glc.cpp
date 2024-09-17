@@ -29,7 +29,9 @@ void BindFramebuffer(GLenum target, GLuint framebuffer) {
       }
       break;
     }
-    default: { glBindFramebuffer(target, framebuffer); }
+    default: {
+      glBindFramebuffer(target, framebuffer);
+    }
   }
 }
 

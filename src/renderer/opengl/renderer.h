@@ -48,8 +48,8 @@ class Renderer : public BaseRenderer {
                          int height) override;
   std::vector<uint8_t> GetImageFromTexture(uint32_t texture,
                                            RectF dimensions) override;
-  int GetImageFromTexture(uint32_t texture,
-                                           RectF dimensions, tcb::span<uint8_t> outBuffer) override;
+  int GetImageFromTexture(uint32_t texture, RectF dimensions,
+                          tcb::span<uint8_t> outBuffer) override;
   void FreeTexture(uint32_t id) override;
   YUVFrame* CreateYUVFrame(float width, float height) override;
 

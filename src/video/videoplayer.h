@@ -13,7 +13,7 @@ class VideoPlayer {
   static VideoPlayer* Create(Io::Stream* stream);
 
   virtual void Init(){};
-  virtual void Play(Io::Stream* stream, bool loop, bool alpha) {};
+  virtual void Play(Io::Stream* stream, bool loop, bool alpha){};
   virtual void Stop(){};
   virtual void Seek(int64_t pos){};
 

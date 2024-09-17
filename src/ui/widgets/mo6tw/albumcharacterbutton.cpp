@@ -45,11 +45,10 @@ void AlbumCharacterButton::Render() {
   col.a = glm::smoothstep(0.0f, 1.0f, HighlightAnimation.Progress);
   if (HasFocus) {
     if (IsLocked) {
-      Renderer->DrawSprite(LockedHighlightSprite,
-                             glm::vec2(Bounds.X, Bounds.Y), col);
+      Renderer->DrawSprite(LockedHighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
+                           col);
     } else {
-      Renderer->DrawSprite(HighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
-                             col);
+      Renderer->DrawSprite(HighlightSprite, glm::vec2(Bounds.X, Bounds.Y), col);
     }
   }
 }

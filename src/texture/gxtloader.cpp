@@ -341,7 +341,9 @@ bool GXTLoadSubtexture(Stream* stream, Texture* outTexture,
       break;
     }
 
-    default: { TexfmtCheck(0); }
+    default: {
+      TexfmtCheck(0);
+    }
   }
 
   return true;

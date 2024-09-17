@@ -23,7 +23,8 @@ void SystemMenu::MenuButtonOnClick(Widgets::Button* target) {
   ChoiceMade = true;
   // When exiting through a menu button remove focus from the menu to avoid
   // triggering the onClick handler again
-  if (target->Id == ExitMenuButtonId) IsFocused = false;
+  if (target->Id == ExitMenuButtonId)
+    IsFocused = false;
   else
     Audio::Channels[Audio::AC_SSE]->Play("sysse", 5, false, 0.0f);
 }

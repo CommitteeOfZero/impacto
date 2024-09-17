@@ -77,7 +77,8 @@ void MapZoomInit(int mapX, int mapY, int size);
 bool MapZoomMain();
 void MapZoomInit2(int arg1, int arg2);
 bool MapZoomMain3();
-bool MapZoomInit3(int setMapX, int setMapY, int setMapSize, bool halfZoom = false);
+bool MapZoomInit3(int setMapX, int setMapY, int setMapSize,
+                  bool halfZoom = false);
 bool MapMoveAnimeInit2(int setMapX, int setMapY, int setTransitionSize);
 bool MapMoveAnimeMain2();
 void MapPlayerPotalSelectInit();

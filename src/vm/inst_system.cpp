@@ -584,7 +584,7 @@ VmInstruction(InstMSinit) {
 
   if (initType == 0 || initType == 1) {
     ScrWork[2113] = 0;
-    for(int i = 0; i < DialoguePageCount; i++) {
+    for (int i = 0; i < DialoguePageCount; i++) {
       DialoguePages[i].Clear();
       DialoguePages[i].FadeAnimation.Progress = 0;
       SetFlag(i + SF_MESWINDOW0OPENFL, 0);

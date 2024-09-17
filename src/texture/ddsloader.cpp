@@ -104,13 +104,13 @@ typedef struct {
 } dds_header;
 
 std::vector<unsigned char> m_buf;  ///< Buffer the image pixels
-int m_nchans;            ///< Number of colour channels in image
-int m_nfaces;            ///< Number of cube map sides in image
-int m_Bpp;               ///< Number of bytes per pixel
-int m_redL, m_redR;      ///< Bit shifts to extract red channel
-int m_greenL, m_greenR;  ///< Bit shifts to extract green channel
-int m_blueL, m_blueR;    ///< Bit shifts to extract blue channel
-int m_alphaL, m_alphaR;  ///< Bit shifts to extract alpha channel
+int m_nchans;                      ///< Number of colour channels in image
+int m_nfaces;                      ///< Number of cube map sides in image
+int m_Bpp;                         ///< Number of bytes per pixel
+int m_redL, m_redR;                ///< Bit shifts to extract red channel
+int m_greenL, m_greenR;            ///< Bit shifts to extract green channel
+int m_blueL, m_blueR;              ///< Bit shifts to extract blue channel
+int m_alphaL, m_alphaR;            ///< Bit shifts to extract alpha channel
 dds_header m_dds;
 
 inline void calc_shifts(int mask, int& left, int& right) {

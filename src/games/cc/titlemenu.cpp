@@ -281,7 +281,7 @@ void TitleMenu::Render() {
             RectF(FenceBoundsX - (FenceBoundsX * MoveLeftAnimation.Progress),
                   fenceBoundsY, FenceBoundsWidth, FenceBoundsHeight);
         Renderer->DrawSprite(BackgroundSprite,
-                               glm::vec2(BackgroundX, BackgroundY));
+                             glm::vec2(BackgroundX, BackgroundY));
         Renderer->DrawSprite(FenceSprite, glm::vec2(FenceX, FenceY));
         Renderer->DrawSprite(
             CopyrightSprite,
@@ -321,17 +321,16 @@ void TitleMenu::DrawMainBackground(float opacity) {
   glm::vec4 col = glm::vec4(1.0f);
   col.a = opacity;
   Renderer->DrawSprite(BackgroundSprite, glm::vec2(BackgroundX, BackgroundY),
-                         col);
+                       col);
   Renderer->DrawSprite(FenceSprite, glm::vec2(FenceX, FenceY), col);
-  Renderer->DrawSprite(CopyrightSprite, glm::vec2(CopyrightX, CopyrightY),
-                         col);
+  Renderer->DrawSprite(CopyrightSprite, glm::vec2(CopyrightX, CopyrightY), col);
 }
 
 void TitleMenu::DrawStartButton() {
   glm::vec4 col = glm::vec4(1.0f);
   col.a = glm::smoothstep(0.0f, 1.0f, PressToStartAnimation.Progress);
   Renderer->DrawSprite(PressToStartSprite,
-                         glm::vec2(PressToStartX, PressToStartY), col);
+                       glm::vec2(PressToStartX, PressToStartY), col);
 }
 
 void TitleMenu::DrawSmoke(float opacity) {
