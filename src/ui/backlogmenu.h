@@ -12,10 +12,10 @@ class BacklogMenu : public Menu {
  public:
   BacklogMenu();
 
-  void Show();
-  void Hide();
-  void Update(float dt);
-  void Render();
+  virtual void Show();
+  virtual void Hide();
+  virtual void Update(float dt);
+  virtual void Render();
 
   void AddMessage(uint8_t* str, int audioId = -1);
   void MenuButtonOnClick(Widgets::BacklogEntry* target);
@@ -23,7 +23,7 @@ class BacklogMenu : public Menu {
 
   float PageY = 0.0f;
 
- private:
+ protected:
   int CurrentId = 0;
   float ItemsHeight = 0.0f;
   glm::vec2 CurrentEntryPos;

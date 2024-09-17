@@ -1,22 +1,16 @@
 #pragma once
 
 #include "../../ui/backlogmenu.h"
-#include "../../spritesheet.h"
 
 namespace Impacto {
 namespace UI {
-namespace CC {
+namespace MO6TW {
 
 class BacklogMenu : public UI::BacklogMenu {
  public:
-  BacklogMenu();
-
   void Render();
-
- private:
-  const Sprite* MaskSprite;
 };
 
-}  // namespace CC
+}  // namespace MO6TW
 }  // namespace UI
 }  // namespace Impacto

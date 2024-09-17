@@ -1,0 +1,30 @@
+#include "backlogmenu.h"
+
+#include "../../ui/backlogmenu.h"
+#include "../../profile/ui/backlogmenu.h"
+#include "../../profile/games/mo6tw/backlogmenu.h"
+#include "../../profile/games/mo6tw/systemmenu.h"
+
+namespace Impacto {
+namespace UI {
+namespace MO6TW {
+
+using namespace Impacto::UI::MO6TW;
+using namespace Impacto::Profile::BacklogMenu;
+using namespace Impacto::Profile::MO6TW::BacklogMenu;
+
+void BacklogMenu::Render() {
+  if (State == Hidden) return;
+
+  glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
+  MainItems->Tint = col;
+
+  Renderer->DrawSprite(BacklogBackground, glm::vec2(0.0f), col);
+  RenderHighlight();
+  MainItems->Render();
+  MainScrollbar->Render();
+}
+
+}  // namespace MO6TW
+}  // namespace UI
+}  // namespace Impacto

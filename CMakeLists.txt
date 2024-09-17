@@ -154,6 +154,7 @@ set(Impacto_Src
         src/games/chlcc/trophymenuentry.cpp
         src/games/chlcc/delusiontrigger.cpp
 
+        src/games/cc/backlogmenu.cpp
         src/games/cc/dialoguebox.cpp
         src/games/cc/titlemenu.cpp
         src/games/cc/sysmesbox.cpp
@@ -171,6 +172,7 @@ set(Impacto_Src
         src/games/cclcc/savesystem.cpp
         src/games/cclcc/systemmenu.cpp
 
+        src/games/mo6tw/backlogmenu.cpp
         src/games/mo6tw/dialoguebox.cpp
         src/games/mo6tw/sysmesbox.cpp
         src/games/mo6tw/systemmenu.cpp

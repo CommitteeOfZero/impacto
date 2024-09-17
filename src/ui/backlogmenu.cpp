@@ -157,64 +157,7 @@ void BacklogMenu::RenderHighlight() const {
   }
 }
 
-void BacklogMenu::Render() {
-  if (State == Hidden || Type == +BacklogMenuType::None) return;
-
-  switch (Type) {
-    case BacklogMenuType::MO6TW: {
-      glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-      MainItems->Tint = col;
-
-      Renderer->DrawSprite(BacklogBackground, glm::vec2(0.0f), col);
-      RenderHighlight();
-      MainItems->Render();
-      MainScrollbar->Render();
-    }
-    case BacklogMenuType::CC: {
-      using namespace Impacto::Profile::CC::BacklogMenu;
-      glm::vec4 transition(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-      glm::vec4 maskTint = glm::vec4(1.0f);
-      maskTint.a = 0.85f * FadeAnimation.Progress;
-
-      Sprite* menuMask = nullptr;
-      switch (Impacto::Profile::SystemMenu::Type) {
-        default:
-          break;
-        // TODO: implement for CC
-        case UI::SystemMenuType::CCLCC:
-          menuMask = &Profile::CCLCC::SystemMenu::MenuMask;
-          break;
-      }
-
-      MainItems->Tint = transition;
-
-      int repeatHeight =
-          Profile::CC::BacklogMenu::BacklogBackgroundRepeatHeight;
-      float backgroundY =
-          fmod(PageY - EntryYPadding - RenderingBounds.Y, repeatHeight);
-      Renderer->DrawSprite(BacklogBackground, glm::vec2(0.0f, backgroundY),
-                           transition);
-      Renderer->DrawSprite(BacklogBackground,
-                           glm::vec2(0.0f, backgroundY + repeatHeight),
-                           transition);
-
-      RenderHighlight();
-      Renderer->DrawSprite(BacklogHeaderSprite, BacklogHeaderPosition,
-                           transition);
-      MainItems->Render();
-      MainScrollbar->Render();
-
-      if (menuMask != nullptr)
-        Renderer->DrawSprite(
-            *menuMask,
-            RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-            maskTint);
-
-      Renderer->DrawSprite(BacklogControlsSprite, BacklogControlsPosition,
-                           transition);
-    }
-  }
-}
+void BacklogMenu::Render() {}
 
 void BacklogMenu::AddMessage(uint8_t* str, int audioId) {
   if (!GetFlag(SF_REVADDDISABLE) || ScrWork[SW_MESWIN0TYPE] == 0) {
