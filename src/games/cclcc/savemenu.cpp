@@ -226,7 +226,6 @@ void SaveMenu::Update(float dt) {
 void SaveMenu::Render() {
   if (State != Hidden) {
     glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-    Renderer->DrawSprite(SaveMenuBackgroundSprite, glm::vec2(0.0f), col);
     Renderer->DrawSprite(MenuTextSprite[ScrWork[SW_SAVEMENUMODE]], {11, 10},
                          col);
     Renderer->DrawSprite(EntrySlotsSprite[ScrWork[SW_SAVEMENUMODE]], {135, 0},

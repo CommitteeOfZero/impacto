@@ -27,6 +27,8 @@ inline Sprite BackButtonSprite;
 inline Sprite BackButtonHighlightedSprite;
 inline glm::vec2 BackButtonPosition;
 
+inline Sprite SaveMenuBackgroundSprite;
+
 void Configure();
 
 }  // namespace SaveMenu

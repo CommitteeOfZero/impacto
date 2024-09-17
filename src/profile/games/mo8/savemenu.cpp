@@ -13,6 +13,8 @@ namespace MO8 {
 namespace SaveMenu {
 
 void Configure() {
+  SaveMenuBackgroundSprite = EnsureGetMemberSprite("SaveMenuBackgroundSprite");
+
   EntryStartX = EnsureGetMemberFloat("EntryStartX");
   EntryXPadding = EnsureGetMemberFloat("EntryXPadding");
   EntryStartY = EnsureGetMemberFloat("EntryStartY");

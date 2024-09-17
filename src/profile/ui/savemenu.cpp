@@ -20,8 +20,6 @@ void Configure() {
 
     Type = SaveMenuType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
 
-    SaveMenuBackgroundSprite =
-        EnsureGetMemberSprite("SaveMenuBackgroundSprite");
     EmptyThumbnailSprite = EnsureGetMemberSprite("EmptyThumbnailSprite");
 
     FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
