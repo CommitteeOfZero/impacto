@@ -9,8 +9,10 @@
 #include "../profile/scriptinput.h"
 #include "../profile/dialogue.h"
 #include "../profile/ui/backlogmenu.h"
+#include "../profile/ui/systemmenu.h"
 #include "../profile/games/mo6tw/backlogmenu.h"
 #include "../profile/games/cc/backlogmenu.h"
+#include "../profile/games/cclcc/systemmenu.h"
 #include "../inputsystem.h"
 #include "../io/vfs.h"
 
@@ -170,25 +172,46 @@ void BacklogMenu::Render() {
     }
     case BacklogMenuType::CC: {
       using namespace Impacto::Profile::CC::BacklogMenu;
+      glm::vec4 transition(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
+      glm::vec4 maskTint = glm::vec4(1.0f);
+      maskTint.a = 0.85f * FadeAnimation.Progress;
 
-      glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-      MainItems->Tint = col;
+      Sprite* menuMask = nullptr;
+      switch (Impacto::Profile::SystemMenu::Type) {
+        default:
+          break;
+        // TODO: implement for CC
+        case UI::SystemMenuType::CCLCC:
+          menuMask = &Profile::CCLCC::SystemMenu::MenuMask;
+          break;
+      }
+
+      MainItems->Tint = transition;
 
       int repeatHeight =
           Profile::CC::BacklogMenu::BacklogBackgroundRepeatHeight;
       float backgroundY =
           fmod(PageY - EntryYPadding - RenderingBounds.Y, repeatHeight);
       Renderer->DrawSprite(BacklogBackground, glm::vec2(0.0f, backgroundY),
-                           col);
+                           transition);
       Renderer->DrawSprite(BacklogBackground,
-                           glm::vec2(0.0f, backgroundY + repeatHeight), col);
+                           glm::vec2(0.0f, backgroundY + repeatHeight),
+                           transition);
 
       RenderHighlight();
-      Renderer->DrawSprite(BacklogHeaderSprite, BacklogHeaderPosition, col);
-      // TODO: Draw gradient
+      Renderer->DrawSprite(BacklogHeaderSprite, BacklogHeaderPosition,
+                           transition);
       MainItems->Render();
       MainScrollbar->Render();
-      Renderer->DrawSprite(BacklogControlsSprite, BacklogControlsPosition, col);
+
+      if (menuMask != nullptr)
+        Renderer->DrawSprite(
+            *menuMask,
+            RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+            maskTint);
+
+      Renderer->DrawSprite(BacklogControlsSprite, BacklogControlsPosition,
+                           transition);
     }
   }
 }

@@ -1,6 +1,7 @@
 root.SystemMenu = {
     Type = SystemMenuType.CCLCC,
     DrawType = DrawComponentType.SystemMenu,
+
     FadeInDuration = 64 / 60,
     FadeOutDuration = 64 / 60,
     TitleFadeInDuration = 40 / 60,
@@ -29,6 +30,8 @@ root.SystemMenu = {
     },
     MenuEntriesSprites = {},
     MenuEntriesHighlightedSprites = {},
+
+    MenuMask = "SystemMenuMask",
     MenuButtonGuide = "SystemMenuButtonGuide",
 };
 
@@ -99,6 +102,11 @@ for i=1, #root.SystemMenu.MenuEntriesSprites do
     }
     root.SystemMenu.MenuEntriesHighlightedSprites[#root.SystemMenu.MenuEntriesHighlightedSprites + 1] = name
 end
+
+root.Sprites["SystemMenuMask"] = {
+    Sheet = "MenuChip",
+    Bounds = { X = 154, Y = 140, Width = 1900, Height = 1061 },
+};
 
 root.Sprites["SystemMenuButtonGuide"] = {
     Sheet = "MenuChip",

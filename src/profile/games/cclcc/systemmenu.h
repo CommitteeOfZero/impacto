@@ -8,6 +8,7 @@ namespace CCLCC {
 namespace SystemMenu {
 constexpr int MenuEntriesNumMax = 16;
 
+inline Sprite MenuMask;
 inline Sprite MenuButtonGuide;
 inline float TitleFadeInDuration;
 inline float TitleFadeOutDuration;
