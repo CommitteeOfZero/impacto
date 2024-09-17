@@ -2,15 +2,36 @@ name: impacto
 on:
   push:
     branches:
-    - "*"
-    - "!separate_renderer"
+    - "master"
     tags:
     - "*"
+  pull_request_target:
+    branches:
+    - "master"
 
 env:
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
 
 jobs:
+  lint:
+    permissions:
+      checks: write
+      contents: write
+    name: Run linters
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v4
+
+      # Install your linters here
+
+      - name: Run linters
+        uses: wearerequired/lint-action@v2
+        with:
+          auto_fix: true
+          clang-format: true
+    
   job-matrix:
     name: ${{ matrix.os_name }}
     runs-on: ${{ matrix.os }}
