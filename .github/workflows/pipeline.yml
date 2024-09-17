@@ -23,11 +23,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install ClangFormat
-        run: |
-          wget https://apt.llvm.org/llvm.sh
-          chmod +x llvm.sh
-          sudo ./llvm.sh 18
-          sudo apt-get install clang-format-18
+        run: sudo apt-get install -y clang-format
 
       - name: Run linters
         uses: wearerequired/lint-action@v2
