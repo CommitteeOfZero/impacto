@@ -9,11 +9,12 @@ on:
 env:
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
 
+permissions:
+  checks: write
+  contents: write
+
 jobs:
   lint:
-    permissions:
-      checks: write
-      contents: write
     name: Run linters
     runs-on: ubuntu-latest
 
