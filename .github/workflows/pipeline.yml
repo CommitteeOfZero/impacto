@@ -175,7 +175,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs:
     - job-matrix
-    if: (needs.job-matrix.result == 'success') && (startsWith(github.ref, 'refs/tags') || github.ref == 'refs/heads/master')
+    if: (needs.job-matrix.result == 'success') && ((startsWith(github.ref, 'refs/tags') || github.ref_name == 'master'))
     steps:
     - uses: actions/download-artifact@v4
       with:
@@ -184,7 +184,7 @@ jobs:
         merge-multiple: true
     - name: Upload Release
       uses: softprops/action-gh-release@v2
-      if: startsWith(github.ref, 'refs/tags') || (github.ref == 'refs/heads/master')
+      if: startsWith(github.ref, 'refs/tags') || (github.ref_name == 'master')
       with:
         Name: Latest ${{ env.BRANCH_NAME }} build
         tag_name: ${{ vars.VERSION }}${{ github.run_number }}
