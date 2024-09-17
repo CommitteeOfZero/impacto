@@ -224,8 +224,8 @@ std::vector<uint8_t> Renderer::GetImageFromTexture(uint32_t texture,
   return result;
 }
 
-int Renderer::GetImageFromTexture(uint32_t texture,
-                                           RectF dimensions, tcb::span<uint8_t> outBuffer) {
+int Renderer::GetImageFromTexture(uint32_t texture, RectF dimensions,
+                                  tcb::span<uint8_t> outBuffer) {
   const int bufferSize = dimensions.Width * dimensions.Height * 4;
   assert(outBuffer.size() >= bufferSize);
   glBindTexture(GL_TEXTURE_2D, texture);
@@ -242,7 +242,7 @@ int Renderer::GetImageFromTexture(uint32_t texture,
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glDeleteFramebuffers(1, &fbo);
   return bufferSize;
-                                           }
+}
 
 void Renderer::FreeTexture(uint32_t id) { glDeleteTextures(1, &id); }
 
