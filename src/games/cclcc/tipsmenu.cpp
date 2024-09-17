@@ -267,8 +267,7 @@ void TipsMenu::Render() {
     glm::vec4 maskTint = glm::vec4(1.0f);
     maskTint.a = 0.85f * FadeAnimation.Progress;
 
-    Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
-    Renderer->DrawSprite(TipsBookLayerSprite, glm::vec2(0.0f), transition);
+    Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f), transition);
     TipsTabs[CurrentTabType]->Render();
 
     Renderer->DrawSprite(TipsGuideSprite, glm::vec2(TipsGuideX, TipsGuideY),

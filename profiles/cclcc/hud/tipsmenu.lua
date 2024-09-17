@@ -1,10 +1,9 @@
 root.TipsMenu = {
     Type = TipsMenuType.CCLCC,
     DrawType = DrawComponentType.SystemMenu,
-    BackgroundSprite = "TipsMenuBackground",
     FadeInDuration = 0.2,
     FadeOutDuration = 0.2,
-    TipsBookLayerSprite = "TipsBookLayer",
+    BackgroundSprite = "TipsBookLayer",
     TipsGuideSprite = "TipsGuide",
     TipsGuideX = 0,
     TipsGuideY = 990,
@@ -45,11 +44,6 @@ root.TipsMenu = {
     TipsScrollDetailsX = 1783,
 
     TipsMask = "TipsMask",
-};
-
-root.Sprites["TipsMenuBackground"] = {
-    Sheet = "Title",
-    Bounds = { X = 0, Y = 1080, Width = 1920, Height = 1080 }
 };
 
 root.Sprites["TipsBookLayer"] = {

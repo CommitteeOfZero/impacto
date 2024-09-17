@@ -14,7 +14,6 @@ namespace CCLCC {
 namespace TipsMenu {
 
 void Configure() {
-  TipsBookLayerSprite = EnsureGetMemberSprite("TipsBookLayerSprite");
   TipsGuideSprite = EnsureGetMemberSprite("TipsGuideSprite");
   TipsMaskSprite = EnsureGetMemberSprite("TipsMaskSprite");
   TipsHighlightedSprite = EnsureGetMemberSprite("TipsHighlightedSprite");

@@ -7,7 +7,6 @@ namespace Profile {
 namespace CCLCC {
 namespace TipsMenu {
 
-inline Sprite TipsBookLayerSprite;
 inline Sprite TipsGuideSprite;
 inline Sprite TipsMaskSprite;
 inline Sprite TipsHighlightedSprite;
