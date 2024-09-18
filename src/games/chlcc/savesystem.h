@@ -19,7 +19,7 @@ class SaveSystem : public SaveSystemBase {
  public:
   SaveError MountSaveFile() override;
   void SaveMemory() override;
-  void LoadMemory(SaveType type, int id) override;
+  void LoadEntry(SaveType type, int id) override;
   void FlushWorkingSaveEntry(SaveType type, int id) override;
   void WriteSaveFile() override;
   uint32_t GetSavePlayTime(SaveType type, int id) override;

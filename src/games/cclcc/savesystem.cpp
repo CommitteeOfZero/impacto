@@ -460,80 +460,79 @@ void SaveSystem::SaveMemory() {
   }
 }
 
-void SaveSystem::LoadMemory(SaveType type, int id) {
-  SaveFileEntry* entry = 0;
+void SaveSystem::LoadEntry(SaveType type, int id) {
+  if (WorkingSaveEntry != 0) {
+    delete WorkingSaveEntry;
+    WorkingSaveEntry = 0;
+  }
   switch (type) {
     case SaveQuick:
-      entry = (SaveFileEntry*)QuickSaveEntries[id];
+      WorkingSaveEntry = (SaveFileEntry*)QuickSaveEntries[id];
       break;
     case SaveFull:
-      entry = (SaveFileEntry*)FullSaveEntries[id];
+      WorkingSaveEntry = (SaveFileEntry*)FullSaveEntries[id];
       break;
     default:
       ImpLog(LL_Error, LC_IO,
              "Failed to load save memory: unknown save type, doing nothing\n");
       return;
   }
+}
 
-  if (entry != 0)
-    if (entry->Status) {
-      ScrWork[SW_PLAYTIME] = entry->PlayTime;
-      ScrWork[SW_TITLE] = entry->SwTitle;
+void SaveSystem::LoadMemoryNew(LoadProcess load) {
+  if (!WorkingSaveEntry->Status) {
+    ImpLog(LL_Error, LC_IO, "Failed to load entry: save is empty\n");
+    return;
+  }
+  if (load == LoadProcess::LoadVars) {
+    ScrWork[SW_PLAYTIME] = WorkingSaveEntry->PlayTime;
+    ScrWork[SW_TITLE] = WorkingSaveEntry->SwTitle;
 
-      memcpy(&FlagWork[50], entry->FlagWorkScript1, 50);
-      memcpy(&FlagWork[300], entry->FlagWorkScript2, 100);
-      memcpy(&ScrWork[1000], entry->ScrWorkScript1, 2400);
-      memcpy(&ScrWork[4300], entry->ScrWorkScript2, 12000);
-      UI::MapSystem::MapLoad(entry->MapLoadData);
-      CCLCC::YesNoTrigger::YesNoTriggerPtr->Load(entry->YesNoData);
-      // TODO: What to do about this mess I wonder...
-      ScrWork[SW_SVSENO] = ScrWork[SW_SEREQNO];
-      ScrWork[SW_SVSENO + 1] = ScrWork[SW_SEREQNO + 1];
-      ScrWork[SW_SVSENO + 2] = ScrWork[SW_SEREQNO + 2];
-      ScrWork[SW_SVBGMNO] = ScrWork[SW_BGMREQNO];
-      ScrWork[SW_SVBGM2NO] = ScrWork[SW_BGMREQNO2];
-      ScrWork[SW_SVSCRNO1] = ScrWork[SW_SCRIPTNO2];
-      ScrWork[SW_SVSCRNO2] = ScrWork[SW_SCRIPTNO3];
-      ScrWork[SW_SVSCRNO3] = ScrWork[SW_SCRIPTNO4];
-      ScrWork[SW_SVSCRNO4] = ScrWork[SW_SCRIPTNO5];
-      for (int i = 0; i < 8; i++) {
-        ScrWork[SW_SVBGNO1 + i] = ScrWork[SW_BG1NO + i * ScrWorkBgStructSize];
-        ScrWork[SW_SVCHANO1 + i] =
-            ScrWork[SW_CHA1NO + i * ScrWorkChaStructSize];
-      }
-
-      int threadId = ScrWork[SW_MAINTHDP];
-      Sc3VmThread* thd = &ThreadPool[threadId & 0x7FFFFFFF];
-
-      // Load scripts
-      if (ScrWork[SW_SVSCRNO1] != 65535) LoadScript(2, ScrWork[SW_SVSCRNO1]);
-      if (ScrWork[SW_SVSCRNO2] != 65535) LoadScript(3, ScrWork[SW_SVSCRNO2]);
-      if (ScrWork[SW_SVSCRNO4] != 65535) LoadScript(5, ScrWork[SW_SVSCRNO4]);
-
-      ScrWork[SW_SVSCRNO1] = 65535;
-      ScrWork[SW_SVSCRNO2] = 65535;
-      ScrWork[SW_SVSCRNO4] = 65535;
-
-      if (thd->GroupId - 5 < 3) {
-        thd->ExecPriority = entry->MainThreadExecPriority;
-        thd->WaitCounter = entry->MainThreadWaitCounter;
-        thd->ScriptParam = entry->MainThreadScriptParam;
-        thd->GroupId = entry->MainThreadGroupId;
-        thd->ScriptBufferId = entry->MainThreadScriptBufferId;
-        thd->Ip =
-            ScriptGetRetAddress(ScriptBuffers[entry->MainThreadScriptBufferId],
-                                entry->MainThreadIp);
-        thd->CallStackDepth = entry->MainThreadCallStackDepth;
-
-        for (int i = 0; i < thd->CallStackDepth; i++) {
-          thd->ReturnScriptBufferIds[i] = entry->MainThreadReturnBufIds[i];
-          thd->ReturnIds[i] = entry->MainThreadReturnIds[i];
-        }
-
-        memcpy(thd->Variables, entry->MainThreadVariables, 64);
-        thd->DialoguePageId = entry->MainThreadDialoguePageId;
-      }
+    memcpy(&FlagWork[50], WorkingSaveEntry->FlagWorkScript1, 50);
+    memcpy(&FlagWork[300], WorkingSaveEntry->FlagWorkScript2, 100);
+    memcpy(&ScrWork[1000], WorkingSaveEntry->ScrWorkScript1, 2400);
+    memcpy(&ScrWork[4300], WorkingSaveEntry->ScrWorkScript2, 12000);
+    UI::MapSystem::MapLoad(WorkingSaveEntry->MapLoadData);
+    CCLCC::YesNoTrigger::YesNoTriggerPtr->Load(WorkingSaveEntry->YesNoData);
+    // TODO: What to do about this mess I wonder...
+    ScrWork[SW_SVSENO] = ScrWork[SW_SEREQNO];
+    ScrWork[SW_SVSENO + 1] = ScrWork[SW_SEREQNO + 1];
+    ScrWork[SW_SVSENO + 2] = ScrWork[SW_SEREQNO + 2];
+    ScrWork[SW_SVBGMNO] = ScrWork[SW_BGMREQNO];
+    ScrWork[SW_SVBGM2NO] = ScrWork[SW_BGMREQNO2];
+    ScrWork[SW_SVSCRNO1] = ScrWork[SW_SCRIPTNO2];
+    ScrWork[SW_SVSCRNO2] = ScrWork[SW_SCRIPTNO3];
+    ScrWork[SW_SVSCRNO3] = ScrWork[SW_SCRIPTNO4];
+    ScrWork[SW_SVSCRNO4] = ScrWork[SW_SCRIPTNO5];
+    for (int i = 0; i < 8; i++) {
+      ScrWork[SW_SVBGNO1 + i] = ScrWork[SW_BG1NO + i * ScrWorkBgStructSize];
+      ScrWork[SW_SVCHANO1 + i] = ScrWork[SW_CHA1NO + i * ScrWorkChaStructSize];
     }
+  } else if (ScrWork[SW_MAINTHDP] != 0) {
+    int threadId = ScrWork[SW_MAINTHDP];
+    Sc3VmThread* thd = &ThreadPool[threadId & 0x7FFFFFFF];
+
+    if (thd->GroupId - 5 < 3) {
+      thd->ExecPriority = WorkingSaveEntry->MainThreadExecPriority;
+      thd->WaitCounter = WorkingSaveEntry->MainThreadWaitCounter;
+      thd->ScriptParam = WorkingSaveEntry->MainThreadScriptParam;
+      thd->GroupId = WorkingSaveEntry->MainThreadGroupId;
+      thd->ScriptBufferId = WorkingSaveEntry->MainThreadScriptBufferId;
+      thd->Ip = ScriptGetRetAddress(
+          ScriptBuffers[WorkingSaveEntry->MainThreadScriptBufferId],
+          WorkingSaveEntry->MainThreadIp);
+      thd->CallStackDepth = WorkingSaveEntry->MainThreadCallStackDepth;
+
+      for (int i = 0; i < thd->CallStackDepth; i++) {
+        thd->ReturnScriptBufferIds[i] =
+            WorkingSaveEntry->MainThreadReturnBufIds[i];
+        thd->ReturnIds[i] = WorkingSaveEntry->MainThreadReturnIds[i];
+      }
+
+      memcpy(thd->Variables, WorkingSaveEntry->MainThreadVariables, 64);
+      thd->DialoguePageId = WorkingSaveEntry->MainThreadDialoguePageId;
+    }
+  }
 }
 
 uint8_t SaveSystem::GetSaveStatus(SaveType type, int id) {

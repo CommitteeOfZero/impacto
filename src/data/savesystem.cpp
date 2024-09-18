@@ -24,8 +24,12 @@ void SaveMemory() {
   if (Implementation) Implementation->SaveMemory();
 }
 
-void LoadMemory(SaveType type, int id) {
-  if (Implementation) Implementation->LoadMemory(type, id);
+void LoadEntry(SaveType type, int id) {
+  if (Implementation) Implementation->LoadEntry(type, id);
+}
+
+void LoadMemoryNew(LoadProcess load) {
+  if (Implementation) Implementation->LoadMemoryNew(load);
 }
 
 void FlushWorkingSaveEntry(SaveType type, int id) {
