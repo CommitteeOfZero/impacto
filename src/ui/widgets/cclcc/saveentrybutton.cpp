@@ -44,14 +44,14 @@ SaveEntryButton::SaveEntryButton(int id, Sprite const& focusedBox,
                        glm::vec2(Bounds.X, Bounds.Y) +
                            glm::vec2(211.0f, 20.0f + 1.0f - 12.0f)) {
   DisabledSprite = NormalSprite;
-  glm::vec2 relativeTitlePosition = {290, 35};
+  glm::vec2 relativeTitlePosition = {310, 39};
   CharacterRouteLabel.Bounds.X = Bounds.X + relativeTitlePosition.x;
   CharacterRouteLabel.Bounds.Y = Bounds.Y + relativeTitlePosition.y;
 
   SceneTitleLabel.Bounds.X = Bounds.X + relativeTitlePosition.x;
   SceneTitleLabel.Bounds.Y = Bounds.Y + relativeTitlePosition.y + 30;
 
-  glm::vec2 relativeTimePosition{20 + 290, (120)};
+  glm::vec2 relativeTimePosition{315, 147};
   SaveDateLabel.Bounds.X = Bounds.X + relativeTimePosition.x;
   SaveDateLabel.Bounds.Y = Bounds.Y + relativeTimePosition.y;
 
@@ -70,22 +70,27 @@ void SaveEntryButton::Render() {
   }
 
   Renderer->DrawSprite(
+      SeparationLineSprite[ScrWork[SW_SAVEMENUMODE]],
+      glm::vec2(Bounds.X + 308, Bounds.Y + 112), Tint,
+      glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
+  Renderer->DrawSprite(
       NumberDigitSprite[ScrWork[SW_SAVEMENUMODE]][(Index + 1) / 10],
-      glm::vec2(Bounds.X + 20 + 668 + 32 + 1, Bounds.Y + 20 + 99 + 1), Tint,
+      glm::vec2(Bounds.X + 720, Bounds.Y + 120), Tint,
       glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
   Renderer->DrawSprite(
       NumberDigitSprite[ScrWork[SW_SAVEMENUMODE]][(Index + 1) % 10],
-      glm::vec2(Bounds.X + 20 + 668 + 64 + 1, Bounds.Y + 20 + 99 + 1), Tint,
+      glm::vec2(Bounds.X + 752, Bounds.Y + 120), Tint,
       glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
   if (SaveStatus == 1) {
     if (IsLocked) {
       SceneTitleLabel.Render();
       LockedSymbol.Render();
     }
-    Renderer->DrawSprite(Thumbnail,
-                         {Bounds.X + 20, Bounds.Y + 30, Thumbnail.Bounds.Width,
-                          Thumbnail.Bounds.Height},
-                         Tint);
+    Renderer->DrawSprite(
+        Thumbnail,
+        {Bounds.X + 20, Bounds.Y + 22, Thumbnail.Bounds.Width + 30,
+         Thumbnail.Bounds.Height + 17},
+        Tint);
     CharacterRouteLabel.Render();
     SceneTitleLabel.Render();
     SaveDateLabel.Render();
@@ -128,30 +133,30 @@ void SaveEntryButton::UpdateFocusedAlphaFade(float dt) {
       glm::vec4(glm::vec3(1.0f), ((FocusedAlphaFade.Progress * 30) + 1) / 85);
 }
 
-void SaveEntryButton::RefreshSceneTitleText(int strIndex) {
-  // TODO actually make this look correct
-  uint8_t* strAddr = Vm::ScriptGetTextTableStrAddress(1, strIndex | 1);
-  float fontSize = 24;
-  RendererOutlineMode outlineMode = RendererOutlineMode::RO_BottomRight;
-  SceneTitleLabel.SetText(strAddr, fontSize, outlineMode, IsLocked ? 69 : 0);
-}
-
 void SaveEntryButton::RefreshCharacterRouteText(int strIndex) {
   // TODO actually make this look correct
   uint8_t* strAddr = Vm::ScriptGetTextTableStrAddress(1, strIndex);
-  float fontSize = 24;
+  float fontSize = 28;
   RendererOutlineMode outlineMode = RendererOutlineMode::RO_BottomRight;
   CharacterRouteLabel.SetText(strAddr, fontSize, outlineMode,
-                              IsLocked ? 69 : 0);
+                              IsLocked ? 69 : 70);
+}
+
+void SaveEntryButton::RefreshSceneTitleText(int strIndex) {
+  // TODO actually make this look correct
+  uint8_t* strAddr = Vm::ScriptGetTextTableStrAddress(1, strIndex | 1);
+  float fontSize = 28;
+  RendererOutlineMode outlineMode = RendererOutlineMode::RO_BottomRight;
+  SceneTitleLabel.SetText(strAddr, fontSize, outlineMode, IsLocked ? 69 : 71);
 }
 
 void SaveEntryButton::RefreshSaveDateText() {
   tm const& date = SaveSystem::GetSaveDate(Type, Id);
   float fontSize = 32;
-  RendererOutlineMode outlineMode = RendererOutlineMode::RO_Full;
+  RendererOutlineMode outlineMode = RendererOutlineMode::RO_BottomRight;
   // Maybe fmt will merge my PR for space padded month
-  SaveDateLabel.SetText(fmt::format(FMT_STRING("{:%Y/%_m/%-e %H:%M:%S}"), date),
-                        fontSize, outlineMode, IsLocked ? 69 : 0);
+  SaveDateLabel.SetText(fmt::format(FMT_STRING("{:%Y/%m/%d %H:%M:%S}"), date),
+                        fontSize, outlineMode, IsLocked ? 69 : 71);
 }
 
 // TODO: Make this only refresh when saved

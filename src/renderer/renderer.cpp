@@ -148,7 +148,6 @@ void BaseRenderer::DrawProcessedText_LBFont(
     tcb::span<const ProcessedTextGlyph> text, LBFont* font, float opacity,
     RendererOutlineMode outlineMode, bool smoothstepGlyphOpacity,
     float outlineOpacity, SpriteSheet* maskedSheet) {
-  // TODO: implement outline mode properly
   if (outlineMode != RendererOutlineMode::RO_None) {
     for (int i = 0; i < text.size(); i++) {
       glm::vec4 color = RgbIntToFloat(text[i].Colors.OutlineColor);
@@ -161,11 +160,26 @@ void BaseRenderer::DrawProcessedText_LBFont(
 
       float scaleX = text[i].DestRect.Height / font->BitmapEmWidth;
       float scaleY = text[i].DestRect.Height / font->BitmapEmHeight;
+      RectF outlineDest;
 
-      RectF outlineDest = RectF(
-          text[i].DestRect.X + scaleX * font->OutlineOffset.x,
-          text[i].DestRect.Y + scaleY * font->OutlineOffset.y,
-          scaleX * font->OutlineCellWidth, scaleY * font->OutlineCellHeight);
+      switch (outlineMode) {
+        case RendererOutlineMode::RO_Full:
+          outlineDest =
+              RectF(text[i].DestRect.X + scaleX * font->OutlineOffset.x,
+                    text[i].DestRect.Y + scaleY * font->OutlineOffset.y,
+                    scaleX * font->OutlineCellWidth,
+                    scaleY * font->OutlineCellHeight);
+          break;
+        case RendererOutlineMode::RO_BottomRight:
+          outlineDest = RectF(
+              text[i].DestRect.X + scaleX * (font->OutlineOffset.x * 3 / 4),
+              text[i].DestRect.Y + scaleY * (font->OutlineOffset.y * 3 / 4),
+              scaleX * (font->OutlineCellWidth + font->OutlineOffset.x / 2),
+              scaleY * (font->OutlineCellHeight + font->OutlineOffset.y / 2));
+          break;
+        default:
+          break;
+      }
       if (maskedSheet) {
         Sprite mask;
         mask.Sheet = *maskedSheet;

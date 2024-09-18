@@ -25,6 +25,7 @@ inline Sprite EntryHighlightedBoxSprite[SaveMenuPageType::_size_constant];
 inline Sprite EntryHighlightedTextSprite[SaveMenuPageType::_size_constant];
 inline Sprite EntrySlotsSprite[SaveMenuPageType::_size_constant];
 inline Sprite ButtonGuideSprite[SaveMenuPageType::_size_constant];
+inline Sprite SeparationLineSprite[SaveMenuPageType::_size_constant];
 inline Sprite NumberDigitSprite[SaveMenuPageType::_size_constant][10];
 inline Sprite NoDataSprite[SaveMenuPageType::_size_constant];
 inline Sprite BrokenDataSprite[SaveMenuPageType::_size_constant];

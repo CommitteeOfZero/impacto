@@ -45,7 +45,12 @@ for i = 1,3 do
     root.SaveMenu[menuType .. "ButtonGuideSprite"] = menuType .. "ButtonGuide";
     root.Sprites[menuType .. "ButtonGuide"] = {
         Sheet = menuType .. "Menu",
-        Bounds = {X = 0, Y = 1457, Width = 1920, Height = 59}
+        Bounds = { X = 0, Y = 1457, Width = 1920, Height = 59 }
+    };
+    root.SaveMenu[menuType .. "SeparationLineSprite"] = menuType .. "SeparationLine";
+    root.Sprites[menuType .. "SeparationLine"] = {
+        Sheet = menuType .. "Menu",
+        Bounds = { X = 847, Y = 1409, Width = 478, Height = 27 }
     };
     
 
