@@ -23,8 +23,6 @@ using namespace Impacto::Profile::SaveSystem;
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Vm;
 
-SaveFileEntry* WorkingSaveEntry = 0;
-
 SaveError SaveSystem::MountSaveFile() {
   Io::Stream* stream;
   IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream);
@@ -37,8 +35,7 @@ SaveError SaveSystem::MountSaveFile() {
     case IoError_OK:
       break;
   };
-
-  WorkingSaveEntry = new SaveFileEntry();
+  WorkingSaveEntry = std::optional<SaveFileEntry>(SaveFileEntry());
   WorkingSaveThumbnail.Sheet =
       SpriteSheet(Window->WindowWidth, Window->WindowHeight);
   WorkingSaveThumbnail.Bounds =
@@ -209,33 +206,30 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id) {
       break;
   }
 
-  if (WorkingSaveEntry != 0) {
-    if (entry != 0) {
-      Renderer->FreeTexture(entry->SaveThumbnail.Sheet.Texture);
-      *entry = *WorkingSaveEntry;
-      time_t rawtime;
-      time(&rawtime);
-      entry->SaveDate = *localtime(&rawtime);
-      auto captureBuffer = Renderer->GetImageFromTexture(
-          WorkingSaveThumbnail.Sheet.Texture, WorkingSaveThumbnail.Bounds);
+  if (entry != 0) {
+    Renderer->FreeTexture(entry->SaveThumbnail.Sheet.Texture);
+    *entry = *WorkingSaveEntry;
+    time_t rawtime;
+    time(&rawtime);
+    entry->SaveDate = *localtime(&rawtime);
+    auto captureBuffer = Renderer->GetImageFromTexture(
+        WorkingSaveThumbnail.Sheet.Texture, WorkingSaveThumbnail.Bounds);
 
-      Texture tex;
-      tex.Init(TexFmt_RGBA, SaveThumbnailWidth, SaveThumbnailHeight);
+    Texture tex;
+    tex.Init(TexFmt_RGBA, SaveThumbnailWidth, SaveThumbnailHeight);
 
-      entry->SaveThumbnail.Sheet =
-          SpriteSheet(SaveThumbnailWidth, SaveThumbnailHeight);
-      entry->SaveThumbnail.Bounds =
-          RectF(0.0f, 0.0f, SaveThumbnailWidth, SaveThumbnailHeight);
+    entry->SaveThumbnail.Sheet =
+        SpriteSheet(SaveThumbnailWidth, SaveThumbnailHeight);
+    entry->SaveThumbnail.Bounds =
+        RectF(0.0f, 0.0f, SaveThumbnailWidth, SaveThumbnailHeight);
 
-      int result = ResizeImage(
-          WorkingSaveThumbnail.Bounds, entry->SaveThumbnail.Bounds,
-          captureBuffer,
-          tcb::span{tex.Buffer, static_cast<size_t>(tex.BufferSize)}, true);
-      if (result < 0) {
-        ImpLog(LL_Error, LC_General, "Failed to resize save thumbnail\n");
-      }
-      entry->SaveThumbnail.Sheet.Texture = tex.Submit();
+    int result = ResizeImage(
+        WorkingSaveThumbnail.Bounds, entry->SaveThumbnail.Bounds, captureBuffer,
+        tcb::span{tex.Buffer, static_cast<size_t>(tex.BufferSize)}, true);
+    if (result < 0) {
+      ImpLog(LL_Error, LC_General, "Failed to resize save thumbnail\n");
     }
+    entry->SaveThumbnail.Sheet.Texture = tex.Submit();
   }
 }
 
@@ -423,7 +417,7 @@ tm const& SaveSystem::GetSaveDate(SaveType type, int id) {
 void SaveSystem::SaveMemory() {
   // TODO: Sys save data
 
-  if (WorkingSaveEntry != 0) {
+  if (WorkingSaveEntry) {
     WorkingSaveEntry->Status = 1;
     WorkingSaveEntry->Checksum = 0;  // CalculateChecksum(0);
     time_t rawtime;
@@ -461,16 +455,16 @@ void SaveSystem::SaveMemory() {
 }
 
 void SaveSystem::LoadEntry(SaveType type, int id) {
-  if (WorkingSaveEntry != 0) {
-    delete WorkingSaveEntry;
-    WorkingSaveEntry = 0;
+  if (!WorkingSaveEntry) {
+    ImpLog(LL_Error, LC_IO, "Failed to load save memory: no working save\n");
+    return;
   }
   switch (type) {
     case SaveQuick:
-      WorkingSaveEntry = (SaveFileEntry*)QuickSaveEntries[id];
+      WorkingSaveEntry = *static_cast<SaveFileEntry*>(QuickSaveEntries[id]);
       break;
     case SaveFull:
-      WorkingSaveEntry = (SaveFileEntry*)FullSaveEntries[id];
+      WorkingSaveEntry = *static_cast<SaveFileEntry*>(FullSaveEntries[id]);
       break;
     default:
       ImpLog(LL_Error, LC_IO,
@@ -480,7 +474,7 @@ void SaveSystem::LoadEntry(SaveType type, int id) {
 }
 
 void SaveSystem::LoadMemoryNew(LoadProcess load) {
-  if (!WorkingSaveEntry->Status) {
+  if (!WorkingSaveEntry || WorkingSaveEntry->Status == 0) {
     ImpLog(LL_Error, LC_IO, "Failed to load entry: save is empty\n");
     return;
   }
@@ -662,7 +656,7 @@ bool SaveSystem::GetEVVariationIsUnlocked(int evId, int variationIdx) {
 bool SaveSystem::GetBgmFlag(int id) { return BGMFlags[id]; }
 
 void SaveSystem::SetCheckpointId(int id) {
-  if (WorkingSaveEntry != nullptr) WorkingSaveEntry->MainThreadIp = id;
+  if (WorkingSaveEntry) WorkingSaveEntry->MainThreadIp = id;
 }
 
 Sprite const& SaveSystem::GetSaveThumbnail(SaveType type, int id) {

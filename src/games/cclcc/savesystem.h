@@ -3,6 +3,7 @@
 #include "../../data/savesystem.h"
 #include "../../texture/texture.h"
 #include "../../spritesheet.h"
+#include <optional>
 
 namespace Impacto {
 namespace CCLCC {
@@ -55,6 +56,7 @@ class SaveSystem : public SaveSystemBase {
   uint8_t MessageFlags[10000];
   bool EVFlags[1200];
   uint8_t BGMFlags[200];
+  std::optional<SaveFileEntry> WorkingSaveEntry;
 };
 
 }  // namespace CCLCC
