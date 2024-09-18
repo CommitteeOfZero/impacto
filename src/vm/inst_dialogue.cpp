@@ -545,53 +545,43 @@ VmInstruction(InstTips) {
 VmInstruction(InstSetRevMes) {
   StartInstruction;
   PopUint8(type);
-  switch (type) {
-    case 0: {
-      PopString(message);
-      (void)message;
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction SetRevMes(type: %i)\n", type);
-    } break;
-    case 0x80: {
-      PopExpression(messageId);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction SetRevMes(type: %i)\n", type);
-    } break;
-    case 1: {
-      PopExpression(arg1);
-      PopExpression(arg2);
-      PopString(message);
-      (void)message;
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction SetRevMes(type: %i, arg1: %i, arg2: %i)\n",
-                 type, arg1, arg2);
-    } break;
-    case 0x81: {
-      PopExpression(arg1);
-      PopExpression(arg2);
-      PopExpression(message);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction SetRevMes(type: %i, arg1: %i, arg2: %i)\n",
-                 type, arg1, arg2);
-    } break;
-    case 2: {
-      PopString(arg1);
-      (void)arg1;
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction SetRevMes(type: %i)\n", type);
-    } break;
-    case 3: {
-      PopString(arg1);
-      (void)arg1;
-      PopExpression(arg2);
-      PopExpression(arg3);
-      PopExpression(arg4);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction SetRevMes(type: %i, arg2: %i, arg3: %i, "
-                 "arg4: %i)\n",
-                 type, arg2, arg3, arg4);
-    } break;
+
+  bool voiced = type & (1 << 0);
+  bool savep = (type & (1 << 1)) && voiced;
+  bool expression = type & (1 << 7);
+
+  if ((type & (1 << 1)) || expression) {
+    ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SetRevMes(type: %i)\n",
+               type);
   }
+
+  int audioId = -1;
+  int animationId = 0;
+  if (voiced) {
+    ExpressionEval(thread, &audioId);
+    ExpressionEval(thread, &animationId);
+  }
+
+  int savePtr = 0;
+  if (savep) {
+    ExpressionEval(thread, &savePtr);
+  }
+
+  int lineId;
+  if (expression) {
+    ExpressionEval(thread, &lineId);
+  } else {
+    PopUint16(lineIdTemp);
+    lineId = lineIdTemp;
+  }
+  uint8_t* line =
+      ScriptGetStrAddress(ScriptBuffers[thread->ScriptBufferId], lineId);
+
+  const DialoguePage& dialoguePage = DialoguePages[thread->DialoguePageId];
+  uint32_t scriptId = LoadedScriptMetas[dialoguePage.Id].Id;
+
+  SaveSystem::SetLineRead(scriptId, lineId);
+  UI::BacklogMenuPtr->AddMessage(line);
 }
 
 void ChkMesSkip() {
