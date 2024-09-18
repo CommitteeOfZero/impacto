@@ -436,11 +436,8 @@ VmInstruction(InstLoadData) {
     case 0:
     case 10: {
       PopExpression(arg1);
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
-        PopExpression(arg2);
-        SaveSystem::LoadMemory(static_cast<SaveSystem::SaveType>(arg1), arg2);
-      }
-
+      PopExpression(arg2);
+      SaveSystem::LoadEntry(static_cast<SaveSystem::SaveType>(arg1), arg2);
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction LoadData(type: %i, arg1: %i)\n", type, arg1);
     } break;
@@ -451,11 +448,12 @@ VmInstruction(InstLoadData) {
                  type);
       break;
   }
+  SaveSystem::LoadMemoryNew(static_cast<SaveSystem::LoadProcess>(type));
 }
 VmInstruction(InstLoadDataOld) {
   StartInstruction;
   PopExpression(arg1);
-  SaveSystem::LoadMemory(SaveSystem::SaveFull, arg1);
+  SaveSystem::LoadEntry(SaveSystem::SaveFull, arg1);
   if (ScrWork[SW_MESWINDOW_COLOR] == 0) ScrWork[SW_MESWINDOW_COLOR] = 0xFFFFFF;
 }
 VmInstruction(InstTitleMenu) {

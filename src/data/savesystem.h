@@ -25,6 +25,8 @@ enum SaveError {
 
 enum SaveType { SaveFull = 0, SaveQuick = 1 };
 
+enum LoadProcess { LoadVars = 0, LoadThread = 1 };
+
 int constexpr MaxSaveEntries = 48;
 
 uint8_t const Flbit[] = {1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80};
@@ -66,7 +68,8 @@ class SaveSystemBase {
  public:
   virtual SaveError MountSaveFile() = 0;
   virtual void SaveMemory() = 0;
-  virtual void LoadMemory(SaveType type, int id) = 0;
+  virtual void LoadEntry(SaveType type, int id) = 0;
+  virtual void LoadMemoryNew(LoadProcess){};
   virtual void FlushWorkingSaveEntry(SaveType type, int id) = 0;
   virtual void WriteSaveFile() = 0;
   virtual uint32_t GetSavePlayTime(SaveType type, int id) = 0;
@@ -104,7 +107,8 @@ void Init();
 
 SaveError MountSaveFile();
 void SaveMemory();
-void LoadMemory(SaveType type, int id);
+void LoadEntry(SaveType type, int id);
+void LoadMemoryNew(LoadProcess process);
 void FlushWorkingSaveEntry(SaveType type, int id);
 void WriteSaveFile();
 uint32_t GetSavePlayTime(SaveType type, int id);

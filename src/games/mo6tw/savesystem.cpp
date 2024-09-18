@@ -426,7 +426,7 @@ void SaveSystem::SaveMemory() {
   }
 }
 
-void SaveSystem::LoadMemory(SaveType type, int id) {
+void SaveSystem::LoadEntry(SaveType type, int id) {
   SaveFileEntry* entry = 0;
   switch (type) {
     case SaveQuick:
