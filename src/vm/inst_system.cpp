@@ -594,6 +594,19 @@ VmInstruction(InstMSinit) {
     }
 
     ScrWork[SW_SYSMESALPHA] = 255;
+
+    /*
+    Set differently in each (version of) each game? Don't know why.
+    -  0x4000 according to CCLCC PSV, but crashes PS4?????
+    - 0x20000 according to CC Steam and CCLCC PS4
+    - 0x80000 according to CC Android
+
+    Also seemingly not set anywhere else, but the scripts act like it
+    could hold different values?
+
+    Temporary location until I have a better understanding of this variable
+    */
+    ScrWork[3319] = 0x20000;
   }
 
   if (initType == 0 || initType == 1) {
