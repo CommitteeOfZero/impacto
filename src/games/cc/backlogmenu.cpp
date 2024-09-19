@@ -36,7 +36,7 @@ void BacklogMenu::Render() {
 
   glm::vec4 transition(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
   glm::vec4 maskTint = glm::vec4(1.0f);
-  maskTint.a = 0.50 * FadeAnimation.Progress;
+  maskTint.a = ((float)0xa0 / 0x100) * FadeAnimation.Progress;
 
   MainItems->Tint = transition;
 
