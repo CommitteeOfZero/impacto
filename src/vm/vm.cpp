@@ -400,11 +400,11 @@ void DestroyScriptThreads(uint32_t scriptBufferId) {
 static void DestroyThreadGroup(uint32_t groupId) {
   Sc3VmThread* groupThread = ThreadGroupHeads[groupId];
   if (groupThread != NULL) {
-    while (groupThread->NextContext != NULL) {
+    do {
       Sc3VmThread* next = groupThread->NextContext;
       DestroyThread(groupThread);
       groupThread = next;
-    }
+    } while (groupThread != NULL);
   }
   ThreadGroupHeads[groupId] = NULL;
   ThreadGroupTails[groupId] = NULL;
