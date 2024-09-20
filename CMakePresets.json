@@ -10,13 +10,13 @@
       "description": "Default Base Configuration",
       "hidden": true,
       "generator": "Ninja",
-      "binaryDir": "impacto-build/${presetName}",
-      "installDir": "install/${presetName}",
+      "binaryDir": "${sourceDir}/impacto-build/${presetName}",
+      "installDir": "${sourceDir}/install/${presetName}",
       "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "YES"
-      } 
+      }
     },
     {
       "name": "Release",

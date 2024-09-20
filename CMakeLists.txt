@@ -5,42 +5,6 @@ project("impacto")
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/modules")
 include(FetchContent)
 
-FetchContent_Declare(
-    fmt
-    GIT_REPOSITORY "https://github.com/fmtlib/fmt.git"
-    GIT_TAG "11.0.2"
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/fmtlib
-)
-
-FetchContent_Declare(
-    pugixml
-    GIT_REPOSITORY "https://github.com/zeux/pugixml.git"
-    GIT_TAG "v1.14"
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/pugixml
-)
-
-FetchContent_Declare(
-    utf8cpp
-    GIT_REPOSITORY "https://github.com/nemtrif/utfcpp"
-    GIT_TAG "v4.0.5"
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/utf8-cpp
-)
-
-FetchContent_MakeAvailable(fmt)
-FetchContent_MakeAvailable(pugixml)
-FetchContent_MakeAvailable(utf8cpp)
-
-if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
-    FetchContent_Declare(
-            ImGui
-            GIT_REPOSITORY "https://github.com/ocornut/imgui.git"
-            GIT_TAG "1db579d458da29fa43376af9d88d486910d9406a"
-            SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui
-    )
-
-    FetchContent_MakeAvailable(ImGui)
-endif ()
-
 if (EMSCRIPTEN)
     list(APPEND CMAKE_MODULE_PATH ${EMSCRIPTEN_ROOT_PATH}/cmake/Modules)
 endif ()
@@ -671,7 +635,7 @@ if (IMPACTO_WARNINGS)
         add_compile_options(-Wall -Wextra -Wno-unused-parameter)
     elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
         message(STATUS "Enabling warnings for MSVC")
-        add_compile_options(/Wall)
+        add_compile_options(/W4 /external:anglebrackets /external:W0)
     else ()
         message(WARNING "Unknown compiler, not enabling warnings")
     endif ()
@@ -699,6 +663,45 @@ else ()
 endif ()
 
 # dependencies
+FetchContent_Declare(
+    fmt
+    GIT_REPOSITORY "https://github.com/fmtlib/fmt.git"
+    GIT_TAG "11.0.2"
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/fmtlib
+    SYSTEM
+)
+
+FetchContent_Declare(
+    pugixml
+    GIT_REPOSITORY "https://github.com/zeux/pugixml.git"
+    GIT_TAG "v1.14"
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/pugixml
+    SYSTEM
+)
+
+FetchContent_Declare(
+    utf8cpp
+    GIT_REPOSITORY "https://github.com/nemtrif/utfcpp"
+    GIT_TAG "v4.0.5"
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/utf8-cpp
+    SYSTEM
+)
+
+FetchContent_MakeAvailable(fmt)
+FetchContent_MakeAvailable(pugixml)
+FetchContent_MakeAvailable(utf8cpp)
+
+if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
+    FetchContent_Declare(
+            ImGui
+            GIT_REPOSITORY "https://github.com/ocornut/imgui.git"
+            GIT_TAG "1db579d458da29fa43376af9d88d486910d9406a"
+            SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui
+    )
+
+    FetchContent_MakeAvailable(ImGui)
+endif ()
+
 
 if (WIN32)
     # Workaround for RelWithDebInfo builds not installing all the libraries
