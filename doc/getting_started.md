@@ -29,7 +29,7 @@ The following profiles are currently available:
 * **modelviewer** - A viewer for 3D models from Robotics;Notes Elite
 * **modelviewer-dash** - A viewer for 3D models from Robotics;Notes DaSH
 
-For the list of required game resource files refer to the `vfs.js` file located in desired game profile directory. The resource files should be placed in `/games/<profile_name>/gamedata/` directory.
+For the list of required game resource files refer to the `vfs.lua` file located in desired game profile directory. The resource files should be placed in `/games/<profile_name>/gamedata/` directory.
 
 ## General engine information
 To get an overall understanding of how the original Mages. engine functions please refer to https://committeeofzero.gitbooks.io/mages-engine-compendium/content/
