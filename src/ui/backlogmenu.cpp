@@ -122,6 +122,22 @@ void BacklogMenu::Update(float dt) {
 
     MainScrollbar->UpdateInput();
     MainScrollbar->Update(dt);
+
+    // Handle entry moving out of hover bounds
+    if (CurrentlyFocusedElement &&
+        !HoverBounds.Contains(CurrentlyFocusedElement->Bounds)) {
+      FocusDirection dir = (CurrentlyFocusedElement->Bounds.Y < HoverBounds.Y)
+                               ? FDIR_DOWN
+                               : FDIR_UP;
+      Widget* newFocusedElement = CurrentlyFocusedElement->GetFocus(dir);
+
+      if (newFocusedElement != nullptr) {
+        CurrentlyFocusedElement->Hovered = false;
+        CurrentlyFocusedElement->HasFocus = false;
+        newFocusedElement->HasFocus = true;
+        CurrentlyFocusedElement = newFocusedElement;
+      }
+    }
   }
 }
 
@@ -165,7 +181,7 @@ void BacklogMenu::AddMessage(uint8_t* str, int audioId) {
         std::bind(&BacklogMenu::MenuButtonOnClick, this, std::placeholders::_1);
 
     auto backlogEntry =
-        new BacklogEntry(CurrentId, str, audioId, CurrentEntryPos);
+        new BacklogEntry(CurrentId, str, audioId, CurrentEntryPos, HoverBounds);
     CurrentId += 1;
     CurrentEntryPos.y += backlogEntry->TextHeight + EntryYPadding;
     backlogEntry->OnClickHandler = onClick;

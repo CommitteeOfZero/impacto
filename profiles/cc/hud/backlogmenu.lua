@@ -30,7 +30,8 @@ root.BacklogMenu = {
     FadeInDuration = 0.2,
     FadeOutDuration = 0.2,
 
-    BacklogMask = "BacklogMask"
+    BacklogMask = "BacklogMask",
+    HoverBounds = { X = 0, Y = 145, Width = 1920, Height = 821 }
 };
 
 root.Sprites["BacklogBackground"] = {

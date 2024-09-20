@@ -66,6 +66,11 @@ struct RectF {
             Y <= rect.Y + rect.Height && rect.Y <= Y + Height);
   }
 
+  constexpr bool Contains(RectF const& rect) const {
+    return (X <= rect.X && rect.X + rect.Width <= X + Width && Y <= rect.Y &&
+            rect.Y + rect.Height <= Y + Height);
+  }
+
   constexpr bool operator==(RectF const& other) const {
     return X == other.X && Y == other.Y && Width == other.Width &&
            Height == other.Height;

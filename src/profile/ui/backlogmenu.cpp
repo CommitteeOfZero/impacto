@@ -47,6 +47,7 @@ void Configure() {
     ScrollbarPosition = EnsureGetMemberVec2("ScrollbarPosition");
     ScrollbarThumbLength = EnsureGetMemberFloat("ScrollbarThumbLength");
     RenderingBounds = EnsureGetMemberRectF("RenderingBounds");
+    HoverBounds = EnsureGetMemberRectF("HoverBounds");
 
     FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
     FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");

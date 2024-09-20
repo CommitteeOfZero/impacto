@@ -16,8 +16,9 @@ namespace Widgets {
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::BacklogMenu;
 
-BacklogEntry::BacklogEntry(int id, uint8_t* str, int audioId, glm::vec2 pos)
-    : Id(id), AudioId(audioId), Position(pos) {
+BacklogEntry::BacklogEntry(int id, uint8_t* str, int audioId, glm::vec2 pos,
+                           const RectF& hoverBounds)
+    : Id(id), AudioId(audioId), Position(pos), HoverBounds(hoverBounds) {
   Enabled = true;
 
   BacklogPage = new DialoguePage();
@@ -65,7 +66,8 @@ BacklogEntry::~BacklogEntry() { delete BacklogPage; }
 void BacklogEntry::UpdateInput() {
   if (Enabled) {
     if (Input::PrevMousePos != Input::CurMousePos) {
-      Hovered = Bounds.ContainsPoint(Input::CurMousePos);
+      Hovered = Bounds.ContainsPoint(Input::CurMousePos) &&
+                HoverBounds.Contains(Bounds);
     }
     if (HasFocus &&
         ((Hovered &&
@@ -92,7 +94,7 @@ void BacklogEntry::MoveTo(glm::vec2 position) {
 void BacklogEntry::Render() {
   SpriteSheet* maskSheet = nullptr;
 
-  switch(Type) {
+  switch (Type) {
     default:
       break;
     case BacklogMenuType::CC:
@@ -106,14 +108,14 @@ void BacklogEntry::Render() {
   }
 
   if (BacklogPage->HasName) {
-    Renderer->DrawProcessedText(BacklogPage->Name,
-                                Profile::Dialogue::DialogueFont, Tint.a,
-                                Profile::Dialogue::REVNameOutlineMode, true, maskSheet);
+    Renderer->DrawProcessedText(
+        BacklogPage->Name, Profile::Dialogue::DialogueFont, Tint.a,
+        Profile::Dialogue::REVNameOutlineMode, true, maskSheet);
   }
 
-  Renderer->DrawProcessedText(BacklogPage->Glyphs,
-                              Profile::Dialogue::DialogueFont, Tint.a,
-                              Profile::Dialogue::REVOutlineMode, true, maskSheet);
+  Renderer->DrawProcessedText(
+      BacklogPage->Glyphs, Profile::Dialogue::DialogueFont, Tint.a,
+      Profile::Dialogue::REVOutlineMode, true, maskSheet);
 }
 
 }  // namespace Widgets

@@ -29,6 +29,7 @@ inline glm::vec2 VoiceIconOffset;
 inline glm::vec2 ScrollbarPosition;
 inline float ScrollbarThumbLength;
 inline RectF RenderingBounds;
+inline RectF HoverBounds;
 
 inline float FadeInDuration;
 inline float FadeOutDuration;

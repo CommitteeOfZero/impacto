@@ -11,7 +11,8 @@ namespace Widgets {
 
 class BacklogEntry : public Widget {
  public:
-  BacklogEntry(int id, uint8_t* str, int audioId, glm::vec2 pos);
+  BacklogEntry(int id, uint8_t* str, int audioId, glm::vec2 pos,
+               const RectF& hoverBounds);
   ~BacklogEntry();
 
   void UpdateInput() override;
@@ -32,6 +33,7 @@ class BacklogEntry : public Widget {
 
  private:
   glm::vec2 Position;
+  const RectF& HoverBounds;
 };
 
 }  // namespace Widgets
