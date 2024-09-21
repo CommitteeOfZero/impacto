@@ -14,6 +14,7 @@ root.BacklogMenu = {
     ScrollbarThumbLength = 0,
     EntriesStart = { X = 163, Y = 85 },
     RenderingBounds = { X = 87, Y = 83, Width = 1055, Height = 590 },
+    HoverBounds = { X = 87, Y = 83, Width = 1055, Height = 590 },
     EntryYPadding = 22,
     FadeInDuration = 0.2,
     FadeOutDuration = 0.2
