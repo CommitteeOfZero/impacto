@@ -143,35 +143,32 @@ void BacklogMenu::Update(float dt) {
 }
 
 void BacklogMenu::RenderHighlight() const {
-  if (EntryHighlightLocation == +EntryHighlightLocationType::None) return;
+  if (EntryHighlightLocation == +EntryHighlightLocationType::None ||
+      CurrentlyFocusedElement == nullptr ||
+      !MainItems->RenderingBounds.Intersects(CurrentlyFocusedElement->Bounds))
+    return;
 
-  for (const Widget* const entry : MainItems->Children) {
-    if (!entry->HasFocus ||
-        !MainItems->RenderingBounds.Intersects(entry->Bounds))
-      continue;
+  RectF pos;
+  const Widget& el = *CurrentlyFocusedElement;
 
-    RectF pos;
-
-    switch (EntryHighlightLocation) {
-      default:
-      case EntryHighlightLocationType::BottomLeftOfEntry:
-        pos = RectF(entry->Bounds.X,
-                    entry->Bounds.Y + entry->Bounds.Height -
-                        EntryHighlight.ScaledHeight(),
-                    Profile::Dialogue::REVBounds.Width,
-                    EntryHighlight.ScaledHeight());
-        break;
-      case EntryHighlightLocationType::TopLineLeftOfScreen:
-        pos = RectF(0.0f, entry->Bounds.Y, EntryHighlight.ScaledWidth(),
-                    EntryHighlight.ScaledHeight());
-        break;
-    }
-
-    pos.X += EntryHighlightOffset.x;
-    pos.Y += EntryHighlightOffset.y;
-
-    Renderer->DrawSprite(EntryHighlight, pos);
+  switch (EntryHighlightLocation) {
+    default:
+    case EntryHighlightLocationType::BottomLeftOfEntry:
+      pos = RectF(
+          el.Bounds.X,
+          el.Bounds.Y + el.Bounds.Height - EntryHighlight.ScaledHeight(),
+          Profile::Dialogue::REVBounds.Width, EntryHighlight.ScaledHeight());
+      break;
+    case EntryHighlightLocationType::TopLineLeftOfScreen:
+      pos = RectF(0.0f, el.Bounds.Y, EntryHighlight.ScaledWidth(),
+                  EntryHighlight.ScaledHeight());
+      break;
   }
+
+  pos.X += EntryHighlightOffset.x;
+  pos.Y += EntryHighlightOffset.y;
+
+  Renderer->DrawSprite(EntryHighlight, pos);
 }
 
 void BacklogMenu::Render() {}
