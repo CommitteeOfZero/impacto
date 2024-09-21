@@ -60,6 +60,7 @@ inline float SecondaryThirdItemHighlightOffsetX;
 inline float ItemHighlightPointerY;
 inline float TitleAnimationDurationIn;
 inline float TitleAnimationDurationOut;
+inline float ChoiceBlinkAnimationDuration;
 
 inline int TitleAnimationStartFrame;
 inline int TitleAnimationFrameCount;

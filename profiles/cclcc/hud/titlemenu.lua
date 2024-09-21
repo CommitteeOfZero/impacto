@@ -62,7 +62,8 @@ root.TitleMenu = {
     TitleAnimationFileId = 32,
     MenuEntriesSprites = {},
     MenuEntriesHighlightedSprites = {},
-    MenuEntriesNum = 5
+    MenuEntriesNum = 5,
+    ChoiceBlinkAnimationDuration = 1
 };
 
 for i = 0, 4 do

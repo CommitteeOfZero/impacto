@@ -78,6 +78,9 @@ void Configure() {
   TitleAnimationFrameCount = EnsureGetMemberInt("TitleAnimationFrameCount");
   TitleAnimationFileId = EnsureGetMemberInt("TitleAnimationFileId");
 
+  ChoiceBlinkAnimationDuration =
+      EnsureGetMemberFloat("ChoiceBlinkAnimationDuration");
+
   UI::CCLCC::TitleMenu* menu = new UI::CCLCC::TitleMenu();
   menu->PressToStartAnimation.DurationIn =
       Profile::TitleMenu::PressToStartAnimDurationIn;

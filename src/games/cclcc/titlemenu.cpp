@@ -158,6 +158,16 @@ TitleMenu::TitleMenu() {
   EndingList->OnClickHandler = onClick;
   EndingList->IsSubButton = true;
   ExtraItems->Add(EndingList, FDIR_RIGHT);
+
+  PressToStartAnimation.DurationIn = PressToStartAnimDurationIn;
+  PressToStartAnimation.DurationOut = PressToStartAnimDurationOut;
+  PrimaryFadeAnimation.DurationIn = PrimaryFadeInDuration;
+  PrimaryFadeAnimation.DurationOut = PrimaryFadeOutDuration;
+  SecondaryFadeAnimation.DurationIn = SecondaryFadeInDuration;
+  SecondaryFadeAnimation.DurationOut = SecondaryFadeOutDuration;
+  SmokeAnimation.DurationIn = SmokeAnimationDurationIn;
+  SmokeAnimation.DurationOut = SmokeAnimationDurationOut;
+  ChoiceBlinkAnimation.DurationIn = ChoiceBlinkAnimationDuration;
 }
 
 void TitleMenu::Show() {
@@ -230,8 +240,6 @@ void TitleMenu::Update(float dt) {
   if (State != Hidden && GetFlag(SF_TITLEMODE)) {
     switch (ScrWork[SW_TITLEMODE]) {
       case 1: {
-        PressToStartAnimation.DurationIn = PressToStartAnimDurationIn;
-        PressToStartAnimation.DurationOut = PressToStartAnimDurationOut;
       } break;
       case 2: {
         if (TitleAnimation.IsIn())
@@ -246,6 +254,12 @@ void TitleMenu::Update(float dt) {
       } break;
       case 3: {  // Main Menu Fade In
         TitleAnimationSprite.Show = false;
+        if (ItemsFadeInAnimation.IsOut() &&
+            ItemsFadeInAnimation.State != AS_Playing)
+          ItemsFadeInAnimation.StartIn();
+        else if (ItemsFadeInAnimation.State != AS_Playing)
+          ItemsFadeInAnimation.StartOut();
+
         MainItems->Tint.a =
             glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
         MainItems->Update(dt);
@@ -269,10 +283,26 @@ void TitleMenu::Update(float dt) {
           MainItems->Tint.a = 0.0f;
           CurrentlyFocusedElement = NewGame;
           NewGame->HasFocus = true;
-          PrimaryFadeAnimation.DurationIn = PrimaryFadeInDuration;
-          PrimaryFadeAnimation.DurationOut = PrimaryFadeOutDuration;
           PrimaryFadeAnimation.StartIn();
         }
+      } break;
+      case 4: {
+      } break;
+      case 5: {
+        ChoiceBlinkAnimation.Update(dt);
+        if (ChoiceBlinkAnimation.IsOut() && ScrWork[SW_SYSSUBMENUCT] == 0) {
+          ChoiceBlinkAnimation.StartIn();
+        } else if (ChoiceBlinkAnimation.State == AS_Playing) {
+          // Calculate the blink effect to occur 4 times during the animation
+          float blinkProgress = ChoiceBlinkAnimation.Progress * 4.0f;
+          CurrentlyFocusedElement->Tint.a =
+              0.5f * (1.0f + cos(blinkProgress * glm::two_pi<float>()));
+        } else if (ChoiceBlinkAnimation.IsIn() &&
+                   ScrWork[SW_SYSSUBMENUCT] == 32) {
+          ChoiceBlinkAnimation.Progress = 0.0f;
+          CurrentlyFocusedElement->Tint.a = 1.0f;
+        }
+
       } break;
     }
   }
@@ -298,11 +328,6 @@ void TitleMenu::Render() {
         TitleAnimationSprite.Render(-1);
       } break;
       case 3: {  // MenuItems Fade In
-        if (ItemsFadeInAnimation.IsOut() &&
-            ItemsFadeInAnimation.State != AS_Playing)
-          ItemsFadeInAnimation.StartIn();
-        else if (ItemsFadeInAnimation.State != AS_Playing)
-          ItemsFadeInAnimation.StartOut();
         DrawMainMenuBackGraphics(true);
         DrawSmoke(SmokeOpacityNormal);
         MainItems->Render();
@@ -318,6 +343,9 @@ void TitleMenu::Render() {
         // Implement
         DrawMainMenuBackGraphics();
         DrawSmoke(SmokeOpacityNormal);
+        MainItems->Render();
+        ContinueItems->Render();
+        ExtraItems->Render();
         ImpLogSlow(LL_Warning, LC_VMStub,
                    "TitleMenu::Render: Unimplemented title mode %d\n",
                    ScrWork[SW_TITLEMODE]);

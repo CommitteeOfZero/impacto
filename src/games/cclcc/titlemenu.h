@@ -28,6 +28,7 @@ class TitleMenu : public Menu {
   Animation SecondaryItemsFadeInAnimation;
   Animation SmokeAnimation;
   Animation TitleAnimation;
+  Animation ChoiceBlinkAnimation;
   Character2D TitleAnimationSprite;
 
   void MenuButtonOnClick(Widgets::Button* target);
