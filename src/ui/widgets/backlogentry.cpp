@@ -66,7 +66,10 @@ BacklogEntry::~BacklogEntry() { delete BacklogPage; }
 void BacklogEntry::UpdateInput() {
   if (Enabled) {
     if (Input::PrevMousePos != Input::CurMousePos) {
-      Hovered = Bounds.ContainsPoint(Input::CurMousePos) &&
+      RectF entryHoverBounds =
+          RectF(HoverBounds.X, Bounds.Y, HoverBounds.Width, Bounds.Height);
+
+      Hovered = entryHoverBounds.ContainsPoint(Input::CurMousePos) &&
                 HoverBounds.Contains(Bounds);
     }
     if (HasFocus &&
