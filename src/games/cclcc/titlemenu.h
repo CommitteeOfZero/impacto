@@ -24,11 +24,10 @@ class TitleMenu : public Menu {
   Animation PressToStartAnimation;
   Animation PrimaryFadeAnimation;
   Animation SecondaryFadeAnimation;
-  Animation ItemsFadeInAnimation;
-  Animation SecondaryItemsFadeInAnimation;
   Animation SmokeAnimation;
   Animation TitleAnimation;
   Animation ChoiceBlinkAnimation;
+  Animation SlideItemsAnimation;
   Character2D TitleAnimationSprite;
 
   void MenuButtonOnClick(Widgets::Button* target);
@@ -60,7 +59,7 @@ class TitleMenu : public Menu {
 
   void DrawDISwordBackground(float opacity = 1.0f);
   void DrawStartButton();
-  void DrawMainMenuBackGraphics(bool drawMenuText = false);
+  void DrawMainMenuBackGraphics();
   void DrawSmoke(float opacity);
 };
 

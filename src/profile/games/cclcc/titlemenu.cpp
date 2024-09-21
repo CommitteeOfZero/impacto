@@ -32,12 +32,6 @@ void Configure() {
   EndingListHighlightSprite =
       EnsureGetMemberSprite("EndingListHighlightSprite");
 
-  ItemFadeInDuration = EnsureGetMemberFloat("ItemFadeInDuration");
-  ItemFadeOutDuration = EnsureGetMemberFloat("ItemFadeOutDuration");
-  SecondaryItemFadeInDuration =
-      EnsureGetMemberFloat("SecondaryItemFadeInDuration");
-  SecondaryItemFadeOutDuration =
-      EnsureGetMemberFloat("SecondaryItemFadeOutDuration");
   PrimaryFadeInDuration = EnsureGetMemberFloat("PrimaryFadeInDuration");
   PrimaryFadeOutDuration = EnsureGetMemberFloat("PrimaryFadeOutDuration");
   SecondaryFadeInDuration = EnsureGetMemberFloat("SecondaryFadeInDuration");
@@ -80,6 +74,10 @@ void Configure() {
 
   ChoiceBlinkAnimationDuration =
       EnsureGetMemberFloat("ChoiceBlinkAnimationDuration");
+  SlideItemsAnimationDurationIn =
+      EnsureGetMemberFloat("SlideItemsAnimationDurationIn");
+  SlideItemsAnimationDurationOut =
+      EnsureGetMemberFloat("SlideItemsAnimationDurationOut");
 
   UI::CCLCC::TitleMenu* menu = new UI::CCLCC::TitleMenu();
   menu->PressToStartAnimation.DurationIn =
@@ -87,13 +85,6 @@ void Configure() {
   menu->PressToStartAnimation.DurationOut =
       Profile::TitleMenu::PressToStartAnimDurationOut;
   menu->PressToStartAnimation.LoopMode = ALM_ReverseDirection;
-
-  menu->ItemsFadeInAnimation.DurationIn = ItemFadeInDuration;
-  menu->ItemsFadeInAnimation.DurationOut = ItemFadeOutDuration;
-
-  menu->SecondaryItemsFadeInAnimation.DurationIn = SecondaryItemFadeInDuration;
-  menu->SecondaryItemsFadeInAnimation.DurationOut =
-      SecondaryItemFadeOutDuration;
 
   menu->PrimaryFadeAnimation.DurationIn = PrimaryFadeInDuration;
   menu->PrimaryFadeAnimation.DurationOut = PrimaryFadeOutDuration;
