@@ -10,7 +10,7 @@ impacto is currently being developed for **64-bit Windows 10 and desktop Linux P
 
 ## Building
 
-For building on Windows with Visual Studio 2019 or newer, please refer to the [building instructions](doc/vs2019_build.md).
+For building on Windows with Visual Studio 2019 or newer, please refer to the [building instructions](doc/vs_build.md).
 
 For building on Linux, see the [instructions for Ubuntu 18.04 Desktop](doc/ubuntu1804_build.md) and adapt to your distribution if necessary.
 
