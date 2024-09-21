@@ -9,7 +9,7 @@ root.BacklogMenu = {
     BacklogHeaderPosition = { X = 0, Y = 0 },
 
     BacklogControlsSprite = "BacklogControls",
-    BacklogControlsPosition = { X = 0, Y = 988 },
+    BacklogControlsPosition = { X = 0, Y = 986 },
 
     EntryHighlightSprite = "EntryHighlight",
     EntryHighlightLocation = EntryHighlightLocationType.TopLineLeftOfScreen,
