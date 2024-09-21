@@ -82,6 +82,12 @@ void BacklogMenu::Hide() {
   }
 }
 
+inline bool inVerticalHoverBounds(const Widget& entry) {
+  return (HoverBounds.Y <= entry.Bounds.Y &&
+          entry.Bounds.Y + entry.Bounds.Height <=
+              HoverBounds.Y + HoverBounds.Height);
+}
+
 void BacklogMenu::Update(float dt) {
   UpdateInput();
 
@@ -125,13 +131,12 @@ void BacklogMenu::Update(float dt) {
 
     // Handle entry moving out of hover bounds
     if (CurrentlyFocusedElement &&
-        !HoverBounds.Contains(CurrentlyFocusedElement->Bounds)) {
+        !inVerticalHoverBounds(*CurrentlyFocusedElement)) {
       FocusDirection dir = (CurrentlyFocusedElement->Bounds.Y < HoverBounds.Y)
                                ? FDIR_DOWN
                                : FDIR_UP;
       Widget* newFocusedElement = CurrentlyFocusedElement->GetFocus(dir);
-      while (newFocusedElement &&
-             !HoverBounds.Contains(newFocusedElement->Bounds))
+      while (newFocusedElement && !inVerticalHoverBounds(*newFocusedElement))
         newFocusedElement = newFocusedElement->GetFocus(dir);
 
       CurrentlyFocusedElement->Hovered = false;

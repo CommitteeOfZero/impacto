@@ -69,8 +69,10 @@ void BacklogEntry::UpdateInput() {
       RectF entryHoverBounds =
           RectF(HoverBounds.X, Bounds.Y, HoverBounds.Width, Bounds.Height);
 
-      Hovered = entryHoverBounds.ContainsPoint(Input::CurMousePos) &&
-                HoverBounds.Contains(Bounds);
+      Hovered =
+          entryHoverBounds.ContainsPoint(Input::CurMousePos) &&
+          HoverBounds.Y <= Bounds.Y &&
+          (Bounds.Y + Bounds.Height) <= (HoverBounds.Y + HoverBounds.Height);
     }
     if (HasFocus &&
         ((Hovered &&
