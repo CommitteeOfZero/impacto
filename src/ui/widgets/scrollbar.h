@@ -12,7 +12,8 @@ enum ScrollbarDirection { SBDIR_VERTICAL, SBDIR_HORIZONTAL };
 class Scrollbar : public Widget {
  public:
   Scrollbar(int id, glm::vec2 pos, float min, float max, float* value,
-            ScrollbarDirection dir, Sprite const& thumb, glm::vec2 trackBounds);
+            ScrollbarDirection dir, Sprite const& thumb, glm::vec2 trackBounds,
+            float thumbLength);
   Scrollbar(int id, glm::vec2 pos, float min, float max, float* value,
             ScrollbarDirection dir, Sprite const& track, Sprite const& thumb,
             glm::vec2 thumbOffset = glm::vec2(0.0f, 0.0f),

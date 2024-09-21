@@ -12,14 +12,15 @@ using namespace Impacto::Vm::Interface;
 
 Scrollbar::Scrollbar(int id, glm::vec2 pos, float min, float max, float* value,
                      ScrollbarDirection dir, Sprite const& thumb,
-                     glm::vec2 trackBounds)
+                     glm::vec2 trackBounds, float thumbLength)
     : Id(id),
       MinValue(min),
       MaxValue(max),
       Value(value),
       Direction(dir),
       ThumbSprite(thumb),
-      TrackBounds(pos.x, pos.y, trackBounds.x, trackBounds.y) {
+      TrackBounds(pos.x, pos.y, trackBounds.x, trackBounds.y),
+      ThumbLength(thumbLength) {
   Enabled = true;
   Step = (MaxValue - MinValue) * 0.01f;
   Length = Direction == SBDIR_VERTICAL ? trackBounds.y : trackBounds.x;
@@ -28,7 +29,8 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float min, float max, float* value,
 
 Scrollbar::Scrollbar(int id, glm::vec2 pos, float min, float max, float* value,
                      ScrollbarDirection dir, Sprite const& track,
-                     Sprite const& thumb, glm::vec2 thumbOffset, float thumbLength)
+                     Sprite const& thumb, glm::vec2 thumbOffset,
+                     float thumbLength)
     : Id(id),
       MinValue(min),
       MaxValue(max),

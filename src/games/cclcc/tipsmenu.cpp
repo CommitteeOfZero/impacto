@@ -123,13 +123,10 @@ TipsMenu::TipsMenu() : TipViewItems(this) {
   TextPage.Mode = DPM_TIPS;
   TextPage.FadeAnimation.Progress = 1.0f;
 
-  TipsScrollStartPos = {
-      TipsScrollDetailsX,
-      TipsScrollYStart + TipsScrollThumbSprite.ScaledHeight() / 2.0f};
+  TipsScrollStartPos = {TipsScrollDetailsX, TipsScrollYStart};
 
-  TipsScrollTrackBounds = {
-      TipsScrollThumbSprite.Bounds.Width,
-      TipsScrollYEnd - TipsScrollYStart - TipsScrollThumbSprite.ScaledHeight()};
+  TipsScrollTrackBounds = {TipsScrollThumbSprite.Bounds.Width,
+                           TipsScrollYEnd - TipsScrollYStart};
 }
 
 void TipsMenu::Show() {
@@ -415,9 +412,10 @@ void TipsMenu::SwitchToTipId(int id) {
   ;
   TipPageY = 0;
   delete TipsScrollbar;
-  TipsScrollbar = new Scrollbar(
-      0, TipsScrollStartPos, 0, std::max(0, scrollDistance), &TipPageY,
-      SBDIR_VERTICAL, TipsScrollThumbSprite, TipsScrollTrackBounds);
+  TipsScrollbar =
+      new Scrollbar(0, TipsScrollStartPos, 0, std::max(0, scrollDistance),
+                    &TipPageY, SBDIR_VERTICAL, TipsScrollThumbSprite,
+                    TipsScrollTrackBounds, TipsScrollThumbLength);
   TipsScrollbar->HasFocus = false;  // We want to manually control kb/pad input
 
   Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
