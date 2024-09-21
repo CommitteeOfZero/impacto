@@ -95,18 +95,19 @@ TipsMenu::TipsMenu() : TipViewItems(this) {
   FadeAnimation.DurationOut = FadeOutDuration;
 
   Name = new Label();
+  Pronounciation = new Label();
+  Category = new Label();
+  Number = new Label();
+
   Name->Bounds.X = NamePos.x;
   Name->Bounds.Y = NamePos.y;
 
-  Pronounciation = new Label();
   Pronounciation->Bounds.X = PronounciationPos.x;
   Pronounciation->Bounds.Y = PronounciationPos.y;
 
-  Category = new Label();
   Category->Bounds.X = CategoryPos.x;
   Category->Bounds.Y = CategoryPos.y;
 
-  Number = new Label();
   Number->Bounds.X = NumberPos.x;
   Number->Bounds.Y = NumberPos.y;
 
@@ -126,12 +127,15 @@ TipsMenu::TipsMenu() : TipViewItems(this) {
   TipsScrollTrackBounds = {
       TipsScrollThumbSprite.Bounds.Width,
       TipsScrollYEnd - TipsScrollYStart - TipsScrollThumbSprite.ScaledHeight()};
+
+  DelayAnimation.DurationIn = DelayAnimationDuration;
 }
 
 void TipsMenu::Show() {
   if (State != Shown) {
+    LastYPos = 0;
     State = Showing;
-    FadeAnimation.StartIn();
+
     if (UI::FocusedMenu != 0) {
       LastFocusedMenu = UI::FocusedMenu;
       LastFocusedMenu->IsFocused = false;
@@ -145,8 +149,26 @@ void TipsMenu::Show() {
         CurrentTabType = static_cast<TipsTabType>(i);
       }
     }
+
+    Name->Bounds.X = NamePos.x;
+    Name->Bounds.Y = NamePos.y;
+
+    Pronounciation->Bounds.X = PronounciationPos.x;
+    Pronounciation->Bounds.Y = PronounciationPos.y;
+
+    Category->Bounds.X = CategoryPos.x;
+    Category->Bounds.Y = CategoryPos.y;
+
+    Number->Bounds.X = NumberPos.x;
+    Number->Bounds.Y = NumberPos.y;
+
     TipsTabs[CurrentTabType]->Show();
+    TipsTabs[CurrentTabType]->Move({0, Profile::DesignHeight / 2});
     TipViewItems.Show();
+    TipViewItems.Move({0, Profile::DesignHeight / 2});
+    TextPage.Move({0, Profile::DesignHeight / 2});
+    DelayAnimation.Progress = 0.0f;
+    DelayAnimation.StartIn();
   }
 }
 void TipsMenu::Hide() {
@@ -159,12 +181,6 @@ void TipsMenu::Hide() {
     } else {
       UI::FocusedMenu = 0;
     }
-    IsFocused = false;
-    CurrentlyDisplayedTipId = -1;
-    TipsTabs[CurrentTabType]->Hide();
-    TipViewItems.Hide();
-    delete TipsScrollbar;
-    TipsScrollbar = nullptr;
   }
 }
 
@@ -237,6 +253,15 @@ void TipsMenu::Update(float dt) {
              (ScrWork[SW_SYSSUBMENUNO] == 2)) {
     Show();
   }
+
+  if (State != Hidden) {
+    FadeAnimation.Update(dt);
+    DelayAnimation.Update(dt);
+    for (int i = 0; i < TabCount; i++) {
+      TipsTabs[i]->Update(dt);
+    }
+  }
+
   if (State == Shown && ScrWork[SW_SYSSUBMENUNO] == 2) {
     float oldPageY = TipPageY;
     UpdateInput();
@@ -247,44 +272,85 @@ void TipsMenu::Update(float dt) {
         TextPage.Move({0, oldPageY - TipPageY});
       }
     }
-    for (int i = 0; i < TabCount; i++) {
-      TipsTabs[i]->Update(dt);
-    }
   }
-  FadeAnimation.Update(dt);
+
+  if (State == Showing && DelayAnimation.Progress == 1.0f) {
+    FadeAnimation.StartIn();
+  }
+
   if (State == Showing && FadeAnimation.Progress == 1.0f) {
     State = Shown;
   } else if (State == Hiding && FadeAnimation.Progress == 0.0f) {
     State = Hidden;
+    IsFocused = false;
+    CurrentlyDisplayedTipId = -1;
+    TipsTabs[CurrentTabType]->Hide();
+    TipViewItems.Hide();
+    delete TipsScrollbar;
+    TipsScrollbar = nullptr;
+  }
+
+  auto Move = [this](glm::vec2 offset) {
+    LastYPos += offset.y;
+    TipViewItems.Move(-offset);
+    TipsTabs[CurrentTabType]->Move(-offset);
+    TextPage.Move(-offset);
+    if (TipsScrollbar) {
+      TipsScrollbar->Move(-offset);
+    }
+  };
+
+  if (FadeAnimation.State == AS_Playing) {
+    float move =
+        glm::mix(0.0f, Profile::DesignHeight / 2, FadeAnimation.Progress) -
+        LastYPos;
+    Move({0, move});
+
+  } else if (FadeAnimation.IsIn() && LastYPos != 0) {
+    float move = Profile::DesignHeight / 2 - LastYPos;
+    Move({0, move});
+  } else if (FadeAnimation.IsOut() && LastYPos != Profile::DesignHeight / 2 &&
+             LastYPos != 0) {
+    float move = -LastYPos;
+    Move({0, move});
   }
 }
 
 void TipsMenu::Render() {
   if (!HasInitialized) return;
-  if (State != Hidden && ScrWork[SW_SYSMENUCT] == 32 &&
-      ScrWork[SW_SYSSUBMENUNO] == 2) {
-    glm::vec4 transition(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-    glm::vec4 maskTint = glm::vec4(1.0f);
-    maskTint.a = 0.85f * FadeAnimation.Progress;
+  if (State != Hidden) {
+    glm::vec4 transition(1.0f, 1.0f, 1.0f,
+                         glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress));
+    glm::vec4 maskTint = transition;
+    maskTint.a *= 0.85f;
 
-    Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f), transition);
+    Renderer->DrawSprite(BackgroundSprite,
+                         glm::vec2(0.0f, Profile::DesignHeight / 2 - LastYPos),
+                         transition);
+    TipsTabs[CurrentTabType]->Tint.a = transition.a;
     TipsTabs[CurrentTabType]->Render();
 
-    Renderer->DrawSprite(TipsGuideSprite, glm::vec2(TipsGuideX, TipsGuideY),
-                         transition);
+    Renderer->DrawSprite(
+        TipsGuideSprite,
+        glm::vec2(TipsGuideX,
+                  TipsGuideY + Profile::DesignHeight / 2 - LastYPos),
+        transition);
     if (CurrentlyDisplayedTipId != -1) {
+      TipViewItems.Tint.a = transition.a;
       TipViewItems.Render();
+
       Renderer->DrawProcessedText(
           TextPage.Glyphs, Profile::Dialogue::DialogueFont,
           FadeAnimation.Progress, FadeAnimation.Progress,
           RendererOutlineMode::RO_None, true, &TipsMaskSheet);
+
       TipsScrollbar->Render();
     }
 
-    Renderer->DrawSprite(
-        TipsMaskSprite,
-        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-        maskTint);
+    Renderer->DrawSprite(TipsMaskSprite,
+                         RectF(0.0f, Profile::DesignHeight / 2 - LastYPos,
+                               Profile::DesignWidth, Profile::DesignHeight),
+                         maskTint);
   }
 }
 

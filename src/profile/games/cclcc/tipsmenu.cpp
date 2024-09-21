@@ -56,6 +56,7 @@ void Configure() {
   TipsScrollDetailsX = EnsureGetMemberInt("TipsScrollDetailsX");
 
   TipsMaskSheet = EnsureGetMemberSpriteSheet("TipsMask");
+  DelayAnimationDuration = EnsureGetMemberFloat("DelayBeforeFadeIn");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMemberInt("DrawType"));

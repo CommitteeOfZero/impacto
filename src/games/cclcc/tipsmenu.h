@@ -44,6 +44,7 @@ class TipsMenu : public UI::TipsMenu {
 
  private:
   constexpr int static TabCount = 4;
+  Animation DelayAnimation;
   int CurrentTabIdx = 0;
   float TipPageY = 0;
   glm::vec2 TipsScrollStartPos;
@@ -62,6 +63,8 @@ class TipsMenu : public UI::TipsMenu {
   float ScrollPercentage = 0.0f;
   bool HasInitialized = false;
   void SetActiveTab(TipsTabType type);
+
+  float LastYPos = 0.0f;
 };
 
 }  // namespace CCLCC

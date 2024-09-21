@@ -1,8 +1,9 @@
 root.TipsMenu = {
     Type = TipsMenuType.CCLCC,
     DrawType = DrawComponentType.SystemMenu,
-    FadeInDuration = 0.2,
-    FadeOutDuration = 0.2,
+    FadeInDuration = 0.4,
+    FadeOutDuration = 0.4,
+    DelayBeforeFadeIn = 1,
     BackgroundSprite = "TipsBookLayer",
     TipsGuideSprite = "TipsGuide",
     TipsGuideX = 0,

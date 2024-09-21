@@ -17,6 +17,7 @@ class TipsTabButton : public Widgets::Button {
   TipsTabButton(Impacto::UI::CCLCC::TipsTabType type,
                 std::function<void(Widgets::Button*)> onClickHandler);
   void UpdateInput() override;
+  void Reset();
 };
 
 class TipsTabGroup : public Menu {
@@ -32,6 +33,10 @@ class TipsTabGroup : public Menu {
   void Render() override;
   void UpdateTipsEntries(std::vector<int> const& SortedTipIds);
   int GetTipEntriesCount() { return TipsEntryButtons.size(); }
+  void Move(glm::vec2 offset);
+  void MoveTo(glm::vec2 pos);
+
+  glm::vec4 Tint = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
  private:
   Widgets::Group TipsEntriesGroup;
@@ -41,7 +46,6 @@ class TipsTabGroup : public Menu {
   Widgets::Scrollbar* TipsEntriesScrollbar = nullptr;
   std::vector<TipsEntryButton*> TipsEntryButtons;
   float ScrollPosY = 0.0f;
-
   glm::vec2 TipsScrollStartPos;
   glm::vec2 TipsScrollTrackBounds;
 };
