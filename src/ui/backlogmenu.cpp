@@ -130,13 +130,14 @@ void BacklogMenu::Update(float dt) {
                                ? FDIR_DOWN
                                : FDIR_UP;
       Widget* newFocusedElement = CurrentlyFocusedElement->GetFocus(dir);
+      while (newFocusedElement &&
+             !HoverBounds.Contains(newFocusedElement->Bounds))
+        newFocusedElement = newFocusedElement->GetFocus(dir);
 
-      if (newFocusedElement != nullptr) {
-        CurrentlyFocusedElement->Hovered = false;
-        CurrentlyFocusedElement->HasFocus = false;
-        newFocusedElement->HasFocus = true;
-        CurrentlyFocusedElement = newFocusedElement;
-      }
+      CurrentlyFocusedElement->Hovered = false;
+      CurrentlyFocusedElement->HasFocus = false;
+      CurrentlyFocusedElement = newFocusedElement;
+      if (newFocusedElement != nullptr) newFocusedElement->HasFocus = true;
     }
   }
 }
