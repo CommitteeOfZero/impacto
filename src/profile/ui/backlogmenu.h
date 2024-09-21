@@ -34,6 +34,8 @@ inline RectF HoverBounds;
 inline float FadeInDuration;
 inline float FadeOutDuration;
 
+inline int SWsetRevMesStartingValue = 0;
+
 void Configure();
 
 }  // namespace BacklogMenu

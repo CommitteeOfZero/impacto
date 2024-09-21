@@ -52,6 +52,8 @@ void Configure() {
     FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
     FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
 
+    TryGetMemberInt("SWsetRevMesStartingValue", SWsetRevMesStartingValue);
+
     switch (Type) {
       case BacklogMenuType::MO6TW:
         MO6TW::BacklogMenu::Configure();
