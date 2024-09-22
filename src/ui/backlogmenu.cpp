@@ -116,12 +116,11 @@ void BacklogMenu::Update(float dt) {
     if ((PADinputButtonWentDown & PAD1DOWN ||
          PADinputButtonWentDown & PAD1UP) &&
         MainScrollbar->Enabled) {
-      auto focusedEl = CurrentlyFocusedElement;
-      if (focusedEl->Bounds.Y < MainItems->RenderingBounds.Y) {
+      const Widget* focusedEl = CurrentlyFocusedElement;
+      if (focusedEl->Bounds.Y < HoverBounds.Y) {
         PageY += focusedEl->Bounds.Height + EntryYPadding;
       } else if (focusedEl->Bounds.Y + focusedEl->Bounds.Height >
-                 MainItems->RenderingBounds.Y +
-                     MainItems->RenderingBounds.Height) {
+                 HoverBounds.Y + HoverBounds.Height) {
         PageY -= focusedEl->Bounds.Height + EntryYPadding;
       }
     }
