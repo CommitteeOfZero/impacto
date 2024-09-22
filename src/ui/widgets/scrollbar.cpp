@@ -14,8 +14,8 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float min, float max, float* value,
                      ScrollbarDirection dir, Sprite const& thumb,
                      glm::vec2 trackBounds, float thumbLength)
     : Id(id),
-      MinValue(min),
-      MaxValue(max),
+      MinValue(std::min(min, max)),
+      MaxValue(std::max(min, max)),
       Value(value),
       Direction(dir),
       ThumbSprite(thumb),
@@ -32,8 +32,8 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float min, float max, float* value,
                      Sprite const& thumb, glm::vec2 thumbOffset,
                      float thumbLength)
     : Id(id),
-      MinValue(min),
-      MaxValue(max),
+      MinValue(std::min(min, max)),
+      MaxValue(std::max(min, max)),
       Value(value),
       Direction(dir),
       TrackSprite(track),
@@ -119,6 +119,7 @@ void Scrollbar::UpdateInput() {
           (trackP2 - ThumbLength) / (MaxValue - MinValue);
       *Value = MinValue + ((mouseP - (trackP1 + ThumbLength / 2.0f)) /
                            thumbNormalizedLength);
+      *Value = std::clamp(*Value, MinValue, MaxValue);
     } else {
       Scrolling = false;
     }
