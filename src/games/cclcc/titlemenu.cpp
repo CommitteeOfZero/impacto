@@ -420,15 +420,11 @@ void TitleMenu::Render() {
                    ScrWork[SW_TITLEMODE]);
       } break;
       case 5: {
-        // Implement
         DrawMainMenuBackGraphics();
         DrawSmoke(SmokeOpacityNormal);
         MainItems->Render();
         ContinueItems->Render();
         ExtraItems->Render();
-        ImpLogSlow(LL_Warning, LC_VMStub,
-                   "TitleMenu::Render: Unimplemented title mode %d\n",
-                   ScrWork[SW_TITLEMODE]);
       } break;
       case 10: {
         ImpLogSlow(LL_Warning, LC_VMStub,
