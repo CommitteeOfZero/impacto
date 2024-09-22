@@ -371,7 +371,8 @@ void TitleMenu::Update(float dt) {
             glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
         ExtraItems->Tint.a =
             glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
-        if (ScrWork[SW_SYSSUBMENUCT] == 0 && SlideItemsAnimation.IsIn()) {
+        if (ScrWork[SW_SYSSUBMENUCT] == 0 && SlideItemsAnimation.IsIn() &&
+            SubMenuState == Hidden) {
           SlideItemsAnimation.StartOut();
           PrimaryFadeAnimation.StartOut();
           SecondaryFadeAnimation.StartOut();
@@ -382,9 +383,9 @@ void TitleMenu::Update(float dt) {
                                  SlideItemsAnimation.DurationOut);
             CurrentSubMenu->HasFocus = false;
           }
+          SubMenuState = Showing;
         } else if (SlideItemsAnimation.IsOut() &&
-                   ScrWork[SW_SYSSUBMENUCT] < 32 &&
-                   ScrWork[SW_SYSSUBMENUCT] > 0) {
+                   ScrWork[SW_SYSSUBMENUCT] < 32 && SubMenuState == Shown) {
           SlideItemsAnimation.StartIn();
           PrimaryFadeAnimation.StartIn();
           SecondaryFadeAnimation.StartIn();
@@ -396,8 +397,18 @@ void TitleMenu::Update(float dt) {
             CurrentSubMenu->Move({Profile::DesignWidth / 2, 0.0f},
                                  SlideItemsAnimation.DurationIn);
           }
+          SubMenuState = Hiding;
         }
       } break;
+    }
+    if (SubMenuState == Hiding && SlideItemsAnimation.IsIn() &&
+        PrimaryFadeAnimation.IsIn() && SecondaryFadeAnimation.IsIn() &&
+        ScrWork[SW_SYSSUBMENUCT] == 0) {
+      SubMenuState = Hidden;
+    } else if (SubMenuState == Showing && SlideItemsAnimation.IsOut() &&
+               PrimaryFadeAnimation.IsOut() && SecondaryFadeAnimation.IsOut() &&
+               ScrWork[SW_SYSSUBMENUCT] == 32) {
+      SubMenuState = Shown;
     }
   }
 }

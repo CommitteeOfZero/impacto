@@ -63,6 +63,7 @@ class TitleMenu : public Menu {
   void DrawSmoke(float opacity);
 
   bool DisableInputReset = false;
+  MenuState SubMenuState = Hidden;
 };
 
 }  // namespace CCLCC
