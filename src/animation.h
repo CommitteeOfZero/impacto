@@ -10,8 +10,8 @@ enum AnimationLoopMode { ALM_Stop, ALM_ReverseDirection, ALM_Loop };
 
 class Animation {
  public:
-  float DurationIn;
-  float DurationOut;
+  float DurationIn = 0;
+  float DurationOut = 0;
   // 1 = in, -1 = out
   float Direction = 1;
   // 0 = fully out, 1 = fully in
