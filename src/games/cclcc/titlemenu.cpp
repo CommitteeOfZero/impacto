@@ -31,6 +31,7 @@ void TitleMenu::MenuButtonOnClick(Widgets::Button* target) {
   TitleButton* button = static_cast<TitleButton*>(target);
   button->ChoiceBlinkAnimation.StartIn();
   DisableInputReset = true;
+  AllowsScriptInput = false;
   if (CurrentSubMenu) {
     CurrentSubMenu->HasFocus = false;
     for (auto& item : CurrentSubMenu->Children) {
@@ -49,6 +50,7 @@ void TitleMenu::MenuButtonOnClick(Widgets::Button* target) {
     ScrWork[SW_TITLECUR1] = target->Id;
     SetFlag(SF_TITLEEND, true);
     AllowsScriptInput = true;
+    PADinputButtonWentDown &= ~PADcustom[6];
     DisableInputReset = false;
   };
   button->OnClickAnimCompleteHandler = std::move(animCompleteHandler);
