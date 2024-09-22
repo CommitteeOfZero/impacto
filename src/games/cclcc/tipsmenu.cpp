@@ -93,6 +93,8 @@ TipsMenu::TipsMenu() : TipViewItems(this) {
   FadeAnimation.LoopMode = ALM_Stop;
   FadeAnimation.DurationIn = FadeInDuration;
   FadeAnimation.DurationOut = FadeOutDuration;
+  TransitionAnimation.DurationIn = TransitionInDuration;
+  TransitionAnimation.DurationOut = TransitionOutDuration;
 
   Name = new Label();
   Pronounciation = new Label();
@@ -161,10 +163,16 @@ void TipsMenu::Show() {
     Number->Bounds.Y = NumberPos.y;
 
     TipsTabs[CurrentTabType]->Show();
-    TipsTabs[CurrentTabType]->Move({0, Profile::DesignHeight / 2});
     TipViewItems.Show();
-    TipViewItems.Move({0, Profile::DesignHeight / 2});
-    TextPage.Move({0, Profile::DesignHeight / 2});
+    if (ScrWork[SW_SYSSUBMENUCT] != 32) {
+      TipsTabs[CurrentTabType]->Move({0, Profile::DesignHeight / 2});
+      TipViewItems.Move({0, Profile::DesignHeight / 2});
+      TextPage.Move({0, Profile::DesignHeight / 2});
+      TransitionAnimation.StartIn();
+    } else {
+      TransitionAnimation.Progress = 1.0f;
+      LastYPos = Profile::DesignHeight / 2;
+    }
     FadeAnimation.StartIn();
   }
 }
@@ -172,6 +180,11 @@ void TipsMenu::Hide() {
   if (State != Hidden) {
     State = Hiding;
     FadeAnimation.StartOut();
+    if (ScrWork[SW_SYSSUBMENUCT] != 0) {
+      TransitionAnimation.StartOut();
+    } else {
+      TransitionAnimation.Progress = 0.0f;
+    }
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
       LastFocusedMenu->IsFocused = true;
@@ -243,16 +256,16 @@ void TipsMenu::UpdateInput() {
 
 void TipsMenu::Update(float dt) {
   if (!HasInitialized) return;
-  if (ScrWork[SW_SYSSUBMENUCT] < 32 && State == Shown &&
-      (ScrWork[SW_SYSSUBMENUNO] == 2)) {
+  if (ScrWork[SW_SYSSUBMENUCT] < 32 && State == Shown) {
     Hide();
-  } else if (ScrWork[SW_SYSSUBMENUCT] >= 32 && State == Hidden &&
+  } else if (ScrWork[SW_SYSSUBMENUCT] > 0 && State == Hidden &&
              (ScrWork[SW_SYSSUBMENUNO] == 2)) {
     Show();
   }
 
   if (State != Hidden) {
     FadeAnimation.Update(dt);
+    TransitionAnimation.Update(dt);
     for (int i = 0; i < TabCount; i++) {
       TipsTabs[i]->Update(dt);
     }
@@ -270,9 +283,12 @@ void TipsMenu::Update(float dt) {
     }
   }
 
-  if (State == Showing && FadeAnimation.Progress == 1.0f) {
+  if (State == Showing && FadeAnimation.Progress == 1.0f &&
+      TransitionAnimation.Progress == 1.0f && ScrWork[SW_SYSSUBMENUCT] == 32) {
     State = Shown;
-  } else if (State == Hiding && FadeAnimation.Progress == 0.0f) {
+  } else if (State == Hiding && FadeAnimation.Progress == 0.0f &&
+             TransitionAnimation.Progress == 0.0f &&
+             ScrWork[SW_SYSSUBMENUCT] == 0) {
     State = Hidden;
     IsFocused = false;
     CurrentlyDisplayedTipId = -1;
@@ -292,17 +308,17 @@ void TipsMenu::Update(float dt) {
     }
   };
 
-  if (FadeAnimation.State == AS_Playing) {
-    float move =
-        glm::mix(0.0f, Profile::DesignHeight / 2, FadeAnimation.Progress) -
-        LastYPos;
+  if (TransitionAnimation.State == AS_Playing) {
+    float move = glm::mix(0.0f, Profile::DesignHeight / 2,
+                          TransitionAnimation.Progress) -
+                 LastYPos;
     Move({0, move});
 
-  } else if (FadeAnimation.IsIn() && LastYPos != 0) {
+  } else if (TransitionAnimation.IsIn() && LastYPos != 0) {
     float move = Profile::DesignHeight / 2 - LastYPos;
     Move({0, move});
-  } else if (FadeAnimation.IsOut() && LastYPos != Profile::DesignHeight / 2 &&
-             LastYPos != 0) {
+  } else if (TransitionAnimation.IsOut() &&
+             LastYPos != Profile::DesignHeight / 2 && LastYPos != 0) {
     float move = -LastYPos;
     Move({0, move});
   }
@@ -311,24 +327,24 @@ void TipsMenu::Update(float dt) {
 void TipsMenu::Render() {
   if (!HasInitialized) return;
   if (State != Hidden) {
-    glm::vec4 transition(1.0f, 1.0f, 1.0f,
-                         glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress));
-    glm::vec4 maskTint = transition;
+    glm::vec4 fade(1.0f, 1.0f, 1.0f,
+                   glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress));
+    glm::vec4 maskTint = fade;
     maskTint.a *= 0.85f;
 
     Renderer->DrawSprite(BackgroundSprite,
                          glm::vec2(0.0f, Profile::DesignHeight / 2 - LastYPos),
-                         transition);
-    TipsTabs[CurrentTabType]->Tint.a = transition.a;
+                         fade);
+    TipsTabs[CurrentTabType]->Tint.a = fade.a;
     TipsTabs[CurrentTabType]->Render();
 
     Renderer->DrawSprite(
         TipsGuideSprite,
         glm::vec2(TipsGuideX,
                   TipsGuideY + Profile::DesignHeight / 2 - LastYPos),
-        transition);
+        fade);
     if (CurrentlyDisplayedTipId != -1) {
-      TipViewItems.Tint.a = transition.a;
+      TipViewItems.Tint.a = fade.a;
       TipViewItems.Render();
 
       Renderer->DrawProcessedText(

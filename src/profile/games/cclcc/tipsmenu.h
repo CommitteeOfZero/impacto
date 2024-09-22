@@ -49,6 +49,9 @@ inline int TipsScrollEntriesX;
 inline int TipsScrollDetailsX;
 
 inline SpriteSheet TipsMaskSheet;
+
+inline float TransitionInDuration;
+inline float TransitionOutDuration;
 void Configure();
 
 }  // namespace TipsMenu

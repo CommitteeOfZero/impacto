@@ -64,6 +64,8 @@ class TipsMenu : public UI::TipsMenu {
   void SetActiveTab(TipsTabType type);
 
   float LastYPos = 0.0f;
+
+  Animation TransitionAnimation;
 };
 
 }  // namespace CCLCC
