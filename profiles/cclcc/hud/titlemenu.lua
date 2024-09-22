@@ -61,7 +61,10 @@ root.TitleMenu = {
     MenuEntriesSprites = {},
     MenuEntriesHighlightedSprites = {},
     MenuEntriesNum = 5,
-    ChoiceBlinkAnimationDuration = 1
+    ChoiceBlinkAnimationDurationIn = 1,
+    HighlightAnimationDurationIn = 0.2,
+    HighlightAnimationDurationOut = 0.2,
+    ExtraDisabledTint = 0x703030,
 };
 
 for i = 0, 4 do

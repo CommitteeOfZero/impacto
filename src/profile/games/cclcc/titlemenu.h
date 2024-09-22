@@ -56,10 +56,12 @@ inline float SecondaryThirdItemHighlightOffsetX;
 inline float ItemHighlightPointerY;
 inline float TitleAnimationDurationIn;
 inline float TitleAnimationDurationOut;
-inline float ChoiceBlinkAnimationDuration;
+inline float ChoiceBlinkAnimationDurationIn;
 inline float SlideItemsAnimationDurationIn;
 inline float SlideItemsAnimationDurationOut;
-
+inline float HighlightAnimationDurationIn;
+inline float HighlightAnimationDurationOut;
+inline uint32_t ExtraDisabledTint;
 inline int TitleAnimationStartFrame;
 inline int TitleAnimationFrameCount;
 inline int TitleAnimationFileId;

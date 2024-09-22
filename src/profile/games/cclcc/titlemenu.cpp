@@ -72,12 +72,17 @@ void Configure() {
   TitleAnimationFrameCount = EnsureGetMemberInt("TitleAnimationFrameCount");
   TitleAnimationFileId = EnsureGetMemberInt("TitleAnimationFileId");
 
-  ChoiceBlinkAnimationDuration =
-      EnsureGetMemberFloat("ChoiceBlinkAnimationDuration");
+  ChoiceBlinkAnimationDurationIn =
+      EnsureGetMemberFloat("ChoiceBlinkAnimationDurationIn");
   SlideItemsAnimationDurationIn =
       EnsureGetMemberFloat("SlideItemsAnimationDurationIn");
   SlideItemsAnimationDurationOut =
       EnsureGetMemberFloat("SlideItemsAnimationDurationOut");
+  HighlightAnimationDurationIn =
+      EnsureGetMemberFloat("HighlightAnimationDurationIn");
+  HighlightAnimationDurationOut =
+      EnsureGetMemberFloat("HighlightAnimationDurationOut");
+  ExtraDisabledTint = EnsureGetMemberUint("ExtraDisabledTint");
 
   UI::CCLCC::TitleMenu* menu = new UI::CCLCC::TitleMenu();
   menu->PressToStartAnimation.DurationIn =

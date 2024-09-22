@@ -26,7 +26,6 @@ class TitleMenu : public Menu {
   Animation SecondaryFadeAnimation;
   Animation SmokeAnimation;
   Animation TitleAnimation;
-  Animation ChoiceBlinkAnimation;
   Animation SlideItemsAnimation;
   Character2D TitleAnimationSprite;
 
@@ -48,8 +47,6 @@ class TitleMenu : public Menu {
   Widgets::CCLCC::TitleButton* Load;
   Widgets::CCLCC::TitleButton* QuickLoad;
 
-  Widgets::CCLCC::TitleButton* LastFocusedButton = nullptr;
-
   void ShowContinueItems();
   void HideContinueItems();
 
@@ -64,6 +61,8 @@ class TitleMenu : public Menu {
   void DrawStartButton();
   void DrawMainMenuBackGraphics();
   void DrawSmoke(float opacity);
+
+  bool DisableInputReset = false;
 };
 
 }  // namespace CCLCC
