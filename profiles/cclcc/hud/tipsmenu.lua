@@ -3,7 +3,6 @@ root.TipsMenu = {
     DrawType = DrawComponentType.SystemMenu,
     FadeInDuration = 0.4,
     FadeOutDuration = 0.4,
-    DelayBeforeFadeIn = 0.5,
     BackgroundSprite = "TipsBookLayer",
     TipsGuideSprite = "TipsGuide",
     TipsGuideX = 0,

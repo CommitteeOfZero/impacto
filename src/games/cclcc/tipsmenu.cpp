@@ -127,8 +127,6 @@ TipsMenu::TipsMenu() : TipViewItems(this) {
   TipsScrollTrackBounds = {
       TipsScrollThumbSprite.Bounds.Width,
       TipsScrollYEnd - TipsScrollYStart - TipsScrollThumbSprite.ScaledHeight()};
-
-  DelayAnimation.DurationIn = DelayAnimationDuration;
 }
 
 void TipsMenu::Show() {
@@ -167,8 +165,7 @@ void TipsMenu::Show() {
     TipViewItems.Show();
     TipViewItems.Move({0, Profile::DesignHeight / 2});
     TextPage.Move({0, Profile::DesignHeight / 2});
-    DelayAnimation.Progress = 0.0f;
-    DelayAnimation.StartIn();
+    FadeAnimation.StartIn();
   }
 }
 void TipsMenu::Hide() {
@@ -256,7 +253,6 @@ void TipsMenu::Update(float dt) {
 
   if (State != Hidden) {
     FadeAnimation.Update(dt);
-    DelayAnimation.Update(dt);
     for (int i = 0; i < TabCount; i++) {
       TipsTabs[i]->Update(dt);
     }
@@ -272,10 +268,6 @@ void TipsMenu::Update(float dt) {
         TextPage.Move({0, oldPageY - TipPageY});
       }
     }
-  }
-
-  if (State == Showing && DelayAnimation.Progress == 1.0f) {
-    FadeAnimation.StartIn();
   }
 
   if (State == Showing && FadeAnimation.Progress == 1.0f) {

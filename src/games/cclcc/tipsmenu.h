@@ -44,7 +44,6 @@ class TipsMenu : public UI::TipsMenu {
 
  private:
   constexpr int static TabCount = 4;
-  Animation DelayAnimation;
   int CurrentTabIdx = 0;
   float TipPageY = 0;
   glm::vec2 TipsScrollStartPos;

@@ -49,7 +49,6 @@ inline int TipsScrollEntriesX;
 inline int TipsScrollDetailsX;
 
 inline SpriteSheet TipsMaskSheet;
-inline float DelayAnimationDuration;
 void Configure();
 
 }  // namespace TipsMenu
