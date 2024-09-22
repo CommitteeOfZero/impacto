@@ -147,6 +147,8 @@ TitleMenu::TitleMenu() {
 
   // Start menu items offscreen
   MainItems->Move({-Profile::DesignWidth / 2, 0.0f});
+  ContinueItems->Move({-Profile::DesignWidth / 4, 0.0f});
+  ExtraItems->Move({-Profile::DesignWidth / 4, 0.0f});
 
   PressToStartAnimation.DurationIn = PressToStartAnimDurationIn;
   PressToStartAnimation.DurationOut = PressToStartAnimDurationOut;
@@ -193,15 +195,40 @@ void TitleMenu::Hide() {
 }
 
 void TitleMenu::UpdateInput() {
-  Menu::UpdateInput();
-  if (CurrentSubMenu) {
+  if (IsFocused && MainItems->HasFocus) {
+    TitleButton* currentFocus =
+        static_cast<TitleButton*>(CurrentlyFocusedElement);
+
+    auto changeInput = [&](int buttonMask, UI::FocusDirection dir) {
+      if (PADinputButtonWentDown & buttonMask) {
+        LastFocusedButton = static_cast<TitleButton*>(CurrentlyFocusedElement);
+        LastFocusedButton->HighlightAnimation.StartOut(true);
+        AdvanceFocus(dir);
+        currentFocus = static_cast<TitleButton*>(CurrentlyFocusedElement);
+        currentFocus->HighlightAnimation.StartIn(true);
+      }
+    };
+    if (CurrentSubMenu ||
+        currentFocus && currentFocus->HighlightAnimation.State == AS_Stopped) {
+      changeInput(PAD1DOWN, FDIR_DOWN);
+      changeInput(PAD1UP, FDIR_UP);
+      changeInput(PAD1RIGHT, FDIR_RIGHT);
+      changeInput(PAD1LEFT, FDIR_LEFT);
+    }
+  }
+
+  if (CurrentSubMenu && SecondaryFadeAnimation.IsIn()) {
     if ((PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B) &&
         CurrentSubMenu->IsShown && CurrentSubMenu->HasFocus) {
       if (CurrentSubMenu == ContinueItems) {
-        HideContinueItems();
+        SecondaryFadeAnimation.StartOut();
+        ContinueItems->Move(glm::vec2(-Profile::DesignWidth / 4, 0.0f),
+                            SecondaryFadeAnimation.DurationOut);
       }
       if (CurrentSubMenu == ExtraItems) {
-        HideExtraItems();
+        SecondaryFadeAnimation.StartOut();
+        ExtraItems->Move(glm::vec2(-Profile::DesignWidth / 4, 0.0f),
+                         SecondaryFadeAnimation.DurationOut);
       }
     }
   }
@@ -209,7 +236,13 @@ void TitleMenu::UpdateInput() {
 
 void TitleMenu::Update(float dt) {
   UpdateInput();
-
+  if (CurrentlyFocusedElement) {
+    static_cast<TitleButton*>(CurrentlyFocusedElement)
+        ->HighlightAnimation.Update(dt);
+  }
+  if (LastFocusedButton && LastFocusedButton != CurrentlyFocusedElement) {
+    LastFocusedButton->HighlightAnimation.Update(dt);
+  }
   PressToStartAnimation.Update(dt);
   PrimaryFadeAnimation.Update(dt);
   SecondaryFadeAnimation.Update(dt);
@@ -257,11 +290,6 @@ void TitleMenu::Update(float dt) {
             << 16;
       } break;
       case 3: {  // Main Menu Fade In
-        MainItems->HasFocus = true;
-        if (CurrentSubMenu) {
-          CurrentSubMenu->HasFocus = true;
-        }
-
         MainItems->Tint.a =
             glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
         ContinueItems->Tint.a =
@@ -280,8 +308,12 @@ void TitleMenu::Update(float dt) {
         if (PrimaryFadeAnimation.IsOut()) {
           PrimaryFadeAnimation.StartIn();
         }
-        if (CurrentSubMenu && SecondaryFadeAnimation.IsOut()) {
-          SecondaryFadeAnimation.StartIn();
+
+        if (CurrentSubMenu) {
+          if (SlideItemsAnimation.IsIn() && SecondaryFadeAnimation.IsIn())
+            CurrentSubMenu->HasFocus = true;
+        } else if (PrimaryFadeAnimation.IsIn() && SlideItemsAnimation.IsIn()) {
+          MainItems->HasFocus = true;
         }
 
         if (CurrentSubMenu && !CurrentSubMenu->IsShown) {
@@ -296,7 +328,17 @@ void TitleMenu::Update(float dt) {
           MainItems->Show();
           MainItems->Tint.a = 0.0f;
           CurrentlyFocusedElement = NewGame;
+          static_cast<TitleButton*>(CurrentlyFocusedElement)
+              ->HighlightAnimation.StartIn(true);
           NewGame->HasFocus = true;
+        }
+
+        if (SecondaryFadeAnimation.IsOut() && CurrentSubMenu) {
+          if (CurrentSubMenu == ContinueItems) {
+            HideContinueItems();
+          } else if (CurrentSubMenu == ExtraItems) {
+            HideExtraItems();
+          }
         }
       } break;
       case 4: {
@@ -335,6 +377,7 @@ void TitleMenu::Update(float dt) {
           SlideItemsAnimation.StartIn();
           PrimaryFadeAnimation.StartIn();
           SecondaryFadeAnimation.StartIn();
+          AllowsScriptInput = false;
           MainItems->Move({Profile::DesignWidth / 2, 0.0f},
                           SlideItemsAnimation.DurationIn);
           CurrentSubMenu->Move({Profile::DesignWidth / 2, 0.0f},
@@ -471,16 +514,17 @@ void TitleMenu::ShowContinueItems() {
   Extra->Move(glm::vec2(0.0f, ItemPadding));
   Config->Move(glm::vec2(0.0f, ItemPadding));
   Help->Move(glm::vec2(0.0f, ItemPadding));
+  ContinueItems->Move(glm::vec2(Profile::DesignWidth / 4, 0.0f),
+                      SecondaryFadeAnimation.DurationOut);
 }
 
 void TitleMenu::HideContinueItems() {
   ContinueItems->Hide();
   MainItems->HasFocus = true;
   CurrentlyFocusedElement = Continue;
-  CurrentSubMenu = 0;
   ContinueItems->HasFocus = true;
-  SecondaryFadeAnimation.StartOut();
-
+  CurrentSubMenu = nullptr;
+  AllowsScriptInput = true;
   Extra->Move(glm::vec2(0.0f, -ItemPadding));
   Config->Move(glm::vec2(0.0f, -ItemPadding));
   Help->Move(glm::vec2(0.0f, -ItemPadding));
@@ -497,16 +541,17 @@ void TitleMenu::ShowExtraItems() {
 
   Config->Move(glm::vec2(0, ItemPadding));
   Help->Move(glm::vec2(0, ItemPadding));
+  ExtraItems->Move({Profile::DesignWidth / 4, 0.0f},
+                   SecondaryFadeAnimation.DurationIn);
 }
 
 void TitleMenu::HideExtraItems() {
   ExtraItems->Hide();
   MainItems->HasFocus = true;
   CurrentlyFocusedElement = Extra;
-  CurrentSubMenu = 0;
-  ExtraItems->HasFocus = true;
-  SecondaryFadeAnimation.StartOut();
-
+  CurrentlyFocusedElement->HasFocus = true;
+  CurrentSubMenu = nullptr;
+  AllowsScriptInput = true;
   Config->Move(glm::vec2(0, -ItemPadding));
   Help->Move(glm::vec2(0, -ItemPadding));
 }

@@ -47,6 +47,9 @@ class TitleMenu : public Menu {
   Widgets::Group* ContinueItems;
   Widgets::CCLCC::TitleButton* Load;
   Widgets::CCLCC::TitleButton* QuickLoad;
+
+  Widgets::CCLCC::TitleButton* LastFocusedButton = nullptr;
+
   void ShowContinueItems();
   void HideContinueItems();
 

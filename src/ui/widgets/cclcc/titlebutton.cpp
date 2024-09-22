@@ -10,16 +10,29 @@ namespace CCLCC {
 
 using namespace Impacto::Profile::CCLCC::TitleMenu;
 
+void TitleButton::UpdateInput() {
+  if (IsSubButton || HighlightAnimation.State == AS_Stopped) {
+    Button::UpdateInput();
+  }
+}
+
 void TitleButton::Render() {
-  if (HasFocus) {
+  if (HasFocus || HighlightAnimation.State == AS_Playing) {
     if (!IsSubButton) {  // Main buttons
-      Renderer->DrawSprite(HighlightSprite,
+      Sprite newHighlightSprite = HighlightSprite;
+      float smoothProgress =
+          HighlightAnimation.State == AS_Playing
+              ? glm::smoothstep(0.0f, 1.0f, HighlightAnimation.Progress)
+              : 1.0f;
+      newHighlightSprite.Bounds.Width *= smoothProgress;
+      Renderer->DrawSprite(newHighlightSprite,
                            glm::vec2(Bounds.X - ItemHighlightOffsetX,
                                      Bounds.Y - ItemHighlightOffsetY),
                            Tint);
+      glm::vec4 pointerTint = glm::vec4(1.0f, 1.0f, 1.0f, smoothProgress);
       Renderer->DrawSprite(
           ItemHighlightPointerSprite,
-          glm::vec2(Bounds.X - ItemHighlightPointerY, Bounds.Y), Tint);
+          glm::vec2(Bounds.X - ItemHighlightPointerY, Bounds.Y), pointerTint);
       Renderer->DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
     } else {  // Sub buttons
       Renderer->DrawSprite(HighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
