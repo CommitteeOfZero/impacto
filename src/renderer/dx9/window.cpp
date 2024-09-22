@@ -96,6 +96,14 @@ void DirectX9Window::Init() {
          WindowWidth, WindowHeight);
 }
 
+void DirectX9Window::ToggleFullscreen() {
+  if (SDL_GetWindowFlags(SDLWindow) & SDL_WINDOW_FULLSCREEN) {
+    SDL_SetWindowFullscreen(SDLWindow, 0);
+  } else {
+    SDL_SetWindowFullscreen(SDLWindow, SDL_WINDOW_FULLSCREEN);
+  }
+}
+
 void DirectX9Window::SetDimensions(int width, int height, int msaa,
                                    float renderScale) {}
 

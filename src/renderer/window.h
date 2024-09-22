@@ -18,6 +18,7 @@ class BaseWindow {
   virtual void Init() = 0;
   virtual void SetDimensions(int width, int height, int msaa,
                              float renderScale) = 0;
+  virtual void ToggleFullscreen() = 0;
   // Aspect ratio corrected viewport in window coordinates
   virtual RectF GetViewport() = 0;
   // Aspect ratio corrected viewport in window coordinates scaled by RenderScale
