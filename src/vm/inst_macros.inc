@@ -4,6 +4,8 @@
   /* Sometimes needed by subsequent code, silence warning */ \
   (void)noExpressions;                                       \
   (void)_oldIp;                                              \
+  ImpLogSlow(LL_Trace, LC_VM, "Instruction name: %s\n",      \
+             __func__);                                      \
   thread->Ip += 2
 #define ResetInstruction thread->Ip = _oldIp
 

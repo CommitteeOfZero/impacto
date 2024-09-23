@@ -75,7 +75,7 @@ int PushNextTableElement() { return lua_next(LuaState, -2); }
     nativeType result;                                                       \
     bool success = TryGet##typeName(result);                                 \
     if (!success) {                                                          \
-      ImpLog(LL_Fatal, LC_Profile, "Expected %s to be " typeDesc "\n");      \
+      ImpLog(LL_Fatal, LC_Profile, "Expected item to be " typeDesc "\n");    \
       Window->Shutdown();                                                    \
     }                                                                        \
     return result;                                                           \

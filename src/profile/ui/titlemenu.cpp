@@ -8,6 +8,7 @@
 #include "../games/mo8/titlemenu.h"
 #include "../games/cc/titlemenu.h"
 #include "../games/cclcc/titlemenu.h"
+#include "../games/sghd/titlemenu.h"
 #include "../../log.h"
 
 namespace Impacto {
@@ -54,6 +55,10 @@ void Configure() {
       CC::TitleMenu::Configure();
     } else if (Type == +TitleMenuType::CCLCC) {
       CCLCC::TitleMenu::Configure();
+    } else if (Type == +TitleMenuType::SGHD) {
+      SGHD::TitleMenu::Configure();
+    } else {
+      ImpLog(LL_Warning, LC_Profile, "Unknown title menu type in profile!\n");
     }
 
     // if (Implementation != 0) {

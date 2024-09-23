@@ -50,6 +50,8 @@ void LoadSpritesheets() {
     std::string name(EnsureGetKeyString());
 
     Sprite& sprite = Sprites[name];
+
+    ImpLog(LL_Debug, LC_Profile, "Loading spritesheet %s\n", name.c_str());
     sprite.Sheet = EnsureGetMemberSpriteSheet("Sheet");
     sprite.Bounds = EnsureGetMemberRectF("Bounds");
     if (!TryGetMemberVec2("BaseScale", sprite.BaseScale))
