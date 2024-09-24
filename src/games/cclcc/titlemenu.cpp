@@ -52,6 +52,7 @@ void TitleMenu::MenuButtonOnClick(Widgets::Button* target) {
     AllowsScriptInput = true;
     PADinputButtonWentDown &= ~PADcustom[6];
     DisableInputReset = false;
+    IsFocused = false;
   };
   button->OnClickAnimCompleteHandler = std::move(animCompleteHandler);
 }
@@ -378,11 +379,11 @@ void TitleMenu::Update(float dt) {
             glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
         ExtraItems->Tint.a =
             glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
-        if (ScrWork[SW_SYSSUBMENUCT] == 0 && SlideItemsAnimation.IsIn() &&
-            SubMenuState == Hidden) {
+        if (ScrWork[SW_SYSSUBMENUCT] == 0 && SubMenuState == Hidden) {
           SlideItemsAnimation.StartOut();
           PrimaryFadeAnimation.StartOut();
           SecondaryFadeAnimation.StartOut();
+          AllowsScriptInput = false;
           MainItems->Move({-Profile::DesignWidth / 2, 0.0f},
                           SlideItemsAnimation.DurationOut);
           if (CurrentSubMenu) {
@@ -391,8 +392,7 @@ void TitleMenu::Update(float dt) {
             CurrentSubMenu->HasFocus = false;
           }
           SubMenuState = Showing;
-        } else if (SlideItemsAnimation.IsOut() &&
-                   ScrWork[SW_SYSSUBMENUCT] < 32 && SubMenuState == Shown) {
+        } else if (ScrWork[SW_SYSSUBMENUCT] < 32 && SubMenuState == Shown) {
           SlideItemsAnimation.StartIn();
           PrimaryFadeAnimation.StartIn();
           SecondaryFadeAnimation.StartIn();
@@ -418,13 +418,9 @@ void TitleMenu::Update(float dt) {
                    ScrWork[SW_TITLEMODE]);
       } break;
     }
-    if (SubMenuState == Hiding && SlideItemsAnimation.IsIn() &&
-        PrimaryFadeAnimation.IsIn() && SecondaryFadeAnimation.IsIn() &&
-        ScrWork[SW_SYSSUBMENUCT] == 0) {
+    if (SubMenuState == Hiding && ScrWork[SW_SYSSUBMENUCT] == 0) {
       SubMenuState = Hidden;
-    } else if (SubMenuState == Showing && SlideItemsAnimation.IsOut() &&
-               PrimaryFadeAnimation.IsOut() && SecondaryFadeAnimation.IsOut() &&
-               ScrWork[SW_SYSSUBMENUCT] == 32) {
+    } else if (SubMenuState == Showing && ScrWork[SW_SYSSUBMENUCT] == 32) {
       SubMenuState = Shown;
     }
   }
