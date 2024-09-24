@@ -174,6 +174,7 @@ TitleMenu::TitleMenu() {
                                nullSprite,
                                glm::vec2(SecondaryThirdItemHighlightOffsetX,
                                          (ItemYBase + (3 * ItemPadding))));
+  EndingList->IsSubButton = true;
   EndingList->OnClickHandler = onClick;
   ExtraItems->Add(EndingList, FDIR_RIGHT);
 
@@ -257,6 +258,12 @@ void TitleMenu::Update(float dt) {
   TitleAnimationSprite.OffsetX = 0.0f;
   TitleAnimationSprite.OffsetY = 0.0f;
   SlideItemsAnimation.Update(dt);
+
+  if (!IsFocused) {
+    MainItems->HasFocus = false;
+    ContinueItems->HasFocus = false;
+    ExtraItems->HasFocus = false;
+  }
 
   MainItems->Update(dt);
   ContinueItems->Update(dt);
@@ -400,6 +407,16 @@ void TitleMenu::Update(float dt) {
           SubMenuState = Hiding;
         }
       } break;
+      case 10: {
+        ImpLogSlow(LL_Warning, LC_VMStub,
+                   "TitleMenu::Update: Unimplemented title mode %d\n",
+                   ScrWork[SW_TITLEMODE]);
+      } break;
+      case 13: {
+        ImpLogSlow(LL_Warning, LC_VMStub,
+                   "TitleMenu::Update: Unimplemented title mode %d\n",
+                   ScrWork[SW_TITLEMODE]);
+      } break;
     }
     if (SubMenuState == Hiding && SlideItemsAnimation.IsIn() &&
         PrimaryFadeAnimation.IsIn() && SecondaryFadeAnimation.IsIn() &&
@@ -464,7 +481,7 @@ void TitleMenu::Render() {
         Renderer->DrawSprite(CopyrightTextSprite,
                              glm::vec2(CopyrightTextX, CopyrightTextY));
       } break;
-      case 14: {
+      case 13: {
         ImpLogSlow(LL_Warning, LC_VMStub,
                    "TitleMenu::Render: Unimplemented title mode %d\n",
                    ScrWork[SW_TITLEMODE]);
