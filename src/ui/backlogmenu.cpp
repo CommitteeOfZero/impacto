@@ -29,6 +29,8 @@ using namespace Impacto::UI::Widgets;
 void BacklogMenu::MenuButtonOnClick(Widgets::BacklogEntry* target) {
   if (target->AudioId != -1) {
     Audio::Channels[Audio::AC_REV]->Play("voice", target->AudioId, false, 0.0f);
+  } else {
+    Audio::Channels[Audio::AC_REV]->Play("sysse", 4, false, 0.0f);
   }
 }
 
