@@ -102,12 +102,6 @@ void TipsTabGroup::UpdateInput() {
 }
 
 void TipsTabGroup::Update(float dt) {
-  if (!Impacto::UI::TipsMenuPtr->IsFocused ||
-      Impacto::UI::TipsMenuPtr->State == Hidden) {
-    TabName.Enabled = false;
-    TipsEntriesGroup.Enabled = false;
-    return;
-  }
   TabName.Enabled = true;
   TabName.Update(dt);
   TabName.UpdateInput();

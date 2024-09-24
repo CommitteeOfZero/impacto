@@ -140,7 +140,6 @@ void TipsMenu::Show() {
       LastFocusedMenu = UI::FocusedMenu;
       LastFocusedMenu->IsFocused = false;
     }
-    IsFocused = true;
     UI::FocusedMenu = this;
 
     for (int i = 0; i < TabCount; i++) {
@@ -187,7 +186,6 @@ void TipsMenu::Hide() {
     }
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
-      LastFocusedMenu->IsFocused = true;
     } else {
       UI::FocusedMenu = 0;
     }
@@ -286,11 +284,13 @@ void TipsMenu::Update(float dt) {
   if (State == Showing && FadeAnimation.Progress == 1.0f &&
       TransitionAnimation.Progress == 1.0f && ScrWork[SW_SYSSUBMENUCT] == 32) {
     State = Shown;
+    IsFocused = true;
   } else if (State == Hiding && FadeAnimation.Progress == 0.0f &&
              TransitionAnimation.Progress == 0.0f &&
              ScrWork[SW_SYSSUBMENUCT] == 0) {
     State = Hidden;
     IsFocused = false;
+    if (UI::FocusedMenu) UI::FocusedMenu->IsFocused = true;
     CurrentlyDisplayedTipId = -1;
     TipsTabs[CurrentTabType]->Hide();
     TipViewItems.Hide();
