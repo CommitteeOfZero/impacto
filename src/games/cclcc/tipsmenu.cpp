@@ -234,7 +234,7 @@ void TipsMenu::UpdateInput() {
                              -Input::ControllerAxisLightThreshold) ||
                         Input::KeyboardButtonIsDown[SDL_SCANCODE_RIGHTBRACKET];
 
-      int remainingScroll = TipsScrollbar->MaxValue - TipPageY;
+      int remainingScroll = TipsScrollbar->EndValue - TipPageY;
       if (upScroll && (TipPageY > 0)) {
         if (scrollDistance > TipPageY) {
           scrollDistance = TipPageY;

@@ -101,8 +101,8 @@ void BacklogMenu::Update(float dt) {
   if (State == Shown && IsFocused) {
     if (ItemsHeight > MainItems->RenderingBounds.Height) {
       MainScrollbar->Enabled = true;
-      MainScrollbar->MinValue = MainItems->RenderingBounds.Y + EntryYPadding;
-      MainScrollbar->MaxValue = -ItemsHeight +
+      MainScrollbar->StartValue = MainItems->RenderingBounds.Y + EntryYPadding;
+      MainScrollbar->EndValue = -ItemsHeight +
                                 MainItems->RenderingBounds.Height +
                                 MainItems->RenderingBounds.Y;
     }
@@ -190,10 +190,10 @@ void BacklogMenu::AddMessage(uint8_t* str, int audioId) {
     MainItems->Add(backlogEntry, FDIR_DOWN);
     ItemsHeight += backlogEntry->TextHeight + EntryYPadding;
     if (ItemsHeight > MainItems->RenderingBounds.Height) {
-      MainScrollbar->MaxValue = -ItemsHeight +
+      MainScrollbar->EndValue = -ItemsHeight +
                                 MainItems->RenderingBounds.Height +
                                 MainItems->RenderingBounds.Y;
-      PageY = MainScrollbar->MaxValue;
+      PageY = MainScrollbar->EndValue;
       MainItems->MoveTo(glm::vec2(EntriesStart.x, PageY));
       CurrentEntryPos.y =
           backlogEntry->Bounds.Y + backlogEntry->Bounds.Height + EntryYPadding;
@@ -206,8 +206,8 @@ void BacklogMenu::Clear() {
   PageY = 0.0f;
   CurrentId = 0;
   ItemsHeight = 0.0f;
-  MainScrollbar->MinValue = 0.0f;
-  MainScrollbar->MaxValue = 0.0f;
+  MainScrollbar->StartValue = 0.0f;
+  MainScrollbar->EndValue = 0.0f;
   MainScrollbar->Enabled = false;
   CurrentEntryPos = EntriesStart;
 }

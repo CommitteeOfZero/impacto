@@ -91,7 +91,7 @@ void TipsTabGroup::UpdateInput() {
           if (CurrentlyFocusedElement != TipsEntryButtons.back())
             ScrollPosY -= TipsEntryBounds.Height;
           else
-            ScrollPosY = TipsEntriesScrollbar->MaxValue;
+            ScrollPosY = TipsEntriesScrollbar->EndValue;
         }
       }
     }
