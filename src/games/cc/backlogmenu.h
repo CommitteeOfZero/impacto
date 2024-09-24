@@ -12,6 +12,7 @@ class BacklogMenu : public UI::BacklogMenu {
   BacklogMenu();
 
   void Render();
+  void MenuButtonOnClick(Widgets::BacklogEntry* target);
 
  private:
   const Sprite* MaskSprite;

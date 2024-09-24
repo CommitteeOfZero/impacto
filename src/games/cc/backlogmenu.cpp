@@ -15,6 +15,14 @@ using namespace Impacto::UI::CC;
 using namespace Impacto::Profile::BacklogMenu;
 using namespace Impacto::Profile::CC::BacklogMenu;
 
+void BacklogMenu::MenuButtonOnClick(Widgets::BacklogEntry* target) {
+  if (target->AudioId != -1) {
+    Audio::Channels[Audio::AC_REV]->Play("voice", target->AudioId, false, 0.0f);
+  } else {
+    Audio::Channels[Audio::AC_REV]->Play("sysse", 4, false, 0.0f);
+  }
+}
+
 BacklogMenu::BacklogMenu() : UI::BacklogMenu::BacklogMenu() {
   switch (Impacto::Profile::SystemMenu::Type) {
     default:
