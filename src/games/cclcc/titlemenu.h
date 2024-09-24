@@ -62,6 +62,8 @@ class TitleMenu : public Menu {
   void DrawMainMenuBackGraphics();
   void DrawSmoke(float opacity);
 
+  void MainMenuUpdate();
+  void SubMenuUpdate();
   bool DisableInputReset = false;
   MenuState SubMenuState = Hidden;
 };
