@@ -54,16 +54,17 @@ void BacklogMenu::Show() {
     State = Showing;
     FadeAnimation.StartIn();
     MainItems->Show();
+
     if (!MainItems->Children.empty()) {
       auto el = MainItems->Children.back();
       FocusStart[FDIR_UP] = el;
       FocusStart[FDIR_DOWN] = el;
     }
-    if (UI::FocusedMenu != 0) {
+
+    if (UI::FocusedMenu != nullptr) {
       LastFocusedMenu = UI::FocusedMenu;
       LastFocusedMenu->IsFocused = false;
     }
-    IsFocused = true;
     UI::FocusedMenu = this;
   }
 }
@@ -72,13 +73,13 @@ void BacklogMenu::Hide() {
     State = Hiding;
     FadeAnimation.StartOut();
     MainItems->Hide();
-    if (LastFocusedMenu != 0) {
+
+    if (LastFocusedMenu != nullptr) {
       UI::FocusedMenu = LastFocusedMenu;
       LastFocusedMenu->IsFocused = true;
     } else {
-      UI::FocusedMenu = 0;
+      UI::FocusedMenu = nullptr;
     }
-    IsFocused = false;
   }
 }
 
@@ -91,14 +92,29 @@ inline bool inVerticalHoverBounds(const Widget& entry) {
 void BacklogMenu::Update(float dt) {
   UpdateInput();
 
-  FadeAnimation.Update(dt);
+  if (ScrWork[SW_SYSSUBMENUCT] < 32 && State == Shown) {
+    Hide();
+  } else if (ScrWork[SW_SYSSUBMENUCT] > 0 && State == Hidden &&
+             ScrWork[SW_SYSSUBMENUNO] == 1) {
+    Show();
+  }
 
-  if (FadeAnimation.IsIn())
+  if (State != Hidden && State != Shown) FadeAnimation.Update(dt);
+
+  if (State == Showing && FadeAnimation.IsIn() &&
+      ScrWork[SW_SYSSUBMENUCT] == 32) {
     State = Shown;
-  else if (FadeAnimation.IsOut())
+    IsFocused = true;
+  } else if (State == Hiding && FadeAnimation.IsOut() &&
+             ScrWork[SW_SYSSUBMENUCT] == 0) {
     State = Hidden;
+    IsFocused = false;
+    if (UI::FocusedMenu) UI::FocusedMenu->IsFocused = true;
 
-  if (State == Shown && IsFocused) {
+    MainItems->Hide();
+  }
+
+  if (State == Shown && ScrWork[SW_SYSSUBMENUNO] == 1) {
     if (ItemsHeight > MainItems->RenderingBounds.Height) {
       MainScrollbar->Enabled = true;
       MainScrollbar->StartValue = MainItems->RenderingBounds.Y + EntryYPadding;
@@ -106,13 +122,16 @@ void BacklogMenu::Update(float dt) {
                                 MainItems->RenderingBounds.Height +
                                 MainItems->RenderingBounds.Y;
     }
+
     if (MainScrollbar->Enabled) {
       MainItems->MoveTo(glm::vec2(EntriesStart.x, PageY));
       auto lastEntry = MainItems->Children.back();
       CurrentEntryPos.y =
           lastEntry->Bounds.Y + lastEntry->Bounds.Height + EntryYPadding;
     }
+
     MainItems->Update(dt);
+
     if ((PADinputButtonWentDown & PAD1DOWN ||
          PADinputButtonWentDown & PAD1UP) &&
         MainScrollbar->Enabled) {
@@ -172,7 +191,9 @@ void BacklogMenu::RenderHighlight() const {
   pos.X += EntryHighlightOffset.x;
   pos.Y += EntryHighlightOffset.y;
 
-  Renderer->DrawSprite(EntryHighlight, pos);
+  float opacity = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
+  Renderer->DrawSprite(EntryHighlight, pos,
+                       glm::vec4(1.0f, 1.0f, 1.0f, opacity));
 }
 
 void BacklogMenu::Render() {}

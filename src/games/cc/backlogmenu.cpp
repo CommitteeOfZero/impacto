@@ -34,11 +34,14 @@ BacklogMenu::BacklogMenu() : UI::BacklogMenu::BacklogMenu() {
 void BacklogMenu::Render() {
   if (State == Hidden) return;
 
-  glm::vec4 transition(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-  glm::vec4 maskTint = glm::vec4(1.0f);
-  maskTint.a = ((float)0xa0 / 0x100) * FadeAnimation.Progress;
+  float opacity = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
+  glm::vec4 transition(1.0f, 1.0f, 1.0f, opacity);
+
+  glm::vec4 maskTint = transition;
+  maskTint.a *= (float)0xa0 / 0x100;
 
   MainItems->Tint = transition;
+  MainScrollbar->Tint = transition;
 
   int repeatHeight = BacklogBackgroundRepeatHeight;
   float backgroundY =

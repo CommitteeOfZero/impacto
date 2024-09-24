@@ -108,8 +108,10 @@ void BacklogEntry::Render() {
 
   if (AudioId != -1) {
     Renderer->DrawSprite(
-        VoiceIcon, glm::vec2(Bounds.X - VoiceIcon.ScaledWidth(), Bounds.Y) +
-                       VoiceIconOffset);
+        VoiceIcon,
+        glm::vec2(Bounds.X - VoiceIcon.ScaledWidth(), Bounds.Y) +
+            VoiceIconOffset,
+        Tint);
   }
 
   if (BacklogPage->HasName) {
