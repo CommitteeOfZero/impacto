@@ -14,7 +14,7 @@ void Configure() {
   BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
   ClearListBookLayerSprite = EnsureGetMemberSprite("ClearListBookLayerSprite");
   ClearListGuideSprite = EnsureGetMemberSprite("ClearListGuideSprite");
-  ClearListMaskSprite = EnsureGetMemberSprite("ClearListMaskSprite");
+  LibraryMaskSprite = EnsureGetMemberSprite("LibraryMaskSprite");
 
   FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
   FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");

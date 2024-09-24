@@ -8,6 +8,13 @@ namespace CCLCC {
 namespace LibraryMenu {
 
 inline Sprite BackgroundSprite;
+inline Sprite LibraryBackgroundSprite;
+inline glm::vec2 LibraryBackgroundPosition;
+inline Sprite LibraryIndexSprite;
+inline glm::vec2 LibraryIndexPosition;
+inline Sprite LibraryButtonGuideSprite;
+inline glm::vec2 LibraryButtonGuidePosition;
+inline Sprite LibraryMaskSprite;
 
 inline float FadeInDuration;
 inline float FadeOutDuration;

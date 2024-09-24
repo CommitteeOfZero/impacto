@@ -222,7 +222,7 @@ VmInstruction(InstOption) {
         ResetInstruction;
         BlockThread;
       } else {
-        SetFlag(SF_RETURNTITLE, true);
+        SetFlag(SF_SUBMENUEXIT, true);
         Interface::PADinputButtonWentDown |= Interface::PAD1A;
       }
       ImpLogSlow(LL_Warning, LC_VMStub,
@@ -308,7 +308,7 @@ VmInstruction(InstAlbum) {
         ResetInstruction;
         BlockThread;
       } else {
-        SetFlag(SF_RETURNTITLE, true);
+        SetFlag(SF_ALBUMEND, true);
         Interface::PADinputButtonWentDown |= Interface::PAD1A;
       }
       ImpLogSlow(LL_Warning, LC_VMStub,
@@ -502,7 +502,6 @@ VmInstruction(InstTitleMenu) {
     case 2:  // Init2
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction TitleMenu(type: Init2)\n");
-      break;
       break;
   }
 }

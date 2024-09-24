@@ -16,6 +16,15 @@ void Configure() {
   FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
   FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
 
+  LibraryBackgroundSprite = EnsureGetMemberSprite("LibraryBackgroundSprite");
+  LibraryBackgroundPosition = EnsureGetMemberVec2("LibraryBackgroundPosition");
+  LibraryIndexSprite = EnsureGetMemberSprite("LibraryIndexSprite");
+  LibraryIndexPosition = EnsureGetMemberVec2("LibraryIndexPosition");
+  LibraryButtonGuideSprite = EnsureGetMemberSprite("LibraryButtonGuideSprite");
+  LibraryButtonGuidePosition =
+      EnsureGetMemberVec2("LibraryButtonGuidePosition");
+  LibraryMaskSprite = EnsureGetMemberSprite("LibraryMaskSprite");
+
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMemberInt("DrawType"));
 

@@ -10,7 +10,7 @@ namespace ClearListMenu {
 inline Sprite BackgroundSprite;
 inline Sprite ClearListBookLayerSprite;
 inline Sprite ClearListGuideSprite;
-inline Sprite ClearListMaskSprite;
+inline Sprite LibraryMaskSprite;
 
 inline float FadeInDuration;
 inline float FadeOutDuration;

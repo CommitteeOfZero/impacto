@@ -9,6 +9,7 @@
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
 #include "../../vm/interface/input.h"
+#include "../../profile/game.h"
 
 namespace Impacto {
 namespace UI {
@@ -77,9 +78,18 @@ void LibraryMenu::Update(float dt) {
 void LibraryMenu::Render() {
   if (State != Hidden && ScrWork[SW_SYSSUBMENUCT] >= 32 &&
       ScrWork[SW_SYSSUBMENUNO] == 8) {
+    glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
     glm::vec4 maskTint = glm::vec4(1.0f);
-    maskTint.a = 0.85f;
-    Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
+    Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f), col);
+    Renderer->DrawSprite(LibraryBackgroundSprite, LibraryBackgroundPosition,
+                         col);
+    Renderer->DrawSprite(LibraryIndexSprite, LibraryIndexPosition, col);
+    Renderer->DrawSprite(
+        LibraryMaskSprite,
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+        maskTint);
+    Renderer->DrawSprite(LibraryButtonGuideSprite, LibraryButtonGuidePosition,
+                         col);
   }
 }
 

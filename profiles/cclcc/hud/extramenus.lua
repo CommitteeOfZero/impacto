@@ -9,7 +9,7 @@ root.ExtraMenus = {
         ClearListGuideSprite = "ClearListGuide",
         ClearListGuideX = 0,
         ClearListGuideY = 990,
-        ClearListMaskSprite = "ClearListMask"
+        LibraryMaskSprite = "LibraryMask",
     },
     LibraryMenu = {
         DrawType = DrawComponentType.SystemMenu,
@@ -17,8 +17,21 @@ root.ExtraMenus = {
         BackgroundSprite = "MenuBackground",
         FadeInDuration = 0.2,
         FadeOutDuration = 0.2,
+        LibraryBackgroundSprite = "LibraryBackground",
+        LibraryBackgroundPosition = { X = 291, Y = 0 },
+        LibraryIndexSprite = "LibraryIndex",
+        LibraryIndexPosition = { X = 0, Y = 31 },
+        LibraryButtonGuideSprite = "LibraryButtonGuide",
+        LibraryButtonGuidePosition = { X = 0, Y = 988 },
+        LibraryMaskSprite = "LibraryMask",
     }
 }
+
+-- Common
+root.Sprites["LibraryMask"] = {
+    Sheet = "MenuChip",
+    Bounds = { X = 154, Y = 140, Width = 1900, Height = 1061 },
+};
 
 -- ClearList
 root.Sprites["MenuBackground"] = {

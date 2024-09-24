@@ -8,14 +8,18 @@ root.SaveMenu = {
     EntryStartYR = 52,
     EntryYPadding = 201,
     FadeInDuration = 0.2,
-    FadeOutDuration = 0.2
-
-    
+    FadeOutDuration = 0.2,
+    SaveMenuMaskSprite = "SaveMenuMask",
 };
 
 root.Sprites["EmptyThumbnail"] = {
     Sheet = "SaveMenu",
     Bounds = { X = 0, Y = 0, Width = 0, Height = 0 }
+};
+
+root.Sprites["SaveMenuMask"] = {
+    Sheet = "MenuChip",
+    Bounds = { X = 154, Y = 140, Width = 1900, Height = 1061 },
 };
 
 local menuTypes = { "QuickLoad", "Save", "Load" }

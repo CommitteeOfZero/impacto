@@ -78,7 +78,7 @@ void ClearListMenu::Render() {
     Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
     Renderer->DrawSprite(ClearListBookLayerSprite, glm::vec2(0.0f), transition);
     Renderer->DrawSprite(
-        ClearListMaskSprite,
+        LibraryMaskSprite,
         RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
         maskTint);
     Renderer->DrawSprite(ClearListGuideSprite,
