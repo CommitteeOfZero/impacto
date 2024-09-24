@@ -10,8 +10,8 @@ namespace Widgets {
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Vm::Interface;
 
-Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end, float* value,
-                     ScrollbarDirection dir, Sprite const& thumb,
+Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end,
+                     float* value, ScrollbarDirection dir, Sprite const& thumb,
                      glm::vec2 trackBounds, float thumbLength)
     : Id(id),
       StartValue(start),
@@ -27,8 +27,8 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end, float* value
   UpdatePosition();
 }
 
-Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end, float* value,
-                     ScrollbarDirection dir, Sprite const& track,
+Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end,
+                     float* value, ScrollbarDirection dir, Sprite const& track,
                      Sprite const& thumb, glm::vec2 thumbOffset,
                      float thumbLength)
     : Id(id),
@@ -61,8 +61,8 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end, float* value
   UpdatePosition();
 }
 
-Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end, float* value,
-                     ScrollbarDirection dir, Sprite const& track,
+Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end,
+                     float* value, ScrollbarDirection dir, Sprite const& track,
                      Sprite const& thumb, Sprite const& fill,
                      glm::vec2 thumbOffset, float thumbLength)
     : Scrollbar(id, pos, start, end, value, dir, track, thumb, thumbOffset,
@@ -118,8 +118,8 @@ void Scrollbar::UpdateInput() {
       float thumbNormalizedLength =
           (trackP2 - ThumbLength) / (EndValue - StartValue);
       *Value = StartValue + ((mouseP - (trackP1 + ThumbLength / 2.0f)) /
-                           thumbNormalizedLength);
-      
+                             thumbNormalizedLength);
+
       float minValue = std::min(StartValue, EndValue);
       float maxValue = std::max(StartValue, EndValue);
       *Value = std::clamp(*Value, minValue, maxValue);
