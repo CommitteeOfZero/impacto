@@ -32,6 +32,8 @@ void Configure() {
   EntryYPadding = EnsureGetMemberFloat("EntryYPadding");
 
   SaveMenuMaskSprite = EnsureGetMemberSprite("SaveMenuMaskSprite");
+  SaveEntryPrimaryColor = EnsureGetMemberUint("SaveEntryPrimaryColor");
+  SaveEntrySecondaryColor = EnsureGetMemberUint("SaveEntrySecondaryColor");
   for (int i = 0; i < sizeof(SaveMenuTypeNames) / sizeof(*SaveMenuTypeNames);
        i++) {
     SaveMenuPageType menuType = SaveMenuPageType::_from_integral_unchecked(i);

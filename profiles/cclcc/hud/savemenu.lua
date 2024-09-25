@@ -10,6 +10,8 @@ root.SaveMenu = {
     FadeInDuration = 0.2,
     FadeOutDuration = 0.2,
     SaveMenuMaskSprite = "SaveMenuMask",
+    SaveEntryPrimaryColor = 0x43B7EA,
+    SaveEntrySecondaryColor = 0x5E357C,
 };
 
 root.Sprites["EmptyThumbnail"] = {

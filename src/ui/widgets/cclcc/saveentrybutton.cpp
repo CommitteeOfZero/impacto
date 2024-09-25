@@ -68,11 +68,6 @@ void SaveEntryButton::Render() {
         glm::vec2(Bounds.X + HighlightOffset.x, Bounds.Y + HighlightOffset.y),
         Tint, glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
   }
-
-  Renderer->DrawSprite(
-      SeparationLineSprite[ScrWork[SW_SAVEMENUMODE]],
-      glm::vec2(Bounds.X + 308, Bounds.Y + 112), Tint,
-      glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
   Renderer->DrawSprite(
       NumberDigitSprite[ScrWork[SW_SAVEMENUMODE]][(Index + 1) / 10],
       glm::vec2(Bounds.X + 720, Bounds.Y + 120), Tint,
@@ -82,6 +77,10 @@ void SaveEntryButton::Render() {
       glm::vec2(Bounds.X + 752, Bounds.Y + 120), Tint,
       glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
   if (SaveStatus == 1) {
+    Renderer->DrawSprite(
+        SeparationLineSprite[ScrWork[SW_SAVEMENUMODE]],
+        glm::vec2(Bounds.X + 308, Bounds.Y + 112), Tint,
+        glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
     if (IsLocked) {
       SceneTitleLabel.Render();
       LockedSymbol.Render();
@@ -137,26 +136,28 @@ void SaveEntryButton::RefreshCharacterRouteText(int strIndex) {
   // TODO actually make this look correct
   uint8_t* strAddr = Vm::ScriptGetTextTableStrAddress(1, strIndex);
   float fontSize = 28;
-  RendererOutlineMode outlineMode = RendererOutlineMode::RO_BottomRight;
+  RendererOutlineMode outlineMode = RendererOutlineMode::RO_Full;
   CharacterRouteLabel.SetText(strAddr, fontSize, outlineMode,
-                              IsLocked ? 69 : 70);
+                              {SaveEntryPrimaryColor, SaveEntryPrimaryColor});
 }
 
 void SaveEntryButton::RefreshSceneTitleText(int strIndex) {
   // TODO actually make this look correct
   uint8_t* strAddr = Vm::ScriptGetTextTableStrAddress(1, strIndex | 1);
   float fontSize = 28;
-  RendererOutlineMode outlineMode = RendererOutlineMode::RO_BottomRight;
-  SceneTitleLabel.SetText(strAddr, fontSize, outlineMode, IsLocked ? 69 : 71);
+  RendererOutlineMode outlineMode = RendererOutlineMode::RO_Full;
+  SceneTitleLabel.SetText(strAddr, fontSize, outlineMode,
+                          {SaveEntrySecondaryColor, SaveEntrySecondaryColor});
 }
 
 void SaveEntryButton::RefreshSaveDateText() {
   tm const& date = SaveSystem::GetSaveDate(Type, Id);
   float fontSize = 32;
-  RendererOutlineMode outlineMode = RendererOutlineMode::RO_BottomRight;
+  RendererOutlineMode outlineMode = RendererOutlineMode::RO_Full;
   // Maybe fmt will merge my PR for space padded month
   SaveDateLabel.SetText(fmt::format(FMT_STRING("{:%Y/%m/%d %H:%M:%S}"), date),
-                        fontSize, outlineMode, IsLocked ? 69 : 71);
+                        fontSize, outlineMode,
+                        {SaveEntrySecondaryColor, SaveEntrySecondaryColor});
 }
 
 // TODO: Make this only refresh when saved
