@@ -50,7 +50,7 @@ BacklogMenu::BacklogMenu() {
 }
 
 void BacklogMenu::Show() {
-  if (State != Shown) {
+  if (State == Hidden) {
     State = Showing;
     FadeAnimation.StartIn();
     MainItems->Show();
@@ -66,13 +66,19 @@ void BacklogMenu::Show() {
       LastFocusedMenu->IsFocused = false;
     }
     UI::FocusedMenu = this;
+
+    // Set scrollbar back to default position
+    if (ItemsHeight > MainItems->RenderingBounds.Height) {
+      PageY = MainScrollbar->EndValue;
+      MainScrollbar->Update(0);
+      MainItems->MoveTo(glm::vec2(EntriesStart.x, PageY));
+    }
   }
 }
 void BacklogMenu::Hide() {
-  if (State != Hidden) {
+  if (State == Shown) {
     State = Hiding;
     FadeAnimation.StartOut();
-    MainItems->Hide();
 
     if (LastFocusedMenu != nullptr) {
       UI::FocusedMenu = LastFocusedMenu;
