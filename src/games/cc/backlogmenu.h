@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../ui/backlogmenu.h"
+#include "../../ui/widgets/cc/backlogentry.h"
 #include "../../spritesheet.h"
 
 namespace Impacto {
@@ -16,6 +17,9 @@ class BacklogMenu : public UI::BacklogMenu {
 
  private:
   const Sprite* MaskSprite;
+  Widgets::CC::BacklogEntry* CreateBacklogEntry(
+      int id, uint8_t* str, int audioId, glm::vec2 pos,
+      const RectF& hoverBounds) const override;
 };
 
 }  // namespace CC

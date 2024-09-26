@@ -2,6 +2,7 @@
 
 #include "../../profile/game.h"
 #include "../../ui/backlogmenu.h"
+#include "../../ui/widgets/cc/backlogentry.h"
 #include "../../profile/ui/systemmenu.h"
 #include "../../profile/ui/backlogmenu.h"
 #include "../../profile/games/cc/backlogmenu.h"
@@ -14,6 +15,7 @@ namespace CC {
 using namespace Impacto::UI::CC;
 using namespace Impacto::Profile::BacklogMenu;
 using namespace Impacto::Profile::CC::BacklogMenu;
+using namespace Impacto::UI::Widgets::CC;
 
 void BacklogMenu::MenuButtonOnClick(Widgets::BacklogEntry* target) {
   if (target->AudioId != -1) {
@@ -72,6 +74,12 @@ void BacklogMenu::Render() {
 
   Renderer->DrawSprite(BacklogControlsSprite, BacklogControlsPosition,
                        transition);
+}
+
+BacklogEntry* BacklogMenu::CreateBacklogEntry(int id, uint8_t* str, int audioId,
+                                              glm::vec2 pos,
+                                              const RectF& hoverBounds) const {
+  return new BacklogEntry(id, str, audioId, pos, HoverBounds);
 }
 
 }  // namespace CC

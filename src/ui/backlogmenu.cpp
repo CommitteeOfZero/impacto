@@ -204,13 +204,19 @@ void BacklogMenu::RenderHighlight() const {
 
 void BacklogMenu::Render() {}
 
+BacklogEntry* BacklogMenu::CreateBacklogEntry(int id, uint8_t* str, int audioId,
+                                              glm::vec2 pos,
+                                              const RectF& hoverBounds) const {
+  return new BacklogEntry(id, str, audioId, pos, HoverBounds);
+}
+
 void BacklogMenu::AddMessage(uint8_t* str, int audioId) {
   if (!GetFlag(SF_REVADDDISABLE) || ScrWork[SW_MESWIN0TYPE] == 0) {
     auto onClick =
         std::bind(&BacklogMenu::MenuButtonOnClick, this, std::placeholders::_1);
 
-    auto backlogEntry =
-        new BacklogEntry(CurrentId, str, audioId, CurrentEntryPos, HoverBounds);
+    auto backlogEntry = CreateBacklogEntry(CurrentId, str, audioId,
+                                           CurrentEntryPos, HoverBounds);
     CurrentId += 1;
     CurrentEntryPos.y += backlogEntry->TextHeight + EntryYPadding;
     backlogEntry->OnClickHandler = onClick;

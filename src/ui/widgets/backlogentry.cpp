@@ -7,13 +7,11 @@
 #include "../../vm/thread.h"
 #include "../../profile/dialogue.h"
 #include "../../profile/ui/backlogmenu.h"
-#include "../../profile/games/cc/backlogmenu.h"
 
 namespace Impacto {
 namespace UI {
 namespace Widgets {
 
-using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::BacklogMenu;
 
 BacklogEntry::BacklogEntry(int id, uint8_t* str, int audioId, glm::vec2 pos,
@@ -97,15 +95,6 @@ void BacklogEntry::MoveTo(glm::vec2 position) {
 }
 
 void BacklogEntry::Render() {
-  SpriteSheet* maskSheet = nullptr;
-
-  switch (Type) {
-    default:
-      break;
-    case BacklogMenuType::CC:
-      maskSheet = &Profile::CC::BacklogMenu::BacklogMaskSheet;
-  }
-
   if (AudioId != -1) {
     Renderer->DrawSprite(
         VoiceIcon,
@@ -115,14 +104,14 @@ void BacklogEntry::Render() {
   }
 
   if (BacklogPage->HasName) {
-    Renderer->DrawProcessedText(
-        BacklogPage->Name, Profile::Dialogue::DialogueFont, Tint.a,
-        Profile::Dialogue::REVNameOutlineMode, true, maskSheet);
+    Renderer->DrawProcessedText(BacklogPage->Name,
+                                Profile::Dialogue::DialogueFont, Tint.a,
+                                Profile::Dialogue::REVNameOutlineMode);
   }
 
-  Renderer->DrawProcessedText(
-      BacklogPage->Glyphs, Profile::Dialogue::DialogueFont, Tint.a,
-      Profile::Dialogue::REVOutlineMode, true, maskSheet);
+  Renderer->DrawProcessedText(BacklogPage->Glyphs,
+                              Profile::Dialogue::DialogueFont, Tint.a,
+                              Profile::Dialogue::REVOutlineMode);
 }
 
 }  // namespace Widgets

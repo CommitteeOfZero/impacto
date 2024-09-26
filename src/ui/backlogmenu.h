@@ -32,6 +32,9 @@ class BacklogMenu : public Menu {
   Widgets::Scrollbar* MainScrollbar;
 
   void RenderHighlight() const;
+  virtual Widgets::BacklogEntry* CreateBacklogEntry(
+      int id, uint8_t* str, int audioId, glm::vec2 pos,
+      const RectF& hoverBounds) const;
 };
 
 }  // namespace UI
