@@ -4,12 +4,29 @@
 #include "../log.h"
 #include "../renderer/renderer.h"
 #include "../texture/texture.h"
+#include <future>
 
 namespace Impacto {
 namespace Profile {
 
+static Texture LoadTexture(Io::Stream* stream, std::string name) {
+  Texture texture{};
+  if (!texture.Load(stream)) {
+    ImpLog(LL_Error, LC_Profile,
+           "Spritesheet %s texture could not be imported, using fallback\n",
+           name.c_str());
+    texture.LoadCheckerboard();
+  }
+
+  delete stream;
+
+  return texture;
+}
+
 void LoadSpritesheets() {
   EnsurePushMemberOfType("SpriteSheets", LUA_TTABLE);
+
+  std::vector<std::tuple<std::string, std::future<Texture>>> futures;
 
   PushInitialIndex();
   while (PushNextTableElement() != 0) {
@@ -28,17 +45,15 @@ void LoadSpritesheets() {
              name.c_str());
       Window->Shutdown();
     }
-    Texture texture;
-    if (!texture.Load(stream)) {
-      ImpLog(LL_Error, LC_Profile,
-             "Spritesheet %s texture could not be imported, using fallback\n",
-             name.c_str());
-      texture.LoadCheckerboard();
-    }
-    delete stream;
-    sheet.Texture = texture.Submit();
+
+    futures.emplace_back(std::tuple(name, std::async(std::launch::async, LoadTexture, stream, name)));
 
     Pop();
+  }
+
+  for (auto& [name, future] : futures) {
+    SpriteSheet& sheet = SpriteSheets[name];
+    sheet.Texture = future.get().Submit();
   }
 
   Pop();
