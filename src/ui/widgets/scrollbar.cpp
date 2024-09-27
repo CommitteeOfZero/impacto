@@ -23,6 +23,7 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float min, float max, float* value,
   Enabled = true;
   Step = (MaxValue - MinValue) * 0.01f;
   Length = Direction == SBDIR_VERTICAL ? trackBounds.y : trackBounds.x;
+  UpdatePosition();
 }
 
 Scrollbar::Scrollbar(int id, glm::vec2 pos, float min, float max, float* value,

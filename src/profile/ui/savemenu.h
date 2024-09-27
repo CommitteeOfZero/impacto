@@ -9,7 +9,6 @@ namespace SaveMenu {
 
 inline Impacto::UI::SaveMenuType Type = Impacto::UI::SaveMenuType::None;
 
-inline Sprite SaveMenuBackgroundSprite;
 inline Sprite EmptyThumbnailSprite;
 
 inline float FadeInDuration;

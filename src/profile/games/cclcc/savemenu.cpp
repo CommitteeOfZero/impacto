@@ -31,7 +31,6 @@ void Configure() {
   EntryStartYR = EnsureGetMemberFloat("EntryStartYR");
   EntryYPadding = EnsureGetMemberFloat("EntryYPadding");
 
-  BackgroundSprite = EnsureGetMemberSprite("SaveMenuBackgroundSprite");
   for (int i = 0; i < sizeof(SaveMenuTypeNames) / sizeof(*SaveMenuTypeNames);
        i++) {
     SaveMenuPageType menuType = SaveMenuPageType::_from_integral_unchecked(i);

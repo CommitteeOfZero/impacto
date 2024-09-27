@@ -34,7 +34,6 @@ root.SaveMenu = {
         {X = 91, Y = 381}, {X = 91, Y = 508},
         {X = 661, Y = 127}, {X = 661, Y = 508}
     },
-    SaveMenuBackgroundSprite = "SaveMenuBackground",
     EmptyThumbnailSprite = "EmptyThumbnail",
     EntryStartX = 153,
     EntryXPadding = 512,

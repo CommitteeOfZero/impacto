@@ -14,7 +14,6 @@ namespace CCLCC {
 namespace TipsMenu {
 
 void Configure() {
-  TipsBookLayerSprite = EnsureGetMemberSprite("TipsBookLayerSprite");
   TipsGuideSprite = EnsureGetMemberSprite("TipsGuideSprite");
   TipsMaskSprite = EnsureGetMemberSprite("TipsMaskSprite");
   TipsHighlightedSprite = EnsureGetMemberSprite("TipsHighlightedSprite");
@@ -57,6 +56,9 @@ void Configure() {
   TipsScrollDetailsX = EnsureGetMemberInt("TipsScrollDetailsX");
 
   TipsMaskSheet = EnsureGetMemberSpriteSheet("TipsMask");
+
+  TransitionInDuration = EnsureGetMemberFloat("TransitionInDuration");
+  TransitionOutDuration = EnsureGetMemberFloat("TransitionOutDuration");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMemberInt("DrawType"));

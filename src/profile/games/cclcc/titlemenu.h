@@ -27,10 +27,6 @@ inline Sprite LibraryHighlightSprite;
 inline Sprite EndingListSprite;
 inline Sprite EndingListHighlightSprite;
 
-inline float ItemFadeInDuration;
-inline float ItemFadeOutDuration;
-inline float SecondaryItemFadeInDuration;
-inline float SecondaryItemFadeOutDuration;
 inline float PrimaryFadeInDuration;
 inline float PrimaryFadeOutDuration;
 inline float SecondaryFadeInDuration;
@@ -60,7 +56,12 @@ inline float SecondaryThirdItemHighlightOffsetX;
 inline float ItemHighlightPointerY;
 inline float TitleAnimationDurationIn;
 inline float TitleAnimationDurationOut;
-
+inline float ChoiceBlinkAnimationDurationIn;
+inline float SlideItemsAnimationDurationIn;
+inline float SlideItemsAnimationDurationOut;
+inline float HighlightAnimationDurationIn;
+inline float HighlightAnimationDurationOut;
+inline uint32_t ExtraDisabledTint;
 inline int TitleAnimationStartFrame;
 inline int TitleAnimationFrameCount;
 inline int TitleAnimationFileId;

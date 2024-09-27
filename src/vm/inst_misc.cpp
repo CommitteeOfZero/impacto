@@ -539,9 +539,6 @@ VmInstruction(InstTitleMenuNew) {
           }
         } break;
       }
-
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction TitleMenu(type: Main)\n");
       break;
     case 2:  // Init2
       ImpLogSlow(LL_Warning, LC_VMStub,

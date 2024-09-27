@@ -1,7 +1,6 @@
 root.SaveMenu = {
     Type = SaveMenuType.CCLCC,
     DrawType = DrawComponentType.SystemMenu,
-    SaveMenuBackgroundSprite = "SaveMenuBackground",
     EmptyThumbnailSprite = "EmptyThumbnail",
     EntryStartXL = 143,
     EntryStartYL = 152,
@@ -12,11 +11,6 @@ root.SaveMenu = {
     FadeOutDuration = 0.2
 
     
-};
-
-root.Sprites["SaveMenuBackground"] = {
-    Sheet = "MenuBG",
-    Bounds = { X = 0, Y = 0, Width = 1920, Height = 1080 },
 };
 
 root.Sprites["EmptyThumbnail"] = {

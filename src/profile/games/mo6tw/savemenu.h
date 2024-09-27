@@ -27,6 +27,8 @@ inline Sprite SaveEntryHighlightedSprite;
 inline Sprite LoadEntrySprite;
 inline Sprite LoadEntryHighlightedSprite;
 
+inline Sprite SaveMenuBackgroundSprite;
+
 void Configure();
 
 }  // namespace SaveMenu

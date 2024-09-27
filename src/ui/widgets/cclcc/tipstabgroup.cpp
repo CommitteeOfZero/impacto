@@ -2,12 +2,14 @@
 
 #include "../../../renderer/renderer.h"
 #include "../../../profile/dialogue.h"
+#include "../../../profile/ui/tipsmenu.h"
 #include "../../../profile/games/cclcc/tipsmenu.h"
 #include "../../../inputsystem.h"
 #include "../../../vm/interface/input.h"
 #include "../../../ui/ui.h"
 #include "../../../text.h"
 #include "../../../vm/vm.h"
+#include "../../../profile/game.h"
 
 namespace Impacto {
 namespace UI {
@@ -26,6 +28,11 @@ TipsTabButton::TipsTabButton(
           TipsTabNameDisplay + glm::vec2(type * TipsHighlightedTabAdder, 0)) {
   OnClickHandler = std::move(onClickHandler);
   NormalSprite.Bounds.X += type * TipsHighlightedTabAdder;
+}
+
+void TipsTabButton::Reset() {
+  Bounds.X = TipsTabNameDisplay.x + Id * TipsHighlightedTabAdder;
+  Bounds.Y = TipsTabNameDisplay.y;
 }
 
 void TipsTabButton::UpdateInput() {
@@ -48,7 +55,6 @@ TipsTabGroup::TipsTabGroup(
       TabName(type, tabClickHandler),
       TipsEntriesGroup(this),
       TipClickHandler(tipClickHandler) {
-  TipsEntriesGroup.RenderingBounds = TipsTabBounds;
   TipsEntriesGroup.WrapFocus = true;
 
   TipsScrollStartPos = {
@@ -96,16 +102,10 @@ void TipsTabGroup::UpdateInput() {
 }
 
 void TipsTabGroup::Update(float dt) {
-  if (!Impacto::UI::TipsMenuPtr->IsFocused ||
-      Impacto::UI::TipsMenuPtr->State == Hidden) {
-    TabName.Enabled = false;
-    TipsEntriesGroup.Enabled = false;
-    return;
-  }
   TabName.Enabled = true;
   TabName.Update(dt);
   TabName.UpdateInput();
-  if (State != Shown) {
+  if (State == Hidden) {
     TipsEntriesGroup.Enabled = false;
     // Inverting since we want buttons to be clickable when the tab is not
     // shown
@@ -128,9 +128,12 @@ void TipsTabGroup::Update(float dt) {
 }
 
 void TipsTabGroup::Render() {
-  if (State == Shown) {
+  if (State != Hidden) {
+    TabName.Tint = Tint;
     TabName.Render();
+    TipsEntriesGroup.Tint = Tint;
     TipsEntriesGroup.Render();
+    TipsEntriesScrollbar->Tint = Tint;
     TipsEntriesScrollbar->Render();
   }
 }
@@ -182,6 +185,8 @@ void TipsTabGroup::UpdateTipsEntries(std::vector<int> const& SortedTipIds) {
   TipsEntriesScrollbar = new Scrollbar(
       0, TipsScrollStartPos, 0, std::max(0, scrollDistance), &ScrollPosY,
       SBDIR_VERTICAL, TipsScrollThumbSprite, TipsScrollTrackBounds);
+  TipsEntriesGroup.RenderingBounds = TipsTabBounds;
+  TabName.Reset();
 }
 
 void TipsTabGroup::Show() {
@@ -189,7 +194,6 @@ void TipsTabGroup::Show() {
     State = Shown;
     IsFocused = true;
     TipsEntriesGroup.Show();
-    TabName.Show();
     CurrentlyFocusedElement = TipsEntriesGroup.GetFocus(FDIR_DOWN);
 
     if (CurrentlyFocusedElement) {
@@ -205,8 +209,23 @@ void TipsTabGroup::Hide() {
     IsFocused = false;
     ScrollPosY = 0.0f;
     TipsEntriesGroup.Hide();
-    TabName.Hide();
   }
+}
+
+void TipsTabGroup::Move(glm::vec2 relativePosition) {
+  TabName.Move(relativePosition);
+  TipsEntriesGroup.Move(relativePosition);
+  TipsEntriesScrollbar->Move(relativePosition);
+  TipsEntriesGroup.RenderingBounds.X += relativePosition.x;
+  TipsEntriesGroup.RenderingBounds.Y += relativePosition.y;
+}
+
+void TipsTabGroup::MoveTo(glm::vec2 pos) {
+  TabName.MoveTo(pos);
+  TipsEntriesGroup.MoveTo(pos);
+  TipsEntriesScrollbar->MoveTo(pos);
+  TipsEntriesGroup.RenderingBounds.X = pos.x;
+  TipsEntriesGroup.RenderingBounds.Y = pos.y;
 }
 
 }  // namespace CCLCC

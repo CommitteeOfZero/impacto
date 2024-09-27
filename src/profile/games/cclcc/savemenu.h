@@ -19,7 +19,6 @@ inline float EntryYPadding;
 
 int constexpr EntriesPerRow = 2;
 int constexpr RowsPerPage = 4;
-inline Sprite BackgroundSprite;
 
 inline Sprite MenuTextSprite[SaveMenuPageType::_size_constant];
 inline Sprite EntryHighlightedBoxSprite[SaveMenuPageType::_size_constant];

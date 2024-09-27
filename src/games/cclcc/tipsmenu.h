@@ -62,6 +62,10 @@ class TipsMenu : public UI::TipsMenu {
   float ScrollPercentage = 0.0f;
   bool HasInitialized = false;
   void SetActiveTab(TipsTabType type);
+
+  float LastYPos = 0.0f;
+
+  Animation TransitionAnimation;
 };
 
 }  // namespace CCLCC
