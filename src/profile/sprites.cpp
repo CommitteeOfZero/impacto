@@ -46,7 +46,8 @@ void LoadSpritesheets() {
       Window->Shutdown();
     }
 
-    futures.emplace_back(std::tuple(name, std::async(std::launch::async, LoadTexture, stream, name)));
+    futures.emplace_back(std::tuple(
+        name, std::async(std::launch::async, LoadTexture, stream, name)));
 
     Pop();
   }
