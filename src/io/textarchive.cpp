@@ -6,7 +6,7 @@
 #include "vfs.h"
 #include "../util.h"
 #include <sstream>
-#include <SDL_rwops.h>
+#include <filesystem>
 
 namespace Impacto {
 namespace Io {
@@ -34,22 +34,14 @@ IoError TextArchive::Open(FileMeta* file, Stream** outStream) {
 
 IoError TextArchive::GetCurrentSize(FileMeta* file, int64_t* outSize) {
   TextMetaEntry* entry = (TextMetaEntry*)file;
-  SDL_RWops* rw = SDL_RWFromFile(entry->FullPath.c_str(), "rb");
-  if (!rw) {
-    ImpLog(
-        LL_Error, LC_IO,
-        "TextArchive file open (to get size) failed for file \"%s\" in archive "
-        "\"%s\"\n",
-        entry->FullPath.c_str(), BaseStream->Meta.FileName.c_str());
-    return IoError_Fail;
-  }
-  *outSize = SDL_RWsize(rw);
-  SDL_RWclose(rw);
-  if (*outSize < 0) {
-    ImpLog(
-        LL_Error, LC_IO,
-        "TextArchive getting size failed for file \"%s\" in archive \"%s\"\n",
-        entry->FullPath.c_str(), BaseStream->Meta.FileName.c_str());
+  std::error_code ec;
+  *outSize = std::filesystem::file_size(entry->FullPath, ec);
+  if (ec) {
+    ImpLog(LL_Error, LC_IO,
+           "TextArchive getting size failed for file \"%s\" in archive "
+           "\"%s\"\nerror: %s\n",
+           entry->FullPath.c_str(), BaseStream->Meta.FileName.c_str(),
+           ec.message().c_str());
     return IoError_Fail;
   }
   return IoError_OK;

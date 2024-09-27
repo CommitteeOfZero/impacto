@@ -242,7 +242,7 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id) {
 void SaveSystem::WriteSaveFile() {
   Io::PhysicalFileStream* stream;
   Io::Stream* instream;
-  IoError err = Io::PhysicalFileStream::CreateWrite(SaveFilePath, &instream);
+  IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &instream);
   auto err1 = SDL_GetError();
   if (err != IoError_OK) {
     ImpLog(LL_Error, LC_IO, "Failed to create save file, SDL error: %s\n",

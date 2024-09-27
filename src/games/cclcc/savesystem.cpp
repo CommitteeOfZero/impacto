@@ -46,8 +46,7 @@ SaveError SaveSystem::CheckSaveFile() {
 
 SaveError SaveSystem::CreateSaveFile() {
   Io::Stream* stream;
-  IoError err =
-      Io::PhysicalFileStream::CreateWrite(SaveFilePath, &stream, false);
+  IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream, false);
   if (err != IoError_OK) {
     return SaveFailed;
   }
@@ -273,7 +272,7 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id) {
 
 void SaveSystem::WriteSaveFile() {
   Io::Stream* stream;
-  IoError err = Io::PhysicalFileStream::CreateWrite(SaveFilePath, &stream);
+  IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream);
   if (err != IoError_OK) {
     ImpLog(LL_Error, LC_IO, "Failed to open save file for writing\n");
     return;

@@ -2,8 +2,6 @@
 
 #include <vector>
 
-#include <SDL_rwops.h>
-
 #include "../impacto.h"
 #include "io.h"
 
