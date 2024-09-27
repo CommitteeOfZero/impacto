@@ -258,6 +258,20 @@ VmInstruction(InstSave) {
       if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
         LoadSaveFile();
       }
+    case 30:
+      break;
+    case 31:
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
+        ScrWork[SW_SAVEERRORCODE] = CreateSaveFile();
+      }
+      break;
+    case 80:
+      break;
+    case 81: {  // SystemDataCheck
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
+        ScrWork[SW_SAVEERRORCODE] = CheckSaveFile();
+      }
+    } break;
     default:
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Save(type: %i)\n",
                  type);

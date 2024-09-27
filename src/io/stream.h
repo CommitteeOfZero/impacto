@@ -17,7 +17,6 @@ class Stream {
   virtual ~Stream() {}
   FileMeta Meta;
   int64_t Position = 0;
-  int64_t WritePosition = 0;
 
   bool IsSeekSlow = false;
   bool IsMemory = false;

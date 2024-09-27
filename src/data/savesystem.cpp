@@ -12,6 +12,20 @@ using namespace Impacto::Profile::SaveSystem;
 
 void Init() { Configure(); }
 
+SaveError CreateSaveFile() {
+  if (Implementation)
+    return Implementation->CreateSaveFile();
+  else
+    return SaveOK;  // Just so we don't get stuck
+}
+
+SaveError CheckSaveFile() {
+  if (Implementation)
+    return Implementation->CheckSaveFile();
+  else
+    return SaveOK;
+}
+
 SaveError MountSaveFile() {
   if (Implementation)
     return Implementation->MountSaveFile();

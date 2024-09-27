@@ -66,6 +66,8 @@ class SaveFileEntryBase {
 
 class SaveSystemBase {
  public:
+  virtual SaveError CreateSaveFile() = 0;
+  virtual SaveError CheckSaveFile() = 0;
   virtual SaveError MountSaveFile() = 0;
   virtual void SaveMemory() = 0;
   virtual void LoadEntry(SaveType type, int id) = 0;
@@ -105,6 +107,8 @@ inline SaveSystemBase* Implementation = nullptr;
 
 void Init();
 
+SaveError CreateSaveFile();
+SaveError CheckSaveFile();
 SaveError MountSaveFile();
 void SaveMemory();
 void LoadEntry(SaveType type, int id);
