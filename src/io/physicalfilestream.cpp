@@ -1,6 +1,7 @@
 #include "physicalfilestream.h"
 #include "../log.h"
 
+#include <cstring>
 #include <algorithm>
 
 namespace Impacto {
@@ -19,14 +20,16 @@ IoError PhysicalFileStream::Create(std::string const& fileName, Stream** out,
   }
   PhysicalFileStream* result = new PhysicalFileStream(fileName, !exists);
   if (!result->FileStream) {
+    ImpLog(LL_Error, LC_IO, "Failed to open file \"%s\", error: \"%s\"\n",
+           fileName.c_str(), std::strerror(errno));
     delete result;
     return IoError_Fail;
   }
   result->Meta.Size = std::filesystem::file_size(result->SourceFileName, ec);
   if (ec) {
-    delete result;
     ImpLog(LL_Error, LC_IO, "Error getting file size: %s\n",
            ec.message().c_str());
+    delete result;
     return IoError_Fail;
   }
   *out = (Stream*)result;
@@ -76,22 +79,22 @@ IoError PhysicalFileStream::Duplicate(Stream** outStream) {
   PhysicalFileStream* result = new PhysicalFileStream(*this);
   std::error_code ec;
   if (!result->FileStream) {
+    ImpLog(LL_Error, LC_IO, "Failed to open file \"%s\", error: \"%s\"\n",
+           SourceFileName.string().c_str(), std::strerror(errno));
     delete result;
-    ImpLog(LL_Error, LC_IO, "Failed to open file \"%s\"\n",
-           SourceFileName.string().c_str());
     return IoError_Fail;
   }
   result->Meta.Size = std::filesystem::file_size(SourceFileName, ec);
   if (ec) {
-    delete result;
     ImpLog(LL_Error, LC_IO, "Error getting file size: %s\n",
            ec.message().c_str());
+    delete result;
     return IoError_Fail;
   }
   if (result->Seek(Position, RW_SEEK_SET) < 0) {
-    delete result;
     ImpLog(LL_Error, LC_IO, "Seek failed for file \"%s\" with error: \"%s\"\n",
            SourceFileName.string().c_str(), std::strerror(errno));
+    delete result;
     return IoError_Fail;
   }
   *outStream = (Stream*)result;
