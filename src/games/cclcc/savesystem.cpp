@@ -14,6 +14,7 @@
 
 #include <cstdint>
 #include <ctime>
+#include <filesystem>
 
 namespace Impacto {
 namespace CCLCC {
@@ -22,6 +23,43 @@ using namespace Impacto::Vm;
 using namespace Impacto::Profile::SaveSystem;
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Vm;
+
+SaveError SaveSystem::CheckSaveFile() {
+  std::filesystem::path savePath(SaveFilePath);
+  if (!std::filesystem::exists(savePath)) {
+    return SaveNotFound;
+  }
+  if (std::filesystem::file_size(savePath) != SaveFileSize) {
+    return SaveCorrupted;
+  }
+  if (auto perms = std::filesystem::status(savePath).permissions();
+      to_underlying(perms) &
+          (to_underlying(std::filesystem::perms::owner_read) |
+           to_underlying(std::filesystem::perms::owner_write)) == 0 &&
+      to_underlying(perms) &
+          (to_underlying(std::filesystem::perms::group_read) |
+           to_underlying(std::filesystem::perms::group_write)) == 0) {
+    return SaveWrongUser;
+  }
+  return SaveOK;
+}
+
+SaveError SaveSystem::CreateSaveFile() {
+  Io::Stream* stream;
+  IoError err =
+      Io::PhysicalFileStream::CreateWrite(SaveFilePath, &stream, false);
+  if (err != IoError_OK) {
+    return SaveFailed;
+  }
+
+  assert(stream->Meta.Size == 0);
+  std::vector<uint8_t> emptyData(SaveFileSize, 0);
+  Io::WriteArrayBE<uint8_t>(emptyData.data(), stream, SaveFileSize);
+  assert(stream->Position == SaveFileSize);
+  delete stream;
+
+  return MountSaveFile();
+}
 
 SaveError SaveSystem::MountSaveFile() {
   Io::Stream* stream;

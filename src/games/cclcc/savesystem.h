@@ -10,6 +10,7 @@ namespace CCLCC {
 
 using namespace Impacto::SaveSystem;
 
+constexpr int SaveFileSize = 0x1b110 * MaxSaveEntries * 2 + 0x387c;
 constexpr int SaveThumbnailWidth = 240;
 constexpr int SaveThumbnailHeight = 135;
 
@@ -25,6 +26,8 @@ class SaveFileEntry : public SaveFileEntryBase {
 
 class SaveSystem : public SaveSystemBase {
  public:
+  SaveError CreateSaveFile() override;
+  SaveError CheckSaveFile() override;
   SaveError MountSaveFile() override;
   void SaveMemory() override;
   void LoadEntry(SaveType type, int id) override;
