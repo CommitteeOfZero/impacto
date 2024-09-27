@@ -157,6 +157,7 @@ jobs:
         cp -r games "${{ github.workspace }}/release/ci-release"
     - name: Copy Shaders
       run: cp -r src/shaders "${{ github.workspace }}/release/ci-release"
+      shell: bash
     - name: Copy docs
       run: |
         cp THIRDPARTY.md README.md LICENSE "${{ github.workspace }}/release/ci-release"
