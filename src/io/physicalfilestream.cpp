@@ -64,18 +64,26 @@ int64_t PhysicalFileStream::Seek(int64_t offset, int origin) {
   }
   if (absPos < 0 || absPos > Meta.Size) return IoError_Fail;
 
-  int64_t err = SeekBuffered(absPos);
-  if (err < IoError_OK) {
-    BufferFill = 0;
-    BufferConsumed = 0;
-    err = SDL_RWseek(RW, absPos,
+  if (!IsWrite) {
+    int64_t err = SeekBuffered(absPos);
+    if (err < IoError_OK) {
+      BufferFill = 0;
+      BufferConsumed = 0;
+      err =
+          SDL_RWseek(RW, absPos,
                      RW_SEEK_SET);  // TODO: why does SDL_RWtell not match
                                     // Position here sometimes? This causes PNGs
                                     // with iTxT chunk to fail loading :thonk:
+      if (err < 0) return IoError_Fail;
+      Position = err;
+    }
+    return err;
+  } else {
+    int64_t err = SDL_RWseek(RW, absPos, RW_SEEK_SET);
     if (err < 0) return IoError_Fail;
     Position = err;
+    return err;
   }
-  return err;
 }
 
 IoError PhysicalFileStream::Duplicate(Stream** outStream) {
@@ -100,6 +108,7 @@ IoError PhysicalFileStream::Duplicate(Stream** outStream) {
 int64_t PhysicalFileStream::Write(void* buffer, int64_t sz, int cnt) {
   //  Todo: buffered write  (SDL_RWwrite doesn't buffer system calls)
   int64_t written = SDL_RWwrite(RW, buffer, sz, cnt);
+  if (Meta.Size < Position + written) Meta.Size = Position + written;
   Seek(sz * cnt, SEEK_CUR);
   return written;
 }
