@@ -26,12 +26,15 @@ SaveEntryButton::SaveEntryButton(int id, Sprite const& focusedBox,
                                  SaveSystem::SaveType saveType,
                                  Sprite NoDataSprite, Sprite BrokenDataSprite)
     : Widgets::Button(
-          id,
+          (saveType == SaveSystem::SaveType::SaveFull
+               ? id
+               : SaveSystem::GetQuickSaveCount() - id - 1),
           Sprite(SpriteSheet(), focusedBox.Bounds.X, focusedBox.Bounds.Y,
                  focusedBox.Bounds.Width, focusedBox.Bounds.Height),
           Sprite(SpriteSheet(), 0, 0, 0, 0), focusedBox, pos),
-      FocusedSpriteLabel(focusedText, glm::vec2{pos.x, pos.y - 34}),
+      Index(id),
       Page(page),
+      FocusedSpriteLabel(focusedText, glm::vec2{pos.x, pos.y - 34}),
       LockedSymbol(lockedSymbol,
                    glm::vec2(Bounds.X, Bounds.Y) + glm::vec2(205.0f, 79.0f)),
       Type(saveType),
@@ -41,9 +44,6 @@ SaveEntryButton::SaveEntryButton(int id, Sprite const& focusedBox,
                        glm::vec2(Bounds.X, Bounds.Y) +
                            glm::vec2(211.0f, 20.0f + 1.0f - 12.0f)) {
   DisabledSprite = NormalSprite;
-  EntryId = Type == SaveSystem::SaveType::SaveFull
-                ? id
-                : SaveSystem::GetQuickSaveCount() - id - 1;
   glm::vec2 relativeTitlePosition = {290, 35};
   CharacterRouteLabel.Bounds.X = Bounds.X + relativeTitlePosition.x;
   CharacterRouteLabel.Bounds.Y = Bounds.Y + relativeTitlePosition.y;
@@ -70,11 +70,11 @@ void SaveEntryButton::Render() {
   }
 
   Renderer->DrawSprite(
-      NumberDigitSprite[ScrWork[SW_SAVEMENUMODE]][(Id + 1) / 10],
+      NumberDigitSprite[ScrWork[SW_SAVEMENUMODE]][(Index + 1) / 10],
       glm::vec2(Bounds.X + 20 + 668 + 32 + 1, Bounds.Y + 20 + 99 + 1), Tint,
       glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
   Renderer->DrawSprite(
-      NumberDigitSprite[ScrWork[SW_SAVEMENUMODE]][(Id + 1) % 10],
+      NumberDigitSprite[ScrWork[SW_SAVEMENUMODE]][(Index + 1) % 10],
       glm::vec2(Bounds.X + 20 + 668 + 64 + 1, Bounds.Y + 20 + 99 + 1), Tint,
       glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
   if (SaveStatus == 1) {
@@ -146,7 +146,7 @@ void SaveEntryButton::RefreshCharacterRouteText(int strIndex) {
 }
 
 void SaveEntryButton::RefreshSaveDateText() {
-  tm const& date = SaveSystem::GetSaveDate(Type, EntryId);
+  tm const& date = SaveSystem::GetSaveDate(Type, Id);
   float fontSize = 32;
   RendererOutlineMode outlineMode = RendererOutlineMode::RO_Full;
   // Maybe fmt will merge my PR for space padded month
@@ -156,17 +156,17 @@ void SaveEntryButton::RefreshSaveDateText() {
 
 // TODO: Make this only refresh when saved
 void SaveEntryButton::Update(float dt) {
-  SaveStatus = SaveSystem::GetSaveStatus(Type, EntryId);
-  IsLocked = SaveSystem::GetSaveFlags(Type, EntryId) == 1;
+  SaveStatus = SaveSystem::GetSaveStatus(Type, Id);
+  IsLocked = SaveSystem::GetSaveFlags(Type, Id) == 1;
   if (SaveStatus == 1) {
-    auto strIndex = (SaveSystem::GetSaveTitle(Type, EntryId) * 2);
+    auto strIndex = (SaveSystem::GetSaveTitle(Type, Id) * 2);
     if (strIndex > 40) {
       strIndex = 0;
     }
     RefreshCharacterRouteText(strIndex);
     RefreshSceneTitleText(strIndex);
     RefreshSaveDateText();
-    Thumbnail = SaveSystem::GetSaveThumbnail(Type, EntryId);
+    Thumbnail = SaveSystem::GetSaveThumbnail(Type, Id);
   }
 }
 }  // namespace CCLCC

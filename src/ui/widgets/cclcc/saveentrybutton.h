@@ -33,6 +33,7 @@ class SaveEntryButton : public Widgets::Button {
   static void UpdateFocusedAlphaFade(float dt);
 
  private:
+  int Index;
   int Page;
   Label NormalSpriteLabel;
   Label FocusedSpriteLabel;
@@ -48,7 +49,6 @@ class SaveEntryButton : public Widgets::Button {
   Label SceneTitleLabel;
   Label CharacterRouteLabel;
 
-  int EntryId;
   int SaveStatus;
   bool IsLocked;
 };
