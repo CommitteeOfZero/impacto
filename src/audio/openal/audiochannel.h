@@ -17,6 +17,8 @@ class AudioChannel : public Audio::AudioChannel {
   void Play(AudioStream* stream, bool loop, float fadeInDuration) override;
   void FillBuffers() override;
   void Stop(float fadeOutDuration) override;
+  void Pause() override;
+  void Resume() override;
 
   void Update(float dt) override;
 

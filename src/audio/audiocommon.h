@@ -22,6 +22,7 @@ enum AudioChannelId {
 enum AudioChannelState {
   ACS_Stopped,
   ACS_Playing,
+  ACS_Paused,
   ACS_FadingIn,
   ACS_FadingOut
 };

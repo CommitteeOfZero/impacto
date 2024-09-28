@@ -101,8 +101,23 @@ void AudioChannel::Stop(float fadeOutDuration) {
   }
 }
 
+void AudioChannel::Pause() {
+  if (State == ACS_Playing) {
+    alSourcePause(Source);
+    State = ACS_Paused;
+  }
+}
+
+void AudioChannel::Resume() {
+  if (State == ACS_Paused) {
+    alSourcePlay(Source);
+    State = ACS_Playing;
+  }
+}
+
 void AudioChannel::Update(float dt) {
   if (!IsInit) return;
+  if (State == ACS_Paused) return;
 
   // Update fade
 

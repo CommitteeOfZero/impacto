@@ -26,6 +26,13 @@ class AudioChannel {
   virtual void FillBuffers(){};
   virtual void Stop(float fadeOutDuration){};
 
+  virtual void Pause() {
+    if (State == ACS_Playing) State = ACS_Paused;
+  };
+  virtual void Resume() {
+    if (State == ACS_Paused) State = ACS_Playing;
+  };
+
   virtual void Update(float dt){};
 
   virtual float PositionInSeconds() const { return 0.0f; };
@@ -43,7 +50,6 @@ class AudioChannel {
   // Read only - seeking is currently not supported
   // Actual playhead at start of (graphics) frame, in AudioStream samples
   int Position = 0;
-
   bool Looping;
 };
 

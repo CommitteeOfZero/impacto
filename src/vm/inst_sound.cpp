@@ -115,10 +115,8 @@ VmInstruction(InstVoiceStop) {
 VmInstruction(InstVoiceStopNew) {
   StartInstruction;
   PopUint8(channel);
-  PopExpression(arg1);
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction VoiceStopNew(channel: %i, arg1: %i)\n", channel,
-             arg1);
+  PopExpression(fade);
+  Audio::Channels[Audio::AC_VOICE0 + channel]->Stop(fade);
 }
 VmInstruction(InstVoicePlayWait) {
   StartInstruction;
@@ -158,6 +156,12 @@ VmInstruction(InstBGMduelPlay) {
 VmInstruction(InstSNDpause) {
   StartInstruction;
   PopUint8(paused);
+
+  for (int i = 0; i < 6; i++) {
+    (paused) ? Audio::Channels[Audio::AC_SE0 + i]->Pause()
+             : Audio::Channels[Audio::AC_SE0 + i]->Resume();
+  }
+
   ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SNDpause(paused: %i)\n",
              paused);
 }

@@ -226,11 +226,14 @@ void Update(float dt) {
     SaveIconDisplay::Update(dt);
     LoadingDisplay::Update(dt);
     DateDisplay::Update(dt);
-    TipsNotification::Update(dt);
-    DelusionTrigger::Update(dt);
-    UI::MapSystem::Update(dt);
-    if (CCLCC::YesNoTrigger::YesNoTriggerPtr)
-      CCLCC::YesNoTrigger::YesNoTriggerPtr->Update(dt);
+    if (ScrWork[SW_GAMESTATE] & 5 && !GetFlag(SF_GAMEPAUSE) &&
+        !GetFlag(SF_SYSMENUDISABLE)) {
+      TipsNotification::Update(dt);
+      DelusionTrigger::Update(dt);
+      UI::MapSystem::Update(dt);
+      if (CCLCC::YesNoTrigger::YesNoTriggerPtr)
+        CCLCC::YesNoTrigger::YesNoTriggerPtr->Update(dt);
+    }
 
     Vm::Update();
   }
@@ -248,8 +251,11 @@ void Update(float dt) {
   }
 
   if (Profile::GameFeatures & GameFeature::Renderer2D) {
-    for (int i = 0; i < Profile::Dialogue::PageCount; i++)
-      DialoguePages[i].Update(dt);
+    if (ScrWork[SW_GAMESTATE] & 5 && !GetFlag(SF_GAMEPAUSE) &&
+        !GetFlag(SF_SYSMENUDISABLE)) {
+      for (int i = 0; i < Profile::Dialogue::PageCount; i++)
+        DialoguePages[i].Update(dt);
+    }
   }
 
   if ((Profile::GameFeatures & GameFeature::Renderer2D) &&
