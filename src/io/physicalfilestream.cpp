@@ -108,7 +108,7 @@ int64_t PhysicalFileStream::Write(void* buffer, int64_t sz, int cnt) {
            SourceFileName.string().c_str(), std::strerror(errno));
     return IoError_Fail;
   }
-  int64_t written = FileStream.gcount();
+  int64_t written = sz * cnt;
   Position += written;
   Meta.Size = std::max(Position, Meta.Size);
   return written;
