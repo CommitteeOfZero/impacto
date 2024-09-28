@@ -18,7 +18,6 @@ void Configure() {
   GetMemberVec2Array(MenuEntriesPositions, Profile::SystemMenu::MenuEntriesNum,
                      "MenuEntriesPositions");
 
-  MenuMask = EnsureGetMemberSprite("MenuMask");
   MenuButtonGuide = EnsureGetMemberSprite("MenuButtonGuide");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(

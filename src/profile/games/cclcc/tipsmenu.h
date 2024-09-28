@@ -8,6 +8,7 @@ namespace CCLCC {
 namespace TipsMenu {
 
 inline Sprite TipsGuideSprite;
+inline Sprite TipsMaskSprite;
 inline Sprite TipsHighlightedSprite;
 inline Sprite TipsNewSprite;
 

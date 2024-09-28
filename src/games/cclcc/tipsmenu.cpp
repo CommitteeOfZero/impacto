@@ -9,7 +9,6 @@
 #include "../../profile/ui/backlogmenu.h"
 #include "../../profile/ui/tipsmenu.h"
 #include "../../profile/games/cclcc/tipsmenu.h"
-#include "../../profile/games/cclcc/systemmenu.h"
 #include "../../io/memorystream.h"
 #include "../../data/tipssystem.h"
 #include "../../vm/interface/input.h"
@@ -353,7 +352,7 @@ void TipsMenu::Render() {
       TipsScrollbar->Render();
     }
 
-    Renderer->DrawSprite(Profile::CCLCC::SystemMenu::MenuMask,
+    Renderer->DrawSprite(TipsMaskSprite,
                          RectF(0.0f, Profile::DesignHeight / 2 - LastYPos,
                                Profile::DesignWidth, Profile::DesignHeight),
                          maskTint);

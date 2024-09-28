@@ -3,10 +3,8 @@
 #include "../../profile/game.h"
 #include "../../ui/backlogmenu.h"
 #include "../../ui/widgets/cc/backlogentry.h"
-#include "../../profile/ui/systemmenu.h"
 #include "../../profile/ui/backlogmenu.h"
 #include "../../profile/games/cc/backlogmenu.h"
-#include "../../profile/games/cclcc/systemmenu.h"
 
 namespace Impacto {
 namespace UI {
@@ -22,22 +20,6 @@ void BacklogMenu::MenuButtonOnClick(Widgets::BacklogEntry* target) {
     Audio::Channels[Audio::AC_REV]->Play("voice", target->AudioId, false, 0.0f);
   } else {
     Audio::Channels[Audio::AC_REV]->Play("sysse", 4, false, 0.0f);
-  }
-}
-
-BacklogMenu::BacklogMenu() : UI::BacklogMenu::BacklogMenu() {
-  switch (Impacto::Profile::SystemMenu::Type) {
-    default:
-      MaskSprite = nullptr;
-      break;
-    case UI::SystemMenuType::CCLCC:
-      MaskSprite = &Profile::CCLCC::SystemMenu::MenuMask;
-      break;
-      /* Enable once CC system menu is properly seperated
-    case UI::SystemMenuType::CC:
-      MaskSprite = &Profile::CC::SystemMenu::MenuMask;
-      break;
-      */
   }
 }
 
@@ -66,11 +48,9 @@ void BacklogMenu::Render() {
   MainItems->Render();
   MainScrollbar->Render();
 
-  if (MaskSprite != nullptr)
-    Renderer->DrawSprite(
-        *MaskSprite,
-        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-        maskTint);
+  Renderer->DrawSprite(
+      MenuMaskSprite,
+      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight), maskTint);
 
   Renderer->DrawSprite(BacklogControlsSprite, BacklogControlsPosition,
                        transition);

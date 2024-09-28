@@ -34,6 +34,7 @@ root.BacklogMenu = {
     MinHoldTime = 0.5,
     AdvanceFocusTimeInterval = 0.05,
 
+    MenuMask = "MenuMask",
     BacklogMask = "BacklogMask",
     HoverBounds = { X = 0, Y = 145, Width = 1920, Height = 821 },
 
@@ -59,6 +60,11 @@ root.SpriteSheets["BacklogMask"] = {
 root.Sprites["BacklogControls"] = {
     Sheet = "Backlog",
     Bounds = { X = 0, Y = 1153, Width = 1920, Height = 57 },
+};
+
+root.Sprites["MenuMask"] = {
+    Sheet = "MenuChip",
+    Bounds = { X = 154, Y = 140, Width = 1900, Height = 1061 },
 };
 
 root.Sprites["VoiceIcon"] = {
