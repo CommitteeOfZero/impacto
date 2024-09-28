@@ -67,6 +67,8 @@ void BacklogMenu::Show() {
     }
     UI::FocusedMenu = this;
 
+    directionalButtonHeldTime = 0.0f;
+
     // Set scrollbar back to default position
     if (ItemsHeight > MainItems->RenderingBounds.Height) {
       PageY = MainScrollbar->EndValue;
@@ -79,6 +81,7 @@ void BacklogMenu::Hide() {
   if (State == Shown) {
     State = Hiding;
     FadeAnimation.StartOut();
+    directionalButtonHeldTime = 0.0f;
 
     if (LastFocusedMenu != nullptr) {
       UI::FocusedMenu = LastFocusedMenu;
@@ -89,15 +92,69 @@ void BacklogMenu::Hide() {
   }
 }
 
-inline bool inVerticalHoverBounds(const Widget& entry) {
-  return (HoverBounds.Y <= entry.Bounds.Y &&
-          entry.Bounds.Y + entry.Bounds.Height <=
+inline bool inVerticalHoverBounds(const Widget* entry) {
+  if (entry == nullptr) return false;
+
+  return (HoverBounds.Y <= entry->Bounds.Y &&
+          entry->Bounds.Y + entry->Bounds.Height <=
               HoverBounds.Y + HoverBounds.Height);
 }
 
-void BacklogMenu::Update(float dt) {
-  UpdateInput();
+void BacklogMenu::UpdateInput(float dt) {
+  MainScrollbar->UpdateInput();
 
+  bool padScrolling = (bool)(PADinputButtonIsDown & PAD1DOWN) ^
+                      (bool)(PADinputButtonIsDown & PAD1UP);
+  if (padScrolling) {
+    FocusDirection dir =
+        (PADinputButtonIsDown & PAD1DOWN) ? FDIR_DOWN : FDIR_UP;
+
+    bool focusOnEdge = false;
+    const Widget* nextEl = nullptr;
+    if (CurrentlyFocusedElement != nullptr) {
+      nextEl = CurrentlyFocusedElement->GetFocus(dir);
+      focusOnEdge = !inVerticalHoverBounds(nextEl);
+    }
+
+    // Gradual scrolling
+    if (MainScrollbar->Enabled && focusOnEdge) {
+      PageY += (dir == FDIR_UP) ? ScrollingSpeed * dt : -ScrollingSpeed * dt;
+      MainScrollbar->ClampValue();
+      MainItems->Update(dt);
+    }
+
+    if (focusOnEdge) {
+      if (nextEl) {
+        float excess = (dir == FDIR_UP)
+                           ? HoverBounds.Y - nextEl->Bounds.Y
+                           : nextEl->Bounds.Y + nextEl->Bounds.Height -
+                                 HoverBounds.Y - HoverBounds.Height;
+        if (excess < ScrollingSpeed * dt) AdvanceFocus(dir);
+      }
+    } else {
+      if (directionalButtonHeldTime == 0.0f) {
+        // Button just pressed
+        advanceFocusWaitTime = 0.0f;
+
+        AdvanceFocus(dir);
+      } else if (directionalButtonHeldTime > MinHoldTime) {
+        // Button held down
+        if (advanceFocusWaitTime <= 0.0f) {
+          AdvanceFocus(dir);
+          advanceFocusWaitTime = AdvanceFocusTimeInterval;
+        }
+
+        advanceFocusWaitTime -= dt;
+      }
+    }
+
+    directionalButtonHeldTime += dt;
+  } else {
+    directionalButtonHeldTime = 0.0f;
+  }
+}
+
+void BacklogMenu::Update(float dt) {
   if (ScrWork[SW_SYSSUBMENUCT] < 32 && State == Shown) {
     Hide();
   } else if (ScrWork[SW_SYSSUBMENUCT] > 0 && State == Hidden &&
@@ -121,6 +178,8 @@ void BacklogMenu::Update(float dt) {
   }
 
   if (State == Shown && ScrWork[SW_SYSSUBMENUNO] == 1) {
+    UpdateInput(dt);
+
     if (ItemsHeight > MainItems->RenderingBounds.Height) {
       MainScrollbar->Enabled = true;
       MainScrollbar->StartValue = MainItems->RenderingBounds.Y + EntryYPadding;
@@ -137,30 +196,16 @@ void BacklogMenu::Update(float dt) {
     }
 
     MainItems->Update(dt);
-
-    if ((PADinputButtonWentDown & PAD1DOWN ||
-         PADinputButtonWentDown & PAD1UP) &&
-        MainScrollbar->Enabled) {
-      const Widget* focusedEl = CurrentlyFocusedElement;
-      if (focusedEl->Bounds.Y < HoverBounds.Y) {
-        PageY += focusedEl->Bounds.Height + EntryYPadding;
-      } else if (focusedEl->Bounds.Y + focusedEl->Bounds.Height >
-                 HoverBounds.Y + HoverBounds.Height) {
-        PageY -= focusedEl->Bounds.Height + EntryYPadding;
-      }
-    }
-
-    MainScrollbar->UpdateInput();
     MainScrollbar->Update(dt);
 
     // Handle entry moving out of hover bounds
     if (CurrentlyFocusedElement &&
-        !inVerticalHoverBounds(*CurrentlyFocusedElement)) {
+        !inVerticalHoverBounds(CurrentlyFocusedElement)) {
       FocusDirection dir = (CurrentlyFocusedElement->Bounds.Y < HoverBounds.Y)
                                ? FDIR_DOWN
                                : FDIR_UP;
       Widget* newFocusedElement = CurrentlyFocusedElement->GetFocus(dir);
-      while (newFocusedElement && !inVerticalHoverBounds(*newFocusedElement))
+      while (newFocusedElement && !inVerticalHoverBounds(newFocusedElement))
         newFocusedElement = newFocusedElement->GetFocus(dir);
 
       CurrentlyFocusedElement->Hovered = false;

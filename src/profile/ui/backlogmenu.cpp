@@ -52,6 +52,10 @@ void Configure() {
     FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
     FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
 
+    ScrollingSpeed = EnsureGetMemberFloat("ScrollingSpeed");
+    MinHoldTime = EnsureGetMemberFloat("MinHoldTime");
+    AdvanceFocusTimeInterval = EnsureGetMemberFloat("AdvanceFocusTimeInterval");
+
     TryGetMemberInt("SWsetRevMesStartingValue", SWsetRevMesStartingValue);
 
     switch (Type) {

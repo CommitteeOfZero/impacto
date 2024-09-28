@@ -34,6 +34,10 @@ inline RectF HoverBounds;
 inline float FadeInDuration;
 inline float FadeOutDuration;
 
+inline float ScrollingSpeed;
+inline float MinHoldTime;
+inline float AdvanceFocusTimeInterval;
+
 inline int SWsetRevMesStartingValue = 0;
 
 void Configure();

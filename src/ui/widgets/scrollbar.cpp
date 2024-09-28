@@ -119,10 +119,7 @@ void Scrollbar::UpdateInput() {
           (trackP2 - ThumbLength) / (EndValue - StartValue);
       *Value = StartValue + ((mouseP - (trackP1 + ThumbLength / 2.0f)) /
                              thumbNormalizedLength);
-
-      float minValue = std::min(StartValue, EndValue);
-      float maxValue = std::max(StartValue, EndValue);
-      *Value = std::clamp(*Value, minValue, maxValue);
+      ClampValue();
     } else {
       Scrolling = false;
     }
@@ -155,6 +152,12 @@ void Scrollbar::Move(glm::vec2 relativePosition) {
 void Scrollbar::MoveTo(glm::vec2 pos) {
   auto relativePosition = pos - glm::vec2(Bounds.X, Bounds.Y);
   Move(relativePosition);
+}
+
+void Scrollbar::ClampValue() {
+  float minValue = std::min(StartValue, EndValue);
+  float maxValue = std::max(StartValue, EndValue);
+  *Value = std::clamp(*Value, minValue, maxValue);
 }
 
 void Scrollbar::Update(float dt) { UpdatePosition(); }

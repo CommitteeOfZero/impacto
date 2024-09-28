@@ -15,6 +15,7 @@ class BacklogMenu : public Menu {
   virtual void Show();
   virtual void Hide();
   virtual void Update(float dt);
+  virtual void UpdateInput(float dt);
   virtual void Render();
 
   void AddMessage(uint8_t* str, int audioId = -1);
@@ -30,6 +31,9 @@ class BacklogMenu : public Menu {
   Widgets::Group* MainItems;
   Animation FadeAnimation;
   Widgets::Scrollbar* MainScrollbar;
+
+  float directionalButtonHeldTime = 0.0f;
+  float advanceFocusWaitTime = 0.0f;
 
   void RenderHighlight() const;
   virtual Widgets::BacklogEntry* CreateBacklogEntry(

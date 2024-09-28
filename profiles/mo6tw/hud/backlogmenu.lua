@@ -17,7 +17,11 @@ root.BacklogMenu = {
     HoverBounds = { X = 87, Y = 83, Width = 1055, Height = 590 },
     EntryYPadding = 22,
     FadeInDuration = 0.2,
-    FadeOutDuration = 0.2
+    FadeOutDuration = 0.2,
+
+    ScrollingSpeed = 600,
+    MinHoldTime = 0.5,
+    AdvanceFocusTimeInterval = 0.05
 };
 
 root.Sprites["BacklogBackground"] = {

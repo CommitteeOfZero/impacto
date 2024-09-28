@@ -29,6 +29,8 @@ class Scrollbar : public Widget {
   void Move(glm::vec2 relativePosition) override;
   void MoveTo(glm::vec2 pos) override;
 
+  void ClampValue();
+
   int Id;
   ScrollbarDirection Direction;
   Sprite TrackSprite;
