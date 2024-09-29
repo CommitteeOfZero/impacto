@@ -55,6 +55,37 @@ void SaveMenu::Show() {
     State = Showing;
     FadeAnimation.StartIn();
     int id = 0;
+    Impacto::SaveSystem::SaveType saveType =
+        ScrWork[SW_SAVEMENUMODE] == SaveMenuPageType::QuickLoad
+            ? SaveSystem::SaveType::SaveQuick
+            : SaveSystem::SaveType::SaveFull;
+
+    std::array<int, SaveSystem::MaxSaveEntries> saveEntryIds;
+    for (int i = 0; i < SaveSystem::MaxSaveEntries; i++) {
+      saveEntryIds[i] = i;
+    }
+    if (saveType == SaveSystem::SaveType::SaveQuick) {
+      // quick saves are sorted by time and status
+      std::sort(saveEntryIds.begin(), saveEntryIds.end(),
+                [saveType](int a, int b) {
+                  int statusA = SaveSystem::GetSaveStatus(saveType, a);
+                  int statusB = SaveSystem::GetSaveStatus(saveType, b);
+                  if (statusA == statusB) {
+                    std::tm ta = SaveSystem::GetSaveDate(saveType, a);
+                    std::tm tb = SaveSystem::GetSaveDate(saveType, b);
+                    std::time_t th = std::mktime(&ta);
+                    std::time_t tl = std::mktime(&tb);
+                    if (th == -1 || tl == -1) {
+                      ImpLog(LL_Error, LC_General,
+                             "Failed to convert time to time_t\n");
+                      return statusA > statusB;
+                    }
+                    return difftime(th, tl) > 0;
+                  }
+                  return statusA > statusB;
+                });
+    }
+
     for (int p = 0; p < Pages; ++p) {
       MainItems[p] = new Widgets::Group(this);
       MainItems[p]->WrapFocus = false;
@@ -62,16 +93,13 @@ void SaveMenu::Show() {
       for (int i = 0; i < RowsPerPage; i++) {
         // Start on right col
         for (int j = EntriesPerRow - 1; j >= 0; j--) {
-          Impacto::SaveSystem::SaveType saveType =
-              ScrWork[SW_SAVEMENUMODE] == SaveMenuPageType::QuickLoad
-                  ? SaveSystem::SaveType::SaveQuick
-                  : SaveSystem::SaveType::SaveFull;
           glm::vec2 buttonPos =
               (j == 0)
                   ? glm::vec2{EntryStartXL, EntryStartYL + (i * EntryYPadding)}
                   : glm::vec2{EntryStartXR, EntryStartYR + (i * EntryYPadding)};
           SaveEntryButton* saveEntryButton = new SaveEntryButton(
-              id, EntryHighlightedBoxSprite[ScrWork[SW_SAVEMENUMODE]],
+              saveEntryIds[id], id,
+              EntryHighlightedBoxSprite[ScrWork[SW_SAVEMENUMODE]],
               EntryHighlightedTextSprite[ScrWork[SW_SAVEMENUMODE]], p,
               buttonPos, SlotLockedSprite[ScrWork[SW_SAVEMENUMODE]], saveType,
               NoDataSprite[ScrWork[SW_SAVEMENUMODE]],

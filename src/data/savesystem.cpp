@@ -46,8 +46,9 @@ void LoadMemoryNew(LoadProcess load) {
   if (Implementation) Implementation->LoadMemoryNew(load);
 }
 
-void FlushWorkingSaveEntry(SaveType type, int id) {
-  if (Implementation) Implementation->FlushWorkingSaveEntry(type, id);
+void FlushWorkingSaveEntry(SaveType type, int id, int autoSaveType) {
+  if (Implementation)
+    Implementation->FlushWorkingSaveEntry(type, id, autoSaveType);
 }
 
 void WriteSaveFile() {
@@ -172,11 +173,11 @@ void SetCheckpointId(int id) {
   if (Implementation) Implementation->SetCheckpointId(id);
 }
 
-int GetQuickSaveCount() {
-  if (Implementation) return Implementation->GetQuickSaveCount();
+int GetQuickSaveOpenSlot() {
+  if (Implementation) return Implementation->GetQuickSaveOpenSlot();
   ImpLog(LL_Warning, LC_VMStub,
-         "%s: save system not implemented, returning 0\n", __func__);
-  return 0;
+         "%s: save system not implemented, returning -1\n", __func__);
+  return -1;
 }
 
 Sprite const& GetSaveThumbnail(SaveType type, int id) {
