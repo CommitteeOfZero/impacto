@@ -61,7 +61,7 @@ int64_t PhysicalFileStream::Seek(int64_t offset, int origin) {
       absPos = Position + offset;
       break;
     case RW_SEEK_END:
-      absPos = Meta.Size + offset;
+      absPos = Meta.Size - offset;
       break;
   }
   if (absPos < 0 || absPos > Meta.Size) return IoError_Fail;
