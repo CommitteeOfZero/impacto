@@ -97,7 +97,7 @@ void BaseRenderer::DrawProcessedText_BasicFont(
             mask.Sheet = *maskedSheet;
             mask.Bounds = dest;
             DrawMaskedSpriteOverlay(glyph, mask, dest, color, color.a * 256, 20,
-                                    false, 0, false);
+                                    false, 0, false, i == 0);
           } else {
             DrawSprite(glyph, dest, color);
           }
@@ -112,7 +112,7 @@ void BaseRenderer::DrawProcessedText_BasicFont(
             mask.Sheet = *maskedSheet;
             mask.Bounds = dest;
             DrawMaskedSpriteOverlay(glyph, mask, dest, color, color.a * 256, 20,
-                                    false, 0, false);
+                                    false, 0, false, i == 0);
           } else {
             DrawSprite(glyph, dest, color);
           }
@@ -172,7 +172,7 @@ void BaseRenderer::DrawProcessedText_LBFont(
         mask.Bounds = outlineDest;
         DrawMaskedSpriteOverlay(font->OutlineGlyph(text[i].CharId), mask,
                                 outlineDest, color, color.a * 256, 20, false, 0,
-                                false);
+                                false, i == 0);
       } else {
         DrawSprite(font->OutlineGlyph(text[i].CharId), outlineDest, color);
       }
@@ -200,7 +200,8 @@ void BaseRenderer::DrawProcessedText_LBFont(
       mask.Sheet = *maskedSheet;
       mask.Bounds = foregroundDest;
       DrawMaskedSpriteOverlay(font->Glyph(text[i].CharId), mask, foregroundDest,
-                              color, color.a * 255, 256, false, 0, false);
+                              color, color.a * 255, 256, false, 0, false,
+                              i == 0);
     } else {
       DrawSprite(font->Glyph(text[i].CharId), foregroundDest, color);
     }

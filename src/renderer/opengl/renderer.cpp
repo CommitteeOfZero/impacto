@@ -522,8 +522,6 @@ void Renderer::DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
     return;
   }
 
-  if (isScreencap) Flush();
-
   if (alpha < 0) alpha = 0;
   if (alpha > fadeRange + 256) alpha = fadeRange + 256;
 
@@ -535,7 +533,7 @@ void Renderer::DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
 
   glBindVertexArray(VAOSprites);
   if (useMaskAlpha) {
-    if (CurrentMode != R2D_Masked) {
+    if (CurrentMode != R2D_Masked || isScreencap) {
       Flush();
       CurrentMode = R2D_Masked;
     }
@@ -546,7 +544,7 @@ void Renderer::DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
     glUniform1i(MaskedIsInvertedLocation, isInverted);
     glUniform1i(MaskedIsSameTextureLocation, false);
   } else {
-    if (CurrentMode != R2D_MaskedNoAlpha) {
+    if (CurrentMode != R2D_MaskedNoAlpha || isScreencap) {
       Flush();
       CurrentMode = R2D_MaskedNoAlpha;
     }
