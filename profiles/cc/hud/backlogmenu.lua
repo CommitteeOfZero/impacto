@@ -36,7 +36,7 @@ root.BacklogMenu = {
 
     MenuMask = "MenuMask",
     BacklogMask = "BacklogMask",
-    HoverBounds = { X = 0, Y = 145, Width = 1920, Height = 821 },
+    HoverBounds = { X = 380, Y = 145, Width = 1230, Height = 820 },
 
     SWsetRevMesStartingValue = 131072
 };
