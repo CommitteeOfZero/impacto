@@ -66,12 +66,12 @@ int64_t PhysicalFileStream::Seek(int64_t offset, int origin) {
   }
   if (absPos < 0 || absPos > Meta.Size) return IoError_Fail;
   FileStream.seekg(absPos, std::ios::beg);
-  if (!FileStream) {
+  if (!FileStream && !FileStream.eof()) {
     ImpLog(LL_Error, LC_IO, "Seek failed for file \"%s\" with error: \"%s\"\n",
            SourceFileName.string().c_str(), std::strerror(errno));
     return IoError_Fail;
   }
-  Position = absPos;
+  Position = FileStream.tellg();
   return Position;
 }
 
