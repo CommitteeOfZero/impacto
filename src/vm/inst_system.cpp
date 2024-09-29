@@ -713,38 +713,49 @@ VmInstruction(InstDebugData) {
 }
 VmInstruction(InstAutoSave) {
   StartInstruction;
+  auto quickSave = [&](int autosaveRestartCheck, int saveType) {
+    SaveSystem::SaveMemory();
+    if (ScrWork[2112] != autosaveRestartCheck) {
+      int quicksaveEntries = SaveSystem::GetQuickSaveOpenSlot();
+      if (quicksaveEntries != -1) {
+        SaveIconDisplay::ShowFor(2.4f);
+        SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::SaveQuick,
+                                          quicksaveEntries, saveType);
+      }
+    }
+    SetFlag(1285, 1);
+    ScrWork[2112] = 0;
+  };
+
   PopUint8(type);
   switch (type) {
     case 0:  // QuickSave
-      SaveIconDisplay::ShowFor(2.4f);
+    case 20:
       if (ScrWork[SW_TITLE] == 0xffff) break;
-      SaveSystem::SaveMemory();
-      if (ScrWork[2112] != 1) {
-        // TODO: Quicksave(1)
-      }
-      SetFlag(1285, 1);
-      ScrWork[2112] = 0;
+      quickSave(1, 1);
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction AutoSave(type: QuickSave)\n");
       break;
     case 1:  // AutoSaveRestart (?)
+    case 21:
       if (ScrWork[SW_TITLE] == 0xffff) break;
-      SaveSystem::SaveMemory();
-      if ((ScrWork[2112] != 3)) {
-        // TODO: Quicksave(3)
-      }
-      SetFlag(1285, 1);
-      ScrWork[2112] = 0;
+      quickSave(3, 3);
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction AutoSave(type: %i)\n",
                  type);
       break;
-    case 3:  // DisableAutoSave
-      // Check quicksave, quicksave(0)
+    case 3: {  // DisableAutoSave
+      int quicksaveEntries = SaveSystem::GetQuickSaveOpenSlot();
+      if (quicksaveEntries != -1) {
+        SaveIconDisplay::ShowFor(2.4f);
+        SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::SaveQuick,
+                                          quicksaveEntries, 0);
+      }
+
       SetFlag(1285, 0);
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction AutoSave(type: %i)\n",
                  type);
-      break;
-    case 5:  // EnableAutoSave
+    } break;
+    case 5: {  // EnableAutoSave
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction AutoSave(type: %i)\n",
                  type);
       if (ScrWork[SW_TITLE] != 0xffff) {
@@ -752,7 +763,7 @@ VmInstruction(InstAutoSave) {
         SetFlag(1285, 1);
         ScrWork[2112] = 0;
       }
-      break;
+    } break;
     case 10: {  // SetCheckpointId
       if (Profile::Vm::UseReturnIds) {
         PopUint16(checkpointId);
@@ -774,6 +785,9 @@ VmInstruction(InstAutoSave) {
       ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction AutoSave(arg1: %i)\n",
                  type);
       break;
+    case 0xff: {
+      BlockThread;
+    } break;
     default:
       // More quicksave cases here
       break;

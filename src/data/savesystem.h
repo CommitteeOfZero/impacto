@@ -72,7 +72,8 @@ class SaveSystemBase {
   virtual void SaveMemory() = 0;
   virtual void LoadEntry(SaveType type, int id) = 0;
   virtual void LoadMemoryNew(LoadProcess){};
-  virtual void FlushWorkingSaveEntry(SaveType type, int id) = 0;
+  virtual void FlushWorkingSaveEntry(SaveType type, int id,
+                                     int autoSaveType) = 0;
   virtual void WriteSaveFile() = 0;
   virtual uint32_t GetSavePlayTime(SaveType type, int id) = 0;
   virtual uint8_t GetSaveFlags(SaveType type, int id) = 0;
@@ -93,7 +94,15 @@ class SaveSystemBase {
   virtual bool GetBgmFlag(int id) = 0;
   virtual void SetCheckpointId(int id) = 0;
   virtual Sprite const& GetSaveThumbnail(SaveType type, int id) = 0;
-  int GetQuickSaveCount() { return QuickSaveCount; }
+  int GetQuickSaveOpenSlot() {
+    for (int i = 0; i < MaxSaveEntries; i++) {
+      if (QuickSaveEntries[i]->Status == 0) return i;
+    }
+    for (int i = 0; i < MaxSaveEntries; i++) {
+      if (GetSaveFlags(SaveQuick, i) != 1) return i;
+    }
+    return -1;
+  }
   Sprite const& GetWorkingSaveThumbnail() { return WorkingSaveThumbnail; }
 
  protected:
@@ -113,7 +122,7 @@ SaveError MountSaveFile();
 void SaveMemory();
 void LoadEntry(SaveType type, int id);
 void LoadMemoryNew(LoadProcess process);
-void FlushWorkingSaveEntry(SaveType type, int id);
+void FlushWorkingSaveEntry(SaveType type, int id, int autoSaveType = 0);
 void WriteSaveFile();
 uint32_t GetSavePlayTime(SaveType type, int id);
 uint8_t GetSaveFlags(SaveType type, int id);
@@ -130,7 +139,7 @@ void GetEVStatus(int evId, int* totalVariations, int* viewedVariations);
 bool GetEVVariationIsUnlocked(int evId, int variationIdx);
 bool GetBgmFlag(int id);
 void SetCheckpointId(int id);
-int GetQuickSaveCount();
+int GetQuickSaveOpenSlot();
 Sprite const& GetSaveThumbnail(SaveType type, int id);
 Sprite const& GetWorkingSaveThumbnail();
 

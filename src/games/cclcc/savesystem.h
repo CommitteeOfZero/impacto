@@ -32,7 +32,7 @@ class SaveSystem : public SaveSystemBase {
   void SaveMemory() override;
   void LoadEntry(SaveType type, int id) override;
   void LoadMemoryNew(LoadProcess load) override;
-  void FlushWorkingSaveEntry(SaveType type, int id) override;
+  void FlushWorkingSaveEntry(SaveType type, int id, int autoSaveType) override;
   void WriteSaveFile() override;
   uint32_t GetSavePlayTime(SaveType type, int id) override;
   uint8_t GetSaveFlags(SaveType type, int id) override;

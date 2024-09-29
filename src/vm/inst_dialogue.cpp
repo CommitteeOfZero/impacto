@@ -371,7 +371,32 @@ VmInstruction(InstSelect) {
   switch (type) {
     case 0: {
       UI::SelectionMenuPtr->Show();
-      SaveIconDisplay::ShowFor(2.4f);
+      bool flag = GetFlag(1282);
+      int unk = ScrWork[2108];
+      if (unk < 0x100) {
+        ScrWork[2108] = unk + 0x10;
+        SetFlag(1286, 1);
+        ResetInstruction;
+        BlockThread;
+      }
+      SetFlag(thread->DialoguePageId + 1213, 0);
+      if (ScrWork[2112] == 2) {
+        thread->Ip += 12;
+        return;
+      } else {
+        SaveSystem::SaveMemory();
+        int quicksaveEntries = SaveSystem::GetQuickSaveOpenSlot();
+        if (!flag && quicksaveEntries != -1) {
+          SaveIconDisplay::ShowFor(2.4f);
+          SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::SaveQuick,
+                                            quicksaveEntries, 2);
+        }
+        ScrWork[2112] = 0;
+        if (quicksaveEntries == -1) {
+          thread->Ip += 12;
+        }
+      }
+      SetFlag(1286, 0);
     } break;
     case 1: {
       if (!UI::SelectionMenuPtr->ChoiceMade) {
