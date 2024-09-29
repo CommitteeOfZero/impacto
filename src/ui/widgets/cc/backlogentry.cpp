@@ -18,12 +18,15 @@ BacklogEntry::BacklogEntry(int id, uint8_t* str, int audioId, glm::vec2 pos,
 
 void BacklogEntry::Render() {
   if (AudioId != -1) {
-    // TODO: Use transparency mask
-    Renderer->DrawSprite(
-        VoiceIcon,
-        glm::vec2(Bounds.X - VoiceIcon.ScaledWidth(), Bounds.Y) +
-            VoiceIconOffset,
-        Tint);
+    RectF bounds = RectF(Bounds.X - VoiceIcon.ScaledWidth() + VoiceIconOffset.x,
+                         Bounds.Y + VoiceIconOffset.y, VoiceIcon.ScaledWidth(),
+                         VoiceIcon.ScaledHeight());
+    Sprite mask;
+    mask.Sheet = BacklogMaskSheet;
+    mask.Bounds = bounds;
+
+    Renderer->DrawMaskedSpriteOverlay(VoiceIcon, mask, bounds, Tint,
+                                      Tint.a * 256, 20, false, 0, false, true);
   }
 
   if (BacklogPage->HasName) {
