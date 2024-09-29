@@ -37,16 +37,18 @@ IoError PhysicalFileStream::Create(std::string const& fileName, Stream** out,
 }
 
 int64_t PhysicalFileStream::Read(void* buffer, int64_t sz) {
-  if (FileStream.eof()) {
-    return IoError_Eof;
-  }
-  FileStream.read((char*)buffer, sz);
-  if (!FileStream && !FileStream.eof()) {
+  if (sz < 0) return IoError_Fail;
+  if (Position == Meta.Size) return IoError_Eof;
+  int bytesToRead = std::min(sz, Meta.Size - Position);
+  FileStream.read((char*)buffer, bytesToRead);
+  if (!FileStream) {
     ImpLog(LL_Error, LC_IO, "Read failed for file \"%s\" with error: \"%s\"\n",
            SourceFileName.string().c_str(), std::strerror(errno));
+    FileStream.clear(FileStream.rdstate() & ~std::ios::failbit &
+                     ~std::ios::eofbit);  // Clear only failbit and eofbit
     return IoError_Fail;
   }
-  int64_t read = FileStream.gcount();
+  auto read = FileStream.gcount();
   Position += read;
   return read;
 }
@@ -69,6 +71,8 @@ int64_t PhysicalFileStream::Seek(int64_t offset, int origin) {
   if (!FileStream && !FileStream.eof()) {
     ImpLog(LL_Error, LC_IO, "Seek failed for file \"%s\" with error: \"%s\"\n",
            SourceFileName.string().c_str(), std::strerror(errno));
+    FileStream.clear(FileStream.rdstate() & ~std::ios::failbit &
+                     ~std::ios::eofbit);  // Clear only failbit and eofbit
     return IoError_Fail;
   }
   Position = FileStream.tellg();
@@ -106,6 +110,8 @@ int64_t PhysicalFileStream::Write(void* buffer, int64_t sz, int cnt) {
   if (!FileStream) {
     ImpLog(LL_Error, LC_IO, "Write failed for file \"%s\" with error: \"%s\"\n",
            SourceFileName.string().c_str(), std::strerror(errno));
+    FileStream.clear(FileStream.rdstate() & ~std::ios::failbit &
+                     ~std::ios::eofbit);  // Clear only failbit and eofbit
     return IoError_Fail;
   }
   int64_t written = sz * cnt;
