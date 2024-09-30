@@ -1,7 +1,5 @@
 
 set(CMAKE_SYSTEM_NAME "Generic")
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_C_STANDARD 11)
 set(WITH_PORTLIBS ON CACHE BOOL "use portlibs ?")
 
 macro(msys_to_cmake_path MsysPath ResultingPath)
@@ -32,7 +30,7 @@ endif()
 set(PKG_CONFIG "${DEVKITPRO}/portlibs/bin/aarch64-none-elf-pkg-config" CACHE STRING "")
 set(CPPFLAGS "-D__SWITCH__ -I${DEVKITPRO}/libnx/include -I${DEVKITPRO}/portlibs/switch/include")
 set(CMAKE_C_FLAGS "${CPPFLAGS} -march=armv8-a -mtune=cortex-a57 -mtp=soft -fPIC -ffunction-sections" CACHE STRING "C flags")
-set(CMAKE_CXX_FLAGS "${CPPFLAGS} ${CMAKE_C_FLAGS} -fno-rtti" CACHE STRING "C++ flags")
+set(CMAKE_CXX_FLAGS "${CPPFLAGS} ${CMAKE_C_FLAGS}" CACHE STRING "C++ flags")
 
 if(WITH_PORTLIBS)
     set(CMAKE_FIND_ROOT_PATH ${DEVKITPRO}/devkitA64 ${DEVKITPRO} ${DEVKITPRO}/libnx ${DEVKITPRO}/portlibs/switch)
