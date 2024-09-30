@@ -35,6 +35,8 @@ inline int ResolutionHeight;
 inline bool Fullscreen;
 inline char const* Subtitles;
 
+inline int PlatformId = 0;
+
 void LoadGameFromLua();
 
 }  // namespace Profile

@@ -596,7 +596,7 @@ VmInstruction(InstMSinit) {
 
     ScrWork[SW_SYSMESALPHA] = 255;
 
-    ScrWork[SW_PLATFORM] = Profile::BacklogMenu::SWplatformStartingValue;
+    ScrWork[SW_PLATFORM] = Profile::PlatformId;
   }
 
   if (initType == 0 || initType == 1) {

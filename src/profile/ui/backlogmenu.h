@@ -39,8 +39,6 @@ inline float MinHoldTime;
 inline float AdvanceFocusTimeInterval;
 inline float PageUpDownHeight;
 
-inline int SWplatformStartingValue = 0;
-
 void Configure();
 
 }  // namespace BacklogMenu

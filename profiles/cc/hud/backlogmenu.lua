@@ -37,9 +37,7 @@ root.BacklogMenu = {
 
     MenuMask = "MenuMask",
     BacklogMask = "BacklogMask",
-    HoverBounds = { X = 380, Y = 145, Width = 1230, Height = 820 },
-
-    SWplatformStartingValue = 131072
+    HoverBounds = { X = 380, Y = 145, Width = 1230, Height = 820 }
 };
 
 root.Sprites["BacklogBackground"] = {

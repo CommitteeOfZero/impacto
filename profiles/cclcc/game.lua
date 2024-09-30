@@ -21,6 +21,8 @@ root.Vm = {
     MaxLinkedBgBuffers = 2
 };
 
+root.PlatformId = 131072;
+
 include('common/scriptinput.lua');
 include('common/scriptvars.lua');
 
