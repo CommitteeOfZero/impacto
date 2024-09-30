@@ -361,7 +361,10 @@ void TitleMenu::MainMenuUpdate() {
     } else if (PrimaryFadeAnimation.IsIn() && SlideItemsAnimation.IsIn()) {
       MainItems->HasFocus = true;
       for (auto& item : MainItems->Children) {
-        static_cast<TitleButton*>(item)->DisableInput = false;
+        auto btnPtr = dynamic_cast<TitleButton*>(item);
+        if (btnPtr) {
+          btnPtr->DisableInput = false;
+        }
       }
     }
   }
