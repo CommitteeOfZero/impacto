@@ -95,8 +95,7 @@ void BacklogMenu::Hide() {
   }
 }
 
-static inline bool IsBeyondShiftedHoverBounds(const Widget* el, float delta,
-                                              bool up) {
+static bool IsBeyondShiftedHoverBounds(const Widget* el, float delta, bool up) {
   if (up) return el->Bounds.Y < HoverBounds.Y + delta;
 
   return el->Bounds.Y + el->Bounds.Height >
@@ -158,7 +157,7 @@ void BacklogMenu::UpdatePageUpDownInput(float dt) {
   CurrentlyFocusedElement->HasFocus = true;
 }
 
-static inline bool inVerticalHoverBounds(const Widget* entry) {
+static bool InVerticalHoverBounds(const Widget* entry) {
   if (entry == nullptr) return false;
 
   return (HoverBounds.Y <= entry->Bounds.Y &&
@@ -180,7 +179,7 @@ void BacklogMenu::UpdateScrollingInput(float dt) {
   const Widget* nextEl = nullptr;
   if (CurrentlyFocusedElement != nullptr) {
     nextEl = CurrentlyFocusedElement->GetFocus(dir);
-    focusOnEdge = !inVerticalHoverBounds(nextEl);
+    focusOnEdge = !InVerticalHoverBounds(nextEl);
   }
 
   // Gradual scrolling
@@ -270,12 +269,12 @@ void BacklogMenu::Update(float dt) {
 
     // Handle entry moving out of hover bounds
     if (CurrentlyFocusedElement &&
-        !inVerticalHoverBounds(CurrentlyFocusedElement)) {
+        !InVerticalHoverBounds(CurrentlyFocusedElement)) {
       FocusDirection dir = (CurrentlyFocusedElement->Bounds.Y < HoverBounds.Y)
                                ? FDIR_DOWN
                                : FDIR_UP;
       Widget* newFocusedElement = CurrentlyFocusedElement->GetFocus(dir);
-      while (newFocusedElement && !inVerticalHoverBounds(newFocusedElement))
+      while (newFocusedElement && !InVerticalHoverBounds(newFocusedElement))
         newFocusedElement = newFocusedElement->GetFocus(dir);
 
       CurrentlyFocusedElement->Hovered = false;
