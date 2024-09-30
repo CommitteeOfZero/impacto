@@ -55,6 +55,7 @@ void Configure() {
     ScrollingSpeed = EnsureGetMemberFloat("ScrollingSpeed");
     MinHoldTime = EnsureGetMemberFloat("MinHoldTime");
     AdvanceFocusTimeInterval = EnsureGetMemberFloat("AdvanceFocusTimeInterval");
+    PageUpDownHeight = EnsureGetMemberFloat("PageUpDownHeight");
 
     TryGetMemberInt("SWsetRevMesStartingValue", SWsetRevMesStartingValue);
 

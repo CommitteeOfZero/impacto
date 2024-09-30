@@ -33,6 +33,7 @@ root.BacklogMenu = {
     ScrollingSpeed = 900,
     MinHoldTime = 0.5,
     AdvanceFocusTimeInterval = 0.05,
+    PageUpDownHeight = 765,
 
     MenuMask = "MenuMask",
     BacklogMask = "BacklogMask",

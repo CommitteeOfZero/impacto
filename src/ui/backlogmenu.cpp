@@ -67,7 +67,8 @@ void BacklogMenu::Show() {
     }
     UI::FocusedMenu = this;
 
-    directionalButtonHeldTime = 0.0f;
+    DirectionalButtonHeldTime = 0.0f;
+    PageUpDownButtonHeldTime = 0.0f;
 
     // Set scrollbar back to default position
     if (ItemsHeight > MainItems->RenderingBounds.Height) {
@@ -81,7 +82,9 @@ void BacklogMenu::Hide() {
   if (State == Shown) {
     State = Hiding;
     FadeAnimation.StartOut();
-    directionalButtonHeldTime = 0.0f;
+
+    DirectionalButtonHeldTime = 0.0f;
+    PageUpDownButtonHeldTime = 0.0f;
 
     if (LastFocusedMenu != nullptr) {
       UI::FocusedMenu = LastFocusedMenu;
@@ -92,7 +95,70 @@ void BacklogMenu::Hide() {
   }
 }
 
-inline bool inVerticalHoverBounds(const Widget* entry) {
+static inline bool IsBeyondShiftedHoverBounds(const Widget* el, float delta,
+                                              bool up) {
+  if (up) return el->Bounds.Y < HoverBounds.Y + delta;
+
+  return el->Bounds.Y + el->Bounds.Height >
+         HoverBounds.Y + HoverBounds.Height + delta;
+}
+
+void BacklogMenu::UpdatePageUpDownInput(float dt) {
+  bool pageUpDown = (bool)(PADinputButtonIsDown & PAD1LEFT) ^
+                    (bool)(PADinputButtonIsDown & PAD1RIGHT);
+  if (!pageUpDown) {
+    PageUpDownButtonHeldTime = 0.0f;
+    PageUpDownWaitTime = 0.0f;
+    return;
+  }
+
+  if (0.0f < PageUpDownButtonHeldTime &&
+      PageUpDownButtonHeldTime < MinHoldTime) {
+    PageUpDownButtonHeldTime += dt;
+    PageUpDownWaitTime = 0.0f;
+    return;
+  }
+
+  if (PageUpDownWaitTime > 0.0f) {
+    PageUpDownWaitTime -= dt;
+    return;
+  }
+
+  PageUpDownButtonHeldTime += dt;
+  PageUpDownWaitTime = AdvanceFocusTimeInterval;
+
+  FocusDirection dir = (PADinputButtonIsDown & PAD1LEFT) ? FDIR_UP : FDIR_DOWN;
+
+  if (MainScrollbar->Enabled) {
+    float delta = (dir == FDIR_UP) ? PageUpDownHeight : -PageUpDownHeight;
+    PageY += delta;
+    MainScrollbar->ClampValue();
+
+    if (!CurrentlyFocusedElement) {
+      CurrentlyFocusedElement = (dir == FDIR_UP) ? MainItems->Children.front()
+                                                 : MainItems->Children.back();
+    }
+
+    CurrentlyFocusedElement->HasFocus = false;
+
+    Widget* nextEl = CurrentlyFocusedElement->GetFocus(dir);
+    while (nextEl &&
+           IsBeyondShiftedHoverBounds(nextEl, delta, dir == FDIR_UP)) {
+      CurrentlyFocusedElement = nextEl;
+      nextEl = CurrentlyFocusedElement->GetFocus(dir);
+    }
+
+  } else {
+    if (CurrentlyFocusedElement) CurrentlyFocusedElement->HasFocus = false;
+
+    CurrentlyFocusedElement = (dir == FDIR_UP) ? MainItems->Children.front()
+                                               : MainItems->Children.back();
+  }
+
+  CurrentlyFocusedElement->HasFocus = true;
+}
+
+static inline bool inVerticalHoverBounds(const Widget* entry) {
   if (entry == nullptr) return false;
 
   return (HoverBounds.Y <= entry->Bounds.Y &&
@@ -100,58 +166,62 @@ inline bool inVerticalHoverBounds(const Widget* entry) {
               HoverBounds.Y + HoverBounds.Height);
 }
 
-void BacklogMenu::UpdateInput(float dt) {
-  MainScrollbar->UpdateInput();
-
+void BacklogMenu::UpdateScrollingInput(float dt) {
   bool padScrolling = (bool)(PADinputButtonIsDown & PAD1DOWN) ^
                       (bool)(PADinputButtonIsDown & PAD1UP);
-  if (padScrolling) {
-    FocusDirection dir =
-        (PADinputButtonIsDown & PAD1DOWN) ? FDIR_DOWN : FDIR_UP;
+  if (!padScrolling) {
+    DirectionalButtonHeldTime = 0.0f;
+    return;
+  };
 
-    bool focusOnEdge = false;
-    const Widget* nextEl = nullptr;
-    if (CurrentlyFocusedElement != nullptr) {
-      nextEl = CurrentlyFocusedElement->GetFocus(dir);
-      focusOnEdge = !inVerticalHoverBounds(nextEl);
-    }
+  FocusDirection dir = (PADinputButtonIsDown & PAD1DOWN) ? FDIR_DOWN : FDIR_UP;
 
-    // Gradual scrolling
-    if (MainScrollbar->Enabled && focusOnEdge) {
-      PageY += (dir == FDIR_UP) ? ScrollingSpeed * dt : -ScrollingSpeed * dt;
-      MainScrollbar->ClampValue();
-      MainItems->Update(dt);
-    }
-
-    if (focusOnEdge) {
-      if (nextEl) {
-        float excess = (dir == FDIR_UP)
-                           ? HoverBounds.Y - nextEl->Bounds.Y
-                           : nextEl->Bounds.Y + nextEl->Bounds.Height -
-                                 HoverBounds.Y - HoverBounds.Height;
-        if (excess < ScrollingSpeed * dt) AdvanceFocus(dir);
-      }
-    } else {
-      if (directionalButtonHeldTime == 0.0f) {
-        // Button just pressed
-        advanceFocusWaitTime = 0.0f;
-
-        AdvanceFocus(dir);
-      } else if (directionalButtonHeldTime > MinHoldTime) {
-        // Button held down
-        if (advanceFocusWaitTime <= 0.0f) {
-          AdvanceFocus(dir);
-          advanceFocusWaitTime = AdvanceFocusTimeInterval;
-        }
-
-        advanceFocusWaitTime -= dt;
-      }
-    }
-
-    directionalButtonHeldTime += dt;
-  } else {
-    directionalButtonHeldTime = 0.0f;
+  bool focusOnEdge = false;
+  const Widget* nextEl = nullptr;
+  if (CurrentlyFocusedElement != nullptr) {
+    nextEl = CurrentlyFocusedElement->GetFocus(dir);
+    focusOnEdge = !inVerticalHoverBounds(nextEl);
   }
+
+  // Gradual scrolling
+  if (MainScrollbar->Enabled && focusOnEdge) {
+    PageY += (dir == FDIR_UP) ? ScrollingSpeed * dt : -ScrollingSpeed * dt;
+    MainScrollbar->ClampValue();
+    MainItems->Update(dt);
+  }
+
+  if (focusOnEdge) {
+    if (nextEl) {
+      float excess = (dir == FDIR_UP)
+                         ? HoverBounds.Y - nextEl->Bounds.Y
+                         : nextEl->Bounds.Y + nextEl->Bounds.Height -
+                               HoverBounds.Y - HoverBounds.Height;
+      if (excess < ScrollingSpeed * dt) AdvanceFocus(dir);
+    }
+  } else {
+    if (DirectionalButtonHeldTime == 0.0f) {
+      // Button just pressed
+      AdvanceFocusWaitTime = 0.0f;
+
+      AdvanceFocus(dir);
+    } else if (DirectionalButtonHeldTime > MinHoldTime) {
+      // Button held down
+      if (AdvanceFocusWaitTime <= 0.0f) {
+        AdvanceFocus(dir);
+        AdvanceFocusWaitTime = AdvanceFocusTimeInterval;
+      }
+
+      AdvanceFocusWaitTime -= dt;
+    }
+  }
+
+  DirectionalButtonHeldTime += dt;
+}
+
+void BacklogMenu::UpdateInput(float dt) {
+  MainScrollbar->UpdateInput();
+  UpdatePageUpDownInput(dt);
+  UpdateScrollingInput(dt);
 }
 
 void BacklogMenu::Update(float dt) {

@@ -37,6 +37,7 @@ inline float FadeOutDuration;
 inline float ScrollingSpeed;
 inline float MinHoldTime;
 inline float AdvanceFocusTimeInterval;
+inline float PageUpDownHeight;
 
 inline int SWsetRevMesStartingValue = 0;
 

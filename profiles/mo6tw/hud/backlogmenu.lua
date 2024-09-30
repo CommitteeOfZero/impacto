@@ -21,7 +21,8 @@ root.BacklogMenu = {
 
     ScrollingSpeed = 600,
     MinHoldTime = 0.5,
-    AdvanceFocusTimeInterval = 0.05
+    AdvanceFocusTimeInterval = 0.05,
+    PageUpDownHeight = 550
 };
 
 root.Sprites["BacklogBackground"] = {

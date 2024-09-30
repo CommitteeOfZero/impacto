@@ -32,13 +32,19 @@ class BacklogMenu : public Menu {
   Animation FadeAnimation;
   Widgets::Scrollbar* MainScrollbar;
 
-  float directionalButtonHeldTime = 0.0f;
-  float advanceFocusWaitTime = 0.0f;
+  float DirectionalButtonHeldTime = 0.0f;
+  float AdvanceFocusWaitTime = 0.0f;
+
+  float PageUpDownButtonHeldTime = 0.0f;
+  float PageUpDownWaitTime = 0.0f;
 
   void RenderHighlight() const;
   virtual Widgets::BacklogEntry* CreateBacklogEntry(
       int id, uint8_t* str, int audioId, glm::vec2 pos,
       const RectF& hoverBounds) const;
+
+  void UpdatePageUpDownInput(float dt);
+  void UpdateScrollingInput(float dt);
 };
 
 }  // namespace UI
