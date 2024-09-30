@@ -84,9 +84,7 @@ void BacklogEntry::UpdateInput() {
 void BacklogEntry::Move(glm::vec2 relativePosition) {
   Position += relativePosition;
   Widget::Move(relativePosition);
-  ProcessedTextGlyph::Move(BacklogPage->Glyphs, relativePosition);
-  if (BacklogPage->HasName)
-    ProcessedTextGlyph::Move(BacklogPage->Name, relativePosition);
+  BacklogPage->Move(relativePosition);
 }
 
 void BacklogEntry::MoveTo(glm::vec2 position) {
