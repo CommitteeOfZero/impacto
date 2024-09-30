@@ -57,7 +57,7 @@ void Configure() {
     AdvanceFocusTimeInterval = EnsureGetMemberFloat("AdvanceFocusTimeInterval");
     PageUpDownHeight = EnsureGetMemberFloat("PageUpDownHeight");
 
-    TryGetMemberInt("SWsetRevMesStartingValue", SWsetRevMesStartingValue);
+    TryGetMemberInt("SWplatformStartingValue", SWplatformStartingValue);
 
     switch (Type) {
       case BacklogMenuType::MO6TW:

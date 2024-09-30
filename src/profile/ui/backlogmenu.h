@@ -39,7 +39,7 @@ inline float MinHoldTime;
 inline float AdvanceFocusTimeInterval;
 inline float PageUpDownHeight;
 
-inline int SWsetRevMesStartingValue = 0;
+inline int SWplatformStartingValue = 0;
 
 void Configure();
 
