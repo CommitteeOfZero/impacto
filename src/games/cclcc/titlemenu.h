@@ -3,6 +3,7 @@
 #include "../../animation.h"
 #include "../../character2d.h"
 #include "../../ui/menu.h"
+#include "../../ui/widgets/label.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
 #include "../../ui/widgets/cclcc/titlebutton.h"
@@ -42,6 +43,7 @@ class TitleMenu : public Menu {
   Widgets::CCLCC::TitleButton* Extra;
   Widgets::CCLCC::TitleButton* Config;
   Widgets::CCLCC::TitleButton* Help;
+  Widgets::Label* MenuLabel;
 
   Widgets::Group* ContinueItems;
   Widgets::CCLCC::TitleButton* Load;

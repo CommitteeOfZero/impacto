@@ -14,9 +14,12 @@ namespace SystemMenu {
 void Configure() {
   TitleFadeInDuration = EnsureGetMemberFloat("TitleFadeInDuration");
   TitleFadeOutDuration = EnsureGetMemberFloat("TitleFadeOutDuration");
+
   GetMemberVec2Array(MenuEntriesPositions, Profile::SystemMenu::MenuEntriesNum,
                      "MenuEntriesPositions");
+
   MenuButtonGuide = EnsureGetMemberSprite("MenuButtonGuide");
+
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMemberInt("DrawType"));
 

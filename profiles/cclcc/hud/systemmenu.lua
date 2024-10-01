@@ -1,6 +1,7 @@
 root.SystemMenu = {
     Type = SystemMenuType.CCLCC,
     DrawType = DrawComponentType.SystemMenu,
+
     FadeInDuration = 64 / 60,
     FadeOutDuration = 64 / 60,
     TitleFadeInDuration = 40 / 60,
@@ -29,6 +30,7 @@ root.SystemMenu = {
     },
     MenuEntriesSprites = {},
     MenuEntriesHighlightedSprites = {},
+
     MenuButtonGuide = "SystemMenuButtonGuide",
 };
 

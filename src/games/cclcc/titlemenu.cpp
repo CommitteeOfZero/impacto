@@ -96,9 +96,7 @@ TitleMenu::TitleMenu() {
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
 
-  Widgets::Label* MenuLabel =
-      new Widgets::Label(MenuSprite, glm::vec2(MenuX, MenuY));
-  MainItems->Add(MenuLabel);
+  MenuLabel = new Widgets::Label(MenuSprite, glm::vec2(MenuX, MenuY));
 
   // NewGame menu button
   NewGame = new TitleButton(0, MenuEntriesSprites[0], MenuEntriesHSprites[0],
@@ -181,6 +179,7 @@ TitleMenu::TitleMenu() {
 
   // Start menu items offscreen
   MainItems->Move({-Profile::DesignWidth / 2, 0.0f});
+  MenuLabel->Move({-Profile::DesignWidth / 2, 0.0f});
   ContinueItems->Move({-Profile::DesignWidth / 4, 0.0f});
   ExtraItems->Move({-Profile::DesignWidth / 4, 0.0f});
 
@@ -216,6 +215,7 @@ void TitleMenu::Hide() {
   if (State != Hidden) {
     State = Hidden;
     MainItems->Hide();
+    MenuLabel->Hide();
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
       LastFocusedMenu->IsFocused = true;
@@ -267,6 +267,7 @@ void TitleMenu::Update(float dt) {
   }
 
   MainItems->Update(dt);
+  MenuLabel->Update(dt);
   ContinueItems->Update(dt);
   ExtraItems->Update(dt);
 
@@ -284,6 +285,7 @@ void TitleMenu::Update(float dt) {
         DisableInputReset = false;
         if (SlideItemsAnimation.IsIn()) {
           SlideItemsAnimation.Progress = 0.0f;
+          MenuLabel->Move({-Profile::DesignWidth / 2, 0.0f});
           MainItems->Move({-Profile::DesignWidth / 2, 0.0f});
           MainItems->HasFocus = false;
         }
@@ -343,6 +345,8 @@ void TitleMenu::MainMenuUpdate() {
   if (SlideItemsAnimation.IsOut()) {
     MainItems->Move({Profile::DesignWidth / 2, 0.0f},
                     SlideItemsAnimation.DurationIn);
+    static_cast<Widget*>(MenuLabel)->Move({Profile::DesignWidth / 2, 0.0f},
+                                          SlideItemsAnimation.DurationIn);
     SlideItemsAnimation.StartIn();
   }
 
@@ -456,6 +460,8 @@ void TitleMenu::Render() {
         DrawSmoke(SmokeOpacityNormal);
         Extra->Tint = (GetFlag(SF_CLR_FLAG)) ? MainItems->Tint
                                              : RgbIntToFloat(ExtraDisabledTint);
+
+        MenuLabel->Render();
         MainItems->Render();
         ContinueItems->Render();
         ExtraItems->Render();
@@ -468,6 +474,7 @@ void TitleMenu::Render() {
       case 5: {
         DrawMainMenuBackGraphics();
         DrawSmoke(SmokeOpacityNormal);
+        MenuLabel->Render();
         MainItems->Render();
         ContinueItems->Render();
         ExtraItems->Render();

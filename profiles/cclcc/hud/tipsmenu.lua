@@ -40,6 +40,7 @@ root.TipsMenu = {
     TipsMenuDarkTextColor = 0x3e3e3c,
 
     TipsScrollThumbSprite = "TipsScrollThumb",
+    TipsScrollThumbLength = 40,
     TipsScrollYStart = 385,
     TipsScrollYEnd = 930,
     TipsScrollEntriesX = 896,

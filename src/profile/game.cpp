@@ -49,6 +49,8 @@ void LoadGameFromLua() {
     VideoPlayer = VideoPlayerType::FFmpeg;
   else
     VideoPlayer = VideoPlayerType::_from_integral_unchecked(videoPlayerType);
+
+  TryGetMemberInt("PlatformId", PlatformId);
 }
 
 }  // namespace Profile

@@ -11,14 +11,17 @@ enum ScrollbarDirection { SBDIR_VERTICAL, SBDIR_HORIZONTAL };
 
 class Scrollbar : public Widget {
  public:
-  Scrollbar(int id, glm::vec2 pos, float min, float max, float* value,
-            ScrollbarDirection dir, Sprite const& thumb, glm::vec2 trackBounds);
-  Scrollbar(int id, glm::vec2 pos, float min, float max, float* value,
+  Scrollbar(int id, glm::vec2 pos, float start, float end, float* value,
+            ScrollbarDirection dir, Sprite const& thumb, glm::vec2 trackBounds,
+            float thumbLength);
+  Scrollbar(int id, glm::vec2 pos, float start, float end, float* value,
             ScrollbarDirection dir, Sprite const& track, Sprite const& thumb,
-            glm::vec2 thumbOffset = glm::vec2(0.0f, 0.0f));
-  Scrollbar(int id, glm::vec2 pos, float min, float max, float* value,
+            glm::vec2 thumbOffset = glm::vec2(0.0f, 0.0f),
+            float thumbLength = 0.0f);
+  Scrollbar(int id, glm::vec2 pos, float start, float end, float* value,
             ScrollbarDirection dir, Sprite const& track, Sprite const& thumb,
-            Sprite const& fill, glm::vec2 thumbOffset = glm::vec2(0.0f, 0.0f));
+            Sprite const& fill, glm::vec2 thumbOffset = glm::vec2(0.0f, 0.0f),
+            float thumbLength = 0.0f);
   virtual void UpdateInput() override;
   virtual void Update(float dt) override;
   virtual void Render() override;
@@ -26,14 +29,16 @@ class Scrollbar : public Widget {
   void Move(glm::vec2 relativePosition) override;
   void MoveTo(glm::vec2 pos) override;
 
+  void ClampValue();
+
   int Id;
   ScrollbarDirection Direction;
   Sprite TrackSprite;
   Sprite ThumbSprite;
   Sprite FillSprite;
   float Length;
-  float MinValue;
-  float MaxValue;
+  float StartValue;
+  float EndValue;
   float* Value;
 
   bool FillBeforeTrack = false;
@@ -45,6 +50,7 @@ class Scrollbar : public Widget {
   glm::vec2 ThumbSpriteOffset = glm::vec2(0.0f, 0.0f);
   RectF TrackBounds;
   RectF ThumbBounds;
+  float ThumbLength;
   bool Scrolling = false;
   bool HasFill = false;
   bool HasTrack = true;

@@ -84,8 +84,14 @@ void Configure() {
   ADVNamePos = EnsureGetMemberVec2("ADVNamePos");
 
   REVNameFontSize = EnsureGetMemberFloat("REVNameFontSize");
+  REVColor = EnsureGetMemberInt("REVColor");
   REVNameColor = EnsureGetMemberInt("REVNameColor");
   REVNameOffset = EnsureGetMemberFloat("REVNameOffset");
+  REVNameLocation = REVNameLocationType::_from_integral_unchecked(
+      EnsureGetMemberInt("REVNameLocation"));
+  REVOutlineMode = RendererOutlineMode(EnsureGetMemberInt("REVOutlineMode"));
+  REVNameOutlineMode =
+      RendererOutlineMode(EnsureGetMemberInt("REVNameOutlineMode"));
 
   TryGetMemberFloat("TipsLineSpacing", TipsLineSpacing);
   TryGetMemberInt("TipsColorIndex", TipsColorIndex);

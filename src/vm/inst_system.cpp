@@ -19,6 +19,7 @@
 #include "../profile/hud/tipsnotification.h"
 #include "../profile/hud/delusiontrigger.h"
 #include "../profile/data/tipssystem.h"
+#include "../profile/ui/backlogmenu.h"
 #include "../hud/saveicondisplay.h"
 #include "interface/input.h"
 #include "../data/savesystem.h"
@@ -594,6 +595,8 @@ VmInstruction(InstMSinit) {
     }
 
     ScrWork[SW_SYSMESALPHA] = 255;
+
+    ScrWork[SW_PLATFORM] = Profile::PlatformId;
   }
 
   if (initType == 0 || initType == 1) {

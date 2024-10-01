@@ -12,24 +12,39 @@ class BacklogMenu : public Menu {
  public:
   BacklogMenu();
 
-  void Show();
-  void Hide();
-  void Update(float dt);
-  void Render();
+  virtual void Show();
+  virtual void Hide();
+  virtual void Update(float dt);
+  virtual void UpdateInput(float dt);
+  virtual void Render();
 
   void AddMessage(uint8_t* str, int audioId = -1);
-  void MenuButtonOnClick(Widgets::BacklogEntry* target);
+  virtual void MenuButtonOnClick(Widgets::BacklogEntry* target);
   void Clear();
 
   float PageY = 0.0f;
 
- private:
+ protected:
   int CurrentId = 0;
   float ItemsHeight = 0.0f;
   glm::vec2 CurrentEntryPos;
   Widgets::Group* MainItems;
   Animation FadeAnimation;
   Widgets::Scrollbar* MainScrollbar;
+
+  float DirectionalButtonHeldTime = 0.0f;
+  float AdvanceFocusWaitTime = 0.0f;
+
+  float PageUpDownButtonHeldTime = 0.0f;
+  float PageUpDownWaitTime = 0.0f;
+
+  void RenderHighlight() const;
+  virtual Widgets::BacklogEntry* CreateBacklogEntry(
+      int id, uint8_t* str, int audioId, glm::vec2 pos,
+      const RectF& hoverBounds) const;
+
+  void UpdatePageUpDownInput(float dt);
+  void UpdateScrollingInput(float dt);
 };
 
 }  // namespace UI

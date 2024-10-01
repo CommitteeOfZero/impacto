@@ -82,7 +82,8 @@ class BaseRenderer {
                                        int alpha, int fadeRange,
                                        bool isInverted = false,
                                        float angle = 0.0f,
-                                       bool useMaskAlpha = true) = 0;
+                                       bool useMaskAlpha = true,
+                                       bool isScreencap = false) = 0;
 
   virtual void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest,
                                    float depth, glm::vec2 vanishingPoint,

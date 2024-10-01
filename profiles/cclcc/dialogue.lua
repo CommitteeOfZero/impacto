@@ -11,10 +11,14 @@ root.Sprites["ADVBoxMask"] = {
 root.Dialogue = {
     TipsBounds = { X = 1042, Y = 394, Width = 720, Height = 542 },
     TipsColorIndex = 10,
-    REVBounds = { X = 0, Y = 0, Width = 960, Height = 400 },
-    REVNameFontSize = 24,
-    REVNameColor = 24,
-    REVNameOffset = 34,
+    REVBounds = { X = 547, Y = 0, Width = 1043, Height = 400 },
+    REVNameFontSize = 42,
+    REVColor = 10, -- Absolute guess
+    REVNameColor = 0,
+    REVNameOffset = 18,
+    REVNameLocation = REVNameLocationType.LeftTop,
+    REVOutlineMode = 0,
+    REVNameOutlineMode = 2,
     NVLBounds = { X = 188, Y = 128, Width = 1536, Height = 600 },
     ADVBounds = { X = 330, Y = 815, Width = 1320, Height = 270 },
     ADVBoxSprite = "ADVBox",
@@ -48,7 +52,7 @@ root.Dialogue = {
     SkipIconOffset = { X = 1688, Y = 794 },
     SkipIconFixedSpriteId = 6,
     DialogueFont = "Default",
-    DefaultFontSize = 36,
+    DefaultFontSize = 42,
     RubyFontSize = 21,
     RubyYOffset = -27,
     ColorTable = {

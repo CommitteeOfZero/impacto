@@ -57,13 +57,10 @@ TipsTabGroup::TipsTabGroup(
       TipClickHandler(tipClickHandler) {
   TipsEntriesGroup.WrapFocus = true;
 
-  TipsScrollStartPos = {
-      TipsScrollEntriesX,
-      TipsScrollYStart + TipsScrollThumbSprite.ScaledHeight() / 2.0f};
+  TipsScrollStartPos = {TipsScrollEntriesX, TipsScrollYStart};
 
-  TipsScrollTrackBounds = {
-      TipsScrollThumbSprite.Bounds.Width,
-      TipsScrollYEnd - TipsScrollYStart - TipsScrollThumbSprite.ScaledHeight()};
+  TipsScrollTrackBounds = {TipsScrollThumbSprite.Bounds.Width,
+                           TipsScrollYEnd - TipsScrollYStart};
 }
 
 // Todo: Next page with left right keys
@@ -94,7 +91,7 @@ void TipsTabGroup::UpdateInput() {
           if (CurrentlyFocusedElement != TipsEntryButtons.back())
             ScrollPosY -= TipsEntryBounds.Height;
           else
-            ScrollPosY = TipsEntriesScrollbar->MaxValue;
+            ScrollPosY = TipsEntriesScrollbar->EndValue;
         }
       }
     }
@@ -182,9 +179,10 @@ void TipsTabGroup::UpdateTipsEntries(std::vector<int> const& SortedTipIds) {
       TipsEntryBounds.Height * TipsEntryButtons.size() -
       roundUpMultiple(TipsTabBounds.Height, TipsEntryBounds.Height);
 
-  TipsEntriesScrollbar = new Scrollbar(
-      0, TipsScrollStartPos, 0, std::max(0, scrollDistance), &ScrollPosY,
-      SBDIR_VERTICAL, TipsScrollThumbSprite, TipsScrollTrackBounds);
+  TipsEntriesScrollbar =
+      new Scrollbar(0, TipsScrollStartPos, 0, std::max(0, scrollDistance),
+                    &ScrollPosY, SBDIR_VERTICAL, TipsScrollThumbSprite,
+                    TipsScrollTrackBounds, TipsScrollThumbLength);
   TipsEntriesGroup.RenderingBounds = TipsTabBounds;
   TabName.Reset();
 }

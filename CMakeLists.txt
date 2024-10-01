@@ -91,6 +91,7 @@ set(Impacto_Src
         src/profile/games/chlcc/trophymenu.cpp
         src/profile/games/chlcc/delusiontrigger.cpp
 
+        src/profile/games/cc/backlogmenu.cpp
         src/profile/games/cc/dialoguebox.cpp
         src/profile/games/cc/titlemenu.cpp
         src/profile/games/cc/sysmesbox.cpp
@@ -106,6 +107,7 @@ set(Impacto_Src
         src/profile/games/cclcc/delusiontrigger.cpp
         src/profile/games/cclcc/yesnotrigger.cpp
 
+        src/profile/games/mo6tw/backlogmenu.cpp
         src/profile/games/mo6tw/dialoguebox.cpp
         src/profile/games/mo6tw/sysmesbox.cpp
         src/profile/games/mo6tw/systemmenu.cpp
@@ -152,6 +154,7 @@ set(Impacto_Src
         src/games/chlcc/trophymenuentry.cpp
         src/games/chlcc/delusiontrigger.cpp
 
+        src/games/cc/backlogmenu.cpp
         src/games/cc/dialoguebox.cpp
         src/games/cc/titlemenu.cpp
         src/games/cc/sysmesbox.cpp
@@ -169,6 +172,7 @@ set(Impacto_Src
         src/games/cclcc/savesystem.cpp
         src/games/cclcc/systemmenu.cpp
 
+        src/games/mo6tw/backlogmenu.cpp
         src/games/mo6tw/dialoguebox.cpp
         src/games/mo6tw/sysmesbox.cpp
         src/games/mo6tw/systemmenu.cpp
@@ -234,6 +238,7 @@ set(Impacto_Src
         src/ui/widgets/chlcc/albumthumbnailbutton.cpp
         src/ui/widgets/chlcc/trackselectbutton.cpp
         src/ui/widgets/rne/sysmenubutton.cpp
+        src/ui/widgets/cc/backlogentry.cpp
         src/ui/widgets/cc/titlebutton.cpp
         src/ui/widgets/cclcc/titlebutton.cpp
         src/ui/widgets/cclcc/saveentrybutton.cpp
@@ -403,6 +408,7 @@ set(Impacto_Header
         src/profile/games/chlcc/trophymenu.h
         src/profile/games/chlcc/delusiontrigger.h
 
+        src/profile/games/cc/backlogmenu.h
         src/profile/games/cc/dialoguebox.h
         src/profile/games/cc/titlemenu.h
         src/profile/games/cc/sysmesbox.h
@@ -416,6 +422,7 @@ set(Impacto_Header
         src/profile/games/cclcc/mapsystem.h
         src/profile/games/cclcc/delusiontrigger.h
 
+        src/profile/games/mo6tw/backlogmenu.h
         src/profile/games/mo6tw/dialoguebox.h
         src/profile/games/mo6tw/sysmesbox.h
         src/profile/games/mo6tw/systemmenu.h
@@ -539,6 +546,7 @@ set(Impacto_Header
         src/ui/widgets/chlcc/albumthumbnailbutton.h
         src/ui/widgets/chlcc/trackselectbutton.h
         src/ui/widgets/rne/sysmenubutton.h
+        src/ui/widgets/cc/backlogentry.h
         src/ui/widgets/cc/titlebutton.h
         src/ui/widgets/cclcc/titlebutton.h
 

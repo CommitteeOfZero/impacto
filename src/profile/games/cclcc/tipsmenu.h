@@ -43,6 +43,7 @@ inline uint32_t TipsEntryNameUnreadColor;
 inline uint32_t TipsMenuDarkTextColor;
 
 inline Sprite TipsScrollThumbSprite;
+inline float TipsScrollThumbLength;
 inline int TipsScrollYStart;
 inline int TipsScrollYEnd;
 inline int TipsScrollEntriesX;

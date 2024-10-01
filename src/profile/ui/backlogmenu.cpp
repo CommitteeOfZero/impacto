@@ -4,6 +4,11 @@
 #include "../../log.h"
 #include "../../game.h"
 
+#include "../../ui/widgets/backlogentry.h"
+
+#include "../games/mo6tw/backlogmenu.h"
+#include "../games/cc/backlogmenu.h"
+
 namespace Impacto {
 namespace Profile {
 namespace BacklogMenu {
@@ -14,6 +19,21 @@ void Configure() {
   if (TryPushMember("BacklogMenu")) {
     AssertIs(LUA_TTABLE);
 
+    Type =
+        BacklogMenuType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
+
+    if (Type == +BacklogMenuType::None) {
+      UI::BacklogMenuPtr = new UI::BacklogMenu();
+      UI::Menus[Game::DrawComponentType::None].push_back(UI::BacklogMenuPtr);
+
+      Pop();
+      return;
+    }
+
+    EntryHighlightLocation =
+        EntryHighlightLocationType::_from_integral_unchecked(
+            EnsureGetMemberInt("EntryHighlightLocation"));
+
     BacklogBackground = EnsureGetMemberSprite("BacklogBackgroundSprite");
     EntryHighlight = EnsureGetMemberSprite("EntryHighlightSprite");
     VoiceIcon = EnsureGetMemberSprite("VoiceIconSprite");
@@ -22,17 +42,29 @@ void Configure() {
 
     EntryYPadding = EnsureGetMemberFloat("EntryYPadding");
     EntriesStart = EnsureGetMemberVec2("EntriesStart");
+    EntryHighlightOffset = EnsureGetMemberVec2("EntryHighlightOffset");
+    VoiceIconOffset = EnsureGetMemberVec2("VoiceIconOffset");
     ScrollbarPosition = EnsureGetMemberVec2("ScrollbarPosition");
+    ScrollbarThumbLength = EnsureGetMemberFloat("ScrollbarThumbLength");
     RenderingBounds = EnsureGetMemberRectF("RenderingBounds");
+    HoverBounds = EnsureGetMemberRectF("HoverBounds");
 
     FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
     FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
 
-    auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-        EnsureGetMemberInt("DrawType"));
+    ScrollingSpeed = EnsureGetMemberFloat("ScrollingSpeed");
+    MinHoldTime = EnsureGetMemberFloat("MinHoldTime");
+    AdvanceFocusTimeInterval = EnsureGetMemberFloat("AdvanceFocusTimeInterval");
+    PageUpDownHeight = EnsureGetMemberFloat("PageUpDownHeight");
 
-    UI::BacklogMenuPtr = new UI::BacklogMenu();
-    UI::Menus[drawType].push_back(UI::BacklogMenuPtr);
+    switch (Type) {
+      case BacklogMenuType::MO6TW:
+        MO6TW::BacklogMenu::Configure();
+        break;
+      case BacklogMenuType::CC:
+        CC::BacklogMenu::Configure();
+        break;
+    }
 
     Pop();
   }

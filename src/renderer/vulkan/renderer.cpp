@@ -1439,12 +1439,14 @@ void Renderer::DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
                                        RectF const& dest, glm::vec4 tint,
                                        int alpha, int fadeRange,
                                        bool isInverted, float angle,
-                                       bool useMaskAlpha) {
+                                       bool useMaskAlpha, bool isScreencap) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawMaskedSpriteOverlay() called before BeginFrame()\n");
     return;
   }
+
+  if (isScreencap) Flush();
 
   if (Textures.count(sprite.Sheet.Texture) == 0 ||
       Textures.count(mask.Sheet.Texture) == 0)

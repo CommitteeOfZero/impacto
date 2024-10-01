@@ -84,6 +84,9 @@ struct DialoguePage {
   // TODO get rid of this
   bool TextIsFullyOpaque();
 
+  int Length;
+  glm::vec2 Dimensions;
+
   int NameLength;
   int NameId;
   bool HasName;
@@ -96,6 +99,7 @@ struct DialoguePage {
   std::vector<ProcessedTextGlyph> Glyphs;
 
   DialoguePageMode Mode;
+  TextAlignment Alignment = TextAlignment::Left;
 
   bool NVLResetBeforeAdd;
   bool AutoForward;

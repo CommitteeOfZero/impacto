@@ -401,10 +401,11 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
   }
   TextParseState State = TPS_Normal;
   // TODO respect alignment
-  TextAlignment Alignment = TextAlignment::Left;
+  Alignment = TextAlignment::Left;
   int LastWordStart = Glyphs.size();
   LastLineStart = Glyphs.size();
   DialogueColorPair CurrentColors = ColorTable[0];
+  if (Mode == DPM_REV) CurrentColors = ColorTable[REVColor];
 
   if (Mode == DPM_ADV) {
     BoxBounds = ADVBounds;
@@ -439,7 +440,8 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
         Name.reserve(DialogueMaxNameLength);
         State = TPS_Name;
         if (DialogueBoxCurrentType != +DialogueBoxType::CHLCC &&
-            Mode == DPM_REV) {
+            Mode == DPM_REV &&
+            REVNameLocation != +REVNameLocationType::LeftTop) {
           CurrentLineTop += REVNameOffset;
         }
         break;
@@ -508,6 +510,8 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
         break;
       }
       case STT_SetColor: {
+        if (Mode == DPM_REV) break;
+
         assert(token.Val_Expr < ColorCount);
         CurrentColors = ColorTable[token.Val_Expr];
         break;
@@ -597,6 +601,12 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
   FinishLine(ctx, Glyphs.size(), BoxBounds, Alignment);
   CurrentX = 0.0f;
 
+  RectF boundingBox = Glyphs.empty() ? RectF() : Glyphs.begin()->DestRect;
+  for (const ProcessedTextGlyph& glyph : Glyphs) {
+    boundingBox = RectF::Coalesce(boundingBox, glyph.DestRect);
+  }
+  Dimensions = glm::vec2(boundingBox.Width, boundingBox.Height);
+
   // Even if there is a name in the string it should not be
   // rendered when in NVL mode
   if (Mode == DPM_NVL) {
@@ -621,9 +631,19 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
     int colorIndex = 0;
     if (Mode == DPM_REV) {
       fontSize = REVNameFontSize;
-      pos = glm::vec2(REVBounds.X, REVBounds.Y);
-      alignment = TextAlignment::Left;
       colorIndex = REVNameColor;
+
+      switch (REVNameLocation) {
+        case REVNameLocationType::None:
+        case REVNameLocationType::TopLeft:
+          pos = glm::vec2(REVBounds.X, REVBounds.Y);
+          alignment = TextAlignment::Left;
+          break;
+        case REVNameLocationType::LeftTop:
+          pos = glm::vec2(REVBounds.X - REVNameOffset, Glyphs[0].DestRect.Y);
+          alignment = TextAlignment::Right;
+          break;
+      }
     }
 
     Name = TextLayoutPlainLine(ctx, NameLength, DialogueFont, fontSize,

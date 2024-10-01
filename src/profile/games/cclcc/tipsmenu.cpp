@@ -50,6 +50,7 @@ void Configure() {
   TipsMenuDarkTextColor = EnsureGetMemberUint("TipsMenuDarkTextColor");
 
   TipsScrollThumbSprite = EnsureGetMemberSprite("TipsScrollThumbSprite");
+  TipsScrollThumbLength = EnsureGetMemberFloat("TipsScrollThumbLength");
   TipsScrollYStart = EnsureGetMemberInt("TipsScrollYStart");
   TipsScrollYEnd = EnsureGetMemberInt("TipsScrollYEnd");
   TipsScrollEntriesX = EnsureGetMemberInt("TipsScrollEntriesX");
