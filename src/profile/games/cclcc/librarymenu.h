@@ -1,11 +1,14 @@
 #pragma once
 
 #include "../../../spritesheet.h"
+#include <enum.h>
 
 namespace Impacto {
 namespace Profile {
 namespace CCLCC {
 namespace LibraryMenu {
+
+BETTER_ENUM(LibraryMenuPageType, int, Album, Sound, Movie)
 
 inline Sprite BackgroundSprite;
 inline Sprite LibraryBackgroundSprite;

@@ -85,6 +85,7 @@ TitleMenu::TitleMenu() {
     ContinueButtonOnClick(target);
   };
   auto extraOnClick = [&](Widgets::Button* target) {
+    // SetFlag(SF_CLR_FLAG, true);
     if (GetFlag(SF_CLR_FLAG)) {
       Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
       ExtraButtonOnClick(target);

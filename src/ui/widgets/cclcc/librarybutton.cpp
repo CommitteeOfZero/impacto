@@ -1,0 +1,98 @@
+#include "librarybutton.h"
+
+#include "../../../renderer/renderer.h"
+#include "../../../profile/games/cclcc/librarymenu.h"
+
+namespace Impacto {
+namespace UI {
+namespace Widgets {
+namespace CCLCC {
+
+using namespace Impacto::Profile::CCLCC::LibraryMenu;
+
+LibraryButton::LibraryButton(int id, Sprite const& norm, Sprite const& focused,
+                         Sprite const& highlight, glm::vec2 pos)
+    : Widgets::Button(id, norm, focused, highlight, pos) {
+  HighlightAnimation.DurationIn = HighlightAnimationDurationIn;
+  HighlightAnimation.DurationOut = HighlightAnimationDurationOut;
+  ChoiceBlinkAnimation.DurationIn = ChoiceBlinkAnimationDurationIn;
+  ChoiceBlinkAnimation.DurationOut = 0;
+}
+
+void LibraryButton::UpdateInput() {
+  if (!DisableInput &&
+      (IsSubButton || HighlightAnimation.State == AS_Stopped) &&
+      ChoiceBlinkAnimation.IsOut()) {
+    Button::UpdateInput();
+  }
+}
+
+void LibraryButton::Update(float dt) {
+  HighlightAnimation.Update(dt);
+  ChoiceBlinkAnimation.Update(dt);
+  if (ChoiceBlinkAnimation.IsIn()) {
+    ChoiceBlinkAnimation.Progress = 0.0f;
+    if (OnClickAnimCompleteHandler) {
+      OnClickAnimCompleteHandler(this);
+    }
+  }
+  if (PrevFocusState != HasFocus) {
+    PrevFocusState = HasFocus;
+    Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0);
+    if (!IsSubButton) {
+      if (HighlightAnimation.IsOut() && HasFocus) {
+        HighlightAnimation.StartIn();
+      } else if (HighlightAnimation.IsIn() && !HasFocus) {
+        HighlightAnimation.StartOut();
+      }
+    }
+  }
+}
+
+void LibraryButton::Render() {
+  // Calculate the blink effect to occur 4 times during the animation
+  float blinkProgress = ChoiceBlinkAnimation.Progress * 4.0f;
+  float blinkAlpha = 0.5f * (1.0f + cos(blinkProgress * glm::two_pi<float>()));
+  glm::vec4 BlinkTint = glm::vec4(1.0f, 1.0f, 1.0f, Tint.a);
+  if (ChoiceBlinkAnimation.State == AS_Playing) {
+    BlinkTint.a = blinkAlpha;
+  }
+  if (HasFocus || !IsSubButton && HighlightAnimation.State == AS_Playing ||
+      ChoiceBlinkAnimation.State == AS_Playing) {
+    if (!IsSubButton) {  // Main buttons
+      Sprite newHighlightSprite = HighlightSprite;
+      float smoothProgress =
+          HighlightAnimation.State == AS_Playing
+              ? glm::smoothstep(0.0f, 1.0f, HighlightAnimation.Progress)
+              : 1.0f;
+
+      newHighlightSprite.Bounds.Width *= smoothProgress;
+      Renderer->DrawSprite(newHighlightSprite,
+                           glm::vec2(Bounds.X - ItemHighlightOffsetX,
+                                     Bounds.Y - ItemHighlightOffsetY),
+                           BlinkTint);
+      glm::vec4 pointerTint =
+          glm::vec4(1.0f, 1.0f, 1.0f, smoothProgress * blinkAlpha);
+      Renderer->DrawSprite(
+          ItemHighlightPointerSprite,
+          glm::vec2(Bounds.X - ItemHighlightPointerY, Bounds.Y), pointerTint);
+      Renderer->DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    } else {  // Sub buttons
+      Renderer->DrawSprite(HighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
+                           BlinkTint);
+      Renderer->DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y),
+                           BlinkTint);
+    }
+  } else {
+    if (Enabled) {
+      Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    } else {
+      Renderer->DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    }
+  }
+}
+
+}  // namespace CCLCC
+}  // namespace Widgets
+}  // namespace UI
+}  // namespace Impacto
