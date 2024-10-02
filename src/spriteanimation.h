@@ -34,10 +34,10 @@ struct SpriteAnimation : public Animation {
   (with 1 being fully in).
 */
 struct FixedSpriteAnimation : public SpriteAnimation {
-  void StartInImpl(bool reset);
-  void StartOutImpl(bool reset);
-  void UpdateImpl(float dt);
-  Sprite CurrentSprite();
+  void StartInImpl(bool reset) override;
+  void StartOutImpl(bool reset) override;
+  void UpdateImpl(float dt) override;
+  Sprite CurrentSprite() override;
   float GetFixedSpriteProgress() const;
 };
 

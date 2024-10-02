@@ -668,11 +668,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
 }
 
 void DialoguePage::Update(float dt) {
-  bool typewriterJustFinished = !TextIsFullyOpaque();
-
   Typewriter.Update(dt);
-
-  typewriterJustFinished &= TextIsFullyOpaque();
 
   for (int i = 0; i < Glyphs.size(); i++) {
     Glyphs[i].Opacity = Typewriter.CalcOpacity(i);
@@ -685,8 +681,6 @@ void DialoguePage::Update(float dt) {
     AutoWaitTime -= AutoSpeed * dt;
     if (AutoWaitTime < 0) AutoWaitTime = 0;
   }
-
-  if (typewriterJustFinished) WaitIconDisplay::Show();
 
   TextBox->Update(dt);
   FadeAnimation.Update(dt);
@@ -727,12 +721,10 @@ void DialoguePage::Render() {
   }
 
   // Wait icon
-  if (Typewriter.Progress == 1.0f && Glyphs.size() > 0) {
-    WaitIconDisplay::Render(
-        glm::vec2(Glyphs.back().DestRect.X + Glyphs.back().DestRect.Width,
-                  Glyphs.back().DestRect.Y),
-        col, Mode);
-  }
+  const RectF& lastGlyphDest =
+      Glyphs.empty() ? RectF() : Glyphs.back().DestRect;
+  glm::vec2 waitIconPos(lastGlyphDest.X + lastGlyphDest.Width, lastGlyphDest.Y);
+  WaitIconDisplay::Render(waitIconPos, col, Mode);
 
   AutoIconDisplay::Render(col);
   SkipIconDisplay::Render(col);

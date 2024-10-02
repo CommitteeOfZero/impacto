@@ -1,15 +1,20 @@
 #include "waiticondisplay.h"
 
-#include "../profile/dialogue.h"
 #include "../renderer/renderer.h"
+#include "../profile/dialogue.h"
+#include "../profile/scriptvars.h"
 #include "../profile/games/chlcc/dialoguebox.h"
+
+#include "../animation.h"
 
 namespace Impacto {
 namespace WaitIconDisplay {
 
 static Animation SimpleAnim;
 static SpriteAnimation SpriteAnim;
-static FixedSpriteAnimation* FixedSpriteAnim;
+static FixedSpriteAnimation FixedSpriteAnim;
+
+static float opacity = 0.0f;
 
 using namespace Impacto::Profile::Dialogue;
 using namespace Impacto::Profile::CHLCC;
@@ -24,8 +29,8 @@ void Init() {
     case WaitIconType::SpriteAnimFixed:
       SpriteAnim = WaitIconSpriteAnim.Instantiate();
       SpriteAnim.LoopMode = ALM_Stop;
-      FixedSpriteAnim = static_cast<FixedSpriteAnimation*>(&SpriteAnim);
-      FixedSpriteAnim->Def->FixSpriteId = WaitIconFixedSpriteId;
+      FixedSpriteAnim = static_cast<FixedSpriteAnimation&>(SpriteAnim);
+      FixedSpriteAnim.Def->FixSpriteId = WaitIconFixedSpriteId;
       break;
     default:
       SimpleAnim.DurationIn = WaitIconAnimationDuration;
@@ -40,9 +45,13 @@ void Update(float dt) {
     case WaitIconType::SpriteAnim:
       SpriteAnim.Update(dt);
       break;
+
     case WaitIconType::SpriteAnimFixed:
-      FixedSpriteAnim->Update(dt);
+      FixedSpriteAnim.Update(dt);
+      if (FixedSpriteAnim.IsOut()) opacity = 0.0f;
+
       break;
+
     default:
       SimpleAnim.Update(dt);
       break;
@@ -50,8 +59,20 @@ void Update(float dt) {
 }
 
 void Render(glm::vec2 pos, glm::vec4 opacityTint, DialoguePageMode mode) {
+  opacityTint *= opacity;
+  if (opacityTint.a == 0.0f) return;
+
+  bool show = GetFlag(Profile::ScriptVars::SF_SHOWWAITICON);
+
   switch (WaitIconCurrentType) {
     case WaitIconType::SpriteAnim:
+      if (show)
+        SpriteAnim.StartIn();
+      else
+        SpriteAnim.StartOut();
+      
+      if (FixedSpriteAnim.IsOut()) return;
+
       if (DialogueBoxCurrentType == +DialogueBoxType::CHLCC) {
         // To deal with multiple DialogueBox
         glm::vec4 col = glm::vec4(1.0f, 1.0f, 1.0f, opacityTint.a);
@@ -79,15 +100,24 @@ void Render(glm::vec2 pos, glm::vec4 opacityTint, DialoguePageMode mode) {
             glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y),
             opacityTint);
       }
-      break;
+      return;
 
     case WaitIconType::SpriteAnimFixed:
+      if (show)
+        FixedSpriteAnim.StartIn();
+      else
+        FixedSpriteAnim.StartOut();
+      
+      if (FixedSpriteAnim.IsOut()) return;
+
       Renderer->DrawSprite(
-          FixedSpriteAnim->CurrentSprite(),
+          FixedSpriteAnim.CurrentSprite(),
           glm::vec2(WaitIconOffset.x - 50, WaitIconOffset.y - 50), opacityTint);
-      break;
+      return;
 
     case WaitIconType::RotateZ: {
+      if (!show) return;
+
       // TODO: MO6TW only for now
       glm::vec3 euler(SimpleAnim.Progress * 2.0f * M_PI, 0, 0.6f);
       glm::quat quat;
@@ -101,53 +131,27 @@ void Render(glm::vec2 pos, glm::vec4 opacityTint, DialoguePageMode mode) {
           WaitIconSprite,
           glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y), 1.0f,
           vanishingPoint, true, quat, opacityTint);
-      break;
+      return;
     }
 
     case WaitIconType::None:
+      if (!show) return;
+
       Renderer->DrawSprite(
           WaitIconSprite,
           glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y),
           opacityTint, glm::vec2(1.0f));
-      break;
+      return;
 
     default:
+      if (!show) return;
+
       Renderer->DrawSprite(
           WaitIconSprite,
           glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y),
           opacityTint, glm::vec2(1.0f),
           SimpleAnim.Progress * 2.0f * (float)M_PI);
-      break;
-  }
-}
-
-void Show(bool reset) {
-  switch (WaitIconCurrentType) {
-    case WaitIconType::SpriteAnim:
-    case WaitIconType::SpriteAnimFixed:
-      SpriteAnim.StartIn(reset);
-      break;
-    case WaitIconType::Rotate:
-    case WaitIconType::RotateZ:
-      SimpleAnim.StartIn(reset);
-      break;
-    default:
-      break;
-  }
-}
-
-void Hide(bool reset) {
-  switch (WaitIconCurrentType) {
-    case WaitIconType::SpriteAnim:
-    case WaitIconType::SpriteAnimFixed:
-      SpriteAnim.StartOut(reset);
-      break;
-    case WaitIconType::Rotate:
-    case WaitIconType::RotateZ:
-      SimpleAnim.StartOut(reset);
-      break;
-    default:
-      break;
+      return;
   }
 }
 
