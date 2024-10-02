@@ -9,7 +9,7 @@ namespace WaitIconDisplay {
 
 static Animation SimpleAnim;
 static SpriteAnimation SpriteAnim;
-static FixedSpriteAnimation FixedSpriteAnim;
+static FixedSpriteAnimation* FixedSpriteAnim;
 
 using namespace Impacto::Profile::Dialogue;
 using namespace Impacto::Profile::CHLCC;
@@ -22,9 +22,8 @@ void Init() {
   } else if (WaitIconCurrentType == +WaitIconType::SpriteAnimFixed) {
     SpriteAnim = WaitIconSpriteAnim.Instantiate();
     SpriteAnim.LoopMode = ALM_Stop;
-    FixedSpriteAnim = static_cast<FixedSpriteAnimation&>(SpriteAnim);
-    FixedSpriteAnim.Def->FixSpriteId = WaitIconFixedSpriteId;
-    FixedSpriteAnim.StartIn();
+    FixedSpriteAnim = static_cast<FixedSpriteAnimation*>(&SpriteAnim);
+    FixedSpriteAnim->Def->FixSpriteId = WaitIconFixedSpriteId;
   } else {
     SimpleAnim.DurationIn = WaitIconAnimationDuration;
     SimpleAnim.LoopMode = ALM_Loop;
@@ -36,11 +35,12 @@ void Update(float dt) {
   if (WaitIconCurrentType == +WaitIconType::SpriteAnim) {
     SpriteAnim.Update(dt);
   } else if (WaitIconCurrentType == +WaitIconType::SpriteAnimFixed) {
-    FixedSpriteAnim.Update(dt);
+    FixedSpriteAnim->Update(dt);
   } else {
     SimpleAnim.Update(dt);
   }
 }
+
 void Render(glm::vec2 pos, glm::vec4 opacityTint, DialoguePageMode mode) {
   if (WaitIconCurrentType == +WaitIconType::SpriteAnim) {
     if (DialogueBoxCurrentType == +DialogueBoxType::CHLCC) {
@@ -70,7 +70,7 @@ void Render(glm::vec2 pos, glm::vec4 opacityTint, DialoguePageMode mode) {
     }
   } else if (WaitIconCurrentType == +WaitIconType::SpriteAnimFixed) {
     Renderer->DrawSprite(
-        FixedSpriteAnim.CurrentSprite(),
+        FixedSpriteAnim->CurrentSprite(),
         glm::vec2(WaitIconOffset.x - 50, WaitIconOffset.y - 50), opacityTint);
   } else if (WaitIconCurrentType == +WaitIconType::RotateZ) {
     // TODO: MO6TW only for now
@@ -96,6 +96,36 @@ void Render(glm::vec2 pos, glm::vec4 opacityTint, DialoguePageMode mode) {
         WaitIconSprite,
         glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y),
         opacityTint, glm::vec2(1.0f), SimpleAnim.Progress * 2.0f * (float)M_PI);
+  }
+}
+
+void Show(bool reset) {
+  switch (WaitIconCurrentType) {
+    case WaitIconType::SpriteAnim:
+    case WaitIconType::SpriteAnimFixed:
+      SpriteAnim.StartIn(reset);
+      break;
+    case WaitIconType::Rotate:
+    case WaitIconType::RotateZ:
+      SimpleAnim.StartIn(reset);
+      break;
+    default:
+      break;
+  }
+}
+
+void Hide(bool reset) {
+  switch (WaitIconCurrentType) {
+    case WaitIconType::SpriteAnim:
+    case WaitIconType::SpriteAnimFixed:
+      SpriteAnim.StartOut(reset);
+      break;
+    case WaitIconType::Rotate:
+    case WaitIconType::RotateZ:
+      SimpleAnim.StartOut(reset);
+      break;
+    default:
+      break;
   }
 }
 
