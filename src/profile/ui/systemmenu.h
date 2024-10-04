@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include "../../ui/ui.h"
 #include "../../spritesheet.h"
 
@@ -15,10 +16,10 @@ inline Sprite MenuEntriesSprites[MenuEntriesNumMax];
 inline Sprite MenuEntriesHSprites[MenuEntriesNumMax];
 inline int MenuEntriesNum;
 inline int MenuEntriesHNum;
-inline float MenuEntriesX;
-inline float MenuEntriesXOffset;
-inline float MenuEntriesFirstY;
-inline float MenuEntriesYPadding;
+inline std::optional<float> MenuEntriesX;
+inline std::optional<float> MenuEntriesXOffset;
+inline std::optional<float> MenuEntriesFirstY;
+inline std::optional<float> MenuEntriesYPadding;
 inline float FadeInDuration = 0.5f;
 inline float FadeOutDuration = 0.5f;
 

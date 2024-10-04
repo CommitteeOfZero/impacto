@@ -39,9 +39,10 @@ SystemMenu::SystemMenu() {
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
 
   for (int i = 0; i < MenuEntriesNum; i++) {
-    Button* menuButton = new Button(
-        i, MenuEntriesSprites[i], MenuEntriesHSprites[i], nullSprite,
-        glm::vec2(MenuEntriesX, MenuEntriesFirstY + (i * MenuEntriesYPadding)));
+    Button* menuButton =
+        new Button(i, MenuEntriesSprites[i], MenuEntriesHSprites[i], nullSprite,
+                   glm::vec2(*MenuEntriesX,
+                             *MenuEntriesFirstY + (*MenuEntriesYPadding * i)));
     menuButton->LockedSprite = MenuEntriesLSprites[i];
 
     menuButton->OnClickHandler = onClick;
