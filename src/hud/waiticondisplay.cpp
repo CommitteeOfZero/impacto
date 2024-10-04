@@ -20,6 +20,8 @@ using namespace Impacto::Profile::Dialogue;
 using namespace Impacto::Profile::CHLCC;
 
 void Init() {
+  if (WaitIconCurrentType == +WaitIconType::None) return;
+
   switch (WaitIconCurrentType) {
     case WaitIconType::SpriteAnim:
       SpriteAnim = WaitIconSpriteAnim.Instantiate();
@@ -42,6 +44,9 @@ void Init() {
 
 void Update(float dt) {
   switch (WaitIconCurrentType) {
+    case WaitIconType::None:
+      return;
+
     case WaitIconType::SpriteAnim:
       SpriteAnim.Update(dt);
       break;
@@ -127,21 +132,13 @@ static void RenderRotateZ(glm::vec2 pos, glm::vec4 opacityTint) {
   return;
 }
 
-static void RenderNone(glm::vec2 pos, glm::vec4 opacityTint) {
-  if (!GetFlag(Profile::ScriptVars::SF_SHOWWAITICON)) return;
-
-  Renderer->DrawSprite(
-      WaitIconSprite,
-      glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y),
-      opacityTint, glm::vec2(1.0f));
-  return;
-}
-
 void Render(glm::vec2 pos, glm::vec4 opacityTint, DialoguePageMode mode) {
   opacityTint *= opacity;
   if (opacityTint.a == 0.0f) return;
 
   switch (WaitIconCurrentType) {
+    case WaitIconType::None:
+      return;
     case WaitIconType::SpriteAnim:
       RenderSpriteAnim(pos, opacityTint, mode);
       return;
@@ -150,9 +147,6 @@ void Render(glm::vec2 pos, glm::vec4 opacityTint, DialoguePageMode mode) {
       return;
     case WaitIconType::RotateZ:
       RenderRotateZ(pos, opacityTint);
-      return;
-    case WaitIconType::None:
-      RenderNone(pos, opacityTint);
       return;
     default:
       if (!GetFlag(Profile::ScriptVars::SF_SHOWWAITICON)) return;
