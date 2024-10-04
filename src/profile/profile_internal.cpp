@@ -1,5 +1,4 @@
 #include "profile_internal.h"
-
 #include "../log.h"
 #include "../renderer/renderer.h"
 
@@ -80,9 +79,21 @@ int PushNextTableElement() { return lua_next(LuaState, -2); }
     }                                                                        \
     return result;                                                           \
   }                                                                          \
+  std::optional<nativeType> TryGet##typeName() {                             \
+    nativeType v;                                                            \
+    bool result = TryGet##typeName(v);                                       \
+    return result ? std::optional<nativeType>{std::in_place, std::move(v)}   \
+                  : std::nullopt;                                            \
+  }                                                                          \
   bool TryGetMember##typeName(char const* name, nativeType& out##typeName) { \
     if (!TryPushMember(name)) return false;                                  \
     bool result = TryGet##typeName(out##typeName);                           \
+    Pop();                                                                   \
+    return result;                                                           \
+  }                                                                          \
+  std::optional<nativeType> TryGetMember##typeName(char const* name) {       \
+    if (!TryPushMember(name)) return std::nullopt;                           \
+    auto result = TryGet##typeName();                                        \
     Pop();                                                                   \
     return result;                                                           \
   }                                                                          \
@@ -95,6 +106,9 @@ int PushNextTableElement() { return lua_next(LuaState, -2); }
   bool TryGetArrayElement##typeName(nativeType& out##typeName) {             \
     bool result = TryGet##typeName(out##typeName);                           \
     return result;                                                           \
+  }                                                                          \
+  std::optional<nativeType> TryGetArrayElement##typeName() {                 \
+    return TryGet##typeName();                                               \
   }                                                                          \
   nativeType EnsureGetArrayElement##typeName() {                             \
     nativeType result = EnsureGet##typeName();                               \
