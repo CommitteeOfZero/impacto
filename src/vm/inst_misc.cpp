@@ -92,12 +92,14 @@ VmInstruction(InstSystemMenu) {
         // TODO: Randomize SystemMenuBgPos here (only for Chaos)
         ScrWork[SW_SYSMENUCNO] = 0;  // Don't know if needed
       }
-      UI::SystemMenuPtr->Show();
+      // UI::SystemMenuPtr->Show(); TODO: Update all games to use update loop
+      // based show
       break;
     case 1: {
       if (!UI::SystemMenuPtr->ChoiceMade) {
-        if (!(Interface::PADinputButtonWentDown & Interface::PAD1B) &&
-            !(Interface::PADinputMouseWentDown & Interface::PAD1B)) {
+        if (!UI::TitleMenuPtr->AllowsScriptInput ||
+            (!(Interface::PADinputButtonWentDown & Interface::PAD1B) &&
+             !(Interface::PADinputMouseWentDown & Interface::PAD1B))) {
           ResetInstruction;
           BlockThread;
         }
