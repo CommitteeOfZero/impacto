@@ -58,93 +58,104 @@ void Update(float dt) {
   }
 }
 
+static void RenderSpriteAnim(glm::vec2 pos, glm::vec4 opacityTint,
+                             DialoguePageMode mode) {
+  if (GetFlag(Profile::ScriptVars::SF_SHOWWAITICON))
+    SpriteAnim.StartIn();
+  else
+    SpriteAnim.StartOut();
+
+  if (FixedSpriteAnim.IsOut()) return;
+
+  if (DialogueBoxCurrentType == +DialogueBoxType::CHLCC) {
+    // To deal with multiple DialogueBox
+    glm::vec4 col = glm::vec4(1.0f, 1.0f, 1.0f, opacityTint.a);
+    // Erin DialogueBox
+    if (mode == DPM_REV) {
+      Renderer->DrawSprite(
+          SpriteAnim.CurrentSprite(),
+          glm::vec2(
+              pos.x + Impacto::Profile::CHLCC::DialogueBox::REVWaitIconOffset.x,
+              pos.y +
+                  Impacto::Profile::CHLCC::DialogueBox::REVWaitIconOffset.y),
+          col);
+
+    } else {
+      Renderer->DrawSprite(
+          SpriteAnim.CurrentSprite(),
+          glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y), col);
+    }
+  } else {
+    Renderer->DrawSprite(
+        SpriteAnim.CurrentSprite(),
+        glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y),
+        opacityTint);
+  }
+  return;
+}
+
+static void RenderSpriteAnimFixed(glm::vec4 opacityTint) {
+  if (GetFlag(Profile::ScriptVars::SF_SHOWWAITICON))
+    FixedSpriteAnim.StartIn();
+  else
+    FixedSpriteAnim.StartOut();
+
+  if (FixedSpriteAnim.IsOut()) return;
+
+  Renderer->DrawSprite(FixedSpriteAnim.CurrentSprite(),
+                       glm::vec2(WaitIconOffset.x - 50, WaitIconOffset.y - 50),
+                       opacityTint);
+  return;
+}
+
+static void RenderRotateZ(glm::vec2 pos, glm::vec4 opacityTint) {
+  if (!GetFlag(Profile::ScriptVars::SF_SHOWWAITICON)) return;
+
+  // TODO: MO6TW only for now
+  glm::vec3 euler(SimpleAnim.Progress * 2.0f * M_PI, 0, 0.6f);
+  glm::quat quat;
+  eulerZYXToQuat(&euler, &quat);
+
+  glm::vec2 vanishingPoint(
+      (pos.x + WaitIconOffset.x) + (WaitIconSprite.ScaledWidth() / 2.0f),
+      (pos.y + WaitIconOffset.y) + (WaitIconSprite.ScaledHeight() / 2.0f));
+
+  Renderer->DrawSprite3DRotated(
+      WaitIconSprite,
+      glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y), 1.0f,
+      vanishingPoint, true, quat, opacityTint);
+  return;
+}
+
+static void RenderNone(glm::vec2 pos, glm::vec4 opacityTint) {
+  if (!GetFlag(Profile::ScriptVars::SF_SHOWWAITICON)) return;
+
+  Renderer->DrawSprite(
+      WaitIconSprite,
+      glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y),
+      opacityTint, glm::vec2(1.0f));
+  return;
+}
+
 void Render(glm::vec2 pos, glm::vec4 opacityTint, DialoguePageMode mode) {
   opacityTint *= opacity;
   if (opacityTint.a == 0.0f) return;
 
-  bool show = GetFlag(Profile::ScriptVars::SF_SHOWWAITICON);
-
   switch (WaitIconCurrentType) {
     case WaitIconType::SpriteAnim:
-      if (show)
-        SpriteAnim.StartIn();
-      else
-        SpriteAnim.StartOut();
-      
-      if (FixedSpriteAnim.IsOut()) return;
-
-      if (DialogueBoxCurrentType == +DialogueBoxType::CHLCC) {
-        // To deal with multiple DialogueBox
-        glm::vec4 col = glm::vec4(1.0f, 1.0f, 1.0f, opacityTint.a);
-        // Erin DialogueBox
-        if (mode == DPM_REV) {
-          Renderer->DrawSprite(
-              SpriteAnim.CurrentSprite(),
-              glm::vec2(
-                  pos.x +
-                      Impacto::Profile::CHLCC::DialogueBox::REVWaitIconOffset.x,
-                  pos.y +
-                      Impacto::Profile::CHLCC::DialogueBox::REVWaitIconOffset
-                          .y),
-              col);
-
-        } else {
-          Renderer->DrawSprite(
-              SpriteAnim.CurrentSprite(),
-              glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y),
-              col);
-        }
-      } else {
-        Renderer->DrawSprite(
-            SpriteAnim.CurrentSprite(),
-            glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y),
-            opacityTint);
-      }
+      RenderSpriteAnim(pos, opacityTint, mode);
       return;
-
     case WaitIconType::SpriteAnimFixed:
-      if (show)
-        FixedSpriteAnim.StartIn();
-      else
-        FixedSpriteAnim.StartOut();
-      
-      if (FixedSpriteAnim.IsOut()) return;
-
-      Renderer->DrawSprite(
-          FixedSpriteAnim.CurrentSprite(),
-          glm::vec2(WaitIconOffset.x - 50, WaitIconOffset.y - 50), opacityTint);
+      RenderSpriteAnimFixed(opacityTint);
       return;
-
-    case WaitIconType::RotateZ: {
-      if (!show) return;
-
-      // TODO: MO6TW only for now
-      glm::vec3 euler(SimpleAnim.Progress * 2.0f * M_PI, 0, 0.6f);
-      glm::quat quat;
-      eulerZYXToQuat(&euler, &quat);
-
-      glm::vec2 vanishingPoint(
-          (pos.x + WaitIconOffset.x) + (WaitIconSprite.ScaledWidth() / 2.0f),
-          (pos.y + WaitIconOffset.y) + (WaitIconSprite.ScaledHeight() / 2.0f));
-
-      Renderer->DrawSprite3DRotated(
-          WaitIconSprite,
-          glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y), 1.0f,
-          vanishingPoint, true, quat, opacityTint);
+    case WaitIconType::RotateZ:
+      RenderRotateZ(pos, opacityTint);
       return;
-    }
-
     case WaitIconType::None:
-      if (!show) return;
-
-      Renderer->DrawSprite(
-          WaitIconSprite,
-          glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y),
-          opacityTint, glm::vec2(1.0f));
+      RenderNone(pos, opacityTint);
       return;
-
     default:
-      if (!show) return;
+      if (!GetFlag(Profile::ScriptVars::SF_SHOWWAITICON)) return;
 
       Renderer->DrawSprite(
           WaitIconSprite,
