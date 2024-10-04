@@ -14,8 +14,6 @@ static Animation SimpleAnim;
 static SpriteAnimation SpriteAnim;
 static FixedSpriteAnimation FixedSpriteAnim;
 
-static float opacity = 0.0f;
-
 using namespace Impacto::Profile::Dialogue;
 using namespace Impacto::Profile::CHLCC;
 
@@ -53,8 +51,6 @@ void Update(float dt) {
 
     case WaitIconType::SpriteAnimFixed:
       FixedSpriteAnim.Update(dt);
-      if (FixedSpriteAnim.IsOut()) opacity = 0.0f;
-
       break;
 
     default:
@@ -132,10 +128,13 @@ static void RenderRotateZ(glm::vec2 pos, glm::vec4 opacityTint) {
   return;
 }
 
-void Render(glm::vec2 pos, glm::vec4 opacityTint, DialoguePageMode mode) {
-  opacityTint *= opacity;
-  if (opacityTint.a == 0.0f) return;
+static void RenderFixed(glm::vec4 opacityTint) {
+  if (!GetFlag(Profile::ScriptVars::SF_SHOWWAITICON)) return;
 
+  Renderer->DrawSprite(WaitIconSprite, WaitIconOffset, opacityTint);
+}
+
+void Render(glm::vec2 pos, glm::vec4 opacityTint, DialoguePageMode mode) {
   switch (WaitIconCurrentType) {
     case WaitIconType::None:
       return;
@@ -147,6 +146,9 @@ void Render(glm::vec2 pos, glm::vec4 opacityTint, DialoguePageMode mode) {
       return;
     case WaitIconType::RotateZ:
       RenderRotateZ(pos, opacityTint);
+      return;
+    case WaitIconType::Fixed:
+      RenderFixed(opacityTint);
       return;
     default:
       if (!GetFlag(Profile::ScriptVars::SF_SHOWWAITICON)) return;

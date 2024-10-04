@@ -110,6 +110,9 @@ void Configure() {
         WaitIconSpriteAnim = EnsureGetMemberAnimation("WaitIconSpriteAnim");
         WaitIconFixedSpriteId = EnsureGetMemberInt("WaitIconFixedSpriteId");
         break;
+      case WaitIconDisplay::WaitIconType::Fixed:
+        WaitIconSprite = EnsureGetMemberSprite("WaitIconSprite");
+        break;
       default:
         WaitIconSprite = EnsureGetMemberSprite("WaitIconSprite");
         WaitIconAnimationDuration =
