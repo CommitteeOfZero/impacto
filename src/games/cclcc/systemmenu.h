@@ -25,6 +25,8 @@ class SystemMenu : public Menu {
   Widgets::Group* MainItems;
   Animation MenuTransition;
   Animation MenuFade;
+  Animation ItemsFade;
+  bool ItemsFadeComplete = false;
 };
 
 }  // namespace CCLCC
