@@ -24,10 +24,10 @@ void Configure() {
 
     MenuEntriesNum = EnsureGetMemberInt("MenuEntriesNum");
     MenuEntriesHNum = EnsureGetMemberInt("MenuEntriesHNum");
-    MenuEntriesX = EnsureGetMemberFloat("MenuEntriesX");
-    MenuEntriesXOffset = EnsureGetMemberFloat("MenuEntriesXOffset");
-    MenuEntriesFirstY = EnsureGetMemberFloat("MenuEntriesFirstY");
-    MenuEntriesYPadding = EnsureGetMemberFloat("MenuEntriesYPadding");
+    MenuEntriesX = TryGetMemberFloat("MenuEntriesX");
+    MenuEntriesXOffset = TryGetMemberFloat("MenuEntriesXOffset");
+    MenuEntriesFirstY = TryGetMemberFloat("MenuEntriesFirstY");
+    MenuEntriesYPadding = TryGetMemberFloat("MenuEntriesYPadding");
 
     if (MenuEntriesNum > 0) {
       GetMemberSpriteArray(MenuEntriesSprites, MenuEntriesNum,

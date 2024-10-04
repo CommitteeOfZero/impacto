@@ -30,10 +30,11 @@ SystemMenu::SystemMenu() {
       std::bind(&SystemMenu::MenuButtonOnClick, this, std::placeholders::_1);
 
   for (int i = 0; i < MenuEntriesNum; i++) {
-    Button* menuButton = new Button(
-        i, MenuEntriesSprites[i], MenuEntriesSprites[i],
-        MenuEntriesHighlightedSprite,
-        glm::vec2(MenuEntriesX, MenuEntriesFirstY + (i * MenuEntriesYPadding)));
+    Button* menuButton =
+        new Button(i, MenuEntriesSprites[i], MenuEntriesSprites[i],
+                   MenuEntriesHighlightedSprite,
+                   glm::vec2(*MenuEntriesX,
+                             *MenuEntriesFirstY + (*MenuEntriesYPadding * i)));
 
     menuButton->OnClickHandler = onClick;
     MainItems->Add(menuButton, FDIR_DOWN);
