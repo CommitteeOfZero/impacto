@@ -254,6 +254,7 @@ set(Impacto_Src
         src/renderer/3d/animation.cpp
         src/renderer/3d/modelanimator.cpp
 
+        src/io/filemeta.cpp
         src/io/vfs.cpp
         src/io/assetpath.cpp
         src/io/memorystream.cpp
