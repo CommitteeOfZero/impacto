@@ -7,7 +7,7 @@
 namespace Impacto {
 namespace Io {
 
-inline int64_t GetFileSize(std::string const& path) {
+int64_t GetFileSize(std::string const& path) {
   std::error_code ec;
   uintmax_t result = std::filesystem::file_size(path, ec);
   if (ec) {
@@ -20,7 +20,7 @@ inline int64_t GetFileSize(std::string const& path) {
   return static_cast<int64_t>(result);
 }
 
-inline IoError PathExists(std::string const& path) {
+IoError PathExists(std::string const& path) {
   std::error_code ec;
   bool result = std::filesystem::exists(path, ec);
   if (ec) {
@@ -32,7 +32,7 @@ inline IoError PathExists(std::string const& path) {
   return result == false ? IoError_NotFound : IoError_OK;
 }
 
-inline int8_t CreateDirectories(std::string const& path) {
+int8_t CreateDirectories(std::string const& path) {
   std::error_code ec;
   bool result = std::filesystem::create_directories(path, ec);
   if (ec) {
@@ -44,8 +44,8 @@ inline int8_t CreateDirectories(std::string const& path) {
   return result;
 }
 
-inline IoError GetFilePermissions(std::string const& path,
-                                  FilePermissionsFlags& flags) {
+IoError GetFilePermissions(std::string const& path,
+                           FilePermissionsFlags& flags) {
   std::error_code ec;
   flags = std::filesystem::status(path, ec).permissions();
   if (ec) {
