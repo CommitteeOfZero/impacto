@@ -90,7 +90,7 @@ jobs:
     - name: Setup Android Environment
       if: matrix.os_name == 'android'
       run: |
-        echo "CC=$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=aarch64-linux-android21" >> $GITHUB_ENV
+        echo "CC=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=aarch64-linux-android21" >> $GITHUB_ENV
         echo "VULKAN_SDK=$ANDROID_NDK_HOME/sysroot/usr" >> $GITHUB_ENV
       shell: bash
     - name: Download Switch deps
