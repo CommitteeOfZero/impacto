@@ -165,7 +165,7 @@ jobs:
             '-DVCPKG_HOST_TRIPLET=${{ matrix.host_triplet }}',
             '-DVCPKG_BUILD_TYPE=release'
             ${{ (matrix.os_name == 'android') && ',
-            "-DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake",
+            "-DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/toolchains/android.cmake",
             "-DANDROID_ABI=$ABI",
             "-DVCPKG_CMAKE_SYSTEM_VERSION=$MINSDKVERSION",
             "-DANDROID_PLATFORM=android-$MINSDKVERSION",
