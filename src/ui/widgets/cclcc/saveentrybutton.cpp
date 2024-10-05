@@ -155,7 +155,7 @@ void SaveEntryButton::RefreshSaveDateText() {
 // TODO: Make this only refresh when saved
 void SaveEntryButton::Update(float dt) {
   SaveStatus = SaveSystem::GetSaveStatus(Type, Id);
-  IsLocked = SaveSystem::GetSaveFlags(Type, Id) == 1;
+  IsLocked = SaveSystem::GetSaveFlags(Type, Id) & WriteProtect;
   if (SaveStatus == 1) {
     auto strIndex = (SaveSystem::GetSaveTitle(Type, Id) * 2);
     if (strIndex > 40) {

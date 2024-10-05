@@ -12,6 +12,8 @@ namespace SaveSystem {
 
 BETTER_ENUM(SaveDataType, int, None, CHLCC, CCLCC, MO6TW)
 
+enum SaveFlagsMode { WriteProtect = 1 };
+
 enum SaveError {
   SaveOK = 0,
   SaveNotFound = 2,
@@ -99,7 +101,7 @@ class SaveSystemBase {
       if (QuickSaveEntries[i]->Status == 0) return i;
     }
     for (int i = 0; i < MaxSaveEntries; i++) {
-      if (GetSaveFlags(SaveQuick, i) != 1) return i;
+      if (!(GetSaveFlags(SaveQuick, i) & WriteProtect)) return i;
     }
     return -1;
   }
