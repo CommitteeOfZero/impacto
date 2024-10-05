@@ -167,6 +167,7 @@ jobs:
             ${{ (matrix.os_name == 'android') && ',
             "-DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/toolchains/android.cmake",
             "-DANDROID_ABI=$ABI",
+            "-DCMAKE_SYSTEM_VERSION=$MINSDKVERSION",
             "-DVCPKG_CMAKE_SYSTEM_VERSION=$MINSDKVERSION",
             "-DANDROID_PLATFORM=android-$MINSDKVERSION",
             "-DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=BOTH",
