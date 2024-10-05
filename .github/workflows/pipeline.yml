@@ -167,7 +167,11 @@ jobs:
             ${{ (matrix.os_name == 'android') && ',
             "-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake",
             "-DANDROID_ABI=$ABI",
-            "-DANDROID_PLATFORM=android-$MINSDKVERSION"' || '' }}
+            "-DANDROID_PLATFORM=android-$MINSDKVERSION",
+            "-DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=BOTH",
+            "-DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=BOTH",
+            "-DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=BOTH"'
+            || '' }}
           ]
         buildPreset: CI-Build
 
@@ -265,7 +269,7 @@ jobs:
         
         name_conclusion_array=($(echo "$json_data" | jq -r '
           .jobs[] | 
-            select(.name | IN("macos-arm64", "linux", "windows", "switch", "macos-x64")) | 
+            select(.name | IN("macos-arm64", "linux", "windows", "switch", "macos-x64", "android")) | 
           "\(.name).\(.conclusion)"'))
 
         for item in "${name_conclusion_array[@]}"; do
