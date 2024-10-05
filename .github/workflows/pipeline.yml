@@ -95,7 +95,7 @@ jobs:
         echo "MINSDKVERSION=$MINSDKVERSION" >> $GITHUB_ENV
         echo "ABI=$ABI" >> $GITHUB_ENV
         echo "CC=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=aarch64-linux-android$MINSDKVERSION" >> $GITHUB_ENV
-        echo "VULKAN_SDK=$ANDROID_NDK_HOME/sysroot/usr" >> $GITHUB_ENV
+        echo "VULKAN_SDK=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr" >> $GITHUB_ENV
       shell: bash
     - name: Download Switch deps
       if: matrix.os_name == 'switch'
