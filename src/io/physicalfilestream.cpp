@@ -16,9 +16,11 @@ std::ios_base::openmode PhysicalFileStream::PrepareFileOpenMode(
     return {};
   }
 
-  bool writeNoExistNoCreate =
-      (flags & WRITE) && !fileExists && !(flags & CREATE_IF_NOT_EXISTS);
-  bool readNoExist = !(flags & WRITE) && (flags & READ) && !fileExists;
+  bool writeNoExistNoCreate = (flags & WRITE) &&
+                              (fileExists == IoError_NotFound) &&
+                              !(flags & CREATE_IF_NOT_EXISTS);
+  bool readNoExist =
+      !(flags & WRITE) && (flags & READ) && (fileExists == IoError_NotFound);
   if (writeNoExistNoCreate || readNoExist) {
     ErrorCode = IoError_NotFound;
     std::string errMsg =
