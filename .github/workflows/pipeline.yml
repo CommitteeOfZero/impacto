@@ -69,9 +69,6 @@ jobs:
           - os: ubuntu-latest
             os_name: switch
             triplet: none
-          - os: ubuntu-latest
-            os_name: switch
-            triplet: none
     env:
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.triplet }}
       vcpkgCommitId: '0f88ecb8528605f91980b90a2c5bad88e3cb565f'
