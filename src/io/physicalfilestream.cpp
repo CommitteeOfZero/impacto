@@ -8,13 +8,11 @@
 namespace Impacto {
 namespace Io {
 std::ios_base::openmode PhysicalFileStream::PrepareFileOpenMode(
-    CreateFlags flags, std::error_code& ec) {
+    CreateFlags flags) {
   std::ios_base::openmode mode = std::ios::binary;
   IoError fileExists = PathExists(SourceFileName);
-  if (ec) {
-    ImpLog(LL_Error, LC_IO,
-           "Failed to check whether file exists \"%s\", error: \"%s\"\n",
-           SourceFileName.c_str(), ec.message().c_str());
+  if (fileExists == IoError_Fail) {
+    ErrorCode = IoError_Fail;
     return {};
   }
 
@@ -22,9 +20,11 @@ std::ios_base::openmode PhysicalFileStream::PrepareFileOpenMode(
       (flags & WRITE) && !fileExists && !(flags & CREATE_IF_NOT_EXISTS);
   bool readNoExist = !(flags & WRITE) && (flags & READ) && !fileExists;
   if (writeNoExistNoCreate || readNoExist) {
-    ec = std::make_error_code(std::errc::no_such_file_or_directory);
+    ErrorCode = IoError_NotFound;
+    std::string errMsg =
+        std::make_error_code(std::errc::no_such_file_or_directory).message();
     ImpLog(LL_Error, LC_IO, "Failed to open stream \"%s\", error: \"%s\"\n",
-           SourceFileName.c_str(), ec.message().c_str());
+           SourceFileName.c_str(), errMsg.c_str());
     return {};
   }
 
@@ -57,23 +57,21 @@ std::ios_base::openmode PhysicalFileStream::PrepareFileOpenMode(
   if (flags & CREATE_DIRS) {
     auto result = Io::CreateDirectories(SourceFileName);
     if (result == IoError_Fail) {
-      ErrorCode = std::make_error_code(std::errc::io_error);
+      ErrorCode = IoError_Fail;
       return {};
     }
   }
+  ErrorCode = IoError_OK;
   return mode;
 }
 
 IoError PhysicalFileStream::Create(std::string const& fileName, Stream** out,
                                    CreateFlags flags) {
   PhysicalFileStream* result = new PhysicalFileStream(fileName, flags);
-  if (result->ErrorCode) {
-    ImpLog(LL_Error, LC_IO, "Failed to open file \"%s\", error: \"%s\"\n",
-           fileName.c_str(), result->ErrorCode.message().c_str());
+  if (result->ErrorCode != IoError_OK) {
+    ImpLog(LL_Error, LC_IO, "Failed to open file \"%s\"\n", fileName.c_str());
     delete result;
-    return result->ErrorCode == std::errc::no_such_file_or_directory
-               ? IoError_NotFound
-               : IoError_Fail;
+    return result->ErrorCode;
   }
   if (!result->FileStream) {
     ImpLog(LL_Error, LC_IO, "Failed to open file \"%s\", error: \"%s\"\n",
@@ -149,13 +147,11 @@ int64_t PhysicalFileStream::Seek(int64_t offset, int origin) {
 IoError PhysicalFileStream::Duplicate(Stream** outStream) {
   PhysicalFileStream* result = new PhysicalFileStream(*this);
   std::error_code ec;
-  if (result->ErrorCode) {
-    ImpLog(LL_Error, LC_IO, "Failed to open file \"%s\", error: \"%s\"\n",
-           SourceFileName.c_str(), result->ErrorCode.message().c_str());
+  if (result->ErrorCode != IoError_OK) {
+    ImpLog(LL_Error, LC_IO, "Failed to open file \"%s\"\n",
+           SourceFileName.c_str());
     delete result;
-    return result->ErrorCode == std::errc::no_such_file_or_directory
-               ? IoError_NotFound
-               : IoError_Fail;
+    return result->ErrorCode;
   }
   if (!result->FileStream) {
     ImpLog(LL_Error, LC_IO, "Failed to open file \"%s\", error: \"%s\"\n",

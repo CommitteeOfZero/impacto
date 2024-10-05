@@ -2,7 +2,6 @@
 
 #include "stream.h"
 #include <fstream>
-#include <system_error>
 
 namespace Impacto {
 namespace Io {
@@ -26,13 +25,12 @@ class PhysicalFileStream : public Stream {
   int64_t Write(void* buffer, int64_t sz, int cnt = 1) override;
 
  protected:
-  std::ios_base::openmode PrepareFileOpenMode(CreateFlags flags,
-                                              std::error_code& ec);
+  std::ios_base::openmode PrepareFileOpenMode(CreateFlags flags);
 
   PhysicalFileStream(std::string filePath, CreateFlags flags)
       : Flags(flags),
         SourceFileName(std::move(filePath)),
-        FileStream(SourceFileName, PrepareFileOpenMode(flags, ErrorCode)) {
+        FileStream(SourceFileName, PrepareFileOpenMode(flags)) {
     Meta.FileName = SourceFileName;
   }
 
@@ -42,11 +40,10 @@ class PhysicalFileStream : public Stream {
   PhysicalFileStream(PhysicalFileStream const& other)
       : Flags(other.Flags),
         SourceFileName(other.SourceFileName),
-        FileStream(other.SourceFileName,
-                   PrepareFileOpenMode(Flags, ErrorCode)) {
+        FileStream(other.SourceFileName, PrepareFileOpenMode(Flags)) {
     Meta.FileName = SourceFileName;
   }
-  std::error_code ErrorCode;
+  IoError ErrorCode = IoError_OK;
   CreateFlags Flags;
   std::string SourceFileName;
   std::fstream FileStream;
