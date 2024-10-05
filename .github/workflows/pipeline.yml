@@ -90,7 +90,11 @@ jobs:
     - name: Setup Android Environment
       if: matrix.os_name == 'android'
       run: |
-        echo "CC=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=aarch64-linux-android21" >> $GITHUB_ENV
+        export ABI=arm64-v8a
+        export MINSDKVERSION=21
+        echo "MINSDKVERSION=$MINSDKVERSION" >> $GITHUB_ENV
+        echo "ABI=$ABI" >> $GITHUB_ENV
+        echo "CC=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=aarch64-linux-android$MINSDKVERSION" >> $GITHUB_ENV
         echo "VULKAN_SDK=$ANDROID_NDK_HOME/sysroot/usr" >> $GITHUB_ENV
       shell: bash
     - name: Download Switch deps
@@ -160,7 +164,7 @@ jobs:
             '-DVCPKG_HOST_TRIPLET=${{ matrix.host_triplet }}',
             '-DVCPKG_BUILD_TYPE=release'
             ${{ (matrix.os_name == 'android') && ',
-            "-DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake",
+            "-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake",
             "-DANDROID_ABI=$ABI",
             "-DANDROID_PLATFORM=android-$MINSDKVERSION"' || '' }}
           ]
