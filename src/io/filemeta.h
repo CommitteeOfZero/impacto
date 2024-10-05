@@ -15,6 +15,7 @@ struct FileMeta {
   int64_t Size = 0;
 };
 
+// TODO: use our own perms enum
 using FilePermissionsFlags = std::filesystem::perms;
 
 int64_t GetFileSize(std::string const& path);
