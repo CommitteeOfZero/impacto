@@ -1,5 +1,3 @@
-
-
 #include "filemeta.h"
 #include "../log.h"
 #include <system_error>
