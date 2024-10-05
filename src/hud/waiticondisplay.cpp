@@ -101,7 +101,7 @@ static void RenderSpriteAnimFixed(glm::vec4 opacityTint) {
   else
     FixedSpriteAnim.StartOut();
 
-  if (FixedSpriteAnim.IsOut()) return;
+  if (FixedSpriteAnim.Progress == 0.0f) return;
 
   Renderer->DrawSprite(FixedSpriteAnim.CurrentSprite(),
                        glm::vec2(WaitIconOffset.x - 50, WaitIconOffset.y - 50),
