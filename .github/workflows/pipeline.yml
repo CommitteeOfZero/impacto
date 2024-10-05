@@ -57,26 +57,55 @@ jobs:
           - os: windows-latest
             os_name: windows
             triplet: x64-windows-release
+            host_triplet: x64-windows-release
           - os: ubuntu-latest
             os_name: linux
-            triplet: x64-linux-dynamic
+            triplet: x64-linux-ci
+            host_triplet: x64-linux-ci
           - os: macos-latest
             os_name: macos-arm64
-            triplet: arm64-osx-dynamic
+            triplet: arm64-osx-ci
+            host_triplet: arm64-osx-ci
           - os: macos-13
             os_name: macos-x64
-            triplet: x64-osx-dynamic
+            triplet: x64-osx-ci
+            host_triplet: x64-osx-ci
           - os: ubuntu-latest
             os_name: switch
             triplet: none
+            host_triplet: none
+          - os: ubuntu-latest
+            os_name: android
+            triplet: arm64-android-ci
+            host_triplet: x64-linux-ci
     env:
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.triplet }}
       vcpkgCommitId: '0f88ecb8528605f91980b90a2c5bad88e3cb565f'
+      PresetName: ${{ (matrix.os_name == 'android') && 'ci-release-android' || 'ci-release' }}
 
     steps:
     - uses: actions/checkout@v3
       with:
         ref: ${{ needs.lint.outputs.commitid }}
+
+    - name: Setup Android Environment
+      if: matrix.os_name == 'android'
+      run: |
+        export ABI=arm64-v8a
+        export MINSDKVERSION=28
+        echo "MINSDKVERSION=$MINSDKVERSION" >> $GITHUB_ENV
+        echo "ABI=$ABI" >> $GITHUB_ENV
+        echo "CC=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=aarch64-linux-android$MINSDKVERSION -fPIC" >> $GITHUB_ENV
+        echo "VULKAN_SDK=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Set up Java
+      uses: actions/setup-java@v4
+      if: matrix.os_name == 'android'
+      with:
+        java-version: 17
+        distribution: "temurin"
+        cache: 'gradle'
 
     - name: Download Switch deps
       if: matrix.os_name == 'switch'
@@ -105,12 +134,12 @@ jobs:
         vcpkgGitCommitId: '${{ env.vcpkgCommitId }}'
         vcpkgJsonGlob: '**/vcpkg.json'
     - name: Build Atrac9 Windows
-      if: matrix.os == 'windows-latest'
+      if: matrix.os_name == 'windows'
       run: |
         ./build-deps.ps1 -Arg1 x64
       shell: pwsh
-    - name: Setup Dependencies Linux/MacOS
-      if: contains(matrix.os_name, 'macos') || contains(matrix.os_name, 'linux')
+    - name: Setup Dependencies Linux/MacOS/Android
+      if: contains(matrix.os_name, 'macos') || contains(matrix.os_name, 'linux') || contains(matrix.os_name, 'android')
       run: |-
         pushd vendor
         if [ ! -d "LibAtrac9" ]; then
@@ -120,16 +149,17 @@ jobs:
         if [[ "${{ matrix.os_name }}" == "macos"* ]]; then
           sed -i '' -e 's/,--version-script=libatrac9.version//g' Makefile
         fi
-        make
+        make CC="$CC"
         mkdir -p ../include/libatrac9
         mkdir -p ../libs
         cp bin/libatrac9.a ../libs/
         cp src/libatrac9.h ../include/libatrac9/
         popd
         echo "LIBATRAC9DIR=${{ github.workspace }}/vendor/LibAtrac9" >> $GITHUB_ENV
+        find "${{ github.workspace }}/vendor/LibAtrac9"
     - name: Install Dependencies Linux
       run: sudo apt-get install nasm libx11-dev libxft-dev libxext-dev libwayland-dev libxkbcommon-dev libegl1-mesa-dev libibus-1.0-dev libxrandr-dev
-      if: matrix.os_name == 'linux'
+      if: matrix.os_name == 'linux' || matrix.os_name == 'android'
     - name: Install Dependencies Mac
       run: brew install nasm
       if: contains(matrix.os_name, 'macos')
@@ -138,9 +168,13 @@ jobs:
       uses: lukka/run-cmake@v10
       with:
         cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-        configurePreset: ci-release
-        configurePresetAdditionalArgs: "['-DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }}', '-DVCPKG_HOST_TRIPLET=${{ matrix.triplet }}', '-DVCPKG_BUILD_TYPE=release']"
-        buildPreset: CI-Build
+        configurePreset: ${{ env.PresetName }}
+        configurePresetAdditionalArgs: >-
+          [
+            '-DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }}',
+            '-DVCPKG_HOST_TRIPLET=${{ matrix.host_triplet }}',
+          ]
+        buildPreset: ${{ env.PresetName }}
 
     - name: Run Switch build
       if: matrix.os_name == 'switch'
@@ -152,20 +186,38 @@ jobs:
         cmake . -DCMAKE_TOOLCHAIN_FILE=HorizonNX.toolchain
         make -j2
         elf2nro impacto impacto.nro
-        mkdir -p "${{ github.workspace }}/release/ci-release"
-        cp impacto.nro "${{ github.workspace }}/release/ci-release"
-        cp -r profiles "${{ github.workspace }}/release/ci-release"
-        cp -r games "${{ github.workspace }}/release/ci-release"
+        mkdir -p "${{ github.workspace }}/release/${{ env.PresetName }}"
+        cp impacto.nro "${{ github.workspace }}/release/${{ env.PresetName }}"
+        cp -r profiles "${{ github.workspace }}/release/${{ env.PresetName }}"
+        cp -r games "${{ github.workspace }}/release/${{ env.PresetName }}"
     - name: Copy Shaders
-      run: cp -r src/shaders "${{ github.workspace }}/release/ci-release"
+      run: cp -r src/shaders "${{ github.workspace }}/release/${{ env.PresetName }}"
       shell: bash
     - name: Copy docs
       run: |
-        cp THIRDPARTY.md README.md LICENSE "${{ github.workspace }}/release/ci-release"
+        cp THIRDPARTY.md README.md LICENSE "${{ github.workspace }}/release/${{ env.PresetName }}"
+      shell: bash
+    - name: Build Android
+      if: matrix.os_name == 'android'
+      run: |
+        pushd "${{ github.workspace }}/release/${{ env.PresetName }}"
+        ls
+        mkdir -p "${{ github.workspace }}/android/app/src/main/assets/"
+        mv profiles "${{ github.workspace }}/android/app/src/main/assets/"
+        mv games "${{ github.workspace }}/android/app/src/main/assets/"
+        mv shaders "${{ github.workspace }}/android/app/src/main/assets/"
+        mkdir -p  "${{ github.workspace }}/android/app/src/main/jniLibs/$ABI/"
+        mv libimpacto.so "${{ github.workspace }}/android/app/src/main/jniLibs/$ABI/"
+        popd
+        pushd "${{ github.workspace }}/android/"
+        ./gradlew assemble
+        find "${{ github.workspace }}/android" -name "*.apk"
+        cp "${{ github.workspace }}/android/distribution/android/app/outputs/apk/debug/app-debug.apk" "${{ github.workspace }}/release/${{ env.PresetName }}/impacto-debug.apk"
+        cp "${{ github.workspace }}/android/distribution/android/app/outputs/apk/release/app-release-unsigned.apk" "${{ github.workspace }}/release/${{ env.PresetName }}/impacto-unsigned.apk"
       shell: bash
     - name: Archive Artifacts
       run: |
-        7z u impacto-${{ matrix.os_name }}-${{ vars.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip release/ci-release/*
+        7z u impacto-${{ matrix.os_name }}-${{ vars.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip release/${{ env.PresetName }}/*
     - name: Upload Artifact
       uses: actions/upload-artifact@v4.1.0
       with:
@@ -236,7 +288,7 @@ jobs:
         
         name_conclusion_array=($(echo "$json_data" | jq -r '
           .jobs[] | 
-            select(.name | IN("macos-arm64", "linux", "windows", "switch", "macos-x64")) | 
+            select(.name | IN("macos-arm64", "linux", "windows", "switch", "macos-x64", "android")) | 
           "\(.name).\(.conclusion)"'))
 
         for item in "${name_conclusion_array[@]}"; do
@@ -267,6 +319,7 @@ jobs:
           macos-arm64: ${{steps.get_jobs_status.outputs.macos-arm64}} 
           macos-x64: ${{steps.get_jobs_status.outputs.macos-x64}} 
           switch: ${{steps.get_jobs_status.outputs.switch}} 
+          android: ${{steps.get_jobs_status.outputs.android}} 
 
           Details:
           ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

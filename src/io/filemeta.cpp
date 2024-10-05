@@ -6,8 +6,9 @@ namespace Impacto {
 namespace Io {
 
 int64_t GetFileSize(std::string const& path) {
+  const std::string& filePath = GetSystemDependentPath(path);
   std::error_code ec;
-  uintmax_t result = std::filesystem::file_size(path, ec);
+  uintmax_t result = std::filesystem::file_size(filePath, ec);
   if (ec) {
     ImpLog(LL_Error, LC_IO,
            "Error getting file size of file \"%s\", error: \"%s\"\n",
@@ -19,12 +20,13 @@ int64_t GetFileSize(std::string const& path) {
 }
 
 IoError PathExists(std::string const& path) {
+  const std::string& filePath = GetSystemDependentPath(path);
   std::error_code ec;
-  bool result = std::filesystem::exists(path, ec);
+  bool result = std::filesystem::exists(filePath, ec);
   if (ec) {
     ImpLog(LL_Error, LC_IO,
            "Error checking for file existence for file \"%s\", error: \"%s\"\n",
-           path.c_str(), ec.message().c_str());
+           filePath.c_str(), ec.message().c_str());
     return IoError_Fail;
   }
   return result == false ? IoError_NotFound : IoError_OK;
@@ -32,11 +34,12 @@ IoError PathExists(std::string const& path) {
 
 int8_t CreateDirectories(std::string const& path) {
   std::error_code ec;
-  bool result = std::filesystem::create_directories(path, ec);
+  const std::string& filePath = GetSystemDependentPath(path);
+  bool result = std::filesystem::create_directories(filePath, ec);
   if (ec) {
     ImpLog(LL_Error, LC_IO,
            "Error creating directories for file \"%s\", error: \"%s\"\n",
-           path.c_str(), ec.message().c_str());
+           filePath.c_str(), ec.message().c_str());
     return IoError_Fail;
   }
   return result;
@@ -45,11 +48,12 @@ int8_t CreateDirectories(std::string const& path) {
 IoError GetFilePermissions(std::string const& path,
                            FilePermissionsFlags& flags) {
   std::error_code ec;
-  flags = std::filesystem::status(path, ec).permissions();
+  const std::string& filePath = GetSystemDependentPath(path);
+  flags = std::filesystem::status(filePath, ec).permissions();
   if (ec) {
     ImpLog(LL_Error, LC_IO,
            "Error retrieving permissions for file \"%s\", error: \"%s\"\n",
-           path.c_str(), ec.message().c_str());
+           filePath.c_str(), ec.message().c_str());
     return IoError_Fail;
   }
   return IoError_OK;
