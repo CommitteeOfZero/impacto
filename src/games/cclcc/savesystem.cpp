@@ -15,6 +15,7 @@
 #include <cstdint>
 #include <ctime>
 #include <filesystem>
+#include <system_error>
 
 namespace Impacto {
 namespace CCLCC {
@@ -26,27 +27,49 @@ using namespace Impacto::Profile::Vm;
 
 SaveError SaveSystem::CheckSaveFile() {
   std::filesystem::path savePath(SaveFilePath);
-  if (!std::filesystem::exists(savePath)) {
+  std::error_code ec;
+  if (!std::filesystem::exists(savePath, ec)) {
+    if (ec) {
+      ImpLog(LL_Error, LC_IO,
+             "Failed to check if save file exists, error: \"%s\"\n",
+             ec.message().c_str());
+      return SaveFailed;
+    }
     return SaveNotFound;
   }
-  if (std::filesystem::file_size(savePath) != SaveFileSize) {
+  if (std::filesystem::file_size(savePath, ec) != SaveFileSize) {
+    if (ec) {
+      ImpLog(LL_Error, LC_IO, "Failed to get save file size, error: \"%s\"\n",
+             ec.message().c_str());
+      return SaveFailed;
+    }
     return SaveCorrupted;
   }
-  if (auto perms = std::filesystem::status(savePath).permissions();
-      to_underlying(perms) &
-          (to_underlying(std::filesystem::perms::owner_read) |
-           to_underlying(std::filesystem::perms::owner_write)) == 0 &&
-      to_underlying(perms) &
-          (to_underlying(std::filesystem::perms::group_read) |
-           to_underlying(std::filesystem::perms::group_write)) == 0) {
+  using PermsFlag = std::filesystem::perms;
+  auto checkPermsBit = [](PermsFlag perms, PermsFlag flag) {
+    return to_underlying(perms) & to_underlying(flag);
+  };
+
+  if (auto perms = std::filesystem::status(savePath, ec).permissions();
+      (!checkPermsBit(perms, PermsFlag::owner_read) ||
+       !checkPermsBit(perms, PermsFlag::owner_write))) {
+    if (ec) {
+      ImpLog(LL_Error, LC_IO,
+             "Failed to get save file permissions, error: \"%s\"\n",
+             ec.message().c_str());
+      return SaveFailed;
+    }
     return SaveWrongUser;
   }
   return SaveOK;
 }
 
 SaveError SaveSystem::CreateSaveFile() {
+  using CF = Io::PhysicalFileStream::CreateFlagsMode;
   Io::Stream* stream;
-  IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream, false);
+  IoError err = Io::PhysicalFileStream::Create(
+      SaveFilePath, &stream,
+      CF::CREATE_IF_NOT_EXISTS | CF::CREATE_DIRS | CF::WRITE);
   if (err != IoError_OK) {
     return SaveFailed;
   }
@@ -275,8 +298,10 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
 }
 
 void SaveSystem::WriteSaveFile() {
+  using CF = Io::PhysicalFileStream::CreateFlagsMode;
   Io::Stream* stream;
-  IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream);
+  IoError err =
+      Io::PhysicalFileStream::Create(SaveFilePath, &stream, CF::WRITE);
   if (err != IoError_OK) {
     ImpLog(LL_Error, LC_IO, "Failed to open save file for writing\n");
     return;
