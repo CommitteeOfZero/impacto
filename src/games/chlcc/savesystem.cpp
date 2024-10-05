@@ -145,7 +145,7 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
   }
 
   if (WorkingSaveEntry != 0) {
-    if (entry != 0 && GetSaveFlags(type, id) != 1) {
+    if (entry != 0 && !(GetSaveFlags(type, id) & WriteProtect)) {
       *entry = *WorkingSaveEntry;
       if (type == SaveQuick) {
         entry->SaveType = autoSaveType;

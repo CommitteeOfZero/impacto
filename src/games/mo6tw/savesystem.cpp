@@ -203,7 +203,7 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
   }
 
   if (WorkingSaveEntry != 0) {
-    if (entry != 0 && GetSaveFlags(type, id) != 1) {
+    if (entry != 0 && !(GetSaveFlags(type, id) & WriteProtect)) {
       Renderer->FreeTexture(entry->SaveThumbnail.Sheet.Texture);
       if (type == SaveQuick) {
         entry->SaveType = autoSaveType;
