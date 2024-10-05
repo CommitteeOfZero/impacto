@@ -14,7 +14,6 @@
 
 #include <cstdint>
 #include <ctime>
-#include <filesystem>
 #include <system_error>
 
 namespace Impacto {
@@ -26,39 +25,38 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Vm;
 
 SaveError SaveSystem::CheckSaveFile() {
-  std::filesystem::path savePath(SaveFilePath);
   std::error_code ec;
-  if (!std::filesystem::exists(savePath, ec)) {
-    if (ec) {
-      ImpLog(LL_Error, LC_IO,
-             "Failed to check if save file exists, error: \"%s\"\n",
-             ec.message().c_str());
-      return SaveFailed;
-    }
+  IoError existsState = Io::PathExists(SaveFilePath);
+  if (existsState == IoError_NotFound) {
     return SaveNotFound;
+  } else if (existsState == IoError_Fail) {
+    ImpLog(LL_Error, LC_IO,
+           "Failed to check if save file exists, error: \"%s\"\n",
+           ec.message().c_str());
+    return SaveFailed;
   }
-  if (std::filesystem::file_size(savePath, ec) != SaveFileSize) {
-    if (ec) {
-      ImpLog(LL_Error, LC_IO, "Failed to get save file size, error: \"%s\"\n",
-             ec.message().c_str());
-      return SaveFailed;
-    }
+  auto saveFileSize = Io::GetFileSize(SaveFilePath);
+  if (saveFileSize == IoError_Fail) {
+    ImpLog(LL_Error, LC_IO, "Failed to get save file size, error: \"%s\"\n",
+           ec.message().c_str());
+    return SaveFailed;
+  } else if (saveFileSize != SaveFileSize) {
     return SaveCorrupted;
   }
-  using PermsFlag = std::filesystem::perms;
-  auto checkPermsBit = [](PermsFlag perms, PermsFlag flag) {
+  auto checkPermsBit = [](Io::FilePermissionsFlags perms,
+                          Io::FilePermissionsFlags flag) {
     return to_underlying(perms) & to_underlying(flag);
   };
 
-  if (auto perms = std::filesystem::status(savePath, ec).permissions();
-      (!checkPermsBit(perms, PermsFlag::owner_read) ||
-       !checkPermsBit(perms, PermsFlag::owner_write))) {
-    if (ec) {
-      ImpLog(LL_Error, LC_IO,
-             "Failed to get save file permissions, error: \"%s\"\n",
-             ec.message().c_str());
-      return SaveFailed;
-    }
+  Io::FilePermissionsFlags perms;
+  IoError permsState = Io::GetFilePermissions(SaveFilePath, perms);
+  if (permsState == IoError_Fail) {
+    ImpLog(LL_Error, LC_IO,
+           "Failed to get save file permissions, error: \"%s\"\n",
+           ec.message().c_str());
+    return SaveFailed;
+  } else if ((!checkPermsBit(perms, Io::FilePermissionsFlags::owner_read) ||
+              !checkPermsBit(perms, Io::FilePermissionsFlags::owner_write))) {
     return SaveWrongUser;
   }
   return SaveOK;
