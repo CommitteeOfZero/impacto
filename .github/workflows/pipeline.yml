@@ -128,7 +128,7 @@ jobs:
       run: |
         ./build-deps.ps1 -Arg1 x64
       shell: pwsh
-    - name: Setup Dependencies Linux/MacOS
+    - name: Setup Dependencies Linux/MacOS/Android
       if: contains(matrix.os_name, 'macos') || contains(matrix.os_name, 'linux') || contains(matrix.os_name, 'android')
       run: |-
         pushd vendor
@@ -146,6 +146,7 @@ jobs:
         cp src/libatrac9.h ../include/libatrac9/
         popd
         echo "LIBATRAC9DIR=${{ github.workspace }}/vendor/LibAtrac9" >> $GITHUB_ENV
+        find "${{ github.workspace }}/vendor/LibAtrac9"
     - name: Install Dependencies Linux
       run: sudo apt-get install nasm libx11-dev libxft-dev libxext-dev libwayland-dev libxkbcommon-dev libegl1-mesa-dev libibus-1.0-dev libxrandr-dev
       if: matrix.os_name == 'linux'
@@ -164,9 +165,9 @@ jobs:
             '-DVCPKG_HOST_TRIPLET=${{ matrix.host_triplet }}',
             '-DVCPKG_BUILD_TYPE=release'
             ${{ (matrix.os_name == 'android') && ',
-            "-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake",
-            "-DANDROID_ABI=$ABI",
-            "-DANDROID_PLATFORM=android-$MINSDKVERSION"' || '' }}
+            "-DCMAKE_TOOLCHAIN_FILE=${{env.ANDROID_NDK_HOME}}/build/cmake/android.toolchain.cmake",
+            "-DANDROID_ABI=${{env.ABI}}",
+            "-DANDROID_PLATFORM=android-${{env.MINSDKVERSION}}"' || '' }}
           ]
         buildPreset: CI-Build
 
@@ -295,6 +296,7 @@ jobs:
           macos-arm64: ${{steps.get_jobs_status.outputs.macos-arm64}} 
           macos-x64: ${{steps.get_jobs_status.outputs.macos-x64}} 
           switch: ${{steps.get_jobs_status.outputs.switch}} 
+          android: ${{steps.get_jobs_status.outputs.android}} 
 
           Details:
           ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
