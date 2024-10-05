@@ -165,14 +165,14 @@ jobs:
             '-DVCPKG_HOST_TRIPLET=${{ matrix.host_triplet }}',
             '-DVCPKG_BUILD_TYPE=release'
             ${{ (matrix.os_name == 'android') && ',
-            ''-DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=${{env.VCPKG_ROOT}}/scripts/toolchains/android.cmake'',
-            ''-DCMAKE_SYSTEM_VERSION=${{env.MINSDKVERSION}}'',
-            ''-DVCPKG_CMAKE_SYSTEM_VERSION=${{env.MINSDKVERSION}}'',
-            ''-DANDROID_NATIVE_API_LEVEL=android-${{env.MINSDKVERSION}}'',
-            ''-DANDROID_PLATFORM=android-${{env.MINSDKVERSION}}'',
-            ''-DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=BOTH'',
-            ''-DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=BOTH'',
-            ''-DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=BOTH'''
+            "-DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/toolchains/android.cmake",
+            "-DCMAKE_SYSTEM_VERSION=$MINSDKVERSION",
+            "-DVCPKG_CMAKE_SYSTEM_VERSION=$MINSDKVERSION",
+            "-DANDROID_NATIVE_API_LEVEL=android-$MINSDKVERSION",
+            "-DANDROID_PLATFORM=android-$MINSDKVERSION",
+            "-DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=BOTH",
+            "-DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=BOTH",
+            "-DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=BOTH"'
             || '' }}
           ]
         buildPreset: CI-Build
