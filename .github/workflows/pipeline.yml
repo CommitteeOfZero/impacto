@@ -60,27 +60,28 @@ jobs:
             host_triplet: x64-windows-release
           - os: ubuntu-latest
             os_name: linux
-            triplet: x64-linux-dynamic
-            host_triplet: x64-linux-dynamic
+            triplet: x64-linux-ci
+            host_triplet: x64-linux-ci
           - os: macos-latest
             os_name: macos-arm64
-            triplet: arm64-osx-dynamic
-            host_triplet: arm64-osx-dynamic
+            triplet: arm64-osx-ci
+            host_triplet: arm64-osx-ci
           - os: macos-13
             os_name: macos-x64
-            triplet: x64-osx-dynamic
-            host_triplet: x64-osx-dynamic
+            triplet: x64-osx-ci
+            host_triplet: x64-osx-ci
           - os: ubuntu-latest
             os_name: switch
             triplet: none
             host_triplet: none
           - os: ubuntu-latest
             os_name: android
-            triplet: arm64-android
-            host_triplet: x64-linux-dynamic
+            triplet: arm64-android-ci
+            host_triplet: x64-linux-ci
     env:
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.triplet }}
       vcpkgCommitId: '0f88ecb8528605f91980b90a2c5bad88e3cb565f'
+      PresetName: ${{ (matrix.os_name == 'android') && 'ci-release-android' || 'ci-release' }}
 
     steps:
     - uses: actions/checkout@v3
@@ -158,24 +159,13 @@ jobs:
       uses: lukka/run-cmake@v10
       with:
         cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-        configurePreset: ci-release
+        configurePreset: ${{ env.PresetName }}
         configurePresetAdditionalArgs: >-
           [
             '-DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }}',
             '-DVCPKG_HOST_TRIPLET=${{ matrix.host_triplet }}',
-            '-DVCPKG_BUILD_TYPE=release'
-            ${{ (matrix.os_name == 'android') && ',
-            "-DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/toolchains/android.cmake",
-            "-DCMAKE_SYSTEM_VERSION=$MINSDKVERSION",
-            "-DVCPKG_CMAKE_SYSTEM_VERSION=$MINSDKVERSION",
-            "-DANDROID_NATIVE_API_LEVEL=android-$MINSDKVERSION",
-            "-DANDROID_PLATFORM=android-$MINSDKVERSION",
-            "-DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=BOTH",
-            "-DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=BOTH",
-            "-DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=BOTH"'
-            || '' }}
           ]
-        buildPreset: CI-Build
+        buildPreset: ${{ env.PresetName }}
 
     - name: Run Switch build
       if: matrix.os_name == 'switch'
@@ -187,20 +177,20 @@ jobs:
         cmake . -DCMAKE_TOOLCHAIN_FILE=HorizonNX.toolchain
         make -j2
         elf2nro impacto impacto.nro
-        mkdir -p "${{ github.workspace }}/release/ci-release"
-        cp impacto.nro "${{ github.workspace }}/release/ci-release"
-        cp -r profiles "${{ github.workspace }}/release/ci-release"
-        cp -r games "${{ github.workspace }}/release/ci-release"
+        mkdir -p "${{ github.workspace }}/release/${{ env.PresetName }}"
+        cp impacto.nro "${{ github.workspace }}/release/${{ env.PresetName }}"
+        cp -r profiles "${{ github.workspace }}/release/${{ env.PresetName }}"
+        cp -r games "${{ github.workspace }}/release/${{ env.PresetName }}"
     - name: Copy Shaders
-      run: cp -r src/shaders "${{ github.workspace }}/release/ci-release"
+      run: cp -r src/shaders "${{ github.workspace }}/release/${{ env.PresetName }}"
       shell: bash
     - name: Copy docs
       run: |
-        cp THIRDPARTY.md README.md LICENSE "${{ github.workspace }}/release/ci-release"
+        cp THIRDPARTY.md README.md LICENSE "${{ github.workspace }}/release/${{ env.PresetName }}"
       shell: bash
     - name: Archive Artifacts
       run: |
-        7z u impacto-${{ matrix.os_name }}-${{ vars.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip release/ci-release/*
+        7z u impacto-${{ matrix.os_name }}-${{ vars.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip release/${{ env.PresetName }}/*
     - name: Upload Artifact
       uses: actions/upload-artifact@v4.1.0
       with:
