@@ -631,6 +631,11 @@ if (NX OR EMSCRIPTEN)
     set(IMPACTO_DISABLE_DX9 ON)
 endif ()
 
+if(ANDROID)
+    set(IMPACTO_DISABLE_IMGUI ON)
+    add_compile_definitions(IMPACTO_DISABLE_IMGUI ON)
+endif ()
+
 if (UNIX AND NOT CYGWIN)
     set(IMPACTO_DISABLE_DX9 ON)
 endif ()
@@ -727,6 +732,21 @@ if (WIN32)
     endif ()
 
     set(LIBATRAC9_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/vendor/LibAtrac9/bin/${LIBATRAC9_ARCH}/libatrac9.lib")
+endif ()
+
+if(ANDROID)
+    set(SDL2_LIBRARIES SDL2::SDL2main SDL2::SDL2)
+    list(APPEND Impacto_Libs
+        android
+    )
+
+    if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
+        list(APPEND Impacto_Libs
+            GLESv3
+            EGL
+        )
+        
+    endif ()
 endif ()
 
 find_package(Libatrac9 REQUIRED)
@@ -1036,7 +1056,11 @@ if (NOT DEFINED IMPACTO_DISABLE_DX9)
     )
 endif ()
 
-add_executable(impacto ${Impacto_Src} ${Impacto_Header})
+if(ANDROID)
+    add_library(impacto SHARED ${Impacto_Src} ${Impacto_Header})
+else()
+    add_executable(impacto ${Impacto_Src} ${Impacto_Header})
+endif()
 
 target_link_libraries(impacto PUBLIC ${Impacto_Libs})
 
