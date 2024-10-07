@@ -192,9 +192,10 @@ jobs:
       if: matrix.os_name == 'android'
       run: |
         pushd "${{ github.workspace }}/release/${{ env.PresetName }}"
-        mv profiles "${{ github.workspace }}/android/src/main/assets/"
-        mv games "${{ github.workspace }}/android/src/main/assets/"
-        mv shaders "${{ github.workspace }}/android/src/main/assets/"
+        ls
+        mv -p profiles "${{ github.workspace }}/android/src/main/assets/"
+        mv -p games "${{ github.workspace }}/android/src/main/assets/"
+        mv -p shaders "${{ github.workspace }}/android/src/main/assets/"
         mv -p libImpacto.so "${{ github.workspace }}/android/src/main/jniLibs/$ABI/"
         popd
         pushd "${{ github.workspace }}/android/"
