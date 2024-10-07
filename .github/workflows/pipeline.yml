@@ -211,8 +211,9 @@ jobs:
         popd
         pushd "${{ github.workspace }}/android/"
         ./gradlew assemble
-        cp "${{ github.workspace }}/android/distribution/app/outputs/apk/debug/app-debug.apk" "${{ github.workspace }}/release/${{ env.PresetName }}/impacto-debug.apk"
-        cp "${{ github.workspace }}/android/distribution/app/outputs/apk/release/app-unsigned.apk" "${{ github.workspace }}/release/${{ env.PresetName }}/impacto-unsigned.apk"
+        find "${{ github.workspace }}/android" -name "*.apk"
+        cp "${{ github.workspace }}/android/distribution/android/app/outputs/apk/debug/app-debug.apk" "${{ github.workspace }}/release/${{ env.PresetName }}/impacto-debug.apk"
+        cp "${{ github.workspace }}/android/distribution/android/app/outputs/apk/release/app-unsigned.apk" "${{ github.workspace }}/release/${{ env.PresetName }}/impacto-unsigned.apk"
       shell: bash
     - name: Archive Artifacts
       run: |
