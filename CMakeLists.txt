@@ -683,6 +683,7 @@ FetchContent_Declare(
     GIT_TAG "11.0.2"
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/fmtlib
     SYSTEM
+    EXCLUDE_FROM_ALL
 )
 
 FetchContent_Declare(
@@ -691,6 +692,7 @@ FetchContent_Declare(
     GIT_TAG "v1.14"
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/pugixml
     SYSTEM
+    EXCLUDE_FROM_ALL
 )
 
 FetchContent_Declare(
@@ -699,6 +701,7 @@ FetchContent_Declare(
     GIT_TAG "v4.0.5"
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/utf8-cpp
     SYSTEM
+    EXCLUDE_FROM_ALL
 )
 
 FetchContent_MakeAvailable(fmt)
@@ -715,7 +718,6 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
 
     FetchContent_MakeAvailable(ImGui)
 endif ()
-
 
 if (WIN32)
     # Workaround for RelWithDebInfo builds not installing all the libraries
@@ -734,20 +736,6 @@ if (WIN32)
     set(LIBATRAC9_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/vendor/LibAtrac9/bin/${LIBATRAC9_ARCH}/libatrac9.lib")
 endif ()
 
-if(ANDROID)
-    set(SDL2_LIBRARIES SDL2::SDL2main SDL2::SDL2)
-    list(APPEND Impacto_Libs
-        android
-    )
-
-    if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
-        list(APPEND Impacto_Libs
-            GLESv3
-            EGL
-        )
-        
-    endif ()
-endif ()
 
 find_package(Libatrac9 REQUIRED)
 find_package(glm REQUIRED)
@@ -761,6 +749,18 @@ else ()
             ${CMAKE_DL_LIBS}
             ${LIBATRAC9_LIBRARY}
     )
+endif ()
+
+if(ANDROID)
+    set(SDL2_LIBRARIES SDL2::SDL2-static SDL2::SDL2main)
+
+    if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
+        find_library(GLESv3 GLESv3)
+        list(APPEND Impacto_Libs
+            GLESv3
+        )
+        
+    endif ()
 endif ()
 
 if (NOT DEFINED IMPACTO_DISABLE_OPENAL)
@@ -1062,7 +1062,7 @@ else()
     add_executable(impacto ${Impacto_Src} ${Impacto_Header})
 endif()
 
-target_link_libraries(impacto PUBLIC ${Impacto_Libs})
+target_link_libraries(impacto PRIVATE ${Impacto_Libs})
 
 # compiler/dependency configuration
 
@@ -1115,7 +1115,7 @@ target_include_directories(impacto PRIVATE ${PROJECT_BINARY_DIR}/include)
 
 # binary install
 
-install(TARGETS impacto RUNTIME DESTINATION .)
+install(TARGETS impacto RUNTIME LIBRARY DESTINATION .)
 
 if (WIN32)
     x_vcpkg_install_local_dependencies(TARGETS impacto DESTINATION .)

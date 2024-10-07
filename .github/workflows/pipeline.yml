@@ -92,7 +92,7 @@ jobs:
       if: matrix.os_name == 'android'
       run: |
         export ABI=arm64-v8a
-        export MINSDKVERSION=33
+        export MINSDKVERSION=24
         echo "MINSDKVERSION=$MINSDKVERSION" >> $GITHUB_ENV
         echo "ABI=$ABI" >> $GITHUB_ENV
         echo "CC=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=aarch64-linux-android$MINSDKVERSION -fPIC" >> $GITHUB_ENV
@@ -188,6 +188,19 @@ jobs:
       run: |
         cp THIRDPARTY.md README.md LICENSE "${{ github.workspace }}/release/${{ env.PresetName }}"
       shell: bash
+    - name: Build Android
+      if: matrix.os_name == 'android'
+      run: |
+        pushd "${{ github.workspace }}/release/${{ env.PresetName }}"
+        mv profiles "${{ github.workspace }}/android/src/main/assets/"
+        mv games "${{ github.workspace }}/android/src/main/assets/"
+        mv shaders "${{ github.workspace }}/android/src/main/assets/"
+        mv -p libImpacto.so "${{ github.workspace }}/android/src/main/jniLibs/$ABI/"
+        popd
+        pushd "${{ github.workspace }}/android/"
+        ./gradlew assemble
+        cp "${{ github.workspace }}/android/distribution/app/outputs/apk/debug/app-debug.apk" "${{ github.workspace }}/release/${{ env.PresetName }}/impacto-debug.apk"
+        cp "${{ github.workspace }}/android/distribution/app/outputs/apk/release/app-unsigned.apk" "${{ github.workspace }}/release/${{ env.PresetName }}/impacto-unsigned.apk"
     - name: Archive Artifacts
       run: |
         7z u impacto-${{ matrix.os_name }}-${{ vars.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip release/${{ env.PresetName }}/*
