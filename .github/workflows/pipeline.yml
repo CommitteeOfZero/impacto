@@ -197,6 +197,7 @@ jobs:
         mv profiles "${{ github.workspace }}/android/src/main/assets/"
         mv games "${{ github.workspace }}/android/src/main/assets/"
         mv shaders "${{ github.workspace }}/android/src/main/assets/"
+        mkdir -p  "${{ github.workspace }}/android/src/main/jniLibs/$ABI/"
         mv libimpacto.so "${{ github.workspace }}/android/src/main/jniLibs/$ABI/"
         popd
         pushd "${{ github.workspace }}/android/"
