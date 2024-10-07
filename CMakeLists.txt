@@ -1119,7 +1119,11 @@ target_include_directories(impacto PRIVATE ${PROJECT_BINARY_DIR}/include)
 
 # binary install
 
-install(TARGETS impacto RUNTIME LIBRARY DESTINATION .)
+if (ANDROID)
+    install(TARGETS impacto LIBRARY DESTINATION .)
+else ()
+    install(TARGETS impacto RUNTIME DESTINATION .)
+endif ()
 
 if (WIN32)
     x_vcpkg_install_local_dependencies(TARGETS impacto DESTINATION .)
