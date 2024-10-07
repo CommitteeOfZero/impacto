@@ -98,6 +98,15 @@ jobs:
         echo "CC=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=aarch64-linux-android$MINSDKVERSION -fPIC" >> $GITHUB_ENV
         echo "VULKAN_SDK=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr" >> $GITHUB_ENV
       shell: bash
+
+    - name: Set up Java
+      uses: actions/setup-java@v4
+      if: matrix.os_name == 'android'
+      with:
+        java-version: 17
+        distribution: "temurin"
+        cache: 'gradle'
+
     - name: Download Switch deps
       if: matrix.os_name == 'switch'
       uses: blauqs/actions-download-asset@master
