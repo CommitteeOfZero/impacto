@@ -1,5 +1,7 @@
 #include "utils.h"
 
+#define VMA_STATIC_VULKAN_FUNCTIONS 0
+#define VMA_DYNAMIC_VULKAN_FUNCTIONS 1
 #define VMA_IMPLEMENTATION
 #include "../../vendor/vma/vk_mem_alloc.h"
 
@@ -9,6 +11,10 @@ namespace Vulkan {
 void CreateAllocator(VkPhysicalDevice physicalDevice, VkDevice device,
                      VkInstance instance) {
   VmaAllocatorCreateInfo allocatorInfo = {};
+  VmaVulkanFunctions func = {};
+  func.vkGetInstanceProcAddr = vkGetInstanceProcAddr;
+  func.vkGetDeviceProcAddr = vkGetDeviceProcAddr;
+  allocatorInfo.pVulkanFunctions = &func;
   allocatorInfo.physicalDevice = physicalDevice;
   allocatorInfo.device = device;
   allocatorInfo.instance = instance;
