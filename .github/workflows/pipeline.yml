@@ -193,15 +193,17 @@ jobs:
       run: |
         pushd "${{ github.workspace }}/release/${{ env.PresetName }}"
         ls
-        mv -p profiles "${{ github.workspace }}/android/src/main/assets/"
-        mv -p games "${{ github.workspace }}/android/src/main/assets/"
-        mv -p shaders "${{ github.workspace }}/android/src/main/assets/"
-        mv -p libImpacto.so "${{ github.workspace }}/android/src/main/jniLibs/$ABI/"
+        mkdir -p "${{ github.workspace }}/android/src/main/assets/"
+        mv profiles "${{ github.workspace }}/android/src/main/assets/"
+        mv games "${{ github.workspace }}/android/src/main/assets/"
+        mv shaders "${{ github.workspace }}/android/src/main/assets/"
+        mv libImpacto.so "${{ github.workspace }}/android/src/main/jniLibs/$ABI/"
         popd
         pushd "${{ github.workspace }}/android/"
         ./gradlew assemble
         cp "${{ github.workspace }}/android/distribution/app/outputs/apk/debug/app-debug.apk" "${{ github.workspace }}/release/${{ env.PresetName }}/impacto-debug.apk"
         cp "${{ github.workspace }}/android/distribution/app/outputs/apk/release/app-unsigned.apk" "${{ github.workspace }}/release/${{ env.PresetName }}/impacto-unsigned.apk"
+      shell: bash
     - name: Archive Artifacts
       run: |
         7z u impacto-${{ matrix.os_name }}-${{ vars.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip release/${{ env.PresetName }}/*
