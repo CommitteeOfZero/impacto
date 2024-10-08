@@ -184,7 +184,7 @@ VmInstruction(InstMesMain) {
       }
     } else {
       // Text is fully opaque
-      SetFlag(1251 + thread->DialoguePageId, true);
+      SetFlag(SF_SHOWWAITICON + thread->DialoguePageId, true);
 
       if (!GetFlag(SF_UIHIDDEN)) {
         if (advanceButtonWentDown || GetFlag(SF_MESALLSKIP) ||
@@ -192,7 +192,7 @@ VmInstruction(InstMesMain) {
           // Advance to next line
           SaveSystem::SetLineRead(ScrWork[2 * currentPage->Id + SW_SCRIPTID],
                                   ScrWork[2 * currentPage->Id + SW_LINEID]);
-          SetFlag(1251 + thread->DialoguePageId, false);
+          SetFlag(SF_SHOWWAITICON + thread->DialoguePageId, false);
 
           BlockThread;
           return;
