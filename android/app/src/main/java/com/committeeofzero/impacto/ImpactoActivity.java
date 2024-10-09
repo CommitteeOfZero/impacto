@@ -5,18 +5,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
 
+import android.content.Context;
 import android.os.Bundle;
-import android.os.Environment;
-import android.content.res.AssetManager;
 import android.util.Log;
+import android.content.SharedPreferences;
 
 import org.libsdl.app.SDLActivity;
 
 public class ImpactoActivity extends SDLActivity {
+    SharedPreferences prefs = null;
 
     /**
      * This method is called by SDL before loading the native shared libraries.
@@ -36,10 +34,19 @@ public class ImpactoActivity extends SDLActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        prefs = this.getPreferences(Context.MODE_PRIVATE);
         File externalFilesDir = getExternalFilesDir(null);
-        copyAssetFolder("games", externalFilesDir.getAbsolutePath() + "/" + "games");
-        copyAssetFolder("profiles", externalFilesDir.getAbsolutePath() + "/" + "profiles");
-        copyAssetFolder("shaders", getFilesDir().getAbsolutePath() + "/" + "shaders");
+        File resetFile = new File(externalFilesDir, ".reset");
+        boolean reset = prefs.getBoolean("firstRun", true);
+        if (resetFile.exists()) {
+            resetFile.delete();
+            reset = true;
+        }
+        if (reset) {            
+            copyAssetFolder("games", externalFilesDir.getAbsolutePath() + "/" + "games");
+            copyAssetFolder("profiles", externalFilesDir.getAbsolutePath() + "/" + "profiles");
+            copyAssetFolder("shaders", getFilesDir().getAbsolutePath() + "/" + "shaders");
+        }
         super.onCreate(savedInstanceState);
     }
 
