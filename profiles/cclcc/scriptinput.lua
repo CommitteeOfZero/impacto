@@ -13,7 +13,7 @@ root.PADcustomA = {
   root.PADinput.PAD1L1,
   root.PADinput.PAD1R1,
   root.PADinput.PAD1X,
-  root.PADinput.PAD1START,
+  root.PADinput.PAD1START | root.PADinput.PAD1B,
   0,
   root.PADinput.PAD1Y,
   root.PADinput.PAD1R3,
