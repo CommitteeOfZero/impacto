@@ -47,6 +47,11 @@ void UpdatePADInput() {
       PADinputButtonIsDown |= PADcode;
     if (Input::MouseButtonIsDown[MScode]) PADinputMouseIsDown |= PADcode;
   }
+  if (Input::TouchWentDown[0] && Input::TouchWentDown[1])
+    PADinputMouseWentDown |= PAD1B;
+  else if (Input::TouchWentDown[0])
+    PADinputMouseWentDown |= PAD1A;
+  if (Input::TouchIsDown[0]) PADinputMouseIsDown |= PAD1A;
 }
 
 // TODO: Make this configurable per game
