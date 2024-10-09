@@ -94,10 +94,6 @@ void GLWindow::TryCreateGL(GraphicsApi api) {
                           SDL_GL_CONTEXT_PROFILE_CORE);
 
       contextFlags |= SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG;
-
-#if IMPACTO_GL_DEBUG
-      contextFlags |= SDL_GL_CONTEXT_DEBUG_FLAG;
-#endif
       break;
 
     case GfxApi_ForceDesktopGLES:
@@ -105,27 +101,28 @@ void GLWindow::TryCreateGL(GraphicsApi api) {
              "Trying to create GLES on desktop GL context\n");
       SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, "0");
       SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-      SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+      SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
       SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
                           SDL_GL_CONTEXT_PROFILE_ES);
-
       break;
 
     case GfxApi_ForceNativeGLES:
       ImpLog(LL_Info, LC_General, "Trying to create native GLES context\n");
 
 #ifndef EMSCRIPTEN
-      // Emscripten's EGL implementation fails when you ask it for GLES 3.0,
+      // Emscripten's EGL implementation fails when you ask it for GLES 3.2,
       // though that is what it gives you when building for WebGL 2...
       SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-      SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+      SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
       SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, "1");
 #endif
       SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
                           SDL_GL_CONTEXT_PROFILE_ES);
       break;
   }
-
+#if IMPACTO_GL_DEBUG
+  contextFlags |= SDL_GL_CONTEXT_DEBUG_FLAG;
+#endif
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, contextFlags);
 
   uint32_t windowFlags = SDL_WINDOW_OPENGL;
@@ -220,23 +217,34 @@ void GLWindow::Init() {
   glDisable(GL_FRAMEBUFFER_SRGB);
 
 #if IMPACTO_GL_DEBUG
-  if (ActualGraphicsApi == GfxApi_GL) {
+  int glContextVersion[2]{};
+  SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, glContextVersion);
+  SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, glContextVersion + 1);
+  bool isDesktopGL = ActualGraphicsApi == GfxApi_GL;
+  bool isVer3_2 = glContextVersion[0] >= 3 && glContextVersion[1] >= 2;
+  if (!isDesktopGL && !isVer3_2) {
+    ImpLog(LL_Error, LC_GL,
+           "IMPACTO_GL_DEBUG defined but no debug context requested because "
+           "we're using GLES <3.2\n");
+  } else {
     GLint flags;
     glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
     if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
       GLDebug = true;
       glEnable(GL_DEBUG_OUTPUT);
       glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-      glDebugMessageCallbackARB(&LogGLMessageCallback, NULL);
-      glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0,
-                               NULL, GL_TRUE);
+      if (isDesktopGL) {
+        glDebugMessageCallbackARB(&LogGLMessageCallback, NULL);
+        glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0,
+                                 NULL, GL_TRUE);
+      } else if (isVer3_2) {
+        glDebugMessageCallback(&LogGLMessageCallback, NULL);
+        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL,
+                              GL_TRUE);
+      }
     } else {
       ImpLog(LL_Error, LC_GL, "Could not get debug context\n");
     }
-  } else {
-    ImpLog(LL_Error, LC_GL,
-           "IMPACTO_GL_DEBUG defined but no debug context requested because "
-           "we're using GLES\n");
   }
 #endif
 

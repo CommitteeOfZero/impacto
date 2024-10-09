@@ -637,7 +637,6 @@ endif ()
 
 if(ANDROID)
     set(IMPACTO_DISABLE_IMGUI ON)
-    add_compile_definitions(IMPACTO_DISABLE_IMGUI ON)
 endif ()
 
 if (UNIX AND NOT CYGWIN)
