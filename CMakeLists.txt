@@ -1061,6 +1061,7 @@ endif ()
 
 if(ANDROID)
     add_library(impacto SHARED ${Impacto_Src} ${Impacto_Header})
+    target_link_options(impacto PRIVATE "LINKER:--build-id=sha1")
 else()
     add_executable(impacto ${Impacto_Src} ${Impacto_Header})
 endif()
@@ -1119,7 +1120,7 @@ target_include_directories(impacto PRIVATE ${PROJECT_BINARY_DIR}/include)
 # binary install
 
 if (ANDROID)
-    install(TARGETS impacto LIBRARY DESTINATION .)
+    install(TARGETS impacto LIBRARY DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/jniLibs/${CMAKE_ANDROID_ARCH_ABI}/)
 else ()
     install(TARGETS impacto RUNTIME DESTINATION .)
 endif ()
