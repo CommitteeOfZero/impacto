@@ -24,6 +24,13 @@ android {
     aaptOptions {
        noCompress 'mp4', 'mpk'
     }
+    packagingOptions {
+        // By default .so libraries are striped from debug information when creating APK
+        // To prevent this make sure your .so files are matching that doNotStrip pattern
+        // See Gradle pattern document for details:
+        // https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/util/PatternFilterable.html
+        doNotStrip "**"
+    }
 }
 
 dependencies {
