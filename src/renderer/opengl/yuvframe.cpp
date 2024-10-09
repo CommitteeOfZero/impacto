@@ -1,4 +1,5 @@
 #include "yuvframe.h"
+#include "../../log.h"
 
 #include <glad/glad.h>
 
@@ -18,13 +19,13 @@ void GLYUVFrame::Init(float width, float height) {
 
 void GLYUVFrame::Submit(void* luma, void* cb, void* cr) {
   glBindTexture(GL_TEXTURE_2D, LumaId);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, (GLsizei)Width, (GLsizei)Height, 0,
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, (GLsizei)Width, (GLsizei)Height, 0,
                GL_RED, GL_UNSIGNED_BYTE, luma);
   glBindTexture(GL_TEXTURE_2D, CbId);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, (GLsizei)(Width / 2),
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, (GLsizei)(Width / 2),
                (GLsizei)(Height / 2), 0, GL_RED, GL_UNSIGNED_BYTE, cb);
   glBindTexture(GL_TEXTURE_2D, CrId);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, (GLsizei)(Width / 2),
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, (GLsizei)(Width / 2),
                (GLsizei)(Height / 2), 0, GL_RED, GL_UNSIGNED_BYTE, cr);
 }
 
