@@ -274,6 +274,9 @@ paket-files/
 __pycache__/
 *.pyc
 
+# VSCode
+.vscode
+
 ###
 
 compile_commands.json
