@@ -45,23 +45,27 @@ void Update(float dt) {
     case WaitIconType::None:
       return;
 
-    case WaitIconType::SpriteAnim:
-      if (GetFlag(Profile::ScriptVars::SF_SHOWWAITICON))
-        SpriteAnim.StartIn(false);
-      else
-        SpriteAnim.StartOut(false);
+    case WaitIconType::SpriteAnim: {
+      bool showWaitIcon = GetFlag(Profile::ScriptVars::SF_SHOWWAITICON);
+      if (showWaitIcon && SpriteAnim.IsOut())
+        SpriteAnim.StartIn();
+      else if (!showWaitIcon && SpriteAnim.IsIn())
+        SpriteAnim.StartOut();
 
       SpriteAnim.Update(dt);
       break;
+    }
 
-    case WaitIconType::SpriteAnimFixed:
-      if (GetFlag(Profile::ScriptVars::SF_SHOWWAITICON))
-        FixedSpriteAnim.StartIn(false);
-      else
-        FixedSpriteAnim.StartOut(false);
+    case WaitIconType::SpriteAnimFixed: {
+      bool showWaitIcon = GetFlag(Profile::ScriptVars::SF_SHOWWAITICON);
+      if (showWaitIcon && FixedSpriteAnim.IsOut())
+        FixedSpriteAnim.StartIn();
+      else if (!showWaitIcon && FixedSpriteAnim.IsIn())
+        FixedSpriteAnim.StartOut();
 
       FixedSpriteAnim.Update(dt);
       break;
+    }
 
     default:
       SimpleAnim.Update(dt);
