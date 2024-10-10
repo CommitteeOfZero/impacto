@@ -73,30 +73,18 @@ static void RenderSpriteAnim(glm::vec2 pos, glm::vec4 opacityTint,
                              DialoguePageMode mode) {
   if (FixedSpriteAnim.IsOut()) return;
 
+  glm::vec2 offset = WaitIconOffset;
+
   if (DialogueBoxCurrentType == +DialogueBoxType::CHLCC) {
     // To deal with multiple DialogueBox
-    glm::vec4 col = glm::vec4(1.0f, 1.0f, 1.0f, opacityTint.a);
-    // Erin DialogueBox
-    if (mode == DPM_REV) {
-      Renderer->DrawSprite(
-          SpriteAnim.CurrentSprite(),
-          glm::vec2(
-              pos.x + Impacto::Profile::CHLCC::DialogueBox::REVWaitIconOffset.x,
-              pos.y +
-                  Impacto::Profile::CHLCC::DialogueBox::REVWaitIconOffset.y),
-          col);
+    opacityTint = glm::vec4(1.0f, 1.0f, 1.0f, opacityTint.a);
 
-    } else {
-      Renderer->DrawSprite(
-          SpriteAnim.CurrentSprite(),
-          glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y), col);
-    }
-  } else {
-    Renderer->DrawSprite(
-        SpriteAnim.CurrentSprite(),
-        glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y),
-        opacityTint);
+    // Erin DialogueBox
+    if (mode == DPM_REV)
+      offset = Impacto::Profile::CHLCC::DialogueBox::REVWaitIconOffset;
   }
+
+  Renderer->DrawSprite(SpriteAnim.CurrentSprite(), pos + offset, opacityTint);
   return;
 }
 
