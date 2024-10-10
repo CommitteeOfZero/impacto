@@ -46,10 +46,20 @@ void Update(float dt) {
       return;
 
     case WaitIconType::SpriteAnim:
+      if (GetFlag(Profile::ScriptVars::SF_SHOWWAITICON))
+        SpriteAnim.StartIn(false);
+      else
+        SpriteAnim.StartOut(false);
+
       SpriteAnim.Update(dt);
       break;
 
     case WaitIconType::SpriteAnimFixed:
+      if (GetFlag(Profile::ScriptVars::SF_SHOWWAITICON))
+        FixedSpriteAnim.StartIn(false);
+      else
+        FixedSpriteAnim.StartOut(false);
+
       FixedSpriteAnim.Update(dt);
       break;
 
@@ -61,11 +71,6 @@ void Update(float dt) {
 
 static void RenderSpriteAnim(glm::vec2 pos, glm::vec4 opacityTint,
                              DialoguePageMode mode) {
-  if (GetFlag(Profile::ScriptVars::SF_SHOWWAITICON))
-    SpriteAnim.StartIn();
-  else
-    SpriteAnim.StartOut();
-
   if (FixedSpriteAnim.IsOut()) return;
 
   if (DialogueBoxCurrentType == +DialogueBoxType::CHLCC) {
@@ -96,11 +101,6 @@ static void RenderSpriteAnim(glm::vec2 pos, glm::vec4 opacityTint,
 }
 
 static void RenderSpriteAnimFixed(glm::vec4 opacityTint) {
-  if (GetFlag(Profile::ScriptVars::SF_SHOWWAITICON))
-    FixedSpriteAnim.StartIn();
-  else
-    FixedSpriteAnim.StartOut();
-
   if (FixedSpriteAnim.Progress == 0.0f) return;
 
   Renderer->DrawSprite(FixedSpriteAnim.CurrentSprite(),
