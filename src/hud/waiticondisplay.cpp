@@ -85,7 +85,6 @@ static void RenderSpriteAnim(glm::vec2 pos, glm::vec4 opacityTint,
   }
 
   Renderer->DrawSprite(SpriteAnim.CurrentSprite(), pos + offset, opacityTint);
-  return;
 }
 
 static void RenderSpriteAnimFixed(glm::vec4 opacityTint) {
@@ -94,7 +93,6 @@ static void RenderSpriteAnimFixed(glm::vec4 opacityTint) {
   Renderer->DrawSprite(FixedSpriteAnim.CurrentSprite(),
                        glm::vec2(WaitIconOffset.x, WaitIconOffset.y),
                        opacityTint);
-  return;
 }
 
 static void RenderRotateZ(glm::vec2 pos, glm::vec4 opacityTint) {
@@ -113,7 +111,6 @@ static void RenderRotateZ(glm::vec2 pos, glm::vec4 opacityTint) {
       WaitIconSprite,
       glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y), 1.0f,
       vanishingPoint, true, quat, opacityTint);
-  return;
 }
 
 static void RenderFixed(glm::vec4 opacityTint) {

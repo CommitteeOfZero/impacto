@@ -6,7 +6,6 @@
 namespace Impacto {
 
 class SpriteAnimationDef;
-class FixedSpriteAnimationDef;
 
 struct SpriteAnimation : public Animation {
   SpriteAnimationDef* Def = 0;
