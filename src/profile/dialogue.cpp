@@ -96,22 +96,30 @@ void Configure() {
   TryGetMemberFloat("TipsLineSpacing", TipsLineSpacing);
   TryGetMemberInt("TipsColorIndex", TipsColorIndex);
 
+  int WaitIconCurrentTypeInt;
+  if (!TryGetMemberInt("WaitIconCurrentType", WaitIconCurrentTypeInt))
+    WaitIconCurrentTypeInt = +WaitIconDisplay::WaitIconType::None;
   WaitIconCurrentType = WaitIconDisplay::WaitIconType::_from_integral_unchecked(
-      EnsureGetMemberInt("WaitIconCurrentType"));
-  if (WaitIconCurrentType == +WaitIconDisplay::WaitIconType::SpriteAnim) {
-    WaitIconSpriteAnim = EnsureGetMemberAnimation("WaitIconSpriteAnim");
-  } else if (WaitIconCurrentType ==
-             +WaitIconDisplay::WaitIconType::SpriteAnimFixed) {
-    WaitIconSpriteAnim = EnsureGetMemberAnimation("WaitIconSpriteAnim");
-    WaitIconFixedSpriteId = EnsureGetMemberInt("WaitIconFixedSpriteId");
-  } else if (WaitIconCurrentType == +WaitIconDisplay::WaitIconType::None) {
-    WaitIconSprite = EnsureGetMemberSprite("WaitIconSprite");
-  } else {
-    WaitIconSprite = EnsureGetMemberSprite("WaitIconSprite");
-    WaitIconAnimationDuration =
-        EnsureGetMemberFloat("WaitIconAnimationDuration");
+      WaitIconCurrentTypeInt);
+  if (WaitIconCurrentType != +WaitIconDisplay::WaitIconType::None) {
+    switch (WaitIconCurrentType) {
+      case WaitIconDisplay::WaitIconType::SpriteAnim:
+        WaitIconSpriteAnim = EnsureGetMemberAnimation("WaitIconSpriteAnim");
+        break;
+      case WaitIconDisplay::WaitIconType::SpriteAnimFixed:
+        WaitIconSpriteAnim = EnsureGetMemberAnimation("WaitIconSpriteAnim");
+        WaitIconFixedSpriteId = EnsureGetMemberInt("WaitIconFixedSpriteId");
+        break;
+      case WaitIconDisplay::WaitIconType::Fixed:
+        WaitIconSprite = EnsureGetMemberSprite("WaitIconSprite");
+        break;
+      default:
+        WaitIconSprite = EnsureGetMemberSprite("WaitIconSprite");
+        WaitIconAnimationDuration =
+            EnsureGetMemberFloat("WaitIconAnimationDuration");
+    }
+    WaitIconOffset = EnsureGetMemberVec2("WaitIconOffset");
   }
-  WaitIconOffset = EnsureGetMemberVec2("WaitIconOffset");
 
   int AutoIconCurrentTypeInt;
   if (!TryGetMemberInt("AutoIconCurrentType", AutoIconCurrentTypeInt))

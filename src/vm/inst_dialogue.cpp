@@ -184,12 +184,15 @@ VmInstruction(InstMesMain) {
       }
     } else {
       // Text is fully opaque
+      SetFlag(SF_SHOWWAITICON + thread->DialoguePageId, true);
+
       if (!GetFlag(SF_UIHIDDEN)) {
         if (advanceButtonWentDown || GetFlag(SF_MESALLSKIP) ||
             !currentPage->AutoWaitTime) {
           // Advance to next line
           SaveSystem::SetLineRead(ScrWork[2 * currentPage->Id + SW_SCRIPTID],
                                   ScrWork[2 * currentPage->Id + SW_LINEID]);
+          SetFlag(SF_SHOWWAITICON + thread->DialoguePageId, false);
 
           BlockThread;
           return;

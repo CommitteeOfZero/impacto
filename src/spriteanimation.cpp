@@ -3,20 +3,26 @@
 namespace Impacto {
 
 bool SpriteAnimation::Exists() { return Def != 0; }
+
 Sprite SpriteAnimation::CurrentSprite() {
   int frame = (int)(Progress * (float)Def->FrameCount);
+
   if (frame >= Def->FrameCount)
     frame = Def->FrameCount - 1;
   else if (frame < 0)
     frame = 0;
+
   return Def->Frames[frame];
 }
+
 void FixedSpriteAnimation::StartInImpl(bool reset) {
   if (reset) Progress = GetFixedSpriteProgress();
 }
+
 void FixedSpriteAnimation::StartOutImpl(bool reset) {
   if (reset) Progress = GetFixedSpriteProgress();
 }
+
 void FixedSpriteAnimation::UpdateImpl(float dt) {
   float fixedSpriteProgress = GetFixedSpriteProgress();
   int animationRequest = Direction;
@@ -58,6 +64,7 @@ void FixedSpriteAnimation::UpdateImpl(float dt) {
     State = AS_Playing;
   }
 }
+
 Sprite FixedSpriteAnimation::CurrentSprite() {
   int frame;
   float fixedSpriteProgress = GetFixedSpriteProgress();
@@ -78,11 +85,13 @@ Sprite FixedSpriteAnimation::CurrentSprite() {
 
   return Def->Frames[frame];
 }
+
 float FixedSpriteAnimation::GetFixedSpriteProgress() const {
   /* Converse because in- and out directions are reversed
     between spritesheet and implementation */
   return 1.0f - (float)Def->FixSpriteId / Def->FrameCount;
 }
+
 SpriteAnimation SpriteAnimationDef::Instantiate() {
   SpriteAnimation result;
   result.Def = this;
@@ -95,4 +104,5 @@ SpriteAnimation SpriteAnimationDef::Instantiate() {
 
   return result;
 }
+
 }  // namespace Impacto
