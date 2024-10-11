@@ -721,12 +721,10 @@ void DialoguePage::Render() {
   }
 
   // Wait icon
-  if (Typewriter.Progress == 1.0f && Glyphs.size() > 0) {
-    WaitIconDisplay::Render(
-        glm::vec2(Glyphs.back().DestRect.X + Glyphs.back().DestRect.Width,
-                  Glyphs.back().DestRect.Y),
-        col, Mode);
-  }
+  const RectF& lastGlyphDest =
+      Glyphs.empty() ? RectF() : Glyphs.back().DestRect;
+  glm::vec2 waitIconPos(lastGlyphDest.X + lastGlyphDest.Width, lastGlyphDest.Y);
+  WaitIconDisplay::Render(waitIconPos, col, Mode);
 
   AutoIconDisplay::Render(col);
   SkipIconDisplay::Render(col);

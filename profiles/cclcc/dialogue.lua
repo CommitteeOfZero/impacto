@@ -41,7 +41,7 @@ root.Dialogue = {
     WaitIconCurrentType = WaitIconType.SpriteAnimFixed,
     WaitIconSpriteAnim = "WaitIconSpriteAnim",
     WaitIconAnimationDuration = 0.7,
-    WaitIconOffset = { X = 1624, Y = 955 },
+    WaitIconOffset = { X = 1595, Y = 895 },
     WaitIconFixedSpriteId = 6,
     AutoIconCurrentType = AutoIconType.SpriteAnimFixed,
     AutoIconSpriteAnim = "AutoIconSpriteAnim",
