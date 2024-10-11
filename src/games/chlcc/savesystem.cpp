@@ -132,7 +132,8 @@ SaveError SaveSystem::MountSaveFile() {
 //  return 0;
 //}
 
-void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id) {
+void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
+                                       int autoSaveType) {
   SaveFileEntry* entry = 0;
   switch (type) {
     case SaveQuick:
@@ -144,8 +145,11 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id) {
   }
 
   if (WorkingSaveEntry != 0) {
-    if (entry != 0) {
+    if (entry != 0 && !(GetSaveFlags(type, id) & WriteProtect)) {
       *entry = *WorkingSaveEntry;
+      if (type == SaveQuick) {
+        entry->SaveType = autoSaveType;
+      }
       time_t rawtime;
       time(&rawtime);
       entry->SaveDate = *localtime(&rawtime);

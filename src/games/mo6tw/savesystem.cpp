@@ -190,7 +190,8 @@ SaveError SaveSystem::MountSaveFile() {
 //  return 0;
 //}
 
-void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id) {
+void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
+                                       int autoSaveType) {
   SaveFileEntry* entry = 0;
   switch (type) {
     case SaveQuick:
@@ -202,7 +203,11 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id) {
   }
 
   if (WorkingSaveEntry != 0) {
-    if (entry != 0) {
+    if (entry != 0 && !(GetSaveFlags(type, id) & WriteProtect)) {
+      Renderer->FreeTexture(entry->SaveThumbnail.Sheet.Texture);
+      if (type == SaveQuick) {
+        entry->SaveType = autoSaveType;
+      }
       entry->Status = 1;
 
       std::time_t t = std::time(0);

@@ -20,19 +20,17 @@ using namespace Impacto::SaveSystem;
 glm::vec4 SaveEntryButton::FocusedAlpha = glm::vec4(1.0f);
 Animation SaveEntryButton::FocusedAlphaFade;
 
-SaveEntryButton::SaveEntryButton(int id, Sprite const& focusedBox,
+SaveEntryButton::SaveEntryButton(int id, int index, Sprite const& focusedBox,
                                  Sprite const& focusedText, int page,
                                  glm::vec2 pos, Sprite lockedSymbol,
                                  SaveSystem::SaveType saveType,
                                  Sprite NoDataSprite, Sprite BrokenDataSprite)
     : Widgets::Button(
-          (saveType == SaveSystem::SaveType::SaveFull
-               ? id
-               : SaveSystem::GetQuickSaveCount() - id - 1),
+          id,
           Sprite(SpriteSheet(), focusedBox.Bounds.X, focusedBox.Bounds.Y,
                  focusedBox.Bounds.Width, focusedBox.Bounds.Height),
           Sprite(SpriteSheet(), 0, 0, 0, 0), focusedBox, pos),
-      Index(id),
+      Index(index),
       Page(page),
       FocusedSpriteLabel(focusedText, glm::vec2{pos.x, pos.y - 34}),
       LockedSymbol(lockedSymbol,
@@ -157,7 +155,7 @@ void SaveEntryButton::RefreshSaveDateText() {
 // TODO: Make this only refresh when saved
 void SaveEntryButton::Update(float dt) {
   SaveStatus = SaveSystem::GetSaveStatus(Type, Id);
-  IsLocked = SaveSystem::GetSaveFlags(Type, Id) == 1;
+  IsLocked = SaveSystem::GetSaveFlags(Type, Id) & WriteProtect;
   if (SaveStatus == 1) {
     auto strIndex = (SaveSystem::GetSaveTitle(Type, Id) * 2);
     if (strIndex > 40) {

@@ -14,7 +14,7 @@
 
 #include <cstdint>
 #include <ctime>
-#include <filesystem>
+#include <system_error>
 
 namespace Impacto {
 namespace CCLCC {
@@ -25,28 +25,49 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Vm;
 
 SaveError SaveSystem::CheckSaveFile() {
-  std::filesystem::path savePath(SaveFilePath);
-  if (!std::filesystem::exists(savePath)) {
+  std::error_code ec;
+  IoError existsState = Io::PathExists(SaveFilePath);
+  if (existsState == IoError_NotFound) {
     return SaveNotFound;
+  } else if (existsState == IoError_Fail) {
+    ImpLog(LL_Error, LC_IO,
+           "Failed to check if save file exists, error: \"%s\"\n",
+           ec.message().c_str());
+    return SaveFailed;
   }
-  if (std::filesystem::file_size(savePath) != SaveFileSize) {
+  auto saveFileSize = Io::GetFileSize(SaveFilePath);
+  if (saveFileSize == IoError_Fail) {
+    ImpLog(LL_Error, LC_IO, "Failed to get save file size, error: \"%s\"\n",
+           ec.message().c_str());
+    return SaveFailed;
+  } else if (saveFileSize != SaveFileSize) {
     return SaveCorrupted;
   }
-  if (auto perms = std::filesystem::status(savePath).permissions();
-      to_underlying(perms) &
-          (to_underlying(std::filesystem::perms::owner_read) |
-           to_underlying(std::filesystem::perms::owner_write)) == 0 &&
-      to_underlying(perms) &
-          (to_underlying(std::filesystem::perms::group_read) |
-           to_underlying(std::filesystem::perms::group_write)) == 0) {
+  auto checkPermsBit = [](Io::FilePermissionsFlags perms,
+                          Io::FilePermissionsFlags flag) {
+    return to_underlying(perms) & to_underlying(flag);
+  };
+
+  Io::FilePermissionsFlags perms;
+  IoError permsState = Io::GetFilePermissions(SaveFilePath, perms);
+  if (permsState == IoError_Fail) {
+    ImpLog(LL_Error, LC_IO,
+           "Failed to get save file permissions, error: \"%s\"\n",
+           ec.message().c_str());
+    return SaveFailed;
+  } else if ((!checkPermsBit(perms, Io::FilePermissionsFlags::owner_read) ||
+              !checkPermsBit(perms, Io::FilePermissionsFlags::owner_write))) {
     return SaveWrongUser;
   }
   return SaveOK;
 }
 
 SaveError SaveSystem::CreateSaveFile() {
+  using CF = Io::PhysicalFileStream::CreateFlagsMode;
   Io::Stream* stream;
-  IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream, false);
+  IoError err = Io::PhysicalFileStream::Create(
+      SaveFilePath, &stream,
+      CF::CREATE_IF_NOT_EXISTS | CF::CREATE_DIRS | CF::WRITE);
   if (err != IoError_OK) {
     return SaveFailed;
   }
@@ -232,20 +253,24 @@ SaveError SaveSystem::MountSaveFile() {
 //  return 0;
 //}
 
-void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id) {
+void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
+                                       int autoSaveType) {
   SaveFileEntry* entry = 0;
   switch (type) {
     case SaveQuick:
-      entry = (SaveFileEntry*)QuickSaveEntries[QuickSaveCount++];
+      entry = (SaveFileEntry*)QuickSaveEntries[id];
       break;
     case SaveFull:
       entry = (SaveFileEntry*)FullSaveEntries[id];
       break;
   }
 
-  if (entry != 0) {
+  if (entry != 0 && !(GetSaveFlags(type, id) & WriteProtect)) {
     Renderer->FreeTexture(entry->SaveThumbnail.Sheet.Texture);
     *entry = *WorkingSaveEntry;
+    if (type == SaveQuick) {
+      entry->SaveType = autoSaveType;
+    }
     time_t rawtime;
     time(&rawtime);
     entry->SaveDate = *localtime(&rawtime);
@@ -271,8 +296,10 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id) {
 }
 
 void SaveSystem::WriteSaveFile() {
+  using CF = Io::PhysicalFileStream::CreateFlagsMode;
   Io::Stream* stream;
-  IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream);
+  IoError err =
+      Io::PhysicalFileStream::Create(SaveFilePath, &stream, CF::WRITE);
   if (err != IoError_OK) {
     ImpLog(LL_Error, LC_IO, "Failed to open save file for writing\n");
     return;
