@@ -1,5 +1,6 @@
 #include "systemmenu.h"
 #include <glm/common.hpp>
+#include <random>
 #include "../../profile/games/cclcc/systemmenu.h"
 #include "../../renderer/renderer.h"
 #include "../../ui/ui.h"
@@ -157,15 +158,25 @@ void SystemMenu::Render() {
     // Renderer->DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f,
     // 720.0f),
     //                      glm::vec4(tint, alpha));
-    Renderer->DrawSprite(SystemMenuBG,
+    Sprite repositionedBG = SystemMenuBG;
+    glm::vec2 bgOffset;
+    bgOffset.x = (ScrWork[SW_SYSSUBMENUCT] * 3000.0 * 0.03125 * 0.5);
+    repositionedBG.Bounds.X = (BGPosition.x - 0.5 * bgOffset.x) - 600;
+    repositionedBG.Bounds.Width = 1860;
+    repositionedBG.Bounds.Y = BGPosition.y - 165;
+    repositionedBG.Bounds.Height = 1205;
+    Renderer->DrawSprite(repositionedBG,
                          {0, 0, Profile::DesignWidth, Profile::DesignHeight},
                          glm::vec4{tint, alpha});
-    float yOffset = 0;
 
     MainItems->Tint =
         glm::vec4(tint, glm::smoothstep(0.0f, 1.0f, ItemsFade.Progress));
     MainItems->Render();
   }
+}
+
+void SystemMenu::InitPosition() {
+  BGPosition = {CALCrnd(390) + 1350, CALCrnd(295) + 165};
 }
 
 }  // namespace CCLCC
