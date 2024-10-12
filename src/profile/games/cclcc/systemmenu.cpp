@@ -20,6 +20,10 @@ void Configure() {
   GetMemberVec2Array(MenuEntriesPositions, Profile::SystemMenu::MenuEntriesNum,
                      "MenuEntriesPositions");
 
+  GetMemberRectFArray(MenuEntriesButtonBounds,
+                      Profile::SystemMenu::MenuEntriesNum,
+                      "MenuEntriesButtonBounds");
+
   SystemMenuBG = EnsureGetMemberSprite("SystemMenuBG");
   MenuButtonGuide = EnsureGetMemberSprite("MenuButtonGuide");
 

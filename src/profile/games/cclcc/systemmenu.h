@@ -15,6 +15,7 @@ inline float MoveOutDuration;
 inline float ItemsFadeInDuration;
 inline float ItemsFadeOutDuration;
 inline glm::vec2 MenuEntriesPositions[MenuEntriesNumMax];
+inline RectF MenuEntriesButtonBounds[MenuEntriesNumMax];
 
 void Configure();
 

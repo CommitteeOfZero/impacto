@@ -48,9 +48,9 @@ SystemMenu::SystemMenu() {
   MainItems = new Widgets::Group(this);
 
   for (int i = 0; i < MenuEntriesNum; i++) {
-    SysMenuButton* menuButton =
-        new SysMenuButton(i, MenuEntriesSprites[i], Sprite(),
-                          MenuEntriesHSprites[i], MenuEntriesPositions[i]);
+    SysMenuButton* menuButton = new SysMenuButton(
+        i, MenuEntriesSprites[i], Sprite(), MenuEntriesHSprites[i],
+        MenuEntriesPositions[i], MenuEntriesButtonBounds[i]);
 
     menuButton->OnClickHandler = onClick;
     MainItems->Add(menuButton, FDIR_DOWN);
