@@ -69,56 +69,76 @@ void PushInitialIndex() { lua_pushnil(LuaState); }
 
 int PushNextTableElement() { return lua_next(LuaState, -2); }
 
-#define LUA_GET_METHODS(typeName, nativeType, typeDesc)                      \
-  nativeType EnsureGet##typeName() {                                         \
-    nativeType result;                                                       \
-    bool success = TryGet##typeName(result);                                 \
-    if (!success) {                                                          \
-      ImpLog(LL_Fatal, LC_Profile, "Expected %s to be " typeDesc "\n");      \
-      Window->Shutdown();                                                    \
-    }                                                                        \
-    return result;                                                           \
-  }                                                                          \
-  std::optional<nativeType> TryGet##typeName() {                             \
-    nativeType v;                                                            \
-    bool result = TryGet##typeName(v);                                       \
-    return result ? std::optional<nativeType>{std::in_place, std::move(v)}   \
-                  : std::nullopt;                                            \
-  }                                                                          \
-  bool TryGetMember##typeName(char const* name, nativeType& out##typeName) { \
-    if (!TryPushMember(name)) return false;                                  \
-    bool result = TryGet##typeName(out##typeName);                           \
-    Pop();                                                                   \
-    return result;                                                           \
-  }                                                                          \
-  std::optional<nativeType> TryGetMember##typeName(char const* name) {       \
-    if (!TryPushMember(name)) return std::nullopt;                           \
-    auto result = TryGet##typeName();                                        \
-    Pop();                                                                   \
-    return result;                                                           \
-  }                                                                          \
-  nativeType EnsureGetMember##typeName(char const* name) {                   \
-    EnsurePushMember(name);                                                  \
-    nativeType result = EnsureGet##typeName();                               \
-    Pop();                                                                   \
-    return result;                                                           \
-  }                                                                          \
-  bool TryGetArrayElement##typeName(nativeType& out##typeName) {             \
-    bool result = TryGet##typeName(out##typeName);                           \
-    return result;                                                           \
-  }                                                                          \
-  std::optional<nativeType> TryGetArrayElement##typeName() {                 \
-    return TryGet##typeName();                                               \
-  }                                                                          \
-  nativeType EnsureGetArrayElement##typeName() {                             \
-    nativeType result = EnsureGet##typeName();                               \
-    return result;                                                           \
-  }                                                                          \
-  nativeType EnsureGetArrayElementByIndex##typeName(uint32_t index) {        \
-    lua_rawgeti(LuaState, -1, index + 1);                                    \
-    nativeType result = EnsureGet##typeName();                               \
-    Pop();                                                                   \
-    return result;                                                           \
+#define LUA_GET_METHODS(typeName, nativeType, typeDesc)                       \
+  nativeType EnsureGet##typeName() {                                          \
+    nativeType result;                                                        \
+    bool success = TryGet##typeName(result);                                  \
+    if (!success) {                                                           \
+      ImpLog(LL_Fatal, LC_Profile, "Expected %s to be " typeDesc "\n");       \
+      Window->Shutdown();                                                     \
+    }                                                                         \
+    return result;                                                            \
+  }                                                                           \
+  std::optional<nativeType> TryGet##typeName() {                              \
+    nativeType v;                                                             \
+    bool result = TryGet##typeName(v);                                        \
+    return result ? std::optional<nativeType>{std::in_place, std::move(v)}    \
+                  : std::nullopt;                                             \
+  }                                                                           \
+  bool TryGetMember##typeName(char const* name, nativeType& out##typeName) {  \
+    if (!TryPushMember(name)) return false;                                   \
+    bool result = TryGet##typeName(out##typeName);                            \
+    Pop();                                                                    \
+    return result;                                                            \
+  }                                                                           \
+  std::optional<nativeType> TryGetMember##typeName(char const* name) {        \
+    if (!TryPushMember(name)) return std::nullopt;                            \
+    auto result = TryGet##typeName();                                         \
+    Pop();                                                                    \
+    return result;                                                            \
+  }                                                                           \
+  nativeType EnsureGetMember##typeName(char const* name) {                    \
+    EnsurePushMember(name);                                                   \
+    nativeType result = EnsureGet##typeName();                                \
+    Pop();                                                                    \
+    return result;                                                            \
+  }                                                                           \
+  bool TryGetArrayElement##typeName(nativeType& out##typeName) {              \
+    bool result = TryGet##typeName(out##typeName);                            \
+    return result;                                                            \
+  }                                                                           \
+  std::optional<nativeType> TryGetArrayElement##typeName() {                  \
+    return TryGet##typeName();                                                \
+  }                                                                           \
+  nativeType EnsureGetArrayElement##typeName() {                              \
+    nativeType result = EnsureGet##typeName();                                \
+    return result;                                                            \
+  }                                                                           \
+  nativeType EnsureGetArrayElementByIndex##typeName(uint32_t index) {         \
+    lua_rawgeti(LuaState, -1, index + 1);                                     \
+    nativeType result = EnsureGet##typeName();                                \
+    Pop();                                                                    \
+    return result;                                                            \
+  }                                                                           \
+  void GetMember##typeName##Array(nativeType* arr, uint32_t count,            \
+                                  char const* name) {                         \
+    EnsurePushMemberOfType(name, LUA_TTABLE);                                 \
+                                                                              \
+    uint32_t actualCount = static_cast<uint32_t>(lua_rawlen(LuaState, -1));   \
+    if (actualCount != count) {                                               \
+      ImpLog(LL_Fatal, LC_Profile, "Expected to have %d %s for %s, got %d\n", \
+             count, #typeName "s", name, actualCount);                        \
+      Window->Shutdown();                                                     \
+    }                                                                         \
+                                                                              \
+    PushInitialIndex();                                                       \
+    while (PushNextTableElement()) {                                          \
+      int i = EnsureGetKeyInt() - 1;                                          \
+      arr[i] = EnsureGetArrayElement##typeName();                             \
+      Pop();                                                                  \
+    }                                                                         \
+                                                                              \
+    Pop();                                                                    \
   }
 
 #define TRY_GET_ENTITY(typeName, nativeType, arrayName)        \
@@ -159,25 +179,6 @@ bool TryGetUint(uint32_t& outUint) {
   return false;
 }
 
-void GetMemberUintArray(uint32_t* arr, uint32_t count, char const* name) {
-  EnsurePushMemberOfType(name, LUA_TTABLE);
-
-  if (lua_rawlen(LuaState, -1) != count) {
-    ImpLog(LL_Fatal, LC_Profile, "Expected to have %d ints for %s\n", count,
-           name);
-    Window->Shutdown();
-  }
-
-  PushInitialIndex();
-  while (PushNextTableElement()) {
-    int i = EnsureGetKeyUint() - 1;
-    arr[i] = EnsureGetArrayElementUint();
-    Pop();
-  }
-
-  Pop();
-}
-
 LUA_GET_METHODS(Uint, uint32_t, "unsigned integer convertible")
 
 bool TryGetInt(int32_t& outInt) {
@@ -194,25 +195,6 @@ bool TryGetInt(int32_t& outInt) {
   return false;
 }
 
-void GetMemberIntArray(int* arr, uint32_t count, char const* name) {
-  EnsurePushMemberOfType(name, LUA_TTABLE);
-
-  if (lua_rawlen(LuaState, -1) != count) {
-    ImpLog(LL_Fatal, LC_Profile, "Expected to have %d ints for %s\n", count,
-           name);
-    Window->Shutdown();
-  }
-
-  PushInitialIndex();
-  while (PushNextTableElement()) {
-    int i = EnsureGetKeyInt() - 1;
-    arr[i] = EnsureGetArrayElementInt();
-    Pop();
-  }
-
-  Pop();
-}
-
 LUA_GET_METHODS(Int, int32_t, "signed integer convertible")
 
 bool TryGetFloat(float& outFloat) {
@@ -226,25 +208,6 @@ bool TryGetFloat(float& outFloat) {
   }
 
   return false;
-}
-
-void GetMemberFloatArray(float* arr, uint32_t count, char const* name) {
-  EnsurePushMemberOfType(name, LUA_TTABLE);
-
-  if (lua_rawlen(LuaState, -1) != count) {
-    ImpLog(LL_Fatal, LC_Profile, "Expected to have %d floats for %s\n", count,
-           name);
-    Window->Shutdown();
-  }
-
-  PushInitialIndex();
-  while (PushNextTableElement()) {
-    int i = EnsureGetKeyInt() - 1;
-    arr[i] = EnsureGetArrayElementFloat();
-    Pop();
-  }
-
-  Pop();
 }
 
 LUA_GET_METHODS(Float, float, "float convertible")
@@ -267,25 +230,6 @@ bool TryGetVec2(glm::vec2& outVec2) {
   if (!lua_istable(LuaState, -1)) return false;
 
   return TryGetMemberFloat("X", outVec2.x) && TryGetMemberFloat("Y", outVec2.y);
-}
-
-void GetMemberVec2Array(glm::vec2* arr, uint32_t count, char const* name) {
-  EnsurePushMemberOfType(name, LUA_TTABLE);
-  uint32_t actualCount = lua_rawlen(LuaState, -1);
-  if (actualCount != count) {
-    ImpLog(LL_Fatal, LC_Profile, "Expected to have %d vec2 for %s, got %d\n",
-           count, name, actualCount);
-    Window->Shutdown();
-  }
-
-  PushInitialIndex();
-  while (PushNextTableElement()) {
-    int i = EnsureGetKeyInt() - 1;
-    arr[i] = EnsureGetArrayElementVec2();
-    Pop();
-  }
-
-  Pop();
 }
 
 LUA_GET_METHODS(Vec2, glm::vec2, "Vec2")
@@ -328,26 +272,6 @@ bool TryGetAssetPath(Io::AssetPath& outPath) {
 }
 
 LUA_GET_METHODS(AssetPath, Io::AssetPath, "AssetPath")
-
-void GetMemberSpriteArray(Sprite* arr, uint32_t count, char const* name) {
-  EnsurePushMemberOfType(name, LUA_TTABLE);
-
-  uint32_t actualCount = static_cast<uint32_t>(lua_rawlen(LuaState, -1));
-  if (actualCount != count) {
-    ImpLog(LL_Fatal, LC_Profile, "Expected to have %d sprites for %s, got %d\n",
-           count, name, actualCount);
-    Window->Shutdown();
-  }
-
-  PushInitialIndex();
-  while (PushNextTableElement()) {
-    int i = EnsureGetKeyInt() - 1;
-    arr[i] = EnsureGetArrayElementSprite();
-    Pop();
-  }
-
-  Pop();
-}
 
 TRY_GET_ENTITY(Sprite, Sprite, Sprites)
 LUA_GET_METHODS(Sprite, Sprite, "Sprite")

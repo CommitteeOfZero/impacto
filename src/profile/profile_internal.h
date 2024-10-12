@@ -26,7 +26,9 @@ inline lua_State* LuaState;
   bool TryGetArrayElement##typeName(nativeType& out##typeName);             \
   std::optional<nativeType> TryGetArrayElement##typeName();                 \
   nativeType EnsureGetArrayElement##typeName();                             \
-  nativeType EnsureGetArrayElementByIndex##typeName(uint32_t index);
+  nativeType EnsureGetArrayElementByIndex##typeName(uint32_t index);        \
+  void GetMember##typeName##Array(nativeType* arr, uint32_t count,          \
+                                  char const* name);
 
 void LuaDumpStack();
 void Pop();
@@ -43,18 +45,10 @@ LUA_GET_METHODS(Int, int32_t)
 LUA_GET_METHODS(Float, float)
 LUA_GET_METHODS(String, char const*)
 
-void GetMemberUintArray(uint32_t* arr, uint32_t count, char const* name);
-void GetMemberIntArray(int* arr, uint32_t count, char const* name);
-void GetMemberFloatArray(float* arr, uint32_t count, char const* name);
-
 LUA_GET_METHODS(Vec2, glm::vec2)
 LUA_GET_METHODS(Vec3, glm::vec3)
 LUA_GET_METHODS(RectF, RectF)
 LUA_GET_METHODS(AssetPath, Io::AssetPath)
-
-void GetMemberVec2Array(glm::vec2* arr, uint32_t count, char const* name);
-
-void GetMemberSpriteArray(Sprite* arr, uint32_t count, char const* name);
 
 LUA_GET_METHODS(Sprite, Sprite)
 LUA_GET_METHODS(SpriteSheet, SpriteSheet)
