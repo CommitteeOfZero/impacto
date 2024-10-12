@@ -21,6 +21,9 @@ void Configure() {
   MenuMaskSprite = EnsureGetMemberSprite("MenuMask");
   BacklogMaskSheet = EnsureGetMemberSpriteSheet("BacklogMask");
 
+  FadeInDirectDuration = EnsureGetMemberFloat("FadeInDirectDuration");
+  FadeOutDirectDuration = EnsureGetMemberFloat("FadeOutDirectDuration");
+
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMemberInt("DrawType"));
 

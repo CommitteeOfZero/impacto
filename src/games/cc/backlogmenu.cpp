@@ -5,6 +5,7 @@
 #include "../../ui/widgets/cc/backlogentry.h"
 #include "../../profile/ui/backlogmenu.h"
 #include "../../profile/games/cc/backlogmenu.h"
+#include "../../profile/scriptvars.h"
 
 namespace Impacto {
 namespace UI {
@@ -14,6 +15,7 @@ using namespace Impacto::UI::CC;
 using namespace Impacto::Profile::BacklogMenu;
 using namespace Impacto::Profile::CC::BacklogMenu;
 using namespace Impacto::UI::Widgets::CC;
+using namespace Impacto::Profile::ScriptVars;
 
 void BacklogMenu::MenuButtonOnClick(Widgets::BacklogEntry* target) {
   if (target->AudioId != -1) {
@@ -21,6 +23,34 @@ void BacklogMenu::MenuButtonOnClick(Widgets::BacklogEntry* target) {
   } else {
     Audio::Channels[Audio::AC_REV]->Play("sysse", 4, false, 0.0f);
   }
+}
+
+void BacklogMenu::Show() {
+  if (State == Hidden) {
+    if (ScrWork[SW_SYSSUBMENUCT] != 32) {
+      FadeAnimation.DurationIn = FadeInDuration;
+      FadeAnimation.DurationOut = FadeOutDuration;
+    } else {
+      FadeAnimation.DurationIn = FadeInDirectDuration;
+      FadeAnimation.DurationOut = FadeOutDirectDuration;
+    }
+  }
+
+  UI::BacklogMenu::Show();
+}
+
+void BacklogMenu::Hide() {
+  if (State == Shown) {
+    if (ScrWork[SW_SYSSUBMENUCT] != 0) {
+      FadeAnimation.DurationIn = FadeInDuration;
+      FadeAnimation.DurationOut = FadeOutDuration;
+    } else {
+      FadeAnimation.DurationIn = FadeInDirectDuration;
+      FadeAnimation.DurationOut = FadeOutDirectDuration;
+    }
+  }
+
+  UI::BacklogMenu::Hide();
 }
 
 void BacklogMenu::Render() {

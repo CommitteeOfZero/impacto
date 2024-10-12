@@ -10,8 +10,10 @@ namespace CC {
 
 class BacklogMenu : public UI::BacklogMenu {
  public:
-  void Render();
-  void MenuButtonOnClick(Widgets::BacklogEntry* target);
+  void Show() override;
+  void Hide() override;
+  void Render() override;
+  void MenuButtonOnClick(Widgets::BacklogEntry* target) override;
 
  private:
   Widgets::CC::BacklogEntry* CreateBacklogEntry(

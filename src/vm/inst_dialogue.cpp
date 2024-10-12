@@ -226,7 +226,6 @@ VmInstruction(InstMesRev) {
   PopUint8(type);
   switch (type) {
     case 0:  // DispInit
-      UI::BacklogMenuPtr->Show();
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction SetMesModeFormat(type: DispInit)\n");
       break;

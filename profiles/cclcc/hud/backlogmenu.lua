@@ -27,8 +27,10 @@ root.BacklogMenu = {
     RenderingBounds = { X = 194, Y = 121, Width = 1531, Height = 868 },
     EntryYPadding = 26,
 
-    FadeInDuration = 0.2,
-    FadeOutDuration = 0.2,
+    FadeInDuration = 0.5,
+    FadeOutDuration = 0.5,
+    FadeInDirectDuration = 0.25,
+    FadeOutDirectDuration = 0.25,
 
     ScrollingSpeed = 900,
     MinHoldTime = 0.5,
