@@ -2,6 +2,7 @@
 
 #include "../../../spritesheet.h"
 #include "../../../games/chlcc/titlemenu.h"
+#include "../../../pathanimation.h"
 
 namespace Impacto {
 namespace Profile {
@@ -13,6 +14,7 @@ void Configure();
 int constexpr LineEntriesNumMax = 32;
 
 inline Sprite IntroBackgroundSprite;
+inline Sprite IntroBigStarSprite;
 inline Sprite BackgroundSprite;
 inline Sprite DelusionADVUnderSprite;
 inline Sprite DelusionADVSprite;
@@ -101,6 +103,21 @@ inline float SecondaryMenuSystemConfigY;
 inline float SecondaryMenuSystemSaveY;
 
 inline int LineNum;
+
+// TODO: Move to lua
+/* inline std::array<std::pair<glm::vec3, EasingFunction>, 8>
+    IntroStarPath = {
+        std::pair(glm::vec3(1.05f, 0.2f, 0), EasingFunction::Linear),
+        std::pair(glm::vec3(0.9f, 0.8f, 0.24f), EasingFunction::QuadraticIn),
+        std::pair(glm::vec3(0.82f, 0.7f, 0.34f), EasingFunction::QuadraticOut),
+        std::pair(glm::vec3(0.75f, 0.8f, 0.44f), EasingFunction::QuadraticIn),
+        std::pair(glm::vec3(0.68f, 0.7f, 0.55f), EasingFunction::QuadraticOut),
+        std::pair(glm::vec3(0.61f, 0.8f, 0.65f), EasingFunction::QuadraticIn),
+        std::pair(glm::vec3(0.55f, 0.35f, 0.87f), EasingFunction::QuadraticOut),
+        std::pair(glm::vec3(0.5f, 0.5f, 1), EasingFunction::QuadraticIn)};*/
+
+inline PathSegment* IntroStarBounceAnimationPath;
+inline int IntroStarBounceAnimationSegmentCount;
 
 }  // namespace TitleMenu
 }  // namespace CHLCC

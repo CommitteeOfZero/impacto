@@ -215,6 +215,7 @@ void MakeLuaProfile(std::string const& name) {
   DefineEnumInt<FontType>(LuaState);
   DefineEnumInt<LKMVersion>(LuaState);
   DefineEnumInt<Dialogue::REVNameLocationType>(LuaState);
+  DefineEnumInt<EasingFunction>(LuaState);
 
   ImpLog(LL_Info, LC_Profile, "Starting profile %s\n", name.c_str());
 
