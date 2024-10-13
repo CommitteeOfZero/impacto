@@ -102,6 +102,7 @@ set(Impacto_Src
         src/profile/games/cclcc/optionsmenu.cpp
         src/profile/games/cclcc/tipsmenu.cpp
         src/profile/games/cclcc/clearlistmenu.cpp
+        src/profile/games/cclcc/librarymenu.cpp
         src/profile/games/cclcc/tipsnotification.cpp
         src/profile/games/cclcc/mapsystem.cpp
         src/profile/games/cclcc/delusiontrigger.cpp
@@ -165,6 +166,7 @@ set(Impacto_Src
         src/games/cclcc/tipsmenu.cpp
         src/games/cclcc/tipssystem.cpp
         src/games/cclcc/clearlistmenu.cpp
+        src/games/cclcc/librarymenu.cpp
         src/games/cclcc/tipsnotification.cpp
         src/games/cclcc/mapsystem.cpp
         src/games/cclcc/delusiontrigger.cpp
@@ -419,6 +421,7 @@ set(Impacto_Header
         src/profile/games/cclcc/optionsmenu.h
         src/profile/games/cclcc/tipsmenu.h
         src/profile/games/cclcc/clearlistmenu.h
+        src/profile/games/cclcc/librarymenu.h
         src/profile/games/cclcc/tipsnotification.h
         src/profile/games/cclcc/mapsystem.h
         src/profile/games/cclcc/delusiontrigger.h
@@ -478,6 +481,7 @@ set(Impacto_Header
         src/games/cclcc/optionsmenu.h
         src/games/cclcc/tipsmenu.h
         src/games/cclcc/clearlistmenu.h
+        src/games/cclcc/librarymenu.h
         src/games/cclcc/mapsystem.h
         src/games/cclcc/delusiontrigger.h
 

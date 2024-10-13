@@ -19,12 +19,16 @@ inline float EntryYPadding;
 
 int constexpr EntriesPerRow = 2;
 int constexpr RowsPerPage = 4;
+inline Sprite SaveMenuMaskSprite;
+inline uint32_t SaveEntryPrimaryColor;
+inline uint32_t SaveEntrySecondaryColor;
 
 inline Sprite MenuTextSprite[SaveMenuPageType::_size_constant];
 inline Sprite EntryHighlightedBoxSprite[SaveMenuPageType::_size_constant];
 inline Sprite EntryHighlightedTextSprite[SaveMenuPageType::_size_constant];
 inline Sprite EntrySlotsSprite[SaveMenuPageType::_size_constant];
 inline Sprite ButtonGuideSprite[SaveMenuPageType::_size_constant];
+inline Sprite SeparationLineSprite[SaveMenuPageType::_size_constant];
 inline Sprite NumberDigitSprite[SaveMenuPageType::_size_constant][10];
 inline Sprite NoDataSprite[SaveMenuPageType::_size_constant];
 inline Sprite BrokenDataSprite[SaveMenuPageType::_size_constant];

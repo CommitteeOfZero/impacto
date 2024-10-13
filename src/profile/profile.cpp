@@ -198,6 +198,7 @@ void MakeLuaProfile(std::string const& name) {
   DefineEnumInt<BacklogMenu::BacklogMenuType>(LuaState);
   DefineEnumInt<BacklogMenu::EntryHighlightLocationType>(LuaState);
   DefineEnumInt<UI::TipsMenuType>(LuaState);
+  DefineEnumInt<UI::LibraryMenuType>(LuaState);
   DefineEnumInt<UI::ClearListMenuType>(LuaState);
   DefineEnumInt<UI::AlbumMenuType>(LuaState);
   DefineEnumInt<UI::MusicMenuType>(LuaState);

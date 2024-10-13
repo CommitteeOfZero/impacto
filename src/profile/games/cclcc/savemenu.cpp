@@ -31,6 +31,9 @@ void Configure() {
   EntryStartYR = EnsureGetMemberFloat("EntryStartYR");
   EntryYPadding = EnsureGetMemberFloat("EntryYPadding");
 
+  SaveMenuMaskSprite = EnsureGetMemberSprite("SaveMenuMaskSprite");
+  SaveEntryPrimaryColor = EnsureGetMemberUint("SaveEntryPrimaryColor");
+  SaveEntrySecondaryColor = EnsureGetMemberUint("SaveEntrySecondaryColor");
   for (int i = 0; i < sizeof(SaveMenuTypeNames) / sizeof(*SaveMenuTypeNames);
        i++) {
     SaveMenuPageType menuType = SaveMenuPageType::_from_integral_unchecked(i);
@@ -46,6 +49,8 @@ void Configure() {
         EnsureGetMemberSprite((menuName + "EntrySlotsSprite").c_str());
     ButtonGuideSprite[menuType] =
         EnsureGetMemberSprite((menuName + "ButtonGuideSprite").c_str());
+    SeparationLineSprite[menuType] =
+        EnsureGetMemberSprite((menuName + "SeparationLineSprite").c_str());
     for (int j = 0; j < 10; j++) {
       NumberDigitSprite[menuType][j] = EnsureGetMemberSprite(
           (menuName + "NumberDigitSprite" + std::to_string(j)).c_str());

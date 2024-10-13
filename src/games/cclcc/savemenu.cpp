@@ -9,6 +9,7 @@
 #include "../../ui/widgets/cclcc/saveentrybutton.h"
 #include "../../data/savesystem.h"
 #include "../../vm/vm.h"
+#include "../../profile/game.h"
 
 namespace Impacto {
 namespace UI {
@@ -254,6 +255,7 @@ void SaveMenu::Update(float dt) {
 void SaveMenu::Render() {
   if (State != Hidden) {
     glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
+    glm::vec4 maskTint = glm::vec4(1.0f);
     Renderer->DrawSprite(MenuTextSprite[ScrWork[SW_SAVEMENUMODE]], {11, 10},
                          col);
     Renderer->DrawSprite(EntrySlotsSprite[ScrWork[SW_SAVEMENUMODE]], {135, 0},
@@ -265,6 +267,10 @@ void SaveMenu::Render() {
         (ScrWork[SW_SYSSUBMENUCT] * 200 * 0.0625 - 400) + 1313 + 1, 866 + 1};
     Renderer->DrawSprite(PageNumSprite[ScrWork[SW_SAVEMENUMODE]][CurrentPage],
                          pageNumPos, col);
+    Renderer->DrawSprite(
+        SaveMenuMaskSprite,
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+        maskTint);
     Renderer->DrawSprite(ButtonGuideSprite[ScrWork[SW_SAVEMENUMODE]],
                          {ScrWork[SW_SYSSUBMENUCT] * 200 * 0.0625 - 400, 989},
                          col);

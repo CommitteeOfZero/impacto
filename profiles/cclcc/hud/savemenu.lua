@@ -8,14 +8,20 @@ root.SaveMenu = {
     EntryStartYR = 52,
     EntryYPadding = 201,
     FadeInDuration = 0.2,
-    FadeOutDuration = 0.2
-
-    
+    FadeOutDuration = 0.2,
+    SaveMenuMaskSprite = "SaveMenuMask",
+    SaveEntryPrimaryColor = 0x43B7EA,
+    SaveEntrySecondaryColor = 0x5E357C,
 };
 
 root.Sprites["EmptyThumbnail"] = {
     Sheet = "SaveMenu",
     Bounds = { X = 0, Y = 0, Width = 0, Height = 0 }
+};
+
+root.Sprites["SaveMenuMask"] = {
+    Sheet = "MenuChip",
+    Bounds = { X = 154, Y = 140, Width = 1900, Height = 1061 },
 };
 
 local menuTypes = { "QuickLoad", "Save", "Load" }
@@ -45,7 +51,12 @@ for i = 1,3 do
     root.SaveMenu[menuType .. "ButtonGuideSprite"] = menuType .. "ButtonGuide";
     root.Sprites[menuType .. "ButtonGuide"] = {
         Sheet = menuType .. "Menu",
-        Bounds = {X = 0, Y = 1457, Width = 1920, Height = 59}
+        Bounds = { X = 0, Y = 1457, Width = 1920, Height = 59 }
+    };
+    root.SaveMenu[menuType .. "SeparationLineSprite"] = menuType .. "SeparationLine";
+    root.Sprites[menuType .. "SeparationLine"] = {
+        Sheet = menuType .. "Menu",
+        Bounds = { X = 847, Y = 1409, Width = 478, Height = 27 }
     };
     
 

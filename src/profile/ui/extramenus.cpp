@@ -6,6 +6,7 @@
 #include "../games/mo6tw/actorsvoicemenu.h"
 #include "../games/mo6tw/musicmenu.h"
 #include "../games/mo6tw/albummenu.h"
+#include "../games/cclcc/librarymenu.h"
 #include "../games/cclcc/clearlistmenu.h"
 #include "../games/chlcc/clearlistmenu.h"
 #include "../games/chlcc/moviemenu.h"
@@ -21,6 +22,17 @@ using namespace Impacto::UI;
 void Configure() {
   if (TryPushMember("ExtraMenus")) {
     AssertIs(LUA_TTABLE);
+
+    if (TryPushMember("LibraryMenu")) {
+      LibraryMenuType =
+          LibraryMenuType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
+
+      if (LibraryMenuType == +LibraryMenuType::CCLCC) {
+        CCLCC::LibraryMenu::Configure();
+      }
+
+      Pop();
+    }
 
     if (TryPushMember("ClearListMenu")) {
       ClearListType = ClearListMenuType::_from_integral_unchecked(
