@@ -310,15 +310,12 @@ void TitleMenu::Update(float dt) {
       } break;
       case 4: {
       } break;
-      case 5: {
+      // TODO check if that's true
+      case 5:
+      case 13: {
         SubMenuUpdate();
       } break;
       case 10: {
-        ImpLogSlow(LL_Warning, LC_VMStub,
-                   "TitleMenu::Update: Unimplemented title mode %d\n",
-                   ScrWork[SW_TITLEMODE]);
-      } break;
-      case 13: {
         ImpLogSlow(LL_Warning, LC_VMStub,
                    "TitleMenu::Update: Unimplemented title mode %d\n",
                    ScrWork[SW_TITLEMODE]);
@@ -471,7 +468,9 @@ void TitleMenu::Render() {
                    "TitleMenu::Render: Unimplemented title mode %d\n",
                    ScrWork[SW_TITLEMODE]);
       } break;
-      case 5: {
+      // TODO check if that's true
+      case 5:
+      case 13: {
         DrawMainMenuBackGraphics();
         DrawSmoke(SmokeOpacityNormal);
         MenuLabel->Render();
@@ -489,11 +488,6 @@ void TitleMenu::Render() {
         DrawSmoke(ScrWork[SW_TITLEDISPCT] / 128.0f);
         Renderer->DrawSprite(CopyrightTextSprite,
                              glm::vec2(CopyrightTextX, CopyrightTextY));
-      } break;
-      case 13: {
-        ImpLogSlow(LL_Warning, LC_VMStub,
-                   "TitleMenu::Render: Unimplemented title mode %d\n",
-                   ScrWork[SW_TITLEMODE]);
       } break;
     }
 

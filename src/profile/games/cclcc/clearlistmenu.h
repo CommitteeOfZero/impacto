@@ -7,7 +7,6 @@ namespace Profile {
 namespace CCLCC {
 namespace ClearListMenu {
 
-inline Sprite BackgroundSprite;
 inline Sprite ClearListBookLayerSprite;
 inline Sprite ClearListGuideSprite;
 inline Sprite LibraryMaskSprite;

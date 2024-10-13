@@ -11,7 +11,6 @@ namespace CCLCC {
 namespace ClearListMenu {
 
 void Configure() {
-  BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
   ClearListBookLayerSprite = EnsureGetMemberSprite("ClearListBookLayerSprite");
   ClearListGuideSprite = EnsureGetMemberSprite("ClearListGuideSprite");
   LibraryMaskSprite = EnsureGetMemberSprite("LibraryMaskSprite");

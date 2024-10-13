@@ -10,7 +10,6 @@ namespace LibraryMenu {
 
 BETTER_ENUM(LibraryMenuPageType, int, Album, Sound, Movie)
 
-inline Sprite BackgroundSprite;
 inline Sprite LibraryBackgroundSprite;
 inline glm::vec2 LibraryBackgroundPosition;
 inline Sprite LibraryIndexSprite;

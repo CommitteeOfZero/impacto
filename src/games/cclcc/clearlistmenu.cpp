@@ -75,7 +75,6 @@ void ClearListMenu::Render() {
     glm::vec4 transition(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
     glm::vec4 maskTint = glm::vec4(1.0f);
     maskTint.a = 0.85f;
-    Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
     Renderer->DrawSprite(ClearListBookLayerSprite, glm::vec2(0.0f), transition);
     Renderer->DrawSprite(
         LibraryMaskSprite,

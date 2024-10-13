@@ -91,7 +91,6 @@ void LibraryMenu::Render() {
       ScrWork[SW_SYSSUBMENUNO] == 8) {
     glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
     glm::vec4 maskTint = glm::vec4(1.0f);
-    Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f), col);
     if (CurrentLibraryMenu != LibraryMenuPageType::Sound) {
       Renderer->DrawSprite(LibraryBackgroundSprite, LibraryBackgroundPosition,
                            col);
