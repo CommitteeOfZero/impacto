@@ -22,7 +22,18 @@ using namespace Impacto::Vm::Interface;
 
 using namespace Impacto::UI::Widgets;
 
+void LibraryMenu::LibraryMenuButtonOnClick(Widgets::Button* target) {
+  CurrentLibraryMenu = target->Id;
+}
+
 LibraryMenu::LibraryMenu() {
+  MainItems = new Widgets::Group(this);
+
+  auto libraryMenuOnClick = [&](Widgets::Button* target) {
+    Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
+    LibraryMenuButtonOnClick(target);
+  };
+
   FadeAnimation.Direction = 1;
   FadeAnimation.LoopMode = ALM_Stop;
   FadeAnimation.DurationIn = FadeInDuration;
@@ -81,8 +92,10 @@ void LibraryMenu::Render() {
     glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
     glm::vec4 maskTint = glm::vec4(1.0f);
     Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f), col);
-    Renderer->DrawSprite(LibraryBackgroundSprite, LibraryBackgroundPosition,
-                         col);
+    if (CurrentLibraryMenu != LibraryMenuPageType::Sound) {
+      Renderer->DrawSprite(LibraryBackgroundSprite, LibraryBackgroundPosition,
+                           col);
+    }
     Renderer->DrawSprite(LibraryIndexSprite, LibraryIndexPosition, col);
     Renderer->DrawSprite(
         LibraryMaskSprite,
