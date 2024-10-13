@@ -85,6 +85,7 @@ TitleMenu::TitleMenu() {
     ContinueButtonOnClick(target);
   };
   auto extraOnClick = [&](Widgets::Button* target) {
+    SetFlag(SF_CLR_FLAG, true);
     if (GetFlag(SF_CLR_FLAG)) {
       Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
       ExtraButtonOnClick(target);
@@ -411,6 +412,8 @@ void TitleMenu::SubMenuUpdate() {
     AllowsScriptInput = false;
     MainItems->Move({-Profile::DesignWidth / 2, 0.0f},
                     SlideItemsAnimation.DurationOut);
+    static_cast<Widget*>(MenuLabel)->Move({-Profile::DesignWidth / 2, 0.0f},
+                                          SlideItemsAnimation.DurationOut);
     if (CurrentSubMenu) {
       CurrentSubMenu->Move({-Profile::DesignWidth / 2, 0.0f},
                            SlideItemsAnimation.DurationOut);
@@ -424,6 +427,8 @@ void TitleMenu::SubMenuUpdate() {
     AllowsScriptInput = false;
     MainItems->Move({Profile::DesignWidth / 2, 0.0f},
                     SlideItemsAnimation.DurationIn);
+    static_cast<Widget*>(MenuLabel)->Move({Profile::DesignWidth / 2, 0.0f},
+                                          SlideItemsAnimation.DurationIn);
     if (CurrentSubMenu) {
       CurrentSubMenu->HasFocus = false;
       CurrentSubMenu->Move({Profile::DesignWidth / 2, 0.0f},
