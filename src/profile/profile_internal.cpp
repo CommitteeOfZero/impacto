@@ -130,6 +130,24 @@ bool TryGet<bool>(bool& outBool) {
   return false;
 }
 
+template <>
+bool TryGet<PathSegment>(PathSegment& segment) {
+  if (!lua_istable(LuaState, -1)) return false;
+
+  int easing;
+  segment.EasingX = TryGetMember<int>("EasingX", easing)
+                        ? EasingFunction::_from_integral_unchecked(easing)
+                        : (EasingFunction) EasingFunction::Linear;
+
+  segment.EasingY = TryGetMember<int>("EasingY", easing)
+                        ? EasingFunction::_from_integral_unchecked(easing)
+                        : segment.EasingX;
+
+  return TryGetMember<float>("Duration", segment.Duration) &&
+         TryGetMember<glm::vec2>("StartPosition", segment.StartPosition) &&
+         TryGetMember<glm::vec2>("EndPosition", segment.EndPosition);
+}
+
 void ClearProfileInternal() { lua_close(LuaState); }
 
 }  // namespace Profile
