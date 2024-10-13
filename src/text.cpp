@@ -715,7 +715,7 @@ void DialoguePage::Render() {
   Renderer->DrawProcessedText(Glyphs, DialogueFont, opacityTint.a,
                               RendererOutlineMode::RO_Full);
 
-  if (ADVBoxShowName) {
+  if (HasName && ADVBoxShowName) {
     Renderer->DrawProcessedText(Name, DialogueFont, opacityTint.a,
                                 RendererOutlineMode::RO_Full);
   }
