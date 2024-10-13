@@ -1,7 +1,6 @@
 root.BacklogMenu = {
     Type = BacklogMenuType.MO6TW,
     DrawType = DrawComponentType.ExtrasScenes,
-    NametagLocation = BacklogNametagLocation.AboveLeftOfText;
     BacklogBackgroundSprite = "BacklogBackground",
     EntryHighlightSprite = "EntryHighlight",
     EntryHighlightLocation = EntryHighlightLocationType.BottomLeftOfEntry,
