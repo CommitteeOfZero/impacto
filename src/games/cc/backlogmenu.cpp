@@ -27,7 +27,7 @@ void BacklogMenu::MenuButtonOnClick(Widgets::BacklogEntry* target) {
 
 void BacklogMenu::Show() {
   if (State == Hidden) {
-    if (ScrWork[SW_SYSSUBMENUCT] != 32) {
+    if (ScrWork[SW_SYSMENUALPHA] == 0x100) {
       FadeAnimation.DurationIn = FadeInDuration;
       FadeAnimation.DurationOut = FadeOutDuration;
     } else {
@@ -41,7 +41,7 @@ void BacklogMenu::Show() {
 
 void BacklogMenu::Hide() {
   if (State == Shown) {
-    if (ScrWork[SW_SYSSUBMENUCT] != 0) {
+    if (ScrWork[SW_SYSMENUALPHA] == 0x100) {
       FadeAnimation.DurationIn = FadeInDuration;
       FadeAnimation.DurationOut = FadeOutDuration;
     } else {
