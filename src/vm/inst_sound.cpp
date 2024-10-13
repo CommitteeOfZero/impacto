@@ -44,18 +44,24 @@ VmInstruction(InstSEplay) {
   StartInstruction;
   PopUint8(channel);
   PopUint8(type);
+
   if (type != 2) {
     PopExpression(effect);
     PopExpression(loop);
     ScrWork[SW_SEREQNO + channel] = effect;
     Audio::Channels[Audio::AC_SE0 + channel]->Volume =
         (ScrWork[SW_SEVOL + channel] / 100.0f) * 0.3f;
+
+    // Hack to prevent playing the first sound byte before pausing
+    float fade = type == 1 ? 0.1f : 0.0f;
     Audio::Channels[Audio::AC_SE0 + channel]->Play("se", effect, (bool)loop,
-                                                   0.0f);
+                                                   fade);
+    if (type == 1) {
+      Audio::Channels[Audio::AC_SE0 + channel]->Pause();
+    }
   } else {
     ImpLogSlow(LL_Warning, LC_VMStub,
-               "STUB instruction SEplay(channel: %i, type: %i)\n", channel,
-               type);
+               "STUB instruction SEplay(channel: %i, type: 2)\n", channel);
   }
 }
 VmInstruction(InstSEplayMO6) {
