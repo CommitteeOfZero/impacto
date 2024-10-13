@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../animation.h"
+#include "../../pathanimation.h"
 #include "../../ui/menu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
@@ -25,10 +26,12 @@ class TitleMenu : public Menu {
   Animation ItemsFadeInAnimation;
   Animation SecondaryItemsFadeInAnimation;
   Animation SpinningCircleAnimation;
+  PathAnimation IntroStarBounceAnimation;
 
   void MenuButtonOnClick(Widgets::Button* target);
   void SecondaryButtonOnClick(Widgets::Button* target);
-
+  
+  void DrawIntroAnimation();
   void DrawTitleMenuBackGraphics();
 
  private:

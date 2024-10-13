@@ -12,6 +12,7 @@
 #include "../../profile/games/chlcc/titlemenu.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/game.h"
+#include <vector>
 
 namespace Impacto {
 namespace UI {
@@ -20,6 +21,7 @@ namespace CHLCC {
 using namespace Impacto::Profile::TitleMenu;
 using namespace Impacto::Profile::CHLCC::TitleMenu;
 using namespace Impacto::Profile::ScriptVars;
+using namespace Impacto::Audio;
 
 using namespace Impacto::UI::Widgets::CHLCC;
 
@@ -257,6 +259,7 @@ void TitleMenu::Hide() {
 
 void TitleMenu::Update(float dt) {
   UpdateInput();
+  IntroStarBounceAnimation.Update(dt);
   PressToStartAnimation.Update(dt);
   SpinningCircleAnimation.Update(dt);
   PrimaryFadeAnimation.Update(dt);
@@ -378,6 +381,7 @@ void TitleMenu::Render() {
       switch (ScrWork[SW_TITLEDISPCT]) {
         case 0: {  // Initial animation
           Renderer->DrawSprite(IntroBackgroundSprite, glm::vec2(0.0f));
+          DrawIntroAnimation();
         } break;
         case 1: {  // Press to start
           DrawTitleMenuBackGraphics();
@@ -441,6 +445,24 @@ void TitleMenu::Render() {
     col.a = glm::min(maskAlpha / 255.0f, 1.0f);
     Renderer->DrawQuad(
         RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight), col);
+  }
+}
+
+inline void TitleMenu::DrawIntroAnimation() {
+  if (IntroStarBounceAnimation.State == +AnimationState::Stopped &&
+      IntroStarBounceAnimation.IsOut()) {
+    IntroStarBounceAnimation.StartOut(true);
+  } else if (IntroStarBounceAnimation.State == +AnimationState::Playing) {
+    if (IntroStarBounceAnimation.GetCurrentSegmentIndex() == 5 &&
+        Audio::Channels[Audio::AC_SE0]->State == ACS_Paused) {
+      Audio::Channels[Audio::AC_SE0]->Resume();
+    }
+
+    glm::vec2 starPosition = IntroStarBounceAnimation.GetPosition() -
+                             glm::vec2(StarLogoSprite.Bounds.Width / 2,
+                                       StarLogoSprite.Bounds.Height / 2);
+
+    Renderer->DrawSprite(StarLogoSprite, starPosition);
   }
 }
 
