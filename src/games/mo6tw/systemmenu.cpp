@@ -78,6 +78,9 @@ void SystemMenu::Update(float dt) {
   UpdateInput();
 
   FadeAnimation.Update(dt);
+  if (GetFlag(SF_SYSTEMMENU) && State == Hidden) {
+    Show();
+  }
   if (ScrWork[SW_SYSMENUALPHA] < 256 && State == Shown) {
     Hide();
   }
