@@ -1,6 +1,7 @@
 local sv = root.ScriptVars;
 
 sv.SW_TOTALPLAYTIME = 990;
+sv.SW_AUTOSAVERESTART = 1003;
 sv.SW_GAMESTATE = 1012;
 sv.SW_TITLEDISPCT = 1014;
 sv.SW_SYSSEL = 1028;

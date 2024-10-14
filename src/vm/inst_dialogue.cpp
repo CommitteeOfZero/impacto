@@ -374,16 +374,9 @@ VmInstruction(InstSelect) {
   switch (type) {
     case 0: {
       UI::SelectionMenuPtr->Show();
-      bool flag = GetFlag(1282);
-      int unk = ScrWork[2108];
-      if (unk < 0x100) {
-        ScrWork[2108] = unk + 0x10;
-        SetFlag(1286, 1);
-        ResetInstruction;
-        BlockThread;
-      }
+      bool flag = GetFlag(SF_SAVEDISABLE);
       SetFlag(thread->DialoguePageId + 1213, 0);
-      if (ScrWork[2112] == 2) {
+      if (ScrWork[SW_AUTOSAVERESTART] == 2) {
         thread->Ip += 12;
         return;
       } else {
@@ -394,12 +387,12 @@ VmInstruction(InstSelect) {
           SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::SaveQuick,
                                             quicksaveEntries, 2);
         }
-        ScrWork[2112] = 0;
+        ScrWork[SW_AUTOSAVERESTART] = 0;
         if (quicksaveEntries == -1) {
           thread->Ip += 12;
         }
       }
-      SetFlag(1286, 0);
+      SetFlag(SF_SYSMENUDISABLE, 0);
     } break;
     case 1: {
       if (!UI::SelectionMenuPtr->ChoiceMade) {
