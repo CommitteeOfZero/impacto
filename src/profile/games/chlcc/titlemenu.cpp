@@ -16,7 +16,15 @@ namespace TitleMenu {
 
 void Configure() {
   IntroBackgroundSprite = EnsureGetMemberSprite("IntroBackgroundSprite");
+  IntroBouncingStarSprite = EnsureGetMemberSprite("IntroBouncingStarSprite");
+  IntroSmallStarSprite = EnsureGetMemberSprite("IntroSmallStarSprite");
   IntroBigStarSprite = EnsureGetMemberSprite("IntroBigStarSprite");
+  IntroExplodingStarAnimationDuration =
+      EnsureGetMemberFloat("IntroExplodingStarAnimationDuration");
+  IntroExplodingStarAnimationRotationDuration =
+      EnsureGetMemberFloat("IntroExplodingStarAnimationRotationDuration");
+  IntroExplodingStarAnimationDistance =
+      EnsureGetMemberFloat("IntroExplodingStarAnimationDistance");
   BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
   DelusionADVUnderSprite = EnsureGetMemberSprite("DelusionADVUnderSprite");
   DelusionADVUnderX = EnsureGetMemberFloat("DelusionADVUnderX");
@@ -139,9 +147,19 @@ void Configure() {
   menu->SpinningCircleAnimation.DurationOut = SpinningCircleAnimationDuration;
 
   menu->IntroStarBounceAnimation = PathAnimation(std::vector(
-    IntroStarBounceAnimationPath,
-    IntroStarBounceAnimationPath + IntroStarBounceAnimationSegmentCount
-  ));
+      IntroStarBounceAnimationPath,
+      IntroStarBounceAnimationPath + IntroStarBounceAnimationSegmentCount));
+
+  menu->IntroExplodingStarRotationAnimation.LoopMode = ALM_Loop;
+  menu->IntroExplodingStarRotationAnimation.DurationIn =
+      IntroExplodingStarAnimationRotationDuration;
+  menu->IntroExplodingStarRotationAnimation.DurationOut =
+      IntroExplodingStarAnimationRotationDuration;
+
+  menu->IntroExplodingStarAnimation.DurationIn =
+      IntroExplodingStarAnimationDuration;
+  menu->IntroExplodingStarAnimation.DurationOut =
+      IntroExplodingStarAnimationDuration;
 
   UI::TitleMenuPtr = menu;
 
