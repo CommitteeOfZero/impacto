@@ -1,6 +1,7 @@
 distribution
 app/src/main/assets
 app/src/main/jniLibs
+app/src/main/cpp/impacto/src/**
 
 # Gradle files
 .gradle/
