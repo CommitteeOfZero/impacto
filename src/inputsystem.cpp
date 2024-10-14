@@ -29,7 +29,7 @@ void BeginFrame() {
 }
 
 void EndFrame() {
-  if (CurrentInputDevice == IDEV_Mouse) {
+  if (CurrentInputDevice == InputDevice::IDEV_Mouse) {
     SDL_ShowCursor(SDL_ENABLE);
   } else {
     SDL_ShowCursor(SDL_DISABLE);
@@ -52,7 +52,7 @@ bool HandleEvent(SDL_Event const* ev) {
   switch (ev->type) {
     case SDL_CONTROLLERDEVICEADDED: {
       SDL_ControllerDeviceEvent const* evt = &ev->cdevice;
-      CurrentInputDevice = IDEV_Controller;
+      CurrentInputDevice = InputDevice::IDEV_Controller;
       SDL_GameControllerOpen(evt->which);
       return true;
       break;
@@ -60,7 +60,7 @@ bool HandleEvent(SDL_Event const* ev) {
     case SDL_MOUSEMOTION: {
       SDL_MouseMotionEvent const* evt = &ev->motion;
       CurMousePos = SDLMouseCoordsToDesign(evt->x, evt->y);
-      CurrentInputDevice = IDEV_Mouse;
+      CurrentInputDevice = InputDevice::IDEV_Mouse;
       return true;
       break;
     }
@@ -68,7 +68,7 @@ bool HandleEvent(SDL_Event const* ev) {
     case SDL_MOUSEBUTTONUP: {
       SDL_MouseButtonEvent const* evt = &ev->button;
       CurMousePos = SDLMouseCoordsToDesign(evt->x, evt->y);
-      CurrentInputDevice = IDEV_Mouse;
+      CurrentInputDevice = InputDevice::IDEV_Mouse;
       MouseButtonWentDown[evt->button] =
           (evt->state == SDL_PRESSED && !MouseButtonIsDown[evt->button]);
       MouseButtonIsDown[evt->button] = evt->state == SDL_PRESSED;
@@ -78,7 +78,7 @@ bool HandleEvent(SDL_Event const* ev) {
     // TODO respect direction?
     case SDL_MOUSEWHEEL: {
       SDL_MouseWheelEvent const* evt = &ev->wheel;
-      CurrentInputDevice = IDEV_Mouse;
+      CurrentInputDevice = InputDevice::IDEV_Mouse;
       MouseWheelDeltaX += evt->x;
       MouseWheelDeltaY += evt->y;
       return true;
@@ -87,7 +87,7 @@ bool HandleEvent(SDL_Event const* ev) {
     case SDL_KEYDOWN:
     case SDL_KEYUP: {
       SDL_KeyboardEvent const* evt = &ev->key;
-      CurrentInputDevice = IDEV_Keyboard;
+      CurrentInputDevice = InputDevice::IDEV_Keyboard;
       KeyboardButtonWentDown[evt->keysym.scancode] =
           (evt->state == SDL_PRESSED &&
            !KeyboardButtonIsDown[evt->keysym.scancode]);
@@ -98,7 +98,7 @@ bool HandleEvent(SDL_Event const* ev) {
     case SDL_CONTROLLERBUTTONDOWN:
     case SDL_CONTROLLERBUTTONUP: {
       SDL_ControllerButtonEvent const* evt = &ev->cbutton;
-      CurrentInputDevice = IDEV_Controller;
+      CurrentInputDevice = InputDevice::IDEV_Controller;
       ControllerButtonWentDown[evt->button] =
           (evt->state == SDL_PRESSED && !ControllerButtonIsDown[evt->button]);
       ControllerButtonIsDown[evt->button] = evt->state == SDL_PRESSED;
@@ -107,7 +107,7 @@ bool HandleEvent(SDL_Event const* ev) {
     }
     case SDL_CONTROLLERAXISMOTION: {
       SDL_ControllerAxisEvent const* evt = &ev->caxis;
-      CurrentInputDevice = IDEV_Controller;
+      CurrentInputDevice = InputDevice::IDEV_Controller;
       float newVal = (float)evt->value / (float)INT16_MAX;
       float newWeight = fabsf(newVal);
       float oldWeight = fabsf(ControllerAxis[evt->axis]);
@@ -129,7 +129,7 @@ bool HandleEvent(SDL_Event const* ev) {
     }
     case SDL_FINGERMOTION: {
       SDL_TouchFingerEvent const* evt = &ev->tfinger;
-      CurrentInputDevice = IDEV_Touch;
+      CurrentInputDevice = InputDevice::IDEV_Touch;
       if (CurrentFingers[0] == evt->fingerId &&
           TouchIsDown[0 && TouchIsDown[1]]) {
         CurTouchPos =
@@ -141,7 +141,7 @@ bool HandleEvent(SDL_Event const* ev) {
     }
     case SDL_FINGERDOWN: {
       SDL_TouchFingerEvent const* evt = &ev->tfinger;
-      CurrentInputDevice = IDEV_Touch;
+      CurrentInputDevice = InputDevice::IDEV_Touch;
       for (int8_t i = 0; i < FingerTapMax; ++i) {
         if (!TouchIsDown[i]) {
           CurTouchPos = SDLMouseCoordsToDesign(
@@ -158,7 +158,7 @@ bool HandleEvent(SDL_Event const* ev) {
     }
     case SDL_FINGERUP: {
       SDL_TouchFingerEvent const* evt = &ev->tfinger;
-      CurrentInputDevice = IDEV_Touch;
+      CurrentInputDevice = InputDevice::IDEV_Touch;
       for (int8_t i = 0; i < FingerTapMax; ++i) {
         if (CurrentFingers[i] == evt->fingerId && TouchIsDown[i]) {
           CurTouchPos = SDLMouseCoordsToDesign(

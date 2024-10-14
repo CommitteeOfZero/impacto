@@ -30,8 +30,9 @@ void OptionGroup::Update(float dt) {
 
 void OptionGroup::UpdateInput() {
   if (Enabled) {
-    bool mouseInput = Input::CurrentInputDevice == Input::IDEV_Mouse ||
-                      Input::CurrentInputDevice == Input::IDEV_Touch;
+    bool mouseInput =
+        Input::CurrentInputDevice == Input::InputDevice::IDEV_Mouse ||
+        Input::CurrentInputDevice == Input::InputDevice::IDEV_Touch;
 
     if (GroupEntered || mouseInput) {
       for (const auto& item : Items) {

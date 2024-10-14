@@ -5,7 +5,12 @@
 
 namespace Impacto {
 namespace Input {
-enum InputDevice { IDEV_Mouse, IDEV_Keyboard, IDEV_Touch, IDEV_Controller };
+enum class InputDevice {
+  IDEV_Mouse,
+  IDEV_Keyboard,
+  IDEV_Touch,
+  IDEV_Controller
+};
 
 float constexpr ControllerAxisLightThreshold = 0.3f;
 float constexpr ControllerAxisHeavyThreshold = 0.8f;
@@ -17,7 +22,7 @@ void BeginFrame();
 void EndFrame();
 bool HandleEvent(SDL_Event const* ev);
 
-inline InputDevice CurrentInputDevice = IDEV_Mouse;
+inline InputDevice CurrentInputDevice = InputDevice::IDEV_Mouse;
 
 inline glm::vec2 PrevMousePos = glm::vec2(0.0f);
 inline glm::vec2 CurMousePos = glm::vec2(0.0f);
