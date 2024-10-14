@@ -42,8 +42,13 @@ Toggle::Toggle(int id, bool* value, Sprite const& enabled,
 
 void Toggle::UpdateInput() {
   if (Enabled) {
-    if (Input::PrevMousePos != Input::CurMousePos) {
+    if (Input::CurrentInputDevice == Input::InputDevice::IDEV_Mouse &&
+        Input::PrevMousePos != Input::CurMousePos) {
       Hovered = Bounds.ContainsPoint(Input::CurMousePos);
+    } else if (Input::CurrentInputDevice == Input::InputDevice::IDEV_Touch &&
+               Input::TouchIsDown[0] &&
+               Input::PrevTouchPos != Input::CurTouchPos) {
+      Hovered = Bounds.ContainsPoint(Input::CurTouchPos);
     }
     if (HasFocus &&
         ((Hovered &&

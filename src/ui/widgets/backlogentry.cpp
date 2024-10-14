@@ -63,12 +63,19 @@ BacklogEntry::~BacklogEntry() { delete BacklogPage; }
 
 void BacklogEntry::UpdateInput() {
   if (Enabled) {
-    if (Input::PrevMousePos != Input::CurMousePos) {
-      RectF entryHoverBounds =
-          RectF(HoverBounds.X, Bounds.Y, HoverBounds.Width, Bounds.Height);
-
+    RectF entryHoverBounds =
+        RectF(HoverBounds.X, Bounds.Y, HoverBounds.Width, Bounds.Height);
+    if (Input::CurrentInputDevice == Input::InputDevice::IDEV_Mouse &&
+        Input::PrevMousePos != Input::CurMousePos) {
       Hovered =
           entryHoverBounds.ContainsPoint(Input::CurMousePos) &&
+          HoverBounds.Y <= Bounds.Y &&
+          (Bounds.Y + Bounds.Height) <= (HoverBounds.Y + HoverBounds.Height);
+    } else if (Input::CurrentInputDevice == Input::InputDevice::IDEV_Touch &&
+               Input::TouchIsDown[0] &&
+               Input::PrevMousePos != Input::CurTouchPos) {
+      Hovered =
+          entryHoverBounds.ContainsPoint(Input::CurTouchPos) &&
           HoverBounds.Y <= Bounds.Y &&
           (Bounds.Y + Bounds.Height) <= (HoverBounds.Y + HoverBounds.Height);
     }

@@ -68,8 +68,13 @@ void OptionGroup::UpdateInput() {
       }
     }
 
-    if (Input::PrevMousePos != Input::CurMousePos) {
+    if (Input::CurrentInputDevice == Input::InputDevice::IDEV_Mouse &&
+        Input::PrevMousePos != Input::CurMousePos) {
       Hovered = Bounds.ContainsPoint(Input::CurMousePos);
+    } else if (Input::CurrentInputDevice == Input::InputDevice::IDEV_Mouse &&
+               Input::TouchIsDown[0] &&
+               Input::PrevTouchPos != Input::CurTouchPos) {
+      Hovered = Bounds.ContainsPoint(Input::CurTouchPos);
     }
   }
 }
