@@ -7,7 +7,12 @@ root.TitleMenu = {
     PressToStartAnimDurationOut = 0.5,
     PressToStartSprite = "TitleMenuPressToStart",
     IntroBackgroundSprite = "TitleMenuIntroBackground",
+    IntroBouncingStarSprite = "StarLogo",
+    IntroSmallStarSprite = "TitleMenuIntroSmallStar",
     IntroBigStarSprite = "TitleMenuIntroBigStar",
+    IntroExplodingStarAnimationDuration = 1.5,
+    IntroExplodingStarAnimationRotationDuration = 0.5,
+    IntroExplodingStarAnimationDistance = 315,
     BackgroundSprite = "TitleMenuBackground",
     DelusionADVUnderSprite = "DelusionADVUnder", -- "DelusionADVUnderEnglish" with the TLed assets, "DelusionADVUnder" with the original ones
     DelusionADVUnderX = 78, --74 with the TLed assets, 78 with the original ones
@@ -243,9 +248,14 @@ root.Sprites["TitleMenuIntroBackground"] = {
     Bounds = { X = 0, Y = 0, Width = 1280, Height = 720 },
 };
 
+root.Sprites["TitleMenuIntroSmallStar"] = {
+    Sheet = "Title",
+    Bounds = { X = 1153, Y = 534, Width = 45, Height = 44 },
+};
+
 root.Sprites["TitleMenuIntroBigStar"] = {
     Sheet = "Title",
-    Bounds = { X = 1156, Y = 345, Width = 178, Height = 170 }
+    Bounds = { X = 1156, Y = 345, Width = 178, Height = 170 },
 };
 
 root.Sprites["TitleMenuBackground"] = {
@@ -326,48 +336,48 @@ root.TitleMenu.IntroStarBounceAnimationPath = {
         EndPosition = { X = 1152, Y = 576 },
         Duration = 0.72,
         EasingX = EasingFunction.Linear,
-        EasingY = EasingFunction.QuadraticIn
+        EasingY = EasingFunction.QuadraticIn,
     },
     {
         StartPosition = { X = 1152, Y = 576 },
         EndPosition = { X = 1050, Y = 504 },
         Duration = 0.3,
         EasingX = EasingFunction.Linear,
-        EasingY = EasingFunction.QuadraticOut
+        EasingY = EasingFunction.QuadraticOut,
     },
     {
         StartPosition = { X = 1050, Y = 504 },
         EndPosition = { X = 960, Y = 576 },
         Duration = 0.3,
         EasingX = EasingFunction.Linear,
-        EasingY = EasingFunction.QuadraticIn
+        EasingY = EasingFunction.QuadraticIn,
     },
     {
         StartPosition = { X = 960, Y = 576 },
         EndPosition = { X = 870, Y = 504 },
         Duration = 0.3,
         EasingX = EasingFunction.Linear,
-        EasingY = EasingFunction.QuadraticOut
+        EasingY = EasingFunction.QuadraticOut,
     },
     {
         StartPosition = { X = 870, Y = 504 },
         EndPosition = { X = 780, Y = 576 },
         Duration = 0.3,
         EasingX = EasingFunction.Linear,
-        EasingY = EasingFunction.QuadraticIn
+        EasingY = EasingFunction.QuadraticIn,
     },
     {
         StartPosition = { X = 780, Y = 576 },
         EndPosition = { X = 704, Y = 252 },
         Duration = 0.66,
         EasingX = EasingFunction.Linear,
-        EasingY = EasingFunction.QuadraticOut
+        EasingY = EasingFunction.QuadraticOut,
     },
     {
         StartPosition = { X = 704, Y = 252 },
         EndPosition = { X = 640, Y = 360 },
         Duration = 0.4,
         EasingX = EasingFunction.Linear,
-        EasingY = EasingFunction.QuadraticIn
-    }
-}
+        EasingY = EasingFunction.QuadraticIn,
+    },
+};

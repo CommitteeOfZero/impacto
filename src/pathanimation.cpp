@@ -7,25 +7,25 @@ float Ease(float progress, EasingFunction function) {
   switch (function) {
     case EasingFunction::Linear: {
       return progress;
-    } break;
+    }
     case EasingFunction::QuadraticIn: {
       return progress * progress;
-    } break;
+    }
     case EasingFunction::QuadraticOut: {
       return 1 - (1 - progress) * (1 - progress);
-    } break;
+    }
     case EasingFunction::CubicIn: {
       return progress * progress * progress;
-    } break;
+    }
     case EasingFunction::CubicOut: {
-      return 1 - std::powf(1 - progress, 3);
-    } break;
+      return 1 - std::pow(1 - progress, 3);
+    }
   }
 }
 
 PathAnimation::PathAnimation(std::vector<PathSegment> path) : Path(path) {
   float totalDuration = 0;
-  for (PathSegment& segment : path) {
+  for (const PathSegment& segment : path) {
     totalDuration += segment.Duration;
   }
 
@@ -44,7 +44,7 @@ size_t PathAnimation::GetCurrentSegmentIndex() const {
 glm::vec2 PathAnimation::GetPosition() const {
   const PathSegment& segment = Path[CurrentSegmentIndex];
   glm::vec2 direction = segment.EndPosition - segment.StartPosition;
-  
+
   float progress = GetCurrentSegmentProgress();
   return segment.StartPosition + glm::vec2(Ease(progress, segment.EasingX),
                                            Ease(progress, segment.EasingY)) *
@@ -65,7 +65,7 @@ void PathAnimation::UpdateImpl(float dt) {
     if ((Direction == 1 && this->Progress < segmentEndProgress) ||
         (Direction == -1 && this->Progress > segmentEndProgress)) {
       CurrentSegmentIndex = segment;
-      
+
       float segmentDuration = Path[segment].Duration;
       CurrentSegmentProgress = (this->Progress - std::min(segmentStartProgress,
                                                           segmentEndProgress)) /

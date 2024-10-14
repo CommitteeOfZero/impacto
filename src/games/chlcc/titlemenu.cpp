@@ -260,6 +260,8 @@ void TitleMenu::Hide() {
 void TitleMenu::Update(float dt) {
   UpdateInput();
   IntroStarBounceAnimation.Update(dt);
+  IntroExplodingStarAnimation.Update(dt);
+  IntroExplodingStarRotationAnimation.Update(dt);
   PressToStartAnimation.Update(dt);
   SpinningCircleAnimation.Update(dt);
   PrimaryFadeAnimation.Update(dt);
@@ -380,7 +382,6 @@ void TitleMenu::Render() {
     if (ScrWork[SW_MENUCT] < 64) {
       switch (ScrWork[SW_TITLEDISPCT]) {
         case 0: {  // Initial animation
-          Renderer->DrawSprite(IntroBackgroundSprite, glm::vec2(0.0f));
           DrawIntroAnimation();
         } break;
         case 1: {  // Press to start
@@ -449,20 +450,63 @@ void TitleMenu::Render() {
 }
 
 inline void TitleMenu::DrawIntroAnimation() {
-  if (IntroStarBounceAnimation.State == +AnimationState::Stopped &&
-      IntroStarBounceAnimation.IsOut()) {
-    IntroStarBounceAnimation.StartOut(true);
-  } else if (IntroStarBounceAnimation.State == +AnimationState::Playing) {
-    if (IntroStarBounceAnimation.GetCurrentSegmentIndex() == 5 &&
-        Audio::Channels[Audio::AC_SE0]->State == ACS_Paused) {
-      Audio::Channels[Audio::AC_SE0]->Resume();
+  Renderer->DrawSprite(IntroBackgroundSprite, glm::vec2(0.0f));
+
+  switch (TitleMenuIntroAnimationState) {
+    case TitleMenuIntroAnimationState::Out: {
+      IntroStarBounceAnimation.StartIn();
+      TitleMenuIntroAnimationState = TitleMenuIntroAnimationState::BouncingStar;
+      return;
     }
+    case TitleMenuIntroAnimationState::BouncingStar: {
+      if (IntroStarBounceAnimation.GetCurrentSegmentIndex() == 1 &&
+          Audio::Channels[Audio::AC_SE0]->State == ACS_Paused) {
+        Audio::Channels[Audio::AC_SE0]->Resume();
+      }
 
-    glm::vec2 starPosition = IntroStarBounceAnimation.GetPosition() -
-                             glm::vec2(StarLogoSprite.Bounds.Width / 2,
-                                       StarLogoSprite.Bounds.Height / 2);
+      glm::vec2 position = IntroStarBounceAnimation.GetPosition() -
+                           IntroBouncingStarSprite.Bounds.Dimensions() / 2.0f;
 
-    Renderer->DrawSprite(StarLogoSprite, starPosition);
+      Renderer->DrawSprite(StarLogoSprite, position);
+
+      if (IntroStarBounceAnimation.IsIn()) {
+        TitleMenuIntroAnimationState =
+            TitleMenuIntroAnimationState::ExplodingStar;
+        IntroExplodingStarAnimation.StartIn();
+        IntroExplodingStarRotationAnimation.StartIn();
+      }
+
+      return;
+    }
+    case TitleMenuIntroAnimationState::ExplodingStar: {
+      glm::vec2 origin = IntroStarBounceAnimation.GetPosition() -
+                         IntroBouncingStarSprite.Bounds.Dimensions() / 2.0f;
+
+      constexpr size_t NUM_STARS = 5;
+      for (size_t i = 0; i < NUM_STARS; i++) {
+        float rayAngle = M_PI_2 - M_PI * 2 / NUM_STARS * i;
+        glm::vec2 directionVector(std::cos(rayAngle), -std::sin(rayAngle));
+        glm::vec2 displacement = directionVector *
+                                 IntroExplodingStarAnimation.Progress *
+                                 IntroExplodingStarAnimationDistance;
+        glm::vec2 position = origin + displacement;
+
+        float opacity = 1 - IntroExplodingStarAnimation.Progress;
+        float angle = M_PI * 2 * IntroExplodingStarRotationAnimation.Progress;
+        if (i >= 3) angle = -angle;
+
+        Renderer->DrawSprite(IntroSmallStarSprite, position,
+                             {1.0f, 1.0f, 1.0f, opacity}, {1.0f, 1.0f}, angle);
+      }
+
+      if (IntroExplodingStarAnimation.IsIn()) {
+        TitleMenuIntroAnimationState =
+            TitleMenuIntroAnimationState::FallingStars;
+        IntroExplodingStarRotationAnimation.State = AnimationState::Stopped;
+      }
+
+      return;
+    }
   }
 }
 
