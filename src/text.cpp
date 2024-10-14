@@ -251,6 +251,7 @@ void DialoguePage::Init() {
 void DialoguePage::Clear() {
   Glyphs.clear();
   NameLength = 0;
+  Name.clear();
   HasName = false;
   memset(RubyChunks, 0, sizeof(RubyChunk) * DialogueMaxRubyChunks);
   RubyChunkCount = 0;
