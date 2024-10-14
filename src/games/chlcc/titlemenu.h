@@ -11,6 +11,9 @@ namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
+BETTER_ENUM(TitleMenuIntroAnimationState, int, Out, BouncingStar, ExplodingStar,
+            FallingStars, In)
+
 class TitleMenu : public Menu {
  public:
   TitleMenu();
@@ -26,11 +29,14 @@ class TitleMenu : public Menu {
   Animation ItemsFadeInAnimation;
   Animation SecondaryItemsFadeInAnimation;
   Animation SpinningCircleAnimation;
+
   PathAnimation IntroStarBounceAnimation;
+  Animation IntroExplodingStarAnimation;
+  Animation IntroExplodingStarRotationAnimation;
 
   void MenuButtonOnClick(Widgets::Button* target);
   void SecondaryButtonOnClick(Widgets::Button* target);
-  
+
   void DrawIntroAnimation();
   void DrawTitleMenuBackGraphics();
 
@@ -58,6 +64,9 @@ class TitleMenu : public Menu {
   Widgets::Group* SystemItems;
   Widgets::CHLCC::TitleButton* Config;
   Widgets::CHLCC::TitleButton* SystemSave;
+
+  TitleMenuIntroAnimationState TitleMenuIntroAnimationState =
+      TitleMenuIntroAnimationState::Out;
 };
 
 }  // namespace CHLCC

@@ -277,20 +277,24 @@ bool TryGetPathSegment(PathSegment& segment) {
   if (!lua_istable(LuaState, -1)) return false;
 
   int easing;
-  segment.EasingX = TryGetMemberInt("EasingX", easing)
-                        ? EasingFunction::_from_integral_unchecked(easing)
-                        : EasingFunction::Linear;
+  if (TryGetMemberInt("EasingX", easing)) {
+    segment.EasingX = EasingFunction::_from_integral_unchecked(easing);
+  } else {
+    segment.EasingX = EasingFunction::Linear;
+  }
 
-  segment.EasingY = TryGetMemberInt("EasingY", easing)
-                        ? EasingFunction::_from_integral_unchecked(easing)
-                        : segment.EasingX;
+  if (TryGetMemberInt("EasingY", easing)) {
+    segment.EasingY = EasingFunction::_from_integral_unchecked(easing);
+  } else {
+    segment.EasingY = segment.EasingX;
+  }
 
   return TryGetMemberFloat("Duration", segment.Duration) &&
          TryGetMemberVec2("StartPosition", segment.StartPosition) &&
          TryGetMemberVec2("EndPosition", segment.EndPosition);
 }
 
-LUA_GET_METHODS(PathSegment, PathSegment)
+LUA_GET_METHODS(PathSegment, PathSegment, "PathSegment")
 
 TRY_GET_ENTITY(Sprite, Sprite, Sprites)
 LUA_GET_METHODS(Sprite, Sprite, "Sprite")
