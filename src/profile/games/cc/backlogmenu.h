@@ -20,6 +20,9 @@ inline glm::vec2 BacklogControlsPosition;
 inline Sprite MenuMaskSprite;
 inline SpriteSheet BacklogMaskSheet;
 
+inline float FadeInDirectDuration;
+inline float FadeOutDirectDuration;
+
 }  // namespace BacklogMenu
 }  // namespace CC
 }  // namespace Profile
