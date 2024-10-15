@@ -57,7 +57,7 @@ std::ios_base::openmode PhysicalFileStream::PrepareFileOpenMode(
   if (flags & APPEND) mode |= std::ios::app;
   if (truncFlag) mode |= std::ios::trunc;
   if (flags & CREATE_DIRS) {
-    auto result = Io::CreateDirectories(SourceFileName);
+    auto result = Io::CreateDirectories(SourceFileName, true);
     if (result == IoError_Fail) {
       ErrorCode = IoError_Fail;
       return {};

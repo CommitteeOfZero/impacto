@@ -33,7 +33,7 @@ using FilePermissionsFlags = std::filesystem::perms;
 
 int64_t GetFileSize(std::string const& path);
 IoError PathExists(std::string const& path);
-int8_t CreateDirectories(std::string const& path);
+int8_t CreateDirectories(std::string const& path, bool createParent = false);
 IoError GetFilePermissions(std::string const& path,
                            FilePermissionsFlags& flags);
 
