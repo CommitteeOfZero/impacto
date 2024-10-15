@@ -9,6 +9,7 @@
 #include "../spritesheet.h"
 #include "../font.h"
 #include "../spriteanimation.h"
+#include "../pathanimation.h"
 
 namespace Impacto {
 namespace Profile {
@@ -52,10 +53,14 @@ void GetMemberVec2Array(glm::vec2* arr, uint32_t count, char const* name);
 
 void GetMemberSpriteArray(Sprite* arr, uint32_t count, char const* name);
 
+void GetMemberPathSegmentArray(PathSegment* arr, uint32_t count,
+                               char const* name);
+
 LUA_GET_METHODS(Sprite, Sprite)
 LUA_GET_METHODS(SpriteSheet, SpriteSheet)
 LUA_GET_METHODS(Font, Font*)
 LUA_GET_METHODS(Animation, SpriteAnimationDef)
+LUA_GET_METHODS(PathSegment, PathSegment)
 
 uint32_t EnsureGetKeyUint();
 int32_t EnsureGetKeyInt();

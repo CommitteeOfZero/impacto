@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../animation.h"
+#include "../../pathanimation.h"
 #include "../../ui/menu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
@@ -9,6 +10,9 @@
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
+
+BETTER_ENUM(TitleMenuIntroAnimationState, int, Out, BouncingStar, ExplodingStar,
+            FallingStars, In)
 
 class TitleMenu : public Menu {
  public:
@@ -26,9 +30,14 @@ class TitleMenu : public Menu {
   Animation SecondaryItemsFadeInAnimation;
   Animation SpinningCircleAnimation;
 
+  PathAnimation IntroStarBounceAnimation;
+  Animation IntroExplodingStarAnimation;
+  Animation IntroExplodingStarRotationAnimation;
+
   void MenuButtonOnClick(Widgets::Button* target);
   void SecondaryButtonOnClick(Widgets::Button* target);
 
+  void DrawIntroAnimation();
   void DrawTitleMenuBackGraphics();
 
  private:
@@ -55,6 +64,9 @@ class TitleMenu : public Menu {
   Widgets::Group* SystemItems;
   Widgets::CHLCC::TitleButton* Config;
   Widgets::CHLCC::TitleButton* SystemSave;
+
+  TitleMenuIntroAnimationState TitleMenuIntroAnimationState =
+      TitleMenuIntroAnimationState::Out;
 };
 
 }  // namespace CHLCC
