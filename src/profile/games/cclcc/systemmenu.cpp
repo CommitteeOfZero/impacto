@@ -25,6 +25,7 @@ void Configure() {
                       "MenuEntriesButtonBounds");
 
   SystemMenuBG = EnsureGetMemberSprite("SystemMenuBG");
+  SystemMenuFrame = EnsureGetMemberSprite("SystemMenuFrame");
   MenuButtonGuide = EnsureGetMemberSprite("MenuButtonGuide");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(

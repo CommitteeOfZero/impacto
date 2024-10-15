@@ -47,6 +47,14 @@ SystemMenu::SystemMenu() {
 
   MainItems = new Widgets::Group(this);
 
+  ScreenCap.Sheet = SpriteSheet(Window->WindowHeight, Window->WindowHeight);
+  Texture tex;
+  tex.Init(TexFmt_RGBA, Window->WindowHeight, Window->WindowHeight);
+  tex.LoadCheckerboard();
+  ScreenCap.Sheet.Texture = tex.Submit();
+  ScreenCap.Bounds.Width = ScreenCap.Sheet.DesignWidth;
+  ScreenCap.Bounds.Height = ScreenCap.Sheet.DesignHeight;
+
   for (int i = 0; i < MenuEntriesNum; i++) {
     SysMenuButton* menuButton = new SysMenuButton(
         i, MenuEntriesSprites[i], Sprite(), MenuEntriesHSprites[i],
@@ -157,6 +165,9 @@ void SystemMenu::Render() {
     // Renderer->DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f,
     // 720.0f),
     //                      glm::vec4(tint, alpha));
+
+    Renderer->CaptureScreencap(ScreenCap);
+
     Sprite repositionedBG = SystemMenuBG;
     glm::vec2 bgOffset;
     bgOffset.x = (ScrWork[SW_SYSSUBMENUCT] * 3000.0 * 0.03125 * 0.5);
@@ -164,9 +175,53 @@ void SystemMenu::Render() {
     repositionedBG.Bounds.Width = 1860;
     repositionedBG.Bounds.Y = BGPosition.y - 165;
     repositionedBG.Bounds.Height = 1205;
-    Renderer->DrawSprite(repositionedBG,
-                         {0, 0, Profile::DesignWidth, Profile::DesignHeight},
-                         glm::vec4{tint, alpha});
+    // Renderer->DrawSprite(repositionedBG,
+    //                      {0, 0, Profile::DesignWidth, Profile::DesignHeight},
+    //                      glm::vec4{tint, alpha});
+
+    std::array<glm::vec2, 4> bgDest = {
+        glm::mix(glm::vec2{-1200, 2080}, glm::vec2{0, Profile::DesignHeight},
+                 MenuFade.Progress),
+        glm::mix(glm::vec2{-1200, -330}, glm::vec2{0, 0}, MenuFade.Progress),
+        glm::mix(glm::vec2{2520, -330}, glm::vec2{Profile::DesignWidth, 0},
+                 MenuFade.Progress),
+        glm::mix(glm::vec2{2520, 2080},
+                 glm::vec2{Profile::DesignWidth, Profile::DesignHeight},
+                 MenuFade.Progress),
+    };
+    Renderer->DrawSprite(
+        repositionedBG, bgDest,
+        {glm::vec4{1}, glm::vec4{1}, glm::vec4{1}, glm::vec4{1}},
+        MenuFade.Progress / 30);
+
+    std::array<glm::vec2, 4> screenCapDest = {
+        glm::mix(glm::vec2{0, 0}, glm::vec2{1100, 250}, MenuFade.Progress),
+        glm::mix(glm::vec2{0, Profile::DesignHeight}, glm::vec2{1050, 650},
+                 MenuFade.Progress),
+        glm::mix(glm::vec2{Profile::DesignWidth, Profile::DesignHeight},
+                 glm::vec2{1550, 750}, MenuFade.Progress),
+        glm::mix(glm::vec2{Profile::DesignWidth, 0}, glm::vec2{1650, 350},
+                 MenuFade.Progress),
+    };
+    Renderer->DrawSprite(
+        ScreenCap, screenCapDest,
+        {glm::vec4{1}, glm::vec4{1}, glm::vec4{1}, glm::vec4{1}});
+
+    std::array<glm::vec2, 4> frameDest = {
+        glm::mix(glm::vec2{-154, Profile::DesignHeight + 141},
+                 glm::vec2{1000, 700}, MenuFade.Progress),
+        glm::mix(glm::vec2{-154, -141}, glm::vec2{1100, 200},
+                 MenuFade.Progress),
+        glm::mix(glm::vec2{Profile::DesignWidth + 154, -141},
+                 glm::vec2{1700, 300}, MenuFade.Progress),
+        glm::mix(
+            glm::vec2{Profile::DesignWidth + 154, Profile::DesignHeight + 141},
+            glm::vec2{1600, 800}, MenuFade.Progress),
+    };
+
+    Renderer->DrawSprite(
+        SystemMenuFrame, frameDest,
+        {glm::vec4{1}, glm::vec4{1}, glm::vec4{1}, glm::vec4{1}});
 
     MainItems->Tint =
         glm::vec4(tint, glm::smoothstep(0.0f, 1.0f, ItemsFade.Progress));
