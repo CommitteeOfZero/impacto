@@ -529,6 +529,7 @@ VmInstruction(InstTips) {
       uint8_t* tipsDataAdr = ScriptGetLabelAddress(
           ScriptBuffers[thread->ScriptBufferId], labelNum);
       if (Profile::Vm::GameInstructionSet == +InstructionSet::MO8 ||
+          Profile::Vm::GameInstructionSet == +InstructionSet::SGHD ||
           Profile::Vm::GameInstructionSet == +InstructionSet::CHN) {
         PopLocalLabel(tipsDataAdr1);
         (void)tipsDataAdr1;

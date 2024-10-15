@@ -15,7 +15,8 @@ namespace UI {
 BETTER_ENUM(SystemMenuType, int, None, RNE, MO6TW, CHLCC, MO8, CCLCC)
 BETTER_ENUM(SaveMenuType, int, None, MO6TW, MO8, CHLCC, CCLCC)
 BETTER_ENUM(SysMesBoxType, int, None, RNE, Dash, CHLCC, MO6TW, Darling, CC)
-BETTER_ENUM(TitleMenuType, int, None, RNE, Dash, CHLCC, MO6TW, MO8, CC, CCLCC)
+BETTER_ENUM(TitleMenuType, int, None, RNE, Dash, CHLCC, MO6TW, MO8, CC, CCLCC,
+            SGHD)
 BETTER_ENUM(OptionsMenuType, int, None, MO6TW, MO8, CHLCC, CCLCC)
 BETTER_ENUM(TipsMenuType, int, None, MO6TW, CHLCC, CCLCC)
 BETTER_ENUM(ClearListMenuType, int, None, MO6TW, CHLCC, CCLCC)

@@ -16,6 +16,7 @@
 #include "opcodetables_mo8.h"
 #include "opcodetables_dash.h"
 #include "opcodetables_cc.h"
+#include "opcodetables_sghd.h"
 #include "opcodetables_sgps3.h"
 #include "opcodetables_chn.h"
 #include "../profile/game.h"
@@ -46,10 +47,10 @@ static Sc3VmThread*
 static Sc3VmThread* NextFreeThreadCtx;  // Next free thread context in the
                                         // thread pool
 
-static InstructionProc* OpcodeTableSystem;
-static InstructionProc* OpcodeTableUser1;
-static InstructionProc* OpcodeTableGraph;
-static InstructionProc* OpcodeTableGraph3D;
+static InstructionProc* OpcodeTableSystem = nullptr;
+static InstructionProc* OpcodeTableUser1 = nullptr;
+static InstructionProc* OpcodeTableGraph = nullptr;
+static InstructionProc* OpcodeTableGraph3D = nullptr;
 
 static void CreateThreadExecTable();
 static void SortThreadExecTable();
@@ -118,6 +119,12 @@ void Init() {
       OpcodeTableUser1 = OpcodeTableUser1_SGPS3;
       break;
     }
+    case InstructionSet::SGHD: {
+      OpcodeTableSystem = OpcodeTableSystem_SGHD;
+      OpcodeTableGraph = OpcodeTableGraph_SGHD;
+      OpcodeTableUser1 = OpcodeTableUser1_SGHD;
+      break;
+    }
     case InstructionSet::MO8: {
       OpcodeTableSystem = OpcodeTableSystem_MO8;
       OpcodeTableGraph = OpcodeTableGraph_MO8;
@@ -179,7 +186,8 @@ void Init() {
 bool LoadScript(uint32_t bufferId, uint32_t scriptId) {
   Io::FileMeta meta;
   Io::VfsGetMeta("script", scriptId, &meta);
-  ImpLogSlow(LL_Debug, LC_VM, "Loading script \"%s\"\n", meta.FileName.c_str());
+  ImpLogSlow(LL_Debug, LC_VM, "Loading script \"%s\" into buffer %u\n",
+             meta.FileName.c_str(), bufferId);
 
   void* file;
   int64_t fileSize;
@@ -488,12 +496,19 @@ void RunThread(Sc3VmThread* thread) {
       if (opcodeGrp1 == 0x10) {
         OpcodeTableUser1[opcode](thread);
       } else if (opcodeGrp1 == 0x02) {
+        if (OpcodeTableGraph3D == nullptr) {
+          ImpLog(
+              LL_Error, LC_VM,
+              "Encountered Graph3D opcode in game which shouldn't have any!\n");
+          goto badOpcode;
+        }
         OpcodeTableGraph3D[opcode](thread);
       } else if (opcodeGrp1 == 0x01) {
         OpcodeTableGraph[opcode](thread);
       } else if (!opcodeGrp1) {
         OpcodeTableSystem[opcode](thread);
       } else {
+      badOpcode:
         ImpLog(LL_Error, LC_VM,
                "Thread CRASH! Unknown opcode. Attempting recovery. Address: "
                "%016X Opcode: %02X:%02X ScriptBuffer: %i\n",

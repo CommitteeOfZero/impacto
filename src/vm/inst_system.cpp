@@ -35,7 +35,10 @@ using namespace Impacto::SaveSystem;
 using namespace Impacto::TipsSystem;
 using namespace Impacto::Profile::ScriptVars;
 
-VmInstruction(InstDummy) {}
+VmInstruction(InstDummy) {
+  ImpLog(LL_Warning, LC_VM,
+         "Dummy instruction called! Possibly actually used by the game?\n");
+}
 
 VmInstruction(InstEnd) {
   StartInstruction;
