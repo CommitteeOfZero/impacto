@@ -298,8 +298,8 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
 void SaveSystem::WriteSaveFile() {
   using CF = Io::PhysicalFileStream::CreateFlagsMode;
   Io::Stream* stream;
-  IoError err =
-      Io::PhysicalFileStream::Create(SaveFilePath, &stream, CF::WRITE);
+  IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream,
+                                               CF::WRITE | CF::READ);
   if (err != IoError_OK) {
     ImpLog(LL_Error, LC_IO, "Failed to open save file for writing\n");
     return;

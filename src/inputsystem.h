@@ -5,18 +5,19 @@
 
 namespace Impacto {
 namespace Input {
-enum InputDevice { IDEV_Mouse, IDEV_Keyboard, IDEV_Touch, IDEV_Controller };
+enum class Device { Mouse, Keyboard, Touch, Controller };
 
 float constexpr ControllerAxisLightThreshold = 0.3f;
 float constexpr ControllerAxisHeavyThreshold = 0.8f;
 
 int constexpr MouseButtonsMax = SDL_BUTTON_X2 + 1;
+int constexpr FingerTapMax = 2;
 
 void BeginFrame();
 void EndFrame();
 bool HandleEvent(SDL_Event const* ev);
 
-inline InputDevice CurrentInputDevice = IDEV_Mouse;
+inline Device CurrentInputDevice = Device::Mouse;
 
 inline glm::vec2 PrevMousePos = glm::vec2(0.0f);
 inline glm::vec2 CurMousePos = glm::vec2(0.0f);
@@ -42,8 +43,8 @@ inline bool KeyboardButtonWentDown[SDL_NUM_SCANCODES] = {false};
 inline bool KeyboardButtonIsDown[SDL_NUM_SCANCODES] = {false};
 
 // TODO multitouch
-inline bool TouchIsDown = false;
-inline bool TouchWentDown = false;
+inline bool TouchIsDown[FingerTapMax]{};
+inline bool TouchWentDown[FingerTapMax]{};
 
 }  // namespace Input
 }  // namespace Impacto

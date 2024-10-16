@@ -26,8 +26,13 @@ Button::Button(int id, Sprite const& norm, Sprite const& focused,
 
 void Button::UpdateInput() {
   if (Enabled) {
-    if (Input::PrevMousePos != Input::CurMousePos) {
+    if (Input::CurrentInputDevice == Input::Device::Mouse &&
+        Input::PrevMousePos != Input::CurMousePos) {
       Hovered = Bounds.ContainsPoint(Input::CurMousePos);
+    } else if (Input::CurrentInputDevice == Input::Device::Touch &&
+               Input::TouchIsDown[0] &&
+               Input::PrevTouchPos != Input::CurTouchPos) {
+      Hovered = Bounds.ContainsPoint(Input::CurTouchPos);
     }
     if (OnClickHandler && HasFocus &&
         ((Hovered &&

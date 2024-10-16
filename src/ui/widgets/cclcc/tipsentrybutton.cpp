@@ -71,17 +71,8 @@ void TipsEntryButton::Update(float dt) {
 }
 
 void TipsEntryButton::UpdateInput() {
-  if (Enabled) {
-    if (Input::PrevMousePos != Input::CurMousePos) {
-      Hovered = Bounds.ContainsPoint(Input::CurMousePos) &&
-                TipsTabBounds.ContainsPoint(Input::CurMousePos);
-    }
-    if (OnClickHandler && HasFocus &&
-        ((Hovered &&
-          Vm::Interface::PADinputMouseWentDown & Vm::Interface::PAD1A) ||
-         (Vm::Interface::PADinputButtonWentDown & Vm::Interface::PAD1A))) {
-      OnClickHandler(this);
-    }
+  if (TipsTabBounds.Intersects(Bounds) || TipsTabBounds.Contains(Bounds)) {
+    Button::UpdateInput();
   }
 }
 

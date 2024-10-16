@@ -223,15 +223,16 @@ void TipsMenu::UpdateInput() {
       }
 
       // Todo: Implement scroll wheel
-      bool upScroll = (Input::CurrentInputDevice == Input::IDEV_Controller &&
+      bool upScroll = (Input::CurrentInputDevice == Input::Device::Controller &&
                        Input::ControllerAxis[SDL_CONTROLLER_AXIS_RIGHTY] <
                            Input::ControllerAxisLightThreshold) ||
                       Input::KeyboardButtonIsDown[SDL_SCANCODE_LEFTBRACKET];
 
-      bool downScroll = (Input::CurrentInputDevice == Input::IDEV_Controller &&
-                         Input::ControllerAxis[SDL_CONTROLLER_AXIS_RIGHTY] >
-                             -Input::ControllerAxisLightThreshold) ||
-                        Input::KeyboardButtonIsDown[SDL_SCANCODE_RIGHTBRACKET];
+      bool downScroll =
+          (Input::CurrentInputDevice == Input::Device::Controller &&
+           Input::ControllerAxis[SDL_CONTROLLER_AXIS_RIGHTY] >
+               -Input::ControllerAxisLightThreshold) ||
+          Input::KeyboardButtonIsDown[SDL_SCANCODE_RIGHTBRACKET];
 
       int remainingScroll = TipsScrollbar->EndValue - TipPageY;
       if (upScroll && (TipPageY > 0)) {

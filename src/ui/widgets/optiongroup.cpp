@@ -30,8 +30,8 @@ void OptionGroup::Update(float dt) {
 
 void OptionGroup::UpdateInput() {
   if (Enabled) {
-    bool mouseInput = Input::CurrentInputDevice == Input::IDEV_Mouse ||
-                      Input::CurrentInputDevice == Input::IDEV_Touch;
+    bool mouseInput = Input::CurrentInputDevice == Input::Device::Mouse ||
+                      Input::CurrentInputDevice == Input::Device::Touch;
 
     if (GroupEntered || mouseInput) {
       for (const auto& item : Items) {
@@ -67,8 +67,13 @@ void OptionGroup::UpdateInput() {
       }
     }
 
-    if (Input::PrevMousePos != Input::CurMousePos) {
+    if (Input::CurrentInputDevice == Input::Device::Mouse &&
+        Input::PrevMousePos != Input::CurMousePos) {
       Hovered = Bounds.ContainsPoint(Input::CurMousePos);
+    } else if (Input::CurrentInputDevice == Input::Device::Mouse &&
+               Input::TouchIsDown[0] &&
+               Input::PrevTouchPos != Input::CurTouchPos) {
+      Hovered = Bounds.ContainsPoint(Input::CurTouchPos);
     }
   }
 }

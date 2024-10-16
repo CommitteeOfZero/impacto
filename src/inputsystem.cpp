@@ -1,5 +1,7 @@
 #include "inputsystem.h"
-//#include "window.h"
+#include <SDL_timer.h>
+// #include "window.h"
+#include "flat_hash_map.hpp"
 #include "renderer/renderer.h"
 
 #include "profile/game.h"
@@ -7,7 +9,7 @@
 namespace Impacto {
 namespace Input {
 
-static SDL_FingerID CurrentFinger = 0;
+static std::array<SDL_FingerID, 2> CurrentFingers{};
 
 void BeginFrame() {
   memset(ControllerButtonWentDown, false, sizeof(ControllerButtonWentDown));
@@ -17,7 +19,8 @@ void BeginFrame() {
          sizeof(ControllerAxisWentDownHeavy));
   memset(MouseButtonWentDown, false, sizeof(MouseButtonWentDown));
   memset(KeyboardButtonWentDown, false, sizeof(KeyboardButtonWentDown));
-  TouchWentDown = false;
+  TouchWentDown[0] = false;
+  TouchWentDown[1] = false;
 
   PrevMousePos = CurMousePos;
   PrevTouchPos = CurTouchPos;
@@ -26,7 +29,7 @@ void BeginFrame() {
 }
 
 void EndFrame() {
-  if (CurrentInputDevice == IDEV_Mouse) {
+  if (CurrentInputDevice == Device::Mouse) {
     SDL_ShowCursor(SDL_ENABLE);
   } else {
     SDL_ShowCursor(SDL_DISABLE);
@@ -49,7 +52,7 @@ bool HandleEvent(SDL_Event const* ev) {
   switch (ev->type) {
     case SDL_CONTROLLERDEVICEADDED: {
       SDL_ControllerDeviceEvent const* evt = &ev->cdevice;
-      CurrentInputDevice = IDEV_Controller;
+      CurrentInputDevice = Device::Controller;
       SDL_GameControllerOpen(evt->which);
       return true;
       break;
@@ -57,7 +60,7 @@ bool HandleEvent(SDL_Event const* ev) {
     case SDL_MOUSEMOTION: {
       SDL_MouseMotionEvent const* evt = &ev->motion;
       CurMousePos = SDLMouseCoordsToDesign(evt->x, evt->y);
-      CurrentInputDevice = IDEV_Mouse;
+      CurrentInputDevice = Device::Mouse;
       return true;
       break;
     }
@@ -65,7 +68,7 @@ bool HandleEvent(SDL_Event const* ev) {
     case SDL_MOUSEBUTTONUP: {
       SDL_MouseButtonEvent const* evt = &ev->button;
       CurMousePos = SDLMouseCoordsToDesign(evt->x, evt->y);
-      CurrentInputDevice = IDEV_Mouse;
+      CurrentInputDevice = Device::Mouse;
       MouseButtonWentDown[evt->button] =
           (evt->state == SDL_PRESSED && !MouseButtonIsDown[evt->button]);
       MouseButtonIsDown[evt->button] = evt->state == SDL_PRESSED;
@@ -75,7 +78,7 @@ bool HandleEvent(SDL_Event const* ev) {
     // TODO respect direction?
     case SDL_MOUSEWHEEL: {
       SDL_MouseWheelEvent const* evt = &ev->wheel;
-      CurrentInputDevice = IDEV_Mouse;
+      CurrentInputDevice = Device::Mouse;
       MouseWheelDeltaX += evt->x;
       MouseWheelDeltaY += evt->y;
       return true;
@@ -84,7 +87,7 @@ bool HandleEvent(SDL_Event const* ev) {
     case SDL_KEYDOWN:
     case SDL_KEYUP: {
       SDL_KeyboardEvent const* evt = &ev->key;
-      CurrentInputDevice = IDEV_Keyboard;
+      CurrentInputDevice = Device::Keyboard;
       KeyboardButtonWentDown[evt->keysym.scancode] =
           (evt->state == SDL_PRESSED &&
            !KeyboardButtonIsDown[evt->keysym.scancode]);
@@ -95,7 +98,7 @@ bool HandleEvent(SDL_Event const* ev) {
     case SDL_CONTROLLERBUTTONDOWN:
     case SDL_CONTROLLERBUTTONUP: {
       SDL_ControllerButtonEvent const* evt = &ev->cbutton;
-      CurrentInputDevice = IDEV_Controller;
+      CurrentInputDevice = Device::Controller;
       ControllerButtonWentDown[evt->button] =
           (evt->state == SDL_PRESSED && !ControllerButtonIsDown[evt->button]);
       ControllerButtonIsDown[evt->button] = evt->state == SDL_PRESSED;
@@ -104,7 +107,7 @@ bool HandleEvent(SDL_Event const* ev) {
     }
     case SDL_CONTROLLERAXISMOTION: {
       SDL_ControllerAxisEvent const* evt = &ev->caxis;
-      CurrentInputDevice = IDEV_Controller;
+      CurrentInputDevice = Device::Controller;
       float newVal = (float)evt->value / (float)INT16_MAX;
       float newWeight = fabsf(newVal);
       float oldWeight = fabsf(ControllerAxis[evt->axis]);
@@ -126,8 +129,9 @@ bool HandleEvent(SDL_Event const* ev) {
     }
     case SDL_FINGERMOTION: {
       SDL_TouchFingerEvent const* evt = &ev->tfinger;
-      CurrentInputDevice = IDEV_Touch;
-      if (CurrentFinger == evt->fingerId && TouchIsDown) {
+      CurrentInputDevice = Device::Touch;
+      if (CurrentFingers[0] == evt->fingerId &&
+          TouchIsDown[0 && TouchIsDown[1]]) {
         CurTouchPos =
             SDLMouseCoordsToDesign((int)(evt->x * (float)Window->WindowWidth),
                                    (int)(evt->y * (float)Window->WindowHeight));
@@ -137,26 +141,31 @@ bool HandleEvent(SDL_Event const* ev) {
     }
     case SDL_FINGERDOWN: {
       SDL_TouchFingerEvent const* evt = &ev->tfinger;
-      CurrentInputDevice = IDEV_Touch;
-      if (!TouchIsDown) {
-        CurTouchPos =
-            SDLMouseCoordsToDesign((int)(evt->x * (float)Window->WindowWidth),
-                                   (int)(evt->y * (float)Window->WindowHeight));
-        CurrentFinger = evt->fingerId;
-        TouchIsDown = true;
-        TouchWentDown = true;
+      CurrentInputDevice = Device::Touch;
+      for (int8_t i = 0; i < FingerTapMax; ++i) {
+        if (!TouchIsDown[i]) {
+          CurTouchPos = SDLMouseCoordsToDesign(
+              (int)(evt->x * (float)Window->WindowWidth),
+              (int)(evt->y * (float)Window->WindowHeight));
+          CurrentFingers[i] = evt->fingerId;
+          TouchIsDown[i] = true;
+          TouchWentDown[i] = true;
+          break;
+        }
       }
       return true;
       break;
     }
     case SDL_FINGERUP: {
       SDL_TouchFingerEvent const* evt = &ev->tfinger;
-      CurrentInputDevice = IDEV_Touch;
-      if (CurrentFinger == evt->fingerId && TouchIsDown) {
-        CurTouchPos =
-            SDLMouseCoordsToDesign((int)(evt->x * (float)Window->WindowWidth),
-                                   (int)(evt->y * (float)Window->WindowHeight));
-        TouchIsDown = false;
+      CurrentInputDevice = Device::Touch;
+      for (int8_t i = 0; i < FingerTapMax; ++i) {
+        if (CurrentFingers[i] == evt->fingerId && TouchIsDown[i]) {
+          CurTouchPos = SDLMouseCoordsToDesign(
+              (int)(evt->x * (float)Window->WindowWidth),
+              (int)(evt->y * (float)Window->WindowHeight));
+          TouchIsDown[i] = false;
+        }
       }
       return true;
       break;

@@ -1,0 +1,39 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 34
+    buildToolsVersion "28.0.3"
+    defaultConfig {
+        applicationId "com.committeeofzero.impacto"
+        minSdkVersion 28
+        targetSdkVersion 34
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        ndk {
+            abiFilters "arm64-v8a"
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    namespace 'com.committeeofzero.impacto'
+    aaptOptions {
+       noCompress 'mp4', 'mpk'
+    }
+    packagingOptions {
+        // By default .so libraries are striped from debug information when creating APK
+        // To prevent this make sure your .so files are matching that doNotStrip pattern
+        // See Gradle pattern document for details:
+        // https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/util/PatternFilterable.html
+        doNotStrip "**"
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+}

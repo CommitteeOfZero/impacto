@@ -1,6 +1,7 @@
 #include <time.h>
 #include <stdarg.h>
 
+#include <SDL_log.h>
 #include "log.h"
 #include "util.h"
 
@@ -78,7 +79,31 @@ const char* ChannelToString(LogChannel channel) {
   }
 }
 
-void ConsoleWrite(const char* str) { printf("%s", str); }
+void ConsoleWrite(LogLevel level, const char* str) {
+  assert(level > LL_Off && level < LL_Max);
+  switch (level) {
+    case LL_Fatal:
+      SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "%s", str);
+      break;
+    case LL_Error:
+      SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", str);
+      break;
+    case LL_Warning:
+      SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "%s", str);
+      break;
+    case LL_Info:
+      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", str);
+      break;
+    case LL_Debug:
+      SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "%s", str);
+      break;
+    case LL_Trace:
+      SDL_LogVerbose(SDL_LOG_CATEGORY_APPLICATION, "%s", str);
+      break;
+    default:
+      assert(false);
+  }
+}
 
 void ImpLog(LogLevel level, LogChannel channel, const char* format, ...) {
   assert(level > 0 && channel > 0);
@@ -116,7 +141,7 @@ void ImpLog(LogLevel level, LogChannel channel, const char* format, ...) {
 
   if (LoggingToConsole && level <= g_LogLevelConsole &&
       (g_LogChannelsConsole & channel)) {
-    ConsoleWrite(line);
+    ConsoleWrite(level, line);
   }
   // TODO file
 
@@ -128,7 +153,10 @@ void LogSetFile(char* path) {
   assert(false);  // TODO
 }
 
-void LogSetConsole(bool enabled) { LoggingToConsole = enabled; }
+void LogSetConsole(bool enabled) {
+  LoggingToConsole = enabled;
+  SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_VERBOSE);
+}
 
 #ifndef IMPACTO_DISABLE_OPENGL
 void GLAPIENTRY LogGLMessageCallback(GLenum source, GLenum type, GLuint id,

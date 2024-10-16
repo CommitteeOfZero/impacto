@@ -68,7 +68,8 @@ void Group::UpdateInput() {
     if (el->GetType() == WT_NORMAL) {
       el->UpdateInput();
       if (el->Enabled && el->Hovered &&
-          Input::CurrentInputDevice == Input::IDEV_Mouse) {
+          (Input::CurrentInputDevice == Input::Device::Mouse ||
+           Input::CurrentInputDevice == Input::Device::Touch)) {
         if (MenuContext->CurrentlyFocusedElement)
           MenuContext->CurrentlyFocusedElement->HasFocus = false;
         el->HasFocus = true;
