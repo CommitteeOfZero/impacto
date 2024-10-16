@@ -19,6 +19,7 @@ void BacklogMenu::Render() {
   float opacity = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
   glm::vec4 col(1.0f, 1.0f, 1.0f, opacity);
   MainItems->Tint = col;
+  MainScrollbar->Tint = col;
 
   Renderer->DrawSprite(BacklogBackground, glm::vec2(0.0f), col);
   RenderHighlight();
