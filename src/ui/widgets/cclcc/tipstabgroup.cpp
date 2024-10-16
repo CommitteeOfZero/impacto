@@ -37,10 +37,10 @@ void TipsTabButton::Reset() {
 
 void TipsTabButton::UpdateInput() {
   if (Enabled) {
-    if (Input::CurrentInputDevice == Input::InputDevice::IDEV_Mouse &&
+    if (Input::CurrentInputDevice == Input::Device::Mouse &&
         Input::PrevMousePos != Input::CurMousePos) {
       Hovered = Bounds.ContainsPoint(Input::CurMousePos);
-    } else if (Input::CurrentInputDevice == Input::InputDevice::IDEV_Touch &&
+    } else if (Input::CurrentInputDevice == Input::Device::Touch &&
                Input::TouchIsDown[0] &&
                Input::PrevTouchPos != Input::CurTouchPos) {
       Hovered = Bounds.ContainsPoint(Input::CurTouchPos);
