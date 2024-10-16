@@ -12,7 +12,9 @@ class BacklogMenu : public UI::BacklogMenu {
  public:
   void Show() override;
   void Hide() override;
+  void Update(float dt) override;
   void Render() override;
+
   void MenuButtonOnClick(Widgets::BacklogEntry* target) override;
 
  private:

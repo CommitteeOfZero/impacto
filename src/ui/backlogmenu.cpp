@@ -2,6 +2,7 @@
 
 #include "ui.h"
 #include "../profile/game.h"
+#include "../profile/vm.h"
 #include "../renderer/renderer.h"
 #include "../mem.h"
 #include "../vm/interface/input.h"
@@ -224,21 +225,12 @@ void BacklogMenu::UpdateInput(float dt) {
 }
 
 void BacklogMenu::Update(float dt) {
-  if (ScrWork[SW_SYSSUBMENUCT] < 32 && State == Shown) {
-    Hide();
-  } else if (ScrWork[SW_SYSSUBMENUCT] > 0 && State == Hidden &&
-             ScrWork[SW_SYSSUBMENUNO] == 1) {
-    Show();
-  }
-
   if (State != Hidden && State != Shown) FadeAnimation.Update(dt);
 
-  if (State == Showing && FadeAnimation.IsIn() &&
-      ScrWork[SW_SYSSUBMENUCT] == 32) {
+  if (State == Showing && FadeAnimation.IsIn()) {
     State = Shown;
     IsFocused = true;
-  } else if (State == Hiding && FadeAnimation.IsOut() &&
-             ScrWork[SW_SYSSUBMENUCT] == 0) {
+  } else if (State == Hiding && FadeAnimation.IsOut()) {
     State = Hidden;
     IsFocused = false;
     if (UI::FocusedMenu) UI::FocusedMenu->IsFocused = true;
@@ -246,7 +238,7 @@ void BacklogMenu::Update(float dt) {
     MainItems->Hide();
   }
 
-  if (State == Shown && ScrWork[SW_SYSSUBMENUNO] == 1) {
+  if (State == Shown && IsFocused) {
     UpdateInput(dt);
 
     if (ItemsHeight > MainItems->RenderingBounds.Height) {
