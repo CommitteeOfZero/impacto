@@ -33,11 +33,11 @@ IoError PathExists(std::string const& path) {
 }
 
 int8_t CreateDirectories(std::string const& path, bool createParent) {
+  using Path = std::filesystem::path;
   std::error_code ec;
   const std::string& filePath = GetSystemDependentPath(path);
   bool result = std::filesystem::create_directories(
-      (createParent) ? std::filesystem::path(filePath).parent_path() : filePath,
-      ec);
+      (createParent) ? Path(filePath).parent_path() : Path(filePath), ec);
   if (ec) {
     ImpLog(LL_Error, LC_IO,
            "Error creating directories for file \"%s\", error: \"%s\"\n",
