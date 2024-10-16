@@ -40,11 +40,12 @@ BacklogEntry::BacklogEntry(int id, uint8_t* str, int audioId, glm::vec2 pos,
   for (const ProcessedTextGlyph& glyph : BacklogPage->Glyphs) {
     Bounds = RectF::Coalesce(Bounds, glyph.DestRect);
   }
-  Position = glm::vec2(Bounds.X, Bounds.Y);
+  Position.x = Bounds.X;  // X position should not take name into account
   for (const ProcessedTextGlyph& glyph : BacklogPage->Name) {
     Bounds = RectF::Coalesce(Bounds, glyph.DestRect);
   }
   TextHeight = Bounds.Height;
+  Position.y = Bounds.Y;  // Y position should
 
   switch (BacklogPage->Alignment) {
     default:

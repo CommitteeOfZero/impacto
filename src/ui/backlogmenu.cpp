@@ -331,11 +331,13 @@ void BacklogMenu::AddMessage(uint8_t* str, int audioId) {
 
     auto backlogEntry = CreateBacklogEntry(CurrentId, str, audioId,
                                            CurrentEntryPos, HoverBounds);
-    CurrentId += 1;
-    CurrentEntryPos.y += backlogEntry->TextHeight + EntryYPadding;
     backlogEntry->OnClickHandler = onClick;
     MainItems->Add(backlogEntry, FDIR_DOWN);
+    CurrentId++;
+
+    CurrentEntryPos.y += backlogEntry->TextHeight + EntryYPadding;
     ItemsHeight += backlogEntry->TextHeight + EntryYPadding;
+
     if (ItemsHeight > MainItems->RenderingBounds.Height) {
       MainScrollbar->EndValue = -ItemsHeight +
                                 MainItems->RenderingBounds.Height +
