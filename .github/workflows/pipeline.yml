@@ -13,13 +13,13 @@ on:
 env:
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
 
-permissions:
-  checks: write
-  contents: write
 
 jobs:
   lint:
     name: Run linters
+    permissions:
+      checks: write
+      contents: write
     runs-on: ubuntu-latest
     outputs:
       commitid: ${{ steps.commit.outputs.commitid }}
@@ -50,6 +50,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 120
     needs: lint
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -227,6 +229,8 @@ jobs:
   publish_artifacts:
     name: Publish Artifacts
     runs-on: ubuntu-22.04
+    permissions:
+      contents: write
     needs:
     - job-matrix
     if: needs.job-matrix.result == 'success' && github.event_name != 'pull_request_target' && ((startsWith(github.ref, 'refs/tags') || github.ref_name == 'master'))
