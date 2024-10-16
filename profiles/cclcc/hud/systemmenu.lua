@@ -2,20 +2,19 @@ root.SystemMenu = {
     Type = SystemMenuType.CCLCC,
     DrawType = DrawComponentType.SystemMenu,
 
-    FadeInDuration = 64 / 60,
-    FadeOutDuration = 64 / 60,
-    TitleFadeInDuration = 40 / 60,
-    TitleFadeOutDuration = 28 / 60,
+    FadeInDuration = 40 / 60,
+    FadeOutDuration = 40 / 60,
+    MoveInDuration = 40 / 60,
+    MoveOutDuration = 28 / 60,
 
-    MenuEntriesNum =9,
+    ItemsFadeInDuration = 20/60,
+    ItemsFadeOutDuration = 20/60,
+
+    Seed = 0,
+
+    MenuEntriesNum = 9,
     MenuEntriesHNum = 9,
-    ------
-    --Not used since it isn't laid out in a way that would make it easier to use this
-    MenuEntriesX = 173,
-    MenuEntriesXOffset = 0,
-    MenuEntriesFirstY = 445,
-    MenuEntriesYPadding = 0,
-    ------
+
     FocusTint = 0xff9cb6,
     MenuEntriesPositions = { 
         {X=41, Y=-4},
@@ -28,10 +27,28 @@ root.SystemMenu = {
         {X=41, Y=649},
         {X=41, Y=725},
     },
+
+    MenuEntriesButtonBounds = { 
+        {X=120, Y= 74, Width=228, Height=60},
+        {X=120, Y=172, Width=260, Height=60},
+        {X=120, Y=268, Width=260, Height=60},
+        {X=120, Y=362, Width=128, Height=60},
+        {X=120, Y=454, Width=128, Height=60},
+        {X=120, Y=552, Width=228, Height=60},
+        {X=120, Y=650, Width=186, Height=60},
+        {X=120, Y=742, Width=128, Height=60},
+        {X=120, Y=838, Width=316, Height=60},
+    },
     MenuEntriesSprites = {},
     MenuEntriesHighlightedSprites = {},
 
     MenuButtonGuide = "SystemMenuButtonGuide",
+    SystemMenuBG = "SystemMenuBG"
+};
+
+root.Sprites["SystemMenuBG"] = {
+    Sheet = "MenuBG",
+    Bounds = {X = 0, Y = 0, Width = 3000, Height = 1500}
 };
 
 root.Sprites["SystemMenuBacklog"] = {

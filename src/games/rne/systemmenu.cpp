@@ -38,7 +38,8 @@ SystemMenu::SystemMenu() {
   for (int i = 0; i < MenuEntriesNum; i++) {
     SysMenuButton* menuButton = new SysMenuButton(
         i, MenuEntriesSprites[i], nullSprite, MenuEntriesHSprites[i],
-        glm::vec2(MenuEntriesX, MenuEntriesFirstY + (i * MenuEntriesYPadding)));
+        glm::vec2(*MenuEntriesX,
+                  *MenuEntriesFirstY + (*MenuEntriesYPadding * i)));
 
     menuButton->OnClickHandler = onClick;
     MainItems->Add(menuButton, FDIR_DOWN);
@@ -120,9 +121,9 @@ void SystemMenu::Update(float dt) {
 
   int idx = 0;
   for (auto& item : MainItems->Children) {
-    item->MoveTo(glm::vec2(((idx * MenuEntriesXSkew) + MenuEntriesXOffset) *
+    item->MoveTo(glm::vec2(((idx * MenuEntriesXSkew) + *MenuEntriesXOffset) *
                                (1.0f - EntriesMoveAnimation.Progress),
-                           MenuEntriesFirstY + (idx * MenuEntriesYPadding)));
+                           *MenuEntriesFirstY + (*MenuEntriesYPadding * idx)));
     item->Tint.a = glm::smoothstep(
         0.0f, 1.0f, 1.0f - (idx + 1) * (1.0f - EntriesMoveAnimation.Progress));
     Button* button = (Button*)item;

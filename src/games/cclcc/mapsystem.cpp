@@ -3,8 +3,8 @@
 #include <array>
 #include <algorithm>
 #include <cstdint>
-#include <random>
 
+#include "../../util.h"
 #include "../../mem.h"
 #include "../../vm/interface/input.h"
 #include "../../profile/scriptvars.h"
@@ -148,13 +148,6 @@ constexpr uint32_t LineColors2[] = {
     0xDC0FA,  0xDC0FA,  0xDC0FA,  0xDC0FA,  0xDC0FA,  0xDC0FA,  0xDC0FA,
     0xDC0FA,  0xDC0FA,  0xDC0FA,
 };
-
-inline int CALCrnd(int max) {
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_int_distribution<> distr(0, 0x7FFF);
-  return distr(gen) * max >> 0xf;
-}
 
 void MapSystemCCLCC::MapInit() {
   // Silence unused var warning, this table is probably going to be useful later

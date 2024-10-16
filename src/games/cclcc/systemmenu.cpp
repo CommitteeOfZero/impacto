@@ -1,9 +1,11 @@
 #include "systemmenu.h"
+#include <glm/common.hpp>
 #include "../../profile/games/cclcc/systemmenu.h"
 #include "../../renderer/renderer.h"
 #include "../../ui/ui.h"
 #include "../../vm/interface/input.h"
 #include "../../profile/ui/systemmenu.h"
+#include "../../profile/game.h"
 #include "../../ui/widgets/cclcc/sysmenubutton.h"
 
 namespace Impacto {
@@ -27,13 +29,18 @@ void SystemMenu::MenuButtonOnClick(Widgets::Button* target) {
 SystemMenu::SystemMenu() {
   MenuTransition.Direction = 1;
   MenuTransition.LoopMode = ALM_Stop;
-  MenuTransition.DurationIn = FadeInDuration;
-  MenuTransition.DurationOut = FadeOutDuration;
+  MenuTransition.DurationIn = MoveInDuration;
+  MenuTransition.DurationOut = MoveOutDuration;
 
   MenuFade.Direction = 1.0f;
   MenuFade.LoopMode = ALM_Stop;
-  MenuFade.DurationIn = TitleFadeInDuration;
-  MenuFade.DurationOut = TitleFadeOutDuration;
+  MenuFade.DurationIn = FadeInDuration;
+  MenuFade.DurationOut = FadeOutDuration;
+
+  ItemsFade.Direction = 1.0f;
+  ItemsFade.LoopMode = ALM_Stop;
+  ItemsFade.DurationIn = ItemsFadeInDuration;
+  ItemsFade.DurationOut = ItemsFadeOutDuration;
 
   auto onClick =
       std::bind(&SystemMenu::MenuButtonOnClick, this, std::placeholders::_1);
@@ -41,9 +48,9 @@ SystemMenu::SystemMenu() {
   MainItems = new Widgets::Group(this);
 
   for (int i = 0; i < MenuEntriesNum; i++) {
-    SysMenuButton* menuButton =
-        new SysMenuButton(i, MenuEntriesSprites[i], Sprite(),
-                          MenuEntriesHSprites[i], MenuEntriesPositions[i]);
+    SysMenuButton* menuButton = new SysMenuButton(
+        i, MenuEntriesSprites[i], Sprite(), MenuEntriesHSprites[i],
+        MenuEntriesPositions[i], MenuEntriesButtonBounds[i]);
 
     menuButton->OnClickHandler = onClick;
     MainItems->Add(menuButton, FDIR_DOWN);
@@ -57,8 +64,7 @@ void SystemMenu::Show() {
   if (State != Shown) {
     State = Showing;
     MenuTransition.StartIn();
-    MainItems->Show();
-
+    MenuFade.StartIn();
     // If the function was called due to a submenu opening directly,
     // then don't take over focus
     if (!(ScrWork[SW_SYSMENUCT] == 32 && ScrWork[SW_SYSSUBMENUCT] ||
@@ -69,6 +75,8 @@ void SystemMenu::Show() {
       }
       IsFocused = true;
       UI::FocusedMenu = this;
+      ItemsFade.StartIn();
+      MainItems->Show();
     }
   }
 }
@@ -76,8 +84,9 @@ void SystemMenu::Show() {
 void SystemMenu::Hide() {
   if (State != Hidden) {
     State = Hiding;
+    MenuFade.StartOut();
     MenuTransition.StartOut();
-    MainItems->Hide();
+    ItemsFade.StartOut();
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
       LastFocusedMenu->IsFocused = true;
@@ -91,28 +100,47 @@ void SystemMenu::Hide() {
 void SystemMenu::Update(float dt) {
   UpdateInput();
 
-  if (State == Shown && (GetFlag(SF_TITLEMODE) || ScrWork[SW_SYSMENUCT] == 0) ||
-      ScrWork[SW_SYSMENUALPHA] == 0) {
+  if (State == Shown &&
+      ((GetFlag(SF_TITLEMODE) || ScrWork[SW_SYSMENUCT] < 32) ||
+       ScrWork[SW_SYSMENUALPHA] == 0)) {
     Hide();
     return;
   }
-  if (MenuTransition.IsIn() && State == Showing) {
+  if (State == Hidden &&
+      ((ScrWork[SW_SYSMENUCT] > 0) || ScrWork[SW_SYSMENUALPHA] > 0)) {
+    Show();
+    return;
+  }
+  if (State == Showing && ScrWork[SW_SYSMENUCT] == 32) {
     State = Shown;
     return;
-  } else if (MenuTransition.IsOut() && State == Hiding) {
+  } else if (State == Hiding && MenuFade.IsOut() && MenuTransition.IsOut() &&
+             ItemsFade.IsOut() && ScrWork[SW_SYSMENUCT] == 0) {
     State = Hidden;
+    MainItems->Hide();
     return;
   }
 
   if (State != Hidden) {
     MenuTransition.Update(dt);
-    if (MenuTransition.Direction == -1.0f && MenuTransition.Progress <= 0.72f) {
-      MenuFade.StartOut();
-    } else if (MenuTransition.IsIn() &&
-               (MenuFade.Direction == 1.0f || MenuFade.IsOut())) {
-      MenuFade.StartIn();
-    }
     MenuFade.Update(dt);
+    if (ItemsFade.IsIn() && ScrWork[SW_SYSSUBMENUCT] > 0 && State == Shown &&
+        ItemsFadeComplete) {
+      ItemsFade.StartOut();
+      ItemsFadeComplete = false;
+    } else if (ItemsFade.IsOut() && ScrWork[SW_SYSSUBMENUCT] < 32 &&
+               State == Shown && ItemsFadeComplete) {
+      ItemsFade.StartIn();
+      ItemsFadeComplete = false;
+    }
+    ItemsFade.Update(dt);
+    if (!ItemsFadeComplete) {
+      if (ItemsFade.IsIn() && ScrWork[SW_SYSSUBMENUCT] == 0) {
+        ItemsFadeComplete = true;
+      } else if (ItemsFade.IsOut() && ScrWork[SW_SYSSUBMENUCT] == 32) {
+        ItemsFadeComplete = true;
+      }
+    }
   }
 
   if (State == Shown && IsFocused) {
@@ -125,16 +153,29 @@ void SystemMenu::Render() {
     }
     glm::vec3 tint = {1.0f, 1.0f, 1.0f};
     // Alpha goes from 0 to 1 in half the time
-    float alpha =
-        MenuTransition.Progress < 0.5f ? MenuTransition.Progress * 2.0f : 1.0f;
+    float alpha = MenuFade.Progress;
     // Renderer->DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f,
     // 720.0f),
     //                      glm::vec4(tint, alpha));
-    float yOffset = 0;
+    Sprite repositionedBG = SystemMenuBG;
+    glm::vec2 bgOffset;
+    bgOffset.x = (ScrWork[SW_SYSSUBMENUCT] * 3000.0 * 0.03125 * 0.5);
+    repositionedBG.Bounds.X = (BGPosition.x - 0.5 * bgOffset.x) - 600;
+    repositionedBG.Bounds.Width = 1860;
+    repositionedBG.Bounds.Y = BGPosition.y - 165;
+    repositionedBG.Bounds.Height = 1205;
+    Renderer->DrawSprite(repositionedBG,
+                         {0, 0, Profile::DesignWidth, Profile::DesignHeight},
+                         glm::vec4{tint, alpha});
 
-    MainItems->Tint = glm::vec4(tint, 1.0f);
+    MainItems->Tint =
+        glm::vec4(tint, glm::smoothstep(0.0f, 1.0f, ItemsFade.Progress));
     MainItems->Render();
   }
+}
+
+void SystemMenu::InitPosition() {
+  BGPosition = {CALCrnd(390) + 1350, CALCrnd(295) + 165};
 }
 
 }  // namespace CCLCC

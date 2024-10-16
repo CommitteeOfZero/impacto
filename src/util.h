@@ -5,6 +5,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <algorithm>
 #include <SDL_stdinc.h>
+#include <random>
 #include <string>
 #include <cctype>
 #include <chrono>
@@ -269,5 +270,12 @@ constexpr std::underlying_type_t<Enum> to_underlying(Enum e) noexcept {
 int ResizeImage(Rect const& srcRect, Rect const& dstRect,
                 tcb::span<uint8_t> src, tcb::span<uint8_t> dst,
                 bool flipY = false);
+
+inline int CALCrnd(int max) {
+  static std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<> distr(0, 0x7FFF);
+  return distr(gen) * max >> 0xf;
+}
 
 }  // namespace Impacto

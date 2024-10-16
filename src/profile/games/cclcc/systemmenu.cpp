@@ -12,12 +12,19 @@ namespace CCLCC {
 namespace SystemMenu {
 
 void Configure() {
-  TitleFadeInDuration = EnsureGetMemberFloat("TitleFadeInDuration");
-  TitleFadeOutDuration = EnsureGetMemberFloat("TitleFadeOutDuration");
+  MoveInDuration = EnsureGetMemberFloat("MoveInDuration");
+  MoveOutDuration = EnsureGetMemberFloat("MoveOutDuration");
+  ItemsFadeInDuration = EnsureGetMemberFloat("ItemsFadeInDuration");
+  ItemsFadeOutDuration = EnsureGetMemberFloat("ItemsFadeOutDuration");
 
   GetMemberVec2Array(MenuEntriesPositions, Profile::SystemMenu::MenuEntriesNum,
                      "MenuEntriesPositions");
 
+  GetMemberRectFArray(MenuEntriesButtonBounds,
+                      Profile::SystemMenu::MenuEntriesNum,
+                      "MenuEntriesButtonBounds");
+
+  SystemMenuBG = EnsureGetMemberSprite("SystemMenuBG");
   MenuButtonGuide = EnsureGetMemberSprite("MenuButtonGuide");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(

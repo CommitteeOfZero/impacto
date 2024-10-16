@@ -13,7 +13,7 @@
 #include "../data/savesystem.h"
 
 #include "../profile/vm.h"
-#include "../profile/games/cclcc/savemenu.h"
+#include "../games/cclcc/systemmenu.h"
 namespace Impacto {
 
 namespace Vm {
@@ -88,16 +88,18 @@ VmInstruction(InstSystemMenu) {
   switch (mode) {
     case 0:
       if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW) {
-      } else {
+      } else if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
         // TODO: Randomize SystemMenuBgPos here (only for Chaos)
-        ScrWork[SW_SYSMENUCNO] = 0;  // Don't know if needed
+        static_cast<UI::CCLCC::SystemMenu *>(UI::SystemMenuPtr)->InitPosition();
       }
-      UI::SystemMenuPtr->Show();
+      // UI::SystemMenuPtr->Show(); TODO: Update all games to use update loop
+      // based show
       break;
     case 1: {
       if (!UI::SystemMenuPtr->ChoiceMade) {
-        if (!(Interface::PADinputButtonWentDown & Interface::PAD1B) &&
-            !(Interface::PADinputMouseWentDown & Interface::PAD1B)) {
+        if (!UI::TitleMenuPtr->AllowsScriptInput ||
+            (!(Interface::PADinputButtonWentDown & Interface::PAD1B) &&
+             !(Interface::PADinputMouseWentDown & Interface::PAD1B))) {
           ResetInstruction;
           BlockThread;
         }
