@@ -153,7 +153,10 @@ void LogSetFile(char* path) {
   assert(false);  // TODO
 }
 
-void LogSetConsole(bool enabled) { LoggingToConsole = enabled; }
+void LogSetConsole(bool enabled) {
+  LoggingToConsole = enabled;
+  SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_VERBOSE);
+}
 
 #ifndef IMPACTO_DISABLE_OPENGL
 void GLAPIENTRY LogGLMessageCallback(GLenum source, GLenum type, GLuint id,
