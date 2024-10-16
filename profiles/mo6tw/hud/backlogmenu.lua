@@ -14,13 +14,13 @@ root.BacklogMenu = {
     ScrollbarTrackSprite = "ScrollbarTrack",
     ScrollbarThumbSprite = "ScrollbarThumb",
     ScrollbarPosition = { X = 1165, Y = 98 },
-    ScrollbarThumbLength = 0,
+    ScrollbarThumbLength = 30,
 
-    EntriesStart = { X = 163, Y = 85 },
-    RenderingBounds = { X = 87, Y = 83, Width = 1055, Height = 590 },
+    EntriesStart = { X = 163, Y = 90 },
+    RenderingBounds = { X = 83, Y = 83, Width = 1117, Height = 590 },
     EntryYPadding = 22,
 
-    HoverBounds = { X = 87, Y = 111, Width = 1072, Height = 602 },
+    HoverBounds = { X = 130, Y = 83, Width = 992, Height = 590 },
 
     FadeInDuration = 0.2,
     FadeOutDuration = 0.2,
@@ -28,7 +28,7 @@ root.BacklogMenu = {
     ScrollingSpeed = 600,
     MinHoldTime = 0.5,
     AdvanceFocusTimeInterval = 0.05,
-    PageUpDownHeight = 550
+    PageUpDownHeight = 520
 };
 
 root.Sprites["BacklogBackground"] = {
