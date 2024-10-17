@@ -17,7 +17,7 @@ root.OptionsMenu = {
     PageHeaderPosition = { X = 696, Y = 182 },
 
     PagePanelSprite = "OptionsPagePanel",
-    PagePanelPosition = { X = 0, Y = -8 },
+    PagePanelPosition = { X = -114, Y = 0 },
     PagePanelSprites = {},
     PoleAnimation = "OptionsPoleAnimation",
 
@@ -143,9 +143,14 @@ for i = 1, 4 do
     root.OptionsMenu.PageHeaderSprites[#root.OptionsMenu.PageHeaderSprites + 1] = "OptionsPageHeader" .. i;
 end
 
+-- Rearange the labels in the array so they're in order of appearance
+labelIndices = {5, 6, 7, 1,
+                2, 3, 8,
+                9, 10, 11, 12, 13, 4, 15, 14,
+                16};
+height = 52;
 for i = 1, 16 do
     offset = ((i > 12) and {104} or {0})[1];
-    height = 52;
 
     root.Sprites["OptionsLabel" .. i] = {
         Sheet = "Config",
@@ -156,7 +161,7 @@ for i = 1, 16 do
             Height = height
         }
     };
-    root.OptionsMenu.LabelSprites[#root.OptionsMenu.LabelSprites + 1] = "OptionsLabel" .. i;
+    root.OptionsMenu.LabelSprites[labelIndices[i]] = "OptionsLabel" .. i;
 end
 
 for i = 1, 13 do
@@ -211,15 +216,20 @@ end
 MakeAnimation({
     Name = "OptionsPoleAnimation",
     Sheet = "ConfigEx",
+
     FirstFrameX = 0,
     FirstFrameY = 0,
+
     FrameWidth = 539,
     ColWidth = 539,
     FrameHeight = 1080,
     RowHeight = 1096,
+
     Frames = 15,
     Duration = 1,
     Rows = 3,
     Columns = 7,
-    PrimaryDirection = AnimationDirections.Right
+
+    PrimaryDirection = AnimationDirections.Right,
+    SecondaryDirection = AnimationDirections.Down
 });
