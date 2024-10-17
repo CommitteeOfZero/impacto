@@ -10,9 +10,6 @@ namespace OptionsMenu {
 inline Impacto::UI::OptionsMenuType Type = Impacto::UI::OptionsMenuType::None;
 
 inline Sprite BackgroundSprite;
-inline Sprite SliderTrackSprite;
-inline Sprite SliderFillSprite;
-inline Sprite SliderThumbSprite;
 
 inline float FadeInDuration;
 inline float FadeOutDuration;
