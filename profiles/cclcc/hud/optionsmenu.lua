@@ -6,19 +6,27 @@ root.OptionsMenu = {
     FadeOutDuration = 0.2,
 
     BackgroundSprite = "OptionsBackground",
+    BackgroundPosition = { X = 179, Y = 0 },
 
     PointerSprite = "OptionsPointer",
+    PointerOffset = { X = 89, Y = 5 },
 
     HeaderSprite = "OptionsHeader",
+    HeaderPosition = { X = 10, Y = 10 },
     PageHeaderSprites = {},
+    PageHeaderPosition = { X = 696, Y = 182 },
 
     PagePanelSprite = "OptionsPagePanel",
+    PagePanelPosition = { X = 0, Y = -8 },
     PagePanelSprites = {},
     PoleAnimation = "OptionsPoleAnimation",
 
     SliderTrackSprite = "OptionsSliderTrack",
+    SliderTrackOffset = { X = 664, Y = 2 },
     VoiceSliderTrackSprite = "OptionsVoiceSliderTrack",
+    VoiceSliderOffset = { X = 111, Y = 56 },
     BinaryBoxSprite = "OptionsBinaryBox",
+    BinaryBoxOffset = { X = 812, Y = 2 },
 
     SkipReadSprite = "OptionsSkipRead",
     SkipAllSprite = "OptionsSkipAll",
@@ -29,10 +37,19 @@ root.OptionsMenu = {
 
     GuideSprite = "OptionsGuide",
     VoiceGuideSprite = "OptionsVoiceGuide",
+    GuidePosition = { X = 0, Y = 986 },
+
+    EntriesStartPosition = { X = 521, Y = 311 },
+    EntriesVerticalOffset = 126,
+    SoundEntriesStartPosition = { X = 521, Y = 331 },
+    SoundEntriesVerticalOffset = 70,
+    VoiceEntriesOffset = { X = 408, Y = 160 },
 
     LabelSprites = {},
     NametagSprites = {},
-    PortraitSprites = {}
+    NametagOffset = { X = 112, Y = 2 },
+    PortraitSprites = {},
+    VoicePosition = { X = 458, Y = 312 },
 };
 
 root.Sprites["OptionsBackground"] = {
@@ -102,12 +119,12 @@ root.Sprites["OptionsNo"] = {
 
 root.Sprites["OptionsGuide"] = {
     Sheet = "Config",
-    Bounds = { X = 0, Y = 2416, Width = 1926, Height = 57 }
+    Bounds = { X = 0, Y = 2476, Width = 1926, Height = 57 }
 };
 
 root.Sprites["OptionsVoiceGuide"] = {
     Sheet = "Config",
-    Bounds = { X = 0, Y = 2476, Width = 1926, Height = 57 }
+    Bounds = { X = 0, Y = 2416, Width = 1926, Height = 57 }
 };
 
 for i = 1, 4 do
@@ -117,7 +134,7 @@ for i = 1, 4 do
         Sheet = "Config",
         Bounds = {
             X = 0,
-            Y = 1510 + height * i,
+            Y = 1510 + height * (i - 1),
             Width = 942,
             Height = height
         }
@@ -134,7 +151,7 @@ for i = 1, 16 do
         Sheet = "Config",
         Bounds = {
             X = 1239,
-            Y = 1237 + height * i + offset,
+            Y = 1237 + height * (i - 1) + offset,
             Width = 809,
             Height = height
         }
@@ -150,7 +167,7 @@ for i = 1, 13 do
         Sheet = "Config",
         Bounds = {
             X = width * ((i - 1) % 6),
-            Y = height * ((i - 1) // 6),
+            Y = 1863 + height * ((i - 1) // 6),
             Width = width,
             Height = height
         }
