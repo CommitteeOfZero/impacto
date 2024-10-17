@@ -1,4 +1,5 @@
 #include "systemmenu.h"
+#include <algorithm>
 #include <array>
 #include <glm/common.hpp>
 #include <glm/ext/matrix_projection.hpp>
@@ -178,27 +179,26 @@ std::array<glm::vec2, 4> transformImage(
   modelMatrix = glm::rotate(modelMatrix, angleY, glm::vec3(0.0f, 1.0f, 0.0f));
   modelMatrix = glm::rotate(modelMatrix, angleZ, glm::vec3(0.0f, 0.0f, 1.0f));
   modelMatrix = glm::translate(modelMatrix, -glm::vec3{translate, 0});
-  bool stayInScreen = true;
   std::array<glm::vec4, 4> temp;
-  float depth = 1.0f;
+  float fov = 60.0f;
+  float aspectRatio = 16.0f / 9.0f;
+  float nearLimit = 0.1f;
+  float farLimit = 1000.0f;
+
+  glm::mat4 projection =
+      glm::perspective(glm::radians(fov), aspectRatio, nearLimit, farLimit);
+  glm::mat4 view = glm::lookAt(glm::vec3(0, 0, 500.0f),     // Camera position
+                               glm::vec3(0, 0, -1.0f),      // Look at point
+                               glm::vec3(0.0f, 1.0f, 0.0f)  // Up vector
+  );
+  glm::mat4 viewProjection = projection * view;
+
   for (size_t i = 0; i < srcRect.size(); i++) {
     temp[i] = glm::vec4{srcRect[i], 0, 1};
     temp[i] = modelMatrix * temp[i];
-  }
+    temp[i] = viewProjection * temp[i];
+    // temp[i] /= temp[i].w;
 
-  if (stayInScreen) {
-    float maxZ = 0.0f;
-    for (size_t i = 0; i < temp.size(); i++) {
-      if (temp[i].z > maxZ) maxZ = temp[i].z;
-    }
-    for (size_t i = 0; i < temp.size(); i++) {
-      temp[i].z -= maxZ;
-    }
-  }
-  for (int i = 0; i < temp.size(); i++) {
-    // perspective
-    temp[i].x *= (depth / (depth - temp[i].z));
-    temp[i].y *= (depth / (depth - temp[i].z));
     result[i] = temp[i];
   }
 
@@ -242,10 +242,10 @@ void SystemMenu::Render() {
         glm::vec2{2520, 2080},
     };
     std::array<glm::vec2, 4> frameStart = {
-        glm::vec2{-154, Profile::DesignHeight + 141},
-        glm::vec2{-154, -141},
-        glm::vec2{Profile::DesignWidth + 154, -141},
-        glm::vec2{Profile::DesignWidth + 154, Profile::DesignHeight + 141},
+        glm::vec2{bgOffset.x - 144, 1252},
+        glm::vec2{bgOffset.x - 144, -131},
+        glm::vec2{bgOffset.x + 2108, -131},
+        glm::vec2{bgOffset.x + 2108, 1252},
     };
 
     std::array<glm::vec2, 4> screenCapStart = {
