@@ -323,6 +323,13 @@ set(Impacto_Src
         vendor/squish/squish.cpp
 )
 
+if (IMPACTO_MODULE_GLM)
+    set(Impacto_Src
+        ${Impacto_Src}
+        vendor/glm/glm/glm.cppm
+    )
+endif ()
+
 set(Impacto_Header
         src/impacto.h
         src/log.h
@@ -741,7 +748,12 @@ endif ()
 
 
 find_package(Libatrac9 REQUIRED)
-find_package(glm REQUIRED)
+
+if (IMPACTO_MODULE_GLM)
+    find_package(glm CONFIG REQUIRED)
+else ()
+    find_package(glm REQUIRED)
+endif ()
 
 if (NX) # avoid CMAKE_DL_LIBS for NX
     set(Impacto_Libs
@@ -870,7 +882,7 @@ else ()
             list(APPEND Impacto_Libs
                     glm::glm
             )
-        elseif (NOT APPLE) # If we don't do this it decides to link glm as a library on macOS for some reason
+        elseif (NOT APPLE AND NOT DEFINED IMPACTO_MODULE_GLM) # If we don't do this it decides to link glm as a library on macOS for some reason
             list(APPEND Impacto_Libs
                     glm
             )
@@ -1070,7 +1082,11 @@ target_link_libraries(impacto PRIVATE ${Impacto_Libs})
 
 # compiler/dependency configuration
 
-set_property(TARGET impacto PROPERTY CXX_STANDARD 17)
+if (IMPACTO_MODULE_GLM)
+    set_property(TARGET impacto PROPERTY CXX_STANDARD 20)
+else ()
+    set_property(TARGET impacto PROPERTY CXX_STANDARD 17)
+endif()
 
 if (EMSCRIPTEN)
     set(CMAKE_EXECUTABLE_SUFFIX ".html")
