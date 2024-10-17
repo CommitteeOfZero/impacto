@@ -17,7 +17,7 @@ root.OptionsMenu = {
     PageHeaderPosition = { X = 696, Y = 182 },
 
     PagePanelSprite = "OptionsPagePanel",
-    PagePanelPosition = { X = 0, Y = -8 },
+    PagePanelPosition = { X = -114, Y = 0 },
     PagePanelSprites = {},
     PoleAnimation = "OptionsPoleAnimation",
 
@@ -127,14 +127,14 @@ root.Sprites["OptionsVoiceGuide"] = {
     Bounds = { X = 0, Y = 2416, Width = 1926, Height = 57 }
 };
 
-for i = 1, 4 do
+for i = 0, 3 do
     height = 80;
 
     root.Sprites["OptionsPageHeader" .. i] = {
         Sheet = "Config",
         Bounds = {
             X = 0,
-            Y = 1510 + height * (i - 1),
+            Y = 1510 + height * i,
             Width = 942,
             Height = height
         }
@@ -143,31 +143,36 @@ for i = 1, 4 do
     root.OptionsMenu.PageHeaderSprites[#root.OptionsMenu.PageHeaderSprites + 1] = "OptionsPageHeader" .. i;
 end
 
-for i = 1, 16 do
-    offset = ((i > 12) and {104} or {0})[1];
-    height = 52;
+-- Rearange the labels in the array so they're in order of appearance
+labelIndices = {5, 6, 7, 1,
+                2, 3, 8,
+                9, 10, 11, 12, 13, 4, 15, 14,
+                16};
+height = 52;
+for i = 0, 15 do
+    offset = ((i > 11) and {104} or {0})[1];
 
     root.Sprites["OptionsLabel" .. i] = {
         Sheet = "Config",
         Bounds = {
             X = 1239,
-            Y = 1237 + height * (i - 1) + offset,
+            Y = 1237 + height * i + offset,
             Width = 809,
             Height = height
         }
     };
-    root.OptionsMenu.LabelSprites[#root.OptionsMenu.LabelSprites + 1] = "OptionsLabel" .. i;
+    root.OptionsMenu.LabelSprites[labelIndices[i + 1]] = "OptionsLabel" .. i;
 end
 
-for i = 1, 13 do
+for i = 0, 12 do
     width = 218;
     height = 53;
 
     root.Sprites["OptionsNametag" .. i] = {
         Sheet = "Config",
         Bounds = {
-            X = width * ((i - 1) % 6),
-            Y = 1863 + height * ((i - 1) // 6),
+            X = width * (i % 6),
+            Y = 1863 + height * (i // 6),
             Width = width,
             Height = height
         }
@@ -175,15 +180,15 @@ for i = 1, 13 do
     root.OptionsMenu.NametagSprites[#root.OptionsMenu.NametagSprites + 1] = "OptionsNametag" .. i;
 end
 
-for i = 1, 8 do
+for i = 0, 7 do
     -- Interweave highlighted and non-highlighted variants
     width = 224;
-    offset = ((i % 2 == 0) and {width * 4} or {0})[1];
+    offset = ((i % 2 == 1) and {width * 4} or {0})[1];
 
     root.Sprites["OptionsPagePanel" .. i] = {
         Sheet = "Config",
         Bounds = {
-            X = offset + width * ((i - 1) // 2),
+            X = offset + width * (i // 2),
             Y = 2205,
             Width = width,
             Height = 195
@@ -192,15 +197,15 @@ for i = 1, 8 do
     root.OptionsMenu.PagePanelSprites[#root.OptionsMenu.PagePanelSprites + 1] = "OptionsPagePanel" .. i;
 end
 
-for i = 1, 26 do
+for i = 0, 25 do
     -- Interweave on and muted variants
     width = 100;
 
     root.Sprites["OptionsPortrait" .. i] = {
         Sheet = "ConfigEx",
         Bounds = {
-            X = 768 + (width + 1) * (i - 1),
-            Y = ((i % 2 == 1) and {2256} or {2357})[1],
+            X = 768 + (width + 1) * i,
+            Y = ((i % 2 == 0) and {2256} or {2357})[1],
             Width = width,
             Height = width
         }
@@ -211,15 +216,20 @@ end
 MakeAnimation({
     Name = "OptionsPoleAnimation",
     Sheet = "ConfigEx",
+
     FirstFrameX = 0,
     FirstFrameY = 0,
+
     FrameWidth = 539,
     ColWidth = 539,
     FrameHeight = 1080,
     RowHeight = 1096,
+
     Frames = 15,
     Duration = 1,
     Rows = 3,
     Columns = 7,
-    PrimaryDirection = AnimationDirections.Right
+
+    PrimaryDirection = AnimationDirections.Right,
+    SecondaryDirection = AnimationDirections.Down
 });
