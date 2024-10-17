@@ -25,9 +25,6 @@ void Configure() {
       FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
 
       BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
-      SliderTrackSprite = EnsureGetMemberSprite("SliderTrackSprite");
-      SliderFillSprite = EnsureGetMemberSprite("SliderFillSprite");
-      SliderThumbSprite = EnsureGetMemberSprite("SliderThumbSprite");
     };
 
     if (Type == +OptionsMenuType::MO6TW) {

@@ -14,6 +14,10 @@ inline Sprite BackButtonSprite;
 inline Sprite BackButtonHighlightedSprite;
 inline glm::vec2 BackButtonPosition;
 
+inline Sprite SliderTrackSprite;
+inline Sprite SliderFillSprite;
+inline Sprite SliderThumbSprite;
+
 inline Sprite ButtonHighlight;
 inline glm::vec2 PageLabelPosition;
 inline glm::vec2 ListStartingPosition;
