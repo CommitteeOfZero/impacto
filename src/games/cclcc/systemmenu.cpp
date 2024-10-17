@@ -1,5 +1,11 @@
 #include "systemmenu.h"
+#include <array>
 #include <glm/common.hpp>
+#include <glm/ext/matrix_projection.hpp>
+#include <glm/ext/scalar_constants.hpp>
+#include <glm/fwd.hpp>
+#include <numeric>
+#include <optional>
 #include "../../profile/games/cclcc/systemmenu.h"
 #include "../../renderer/renderer.h"
 #include "../../ui/ui.h"
@@ -122,8 +128,7 @@ void SystemMenu::Update(float dt) {
   if (State == Showing && ScrWork[SW_SYSMENUCT] == 32) {
     State = Shown;
     return;
-  } else if (State == Hiding && MenuFade.IsOut() && MenuTransition.IsOut() &&
-             ItemsFade.IsOut() && ScrWork[SW_SYSMENUCT] == 0) {
+  } else if (State == Hiding && ScrWork[SW_SYSMENUCT] == 0) {
     State = Hidden;
     MainItems->Hide();
     return;
@@ -155,6 +160,51 @@ void SystemMenu::Update(float dt) {
     MainItems->Update(dt);
   }
 }
+
+std::array<glm::vec2, 4> transformImage(
+    std::array<glm::vec2, 4> const& srcRect, float angleX, float angleY,
+    float angleZ, float scale, std::optional<glm::vec2> offset = std::nullopt) {
+  glm::mat4 modelMatrix{1.0f};
+  std::array<glm::vec2, 4> result{};
+
+  // Default to center if offset not provided
+  glm::vec2 translate = offset.value_or(
+      std::accumulate(srcRect.begin(), srcRect.end(), glm::vec2{0.0f}) * 0.25f);
+
+  modelMatrix = glm::translate(modelMatrix, glm::vec3{translate, 0});
+
+  modelMatrix = glm::scale(modelMatrix, glm::vec3(scale, scale, 1.0f));
+  modelMatrix = glm::rotate(modelMatrix, angleX, glm::vec3(1.0f, 0.0f, 0.0f));
+  modelMatrix = glm::rotate(modelMatrix, angleY, glm::vec3(0.0f, 1.0f, 0.0f));
+  modelMatrix = glm::rotate(modelMatrix, angleZ, glm::vec3(0.0f, 0.0f, 1.0f));
+  modelMatrix = glm::translate(modelMatrix, -glm::vec3{translate, 0});
+  bool stayInScreen = true;
+  std::array<glm::vec4, 4> temp;
+  float depth = 1.0f;
+  for (size_t i = 0; i < srcRect.size(); i++) {
+    temp[i] = glm::vec4{srcRect[i], 0, 1};
+    temp[i] = modelMatrix * temp[i];
+  }
+
+  if (stayInScreen) {
+    float maxZ = 0.0f;
+    for (size_t i = 0; i < temp.size(); i++) {
+      if (temp[i].z > maxZ) maxZ = temp[i].z;
+    }
+    for (size_t i = 0; i < temp.size(); i++) {
+      temp[i].z -= maxZ;
+    }
+  }
+  for (int i = 0; i < temp.size(); i++) {
+    // perspective
+    temp[i].x *= (depth / (depth - temp[i].z));
+    temp[i].y *= (depth / (depth - temp[i].z));
+    result[i] = temp[i];
+  }
+
+  return result;
+}
+
 void SystemMenu::Render() {
   if (State != Hidden && !GetFlag(SF_TITLEMODE)) {
     if (MenuTransition.IsIn()) {
@@ -175,53 +225,56 @@ void SystemMenu::Render() {
     repositionedBG.Bounds.Width = 1860;
     repositionedBG.Bounds.Y = BGPosition.y - 165;
     repositionedBG.Bounds.Height = 1205;
-    // Renderer->DrawSprite(repositionedBG,
-    //                      {0, 0, Profile::DesignWidth, Profile::DesignHeight},
-    //                      glm::vec4{tint, alpha});
 
-    std::array<glm::vec2, 4> bgDest = {
-        glm::mix(glm::vec2{-1200, 2080}, glm::vec2{0, Profile::DesignHeight},
-                 MenuFade.Progress),
-        glm::mix(glm::vec2{-1200, -330}, glm::vec2{0, 0}, MenuFade.Progress),
-        glm::mix(glm::vec2{2520, -330}, glm::vec2{Profile::DesignWidth, 0},
-                 MenuFade.Progress),
-        glm::mix(glm::vec2{2520, 2080},
-                 glm::vec2{Profile::DesignWidth, Profile::DesignHeight},
-                 MenuFade.Progress),
+    glm::vec2 offset = {1452, 395};
+    float scale = (1000.0f - (ScrWork[SW_SYSMENUCT] * 400 / 32)) / 1000.0f;
+    float angleX = glm::pi<float>() *
+                   (ScrWork[SW_SYSMENUCT] * -196608.0f / 5760.0f) / (2 << 15);
+    float angleY = glm::pi<float>() *
+                   (ScrWork[SW_SYSMENUCT] * -131072.0f / 5760.0f) / (2 << 15);
+    float angleZ = glm::pi<float>() *
+                   (ScrWork[SW_SYSMENUCT] * 163840.0f / 5760.0f) / (2 << 15);
+
+    std::array<glm::vec2, 4> bgStart = {
+        glm::vec2{-1200, 2080},
+        glm::vec2{-1200, -330},
+        glm::vec2{2520, -330},
+        glm::vec2{2520, 2080},
     };
+    std::array<glm::vec2, 4> frameStart = {
+        glm::vec2{-154, Profile::DesignHeight + 141},
+        glm::vec2{-154, -141},
+        glm::vec2{Profile::DesignWidth + 154, -141},
+        glm::vec2{Profile::DesignWidth + 154, Profile::DesignHeight + 141},
+    };
+
+    std::array<glm::vec2, 4> screenCapStart = {
+        glm::vec2{0, 0},
+        glm::vec2{0, Profile::DesignHeight},
+        glm::vec2{Profile::DesignWidth, Profile::DesignHeight},
+        glm::vec2{Profile::DesignWidth, 0},
+    };
+
     Renderer->DrawSprite(
-        repositionedBG, bgDest,
+        repositionedBG,
+        transformImage(bgStart, angleX, angleY, angleZ, scale, offset),
         {glm::vec4{1}, glm::vec4{1}, glm::vec4{1}, glm::vec4{1}},
         MenuFade.Progress / 30);
 
-    std::array<glm::vec2, 4> screenCapDest = {
-        glm::mix(glm::vec2{0, 0}, glm::vec2{1100, 250}, MenuFade.Progress),
-        glm::mix(glm::vec2{0, Profile::DesignHeight}, glm::vec2{1050, 650},
-                 MenuFade.Progress),
-        glm::mix(glm::vec2{Profile::DesignWidth, Profile::DesignHeight},
-                 glm::vec2{1550, 750}, MenuFade.Progress),
-        glm::mix(glm::vec2{Profile::DesignWidth, 0}, glm::vec2{1650, 350},
-                 MenuFade.Progress),
-    };
+    glm::vec4 frameColor{1};
     Renderer->DrawSprite(
-        ScreenCap, screenCapDest,
-        {glm::vec4{1}, glm::vec4{1}, glm::vec4{1}, glm::vec4{1}});
-
-    std::array<glm::vec2, 4> frameDest = {
-        glm::mix(glm::vec2{-154, Profile::DesignHeight + 141},
-                 glm::vec2{1000, 700}, MenuFade.Progress),
-        glm::mix(glm::vec2{-154, -141}, glm::vec2{1100, 200},
-                 MenuFade.Progress),
-        glm::mix(glm::vec2{Profile::DesignWidth + 154, -141},
-                 glm::vec2{1700, 300}, MenuFade.Progress),
-        glm::mix(
-            glm::vec2{Profile::DesignWidth + 154, Profile::DesignHeight + 141},
-            glm::vec2{1600, 800}, MenuFade.Progress),
-    };
+        SystemMenuFrame,
+        transformImage(frameStart, angleX, angleY, angleZ, scale, offset),
+        {frameColor, frameColor, frameColor, frameColor});
 
     Renderer->DrawSprite(
-        SystemMenuFrame, frameDest,
+        ScreenCap,
+        transformImage(screenCapStart, angleX, angleY, angleZ, scale, offset),
         {glm::vec4{1}, glm::vec4{1}, glm::vec4{1}, glm::vec4{1}});
+
+    Renderer->DrawSprite(SystemMenuMask,
+                         {0, 0, Profile::DesignWidth, Profile::DesignHeight},
+                         {tint, MenuFade.Progress});
 
     MainItems->Tint =
         glm::vec4(tint, glm::smoothstep(0.0f, 1.0f, ItemsFade.Progress));

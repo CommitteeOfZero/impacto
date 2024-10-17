@@ -44,7 +44,8 @@ root.SystemMenu = {
 
     MenuButtonGuide = "SystemMenuButtonGuide",
     SystemMenuBG = "SystemMenuBG",
-    SystemMenuFrame = "SystemMenuFrame"
+    SystemMenuFrame = "SystemMenuFrame",
+    SystemMenuMask = "SystemMenuMask"
 };
 
 root.Sprites["SystemMenuBG"] = {
@@ -128,4 +129,9 @@ root.Sprites["SystemMenuButtonGuide"] = {
 root.Sprites["SystemMenuFrame"] = {
     Sheet = "MenuChip",
     Bounds = {X = 0, Y = 0, Width = 2252, Height = 1383}
+};
+
+root.Sprites["SystemMenuMask"] = {
+    Sheet = "MenuChip",
+    Bounds = { X = 154, Y = 140, Width = 1900, Height = 1061 },
 };

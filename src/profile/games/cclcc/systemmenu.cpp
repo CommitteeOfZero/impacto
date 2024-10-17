@@ -27,6 +27,7 @@ void Configure() {
   SystemMenuBG = EnsureGetMemberSprite("SystemMenuBG");
   SystemMenuFrame = EnsureGetMemberSprite("SystemMenuFrame");
   MenuButtonGuide = EnsureGetMemberSprite("MenuButtonGuide");
+  SystemMenuMask = EnsureGetMemberSprite("SystemMenuMask");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMemberInt("DrawType"));

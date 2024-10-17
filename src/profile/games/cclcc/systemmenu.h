@@ -11,6 +11,7 @@ constexpr int MenuEntriesNumMax = 16;
 inline Sprite SystemMenuBG;
 inline Sprite MenuButtonGuide;
 inline Sprite SystemMenuFrame;
+inline Sprite SystemMenuMask;
 inline float MoveInDuration;
 inline float MoveOutDuration;
 inline float ItemsFadeInDuration;

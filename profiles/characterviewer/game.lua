@@ -1,4 +1,4 @@
-include('chlcc/game.lua');
+include('cclcc/game.lua');
 
 root.GameFeatures = GameFeature.Renderer2D | GameFeature.CharacterViewer | GameFeature.Audio | GameFeature.Input;
 
