@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../ui/menu.h"
+#include "../../spriteanimation.h"
 
 namespace Impacto {
 namespace UI {
@@ -17,6 +18,7 @@ class OptionsMenu : public Menu {
 
  private:
   Animation FadeAnimation;
+  SpriteAnimation PoleAnimation;
 };
 
 }  // namespace CCLCC
