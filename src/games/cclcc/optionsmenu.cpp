@@ -2,14 +2,9 @@
 
 #include "../../profile/ui/optionsmenu.h"
 #include "../../profile/games/cclcc/optionsmenu.h"
-#include "../../renderer/renderer.h"
-#include "../../mem.h"
-#include "../../profile/scriptvars.h"
-#include "../../inputsystem.h"
+#include "../../profile/scriptinput.h"
 #include "../../vm/interface/input.h"
-#include "../../ui/widgets/button.h"
-#include "../../vm/vm.h"
-#include "../../audio/audiochannel.h"
+#include "../../ui/widgets/cclcc/optionsbinarybutton.h"
 
 namespace Impacto {
 namespace UI {
@@ -18,6 +13,8 @@ namespace CCLCC {
 using namespace Impacto::Profile::OptionsMenu;
 using namespace Impacto::Profile::CCLCC::OptionsMenu;
 using namespace Impacto::Profile::ScriptVars;
+using namespace Impacto::UI::Widgets;
+using namespace Impacto::UI::Widgets::CCLCC;
 using namespace Impacto::Vm::Interface;
 
 OptionsMenu::OptionsMenu() {
@@ -27,6 +24,56 @@ OptionsMenu::OptionsMenu() {
   FadeAnimation.DurationOut = FadeOutDuration;
 
   PoleAnimation = Profile::CCLCC::OptionsMenu::PoleAnimation.Instantiate();
+
+  Pages.reserve(4);
+
+  BasicPage = new Group(this);
+  BasicPage->FocusLock = false;
+  for (int i = 0; i < 4; i++) {
+    glm::vec2 pos = EntriesStartPosition;
+    pos.y += EntriesVerticalOffset * i;
+
+    BasicPage->Add(new OptionsBinaryButton(BinaryBoxSprite, OnSprite, OffSprite,
+                                           LabelSprites[i], pos),
+                   FDIR_DOWN);
+  }
+  Pages.push_back(BasicPage);
+
+  TextPage = new Group(this);
+  TextPage->FocusLock = false;
+  for (int i = 4; i < 7; i++) {
+    glm::vec2 pos = EntriesStartPosition;
+    pos.y += EntriesVerticalOffset * (i - 4);
+
+    TextPage->Add(new OptionsBinaryButton(BinaryBoxSprite, YesSprite, NoSprite,
+                                          LabelSprites[i], pos),
+                  FDIR_DOWN);
+  }
+  Pages.push_back(TextPage);
+
+  SoundPage = new Group(this);
+  SoundPage->FocusLock = false;
+  for (int i = 7; i < 15; i++) {
+    glm::vec2 pos = SoundEntriesStartPosition;
+    pos.y += SoundEntriesVerticalOffset * (i - 7);
+
+    SoundPage->Add(new OptionsBinaryButton(BinaryBoxSprite, YesSprite, NoSprite,
+                                           LabelSprites[i], pos),
+                   FDIR_DOWN);
+  }
+  Pages.push_back(SoundPage);
+
+  VoicePage = new Group(this);
+  VoicePage->FocusLock = false;
+  for (int i = 0; i < 12; i++) {
+    glm::vec2 pos = VoicePosition;
+    pos += VoiceEntriesOffset * glm::vec2(i % 3, i / 3);
+
+    VoicePage->Add(new Label(NametagSprites[i], pos), FDIR_RIGHT);
+  }
+  Pages.push_back(VoicePage);
+
+  CurrentPage = 0;
 }
 
 void OptionsMenu::Show() {
@@ -34,25 +81,32 @@ void OptionsMenu::Show() {
     State = Showing;
     FadeAnimation.StartIn();
     PoleAnimation.StartIn();
-    // FirstPage->Show();
-    if (UI::FocusedMenu != 0) {
+
+    Pages.at(CurrentPage)->Show();
+
+    if (UI::FocusedMenu != nullptr) {
       LastFocusedMenu = UI::FocusedMenu;
       LastFocusedMenu->IsFocused = false;
     }
     IsFocused = true;
     UI::FocusedMenu = this;
+
+    CurrentlyFocusedElement = Pages.at(CurrentPage)->GetFirstFocusableChild();
+    CurrentlyFocusedElement->HasFocus = true;
   }
 }
+
 void OptionsMenu::Hide() {
   if (State != Hidden) {
     State = Hiding;
     FadeAnimation.StartOut();
     PoleAnimation.StartOut();
-    if (LastFocusedMenu != 0) {
+
+    if (LastFocusedMenu != nullptr) {
       UI::FocusedMenu = LastFocusedMenu;
       LastFocusedMenu->IsFocused = true;
     } else {
-      UI::FocusedMenu = 0;
+      UI::FocusedMenu = nullptr;
     }
     IsFocused = false;
   }
@@ -70,6 +124,10 @@ void OptionsMenu::Update(float dt) {
              ScrWork[SW_SYSSUBMENUNO] == 5) {
     Show();
   }
+
+  int newPageOffset = -(int)(bool)(PADinputButtonWentDown & PAD1L1) +
+                      (int)(bool)(PADinputButtonWentDown & PAD1R1);
+  GoToPage((CurrentPage + newPageOffset) % Pages.size());
 }
 
 void OptionsMenu::Render() {
@@ -80,7 +138,10 @@ void OptionsMenu::Render() {
     Renderer->DrawSprite(BackgroundSprite, BackgroundPosition, col);
     Renderer->DrawSprite(HeaderSprite, HeaderPosition, col);
 
-    Renderer->DrawSprite(PageHeaderSprites[2], PageHeaderPosition, col);
+    Renderer->DrawSprite(PageHeaderSprites[+CurrentPage], PageHeaderPosition,
+                         col);
+    Pages.at(CurrentPage)->Render();
+    /*
     for (int i = 7; i < 15; i++) {
       glm::vec2 pos = SoundEntriesStartPosition;
       pos.y += SoundEntriesVerticalOffset * (i - 7);
@@ -93,17 +154,33 @@ void OptionsMenu::Render() {
         Renderer->DrawSprite(BinaryBoxSprite, boxPos, col);
         Renderer->DrawSprite(YesSprite, boxPos, col);
         Renderer->DrawSprite(
-            NoSprite, boxPos + glm::vec2(BinaryBoxSprite.ScaledWidth() / 2, 0),
-            col);
+        NoSprite, boxPos + glm::vec2(BinaryBoxSprite.ScaledWidth() / 2, 0),
+        col);
       } else {
         Renderer->DrawSprite(SliderTrackSprite, pos + SliderTrackOffset, col);
       }
     }
+    */
 
     Renderer->DrawSprite(PoleAnimation.CurrentSprite(), PagePanelPosition, col);
 
     Renderer->DrawSprite(GuideSprite, GuidePosition, col);
   }
+}
+
+void OptionsMenu::GoToPage(int pageNumber) {
+  if (CurrentPage == pageNumber) return;
+
+  Pages.at(CurrentPage)->HasFocus = false;
+
+  CurrentPage = pageNumber;
+  Group& page = *Pages.at(CurrentPage);
+
+  page.HasFocus = true;
+  page.Show();
+
+  CurrentlyFocusedElement = page.GetFirstFocusableChild();
+  CurrentlyFocusedElement->HasFocus = true;
 }
 
 }  // namespace CCLCC
