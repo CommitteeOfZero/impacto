@@ -11,8 +11,8 @@ namespace Widgets {
 namespace CCLCC {
 
 OptionsSlider::OptionsSlider(const Sprite& box, const Sprite& label,
-                             glm::vec2 pos)
-    : BoxSprite(box), LabelSprite(label) {
+                             glm::vec2 pos, glm::vec4 highlightTint)
+    : BoxSprite(box), LabelSprite(label), HighlightTint(highlightTint) {
   Bounds = RectF(pos.x, pos.y, SliderTrackOffset.x + box.ScaledWidth(),
                  LabelSprite.ScaledHeight());
 }

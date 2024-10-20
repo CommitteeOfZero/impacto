@@ -13,11 +13,13 @@ namespace CCLCC {
 OptionsBinaryButton::OptionsBinaryButton(const Sprite& box,
                                          const Sprite& trueLabel,
                                          const Sprite& falseLabel,
-                                         const Sprite& label, glm::vec2 pos)
+                                         const Sprite& label, glm::vec2 pos,
+                                         glm::vec4 highlightTint)
     : BoxSprite(box),
       TrueSprite(trueLabel),
       FalseSprite(falseLabel),
-      LabelSprite(label) {
+      LabelSprite(label),
+      HighlightTint(highlightTint) {
   Bounds = RectF(pos.x, pos.y, BinaryBoxOffset.x + BoxSprite.ScaledWidth(),
                  LabelSprite.ScaledHeight());
 }
