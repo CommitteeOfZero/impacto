@@ -22,7 +22,7 @@ struct PathSegment {
 
 class PathAnimation : public Animation {
  public:
-  PathAnimation() : PathAnimation(std::vector<PathSegment>()){};
+  PathAnimation() : PathAnimation(std::vector<PathSegment>()) {};
   PathAnimation(std::vector<PathSegment> segments);
 
   std::vector<PathSegment> Path;

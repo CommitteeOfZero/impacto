@@ -5,12 +5,12 @@ root.SpriteSheets = {
         DesignHeight = 1024
     },
     ["AlbumThumbnailSheet"] = {
-        Path = {Mount = "system", Id = 1 },
+        Path = { Mount = "system", Id = 1 },
         DesignWidth = 2048,
         DesignHeight = 1024
     },
     ["AlbumThumbnailSheet2"] = {
-        Path = {Mount = "system", Id = 2 },
+        Path = { Mount = "system", Id = 2 },
         DesignWidth = 2048,
         DesignHeight = 1024
     },
@@ -28,6 +28,11 @@ root.SpriteSheets = {
         Path = { Mount = "system", Id = 6 },
         DesignWidth = 2048,
         DesignHeight = 720
+    },
+    ["Highlights"] = {
+        Path = { Mount = "system", Id = 7 },
+        DesignWidth = 2048,
+        DesignHeight = 1024
     },
     ["Menu"] = {
         Path = { Mount = "system", Id = 8 },

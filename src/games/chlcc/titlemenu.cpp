@@ -12,6 +12,7 @@
 #include "../../profile/games/chlcc/titlemenu.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/game.h"
+#include "../../profile/profile.h"
 #include <vector>
 
 namespace Impacto {
@@ -21,6 +22,7 @@ namespace CHLCC {
 using namespace Impacto::Profile::TitleMenu;
 using namespace Impacto::Profile::CHLCC::TitleMenu;
 using namespace Impacto::Profile::ScriptVars;
+using namespace Impacto::Profile;
 using namespace Impacto::Audio;
 
 using namespace Impacto::UI::Widgets::CHLCC;
@@ -259,6 +261,7 @@ void TitleMenu::Hide() {
 
 void TitleMenu::Update(float dt) {
   UpdateInput();
+  IntroPanningAnimation.Update(dt);
   IntroStarBounceAnimation.Update(dt);
   IntroExplodingStarAnimation.Update(dt);
   IntroExplodingStarRotationAnimation.Update(dt);
@@ -449,16 +452,28 @@ void TitleMenu::Render() {
   }
 }
 
-inline void TitleMenu::DrawIntroAnimation() {
+void TitleMenu::DrawIntroAnimation() {
   Renderer->DrawSprite(IntroBackgroundSprite, glm::vec2(0.0f));
 
-  switch (TitleMenuIntroAnimationState) {
+  switch (IntroAnimationState) {
     case TitleMenuIntroAnimationState::Out: {
-      IntroStarBounceAnimation.StartIn();
-      TitleMenuIntroAnimationState = TitleMenuIntroAnimationState::BouncingStar;
+      IntroPanningAnimation.StartIn();
+      IntroAnimationState = TitleMenuIntroAnimationState::Panning;
+      return;
+    }
+    case TitleMenuIntroAnimationState::Panning: {
+      DrawIntroHighlights();
+
+      if (IntroPanningAnimation.IsIn()) {
+        IntroStarBounceAnimation.StartIn();
+        IntroAnimationState = TitleMenuIntroAnimationState::BouncingStar;
+      }
+
       return;
     }
     case TitleMenuIntroAnimationState::BouncingStar: {
+      DrawIntroHighlights();
+
       if (IntroStarBounceAnimation.GetCurrentSegmentIndex() == 1 &&
           Audio::Channels[Audio::AC_SE0]->GetState() == ACS_Paused) {
         Audio::Channels[Audio::AC_SE0]->Resume();
@@ -470,8 +485,7 @@ inline void TitleMenu::DrawIntroAnimation() {
       Renderer->DrawSprite(StarLogoSprite, position);
 
       if (IntroStarBounceAnimation.IsIn()) {
-        TitleMenuIntroAnimationState =
-            TitleMenuIntroAnimationState::ExplodingStar;
+        IntroAnimationState = TitleMenuIntroAnimationState::ExplodingStar;
         IntroExplodingStarAnimation.StartIn();
         IntroExplodingStarRotationAnimation.StartIn();
       }
@@ -479,6 +493,8 @@ inline void TitleMenu::DrawIntroAnimation() {
       return;
     }
     case TitleMenuIntroAnimationState::ExplodingStar: {
+      DrawIntroHighlights();
+
       glm::vec2 origin = IntroStarBounceAnimation.GetPosition() -
                          IntroBouncingStarSprite.Bounds.Dimensions() / 2.0f;
 
@@ -502,17 +518,39 @@ inline void TitleMenu::DrawIntroAnimation() {
       }
 
       if (IntroExplodingStarAnimation.IsIn()) {
-        TitleMenuIntroAnimationState =
-            TitleMenuIntroAnimationState::FallingStars;
+        IntroAnimationState = TitleMenuIntroAnimationState::FallingStars;
         IntroExplodingStarRotationAnimation.State = AnimationState::Stopped;
       }
 
       return;
     }
+    case TitleMenuIntroAnimationState::FallingStars: {
+      DrawIntroHighlights();
+    }
   }
 }
 
-inline void TitleMenu::DrawTitleMenuBackGraphics() {
+void TitleMenu::DrawIntroHighlights() const {
+  Renderer->SetBlendMode(RendererBlendMode::Additive);
+
+  for (size_t i = 0; i < IntroHighlightCount; i++) {
+    const Sprite& sprite = IntroHighlightSprites[i];
+
+    constexpr float scale = 1.5f;
+    float offset = IntroHighlightPositions[i];
+    glm::vec2 position =
+        glm::vec2(offset * DesignWidth / 2 + DesignWidth / 2,
+                  offset * DesignHeight / 2 + DesignHeight / 2) -
+        sprite.Bounds.Dimensions() / 2.0f * scale;
+
+    Renderer->DrawSprite(sprite, position, {1.0f, 1.0f, 1.0f, 1.0f},
+                         glm::vec2(scale));
+  }
+
+  Renderer->SetBlendMode(RendererBlendMode::Normal);
+}
+
+void TitleMenu::DrawTitleMenuBackGraphics() const {
   Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
 
   const CornersQuad spinningCircleDest =
