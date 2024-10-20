@@ -117,6 +117,12 @@ inline float SecondaryMenuSystemConfigY;
 inline float SecondaryMenuSystemSaveY;
 
 inline Sprite IntroBackgroundSprite;
+
+constexpr size_t IntroHighlightCount = 10;
+inline Sprite IntroHighlightSprites[IntroHighlightCount];
+inline float IntroHighlightPositions[IntroHighlightCount];
+inline float IntroPanningAnimationDuration;
+
 inline Sprite IntroSmallStarSprite;
 inline Sprite IntroBigStarSprite;
 
