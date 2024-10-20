@@ -5,6 +5,7 @@
 #include "../../profile/scriptinput.h"
 #include "../../vm/interface/input.h"
 #include "../../ui/widgets/cclcc/optionsbinarybutton.h"
+#include "../../ui/widgets/cclcc/optionsslider.h"
 
 namespace Impacto {
 namespace UI {
@@ -26,40 +27,45 @@ OptionsMenu::OptionsMenu() {
   PoleAnimation = Profile::CCLCC::OptionsMenu::PoleAnimation.Instantiate();
 
   Pages.reserve(4);
+  glm::vec2 pos = EntriesStartPosition;
 
   BasicPage = new Group(this);
   BasicPage->FocusLock = false;
   for (int i = 0; i < 4; i++) {
-    glm::vec2 pos = EntriesStartPosition;
-    pos.y += EntriesVerticalOffset * i;
-
     BasicPage->Add(new OptionsBinaryButton(BinaryBoxSprite, OnSprite, OffSprite,
                                            LabelSprites[i], pos),
                    FDIR_DOWN);
+
+    pos.y += EntriesVerticalOffset;
   }
   Pages.push_back(BasicPage);
 
+  pos = EntriesStartPosition;
   TextPage = new Group(this);
   TextPage->FocusLock = false;
-  for (int i = 4; i < 7; i++) {
-    glm::vec2 pos = EntriesStartPosition;
-    pos.y += EntriesVerticalOffset * (i - 4);
-
-    TextPage->Add(new OptionsBinaryButton(BinaryBoxSprite, YesSprite, NoSprite,
-                                          LabelSprites[i], pos),
+  for (int i = 4; i < 6; i++) {
+    TextPage->Add(new OptionsSlider(SliderTrackSprite, LabelSprites[i], pos),
                   FDIR_DOWN);
+
+    pos.y += EntriesVerticalOffset;
   }
+  TextPage->Add(new OptionsBinaryButton(BinaryBoxSprite, YesSprite, NoSprite,
+                                        LabelSprites[6], pos),
+                FDIR_DOWN);
   Pages.push_back(TextPage);
 
+  pos = SoundEntriesStartPosition;
   SoundPage = new Group(this);
   SoundPage->FocusLock = false;
   for (int i = 7; i < 15; i++) {
-    glm::vec2 pos = SoundEntriesStartPosition;
-    pos.y += SoundEntriesVerticalOffset * (i - 7);
+    Widget* widget =
+        (i < 11 || i == 14)
+            ? new OptionsSlider(SliderTrackSprite, LabelSprites[i], pos)
+            : widget = new OptionsBinaryButton(BinaryBoxSprite, YesSprite,
+                                               NoSprite, LabelSprites[i], pos);
+    SoundPage->Add(widget, FDIR_DOWN);
 
-    SoundPage->Add(new OptionsBinaryButton(BinaryBoxSprite, YesSprite, NoSprite,
-                                           LabelSprites[i], pos),
-                   FDIR_DOWN);
+    pos.y += SoundEntriesVerticalOffset;
   }
   Pages.push_back(SoundPage);
 
