@@ -5,6 +5,8 @@ root.OptionsMenu = {
     FadeInDuration = 0.2,
     FadeOutDuration = 0.2,
 
+    HighlightColor = { X = 0.94, Y = 0.49, Z = 0.59 },
+
     BackgroundSprite = "OptionsBackground",
     BackgroundPosition = { X = 179, Y = 0 },
 
