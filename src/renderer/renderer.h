@@ -7,6 +7,7 @@
 #include "../text.h"
 #include "yuvframe.h"
 #include "../../vendor/span/span.hpp"
+#include "enum.h"
 
 namespace Impacto {
 
@@ -14,6 +15,8 @@ inline GraphicsApi GraphicsApiHint;
 inline GraphicsApi ActualGraphicsApi;
 
 enum class RendererOutlineMode { RO_None, RO_BottomRight, RO_Full };
+
+BETTER_ENUM(RendererBlendMode, int, Normal, Additive)
 
 class BaseRenderer {
  public:
@@ -144,6 +147,8 @@ class BaseRenderer {
   virtual void EnableScissor() = 0;
   virtual void SetScissorRect(RectF const& rect) = 0;
   virtual void DisableScissor() = 0;
+
+  virtual void SetBlendMode(RendererBlendMode blendMode) = 0;
 
   bool IsInit = false;
 

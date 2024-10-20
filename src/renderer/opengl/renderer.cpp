@@ -127,6 +127,9 @@ void Renderer::Init() {
   glSamplerParameteri(Sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glSamplerParameteri(Sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glSamplerParameteri(Sampler, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16);
+
+  glEnable(GL_BLEND);
+  SetBlendMode(RendererBlendMode::Normal);
 }
 
 void Renderer::Shutdown() {
@@ -1050,6 +1053,19 @@ void Renderer::SetScissorRect(RectF const& rect) {
 void Renderer::DisableScissor() {
   Flush();
   glDisable(GL_SCISSOR_TEST);
+}
+
+void Renderer::SetBlendMode(RendererBlendMode blendMode) {
+  Flush();
+
+  switch (blendMode) {
+    case RendererBlendMode::Normal:
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      return;
+    case RendererBlendMode::Additive:
+      glBlendFunc(GL_ONE, GL_ONE);
+      return;
+  }
 }
 
 }  // namespace OpenGL
