@@ -13,11 +13,13 @@ namespace CCLCC {
 OptionsBinaryButton::OptionsBinaryButton(const Sprite& box,
                                          const Sprite& trueLabel,
                                          const Sprite& falseLabel,
-                                         const Sprite& label, glm::vec2 pos)
+                                         const Sprite& label, glm::vec2 pos,
+                                         glm::vec4 highlightTint)
     : BoxSprite(box),
       TrueSprite(trueLabel),
       FalseSprite(falseLabel),
-      LabelSprite(label) {
+      LabelSprite(label),
+      HighlightTint(highlightTint) {
   Bounds = RectF(pos.x, pos.y, BinaryBoxOffset.x + BoxSprite.ScaledWidth(),
                  LabelSprite.ScaledHeight());
 }
@@ -33,32 +35,23 @@ inline glm::vec2 OptionsBinaryButton::GetFalsePos() const {
 
 void OptionsBinaryButton::Render() {
   HighlightTint.a = Tint.a;
-  glm::vec4 black = glm::vec4(0.0f, 0.0f, 0.0f, Tint.a);
 
-  glm::vec4 trueTint;
-  glm::vec4 falseTint;
-  glm::vec2 highlightPos;
   RectF highlightBounds(0.0f, 0.0f, BoxSprite.ScaledWidth() / 2,
                         BoxSprite.ScaledHeight());
-  if (State) {
-    trueTint = Tint;
-    falseTint = black;
-    highlightPos = GetTruePos();
-  } else {
-    trueTint = black;
-    falseTint = Tint;
-    highlightPos = GetFalsePos();
-  }
+  glm::vec2 highlightPos = (State) ? GetTruePos() : GetFalsePos();
   highlightBounds.X = highlightPos.x;
   highlightBounds.Y = highlightPos.y;
 
-  Renderer->DrawSprite(LabelSprite, Bounds.GetPos(), black);
+  Renderer->DrawSprite(LabelSprite, Bounds.GetPos(),
+                       {0.0f, 0.0f, 0.0f, Tint.a});
 
   Renderer->DrawRect(highlightBounds, HighlightTint);
   Renderer->DrawSprite(BoxSprite, GetTruePos(), Tint);
 
-  Renderer->DrawSprite(TrueSprite, GetTruePos(), trueTint);
-  Renderer->DrawSprite(FalseSprite, GetFalsePos(), falseTint);
+  Renderer->DrawSprite(TrueSprite, GetTruePos(), Tint, glm::vec2(1.0f), 0.0f,
+                       !State);
+  Renderer->DrawSprite(FalseSprite, GetFalsePos(), Tint, glm::vec2(1.0f), 0.0f,
+                       State);
 }
 
 void OptionsBinaryButton::UpdateInput() {}

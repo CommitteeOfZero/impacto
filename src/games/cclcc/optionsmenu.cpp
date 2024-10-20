@@ -28,12 +28,13 @@ OptionsMenu::OptionsMenu() {
 
   Pages.reserve(4);
   glm::vec2 pos = EntriesStartPosition;
+  glm::vec4 highlightTint(HighlightColor, 1.0f);
 
   BasicPage = new Group(this);
   BasicPage->FocusLock = false;
   for (int i = 0; i < 4; i++) {
     BasicPage->Add(new OptionsBinaryButton(BinaryBoxSprite, OnSprite, OffSprite,
-                                           LabelSprites[i], pos),
+                                           LabelSprites[i], pos, highlightTint),
                    FDIR_DOWN);
 
     pos.y += EntriesVerticalOffset;
@@ -44,13 +45,14 @@ OptionsMenu::OptionsMenu() {
   TextPage = new Group(this);
   TextPage->FocusLock = false;
   for (int i = 4; i < 6; i++) {
-    TextPage->Add(new OptionsSlider(SliderTrackSprite, LabelSprites[i], pos),
+    TextPage->Add(new OptionsSlider(SliderTrackSprite, LabelSprites[i], pos,
+                                    highlightTint),
                   FDIR_DOWN);
 
     pos.y += EntriesVerticalOffset;
   }
   TextPage->Add(new OptionsBinaryButton(BinaryBoxSprite, YesSprite, NoSprite,
-                                        LabelSprites[6], pos),
+                                        LabelSprites[6], pos, highlightTint),
                 FDIR_DOWN);
   Pages.push_back(TextPage);
 
@@ -58,11 +60,12 @@ OptionsMenu::OptionsMenu() {
   SoundPage = new Group(this);
   SoundPage->FocusLock = false;
   for (int i = 7; i < 15; i++) {
-    Widget* widget =
-        (i < 11 || i == 14)
-            ? new OptionsSlider(SliderTrackSprite, LabelSprites[i], pos)
-            : widget = new OptionsBinaryButton(BinaryBoxSprite, YesSprite,
-                                               NoSprite, LabelSprites[i], pos);
+    Widget* widget = (i < 11 || i == 14)
+                         ? new OptionsSlider(SliderTrackSprite, LabelSprites[i],
+                                             pos, highlightTint)
+                         : widget = new OptionsBinaryButton(
+                               BinaryBoxSprite, YesSprite, NoSprite,
+                               LabelSprites[i], pos, highlightTint);
     SoundPage->Add(widget, FDIR_DOWN);
 
     pos.y += SoundEntriesVerticalOffset;

@@ -15,6 +15,8 @@ namespace OptionsMenu {
 void Configure() {
   BackgroundPosition = EnsureGetMemberVec2("BackgroundPosition");
 
+  HighlightColor = EnsureGetMemberVec3("HighlightColor");
+
   PointerSprite = EnsureGetMemberSprite("PointerSprite");
   PointerOffset = EnsureGetMemberVec2("PointerOffset");
 
