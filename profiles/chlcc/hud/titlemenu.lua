@@ -6,14 +6,15 @@ root.TitleMenu = {
     PressToStartAnimDurationIn = 0.5,
     PressToStartAnimDurationOut = 0.5,
     PressToStartSprite = "TitleMenuPressToStart",
+    BackgroundSprite = "TitleMenuBackground",
     IntroBackgroundSprite = "TitleMenuIntroBackground",
     IntroBouncingStarSprite = "StarLogo",
-    IntroSmallStarSprite = "TitleMenuIntroSmallStar",
-    IntroBigStarSprite = "TitleMenuIntroBigStar",
+    IntroSmallStarSprite = "IntroSmallStar",
     IntroExplodingStarAnimationDuration = 1.5,
     IntroExplodingStarAnimationRotationDuration = 0.5,
     IntroExplodingStarAnimationDistance = 315,
-    BackgroundSprite = "TitleMenuBackground",
+    IntroPanningAnimationDuration = 2.3,
+    IntroBigStarSprite = "IntroBigStar",
     DelusionADVUnderSprite = "DelusionADVUnder", -- "DelusionADVUnderEnglish" with the TLed assets, "DelusionADVUnder" with the original ones
     DelusionADVUnderX = 78, --74 with the TLed assets, 78 with the original ones
     DelusionADVUnderY = 394, --396 with the TLed assets, 394 with the original ones
@@ -109,6 +110,25 @@ root.TitleMenu = {
     LineNum = 6,
     LineEntriesSprites = {},
     IntroStarBounceAnimationSegmentCount = 7
+};
+
+root.TitleMenu.IntroHighlightSprites = {
+    "IntroBrightGreenHighlight",
+    "IntroSunHighlight",
+    "IntroGrayHighlight",
+    "IntroCrescentRainbowHighlight",
+    "IntroBlueHighlight",
+    "IntroWhiteHighlight",
+    "IntroBrownHighlight",
+    "IntroDiamondHighlight",
+    "IntroDarkGreenHighlight",
+    "IntroCircularRainbowHighlight"
+};
+
+-- Positions along the diagonal normalized between -1 and 1
+root.TitleMenu.IntroHighlightPositions = {
+    -1.13, -1.00, -0.49, 0.00, 0.17,
+    0.30, 0.58, 0.69, 0.91, 1.12
 };
 
 for i = 0, 3 do
@@ -248,14 +268,64 @@ root.Sprites["TitleMenuIntroBackground"] = {
     Bounds = { X = 0, Y = 0, Width = 1280, Height = 720 },
 };
 
-root.Sprites["TitleMenuIntroSmallStar"] = {
+root.Sprites["IntroSmallStar"] = {
     Sheet = "Title",
     Bounds = { X = 1153, Y = 534, Width = 45, Height = 44 },
 };
 
-root.Sprites["TitleMenuIntroBigStar"] = {
+root.Sprites["IntroBigStar"] = {
     Sheet = "Title",
     Bounds = { X = 1156, Y = 345, Width = 178, Height = 170 },
+};
+
+root.Sprites["IntroBrightGreenHighlight"] = {
+    Sheet = "Highlights",
+    Bounds = { X = 1536, Y = 0, Width = 256, Height = 256 },
+};
+
+root.Sprites["IntroSunHighlight"] = {
+    Sheet = "Highlights",
+    Bounds = { X = 0, Y = 0, Width = 512, Height = 512 },
+};
+
+root.Sprites["IntroGrayHighlight"] = {
+    Sheet = "Highlights",
+    Bounds = { X = 1536, Y = 256, Width = 256, Height = 256 },
+};
+
+root.Sprites["IntroCrescentRainbowHighlight"] = {
+    Sheet = "Highlights",
+    Bounds = { X = 0, Y = 512, Width = 512, Height = 512 },
+};
+
+root.Sprites["IntroBlueHighlight"] = {
+    Sheet = "Highlights",
+    Bounds = { X = 1280, Y = 256, Width = 256, Height = 256 },
+};
+
+root.Sprites["IntroWhiteHighlight"] = {
+    Sheet = "Highlights",
+    Bounds = { X = 1280, Y = 0, Width = 256, Height = 256 },
+};
+
+root.Sprites["IntroBrownHighlight"] = {
+    Sheet = "Highlights",
+    Bounds = { X = 1024, Y = 256, Width = 256, Height = 256 },
+};
+
+root.Sprites["IntroDiamondHighlight"] = {
+    Sheet = "Highlights",
+    Bounds = { X = 512, Y = 512, Width = 512, Height = 512 },
+};
+
+root.Sprites["IntroDarkGreenHighlight"] = {
+    Sheet = "Highlights",
+    Bounds = { X = 1024, Y = 0, Width = 256, Height = 256 },
+};
+
+root.Sprites["IntroCircularRainbowHighlight"] = {
+    Sheet = "Highlights",
+    Bounds = { X = 512, Y = 0, Width = 512, Height = 512 },
 };
 
 root.Sprites["TitleMenuBackground"] = {

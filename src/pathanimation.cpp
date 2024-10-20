@@ -23,9 +23,10 @@ float Ease(float progress, EasingFunction function) {
   }
 }
 
-PathAnimation::PathAnimation(std::vector<PathSegment> path) : Path(path) {
+PathAnimation::PathAnimation(std::vector<PathSegment> path)
+    : Path(std::move(path)) {
   float totalDuration = 0;
-  for (const PathSegment& segment : path) {
+  for (const PathSegment& segment : Path) {
     totalDuration += segment.Duration;
   }
 
