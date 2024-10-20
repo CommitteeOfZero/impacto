@@ -16,6 +16,8 @@ int constexpr PortraitSpriteCount = 26;
 
 inline glm::vec2 BackgroundPosition;
 
+inline glm::vec3 HighlightColor;
+
 inline Sprite PointerSprite;
 inline glm::vec2 PointerOffset;
 
