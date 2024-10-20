@@ -1,6 +1,5 @@
 #include "titlemenu.h"
 #include "../../../log.h"
-// #include "../../../window.h"
 #include "../../../renderer/renderer.h"
 #include "../../profile_internal.h"
 
@@ -16,6 +15,8 @@ namespace TitleMenu {
 
 void Configure() {
   IntroBackgroundSprite = EnsureGetMemberSprite("IntroBackgroundSprite");
+  IntroPanningAnimationDuration =
+      EnsureGetMemberFloat("IntroPanningAnimationDuration");
   IntroBouncingStarSprite = EnsureGetMemberSprite("IntroBouncingStarSprite");
   IntroSmallStarSprite = EnsureGetMemberSprite("IntroSmallStarSprite");
   IntroBigStarSprite = EnsureGetMemberSprite("IntroBigStarSprite");
@@ -128,6 +129,12 @@ void Configure() {
                             IntroStarBounceAnimationSegmentCount,
                             "IntroStarBounceAnimationPath");
 
+  GetMemberSpriteArray(IntroHighlightSprites, IntroHighlightCount,
+                       "IntroHighlightSprites");
+
+  GetMemberFloatArray(IntroHighlightPositions, IntroHighlightCount,
+                      "IntroHighlightPositions");
+
   UI::CHLCC::TitleMenu* menu = new UI::CHLCC::TitleMenu();
   menu->PressToStartAnimation.DurationIn =
       Profile::TitleMenu::PressToStartAnimDurationIn;
@@ -145,6 +152,9 @@ void Configure() {
   menu->SpinningCircleAnimation.LoopMode = ALM_Loop;
   menu->SpinningCircleAnimation.DurationIn = SpinningCircleAnimationDuration;
   menu->SpinningCircleAnimation.DurationOut = SpinningCircleAnimationDuration;
+
+  menu->IntroPanningAnimation.DurationIn = IntroPanningAnimationDuration;
+  menu->IntroPanningAnimation.DurationOut = IntroPanningAnimationDuration;
 
   menu->IntroStarBounceAnimation = PathAnimation(std::vector(
       IntroStarBounceAnimationPath,
