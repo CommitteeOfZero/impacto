@@ -80,6 +80,9 @@ struct RectF {
     return !(*this == other);
   }
 
+  constexpr glm::vec2 GetPos() const { return glm::vec2(X, Y); }
+  constexpr glm::vec2 GetSize() const { return glm::vec2(Width, Height); }
+
   static RectF Coalesce(const RectF& first, const RectF& second);
 };
 
