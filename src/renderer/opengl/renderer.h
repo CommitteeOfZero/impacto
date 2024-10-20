@@ -90,6 +90,8 @@ class Renderer : public BaseRenderer {
   void SetScissorRect(RectF const& rect) override;
   void DisableScissor() override;
 
+  void SetBlendMode(RendererBlendMode blendMode) override;
+
  private:
   std::optional<SpriteShader> SpriteShaderProgram;
   std::optional<SpriteInvertedShader> SpriteInvertedShaderProgram;

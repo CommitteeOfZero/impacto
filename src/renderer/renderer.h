@@ -6,6 +6,7 @@
 #include "../spritesheet.h"
 #include "../text.h"
 #include "yuvframe.h"
+#include "enum.h"
 #include <span>
 
 namespace Impacto {
@@ -23,6 +24,8 @@ struct VertexBufferSprites {
   glm::vec4 Tint = glm::vec4(1.0f);
   glm::vec2 MaskUV = {0.0f, 0.0f};
 };
+
+BETTER_ENUM(RendererBlendMode, int, Normal, Additive)
 
 class BaseRenderer {
  public:
@@ -295,6 +298,8 @@ class BaseRenderer {
   virtual void EnableScissor() = 0;
   virtual void SetScissorRect(RectF const& rect) = 0;
   virtual void DisableScissor() = 0;
+
+  virtual void SetBlendMode(RendererBlendMode blendMode) = 0;
 
   bool IsInit = false;
 

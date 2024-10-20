@@ -460,7 +460,7 @@ inline void TitleMenu::DrawIntroAnimation() {
     }
     case TitleMenuIntroAnimationState::BouncingStar: {
       if (IntroStarBounceAnimation.GetCurrentSegmentIndex() == 1 &&
-          Audio::Channels[Audio::AC_SE0]->State == ACS_Paused) {
+          Audio::Channels[Audio::AC_SE0]->GetState() == ACS_Paused) {
         Audio::Channels[Audio::AC_SE0]->Resume();
       }
 
@@ -495,8 +495,10 @@ inline void TitleMenu::DrawIntroAnimation() {
         float angle = M_PI * 2 * IntroExplodingStarRotationAnimation.Progress;
         if (i >= 3) angle = -angle;
 
-        Renderer->DrawSprite(IntroSmallStarSprite, position,
-                             {1.0f, 1.0f, 1.0f, opacity}, {1.0f, 1.0f}, angle);
+        CornersQuad dest = IntroSmallStarSprite.ScaledBounds();
+        dest.Translate(position).RotateAroundCenter(angle);
+        Renderer->DrawSprite(IntroSmallStarSprite, dest,
+                             {1.0f, 1.0f, 1.0f, opacity});
       }
 
       if (IntroExplodingStarAnimation.IsIn()) {

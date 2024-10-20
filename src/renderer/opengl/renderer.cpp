@@ -84,6 +84,9 @@ void Renderer::Init() {
 
   glActiveTexture(GL_TEXTURE0);
   glBindSampler(0, Samplers[0]);
+
+  glEnable(GL_BLEND);
+  SetBlendMode(RendererBlendMode::Normal);
 }
 
 void Renderer::Shutdown() {
@@ -703,6 +706,19 @@ void Renderer::DisableScissor() {
   Flush();
   glDisable(GL_SCISSOR_TEST);
   ScissorEnabled = false;
+}
+
+void Renderer::SetBlendMode(RendererBlendMode blendMode) {
+  Flush();
+
+  switch (blendMode) {
+    case RendererBlendMode::Normal:
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      return;
+    case RendererBlendMode::Additive:
+      glBlendFunc(GL_ONE, GL_ONE);
+      return;
+  }
 }
 
 }  // namespace OpenGL
