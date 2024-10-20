@@ -12,7 +12,7 @@ class OptionsBinaryButton : public Widget {
  public:
   OptionsBinaryButton(const Sprite& box, const Sprite& trueLabel,
                       const Sprite& falseLabel, const Sprite& label,
-                      glm::vec2 pos);
+                      glm::vec2 pos, glm::vec4 highlightTint);
 
   void Render() override;
   void UpdateInput() override;
@@ -26,7 +26,7 @@ class OptionsBinaryButton : public Widget {
   const Sprite& FalseSprite;
   const Sprite& LabelSprite;
 
-  glm::vec4 HighlightTint = glm::vec4(0.94f, 0.49f, 0.59f, 1.0f);
+  glm::vec4 HighlightTint;
 
   bool State = true;
 };

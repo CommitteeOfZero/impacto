@@ -10,7 +10,8 @@ namespace CCLCC {
 
 class OptionsSlider : public Widget {
  public:
-  OptionsSlider(const Sprite& box, const Sprite& label, glm::vec2 pos);
+  OptionsSlider(const Sprite& box, const Sprite& label, glm::vec2 pos,
+                glm::vec4 highlightTint);
 
   void Render() override;
   void UpdateInput() override;
@@ -19,7 +20,7 @@ class OptionsSlider : public Widget {
   const Sprite& BoxSprite;
   const Sprite& LabelSprite;
 
-  glm::vec4 HighlightTint = glm::vec4(0.94f, 0.49f, 0.59f, 1.0f);
+  glm::vec4 HighlightTint;
 
   float Progress = 0.0f;
 };
