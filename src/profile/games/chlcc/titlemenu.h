@@ -122,6 +122,7 @@ constexpr size_t IntroHighlightCount = 10;
 inline Sprite IntroHighlightSprites[IntroHighlightCount];
 inline float IntroHighlightPositions[IntroHighlightCount];
 inline float IntroPanningAnimationDuration;
+inline float IntroAfterPanningWaitDuration;
 
 inline Sprite IntroSmallStarSprite;
 inline Sprite IntroBigStarSprite;

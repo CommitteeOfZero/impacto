@@ -262,6 +262,7 @@ void TitleMenu::Hide() {
 void TitleMenu::Update(float dt) {
   UpdateInput();
   IntroPanningAnimation.Update(dt);
+  IntroAfterPanningWaitAnimation.Update(dt);
   IntroStarBounceAnimation.Update(dt);
   IntroExplodingStarAnimation.Update(dt);
   IntroExplodingStarRotationAnimation.Update(dt);
@@ -453,8 +454,6 @@ void TitleMenu::Render() {
 }
 
 void TitleMenu::DrawIntroAnimation() {
-  Renderer->DrawSprite(IntroBackgroundSprite, glm::vec2(0.0f));
-
   switch (IntroAnimationState) {
     case TitleMenuIntroAnimationState::Out: {
       IntroPanningAnimation.StartIn();
@@ -462,9 +461,19 @@ void TitleMenu::DrawIntroAnimation() {
       return;
     }
     case TitleMenuIntroAnimationState::Panning: {
-      DrawIntroHighlights();
+      DrawIntroBackground();
 
       if (IntroPanningAnimation.IsIn()) {
+        IntroAfterPanningWaitAnimation.StartIn();
+        IntroAnimationState = TitleMenuIntroAnimationState::AfterPanningWaiting;
+      }
+
+      return;
+    }
+    case TitleMenuIntroAnimationState::AfterPanningWaiting: {
+      DrawIntroBackground();
+
+      if (IntroAfterPanningWaitAnimation.IsIn()) {
         IntroStarBounceAnimation.StartIn();
         IntroAnimationState = TitleMenuIntroAnimationState::BouncingStar;
       }
@@ -472,7 +481,7 @@ void TitleMenu::DrawIntroAnimation() {
       return;
     }
     case TitleMenuIntroAnimationState::BouncingStar: {
-      DrawIntroHighlights();
+      DrawIntroBackground();
 
       if (IntroStarBounceAnimation.GetCurrentSegmentIndex() == 1 &&
           Audio::Channels[Audio::AC_SE0]->GetState() == ACS_Paused) {
@@ -493,7 +502,7 @@ void TitleMenu::DrawIntroAnimation() {
       return;
     }
     case TitleMenuIntroAnimationState::ExplodingStar: {
-      DrawIntroHighlights();
+      DrawIntroBackground();
 
       glm::vec2 origin = IntroStarBounceAnimation.GetPosition() -
                          IntroBouncingStarSprite.Bounds.Dimensions() / 2.0f;
@@ -525,12 +534,25 @@ void TitleMenu::DrawIntroAnimation() {
       return;
     }
     case TitleMenuIntroAnimationState::FallingStars: {
-      DrawIntroHighlights();
+      Renderer->DrawSprite(IntroBackgroundSprite, glm::vec2(0.0f));
+      DrawIntroBackground();
+
+      return;
     }
   }
 }
 
-void TitleMenu::DrawIntroHighlights() const {
+void TitleMenu::DrawIntroBackground() const {
+  float progress = std::sin(IntroPanningAnimation.Progress * M_PI_2);
+  glm::vec2 designDimensions(DesignWidth, DesignHeight);
+
+  Renderer->DrawRect({0, 0, DesignWidth, DesignHeight}, glm::vec4(1.0f));
+  Renderer->DrawSprite(IntroBackgroundSprite, glm::vec2(0.0f),
+                       {1.0f, 1.0f, 1.0f, IntroPanningAnimation.Progress});
+
+  glm::vec2 zoomFactor =
+      designDimensions / 16.0f + designDimensions / 16.0f * 7.0f * progress;
+
   Renderer->SetBlendMode(RendererBlendMode::Additive);
 
   for (size_t i = 0; i < IntroHighlightCount; i++) {
@@ -538,16 +560,28 @@ void TitleMenu::DrawIntroHighlights() const {
 
     constexpr float scale = 1.5f;
     float offset = IntroHighlightPositions[i];
-    glm::vec2 position =
-        glm::vec2(offset * DesignWidth / 2 + DesignWidth / 2,
-                  offset * DesignHeight / 2 + DesignHeight / 2) -
-        sprite.Bounds.Dimensions() / 2.0f * scale;
+    glm::vec2 position = offset * zoomFactor + zoomFactor -
+                         sprite.Bounds.Dimensions() / 2.0f * scale;
 
-    Renderer->DrawSprite(sprite, position, {1.0f, 1.0f, 1.0f, 1.0f},
-                         glm::vec2(scale));
+    Renderer->DrawSprite(sprite, position, glm::vec4(1.0f), glm::vec2(scale));
   }
 
   Renderer->SetBlendMode(RendererBlendMode::Normal);
+
+  Renderer->CaptureScreencap(ShaderScreencapture.BgSprite);
+
+  // Hack because the screencap is drawn flipped along the y-axis
+  // so draw it again to flip it again, effectively unflipping it
+  Renderer->DrawSprite(ShaderScreencapture.BgSprite, glm::vec2(0.0f));
+  Renderer->CaptureScreencap(ShaderScreencapture.BgSprite);
+
+  // Cross-fade from black
+  Renderer->DrawRect({0.0f, 0.0f, DesignWidth, DesignHeight},
+                     {0.0f, 0.0f, 0.0f, 1.0f});
+
+  glm::vec2 scale(4 / (progress * 3 + 1));
+  Renderer->DrawSprite(ShaderScreencapture.BgSprite, glm::vec2(0.0f),
+                       {1.0f, 1.0f, 1.0f, progress}, scale);
 }
 
 void TitleMenu::DrawTitleMenuBackGraphics() const {
