@@ -155,6 +155,10 @@ void Configure() {
 
   menu->IntroPanningAnimation.DurationIn = IntroPanningAnimationDuration;
   menu->IntroPanningAnimation.DurationOut = IntroPanningAnimationDuration;
+  menu->IntroAfterPanningWaitAnimation.DurationIn =
+      IntroAfterPanningWaitDuration;
+  menu->IntroAfterPanningWaitAnimation.DurationOut =
+      IntroAfterPanningWaitDuration;
 
   menu->IntroStarBounceAnimation = PathAnimation(std::vector(
       IntroStarBounceAnimationPath,
