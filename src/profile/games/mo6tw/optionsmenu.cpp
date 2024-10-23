@@ -27,6 +27,10 @@ void Configure() {
   GetMemberSpriteArray(SectionHeaderSprites, SectionHeaderSpriteCount,
                        "SectionHeaderSprites");
 
+  SliderTrackSprite = EnsureGetMemberSprite("SliderTrackSprite");
+  SliderFillSprite = EnsureGetMemberSprite("SliderFillSprite");
+  SliderThumbSprite = EnsureGetMemberSprite("SliderThumbSprite");
+
   CheckboxBoxSprite = EnsureGetMemberSprite("CheckboxBoxSprite");
   CheckboxTickSprite = EnsureGetMemberSprite("CheckboxTickSprite");
   GetMemberSpriteArray(CheckboxLabelSprites, CheckboxLabelCount,
