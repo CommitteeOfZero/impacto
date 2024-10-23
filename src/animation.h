@@ -21,6 +21,11 @@ class Animation {
   // Animation skips to the end when skip mode is enabled
   bool SkipOnSkipMode = true;
 
+  void SetDuration(float duration) {
+    DurationIn = duration;
+    DurationOut = duration;
+  }
+
   void StartIn(bool reset = false) {
     if (reset) Progress = 0;
     Direction = 1;
@@ -55,53 +60,40 @@ class Animation {
   }
 
   void AddDelta(float dt) {
-    if (Direction == 1) {
-      Progress += dt / DurationIn;
-      if (Progress >= 1) {
-        switch (LoopMode) {
-          case ALM_Stop: {
-            Progress = 1;
-            State = AS_Stopped;
-            break;
-          }
-          case ALM_ReverseDirection: {
-            // E.g. Progress = 1.04 => Progress = 0.96
-            Progress = 1 - (Progress - 1);
-            Direction = -1;
-            StartOutImpl();
-            break;
-          }
-          case ALM_Loop: {
-            // E.g. Progress = 1.04 => Progress = 0.04
-            Progress = (Progress - 1);
-            StartInImpl();
-            break;
-          }
-        }
+    float duration = Direction == 1 ? DurationIn : DurationOut;
+
+    switch (LoopMode) {
+      case ALM_Stop: {
+        float endProgress = Direction == 1 ? 1.0f : 0.0f;
+
+        Progress = std::clamp(Progress + Direction * dt / duration, 0.0f, 1.0f);
+        if (Progress == endProgress) State = AS_Stopped;
+        return;
       }
-    } else {
-      Progress -= dt / DurationOut;
-      if (Progress <= 0) {
-        switch (LoopMode) {
-          case ALM_Stop: {
-            Progress = 0;
-            State = AS_Stopped;
-            break;
-          }
-          case ALM_ReverseDirection: {
-            // e.g. Progress = -0.04 => Progress = 0.04
-            Progress = 0 - Progress;
-            Direction = 1;
-            StartInImpl();
-            break;
-          }
-          case ALM_Loop: {
-            // e.g. Progress = -0.04 => Progress = 0.96
-            Progress = 1 + Progress;
-            StartOutImpl();
-            break;
-          }
+      case ALM_Loop: {
+        // E.g. Progress = 1.04 => Progress = 0.04
+        Progress += Direction * dt / duration;
+        Progress -= std::floor(Progress);
+        return;
+      }
+      case ALM_ReverseDirection: {
+        // E.g. Progress = 1.04 => Progress = 0.96
+        float cycleDuration = DurationIn + DurationOut;
+
+        float time = Progress * duration;
+        if (Direction == -1) time = cycleDuration - time;
+
+        time = std::fmod(time + dt, cycleDuration);
+
+        if (time < DurationIn) {
+          Progress = time / DurationIn;
+          Direction = 1;
+        } else {
+          Progress = 1.0f - (time - DurationIn) / DurationOut;
+          Direction = -1;
         }
+
+        return;
       }
     }
   }
