@@ -20,7 +20,7 @@ root.Dialogue = {
     REVOutlineMode = 0,
     REVNameOutlineMode = 2,
     NVLBounds = { X = 188, Y = 128, Width = 1536, Height = 600 },
-    ADVBounds = { X = 330, Y = 815, Width = 1320, Height = 270 },
+    ADVBounds = { X = 330, Y = 800, Width = 1250, Height = 270 },
     ADVBoxSprite = "ADVBox",
     ADVBoxMask = "ADVBoxMask",
     ADVBoxNamePlateMainSprites = {},
