@@ -6,8 +6,16 @@ root.TitleMenu = {
     PressToStartAnimDurationIn = 0.5,
     PressToStartAnimDurationOut = 0.5,
     PressToStartSprite = "TitleMenuPressToStart",
-    IntroBackgroundSprite = "TitleMenuIntroBackground",
     BackgroundSprite = "TitleMenuBackground",
+    IntroBackgroundSprite = "TitleMenuIntroBackground",
+    IntroBouncingStarSprite = "StarLogo",
+    IntroSmallStarSprite = "IntroSmallStar",
+    IntroExplodingStarAnimationDuration = 1.5,
+    IntroExplodingStarAnimationRotationDuration = 0.5,
+    IntroExplodingStarAnimationDistance = 315,
+    IntroPanningAnimationDuration = 2.1,
+    IntroAfterPanningWaitDuration = 0.8,
+    IntroBigStarSprite = "IntroBigStar",
     DelusionADVUnderSprite = "DelusionADVUnder", -- "DelusionADVUnderEnglish" with the TLed assets, "DelusionADVUnder" with the original ones
     DelusionADVUnderX = 78, --74 with the TLed assets, 78 with the original ones
     DelusionADVUnderY = 394, --396 with the TLed assets, 394 with the original ones
@@ -101,7 +109,27 @@ root.TitleMenu = {
     MenuEntriesSprites = {},
     MenuEntriesHighlightedSprites = {},
     LineNum = 6,
-    LineEntriesSprites = {}
+    LineEntriesSprites = {},
+    IntroStarBounceAnimationSegmentCount = 7
+};
+
+root.TitleMenu.IntroHighlightSprites = {
+    "IntroBrightGreenHighlight",
+    "IntroSunHighlight",
+    "IntroGrayHighlight",
+    "IntroCrescentRainbowHighlight",
+    "IntroBlueHighlight",
+    "IntroWhiteHighlight",
+    "IntroBrownHighlight",
+    "IntroDiamondHighlight",
+    "IntroDarkGreenHighlight",
+    "IntroCircularRainbowHighlight"
+};
+
+-- Positions along the diagonal normalized between -1 and 1
+root.TitleMenu.IntroHighlightPositions = {
+    -1.13, -1.00, -0.49, 0.00, 0.17,
+    0.30, 0.58, 0.69, 0.91, 1.12
 };
 
 for i = 0, 3 do
@@ -241,6 +269,66 @@ root.Sprites["TitleMenuIntroBackground"] = {
     Bounds = { X = 0, Y = 0, Width = 1280, Height = 720 },
 };
 
+root.Sprites["IntroSmallStar"] = {
+    Sheet = "Title",
+    Bounds = { X = 1153, Y = 534, Width = 45, Height = 44 },
+};
+
+root.Sprites["IntroBigStar"] = {
+    Sheet = "Title",
+    Bounds = { X = 1156, Y = 345, Width = 178, Height = 170 },
+};
+
+root.Sprites["IntroBrightGreenHighlight"] = {
+    Sheet = "Highlights",
+    Bounds = { X = 1536, Y = 0, Width = 256, Height = 256 },
+};
+
+root.Sprites["IntroSunHighlight"] = {
+    Sheet = "Highlights",
+    Bounds = { X = 0, Y = 0, Width = 512, Height = 512 },
+};
+
+root.Sprites["IntroGrayHighlight"] = {
+    Sheet = "Highlights",
+    Bounds = { X = 1536, Y = 256, Width = 256, Height = 256 },
+};
+
+root.Sprites["IntroCrescentRainbowHighlight"] = {
+    Sheet = "Highlights",
+    Bounds = { X = 0, Y = 512, Width = 512, Height = 512 },
+};
+
+root.Sprites["IntroBlueHighlight"] = {
+    Sheet = "Highlights",
+    Bounds = { X = 1280, Y = 256, Width = 256, Height = 256 },
+};
+
+root.Sprites["IntroWhiteHighlight"] = {
+    Sheet = "Highlights",
+    Bounds = { X = 1280, Y = 0, Width = 256, Height = 256 },
+};
+
+root.Sprites["IntroBrownHighlight"] = {
+    Sheet = "Highlights",
+    Bounds = { X = 1024, Y = 256, Width = 256, Height = 256 },
+};
+
+root.Sprites["IntroDiamondHighlight"] = {
+    Sheet = "Highlights",
+    Bounds = { X = 512, Y = 512, Width = 512, Height = 512 },
+};
+
+root.Sprites["IntroDarkGreenHighlight"] = {
+    Sheet = "Highlights",
+    Bounds = { X = 1024, Y = 0, Width = 256, Height = 256 },
+};
+
+root.Sprites["IntroCircularRainbowHighlight"] = {
+    Sheet = "Highlights",
+    Bounds = { X = 512, Y = 0, Width = 512, Height = 512 },
+};
+
 root.Sprites["TitleMenuBackground"] = {
     Sheet = "TitleBg2",
     Bounds = { X = 0, Y = 0, Width = 1280, Height = 720 },
@@ -311,4 +399,56 @@ root.Sprites["TitleMenuItemLoadHighlighted"] = {
 root.Sprites["TitleMenuSecondaryItemHighlight"] = {
     Sheet = "Title",
     Bounds = { X = 915, Y = 989, Width = 285, Height = 34 },
+};
+
+root.TitleMenu.IntroStarBounceAnimationPath = {
+    {
+        StartPosition = { X = 1344, Y = 144 },
+        EndPosition = { X = 1152, Y = 576 },
+        Duration = 0.72,
+        EasingX = EasingFunction.Linear,
+        EasingY = EasingFunction.QuadraticIn,
+    },
+    {
+        StartPosition = { X = 1152, Y = 576 },
+        EndPosition = { X = 1050, Y = 504 },
+        Duration = 0.3,
+        EasingX = EasingFunction.Linear,
+        EasingY = EasingFunction.QuadraticOut,
+    },
+    {
+        StartPosition = { X = 1050, Y = 504 },
+        EndPosition = { X = 960, Y = 576 },
+        Duration = 0.3,
+        EasingX = EasingFunction.Linear,
+        EasingY = EasingFunction.QuadraticIn,
+    },
+    {
+        StartPosition = { X = 960, Y = 576 },
+        EndPosition = { X = 870, Y = 504 },
+        Duration = 0.3,
+        EasingX = EasingFunction.Linear,
+        EasingY = EasingFunction.QuadraticOut,
+    },
+    {
+        StartPosition = { X = 870, Y = 504 },
+        EndPosition = { X = 780, Y = 576 },
+        Duration = 0.3,
+        EasingX = EasingFunction.Linear,
+        EasingY = EasingFunction.QuadraticIn,
+    },
+    {
+        StartPosition = { X = 780, Y = 576 },
+        EndPosition = { X = 704, Y = 252 },
+        Duration = 0.66,
+        EasingX = EasingFunction.Linear,
+        EasingY = EasingFunction.QuadraticOut,
+    },
+    {
+        StartPosition = { X = 704, Y = 252 },
+        EndPosition = { X = 640, Y = 360 },
+        Duration = 0.4,
+        EasingX = EasingFunction.Linear,
+        EasingY = EasingFunction.QuadraticIn,
+    },
 };
