@@ -1,27 +1,34 @@
 root.BacklogMenu = {
     Type = BacklogMenuType.MO6TW,
     DrawType = DrawComponentType.ExtrasScenes,
+
     BacklogBackgroundSprite = "BacklogBackground",
+
     EntryHighlightSprite = "EntryHighlight",
     EntryHighlightLocation = EntryHighlightLocationType.BottomLeftOfEntry,
     EntryHighlightOffset = { X = 0, Y = 0 },
+
     VoiceIconSprite = "VoiceIcon",
     VoiceIconOffset = { X = 0, Y = 0 },
+
     ScrollbarTrackSprite = "ScrollbarTrack",
     ScrollbarThumbSprite = "ScrollbarThumb",
     ScrollbarPosition = { X = 1165, Y = 98 },
-    ScrollbarThumbLength = 0,
-    EntriesStart = { X = 163, Y = 85 },
-    RenderingBounds = { X = 87, Y = 83, Width = 1055, Height = 590 },
-    HoverBounds = { X = 87, Y = 83, Width = 1055, Height = 590 },
+    ScrollbarThumbLength = 30,
+
+    EntriesStart = { X = 163, Y = 90 },
+    RenderingBounds = { X = 83, Y = 83, Width = 1117, Height = 590 },
     EntryYPadding = 22,
+
+    HoverBounds = { X = 130, Y = 83, Width = 992, Height = 590 },
+
     FadeInDuration = 0.2,
     FadeOutDuration = 0.2,
 
     ScrollingSpeed = 600,
     MinHoldTime = 0.5,
     AdvanceFocusTimeInterval = 0.05,
-    PageUpDownHeight = 550
+    PageUpDownHeight = 520
 };
 
 root.Sprites["BacklogBackground"] = {

@@ -608,8 +608,9 @@ VmInstruction(InstSetRevMes) {
 void ChkMesSkip() {
   bool mesSkip = false;
 
-  if (((ScrWork[SW_GAMESTATE] & 0b101) == 0b001) &&
-      (ScrWork[SW_SYSMESALPHA] == 255) && !GetFlag(SF_UIHIDDEN)) {
+  if (ScrWork[SW_SYSMESALPHA] != 255) MesSkipMode = false;
+
+  if ((ScrWork[SW_GAMESTATE] & 0b101) == 0b001 && !GetFlag(SF_UIHIDDEN)) {
     // Force skip
     mesSkip |=
         (bool)(Interface::PADinputButtonIsDown & Interface::PADcustom[7]);
