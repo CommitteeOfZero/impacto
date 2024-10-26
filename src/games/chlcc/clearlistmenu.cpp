@@ -20,13 +20,13 @@ using namespace Impacto::TipsSystem;
 using namespace Impacto::Profile;
 
 ClearListMenu::ClearListMenu() {
-  MenuTransition.Direction = 1.0f;
-  MenuTransition.LoopMode = ALM_Stop;
+  MenuTransition.Direction = AnimationDirection::In;
+  MenuTransition.LoopMode = AnimationLoopMode::Stop;
   MenuTransition.DurationIn = MenuTransitionDuration;
   MenuTransition.DurationOut = MenuTransitionDuration;
 
-  TitleFade.Direction = 1.0f;
-  TitleFade.LoopMode = ALM_Stop;
+  TitleFade.Direction = AnimationDirection::In;
+  TitleFade.LoopMode = AnimationLoopMode::Stop;
   TitleFade.DurationIn = TitleFadeInDuration;
   TitleFade.DurationOut = TitleFadeOutDuration;
 

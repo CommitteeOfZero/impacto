@@ -1,6 +1,6 @@
 #include "titlemenu.h"
 #include "../../../log.h"
-//#include "../../../window.h"
+// #include "../../../window.h"
 #include "../../../renderer/renderer.h"
 #include "../../profile_internal.h"
 
@@ -116,7 +116,7 @@ void Configure() {
       Profile::TitleMenu::PressToStartAnimDurationIn;
   menu->PressToStartAnimation.DurationOut =
       Profile::TitleMenu::PressToStartAnimDurationOut;
-  menu->PressToStartAnimation.LoopMode = ALM_ReverseDirection;
+  menu->PressToStartAnimation.LoopMode = AnimationLoopMode::ReverseDirection;
 
   menu->ItemsFadeInAnimation.DurationIn = ItemFadeInDuration;
   menu->ItemsFadeInAnimation.DurationOut = ItemFadeOutDuration;
@@ -125,7 +125,7 @@ void Configure() {
   menu->SecondaryItemsFadeInAnimation.DurationOut =
       SecondaryItemFadeOutDuration;
 
-  menu->SpinningCircleAnimation.LoopMode = ALM_Loop;
+  menu->SpinningCircleAnimation.LoopMode = AnimationLoopMode::Loop;
   menu->SpinningCircleAnimation.DurationIn = SpinningCircleAnimationDuration;
   menu->SpinningCircleAnimation.DurationOut = SpinningCircleAnimationDuration;
 

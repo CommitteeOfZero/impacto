@@ -6,7 +6,7 @@ namespace UI {
 Widget::~Widget() {}
 
 void Widget::Update(float dt) {
-  if (MoveAnimation.State == AS_Playing) {
+  if (MoveAnimation.State == +AnimationState::Playing) {
     MoveAnimation.Update(dt);
     auto move = glm::mix(MoveOrigin, MoveTarget, MoveAnimation.Progress);
     MoveTo(move);
@@ -25,9 +25,8 @@ void Widget::Move(glm::vec2 relativePosition, float duration) {
   MoveOrigin = glm::vec2(Bounds.X, Bounds.Y);
   MoveTarget = MoveOrigin + relativePosition;
   MoveAnimation.Progress = 0.0f;
-  MoveAnimation.Direction = 1;
-  MoveAnimation.DurationIn = duration;
-  MoveAnimation.DurationOut = duration;
+  MoveAnimation.Direction = AnimationDirection::In;
+  MoveAnimation.SetDuration(duration);
   MoveAnimation.StartIn();
 }
 
@@ -40,9 +39,8 @@ void Widget::MoveTo(glm::vec2 pos, float duration) {
   MoveOrigin = glm::vec2(Bounds.X, Bounds.Y);
   MoveTarget = pos;
   MoveAnimation.Progress = 0.0f;
-  MoveAnimation.Direction = 1;
-  MoveAnimation.DurationIn = duration;
-  MoveAnimation.DurationOut = duration;
+  MoveAnimation.Direction = AnimationDirection::In;
+  MoveAnimation.SetDuration(duration);
   MoveAnimation.StartIn();
 }
 

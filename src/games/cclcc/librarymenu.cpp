@@ -34,8 +34,8 @@ LibraryMenu::LibraryMenu() {
     LibraryMenuButtonOnClick(target);
   };
 
-  FadeAnimation.Direction = 1;
-  FadeAnimation.LoopMode = ALM_Stop;
+  FadeAnimation.Direction = AnimationDirection::In;
+  FadeAnimation.LoopMode = AnimationLoopMode::Stop;
   FadeAnimation.DurationIn = FadeInDuration;
   FadeAnimation.DurationOut = FadeOutDuration;
 }

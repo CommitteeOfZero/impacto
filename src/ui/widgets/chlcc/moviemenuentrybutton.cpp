@@ -24,8 +24,8 @@ MovieMenuEntryButton::MovieMenuEntryButton(int id, Sprite const& movieThumbnail,
                  MovieBox.ScaledHeight());
 
   MovieBoxAnim = SelectedMovieAnimation.Instantiate();
-  MovieBoxAnim.Direction = 1;
-  MovieBoxAnim.LoopMode = ALM_Loop;
+  MovieBoxAnim.Direction = AnimationDirection::In;
+  MovieBoxAnim.LoopMode = AnimationLoopMode::Loop;
   MovieBoxAnim.StartIn();
 }
 

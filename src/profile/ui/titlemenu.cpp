@@ -61,7 +61,7 @@ void Configure() {
     //      PressToStartAnimDurationIn;
     //  Implementation->PressToStartAnimation.DurationOut =
     //      PressToStartAnimDurationOut;
-    //  Implementation->PressToStartAnimation.LoopMode = ALM_ReverseDirection;
+    //  Implementation->PressToStartAnimation.LoopMode = ReverseDirection;
     //}
 
     Pop();

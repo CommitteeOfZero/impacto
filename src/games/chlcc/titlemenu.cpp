@@ -236,7 +236,7 @@ void TitleMenu::Show() {
     }
     IsFocused = true;
     UI::FocusedMenu = this;
-    if (PressToStartAnimation.State == AS_Stopped) {
+    if (PressToStartAnimation.State == +AnimationState::Stopped) {
       PressToStartAnimation.StartIn();
       SpinningCircleAnimation.StartIn();
     }
@@ -364,7 +364,7 @@ void TitleMenu::Update(float dt) {
         }
       } break;
     }
-    if (PressToStartAnimation.State == AS_Stopped &&
+    if (PressToStartAnimation.State == +AnimationState::Stopped &&
         ScrWork[SW_TITLEDISPCT] == 1) {
       PressToStartAnimation.StartIn();
       SpinningCircleAnimation.StartIn();
@@ -391,9 +391,9 @@ void TitleMenu::Render() {
         } break;
         case 3: {  // MenuItems Fade In
           if (ItemsFadeInAnimation.IsOut() &&
-              ItemsFadeInAnimation.State != AS_Playing)
+              ItemsFadeInAnimation.State != +AnimationState::Playing)
             ItemsFadeInAnimation.StartIn();
-          else if (ItemsFadeInAnimation.State != AS_Playing)
+          else if (ItemsFadeInAnimation.State != +AnimationState::Playing)
             ItemsFadeInAnimation.StartOut();
           DrawTitleMenuBackGraphics();
           MainItems->Render();
@@ -404,9 +404,10 @@ void TitleMenu::Render() {
         } break;
         case 7: {  // Secondary menu LOAD Fade In
           if (SecondaryItemsFadeInAnimation.IsOut() &&
-              SecondaryItemsFadeInAnimation.State != AS_Playing)
+              SecondaryItemsFadeInAnimation.State != +AnimationState::Playing)
             SecondaryItemsFadeInAnimation.StartIn();
-          else if (SecondaryItemsFadeInAnimation.State != AS_Playing)
+          else if (SecondaryItemsFadeInAnimation.State !=
+                   +AnimationState::Playing)
             SecondaryItemsFadeInAnimation.StartOut();
         } break;
         case 8: {  // Secondary menu LOAD

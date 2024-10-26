@@ -27,13 +27,13 @@ void Init() {
   FadeAnimation.DurationOut = Profile::LoadingDisplay::FadeOutDuration;
 
   SaveLoadBg = Profile::LoadingDisplay::SaveLoadBgAnim.Instantiate();
-  SaveLoadBg.LoopMode = ALM_Loop;
+  SaveLoadBg.LoopMode = AnimationLoopMode::Loop;
   ResourceLoadBg = Profile::LoadingDisplay::ResourceLoadBgAnim.Instantiate();
-  ResourceLoadBg.LoopMode = ALM_Loop;
+  ResourceLoadBg.LoopMode = AnimationLoopMode::Loop;
   LoadingIcon = Profile::LoadingDisplay::LoadingIconAnim.Instantiate();
-  LoadingIcon.LoopMode = ALM_Loop;
+  LoadingIcon.LoopMode = AnimationLoopMode::Loop;
   LoadingText = Profile::LoadingDisplay::LoadingTextAnim.Instantiate();
-  LoadingText.LoopMode = ALM_Loop;
+  LoadingText.LoopMode = AnimationLoopMode::Loop;
 }
 
 void Update(float dt) {

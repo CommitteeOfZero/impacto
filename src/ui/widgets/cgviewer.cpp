@@ -17,10 +17,9 @@ float const ScaleStep = 0.01f;
 float const MouseAdvanceTime = 0.2f;
 
 CgViewer::CgViewer() {
-  FadeAnimation.Direction = 1;
-  FadeAnimation.LoopMode = ALM_Stop;
-  FadeAnimation.DurationIn = 0.5f;
-  FadeAnimation.DurationOut = 0.5f;
+  FadeAnimation.Direction = AnimationDirection::In;
+  FadeAnimation.LoopMode = AnimationLoopMode::Stop;
+  FadeAnimation.SetDuration(0.5f);
 }
 
 void CgViewer::Show() {

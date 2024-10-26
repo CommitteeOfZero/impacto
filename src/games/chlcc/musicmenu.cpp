@@ -28,20 +28,18 @@ void MusicMenu::MusicButtonOnClick(Button* target) {
 }
 
 MusicMenu::MusicMenu() {
-  MenuTransition.Direction = 1.0f;
-  MenuTransition.LoopMode = ALM_Stop;
-  MenuTransition.DurationIn = MenuTransitionDuration;
-  MenuTransition.DurationOut = MenuTransitionDuration;
+  MenuTransition.Direction = AnimationDirection::In;
+  MenuTransition.LoopMode = AnimationLoopMode::Stop;
+  MenuTransition.SetDuration(MenuTransitionDuration);
 
-  TitleFade.Direction = 1.0f;
-  TitleFade.LoopMode = ALM_Stop;
+  TitleFade.Direction = AnimationDirection::In;
+  TitleFade.LoopMode = AnimationLoopMode::Stop;
   TitleFade.DurationIn = TitleFadeInDuration;
   TitleFade.DurationOut = TitleFadeOutDuration;
 
-  NowPlayingAnimation.Direction = 1.0f;
-  NowPlayingAnimation.LoopMode = ALM_Stop;
-  NowPlayingAnimation.DurationIn = NowPlayingAnimationDuration;
-  NowPlayingAnimation.DurationOut = NowPlayingAnimationDuration;
+  NowPlayingAnimation.Direction = AnimationDirection::In;
+  NowPlayingAnimation.LoopMode = AnimationLoopMode::Stop;
+  NowPlayingAnimation.SetDuration(NowPlayingAnimationDuration);
 
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;

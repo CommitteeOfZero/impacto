@@ -200,7 +200,7 @@ void TitleMenu::Show() {
     }
     IsFocused = true;
     UI::FocusedMenu = this;
-    if (PressToStartAnimation.State == AS_Stopped)
+    if (PressToStartAnimation.State == +AnimationState::Stopped)
       PressToStartAnimation.StartIn();
   }
 }

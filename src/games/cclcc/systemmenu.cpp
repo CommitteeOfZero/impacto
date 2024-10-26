@@ -27,18 +27,18 @@ void SystemMenu::MenuButtonOnClick(Widgets::Button* target) {
 }
 
 SystemMenu::SystemMenu() {
-  MenuTransition.Direction = 1;
-  MenuTransition.LoopMode = ALM_Stop;
+  MenuTransition.Direction = AnimationDirection::In;
+  MenuTransition.LoopMode = AnimationLoopMode::Stop;
   MenuTransition.DurationIn = MoveInDuration;
   MenuTransition.DurationOut = MoveOutDuration;
 
-  MenuFade.Direction = 1.0f;
-  MenuFade.LoopMode = ALM_Stop;
+  MenuFade.Direction = AnimationDirection::In;
+  MenuFade.LoopMode = AnimationLoopMode::Stop;
   MenuFade.DurationIn = FadeInDuration;
   MenuFade.DurationOut = FadeOutDuration;
 
-  ItemsFade.Direction = 1.0f;
-  ItemsFade.LoopMode = ALM_Stop;
+  ItemsFade.Direction = AnimationDirection::In;
+  ItemsFade.LoopMode = AnimationLoopMode::Stop;
   ItemsFade.DurationIn = ItemsFadeInDuration;
   ItemsFade.DurationOut = ItemsFadeOutDuration;
 

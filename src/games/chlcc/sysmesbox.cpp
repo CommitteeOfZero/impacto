@@ -153,8 +153,8 @@ void SysMesBox::Init() {
 
   FadeAnimation.DurationIn = FadeInDuration;
   FadeAnimation.DurationOut = FadeOutDuration;
-  FadeAnimation.Direction = 1;
-  FadeAnimation.LoopMode = ALM_Stop;
+  FadeAnimation.Direction = AnimationDirection::In;
+  FadeAnimation.LoopMode = AnimationLoopMode::Stop;
 }
 
 void SysMesBox::AddMessage(uint8_t* str) {

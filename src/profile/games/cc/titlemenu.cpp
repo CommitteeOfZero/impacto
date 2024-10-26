@@ -90,9 +90,9 @@ void Configure() {
       Profile::TitleMenu::PressToStartAnimDurationIn;
   menu->PressToStartAnimation.DurationOut =
       Profile::TitleMenu::PressToStartAnimDurationOut;
-  menu->PressToStartAnimation.LoopMode = ALM_ReverseDirection;
+  menu->PressToStartAnimation.LoopMode = AnimationLoopMode::ReverseDirection;
 
-  menu->SmokeAnimation.LoopMode = ALM_Loop;
+  menu->SmokeAnimation.LoopMode = AnimationLoopMode::Loop;
   menu->SmokeAnimation.DurationIn = SmokeAnimationDurationIn;
   menu->SmokeAnimation.DurationOut = SmokeAnimationDurationOut;
   menu->MoveLeftAnimation.DurationIn = MoveLeftAnimationDurationIn;

@@ -89,8 +89,8 @@ struct SortByTipName {
 };
 
 TipsMenu::TipsMenu() : TipViewItems(this) {
-  FadeAnimation.Direction = 1;
-  FadeAnimation.LoopMode = ALM_Stop;
+  FadeAnimation.Direction = AnimationDirection::In;
+  FadeAnimation.LoopMode = AnimationLoopMode::Stop;
   FadeAnimation.DurationIn = FadeInDuration;
   FadeAnimation.DurationOut = FadeOutDuration;
   TransitionAnimation.DurationIn = TransitionInDuration;
@@ -306,7 +306,7 @@ void TipsMenu::Update(float dt) {
     }
   };
 
-  if (TransitionAnimation.State == AS_Playing) {
+  if (TransitionAnimation.State == +AnimationState::Playing) {
     float move = glm::mix(0.0f, Profile::DesignHeight / 2,
                           TransitionAnimation.Progress) -
                  LastYPos;

@@ -130,17 +130,16 @@ void SaveEntryButton::Move(glm::vec2 relativePosition) {
 }
 
 void SaveEntryButton::FocusedAlphaFadeStart() {
-  if (FocusedAlphaFade.State == AS_Stopped) {
-    FocusedAlphaFade.Direction = 1;
-    FocusedAlphaFade.DurationIn = 0.5f;
-    FocusedAlphaFade.DurationOut = 0.5f;
-    FocusedAlphaFade.LoopMode = ALM_ReverseDirection;
+  if (FocusedAlphaFade.State == +AnimationState::Stopped) {
+    FocusedAlphaFade.Direction = AnimationDirection::In;
+    FocusedAlphaFade.SetDuration(0.5f);
+    FocusedAlphaFade.LoopMode = AnimationLoopMode::ReverseDirection;
     FocusedAlphaFade.StartIn();
   }
 }
 
 void SaveEntryButton::FocusedAlphaFadeReset() {
-  FocusedAlphaFade.State = AS_Stopped;
+  FocusedAlphaFade.State = AnimationState::Stopped;
   FocusedAlphaFade.Progress = 0.0f;
 }
 

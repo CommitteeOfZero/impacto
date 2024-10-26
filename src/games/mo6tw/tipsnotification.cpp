@@ -22,7 +22,7 @@ TipsNotification::TipsNotification() {
   FadeAnimation.DurationOut = FadeOutDuration;
 
   Timer.DurationIn = TimerDuration;
-  Timer.LoopMode = ALM_Stop;
+  Timer.LoopMode = AnimationLoopMode::Stop;
 
   AlertTitle = new Group(NULL);
   AlertTitle->FocusLock = true;
@@ -97,7 +97,8 @@ void TipsNotification::Render() {
     float smoothedFade = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
     AlertTitle->Tint.a = smoothedFade;
     AlertTitle->Render();
-    if (Timer.State == AS_Playing || FadeAnimation.Direction == -1) {
+    if (Timer.State == +AnimationState::Playing ||
+        FadeAnimation.Direction == -1) {
       Notification->Tint.a = smoothedFade;
       Notification->Render();
     }
