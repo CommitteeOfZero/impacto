@@ -15,17 +15,9 @@ namespace TitleMenu {
 
 void Configure() {
   IntroBackgroundSprite = EnsureGetMemberSprite("IntroBackgroundSprite");
-  IntroPanningAnimationDuration =
-      EnsureGetMemberFloat("IntroPanningAnimationDuration");
   IntroBouncingStarSprite = EnsureGetMemberSprite("IntroBouncingStarSprite");
   IntroSmallStarSprite = EnsureGetMemberSprite("IntroSmallStarSprite");
   IntroBigStarSprite = EnsureGetMemberSprite("IntroBigStarSprite");
-  IntroExplodingStarAnimationDuration =
-      EnsureGetMemberFloat("IntroExplodingStarAnimationDuration");
-  IntroExplodingStarAnimationRotationDuration =
-      EnsureGetMemberFloat("IntroExplodingStarAnimationRotationDuration");
-  IntroExplodingStarAnimationDistance =
-      EnsureGetMemberFloat("IntroExplodingStarAnimationDistance");
   BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
   DelusionADVUnderSprite = EnsureGetMemberSprite("DelusionADVUnderSprite");
   DelusionADVUnderX = EnsureGetMemberFloat("DelusionADVUnderX");
@@ -121,14 +113,6 @@ void Configure() {
       EnsureGetMemberFloat("SecondaryMenuSystemConfigY");
   SecondaryMenuSystemSaveY = EnsureGetMemberFloat("SecondaryMenuSystemSaveY");
 
-  IntroStarBounceAnimationSegmentCount =
-      EnsureGetMemberInt("IntroStarBounceAnimationSegmentCount");
-  IntroStarBounceAnimationPath =
-      new PathSegment[IntroStarBounceAnimationSegmentCount];
-  GetMemberPathSegmentArray(IntroStarBounceAnimationPath,
-                            IntroStarBounceAnimationSegmentCount,
-                            "IntroStarBounceAnimationPath");
-
   GetMemberSpriteArray(IntroHighlightSprites, IntroHighlightCount,
                        "IntroHighlightSprites");
 
@@ -150,30 +134,43 @@ void Configure() {
       SecondaryItemFadeOutDuration;
 
   menu->SpinningCircleAnimation.LoopMode = AnimationLoopMode::Loop;
-  menu->SpinningCircleAnimation.DurationIn = SpinningCircleAnimationDuration;
-  menu->SpinningCircleAnimation.DurationOut = SpinningCircleAnimationDuration;
+  menu->SpinningCircleAnimation.SetDuration(SpinningCircleAnimationDuration);
 
-  menu->IntroPanningAnimation.DurationIn = IntroPanningAnimationDuration;
-  menu->IntroPanningAnimation.DurationOut = IntroPanningAnimationDuration;
-  menu->IntroAfterPanningWaitAnimation.DurationIn =
-      IntroAfterPanningWaitDuration;
-  menu->IntroAfterPanningWaitAnimation.DurationOut =
-      IntroAfterPanningWaitDuration;
+  menu->IntroPanningAnimation.SetDuration(
+      EnsureGetMemberFloat("IntroPanningAnimationDuration"));
+  menu->IntroAfterPanningWaitAnimation.SetDuration(
+      EnsureGetMemberFloat("IntroAfterPanningWaitDuration"));
 
-  menu->IntroStarBounceAnimation = PathAnimation(std::vector(
-      IntroStarBounceAnimationPath,
-      IntroStarBounceAnimationPath + IntroStarBounceAnimationSegmentCount));
+  int32_t introStarBounceAnimationSegmentCount =
+      EnsureGetMemberInt("IntroStarBounceAnimationSegmentCount");
+  std::vector<PathSegment> introStarBounceAnimationSegments(10);
 
-  menu->IntroExplodingStarRotationAnimation.LoopMode = ALM_Loop;
-  menu->IntroExplodingStarRotationAnimation.DurationIn =
-      IntroExplodingStarAnimationRotationDuration;
-  menu->IntroExplodingStarRotationAnimation.DurationOut =
-      IntroExplodingStarAnimationRotationDuration;
+  GetMemberPathSegmentArray(introStarBounceAnimationSegments.data(),
+                            introStarBounceAnimationSegmentCount,
+                            "IntroStarBounceAnimationPath");
 
-  menu->IntroExplodingStarAnimation.DurationIn =
-      IntroExplodingStarAnimationDuration;
-  menu->IntroExplodingStarAnimation.DurationOut =
-      IntroExplodingStarAnimationDuration;
+  menu->IntroStarBounceAnimation =
+      PathAnimation(std::move(introStarBounceAnimationSegments));
+
+  IntroExplodingStarAnimationDistance =
+      EnsureGetMemberFloat("IntroExplodingStarAnimationDistance");
+
+  menu->IntroExplodingStarRotationAnimation.LoopMode = AnimationLoopMode::Loop;
+  menu->IntroExplodingStarRotationAnimation.SetDuration(
+      EnsureGetMemberFloat("IntroExplodingStarAnimationRotationDuration"));
+
+  menu->IntroExplodingStarAnimation.SetDuration(
+      EnsureGetMemberFloat("IntroExplodingStarAnimationDuration"));
+
+  menu->IntroAnimation.AddAnimation(&menu->IntroPanningAnimation);
+  menu->IntroAnimation.AddAnimation(&menu->IntroAfterPanningWaitAnimation);
+  menu->IntroAnimation.AddAnimation(&menu->IntroStarBounceAnimation);
+
+  float explodingStarAnimationTime = menu->IntroAnimation.DurationIn;
+  menu->IntroAnimation.AddAnimation(&menu->IntroExplodingStarAnimation);
+  menu->IntroAnimation.AddAnimation(
+      &menu->IntroExplodingStarRotationAnimation, explodingStarAnimationTime,
+      menu->IntroExplodingStarAnimation.DurationIn);
 
   UI::TitleMenuPtr = menu;
 
