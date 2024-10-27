@@ -121,18 +121,12 @@ inline Sprite IntroBackgroundSprite;
 constexpr size_t IntroHighlightCount = 10;
 inline Sprite IntroHighlightSprites[IntroHighlightCount];
 inline float IntroHighlightPositions[IntroHighlightCount];
-inline float IntroPanningAnimationDuration;
-inline float IntroAfterPanningWaitDuration;
 
 inline Sprite IntroSmallStarSprite;
 inline Sprite IntroBigStarSprite;
 
-inline PathSegment* IntroStarBounceAnimationPath;
-inline int IntroStarBounceAnimationSegmentCount;
 inline Sprite IntroBouncingStarSprite;
 
-inline float IntroExplodingStarAnimationDuration;
-inline float IntroExplodingStarAnimationRotationDuration;
 inline float IntroExplodingStarAnimationDistance;
 
 }  // namespace TitleMenu

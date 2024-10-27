@@ -13,8 +13,8 @@ BETTER_ENUM(EasingFunction, int, Linear, QuadraticIn, QuadraticOut, CubicIn,
 float Ease(float progress, EasingFunction function = EasingFunction::Linear);
 
 struct PathSegment {
-  glm::vec2 StartPosition;
-  glm::vec2 EndPosition;
+  glm::vec2 StartPosition = glm::vec2(0.0f);
+  glm::vec2 EndPosition = glm::vec2(0.0f);
   float Duration = 0;
   EasingFunction EasingX = EasingFunction::Linear;
   EasingFunction EasingY = EasingX;
@@ -22,8 +22,8 @@ struct PathSegment {
 
 class PathAnimation : public Animation {
  public:
-  PathAnimation() : PathAnimation(std::vector<PathSegment>()) {};
   PathAnimation(std::vector<PathSegment> segments);
+  PathAnimation() : PathAnimation(std::vector<PathSegment>()) {};
 
   std::vector<PathSegment> Path;
 

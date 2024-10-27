@@ -6,14 +6,11 @@
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
 #include "../../ui/widgets/chlcc/titlebutton.h"
-#include "../../background2d.h"
+#include "../../sequencedanimation.h"
 
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
-
-BETTER_ENUM(TitleMenuIntroAnimationState, int, Out, Panning,
-            AfterPanningWaiting, BouncingStar, ExplodingStar, FallingStars, In)
 
 class TitleMenu : public Menu {
  public:
@@ -31,6 +28,7 @@ class TitleMenu : public Menu {
   Animation SecondaryItemsFadeInAnimation;
   Animation SpinningCircleAnimation;
 
+  SequencedAnimation IntroAnimation;
   Animation IntroPanningAnimation;
   Animation IntroAfterPanningWaitAnimation;
   PathAnimation IntroStarBounceAnimation;
@@ -40,7 +38,7 @@ class TitleMenu : public Menu {
   void MenuButtonOnClick(Widgets::Button* target);
   void SecondaryButtonOnClick(Widgets::Button* target);
 
-  void DrawIntroAnimation();
+  void DrawIntroAnimation() const;
   void DrawIntroBackground() const;
   void DrawTitleMenuBackGraphics() const;
 
@@ -68,9 +66,6 @@ class TitleMenu : public Menu {
   Widgets::Group* SystemItems;
   Widgets::CHLCC::TitleButton* Config;
   Widgets::CHLCC::TitleButton* SystemSave;
-
-  TitleMenuIntroAnimationState IntroAnimationState =
-      TitleMenuIntroAnimationState::Out;
 };
 
 }  // namespace CHLCC
