@@ -13,6 +13,7 @@
 #include "../../profile/scriptvars.h"
 #include "../../profile/game.h"
 #include "../../profile/profile.h"
+#include "../../background2d.h"
 #include <vector>
 
 namespace Impacto {
@@ -295,6 +296,10 @@ void TitleMenu::Update(float dt) {
 
     switch (ScrWork[SW_TITLEDISPCT]) {
       case 0: {
+        if (IntroAnimation.IsOut()) {
+          IntroAnimation.StartIn();
+        }
+
         // When returning to title menu from loading a game we need to hide the
         // load sub-menu
         if (LoadItems->IsShown) {
@@ -453,92 +458,48 @@ void TitleMenu::Render() {
   }
 }
 
-void TitleMenu::DrawIntroAnimation() {
-  switch (IntroAnimationState) {
-    case TitleMenuIntroAnimationState::Out: {
-      IntroPanningAnimation.StartIn();
-      IntroAnimationState = TitleMenuIntroAnimationState::Panning;
-      return;
+void TitleMenu::DrawIntroAnimation() const {
+  if (IntroPanningAnimation.State == +AnimationState::Playing ||
+      IntroAfterPanningWaitAnimation.State == +AnimationState::Playing) {
+    DrawIntroBackground();
+  } else if (IntroStarBounceAnimation.State == +AnimationState::Playing) {
+    DrawIntroBackground();
+
+    if (IntroStarBounceAnimation.GetCurrentSegmentIndex() == 1 &&
+        Audio::Channels[Audio::AC_SE0]->GetState() == ACS_Paused) {
+      Audio::Channels[Audio::AC_SE0]->Resume();
     }
-    case TitleMenuIntroAnimationState::Panning: {
-      DrawIntroBackground();
 
-      if (IntroPanningAnimation.IsIn()) {
-        IntroAfterPanningWaitAnimation.StartIn();
-        IntroAnimationState = TitleMenuIntroAnimationState::AfterPanningWaiting;
-      }
-
-      return;
-    }
-    case TitleMenuIntroAnimationState::AfterPanningWaiting: {
-      DrawIntroBackground();
-
-      if (IntroAfterPanningWaitAnimation.IsIn()) {
-        IntroStarBounceAnimation.StartIn();
-        IntroAnimationState = TitleMenuIntroAnimationState::BouncingStar;
-      }
-
-      return;
-    }
-    case TitleMenuIntroAnimationState::BouncingStar: {
-      DrawIntroBackground();
-
-      if (IntroStarBounceAnimation.GetCurrentSegmentIndex() == 1 &&
-          Audio::Channels[Audio::AC_SE0]->GetState() == ACS_Paused) {
-        Audio::Channels[Audio::AC_SE0]->Resume();
-      }
-
-      glm::vec2 position = IntroStarBounceAnimation.GetPosition() -
-                           IntroBouncingStarSprite.Bounds.Dimensions() / 2.0f;
-
-      Renderer->DrawSprite(StarLogoSprite, position);
-
-      if (IntroStarBounceAnimation.IsIn()) {
-        IntroAnimationState = TitleMenuIntroAnimationState::ExplodingStar;
-        IntroExplodingStarAnimation.StartIn();
-        IntroExplodingStarRotationAnimation.StartIn();
-      }
-
-      return;
-    }
-    case TitleMenuIntroAnimationState::ExplodingStar: {
-      DrawIntroBackground();
-
-      glm::vec2 origin = IntroStarBounceAnimation.GetPosition() -
+    glm::vec2 position = IntroStarBounceAnimation.GetPosition() -
                          IntroBouncingStarSprite.Bounds.Dimensions() / 2.0f;
 
-      constexpr size_t NUM_STARS = 5;
-      for (size_t i = 0; i < NUM_STARS; i++) {
-        float rayAngle = M_PI_2 - M_PI * 2 / NUM_STARS * i;
-        glm::vec2 directionVector(std::cos(rayAngle), -std::sin(rayAngle));
-        glm::vec2 displacement = directionVector *
-                                 IntroExplodingStarAnimation.Progress *
-                                 IntroExplodingStarAnimationDistance;
-        glm::vec2 position = origin + displacement;
+    Renderer->DrawSprite(StarLogoSprite, position);
+  } else if (IntroExplodingStarAnimation.State == +AnimationState::Playing) {
+    DrawIntroBackground();
 
-        float opacity = 1 - IntroExplodingStarAnimation.Progress;
-        float angle = M_PI * 2 * IntroExplodingStarRotationAnimation.Progress;
-        if (i >= 3) angle = -angle;
+    glm::vec2 origin = IntroStarBounceAnimation.GetPosition() -
+                       IntroBouncingStarSprite.Bounds.Dimensions() / 2.0f;
 
-        CornersQuad dest = IntroSmallStarSprite.ScaledBounds();
-        dest.Translate(position).RotateAroundCenter(angle);
-        Renderer->DrawSprite(IntroSmallStarSprite, dest,
-                             {1.0f, 1.0f, 1.0f, opacity});
-      }
+    constexpr size_t NUM_STARS = 5;
+    for (size_t i = 0; i < NUM_STARS; i++) {
+      float rayAngle = M_PI_2 - M_PI * 2 / NUM_STARS * i;
+      glm::vec2 directionVector(std::cos(rayAngle), -std::sin(rayAngle));
+      glm::vec2 displacement = directionVector *
+                               IntroExplodingStarAnimation.Progress *
+                               IntroExplodingStarAnimationDistance;
+      glm::vec2 position = origin + displacement;
 
-      if (IntroExplodingStarAnimation.IsIn()) {
-        IntroAnimationState = TitleMenuIntroAnimationState::FallingStars;
-        IntroExplodingStarRotationAnimation.State = AnimationState::Stopped;
-      }
+      float opacity = 1 - IntroExplodingStarAnimation.Progress;
+      float angle = M_PI * 2 * IntroExplodingStarRotationAnimation.Progress;
+      if (i >= 3) angle = -angle;
 
-      return;
+      CornersQuad dest = IntroSmallStarSprite.ScaledBounds();
+      dest.Translate(position).RotateAroundCenter(angle);
+      Renderer->DrawSprite(IntroSmallStarSprite, dest,
+                           {1.0f, 1.0f, 1.0f, opacity});
     }
-    case TitleMenuIntroAnimationState::FallingStars: {
-      Renderer->DrawSprite(IntroBackgroundSprite, glm::vec2(0.0f));
-      DrawIntroBackground();
-
-      return;
-    }
+  } else {
+    DrawIntroBackground();
   }
 }
 
@@ -546,7 +507,7 @@ void TitleMenu::DrawIntroBackground() const {
   float progress = std::sin(IntroPanningAnimation.Progress * M_PI_2);
   glm::vec2 designDimensions(DesignWidth, DesignHeight);
 
-  Renderer->DrawRect({0, 0, DesignWidth, DesignHeight}, glm::vec4(1.0f));
+  Renderer->DrawQuad(RectF{0, 0, DesignWidth, DesignHeight}, glm::vec4(1.0f));
   Renderer->DrawSprite(IntroBackgroundSprite, glm::vec2(0.0f),
                        {1.0f, 1.0f, 1.0f, IntroPanningAnimation.Progress});
 
@@ -560,10 +521,12 @@ void TitleMenu::DrawIntroBackground() const {
 
     constexpr float scale = 1.5f;
     float offset = IntroHighlightPositions[i];
-    glm::vec2 position = offset * zoomFactor + zoomFactor -
-                         sprite.Bounds.Dimensions() / 2.0f * scale;
+    glm::vec2 position = (offset + 1.0f) * zoomFactor -
+                         (sprite.ScaledBounds().Dimensions() / 2.0f) * scale;
 
-    Renderer->DrawSprite(sprite, position, glm::vec4(1.0f), glm::vec2(scale));
+    RectF dest = sprite.ScaledBounds();
+    dest.Scale(glm::vec2(scale), {0.0f, 0.0f}).Translate(position);
+    Renderer->DrawSprite(sprite, dest, glm::vec4(1.0f));
   }
 
   Renderer->SetBlendMode(RendererBlendMode::Normal);
@@ -576,12 +539,14 @@ void TitleMenu::DrawIntroBackground() const {
   Renderer->CaptureScreencap(ShaderScreencapture.BgSprite);
 
   // Cross-fade from black
-  Renderer->DrawRect({0.0f, 0.0f, DesignWidth, DesignHeight},
+  Renderer->DrawQuad(RectF{0.0f, 0.0f, DesignWidth, DesignHeight},
                      {0.0f, 0.0f, 0.0f, 1.0f});
 
-  glm::vec2 scale(4 / (progress * 3 + 1));
-  Renderer->DrawSprite(ShaderScreencapture.BgSprite, glm::vec2(0.0f),
-                       {1.0f, 1.0f, 1.0f, progress}, scale);
+  float scale = 4 / (progress * 3 + 1);
+  RectF dest = ShaderScreencapture.BgSprite.ScaledBounds();
+  dest.Scale(glm::vec2(scale), glm::vec2(0.0f));
+  Renderer->DrawSprite(ShaderScreencapture.BgSprite, dest,
+                       {1.0f, 1.0f, 1.0f, progress});
 }
 
 void TitleMenu::DrawTitleMenuBackGraphics() const {

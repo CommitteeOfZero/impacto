@@ -173,7 +173,7 @@ struct RectF {
   RectF& Translate(float dx, float dy) { return Translate({dx, dy}); }
 
   RectF& Scale(glm::vec2 scaling, glm::vec2 origin);
-  RectF& ScaleAroundCenter(glm::vec2 scaling, glm::vec2 origin) {
+  RectF& ScaleAroundCenter(glm::vec2 scaling) {
     return Scale(scaling, Center());
   }
 
