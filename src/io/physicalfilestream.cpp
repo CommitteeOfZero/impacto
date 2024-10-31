@@ -95,22 +95,22 @@ IoError PhysicalFileStream::Create(std::string const& fileName, Stream** out,
 
 int64_t PhysicalFileStream::Read(void* buffer, int64_t sz) {
   if (sz < 0 || !(Flags & READ)) return IoError_Fail;
-  if (Position >= Meta.Size || FileStream.eof()) {
-    FileStream.clear(FileStream.rdstate() & ~std::ios::failbit &
-                     ~std::ios::eofbit);  // Clear only failbit and eofbit
-    return IoError_Eof;
-  };
+  if (Position >= Meta.Size) return IoError_Eof;
+
   int bytesToRead = std::min(sz, Meta.Size - Position);
   FileStream.read((char*)buffer, bytesToRead);
-  if (!FileStream) {
+  auto read = FileStream.gcount();
+
+  if (read == 0) {  // Check if no data was read
+    if (FileStream.eof()) return IoError_Eof;
     ImpLog(LL_Error, LC_IO, "Read failed for file \"%s\" with error: \"%s\"\n",
            SourceFileName.c_str(),
            std::generic_category().message(errno).c_str());
     FileStream.clear(FileStream.rdstate() & ~std::ios::failbit &
-                     ~std::ios::eofbit);  // Clear only failbit and eofbit
+                     ~std::ios::eofbit);
     return IoError_Fail;
   }
-  auto read = FileStream.gcount();
+
   Position += read;
   return read;
 }

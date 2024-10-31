@@ -232,12 +232,14 @@ void SysMesBox::AddMessage(uint8_t* str) {
       TextLayoutPlainLine(&dummy, 255, Profile::Dialogue::DialogueFont,
                           TextFontSize, Profile::Dialogue::ColorTable[0], 1.0f,
                           glm::vec2(TextX, 0.0f), TextAlignment::Left);
-  float mesLen = 0.0f;
-  for (int i = 0; i < Messages[MessageCount].size(); i++) {
-    mesLen += Messages[MessageCount][i].DestRect.Width;
+  if (!Messages[MessageCount].empty()) {
+    float mesLen = 0.0f;
+    for (int i = 0; i < Messages[MessageCount].size(); i++) {
+      mesLen += Messages[MessageCount][i].DestRect.Width;
+    }
+    MessageWidths[MessageCount] = mesLen;
+    MessageCount++;
   }
-  MessageWidths[MessageCount] = mesLen;
-  MessageCount++;
 }
 
 void SysMesBox::AddChoice(uint8_t* str) {
@@ -247,12 +249,14 @@ void SysMesBox::AddChoice(uint8_t* str) {
       TextLayoutPlainLine(&dummy, 255, Profile::Dialogue::DialogueFont,
                           TextFontSize, Profile::Dialogue::ColorTable[0], 1.0f,
                           glm::vec2(TextX, 0.0f), TextAlignment::Left);
-  float mesLen = 0.0f;
-  for (int i = 0; i < Choices[ChoiceCount].size(); i++) {
-    mesLen += Choices[ChoiceCount][i].DestRect.Width;
+  if (!Choices[ChoiceCount].empty()) {
+    float mesLen = 0.0f;
+    for (int i = 0; i < Choices[ChoiceCount].size(); i++) {
+      mesLen += Choices[ChoiceCount][i].DestRect.Width;
+    }
+    ChoiceWidths[ChoiceCount] = mesLen;
+    ChoiceCount++;
   }
-  ChoiceWidths[ChoiceCount] = mesLen;
-  ChoiceCount++;
 }
 
 }  // namespace CC
