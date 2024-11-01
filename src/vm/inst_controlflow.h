@@ -26,6 +26,7 @@ VmInstruction(InstPackFileAddBind);
 VmInstruction(InstLoadJump);
 VmInstruction(InstSwitch);
 VmInstruction(InstCase);
+VmInstruction(InstFlagWait);
 
 }  // namespace Vm
 
