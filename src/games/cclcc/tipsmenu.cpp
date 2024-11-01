@@ -336,11 +336,6 @@ void TipsMenu::Render() {
     TipsTabs[CurrentTabType]->Tint.a = fade.a;
     TipsTabs[CurrentTabType]->Render();
 
-    Renderer->DrawSprite(
-        TipsGuideSprite,
-        glm::vec2(TipsGuideX,
-                  TipsGuideY + Profile::DesignHeight / 2 - LastYPos),
-        fade);
     if (CurrentlyDisplayedTipId != -1) {
       TipViewItems.Tint.a = fade.a;
       TipViewItems.Render();
@@ -357,6 +352,11 @@ void TipsMenu::Render() {
                          RectF(0.0f, Profile::DesignHeight / 2 - LastYPos,
                                Profile::DesignWidth, Profile::DesignHeight),
                          maskTint);
+    Renderer->DrawSprite(
+        TipsGuideSprite,
+        glm::vec2(TipsGuideX,
+                  TipsGuideY + Profile::DesignHeight / 2 - LastYPos),
+        fade);
   }
 }
 
