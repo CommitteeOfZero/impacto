@@ -288,6 +288,14 @@ VmInstruction(InstCase) {
   }
 }
 
+VmInstruction(InstFlagWait) {
+  StartInstruction;
+  PopUint8(type);
+  PopExpression(arg1);
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction SomethingOff(type: %i, arg1: %i)\n", type, arg1);
+}
+
 }  // namespace Vm
 
 }  // namespace Impacto

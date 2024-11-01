@@ -107,7 +107,7 @@ InstructionProc static OpcodeTableSystem_CC[256] = {
     InstDummy,                // 00 59
     InstDummy,                // 00 5A
     InstDummy,                // 00 5B
-    InstDummy,                // 00 5C
+    InstFlagWait,             // 00 5C
     InstDummy,                // 00 5D
     InstDummy,                // 00 5E
     InstPackFileAddBind,      // 00 5F
