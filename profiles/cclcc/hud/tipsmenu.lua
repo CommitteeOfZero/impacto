@@ -31,7 +31,7 @@ root.TipsMenu = {
     CategoryFontSize = 32,
     NamePos = { X = 1020, Y = 160},
     NameFontSize = 40,
-    NumberPos = { X = 1807, Y = 84},
+    NumberPos = { X = 1760, Y = 90},
     NumberFontSize = 44,
     PronounciationPos = { X = 1020, Y = 246},
     PronounciationFontSize = 26,
