@@ -288,12 +288,27 @@ VmInstruction(InstCase) {
   }
 }
 
-VmInstruction(InstFlagWait) {
+VmInstruction(InstFlagOffReturn) {
   StartInstruction;
-  PopUint8(type);
-  PopExpression(arg1);
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction SomethingOff(type: %i, arg1: %i)\n", type, arg1);
+  PopUint8(arg1);
+  PopExpression(arg2);
+  if (arg1 == GetFlag(arg2)) {
+    if (thread->CallStackDepth) {
+      thread->CallStackDepth--;
+      uint32_t retBufferId =
+          thread->ReturnScriptBufferIds[thread->CallStackDepth];
+      if (Profile::Vm::UseReturnIds) {
+        thread->Ip =
+            ScriptGetRetAddress(ScriptBuffers[retBufferId],
+                                thread->ReturnIds[thread->CallStackDepth]);
+      } else {
+        thread->Ip = thread->ReturnAddresses[thread->CallStackDepth];
+      }
+      thread->ScriptBufferId = retBufferId;
+    } else {
+      ImpLog(LL_Error, LC_VM, "Return error, call stack empty.\n");
+    }
+  }
 }
 
 }  // namespace Vm
