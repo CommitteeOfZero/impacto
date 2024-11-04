@@ -5,7 +5,7 @@
 #include "memorystream.h"
 #include "../log.h"
 #include "../profile/vfs.h"
-#ifndef IMPACTO_DISABLE_MMAP 
+#ifndef IMPACTO_DISABLE_MMAP
 #include "memorymappedfilestream.h"
 #else
 #include "physicalfilestream.h"
@@ -80,11 +80,12 @@ IoError VfsMount(std::string const& mountpoint,
   }
 
   Stream* archiveFile;
-  #ifndef IMPACTO_DISABLE_MMAP
-  err = MemoryMappedFileStream<AccessMode::read>::Create(archiveFileName, &archiveFile);
-  #else 
+#ifndef IMPACTO_DISABLE_MMAP
+  err = MemoryMappedFileStream<AccessMode::read>::Create(archiveFileName,
+                                                         &archiveFile);
+#else
   err = PhysicalFileStream::Create(archiveFileName, &archiveFile);
-  #endif
+#endif
   if (err != IoError_OK) {
     ImpLog(LL_Debug, LC_IO, "Could not open physical file \"%s\"\n",
            archiveFileName.c_str());
