@@ -87,6 +87,7 @@ template <AccessMode M>
 int64_t MemoryMappedFileStream<M>::Write(void* buffer, int64_t sz, int cnt) {
   if constexpr (M == AccessMode::read) {
     assert(false);
+    return 0;
   } else {
     std::lock_guard<std::shared_mutex> lock(*mutexLock);
     sz = std::min(Meta.Size - Position, sz);
