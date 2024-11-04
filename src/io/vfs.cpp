@@ -2,7 +2,7 @@
 #include "../impacto.h"
 #include <vector>
 #include "vfsarchive.h"
-#include "physicalfilestream.h"
+#include "memorymappedfilestream.h"
 #include "memorystream.h"
 #include "../log.h"
 #include "../profile/vfs.h"
@@ -76,7 +76,7 @@ IoError VfsMount(std::string const& mountpoint,
   }
 
   Stream* archiveFile;
-  err = PhysicalFileStream::Create(archiveFileName, &archiveFile);
+  err = MemoryMappedFileStream<AccessMode::read>::Create(archiveFileName, &archiveFile);
   if (err != IoError_OK) {
     ImpLog(LL_Debug, LC_IO, "Could not open physical file \"%s\"\n",
            archiveFileName.c_str());
