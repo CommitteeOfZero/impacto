@@ -14,7 +14,7 @@ using AccessMode = mio::access_mode;
 template <AccessMode Access>
 class MemoryMappedFileStream : public Stream {
  public:
-  AccessMode Mode = Access; 
+  AccessMode Mode = Access;
   static IoError Create(std::string const& fileName, Stream** out);
   int64_t Read(void* buffer, int64_t sz) override;
   int64_t Seek(int64_t offset, int origin) override;

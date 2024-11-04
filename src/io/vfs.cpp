@@ -76,7 +76,8 @@ IoError VfsMount(std::string const& mountpoint,
   }
 
   Stream* archiveFile;
-  err = MemoryMappedFileStream<AccessMode::read>::Create(archiveFileName, &archiveFile);
+  err = MemoryMappedFileStream<AccessMode::read>::Create(archiveFileName,
+                                                         &archiveFile);
   if (err != IoError_OK) {
     ImpLog(LL_Debug, LC_IO, "Could not open physical file \"%s\"\n",
            archiveFileName.c_str());
