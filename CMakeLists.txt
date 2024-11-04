@@ -260,6 +260,7 @@ set(Impacto_Src
         src/io/vfs.cpp
         src/io/assetpath.cpp
         src/io/memorystream.cpp
+        src/io/memorymappedfilestream.cpp
         src/io/physicalfilestream.cpp
         src/io/uncompressedstream.cpp
         src/io/zlibstream.cpp
@@ -571,6 +572,7 @@ set(Impacto_Header
         src/io/stream.h
         src/io/vfsarchive.h
         src/io/memorystream.h
+        src/io/memorymappedfilestream.h
         src/io/physicalfilestream.h
         src/io/uncompressedstream.h
         src/io/zlibstream.h
@@ -619,6 +621,8 @@ set(Impacto_Header
         vendor/clHCA/clHCA.h
 
         vendor/squish/squish.h
+
+        vendor/mio/mio.hpp
 
         vendor/vma/vk_mem_alloc.h
         vendor/minilua/minilua.h
