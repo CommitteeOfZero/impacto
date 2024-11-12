@@ -377,6 +377,10 @@ void OptionsMenu::Update(float dt) {
       }
     }
   }
+
+  if (GetControlState(CT_Back)) {
+    SetFlag(SF_SUBMENUEXIT, true);
+  }
 }
 
 void OptionsMenu::Render() {
