@@ -37,6 +37,7 @@ inline Sprite VoiceSliderTrackSprite;
 inline glm::vec2 VoiceSliderOffset;
 inline Sprite BinaryBoxSprite;
 inline glm::vec2 BinaryBoxOffset;
+inline float SliderSpeed;
 
 inline Sprite SkipReadSprite;
 inline Sprite SkipAllSprite;
