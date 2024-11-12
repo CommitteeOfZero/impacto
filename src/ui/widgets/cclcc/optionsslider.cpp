@@ -12,16 +12,12 @@ namespace CCLCC {
 
 OptionsSlider::OptionsSlider(const Sprite& box, const Sprite& label,
                              glm::vec2 pos, glm::vec4 highlightTint)
-    : BoxSprite(box), LabelSprite(label), HighlightTint(highlightTint) {
-  Bounds = RectF(pos.x, pos.y, SliderTrackOffset.x + box.ScaledWidth(),
-                 LabelSprite.ScaledHeight());
+    : OptionsEntry(label, pos, highlightTint), BoxSprite(box) {
+  Bounds.Width = SliderTrackOffset.x + BoxSprite.ScaledWidth();
 }
 
 void OptionsSlider::Render() {
-  HighlightTint.a = Tint.a;
-
-  Renderer->DrawSprite(LabelSprite, Bounds.GetPos(),
-                       {0.0f, 0.0f, 0.0f, Tint.a});
+  OptionsEntry::Render();
 
   RectF highlightBounds(
       Bounds.X + SliderTrackOffset.x, Bounds.Y + SliderTrackOffset.y,
@@ -31,7 +27,7 @@ void OptionsSlider::Render() {
   Renderer->DrawSprite(BoxSprite, Bounds.GetPos() + SliderTrackOffset, Tint);
 }
 
-void OptionsSlider::UpdateInput() {}
+void OptionsSlider::UpdateInput() { OptionsEntry::UpdateInput(); }
 
 }  // namespace CCLCC
 }  // namespace Widgets

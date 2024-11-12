@@ -2,8 +2,10 @@
 
 #include "../../../profile/games/cclcc/optionsmenu.h"
 #include "../../../renderer/renderer.h"
+#include "../../../vm/interface/input.h"
 
 using namespace Impacto::Profile::CCLCC::OptionsMenu;
+using namespace Impacto::Vm::Interface;
 
 namespace Impacto {
 namespace UI {
@@ -15,13 +17,11 @@ OptionsBinaryButton::OptionsBinaryButton(const Sprite& box,
                                          const Sprite& falseLabel,
                                          const Sprite& label, glm::vec2 pos,
                                          glm::vec4 highlightTint)
-    : BoxSprite(box),
+    : OptionsEntry(label, pos, highlightTint),
+      BoxSprite(box),
       TrueSprite(trueLabel),
-      FalseSprite(falseLabel),
-      LabelSprite(label),
-      HighlightTint(highlightTint) {
-  Bounds = RectF(pos.x, pos.y, BinaryBoxOffset.x + BoxSprite.ScaledWidth(),
-                 LabelSprite.ScaledHeight());
+      FalseSprite(falseLabel) {
+  Bounds.Width = BinaryBoxOffset.x + BoxSprite.ScaledWidth();
 }
 
 inline glm::vec2 OptionsBinaryButton::GetTruePos() const {
@@ -34,16 +34,13 @@ inline glm::vec2 OptionsBinaryButton::GetFalsePos() const {
 }
 
 void OptionsBinaryButton::Render() {
-  HighlightTint.a = Tint.a;
+  OptionsEntry::Render();
 
   RectF highlightBounds(0.0f, 0.0f, BoxSprite.ScaledWidth() / 2,
                         BoxSprite.ScaledHeight());
   glm::vec2 highlightPos = (State) ? GetTruePos() : GetFalsePos();
   highlightBounds.X = highlightPos.x;
   highlightBounds.Y = highlightPos.y;
-
-  Renderer->DrawSprite(LabelSprite, Bounds.GetPos(),
-                       {0.0f, 0.0f, 0.0f, Tint.a});
 
   Renderer->DrawRect(highlightBounds, HighlightTint);
   Renderer->DrawSprite(BoxSprite, GetTruePos(), Tint);
@@ -54,7 +51,13 @@ void OptionsBinaryButton::Render() {
                        State);
 }
 
-void OptionsBinaryButton::UpdateInput() {}
+void OptionsBinaryButton::UpdateInput() {
+  OptionsEntry::UpdateInput();
+  if (!Selected) return;
+
+  if (PADinputButtonWentDown & (PAD1LEFT | PAD1RIGHT))
+    State = PADinputButtonWentDown & PAD1LEFT;
+}
 
 }  // namespace CCLCC
 }  // namespace Widgets

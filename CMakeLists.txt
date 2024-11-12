@@ -243,6 +243,7 @@ set(Impacto_Src
         src/ui/widgets/cc/backlogentry.cpp
         src/ui/widgets/cc/titlebutton.cpp
         src/ui/widgets/cclcc/titlebutton.cpp
+        src/ui/widgets/cclcc/optionsentry.cpp
         src/ui/widgets/cclcc/optionsbinarybutton.cpp
         src/ui/widgets/cclcc/optionsslider.cpp
         src/ui/widgets/cclcc/saveentrybutton.cpp
@@ -556,6 +557,7 @@ set(Impacto_Header
         src/ui/widgets/cc/backlogentry.h
         src/ui/widgets/cc/titlebutton.h
         src/ui/widgets/cclcc/titlebutton.h
+        src/ui/widgets/cclcc/optionsentry.h
         src/ui/widgets/cclcc/optionsbinarybutton.h
         src/ui/widgets/cclcc/optionsslider.h
 

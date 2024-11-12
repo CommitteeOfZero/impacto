@@ -31,7 +31,6 @@ OptionsMenu::OptionsMenu() {
   glm::vec4 highlightTint(HighlightColor, 1.0f);
 
   BasicPage = new Group(this);
-  BasicPage->FocusLock = false;
   for (int i = 0; i < 4; i++) {
     BasicPage->Add(new OptionsBinaryButton(BinaryBoxSprite, OnSprite, OffSprite,
                                            LabelSprites[i], pos, highlightTint),
@@ -43,7 +42,6 @@ OptionsMenu::OptionsMenu() {
 
   pos = EntriesStartPosition;
   TextPage = new Group(this);
-  TextPage->FocusLock = false;
   for (int i = 4; i < 6; i++) {
     TextPage->Add(new OptionsSlider(SliderTrackSprite, LabelSprites[i], pos,
                                     highlightTint),
@@ -58,7 +56,6 @@ OptionsMenu::OptionsMenu() {
 
   pos = SoundEntriesStartPosition;
   SoundPage = new Group(this);
-  SoundPage->FocusLock = false;
   for (int i = 7; i < 15; i++) {
     Widget* widget = (i < 11 || i == 14)
                          ? new OptionsSlider(SliderTrackSprite, LabelSprites[i],
@@ -73,7 +70,6 @@ OptionsMenu::OptionsMenu() {
   Pages.push_back(SoundPage);
 
   VoicePage = new Group(this);
-  VoicePage->FocusLock = false;
   for (int i = 0; i < 12; i++) {
     glm::vec2 pos = VoicePosition;
     pos += VoiceEntriesOffset * glm::vec2(i % 3, i / 3);
@@ -123,6 +119,7 @@ void OptionsMenu::Hide() {
 
 void OptionsMenu::Update(float dt) {
   UpdateInput();
+  Pages.at(CurrentPage)->Update(dt);
 
   FadeAnimation.Update(dt);
   PoleAnimation.Update(dt);
@@ -139,6 +136,19 @@ void OptionsMenu::Update(float dt) {
   GoToPage((CurrentPage + newPageOffset) % Pages.size());
 }
 
+void OptionsMenu::UpdateInput() {
+  bool nothingSelected =
+      CurrentlyFocusedElement == nullptr ||
+      !static_cast<OptionsEntry*>(CurrentlyFocusedElement)->Selected;
+  if (nothingSelected && GetControlState(CT_Back)) {
+    SetFlag(SF_SUBMENUEXIT, true);
+    return;
+  }
+
+  // Only able to move up and down if nothing is selected
+  if (nothingSelected) Menu::UpdateInput();
+}
+
 void OptionsMenu::Render() {
   if (State != Hidden && ScrWork[SW_SYSSUBMENUCT] >= 32 &&
       ScrWork[SW_SYSSUBMENUNO] == 5) {
@@ -147,29 +157,9 @@ void OptionsMenu::Render() {
     Renderer->DrawSprite(BackgroundSprite, BackgroundPosition, col);
     Renderer->DrawSprite(HeaderSprite, HeaderPosition, col);
 
-    Renderer->DrawSprite(PageHeaderSprites[+CurrentPage], PageHeaderPosition,
+    Renderer->DrawSprite(PageHeaderSprites[CurrentPage], PageHeaderPosition,
                          col);
     Pages.at(CurrentPage)->Render();
-    /*
-    for (int i = 7; i < 15; i++) {
-      glm::vec2 pos = SoundEntriesStartPosition;
-      pos.y += SoundEntriesVerticalOffset * (i - 7);
-
-      Renderer->DrawSprite(LabelSprites[i], pos, col);
-
-      if (11 <= i && i <= 13) {
-        glm::vec2 boxPos = pos + BinaryBoxOffset;
-
-        Renderer->DrawSprite(BinaryBoxSprite, boxPos, col);
-        Renderer->DrawSprite(YesSprite, boxPos, col);
-        Renderer->DrawSprite(
-        NoSprite, boxPos + glm::vec2(BinaryBoxSprite.ScaledWidth() / 2, 0),
-        col);
-      } else {
-        Renderer->DrawSprite(SliderTrackSprite, pos + SliderTrackOffset, col);
-      }
-    }
-    */
 
     Renderer->DrawSprite(PoleAnimation.CurrentSprite(), PagePanelPosition, col);
 
@@ -180,7 +170,7 @@ void OptionsMenu::Render() {
 void OptionsMenu::GoToPage(int pageNumber) {
   if (CurrentPage == pageNumber) return;
 
-  Pages.at(CurrentPage)->HasFocus = false;
+  Pages.at(CurrentPage)->Hide();
 
   CurrentPage = pageNumber;
   Group& page = *Pages.at(CurrentPage);
@@ -188,6 +178,7 @@ void OptionsMenu::GoToPage(int pageNumber) {
   page.HasFocus = true;
   page.Show();
 
+  if (CurrentlyFocusedElement) CurrentlyFocusedElement->Hide();
   CurrentlyFocusedElement = page.GetFirstFocusableChild();
   CurrentlyFocusedElement->HasFocus = true;
 }
