@@ -29,6 +29,7 @@ root.OptionsMenu = {
     VoiceSliderOffset = { X = 111, Y = 56 },
     BinaryBoxSprite = "OptionsBinaryBox",
     BinaryBoxOffset = { X = 812, Y = 2 },
+    SliderSpeed = 1.0,
 
     SkipReadSprite = "OptionsSkipRead",
     SkipAllSprite = "OptionsSkipAll",
