@@ -38,6 +38,7 @@ void Configure() {
   VoiceSliderOffset = EnsureGetMemberVec2("VoiceSliderOffset");
   BinaryBoxSprite = EnsureGetMemberSprite("BinaryBoxSprite");
   BinaryBoxOffset = EnsureGetMemberVec2("BinaryBoxOffset");
+  SliderSpeed = EnsureGetMemberFloat("SliderSpeed");
 
   SkipReadSprite = EnsureGetMemberSprite("SkipReadSprite");
   SkipAllSprite = EnsureGetMemberSprite("SkipAllSprite");
