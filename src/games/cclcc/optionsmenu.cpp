@@ -44,7 +44,7 @@ OptionsMenu::OptionsMenu() {
   TextPage = new Group(this);
   for (int i = 4; i < 6; i++) {
     TextPage->Add(new OptionsSlider(SliderTrackSprite, LabelSprites[i], pos,
-                                    highlightTint),
+                                    highlightTint, SliderSpeed),
                   FDIR_DOWN);
 
     pos.y += EntriesVerticalOffset;
@@ -59,7 +59,7 @@ OptionsMenu::OptionsMenu() {
   for (int i = 7; i < 15; i++) {
     Widget* widget = (i < 11 || i == 14)
                          ? new OptionsSlider(SliderTrackSprite, LabelSprites[i],
-                                             pos, highlightTint)
+                                             pos, highlightTint, SliderSpeed)
                          : widget = new OptionsBinaryButton(
                                BinaryBoxSprite, YesSprite, NoSprite,
                                LabelSprites[i], pos, highlightTint);
