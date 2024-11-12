@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../widget.h"
+#include "./optionsentry.h"
 #include "../../../spritesheet.h"
 
 namespace Impacto {
@@ -8,7 +8,7 @@ namespace UI {
 namespace Widgets {
 namespace CCLCC {
 
-class OptionsBinaryButton : public Widget {
+class OptionsBinaryButton : public OptionsEntry {
  public:
   OptionsBinaryButton(const Sprite& box, const Sprite& trueLabel,
                       const Sprite& falseLabel, const Sprite& label,
@@ -24,9 +24,6 @@ class OptionsBinaryButton : public Widget {
   const Sprite& BoxSprite;
   const Sprite& TrueSprite;
   const Sprite& FalseSprite;
-  const Sprite& LabelSprite;
-
-  glm::vec4 HighlightTint;
 
   bool State = true;
 };
