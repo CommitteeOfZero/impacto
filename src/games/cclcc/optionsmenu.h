@@ -12,10 +12,11 @@ class OptionsMenu : public Menu {
  public:
   OptionsMenu();
 
-  void Show();
-  void Hide();
-  void Update(float dt);
-  void Render();
+  void Show() override;
+  void Hide() override;
+  void Update(float dt) override;
+  void UpdateInput() override;
+  void Render() override;
 
  private:
   void GoToPage(int pageNumber);

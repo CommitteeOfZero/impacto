@@ -11,7 +11,7 @@ root.OptionsMenu = {
     BackgroundPosition = { X = 179, Y = 0 },
 
     PointerSprite = "OptionsPointer",
-    PointerOffset = { X = 89, Y = 5 },
+    PointerOffset = { X = -89, Y = 5 },
 
     HeaderSprite = "OptionsHeader",
     HeaderPosition = { X = 10, Y = 10 },
