@@ -11,7 +11,7 @@ root.OptionsMenu = {
     BackgroundPosition = { X = 179, Y = 0 },
 
     PointerSprite = "OptionsPointer",
-    PointerOffset = { X = -89, Y = 5 },
+    PointerOffset = { X = 13, Y = 2 },
 
     HeaderSprite = "OptionsHeader",
     HeaderPosition = { X = 10, Y = 10 },
@@ -24,11 +24,11 @@ root.OptionsMenu = {
     PoleAnimation = "OptionsPoleAnimation",
 
     SliderTrackSprite = "OptionsSliderTrack",
-    SliderTrackOffset = { X = 664, Y = 2 },
+    SliderTrackOffset = { X = 766, Y = 0 },
     VoiceSliderTrackSprite = "OptionsVoiceSliderTrack",
-    VoiceSliderOffset = { X = 110, Y = 55 },
+    VoiceSliderOffset = { X = 114, Y = 57 },
     BinaryBoxSprite = "OptionsBinaryBox",
-    BinaryBoxOffset = { X = 812, Y = 2 },
+    BinaryBoxOffset = { X = 914, Y = 0 },
     SliderSpeed = 1.0,
 
     SkipReadSprite = "OptionsSkipRead",
@@ -42,17 +42,21 @@ root.OptionsMenu = {
     VoiceGuideSprite = "OptionsVoiceGuide",
     GuidePosition = { X = 0, Y = 986 },
 
-    EntriesStartPosition = { X = 521, Y = 311 },
+    EntriesStartPosition = { X = 419, Y = 313 },
     EntriesVerticalOffset = 126,
-    SoundEntriesStartPosition = { X = 521, Y = 331 },
+    SoundEntriesStartPosition = { X = 419, Y = 333 },
     SoundEntriesVerticalOffset = 70,
     VoiceEntriesOffset = { X = 408, Y = 160 },
+    EntryDimensions = { X = 1212, Y = 50 },
+    VoiceEntryDimensions = { X = 374, Y = 104 },
 
     LabelSprites = {},
+    LabelOffset = { X = 102, Y = -2 },
     NametagSprites = {},
-    NametagOffset = { X = 112, Y = 2 },
+    NametagOffset = { X = 116, Y = 4 },
     PortraitSprites = {},
-    VoicePosition = { X = 458, Y = 312 },
+    PortraitOffset = { X = 3, Y = 2 },
+    VoicePosition = { X = 454, Y = 310 },
 };
 
 root.Sprites["OptionsBackground"] = {
@@ -77,7 +81,7 @@ root.Sprites["OptionsBinaryBox"] = {
 
 root.Sprites["OptionsPointer"] = {
     Sheet = "Config",
-    Bounds = { X = 697, Y = 1241, Width = 71, Height = 43 }
+    Bounds = { X = 697, Y = 1241, Width = 71, Height = 45 }
 };
 
 root.Sprites["OptionsHeader"] = {
