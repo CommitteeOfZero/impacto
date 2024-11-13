@@ -6,6 +6,7 @@
 #include "../../vm/interface/input.h"
 #include "../../ui/widgets/cclcc/optionsbinarybutton.h"
 #include "../../ui/widgets/cclcc/optionsslider.h"
+#include "../../ui/widgets/cclcc/optionsvoiceslider.h"
 
 namespace Impacto {
 namespace UI {
@@ -70,12 +71,47 @@ OptionsMenu::OptionsMenu() {
   Pages.push_back(SoundPage);
 
   VoicePage = new Group(this);
-  for (int i = 0; i < 12; i++) {
+  constexpr int columns = 3;
+  constexpr int entries = 12;
+  for (int i = 0; i < entries; i++) {
     glm::vec2 pos = VoicePosition;
-    pos += VoiceEntriesOffset * glm::vec2(i % 3, i / 3);
+    pos += VoiceEntriesOffset * glm::vec2(i % columns, i / columns);
 
-    VoicePage->Add(new Label(NametagSprites[i], pos), FDIR_RIGHT);
+    Widget* widget = new OptionsVoiceSlider(
+        VoiceSliderTrackSprite, NametagSprites[i], PortraitSprites[2 * i],
+        PortraitSprites[2 * i + 1], pos, highlightTint, SliderSpeed);
+    VoicePage->Add(widget, FDIR_RIGHT);
   }
+
+  // Loop separately to overwrite the direction set at initial adding
+  // First entry won't set anything; skip
+  for (int i = 1; i < entries; i++) {
+    Widget* const widget = VoicePage->Children.at(i);
+
+    if (i % columns != 0) {  // Not on first column
+      Widget* const leftWidget = VoicePage->Children.at(i - 1);
+      widget->SetFocus(leftWidget, FDIR_LEFT);
+      leftWidget->SetFocus(widget, FDIR_RIGHT);
+
+      if (i % columns == columns - 1) {  // On last column
+        Widget* const rowStart = VoicePage->Children.at(i - columns + 1);
+        widget->SetFocus(rowStart, FDIR_RIGHT);
+        rowStart->SetFocus(widget, FDIR_LEFT);
+      }
+    }
+    if (i >= columns) {  // Not on first row
+      Widget* const upWidget = VoicePage->Children.at(i - columns);
+      widget->SetFocus(upWidget, FDIR_UP);
+      upWidget->SetFocus(widget, FDIR_DOWN);
+
+      if (i >= entries - columns) {  // On last layer
+        Widget* const columnStart = VoicePage->Children.at(i % columns);
+        widget->SetFocus(columnStart, FDIR_DOWN);
+        columnStart->SetFocus(widget, FDIR_UP);
+      }
+    }
+  }
+
   Pages.push_back(VoicePage);
 
   CurrentPage = 0;
@@ -163,7 +199,9 @@ void OptionsMenu::Render() {
 
     Renderer->DrawSprite(PoleAnimation.CurrentSprite(), PagePanelPosition, col);
 
-    Renderer->DrawSprite(GuideSprite, GuidePosition, col);
+    const Sprite& guideSprite =
+        CurrentPage == 3 ? VoiceGuideSprite : GuideSprite;
+    Renderer->DrawSprite(guideSprite, GuidePosition, col);
   }
 }
 

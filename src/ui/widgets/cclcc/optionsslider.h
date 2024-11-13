@@ -16,7 +16,7 @@ class OptionsSlider : public OptionsEntry {
   void Render() override;
   void Update(float dt) override;
 
- private:
+ protected:
   const Sprite& BoxSprite;
 
   float Progress = 0.0f;

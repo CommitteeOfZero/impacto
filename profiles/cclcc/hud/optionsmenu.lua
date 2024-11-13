@@ -26,7 +26,7 @@ root.OptionsMenu = {
     SliderTrackSprite = "OptionsSliderTrack",
     SliderTrackOffset = { X = 664, Y = 2 },
     VoiceSliderTrackSprite = "OptionsVoiceSliderTrack",
-    VoiceSliderOffset = { X = 111, Y = 56 },
+    VoiceSliderOffset = { X = 110, Y = 55 },
     BinaryBoxSprite = "OptionsBinaryBox",
     BinaryBoxOffset = { X = 812, Y = 2 },
     SliderSpeed = 1.0,
@@ -207,7 +207,7 @@ for i = 0, 25 do
     root.Sprites["OptionsPortrait" .. i] = {
         Sheet = "ConfigEx",
         Bounds = {
-            X = 768 + (width + 1) * i,
+            X = 768 + (width + 1) * (i // 2),
             Y = ((i % 2 == 0) and {2256} or {2357})[1],
             Width = width,
             Height = width
