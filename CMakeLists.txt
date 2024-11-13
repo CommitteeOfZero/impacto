@@ -246,6 +246,7 @@ set(Impacto_Src
         src/ui/widgets/cclcc/optionsentry.cpp
         src/ui/widgets/cclcc/optionsbinarybutton.cpp
         src/ui/widgets/cclcc/optionsslider.cpp
+        src/ui/widgets/cclcc/optionsvoiceslider.cpp
         src/ui/widgets/cclcc/saveentrybutton.cpp
         src/ui/widgets/cclcc/sysmenubutton.cpp
         src/ui/widgets/cclcc/tipsentrybutton.cpp
@@ -560,6 +561,7 @@ set(Impacto_Header
         src/ui/widgets/cclcc/optionsentry.h
         src/ui/widgets/cclcc/optionsbinarybutton.h
         src/ui/widgets/cclcc/optionsslider.h
+        src/ui/widgets/cclcc/optionsvoiceslider.h
 
         src/renderer/3d/camera.h
         src/renderer/3d/model.h
