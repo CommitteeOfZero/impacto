@@ -56,11 +56,15 @@ void Configure() {
   SoundEntriesStartPosition = EnsureGetMemberVec2("SoundEntriesStartPosition");
   SoundEntriesVerticalOffset = EnsureGetMemberInt("SoundEntriesVerticalOffset");
   VoiceEntriesOffset = EnsureGetMemberVec2("VoiceEntriesOffset");
+  EntryDimensions = EnsureGetMemberVec2("EntryDimensions");
+  VoiceEntryDimensions = EnsureGetMemberVec2("VoiceEntryDimensions");
 
   GetMemberSpriteArray(LabelSprites, LabelSpriteCount, "LabelSprites");
+  LabelOffset = EnsureGetMemberVec2("LabelOffset");
   GetMemberSpriteArray(NametagSprites, NametagSpriteCount, "NametagSprites");
   NametagOffset = EnsureGetMemberVec2("NametagOffset");
   GetMemberSpriteArray(PortraitSprites, PortraitSpriteCount, "PortraitSprites");
+  PortraitOffset = EnsureGetMemberVec2("PortraitOffset");
   VoicePosition = EnsureGetMemberVec2("VoicePosition");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(

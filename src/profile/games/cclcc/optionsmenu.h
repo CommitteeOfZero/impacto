@@ -55,11 +55,15 @@ inline int EntriesVerticalOffset;
 inline glm::vec2 SoundEntriesStartPosition;
 inline int SoundEntriesVerticalOffset;
 inline glm::vec2 VoiceEntriesOffset;
+inline glm::vec2 EntryDimensions;
+inline glm::vec2 VoiceEntryDimensions;
 
 inline Sprite LabelSprites[LabelSpriteCount];
+inline glm::vec2 LabelOffset;
 inline Sprite NametagSprites[NametagSpriteCount];
 inline glm::vec2 NametagOffset;
 inline Sprite PortraitSprites[PortraitSpriteCount];
+inline glm::vec2 PortraitOffset;
 inline glm::vec2 VoicePosition;
 
 void Configure();
