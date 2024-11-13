@@ -22,20 +22,25 @@ OptionsEntry::OptionsEntry(const Sprite& label, glm::vec2 pos,
 void OptionsEntry::Render() {
   HighlightTint.a = Tint.a;
 
-  Renderer->DrawSprite(LabelSprite, Bounds.GetPos(),
-                       Selected ? Tint : glm::vec4(0.0f, 0.0f, 0.0f, Tint.a));
-  if (HasFocus)
+  if (HasFocus) {
+    RectF highlightBoundBox(Bounds.X, Bounds.Y, EntryDimensions.x,
+                            EntryDimensions.y);
+    Renderer->DrawRect(highlightBoundBox, HighlightTint);
+    Renderer->DrawRect(highlightBoundBox + RectF(2.0f, 2.0f, -4.0f, -4.0f),
+                       glm::vec4(1.0f, 1.0f, 1.0f, Tint.a));
+
     Renderer->DrawSprite(PointerSprite, Bounds.GetPos() + PointerOffset, Tint);
+  }
+
+  Renderer->DrawSprite(LabelSprite, Bounds.GetPos() + LabelOffset,
+                       Selected ? Tint : glm::vec4(0.0f, 0.0f, 0.0f, Tint.a));
 }
 
 void OptionsEntry::UpdateInput() {
   if (!HasFocus) return;
 
-  if (PADinputButtonWentDown & PAD1A) {
-    Selected = true;
-  } else if (PADinputButtonWentDown & PAD1B) {
-    Selected = false;
-  }
+  Selected ^= (bool)(PADinputButtonWentDown & PAD1A);
+  if (PADinputButtonWentDown & PAD1B) Selected = false;
 }
 
 void OptionsEntry::Hide() { Selected = false; }
