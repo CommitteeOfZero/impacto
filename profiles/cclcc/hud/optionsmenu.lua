@@ -22,6 +22,11 @@ root.OptionsMenu = {
     PagePanelPosition = { X = -114, Y = 0 },
     PagePanelSprites = {},
     PoleAnimation = "OptionsPoleAnimation",
+    -- TODO: Replace this once array fetching is implemented
+    PagePanelIconOffsets0 = { X = 259, Y = 73 },
+    PagePanelIconOffsets1 = { X = 235, Y = 333 },
+    PagePanelIconOffsets2 = { X = 261, Y = 585 },
+    PagePanelIconOffsets3 = { X = 238, Y = 831 },
 
     SliderTrackSprite = "OptionsSliderTrack",
     SliderTrackOffset = { X = 766, Y = 0 },

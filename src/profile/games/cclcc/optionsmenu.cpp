@@ -32,6 +32,12 @@ void Configure() {
                        "PagePanelSprites");
   PoleAnimation = EnsureGetMemberAnimation("PoleAnimation");
 
+  // TODO: Replace this once array fetching is implemented
+  for (int i = 0; i < PagePanelSpriteCount / 2; i++) {
+    PagePanelIconOffsets[i] = EnsureGetMemberVec2(
+        ("PagePanelIconOffsets" + std::to_string(i)).c_str());
+  }
+
   SliderTrackSprite = EnsureGetMemberSprite("SliderTrackSprite");
   SliderTrackOffset = EnsureGetMemberVec2("SliderTrackOffset");
   VoiceSliderTrackSprite = EnsureGetMemberSprite("VoiceSliderTrackSprite");
