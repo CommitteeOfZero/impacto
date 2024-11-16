@@ -46,9 +46,8 @@ void OptionsVoiceSlider::Render() {
 
 void OptionsVoiceSlider::UpdateInput() {
   OptionsEntry::UpdateInput();
-  if (!Selected) return;
 
-  Muted ^= (bool)(PADinputButtonWentDown & PAD1Y);
+  if (HasFocus) Muted ^= (bool)(PADinputButtonWentDown & PAD1Y);
 }
 
 }  // namespace CCLCC
