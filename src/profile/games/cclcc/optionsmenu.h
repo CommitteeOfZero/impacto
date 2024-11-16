@@ -29,6 +29,7 @@ inline glm::vec2 PageHeaderPosition;
 inline Sprite PagePanelSprite;
 inline glm::vec2 PagePanelPosition;
 inline Sprite PagePanelSprites[PagePanelSpriteCount];
+inline glm::vec2 PagePanelIconOffsets[PagePanelSpriteCount];
 inline SpriteAnimationDef PoleAnimation;
 
 inline Sprite SliderTrackSprite;
