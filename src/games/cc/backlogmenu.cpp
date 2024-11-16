@@ -53,6 +53,17 @@ void BacklogMenu::Hide() {
   UI::BacklogMenu::Hide();
 }
 
+void BacklogMenu::Update(float dt) {
+  if (ScrWork[SW_SYSSUBMENUCT] < 32 && State == Shown) {
+    Hide();
+  } else if (ScrWork[SW_SYSSUBMENUCT] > 0 && State == Hidden &&
+             ScrWork[SW_SYSSUBMENUNO] == 1) {
+    Show();
+  }
+
+  UI::BacklogMenu::Update(dt);
+}
+
 void BacklogMenu::Render() {
   if (State == Hidden) return;
 
