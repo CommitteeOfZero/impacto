@@ -198,6 +198,11 @@ void OptionsMenu::Render() {
     Pages.at(CurrentPage)->Render();
 
     Renderer->DrawSprite(PoleAnimation.CurrentSprite(), PagePanelPosition, col);
+    if (PoleAnimation.IsIn()) {
+      Renderer->DrawSprite(
+          PagePanelSprites[2 * CurrentPage + !(bool)CurrentlyFocusedElement],
+          PagePanelPosition + PagePanelIconOffsets[CurrentPage], col);
+    }
 
     const Sprite& guideSprite =
         CurrentPage == 3 ? VoiceGuideSprite : GuideSprite;
