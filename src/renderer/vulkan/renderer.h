@@ -172,6 +172,8 @@ class Renderer : public BaseRenderer {
   void SetScissorRect(RectF const& rect) override;
   void DisableScissor() override;
 
+  void SetBlendMode(RendererBlendMode blendMode) override{};
+
  private:
   void CreateInstance();
   void SetupDebug();

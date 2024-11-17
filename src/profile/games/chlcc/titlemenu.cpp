@@ -1,6 +1,5 @@
 #include "titlemenu.h"
 #include "../../../log.h"
-//#include "../../../window.h"
 #include "../../../renderer/renderer.h"
 #include "../../profile_internal.h"
 
@@ -16,6 +15,17 @@ namespace TitleMenu {
 
 void Configure() {
   IntroBackgroundSprite = EnsureGetMemberSprite("IntroBackgroundSprite");
+  IntroPanningAnimationDuration =
+      EnsureGetMemberFloat("IntroPanningAnimationDuration");
+  IntroBouncingStarSprite = EnsureGetMemberSprite("IntroBouncingStarSprite");
+  IntroSmallStarSprite = EnsureGetMemberSprite("IntroSmallStarSprite");
+  IntroBigStarSprite = EnsureGetMemberSprite("IntroBigStarSprite");
+  IntroExplodingStarAnimationDuration =
+      EnsureGetMemberFloat("IntroExplodingStarAnimationDuration");
+  IntroExplodingStarAnimationRotationDuration =
+      EnsureGetMemberFloat("IntroExplodingStarAnimationRotationDuration");
+  IntroExplodingStarAnimationDistance =
+      EnsureGetMemberFloat("IntroExplodingStarAnimationDistance");
   BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
   DelusionADVUnderSprite = EnsureGetMemberSprite("DelusionADVUnderSprite");
   DelusionADVUnderX = EnsureGetMemberFloat("DelusionADVUnderX");
@@ -111,6 +121,20 @@ void Configure() {
       EnsureGetMemberFloat("SecondaryMenuSystemConfigY");
   SecondaryMenuSystemSaveY = EnsureGetMemberFloat("SecondaryMenuSystemSaveY");
 
+  IntroStarBounceAnimationSegmentCount =
+      EnsureGetMemberInt("IntroStarBounceAnimationSegmentCount");
+  IntroStarBounceAnimationPath =
+      new PathSegment[IntroStarBounceAnimationSegmentCount];
+  GetMemberPathSegmentArray(IntroStarBounceAnimationPath,
+                            IntroStarBounceAnimationSegmentCount,
+                            "IntroStarBounceAnimationPath");
+
+  GetMemberSpriteArray(IntroHighlightSprites, IntroHighlightCount,
+                       "IntroHighlightSprites");
+
+  GetMemberFloatArray(IntroHighlightPositions, IntroHighlightCount,
+                      "IntroHighlightPositions");
+
   UI::CHLCC::TitleMenu* menu = new UI::CHLCC::TitleMenu();
   menu->PressToStartAnimation.DurationIn =
       Profile::TitleMenu::PressToStartAnimDurationIn;
@@ -128,6 +152,28 @@ void Configure() {
   menu->SpinningCircleAnimation.LoopMode = ALM_Loop;
   menu->SpinningCircleAnimation.DurationIn = SpinningCircleAnimationDuration;
   menu->SpinningCircleAnimation.DurationOut = SpinningCircleAnimationDuration;
+
+  menu->IntroPanningAnimation.DurationIn = IntroPanningAnimationDuration;
+  menu->IntroPanningAnimation.DurationOut = IntroPanningAnimationDuration;
+  menu->IntroAfterPanningWaitAnimation.DurationIn =
+      IntroAfterPanningWaitDuration;
+  menu->IntroAfterPanningWaitAnimation.DurationOut =
+      IntroAfterPanningWaitDuration;
+
+  menu->IntroStarBounceAnimation = PathAnimation(std::vector(
+      IntroStarBounceAnimationPath,
+      IntroStarBounceAnimationPath + IntroStarBounceAnimationSegmentCount));
+
+  menu->IntroExplodingStarRotationAnimation.LoopMode = ALM_Loop;
+  menu->IntroExplodingStarRotationAnimation.DurationIn =
+      IntroExplodingStarAnimationRotationDuration;
+  menu->IntroExplodingStarRotationAnimation.DurationOut =
+      IntroExplodingStarAnimationRotationDuration;
+
+  menu->IntroExplodingStarAnimation.DurationIn =
+      IntroExplodingStarAnimationDuration;
+  menu->IntroExplodingStarAnimation.DurationOut =
+      IntroExplodingStarAnimationDuration;
 
   UI::TitleMenuPtr = menu;
 

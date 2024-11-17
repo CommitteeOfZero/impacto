@@ -2,6 +2,7 @@
 
 #include "../../../spritesheet.h"
 #include "../../../games/chlcc/titlemenu.h"
+#include "../../../pathanimation.h"
 
 namespace Impacto {
 namespace Profile {
@@ -10,71 +11,85 @@ namespace TitleMenu {
 
 void Configure();
 
+inline int LineNum;
 int constexpr LineEntriesNumMax = 32;
+inline Sprite LineSprites[LineEntriesNumMax];
 
-inline Sprite IntroBackgroundSprite;
 inline Sprite BackgroundSprite;
+
 inline Sprite DelusionADVUnderSprite;
 inline Sprite DelusionADVSprite;
-inline Sprite SeiraUnderSprite;
-inline Sprite SeiraSprite;
-inline Sprite CHLogoSprite;
-inline Sprite LCCLogoUnderSprite;
-inline Sprite ChuLeftLogoSprite;
-inline Sprite ChuRightLogoSprite;
-inline Sprite LoveLogoSprite;
-inline Sprite StarLogoSprite;
-inline Sprite ExclMarkLogoSprite;
-inline Sprite CopyrightTextSprite;
-inline Sprite SpinningCircleSprite;
-inline Sprite ItemHighlightSprite;
-inline Sprite LineSprites[LineEntriesNumMax];
-inline Sprite ItemLoadQuickSprite;
-inline Sprite ItemLoadSprite;
-inline Sprite ItemLoadQuickHighlightedSprite;
-inline Sprite ItemLoadHighlightedSprite;
-inline Sprite SecondaryItemHighlightSprite;
-
 inline float DelusionADVUnderX;
 inline float DelusionADVUnderY;
 inline float DelusionADVX;
 inline float DelusionADVY;
+
+inline Sprite SeiraUnderSprite;
+inline Sprite SeiraSprite;
 inline float SeiraUnderX;
 inline float SeiraUnderY;
 inline float SeiraX;
 inline float SeiraY;
+
+inline Sprite CHLogoSprite;
 inline float CHLogoX;
 inline float CHLogoY;
+
+inline Sprite LCCLogoUnderSprite;
 inline float LCCLogoUnderX;
 inline float LCCLogoUnderY;
+
+inline Sprite ChuLeftLogoSprite;
 inline float ChuLeftLogoX;
 inline float ChuLeftLogoY;
+
+inline Sprite ChuRightLogoSprite;
 inline float ChuRightLogoX;
 inline float ChuRightLogoY;
+
+inline Sprite LoveLogoSprite;
 inline float LoveLogoX;
 inline float LoveLogoY;
+
+inline Sprite StarLogoSprite;
 inline float StarLogoX;
 inline float StarLogoY;
+
+inline Sprite ExclMarkLogoSprite;
 inline float ExclMarkLogoX;
 inline float ExclMarkLogoY;
+
+inline Sprite CopyrightTextSprite;
 inline float CopyrightTextX;
 inline float CopyrightTextY;
+
+inline Sprite SpinningCircleSprite;
 inline float SpinningCircleX;
 inline float SpinningCircleY;
 inline float SpinningCircleAnimationDuration;
+
+inline Sprite ItemHighlightSprite;
+inline Sprite ItemLoadHighlightedSprite;
+inline Sprite SecondaryItemHighlightSprite;
 inline float ItemHighlightOffsetX;
 inline float ItemHighlightOffsetY;
 inline float ItemPadding;
 inline float ItemYBase;
 inline float ItemFadeInDuration;
 inline float ItemFadeOutDuration;
-inline float SecondaryItemFadeInDuration;
-inline float SecondaryItemFadeOutDuration;
+
 inline float PrimaryFadeInDuration;
 inline float PrimaryFadeOutDuration;
+
 inline float SecondaryFadeInDuration;
 inline float SecondaryFadeOutDuration;
 inline float SecondaryItemX;
+inline float SecondaryItemFadeInDuration;
+inline float SecondaryItemFadeOutDuration;
+
+inline Sprite ItemLoadQuickSprite;
+inline Sprite ItemLoadSprite;
+inline Sprite ItemLoadQuickHighlightedSprite;
 inline float ItemLoadY;
 inline float ItemLoadQuickY;
 inline float ItemClearListY;
@@ -85,6 +100,7 @@ inline float ItemTipsY;
 inline float ItemTrophyY;
 inline float ItemConfigY;
 inline float ItemSystemSaveY;
+
 inline float SecondaryItemHighlightX;
 inline float SecondaryMenuPaddingY;
 inline float SecondaryMenuLoadOffsetY;
@@ -100,7 +116,24 @@ inline float SecondaryMenuExtraTrophyY;
 inline float SecondaryMenuSystemConfigY;
 inline float SecondaryMenuSystemSaveY;
 
-inline int LineNum;
+inline Sprite IntroBackgroundSprite;
+
+constexpr size_t IntroHighlightCount = 10;
+inline Sprite IntroHighlightSprites[IntroHighlightCount];
+inline float IntroHighlightPositions[IntroHighlightCount];
+inline float IntroPanningAnimationDuration;
+inline float IntroAfterPanningWaitDuration;
+
+inline Sprite IntroSmallStarSprite;
+inline Sprite IntroBigStarSprite;
+
+inline PathSegment* IntroStarBounceAnimationPath;
+inline int IntroStarBounceAnimationSegmentCount;
+inline Sprite IntroBouncingStarSprite;
+
+inline float IntroExplodingStarAnimationDuration;
+inline float IntroExplodingStarAnimationRotationDuration;
+inline float IntroExplodingStarAnimationDistance;
 
 }  // namespace TitleMenu
 }  // namespace CHLCC
