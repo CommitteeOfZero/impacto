@@ -151,7 +151,12 @@ jobs:
         if [[ "${{ matrix.os_name }}" == "macos"* ]]; then
           sed -i '' -e 's/,--version-script=libatrac9.version//g' Makefile
         fi
-        make CC="$CC"
+        if [ -z "${CC}" ]; then
+          make
+        else
+          make CC="$CC"
+        fi
+
         mkdir -p ../include/libatrac9
         mkdir -p ../libs
         cp bin/libatrac9.a ../libs/
