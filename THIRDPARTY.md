@@ -23,6 +23,7 @@
 * `vendor/mspack`: [libmspack](https://www.cabextract.org.uk/libmspack/), only includes LZX decompressor to reduce code size
 * `vendor/pugixml`: [pugixml](https://github.com/zeux/pugixml) 
 * `vendor/span`: [span](https://github.com/tcbrindle/span)
+* `vendor/mio`: [mio](https://github.com/vimpunk/mio)
 
 All third-party code mentioned above is mandatory, included in the build process and compiled into the output executable for impacto on every supported platform and build configuration.
 
@@ -795,6 +796,14 @@ See below for license text (zlib).
 https://github.com/tcbrindle/span
 
 Distributed under the Boost Software License - Version 1.0 - August 17th, 2003. See below for license text.
+
+## mio
+
+https://github.com/vimpunk/mio/blob/master/single_include/mio/mio.hpp
+
+Copyright (c) 2018 https://github.com/mandreyel/
+
+See below for license text (MIT).
 
 ## stb_image
 
