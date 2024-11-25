@@ -28,15 +28,14 @@ void ClearListMenu::ArrowLeftOnClick(Button* target) { MainItems->Previous(); }
 void ClearListMenu::ArrowRightOnClick(Button* target) { MainItems->Next(); }
 
 ClearListMenu::ClearListMenu() {
-  FadeAnimation.Direction = 1;
-  FadeAnimation.LoopMode = ALM_Stop;
+  FadeAnimation.Direction = AnimationDirection::In;
+  FadeAnimation.LoopMode = AnimationLoopMode::Stop;
   FadeAnimation.DurationIn = FadeInDuration;
   FadeAnimation.DurationOut = FadeOutDuration;
 
-  ArrowsAnimation.Direction = 1;
-  ArrowsAnimation.LoopMode = ALM_ReverseDirection;
-  ArrowsAnimation.DurationIn = ArrowsAnimationDuration;
-  ArrowsAnimation.DurationOut = ArrowsAnimationDuration;
+  ArrowsAnimation.Direction = AnimationDirection::In;
+  ArrowsAnimation.LoopMode = AnimationLoopMode::ReverseDirection;
+  ArrowsAnimation.SetDuration(ArrowsAnimationDuration);
   ArrowsAnimation.StartIn();
 
   MainItems =

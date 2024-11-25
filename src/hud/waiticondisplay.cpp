@@ -23,18 +23,18 @@ void Init() {
   switch (WaitIconCurrentType) {
     case WaitIconType::SpriteAnim:
       SpriteAnim = WaitIconSpriteAnim.Instantiate();
-      SpriteAnim.LoopMode = ALM_Loop;
+      SpriteAnim.LoopMode = AnimationLoopMode::Loop;
       SpriteAnim.StartIn();
       break;
     case WaitIconType::SpriteAnimFixed:
       SpriteAnim = WaitIconSpriteAnim.Instantiate();
-      SpriteAnim.LoopMode = ALM_Stop;
+      SpriteAnim.LoopMode = AnimationLoopMode::Stop;
       FixedSpriteAnim = static_cast<FixedSpriteAnimation&>(SpriteAnim);
       FixedSpriteAnim.Def->FixSpriteId = WaitIconFixedSpriteId;
       break;
     default:
       SimpleAnim.DurationIn = WaitIconAnimationDuration;
-      SimpleAnim.LoopMode = ALM_Loop;
+      SimpleAnim.LoopMode = AnimationLoopMode::Loop;
       SimpleAnim.StartIn();
       break;
   }

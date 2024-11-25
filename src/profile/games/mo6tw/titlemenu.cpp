@@ -42,7 +42,7 @@ void Configure() {
       Profile::TitleMenu::PressToStartAnimDurationIn;
   menu->PressToStartAnimation.DurationOut =
       Profile::TitleMenu::PressToStartAnimDurationOut;
-  menu->PressToStartAnimation.LoopMode = ALM_ReverseDirection;
+  menu->PressToStartAnimation.LoopMode = AnimationLoopMode::ReverseDirection;
   menu->PrimaryFadeAnimation.DurationIn = PrimaryFadeAnimDuration;
   menu->PrimaryFadeAnimation.DurationOut = PrimaryFadeAnimDuration;
   menu->SecondaryFadeAnimation.DurationIn = SecondaryMenuAnimDuration;

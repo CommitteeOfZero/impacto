@@ -23,7 +23,7 @@ void Init() {
   FadeAnimation.DurationIn = Profile::SaveIcon::FadeInDuration;
   FadeAnimation.DurationOut = Profile::SaveIcon::FadeOutDuration;
   SaveIconForeground = Profile::SaveIcon::ForegroundAnimation.Instantiate();
-  SaveIconForeground.LoopMode = ALM_Loop;
+  SaveIconForeground.LoopMode = AnimationLoopMode::Loop;
 }
 
 void Hide() {
@@ -40,7 +40,7 @@ void ShowAt(glm::vec2 pos) {
   FadeAnimation.StartIn();
 }
 void ShowFor(float seconds) {
-  Timer.LoopMode = ALM_Stop;
+  Timer.LoopMode = AnimationLoopMode::Stop;
   Timer.DurationIn = seconds;
   Timer.DurationOut = seconds;
   IsTimed = true;

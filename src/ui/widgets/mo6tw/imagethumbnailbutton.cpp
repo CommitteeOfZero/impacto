@@ -28,10 +28,9 @@ ImageThumbnailButton::ImageThumbnailButton(int id, Sprite const& norm,
   Bounds = RectF(pos.x, pos.y, NormalSprite.ScaledWidth(),
                  NormalSprite.ScaledHeight());
 
-  HighlightAnimation.Direction = 1;
-  HighlightAnimation.LoopMode = ALM_Loop;
-  HighlightAnimation.DurationIn = HighlightAnimationDuration;
-  HighlightAnimation.DurationOut = HighlightAnimationDuration;
+  HighlightAnimation.Direction = AnimationDirection::In;
+  HighlightAnimation.LoopMode = AnimationLoopMode::Loop;
+  HighlightAnimation.SetDuration(HighlightAnimationDuration);
   HighlightAnimation.StartIn();
 }
 

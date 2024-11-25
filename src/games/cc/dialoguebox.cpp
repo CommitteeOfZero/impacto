@@ -17,9 +17,9 @@ using namespace Impacto::Profile::CC::DialogueBox;
 void DialogueBox::Init() { Impacto::DialogueBox::Init(); }
 
 void DialogueBox::Update(float dt) {
-  if (TextBoxEffect.State != AS_Playing) {
+  if (TextBoxEffect.State != +AnimationState::Playing) {
     TextBoxEffect.DurationIn = ADVBoxEffectDuration;
-    TextBoxEffect.LoopMode = ALM_Loop;
+    TextBoxEffect.LoopMode = AnimationLoopMode::Loop;
     TextBoxEffect.StartIn();
   }
 

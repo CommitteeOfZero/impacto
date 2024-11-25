@@ -25,7 +25,7 @@ void FixedSpriteAnimation::StartOutImpl(bool reset) {
 
 void FixedSpriteAnimation::UpdateImpl(float dt) {
   float fixedSpriteProgress = GetFixedSpriteProgress();
-  int animationRequest = Direction;
+  AnimationDirection animationRequest = Direction;
 
   if (Progress == 1.0f && Direction == -1 ||
       Progress == 0.0f && Direction == 1) {
@@ -36,8 +36,10 @@ void FixedSpriteAnimation::UpdateImpl(float dt) {
   // (At the start of the function "Direction" only signifies the
   //  whether the in or out animation should be played; not the actual
   //  direction of the animation)
-  if (Progress != fixedSpriteProgress)
-    Direction = Progress > fixedSpriteProgress ? 1 : -1;
+  if (Progress != fixedSpriteProgress) {
+    Direction = Progress > fixedSpriteProgress ? AnimationDirection::In
+                                               : AnimationDirection::Out;
+  }
 
   // Coordinate transformation and normalization for AddDelta
   if (Direction == 1) {
@@ -61,7 +63,7 @@ void FixedSpriteAnimation::UpdateImpl(float dt) {
   bool progressAtExtremum = (Progress == 0.0f || Progress == 1.0f);
   if (animationRequest != Direction && progressAtExtremum) {
     Direction = animationRequest;
-    State = AS_Playing;
+    State = AnimationState::Playing;
   }
 }
 
@@ -98,9 +100,10 @@ SpriteAnimation SpriteAnimationDef::Instantiate() {
   result.DurationIn = this->Duration;
   result.DurationOut = this->Duration;
 
-  if (this->FixSpriteId != 0)
+  if (this->FixSpriteId != 0) {
     result.Progress =
         static_cast<FixedSpriteAnimation&>(result).GetFixedSpriteProgress();
+  }
 
   return result;
 }

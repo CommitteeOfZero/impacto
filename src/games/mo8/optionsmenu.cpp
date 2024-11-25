@@ -55,12 +55,12 @@ void OptionsMenu::SkipModeOnClick(Widgets::Toggle* target) {
 }
 
 OptionsMenu::OptionsMenu() {
-  FadeAnimation.Direction = 1;
-  FadeAnimation.LoopMode = ALM_Stop;
+  FadeAnimation.Direction = AnimationDirection::In;
+  FadeAnimation.LoopMode = AnimationLoopMode::Stop;
   FadeAnimation.DurationIn = FadeInDuration;
   FadeAnimation.DurationOut = FadeOutDuration;
-  PageFadeAnimation.Direction = 1;
-  PageFadeAnimation.LoopMode = ALM_Stop;
+  PageFadeAnimation.Direction = AnimationDirection::In;
+  PageFadeAnimation.LoopMode = AnimationLoopMode::Stop;
   PageFadeAnimation.DurationIn = FadeInDuration;
   PageFadeAnimation.DurationOut = FadeOutDuration;
 
@@ -320,7 +320,7 @@ void OptionsMenu::Update(float dt) {
       GoToNextPage();
     }
 
-    if (PageFadeAnimation.State == AS_Playing) {
+    if (PageFadeAnimation.State == +AnimationState::Playing) {
       (*PreviousPage)->Update(dt);
       (*CurrentPage)->Update(dt);
     } else {
@@ -344,7 +344,7 @@ void OptionsMenu::Render() {
                   glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress));
     Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
 
-    if (PageFadeAnimation.State == AS_Playing) {
+    if (PageFadeAnimation.State == +AnimationState::Playing) {
       (*CurrentPage)->Tint = col;
       (*PreviousPage)->Tint = col;
       (*CurrentPage)->Tint.a *=

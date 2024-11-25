@@ -26,8 +26,8 @@ void SelectionMenu::Init(bool isPlain) {
 
   FadeAnimation.DurationIn = FadeAnimationDurationInOut;
   FadeAnimation.DurationOut = FadeAnimationDurationInOut;
-  FadeAnimation.Direction = 1;
-  FadeAnimation.LoopMode = ALM_Stop;
+  FadeAnimation.Direction = AnimationDirection::In;
+  FadeAnimation.LoopMode = AnimationLoopMode::Stop;
 }
 
 void SelectionMenu::AddChoice(uint8_t* str) {

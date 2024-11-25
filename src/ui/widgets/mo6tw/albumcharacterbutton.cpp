@@ -22,10 +22,9 @@ AlbumCharacterButton::AlbumCharacterButton(int id, Sprite const& norm,
   Bounds = RectF(pos.x, pos.y, NormalSprite.ScaledWidth(),
                  NormalSprite.ScaledHeight());
 
-  HighlightAnimation.Direction = 1;
-  HighlightAnimation.LoopMode = ALM_ReverseDirection;
-  HighlightAnimation.DurationIn = highlightAnimationDuration;
-  HighlightAnimation.DurationOut = highlightAnimationDuration;
+  HighlightAnimation.Direction = AnimationDirection::In;
+  HighlightAnimation.LoopMode = AnimationLoopMode::ReverseDirection;
+  HighlightAnimation.SetDuration(highlightAnimationDuration);
   HighlightAnimation.StartIn();
 }
 

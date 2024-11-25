@@ -26,13 +26,12 @@ using namespace Impacto::Vm::Interface;
 using namespace Impacto::UI::Widgets;
 
 OptionsMenu::OptionsMenu() {
-  MenuTransition.Direction = 1.0f;
-  MenuTransition.LoopMode = ALM_Stop;
-  MenuTransition.DurationIn = MenuTransitionDuration;
-  MenuTransition.DurationOut = MenuTransitionDuration;
+  MenuTransition.Direction = AnimationDirection::In;
+  MenuTransition.LoopMode = AnimationLoopMode::Stop;
+  MenuTransition.SetDuration(MenuTransitionDuration);
 
-  TitleFade.Direction = 1.0f;
-  TitleFade.LoopMode = ALM_Stop;
+  TitleFade.Direction = AnimationDirection::In;
+  TitleFade.LoopMode = AnimationLoopMode::Stop;
   TitleFade.DurationIn = TitleFadeInDuration;
   TitleFade.DurationOut = TitleFadeOutDuration;
 

@@ -22,7 +22,7 @@ TipsNotification::TipsNotification() {
   FadeAnimation.DurationOut = FadeOutDuration;
 
   Timer.DurationIn = TimerDuration;
-  Timer.LoopMode = ALM_Stop;
+  Timer.LoopMode = AnimationLoopMode::Stop;
 
   auto textBefore = Vm::ScriptGetTextTableStrAddress(
       TextTableId, NotificationTextPart1MessageId);

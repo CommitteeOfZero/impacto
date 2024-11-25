@@ -21,7 +21,7 @@ TitleButton::TitleButton(int id, Sprite const& norm, Sprite const& focused,
 
 void TitleButton::UpdateInput() {
   if (!DisableInput &&
-      (IsSubButton || HighlightAnimation.State == AS_Stopped) &&
+      (IsSubButton || HighlightAnimation.State == +AnimationState::Stopped) &&
       ChoiceBlinkAnimation.IsOut()) {
     Button::UpdateInput();
   }
@@ -54,15 +54,16 @@ void TitleButton::Render() {
   float blinkProgress = ChoiceBlinkAnimation.Progress * 4.0f;
   float blinkAlpha = 0.5f * (1.0f + cos(blinkProgress * glm::two_pi<float>()));
   glm::vec4 BlinkTint = glm::vec4(1.0f, 1.0f, 1.0f, Tint.a);
-  if (ChoiceBlinkAnimation.State == AS_Playing) {
+  if (ChoiceBlinkAnimation.State == +AnimationState::Playing) {
     BlinkTint.a = blinkAlpha;
   }
-  if (HasFocus || !IsSubButton && HighlightAnimation.State == AS_Playing ||
-      ChoiceBlinkAnimation.State == AS_Playing) {
+  if (HasFocus ||
+      !IsSubButton && HighlightAnimation.State == +AnimationState::Playing ||
+      ChoiceBlinkAnimation.State == +AnimationState::Playing) {
     if (!IsSubButton) {  // Main buttons
       Sprite newHighlightSprite = HighlightSprite;
       float smoothProgress =
-          HighlightAnimation.State == AS_Playing
+          HighlightAnimation.State == +AnimationState::Playing
               ? glm::smoothstep(0.0f, 1.0f, HighlightAnimation.Progress)
               : 1.0f;
 

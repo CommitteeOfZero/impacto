@@ -42,7 +42,7 @@ void Configure() {
       Profile::TitleMenu::PressToStartAnimDurationIn;
   PressToStartAnimation.DurationOut =
       Profile::TitleMenu::PressToStartAnimDurationOut;
-  PressToStartAnimation.LoopMode = ALM_ReverseDirection;
+  PressToStartAnimation.LoopMode = AnimationLoopMode::ReverseDirection;
   PreTitleItemsAnimation.DurationIn = PreTitleAnimDurationIn;
   PreTitleItemsAnimation.DurationOut = PreTitleAnimDurationOut;
 

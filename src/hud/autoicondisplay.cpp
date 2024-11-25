@@ -16,14 +16,14 @@ void Init() {
   switch (AutoIconCurrentType) {
     case AutoIconType::SpriteAnim:
       SpriteAnim = AutoIconSpriteAnim.Instantiate();
-      SpriteAnim.LoopMode = ALM_Stop;
+      SpriteAnim.LoopMode = AnimationLoopMode::Stop;
       SpriteAnim.SkipOnSkipMode = false;
       SpriteAnim.StartIn();
       break;
 
     case AutoIconType::SpriteAnimFixed:
       SpriteAnim = AutoIconSpriteAnim.Instantiate();
-      SpriteAnim.LoopMode = ALM_Stop;
+      SpriteAnim.LoopMode = AnimationLoopMode::Stop;
       SpriteAnim.SkipOnSkipMode = false;
       FixedSpriteAnim = static_cast<FixedSpriteAnimation&>(SpriteAnim);
       FixedSpriteAnim.Def->FixSpriteId = AutoIconFixedSpriteId;

@@ -165,7 +165,7 @@ void TitleMenu::Show() {
     IsFocused = true;
     UI::FocusedMenu = this;
     AllowsScriptInput = true;
-    if (PressToStartAnimation.State == AS_Stopped) {
+    if (PressToStartAnimation.State == +AnimationState::Stopped) {
       PressToStartAnimation.StartIn();
       SmokeAnimation.StartIn();
     }
