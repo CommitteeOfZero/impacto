@@ -621,9 +621,10 @@ set(Impacto_Header
 
         vendor/squish/squish.h
 
+        
         vendor/vma/vk_mem_alloc.h
         vendor/minilua/minilua.h
-)
+        )
 
 if (WIN32)
     list(APPEND Impacto_Src
@@ -634,6 +635,7 @@ endif ()
 if (NX OR EMSCRIPTEN)
     set(IMPACTO_DISABLE_VULKAN ON)
     set(IMPACTO_DISABLE_DX9 ON)
+    set(IMPACTO_DISABLE_MMAP ON)
 endif ()
 
 if(ANDROID)
@@ -711,6 +713,16 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(fmt)
 FetchContent_MakeAvailable(pugixml)
 FetchContent_MakeAvailable(utf8cpp)
+
+if (NOT DEFINED IMPACTO_DISABLE_MMAP)
+    list(APPEND Impacto_Src
+        src/io/memorymappedfilestream.cpp
+    )
+    list(APPEND Impacto_Header
+        src/io/memorymappedfilestream.h
+        vendor/mio/mio.hpp
+    )
+endif ()
 
 if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
     FetchContent_Declare(

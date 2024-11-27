@@ -151,7 +151,6 @@ int64_t PhysicalFileStream::Seek(int64_t offset, int origin) {
 
 IoError PhysicalFileStream::Duplicate(Stream** outStream) {
   PhysicalFileStream* result = new PhysicalFileStream(*this);
-  std::error_code ec;
   if (result->ErrorCode != IoError_OK) {
     ImpLog(LL_Error, LC_IO, "Failed to open file \"%s\"\n",
            SourceFileName.c_str());
