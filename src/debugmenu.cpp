@@ -707,10 +707,10 @@ void ShowScriptDebugger() {
       auto& thd = Vm::ThreadPool[ScriptDebuggerSelectedThreadId];
       uint8_t* returnAddress =
           (Profile::Vm::UseReturnIds)
-              ? thd.ReturnAddresses[i]
-              : Vm::ScriptGetRetAddress(
+              ? Vm::ScriptGetRetAddress(
                     Vm::ScriptBuffers[thd.ReturnScriptBufferIds[i]],
-                    thd.ReturnIds[i]);
+                    thd.ReturnIds[i])
+              : thd.ReturnAddresses[i];
 
       ImGui::Text(
           "%s - %08X",
