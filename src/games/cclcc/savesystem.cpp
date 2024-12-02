@@ -545,6 +545,7 @@ void SaveSystem::LoadMemoryNew(LoadProcess load) {
   if (load == LoadProcess::LoadVars) {
     ScrWork[SW_PLAYTIME] = WorkingSaveEntry->PlayTime;
     ScrWork[SW_TITLE] = WorkingSaveEntry->SwTitle;
+    ScrWork[SW_AUTOSAVERESTART] = WorkingSaveEntry->SaveType;
 
     memcpy(&FlagWork[50], WorkingSaveEntry->FlagWorkScript1, 50);
     memcpy(&FlagWork[300], WorkingSaveEntry->FlagWorkScript2, 100);

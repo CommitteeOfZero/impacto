@@ -720,8 +720,7 @@ VmInstruction(InstDebugData) {
 VmInstruction(InstAutoSave) {
   StartInstruction;
   auto quickSave = [&](int autosaveRestartCheck, int saveType) {
-    SaveSystem::SaveMemory();
-    if (ScrWork[2112] != autosaveRestartCheck) {
+    if (ScrWork[SW_AUTOSAVERESTART] != autosaveRestartCheck) {
       int quicksaveEntries = SaveSystem::GetQuickSaveOpenSlot();
       if (quicksaveEntries != -1) {
         SaveIconDisplay::ShowFor(2.4f);
@@ -730,12 +729,15 @@ VmInstruction(InstAutoSave) {
       }
     }
     SetFlag(1285, 1);
-    ScrWork[2112] = 0;
+    ScrWork[SW_AUTOSAVERESTART] = 0;
   };
 
   PopUint8(type);
   switch (type) {
     case 0:  // QuickSave
+      if (ScrWork[SW_TITLE] == 0xffff) break;
+      SaveSystem::SaveMemory();
+      [[fallthrough]];
     case 20:
       if (ScrWork[SW_TITLE] == 0xffff) break;
       quickSave(1, 1);
@@ -743,6 +745,9 @@ VmInstruction(InstAutoSave) {
                  "STUB instruction AutoSave(type: QuickSave)\n");
       break;
     case 1:  // AutoSaveRestart (?)
+      if (ScrWork[SW_TITLE] == 0xffff) break;
+      SaveSystem::SaveMemory();
+      [[fallthrough]];
     case 21:
       if (ScrWork[SW_TITLE] == 0xffff) break;
       quickSave(3, 3);
@@ -767,7 +772,7 @@ VmInstruction(InstAutoSave) {
       if (ScrWork[SW_TITLE] != 0xffff) {
         SaveSystem::SaveMemory();
         SetFlag(1285, 1);
-        ScrWork[2112] = 0;
+        ScrWork[SW_AUTOSAVERESTART] = 0;
       }
     } break;
     case 10: {  // SetCheckpointId
