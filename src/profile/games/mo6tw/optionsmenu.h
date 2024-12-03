@@ -22,6 +22,10 @@ inline int VoiceTogglePerLine;
 
 inline Sprite SectionHeaderSprites[SectionHeaderSpriteCount];
 
+inline Sprite SliderTrackSprite;
+inline Sprite SliderFillSprite;
+inline Sprite SliderThumbSprite;
+
 inline Sprite CheckboxBoxSprite;
 inline Sprite CheckboxTickSprite;
 inline Sprite CheckboxLabelSprites[CheckboxLabelCount];
