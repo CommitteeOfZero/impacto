@@ -105,8 +105,10 @@ SaveError SaveSystem::MountSaveFile() {
 
   stream->Seek(0x14, SEEK_SET);
 
+  stream->Seek(0x80, SEEK_SET);
   Io::ReadArrayLE<uint8_t>(&FlagWork[100], stream, 50);
   Io::ReadArrayLE<uint8_t>(&FlagWork[460], stream, 40);
+  stream->Seek(0xDC, SEEK_SET);
   Io::ReadArrayLE<int>(&ScrWork[1600], stream, 400);
   Io::ReadArrayLE<int>(&ScrWork[2000], stream, 100);
 
@@ -307,8 +309,10 @@ void SaveSystem::WriteSaveFile() {
 
   stream->Seek(0x14, SEEK_SET);
 
+  stream->Seek(0x80, SEEK_SET);
   Io::WriteArrayLE<uint8_t>(&FlagWork[100], stream, 50);
   Io::WriteArrayLE<uint8_t>(&FlagWork[460], stream, 40);
+  stream->Seek(0xDC, SEEK_SET);
   Io::WriteArrayLE<int>(&ScrWork[1600], stream, 400);
   Io::WriteArrayLE<int>(&ScrWork[2000], stream, 100);
 
