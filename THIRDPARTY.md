@@ -36,6 +36,7 @@ All third-party code mentioned above is mandatory, included in the build process
 * [SDL2](https://libsdl.org/download-2.0.php)
 * [Vorbis](https://github.com/xiph/vorbis)
 * [zlib](https://github.com/madler/zlib)
+* [avcpp](https://github.com/h4tr3d/avcpp), at `vendor/avcpp` for non-vcpkg builds
 
 **Sourcing and linkage:**
 
@@ -900,6 +901,13 @@ See below for license text (LGPLv2).
 ## UTF8-CPP
 
 http://utfcpp.sourceforge.net/
+
+## avcpp
+
+Copyright (c) 2013-2017, Alexander Drozdov <adrozdoff@gmail.com>
+All rights reserved.
+
+See below for license text (BSD 3-Clause License).
 
 Copyright 2006 Nemanja Trifunovic
 

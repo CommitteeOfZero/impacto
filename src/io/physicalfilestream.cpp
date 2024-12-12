@@ -134,10 +134,9 @@ int64_t PhysicalFileStream::Seek(int64_t offset, int origin) {
       break;
   }
 
-  if (absPos < 0) return IoError_Fail;
   // seeking past EOF is a legal operation, after write past EOF, the gap
   // between prev file size and write pos is zero padded
-  if (!(Flags & WRITE) && absPos > Meta.Size) return IoError_Eof;
+  if (absPos < 0) return IoError_Fail;
   FileStream.seekg(absPos, std::ios::beg);
   if (!FileStream && !FileStream.eof()) {
     ImpLog(LL_Error, LC_IO, "Seek failed for file \"%s\" with error: \"%s\"\n",

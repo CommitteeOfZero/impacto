@@ -53,7 +53,8 @@ bool DelusionTrigger::CheckStartTransitionComplete() {
 
 void DelusionTrigger::Update(float dt) {
   if (!GetFlag(2820)) {
-    if ((Video::Players[0]->IsPlaying && GetFlag(1236)) || ScrWork[6413] == 0) {
+    if ((GetFlag(SF_MOVIEPLAY) && GetFlag(SF_MOVIE_DRAWWAIT)) ||
+        ScrWork[6413] == 0) {
       return;
     }
     if (GetFlag(SF_MESALLSKIP)) {
@@ -73,7 +74,7 @@ void DelusionTrigger::Update(float dt) {
           (GetFlag(SF_MESALLSKIP)) != 0) {
         Video::Players[0]->Stop();
       }
-      if (LastDelusionState == 0xff && Video::Players[0]->IsPlaying &&
+      if (LastDelusionState == 0xff && GetFlag(SF_MOVIEPLAY) &&
           ScrWork[6345] - 13 < ScrWork[6343] &&
           LastDelusionState != DelusionState && ScrWork[6415] == 0) {
         if (ScrWork[6415] != 0) {
@@ -85,7 +86,6 @@ void DelusionTrigger::Update(float dt) {
       }
       if (!Video::Players[0]->IsPlaying) {
         if ((ScrWork[6333] == 0xffff) || (ScrWork[6333] == 0xffff)) {
-          Video::VideoShutdown();
           SetFlag(2486, 0);
           ScrWork[6333] = 0xffff;
           ScrWork[6336] = 0xffff;

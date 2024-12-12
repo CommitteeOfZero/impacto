@@ -16,7 +16,7 @@
     "libvorbis",
     "zlib",
     "glm",
-    "ffmpeg",
+    "avcpp",
     "libwebp"
   ]
 }

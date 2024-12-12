@@ -1,0 +1,58 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 732a4b2..d4a4ee1 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -32,7 +32,7 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
+ find_package(Threads)
+ 
+ find_package(FFmpeg
+-    COMPONENTS AVCODEC AVFORMAT AVUTIL AVDEVICE AVFILTER SWSCALE SWRESAMPLE REQUIRED)
++    COMPONENTS AVCODEC AVFORMAT AVUTIL AVFILTER SWSCALE SWRESAMPLE REQUIRED)
+ 
+ add_subdirectory(src)
+ 
+diff --git a/catch2 b/catch2
+deleted file mode 160000
+index c4e3767..0000000
+--- a/catch2
++++ /dev/null
+@@ -1 +0,0 @@
+-Subproject commit c4e3767e265808590986d5db6ca1b5532a7f3d13
+diff --git a/cmake/FindFFmpeg.cmake b/cmake/FindFFmpeg.cmake
+index 2746b39..91c9b56 100644
+--- a/cmake/FindFFmpeg.cmake
++++ b/cmake/FindFFmpeg.cmake
+@@ -166,7 +166,6 @@ if (NOT FFMPEG_LIBRARIES)
+   # Check for all possible component.
+   find_component(AVCODEC    libavcodec    avcodec  libavcodec/avcodec.h)
+   find_component(AVFORMAT   libavformat   avformat libavformat/avformat.h)
+-  find_component(AVDEVICE   libavdevice   avdevice libavdevice/avdevice.h)
+   find_component(AVUTIL     libavutil     avutil   libavutil/avutil.h)
+   find_component(AVFILTER   libavfilter   avfilter libavfilter/avfilter.h)
+   find_component(SWSCALE    libswscale    swscale  libswscale/swscale.h)
+diff --git a/src/avutils.cpp b/src/avutils.cpp
+index 6b7aa96..4a05be3 100644
+--- a/src/avutils.cpp
++++ b/src/avutils.cpp
+@@ -177,7 +177,7 @@ void init()
+ #if LIBAVFILTER_VERSION_MAJOR < 7 // FFmpeg 4.0
+     avfilter_register_all();
+ #endif
+-    avdevice_register_all();
++    // avdevice_register_all();
+ 
+ #if LIBAVCODEC_VERSION_MAJOR < 58 // FFmpeg 4.0
+     av_lockmgr_register(avcpp_lockmgr_cb);
+diff --git a/src/ffmpeg.h b/src/ffmpeg.h
+index 397204f..f0afb22 100644
+--- a/src/ffmpeg.h
++++ b/src/ffmpeg.h
+@@ -9,7 +9,7 @@ extern "C"
+ #include <libavutil/mathematics.h>
+ #include <libavutil/opt.h>
+ #include <libavutil/pixdesc.h>
+-#include <libavdevice/avdevice.h>
++#include <libavformat/avformat.h>
+ #include <libswscale/swscale.h>
+ #include <libswresample/swresample.h>
+ #include <libavformat/version.h>

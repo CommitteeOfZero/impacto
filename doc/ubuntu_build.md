@@ -6,7 +6,7 @@ You can use the following shell script for getting dependencies and setting up f
 # Build instructions based on Ubuntu 20.04 LTS
 
 # Install required programs and dependencies
-sudo apt-get -y install git cmake libsdl2-dev libopenal-dev libogg-dev libvorbis-dev zlib1g-dev libavcodec-dev libavformat-dev libavfilter-dev libvulkan-dev libwebp-dev nasm libglm-dev libglm-dev
+sudo apt-get -y install git cmake libsdl2-dev libopenal-dev libogg-dev libvorbis-dev zlib1g-dev libavcodec-dev libavformat-dev libavfilter-dev libvulkan-dev libwebp-dev nasm libglm-dev libglm-dev libavdevice-dev
 
 # Clone impacto 
 git clone https://github.com/CommitteeOfZero/impacto.git

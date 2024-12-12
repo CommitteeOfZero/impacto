@@ -1,4 +1,24 @@
 #include "ffmpegplayer.h"
+
+#include <av.h>
+#include <avtime.h>
+#include <avutils.h>
+#include <codec.h>
+#include <dictionary.h>
+#include <formatcontext.h>
+#include <codeccontext.h>
+#include <timestamp.h>
+
+#include <packet.h>
+#include <rational.h>
+
+#include <algorithm>
+#include <chrono>
+#include <cstdint>
+#include <mutex>
+#include <optional>
+#include <system_error>
+#include <utility>
 #include "ffmpegstream.h"
 
 #include "../log.h"
@@ -10,23 +30,14 @@
 #endif
 #include "../profile/scriptvars.h"
 
-extern "C" {
-#include <libavcodec/avcodec.h>
-#include <libavutil/time.h>
-#include <libswscale/swscale.h>
-#include <libswresample/swresample.h>
-#include <libavformat/avformat.h>
-};
-
 namespace Impacto {
 namespace Video {
 
 using namespace Impacto::Profile::ScriptVars;
 
-int StreamRead(void* ptr, uint8_t* buf, int buf_size) {
-  Io::Stream* stream = reinterpret_cast<Io::Stream*>(ptr);
-
-  uint64_t bytesRead = stream->Read(buf, buf_size);
+int FFmpegFileIO::read(uint8_t* data, size_t size) {
+  if (!FileStream) return -1;
+  uint64_t bytesRead = FileStream->Read(data, size);
   if ((bytesRead == static_cast<uint64_t>(IoError_Fail) ||
        bytesRead == static_cast<uint64_t>(IoError_Eof)))
     return AVERROR_EOF;
@@ -34,62 +45,12 @@ int StreamRead(void* ptr, uint8_t* buf, int buf_size) {
   return (int)bytesRead;
 }
 
-int64_t StreamSeek(void* ptr, int64_t pos, int origin) {
-  Io::Stream* stream = reinterpret_cast<Io::Stream*>(ptr);
-
-  if (origin == AVSEEK_SIZE) return stream->Meta.Size;
-  int64_t newPos = stream->Seek(pos, origin);
-  if ((newPos == IoError_Fail) || (newPos == IoError_Eof)) return AVERROR_EOF;
-
+int64_t FFmpegFileIO::seek(int64_t offset, int whence) {
+  if (!FileStream) return -1;
+  if (whence == AVSEEK_SIZE) return FileStream->Meta.Size;
+  int64_t newPos = FileStream->Seek(offset, whence);
+  if (newPos == IoError_Fail) return -1;
   return newPos;
-}
-
-static int PlayerRead(void* ptr) {
-  ((FFmpegPlayer*)ptr)->Read();
-  return 0;
-}
-
-static int PlayerDecodeVideo(void* ptr) {
-  ((FFmpegPlayer*)ptr)->Decode(AVMEDIA_TYPE_VIDEO);
-  return 0;
-}
-
-static int PlayerDecodeAudio(void* ptr) {
-  ((FFmpegPlayer*)ptr)->Decode(AVMEDIA_TYPE_AUDIO);
-  return 0;
-}
-
-Clock::Clock() {
-  Speed = 1.0;
-  Paused = false;
-  Pts = NAN;
-  LastUpdated = av_gettime_relative() / 1000000.0;
-  PtsDrift = Pts - LastUpdated;
-  Serial = -1;
-}
-
-void Clock::SyncTo(Clock* target) {
-  double clock = Get();
-  double targetClock = target->Get();
-  if (!isnan(targetClock) && (isnan(clock) || fabs(clock - targetClock) > 10.0))
-    Set(targetClock, target->Serial);
-}
-
-void Clock::Set(double pts, int serial) {
-  double time = av_gettime_relative() / 1000000.0;
-  Pts = pts;
-  LastUpdated = time;
-  PtsDrift = Pts - time;
-  Serial = serial;
-}
-
-double Clock::Get() {
-  if (Paused) {
-    return Pts;
-  } else {
-    double time = av_gettime_relative() / 1000000.0;
-    return PtsDrift + time - (time - LastUpdated) * (1.0 - Speed);
-  }
 }
 
 FFmpegPlayer::~FFmpegPlayer() { IsInit = false; }
@@ -100,23 +61,68 @@ void FFmpegPlayer::Init() {
   switch (Profile::ActiveAudioBackend) {
 #ifndef IMPACTO_DISABLE_OPENAL
     case AudioBackendType::OpenAL: {
-      AudioPlayer = new Audio::OpenAL::FFmpegAudioPlayer(this);
+      AudioPlayer.reset(new Audio::OpenAL::FFmpegAudioPlayer(this));
     } break;
 #endif
     default: {
-      AudioPlayer = new Audio::FFmpegAudioPlayer(this);
+      AudioPlayer.reset(new Audio::FFmpegAudioPlayer(this));
       NoAudio = true;
       ImpLog(
           LL_Warning, LC_Video,
           "No audio backend available, you will not hear audio in videos.\n");
     } break;
   }
+  av::init();
+  // av::set_logging_level("debug");
   AudioPlayer->Init();
-
-  ReadCond = SDL_CreateCond();
 
   IsInit = true;
 }
+
+template <AVMediaType MediaType>
+void FFmpegPlayer::OpenCodec(std::optional<FFmpegStream<MediaType>>& streamOpt,
+                             av::Stream&& avStream, int streamId) {
+  if constexpr (MediaType != AVMEDIA_TYPE_VIDEO &&
+                MediaType != AVMEDIA_TYPE_AUDIO) {
+    static_assert(MediaType && false, "Unsupported MediaType");
+  }
+
+  const auto codec =
+      av::findDecodingCodec(avStream.codecParameters().codecId());
+  if (!codec.canDecode()) {
+    ImpLog(LL_Error, LC_Video, "Unsupported codec!\n");
+    streamOpt.reset();
+  }
+
+  std::error_code ec;
+
+  DecodingContext_t<MediaType> decoderContext{avStream, codec};
+  decoderContext.open({{{"threads", "auto"}}}, ec);
+  decoderContext.setRefCountedFrames(true);
+  if (ec) {
+    ImpLog(LL_Error, LC_Audio, "Failed to open codec, error: %s",
+           ec.message().c_str());
+  }
+
+  double rate = 1;
+  if constexpr (MediaType == AVMEDIA_TYPE_VIDEO) {
+    rate = avStream.averageFrameRate().getDouble();
+  } else if constexpr (MediaType == AVMEDIA_TYPE_AUDIO) {
+    rate = decoderContext.sampleRate();
+    decoderContext.setChannelLayout(AV_CH_LAYOUT_STEREO);
+  }
+  double duration = avStream.duration().seconds();
+  double frameMultiplier = (rate);
+  streamOpt.emplace(std::move(avStream), std::move(decoderContext),
+                    frameMultiplier * duration);
+};
+
+template void FFmpegPlayer::OpenCodec(
+    std::optional<FFmpegStream<AVMEDIA_TYPE_VIDEO>>& streamOpt,
+    av::Stream&& avStream, int streamId);
+template void FFmpegPlayer::OpenCodec(
+    std::optional<FFmpegStream<AVMEDIA_TYPE_AUDIO>>& streamOpt,
+    av::Stream&& avStream, int streamId);
 
 void FFmpegPlayer::Play(Io::Stream* stream, bool looping, bool alpha) {
   // Don't do anything if we don't have the video system
@@ -128,6 +134,7 @@ void FFmpegPlayer::Play(Io::Stream* stream, bool looping, bool alpha) {
            "out.\n");
     return;
   }
+  StreamPtr.reset(stream);
   AbortRequest = false;
   SeekRequest = false;
   Looping = looping;
@@ -135,463 +142,380 @@ void FFmpegPlayer::Play(Io::Stream* stream, bool looping, bool alpha) {
   ImpLog(LL_Info, LC_Video, "Opening file: %s from: %s\n",
          stream->Meta.FileName.c_str(), stream->Meta.ArchiveFileName.c_str());
 
-  int videoStreamId = -1;
-  int audioStreamId = -1;
-  FileStreamBuffer = (uint8_t*)av_malloc(FILESTREAMBUFFERSZ);
-  if (FileStreamBuffer == nullptr) {
-    ImpLog(LL_Error, LC_Video, "Error allocating buffer!\n");
-    return;
-  }
-  IoContext = avio_alloc_context(FileStreamBuffer, FILESTREAMBUFFERSZ, 0,
-                                 stream, StreamRead, 0, StreamSeek);
-
-  FormatContext = avformat_alloc_context();
-  FormatContext->pb = IoContext;
-  FormatContext->flags |= AVFMT_FLAG_CUSTOM_IO;
-
-  if (avformat_open_input(&FormatContext, "", nullptr, nullptr) < 0) {
-    ImpLog(LL_Error, LC_Video, "Error opening file!\n");
+  std::error_code ec;
+  IoContext = FFmpegFileIO{stream};
+  FormatContext.openInput(&IoContext, ec, FILESTREAMBUFFERSZ);
+  if (ec) {
+    ImpLog(LL_Error, LC_Video, "Error opening file, error: %s\n",
+           ec.message().c_str());
+    StreamPtr.reset();
     return;
   }
 
-  avformat_find_stream_info(FormatContext, nullptr);
-
-  videoStreamId = av_find_best_stream(FormatContext, AVMEDIA_TYPE_VIDEO, -1, -1,
-                                      nullptr, 0);
-  audioStreamId = av_find_best_stream(FormatContext, AVMEDIA_TYPE_AUDIO, -1,
-                                      videoStreamId, nullptr, 0);
-  AVStream* videoStream = FormatContext->streams[videoStreamId];
-  AVStream* audioStream = NULL;
-  if (audioStreamId != AVERROR_STREAM_NOT_FOUND)
-    audioStream = FormatContext->streams[audioStreamId];
-
-  for (int j = 0; j < static_cast<int>(FormatContext->nb_streams); ++j) {
-    FormatContext->streams[j]->discard =
-        j == videoStreamId || j == audioStreamId ? AVDISCARD_DEFAULT
-                                                 : AVDISCARD_ALL;
+  FormatContext.findStreamInfo(ec);
+  if (ec) {
+    ImpLog(LL_Error, LC_Video, "Error opening file, error: %s\n",
+           ec.message().c_str());
+    StreamPtr.reset();
+    return;
   }
 
-  // Find and open the video codec
-  if (videoStreamId != AVERROR_STREAM_NOT_FOUND) {
-    const auto codec = avcodec_find_decoder(videoStream->codecpar->codec_id);
-    if (codec == NULL) {
-      ImpLog(LL_Error, LC_Video, "Unsupported codec!\n");
-      return;
+  av::Stream videoStream;
+  int videoStreamId = AVERROR_STREAM_NOT_FOUND;
+  av::Stream audioStream;
+  int audioStreamId = AVERROR_STREAM_NOT_FOUND;
+  for (size_t i = 0; i < FormatContext.streamsCount(); ++i) {
+    auto st = FormatContext.stream(i);
+    if (st.isVideo()) {
+      videoStreamId = i;
+      videoStream = st;
+    } else if (st.isAudio()) {
+      audioStreamId = i;
+      audioStream = st;
+    } else {
+      st.raw()->discard = AVDISCARD_ALL;
     }
+  }
 
-    AVCodecContext* codecCtx = avcodec_alloc_context3(codec);
-    avcodec_parameters_to_context(codecCtx, videoStream->codecpar);
-    AVDictionary* options = NULL;
-    av_dict_set(&options, "threads", "auto", 0);
-
-    avcodec_open2(codecCtx, codec, &options);
-    VideoStream = new FFmpegStream(videoStream, codecCtx);
-    // This is also not the place to do this
-    VideoStream->Duration =
-        (int)(videoStream->duration * av_q2d(videoStream->time_base) *
-              av_q2d(codecCtx->framerate));
+  if (videoStream.isVideo() && videoStream.isValid()) {
+    OpenCodec<AVMEDIA_TYPE_VIDEO>(VideoStream, std::move(videoStream),
+                                  videoStreamId);
+    ScrWork[SW_MOVIEFRAME] = 0;
     ScrWork[SW_MOVIETOTALFRAME] = VideoStream->Duration;
     if (!VideoTexture)
-      VideoTexture = Renderer->CreateYUVFrame((float)codecCtx->width,
-                                              (float)codecCtx->height);
+      VideoTexture =
+          Renderer->CreateYUVFrame((float)VideoStream->CodecContext.width(),
+                                   (float)VideoStream->CodecContext.height());
     else {
-      VideoTexture->Width = (float)codecCtx->width;
-      VideoTexture->Height = (float)codecCtx->height;
+      VideoTexture->Width = (float)VideoStream->CodecContext.width();
+      VideoTexture->Height = (float)VideoStream->CodecContext.height();
     }
   }
-
-  // Find and open the audio codec
-  if (audioStreamId != AVERROR_STREAM_NOT_FOUND) {
-    const auto codec = avcodec_find_decoder(audioStream->codecpar->codec_id);
-    if (codec == NULL) {
-      ImpLog(LL_Error, LC_Video, "Unsupported codec!\n");
-      return;
-    }
-
-    AVCodecContext* codecCtx = avcodec_alloc_context3(codec);
-    avcodec_parameters_to_context(codecCtx, audioStream->codecpar);
-    AVDictionary* options = NULL;
-    av_dict_set(&options, "threads", "auto", 0);
-
-    avcodec_open2(codecCtx, codec, &options);
-    AudioStream = new FFmpegStream(audioStream, codecCtx);
-    AudioStream->Duration =
-        (int)(audioStream->duration * av_q2d(audioStream->time_base) *
-              codecCtx->sample_rate);
-
-    AudioPlayer->InitConvertContext(codecCtx);
+  if (audioStream.isAudio() && audioStream.isValid()) {
+    OpenCodec<AVMEDIA_TYPE_AUDIO>(AudioStream, std::move(audioStream),
+                                  audioStreamId);
+    AudioPlayer->InitConvertContext(AudioStream->CodecContext.raw());
   }
 
-  VideoClock = new Clock();
-  ExternalClock = new Clock();
-
-  MasterClock = ExternalClock;
-
-  MaxFrameDuration =
-      (FormatContext->iformat->flags & AVFMT_TS_DISCONT) ? 10.0 : 3600.0;
+  VideoClock = Clock();
+  MasterClock = &VideoClock;
+  MaxFrameDuration = Clock::DoubleSeconds{
+      FormatContext.inputFormat().flags() & AVFMT_TS_DISCONT ? 10.0 : 3600.0};
 
   // Danger zone
-  ReadThreadID = SDL_CreateThread(&PlayerRead, "videoplayer::read", this);
+  ReadThreadID = std::thread{&FFmpegPlayer::Read, this};
   if (VideoStream) {
     VideoStream->DecoderThreadID =
-        SDL_CreateThread(&PlayerDecodeVideo, "videoplayer::decodevideo", this);
+        std::thread{&FFmpegPlayer::Decode<AVMEDIA_TYPE_VIDEO>, this};
   }
   if (AudioStream && !NoAudio) {
-    MasterClock = AudioPlayer->GetClock();
+    MasterClock = &AudioPlayer->GetClock();
     AudioStream->DecoderThreadID =
-        SDL_CreateThread(&PlayerDecodeAudio, "videoplayer::decodeaudio", this);
+        std::thread{&FFmpegPlayer::Decode<AVMEDIA_TYPE_AUDIO>, this};
   }
 
   IsPlaying = true;
 }
 
 bool FFmpegPlayer::QueuesHaveEnoughPackets() {
-  SDL_LockMutex(VideoStream->PacketLock);
-  size_t videoQueueSize = VideoStream->PacketQueue.size();
-  SDL_UnlockMutex(VideoStream->PacketLock);
+  size_t videoQueueSize = [this]() {
+    std::lock_guard videoPacketLock(VideoStream->PacketLock);
+    return VideoStream->PacketQueue.size();
+  }();
+
   size_t audioQueueSize = 0;
   if (AudioStream) {
-    SDL_LockMutex(AudioStream->PacketLock);
+    std::lock_guard audioPacketLock(AudioStream->PacketLock);
     audioQueueSize = AudioStream->PacketQueue.size();
-    SDL_UnlockMutex(AudioStream->PacketLock);
   }
 
   return (videoQueueSize > 25 && audioQueueSize > 25);
 }
 
-void FFmpegPlayer::Read() {
-  AVPacket* packet = av_packet_alloc();
-  SDL_mutex* waitMutex = SDL_CreateMutex();
-  if (!packet) {
-    ImpLog(LL_Error, LC_Video, "Failed to allocate a packet!\n");
-    SDL_DestroyMutex(waitMutex);
-    return;
+void FFmpegPlayer::HandleSeekRequest() {
+  SeekRequest = false;
+  ReaderEOF = false;
+  std::error_code ec;
+  FormatContext.seek(av::Timestamp(SeekPosition, av::TimeBaseQ), ec);
+  if (ec) {
+    ImpLog(LL_Error, LC_Video, "Error encountered while seeking, error: %s",
+           ec.message().c_str());
   }
+
+  if (VideoStream) {
+    VideoStream->FlushPacketQueue();
+    VideoStream->FlushFrameQueue();
+  }
+
+  if (AudioStream) {
+    AudioStream->FlushPacketQueue();
+    AudioStream->FlushFrameQueue();
+  }
+
+  FrameTimer = FrameTimer.min();
+  PreviousFrameTimestamp = {};
+}
+
+void FFmpegPlayer::Read() {
+  std::mutex waitMutex;
   while (!AbortRequest) {
     if (SeekRequest) {
-      SeekRequest = false;
-      ReaderEOF = false;
-
-      int64_t timestamp = SeekPosition * AV_TIME_BASE;
-      avformat_seek_file(FormatContext, -1, timestamp - 1 * AV_TIME_BASE,
-                         timestamp, timestamp, 0);
-
-      if (VideoStream) {
-        VideoStream->FlushPacketQueue();
-        VideoStream->FlushFrameQueue();
-      }
-
-      if (AudioStream) {
-        AudioStream->FlushPacketQueue();
-        AudioStream->FlushFrameQueue();
-      }
-
-      FrameTimer = 0.0;
-      PreviousFrameTimestamp = -1;
+      HandleSeekRequest();
     }
 
+    AVPacketItem item;
     if (QueuesHaveEnoughPackets() || ReaderEOF) {
-      SDL_LockMutex(waitMutex);
-      SDL_CondWaitTimeout(ReadCond, waitMutex, 10);
-      SDL_UnlockMutex(waitMutex);
+      std::unique_lock lock{waitMutex};
+      ReadCond.wait_for(lock, std::chrono::seconds(3));
       continue;
     }
-
-    int ret = av_read_frame(FormatContext, packet);
-    if (ret >= 0) {
-      if (packet->stream_index == VideoStream->stream->index) {
-        AVPacketItem item;
-        item.Packet = av_packet_alloc();
-        av_packet_move_ref(item.Packet, packet);
+    std::error_code ec;
+    item.Packet = FormatContext.readPacket(ec);
+    if (ec) {
+      ImpLog(LL_Error, LC_Video, "Uh oh %s\n", ec.message().c_str());
+    }
+    if (item.Packet) {
+      if (item.Packet.streamIndex() == VideoStream->stream.index()) {
         item.Serial = VideoStream->PacketQueueSerial;
-        SDL_LockMutex(VideoStream->PacketLock);
-        VideoStream->PacketQueue.push(item);
-        SDL_UnlockMutex(VideoStream->PacketLock);
-      } else if (AudioStream != nullptr &&
-                 packet->stream_index == AudioStream->stream->index) {
-        AVPacketItem item;
-        item.Packet = av_packet_alloc();
-        av_packet_move_ref(item.Packet, packet);
+
+        std::lock_guard lock(VideoStream->PacketLock);
+        VideoStream->PacketQueue.push(std::move(item));
+      } else if (AudioStream &&
+                 item.Packet.streamIndex() == AudioStream->stream.index()) {
         item.Serial = AudioStream->PacketQueueSerial;
-        SDL_LockMutex(AudioStream->PacketLock);
-        AudioStream->PacketQueue.push(item);
-        SDL_UnlockMutex(AudioStream->PacketLock);
-      } else {
-        av_packet_unref(packet);
+
+        std::lock_guard lock(AudioStream->PacketLock);
+        AudioStream->PacketQueue.push(std::move(item));
       }
     } else {
-      if (ret == AVERROR_EOF) {
-        ImpLog(LL_Debug, LC_Video, "EOF!\n");
-        ReaderEOF = true;
-        AVPacketItem item;
-        item.Packet = av_packet_alloc();
-        av_packet_move_ref(item.Packet, packet);
-        item.Serial = INT32_MIN;
-        if (AudioStream) {
-          SDL_LockMutex(AudioStream->PacketLock);
-          AudioStream->PacketQueue.push(item);
-          SDL_UnlockMutex(AudioStream->PacketLock);
-        }
-        SDL_LockMutex(VideoStream->PacketLock);
-        VideoStream->PacketQueue.push(item);
-        SDL_UnlockMutex(VideoStream->PacketLock);
-      } else {
-        char error[255];
-        av_strerror(ret, error, 255);
-        ImpLog(LL_Error, LC_Video, "Uh oh %s\n", error);
+      ImpLog(LL_Debug, LC_Video, "EOF!\n");
+      ReaderEOF = true;
+      item.Serial = INT32_MIN;
+      if (AudioStream) {
+        std::lock_guard lock(AudioStream->PacketLock);
+        AudioStream->PacketQueue.push(item);
       }
-      av_packet_unref(packet);
+
+      std::lock_guard lock(VideoStream->PacketLock);
+      VideoStream->PacketQueue.push(item);
     }
   }
 }
 
-void FFmpegPlayer::Decode(AVMediaType avType) {
+template <AVMediaType MediaType>
+void FFmpegPlayer::Decode() {
   int ret = 0;
-  AVFrame* frame = av_frame_alloc();
-  SDL_mutex* waitMutex = SDL_CreateMutex();
-  FFmpegStream* stream = 0;
-  AVRational frameRate = {};
-  double duration = 0.0;
-  switch (avType) {
-    case AVMEDIA_TYPE_VIDEO:
-      stream = VideoStream;
-      frameRate = av_guess_frame_rate(FormatContext, stream->stream, NULL);
-      duration = (frameRate.num && frameRate.den
-                      ? av_q2d({frameRate.den, frameRate.num})
-                      : 0.0);
-      break;
-    case AVMEDIA_TYPE_AUDIO:
-      stream = AudioStream;
-      break;
-    default:
-      ImpLog(LL_Warning, LC_Video, "Unknown media type, aborting!\n");
-      return;
-  }
+  std::mutex waitMutex;
+  FFmpegStream<MediaType>* stream;
+  if constexpr (MediaType == AVMEDIA_TYPE_VIDEO)
+    stream = std::addressof(*VideoStream);
+  else if constexpr (MediaType == AVMEDIA_TYPE_AUDIO)
+    stream = std::addressof(*AudioStream);
 
-  while (!AbortRequest) {
-    SDL_LockMutex(stream->PacketLock);
-    ImpLogSlow(LL_Trace, LC_Video, "%d->PacketQueue.size() = %d\n", avType,
+  auto hasPacket = [this, stream, &waitMutex]() {
+    std::unique_lock packetLock(stream->PacketLock);
+    ImpLogSlow(LL_Trace, LC_Video, "%d->PacketQueue.size() = %d\n", MediaType,
                stream->PacketQueue.size());
     if (stream->PacketQueue.empty()) {
-      SDL_UnlockMutex(stream->PacketLock);
-      SDL_CondSignal(ReadCond);
-      ImpLogSlow(LL_Trace, LC_Video, "%d Decoder starving!\n", avType);
-      continue;
+      packetLock.unlock();
+      std::unique_lock lock(waitMutex);
+      ReadCond.notify_one();
+      ImpLogSlow(LL_Trace, LC_Video, "%d Decoder starving!\n", MediaType);
+      stream->DecodeCond.wait(lock);
+      return false;
     }
-    SDL_UnlockMutex(stream->PacketLock);
+    return true;
+  };
 
-    SDL_LockMutex(stream->FrameLock);
-    if (stream->FrameQueue.size() > 60) {
-      SDL_UnlockMutex(stream->FrameLock);
-
-      ImpLogSlow(LL_Trace, LC_Video, "%d FrameQueue full!\n", avType);
-      SDL_LockMutex(waitMutex);
-      SDL_CondWait(stream->DecodeCond, waitMutex);
-      SDL_UnlockMutex(waitMutex);
-      continue;
-    }
-    SDL_UnlockMutex(stream->FrameLock);
-
+  auto verifyPacket = [this, stream]() {
     AVPacketItem packet;
     while (true) {
       int prevSerial = stream->CurrentPacketSerial;
-      SDL_LockMutex(stream->PacketLock);
-      packet = stream->PacketQueue.front();
+      std::unique_lock packetLock(stream->PacketLock);
+      packet = std::move(stream->PacketQueue.front());
+      stream->PacketQueue.pop();
       stream->CurrentPacketSerial = packet.Serial;
       if (prevSerial == INT32_MIN || stream->CurrentPacketSerial == INT32_MIN) {
-        SDL_UnlockMutex(stream->PacketLock);
         break;
       }
       if (prevSerial != stream->CurrentPacketSerial) {
-        avcodec_flush_buffers(stream->CodecContext);
-        if (avType == AVMEDIA_TYPE_AUDIO) {
+        FormatContext.flush();
+        if constexpr (MediaType == AVMEDIA_TYPE_AUDIO) {
           AudioPlayer->Stop();
         }
       }
       if (stream->PacketQueueSerial == stream->CurrentPacketSerial) {
-        SDL_UnlockMutex(stream->PacketLock);
         break;
       }
-      av_packet_free(&packet.Packet);
-      stream->PacketQueue.pop();
-      SDL_UnlockMutex(stream->PacketLock);
     }
+    return packet;
+  };
 
-    do {
-      ret = avcodec_receive_frame(stream->CodecContext, frame);
-      if (ret >= 0) {
-        AVFrameItem item;
-        item.Serial = stream->PacketQueueSerial;
-        if (frame->best_effort_timestamp == AV_NOPTS_VALUE) {
-          item.Timestamp = NAN;
-        } else {
-          item.Timestamp =
-              frame->best_effort_timestamp * av_q2d(stream->stream->time_base);
-        }
-        item.Duration = duration;
-        item.Frame = av_frame_alloc();
-        av_frame_move_ref(item.Frame, frame);
-        SDL_LockMutex(stream->FrameLock);
-        stream->FrameQueue.push(item);
-        SDL_UnlockMutex(stream->FrameLock);
-      }
-      if (ret == AVERROR_EOF) {
-        AVFrameItem item;
-        item.Frame = av_frame_alloc();
-        av_frame_move_ref(item.Frame, frame);
-        item.Serial = INT32_MIN;
-        SDL_LockMutex(stream->FrameLock);
-        stream->FrameQueue.push(item);
-        SDL_UnlockMutex(stream->FrameLock);
-        avcodec_flush_buffers(stream->CodecContext);
-        SDL_LockMutex(waitMutex);
-        SDL_CondWait(stream->DecodeCond, waitMutex);
-        SDL_UnlockMutex(waitMutex);
-        continue;
-      }
-    } while (ret != AVERROR(EAGAIN));
+  auto isFrameQueueFull = [stream, &waitMutex]() {
+    if (std::unique_lock frameLock(stream->FrameLock);
+        stream->FrameQueue.size() > 60) {
+      ImpLogSlow(LL_Trace, LC_Video, "%d FrameQueue full!\n", MediaType);
+      std::unique_lock waitLock(waitMutex);
+      frameLock.unlock();
+      stream->DecodeCond.wait(waitLock);
+      return true;
+    }
+    return false;
+  };
 
-    if (packet.Serial == INT32_MIN) {
-      AVFrameItem item;
-      item.Frame = 0;
+  auto pushFrame = [stream](Frame_t<MediaType>&& frame) {
+    AVFrameItem<MediaType> item;
+    item.Frame = std::move(frame);
+    if (!item.Frame) {
       item.Serial = INT32_MIN;
-      SDL_LockMutex(stream->FrameLock);
-      stream->FrameQueue.push(item);
-      SDL_UnlockMutex(stream->FrameLock);
-      SDL_LockMutex(stream->PacketLock);
-      stream->PacketQueue.pop();
-      SDL_UnlockMutex(stream->PacketLock);
-      stream->CurrentPacketSerial = -1;
-      SDL_LockMutex(waitMutex);
-      SDL_CondWait(stream->DecodeCond, waitMutex);
-      SDL_UnlockMutex(waitMutex);
-      continue;
+    } else {
+      item.Serial = stream->PacketQueueSerial;
+      item.Timestamp = item.Frame.pts();
     }
-    SDL_LockMutex(stream->PacketLock);
-    if (packet.Packet->data) {
-      ret = avcodec_send_packet(stream->CodecContext, packet.Packet);
-      if (ret >= 0) {
-        av_packet_free(&packet.Packet);
-        stream->PacketQueue.pop();
+    std::lock_guard lock(stream->FrameLock);
+    stream->FrameQueue.push(std::move(item));
+  };
+
+  while (!AbortRequest) {
+    if (!hasPacket()) continue;
+    if (isFrameQueueFull()) continue;
+
+    AVPacketItem packet = verifyPacket();
+
+    std::error_code ec;
+
+    if (packet.Serial != INT32_MIN) {
+      Frame_t<MediaType> frame = stream->CodecContext.decode(packet.Packet, ec);
+      if (ec) {
+        ImpLog(LL_Error, LC_Video, "Failed to decode %s", ec.message().c_str());
+      }
+      if (!frame) continue;  // Skip Empty Padding Frames
+      pushFrame(std::move(frame));
+    } else {
+      // Flush decoder since packets are finished
+      bool decode = true;
+      while (decode) {
+        if (ec) {
+          ImpLog(LL_Error, LC_Video, "Failed to decode %s",
+                 ec.message().c_str());
+        }
+        Frame_t<MediaType> frame = stream->CodecContext.decode({}, ec);
+        decode = frame;
+        pushFrame(std::move(frame));
       }
     }
-    SDL_UnlockMutex(stream->PacketLock);
   }
 }
 
+template void FFmpegPlayer::Decode<AVMEDIA_TYPE_VIDEO>();
+template void FFmpegPlayer::Decode<AVMEDIA_TYPE_AUDIO>();
+
 void FFmpegPlayer::Stop() {
   if (IsPlaying) {
-    SetFlag(SF_MOVIEPLAY, false);
-
     IsPlaying = false;
     PlaybackStarted = false;
     AbortRequest = true;
-    SDL_WaitThread(ReadThreadID, NULL);
+    ReadCond.notify_one();
+    ReadThreadID.join();
     ReaderEOF = false;
     if (AudioStream) {
-      SDL_CondSignal(AudioStream->DecodeCond);
-      SDL_WaitThread(AudioThreadID, NULL);
-      SDL_WaitThread(AudioStream->DecoderThreadID, NULL);
-      delete AudioStream;
-      AudioStream = 0;
+      AudioStream->DecodeCond.notify_one();
+      AudioStream->DecoderThreadID.join();
+      AudioStream.reset();
     }
     if (VideoStream) {
-      SDL_CondSignal(VideoStream->DecodeCond);
-      SDL_WaitThread(VideoStream->DecoderThreadID, NULL);
-      delete VideoStream;
-      VideoStream = 0;
+      VideoStream->DecodeCond.notify_one();
+      VideoStream->DecoderThreadID.join();
+      VideoStream.reset();
     }
     AudioPlayer->Unload();
-    FrameTimer = 0.0;
-    PreviousFrameTimestamp = 0.0;
-    avformat_close_input(&FormatContext);
-    if (IoContext) reinterpret_cast<Io::Stream*>(IoContext->opaque)->~Stream();
-    avio_context_free(&IoContext);
+    FrameTimer = {};
+    PreviousFrameTimestamp = {};
+    FormatContext.close();
+    StreamPtr.reset();
     if (VideoTexture) {
       VideoTexture->Release();
       VideoTexture = 0;
     }
+    SetFlag(SF_MOVIEPLAY, false);
   }
 }
 
 void FFmpegPlayer::Seek(int64_t pos) {
   SeekRequest = true;
   SeekPosition = pos;
-  SDL_CondSignal(ReadCond);
+  ReadCond.notify_one();
 }
 
 void FFmpegPlayer::Update(float dt) {
   if (IsPlaying) {
     if (AudioStream) AudioPlayer->Process();
-    while (true) {
-      SDL_LockMutex(VideoStream->FrameLock);
+    AVFrameItem<AVMEDIA_TYPE_VIDEO> frame;
+    {
+      std::unique_lock frameLock(VideoStream->FrameLock);
       if (VideoStream->FrameQueue.empty()) {
-        SDL_UnlockMutex(VideoStream->FrameLock);
-        SDL_CondSignal(VideoStream->DecodeCond);
-        break;
+        VideoStream->DecodeCond.notify_one();
+        return;
       }
       ImpLogSlow(LL_Trace, LC_Video, "VideoStream->FrameQueue.size() = %d\n",
                  VideoStream->FrameQueue.size());
-      auto frame = VideoStream->FrameQueue.front();
-      SDL_UnlockMutex(VideoStream->FrameLock);
-      if (frame.Serial == INT32_MIN) {
-        if (Looping) {
-          Seek(0);
-        } else {
-          Stop();
-        }
-        return;
-      }
-      if (!FrameTimer) {
-        FrameTimer = av_gettime_relative() / 1000000.0;
-      }
-      double time = av_gettime_relative() / 1000000.0;
-      double duration;
-      if (PreviousFrameTimestamp == -1) {
-        duration = 0.0;
-      } else if (isnan(frame.Timestamp)) {
-        duration = frame.Duration;
-      } else {
-        // Cool, right? This is totally how that's supposed to be done
-        // And when there's no timestamp, welp, too bad
-        int frameNum = (int)(frame.Timestamp / frame.Duration);
-        // This isn't the place for it but I can't think of anything right now
-        ScrWork[SW_MOVIEFRAME] = frameNum;
-
-        duration = frame.Timestamp - PreviousFrameTimestamp;
-      }
-
-      if (AudioStream) {
-        duration = GetTargetDelay(duration);
-      } else {
-        duration = frame.Duration;
-      }
-
-      if (time < FrameTimer + duration) {
-        break;
-      }
-
-      FrameTimer += duration;
-      if (duration > 0 && time - FrameTimer > 0.1) {
-        FrameTimer = time;
-      }
-      PreviousFrameTimestamp = frame.Timestamp;
-
-      if (!isnan(frame.Timestamp)) {
-        VideoClock->Set(frame.Timestamp, frame.Serial);
-        ExternalClock->SyncTo(VideoClock);
-      }
-
-      VideoTexture->Submit(frame.Frame->data[0], frame.Frame->data[1],
-                           frame.Frame->data[2]);
-      PlaybackStarted = true;
-      av_frame_free(&frame.Frame);
-      SDL_LockMutex(VideoStream->FrameLock);
-      VideoStream->FrameQueue.pop();
-      SDL_UnlockMutex(VideoStream->FrameLock);
-      SDL_CondSignal(VideoStream->DecodeCond);
-      break;
+      frame = VideoStream->FrameQueue.front();
+      SetFlag(SF_MOVIE_DRAWWAIT, false);
     }
+
+    if (frame.Serial == INT32_MIN) {
+      if (Looping) {
+        Seek(0);
+      } else {
+        Stop();
+      }
+      return;
+    }
+    if (FrameTimer == FrameTimer.zero()) {
+      FrameTimer = Clock::MonotonicClock::now().time_since_epoch();
+    }
+    auto time = Clock::MonotonicClock::now().time_since_epoch();
+    std::chrono::duration<double> duration{};
+    if (PreviousFrameTimestamp.isValid()) {
+      auto inverseFrameRate = av::Rational(1, 30);
+      int frameNum = av_rescale_q(frame.Timestamp.timestamp(),
+                                  frame.Timestamp.timebase().getValue(),
+                                  inverseFrameRate.getValue());
+      // This isn't the place for it but I can't think of
+      // anything right now
+      ScrWork[SW_MOVIEFRAME] = frameNum;
+      duration = std::chrono::duration<double>(
+          (frame.Timestamp - PreviousFrameTimestamp).seconds());
+    }
+
+    if (AudioStream) {
+      duration = GetTargetDelay(duration);
+    } else {
+      duration = Clock::DoubleSeconds(
+          (double)VideoStream->stream.averageFrameRate().getDenominator() /
+          VideoStream->stream.averageFrameRate().getNumerator());
+    }
+
+    if (time < FrameTimer + duration) {
+      return;
+    }
+
+    FrameTimer += std::chrono::duration_cast<std::chrono::seconds>(duration);
+    if (duration.count() > 0 &&
+        (time - FrameTimer) > std::chrono::duration<double>(0.1)) {
+      FrameTimer = time;
+    }
+    PreviousFrameTimestamp = frame.Timestamp;
+
+    VideoClock.Set(frame.Timestamp, frame.Serial);
+    VideoTexture->Submit(frame.Frame.data(0), frame.Frame.data(1),
+                         frame.Frame.data(2));
+    PlaybackStarted = true;
+    {
+      std::lock_guard frameLock(VideoStream->FrameLock);
+      VideoStream->FrameQueue.pop();
+    }
+    VideoStream->DecodeCond.notify_one();
   }
 }
 
@@ -607,13 +531,15 @@ void FFmpegPlayer::Render(float videoAlpha) {
   }
 }
 
-double FFmpegPlayer::GetTargetDelay(double duration) {
-  double diff = VideoClock->Get() - MasterClock->Get();
-  double sync_threshold = std::max(0.04, std::min(0.1, duration));
-  if (!isnan(diff) && fabs(diff) < MaxFrameDuration) {
+Clock::DoubleSeconds FFmpegPlayer::GetTargetDelay(
+    Clock::DoubleSeconds duration) {
+  auto diff = (VideoClock.Get() - MasterClock->Get());
+  auto sync_threshold = std::max(Clock::DoubleSeconds(0.04),
+                                 std::min(Clock::DoubleSeconds(0.1), duration));
+  if (!isnan(diff.count()) && std::chrono::abs(diff) < MaxFrameDuration) {
     if (diff <= -sync_threshold)
-      duration = std::max(0.0, duration + diff);
-    else if (diff >= sync_threshold && duration > 0.1)
+      duration = std::max(Clock::DoubleSeconds(0.0), duration + diff);
+    else if (diff >= sync_threshold && duration > Clock::DoubleSeconds(0.1))
       duration = duration + diff;
     else if (diff >= sync_threshold)
       duration = 2 * duration;
@@ -622,6 +548,5 @@ double FFmpegPlayer::GetTargetDelay(double duration) {
 
   return duration;
 }
-
 }  // namespace Video
 }  // namespace Impacto
