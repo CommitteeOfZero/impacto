@@ -1305,9 +1305,8 @@ VmInstruction(InstMtrg) {
       PopExpression(arg3);
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MtrgStart(type: %i)\n", type);
-      if (!DelusionTrigger::Show(arg1, arg2, arg3)) {
-        ResetInstruction;
-        BlockThread;
+      if (DelusionTrigger::Show(arg1, arg2, arg3)) {
+        return;
       }
     } break;
     case 1: {
@@ -1318,12 +1317,10 @@ VmInstruction(InstMtrg) {
         ResetInstruction;
       }
       BlockThread;
+      return;
     } break;
     case 2: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Mtrg_02(type: %i)\n",
-                 type);
-
-      if (!Impacto::Video::Players[0]->IsPlaying) {
+      if (!GetFlag(SF_MOVIEPLAY)) {
         Impacto::Video::Players[0]->Stop();
         SetFlag(2486, 0);
         ScrWork[6333] = 0xffff;
@@ -1342,33 +1339,33 @@ VmInstruction(InstMtrg) {
         ScrWork[6344] = 0;
         return;
       }
-
     } break;
     case 3: {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MtrgStop_Wait(type: %i)\n", type);
-      if (!DelusionTrigger::CheckTransitionAnimationComplete()) {
-        ResetInstruction;
-        BlockThread;
-      } else {
+      if (DelusionTrigger::CheckTransitionAnimationComplete()) {
         SetFlag(2821, 1);
+        return;
       }
     } break;
     case 4: {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MtrgStart_Wait(type: %i)\n", type);
-      if (!DelusionTrigger::CheckStartTransitionComplete()) {
-        ResetInstruction;
-        BlockThread;
+      if (DelusionTrigger::CheckStartTransitionComplete()) {
+        return;
       }
     } break;
     case 5: {
       PopExpression(arg1);
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MtrgSetEvent(type: %i)\n", type);
-      BlockThread;
-    } break;
+      [[fallthrough]];
+    };
+    default:
+      return;
   }
+  ResetInstruction;
+  BlockThread;
 }
 
 }  // namespace Vm
