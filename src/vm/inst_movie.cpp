@@ -59,6 +59,7 @@ VmInstruction(InstPlayMovie) {
       if (Video::Players[0]->IsPlaying) Video::Players[0]->Stop();
       Video::Players[0]->Play(stream, flags & 8, flags & 4);
       SetFlag(SF_MOVIEPLAY, true);
+      SetFlag(SF_MOVIE_DRAWWAIT, true);
     }
     BlockThread;
     ImpLogSlow(LL_Warning, LC_VMStub,
@@ -109,6 +110,7 @@ VmInstruction(InstMovieMain) {
             !Video::Players[0]->IsPlaying) {
           Video::Players[0]->Stop();
           SetFlag(SF_MOVIEPLAY, false);
+          SetFlag(SF_MOVIE_DRAWWAIT, false);
         } else if (Video::Players[0]->IsPlaying) {
           ResetInstruction;
           BlockThread;
@@ -122,6 +124,7 @@ VmInstruction(InstMovieMain) {
       if (Profile::GameFeatures & GameFeature::Video) {
         Video::Players[0]->Stop();
         SetFlag(SF_MOVIEPLAY, false);
+        SetFlag(SF_MOVIE_DRAWWAIT, false);
       }
       break;
     case 3:  // StopWait
@@ -132,6 +135,7 @@ VmInstruction(InstMovieMain) {
           Video::Players[0]->Stop();
           ScrWork[SW_MOVIEFRAME] = 65535;
           SetFlag(SF_MOVIEPLAY, false);
+          SetFlag(SF_MOVIE_DRAWWAIT, false);
         }
       }
       break;

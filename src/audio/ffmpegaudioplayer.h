@@ -1,14 +1,19 @@
 #pragma once
 
-#include "../video/ffmpegplayer.h"
 #include "../video/ffmpegstream.h"
+#include "../video/clock.h"
 
 namespace Impacto {
+
+namespace Video {
+class FFmpegPlayer;
+}
 namespace Audio {
 
 class FFmpegAudioPlayer {
  public:
-  FFmpegAudioPlayer(Video::FFmpegPlayer* player) { Player = player; }
+  FFmpegAudioPlayer(Video::FFmpegPlayer* player) : Player(player) {}
+  virtual ~FFmpegAudioPlayer() = default;
 
   virtual void Init(){};
   virtual void InitConvertContext(AVCodecContext* codecCtx){};
@@ -18,13 +23,13 @@ class FFmpegAudioPlayer {
   virtual void Stop(){};
   virtual void Unload(){};
 
-  Video::Clock* GetClock() { return AudioClock; };
+  Video::Clock& GetClock() { return AudioClock; };
 
  protected:
   uint8_t** AudioBuffer = 0;
   int AudioLinesize;
 
-  Video::Clock* AudioClock;
+  Video::Clock AudioClock;
 
   SwrContext* AudioConvertContext = 0;
 

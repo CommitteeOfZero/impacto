@@ -1,4 +1,6 @@
 #include "ffmpegstream.h"
+#include <libavutil/avutil.h>
+#include "ffmpegplayer.h"
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -8,41 +10,28 @@ extern "C" {
 namespace Impacto {
 namespace Video {
 
-FFmpegStream::FFmpegStream(AVStream* avStream, AVCodecContext* codecCtx) {
-  stream = avStream;
-  CodecContext = codecCtx;
-  PacketLock = SDL_CreateMutex();
-  FrameLock = SDL_CreateMutex();
-  DecodeCond = SDL_CreateCond();
-}
-
-FFmpegStream::~FFmpegStream() {
-  FlushFrameQueue();
-  FlushPacketQueue();
-  avcodec_close(CodecContext);
-  SDL_DestroyMutex(PacketLock);
-  SDL_DestroyMutex(FrameLock);
-  SDL_DestroyCond(DecodeCond);
-}
-
-void FFmpegStream::FlushPacketQueue() {
-  SDL_LockMutex(PacketLock);
+template <AVMediaType MediaType>
+void FFmpegStream<MediaType>::FlushPacketQueue() {
+  std::lock_guard lock{PacketLock};
   while (PacketQueue.size() > 0) {
     auto packet = PacketQueue.front();
-    if (packet.Serial != INT32_MIN) av_packet_free(&packet.Packet);
     PacketQueue.pop();
   }
   PacketQueueSerial++;
-  SDL_UnlockMutex(PacketLock);
 }
 
-void FFmpegStream::FlushFrameQueue() {
+template void FFmpegStream<AVMEDIA_TYPE_AUDIO>::FlushPacketQueue();
+template void FFmpegStream<AVMEDIA_TYPE_VIDEO>::FlushPacketQueue();
+
+template <AVMediaType MediaType>
+void FFmpegStream<MediaType>::FlushFrameQueue() {
   while (FrameQueue.size() > 0) {
     auto frame = FrameQueue.front();
-    if (frame.Serial != INT32_MIN) av_frame_free(&frame.Frame);
     FrameQueue.pop();
   }
 }
+template void FFmpegStream<AVMEDIA_TYPE_AUDIO>::FlushFrameQueue();
+template void FFmpegStream<AVMEDIA_TYPE_VIDEO>::FlushFrameQueue();
 
 }  // namespace Video
 }  // namespace Impacto

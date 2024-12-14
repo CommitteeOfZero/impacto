@@ -308,6 +308,7 @@ set(Impacto_Src
 
         src/video/videosystem.cpp
         src/video/videoplayer.cpp
+        src/video/clock.cpp
 
         vendor/clHCA/clHCA.c
 
@@ -616,6 +617,7 @@ set(Impacto_Header
 
         src/video/videosystem.h
         src/video/videoplayer.h
+        src/video/clock.h
 
         vendor/clHCA/clHCA.h
 
@@ -998,12 +1000,41 @@ if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
             src/video/ffmpegstream.h
     )
 
-    find_package(FFMPEG REQUIRED)
+    if (NOT VCPKG_TOOLCHAIN)
+    set(AVCPP_PATCH git apply ${CMAKE_CURRENT_SOURCE_DIR}/vendor/avcpp.patch)
+        FetchContent_Declare(
+            avcpp
+            GIT_REPOSITORY "https://github.com/h4tr3d/avcpp"
+            GIT_TAG "v2.4.0"
+            PATCH_COMMAND ${AVCPP_PATCH}
+            UPDATE_DISCONNECTED 1
+            SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/avcpp
+            SYSTEM
+            GIT_SUBMODULES ""
+        )
 
-    list(APPEND Impacto_Libs
+        FetchContent_MakeAvailable(avcpp)
+
+        list(APPEND Impacto_Libs
+                avcpp
+        )
+        
+        list(APPEND Impacto_Libs
             ${FFMPEG_LIBRARIES}
-    )
-    include_directories(${FFMPEG_INCLUDE_DIRS})
+        )
+        include_directories(${FFMPEG_INCLUDE_DIRS})
+        include_directories(${AvCpp_SOURCE_DIR}/src)
+
+    else ()
+        find_package(avcpp CONFIG REQUIRED)
+        list(APPEND Impacto_Libs
+                avcpp::avcpp
+                avcpp::FFmpeg
+        )
+    endif ()
+
+    
+
 endif ()
 
 if (NOT DEFINED IMPACTO_DISABLE_MSPACK)

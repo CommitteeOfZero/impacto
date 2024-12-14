@@ -12,6 +12,7 @@ class FFmpegAudioPlayer : public Audio::FFmpegAudioPlayer {
  public:
   FFmpegAudioPlayer(Video::FFmpegPlayer* player)
       : Audio::FFmpegAudioPlayer(player) {}
+  ~FFmpegAudioPlayer();
 
   void Init() override;
   void InitConvertContext(AVCodecContext* codecCtx) override;
