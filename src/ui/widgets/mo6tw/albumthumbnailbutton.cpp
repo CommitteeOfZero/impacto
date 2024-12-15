@@ -22,14 +22,13 @@ AlbumThumbnailButton::AlbumThumbnailButton(
   TotalVariations = totalVariations;
   UnlockedVariations = unlockedVariations;
   Vm::Sc3VmThread dummy;
-  char temp[10];
   uint16_t sc3StringBuffer[10];
 
-  if (unlockedVariations > 0)
-    sprintf(temp, "%d/%d", unlockedVariations, totalVariations);
-  else
-    sprintf(temp, "\?\?/\?\?");
-  TextGetSc3String(temp, sc3StringBuffer);
+  std::string variationsCount =
+      (unlockedVariations > 0)
+          ? fmt::format("{:d}/{:d}", unlockedVariations, totalVariations)
+          : "\?\?/\?\?";
+  TextGetSc3String(variationsCount, sc3StringBuffer);
   dummy.Ip = (uint8_t*)sc3StringBuffer;
   InfoTextWidth = TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont,
                                         ThumbnailButtonTextFontSize);

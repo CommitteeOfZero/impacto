@@ -26,10 +26,9 @@ TipsEntryButton::TipsEntryButton(int tipId, int dispId, RectF const& dest,
   Enabled = true;
   HighlightOffset = {0, 0};
   PrevUnreadState = TipEntryRecord->IsUnread && !TipEntryRecord->IsLocked;
-  char tipNumber[5];
-  sprintf(tipNumber, "%03d.", dispId);
-  TextLayoutPlainString(tipNumber, TipNumber, Profile::Dialogue::DialogueFont,
-                        21, {TipsMenuDarkTextColor, 0}, 1.0f,
+  TextLayoutPlainString(fmt::format("{:03d}", dispId), TipNumber,
+                        Profile::Dialogue::DialogueFont, 21,
+                        {TipsMenuDarkTextColor, 0}, 1.0f,
                         glm::vec2(Bounds.X, Bounds.Y) + TipsEntryNumberOffset,
                         TextAlignment::Left);
   Vm::Sc3VmThread dummy;

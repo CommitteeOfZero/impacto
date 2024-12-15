@@ -13,22 +13,22 @@ void LuaDumpStack() {
   ImpLog(LL_Debug, LC_Profile, "Current stack: \n");
   int top = lua_gettop(LuaState);
   for (int i = 1; i <= top; i++) {
-    printf("%d\t%s\t", i, luaL_typename(LuaState, i));
+    fmt::print("{:d}\t{}\t", i, luaL_typename(LuaState, i));
     switch (lua_type(LuaState, i)) {
       case LUA_TNUMBER:
-        printf("%g\n", lua_tonumber(LuaState, i));
+        fmt::println("{:g}", lua_tonumber(LuaState, i));
         break;
       case LUA_TSTRING:
-        printf("%s\n", lua_tostring(LuaState, i));
+        fmt::println(lua_tostring(LuaState, i));
         break;
       case LUA_TBOOLEAN:
-        printf("%s\n", (lua_toboolean(LuaState, i) ? "true" : "false"));
+        fmt::println(lua_toboolean(LuaState, i) ? "true" : "false");
         break;
       case LUA_TNIL:
-        printf("%s\n", "nil");
+        fmt::println("nil");
         break;
       default:
-        printf("%p\n", lua_topointer(LuaState, i));
+        fmt::println("{}", lua_topointer(LuaState, i));
         break;
     }
   }
