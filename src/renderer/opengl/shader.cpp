@@ -156,14 +156,6 @@ GLuint ShaderCompiler::Compile(char const* name, ShaderParamMap const& params) {
 
   ImpLog(LL_Debug, LC_Render, "Compiling shader \"%s\"\n", name);
 
-  size_t pathSz =
-      std::max(
-          snprintf(NULL, 0, "%s/%s%s", ShaderPath, name, FragShaderExtension),
-          snprintf(NULL, 0, "%s/%s%s", ShaderPath, name, VertShaderExtension)) +
-      1;
-
-  char* fullPath = (char*)ImpStackAlloc(pathSz);
-
   int paramSz = 1;
   for (auto const& param : params) {
     paramSz += PrintParameter(0, 0, param.first.c_str(), param.second);
@@ -180,16 +172,19 @@ GLuint ShaderCompiler::Compile(char const* name, ShaderParamMap const& params) {
   }
   paramStr[paramSz - 1] = '\0';
 
-  sprintf(fullPath, "%s/%s%s", ShaderPath, name, VertShaderExtension);
-  GLuint vs = Attach(program, GL_VERTEX_SHADER, fullPath, paramStr);
+  std::string vertexShaderPath = fmt::format(FMT_COMPILE("{}/{}{}"), ShaderPath,
+                                             name, VertShaderExtension);
+  GLuint vs =
+      Attach(program, GL_VERTEX_SHADER, vertexShaderPath.c_str(), paramStr);
   if (!vs) {
     glDeleteProgram(program);
     ImpStackFree(paramStr);
-    ImpStackFree(fullPath);
     return 0;
   }
-  sprintf(fullPath, "%s/%s%s", ShaderPath, name, FragShaderExtension);
-  GLuint fs = Attach(program, GL_FRAGMENT_SHADER, fullPath, paramStr);
+  std::string fragShaderPath = fmt::format(FMT_COMPILE("{}/{}{}"), ShaderPath,
+                                           name, FragShaderExtension);
+  GLuint fs =
+      Attach(program, GL_FRAGMENT_SHADER, fragShaderPath.c_str(), paramStr);
   if (!fs) {
     static GLchar errorLog[1024] = {};
     glGetProgramInfoLog(program, sizeof(errorLog), NULL, errorLog);
@@ -197,12 +192,10 @@ GLuint ShaderCompiler::Compile(char const* name, ShaderParamMap const& params) {
     glDeleteShader(vs);
     glDeleteProgram(program);
     ImpStackFree(paramStr);
-    ImpStackFree(fullPath);
     return 0;
   }
 
   ImpStackFree(paramStr);
-  ImpStackFree(fullPath);
 
   GLint result = 0;
   static GLchar errorLog[1024] = {};

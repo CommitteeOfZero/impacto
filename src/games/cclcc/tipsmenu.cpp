@@ -381,9 +381,7 @@ void TipsMenu::SwitchToTipId(int id) {
   Pronounciation->SetText(record->StringPtrs[2], PronounciationFontSize,
                           RendererOutlineMode::RO_None, 0);
 
-  char temp[5];
-  sprintf(temp, "%4d", id);
-  Number->SetText(std::string(temp), NumberFontSize,
+  Number->SetText(fmt::format("{:4}", id), NumberFontSize,
                   RendererOutlineMode::RO_None, 0);
 
   Vm::Sc3VmThread dummy;

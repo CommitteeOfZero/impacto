@@ -196,9 +196,7 @@ void SaveMenu::UpdateEntry(SaveEntryButton* saveEntryButton) {
   saveEntryButton->AddEntryNumberHintText(
       Vm::ScriptGetTextTableStrAddress(0, 6), 18,
       RendererOutlineMode::RO_BottomRight, EntryNumberHintTextRelativePos);
-  char tempNo[3];
-  sprintf(tempNo, "%02d", idx + 1);
-  saveEntryButton->AddEntryNumberText(std::string(tempNo), 18,
+  saveEntryButton->AddEntryNumberText(fmt::format("{:02}", idx + 1), 18,
                                       RendererOutlineMode::RO_BottomRight,
                                       EntryNumberTextRelativePos);
   saveEntryButton->AddThumbnail(EmptyThumbnailSprite,
@@ -217,10 +215,9 @@ void SaveMenu::UpdateEntry(SaveEntryButton* saveEntryButton) {
     uint32_t hours = time / 3600;
     uint32_t minutes = (time % 3600) / 60;
     uint32_t seconds = (time % 3600) % 60;
-    char temp[10];
-    sprintf(temp, "%3d:%02d:%02d", hours, minutes, seconds);
     saveEntryButton->AddPlayTimeText(
-        std::string(temp), 18, RendererOutlineMode::RO_BottomRight,
+        fmt::format("{:3}:{:02}:{:02}", hours, minutes, seconds), 18,
+        RendererOutlineMode::RO_BottomRight,
         {PlayTimeTextRelativePos.x + (float)((hours < 10) * 10),
          PlayTimeTextRelativePos.y});
     saveEntryButton->AddSaveDateHintText(

@@ -2,7 +2,6 @@
 
 #include <cstdint>
 #include <cstdlib>
-#include <cstdio>
 #include <cassert>
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -19,3 +18,8 @@
 #include <imgui.h>
 #include <imgui_impl_sdl2.h>
 #endif
+
+#include <fmt/base.h>
+#include <fmt/compile.h>
+#include <fmt/format.h>
+#include <fmt/printf.h>
