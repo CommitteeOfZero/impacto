@@ -17,22 +17,15 @@ void Shader::Compile(char const* name, IDirect3DDevice9* device,
 
   VertexDeclaration = vertexDeclaration;
 
-  size_t pathSz =
-      std::max(
-          snprintf(NULL, 0, "%s/%s%s", ShaderPath, name, FragShaderExtension),
-          snprintf(NULL, 0, "%s/%s%s", ShaderPath, name, VertShaderExtension)) +
-      1;
-
-  char* fullPath = (char*)ImpStackAlloc(pathSz);
-
   ID3DBlob* vertexShaderBuffer{};
   ID3DBlob* errorBlob{};
   ID3DBlob* pixelShaderBuffer{};
 
   // Vertex shader
-  sprintf(fullPath, "%s/%s%s", ShaderPath, name, VertShaderExtension);
+  std::string vertexShaderPath =
+      fmt::format(FMT_COMPILE("{}/{}{}"), ShaderPath, name, VertShaderExtension);
   size_t sourceRawSz;
-  char* source = (char*)SDL_LoadFile(fullPath, &sourceRawSz);
+  char* source = (char*)SDL_LoadFile(vertexShaderPath.c_str(), &sourceRawSz);
   if (!source) {
     ImpLog(LL_Debug, LC_Render, "Failed to read shader source file\n");
     return;
@@ -51,8 +44,9 @@ void Shader::Compile(char const* name, IDirect3DDevice9* device,
   if (FAILED(result)) return;
 
   // Pixel shader
-  sprintf(fullPath, "%s/%s%s", ShaderPath, name, FragShaderExtension);
-  source = (char*)SDL_LoadFile(fullPath, &sourceRawSz);
+  std::string fragShaderPath =
+      fmt::format("{}/{}{}", ShaderPath, name, FragShaderExtension);
+  source = (char*)SDL_LoadFile(fragShaderPath.c_str(), &sourceRawSz);
   if (!source) {
     ImpLog(LL_Debug, LC_Render, "Failed to read shader source file\n");
     return;
