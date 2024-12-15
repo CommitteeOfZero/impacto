@@ -11,6 +11,10 @@
 #include <chrono>
 #include <span/span.hpp>
 
+#if defined(WIN32) || defined(_WIN32)
+#include <malloc.h>
+#endif
+
 // TODO own _malloca for gcc
 
 #if defined(_malloca)
