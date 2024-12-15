@@ -1,14 +1,11 @@
 #pragma once
 
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <assert.h>
-#ifndef __APPLE__
-#include <malloc.h>
-#endif
+#include <cstdint>
+#include <cstdlib>
+#include <cstdio>
+#include <cassert>
 #define _USE_MATH_DEFINES
-#include <math.h>
+#include <cmath>
 
 #include "config.h"
 
