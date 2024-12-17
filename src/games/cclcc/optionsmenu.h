@@ -3,6 +3,9 @@
 #include "../../ui/menu.h"
 #include "../../spriteanimation.h"
 #include "../../ui/widgets/group.h"
+#include "../../ui/widgets/cclcc/optionsentry.h"
+
+using namespace Impacto::UI::Widgets::CCLCC;
 
 namespace Impacto {
 namespace UI {

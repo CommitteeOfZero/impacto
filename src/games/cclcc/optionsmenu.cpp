@@ -131,9 +131,6 @@ void OptionsMenu::Show() {
     }
     IsFocused = true;
     UI::FocusedMenu = this;
-
-    CurrentlyFocusedElement = Pages.at(CurrentPage)->GetFirstFocusableChild();
-    CurrentlyFocusedElement->HasFocus = true;
   }
 }
 
@@ -166,23 +163,40 @@ void OptionsMenu::Update(float dt) {
              ScrWork[SW_SYSSUBMENUNO] == 5) {
     Show();
   }
-
-  int newPageOffset = -(int)(bool)(PADinputButtonWentDown & PAD1L1) +
-                      (int)(bool)(PADinputButtonWentDown & PAD1R1);
-  GoToPage((CurrentPage + newPageOffset) % Pages.size());
 }
 
 void OptionsMenu::UpdateInput() {
-  bool nothingSelected =
-      CurrentlyFocusedElement == nullptr ||
-      !static_cast<OptionsEntry*>(CurrentlyFocusedElement)->Selected;
-  if (nothingSelected && GetControlState(CT_Back)) {
-    SetFlag(SF_SUBMENUEXIT, true);
+  if (CurrentlyFocusedElement == nullptr) {
+    if (GetControlState(CT_Back)) {
+      SetFlag(SF_SUBMENUEXIT, true);
+      return;
+    }
+
+    const int direction = (bool)(PADinputButtonWentDown & PAD1DOWN) -
+                          (bool)(PADinputButtonWentDown & PAD1UP);
+    if (direction) GoToPage((CurrentPage + direction) % Pages.size());
+
+    if (PADinputButtonWentDown & PAD1A) {
+      // Don't have anything else consume the confirmation
+      PADinputButtonWentDown &= ~PAD1A;
+
+      CurrentlyFocusedElement = Pages.at(CurrentPage)->GetFirstFocusableChild();
+      CurrentlyFocusedElement->HasFocus = true;
+    }
+
     return;
   }
 
-  // Only able to move up and down if nothing is selected
-  if (nothingSelected) Menu::UpdateInput();
+  // If something is selected, the option entry takes full control
+  if (static_cast<OptionsEntry*>(CurrentlyFocusedElement)->Selected) return;
+
+  if (GetControlState(CT_Back)) {
+    static_cast<OptionsEntry*>(CurrentlyFocusedElement)->Hide();
+    CurrentlyFocusedElement = nullptr;
+    return;
+  }
+
+  Menu::UpdateInput();
 }
 
 void OptionsMenu::Render() {
@@ -220,10 +234,6 @@ void OptionsMenu::GoToPage(int pageNumber) {
 
   page.HasFocus = true;
   page.Show();
-
-  if (CurrentlyFocusedElement) CurrentlyFocusedElement->Hide();
-  CurrentlyFocusedElement = page.GetFirstFocusableChild();
-  CurrentlyFocusedElement->HasFocus = true;
 }
 
 }  // namespace CCLCC

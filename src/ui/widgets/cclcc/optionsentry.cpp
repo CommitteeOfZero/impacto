@@ -43,7 +43,10 @@ void OptionsEntry::UpdateInput() {
   if (PADinputButtonWentDown & PAD1B) Selected = false;
 }
 
-void OptionsEntry::Hide() { Selected = false; }
+void OptionsEntry::Hide() {
+  Widget::Hide();
+  Selected = false;
+}
 
 }  // namespace CCLCC
 }  // namespace Widgets
