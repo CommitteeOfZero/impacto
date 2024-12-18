@@ -114,7 +114,7 @@ void Scrollbar::UpdateInput() {
       Hovered = TrackBounds.ContainsPoint(Input::CurMousePos) ||
                 ThumbBounds.ContainsPoint(Input::CurMousePos);
     }
-    if (Hovered && Input::MouseButtonIsDown[SDL_BUTTON_LEFT]) {
+    if (Hovered && Input::MouseButtonWentDown[SDL_BUTTON_LEFT]) {
       Scrolling = true;
     }
     if (Input::MouseButtonIsDown[SDL_BUTTON_LEFT] && Scrolling) {
