@@ -30,12 +30,15 @@ OptionsMenu::OptionsMenu() {
   Pages.reserve(4);
   glm::vec2 pos = EntriesStartPosition;
   glm::vec4 highlightTint(HighlightColor, 1.0f);
+  std::function<void(OptionsEntry*)> select =
+      std::bind(&OptionsMenu::Select, this, std::placeholders::_1);
 
   BasicPage = new Group(this);
   for (int i = 0; i < 4; i++) {
-    BasicPage->Add(new OptionsBinaryButton(BinaryBoxSprite, OnSprite, OffSprite,
-                                           LabelSprites[i], pos, highlightTint),
-                   FDIR_DOWN);
+    BasicPage->Add(
+        new OptionsBinaryButton(BinaryBoxSprite, OnSprite, OffSprite,
+                                LabelSprites[i], pos, highlightTint, select),
+        FDIR_DOWN);
 
     pos.y += EntriesVerticalOffset;
   }
@@ -45,25 +48,27 @@ OptionsMenu::OptionsMenu() {
   TextPage = new Group(this);
   for (int i = 4; i < 6; i++) {
     TextPage->Add(new OptionsSlider(SliderTrackSprite, LabelSprites[i], pos,
-                                    highlightTint, SliderSpeed),
+                                    highlightTint, SliderSpeed, select),
                   FDIR_DOWN);
 
     pos.y += EntriesVerticalOffset;
   }
-  TextPage->Add(new OptionsBinaryButton(BinaryBoxSprite, YesSprite, NoSprite,
-                                        LabelSprites[6], pos, highlightTint),
-                FDIR_DOWN);
+  TextPage->Add(
+      new OptionsBinaryButton(BinaryBoxSprite, YesSprite, NoSprite,
+                              LabelSprites[6], pos, highlightTint, select),
+      FDIR_DOWN);
   Pages.push_back(TextPage);
 
   pos = SoundEntriesStartPosition;
   SoundPage = new Group(this);
   for (int i = 7; i < 15; i++) {
-    Widget* widget = (i < 11 || i == 14)
-                         ? new OptionsSlider(SliderTrackSprite, LabelSprites[i],
-                                             pos, highlightTint, SliderSpeed)
-                         : widget = new OptionsBinaryButton(
-                               BinaryBoxSprite, YesSprite, NoSprite,
-                               LabelSprites[i], pos, highlightTint);
+    Widget* widget =
+        (i < 11 || i == 14)
+            ? new OptionsSlider(SliderTrackSprite, LabelSprites[i], pos,
+                                highlightTint, SliderSpeed, select)
+            : widget = new OptionsBinaryButton(BinaryBoxSprite, YesSprite,
+                                               NoSprite, LabelSprites[i], pos,
+                                               highlightTint, select);
     SoundPage->Add(widget, FDIR_DOWN);
 
     pos.y += SoundEntriesVerticalOffset;
@@ -79,7 +84,7 @@ OptionsMenu::OptionsMenu() {
 
     Widget* widget = new OptionsVoiceSlider(
         VoiceSliderTrackSprite, NametagSprites[i], PortraitSprites[2 * i],
-        PortraitSprites[2 * i + 1], pos, highlightTint, SliderSpeed);
+        PortraitSprites[2 * i + 1], pos, highlightTint, SliderSpeed, select);
     VoicePage->Add(widget, FDIR_RIGHT);
   }
 
@@ -234,6 +239,17 @@ void OptionsMenu::GoToPage(int pageNumber) {
 
   page.HasFocus = true;
   page.Show();
+}
+
+void OptionsMenu::Select(OptionsEntry* toSelect) {
+  for (Widget* entry : Pages.at(CurrentPage)->Children) {
+    const bool select = entry == toSelect;
+
+    static_cast<OptionsEntry*>(entry)->Selected = select;
+    entry->HasFocus = select;
+  }
+
+  CurrentlyFocusedElement = toSelect;
 }
 
 }  // namespace CCLCC

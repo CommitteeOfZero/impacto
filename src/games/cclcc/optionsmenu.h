@@ -23,6 +23,7 @@ class OptionsMenu : public Menu {
 
  private:
   void GoToPage(int pageNumber);
+  void Select(OptionsEntry* entry);
 
   Animation FadeAnimation;
   SpriteAnimation PoleAnimation;

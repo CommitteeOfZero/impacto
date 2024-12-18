@@ -14,11 +14,13 @@ namespace CCLCC {
 
 OptionsSlider::OptionsSlider(const Sprite& box, const Sprite& label,
                              glm::vec2 pos, glm::vec4 highlightTint,
-                             float sliderSpeed)
-    : OptionsEntry(label, pos, highlightTint),
+                             float sliderSpeed,
+                             std::function<void(OptionsEntry*)> select)
+    : OptionsEntry(label, pos, highlightTint, select),
       BoxSprite(box),
       SliderSpeed(sliderSpeed) {
   Bounds.Width = SliderTrackOffset.x + BoxSprite.ScaledWidth();
+  EntryButton.Bounds.Width = Bounds.Width;
 }
 
 void OptionsSlider::Render() {
