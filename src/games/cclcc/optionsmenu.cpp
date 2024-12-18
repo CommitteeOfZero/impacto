@@ -195,7 +195,7 @@ void OptionsMenu::UpdateInput() {
   // If something is selected, the option entry takes full control
   if (static_cast<OptionsEntry*>(CurrentlyFocusedElement)->Selected) return;
 
-  if (GetControlState(CT_Back)) {
+  if (GetControlState(CT_Back) || PADinputMouseWentDown & PAD1B) {
     static_cast<OptionsEntry*>(CurrentlyFocusedElement)->Hide();
     CurrentlyFocusedElement = nullptr;
     return;
