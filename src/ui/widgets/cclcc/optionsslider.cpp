@@ -18,10 +18,21 @@ OptionsSlider::OptionsSlider(const Sprite& box, const Sprite& label,
                              std::function<void(OptionsEntry*)> select)
     : OptionsEntry(label, pos, highlightTint, select),
       BoxSprite(box),
-      SliderSpeed(sliderSpeed) {
+      Slider(0, pos + SliderTrackOffset, 0.0f, 1.0f, &Progress,
+             SBDIR_HORIZONTAL,
+             glm::vec2(BoxSprite.ScaledWidth(), BoxSprite.ScaledHeight())) {
   Bounds.Width = SliderTrackOffset.x + BoxSprite.ScaledWidth();
   EntryButton.Bounds.Width = Bounds.Width;
 }
+
+OptionsSlider::OptionsSlider(const Sprite& box, const Sprite& label,
+                             glm::vec2 pos, glm::vec4 highlightTint,
+                             RectF sliderBounds, float sliderSpeed,
+                             std::function<void(OptionsEntry*)> select)
+    : OptionsEntry(label, pos, highlightTint, select),
+      BoxSprite(box),
+      Slider(0, sliderBounds.GetPos(), 0.0f, 1.0f, &Progress, SBDIR_HORIZONTAL,
+             sliderBounds.GetSize()) {}
 
 void OptionsSlider::Render() {
   OptionsEntry::Render();
@@ -34,14 +45,12 @@ void OptionsSlider::Render() {
   Renderer->DrawSprite(BoxSprite, Bounds.GetPos() + SliderTrackOffset, Tint);
 }
 
-void OptionsSlider::Update(float dt) {
-  OptionsEntry::Update(dt);
-  if (!Selected) return;
+void OptionsSlider::UpdateInput() {
+  OptionsEntry::UpdateInput();
 
-  int slideDirection = (bool)(PADinputButtonIsDown & PAD1RIGHT) -
-                       (bool)(PADinputButtonIsDown & PAD1LEFT);
-  Progress =
-      std::clamp(Progress + slideDirection * SliderSpeed * dt, 0.0f, 1.0f);
+  Slider.HasFocus = Selected;
+  Slider.UpdateInput();
+  Slider.ClampValue();
 }
 
 }  // namespace CCLCC

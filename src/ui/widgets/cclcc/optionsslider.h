@@ -1,6 +1,7 @@
 #pragma once
 
 #include "./optionsentry.h"
+#include "../scrollbar.h"
 #include "../../../spritesheet.h"
 
 namespace Impacto {
@@ -15,13 +16,17 @@ class OptionsSlider : public OptionsEntry {
                 std::function<void(OptionsEntry*)> select);
 
   void Render() override;
-  void Update(float dt) override;
+  void UpdateInput() override;
 
  protected:
+  OptionsSlider(const Sprite& box, const Sprite& label, glm::vec2 pos,
+                glm::vec4 highlightTint, RectF sliderBounds, float sliderSpeed,
+                std::function<void(OptionsEntry*)> select);
+
   const Sprite& BoxSprite;
 
+  Scrollbar Slider;
   float Progress = 0.0f;
-  float SliderSpeed = 1.0f;
 };
 
 }  // namespace CCLCC
