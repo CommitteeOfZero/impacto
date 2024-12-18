@@ -26,6 +26,10 @@ void Configure() {
       EnsureGetMemberSprite("BackButtonHighlightedSprite");
   BackButtonPosition = EnsureGetMemberVec2("BackButtonPosition");
 
+  SliderTrackSprite = EnsureGetMemberSprite("SliderTrackSprite");
+  SliderFillSprite = EnsureGetMemberSprite("SliderFillSprite");
+  SliderThumbSprite = EnsureGetMemberSprite("SliderThumbSprite");
+
   ButtonHighlight = EnsureGetMemberSprite("ButtonHighlight");
   PageLabelPosition = EnsureGetMemberVec2("PageLabelPosition");
   ListStartingPosition = EnsureGetMemberVec2("ListStartingPosition");

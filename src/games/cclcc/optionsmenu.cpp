@@ -2,14 +2,11 @@
 
 #include "../../profile/ui/optionsmenu.h"
 #include "../../profile/games/cclcc/optionsmenu.h"
-#include "../../renderer/renderer.h"
-#include "../../mem.h"
-#include "../../profile/scriptvars.h"
-#include "../../inputsystem.h"
+#include "../../profile/scriptinput.h"
 #include "../../vm/interface/input.h"
-#include "../../ui/widgets/button.h"
-#include "../../vm/vm.h"
-#include "../../audio/audiochannel.h"
+#include "../../ui/widgets/cclcc/optionsbinarybutton.h"
+#include "../../ui/widgets/cclcc/optionsslider.h"
+#include "../../ui/widgets/cclcc/optionsvoiceslider.h"
 
 namespace Impacto {
 namespace UI {
@@ -18,6 +15,8 @@ namespace CCLCC {
 using namespace Impacto::Profile::OptionsMenu;
 using namespace Impacto::Profile::CCLCC::OptionsMenu;
 using namespace Impacto::Profile::ScriptVars;
+using namespace Impacto::UI::Widgets;
+using namespace Impacto::UI::Widgets::CCLCC;
 using namespace Impacto::Vm::Interface;
 
 OptionsMenu::OptionsMenu() {
@@ -25,14 +24,113 @@ OptionsMenu::OptionsMenu() {
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
   FadeAnimation.DurationIn = FadeInDuration;
   FadeAnimation.DurationOut = FadeOutDuration;
+
+  PoleAnimation = Profile::CCLCC::OptionsMenu::PoleAnimation.Instantiate();
+
+  Pages.reserve(4);
+  glm::vec2 pos = EntriesStartPosition;
+  glm::vec4 highlightTint(HighlightColor, 1.0f);
+  std::function<void(OptionsEntry*)> select =
+      std::bind(&OptionsMenu::Select, this, std::placeholders::_1);
+
+  BasicPage = new Group(this);
+  for (int i = 0; i < 4; i++) {
+    BasicPage->Add(
+        new OptionsBinaryButton(BinaryBoxSprite, OnSprite, OffSprite,
+                                LabelSprites[i], pos, highlightTint, select),
+        FDIR_DOWN);
+
+    pos.y += EntriesVerticalOffset;
+  }
+  Pages.push_back(BasicPage);
+
+  pos = EntriesStartPosition;
+  TextPage = new Group(this);
+  for (int i = 4; i < 6; i++) {
+    TextPage->Add(new OptionsSlider(SliderTrackSprite, LabelSprites[i], pos,
+                                    highlightTint, SliderSpeed, select),
+                  FDIR_DOWN);
+
+    pos.y += EntriesVerticalOffset;
+  }
+  TextPage->Add(
+      new OptionsBinaryButton(BinaryBoxSprite, YesSprite, NoSprite,
+                              LabelSprites[6], pos, highlightTint, select),
+      FDIR_DOWN);
+  Pages.push_back(TextPage);
+
+  pos = SoundEntriesStartPosition;
+  SoundPage = new Group(this);
+  for (int i = 7; i < 15; i++) {
+    Widget* widget =
+        (i < 11 || i == 14)
+            ? new OptionsSlider(SliderTrackSprite, LabelSprites[i], pos,
+                                highlightTint, SliderSpeed, select)
+            : widget = new OptionsBinaryButton(BinaryBoxSprite, YesSprite,
+                                               NoSprite, LabelSprites[i], pos,
+                                               highlightTint, select);
+    SoundPage->Add(widget, FDIR_DOWN);
+
+    pos.y += SoundEntriesVerticalOffset;
+  }
+  Pages.push_back(SoundPage);
+
+  VoicePage = new Group(this);
+  constexpr int columns = 3;
+  constexpr int entries = 12;
+  for (int i = 0; i < entries; i++) {
+    glm::vec2 pos = VoicePosition;
+    pos += VoiceEntriesOffset * glm::vec2(i % columns, i / columns);
+
+    Widget* widget = new OptionsVoiceSlider(
+        VoiceSliderTrackSprite, NametagSprites[i], PortraitSprites[2 * i],
+        PortraitSprites[2 * i + 1], pos, highlightTint, SliderSpeed, select);
+    VoicePage->Add(widget, FDIR_RIGHT);
+  }
+
+  // Loop separately to overwrite the direction set at initial adding
+  // First entry won't set anything; skip
+  for (int i = 1; i < entries; i++) {
+    Widget* const widget = VoicePage->Children.at(i);
+
+    if (i % columns != 0) {  // Not on first column
+      Widget* const leftWidget = VoicePage->Children.at(i - 1);
+      widget->SetFocus(leftWidget, FDIR_LEFT);
+      leftWidget->SetFocus(widget, FDIR_RIGHT);
+
+      if (i % columns == columns - 1) {  // On last column
+        Widget* const rowStart = VoicePage->Children.at(i - columns + 1);
+        widget->SetFocus(rowStart, FDIR_RIGHT);
+        rowStart->SetFocus(widget, FDIR_LEFT);
+      }
+    }
+    if (i >= columns) {  // Not on first row
+      Widget* const upWidget = VoicePage->Children.at(i - columns);
+      widget->SetFocus(upWidget, FDIR_UP);
+      upWidget->SetFocus(widget, FDIR_DOWN);
+
+      if (i >= entries - columns) {  // On last layer
+        Widget* const columnStart = VoicePage->Children.at(i % columns);
+        widget->SetFocus(columnStart, FDIR_DOWN);
+        columnStart->SetFocus(widget, FDIR_UP);
+      }
+    }
+  }
+
+  Pages.push_back(VoicePage);
+
+  CurrentPage = 0;
 }
 
 void OptionsMenu::Show() {
   if (State != Shown) {
     State = Showing;
     FadeAnimation.StartIn();
-    // FirstPage->Show();
-    if (UI::FocusedMenu != 0) {
+    PoleAnimation.StartIn();
+
+    Pages.at(CurrentPage)->Show();
+
+    if (UI::FocusedMenu != nullptr) {
       LastFocusedMenu = UI::FocusedMenu;
       LastFocusedMenu->IsFocused = false;
     }
@@ -40,15 +138,18 @@ void OptionsMenu::Show() {
     UI::FocusedMenu = this;
   }
 }
+
 void OptionsMenu::Hide() {
   if (State != Hidden) {
     State = Hiding;
     FadeAnimation.StartOut();
-    if (LastFocusedMenu != 0) {
+    PoleAnimation.StartOut();
+
+    if (LastFocusedMenu != nullptr) {
       UI::FocusedMenu = LastFocusedMenu;
       LastFocusedMenu->IsFocused = true;
     } else {
-      UI::FocusedMenu = 0;
+      UI::FocusedMenu = nullptr;
     }
     IsFocused = false;
   }
@@ -56,8 +157,10 @@ void OptionsMenu::Hide() {
 
 void OptionsMenu::Update(float dt) {
   UpdateInput();
+  Pages.at(CurrentPage)->Update(dt);
 
   FadeAnimation.Update(dt);
+  PoleAnimation.Update(dt);
   if (ScrWork[SW_SYSSUBMENUCT] < 32 && State == Shown &&
       ScrWork[SW_SYSSUBMENUNO] == 5) {
     Hide();
@@ -67,12 +170,86 @@ void OptionsMenu::Update(float dt) {
   }
 }
 
+void OptionsMenu::UpdateInput() {
+  if (CurrentlyFocusedElement == nullptr) {
+    if (GetControlState(CT_Back)) {
+      SetFlag(SF_SUBMENUEXIT, true);
+      return;
+    }
+
+    const int direction = (bool)(PADinputButtonWentDown & PAD1DOWN) -
+                          (bool)(PADinputButtonWentDown & PAD1UP);
+    if (direction) GoToPage((CurrentPage + direction) % Pages.size());
+
+    if (PADinputButtonWentDown & PAD1A) {
+      // Don't have anything else consume the confirmation
+      PADinputButtonWentDown &= ~PAD1A;
+
+      CurrentlyFocusedElement = Pages.at(CurrentPage)->GetFirstFocusableChild();
+      CurrentlyFocusedElement->HasFocus = true;
+    }
+
+    return;
+  }
+
+  // If something is selected, the option entry takes full control
+  if (static_cast<OptionsEntry*>(CurrentlyFocusedElement)->Selected) return;
+
+  if (GetControlState(CT_Back) || PADinputMouseWentDown & PAD1B) {
+    static_cast<OptionsEntry*>(CurrentlyFocusedElement)->Hide();
+    CurrentlyFocusedElement = nullptr;
+    return;
+  }
+
+  Menu::UpdateInput();
+}
+
 void OptionsMenu::Render() {
   if (State != Hidden && ScrWork[SW_SYSSUBMENUCT] >= 32 &&
       ScrWork[SW_SYSSUBMENUNO] == 5) {
-    // glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-    Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
+    glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
+
+    Renderer->DrawSprite(BackgroundSprite, BackgroundPosition, col);
+    Renderer->DrawSprite(HeaderSprite, HeaderPosition, col);
+
+    Renderer->DrawSprite(PageHeaderSprites[CurrentPage], PageHeaderPosition,
+                         col);
+    Pages.at(CurrentPage)->Render();
+
+    Renderer->DrawSprite(PoleAnimation.CurrentSprite(), PagePanelPosition, col);
+    if (PoleAnimation.IsIn()) {
+      Renderer->DrawSprite(
+          PagePanelSprites[2 * CurrentPage + !(bool)CurrentlyFocusedElement],
+          PagePanelPosition + PagePanelIconOffsets[CurrentPage], col);
+    }
+
+    const Sprite& guideSprite =
+        CurrentPage == 3 ? VoiceGuideSprite : GuideSprite;
+    Renderer->DrawSprite(guideSprite, GuidePosition, col);
   }
+}
+
+void OptionsMenu::GoToPage(int pageNumber) {
+  if (CurrentPage == pageNumber) return;
+
+  Pages.at(CurrentPage)->Hide();
+
+  CurrentPage = pageNumber;
+  Group& page = *Pages.at(CurrentPage);
+
+  page.HasFocus = true;
+  page.Show();
+}
+
+void OptionsMenu::Select(OptionsEntry* toSelect) {
+  for (Widget* entry : Pages.at(CurrentPage)->Children) {
+    const bool select = entry == toSelect;
+
+    static_cast<OptionsEntry*>(entry)->Selected = select;
+    entry->HasFocus = select;
+  }
+
+  CurrentlyFocusedElement = toSelect;
 }
 
 }  // namespace CCLCC

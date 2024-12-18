@@ -131,6 +131,10 @@ void OptionsMenu::Update(float dt) {
     TitleFade.Update(dt);
     UpdateTitles();
   }
+
+  if (GetControlState(CT_Back)) {
+    SetFlag(SF_SUBMENUEXIT, true);
+  }
 }
 
 inline void OptionsMenu::DrawCircles() {
