@@ -13,10 +13,15 @@ namespace Widgets {
 namespace CCLCC {
 
 OptionsEntry::OptionsEntry(const Sprite& label, glm::vec2 pos,
-                           glm::vec4 highlightTint)
-    : LabelSprite(label), HighlightTint(highlightTint) {
-  Bounds = RectF(pos.x, pos.y, LabelSprite.ScaledWidth(),
-                 LabelSprite.ScaledHeight());
+                           glm::vec4 highlightTint,
+                           std::function<void(OptionsEntry*)> select)
+    : LabelSprite(label), HighlightTint(highlightTint), Select(select) {
+  Bounds = RectF(pos.x, pos.y, LabelOffset.x + LabelSprite.ScaledWidth(),
+                 LabelOffset.y + LabelSprite.ScaledHeight());
+
+  std::function<void(ClickButton*)> onClick =
+      std::bind(&OptionsEntry::EntryButtonOnClick, this, std::placeholders::_1);
+  EntryButton = ClickButton(0, Bounds, onClick);
 }
 
 void OptionsEntry::Render() {
@@ -37,6 +42,8 @@ void OptionsEntry::Render() {
 }
 
 void OptionsEntry::UpdateInput() {
+  EntryButton.UpdateInput();
+
   if (!HasFocus) return;
 
   Selected ^= (bool)(PADinputButtonWentDown & PAD1A);
@@ -47,6 +54,8 @@ void OptionsEntry::Hide() {
   Widget::Hide();
   Selected = false;
 }
+
+void OptionsEntry::EntryButtonOnClick(ClickButton* target) { Select(this); }
 
 }  // namespace CCLCC
 }  // namespace Widgets
