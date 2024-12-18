@@ -47,7 +47,8 @@ void OptionsEntry::UpdateInput() {
   if (!HasFocus) return;
 
   Selected ^= (bool)(PADinputButtonWentDown & PAD1A);
-  if (PADinputButtonWentDown & PAD1B) Selected = false;
+  if (PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B)
+    Selected = false;
 }
 
 void OptionsEntry::Hide() {
