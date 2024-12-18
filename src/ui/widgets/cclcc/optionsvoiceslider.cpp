@@ -16,7 +16,11 @@ OptionsVoiceSlider::OptionsVoiceSlider(
     const Sprite& box, const Sprite& label, const Sprite& portrait,
     const Sprite& mutedPortrait, glm::vec2 pos, glm::vec4 highlightTint,
     float sliderSpeed, std::function<void(OptionsEntry*)> select)
-    : OptionsSlider(box, label, pos, highlightTint, sliderSpeed, select),
+    : OptionsSlider(
+          box, label, pos, highlightTint,
+          RectF(pos.x + VoiceSliderOffset.x, pos.y + VoiceSliderOffset.y,
+                box.ScaledWidth(), box.ScaledHeight()),
+          sliderSpeed, select),
       Portrait(portrait),
       MutedPortrait(mutedPortrait) {
   Bounds =
@@ -48,7 +52,7 @@ void OptionsVoiceSlider::Render() {
 }
 
 void OptionsVoiceSlider::UpdateInput() {
-  OptionsEntry::UpdateInput();
+  OptionsSlider::UpdateInput();
 
   if (HasFocus) Muted ^= (bool)(PADinputButtonWentDown & PAD1Y);
 }

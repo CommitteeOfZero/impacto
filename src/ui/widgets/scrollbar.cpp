@@ -11,6 +11,23 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Vm::Interface;
 
 Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end,
+                     float* value, ScrollbarDirection dir,
+                     glm::vec2 trackBounds)
+    : Id(id),
+      StartValue(start),
+      EndValue(end),
+      Value(value),
+      Direction(dir),
+      TrackBounds(pos.x, pos.y, trackBounds.x, trackBounds.y),
+      Step((end - start) * 0.01f),
+      Length(dir == SBDIR_VERTICAL ? trackBounds.y : trackBounds.x),
+      ThumbBounds(0.0f, 0.0f, 0.0f, 0.0f),
+      ThumbLength(0.0f),
+      HasTrack(false) {
+  UpdatePosition();
+}
+
+Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end,
                      float* value, ScrollbarDirection dir, Sprite const& thumb,
                      glm::vec2 trackBounds, float thumbLength)
     : Id(id),
