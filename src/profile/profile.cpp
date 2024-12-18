@@ -88,13 +88,13 @@ static int LuaInclude(lua_State* ctx) {
     ImpLog(LL_Fatal, LC_Profile, "Lua profile compile error: %s\n",
            lua_tostring(ctx, -1));
     lua_close(LuaState);
-    exit(0);
+    exit(1);
   }
   if (lua_pcall(ctx, 0, 0, 0)) {
     ImpLog(LL_Fatal, LC_Profile, "Lua profile execute error: %s\n",
            lua_tostring(ctx, -1));
     lua_close(LuaState);
-    exit(0);
+    exit(1);
   }
 
   free(script);
@@ -142,7 +142,7 @@ void MakeLuaProfile(std::string const& name) {
   if (err != IoError_OK) {
     ImpLog(LL_Fatal, LC_Profile, "Could not open profiles/%s/game.lua\n",
            name.c_str());
-    exit(0);
+    exit(1);
   }
 
   char* script = (char*)malloc(stream->Meta.Size + 1);
@@ -152,7 +152,7 @@ void MakeLuaProfile(std::string const& name) {
     ImpLog(LL_Error, LC_Profile,
            "Could not allocate memory for script: profiles/%s/game.lua",
            name.c_str());
-    exit(0);
+    exit(1);
   }
 
   int64_t len = stream->Read(script, stream->Meta.Size);
@@ -162,7 +162,7 @@ void MakeLuaProfile(std::string const& name) {
 
     ImpLog(LL_Fatal, LC_Profile, "Could not open profiles/%s/game.lua\n",
            name.c_str());
-    exit(0);
+    exit(1);
   }
   script[len] = '\0';
 
@@ -222,13 +222,13 @@ void MakeLuaProfile(std::string const& name) {
     ImpLog(LL_Fatal, LC_Profile, "Lua profile compile error: %s\n",
            lua_tostring(LuaState, -1));
     lua_close(LuaState);
-    exit(0);
+    exit(1);
   }
   if (lua_pcall(LuaState, 0, 0, 0)) {
     ImpLog(LL_Fatal, LC_Profile, "Lua profile execute error: %s\n",
            lua_tostring(LuaState, -1));
     lua_close(LuaState);
-    exit(0);
+    exit(1);
   }
 
   delete stream;

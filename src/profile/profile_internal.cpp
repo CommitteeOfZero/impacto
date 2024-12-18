@@ -49,7 +49,7 @@ void EnsurePushMember(char const* name) {
   if (!success) {
     ImpLog(LL_Fatal, LC_Profile, "Expected %s to have member %s\n",
            lua_tostring(LuaState, -1), name);
-    exit(0);
+    exit(1);
   }
 }
 
@@ -61,7 +61,7 @@ void EnsurePushMemberOfType(char const* name, int type) {
 void AssertIs(int type) {
   int actualType = lua_type(LuaState, -1);
   if (actualType != type) {
-    exit(0);
+    exit(1);
   }
 }
 

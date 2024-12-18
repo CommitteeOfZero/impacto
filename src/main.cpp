@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
   IoError err = Io::PhysicalFileStream::Create("profile.txt", &stream);
   if (err != IoError_OK) {
     ImpLog(LL_Fatal, LC_General, "Couldn't open profile.txt\n");
-    exit(0);
+    exit(1);
   }
 
   std::string profileName;
