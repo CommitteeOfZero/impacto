@@ -12,14 +12,17 @@ namespace UI {
 namespace Widgets {
 namespace CCLCC {
 
-OptionsVoiceSlider::OptionsVoiceSlider(const Sprite& box, const Sprite& label,
-                                       const Sprite& portrait,
-                                       const Sprite& mutedPortrait,
-                                       glm::vec2 pos, glm::vec4 highlightTint,
-                                       float sliderSpeed)
-    : OptionsSlider(box, label, pos, highlightTint, sliderSpeed),
+OptionsVoiceSlider::OptionsVoiceSlider(
+    const Sprite& box, const Sprite& label, const Sprite& portrait,
+    const Sprite& mutedPortrait, glm::vec2 pos, glm::vec4 highlightTint,
+    float sliderSpeed, std::function<void(OptionsEntry*)> select)
+    : OptionsSlider(box, label, pos, highlightTint, sliderSpeed, select),
       Portrait(portrait),
-      MutedPortrait(mutedPortrait) {}
+      MutedPortrait(mutedPortrait) {
+  Bounds =
+      RectF(Bounds.X, Bounds.Y, VoiceEntryDimensions.x, VoiceEntryDimensions.y);
+  EntryButton.Bounds = Bounds;
+}
 
 void OptionsVoiceSlider::Render() {
   HighlightTint.a = Tint.a;

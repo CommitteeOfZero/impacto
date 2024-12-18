@@ -3,6 +3,7 @@
 #include "../../../profile/games/cclcc/optionsmenu.h"
 #include "../../../renderer/renderer.h"
 #include "../../../vm/interface/input.h"
+#include "../../../inputsystem.h"
 
 using namespace Impacto::Profile::CCLCC::OptionsMenu;
 using namespace Impacto::Vm::Interface;
@@ -12,25 +13,28 @@ namespace UI {
 namespace Widgets {
 namespace CCLCC {
 
-OptionsBinaryButton::OptionsBinaryButton(const Sprite& box,
-                                         const Sprite& trueLabel,
-                                         const Sprite& falseLabel,
-                                         const Sprite& label, glm::vec2 pos,
-                                         glm::vec4 highlightTint)
-    : OptionsEntry(label, pos, highlightTint),
+OptionsBinaryButton::OptionsBinaryButton(
+    const Sprite& box, const Sprite& trueLabel, const Sprite& falseLabel,
+    const Sprite& label, glm::vec2 pos, glm::vec4 highlightTint,
+    std::function<void(OptionsEntry*)> select)
+    : OptionsEntry(label, pos, highlightTint, select),
       BoxSprite(box),
       TrueSprite(trueLabel),
       FalseSprite(falseLabel) {
   Bounds.Width = BinaryBoxOffset.x + BoxSprite.ScaledWidth();
-}
+  EntryButton.Bounds.Width = Bounds.Width;
 
-inline glm::vec2 OptionsBinaryButton::GetTruePos() const {
-  return Bounds.GetPos() + BinaryBoxOffset;
-}
-
-inline glm::vec2 OptionsBinaryButton::GetFalsePos() const {
-  return Bounds.GetPos() + BinaryBoxOffset +
-         glm::vec2(BoxSprite.ScaledWidth() / 2, 0.0f);
+  glm::vec2 truePosition = pos + BinaryBoxOffset;
+  TrueButton =
+      ClickButton(0,
+                  RectF(truePosition.x, truePosition.y,
+                        TrueSprite.ScaledWidth(), TrueSprite.ScaledHeight()),
+                  std::bind(&OptionsBinaryButton::TrueOnClick, this,
+                            std::placeholders::_1));
+  FalseButton = ClickButton(
+      0, TrueButton.Bounds + RectF(box.ScaledWidth() / 2.0f, 0.0f, 0.0f, 0.0f),
+      std::bind(&OptionsBinaryButton::FalseOnClick, this,
+                std::placeholders::_1));
 }
 
 void OptionsBinaryButton::Render() {
@@ -38,26 +42,36 @@ void OptionsBinaryButton::Render() {
 
   RectF highlightBounds(0.0f, 0.0f, BoxSprite.ScaledWidth() / 2,
                         BoxSprite.ScaledHeight());
-  glm::vec2 highlightPos = (State) ? GetTruePos() : GetFalsePos();
+  glm::vec2 highlightPos = ((State) ? TrueButton : FalseButton).Bounds.GetPos();
   highlightBounds.X = highlightPos.x;
   highlightBounds.Y = highlightPos.y;
 
   Renderer->DrawRect(highlightBounds, HighlightTint);
-  Renderer->DrawSprite(BoxSprite, GetTruePos(), Tint);
+  Renderer->DrawSprite(BoxSprite, TrueButton.Bounds.GetPos(), Tint);
 
-  Renderer->DrawSprite(TrueSprite, GetTruePos(), Tint, glm::vec2(1.0f), 0.0f,
-                       !State);
-  Renderer->DrawSprite(FalseSprite, GetFalsePos(), Tint, glm::vec2(1.0f), 0.0f,
-                       State);
+  Renderer->DrawSprite(TrueSprite, TrueButton.Bounds.GetPos(), Tint,
+                       glm::vec2(1.0f), 0.0f, !State);
+  Renderer->DrawSprite(FalseSprite, FalseButton.Bounds.GetPos(), Tint,
+                       glm::vec2(1.0f), 0.0f, State);
 }
 
 void OptionsBinaryButton::UpdateInput() {
   OptionsEntry::UpdateInput();
+
+  // Handle mouse/touch input
+  TrueButton.UpdateInput();
+  FalseButton.UpdateInput();
+
   if (!Selected) return;
 
+  // Handle keyboard/controller input
   if (PADinputButtonWentDown & (PAD1LEFT | PAD1RIGHT))
     State = PADinputButtonWentDown & PAD1LEFT;
 }
+
+void OptionsBinaryButton::TrueOnClick(ClickButton* target) { State = true; }
+
+void OptionsBinaryButton::FalseOnClick(ClickButton* target) { State = false; }
 
 }  // namespace CCLCC
 }  // namespace Widgets

@@ -11,7 +11,8 @@ namespace CCLCC {
 class OptionsSlider : public OptionsEntry {
  public:
   OptionsSlider(const Sprite& box, const Sprite& label, glm::vec2 pos,
-                glm::vec4 highlightTint, float sliderSpeed);
+                glm::vec4 highlightTint, float sliderSpeed,
+                std::function<void(OptionsEntry*)> select);
 
   void Render() override;
   void Update(float dt) override;
