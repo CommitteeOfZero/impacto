@@ -160,6 +160,7 @@ jobs:
         mkdir -p ../include/libatrac9
         mkdir -p ../libs
         cp bin/libatrac9.a ../libs/
+        cp bin/libatrac9.so ../libs/
         cp src/libatrac9.h ../include/libatrac9/
         popd
         echo "LIBATRAC9DIR=${{ github.workspace }}/vendor/LibAtrac9" >> $GITHUB_ENV
