@@ -93,7 +93,7 @@ void Renderer::Init() {
   if (Profile::GameFeatures & GameFeature::Scene3D) {
     Scene = new Scene3D(DXWindow, Device);
     Scene->Init();
-}
+  }
 
   // Fill index buffer with quads
   int index = 0;

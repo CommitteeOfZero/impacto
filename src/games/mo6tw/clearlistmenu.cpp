@@ -465,9 +465,9 @@ void ClearListMenu::InitEndingListPage() {
   auto lockedText = Vm::ScriptGetTextTableStrAddress(
       EndingsListTextLockedTable, EndingsListTextLockedEntry);
   for (int i = 0; i < EndingCount; i++) {
-    auto numberLabel =
-        new Label(fmt::format("{:2d}",i+1), numberLabelPos, EndingsListTextFontSize,
-                  RendererOutlineMode::RO_None, EndingsListTextColorIndex);
+    auto numberLabel = new Label(
+        fmt::format("{:2d}", i + 1), numberLabelPos, EndingsListTextFontSize,
+        RendererOutlineMode::RO_None, EndingsListTextColorIndex);
     numberLabelPos += EndingsListTextMargin;
 
     auto lockedLabel =
@@ -526,9 +526,9 @@ void ClearListMenu::InitSceneTitlePage() {
   auto lockedText = Vm::ScriptGetTextTableStrAddress(SceneTitleLockedTable,
                                                      SceneTitleLockedEntry);
   for (int i = 0; i < SceneCount; i++) {
-    auto numberLabel =
-        new Label(fmt::format("{:2d}",i+1), numberLabelPos, SceneListFontSize,
-                  RendererOutlineMode::RO_None, SceneListColorIndex);
+    auto numberLabel = new Label(
+        fmt::format("{:2d}", i + 1), numberLabelPos, SceneListFontSize,
+        RendererOutlineMode::RO_None, SceneListColorIndex);
     numberLabelPos += SceneListTextMargin;
 
     auto lockedLabel =
