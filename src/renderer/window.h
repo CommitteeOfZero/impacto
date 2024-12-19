@@ -5,9 +5,17 @@
 #include <utility>
 #include <variant>
 #include <SDL.h>
+#ifndef IMPACTO_DISABLE_OPENGL
 #include "opengl/window.h"
-#include "dx9/window.h"
+#endif
+
+#ifndef IMPACTO_DISABLE_VULKAN
 #include "vulkan/window.h"
+#endif
+
+#ifndef IMPACTO_DISABLE_DX9
+#include "dx9/window.h"
+#endif
 
 namespace Impacto {
 class WindowInterface {
@@ -59,8 +67,20 @@ class WindowInterface {
  protected:
   void UpdateDimensions();
 
-  std::variant<std::monostate, OpenGL::GLWindow, Vulkan::VulkanWindow,
-               DirectX9::DirectX9Window>
+  std::variant<std::monostate
+#ifndef IMPACTO_DISABLE_OPENGL
+               ,
+               OpenGL::GLWindow
+#endif
+#ifndef IMPACTO_DISABLE_VULKAN
+               ,
+               Vulkan::VulkanWindow
+#endif
+#ifndef IMPACTO_DISABLE_DX9
+               ,
+               DirectX9::DirectX9Window
+#endif
+               >
       Impl;
 };
 
