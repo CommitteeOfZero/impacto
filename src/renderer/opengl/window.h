@@ -1,21 +1,32 @@
 #pragma once
 
-#include "../window.h"
+#include <SDL.h>
+
+#include "../windowtemplate.h"
+#include "../../util.h"
 
 namespace Impacto {
+class WindowInterface;
 namespace OpenGL {
+enum GraphicsApi {
+  GfxApi_GL,
+  // Forces the use of a GLES driver (e.g. ANGLE on Windows)
+  GfxApi_ForceNativeGLES,
+  // Forces GLES context on desktop GL driver
+  GfxApi_ForceDesktopGLES
+};
+class GLWindow : public WindowTemplate<GLWindow> {
+  friend class Impacto::WindowInterface;
 
-class GLWindow : public BaseWindow {
  public:
-  void Init() override;
-  void SetDimensions(int width, int height, int msaa,
-                     float renderScale) override;
-  RectF GetViewport() override;
-  RectF GetScaledViewport() override;
-  void SwapRTs() override;
-  void Update() override;
-  void Draw() override;
-  void Shutdown() override;
+  void Init();
+  void SetDimensions(int width, int height, int msaa, float renderScale);
+  RectF GetViewport();
+  RectF GetScaledViewport();
+  void SwapRTs();
+  void Update();
+  void Draw();
+  void Shutdown();
 
   SDL_GLContext GLContext;
 
@@ -26,8 +37,12 @@ class GLWindow : public BaseWindow {
   // Texture associated with ReadRT
   GLuint ReadRenderTexture;
 
+  // This should probably be a compile-time define
+  constexpr static GraphicsApi GraphicsApiHint = GraphicsApi::GfxApi_GL;
+  GraphicsApi ActualGraphicsApi;
+
  private:
-  void UpdateDimensions() override;
+  void UpdateDimensions();
   void TryCreateGL(GraphicsApi api);
   void CleanFBOs();
 

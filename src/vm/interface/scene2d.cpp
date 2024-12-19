@@ -115,8 +115,8 @@ void UpdateBackground2D() {
 
     if (Backgrounds2D[bufId]->IsScreencap) {
       Backgrounds2D[bufId]->BgSprite.BaseScale *=
-          glm::vec2(Profile::DesignWidth / Window->WindowWidth,
-                    Profile::DesignHeight / Window->WindowHeight);
+          glm::vec2(Profile::DesignWidth / Window.WindowWidth(),
+                    Profile::DesignHeight / Window.WindowHeight());
     }
   }
 }

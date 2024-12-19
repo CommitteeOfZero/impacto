@@ -331,7 +331,7 @@ VmInstruction(InstTerminate) {
   StartInstruction;
 
   ImpLog(LL_Info, LC_VM, "VM requested shutdown!\n");
-  Window->Shutdown();
+  Window.Shutdown();
   // BlockThread;
   // ResetInstruction;
 }
