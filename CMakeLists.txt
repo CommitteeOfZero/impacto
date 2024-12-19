@@ -1167,39 +1167,21 @@ target_include_directories(impacto PRIVATE ${PROJECT_BINARY_DIR}/include)
 if (ANDROID)
     install(TARGETS impacto LIBRARY DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/jniLibs/${CMAKE_ANDROID_ARCH_ABI}/)
 else ()
-    install(CODE [[
-        message("${VCPKG_INSTALLED_DIR};${LIBATRAC9_LIBRARY}")
-    ]])
-    install(TARGETS impacto RUNTIME_DEPENDENCY_SET Impacto_deps DESTINATION .)
+    message("Extra Libraries:")
+    message("${VCPKG_INSTALLED_DIR}")
+    message("${LIBATRAC9_LIBRARY}")
+    install(TARGETS impacto RUNTIME_DEPENDENCIES
+            POST_INCLUDE_FILES ${LIBATRAC9_LIBRARY}
+            DIRECTORIES ${VCPKG_INSTALLED_DIR}
+            RUNTIME DESTINATION .
+            LIBRARIES ./lib)
     if (LINUX)
-        install(CODE [[
-            file(GET_RUNTIME_DEPENDENCIES RESOLVED_DEPENDENCIES_VAR IMPACTO_DEPS EXECUTABLES
-            ${CMAKE_INSTALL_PREFIX}/impacto
-            POST_INCLUDE_FILES ${LIBATRAC9_LIBRARY}
-            DIRECTORIES ${VCPKG_INSTALLED_DIR}
-            )
-            message("${IMPACTO_DEPS}")
-        ]])
         install(RUNTIME_DEPENDENCY_SET Impacto_deps 
-            POST_INCLUDE_FILES ${LIBATRAC9_LIBRARY}
-            DIRECTORIES ${VCPKG_INSTALLED_DIR}
         )
     endif()
 endif ()
 
 if (APPLE)
-    install(CODE [[
-        message("apple pls")
-    ]])
-    install(CODE [[
-                file(GET_RUNTIME_DEPENDENCIES RESOLVED_DEPENDENCIES_VAR IMPACTO_DEPS EXECUTABLES
-                        ${CMAKE_INSTALL_PREFIX}/impacto
-                        POST_INCLUDE_FILES ${LIBATRAC9_LIBRARY}
-                        DIRECTORIES ${VCPKG_INSTALLED_DIR}          
-                    )
-                message("${IMPACTO_DEPS}")
-            ]])
-
     set_property(
         TARGET impacto
         PROPERTY INSTALL_RPATH
