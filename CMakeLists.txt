@@ -1170,10 +1170,10 @@ else ()
     install(TARGETS impacto RUNTIME_DEPENDENCY_SET deps DESTINATION .)
     if (NOT WIN32 AND NOT NX)
         install(RUNTIME_DEPENDENCY_SET deps 
-            LIBRARY 
-            DESTINATION ./lib 
+            DESTINATION ./lib
             POST_INCLUDE_FILES ${LIBATRAC9_LIBRARY}
-            DIRECTORIES ${VCPKG_INSTALLED_DIR})
+            DIRECTORIES ${VCPKG_INSTALLED_DIR}
+        )
     endif()
 endif ()
 
