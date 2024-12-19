@@ -8,6 +8,7 @@
 #include "../../log.h"
 #include "../3d/model.h"
 #include "../../util.h"
+#include "window.h"
 
 namespace Impacto {
 namespace OpenGL {
@@ -110,16 +111,18 @@ GLuint ShaderCompiler::Attach(GLuint program, GLenum shaderType,
   }
 
   const GLchar* codeParts[4];
-  codeParts[0] =
-      (ActualGraphicsApi != GfxApi_GL) ? ShaderHeaderES : ShaderHeader;
+  codeParts[0] = (Window.GetImpl<GLWindow>().ActualGraphicsApi != GfxApi_GL)
+                     ? ShaderHeaderES
+                     : ShaderHeader;
   codeParts[1] =
       shaderType == GL_VERTEX_SHADER ? ShaderHeaderVert : ShaderHeaderFrag;
   codeParts[2] = params;
   codeParts[3] = source;
 
   GLint codeLengths[4];
-  codeLengths[0] = (ActualGraphicsApi != GfxApi_GL) ? ShaderHeaderESLength
-                                                    : ShaderHeaderLength;
+  codeLengths[0] = (Window.GetImpl<GLWindow>().ActualGraphicsApi != GfxApi_GL)
+                       ? ShaderHeaderESLength
+                       : ShaderHeaderLength;
   codeLengths[1] = shaderType == GL_VERTEX_SHADER ? ShaderHeaderVertLength
                                                   : ShaderHeaderFragLength;
   codeLengths[2] = (GLint)strlen(params);

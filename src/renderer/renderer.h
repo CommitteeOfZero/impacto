@@ -10,9 +10,6 @@
 
 namespace Impacto {
 
-inline GraphicsApi GraphicsApiHint;
-inline GraphicsApi ActualGraphicsApi;
-
 enum class RendererOutlineMode { RO_None, RO_BottomRight, RO_Full };
 
 class BaseRenderer {
@@ -148,11 +145,10 @@ class BaseRenderer {
   bool IsInit = false;
 
   IScene3D* Scene = 0;
+  void static InitRenderer();
 };
 
 inline BaseRenderer* Renderer;
-inline BaseWindow* Window;
-
-void InitRenderer();
+inline WindowInterface Window;
 
 }  // namespace Impacto

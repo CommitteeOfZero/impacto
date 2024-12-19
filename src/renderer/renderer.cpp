@@ -14,7 +14,7 @@
 
 namespace Impacto {
 
-void InitRenderer() {
+void BaseRenderer::InitRenderer() {
   switch (Profile::ActiveRenderer) {
 #ifndef IMPACTO_DISABLE_OPENGL
     case RendererType::OpenGL:

@@ -35,6 +35,12 @@
            elapsed.count());                                  \
   } while (0)
 
+template <class... Ts>
+struct Overloaded : Ts... {
+  using Ts::operator()...;
+};
+template <class... Ts>
+Overloaded(Ts...) -> Overloaded<Ts...>;
 namespace Impacto {
 
 glm::mat2 Rotate2D(float angle);

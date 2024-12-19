@@ -251,6 +251,8 @@ set(Impacto_Src
 
         src/stbi_impl.c
 
+        src/renderer/window.cpp
+
         src/renderer/3d/camera.cpp
         src/renderer/3d/model.cpp
         src/renderer/3d/transform.cpp
@@ -349,6 +351,7 @@ set(Impacto_Header
 
         src/renderer/renderer.h
         src/renderer/window.h
+        src/renderer/windowtemplate.h
         src/renderer/yuvframe.h
 
         src/data/savesystem.h

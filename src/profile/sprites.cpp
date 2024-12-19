@@ -43,7 +43,7 @@ void LoadSpritesheets() {
     if (err != IoError_OK) {
       ImpLog(LL_Fatal, LC_Profile, "Could not open spritesheet %s\n",
              name.c_str());
-      Window->Shutdown();
+      Window.Shutdown();
     }
 
     futures.emplace_back(std::tuple(

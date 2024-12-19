@@ -75,7 +75,7 @@ int PushNextTableElement() { return lua_next(LuaState, -2); }
     bool success = TryGet##typeName(result);                                  \
     if (!success) {                                                           \
       ImpLog(LL_Fatal, LC_Profile, "Expected %s to be " typeDesc "\n");       \
-      Window->Shutdown();                                                     \
+      Window.Shutdown();                                                      \
     }                                                                         \
     return result;                                                            \
   }                                                                           \
@@ -128,7 +128,7 @@ int PushNextTableElement() { return lua_next(LuaState, -2); }
     if (actualCount != count) {                                               \
       ImpLog(LL_Fatal, LC_Profile, "Expected to have %d %s for %s, got %d\n", \
              count, #typeName "s", name, actualCount);                        \
-      Window->Shutdown();                                                     \
+      Window.Shutdown();                                                      \
     }                                                                         \
                                                                               \
     PushInitialIndex();                                                       \

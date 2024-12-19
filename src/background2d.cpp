@@ -22,14 +22,14 @@ void Background2D::Init() {
   }
 
   for (int i = 0; i < MaxScreencaptures; i++) {
-    Screencaptures[i].LoadSolidColor(0xFF000000, Window->WindowWidth,
-                                     Window->WindowHeight);
+    Screencaptures[i].LoadSolidColor(0xFF000000, Window.WindowWidth(),
+                                     Window.WindowHeight());
     Screencaptures[i].Status = LS_Loaded;
     Screencaptures[i].IsScreencap = true;
   }
 
-  ShaderScreencapture.LoadSolidColor(0xFF000000, Window->WindowWidth,
-                                     Window->WindowHeight);
+  ShaderScreencapture.LoadSolidColor(0xFF000000, Window.WindowWidth(),
+                                     Window.WindowHeight());
   ShaderScreencapture.Status = LS_Loaded;
   ShaderScreencapture.IsScreencap = true;
 }

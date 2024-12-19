@@ -7,6 +7,7 @@
 #include "../../game.h"
 #include "3d/scene.h"
 #include "utils.h"
+#include "window.h"
 
 #ifndef IMPACTO_DISABLE_IMGUI
 #include "imgui_impl_dx9.h"
@@ -20,15 +21,14 @@ void Renderer::Init() {
   ImpLog(LL_Info, LC_Render, "Initializing Renderer2D DirectX 9 system\n");
   IsInit = true;
 
-  DXWindow = new DirectX9Window();
-  DXWindow->Init();
-  Window = (BaseWindow*)DXWindow;
+  Window.Emplace<DirectX9Window>();
+  Window.Init();
 
   Interface = Direct3DCreate9(D3D_SDK_VERSION);
 
   SDL_SysWMinfo wmInfo;
   SDL_VERSION(&wmInfo.version);
-  SDL_GetWindowWMInfo(Window->SDLWindow, &wmInfo);
+  SDL_GetWindowWMInfo(Window.GetImpl<DirectX9Window>().SDLWindow, &wmInfo);
   HWND hWnd = wmInfo.info.win.window;
 
   D3DPRESENT_PARAMETERS d3dpp{};
@@ -93,7 +93,7 @@ void Renderer::Init() {
   if (Profile::GameFeatures & GameFeature::Scene3D) {
     Scene = new Scene3D(DXWindow, Device);
     Scene->Init();
-  }
+}
 
   // Fill index buffer with quads
   int index = 0;
@@ -120,7 +120,7 @@ void Renderer::Init() {
 
 #ifndef IMPACTO_DISABLE_IMGUI
   // Setup Platform/Renderer backends
-  ImGui_ImplSDL2_InitForD3D(DXWindow->SDLWindow);
+  ImGui_ImplSDL2_InitForD3D(Window.SDLWindow());
   ImGui_ImplDX9_Init(Device);
 #endif
 }
@@ -236,7 +236,7 @@ uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
 
   if (FAILED(texture->UnlockRect(0))) {
     ImpLog(LL_Error, LC_Render, "Failed to load texture!\n");
-    Window->Shutdown();
+    Window.Shutdown();
   }
 
   auto id = NextTextureId;
@@ -925,20 +925,20 @@ void Renderer::Flush() {
                                           sizeof(VertexBufferSprites));
     if (FAILED(result)) {
       ImpLog(LL_Debug, LC_Render, "Failed to set stream source!\n");
-      Window->Shutdown();
+      Window.Shutdown();
     }
 
     result = Device->SetIndices(IndexBufferDevice);
     if (FAILED(result)) {
       ImpLog(LL_Debug, LC_Render, "Failed to set stream indices!\n");
-      Window->Shutdown();
+      Window.Shutdown();
     }
 
     result = Device->DrawIndexedPrimitive(
         D3DPT_TRIANGLELIST, 0, 0, IndexBufferFill, 0, IndexBufferFill / 3);
     if (FAILED(result)) {
       ImpLog(LL_Debug, LC_Render, "Failed to draw!\n");
-      Window->Shutdown();
+      Window.Shutdown();
     }
   }
   IndexBufferFill = 0;
@@ -992,9 +992,9 @@ void Renderer::EnableScissor() {
 }
 
 void Renderer::SetScissorRect(RectF const& rect) {
-  Rect viewport = Window->GetViewport();
-  float scale = fmin((float)Window->WindowWidth / Profile::DesignWidth,
-                     (float)Window->WindowHeight / Profile::DesignHeight);
+  Rect viewport = Window.GetViewport();
+  float scale = fmin((float)Window.WindowWidth() / Profile::DesignWidth,
+                     (float)Window.WindowHeight() / Profile::DesignHeight);
   float rectX = rect.X * scale;
   float rectY = rect.Y * scale;
   float rectWidth = rect.Width * scale;

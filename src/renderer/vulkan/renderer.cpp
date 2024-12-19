@@ -50,9 +50,10 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance,
 
 void Renderer::CreateInstance() {
   unsigned int extensionCount = 0;
-  SDL_Vulkan_GetInstanceExtensions(Window->SDLWindow, &extensionCount, nullptr);
+  SDL_Vulkan_GetInstanceExtensions(Window.SDLWindow(), &extensionCount,
+                                   nullptr);
   std::vector<const char*> extensionNames(extensionCount);
-  SDL_Vulkan_GetInstanceExtensions(Window->SDLWindow, &extensionCount,
+  SDL_Vulkan_GetInstanceExtensions(Window.SDLWindow(), &extensionCount,
                                    extensionNames.data());
 
   VkApplicationInfo appInfo = {};
@@ -81,7 +82,7 @@ void Renderer::CreateInstance() {
   if (result != VK_SUCCESS) {
     ImpLog(LL_Error, LC_Render, "Failed to create Vulkan instance! 0x%04x\n",
            result);
-    Window->Shutdown();
+    Window.Shutdown();
   }
 }
 
@@ -101,7 +102,7 @@ void Renderer::SetupDebug() {
   if (CreateDebugUtilsMessengerEXT(Instance, &createInfo, nullptr,
                                    &DebugMessenger) != VK_SUCCESS) {
     ImpLog(LL_Error, LC_Render, "Failed to create Vulkan debug!");
-    Window->Shutdown();
+    Window.Shutdown();
   }
 }
 
@@ -111,7 +112,7 @@ void Renderer::PickPhysicalDevice() {
 
   if (deviceCount == 0) {
     ImpLog(LL_Error, LC_Render, "No suitable video adapter found!");
-    Window->Shutdown();
+    Window.Shutdown();
   }
 
   std::vector<VkPhysicalDevice> devices(deviceCount);
@@ -155,7 +156,7 @@ void Renderer::CreateLogicalDevice() {
 
   if (QueueIndices.GraphicsQueueIdx == 0xFFFFFFFF) {
     ImpLog(LL_Error, LC_Render, "No graphics queue found!");
-    Window->Shutdown();
+    Window.Shutdown();
   }
 
   const std::vector<const char*> deviceExtensions = {
@@ -190,7 +191,7 @@ void Renderer::CreateLogicalDevice() {
   if (vkCreateDevice(PhysicalDevice, &createInfo, nullptr, &Device) !=
       VK_SUCCESS) {
     ImpLog(LL_Error, LC_Render, "Failed to create logical device!");
-    Window->Shutdown();
+    Window.Shutdown();
   }
 
   vkGetDeviceQueue(Device, QueueIndices.GraphicsQueueIdx, 0, &GraphicsQueue);
@@ -207,10 +208,10 @@ void Renderer::CreateLogicalDevice() {
 }
 
 void Renderer::CreateSurface() {
-  if (SDL_Vulkan_CreateSurface(Window->SDLWindow, Instance, &Surface) !=
+  if (SDL_Vulkan_CreateSurface(Window.SDLWindow(), Instance, &Surface) !=
       SDL_TRUE) {
     ImpLog(LL_Error, LC_Render, "Failed to create surface!");
-    Window->Shutdown();
+    Window.Shutdown();
   }
 }
 
@@ -227,7 +228,7 @@ void Renderer::CreateSwapChain() {
       PhysicalDevice, Surface, &surfaceFormatsCount, surfaceFormats.data());
 
   int width, height = 0;
-  SDL_Vulkan_GetDrawableSize(Window->SDLWindow, &width, &height);
+  SDL_Vulkan_GetDrawableSize(Window.SDLWindow(), &width, &height);
 
   SwapChainExtent.width = width;
   SwapChainExtent.height = height;
@@ -293,7 +294,7 @@ void Renderer::CreateImageViews() {
     if (vkCreateImageView(Device, &createInfo, nullptr,
                           &SwapChainImageViews[i]) != VK_SUCCESS) {
       ImpLog(LL_Error, LC_Render, "Failed to create image view!");
-      Window->Shutdown();
+      Window.Shutdown();
     }
   }
 }
@@ -301,7 +302,7 @@ void Renderer::CreateImageViews() {
 void Renderer::CreateRenderPass() {
   VkAttachmentDescription colorAttachment{};
   colorAttachment.format = SwapChainImageFormat;
-  colorAttachment.samples = (VkSampleCountFlagBits)Window->MsaaCount;
+  colorAttachment.samples = (VkSampleCountFlagBits)Window.MsaaCount();
   colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
   colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
   colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -315,7 +316,7 @@ void Renderer::CreateRenderPass() {
 
   VkAttachmentDescription depthAttachment{};
   depthAttachment.format = VK_FORMAT_D32_SFLOAT;
-  depthAttachment.samples = (VkSampleCountFlagBits)Window->MsaaCount;
+  depthAttachment.samples = (VkSampleCountFlagBits)Window.MsaaCount();
   depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
   depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
   depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -347,7 +348,7 @@ void Renderer::CreateRenderPass() {
   subpass.colorAttachmentCount = 1;
   subpass.pColorAttachments = &colorAttachmentRef;
   subpass.pDepthStencilAttachment = &depthAttachmentRef;
-  if (Window->MsaaCount > 1)
+  if (Window.MsaaCount() > 1)
     subpass.pResolveAttachments = &colorAttachmentResolveRef;
 
   VkSubpassDependency dependency{};
@@ -365,7 +366,7 @@ void Renderer::CreateRenderPass() {
                                             colorAttachmentResolve};
   VkRenderPassCreateInfo renderPassInfo{};
   renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-  renderPassInfo.attachmentCount = Window->MsaaCount > 1 ? 3 : 2;
+  renderPassInfo.attachmentCount = Window.MsaaCount() > 1 ? 3 : 2;
   renderPassInfo.pAttachments = attachments;
   renderPassInfo.subpassCount = 1;
   renderPassInfo.pSubpasses = &subpass;
@@ -375,7 +376,7 @@ void Renderer::CreateRenderPass() {
   if (vkCreateRenderPass(Device, &renderPassInfo, nullptr, &RenderPass) !=
       VK_SUCCESS) {
     ImpLog(LL_Debug, LC_Render, "Failed to read create render pass!\n");
-    Window->Shutdown();
+    Window.Shutdown();
   }
 }
 
@@ -384,12 +385,12 @@ void Renderer::CreateFramebuffers() {
   for (size_t i = 0; i < SwapChainImageViews.size(); i++) {
     VkImageView attachments[] = {ColorImageView, DepthImageView,
                                  SwapChainImageViews[i]};
-    if (Window->MsaaCount == 1) attachments[0] = attachments[2];
+    if (Window.MsaaCount() == 1) attachments[0] = attachments[2];
 
     VkFramebufferCreateInfo framebufferInfo{};
     framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
     framebufferInfo.renderPass = RenderPass;
-    framebufferInfo.attachmentCount = Window->MsaaCount > 1 ? 3 : 2;
+    framebufferInfo.attachmentCount = Window.MsaaCount() > 1 ? 3 : 2;
     framebufferInfo.pAttachments = attachments;
     framebufferInfo.width = SwapChainExtent.width;
     framebufferInfo.height = SwapChainExtent.height;
@@ -398,7 +399,7 @@ void Renderer::CreateFramebuffers() {
     if (vkCreateFramebuffer(Device, &framebufferInfo, nullptr,
                             &SwapChainFramebuffers[i]) != VK_SUCCESS) {
       ImpLog(LL_Debug, LC_Render, "Failed to create framebuffer!\n");
-      Window->Shutdown();
+      Window.Shutdown();
     }
   }
 }
@@ -413,7 +414,7 @@ void Renderer::CreateCommandPool() {
       (vkCreateCommandPool(Device, &poolInfo, nullptr,
                            &MainUploadContext.CommandPool) != VK_SUCCESS)) {
     ImpLog(LL_Debug, LC_Render, "Failed to create command pool!\n");
-    Window->Shutdown();
+    Window.Shutdown();
   }
 }
 
@@ -430,7 +431,7 @@ void Renderer::CreateCommandBuffer() {
                                 &MainUploadContext.CommandBuffer) !=
        VK_SUCCESS)) {
     ImpLog(LL_Debug, LC_Render, "Failed to allocate command buffers!\n");
-    Window->Shutdown();
+    Window.Shutdown();
   }
 }
 
@@ -453,7 +454,7 @@ void Renderer::CreateSyncObjects() {
                       &MainUploadContext.UploadFence) != VK_SUCCESS) {
       ImpLog(LL_Debug, LC_Render,
              "Failed to create synchronization objects for a frame!\n");
-      Window->Shutdown();
+      Window.Shutdown();
     }
   }
 }
@@ -546,7 +547,7 @@ void Renderer::CreateColorAndDepthImage() {
   cimgInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
   cimgInfo.usage = VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT |
                    VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-  cimgInfo.samples = (VkSampleCountFlagBits)Window->MsaaCount;
+  cimgInfo.samples = (VkSampleCountFlagBits)Window.MsaaCount();
   VmaAllocationCreateInfo cimgAllocinfo = {};
   cimgAllocinfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
   vmaCreateImage(Allocator, &cimgInfo, &cimgAllocinfo, &ColorImage.Image,
@@ -570,7 +571,7 @@ void Renderer::CreateColorAndDepthImage() {
       GetImageCreateInfo(VK_FORMAT_D32_SFLOAT, imageExtent);
   dimgInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
   dimgInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-  dimgInfo.samples = (VkSampleCountFlagBits)Window->MsaaCount;
+  dimgInfo.samples = (VkSampleCountFlagBits)Window.MsaaCount();
   VmaAllocationCreateInfo dimgAllocinfo = {};
   dimgAllocinfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
   vmaCreateImage(Allocator, &dimgInfo, &dimgAllocinfo, &DepthImage.Image,
@@ -620,9 +621,8 @@ void Renderer::Init() {
   CurrentFrameIndex = 0;
   CurrentImageIndex = 0;
 
-  VkWindow = new VulkanWindow();
-  VkWindow->Init();
-  Window = (BaseWindow*)VkWindow;
+  Window.Emplace<VulkanWindow>();
+  Window.Init();
 
   CreateInstance();
   SetupDebug();
@@ -826,7 +826,7 @@ void Renderer::BeginFrame() {
   if (vkBeginCommandBuffer(CommandBuffers[CurrentFrameIndex], &beginInfo) !=
       VK_SUCCESS) {
     ImpLog(LL_Debug, LC_Render, "Failed to begin recording command buffer!\n");
-    Window->Shutdown();
+    Window.Shutdown();
   }
 
   VkRenderPassBeginInfo renderPassInfo{};
@@ -894,7 +894,7 @@ void Renderer::EndFrame() {
   vkCmdEndRenderPass(CommandBuffers[CurrentFrameIndex]);
   if (vkEndCommandBuffer(CommandBuffers[CurrentFrameIndex]) != VK_SUCCESS) {
     ImpLog(LL_Debug, LC_Render, "Failed to record command buffer!\n");
-    Window->Shutdown();
+    Window.Shutdown();
   }
 
   VkSubmitInfo submitInfo{};
@@ -916,7 +916,7 @@ void Renderer::EndFrame() {
   if (res != VK_SUCCESS) {
     ImpLog(LL_Debug, LC_Render,
            "Failed to submit draw command buffer! 0x%04x\n", res);
-    Window->Shutdown();
+    Window.Shutdown();
   }
 
   VkPresentInfoKHR presentInfo{};
@@ -2020,8 +2020,8 @@ void Renderer::SetScissorRect(RectF const& rect) {
   if (rect.X != PreviousScissorRect.X && rect.Y != PreviousScissorRect.Y &&
       rect.Width != PreviousScissorRect.Width &&
       rect.Height != PreviousScissorRect.Height) {
-    float scale = fmin((float)Window->WindowWidth / Profile::DesignWidth,
-                       (float)Window->WindowHeight / Profile::DesignHeight);
+    float scale = fmin((float)Window.WindowWidth() / Profile::DesignWidth,
+                       (float)Window.WindowHeight() / Profile::DesignHeight);
     float rectX = rect.X * scale;
     float rectY = rect.Y * scale;
     float rectWidth = rect.Width * scale;

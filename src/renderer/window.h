@@ -1,57 +1,67 @@
 #pragma once
 
+#include <functional>
+#include <stdexcept>
+#include <utility>
+#include <variant>
 #include <SDL.h>
-#include "../util.h"
+#include "opengl/window.h"
+#include "dx9/window.h"
+#include "vulkan/window.h"
 
 namespace Impacto {
-
-enum GraphicsApi {
-  GfxApi_GL,
-  // Forces the use of a GLES driver (e.g. ANGLE on Windows)
-  GfxApi_ForceNativeGLES,
-  // Forces GLES context on desktop GL driver
-  GfxApi_ForceDesktopGLES
-};
-
-class BaseWindow {
+class WindowInterface {
  public:
-  virtual void Init() = 0;
-  virtual void SetDimensions(int width, int height, int msaa,
-                             float renderScale) = 0;
+  WindowInterface() = default;
+
+  template <typename T>
+  explicit WindowInterface(T&& window) {
+    Impl.emplace(std::in_place, std::forward<T>(window));
+  }
+
+  template <typename T>
+  void Emplace() {
+    Impl.emplace<T>();
+  }
+
+  void Init();
+
+  void SetDimensions(int width, int height, int msaa, float renderScale);
   // Aspect ratio corrected viewport in window coordinates
-  virtual RectF GetViewport() = 0;
+  RectF GetViewport();
+
   // Aspect ratio corrected viewport in window coordinates scaled by RenderScale
-  virtual RectF GetScaledViewport() = 0;
-  virtual void SwapRTs() = 0;
-  virtual void Update() = 0;
-  virtual void Draw() = 0;
-  virtual void Shutdown() = 0;
+  RectF GetScaledViewport();
+  void SwapRTs();
+  void Update();
+  void Draw();
+  void Shutdown();
 
-  SDL_Window* SDLWindow;
+  int WindowWidth() const;
+  int WindowHeight() const;
+  SDL_Window* SDLWindow() const;
+  int MsaaCount() const;
+  float DpiScaleX() const;
+  float DpiScaleY() const;
+  float RenderScale() const;
+  bool WindowDimensionsChanged() const;
 
-  // Raw dimensions without aspect ratio correction. Only use for
-  // setting/determining resolution and drawing to window framebuffer!
-  int WindowWidth = 0;
-  int WindowHeight = 0;
+  template <typename T>
+  auto& GetImpl() const {
+    return std::get<T>(Impl);
+  }
 
-  // OS window dimensions * DpiScaleX/Y => WindowWidth/Height (real pixels)
-  // Always 1 unless high DPI support is SDL_WINDOW_ALLOW_HIGHDPI
-  float DpiScaleX = 1.0f;
-  float DpiScaleY = 1.0f;
-
-  int MsaaCount = 4;
-  float RenderScale = 1.0f;
-
-  bool WindowDimensionsChanged;
+  template <typename T>
+  auto& GetImpl() {
+    return std::get<T>(Impl);
+  }
 
  protected:
-  virtual void UpdateDimensions() = 0;
-  bool IsInit = false;
+  void UpdateDimensions();
 
-  int lastWidth = -1;
-  int lastHeight = -1;
-  int lastMsaa = 0;
-  float lastRenderScale = 1.0f;
+  std::variant<std::monostate, OpenGL::GLWindow, Vulkan::VulkanWindow,
+               DirectX9::DirectX9Window>
+      Impl;
 };
 
 }  // namespace Impacto

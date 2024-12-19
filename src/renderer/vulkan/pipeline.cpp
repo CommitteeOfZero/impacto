@@ -68,7 +68,7 @@ void Pipeline::CreateWithShader(
       (char*)SDL_LoadFile(vertexShaderPath.c_str(), &vertShaderCodeSize);
   if (!vertShaderCode) {
     ImpLog(LL_Debug, LC_Render, "Failed to read shader source file\n");
-    Window->Shutdown();
+    Window.Shutdown();
   }
 
   size_t fragShaderCodeSize;
@@ -78,7 +78,7 @@ void Pipeline::CreateWithShader(
       (char*)SDL_LoadFile(fragShaderPath.c_str(), &fragShaderCodeSize);
   if (!fragShaderCode) {
     ImpLog(LL_Debug, LC_Render, "Failed to read shader source file\n");
-    Window->Shutdown();
+    Window.Shutdown();
   }
 
   VkShaderModule vertShaderModule =
@@ -127,7 +127,8 @@ void Pipeline::CreateWithShader(
   multisampling.sType =
       VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
   multisampling.sampleShadingEnable = VK_FALSE;
-  multisampling.rasterizationSamples = (VkSampleCountFlagBits)Window->MsaaCount;
+  multisampling.rasterizationSamples =
+      (VkSampleCountFlagBits)Window.MsaaCount();
 
   VkPipelineColorBlendAttachmentState colorBlendAttachment{};
   colorBlendAttachment.colorWriteMask =
@@ -174,7 +175,7 @@ void Pipeline::CreateWithShader(
   if (vkCreatePipelineLayout(Device, &pipelineLayoutInfo, nullptr,
                              &PipelineLayout) != VK_SUCCESS) {
     ImpLog(LL_Error, LC_Render, "Failed to create pipeline layout!");
-    Window->Shutdown();
+    Window.Shutdown();
   }
 
   VkGraphicsPipelineCreateInfo pipelineInfo{};
@@ -197,7 +198,7 @@ void Pipeline::CreateWithShader(
   if (vkCreateGraphicsPipelines(Device, VK_NULL_HANDLE, 1, &pipelineInfo,
                                 nullptr, &GraphicsPipeline) != VK_SUCCESS) {
     ImpLog(LL_Error, LC_Render, "Failed to create graphics pipeline!");
-    Window->Shutdown();
+    Window.Shutdown();
   }
 
   vkDestroyShaderModule(Device, fragShaderModule, nullptr);
@@ -214,7 +215,7 @@ VkShaderModule Pipeline::CreateShaderModule(char const* code, size_t codeSize) {
   if (vkCreateShaderModule(Device, &createInfo, nullptr, &shaderModule) !=
       VK_SUCCESS) {
     ImpLog(LL_Error, LC_Render, "Failed to create shader module!");
-    Window->Shutdown();
+    Window.Shutdown();
   }
 
   return shaderModule;
