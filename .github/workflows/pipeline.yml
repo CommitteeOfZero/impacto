@@ -190,6 +190,15 @@ jobs:
     - name: "Print out cmake install script"
       if: always() && contains(matrix.os_name, 'macos')
       run: cat ${{ github.workspace }}/ci-build/ci-release/cmake_install.cmake
+    - name: "Test rpath command"
+      if: always() && contains(matrix.os_name, 'macos')
+      run: >
+        /usr/bin/install_name_tool \
+          -delete_rpath "/Users/runner/work/impacto/impacto/ci-build/ci-release/vcpkg_installed/arm64-osx-ci/lib/pkgconfig/../../lib" \
+          -delete_rpath "/Users/runner/work/impacto/impacto/ci-build/ci-release/vcpkg_installed/arm64-osx-ci/lib" \
+          -add_rpath "@loader_path" \
+          -add_rpath "@loader_path/lib" \
+          "/Users/runner/work/impacto/impacto/ci-build/ci-release/impacto"
     - name: Run Switch build
       if: matrix.os_name == 'switch'
       run: |-

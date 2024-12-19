@@ -1178,9 +1178,19 @@ else ()
 endif ()
 
 if (APPLE)
-    set_target_properties(impacto PROPERTIES INSTALL_RPATH "@loader_path;@loader_path/lib")
+    set_property(
+        TARGET impacto
+        PROPERTY INSTALL_RPATH
+        "@loader_path/"
+        "@loader_path/lib"
+    )
 elseif (LINUX)
-    set_target_properties(impacto PROPERTIES INSTALL_RPATH "$ORIGIN;$ORIGIN/lib")
+    set_property(
+        TARGET impacto
+        PROPERTY INSTALL_RPATH
+        "$ORIGIN/"
+        "$ORIGIN/lib"
+    )    
 elseif (WIN32)
     x_vcpkg_install_local_dependencies(TARGETS impacto DESTINATION .)
     install(FILES ${LIBATRAC9_INCLUDE_DIR}/../bin/${LIBATRAC9_ARCH}/libatrac9.dll DESTINATION .)
