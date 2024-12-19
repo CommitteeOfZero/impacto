@@ -1167,14 +1167,19 @@ target_include_directories(impacto PRIVATE ${PROJECT_BINARY_DIR}/include)
 if (ANDROID)
     install(TARGETS impacto LIBRARY DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/jniLibs/${CMAKE_ANDROID_ARCH_ABI}/)
 else ()
-    install(TARGETS impacto RUNTIME_DEPENDENCY_SET deps DESTINATION ${CMAKE_INSTALL_PREFIX})
+    install(TARGETS impacto RUNTIME_DEPENDENCY_SET deps DESTINATION .)
+    if (NOT WIN32 AND NOT NX)
+        install(RUNTIME_DEPENDENCY_SET deps 
+            LIBRARY 
+            DESTINATION ./lib 
+            POST_INCLUDE_FILES ${LIBATRAC9_LIBRARY}
+            DIRECTORIES ${VCPKG_INSTALLED_DIR})
+    endif()
 endif ()
 
 if (APPLE)
-    install(RUNTIME_DEPENDENCY_SET deps DIRECTORIES ${VCPKG_INSTALLED_DIR} POST_INCLUDE_FILES ${LIBATRAC9_LIBRARY})
     set_target_properties(impacto PROPERTIES INSTALL_RPATH "@loader_path;@loader_path/lib")
 elseif (LINUX)
-    install(RUNTIME_DEPENDENCY_SET deps DIRECTORIES ${VCPKG_INSTALLED_DIR} POST_INCLUDE_FILES ${LIBATRAC9_LIBRARY})
     set_target_properties(impacto PROPERTIES INSTALL_RPATH "$ORIGIN;$ORIGIN/lib")
 elseif (WIN32)
     x_vcpkg_install_local_dependencies(TARGETS impacto DESTINATION .)
