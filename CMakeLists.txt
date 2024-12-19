@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.28)
 
 project("impacto")
 
@@ -684,7 +684,32 @@ else ()
     message(STATUS "NOT enabling ASAN and UBSAN, consider enabling them when developing")
 endif ()
 
+
+if(ANDROID OR NX)
+    set(BUILD_SHARED_LIBS OFF)
+    set(LIBATRAC9_BUILD_SHARED OFF)
+endif()
+
 # dependencies
+FetchContent_Declare(
+    glm
+    GIT_REPOSITORY	https://github.com/g-truc/glm.git
+	GIT_TAG "1.0.1"
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glm
+    SYSTEM
+    EXCLUDE_FROM_ALL
+)
+
+FetchContent_Declare(
+    libatrac9
+    GIT_TAG "master"
+    GIT_REPOSITORY "https://github.com/Thealexbarney/LibAtrac9.git"
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/LibAtrac9
+    PATCH_COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/vendor/patches/LibAtrac9/CMakeLists.txt <SOURCE_DIR>/CMakeLists.txt
+    SYSTEM
+    EXCLUDE_FROM_ALL
+)
+
 FetchContent_Declare(
     fmt
     GIT_REPOSITORY "https://github.com/fmtlib/fmt.git"
@@ -713,8 +738,10 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(fmt)
+FetchContent_MakeAvailable(glm)
 FetchContent_MakeAvailable(pugixml)
 FetchContent_MakeAvailable(utf8cpp)
+FetchContent_MakeAvailable(libatrac9)
 
 if (NOT DEFINED IMPACTO_DISABLE_MMAP)
     list(APPEND Impacto_Src
@@ -743,29 +770,11 @@ if (WIN32)
     set(CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release)
 
     set(SDL2_LIBRARIES SDL2::SDL2 SDL2::SDL2main)
-    set(LIBATRAC9_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/vendor/LibAtrac9/include")
-
-    if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-        set(LIBATRAC9_ARCH "x64")
-    else ()
-        set(LIBATRAC9_ARCH "x86")
-    endif ()
-
-    set(LIBATRAC9_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/vendor/LibAtrac9/bin/${LIBATRAC9_ARCH}/libatrac9.lib")
 endif ()
 
-
-find_package(Libatrac9 REQUIRED)
-find_package(glm REQUIRED)
-
-if (NX) # avoid CMAKE_DL_LIBS for NX
+if (NOT NX) # avoid CMAKE_DL_LIBS for NX
     set(Impacto_Libs
-            ${LIBATRAC9_LIBRARY}
-    )
-else ()
-    set(Impacto_Libs
-            ${CMAKE_DL_LIBS}
-            ${LIBATRAC9_LIBRARY}
+        ${CMAKE_DL_LIBS}
     )
 endif ()
 
@@ -847,12 +856,12 @@ else ()
     find_package(OggVorbis REQUIRED)
     find_package(WebP REQUIRED)
 
-    include_directories(${OGGVORBIS_INCLUDE_DIRS})
+    list(APPEND Impacto_Include_Dirs ${OGGVORBIS_INCLUDE_DIRS})
 
     if (NX)
         list(APPEND Impacto_Libs
                 ${SDL2_LIBRARIES}
-                glm
+                glm::glm
                 ZLIB::ZLIB
                 vorbisfile
                 vorbis
@@ -879,34 +888,25 @@ else ()
                 ZLIB::ZLIB
                 ${OGGVORBIS_LIBRARIES}
                 ${WebP_LIBRARIES}
+                glm::glm
         )
-
-        if (VCPKG_TOOLCHAIN)
-            list(APPEND Impacto_Libs
-                    glm::glm
-            )
-        elseif (NOT APPLE) # If we don't do this it decides to link glm as a library on macOS for some reason
-            list(APPEND Impacto_Libs
-                    glm
-            )
-        endif ()
 
         add_definitions(-DIMPACTO_OPENAL_HAVE_ALEXT)
     endif ()
 endif ()
 
-include_directories(${LIBATRAC9_INCLUDE_DIR})
 if (NOT DEFINED IMPACTO_DISABLE_OPENAL)
-    include_directories(${OPENAL_INCLUDE_DIR})
+    list(APPEND Impacto_Include_Dirs ${OPENAL_INCLUDE_DIR})
 endif ()
-include_directories(${SDL2_INCLUDE_DIRS})
-include_directories(${WebP_INCLUDE_DIRS})
-include_directories(vendor/include)
-include_directories(vendor/pcg/include)
+list(APPEND Impacto_Include_Dirs ${SDL2_INCLUDE_DIRS})
+list(APPEND Impacto_Include_Dirs ${WebP_INCLUDE_DIRS})
+list(APPEND Impacto_Include_Dirs vendor/include)
+list(APPEND Impacto_Include_Dirs vendor/pcg/include)
 
 list(APPEND Impacto_Libs
         fmt::fmt
         pugixml::pugixml
+        atrac9::atrac9
 )
 
 if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
@@ -961,8 +961,8 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
         )
     endif ()
 
-    include_directories(${imgui_SOURCE_DIR})
-    include_directories(${imgui_SOURCE_DIR}/backends)
+    list(APPEND Impacto_Include_Dirs ${imgui_SOURCE_DIR})
+    list(APPEND Impacto_Include_Dirs ${imgui_SOURCE_DIR}/backends)
 endif ()
 
 if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
@@ -987,7 +987,7 @@ if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
             src/renderer/opengl/3d/scene.h
     )
 
-    include_directories(vendor/glad/include)
+    list(APPEND Impacto_Include_Dirs vendor/glad/include)
 endif ()
 
 if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
@@ -1001,7 +1001,7 @@ if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
     )
 
     if (NOT VCPKG_TOOLCHAIN)
-    set(AVCPP_PATCH git apply ${CMAKE_CURRENT_SOURCE_DIR}/vendor/avcpp.patch)
+        set(AVCPP_PATCH git apply ${CMAKE_CURRENT_SOURCE_DIR}/vendor/patches/avcpp.patch)
         FetchContent_Declare(
             avcpp
             GIT_REPOSITORY "https://github.com/h4tr3d/avcpp"
@@ -1022,8 +1022,8 @@ if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
         list(APPEND Impacto_Libs
             ${FFMPEG_LIBRARIES}
         )
-        include_directories(${FFMPEG_INCLUDE_DIRS})
-        include_directories(${AvCpp_SOURCE_DIR}/src)
+        list(APPEND Impacto_Include_Dirs ${FFMPEG_INCLUDE_DIRS})
+        list(APPEND Impacto_Include_Dirs ${AvCpp_SOURCE_DIR}/src)
 
     else ()
         find_package(avcpp CONFIG REQUIRED)
@@ -1047,7 +1047,7 @@ if (NOT DEFINED IMPACTO_DISABLE_MSPACK)
     list(APPEND Impacto_Header
             src/io/lzxstream.h
     )
-    include_directories(vendor/mspack)
+    list(APPEND Impacto_Include_Dirs vendor/mspack)
 endif ()
 
 if (NOT DEFINED IMPACTO_DISABLE_VULKAN)
@@ -1075,7 +1075,7 @@ if (NOT DEFINED IMPACTO_DISABLE_VULKAN)
     list(APPEND Impacto_Libs
             ${Vulkan_LIBRARIES}
     )
-    include_directories(${Vulkan_INCLUDE_DIRS})
+    list(APPEND Impacto_Include_Dirs ${Vulkan_INCLUDE_DIRS})
 endif ()
 
 if (NOT DEFINED IMPACTO_DISABLE_DX9)
@@ -1128,7 +1128,7 @@ else ()
         add_definitions(-DENV64BIT)
     else ()
         add_definitions(-DENV32BIT)
-    endif ()
+        endif ()
 endif ()
 
 add_definitions(-DGLM_FORCE_RADIANS) # lol
@@ -1136,42 +1136,63 @@ add_definitions(-DGLM_FORCE_RADIANS) # lol
 # target configuration
 
 if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-    set(IMPACTO_ENABLE_SLOW_LOG_DEFAULT ON)
-    set(IMPACTO_GL_DEBUG_DEFAULT ON)
+set(IMPACTO_ENABLE_SLOW_LOG_DEFAULT ON)
+set(IMPACTO_GL_DEBUG_DEFAULT ON)
 else ()
-    set(IMPACTO_ENABLE_SLOW_LOG_DEFAULT OFF)
-    set(IMPACTO_GL_DEBUG_DEFAULT OFF)
+set(IMPACTO_ENABLE_SLOW_LOG_DEFAULT OFF)
+set(IMPACTO_GL_DEBUG_DEFAULT OFF)
 endif ()
 
 option(IMPACTO_ENABLE_SLOW_LOG
-        "Compile log statements that get hit very frequently or are in a hot path"
-        ${IMPACTO_ENABLE_SLOW_LOG_DEFAULT})
+"Compile log statements that get hit very frequently or are in a hot path"
+${IMPACTO_ENABLE_SLOW_LOG_DEFAULT})
 option(IMPACTO_GL_DEBUG
-        "Use an OpenGL debug context and log messages"
-        ${IMPACTO_GL_DEBUG_DEFAULT})
+"Use an OpenGL debug context and log messages"
+${IMPACTO_GL_DEBUG_DEFAULT})
 
 if (EMSCRIPTEN)
-    set(IMPACTO_HAVE_THREADS OFF)
-    set(IMPACTO_USE_SDL_HIGHDPI ON)
+set(IMPACTO_HAVE_THREADS OFF)
+set(IMPACTO_USE_SDL_HIGHDPI ON)
 else ()
-    set(IMPACTO_HAVE_THREADS ON)
-    set(IMPACTO_USE_SDL_HIGHDPI OFF)
+set(IMPACTO_HAVE_THREADS ON)
+set(IMPACTO_USE_SDL_HIGHDPI OFF)
 endif ()
 
 configure_file(src/config.h.in ${PROJECT_BINARY_DIR}/include/config.h)
+target_include_directories(impacto PRIVATE ${Impacto_Include_Dirs})
 target_include_directories(impacto PRIVATE ${PROJECT_BINARY_DIR}/include)
 
 # binary install
 
 if (ANDROID)
     install(TARGETS impacto LIBRARY DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/jniLibs/${CMAKE_ANDROID_ARCH_ABI}/)
-else ()
+elseif (NX)
     install(TARGETS impacto RUNTIME DESTINATION .)
-endif ()
-
-if (WIN32)
+elseif (WIN32)
+    install(TARGETS impacto RUNTIME DESTINATION .)
     x_vcpkg_install_local_dependencies(TARGETS impacto DESTINATION .)
-    install(FILES ${LIBATRAC9_INCLUDE_DIR}/../bin/${LIBATRAC9_ARCH}/libatrac9.dll DESTINATION .)
+else()
+    if (APPLE)
+        set_property(
+            TARGET impacto
+            PROPERTY INSTALL_RPATH
+            "@loader_path/"
+            "@loader_path/lib"
+        )
+    elseif (LINUX)
+        set_property(
+            TARGET impacto
+            PROPERTY INSTALL_RPATH
+            "$ORIGIN/"
+            "$ORIGIN/lib"
+            )  
+    endif()
+    install(TARGETS impacto 
+        RUNTIME_DEPENDENCIES
+        RUNTIME DESTINATION .
+        LIBRARY DESTINATION ./lib
+        FRAMEWORK DESTINATION ./lib
+    )
 endif ()
 
 # asset install

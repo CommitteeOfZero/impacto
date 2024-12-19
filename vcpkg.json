@@ -15,7 +15,6 @@
     "libogg",
     "libvorbis",
     "zlib",
-    "glm",
     "avcpp",
     "libwebp"
   ]
