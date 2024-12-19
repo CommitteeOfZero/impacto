@@ -183,9 +183,6 @@ jobs:
             '-DVCPKG_HOST_TRIPLET=${{ matrix.host_triplet }}',
           ]
         buildPreset: ${{ env.PresetName }}
-    - name: "Print out cmake install script"
-      if: always()
-      run: cat ${{ github.workspace }}/ci-build/ci-release/cmake_install.cmake
     - name: Run Switch build
       if: matrix.os_name == 'switch'
       run: |-
