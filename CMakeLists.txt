@@ -1172,9 +1172,8 @@ elseif (WIN32)
     install(TARGETS impacto RUNTIME DESTINATION .)
     x_vcpkg_install_local_dependencies(TARGETS impacto DESTINATION .)
     install(FILES ${LIBATRAC9_INCLUDE_DIR}/../bin/${LIBATRAC9_ARCH}/libatrac9.dll DESTINATION .)
-    else ()
+else()
     if (APPLE)
-        install(TARGETS impacto RUNTIME DESTINATION .)
         set_property(
             TARGET impacto
             PROPERTY INSTALL_RPATH
@@ -1182,20 +1181,20 @@ elseif (WIN32)
             "@loader_path/lib"
         )
     elseif (LINUX)
-        install(TARGETS impacto 
-            RUNTIME_DEPENDENCIES
-            POST_INCLUDE_FILES ${LIBATRAC9_LIBRARY}
-            RUNTIME DESTINATION .
-            LIBRARY DESTINATION ./lib
-            FRAMEWORK DESTINATION ./lib
-        )
         set_property(
             TARGET impacto
             PROPERTY INSTALL_RPATH
             "$ORIGIN/"
             "$ORIGIN/lib"
-        )  
+            )  
     endif()
+    install(TARGETS impacto 
+        RUNTIME_DEPENDENCIES
+        POST_INCLUDE_FILES ${LIBATRAC9_LIBRARY}
+        RUNTIME DESTINATION .
+        LIBRARY DESTINATION ./lib
+        FRAMEWORK DESTINATION ./lib
+    )
 endif ()
 
 # asset install
