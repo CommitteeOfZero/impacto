@@ -1176,18 +1176,17 @@ else ()
     install(TARGETS impacto 
         RUNTIME_DEPENDENCIES
         POST_INCLUDE_FILES ${LIBATRAC9_LIBRARY}
-        DIRECTORIES ${VCPKG_INSTALLED_DIR}
         RUNTIME DESTINATION .
         LIBRARY DESTINATION ./lib
         FRAMEWORK DESTINATION ./lib
     )
     if (APPLE)
-        # set_property(
-        #     TARGET impacto
-        #     PROPERTY INSTALL_RPATH
-        #     "@loader_path/"
-        #     "@loader_path/lib"
-        # )
+        set_property(
+            TARGET impacto
+            PROPERTY INSTALL_RPATH
+            "@loader_path/"
+            "@loader_path/lib"
+        )
     elseif (LINUX)
         set_property(
             TARGET impacto
