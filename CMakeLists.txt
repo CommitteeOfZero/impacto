@@ -1166,38 +1166,36 @@ target_include_directories(impacto PRIVATE ${PROJECT_BINARY_DIR}/include)
 
 if (ANDROID)
     install(TARGETS impacto LIBRARY DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/jniLibs/${CMAKE_ANDROID_ARCH_ABI}/)
-else ()
-    message("Extra Libraries:")
-    message("${VCPKG_INSTALLED_DIR}")
-    message("${LIBATRAC9_LIBRARY}")
-    install(TARGETS impacto RUNTIME_DEPENDENCIES
-            POST_INCLUDE_FILES ${LIBATRAC9_LIBRARY}
-            DIRECTORIES ${VCPKG_INSTALLED_DIR}
-            RUNTIME DESTINATION .
-            LIBRARIES ./lib)
-    if (LINUX)
-        install(RUNTIME_DEPENDENCY_SET Impacto_deps 
-        )
-    endif()
-endif ()
-
-if (APPLE)
-    set_property(
-        TARGET impacto
-        PROPERTY INSTALL_RPATH
-        "@loader_path/"
-        "@loader_path/lib"
-    )
-elseif (LINUX)
-    set_property(
-        TARGET impacto
-        PROPERTY INSTALL_RPATH
-        "$ORIGIN/"
-        "$ORIGIN/lib"
-    )    
+elseif (NX)
+    install(TARGETS impacto RUNTIME DESTINATION .)
 elseif (WIN32)
+    install(TARGETS impacto RUNTIME DESTINATION .)
     x_vcpkg_install_local_dependencies(TARGETS impacto DESTINATION .)
     install(FILES ${LIBATRAC9_INCLUDE_DIR}/../bin/${LIBATRAC9_ARCH}/libatrac9.dll DESTINATION .)
+else ()
+    install(TARGETS impacto 
+        RUNTIME_DEPENDENCIES
+        POST_INCLUDE_FILES ${LIBATRAC9_LIBRARY}
+        DIRECTORIES ${VCPKG_INSTALLED_DIR}
+        RUNTIME DESTINATION .
+        LIBRARIES DESTINATION ./lib
+        FRAMEWORK DESTINATION ./lib
+    )
+    if (APPLE)
+        set_property(
+            TARGET impacto
+            PROPERTY INSTALL_RPATH
+            "@loader_path/"
+            "@loader_path/lib"
+        )
+    elseif (LINUX)
+        set_property(
+            TARGET impacto
+            PROPERTY INSTALL_RPATH
+            "$ORIGIN/"
+            "$ORIGIN/lib"
+        )  
+    endif()
 endif ()
 
 # asset install
