@@ -1182,12 +1182,12 @@ else ()
         FRAMEWORK DESTINATION ./lib
     )
     if (APPLE)
-        set_property(
-            TARGET impacto
-            PROPERTY INSTALL_RPATH
-            "@loader_path/"
-            "@loader_path/lib"
-        )
+        # set_property(
+        #     TARGET impacto
+        #     PROPERTY INSTALL_RPATH
+        #     "@loader_path/"
+        #     "@loader_path/lib"
+        # )
     elseif (LINUX)
         set_property(
             TARGET impacto
