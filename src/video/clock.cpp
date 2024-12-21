@@ -1,4 +1,5 @@
 #include "clock.h"
+#include "../impacto.h"
 
 extern "C" {
 #include <libavutil/time.h>
