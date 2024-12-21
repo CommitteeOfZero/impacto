@@ -156,7 +156,7 @@ void FFmpegAudioPlayer::Process() {
     auto audioTime = av::Timestamp(samplePosition, av::Rational(1, sampleRate));
     double audioS = audioTime.seconds();
     ImpLogSlow(LL_Trace, LC_Video, "samplePosition: %f\n", audioS);
-    AudioClock.Set(audioTime, 0);
+    AudioClock.Set(audioS, 0);
 
     FillAudioBuffers();
     ALint sourceState;
