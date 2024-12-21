@@ -7,15 +7,16 @@
 #include <dictionary.h>
 #include <formatcontext.h>
 #include <codeccontext.h>
-#include <libavutil/avutil.h>
-#include <libavutil/time.h>
 #include <timestamp.h>
-
 #include <packet.h>
 #include <rational.h>
 
+extern "C" {
+#include <libavutil/avutil.h>
+#include <libavutil/time.h>
+}
+
 #include <algorithm>
-#include <chrono>
 #include <cstdint>
 #include <mutex>
 #include <optional>
