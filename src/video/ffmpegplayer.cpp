@@ -225,12 +225,12 @@ bool FFmpegPlayer::QueuesHaveEnoughPackets() {
     return VideoStream->PacketQueue.size();
   }();
 
-  const size_t audioQueueSize = [this]() {
+  const size_t audioQueueSize = [this]() -> size_t {
     if (AudioStream) {
       std::lock_guard audioPacketLock(AudioStream->PacketLock);
       return AudioStream->PacketQueue.size();
     }
-    return 26ull;
+    return 26;
   }();
   return (videoQueueSize > 25 && audioQueueSize > 25);
 }
