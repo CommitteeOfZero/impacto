@@ -2,22 +2,12 @@
 
 namespace Impacto::Video {
 
-Clock::Clock() {
-  Speed = 1.0;
-  Paused = true;
-  Pts = MonotonicClock::duration::min();
-  LastUpdated = MonotonicClock::duration::min();
-  PtsDrift = MonotonicClock::duration::min();
-  Serial = -1;
-}
-
 void Clock::SyncTo(Clock const& target) {
-  DoubleSeconds clock = Get();
-  DoubleSeconds targetClock = target.Get();
-  if (targetClock == MonotonicClock::duration::min() &&
-      (clock != MonotonicClock::duration::min() ||
-       std::chrono::abs(clock - targetClock) > DoubleSeconds(10.0))) {
-    Set(targetClock, target.Serial);
+  std::optional<DoubleSeconds> clock = Get();
+  std::optional<DoubleSeconds> targetClock = target.Get();
+  if ((!targetClock && clock) ||
+      std::chrono::abs(*clock - *targetClock) > DoubleSeconds(10.0)) {
+    Set(*targetClock, target.Serial);
     Paused = false;
   }
 }
@@ -31,8 +21,11 @@ void Clock::Set(av::Timestamp const& pts, int serial) {
   Serial = serial;
 }
 
-Clock::DoubleSeconds Clock::Get() const {
-  if (Paused || Pts == MonotonicClock::duration::min()) {
+std::optional<Clock::DoubleSeconds> Clock::Get() const {
+  if (Pts == DoubleSeconds::zero()) {
+    return std::nullopt;
+  }
+  if (Paused) {
     return Pts;
   }
   DoubleSeconds time = MonotonicClock::now().time_since_epoch();

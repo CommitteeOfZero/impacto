@@ -471,21 +471,21 @@ void FFmpegPlayer::Update(float dt) {
       }
       return;
     }
+    Clock::DoubleSeconds time = Clock::MonotonicClock::now().time_since_epoch();
     if (FrameTimer == FrameTimer.zero()) {
-      FrameTimer = Clock::MonotonicClock::now().time_since_epoch();
+      FrameTimer = time;
     }
-    auto time = Clock::MonotonicClock::now().time_since_epoch();
     std::chrono::duration<double> duration{};
     if (PreviousFrameTimestamp.isValid()) {
       auto inverseFrameRate = av::Rational(1, 30);
-      int frameNum = av_rescale_q(frame.Timestamp.timestamp(),
-                                  frame.Timestamp.timebase().getValue(),
-                                  inverseFrameRate.getValue());
+      size_t frameNum = av_rescale_q(frame.Timestamp.timestamp(),
+                                     frame.Timestamp.timebase().getValue(),
+                                     inverseFrameRate.getValue());
       // This isn't the place for it but I can't think of
       // anything right now
-      ScrWork[SW_MOVIEFRAME] = frameNum;
+      ScrWork[SW_MOVIEFRAME] = (int)frameNum;
       duration = std::chrono::duration<double>(
-          (frame.Timestamp - PreviousFrameTimestamp).seconds());
+          (frame.Timestamp.seconds() - PreviousFrameTimestamp.seconds()));
     }
 
     if (AudioStream) {
@@ -533,13 +533,19 @@ void FFmpegPlayer::Render(float videoAlpha) {
 
 Clock::DoubleSeconds FFmpegPlayer::GetTargetDelay(
     Clock::DoubleSeconds duration) {
-  auto diff = (VideoClock.Get() - MasterClock->Get());
-  auto sync_threshold = std::max(Clock::DoubleSeconds(0.04),
-                                 std::min(Clock::DoubleSeconds(0.1), duration));
+  using std::chrono_literals::operator""s;  // Double Seconds
+  auto videoTime = VideoClock.Get();
+  auto masterTime = MasterClock->Get();
+  if (!videoTime || !masterTime) {
+    return duration;
+  }
+  auto diff = (*videoTime - *masterTime);
+
+  auto sync_threshold = std::clamp(duration, 0.04s, 0.1s);
   if (!isnan(diff.count()) && std::chrono::abs(diff) < MaxFrameDuration) {
     if (diff <= -sync_threshold)
-      duration = std::max(Clock::DoubleSeconds(0.0), duration + diff);
-    else if (diff >= sync_threshold && duration > Clock::DoubleSeconds(0.1))
+      duration = std::max(0.0s, duration + diff);
+    else if (diff >= sync_threshold && duration > 0.1s)
       duration = duration + diff;
     else if (diff >= sync_threshold)
       duration = 2 * duration;
