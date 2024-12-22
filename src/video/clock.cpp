@@ -1,42 +1,42 @@
 #include "clock.h"
+#include "../impacto.h"
+
+extern "C" {
+#include <libavutil/time.h>
+}
 
 namespace Impacto::Video {
 
-Clock::Clock() {
-  Speed = 1.0;
-  Paused = true;
-  Pts = MonotonicClock::duration::min();
-  LastUpdated = MonotonicClock::duration::min();
-  PtsDrift = MonotonicClock::duration::min();
-  Serial = -1;
+Clock::Clock()
+    : Pts(NAN),
+      PtsDrift(NAN),
+      LastUpdated(av_gettime_relative() / 1000000.0),
+      Speed(1.0),
+      Serial(-1),
+      Paused(false) {}
+
+void Clock::SyncTo(Clock* target) {
+  double clock = Get();
+  double targetClock = target->Get();
+  if (!isnan(targetClock) && (isnan(clock) || fabs(clock - targetClock) > 10.0))
+    Set(targetClock, target->Serial);
 }
 
-void Clock::SyncTo(Clock const& target) {
-  DoubleSeconds clock = Get();
-  DoubleSeconds targetClock = target.Get();
-  if (targetClock == MonotonicClock::duration::min() &&
-      (clock != MonotonicClock::duration::min() ||
-       std::chrono::abs(clock - targetClock) > DoubleSeconds(10.0))) {
-    Set(targetClock, target.Serial);
-    Paused = false;
-  }
-}
-
-void Clock::Set(av::Timestamp const& pts, int serial) {
-  Paused = false;
-  DoubleSeconds time = MonotonicClock::now().time_since_epoch();
-  Pts = DoubleSeconds{pts.seconds()};
+void Clock::Set(double pts, int serial) {
+  double time = av_gettime_relative() / 1000000.0;
+  Pts = pts;
   LastUpdated = time;
   PtsDrift = Pts - time;
   Serial = serial;
 }
 
-Clock::DoubleSeconds Clock::Get() const {
-  if (Paused || Pts == MonotonicClock::duration::min()) {
+double Clock::Get() {
+  if (Paused) {
     return Pts;
+  } else {
+    double time = av_gettime_relative() / 1000000.0;
+    return PtsDrift + time - (time - LastUpdated) * (1.0 - Speed);
   }
-  DoubleSeconds time = MonotonicClock::now().time_since_epoch();
-  return PtsDrift + time - (time - LastUpdated) * (1.0 - Speed);
 }
 
 }  // namespace Impacto::Video

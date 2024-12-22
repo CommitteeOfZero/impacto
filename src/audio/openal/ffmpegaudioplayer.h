@@ -30,7 +30,7 @@ class FFmpegAudioPlayer : public Audio::FFmpegAudioPlayer {
   uint8_t HostBuffer[AudioBufferSize];
   int FirstFreeBuffer = 0;
   int FreeBufferCount = AudioBufferCount;
-  int BufferStartPositions[AudioBufferCount];
+  int BufferStartPositions[AudioBufferCount] = {};
   bool First = true;
 };
 

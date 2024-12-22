@@ -8,12 +8,15 @@
 #include <formatcontext.h>
 #include <codeccontext.h>
 #include <timestamp.h>
-
 #include <packet.h>
 #include <rational.h>
 
+extern "C" {
+#include <libavutil/avutil.h>
+#include <libavutil/time.h>
+}
+
 #include <algorithm>
-#include <chrono>
 #include <cstdint>
 #include <mutex>
 #include <optional>
@@ -127,7 +130,6 @@ template void FFmpegPlayer::OpenCodec(
 void FFmpegPlayer::Play(Io::Stream* stream, bool looping, bool alpha) {
   // Don't do anything if we don't have the video system
   if (!IsInit) return;
-
   if (stream == nullptr) {
     ImpLog(LL_Error, LC_Video,
            "Stream was a nullptr! This means the caller is buggy. Backing "
@@ -199,7 +201,7 @@ void FFmpegPlayer::Play(Io::Stream* stream, bool looping, bool alpha) {
 
   VideoClock = Clock();
   MasterClock = &VideoClock;
-  MaxFrameDuration = Clock::DoubleSeconds{
+  MaxFrameDuration = {
       FormatContext.inputFormat().flags() & AVFMT_TS_DISCONT ? 10.0 : 3600.0};
 
   // Danger zone
@@ -218,17 +220,18 @@ void FFmpegPlayer::Play(Io::Stream* stream, bool looping, bool alpha) {
 }
 
 bool FFmpegPlayer::QueuesHaveEnoughPackets() {
-  size_t videoQueueSize = [this]() {
+  const size_t videoQueueSize = [this]() {
     std::lock_guard videoPacketLock(VideoStream->PacketLock);
     return VideoStream->PacketQueue.size();
   }();
 
-  size_t audioQueueSize = 0;
-  if (AudioStream) {
-    std::lock_guard audioPacketLock(AudioStream->PacketLock);
-    audioQueueSize = AudioStream->PacketQueue.size();
-  }
-
+  const size_t audioQueueSize = [this]() -> size_t {
+    if (AudioStream) {
+      std::lock_guard audioPacketLock(AudioStream->PacketLock);
+      return AudioStream->PacketQueue.size();
+    }
+    return 26;
+  }();
   return (videoQueueSize > 25 && audioQueueSize > 25);
 }
 
@@ -252,8 +255,8 @@ void FFmpegPlayer::HandleSeekRequest() {
     AudioStream->FlushFrameQueue();
   }
 
-  FrameTimer = FrameTimer.min();
-  PreviousFrameTimestamp = {};
+  FrameTimer = 0;
+  PreviousFrameTimestamp = -1;
 }
 
 void FFmpegPlayer::Read() {
@@ -304,7 +307,6 @@ void FFmpegPlayer::Read() {
 
 template <AVMediaType MediaType>
 void FFmpegPlayer::Decode() {
-  int ret = 0;
   std::mutex waitMutex;
   FFmpegStream<MediaType>* stream;
   if constexpr (MediaType == AVMEDIA_TYPE_VIDEO)
@@ -450,71 +452,74 @@ void FFmpegPlayer::Seek(int64_t pos) {
 void FFmpegPlayer::Update(float dt) {
   if (IsPlaying) {
     if (AudioStream) AudioPlayer->Process();
-    AVFrameItem<AVMEDIA_TYPE_VIDEO> frame;
+    double duration{};
+    double time;
     {
-      std::unique_lock frameLock(VideoStream->FrameLock);
-      if (VideoStream->FrameQueue.empty()) {
+      std::unique_lock frameLock{VideoStream->FrameLock};
+      size_t frameQueueSize = VideoStream->FrameQueue.size();
+      if (frameQueueSize == 0) {
+        frameLock.unlock();
         VideoStream->DecodeCond.notify_one();
         return;
       }
-      ImpLogSlow(LL_Trace, LC_Video, "VideoStream->FrameQueue.size() = %d\n",
-                 VideoStream->FrameQueue.size());
-      frame = VideoStream->FrameQueue.front();
-      SetFlag(SF_MOVIE_DRAWWAIT, false);
-    }
+      AVFrameItem<AVMEDIA_TYPE_VIDEO> const& frame =
+          VideoStream->FrameQueue.front();
 
-    if (frame.Serial == INT32_MIN) {
-      if (Looping) {
-        Seek(0);
-      } else {
-        Stop();
+      ImpLogSlow(LL_Trace, LC_Video, "VideoStream->FrameQueue.size() = %d\n",
+                 frameQueueSize);
+      SetFlag(SF_MOVIE_DRAWWAIT, false);
+
+      if (frame.Serial == INT32_MIN) {
+        if (Looping) {
+          Seek(0);
+        } else {
+          Stop();
+        }
+        return;
       }
-      return;
-    }
-    if (FrameTimer == FrameTimer.zero()) {
-      FrameTimer = Clock::MonotonicClock::now().time_since_epoch();
-    }
-    auto time = Clock::MonotonicClock::now().time_since_epoch();
-    std::chrono::duration<double> duration{};
-    if (PreviousFrameTimestamp.isValid()) {
-      auto inverseFrameRate = av::Rational(1, 30);
-      int frameNum = av_rescale_q(frame.Timestamp.timestamp(),
-                                  frame.Timestamp.timebase().getValue(),
-                                  inverseFrameRate.getValue());
-      // This isn't the place for it but I can't think of
-      // anything right now
-      ScrWork[SW_MOVIEFRAME] = frameNum;
-      duration = std::chrono::duration<double>(
-          (frame.Timestamp - PreviousFrameTimestamp).seconds());
+      time = av_gettime_relative() / 1000000.0;
+      if (!FrameTimer) {
+        FrameTimer = time;
+      }
+      if (PreviousFrameTimestamp != -1) {
+        auto inverseFrameRate = av::Rational(1, 30);
+        size_t frameNum = av_rescale_q(frame.Timestamp.timestamp(),
+                                       frame.Timestamp.timebase().getValue(),
+                                       inverseFrameRate.getValue());
+        // This isn't the place for it but I can't think of
+        // anything right now
+        ScrWork[SW_MOVIEFRAME] = (int)frameNum;
+        duration = (frame.Timestamp.seconds() - PreviousFrameTimestamp);
+      }
     }
 
     if (AudioStream) {
       duration = GetTargetDelay(duration);
     } else {
-      duration = Clock::DoubleSeconds(
-          (double)VideoStream->stream.averageFrameRate().getDenominator() /
-          VideoStream->stream.averageFrameRate().getNumerator());
+      duration =
+          ((double)VideoStream->stream.averageFrameRate().getDenominator() /
+           VideoStream->stream.averageFrameRate().getNumerator());
     }
 
     if (time < FrameTimer + duration) {
       return;
     }
 
-    FrameTimer += std::chrono::duration_cast<std::chrono::seconds>(duration);
-    if (duration.count() > 0 &&
-        (time - FrameTimer) > std::chrono::duration<double>(0.1)) {
+    VideoStream->FrameLock.lock();
+    AVFrameItem<AVMEDIA_TYPE_VIDEO> frame =
+        std::move(VideoStream->FrameQueue.front());
+    VideoStream->FrameQueue.pop();
+    VideoStream->FrameLock.unlock();
+    FrameTimer += duration;
+    if (duration > 0 && (time - FrameTimer) > 0.1) {
       FrameTimer = time;
     }
     PreviousFrameTimestamp = frame.Timestamp;
 
-    VideoClock.Set(frame.Timestamp, frame.Serial);
+    VideoClock.Set(frame.Timestamp.seconds(), frame.Serial);
     VideoTexture->Submit(frame.Frame.data(0), frame.Frame.data(1),
                          frame.Frame.data(2));
     PlaybackStarted = true;
-    {
-      std::lock_guard frameLock(VideoStream->FrameLock);
-      VideoStream->FrameQueue.pop();
-    }
     VideoStream->DecodeCond.notify_one();
   }
 }
@@ -531,15 +536,13 @@ void FFmpegPlayer::Render(float videoAlpha) {
   }
 }
 
-Clock::DoubleSeconds FFmpegPlayer::GetTargetDelay(
-    Clock::DoubleSeconds duration) {
-  auto diff = (VideoClock.Get() - MasterClock->Get());
-  auto sync_threshold = std::max(Clock::DoubleSeconds(0.04),
-                                 std::min(Clock::DoubleSeconds(0.1), duration));
-  if (!isnan(diff.count()) && std::chrono::abs(diff) < MaxFrameDuration) {
+double FFmpegPlayer::GetTargetDelay(double duration) {
+  double diff = VideoClock.Get() - MasterClock->Get();
+  double sync_threshold = std::max(0.04, std::min(0.1, duration));
+  if (!isnan(diff) && fabs(diff) < MaxFrameDuration) {
     if (diff <= -sync_threshold)
-      duration = std::max(Clock::DoubleSeconds(0.0), duration + diff);
-    else if (diff >= sync_threshold && duration > Clock::DoubleSeconds(0.1))
+      duration = std::max(0.0, duration + diff);
+    else if (diff >= sync_threshold && duration > 0.1)
       duration = duration + diff;
     else if (diff >= sync_threshold)
       duration = 2 * duration;
