@@ -8,11 +8,11 @@ namespace Profile {
 namespace CCLCC {
 namespace OptionsMenu {
 
-int constexpr PageHeaderSpriteCount = 4;
-int constexpr PagePanelSpriteCount = 8;
-int constexpr LabelSpriteCount = 16;
-int constexpr NametagSpriteCount = 13;
-int constexpr PortraitSpriteCount = 26;
+int constexpr PageCount = 4;
+int constexpr PagePanelSpriteCount = PageCount * 2;
+int constexpr LabelCount = 16;
+int constexpr NametagCount = 13;
+int constexpr PortraitCount = NametagCount * 2;
 
 inline glm::vec2 BackgroundPosition;
 
@@ -23,7 +23,7 @@ inline glm::vec2 PointerOffset;
 
 inline Sprite HeaderSprite;
 inline glm::vec2 HeaderPosition;
-inline Sprite PageHeaderSprites[PageHeaderSpriteCount];
+inline Sprite PageHeaderSprites[PageCount];
 inline glm::vec2 PageHeaderPosition;
 
 inline Sprite PagePanelSprite;
@@ -31,6 +31,7 @@ inline glm::vec2 PagePanelPosition;
 inline Sprite PagePanelSprites[PagePanelSpriteCount];
 inline glm::vec2 PagePanelIconOffsets[PagePanelSpriteCount];
 inline SpriteAnimationDef PoleAnimation;
+inline RectF PagePanelHoverBounds[PageCount];
 
 inline Sprite SliderTrackSprite;
 inline glm::vec2 SliderTrackOffset;
@@ -59,11 +60,11 @@ inline glm::vec2 VoiceEntriesOffset;
 inline glm::vec2 EntryDimensions;
 inline glm::vec2 VoiceEntryDimensions;
 
-inline Sprite LabelSprites[LabelSpriteCount];
+inline Sprite LabelSprites[LabelCount];
 inline glm::vec2 LabelOffset;
-inline Sprite NametagSprites[NametagSpriteCount];
+inline Sprite NametagSprites[NametagCount];
 inline glm::vec2 NametagOffset;
-inline Sprite PortraitSprites[PortraitSpriteCount];
+inline Sprite PortraitSprites[PortraitCount];
 inline glm::vec2 PortraitOffset;
 inline glm::vec2 VoicePosition;
 
