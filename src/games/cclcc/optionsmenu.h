@@ -3,6 +3,7 @@
 #include "../../ui/menu.h"
 #include "../../spriteanimation.h"
 #include "../../ui/widgets/group.h"
+#include "../../ui/widgets/clickbutton.h"
 #include "../../ui/widgets/cclcc/optionsentry.h"
 
 using namespace Impacto::UI::Widgets::CCLCC;
@@ -24,6 +25,7 @@ class OptionsMenu : public Menu {
  private:
   void GoToPage(int pageNumber);
   void Select(OptionsEntry* entry);
+  void PageButtonOnClick(Widgets::ClickButton* target);
 
   Animation FadeAnimation;
   SpriteAnimation PoleAnimation;
@@ -34,7 +36,8 @@ class OptionsMenu : public Menu {
   Widgets::Group* VoicePage;
 
   int CurrentPage;
-  std::vector<UI::Widgets::Group*> Pages;
+  std::vector<Widgets::Group*> Pages;
+  std::vector<Widgets::ClickButton> PageButtons;
 };
 
 }  // namespace CCLCC

@@ -22,8 +22,7 @@ void Configure() {
 
   HeaderSprite = EnsureGetMemberSprite("HeaderSprite");
   HeaderPosition = EnsureGetMemberVec2("HeaderPosition");
-  GetMemberSpriteArray(PageHeaderSprites, PageHeaderSpriteCount,
-                       "PageHeaderSprites");
+  GetMemberSpriteArray(PageHeaderSprites, PageCount, "PageHeaderSprites");
   PageHeaderPosition = EnsureGetMemberVec2("PageHeaderPosition");
 
   PagePanelSprite = EnsureGetMemberSprite("PagePanelSprite");
@@ -33,9 +32,11 @@ void Configure() {
   PoleAnimation = EnsureGetMemberAnimation("PoleAnimation");
 
   // TODO: Replace this once array fetching is implemented
-  for (int i = 0; i < PagePanelSpriteCount / 2; i++) {
+  for (int i = 0; i < PageCount; i++) {
     PagePanelIconOffsets[i] = EnsureGetMemberVec2(
         ("PagePanelIconOffsets" + std::to_string(i)).c_str());
+    PagePanelHoverBounds[i] = EnsureGetMemberRectF(
+        ("PagePanelHoverBounds" + std::to_string(i)).c_str());
   }
 
   SliderTrackSprite = EnsureGetMemberSprite("SliderTrackSprite");
@@ -65,11 +66,11 @@ void Configure() {
   EntryDimensions = EnsureGetMemberVec2("EntryDimensions");
   VoiceEntryDimensions = EnsureGetMemberVec2("VoiceEntryDimensions");
 
-  GetMemberSpriteArray(LabelSprites, LabelSpriteCount, "LabelSprites");
+  GetMemberSpriteArray(LabelSprites, LabelCount, "LabelSprites");
   LabelOffset = EnsureGetMemberVec2("LabelOffset");
-  GetMemberSpriteArray(NametagSprites, NametagSpriteCount, "NametagSprites");
+  GetMemberSpriteArray(NametagSprites, NametagCount, "NametagSprites");
   NametagOffset = EnsureGetMemberVec2("NametagOffset");
-  GetMemberSpriteArray(PortraitSprites, PortraitSpriteCount, "PortraitSprites");
+  GetMemberSpriteArray(PortraitSprites, PortraitCount, "PortraitSprites");
   PortraitOffset = EnsureGetMemberVec2("PortraitOffset");
   VoicePosition = EnsureGetMemberVec2("VoicePosition");
 
