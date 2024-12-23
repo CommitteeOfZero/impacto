@@ -27,6 +27,10 @@ root.OptionsMenu = {
     PagePanelIconOffsets1 = { X = 235, Y = 333 },
     PagePanelIconOffsets2 = { X = 261, Y = 585 },
     PagePanelIconOffsets3 = { X = 238, Y = 831 },
+    PagePanelHoverBounds0 = { X = 168, Y = 79, Width = 150, Height = 183 },
+    PagePanelHoverBounds1 = { X = 147, Y = 343, Width = 154, Height = 177 },
+    PagePanelHoverBounds2 = { X = 169, Y = 591, Width = 146, Height = 181 },
+    PagePanelHoverBounds3 = { X = 149, Y = 837, Width = 150, Height = 179 },
 
     SliderTrackSprite = "OptionsSliderTrack",
     SliderTrackOffset = { X = 766, Y = 0 },

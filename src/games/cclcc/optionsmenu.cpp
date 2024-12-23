@@ -27,11 +27,19 @@ OptionsMenu::OptionsMenu() {
 
   PoleAnimation = Profile::CCLCC::OptionsMenu::PoleAnimation.Instantiate();
 
-  Pages.reserve(4);
+  Pages.reserve(PageCount);
   glm::vec2 pos = EntriesStartPosition;
   glm::vec4 highlightTint(HighlightColor, 1.0f);
   std::function<void(OptionsEntry*)> select =
       std::bind(&OptionsMenu::Select, this, std::placeholders::_1);
+
+  PageButtons.reserve(PageCount);
+  std::function<void(ClickButton*)> pageButtonOnClick =
+      std::bind(&OptionsMenu::PageButtonOnClick, this, std::placeholders::_1);
+  for (int i = 0; i < PageCount; i++) {
+    PageButtons.push_back(
+        ClickButton(i, PagePanelHoverBounds[i], pageButtonOnClick));
+  }
 
   BasicPage = new Group(this);
   for (int i = 0; i < 4; i++) {
@@ -171,6 +179,8 @@ void OptionsMenu::Update(float dt) {
 }
 
 void OptionsMenu::UpdateInput() {
+  for (ClickButton& button : PageButtons) button.UpdateInput();
+
   if (CurrentlyFocusedElement == nullptr) {
     if (GetControlState(CT_Back)) {
       SetFlag(SF_SUBMENUEXIT, true);
@@ -218,9 +228,15 @@ void OptionsMenu::Render() {
 
     Renderer->DrawSprite(PoleAnimation.CurrentSprite(), PagePanelPosition, col);
     if (PoleAnimation.IsIn()) {
-      Renderer->DrawSprite(
-          PagePanelSprites[2 * CurrentPage + !(bool)CurrentlyFocusedElement],
-          PagePanelPosition + PagePanelIconOffsets[CurrentPage], col);
+      for (ClickButton& panel : PageButtons) {
+        if (panel.Id == CurrentPage || panel.Hovered) {
+          const bool highlighted =
+              panel.Id == CurrentPage && (bool)CurrentlyFocusedElement;
+          Renderer->DrawSprite(
+              PagePanelSprites[2 * panel.Id + !highlighted],
+              PagePanelPosition + PagePanelIconOffsets[panel.Id], col);
+        }
+      }
     }
 
     const Sprite& guideSprite =
@@ -250,6 +266,12 @@ void OptionsMenu::Select(OptionsEntry* toSelect) {
   }
 
   CurrentlyFocusedElement = toSelect;
+}
+
+void OptionsMenu::PageButtonOnClick(ClickButton* target) {
+  GoToPage(target->Id);
+  CurrentlyFocusedElement = Pages.at(CurrentPage)->GetFirstFocusableChild();
+  CurrentlyFocusedElement->HasFocus = true;
 }
 
 }  // namespace CCLCC
