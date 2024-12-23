@@ -95,9 +95,9 @@ SaveError SaveSystem::MountSaveFile() {
   };
   WorkingSaveEntry = std::optional<SaveFileEntry>(SaveFileEntry());
   WorkingSaveThumbnail.Sheet =
-      SpriteSheet(Window->WindowWidth, Window->WindowHeight);
+      SpriteSheet(Window.WindowWidth(), Window.WindowHeight());
   WorkingSaveThumbnail.Bounds =
-      RectF(0.0f, 0.0f, Window->WindowWidth, Window->WindowHeight);
+      RectF(0.0f, 0.0f, Window.WindowWidth(), Window.WindowHeight());
   Texture txt;
   txt.LoadSolidColor(WorkingSaveThumbnail.Bounds.Width,
                      WorkingSaveThumbnail.Bounds.Height, 0x000000);

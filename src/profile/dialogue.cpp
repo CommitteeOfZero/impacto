@@ -193,7 +193,7 @@ void Configure() {
       auto pairSize = lua_rawlen(LuaState, -1);
       if (pairSize != 2) {
         ImpLog(LL_Fatal, LC_Profile, "Expected two colors\n");
-        Window->Shutdown();
+        Window.Shutdown();
       }
       ColorTable[i].TextColor = EnsureGetArrayElementByIndexUint(0);
       ColorTable[i].OutlineColor = EnsureGetArrayElementByIndexUint(1);

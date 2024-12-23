@@ -1,5 +1,6 @@
 #include "game.h"
 
+#include "renderer/renderer.h"
 #include "workqueue.h"
 #include "modelviewer.h"
 #include "characterviewer.h"
@@ -76,7 +77,7 @@ static void Init() {
   }
 #endif
 
-  InitRenderer();
+  BaseRenderer::InitRenderer();
 
   memset(DrawComponents, DrawComponentType::None, sizeof(DrawComponents));
 
@@ -160,7 +161,7 @@ void Shutdown() {
     Renderer->Shutdown();
   }
 
-  Window->Shutdown();
+  Window.Shutdown();
 }
 
 void UpdateGameState(float dt) {
@@ -272,7 +273,7 @@ void Update(float dt) {
 }
 
 void Render() {
-  Window->Update();
+  Window.Update();
 
   Renderer->BeginFrame();
 
@@ -482,7 +483,7 @@ void Render() {
   }
   Renderer->EndFrame();
 
-  Window->Draw();
+  Window.Draw();
 }
 
 }  // namespace Game

@@ -1,24 +1,27 @@
 #pragma once
-
-#include "../window.h"
+#include "../../util.h"
+#include "../windowtemplate.h"
 
 namespace Impacto {
+class WindowInterface;
+
 namespace Vulkan {
 
-class VulkanWindow : public BaseWindow {
+class VulkanWindow : public WindowTemplate<VulkanWindow> {
+  friend class Impacto::WindowInterface;
+
  public:
-  void Init() override;
-  void SetDimensions(int width, int height, int msaa,
-                     float renderScale) override;
-  RectF GetViewport() override;
-  RectF GetScaledViewport() override;
-  void SwapRTs() override;
-  void Update() override;
-  void Draw() override;
-  void Shutdown() override;
+  void Init();
+  void SetDimensions(int width, int height, int msaa, float renderScale);
+  RectF GetViewport();
+  RectF GetScaledViewport();
+  void SwapRTs();
+  void Update();
+  void Draw();
+  void Shutdown();
 
  private:
-  void UpdateDimensions() override;
+  void UpdateDimensions();
 };
 
 }  // namespace Vulkan

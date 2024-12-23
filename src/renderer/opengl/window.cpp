@@ -3,7 +3,7 @@
 #include <glad/glad.h>
 #include <SDL_opengl.h>
 
-#include "../renderer.h"
+#include "renderer.h"
 
 #include "../../log.h"
 #include "glc.h"

@@ -58,23 +58,23 @@ void Init() {
   BgmFadeIn = 0.0f;
   BgmLoop = true;
 
-  UiWindowWidth = Window->WindowWidth;
-  UiWindowHeight = Window->WindowHeight;
-  UiMsaaCount = Window->MsaaCount;
+  UiWindowWidth = Window.WindowWidth();
+  UiWindowHeight = Window.WindowHeight();
+  UiMsaaCount = Window.MsaaCount();
 }
 
 void Update(float dt) {
-  if (Window->WindowDimensionsChanged) {
-    UiWindowWidth = Window->WindowWidth;
-    UiWindowHeight = Window->WindowHeight;
-    UiMsaaCount = Window->MsaaCount;
+  if (Window.WindowDimensionsChanged()) {
+    UiWindowWidth = Window.WindowWidth();
+    UiWindowHeight = Window.WindowHeight();
+    UiMsaaCount = Window.MsaaCount();
   }
 
 #ifndef IMPACTO_DISABLE_IMGUI
   if (ImGui::Begin("Scene", nullptr,
                    ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove |
                        ImGuiWindowFlags_NoResize)) {
-    ImGui::SetWindowSize(ImVec2(300.0f, Window->WindowHeight - 40.0f),
+    ImGui::SetWindowSize(ImVec2(300.0f, Window.WindowHeight() - 40.0f),
                          ImGuiCond_Once);
     ImGui::SetWindowPos(ImVec2(20.0f, 20.0f), ImGuiCond_Once);
     ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
@@ -99,8 +99,8 @@ void Update(float dt) {
       ImGui::Spacing();
       if (ImGui::Button("Resize",
                         ImVec2(ImGui::GetContentRegionAvail().x, 0.0f))) {
-        Window->SetDimensions(UiWindowWidth, UiWindowHeight, UiMsaaCount,
-                              Window->RenderScale);
+        Window.SetDimensions(UiWindowWidth, UiWindowHeight, UiMsaaCount,
+                             Window.RenderScale());
       }
     }
 

@@ -1,24 +1,28 @@
 #pragma once
 
-#include "../window.h"
+#include "../../impacto.h"
+#include "../../util.h"
+#include "../windowtemplate.h"
 
 namespace Impacto {
+class WindowInterface;
 namespace DirectX9 {
 
-class DirectX9Window : public BaseWindow {
+class DirectX9Window : public WindowTemplate<DirectX9Window> {
+  friend class Impacto::WindowInterface;
+
  public:
-  void Init() override;
-  void SetDimensions(int width, int height, int msaa,
-                     float renderScale) override;
-  RectF GetViewport() override;
-  RectF GetScaledViewport() override;
-  void SwapRTs() override;
-  void Update() override;
-  void Draw() override;
-  void Shutdown() override;
+  void Init();
+  void SetDimensions(int width, int height, int msaa, float renderScale);
+  RectF GetViewport();
+  RectF GetScaledViewport();
+  void SwapRTs();
+  void Update();
+  void Draw();
+  void Shutdown();
 
  private:
-  void UpdateDimensions() override;
+  void UpdateDimensions();
 };
 
 }  // namespace DirectX9

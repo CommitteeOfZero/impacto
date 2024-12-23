@@ -134,8 +134,6 @@ class Renderer : public BaseRenderer {
                                 glm::vec2 vanishingPoint, bool stayInScreen,
                                 glm::quat rot, uintptr_t positions, int stride);
 
-  GLWindow* OpenGLWindow;
-
   GLuint ShaderProgramSprite;
   GLuint ShaderProgramSpriteInverted;
   GLuint ShaderProgramMaskedSprite;
