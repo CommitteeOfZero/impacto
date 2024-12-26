@@ -13,54 +13,6 @@ function SetEnv() {
     }
 }
 
-function BuildLibatrac9() {
-    echo "Starting LibAtrac9 Build..."
-    if (!(Get-Command msbuild -ErrorAction SilentlyContinue)) {
-        SetEnv
-    }
-    
-
-    pushd "vendor"
-    $repo_root = "LibAtrac9"
-    $libatrac9_exists = Test-Path $repo_root
-    if (-not $libatrac9_exists) {
-        echo "Cloning LibAtrac9..."
-        & git clone https://github.com/Thealexbarney/LibAtrac9.git --depth 1        
-    }
-    pushd $repo_root
-    pushd "C"
-    if ($env:AZURE_EXTENSION_DIR -eq $null -or -not $libatrac9_exists) {
-        echo "Upgrading LibAtrac9 project..."
-        & devenv /Upgrade libatrac9.sln
-    }
-
-    $args = @(
-        "/m",
-        "/p:Configuration=Release",
-        "/p:Platform=$Arch",
-        "/p:WindowsTargetPlatformVersion=10.0",
-        "/p:PlatformToolset=v142"
-    )
-    echo "Building LibAtrac9..."
-    & msbuild $args
-    popd
-    
-    echo "Copying LibAtrac9 dlls and headers..."
-    $includedir = "include/libatrac9"
-    mkdir $includedir -Force | Out-Null
-    Get-ChildItem -Path "./C/src/*" -Include *.h | Copy-Item -Destination $includedir
-    mkdir "bin/x86" -Force | Out-Null
-    mkdir "bin/x64" -Force | Out-Null
-    if(Test-Path "./C/Release") {
-        Get-ChildItem -Path "./C/Release/*" -Include *.dll,*.lib | Copy-Item -Destination "bin/x86"
-    }
-    if(Test-Path "./C/x64/Release") {
-        Get-ChildItem -Path "./C/x64/Release/*" -Include *.dll,*.lib | Copy-Item -Destination "bin/x64"
-    }
-    popd
-    popd
-}
-
 function InstallPackages() {
     $vcpkg = "$env:VCPKG_ROOT/vcpkg.exe"
     if (!(Get-Command $vcpkg -ErrorAction SilentlyContinue)) {
@@ -91,5 +43,4 @@ function InstallPackages() {
     }
 }
 
-BuildLibatrac9
 InstallPackages

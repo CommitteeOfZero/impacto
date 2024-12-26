@@ -73,10 +73,6 @@ jobs:
             triplet: x64-osx-ci
             host_triplet: x64-osx-ci
           - os: ubuntu-latest
-            os_name: switch
-            triplet: none
-            host_triplet: none
-          - os: ubuntu-latest
             os_name: android
             triplet: arm64-android-ci
             host_triplet: x64-linux-ci
@@ -109,61 +105,15 @@ jobs:
         distribution: "temurin"
         cache: 'gradle'
 
-    - name: Download Switch deps
-      if: matrix.os_name == 'switch'
-      uses: blauqs/actions-download-asset@master
-      with:
-        repo: MrRevo3D/impacto
-        version: buildtag
-        file: devkitpro.tgz
-        out: /opt
-        token: ${{ secrets.SWITCH_BUILD_TOKEN }}
-
-    - name: Cache LibAtrac9
-      if: matrix.os_name != 'switch'
-      uses: actions/cache@v3
-      with:
-        key: libatrac9 | ${{ matrix.os_name }}
-        path: vendor/LibAtrac9
-        
     - uses: lukka/get-cmake@latest
     - name: Setup vcpkg
-      if: matrix.os_name != 'switch'
       uses: lukka/run-vcpkg@v11
       id: runvcpkg
       with:
         vcpkgDirectory: '${{ runner.workspace }}/build/vcpkg'
         vcpkgGitCommitId: '${{ env.vcpkgCommitId }}'
         vcpkgJsonGlob: '**/vcpkg.json'
-    - name: Build Atrac9 Windows
-      if: matrix.os_name == 'windows'
-      run: |
-        ./build-deps.ps1 -Arg1 x64
-      shell: pwsh
-    - name: Setup Dependencies Linux/MacOS/Android
-      if: contains(matrix.os_name, 'macos') || contains(matrix.os_name, 'linux') || contains(matrix.os_name, 'android')
-      run: |-
-        pushd vendor
-        if [ ! -d "LibAtrac9" ]; then
-          git clone https://github.com/Thealexbarney/LibAtrac9.git --depth 1
-        fi
-        cd LibAtrac9/C
-        if [[ "${{ matrix.os_name }}" == "macos"* ]]; then
-          sed -i '' -e 's/,--version-script=libatrac9.version//g' Makefile
-        fi
-        if [ -z "${CC}" ]; then
-          make
-        else
-          make CC="$CC"
-        fi
 
-        mkdir -p ../include/libatrac9
-        mkdir -p ../libs
-        cp bin/libatrac9.a ../libs/
-        cp src/libatrac9.h ../include/libatrac9/
-        popd
-        echo "LIBATRAC9DIR=${{ github.workspace }}/vendor/LibAtrac9" >> $GITHUB_ENV
-        find "${{ github.workspace }}/vendor/LibAtrac9"
     - name: Install Dependencies Linux
       run: sudo apt-get install nasm libx11-dev libxft-dev libxext-dev libwayland-dev libxkbcommon-dev libegl1-mesa-dev libibus-1.0-dev libxrandr-dev
       if: matrix.os_name == 'linux' || matrix.os_name == 'android'
@@ -171,7 +121,6 @@ jobs:
       run: brew install nasm
       if: contains(matrix.os_name, 'macos')
     - name: Run CMake with vcpkg.json manifest
-      if: matrix.os_name != 'switch'
       uses: lukka/run-cmake@v10
       with:
         cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
@@ -182,21 +131,6 @@ jobs:
             '-DVCPKG_HOST_TRIPLET=${{ matrix.host_triplet }}',
           ]
         buildPreset: ${{ env.PresetName }}
-
-    - name: Run Switch build
-      if: matrix.os_name == 'switch'
-      run: |-
-        tar -xzf /opt/devkitpro.tgz -C /opt
-        export DEVKITPRO=/opt/devkitpro
-        export DEVKITARM=/opt/devkitpro/devkitARM
-        export PATH="/opt/devkitpro/tools/bin:$PATH"
-        cmake . -DCMAKE_TOOLCHAIN_FILE=HorizonNX.toolchain
-        make -j2
-        elf2nro impacto impacto.nro
-        mkdir -p "${{ github.workspace }}/release/${{ env.PresetName }}"
-        cp impacto.nro "${{ github.workspace }}/release/${{ env.PresetName }}"
-        cp -r profiles "${{ github.workspace }}/release/${{ env.PresetName }}"
-        cp -r games "${{ github.workspace }}/release/${{ env.PresetName }}"
     - name: Copy Shaders
       run: cp -r src/shaders "${{ github.workspace }}/release/${{ env.PresetName }}"
       shell: bash
@@ -230,7 +164,43 @@ jobs:
         path: impacto-${{ matrix.os_name }}-${{ vars.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip
         name: release-${{ matrix.os_name }}
 
-    
+  switch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    needs: lint
+    permissions:
+      contents: read
+    container:
+      image: ghcr.io/committeeofzero/impacto-switch:latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ needs.lint.outputs.commitid }}
+      - name: Run build
+        run: |-
+          cmake . -DCMAKE_TOOLCHAIN_FILE=HorizonNX.toolchain
+          make -j2
+          elf2nro impacto impacto.nro
+          mkdir -p "release/ci-release"
+          cp impacto.nro "release/ci-release"
+          cp -r profiles "release/ci-release"
+          cp -r games "release/ci-release"
+      - name: Copy Shaders
+        run: cp -r src/shaders "release/${{ env.PresetName }}"
+        shell: bash
+      - name: Copy docs
+        run: |
+          cp THIRDPARTY.md README.md LICENSE "release/${{ env.PresetName }}"
+        shell: bash
+      - name: Archive Artifacts
+        run: |
+          7z u impacto-switch-${{ vars.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip release/ci-release/*
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4.1.0
+        with:
+          path: impacto-switch-${{ vars.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip
+          name: release-switch
+
   publish_artifacts:
     name: Publish Artifacts
     runs-on: ubuntu-22.04
@@ -238,7 +208,8 @@ jobs:
       contents: write
     needs:
     - job-matrix
-    if: needs.job-matrix.result == 'success' && github.event_name != 'pull_request_target' && ((startsWith(github.ref, 'refs/tags') || github.ref_name == 'master'))
+    - switch
+    if: needs.job-matrix.result == 'success' && needs.switch.result == 'success' && github.event_name != 'pull_request_target' && ((startsWith(github.ref, 'refs/tags') || github.ref_name == 'master'))
     steps:
     - uses: actions/download-artifact@v4
       with:
@@ -283,6 +254,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs:
     - job-matrix
+    - switch
     if: always() && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled'))
     steps:
     - uses: actions/checkout@v2
