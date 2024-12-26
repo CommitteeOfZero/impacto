@@ -112,7 +112,7 @@ VmInstruction(InstMes) {
   StartInstruction;
 
   DialoguePage& dialoguePage = DialoguePages[thread->DialoguePageId];
-  uint32_t scriptId = LoadedScriptMetas[dialoguePage.Id].Id;
+  uint32_t scriptId = LoadedScriptMetas[thread->ScriptBufferId].Id;
 
   // After loading a save we need to make sure the textbox is actually shown
   if (dialoguePage.FadeAnimation.IsOut() &&
@@ -609,8 +609,7 @@ VmInstruction(InstSetRevMes) {
   uint8_t* line =
       ScriptGetStrAddress(ScriptBuffers[thread->ScriptBufferId], lineId);
 
-  const DialoguePage& dialoguePage = DialoguePages[thread->DialoguePageId];
-  uint32_t scriptId = LoadedScriptMetas[dialoguePage.Id].Id;
+  uint32_t scriptId = LoadedScriptMetas[thread->ScriptBufferId].Id;
 
   SaveSystem::SetLineRead(scriptId, lineId);
   UI::BacklogMenuPtr->AddMessage(line);
