@@ -21,16 +21,19 @@ root.OptionsMenu = {
     PagePanelSprite = "OptionsPagePanel",
     PagePanelPosition = { X = -114, Y = 0 },
     PagePanelSprites = {},
+    PagePanelIconOffsets = {
+        { X = 259, Y = 73 },
+        { X = 235, Y = 333 },
+        { X = 261, Y = 585 },
+        { X = 238, Y = 831 }
+    },
+    PagePanelHoverBounds = {
+        { X = 168, Y = 79, Width = 150, Height = 183 },
+        { X = 147, Y = 343, Width = 154, Height = 177 },
+        { X = 169, Y = 591, Width = 146, Height = 181 },
+        { X = 149, Y = 837, Width = 150, Height = 179 },
+    },
     PoleAnimation = "OptionsPoleAnimation",
-    -- TODO: Replace this once array fetching is implemented
-    PagePanelIconOffsets0 = { X = 259, Y = 73 },
-    PagePanelIconOffsets1 = { X = 235, Y = 333 },
-    PagePanelIconOffsets2 = { X = 261, Y = 585 },
-    PagePanelIconOffsets3 = { X = 238, Y = 831 },
-    PagePanelHoverBounds0 = { X = 168, Y = 79, Width = 150, Height = 183 },
-    PagePanelHoverBounds1 = { X = 147, Y = 343, Width = 154, Height = 177 },
-    PagePanelHoverBounds2 = { X = 169, Y = 591, Width = 146, Height = 181 },
-    PagePanelHoverBounds3 = { X = 149, Y = 837, Width = 150, Height = 179 },
 
     SliderTrackSprite = "OptionsSliderTrack",
     SliderTrackOffset = { X = 766, Y = 0 },

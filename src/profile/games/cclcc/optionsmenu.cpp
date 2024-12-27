@@ -29,15 +29,9 @@ void Configure() {
   PagePanelPosition = EnsureGetMemberVec2("PagePanelPosition");
   GetMemberSpriteArray(PagePanelSprites, PagePanelSpriteCount,
                        "PagePanelSprites");
+  GetMemberVec2Array(PagePanelIconOffsets, PageCount, "PagePanelIconOffsets");
+  GetMemberRectFArray(PagePanelHoverBounds, PageCount, "PagePanelHoverBounds");
   PoleAnimation = EnsureGetMemberAnimation("PoleAnimation");
-
-  // TODO: Replace this once array fetching is implemented
-  for (int i = 0; i < PageCount; i++) {
-    PagePanelIconOffsets[i] = EnsureGetMemberVec2(
-        ("PagePanelIconOffsets" + std::to_string(i)).c_str());
-    PagePanelHoverBounds[i] = EnsureGetMemberRectF(
-        ("PagePanelHoverBounds" + std::to_string(i)).c_str());
-  }
 
   SliderTrackSprite = EnsureGetMemberSprite("SliderTrackSprite");
   SliderTrackOffset = EnsureGetMemberVec2("SliderTrackOffset");
