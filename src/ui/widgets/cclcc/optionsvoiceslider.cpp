@@ -26,6 +26,13 @@ OptionsVoiceSlider::OptionsVoiceSlider(
   Bounds =
       RectF(Bounds.X, Bounds.Y, VoiceEntryDimensions.x, VoiceEntryDimensions.y);
   EntryButton.Bounds = Bounds;
+
+  std::function<void(ClickButton*)> onClick = std::bind(
+      &OptionsVoiceSlider::MuteButtonOnClick, this, std::placeholders::_1);
+  const RectF muteButtonBounds(Bounds.GetPos().x + PortraitOffset.x,
+                               Bounds.GetPos().y + PortraitOffset.y,
+                               portrait.ScaledWidth(), portrait.ScaledHeight());
+  MuteButton = ClickButton(0, muteButtonBounds, onClick);
 }
 
 void OptionsVoiceSlider::Render() {
@@ -53,8 +60,23 @@ void OptionsVoiceSlider::Render() {
 
 void OptionsVoiceSlider::UpdateInput() {
   OptionsSlider::UpdateInput();
+  MuteButton.UpdateInput();
 
   if (HasFocus) Muted ^= (bool)(PADinputButtonWentDown & PAD1Y);
+}
+
+void OptionsVoiceSlider::Show() {
+  OptionsSlider::Show();
+  MuteButton.Show();
+}
+
+void OptionsVoiceSlider::Hide() {
+  OptionsSlider::Hide();
+  MuteButton.Hide();
+}
+
+void OptionsVoiceSlider::MuteButtonOnClick(ClickButton* target) {
+  Muted = !Muted;
 }
 
 }  // namespace CCLCC
