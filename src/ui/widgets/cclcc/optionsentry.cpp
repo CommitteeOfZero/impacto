@@ -42,13 +42,22 @@ void OptionsEntry::Render() {
 }
 
 void OptionsEntry::UpdateInput() {
+  const bool wasHovered = EntryButton.Hovered;
   EntryButton.UpdateInput();
+  if (!wasHovered && EntryButton.Hovered)
+    Audio::Channels[Audio::AC_REV]->Play("sysse", 1, false, 0.0f);
 
   if (!HasFocus) return;
 
-  Selected ^= (bool)(PADinputButtonWentDown & PAD1A);
-  if (PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B)
+  if (PADinputButtonWentDown & PAD1A) {
+    Selected = !Selected;
+    Audio::Channels[Audio::AC_REV]->Play("sysse", 2, false, 0.0f);
+  }
+
+  if (PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B) {
     Selected = false;
+    Audio::Channels[Audio::AC_REV]->Play("sysse", 3, false, 0.0f);
+  }
 }
 
 void OptionsEntry::Show() { EntryButton.Show(); }
@@ -59,7 +68,12 @@ void OptionsEntry::Hide() {
   Selected = false;
 }
 
-void OptionsEntry::EntryButtonOnClick(ClickButton* target) { Select(this); }
+void OptionsEntry::EntryButtonOnClick(ClickButton* target) {
+  if (Selected) return;
+
+  Audio::Channels[Audio::AC_REV]->Play("sysse", 2, false, 0.0f);
+  Select(this);
+}
 
 }  // namespace CCLCC
 }  // namespace Widgets

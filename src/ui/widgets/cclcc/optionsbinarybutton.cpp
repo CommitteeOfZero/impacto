@@ -56,22 +56,38 @@ void OptionsBinaryButton::Render() {
 }
 
 void OptionsBinaryButton::UpdateInput() {
-  OptionsEntry::UpdateInput();
-
   // Handle mouse/touch input
   TrueButton.UpdateInput();
   FalseButton.UpdateInput();
 
+  OptionsEntry::UpdateInput();
+
   if (!Selected) return;
 
   // Handle keyboard/controller input
-  if (PADinputButtonWentDown & (PAD1LEFT | PAD1RIGHT))
-    State = PADinputButtonWentDown & PAD1LEFT;
+  if (PADinputButtonWentDown & (PAD1LEFT | PAD1RIGHT)) {
+    const bool newState = PADinputButtonWentDown & PAD1LEFT;
+
+    if (State != newState)
+      Audio::Channels[Audio::AC_REV]->Play("sysse", 1, false, 0.0f);
+
+    State = newState;
+  }
 }
 
-void OptionsBinaryButton::TrueOnClick(ClickButton* target) { State = true; }
+void OptionsBinaryButton::TrueOnClick(ClickButton* target) {
+  if (Selected && State != true)
+    Audio::Channels[Audio::AC_REV]->Play("sysse", 1, false, 0.0f);
 
-void OptionsBinaryButton::FalseOnClick(ClickButton* target) { State = false; }
+  State = true;
+}
+
+void OptionsBinaryButton::FalseOnClick(ClickButton* target) {
+  if (Selected && State != false)
+    Audio::Channels[Audio::AC_REV]->Play("sysse", 1, false, 0.0f);
+
+  State = false;
+}
 
 }  // namespace CCLCC
 }  // namespace Widgets
