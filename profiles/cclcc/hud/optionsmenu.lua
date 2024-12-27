@@ -201,6 +201,11 @@ for i = 0, 7 do
     width = 224;
     offset = ((i % 2 == 1) and {width * 4} or {0})[1];
 
+    -- Non-highlighted Text and Sound panels are poorly placed in the spritesheet, for some reason
+    if (i == 3 or i == 5) then
+        offset = offset - 1;
+    end
+
     root.Sprites["OptionsPagePanel" .. i] = {
         Sheet = "Config",
         Bounds = {
