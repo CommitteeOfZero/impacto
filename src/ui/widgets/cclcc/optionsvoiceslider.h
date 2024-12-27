@@ -17,11 +17,16 @@ class OptionsVoiceSlider : public OptionsSlider {
   void Render() override;
   void UpdateInput() override;
 
+  void Show() override;
+  void Hide() override;
+
  private:
   const Sprite& Portrait;
   const Sprite& MutedPortrait;
 
   bool Muted = false;
+  ClickButton MuteButton;
+  void MuteButtonOnClick(ClickButton* target);
 };
 
 }  // namespace CCLCC
