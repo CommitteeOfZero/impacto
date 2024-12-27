@@ -906,7 +906,7 @@ list(APPEND Impacto_Include_Dirs vendor/pcg/include)
 list(APPEND Impacto_Libs
         fmt::fmt
         pugixml::pugixml
-        atrac9::atrac9
+        atrac9
 )
 
 if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
@@ -1188,7 +1188,7 @@ else()
             "$ORIGIN/lib"
             )  
     endif()
-    install(TARGETS impacto 
+    install(TARGETS impacto atrac9
         RUNTIME_DEPENDENCIES
         RUNTIME DESTINATION .
         LIBRARY DESTINATION ./lib
