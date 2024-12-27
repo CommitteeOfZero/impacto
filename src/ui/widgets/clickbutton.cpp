@@ -17,7 +17,8 @@ void ClickButton::UpdateInput() {
   if (!Enabled) return;
 
   if (Input::CurrentInputDevice == Input::Device::Mouse &&
-      Input::PrevMousePos != Input::CurMousePos) {
+      (Input::PrevMousePos != Input::CurMousePos ||
+       Vm::Interface::PADinputMouseWentDown)) {
     Hovered = Bounds.ContainsPoint(Input::CurMousePos);
   } else if (Input::CurrentInputDevice == Input::Device::Touch &&
              Input::TouchIsDown[0] &&
@@ -27,6 +28,24 @@ void ClickButton::UpdateInput() {
 
   if (Hovered && Vm::Interface::PADinputMouseWentDown & Vm::Interface::PAD1A)
     OnClickHandler(this);
+}
+
+void ClickButton::Show() {
+  Enabled = true;
+
+  switch (Input::CurrentInputDevice) {
+    case Input::Device::Mouse:
+      Hovered = Bounds.ContainsPoint(Input::CurMousePos);
+      break;
+    case Input::Device::Touch:
+      Hovered = Bounds.ContainsPoint(Input::CurTouchPos);
+      break;
+  }
+}
+
+void ClickButton::Hide() {
+  Enabled = false;
+  Hovered = false;
 }
 
 }  // namespace Widgets

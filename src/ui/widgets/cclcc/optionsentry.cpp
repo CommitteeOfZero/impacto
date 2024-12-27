@@ -51,8 +51,11 @@ void OptionsEntry::UpdateInput() {
     Selected = false;
 }
 
+void OptionsEntry::Show() { EntryButton.Show(); }
+
 void OptionsEntry::Hide() {
   Widget::Hide();
+  EntryButton.Hide();
   Selected = false;
 }
 

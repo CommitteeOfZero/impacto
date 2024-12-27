@@ -18,6 +18,8 @@ class OptionsEntry : public Widget {
 
   void Render() override;
   void UpdateInput() override;
+
+  void Show() override;
   void Hide() override;
 
   bool Selected = false;
