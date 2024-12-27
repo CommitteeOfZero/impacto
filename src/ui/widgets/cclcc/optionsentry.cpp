@@ -27,7 +27,7 @@ OptionsEntry::OptionsEntry(const Sprite& label, glm::vec2 pos,
 void OptionsEntry::Render() {
   HighlightTint.a = Tint.a;
 
-  if (HasFocus) {
+  if (HasFocus || EntryButton.Hovered) {
     RectF highlightBoundBox(Bounds.X, Bounds.Y, EntryDimensions.x,
                             EntryDimensions.y);
     Renderer->DrawRect(highlightBoundBox, HighlightTint);

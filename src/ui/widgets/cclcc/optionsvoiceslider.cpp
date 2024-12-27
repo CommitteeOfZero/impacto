@@ -31,7 +31,7 @@ OptionsVoiceSlider::OptionsVoiceSlider(
 void OptionsVoiceSlider::Render() {
   HighlightTint.a = Tint.a;
 
-  if (HasFocus) {
+  if (HasFocus || EntryButton.Hovered) {
     RectF highlightBoundBox(Bounds.X, Bounds.Y, VoiceEntryDimensions.x,
                             VoiceEntryDimensions.y);
     Renderer->DrawRect(highlightBoundBox, HighlightTint);
