@@ -181,6 +181,19 @@ void OptionsMenu::Update(float dt) {
 void OptionsMenu::UpdateInput() {
   for (ClickButton& button : PageButtons) button.UpdateInput();
 
+  // Tab cycling
+  if (PADinputButtonWentDown & (PAD1L1 | PAD1R1)) {
+    const bool focusedElement = CurrentlyFocusedElement;
+    const int direction = (bool)(PADinputButtonWentDown & PAD1R1) -
+                          (bool)(PADinputButtonWentDown & PAD1L1);
+    GoToPage((CurrentPage + direction) % Pages.size());
+
+    if (focusedElement) {
+      CurrentlyFocusedElement = Pages.at(CurrentPage)->GetFirstFocusableChild();
+      CurrentlyFocusedElement->HasFocus = true;
+    }
+  }
+
   if (CurrentlyFocusedElement == nullptr) {
     if (GetControlState(CT_Back)) {
       SetFlag(SF_SUBMENUEXIT, true);
