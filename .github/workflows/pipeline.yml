@@ -157,7 +157,8 @@ jobs:
       shell: bash
     - name: Archive Artifacts
       run: |
-        7z u impacto-${{ matrix.os_name }}-${{ vars.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip release/${{ env.PresetName }}/*
+        mv ./release/${{ env.PresetName }} ./release/impacto
+        7z u impacto-${{ matrix.os_name }}-${{ vars.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip ./release/impacto
     - name: Upload Artifact
       uses: actions/upload-artifact@v4.1.0
       with:
@@ -186,15 +187,16 @@ jobs:
           cp -r profiles "release/ci-release"
           cp -r games "release/ci-release"
       - name: Copy Shaders
-        run: cp -r src/shaders "release/${{ env.PresetName }}"
+        run: cp -r src/shaders "release/ci-release"
         shell: bash
       - name: Copy docs
         run: |
-          cp THIRDPARTY.md README.md LICENSE "release/${{ env.PresetName }}"
+          cp THIRDPARTY.md README.md LICENSE "release/ci-release"
         shell: bash
       - name: Archive Artifacts
         run: |
-          7z u impacto-switch-${{ vars.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip release/ci-release/*
+          mv ./release/ci-release ./release/impacto
+          7z u impacto-switch-${{ vars.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip ./release/impacto
       - name: Upload Artifact
         uses: actions/upload-artifact@v4.1.0
         with:
