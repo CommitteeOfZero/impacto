@@ -193,10 +193,17 @@ void OptionsMenu::Update(float dt) {
 }
 
 void OptionsMenu::UpdateInput() {
-  for (ClickButton& button : PageButtons) button.UpdateInput();
+  for (ClickButton& button : PageButtons) {
+    const bool wasHovered = button.Hovered;
+    button.UpdateInput();
+    if (!wasHovered && button.Hovered)
+      Audio::Channels[Audio::AC_REV]->Play("sysse", 1, false, 0.0f);
+  }
 
   // Tab cycling
   if (PADinputButtonWentDown & (PAD1L1 | PAD1R1)) {
+    Audio::Channels[Audio::AC_REV]->Play("sysse", 1, false, 0.0f);
+
     const bool focusedElement = CurrentlyFocusedElement;
     const int direction = (bool)(PADinputButtonWentDown & PAD1R1) -
                           (bool)(PADinputButtonWentDown & PAD1L1);
@@ -210,17 +217,25 @@ void OptionsMenu::UpdateInput() {
 
   if (CurrentlyFocusedElement == nullptr) {
     if (GetControlState(CT_Back)) {
+      if (!GetFlag(SF_SUBMENUEXIT))
+        Audio::Channels[Audio::AC_REV]->Play("sysse", 3, false, 0.0f);
+
       SetFlag(SF_SUBMENUEXIT, true);
       return;
     }
 
     const int direction = (bool)(PADinputButtonWentDown & PAD1DOWN) -
                           (bool)(PADinputButtonWentDown & PAD1UP);
-    if (direction) GoToPage((CurrentPage + direction) % Pages.size());
+    if (direction) {
+      Audio::Channels[Audio::AC_REV]->Play("sysse", 1, false, 0.0f);
+      GoToPage((CurrentPage + direction) % Pages.size());
+    }
 
     if (PADinputButtonWentDown & PAD1A) {
       // Don't have anything else consume the confirmation
       PADinputButtonWentDown &= ~PAD1A;
+
+      Audio::Channels[Audio::AC_REV]->Play("sysse", 2, false, 0.0f);
 
       CurrentlyFocusedElement = Pages.at(CurrentPage)->GetFirstFocusableChild();
       CurrentlyFocusedElement->HasFocus = true;
@@ -233,12 +248,16 @@ void OptionsMenu::UpdateInput() {
   if (static_cast<OptionsEntry*>(CurrentlyFocusedElement)->Selected) return;
 
   if (GetControlState(CT_Back) || PADinputMouseWentDown & PAD1B) {
+    Audio::Channels[Audio::AC_REV]->Play("sysse", 3, false, 0.0f);
+
     static_cast<OptionsEntry*>(CurrentlyFocusedElement)->Hide();
     CurrentlyFocusedElement = nullptr;
     return;
   }
 
   Menu::UpdateInput();
+  if (PADinputButtonWentDown & (PAD1DOWN | PAD1UP))
+    Audio::Channels[Audio::AC_REV]->Play("sysse", 1, false, 0.0f);
 }
 
 void OptionsMenu::Render() {
@@ -296,6 +315,11 @@ void OptionsMenu::Select(OptionsEntry* toSelect) {
 }
 
 void OptionsMenu::PageButtonOnClick(ClickButton* target) {
+  if (target->Id != CurrentPage || !CurrentlyFocusedElement)
+    Audio::Channels[Audio::AC_REV]->Play("sysse", 2, false, 0.0f);
+
+  if (target->Id == CurrentPage && CurrentlyFocusedElement) return;
+
   GoToPage(target->Id);
   CurrentlyFocusedElement = Pages.at(CurrentPage)->GetFirstFocusableChild();
   CurrentlyFocusedElement->HasFocus = true;
