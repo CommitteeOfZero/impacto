@@ -164,8 +164,7 @@ void OptionsMenu::Hide() {
 }
 
 void OptionsMenu::Update(float dt) {
-  UpdateInput();
-  Pages.at(CurrentPage)->Update(dt);
+  const bool wasOut = FadeAnimation.IsOut();
 
   FadeAnimation.Update(dt);
   PoleAnimation.Update(dt);
@@ -175,6 +174,21 @@ void OptionsMenu::Update(float dt) {
   } else if (ScrWork[SW_SYSSUBMENUCT] >= 32 && State == Hidden &&
              ScrWork[SW_SYSSUBMENUNO] == 5) {
     Show();
+  }
+
+  if (State != Hidden) {
+    UpdateInput();
+    Pages.at(CurrentPage)->Update(dt);
+  }
+
+  if (FadeAnimation.IsIn())
+    State = Shown;
+  else if (!wasOut && FadeAnimation.IsOut()) {
+    State = Hidden;
+
+    Pages.at(CurrentPage)->Hide();
+    CurrentPage = 0;
+    CurrentlyFocusedElement = nullptr;
   }
 }
 
