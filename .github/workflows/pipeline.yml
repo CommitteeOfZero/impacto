@@ -157,7 +157,8 @@ jobs:
       shell: bash
     - name: Archive Artifacts
       run: |
-        7z u impacto-${{ matrix.os_name }}-${{ vars.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip release/${{ env.PresetName }}/*
+        mv ./release/${{ env.PresetName }} ./release/impacto
+        7z u impacto-${{ matrix.os_name }}-${{ vars.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip ./release/impacto
     - name: Upload Artifact
       uses: actions/upload-artifact@v4.1.0
       with:
@@ -194,7 +195,8 @@ jobs:
         shell: bash
       - name: Archive Artifacts
         run: |
-          7z u impacto-switch-${{ vars.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip release/ci-release/*
+          mv ./release/ci-release ./release/impacto
+          7z u impacto-switch-${{ vars.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip ./release/impacto
       - name: Upload Artifact
         uses: actions/upload-artifact@v4.1.0
         with:
