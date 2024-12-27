@@ -16,6 +16,9 @@ class ClickButton : public Widget {
 
   virtual void UpdateInput() override;
 
+  virtual void Show();
+  virtual void Hide();
+
   int Id;
 
   std::function<void(ClickButton*)> OnClickHandler;
