@@ -2,13 +2,14 @@ root.OptionsMenu = {
     Type = OptionsMenuType.CCLCC,
     DrawType = DrawComponentType.SystemMenu,
 
-    FadeInDuration = 0.2,
-    FadeOutDuration = 0.2,
+    FadeInDuration = 0.5,
+    FadeOutDuration = 0.5,
 
     HighlightColor = { X = 0.94, Y = 0.49, Z = 0.59 },
 
     BackgroundSprite = "OptionsBackground",
     BackgroundPosition = { X = 179, Y = 0 },
+    BackgroundFadeStartPosition = { X = 179, Y = -375 },
 
     PointerSprite = "OptionsPointer",
     PointerOffset = { X = 13, Y = 2 },
@@ -20,6 +21,7 @@ root.OptionsMenu = {
 
     PagePanelSprite = "OptionsPagePanel",
     PagePanelPosition = { X = -114, Y = 0 },
+    PagePanelFadeStartPosition = { X = -464, Y = 0 },
     PagePanelSprites = {},
     PagePanelIconOffsets = {
         { X = 259, Y = 73 },
@@ -53,6 +55,7 @@ root.OptionsMenu = {
     GuideSprite = "OptionsGuide",
     VoiceGuideSprite = "OptionsVoiceGuide",
     GuidePosition = { X = 0, Y = 986 },
+    GuideFadeStartPosition = { X = 0, Y = 1375 },
 
     EntriesStartPosition = { X = 419, Y = 313 },
     EntriesVerticalOffset = 126,
@@ -250,7 +253,7 @@ MakeAnimation({
     RowHeight = 1096,
 
     Frames = 15,
-    Duration = 1,
+    Duration = 0.5,
     Rows = 3,
     Columns = 7,
 

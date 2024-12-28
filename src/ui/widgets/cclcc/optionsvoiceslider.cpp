@@ -58,6 +58,12 @@ void OptionsVoiceSlider::Render() {
   Renderer->DrawSprite(BoxSprite, Bounds.GetPos() + VoiceSliderOffset, Tint);
 }
 
+void OptionsVoiceSlider::Update(float dt) {
+  OptionsSlider::Update(dt);
+
+  MuteButton.Update(dt);
+}
+
 void OptionsVoiceSlider::UpdateInput() {
   OptionsSlider::UpdateInput();
   MuteButton.UpdateInput();
@@ -83,6 +89,17 @@ void OptionsVoiceSlider::Show() {
 void OptionsVoiceSlider::Hide() {
   OptionsSlider::Hide();
   MuteButton.Hide();
+}
+
+void OptionsVoiceSlider::Move(glm::vec2 relativePos) {
+  OptionsSlider::Move(relativePos);
+  MuteButton.Move(relativePos);
+}
+
+void OptionsVoiceSlider::MoveTo(glm::vec2 pos) {
+  const glm::vec2 relativePosition = pos - Bounds.GetPos();
+  OptionsSlider::MoveTo(pos);
+  MuteButton.Move(relativePosition);
 }
 
 void OptionsVoiceSlider::MuteButtonOnClick(ClickButton* target) {

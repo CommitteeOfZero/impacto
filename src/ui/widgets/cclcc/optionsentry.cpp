@@ -41,6 +41,12 @@ void OptionsEntry::Render() {
                        Selected ? Tint : glm::vec4(0.0f, 0.0f, 0.0f, Tint.a));
 }
 
+void OptionsEntry::Update(float dt) {
+  Widget::Update(dt);
+
+  EntryButton.Update(dt);
+}
+
 void OptionsEntry::UpdateInput() {
   const bool wasHovered = EntryButton.Hovered;
   EntryButton.UpdateInput();
@@ -66,6 +72,17 @@ void OptionsEntry::Hide() {
   Widget::Hide();
   EntryButton.Hide();
   Selected = false;
+}
+
+void OptionsEntry::Move(glm::vec2 relativePos) {
+  Widget::Move(relativePos);
+  EntryButton.Move(relativePos);
+}
+
+void OptionsEntry::MoveTo(glm::vec2 pos) {
+  const glm::vec2 relativePosition = pos - Bounds.GetPos();
+  Widget::MoveTo(pos);
+  EntryButton.Move(relativePosition);
 }
 
 void OptionsEntry::EntryButtonOnClick(ClickButton* target) {

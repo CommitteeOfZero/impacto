@@ -55,6 +55,13 @@ void OptionsBinaryButton::Render() {
                        glm::vec2(1.0f), 0.0f, State);
 }
 
+void OptionsBinaryButton::Update(float dt) {
+  OptionsEntry::Update(dt);
+
+  TrueButton.Update(dt);
+  FalseButton.Update(dt);
+}
+
 void OptionsBinaryButton::UpdateInput() {
   // Handle mouse/touch input
   TrueButton.UpdateInput();
@@ -87,6 +94,19 @@ void OptionsBinaryButton::Hide() {
 
   TrueButton.Hide();
   FalseButton.Hide();
+}
+
+void OptionsBinaryButton::Move(glm::vec2 relativePos) {
+  OptionsEntry::Move(relativePos);
+  TrueButton.Move(relativePos);
+  FalseButton.Move(relativePos);
+}
+
+void OptionsBinaryButton::MoveTo(glm::vec2 pos) {
+  const glm::vec2 relativePosition = pos - Bounds.GetPos();
+  OptionsEntry::MoveTo(pos);
+  TrueButton.Move(relativePosition);
+  FalseButton.Move(relativePosition);
 }
 
 void OptionsBinaryButton::TrueOnClick(ClickButton* target) {

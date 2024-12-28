@@ -22,7 +22,7 @@ void Widget::Hide() {
 WidgetType Widget::GetType() { return WT_NORMAL; }
 
 void Widget::Move(glm::vec2 relativePosition, float duration) {
-  MoveOrigin = glm::vec2(Bounds.X, Bounds.Y);
+  MoveOrigin = Bounds.GetPos();
   MoveTarget = MoveOrigin + relativePosition;
   MoveAnimation.Progress = 0.0f;
   MoveAnimation.Direction = AnimationDirection::In;
@@ -36,7 +36,7 @@ void Widget::Move(glm::vec2 relativePosition) {
 }
 
 void Widget::MoveTo(glm::vec2 pos, float duration) {
-  MoveOrigin = glm::vec2(Bounds.X, Bounds.Y);
+  MoveOrigin = Bounds.GetPos();
   MoveTarget = pos;
   MoveAnimation.Progress = 0.0f;
   MoveAnimation.Direction = AnimationDirection::In;

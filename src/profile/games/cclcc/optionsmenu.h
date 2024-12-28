@@ -15,6 +15,7 @@ int constexpr NametagCount = 13;
 int constexpr PortraitCount = NametagCount * 2;
 
 inline glm::vec2 BackgroundPosition;
+inline glm::vec2 BackgroundFadeStartPosition;
 
 inline glm::vec3 HighlightColor;
 
@@ -28,6 +29,7 @@ inline glm::vec2 PageHeaderPosition;
 
 inline Sprite PagePanelSprite;
 inline glm::vec2 PagePanelPosition;
+inline glm::vec2 PagePanelFadeStartPosition;
 inline Sprite PagePanelSprites[PagePanelSpriteCount];
 inline glm::vec2 PagePanelIconOffsets[PagePanelSpriteCount];
 inline SpriteAnimationDef PoleAnimation;
@@ -51,6 +53,7 @@ inline Sprite NoSprite;
 inline Sprite GuideSprite;
 inline Sprite VoiceGuideSprite;
 inline glm::vec2 GuidePosition;
+inline glm::vec2 GuideFadeStartPosition;
 
 inline glm::vec2 EntriesStartPosition;
 inline int EntriesVerticalOffset;
