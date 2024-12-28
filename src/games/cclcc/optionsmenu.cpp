@@ -164,7 +164,7 @@ void OptionsMenu::Hide() {
 }
 
 void OptionsMenu::Update(float dt) {
-  const bool wasOut = FadeAnimation.IsOut();
+  const bool wasAnimating = !FadeAnimation.IsOut() && !FadeAnimation.IsIn();
 
   FadeAnimation.Update(dt);
   PoleAnimation.Update(dt);
@@ -181,14 +181,24 @@ void OptionsMenu::Update(float dt) {
     Pages.at(CurrentPage)->Update(dt);
   }
 
-  if (FadeAnimation.IsIn())
+  if (!FadeAnimation.IsIn() && !FadeAnimation.IsOut()) {
+    const glm::vec2 backgroundPosition =
+        glm::vec2(0.0f, glm::mix(BackgroundFadeStartPosition.y,
+                                 BackgroundPosition.y, FadeAnimation.Progress));
+    Pages.at(CurrentPage)->MoveTo(backgroundPosition);
+  }
+
+  if (FadeAnimation.IsIn()) {
     State = Shown;
-  else if (!wasOut && FadeAnimation.IsOut()) {
+    Pages.at(CurrentPage)->MoveTo(glm::vec2(0.0f, BackgroundPosition.y));
+  } else if (wasAnimating && FadeAnimation.IsOut()) {
     State = Hidden;
 
     Pages.at(CurrentPage)->Hide();
     CurrentPage = 0;
     CurrentlyFocusedElement = nullptr;
+
+    SetFlag(SF_SUBMENUEXIT, true);
   }
 }
 
@@ -220,7 +230,7 @@ void OptionsMenu::UpdateInput() {
       if (!GetFlag(SF_SUBMENUEXIT))
         Audio::Channels[Audio::AC_REV]->Play("sysse", 3, false, 0.0f);
 
-      SetFlag(SF_SUBMENUEXIT, true);
+      Hide();
       return;
     }
 
@@ -265,14 +275,28 @@ void OptionsMenu::Render() {
       ScrWork[SW_SYSSUBMENUNO] == 5) {
     glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
 
-    Renderer->DrawSprite(BackgroundSprite, BackgroundPosition, col);
-    Renderer->DrawSprite(HeaderSprite, HeaderPosition, col);
+    const glm::vec2 backgroundAnimationOffset =
+        glm::vec2(0.0f, FadeAnimation.Progress * BackgroundPosition.y +
+                            (1.0f - FadeAnimation.Progress) *
+                                BackgroundFadeStartPosition.y);
+    const glm::vec2 pagePanelPosition =
+        PagePanelPosition * FadeAnimation.Progress +
+        (1.0f - FadeAnimation.Progress) * PagePanelFadeStartPosition;
+    const glm::vec2 guidePosition =
+        GuidePosition * FadeAnimation.Progress +
+        (1.0f - FadeAnimation.Progress) * GuideFadeStartPosition;
 
-    Renderer->DrawSprite(PageHeaderSprites[CurrentPage], PageHeaderPosition,
-                         col);
+    Renderer->DrawSprite(BackgroundSprite,
+                         BackgroundPosition + backgroundAnimationOffset, col);
+    Renderer->DrawSprite(HeaderSprite,
+                         HeaderPosition + backgroundAnimationOffset, col);
+
+    Renderer->DrawSprite(PageHeaderSprites[CurrentPage],
+                         PageHeaderPosition + backgroundAnimationOffset, col);
+    Pages.at(CurrentPage)->Tint = col;
     Pages.at(CurrentPage)->Render();
 
-    Renderer->DrawSprite(PoleAnimation.CurrentSprite(), PagePanelPosition, col);
+    Renderer->DrawSprite(PoleAnimation.CurrentSprite(), pagePanelPosition, col);
     if (PoleAnimation.IsIn()) {
       for (ClickButton& panel : PageButtons) {
         if (panel.Id == CurrentPage || panel.Hovered) {
@@ -287,7 +311,7 @@ void OptionsMenu::Render() {
 
     const Sprite& guideSprite =
         CurrentPage == 3 ? VoiceGuideSprite : GuideSprite;
-    Renderer->DrawSprite(guideSprite, GuidePosition, col);
+    Renderer->DrawSprite(guideSprite, guidePosition, col);
   }
 }
 

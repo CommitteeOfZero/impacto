@@ -16,7 +16,11 @@ class OptionsSlider : public OptionsEntry {
                 std::function<void(OptionsEntry*)> select);
 
   void Render() override;
+  void Update(float dt) override;
   void UpdateInput() override;
+
+  void Move(glm::vec2 relativePos) override;
+  void MoveTo(glm::vec2 pos) override;
 
  protected:
   OptionsSlider(const Sprite& box, const Sprite& label, glm::vec2 pos,

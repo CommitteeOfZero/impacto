@@ -14,6 +14,8 @@ namespace OptionsMenu {
 
 void Configure() {
   BackgroundPosition = EnsureGetMemberVec2("BackgroundPosition");
+  BackgroundFadeStartPosition =
+      EnsureGetMemberVec2("BackgroundFadeStartPosition");
 
   HighlightColor = EnsureGetMemberVec3("HighlightColor");
 
@@ -27,6 +29,8 @@ void Configure() {
 
   PagePanelSprite = EnsureGetMemberSprite("PagePanelSprite");
   PagePanelPosition = EnsureGetMemberVec2("PagePanelPosition");
+  PagePanelFadeStartPosition =
+      EnsureGetMemberVec2("PagePanelFadeStartPosition");
   GetMemberSpriteArray(PagePanelSprites, PagePanelSpriteCount,
                        "PagePanelSprites");
   GetMemberVec2Array(PagePanelIconOffsets, PageCount, "PagePanelIconOffsets");
@@ -51,6 +55,7 @@ void Configure() {
   GuideSprite = EnsureGetMemberSprite("GuideSprite");
   VoiceGuideSprite = EnsureGetMemberSprite("VoiceGuideSprite");
   GuidePosition = EnsureGetMemberVec2("GuidePosition");
+  GuideFadeStartPosition = EnsureGetMemberVec2("GuideFadeStartPosition");
 
   EntriesStartPosition = EnsureGetMemberVec2("EntriesStartPosition");
   EntriesVerticalOffset = EnsureGetMemberInt("EntriesVerticalOffset");
