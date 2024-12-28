@@ -1,5 +1,6 @@
 #include "optionsmenu.h"
 
+#include "../../profile/game.h"
 #include "../../profile/ui/optionsmenu.h"
 #include "../../profile/games/cclcc/optionsmenu.h"
 #include "../../profile/scriptinput.h"
@@ -344,6 +345,9 @@ void OptionsMenu::Render() {
       ScrWork[SW_SYSSUBMENUNO] == 5) {
     glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
 
+    glm::vec4 maskTint = col;
+    maskTint.a *= (float)0xa0 / 0x100;
+
     const glm::vec2 backgroundAnimationOffset =
         glm::vec2(0.0f, FadeAnimation.Progress * BackgroundPosition.y +
                             (1.0f - FadeAnimation.Progress) *
@@ -377,6 +381,11 @@ void OptionsMenu::Render() {
         }
       }
     }
+
+    Renderer->DrawSprite(
+        MenuMaskSprite,
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+        maskTint);
 
     const Sprite& guideSprite =
         CurrentPage == 3 ? VoiceGuideSprite : GuideSprite;

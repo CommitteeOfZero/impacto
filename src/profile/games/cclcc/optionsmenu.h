@@ -74,6 +74,8 @@ inline glm::vec2 VoicePosition;
 inline float MinButtonHoldTime;
 inline float ButtonHoldTimeInterval;
 
+inline Sprite MenuMaskSprite;
+
 void Configure();
 
 }  // namespace OptionsMenu
