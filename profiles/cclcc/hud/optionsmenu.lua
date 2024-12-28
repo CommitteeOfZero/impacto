@@ -75,6 +75,8 @@ root.OptionsMenu = {
 
     MinButtonHoldTime = 0.5,
     ButtonHoldTimeInterval = 0.05,
+
+    MenuMask = "MenuMask",
 };
 
 root.Sprites["OptionsBackground"] = {
@@ -150,6 +152,11 @@ root.Sprites["OptionsGuide"] = {
 root.Sprites["OptionsVoiceGuide"] = {
     Sheet = "Config",
     Bounds = { X = 0, Y = 2416, Width = 1926, Height = 57 }
+};
+
+root.Sprites["MenuMask"] = {
+    Sheet = "MenuChip",
+    Bounds = { X = 154, Y = 140, Width = 1900, Height = 1061 },
 };
 
 for i = 0, 3 do

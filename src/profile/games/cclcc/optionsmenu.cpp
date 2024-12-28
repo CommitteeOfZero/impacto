@@ -76,6 +76,8 @@ void Configure() {
   MinButtonHoldTime = EnsureGetMemberFloat("MinButtonHoldTime");
   ButtonHoldTimeInterval = EnsureGetMemberFloat("ButtonHoldTimeInterval");
 
+  MenuMaskSprite = EnsureGetMemberSprite("MenuMask");
+
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMemberInt("DrawType"));
 
