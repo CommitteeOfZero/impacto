@@ -73,6 +73,9 @@ void Configure() {
   PortraitOffset = EnsureGetMemberVec2("PortraitOffset");
   VoicePosition = EnsureGetMemberVec2("VoicePosition");
 
+  MinButtonHoldTime = EnsureGetMemberFloat("MinButtonHoldTime");
+  ButtonHoldTimeInterval = EnsureGetMemberFloat("ButtonHoldTimeInterval");
+
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMemberInt("DrawType"));
 

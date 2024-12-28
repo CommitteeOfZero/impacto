@@ -177,7 +177,7 @@ void OptionsMenu::Update(float dt) {
   }
 
   if (State != Hidden) {
-    UpdateInput();
+    UpdateInput(dt);
     Pages.at(CurrentPage)->Update(dt);
   }
 
@@ -202,7 +202,8 @@ void OptionsMenu::Update(float dt) {
   }
 }
 
-void OptionsMenu::UpdateInput() {
+void OptionsMenu::UpdatePageInput(float dt) {
+  // Mouse input
   for (ClickButton& button : PageButtons) {
     const bool wasHovered = button.Hovered;
     button.UpdateInput();
@@ -210,20 +211,97 @@ void OptionsMenu::UpdateInput() {
       Audio::Channels[Audio::AC_REV]->Play("sysse", 1, false, 0.0f);
   }
 
-  // Tab cycling
-  if (PADinputButtonWentDown & (PAD1L1 | PAD1R1)) {
-    Audio::Channels[Audio::AC_REV]->Play("sysse", 1, false, 0.0f);
+  const bool pagePanelHighlighted = CurrentlyFocusedElement == nullptr;
 
-    const bool focusedElement = CurrentlyFocusedElement;
-    const int direction = (bool)(PADinputButtonWentDown & PAD1R1) -
-                          (bool)(PADinputButtonWentDown & PAD1L1);
-    GoToPage((CurrentPage + direction) % Pages.size());
+  // Button input
 
-    if (focusedElement) {
-      CurrentlyFocusedElement = Pages.at(CurrentPage)->GetFirstFocusableChild();
-      CurrentlyFocusedElement->HasFocus = true;
-    }
+  int direction =
+      (bool)(PADinputButtonIsDown &
+             (PAD1R1 | (PAD1DOWN * pagePanelHighlighted))) -
+      (bool)(PADinputButtonIsDown & (PAD1L1 | (PAD1UP * pagePanelHighlighted)));
+
+  if (direction == 0) {
+    PageDirectionButtonHeldTime = 0.0f;
+    PageDirectionButtonWaitTime = 0.0f;
+    return;
   }
+
+  if (0.0f < PageDirectionButtonHeldTime &&
+      PageDirectionButtonHeldTime < MinButtonHoldTime) {
+    PageDirectionButtonHeldTime += dt;
+    PageDirectionButtonWaitTime = 0.0f;
+    return;
+  }
+
+  if (PageDirectionButtonWaitTime > 0.0f) {
+    PageDirectionButtonWaitTime -= dt;
+    return;
+  }
+
+  // Page advancement fired
+
+  PageDirectionButtonHeldTime += dt;
+  PageDirectionButtonWaitTime = ButtonHoldTimeInterval;
+
+  Audio::Channels[Audio::AC_REV]->Play("sysse", 1, false, 0.0f);
+
+  const bool focusedElement = CurrentlyFocusedElement;
+  GoToPage((CurrentPage + direction) % Pages.size());
+
+  if (focusedElement) {
+    CurrentlyFocusedElement = Pages.at(CurrentPage)->GetFirstFocusableChild();
+    CurrentlyFocusedElement->HasFocus = true;
+  }
+}
+
+void OptionsMenu::UpdateEntryMovementInput(float dt) {
+  const int verticalMovement = (bool)(PADinputButtonIsDown & PAD1DOWN) -
+                               (bool)(PADinputButtonIsDown & PAD1UP);
+  const int horizontalMovement = (bool)(PADinputButtonIsDown & PAD1RIGHT) -
+                                 (bool)(PADinputButtonIsDown & PAD1LEFT);
+  const bool moving =
+      verticalMovement || (CurrentPage == 3 && horizontalMovement);
+
+  if (!moving) {
+    DirectionButtonHeldTime = 0.0f;
+    DirectionButtonWaitTime = 0.0f;
+    return;
+  }
+
+  if (0.0f < DirectionButtonHeldTime &&
+      DirectionButtonHeldTime < MinButtonHoldTime) {
+    DirectionButtonHeldTime += dt;
+    DirectionButtonWaitTime = 0.0f;
+    return;
+  }
+
+  if (DirectionButtonWaitTime > 0.0f) {
+    DirectionButtonWaitTime -= dt;
+    return;
+  }
+
+  // Advance entry
+
+  DirectionButtonHeldTime += dt;
+  DirectionButtonWaitTime = ButtonHoldTimeInterval;
+
+  const Widget* const lastHighlight = CurrentlyFocusedElement;
+  if (horizontalMovement != 0) {
+    const FocusDirection horizontalDirection =
+        horizontalMovement == -1 ? FDIR_LEFT : FDIR_RIGHT;
+    AdvanceFocus(horizontalDirection);
+  }
+  if (verticalMovement != 0) {
+    const FocusDirection verticalDirection =
+        verticalMovement == -1 ? FDIR_UP : FDIR_DOWN;
+    AdvanceFocus(verticalDirection);
+  }
+  if (CurrentlyFocusedElement != lastHighlight)
+    Audio::Channels[Audio::AC_REV]->Play("sysse", 1, false, 0.0f);
+}
+
+void OptionsMenu::UpdateInput(float dt) {
+  UpdatePageInput(dt);
 
   if (CurrentlyFocusedElement == nullptr) {
     if (GetControlState(CT_Back)) {
@@ -232,13 +310,6 @@ void OptionsMenu::UpdateInput() {
 
       Hide();
       return;
-    }
-
-    const int direction = (bool)(PADinputButtonWentDown & PAD1DOWN) -
-                          (bool)(PADinputButtonWentDown & PAD1UP);
-    if (direction) {
-      Audio::Channels[Audio::AC_REV]->Play("sysse", 1, false, 0.0f);
-      GoToPage((CurrentPage + direction) % Pages.size());
     }
 
     if (PADinputButtonWentDown & PAD1A) {
@@ -265,9 +336,7 @@ void OptionsMenu::UpdateInput() {
     return;
   }
 
-  Menu::UpdateInput();
-  if (PADinputButtonWentDown & (PAD1DOWN | PAD1UP))
-    Audio::Channels[Audio::AC_REV]->Play("sysse", 1, false, 0.0f);
+  UpdateEntryMovementInput(dt);
 }
 
 void OptionsMenu::Render() {

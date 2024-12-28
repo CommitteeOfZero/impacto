@@ -19,13 +19,16 @@ class OptionsMenu : public Menu {
   void Show() override;
   void Hide() override;
   void Update(float dt) override;
-  void UpdateInput() override;
+  void UpdateInput(float dt);
   void Render() override;
 
  private:
   void GoToPage(int pageNumber);
   void Select(OptionsEntry* entry);
   void PageButtonOnClick(Widgets::ClickButton* target);
+
+  void UpdatePageInput(float dt);
+  void UpdateEntryMovementInput(float dt);
 
   Animation FadeAnimation;
   SpriteAnimation PoleAnimation;
@@ -38,6 +41,12 @@ class OptionsMenu : public Menu {
   int CurrentPage;
   std::vector<Widgets::Group*> Pages;
   std::vector<Widgets::ClickButton> PageButtons;
+
+  float DirectionButtonHeldTime = 0.0f;
+  float DirectionButtonWaitTime = 0.0f;
+
+  float PageDirectionButtonHeldTime = 0.0f;
+  float PageDirectionButtonWaitTime = 0.0f;
 };
 
 }  // namespace CCLCC

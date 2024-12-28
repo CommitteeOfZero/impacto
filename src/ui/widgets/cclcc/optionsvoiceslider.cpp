@@ -74,11 +74,6 @@ void OptionsVoiceSlider::UpdateInput() {
     Muted = !Muted;
     Audio::Channels[Audio::AC_REV]->Play("sysse", 2, false, 0.0f);
   }
-
-  if ((bool)(PADinputButtonWentDown & (PAD1LEFT | PAD1RIGHT)) &&
-      !(bool)(PADinputButtonWentDown & (PAD1UP | PAD1DOWN))) {
-    Audio::Channels[Audio::AC_REV]->Play("sysse", 1, false, 0.0f);
-  }
 }
 
 void OptionsVoiceSlider::Show() {

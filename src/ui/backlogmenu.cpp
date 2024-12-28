@@ -173,7 +173,7 @@ void BacklogMenu::UpdateScrollingInput(float dt) {
   if (!padScrolling) {
     DirectionalButtonHeldTime = 0.0f;
     return;
-  };
+  }
 
   FocusDirection dir = (PADinputButtonIsDown & PAD1DOWN) ? FDIR_DOWN : FDIR_UP;
 
