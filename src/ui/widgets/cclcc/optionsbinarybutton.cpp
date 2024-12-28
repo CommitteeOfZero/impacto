@@ -75,6 +75,20 @@ void OptionsBinaryButton::UpdateInput() {
   }
 }
 
+void OptionsBinaryButton::Show() {
+  OptionsEntry::Show();
+
+  TrueButton.Show();
+  FalseButton.Show();
+}
+
+void OptionsBinaryButton::Hide() {
+  OptionsEntry::Hide();
+
+  TrueButton.Hide();
+  FalseButton.Hide();
+}
+
 void OptionsBinaryButton::TrueOnClick(ClickButton* target) {
   if (Selected && State != true)
     Audio::Channels[Audio::AC_REV]->Play("sysse", 1, false, 0.0f);
