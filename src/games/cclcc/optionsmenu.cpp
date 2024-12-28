@@ -165,8 +165,6 @@ void OptionsMenu::Hide() {
 }
 
 void OptionsMenu::Update(float dt) {
-  const bool wasAnimating = !FadeAnimation.IsOut() && !FadeAnimation.IsIn();
-
   FadeAnimation.Update(dt);
   PoleAnimation.Update(dt);
   if (ScrWork[SW_SYSSUBMENUCT] < 32 && State == Shown &&
@@ -192,14 +190,16 @@ void OptionsMenu::Update(float dt) {
   if (FadeAnimation.IsIn()) {
     State = Shown;
     Pages.at(CurrentPage)->MoveTo(glm::vec2(0.0f, BackgroundPosition.y));
-  } else if (wasAnimating && FadeAnimation.IsOut()) {
-    State = Hidden;
+  } else if (State == Hiding && FadeAnimation.IsOut()) {
+    if (ScrWork[SW_SYSSUBMENUCT] == 0) {
+      State = Hidden;
 
-    Pages.at(CurrentPage)->Hide();
-    CurrentPage = 0;
-    CurrentlyFocusedElement = nullptr;
-
-    SetFlag(SF_SUBMENUEXIT, true);
+      Pages.at(CurrentPage)->Hide();
+      CurrentPage = 0;
+      CurrentlyFocusedElement = nullptr;
+    } else {
+      SetFlag(SF_SUBMENUEXIT, true);
+    }
   }
 }
 
