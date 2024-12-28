@@ -72,6 +72,9 @@ root.OptionsMenu = {
     PortraitSprites = {},
     PortraitOffset = { X = 3, Y = 2 },
     VoicePosition = { X = 454, Y = 310 },
+
+    MinButtonHoldTime = 0.5,
+    ButtonHoldTimeInterval = 0.05,
 };
 
 root.Sprites["OptionsBackground"] = {
