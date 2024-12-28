@@ -19,6 +19,9 @@ class OptionsBinaryButton : public OptionsEntry {
   void Render() override;
   void UpdateInput() override;
 
+  void Show() override;
+  void Hide() override;
+
  private:
   ClickButton TrueButton;
   ClickButton FalseButton;
