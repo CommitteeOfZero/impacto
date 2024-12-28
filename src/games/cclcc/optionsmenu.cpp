@@ -62,7 +62,7 @@ OptionsMenu::OptionsMenu() {
     pos.y += EntriesVerticalOffset;
   }
   TextPage->Add(
-      new OptionsBinaryButton(BinaryBoxSprite, YesSprite, NoSprite,
+      new OptionsBinaryButton(BinaryBoxSprite, SkipReadSprite, SkipAllSprite,
                               LabelSprites[6], pos, highlightTint, select),
       FDIR_DOWN);
   Pages.push_back(TextPage);
