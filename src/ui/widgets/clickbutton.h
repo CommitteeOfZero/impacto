@@ -11,6 +11,7 @@ namespace Widgets {
 class ClickButton : public Widget {
  public:
   ClickButton() {}
+  ClickButton(int id, RectF bounds);
   ClickButton(int id, RectF bounds,
               std::function<void(ClickButton*)> onClickHandler);
 
@@ -21,6 +22,8 @@ class ClickButton : public Widget {
 
   int Id;
 
+ private:
+  bool Clickable = false;
   std::function<void(ClickButton*)> OnClickHandler;
 };
 
