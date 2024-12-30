@@ -7,9 +7,13 @@ namespace Impacto {
 namespace UI {
 namespace Widgets {
 
+ClickButton::ClickButton(int id, RectF bounds) : Id(id), Clickable(false) {
+  Bounds = bounds;
+}
+
 ClickButton::ClickButton(int id, RectF bounds,
                          std::function<void(ClickButton*)> onClickHandler)
-    : Id(id), OnClickHandler(onClickHandler) {
+    : Id(id), OnClickHandler(onClickHandler), Clickable(true) {
   Bounds = bounds;
 }
 
@@ -26,7 +30,8 @@ void ClickButton::UpdateInput() {
     Hovered = Bounds.ContainsPoint(Input::CurTouchPos);
   }
 
-  if (Hovered && Vm::Interface::PADinputMouseWentDown & Vm::Interface::PAD1A)
+  if (Clickable && Hovered &&
+      Vm::Interface::PADinputMouseWentDown & Vm::Interface::PAD1A)
     OnClickHandler(this);
 }
 
