@@ -35,11 +35,8 @@ OptionsMenu::OptionsMenu() {
       std::bind(&OptionsMenu::Select, this, std::placeholders::_1);
 
   PageButtons.reserve(PageCount);
-  std::function<void(ClickButton*)> pageButtonOnClick =
-      std::bind(&OptionsMenu::PageButtonOnClick, this, std::placeholders::_1);
   for (int i = 0; i < PageCount; i++) {
-    PageButtons.push_back(
-        ClickButton(i, PagePanelHoverBounds[i], pageButtonOnClick));
+    PageButtons.push_back(ClickButton(i, PagePanelHoverBounds[i]));
   }
 
   BasicPage = new Group(this);
@@ -203,13 +200,23 @@ void OptionsMenu::Update(float dt) {
   }
 }
 
+void OptionsMenu::PageButtonOnHover(int pageNumber) {
+  if (pageNumber != CurrentPage || !CurrentlyFocusedElement)
+    Audio::Channels[Audio::AC_REV]->Play("sysse", 1, false, 0.0f);
+
+  if (pageNumber == CurrentPage && CurrentlyFocusedElement) return;
+
+  GoToPage(pageNumber);
+  CurrentlyFocusedElement = Pages.at(CurrentPage)->GetFirstFocusableChild();
+  CurrentlyFocusedElement->HasFocus = true;
+}
+
 void OptionsMenu::UpdatePageInput(float dt) {
   // Mouse input
   for (ClickButton& button : PageButtons) {
     const bool wasHovered = button.Hovered;
     button.UpdateInput();
-    if (!wasHovered && button.Hovered)
-      Audio::Channels[Audio::AC_REV]->Play("sysse", 1, false, 0.0f);
+    if (!wasHovered && button.Hovered) PageButtonOnHover(button.Id);
   }
 
   const bool pagePanelHighlighted = CurrentlyFocusedElement == nullptr;
@@ -304,15 +311,16 @@ void OptionsMenu::UpdateEntryMovementInput(float dt) {
 void OptionsMenu::UpdateInput(float dt) {
   UpdatePageInput(dt);
 
+  if (PADinputMouseWentDown & PAD1B ||
+      CurrentlyFocusedElement == nullptr && GetControlState(CT_Back)) {
+    if (!GetFlag(SF_SUBMENUEXIT))
+      Audio::Channels[Audio::AC_REV]->Play("sysse", 3, false, 0.0f);
+
+    Hide();
+    return;
+  }
+
   if (CurrentlyFocusedElement == nullptr) {
-    if (GetControlState(CT_Back)) {
-      if (!GetFlag(SF_SUBMENUEXIT))
-        Audio::Channels[Audio::AC_REV]->Play("sysse", 3, false, 0.0f);
-
-      Hide();
-      return;
-    }
-
     if (PADinputButtonWentDown & PAD1A) {
       // Don't have anything else consume the confirmation
       PADinputButtonWentDown &= ~PAD1A;
@@ -373,8 +381,8 @@ void OptionsMenu::Render() {
     if (PoleAnimation.IsIn()) {
       for (ClickButton& panel : PageButtons) {
         if (panel.Id == CurrentPage || panel.Hovered) {
-          const bool highlighted =
-              panel.Id == CurrentPage && (bool)CurrentlyFocusedElement;
+          const bool highlighted = panel.Id == CurrentPage &&
+                                   (CurrentlyFocusedElement || panel.Hovered);
           Renderer->DrawSprite(
               PagePanelSprites[2 * panel.Id + !highlighted],
               PagePanelPosition + PagePanelIconOffsets[panel.Id], col);
@@ -401,6 +409,7 @@ void OptionsMenu::GoToPage(int pageNumber) {
   CurrentPage = pageNumber;
   Group& page = *Pages.at(CurrentPage);
 
+  CurrentlyFocusedElement = nullptr;
   page.HasFocus = true;
   page.Show();
 }
@@ -414,17 +423,6 @@ void OptionsMenu::Select(OptionsEntry* toSelect) {
   }
 
   CurrentlyFocusedElement = toSelect;
-}
-
-void OptionsMenu::PageButtonOnClick(ClickButton* target) {
-  if (target->Id != CurrentPage || !CurrentlyFocusedElement)
-    Audio::Channels[Audio::AC_REV]->Play("sysse", 2, false, 0.0f);
-
-  if (target->Id == CurrentPage && CurrentlyFocusedElement) return;
-
-  GoToPage(target->Id);
-  CurrentlyFocusedElement = Pages.at(CurrentPage)->GetFirstFocusableChild();
-  CurrentlyFocusedElement->HasFocus = true;
 }
 
 }  // namespace CCLCC
