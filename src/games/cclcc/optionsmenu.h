@@ -25,7 +25,7 @@ class OptionsMenu : public Menu {
  private:
   void GoToPage(int pageNumber);
   void Select(OptionsEntry* entry);
-  void PageButtonOnClick(Widgets::ClickButton* target);
+  void PageButtonOnHover(int pageNumber);
 
   void UpdatePageInput(float dt);
   void UpdateEntryMovementInput(float dt);
