@@ -25,6 +25,7 @@ class OptionsMenu : public Menu {
  private:
   void GoToPage(int pageNumber);
   void Select(OptionsEntry* entry);
+  void Highlight(Widget* entry);
   void PageButtonOnHover(int pageNumber);
 
   void UpdatePageInput(float dt);
@@ -38,7 +39,7 @@ class OptionsMenu : public Menu {
   Widgets::Group* SoundPage;
   Widgets::Group* VoicePage;
 
-  int CurrentPage;
+  int CurrentPage = 0;
   std::vector<Widgets::Group*> Pages;
   std::vector<Widgets::ClickButton> PageButtons;
 
