@@ -14,7 +14,8 @@ namespace CCLCC {
 class OptionsEntry : public Widget {
  public:
   OptionsEntry(const Sprite& label, glm::vec2 pos, glm::vec4 highlightTint,
-               std::function<void(OptionsEntry*)> select);
+               std::function<void(OptionsEntry*)> select,
+               std::function<void(Widget*)> highlight);
 
   void Render() override;
   void Update(float dt) override;
@@ -31,6 +32,7 @@ class OptionsEntry : public Widget {
  protected:
   ClickButton EntryButton;
   std::function<void(OptionsEntry*)> Select;
+  std::function<void(OptionsEntry*)> Highlight;
   void EntryButtonOnClick(ClickButton* target);
 
   const Sprite& LabelSprite;

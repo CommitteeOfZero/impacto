@@ -15,12 +15,13 @@ namespace CCLCC {
 OptionsVoiceSlider::OptionsVoiceSlider(
     const Sprite& box, const Sprite& label, const Sprite& portrait,
     const Sprite& mutedPortrait, glm::vec2 pos, glm::vec4 highlightTint,
-    float sliderSpeed, std::function<void(OptionsEntry*)> select)
+    float sliderSpeed, std::function<void(OptionsEntry*)> select,
+    std::function<void(Widget*)> highlight)
     : OptionsSlider(
           box, label, pos, highlightTint,
           RectF(pos.x + VoiceSliderOffset.x, pos.y + VoiceSliderOffset.y,
                 box.ScaledWidth(), box.ScaledHeight()),
-          sliderSpeed, select),
+          sliderSpeed, select, highlight),
       Portrait(portrait),
       MutedPortrait(mutedPortrait) {
   Bounds =
@@ -38,7 +39,7 @@ OptionsVoiceSlider::OptionsVoiceSlider(
 void OptionsVoiceSlider::Render() {
   HighlightTint.a = Tint.a;
 
-  if (HasFocus || EntryButton.Hovered) {
+  if (HasFocus) {
     RectF highlightBoundBox(Bounds.X, Bounds.Y, VoiceEntryDimensions.x,
                             VoiceEntryDimensions.y);
     Renderer->DrawRect(highlightBoundBox, HighlightTint);

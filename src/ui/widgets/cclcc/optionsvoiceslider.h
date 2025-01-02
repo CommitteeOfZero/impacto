@@ -13,7 +13,8 @@ class OptionsVoiceSlider : public OptionsSlider {
   OptionsVoiceSlider(const Sprite& box, const Sprite& label,
                      const Sprite& portrait, const Sprite& mutedPortrait,
                      glm::vec2 pos, glm::vec4 highlightTint, float sliderSpeed,
-                     std::function<void(OptionsEntry*)> select);
+                     std::function<void(OptionsEntry*)> select,
+                     std::function<void(Widget*)> highlight);
   void Render() override;
   void Update(float dt) override;
   void UpdateInput() override;

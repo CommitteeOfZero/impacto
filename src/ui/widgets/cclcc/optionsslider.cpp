@@ -15,8 +15,9 @@ namespace CCLCC {
 OptionsSlider::OptionsSlider(const Sprite& box, const Sprite& label,
                              glm::vec2 pos, glm::vec4 highlightTint,
                              float sliderSpeed,
-                             std::function<void(OptionsEntry*)> select)
-    : OptionsEntry(label, pos, highlightTint, select),
+                             std::function<void(OptionsEntry*)> select,
+                             std::function<void(Widget*)> highlight)
+    : OptionsEntry(label, pos, highlightTint, select, highlight),
       BoxSprite(box),
       Slider(0, pos + SliderTrackOffset, 0.0f, 1.0f, &Progress,
              SBDIR_HORIZONTAL,
@@ -28,8 +29,9 @@ OptionsSlider::OptionsSlider(const Sprite& box, const Sprite& label,
 OptionsSlider::OptionsSlider(const Sprite& box, const Sprite& label,
                              glm::vec2 pos, glm::vec4 highlightTint,
                              RectF sliderBounds, float sliderSpeed,
-                             std::function<void(OptionsEntry*)> select)
-    : OptionsEntry(label, pos, highlightTint, select),
+                             std::function<void(OptionsEntry*)> select,
+                             std::function<void(Widget*)> highlight)
+    : OptionsEntry(label, pos, highlightTint, select, highlight),
       BoxSprite(box),
       Slider(0, sliderBounds.GetPos(), 0.0f, 1.0f, &Progress, SBDIR_HORIZONTAL,
              sliderBounds.GetSize()) {}

@@ -33,6 +33,8 @@ OptionsMenu::OptionsMenu() {
   glm::vec4 highlightTint(HighlightColor, 1.0f);
   std::function<void(OptionsEntry*)> select =
       std::bind(&OptionsMenu::Select, this, std::placeholders::_1);
+  std::function<void(Widget*)> highlight =
+      std::bind(&OptionsMenu::Highlight, this, std::placeholders::_1);
 
   PageButtons.reserve(PageCount);
   for (int i = 0; i < PageCount; i++) {
@@ -41,10 +43,10 @@ OptionsMenu::OptionsMenu() {
 
   BasicPage = new Group(this);
   for (int i = 0; i < 4; i++) {
-    BasicPage->Add(
-        new OptionsBinaryButton(BinaryBoxSprite, OnSprite, OffSprite,
-                                LabelSprites[i], pos, highlightTint, select),
-        FDIR_DOWN);
+    BasicPage->Add(new OptionsBinaryButton(BinaryBoxSprite, OnSprite, OffSprite,
+                                           LabelSprites[i], pos, highlightTint,
+                                           select, highlight),
+                   FDIR_DOWN);
 
     pos.y += EntriesVerticalOffset;
   }
@@ -53,16 +55,17 @@ OptionsMenu::OptionsMenu() {
   pos = EntriesStartPosition;
   TextPage = new Group(this);
   for (int i = 4; i < 6; i++) {
-    TextPage->Add(new OptionsSlider(SliderTrackSprite, LabelSprites[i], pos,
-                                    highlightTint, SliderSpeed, select),
-                  FDIR_DOWN);
+    TextPage->Add(
+        new OptionsSlider(SliderTrackSprite, LabelSprites[i], pos,
+                          highlightTint, SliderSpeed, select, highlight),
+        FDIR_DOWN);
 
     pos.y += EntriesVerticalOffset;
   }
-  TextPage->Add(
-      new OptionsBinaryButton(BinaryBoxSprite, SkipReadSprite, SkipAllSprite,
-                              LabelSprites[6], pos, highlightTint, select),
-      FDIR_DOWN);
+  TextPage->Add(new OptionsBinaryButton(BinaryBoxSprite, SkipReadSprite,
+                                        SkipAllSprite, LabelSprites[6], pos,
+                                        highlightTint, select, highlight),
+                FDIR_DOWN);
   Pages.push_back(TextPage);
 
   pos = SoundEntriesStartPosition;
@@ -71,10 +74,10 @@ OptionsMenu::OptionsMenu() {
     Widget* widget =
         (i < 11 || i == 14)
             ? new OptionsSlider(SliderTrackSprite, LabelSprites[i], pos,
-                                highlightTint, SliderSpeed, select)
-            : widget = new OptionsBinaryButton(BinaryBoxSprite, YesSprite,
-                                               NoSprite, LabelSprites[i], pos,
-                                               highlightTint, select);
+                                highlightTint, SliderSpeed, select, highlight)
+            : widget = new OptionsBinaryButton(
+                  BinaryBoxSprite, YesSprite, NoSprite, LabelSprites[i], pos,
+                  highlightTint, select, highlight);
     SoundPage->Add(widget, FDIR_DOWN);
 
     pos.y += SoundEntriesVerticalOffset;
@@ -90,7 +93,8 @@ OptionsMenu::OptionsMenu() {
 
     Widget* widget = new OptionsVoiceSlider(
         VoiceSliderTrackSprite, NametagSprites[i], PortraitSprites[2 * i],
-        PortraitSprites[2 * i + 1], pos, highlightTint, SliderSpeed, select);
+        PortraitSprites[2 * i + 1], pos, highlightTint, SliderSpeed, select,
+        highlight);
     VoicePage->Add(widget, FDIR_RIGHT);
   }
 
@@ -160,6 +164,12 @@ void OptionsMenu::Hide() {
       UI::FocusedMenu = nullptr;
     }
     IsFocused = false;
+
+    if (CurrentlyFocusedElement) {
+      static_cast<OptionsEntry*>(CurrentlyFocusedElement)->Selected = false;
+      CurrentlyFocusedElement->HasFocus = false;
+      CurrentlyFocusedElement = nullptr;
+    }
   }
 }
 
@@ -293,16 +303,17 @@ void OptionsMenu::UpdateEntryMovementInput(float dt) {
         verticalMovement == -1 ? FDIR_UP : FDIR_DOWN;
     AdvanceFocus(verticalDirection);
   }
-  if (CurrentlyFocusedElement != lastHighlight)
+  if (CurrentlyFocusedElement != lastHighlight) {
     Audio::Channels[Audio::AC_REV]->Play("sysse", 1, false, 0.0f);
+    Highlight(CurrentlyFocusedElement);
+  }
 }
 
 void OptionsMenu::UpdateInput(float dt) {
   UpdatePageInput(dt);
 
   if (PADinputMouseWentDown & PAD1B ||
-      !static_cast<OptionsEntry*>(CurrentlyFocusedElement)->Selected &&
-          GetControlState(CT_Back)) {
+      !AnyEntrySelected() && GetControlState(CT_Back)) {
     if (!GetFlag(SF_SUBMENUEXIT))
       Audio::Channels[Audio::AC_REV]->Play("sysse", 3, false, 0.0f);
 
@@ -311,7 +322,7 @@ void OptionsMenu::UpdateInput(float dt) {
   }
 
   // If something is selected, the option entry takes full control
-  if (static_cast<OptionsEntry*>(CurrentlyFocusedElement)->Selected) return;
+  if (AnyEntrySelected()) return;
 
   UpdateEntryMovementInput(dt);
 }
@@ -378,18 +389,21 @@ void OptionsMenu::GoToPage(int pageNumber) {
 
 void OptionsMenu::Select(OptionsEntry* toSelect) {
   for (Widget* entry : Pages.at(CurrentPage)->Children) {
-    const bool select = entry == toSelect;
-
-    static_cast<OptionsEntry*>(entry)->Selected = select;
-    entry->HasFocus = select;
+    static_cast<OptionsEntry*>(entry)->Selected = false;
+    entry->HasFocus = false;
   }
 
+  toSelect->Selected = true;
+  toSelect->HasFocus = true;
   CurrentlyFocusedElement = toSelect;
 }
 
 void OptionsMenu::Highlight(Widget* toHighlight) {
+  if (CurrentlyFocusedElement == toHighlight) return;
+
   for (Widget* entry : Pages.at(CurrentPage)->Children) {
     entry->HasFocus = false;
+    static_cast<OptionsEntry*>(entry)->Selected = false;
   }
 
   toHighlight->HasFocus = true;

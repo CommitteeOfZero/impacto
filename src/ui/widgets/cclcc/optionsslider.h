@@ -13,7 +13,8 @@ class OptionsSlider : public OptionsEntry {
  public:
   OptionsSlider(const Sprite& box, const Sprite& label, glm::vec2 pos,
                 glm::vec4 highlightTint, float sliderSpeed,
-                std::function<void(OptionsEntry*)> select);
+                std::function<void(OptionsEntry*)> select,
+                std::function<void(Widget*)> highlight);
 
   void Render() override;
   void Update(float dt) override;
@@ -25,7 +26,8 @@ class OptionsSlider : public OptionsEntry {
  protected:
   OptionsSlider(const Sprite& box, const Sprite& label, glm::vec2 pos,
                 glm::vec4 highlightTint, RectF sliderBounds, float sliderSpeed,
-                std::function<void(OptionsEntry*)> select);
+                std::function<void(OptionsEntry*)> select,
+                std::function<void(Widget*)> highlight);
 
   const Sprite& BoxSprite;
 
