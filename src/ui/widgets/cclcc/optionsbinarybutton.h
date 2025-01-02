@@ -14,7 +14,8 @@ class OptionsBinaryButton : public OptionsEntry {
   OptionsBinaryButton(const Sprite& box, const Sprite& trueLabel,
                       const Sprite& falseLabel, const Sprite& label,
                       glm::vec2 pos, glm::vec4 highlightTint,
-                      std::function<void(OptionsEntry*)> select);
+                      std::function<void(OptionsEntry*)> select,
+                      std::function<void(Widget*)> highlight);
 
   void Render() override;
   void Update(float dt) override;

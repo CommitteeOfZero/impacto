@@ -14,8 +14,12 @@ namespace CCLCC {
 
 OptionsEntry::OptionsEntry(const Sprite& label, glm::vec2 pos,
                            glm::vec4 highlightTint,
-                           std::function<void(OptionsEntry*)> select)
-    : LabelSprite(label), HighlightTint(highlightTint), Select(select) {
+                           std::function<void(OptionsEntry*)> select,
+                           std::function<void(Widget*)> highlight)
+    : LabelSprite(label),
+      HighlightTint(highlightTint),
+      Select(select),
+      Highlight(highlight) {
   Bounds = RectF(pos.x, pos.y, LabelOffset.x + LabelSprite.ScaledWidth(),
                  LabelOffset.y + LabelSprite.ScaledHeight());
 
@@ -27,7 +31,7 @@ OptionsEntry::OptionsEntry(const Sprite& label, glm::vec2 pos,
 void OptionsEntry::Render() {
   HighlightTint.a = Tint.a;
 
-  if (HasFocus || EntryButton.Hovered) {
+  if (HasFocus) {
     RectF highlightBoundBox(Bounds.X, Bounds.Y, EntryDimensions.x,
                             EntryDimensions.y);
     Renderer->DrawRect(highlightBoundBox, HighlightTint);
@@ -50,19 +54,23 @@ void OptionsEntry::Update(float dt) {
 void OptionsEntry::UpdateInput() {
   const bool wasHovered = EntryButton.Hovered;
   EntryButton.UpdateInput();
-  if (!wasHovered && EntryButton.Hovered)
+  if (!HasFocus && !wasHovered && EntryButton.Hovered) {
     Audio::Channels[Audio::AC_REV]->Play("sysse", 1, false, 0.0f);
+    Highlight(this);
+  }
 
   if (!HasFocus) return;
 
   if (PADinputButtonWentDown & PAD1A) {
     Selected = !Selected;
     Audio::Channels[Audio::AC_REV]->Play("sysse", 2, false, 0.0f);
+    return;
   }
 
-  if (PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B) {
+  if (Selected && PADinputButtonWentDown & PAD1B) {
     Selected = false;
     Audio::Channels[Audio::AC_REV]->Play("sysse", 3, false, 0.0f);
+    return;
   }
 }
 

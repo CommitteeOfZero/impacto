@@ -24,9 +24,14 @@ class OptionsMenu : public Menu {
 
  private:
   void GoToPage(int pageNumber);
+  void PageButtonOnHover(int pageNumber);
+
   void Select(OptionsEntry* entry);
   void Highlight(Widget* entry);
-  void PageButtonOnHover(int pageNumber);
+  inline bool AnyEntrySelected() {
+    return CurrentlyFocusedElement &&
+           static_cast<OptionsEntry*>(CurrentlyFocusedElement)->Selected;
+  }
 
   void UpdatePageInput(float dt);
   void UpdateEntryMovementInput(float dt);
