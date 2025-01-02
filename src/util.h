@@ -72,6 +72,30 @@ struct RectF {
             rect.Y + rect.Height <= Y + Height);
   }
 
+  constexpr RectF operator+(RectF const& other) const {
+    return RectF(X + other.X, Y + other.Y, Width + other.Width,
+                 Height + other.Height);
+  }
+
+  constexpr RectF operator-(RectF const& other) const {
+    return RectF(X - other.X, Y - other.Y, Width - other.Width,
+                 Height - other.Height);
+  }
+
+  constexpr void operator+=(RectF const& other) {
+    X += other.X;
+    Y += other.Y;
+    Width += other.Width;
+    Height += other.Height;
+  }
+
+  constexpr void operator-=(RectF const& other) {
+    X -= other.X;
+    Y -= other.Y;
+    Width -= other.Width;
+    Height -= other.Height;
+  }
+
   constexpr bool operator==(RectF const& other) const {
     return X == other.X && Y == other.Y && Width == other.Width &&
            Height == other.Height;
@@ -79,6 +103,9 @@ struct RectF {
   constexpr bool operator!=(RectF const& other) const {
     return !(*this == other);
   }
+
+  constexpr glm::vec2 GetPos() const { return glm::vec2(X, Y); }
+  constexpr glm::vec2 GetSize() const { return glm::vec2(Width, Height); }
 
   static RectF Coalesce(const RectF& first, const RectF& second);
 };
