@@ -15,13 +15,13 @@ class FFmpegAudioPlayer {
   FFmpegAudioPlayer(Video::FFmpegPlayer* player) : Player(player) {}
   virtual ~FFmpegAudioPlayer() = default;
 
-  virtual void Init(){};
-  virtual void InitConvertContext(AVCodecContext* codecCtx){};
-  virtual void FillAudioBuffers(){};
-  virtual void Process(){};
+  virtual void Init() {};
+  virtual void InitConvertContext(AVCodecContext* codecCtx) {};
+  virtual void FillAudioBuffers() {};
+  virtual void Process() {};
 
-  virtual void Stop(){};
-  virtual void Unload(){};
+  virtual void Stop() {};
+  virtual void Unload() {};
 
   Video::Clock& GetClock() { return AudioClock; };
 

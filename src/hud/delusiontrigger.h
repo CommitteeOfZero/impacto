@@ -16,7 +16,7 @@ class DelusionTriggerBase {
   virtual void Update(float dt) = 0;
   virtual void Render() = 0;
   virtual void Hide() = 0;
-  virtual void Show(){};
+  virtual void Show() {};
   virtual bool Show(int bgMtrgSelBufferId, int bgMtrgNegaPosiBufferId,
                     int param3) {
     return true;

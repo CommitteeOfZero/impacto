@@ -18,13 +18,13 @@ class AudioChannel {
   };
 
   // Stream is automatically deleted when playback is stopped
-  virtual void Play(AudioStream* stream, bool loop, float fadeInDuration){};
+  virtual void Play(AudioStream* stream, bool loop, float fadeInDuration) {};
   virtual void Play(std::string const& mountpoint, std::string const& fileName,
                     bool loop, float fadeInDuration);
   virtual void Play(std::string const& mountpoint, uint32_t fileId, bool loop,
                     float fadeInDuration);
-  virtual void FillBuffers(){};
-  virtual void Stop(float fadeOutDuration){};
+  virtual void FillBuffers() {};
+  virtual void Stop(float fadeOutDuration) {};
 
   virtual void Pause() {
     if (State == ACS_Playing) State = ACS_Paused;
@@ -33,7 +33,7 @@ class AudioChannel {
     if (State == ACS_Paused) State = ACS_Playing;
   };
 
-  virtual void Update(float dt){};
+  virtual void Update(float dt) {};
 
   virtual float PositionInSeconds() const { return 0.0f; };
   // may be negative for no fixed duration, 0 for no audio

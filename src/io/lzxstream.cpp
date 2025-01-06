@@ -227,8 +227,7 @@ int32_t LZXDecompress(uint8_t *CompressedBuffer, int CompressedSize,
   // prepare decompressor
   if (WindowSize >= 32) {  // max is 21 or 25 (delta)
     int t = WindowSize;
-    for (WindowSize = 0; t >>= 1; WindowSize++)
-      ;
+    for (WindowSize = 0; t >>= 1; WindowSize++);
   }
   if (WindowSize <= 0) WindowSize = 17;
   if (CompressionPartitionSize <= 0) CompressionPartitionSize = 256 * 1024;
