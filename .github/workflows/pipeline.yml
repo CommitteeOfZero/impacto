@@ -115,7 +115,7 @@ jobs:
         vcpkgJsonGlob: '**/vcpkg.json'
 
     - name: Install Dependencies Linux
-      run: sudo apt-get install nasm libx11-dev libxft-dev libxext-dev libwayland-dev libxkbcommon-dev libegl1-mesa-dev libibus-1.0-dev libxrandr-dev
+      run: sudo apt-get install nasm libx11-dev libxft-dev libxext-dev libwayland-dev libxkbcommon-dev libegl1-mesa-dev libibus-1.0-dev libxrandr-dev libtool
       if: matrix.os_name == 'linux' || matrix.os_name == 'android'
     - name: Install Dependencies Mac
       run: brew install nasm
