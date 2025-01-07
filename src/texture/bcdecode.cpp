@@ -337,8 +337,7 @@ static void decode_bc7_block(rgba *col, const uint8_t *src) {
     }
     return;
   }
-  while (!(mode & (1 << bit++)))
-    ;
+  while (!(mode & (1 << bit++)));
   mode = bit - 1;
   info = &bc7_modes[mode];
   /* color selection bits: {subset}{endpoint} */

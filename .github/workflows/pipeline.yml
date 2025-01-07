@@ -20,16 +20,13 @@ jobs:
     permissions:
       checks: write
       contents: write
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       commitid: ${{ steps.commit.outputs.commitid }}
 
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v4
-
-      - name: Install ClangFormat
-        run: sudo apt-get install -y clang-format
 
       - name: Run linters
         uses: wearerequired/lint-action@v2
@@ -60,7 +57,7 @@ jobs:
             os_name: windows
             triplet: x64-windows-release
             host_triplet: x64-windows-release
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             os_name: linux
             triplet: x64-linux-ci
             host_triplet: x64-linux-ci
@@ -72,7 +69,7 @@ jobs:
             os_name: macos-x64
             triplet: x64-osx-ci
             host_triplet: x64-osx-ci
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             os_name: android
             triplet: arm64-android-ci
             host_triplet: x64-linux-ci
