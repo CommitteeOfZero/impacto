@@ -66,6 +66,8 @@ class TitleMenu : public Menu {
 
   void MainMenuUpdate();
   void SubMenuUpdate();
+  void ExplodeScreenUpdate();
+  void ReturnToMenuUpdate();
   bool DisableInputReset = false;
   MenuState SubMenuState = Hidden;
 };
