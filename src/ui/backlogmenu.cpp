@@ -38,9 +38,10 @@ BacklogMenu::BacklogMenu() {
   MainItems->RenderingBounds = RenderingBounds;
   MainItems->WrapFocus = false;
 
-  MainScrollbar = new Scrollbar(0, ScrollbarPosition, 0.0f, 1.0f, &PageY,
-                                SBDIR_VERTICAL, ScrollbarTrack, ScrollbarThumb,
-                                glm::vec2(0), ScrollbarThumbLength);
+  MainScrollbar =
+      new Scrollbar(0, ScrollbarPosition, 0.0f, 1.0f, &PageY, SBDIR_VERTICAL,
+                    ScrollbarTrack, ScrollbarThumb, glm::vec2(0),
+                    ScrollbarThumbLength, RenderingBounds, -5000);
   MainScrollbar->Enabled = false;
   CurrentEntryPos = EntriesStart;
 
