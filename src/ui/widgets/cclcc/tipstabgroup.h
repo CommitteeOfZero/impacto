@@ -50,11 +50,11 @@ class TipsTabGroup : public Menu {
   glm::vec2 TipsScrollStartPos;
   glm::vec2 TipsScrollTrackBounds;
 
-  float PageUpDownButtonHeldTime;
-  float PageUpDownWaitTime;
+  float PageChangeButtonHeldTime;
+  float PageChangeWaitTime;
   int EntriesPerPage;
 
-  bool UpdatePageUpDownTimes(float dt);
+  bool UpdatePageChangeTimes(float dt);
 };
 
 }  // namespace CCLCC

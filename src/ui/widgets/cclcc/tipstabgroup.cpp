@@ -79,7 +79,7 @@ void TipsTabGroup::UpdatePageInput(float dt) {
     FocusDirection dir =
         (PADinputButtonIsDown & PAD1LEFT) ? FDIR_UP : FDIR_DOWN;
 
-    bool holdScroll = UpdatePageUpDownTimes(dt);
+    bool holdScroll = UpdatePageChangeTimes(dt);
 
     auto checkScrollBounds = [&]() {
       return !TipsTabBounds.Contains(CurrentlyFocusedElement->Bounds);
@@ -105,30 +105,46 @@ void TipsTabGroup::UpdatePageInput(float dt) {
           ScrollPosY -= TipsEntryBounds.Height;
         }
       }
-    } else if (PADinputButtonWentDown & PAD1RIGHT) {
+    } else if (PADinputButtonWentDown & PAD1RIGHT ||
+               holdScroll && PADinputButtonIsDown & PAD1RIGHT) {
       AdvanceFocus(FDIR_RIGHT);
       if (CurrentlyFocusedElement != prevEntry) {
         if (checkScrollBounds())
           ScrollPosY += TipsEntryBounds.Height * EntriesPerPage;
-      } else {
+      } else if (CurrentlyFocusedElement == TipsEntriesGroup.Children.back()) {
         CurrentlyFocusedElement->HasFocus = false;
         CurrentlyFocusedElement = TipsEntriesGroup.Children.front();
         CurrentlyFocusedElement->HasFocus = true;
         if (checkScrollBounds()) {
           ScrollPosY = 0;
         }
-      }
-    } else if (PADinputButtonWentDown & PAD1LEFT) {
-      AdvanceFocus(FDIR_LEFT);
-      if (CurrentlyFocusedElement != prevEntry) {
-        if (checkScrollBounds())
-          ScrollPosY -= TipsEntryBounds.Height * EntriesPerPage;
       } else {
         CurrentlyFocusedElement->HasFocus = false;
         CurrentlyFocusedElement = TipsEntriesGroup.Children.back();
         CurrentlyFocusedElement->HasFocus = true;
         if (checkScrollBounds()) {
           ScrollPosY = TipsEntriesScrollbar->EndValue;
+        }
+      }
+    } else if (PADinputButtonWentDown & PAD1LEFT ||
+               holdScroll && PADinputButtonIsDown & PAD1LEFT) {
+      AdvanceFocus(FDIR_LEFT);
+      if (CurrentlyFocusedElement != prevEntry) {
+        if (checkScrollBounds())
+          ScrollPosY -= TipsEntryBounds.Height * EntriesPerPage;
+      } else if (CurrentlyFocusedElement == TipsEntriesGroup.Children.front()) {
+        CurrentlyFocusedElement->HasFocus = false;
+        CurrentlyFocusedElement = TipsEntriesGroup.Children.back();
+        CurrentlyFocusedElement->HasFocus = true;
+        if (checkScrollBounds()) {
+          ScrollPosY = TipsEntriesScrollbar->EndValue;
+        }
+      } else {
+        CurrentlyFocusedElement->HasFocus = false;
+        CurrentlyFocusedElement = TipsEntriesGroup.Children.front();
+        CurrentlyFocusedElement->HasFocus = true;
+        if (checkScrollBounds()) {
+          ScrollPosY = 0;
         }
       }
     }
@@ -160,30 +176,32 @@ void TipsTabGroup::Update(float dt) {
   }
 }
 
-bool TipsTabGroup::UpdatePageUpDownTimes(float dt) {
-  bool pageUpDown =
+bool TipsTabGroup::UpdatePageChangeTimes(float dt) {
+  bool pageDirectionMovement =
       (bool)(Vm::Interface::PADinputButtonIsDown & Vm::Interface::PAD1UP) ^
-      (bool)(Vm::Interface::PADinputButtonIsDown & Vm::Interface::PAD1DOWN);
-  if (!pageUpDown) {
-    PageUpDownButtonHeldTime = 0.0f;
-    PageUpDownWaitTime = 0.0f;
+      (bool)(Vm::Interface::PADinputButtonIsDown & Vm::Interface::PAD1DOWN) ^
+      (bool)(Vm::Interface::PADinputButtonIsDown & Vm::Interface::PAD1LEFT) ^
+      (bool)(Vm::Interface::PADinputButtonIsDown & Vm::Interface::PAD1RIGHT);
+  if (!pageDirectionMovement) {
+    PageChangeButtonHeldTime = 0.0f;
+    PageChangeWaitTime = 0.0f;
     return false;
   }
 
-  if (0.0f < PageUpDownButtonHeldTime &&
-      PageUpDownButtonHeldTime < MinHoldTime) {
-    PageUpDownButtonHeldTime += dt;
-    PageUpDownWaitTime = 0.0f;
+  if (0.0f < PageChangeButtonHeldTime &&
+      PageChangeButtonHeldTime < MinHoldTime) {
+    PageChangeButtonHeldTime += dt;
+    PageChangeWaitTime = 0.0f;
     return false;
   }
 
-  if (PageUpDownWaitTime > 0.0f) {
-    PageUpDownWaitTime -= dt;
+  if (PageChangeWaitTime > 0.0f) {
+    PageChangeWaitTime -= dt;
     return false;
   }
 
-  PageUpDownButtonHeldTime += dt;
-  PageUpDownWaitTime = AdvanceFocusTimeInterval;
+  PageChangeButtonHeldTime += dt;
+  PageChangeWaitTime = AdvanceFocusTimeInterval;
   return true;
 }
 
