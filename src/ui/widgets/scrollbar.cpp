@@ -12,7 +12,8 @@ using namespace Impacto::Vm::Interface;
 
 Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end,
                      float* value, ScrollbarDirection dir, Sprite const& thumb,
-                     glm::vec2 trackBounds, float thumbLength)
+                     glm::vec2 trackBounds, float thumbLength,
+                     RectF wheelBounds, float wheelSpeedMultiplier)
     : Id(id),
       StartValue(start),
       EndValue(end),
@@ -20,7 +21,9 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end,
       Direction(dir),
       ThumbSprite(thumb),
       TrackBounds(pos.x, pos.y, trackBounds.x, trackBounds.y),
-      ThumbLength(thumbLength) {
+      ThumbLength(thumbLength),
+      ScrollWheelBounds(wheelBounds == RectF() ? TrackBounds : wheelBounds),
+      WheelSpeedMultiplier(wheelSpeedMultiplier) {
   Enabled = true;
   Step = (EndValue - StartValue) * 0.01f;
   Length = Direction == SBDIR_VERTICAL ? trackBounds.y : trackBounds.x;
@@ -30,7 +33,8 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end,
 Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end,
                      float* value, ScrollbarDirection dir, Sprite const& track,
                      Sprite const& thumb, glm::vec2 thumbOffset,
-                     float thumbLength)
+                     float thumbLength, RectF wheelBounds,
+                     float wheelSpeedMultiplier)
     : Id(id),
       StartValue(start),
       EndValue(end),
@@ -40,13 +44,14 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end,
       ThumbSprite(thumb),
       ThumbSpriteOffset(thumbOffset),
       ThumbLength(thumbLength),
+      TrackBounds(pos.x, pos.y, track.ScaledWidth(), track.ScaledHeight()),
+      ScrollWheelBounds(wheelBounds == RectF() ? TrackBounds : wheelBounds),
+      WheelSpeedMultiplier(wheelSpeedMultiplier),
+      Step((EndValue - StartValue) * 0.01f),
       HasTrack(true) {
   Enabled = true;
-  Step = (EndValue - StartValue) * 0.01f;
   Length = Direction == SBDIR_VERTICAL ? TrackSprite.Bounds.Height
                                        : TrackSprite.Bounds.Width;
-  TrackBounds = RectF(pos.x, pos.y, TrackSprite.ScaledWidth(),
-                      TrackSprite.ScaledHeight());
   ThumbBounds =
       RectF(0.0f, 0.0f, ThumbSprite.ScaledWidth(), ThumbSprite.ScaledHeight());
   if (Direction == SBDIR_VERTICAL) {
@@ -64,9 +69,10 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end,
 Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end,
                      float* value, ScrollbarDirection dir, Sprite const& track,
                      Sprite const& thumb, Sprite const& fill,
-                     glm::vec2 thumbOffset, float thumbLength)
+                     glm::vec2 thumbOffset, float thumbLength,
+                     RectF wheelBounds, float wheelSpeedMultiplier)
     : Scrollbar(id, pos, start, end, value, dir, track, thumb, thumbOffset,
-                thumbLength) {
+                thumbLength, wheelBounds, wheelSpeedMultiplier) {
   FillSprite = fill;
   HasFill = true;
   UpdatePosition();
@@ -96,11 +102,12 @@ void Scrollbar::UpdateInput() {
     if (Input::PrevMousePos != Input::CurMousePos) {
       Hovered = TrackBounds.ContainsPoint(Input::CurMousePos) ||
                 ThumbBounds.ContainsPoint(Input::CurMousePos);
+      HoveredWheelBounds = ScrollWheelBounds.ContainsPoint(Input::CurMousePos);
     }
     if (Hovered && Input::MouseButtonIsDown[SDL_BUTTON_LEFT]) {
-      Scrolling = true;
+      ScrollHeld = true;
     }
-    if (Input::MouseButtonIsDown[SDL_BUTTON_LEFT] && Scrolling) {
+    if (Input::MouseButtonIsDown[SDL_BUTTON_LEFT] && ScrollHeld) {
       float mouseP, trackP1, trackP2;
       switch (Direction) {
         case SBDIR_VERTICAL:
@@ -121,7 +128,12 @@ void Scrollbar::UpdateInput() {
                              thumbNormalizedLength);
       ClampValue();
     } else {
-      Scrolling = false;
+      ScrollHeld = false;
+    }
+
+    if (HoveredWheelBounds) {
+      *Value -= Input::MouseWheelDeltaY * WheelSpeedMultiplier * Step;
+      ClampValue();
     }
   }
 }

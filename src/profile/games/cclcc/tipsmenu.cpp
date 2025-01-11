@@ -61,6 +61,9 @@ void Configure() {
   TransitionInDuration = EnsureGetMemberFloat("TransitionInDuration");
   TransitionOutDuration = EnsureGetMemberFloat("TransitionOutDuration");
 
+  MinHoldTime = EnsureGetMemberFloat("MinHoldTime");
+  AdvanceFocusTimeInterval = EnsureGetMemberFloat("AdvanceFocusTimeInterval");
+
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMemberInt("DrawType"));
 

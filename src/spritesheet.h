@@ -27,8 +27,8 @@ struct Sprite {
   RectF Bounds{0.0f, 0.0f, 0.0f, 0.0f};
   glm::vec2 BaseScale;
 
-  float ScaledWidth() { return Bounds.Width * BaseScale.x; }
-  float ScaledHeight() { return Bounds.Height * BaseScale.y; }
+  float ScaledWidth() const { return Bounds.Width * BaseScale.x; }
+  float ScaledHeight() const { return Bounds.Height * BaseScale.y; }
   void SetScaledWidth(float scaledWidth) {
     Bounds.Width = scaledWidth / BaseScale.x;
   }

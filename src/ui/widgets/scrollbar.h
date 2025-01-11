@@ -13,15 +13,18 @@ class Scrollbar : public Widget {
  public:
   Scrollbar(int id, glm::vec2 pos, float start, float end, float* value,
             ScrollbarDirection dir, Sprite const& thumb, glm::vec2 trackBounds,
-            float thumbLength);
+            float thumbLength, RectF wheelBounds = RectF(),
+            float wheelSpeedMultiplier = 1.0f);
   Scrollbar(int id, glm::vec2 pos, float start, float end, float* value,
             ScrollbarDirection dir, Sprite const& track, Sprite const& thumb,
             glm::vec2 thumbOffset = glm::vec2(0.0f, 0.0f),
-            float thumbLength = 0.0f);
+            float thumbLength = 0.0f, RectF wheelBounds = RectF(),
+            float wheelSpeedMultiplier = 1.0f);
   Scrollbar(int id, glm::vec2 pos, float start, float end, float* value,
             ScrollbarDirection dir, Sprite const& track, Sprite const& thumb,
             Sprite const& fill, glm::vec2 thumbOffset = glm::vec2(0.0f, 0.0f),
-            float thumbLength = 0.0f);
+            float thumbLength = 0.0f, RectF wheelBounds = RectF(),
+            float wheelSpeedMultiplier = 1.0f);
   virtual void UpdateInput() override;
   virtual void Update(float dt) override;
   virtual void Render() override;
@@ -42,6 +45,7 @@ class Scrollbar : public Widget {
   float* Value;
 
   bool FillBeforeTrack = false;
+  bool HoveredWheelBounds = false;
 
  protected:
   float Step = 0.0f;
@@ -50,11 +54,13 @@ class Scrollbar : public Widget {
   glm::vec2 ThumbSpriteOffset = glm::vec2(0.0f, 0.0f);
   RectF TrackBounds;
   RectF ThumbBounds;
+  RectF ScrollWheelBounds;
   float ThumbLength;
-  bool Scrolling = false;
+  bool ScrollHeld = false;
   bool HasFill = false;
   bool HasTrack = true;
-
+  int LastScrollPos = 0;
+  float WheelSpeedMultiplier = 1.0f;
   void UpdatePosition();
 };
 
