@@ -209,6 +209,23 @@ void SaveMenu::Hide() {
   }
 }
 
+void SaveMenu::UpdateInput() {
+  Menu::UpdateInput();
+  if (IsFocused) {
+    if (Input::MouseWheelDeltaY < 0) {
+      MainItems[CurrentPage]->Hide();
+      CurrentPage = (CurrentPage + 1) % Pages;
+      MainItems[CurrentPage]->Show();
+      CurrentlyFocusedElement = MainItems[CurrentPage]->GetFocus(FDIR_UP);
+    } else if (Input::MouseWheelDeltaY > 0) {
+      MainItems[CurrentPage]->Hide();
+      CurrentPage = (CurrentPage - 1 + Pages) % Pages;
+      MainItems[CurrentPage]->Show();
+      CurrentlyFocusedElement = MainItems[CurrentPage]->GetFocus(FDIR_DOWN);
+    }
+  }
+}
+
 void SaveMenu::Update(float dt) {
   UpdateInput();
   FadeAnimation.Update(dt);
@@ -228,7 +245,7 @@ void SaveMenu::Update(float dt) {
   else if (FadeAnimation.IsOut())
     State = Hidden;
 
-  if (State == Shown && IsFocused) {
+  if (State == Shown && IsFocused && CurrentlyFocusedElement) {
     int oldPage = CurrentPage;
     MainItems[CurrentPage]->Update(dt);
     CurrentPage =
