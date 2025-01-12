@@ -25,6 +25,7 @@ template void FFmpegStream<AVMEDIA_TYPE_VIDEO>::FlushPacketQueue();
 
 template <AVMediaType MediaType>
 void FFmpegStream<MediaType>::FlushFrameQueue() {
+  std::lock_guard lock{FrameLock};
   while (FrameQueue.size() > 0) {
     auto frame = FrameQueue.front();
     FrameQueue.pop();

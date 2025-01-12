@@ -473,6 +473,7 @@ void FFmpegPlayer::Update(float dt) {
         if (Looping) {
           Seek(0);
         } else {
+          frameLock.unlock();
           Stop();
         }
         return;

@@ -83,11 +83,6 @@ struct FFmpegStream {
         stream(std::move(avStream)),
         Duration(duration) {}
 
-  ~FFmpegStream() {
-    FlushFrameQueue();
-    FlushPacketQueue();
-  }
-
   void FlushPacketQueue();
   void FlushFrameQueue();
 };
