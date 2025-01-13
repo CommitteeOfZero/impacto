@@ -215,10 +215,10 @@ void TitleMenu::Hide() {
       MenuLabel->Move({-Profile::DesignWidth / 2, 0.0f});
       if (CurrentSubMenu) {
         CurrentSubMenu->Move({-Profile::DesignWidth / 2, 0.0f});
-        CurrentSubMenu->HasFocus = false;
       }
     }
-    if (SecondaryFadeAnimation.IsOut() && CurrentSubMenu) {
+    if (CurrentSubMenu) {
+      CurrentSubMenu->HasFocus = false;
       if (CurrentSubMenu == ContinueItems) {
         HideContinueItems();
       } else if (CurrentSubMenu == ExtraItems) {
@@ -232,11 +232,11 @@ void TitleMenu::Hide() {
       SecondaryFadeAnimation.Progress = 0.0f;
     }
     MenuLabel->Hide();
-    if (LastFocusedMenu != 0) {
+    if (LastFocusedMenu != nullptr) {
       UI::FocusedMenu = LastFocusedMenu;
       LastFocusedMenu->IsFocused = true;
     } else {
-      UI::FocusedMenu = 0;
+      UI::FocusedMenu = nullptr;
     }
     IsFocused = false;
     AllowsScriptInput = true;
