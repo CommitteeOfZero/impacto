@@ -170,9 +170,9 @@ void YesNoTrigger::Update(float dt) {
           } else {
             Selection = YesNoSelect::YES;
           }
-          if (BgType == BGType::BG0 &&
-              (CurArrIndex == 11 || CurArrIndex == 12)) {
-            Selection = YesNoSelect::YES;
+          if (BgType == BGType::BG1 &&
+              (TargetArrIndex == 11 || TargetArrIndex == 12)) {
+            Selection = YesNoSelect::NO;
             Audio::Channels[Audio::AC_SSE]->Play("sysse", 4, false, 0.0f);
           } else {
             Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0.0f);
