@@ -15,8 +15,18 @@ env:
 
 
 jobs:
+  get-version:
+    name: Get version
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set version
+      run: echo "VERSION=$(cat VERSION)" >> $GITHUB_ENV
   lint:
     name: Run linters
+    needs: get-version
     permissions:
       checks: write
       contents: write
@@ -41,7 +51,6 @@ jobs:
         run: |
           SHA=$(git rev-parse HEAD)
           echo "::set-output name=commitid::$SHA"
-    
   job-matrix:
     name: ${{ matrix.os_name }}
     runs-on: ${{ matrix.os }}
@@ -155,11 +164,11 @@ jobs:
     - name: Archive Artifacts
       run: |
         mv ./release/${{ env.PresetName }} ./release/impacto
-        7z u impacto-${{ matrix.os_name }}-${{ vars.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip ./release/impacto
+        7z u impacto-${{ matrix.os_name }}-${{ env.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip ./release/impacto
     - name: Upload Artifact
       uses: actions/upload-artifact@v4.1.0
       with:
-        path: impacto-${{ matrix.os_name }}-${{ vars.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip
+        path: impacto-${{ matrix.os_name }}-${{ env.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip
         name: release-${{ matrix.os_name }}
 
   switch:
@@ -193,11 +202,11 @@ jobs:
       - name: Archive Artifacts
         run: |
           mv ./release/ci-release ./release/impacto
-          7z u impacto-switch-${{ vars.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip ./release/impacto
+          7z u impacto-switch-${{ env.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip ./release/impacto
       - name: Upload Artifact
         uses: actions/upload-artifact@v4.1.0
         with:
-          path: impacto-switch-${{ vars.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip
+          path: impacto-switch-${{ env.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip
           name: release-switch
 
   publish_artifacts:
@@ -220,7 +229,7 @@ jobs:
       if: startsWith(github.ref, 'refs/tags') || (github.ref_name == 'master')
       with:
         Name: Latest ${{ env.BRANCH_NAME }} build
-        tag_name: ${{ vars.VERSION }}${{ github.run_number }}
+        tag_name: ${{ env.VERSION }}${{ github.run_number }}
         files:
           ${{ github.workspace }}/release/*.zip
         prerelease: true
@@ -244,7 +253,7 @@ jobs:
           from branch `${{ env.BRANCH_NAME }}` has been successfully built.
 
           Release URL:
-          https://github.com/CommitteeOfZero/impacto/releases/tag/${{ vars.VERSION }}${{ github.run_number }}
+          https://github.com/CommitteeOfZero/impacto/releases/tag/${{ env.VERSION }}${{ github.run_number }}
 
           Details:
           ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
