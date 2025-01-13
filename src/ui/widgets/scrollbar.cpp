@@ -131,7 +131,7 @@ void Scrollbar::UpdateInput() {
       ScrollHeld = false;
     }
 
-    if (HoveredWheelBounds) {
+    if (HoveredWheelBounds && Input::MouseWheelDeltaY) {
       *Value -= Input::MouseWheelDeltaY * WheelSpeedMultiplier * Step;
       ClampValue();
     }
