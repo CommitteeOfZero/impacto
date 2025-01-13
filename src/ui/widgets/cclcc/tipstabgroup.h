@@ -6,6 +6,7 @@
 #include "../../../games/cclcc/tipsmenu.h"
 #include "tipsentrybutton.h"
 #include <vector>
+#include <memory>
 
 namespace Impacto {
 namespace UI {
@@ -29,7 +30,7 @@ class TipsTabGroup : public Menu {
   void Show() override;
   void Hide() override;
   void Update(float dt) override;
-  void UpdateInput() override;
+  void UpdatePageInput(float dt);
   void Render() override;
   void UpdateTipsEntries(std::vector<int> const& SortedTipIds);
   int GetTipEntriesCount() { return TipsEntryButtons.size(); }
@@ -43,11 +44,17 @@ class TipsTabGroup : public Menu {
   TipsTabButton TabName;
   Impacto::UI::CCLCC::TipsTabType Type;
   std::function<void(Widgets::Button*)> TipClickHandler;
-  Widgets::Scrollbar* TipsEntriesScrollbar = nullptr;
+  std::unique_ptr<Widgets::Scrollbar> TipsEntriesScrollbar;
   std::vector<TipsEntryButton*> TipsEntryButtons;
   float ScrollPosY = 0.0f;
   glm::vec2 TipsScrollStartPos;
   glm::vec2 TipsScrollTrackBounds;
+
+  float PageChangeButtonHeldTime;
+  float PageChangeWaitTime;
+  int EntriesPerPage;
+
+  bool UpdatePageChangeTimes(float dt);
 };
 
 }  // namespace CCLCC

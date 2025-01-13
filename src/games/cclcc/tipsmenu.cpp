@@ -225,13 +225,13 @@ void TipsMenu::UpdateInput() {
       // Todo: Implement scroll wheel
       bool upScroll = (Input::CurrentInputDevice == Input::Device::Controller &&
                        Input::ControllerAxis[SDL_CONTROLLER_AXIS_RIGHTY] <
-                           Input::ControllerAxisLightThreshold) ||
+                           -Input::ControllerAxisLightThreshold) ||
                       Input::KeyboardButtonIsDown[SDL_SCANCODE_LEFTBRACKET];
 
       bool downScroll =
           (Input::CurrentInputDevice == Input::Device::Controller &&
            Input::ControllerAxis[SDL_CONTROLLER_AXIS_RIGHTY] >
-               -Input::ControllerAxisLightThreshold) ||
+               Input::ControllerAxisLightThreshold) ||
           Input::KeyboardButtonIsDown[SDL_SCANCODE_RIGHTBRACKET];
 
       int remainingScroll = TipsScrollbar->EndValue - TipPageY;
@@ -292,8 +292,7 @@ void TipsMenu::Update(float dt) {
     CurrentlyDisplayedTipId = -1;
     TipsTabs[CurrentTabType]->Hide();
     TipViewItems.Hide();
-    delete TipsScrollbar;
-    TipsScrollbar = nullptr;
+    TipsScrollbar.reset();
   }
 
   auto Move = [this](glm::vec2 offset) {
@@ -411,11 +410,10 @@ void TipsMenu::SwitchToTipId(int id) {
                        lastGlyph.DestRect.Height;
   ;
   TipPageY = 0;
-  delete TipsScrollbar;
-  TipsScrollbar =
-      new Scrollbar(0, TipsScrollStartPos, 0, std::max(0, scrollDistance),
-                    &TipPageY, SBDIR_VERTICAL, TipsScrollThumbSprite,
-                    TipsScrollTrackBounds, TipsScrollThumbLength);
+  TipsScrollbar = std::make_unique<Widgets::Scrollbar>(
+      0, TipsScrollStartPos, 0, std::max(0, scrollDistance), &TipPageY,
+      SBDIR_VERTICAL, TipsScrollThumbSprite, TipsScrollTrackBounds,
+      TipsScrollThumbLength, TextPage.BoxBounds, 5.0f);
   TipsScrollbar->HasFocus = false;  // We want to manually control kb/pad input
 
   Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);

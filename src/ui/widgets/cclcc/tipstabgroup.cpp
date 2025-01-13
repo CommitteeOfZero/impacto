@@ -66,37 +66,85 @@ TipsTabGroup::TipsTabGroup(
 
   TipsScrollTrackBounds = {TipsScrollThumbSprite.Bounds.Width,
                            TipsScrollYEnd - TipsScrollYStart};
+  EntriesPerPage = std::ceil(TipsTabBounds.Height / TipsEntryBounds.Height);
 }
 
 // Todo: Next page with left right keys
-void TipsTabGroup::UpdateInput() {
+void TipsTabGroup::UpdatePageInput(float dt) {
   using namespace Vm::Interface;
   if (IsFocused) {
     auto prevEntry = CurrentlyFocusedElement;
     TipsEntriesScrollbar->UpdateInput();
-    // Todo: left joystick axis control, and holding down button
-    if (PADinputButtonWentDown & PAD1DOWN) {
+
+    FocusDirection dir =
+        (PADinputButtonIsDown & PAD1LEFT) ? FDIR_UP : FDIR_DOWN;
+
+    bool holdScroll = UpdatePageChangeTimes(dt);
+
+    auto checkScrollBounds = [&]() {
+      return !TipsTabBounds.Contains(CurrentlyFocusedElement->Bounds);
+    };
+
+    if (PADinputButtonWentDown & PAD1DOWN ||
+        holdScroll && PADinputButtonIsDown & PAD1DOWN) {
       AdvanceFocus(FDIR_DOWN);
-      if (CurrentlyFocusedElement != prevEntry) {
-        if (CurrentlyFocusedElement->Bounds.Y >
-                TipsTabBounds.Y + TipsTabBounds.Height ||
-            CurrentlyFocusedElement->Bounds.Y < TipsTabBounds.Y) {
-          if (CurrentlyFocusedElement != TipsEntryButtons.front())
-            ScrollPosY += TipsEntryBounds.Height;
-          else
-            ScrollPosY = 0;
+      if (CurrentlyFocusedElement != prevEntry && checkScrollBounds()) {
+        if (CurrentlyFocusedElement == TipsEntriesGroup.Children.front()) {
+          ScrollPosY = 0;
+        } else {
+          ScrollPosY += TipsEntryBounds.Height;
         }
       }
-    } else if (PADinputButtonWentDown & PAD1UP) {
+    } else if (PADinputButtonWentDown & PAD1UP ||
+               holdScroll && PADinputButtonIsDown & PAD1UP) {
       AdvanceFocus(FDIR_UP);
+      if (CurrentlyFocusedElement != prevEntry && checkScrollBounds()) {
+        if (CurrentlyFocusedElement == TipsEntriesGroup.Children.back()) {
+          ScrollPosY = TipsEntriesScrollbar->EndValue;
+        } else {
+          ScrollPosY -= TipsEntryBounds.Height;
+        }
+      }
+    } else if (PADinputButtonWentDown & PAD1RIGHT ||
+               holdScroll && PADinputButtonIsDown & PAD1RIGHT) {
+      AdvanceFocus(FDIR_RIGHT);
       if (CurrentlyFocusedElement != prevEntry) {
-        if (CurrentlyFocusedElement->Bounds.Y >
-                TipsTabBounds.Y + TipsTabBounds.Height ||
-            CurrentlyFocusedElement->Bounds.Y < TipsTabBounds.Y) {
-          if (CurrentlyFocusedElement != TipsEntryButtons.back())
-            ScrollPosY -= TipsEntryBounds.Height;
-          else
-            ScrollPosY = TipsEntriesScrollbar->EndValue;
+        if (checkScrollBounds())
+          ScrollPosY += TipsEntryBounds.Height * EntriesPerPage;
+      } else if (CurrentlyFocusedElement == TipsEntriesGroup.Children.back()) {
+        CurrentlyFocusedElement->HasFocus = false;
+        CurrentlyFocusedElement = TipsEntriesGroup.Children.front();
+        CurrentlyFocusedElement->HasFocus = true;
+        if (checkScrollBounds()) {
+          ScrollPosY = 0;
+        }
+      } else {
+        CurrentlyFocusedElement->HasFocus = false;
+        CurrentlyFocusedElement = TipsEntriesGroup.Children.back();
+        CurrentlyFocusedElement->HasFocus = true;
+        if (checkScrollBounds()) {
+          ScrollPosY = TipsEntriesScrollbar->EndValue;
+        }
+      }
+    } else if (PADinputButtonWentDown & PAD1LEFT ||
+               holdScroll && PADinputButtonIsDown & PAD1LEFT) {
+      AdvanceFocus(FDIR_LEFT);
+      if (CurrentlyFocusedElement != prevEntry) {
+        if (checkScrollBounds())
+          ScrollPosY -= TipsEntryBounds.Height * EntriesPerPage;
+      } else if (CurrentlyFocusedElement == TipsEntriesGroup.Children.front()) {
+        CurrentlyFocusedElement->HasFocus = false;
+        CurrentlyFocusedElement = TipsEntriesGroup.Children.back();
+        CurrentlyFocusedElement->HasFocus = true;
+        if (checkScrollBounds()) {
+          ScrollPosY = TipsEntriesScrollbar->EndValue;
+        }
+      } else {
+        CurrentlyFocusedElement->HasFocus = false;
+        CurrentlyFocusedElement = TipsEntriesGroup.Children.front();
+        CurrentlyFocusedElement->HasFocus = true;
+        if (checkScrollBounds()) {
+          ScrollPosY = 0;
         }
       }
     }
@@ -118,15 +166,43 @@ void TipsTabGroup::Update(float dt) {
     TipsEntriesGroup.Update(dt);
   }
   float oldScrollPosY = ScrollPosY;
-  UpdateInput();
+  UpdatePageInput(dt);
   if (TipsEntriesScrollbar) {
     TipsEntriesScrollbar->Update(dt);
-
     TipsEntriesScrollbar->UpdateInput();
     if (oldScrollPosY != ScrollPosY) {
       TipsEntriesGroup.Move({0, oldScrollPosY - ScrollPosY});
     }
   }
+}
+
+bool TipsTabGroup::UpdatePageChangeTimes(float dt) {
+  bool pageDirectionMovement =
+      (bool)(Vm::Interface::PADinputButtonIsDown & Vm::Interface::PAD1UP) ^
+      (bool)(Vm::Interface::PADinputButtonIsDown & Vm::Interface::PAD1DOWN) ^
+      (bool)(Vm::Interface::PADinputButtonIsDown & Vm::Interface::PAD1LEFT) ^
+      (bool)(Vm::Interface::PADinputButtonIsDown & Vm::Interface::PAD1RIGHT);
+  if (!pageDirectionMovement) {
+    PageChangeButtonHeldTime = 0.0f;
+    PageChangeWaitTime = 0.0f;
+    return false;
+  }
+
+  if (0.0f < PageChangeButtonHeldTime &&
+      PageChangeButtonHeldTime < MinHoldTime) {
+    PageChangeButtonHeldTime += dt;
+    PageChangeWaitTime = 0.0f;
+    return false;
+  }
+
+  if (PageChangeWaitTime > 0.0f) {
+    PageChangeWaitTime -= dt;
+    return false;
+  }
+
+  PageChangeButtonHeldTime += dt;
+  PageChangeWaitTime = AdvanceFocusTimeInterval;
+  return true;
 }
 
 void TipsTabGroup::Render() {
@@ -157,7 +233,7 @@ void TipsTabGroup::UpdateTipsEntries(std::vector<int> const& SortedTipIds) {
   int sortIndex = 1;
   TipsEntriesGroup.Clear();
   TipsEntryButtons.clear();
-  delete TipsEntriesScrollbar;
+  int shownEntryCount = 0;
   for (auto& tipId : SortedTipIds) {
     auto& record = *TipsSystem::GetTipRecord(tipId);
     if (!tipsFilterPredicate(record)) {
@@ -175,6 +251,16 @@ void TipsTabGroup::UpdateTipsEntries(std::vector<int> const& SortedTipIds) {
     if (Type == TipsTabType::NewTips) {
       TipsSystem::SetTipNewState(tipId, false);
     }
+    shownEntryCount++;
+  }
+
+  for (int i = 0;
+       i < static_cast<int>(TipsEntriesGroup.Children.size()) - EntriesPerPage;
+       i++) {
+    TipsEntriesGroup.Children[i]->SetFocus(
+        TipsEntriesGroup.Children[i + EntriesPerPage], FDIR_RIGHT);
+    TipsEntriesGroup.Children[i + EntriesPerPage]->SetFocus(
+        TipsEntriesGroup.Children[i], FDIR_LEFT);
   }
 
   auto roundUpMultiple = [](float numToRound, float multiple) {
@@ -184,10 +270,10 @@ void TipsTabGroup::UpdateTipsEntries(std::vector<int> const& SortedTipIds) {
       TipsEntryBounds.Height * TipsEntryButtons.size() -
       roundUpMultiple(TipsTabBounds.Height, TipsEntryBounds.Height);
 
-  TipsEntriesScrollbar =
-      new Scrollbar(0, TipsScrollStartPos, 0, std::max(0, scrollDistance),
-                    &ScrollPosY, SBDIR_VERTICAL, TipsScrollThumbSprite,
-                    TipsScrollTrackBounds, TipsScrollThumbLength);
+  TipsEntriesScrollbar = std::make_unique<Scrollbar>(
+      0, TipsScrollStartPos, 0, std::max(0, scrollDistance), &ScrollPosY,
+      SBDIR_VERTICAL, TipsScrollThumbSprite, TipsScrollTrackBounds,
+      TipsScrollThumbLength, TipsTabBounds);
   TipsEntriesGroup.RenderingBounds = TipsTabBounds;
   TabName.Reset();
 }

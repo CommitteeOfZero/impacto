@@ -16,6 +16,7 @@ class SaveMenu : public Menu {
   void Show();
   void Hide();
   void Update(float dt);
+  void UpdateInput() override;
   void Render();
 
   void MenuButtonOnClick(Widgets::Button* target);

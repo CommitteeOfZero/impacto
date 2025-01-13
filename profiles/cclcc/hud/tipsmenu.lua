@@ -47,6 +47,9 @@ root.TipsMenu = {
     TipsScrollDetailsX = 1783,
 
     TipsMask = "TipsMask",
+
+    AdvanceFocusTimeInterval = 0.05,
+    MinHoldTime = 1.0
 };
 
 root.Sprites["TipsBookLayer"] = {

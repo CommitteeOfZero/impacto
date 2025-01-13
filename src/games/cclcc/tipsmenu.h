@@ -9,6 +9,7 @@
 #include "../../ui/widgets/cclcc/tipsentrybutton.h"
 #include "../../ui/widgets/scrollbar.h"
 #include <vector>
+#include <memory>
 
 namespace Impacto::UI::Widgets::CCLCC {
 class TipsTabGroup;
@@ -53,7 +54,7 @@ class TipsMenu : public UI::TipsMenu {
   std::vector<int> SortedTipIds;
   std::array<Widgets::CCLCC::TipsTabGroup*, TabCount> TipsTabs;
 
-  Widgets::Scrollbar* TipsScrollbar = nullptr;
+  std::unique_ptr<Widgets::Scrollbar> TipsScrollbar;
   Widgets::Group TipViewItems;
 
   int ScrollWheelYDelta = 0;
