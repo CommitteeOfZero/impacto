@@ -28,7 +28,7 @@ class OptionsMenu : public Menu {
 
   void Select(OptionsEntry* entry);
   void Highlight(Widget* entry);
-  inline bool AnyEntrySelected() {
+  bool AnyEntrySelected() {
     return CurrentlyFocusedElement &&
            static_cast<OptionsEntry*>(CurrentlyFocusedElement)->Selected;
   }
