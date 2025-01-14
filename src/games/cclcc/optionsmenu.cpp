@@ -101,26 +101,26 @@ OptionsMenu::OptionsMenu() {
   // Loop separately to overwrite the direction set at initial adding
   // First entry won't set anything; skip
   for (int i = 1; i < entries; i++) {
-    Widget* const widget = voicePage->Children.at(i);
+    Widget* const widget = voicePage->Children[i];
 
     if (i % columns != 0) {  // Not on first column
-      Widget* const leftWidget = voicePage->Children.at(i - 1);
+      Widget* const leftWidget = voicePage->Children[i - 1];
       widget->SetFocus(leftWidget, FDIR_LEFT);
       leftWidget->SetFocus(widget, FDIR_RIGHT);
 
       if (i % columns == columns - 1) {  // On last column
-        Widget* const rowStart = voicePage->Children.at(i - columns + 1);
+        Widget* const rowStart = voicePage->Children[i - columns + 1];
         widget->SetFocus(rowStart, FDIR_RIGHT);
         rowStart->SetFocus(widget, FDIR_LEFT);
       }
     }
     if (i >= columns) {  // Not on first row
-      Widget* const upWidget = voicePage->Children.at(i - columns);
+      Widget* const upWidget = voicePage->Children[i - columns];
       widget->SetFocus(upWidget, FDIR_UP);
       upWidget->SetFocus(widget, FDIR_DOWN);
 
       if (i >= entries - columns) {  // On last layer
-        Widget* const columnStart = voicePage->Children.at(i % columns);
+        Widget* const columnStart = voicePage->Children[i % columns];
         widget->SetFocus(columnStart, FDIR_DOWN);
         columnStart->SetFocus(widget, FDIR_UP);
       }
@@ -129,7 +129,7 @@ OptionsMenu::OptionsMenu() {
 
   Pages.push_back(std::move(voicePage));
 
-  Highlight(Pages.at(CurrentPage)->GetFirstFocusableChild());
+  Highlight(Pages[CurrentPage]->GetFirstFocusableChild());
 }
 
 void OptionsMenu::Show() {
@@ -139,8 +139,8 @@ void OptionsMenu::Show() {
     PoleAnimation.StartIn();
 
     CurrentPage = 0;
-    Pages.at(CurrentPage)->Show();
-    Highlight(Pages.at(CurrentPage)->GetFirstFocusableChild());
+    Pages[CurrentPage]->Show();
+    Highlight(Pages[CurrentPage]->GetFirstFocusableChild());
 
     if (UI::FocusedMenu != nullptr) {
       LastFocusedMenu = UI::FocusedMenu;
@@ -186,24 +186,24 @@ void OptionsMenu::Update(float dt) {
 
   if (State != Hidden) {
     UpdateInput(dt);
-    Pages.at(CurrentPage)->Update(dt);
+    Pages[CurrentPage]->Update(dt);
   }
 
   if (!FadeAnimation.IsIn() && !FadeAnimation.IsOut()) {
     const glm::vec2 backgroundPosition =
         glm::vec2(0.0f, glm::mix(BackgroundFadeStartPosition.y,
                                  BackgroundPosition.y, FadeAnimation.Progress));
-    Pages.at(CurrentPage)->MoveTo(backgroundPosition);
+    Pages[CurrentPage]->MoveTo(backgroundPosition);
   }
 
   if (FadeAnimation.IsIn()) {
     State = Shown;
-    Pages.at(CurrentPage)->MoveTo(glm::vec2(0.0f, BackgroundPosition.y));
+    Pages[CurrentPage]->MoveTo(glm::vec2(0.0f, BackgroundPosition.y));
   } else if (State == Hiding && FadeAnimation.IsOut()) {
     if (ScrWork[SW_SYSSUBMENUCT] == 0) {
       State = Hidden;
 
-      Pages.at(CurrentPage)->Hide();
+      Pages[CurrentPage]->Hide();
     } else {
       SetFlag(SF_SUBMENUEXIT, true);
     }
@@ -217,7 +217,7 @@ void OptionsMenu::PageButtonOnHover(int pageNumber) {
   if (pageNumber == CurrentPage && CurrentlyFocusedElement) return;
 
   GoToPage(pageNumber);
-  Highlight(Pages.at(CurrentPage)->GetFirstFocusableChild());
+  Highlight(Pages[CurrentPage]->GetFirstFocusableChild());
 }
 
 void OptionsMenu::UpdatePageInput(float dt) {
@@ -353,8 +353,8 @@ void OptionsMenu::Render() {
 
     Renderer->DrawSprite(PageHeaderSprites[CurrentPage],
                          PageHeaderPosition + backgroundAnimationOffset, col);
-    Pages.at(CurrentPage)->Tint = col;
-    Pages.at(CurrentPage)->Render();
+    Pages[CurrentPage]->Tint = col;
+    Pages[CurrentPage]->Render();
 
     Renderer->DrawSprite(PoleAnimation.CurrentSprite(), pagePanelPosition, col);
     if (PoleAnimation.IsIn()) {
@@ -377,10 +377,10 @@ void OptionsMenu::Render() {
 void OptionsMenu::GoToPage(int pageNumber) {
   if (CurrentPage == pageNumber) return;
 
-  Pages.at(CurrentPage)->Hide();
+  Pages[CurrentPage]->Hide();
 
   CurrentPage = pageNumber;
-  Group& page = *Pages.at(CurrentPage);
+  Group& page = *Pages[CurrentPage];
 
   page.HasFocus = true;
   page.Show();
@@ -388,7 +388,7 @@ void OptionsMenu::GoToPage(int pageNumber) {
 }
 
 void OptionsMenu::Select(OptionsEntry* toSelect) {
-  for (Widget* entry : Pages.at(CurrentPage)->Children) {
+  for (Widget* entry : Pages[CurrentPage]->Children) {
     static_cast<OptionsEntry*>(entry)->Selected = false;
     entry->HasFocus = false;
   }
@@ -401,7 +401,7 @@ void OptionsMenu::Select(OptionsEntry* toSelect) {
 void OptionsMenu::Highlight(Widget* toHighlight) {
   if (CurrentlyFocusedElement == toHighlight) return;
 
-  for (Widget* entry : Pages.at(CurrentPage)->Children) {
+  for (Widget* entry : Pages[CurrentPage]->Children) {
     entry->HasFocus = false;
     static_cast<OptionsEntry*>(entry)->Selected = false;
   }
