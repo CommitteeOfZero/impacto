@@ -24,7 +24,7 @@ class Widget {
 
   virtual void Update(float dt);
   virtual void UpdateInput() = 0;
-  virtual void Render() {}
+  virtual void Render() = 0;
 
   virtual void Show();
   virtual void Hide();

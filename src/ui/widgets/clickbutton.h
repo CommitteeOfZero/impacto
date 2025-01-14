@@ -19,6 +19,7 @@ class ClickButton : public Widget {
 
   virtual void Show();
   virtual void Hide();
+  virtual void Render() {}
 
   int Id;
 
