@@ -39,13 +39,8 @@ class OptionsMenu : public Menu {
   Animation FadeAnimation;
   SpriteAnimation PoleAnimation;
 
-  Widgets::Group* BasicPage;
-  Widgets::Group* TextPage;
-  Widgets::Group* SoundPage;
-  Widgets::Group* VoicePage;
-
   int CurrentPage = 0;
-  std::vector<Widgets::Group*> Pages;
+  std::vector<std::unique_ptr<Widgets::Group>> Pages;
   std::vector<Widgets::ClickButton> PageButtons;
 
   float DirectionButtonHeldTime = 0.0f;

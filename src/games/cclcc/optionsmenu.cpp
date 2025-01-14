@@ -41,35 +41,35 @@ OptionsMenu::OptionsMenu() {
     PageButtons.push_back(ClickButton(i, PagePanelHoverBounds[i]));
   }
 
-  BasicPage = new Group(this);
+  std::unique_ptr<Group> basicPage = std::make_unique<Group>(this);
   for (int i = 0; i < 4; i++) {
-    BasicPage->Add(new OptionsBinaryButton(BinaryBoxSprite, OnSprite, OffSprite,
+    basicPage->Add(new OptionsBinaryButton(BinaryBoxSprite, OnSprite, OffSprite,
                                            LabelSprites[i], pos, highlightTint,
                                            select, highlight),
                    FDIR_DOWN);
 
     pos.y += EntriesVerticalOffset;
   }
-  Pages.push_back(BasicPage);
+  Pages.push_back(std::move(basicPage));
 
   pos = EntriesStartPosition;
-  TextPage = new Group(this);
+  std::unique_ptr<Group> textPage = std::make_unique<Group>(this);
   for (int i = 4; i < 6; i++) {
-    TextPage->Add(
+    textPage->Add(
         new OptionsSlider(SliderTrackSprite, LabelSprites[i], pos,
                           highlightTint, SliderSpeed, select, highlight),
         FDIR_DOWN);
 
     pos.y += EntriesVerticalOffset;
   }
-  TextPage->Add(new OptionsBinaryButton(BinaryBoxSprite, SkipReadSprite,
+  textPage->Add(new OptionsBinaryButton(BinaryBoxSprite, SkipReadSprite,
                                         SkipAllSprite, LabelSprites[6], pos,
                                         highlightTint, select, highlight),
                 FDIR_DOWN);
-  Pages.push_back(TextPage);
+  Pages.push_back(std::move(textPage));
 
   pos = SoundEntriesStartPosition;
-  SoundPage = new Group(this);
+  std::unique_ptr<Group> soundPage = std::make_unique<Group>(this);
   for (int i = 7; i < 15; i++) {
     Widget* widget =
         (i < 11 || i == 14)
@@ -78,13 +78,13 @@ OptionsMenu::OptionsMenu() {
             : widget = new OptionsBinaryButton(
                   BinaryBoxSprite, YesSprite, NoSprite, LabelSprites[i], pos,
                   highlightTint, select, highlight);
-    SoundPage->Add(widget, FDIR_DOWN);
+    soundPage->Add(widget, FDIR_DOWN);
 
     pos.y += SoundEntriesVerticalOffset;
   }
-  Pages.push_back(SoundPage);
+  Pages.push_back(std::move(soundPage));
 
-  VoicePage = new Group(this);
+  std::unique_ptr<Group> voicePage = std::make_unique<Group>(this);
   constexpr int columns = 3;
   constexpr int entries = 12;
   for (int i = 0; i < entries; i++) {
@@ -95,39 +95,39 @@ OptionsMenu::OptionsMenu() {
         VoiceSliderTrackSprite, NametagSprites[i], PortraitSprites[2 * i],
         PortraitSprites[2 * i + 1], pos, highlightTint, SliderSpeed, select,
         highlight);
-    VoicePage->Add(widget, FDIR_RIGHT);
+    voicePage->Add(widget, FDIR_RIGHT);
   }
 
   // Loop separately to overwrite the direction set at initial adding
   // First entry won't set anything; skip
   for (int i = 1; i < entries; i++) {
-    Widget* const widget = VoicePage->Children.at(i);
+    Widget* const widget = voicePage->Children.at(i);
 
     if (i % columns != 0) {  // Not on first column
-      Widget* const leftWidget = VoicePage->Children.at(i - 1);
+      Widget* const leftWidget = voicePage->Children.at(i - 1);
       widget->SetFocus(leftWidget, FDIR_LEFT);
       leftWidget->SetFocus(widget, FDIR_RIGHT);
 
       if (i % columns == columns - 1) {  // On last column
-        Widget* const rowStart = VoicePage->Children.at(i - columns + 1);
+        Widget* const rowStart = voicePage->Children.at(i - columns + 1);
         widget->SetFocus(rowStart, FDIR_RIGHT);
         rowStart->SetFocus(widget, FDIR_LEFT);
       }
     }
     if (i >= columns) {  // Not on first row
-      Widget* const upWidget = VoicePage->Children.at(i - columns);
+      Widget* const upWidget = voicePage->Children.at(i - columns);
       widget->SetFocus(upWidget, FDIR_UP);
       upWidget->SetFocus(widget, FDIR_DOWN);
 
       if (i >= entries - columns) {  // On last layer
-        Widget* const columnStart = VoicePage->Children.at(i % columns);
+        Widget* const columnStart = voicePage->Children.at(i % columns);
         widget->SetFocus(columnStart, FDIR_DOWN);
         columnStart->SetFocus(widget, FDIR_UP);
       }
     }
   }
 
-  Pages.push_back(VoicePage);
+  Pages.push_back(std::move(voicePage));
 
   Highlight(Pages.at(CurrentPage)->GetFirstFocusableChild());
 }
