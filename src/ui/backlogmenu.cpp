@@ -345,11 +345,12 @@ void BacklogMenu::AddMessage(uint8_t* str, int audioId) {
 
 void BacklogMenu::Clear() {
   MainItems->Clear();
+  MainItems->MoveTo(EntriesStart);
   PageY = 0.0f;
   CurrentId = 0;
   ItemsHeight = 0.0f;
   MainScrollbar->StartValue = 0.0f;
-  MainScrollbar->EndValue = 0.0f;
+  MainScrollbar->EndValue = 1.0f;
   MainScrollbar->Enabled = false;
   CurrentEntryPos = EntriesStart;
 }
