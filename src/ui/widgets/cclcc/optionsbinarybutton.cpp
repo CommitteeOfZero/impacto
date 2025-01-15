@@ -77,7 +77,7 @@ void OptionsBinaryButton::UpdateInput() {
     const bool newState = PADinputButtonWentDown & PAD1LEFT;
 
     if (State != newState)
-      Audio::Channels[Audio::AC_REV]->Play("sysse", 1, false, 0.0f);
+      Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0.0f);
 
     State = newState;
   }
@@ -112,14 +112,14 @@ void OptionsBinaryButton::MoveTo(glm::vec2 pos) {
 
 void OptionsBinaryButton::TrueOnClick(ClickButton* target) {
   if (Selected && State != true)
-    Audio::Channels[Audio::AC_REV]->Play("sysse", 1, false, 0.0f);
+    Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0.0f);
 
   State = true;
 }
 
 void OptionsBinaryButton::FalseOnClick(ClickButton* target) {
   if (Selected && State != false)
-    Audio::Channels[Audio::AC_REV]->Play("sysse", 1, false, 0.0f);
+    Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0.0f);
 
   State = false;
 }

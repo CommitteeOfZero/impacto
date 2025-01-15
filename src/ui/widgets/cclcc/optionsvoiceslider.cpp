@@ -73,7 +73,7 @@ void OptionsVoiceSlider::UpdateInput() {
 
   if (PADinputButtonWentDown & PAD1Y) {
     Muted = !Muted;
-    Audio::Channels[Audio::AC_REV]->Play("sysse", 2, false, 0.0f);
+    Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0.0f);
   }
 }
 
@@ -99,7 +99,7 @@ void OptionsVoiceSlider::MoveTo(glm::vec2 pos) {
 }
 
 void OptionsVoiceSlider::MuteButtonOnClick(ClickButton* target) {
-  if (HasFocus) Audio::Channels[Audio::AC_REV]->Play("sysse", 2, false, 0.0f);
+  if (HasFocus) Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0.0f);
 
   Muted = !Muted;
 }

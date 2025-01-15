@@ -212,7 +212,7 @@ void OptionsMenu::Update(float dt) {
 
 void OptionsMenu::PageButtonOnHover(int pageNumber) {
   if (pageNumber != CurrentPage || !CurrentlyFocusedElement)
-    Audio::Channels[Audio::AC_REV]->Play("sysse", 1, false, 0.0f);
+    Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0.0f);
 
   if (pageNumber == CurrentPage && CurrentlyFocusedElement) return;
 
@@ -256,7 +256,7 @@ void OptionsMenu::UpdatePageInput(float dt) {
   PageDirectionButtonHeldTime += dt;
   PageDirectionButtonWaitTime = ButtonHoldTimeInterval;
 
-  Audio::Channels[Audio::AC_REV]->Play("sysse", 1, false, 0.0f);
+  Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0.0f);
 
   GoToPage((CurrentPage + direction) % Pages.size());
 }
@@ -304,7 +304,7 @@ void OptionsMenu::UpdateEntryMovementInput(float dt) {
     AdvanceFocus(verticalDirection);
   }
   if (CurrentlyFocusedElement != lastHighlight) {
-    Audio::Channels[Audio::AC_REV]->Play("sysse", 1, false, 0.0f);
+    Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0.0f);
     Highlight(CurrentlyFocusedElement);
   }
 }
@@ -315,7 +315,7 @@ void OptionsMenu::UpdateInput(float dt) {
   if (PADinputMouseWentDown & PAD1B ||
       !AnyEntrySelected() && GetControlState(CT_Back)) {
     if (!GetFlag(SF_SUBMENUEXIT))
-      Audio::Channels[Audio::AC_REV]->Play("sysse", 3, false, 0.0f);
+      Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0.0f);
 
     Hide();
     return;
