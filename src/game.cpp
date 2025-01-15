@@ -251,11 +251,8 @@ void Update(float dt) {
   }
 
   if (Profile::GameFeatures & GameFeature::Renderer2D) {
-    if (ScrWork[SW_GAMESTATE] & 5 && !GetFlag(SF_GAMEPAUSE) &&
-        !GetFlag(SF_SYSMENUDISABLE)) {
-      for (int i = 0; i < Profile::Dialogue::PageCount; i++)
-        DialoguePages[i].Update(dt);
-    }
+    for (int i = 0; i < Profile::Dialogue::PageCount; i++)
+      DialoguePages[i].Update(dt);
   }
 
   if ((Profile::GameFeatures & GameFeature::Renderer2D) &&
