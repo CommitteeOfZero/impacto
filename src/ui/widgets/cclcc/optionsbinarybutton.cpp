@@ -33,7 +33,7 @@ OptionsBinaryButton::OptionsBinaryButton(
                   std::bind(&OptionsBinaryButton::TrueOnClick, this,
                             std::placeholders::_1));
   FalseButton = ClickButton(
-      0, TrueButton.Bounds + RectF(box.ScaledWidth() / 2.0f, 0.0f, 0.0f, 0.0f),
+      0, TrueButton.Bounds + glm::vec2(box.ScaledWidth() / 2.0f, 0.0f),
       std::bind(&OptionsBinaryButton::FalseOnClick, this,
                 std::placeholders::_1));
 }

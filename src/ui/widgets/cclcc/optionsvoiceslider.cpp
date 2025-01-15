@@ -43,8 +43,10 @@ void OptionsVoiceSlider::Render() {
     RectF highlightBoundBox(Bounds.X, Bounds.Y, VoiceEntryDimensions.x,
                             VoiceEntryDimensions.y);
     Renderer->DrawRect(highlightBoundBox, HighlightTint);
-    Renderer->DrawRect(highlightBoundBox + RectF(2.0f, 2.0f, -4.0f, -4.0f),
-                       glm::vec4(1.0f, 1.0f, 1.0f, Tint.a));
+    Renderer->DrawRect(
+        RectF(highlightBoundBox.X + 2.0f, highlightBoundBox.Y + 2.0f,
+              highlightBoundBox.Width - 4.0f, highlightBoundBox.Height - 4.0f),
+        glm::vec4(1.0f, 1.0f, 1.0f, Tint.a));
   }
 
   Renderer->DrawSprite(Muted ? MutedPortrait : Portrait,

@@ -72,28 +72,22 @@ struct RectF {
             rect.Y + rect.Height <= Y + Height);
   }
 
-  constexpr RectF operator+(RectF const& other) const {
-    return RectF(X + other.X, Y + other.Y, Width + other.Width,
-                 Height + other.Height);
+  constexpr RectF operator+(const glm::vec2 movementVector) const {
+    return RectF(X + movementVector.x, Y + movementVector.y, Width, Height);
   }
 
-  constexpr RectF operator-(RectF const& other) const {
-    return RectF(X - other.X, Y - other.Y, Width - other.Width,
-                 Height - other.Height);
+  constexpr RectF operator-(const glm::vec2 movementVector) const {
+    return RectF(X - movementVector.x, Y - movementVector.y, Width, Height);
   }
 
-  constexpr void operator+=(RectF const& other) {
-    X += other.X;
-    Y += other.Y;
-    Width += other.Width;
-    Height += other.Height;
+  constexpr void operator+=(const glm::vec2 movementVector) {
+    X += movementVector.x;
+    Y += movementVector.y;
   }
 
-  constexpr void operator-=(RectF const& other) {
-    X -= other.X;
-    Y -= other.Y;
-    Width -= other.Width;
-    Height -= other.Height;
+  constexpr void operator-=(const glm::vec2 movementVector) {
+    X -= movementVector.x;
+    Y -= movementVector.y;
   }
 
   constexpr bool operator==(RectF const& other) const {
