@@ -8,12 +8,12 @@ namespace Impacto {
 namespace UI {
 namespace Widgets {
 
-class ClickButton : public Widget {
+class ClickArea : public Widget {
  public:
-  ClickButton() {}
-  ClickButton(int id, RectF bounds);
-  ClickButton(int id, RectF bounds,
-              std::function<void(ClickButton*)> onClickHandler);
+  ClickArea() {}
+  ClickArea(int id, RectF bounds);
+  ClickArea(int id, RectF bounds,
+            std::function<void(ClickArea*)> onClickHandler);
 
   virtual void UpdateInput() override;
 
@@ -25,7 +25,7 @@ class ClickButton : public Widget {
 
  private:
   bool Clickable = false;
-  std::function<void(ClickButton*)> OnClickHandler;
+  std::function<void(ClickArea*)> OnClickHandler;
 };
 
 }  // namespace Widgets

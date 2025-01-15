@@ -23,9 +23,9 @@ OptionsEntry::OptionsEntry(const Sprite& label, glm::vec2 pos,
   Bounds = RectF(pos.x, pos.y, LabelOffset.x + LabelSprite.ScaledWidth(),
                  LabelOffset.y + LabelSprite.ScaledHeight());
 
-  std::function<void(ClickButton*)> onClick =
+  std::function<void(ClickArea*)> onClick =
       std::bind(&OptionsEntry::EntryButtonOnClick, this, std::placeholders::_1);
-  EntryButton = ClickButton(0, Bounds, onClick);
+  EntryButton = ClickArea(0, Bounds, onClick);
 }
 
 void OptionsEntry::Render() {
@@ -95,7 +95,7 @@ void OptionsEntry::MoveTo(glm::vec2 pos) {
   EntryButton.Move(relativePosition);
 }
 
-void OptionsEntry::EntryButtonOnClick(ClickButton* target) {
+void OptionsEntry::EntryButtonOnClick(ClickArea* target) {
   if (Selected) return;
 
   Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0.0f);

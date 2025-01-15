@@ -2,7 +2,7 @@
 
 #include <functional>
 
-#include "../clickbutton.h"
+#include "../clickarea.h"
 #include "../../widget.h"
 #include "../../../spritesheet.h"
 
@@ -30,10 +30,10 @@ class OptionsEntry : public Widget {
   bool Selected = false;
 
  protected:
-  ClickButton EntryButton;
+  ClickArea EntryButton;
   std::function<void(OptionsEntry*)> Select;
   std::function<void(OptionsEntry*)> Highlight;
-  void EntryButtonOnClick(ClickButton* target);
+  void EntryButtonOnClick(ClickArea* target);
 
   const Sprite& LabelSprite;
   glm::vec4 HighlightTint;

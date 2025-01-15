@@ -226,7 +226,7 @@ set(Impacto_Src
         src/ui/widgets/group.cpp
         src/ui/widgets/carousel.cpp
         src/ui/widgets/cgviewer.cpp
-        src/ui/widgets/clickbutton.cpp
+        src/ui/widgets/clickarea.cpp
         src/ui/widgets/mo6tw/titlebutton.cpp
         src/ui/widgets/mo6tw/saveentrybutton.cpp
         src/ui/widgets/mo6tw/tipsentrybutton.cpp
@@ -543,7 +543,7 @@ set(Impacto_Header
         src/ui/widgets/group.h
         src/ui/widgets/carousel.h
         src/ui/widgets/cgviewer.h
-        src/ui/widgets/clickbutton.h
+        src/ui/widgets/clickarea.h
         src/ui/widgets/mo6tw/titlebutton.h
         src/ui/widgets/mo6tw/saveentrybutton.h
         src/ui/widgets/mo6tw/tipsentrybutton.h

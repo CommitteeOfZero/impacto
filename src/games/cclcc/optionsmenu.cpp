@@ -38,7 +38,7 @@ OptionsMenu::OptionsMenu() {
 
   PageButtons.reserve(PageCount);
   for (int i = 0; i < PageCount; i++) {
-    PageButtons.push_back(ClickButton(i, PagePanelHoverBounds[i]));
+    PageButtons.push_back(ClickArea(i, PagePanelHoverBounds[i]));
   }
 
   std::unique_ptr<Group> basicPage = std::make_unique<Group>(this);
@@ -222,7 +222,7 @@ void OptionsMenu::PageButtonOnHover(int pageNumber) {
 
 void OptionsMenu::UpdatePageInput(float dt) {
   // Mouse input
-  for (ClickButton& button : PageButtons) {
+  for (ClickArea& button : PageButtons) {
     const bool wasHovered = button.Hovered;
     button.UpdateInput();
     if (!wasHovered && button.Hovered) PageButtonOnHover(button.Id);

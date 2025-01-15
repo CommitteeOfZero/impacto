@@ -27,12 +27,12 @@ OptionsBinaryButton::OptionsBinaryButton(
 
   glm::vec2 truePosition = pos + BinaryBoxOffset;
   TrueButton =
-      ClickButton(0,
-                  RectF(truePosition.x, truePosition.y,
-                        TrueSprite.ScaledWidth(), TrueSprite.ScaledHeight()),
-                  std::bind(&OptionsBinaryButton::TrueOnClick, this,
-                            std::placeholders::_1));
-  FalseButton = ClickButton(
+      ClickArea(0,
+                RectF(truePosition.x, truePosition.y, TrueSprite.ScaledWidth(),
+                      TrueSprite.ScaledHeight()),
+                std::bind(&OptionsBinaryButton::TrueOnClick, this,
+                          std::placeholders::_1));
+  FalseButton = ClickArea(
       0, TrueButton.Bounds + glm::vec2(box.ScaledWidth() / 2.0f, 0.0f),
       std::bind(&OptionsBinaryButton::FalseOnClick, this,
                 std::placeholders::_1));
@@ -110,14 +110,14 @@ void OptionsBinaryButton::MoveTo(glm::vec2 pos) {
   FalseButton.Move(relativePosition);
 }
 
-void OptionsBinaryButton::TrueOnClick(ClickButton* target) {
+void OptionsBinaryButton::TrueOnClick(ClickArea* target) {
   if (Selected && State != true)
     Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0.0f);
 
   State = true;
 }
 
-void OptionsBinaryButton::FalseOnClick(ClickButton* target) {
+void OptionsBinaryButton::FalseOnClick(ClickArea* target) {
   if (Selected && State != false)
     Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0.0f);
 

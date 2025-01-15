@@ -3,7 +3,7 @@
 #include "../../ui/menu.h"
 #include "../../spriteanimation.h"
 #include "../../ui/widgets/group.h"
-#include "../../ui/widgets/clickbutton.h"
+#include "../../ui/widgets/clickarea.h"
 #include "../../ui/widgets/cclcc/optionsentry.h"
 
 using namespace Impacto::UI::Widgets::CCLCC;
@@ -41,7 +41,7 @@ class OptionsMenu : public Menu {
 
   int CurrentPage = 0;
   std::vector<std::unique_ptr<Widgets::Group>> Pages;
-  std::vector<Widgets::ClickButton> PageButtons;
+  std::vector<Widgets::ClickArea> PageButtons;
 
   float DirectionButtonHeldTime = 0.0f;
   float DirectionButtonWaitTime = 0.0f;

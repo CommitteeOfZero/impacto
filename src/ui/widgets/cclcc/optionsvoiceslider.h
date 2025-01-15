@@ -30,8 +30,8 @@ class OptionsVoiceSlider : public OptionsSlider {
   const Sprite& MutedPortrait;
 
   bool Muted = false;
-  ClickButton MuteButton;
-  void MuteButtonOnClick(ClickButton* target);
+  ClickArea MuteButton;
+  void MuteButtonOnClick(ClickArea* target);
 };
 
 }  // namespace CCLCC

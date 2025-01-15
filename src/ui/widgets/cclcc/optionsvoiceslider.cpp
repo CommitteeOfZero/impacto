@@ -28,12 +28,12 @@ OptionsVoiceSlider::OptionsVoiceSlider(
       RectF(Bounds.X, Bounds.Y, VoiceEntryDimensions.x, VoiceEntryDimensions.y);
   EntryButton.Bounds = Bounds;
 
-  std::function<void(ClickButton*)> onClick = std::bind(
+  std::function<void(ClickArea*)> onClick = std::bind(
       &OptionsVoiceSlider::MuteButtonOnClick, this, std::placeholders::_1);
   const RectF muteButtonBounds(Bounds.GetPos().x + PortraitOffset.x,
                                Bounds.GetPos().y + PortraitOffset.y,
                                portrait.ScaledWidth(), portrait.ScaledHeight());
-  MuteButton = ClickButton(0, muteButtonBounds, onClick);
+  MuteButton = ClickArea(0, muteButtonBounds, onClick);
 }
 
 void OptionsVoiceSlider::Render() {
@@ -100,7 +100,7 @@ void OptionsVoiceSlider::MoveTo(glm::vec2 pos) {
   MuteButton.Move(relativePosition);
 }
 
-void OptionsVoiceSlider::MuteButtonOnClick(ClickButton* target) {
+void OptionsVoiceSlider::MuteButtonOnClick(ClickArea* target) {
   if (HasFocus) Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0.0f);
 
   Muted = !Muted;

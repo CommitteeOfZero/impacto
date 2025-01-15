@@ -1,7 +1,7 @@
 #pragma once
 
 #include "./optionsentry.h"
-#include "../clickbutton.h"
+#include "../clickarea.h"
 #include "../../../spritesheet.h"
 
 namespace Impacto {
@@ -28,14 +28,14 @@ class OptionsBinaryButton : public OptionsEntry {
   void MoveTo(glm::vec2 pos) override;
 
  private:
-  ClickButton TrueButton;
-  ClickButton FalseButton;
+  ClickArea TrueButton;
+  ClickArea FalseButton;
 
   const Sprite& TrueSprite;
   const Sprite& FalseSprite;
 
-  void TrueOnClick(ClickButton* target);
-  void FalseOnClick(ClickButton* target);
+  void TrueOnClick(ClickArea* target);
+  void FalseOnClick(ClickArea* target);
 
   const Sprite& BoxSprite;
 

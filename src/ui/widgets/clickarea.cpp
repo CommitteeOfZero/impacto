@@ -1,4 +1,4 @@
-#include "clickbutton.h"
+#include "clickarea.h"
 
 #include "../../inputsystem.h"
 #include "../../vm/interface/input.h"
@@ -7,17 +7,17 @@ namespace Impacto {
 namespace UI {
 namespace Widgets {
 
-ClickButton::ClickButton(int id, RectF bounds) : Id(id), Clickable(false) {
+ClickArea::ClickArea(int id, RectF bounds) : Id(id), Clickable(false) {
   Bounds = bounds;
 }
 
-ClickButton::ClickButton(int id, RectF bounds,
-                         std::function<void(ClickButton*)> onClickHandler)
+ClickArea::ClickArea(int id, RectF bounds,
+                     std::function<void(ClickArea*)> onClickHandler)
     : Id(id), OnClickHandler(onClickHandler), Clickable(true) {
   Bounds = bounds;
 }
 
-void ClickButton::UpdateInput() {
+void ClickArea::UpdateInput() {
   if (!Enabled) return;
 
   if (Input::CurrentInputDevice == Input::Device::Mouse &&
@@ -35,7 +35,7 @@ void ClickButton::UpdateInput() {
     OnClickHandler(this);
 }
 
-void ClickButton::Show() {
+void ClickArea::Show() {
   Enabled = true;
 
   switch (Input::CurrentInputDevice) {
@@ -48,7 +48,7 @@ void ClickButton::Show() {
   }
 }
 
-void ClickButton::Hide() {
+void ClickArea::Hide() {
   Enabled = false;
   Hovered = false;
 }
