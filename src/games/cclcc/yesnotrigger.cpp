@@ -162,7 +162,7 @@ void YesNoTrigger::Update(float dt) {
       if (AllowInput) {
         DispSel = true;
         if (PADinputButtonWentDown &
-            (PAD1UP | PAD1DOWN | PAD1LEFT | PAD1RIGHT)) {
+            (PADcustom[0] | PADcustom[1] | PADcustom[2] | PADcustom[3])) {
           if (Selection == YesNoSelect::NONE) {
             Selection = YesNoSelect::YES;
           } else if (Selection == YesNoSelect::YES) {
