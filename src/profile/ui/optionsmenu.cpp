@@ -26,18 +26,19 @@ void Configure() {
     FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
     FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
 
-    if (Type != +OptionsMenuType::CHLCC) {
-      BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
-    };
-
-    if (Type == +OptionsMenuType::MO6TW) {
-      MO6TW::OptionsMenu::Configure();
-    } else if (Type == +OptionsMenuType::CHLCC) {
-      CHLCC::OptionsMenu::Configure();
-    } else if (Type == +OptionsMenuType::CCLCC) {
-      CCLCC::OptionsMenu::Configure();
-    } else if (Type == +OptionsMenuType::MO8) {
-      MO8::OptionsMenu::Configure();
+    switch (Type) {
+      case OptionsMenuType::MO6TW:
+        MO6TW::OptionsMenu::Configure();
+        break;
+      case OptionsMenuType::MO8:
+        MO8::OptionsMenu::Configure();
+        break;
+      case OptionsMenuType::CHLCC:
+        CHLCC::OptionsMenu::Configure();
+        break;
+      case OptionsMenuType::CCLCC:
+        CCLCC::OptionsMenu::Configure();
+        break;
     }
 
     Pop();

@@ -16,6 +16,8 @@ void Configure() {
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMemberInt("DrawType"));
 
+  BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
+
   NextButtonSprite = EnsureGetMemberSprite("NextButtonSprite");
   NextButtonHighlightedSprite =
       EnsureGetMemberSprite("NextButtonHighlightedSprite");

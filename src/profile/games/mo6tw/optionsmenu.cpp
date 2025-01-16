@@ -13,6 +13,8 @@ namespace MO6TW {
 namespace OptionsMenu {
 
 void Configure() {
+  BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
+
   GetMemberSpriteArray(VoiceToggleEnabledSprites, VoiceToggleCount,
                        "VoiceToggleEnabledSprites");
   GetMemberSpriteArray(VoiceToggleDisabledSprites, VoiceToggleCount,

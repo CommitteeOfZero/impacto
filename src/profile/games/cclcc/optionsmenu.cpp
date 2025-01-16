@@ -13,6 +13,7 @@ namespace CCLCC {
 namespace OptionsMenu {
 
 void Configure() {
+  BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
   BackgroundPosition = EnsureGetMemberVec2("BackgroundPosition");
   BackgroundFadeStartPosition =
       EnsureGetMemberVec2("BackgroundFadeStartPosition");

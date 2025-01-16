@@ -14,6 +14,7 @@ int constexpr LabelCount = 16;
 int constexpr NametagCount = 13;
 int constexpr PortraitCount = NametagCount * 2;
 
+inline Sprite BackgroundSprite;
 inline glm::vec2 BackgroundPosition;
 inline glm::vec2 BackgroundFadeStartPosition;
 
