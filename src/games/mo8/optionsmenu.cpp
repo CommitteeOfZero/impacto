@@ -21,10 +21,12 @@ using namespace Impacto::UI::Widgets;
 static bool FalseValue = false;
 static float Test = 0.5f;
 
-void OptionsMenu::NextPageOnClick(Widgets::Button* target) { GoToNextPage(); }
+void OptionsMenu::NextPageOnClick(Widgets::Button* target) {
+  GoToPage((CurrentPage + 1) % Pages.size());
+}
 
 void OptionsMenu::PreviousPageOnClick(Widgets::Button* target) {
-  GoToPreviousPage();
+  GoToPage((CurrentPage - 1) % Pages.size());
 }
 
 void OptionsMenu::MessageSpeedToggleOnClick(Widgets::Toggle* target) {
@@ -54,11 +56,7 @@ void OptionsMenu::SkipModeOnClick(Widgets::Toggle* target) {
   }
 }
 
-OptionsMenu::OptionsMenu() {
-  FadeAnimation.Direction = AnimationDirection::In;
-  FadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   PageFadeAnimation.Direction = AnimationDirection::In;
   PageFadeAnimation.LoopMode = AnimationLoopMode::Stop;
   PageFadeAnimation.DurationIn = FadeInDuration;
@@ -87,9 +85,9 @@ OptionsMenu::OptionsMenu() {
   auto currentPos = ListStartingPosition;
 
   // --- Text page ---
-  TextPage = new Group(this);
-  TextPage->FocusLock = false;
-  TextPage->Add(new Label(TextPageLabel, PageLabelPosition));
+  auto textPage = std::make_unique<Group>(this);
+  textPage->FocusLock = false;
+  textPage->Add(new Label(TextPageLabel, PageLabelPosition));
 
   // Text speed
   auto textSpeedOnClick = std::bind(&OptionsMenu::MessageSpeedToggleOnClick,
@@ -104,7 +102,7 @@ OptionsMenu::OptionsMenu() {
     toggle->OnClickHandler = textSpeedOnClick;
     textSpeedOptions->AddOption(toggle);
   }
-  TextPage->Add(textSpeedOptions, FDIR_DOWN);
+  textPage->Add(textSpeedOptions, FDIR_DOWN);
   currentPos += ListPadding;
 
   // Auto mode wait time
@@ -120,7 +118,7 @@ OptionsMenu::OptionsMenu() {
     toggle->OnClickHandler = autoModeWaitTimeOnClick;
     autoModeOptions->AddOption(toggle);
   }
-  TextPage->Add(autoModeOptions, FDIR_DOWN);
+  textPage->Add(autoModeOptions, FDIR_DOWN);
   currentPos += ListPadding;
 
   // Skip mode
@@ -136,14 +134,14 @@ OptionsMenu::OptionsMenu() {
     toggle->OnClickHandler = skipModeOnClick;
     skipModeOptions->AddOption(toggle);
   }
-  TextPage->Add(skipModeOptions, FDIR_DOWN);
-  Pages.push_back(TextPage);
+  textPage->Add(skipModeOptions, FDIR_DOWN);
+  Pages.push_back(std::move(textPage));
   currentPos = ListStartingPosition;
 
   // --- Sound page 1 ---
-  SoundPage1 = new Group(this);
-  SoundPage1->FocusLock = false;
-  SoundPage1->Add(new Label(SoundPageLabel, PageLabelPosition));
+  auto soundPage1 = std::make_unique<Group>(this);
+  soundPage1->FocusLock = false;
+  soundPage1->Add(new Label(SoundPageLabel, PageLabelPosition));
 
   // Voice sync options
   auto voiceSyncOptions =
@@ -154,7 +152,7 @@ OptionsMenu::OptionsMenu() {
         i, &FalseValue, SoundModeOptionsHSprites[i], SoundModeOptionsSprites[i],
         nullSprite, glm::vec2(0.0f), false));
   }
-  SoundPage1->Add(voiceSyncOptions, FDIR_DOWN);
+  soundPage1->Add(voiceSyncOptions, FDIR_DOWN);
   currentPos += ListPadding;
 
   // Voice skip options
@@ -166,7 +164,7 @@ OptionsMenu::OptionsMenu() {
         i, &FalseValue, SoundModeOptionsHSprites[i], SoundModeOptionsSprites[i],
         nullSprite, glm::vec2(0.0f), false));
   }
-  SoundPage1->Add(voiceSkipOptions, FDIR_DOWN);
+  soundPage1->Add(voiceSkipOptions, FDIR_DOWN);
   currentPos += ListPadding;
 
   // Voice highlight options
@@ -178,14 +176,14 @@ OptionsMenu::OptionsMenu() {
         i, &FalseValue, SoundModeOptionsHSprites[i], SoundModeOptionsSprites[i],
         nullSprite, glm::vec2(0.0f), false));
   }
-  SoundPage1->Add(voiceHighlightOptions, FDIR_DOWN);
-  Pages.push_back(SoundPage1);
+  soundPage1->Add(voiceHighlightOptions, FDIR_DOWN);
+  Pages.push_back(std::move(soundPage1));
   currentPos = ListStartingPosition;
 
   // --- Sound page 2 ---
-  SoundPage2 = new Group(this);
-  SoundPage2->FocusLock = false;
-  SoundPage2->Add(new Label(SoundPageLabel, PageLabelPosition));
+  auto soundPage2 = std::make_unique<Group>(this);
+  soundPage2->FocusLock = false;
+  soundPage2->Add(new Label(SoundPageLabel, PageLabelPosition));
 
   // BGM volume options
   auto bgmVolumeOptions =
@@ -196,7 +194,7 @@ OptionsMenu::OptionsMenu() {
       SBDIR_HORIZONTAL, SliderTrackSprite, nullSprite, SliderFillSprite);
   bgmVolumeOptions->AddOption(bgmVolumeSlider);
   bgmVolumeSlider->FillBeforeTrack = true;
-  SoundPage2->Add(bgmVolumeOptions, FDIR_DOWN);
+  soundPage2->Add(bgmVolumeOptions, FDIR_DOWN);
   currentPos += ListPadding;
 
   // Voice volume options
@@ -208,7 +206,7 @@ OptionsMenu::OptionsMenu() {
       SBDIR_HORIZONTAL, SliderTrackSprite, nullSprite, SliderFillSprite);
   voiceVolumeOptions->AddOption(voiceVolumeSlider);
   voiceVolumeSlider->FillBeforeTrack = true;
-  SoundPage2->Add(voiceVolumeOptions, FDIR_DOWN);
+  soundPage2->Add(voiceVolumeOptions, FDIR_DOWN);
   currentPos += ListPadding;
 
   // SE volume options
@@ -220,7 +218,7 @@ OptionsMenu::OptionsMenu() {
       SBDIR_HORIZONTAL, SliderTrackSprite, nullSprite, SliderFillSprite);
   seVolumeOptions->AddOption(seVolumeSlider);
   seVolumeSlider->FillBeforeTrack = true;
-  SoundPage2->Add(seVolumeOptions, FDIR_DOWN);
+  soundPage2->Add(seVolumeOptions, FDIR_DOWN);
   currentPos += ListPadding;
 
   // SYSSE volume options
@@ -232,19 +230,19 @@ OptionsMenu::OptionsMenu() {
       SBDIR_HORIZONTAL, SliderTrackSprite, nullSprite, SliderFillSprite);
   systemSeVolumeOptions->AddOption(systemSeVolumeSlider);
   systemSeVolumeSlider->FillBeforeTrack = true;
-  SoundPage2->Add(systemSeVolumeOptions, FDIR_DOWN);
+  soundPage2->Add(systemSeVolumeOptions, FDIR_DOWN);
   currentPos += ListPadding;
   auto characterVoiceButton =
       new Button(0, CharacterVoiceVolumeLabel, CharacterVoiceVolumeLabelH,
                  nullSprite, currentPos);
-  SoundPage2->Add(characterVoiceButton, FDIR_DOWN);
-  Pages.push_back(SoundPage2);
+  soundPage2->Add(characterVoiceButton, FDIR_DOWN);
+  Pages.push_back(std::move(soundPage2));
   currentPos = ListStartingPosition;
 
   // --- Other page ---
-  OtherPage = new Group(this);
-  OtherPage->FocusLock = false;
-  OtherPage->Add(new Label(OtherPageLabel, PageLabelPosition));
+  auto otherPage = std::make_unique<Group>(this);
+  otherPage->FocusLock = false;
+  otherPage->Add(new Label(OtherPageLabel, PageLabelPosition));
 
   // Quick save options
   auto quickSaveOptions =
@@ -255,46 +253,26 @@ OptionsMenu::OptionsMenu() {
         i, &FalseValue, QuickSaveOptionsHSprites[i], QuickSaveOptionsSprites[i],
         nullSprite, glm::vec2(0.0f), false));
   }
-  OtherPage->Add(quickSaveOptions, FDIR_DOWN);
-  Pages.push_back(OtherPage);
-
-  CurrentPage = Pages.begin();
-  PreviousPage = Pages.end();
+  otherPage->Add(quickSaveOptions, FDIR_DOWN);
+  Pages.push_back(std::move(otherPage));
 }
 
-void OptionsMenu::Show() {
-  if (State != Shown) {
-    State = Showing;
-    FadeAnimation.StartIn();
-    (*CurrentPage)->Show();
-    if (UI::FocusedMenu != 0) {
-      LastFocusedMenu = UI::FocusedMenu;
-      LastFocusedMenu->IsFocused = false;
-    }
-    IsFocused = true;
-    UI::FocusedMenu = this;
-    CurrentlyFocusedElement = (*CurrentPage)->GetFirstFocusableChild();
-    CurrentlyFocusedElement->HasFocus = true;
-  }
+void OptionsMenu::UpdatePageInput(float dt) {
+  // Mouse controls
+  PageControls->Update(dt);
+
+  UI::OptionsMenu::UpdatePageInput(dt);
 }
+
 void OptionsMenu::Hide() {
   if (State != Hidden) {
-    State = Hiding;
-    FadeAnimation.StartOut();
-    if (LastFocusedMenu != 0) {
-      UI::FocusedMenu = LastFocusedMenu;
-      LastFocusedMenu->IsFocused = true;
-    } else {
-      UI::FocusedMenu = 0;
-    }
-    IsFocused = false;
+    PreviousPage = -1;
   }
+
+  UI::OptionsMenu::Hide();
 }
 
 void OptionsMenu::Update(float dt) {
-  UpdateInput();
-
-  FadeAnimation.Update(dt);
   PageFadeAnimation.Update(dt);
   if (ScrWork[SW_SYSSUBMENUCT] < 16 && ScrWork[SW_SYSSUBMENUNO] == 5 &&
       State == Shown) {
@@ -304,36 +282,14 @@ void OptionsMenu::Update(float dt) {
     Show();
   }
 
-  if (ScrWork[SW_SYSSUBMENUCT] == 16 && ScrWork[SW_SYSSUBMENUNO] == 5 &&
-      FadeAnimation.IsIn())
-    State = Shown;
-  else if (ScrWork[SW_SYSSUBMENUCT] == 0 && ScrWork[SW_SYSSUBMENUNO] == 5 &&
-           FadeAnimation.IsOut())
-    State = Hidden;
+  UI::OptionsMenu::Update(dt);
 
-  if (State == Shown && IsFocused) {
-    PageControls->Update(dt);
-
-    if (PADinputButtonWentDown & PAD1L2) {
-      GoToPreviousPage();
-    } else if (PADinputButtonWentDown & PAD1R2) {
-      GoToNextPage();
-    }
-
+  if (State != Hidden) {
     if (PageFadeAnimation.State == +AnimationState::Playing) {
-      (*PreviousPage)->Update(dt);
-      (*CurrentPage)->Update(dt);
-    } else {
-      if (PreviousPage != Pages.end() && (*PreviousPage)->IsShown) {
-        (*PreviousPage)->Hide();
-        (*CurrentPage)->Show();
-      }
-
-      (*CurrentPage)->Update(dt);
-    }
-
-    if (GetControlState(CT_Back)) {
-      SetFlag(SF_SUBMENUEXIT, true);
+      Pages[PreviousPage]->Update(dt);
+    } else if (PreviousPage != -1 && Pages[PreviousPage]->IsShown) {
+      Pages[PreviousPage]->Hide();
+      Pages[CurrentPage]->Show();
     }
   }
 }
@@ -344,19 +300,22 @@ void OptionsMenu::Render() {
                   glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress));
     Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
 
+    std::unique_ptr<Group>& currentPage = Pages[CurrentPage];
     if (PageFadeAnimation.State == +AnimationState::Playing) {
-      (*CurrentPage)->Tint = col;
-      (*PreviousPage)->Tint = col;
-      (*CurrentPage)->Tint.a *=
+      std::unique_ptr<Group>& previousPage = Pages[PreviousPage];
+
+      currentPage->Tint = col;
+      previousPage->Tint = col;
+      currentPage->Tint.a *=
           glm::smoothstep(0.0f, 1.0f, PageFadeAnimation.Progress);
-      (*PreviousPage)->Tint.a *=
+      previousPage->Tint.a *=
           glm::smoothstep(1.0f, 0.0f, PageFadeAnimation.Progress);
 
-      (*PreviousPage)->Render();
-      (*CurrentPage)->Render();
+      previousPage->Render();
+      currentPage->Render();
     } else {
-      (*CurrentPage)->Tint = col;
-      (*CurrentPage)->Render();
+      currentPage->Tint = col;
+      currentPage->Render();
     }
 
     PageControls->Tint = col;
@@ -364,31 +323,12 @@ void OptionsMenu::Render() {
   }
 }
 
-void OptionsMenu::GoToNextPage() {
-  PreviousPage = CurrentPage;
-  (*CurrentPage)->HasFocus = false;
-  CurrentPage++;
-  if (CurrentPage == Pages.end()) {
-    CurrentPage = Pages.begin();
-  }
-  (*CurrentPage)->HasFocus = true;
-  (*CurrentPage)->Show();
-  CurrentlyFocusedElement = (*CurrentPage)->GetFirstFocusableChild();
-  CurrentlyFocusedElement->HasFocus = true;
-  PageFadeAnimation.StartIn(true);
-}
+void OptionsMenu::GoToPage(int pageNumber) {
+  if (CurrentPage == pageNumber && Pages[CurrentPage]->IsShown) return;
 
-void OptionsMenu::GoToPreviousPage() {
   PreviousPage = CurrentPage;
-  (*CurrentPage)->HasFocus = false;
-  if (CurrentPage == Pages.begin()) {
-    CurrentPage = Pages.end();
-  }
-  CurrentPage--;
-  (*CurrentPage)->HasFocus = true;
-  (*CurrentPage)->Show();
-  CurrentlyFocusedElement = (*CurrentPage)->GetFirstFocusableChild();
-  CurrentlyFocusedElement->HasFocus = true;
+  UI::OptionsMenu::GoToPage(pageNumber);
+
   PageFadeAnimation.StartIn(true);
 }
 

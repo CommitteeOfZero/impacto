@@ -25,9 +25,7 @@ void OptionsMenu::Show() {
     if (State != Showing) FadeAnimation.StartIn();
     State = Showing;
 
-    CurrentPage = 0;
-    Pages[CurrentPage]->Show();
-    Highlight(Pages[CurrentPage]->GetFirstFocusableChild());
+    GoToPage(0);
 
     if (UI::FocusedMenu != nullptr) {
       LastFocusedMenu = UI::FocusedMenu;
@@ -42,6 +40,8 @@ void OptionsMenu::Hide() {
   if (State != Hidden) {
     if (State != Hiding) FadeAnimation.StartOut();
     State = Hiding;
+
+    Pages[CurrentPage]->Hide();
 
     if (LastFocusedMenu != nullptr) {
       UI::FocusedMenu = LastFocusedMenu;
@@ -130,12 +130,13 @@ void OptionsMenu::UpdateEntryMovementInput(float dt) {
 
   // Don't count towards holding the movement button if it is not
   // in a valid movement direction
-  const bool moving =
-      (verticalMovement &&
-           CurrentlyFocusedElement->GetFocus(verticalDirection) ||
-       horizontalMovement &&
-           CurrentlyFocusedElement->GetFocus(horizontalDirection)) ||
-      ((verticalMovement || horizontalMovement) && !CurrentlyFocusedElement);
+  bool moving = CurrentlyFocusedElement &&
+                (verticalMovement &&
+                     CurrentlyFocusedElement->GetFocus(verticalDirection) ||
+                 horizontalMovement &&
+                     CurrentlyFocusedElement->GetFocus(horizontalDirection));
+  moving |=
+      !CurrentlyFocusedElement && (verticalMovement || horizontalMovement);
 
   if (!moving) {
     DirectionButtonHeldTime = 0.0f;
@@ -178,16 +179,16 @@ void OptionsMenu::UpdateInput(float dt) {
 }
 
 void OptionsMenu::GoToPage(int pageNumber) {
-  if (CurrentPage == pageNumber) return;
+  if (CurrentPage == pageNumber && Pages[CurrentPage]->IsShown) return;
 
   Pages[CurrentPage]->Hide();
 
   CurrentPage = pageNumber;
-  Group& page = *Pages[CurrentPage];
+  std::unique_ptr<Group>& page = Pages[CurrentPage];
 
-  page.HasFocus = true;
-  page.Show();
-  Highlight(page.GetFirstFocusableChild());
+  page->HasFocus = true;
+  page->Show();
+  Highlight(page->GetFirstFocusableChild());
 }
 
 void OptionsMenu::Highlight(Widget* toHighlight) {

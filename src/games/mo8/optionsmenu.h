@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../ui/menu.h"
+#include "../../ui/optionsmenu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
 #include "../../ui/widgets/scrollbar.h"
@@ -11,14 +11,13 @@ namespace Impacto {
 namespace UI {
 namespace MO8 {
 
-class OptionsMenu : public Menu {
+class OptionsMenu : public UI::OptionsMenu {
  public:
   OptionsMenu();
 
-  void Show();
-  void Hide();
-  void Update(float dt);
-  void Render();
+  void Update(float dt) override;
+  void Render() override;
+  void Hide() override;
 
   void NextPageOnClick(Widgets::Button* target);
   void PreviousPageOnClick(Widgets::Button* target);
@@ -27,21 +26,13 @@ class OptionsMenu : public Menu {
   void SkipModeOnClick(Widgets::Toggle* target);
 
  private:
-  void GoToNextPage();
-  void GoToPreviousPage();
+  void UpdatePageInput(float dt) override;
 
-  Animation FadeAnimation;
+  void GoToPage(int pageNumber) override;
   Animation PageFadeAnimation;
+  int PreviousPage = -1;
 
   Widgets::Group* PageControls;
-  Widgets::Group* TextPage;
-  Widgets::Group* SoundPage1;
-  Widgets::Group* SoundPage2;
-  Widgets::Group* OtherPage;
-
-  std::vector<Widgets::Group*> Pages;
-  std::vector<Widgets::Group*>::iterator CurrentPage;
-  std::vector<Widgets::Group*>::iterator PreviousPage;
 
   bool MessageSpeedValues[4] = {false};
   bool AutoModeWaitTimeValues[3] = {false};
