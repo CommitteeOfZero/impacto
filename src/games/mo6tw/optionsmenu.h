@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../ui/menu.h"
+#include "../../ui/optionsmenu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
 #include "../../ui/widgets/scrollbar.h"
@@ -10,14 +10,12 @@ namespace Impacto {
 namespace UI {
 namespace MO6TW {
 
-class OptionsMenu : public Menu {
+class OptionsMenu : public UI::OptionsMenu {
  public:
   OptionsMenu();
 
-  void Show();
-  void Hide();
-  void Update(float dt);
-  void Render();
+  void Update(float dt) override;
+  void Render() override;
 
   void MessageSpeedToggleOnClick(Widgets::Toggle* target);
   void AutoModeWaitTimeOnClick(Widgets::Toggle* target);
@@ -28,18 +26,14 @@ class OptionsMenu : public Menu {
   void TipsNotificationsOnClick(Widgets::Toggle* target);
 
  private:
-  Animation FadeAnimation;
-
   Widgets::Scrollbar* VoiceVolumeSlider;
   Widgets::Scrollbar* BGMVolumeSlider;
   Widgets::Scrollbar* SEVolumeSlider;
   Widgets::Scrollbar* MovieVolumeSlider;
-  Widgets::Group* FirstPage;
   Widgets::Group* CharacterVoiceToggles;
   bool VoiceTest[13] = {0};
 
   Widgets::Scrollbar* ScreenSizeSlider;
-  Widgets::Group* SecondPage;
   Widgets::Group* MessageSpeedToggles;
   bool MessageSpeedValues[4] = {false};
   Widgets::Group* AutoModeWaitTimeToggles;
