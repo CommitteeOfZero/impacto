@@ -23,10 +23,10 @@ void Configure() {
     MinButtonHoldTime = EnsureGetMemberFloat("MinButtonHoldTime");
     ButtonHoldTimeInterval = EnsureGetMemberFloat("ButtonHoldTimeInterval");
 
-    if (Type != +OptionsMenuType::CHLCC) {
-      FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
-      FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
+    FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
+    FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
 
+    if (Type != +OptionsMenuType::CHLCC) {
       BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
     };
 

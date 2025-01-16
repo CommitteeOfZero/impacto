@@ -22,8 +22,8 @@ OptionsMenu::OptionsMenu() {
 
 void OptionsMenu::Show() {
   if (State != Shown) {
+    if (State != Showing) FadeAnimation.StartIn();
     State = Showing;
-    FadeAnimation.StartIn();
 
     CurrentPage = 0;
     Pages[CurrentPage]->Show();
@@ -40,8 +40,8 @@ void OptionsMenu::Show() {
 
 void OptionsMenu::Hide() {
   if (State != Hidden) {
+    if (State != Hiding) FadeAnimation.StartOut();
     State = Hiding;
-    FadeAnimation.StartOut();
 
     if (LastFocusedMenu != nullptr) {
       UI::FocusedMenu = LastFocusedMenu;
@@ -197,7 +197,7 @@ void OptionsMenu::Highlight(Widget* toHighlight) {
     entry->HasFocus = false;
   }
 
-  toHighlight->HasFocus = true;
+  if (toHighlight) toHighlight->HasFocus = true;
   CurrentlyFocusedElement = toHighlight;
 }
 
