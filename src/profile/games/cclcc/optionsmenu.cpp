@@ -73,9 +73,6 @@ void Configure() {
   PortraitOffset = EnsureGetMemberVec2("PortraitOffset");
   VoicePosition = EnsureGetMemberVec2("VoicePosition");
 
-  MinButtonHoldTime = EnsureGetMemberFloat("MinButtonHoldTime");
-  ButtonHoldTimeInterval = EnsureGetMemberFloat("ButtonHoldTimeInterval");
-
   MenuMaskSprite = EnsureGetMemberSprite("MenuMask");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(

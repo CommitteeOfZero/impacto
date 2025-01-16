@@ -71,9 +71,6 @@ inline Sprite PortraitSprites[PortraitCount];
 inline glm::vec2 PortraitOffset;
 inline glm::vec2 VoicePosition;
 
-inline float MinButtonHoldTime;
-inline float ButtonHoldTimeInterval;
-
 inline Sprite MenuMaskSprite;
 
 void Configure();

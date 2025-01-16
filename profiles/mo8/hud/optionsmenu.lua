@@ -73,7 +73,10 @@ root.OptionsMenu = {
     QuickSaveOptionsHSprites = {},
 
     FadeInDuration = 0.33,
-    FadeOutDuration = 0.33
+    FadeOutDuration = 0.33,
+
+    MinButtonHoldTime = 0.5,
+    ButtonHoldTimeInterval = 0.05,
 };
 
 root.Sprites["OptionsBackground"] = {

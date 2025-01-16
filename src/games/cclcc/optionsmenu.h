@@ -1,8 +1,7 @@
 #pragma once
 
-#include "../../ui/menu.h"
+#include "../../ui/optionsmenu.h"
 #include "../../spriteanimation.h"
-#include "../../ui/widgets/group.h"
 #include "../../ui/widgets/clickarea.h"
 #include "../../ui/widgets/cclcc/optionsentry.h"
 
@@ -12,42 +11,32 @@ namespace Impacto {
 namespace UI {
 namespace CCLCC {
 
-class OptionsMenu : public Menu {
+class OptionsMenu : public UI::OptionsMenu {
  public:
   OptionsMenu();
 
   void Show() override;
   void Hide() override;
   void Update(float dt) override;
-  void UpdateInput(float dt);
+  void UpdateInput(float dt) override;
   void Render() override;
 
  private:
-  void GoToPage(int pageNumber);
   void PageButtonOnHover(int pageNumber);
 
   void Select(OptionsEntry* entry);
-  void Highlight(Widget* entry);
+  void Highlight(Widget* entry) override;
   bool AnyEntrySelected() {
     return CurrentlyFocusedElement &&
            static_cast<OptionsEntry*>(CurrentlyFocusedElement)->Selected;
   }
 
-  void UpdatePageInput(float dt);
-  void UpdateEntryMovementInput(float dt);
+  void UpdatePageInput(float dt) override;
+  void UpdateEntryMovementInput(float dt) override;
 
-  Animation FadeAnimation;
   SpriteAnimation PoleAnimation;
 
-  int CurrentPage = 0;
-  std::vector<std::unique_ptr<Widgets::Group>> Pages;
   std::vector<Widgets::ClickArea> PageButtons;
-
-  float DirectionButtonHeldTime = 0.0f;
-  float DirectionButtonWaitTime = 0.0f;
-
-  float PageDirectionButtonHeldTime = 0.0f;
-  float PageDirectionButtonWaitTime = 0.0f;
 };
 
 }  // namespace CCLCC

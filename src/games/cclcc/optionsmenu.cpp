@@ -20,12 +20,7 @@ using namespace Impacto::UI::Widgets;
 using namespace Impacto::UI::Widgets::CCLCC;
 using namespace Impacto::Vm::Interface;
 
-OptionsMenu::OptionsMenu() {
-  FadeAnimation.Direction = AnimationDirection::In;
-  FadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
-
+OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   PoleAnimation = Profile::CCLCC::OptionsMenu::PoleAnimation.Instantiate();
 
   Pages.reserve(PageCount);
@@ -133,80 +128,32 @@ OptionsMenu::OptionsMenu() {
 }
 
 void OptionsMenu::Show() {
-  if (State != Shown) {
-    State = Showing;
-    FadeAnimation.StartIn();
-    PoleAnimation.StartIn();
+  UI::OptionsMenu::Show();
 
-    CurrentPage = 0;
-    Pages[CurrentPage]->Show();
-    Highlight(Pages[CurrentPage]->GetFirstFocusableChild());
-
-    if (UI::FocusedMenu != nullptr) {
-      LastFocusedMenu = UI::FocusedMenu;
-      LastFocusedMenu->IsFocused = false;
-    }
-    IsFocused = true;
-    UI::FocusedMenu = this;
-  }
+  if (State != Shown) PoleAnimation.StartIn();
 }
 
 void OptionsMenu::Hide() {
   if (State != Hidden) {
-    State = Hiding;
-    FadeAnimation.StartOut();
     PoleAnimation.StartOut();
 
-    if (LastFocusedMenu != nullptr) {
-      UI::FocusedMenu = LastFocusedMenu;
-      LastFocusedMenu->IsFocused = true;
-    } else {
-      UI::FocusedMenu = nullptr;
-    }
-    IsFocused = false;
-
-    if (CurrentlyFocusedElement) {
+    if (CurrentlyFocusedElement)
       static_cast<OptionsEntry*>(CurrentlyFocusedElement)->Selected = false;
-      CurrentlyFocusedElement->HasFocus = false;
-      CurrentlyFocusedElement = nullptr;
-    }
   }
+
+  UI::OptionsMenu::Hide();
 }
 
 void OptionsMenu::Update(float dt) {
-  FadeAnimation.Update(dt);
-  PoleAnimation.Update(dt);
-  if (ScrWork[SW_SYSSUBMENUCT] < 32 && State == Shown &&
-      ScrWork[SW_SYSSUBMENUNO] == 5) {
-    Hide();
-  } else if (ScrWork[SW_SYSSUBMENUCT] >= 32 && State == Hidden &&
-             ScrWork[SW_SYSSUBMENUNO] == 5) {
-    Show();
-  }
+  UI::OptionsMenu::Update(dt);
 
-  if (State != Hidden) {
-    UpdateInput(dt);
-    Pages[CurrentPage]->Update(dt);
-  }
+  PoleAnimation.Update(dt);
 
   if (!FadeAnimation.IsIn() && !FadeAnimation.IsOut()) {
     const glm::vec2 backgroundPosition =
         glm::vec2(0.0f, glm::mix(BackgroundFadeStartPosition.y,
                                  BackgroundPosition.y, FadeAnimation.Progress));
     Pages[CurrentPage]->MoveTo(backgroundPosition);
-  }
-
-  if (FadeAnimation.IsIn()) {
-    State = Shown;
-    Pages[CurrentPage]->MoveTo(glm::vec2(0.0f, BackgroundPosition.y));
-  } else if (State == Hiding && FadeAnimation.IsOut()) {
-    if (ScrWork[SW_SYSSUBMENUCT] == 0) {
-      State = Hidden;
-
-      Pages[CurrentPage]->Hide();
-    } else {
-      SetFlag(SF_SUBMENUEXIT, true);
-    }
   }
 }
 
@@ -228,85 +175,19 @@ void OptionsMenu::UpdatePageInput(float dt) {
     if (!wasHovered && button.Hovered) PageButtonOnHover(button.Id);
   }
 
-  // Button input
+  const int lastPage = CurrentPage;
+  UI::OptionsMenu::UpdatePageInput(dt);
 
-  const int direction = (bool)(PADinputButtonIsDown & PAD1R1) -
-                        (bool)(PADinputButtonIsDown & PAD1L1);
-
-  if (direction == 0) {
-    PageDirectionButtonHeldTime = 0.0f;
-    PageDirectionButtonWaitTime = 0.0f;
-    return;
-  }
-
-  if (0.0f < PageDirectionButtonHeldTime &&
-      PageDirectionButtonHeldTime < MinButtonHoldTime) {
-    PageDirectionButtonHeldTime += dt;
-    PageDirectionButtonWaitTime = 0.0f;
-    return;
-  }
-
-  if (PageDirectionButtonWaitTime > 0.0f) {
-    PageDirectionButtonWaitTime -= dt;
-    return;
-  }
-
-  // Page advancement fired
-
-  PageDirectionButtonHeldTime += dt;
-  PageDirectionButtonWaitTime = ButtonHoldTimeInterval;
-
-  Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0.0f);
-
-  GoToPage((CurrentPage + direction) % Pages.size());
+  if (CurrentPage != lastPage)
+    Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0.0f);
 }
 
 void OptionsMenu::UpdateEntryMovementInput(float dt) {
-  const int verticalMovement = (bool)(PADinputButtonIsDown & PAD1DOWN) -
-                               (bool)(PADinputButtonIsDown & PAD1UP);
-  const int horizontalMovement = (bool)(PADinputButtonIsDown & PAD1RIGHT) -
-                                 (bool)(PADinputButtonIsDown & PAD1LEFT);
-  const bool moving =
-      verticalMovement || (CurrentPage == 3 && horizontalMovement);
-
-  if (!moving) {
-    DirectionButtonHeldTime = 0.0f;
-    DirectionButtonWaitTime = 0.0f;
-    return;
-  }
-
-  if (0.0f < DirectionButtonHeldTime &&
-      DirectionButtonHeldTime < MinButtonHoldTime) {
-    DirectionButtonHeldTime += dt;
-    DirectionButtonWaitTime = 0.0f;
-    return;
-  }
-
-  if (DirectionButtonWaitTime > 0.0f) {
-    DirectionButtonWaitTime -= dt;
-    return;
-  }
-
-  // Advance entry
-
-  DirectionButtonHeldTime += dt;
-  DirectionButtonWaitTime = ButtonHoldTimeInterval;
-
   const Widget* const lastHighlight = CurrentlyFocusedElement;
-  if (horizontalMovement != 0) {
-    const FocusDirection horizontalDirection =
-        horizontalMovement == -1 ? FDIR_LEFT : FDIR_RIGHT;
-    AdvanceFocus(horizontalDirection);
-  }
-  if (verticalMovement != 0) {
-    const FocusDirection verticalDirection =
-        verticalMovement == -1 ? FDIR_UP : FDIR_DOWN;
-    AdvanceFocus(verticalDirection);
-  }
-  if (CurrentlyFocusedElement != lastHighlight) {
+  UI::OptionsMenu::UpdateEntryMovementInput(dt);
+
+  if (CurrentlyFocusedElement != lastHighlight)
     Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0.0f);
-    Highlight(CurrentlyFocusedElement);
-  }
 }
 
 void OptionsMenu::UpdateInput(float dt) {
@@ -374,19 +255,6 @@ void OptionsMenu::Render() {
   }
 }
 
-void OptionsMenu::GoToPage(int pageNumber) {
-  if (CurrentPage == pageNumber) return;
-
-  Pages[CurrentPage]->Hide();
-
-  CurrentPage = pageNumber;
-  Group& page = *Pages[CurrentPage];
-
-  page.HasFocus = true;
-  page.Show();
-  Highlight(page.GetFirstFocusableChild());
-}
-
 void OptionsMenu::Select(OptionsEntry* toSelect) {
   for (Widget* entry : Pages[CurrentPage]->Children) {
     static_cast<OptionsEntry*>(entry)->Selected = false;
@@ -399,15 +267,11 @@ void OptionsMenu::Select(OptionsEntry* toSelect) {
 }
 
 void OptionsMenu::Highlight(Widget* toHighlight) {
-  if (CurrentlyFocusedElement == toHighlight) return;
+  UI::OptionsMenu::Highlight(toHighlight);
 
   for (Widget* entry : Pages[CurrentPage]->Children) {
-    entry->HasFocus = false;
     static_cast<OptionsEntry*>(entry)->Selected = false;
   }
-
-  toHighlight->HasFocus = true;
-  CurrentlyFocusedElement = toHighlight;
 }
 
 }  // namespace CCLCC

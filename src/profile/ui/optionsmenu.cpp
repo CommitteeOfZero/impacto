@@ -20,6 +20,9 @@ void Configure() {
     Type =
         OptionsMenuType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
 
+    MinButtonHoldTime = EnsureGetMemberFloat("MinButtonHoldTime");
+    ButtonHoldTimeInterval = EnsureGetMemberFloat("ButtonHoldTimeInterval");
+
     if (Type != +OptionsMenuType::CHLCC) {
       FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
       FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");

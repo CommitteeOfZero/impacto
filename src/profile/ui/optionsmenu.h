@@ -14,6 +14,9 @@ inline Sprite BackgroundSprite;
 inline float FadeInDuration;
 inline float FadeOutDuration;
 
+inline float MinButtonHoldTime;
+inline float ButtonHoldTimeInterval;
+
 void Configure();
 
 }  // namespace OptionsMenu

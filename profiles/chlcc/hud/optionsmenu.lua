@@ -36,6 +36,9 @@ root.OptionsMenu = {
         { X = 213, Y = 51 },
         { X = 228, Y = 51 }
     },
+
+    MinButtonHoldTime = 0.5,
+    ButtonHoldTimeInterval = 0.05,
 };
 
 root.Sprites["CircleConfig"] = {
