@@ -153,7 +153,9 @@ void OptionsMenu::Update(float dt) {
     const glm::vec2 backgroundPosition =
         glm::vec2(0.0f, glm::mix(BackgroundFadeStartPosition.y,
                                  BackgroundPosition.y, FadeAnimation.Progress));
-    Pages[CurrentPage]->MoveTo(backgroundPosition);
+    for (std::unique_ptr<Group>& page : Pages) {
+      page->MoveTo(backgroundPosition);
+    }
   }
 }
 
