@@ -49,6 +49,13 @@ void TitleButton::Update(float dt) {
   }
 }
 
+void TitleButton::Hide() {
+  Button::Hide();
+  HighlightAnimation.Progress = 0.0f;
+  ChoiceBlinkAnimation.Progress = 0.0f;
+  PrevFocusState = false;
+}
+
 void TitleButton::Render() {
   // Calculate the blink effect to occur 4 times during the animation
   float blinkProgress = ChoiceBlinkAnimation.Progress * 4.0f;

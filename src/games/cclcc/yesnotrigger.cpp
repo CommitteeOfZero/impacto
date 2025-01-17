@@ -162,7 +162,7 @@ void YesNoTrigger::Update(float dt) {
       if (AllowInput) {
         DispSel = true;
         if (PADinputButtonWentDown &
-            (PAD1UP | PAD1DOWN | PAD1LEFT | PAD1RIGHT)) {
+            (PADcustom[0] | PADcustom[1] | PADcustom[2] | PADcustom[3])) {
           if (Selection == YesNoSelect::NONE) {
             Selection = YesNoSelect::YES;
           } else if (Selection == YesNoSelect::YES) {
@@ -170,9 +170,9 @@ void YesNoTrigger::Update(float dt) {
           } else {
             Selection = YesNoSelect::YES;
           }
-          if (BgType == BGType::BG0 &&
-              (CurArrIndex == 11 || CurArrIndex == 12)) {
-            Selection = YesNoSelect::YES;
+          if (BgType == BGType::BG1 &&
+              (TargetArrIndex == 11 || TargetArrIndex == 12)) {
+            Selection = YesNoSelect::NO;
             Audio::Channels[Audio::AC_SSE]->Play("sysse", 4, false, 0.0f);
           } else {
             Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0.0f);

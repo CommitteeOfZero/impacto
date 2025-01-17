@@ -15,6 +15,7 @@ class TitleButton : public Widgets::Button {
   void Render() override;
   void Update(float dt) override;
   void UpdateInput() override;
+  void Hide() override;
   bool IsSubButton = false;
   bool DisableInput = false;
   Animation HighlightAnimation;

@@ -523,7 +523,7 @@ void SaveSystem::SetTipStatus(int tipId, bool isLocked, bool isUnread,
 }
 
 void SaveSystem::SetLineRead(int scriptId, int lineId) {
-  if (scriptId >= StoryScriptCount) return;
+  if (scriptId >= 255) return;
 
   int offset = ScriptMessageData[scriptId].SaveDataOffset + lineId;
   if (offset == 0xFFFFFFFF) return;

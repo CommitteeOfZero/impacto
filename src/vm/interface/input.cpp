@@ -29,7 +29,7 @@ void UpdatePADInput() {
   PADinputMouseWentDown = 0;
   PADinputButtonIsDown = 0;
   PADinputMouseIsDown = 0;
-  for (int i = 0; i < 16; i++) {
+  for (int i = 0; i < 20; i++) {
     int PADcode = (int)std::pow(2, i);
     int KBcode = PADToKeyboard[PADcode];
     int GPcode = PADToController[PADcode];

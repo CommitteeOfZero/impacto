@@ -5,12 +5,12 @@
 namespace Impacto {
 namespace Vm {
 namespace Interface {
-
+// Might have to take this from lua file if older games use different consts
 enum PADinput {
-  PAD1UP = 1,
-  PAD1DOWN = 2,
-  PAD1LEFT = 4,
-  PAD1RIGHT = 8,
+  PAD1UP = 0x10000,
+  PAD1DOWN = 0x20000,
+  PAD1LEFT = 0x40000,
+  PAD1RIGHT = 0x80000,
   PAD1START = 0x10,
   PAD1SELECT = 0x20,
   PAD1L3 = 0x40,
