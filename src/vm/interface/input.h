@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../impacto.h"
+#include "../../vendor/span/span.hpp"
 
 namespace Impacto {
 namespace Vm {
@@ -25,7 +26,7 @@ enum PADinput {
   PAD1Y = 0x8000
 };
 
-inline uint32_t* PADcustom = nullptr;
+inline tcb::span<uint32_t> PADcustom;
 
 inline int PADinputButtonWentDown = 0;
 inline int PADinputMouseWentDown = 0;
