@@ -1,5 +1,6 @@
 #include "game.h"
 
+#include "text.h"
 #include "workqueue.h"
 #include "modelviewer.h"
 #include "characterviewer.h"
@@ -171,6 +172,17 @@ void UpdateGameState(float dt) {
     UpdateSecondCounter -= 1.0f;
   }
 
+  if ((ScrWork[SW_GAMESTATE] & 5) == 1 && !GetFlag(SF_SYSTEMMENUDISABLE) &&
+      !GetFlag(SF_GAMEPAUSE) && !GetFlag(SF_SYSMENUDISABLE) &&
+      Vm::Interface::GetControlState(8)) {
+    // Some more stuff here?
+    if ((GetFlag(SF_MESWINDOW0OPENFL) &&
+         DialoguePages[0].TextIsFullyOpaque()) ||
+        (GetFlag(SF_SHOWWAITICON) || GetFlag(SF_SHOWWAITICON + 1) ||
+         GetFlag(SF_SHOWWAITICON + 2))) {
+      SetFlag(SF_UIHIDDEN, !GetFlag(SF_UIHIDDEN));
+    }
+  }
   Vm::ChkMesSkip();
 }
 
