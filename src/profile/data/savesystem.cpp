@@ -62,7 +62,7 @@ void Configure() {
       auto pairSize = lua_rawlen(LuaState, -1);
       if (pairSize != 2) {
         ImpLog(LL_Fatal, LC_Profile, "Expected two values\n");
-        Window->Shutdown();
+        Window.Shutdown();
       }
       ScriptMessageData[i].LineCount = EnsureGetArrayElementByIndexUint(0);
       ScriptMessageData[i].SaveDataOffset = EnsureGetArrayElementByIndexUint(1);

@@ -132,7 +132,7 @@ void Init() {
     }
     default: {
       ImpLog(LL_Fatal, LC_VM, "Unsupported instruction set\n");
-      Window->Shutdown();
+      Window.Shutdown();
       break;
     }
   }

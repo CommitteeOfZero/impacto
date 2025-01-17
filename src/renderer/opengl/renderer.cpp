@@ -5,6 +5,7 @@
 #include "../../profile/game.h"
 #include "../../game.h"
 #include "3d/scene.h"
+#include "window.h"
 #include "yuvframe.h"
 #ifndef IMPACTO_DISABLE_IMGUI
 #include "../../vendor/imgui_custom/backends/imgui_impl_opengl3.h"
@@ -18,14 +19,13 @@ void Renderer::Init() {
   ImpLog(LL_Info, LC_Render, "Initializing Renderer2D system\n");
   IsInit = true;
 
-  OpenGLWindow = new GLWindow();
-  OpenGLWindow->Init();
-  Window = (BaseWindow*)OpenGLWindow;
+  Window.Emplace<GLWindow>();
+  Window.Init();
 
   Shaders = new ShaderCompiler();
 
   if (Profile::GameFeatures & GameFeature::Scene3D) {
-    Scene = new Scene3D(OpenGLWindow, Shaders);
+    Scene = new Scene3D(&Window.GetImpl<GLWindow>(), Shaders);
     Scene->Init();
   }
 
@@ -1018,14 +1018,14 @@ void Renderer::DrawVideoTexture(YUVFrame* tex, RectF const& dest,
 
 void Renderer::CaptureScreencap(Sprite const& sprite) {
   Flush();
-  Window->SwapRTs();
+  Window.SwapRTs();
   int prevTextureBinding;
   glGetIntegerv(GL_TEXTURE_BINDING_2D, &prevTextureBinding);
   glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
-  glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, Window->WindowWidth,
-                   Window->WindowHeight, 0);
+  glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, Window.WindowWidth(),
+                   Window.WindowHeight(), 0);
   glBindTexture(GL_TEXTURE_2D, prevTextureBinding);
-  Window->SwapRTs();
+  Window.SwapRTs();
 }
 
 void Renderer::EnableScissor() {
@@ -1034,9 +1034,9 @@ void Renderer::EnableScissor() {
 }
 
 void Renderer::SetScissorRect(RectF const& rect) {
-  Rect viewport = Window->GetViewport();
-  float scale = fmin((float)Window->WindowWidth / Profile::DesignWidth,
-                     (float)Window->WindowHeight / Profile::DesignHeight);
+  Rect viewport = Window.GetViewport();
+  float scale = fmin((float)Window.WindowWidth() / Profile::DesignWidth,
+                     (float)Window.WindowHeight() / Profile::DesignHeight);
   float rectX = rect.X * scale;
   float rectY = rect.Y * scale;
   float rectWidth = rect.Width * scale;

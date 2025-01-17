@@ -14,7 +14,7 @@
 
 namespace Impacto {
 
-void InitRenderer() {
+void BaseRenderer::InitRenderer() {
   switch (Profile::ActiveRenderer) {
 #ifndef IMPACTO_DISABLE_OPENGL
     case RendererType::OpenGL:
@@ -34,7 +34,7 @@ void InitRenderer() {
     default:
       ImpLog(LL_Error, LC_Render,
              "Unknown or unsupported renderer selected!\n");
-      exit(0);
+      exit(1);
   }
 
   Renderer->Init();

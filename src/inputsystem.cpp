@@ -37,14 +37,14 @@ void EndFrame() {
 }
 
 static glm::vec2 SDLMouseCoordsToDesign(int x, int y) {
-  RectF viewport = Window->GetViewport();
+  RectF viewport = Window.GetViewport();
   glm::vec2 result;
   result.x = ((float)x *
-              (Profile::DesignWidth / (viewport.Width * Window->DpiScaleX))) -
-             (viewport.X * Window->DpiScaleX);
-  result.y = ((float)y *
-              (Profile::DesignHeight / (viewport.Height * Window->DpiScaleY))) +
-             (viewport.Y * Window->DpiScaleY);
+              (Profile::DesignWidth / (viewport.Width * Window.DpiScaleX()))) -
+             (viewport.X * Window.DpiScaleX());
+  result.y = ((float)y * (Profile::DesignHeight /
+                          (viewport.Height * Window.DpiScaleY()))) +
+             (viewport.Y * Window.DpiScaleY());
   return result;
 }
 
@@ -132,9 +132,9 @@ bool HandleEvent(SDL_Event const* ev) {
       CurrentInputDevice = Device::Touch;
       if (CurrentFingers[0] == evt->fingerId &&
           TouchIsDown[0 && TouchIsDown[1]]) {
-        CurTouchPos =
-            SDLMouseCoordsToDesign((int)(evt->x * (float)Window->WindowWidth),
-                                   (int)(evt->y * (float)Window->WindowHeight));
+        CurTouchPos = SDLMouseCoordsToDesign(
+            (int)(evt->x * (float)Window.WindowWidth()),
+            (int)(evt->y * (float)Window.WindowHeight()));
       }
       return true;
       break;
@@ -145,8 +145,8 @@ bool HandleEvent(SDL_Event const* ev) {
       for (int8_t i = 0; i < FingerTapMax; ++i) {
         if (!TouchIsDown[i]) {
           CurTouchPos = SDLMouseCoordsToDesign(
-              (int)(evt->x * (float)Window->WindowWidth),
-              (int)(evt->y * (float)Window->WindowHeight));
+              (int)(evt->x * (float)Window.WindowWidth()),
+              (int)(evt->y * (float)Window.WindowHeight()));
           CurrentFingers[i] = evt->fingerId;
           TouchIsDown[i] = true;
           TouchWentDown[i] = true;
@@ -162,8 +162,8 @@ bool HandleEvent(SDL_Event const* ev) {
       for (int8_t i = 0; i < FingerTapMax; ++i) {
         if (CurrentFingers[i] == evt->fingerId && TouchIsDown[i]) {
           CurTouchPos = SDLMouseCoordsToDesign(
-              (int)(evt->x * (float)Window->WindowWidth),
-              (int)(evt->y * (float)Window->WindowHeight));
+              (int)(evt->x * (float)Window.WindowWidth()),
+              (int)(evt->y * (float)Window.WindowHeight()));
           TouchIsDown[i] = false;
         }
       }

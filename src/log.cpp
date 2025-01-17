@@ -1,5 +1,5 @@
 #include <time.h>
-#include <stdarg.h>
+#include <cstdarg>
 
 #include <SDL_log.h>
 #include "log.h"
