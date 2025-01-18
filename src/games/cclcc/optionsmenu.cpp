@@ -83,7 +83,7 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   constexpr int columns = 3;
   constexpr int entries = 12;
   for (int i = 0; i < entries; i++) {
-    glm::vec2 pos = VoicePosition;
+    pos = VoicePosition;
     pos += VoiceEntriesOffset * glm::vec2(i % columns, i / columns);
 
     Widget* widget = new OptionsVoiceSlider(
@@ -233,10 +233,9 @@ void OptionsMenu::UpdateInput(float dt) {
 void OptionsMenu::Render() {
   if (State != Hidden && ScrWork[SW_SYSSUBMENUCT] >= 32 &&
       ScrWork[SW_SYSSUBMENUNO] == 5) {
-    glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-
-    glm::vec4 maskTint = col;
-    maskTint.a *= (float)0xa0 / 0x100;
+    const glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
+    const glm::vec4 maskTint =
+        col * glm::vec4{glm::vec3{1.0f}, (float)0xa0 / 0x100};
 
     const glm::vec2 backgroundAnimationOffset =
         glm::vec2(0.0f, FadeAnimation.Progress * BackgroundPosition.y +
