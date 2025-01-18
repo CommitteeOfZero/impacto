@@ -24,7 +24,9 @@ class OptionsMenu : public UI::OptionsMenu {
   void DrawErin();
   void DrawRedBar();
   void DrawButtonPrompt();
+
   void UpdateTitles();
+  inline void UpdateVisibility() override;
 
   Animation TitleFade;
 

@@ -80,7 +80,7 @@ void OptionsMenu::Render() {
   }
 }
 
-void OptionsMenu::Update(float dt) {
+void OptionsMenu::UpdateVisibility() {
   if (ScrWork[SW_SYSMENUCT] < 10000 && State == Shown) {
     Hide();
   } else if (GetFlag(SF_OPTIONMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
@@ -93,6 +93,10 @@ void OptionsMenu::Update(float dt) {
   else if (FadeAnimation.IsIn() && State == Showing) {
     State = Shown;
   }
+}
+
+void OptionsMenu::Update(float dt) {
+  UpdateVisibility();
 
   if (State != Hidden) {
     FadeAnimation.Update(dt);

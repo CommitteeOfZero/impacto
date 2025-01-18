@@ -15,9 +15,10 @@ class OptionsMenu : public UI::OptionsMenu {
  public:
   OptionsMenu();
 
-  void Update(float dt) override;
-  void Render() override;
   void Hide() override;
+  void Update(float dt) override;
+  void UpdateInput(float dt) override;
+  void Render() override;
 
   void NextPageOnClick(Widgets::Button* target);
   void PreviousPageOnClick(Widgets::Button* target);
@@ -27,6 +28,7 @@ class OptionsMenu : public UI::OptionsMenu {
 
  private:
   void UpdatePageInput(float dt) override;
+  inline void UpdateVisibility() override;
 
   void GoToPage(int pageNumber) override;
   Animation PageFadeAnimation;

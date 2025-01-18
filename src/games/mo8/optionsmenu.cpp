@@ -272,8 +272,7 @@ void OptionsMenu::Hide() {
   UI::OptionsMenu::Hide();
 }
 
-void OptionsMenu::Update(float dt) {
-  PageFadeAnimation.Update(dt);
+void OptionsMenu::UpdateVisibility() {
   if (ScrWork[SW_SYSSUBMENUCT] < 16 && ScrWork[SW_SYSSUBMENUNO] == 5 &&
       State == Shown) {
     Hide();
@@ -281,6 +280,24 @@ void OptionsMenu::Update(float dt) {
              State == Hidden) {
     Show();
   }
+
+  if (ScrWork[SW_SYSSUBMENUCT] == 16 && ScrWork[SW_SYSSUBMENUNO] == 5 &&
+      FadeAnimation.IsIn()) {
+    State = Shown;
+  } else if (ScrWork[SW_SYSSUBMENUCT] == 0 && ScrWork[SW_SYSSUBMENUNO] == 5 &&
+             FadeAnimation.IsOut()) {
+    State = Hidden;
+  }
+}
+
+void OptionsMenu::UpdateInput(float dt) {
+  UI::OptionsMenu::UpdateInput(dt);
+
+  if (GetControlState(CT_Back)) SetFlag(SF_SUBMENUEXIT, true);
+}
+
+void OptionsMenu::Update(float dt) {
+  PageFadeAnimation.Update(dt);
 
   UI::OptionsMenu::Update(dt);
 

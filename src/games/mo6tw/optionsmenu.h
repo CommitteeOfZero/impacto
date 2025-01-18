@@ -26,6 +26,8 @@ class OptionsMenu : public UI::OptionsMenu {
   void TipsNotificationsOnClick(Widgets::Toggle* target);
 
  private:
+  inline void UpdateVisibility() override;
+
   Widgets::Scrollbar* VoiceVolumeSlider;
   Widgets::Scrollbar* BGMVolumeSlider;
   Widgets::Scrollbar* SEVolumeSlider;

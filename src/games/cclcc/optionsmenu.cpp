@@ -144,10 +144,30 @@ void OptionsMenu::Hide() {
   UI::OptionsMenu::Hide();
 }
 
+void OptionsMenu::UpdateVisibility() {
+  if (ScrWork[SW_SYSSUBMENUCT] < 32 && State == Shown &&
+      ScrWork[SW_SYSSUBMENUNO] == 5) {
+    Hide();
+  } else if (ScrWork[SW_SYSSUBMENUCT] >= 32 && State == Hidden &&
+             ScrWork[SW_SYSSUBMENUNO] == 5) {
+    Show();
+  }
+
+  if (FadeAnimation.IsIn()) {
+    State = Shown;
+  } else if (State == Hiding && FadeAnimation.IsOut() &&
+             ScrWork[SW_SYSSUBMENUCT] == 0) {
+    State = Hidden;
+    Pages[CurrentPage]->Hide();
+  }
+}
+
 void OptionsMenu::Update(float dt) {
   UI::OptionsMenu::Update(dt);
-
   PoleAnimation.Update(dt);
+
+  if (State == Hiding && FadeAnimation.IsOut() && ScrWork[SW_SYSSUBMENUCT] != 0)
+    SetFlag(SF_SUBMENUEXIT, true);
 
   if (!FadeAnimation.IsIn() && !FadeAnimation.IsOut()) {
     const glm::vec2 backgroundPosition =

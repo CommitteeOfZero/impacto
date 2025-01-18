@@ -19,6 +19,7 @@ class OptionsMenu : public Menu {
   virtual void GoToPage(int pageNumber);
   virtual void UpdatePageInput(float dt);
   virtual void UpdateEntryMovementInput(float dt);
+  virtual void UpdateVisibility() = 0;
 
   virtual void Highlight(Widget* toHighlight);
 

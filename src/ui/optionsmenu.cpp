@@ -60,29 +60,11 @@ void OptionsMenu::Hide() {
 
 void OptionsMenu::Update(float dt) {
   FadeAnimation.Update(dt);
-  if (ScrWork[SW_SYSSUBMENUCT] < 32 && State == Shown &&
-      ScrWork[SW_SYSSUBMENUNO] == 5) {
-    Hide();
-  } else if (ScrWork[SW_SYSSUBMENUCT] >= 32 && State == Hidden &&
-             ScrWork[SW_SYSSUBMENUNO] == 5) {
-    Show();
-  }
+  UpdateVisibility();
 
   if (State != Hidden) {
     UpdateInput(dt);
     Pages[CurrentPage]->Update(dt);
-  }
-
-  if (FadeAnimation.IsIn()) {
-    State = Shown;
-  } else if (State == Hiding && FadeAnimation.IsOut()) {
-    if (ScrWork[SW_SYSSUBMENUCT] == 0) {
-      State = Hidden;
-
-      Pages[CurrentPage]->Hide();
-    } else {
-      SetFlag(SF_SUBMENUEXIT, true);
-    }
   }
 }
 

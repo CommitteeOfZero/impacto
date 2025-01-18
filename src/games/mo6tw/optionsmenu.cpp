@@ -321,11 +321,7 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   Pages.push_back(std::move(secondPage));
 }
 
-void OptionsMenu::Update(float dt) {
-  if (IsFocused) UpdateInput(dt);
-
-  FadeAnimation.Update(dt);
-  Pages[CurrentPage]->Update(dt);
+void OptionsMenu::UpdateVisibility() {
   if (ScrWork[SW_OPTIONALPHA] < 256 && State == Shown) {
     Hide();
   } else if (ScrWork[SW_OPTIONALPHA] == 256 && State == Hidden) {
@@ -336,6 +332,10 @@ void OptionsMenu::Update(float dt) {
     State = Shown;
   else if (ScrWork[SW_OPTIONALPHA] == 0 && FadeAnimation.IsOut())
     State = Hidden;
+}
+
+void OptionsMenu::Update(float dt) {
+  UI::OptionsMenu::Update(dt);
 
   if (State == Shown) {
     if (PADinputButtonWentDown & PAD1X)
