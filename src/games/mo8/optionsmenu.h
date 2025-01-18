@@ -15,7 +15,7 @@ class OptionsMenu : public UI::OptionsMenu {
  public:
   OptionsMenu();
 
-  void Hide() override;
+  void Show() override;
   void Update(float dt) override;
   void UpdateInput(float dt) override;
   void Render() override;

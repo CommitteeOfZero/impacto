@@ -264,12 +264,12 @@ void OptionsMenu::UpdatePageInput(float dt) {
   UI::OptionsMenu::UpdatePageInput(dt);
 }
 
-void OptionsMenu::Hide() {
-  if (State != Hidden) {
+void OptionsMenu::Show() {
+  if (State != Showing) {
     PreviousPage = -1;
   }
 
-  UI::OptionsMenu::Hide();
+  UI::OptionsMenu::Show();
 }
 
 void OptionsMenu::UpdateVisibility() {
@@ -281,8 +281,7 @@ void OptionsMenu::UpdateVisibility() {
     Show();
   }
 
-  if (ScrWork[SW_SYSSUBMENUCT] == 16 && ScrWork[SW_SYSSUBMENUNO] == 5 &&
-      FadeAnimation.IsIn()) {
+  if (FadeAnimation.IsIn()) {
     State = Shown;
   } else if (ScrWork[SW_SYSSUBMENUCT] == 0 && ScrWork[SW_SYSSUBMENUNO] == 5 &&
              FadeAnimation.IsOut()) {
@@ -341,7 +340,7 @@ void OptionsMenu::Render() {
 }
 
 void OptionsMenu::GoToPage(int pageNumber) {
-  if (CurrentPage == pageNumber && Pages[CurrentPage]->IsShown) return;
+  if (CurrentPage == pageNumber) return;
 
   PreviousPage = CurrentPage;
   UI::OptionsMenu::GoToPage(pageNumber);

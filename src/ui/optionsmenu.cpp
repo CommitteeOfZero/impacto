@@ -22,10 +22,15 @@ OptionsMenu::OptionsMenu() {
 
 void OptionsMenu::Show() {
   if (State != Shown) {
-    if (State != Showing) FadeAnimation.StartIn();
-    State = Showing;
+    if (State != Showing) {
+      FadeAnimation.StartIn();
 
-    GoToPage(0);
+      CurrentPage = 0;
+      Pages[0]->HasFocus = true;
+      Pages[0]->Show();
+      Highlight(Pages[0]->GetFirstFocusableChild());
+    }
+    State = Showing;
 
     if (UI::FocusedMenu != nullptr) {
       LastFocusedMenu = UI::FocusedMenu;
@@ -161,7 +166,7 @@ void OptionsMenu::UpdateInput(float dt) {
 }
 
 void OptionsMenu::GoToPage(int pageNumber) {
-  if (CurrentPage == pageNumber && Pages[CurrentPage]->IsShown) return;
+  if (CurrentPage == pageNumber) return;
 
   Pages[CurrentPage]->Hide();
 
