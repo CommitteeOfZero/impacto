@@ -39,7 +39,7 @@ void Configure() {
     AssertIs(LUA_TTABLE);
 
     StoryScriptCount = (int)lua_rawlen(LuaState, -1);
-    StoryScriptIDs.reserve(*StoryScriptCount);
+    StoryScriptIDs.resize(*StoryScriptCount);
     PushInitialIndex();
     while (PushNextTableElement() != 0) {
       int i = EnsureGetKeyInt() - 1;
