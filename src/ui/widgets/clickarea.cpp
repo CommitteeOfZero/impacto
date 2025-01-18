@@ -21,7 +21,8 @@ void ClickArea::UpdateInput() {
   if (!Enabled) return;
 
   if (Input::CurrentInputDevice == Input::Device::Mouse &&
-      (Input::PrevMousePos != Input::CurMousePos ||
+      (Input::PrevMousePos != Input::CurMousePos &&
+           !(Vm::Interface::PADinputMouseIsDown & Vm::Interface::PAD1A) ||
        Vm::Interface::PADinputMouseWentDown)) {
     Hovered = Bounds.ContainsPoint(Input::CurMousePos);
   } else if (Input::CurrentInputDevice == Input::Device::Touch &&
