@@ -66,6 +66,10 @@ bool GetControlState(int controlId) {
       return (PADinputButtonWentDown & PADcustom[6]) ||
              (PADinputMouseWentDown & PADcustom[6]);
     }
+    case CT_HIDE: {
+      return PADcustom[11] ? (PADcustom[11] & PADinputButtonWentDown)
+                           : (PADcustom[6] & PADinputButtonWentDown);
+    }
     case CT_NextMessage: {
       return (PADinputButtonWentDown & PADcustom[23]) ||
              (PADinputMouseWentDown & PADcustom[23]);

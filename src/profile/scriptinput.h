@@ -28,8 +28,8 @@ inline int KB_PAD1R1;
 inline int KB_PAD1R2;
 inline int KB_PAD1R3;
 
-inline int MS_PAD1A;
-inline int MS_PAD1B;
+inline int MS_LEFT;
+inline int MS_RIGHT;
 
 inline int GP_PAD1A;
 inline int GP_PAD1B;

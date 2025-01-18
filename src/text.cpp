@@ -23,6 +23,7 @@
 #include "games/cc/dialoguebox.h"
 
 #include "../vendor/utf8-cpp/source/utf8.h"
+#include "vm/interface/input.h"
 #include <memory>
 
 namespace Impacto {
@@ -669,6 +670,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
 }
 
 void DialoguePage::Update(float dt) {
+  if (GetFlag(SF_UIHIDDEN)) return;
   Typewriter.Update(dt);
 
   for (int i = 0; i < Glyphs.size(); i++) {
@@ -693,7 +695,7 @@ void DialoguePage::Update(float dt) {
 
 void DialoguePage::Render() {
   // dialogue text
-
+  if (GetFlag(SF_UIHIDDEN)) return;
   if (FadeAnimation.IsOut()) return;
 
   glm::vec4 opacityTint(1.0f);
@@ -1007,5 +1009,4 @@ uint32_t GetNameId(uint8_t* name, int nameLength) {
   else
     return 0;
 }
-
 }  // namespace Impacto

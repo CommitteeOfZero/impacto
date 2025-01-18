@@ -1984,7 +1984,7 @@ void MapSystemCCLCC::Update(float dt) {
 }
 
 void MapSystemCCLCC::RenderButtonGuide() {
-  if (!GetFlag(1244) && !GetFlag(2487)) {
+  if (!GetFlag(SF_UIHIDDEN) && !GetFlag(2487)) {
     if (ScrWork[6501] != 0) {
       float guideXWidth = (ScrWork[6501] * 1920.0f) / 32.0f;
       MapButtonGuideSprite.Bounds.Width = guideXWidth;

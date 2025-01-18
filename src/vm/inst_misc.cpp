@@ -96,14 +96,7 @@ VmInstruction(InstSystemMenu) {
       // based show
       break;
     case 1: {
-      if (!UI::SystemMenuPtr->ChoiceMade) {
-        if (!UI::TitleMenuPtr->AllowsScriptInput ||
-            (!(Interface::PADinputButtonWentDown & Interface::PAD1B) &&
-             !(Interface::PADinputMouseWentDown & Interface::PAD1B))) {
-          ResetInstruction;
-          BlockThread;
-        }
-      } else {
+      if (UI::SystemMenuPtr->ChoiceMade) {
         UI::SystemMenuPtr->ChoiceMade = false;
         Interface::PADinputButtonWentDown |= Interface::PAD1A;
       }
