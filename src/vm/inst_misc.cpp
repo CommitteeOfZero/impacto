@@ -575,7 +575,7 @@ VmInstruction(InstTitleMenuOld) {
 VmInstruction(InstSetPlayMode) {
   StartInstruction;
   PopExpression(arg1);
-  MesSkipMode = (arg1 == 4) ? SkipMode + 1 : arg1;
+  MesSkipMode = (arg1 == 4) ? (!SkipRead) + 1 : arg1;
 }
 VmInstruction(InstSetEVflag) {
   StartInstruction;
