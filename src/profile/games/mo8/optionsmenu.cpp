@@ -16,6 +16,8 @@ void Configure() {
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMemberInt("DrawType"));
 
+  BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
+
   NextButtonSprite = EnsureGetMemberSprite("NextButtonSprite");
   NextButtonHighlightedSprite =
       EnsureGetMemberSprite("NextButtonHighlightedSprite");
@@ -25,6 +27,10 @@ void Configure() {
   BackButtonHighlightedSprite =
       EnsureGetMemberSprite("BackButtonHighlightedSprite");
   BackButtonPosition = EnsureGetMemberVec2("BackButtonPosition");
+
+  SliderTrackSprite = EnsureGetMemberSprite("SliderTrackSprite");
+  SliderFillSprite = EnsureGetMemberSprite("SliderFillSprite");
+  SliderThumbSprite = EnsureGetMemberSprite("SliderThumbSprite");
 
   ButtonHighlight = EnsureGetMemberSprite("ButtonHighlight");
   PageLabelPosition = EnsureGetMemberVec2("PageLabelPosition");

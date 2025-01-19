@@ -7,12 +7,18 @@ namespace Profile {
 namespace MO8 {
 namespace OptionsMenu {
 
+inline Sprite BackgroundSprite;
+
 inline Sprite NextButtonSprite;
 inline Sprite NextButtonHighlightedSprite;
 inline glm::vec2 NextButtonPosition;
 inline Sprite BackButtonSprite;
 inline Sprite BackButtonHighlightedSprite;
 inline glm::vec2 BackButtonPosition;
+
+inline Sprite SliderTrackSprite;
+inline Sprite SliderFillSprite;
+inline Sprite SliderThumbSprite;
 
 inline Sprite ButtonHighlight;
 inline glm::vec2 PageLabelPosition;

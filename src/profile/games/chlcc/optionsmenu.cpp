@@ -14,7 +14,6 @@ namespace CHLCC {
 namespace OptionsMenu {
 
 void Configure() {
-  MenuTransitionDuration = EnsureGetMemberFloat("TransitionDuration");
   BackgroundColor = EnsureGetMemberUint("BackgroundColor");
   CircleSprite = EnsureGetMemberSprite("CircleSprite");
   CircleStartPosition = EnsureGetMemberVec2("CircleStartPosition");

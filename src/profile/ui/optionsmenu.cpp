@@ -20,24 +20,25 @@ void Configure() {
     Type =
         OptionsMenuType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
 
-    if (Type != +OptionsMenuType::CHLCC) {
-      FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
-      FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
+    MinButtonHoldTime = EnsureGetMemberFloat("MinButtonHoldTime");
+    ButtonHoldTimeInterval = EnsureGetMemberFloat("ButtonHoldTimeInterval");
 
-      BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
-      SliderTrackSprite = EnsureGetMemberSprite("SliderTrackSprite");
-      SliderFillSprite = EnsureGetMemberSprite("SliderFillSprite");
-      SliderThumbSprite = EnsureGetMemberSprite("SliderThumbSprite");
-    };
+    FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
+    FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
 
-    if (Type == +OptionsMenuType::MO6TW) {
-      MO6TW::OptionsMenu::Configure();
-    } else if (Type == +OptionsMenuType::CHLCC) {
-      CHLCC::OptionsMenu::Configure();
-    } else if (Type == +OptionsMenuType::CCLCC) {
-      CCLCC::OptionsMenu::Configure();
-    } else if (Type == +OptionsMenuType::MO8) {
-      MO8::OptionsMenu::Configure();
+    switch (Type) {
+      case OptionsMenuType::MO6TW:
+        MO6TW::OptionsMenu::Configure();
+        break;
+      case OptionsMenuType::MO8:
+        MO8::OptionsMenu::Configure();
+        break;
+      case OptionsMenuType::CHLCC:
+        CHLCC::OptionsMenu::Configure();
+        break;
+      case OptionsMenuType::CCLCC:
+        CCLCC::OptionsMenu::Configure();
+        break;
     }
 
     Pop();

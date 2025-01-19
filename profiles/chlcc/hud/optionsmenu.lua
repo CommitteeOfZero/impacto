@@ -1,7 +1,8 @@
 root.OptionsMenu = {
     DrawType = DrawComponentType.SystemMenu,
     Type = OptionsMenuType.CHLCC,
-    TransitionDuration = 64 / 60,
+    FadeInDuration = 64 / 60,
+    FadeOutDuration = 64 / 60,
     BackgroundColor = 0xa988e5,
     CircleSprite = "CircleConfig",
     CircleStartPosition = { X = 20, Y = 20 },
@@ -36,6 +37,9 @@ root.OptionsMenu = {
         { X = 213, Y = 51 },
         { X = 228, Y = 51 }
     },
+
+    MinButtonHoldTime = 0.5,
+    ButtonHoldTimeInterval = 0.05,
 };
 
 root.Sprites["CircleConfig"] = {

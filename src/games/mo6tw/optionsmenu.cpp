@@ -80,14 +80,9 @@ void OptionsMenu::TipsNotificationsOnClick(Widgets::Toggle* target) {
   }
 }
 
-OptionsMenu::OptionsMenu() {
-  FadeAnimation.Direction = AnimationDirection::In;
-  FadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
-
+OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   // First page
-  FirstPage = new Widgets::Group(this);
+  auto firstPage = std::make_unique<Widgets::Group>(this);
   CharacterVoiceToggles = new Widgets::Group(this);
   CharacterVoiceToggles->FocusLock = false;
   CharacterVoiceToggles->WrapFocus = false;
@@ -96,28 +91,28 @@ OptionsMenu::OptionsMenu() {
       0, FirstPageSliderPos, 0.0f, 1.0f, &Audio::GroupVolumes[Audio::ACG_Voice],
       Widgets::SBDIR_HORIZONTAL, SliderTrackSprite, SliderThumbSprite,
       SliderFillSprite, SliderThumbOffset);
-  FirstPage->Add(VoiceVolumeSlider, FDIR_DOWN);
+  firstPage->Add(VoiceVolumeSlider, FDIR_DOWN);
   FirstPageSliderPos.y += FirstPageSliderMargin;
 
   BGMVolumeSlider = new Widgets::Scrollbar(
       0, FirstPageSliderPos, 0.0f, 1.0f, &Audio::GroupVolumes[Audio::ACG_BGM],
       Widgets::SBDIR_HORIZONTAL, SliderTrackSprite, SliderThumbSprite,
       SliderFillSprite, SliderThumbOffset);
-  FirstPage->Add(BGMVolumeSlider, FDIR_DOWN);
+  firstPage->Add(BGMVolumeSlider, FDIR_DOWN);
   FirstPageSliderPos.y += FirstPageSliderMargin;
 
   SEVolumeSlider = new Widgets::Scrollbar(
       0, FirstPageSliderPos, 0.0f, 1.0f, &Audio::GroupVolumes[Audio::ACG_SE],
       Widgets::SBDIR_HORIZONTAL, SliderTrackSprite, SliderThumbSprite,
       SliderFillSprite, SliderThumbOffset);
-  FirstPage->Add(SEVolumeSlider, FDIR_DOWN);
+  firstPage->Add(SEVolumeSlider, FDIR_DOWN);
   FirstPageSliderPos.y += FirstPageSliderMargin;
 
   MovieVolumeSlider = new Widgets::Scrollbar(
       0, FirstPageSliderPos, 0.0f, 1.0f, &Audio::GroupVolumes[Audio::ACG_Movie],
       Widgets::SBDIR_HORIZONTAL, SliderTrackSprite, SliderThumbSprite,
       SliderFillSprite, SliderThumbOffset);
-  FirstPage->Add(MovieVolumeSlider, FDIR_DOWN);
+  firstPage->Add(MovieVolumeSlider, FDIR_DOWN);
 
   auto pos = VoiceToggleStart;
   int row = 1;
@@ -166,10 +161,12 @@ OptionsMenu::OptionsMenu() {
       row += 1;
     }
   }
-  FirstPage->Add(CharacterVoiceToggles, FDIR_DOWN);
+  firstPage->Add(CharacterVoiceToggles, FDIR_DOWN);
+
+  Pages.push_back(std::move(firstPage));
 
   // Second page
-  SecondPage = new Widgets::Group(this);
+  auto secondPage = std::make_unique<Widgets::Group>(this);
   int checkboxLabelIdx = 0;
 
   MessageSpeedToggles = new Widgets::Group(this);
@@ -202,7 +199,7 @@ OptionsMenu::OptionsMenu() {
     toggle->SetFocus(TipsNotificationsToggles, FDIR_UP);
     MessageSpeedToggles->Add(toggle, FDIR_RIGHT);
   }
-  SecondPage->Add(MessageSpeedToggles, FDIR_DOWN);
+  secondPage->Add(MessageSpeedToggles, FDIR_DOWN);
 
   CheckboxFirstPos += CheckboxMargin;
   auto autoModeWaitTimeOnClick = std::bind(
@@ -220,7 +217,7 @@ OptionsMenu::OptionsMenu() {
     toggle->SetFocus(MessageSpeedToggles, FDIR_UP);
     AutoModeWaitTimeToggles->Add(toggle, FDIR_RIGHT);
   }
-  SecondPage->Add(AutoModeWaitTimeToggles, FDIR_DOWN);
+  secondPage->Add(AutoModeWaitTimeToggles, FDIR_DOWN);
 
   CheckboxFirstPos += CheckboxMargin;
   auto syncTextSpeedToVoiceOnClick = std::bind(
@@ -239,7 +236,7 @@ OptionsMenu::OptionsMenu() {
     SyncTextSpeedToVoiceToggles->Add(toggle, FDIR_RIGHT);
   }
   checkboxLabelIdx -= 2;
-  SecondPage->Add(SyncTextSpeedToVoiceToggles, FDIR_DOWN);
+  secondPage->Add(SyncTextSpeedToVoiceToggles, FDIR_DOWN);
 
   CheckboxFirstPos += CheckboxMargin;
   auto skipVoiceAtNextLineOnClick = std::bind(
@@ -257,7 +254,7 @@ OptionsMenu::OptionsMenu() {
     toggle->SetFocus(SyncTextSpeedToVoiceToggles, FDIR_UP);
     SkipVoiceAtNextLineToggles->Add(toggle, FDIR_RIGHT);
   }
-  SecondPage->Add(SkipVoiceAtNextLineToggles, FDIR_DOWN);
+  secondPage->Add(SkipVoiceAtNextLineToggles, FDIR_DOWN);
 
   auto skipModeOnClick =
       std::bind(&OptionsMenu::SkipModeOnClick, this, std::placeholders::_1);
@@ -275,7 +272,7 @@ OptionsMenu::OptionsMenu() {
     toggle->SetFocus(SkipVoiceAtNextLineToggles, FDIR_UP);
     SkipModeToggles->Add(toggle, FDIR_RIGHT);
   }
-  SecondPage->Add(SkipModeToggles, FDIR_DOWN);
+  secondPage->Add(SkipModeToggles, FDIR_DOWN);
 
   float dummy = 0.0f;
   ScreenSizeSlider = new Widgets::Scrollbar(
@@ -299,10 +296,10 @@ OptionsMenu::OptionsMenu() {
     toggle->SetFocus(SkipModeToggles, FDIR_UP);
     AutoSaveTriggerToggles->Add(toggle, FDIR_RIGHT);
   }
-  SecondPage->Add(AutoSaveTriggerToggles, FDIR_DOWN);
+  secondPage->Add(AutoSaveTriggerToggles, FDIR_DOWN);
 
   ScreenSizeSlider->SetFocus(TipsNotificationsToggles, FDIR_DOWN);
-  SecondPage->Add(ScreenSizeSlider, FDIR_DOWN);
+  secondPage->Add(ScreenSizeSlider, FDIR_DOWN);
 
   auto tipsNotificationsOnClick = std::bind(
       &OptionsMenu::TipsNotificationsOnClick, this, std::placeholders::_1);
@@ -319,42 +316,12 @@ OptionsMenu::OptionsMenu() {
     toggle->SetFocus(ScreenSizeSlider, FDIR_UP);
     TipsNotificationsToggles->Add(toggle, FDIR_RIGHT);
   }
-  SecondPage->Add(TipsNotificationsToggles, FDIR_DOWN);
+  secondPage->Add(TipsNotificationsToggles, FDIR_DOWN);
+
+  Pages.push_back(std::move(secondPage));
 }
 
-void OptionsMenu::Show() {
-  if (State != Shown) {
-    State = Showing;
-    FadeAnimation.StartIn();
-    FirstPage->Show();
-    if (UI::FocusedMenu != 0) {
-      LastFocusedMenu = UI::FocusedMenu;
-      LastFocusedMenu->IsFocused = false;
-    }
-    IsFocused = true;
-    UI::FocusedMenu = this;
-  }
-}
-void OptionsMenu::Hide() {
-  if (State != Hidden) {
-    State = Hiding;
-    FadeAnimation.StartOut();
-    if (LastFocusedMenu != 0) {
-      UI::FocusedMenu = LastFocusedMenu;
-      LastFocusedMenu->IsFocused = true;
-    } else {
-      UI::FocusedMenu = 0;
-    }
-    IsFocused = false;
-  }
-}
-
-void OptionsMenu::Update(float dt) {
-  UpdateInput();
-
-  FadeAnimation.Update(dt);
-  FirstPage->Update(dt);
-  SecondPage->Update(dt);
+void OptionsMenu::UpdateVisibility() {
   if (ScrWork[SW_OPTIONALPHA] < 256 && State == Shown) {
     Hide();
   } else if (ScrWork[SW_OPTIONALPHA] == 256 && State == Hidden) {
@@ -365,26 +332,30 @@ void OptionsMenu::Update(float dt) {
     State = Shown;
   else if (ScrWork[SW_OPTIONALPHA] == 0 && FadeAnimation.IsOut())
     State = Hidden;
+}
+
+void OptionsMenu::Update(float dt) {
+  UI::OptionsMenu::Update(dt);
 
   if (State == Shown) {
-    if (PADinputButtonWentDown & PAD1X) {
-      if (FirstPage->IsShown) {
-        FirstPage->Hide();
-        SecondPage->Show();
-      } else if (SecondPage->IsShown) {
-        SecondPage->Hide();
-        FirstPage->Show();
-      }
-    }
+    if (PADinputButtonWentDown & PAD1X)
+      GoToPage((CurrentPage + 1) % Pages.size());
+  }
+
+  if (GetControlState(CT_Back)) {
+    SetFlag(SF_SUBMENUEXIT, true);
   }
 }
 
 void OptionsMenu::Render() {
-  if (State != Hidden) {
-    glm::vec4 col(1.0f, 1.0f, 1.0f,
-                  glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress));
-    Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
-    if (FirstPage->IsShown) {
+  if (State == Hidden) return;
+
+  glm::vec4 col(1.0f, 1.0f, 1.0f,
+                glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress));
+  Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
+
+  switch (CurrentPage) {
+    case 0: {
       auto pos = FirstPageSectionHeaderPos;
       Renderer->DrawSprite(
           SectionHeaderSprites[0 + VoiceVolumeSlider->HasFocus], pos, col);
@@ -401,9 +372,9 @@ void OptionsMenu::Render() {
       Renderer->DrawSprite(
           SectionHeaderSprites[8 + CharacterVoiceToggles->HasFocus], pos, col);
 
-      FirstPage->Tint = col;
-      FirstPage->Render();
-    } else if (SecondPage->IsShown) {
+      break;
+    }
+    case 1: {
       auto pos = SecondPageSectionHeaderPos;
       Renderer->DrawSprite(
           SectionHeaderSprites[10 + MessageSpeedToggles->HasFocus], pos, col);
@@ -435,10 +406,12 @@ void OptionsMenu::Render() {
           SectionHeaderSprites[24 + TipsNotificationsToggles->HasFocus], pos,
           col);
 
-      SecondPage->Tint = col;
-      SecondPage->Render();
+      break;
     }
   }
+
+  Pages[CurrentPage]->Tint = col;
+  Pages[CurrentPage]->Render();
 }
 
 }  // namespace MO6TW

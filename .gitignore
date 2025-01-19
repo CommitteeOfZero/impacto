@@ -287,6 +287,7 @@ vendor/imgui
 vendor/fmtlib
 vendor/pugixml
 vendor/utf8-cpp
+vendor/glm
 
 games/*/gamedata
 games/*/savedata

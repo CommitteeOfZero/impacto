@@ -13,6 +13,8 @@ namespace MO6TW {
 namespace OptionsMenu {
 
 void Configure() {
+  BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
+
   GetMemberSpriteArray(VoiceToggleEnabledSprites, VoiceToggleCount,
                        "VoiceToggleEnabledSprites");
   GetMemberSpriteArray(VoiceToggleDisabledSprites, VoiceToggleCount,
@@ -26,6 +28,10 @@ void Configure() {
 
   GetMemberSpriteArray(SectionHeaderSprites, SectionHeaderSpriteCount,
                        "SectionHeaderSprites");
+
+  SliderTrackSprite = EnsureGetMemberSprite("SliderTrackSprite");
+  SliderFillSprite = EnsureGetMemberSprite("SliderFillSprite");
+  SliderThumbSprite = EnsureGetMemberSprite("SliderThumbSprite");
 
   CheckboxBoxSprite = EnsureGetMemberSprite("CheckboxBoxSprite");
   CheckboxTickSprite = EnsureGetMemberSprite("CheckboxTickSprite");

@@ -30,7 +30,10 @@ root.OptionsMenu = {
     FirstPageSectionHeaderPos = { X = 79, Y = 47 },
     SecondPageSectionHeaderPos = { X = 79, Y = 31 },
     FadeInDuration = 0.2,
-    FadeOutDuration = 0.2
+    FadeOutDuration = 0.2,
+
+    MinButtonHoldTime = 0.5,
+    ButtonHoldTimeInterval = 0.05,
 };
 
 root.Sprites["OptionsBackground"] = {

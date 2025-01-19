@@ -217,6 +217,7 @@ set(Impacto_Src
         src/ui/sysmesbox.cpp
         src/ui/backlogmenu.cpp
         src/ui/tipsmenu.cpp
+        src/ui/optionsmenu.cpp
         src/ui/widgets/label.cpp
         src/ui/widgets/button.cpp
         src/ui/widgets/backlogentry.cpp
@@ -226,6 +227,7 @@ set(Impacto_Src
         src/ui/widgets/group.cpp
         src/ui/widgets/carousel.cpp
         src/ui/widgets/cgviewer.cpp
+        src/ui/widgets/clickarea.cpp
         src/ui/widgets/mo6tw/titlebutton.cpp
         src/ui/widgets/mo6tw/saveentrybutton.cpp
         src/ui/widgets/mo6tw/tipsentrybutton.cpp
@@ -244,6 +246,10 @@ set(Impacto_Src
         src/ui/widgets/cc/backlogentry.cpp
         src/ui/widgets/cc/titlebutton.cpp
         src/ui/widgets/cclcc/titlebutton.cpp
+        src/ui/widgets/cclcc/optionsentry.cpp
+        src/ui/widgets/cclcc/optionsbinarybutton.cpp
+        src/ui/widgets/cclcc/optionsslider.cpp
+        src/ui/widgets/cclcc/optionsvoiceslider.cpp
         src/ui/widgets/cclcc/saveentrybutton.cpp
         src/ui/widgets/cclcc/sysmenubutton.cpp
         src/ui/widgets/cclcc/tipsentrybutton.cpp
@@ -528,6 +534,7 @@ set(Impacto_Header
         src/ui/sysmesbox.h
         src/ui/backlogmenu.h
         src/ui/tipsmenu.h
+        src/ui/optionsmenu.h
         src/ui/widget.h
         src/ui/widgets/label.h
         src/ui/widgets/button.h
@@ -538,6 +545,7 @@ set(Impacto_Header
         src/ui/widgets/group.h
         src/ui/widgets/carousel.h
         src/ui/widgets/cgviewer.h
+        src/ui/widgets/clickarea.h
         src/ui/widgets/mo6tw/titlebutton.h
         src/ui/widgets/mo6tw/saveentrybutton.h
         src/ui/widgets/mo6tw/tipsentrybutton.h
@@ -556,6 +564,10 @@ set(Impacto_Header
         src/ui/widgets/cc/backlogentry.h
         src/ui/widgets/cc/titlebutton.h
         src/ui/widgets/cclcc/titlebutton.h
+        src/ui/widgets/cclcc/optionsentry.h
+        src/ui/widgets/cclcc/optionsbinarybutton.h
+        src/ui/widgets/cclcc/optionsslider.h
+        src/ui/widgets/cclcc/optionsvoiceslider.h
 
         src/renderer/3d/camera.h
         src/renderer/3d/model.h

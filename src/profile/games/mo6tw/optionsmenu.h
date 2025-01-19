@@ -12,6 +12,8 @@ int constexpr SectionHeaderSpriteCount = 13 * 2;
 int constexpr CheckboxLabelCount = 14;
 int constexpr AutoSaveTriggerXPosCount = 4;
 
+inline Sprite BackgroundSprite;
+
 inline Sprite VoiceToggleEnabledSprites[VoiceToggleCount];
 inline Sprite VoiceToggleDisabledSprites[VoiceToggleCount];
 inline Sprite VoiceToggleHighlightSprite;
@@ -21,6 +23,10 @@ inline glm::vec2 VoiceTogglePadding;
 inline int VoiceTogglePerLine;
 
 inline Sprite SectionHeaderSprites[SectionHeaderSpriteCount];
+
+inline Sprite SliderTrackSprite;
+inline Sprite SliderFillSprite;
+inline Sprite SliderThumbSprite;
 
 inline Sprite CheckboxBoxSprite;
 inline Sprite CheckboxTickSprite;

@@ -212,13 +212,9 @@ VmInstruction(InstOption) {
                  "STUB instruction Option(type: Init)\n");
       break;
     case 1:
-      if (!((Interface::PADinputButtonWentDown & Interface::PAD1B) ||
-            (Interface::PADinputMouseWentDown & Interface::PAD1B))) {
+      if (!GetFlag(SF_SUBMENUEXIT)) {
         ResetInstruction;
         BlockThread;
-      } else {
-        SetFlag(SF_SUBMENUEXIT, true);
-        Interface::PADinputButtonWentDown |= Interface::PAD1A;
       }
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction Option(type: Main)\n");
