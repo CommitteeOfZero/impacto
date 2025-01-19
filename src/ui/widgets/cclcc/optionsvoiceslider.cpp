@@ -13,15 +13,17 @@ namespace Widgets {
 namespace CCLCC {
 
 OptionsVoiceSlider::OptionsVoiceSlider(
-    const Sprite& box, const Sprite& label, const Sprite& portrait,
-    const Sprite& mutedPortrait, glm::vec2 pos, glm::vec4 highlightTint,
-    float sliderSpeed, std::function<void(OptionsEntry*)> select,
+    float& volume, bool& muted, const Sprite& box, const Sprite& label,
+    const Sprite& portrait, const Sprite& mutedPortrait, glm::vec2 pos,
+    glm::vec4 highlightTint, float sliderSpeed,
+    std::function<void(OptionsEntry*)> select,
     std::function<void(Widget*)> highlight)
     : OptionsSlider(
-          box, label, pos, highlightTint,
+          volume, box, label, pos, highlightTint,
           RectF(pos.x + VoiceSliderOffset.x, pos.y + VoiceSliderOffset.y,
                 box.ScaledWidth(), box.ScaledHeight()),
           sliderSpeed, select, highlight),
+      Muted(muted),
       Portrait(portrait),
       MutedPortrait(mutedPortrait) {
   Bounds =

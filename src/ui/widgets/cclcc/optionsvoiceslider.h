@@ -10,9 +10,10 @@ namespace CCLCC {
 
 class OptionsVoiceSlider : public OptionsSlider {
  public:
-  OptionsVoiceSlider(const Sprite& box, const Sprite& label,
-                     const Sprite& portrait, const Sprite& mutedPortrait,
-                     glm::vec2 pos, glm::vec4 highlightTint, float sliderSpeed,
+  OptionsVoiceSlider(float& volume, bool& muted, const Sprite& box,
+                     const Sprite& label, const Sprite& portrait,
+                     const Sprite& mutedPortrait, glm::vec2 pos,
+                     glm::vec4 highlightTint, float sliderSpeed,
                      std::function<void(OptionsEntry*)> select,
                      std::function<void(Widget*)> highlight);
   void Render() override;
@@ -29,7 +30,7 @@ class OptionsVoiceSlider : public OptionsSlider {
   const Sprite& Portrait;
   const Sprite& MutedPortrait;
 
-  bool Muted = false;
+  bool& Muted;
   ClickArea MuteButton;
   void MuteButtonOnClick(ClickArea* target);
 };

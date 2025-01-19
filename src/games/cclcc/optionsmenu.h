@@ -4,6 +4,7 @@
 #include "../../spriteanimation.h"
 #include "../../ui/widgets/clickarea.h"
 #include "../../ui/widgets/cclcc/optionsentry.h"
+#include "../../ui/widgets/group.h"
 
 using namespace Impacto::UI::Widgets::CCLCC;
 
@@ -22,6 +23,19 @@ class OptionsMenu : public UI::OptionsMenu {
   void Render() override;
 
  private:
+  std::unique_ptr<Widgets::Group> CreateBasicPage(
+      const std::function<void(OptionsEntry*)>& select,
+      const std::function<void(Widget*)>& highlight);
+  std::unique_ptr<Widgets::Group> CreateTextPage(
+      const std::function<void(OptionsEntry*)>& select,
+      const std::function<void(Widget*)>& highlight);
+  std::unique_ptr<Widgets::Group> CreateSoundPage(
+      const std::function<void(OptionsEntry*)>& select,
+      const std::function<void(Widget*)>& highlight);
+  std::unique_ptr<Widgets::Group> CreateVoicePage(
+      const std::function<void(OptionsEntry*)>& select,
+      const std::function<void(Widget*)>& highlight);
+
   void PageButtonOnHover(int pageNumber);
 
   void Select(OptionsEntry* entry);
@@ -38,6 +52,28 @@ class OptionsMenu : public UI::OptionsMenu {
   SpriteAnimation PoleAnimation;
 
   std::vector<Widgets::ClickArea> PageButtons;
+
+  // Temp, for testing
+  bool ShowTips = true;
+  bool TextLR = false;
+  bool DelusionLR = false;
+  bool DelusionStopSkip = true;
+
+  float TextSpeed = 0.2f;
+  float AutoSpeed = 0.5f;
+  bool SkipRead = true;
+
+  float VoiceVolume = 0.5f;
+  float MusicVolume = 0.5f;
+  float SoundEffectVolume = 0.5f;
+  float MovieVolume = 0.5f;
+  bool SyncVoice = true;
+  bool SkipVoice = false;
+  bool UseSpeaker = true;
+  float SpeakerVolume = 0.5f;
+
+  float VoiceVolumes[12] = {0.0f};
+  bool VoiceMuted[12] = {false};
 };
 
 }  // namespace CCLCC

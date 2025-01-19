@@ -11,8 +11,8 @@ namespace CCLCC {
 
 class OptionsSlider : public OptionsEntry {
  public:
-  OptionsSlider(const Sprite& box, const Sprite& label, glm::vec2 pos,
-                glm::vec4 highlightTint, float sliderSpeed,
+  OptionsSlider(float& value, const Sprite& box, const Sprite& label,
+                glm::vec2 pos, glm::vec4 highlightTint, float sliderSpeed,
                 std::function<void(OptionsEntry*)> select,
                 std::function<void(Widget*)> highlight);
 
@@ -24,15 +24,15 @@ class OptionsSlider : public OptionsEntry {
   void MoveTo(glm::vec2 pos) override;
 
  protected:
-  OptionsSlider(const Sprite& box, const Sprite& label, glm::vec2 pos,
-                glm::vec4 highlightTint, RectF sliderBounds, float sliderSpeed,
-                std::function<void(OptionsEntry*)> select,
+  OptionsSlider(float& value, const Sprite& box, const Sprite& label,
+                glm::vec2 pos, glm::vec4 highlightTint, RectF sliderBounds,
+                float sliderSpeed, std::function<void(OptionsEntry*)> select,
                 std::function<void(Widget*)> highlight);
 
   const Sprite& BoxSprite;
 
   Scrollbar Slider;
-  float Progress = 0.0f;
+  float& Progress;
 };
 
 }  // namespace CCLCC
