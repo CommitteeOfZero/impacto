@@ -35,6 +35,9 @@ class Scrollbar : public Widget {
   void MoveTo(glm::vec2 pos) override;
 
   void ClampValue();
+  float GetNormalizedValue() const {
+    return (*Value - StartValue) / (EndValue - StartValue);
+  };
 
   int Id;
   ScrollbarDirection Direction;

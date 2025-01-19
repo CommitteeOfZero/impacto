@@ -12,38 +12,40 @@ namespace UI {
 namespace Widgets {
 namespace CCLCC {
 
-OptionsSlider::OptionsSlider(float& value, const Sprite& box,
-                             const Sprite& label, glm::vec2 pos,
-                             glm::vec4 highlightTint, float sliderSpeed,
-                             std::function<void(OptionsEntry*)> select,
-                             std::function<void(Widget*)> highlight)
-    : OptionsEntry(label, pos, highlightTint, select, highlight),
-      Progress(value),
-      BoxSprite(box),
-      Slider(0, pos + SliderTrackOffset, 0.0f, 1.0f, &value, SBDIR_HORIZONTAL,
-             glm::vec2(BoxSprite.ScaledWidth(), BoxSprite.ScaledHeight())) {
-  Bounds.Width = SliderTrackOffset.x + BoxSprite.ScaledWidth();
-  EntryButton.Bounds.Width = Bounds.Width;
-}
-
-OptionsSlider::OptionsSlider(float& value, const Sprite& box,
-                             const Sprite& label, glm::vec2 pos,
-                             glm::vec4 highlightTint, RectF sliderBounds,
+OptionsSlider::OptionsSlider(float& value, float min, float max,
+                             const Sprite& box, const Sprite& label,
+                             glm::vec2 pos, glm::vec4 highlightTint,
                              float sliderSpeed,
                              std::function<void(OptionsEntry*)> select,
                              std::function<void(Widget*)> highlight)
     : OptionsEntry(label, pos, highlightTint, select, highlight),
       Progress(value),
       BoxSprite(box),
-      Slider(0, sliderBounds.GetPos(), 0.0f, 1.0f, &value, SBDIR_HORIZONTAL,
+      Slider(0, pos + SliderTrackOffset, min, max, &value, SBDIR_HORIZONTAL,
+             glm::vec2(BoxSprite.ScaledWidth(), BoxSprite.ScaledHeight())) {
+  Bounds.Width = SliderTrackOffset.x + BoxSprite.ScaledWidth();
+  EntryButton.Bounds.Width = Bounds.Width;
+}
+
+OptionsSlider::OptionsSlider(float& value, float min, float max,
+                             const Sprite& box, const Sprite& label,
+                             glm::vec2 pos, glm::vec4 highlightTint,
+                             RectF sliderBounds, float sliderSpeed,
+                             std::function<void(OptionsEntry*)> select,
+                             std::function<void(Widget*)> highlight)
+    : OptionsEntry(label, pos, highlightTint, select, highlight),
+      Progress(value),
+      BoxSprite(box),
+      Slider(0, sliderBounds.GetPos(), min, max, &value, SBDIR_HORIZONTAL,
              sliderBounds.GetSize()) {}
 
 void OptionsSlider::Render() {
   OptionsEntry::Render();
 
-  RectF highlightBounds(
-      Bounds.X + SliderTrackOffset.x, Bounds.Y + SliderTrackOffset.y,
-      Progress * BoxSprite.ScaledWidth(), BoxSprite.ScaledHeight());
+  RectF highlightBounds(Bounds.X + SliderTrackOffset.x,
+                        Bounds.Y + SliderTrackOffset.y,
+                        Slider.GetNormalizedValue() * BoxSprite.ScaledWidth(),
+                        BoxSprite.ScaledHeight());
   Renderer->DrawRect(highlightBounds, HighlightTint);
 
   Renderer->DrawSprite(BoxSprite, Bounds.GetPos() + SliderTrackOffset, Tint);

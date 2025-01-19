@@ -13,13 +13,13 @@ namespace Widgets {
 namespace CCLCC {
 
 OptionsVoiceSlider::OptionsVoiceSlider(
-    float& volume, bool& muted, const Sprite& box, const Sprite& label,
-    const Sprite& portrait, const Sprite& mutedPortrait, glm::vec2 pos,
-    glm::vec4 highlightTint, float sliderSpeed,
+    float& volume, float min, float max, bool& muted, const Sprite& box,
+    const Sprite& label, const Sprite& portrait, const Sprite& mutedPortrait,
+    glm::vec2 pos, glm::vec4 highlightTint, float sliderSpeed,
     std::function<void(OptionsEntry*)> select,
     std::function<void(Widget*)> highlight)
     : OptionsSlider(
-          volume, box, label, pos, highlightTint,
+          volume, min, max, box, label, pos, highlightTint,
           RectF(pos.x + VoiceSliderOffset.x, pos.y + VoiceSliderOffset.y,
                 box.ScaledWidth(), box.ScaledHeight()),
           sliderSpeed, select, highlight),
@@ -56,9 +56,10 @@ void OptionsVoiceSlider::Render() {
   Renderer->DrawSprite(LabelSprite, Bounds.GetPos() + NametagOffset,
                        Selected ? Tint : glm::vec4(0.0f, 0.0f, 0.0f, Tint.a));
 
-  RectF highlightBounds(
-      Bounds.X + VoiceSliderOffset.x, Bounds.Y + VoiceSliderOffset.y,
-      Progress * BoxSprite.ScaledWidth(), BoxSprite.ScaledHeight());
+  RectF highlightBounds(Bounds.X + VoiceSliderOffset.x,
+                        Bounds.Y + VoiceSliderOffset.y,
+                        Slider.GetNormalizedValue() * BoxSprite.ScaledWidth(),
+                        BoxSprite.ScaledHeight());
   Renderer->DrawRect(highlightBounds, HighlightTint);
   Renderer->DrawSprite(BoxSprite, Bounds.GetPos() + VoiceSliderOffset, Tint);
 }

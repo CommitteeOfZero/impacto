@@ -60,13 +60,14 @@ std::unique_ptr<Group> OptionsMenu::CreateTextPage(
   const glm::vec4 highlightTint(HighlightColor, 1.0f);
   std::unique_ptr<Group> textPage = std::make_unique<Group>(this);
 
-  textPage->Add(new OptionsSlider(TextSpeed, SliderTrackSprite, LabelSprites[4],
-                                  EntriesStartPosition, highlightTint,
-                                  SliderSpeed, select, highlight),
-                FDIR_DOWN);
+  textPage->Add(
+      new OptionsSlider(TextSpeed, 0.0f, 1.0f, SliderTrackSprite,
+                        LabelSprites[4], EntriesStartPosition, highlightTint,
+                        SliderSpeed, select, highlight),
+      FDIR_DOWN);
   textPage->Add(
       new OptionsSlider(
-          AutoSpeed, SliderTrackSprite, LabelSprites[5],
+          AutoSpeed, 0.0f, 1.0f, SliderTrackSprite, LabelSprites[5],
           EntriesStartPosition + glm::vec2(0.0f, EntriesVerticalOffset),
           highlightTint, SliderSpeed, select, highlight),
       FDIR_DOWN);
@@ -88,24 +89,27 @@ std::unique_ptr<Group> OptionsMenu::CreateSoundPage(
   std::unique_ptr<Group> soundPage = std::make_unique<Group>(this);
 
   soundPage->Add(
-      new OptionsSlider(VoiceVolume, SliderTrackSprite, LabelSprites[7],
-                        SoundEntriesStartPosition, highlightTint, SliderSpeed,
-                        select, highlight),
+      new OptionsSlider(VoiceVolume, 0.0f, 1.0f, SliderTrackSprite,
+                        LabelSprites[7], SoundEntriesStartPosition,
+                        highlightTint, SliderSpeed, select, highlight),
       FDIR_DOWN);
   soundPage->Add(
-      new OptionsSlider(MusicVolume, SliderTrackSprite, LabelSprites[8],
+      new OptionsSlider(MusicVolume, 0.0f, 1.0f, SliderTrackSprite,
+                        LabelSprites[8],
                         SoundEntriesStartPosition +
                             glm::vec2(0.0f, SoundEntriesVerticalOffset),
                         highlightTint, SliderSpeed, select, highlight),
       FDIR_DOWN);
   soundPage->Add(
-      new OptionsSlider(SoundEffectVolume, SliderTrackSprite, LabelSprites[9],
+      new OptionsSlider(SoundEffectVolume, 0.0f, 1.0f, SliderTrackSprite,
+                        LabelSprites[9],
                         SoundEntriesStartPosition +
                             glm::vec2(0.0f, SoundEntriesVerticalOffset * 2),
                         highlightTint, SliderSpeed, select, highlight),
       FDIR_DOWN);
   soundPage->Add(
-      new OptionsSlider(MovieVolume, SliderTrackSprite, LabelSprites[10],
+      new OptionsSlider(MovieVolume, 0.0f, 1.0f, SliderTrackSprite,
+                        LabelSprites[10],
                         SoundEntriesStartPosition +
                             glm::vec2(0.0f, SoundEntriesVerticalOffset * 3),
                         highlightTint, SliderSpeed, select, highlight),
@@ -132,7 +136,8 @@ std::unique_ptr<Group> OptionsMenu::CreateSoundPage(
           highlightTint, select, highlight),
       FDIR_DOWN);
   soundPage->Add(
-      new OptionsSlider(SpeakerVolume, SliderTrackSprite, LabelSprites[14],
+      new OptionsSlider(SpeakerVolume, 0.0f, 1.0f, SliderTrackSprite,
+                        LabelSprites[14],
                         SoundEntriesStartPosition +
                             glm::vec2(0.0f, SoundEntriesVerticalOffset * 7),
                         highlightTint, SliderSpeed, select, highlight),
@@ -155,7 +160,7 @@ std::unique_ptr<Group> OptionsMenu::CreateVoicePage(
         VoiceEntriesOffset * glm::vec2(i % columns, i / columns);
 
     Widget* widget = new OptionsVoiceSlider(
-        VoiceVolumes[i], VoiceMuted[i], VoiceSliderTrackSprite,
+        VoiceVolumes[i], 0.0f, 1.0f, VoiceMuted[i], VoiceSliderTrackSprite,
         NametagSprites[i], PortraitSprites[2 * i], PortraitSprites[2 * i + 1],
         pos, highlightTint, SliderSpeed, select, highlight);
     voicePage->Add(widget, FDIR_RIGHT);
