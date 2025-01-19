@@ -61,7 +61,6 @@ class OptionsMenu : public UI::OptionsMenu {
 
   float TextSpeed = 0.2f;
   float AutoSpeed = 0.5f;
-  bool SkipRead = true;
 
   float VoiceVolume = 0.5f;
   float MusicVolume = 0.5f;

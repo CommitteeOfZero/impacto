@@ -169,7 +169,7 @@ inline uint8_t MesSkipMode = 0;
 
 // Speed to skip in auto mode (MessWaitSpeed)
 inline float AutoSpeed = 768 / 60;
-inline bool SkipMode = false;  // Skip unread text
+inline bool SkipRead = true;  // Only skip read text
 
 // Stop skip mode when reaching a trigger
 // (e.g. delusion trigger, phone trigger, etc.)

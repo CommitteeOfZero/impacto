@@ -632,7 +632,7 @@ void ChkMesSkip() {
         MesSkipMode &= SkipModeFlags::Auto;
       else
         MesSkipMode |=
-            (SkipMode ? SkipModeFlags::SkipAll : SkipModeFlags::SkipRead);
+            (SkipRead ? SkipModeFlags::SkipRead : SkipModeFlags::SkipAll);
 
     // Auto
     if (Interface::PADinputButtonWentDown & Interface::PADcustom[9])
