@@ -33,7 +33,7 @@ class OptionsMenu : public UI::OptionsMenu {
 
   void UpdatePageInput(float dt) override;
   void UpdateEntryMovementInput(float dt) override;
-  inline void UpdateVisibility() override;
+  void UpdateVisibility() override;
 
   SpriteAnimation PoleAnimation;
 

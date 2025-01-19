@@ -28,7 +28,7 @@ class OptionsMenu : public UI::OptionsMenu {
 
  private:
   void UpdatePageInput(float dt) override;
-  inline void UpdateVisibility() override;
+  void UpdateVisibility() override;
 
   void GoToPage(int pageNumber) override;
   Animation PageFadeAnimation;
