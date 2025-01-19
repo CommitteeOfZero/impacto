@@ -67,7 +67,8 @@ std::unique_ptr<Group> OptionsMenu::CreateTextPage(
       FDIR_DOWN);
   textPage->Add(
       new OptionsSlider(
-          AutoSpeed, 0.0f, 1.0f, SliderTrackSprite, LabelSprites[5],
+          AutoSpeed, AutoSpeedBounds[0], AutoSpeedBounds[1], SliderTrackSprite,
+          LabelSprites[5],
           EntriesStartPosition + glm::vec2(0.0f, EntriesVerticalOffset),
           highlightTint, SliderSpeed, select, highlight),
       FDIR_DOWN);

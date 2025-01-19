@@ -169,6 +169,8 @@ inline uint8_t MesSkipMode = 0;
 
 // Speed to skip in auto mode (MessWaitSpeed)
 inline float AutoSpeed = 768 / 60;
+constexpr inline glm::vec2 AutoSpeedBounds = glm::vec2(256.0f, 2048.0f) / 60.0f;
+
 inline bool SkipRead = true;  // Only skip read text
 
 // Stop skip mode when reaching a trigger
