@@ -9,6 +9,7 @@
 #include "../../ui/widgets/cclcc/optionsslider.h"
 #include "../../ui/widgets/cclcc/optionsvoiceslider.h"
 #include "../../hud/tipsnotification.h"
+#include "../../inputsystem.h"
 
 namespace Impacto {
 namespace UI {
@@ -34,7 +35,8 @@ std::unique_ptr<Group> OptionsMenu::CreateBasicPage(
                  FDIR_DOWN);
   basicPage->Add(
       new OptionsBinaryButton(
-          TextLR, BinaryBoxSprite, OnSprite, OffSprite, LabelSprites[1],
+          Input::AdvanceTextOnDirectionalInput, BinaryBoxSprite, OnSprite,
+          OffSprite, LabelSprites[1],
           EntriesStartPosition + glm::vec2(0.0f, EntriesVerticalOffset),
           highlightTint, select, highlight),
       FDIR_DOWN);

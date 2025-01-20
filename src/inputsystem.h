@@ -46,5 +46,9 @@ inline bool KeyboardButtonIsDown[SDL_NUM_SCANCODES] = {false};
 inline bool TouchIsDown[FingerTapMax]{};
 inline bool TouchWentDown[FingerTapMax]{};
 
+// Controller settings
+inline bool AdvanceTextOnDirectionalInput =
+    false;  // Advance text on L/R stick, arrow keys, etc.
+
 }  // namespace Input
 }  // namespace Impacto

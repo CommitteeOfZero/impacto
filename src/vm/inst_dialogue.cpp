@@ -15,6 +15,7 @@
 #include "../ui/ui.h"
 #include "interface/input.h"
 #include "../text.h"
+#include "../inputsystem.h"
 #include "vm.h"
 
 namespace Impacto {
@@ -183,7 +184,11 @@ VmInstruction(InstMesMain) {
 
   bool advanceButtonWentDown =
       Interface::PADinputButtonWentDown & Interface::PAD1A ||
-      Interface::PADinputMouseWentDown & Interface::PAD1A;
+      Interface::PADinputMouseWentDown & Interface::PAD1A ||
+      (Input::AdvanceTextOnDirectionalInput &&
+       Interface::PADinputButtonWentDown &
+           (Interface::PAD1UP | Interface::PAD1DOWN | Interface::PAD1LEFT |
+            Interface::PAD1RIGHT));
 
   if (type == 0) {  // Normal mode
     if (!currentPage->TextIsFullyOpaque()) {
