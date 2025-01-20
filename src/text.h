@@ -177,6 +177,8 @@ constexpr inline glm::vec2 AutoSpeedBounds = glm::vec2(256.0f, 2048.0f) / 60.0f;
 
 inline bool SkipRead = true;  // Only skip read text
 
+inline bool SyncVoice = true;  // Sync text speed with voice line duration
+
 // Stop skip mode when reaching a trigger
 // (e.g. delusion trigger, phone trigger, etc.)
 inline bool TriggerStopSkip = true;
