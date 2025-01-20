@@ -89,28 +89,28 @@ std::unique_ptr<Group> OptionsMenu::CreateSoundPage(
   const glm::vec4 highlightTint(HighlightColor, 1.0f);
   std::unique_ptr<Group> soundPage = std::make_unique<Group>(this);
 
+  soundPage->Add(new OptionsSlider(Audio::GroupVolumes[Audio::ACG_Voice], 0.0f,
+                                   1.0f, SliderTrackSprite, LabelSprites[7],
+                                   SoundEntriesStartPosition, highlightTint,
+                                   SliderSpeed, select, highlight),
+                 FDIR_DOWN);
   soundPage->Add(
-      new OptionsSlider(VoiceVolume, 0.0f, 1.0f, SliderTrackSprite,
-                        LabelSprites[7], SoundEntriesStartPosition,
-                        highlightTint, SliderSpeed, select, highlight),
-      FDIR_DOWN);
-  soundPage->Add(
-      new OptionsSlider(MusicVolume, 0.0f, 1.0f, SliderTrackSprite,
-                        LabelSprites[8],
+      new OptionsSlider(Audio::GroupVolumes[Audio::ACG_BGM], 0.0f, 1.0f,
+                        SliderTrackSprite, LabelSprites[8],
                         SoundEntriesStartPosition +
                             glm::vec2(0.0f, SoundEntriesVerticalOffset),
                         highlightTint, SliderSpeed, select, highlight),
       FDIR_DOWN);
   soundPage->Add(
-      new OptionsSlider(SoundEffectVolume, 0.0f, 1.0f, SliderTrackSprite,
-                        LabelSprites[9],
+      new OptionsSlider(Audio::GroupVolumes[Audio::ACG_SE], 0.0f, 1.0f,
+                        SliderTrackSprite, LabelSprites[9],
                         SoundEntriesStartPosition +
                             glm::vec2(0.0f, SoundEntriesVerticalOffset * 2),
                         highlightTint, SliderSpeed, select, highlight),
       FDIR_DOWN);
   soundPage->Add(
-      new OptionsSlider(MovieVolume, 0.0f, 1.0f, SliderTrackSprite,
-                        LabelSprites[10],
+      new OptionsSlider(Audio::GroupVolumes[Audio::ACG_Movie], 0.0f, 1.0f,
+                        SliderTrackSprite, LabelSprites[10],
                         SoundEntriesStartPosition +
                             glm::vec2(0.0f, SoundEntriesVerticalOffset * 3),
                         highlightTint, SliderSpeed, select, highlight),
