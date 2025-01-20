@@ -47,8 +47,13 @@ inline bool TouchIsDown[FingerTapMax]{};
 inline bool TouchWentDown[FingerTapMax]{};
 
 // Controller settings
-inline bool AdvanceTextOnDirectionalInput =
-    false;  // Advance text on L/R stick, arrow keys, etc.
+
+// Advance text on L/R stick, arrow keys, etc.
+inline bool AdvanceTextOnDirectionalInput = false;
+
+// Interact with trigger using left and right input in addition
+// to their regular counterparts
+inline bool DirectionalInputForTrigger = false;
 
 }  // namespace Input
 }  // namespace Impacto

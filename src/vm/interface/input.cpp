@@ -158,12 +158,18 @@ bool GetControlState(int controlId) {
              (PADinputMouseWentDown & PAD1Y);
     }
     case CT_DelusionTriggerL: {
-      return (PADinputButtonWentDown & PADcustom[36]) ||
-             (PADinputMouseWentDown & PADcustom[36]);
+      return (PADinputButtonWentDown &
+              PADcustom[36 + 2 * Input::DirectionalInputForTrigger]) ||
+             (PADinputMouseWentDown &
+              PADcustom[36 + 2 * Input::DirectionalInputForTrigger]) ||
+             (Input::DirectionalInputForTrigger &&
+              (PADinputButtonWentDown & PAD1LEFT));
     }
     case CT_DelusionTriggerR: {
-      return (PADinputButtonWentDown & PADcustom[37]) ||
-             (PADinputMouseWentDown & PADcustom[37]);
+      return (PADinputButtonWentDown &
+              PADcustom[37 + 2 * Input::DirectionalInputForTrigger]) ||
+             (PADinputMouseWentDown &
+              PADcustom[37 + 2 * Input::DirectionalInputForTrigger]);
     }
     default:
       return false;

@@ -54,8 +54,6 @@ class OptionsMenu : public UI::OptionsMenu {
   std::vector<Widgets::ClickArea> PageButtons;
 
   // Temp, for testing
-  bool DelusionLR = false;
-
   float VoiceVolumes[12] = {0.0f};
   bool VoiceMuted[12] = {false};
 };
