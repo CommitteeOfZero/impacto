@@ -56,7 +56,6 @@ class OptionsMenu : public UI::OptionsMenu {
   // Temp, for testing
   bool TextLR = false;
   bool DelusionLR = false;
-  bool DelusionStopSkip = true;
 
   float VoiceVolumes[12] = {0.0f};
   bool VoiceMuted[12] = {false};
