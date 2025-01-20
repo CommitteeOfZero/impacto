@@ -10,7 +10,7 @@ namespace OptionsMenu {
 
 int constexpr PageCount = 4;
 int constexpr PagePanelSpriteCount = PageCount * 2;
-int constexpr LabelCount = 16;
+int constexpr LabelCount = 13;
 int constexpr NametagCount = 13;
 int constexpr PortraitCount = NametagCount * 2;
 

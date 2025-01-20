@@ -64,8 +64,6 @@ class OptionsMenu : public UI::OptionsMenu {
   float SoundEffectVolume = 0.5f;
   float MovieVolume = 0.5f;
   bool SkipVoice = false;
-  bool UseSpeaker = true;
-  float SpeakerVolume = 0.5f;
 
   float VoiceVolumes[12] = {0.0f};
   bool VoiceMuted[12] = {false};
