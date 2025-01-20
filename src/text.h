@@ -167,8 +167,12 @@ uint32_t GetNameId(uint8_t* name, int nameLength);
 // Bitfield denoting the skip mode, according to SkipModeFlags
 inline uint8_t MesSkipMode = 0;
 
+// Text speed
+inline float TextSpeed = 768.0f / 60.0f;
+constexpr inline glm::vec2 TextSpeedBounds = glm::vec2(256.0f, 4096.0f) / 60.0f;
+
 // Speed to skip in auto mode (MessWaitSpeed)
-inline float AutoSpeed = 768 / 60;
+inline float AutoSpeed = 768.0f / 60.0f;
 constexpr inline glm::vec2 AutoSpeedBounds = glm::vec2(256.0f, 2048.0f) / 60.0f;
 
 inline bool SkipRead = true;  // Only skip read text

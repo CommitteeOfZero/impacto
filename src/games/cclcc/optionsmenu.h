@@ -59,8 +59,6 @@ class OptionsMenu : public UI::OptionsMenu {
   bool DelusionLR = false;
   bool DelusionStopSkip = true;
 
-  float TextSpeed = 0.2f;
-
   float VoiceVolume = 0.5f;
   float MusicVolume = 0.5f;
   float SoundEffectVolume = 0.5f;

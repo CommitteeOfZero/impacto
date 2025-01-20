@@ -664,7 +664,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
     typewriterDur = Audio::Channels[Audio::AC_VOICE0]->DurationInSeconds();
   }
   if (typewriterDur <= 0.0f) {
-    typewriterDur = (float)typewriterCt / 16.0f;
+    typewriterDur = (float)typewriterCt / TextSpeed;
   }
   Typewriter.Start(typewriterStart, typewriterCt, typewriterDur);
 }
