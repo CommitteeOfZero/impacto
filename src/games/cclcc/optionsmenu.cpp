@@ -60,11 +60,11 @@ std::unique_ptr<Group> OptionsMenu::CreateTextPage(
   const glm::vec4 highlightTint(HighlightColor, 1.0f);
   std::unique_ptr<Group> textPage = std::make_unique<Group>(this);
 
-  textPage->Add(
-      new OptionsSlider(TextSpeed, 0.0f, 1.0f, SliderTrackSprite,
-                        LabelSprites[4], EntriesStartPosition, highlightTint,
-                        SliderSpeed, select, highlight),
-      FDIR_DOWN);
+  textPage->Add(new OptionsSlider(
+                    TextSpeed, TextSpeedBounds[0], TextSpeedBounds[1],
+                    SliderTrackSprite, LabelSprites[4], EntriesStartPosition,
+                    highlightTint, SliderSpeed, select, highlight),
+                FDIR_DOWN);
   textPage->Add(
       new OptionsSlider(
           AutoSpeed, AutoSpeedBounds[0], AutoSpeedBounds[1], SliderTrackSprite,
