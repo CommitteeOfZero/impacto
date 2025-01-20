@@ -54,7 +54,6 @@ class OptionsMenu : public UI::OptionsMenu {
   std::vector<Widgets::ClickArea> PageButtons;
 
   // Temp, for testing
-  bool ShowTips = true;
   bool TextLR = false;
   bool DelusionLR = false;
   bool DelusionStopSkip = true;
