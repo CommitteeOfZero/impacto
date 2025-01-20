@@ -23,6 +23,7 @@ class TipsNotificationBase {
 };
 
 inline TipsNotificationBase* Implementation = nullptr;
+inline bool ShowNotification = true;
 
 void Init();
 void Update(float dt);

@@ -8,6 +8,7 @@
 #include "../../ui/widgets/cclcc/optionsbinarybutton.h"
 #include "../../ui/widgets/cclcc/optionsslider.h"
 #include "../../ui/widgets/cclcc/optionsvoiceslider.h"
+#include "../../hud/tipsnotification.h"
 
 namespace Impacto {
 namespace UI {
@@ -26,11 +27,11 @@ std::unique_ptr<Group> OptionsMenu::CreateBasicPage(
   const glm::vec4 highlightTint(HighlightColor, 1.0f);
   std::unique_ptr<Group> basicPage = std::make_unique<Group>(this);
 
-  basicPage->Add(
-      new OptionsBinaryButton(ShowTips, BinaryBoxSprite, OnSprite, OffSprite,
-                              LabelSprites[0], EntriesStartPosition,
-                              highlightTint, select, highlight),
-      FDIR_DOWN);
+  basicPage->Add(new OptionsBinaryButton(TipsNotification::ShowNotification,
+                                         BinaryBoxSprite, OnSprite, OffSprite,
+                                         LabelSprites[0], EntriesStartPosition,
+                                         highlightTint, select, highlight),
+                 FDIR_DOWN);
   basicPage->Add(
       new OptionsBinaryButton(
           TextLR, BinaryBoxSprite, OnSprite, OffSprite, LabelSprites[1],
