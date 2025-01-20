@@ -659,13 +659,10 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
   }
 
   int typewriterCt = Glyphs.size() - typewriterStart;
-  float typewriterDur = 0.0f;
-  if (voice != 0) {
-    typewriterDur = Audio::Channels[Audio::AC_VOICE0]->DurationInSeconds();
-  }
-  if (typewriterDur <= 0.0f) {
-    typewriterDur = (float)typewriterCt / TextSpeed;
-  }
+  float typewriterDur =
+      (SyncVoice && voice != nullptr)
+          ? Audio::Channels[Audio::AC_VOICE0]->DurationInSeconds()
+          : (float)typewriterCt / TextSpeed;
   Typewriter.Start(typewriterStart, typewriterCt, typewriterDur);
 }
 
