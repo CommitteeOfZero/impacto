@@ -46,7 +46,7 @@ std::unique_ptr<Group> OptionsMenu::CreateBasicPage(
       FDIR_DOWN);
   basicPage->Add(
       new OptionsBinaryButton(
-          DelusionStopSkip, BinaryBoxSprite, OnSprite, OffSprite,
+          TriggerStopSkip, BinaryBoxSprite, OnSprite, OffSprite,
           LabelSprites[3],
           EntriesStartPosition + glm::vec2(0.0f, EntriesVerticalOffset * 3),
           highlightTint, select, highlight),
