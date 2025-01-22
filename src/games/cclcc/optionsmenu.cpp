@@ -351,7 +351,7 @@ void OptionsMenu::Render() {
         maskTint);
 
     const Sprite& guideSprite =
-        CurrentPage == 3 ? VoiceGuideSprite : GuideSprite;
+        CurrentPage == +PageType::Voice ? VoiceGuideSprite : GuideSprite;
     Renderer->DrawSprite(guideSprite, guidePosition, col);
   }
 }
@@ -372,6 +372,37 @@ void OptionsMenu::Highlight(Widget* toHighlight) {
 
   for (Widget* entry : Pages[CurrentPage]->Children) {
     static_cast<OptionsEntry*>(entry)->Selected = false;
+  }
+}
+
+void OptionsMenu::ResetToDefault() {
+  switch (CurrentPage) {
+    case PageType::Basic: {
+      TipsNotification::ShowNotification = true;
+      Input::AdvanceTextOnDirectionalInput = false;
+      Input::DirectionalInputForTrigger = false;
+      TriggerStopSkip = true;
+      break;
+    }
+    case PageType::Text: {
+      TextSpeed = 768.0f / 60.0f;
+      AutoSpeed = 768.0f / 60.0f;
+      SkipRead = true;
+      break;
+    }
+    case PageType::Sound: {
+      std::fill_n(Audio::GroupVolumes, Audio::ACG_Count, 0.5f);
+      SyncVoice = true;
+      SkipVoice = false;
+      break;
+    }
+    case PageType::Voice: {
+      std::fill_n(Audio::VoiceMuted, Audio::VoiceCount, false);
+      std::fill_n(Audio::VoiceVolume, Audio::VoiceCount, 1.0f);
+      break;
+    }
+    default:
+      break;
   }
 }
 

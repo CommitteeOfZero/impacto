@@ -224,8 +224,7 @@ VmInstruction(InstOption) {
                  "STUB instruction Option(type: V2toV1vol)\n");
       break;
     case 4:
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Option(type: Default)\n");
+      UI::OptionsMenuPtr->ResetToDefault();
       break;
   }
 }

@@ -12,6 +12,8 @@ namespace Impacto {
 namespace UI {
 namespace CCLCC {
 
+BETTER_ENUM(PageType, int, Basic = 0, Text = 1, Sound = 2, Voice = 3)
+
 class OptionsMenu : public UI::OptionsMenu {
  public:
   OptionsMenu();
@@ -21,6 +23,7 @@ class OptionsMenu : public UI::OptionsMenu {
   void Update(float dt) override;
   void UpdateInput(float dt) override;
   void Render() override;
+  void ResetToDefault() override;
 
  private:
   std::unique_ptr<Widgets::Group> CreateBasicPage(
