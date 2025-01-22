@@ -10,6 +10,7 @@
 #include "../../ui/widgets/cclcc/optionsvoiceslider.h"
 #include "../../hud/tipsnotification.h"
 #include "../../inputsystem.h"
+#include "../../audio/audiosystem.h"
 
 namespace Impacto {
 namespace UI {
@@ -151,9 +152,10 @@ std::unique_ptr<Group> OptionsMenu::CreateVoicePage(
         VoiceEntriesOffset * glm::vec2(i % columns, i / columns);
 
     Widget* widget = new OptionsVoiceSlider(
-        VoiceVolumes[i], 0.0f, 1.0f, VoiceMuted[i], VoiceSliderTrackSprite,
-        NametagSprites[i], PortraitSprites[2 * i], PortraitSprites[2 * i + 1],
-        pos, highlightTint, SliderSpeed, select, highlight);
+        Audio::VoiceVolume[i], 0.0f, 1.0f, Audio::VoiceMuted[i],
+        VoiceSliderTrackSprite, NametagSprites[i], PortraitSprites[2 * i],
+        PortraitSprites[2 * i + 1], pos, highlightTint, SliderSpeed, select,
+        highlight);
     voicePage->Add(widget, FDIR_RIGHT);
   }
 

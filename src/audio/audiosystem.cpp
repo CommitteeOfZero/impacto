@@ -1,6 +1,7 @@
 #include "audiosystem.h"
 #include "../log.h"
 #include "../profile/game.h"
+#include "../profile/scriptvars.h"
 
 #ifndef IMPACTO_DISABLE_OPENAL
 #include "openal/audiobackend.h"
@@ -11,6 +12,8 @@
 
 namespace Impacto {
 namespace Audio {
+
+using namespace Impacto::Profile::ScriptVars;
 
 static bool IsInit = false;
 
@@ -61,10 +64,22 @@ void AudioInit() {
     Channels[i]->Init((AudioChannelId)i, ACG_BGM);
   Channels[AC_SSE]->Init(AC_SSE, ACG_SE);
 
+  std::fill_n(VoiceMuted, VoiceCount, false);
+  std::fill_n(VoiceVolume, VoiceCount, 1.0f);
+
   IsInit = true;
 }
 
 void AudioUpdate(float dt) {
+  // Set voice modifier for each voice channel
+  for (int i = AC_VOICE0; i <= AC_VOICE2; i++) {
+    const int charId = ScrWork[SW_ANIME0CHANO + (i - AC_VOICE0)];
+    const int mappedCharId = ScrWork[SW_CHARACTERIDMAPPING + charId];
+    const float voiceVolumeModifier =
+        VoiceMuted[mappedCharId] ? 0.0f : VoiceVolume[mappedCharId];
+    Channels[i]->Volume = voiceVolumeModifier;
+  }
+
   for (int i = 0; i < AC_Count; i++) {
     Channels[i]->Update(dt);
   }

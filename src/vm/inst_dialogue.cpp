@@ -133,6 +133,7 @@ VmInstruction(InstMes) {
   if (voiced) ExpressionEval(thread, &audioId);
   if (acted) ExpressionEval(thread, &animationId);
   PopExpression(characterId);
+  if (characterId >= 32) characterId = 0;
   PopUint16(lineId);
   uint8_t* line =
       MSB ? MsbGetStrAddress(MsbBuffers[thread->ScriptBufferId], lineId)
@@ -145,6 +146,7 @@ VmInstruction(InstMes) {
 
   ScrWork[2 * dialoguePage.Id + SW_LINEID] = lineId;
   ScrWork[2 * dialoguePage.Id + SW_SCRIPTID] = scriptId;
+  ScrWork[dialoguePage.Id + SW_ANIME0CHANO] = characterId;
 
   Audio::AudioStream* audioStream = nullptr;
   if (voiced) {

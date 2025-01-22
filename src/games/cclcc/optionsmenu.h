@@ -52,10 +52,6 @@ class OptionsMenu : public UI::OptionsMenu {
   SpriteAnimation PoleAnimation;
 
   std::vector<Widgets::ClickArea> PageButtons;
-
-  // Temp, for testing
-  float VoiceVolumes[12] = {0.0f};
-  bool VoiceMuted[12] = {false};
 };
 
 }  // namespace CCLCC
