@@ -677,10 +677,8 @@ void DialoguePage::Update(float dt) {
     }
   }
 
-  if (TextIsFullyOpaque() && MesSkipMode & SkipModeFlags::Auto) {
-    AutoWaitTime -= AutoSpeed * dt;
-    if (AutoWaitTime < 0) AutoWaitTime = 0;
-  }
+  if (TextIsFullyOpaque() && MesSkipMode & SkipModeFlags::Auto)
+    AutoWaitTime = std::max(0.0f, AutoWaitTime - AutoSpeed * dt);
 
   TextBox->Update(dt);
   FadeAnimation.Update(dt);

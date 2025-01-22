@@ -173,7 +173,8 @@ constexpr inline glm::vec2 TextSpeedBounds = glm::vec2(256.0f, 4096.0f) / 60.0f;
 
 // Speed to skip in auto mode (MessWaitSpeed)
 inline float AutoSpeed = 768.0f / 60.0f;
-constexpr inline glm::vec2 AutoSpeedBounds = glm::vec2(256.0f, 2048.0f) / 60.0f;
+// Menu is essentially auto *time* as opposed to auto *speed*
+constexpr inline glm::vec2 AutoSpeedBounds = glm::vec2(2048.0f, 256.0f) / 60.0f;
 
 inline bool SkipRead = true;    // Only skip read text
 inline bool SkipVoice = false;  // Stop voice line after dialogue progression
