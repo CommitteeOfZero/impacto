@@ -196,7 +196,7 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
 
   PageButtons.reserve(PageCount);
   for (int i = 0; i < PageCount; i++) {
-    PageButtons.push_back(ClickArea(i, PagePanelHoverBounds[i]));
+    PageButtons.emplace_back(i, PagePanelHoverBounds[i]);
   }
 
   std::function<void(OptionsEntry*)> select =
@@ -205,10 +205,10 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
       std::bind(&OptionsMenu::Highlight, this, std::placeholders::_1);
 
   Pages.reserve(PageCount);
-  Pages.push_back(std::move(CreateBasicPage(select, highlight)));
-  Pages.push_back(std::move(CreateTextPage(select, highlight)));
-  Pages.push_back(std::move(CreateSoundPage(select, highlight)));
-  Pages.push_back(std::move(CreateVoicePage(select, highlight)));
+  Pages.emplace_back(CreateBasicPage(select, highlight));
+  Pages.emplace_back(CreateTextPage(select, highlight));
+  Pages.emplace_back(CreateSoundPage(select, highlight));
+  Pages.emplace_back(CreateVoicePage(select, highlight));
 
   Highlight(Pages[CurrentPage]->GetFirstFocusableChild());
 }
