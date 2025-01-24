@@ -8,12 +8,19 @@ namespace CCLCC {
 
 class DelusionTrigger : public Impacto::DelusionTrigger::DelusionTriggerBase {
  public:
+  enum DelusionsShown {
+    Delusion_Both = 0,
+    Delusion_PosOnly = 1,
+    Delusion_NegOnly = 2
+  };
+
   DelusionTrigger();
 
   void Hide() override;
   void Update(float dt) override;
   void Render() override;
-  bool Show(int param_1, int param_2, int param_3) override;
+  bool Show(int bgOverlayBgBufferId, int circlesBgBufferId,
+            int availableDelusions) override;
   bool CheckTransitionAnimationComplete() override;
   bool CheckStartTransitionComplete() override;
 
@@ -21,19 +28,17 @@ class DelusionTrigger : public Impacto::DelusionTrigger::DelusionTriggerBase {
   int MtrgAlphaCt = 0;
   int MtrgAng = 0;
   int LastDelusionState = 0xFF;
+  Sprite PositiveDelusionSprite;
+  Sprite NegativeDelusionSprite;
+  Sprite BgOverlaySprite;
 
-  void RenderPositiveToNeutralTransition(Sprite& bgSprite, float spinAngle,
-                                         int spinAlpha);
-  void RenderNegativeToNeutralTransition(Sprite& bgSprite, float spinAngle,
-                                         int spinAlpha);
-  void RenderNeutralToNegativeTransition(Sprite& bgSprite, float spinAngle,
-                                         int spinAlpha);
-  void RenderNeutralToPositiveTransition(Sprite& bgSprite, float spinAngle,
-                                         int spinAlpha);
-  void RenderStartTransition(Sprite& bgSprite, float spinAngle, int spinAlpha);
-  void RenderEndNeutralTransition(Sprite& bgSprite, float spinAngle,
-                                  int spinAlpha);
-  void RenderStable(Sprite& bgSprite, float spinAngle, int spinAlpha);
+  void RenderPositiveToNeutralTransition(float spinAngle, int spinAlpha);
+  void RenderNegativeToNeutralTransition(float spinAngle, int spinAlpha);
+  void RenderNeutralToNegativeTransition(float spinAngle, int spinAlpha);
+  void RenderNeutralToPositiveTransition(float spinAngle, int spinAlpha);
+  void RenderStartTransition(float spinAngle, int spinAlpha);
+  void RenderEndNeutralTransition(float spinAngle, int spinAlpha);
+  void RenderStable(float spinAngle, int spinAlpha);
 };
 
 }  // namespace CCLCC

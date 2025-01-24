@@ -44,6 +44,8 @@ enum ControlType {
   CT_Tips = 30,
   CT_LogoSkip = 39,
   CT_ResetOptions = 40,
+  CT_DelusionTriggerL = 41,
+  CT_DelusionTriggerR = 42,
 };
 
 void UpdatePADInput();

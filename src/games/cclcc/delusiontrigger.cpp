@@ -14,32 +14,50 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Vm::Interface;
 
 DelusionTrigger::DelusionTrigger()
-    : DelusionTriggerBase(ScrWork[6412], UiState::Hidden) {}
+    : DelusionTriggerBase(ScrWork[SW_DELUSION_STATE], UiState::Hidden) {}
 
-bool DelusionTrigger::Show(int bgMtrgSelBufferId, int bgMtrgNegaPosiBufferId,
-                           int param3) {
-  // TODO, scrwork 6413 (mtrgSelCounter) & scrwork 6415 (mtrgNegaPosiCounter) to
-  // use delta time
+bool DelusionTrigger::Show(int bgOverlayBgBufferId, int circlesBgBufferId,
+                           int availableDelusions) {
+  if (GetFlag(SF_MOVIEPLAY) && GetFlag(SF_MOVIE_DRAWWAIT)) {
+    return false;
+  }
 
-  ScrWork[6410] = bgMtrgSelBufferId;
-  ScrWork[6411] = bgMtrgNegaPosiBufferId;
+  ScrWork[6411] = circlesBgBufferId;
+  int bgOverlayBGIdx =
+      ScrWork[SW_BG1SURF + Vm::Interface::GetBufferId(bgOverlayBgBufferId)];
+  BgOverlaySprite = Backgrounds2D[bgOverlayBGIdx]->BgSprite;
+
+  int delusionCirclesBGIdx =
+      ScrWork[SW_BG1SURF + Vm::Interface::GetBufferId(circlesBgBufferId)];
+  PositiveDelusionSprite = Backgrounds2D[delusionCirclesBGIdx]->BgSprite;
+  PositiveDelusionSprite.Bounds.X = 1024;
+  PositiveDelusionSprite.Bounds.Y = 0;
+  PositiveDelusionSprite.Bounds.Width = 1024;
+  PositiveDelusionSprite.Bounds.Height = 1024;
+
+  NegativeDelusionSprite = Backgrounds2D[delusionCirclesBGIdx]->BgSprite;
+  NegativeDelusionSprite.Bounds.X = 0;
+  NegativeDelusionSprite.Bounds.Y = 0;
+  NegativeDelusionSprite.Bounds.Width = 1024;
+  NegativeDelusionSprite.Bounds.Height = 1024;
+
   DelusionState = DS_Neutral;
-  ScrWork[6413] = 0;
+  ScrWork[SW_DELUSION_BG_COUNTER] = 0;
   LastDelusionState = 0xff;
-  ScrWork[6415] = 0x40;
-  ScrWork[6414] = param3;
-  SetFlag(2820, 1);
+  ScrWork[SW_DELUSION_SPIN_COUNTER] = 0x40;
+  ScrWork[SW_DELUSION_LIMIT] = availableDelusions;
+  SetFlag(SF_DELUSIONACTIVE, 1);
   ScrWork[6344] = 48;
-  SetFlag(2821, 0);
+  SetFlag(SF_DELUSIONSELECTED, 0);
   ScrWork[6418] = 960;
   if (!Video::Players[0]->IsPlaying) {
-    ScrWork[6413] = 32;
+    ScrWork[SW_DELUSION_BG_COUNTER] = 32;
   }
   return true;
 }
 
 void DelusionTrigger::Hide() {
-  SetFlag(2820, 0);
+  SetFlag(SF_DELUSIONACTIVE, 0);
   ScrWork[6344] = 0;
 }
 
@@ -52,288 +70,288 @@ bool DelusionTrigger::CheckStartTransitionComplete() {
 }
 
 void DelusionTrigger::Update(float dt) {
-  if (!GetFlag(2820)) {
+  auto onRightTrigger = [this]() {
+    if (DelusionState == DS_Neutral) {
+      if (ScrWork[SW_DELUSION_LIMIT] == Delusion_Both ||
+          ScrWork[SW_DELUSION_LIMIT] == Delusion_NegOnly) {
+        Audio::Channels[Audio::AC_SSE]->Play("sysse", 11, false, 0.0f);
+        ScrWork[SW_DELUSION_SPIN_COUNTER] = 64;
+        DelusionState = DS_Negative;
+      }
+    } else if (DelusionState == DS_Positive) {
+      Audio::Channels[Audio::AC_SSE]->Play("sysse", 12, false, 0.0f);
+      ScrWork[SW_DELUSION_SPIN_COUNTER] = 64;
+      DelusionState = DS_Neutral;
+    }
+  };
+
+  auto onLeftTrigger = [this]() {
+    if (DelusionState == DS_Neutral) {
+      if (ScrWork[SW_DELUSION_LIMIT] == Delusion_Both ||
+          ScrWork[SW_DELUSION_LIMIT] == Delusion_PosOnly) {
+        Audio::Channels[Audio::AC_SSE]->Play("sysse", 10, false, 0.0f);
+        ScrWork[SW_DELUSION_SPIN_COUNTER] = 64;
+        DelusionState = DS_Positive;
+      }
+    } else if (DelusionState == DS_Negative) {
+      Audio::Channels[Audio::AC_SSE]->Play("sysse", 12, false, 0.0f);
+      ScrWork[SW_DELUSION_SPIN_COUNTER] = 64;
+      DelusionState = DS_Neutral;
+    }
+  };
+
+  if (!GetFlag(SF_DELUSIONACTIVE)) {
     if ((GetFlag(SF_MOVIEPLAY) && GetFlag(SF_MOVIE_DRAWWAIT)) ||
-        ScrWork[6413] == 0) {
+        ScrWork[SW_DELUSION_BG_COUNTER] == 0) {
       return;
     }
     if (GetFlag(SF_MESALLSKIP)) {
-      ScrWork[6413] = 0;
+      ScrWork[SW_DELUSION_BG_COUNTER] = 0;
     }
-    if (ScrWork[6413] > 0) ScrWork[6413]--;
-  } else {
-    if (ScrWork[6413]) {
-      MtrgAlphaCt = (MtrgAlphaCt + 1) & 0x1f;
-      MtrgAng = (MtrgAng + 100) & 0xffff;
-    }
-    if (ScrWork[6413] < 32) {
-      ScrWork[6413]++;
-    } else {
-      if (GetFlag(2821) || ScrWork[SW_SYSSUBMENUCT] != 0 ||
-          ScrWork[SW_SYSMENUCT] != 0) {
-        return;
-      }
+    if (ScrWork[SW_DELUSION_BG_COUNTER] > 0) ScrWork[SW_DELUSION_BG_COUNTER]--;
+    return;
+  } else if (ScrWork[SW_DELUSION_BG_COUNTER]) {
+    MtrgAlphaCt = (MtrgAlphaCt + 1) & 0x1f;
+    MtrgAng = (MtrgAng + 100) & 0xffff;
+  }
 
-      if (PADcustom[14] & PADinputButtonWentDown ||
-          (GetFlag(SF_MESALLSKIP)) != 0) {
-        Video::Players[0]->Stop();
-      }
-      if (LastDelusionState == 0xff && GetFlag(SF_MOVIEPLAY) &&
-          ScrWork[6345] - 13 < ScrWork[6343] &&
-          LastDelusionState != DelusionState && ScrWork[6415] == 0) {
-        if (ScrWork[6415] != 0) {
-          ScrWork[6415] -= 2;
-        }
-        if (ScrWork[6415] == 0) {
-          LastDelusionState = DelusionState;
-        }
-      }
-      if (!Video::Players[0]->IsPlaying) {
-        if ((ScrWork[6333] == 0xffff) || (ScrWork[6333] == 0xffff)) {
-          SetFlag(2486, 0);
-          ScrWork[6333] = 0xffff;
-          ScrWork[6336] = 0xffff;
-        }
-        if (LastDelusionState == DelusionState) {
-          if (!(PADinputButtonWentDown & PAD1L2)) {
-            if (PADinputButtonWentDown & PAD1R2) {
-              if (DelusionState == DS_Neutral) {
-                if (ScrWork[6414] == 0 || ScrWork[6414] == 2) {
-                  Audio::Channels[Audio::AC_SSE]->Play("sysse", 11, false,
-                                                       0.0f);
-                  ScrWork[6415] = 64;
-                  DelusionState = DS_Negative;
-                }
-              } else if (DelusionState == DS_Positive) {
-                Audio::Channels[Audio::AC_SSE]->Play("sysse", 12, false, 0.0f);
-                ScrWork[6415] = 64;
-                DelusionState = DS_Neutral;
-              }
-            }
-          } else if (DelusionState ==
-                     DS_Neutral) {  //(PADinputButtonWentDown & PAD1L2)
-            if (ScrWork[6414] == 0 || ScrWork[6414] == 1) {
-              Audio::Channels[Audio::AC_SSE]->Play("sysse", 10, false, 0.0f);
-              ScrWork[6415] = 64;
-              DelusionState = DS_Positive;
-            }
-          } else if (DelusionState ==
-                     DS_Negative) {  //(PADinputButtonWentDown & PAD1L2)
-            Audio::Channels[Audio::AC_SSE]->Play("sysse", 12, false, 0.0f);
-            ScrWork[6415] = 64;
-            DelusionState = DS_Neutral;
-          }
-        } else {
-          if (ScrWork[6415] != 0) {
-            ScrWork[6415] -= 2;
-          }
-          if (ScrWork[6415] == 0) {
-            LastDelusionState = DelusionState;
-          }
-        }
-      }
+  if (ScrWork[SW_DELUSION_BG_COUNTER] < 32) {
+    ScrWork[SW_DELUSION_BG_COUNTER]++;
+    return;
+  }
+  if (GetFlag(SF_DELUSIONSELECTED) || ScrWork[SW_SYSSUBMENUCT] != 0 ||
+      ScrWork[SW_SYSMENUCT] != 0) {
+    return;
+  }
+
+  if (PADcustom[14] & PADinputButtonWentDown || (GetFlag(SF_MESALLSKIP)) != 0) {
+    Video::Players[0]->Stop();
+  }
+  if (LastDelusionState == 0xff && GetFlag(SF_MOVIEPLAY) &&
+      ScrWork[SW_MOVIETOTALFRAME] - 13 < ScrWork[SW_MOVIEFRAME] &&
+      LastDelusionState != DelusionState &&
+      ScrWork[SW_DELUSION_SPIN_COUNTER] == 0) {
+    if (ScrWork[SW_DELUSION_SPIN_COUNTER] != 0) {
+      ScrWork[SW_DELUSION_SPIN_COUNTER] -= 2;
+    }
+    if (ScrWork[SW_DELUSION_SPIN_COUNTER] == 0) {
+      LastDelusionState = DelusionState;
+    }
+  }
+  if (Video::Players[0]->IsPlaying) return;
+  if ((ScrWork[6333] == 0xffff) || (ScrWork[6333] == 0xffff)) {
+    SetFlag(2486, 0);
+    ScrWork[6333] = 0xffff;
+    ScrWork[6336] = 0xffff;
+  }
+  auto leftTrigger = GetControlState(CT_DelusionTriggerL);
+  auto rightTrigger = GetControlState(CT_DelusionTriggerR);
+
+  if (LastDelusionState == DelusionState) {
+    if (!leftTrigger && !rightTrigger) return;
+    if (!leftTrigger && rightTrigger) {
+      onRightTrigger();
+    }
+    if (leftTrigger && !rightTrigger) {
+      onLeftTrigger();
+    }
+  } else {
+    if (ScrWork[SW_DELUSION_SPIN_COUNTER] != 0) {
+      ScrWork[SW_DELUSION_SPIN_COUNTER] -= 2;
+    }
+    if (ScrWork[SW_DELUSION_SPIN_COUNTER] == 0) {
+      LastDelusionState = DelusionState;
     }
   }
 }
 
-void DelusionTrigger::RenderStartTransition(Sprite& bgSprite, float spinAngle,
-                                            int spinAlpha) {
-  float scale = (ScrWork[6415] + 64) / 64.0f;
-  float transparency = ((64 - ScrWork[6415]) * spinAlpha >> 6) / 256.0f;
-  if ((ScrWork[6414] == 0) || (ScrWork[6414] == 1)) {
-    bgSprite.Bounds.X = 1024;
+void DelusionTrigger::RenderStartTransition(float spinAngle, int spinAlpha) {
+  float scale = (ScrWork[SW_DELUSION_SPIN_COUNTER] + 64) / 64.0f;
+  float transparency =
+      ((64 - ScrWork[SW_DELUSION_SPIN_COUNTER]) * spinAlpha >> 6) / 256.0f;
+  if ((ScrWork[SW_DELUSION_LIMIT] == Delusion_Both) ||
+      (ScrWork[SW_DELUSION_LIMIT] == Delusion_PosOnly)) {
     glm::vec2 topLeft = {-800.0f, -109.0f};
     glm::vec2 offset = {600.0f, 557.0f};
-    Renderer->DrawSpriteOffset(bgSprite, topLeft, offset,
+    Renderer->DrawSpriteOffset(PositiveDelusionSprite, topLeft, offset,
                                {1.0f, 1.0f, 1.0f, transparency}, {scale, scale},
                                spinAngle);
   }
-  if ((ScrWork[6414] == 0) || (ScrWork[6414] == 2)) {
-    bgSprite.Bounds.X = 0;
+  if ((ScrWork[SW_DELUSION_LIMIT] == Delusion_Both) ||
+      (ScrWork[SW_DELUSION_LIMIT] == Delusion_NegOnly)) {
     glm::vec2 topLeft = {1696.0f, -109.0f};
     glm::vec2 offset = {424.0f, 557.0f};
-    Renderer->DrawSpriteOffset(bgSprite, topLeft, offset,
+    Renderer->DrawSpriteOffset(NegativeDelusionSprite, topLeft, offset,
                                {1.0f, 1.0f, 1.0f, transparency}, {scale, scale},
                                spinAngle);
   }
 }
 
-void DelusionTrigger::RenderStable(Sprite& bgSprite, float spinAngle,
-                                   int spinAlpha) {
+void DelusionTrigger::RenderStable(float spinAngle, int spinAlpha) {
   if (DelusionState == DS_Neutral) {
-    if ((ScrWork[6414] == 0) || (ScrWork[6414] == 1)) {
-      bgSprite.Bounds.X = 1024;
-      Renderer->DrawSpriteOffset(bgSprite, {-800, -109}, {600, 557},
-                                 {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f},
-                                 {1.0, 1.0}, spinAngle);
+    if ((ScrWork[SW_DELUSION_LIMIT] == Delusion_Both) ||
+        (ScrWork[SW_DELUSION_LIMIT] == Delusion_PosOnly)) {
+      Renderer->DrawSpriteOffset(
+          PositiveDelusionSprite, {-800, -109}, {600, 557},
+          {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f}, {1.0, 1.0}, spinAngle);
     }
-    if ((ScrWork[6414] == 0) || (ScrWork[6414] == 2)) {
-      bgSprite.Bounds.X = 0;
-      Renderer->DrawSpriteOffset(bgSprite, {1696.0f, -109.0f}, {424, 557},
-                                 {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f},
-                                 {1.0, 1.0}, spinAngle);
+    if ((ScrWork[SW_DELUSION_LIMIT] == Delusion_Both) ||
+        (ScrWork[SW_DELUSION_LIMIT] == Delusion_NegOnly)) {
+      Renderer->DrawSpriteOffset(
+          NegativeDelusionSprite, {1696.0f, -109.0f}, {424, 557},
+          {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f}, {1.0, 1.0}, spinAngle);
     }
   } else if (DelusionState == DS_Positive) {
-    bgSprite.Bounds.X = 1024;
     Renderer->DrawSpriteOffset(
-        bgSprite, glm::vec2{448, -109.0f}, glm::vec2{600, 557.0f},
+        PositiveDelusionSprite, glm::vec2{448, -109.0f}, glm::vec2{600, 557.0f},
         {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f}, {1.8, 1.8}, spinAngle);
   } else if (DelusionState == DS_Negative) {
-    bgSprite.Bounds.X = 0;
     Renderer->DrawSpriteOffset(
-        bgSprite, glm::vec2{448, -109.0f}, glm::vec2{424, 557.0f},
+        NegativeDelusionSprite, glm::vec2{448, -109.0f}, glm::vec2{424, 557.0f},
         {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f}, {1.8, 1.8}, spinAngle);
   }
 }
 
-void DelusionTrigger::RenderNeutralToPositiveTransition(Sprite& bgSprite,
-                                                        float spinAngle,
+void DelusionTrigger::RenderNeutralToPositiveTransition(float spinAngle,
                                                         int spinAlpha) {
-  bgSprite.Bounds.X = 1024;
-  float topLeftX = 448.0f - (float)((ScrWork[6415] * 1248) >> 6);
+  float topLeftX =
+      448.0f - (float)((ScrWork[SW_DELUSION_SPIN_COUNTER] * 1248) >> 6);
   Renderer->DrawSpriteOffset(
-      bgSprite, glm::vec2{topLeftX, -109.0f}, {600, 557},
+      PositiveDelusionSprite, glm::vec2{topLeftX, -109.0f}, {600, 557},
       {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f},
-      {1.8 - ScrWork[6415] * 0.8 / 64, 1.8 - ScrWork[6415] * 0.8 / 64},
+      {1.8 - ScrWork[SW_DELUSION_SPIN_COUNTER] * 0.8 / 64,
+       1.8 - ScrWork[SW_DELUSION_SPIN_COUNTER] * 0.8 / 64},
       spinAngle);
-  if (ScrWork[6414] == 0) {
-    bgSprite.Bounds.X = 0;
-    float centerX = 2944.0f - (float)((ScrWork[6415] * 1248) >> 6);
+  if (ScrWork[SW_DELUSION_LIMIT] == Delusion_Both) {
+    float centerX =
+        2944.0f - (float)((ScrWork[SW_DELUSION_SPIN_COUNTER] * 1248) >> 6);
     Renderer->DrawSpriteOffset(
-        bgSprite, glm::vec2{centerX, -109.0f}, glm::vec2{424.0f, 557.0f},
+        NegativeDelusionSprite, glm::vec2{centerX, -109.0f},
+        glm::vec2{424.0f, 557.0f},
         {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f}, {1, 1}, spinAngle);
   }
 }
 
-void DelusionTrigger::RenderNeutralToNegativeTransition(Sprite& bgSprite,
-                                                        float spinAngle,
+void DelusionTrigger::RenderNeutralToNegativeTransition(float spinAngle,
                                                         int spinAlpha) {
-  bgSprite.Bounds.X = 0;
-  float topLeftX = (float)((ScrWork[6415] * 1248) >> 6) + 448.0f;
+  float topLeftX =
+      (float)((ScrWork[SW_DELUSION_SPIN_COUNTER] * 1248) >> 6) + 448.0f;
   Renderer->DrawSpriteOffset(
-      bgSprite, glm::vec2{topLeftX, -109.0f}, {424, 557},
+      NegativeDelusionSprite, glm::vec2{topLeftX, -109.0f}, {424, 557},
       {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f},
-      {1.8 - ScrWork[6415] * 0.8 / 64, 1.8 - ScrWork[6415] * 0.8 / 64},
+      {1.8 - ScrWork[SW_DELUSION_SPIN_COUNTER] * 0.8 / 64,
+       1.8 - ScrWork[SW_DELUSION_SPIN_COUNTER] * 0.8 / 64},
       spinAngle);
-  if (ScrWork[6414] == 0) {
-    bgSprite.Bounds.X = 1024;
-    float topLeftX = (float)((ScrWork[6415] * 1248) >> 6) - 2048.0f;
+  if (ScrWork[SW_DELUSION_LIMIT] == Delusion_Both) {
+    float topLeftX =
+        (float)((ScrWork[SW_DELUSION_SPIN_COUNTER] * 1248) >> 6) - 2048.0f;
     Renderer->DrawSpriteOffset(
-        bgSprite, glm::vec2{topLeftX, -109.0f}, glm::vec2{600.0f, 557.0f},
+        PositiveDelusionSprite, glm::vec2{topLeftX, -109.0f},
+        glm::vec2{600.0f, 557.0f},
         {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f}, {1, 1}, spinAngle);
   }
 }
 
-void DelusionTrigger::RenderPositiveToNeutralTransition(Sprite& bgSprite,
-                                                        float spinAngle,
+void DelusionTrigger::RenderPositiveToNeutralTransition(float spinAngle,
                                                         int spinAlpha) {
-  float scale = 1.0f + ScrWork[6415] * 0.8f / 64.0f;
-  bgSprite.Bounds.X = 1024;
+  float scale = 1.0f + ScrWork[SW_DELUSION_SPIN_COUNTER] * 0.8f / 64.0f;
 
-  float topLeftX = (float)((ScrWork[6415] * 1248) >> 6) - 800.0f;
-  Renderer->DrawSpriteOffset(bgSprite, glm::vec2{topLeftX, -109.0f}, {600, 557},
-                             {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f},
-                             {scale, scale}, spinAngle);
-  if (ScrWork[6414] == 0) {
-    bgSprite.Bounds.X = 0;
-    float centerX = (float)((ScrWork[6415] * 1248) >> 6) + 1696.0f;
+  float topLeftX =
+      (float)((ScrWork[SW_DELUSION_SPIN_COUNTER] * 1248) >> 6) - 800.0f;
+  Renderer->DrawSpriteOffset(
+      PositiveDelusionSprite, glm::vec2{topLeftX, -109.0f}, {600, 557},
+      {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f}, {scale, scale}, spinAngle);
+  if (ScrWork[SW_DELUSION_LIMIT] == Delusion_Both) {
+    float centerX =
+        (float)((ScrWork[SW_DELUSION_SPIN_COUNTER] * 1248) >> 6) + 1696.0f;
     Renderer->DrawSpriteOffset(
-        bgSprite, glm::vec2{centerX, -109.0f}, glm::vec2{424.0f, 557.0f},
+        NegativeDelusionSprite, glm::vec2{centerX, -109.0f},
+        glm::vec2{424.0f, 557.0f},
         {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f}, {1, 1}, spinAngle);
   }
 }
 
-void DelusionTrigger::RenderNegativeToNeutralTransition(Sprite& bgSprite,
-                                                        float spinAngle,
+void DelusionTrigger::RenderNegativeToNeutralTransition(float spinAngle,
                                                         int spinAlpha) {
-  float scale = 1.0f + (float)(ScrWork[6415]) * 0.8f / 64.0f;
-  bgSprite.Bounds.X = 0;
+  float scale =
+      1.0f + (float)(ScrWork[SW_DELUSION_SPIN_COUNTER]) * 0.8f / 64.0f;
 
-  float topLeftX = 1696.0f - (float)((ScrWork[6415] * 1248) >> 6);
-  Renderer->DrawSpriteOffset(bgSprite, glm::vec2{topLeftX, -109.0f}, {424, 557},
-                             {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f},
-                             {scale, scale}, spinAngle);
-  if (ScrWork[6414] == 0) {
-    bgSprite.Bounds.X = 1024;
-    float centerX = -800.0f - (float)((ScrWork[6415] * 1248) >> 6);
+  float topLeftX =
+      1696.0f - (float)((ScrWork[SW_DELUSION_SPIN_COUNTER] * 1248) >> 6);
+  Renderer->DrawSpriteOffset(
+      NegativeDelusionSprite, glm::vec2{topLeftX, -109.0f}, {424, 557},
+      {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f}, {scale, scale}, spinAngle);
+  if (ScrWork[SW_DELUSION_LIMIT] == Delusion_Both) {
+    float centerX =
+        -800.0f - (float)((ScrWork[SW_DELUSION_SPIN_COUNTER] * 1248) >> 6);
     Renderer->DrawSpriteOffset(
-        bgSprite, glm::vec2{centerX, -109.0f}, glm::vec2{600.0f, 557.0f},
+        PositiveDelusionSprite, glm::vec2{centerX, -109.0f},
+        glm::vec2{600.0f, 557.0f},
         {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f}, {1, 1}, spinAngle);
   }
 }
 
-void DelusionTrigger::RenderEndNeutralTransition(Sprite& bgSprite,
-                                                 float spinAngle,
+void DelusionTrigger::RenderEndNeutralTransition(float spinAngle,
                                                  int spinAlpha) {
-  if ((ScrWork[6414] == 0) || (ScrWork[6414] == 1)) {
-    bgSprite.Bounds.X = 1024;
-    float topLeftX = (float)((ScrWork[6413] * 1248) >> 5) - 2048.0f;
+  if ((ScrWork[SW_DELUSION_LIMIT] == Delusion_Both) ||
+      (ScrWork[SW_DELUSION_LIMIT] == Delusion_PosOnly)) {
+    float topLeftX =
+        (float)((ScrWork[SW_DELUSION_BG_COUNTER] * 1248) >> 5) - 2048.0f;
     Renderer->DrawSpriteOffset(
-        bgSprite, glm::vec2{topLeftX, -109.0f}, glm::vec2{600.0f, 557.0f},
+        PositiveDelusionSprite, glm::vec2{topLeftX, -109.0f},
+        glm::vec2{600.0f, 557.0f},
         {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f}, {1, 1}, spinAngle);
   }
-  if ((ScrWork[6414] == 0) || (ScrWork[6414] == 2)) {
-    bgSprite.Bounds.X = 0;
-    float topLeftX = 2944.0f - (float)((ScrWork[6415] * 1248) >> 5);
+  if ((ScrWork[SW_DELUSION_LIMIT] == Delusion_Both) ||
+      (ScrWork[SW_DELUSION_LIMIT] == Delusion_NegOnly)) {
+    float topLeftX =
+        2944.0f - (float)((ScrWork[SW_DELUSION_SPIN_COUNTER] * 1248) >> 5);
     Renderer->DrawSpriteOffset(
-        bgSprite, glm::vec2{topLeftX, -109.0f}, glm::vec2{424.0f, 557.0f},
+        NegativeDelusionSprite, glm::vec2{topLeftX, -109.0f},
+        glm::vec2{424.0f, 557.0f},
         {1.0f, 1.0f, 1.0f, (float)spinAlpha / 256.0f}, {1, 1}, spinAngle);
   }
 }
 
 void DelusionTrigger::Render() {
-  if (ScrWork[6413] == 0) {
+  if (ScrWork[SW_DELUSION_BG_COUNTER] == 0) {
     return;
   }
-  int mtrgSelActualBufferId = Vm::Interface::GetBufferId(ScrWork[6410]);
-  int bgMtrgSelIdx = ScrWork[SW_BG1SURF + mtrgSelActualBufferId];
-  float mtrgSelAlpha = ((ScrWork[6413] * 8) & 0xffffff) / 256.0f;
-  if (ScrWork[6413] < 32) {
-    float scale = 2.0f - (ScrWork[6413] / 32.0f);
-    Renderer->DrawSpriteOffset(Backgrounds2D[bgMtrgSelIdx]->BgSprite,
-                               glm::vec2{0.0f, 0.0f}, glm::vec2{960.0f, 413.0f},
-                               glm::vec4{1.0f, 1.0f, 1.0f, mtrgSelAlpha},
-                               {scale, scale});
+  float mtrgSelAlpha =
+      ((ScrWork[SW_DELUSION_BG_COUNTER] * 8) & 0xffffff) / 256.0f;
+  if (ScrWork[SW_DELUSION_BG_COUNTER] < 32) {
+    float scale = 2.0f - (ScrWork[SW_DELUSION_BG_COUNTER] / 32.0f);
+    Renderer->DrawSpriteOffset(
+        BgOverlaySprite, glm::vec2{0.0f, 0.0f}, glm::vec2{960.0f, 413.0f},
+        glm::vec4{1.0f, 1.0f, 1.0f, mtrgSelAlpha}, {scale, scale});
   } else {
-    Renderer->DrawSprite(Backgrounds2D[bgMtrgSelIdx]->BgSprite,
-                         {0, 0, 1920, 1080});
+    Renderer->DrawSprite(BgOverlaySprite, {0, 0, 1920, 1080});
   }
 
   float spinAngle = MtrgAng / 65535.0f * 2.0f * float(M_PI);
-  int mtrgNegaPosiBufId = Vm::Interface::GetBufferId(ScrWork[6411]);
-  int bgMtrgNegaPosiIdx = ScrWork[SW_BG1SURF + mtrgNegaPosiBufId];
-  Backgrounds2D[bgMtrgNegaPosiIdx]->BgSprite.Bounds.Width = 1024;
-  Backgrounds2D[bgMtrgNegaPosiIdx]->BgSprite.Bounds.Height = 1024;
 
   int spinAlpha = (MtrgAlphaCt < 16) ? MtrgAlphaCt : 32 - MtrgAlphaCt;
   spinAlpha = (spinAlpha * 192 >> 4) + 64;
 
-  if (GetFlag(2820)) {
+  if (GetFlag(SF_DELUSIONACTIVE)) {
     if (LastDelusionState == DelusionState) {
-      RenderStable(Backgrounds2D[bgMtrgNegaPosiIdx]->BgSprite, spinAngle,
-                   spinAlpha);
+      RenderStable(spinAngle, spinAlpha);
     } else if (LastDelusionState == 0xff) {
-      RenderStartTransition(Backgrounds2D[bgMtrgNegaPosiIdx]->BgSprite,
-                            spinAngle, spinAlpha);
+      RenderStartTransition(spinAngle, spinAlpha);
     } else if (LastDelusionState == DS_Neutral) {
       if (DelusionState == DS_Negative) {
-        RenderNeutralToNegativeTransition(
-            Backgrounds2D[bgMtrgNegaPosiIdx]->BgSprite, spinAngle, spinAlpha);
+        RenderNeutralToNegativeTransition(spinAngle, spinAlpha);
       } else if (DelusionState == DS_Positive) {
-        RenderNeutralToPositiveTransition(
-            Backgrounds2D[bgMtrgNegaPosiIdx]->BgSprite, spinAngle, spinAlpha);
+        RenderNeutralToPositiveTransition(spinAngle, spinAlpha);
       }
 
     } else if (LastDelusionState == DS_Positive) {
-      RenderPositiveToNeutralTransition(
-          Backgrounds2D[bgMtrgNegaPosiIdx]->BgSprite, spinAngle, spinAlpha);
+      RenderPositiveToNeutralTransition(spinAngle, spinAlpha);
     } else if (LastDelusionState == DS_Negative) {
-      RenderNegativeToNeutralTransition(
-          Backgrounds2D[bgMtrgNegaPosiIdx]->BgSprite, spinAngle, spinAlpha);
+      RenderNegativeToNeutralTransition(spinAngle, spinAlpha);
     }
   } else if (DelusionState == DS_Neutral) {
-    RenderEndNeutralTransition(Backgrounds2D[bgMtrgNegaPosiIdx]->BgSprite,
-                               spinAngle, spinAlpha);
+    RenderEndNeutralTransition(spinAngle, spinAlpha);
   }
 }
 
