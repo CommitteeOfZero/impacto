@@ -186,11 +186,18 @@ void UpdateGameState(float dt) {
   Vm::ChkMesSkip();
 }
 
-void Update(float dt) {
+void UpdateSystem(float dt) {
+  static float UpdateSecondCounter = 0.0f;
+  if (UpdateSecondCounter + dt <= 1 / 60.0f) {
+    UpdateSecondCounter += dt;
+    return;
+  }
+
   SDL_Event e;
   if (Profile::GameFeatures & GameFeature::Input) {
     Input::BeginFrame();
   }
+
   while (SDL_PollEvent(&e)) {
     if (e.type == SDL_QUIT) {
       ShouldQuit = true;
@@ -213,6 +220,36 @@ void Update(float dt) {
     Input::EndFrame();
   }
 
+  if (Profile::GameFeatures & GameFeature::Sc3VirtualMachine) {
+    Vm::Interface::UpdatePADInput();
+    UpdateGameState(UpdateSecondCounter);
+
+    for (DrawComponentType value : DrawComponentType::_values()) {
+      for (auto const& menu : UI::Menus[value]) {
+        menu->Update(UpdateSecondCounter);
+      }
+    }
+
+    SaveIconDisplay::Update(UpdateSecondCounter);
+    LoadingDisplay::Update(UpdateSecondCounter);
+    DateDisplay::Update(UpdateSecondCounter);
+    if (ScrWork[SW_GAMESTATE] & 5 && !GetFlag(SF_GAMEPAUSE) &&
+        !GetFlag(SF_SYSMENUDISABLE)) {
+      TipsNotification::Update(UpdateSecondCounter);
+      DelusionTrigger::Update(UpdateSecondCounter);
+      UI::MapSystem::Update(UpdateSecondCounter);
+      if (CCLCC::YesNoTrigger::YesNoTriggerPtr)
+        CCLCC::YesNoTrigger::YesNoTriggerPtr->Update(UpdateSecondCounter);
+    }
+
+    Vm::Update();
+  }
+  UpdateSecondCounter = 0.0f;
+}
+
+void Update(float dt) {
+  UpdateSystem(dt);
+
 #ifndef IMPACTO_DISABLE_IMGUI
   Renderer->ImGuiBeginFrame();
 #endif
@@ -223,31 +260,6 @@ void Update(float dt) {
 
   if (Profile::GameFeatures & GameFeature::CharacterViewer) {
     CharacterViewer::Update(dt);
-  }
-
-  if (Profile::GameFeatures & GameFeature::Sc3VirtualMachine) {
-    Vm::Interface::UpdatePADInput();
-    UpdateGameState(dt);
-
-    for (DrawComponentType value : DrawComponentType::_values()) {
-      for (auto const& menu : UI::Menus[value]) {
-        menu->Update(dt);
-      }
-    }
-
-    SaveIconDisplay::Update(dt);
-    LoadingDisplay::Update(dt);
-    DateDisplay::Update(dt);
-    if (ScrWork[SW_GAMESTATE] & 5 && !GetFlag(SF_GAMEPAUSE) &&
-        !GetFlag(SF_SYSMENUDISABLE)) {
-      TipsNotification::Update(dt);
-      DelusionTrigger::Update(dt);
-      UI::MapSystem::Update(dt);
-      if (CCLCC::YesNoTrigger::YesNoTriggerPtr)
-        CCLCC::YesNoTrigger::YesNoTriggerPtr->Update(dt);
-    }
-
-    Vm::Update();
   }
 
   if (Profile::GameFeatures & GameFeature::Audio) {

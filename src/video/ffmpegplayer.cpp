@@ -501,7 +501,6 @@ void FFmpegPlayer::Update(float dt) {
     }
 
     if (time < FrameTimer + duration) {
-      ImpLogSlow(LL_Trace, LC_Video, "Video desynced, delaying\n");
       return;
     }
 
@@ -536,7 +535,6 @@ void FFmpegPlayer::Render(float videoAlpha) {
 
 double FFmpegPlayer::GetTargetDelay(double duration) {
   double diff = VideoClock.Get() - MasterClock->Get();
-  ImpLogSlow(LL_Trace, LC_Video, "Clk Diff: %f\n", diff);
   double sync_threshold = std::max(0.04, std::min(0.1, duration));
   if (!isnan(diff) && fabs(diff) < MaxFrameDuration) {
     if (diff <= -sync_threshold)
