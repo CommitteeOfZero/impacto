@@ -19,7 +19,7 @@ void DX9YUVFrame::Init(float width, float height) {
                               imageFormat, D3DPOOL_MANAGED, &Cr, nullptr);
 }
 
-void DX9YUVFrame::Submit(void* luma, void* cb, void* cr) {
+void DX9YUVFrame::Submit(const void* luma, const void* cb, const void* cr) {
   int imageSize = 0;
 
   D3DLOCKED_RECT lockRect;

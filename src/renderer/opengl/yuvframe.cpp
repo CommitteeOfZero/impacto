@@ -17,7 +17,7 @@ void GLYUVFrame::Init(float width, float height) {
   CrId = yuv[2];
 }
 
-void GLYUVFrame::Submit(void* luma, void* cb, void* cr) {
+void GLYUVFrame::Submit(const void* luma, const void* cb, const void* cr) {
   glBindTexture(GL_TEXTURE_2D, LumaId);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, (GLsizei)Width, (GLsizei)Height, 0,
                GL_RED, GL_UNSIGNED_BYTE, luma);

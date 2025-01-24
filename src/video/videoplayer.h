@@ -20,7 +20,7 @@ class VideoPlayer {
   virtual void Update(float dt) {};
   virtual void Render(float videoAlpha) {};
 
-  bool IsPlaying;
+  bool IsPlaying = false;
 
  protected:
   typedef VideoPlayer* (*VideoPlayerCreator)(Io::Stream* stream);
