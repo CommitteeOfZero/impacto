@@ -62,6 +62,10 @@ void DelusionTrigger::Update(float dt) {
     }
     if (ScrWork[6413] > 0) ScrWork[6413]--;
   } else {
+    if (ScrWork[6413]) {
+      MtrgAlphaCt = (MtrgAlphaCt + 1) & 0x1f;
+      MtrgAng = (MtrgAng + 100) & 0xffff;
+    }
     if (ScrWork[6413] < 32) {
       ScrWork[6413]++;
     } else {
@@ -281,8 +285,6 @@ void DelusionTrigger::Render() {
   if (ScrWork[6413] == 0) {
     return;
   }
-  MtrgAlphaCt = (MtrgAlphaCt + 1) & 0x1f;
-  MtrgAng = (MtrgAng + 100) & 0xffff;
   int mtrgSelActualBufferId = Vm::Interface::GetBufferId(ScrWork[6410]);
   int bgMtrgSelIdx = ScrWork[SW_BG1SURF + mtrgSelActualBufferId];
   float mtrgSelAlpha = ((ScrWork[6413] * 8) & 0xffffff) / 256.0f;
