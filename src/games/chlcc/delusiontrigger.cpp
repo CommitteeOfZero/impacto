@@ -16,7 +16,7 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Vm::Interface;
 
 DelusionTrigger::DelusionTrigger()
-    : DelusionTriggerBase(ScrWork[SW_CHLCC_DELUSION_STATE], Hidden) {
+    : DelusionTriggerBase(ScrWork[SW_DELUSION_STATE], Hidden) {
   TriggerOnTint = RgbIntToFloat(0xffb0ce);
 }
 
@@ -224,28 +224,28 @@ void DelusionTrigger::UpdateShown() {
                                     : 0;
   ShakeState = (ShakeState == 0) ? 0 : ShakeState - 1;
   if (PADinputButtonWentDown & PAD1L2) {
-    switch (ScrWork[SW_CHLCC_DELUSION_STATE]) {
+    switch (ScrWork[SW_DELUSION_STATE]) {
       case DS_Neutral:
-        ScrWork[SW_CHLCC_DELUSION_STATE] = DS_Positive;
+        ScrWork[SW_DELUSION_STATE] = DS_Positive;
         PlayClickSound();
         ShakeState = 6;
         break;
       case DS_Negative:
-        ScrWork[SW_CHLCC_DELUSION_STATE] = DS_Neutral;
+        ScrWork[SW_DELUSION_STATE] = DS_Neutral;
         break;
       case DS_Positive:
       default:
         break;
     }
   } else if (PADinputButtonWentDown & PAD1R2) {
-    switch (ScrWork[SW_CHLCC_DELUSION_STATE]) {
+    switch (ScrWork[SW_DELUSION_STATE]) {
       case DS_Neutral:
-        ScrWork[SW_CHLCC_DELUSION_STATE] = DS_Negative;
+        ScrWork[SW_DELUSION_STATE] = DS_Negative;
         PlayClickSound();
         ShakeState = 6;
         break;
       case DS_Positive:
-        ScrWork[SW_CHLCC_DELUSION_STATE] = DS_Neutral;
+        ScrWork[SW_DELUSION_STATE] = DS_Neutral;
         break;
       case DS_Negative:
       default:
@@ -253,18 +253,18 @@ void DelusionTrigger::UpdateShown() {
     }
   }
 
-  if (ScrWork[SW_CHLCC_DELUSION_STATE] != DS_Neutral) {
+  if (ScrWork[SW_DELUSION_STATE] != DS_Neutral) {
     if (TriggerOnTintAlpha < 104) {
       TriggerOnTintAlpha = TriggerOnTintAlpha + 4;
     }
-    if (ScrWork[SW_CHLCC_DELUSION_STATE] == DS_Positive) {
+    if (ScrWork[SW_DELUSION_STATE] == DS_Positive) {
       if (spinRate < 40) {
         spinRate = spinRate + 2;
       }
       if (UnderlayerXRate < 2400) {
         UnderlayerXRate += 100;
       }
-    } else if (ScrWork[SW_CHLCC_DELUSION_STATE] == DS_Negative) {
+    } else if (ScrWork[SW_DELUSION_STATE] == DS_Negative) {
       if (spinRate > -40) {
         spinRate = spinRate - 2;
       }
