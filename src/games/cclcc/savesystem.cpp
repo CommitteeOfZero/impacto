@@ -9,6 +9,8 @@
 #include "../../profile/vm.h"
 #include "../../ui/mapsystem.h"
 #include "../../renderer/renderer.h"
+#include "../../hud/tipsnotification.h"
+#include "../../inputsystem.h"
 
 #include "yesnotrigger.h"
 
@@ -316,6 +318,39 @@ void SaveSystem::WriteSaveFile() {
   Io::WriteArrayLE<int>(&ScrWork[1600], stream, 400);
   Io::WriteArrayLE<int>(&ScrWork[2000], stream, 100);
 
+  // Config settings
+  stream->Seek(0x8AC, SEEK_SET);
+  Io::WriteLE(stream, (Uint16)(TextSpeed * 60));
+  Io::WriteLE(stream, (Uint16)(AutoSpeed * 60));
+  Io::WriteLE(stream, (Uint8)(Audio::GroupVolumes[Audio::ACG_Voice] *
+                              128));  // VOICE2vol
+  Io::WriteLE(stream, (Uint8)(Audio::GroupVolumes[Audio::ACG_Voice] *
+                              128));  // VOICEvol
+  Io::WriteLE(stream, (Uint8)(Audio::GroupVolumes[Audio::ACG_BGM] * 128));
+  Io::WriteLE(stream,
+              (Uint8)(Audio::GroupVolumes[Audio::ACG_SE] * 128));  // SEvol
+  Io::WriteLE(
+      stream,
+      (Uint8)(Audio::GroupVolumes[Audio::ACG_SE] * 0.6 * 128));  // SYSSEvol
+  Io::WriteLE(stream, (Uint8)(Audio::GroupVolumes[Audio::ACG_Movie] * 128));
+  Io::WriteLE(stream, SyncVoice);
+  Io::WriteLE(stream, !SkipRead);
+
+  stream->Seek(0x8BE, SEEK_SET);
+  for (size_t i = 0; i < 33; i++) Io::WriteLE(stream, !Audio::VoiceMuted[i]);
+  for (size_t i = 0; i < 33; i++)
+    Io::WriteLE(stream, (Uint8)(Audio::VoiceVolume[i] * 128));
+
+  stream->Seek(0x901, SEEK_SET);
+  Io::WriteLE(stream, SkipVoice);
+  Io::WriteLE(stream, TipsNotification::ShowNotification);
+
+  stream->Seek(0x905, SEEK_SET);
+  Io::WriteLE(stream, Input::AdvanceTextOnDirectionalInput);
+  Io::WriteLE(stream, Input::DirectionalInputForTrigger);
+  Io::WriteLE(stream, TriggerStopSkip);
+
+  // EV Flags
   stream->Seek(0xC0E, SEEK_SET);
   for (int i = 0; i < 150; i++) {
     auto val = Io::ReadU8(stream);
