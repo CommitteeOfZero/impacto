@@ -114,6 +114,35 @@ SaveError SaveSystem::MountSaveFile() {
   Io::ReadArrayLE<int>(&ScrWork[1600], stream, 400);
   Io::ReadArrayLE<int>(&ScrWork[2000], stream, 100);
 
+  // Config settings
+  stream->Seek(0x8AC, SEEK_SET);
+  TextSpeed = Io::ReadLE<Uint16>(stream) / 60.0f;
+  AutoSpeed = Io::ReadLE<Uint16>(stream) / 60.0f;
+  stream->Seek(1, SEEK_CUR);  // VOICE2vol
+  Audio::GroupVolumes[Audio::ACG_Voice] = Io::ReadLE<Uint8>(stream) / 128.0f;
+  Audio::GroupVolumes[Audio::ACG_BGM] = Io::ReadLE<Uint8>(stream) / 128.0f;
+  Audio::GroupVolumes[Audio::ACG_SE] = Io::ReadLE<Uint8>(stream) / 128.0f;
+  stream->Seek(1, SEEK_CUR);  // SYSSEvol
+  Audio::GroupVolumes[Audio::ACG_Movie] = Io::ReadLE<Uint8>(stream) / 128.0f;
+  SyncVoice = Io::ReadLE<bool>(stream);
+  SkipRead = !Io::ReadLE<bool>(stream);
+
+  stream->Seek(0x8BE, SEEK_SET);
+  for (size_t i = 0; i < 33; i++)
+    Audio::VoiceMuted[i] = !Io::ReadLE<bool>(stream);
+  for (size_t i = 0; i < 33; i++)
+    Audio::VoiceVolume[i] = Io::ReadLE<Uint8>(stream) / 128.0f;
+
+  stream->Seek(0x901, SEEK_SET);
+  SkipVoice = Io::ReadLE<bool>(stream);
+  TipsNotification::ShowNotification = Io::ReadLE<bool>(stream);
+
+  stream->Seek(0x905, SEEK_SET);
+  Input::AdvanceTextOnDirectionalInput = Io::ReadLE<bool>(stream);
+  Input::DirectionalInputForTrigger = Io::ReadLE<bool>(stream);
+  TriggerStopSkip = Io::ReadLE<bool>(stream);
+
+  // EV Flags
   stream->Seek(0xC0E, SEEK_SET);
   for (int i = 0; i < 150; i++) {
     auto val = Io::ReadU8(stream);
