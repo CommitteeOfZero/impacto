@@ -14,9 +14,13 @@ namespace Widgets {
 
 using namespace Impacto::Profile::BacklogMenu;
 
-BacklogEntry::BacklogEntry(int id, uint8_t* str, int audioId, glm::vec2 pos,
-                           const RectF& hoverBounds)
-    : Id(id), AudioId(audioId), Position(pos), HoverBounds(hoverBounds) {
+BacklogEntry::BacklogEntry(int id, uint8_t* str, int audioId, int characterId,
+                           glm::vec2 pos, const RectF& hoverBounds)
+    : Id(id),
+      AudioId(audioId),
+      CharacterId(characterId),
+      Position(pos),
+      HoverBounds(hoverBounds) {
   Enabled = true;
 
   BacklogPage = new DialoguePage();
