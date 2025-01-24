@@ -175,7 +175,7 @@ VmInstruction(InstMes) {
   }
 
   thread->Ip = oldIp;
-  UI::BacklogMenuPtr->AddMessage(line, audioId);
+  UI::BacklogMenuPtr->AddMessage(line, audioId, characterId);
 
   dialoguePage.AutoWaitTime = (float)dialoguePage.Glyphs.size();
 }
@@ -621,7 +621,7 @@ VmInstruction(InstSetRevMes) {
   uint32_t scriptId = LoadedScriptMetas[thread->ScriptBufferId].Id;
 
   SaveSystem::SetLineRead(scriptId, lineId);
-  UI::BacklogMenuPtr->AddMessage(line);
+  UI::BacklogMenuPtr->AddMessage(line, audioId, animationId);
 }
 
 void ChkMesSkip() {

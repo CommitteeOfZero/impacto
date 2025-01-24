@@ -12,10 +12,6 @@ namespace CC {
 using namespace Impacto::Profile::BacklogMenu;
 using namespace Impacto::Profile::CC::BacklogMenu;
 
-BacklogEntry::BacklogEntry(int id, uint8_t* str, int audioId, glm::vec2 pos,
-                           const RectF& hoverBounds)
-    : Widgets::BacklogEntry(id, str, audioId, pos, hoverBounds) {}
-
 void BacklogEntry::Render() {
   if (AudioId != -1) {
     RectF bounds = RectF(Bounds.X - VoiceIcon.ScaledWidth() + VoiceIconOffset.x,
