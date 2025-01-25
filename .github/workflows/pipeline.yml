@@ -39,10 +39,14 @@ jobs:
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v4
-      - name: Set clang-format version
+      - name: Update clang-format
         run: |
-          sudo update-alternatives --set clang-format /usr/bin/clang-format-18
-          clang-format --version  
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 19
+          sudo apt install clang-format-19
+          sudo update-alternatives --set clang-format /usr/bin/clang-format-19
+          clang-format --version
 
       - name: Run linters
         uses: wearerequired/lint-action@v2
