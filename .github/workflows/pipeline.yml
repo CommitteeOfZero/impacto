@@ -45,7 +45,9 @@ jobs:
           chmod +x llvm.sh
           sudo ./llvm.sh 19
           sudo apt install -y clang-format-19
-          sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-19 10
+          sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-19 1000
+          sudo update-alternatives --set clang-format /usr/bin/clang-format-19
+          sudo update-alternatives --display clang-format
           clang-format --version
 
       - name: Run linters
