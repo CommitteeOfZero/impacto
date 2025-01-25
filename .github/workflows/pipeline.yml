@@ -53,11 +53,10 @@ jobs:
       - name: Run linters
         uses: wearerequired/lint-action@v2
         with:
-          auto_fix: true
+          auto_fix: ${{(env.BRANCH_NAME == 'master') && 'false' || 'true'}}
           clang_format: true
-          clang_format_auto_fix: true
+          clang_format_auto_fix: ${{(env.BRANCH_NAME == 'master') && 'false' || 'true'}}
           continue_on_error: false
-      
       - name: Get latest commit
         id: commit
         run: |
