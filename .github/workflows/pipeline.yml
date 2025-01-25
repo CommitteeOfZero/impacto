@@ -44,8 +44,8 @@ jobs:
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
           sudo ./llvm.sh 19
-          sudo apt install clang-format-19
-          sudo update-alternatives --set clang-format /usr/bin/clang-format-19
+          sudo apt install -y clang-format-19
+          sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-19 10
           clang-format --version
 
       - name: Run linters
