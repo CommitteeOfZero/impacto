@@ -16,6 +16,7 @@
 #include "../profile/games/cclcc/systemmenu.h"
 #include "../inputsystem.h"
 #include "../io/vfs.h"
+#include "../configsystem.h"
 
 namespace Impacto {
 namespace UI {
@@ -29,9 +30,9 @@ using namespace Impacto::UI::Widgets;
 
 void BacklogMenu::MenuButtonOnClick(Widgets::BacklogEntry* target) {
   if (target->AudioId != -1) {
-    const float volume = Audio::VoiceMuted[target->CharacterId]
+    const float volume = ConfigSystem::VoiceMuted[target->CharacterId]
                              ? 0.0f
-                             : Audio::VoiceVolume[target->CharacterId];
+                             : ConfigSystem::VoiceVolume[target->CharacterId];
     Audio::Channels[Audio::AC_REV]->Volume = volume;
     Audio::Channels[Audio::AC_REV]->Play("voice", target->AudioId, false, 0.0f);
   }

@@ -1,5 +1,6 @@
 #include "../profile/hud/delusiontrigger.h"
 #include "../text.h"
+#include "../configsystem.h"
 
 namespace Impacto {
 namespace DelusionTrigger {
@@ -15,7 +16,7 @@ void Show() {
 
 bool Show(int bgMtrgSelBufferId, int bgMtrgNegaPosiBufferId, int param3) {
   if (Implementation) {
-    if (TriggerStopSkip) MesSkipMode &= SkipModeFlags::Auto;
+    if (ConfigSystem::TriggerStopSkip) MesSkipMode &= SkipModeFlags::Auto;
     return Implementation->Show(bgMtrgSelBufferId, bgMtrgNegaPosiBufferId,
                                 param3);
   }

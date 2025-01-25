@@ -9,8 +9,7 @@
 #include "../../profile/vm.h"
 #include "../../ui/mapsystem.h"
 #include "../../renderer/renderer.h"
-#include "../../hud/tipsnotification.h"
-#include "../../inputsystem.h"
+#include "../../configsystem.h"
 
 #include "yesnotrigger.h"
 
@@ -25,6 +24,7 @@ using namespace Impacto::Vm;
 using namespace Impacto::Profile::SaveSystem;
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Vm;
+using namespace Impacto::ConfigSystem;
 
 SaveError SaveSystem::CheckSaveFile() {
   std::error_code ec;
@@ -128,18 +128,17 @@ SaveError SaveSystem::MountSaveFile() {
   SkipRead = !Io::ReadLE<bool>(stream);
 
   stream->Seek(0x8BE, SEEK_SET);
+  for (size_t i = 0; i < 33; i++) VoiceMuted[i] = !Io::ReadLE<bool>(stream);
   for (size_t i = 0; i < 33; i++)
-    Audio::VoiceMuted[i] = !Io::ReadLE<bool>(stream);
-  for (size_t i = 0; i < 33; i++)
-    Audio::VoiceVolume[i] = Io::ReadLE<Uint8>(stream) / 128.0f;
+    VoiceVolume[i] = Io::ReadLE<Uint8>(stream) / 128.0f;
 
   stream->Seek(0x901, SEEK_SET);
   SkipVoice = Io::ReadLE<bool>(stream);
-  TipsNotification::ShowNotification = Io::ReadLE<bool>(stream);
+  ShowTipsNotification = Io::ReadLE<bool>(stream);
 
   stream->Seek(0x905, SEEK_SET);
-  Input::AdvanceTextOnDirectionalInput = Io::ReadLE<bool>(stream);
-  Input::DirectionalInputForTrigger = Io::ReadLE<bool>(stream);
+  AdvanceTextOnDirectionalInput = Io::ReadLE<bool>(stream);
+  DirectionalInputForTrigger = Io::ReadLE<bool>(stream);
   TriggerStopSkip = Io::ReadLE<bool>(stream);
 
   // EV Flags
@@ -366,17 +365,17 @@ void SaveSystem::WriteSaveFile() {
   Io::WriteLE(stream, !SkipRead);
 
   stream->Seek(0x8BE, SEEK_SET);
-  for (size_t i = 0; i < 33; i++) Io::WriteLE(stream, !Audio::VoiceMuted[i]);
+  for (size_t i = 0; i < 33; i++) Io::WriteLE(stream, !VoiceMuted[i]);
   for (size_t i = 0; i < 33; i++)
-    Io::WriteLE(stream, (Uint8)(Audio::VoiceVolume[i] * 128));
+    Io::WriteLE(stream, (Uint8)(VoiceVolume[i] * 128));
 
   stream->Seek(0x901, SEEK_SET);
   Io::WriteLE(stream, SkipVoice);
-  Io::WriteLE(stream, TipsNotification::ShowNotification);
+  Io::WriteLE(stream, ShowTipsNotification);
 
   stream->Seek(0x905, SEEK_SET);
-  Io::WriteLE(stream, Input::AdvanceTextOnDirectionalInput);
-  Io::WriteLE(stream, Input::DirectionalInputForTrigger);
+  Io::WriteLE(stream, AdvanceTextOnDirectionalInput);
+  Io::WriteLE(stream, DirectionalInputForTrigger);
   Io::WriteLE(stream, TriggerStopSkip);
 
   // EV Flags

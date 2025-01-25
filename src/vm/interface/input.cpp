@@ -3,6 +3,7 @@
 #include "../../impacto.h"
 #include "../../mem.h"
 #include "../../inputsystem.h"
+#include "../../configsystem.h"
 #include "../../animation.h"
 #include "../../profile/vm.h"
 #include "../../profile/scriptinput.h"
@@ -159,17 +160,15 @@ bool GetControlState(int controlId) {
     }
     case CT_DelusionTriggerL: {
       return (PADinputButtonWentDown &
-              PADcustom[36 + 2 * Input::DirectionalInputForTrigger]) ||
+              PADcustom[36 + 2 * ConfigSystem::DirectionalInputForTrigger]) ||
              (PADinputMouseWentDown &
-              PADcustom[36 + 2 * Input::DirectionalInputForTrigger]) ||
-             (Input::DirectionalInputForTrigger &&
-              (PADinputButtonWentDown & PAD1LEFT));
+              PADcustom[36 + 2 * ConfigSystem::DirectionalInputForTrigger]);
     }
     case CT_DelusionTriggerR: {
       return (PADinputButtonWentDown &
-              PADcustom[37 + 2 * Input::DirectionalInputForTrigger]) ||
+              PADcustom[37 + 2 * ConfigSystem::DirectionalInputForTrigger]) ||
              (PADinputMouseWentDown &
-              PADcustom[37 + 2 * Input::DirectionalInputForTrigger]);
+              PADcustom[37 + 2 * ConfigSystem::DirectionalInputForTrigger]);
     }
     default:
       return false;

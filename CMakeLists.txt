@@ -31,6 +31,7 @@ set(Impacto_Src
         src/minilua_impl.c
         src/voicetable.cpp
         src/animation.cpp
+        src/configsystem.cpp
 
         src/renderer/renderer.cpp
 
@@ -357,6 +358,7 @@ set(Impacto_Header
         src/rng.h
         src/animation.h
         src/minilua_impl.h
+        src/configsystem.h
 
         src/renderer/renderer.h
         src/renderer/window.h

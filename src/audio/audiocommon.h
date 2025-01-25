@@ -27,8 +27,6 @@ enum AudioChannelState {
   ACS_FadingOut
 };
 
-constexpr int VoiceCount = 33;
-
 class AudioChannel;
 class AudioStream;
 
