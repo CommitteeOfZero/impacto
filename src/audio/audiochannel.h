@@ -9,7 +9,7 @@ namespace Audio {
 
 class AudioChannel {
  public:
-  virtual ~AudioChannel(){};
+  virtual ~AudioChannel() {};
 
   virtual void Init(AudioChannelId id, AudioChannelGroup group) {
     Id = id;
