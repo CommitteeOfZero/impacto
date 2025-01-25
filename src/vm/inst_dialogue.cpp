@@ -15,8 +15,8 @@
 #include "../ui/ui.h"
 #include "interface/input.h"
 #include "../text.h"
-#include "../inputsystem.h"
 #include "vm.h"
+#include "../configsystem.h"
 
 namespace Impacto {
 
@@ -187,7 +187,7 @@ VmInstruction(InstMesMain) {
   bool advanceButtonWentDown =
       Interface::PADinputButtonWentDown & Interface::PAD1A ||
       Interface::PADinputMouseWentDown & Interface::PAD1A ||
-      (Input::AdvanceTextOnDirectionalInput &&
+      (ConfigSystem::AdvanceTextOnDirectionalInput &&
        Interface::PADinputButtonWentDown &
            (Interface::PAD1UP | Interface::PAD1DOWN | Interface::PAD1LEFT |
             Interface::PAD1RIGHT));
@@ -212,7 +212,8 @@ VmInstruction(InstMesMain) {
                                   ScrWork[2 * currentPage->Id + SW_LINEID]);
           SetFlag(SF_SHOWWAITICON + thread->DialoguePageId, false);
 
-          if (SkipVoice) Audio::Channels[Audio::AC_VOICE0]->Stop(0.0f);
+          if (ConfigSystem::SkipVoice)
+            Audio::Channels[Audio::AC_VOICE0]->Stop(0.0f);
 
           BlockThread;
           return;
@@ -640,8 +641,8 @@ void ChkMesSkip() {
         // Turn off all skip modes (leaving auto)
         MesSkipMode &= SkipModeFlags::Auto;
       else
-        MesSkipMode |=
-            (SkipRead ? SkipModeFlags::SkipRead : SkipModeFlags::SkipAll);
+        MesSkipMode |= (ConfigSystem::SkipRead ? SkipModeFlags::SkipRead
+                                               : SkipModeFlags::SkipAll);
 
     // Auto
     if (Interface::PADinputButtonWentDown & Interface::PADcustom[9])

@@ -7,6 +7,7 @@
 #include "log.h"
 #include "inputsystem.h"
 #include "debugmenu.h"
+#include "configsystem.h"
 
 #include "ui/ui.h"
 
@@ -91,6 +92,8 @@ static void Init() {
 
   memset(ScrWork, 0, sizeof(ScrWork));
   memset(FlagWork, 0, sizeof(FlagWork));
+
+  ConfigSystem::Init();
 
   if (Profile::GameFeatures & GameFeature::Renderer2D) {
     Profile::LoadSpritesheets();

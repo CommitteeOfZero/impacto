@@ -1,5 +1,6 @@
 #include "optionsmenu.h"
 
+#include "../../configsystem.h"
 #include "../../profile/game.h"
 #include "../../profile/ui/optionsmenu.h"
 #include "../../profile/games/cclcc/optionsmenu.h"
@@ -8,8 +9,6 @@
 #include "../../ui/widgets/cclcc/optionsbinarybutton.h"
 #include "../../ui/widgets/cclcc/optionsslider.h"
 #include "../../ui/widgets/cclcc/optionsvoiceslider.h"
-#include "../../hud/tipsnotification.h"
-#include "../../inputsystem.h"
 #include "../../audio/audiosystem.h"
 
 namespace Impacto {
@@ -22,6 +21,7 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::UI::Widgets;
 using namespace Impacto::UI::Widgets::CCLCC;
 using namespace Impacto::Vm::Interface;
+using namespace Impacto::ConfigSystem;
 
 std::unique_ptr<Group> OptionsMenu::CreateBasicPage(
     const std::function<void(OptionsEntry*)>& select,
@@ -29,22 +29,22 @@ std::unique_ptr<Group> OptionsMenu::CreateBasicPage(
   const glm::vec4 highlightTint(HighlightColor, 1.0f);
   std::unique_ptr<Group> basicPage = std::make_unique<Group>(this);
 
-  basicPage->Add(new OptionsBinaryButton(TipsNotification::ShowNotification,
-                                         BinaryBoxSprite, OnSprite, OffSprite,
-                                         LabelSprites[0], EntriesStartPosition,
-                                         highlightTint, select, highlight),
-                 FDIR_DOWN);
+  basicPage->Add(
+      new OptionsBinaryButton(ShowTipsNotification, BinaryBoxSprite, OnSprite,
+                              OffSprite, LabelSprites[0], EntriesStartPosition,
+                              highlightTint, select, highlight),
+      FDIR_DOWN);
   basicPage->Add(
       new OptionsBinaryButton(
-          Input::AdvanceTextOnDirectionalInput, BinaryBoxSprite, OnSprite,
-          OffSprite, LabelSprites[1],
+          AdvanceTextOnDirectionalInput, BinaryBoxSprite, OnSprite, OffSprite,
+          LabelSprites[1],
           EntriesStartPosition + glm::vec2(0.0f, EntriesVerticalOffset),
           highlightTint, select, highlight),
       FDIR_DOWN);
   basicPage->Add(
       new OptionsBinaryButton(
-          Input::DirectionalInputForTrigger, BinaryBoxSprite, OnSprite,
-          OffSprite, LabelSprites[2],
+          DirectionalInputForTrigger, BinaryBoxSprite, OnSprite, OffSprite,
+          LabelSprites[2],
           EntriesStartPosition + glm::vec2(0.0f, EntriesVerticalOffset * 2),
           highlightTint, select, highlight),
       FDIR_DOWN);
@@ -152,10 +152,9 @@ std::unique_ptr<Group> OptionsMenu::CreateVoicePage(
         VoiceEntriesOffset * glm::vec2(i % columns, i / columns);
 
     Widget* widget = new OptionsVoiceSlider(
-        Audio::VoiceVolume[i], 0.0f, 1.0f, Audio::VoiceMuted[i],
-        VoiceSliderTrackSprite, NametagSprites[i], PortraitSprites[2 * i],
-        PortraitSprites[2 * i + 1], pos, highlightTint, SliderSpeed, select,
-        highlight);
+        VoiceVolume[i], 0.0f, 1.0f, VoiceMuted[i], VoiceSliderTrackSprite,
+        NametagSprites[i], PortraitSprites[2 * i], PortraitSprites[2 * i + 1],
+        pos, highlightTint, SliderSpeed, select, highlight);
     voicePage->Add(widget, FDIR_RIGHT);
   }
 
@@ -378,9 +377,9 @@ void OptionsMenu::Highlight(Widget* toHighlight) {
 void OptionsMenu::ResetToDefault() {
   switch (CurrentPage) {
     case PageType::Basic: {
-      TipsNotification::ShowNotification = true;
-      Input::AdvanceTextOnDirectionalInput = false;
-      Input::DirectionalInputForTrigger = false;
+      ShowTipsNotification = true;
+      AdvanceTextOnDirectionalInput = false;
+      DirectionalInputForTrigger = false;
       TriggerStopSkip = true;
       break;
     }
@@ -397,8 +396,8 @@ void OptionsMenu::ResetToDefault() {
       break;
     }
     case PageType::Voice: {
-      std::fill_n(Audio::VoiceMuted, Audio::VoiceCount, false);
-      std::fill_n(Audio::VoiceVolume, Audio::VoiceCount, 1.0f);
+      std::fill_n(VoiceMuted, VoiceCount, false);
+      std::fill_n(VoiceVolume, VoiceCount, 1.0f);
       break;
     }
     default:

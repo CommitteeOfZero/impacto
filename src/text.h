@@ -167,21 +167,4 @@ uint32_t GetNameId(uint8_t* name, int nameLength);
 // Bitfield denoting the skip mode, according to SkipModeFlags
 inline uint8_t MesSkipMode = 0;
 
-// Text speed
-inline float TextSpeed = 768.0f / 60.0f;
-constexpr inline glm::vec2 TextSpeedBounds = glm::vec2(256.0f, 4096.0f) / 60.0f;
-
-// Speed to skip in auto mode (MessWaitSpeed)
-inline float AutoSpeed = 768.0f / 60.0f;
-// Menu is essentially auto *time* as opposed to auto *speed*
-constexpr inline glm::vec2 AutoSpeedBounds = glm::vec2(2048.0f, 256.0f) / 60.0f;
-
-inline bool SkipRead = true;    // Only skip read text
-inline bool SkipVoice = false;  // Stop voice line after dialogue progression
-inline bool SyncVoice = true;   // Sync text speed with voice line duration
-
-// Stop skip mode when reaching a trigger
-// (e.g. delusion trigger, phone trigger, etc.)
-inline bool TriggerStopSkip = true;
-
 }  // namespace Impacto

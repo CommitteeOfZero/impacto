@@ -5,7 +5,6 @@
 #include "../../vm/interface/input.h"
 #include "../../profile/scriptvars.h"
 #include "../../src/video/videosystem.h"
-#include "../../inputsystem.h"
 
 namespace Impacto {
 namespace CCLCC {
