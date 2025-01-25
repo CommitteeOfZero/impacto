@@ -1,6 +1,6 @@
 #include "datedisplay.h"
 
-#include "../configsystem.h"
+#include "../profile/configsystem.h"
 #include "../profile/hud/tipsnotification.h"
 
 namespace Impacto {
@@ -16,7 +16,7 @@ void Render() {
 }
 
 void AddTip(int tipId) {
-  if (Implementation && ConfigSystem::ShowTipsNotification)
+  if (Implementation && Profile::ConfigSystem::ShowTipsNotification)
     Implementation->AddTip(tipId);
 }
 

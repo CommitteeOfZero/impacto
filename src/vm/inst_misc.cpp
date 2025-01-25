@@ -5,13 +5,13 @@
 #include "expression.h"
 #include "interface/input.h"
 #include "../profile/scriptvars.h"
+#include "../profile/configsystem.h"
 #include "../game.h"
 #include "../mem.h"
 #include "../log.h"
 #include "../hud/saveicondisplay.h"
 #include "../ui/ui.h"
 #include "../data/savesystem.h"
-#include "../configsystem.h"
 
 #include "../profile/vm.h"
 #include "../games/cclcc/systemmenu.h"
@@ -575,7 +575,7 @@ VmInstruction(InstTitleMenuOld) {
 VmInstruction(InstSetPlayMode) {
   StartInstruction;
   PopExpression(arg1);
-  MesSkipMode = (arg1 == 4) ? (!ConfigSystem::SkipRead) + 1 : arg1;
+  MesSkipMode = (arg1 == 4) ? (!Profile::ConfigSystem::SkipRead) + 1 : arg1;
 }
 VmInstruction(InstSetEVflag) {
   StartInstruction;

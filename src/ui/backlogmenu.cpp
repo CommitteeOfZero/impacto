@@ -9,6 +9,7 @@
 #include "../profile/scriptvars.h"
 #include "../profile/scriptinput.h"
 #include "../profile/dialogue.h"
+#include "../profile/configsystem.h"
 #include "../profile/ui/backlogmenu.h"
 #include "../profile/ui/systemmenu.h"
 #include "../profile/games/mo6tw/backlogmenu.h"
@@ -16,7 +17,6 @@
 #include "../profile/games/cclcc/systemmenu.h"
 #include "../inputsystem.h"
 #include "../io/vfs.h"
-#include "../configsystem.h"
 
 namespace Impacto {
 namespace UI {
@@ -30,9 +30,10 @@ using namespace Impacto::UI::Widgets;
 
 void BacklogMenu::MenuButtonOnClick(Widgets::BacklogEntry* target) {
   if (target->AudioId != -1) {
-    const float volume = ConfigSystem::VoiceMuted[target->CharacterId]
-                             ? 0.0f
-                             : ConfigSystem::VoiceVolume[target->CharacterId];
+    const float volume =
+        Profile::ConfigSystem::VoiceMuted[target->CharacterId]
+            ? 0.0f
+            : Profile::ConfigSystem::VoiceVolume[target->CharacterId];
     Audio::Channels[Audio::AC_REV]->Volume = volume;
     Audio::Channels[Audio::AC_REV]->Play("voice", target->AudioId, false, 0.0f);
   }

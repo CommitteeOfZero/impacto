@@ -2,7 +2,7 @@
 #include "../log.h"
 #include "../profile/game.h"
 #include "../profile/scriptvars.h"
-#include "../configsystem.h"
+#include "../profile/configsystem.h"
 
 #ifndef IMPACTO_DISABLE_OPENAL
 #include "openal/audiobackend.h"
@@ -53,10 +53,6 @@ void AudioInit() {
 
   if (!Backend->Init()) return;
 
-  for (int i = 0; i < ACG_Count; i++) {
-    GroupVolumes[i] = 0.5f;
-  }
-
   for (int i = AC_SE0; i <= AC_SE2; i++)
     Channels[i]->Init((AudioChannelId)i, ACG_SE);
   for (int i = AC_VOICE0; i <= AC_REV; i++)
@@ -74,9 +70,9 @@ void AudioUpdate(float dt) {
     const int charId = ScrWork[SW_ANIME0CHANO + (i - AC_VOICE0)];
     const int mappedCharId = ScrWork[SW_CHARACTERIDMAPPING + charId];
     const float voiceVolumeModifier =
-        ConfigSystem::VoiceMuted[mappedCharId]
+        Profile::ConfigSystem::VoiceMuted[mappedCharId]
             ? 0.0f
-            : ConfigSystem::VoiceVolume[mappedCharId];
+            : Profile::ConfigSystem::VoiceVolume[mappedCharId];
     Channels[i]->Volume = voiceVolumeModifier;
   }
 
