@@ -9,7 +9,7 @@
 #include "../../profile/vm.h"
 #include "../../ui/mapsystem.h"
 #include "../../renderer/renderer.h"
-#include "../../configsystem.h"
+#include "../../profile/configsystem.h"
 
 #include "yesnotrigger.h"
 
@@ -24,7 +24,7 @@ using namespace Impacto::Vm;
 using namespace Impacto::Profile::SaveSystem;
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Vm;
-using namespace Impacto::ConfigSystem;
+using namespace Impacto::Profile::ConfigSystem;
 
 SaveError SaveSystem::CheckSaveFile() {
   std::error_code ec;

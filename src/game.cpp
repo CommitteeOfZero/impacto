@@ -7,7 +7,6 @@
 #include "log.h"
 #include "inputsystem.h"
 #include "debugmenu.h"
-#include "configsystem.h"
 
 #include "ui/ui.h"
 
@@ -40,6 +39,7 @@
 #include "profile/scene3d.h"
 #include "profile/vm.h"
 #include "profile/scriptvars.h"
+#include "profile/configsystem.h"
 #include "profile/ui/selectionmenu.h"
 #include "profile/ui/sysmesbox.h"
 #include "profile/ui/systemmenu.h"
@@ -82,6 +82,8 @@ static void Init() {
 
   memset(DrawComponents, DrawComponentType::None, sizeof(DrawComponents));
 
+  Profile::ConfigSystem::Configure();
+
   if (Profile::GameFeatures & GameFeature::Audio) {
     Audio::AudioInit();
   }
@@ -92,8 +94,6 @@ static void Init() {
 
   memset(ScrWork, 0, sizeof(ScrWork));
   memset(FlagWork, 0, sizeof(FlagWork));
-
-  ConfigSystem::Init();
 
   if (Profile::GameFeatures & GameFeature::Renderer2D) {
     Profile::LoadSpritesheets();

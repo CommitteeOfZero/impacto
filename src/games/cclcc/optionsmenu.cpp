@@ -1,6 +1,6 @@
 #include "optionsmenu.h"
 
-#include "../../configsystem.h"
+#include "../../profile/configsystem.h"
 #include "../../profile/game.h"
 #include "../../profile/ui/optionsmenu.h"
 #include "../../profile/games/cclcc/optionsmenu.h"
@@ -18,10 +18,10 @@ namespace CCLCC {
 using namespace Impacto::Profile::OptionsMenu;
 using namespace Impacto::Profile::CCLCC::OptionsMenu;
 using namespace Impacto::Profile::ScriptVars;
+using namespace Impacto::Profile::ConfigSystem;
 using namespace Impacto::UI::Widgets;
 using namespace Impacto::UI::Widgets::CCLCC;
 using namespace Impacto::Vm::Interface;
-using namespace Impacto::ConfigSystem;
 
 std::unique_ptr<Group> OptionsMenu::CreateBasicPage(
     const std::function<void(OptionsEntry*)>& select,
@@ -377,27 +377,30 @@ void OptionsMenu::Highlight(Widget* toHighlight) {
 void OptionsMenu::ResetToDefault() {
   switch (CurrentPage) {
     case PageType::Basic: {
-      ShowTipsNotification = true;
-      AdvanceTextOnDirectionalInput = false;
-      DirectionalInputForTrigger = false;
-      TriggerStopSkip = true;
+      ShowTipsNotification = Default::ShowTipsNotification;
+      AdvanceTextOnDirectionalInput = Default::AdvanceTextOnDirectionalInput;
+      DirectionalInputForTrigger = Default::DirectionalInputForTrigger;
+      TriggerStopSkip = Default::TriggerStopSkip;
       break;
     }
     case PageType::Text: {
-      TextSpeed = 768.0f / 60.0f;
-      AutoSpeed = 768.0f / 60.0f;
-      SkipRead = true;
+      TextSpeed = Default::TextSpeed;
+      AutoSpeed = Default::AutoSpeed;
+      SkipRead = Default::SkipRead;
       break;
     }
     case PageType::Sound: {
-      std::fill_n(Audio::GroupVolumes, Audio::ACG_Count, 0.5f);
-      SyncVoice = true;
-      SkipVoice = false;
+      std::copy(std::begin(Default::GroupVolumes),
+                std::end(Default::GroupVolumes), Audio::GroupVolumes);
+      SyncVoice = Default::SyncVoice;
+      SkipVoice = Default::SkipVoice;
       break;
     }
     case PageType::Voice: {
-      std::fill_n(VoiceMuted, VoiceCount, false);
-      std::fill_n(VoiceVolume, VoiceCount, 1.0f);
+      std::copy(std::begin(Default::VoiceMuted), std::end(Default::VoiceMuted),
+                VoiceMuted);
+      std::copy(std::begin(Default::VoiceVolume),
+                std::end(Default::VoiceVolume), VoiceVolume);
       break;
     }
     default:
