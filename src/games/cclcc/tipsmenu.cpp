@@ -222,25 +222,18 @@ void TipsMenu::UpdateInput() {
             TextPage.BoxBounds.ContainsPoint(Input::CurMousePos);
       }
 
-      // Todo: Implement scroll wheel
-      bool upScroll = (Input::CurrentInputDevice == Input::Device::Controller &&
-                       Input::ControllerAxis[SDL_CONTROLLER_AXIS_RIGHTY] <
-                           -Input::ControllerAxisLightThreshold) ||
-                      Input::KeyboardButtonIsDown[SDL_SCANCODE_LEFTBRACKET];
-
-      bool downScroll =
-          (Input::CurrentInputDevice == Input::Device::Controller &&
-           Input::ControllerAxis[SDL_CONTROLLER_AXIS_RIGHTY] >
-               Input::ControllerAxisLightThreshold) ||
-          Input::KeyboardButtonIsDown[SDL_SCANCODE_RIGHTBRACKET];
+      bool upScroll = PADinputButtonIsDown & PADcustom[32];
+      bool downScroll = PADinputButtonIsDown & PADcustom[33];
 
       int remainingScroll = TipsScrollbar->EndValue - TipPageY;
-      if (upScroll && (TipPageY > 0)) {
+      if (upScroll && downScroll) {
+      } else if (upScroll && TipPageY > 0) {
         if (scrollDistance > TipPageY) {
           scrollDistance = TipPageY;
         }
         TipPageY -= scrollDistance;
-      } else if (downScroll && (remainingScroll > 0)) {
+
+      } else if (downScroll && remainingScroll > 0) {
         if (scrollDistance > remainingScroll) {
           scrollDistance = remainingScroll;
         }
