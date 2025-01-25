@@ -78,6 +78,38 @@ SaveError SaveSystem::CreateSaveFile() {
   std::vector<uint8_t> emptyData(SaveFileSize, 0);
   Io::WriteArrayBE<uint8_t>(emptyData.data(), stream, SaveFileSize);
   assert(stream->Position == SaveFileSize);
+
+  stream->Seek(0x8AC, SEEK_SET);
+  Io::WriteLE(stream, (Uint16)(Default::TextSpeed * 60));
+  Io::WriteLE(stream, (Uint16)(Default::AutoSpeed * 60));
+  Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_Voice] *
+                              128));  // VOICE2vol
+  Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_Voice] *
+                              128));  // VOICEvol
+  Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_BGM] * 128));
+  Io::WriteLE(stream,
+              (Uint8)(Default::GroupVolumes[Audio::ACG_SE] * 128));  // SEvol
+  Io::WriteLE(
+      stream,
+      (Uint8)(Default::GroupVolumes[Audio::ACG_SE] * 0.6 * 128));  // SYSSEvol
+  Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_Movie] * 128));
+  Io::WriteLE(stream, Default::SyncVoice);
+  Io::WriteLE(stream, !Default::SkipRead);
+
+  stream->Seek(0x8BE, SEEK_SET);
+  for (size_t i = 0; i < 33; i++) Io::WriteLE(stream, !Default::VoiceMuted[i]);
+  for (size_t i = 0; i < 33; i++)
+    Io::WriteLE(stream, (Uint8)(Default::VoiceVolume[i] * 128));
+
+  stream->Seek(0x901, SEEK_SET);
+  Io::WriteLE(stream, Default::SkipVoice);
+  Io::WriteLE(stream, Default::ShowTipsNotification);
+
+  stream->Seek(0x905, SEEK_SET);
+  Io::WriteLE(stream, Default::AdvanceTextOnDirectionalInput);
+  Io::WriteLE(stream, Default::DirectionalInputForTrigger);
+  Io::WriteLE(stream, Default::TriggerStopSkip);
+
   delete stream;
 
   return MountSaveFile();
