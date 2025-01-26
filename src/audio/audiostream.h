@@ -39,7 +39,7 @@ class AudioStream {
   typedef AudioStream* (*AudioStreamCreator)(Io::Stream* stream);
   static bool AddAudioStreamCreator(AudioStreamCreator c);
 
-  AudioStream(){};
+  AudioStream() {};
 
   Io::Stream* BaseStream = 0;
 
