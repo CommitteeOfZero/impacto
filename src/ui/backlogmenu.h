@@ -1,6 +1,7 @@
 #pragma once
 
 #include "menu.h"
+#include "turboonholdhandler.h"
 #include "widgets/group.h"
 #include "widgets/backlogentry.h"
 #include "widgets/scrollbar.h"
@@ -32,11 +33,8 @@ class BacklogMenu : public Menu {
   Animation FadeAnimation;
   Widgets::Scrollbar* MainScrollbar;
 
-  float DirectionalButtonHeldTime = 0.0f;
-  float AdvanceFocusWaitTime = 0.0f;
-
-  float PageUpDownButtonHeldTime = 0.0f;
-  float PageUpDownWaitTime = 0.0f;
+  TurboOnHoldHandler DirectionButtonHeldHandler;
+  TurboOnHoldHandler PageUpDownButtonHeldHandler;
 
   void RenderHighlight() const;
   virtual Widgets::BacklogEntry* CreateBacklogEntry(
