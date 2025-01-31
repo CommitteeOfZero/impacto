@@ -74,7 +74,7 @@ root.OptionsMenu = {
     VoicePosition = { X = 454, Y = 310 },
 
     MinButtonHoldTime = 0.5,
-    ButtonHoldTimeInterval = 0.05,
+    ButtonHoldFireInterval = 0.07,
 
     MenuMask = "MenuMask",
 };

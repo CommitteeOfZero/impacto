@@ -76,7 +76,7 @@ root.OptionsMenu = {
     FadeOutDuration = 0.33,
 
     MinButtonHoldTime = 0.5,
-    ButtonHoldTimeInterval = 0.05,
+    ButtonHoldFireInterval = 0.07,
 };
 
 root.Sprites["OptionsBackground"] = {

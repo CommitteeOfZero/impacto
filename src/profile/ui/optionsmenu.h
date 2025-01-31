@@ -13,7 +13,7 @@ inline float FadeInDuration;
 inline float FadeOutDuration;
 
 inline float MinButtonHoldTime;
-inline float ButtonHoldTimeInterval;
+inline float ButtonHoldFireInterval;
 
 void Configure();
 

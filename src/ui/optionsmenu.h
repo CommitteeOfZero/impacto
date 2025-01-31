@@ -30,7 +30,7 @@ class OptionsMenu : public Menu {
   std::vector<std::unique_ptr<Widgets::Group>> Pages;
 
   TurboOnHoldHandler DirectionButtonHeldHandler;
-  TurboOnHoldHandler PageDirectionButtonHeldHandler;
+  TurboOnHoldHandler PageButtonHeldHandler;
 };
 
 }  // namespace UI
