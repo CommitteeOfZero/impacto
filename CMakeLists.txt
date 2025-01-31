@@ -211,6 +211,7 @@ set(Impacto_Src
 
         src/ui/mapsystem.cpp
         src/ui/widget.cpp
+        src/ui/turboonholdhandler.cpp
         src/ui/menu.cpp
         src/ui/nullmenu.cpp
         src/ui/selectionmenu.cpp
@@ -528,6 +529,7 @@ set(Impacto_Header
 
         src/ui/ui.h
         src/ui/mapsystem.h
+        src/ui/turboonholdhandler.cpp
         src/ui/menu.h
         src/ui/nullmenu.h
         src/ui/selectionmenu.h
