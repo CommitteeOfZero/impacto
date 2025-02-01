@@ -59,7 +59,13 @@ TipsTabGroup::TipsTabGroup(
     : Type(type),
       TabName(type, tabClickHandler),
       TipsEntriesGroup(this),
-      TipClickHandler(tipClickHandler) {
+      TipClickHandler(tipClickHandler),
+      DirectionButtonHoldHandler(
+          MinHoldTime, AdvanceFocusTimeInterval,
+          Vm::Interface::PAD1UP | Vm::Interface::PAD1DOWN),
+      PageUpDownButtonHoldHandler(
+          MinHoldTime, AdvanceFocusTimeInterval,
+          Vm::Interface::PAD1LEFT | Vm::Interface::PAD1RIGHT) {
   TipsEntriesGroup.WrapFocus = true;
 
   TipsScrollStartPos = {TipsScrollEntriesX, TipsScrollYStart};
@@ -69,7 +75,6 @@ TipsTabGroup::TipsTabGroup(
   EntriesPerPage = std::ceil(TipsTabBounds.Height / TipsEntryBounds.Height);
 }
 
-// Todo: Next page with left right keys
 void TipsTabGroup::UpdatePageInput(float dt) {
   using namespace Vm::Interface;
   if (IsFocused) {
@@ -79,72 +84,84 @@ void TipsTabGroup::UpdatePageInput(float dt) {
     FocusDirection dir =
         (PADinputButtonIsDown & PAD1LEFT) ? FDIR_UP : FDIR_DOWN;
 
-    bool holdScroll = UpdatePageChangeTimes(dt);
-
     auto checkScrollBounds = [&]() {
       return !TipsTabBounds.Contains(CurrentlyFocusedElement->Bounds);
     };
 
-    if (PADinputButtonWentDown & PAD1DOWN ||
-        holdScroll && PADinputButtonIsDown & PAD1DOWN) {
-      AdvanceFocus(FDIR_DOWN);
-      if (CurrentlyFocusedElement != prevEntry && checkScrollBounds()) {
-        if (CurrentlyFocusedElement == TipsEntriesGroup.Children.front()) {
-          ScrollPosY = 0;
-        } else {
-          ScrollPosY += TipsEntryBounds.Height;
-        }
-      }
-    } else if (PADinputButtonWentDown & PAD1UP ||
-               holdScroll && PADinputButtonIsDown & PAD1UP) {
-      AdvanceFocus(FDIR_UP);
-      if (CurrentlyFocusedElement != prevEntry && checkScrollBounds()) {
-        if (CurrentlyFocusedElement == TipsEntriesGroup.Children.back()) {
-          ScrollPosY = TipsEntriesScrollbar->EndValue;
-        } else {
-          ScrollPosY -= TipsEntryBounds.Height;
-        }
-      }
-    } else if (PADinputButtonWentDown & PAD1RIGHT ||
-               holdScroll && PADinputButtonIsDown & PAD1RIGHT) {
-      AdvanceFocus(FDIR_RIGHT);
-      if (CurrentlyFocusedElement != prevEntry) {
-        if (checkScrollBounds())
-          ScrollPosY += TipsEntryBounds.Height * EntriesPerPage;
-      } else if (CurrentlyFocusedElement == TipsEntriesGroup.Children.back()) {
-        CurrentlyFocusedElement->HasFocus = false;
-        CurrentlyFocusedElement = TipsEntriesGroup.Children.front();
-        CurrentlyFocusedElement->HasFocus = true;
-        if (checkScrollBounds()) {
-          ScrollPosY = 0;
+    DirectionButtonHoldHandler.Update(dt);
+    const int directionShouldFire = DirectionButtonHoldHandler.ShouldFire();
+    const bool directionMovement = (bool)(directionShouldFire & PAD1UP) ^
+                                   (bool)(directionShouldFire & PAD1DOWN);
+
+    if (directionMovement) {
+      if (directionShouldFire & PAD1DOWN) {
+        AdvanceFocus(FDIR_DOWN);
+        if (CurrentlyFocusedElement != prevEntry && checkScrollBounds()) {
+          if (CurrentlyFocusedElement == TipsEntriesGroup.Children.front()) {
+            ScrollPosY = 0;
+          } else {
+            ScrollPosY += TipsEntryBounds.Height;
+          }
         }
       } else {
-        CurrentlyFocusedElement->HasFocus = false;
-        CurrentlyFocusedElement = TipsEntriesGroup.Children.back();
-        CurrentlyFocusedElement->HasFocus = true;
-        if (checkScrollBounds()) {
-          ScrollPosY = TipsEntriesScrollbar->EndValue;
+        AdvanceFocus(FDIR_UP);
+        if (CurrentlyFocusedElement != prevEntry && checkScrollBounds()) {
+          if (CurrentlyFocusedElement == TipsEntriesGroup.Children.back()) {
+            ScrollPosY = TipsEntriesScrollbar->EndValue;
+          } else {
+            ScrollPosY -= TipsEntryBounds.Height;
+          }
         }
       }
-    } else if (PADinputButtonWentDown & PAD1LEFT ||
-               holdScroll && PADinputButtonIsDown & PAD1LEFT) {
-      AdvanceFocus(FDIR_LEFT);
-      if (CurrentlyFocusedElement != prevEntry) {
-        if (checkScrollBounds())
-          ScrollPosY -= TipsEntryBounds.Height * EntriesPerPage;
-      } else if (CurrentlyFocusedElement == TipsEntriesGroup.Children.front()) {
-        CurrentlyFocusedElement->HasFocus = false;
-        CurrentlyFocusedElement = TipsEntriesGroup.Children.back();
-        CurrentlyFocusedElement->HasFocus = true;
-        if (checkScrollBounds()) {
-          ScrollPosY = TipsEntriesScrollbar->EndValue;
+    }
+
+    PageUpDownButtonHoldHandler.Update(dt);
+    const int pageUpDownShouldFire = PageUpDownButtonHoldHandler.ShouldFire();
+    const bool pageMovement = (bool)(pageUpDownShouldFire & PAD1RIGHT) ^
+                              (bool)(pageUpDownShouldFire & PAD1LEFT);
+
+    if (pageMovement) {
+      if (pageUpDownShouldFire & PAD1RIGHT) {
+        AdvanceFocus(FDIR_RIGHT);
+        if (CurrentlyFocusedElement != prevEntry) {
+          if (checkScrollBounds())
+            ScrollPosY += TipsEntryBounds.Height * EntriesPerPage;
+        } else if (CurrentlyFocusedElement ==
+                   TipsEntriesGroup.Children.back()) {
+          CurrentlyFocusedElement->HasFocus = false;
+          CurrentlyFocusedElement = TipsEntriesGroup.Children.front();
+          CurrentlyFocusedElement->HasFocus = true;
+          if (checkScrollBounds()) {
+            ScrollPosY = 0;
+          }
+        } else {
+          CurrentlyFocusedElement->HasFocus = false;
+          CurrentlyFocusedElement = TipsEntriesGroup.Children.back();
+          CurrentlyFocusedElement->HasFocus = true;
+          if (checkScrollBounds()) {
+            ScrollPosY = TipsEntriesScrollbar->EndValue;
+          }
         }
       } else {
-        CurrentlyFocusedElement->HasFocus = false;
-        CurrentlyFocusedElement = TipsEntriesGroup.Children.front();
-        CurrentlyFocusedElement->HasFocus = true;
-        if (checkScrollBounds()) {
-          ScrollPosY = 0;
+        AdvanceFocus(FDIR_LEFT);
+        if (CurrentlyFocusedElement != prevEntry) {
+          if (checkScrollBounds())
+            ScrollPosY -= TipsEntryBounds.Height * EntriesPerPage;
+        } else if (CurrentlyFocusedElement ==
+                   TipsEntriesGroup.Children.front()) {
+          CurrentlyFocusedElement->HasFocus = false;
+          CurrentlyFocusedElement = TipsEntriesGroup.Children.back();
+          CurrentlyFocusedElement->HasFocus = true;
+          if (checkScrollBounds()) {
+            ScrollPosY = TipsEntriesScrollbar->EndValue;
+          }
+        } else {
+          CurrentlyFocusedElement->HasFocus = false;
+          CurrentlyFocusedElement = TipsEntriesGroup.Children.front();
+          CurrentlyFocusedElement->HasFocus = true;
+          if (checkScrollBounds()) {
+            ScrollPosY = 0;
+          }
         }
       }
     }
@@ -174,35 +191,6 @@ void TipsTabGroup::Update(float dt) {
       TipsEntriesGroup.Move({0, oldScrollPosY - ScrollPosY});
     }
   }
-}
-
-bool TipsTabGroup::UpdatePageChangeTimes(float dt) {
-  bool pageDirectionMovement =
-      (bool)(Vm::Interface::PADinputButtonIsDown & Vm::Interface::PAD1UP) ^
-      (bool)(Vm::Interface::PADinputButtonIsDown & Vm::Interface::PAD1DOWN) ^
-      (bool)(Vm::Interface::PADinputButtonIsDown & Vm::Interface::PAD1LEFT) ^
-      (bool)(Vm::Interface::PADinputButtonIsDown & Vm::Interface::PAD1RIGHT);
-  if (!pageDirectionMovement) {
-    PageChangeButtonHeldTime = 0.0f;
-    PageChangeWaitTime = 0.0f;
-    return false;
-  }
-
-  if (0.0f < PageChangeButtonHeldTime &&
-      PageChangeButtonHeldTime < MinHoldTime) {
-    PageChangeButtonHeldTime += dt;
-    PageChangeWaitTime = 0.0f;
-    return false;
-  }
-
-  if (PageChangeWaitTime > 0.0f) {
-    PageChangeWaitTime -= dt;
-    return false;
-  }
-
-  PageChangeButtonHeldTime += dt;
-  PageChangeWaitTime = AdvanceFocusTimeInterval;
-  return true;
 }
 
 void TipsTabGroup::Render() {
@@ -284,6 +272,9 @@ void TipsTabGroup::Show() {
     IsFocused = true;
     TipsEntriesGroup.Show();
     CurrentlyFocusedElement = TipsEntriesGroup.GetFocus(FDIR_DOWN);
+
+    DirectionButtonHoldHandler.Reset();
+    PageUpDownButtonHoldHandler.Reset();
 
     if (CurrentlyFocusedElement) {
       static_cast<TipsEntryButton*>(CurrentlyFocusedElement)->PrevFocusState =

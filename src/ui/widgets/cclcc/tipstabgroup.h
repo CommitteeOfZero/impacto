@@ -2,6 +2,7 @@
 
 #include "../button.h"
 #include "../group.h"
+#include "../../turboonholdhandler.h"
 #include "../../../data/tipssystem.h"
 #include "../../../games/cclcc/tipsmenu.h"
 #include "tipsentrybutton.h"
@@ -50,11 +51,10 @@ class TipsTabGroup : public Menu {
   glm::vec2 TipsScrollStartPos;
   glm::vec2 TipsScrollTrackBounds;
 
-  float PageChangeButtonHeldTime;
-  float PageChangeWaitTime;
-  int EntriesPerPage;
+  TurboOnHoldHandler DirectionButtonHoldHandler;
+  TurboOnHoldHandler PageUpDownButtonHoldHandler;
 
-  bool UpdatePageChangeTimes(float dt);
+  int EntriesPerPage;
 };
 
 }  // namespace CCLCC
