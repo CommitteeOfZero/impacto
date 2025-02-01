@@ -14,7 +14,7 @@ class YUVFrame {
 
   virtual void Init(float width, float height) = 0;
 
-  virtual void Submit(void* luma, void* cb, void* cr) = 0;
+  virtual void Submit(const void* luma, const void* cb, const void* cr) = 0;
   virtual void Release() = 0;
 };
 

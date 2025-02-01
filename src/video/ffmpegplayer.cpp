@@ -330,13 +330,10 @@ void FFmpegPlayer::Decode() {
   };
 
   auto verifyPacket = [this, stream]() {
-    AVPacketItem packet;
+    std::unique_lock packetLock(stream->PacketLock);
     while (true) {
       int prevSerial = stream->CurrentPacketSerial;
-      std::unique_lock packetLock(stream->PacketLock);
-      packet = std::move(stream->PacketQueue.front());
-      stream->PacketQueue.pop();
-      stream->CurrentPacketSerial = packet.Serial;
+      stream->CurrentPacketSerial = stream->PacketQueue.front().Serial;
       if (prevSerial == INT32_MIN || stream->CurrentPacketSerial == INT32_MIN) {
         break;
       }
@@ -349,7 +346,11 @@ void FFmpegPlayer::Decode() {
       if (stream->PacketQueueSerial == stream->CurrentPacketSerial) {
         break;
       }
+      packetLock.unlock();
     }
+    AVPacketItem packet;
+    packet = std::move(stream->PacketQueue.front());
+    stream->PacketQueue.pop();
     return packet;
   };
 
@@ -454,44 +455,41 @@ void FFmpegPlayer::Update(float dt) {
     if (AudioStream) AudioPlayer->Process();
     double duration{};
     double time;
-    {
-      std::unique_lock frameLock{VideoStream->FrameLock};
-      size_t frameQueueSize = VideoStream->FrameQueue.size();
-      if (frameQueueSize == 0) {
-        frameLock.unlock();
-        VideoStream->DecodeCond.notify_one();
-        return;
-      }
-      AVFrameItem<AVMEDIA_TYPE_VIDEO> const& frame =
-          VideoStream->FrameQueue.front();
 
-      ImpLogSlow(LL_Trace, LC_Video, "VideoStream->FrameQueue.size() = %d\n",
-                 frameQueueSize);
-      SetFlag(SF_MOVIE_DRAWWAIT, false);
+    std::unique_lock frameLock{VideoStream->FrameLock};
+    size_t frameQueueSize = VideoStream->FrameQueue.size();
+    if (frameQueueSize == 0) {
+      VideoStream->DecodeCond.notify_one();
+      return;
+    }
+    AVFrameItem<AVMEDIA_TYPE_VIDEO> const& frame =
+        VideoStream->FrameQueue.front();
+    frameLock.unlock();
+    ImpLogSlow(LL_Trace, LC_Video, "VideoStream->FrameQueue.size() = %d\n",
+               frameQueueSize);
+    SetFlag(SF_MOVIE_DRAWWAIT, false);
 
-      if (frame.Serial == INT32_MIN) {
-        if (Looping) {
-          Seek(0);
-        } else {
-          frameLock.unlock();
-          Stop();
-        }
-        return;
+    if (frame.Serial == INT32_MIN) {
+      if (Looping) {
+        Seek(0);
+      } else {
+        Stop();
       }
-      time = av_gettime_relative() / 1000000.0;
-      if (!FrameTimer) {
-        FrameTimer = time;
-      }
-      if (PreviousFrameTimestamp != -1) {
-        auto inverseFrameRate = av::Rational(1, 30);
-        size_t frameNum = av_rescale_q(frame.Timestamp.timestamp(),
-                                       frame.Timestamp.timebase().getValue(),
-                                       inverseFrameRate.getValue());
-        // This isn't the place for it but I can't think of
-        // anything right now
-        ScrWork[SW_MOVIEFRAME] = (int)frameNum;
-        duration = (frame.Timestamp.seconds() - PreviousFrameTimestamp);
-      }
+      return;
+    }
+    time = av_gettime_relative() / 1000000.0;
+    if (!FrameTimer) {
+      FrameTimer = time;
+    }
+    if (PreviousFrameTimestamp != -1) {
+      auto inverseFrameRate = av::Rational(1, 30);
+      size_t frameNum = av_rescale_q(frame.Timestamp.timestamp(),
+                                     frame.Timestamp.timebase().getValue(),
+                                     inverseFrameRate.getValue());
+      // This isn't the place for it but I can't think of
+      // anything right now
+      ScrWork[SW_MOVIEFRAME] = (int)frameNum;
+      duration = (frame.Timestamp.seconds() - PreviousFrameTimestamp);
     }
 
     if (AudioStream) {
@@ -506,22 +504,20 @@ void FFmpegPlayer::Update(float dt) {
       return;
     }
 
-    VideoStream->FrameLock.lock();
-    AVFrameItem<AVMEDIA_TYPE_VIDEO> frame =
-        std::move(VideoStream->FrameQueue.front());
-    VideoStream->FrameQueue.pop();
-    VideoStream->FrameLock.unlock();
     FrameTimer += duration;
     if (duration > 0 && (time - FrameTimer) > 0.1) {
       FrameTimer = time;
     }
+
     PreviousFrameTimestamp = frame.Timestamp;
 
-    VideoClock.Set(frame.Timestamp.seconds(), frame.Serial);
     VideoTexture->Submit(frame.Frame.data(0), frame.Frame.data(1),
                          frame.Frame.data(2));
+    VideoClock.Set(frame.Timestamp.seconds(), frame.Serial);
+    MasterClock->SyncTo(&VideoClock);
+    frameLock.lock();
+    VideoStream->FrameQueue.pop();
     PlaybackStarted = true;
-    VideoStream->DecodeCond.notify_one();
   }
 }
 

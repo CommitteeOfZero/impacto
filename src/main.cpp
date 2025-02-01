@@ -18,10 +18,8 @@ void GameLoop() {
   // TODO: Better FPS lock
   uint64_t t2;
   float dt;
-  do {
-    t2 = SDL_GetPerformanceCounter();
-    dt = ((float)(t2 - t) / (float)SDL_GetPerformanceFrequency());
-  } while (dt < 0.016f);
+  t2 = SDL_GetPerformanceCounter();
+  dt = ((float)(t2 - t) / (float)SDL_GetPerformanceFrequency());
   t = t2;
 
   Game::Update(dt);
@@ -41,8 +39,8 @@ int main(int argc, char* argv[]) {
 #endif
 
   LogSetConsole(true);
-  g_LogLevelConsole = LL_Debug;
-  g_LogChannelsConsole = LC_All;
+  g_LogLevelConsole = LL_Trace;
+  g_LogChannelsConsole = LC_Video;
 
   Io::Stream* stream;
   IoError err = Io::PhysicalFileStream::Create("profile.txt", &stream);

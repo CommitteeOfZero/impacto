@@ -14,7 +14,7 @@ class VkYUVFrame : public YUVFrame {
  public:
   void Init(float width, float height) override;
 
-  void Submit(void* luma, void* cb, void* cr) override;
+  void Submit(const void* luma, const void* cb, const void* cr) override;
   void Release() override;
 
  protected:

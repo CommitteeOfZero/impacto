@@ -73,21 +73,20 @@ void FFmpegAudioPlayer::FillAudioBuffers() {
     do {
       bool firstFrame = true;
 
-      Player->AudioStream->FrameLock.lock();
+      std::unique_lock lock(Player->AudioStream->FrameLock);
       if (Player->AudioStream->FrameQueue.empty()) {
-        Player->AudioStream->FrameLock.unlock();
         Player->AudioStream->DecodeCond.notify_one();
         continue;
       }
       Video::AVFrameItem<AVMEDIA_TYPE_AUDIO> aFrame =
           std::move(Player->AudioStream->FrameQueue.front());
-      Player->AudioStream->FrameLock.unlock();
 
       if (aFrame.Serial == INT32_MIN) {
-        std::lock_guard lock(Player->AudioStream->FrameLock);
         Player->AudioStream->FrameQueue.pop();
         break;
       }
+      Player->AudioStream->FrameQueue.pop();
+      Player->AudioStream->DecodeCond.notify_one();
 
       if (firstFrame) {
         BufferStartPositions[FirstFreeBuffer] =
@@ -111,11 +110,6 @@ void FFmpegAudioPlayer::FillAudioBuffers() {
                                                   AV_SAMPLE_FMT_S16, 1);
       memcpy(&HostBuffer[totalSize], AudioBuffer[0], bufferSize);
       totalSize += bufferSize;
-      {
-        std::lock_guard lock(Player->AudioStream->FrameLock);
-        Player->AudioStream->FrameQueue.pop();
-      }
-      Player->AudioStream->DecodeCond.notify_one();
     } while (totalSize <= 4096);
 
     alSourceUnqueueBuffers(ALSource, 1, &BufferIds[FirstFreeBuffer]);

@@ -64,7 +64,7 @@ void VkYUVFrame::Init(float width, float height) {
                     &CrImage.ImageView);
 }
 
-void VkYUVFrame::Submit(void* luma, void* cb, void* cr) {
+void VkYUVFrame::Submit(const void* luma, const void* cb, const void* cr) {
   int cbOffset = (int)(Width * Height);
   int crOffset = (int)((Width * Height) + ((Width / 2) * (Height / 2)));
 
