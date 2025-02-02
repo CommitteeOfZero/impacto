@@ -17,7 +17,6 @@
 #include "../spritesheet.h"
 #include "../font.h"
 #include "../spriteanimation.h"
-#include "../pathanimation.h"
 
 namespace Impacto {
 namespace Profile {
@@ -136,8 +135,6 @@ template <>
 bool TryGet<glm::vec2>(glm::vec2& outVec2);
 template <>
 bool TryGet<bool>(bool& outBool);
-template <>
-bool TryGet<PathSegment>(PathSegment& pathSegment);
 
 template <typename T>
 T EnsureGetKey() {

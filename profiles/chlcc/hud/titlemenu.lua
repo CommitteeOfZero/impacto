@@ -8,14 +8,19 @@ root.TitleMenu = {
     PressToStartSprite = "TitleMenuPressToStart",
     BackgroundSprite = "TitleMenuBackground",
     IntroBackgroundSprite = "TitleMenuIntroBackground",
-    IntroBouncingStarSprite = "StarLogo",
-    IntroSmallStarSprite = "IntroSmallStar",
-    IntroExplodingStarAnimationDuration = 1.5,
-    IntroExplodingStarAnimationRotationDuration = 0.5,
-    IntroExplodingStarAnimationDistance = 315,
     IntroPanningAnimationDuration = 2.1,
     IntroAfterPanningWaitDuration = 0.8,
-    IntroBigStarSprite = "IntroBigStar",
+    IntroBouncingStarSprite = "StarLogo",
+    IntroBouncingStarAnimationDuration = 3.73;
+    IntroExplodingStarSprite = "IntroSmallStar",
+    IntroExplodingStarAnimationDuration = 1.067,
+    IntroExplodingStarAnimationRotationDuration = 0.5,
+    IntroExplodingStarAnimationDistance = 294,
+    IntroFallingStarSprite = "IntroBigStar",
+    IntroFallingStarsAnimationDuration = 3,
+    IntroFallingStarsAnimationDistance = 2546,
+    IntroFallingStarsAnimationDirection = { X = -1, Y = 1 },
+    IntroFallingStarsAnimationRotationDuration = 0.7,
     DelusionADVUnderSprite = "DelusionADVUnder", -- "DelusionADVUnderEnglish" with the TLed assets, "DelusionADVUnder" with the original ones
     DelusionADVUnderX = 78, --74 with the TLed assets, 78 with the original ones
     DelusionADVUnderY = 394, --396 with the TLed assets, 394 with the original ones
@@ -109,8 +114,7 @@ root.TitleMenu = {
     MenuEntriesSprites = {},
     MenuEntriesHighlightedSprites = {},
     LineNum = 6,
-    LineEntriesSprites = {},
-    IntroStarBounceAnimationSegmentCount = 7
+    LineEntriesSprites = {}
 };
 
 root.TitleMenu.IntroHighlightSprites = {
@@ -399,56 +403,4 @@ root.Sprites["TitleMenuItemLoadHighlighted"] = {
 root.Sprites["TitleMenuSecondaryItemHighlight"] = {
     Sheet = "Title",
     Bounds = { X = 915, Y = 989, Width = 285, Height = 34 },
-};
-
-root.TitleMenu.IntroStarBounceAnimationPath = {
-    {
-        StartPosition = { X = 1344, Y = 144 },
-        EndPosition = { X = 1152, Y = 576 },
-        Duration = 0.72,
-        EasingX = EasingFunction.Linear,
-        EasingY = EasingFunction.QuadraticIn,
-    },
-    {
-        StartPosition = { X = 1152, Y = 576 },
-        EndPosition = { X = 1050, Y = 504 },
-        Duration = 0.3,
-        EasingX = EasingFunction.Linear,
-        EasingY = EasingFunction.QuadraticOut,
-    },
-    {
-        StartPosition = { X = 1050, Y = 504 },
-        EndPosition = { X = 960, Y = 576 },
-        Duration = 0.3,
-        EasingX = EasingFunction.Linear,
-        EasingY = EasingFunction.QuadraticIn,
-    },
-    {
-        StartPosition = { X = 960, Y = 576 },
-        EndPosition = { X = 870, Y = 504 },
-        Duration = 0.3,
-        EasingX = EasingFunction.Linear,
-        EasingY = EasingFunction.QuadraticOut,
-    },
-    {
-        StartPosition = { X = 870, Y = 504 },
-        EndPosition = { X = 780, Y = 576 },
-        Duration = 0.3,
-        EasingX = EasingFunction.Linear,
-        EasingY = EasingFunction.QuadraticIn,
-    },
-    {
-        StartPosition = { X = 780, Y = 576 },
-        EndPosition = { X = 704, Y = 252 },
-        Duration = 0.66,
-        EasingX = EasingFunction.Linear,
-        EasingY = EasingFunction.QuadraticOut,
-    },
-    {
-        StartPosition = { X = 704, Y = 252 },
-        EndPosition = { X = 640, Y = 360 },
-        Duration = 0.4,
-        EasingX = EasingFunction.Linear,
-        EasingY = EasingFunction.QuadraticIn,
-    },
 };

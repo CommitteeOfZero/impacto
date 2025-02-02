@@ -301,6 +301,8 @@ class BaseRenderer {
 
   virtual void SetBlendMode(RendererBlendMode blendMode) = 0;
 
+  virtual void Clear(glm::vec4 color) = 0;
+
   bool IsInit = false;
 
   IScene3D* Scene = 0;

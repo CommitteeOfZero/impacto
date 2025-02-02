@@ -4,10 +4,13 @@ namespace Impacto {
 
 void SequencedAnimation::AddAnimation(Animation* animation, float startTime,
                                       float duration) {
-  Children.push_back({animation, startTime, startTime + duration});
+  float endTime = startTime + duration;
+  Children.push_back({animation, startTime, endTime});
 
-  DurationIn += animation->DurationIn;
-  DurationOut += animation->DurationOut;
+  // There are multiple conflicting ways to interpret playing a sequenced
+  // animation in reverse, therefore doing so is currently undefined
+  DurationIn = std::max(DurationIn, endTime);
+  DurationOut = DurationIn;
 }
 
 void SequencedAnimation::StartInImpl(bool reset) {

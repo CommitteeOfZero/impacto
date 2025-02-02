@@ -83,6 +83,8 @@ class Renderer : public BaseRenderer {
 
   void SetBlendMode(RendererBlendMode blendMode) override {}
 
+  void Clear(glm::vec4 color) override {};
+
  private:
   void EnsureSpaceAvailable(int vertices, int vertexSize, int indices);
   void EnsureTextureBound(uint32_t texture);

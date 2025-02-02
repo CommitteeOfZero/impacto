@@ -107,9 +107,6 @@ struct RectF {
     return glm::vec2(X + Width / 2.0f, Y + Height / 2.0f);
   }
 
-  constexpr glm::vec2 Position() const { return glm::vec2(X, Y); }
-  constexpr glm::vec2 Dimensions() const { return glm::vec2(Width, Height); }
-
   constexpr bool ContainsPoint(glm::vec2 point, float angle = 0.0f) const {
     point -= Center();
     if (angle != 0.0f) {

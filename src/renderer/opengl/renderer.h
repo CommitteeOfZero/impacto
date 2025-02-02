@@ -92,6 +92,8 @@ class Renderer : public BaseRenderer {
 
   void SetBlendMode(RendererBlendMode blendMode) override;
 
+  void Clear(glm::vec4 color) override;
+
  private:
   std::optional<SpriteShader> SpriteShaderProgram;
   std::optional<SpriteInvertedShader> SpriteInvertedShaderProgram;

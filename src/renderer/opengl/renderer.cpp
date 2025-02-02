@@ -84,9 +84,6 @@ void Renderer::Init() {
 
   glActiveTexture(GL_TEXTURE0);
   glBindSampler(0, Samplers[0]);
-
-  glEnable(GL_BLEND);
-  SetBlendMode(RendererBlendMode::Normal);
 }
 
 void Renderer::Shutdown() {
@@ -719,6 +716,13 @@ void Renderer::SetBlendMode(RendererBlendMode blendMode) {
       glBlendFunc(GL_ONE, GL_ONE);
       return;
   }
+}
+
+void Renderer::Clear(glm::vec4 color) {
+  Flush();
+
+  glClearColor(color.r, color.g, color.b, color.a);
+  glClear(GL_COLOR_BUFFER_BIT);
 }
 
 }  // namespace OpenGL
