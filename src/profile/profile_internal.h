@@ -10,7 +10,6 @@
 #include "../spritesheet.h"
 #include "../font.h"
 #include "../spriteanimation.h"
-#include "../pathanimation.h"
 
 namespace Impacto {
 namespace Profile {
@@ -55,7 +54,6 @@ LUA_GET_METHODS(Sprite, Sprite)
 LUA_GET_METHODS(SpriteSheet, SpriteSheet)
 LUA_GET_METHODS(Font, Font*)
 LUA_GET_METHODS(Animation, SpriteAnimationDef)
-LUA_GET_METHODS(PathSegment, PathSegment)
 
 uint32_t EnsureGetKeyUint();
 int32_t EnsureGetKeyInt();

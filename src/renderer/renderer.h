@@ -66,7 +66,8 @@ class BaseRenderer {
                                 RectF const& dest, glm::vec4 tint, int alpha,
                                 int fadeRange, bool isScreencap = false,
                                 bool isInverted = false,
-                                bool isSameTexture = false) = 0;
+                                bool isSameTexture = false,
+                                bool isMaskScreencap = false) = 0;
 
   void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                         glm::vec2 topLeft, glm::vec4 tint, int alpha,
@@ -149,6 +150,8 @@ class BaseRenderer {
   virtual void DisableScissor() = 0;
 
   virtual void SetBlendMode(RendererBlendMode blendMode) = 0;
+
+  virtual void Clear(glm::vec4 color) = 0;
 
   bool IsInit = false;
 

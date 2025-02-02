@@ -14,10 +14,6 @@ namespace CHLCC {
 namespace TitleMenu {
 
 void Configure() {
-  IntroBackgroundSprite = EnsureGetMemberSprite("IntroBackgroundSprite");
-  IntroBouncingStarSprite = EnsureGetMemberSprite("IntroBouncingStarSprite");
-  IntroSmallStarSprite = EnsureGetMemberSprite("IntroSmallStarSprite");
-  IntroBigStarSprite = EnsureGetMemberSprite("IntroBigStarSprite");
   BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
   DelusionADVUnderSprite = EnsureGetMemberSprite("DelusionADVUnderSprite");
   DelusionADVUnderX = EnsureGetMemberFloat("DelusionADVUnderX");
@@ -136,22 +132,19 @@ void Configure() {
   menu->SpinningCircleAnimation.LoopMode = AnimationLoopMode::Loop;
   menu->SpinningCircleAnimation.SetDuration(SpinningCircleAnimationDuration);
 
+  IntroBackgroundSprite = EnsureGetMemberSprite("IntroBackgroundSprite");
+
   menu->IntroPanningAnimation.SetDuration(
       EnsureGetMemberFloat("IntroPanningAnimationDuration"));
   menu->IntroAfterPanningWaitAnimation.SetDuration(
       EnsureGetMemberFloat("IntroAfterPanningWaitDuration"));
 
-  int32_t introStarBounceAnimationSegmentCount =
-      EnsureGetMemberInt("IntroStarBounceAnimationSegmentCount");
-  std::vector<PathSegment> introStarBounceAnimationSegments(10);
+  IntroBouncingStarSprite = EnsureGetMemberSprite("IntroBouncingStarSprite");
 
-  GetMemberPathSegmentArray(introStarBounceAnimationSegments.data(),
-                            introStarBounceAnimationSegmentCount,
-                            "IntroStarBounceAnimationPath");
+  menu->IntroStarBounceAnimation.SetDuration(
+      EnsureGetMemberFloat("IntroBouncingStarAnimationDuration"));
 
-  menu->IntroStarBounceAnimation =
-      PathAnimation(std::move(introStarBounceAnimationSegments));
-
+  IntroExplodingStarSprite = EnsureGetMemberSprite("IntroExplodingStarSprite");
   IntroExplodingStarAnimationDistance =
       EnsureGetMemberFloat("IntroExplodingStarAnimationDistance");
 
@@ -162,6 +155,18 @@ void Configure() {
   menu->IntroExplodingStarAnimation.SetDuration(
       EnsureGetMemberFloat("IntroExplodingStarAnimationDuration"));
 
+  IntroFallingStarSprite = EnsureGetMemberSprite("IntroFallingStarSprite");
+  IntroFallingStarsAnimationDistance =
+      EnsureGetMemberFloat("IntroFallingStarsAnimationDistance");
+  IntroFallingStarsAnimationDirection = glm::normalize(
+      EnsureGetMemberVec2("IntroFallingStarsAnimationDirection"));
+  menu->IntroFallingStarsAnimation.SetDuration(
+      EnsureGetMemberFloat("IntroFallingStarsAnimationDuration"));
+
+  menu->IntroFallingStarsRotationAnimation.LoopMode = AnimationLoopMode::Loop;
+  menu->IntroFallingStarsRotationAnimation.SetDuration(
+      EnsureGetMemberFloat("IntroFallingStarsAnimationRotationDuration"));
+
   menu->IntroAnimation.AddAnimation(&menu->IntroPanningAnimation);
   menu->IntroAnimation.AddAnimation(&menu->IntroAfterPanningWaitAnimation);
   menu->IntroAnimation.AddAnimation(&menu->IntroStarBounceAnimation);
@@ -171,6 +176,12 @@ void Configure() {
   menu->IntroAnimation.AddAnimation(
       &menu->IntroExplodingStarRotationAnimation, explodingStarAnimationTime,
       menu->IntroExplodingStarAnimation.DurationIn);
+
+  float fallingStarAnimationTime = menu->IntroAnimation.DurationIn;
+  menu->IntroAnimation.AddAnimation(&menu->IntroFallingStarsAnimation);
+  menu->IntroAnimation.AddAnimation(
+      &menu->IntroFallingStarsRotationAnimation, fallingStarAnimationTime,
+      menu->IntroFallingStarsAnimation.DurationIn);
 
   UI::TitleMenuPtr = menu;
 
