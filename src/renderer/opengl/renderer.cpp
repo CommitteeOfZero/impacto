@@ -131,9 +131,6 @@ void Renderer::Init() {
   glSamplerParameteri(Sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glSamplerParameteri(Sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glSamplerParameteri(Sampler, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16);
-
-  glEnable(GL_BLEND);
-  SetBlendMode(RendererBlendMode::Normal);
 }
 
 void Renderer::Shutdown() {
@@ -593,8 +590,15 @@ void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
               sprite.Sheet.DesignHeight, (uintptr_t)&vertices[0].UV,
               sizeof(VertexBufferSprites));
   }
-  QuadSetUV(sprite.Bounds, sprite.Bounds.Width, sprite.Bounds.Height,
-            (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites));
+
+  if (mask.Sheet.IsScreenCap) {
+    QuadSetUVFlipped(sprite.Bounds, sprite.Bounds.Width, sprite.Bounds.Height,
+                     (uintptr_t)&vertices[0].MaskUV,
+                     sizeof(VertexBufferSprites));
+  } else {
+    QuadSetUV(sprite.Bounds, sprite.Bounds.Width, sprite.Bounds.Height,
+              (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites));
+  }
 
   QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
                   sizeof(VertexBufferSprites));
@@ -1230,6 +1234,13 @@ void Renderer::SetBlendMode(RendererBlendMode blendMode) {
       glBlendFunc(GL_ONE, GL_ONE);
       return;
   }
+}
+
+void Renderer::Clear(glm::vec4 color) {
+  Flush();
+
+  glClearColor(color.r, color.g, color.b, color.a);
+  glClear(GL_COLOR_BUFFER_BIT);
 }
 
 }  // namespace OpenGL

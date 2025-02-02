@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../../animation.h"
-#include "../../pathanimation.h"
 #include "../../ui/menu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
@@ -15,6 +14,7 @@ namespace CHLCC {
 class TitleMenu : public Menu {
  public:
   TitleMenu();
+  ~TitleMenu();
 
   void Show();
   void Hide();
@@ -31,15 +31,18 @@ class TitleMenu : public Menu {
   SequencedAnimation IntroAnimation;
   Animation IntroPanningAnimation;
   Animation IntroAfterPanningWaitAnimation;
-  PathAnimation IntroStarBounceAnimation;
+  Animation IntroStarBounceAnimation;
   Animation IntroExplodingStarAnimation;
   Animation IntroExplodingStarRotationAnimation;
+  Animation IntroFallingStarsAnimation;
+  Animation IntroFallingStarsRotationAnimation;
 
   void MenuButtonOnClick(Widgets::Button* target);
   void SecondaryButtonOnClick(Widgets::Button* target);
 
-  void DrawIntroAnimation() const;
+  void DrawIntroAnimation();
   void DrawIntroBackground() const;
+  void DrawFallingStars() const;
   void DrawTitleMenuBackGraphics() const;
 
  private:
@@ -66,6 +69,9 @@ class TitleMenu : public Menu {
   Widgets::Group* SystemItems;
   Widgets::CHLCC::TitleButton* Config;
   Widgets::CHLCC::TitleButton* SystemSave;
+
+  std::array<std::pair<glm::vec2, float>, 20> IntroFallingStarSeeds;
+  Sprite IntroFallingStarsMask;
 };
 
 }  // namespace CHLCC

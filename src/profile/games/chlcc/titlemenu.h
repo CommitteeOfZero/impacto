@@ -2,7 +2,6 @@
 
 #include "../../../spritesheet.h"
 #include "../../../games/chlcc/titlemenu.h"
-#include "../../../pathanimation.h"
 
 namespace Impacto {
 namespace Profile {
@@ -122,12 +121,14 @@ constexpr size_t IntroHighlightCount = 10;
 inline Sprite IntroHighlightSprites[IntroHighlightCount];
 inline float IntroHighlightPositions[IntroHighlightCount];
 
-inline Sprite IntroSmallStarSprite;
-inline Sprite IntroBigStarSprite;
+inline Sprite IntroExplodingStarSprite;
+inline float IntroExplodingStarAnimationDistance;
 
 inline Sprite IntroBouncingStarSprite;
 
-inline float IntroExplodingStarAnimationDistance;
+inline Sprite IntroFallingStarSprite;
+inline float IntroFallingStarsAnimationDistance;
+inline glm::vec2 IntroFallingStarsAnimationDirection;
 
 }  // namespace TitleMenu
 }  // namespace CHLCC
