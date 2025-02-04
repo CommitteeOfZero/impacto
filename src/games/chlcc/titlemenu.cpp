@@ -54,8 +54,8 @@ TitleMenu::TitleMenu() {
   Start = new TitleButton(
       0, MenuEntriesSprites[0], MenuEntriesHSprites[0], ItemHighlightSprite,
       glm::vec2(
-          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
-              ItemHighlightOffsetX,
+          ((ItemHighlightOffset.x * ItemsFadeInAnimation.Progress) - 1.0f) +
+              ItemHighlightOffset.x,
           ((ItemYBase - 1.0f) + (0 * ItemPadding))));
   Start->OnClickHandler = onClick;
   MainItems->Add(Start, FDIR_DOWN);
@@ -64,8 +64,8 @@ TitleMenu::TitleMenu() {
   Load = new TitleButton(
       1, MenuEntriesSprites[1], MenuEntriesHSprites[1], ItemHighlightSprite,
       glm::vec2(
-          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
-              ItemHighlightOffsetX,
+          ((ItemHighlightOffset.x * ItemsFadeInAnimation.Progress) - 1.0f) +
+              ItemHighlightOffset.x,
           ((ItemYBase - 1.0f) + (1 * ItemPadding))));
   Load->OnClickHandler = onClick;
   MainItems->Add(Load, FDIR_DOWN);
@@ -74,8 +74,8 @@ TitleMenu::TitleMenu() {
   Extra = new TitleButton(
       2, MenuEntriesSprites[2], MenuEntriesHSprites[2], ItemHighlightSprite,
       glm::vec2(
-          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
-              ItemHighlightOffsetX,
+          ((ItemHighlightOffset.x * ItemsFadeInAnimation.Progress) - 1.0f) +
+              ItemHighlightOffset.x,
           ((ItemYBase - 1.0f) + (2 * ItemPadding))));
   Extra->OnClickHandler = onClick;
   MainItems->Add(Extra, FDIR_DOWN);
@@ -84,8 +84,8 @@ TitleMenu::TitleMenu() {
   System = new TitleButton(
       3, MenuEntriesSprites[3], MenuEntriesHSprites[3], ItemHighlightSprite,
       glm::vec2(
-          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
-              ItemHighlightOffsetX,
+          ((ItemHighlightOffset.x * ItemsFadeInAnimation.Progress) - 1.0f) +
+              ItemHighlightOffset.x,
           ((ItemYBase - 1.0f) + (3 * ItemPadding))));
   System->OnClickHandler = onClick;
   MainItems->Add(System, FDIR_DOWN);
@@ -496,7 +496,6 @@ void TitleMenu::DrawIntroAnimation() {
     if (IntroStarBounceAnimation.Progress < 0.357f) {
       float progress = IntroStarBounceAnimation.Progress / 0.357f;
       y -= std::sin(progress * M_PI) * 0.664f * DesignHeight;
-
     } else if (IntroStarBounceAnimation.Progress < 0.536f) {
       float progress =
           (IntroStarBounceAnimation.Progress - 0.357f) / (0.536f - 0.357f);
@@ -614,35 +613,27 @@ void TitleMenu::DrawFallingStars() const {
 }
 
 void TitleMenu::DrawTitleMenuBackGraphics() const {
-  Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
-
   const CornersQuad spinningCircleDest =
       SpinningCircleSprite.ScaledBounds()
           .Scale({2.0f, 2.0f}, {0.0f, 0.0f})
           .RotateAroundCenter(-SpinningCircleAnimation.Progress * 2.0f *
                               (float)M_PI)
-          .Translate({SpinningCircleX, SpinningCircleY});
-  Renderer->DrawSprite(SpinningCircleSprite, spinningCircleDest);
+          .Translate(SpinningCirclePosition);
 
-  Renderer->DrawSprite(DelusionADVUnderSprite,
-                       glm::vec2(DelusionADVUnderX, DelusionADVUnderY));
-  Renderer->DrawSprite(DelusionADVSprite,
-                       glm::vec2(DelusionADVX, DelusionADVY));
-  Renderer->DrawSprite(SeiraUnderSprite, glm::vec2(SeiraUnderX, SeiraUnderY));
-  Renderer->DrawSprite(SeiraSprite, glm::vec2(SeiraX, SeiraY));
-  Renderer->DrawSprite(CHLogoSprite, glm::vec2(CHLogoX, CHLogoY));
-  Renderer->DrawSprite(LCCLogoUnderSprite,
-                       glm::vec2(LCCLogoUnderX, LCCLogoUnderY));
-  Renderer->DrawSprite(ChuLeftLogoSprite,
-                       glm::vec2(ChuLeftLogoX, ChuLeftLogoY));
-  Renderer->DrawSprite(ChuRightLogoSprite,
-                       glm::vec2(ChuRightLogoX, ChuRightLogoY));
-  Renderer->DrawSprite(LoveLogoSprite, glm::vec2(LoveLogoX, LoveLogoY));
-  Renderer->DrawSprite(StarLogoSprite, glm::vec2(StarLogoX, StarLogoY));
-  Renderer->DrawSprite(ExclMarkLogoSprite,
-                       glm::vec2(ExclMarkLogoX, ExclMarkLogoY));
-  Renderer->DrawSprite(CopyrightTextSprite,
-                       glm::vec2(CopyrightTextX, CopyrightTextY));
+  Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
+  Renderer->DrawSprite(SpinningCircleSprite, spinningCircleDest);
+  Renderer->DrawSprite(DelusionADVUnderSprite, DelusionADVUnderPosition);
+  Renderer->DrawSprite(DelusionADVSprite, DelusionADVPosition);
+  Renderer->DrawSprite(SeiraUnderSprite, SeiraUnderPosition);
+  Renderer->DrawSprite(SeiraSprite, SeiraPosition);
+  Renderer->DrawSprite(CHLogoSprite, CHLogoPosition);
+  Renderer->DrawSprite(LCCLogoUnderSprite, LCCLogoUnderPosition);
+  Renderer->DrawSprite(ChuLeftLogoSprite, ChuLeftLogoPosition);
+  Renderer->DrawSprite(ChuRightLogoSprite, ChuRightLogoPosition);
+  Renderer->DrawSprite(LoveLogoSprite, LoveLogoPosition);
+  Renderer->DrawSprite(StarLogoSprite, StarLogoPosition);
+  Renderer->DrawSprite(ExclMarkLogoSprite, ExclMarkLogoPosition);
+  Renderer->DrawSprite(CopyrightTextSprite, CopyrightTextPosition);
 }
 
 }  // namespace CHLCC
