@@ -18,60 +18,46 @@ inline Sprite BackgroundSprite;
 
 inline Sprite DelusionADVUnderSprite;
 inline Sprite DelusionADVSprite;
-inline float DelusionADVUnderX;
-inline float DelusionADVUnderY;
-inline float DelusionADVX;
-inline float DelusionADVY;
+inline glm::vec2 DelusionADVUnderPosition;
+inline glm::vec2 DelusionADVPosition;
 
 inline Sprite SeiraUnderSprite;
 inline Sprite SeiraSprite;
-inline float SeiraUnderX;
-inline float SeiraUnderY;
-inline float SeiraX;
-inline float SeiraY;
+inline glm::vec2 SeiraUnderPosition;
+inline glm::vec2 SeiraPosition;
 
 inline Sprite CHLogoSprite;
-inline float CHLogoX;
-inline float CHLogoY;
+inline glm::vec2 CHLogoPosition;
 
 inline Sprite LCCLogoUnderSprite;
-inline float LCCLogoUnderX;
-inline float LCCLogoUnderY;
+inline glm::vec2 LCCLogoUnderPosition;
 
 inline Sprite ChuLeftLogoSprite;
-inline float ChuLeftLogoX;
-inline float ChuLeftLogoY;
+inline glm::vec2 ChuLeftLogoPosition;
 
 inline Sprite ChuRightLogoSprite;
-inline float ChuRightLogoX;
-inline float ChuRightLogoY;
+inline glm::vec2 ChuRightLogoPosition;
 
 inline Sprite LoveLogoSprite;
-inline float LoveLogoX;
-inline float LoveLogoY;
+inline glm::vec2 LoveLogoPosition;
 
 inline Sprite StarLogoSprite;
-inline float StarLogoX;
-inline float StarLogoY;
+inline glm::vec2 StarLogoPosition;
 
 inline Sprite ExclMarkLogoSprite;
-inline float ExclMarkLogoX;
-inline float ExclMarkLogoY;
+inline glm::vec2 ExclMarkLogoPosition;
 
 inline Sprite CopyrightTextSprite;
-inline float CopyrightTextX;
-inline float CopyrightTextY;
+inline glm::vec2 CopyrightTextPosition;
 
 inline Sprite SpinningCircleSprite;
-inline float SpinningCircleX;
-inline float SpinningCircleY;
+inline glm::vec2 SpinningCirclePosition;
 inline float SpinningCircleAnimationDuration;
 
 inline Sprite ItemHighlightSprite;
 inline Sprite ItemLoadHighlightedSprite;
 inline Sprite SecondaryItemHighlightSprite;
-inline float ItemHighlightOffsetX;
-inline float ItemHighlightOffsetY;
+inline glm::vec2 ItemHighlightOffset;
 inline float ItemPadding;
 inline float ItemYBase;
 inline float ItemFadeInDuration;
