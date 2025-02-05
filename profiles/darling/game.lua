@@ -18,7 +18,8 @@ root.Vm = {
     GameInstructionSet = InstructionSet.Darling,
     UseReturnIds = true,
     ScrWorkChaStructSize = 40,
-    ScrWorkBgStructSize = 40
+    ScrWorkBgStructSize = 40,
+    ScrWorkCaptureStructSize = 20,
 };
 
 include('common/scriptinput.lua');

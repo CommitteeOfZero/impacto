@@ -357,6 +357,17 @@ void Render() {
               }
             }
 
+            for (size_t capId = 0; capId <= 1; capId++) {
+              if (!GetFlag(SF_CAP1DISP + capId)) continue;
+
+              for (size_t capLayer = 0; capLayer <= 1; capLayer++) {
+                if (ScrWork[SW_CAP1PRI + capLayer * 10 + capLayer * 8] ==
+                    layer) {
+                  Screencaptures[capId].RenderCapture(capId, layer);
+                }
+              }
+            }
+
             if (Profile::UseScreenCapEffects) {
               if (ScrWork[SW_EFF_CAP_BUF] &&
                   ScrWork[SW_EFF_CAP_PRI] == static_cast<int>(layer)) {
