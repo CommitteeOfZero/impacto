@@ -19,6 +19,7 @@ root.Vm = {
     UseReturnIds = true,
     ScrWorkChaStructSize = 40,
     ScrWorkBgStructSize = 40,
+    ScrWorkCaptureStructSize = 20,
     MaxLinkedBgBuffers = 2
 };
 

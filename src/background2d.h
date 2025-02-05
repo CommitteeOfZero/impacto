@@ -5,8 +5,7 @@
 #include "spritesheet.h"
 #include "loadable.h"
 
-#define BackgroundRenderer(name) \
-  void name(Background2D* bg, int bgId, glm::vec4 col)
+#define BackgroundRenderer(name) void name(Background2D* bg, glm::vec4 col)
 
 namespace Impacto {
 
@@ -37,12 +36,21 @@ class Background2D : public Loadable<Background2D> {
   static void Init();
 
   Sprite BgSprite;
+
   glm::vec2 DisplayCoords;
-  LinkState Links[MaxLinks];
+  int MaskNumber;
+
+  int FadeCount;
+  int FadeRange;
+
   bool Show;
   bool IsScreencap = false;
+
   int Layer;
+  LinkState Links[MaxLinks];
+
   void Render(int bgId, int layer);
+  void RenderCapture(int capId, int layer);
   void LoadSolidColor(uint32_t color, int width, int height);
 
  protected:
@@ -55,7 +63,7 @@ class Background2D : public Loadable<Background2D> {
   SpriteSheet BgSpriteSheet;
 };
 
-typedef void (*BackgroundRenderProc)(Background2D* bg, int bgId, glm::vec4 col);
+typedef void (*BackgroundRenderProc)(Background2D* bg, glm::vec4 col);
 
 int constexpr MaxBackgrounds2D = 8;
 int constexpr MaxScreencaptures = 2;
