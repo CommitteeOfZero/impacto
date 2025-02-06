@@ -1313,7 +1313,7 @@ VmInstruction(InstMtrg) {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MtrgEnd_Wait(type: %i)\n", type);
       DelusionTrigger::Hide();
-      if (ScrWork[6413] != 0) {
+      if (ScrWork[SW_DELUSION_BG_COUNTER] != 0) {
         ResetInstruction;
       }
       BlockThread;
@@ -1344,7 +1344,7 @@ VmInstruction(InstMtrg) {
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction MtrgStop_Wait(type: %i)\n", type);
       if (DelusionTrigger::CheckTransitionAnimationComplete()) {
-        SetFlag(2821, 1);
+        SetFlag(SF_DELUSIONSELECTED, 1);
         return;
       }
     } break;

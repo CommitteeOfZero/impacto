@@ -97,6 +97,14 @@ bool GetControlState(int controlId) {
       return (PADinputButtonWentDown & PAD1Y) ||
              (PADinputMouseWentDown & PAD1Y);
     }
+    case CT_DelusionTriggerL: {
+      return (PADinputButtonWentDown & PADcustom[36]) ||
+             (PADinputMouseWentDown & PADcustom[36]);
+    }
+    case CT_DelusionTriggerR: {
+      return (PADinputButtonWentDown & PADcustom[37]) ||
+             (PADinputMouseWentDown & PADcustom[37]);
+    }
     default:
       return false;
   }
