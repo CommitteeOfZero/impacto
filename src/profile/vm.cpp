@@ -22,6 +22,7 @@ void Configure() {
   ScrWorkChaStructSize = EnsureGetMemberInt("ScrWorkChaStructSize");
   ScrWorkBgStructSize = EnsureGetMemberInt("ScrWorkBgStructSize");
   ScrWorkCaptureStructSize = EnsureGetMemberInt("ScrWorkCaptureStructSize");
+  ScrWorkBgEffStructSize = EnsureGetMemberInt("ScrWorkBgEffStructSize");
 
   TryGetMemberInt("MaxLinkedBgBuffers", MaxLinkedBgBuffers);
   TryGetMemberInt("SystemScriptBuffer", SystemScriptBuffer);

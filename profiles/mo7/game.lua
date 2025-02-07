@@ -20,6 +20,7 @@ root.Vm = {
     ScrWorkChaStructSize = 40,
     ScrWorkBgStructSize = 40,
     ScrWorkCaptureStructSize = 20,
+    ScrWorkBgEffStructSize = 30,
     MaxLinkedBgBuffers = 2
 };
 
