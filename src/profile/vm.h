@@ -21,6 +21,7 @@ inline bool RestartMaskUsesThreadAlpha = false;
 inline int ScrWorkChaStructSize;
 inline int ScrWorkBgStructSize;
 inline int ScrWorkCaptureStructSize;
+inline int ScrWorkBgEffStructSize;
 
 inline int MaxLinkedBgBuffers = 1;
 inline int SystemScriptBuffer = 1;

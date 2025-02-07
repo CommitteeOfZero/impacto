@@ -859,7 +859,8 @@ void ShowObjects() {
         ImGui::Spacing();
         ImGui::BulletText("IsShown: %d", Backgrounds[i].Show);
         ImGui::Spacing();
-        ImGui::BulletText("Layer: %d", Backgrounds[i].Layer);
+        ImGui::BulletText("Layers: %d, %d", Backgrounds[i].Layers[0],
+                          Backgrounds[i].Layers[1]);
         ImGui::Spacing();
         ImGui::BulletText("Display coords: (x: %f, y: %f)",
                           Backgrounds[i].DisplayCoords.x,
@@ -910,7 +911,8 @@ void ShowObjects() {
         ImGui::Spacing();
         ImGui::BulletText("IsShown: %d", Characters2D[i].Show);
         ImGui::Spacing();
-        ImGui::BulletText("Layer: %d", Characters2D[i].Layer);
+        ImGui::BulletText("Layers: %d, %d", Characters2D[i].Layers[0],
+                          Characters2D[i].Layers[1]);
         ImGui::Spacing();
         ImGui::BulletText("Display coords: (x: %f, y: %f)",
                           Characters2D[i].OffsetX, Characters2D[i].OffsetY);

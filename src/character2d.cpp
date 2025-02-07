@@ -140,7 +140,7 @@ void Character2D::UnloadSync() {
   CharaSpriteSheet.DesignWidth = 0.0f;
   CharaSpriteSheet.Texture = 0;
   Show = false;
-  Layer = -1;
+  std::fill(Layers.begin(), Layers.end(), -1);
   if (MvlVertices) {
     MvlVerticesCount = 0;
     free(MvlVertices);
@@ -164,7 +164,7 @@ void Character2D::MainThreadOnLoad() {
   CharaSprite.Bounds = RectF(0.0f, 0.0f, CharaSpriteSheet.DesignWidth,
                              CharaSpriteSheet.DesignHeight);
   Show = false;
-  Layer = -1;
+  std::fill(Layers.begin(), Layers.end(), -1);
 }
 
 void Character2D::Update(float dt) {
@@ -200,25 +200,28 @@ void Character2D::Update(float dt) {
   }
 }
 
+bool Character2D::OnLayer(int layer) {
+  return std::find(Layers.begin(), Layers.end(), layer) != Layers.end();
+}
+
 void Character2D::Render(int layer) {
-  if (Status == LS_Loaded && Layer == layer && Show) {
-    if (Profile::CharaIsMvl) {
-      Renderer->DrawCharacterMvl(CharaSprite, glm::vec2(OffsetX, OffsetY),
-                                 MvlVerticesCount, MvlVertices, MvlIndicesCount,
-                                 MvlIndices, false, Tint,
-                                 glm::vec2(ScaleX, ScaleY));
-    } else {
-      for (auto id : StatesToDraw) {
-        if (States.count(id)) {
-          Character2DState state = States[id];
-          for (int i = 0; i < state.Count; i++) {
-            CharaSprite.Bounds = RectF(state.TextureCoords[i].x,
-                                       state.TextureCoords[i].y, 30.0f, 30.0f);
-            Renderer->DrawSprite(CharaSprite,
-                                 glm::vec2(state.ScreenCoords[i].x + OffsetX,
-                                           state.ScreenCoords[i].y + OffsetY),
-                                 Tint);
-          }
+  if (Status != LS_Loaded || !OnLayer(layer) || !Show) return;
+
+  if (Profile::CharaIsMvl) {
+    Renderer->DrawCharacterMvl(
+        CharaSprite, glm::vec2(OffsetX, OffsetY), MvlVerticesCount, MvlVertices,
+        MvlIndicesCount, MvlIndices, false, Tint, glm::vec2(ScaleX, ScaleY));
+  } else {
+    for (auto id : StatesToDraw) {
+      if (States.count(id)) {
+        Character2DState state = States[id];
+        for (int i = 0; i < state.Count; i++) {
+          CharaSprite.Bounds = RectF(state.TextureCoords[i].x,
+                                     state.TextureCoords[i].y, 30.0f, 30.0f);
+          Renderer->DrawSprite(CharaSprite,
+                               glm::vec2(state.ScreenCoords[i].x + OffsetX,
+                                         state.ScreenCoords[i].y + OffsetY),
+                               Tint);
         }
       }
     }

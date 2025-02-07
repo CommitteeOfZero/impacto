@@ -44,17 +44,21 @@ class Background2D : public Loadable<Background2D> {
   int FadeRange;
 
   bool Show;
-  int Layer;
+  std::array<int, 2> Layers;
   LinkState Links[MaxLinks];
 
   void Render(int bgId, int layer);
   void RenderCapture(int capId, int layer);
+  void RenderBgEff(int bgId, int layer);
+
   void LoadSolidColor(uint32_t color, int width, int height);
 
  protected:
   bool LoadSync(uint32_t bgId);
   void UnloadSync();
   void MainThreadOnLoad();
+
+  bool OnLayer(int layer);
 
  private:
   Texture BgTexture;

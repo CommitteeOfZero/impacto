@@ -60,7 +60,7 @@ void Background2D::UnloadSync() {
   BgSprite.Sheet.Texture = 0;
   BgSprite.Sheet.IsScreenCap = false;
   Show = false;
-  Layer = -1;
+  std::fill(Layers.begin(), Layers.end(), -1);
 }
 
 void Background2D::MainThreadOnLoad() {
@@ -76,11 +76,15 @@ void Background2D::MainThreadOnLoad() {
   BgSprite.Bounds = RectF(0.0f, 0.0f, BgSprite.Sheet.DesignWidth,
                           BgSprite.Sheet.DesignHeight);
   Show = false;
-  Layer = -1;
+  std::fill(Layers.begin(), Layers.end(), -1);
+}
+
+bool Background2D::OnLayer(int layer) {
+  return std::find(Layers.begin(), Layers.end(), layer) != Layers.end();
 }
 
 void Background2D::Render(int bgId, int layer) {
-  if (Status != LS_Loaded || Layer != layer || !Show) return;
+  if (Status != LS_Loaded || !OnLayer(layer) || !Show) return;
 
   MaskNumber = ScrWork[SW_BG1MASKNO + ScrWorkBgStructSize * bgId];
   FadeCount = ScrWork[SW_BG1FADECT + ScrWorkBgStructSize * bgId];
@@ -97,8 +101,9 @@ void Background2D::Render(int bgId, int layer) {
       break;
 
     case Vm::InstructionSet::CC:
-      if (ScrWork[SW_BGEFF_MODE + 30 * bgId] == 1)
-        col.a = ScrWork[SW_BGEFF_ALPHA + 30 * bgId] / 256.0f;
+      if (ScrWork[SW_BGEFF1_MODE + ScrWorkBgEffStructSize * bgId] == 1)
+        col.a =
+            ScrWork[SW_BGEFF1_ALPHA + ScrWorkBgEffStructSize * bgId] / 256.0f;
 
     default:
       break;
@@ -109,7 +114,7 @@ void Background2D::Render(int bgId, int layer) {
 }
 
 void Background2D::RenderCapture(int capId, int layer) {
-  if (Status != LS_Loaded || Layer != layer || !Show) return;
+  if (Status != LS_Loaded || !OnLayer(layer) || !Show) return;
 
   MaskNumber = ScrWork[SW_CAP1MASKNO + ScrWorkCaptureStructSize * capId];
   FadeCount = ScrWork[SW_CAP1FADECT + ScrWorkCaptureStructSize * capId];
@@ -122,6 +127,34 @@ void Background2D::RenderCapture(int capId, int layer) {
 
   const int renderType =
       ScrWork[SW_CAP1FADETYPE + ScrWorkCaptureStructSize * capId];
+  BackgroundRenderTable[renderType](this, col);
+}
+
+void Background2D::RenderBgEff(int bgId, int layer) {
+  if (Status != LS_Loaded) return;
+
+  const int structSize = ScrWorkBgEffStructSize;
+
+  MaskNumber = ScrWork[SW_BGEFF1_MASKNO + structSize * bgId];
+  FadeCount = 256 - ScrWork[SW_BGEFF1_FADECT + structSize * bgId];
+  FadeRange = ScrWork[SW_BGEFF1_MASKFADERANGE + structSize * bgId];
+
+  float x = ScrWork[SW_BGEFF1_OFSX + 20 * bgId] +
+            ScrWork[SW_BGEFF1_POSX + structSize * bgId];
+  float y = ScrWork[SW_BGEFF1_OFSY + 20 * bgId] +
+            ScrWork[SW_BGEFF1_POSY + structSize * bgId];
+  x *= Profile::DesignWidth / 1280.0f;
+  y *= Profile::DesignHeight / 720.0f;
+  DisplayCoords = glm::vec2(-x, -y);
+
+  BgSprite.BaseScale = glm::vec2(1.0f);
+
+  glm::vec4 col = glm::vec4(1.0f);
+  col.a = (ScrWork[SW_BGEFF1_ALPHA + structSize * bgId] +
+           ScrWork[SW_BGEFF1_ALPHA_OFS + 20 * bgId]) /
+          256.0f;
+
+  const int renderType = ScrWork[SW_BGEFF1_MODE + structSize * bgId];
   BackgroundRenderTable[renderType](this, col);
 }
 
