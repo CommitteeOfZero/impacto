@@ -106,7 +106,7 @@ void Background2D::Render(int bgId, int layer) {
   }
 
   const int renderType = ScrWork[SW_BG1FADETYPE + ScrWorkBgStructSize * bgId];
-  BackgroundRenderTable[renderType](this, col);
+  std::invoke(BackgroundRenderTable[renderType], this, col);
 }
 
 void Background2D::RenderCapture(int capId, int layer) {
@@ -123,7 +123,7 @@ void Background2D::RenderCapture(int capId, int layer) {
 
   const int renderType =
       ScrWork[SW_CAP1FADETYPE + ScrWorkCaptureStructSize * capId];
-  BackgroundRenderTable[renderType](this, col);
+  std::invoke(BackgroundRenderTable[renderType], this, col);
 }
 
 void Background2D::RenderBgEff(int bgId, int layer) {
@@ -151,58 +151,58 @@ void Background2D::RenderBgEff(int bgId, int layer) {
           256.0f;
 
   const int renderType = ScrWork[SW_BGEFF1_MODE + structSize * bgId];
-  BackgroundRenderTable[renderType](this, col);
+  std::invoke(BackgroundRenderTable[renderType], this, col);
 }
 
-BackgroundRenderer(RenderRegular) {
-  Renderer->DrawSprite(
-      bg->BgSprite,
-      RectF(bg->DisplayCoords.x, bg->DisplayCoords.y,
-            bg->BgSprite.ScaledWidth(), bg->BgSprite.ScaledHeight()),
-      col, 0.0f, false);
+void Background2D::RenderRegular(glm::vec4 col) {
+  Renderer->DrawSprite(BgSprite,
+                       RectF(DisplayCoords.x, DisplayCoords.y,
+                             BgSprite.ScaledWidth(), BgSprite.ScaledHeight()),
+                       col, 0.0f, false);
+
   for (int i = 0; i < MaxLinkedBgBuffers; i++) {
-    if (bg->Links[i].Direction != LD_Off && bg->Links[i].LinkedBuffer != NULL) {
+    if (Links[i].Direction != LD_Off && Links[i].LinkedBuffer != NULL) {
       Renderer->DrawSprite(
-          bg->Links[i].LinkedBuffer->BgSprite,
-          RectF(bg->Links[i].DisplayCoords.x, bg->Links[i].DisplayCoords.y,
-                bg->Links[i].LinkedBuffer->BgSprite.ScaledWidth(),
-                bg->Links[i].LinkedBuffer->BgSprite.ScaledHeight()),
+          Links[i].LinkedBuffer->BgSprite,
+          RectF(Links[i].DisplayCoords.x, Links[i].DisplayCoords.y,
+                Links[i].LinkedBuffer->BgSprite.ScaledWidth(),
+                Links[i].LinkedBuffer->BgSprite.ScaledHeight()),
           col, 0.0f, false);
     }
   }
 }
 
-BackgroundRenderer(RenderMasked) {
+void Background2D::RenderMasked(glm::vec4 col) {
   Renderer->DrawMaskedSprite(
-      bg->BgSprite, Masks2D[bg->MaskNumber].MaskSprite,
-      RectF(bg->DisplayCoords.x, bg->DisplayCoords.y,
-            bg->BgSprite.ScaledWidth(), bg->BgSprite.ScaledHeight()),
-      col, bg->FadeCount, bg->FadeRange);
+      BgSprite, Masks2D[MaskNumber].MaskSprite,
+      RectF(DisplayCoords.x, DisplayCoords.y, BgSprite.ScaledWidth(),
+            BgSprite.ScaledHeight()),
+      col, FadeCount, FadeRange);
 }
 
-BackgroundRenderer(RenderMaskedInverted) {
+void Background2D::RenderMaskedInverted(glm::vec4 col) {
   Renderer->DrawMaskedSprite(
-      bg->BgSprite, Masks2D[bg->MaskNumber].MaskSprite,
-      RectF(bg->DisplayCoords.x, bg->DisplayCoords.y,
-            bg->BgSprite.ScaledWidth(), bg->BgSprite.ScaledHeight()),
-      col, bg->FadeCount, bg->FadeRange, true);
+      BgSprite, Masks2D[MaskNumber].MaskSprite,
+      RectF(DisplayCoords.x, DisplayCoords.y, BgSprite.ScaledWidth(),
+            BgSprite.ScaledHeight()),
+      col, FadeCount, FadeRange, true);
 }
 
-BackgroundRenderer(RenderFade) {
-  col.a *= bg->FadeCount / 256.0f;
+void Background2D::RenderFade(glm::vec4 col) {
+  col.a *= FadeCount / 256.0f;
 
-  Renderer->DrawSprite(
-      bg->BgSprite,
-      RectF(bg->DisplayCoords.x, bg->DisplayCoords.y,
-            bg->BgSprite.ScaledWidth(), bg->BgSprite.ScaledHeight()),
-      col, 0.0f, false);
+  Renderer->DrawSprite(BgSprite,
+                       RectF(DisplayCoords.x, DisplayCoords.y,
+                             BgSprite.ScaledWidth(), BgSprite.ScaledHeight()),
+                       col, 0.0f, false);
+
   for (int i = 0; i < MaxLinkedBgBuffers; i++) {
-    if (bg->Links[i].Direction != LD_Off && bg->Links[i].LinkedBuffer != NULL) {
+    if (Links[i].Direction != LD_Off && Links[i].LinkedBuffer != NULL) {
       Renderer->DrawSprite(
-          bg->Links[i].LinkedBuffer->BgSprite,
-          RectF(bg->Links[i].DisplayCoords.x, bg->Links[i].DisplayCoords.y,
-                bg->Links[i].LinkedBuffer->BgSprite.ScaledWidth(),
-                bg->Links[i].LinkedBuffer->BgSprite.ScaledHeight()),
+          Links[i].LinkedBuffer->BgSprite,
+          RectF(Links[i].DisplayCoords.x, Links[i].DisplayCoords.y,
+                Links[i].LinkedBuffer->BgSprite.ScaledWidth(),
+                Links[i].LinkedBuffer->BgSprite.ScaledHeight()),
           col, 0.0f, false);
     }
   }
