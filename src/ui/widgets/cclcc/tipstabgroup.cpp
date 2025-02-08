@@ -90,8 +90,9 @@ void TipsTabGroup::UpdatePageInput(float dt) {
 
     DirectionButtonHoldHandler.Update(dt);
     const int directionShouldFire = DirectionButtonHoldHandler.ShouldFire();
-    const bool directionMovement = (bool)(directionShouldFire & PAD1UP) ^
-                                   (bool)(directionShouldFire & PAD1DOWN);
+    const bool directionMovement = !PageUpDownButtonHoldHandler.Held() &&
+                                   ((bool)(directionShouldFire & PAD1UP) ^
+                                    (bool)(directionShouldFire & PAD1DOWN));
 
     if (directionMovement) {
       if (directionShouldFire & PAD1DOWN) {
