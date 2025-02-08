@@ -36,7 +36,7 @@ class AudioStream {
   int ReadPosition = 0;
 
  protected:
-  typedef AudioStream* (*AudioStreamCreator)(Io::Stream* stream);
+  using AudioStreamCreator = auto (*)(Io::Stream* stream) -> AudioStream*;
   static bool AddAudioStreamCreator(AudioStreamCreator c);
 
   AudioStream() {};

@@ -4,8 +4,8 @@
 
 namespace Impacto {
 namespace WorkQueue {
-typedef void (*WorkProc)(void* data);
-typedef void (*WorkCompletionCallbackProc)(void* data);
+using WorkProc = auto (*)(void* data) -> void;
+using WorkCompletionCallbackProc = auto (*)(void* data) -> void;
 
 void Init();
 // Push work onto the background thread. worker(data) will be called on the

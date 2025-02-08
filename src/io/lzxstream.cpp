@@ -202,8 +202,8 @@ static void LZXCopy(void *src, void *dst, size_t bytes) {
 static struct mspack_system LZXSys = {
     NULL,  // open
     NULL,  // close
-    (int (*)(mspack_file *, void *, int))&LZXread,
-    (int (*)(mspack_file *, void *, int))&LZXwrite,
+    (auto (*)(mspack_file *, void *, int)->int)&LZXread,
+    (auto (*)(mspack_file *, void *, int)->int)&LZXwrite,
     NULL,  // seek
     NULL,  // tell
     NULL,  // message

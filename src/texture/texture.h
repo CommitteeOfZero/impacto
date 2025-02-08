@@ -25,7 +25,7 @@ struct Texture {
   void LoadPoliticalCompass();
   uint32_t Submit();
 
-  typedef bool (*TextureLoader)(Io::Stream* stream, Texture* texture);
+  using TextureLoader = auto (*)(Io::Stream* stream, Texture* texture) -> bool;
   static bool AddTextureLoader(TextureLoader c);
 
  private:

@@ -20,7 +20,8 @@
 namespace Impacto {
 namespace Io {
 
-typedef IoError (*VfsArchiveFactory)(Stream* stream, VfsArchive** outArchive);
+using VfsArchiveFactory = auto (*)(Stream* stream, VfsArchive** outArchive)
+    -> IoError;
 
 static std::vector<VfsArchiveFactory> Archivers;
 static ska::flat_hash_map<std::string, std::vector<VfsArchive*>> Mounts;
