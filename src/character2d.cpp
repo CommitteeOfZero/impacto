@@ -200,10 +200,6 @@ void Character2D::Update(float dt) {
   }
 }
 
-bool Character2D::OnLayer(int layer) {
-  return std::find(Layers.begin(), Layers.end(), layer) != Layers.end();
-}
-
 void Character2D::Render(int layer) {
   if (Status != LS_Loaded || !OnLayer(layer) || !Show) return;
 

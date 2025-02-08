@@ -50,7 +50,9 @@ class Character2D : public Loadable<Character2D> {
   void UnloadSync();
   void MainThreadOnLoad();
 
-  bool OnLayer(int layer);
+  bool OnLayer(int layer) {
+    return std::find(Layers.begin(), Layers.end(), layer) != Layers.end();
+  }
 
  private:
   Texture CharaTexture;

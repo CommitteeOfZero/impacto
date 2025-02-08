@@ -58,7 +58,9 @@ class Background2D : public Loadable<Background2D> {
   void UnloadSync();
   void MainThreadOnLoad();
 
-  bool OnLayer(int layer);
+  bool OnLayer(int layer) {
+    return std::find(Layers.begin(), Layers.end(), layer) != Layers.end();
+  }
 
  private:
   Texture BgTexture;

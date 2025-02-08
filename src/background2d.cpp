@@ -79,10 +79,6 @@ void Background2D::MainThreadOnLoad() {
   std::fill(Layers.begin(), Layers.end(), -1);
 }
 
-bool Background2D::OnLayer(int layer) {
-  return std::find(Layers.begin(), Layers.end(), layer) != Layers.end();
-}
-
 void Background2D::Render(int bgId, int layer) {
   if (Status != LS_Loaded || !OnLayer(layer) || !Show) return;
 
