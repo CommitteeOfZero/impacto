@@ -46,10 +46,10 @@ static Sc3VmThread*
 static Sc3VmThread* NextFreeThreadCtx;  // Next free thread context in the
                                         // thread pool
 
-static InstructionProc* OpcodeTableSystem;
-static InstructionProc* OpcodeTableUser1;
-static InstructionProc* OpcodeTableGraph;
-static InstructionProc* OpcodeTableGraph3D;
+static const InstructionProc* OpcodeTableSystem;
+static const InstructionProc* OpcodeTableUser1;
+static const InstructionProc* OpcodeTableGraph;
+static const InstructionProc* OpcodeTableGraph3D;
 
 static void CreateThreadExecTable();
 static void SortThreadExecTable();

@@ -14,7 +14,7 @@ namespace Impacto {
 
 namespace Vm {
 
-InstructionProc static OpcodeTableSystem_CC[256] = {
+InstructionProc inline constexpr OpcodeTableSystem_CC[256] = {
     InstEnd,                  // 00 00
     InstCreateThread,         // 00 01
     InstKillThread,           // 00 02
@@ -273,7 +273,7 @@ InstructionProc static OpcodeTableSystem_CC[256] = {
     InstDummy                 // 00 FF
 };
 
-InstructionProc static OpcodeTableGraph_CC[256] = {
+InstructionProc inline constexpr OpcodeTableGraph_CC[256] = {
     InstCreateSurf,        // 01 00
     InstReleaseSurf,       // 01 01
     InstLoadPic,           // 01 02
@@ -532,7 +532,7 @@ InstructionProc static OpcodeTableGraph_CC[256] = {
     InstDummy              // 01 FF
 };
 
-InstructionProc static OpcodeTableUser1_CC[256] = {
+InstructionProc inline constexpr OpcodeTableUser1_CC[256] = {
     InstMSinit,            // 10 00
     InstBGload,            // 10 01
     InstBGswap,            // 10 02
