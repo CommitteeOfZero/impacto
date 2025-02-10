@@ -13,7 +13,11 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::UI::Widgets;
 using namespace Impacto::Vm::Interface;
 
-OptionsMenu::OptionsMenu() {
+OptionsMenu::OptionsMenu()
+    : DirectionButtonHeldHandler(MinButtonHoldTime, ButtonHoldFireInterval,
+                                 PAD1UP | PAD1DOWN | PAD1LEFT | PAD1RIGHT),
+      PageButtonHeldHandler(MinButtonHoldTime, ButtonHoldFireInterval,
+                            PAD1L1 | PAD1R1) {
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
   FadeAnimation.DurationIn = FadeInDuration;
@@ -29,6 +33,9 @@ void OptionsMenu::Show() {
       Pages[0]->HasFocus = true;
       Pages[0]->Show();
       Highlight(Pages[0]->GetFirstFocusableChild());
+
+      DirectionButtonHeldHandler.Reset();
+      PageButtonHeldHandler.Reset();
     }
     State = Showing;
 
@@ -74,79 +81,40 @@ void OptionsMenu::Update(float dt) {
 }
 
 void OptionsMenu::UpdatePageInput(float dt) {
+  PageButtonHeldHandler.Update(dt);
+  const int shouldFire = PageButtonHeldHandler.ShouldFire();
+
   // Button input
-  const int direction = (bool)(PADinputButtonIsDown & PAD1R1) -
-                        (bool)(PADinputButtonIsDown & PAD1L1);
+  const int direction =
+      (bool)(shouldFire & PAD1R1) - (bool)(shouldFire & PAD1L1);
 
-  if (direction == 0) {
-    PageDirectionButtonHeldTime = 0.0f;
-    PageDirectionButtonWaitTime = 0.0f;
+  if (direction == 0 && shouldFire) {
+    PageButtonHeldHandler.Reset();
     return;
   }
-
-  if (0.0f < PageDirectionButtonHeldTime &&
-      PageDirectionButtonHeldTime < MinButtonHoldTime) {
-    PageDirectionButtonHeldTime += dt;
-    PageDirectionButtonWaitTime = 0.0f;
-    return;
-  }
-
-  if (PageDirectionButtonWaitTime > 0.0f) {
-    PageDirectionButtonWaitTime -= dt;
-    return;
-  }
-
-  // Page advancement fired
-  PageDirectionButtonHeldTime += dt;
-  PageDirectionButtonWaitTime = ButtonHoldTimeInterval;
 
   GoToPage((CurrentPage + direction) % Pages.size());
 }
 
 void OptionsMenu::UpdateEntryMovementInput(float dt) {
-  const int verticalMovement = (bool)(PADinputButtonIsDown & PAD1DOWN) -
-                               (bool)(PADinputButtonIsDown & PAD1UP);
+  DirectionButtonHeldHandler.Update(dt);
+  const int shouldFire = DirectionButtonHeldHandler.ShouldFire();
+
+  const int verticalMovement =
+      (bool)(shouldFire & PAD1DOWN) - (bool)(shouldFire & PAD1UP);
   const FocusDirection verticalDirection = verticalMovement == -1
                                                ? FocusDirection::FDIR_UP
                                                : FocusDirection::FDIR_DOWN;
-  const int horizontalMovement = (bool)(PADinputButtonIsDown & PAD1RIGHT) -
-                                 (bool)(PADinputButtonIsDown & PAD1LEFT);
+  const int horizontalMovement =
+      (bool)(shouldFire & PAD1RIGHT) - (bool)(shouldFire & PAD1LEFT);
   const FocusDirection horizontalDirection = horizontalMovement == -1
                                                  ? FocusDirection::FDIR_LEFT
                                                  : FocusDirection::FDIR_RIGHT;
 
-  // Don't count towards holding the movement button if it is not
-  // in a valid movement direction
-  bool moving = CurrentlyFocusedElement &&
-                (verticalMovement &&
-                     CurrentlyFocusedElement->GetFocus(verticalDirection) ||
-                 horizontalMovement &&
-                     CurrentlyFocusedElement->GetFocus(horizontalDirection));
-  moving |=
-      !CurrentlyFocusedElement && (verticalMovement || horizontalMovement);
-
-  if (!moving) {
-    DirectionButtonHeldTime = 0.0f;
-    DirectionButtonWaitTime = 0.0f;
+  if (!verticalMovement && !horizontalMovement) {
+    if (shouldFire) DirectionButtonHeldHandler.Reset();
     return;
   }
-
-  if (0.0f < DirectionButtonHeldTime &&
-      DirectionButtonHeldTime < MinButtonHoldTime) {
-    DirectionButtonHeldTime += dt;
-    DirectionButtonWaitTime = 0.0f;
-    return;
-  }
-
-  if (DirectionButtonWaitTime > 0.0f) {
-    DirectionButtonWaitTime -= dt;
-    return;
-  }
-
-  // Advance entry
-
-  DirectionButtonHeldTime += dt;
-  DirectionButtonWaitTime = ButtonHoldTimeInterval;
 
   if (horizontalMovement != 0) AdvanceFocus(horizontalDirection);
   if (verticalMovement != 0) AdvanceFocus(verticalDirection);
@@ -185,7 +153,15 @@ void OptionsMenu::Highlight(Widget* toHighlight) {
     entry->HasFocus = false;
   }
 
-  if (toHighlight) toHighlight->HasFocus = true;
+  if (toHighlight) {
+    toHighlight->HasFocus = true;
+
+    DirectionButtonHeldHandler.PADinputButtonHoldMask =
+        (PAD1UP * (bool)toHighlight->GetFocus(FDIR_UP)) |
+        (PAD1DOWN * (bool)toHighlight->GetFocus(FDIR_DOWN)) |
+        (PAD1LEFT * (bool)toHighlight->GetFocus(FDIR_LEFT)) |
+        (PAD1RIGHT * (bool)toHighlight->GetFocus(FDIR_RIGHT));
+  }
   CurrentlyFocusedElement = toHighlight;
 }
 

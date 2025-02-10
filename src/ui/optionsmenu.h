@@ -1,6 +1,7 @@
 #pragma once
 
 #include "menu.h"
+#include "turboonholdhandler.h"
 #include "widgets/group.h"
 
 namespace Impacto {
@@ -28,11 +29,8 @@ class OptionsMenu : public Menu {
   int CurrentPage = 0;
   std::vector<std::unique_ptr<Widgets::Group>> Pages;
 
-  float DirectionButtonHeldTime = 0.0f;
-  float DirectionButtonWaitTime = 0.0f;
-
-  float PageDirectionButtonHeldTime = 0.0f;
-  float PageDirectionButtonWaitTime = 0.0f;
+  TurboOnHoldHandler DirectionButtonHeldHandler;
+  TurboOnHoldHandler PageButtonHeldHandler;
 };
 
 }  // namespace UI

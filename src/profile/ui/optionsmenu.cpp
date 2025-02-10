@@ -21,7 +21,7 @@ void Configure() {
         OptionsMenuType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
 
     MinButtonHoldTime = EnsureGetMemberFloat("MinButtonHoldTime");
-    ButtonHoldTimeInterval = EnsureGetMemberFloat("ButtonHoldTimeInterval");
+    ButtonHoldFireInterval = EnsureGetMemberFloat("ButtonHoldFireInterval");
 
     FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
     FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");

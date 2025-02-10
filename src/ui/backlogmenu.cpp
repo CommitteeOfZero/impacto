@@ -33,7 +33,11 @@ void BacklogMenu::MenuButtonOnClick(Widgets::BacklogEntry* target) {
   }
 }
 
-BacklogMenu::BacklogMenu() {
+BacklogMenu::BacklogMenu()
+    : DirectionButtonHeldHandler(MinHoldTime, AdvanceFocusTimeInterval,
+                                 PAD1UP | PAD1DOWN),
+      PageUpDownButtonHeldHandler(MinHoldTime, AdvanceFocusTimeInterval,
+                                  PAD1LEFT | PAD1RIGHT) {
   MainItems = new Widgets::Group(this, EntriesStart);
   MainItems->RenderingBounds = RenderingBounds;
   MainItems->WrapFocus = false;
@@ -69,8 +73,8 @@ void BacklogMenu::Show() {
     }
     UI::FocusedMenu = this;
 
-    DirectionalButtonHeldTime = 0.0f;
-    PageUpDownButtonHeldTime = 0.0f;
+    DirectionButtonHeldHandler.Reset();
+    PageUpDownButtonHeldHandler.Reset();
 
     // Set scrollbar back to default position
     if (ItemsHeight > MainItems->RenderingBounds.Height) {
@@ -84,9 +88,6 @@ void BacklogMenu::Hide() {
   if (State == Shown) {
     State = Hiding;
     FadeAnimation.StartOut();
-
-    DirectionalButtonHeldTime = 0.0f;
-    PageUpDownButtonHeldTime = 0.0f;
 
     if (LastFocusedMenu != nullptr) {
       UI::FocusedMenu = LastFocusedMenu;
@@ -105,33 +106,20 @@ static bool IsBeyondShiftedHoverBounds(const Widget* el, float delta, bool up) {
 }
 
 void BacklogMenu::UpdatePageUpDownInput(float dt) {
-  bool pageUpDown = (bool)(PADinputButtonIsDown & PAD1LEFT) ^
-                    (bool)(PADinputButtonIsDown & PAD1RIGHT);
-  if (!pageUpDown) {
-    PageUpDownButtonHeldTime = 0.0f;
-    PageUpDownWaitTime = 0.0f;
+  PageUpDownButtonHeldHandler.Update(dt);
+  const int shouldFire = PageUpDownButtonHeldHandler.ShouldFire();
+
+  const bool move =
+      (bool)(shouldFire & PAD1LEFT) ^ (bool)(shouldFire & PAD1RIGHT);
+  if (!move) {
+    if (shouldFire) PageUpDownButtonHeldHandler.Reset();
     return;
   }
 
-  if (0.0f < PageUpDownButtonHeldTime &&
-      PageUpDownButtonHeldTime < MinHoldTime) {
-    PageUpDownButtonHeldTime += dt;
-    PageUpDownWaitTime = 0.0f;
-    return;
-  }
-
-  if (PageUpDownWaitTime > 0.0f) {
-    PageUpDownWaitTime -= dt;
-    return;
-  }
-
-  PageUpDownButtonHeldTime += dt;
-  PageUpDownWaitTime = AdvanceFocusTimeInterval;
-
-  FocusDirection dir = (PADinputButtonIsDown & PAD1LEFT) ? FDIR_UP : FDIR_DOWN;
+  const FocusDirection dir = (shouldFire & PAD1LEFT) ? FDIR_UP : FDIR_DOWN;
 
   if (MainScrollbar->Enabled) {
-    float delta = (dir == FDIR_UP) ? PageUpDownHeight : -PageUpDownHeight;
+    const float delta = (dir == FDIR_UP) ? PageUpDownHeight : -PageUpDownHeight;
     PageY += delta;
     MainScrollbar->ClampValue();
 
@@ -168,14 +156,12 @@ static bool InVerticalHoverBounds(const Widget* entry) {
 }
 
 void BacklogMenu::UpdateScrollingInput(float dt) {
-  bool padScrolling = (bool)(PADinputButtonIsDown & PAD1DOWN) ^
-                      (bool)(PADinputButtonIsDown & PAD1UP);
-  if (!padScrolling) {
-    DirectionalButtonHeldTime = 0.0f;
-    return;
-  }
+  DirectionButtonHeldHandler.Update(dt);
+  const int held = DirectionButtonHeldHandler.Held();
+  const bool padScrolling = (bool)(held & PAD1DOWN) ^ (bool)(held & PAD1UP);
+  if (!padScrolling) return;
 
-  FocusDirection dir = (PADinputButtonIsDown & PAD1DOWN) ? FDIR_DOWN : FDIR_UP;
+  FocusDirection dir = (held & PAD1DOWN) ? FDIR_DOWN : FDIR_UP;
 
   bool focusOnEdge = false;
   const Widget* nextEl = nullptr;
@@ -193,30 +179,22 @@ void BacklogMenu::UpdateScrollingInput(float dt) {
 
   if (focusOnEdge) {
     if (nextEl) {
-      float excess = (dir == FDIR_UP)
-                         ? HoverBounds.Y - nextEl->Bounds.Y
-                         : nextEl->Bounds.Y + nextEl->Bounds.Height -
-                               HoverBounds.Y - HoverBounds.Height;
+      const float excess = (dir == FDIR_UP)
+                               ? HoverBounds.Y - nextEl->Bounds.Y
+                               : nextEl->Bounds.Y + nextEl->Bounds.Height -
+                                     HoverBounds.Y - HoverBounds.Height;
       if (excess < ScrollingSpeed * dt) AdvanceFocus(dir);
     }
   } else {
-    if (DirectionalButtonHeldTime == 0.0f) {
-      // Button just pressed
-      AdvanceFocusWaitTime = 0.0f;
+    const int shouldFire = DirectionButtonHeldHandler.ShouldFire();
 
+    if ((shouldFire & PAD1UP) ^ (shouldFire & PAD1DOWN)) {
+      dir = (shouldFire & PAD1DOWN) ? FDIR_DOWN : FDIR_UP;
       AdvanceFocus(dir);
-    } else if (DirectionalButtonHeldTime > MinHoldTime) {
-      // Button held down
-      if (AdvanceFocusWaitTime <= 0.0f) {
-        AdvanceFocus(dir);
-        AdvanceFocusWaitTime = AdvanceFocusTimeInterval;
-      }
-
-      AdvanceFocusWaitTime -= dt;
+    } else if (shouldFire) {
+      DirectionButtonHeldHandler.Reset();
     }
   }
-
-  DirectionalButtonHeldTime += dt;
 }
 
 void BacklogMenu::UpdateInput(float dt) {
