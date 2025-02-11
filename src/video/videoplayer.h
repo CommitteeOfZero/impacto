@@ -23,7 +23,7 @@ class VideoPlayer {
   bool IsPlaying = false;
 
  protected:
-  typedef VideoPlayer* (*VideoPlayerCreator)(Io::Stream* stream);
+  using VideoPlayerCreator = auto (*)(Io::Stream* stream) -> VideoPlayer*;
   static bool AddVideoPlayerCreator(VideoPlayerCreator c);
 
  private:

@@ -91,8 +91,11 @@ bool Character2D::LoadSync(uint32_t charaId) {
     OffsetX = Profile::DesignWidth / 2.0f;
     OffsetY = Profile::DesignHeight / 2.0f;
 
-    int (*StreamReadInt)(Io::Stream*);
-    float (*StreamReadFloat)(Io::Stream*);
+    using StreamReadInt_t = auto (*)(Io::Stream*)->int;
+    using StreamReadFloat_t = auto (*)(Io::Stream*)->float;
+    StreamReadInt_t StreamReadInt;
+    StreamReadFloat_t StreamReadFloat;
+
     if (Profile::LayFileBigEndian) {
       StreamReadInt = &Io::ReadBE<int>;
       StreamReadFloat = &Io::ReadBE<float>;
