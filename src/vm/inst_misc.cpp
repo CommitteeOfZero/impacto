@@ -212,10 +212,6 @@ VmInstruction(InstOption) {
                  "STUB instruction Option(type: Init)\n");
       break;
     case 1:
-      if (!GetFlag(SF_SUBMENUEXIT)) {
-        ResetInstruction;
-        BlockThread;
-      }
       ImpLogSlow(LL_Warning, LC_VMStub,
                  "STUB instruction Option(type: Main)\n");
       break;
