@@ -188,8 +188,8 @@ void UpdateGameState(float dt) {
 
 void UpdateSystem(float dt) {
   static float UpdateSecondCounter = 0.0f;
-  if (UpdateSecondCounter + dt <= 1 / 60.0f) {
-    UpdateSecondCounter += dt;
+  UpdateSecondCounter += dt;
+  if (UpdateSecondCounter <= 1 / 60.0f) {
     return;
   }
 
