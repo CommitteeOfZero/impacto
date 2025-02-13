@@ -71,6 +71,7 @@ class TitleMenu : public Menu {
   bool InputLocked = false;
   bool PrevInputLocked = false;
   MenuState SubMenuState = Hidden;
+  bool IsExploding = false;
 };
 
 }  // namespace CCLCC

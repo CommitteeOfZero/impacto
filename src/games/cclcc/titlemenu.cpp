@@ -192,7 +192,7 @@ void TitleMenu::Show() {
     UI::FocusedMenu = this;
     AllowsScriptInput = true;
     if (PressToStartAnimation.State == +AnimationState::Stopped) {
-      PressToStartAnimation.StartIn();
+      PressToStartAnimation.StartIn(true);
       SmokeAnimation.StartIn();
     }
   }
@@ -334,6 +334,9 @@ void TitleMenu::Update(float dt) {
   if (State != Hidden && GetFlag(SF_TITLEMODE)) {
     switch (ScrWork[SW_TITLEMODE]) {
       case 1: {
+        if (PressToStartAnimation.IsOut()) {
+          PressToStartAnimation.StartIn(true);
+        }
       } break;
       case 2: {
         ExplodeScreenUpdate();
@@ -360,6 +363,7 @@ void TitleMenu::Update(float dt) {
     } else if (SubMenuState == Showing && ScrWork[SW_SYSSUBMENUCT] == 32) {
       SubMenuState = Shown;
     }
+    if (ScrWork[SW_TITLEMODE] != 2) IsExploding = false;
   }
 }
 
@@ -376,10 +380,19 @@ void TitleMenu::ExplodeScreenUpdate() {
   if (SecondaryFadeAnimation.IsIn()) {
     SecondaryFadeAnimation.Progress = 0.0f;
   }
-  if (TitleAnimation.IsIn())
-    TitleAnimation.StartOut();
-  else if (TitleAnimation.IsOut())
+
+  if (!PressToStartAnimation.IsOut()) {
+    PressToStartAnimation.StartOut();
+  }
+
+  if (TitleAnimation.IsOut() && !IsExploding) {
     TitleAnimation.StartIn();
+    IsExploding = true;
+  }
+  if (TitleAnimation.IsIn() && !IsExploding) {
+    TitleAnimation.StartOut();
+    IsExploding = true;
+  }
   TitleAnimationSprite.Show = true;
   TitleAnimationSprite.Face =
       (TitleAnimationStartFrame +
@@ -505,6 +518,7 @@ void TitleMenu::Render() {
       } break;
       case 2: {  // Transition between Press to start and menus
         DrawMainMenuBackGraphics();
+        DrawStartButton();
         DrawSmoke(SmokeOpacityNormal);
         TitleAnimationSprite.Render(-1);
       } break;
