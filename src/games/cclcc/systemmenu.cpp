@@ -106,7 +106,7 @@ void SystemMenu::Update(float dt) {
     Hide();
     return;
   }
-  if (State == Hidden &&
+  if (State == Hidden && !GetFlag(SF_TITLEMODE) &&
       ((ScrWork[SW_SYSMENUCT] > 0) || ScrWork[SW_SYSMENUALPHA] > 0)) {
     Show();
     return;

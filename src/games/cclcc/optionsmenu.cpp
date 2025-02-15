@@ -145,15 +145,14 @@ void OptionsMenu::Hide() {
 }
 
 void OptionsMenu::UpdateVisibility() {
-  if (ScrWork[SW_SYSSUBMENUCT] < 32 && State == Shown &&
-      ScrWork[SW_SYSSUBMENUNO] == 5) {
+  if (ScrWork[SW_SYSSUBMENUCT] < 32 && State == Shown) {
     Hide();
-  } else if (ScrWork[SW_SYSSUBMENUCT] >= 32 && State == Hidden &&
+  } else if (ScrWork[SW_SYSSUBMENUCT] > 0 && State == Hidden &&
              ScrWork[SW_SYSSUBMENUNO] == 5) {
     Show();
   }
 
-  if (FadeAnimation.IsIn()) {
+  if (FadeAnimation.IsIn() && ScrWork[SW_SYSSUBMENUCT] == 32) {
     State = Shown;
   } else if (State == Hiding && FadeAnimation.IsOut() &&
              ScrWork[SW_SYSSUBMENUCT] == 0) {
@@ -165,9 +164,6 @@ void OptionsMenu::UpdateVisibility() {
 void OptionsMenu::Update(float dt) {
   UI::OptionsMenu::Update(dt);
   PoleAnimation.Update(dt);
-
-  if (State == Hiding && FadeAnimation.IsOut() && ScrWork[SW_SYSSUBMENUCT] != 0)
-    SetFlag(SF_SUBMENUEXIT, true);
 
   if (!FadeAnimation.IsIn() && !FadeAnimation.IsOut()) {
     const glm::vec2 backgroundPosition =
@@ -214,14 +210,12 @@ void OptionsMenu::UpdateEntryMovementInput(float dt) {
 
 void OptionsMenu::UpdateInput(float dt) {
   UpdatePageInput(dt);
-
-  if (PADinputMouseWentDown & PAD1B ||
-      !AnyEntrySelected() && GetControlState(CT_Back)) {
+  bool backBtnPressed = (PADinputMouseWentDown & PAD1B) ||
+                        (!AnyEntrySelected() && GetControlState(CT_Back));
+  if (State == Shown && backBtnPressed) {
     if (!GetFlag(SF_SUBMENUEXIT))
       Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0.0f);
-
-    Hide();
-    return;
+    SetFlag(SF_SUBMENUEXIT, 1);
   }
 
   // If something is selected, the option entry takes full control
@@ -231,7 +225,7 @@ void OptionsMenu::UpdateInput(float dt) {
 }
 
 void OptionsMenu::Render() {
-  if (State != Hidden && ScrWork[SW_SYSSUBMENUCT] >= 32 &&
+  if (State != Hidden && ScrWork[SW_SYSSUBMENUCT] > 0 &&
       ScrWork[SW_SYSSUBMENUNO] == 5) {
     const glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
     const glm::vec4 maskTint =

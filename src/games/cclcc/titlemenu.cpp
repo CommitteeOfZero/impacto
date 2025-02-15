@@ -31,30 +31,22 @@ void TitleMenu::MenuButtonOnClick(Widgets::Button* target) {
   TitleButton* button = static_cast<TitleButton*>(target);
   Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
   button->ChoiceBlinkAnimation.StartIn();
-  DisableInputReset = true;
   AllowsScriptInput = false;
-  if (CurrentSubMenu) {
-    CurrentSubMenu->HasFocus = false;
-    for (auto& item : CurrentSubMenu->Children) {
-      static_cast<TitleButton*>(item)->DisableInput = true;
-    }
-  } else {
-    MainItems->HasFocus = false;
-    for (auto& item : MainItems->Children) {
-      static_cast<TitleButton*>(item)->DisableInput = true;
-    }
-  }
+  InputLocked = true;
 }
 
 void TitleMenu::ContinueButtonOnClick(Widgets::Button* target) {
+  if (CurrentSubMenu == ContinueItems) return;
   Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
   CurrentSubMenu = ContinueItems;
   CurrentSubMenu->HasFocus = true;
   AllowsScriptInput = false;
-  DisableInputReset = false;
+  InputLocked = true;
+  ShowContinueItems();
 }
 
 void TitleMenu::ExtraButtonOnClick(Widgets::Button* target) {
+  if (CurrentSubMenu == ExtraItems) return;
   // SetFlag(SF_CLR_FLAG, true); // Uncomment for testing
   if (!GetFlag(SF_CLR_FLAG)) {
     Audio::Channels[Audio::AC_SSE]->Play("sysse", 4, false, 0);
@@ -63,7 +55,8 @@ void TitleMenu::ExtraButtonOnClick(Widgets::Button* target) {
   CurrentSubMenu = ExtraItems;
   CurrentSubMenu->HasFocus = true;
   AllowsScriptInput = false;
-  DisableInputReset = false;
+  InputLocked = true;
+  ShowExtraItems();
 }
 
 TitleMenu::TitleMenu() {
@@ -89,7 +82,6 @@ TitleMenu::TitleMenu() {
     SetFlag(SF_TITLEEND, true);
     AllowsScriptInput = true;
     PADinputButtonWentDown &= ~PADcustom[6];
-    DisableInputReset = false;
     IsFocused = false;
   };
 
@@ -200,7 +192,7 @@ void TitleMenu::Show() {
     UI::FocusedMenu = this;
     AllowsScriptInput = true;
     if (PressToStartAnimation.State == +AnimationState::Stopped) {
-      PressToStartAnimation.StartIn();
+      PressToStartAnimation.StartIn(true);
       SmokeAnimation.StartIn();
     }
   }
@@ -244,6 +236,51 @@ void TitleMenu::Hide() {
 }
 
 void TitleMenu::UpdateInput() {
+  if (ScrWork[SW_TITLEMODE] == 5 || ScrWork[SW_TITLEMODE] == 13 ||
+      ScrWork[SW_TITLEMODE] == 3) {
+    if (!InputLocked && !PrevInputLocked) {
+      if (SlideItemsAnimation.State == +AnimationState::Playing ||
+          SecondaryFadeAnimation.State == +AnimationState::Playing ||
+          PrimaryFadeAnimation.State == +AnimationState::Playing ||
+          TitleAnimation.State == +AnimationState::Playing ||
+          (CurrentlyFocusedElement != nullptr &&
+           (static_cast<TitleButton*>(CurrentlyFocusedElement)
+                    ->ChoiceBlinkAnimation.State == +AnimationState::Playing ||
+            static_cast<TitleButton*>(CurrentlyFocusedElement)
+                    ->HighlightAnimation.State == +AnimationState::Playing)) ||
+          SubMenuState != Hidden) {
+        InputLocked = true;
+      }
+    } else if (InputLocked && PrevInputLocked) {
+      if (SlideItemsAnimation.State == +AnimationState::Stopped &&
+          SecondaryFadeAnimation.State == +AnimationState::Stopped &&
+          PrimaryFadeAnimation.State == +AnimationState::Stopped &&
+          TitleAnimation.State == +AnimationState::Stopped &&
+          (CurrentlyFocusedElement != nullptr &&
+           (static_cast<TitleButton*>(CurrentlyFocusedElement)
+                    ->ChoiceBlinkAnimation.State == +AnimationState::Stopped &&
+            static_cast<TitleButton*>(CurrentlyFocusedElement)
+                    ->HighlightAnimation.State == +AnimationState::Stopped)) &&
+          SubMenuState == Hidden) {
+        InputLocked = false;
+      }
+    }
+
+    if (InputLocked != PrevInputLocked) {
+      for (auto* menu : {MainItems, ContinueItems, ExtraItems}) {
+        for (auto& item : menu->Children) {
+          static_cast<TitleButton*>(item)->DisableInput = InputLocked;
+        }
+      }
+      PrevInputLocked = InputLocked;
+      if (CurrentSubMenu != nullptr) {
+        CurrentSubMenu->HasFocus = !InputLocked;
+      } else {
+        MainItems->HasFocus = !InputLocked;
+        AllowsScriptInput = !InputLocked;
+      }
+    }
+  }
   if (CurrentSubMenu && !CurrentSubMenu->HasFocus) return;
   Menu::UpdateInput();
 
@@ -297,6 +334,9 @@ void TitleMenu::Update(float dt) {
   if (State != Hidden && GetFlag(SF_TITLEMODE)) {
     switch (ScrWork[SW_TITLEMODE]) {
       case 1: {
+        if (PressToStartAnimation.IsOut()) {
+          PressToStartAnimation.StartIn(true);
+        }
       } break;
       case 2: {
         ExplodeScreenUpdate();
@@ -323,11 +363,11 @@ void TitleMenu::Update(float dt) {
     } else if (SubMenuState == Showing && ScrWork[SW_SYSSUBMENUCT] == 32) {
       SubMenuState = Shown;
     }
+    if (ScrWork[SW_TITLEMODE] != 2) IsExploding = false;
   }
 }
 
 void TitleMenu::ExplodeScreenUpdate() {
-  DisableInputReset = false;
   if (SlideItemsAnimation.IsIn()) {
     SlideItemsAnimation.Progress = 0.0f;
     MenuLabel->Move({-Profile::DesignWidth / 2, 0.0f});
@@ -340,10 +380,19 @@ void TitleMenu::ExplodeScreenUpdate() {
   if (SecondaryFadeAnimation.IsIn()) {
     SecondaryFadeAnimation.Progress = 0.0f;
   }
-  if (TitleAnimation.IsIn())
-    TitleAnimation.StartOut();
-  else if (TitleAnimation.IsOut())
+
+  if (!PressToStartAnimation.IsOut()) {
+    PressToStartAnimation.StartOut();
+  }
+
+  if (TitleAnimation.IsOut() && !IsExploding) {
     TitleAnimation.StartIn();
+    IsExploding = true;
+  }
+  if (TitleAnimation.IsIn() && !IsExploding) {
+    TitleAnimation.StartOut();
+    IsExploding = true;
+  }
   TitleAnimationSprite.Show = true;
   TitleAnimationSprite.Face =
       (TitleAnimationStartFrame +
@@ -352,7 +401,6 @@ void TitleMenu::ExplodeScreenUpdate() {
 }
 
 void TitleMenu::ReturnToMenuUpdate() {
-  DisableInputReset = false;
   if (!MainItems->IsShown) {
     MainItems->Show();
     CurrentlyFocusedElement = NewGame;
@@ -389,35 +437,6 @@ void TitleMenu::MainMenuUpdate() {
 
   if (PrimaryFadeAnimation.IsOut()) {
     PrimaryFadeAnimation.StartIn();
-  }
-
-  if (!DisableInputReset) {
-    IsFocused = true;
-    if (CurrentSubMenu) {
-      if (SlideItemsAnimation.IsIn() && SecondaryFadeAnimation.IsIn()) {
-        CurrentSubMenu->HasFocus = true;
-        for (auto& item : CurrentSubMenu->Children) {
-          static_cast<TitleButton*>(item)->DisableInput = false;
-        }
-        DisableInputReset = true;
-      }
-    } else if (PrimaryFadeAnimation.IsIn() && SlideItemsAnimation.IsIn()) {
-      MainItems->HasFocus = true;
-      for (auto& item : MainItems->Children) {
-        static_cast<TitleButton*>(item)->DisableInput = false;
-      }
-      DisableInputReset = true;
-    }
-  }
-
-  if (CurrentSubMenu && !CurrentSubMenu->IsShown) {
-    if (CurrentSubMenu == ContinueItems) {
-      ShowContinueItems();
-    } else if (CurrentSubMenu == ExtraItems) {
-      if (GetFlag(SF_CLR_FLAG)) {
-        ShowExtraItems();
-      }
-    }
   }
 
   if (!MainItems->IsShown) {
@@ -469,7 +488,6 @@ void TitleMenu::SubMenuUpdate() {
     SlideItemsAnimation.StartIn();
     PrimaryFadeAnimation.StartIn();
     SecondaryFadeAnimation.StartIn();
-    DisableInputReset = false;
     AllowsScriptInput = false;
     MainItems->Move({Profile::DesignWidth / 2, 0.0f},
                     SlideItemsAnimation.DurationIn);
@@ -500,6 +518,7 @@ void TitleMenu::Render() {
       } break;
       case 2: {  // Transition between Press to start and menus
         DrawMainMenuBackGraphics();
+        DrawStartButton();
         DrawSmoke(SmokeOpacityNormal);
         TitleAnimationSprite.Render(-1);
       } break;
@@ -633,7 +652,6 @@ void TitleMenu::HideContinueItems() {
   Extra->DisableInput = false;
   Config->DisableInput = false;
   Help->DisableInput = false;
-  SubMenuState = Hidden;
 }
 
 void TitleMenu::ShowExtraItems() {

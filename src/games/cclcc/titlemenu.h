@@ -68,8 +68,10 @@ class TitleMenu : public Menu {
   void SubMenuUpdate();
   void ExplodeScreenUpdate();
   void ReturnToMenuUpdate();
-  bool DisableInputReset = false;
+  bool InputLocked = false;
+  bool PrevInputLocked = false;
   MenuState SubMenuState = Hidden;
+  bool IsExploding = false;
 };
 
 }  // namespace CCLCC
