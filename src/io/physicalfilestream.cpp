@@ -75,8 +75,9 @@ IoError PhysicalFileStream::Create(std::string const& fileName, Stream** out,
   if (result->ErrorCode != IoError_OK) {
     ImpLog(LL_Error, LC_IO, "Failed to open file \"%s\"\n",
            result->SourceFileName.c_str());
+    IoError error = result->ErrorCode;
     delete result;
-    return result->ErrorCode;
+    return error;
   }
   if (!result->FileStream) {
     ImpLog(LL_Error, LC_IO, "Failed to open file \"%s\", error: \"%s\"\n",

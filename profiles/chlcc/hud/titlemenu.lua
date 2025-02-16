@@ -6,51 +6,50 @@ root.TitleMenu = {
     PressToStartAnimDurationIn = 0.5,
     PressToStartAnimDurationOut = 0.5,
     PressToStartSprite = "TitleMenuPressToStart",
-    IntroBackgroundSprite = "TitleMenuIntroBackground",
     BackgroundSprite = "TitleMenuBackground",
+    IntroBackgroundSprite = "TitleMenuIntroBackground",
+    IntroPanningAnimationDuration = 2.1,
+    IntroAfterPanningWaitDuration = 0.8,
+    IntroBouncingStarSprite = "StarLogo",
+    IntroBouncingStarAnimationDuration = 3.73;
+    IntroExplodingStarSprite = "IntroSmallStar",
+    IntroExplodingStarAnimationDuration = 1.067,
+    IntroExplodingStarAnimationRotationDuration = 0.5,
+    IntroExplodingStarAnimationDistance = 294,
+    IntroFallingStarSprite = "IntroBigStar",
+    IntroFallingStarsAnimationDuration = 3,
+    IntroFallingStarsAnimationDistance = 2546,
+    IntroFallingStarsAnimationDirection = { X = -1, Y = 1 },
+    IntroFallingStarsAnimationRotationDuration = 0.7,
     DelusionADVUnderSprite = "DelusionADVUnder", -- "DelusionADVUnderEnglish" with the TLed assets, "DelusionADVUnder" with the original ones
-    DelusionADVUnderX = 78, --74 with the TLed assets, 78 with the original ones
-    DelusionADVUnderY = 394, --396 with the TLed assets, 394 with the original ones
+    DelusionADVUnderPosition = { X = 78, Y = 394 }, -- (74, 396) with TLed assets, (78, 394) with the original ones
     DelusionADVSprite = "DelusionADV", -- "DelusionADVEnglish" with the TLed assets, "DelusionADV" with the original ones
-    DelusionADVX = 78, --74 with the TLed assets, 78 with the original ones
-    DelusionADVY = 394, --396 with the TLed assets, 394 with the original ones
+    DelusionADVPosition = { X = 78, Y = 394 }, -- (74, 396) with TLed assets, (78, 394) with the original ones
     SeiraUnderSprite = "SeiraUnder",
-    SeiraUnderX = 733,
-    SeiraUnderY = 0,
+    SeiraUnderPosition = { X = 773, Y = 0 },
     SeiraSprite = "Seira",
-    SeiraX = 728,
-    SeiraY = -47,
+    SeiraPosition = { X = 728, Y = -47 },
     CHLogoSprite = "CHLogo",
-    CHLogoX = 61,
-    CHLogoY = 279,
+    CHLogoPosition = { X = 61, Y = 279 },
     LCCLogoUnderSprite = "LCCLogoUnder",
-    LCCLogoUnderX = 241,
-    LCCLogoUnderY = 327,
+    LCCLogoUnderPosition = { X = 241, Y = 327 },
     ChuLeftLogoSprite = "ChuLeftLogo",
-    ChuLeftLogoX = 353,
-    ChuLeftLogoY = 336,
+    ChuLeftLogoPosition = { X = 353, Y = 336 },
     ChuRightLogoSprite = "ChuRightLogo",
-    ChuRightLogoX = 500,
-    ChuRightLogoY = 316,
+    ChuRightLogoPosition = { X = 500, Y = 316 },
     LoveLogoSprite = "LoveLogo",
-    LoveLogoX = 235, --231 with the TLed assets, 235 with the original ones
-    LoveLogoY = 336, --335 with the TLed assets, 336 with the original ones
+    LoveLogoPosition = { X = 235, Y = 336 }, -- (231, 335) with TLed assets, (235, 336) with the original ones
     StarLogoSprite = "StarLogo",
-    StarLogoX = 465,
-    StarLogoY = 316,
+    StarLogoPosition = { X = 465, Y = 316 },
     ExclMarkLogoSprite = "ExclMarkLogo",
-    ExclMarkLogoX = 614,
-    ExclMarkLogoY = 316,
+    ExclMarkLogoPosition = { X = 614, Y = 316 },
     CopyrightTextSprite = "CopyrightText",
-    CopyrightTextX = 72,
-    CopyrightTextY = 675,
+    CopyrightTextPosition = { X = 72, Y = 675 },
     SpinningCircleSprite = "SpinningCircle",
-    SpinningCircleX = 610.5,
-    SpinningCircleY = -285.5,
+    SpinningCirclePosition = { X = 610.5, Y = -285.5 },
     SpinningCircleAnimationDuration = 15,
     ItemHighlightSprite = "TitleMenuItemHighlight",
-    ItemHighlightOffsetX = 73,
-    ItemHighlightOffsetY = 7,
+    ItemHighlightOffset = { X = 73, Y = 7 },
     ItemPadding = 40,
     ItemYBase = 69,
     ItemFadeInDuration = 0.3,
@@ -102,6 +101,25 @@ root.TitleMenu = {
     MenuEntriesHighlightedSprites = {},
     LineNum = 6,
     LineEntriesSprites = {}
+};
+
+root.TitleMenu.IntroHighlightSprites = {
+    "IntroBrightGreenHighlight",
+    "IntroSunHighlight",
+    "IntroGrayHighlight",
+    "IntroCrescentRainbowHighlight",
+    "IntroBlueHighlight",
+    "IntroWhiteHighlight",
+    "IntroBrownHighlight",
+    "IntroDiamondHighlight",
+    "IntroDarkGreenHighlight",
+    "IntroCircularRainbowHighlight"
+};
+
+-- Positions along the diagonal normalized between -1 and 1
+root.TitleMenu.IntroHighlightPositions = {
+    -1.13, -1.00, -0.49, 0.00, 0.17,
+    0.30, 0.58, 0.69, 0.91, 1.12
 };
 
 for i = 0, 3 do
@@ -239,6 +257,66 @@ root.Sprites["SpinningCircle"] = {
 root.Sprites["TitleMenuIntroBackground"] = {
     Sheet = "TitleBg1",
     Bounds = { X = 0, Y = 0, Width = 1280, Height = 720 },
+};
+
+root.Sprites["IntroSmallStar"] = {
+    Sheet = "Title",
+    Bounds = { X = 1153, Y = 534, Width = 45, Height = 44 },
+};
+
+root.Sprites["IntroBigStar"] = {
+    Sheet = "Title",
+    Bounds = { X = 1156, Y = 345, Width = 178, Height = 170 },
+};
+
+root.Sprites["IntroBrightGreenHighlight"] = {
+    Sheet = "Highlights",
+    Bounds = { X = 1536, Y = 0, Width = 256, Height = 256 },
+};
+
+root.Sprites["IntroSunHighlight"] = {
+    Sheet = "Highlights",
+    Bounds = { X = 0, Y = 0, Width = 512, Height = 512 },
+};
+
+root.Sprites["IntroGrayHighlight"] = {
+    Sheet = "Highlights",
+    Bounds = { X = 1536, Y = 256, Width = 256, Height = 256 },
+};
+
+root.Sprites["IntroCrescentRainbowHighlight"] = {
+    Sheet = "Highlights",
+    Bounds = { X = 0, Y = 512, Width = 512, Height = 512 },
+};
+
+root.Sprites["IntroBlueHighlight"] = {
+    Sheet = "Highlights",
+    Bounds = { X = 1280, Y = 256, Width = 256, Height = 256 },
+};
+
+root.Sprites["IntroWhiteHighlight"] = {
+    Sheet = "Highlights",
+    Bounds = { X = 1280, Y = 0, Width = 256, Height = 256 },
+};
+
+root.Sprites["IntroBrownHighlight"] = {
+    Sheet = "Highlights",
+    Bounds = { X = 1024, Y = 256, Width = 256, Height = 256 },
+};
+
+root.Sprites["IntroDiamondHighlight"] = {
+    Sheet = "Highlights",
+    Bounds = { X = 512, Y = 512, Width = 512, Height = 512 },
+};
+
+root.Sprites["IntroDarkGreenHighlight"] = {
+    Sheet = "Highlights",
+    Bounds = { X = 1024, Y = 0, Width = 256, Height = 256 },
+};
+
+root.Sprites["IntroCircularRainbowHighlight"] = {
+    Sheet = "Highlights",
+    Bounds = { X = 512, Y = 0, Width = 512, Height = 512 },
 };
 
 root.Sprites["TitleMenuBackground"] = {

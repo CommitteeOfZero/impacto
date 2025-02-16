@@ -447,7 +447,8 @@ void Renderer::DrawSpriteOffset(Sprite const& sprite, glm::vec2 topLeft,
 void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
                                 RectF const& dest, glm::vec4 tint, int alpha,
                                 int fadeRange, bool isScreencap,
-                                bool isInverted, bool isSameTexture) {
+                                bool isInverted, bool isSameTexture,
+                                bool isMaskScreencap) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawMaskedSprite() called before BeginFrame()\n");
@@ -502,8 +503,15 @@ void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
               sprite.Sheet.DesignHeight, (uintptr_t)&vertices[0].UV,
               sizeof(VertexBufferSprites));
   }
-  QuadSetUV(sprite.Bounds, sprite.Bounds.Width, sprite.Bounds.Height,
-            (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites));
+
+  if (isMaskScreencap) {
+    QuadSetUVFlipped(sprite.Bounds, sprite.Bounds.Width, sprite.Bounds.Height,
+                     (uintptr_t)&vertices[0].MaskUV,
+                     sizeof(VertexBufferSprites));
+  } else {
+    QuadSetUV(sprite.Bounds, sprite.Bounds.Width, sprite.Bounds.Height,
+              (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites));
+  }
 
   QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
                   sizeof(VertexBufferSprites));
@@ -1050,6 +1058,26 @@ void Renderer::SetScissorRect(RectF const& rect) {
 void Renderer::DisableScissor() {
   Flush();
   glDisable(GL_SCISSOR_TEST);
+}
+
+void Renderer::SetBlendMode(RendererBlendMode blendMode) {
+  Flush();
+
+  switch (blendMode) {
+    case RendererBlendMode::Normal:
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      return;
+    case RendererBlendMode::Additive:
+      glBlendFunc(GL_ONE, GL_ONE);
+      return;
+  }
+}
+
+void Renderer::Clear(glm::vec4 color) {
+  Flush();
+
+  glClearColor(color.r, color.g, color.b, color.a);
+  glClear(GL_COLOR_BUFFER_BIT);
 }
 
 }  // namespace OpenGL

@@ -133,8 +133,8 @@ class Renderer : public BaseRenderer {
   void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
                         RectF const& dest, glm::vec4 tint, int alpha,
                         int fadeRange, bool isScreencap = false,
-                        bool isInverted = false,
-                        bool isSameTexture = false) override;
+                        bool isInverted = false, bool isSameTexture = false,
+                        bool isMaskScreencap = false) override;
 
   void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                         RectF const& dest, glm::vec4 tint, int alpha,
@@ -171,6 +171,10 @@ class Renderer : public BaseRenderer {
   void EnableScissor() override;
   void SetScissorRect(RectF const& rect) override;
   void DisableScissor() override;
+
+  void SetBlendMode(RendererBlendMode blendMode) override {};
+
+  void Clear(glm::vec4 color) override {}
 
  private:
   void CreateInstance();
