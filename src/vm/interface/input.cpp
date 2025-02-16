@@ -24,6 +24,73 @@ void UpdatePADcustomType(int type) {
   }
 }
 
+enum class PADInputType { WentDown, IsDown };
+
+static void UpdateFromPADCode(int PADcode, PADInputType type) {
+  const auto KBcode = PADToKeyboard.find(PADcode);
+  const auto GPcode = PADToController.find(PADcode);
+  const auto GPAcode = PADToControllerAxis.find(PADcode);
+  const auto MScode = PADToMouse.find(PADcode);
+
+  const auto& axisDownLightArr = type == PADInputType::WentDown
+                                     ? Input::ControllerAxisWentDownLight
+                                     : Input::ControllerAxisIsDownLight;
+  const auto& axisDownHeavyArr = type == PADInputType::WentDown
+                                     ? Input::ControllerAxisWentDownHeavy
+                                     : Input::ControllerAxisIsDownHeavy;
+  const auto& mouseDownArr = type == PADInputType::WentDown
+                                 ? Input::MouseButtonWentDown
+                                 : Input::MouseButtonIsDown;
+
+  auto& padInputButton = type == PADInputType::WentDown ? PADinputButtonWentDown
+                                                        : PADinputButtonIsDown;
+  auto& padInputMouse = type == PADInputType::WentDown ? PADinputMouseWentDown
+                                                       : PADinputMouseIsDown;
+
+  const bool isKbDown = KBcode != PADToKeyboard.end() &&
+                        Input::KeyboardButtonWentDown[KBcode->second];
+  const bool isGpDown = GPcode != PADToController.end() &&
+                        Input::ControllerButtonWentDown[GPcode->second];
+  const auto checkAxis = [&](auto axisDownArr) {
+    if (GPAcode != PADToControllerAxis.end()) {
+      if (axisDownArr[GPAcode->second.first] &&
+          Input::ControllerAxis[GPAcode->second.first] *
+                  GPAcode->second.second >
+              0)
+        return true;
+    }
+    return false;
+  };
+
+  const auto checkPadDirectional = [](auto PADcode) {
+    if (PADcode == PAD1UP_DIRECT || PADcode == PAD1UP_RS ||
+        PADcode == PAD1UP_LS)
+      PADcode |= PAD1UP;
+    if (PADcode == PAD1DOWN_DIRECT || PADcode == PAD1DOWN_RS ||
+        PADcode == PAD1DOWN_LS)
+      PADcode |= PAD1DOWN;
+    if (PADcode == PAD1LEFT_DIRECT || PADcode == PAD1LEFT_RS ||
+        PADcode == PAD1LEFT_LS)
+      PADcode |= PAD1LEFT;
+    if (PADcode == PAD1RIGHT_DIRECT || PADcode == PAD1RIGHT_RS ||
+        PADcode == PAD1RIGHT_LS)
+      PADcode |= PAD1RIGHT;
+    return PADcode;
+  };
+
+  const bool isGPAxisDown = checkAxis(axisDownLightArr);
+  const bool isMsDown =
+      MScode != PADToMouse.end() && mouseDownArr[MScode->second];
+  if (isGPAxisDown &&
+      Input::ControllerAxis[GPAcode->second.first] >
+          GPAcode->second.second * Input::ControllerAxisLightThreshold)
+    padInputButton |= PADcode;
+  if (isKbDown || isGpDown || isGPAxisDown) {
+    padInputButton |= checkPadDirectional(PADcode);
+  }
+  if (isMsDown) padInputMouse |= PADcode;
+}
+
 void UpdatePADInput() {
   PADinputButtonWentDown = 0;
   PADinputMouseWentDown = 0;
@@ -31,74 +98,10 @@ void UpdatePADInput() {
   PADinputMouseIsDown = 0;
   for (int i = 0; i < 30; i++) {
     int PADcode = (int)std::pow(2, i);
-    auto KBcode = PADToKeyboard.find(PADcode);
-    auto GPcode = PADToController.find(PADcode);
-    auto GPAcode = PADToControllerAxis.find(PADcode);
-    auto MScode = PADToMouse.find(PADcode);
-    if (GPAcode != PADToControllerAxis.end() &&
-        Input::ControllerAxisWentDownLight[GPAcode->second.first] &&
-        Input::ControllerAxis[GPAcode->second.first] >
-            GPAcode->second.second * Input::ControllerAxisLightThreshold)
-      PADinputButtonWentDown |= PADcode;
-    auto checkAxis = [&](bool axisDownArr[]) {
-      if (GPAcode != PADToControllerAxis.end()) {
-        if (axisDownArr[GPAcode->second.first] &&
-            Input::ControllerAxis[GPAcode->second.first] *
-                    GPAcode->second.second >
-                0)
-          return true;
-      }
-      return false;
-    };
-    bool isKbWentDown = KBcode != PADToKeyboard.end() &&
-                        Input::KeyboardButtonWentDown[KBcode->second];
-    bool isGpWentDown = GPcode != PADToController.end() &&
-                        Input::ControllerButtonWentDown[GPcode->second];
-
-    bool isGPAxisWentDown = checkAxis(Input::ControllerAxisWentDownLight);
-    bool isMsWentDown = MScode != PADToMouse.end() &&
-                        Input::MouseButtonWentDown[MScode->second];
-    if (isKbWentDown || isGpWentDown || isGPAxisWentDown) {
-      if (PADcode == PAD1UP_DIRECT || PADcode == PAD1UP_RS ||
-          PADcode == PAD1UP_LS)
-        PADcode |= PAD1UP;
-      else if (PADcode == PAD1DOWN_DIRECT || PADcode == PAD1DOWN_RS ||
-               PADcode == PAD1DOWN_LS)
-        PADcode |= PAD1DOWN;
-      else if (PADcode == PAD1LEFT_DIRECT || PADcode == PAD1LEFT_RS ||
-               PADcode == PAD1LEFT_LS)
-        PADcode |= PAD1LEFT;
-      else if (PADcode == PAD1RIGHT_DIRECT || PADcode == PAD1RIGHT_RS ||
-               PADcode == PAD1RIGHT_LS)
-        PADcode |= PAD1RIGHT;
-      PADinputButtonWentDown |= PADcode;
-    }
-    if (isMsWentDown) PADinputMouseWentDown |= PADcode;
-
-    bool isKbIsDown = KBcode != PADToKeyboard.end() &&
-                      Input::KeyboardButtonIsDown[KBcode->second];
-    bool isGpIsDown = GPcode != PADToController.end() &&
-                      Input::ControllerButtonIsDown[GPcode->second];
-    bool isGPAxisIsDown = checkAxis(Input::ControllerAxisIsDownLight);
-    bool isMsIsDown =
-        MScode != PADToMouse.end() && Input::MouseButtonIsDown[MScode->second];
-    if (isKbIsDown || isGpIsDown || isGPAxisIsDown) {
-      if (PADcode == PAD1UP_DIRECT || PADcode == PAD1UP_RS ||
-          PADcode == PAD1UP_LS)
-        PADcode |= PAD1UP;
-      else if (PADcode == PAD1DOWN_DIRECT || PADcode == PAD1DOWN_RS ||
-               PADcode == PAD1DOWN_LS)
-        PADcode |= PAD1DOWN;
-      else if (PADcode == PAD1LEFT_DIRECT || PADcode == PAD1LEFT_RS ||
-               PADcode == PAD1LEFT_LS)
-        PADcode |= PAD1LEFT;
-      else if (PADcode == PAD1RIGHT_DIRECT || PADcode == PAD1RIGHT_RS ||
-               PADcode == PAD1RIGHT_LS)
-        PADcode |= PAD1RIGHT;
-      PADinputButtonIsDown |= PADcode;
-    }
-    if (isMsIsDown) PADinputMouseIsDown |= PADcode;
+    UpdateFromPADCode(PADcode, PADInputType::WentDown);
+    UpdateFromPADCode(PADcode, PADInputType::IsDown);
   }
+
   if (Input::TouchWentDown[0] && Input::TouchWentDown[1])
     PADinputMouseWentDown |= PAD1B;
   else if (Input::TouchWentDown[0])
