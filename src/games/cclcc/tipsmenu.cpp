@@ -192,11 +192,6 @@ void TipsMenu::Hide() {
 void TipsMenu::UpdateInput() {
   Menu::UpdateInput();
   if (State == Shown) {
-    if (CurrentlyDisplayedTipId != -1) {
-      if (PADinputButtonWentDown & PAD1X) {
-        NextTipPage();
-      }
-    }
     if (PADinputButtonWentDown & PAD1R1) {
       TipsTabType type =
           static_cast<TipsTabType>((CurrentTabType + 1) % TabCount);
@@ -411,8 +406,6 @@ void TipsMenu::SwitchToTipId(int id) {
 
   Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
 }
-
-void TipsMenu::NextTipPage() {}
 
 void TipsMenu::SetActiveTab(TipsTabType type) {
   if (type == CurrentTabType || !TipsTabs[type]->GetTipEntriesCount()) return;
