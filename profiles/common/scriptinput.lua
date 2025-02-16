@@ -77,6 +77,8 @@ root.PADinput = {
     PAD1RIGHT_DIRECT = 0x8,
 };
 
+local AllDir = root.PADinput.PAD1UP | root.PADinput.PAD1DOWN | root.PADinput.PAD1LEFT | root.PADinput.PAD1RIGHT;
+
 -- Default to cclcc profile
 root.PADcustomType = 0;
 root.PADcustomSizeA = 43;
@@ -122,7 +124,7 @@ root.PADcustomA = {
   root.PADinput.PAD1R2,
   root.PADinput.PAD1LEFT | root.PADinput.PAD1L2,
   root.PADinput.PAD1RIGHT | root.PADinput.PAD1R2,
-  0xF0000 | root.PADinput.PAD1A,
+  AllDir | root.PADinput.PAD1A,
   root.PADinput.PAD1L1,
   root.PADinput.PAD1R1,
 }

@@ -46,6 +46,8 @@ root.Input = {
   GPA_PAD1LT=4, --Left trigger		  
   GPA_PAD1RT=5, --Right trigger
 }
+local AllDirDirect = root.PADinput.PAD1UP | root.PADinput.PAD1DOWN | root.PADinput.PAD1LEFT | root.PADinput.PAD1RIGHT;
+local AllDirLS = root.PADinput.PAD1UP_LS | root.PADinput.PAD1DOWN_LS | root.PADinput.PAD1LEFT_LS | root.PADinput.PAD1RIGHT_LS;
 
 root.PADcustomSizeA = 37;
 root.PADcustomSizeB = 0;
@@ -75,7 +77,7 @@ root.PADcustomA = {
   root.PADinput.PAD1L1,
   root.PADinput.PAD1LEFT_RS | root.PADinput.PAD1L2,
   root.PADinput.PAD1RIGHT_RS | root.PADinput.PAD1R2,
-  0xf0100f,
+  AllDirLS | AllDirDirect | root.PADinput.PAD1A,
   root.PADinput.PAD1R1,
   root.PADinput.PAD1L1,
   root.PADinput.PAD1A,
