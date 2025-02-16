@@ -99,7 +99,7 @@ void Configure() {
   PADToControllerAxis[PAD1UP_LS] = {GPA_PAD1LY, AxisNeg};
   PADToControllerAxis[PAD1DOWN_LS] = {GPA_PAD1LY, AxisPos};
   PADToControllerAxis[PAD1LEFT_LS] = {GPA_PAD1LX, AxisNeg};
-  PADToControllerAxis[PAD1RIGHT_LS] = {GPA_PAD1RX, AxisPos};
+  PADToControllerAxis[PAD1RIGHT_LS] = {GPA_PAD1LX, AxisPos};
   PADToControllerAxis[PAD1UP_RS] = {GPA_PAD1RY, AxisNeg};
   PADToControllerAxis[PAD1DOWN_RS] = {GPA_PAD1RY, AxisPos};
   PADToControllerAxis[PAD1LEFT_RS] = {GPA_PAD1RX, AxisNeg};

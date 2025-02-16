@@ -56,16 +56,16 @@ void TipsTabButton::UpdateInput() {
 TipsTabGroup::TipsTabGroup(
     TipsTabType type, std::function<void(Widgets::Button*)> tabClickHandler,
     std::function<void(Widgets::Button*)> tipClickHandler)
-    : Type(type),
+    : TipsEntriesGroup(this),
       TabName(type, tabClickHandler),
-      TipsEntriesGroup(this),
+      Type(type),
       TipClickHandler(tipClickHandler),
       DirectionButtonHoldHandler(
           MinHoldTime, AdvanceFocusTimeInterval,
-          Vm::Interface::PAD1UP | Vm::Interface::PAD1DOWN),
+          Vm::Interface::PADcustom[28] | Vm::Interface::PADcustom[29]),
       PageUpDownButtonHoldHandler(
           MinHoldTime, AdvanceFocusTimeInterval,
-          Vm::Interface::PAD1LEFT | Vm::Interface::PAD1RIGHT) {
+          Vm::Interface::PADcustom[30] | Vm::Interface::PADcustom[31]) {
   TipsEntriesGroup.WrapFocus = true;
 
   TipsScrollStartPos = {TipsScrollEntriesX, TipsScrollYStart};
