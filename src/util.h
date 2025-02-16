@@ -269,6 +269,11 @@ inline void TrimString(std::string& str) {
             str.end());
 }
 
+inline void MakeLowerCase(std::string& str) {
+  std::transform(str.begin(), str.end(), str.begin(),
+                 [](const char c) { return std::tolower(c); });
+}
+
 template <typename T>
 T UnalignedRead(void* ptr) {
   static_assert(std::is_pod<T>::value, "!std::is_pod<T>");

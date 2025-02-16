@@ -53,6 +53,7 @@ int main(int argc, char* argv[]) {
   profileName.resize(stream->Meta.Size, '\0');
   profileName.resize(stream->Read(&profileName[0], stream->Meta.Size));
   TrimString(profileName);
+  MakeLowerCase(profileName);
 
 #ifdef EMSCRIPTEN
   // Emscripten's EGL requests a window framebuffer with antialiasing by default
