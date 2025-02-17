@@ -38,7 +38,7 @@ class Character2D : public Loadable<Character2D> {
   int LipFrame;
   int EyeFrame;
   bool Show;
-  int Layer;
+  std::array<int, 2> Layers;
   glm::vec4 Tint = glm::vec4(1.0f);
   void Update(float dt);
   void Render(int layer);
@@ -49,6 +49,10 @@ class Character2D : public Loadable<Character2D> {
   bool LoadSync(uint32_t charaId);
   void UnloadSync();
   void MainThreadOnLoad();
+
+  bool OnLayer(int layer) {
+    return std::find(Layers.begin(), Layers.end(), layer) != Layers.end();
+  }
 
  private:
   Texture CharaTexture;

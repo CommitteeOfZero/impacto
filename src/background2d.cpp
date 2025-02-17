@@ -59,7 +59,7 @@ void Background2D::UnloadSync() {
   BgSpriteSheet.DesignWidth = 0.0f;
   BgSpriteSheet.Texture = 0;
   Show = false;
-  Layer = -1;
+  std::fill(Layers.begin(), Layers.end(), -1);
 }
 
 void Background2D::MainThreadOnLoad() {
@@ -76,82 +76,134 @@ void Background2D::MainThreadOnLoad() {
   BgSprite.Bounds =
       RectF(0.0f, 0.0f, BgSpriteSheet.DesignWidth, BgSpriteSheet.DesignHeight);
   Show = false;
-  Layer = -1;
+  std::fill(Layers.begin(), Layers.end(), -1);
 }
 
 void Background2D::Render(int bgId, int layer) {
-  if (Status == LS_Loaded && Layer == layer && Show) {
-    glm::vec4 col = glm::vec4(1.0f);
-    if (GameInstructionSet == +Vm::InstructionSet::Dash) {
-      col.a = ScrWork[SW_BG1ALPHA + ScrWorkBgStructSize * bgId] / 256.0f;
-    } else if (GameInstructionSet == +Vm::InstructionSet::CC) {
-      if (ScrWork[SW_BGEFF_MODE + 30 * bgId] == 1)
-        col.a = ScrWork[SW_BGEFF_ALPHA + 30 * bgId] / 256.0f;
-    }
-    int renderType = ScrWork[SW_BG1FADETYPE + ScrWorkBgStructSize * bgId];
-    BackgroundRenderTable[renderType](this, bgId, col);
-  }
-}
+  if (Status != LS_Loaded || !OnLayer(layer) || !Show) return;
 
-BackgroundRenderer(RenderRegular) {
-  Renderer->DrawSprite(
-      bg->BgSprite,
-      RectF(bg->DisplayCoords.x, bg->DisplayCoords.y,
-            bg->BgSprite.ScaledWidth(), bg->BgSprite.ScaledHeight()),
-      col, 0.0f, false, bg->IsScreencap);
-  for (int i = 0; i < MaxLinkedBgBuffers; i++) {
-    if (bg->Links[i].Direction != LD_Off && bg->Links[i].LinkedBuffer != NULL) {
-      Renderer->DrawSprite(
-          bg->Links[i].LinkedBuffer->BgSprite,
-          RectF(bg->Links[i].DisplayCoords.x, bg->Links[i].DisplayCoords.y,
-                bg->Links[i].LinkedBuffer->BgSprite.ScaledWidth(),
-                bg->Links[i].LinkedBuffer->BgSprite.ScaledHeight()),
-          col, 0.0f, false, bg->Links[i].LinkedBuffer->IsScreencap);
-    }
-  }
-}
+  MaskNumber = ScrWork[SW_BG1MASKNO + ScrWorkBgStructSize * bgId];
+  FadeCount = ScrWork[SW_BG1FADECT + ScrWorkBgStructSize * bgId];
+  FadeRange = ScrWork[SW_BG1MASKFADERANGE + ScrWorkBgStructSize * bgId];
 
-BackgroundRenderer(RenderMasked) {
-  Renderer->DrawMaskedSprite(
-      bg->BgSprite,
-      Masks2D[ScrWork[SW_BG1MASKNO + ScrWorkBgStructSize * bgId]].MaskSprite,
-      RectF(bg->DisplayCoords.x, bg->DisplayCoords.y,
-            bg->BgSprite.ScaledWidth(), bg->BgSprite.ScaledHeight()),
-      col, ScrWork[SW_BG1FADECT + ScrWorkBgStructSize * bgId],
-      ScrWork[SW_BG1MASKFADERANGE + ScrWorkBgStructSize * bgId],
-      bg->IsScreencap);
-}
-
-BackgroundRenderer(RenderMaskedInverted) {
-  Renderer->DrawMaskedSprite(
-      bg->BgSprite,
-      Masks2D[ScrWork[SW_BG1MASKNO + ScrWorkBgStructSize * bgId]].MaskSprite,
-      RectF(bg->DisplayCoords.x, bg->DisplayCoords.y,
-            bg->BgSprite.ScaledWidth(), bg->BgSprite.ScaledHeight()),
-      col, ScrWork[SW_BG1FADECT + ScrWorkBgStructSize * bgId],
-      ScrWork[SW_BG1MASKFADERANGE + ScrWorkBgStructSize * bgId],
-      bg->IsScreencap, true);
-}
-
-BackgroundRenderer(RenderFade) {
-  col.a = ((ScrWork[SW_BG1FADECT + ScrWorkBgStructSize * bgId] *
-            (ScrWork[SW_BG1ALPHA + ScrWorkBgStructSize * bgId] +
-             ScrWork[SW_BG1ALPHA_OFS + 10 * bgId])) >>
-           8) /
+  glm::vec4 col = glm::vec4(1.0f);
+  col.a = (ScrWork[SW_BG1ALPHA + ScrWorkBgStructSize * bgId] +
+           ScrWork[SW_BG1ALPHA_OFS + 10 * bgId]) /
           256.0f;
-  Renderer->DrawSprite(
-      bg->BgSprite,
-      RectF(bg->DisplayCoords.x, bg->DisplayCoords.y,
-            bg->BgSprite.ScaledWidth(), bg->BgSprite.ScaledHeight()),
-      col, 0.0f, false, bg->IsScreencap);
+
+  switch (GameInstructionSet) {
+    case Vm::InstructionSet::Dash:
+      col.a = ScrWork[SW_BG1ALPHA + ScrWorkBgStructSize * bgId] / 256.0f;
+      break;
+
+    case Vm::InstructionSet::CC:
+      if (ScrWork[SW_BGEFF1_MODE + ScrWorkBgEffStructSize * bgId] == 1)
+        col.a =
+            ScrWork[SW_BGEFF1_ALPHA + ScrWorkBgEffStructSize * bgId] / 256.0f;
+
+    default:
+      break;
+  }
+
+  const int renderType = ScrWork[SW_BG1FADETYPE + ScrWorkBgStructSize * bgId];
+  std::invoke(BackgroundRenderTable[renderType], this, col);
+}
+
+void Background2D::RenderCapture(int capId, int layer) {
+  if (Status != LS_Loaded || !OnLayer(layer) || !Show) return;
+
+  MaskNumber = ScrWork[SW_CAP1MASKNO + ScrWorkCaptureStructSize * capId];
+  FadeCount = ScrWork[SW_CAP1FADECT + ScrWorkCaptureStructSize * capId];
+  FadeRange = ScrWork[SW_CAP1MASKFADERANGE + ScrWorkCaptureStructSize * capId];
+
+  glm::vec4 col = glm::vec4(1.0f);
+  col.a = (ScrWork[SW_CAP1ALPHA + ScrWorkCaptureStructSize * capId] +
+           ScrWork[SW_CAP1ALPHA_OFS + 10 * capId]) /
+          256.0f;
+
+  const int renderType =
+      ScrWork[SW_CAP1FADETYPE + ScrWorkCaptureStructSize * capId];
+  std::invoke(BackgroundRenderTable[renderType], this, col);
+}
+
+void Background2D::RenderBgEff(int bgId, int layer) {
+  if (Status != LS_Loaded) return;
+
+  const int structSize = ScrWorkBgEffStructSize;
+
+  MaskNumber = ScrWork[SW_BGEFF1_MASKNO + structSize * bgId];
+  FadeCount = 256 - ScrWork[SW_BGEFF1_FADECT + structSize * bgId];
+  FadeRange = ScrWork[SW_BGEFF1_MASKFADERANGE + structSize * bgId];
+
+  float x = ScrWork[SW_BGEFF1_OFSX + 20 * bgId] +
+            ScrWork[SW_BGEFF1_POSX + structSize * bgId];
+  float y = ScrWork[SW_BGEFF1_OFSY + 20 * bgId] +
+            ScrWork[SW_BGEFF1_POSY + structSize * bgId];
+  x *= Profile::DesignWidth / 1280.0f;
+  y *= Profile::DesignHeight / 720.0f;
+  DisplayCoords = glm::vec2(-x, -y);
+
+  BgSprite.BaseScale = glm::vec2(1.0f);
+
+  glm::vec4 col = glm::vec4(1.0f);
+  col.a = (ScrWork[SW_BGEFF1_ALPHA + structSize * bgId] +
+           ScrWork[SW_BGEFF1_ALPHA_OFS + 20 * bgId]) /
+          256.0f;
+
+  const int renderType = ScrWork[SW_BGEFF1_MODE + structSize * bgId];
+  std::invoke(BackgroundRenderTable[renderType], this, col);
+}
+
+void Background2D::RenderRegular(glm::vec4 col) {
+  Renderer->DrawSprite(BgSprite,
+                       RectF(DisplayCoords.x, DisplayCoords.y,
+                             BgSprite.ScaledWidth(), BgSprite.ScaledHeight()),
+                       col, 0.0f, false, IsScreencap);
+
   for (int i = 0; i < MaxLinkedBgBuffers; i++) {
-    if (bg->Links[i].Direction != LD_Off && bg->Links[i].LinkedBuffer != NULL) {
+    if (Links[i].Direction != LD_Off && Links[i].LinkedBuffer != NULL) {
       Renderer->DrawSprite(
-          bg->Links[i].LinkedBuffer->BgSprite,
-          RectF(bg->Links[i].DisplayCoords.x, bg->Links[i].DisplayCoords.y,
-                bg->Links[i].LinkedBuffer->BgSprite.ScaledWidth(),
-                bg->Links[i].LinkedBuffer->BgSprite.ScaledHeight()),
-          col, 0.0f, false, bg->Links[i].LinkedBuffer->IsScreencap);
+          Links[i].LinkedBuffer->BgSprite,
+          RectF(Links[i].DisplayCoords.x, Links[i].DisplayCoords.y,
+                Links[i].LinkedBuffer->BgSprite.ScaledWidth(),
+                Links[i].LinkedBuffer->BgSprite.ScaledHeight()),
+          col, 0.0f, false, Links[i].LinkedBuffer->IsScreencap);
+    }
+  }
+}
+
+void Background2D::RenderMasked(glm::vec4 col) {
+  Renderer->DrawMaskedSprite(
+      BgSprite, Masks2D[MaskNumber].MaskSprite,
+      RectF(DisplayCoords.x, DisplayCoords.y, BgSprite.ScaledWidth(),
+            BgSprite.ScaledHeight()),
+      col, FadeCount, FadeRange, IsScreencap);
+}
+
+void Background2D::RenderMaskedInverted(glm::vec4 col) {
+  Renderer->DrawMaskedSprite(
+      BgSprite, Masks2D[MaskNumber].MaskSprite,
+      RectF(DisplayCoords.x, DisplayCoords.y, BgSprite.ScaledWidth(),
+            BgSprite.ScaledHeight()),
+      col, FadeCount, FadeRange, IsScreencap, true);
+}
+
+void Background2D::RenderFade(glm::vec4 col) {
+  col.a *= FadeCount / 256.0f;
+
+  Renderer->DrawSprite(BgSprite,
+                       RectF(DisplayCoords.x, DisplayCoords.y,
+                             BgSprite.ScaledWidth(), BgSprite.ScaledHeight()),
+                       col, 0.0f, false, IsScreencap);
+
+  for (int i = 0; i < MaxLinkedBgBuffers; i++) {
+    if (Links[i].Direction != LD_Off && Links[i].LinkedBuffer != NULL) {
+      Renderer->DrawSprite(
+          Links[i].LinkedBuffer->BgSprite,
+          RectF(Links[i].DisplayCoords.x, Links[i].DisplayCoords.y,
+                Links[i].LinkedBuffer->BgSprite.ScaledWidth(),
+                Links[i].LinkedBuffer->BgSprite.ScaledHeight()),
+          col, 0.0f, false, Links[i].LinkedBuffer->IsScreencap);
     }
   }
 }
