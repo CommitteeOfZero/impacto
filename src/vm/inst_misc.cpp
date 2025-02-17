@@ -5,6 +5,7 @@
 #include "expression.h"
 #include "interface/input.h"
 #include "../profile/scriptvars.h"
+#include "../profile/configsystem.h"
 #include "../game.h"
 #include "../mem.h"
 #include "../log.h"
@@ -224,8 +225,7 @@ VmInstruction(InstOption) {
                  "STUB instruction Option(type: V2toV1vol)\n");
       break;
     case 4:
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Option(type: Default)\n");
+      UI::OptionsMenuPtr->ResetToDefault();
       break;
   }
 }
@@ -575,7 +575,7 @@ VmInstruction(InstTitleMenuOld) {
 VmInstruction(InstSetPlayMode) {
   StartInstruction;
   PopExpression(arg1);
-  MesSkipMode = (arg1 == 4) ? SkipMode + 1 : arg1;
+  MesSkipMode = (arg1 == 4) ? (!Profile::ConfigSystem::SkipRead) + 1 : arg1;
 }
 VmInstruction(InstSetEVflag) {
   StartInstruction;

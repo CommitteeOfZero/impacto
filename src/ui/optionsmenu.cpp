@@ -74,7 +74,7 @@ void OptionsMenu::Update(float dt) {
   FadeAnimation.Update(dt);
   UpdateVisibility();
 
-  if (State != Hidden) {
+  if (State != Hidden && IsFocused) {
     UpdateInput(dt);
     Pages[CurrentPage]->Update(dt);
   }

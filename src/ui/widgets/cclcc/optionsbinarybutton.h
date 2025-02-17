@@ -11,7 +11,7 @@ namespace CCLCC {
 
 class OptionsBinaryButton : public OptionsEntry {
  public:
-  OptionsBinaryButton(const Sprite& box, const Sprite& trueLabel,
+  OptionsBinaryButton(bool& value, const Sprite& box, const Sprite& trueLabel,
                       const Sprite& falseLabel, const Sprite& label,
                       glm::vec2 pos, glm::vec4 highlightTint,
                       std::function<void(OptionsEntry*)> select,
@@ -39,7 +39,7 @@ class OptionsBinaryButton : public OptionsEntry {
 
   const Sprite& BoxSprite;
 
-  bool State = true;
+  bool& State;
 };
 
 }  // namespace CCLCC

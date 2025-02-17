@@ -39,6 +39,7 @@
 #include "profile/scene3d.h"
 #include "profile/vm.h"
 #include "profile/scriptvars.h"
+#include "profile/configsystem.h"
 #include "profile/ui/selectionmenu.h"
 #include "profile/ui/sysmesbox.h"
 #include "profile/ui/systemmenu.h"
@@ -80,6 +81,8 @@ static void Init() {
   InitRenderer();
 
   memset(DrawComponents, DrawComponentType::None, sizeof(DrawComponents));
+
+  Profile::ConfigSystem::Configure();
 
   if (Profile::GameFeatures & GameFeature::Audio) {
     Audio::AudioInit();

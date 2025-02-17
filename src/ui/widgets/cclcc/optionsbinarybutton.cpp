@@ -14,11 +14,12 @@ namespace Widgets {
 namespace CCLCC {
 
 OptionsBinaryButton::OptionsBinaryButton(
-    const Sprite& box, const Sprite& trueLabel, const Sprite& falseLabel,
-    const Sprite& label, glm::vec2 pos, glm::vec4 highlightTint,
-    std::function<void(OptionsEntry*)> select,
+    bool& value, const Sprite& box, const Sprite& trueLabel,
+    const Sprite& falseLabel, const Sprite& label, glm::vec2 pos,
+    glm::vec4 highlightTint, std::function<void(OptionsEntry*)> select,
     std::function<void(Widget*)> highlight)
     : OptionsEntry(label, pos, highlightTint, select, highlight),
+      State(value),
       BoxSprite(box),
       TrueSprite(trueLabel),
       FalseSprite(falseLabel) {

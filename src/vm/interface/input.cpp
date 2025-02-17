@@ -3,6 +3,7 @@
 #include "../../impacto.h"
 #include "../../mem.h"
 #include "../../inputsystem.h"
+#include "../../profile/configsystem.h"
 #include "../../animation.h"
 #include "../../profile/vm.h"
 #include "../../profile/scriptinput.h"
@@ -117,6 +118,8 @@ void UpdatePADInput() {
 // TODO: Make this configurable per game
 // I have no idea why they have a million things for controls...
 bool GetControlState(int controlId) {
+  using namespace Impacto::Profile::ConfigSystem;
+
   switch (controlId) {
     case CT_OK: {
       return (PADinputButtonWentDown & PADcustom[5]) ||
@@ -158,12 +161,16 @@ bool GetControlState(int controlId) {
              (PADinputMouseWentDown & PAD1Y);
     }
     case CT_DelusionTriggerL: {
-      return (PADinputButtonWentDown & PADcustom[36]) ||
-             (PADinputMouseWentDown & PADcustom[36]);
+      return (PADinputButtonWentDown &
+              PADcustom[36 + 2 * DirectionalInputForTrigger]) ||
+             (PADinputMouseWentDown &
+              PADcustom[36 + 2 * DirectionalInputForTrigger]);
     }
     case CT_DelusionTriggerR: {
-      return (PADinputButtonWentDown & PADcustom[37]) ||
-             (PADinputMouseWentDown & PADcustom[37]);
+      return (PADinputButtonWentDown &
+              PADcustom[37 + 2 * DirectionalInputForTrigger]) ||
+             (PADinputMouseWentDown &
+              PADcustom[37 + 2 * DirectionalInputForTrigger]);
     }
     default:
       return false;

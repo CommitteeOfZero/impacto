@@ -48,6 +48,7 @@ set(Impacto_Src
         src/profile/vm.cpp
         src/profile/scriptvars.cpp
         src/profile/scriptinput.cpp
+        src/profile/configsystem.cpp
 
         src/profile/data/savesystem.cpp
         src/profile/data/tipssystem.cpp
@@ -376,6 +377,7 @@ set(Impacto_Header
         src/profile/vm.h
         src/profile/scriptvars.h
         src/profile/scriptinput.h
+        src/profile/configsystem.h
 
         src/profile/data/savesystem.h
         src/profile/data/tipssystem.h

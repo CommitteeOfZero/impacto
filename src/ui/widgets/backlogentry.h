@@ -11,8 +11,8 @@ namespace Widgets {
 
 class BacklogEntry : public Widget {
  public:
-  BacklogEntry(int id, uint8_t* str, int audioId, glm::vec2 pos,
-               const RectF& hoverBounds);
+  BacklogEntry(int id, uint8_t* str, int audioId, int characterId,
+               glm::vec2 pos, const RectF& hoverBounds);
   ~BacklogEntry();
 
   void UpdateInput() override;
@@ -23,6 +23,7 @@ class BacklogEntry : public Widget {
 
   int Id;
   int AudioId = -1;
+  int CharacterId = 0;
   float TextHeight = 0.0f;
 
   std::function<void(BacklogEntry*)> OnClickHandler;
