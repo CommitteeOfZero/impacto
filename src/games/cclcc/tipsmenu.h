@@ -41,7 +41,6 @@ class TipsMenu : public UI::TipsMenu {
 
  protected:
   void SwitchToTipId(int id);
-  void NextTipPage();
 
  private:
   constexpr int static TabCount = 4;

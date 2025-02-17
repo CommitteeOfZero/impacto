@@ -56,16 +56,16 @@ void TipsTabButton::UpdateInput() {
 TipsTabGroup::TipsTabGroup(
     TipsTabType type, std::function<void(Widgets::Button*)> tabClickHandler,
     std::function<void(Widgets::Button*)> tipClickHandler)
-    : Type(type),
+    : TipsEntriesGroup(this),
       TabName(type, tabClickHandler),
-      TipsEntriesGroup(this),
+      Type(type),
       TipClickHandler(tipClickHandler),
       DirectionButtonHoldHandler(
           MinHoldTime, AdvanceFocusTimeInterval,
-          Vm::Interface::PAD1UP | Vm::Interface::PAD1DOWN),
+          Vm::Interface::PADcustom[28] | Vm::Interface::PADcustom[29]),
       PageUpDownButtonHoldHandler(
           MinHoldTime, AdvanceFocusTimeInterval,
-          Vm::Interface::PAD1LEFT | Vm::Interface::PAD1RIGHT) {
+          Vm::Interface::PADcustom[30] | Vm::Interface::PADcustom[31]) {
   TipsEntriesGroup.WrapFocus = true;
 
   TipsScrollStartPos = {TipsScrollEntriesX, TipsScrollYStart};
@@ -88,14 +88,19 @@ void TipsTabGroup::UpdatePageInput(float dt) {
       return !TipsTabBounds.Contains(CurrentlyFocusedElement->Bounds);
     };
 
+    const uint32_t btnUp = PADcustom[28];
+    const uint32_t btnDown = PADcustom[29];
+    const uint32_t btnLeft = PADcustom[30];
+    const uint32_t btnRight = PADcustom[31];
+
     DirectionButtonHoldHandler.Update(dt);
     const int directionShouldFire = DirectionButtonHoldHandler.ShouldFire();
     const bool directionMovement = !PageUpDownButtonHoldHandler.Held() &&
-                                   ((bool)(directionShouldFire & PAD1UP) ^
-                                    (bool)(directionShouldFire & PAD1DOWN));
+                                   ((bool)(directionShouldFire & btnUp) ^
+                                    (bool)(directionShouldFire & btnDown));
 
     if (directionMovement) {
-      if (directionShouldFire & PAD1DOWN) {
+      if (directionShouldFire & btnDown) {
         AdvanceFocus(FDIR_DOWN);
         if (CurrentlyFocusedElement != prevEntry && checkScrollBounds()) {
           if (CurrentlyFocusedElement == TipsEntriesGroup.Children.front()) {
@@ -118,11 +123,11 @@ void TipsTabGroup::UpdatePageInput(float dt) {
 
     PageUpDownButtonHoldHandler.Update(dt);
     const int pageUpDownShouldFire = PageUpDownButtonHoldHandler.ShouldFire();
-    const bool pageMovement = (bool)(pageUpDownShouldFire & PAD1RIGHT) ^
-                              (bool)(pageUpDownShouldFire & PAD1LEFT);
+    const bool pageMovement = (bool)(pageUpDownShouldFire & btnRight) ^
+                              (bool)(pageUpDownShouldFire & btnLeft);
 
     if (pageMovement) {
-      if (pageUpDownShouldFire & PAD1RIGHT) {
+      if (pageUpDownShouldFire & btnRight) {
         AdvanceFocus(FDIR_RIGHT);
         if (CurrentlyFocusedElement != prevEntry) {
           if (checkScrollBounds())

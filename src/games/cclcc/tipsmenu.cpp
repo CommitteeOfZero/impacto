@@ -192,11 +192,6 @@ void TipsMenu::Hide() {
 void TipsMenu::UpdateInput() {
   Menu::UpdateInput();
   if (State == Shown) {
-    if (CurrentlyDisplayedTipId != -1) {
-      if (PADinputButtonWentDown & PAD1X) {
-        NextTipPage();
-      }
-    }
     if (PADinputButtonWentDown & PAD1R1) {
       TipsTabType type =
           static_cast<TipsTabType>((CurrentTabType + 1) % TabCount);
@@ -222,25 +217,18 @@ void TipsMenu::UpdateInput() {
             TextPage.BoxBounds.ContainsPoint(Input::CurMousePos);
       }
 
-      // Todo: Implement scroll wheel
-      bool upScroll = (Input::CurrentInputDevice == Input::Device::Controller &&
-                       Input::ControllerAxis[SDL_CONTROLLER_AXIS_RIGHTY] <
-                           -Input::ControllerAxisLightThreshold) ||
-                      Input::KeyboardButtonIsDown[SDL_SCANCODE_LEFTBRACKET];
-
-      bool downScroll =
-          (Input::CurrentInputDevice == Input::Device::Controller &&
-           Input::ControllerAxis[SDL_CONTROLLER_AXIS_RIGHTY] >
-               Input::ControllerAxisLightThreshold) ||
-          Input::KeyboardButtonIsDown[SDL_SCANCODE_RIGHTBRACKET];
+      bool upScroll = PADinputButtonIsDown & PADcustom[32];
+      bool downScroll = PADinputButtonIsDown & PADcustom[33];
 
       int remainingScroll = TipsScrollbar->EndValue - TipPageY;
-      if (upScroll && (TipPageY > 0)) {
+      if (upScroll && downScroll) {
+      } else if (upScroll && TipPageY > 0) {
         if (scrollDistance > TipPageY) {
           scrollDistance = TipPageY;
         }
         TipPageY -= scrollDistance;
-      } else if (downScroll && (remainingScroll > 0)) {
+
+      } else if (downScroll && remainingScroll > 0) {
         if (scrollDistance > remainingScroll) {
           scrollDistance = remainingScroll;
         }
@@ -418,8 +406,6 @@ void TipsMenu::SwitchToTipId(int id) {
 
   Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
 }
-
-void TipsMenu::NextTipPage() {}
 
 void TipsMenu::SetActiveTab(TipsTabType type) {
   if (type == CurrentTabType || !TipsTabs[type]->GetTipEntriesCount()) return;

@@ -28,7 +28,8 @@ inline lua_State* LuaState;
   nativeType EnsureGetArrayElement##typeName();                             \
   nativeType EnsureGetArrayElementByIndex##typeName(uint32_t index);        \
   void GetMember##typeName##Array(nativeType* arr, uint32_t count,          \
-                                  char const* name);
+                                  char const* name);                        \
+  std::vector<nativeType> GetMember##typeName##Vector(char const* name);
 
 void LuaDumpStack();
 void Pop();
