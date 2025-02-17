@@ -1,27 +1,26 @@
 root.Input = {
     -- Keyboard
-    KB_PAD1A=40,             -- Return
-    KB_PAD1B=42,             -- Backspace
-    KB_PAD1X=60,             -- F3
-    KB_PAD1Y=59,             -- F2
-    KB_PAD1SELECT=61,        -- F4
-    KB_PAD1START=30,         -- 1
-    KB_PAD1UP=82,            -- Up
-    KB_PAD1DOWN=81,          -- Down
-    KB_PAD1LEFT=80,          -- Left
-    KB_PAD1RIGHT=79,         -- Right
-    KB_PAD1L1=20,            -- Q
-    KB_PAD1L2=29,            -- Z
-    KB_PAD1L3=32,            -- 3
-    KB_PAD1R1=8,             -- E
-    KB_PAD1R2=6,             -- C
-    KB_PAD1R3=65,            -- F8
-    KB_PAD1L1_ALT=224,       -- LCTRL 
-    KB_PAD1UP_RS=47,         -- [
-    KB_PAD1DOWN_RS=48,       -- ]
+    KB_PAD1A={40},             -- Return
+    KB_PAD1B={42},             -- Backspace
+    KB_PAD1X={60},             -- F3
+    KB_PAD1Y={59},             -- F2
+    KB_PAD1SELECT={61},        -- F4
+    KB_PAD1START={30},         -- 1
+    KB_PAD1UP={82},            -- Up
+    KB_PAD1DOWN={81},          -- Down
+    KB_PAD1LEFT={80},          -- Left
+    KB_PAD1RIGHT={79},         -- Right
+    KB_PAD1L1={20,224},        -- Q,LCTRL
+    KB_PAD1L2={29},            -- Z
+    KB_PAD1L3={32},            -- 3
+    KB_PAD1R1={8},             -- E
+    KB_PAD1R2={6},             -- C
+    KB_PAD1R3={65},            -- F8
+    KB_PAD1UP_RS={47},         -- [
+    KB_PAD1DOWN_RS={48},       -- ]
     -- Mouse
-    MS_LEFT=1,              -- Left
-    MS_RIGHT=3,              -- Right
+    MS_LEFT=1,                 -- Left
+    MS_RIGHT=3,                -- Right
     -- Controller
     GP_PAD1A=0,
     GP_PAD1B=1,

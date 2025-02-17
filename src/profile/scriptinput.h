@@ -12,31 +12,30 @@ enum InputAxisDir {
   AxisNeg = -1,
 };
 
-inline ska::flat_hash_map<uint32_t, uint32_t> PADToKeyboard;
+inline ska::flat_hash_map<uint32_t, std::vector<uint32_t>> PADToKeyboard;
 inline ska::flat_hash_map<uint32_t, uint32_t> PADToMouse;
 inline ska::flat_hash_map<uint32_t, uint32_t> PADToController;
 inline ska::flat_hash_map<uint32_t, std::pair<uint32_t, InputAxisDir>>
     PADToControllerAxis;
 
-inline uint32_t KB_PAD1A;
-inline uint32_t KB_PAD1B;
-inline uint32_t KB_PAD1X;
-inline uint32_t KB_PAD1Y;
-inline uint32_t KB_PAD1SELECT;
-inline uint32_t KB_PAD1START;
-inline uint32_t KB_PAD1UP;
-inline uint32_t KB_PAD1DOWN;
-inline uint32_t KB_PAD1LEFT;
-inline uint32_t KB_PAD1RIGHT;
-inline uint32_t KB_PAD1L1;
-inline uint32_t KB_PAD1L2;
-inline uint32_t KB_PAD1L3;
-inline uint32_t KB_PAD1R1;
-inline uint32_t KB_PAD1R2;
-inline uint32_t KB_PAD1R3;
-inline uint32_t KB_PAD1L1_ALT;
-inline uint32_t KB_PAD1UP_RS;
-inline uint32_t KB_PAD1DOWN_RS;
+inline std::vector<uint32_t> KB_PAD1A;
+inline std::vector<uint32_t> KB_PAD1B;
+inline std::vector<uint32_t> KB_PAD1X;
+inline std::vector<uint32_t> KB_PAD1Y;
+inline std::vector<uint32_t> KB_PAD1SELECT;
+inline std::vector<uint32_t> KB_PAD1START;
+inline std::vector<uint32_t> KB_PAD1UP;
+inline std::vector<uint32_t> KB_PAD1DOWN;
+inline std::vector<uint32_t> KB_PAD1LEFT;
+inline std::vector<uint32_t> KB_PAD1RIGHT;
+inline std::vector<uint32_t> KB_PAD1L1;
+inline std::vector<uint32_t> KB_PAD1L2;
+inline std::vector<uint32_t> KB_PAD1L3;
+inline std::vector<uint32_t> KB_PAD1R1;
+inline std::vector<uint32_t> KB_PAD1R2;
+inline std::vector<uint32_t> KB_PAD1R3;
+inline std::vector<uint32_t> KB_PAD1UP_RS;
+inline std::vector<uint32_t> KB_PAD1DOWN_RS;
 
 inline uint32_t MS_LEFT;
 inline uint32_t MS_RIGHT;
