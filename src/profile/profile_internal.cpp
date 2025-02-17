@@ -139,6 +139,20 @@ int PushNextTableElement() { return lua_next(LuaState, -2); }
     }                                                                         \
                                                                               \
     Pop();                                                                    \
+  }                                                                           \
+  std::vector<nativeType> GetMember##typeName##Vector(char const* name) {     \
+    std::vector<nativeType> result;                                           \
+    EnsurePushMemberOfType(name, LUA_TTABLE);                                 \
+    PushInitialIndex();                                                       \
+    while (PushNextTableElement()) {                                          \
+      size_t i = EnsureGetKeyUint() - 1;                                      \
+      assert(i == result.size());                                             \
+      result.push_back(EnsureGetArrayElement##typeName());                    \
+      Pop();                                                                  \
+    }                                                                         \
+                                                                              \
+    Pop();                                                                    \
+    return result;                                                            \
   }
 
 #define TRY_GET_ENTITY(typeName, nativeType, arrayName)        \
