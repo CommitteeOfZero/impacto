@@ -10,71 +10,71 @@ namespace TitleMenu {
 
 void Configure();
 
+inline int LineNum;
 int constexpr LineEntriesNumMax = 32;
+inline Sprite LineSprites[LineEntriesNumMax];
 
-inline Sprite IntroBackgroundSprite;
 inline Sprite BackgroundSprite;
+
 inline Sprite DelusionADVUnderSprite;
 inline Sprite DelusionADVSprite;
+inline glm::vec2 DelusionADVUnderPosition;
+inline glm::vec2 DelusionADVPosition;
+
 inline Sprite SeiraUnderSprite;
 inline Sprite SeiraSprite;
+inline glm::vec2 SeiraUnderPosition;
+inline glm::vec2 SeiraPosition;
+
 inline Sprite CHLogoSprite;
+inline glm::vec2 CHLogoPosition;
+
 inline Sprite LCCLogoUnderSprite;
+inline glm::vec2 LCCLogoUnderPosition;
+
 inline Sprite ChuLeftLogoSprite;
+inline glm::vec2 ChuLeftLogoPosition;
+
 inline Sprite ChuRightLogoSprite;
+inline glm::vec2 ChuRightLogoPosition;
+
 inline Sprite LoveLogoSprite;
+inline glm::vec2 LoveLogoPosition;
+
 inline Sprite StarLogoSprite;
+inline glm::vec2 StarLogoPosition;
+
 inline Sprite ExclMarkLogoSprite;
+inline glm::vec2 ExclMarkLogoPosition;
+
 inline Sprite CopyrightTextSprite;
+inline glm::vec2 CopyrightTextPosition;
+
 inline Sprite SpinningCircleSprite;
+inline glm::vec2 SpinningCirclePosition;
+inline float SpinningCircleAnimationDuration;
+
 inline Sprite ItemHighlightSprite;
-inline Sprite LineSprites[LineEntriesNumMax];
-inline Sprite ItemLoadQuickSprite;
-inline Sprite ItemLoadSprite;
-inline Sprite ItemLoadQuickHighlightedSprite;
 inline Sprite ItemLoadHighlightedSprite;
 inline Sprite SecondaryItemHighlightSprite;
-
-inline float DelusionADVUnderX;
-inline float DelusionADVUnderY;
-inline float DelusionADVX;
-inline float DelusionADVY;
-inline float SeiraUnderX;
-inline float SeiraUnderY;
-inline float SeiraX;
-inline float SeiraY;
-inline float CHLogoX;
-inline float CHLogoY;
-inline float LCCLogoUnderX;
-inline float LCCLogoUnderY;
-inline float ChuLeftLogoX;
-inline float ChuLeftLogoY;
-inline float ChuRightLogoX;
-inline float ChuRightLogoY;
-inline float LoveLogoX;
-inline float LoveLogoY;
-inline float StarLogoX;
-inline float StarLogoY;
-inline float ExclMarkLogoX;
-inline float ExclMarkLogoY;
-inline float CopyrightTextX;
-inline float CopyrightTextY;
-inline float SpinningCircleX;
-inline float SpinningCircleY;
-inline float SpinningCircleAnimationDuration;
-inline float ItemHighlightOffsetX;
-inline float ItemHighlightOffsetY;
+inline glm::vec2 ItemHighlightOffset;
 inline float ItemPadding;
 inline float ItemYBase;
 inline float ItemFadeInDuration;
 inline float ItemFadeOutDuration;
-inline float SecondaryItemFadeInDuration;
-inline float SecondaryItemFadeOutDuration;
+
 inline float PrimaryFadeInDuration;
 inline float PrimaryFadeOutDuration;
+
 inline float SecondaryFadeInDuration;
 inline float SecondaryFadeOutDuration;
 inline float SecondaryItemX;
+inline float SecondaryItemFadeInDuration;
+inline float SecondaryItemFadeOutDuration;
+
+inline Sprite ItemLoadQuickSprite;
+inline Sprite ItemLoadSprite;
+inline Sprite ItemLoadQuickHighlightedSprite;
 inline float ItemLoadY;
 inline float ItemLoadQuickY;
 inline float ItemClearListY;
@@ -85,6 +85,7 @@ inline float ItemTipsY;
 inline float ItemTrophyY;
 inline float ItemConfigY;
 inline float ItemSystemSaveY;
+
 inline float SecondaryItemHighlightX;
 inline float SecondaryMenuPaddingY;
 inline float SecondaryMenuLoadOffsetY;
@@ -100,7 +101,20 @@ inline float SecondaryMenuExtraTrophyY;
 inline float SecondaryMenuSystemConfigY;
 inline float SecondaryMenuSystemSaveY;
 
-inline int LineNum;
+inline Sprite IntroBackgroundSprite;
+
+constexpr size_t IntroHighlightCount = 10;
+inline Sprite IntroHighlightSprites[IntroHighlightCount];
+inline float IntroHighlightPositions[IntroHighlightCount];
+
+inline Sprite IntroExplodingStarSprite;
+inline float IntroExplodingStarAnimationDistance;
+
+inline Sprite IntroBouncingStarSprite;
+
+inline Sprite IntroFallingStarSprite;
+inline float IntroFallingStarsAnimationDistance;
+inline glm::vec2 IntroFallingStarsAnimationDirection;
 
 }  // namespace TitleMenu
 }  // namespace CHLCC

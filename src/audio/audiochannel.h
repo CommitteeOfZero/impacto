@@ -27,7 +27,8 @@ class AudioChannel {
   virtual void Stop(float fadeOutDuration) {};
 
   virtual void Pause() {
-    if (State == ACS_Playing) State = ACS_Paused;
+    if (State == ACS_Playing || State == ACS_FadingIn || State == ACS_FadingOut)
+      State = ACS_Paused;
   };
   virtual void Resume() {
     if (State == ACS_Paused) State = ACS_Playing;

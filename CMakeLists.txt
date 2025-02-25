@@ -19,6 +19,7 @@ set(Impacto_Src
         src/modelviewer.cpp
         src/characterviewer.cpp
         src/spriteanimation.cpp
+        src/sequencedanimation.cpp
         src/background2d.cpp
         src/mask2d.cpp
         src/character2d.cpp
@@ -343,6 +344,7 @@ set(Impacto_Header
         src/characterviewer.h
         src/spritesheet.h
         src/spriteanimation.h
+        src/sequencedanimation.h
         src/font.h
         src/background2d.h
         src/mask2d.h

@@ -1301,7 +1301,8 @@ void Renderer::DrawSpriteOffset(Sprite const& sprite, glm::vec2 topLeft,
 void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
                                 RectF const& dest, glm::vec4 tint, int alpha,
                                 int fadeRange, bool isScreencap,
-                                bool isInverted, bool isSameTexture) {
+                                bool isInverted, bool isSameTexture,
+                                bool isMaskScreencap) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawMaskedSprite() called before BeginFrame()\n");

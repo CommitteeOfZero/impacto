@@ -12,6 +12,9 @@
 #include "../../profile/games/chlcc/titlemenu.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/game.h"
+#include "../../profile/profile.h"
+#include "../../background2d.h"
+#include <vector>
 
 namespace Impacto {
 namespace UI {
@@ -20,6 +23,8 @@ namespace CHLCC {
 using namespace Impacto::Profile::TitleMenu;
 using namespace Impacto::Profile::CHLCC::TitleMenu;
 using namespace Impacto::Profile::ScriptVars;
+using namespace Impacto::Profile;
+using namespace Impacto::Audio;
 
 using namespace Impacto::UI::Widgets::CHLCC;
 
@@ -49,8 +54,8 @@ TitleMenu::TitleMenu() {
   Start = new TitleButton(
       0, MenuEntriesSprites[0], MenuEntriesHSprites[0], ItemHighlightSprite,
       glm::vec2(
-          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
-              ItemHighlightOffsetX,
+          ((ItemHighlightOffset.x * ItemsFadeInAnimation.Progress) - 1.0f) +
+              ItemHighlightOffset.x,
           ((ItemYBase - 1.0f) + (0 * ItemPadding))));
   Start->OnClickHandler = onClick;
   MainItems->Add(Start, FDIR_DOWN);
@@ -59,8 +64,8 @@ TitleMenu::TitleMenu() {
   Load = new TitleButton(
       1, MenuEntriesSprites[1], MenuEntriesHSprites[1], ItemHighlightSprite,
       glm::vec2(
-          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
-              ItemHighlightOffsetX,
+          ((ItemHighlightOffset.x * ItemsFadeInAnimation.Progress) - 1.0f) +
+              ItemHighlightOffset.x,
           ((ItemYBase - 1.0f) + (1 * ItemPadding))));
   Load->OnClickHandler = onClick;
   MainItems->Add(Load, FDIR_DOWN);
@@ -69,8 +74,8 @@ TitleMenu::TitleMenu() {
   Extra = new TitleButton(
       2, MenuEntriesSprites[2], MenuEntriesHSprites[2], ItemHighlightSprite,
       glm::vec2(
-          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
-              ItemHighlightOffsetX,
+          ((ItemHighlightOffset.x * ItemsFadeInAnimation.Progress) - 1.0f) +
+              ItemHighlightOffset.x,
           ((ItemYBase - 1.0f) + (2 * ItemPadding))));
   Extra->OnClickHandler = onClick;
   MainItems->Add(Extra, FDIR_DOWN);
@@ -79,8 +84,8 @@ TitleMenu::TitleMenu() {
   System = new TitleButton(
       3, MenuEntriesSprites[3], MenuEntriesHSprites[3], ItemHighlightSprite,
       glm::vec2(
-          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
-              ItemHighlightOffsetX,
+          ((ItemHighlightOffset.x * ItemsFadeInAnimation.Progress) - 1.0f) +
+              ItemHighlightOffset.x,
           ((ItemYBase - 1.0f) + (3 * ItemPadding))));
   System->OnClickHandler = onClick;
   MainItems->Add(System, FDIR_DOWN);
@@ -222,6 +227,28 @@ TitleMenu::TitleMenu() {
   SystemItems->Add(SystemSave, FDIR_DOWN);
 
   CurrentExtraItems = LockedExtraItems;
+
+  Texture fallingStarsMaskTexture{};
+  fallingStarsMaskTexture.LoadSolidColor(DesignWidth, DesignHeight, 0);
+  SpriteSheet fallingStarsMaskSheet(DesignWidth, DesignHeight);
+  fallingStarsMaskSheet.Texture = fallingStarsMaskTexture.Submit();
+  IntroFallingStarsMask =
+      Sprite(fallingStarsMaskSheet, 0, 0, DesignWidth, DesignHeight);
+
+  // Randomize falling stars
+  for (size_t i = 0; i < IntroFallingStarSeeds.size(); i++) {
+    auto& [origin, angle] = IntroFallingStarSeeds[i];
+
+    int random = CALCrnd(100);
+    origin.x = -120 + i * 110 + (random + 10) * 10;
+    origin.y = (random + 10) * -10;
+
+    angle = CALCrnd(8192) / 8192.0f * M_PI * 2;
+  }
+}
+
+TitleMenu::~TitleMenu() {
+  Renderer->FreeTexture(IntroFallingStarsMask.Sheet.Texture);
 }
 
 void TitleMenu::Show() {
@@ -242,6 +269,7 @@ void TitleMenu::Show() {
     }
   }
 }
+
 void TitleMenu::Hide() {
   if (State != Hidden) {
     State = Hidden;
@@ -257,6 +285,7 @@ void TitleMenu::Hide() {
 
 void TitleMenu::Update(float dt) {
   UpdateInput();
+  IntroAnimation.Update(dt);
   PressToStartAnimation.Update(dt);
   SpinningCircleAnimation.Update(dt);
   PrimaryFadeAnimation.Update(dt);
@@ -286,6 +315,10 @@ void TitleMenu::Update(float dt) {
 
     switch (ScrWork[SW_TITLEDISPCT]) {
       case 0: {
+        if (IntroAnimation.IsOut()) {
+          IntroAnimation.StartIn();
+        }
+
         // When returning to title menu from loading a game we need to hide the
         // load sub-menu
         if (LoadItems->IsShown) {
@@ -377,7 +410,7 @@ void TitleMenu::Render() {
     if (ScrWork[SW_MENUCT] < 64) {
       switch (ScrWork[SW_TITLEDISPCT]) {
         case 0: {  // Initial animation
-          Renderer->DrawSprite(IntroBackgroundSprite, glm::vec2(0.0f));
+          DrawIntroAnimation();
         } break;
         case 1: {  // Press to start
           DrawTitleMenuBackGraphics();
@@ -444,31 +477,154 @@ void TitleMenu::Render() {
   }
 }
 
-inline void TitleMenu::DrawTitleMenuBackGraphics() {
+void TitleMenu::DrawIntroAnimation() const {
+  if (IntroPanningAnimation.State == +AnimationState::Playing ||
+      IntroAfterPanningWaitAnimation.State == +AnimationState::Playing) {
+    DrawIntroBackground();
+  } else if (IntroStarBounceAnimation.State == +AnimationState::Playing) {
+    DrawIntroBackground();
+
+    if (IntroStarBounceAnimation.Progress >= 0.357f &&
+        Audio::Channels[Audio::AC_SE0]->State == ACS_Paused) {
+      // Should still skip ahead playback in case of desync
+      Audio::Channels[Audio::AC_SE0]->Resume();
+    }
+
+    float x = DesignWidth / 2 - IntroBouncingStarSprite.Bounds.Width / 2 +
+              (1.0f - IntroStarBounceAnimation.Progress) * 0.61 * DesignWidth;
+
+    float y = DesignHeight / 2 + IntroBouncingStarSprite.Bounds.Height;
+    if (IntroStarBounceAnimation.Progress < 0.357f) {
+      float progress = IntroStarBounceAnimation.Progress / 0.357f;
+      y -= std::sin(progress * M_PI) * 0.664f * DesignHeight;
+    } else if (IntroStarBounceAnimation.Progress < 0.536f) {
+      float progress =
+          (IntroStarBounceAnimation.Progress - 0.357f) / (0.536f - 0.357f);
+      y -= std::sin(progress * M_PI) * 0.094f * DesignHeight;
+    } else if (IntroStarBounceAnimation.Progress < 0.714f) {
+      float progress =
+          (IntroStarBounceAnimation.Progress - 0.536f) / (0.714f - 0.536f);
+      y -= std::sin(progress * M_PI) * 0.094f * DesignHeight;
+    } else {
+      float progress =
+          (IntroStarBounceAnimation.Progress - 0.714f) / (1.0f - 0.714f);
+      y -= std::sin(progress * 0.8f * M_PI) * 0.475f * DesignHeight;
+    }
+
+    Renderer->DrawSprite(StarLogoSprite, glm::vec2(x, y));
+  } else if (IntroExplodingStarAnimation.State == +AnimationState::Playing) {
+    DrawIntroBackground();
+
+    glm::vec2 origin = glm::vec2(DesignWidth, DesignHeight) / 2.0f -
+                       IntroBouncingStarSprite.Bounds.GetSize() / 2.0f;
+
+    constexpr size_t NUM_STARS = 5;
+    for (size_t i = 0; i < NUM_STARS; i++) {
+      float rayAngle = M_PI_2 - M_PI * 2 / NUM_STARS * i;
+      glm::vec2 directionVector(std::cos(rayAngle), -std::sin(rayAngle));
+      glm::vec2 displacement = directionVector *
+                               IntroExplodingStarAnimation.Progress *
+                               IntroExplodingStarAnimationDistance;
+      glm::vec2 position = origin + displacement;
+
+      float opacity = 1 - IntroExplodingStarAnimation.Progress;
+      float angle = M_PI * 2 * IntroExplodingStarRotationAnimation.Progress;
+      if (i >= 3) angle = -angle;
+
+      Renderer->DrawSprite(IntroExplodingStarSprite, position,
+                           {1.0f, 1.0f, 1.0f, opacity}, {1.0f, 1.0f}, angle);
+    }
+  } else if (IntroFallingStarsAnimation.State == +AnimationState::Playing) {
+    Renderer->Clear(glm::vec4(0.0f));
+    Renderer->DrawSprite(IntroFallingStarsMask, glm::vec2(0.0f),
+                         glm::vec4(1.0f), glm::vec2(1.0f), 0, false, true);
+
+    DrawFallingStars();
+
+    Renderer->CaptureScreencap(IntroFallingStarsMask);
+
+    DrawIntroBackground();
+
+    Renderer->DrawMaskedSprite(BackgroundSprite, IntroFallingStarsMask,
+                               {0.0f, 0.0f, DesignWidth, DesignHeight},
+                               glm::vec4(1.0f), 255, 256, false, 0, false,
+                               true);
+
+    DrawFallingStars();
+  } else {
+    Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
+  }
+}
+
+void TitleMenu::DrawIntroBackground() const {
+  float progress = std::sin(IntroPanningAnimation.Progress * M_PI_2);
+  glm::vec2 designDimensions(DesignWidth, DesignHeight);
+
+  Renderer->DrawRect({0, 0, DesignWidth, DesignHeight}, glm::vec4(1.0f));
+  Renderer->DrawSprite(IntroBackgroundSprite, glm::vec2(0.0f),
+                       {1.0f, 1.0f, 1.0f, IntroPanningAnimation.Progress});
+
+  glm::vec2 zoomFactor =
+      designDimensions / 16.0f + designDimensions / 16.0f * 7.0f * progress;
+
+  Renderer->SetBlendMode(RendererBlendMode::Additive);
+
+  for (size_t i = 0; i < IntroHighlightCount; i++) {
+    const Sprite& sprite = IntroHighlightSprites[i];
+
+    constexpr float scale = 1.5f;
+    float offset = IntroHighlightPositions[i];
+    glm::vec2 position = offset * zoomFactor + zoomFactor -
+                         sprite.Bounds.GetSize() / 2.0f * scale;
+
+    Renderer->DrawSprite(sprite, position, glm::vec4(1.0f), glm::vec2(scale));
+  }
+
+  Renderer->SetBlendMode(RendererBlendMode::Normal);
+
+  Renderer->CaptureScreencap(ShaderScreencapture.BgSprite);
+
+  // Cross-fade from black
+  Renderer->DrawRect({0.0f, 0.0f, DesignWidth, DesignHeight},
+                     {0.0f, 0.0f, 0.0f, 1.0f});
+
+  glm::vec2 scale(4 / (progress * 3 + 1));
+  Renderer->DrawSprite(ShaderScreencapture.BgSprite, glm::vec2(0.0f),
+                       {1.0f, 1.0f, 1.0f, progress}, scale, 0, false, true);
+}
+
+void TitleMenu::DrawFallingStars() const {
+  for (auto [origin, initialAngle] : IntroFallingStarSeeds) {
+    glm::vec2 displacement = IntroFallingStarsAnimationDirection *
+                             IntroFallingStarsAnimationDistance *
+                             IntroFallingStarsAnimation.Progress;
+
+    glm::vec2 position = origin + displacement;
+    float angle =
+        initialAngle + M_PI * 2 * IntroFallingStarsRotationAnimation.Progress;
+
+    Renderer->DrawSprite(IntroFallingStarSprite, position, glm::vec4(1.0f),
+                         glm::vec2(1.0f), angle);
+  }
+}
+
+void TitleMenu::DrawTitleMenuBackGraphics() const {
   Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
-  Renderer->DrawSprite(SpinningCircleSprite,
-                       glm::vec2(SpinningCircleX, SpinningCircleY),
+  Renderer->DrawSprite(SpinningCircleSprite, SpinningCirclePosition,
                        glm::vec4(1.0f), glm::vec2(2.0f),
                        -SpinningCircleAnimation.Progress * 2.0f * (float)M_PI);
-  Renderer->DrawSprite(DelusionADVUnderSprite,
-                       glm::vec2(DelusionADVUnderX, DelusionADVUnderY));
-  Renderer->DrawSprite(DelusionADVSprite,
-                       glm::vec2(DelusionADVX, DelusionADVY));
-  Renderer->DrawSprite(SeiraUnderSprite, glm::vec2(SeiraUnderX, SeiraUnderY));
-  Renderer->DrawSprite(SeiraSprite, glm::vec2(SeiraX, SeiraY));
-  Renderer->DrawSprite(CHLogoSprite, glm::vec2(CHLogoX, CHLogoY));
-  Renderer->DrawSprite(LCCLogoUnderSprite,
-                       glm::vec2(LCCLogoUnderX, LCCLogoUnderY));
-  Renderer->DrawSprite(ChuLeftLogoSprite,
-                       glm::vec2(ChuLeftLogoX, ChuLeftLogoY));
-  Renderer->DrawSprite(ChuRightLogoSprite,
-                       glm::vec2(ChuRightLogoX, ChuRightLogoY));
-  Renderer->DrawSprite(LoveLogoSprite, glm::vec2(LoveLogoX, LoveLogoY));
-  Renderer->DrawSprite(StarLogoSprite, glm::vec2(StarLogoX, StarLogoY));
-  Renderer->DrawSprite(ExclMarkLogoSprite,
-                       glm::vec2(ExclMarkLogoX, ExclMarkLogoY));
-  Renderer->DrawSprite(CopyrightTextSprite,
-                       glm::vec2(CopyrightTextX, CopyrightTextY));
+  Renderer->DrawSprite(DelusionADVUnderSprite, DelusionADVUnderPosition);
+  Renderer->DrawSprite(DelusionADVSprite, DelusionADVPosition);
+  Renderer->DrawSprite(SeiraUnderSprite, SeiraUnderPosition);
+  Renderer->DrawSprite(SeiraSprite, SeiraPosition);
+  Renderer->DrawSprite(CHLogoSprite, CHLogoPosition);
+  Renderer->DrawSprite(LCCLogoUnderSprite, LCCLogoUnderPosition);
+  Renderer->DrawSprite(ChuLeftLogoSprite, ChuLeftLogoPosition);
+  Renderer->DrawSprite(ChuRightLogoSprite, ChuRightLogoPosition);
+  Renderer->DrawSprite(LoveLogoSprite, LoveLogoPosition);
+  Renderer->DrawSprite(StarLogoSprite, StarLogoPosition);
+  Renderer->DrawSprite(ExclMarkLogoSprite, ExclMarkLogoPosition);
+  Renderer->DrawSprite(CopyrightTextSprite, CopyrightTextPosition);
 }
 
 }  // namespace CHLCC
