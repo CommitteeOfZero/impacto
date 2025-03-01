@@ -6,6 +6,7 @@
 #include "../../game.h"
 #include "3d/scene.h"
 #include "yuvframe.h"
+
 #ifndef IMPACTO_DISABLE_IMGUI
 #include <imgui_custom/backends/imgui_impl_opengl3.h>
 #endif
@@ -57,6 +58,8 @@ void Renderer::Init() {
   glBufferData(GL_ELEMENT_ARRAY_BUFFER,
                IndexBufferCount * sizeof(IndexBuffer[0]), IndexBuffer,
                GL_STATIC_DRAW);
+
+  GLC::InitializeFramebuffers();
 
   // Specify vertex layouts
   glBindVertexArray(VAOSprites);
@@ -136,6 +139,10 @@ void Renderer::Shutdown() {
   if (VAOSprites) glDeleteVertexArrays(1, &VAOSprites);
   if (RectSprite.Sheet.Texture) glDeleteTextures(1, &RectSprite.Sheet.Texture);
   IsInit = false;
+
+  GLC::DeleteFramebuffers(GLC::Framebuffers.size(), GLC::Framebuffers.data());
+  glDeleteTextures(GLC::FramebufferTextures.size(),
+                   GLC::FramebufferTextures.data());
 
   if (Profile::GameFeatures & GameFeature::Scene3D) {
     Scene->Shutdown();
