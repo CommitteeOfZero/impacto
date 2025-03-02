@@ -1169,6 +1169,10 @@ configure_file(src/config.h.in ${PROJECT_BINARY_DIR}/include/config.h)
 target_include_directories(impacto PRIVATE ${Impacto_Include_Dirs})
 target_include_directories(impacto PRIVATE ${PROJECT_BINARY_DIR}/include)
 
+target_precompile_headers(impacto PRIVATE 
+    "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_SOURCE_DIR}/src/pch.h>"
+)
+
 # binary install
 
 if (ANDROID)
