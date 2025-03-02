@@ -9,7 +9,7 @@
 #include "yuvframe.h"
 
 #ifndef IMPACTO_DISABLE_IMGUI
-#include "imgui_impl_vulkan.h"
+#include <imgui_impl_vulkan.h>
 #endif
 
 namespace Impacto {

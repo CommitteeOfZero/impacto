@@ -3,7 +3,7 @@
 #include <vulkan/vulkan.h>
 #include <functional>
 #include <flat_hash_map.hpp>
-#include "../../vendor/vma/vk_mem_alloc.h"
+#include <vma/vk_mem_alloc.h>
 #include "pipeline.h"
 
 namespace Impacto {

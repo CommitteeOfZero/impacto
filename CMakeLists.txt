@@ -632,14 +632,6 @@ set(Impacto_Header
         src/video/videosystem.h
         src/video/videoplayer.h
         src/video/clock.h
-
-        vendor/clHCA/clHCA.h
-
-        vendor/squish/squish.h
-
-        
-        vendor/vma/vk_mem_alloc.h
-        vendor/minilua/minilua.h
         )
 
 if (WIN32)
@@ -914,6 +906,7 @@ if (NOT DEFINED IMPACTO_DISABLE_OPENAL)
 endif ()
 list(APPEND Impacto_Include_Dirs ${SDL2_INCLUDE_DIRS})
 list(APPEND Impacto_Include_Dirs ${WebP_INCLUDE_DIRS})
+list(APPEND Impacto_Include_Dirs vendor)
 list(APPEND Impacto_Include_Dirs vendor/include)
 list(APPEND Impacto_Include_Dirs vendor/pcg/include)
 

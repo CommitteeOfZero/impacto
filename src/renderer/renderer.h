@@ -6,7 +6,7 @@
 #include "../spritesheet.h"
 #include "../text.h"
 #include "yuvframe.h"
-#include "../../vendor/span/span.hpp"
+#include <span/span.hpp>
 
 namespace Impacto {
 

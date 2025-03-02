@@ -9,7 +9,7 @@
 #include "utils.h"
 
 #ifndef IMPACTO_DISABLE_IMGUI
-#include "imgui_impl_dx9.h"
+#include <imgui_impl_dx9.h>
 #endif
 
 namespace Impacto {

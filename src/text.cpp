@@ -22,7 +22,7 @@
 #include "profile/games/chlcc/dialoguebox.h"
 #include "games/cc/dialoguebox.h"
 
-#include "../vendor/utf8-cpp/source/utf8.h"
+#include <utf8-cpp/source/utf8.h>
 #include "vm/interface/input.h"
 #include <memory>
 
