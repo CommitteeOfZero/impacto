@@ -29,6 +29,18 @@ void Background2D::Init() {
   }
 
   ShaderScreencapture.BgSprite.Sheet.IsScreenCap = true;
+
+  for (size_t i = 0; i < Framebuffers.max_size(); i++) {
+    Framebuffers[i].BgSprite =
+        Sprite(SpriteSheet(Profile::ResolutionWidth, Profile::ResolutionHeight),
+               0.0f, 0.0f, Profile::ResolutionWidth, Profile::ResolutionHeight);
+    Framebuffers[i].BgSprite.Sheet.Texture =
+        Renderer->GetFramebufferTexture(i + 1);
+
+    Framebuffers[i].Status = LS_Loaded;
+    Framebuffers[i].BgSprite.Sheet.IsScreenCap = true;
+  }
+
   ShaderScreencapture.LoadSolidColor(0xFF000000, Window->WindowWidth,
                                      Window->WindowHeight);
   ShaderScreencapture.Status = LS_Loaded;
@@ -132,7 +144,7 @@ void Background2D::RenderBgEff(int bgId, int layer) {
   const int structSize = ScrWorkBgEffStructSize;
 
   MaskNumber = ScrWork[SW_BGEFF1_MASKNO + structSize * bgId];
-  FadeCount = 256 - ScrWork[SW_BGEFF1_FADECT + structSize * bgId];
+  FadeCount = ScrWork[SW_BGEFF1_FADECT + structSize * bgId];
   FadeRange = ScrWork[SW_BGEFF1_MASKFADERANGE + structSize * bgId];
 
   float x = ScrWork[SW_BGEFF1_OFSX + 20 * bgId] +

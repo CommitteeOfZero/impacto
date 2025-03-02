@@ -294,11 +294,11 @@ void Update(float dt) {
   }
 }
 
-static bool ShouldCapture(const int layer) {
+static bool ShouldRender(const int layer) {
   using namespace Impacto::Profile::Vm;
 
   for (int bgId = 0; bgId < MaxBackgrounds2D; bgId++) {
-    if (GetFlag(SF_BG1DISP + bgId) &&
+    if (GetFlag(SF_BG1DISP + bgId) && !GetFlag(1270 + bgId) &&
         (ScrWork[SW_BG1PRI + ScrWorkBgStructSize * bgId] == layer ||
          ScrWork[SW_BG1PRI2 + ScrWorkBgStructSize * bgId] == layer))
       return true;
@@ -348,11 +348,10 @@ void Render() {
         }
         case DrawComponentType::Main: {
           for (uint32_t layer = 0; layer <= Profile::LayerCount; layer++) {
-            // TODO
-
-            if (Profile::UseScreenCapEffects && ShouldCapture(layer)) {
-              const int bufId = ScrWork[SW_BGEFF1_CAP_BUF + layer] - 1;
-              Renderer->CaptureScreencap(Screencaptures[bufId].BgSprite);
+            const size_t renderTarget = ScrWork[SW_RENDERTARGET + layer];
+            if (0 <= renderTarget && renderTarget <= MaxFramebuffers &&
+                ShouldRender(layer)) {
+              Renderer->SetFramebuffer(renderTarget);
             }
 
             for (int i = 0; i < MaxBackgrounds2D; i++) {
@@ -367,10 +366,12 @@ void Render() {
 
             for (int bgId = 0; bgId < MaxBackgrounds2D; bgId++) {
               if (GetFlag(SF_BGEFF1DISP + bgId) &&
-                  (ScrWork[SW_BGEFF1_PRI + 120 * bgId] == layer ||
-                   ScrWork[SW_BGEFF1_PRI2 + 120 * bgId] == layer)) {
-                const int bufId = ScrWork[SW_BGEFF1_CAP_BUF + layer] - 1;
-                Screencaptures[bufId].RenderBgEff(bgId, layer);
+                  (ScrWork[SW_BGEFF1_PRI + Profile::Vm::ScrWorkBgEffStructSize *
+                                               bgId] == layer ||
+                   ScrWork[SW_BGEFF1_PRI2 +
+                           Profile::Vm::ScrWorkBgEffStructSize * bgId] ==
+                       layer)) {
+                Framebuffers[0].RenderBgEff(bgId, layer);
               }
             }
 
@@ -403,16 +404,14 @@ void Render() {
 
               for (size_t capLayer = 0; capLayer < MaxScreencaptures;
                    capLayer++) {
-                if (ScrWork[SW_CAP1PRI + capLayer * 10 + capLayer * 8] ==
-                    layer) {
+                if (ScrWork[SW_CAP1PRI + capId * 20 + capLayer * 8] == layer) {
                   Screencaptures[capId].RenderCapture(capId, layer);
                 }
               }
             }
 
             if (Profile::UseScreenCapEffects) {
-              if (ScrWork[SW_EFF_CAP_BUF] &&
-                  ScrWork[SW_EFF_CAP_PRI] == static_cast<int>(layer)) {
+              if (ScrWork[SW_EFF_CAP_BUF] && ScrWork[SW_EFF_CAP_PRI] == layer) {
                 int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF]);
                 if (Backgrounds2D[bufId]->Status == LS_Loaded) {
                   Renderer->CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
@@ -420,7 +419,7 @@ void Render() {
               }
 
               if (ScrWork[SW_EFF_CAP_BUF2] &&
-                  ScrWork[SW_EFF_CAP_PRI2] == static_cast<int>(layer)) {
+                  ScrWork[SW_EFF_CAP_PRI2] == layer) {
                 int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF2]);
                 if (Backgrounds2D[bufId]->Status == LS_Loaded) {
                   Renderer->CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
@@ -461,6 +460,8 @@ void Render() {
               CCLCC::YesNoTrigger::YesNoTriggerPtr->Render();
             }
           }
+
+          Renderer->SetFramebuffer(0);
 
           if (SaveSystem::Implementation) {
             Renderer->CaptureScreencap(SaveSystem::GetWorkingSaveThumbnail());

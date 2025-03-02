@@ -4,6 +4,7 @@
 #include "texture/texture.h"
 #include "spritesheet.h"
 #include "loadable.h"
+#include "renderer/renderer.h"
 
 namespace Impacto {
 
@@ -107,8 +108,9 @@ class Background2D : public Loadable<Background2D> {
 int constexpr MaxBackgrounds2D = 8;
 int constexpr MaxScreencaptures = 2;
 
-inline Background2D Backgrounds[MaxBackgrounds2D];
-inline Background2D Screencaptures[MaxScreencaptures];
+inline std::array<Background2D, MaxBackgrounds2D> Backgrounds;
+inline std::array<Background2D, MaxScreencaptures> Screencaptures;
+inline std::array<Background2D, MaxFramebuffers> Framebuffers;
 inline Background2D ShaderScreencapture;
 
 inline ska::flat_hash_map<int, Background2D*> Backgrounds2D;
