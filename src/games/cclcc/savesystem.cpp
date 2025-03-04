@@ -821,7 +821,7 @@ void SaveSystem::SetCheckpointId(int id) {
   if (WorkingSaveEntry) WorkingSaveEntry->MainThreadIp = id;
 }
 
-Sprite const& SaveSystem::GetSaveThumbnail(SaveType type, int id) {
+Sprite& SaveSystem::GetSaveThumbnail(SaveType type, int id) {
   switch (type) {
     case SaveQuick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->SaveThumbnail;

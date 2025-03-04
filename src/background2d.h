@@ -40,7 +40,6 @@ class Background2D : public Loadable<Background2D> {
   glm::vec2 DisplayCoords;
   LinkState Links[MaxLinks];
   bool Show;
-  bool IsScreencap = false;
   int Layer;
   void Render(int bgId, int layer);
   void LoadSolidColor(uint32_t color, int width, int height);
@@ -52,7 +51,6 @@ class Background2D : public Loadable<Background2D> {
 
  private:
   Texture BgTexture;
-  SpriteSheet BgSpriteSheet;
 };
 
 typedef void (*BackgroundRenderProc)(Background2D* bg, int bgId, glm::vec4 col);

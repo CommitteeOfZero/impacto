@@ -95,7 +95,7 @@ class SaveSystemBase {
   virtual bool GetEVVariationIsUnlocked(int evId, int variationIdx) = 0;
   virtual bool GetBgmFlag(int id) = 0;
   virtual void SetCheckpointId(int id) = 0;
-  virtual Sprite const& GetSaveThumbnail(SaveType type, int id) = 0;
+  virtual Sprite& GetSaveThumbnail(SaveType type, int id) = 0;
   int GetQuickSaveOpenSlot() {
     for (int i = 0; i < MaxSaveEntries; i++) {
       if (QuickSaveEntries[i]->Status == 0) return i;
@@ -105,7 +105,7 @@ class SaveSystemBase {
     }
     return -1;
   }
-  Sprite const& GetWorkingSaveThumbnail() { return WorkingSaveThumbnail; }
+  Sprite& GetWorkingSaveThumbnail() { return WorkingSaveThumbnail; }
 
  protected:
   SaveFileEntryBase* FullSaveEntries[MaxSaveEntries];
@@ -142,8 +142,8 @@ bool GetEVVariationIsUnlocked(int evId, int variationIdx);
 bool GetBgmFlag(int id);
 void SetCheckpointId(int id);
 int GetQuickSaveOpenSlot();
-Sprite const& GetSaveThumbnail(SaveType type, int id);
-Sprite const& GetWorkingSaveThumbnail();
+Sprite& GetSaveThumbnail(SaveType type, int id);
+Sprite& GetWorkingSaveThumbnail();
 
 }  // namespace SaveSystem
 }  // namespace Impacto

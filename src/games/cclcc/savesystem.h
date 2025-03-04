@@ -52,7 +52,7 @@ class SaveSystem : public SaveSystemBase {
   bool GetEVVariationIsUnlocked(int evId, int variationIdx) override;
   bool GetBgmFlag(int id) override;
   void SetCheckpointId(int id) override;
-  Sprite const& GetSaveThumbnail(SaveType type, int id) override;
+  Sprite& GetSaveThumbnail(SaveType type, int id) override;
 
  private:
   uint8_t GameExtraData[1024];

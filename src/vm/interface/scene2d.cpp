@@ -24,7 +24,7 @@ void UpdateBackground2D() {
         Backgrounds2D[bufId] = &Screencaptures[0];
       } else if (GetScriptBufferId(i) == ScrWork[SW_EFF_CAP_BUF2]) {
         Backgrounds2D[bufId] = &Screencaptures[1];
-      } else if (Backgrounds2D[bufId]->IsScreencap) {
+      } else if (Backgrounds2D[bufId]->BgSprite.Sheet.IsScreenCap) {
         Backgrounds2D[bufId] = &Backgrounds[bufId];
       }
     }
@@ -113,7 +113,7 @@ void UpdateBackground2D() {
       }
     }
 
-    if (Backgrounds2D[bufId]->IsScreencap) {
+    if (Backgrounds2D[bufId]->BgSprite.Sheet.IsScreenCap) {
       Backgrounds2D[bufId]->BgSprite.BaseScale *=
           glm::vec2(Profile::DesignWidth / Window->WindowWidth,
                     Profile::DesignHeight / Window->WindowHeight);
