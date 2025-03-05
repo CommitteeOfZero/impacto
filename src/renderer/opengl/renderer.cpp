@@ -394,6 +394,75 @@ void Renderer::DrawSprite(Sprite const& sprite, CornersQuad const& dest,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
 }
 
+void Renderer::DrawVertices(SpriteSheet const& sheet,
+                            tcb::span<const glm::vec2> sheetPositions,
+                            tcb::span<const glm::vec2> displayPositions,
+                            int width, int height, glm::vec4 tint,
+                            bool inverted) {
+  if (!Drawing) {
+    ImpLog(LL_Error, LC_Render,
+           "Renderer->DrawVertices() called before BeginFrame()\n");
+    return;
+  }
+  const int verticesCount = sheetPositions.size();
+
+  if (verticesCount != displayPositions.size()) {
+    ImpLog(LL_Error, LC_Render,
+           "Renderer->DrawVertices() called with mismatched vertices count\n");
+    return;
+  }
+  Flush();
+  EnsureSpaceAvailable(verticesCount, sizeof(VertexBufferSprites),
+                       verticesCount * 3);
+  EnsureModeSprite(inverted);
+
+  EnsureTextureBound(sheet.Texture);
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
+  VertexBufferFill += verticesCount * sizeof(VertexBufferSprites);
+  std::vector<uint16_t> indices;
+  indices.reserve((width - 1) * (height - 1) * 6);
+  // Generate indices for triangles
+  for (int y = 0; y < height - 1; y++) {
+    for (int x = 0; x < width - 1; x++) {
+      int v0 = y * width + x;
+      int v1 = y * width + (x + 1);
+      int v2 = (y + 1) * width + x;
+      int v3 = (y + 1) * width + (x + 1);
+
+      // First triangle
+      for (auto v : {v1, v0, v2}) {
+        indices.push_back(v);
+      }
+      // Second triangle
+      for (auto v : {v3, v1, v2}) {
+        indices.push_back(v);
+      }
+    }
+  }
+  IndexBufferFill += indices.size();
+
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, IndexBufferFill * sizeof(uint16_t),
+               indices.data(), GL_STATIC_DRAW);
+
+  for (int i = 0; i < verticesCount; i++) {
+    vertices[i].Position = DesignToNDC(displayPositions[i]);
+    vertices[i].Tint = tint;
+    glm::vec2 uv =
+        sheetPositions[i] / glm::vec2(sheet.DesignWidth, sheet.DesignHeight);
+    if (sheet.IsScreenCap) {
+      uv.y = 1.0f - uv.y;
+    }
+    vertices[i].UV = uv;
+  }
+
+  // Flush again and bind back our buffer
+  Flush();
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+               IndexBufferCount * sizeof(IndexBuffer[0]), IndexBuffer,
+               GL_STATIC_DRAW);
+}
+
 void Renderer::DrawSpriteOffset(Sprite const& sprite, glm::vec2 topLeft,
                                 glm::vec2 displayOffset, glm::vec4 tint,
                                 glm::vec2 scale, float angle, bool inverted) {
@@ -433,7 +502,7 @@ void Renderer::DrawSpriteOffset(Sprite const& sprite, glm::vec2 topLeft,
 void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
                                 RectF const& dest, glm::vec4 tint, int alpha,
                                 int fadeRange, bool isInverted,
-bool isSameTexture) {
+                                bool isSameTexture) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawMaskedSprite() called before BeginFrame()\n");
@@ -818,7 +887,7 @@ inline void Renderer::QuadSetPosition(RectF const& transformedQuad, float angle,
 
 inline void Renderer::QuadSetPosition(CornersQuad destQuad, float angle,
                                       uintptr_t positions, int stride) {
-    if (angle != 0.0f) {
+  if (angle != 0.0f) {
     glm::vec2 center = (destQuad.BottomLeft + destQuad.TopRight) * 0.5f;
     glm::mat2 rot = Rotate2D(angle);
 
@@ -997,7 +1066,7 @@ void Renderer::DrawVideoTexture(YUVFrame* tex, RectF const& dest,
 
 void Renderer::CaptureScreencap(Sprite& sprite) {
   Flush();
-sprite.Sheet.IsScreenCap = true;
+  sprite.Sheet.IsScreenCap = true;
   sprite.Sheet.DesignWidth = Window->WindowWidth;
   sprite.Sheet.DesignHeight = Window->WindowHeight;
 

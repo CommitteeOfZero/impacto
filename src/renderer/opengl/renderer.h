@@ -56,6 +56,12 @@ class Renderer : public BaseRenderer {
                         glm::vec2 scale = glm::vec2(1.0), float angle = 0.0f,
                         bool inverted = false) override;
 
+  void DrawVertices(SpriteSheet const& sheet,
+                    tcb::span<const glm::vec2> sheetPositions,
+                    tcb::span<const glm::vec2> displayPositions, int width,
+                    int height, glm::vec4 tint = glm::vec4(1.0),
+                    bool inverted = false) override;
+
   void DrawRect(RectF const& dest, glm::vec4 color,
                 float angle = 0.0f) override;
 
@@ -116,7 +122,7 @@ class Renderer : public BaseRenderer {
   void QuadSetPosition(RectF const& transformedQuad, float angle,
                        uintptr_t positions, int stride);
   void QuadSetPosition(CornersQuad destQuad, float angle, uintptr_t positions,
-int stride);
+                       int stride);
   void QuadSetPosition3DRotated(RectF const& transformedQuad, float depth,
                                 glm::vec2 vanishingPoint, bool stayInScreen,
                                 glm::quat rot, uintptr_t positions, int stride);

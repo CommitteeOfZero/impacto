@@ -1390,6 +1390,75 @@ void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
+void Renderer::DrawVertices(SpriteSheet const& sheet,
+                            tcb::span<const glm::vec2> sheetPositions,
+                            tcb::span<const glm::vec2> displayPositions,
+                            int width, int height, glm::vec4 tint,
+                            bool inverted) {
+  if (!Drawing) {
+    ImpLog(LL_Error, LC_Render,
+           "Renderer->DrawVertices() called before BeginFrame()\n");
+    return;
+  }
+
+  if (Textures.count(sheet.Texture) == 0) return;
+  const int verticesCount = sheetPositions.size();
+
+  if (verticesCount != displayPositions.size()) {
+    ImpLog(LL_Error, LC_Render,
+           "Renderer->DrawVertices() called with mismatched vertices count\n");
+    return;
+  }
+
+  Flush();
+
+  // Are we in sprite mode?
+  if (inverted)
+    EnsureMode(PipelineSpriteInverted);
+  else
+    EnsureMode(PipelineSprite);
+
+  // Do we have the texture assigned?
+  EnsureTextureBound(sheet.Texture);
+
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferOffset +
+                             VertexBufferFill);
+
+  VertexBufferFill += verticesCount * sizeof(VertexBufferSprites);
+
+  int indexBufferOffset = IndexBufferOffset / sizeof(uint16_t);
+
+  // Generate indices for triangles
+  for (int y = 0; y < height - 1; y++) {
+    for (int x = 0; x < width - 1; x++) {
+      uint16_t v0 = y * width + x;
+      uint16_t v1 = y * width + (x + 1);
+      uint16_t v2 = (y + 1) * width + x;
+      uint16_t v3 = (y + 1) * width + (x + 1);
+
+      // First triangle
+      for (auto v : {v1, v0, v2}) {
+        IndexBuffer[indexBufferOffset + IndexBufferFill++] = v;
+      }
+      // Second triangle
+      for (auto v : {v3, v1, v2}) {
+        IndexBuffer[indexBufferOffset + IndexBufferFill++] = v;
+      }
+    }
+  }
+  assert(IndexBufferFill == (width - 1) * (height - 1) * 6);
+
+  for (int i = 0; i < verticesCount; i++) {
+    vertices[i].Position = DesignToNDCNonFlipped(displayPositions[i]);
+    vertices[i].Tint = tint;
+    glm::vec2 uv =
+        sheetPositions[i] / glm::vec2(sheet.DesignWidth, sheet.DesignHeight);
+    vertices[i].UV = uv;
+  }
+  Flush();
+}
+
 void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                                 RectF const& dest, glm::vec4 tint, int alpha,
                                 int fadeRange, float effectCt) {

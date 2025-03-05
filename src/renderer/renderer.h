@@ -38,8 +38,8 @@ class BaseRenderer {
   virtual YUVFrame* CreateYUVFrame(float width, float height) = 0;
 
   void DrawSprite(Sprite const& sprite, RectF const& dest,
-                          glm::vec4 tint = glm::vec4(1.0), float angle = 0.0f,
-                          bool inverted = false);
+                  glm::vec4 tint = glm::vec4(1.0), float angle = 0.0f,
+                  bool inverted = false);
   void DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
                   glm::vec4 tint = glm::vec4(1.0),
                   glm::vec2 scale = glm::vec2(1.0), float angle = 0.0f,
@@ -53,6 +53,13 @@ class BaseRenderer {
                                 glm::vec4 tint = glm::vec4(1.0),
                                 glm::vec2 scale = glm::vec2(1.0),
                                 float angle = 0.0f, bool inverted = false) = 0;
+
+  virtual void DrawVertices(SpriteSheet const& sheet,
+                            tcb::span<const glm::vec2> sheetPositions,
+                            tcb::span<const glm::vec2> displayPositions,
+                            int width, int height,
+                            glm::vec4 tint = glm::vec4(1.0),
+                            bool inverted = false) = 0;
 
   virtual void DrawRect(RectF const& dest, glm::vec4 color,
                         float angle = 0.0f) = 0;
