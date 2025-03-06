@@ -6,7 +6,9 @@ namespace Impacto {
 namespace Profile {
 namespace CCLCC {
 namespace SystemMenu {
-constexpr int MenuEntriesNumMax = 16;
+constexpr inline int MenuEntriesNumMax = 16;
+constexpr inline int GridRowCount = 10;
+constexpr inline int GridColCount = 20;
 
 inline Sprite SystemMenuBG;
 inline Sprite MenuButtonGuide;
