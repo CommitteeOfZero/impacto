@@ -246,7 +246,15 @@ uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
   return id;
 }
 
-void Renderer::FreeTexture(uint32_t id) {}
+void Renderer::FreeTexture(uint32_t id) {
+  auto textureItr = Textures.find(id);
+  if (textureItr != Textures.end()) {
+    if (textureItr->second != nullptr) {
+      textureItr->second->Release();
+    }
+    Textures.erase(textureItr);
+  }
+}
 
 YUVFrame* Renderer::CreateYUVFrame(float width, float height) {
   VideoFrameInternal = new DX9YUVFrame(Device);
@@ -965,9 +973,33 @@ void Renderer::DrawVideoTexture(YUVFrame* tex, RectF const& dest,
 
 void Renderer::CaptureScreencap(Sprite& sprite) {
   Flush();
+  if (sprite.Sheet.Texture != 0) {
+    FreeTexture(sprite.Sheet.Texture);
+  }
+
   sprite.Sheet.IsScreenCap = true;
-  sprite.Sheet.DesignWidth = Window->WindowWidth;
-  sprite.Sheet.DesignHeight = Window->WindowHeight;
+  sprite.Sheet.DesignWidth = static_cast<float>(Window->WindowWidth);
+  sprite.Sheet.DesignHeight = static_cast<float>(Window->WindowHeight);
+
+  IDirect3DSurface9* sourceSurface = nullptr;
+  Device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &sourceSurface);
+
+  IDirect3DTexture9* texture;
+  Device->CreateTexture(Window->WindowWidth, Window->WindowHeight, 1,
+                        D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT,
+                        &texture, nullptr);
+  auto id = NextTextureId;
+  NextTextureId += 1;
+  Textures[id] = texture;
+  sprite.Sheet.Texture = id;
+
+  IDirect3DSurface9* destSurface = nullptr;
+  texture->GetSurfaceLevel(0, &destSurface);
+  Device->StretchRect(sourceSurface, nullptr, destSurface, nullptr,
+                      D3DTEXF_NONE);
+
+  sourceSurface->Release();
+  destSurface->Release();
 }
 
 void Renderer::EnableScissor() {
