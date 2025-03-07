@@ -578,11 +578,11 @@ void Renderer::CreateColorAndDepthImage() {
 
   // Color image
   VkImageCreateInfo cimgInfo =
-      GetImageCreateInfo(SwapChainImageFormat, imageExtent);
+      GetImageCreateInfo(SwapChainImageFormat, imageExtent,
+                         static_cast<VkSampleCountFlagBits>(Window->MsaaCount));
   cimgInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
   cimgInfo.usage = VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT |
                    VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-  cimgInfo.samples = (VkSampleCountFlagBits)Window->MsaaCount;
   VmaAllocationCreateInfo cimgAllocinfo = {};
   cimgAllocinfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
   vmaCreateImage(Allocator, &cimgInfo, &cimgAllocinfo, &ColorImage.Image,
@@ -603,10 +603,10 @@ void Renderer::CreateColorAndDepthImage() {
 
   // Depth image
   VkImageCreateInfo dimgInfo =
-      GetImageCreateInfo(VK_FORMAT_D32_SFLOAT, imageExtent);
+      GetImageCreateInfo(VK_FORMAT_D32_SFLOAT, imageExtent,
+                         static_cast<VkSampleCountFlagBits>(Window->MsaaCount));
   dimgInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
   dimgInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-  dimgInfo.samples = (VkSampleCountFlagBits)Window->MsaaCount;
   VmaAllocationCreateInfo dimgAllocinfo = {};
   dimgAllocinfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
   vmaCreateImage(Allocator, &dimgInfo, &dimgAllocinfo, &DepthImage.Image,
@@ -779,7 +779,7 @@ void Renderer::Init() {
   imguiInfo.Subpass = 0;
   imguiInfo.MinImageCount = 2;
   imguiInfo.ImageCount = 2;
-  imguiInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+  imguiInfo.MSAASamples = (VkSampleCountFlagBits)Window->MsaaCount;
   ImGui_ImplVulkan_Init(&imguiInfo);
 #endif
 
@@ -1015,7 +1015,8 @@ uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
   imageExtent.height = static_cast<uint32_t>(height);
   imageExtent.depth = 1;
 
-  VkImageCreateInfo dimgInfo = GetImageCreateInfo(imageFormat, imageExtent);
+  VkImageCreateInfo dimgInfo = GetImageCreateInfo(
+      imageFormat, imageExtent, VkSampleCountFlagBits::VK_SAMPLE_COUNT_1_BIT);
   AllocatedImage newImage{};
   VmaAllocationCreateInfo dimgAllocinfo = {};
   dimgAllocinfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;

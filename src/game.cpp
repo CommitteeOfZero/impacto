@@ -222,7 +222,6 @@ void UpdateSystem(float dt) {
   if (Profile::GameFeatures & GameFeature::Input) {
     Input::EndFrame();
   }
-
   if (Profile::GameFeatures & GameFeature::Sc3VirtualMachine) {
     Vm::Interface::UpdatePADInput();
     UpdateGameState(UpdateSecondCounter);

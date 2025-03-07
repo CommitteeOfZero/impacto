@@ -26,17 +26,23 @@ void VkYUVFrame::Init(float width, float height) {
   cbCrImageExtent.height = static_cast<uint32_t>(height / 2);
   cbCrImageExtent.depth = 1;
 
-  auto lumaImageInfo = GetImageCreateInfo(imageFormat, lumaImageExtent);
+  auto lumaImageInfo =
+      GetImageCreateInfo(imageFormat, lumaImageExtent,
+                         VkSampleCountFlagBits::VK_SAMPLE_COUNT_1_BIT);
   VmaAllocationCreateInfo dimgAllocinfo = {};
   dimgAllocinfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
   vmaCreateImage(Allocator, &lumaImageInfo, &dimgAllocinfo,
                  &LumaImage.Image.Image, &LumaImage.Image.Allocation, nullptr);
 
-  auto cbImageInfo = GetImageCreateInfo(imageFormat, cbCrImageExtent);
+  auto cbImageInfo =
+      GetImageCreateInfo(imageFormat, cbCrImageExtent,
+                         VkSampleCountFlagBits::VK_SAMPLE_COUNT_1_BIT);
   vmaCreateImage(Allocator, &cbImageInfo, &dimgAllocinfo, &CbImage.Image.Image,
                  &CbImage.Image.Allocation, nullptr);
 
-  auto crImageInfo = GetImageCreateInfo(imageFormat, cbCrImageExtent);
+  auto crImageInfo =
+      GetImageCreateInfo(imageFormat, cbCrImageExtent,
+                         VkSampleCountFlagBits::VK_SAMPLE_COUNT_1_BIT);
   vmaCreateImage(Allocator, &crImageInfo, &dimgAllocinfo, &CrImage.Image.Image,
                  &CrImage.Image.Allocation, nullptr);
 

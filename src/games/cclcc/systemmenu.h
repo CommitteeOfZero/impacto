@@ -27,7 +27,7 @@ class SystemMenu : public Menu {
   Animation MenuFade;
   Animation ItemsFade;
   bool ItemsFadeComplete = false;
-
+  Sprite ScreenCap;
   glm::vec2 BGPosition{};
 };
 
