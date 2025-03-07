@@ -9,7 +9,7 @@
 #include "audio/audiosystem.h"
 #include "audio/audiostream.h"
 #include "audio/audiochannel.h"
-#include "../vendor/span/span.hpp"
+#include <span/span.hpp>
 
 namespace Impacto {
 

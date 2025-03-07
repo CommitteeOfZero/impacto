@@ -9,7 +9,7 @@
 #include <string>
 #include <cctype>
 #include <chrono>
-#include "../vendor/span/span.hpp"
+#include <span/span.hpp>
 
 // TODO own _malloca for gcc
 

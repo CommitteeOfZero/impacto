@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../impacto.h"
-#include "../../vendor/span/span.hpp"
+#include <span/span.hpp>
 
 namespace Impacto {
 namespace Vm {

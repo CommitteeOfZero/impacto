@@ -4,7 +4,7 @@
 #include "../impacto.h"
 #include "buffering.h"
 
-#include "../../vendor/clHCA/clHCA.h"
+#include <clHCA/clHCA.h>
 
 namespace Impacto {
 namespace Audio {

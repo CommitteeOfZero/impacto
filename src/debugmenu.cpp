@@ -1,6 +1,6 @@
 #include "debugmenu.h"
 
-#include "imgui.h"
+#include <imgui.h>
 #include <sstream>
 
 #include "game.h"

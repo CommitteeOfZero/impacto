@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.28)
 
+if (POLICY CMP0141)
+  cmake_policy(SET CMP0141 NEW)
+endif()
+
 project("impacto")
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/modules")
@@ -632,14 +636,6 @@ set(Impacto_Header
         src/video/videosystem.h
         src/video/videoplayer.h
         src/video/clock.h
-
-        vendor/clHCA/clHCA.h
-
-        vendor/squish/squish.h
-
-        
-        vendor/vma/vk_mem_alloc.h
-        vendor/minilua/minilua.h
         )
 
 if (WIN32)
@@ -914,6 +910,7 @@ if (NOT DEFINED IMPACTO_DISABLE_OPENAL)
 endif ()
 list(APPEND Impacto_Include_Dirs ${SDL2_INCLUDE_DIRS})
 list(APPEND Impacto_Include_Dirs ${WebP_INCLUDE_DIRS})
+list(APPEND Impacto_Include_Dirs vendor)
 list(APPEND Impacto_Include_Dirs vendor/include)
 list(APPEND Impacto_Include_Dirs vendor/pcg/include)
 
@@ -1130,6 +1127,9 @@ target_link_libraries(impacto PRIVATE ${Impacto_Libs})
 
 set_property(TARGET impacto PROPERTY CXX_STANDARD 17)
 
+# Hot reload for MSVC
+set_property(TARGET impacto PROPERTY MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
+
 if (EMSCRIPTEN)
     set(CMAKE_EXECUTABLE_SUFFIX ".html")
 endif ()
@@ -1172,9 +1172,19 @@ set(IMPACTO_HAVE_THREADS ON)
 set(IMPACTO_USE_SDL_HIGHDPI OFF)
 endif ()
 
+# Enable Hot Reload for MSVC compilers if supported.
+if (POLICY CMP0141)
+  cmake_policy(SET CMP0141 NEW)
+  set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
+endif()
+
 configure_file(src/config.h.in ${PROJECT_BINARY_DIR}/include/config.h)
 target_include_directories(impacto PRIVATE ${Impacto_Include_Dirs})
 target_include_directories(impacto PRIVATE ${PROJECT_BINARY_DIR}/include)
+
+target_precompile_headers(impacto PRIVATE 
+    "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_SOURCE_DIR}/src/pch.h>"
+)
 
 # binary install
 

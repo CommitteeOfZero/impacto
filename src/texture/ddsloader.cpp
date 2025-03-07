@@ -7,7 +7,7 @@
 
 #include "ddsloader.h"
 
-#include "../../vendor/squish/squish.h"
+#include <squish/squish.h>
 
 using namespace Impacto::Io;
 

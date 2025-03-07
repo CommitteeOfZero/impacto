@@ -4,7 +4,7 @@
 #include <fstream>
 #include <cstddef>
 #include <shared_mutex>
-#include "../../vendor/mio/mio.hpp"
+#include <mio/mio.hpp>
 
 namespace Impacto {
 namespace Io {
