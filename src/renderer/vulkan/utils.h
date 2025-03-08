@@ -62,7 +62,8 @@ AllocatedBuffer CreateBuffer(size_t allocSize, VkBufferUsageFlags usage,
 
 void ImmediateSubmit(std::function<void(VkCommandBuffer cmd)>&& function);
 
-VkImageCreateInfo GetImageCreateInfo(VkFormat format, VkExtent3D extent);
+VkImageCreateInfo GetImageCreateInfo(VkFormat format, VkExtent3D extent,
+                                     VkSampleCountFlagBits msaaCount);
 
 }  // namespace Vulkan
 }  // namespace Impacto

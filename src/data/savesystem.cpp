@@ -180,7 +180,7 @@ int GetQuickSaveOpenSlot() {
   return -1;
 }
 
-Sprite const& GetSaveThumbnail(SaveType type, int id) {
+Sprite& GetSaveThumbnail(SaveType type, int id) {
   if (Implementation) return Implementation->GetSaveThumbnail(type, id);
   ImpLog(LL_Warning, LC_VMStub,
          "%s: save system not implemented, returning dummy sprite\n", __func__);
@@ -188,7 +188,7 @@ Sprite const& GetSaveThumbnail(SaveType type, int id) {
   return dummy;
 }
 
-Sprite const& GetWorkingSaveThumbnail() {
+Sprite& GetWorkingSaveThumbnail() {
   if (Implementation) return Implementation->GetWorkingSaveThumbnail();
   ImpLog(LL_Warning, LC_VMStub,
          "%s: save system not implemented, returning dummy sprite\n", __func__);

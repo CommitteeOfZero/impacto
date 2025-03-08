@@ -586,7 +586,7 @@ bool SaveSystem::GetEVVariationIsUnlocked(int evId, int variationIdx) {
 
 bool SaveSystem::GetBgmFlag(int id) { return BGMFlags[id]; }
 
-Sprite const& SaveSystem::GetSaveThumbnail(SaveType type, int id) {
+Sprite& SaveSystem::GetSaveThumbnail(SaveType type, int id) {
   switch (type) {
     case SaveQuick:
       return QuickSaveEntries[id]->SaveThumbnail;

@@ -24,7 +24,7 @@ void UpdateBackground2D() {
         Backgrounds2D[bufId] = &Screencaptures[0];
       } else if (GetScriptBufferId(i) == ScrWork[SW_EFF_CAP_BUF2]) {
         Backgrounds2D[bufId] = &Screencaptures[1];
-      } else if (Backgrounds2D[bufId]->IsScreencap) {
+      } else if (Backgrounds2D[bufId]->BgSprite.Sheet.IsScreenCap) {
         Backgrounds2D[bufId] = &Backgrounds[bufId];
       }
     }
@@ -113,7 +113,7 @@ void UpdateBackground2D() {
       }
     }
 
-    if (Backgrounds2D[bufId]->IsScreencap) {
+    if (Backgrounds2D[bufId]->BgSprite.Sheet.IsScreenCap) {
       Backgrounds2D[bufId]->BgSprite.BaseScale *=
           glm::vec2(Profile::DesignWidth / Window->WindowWidth,
                     Profile::DesignHeight / Window->WindowHeight);
@@ -212,13 +212,17 @@ uint8_t GetSoundLevel() {
 }
 
 void UpdateEyeMouth2D() {
+  // Pause check
+  if ((ScrWork[SW_GAMESTATE] & 4) != 0) {
+    return;
+  }
   static int eyeCounter[16]{};
   static int mouthCounter[3]{};
   for (size_t i = 0; i < 16; i++) {
     if (eyeCounter[i] == 0) {
       if (++curEyeFrame[i] == 3) {
         curEyeFrame[i] = 0;
-        eyeCounter[i] = ((rand() & 0x7FFF) * 230 >> 15) + 200;
+        eyeCounter[i] = CALCrnd(230) + 200;
       } else {
         eyeCounter[i] = 4;
       }
@@ -230,16 +234,13 @@ void UpdateEyeMouth2D() {
     /* TODO: Add the reset flags for the counters from scrcommessync once it's
      * implemented*/
 
-    // Pause check
-    if ((ScrWork[2113] & 4) == 0) {
-      if (mouthCounter[i] == 0) {
-        if (++curMouthIndex[i] == 20) {
-          curMouthIndex[i] = 0;
-        }
-        mouthCounter[i] = animeTable[curMouthIndex[i]][1];
-      } else {
-        mouthCounter[i]--;
+    if (mouthCounter[i] == 0) {
+      if (++curMouthIndex[i] == 20) {
+        curMouthIndex[i] = 0;
       }
+      mouthCounter[i] = animeTable[curMouthIndex[i]][1];
+    } else {
+      mouthCounter[i]--;
     }
   }
 }

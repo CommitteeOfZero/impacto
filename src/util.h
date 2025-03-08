@@ -144,6 +144,28 @@ struct Rect {
   }
 };
 
+struct CornersQuad {
+  glm::vec2 TopLeft;
+  glm::vec2 BottomLeft;
+  glm::vec2 TopRight;
+  glm::vec2 BottomRight;
+
+  constexpr CornersQuad(glm::vec2 tl, glm::vec2 bl, glm::vec2 tr, glm::vec2 br)
+      : TopLeft(tl), BottomLeft(bl), TopRight(tr), BottomRight(br) {}
+
+  constexpr CornersQuad(RectF const& rect)
+      : CornersQuad({rect.X, rect.Y}, {rect.X, rect.Y + rect.Height},
+                    {rect.X + rect.Width, rect.Y},
+                    {rect.X + rect.Width, rect.Y + rect.Height}) {}
+
+  constexpr CornersQuad(Rect const& rect)
+      : CornersQuad(
+            {(float)rect.X, (float)rect.Y},
+            {(float)rect.X, (float)(rect.Y + rect.Height)},
+            {(float)(rect.X + rect.Width), (float)rect.Y},
+            {(float)(rect.X + rect.Width), (float)(rect.Y + rect.Height)}) {}
+};
+
 inline constexpr RectF::RectF(Rect const& rect)
     : RectF((float)rect.X, (float)rect.Y, (float)rect.Width,
             (float)rect.Height) {}

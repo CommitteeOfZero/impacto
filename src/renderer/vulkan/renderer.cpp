@@ -15,8 +15,44 @@
 namespace Impacto {
 namespace Vulkan {
 
+VkVertexInputBindingDescription Renderer::GetBindingDescription() {
+  VkVertexInputBindingDescription bindingDescription{};
+  bindingDescription.binding = 0;
+  bindingDescription.stride = sizeof(Renderer::VertexBufferSprites);
+  bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+  return bindingDescription;
+}
+
+std::array<VkVertexInputAttributeDescription, 4>
+Renderer::GetAttributeDescriptions() {
+  std::array<VkVertexInputAttributeDescription, 4> attributeDescriptions{};
+
+  attributeDescriptions[0].binding = 0;
+  attributeDescriptions[0].location = 0;
+  attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+  attributeDescriptions[0].offset = offsetof(VertexBufferSprites, Position);
+
+  attributeDescriptions[1].binding = 0;
+  attributeDescriptions[1].location = 1;
+  attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
+  attributeDescriptions[1].offset = offsetof(VertexBufferSprites, UV);
+
+  attributeDescriptions[2].binding = 0;
+  attributeDescriptions[2].location = 2;
+  attributeDescriptions[2].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+  attributeDescriptions[2].offset = offsetof(VertexBufferSprites, Tint);
+
+  attributeDescriptions[3].binding = 0;
+  attributeDescriptions[3].location = 3;
+  attributeDescriptions[3].format = VK_FORMAT_R32G32_SFLOAT;
+  attributeDescriptions[3].offset = offsetof(VertexBufferSprites, MaskUV);
+
+  return attributeDescriptions;
+}
+
 static VKAPI_ATTR VkBool32 VKAPI_CALL
-debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
               VkDebugUtilsMessageTypeFlagsEXT messageType,
               const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
               void* pUserData) {
@@ -96,7 +132,7 @@ void Renderer::SetupDebug() {
   createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
                            VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
                            VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-  createInfo.pfnUserCallback = debugCallback;
+  createInfo.pfnUserCallback = DebugCallback;
   createInfo.pUserData = nullptr;
   if (CreateDebugUtilsMessengerEXT(Instance, &createInfo, nullptr,
                                    &DebugMessenger) != VK_SUCCESS) {
@@ -542,11 +578,11 @@ void Renderer::CreateColorAndDepthImage() {
 
   // Color image
   VkImageCreateInfo cimgInfo =
-      GetImageCreateInfo(SwapChainImageFormat, imageExtent);
+      GetImageCreateInfo(SwapChainImageFormat, imageExtent,
+                         static_cast<VkSampleCountFlagBits>(Window->MsaaCount));
   cimgInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
   cimgInfo.usage = VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT |
                    VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-  cimgInfo.samples = (VkSampleCountFlagBits)Window->MsaaCount;
   VmaAllocationCreateInfo cimgAllocinfo = {};
   cimgAllocinfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
   vmaCreateImage(Allocator, &cimgInfo, &cimgAllocinfo, &ColorImage.Image,
@@ -567,10 +603,10 @@ void Renderer::CreateColorAndDepthImage() {
 
   // Depth image
   VkImageCreateInfo dimgInfo =
-      GetImageCreateInfo(VK_FORMAT_D32_SFLOAT, imageExtent);
+      GetImageCreateInfo(VK_FORMAT_D32_SFLOAT, imageExtent,
+                         static_cast<VkSampleCountFlagBits>(Window->MsaaCount));
   dimgInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
   dimgInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-  dimgInfo.samples = (VkSampleCountFlagBits)Window->MsaaCount;
   VmaAllocationCreateInfo dimgAllocinfo = {};
   dimgAllocinfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
   vmaCreateImage(Allocator, &dimgInfo, &dimgAllocinfo, &DepthImage.Image,
@@ -642,8 +678,8 @@ void Renderer::Init() {
   CreateSyncObjects();
   CreateDescriptors();
 
-  auto attributeDescriptions = VertexBufferSprites::getAttributeDescriptions();
-  auto bindingDescription = VertexBufferSprites::getBindingDescription();
+  auto attributeDescriptions = GetAttributeDescriptions();
+  auto bindingDescription = GetBindingDescription();
 
   PipelineSprite = new Pipeline(Device, RenderPass);
   PipelineSprite->CreateWithShader(
@@ -743,7 +779,7 @@ void Renderer::Init() {
   imguiInfo.Subpass = 0;
   imguiInfo.MinImageCount = 2;
   imguiInfo.ImageCount = 2;
-  imguiInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+  imguiInfo.MSAASamples = (VkSampleCountFlagBits)Window->MsaaCount;
   ImGui_ImplVulkan_Init(&imguiInfo);
 #endif
 
@@ -979,7 +1015,8 @@ uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
   imageExtent.height = static_cast<uint32_t>(height);
   imageExtent.depth = 1;
 
-  VkImageCreateInfo dimgInfo = GetImageCreateInfo(imageFormat, imageExtent);
+  VkImageCreateInfo dimgInfo = GetImageCreateInfo(
+      imageFormat, imageExtent, VkSampleCountFlagBits::VK_SAMPLE_COUNT_1_BIT);
   AllocatedImage newImage{};
   VmaAllocationCreateInfo dimgAllocinfo = {};
   dimgAllocinfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
@@ -1072,7 +1109,7 @@ YUVFrame* Renderer::CreateYUVFrame(float width, float height) {
 }
 
 void Renderer::DrawRect(RectF const& dest, glm::vec4 color, float angle) {
-  DrawSprite(RectSprite, dest, color, angle);
+  BaseRenderer::DrawSprite(RectSprite, dest, color, angle);
 }
 
 void Renderer::DrawSprite3DRotated(Sprite const& sprite, RectF const& dest,
@@ -1208,23 +1245,9 @@ void Renderer::DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
   Flush();
 }
 
-void Renderer::DrawSprite(Sprite const& sprite, RectF const& dest,
-                          glm::vec4 tint, float angle, bool inverted,
-                          bool isScreencap) {
-  std::array<glm::vec4, 4> tints = {tint, tint, tint, tint};
-  std::array<glm::vec2, 4> destQuad = {
-      glm::vec2{dest.X, dest.Y + dest.Height},
-      glm::vec2{dest.X, dest.Y},
-      glm::vec2{dest.X + dest.Width, dest.Y},
-      glm::vec2{dest.X + dest.Width, dest.Y + dest.Height},
-  };
-  DrawSprite(sprite, destQuad, tints, angle, inverted, isScreencap);
-}
-
-void Renderer::DrawSprite(Sprite const& sprite,
-                          std::array<glm::vec2, 4> const& dest,
+void Renderer::DrawSprite(Sprite const& sprite, CornersQuad const& dest,
                           std::array<glm::vec4, 4> const& tints, float angle,
-                          bool inverted, bool isScreencap) {
+                          bool inverted) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawSprite() called before BeginFrame()\n");
@@ -1300,8 +1323,8 @@ void Renderer::DrawSpriteOffset(Sprite const& sprite, glm::vec2 topLeft,
 
 void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
                                 RectF const& dest, glm::vec4 tint, int alpha,
-                                int fadeRange, bool isScreencap,
-                                bool isInverted, bool isSameTexture) {
+                                int fadeRange, bool isInverted,
+                                bool isSameTexture) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawMaskedSprite() called before BeginFrame()\n");
@@ -1368,10 +1391,78 @@ void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
+void Renderer::DrawVertices(SpriteSheet const& sheet,
+                            tcb::span<const glm::vec2> sheetPositions,
+                            tcb::span<const glm::vec2> displayPositions,
+                            int width, int height, glm::vec4 tint,
+                            bool inverted) {
+  if (!Drawing) {
+    ImpLog(LL_Error, LC_Render,
+           "Renderer->DrawVertices() called before BeginFrame()\n");
+    return;
+  }
+
+  if (Textures.count(sheet.Texture) == 0) return;
+  const int verticesCount = sheetPositions.size();
+
+  if (verticesCount != displayPositions.size()) {
+    ImpLog(LL_Error, LC_Render,
+           "Renderer->DrawVertices() called with mismatched vertices count\n");
+    return;
+  }
+
+  Flush();
+
+  // Are we in sprite mode?
+  if (inverted)
+    EnsureMode(PipelineSpriteInverted);
+  else
+    EnsureMode(PipelineSprite);
+
+  // Do we have the texture assigned?
+  EnsureTextureBound(sheet.Texture);
+
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferOffset +
+                             VertexBufferFill);
+
+  VertexBufferFill += verticesCount * sizeof(VertexBufferSprites);
+
+  int indexBufferOffset = IndexBufferOffset / sizeof(uint16_t);
+
+  // Generate indices for triangles
+  for (int y = 0; y < height - 1; y++) {
+    for (int x = 0; x < width - 1; x++) {
+      uint16_t v0 = y * width + x;
+      uint16_t v1 = y * width + (x + 1);
+      uint16_t v2 = (y + 1) * width + x;
+      uint16_t v3 = (y + 1) * width + (x + 1);
+
+      // First triangle
+      for (auto v : {v1, v0, v2}) {
+        IndexBuffer[indexBufferOffset + IndexBufferFill++] = v;
+      }
+      // Second triangle
+      for (auto v : {v3, v1, v2}) {
+        IndexBuffer[indexBufferOffset + IndexBufferFill++] = v;
+      }
+    }
+  }
+  assert(IndexBufferFill == (width - 1) * (height - 1) * 6);
+
+  for (int i = 0; i < verticesCount; i++) {
+    vertices[i].Position = DesignToNDCNonFlipped(displayPositions[i]);
+    vertices[i].Tint = tint;
+    glm::vec2 uv =
+        sheetPositions[i] / glm::vec2(sheet.DesignWidth, sheet.DesignHeight);
+    vertices[i].UV = uv;
+  }
+  Flush();
+}
+
 void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                                 RectF const& dest, glm::vec4 tint, int alpha,
-                                int fadeRange, float effectCt,
-                                bool isScreencap) {
+                                int fadeRange, float effectCt) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawCCMessageBox() called before BeginFrame()\n");
@@ -1439,14 +1530,14 @@ void Renderer::DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
                                        RectF const& dest, glm::vec4 tint,
                                        int alpha, int fadeRange,
                                        bool isInverted, float angle,
-                                       bool useMaskAlpha, bool isScreencap) {
+                                       bool useMaskAlpha) {
   if (!Drawing) {
     ImpLog(LL_Error, LC_Render,
            "Renderer->DrawMaskedSpriteOverlay() called before BeginFrame()\n");
     return;
   }
 
-  if (isScreencap) Flush();
+  if (sprite.Sheet.IsScreenCap) Flush();
 
   if (Textures.count(sprite.Sheet.Texture) == 0 ||
       Textures.count(mask.Sheet.Texture) == 0)
@@ -1728,32 +1819,30 @@ inline void Renderer::QuadSetPosition(RectF const& transformedQuad, float angle,
   *(glm::vec2*)(positions + 3 * stride) = DesignToNDCNonFlipped(topRight);
 }
 
-inline void Renderer::QuadSetPosition(std::array<glm::vec2, 4> const& destQuad,
-                                      float angle, uintptr_t positions,
-                                      int stride) {
-  glm::vec2 bottomLeft = destQuad[0];
-  glm::vec2 topLeft = destQuad[1];
-  glm::vec2 topRight = destQuad[2];
-  glm::vec2 bottomRight = destQuad[3];
-
+inline void Renderer::QuadSetPosition(CornersQuad destQuad, float angle,
+                                      uintptr_t positions, int stride) {
   if (angle != 0.0f) {
-    glm::vec2 center = (bottomLeft + topRight) * 0.5f;
+    glm::vec2 center = (destQuad.BottomLeft + destQuad.TopRight) * 0.5f;
     glm::mat2 rot = Rotate2D(angle);
 
-    bottomLeft = rot * (bottomLeft - center) + center;
-    topLeft = rot * (topLeft - center) + center;
-    topRight = rot * (topRight - center) + center;
-    bottomRight = rot * (bottomRight - center) + center;
+    destQuad.BottomLeft = rot * (destQuad.BottomLeft - center) + center;
+    destQuad.TopLeft = rot * (destQuad.TopLeft - center) + center;
+    destQuad.TopRight = rot * (destQuad.TopRight - center) + center;
+    destQuad.BottomRight = rot * (destQuad.BottomRight - center) + center;
   }
 
   // bottom-left
-  *(glm::vec2*)(positions + 0 * stride) = DesignToNDCNonFlipped(topLeft);
+  *(glm::vec2*)(positions + 0 * stride) =
+      DesignToNDCNonFlipped(destQuad.TopLeft);
   // top-left
-  *(glm::vec2*)(positions + 1 * stride) = DesignToNDCNonFlipped(bottomLeft);
+  *(glm::vec2*)(positions + 1 * stride) =
+      DesignToNDCNonFlipped(destQuad.BottomLeft);
   // top-right
-  *(glm::vec2*)(positions + 2 * stride) = DesignToNDCNonFlipped(bottomRight);
+  *(glm::vec2*)(positions + 2 * stride) =
+      DesignToNDCNonFlipped(destQuad.BottomRight);
   // bottom-right
-  *(glm::vec2*)(positions + 3 * stride) = DesignToNDCNonFlipped(topRight);
+  *(glm::vec2*)(positions + 3 * stride) =
+      DesignToNDCNonFlipped(destQuad.TopRight);
 }
 
 void Renderer::QuadSetPosition3DRotated(RectF const& transformedQuad,
@@ -1931,8 +2020,12 @@ void Renderer::DrawVideoTexture(YUVFrame* tex, RectF const& dest,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
-void Renderer::CaptureScreencap(Sprite const& sprite) {
+void Renderer::CaptureScreencap(Sprite& sprite) {
   if (Textures.count(sprite.Sheet.Texture) == 0) return;
+  sprite.Sheet.IsScreenCap = true;
+  sprite.Sheet.DesignWidth = Window->WindowWidth;
+  sprite.Sheet.DesignHeight = Window->WindowHeight;
+
   // Here we go...
   Flush();
   vkCmdEndRenderPass(CommandBuffers[CurrentFrameIndex]);

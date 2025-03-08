@@ -22,16 +22,16 @@ void Background2D::Init() {
   }
 
   for (int i = 0; i < MaxScreencaptures; i++) {
+    Screencaptures[i].BgSprite.Sheet.IsScreenCap = true;
     Screencaptures[i].LoadSolidColor(0xFF000000, Window->WindowWidth,
                                      Window->WindowHeight);
     Screencaptures[i].Status = LS_Loaded;
-    Screencaptures[i].IsScreencap = true;
   }
 
+  ShaderScreencapture.BgSprite.Sheet.IsScreenCap = true;
   ShaderScreencapture.LoadSolidColor(0xFF000000, Window->WindowWidth,
                                      Window->WindowHeight);
   ShaderScreencapture.Status = LS_Loaded;
-  ShaderScreencapture.IsScreencap = true;
 }
 
 bool Background2D::LoadSync(uint32_t bgId) {
@@ -54,27 +54,27 @@ void Background2D::LoadSolidColor(uint32_t color, int width, int height) {
 }
 
 void Background2D::UnloadSync() {
-  Renderer->FreeTexture(BgSpriteSheet.Texture);
-  BgSpriteSheet.DesignHeight = 0.0f;
-  BgSpriteSheet.DesignWidth = 0.0f;
-  BgSpriteSheet.Texture = 0;
+  Renderer->FreeTexture(BgSprite.Sheet.Texture);
+  BgSprite.Sheet.DesignHeight = 0.0f;
+  BgSprite.Sheet.DesignWidth = 0.0f;
+  BgSprite.Sheet.Texture = 0;
+  BgSprite.Sheet.IsScreenCap = false;
   Show = false;
   Layer = -1;
 }
 
 void Background2D::MainThreadOnLoad() {
-  BgSpriteSheet.Texture = BgTexture.Submit();
+  BgSprite.Sheet.Texture = BgTexture.Submit();
   if ((BgTexture.Width == 1) && (BgTexture.Height == 1)) {
-    BgSpriteSheet.DesignWidth = Profile::DesignWidth;
-    BgSpriteSheet.DesignHeight = Profile::DesignHeight;
+    BgSprite.Sheet.DesignWidth = Profile::DesignWidth;
+    BgSprite.Sheet.DesignHeight = Profile::DesignHeight;
   } else {
-    BgSpriteSheet.DesignWidth = (float)BgTexture.Width;
-    BgSpriteSheet.DesignHeight = (float)BgTexture.Height;
+    BgSprite.Sheet.DesignWidth = (float)BgTexture.Width;
+    BgSprite.Sheet.DesignHeight = (float)BgTexture.Height;
   }
-  BgSprite.Sheet = BgSpriteSheet;
   BgSprite.BaseScale = glm::vec2(1.0f);
-  BgSprite.Bounds =
-      RectF(0.0f, 0.0f, BgSpriteSheet.DesignWidth, BgSpriteSheet.DesignHeight);
+  BgSprite.Bounds = RectF(0.0f, 0.0f, BgSprite.Sheet.DesignWidth,
+                          BgSprite.Sheet.DesignHeight);
   Show = false;
   Layer = -1;
 }
@@ -98,7 +98,7 @@ BackgroundRenderer(RenderRegular) {
       bg->BgSprite,
       RectF(bg->DisplayCoords.x, bg->DisplayCoords.y,
             bg->BgSprite.ScaledWidth(), bg->BgSprite.ScaledHeight()),
-      col, 0.0f, false, bg->IsScreencap);
+      col, 0.0f, false);
   for (int i = 0; i < MaxLinkedBgBuffers; i++) {
     if (bg->Links[i].Direction != LD_Off && bg->Links[i].LinkedBuffer != NULL) {
       Renderer->DrawSprite(
@@ -106,7 +106,7 @@ BackgroundRenderer(RenderRegular) {
           RectF(bg->Links[i].DisplayCoords.x, bg->Links[i].DisplayCoords.y,
                 bg->Links[i].LinkedBuffer->BgSprite.ScaledWidth(),
                 bg->Links[i].LinkedBuffer->BgSprite.ScaledHeight()),
-          col, 0.0f, false, bg->Links[i].LinkedBuffer->IsScreencap);
+          col, 0.0f, false);
     }
   }
 }
@@ -118,8 +118,7 @@ BackgroundRenderer(RenderMasked) {
       RectF(bg->DisplayCoords.x, bg->DisplayCoords.y,
             bg->BgSprite.ScaledWidth(), bg->BgSprite.ScaledHeight()),
       col, ScrWork[SW_BG1FADECT + ScrWorkBgStructSize * bgId],
-      ScrWork[SW_BG1MASKFADERANGE + ScrWorkBgStructSize * bgId],
-      bg->IsScreencap);
+      ScrWork[SW_BG1MASKFADERANGE + ScrWorkBgStructSize * bgId]);
 }
 
 BackgroundRenderer(RenderMaskedInverted) {
@@ -129,8 +128,7 @@ BackgroundRenderer(RenderMaskedInverted) {
       RectF(bg->DisplayCoords.x, bg->DisplayCoords.y,
             bg->BgSprite.ScaledWidth(), bg->BgSprite.ScaledHeight()),
       col, ScrWork[SW_BG1FADECT + ScrWorkBgStructSize * bgId],
-      ScrWork[SW_BG1MASKFADERANGE + ScrWorkBgStructSize * bgId],
-      bg->IsScreencap, true);
+      ScrWork[SW_BG1MASKFADERANGE + ScrWorkBgStructSize * bgId], true);
 }
 
 BackgroundRenderer(RenderFade) {
@@ -143,7 +141,7 @@ BackgroundRenderer(RenderFade) {
       bg->BgSprite,
       RectF(bg->DisplayCoords.x, bg->DisplayCoords.y,
             bg->BgSprite.ScaledWidth(), bg->BgSprite.ScaledHeight()),
-      col, 0.0f, false, bg->IsScreencap);
+      col, 0.0f, false);
   for (int i = 0; i < MaxLinkedBgBuffers; i++) {
     if (bg->Links[i].Direction != LD_Off && bg->Links[i].LinkedBuffer != NULL) {
       Renderer->DrawSprite(
@@ -151,7 +149,7 @@ BackgroundRenderer(RenderFade) {
           RectF(bg->Links[i].DisplayCoords.x, bg->Links[i].DisplayCoords.y,
                 bg->Links[i].LinkedBuffer->BgSprite.ScaledWidth(),
                 bg->Links[i].LinkedBuffer->BgSprite.ScaledHeight()),
-          col, 0.0f, false, bg->Links[i].LinkedBuffer->IsScreencap);
+          col, 0.0f, false);
     }
   }
 }
