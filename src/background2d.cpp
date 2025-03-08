@@ -32,8 +32,8 @@ void Background2D::Init() {
 
   for (size_t i = 0; i < Framebuffers.max_size(); i++) {
     Framebuffers[i].BgSprite =
-        Sprite(SpriteSheet(Profile::ResolutionWidth, Profile::ResolutionHeight),
-               0.0f, 0.0f, Profile::ResolutionWidth, Profile::ResolutionHeight);
+        Sprite(SpriteSheet(Window->WindowWidth, Window->WindowHeight), 0.0f,
+               0.0f, Window->WindowWidth, Window->WindowHeight);
     Framebuffers[i].BgSprite.Sheet.Texture =
         Renderer->GetFramebufferTexture(i + 1);
 

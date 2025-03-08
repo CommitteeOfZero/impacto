@@ -18,9 +18,8 @@ void InitializeFramebuffers() {
 
     glBindFramebuffer(GL_FRAMEBUFFER, framebufferId);
     glBindTexture(GL_TEXTURE_2D, textureId);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, Profile::ResolutionWidth,
-                 Profile::ResolutionHeight, 0, GL_RGB, GL_UNSIGNED_BYTE,
-                 nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, Window->WindowWidth,
+                 Window->WindowHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
