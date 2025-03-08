@@ -47,7 +47,11 @@ VmInstruction(InstSEplay) {
   if (type != 2) {
     PopExpression(effect);
     PopExpression(loop);
-    ScrWork[SW_SEREQNO + channel] = effect;
+    if (loop) {
+      ScrWork[SW_SEREQNO + channel] = effect;
+    } else {
+      ScrWork[SW_SEREQNO + channel] = 0xFFFF;
+    }
     Audio::Channels[Audio::AC_SE0 + channel]->Volume =
         (ScrWork[SW_SEVOL + channel] / 100.0f) * 0.3f;
     Audio::Channels[Audio::AC_SE0 + channel]->Play("se", effect, (bool)loop,
