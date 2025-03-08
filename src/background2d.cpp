@@ -109,9 +109,11 @@ void Background2D::Render(int bgId, int layer) {
       break;
 
     case Vm::InstructionSet::CC:
-      if (ScrWork[SW_BGEFF1_MODE + ScrWorkBgEffStructSize * bgId] == 1)
+      if (ScrWork[SW_BGEFF1_MODE + ScrWorkBgEffStructSize * bgId] == 1) {
         col.a =
             ScrWork[SW_BGEFF1_ALPHA + ScrWorkBgEffStructSize * bgId] / 256.0f;
+      }
+      break;
 
     default:
       break;
@@ -154,8 +156,6 @@ void Background2D::RenderBgEff(int bgId, int layer) {
   x *= Profile::DesignWidth / 1280.0f;
   y *= Profile::DesignHeight / 720.0f;
   DisplayCoords = glm::vec2(-x, -y);
-
-  BgSprite.BaseScale = glm::vec2(1.0f);
 
   glm::vec4 col = glm::vec4(1.0f);
   col.a = (ScrWork[SW_BGEFF1_ALPHA + structSize * bgId] +

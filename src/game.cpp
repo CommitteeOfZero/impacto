@@ -298,7 +298,7 @@ static bool ShouldRender(const int layer) {
   using namespace Impacto::Profile::Vm;
 
   for (int bgId = 0; bgId < MaxBackgrounds2D; bgId++) {
-    if (GetFlag(SF_BG1DISP + bgId) && !GetFlag(1270 + bgId) &&
+    if (GetFlag(SF_BG1DISP + bgId) && !GetFlag(SF_BG1LOADEXEC + bgId) &&
         (ScrWork[SW_BG1PRI + ScrWorkBgStructSize * bgId] == layer ||
          ScrWork[SW_BG1PRI2 + ScrWorkBgStructSize * bgId] == layer))
       return true;
@@ -348,7 +348,7 @@ void Render() {
         }
         case DrawComponentType::Main: {
           for (uint32_t layer = 0; layer <= Profile::LayerCount; layer++) {
-            const size_t renderTarget = ScrWork[SW_RENDERTARGET + layer];
+            const int renderTarget = ScrWork[SW_RENDERTARGET + layer];
             if (0 <= renderTarget && renderTarget <= MaxFramebuffers &&
                 ShouldRender(layer)) {
               Renderer->SetFramebuffer(renderTarget);

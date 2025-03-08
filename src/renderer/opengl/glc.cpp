@@ -13,9 +13,10 @@ void InitializeFramebuffers() {
   glGenTextures(FramebufferTextures.max_size(), FramebufferTextures.data());
 
   for (size_t buffer = 0; buffer < FramebufferTextures.size(); buffer++) {
+    const GLuint framebufferId = Framebuffers[buffer];
     const GLuint textureId = FramebufferTextures[buffer];
 
-    glBindFramebuffer(GL_FRAMEBUFFER, Framebuffers[buffer]);
+    glBindFramebuffer(GL_FRAMEBUFFER, framebufferId);
     glBindTexture(GL_TEXTURE_2D, textureId);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, Profile::ResolutionWidth,
                  Profile::ResolutionHeight, 0, GL_RGB, GL_UNSIGNED_BYTE,
