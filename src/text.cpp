@@ -4,6 +4,7 @@
 #include "animation.h"
 #include "mem.h"
 #include "profile/scriptvars.h"
+#include "profile/configsystem.h"
 
 #include "profile/charset.h"
 #include "profile/dialogue.h"
@@ -659,13 +660,10 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
   }
 
   int typewriterCt = Glyphs.size() - typewriterStart;
-  float typewriterDur = 0.0f;
-  if (voice != 0) {
-    typewriterDur = Audio::Channels[Audio::AC_VOICE0]->DurationInSeconds();
-  }
-  if (typewriterDur <= 0.0f) {
-    typewriterDur = (float)typewriterCt / 16.0f;
-  }
+  float typewriterDur =
+      (Profile::ConfigSystem::SyncVoice && voice != nullptr)
+          ? Audio::Channels[Audio::AC_VOICE0]->DurationInSeconds()
+          : (float)typewriterCt / Profile::ConfigSystem::TextSpeed;
   Typewriter.Start(typewriterStart, typewriterCt, typewriterDur);
 }
 
@@ -680,10 +678,9 @@ void DialoguePage::Update(float dt) {
     }
   }
 
-  if (TextIsFullyOpaque() && MesSkipMode & SkipModeFlags::Auto) {
-    AutoWaitTime -= AutoSpeed * dt;
-    if (AutoWaitTime < 0) AutoWaitTime = 0;
-  }
+  if (TextIsFullyOpaque() && MesSkipMode & SkipModeFlags::Auto)
+    AutoWaitTime =
+        std::max(0.0f, AutoWaitTime - Profile::ConfigSystem::AutoSpeed * dt);
 
   TextBox->Update(dt);
   FadeAnimation.Update(dt);

@@ -9,6 +9,7 @@
 #include "../profile/scriptvars.h"
 #include "../profile/scriptinput.h"
 #include "../profile/dialogue.h"
+#include "../profile/configsystem.h"
 #include "../profile/ui/backlogmenu.h"
 #include "../profile/ui/systemmenu.h"
 #include "../profile/games/mo6tw/backlogmenu.h"
@@ -29,6 +30,11 @@ using namespace Impacto::UI::Widgets;
 
 void BacklogMenu::MenuButtonOnClick(Widgets::BacklogEntry* target) {
   if (target->AudioId != -1) {
+    const float volume =
+        Profile::ConfigSystem::VoiceMuted[target->CharacterId]
+            ? 0.0f
+            : Profile::ConfigSystem::VoiceVolume[target->CharacterId];
+    Audio::Channels[Audio::AC_REV]->Volume = volume;
     Audio::Channels[Audio::AC_REV]->Play("voice", target->AudioId, false, 0.0f);
   }
 }
@@ -289,19 +295,13 @@ void BacklogMenu::RenderHighlight() const {
 
 void BacklogMenu::Render() {}
 
-BacklogEntry* BacklogMenu::CreateBacklogEntry(int id, uint8_t* str, int audioId,
-                                              glm::vec2 pos,
-                                              const RectF& hoverBounds) const {
-  return new BacklogEntry(id, str, audioId, pos, HoverBounds);
-}
-
-void BacklogMenu::AddMessage(uint8_t* str, int audioId) {
+void BacklogMenu::AddMessage(uint8_t* str, int audioId, int characterId) {
   if (!GetFlag(SF_REVADDDISABLE) || ScrWork[SW_MESWIN0TYPE] == 0) {
     auto onClick =
         std::bind(&BacklogMenu::MenuButtonOnClick, this, std::placeholders::_1);
 
-    auto backlogEntry = CreateBacklogEntry(CurrentId, str, audioId,
-                                           CurrentEntryPos, HoverBounds);
+    auto backlogEntry = new BacklogEntry(CurrentId, str, audioId, characterId,
+                                         CurrentEntryPos, HoverBounds);
     backlogEntry->OnClickHandler = onClick;
     MainItems->Add(backlogEntry, FDIR_DOWN);
     CurrentId++;

@@ -4,6 +4,7 @@
 
 #include "expression.h"
 #include "../profile/scriptvars.h"
+#include "../profile/configsystem.h"
 #include "../mem.h"
 #include "../log.h"
 #include "../audio/audiostream.h"
@@ -132,6 +133,7 @@ VmInstruction(InstMes) {
   if (voiced) ExpressionEval(thread, &audioId);
   if (acted) ExpressionEval(thread, &animationId);
   PopExpression(characterId);
+  if (characterId >= 32) characterId = 0;
   PopUint16(lineId);
   uint8_t* line =
       MSB ? MsbGetStrAddress(MsbBuffers[thread->ScriptBufferId], lineId)
@@ -144,6 +146,7 @@ VmInstruction(InstMes) {
 
   ScrWork[2 * dialoguePage.Id + SW_LINEID] = lineId;
   ScrWork[2 * dialoguePage.Id + SW_SCRIPTID] = scriptId;
+  ScrWork[dialoguePage.Id + SW_ANIME0CHANO] = characterId;
 
   Audio::AudioStream* audioStream = nullptr;
   if (voiced) {
@@ -172,7 +175,7 @@ VmInstruction(InstMes) {
   }
 
   thread->Ip = oldIp;
-  UI::BacklogMenuPtr->AddMessage(line, audioId);
+  UI::BacklogMenuPtr->AddMessage(line, audioId, characterId);
 
   dialoguePage.AutoWaitTime = (float)dialoguePage.Glyphs.size();
 }
@@ -183,7 +186,11 @@ VmInstruction(InstMesMain) {
 
   bool advanceButtonWentDown =
       Interface::PADinputButtonWentDown & Interface::PAD1A ||
-      Interface::PADinputMouseWentDown & Interface::PAD1A;
+      Interface::PADinputMouseWentDown & Interface::PAD1A ||
+      (Profile::ConfigSystem::AdvanceTextOnDirectionalInput &&
+       Interface::PADinputButtonWentDown &
+           (Interface::PAD1UP | Interface::PAD1DOWN | Interface::PAD1LEFT |
+            Interface::PAD1RIGHT));
 
   if (type == 0) {  // Normal mode
     if (!currentPage->TextIsFullyOpaque()) {
@@ -204,6 +211,9 @@ VmInstruction(InstMesMain) {
           SaveSystem::SetLineRead(ScrWork[2 * currentPage->Id + SW_SCRIPTID],
                                   ScrWork[2 * currentPage->Id + SW_LINEID]);
           SetFlag(SF_SHOWWAITICON + thread->DialoguePageId, false);
+
+          if (Profile::ConfigSystem::SkipVoice)
+            Audio::Channels[Audio::AC_VOICE0]->Stop(0.0f);
 
           BlockThread;
           return;
@@ -612,7 +622,7 @@ VmInstruction(InstSetRevMes) {
   uint32_t scriptId = LoadedScriptMetas[thread->ScriptBufferId].Id;
 
   SaveSystem::SetLineRead(scriptId, lineId);
-  UI::BacklogMenuPtr->AddMessage(line);
+  UI::BacklogMenuPtr->AddMessage(line, audioId, animationId);
 }
 
 void ChkMesSkip() {
@@ -632,7 +642,8 @@ void ChkMesSkip() {
         MesSkipMode &= SkipModeFlags::Auto;
       else
         MesSkipMode |=
-            (SkipMode ? SkipModeFlags::SkipAll : SkipModeFlags::SkipRead);
+            (Profile::ConfigSystem::SkipRead ? SkipModeFlags::SkipRead
+                                             : SkipModeFlags::SkipAll);
 
     // Auto
     if (Interface::PADinputButtonWentDown & Interface::PADcustom[9])
