@@ -15,6 +15,8 @@ inline GraphicsApi ActualGraphicsApi;
 
 enum class RendererOutlineMode { RO_None, RO_BottomRight, RO_Full };
 
+constexpr inline int MaxFramebuffers = 1;
+
 class BaseRenderer {
  public:
   virtual void Init() = 0;
@@ -142,6 +144,9 @@ class BaseRenderer {
                         bool alphaVideo = false);
 
   virtual void CaptureScreencap(Sprite& sprite) = 0;
+
+  virtual void SetFramebuffer(size_t buffer) = 0;
+  virtual int GetFramebufferTexture(size_t buffer) = 0;
 
   virtual void EnableScissor() = 0;
   virtual void SetScissorRect(RectF const& rect) = 0;

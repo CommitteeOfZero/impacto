@@ -29,7 +29,9 @@ void UpdateBackground2D() {
       }
     }
 
-    Backgrounds2D[bufId]->Layer = ScrWork[SW_BG1PRI + ScrWorkBgStructSize * i];
+    Backgrounds2D[bufId]->Layers = {
+        ScrWork[SW_BG1PRI + ScrWorkBgStructSize * i],
+        ScrWork[SW_BG1PRI2 + ScrWorkBgStructSize * i]};
     Backgrounds2D[bufId]->Show = GetFlag(SF_BG1DISP + i);
 
     // ScrWork coordinates assume everything is 1280x720 regardless of design
@@ -255,7 +257,9 @@ void UpdateCharacter2D() {
         ScrWork[SW_CHA1NO + ScrWorkChaStructSize * i] = 0;
     }
     int bufId = ScrWork[SW_CHA1SURF + i];
-    Characters2D[bufId].Layer = ScrWork[SW_CHA1PRI + ScrWorkChaStructSize * i];
+    Characters2D[bufId].Layers = {
+        ScrWork[SW_CHA1PRI + ScrWorkChaStructSize * i],
+        ScrWork[SW_CHA1PRI2 + ScrWorkChaStructSize * i]};
     Characters2D[bufId].Show = GetFlag(SF_CHA1DISP + i);
     Characters2D[bufId].OffsetX =
         (ScrWork[SW_CHA1POSX + ScrWorkChaStructSize * i] +

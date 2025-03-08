@@ -6,6 +6,7 @@
 #include <map>
 
 #include "shader.h"
+#include "glc.h"
 
 namespace Impacto {
 namespace OpenGL {
@@ -100,6 +101,18 @@ class Renderer : public BaseRenderer {
                         bool alphaVideo = false) override;
 
   void CaptureScreencap(Sprite& sprite) override;
+
+  void SetFramebuffer(size_t buffer) override {
+    Flush();
+    GLC::BindFramebuffer(GL_FRAMEBUFFER, buffer == 0
+                                             ? OpenGLWindow->DrawRT
+                                             : GLC::Framebuffers[buffer - 1]);
+  };
+
+  int GetFramebufferTexture(size_t buffer) override {
+    return buffer == 0 ? OpenGLWindow->ReadRenderTexture
+                       : GLC::FramebufferTextures[buffer - 1];
+  }
 
   void EnableScissor() override;
   void SetScissorRect(RectF const& rect) override;
