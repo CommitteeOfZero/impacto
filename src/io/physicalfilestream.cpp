@@ -72,11 +72,11 @@ IoError PhysicalFileStream::Create(std::string const& fileName, Stream** out,
                                    CreateFlags flags) {
   PhysicalFileStream* result =
       new PhysicalFileStream(GetSystemDependentPath(fileName), flags);
-  if (result->ErrorCode != IoError_OK) {
+  if (auto err = result->ErrorCode; err != IoError_OK) {
     ImpLog(LL_Error, LC_IO, "Failed to open file \"%s\"\n",
            result->SourceFileName.c_str());
     delete result;
-    return result->ErrorCode;
+    return err;
   }
   if (!result->FileStream) {
     ImpLog(LL_Error, LC_IO, "Failed to open file \"%s\", error: \"%s\"\n",
@@ -152,11 +152,11 @@ int64_t PhysicalFileStream::Seek(int64_t offset, int origin) {
 
 IoError PhysicalFileStream::Duplicate(Stream** outStream) {
   PhysicalFileStream* result = new PhysicalFileStream(*this);
-  if (result->ErrorCode != IoError_OK) {
+  if (IoError err = result->ErrorCode; err != IoError_OK) {
     ImpLog(LL_Error, LC_IO, "Failed to open file \"%s\"\n",
            SourceFileName.c_str());
     delete result;
-    return result->ErrorCode;
+    return err;
   }
   if (!result->FileStream) {
     ImpLog(LL_Error, LC_IO, "Failed to open file \"%s\", error: \"%s\"\n",
