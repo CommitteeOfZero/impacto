@@ -54,7 +54,7 @@ void Configure() {
     AssertIs(LUA_TTABLE);
 
     auto dataCount = lua_rawlen(LuaState, -1);
-    ScriptMessageData = new ScriptMessageDataPair[dataCount];
+    ScriptMessageData.resize(dataCount);
     PushInitialIndex();
     while (PushNextTableElement() != 0) {
       int i = EnsureGetKeyInt() - 1;
