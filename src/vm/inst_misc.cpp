@@ -90,11 +90,17 @@ VmInstruction(InstSystemMenu) {
     case 0:
       if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW) {
       } else if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
-        // TODO: Randomize SystemMenuBgPos here (only for Chaos)
-        static_cast<UI::CCLCC::SystemMenu *>(UI::SystemMenuPtr)->InitPosition();
+        auto* sysMenuPtr =
+            static_cast<UI::CCLCC::SystemMenu*>(UI::SystemMenuPtr);
+        sysMenuPtr->InitPosition();
+        // Block input during animation
+        if (sysMenuPtr->State == UI::MenuState::Hiding ||
+            sysMenuPtr->State == UI::MenuState::Showing) {
+          ResetInstruction;
+          BlockThread;
+        }
       }
-      // UI::SystemMenuPtr->Show(); TODO: Update all games to use update loop
-      // based show
+
       break;
     case 1: {
       if (UI::SystemMenuPtr->ChoiceMade) {
