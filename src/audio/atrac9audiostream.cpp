@@ -198,7 +198,7 @@ void Atrac9AudioStream::InitWithInfo(At9ContainerInfo* container,
   DecodedBuffer =
       (int16_t*)malloc(sizeof(int16_t) * ChannelCount * SamplesPerBuffer);
   EncodedBytesPerBuffer = codecinfo->superframeSize;
-  EncodedBuffer = (uint8_t*)malloc(EncodedBytesPerBuffer);
+  EncodedBuffer = (uint8_t*)malloc(2048);
 
   ImpLog(LL_Debug, LC_Audio,
          "Created ATRAC9 stream Duration=%d, SampleRate=%d, ChannelCount=%d, "
