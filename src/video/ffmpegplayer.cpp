@@ -236,8 +236,6 @@ bool FFmpegPlayer::QueuesHaveEnoughPackets() {
 }
 
 void FFmpegPlayer::HandleSeekRequest() {
-  SeekRequest = false;
-  ReaderEOF = false;
   std::error_code ec;
   FormatContext.seek(av::Timestamp(SeekPosition, av::TimeBaseQ), ec);
   if (ec) {
@@ -257,6 +255,8 @@ void FFmpegPlayer::HandleSeekRequest() {
 
   FrameTimer = 0;
   PreviousFrameTimestamp = -1;
+  SeekRequest = false;
+  ReaderEOF = false;
 }
 
 void FFmpegPlayer::Read() {
@@ -330,15 +330,15 @@ void FFmpegPlayer::Decode() {
   };
 
   auto verifyPacket = [this, stream]() {
-    std::unique_lock packetLock(stream->PacketLock);
     while (true) {
       int prevSerial = stream->CurrentPacketSerial;
+      std::lock_guard packetLock(stream->PacketLock);
       stream->CurrentPacketSerial = stream->PacketQueue.front().Serial;
-      if (prevSerial == INT32_MIN || stream->CurrentPacketSerial == INT32_MIN) {
+      if (stream->CurrentPacketSerial == INT32_MIN) {
         break;
       }
       if (prevSerial != stream->CurrentPacketSerial) {
-        FormatContext.flush();
+        avcodec_flush_buffers(VideoStream->CodecContext.raw());
         if constexpr (MediaType == AVMEDIA_TYPE_AUDIO) {
           AudioPlayer->Stop();
         }
@@ -346,10 +346,9 @@ void FFmpegPlayer::Decode() {
       if (stream->PacketQueueSerial == stream->CurrentPacketSerial) {
         break;
       }
-      packetLock.unlock();
     }
-    AVPacketItem packet;
-    packet = std::move(stream->PacketQueue.front());
+    std::lock_guard packetLock(stream->PacketLock);
+    AVPacketItem packet = std::move(stream->PacketQueue.front());
     stream->PacketQueue.pop();
     return packet;
   };
@@ -425,13 +424,13 @@ void FFmpegPlayer::Stop() {
       AudioStream->DecodeCond.notify_one();
       AudioStream->DecoderThreadID.join();
       AudioStream.reset();
+      AudioPlayer->Unload();
     }
     if (VideoStream) {
       VideoStream->DecodeCond.notify_one();
       VideoStream->DecoderThreadID.join();
       VideoStream.reset();
     }
-    AudioPlayer->Unload();
     FrameTimer = {};
     PreviousFrameTimestamp = {};
     FormatContext.close();
