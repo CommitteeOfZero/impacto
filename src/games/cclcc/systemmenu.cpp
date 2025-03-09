@@ -280,6 +280,8 @@ void SystemMenu::Render() {
         glm::vec2{bgOffset + Profile::DesignWidth, Profile::DesignHeight},
     };
 
+    Renderer->CaptureScreencap(ScreenCap);
+
     TransformImage(bgBounds, bgDisp, angleX, angleY, angleZ, scale, offset,
                    SpriteGridVertices, DisplayGridVertices);
 
