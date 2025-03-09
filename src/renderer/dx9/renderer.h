@@ -93,6 +93,11 @@ class Renderer : public BaseRenderer {
 
   void CaptureScreencap(Sprite& sprite) override;
 
+  void SetFramebuffer(size_t buffer) override {};  // TODO: Implement
+  int GetFramebufferTexture(size_t buffer) override {
+    return 0;
+  };  // TODO: Implement
+
   void EnableScissor() override;
   void SetScissorRect(RectF const& rect) override;
   void DisableScissor() override;

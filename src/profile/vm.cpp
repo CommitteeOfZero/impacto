@@ -10,18 +10,25 @@ void Configure() {
 
   StartScript = EnsureGetMemberUint("StartScript");
   StartScriptBuffer = EnsureGetMemberUint("StartScriptBuffer");
+
   GameInstructionSet = Impacto::Vm::InstructionSet::_from_integral_unchecked(
       EnsureGetMemberInt("GameInstructionSet"));
+
   UseReturnIds = EnsureGetMemberBool("UseReturnIds");
   TryGetMemberBool("UseMsbStrings", UseMsbStrings);
   TryGetMemberBool("UseSeparateMsbArchive", UseSeparateMsbArchive);
+  TryGetMemberBool("RestartMaskUsesThreadAlpha", RestartMaskUsesThreadAlpha);
+
   ScrWorkChaStructSize = EnsureGetMemberInt("ScrWorkChaStructSize");
   ScrWorkBgStructSize = EnsureGetMemberInt("ScrWorkBgStructSize");
+  ScrWorkCaptureStructSize = EnsureGetMemberInt("ScrWorkCaptureStructSize");
+  ScrWorkBgEffStructSize = EnsureGetMemberInt("ScrWorkBgEffStructSize");
+
   TryGetMemberInt("MaxLinkedBgBuffers", MaxLinkedBgBuffers);
   TryGetMemberInt("SystemScriptBuffer", SystemScriptBuffer);
+
   TryGetMemberInt("SpeakerPortraitsScrWorkOffset",
                   SpeakerPortraitsScrWorkOffset);
-  TryGetMemberBool("RestartMaskUsesThreadAlpha", RestartMaskUsesThreadAlpha);
 
   Pop();
 }

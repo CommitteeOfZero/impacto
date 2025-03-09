@@ -1,10 +1,35 @@
 #include "glc.h"
 
+#include "../../profile/game.h"
+
 namespace Impacto {
 namespace GLC {
 
 static GLuint CurrentDrawFramebuffer = 0, CurrentReadFramebuffer = 0,
               CurrentFramebuffer = 0;
+
+void InitializeFramebuffers() {
+  glGenFramebuffers(Framebuffers.max_size(), Framebuffers.data());
+  glGenTextures(FramebufferTextures.max_size(), FramebufferTextures.data());
+
+  for (size_t buffer = 0; buffer < FramebufferTextures.size(); buffer++) {
+    const GLuint framebufferId = Framebuffers[buffer];
+    const GLuint textureId = FramebufferTextures[buffer];
+
+    glBindFramebuffer(GL_FRAMEBUFFER, framebufferId);
+    glBindTexture(GL_TEXTURE_2D, textureId);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, Window->WindowWidth,
+                 Window->WindowHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+                           textureId, 0);
+  }
+
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
 
 void BindFramebuffer(GLenum target, GLuint framebuffer) {
   switch (target) {

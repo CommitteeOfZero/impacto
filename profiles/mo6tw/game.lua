@@ -20,7 +20,9 @@ root.Vm = {
     UseReturnIds=false,
     RestartMaskUsesThreadAlpha=true,
     ScrWorkChaStructSize=20,
-    ScrWorkBgStructSize=20
+    ScrWorkBgStructSize=20,
+    ScrWorkCaptureStructSize=20,
+    ScrWorkBgEffStructSize = 20,
 };
 
 include('common/scriptinput.lua');
