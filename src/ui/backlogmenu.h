@@ -26,6 +26,8 @@ class BacklogMenu : public Menu {
   float PageY = 0.0f;
 
  protected:
+  virtual void UpdateVisibility() {};
+
   int CurrentId = 0;
   float ItemsHeight = 0.0f;
   glm::vec2 CurrentEntryPos;

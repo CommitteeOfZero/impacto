@@ -52,7 +52,7 @@ void BacklogMenu::Hide() {
   UI::BacklogMenu::Hide();
 }
 
-void BacklogMenu::Update(float dt) {
+void BacklogMenu::UpdateVisibility() {
   if (ScrWork[SW_SYSSUBMENUCT] < 32 && State == Shown) {
     Hide();
   } else if (ScrWork[SW_SYSSUBMENUCT] > 0 && State == Hidden &&
@@ -60,7 +60,17 @@ void BacklogMenu::Update(float dt) {
     Show();
   }
 
-  UI::BacklogMenu::Update(dt);
+  if (FadeAnimation.IsIn() && ScrWork[SW_SYSSUBMENUCT] == 32) {
+    State = Shown;
+    IsFocused = true;
+  } else if (State == Hiding && FadeAnimation.IsOut() &&
+             ScrWork[SW_SYSSUBMENUCT] == 0) {
+    State = Hidden;
+    IsFocused = false;
+    if (UI::FocusedMenu) UI::FocusedMenu->IsFocused = true;
+
+    MainItems->Hide();
+  }
 }
 
 void BacklogMenu::Render() {

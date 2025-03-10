@@ -9,6 +9,9 @@ namespace MO6TW {
 class BacklogMenu : public UI::BacklogMenu {
  public:
   void Render();
+
+ private:
+  void UpdateVisibility() override;
 };
 
 }  // namespace MO6TW
