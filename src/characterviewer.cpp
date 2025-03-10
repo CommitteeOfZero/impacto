@@ -27,22 +27,19 @@ static int UiWindowWidth;
 static int UiWindowHeight;
 static int UiMsaaCount;
 
-static char** BgmNames = 0;
-static uint32_t* BgmIds = 0;
-static uint32_t BgmCount = 0;
+static std::vector<std::string> BgmNames;
+static std::vector<uint32_t> BgmIds;
 static bool BgmChangeQueued;
 
 static float BgmFadeOut;
 static float BgmFadeIn;
 static bool BgmLoop;
 
-static char** BackgroundNames = 0;
-static uint32_t* BackgroundIds = 0;
-static uint32_t BackgroundCount = 0;
+static std::vector<std::string> BackgroundNames;
+static std::vector<uint32_t> BackgroundIds;
 
-static char** CharacterNames = 0;
-static uint32_t* CharacterIds = 0;
-static uint32_t CharacterCount = 0;
+static std::vector<std::string> CharacterNames;
+static std::vector<uint32_t> CharacterIds;
 
 void Init() {
   EnumerateBgm();
@@ -109,14 +106,14 @@ void Update(float dt) {
     if (ImGui::CollapsingHeader("Background", ImGuiTreeNodeFlags_DefaultOpen)) {
       uint32_t LastBackground = CurrentBackground;
 
-      const char* comboPreviewValue = BackgroundNames[CurrentBackground];
+      std::string const& comboPreviewValue = BackgroundNames[CurrentBackground];
 
       ImGui::Spacing();
-      if (ImGui::BeginCombo("##backgroundCombo", comboPreviewValue)) {
-        for (uint32_t i = 0; i < BackgroundCount; i++) {
+      if (ImGui::BeginCombo("##backgroundCombo", comboPreviewValue.c_str())) {
+        for (uint32_t i = 0; i < BackgroundNames.size(); i++) {
           ImGui::PushID(i);
           const bool isSelected = (CurrentBackground == i);
-          if (ImGui::Selectable(BackgroundNames[i], isSelected))
+          if (ImGui::Selectable(BackgroundNames[i].c_str(), isSelected))
             CurrentBackground = i;
           if (isSelected) ImGui::SetItemDefaultFocus();
           ImGui::PopID();
@@ -133,14 +130,14 @@ void Update(float dt) {
     if (ImGui::CollapsingHeader("Character", ImGuiTreeNodeFlags_DefaultOpen)) {
       uint32_t LastCharacter = CurrentCharacter;
 
-      const char* comboPreviewValue = CharacterNames[CurrentCharacter];
+      std::string const& comboPreviewValue = CharacterNames[CurrentCharacter];
 
       ImGui::Spacing();
-      if (ImGui::BeginCombo("##characterCombo", comboPreviewValue)) {
-        for (uint32_t i = 0; i < CharacterCount; i++) {
+      if (ImGui::BeginCombo("##characterCombo", comboPreviewValue.c_str())) {
+        for (uint32_t i = 0; i < CharacterNames.size(); i++) {
           ImGui::PushID(i);
           const bool isSelected = (CurrentCharacter == i);
-          if (ImGui::Selectable(CharacterNames[i], isSelected))
+          if (ImGui::Selectable(CharacterNames[i].c_str(), isSelected))
             CurrentCharacter = i;
           if (isSelected) ImGui::SetItemDefaultFocus();
           ImGui::PopID();
@@ -178,14 +175,15 @@ void Update(float dt) {
     ImGui::Spacing();
 
     if (ImGui::CollapsingHeader("BGM", ImGuiTreeNodeFlags_DefaultOpen)) {
-      const char* comboPreviewValue = BgmNames[CurrentBgm];
+      std::string const& comboPreviewValue = BgmNames[CurrentBgm];
 
       ImGui::Spacing();
-      if (ImGui::BeginCombo("##bgmCombo", comboPreviewValue)) {
-        for (uint32_t i = 0; i < BgmCount; i++) {
+      if (ImGui::BeginCombo("##bgmCombo", comboPreviewValue.c_str())) {
+        for (uint32_t i = 0; i < BgmNames.size(); i++) {
           ImGui::PushID(i);
           const bool isSelected = (CurrentBgm == i);
-          if (ImGui::Selectable(BgmNames[i], isSelected)) CurrentBgm = i;
+          if (ImGui::Selectable(BgmNames[i].c_str(), isSelected))
+            CurrentBgm = i;
           if (isSelected) ImGui::SetItemDefaultFocus();
           ImGui::PopID();
         }
@@ -246,15 +244,13 @@ static void EnumerateBackgrounds() {
     return;
   }
 
-  BackgroundCount = (uint32_t)listing.size();
-
-  BackgroundNames = (char**)malloc(BackgroundCount * sizeof(char*));
-  BackgroundIds = (uint32_t*)malloc(BackgroundCount * sizeof(uint32_t));
+  BackgroundNames.reserve(listing.size());
+  BackgroundIds.reserve(listing.size());
 
   uint32_t i = 0;
   for (auto const& file : listing) {
-    BackgroundIds[i] = file.first;
-    BackgroundNames[i] = strdup(file.second.c_str());
+    BackgroundIds.push_back(file.first);
+    BackgroundNames.push_back(std::move(file.second));
     i++;
   }
 }
@@ -268,17 +264,14 @@ static void EnumerateCharacters() {
     return;
   }
 
-  CharacterCount = (uint32_t)listing.size() / 2;
-
-  CharacterNames = (char**)malloc(CharacterCount * sizeof(char*));
-  CharacterIds = (uint32_t*)malloc(CharacterCount * sizeof(uint32_t));
+  CharacterNames.reserve(listing.size() / 2);
+  CharacterIds.reserve(listing.size() / 2);
 
   uint32_t i = 0;
   for (auto const& file : listing) {
     if (file.first % 2 == 0) {
-      CharacterIds[i] = file.first;
-      CharacterNames[i] = strdup(file.second.c_str());
-      i++;
+      CharacterIds.push_back(file.first);
+      CharacterNames.push_back(std::move(file.second));
     }
   }
 }
@@ -292,16 +285,12 @@ static void EnumerateBgm() {
     return;
   }
 
-  BgmCount = (uint32_t)listing.size();
+  BgmNames.reserve(listing.size());
+  BgmIds.reserve(listing.size());
 
-  BgmNames = (char**)malloc(BgmCount * sizeof(char*));
-  BgmIds = (uint32_t*)malloc(BgmCount * sizeof(uint32_t));
-
-  uint32_t i = 0;
   for (auto const& file : listing) {
-    BgmIds[i] = file.first;
-    BgmNames[i] = strdup(file.second.c_str());
-    i++;
+    BgmIds.push_back(file.first);
+    BgmNames.push_back(std::move(file.second));
   }
 }
 
