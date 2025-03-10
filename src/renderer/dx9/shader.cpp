@@ -22,8 +22,8 @@ void Shader::Compile(char const* name, IDirect3DDevice9* device,
   ID3DBlob* pixelShaderBuffer{};
 
   // Vertex shader
-  std::string vertexShaderPath =
-      fmt::format(FMT_COMPILE("{}/{}{}"), ShaderPath, name, VertShaderExtension);
+  std::string vertexShaderPath = fmt::format(FMT_COMPILE("{}/{}{}"), ShaderPath,
+                                             name, VertShaderExtension);
   size_t sourceRawSz;
   char* source = (char*)SDL_LoadFile(vertexShaderPath.c_str(), &sourceRawSz);
   if (!source) {
