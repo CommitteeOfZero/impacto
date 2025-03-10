@@ -62,13 +62,15 @@ bool Character2D::LoadSync(uint32_t charaId) {
         idx += 3;
         id = (0x30000000 | (id << 8)) | (atoi(&name[idx]) - 1);
       }
-      States[id].Count = count;
-
       int64_t back = stream->Position;
 
       stream->Seek(start, SEEK_SET);
-      States[id].Indices = (uint16_t*)malloc(sizeof(uint16_t) * count);
-      Io::ReadArrayLE<uint16_t>(States[id].Indices, stream, count);
+      auto [stateItr, inserted] =
+          States.emplace(id, Character2DState{count, Profile::CharaIsMvl});
+      auto mvlIndicesPtr =
+          std::get_if<Character2DState::MVLData>(&stateItr->second.Data)
+              ->Indices.get();
+      Io::ReadArrayLE<uint16_t>(mvlIndicesPtr, stream, count);
 
       stream->Seek(back, SEEK_SET);
       stream->Seek(0x18, SEEK_CUR);
@@ -77,9 +79,8 @@ bool Character2D::LoadSync(uint32_t charaId) {
     // They seem to use the whole vertex array in all states, so... read it once
     // and forget about it?
     stream->Seek(vertexOffset, SEEK_SET);
-    MvlVertices = (float*)malloc(sizeof(float) * MvlVerticesCount * 5);
-    Io::ReadArrayLE<float>(MvlVertices, stream, MvlVerticesCount * 5);
-
+    MvlVertices.resize(MvlVerticesCount * 5);
+    Io::ReadArrayLE<float>(MvlVertices.data(), stream, MvlVerticesCount * 5);
     delete stream;
   } else {
     // LAY format
@@ -112,18 +113,21 @@ bool Character2D::LoadSync(uint32_t charaId) {
       int count = StreamReadInt(stream);
 
       int64_t back = stream->Position;
-
-      States[id].Count = count;
-      States[id].ScreenCoords = (glm::vec2*)malloc(count * sizeof(glm::vec2));
-      States[id].TextureCoords = (glm::vec2*)malloc(count * sizeof(glm::vec2));
+      auto [stateItr, inserted] =
+          States.emplace(id, Character2DState{count, Profile::CharaIsMvl});
       stream->Seek(12 * (stateCount) + 8 + (start * 16), SEEK_SET);
       for (int i = 0; i < count; i++) {
-        States[id].ScreenCoords[i].x = StreamReadFloat(stream);
-        States[id].ScreenCoords[i].y = StreamReadFloat(stream);
-        States[id].TextureCoords[i].x =
-            StreamReadFloat(stream) * Profile::LayFileTexXMultiplier;
-        States[id].TextureCoords[i].y =
-            StreamReadFloat(stream) * Profile::LayFileTexYMultiplier;
+        glm::vec2 screenCoords;
+        glm::vec2 txtCoords;
+        screenCoords.x = StreamReadFloat(stream);
+        screenCoords.y = StreamReadFloat(stream);
+
+        txtCoords.x = StreamReadFloat(stream) * Profile::LayFileTexXMultiplier;
+        txtCoords.y = StreamReadFloat(stream) * Profile::LayFileTexYMultiplier;
+        auto* layDataPtr =
+            std::get_if<Character2DState::LAYData>(&stateItr->second.Data);
+        layDataPtr->ScreenCoords[i] = screenCoords;
+        layDataPtr->TextureCoords[i] = txtCoords;
       }
 
       stream->Seek(back, SEEK_SET);
@@ -141,16 +145,8 @@ void Character2D::UnloadSync() {
   CharaSpriteSheet.Texture = 0;
   Show = false;
   std::fill(Layers.begin(), Layers.end(), -1);
-  if (MvlVertices) {
-    MvlVerticesCount = 0;
-    free(MvlVertices);
-  }
+  MvlVertices.clear();
   MvlIndicesCount = 0;
-  for (auto state : States) {
-    if (state.second.Indices) free(state.second.Indices);
-    if (state.second.ScreenCoords) free(state.second.ScreenCoords);
-    if (state.second.TextureCoords) free(state.second.TextureCoords);
-  }
   States.clear();
   StatesToDraw.clear();
 }
@@ -178,10 +174,12 @@ void Character2D::Update(float dt) {
                            EyeFrame);  // eye
 
     for (auto id : StatesToDraw) {
-      if (States.count(id)) {
-        Character2DState state = States[id];
-        memcpy(&MvlIndices[MvlIndicesCount], state.Indices,
-               state.Count * sizeof(uint16_t));
+      if (auto stateItr = States.find(id); stateItr != States.end()) {
+        Character2DState const& state = stateItr->second;
+        auto& stateIndices =
+            std::get_if<Character2DState::MVLData>(&state.Data)->Indices;
+        std::copy(stateIndices.get(), stateIndices.get() + state.Count,
+                  MvlIndices.begin() + MvlIndicesCount);
         MvlIndicesCount += state.Count;
       }
     }
@@ -204,19 +202,22 @@ void Character2D::Render(int layer) {
   if (Status != LS_Loaded || !OnLayer(layer) || !Show) return;
 
   if (Profile::CharaIsMvl) {
-    Renderer->DrawCharacterMvl(
-        CharaSprite, glm::vec2(OffsetX, OffsetY), MvlVerticesCount, MvlVertices,
-        MvlIndicesCount, MvlIndices, false, Tint, glm::vec2(ScaleX, ScaleY));
+    Renderer->DrawCharacterMvl(CharaSprite, glm::vec2(OffsetX, OffsetY),
+                               MvlVerticesCount, MvlVertices.data(),
+                               MvlIndicesCount, MvlIndices.data(), false, Tint,
+                               glm::vec2(ScaleX, ScaleY));
   } else {
     for (auto id : StatesToDraw) {
-      if (States.count(id)) {
-        Character2DState state = States[id];
+      if (auto stateItr = States.find(id); stateItr != States.end()) {
+        Character2DState const& state = stateItr->second;
+        const auto& layData =
+            *std::get_if<Character2DState::LAYData>(&state.Data);
         for (int i = 0; i < state.Count; i++) {
-          CharaSprite.Bounds = RectF(state.TextureCoords[i].x,
-                                     state.TextureCoords[i].y, 30.0f, 30.0f);
+          CharaSprite.Bounds = RectF(layData.TextureCoords[i].x,
+                                     layData.TextureCoords[i].y, 30.0f, 30.0f);
           Renderer->DrawSprite(CharaSprite,
-                               glm::vec2(state.ScreenCoords[i].x + OffsetX,
-                                         state.ScreenCoords[i].y + OffsetY),
+                               glm::vec2(layData.ScreenCoords[i].x + OffsetX,
+                                         layData.ScreenCoords[i].y + OffsetY),
                                Tint);
         }
       }
