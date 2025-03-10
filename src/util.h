@@ -11,6 +11,10 @@
 #include <chrono>
 #include <span/span.hpp>
 
+#if defined(WIN32) || defined(_WIN32)
+#include <malloc.h>
+#endif
+
 // TODO own _malloca for gcc
 
 #if defined(_malloca)
@@ -182,8 +186,8 @@ constexpr glm::vec4 RgbIntToFloat(uint32_t rgb) {
 
 uint32_t GetHashCode(uint8_t* data, int length);
 
-char* DumpMat4(glm::mat4* matrix, const char* columnSeparator = "\t",
-               const char* rowSeparator = "\n");
+std::string DumpMat4(glm::mat4* matrix, std::string_view columnSeparator = "\t",
+                     std::string_view rowSeparator = "\n");
 
 // Thanks https://graphics.stanford.edu/~seander/bithacks.html#IntegerLog
 constexpr int Uint32Log2(uint32_t v) {

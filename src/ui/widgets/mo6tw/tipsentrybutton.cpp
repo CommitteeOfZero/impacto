@@ -24,9 +24,7 @@ TipsEntryButton::TipsEntryButton(int id, TipsDataRecord* tipRecord,
   Enabled = true;
   HighlightOffset = TipListEntryHighlightOffset;
   PrevUnreadState = TipEntryRecord->IsUnread;
-  char tipNumber[5];
-  sprintf(tipNumber, "%3d.", tipRecord->Id + 1);
-  TextLayoutPlainString(std::string(tipNumber), TipNumber,
+  TextLayoutPlainString(fmt::format("{:3d}.", tipRecord->Id + 1), TipNumber,
                         Profile::Dialogue::DialogueFont, TipListEntryFontSize,
                         Profile::Dialogue::ColorTable[DefaultColorIndex], 1.0f,
                         glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);

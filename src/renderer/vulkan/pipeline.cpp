@@ -61,25 +61,21 @@ void Pipeline::CreateWithShader(
     size_t attributeNum, VkDescriptorSetLayout setLayout) {
   ImpLog(LL_Debug, LC_Render, "Creating pipeline with shader \"%s\"\n", name);
 
-  size_t pathSz =
-      std::max(
-          snprintf(NULL, 0, "%s/%s%s", ShaderPath, name, FragShaderExtension),
-          snprintf(NULL, 0, "%s/%s%s", ShaderPath, name, VertShaderExtension)) +
-      1;
-
-  char* fullPath = (char*)ImpStackAlloc(pathSz);
-
   size_t vertShaderCodeSize;
-  sprintf(fullPath, "%s/%s%s", ShaderPath, name, VertShaderExtension);
-  char* vertShaderCode = (char*)SDL_LoadFile(fullPath, &vertShaderCodeSize);
+  std::string vertexShaderPath = fmt::format(FMT_COMPILE("{}/{}{}"), ShaderPath,
+                                             name, VertShaderExtension);
+  char* vertShaderCode =
+      (char*)SDL_LoadFile(vertexShaderPath.c_str(), &vertShaderCodeSize);
   if (!vertShaderCode) {
     ImpLog(LL_Debug, LC_Render, "Failed to read shader source file\n");
     Window->Shutdown();
   }
 
   size_t fragShaderCodeSize;
-  sprintf(fullPath, "%s/%s%s", ShaderPath, name, FragShaderExtension);
-  char* fragShaderCode = (char*)SDL_LoadFile(fullPath, &fragShaderCodeSize);
+  std::string fragShaderPath = fmt::format(FMT_COMPILE("{}/{}{}"), ShaderPath,
+                                           name, FragShaderExtension);
+  char* fragShaderCode =
+      (char*)SDL_LoadFile(fragShaderPath.c_str(), &fragShaderCodeSize);
   if (!fragShaderCode) {
     ImpLog(LL_Debug, LC_Render, "Failed to read shader source file\n");
     Window->Shutdown();
