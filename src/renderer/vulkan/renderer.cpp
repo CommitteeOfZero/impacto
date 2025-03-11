@@ -56,7 +56,7 @@ DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
               VkDebugUtilsMessageTypeFlagsEXT messageType,
               const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
               void* pUserData) {
-  Impacto::ImpLog(LL_Debug, LC_Render, "validation layer: %s\n",
+  Impacto::ImpLog(LL_Debug, LC_Render, "validation layer: {:s}\n",
                   pCallbackData->pMessage);
   return VK_FALSE;
 }
@@ -115,8 +115,8 @@ void Renderer::CreateInstance() {
   VkResult result = vkCreateInstance(&instanceCreateInfo, nullptr, &Instance);
 
   if (result != VK_SUCCESS) {
-    ImpLog(LL_Error, LC_Render, "Failed to create Vulkan instance! 0x%04x\n",
-           result);
+    ImpLog(LL_Error, LC_Render, "Failed to create Vulkan instance! 0x{:04x}\n",
+           to_underlying(result));
     Window->Shutdown();
   }
 }
@@ -951,7 +951,8 @@ void Renderer::EndFrame() {
                                InFlightFences[CurrentFrameIndex]);
   if (res != VK_SUCCESS) {
     ImpLog(LL_Debug, LC_Render,
-           "Failed to submit draw command buffer! 0x%04x\n", res);
+           "Failed to submit draw command buffer! 0x{:04x}\n",
+           to_underlying(res));
     Window->Shutdown();
   }
 
@@ -1899,8 +1900,8 @@ void Renderer::QuadSetPosition3DRotated(RectF const& transformedQuad,
 void Renderer::EnsureTextureBound(unsigned int texture) {
   if (CurrentTexture != texture) {
     ImpLogSlow(LL_Trace, LC_Render,
-               "Renderer->EnsureTextureBound flushing because texture %d is "
-               "not %d\n",
+               "Renderer->EnsureTextureBound flushing because texture {:d} is "
+               "not {:d}\n",
                CurrentTexture, texture);
     Flush();
 

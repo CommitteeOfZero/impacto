@@ -113,7 +113,7 @@ bool AchievementSystemPS3::MountAchievementFile() {
                                          &iconStream);
 
     if (err != IoError_OK) {
-      ImpLog(LL_Error, LC_IO, "Couldn't open icon for TROP%03d\n", id);
+      ImpLog(LL_Error, LC_IO, "Couldn't open icon for TROP{:03d}\n", id);
       delete baseStream;
       return false;
     }
@@ -122,7 +122,8 @@ bool AchievementSystemPS3::MountAchievementFile() {
     texture.Init(TexFmt_RGBA, ICON_SIZE, ICON_SIZE);
 
     if (!texture.Load(iconStream)) {
-      ImpLog(LL_Error, LC_IO, "Unable to load texture for TROP%03d.PNG\n", id);
+      ImpLog(LL_Error, LC_IO, "Unable to load texture for TROP{:03d}.PNG\n",
+             id);
       delete iconStream;
       delete baseStream;
       return false;

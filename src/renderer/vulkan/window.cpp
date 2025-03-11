@@ -19,8 +19,8 @@ void VulkanWindow::UpdateDimensions() {
       MsaaCount != lastMsaa || RenderScale != lastRenderScale) {
     WindowDimensionsChanged = true;
     ImpLog(LL_Debug, LC_General,
-           "Drawable size (pixels): %d x %d (%dx MSAA requested, render scale "
-           "%f)\n",
+           "Drawable size (pixels): {:d} x {:d} ({:d}x MSAA requested, render "
+           "scale {:f})\n",
            WindowWidth, WindowHeight, MsaaCount, RenderScale);
   }
   lastWidth = WindowWidth;
@@ -62,7 +62,7 @@ void VulkanWindow::Init() {
   IsInit = true;
 
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) != 0) {
-    ImpLog(LL_Fatal, LC_General, "SDL initialisation failed: %s\n",
+    ImpLog(LL_Fatal, LC_General, "SDL initialisation failed: {:s}\n",
            SDL_GetError());
     Shutdown();
     return;
@@ -83,14 +83,13 @@ void VulkanWindow::Init() {
       Profile::ResolutionWidth, Profile::ResolutionHeight, windowFlags);
 
   if (SDLWindow == NULL) {
-    ImpLog(LL_Error, LC_General, SDL_GetError());
-    ImpLog(LL_Error, LC_General, "Window creation failed: %s\n",
+    ImpLog(LL_Error, LC_General, "Window creation failed: {:s}\n",
            SDL_GetError());
     return;
   }
 
   SDL_GetWindowSize(SDLWindow, &WindowWidth, &WindowHeight);
-  ImpLog(LL_Debug, LC_General, "Window size (screen coords): %d x %d\n",
+  ImpLog(LL_Debug, LC_General, "Window size (screen coords): {:d} x {:d}\n",
          WindowWidth, WindowHeight);
 }
 

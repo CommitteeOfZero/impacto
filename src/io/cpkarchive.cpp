@@ -347,8 +347,8 @@ IoError CpkArchive::ReadEtoc(int64_t etocOffset) {
 }
 
 IoError CpkArchive::Create(Stream* stream, VfsArchive** outArchive) {
-  ImpLog(LL_Trace, LC_IO, "Trying to mount \"%s\" as CPK\n",
-         stream->Meta.FileName.c_str());
+  ImpLog(LL_Trace, LC_IO, "Trying to mount \"{:s}\" as CPK\n",
+         stream->Meta.FileName);
 
   CpkArchive* result = 0;
 
@@ -428,9 +428,9 @@ IoError CpkArchive::Open(FileMeta* file, Stream** outStream) {
 
   if (entry->Compressed) {
     ImpLog(LL_Debug, LC_IO,
-           "CPK cannot stream LAYLA compressed file \"%s\" in archive "
-           "\"%s\"\n",
-           entry->FileName.c_str(), BaseStream->Meta.FileName.c_str());
+           "CPK cannot stream LAYLA compressed file \"{:s}\" in archive "
+           "\"{:s}\"\n",
+           entry->FileName, BaseStream->Meta.FileName);
     return IoError_Fail;
   } else {
     err = UncompressedStream::Create(BaseStream, entry->Offset, entry->Size,
@@ -438,8 +438,8 @@ IoError CpkArchive::Open(FileMeta* file, Stream** outStream) {
   }
   if (err != IoError_OK) {
     ImpLog(LL_Error, LC_IO,
-           "CPK file open failed for file \"%s\" in archive \"%s\"\n",
-           entry->FileName.c_str(), BaseStream->Meta.FileName.c_str());
+           "CPK file open failed for file \"{:s}\" in archive \"{:s}\"\n",
+           entry->FileName, BaseStream->Meta.FileName);
   }
   return err;
 }
@@ -537,9 +537,9 @@ IoError CpkArchive::Slurp(FileMeta* file, void** outBuffer, int64_t* outSize) {
   int64_t pos = BaseStream->Seek(entry->Offset, RW_SEEK_SET);
   if (pos != entry->Offset) {
     ImpLog(LL_Error, LC_IO,
-           "CPK failed to seek when slurping compressed file \"%s\" in "
-           "archive \"%s\"\n",
-           entry->FileName.c_str(), BaseStream->Meta.FileName.c_str());
+           "CPK failed to seek when slurping compressed file \"{:s}\" in "
+           "archive \"{:s}\"\n",
+           entry->FileName, BaseStream->Meta.FileName);
     return IoError_Fail;
   }
   char* compressedData = (char*)malloc(entry->CompressedSize);
@@ -547,9 +547,9 @@ IoError CpkArchive::Slurp(FileMeta* file, void** outBuffer, int64_t* outSize) {
   if (read != entry->CompressedSize) {
     ImpLog(LL_Error, LC_IO,
            "CPK failed to read compressed data when slurping compressed file "
-           "\"%s\" in "
-           "archive \"%s\"\n",
-           entry->FileName.c_str(), BaseStream->Meta.FileName.c_str());
+           "\"{:s}\" in "
+           "archive \"{:s}\"\n",
+           entry->FileName, BaseStream->Meta.FileName);
     free(compressedData);
     return IoError_Fail;
   }

@@ -26,16 +26,15 @@ VmInstruction(InstCreateSurf) {
   PopExpression(width);
   PopExpression(height);
   ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction CreateSurf(type: %i, surfaceId: "
-             "%i, width: %i, "
-             "height: %i)\n",
+             "STUB instruction CreateSurf(type: {:d}, surfaceId: "
+             "{:d}, width: {:d}, height: {:d})\n",
              type, surfaceId, width, height);
 }
 VmInstruction(InstReleaseSurf) {
   StartInstruction;
   PopExpression(surfaceId);
   ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction ReleaseSurf(surfaceId: %i)\n", surfaceId);
+             "STUB instruction ReleaseSurf(surfaceId: {:d})\n", surfaceId);
   if (surfaceId < 8) {
     if (Backgrounds2D[surfaceId]->Status == LS_Loaded) {
       Backgrounds2D[surfaceId]->Unload();
@@ -47,9 +46,10 @@ VmInstruction(InstLoadPic) {
   PopExpression(surfaceId);
   PopExpression(archiveId);
   PopExpression(fileId);
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction LoadPic(surfaceId: %i, width: %i, height: %i)\n",
-             surfaceId, archiveId, fileId);
+  ImpLogSlow(
+      LL_Warning, LC_VMStub,
+      "STUB instruction LoadPic(surfaceId: {:d}, width: {:d}, height: {:d})\n",
+      surfaceId, archiveId, fileId);
   if (surfaceId < 8) {
     switch (archiveId) {
       case 0: {  // bg archive
@@ -75,16 +75,16 @@ VmInstruction(InstSurfFill) {
   PopExpression(b);
   PopExpression(a);
   ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction SurfFill(surfaceId: %i, r: "
-             "%i, g: %i, "
-             "b: %i, a: %i)\n",
+             "STUB instruction SurfFill(surfaceId: {:d}, r: "
+             "{:d}, g: {:d}, "
+             "b: {:d}, a: {:d})\n",
              surfaceId, r, g, b, a);
 }
 VmInstruction(InstSCcapture) {
   StartInstruction;
   PopExpression(surfaceId);
   ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction SCcapture(surfaceId: %i)\n", surfaceId);
+             "STUB instruction SCcapture(surfaceId: {:d})\n", surfaceId);
 }
 VmInstruction(InstBGload) {
   StartInstruction;
@@ -135,8 +135,8 @@ VmInstruction(InstBGsetColor) {
   PopExpression(bufferId);
   PopExpression(color);
   ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction BGsetColor(bufferId: %i, color: %i)\n", bufferId,
-             color);
+             "STUB instruction BGsetColor(bufferId: {:d}, color: {:d})\n",
+             bufferId, color);
 }
 VmInstruction(InstBGsetLink) {
   StartInstruction;
@@ -286,12 +286,12 @@ VmInstruction(InstCHAmove) {
       PopLocalLabel(seqDataBlock);
       (void)seqDataBlock;
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction CHAmoveSetSeq(arg1: %i)\n", arg1);
+                 "STUB instruction CHAmoveSetSeq(arg1: {:d})\n", arg1);
     } break;
     case 2: {
       PopExpression(arg1);
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction CHAmoveExec_Blocking(arg1: %i)\n", arg1);
+                 "STUB instruction CHAmoveExec_Blocking(arg1: {:d})\n", arg1);
     } break;
     case 3:
       ImpLogSlow(LL_Warning, LC_VMStub,
@@ -301,9 +301,10 @@ VmInstruction(InstCHAmove) {
       PopExpression(arg1);
       PopExpression(destination);
       ScrWork[destination] = 0;
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction CHAmoveChkEnd(arg1: %i, destination: %i)\n",
-                 arg1, destination);
+      ImpLogSlow(
+          LL_Warning, LC_VMStub,
+          "STUB instruction CHAmoveChkEnd(arg1: {:d}, destination: {:d})\n",
+          arg1, destination);
     } break;
     case 5: {
       PopExpression(arg1);
@@ -313,10 +314,11 @@ VmInstruction(InstCHAmove) {
       PopExpression(arg5);
       PopExpression(arg6);
       PopExpression(arg7);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction CHAmoveSetSeqDirect(arg1: %i, arg2: %i, "
-                 "arg3: %i, arg4: %i, arg5: %i, arg6: %i, arg7: %i)\n",
-                 arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+      ImpLogSlow(
+          LL_Warning, LC_VMStub,
+          "STUB instruction CHAmoveSetSeqDirect(arg1: {:d}, arg2: {:d}, "
+          "arg3: {:d}, arg4: {:d}, arg5: {:d}, arg6: {:d}, arg7: {:d})\n",
+          arg1, arg2, arg3, arg4, arg5, arg6, arg7);
     } break;
   }
 }
@@ -325,7 +327,7 @@ VmInstruction(InstBGloadEx) {
   PopExpression(bufferId);
   PopExpression(backgroundId);
   ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction BGloadEx(bufferId: %i, backgroundId: %i)\n",
+             "STUB instruction BGloadEx(bufferId: {:d}, backgroundId: {:d})\n",
              bufferId, backgroundId);
 }
 VmInstruction(InstCHArelease) {
@@ -343,14 +345,14 @@ VmInstruction(InstGetCharaPause) {
   PopExpression(bufferId);
   PopExpression(dest);
   ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction GetCharaPause(bufferId: %i, dest: %i)\n",
+             "STUB instruction GetCharaPause(bufferId: {:d}, dest: {:d})\n",
              bufferId, dest);
 }
 VmInstruction(InstBGfadeExpInit) {
   StartInstruction;
   PopExpression(arg1);
   ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction BGfadeExpInit(arg1: %i)\n", arg1);
+             "STUB instruction BGfadeExpInit(arg1: {:d})\n", arg1);
 }
 VmInstruction(InstBGeffectWave) {
   StartInstruction;
@@ -359,7 +361,7 @@ VmInstruction(InstBGeffectWave) {
     case 0:
     case 2:  // Unimplemented
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction BGeffectWave(type: %i)\n", type);
+                 "STUB instruction BGeffectWave(type: {:d})\n", type);
       break;
     case 1: {  // BGwaveSetWave
       PopExpression(arg1);
@@ -367,10 +369,11 @@ VmInstruction(InstBGeffectWave) {
       PopExpression(arg3);
       PopExpression(arg4);
       PopExpression(arg5);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction BGeffectWave(type: BGwaveSetWave, arg1: %i, "
-                 "arg2: %i, arg3: %i, arg4: %i, arg5: %i)\n",
-                 arg1, arg2, arg3, arg4, arg5);
+      ImpLogSlow(
+          LL_Warning, LC_VMStub,
+          "STUB instruction BGeffectWave(type: BGwaveSetWave, arg1: {:d}, "
+          "arg2: {:d}, arg3: {:d}, arg4: {:d}, arg5: {:d})\n",
+          arg1, arg2, arg3, arg4, arg5);
     } break;
     case 3: {  // CHAeffectWave
       PopExpression(arg1);
@@ -378,10 +381,11 @@ VmInstruction(InstBGeffectWave) {
       PopExpression(arg3);
       PopExpression(arg4);
       PopExpression(arg5);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction BGeffectWave(type: CHAeffectWave, arg1: %i, "
-                 "arg2: %i, arg3: %i, arg4: %i, arg5: %i)\n",
-                 arg1, arg2, arg3, arg4, arg5);
+      ImpLogSlow(
+          LL_Warning, LC_VMStub,
+          "STUB instruction BGeffectWave(type: CHAeffectWave, arg1: {:d}, "
+          "arg2: {:d}, arg3: {:d}, arg4: {:d}, arg5: {:d})\n",
+          arg1, arg2, arg3, arg4, arg5);
     } break;
     case 4: {  // BGwaveResetWave
       PopExpression(arg1);
@@ -392,8 +396,8 @@ VmInstruction(InstBGeffectWave) {
       PopExpression(arg6);
       ImpLogSlow(
           LL_Warning, LC_VMStub,
-          "STUB instruction BGeffectWave(type: BGwaveResetWave, arg1: %i, "
-          "arg2: %i, arg3: %i, arg4: %i, arg5: %i, arg6: %i)\n",
+          "STUB instruction BGeffectWave(type: BGwaveResetWave, arg1: {:d}, "
+          "arg2: {:d}, arg3: {:d}, arg4: {:d}, arg5: {:d}, arg6: {:d})\n",
           arg1, arg2, arg3, arg4, arg5, arg6);
     } break;
     case 5: {  // CHAwaveResetWave
@@ -405,8 +409,8 @@ VmInstruction(InstBGeffectWave) {
       PopExpression(arg6);
       ImpLogSlow(
           LL_Warning, LC_VMStub,
-          "STUB instruction BGeffectWave(type: CHAwaveResetWave, arg1: %i, "
-          "arg2: %i, arg3: %i, arg4: %i, arg5: %i, arg6: %i)\n",
+          "STUB instruction BGeffectWave(type: CHAwaveResetWave, arg1: {:d}, "
+          "arg2: {:d}, arg3: {:d}, arg4: {:d}, arg5: {:d}, arg6: {:d})\n",
           arg1, arg2, arg3, arg4, arg5, arg6);
     } break;
     case 10:  // EFFwaveInitWave
@@ -421,8 +425,8 @@ VmInstruction(InstBGeffectWave) {
       PopExpression(arg5);
       ImpLogSlow(
           LL_Warning, LC_VMStub,
-          "STUB instruction BGeffectWave(type: EFFwaveSetWave, arg1: %i, "
-          "arg2: %i, arg3: %i, arg4: %i, arg5: %i)\n",
+          "STUB instruction BGeffectWave(type: EFFwaveSetWave, arg1: {:d}, "
+          "arg2: {:d}, arg3: {:d}, arg4: {:d}, arg5: {:d})\n",
           arg1, arg2, arg3, arg4, arg5);
     } break;
     case 12: {  // EFFwaveResetWave
@@ -434,8 +438,8 @@ VmInstruction(InstBGeffectWave) {
       PopExpression(arg6);
       ImpLogSlow(
           LL_Warning, LC_VMStub,
-          "STUB instruction BGeffectWave(type: EFFwaveResetWave, arg1: %i, "
-          "arg2: %i, arg3: %i, arg4: %i, arg5: %i, arg6: %i)\n",
+          "STUB instruction BGeffectWave(type: EFFwaveResetWave, arg1: {:d}, "
+          "arg2: {:d}, arg3: {:d}, arg4: {:d}, arg5: {:d}, arg6: {:d})\n",
           arg1, arg2, arg3, arg4, arg5, arg6);
     } break;
   }
@@ -462,7 +466,7 @@ VmInstruction(InstBGeffect) {
       PopExpression(arg1);
     } break;
   }
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction BGeffect(arg1: %i)\n",
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction BGeffect(arg1: {:d})\n",
              type);
 }
 
@@ -474,8 +478,8 @@ VmInstruction(InstBGeffectMO7) {
       PopExpression(arg1);
     } break;
   }
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction BGeffectMO7(arg1: %i)\n",
-             type);
+  ImpLogSlow(LL_Warning, LC_VMStub,
+             "STUB instruction BGeffectMO7(arg1: {:d})\n", type);
 }
 
 VmInstruction(InstFACEload) {

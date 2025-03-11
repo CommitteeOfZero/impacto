@@ -354,7 +354,7 @@ void TitleMenu::Update(float dt) {
       } break;
       case 10: {
         ImpLogSlow(LL_Warning, LC_VMStub,
-                   "TitleMenu::Update: Unimplemented title mode %d\n",
+                   "TitleMenu::Update: Unimplemented title mode {:d}\n",
                    ScrWork[SW_TITLEMODE]);
       } break;
     }
@@ -558,7 +558,7 @@ void TitleMenu::Render() {
       } break;
       case 10: {
         ImpLogSlow(LL_Warning, LC_VMStub,
-                   "TitleMenu::Render: Unimplemented title mode %d\n",
+                   "TitleMenu::Render: Unimplemented title mode {:d}\n",
                    ScrWork[SW_TITLEMODE]);
       } break;
       case 11: {  // Initial Fade In

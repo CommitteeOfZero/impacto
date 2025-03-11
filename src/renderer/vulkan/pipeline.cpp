@@ -59,7 +59,7 @@ void Pipeline::CreateWithShader(
     char const* name, VkVertexInputBindingDescription bindingDescription,
     VkVertexInputAttributeDescription* attributeDescriptions,
     size_t attributeNum, VkDescriptorSetLayout setLayout) {
-  ImpLog(LL_Debug, LC_Render, "Creating pipeline with shader \"%s\"\n", name);
+  ImpLog(LL_Debug, LC_Render, "Creating pipeline with shader \"{:s}\"\n", name);
 
   size_t vertShaderCodeSize;
   std::string vertexShaderPath = fmt::format(FMT_COMPILE("{}/{}{}"), ShaderPath,

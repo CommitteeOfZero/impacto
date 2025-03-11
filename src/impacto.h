@@ -20,6 +20,8 @@
 #endif
 
 #include <fmt/base.h>
+#include <fmt/std.h>
 #include <fmt/compile.h>
 #include <fmt/format.h>
 #include <fmt/printf.h>
+#include <fmt/chrono.h>

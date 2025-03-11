@@ -58,7 +58,7 @@ VmInstruction(InstSEplay) {
                                                    0.0f);
   } else {
     ImpLogSlow(LL_Warning, LC_VMStub,
-               "STUB instruction SEplay(channel: %i, type: %i)\n", channel,
+               "STUB instruction SEplay(channel: {:d}, type: {:d})\n", channel,
                type);
   }
 }
@@ -93,7 +93,7 @@ VmInstruction(InstSSEstop) {
 VmInstruction(InstBGMflag) {
   StartInstruction;
   PopExpression(arg1);
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction BGMflag(arg1: %i)\n",
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction BGMflag(arg1: {:d})\n",
              arg1);
 }
 VmInstruction(InstVoicePlay) {
@@ -126,7 +126,7 @@ VmInstruction(InstVoicePlayWait) {
   StartInstruction;
   PopUint8(channel);
   ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction VoicePlayWait(channel: %i)\n", channel);
+             "STUB instruction VoicePlayWait(channel: {:d})\n", channel);
 }
 VmInstruction(InstBGMduelPlay) {
   StartInstruction;
@@ -135,24 +135,25 @@ VmInstruction(InstBGMduelPlay) {
     case 0: {
       PopExpression(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction BGMduelPlay(type: %i, arg1: %i, arg2: %i)\n",
-                 type, arg1, arg2);
+      ImpLogSlow(
+          LL_Warning, LC_VMStub,
+          "STUB instruction BGMduelPlay(type: {:d}, arg1: {:d}, arg2: {:d})\n",
+          type, arg1, arg2);
     } break;
     case 1: {
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction BGMduelPlay(type: %i)\n", type);
+                 "STUB instruction BGMduelPlay(type: {:d})\n", type);
     } break;
     case 2: {
       PopExpression(arg1);
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction BGMduelPlay(type: %i, arg1: %i)\n", type,
+                 "STUB instruction BGMduelPlay(type: {:d}, arg1: {:d})\n", type,
                  arg1);
     } break;
     case 3: {
       PopExpression(arg1);
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction BGMduelPlay(type: %i, arg1: %i)\n", type,
+                 "STUB instruction BGMduelPlay(type: {:d}, arg1: {:d})\n", type,
                  arg1);
     } break;
   }
@@ -166,14 +167,14 @@ VmInstruction(InstSNDpause) {
              : Audio::Channels[Audio::AC_SE0 + i]->Resume();
   }
 
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SNDpause(paused: %i)\n",
+  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SNDpause(paused: {:d})\n",
              paused);
 }
 VmInstruction(InstSEplayWait) {
   StartInstruction;
   PopUint8(channel);
   ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction SEplayWait(channel: %i)\n", channel);
+             "STUB instruction SEplayWait(channel: {:d})\n", channel);
 }
 VmInstruction(InstResetSoundAll) {
   StartInstruction;
@@ -191,7 +192,8 @@ VmInstruction(InstSysVoicePlay) {
   PopUint8(arg1);
   PopExpression(arg2);
   ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction SysVoicePlay(arg1: %i, arg2: %i)\n", arg1, arg2);
+             "STUB instruction SysVoicePlay(arg1: {:d}, arg2: {:d})\n", arg1,
+             arg2);
 }
 VmInstruction(InstSysSeload) {
   StartInstruction;

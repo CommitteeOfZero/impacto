@@ -650,6 +650,7 @@ if (NX OR EMSCRIPTEN)
     set(IMPACTO_DISABLE_VULKAN ON)
     set(IMPACTO_DISABLE_DX9 ON)
     set(IMPACTO_DISABLE_MMAP ON)
+    set(BUILD_SHARED_LIBS OFF)
 endif ()
 
 if(ANDROID)
@@ -702,6 +703,10 @@ if(ANDROID OR NX)
     set(LIBATRAC9_BUILD_SHARED OFF)
 endif()
 
+if(NX)
+    add_compile_definitions(__SWITCH__)
+endif()
+
 # dependencies
 FetchContent_Declare(
     glm
@@ -725,7 +730,7 @@ FetchContent_Declare(
 FetchContent_Declare(
     fmt
     GIT_REPOSITORY "https://github.com/fmtlib/fmt.git"
-    GIT_TAG "11.0.2"
+    GIT_TAG "11.1.4"
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/fmtlib
     SYSTEM
     EXCLUDE_FROM_ALL
@@ -1015,6 +1020,9 @@ if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
 
     if (NOT VCPKG_TOOLCHAIN)
         set(AVCPP_PATCH git apply ${CMAKE_CURRENT_SOURCE_DIR}/vendor/patches/avcpp.patch)
+        if(NX)
+            set(AV_ENABLE_SHARED OFF)
+        endif()
         FetchContent_Declare(
             avcpp
             GIT_REPOSITORY "https://github.com/h4tr3d/avcpp"

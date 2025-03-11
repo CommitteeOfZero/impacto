@@ -65,9 +65,10 @@ static bool ParseAt9Riff(Stream* stream, At9ContainerInfo* info) {
 
         info->ChannelCount = SDL_SwapLE16(*(uint16_t*)(fmtData + 2));
         if (info->ChannelCount != 1 && info->ChannelCount != 2) {
-          ImpLog(LL_Error, LC_Audio,
-                 "Encountered ATRAC9 file with unsupported channel count %d\n",
-                 info->ChannelCount);
+          ImpLog(
+              LL_Error, LC_Audio,
+              "Encountered ATRAC9 file with unsupported channel count {:d}\n",
+              info->ChannelCount);
           return false;
         }
 
@@ -150,7 +151,7 @@ AudioStream* Atrac9AudioStream::Create(Stream* stream) {
 
   ret = Atrac9InitDecoder(At9, container.ConfigData);
   if (ret != 0) {
-    ImpLog(LL_Error, LC_Audio, "Atrac9InitDecoder failed with %d\n", ret);
+    ImpLog(LL_Error, LC_Audio, "Atrac9InitDecoder failed with {:d}\n", ret);
     goto fail;
   }
 
@@ -201,8 +202,9 @@ void Atrac9AudioStream::InitWithInfo(At9ContainerInfo* container,
   EncodedBuffer = (uint8_t*)malloc(2048);
 
   ImpLog(LL_Debug, LC_Audio,
-         "Created ATRAC9 stream Duration=%d, SampleRate=%d, ChannelCount=%d, "
-         "LoopStart=%d, LoopEnd=%d\n",
+         "Created ATRAC9 stream Duration={:d}, SampleRate={:d}, "
+         "ChannelCount={:d}, "
+         "LoopStart={:d}, LoopEnd={:d}\n",
          Duration, SampleRate, ChannelCount, LoopStart, LoopEnd);
 
   BaseStream->Seek(StreamDataOffset, RW_SEEK_SET);
@@ -230,7 +232,7 @@ bool Atrac9AudioStream::DecodeBuffer() {
     int bytesUsed;
     int err = Atrac9Decode(At9, encoded, decoded, &bytesUsed);
     if (err != 0) {
-      ImpLog(LL_Error, LC_Audio, "Atrac9Decode error %d\n", err);
+      ImpLog(LL_Error, LC_Audio, "Atrac9Decode error {:d}\n", err);
       return false;
     }
     encoded += bytesUsed;

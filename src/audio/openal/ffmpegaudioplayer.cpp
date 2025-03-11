@@ -1,7 +1,6 @@
 #include "ffmpegaudioplayer.h"
 #include "../../video/ffmpegplayer.h"
 #include "../audiosystem.h"
-#include "al.h"
 #include <mutex>
 #include <audioresampler.h>
 #include <timestamp.h>
@@ -129,7 +128,7 @@ void FFmpegAudioPlayer::Process() {
   float gain = Audio::MasterVolume * Audio::GroupVolumes[Audio::ACG_Movie];
   alSourcef(ALSource, AL_GAIN, gain);
   Player->AudioStream->FrameLock.lock();
-  ImpLogSlow(LL_Trace, LC_Video, "AudioStream->FrameQueue.size() = %d\n",
+  ImpLogSlow(LL_Trace, LC_Video, "AudioStream->FrameQueue.size() = {:d}\n",
              Player->AudioStream->FrameQueue.size());
   if (!Player->AudioStream->FrameQueue.empty()) {
     Player->AudioStream->FrameLock.unlock();
@@ -149,7 +148,7 @@ void FFmpegAudioPlayer::Process() {
     samplePosition = std::min(samplePosition, Player->AudioStream->Duration);
     auto audioTime = av::Timestamp(samplePosition, av::Rational(1, sampleRate));
     double audioS = audioTime.seconds();
-    ImpLogSlow(LL_Trace, LC_Video, "samplePosition: %f\n", audioS);
+    ImpLogSlow(LL_Trace, LC_Video, "samplePosition: {:f}\n", audioS);
     AudioClock.Set(audioS, 0);
 
     FillAudioBuffers();

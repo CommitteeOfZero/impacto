@@ -13,8 +13,8 @@ static Texture LoadTexture(Io::Stream* stream, std::string name) {
   Texture texture{};
   if (!texture.Load(stream)) {
     ImpLog(LL_Error, LC_Profile,
-           "Spritesheet %s texture could not be imported, using fallback\n",
-           name.c_str());
+           "Spritesheet {:s} texture could not be imported, using fallback\n",
+           name);
     texture.LoadCheckerboard();
   }
 
@@ -41,8 +41,7 @@ void LoadSpritesheets() {
     Io::Stream* stream;
     IoError err = asset.Open(&stream);
     if (err != IoError_OK) {
-      ImpLog(LL_Fatal, LC_Profile, "Could not open spritesheet %s\n",
-             name.c_str());
+      ImpLog(LL_Fatal, LC_Profile, "Could not open spritesheet {:s}\n", name);
       Window->Shutdown();
     }
 

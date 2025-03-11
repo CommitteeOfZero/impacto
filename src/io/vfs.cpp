@@ -38,8 +38,8 @@ static IoError MountInternal(std::string const& mountpoint, Stream* stream) {
     archive->MountPoint = mountpoint;
     Mounts[mountpoint].push_back(archive);
   } else {
-    ImpLog(LL_Error, LC_IO, "No archiver supports file %s\n",
-           stream->Meta.FileName.c_str());
+    ImpLog(LL_Error, LC_IO, "No archiver supports file {:s}\n",
+           stream->Meta.FileName);
   }
   return err;
 }
@@ -71,8 +71,8 @@ IoError VfsMount(std::string const& mountpoint,
   IoError err;
   SDL_LockMutex(Lock);
 
-  ImpLog(LL_Debug, LC_IO, "Trying to mount \"%s\" on mountpoint \"%s\"\n",
-         archiveFileName.c_str(), mountpoint.c_str());
+  ImpLog(LL_Debug, LC_IO, "Trying to mount \"{:s}\" on mountpoint \"{:s}\"\n",
+         archiveFileName, mountpoint);
 
   if (FindArchive(mountpoint, archiveFileName) != 0) {
     ImpLog(LL_Error, LC_IO, "File with this name already mounted!\n");
@@ -88,8 +88,8 @@ IoError VfsMount(std::string const& mountpoint,
   err = PhysicalFileStream::Create(archiveFileName, &archiveFile);
 #endif
   if (err != IoError_OK) {
-    ImpLog(LL_Debug, LC_IO, "Could not open physical file \"%s\"\n",
-           archiveFileName.c_str());
+    ImpLog(LL_Debug, LC_IO, "Could not open physical file \"{:s}\"\n",
+           archiveFileName);
     goto end;
   }
 
@@ -111,10 +111,10 @@ IoError VfsMountMemory(std::string const& mountpoint,
 
   SDL_LockMutex(Lock);
 
-  ImpLog(
-      LL_Debug, LC_IO,
-      "Trying to mount in-memory archive named \"%s\" on mountpoint \"%s\"\n",
-      archiveFileName.c_str(), mountpoint.c_str());
+  ImpLog(LL_Debug, LC_IO,
+         "Trying to mount in-memory archive named \"{:s}\" on mountpoint "
+         "\"{:s}\"\n",
+         archiveFileName, mountpoint);
 
   if (FindArchive(mountpoint, archiveFileName) != 0) {
     err = IoError_Fail;
@@ -140,8 +140,8 @@ IoError VfsUnmount(std::string const& mountpoint,
   SDL_LockMutex(Lock);
 
   ImpLog(LL_Debug, LC_IO,
-         "Trying to unmount archive named \"%s\" on mountpoint \"%s\"\n",
-         archiveFileName.c_str(), mountpoint.c_str());
+         "Trying to unmount archive named \"{:s}\" on mountpoint \"{:s}\"\n",
+         archiveFileName, mountpoint);
 
   err = IoError_NotFound;
   auto it = Mounts.find(mountpoint);
@@ -203,9 +203,10 @@ IoError VfsGetMeta(std::string const& mountpoint, std::string const& fileName,
   IoError err;
   SDL_LockMutex(Lock);
 
-  ImpLogSlow(LL_Debug, LC_IO,
-             "Trying to get metadata for file \"%s\" on mountpoint \"%s\"\n",
-             fileName.c_str(), mountpoint.c_str());
+  ImpLogSlow(
+      LL_Debug, LC_IO,
+      "Trying to get metadata for file \"{:s}\" on mountpoint \"{:s}\"\n",
+      fileName, mountpoint);
 
   FileMeta* origMeta;
   VfsArchive* archive;
@@ -237,8 +238,8 @@ IoError VfsGetMeta(std::string const& mountpoint, uint32_t id,
   SDL_LockMutex(Lock);
 
   ImpLogSlow(LL_Debug, LC_IO,
-             "Trying to get metadata for file %d on mountpoint \"%s\"\n", id,
-             mountpoint.c_str());
+             "Trying to get metadata for file {:d} on mountpoint \"{:s}\"\n",
+             id, mountpoint);
 
   FileMeta* origMeta;
   VfsArchive* archive;
@@ -268,11 +269,11 @@ static IoError OpenInternal(std::string const& mountpoint, VfsArchive* archive,
                             FileMeta* origMeta, Stream** outStream) {
   IoError err;
 
-  ImpLogSlow(
-      LL_Debug, LC_IO,
-      "Opening \"%s\" (%d) from mountpoint \"%s\" (archive file \"%s\")\n",
-      origMeta->FileName.c_str(), origMeta->Id, mountpoint.c_str(),
-      archive->BaseStream->Meta.FileName.c_str());
+  ImpLogSlow(LL_Debug, LC_IO,
+             "Opening \"{:s}\" ({:d}) from mountpoint \"{:s}\" (archive file "
+             "\"{:s}\")\n",
+             origMeta->FileName, origMeta->Id, mountpoint,
+             archive->BaseStream->Meta.FileName);
 
   err = archive->Open(origMeta, outStream);
   if (err != IoError_OK) {
@@ -291,10 +292,11 @@ static IoError OpenInternal(std::string const& mountpoint, VfsArchive* archive,
     (*outStream)->Meta.Id = origMeta->Id;
   } else {
     ImpLog(LL_Error, LC_IO,
-           "Opening \"%s\" (%d) from mountpoint \"%s\" (archive file \"%s\") "
+           "Opening \"{:s}\" ({:d}) from mountpoint \"{:s}\" (archive file "
+           "\"{:s}\") "
            "failed\n",
-           origMeta->FileName.c_str(), origMeta->Id, mountpoint.c_str(),
-           archive->BaseStream->Meta.FileName.c_str());
+           origMeta->FileName, origMeta->Id, mountpoint,
+           archive->BaseStream->Meta.FileName);
   }
   return err;
 }
@@ -305,8 +307,8 @@ IoError VfsOpen(std::string const& mountpoint, std::string const& fileName,
   SDL_LockMutex(Lock);
 
   ImpLogSlow(LL_Debug, LC_IO,
-             "Trying to open file \"%s\" on mountpoint \"%s\"\n",
-             fileName.c_str(), mountpoint.c_str());
+             "Trying to open file \"{:s}\" on mountpoint \"{:s}\"\n", fileName,
+             mountpoint);
 
   FileMeta* origMeta;
   VfsArchive* archive;
@@ -344,11 +346,11 @@ IoError SlurpInternal(VfsArchive* archive, FileMeta* origMeta, void** outMemory,
                       int64_t* outSize) {
   IoError err;
 
-  ImpLogSlow(
-      LL_Debug, LC_IO,
-      "Slurping \"%s\" (%d) from mountpoint \"%s\" (archive file \"%s\")\n",
-      origMeta->FileName.c_str(), origMeta->Id, archive->MountPoint.c_str(),
-      archive->BaseStream->Meta.FileName.c_str());
+  ImpLogSlow(LL_Debug, LC_IO,
+             "Slurping \"{:s}\" ({:d}) from mountpoint \"{:s}\" (archive file "
+             "\"{:s}\")\n",
+             origMeta->FileName, origMeta->Id, archive->MountPoint,
+             archive->BaseStream->Meta.FileName);
 
   err = archive->Slurp(origMeta, outMemory, outSize);
   if (err != IoError_OK) {
@@ -365,12 +367,13 @@ IoError SlurpInternal(VfsArchive* archive, FileMeta* origMeta, void** outMemory,
     delete stream;
     if (readErr < 0) {
       free(*outMemory);
-      ImpLog(LL_Error, LC_IO,
-             "Opening/reading \"%s\" (%d) from mountpoint \"%s\" (archive file "
-             "\"%s\") failed\n",
-             origMeta->FileName.c_str(), origMeta->Id,
-             archive->MountPoint.c_str(),
-             archive->BaseStream->Meta.FileName.c_str());
+      ImpLog(
+          LL_Error, LC_IO,
+          "Opening/reading \"{:s}\" ({:d}) from mountpoint \"{:s}\" (archive "
+          "file "
+          "\"{:s}\") failed\n",
+          origMeta->FileName, origMeta->Id, archive->MountPoint,
+          archive->BaseStream->Meta.FileName);
       err = IoError_Fail;
     } else {
       err = IoError_OK;

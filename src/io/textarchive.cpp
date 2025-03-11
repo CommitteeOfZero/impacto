@@ -12,6 +12,17 @@ namespace Impacto {
 namespace Io {
 
 enum TextArchiveType { CLS, MLP, TextMPK };
+auto format_as(TextArchiveType type) -> std::string {
+  switch (type) {
+    case CLS:
+      return "CLS";
+    case MLP:
+      return "MLP";
+    case TextMPK:
+      return "TextMPK";
+  }
+  return "Unknown";
+}
 
 struct TextMetaEntry : FileMeta {
   std::string FullPath;
@@ -25,9 +36,10 @@ IoError TextArchive::Open(FileMeta* file, Stream** outStream) {
   TextMetaEntry* entry = (TextMetaEntry*)file;
   IoError err = PhysicalFileStream::Create(entry->FullPath, outStream);
   if (err != IoError_OK) {
-    ImpLog(LL_Error, LC_IO,
-           "TextArchive file open failed for file \"%s\" in archive \"%s\"\n",
-           entry->FullPath.c_str(), BaseStream->Meta.FileName.c_str());
+    ImpLog(
+        LL_Error, LC_IO,
+        "TextArchive file open failed for file \"{:s}\" in archive \"{:s}\"\n",
+        entry->FullPath, BaseStream->Meta.FileName);
   }
   return err;
 }
@@ -38,18 +50,17 @@ IoError TextArchive::GetCurrentSize(FileMeta* file, int64_t* outSize) {
   *outSize = std::filesystem::file_size(entry->FullPath, ec);
   if (ec) {
     ImpLog(LL_Error, LC_IO,
-           "TextArchive getting size failed for file \"%s\" in archive "
-           "\"%s\"\nerror: %s\n",
-           entry->FullPath.c_str(), BaseStream->Meta.FileName.c_str(),
-           ec.message().c_str());
+           "TextArchive getting size failed for file \"{:s}\" in archive "
+           "\"{:s}\"\nerror: {:s}\n",
+           entry->FullPath, BaseStream->Meta.FileName, ec.message());
     return IoError_Fail;
   }
   return IoError_OK;
 }
 
 IoError TextArchive::Create(Stream* stream, VfsArchive** outArchive) {
-  ImpLog(LL_Trace, LC_IO, "Trying to mount \"%s\" as text archive\n",
-         stream->Meta.FileName.c_str());
+  ImpLog(LL_Trace, LC_IO, "Trying to mount \"{:s}\" as text archive\n",
+         stream->Meta.FileName);
 
   std::istringstream ss;
   std::string content;
@@ -153,8 +164,8 @@ IoError TextArchive::Create(Stream* stream, VfsArchive** outArchive) {
           line.substr(firstColLength + 1, secondColLength);
     } else {
       ImpLog(LL_Error, LC_IO,
-             "Archive %s could not be mounted as type %d is unknown\n",
-             stream->Meta.FileName.c_str(), type);
+             "Archive {:s} could not be mounted as type {:d} is unknown\n",
+             stream->Meta.FileName, to_underlying(type));
       return IoError_Fail;
     }
 

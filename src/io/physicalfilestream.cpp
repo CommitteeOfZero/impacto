@@ -26,8 +26,8 @@ std::ios_base::openmode PhysicalFileStream::PrepareFileOpenMode(
     ErrorCode = IoError_NotFound;
     std::string errMsg =
         std::make_error_code(std::errc::no_such_file_or_directory).message();
-    ImpLog(LL_Error, LC_IO, "Failed to open stream \"%s\", error: \"%s\"\n",
-           SourceFileName.c_str(), errMsg.c_str());
+    ImpLog(LL_Error, LC_IO, "Failed to open stream \"{:s}\", error: \"{:s}\"\n",
+           SourceFileName, errMsg);
     return {};
   }
 
@@ -73,15 +73,14 @@ IoError PhysicalFileStream::Create(std::string const& fileName, Stream** out,
   PhysicalFileStream* result =
       new PhysicalFileStream(GetSystemDependentPath(fileName), flags);
   if (auto err = result->ErrorCode; err != IoError_OK) {
-    ImpLog(LL_Error, LC_IO, "Failed to open file \"%s\"\n",
-           result->SourceFileName.c_str());
+    ImpLog(LL_Error, LC_IO, "Failed to open file \"{:s}\"\n",
+           result->SourceFileName);
     delete result;
     return err;
   }
   if (!result->FileStream) {
-    ImpLog(LL_Error, LC_IO, "Failed to open file \"%s\", error: \"%s\"\n",
-           result->SourceFileName.c_str(),
-           std::generic_category().message(errno).c_str());
+    ImpLog(LL_Error, LC_IO, "Failed to open file \"{:s}\", error: \"{:s}\"\n",
+           result->SourceFileName, std::generic_category().message(errno));
     delete result;
     return IoError_Fail;
   }
@@ -104,9 +103,9 @@ int64_t PhysicalFileStream::Read(void* buffer, int64_t sz) {
 
   if (read == 0) {  // Check if no data was read
     if (FileStream.eof()) return IoError_Eof;
-    ImpLog(LL_Error, LC_IO, "Read failed for file \"%s\" with error: \"%s\"\n",
-           SourceFileName.c_str(),
-           std::generic_category().message(errno).c_str());
+    ImpLog(LL_Error, LC_IO,
+           "Read failed for file \"{:s}\" with error: \"{:s}\"\n",
+           SourceFileName, std::generic_category().message(errno));
     FileStream.clear(FileStream.rdstate() & ~std::ios::failbit &
                      ~std::ios::eofbit);
     return IoError_Fail;
@@ -139,9 +138,9 @@ int64_t PhysicalFileStream::Seek(int64_t offset, int origin) {
   if (absPos < 0) return IoError_Fail;
   FileStream.seekg(absPos, std::ios::beg);
   if (!FileStream && !FileStream.eof()) {
-    ImpLog(LL_Error, LC_IO, "Seek failed for file \"%s\" with error: \"%s\"\n",
-           SourceFileName.c_str(),
-           std::generic_category().message(errno).c_str());
+    ImpLog(LL_Error, LC_IO,
+           "Seek failed for file \"{:s}\" with error: \"{:s}\"\n",
+           SourceFileName, std::generic_category().message(errno));
     FileStream.clear(FileStream.rdstate() & ~std::ios::failbit &
                      ~std::ios::eofbit);  // Clear only failbit and eofbit
     return IoError_Fail;
@@ -153,15 +152,13 @@ int64_t PhysicalFileStream::Seek(int64_t offset, int origin) {
 IoError PhysicalFileStream::Duplicate(Stream** outStream) {
   PhysicalFileStream* result = new PhysicalFileStream(*this);
   if (IoError err = result->ErrorCode; err != IoError_OK) {
-    ImpLog(LL_Error, LC_IO, "Failed to open file \"%s\"\n",
-           SourceFileName.c_str());
+    ImpLog(LL_Error, LC_IO, "Failed to open file \"{:s}\"\n", SourceFileName);
     delete result;
     return err;
   }
   if (!result->FileStream) {
-    ImpLog(LL_Error, LC_IO, "Failed to open file \"%s\", error: \"%s\"\n",
-           SourceFileName.c_str(),
-           std::generic_category().message(errno).c_str());
+    ImpLog(LL_Error, LC_IO, "Failed to open file \"{:s}\", error: \"{:s}\"\n",
+           SourceFileName, std::generic_category().message(errno));
     delete result;
     return IoError_Fail;
   }
@@ -171,9 +168,9 @@ IoError PhysicalFileStream::Duplicate(Stream** outStream) {
     return IoError_Fail;
   }
   if (result->Seek(Position, RW_SEEK_SET) < 0) {
-    ImpLog(LL_Error, LC_IO, "Seek failed for file \"%s\" with error: \"%s\"\n",
-           SourceFileName.c_str(),
-           std::generic_category().message(errno).c_str());
+    ImpLog(LL_Error, LC_IO,
+           "Seek failed for file \"{:s}\" with error: \"{:s}\"\n",
+           SourceFileName, std::generic_category().message(errno));
     delete result;
     return IoError_Fail;
   }
@@ -187,9 +184,9 @@ int64_t PhysicalFileStream::Write(void* buffer, int64_t sz, int cnt) {
   }
   FileStream.write((char*)buffer, sz * cnt);
   if (!FileStream) {
-    ImpLog(LL_Error, LC_IO, "Write failed for file \"%s\" with error: \"%s\"\n",
-           SourceFileName.c_str(),
-           std::generic_category().message(errno).c_str());
+    ImpLog(LL_Error, LC_IO,
+           "Write failed for file \"{:s}\" with error: \"{:s}\"\n",
+           SourceFileName, std::generic_category().message(errno));
     FileStream.clear(FileStream.rdstate() & ~std::ios::failbit &
                      ~std::ios::eofbit);  // Clear only failbit and eofbit
     return IoError_Fail;

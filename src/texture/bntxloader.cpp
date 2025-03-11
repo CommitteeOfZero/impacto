@@ -286,7 +286,7 @@ bool TextureLoadBNTX(Stream* stream, Texture* outTexture) {
   (void)NXSignature;
 
   uint32_t TexturesCount = ReadLE<uint32_t>(stream);
-  ImpLog(LL_Debug, LC_General, "%d\n", TexturesCount);
+  ImpLog(LL_Debug, LC_General, "{:d}\n", TexturesCount);
   uint64_t InfoPtrsAddress = ReadLE<uint64_t>(stream);
   uint64_t DataBlkAddress = ReadLE<uint64_t>(stream);
   (void)DataBlkAddress;
@@ -373,7 +373,7 @@ bool TextureLoadBNTX(Stream* stream, Texture* outTexture) {
       uint64_t mipOffset = ReadLE<uint64_t>(stream);
 
       MipOffsets.push_back(mipOffset - BaseOffset);
-      ImpLog(LL_Debug, LC_General, "%d\n", mipOffset);
+      ImpLog(LL_Debug, LC_General, "{:d}\n", mipOffset);
     }*/
 
     stream->Seek(BaseOffset, RW_SEEK_SET);

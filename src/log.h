@@ -45,7 +45,16 @@ inline uint32_t g_LogChannelsConsole = 0;
 void LogSetFile(char* path);
 void LogSetConsole(bool enabled);
 
-void ImpLog(LogLevel level, LogChannel channel, const char* format, ...);
+void ImpLogImpl(LogLevel level, LogChannel channel, fmt::string_view format,
+                fmt::format_args args, size_t tailSize);
+
+template <typename... T>
+void ImpLog(LogLevel level, LogChannel channel, fmt::format_string<T...> format,
+            T&&... args) {
+  size_t tailSize = fmt::formatted_size(format, std::forward<T>(args)...);
+  ImpLogImpl(level, channel, format.get(), fmt::make_format_args(args...),
+             tailSize);
+}
 #if IMPACTO_ENABLE_SLOW_LOG
 #define ImpLogSlow ImpLog
 #else

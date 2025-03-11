@@ -111,29 +111,30 @@ void Scene3D::SetupFramebufferState() {
 
     switch (msaa) {
       case MS_None:
-        ImpLog(LL_Info, LC_Render,
-               "Creating 3D scene framebuffer %dx%d (=> %dx%d), no MSAA\n",
-               scaledViewport.Width, scaledViewport.Height, viewport.Width,
-               viewport.Height);
+        ImpLog(
+            LL_Info, LC_Render,
+            "Creating 3D scene framebuffer {:d}x{:d} (=> {:d}x{:d}), no MSAA\n",
+            scaledViewport.Width, scaledViewport.Height, viewport.Width,
+            viewport.Height);
         break;
       case MS_MultisampleTexture:
         ImpLog(LL_Info, LC_Render,
-               "Creating 3D scene framebuffer %dx%d (=> %dx%d), %dx MSAA using "
-               "multisample texture\n",
+               "Creating 3D scene framebuffer {:d}x{:d} (=> {:d}x{:d}), {:d}x "
+               "MSAA using multisample texture\n",
                scaledViewport.Width, scaledViewport.Height, viewport.Width,
                viewport.Height, Window->MsaaCount);
         break;
       case MS_SinglesampleTextureExt:
         ImpLog(LL_Info, LC_Render,
-               "Creating 3D scene framebuffer %dx%d (=> %dx%d), %dx MSAA using "
-               "multisampled_render_to_texture\n",
+               "Creating 3D scene framebuffer {:d}x{:d} (=> {:d}x{:d}), {:d}x "
+               "MSAA using multisampled_render_to_texture\n",
                scaledViewport.Width, scaledViewport.Height, viewport.Width,
                viewport.Height, Window->MsaaCount);
         break;
       case MS_BlitFromRenderbuffer:
         ImpLog(LL_Info, LC_Render,
-               "Creating 3D scene framebuffer %dx%d (=> %dx%d), %dx MSAA using "
-               "blit from renderbuffer\n",
+               "Creating 3D scene framebuffer {:d}x{:d} (=> {:d}x{:d}), {:d}x "
+               "MSAA using blit from renderbuffer\n",
                scaledViewport.Width, scaledViewport.Height, viewport.Width,
                viewport.Height, Window->MsaaCount);
         break;
@@ -214,7 +215,7 @@ void Scene3D::SetupFramebufferState() {
     glUseProgram(ShaderProgram);
     glUniform1i(glGetUniformLocation(ShaderProgram, "Framebuffer3D"), 0);
 
-    ImpLog(LL_Debug, LC_Render, "FBO status: 0x%04X\n",
+    ImpLog(LL_Debug, LC_Render, "FBO status: 0x{:08X}\n",
            glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER));
 
     if (msaa == MS_BlitFromRenderbuffer) {

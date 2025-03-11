@@ -218,7 +218,7 @@ void Renderable3D::BeginFrame(IScene3D* scene, Camera* camera) {
 bool Renderable3D::LoadSync(uint32_t modelId) {
   assert(IsUsed == false);
 
-  ImpLog(LL_Info, LC_Renderable3D, "Creating renderable (model ID %d)\n",
+  ImpLog(LL_Info, LC_Renderable3D, "Creating renderable (model ID {:d})\n",
          modelId);
 
   StaticModel = Model::Load(modelId);
@@ -227,7 +227,7 @@ bool Renderable3D::LoadSync(uint32_t modelId) {
 
   if (!StaticModel) {
     ImpLog(LL_Error, LC_Renderable3D,
-           "Model loading failed for character with model ID %d\n");
+           "Model loading failed for character with model ID {:d}\n", modelId);
     return false;
   }
 
@@ -706,7 +706,7 @@ void Renderable3D::UnloadSync() {
   Animator.CurrentAnimation = 0;
   PrevPoseWeight = 0.0f;
   if (StaticModel) {
-    ImpLog(LL_Info, LC_Renderable3D, "Unloading model %d\n", StaticModel->Id);
+    ImpLog(LL_Info, LC_Renderable3D, "Unloading model {:d}\n", StaticModel->Id);
     if (IsSubmitted) {
       glDeleteBuffers(StaticModel->MeshCount, IBOs);
       glDeleteBuffers(StaticModel->MeshCount, VBOs);
@@ -732,7 +732,7 @@ void Renderable3D::UnloadSync() {
 void Renderable3D::MainThreadOnLoad() {
   assert(IsSubmitted == false);
 
-  ImpLog(LL_Info, LC_Renderable3D, "Submitting data to GPU for model ID %d\n",
+  ImpLog(LL_Info, LC_Renderable3D, "Submitting data to GPU for model ID {:d}\n",
          StaticModel->Id);
 
   glGenVertexArrays(StaticModel->MeshCount, VAOs);
@@ -830,7 +830,8 @@ void Renderable3D::MainThreadOnLoad() {
     TexBuffers[i] = StaticModel->Textures[i].Submit();
     if (TexBuffers[i] == 0) {
       ImpLog(LL_Fatal, LC_Renderable3D,
-             "Submitting texture %d for model %d failed\n", i, StaticModel->Id);
+             "Submitting texture {:d} for model {:d} failed\n", i,
+             StaticModel->Id);
     }
   }
 
