@@ -501,8 +501,8 @@ void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
 }
 
 void Renderer::DrawVertices(SpriteSheet const& sheet,
-                            tcb::span<const glm::vec2> sheetPositions,
-                            tcb::span<const glm::vec2> displayPositions,
+                            std::span<const glm::vec2> sheetPositions,
+                            std::span<const glm::vec2> displayPositions,
                             int width, int height, glm::vec4 tint,
                             bool inverted) {
   if (!Drawing) {

@@ -22,7 +22,6 @@
 * `vendor/utf8-cpp`: [UTF8-CPP](http://utfcpp.sourceforge.net/)
 * `vendor/mspack`: [libmspack](https://www.cabextract.org.uk/libmspack/), only includes LZX decompressor to reduce code size
 * `vendor/pugixml`: [pugixml](https://github.com/zeux/pugixml) 
-* `vendor/span`: [span](https://github.com/tcbrindle/span)
 * `vendor/mio`: [mio](https://github.com/vimpunk/mio)
 
 All third-party code mentioned above is mandatory, included in the build process and compiled into the output executable for impacto on every supported platform and build configuration.
@@ -791,12 +790,6 @@ system version, originally https://libsdl.org/download-2.0.php
 Copyright (C) 1997-2019 Sam Lantinga <slouken@libsdl.org>
 
 See below for license text (zlib).
-
-## span
-
-https://github.com/tcbrindle/span
-
-Distributed under the Boost Software License - Version 1.0 - August 17th, 2003. See below for license text.
 
 ## mio
 

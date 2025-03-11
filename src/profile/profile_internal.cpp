@@ -19,10 +19,10 @@ void LuaDumpStack() {
         fmt::println("{:g}", lua_tonumber(LuaState, i));
         break;
       case LUA_TSTRING:
-        fmt::println(lua_tostring(LuaState, i));
+        fmt::println("{:s}", lua_tostring(LuaState, i));
         break;
       case LUA_TBOOLEAN:
-        fmt::println(lua_toboolean(LuaState, i) ? "true" : "false");
+        fmt::println("{}", lua_toboolean(LuaState, i) ? "true" : "false");
         break;
       case LUA_TNIL:
         fmt::println("nil");

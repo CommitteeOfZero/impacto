@@ -28,7 +28,7 @@ Label::Label(std::vector<ProcessedTextGlyph> str, float textWidth,
   SetText(std::move(str), textWidth, fontSize, outlineMode);
 }
 
-Label::Label(tcb::span<ProcessedTextGlyph> str, float textWidth, float fontSize,
+Label::Label(std::span<ProcessedTextGlyph> str, float textWidth, float fontSize,
              RendererOutlineMode outlineMode) {
   FontSize = fontSize;
   SetText(std::move(str), textWidth, fontSize, outlineMode);
@@ -101,7 +101,7 @@ void Label::SetText(std::vector<ProcessedTextGlyph> str, float textWidth,
   Bounds = RectF(Text[0].DestRect.X, Text[0].DestRect.Y, TextWidth, fontSize);
 }
 
-void Label::SetText(tcb::span<ProcessedTextGlyph> str, float textWidth,
+void Label::SetText(std::span<ProcessedTextGlyph> str, float textWidth,
                     float fontSize, RendererOutlineMode outlineMode) {
   IsText = true;
   OutlineMode = outlineMode;

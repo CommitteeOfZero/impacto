@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../impacto.h"
-#include <span/span.hpp>
+#include <span>
 
 namespace Impacto {
 namespace Vm {
@@ -38,7 +38,7 @@ enum PADinput {
   PAD1RIGHT_DIRECT = 0x8,
 };
 
-inline tcb::span<uint32_t> PADcustom;
+inline std::span<uint32_t> PADcustom;
 
 inline int PADinputButtonWentDown = 0;
 inline int PADinputMouseWentDown = 0;
