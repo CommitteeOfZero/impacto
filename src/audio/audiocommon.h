@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../util.h"
 namespace Impacto {
 namespace Audio {
 
@@ -19,6 +20,10 @@ enum AudioChannelId {
   AC_Count
 };
 
+constexpr inline auto format_as(AudioChannelId channel) -> int {
+  return to_underlying(channel);
+}
+
 enum AudioChannelState {
   ACS_Stopped,
   ACS_Playing,
@@ -26,6 +31,22 @@ enum AudioChannelState {
   ACS_FadingIn,
   ACS_FadingOut
 };
+
+constexpr inline auto format_as(AudioChannelState state) -> std::string_view {
+  switch (state) {
+    case ACS_Stopped:
+      return "ACS_Stopped";
+    case ACS_Playing:
+      return "ACS_Playing";
+    case ACS_Paused:
+      return "ACS_Paused";
+    case ACS_FadingIn:
+      return "ACS_FadingIn";
+    case ACS_FadingOut:
+      return "ACS_FadingOut";
+  }
+  return "Unknown";
+}
 
 class AudioChannel;
 class AudioStream;

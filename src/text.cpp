@@ -142,7 +142,7 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
           ImpLog(LL_Error, LC_VM, "STT_Character encountered, uh oh...");
         }
         ImpLog(LL_Error, LC_VM,
-               "Encountered unrecognized token %02X in string\n", c);
+               "Encountered unrecognized token 0x{:02x} in string\n", c);
         Type = STT_EndOfString;
       } else {
         uint16_t glyphId = (((uint16_t)c & 0x7F) << 8) | *ctx->Ip;

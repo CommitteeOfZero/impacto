@@ -83,7 +83,7 @@ int ShaderCompiler::PrintParameter(char* dest, int destSz, char const* name,
       break;
 
     default:
-      ImpLog(LL_Error, LC_Render, "Invalid shader parameter type %d\n",
+      ImpLog(LL_Error, LC_Render, "Invalid shader parameter type {:d}\n",
              param.Type);
       if (destSz > 0) *dest = '\0';
       return 0;
@@ -92,7 +92,7 @@ int ShaderCompiler::PrintParameter(char* dest, int destSz, char const* name,
 
 GLuint ShaderCompiler::Attach(GLuint program, GLenum shaderType,
                               char const* path, char const* params) {
-  ImpLog(LL_Debug, LC_Render, "Loading shader object (type %d) \"%s\"\n",
+  ImpLog(LL_Debug, LC_Render, "Loading shader object (type {:d}) \"{:s}\"\n",
          shaderType, path);
 
   size_t sourceRawSz;
@@ -134,7 +134,7 @@ GLuint ShaderCompiler::Attach(GLuint program, GLenum shaderType,
   glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
   if (!result) {
     glGetShaderInfoLog(shader, sizeof(errorLog), NULL, errorLog);
-    ImpLog(LL_Fatal, LC_Render, "Error compiling shader: %s\n", errorLog);
+    ImpLog(LL_Fatal, LC_Render, "Error compiling shader: {:s}\n", errorLog);
     SDL_free(source);
     glDeleteShader(shader);
     return 0;
@@ -154,7 +154,7 @@ GLuint ShaderCompiler::Compile(char const* name, ShaderParamMap const& params) {
     return program;
   }
 
-  ImpLog(LL_Debug, LC_Render, "Compiling shader \"%s\"\n", name);
+  ImpLog(LL_Debug, LC_Render, "Compiling shader \"{:s}\"\n", name);
 
   int paramSz = 1;
   for (auto const& param : params) {
@@ -188,7 +188,8 @@ GLuint ShaderCompiler::Compile(char const* name, ShaderParamMap const& params) {
   if (!fs) {
     static GLchar errorLog[1024] = {};
     glGetProgramInfoLog(program, sizeof(errorLog), NULL, errorLog);
-    ImpLog(LL_Fatal, LC_Render, "Error linking shader program: %s\n", errorLog);
+    ImpLog(LL_Fatal, LC_Render, "Error linking shader program: {:s}\n",
+           errorLog);
     glDeleteShader(vs);
     glDeleteProgram(program);
     ImpStackFree(paramStr);
@@ -210,7 +211,8 @@ GLuint ShaderCompiler::Compile(char const* name, ShaderParamMap const& params) {
   glGetProgramiv(program, GL_LINK_STATUS, &result);
   if (!result) {
     glGetProgramInfoLog(program, sizeof(errorLog), NULL, errorLog);
-    ImpLog(LL_Fatal, LC_Render, "Error linking shader program: %s\n", errorLog);
+    ImpLog(LL_Fatal, LC_Render, "Error linking shader program: {:s}\n",
+           errorLog);
     glDeleteProgram(program);
     return 0;
   }
@@ -222,7 +224,7 @@ GLuint ShaderCompiler::Compile(char const* name, ShaderParamMap const& params) {
   if (!result) {
     glGetProgramInfoLog(program, sizeof(errorLog), NULL, errorLog);
     ImpLog(LL_Fatal, LC_Render,
-           "ShaderCompiler program failed to validate: %s\n", errorLog);
+           "ShaderCompiler program failed to validate: {:s}\n", errorLog);
     glDeleteProgram(program);
     return 0;
   }

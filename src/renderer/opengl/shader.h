@@ -24,6 +24,9 @@ enum ShaderParameterType {
   SPT_Ivec3,
   SPT_Ivec4
 };
+constexpr inline int format_as(ShaderParameterType type) {
+  return to_underlying(type);
+}
 
 struct ShaderParameter {
   ShaderParameterType Type;

@@ -13,7 +13,7 @@ static char const VertShaderExtension[] = "_vert.hlsl";
 void Shader::Compile(char const* name, IDirect3DDevice9* device,
                      IDirect3DVertexDeclaration9* vertexDeclaration,
                      D3D_SHADER_MACRO* macros) {
-  ImpLog(LL_Debug, LC_Render, "Compiling shader \"%s\"\n", name);
+  ImpLog(LL_Debug, LC_Render, "Compiling shader \"{:s}\"\n", name);
 
   VertexDeclaration = vertexDeclaration;
 
@@ -34,8 +34,8 @@ void Shader::Compile(char const* name, IDirect3DDevice9* device,
       D3DCompile(source, sourceRawSz, nullptr, macros, nullptr, "main",
                  "vs_3_0", 0, 0, &vertexShaderBuffer, &errorBlob);
   if (FAILED(result)) {
-    ImpLog(LL_Debug, LC_Render, "Failed to compile shader source file %s\n",
-           errorBlob->GetBufferPointer());
+    ImpLog(LL_Debug, LC_Render, "Failed to compile shader source file {:s}\n",
+           static_cast<const char*>(errorBlob->GetBufferPointer()));
     return;
   }
 
@@ -54,8 +54,8 @@ void Shader::Compile(char const* name, IDirect3DDevice9* device,
   result = D3DCompile(source, sourceRawSz, nullptr, macros, nullptr, "main",
                       "ps_3_0", 0, 0, &pixelShaderBuffer, &errorBlob);
   if (FAILED(result)) {
-    ImpLog(LL_Debug, LC_Render, "Failed to compile shader source file %s\n",
-           errorBlob->GetBufferPointer());
+    ImpLog(LL_Debug, LC_Render, "Failed to compile shader source file {:s}\n",
+           static_cast<const char*>(errorBlob->GetBufferPointer()));
     return;
   }
 

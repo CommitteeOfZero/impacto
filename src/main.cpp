@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
 
   LogSetConsole(true);
   g_LogLevelConsole = LL_Trace;
-  g_LogChannelsConsole = LC_Video;
+  g_LogChannelsConsole = LC_All;
 
   Io::Stream* stream;
   IoError err = Io::PhysicalFileStream::Create("profile.txt", &stream);

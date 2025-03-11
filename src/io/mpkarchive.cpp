@@ -34,17 +34,16 @@ IoError MpkArchive::Open(FileMeta* file, Stream** outStream) {
   }
   if (err != IoError_OK) {
     ImpLog(LL_Error, LC_IO,
-           "MPK file open failed for file \"%s\" in archive \"%s\" "
-           "(compression %d)\n",
-           entry->FileName.c_str(), BaseStream->Meta.FileName.c_str(),
-           entry->Compressed);
+           "MPK file open failed for file \"{:s}\" in archive \"{:s}\" "
+           "(compression {:d})\n",
+           entry->FileName, BaseStream->Meta.FileName, entry->Compressed);
   }
   return err;
 }
 
 IoError MpkArchive::Create(Stream* stream, VfsArchive** outArchive) {
-  ImpLog(LL_Trace, LC_IO, "Trying to mount \"%s\" as MPK\n",
-         stream->Meta.FileName.c_str());
+  ImpLog(LL_Trace, LC_IO, "Trying to mount \"{:s}\" as MPK\n",
+         stream->Meta.FileName);
 
   MpkArchive* result = 0;
 
@@ -64,7 +63,7 @@ IoError MpkArchive::Create(Stream* stream, VfsArchive** outArchive) {
   MajorVersion = ReadLE<uint16_t>(stream);
   // TODO support v1
   if (MinorVersion != 0 || MajorVersion != 2) {
-    ImpLog(LL_Trace, LC_IO, "Unsupported MPK version %d.%d\n", MajorVersion,
+    ImpLog(LL_Trace, LC_IO, "Unsupported MPK version {:d}.{:d}\n", MajorVersion,
            MinorVersion);
     goto fail;
   }
@@ -82,8 +81,9 @@ IoError MpkArchive::Create(Stream* stream, VfsArchive** outArchive) {
     uint32_t Id = ReadLE<uint32_t>(stream);
 
     if (Compression != 1 && Compression != 0) {
-      ImpLog(LL_Error, LC_IO, "Unknown MPK compression type %d on file %d\n",
-             Id, Compression);
+      ImpLog(LL_Error, LC_IO,
+             "Unknown MPK compression type {:d} on file {:d}\n", Id,
+             Compression);
       stream->Seek(0x100 - 8, RW_SEEK_SET);
       continue;
     }
@@ -99,7 +99,7 @@ IoError MpkArchive::Create(Stream* stream, VfsArchive** outArchive) {
     entry->FileName = std::string(name);
 
     if (result->IdsToFiles.find(Id) != result->IdsToFiles.end()) {
-      ImpLog(LL_Error, LC_IO, "Duplicate MPK file ID %d\n", Id);
+      ImpLog(LL_Error, LC_IO, "Duplicate MPK file ID {:d}\n", Id);
       continue;
     }
     if (!entry->Offset) {

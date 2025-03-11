@@ -31,7 +31,7 @@
     code;                                                     \
     auto end = std::chrono::high_resolution_clock::now();     \
     std::chrono::duration<double> elapsed = end - start;      \
-    ImpLog(LL_Info, LC_General, "Time elapsed: %f seconds\n", \
+    ImpLog(LL_Info, LC_General, "Time elapsed: {:f} seconds\n", \
            elapsed.count());                                  \
   } while (0)
 

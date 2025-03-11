@@ -113,7 +113,7 @@ static bool ParseAdxHeader(Stream* stream, AdxHeaderInfo* info) {
 
   if (header[4] != 3) {
     ImpLog(LL_Error, LC_Audio,
-           "Encountered ADX file with unsupported encoding type format %d\n",
+           "Encountered ADX file with unsupported encoding type format {:d}\n",
            header[4]);
     return false;
   }
@@ -122,14 +122,15 @@ static bool ParseAdxHeader(Stream* stream, AdxHeaderInfo* info) {
 
   if (header[6] != 4) {
     ImpLog(LL_Error, LC_Audio,
-           "Encountered ADX file with unknown bits per sample %d\n", header[6]);
+           "Encountered ADX file with unknown bits per sample {:d}\n",
+           header[6]);
     return false;
   }
 
   info->ChannelCount = header[7];
   if (info->ChannelCount != 1 && info->ChannelCount != 2) {
     ImpLog(LL_Error, LC_Audio,
-           "Encountered ADX file with unsupported channel count %d\n",
+           "Encountered ADX file with unsupported channel count {:d}\n",
            info->ChannelCount);
     return false;
   }
@@ -142,13 +143,13 @@ static bool ParseAdxHeader(Stream* stream, AdxHeaderInfo* info) {
 
   if (header[18] != 4) {
     ImpLog(LL_Error, LC_Audio,
-           "Encountered ADX file with unsupported header version %d\n",
+           "Encountered ADX file with unsupported header version {:d}\n",
            header[18]);
     return false;
   }
 
   if (header[19] != 0) {
-    ImpLog(LL_Error, LC_Audio, "Encountered encrypted ADX file, type %d\n",
+    ImpLog(LL_Error, LC_Audio, "Encountered encrypted ADX file, type {:d}\n",
            header[19]);
     return false;
   }

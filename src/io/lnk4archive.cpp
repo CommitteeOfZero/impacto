@@ -35,15 +35,15 @@ IoError Lnk4Archive::Open(FileMeta* file, Stream** outStream) {
 #endif
   if (err != IoError_OK) {
     ImpLog(LL_Error, LC_IO,
-           "LNK4 file open failed for file \"%s\" in archive \"%s\"\n",
-           entry->FileName.c_str(), BaseStream->Meta.FileName.c_str());
+           "LNK4 file open failed for file \"{:s}\" in archive \"{:s}\"\n",
+           entry->FileName, BaseStream->Meta.FileName);
   }
   return err;
 }
 
 IoError Lnk4Archive::Create(Stream* stream, VfsArchive** outArchive) {
-  ImpLog(LL_Trace, LC_IO, "Trying to mount \"%s\" as LNK4\n",
-         stream->Meta.FileName.c_str());
+  ImpLog(LL_Trace, LC_IO, "Trying to mount \"{:s}\" as LNK4\n",
+         stream->Meta.FileName);
 
   Lnk4Archive* result = 0;
   uint32_t* rawToc = 0;

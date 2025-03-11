@@ -1,6 +1,7 @@
 #include <time.h>
 #include <cstdarg>
 
+#include <fmt/chrono.h>
 #include <SDL_log.h>
 #include "log.h"
 #include "util.h"
@@ -13,37 +14,7 @@ namespace Impacto {
 static bool LoggingToConsole = false;
 static bool LoggingToFile = false;
 
-char* Timestamp() {
-  time_t timestamp = time(NULL);
-  tm* ptm = gmtime(&timestamp);
-
-  char* buffer = (char*)malloc(20);
-  strftime(buffer, 20, "%Y-%m-%d %H:%M:%S", ptm);
-  return buffer;
-}
-
-const char* LevelToString(LogLevel level) {
-  assert(level > LL_Off && level < LL_Max);
-  switch (level) {
-    case LL_Fatal:
-      return "Fatal";
-    case LL_Error:
-      return "Error";
-    case LL_Warning:
-      return "Warning";
-    case LL_Info:
-      return "Info";
-    case LL_Debug:
-      return "Debug";
-    case LL_Trace:
-      return "Trace";
-    default:
-      assert(false);
-      return "";
-  }
-}
-
-const char* ChannelToString(LogChannel channel) {
+std::string_view ChannelToString(LogChannel channel) {
   switch (channel) {
     case LC_General:
       return "General";
@@ -79,33 +50,36 @@ const char* ChannelToString(LogChannel channel) {
   }
 }
 
-void ConsoleWrite(LogLevel level, const char* str) {
+void ConsoleWrite(LogLevel level, std::string_view str) {
   assert(level > LL_Off && level < LL_Max);
   switch (level) {
     case LL_Fatal:
-      SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "%s", str);
+      SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "%s", str.data());
       break;
     case LL_Error:
-      SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", str);
+      SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", str.data());
       break;
     case LL_Warning:
-      SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "%s", str);
+      SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "%s", str.data());
       break;
     case LL_Info:
-      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", str);
+      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", str.data());
       break;
     case LL_Debug:
-      SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "%s", str);
+      SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "%s", str.data());
       break;
     case LL_Trace:
-      SDL_LogVerbose(SDL_LOG_CATEGORY_APPLICATION, "%s", str);
+      SDL_LogVerbose(SDL_LOG_CATEGORY_APPLICATION, "%s", str.data());
       break;
     default:
       assert(false);
   }
 }
 
-void ImpLog(LogLevel level, LogChannel channel, const char* format, ...) {
+void ImpLogImpl(LogLevel level, LogChannel channel, fmt::string_view format,
+                fmt::format_args args, size_t tailSize) {
+  constexpr size_t maxChannelSize = 16;
+  constexpr size_t maxTimestampSize = 21;
   assert(level > 0 && channel > 0);
   bool any = false;
   if (LoggingToConsole && level <= g_LogLevelConsole &&
@@ -117,36 +91,23 @@ void ImpLog(LogLevel level, LogChannel channel, const char* format, ...) {
     any = true;
   }
   if (!any) return;
+  const size_t lineBufferSize =
+      maxChannelSize + maxTimestampSize + tailSize + 1;
+  auto* line = static_cast<char*>(ImpStackAlloc(lineBufferSize));
 
-  char* ts = Timestamp();
+  std::string_view channelStr = ChannelToString(channel);
+  time_t timestamp = time(nullptr);
+  auto tsFormat = fmt::format_to_n(
+      line, maxTimestampSize, "[{:%Y-%m-%d %H:%M:%S}]", fmt::gmtime(timestamp));
+  auto channelFormat =
+      fmt::format_to_n(tsFormat.out, maxChannelSize, "[{}] ", channelStr);
+  auto tailFormat =
+      fmt::vformat_to_n(channelFormat.out, tailSize + 1, format, args);
+  *tailFormat.out = '\0';
 
-  const char* levelStr = LevelToString(level);
-  const char* channelStr = ChannelToString(channel);
+  ConsoleWrite(level, line);
 
-  size_t headSize =
-      snprintf(NULL, 0, "[%s][%s][%s] ", ts, levelStr, channelStr);
-
-  va_list args, args2;
-  va_start(args, format);
-  // cannot reuse args in glibc
-  va_copy(args2, args);
-  size_t tailSize = vsnprintf(NULL, 0, format, args);
-  va_end(args);
-
-  char* line = (char*)ImpStackAlloc(headSize + tailSize + 1);
-
-  snprintf(line, headSize + 1, "[%s][%s][%s] ", ts, levelStr, channelStr);
-  vsnprintf(line + headSize, tailSize + 1, format, args2);
-  line[headSize + tailSize] = '\0';
-
-  if (LoggingToConsole && level <= g_LogLevelConsole &&
-      (g_LogChannelsConsole & channel)) {
-    ConsoleWrite(level, line);
-  }
   // TODO file
-
-  free(ts);
-  ImpStackFree(line);
 }
 
 void LogSetFile(char* path) {
@@ -237,8 +198,8 @@ void GLAPIENTRY LogGLMessageCallback(GLenum source, GLenum type, GLuint id,
       break;
   }
 
-  ImpLog(level, LC_GL, "type=%s, source=%s, id=%d, message: %s\n", typeStr,
-         sourceStr, id, message);
+  ImpLog(level, LC_GL, "type={:s}, source={:s}, id={:d}, message: {:s}\n",
+         typeStr, sourceStr, id, message);
 }
 #endif
 

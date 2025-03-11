@@ -27,7 +27,7 @@ bool Texture::Load(Io::Stream* stream) {
 
   uint32_t magic = Io::ReadBE<uint32_t>(stream);
   ImpLog(LL_Error, LC_TextureLoad,
-         "No loader for texture, possible magic %08X\n", magic);
+         "No loader for texture, possible magic 0x{:08x}\n", magic);
   return false;
 }
 
