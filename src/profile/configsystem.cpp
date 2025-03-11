@@ -11,6 +11,8 @@ void Configure() {
   std::fill_n(Default::VoiceVolume, VoiceCount, 1.0f);
   std::fill_n(Default::GroupVolumes, Audio::ACG_Count, 0.5f);
 
+  Default::GroupVolumes[Audio::ACG_BGM] = 0.25f;
+
   if (TryPushMember("ConfigSystem")) {
     AssertIs(LUA_TTABLE);
 
