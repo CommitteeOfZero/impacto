@@ -303,7 +303,7 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, int nextLineStart,
         RectF const& baseGlyphRect =
             Glyphs[RubyChunks[i].FirstBaseCharacter + j].DestRect;
         pos.x = baseGlyphRect.Center().x;
-        TextLayoutPlainLine(ctx, 1, tcb::span(RubyChunks[i].Text + j, 1),
+        TextLayoutPlainLine(ctx, 1, std::span(RubyChunks[i].Text + j, 1),
                             DialogueFont, RubyFontSize, ColorTable[0], 1.0f,
                             pos, TextAlignment::Center);
       }
@@ -785,7 +785,7 @@ int TextGetMainCharacterCount(Vm::Sc3VmThread* ctx) {
 }
 
 int TextLayoutPlainLine(Vm::Sc3VmThread* ctx, int stringLength,
-                        tcb::span<ProcessedTextGlyph> outGlyphs, Font* font,
+                        std::span<ProcessedTextGlyph> outGlyphs, Font* font,
                         float fontSize, DialogueColorPair colors, float opacity,
                         glm::vec2 pos, TextAlignment alignment,
                         float blockWidth) {
@@ -859,7 +859,7 @@ std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
 
 int TextLayoutAlignment(Impacto::TextAlignment& alignment, float blockWidth,
                         float currentX, glm::vec2& pos, int characterCount,
-                        tcb::span<Impacto::ProcessedTextGlyph> outGlyphs) {
+                        std::span<Impacto::ProcessedTextGlyph> outGlyphs) {
   // Block alignment:
   //
   //  l  i  n  e
@@ -928,7 +928,7 @@ float TextGetPlainLineWidth(Vm::Sc3VmThread* ctx, Font* font, float fontSize) {
 }
 
 int TextLayoutPlainString(std::string_view str,
-                          tcb::span<ProcessedTextGlyph> outGlyphs, Font* font,
+                          std::span<ProcessedTextGlyph> outGlyphs, Font* font,
                           float fontSize, DialogueColorPair colors,
                           float opacity, glm::vec2 pos, TextAlignment alignment,
                           float blockWidth) {
@@ -939,7 +939,7 @@ int TextLayoutPlainString(std::string_view str,
   std::unique_ptr<uint16_t[]> sc3StrPtr(new uint16_t[sc3StrLength]);
 
   TextGetSc3String(str,
-                   tcb::span(sc3StrPtr.get(), sc3StrPtr.get() + sc3StrLength));
+                   std::span(sc3StrPtr.get(), sc3StrPtr.get() + sc3StrLength));
 
   Vm::Sc3VmThread dummy;
   dummy.Ip = reinterpret_cast<uint8_t*>(sc3StrPtr.get());
@@ -957,7 +957,7 @@ std::vector<ProcessedTextGlyph> TextLayoutPlainString(
   std::unique_ptr<uint16_t[]> sc3StrPtr(new uint16_t[sc3StrLength]);
 
   TextGetSc3String(str,
-                   tcb::span(sc3StrPtr.get(), sc3StrPtr.get() + sc3StrLength));
+                   std::span(sc3StrPtr.get(), sc3StrPtr.get() + sc3StrLength));
 
   Vm::Sc3VmThread dummy;
   dummy.Ip = reinterpret_cast<uint8_t*>(sc3StrPtr.get());
@@ -965,7 +965,7 @@ std::vector<ProcessedTextGlyph> TextLayoutPlainString(
                              opacity, pos, alignment, blockWidth);
 }
 
-void TextGetSc3String(std::string_view str, tcb::span<uint16_t> out) {
+void TextGetSc3String(std::string_view str, std::span<uint16_t> out) {
   std::string_view::iterator strIt = str.begin();
   std::string_view::iterator strEnd = str.end();
 

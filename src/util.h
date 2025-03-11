@@ -9,7 +9,7 @@
 #include <string>
 #include <cctype>
 #include <chrono>
-#include <span/span.hpp>
+#include <span>
 
 #if defined(WIN32) || defined(_WIN32)
 #include <malloc.h>
@@ -320,7 +320,7 @@ constexpr std::underlying_type_t<Enum> to_underlying(Enum e) noexcept {
 }
 
 int ResizeImage(Rect const& srcRect, Rect const& dstRect,
-                tcb::span<uint8_t> src, tcb::span<uint8_t> dst,
+                std::span<uint8_t> src, std::span<uint8_t> dst,
                 bool flipY = false);
 
 inline int CALCrnd(int max) {

@@ -66,7 +66,7 @@ std::string DumpMat4(glm::mat4* matrix, std::string_view columnSeparator,
 }
 
 int ResizeImage(Rect const& srcRect, Rect const& dstRect,
-                tcb::span<uint8_t> src, tcb::span<uint8_t> dst, bool flipY) {
+                std::span<uint8_t> src, std::span<uint8_t> dst, bool flipY) {
   using SurfacePtr = std::unique_ptr<SDL_Surface, decltype(&SDL_FreeSurface)>;
   if (srcRect.Width == dstRect.Width && srcRect.Height == dstRect.Height) {
     assert(dst.size() >= src.size());

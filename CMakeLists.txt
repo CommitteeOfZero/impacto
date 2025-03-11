@@ -1127,7 +1127,8 @@ target_link_libraries(impacto PRIVATE ${Impacto_Libs})
 
 # compiler/dependency configuration
 
-set_property(TARGET impacto PROPERTY CXX_STANDARD 17)
+set_property(TARGET impacto PROPERTY CXX_STANDARD 20)
+set_property(TARGET impacto PROPERTY CXX_SCAN_FOR_MODULES OFF)
 
 # Hot reload for MSVC
 if(NOT IMPACTO_ASAN)

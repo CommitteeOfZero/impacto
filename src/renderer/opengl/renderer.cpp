@@ -232,7 +232,7 @@ std::vector<uint8_t> Renderer::GetImageFromTexture(uint32_t texture,
 }
 
 int Renderer::GetImageFromTexture(uint32_t texture, RectF dimensions,
-                                  tcb::span<uint8_t> outBuffer) {
+                                  std::span<uint8_t> outBuffer) {
   const int bufferSize = dimensions.Width * dimensions.Height * 4;
   assert(outBuffer.size() >= bufferSize);
   glBindTexture(GL_TEXTURE_2D, texture);
@@ -402,8 +402,8 @@ void Renderer::DrawSprite(Sprite const& sprite, CornersQuad const& dest,
 }
 
 void Renderer::DrawVertices(SpriteSheet const& sheet,
-                            tcb::span<const glm::vec2> sheetPositions,
-                            tcb::span<const glm::vec2> displayPositions,
+                            std::span<const glm::vec2> sheetPositions,
+                            std::span<const glm::vec2> displayPositions,
                             int width, int height, glm::vec4 tint,
                             bool inverted) {
   if (!Drawing) {
