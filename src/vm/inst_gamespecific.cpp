@@ -103,8 +103,7 @@ VmInstruction(InstRINNS) {
     case 0x91: {  // RINNSTimeupLogID
       PopExpression(arg1);
       ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction RINNSTimeupLogID(arg1: {:d})\n",
-                 arg1);
+                 "STUB instruction RINNSTimeupLogID(arg1: {:d})\n", arg1);
     } break;
   }
 }

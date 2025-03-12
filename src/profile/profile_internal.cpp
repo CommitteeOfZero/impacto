@@ -13,23 +13,28 @@ void LuaDumpStack() {
   std::string callStack;
   int top = lua_gettop(LuaState);
   for (int i = 1; i <= top; i++) {
-    fmt::format_to(std::back_inserter(callStack), "{:d}\t{}\t", i, luaL_typename(LuaState, i));
+    fmt::format_to(std::back_inserter(callStack), "{:d}\t{}\t", i,
+                   luaL_typename(LuaState, i));
     switch (lua_type(LuaState, i)) {
       case LUA_TNUMBER:
-      fmt::format_to(std::back_inserter(callStack), "{:g}", lua_tonumber(LuaState, i));
-      break;
+        fmt::format_to(std::back_inserter(callStack), "{:g}",
+                       lua_tonumber(LuaState, i));
+        break;
       case LUA_TSTRING:
-      fmt::format_to(std::back_inserter(callStack), "{:s}", lua_tostring(LuaState, i));
-      break;
+        fmt::format_to(std::back_inserter(callStack), "{:s}",
+                       lua_tostring(LuaState, i));
+        break;
       case LUA_TBOOLEAN:
-      fmt::format_to(std::back_inserter(callStack), "{}", lua_toboolean(LuaState, i) ? "true" : "false");
-      break;
+        fmt::format_to(std::back_inserter(callStack), "{}",
+                       lua_toboolean(LuaState, i) ? "true" : "false");
+        break;
       case LUA_TNIL:
-      fmt::format_to(std::back_inserter(callStack), "nil");
-      break;
+        fmt::format_to(std::back_inserter(callStack), "nil");
+        break;
       default:
-      fmt::format_to(std::back_inserter(callStack), "{}", lua_topointer(LuaState, i));
-      break;
+        fmt::format_to(std::back_inserter(callStack), "{}",
+                       lua_topointer(LuaState, i));
+        break;
     }
   }
   ImpLog(LL_Debug, LC_Profile, "Current stack: \n{}", callStack);
