@@ -27,6 +27,19 @@ void BacklogMenu::Render() {
   MainScrollbar->Render();
 }
 
+void BacklogMenu::UpdateVisibility() {
+  if (FadeAnimation.IsIn()) {
+    State = Shown;
+    IsFocused = true;
+  } else if (FadeAnimation.IsOut()) {
+    State = Hidden;
+    IsFocused = false;
+    if (UI::FocusedMenu) UI::FocusedMenu->IsFocused = true;
+
+    MainItems->Hide();
+  }
+}
+
 }  // namespace MO6TW
 }  // namespace UI
 }  // namespace Impacto

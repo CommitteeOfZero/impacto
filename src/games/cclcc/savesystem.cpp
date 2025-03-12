@@ -86,7 +86,7 @@ SaveError SaveSystem::CreateSaveFile() {
                               128));  // VOICE2vol
   Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_Voice] *
                               128));  // VOICEvol
-  Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_BGM] * 128));
+  Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_BGM] * 256));
   Io::WriteLE(stream,
               (Uint8)(Default::GroupVolumes[Audio::ACG_SE] * 128));  // SEvol
   Io::WriteLE(
@@ -152,7 +152,7 @@ SaveError SaveSystem::MountSaveFile() {
   AutoSpeed = Io::ReadLE<Uint16>(stream) / 60.0f;
   stream->Seek(1, SEEK_CUR);  // VOICE2vol
   Audio::GroupVolumes[Audio::ACG_Voice] = Io::ReadLE<Uint8>(stream) / 128.0f;
-  Audio::GroupVolumes[Audio::ACG_BGM] = Io::ReadLE<Uint8>(stream) / 128.0f;
+  Audio::GroupVolumes[Audio::ACG_BGM] = Io::ReadLE<Uint8>(stream) / 256.0f;
   Audio::GroupVolumes[Audio::ACG_SE] = Io::ReadLE<Uint8>(stream) / 128.0f;
   stream->Seek(1, SEEK_CUR);  // SYSSEvol
   Audio::GroupVolumes[Audio::ACG_Movie] = Io::ReadLE<Uint8>(stream) / 128.0f;
@@ -386,7 +386,7 @@ void SaveSystem::WriteSaveFile() {
                               128));  // VOICE2vol
   Io::WriteLE(stream, (Uint8)(Audio::GroupVolumes[Audio::ACG_Voice] *
                               128));  // VOICEvol
-  Io::WriteLE(stream, (Uint8)(Audio::GroupVolumes[Audio::ACG_BGM] * 128));
+  Io::WriteLE(stream, (Uint8)(Audio::GroupVolumes[Audio::ACG_BGM] * 256));
   Io::WriteLE(stream,
               (Uint8)(Audio::GroupVolumes[Audio::ACG_SE] * 128));  // SEvol
   Io::WriteLE(

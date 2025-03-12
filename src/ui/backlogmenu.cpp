@@ -211,17 +211,7 @@ void BacklogMenu::UpdateInput(float dt) {
 
 void BacklogMenu::Update(float dt) {
   if (State != Hidden && State != Shown) FadeAnimation.Update(dt);
-
-  if (State == Showing && FadeAnimation.IsIn()) {
-    State = Shown;
-    IsFocused = true;
-  } else if (State == Hiding && FadeAnimation.IsOut()) {
-    State = Hidden;
-    IsFocused = false;
-    if (UI::FocusedMenu) UI::FocusedMenu->IsFocused = true;
-
-    MainItems->Hide();
-  }
+  UpdateVisibility();
 
   if (State == Shown && IsFocused) {
     UpdateInput(dt);

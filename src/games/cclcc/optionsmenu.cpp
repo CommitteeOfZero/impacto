@@ -100,7 +100,7 @@ std::unique_ptr<Group> OptionsMenu::CreateSoundPage(
                                    SliderSpeed, select, highlight),
                  FDIR_DOWN);
   soundPage->Add(
-      new OptionsSlider(Audio::GroupVolumes[Audio::ACG_BGM], 0.0f, 1.0f,
+      new OptionsSlider(Audio::GroupVolumes[Audio::ACG_BGM], 0.0f, 0.5f,
                         SliderTrackSprite, LabelSprites[8],
                         SoundEntriesStartPosition +
                             glm::vec2(0.0f, SoundEntriesVerticalOffset),
