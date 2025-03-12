@@ -453,7 +453,7 @@ VmInstruction(InstUnk0215) {
       "STUB instruction Unk0215(arg1: {:d}, arg2: {:d}, arg3: "
       "{:d}, arg4: {:d}, arg5: {:d}, arg6: {:d}, arg7: {:d}, arg8: {:d}, "
       "arg9: {:d}, arg10: {:d}, arg11: {:d}, arg12: {:d}, arg13: {:d}, arg14: "
-      "{:d}, arg15: {:d}, arg16: {:d}, arg17: {:d})\n", 
+      "{:d}, arg15: {:d}, arg16: {:d}, arg17: {:d})\n",
       arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12,
       arg13, arg14, arg15, arg16, arg17);
 }
