@@ -30,8 +30,9 @@ OptionsVoiceSlider::OptionsVoiceSlider(
       RectF(Bounds.X, Bounds.Y, VoiceEntryDimensions.x, VoiceEntryDimensions.y);
   EntryButton.Bounds = Bounds;
 
-  std::function<void(ClickArea*)> onClick = std::bind(
-      &OptionsVoiceSlider::MuteButtonOnClick, this, std::placeholders::_1);
+  std::function<void(ClickArea*)> onClick = [this](auto* btn) {
+    return MuteButtonOnClick(btn);
+  };
   const RectF muteButtonBounds(Bounds.GetPos().x + PortraitOffset.x,
                                Bounds.GetPos().y + PortraitOffset.y,
                                portrait.ScaledWidth(), portrait.ScaledHeight());

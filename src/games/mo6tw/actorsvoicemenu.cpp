@@ -31,8 +31,7 @@ ActorsVoiceMenu::ActorsVoiceMenu() {
 
   MainItems = new Group(this);
 
-  auto onClick = std::bind(&ActorsVoiceMenu::VoiceButtonOnClick, this,
-                           std::placeholders::_1);
+  auto onClick = [this](auto* btn) { return VoiceButtonOnClick(btn); };
 
   auto pos = InitialItemPosition;
 

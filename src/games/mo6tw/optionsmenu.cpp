@@ -184,8 +184,9 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   TipsNotificationsToggles = new Widgets::Group(this);
   TipsNotificationsToggles->FocusLock = false;
 
-  auto messageSpeedOnClick = std::bind(&OptionsMenu::MessageSpeedToggleOnClick,
-                                       this, std::placeholders::_1);
+  auto messageSpeedOnClick = [this](auto* btn) {
+    return MessageSpeedToggleOnClick(btn);
+  };
   for (int i = 0; i < 4; i++) {
     auto toggle = new Widgets::Toggle(
         i, &MessageSpeedValues[i], CheckboxTickSprite, CheckboxBoxSprite,
@@ -202,8 +203,9 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   secondPage->Add(MessageSpeedToggles, FDIR_DOWN);
 
   CheckboxFirstPos += CheckboxMargin;
-  auto autoModeWaitTimeOnClick = std::bind(
-      &OptionsMenu::AutoModeWaitTimeOnClick, this, std::placeholders::_1);
+  auto autoModeWaitTimeOnClick = [this](auto* btn) {
+    return AutoModeWaitTimeOnClick(btn);
+  };
   for (int i = 0; i < 3; i++) {
     auto toggle = new Widgets::Toggle(
         i, &AutoModeWaitTimeValues[i], CheckboxTickSprite, CheckboxBoxSprite,
@@ -220,8 +222,9 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   secondPage->Add(AutoModeWaitTimeToggles, FDIR_DOWN);
 
   CheckboxFirstPos += CheckboxMargin;
-  auto syncTextSpeedToVoiceOnClick = std::bind(
-      &OptionsMenu::SyncTextSpeedToVoiceOnClick, this, std::placeholders::_1);
+  auto syncTextSpeedToVoiceOnClick = [this](auto* btn) {
+    return SyncTextSpeedToVoiceOnClick(btn);
+  };
   for (int i = 0; i < 2; i++) {
     auto toggle = new Widgets::Toggle(
         i, &SyncTextSpeedToVoiceValues[i], CheckboxTickSprite,
@@ -239,8 +242,9 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   secondPage->Add(SyncTextSpeedToVoiceToggles, FDIR_DOWN);
 
   CheckboxFirstPos += CheckboxMargin;
-  auto skipVoiceAtNextLineOnClick = std::bind(
-      &OptionsMenu::SkipVoiceAtNextLineOnClick, this, std::placeholders::_1);
+  auto skipVoiceAtNextLineOnClick = [this](auto* btn) {
+    return SkipVoiceAtNextLineOnClick(btn);
+  };
   for (int i = 0; i < 2; i++) {
     auto toggle = new Widgets::Toggle(
         i, &SkipVoiceAtNextLineValues[i], CheckboxTickSprite, CheckboxBoxSprite,
@@ -256,8 +260,7 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   }
   secondPage->Add(SkipVoiceAtNextLineToggles, FDIR_DOWN);
 
-  auto skipModeOnClick =
-      std::bind(&OptionsMenu::SkipModeOnClick, this, std::placeholders::_1);
+  auto skipModeOnClick = [this](auto* btn) { return SkipModeOnClick(btn); };
   for (int i = 0; i < 2; i++) {
     auto toggle = new Widgets::Toggle(
         i, &SkipModeValues[i], CheckboxTickSprite, CheckboxBoxSprite,
@@ -281,8 +284,9 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
       SliderThumbOffset);
 
   CheckboxSecondPos += CheckboxMargin;
-  auto autoSaveTriggerOnClick = std::bind(&OptionsMenu::AutoSaveTriggerOnClick,
-                                          this, std::placeholders::_1);
+  auto autoSaveTriggerOnClick = [this](auto* btn) {
+    return AutoSaveTriggerOnClick(btn);
+  };
   for (int i = 0; i < 4; i++) {
     auto toggle = new Widgets::Toggle(
         i, &AutoSaveTriggerValues[i], CheckboxTickSprite, CheckboxBoxSprite,
@@ -301,8 +305,9 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   ScreenSizeSlider->SetFocus(TipsNotificationsToggles, FDIR_DOWN);
   secondPage->Add(ScreenSizeSlider, FDIR_DOWN);
 
-  auto tipsNotificationsOnClick = std::bind(
-      &OptionsMenu::TipsNotificationsOnClick, this, std::placeholders::_1);
+  auto tipsNotificationsOnClick = [this](auto* btn) {
+    return TipsNotificationsOnClick(btn);
+  };
   checkboxLabelIdx = 7;
   for (int i = 0; i < 2; i++) {
     auto toggle = new Widgets::Toggle(

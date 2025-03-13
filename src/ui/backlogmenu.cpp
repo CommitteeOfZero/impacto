@@ -287,8 +287,7 @@ void BacklogMenu::Render() {}
 
 void BacklogMenu::AddMessage(uint8_t* str, int audioId, int characterId) {
   if (!GetFlag(SF_REVADDDISABLE) || ScrWork[SW_MESWIN0TYPE] == 0) {
-    auto onClick =
-        std::bind(&BacklogMenu::MenuButtonOnClick, this, std::placeholders::_1);
+    auto onClick = [this](auto* btn) { return MenuButtonOnClick(btn); };
 
     auto backlogEntry = new BacklogEntry(CurrentId, str, audioId, characterId,
                                          CurrentEntryPos, HoverBounds);

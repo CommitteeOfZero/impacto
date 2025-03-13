@@ -40,10 +40,10 @@ TitleMenu::TitleMenu() {
   UnlockedExtraItems = new Widgets::Group(this);
   SystemItems = new Widgets::Group(this);
 
-  auto onClick =
-      std::bind(&TitleMenu::MenuButtonOnClick, this, std::placeholders::_1);
-  auto secondaryOnClick = std::bind(&TitleMenu::SecondaryButtonOnClick, this,
-                                    std::placeholders::_1);
+  auto onClick = [this](auto* btn) { return MenuButtonOnClick(btn); };
+  auto secondaryOnClick = [this](auto* btn) {
+    return SecondaryButtonOnClick(btn);
+  };
 
   // Start menu button
   Start = new TitleButton(

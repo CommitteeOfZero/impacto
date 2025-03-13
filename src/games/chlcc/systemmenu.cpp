@@ -35,8 +35,7 @@ SystemMenu::SystemMenu() {
   TitleFade.DurationIn = TitleFadeInDuration;
   TitleFade.DurationOut = TitleFadeOutDuration;
 
-  auto onClick =
-      std::bind(&SystemMenu::MenuButtonOnClick, this, std::placeholders::_1);
+  auto onClick = [this](auto* btn) { return MenuButtonOnClick(btn); };
 
   MainItems = new Widgets::Group(this);
 

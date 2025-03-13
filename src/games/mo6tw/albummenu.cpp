@@ -54,8 +54,9 @@ AlbumMenu::AlbumMenu() {
   ArrowsAnimation.StartIn();
 
   CgViewerWidget = new CgViewer();
-  CgViewerWidget->OnVariationEndHandler =
-      std::bind(&AlbumMenu::OnCgVariationEnd, this, std::placeholders::_1);
+  CgViewerWidget->OnVariationEndHandler = [this](auto* btn) {
+    return OnCgVariationEnd(btn);
+  };
   CgViewerGroup = new Group(this);
   CgViewerGroup->Add(CgViewerWidget, FDIR_DOWN);
 
@@ -68,8 +69,9 @@ AlbumMenu::AlbumMenu() {
   auto pos = InitialButtonPosition;
   int idx = 0;
 
-  auto characterOnClick = std::bind(&AlbumMenu::CharacterButtonOnClick, this,
-                                    std::placeholders::_1);
+  auto characterOnClick = [this](auto* btn) {
+    return CharacterButtonOnClick(btn);
+  };
 
   for (int i = 0; i < CharacterButtonCount; i++) {
     if (idx % 2 == 0)
@@ -105,13 +107,15 @@ AlbumMenu::AlbumMenu() {
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
   ArrowUpButton = new Button(0, ArrowUp, ArrowUp, nullSprite, ArrowUpPosition);
   ArrowUpButton->DisabledSprite = nullSprite;
-  ArrowUpButton->OnClickHandler =
-      std::bind(&AlbumMenu::ArrowUpOnClick, this, std::placeholders::_1);
+  ArrowUpButton->OnClickHandler = [this](auto* btn) {
+    return ArrowUpOnClick(btn);
+  };
   ArrowDownButton =
       new Button(1, ArrowDown, ArrowDown, nullSprite, ArrowDownPosition);
   ArrowDownButton->DisabledSprite = nullSprite;
-  ArrowDownButton->OnClickHandler =
-      std::bind(&AlbumMenu::ArrowDownOnClick, this, std::placeholders::_1);
+  ArrowDownButton->OnClickHandler = [this](auto* btn) {
+    return ArrowDownOnClick(btn);
+  };
   Arrows->Add(ArrowUpButton);
   Arrows->Add(ArrowDownButton);
 }
@@ -283,8 +287,7 @@ void AlbumMenu::LoadCharacter(int id) {
             OthersPortraitPosition.y + OthersPortraitTopPart.ScaledHeight())));
   }
 
-  auto cgOnClick =
-      std::bind(&AlbumMenu::CgOnClick, this, std::placeholders::_1);
+  auto cgOnClick = [this](auto* btn) { return CgOnClick(btn); };
 
   int row = 1;
   int endIdx =
