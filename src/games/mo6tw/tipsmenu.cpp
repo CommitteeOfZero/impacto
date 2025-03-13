@@ -144,7 +144,7 @@ void TipsMenu::Render() {
 void TipsMenu::Init() {
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
-  auto onClick = std::bind(&TipsMenu::TipOnClick, this, std::placeholders::_1);
+  auto onClick = [this](auto *btn) { return TipOnClick(btn); };
   int currentPage = 0, currentCategoryId = -1;
   Group *pageItems = new Group(this);
 

@@ -52,8 +52,7 @@ MusicMenu::MusicMenu() {
       new Label(PlaybackModeLabels[PlaybackMode], PlaybackModeLabelPosition);
   BackgroundItems->Add(PlaybackModeLabel);
 
-  auto onClick =
-      std::bind(&MusicMenu::MusicButtonOnClick, this, std::placeholders::_1);
+  auto onClick = [this](auto* btn) { return MusicButtonOnClick(btn); };
 
   MainItems->RenderingBounds = ItemsWindowRenderingBounds;
   auto pos = MusicListInitialPosition;

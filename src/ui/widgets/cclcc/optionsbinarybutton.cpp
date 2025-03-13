@@ -31,12 +31,10 @@ OptionsBinaryButton::OptionsBinaryButton(
       ClickArea(0,
                 RectF(truePosition.x, truePosition.y, TrueSprite.ScaledWidth(),
                       TrueSprite.ScaledHeight()),
-                std::bind(&OptionsBinaryButton::TrueOnClick, this,
-                          std::placeholders::_1));
+                [this](auto* btn) { return TrueOnClick(btn); });
   FalseButton = ClickArea(
       0, TrueButton.Bounds + glm::vec2(box.ScaledWidth() / 2.0f, 0.0f),
-      std::bind(&OptionsBinaryButton::FalseOnClick, this,
-                std::placeholders::_1));
+      [this](auto* btn) { return FalseOnClick(btn); });
 }
 
 void OptionsBinaryButton::Render() {

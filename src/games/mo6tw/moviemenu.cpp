@@ -31,8 +31,7 @@ MovieMenu::MovieMenu() {
   MainItems = new Group(this);
   MainItems->WrapFocus = false;
 
-  auto onClick =
-      std::bind(&MovieMenu::MovieButtonOnClick, this, std::placeholders::_1);
+  auto onClick = [this](auto* btn) { return MovieButtonOnClick(btn); };
 
   auto pos = InitialItemPosition;
 

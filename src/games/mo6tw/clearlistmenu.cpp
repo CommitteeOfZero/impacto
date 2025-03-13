@@ -40,12 +40,14 @@ ClearListMenu::ClearListMenu() {
   ArrowsAnimation.SetDuration(ArrowsAnimationDuration);
   ArrowsAnimation.StartIn();
 
-  MainItems =
-      new Carousel(CDIR_HORIZONTAL,
-                   std::bind(&ClearListMenu::OnAdvancePage, this,
-                             std::placeholders::_1, std::placeholders::_2),
-                   std::bind(&ClearListMenu::OnGoBackPage, this,
-                             std::placeholders::_1, std::placeholders::_2));
+  MainItems = new Carousel(
+      CDIR_HORIZONTAL,
+      [this](auto* curPage, auto* nextPage) {
+        return OnAdvancePage(curPage, nextPage);
+      },
+      [this](auto* curPage, auto* nextPage) {
+        return OnGoBackPage(curPage, nextPage);
+      });
 
   Arrows = new Group(this);
   Arrows->FocusLock = false;
@@ -53,12 +55,15 @@ ClearListMenu::ClearListMenu() {
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
   auto arrowLeft =
       new Button(0, ArrowLeft, ArrowLeft, nullSprite, ArrowLeftPosition);
-  arrowLeft->OnClickHandler =
-      std::bind(&ClearListMenu::ArrowLeftOnClick, this, std::placeholders::_1);
+  arrowLeft->OnClickHandler = [this](auto* btn) {
+    return ArrowLeftOnClick(btn);
+  };
   auto arrowRight =
       new Button(1, ArrowRight, ArrowRight, nullSprite, ArrowRightPosition);
-  arrowRight->OnClickHandler =
-      std::bind(&ClearListMenu::ArrowRightOnClick, this, std::placeholders::_1);
+  arrowRight->OnClickHandler = [this](auto* btn) {
+    return ArrowRightOnClick(btn);
+  };
+
   Arrows->Add(arrowLeft);
   Arrows->Add(arrowRight);
   Arrows->IsShown = true;

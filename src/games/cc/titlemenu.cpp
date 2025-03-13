@@ -56,12 +56,11 @@ TitleMenu::TitleMenu() {
   ExtraItems = new Widgets::Group(this);
   ExtraItems->WrapFocus = false;
 
-  auto onClick =
-      std::bind(&TitleMenu::MenuButtonOnClick, this, std::placeholders::_1);
-  auto continueOnClick =
-      std::bind(&TitleMenu::ContinueButtonOnClick, this, std::placeholders::_1);
-  auto extraOnClick =
-      std::bind(&TitleMenu::ExtraButtonOnClick, this, std::placeholders::_1);
+  auto onClick = [this](auto* btn) { return MenuButtonOnClick(btn); };
+  auto continueOnClick = [this](auto* btn) {
+    return ContinueButtonOnClick(btn);
+  };
+  auto extraOnClick = [this](auto* btn) { return ExtraButtonOnClick(btn); };
 
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);

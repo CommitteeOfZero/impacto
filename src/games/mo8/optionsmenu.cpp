@@ -62,10 +62,10 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   PageFadeAnimation.DurationIn = FadeInDuration;
   PageFadeAnimation.DurationOut = FadeOutDuration;
 
-  auto nextPageOnClick =
-      std::bind(&OptionsMenu::NextPageOnClick, this, std::placeholders::_1);
-  auto previousPageOnClick =
-      std::bind(&OptionsMenu::PreviousPageOnClick, this, std::placeholders::_1);
+  auto nextPageOnClick = [this](auto* btn) { return NextPageOnClick(btn); };
+  auto previousPageOnClick = [this](auto* btn) {
+    return PreviousPageOnClick(btn);
+  };
 
   PageControls = new Group(this);
   PageControls->FocusLock = false;
@@ -90,8 +90,9 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   textPage->Add(new Label(TextPageLabel, PageLabelPosition));
 
   // Text speed
-  auto textSpeedOnClick = std::bind(&OptionsMenu::MessageSpeedToggleOnClick,
-                                    this, std::placeholders::_1);
+  auto textSpeedOnClick = [this](auto* btn) {
+    return MessageSpeedToggleOnClick(btn);
+  };
   auto textSpeedOptions =
       new OptionGroup(this, TextSpeedOptionsLabel, TextSpeedOptionsLabelH,
                       ButtonHighlight, currentPos, OptionGroupItemsOffset);
@@ -106,8 +107,9 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   currentPos += ListPadding;
 
   // Auto mode wait time
-  auto autoModeWaitTimeOnClick = std::bind(
-      &OptionsMenu::AutoModeWaitTimeOnClick, this, std::placeholders::_1);
+  auto autoModeWaitTimeOnClick = [this](auto* btn) {
+    return AutoModeWaitTimeOnClick(btn);
+  };
   auto autoModeOptions =
       new OptionGroup(this, AutoModeOptionsLabel, AutoModeOptionsLabelH,
                       ButtonHighlight, currentPos, OptionGroupItemsOffset);
@@ -122,8 +124,7 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   currentPos += ListPadding;
 
   // Skip mode
-  auto skipModeOnClick =
-      std::bind(&OptionsMenu::SkipModeOnClick, this, std::placeholders::_1);
+  auto skipModeOnClick = [this](auto* btn) { return SkipModeOnClick(btn); };
   auto skipModeOptions =
       new OptionGroup(this, SkipModeOptionsLabel, SkipModeOptionsLabelH,
                       ButtonHighlight, currentPos, OptionGroupItemsOffset);

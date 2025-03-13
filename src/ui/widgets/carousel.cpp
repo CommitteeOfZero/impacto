@@ -12,10 +12,12 @@ using namespace Impacto::Vm::Interface;
 
 Carousel::Carousel(CarouselDirection dir) {
   Direction = dir;
-  OnAdvanceHandler = std::bind(&Carousel::OnChange, this, std::placeholders::_1,
-                               std::placeholders::_2);
-  OnBackHandler = std::bind(&Carousel::OnChange, this, std::placeholders::_1,
-                            std::placeholders::_2);
+  OnAdvanceHandler = [this](Widget* current, Widget* next) {
+    return OnChange(current, next);
+  };
+  OnBackHandler = [this](Widget* current, Widget* next) {
+    return OnChange(current, next);
+  };
 }
 
 Carousel::Carousel(CarouselDirection dir,

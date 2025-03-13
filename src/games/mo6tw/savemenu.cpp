@@ -44,8 +44,7 @@ void SaveMenu::Show() {
     MainItems = new Widgets::Group(this);
     MainItems->WrapFocus = false;
 
-    auto onClick =
-        std::bind(&SaveMenu::MenuButtonOnClick, this, std::placeholders::_1);
+    auto onClick = [this](auto* btn) { return MenuButtonOnClick(btn); };
 
     Sprite entrySprite;
     Sprite entryHSprite;

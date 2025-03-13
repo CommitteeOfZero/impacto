@@ -355,8 +355,7 @@ inline void MusicMenu::DrawRedBar() {
 }
 
 void MusicMenu::UpdateEntries() {
-  auto onClick =
-      std::bind(&MusicMenu::MusicButtonOnClick, this, std::placeholders::_1);
+  auto onClick = [this](auto* btn) { return MusicButtonOnClick(btn); };
 
   for (size_t idx = 0; idx < MainItems->Children.size(); idx++) {
     auto button = static_cast<Widgets::CHLCC::TrackSelectButton*>(
