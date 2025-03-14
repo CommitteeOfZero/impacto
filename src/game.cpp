@@ -163,7 +163,7 @@ void Shutdown() {
   if (Profile::GameFeatures & GameFeature::Renderer2D) {
     Renderer->Shutdown();
   }
-
+  WorkQueue::StopWorkQueue();
   Window->Shutdown();
 }
 

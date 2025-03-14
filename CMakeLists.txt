@@ -754,11 +754,21 @@ FetchContent_Declare(
     EXCLUDE_FROM_ALL
 )
 
+FetchContent_Declare(
+    concurrentqueue
+    GIT_REPOSITORY "https://github.com/cameron314/concurrentqueue"
+    GIT_TAG "v1.0.4"
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/cameron314/concurrentqueue
+    SYSTEM
+    EXCLUDE_FROM_ALL
+)
+
 FetchContent_MakeAvailable(fmt)
 FetchContent_MakeAvailable(glm)
 FetchContent_MakeAvailable(pugixml)
 FetchContent_MakeAvailable(utf8cpp)
 FetchContent_MakeAvailable(libatrac9)
+FetchContent_MakeAvailable(concurrentqueue)
 
 if (NOT DEFINED IMPACTO_DISABLE_MMAP)
     list(APPEND Impacto_Src
@@ -920,6 +930,7 @@ list(APPEND Impacto_Include_Dirs ${WebP_INCLUDE_DIRS})
 list(APPEND Impacto_Include_Dirs vendor)
 list(APPEND Impacto_Include_Dirs vendor/include)
 list(APPEND Impacto_Include_Dirs vendor/pcg/include)
+list(APPEND Impacto_Include_Dirs vendor/cameron314)
 
 list(APPEND Impacto_Libs
         fmt::fmt
