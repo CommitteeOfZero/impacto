@@ -33,14 +33,14 @@ SaveError SaveSystem::CheckSaveFile() {
     return SaveNotFound;
   } else if (existsState == IoError_Fail) {
     ImpLog(LL_Error, LC_IO,
-           "Failed to check if save file exists, error: \"%s\"\n",
-           ec.message().c_str());
+           "Failed to check if save file exists, error: \"{:s}\"\n",
+           ec.message());
     return SaveFailed;
   }
   auto saveFileSize = Io::GetFileSize(SaveFilePath);
   if (saveFileSize == IoError_Fail) {
-    ImpLog(LL_Error, LC_IO, "Failed to get save file size, error: \"%s\"\n",
-           ec.message().c_str());
+    ImpLog(LL_Error, LC_IO, "Failed to get save file size, error: \"{:s}\"\n",
+           ec.message());
     return SaveFailed;
   } else if (saveFileSize != SaveFileSize) {
     return SaveCorrupted;
@@ -54,8 +54,8 @@ SaveError SaveSystem::CheckSaveFile() {
   IoError permsState = Io::GetFilePermissions(SaveFilePath, perms);
   if (permsState == IoError_Fail) {
     ImpLog(LL_Error, LC_IO,
-           "Failed to get save file permissions, error: \"%s\"\n",
-           ec.message().c_str());
+           "Failed to get save file permissions, error: \"{:s}\"\n",
+           ec.message());
     return SaveFailed;
   } else if ((!checkPermsBit(perms, Io::FilePermissionsFlags::owner_read) ||
               !checkPermsBit(perms, Io::FilePermissionsFlags::owner_write))) {
@@ -351,7 +351,7 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
 
     int result = ResizeImage(
         WorkingSaveThumbnail.Bounds, entry->SaveThumbnail.Bounds, captureBuffer,
-        tcb::span{tex.Buffer, static_cast<size_t>(tex.BufferSize)}, true);
+        std::span{tex.Buffer, static_cast<size_t>(tex.BufferSize)}, true);
     if (result < 0) {
       ImpLog(LL_Error, LC_General, "Failed to resize save thumbnail\n");
     }

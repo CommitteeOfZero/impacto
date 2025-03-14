@@ -198,10 +198,12 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
     PageButtons.emplace_back(i, PagePanelHoverBounds[i]);
   }
 
-  std::function<void(OptionsEntry*)> select =
-      std::bind(&OptionsMenu::Select, this, std::placeholders::_1);
-  std::function<void(Widget*)> highlight =
-      std::bind(&OptionsMenu::Highlight, this, std::placeholders::_1);
+  std::function<void(OptionsEntry*)> select = [this](auto* btn) {
+    return Select(btn);
+  };
+  std::function<void(Widget*)> highlight = [this](auto* btn) {
+    return Highlight(btn);
+  };
 
   Pages.reserve(PageCount);
   Pages.emplace_back(CreateBasicPage(select, highlight));

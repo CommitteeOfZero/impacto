@@ -52,8 +52,7 @@ MusicMenu::MusicMenu() {
       new Label(PlaybackModeLabels[PlaybackMode], PlaybackModeLabelPosition);
   BackgroundItems->Add(PlaybackModeLabel);
 
-  auto onClick =
-      std::bind(&MusicMenu::MusicButtonOnClick, this, std::placeholders::_1);
+  auto onClick = [this](auto* btn) { return MusicButtonOnClick(btn); };
 
   MainItems->RenderingBounds = ItemsWindowRenderingBounds;
   auto pos = MusicListInitialPosition;
@@ -224,12 +223,12 @@ void MusicMenu::UpdateMusicTimer() {
     auto seconds = position % 3600 % 60;
     auto minutes = position % 3600 / 60;
     auto hours = position / 3600;
-    char time[9];
-    sprintf(time, "%02d:%02d:%02d", hours, minutes, seconds);
+    std::string time =
+        fmt::format("{:02d}:{:02d}:{:02d}", hours, minutes, seconds);
     for (int i = 0; i < 8; i++) {
       auto label = static_cast<Label*>(Timer->Children.at(i));
       label->SetSprite(time[i] == ':' ? TimerChars[TimerCharCount - 1]
-                                      : TimerChars[(int)time[i] - (int)'0']);
+                                      : TimerChars[time[i] - '0']);
     }
   }
 }

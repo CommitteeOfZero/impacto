@@ -6,7 +6,7 @@
 #include "../spritesheet.h"
 #include "../text.h"
 #include "yuvframe.h"
-#include <span/span.hpp>
+#include <span>
 
 namespace Impacto {
 
@@ -35,7 +35,7 @@ class BaseRenderer {
   virtual std::vector<uint8_t> GetImageFromTexture(uint32_t texture,
                                                    RectF dimensions) = 0;
   virtual int GetImageFromTexture(uint32_t texture, RectF dimensions,
-                                  tcb::span<uint8_t> outBuffer) = 0;
+                                  std::span<uint8_t> outBuffer) = 0;
   virtual void FreeTexture(uint32_t id) = 0;
   virtual YUVFrame* CreateYUVFrame(float width, float height) = 0;
 
@@ -57,8 +57,8 @@ class BaseRenderer {
                                 float angle = 0.0f, bool inverted = false) = 0;
 
   virtual void DrawVertices(SpriteSheet const& sheet,
-                            tcb::span<const glm::vec2> sheetPositions,
-                            tcb::span<const glm::vec2> displayPositions,
+                            std::span<const glm::vec2> sheetPositions,
+                            std::span<const glm::vec2> displayPositions,
                             int width, int height,
                             glm::vec4 tint = glm::vec4(1.0),
                             bool inverted = false) = 0;
@@ -103,26 +103,26 @@ class BaseRenderer {
                                  glm::vec2 vanishingPoint, bool stayInScreen,
                                  glm::quat rot, glm::vec4 color) = 0;
 
-  void DrawProcessedText_BasicFont(tcb::span<const ProcessedTextGlyph> text,
+  void DrawProcessedText_BasicFont(std::span<const ProcessedTextGlyph> text,
                                    BasicFont* font, float opacity,
                                    RendererOutlineMode outlineMode,
                                    bool smoothstepGlyphOpacity,
                                    float outlineOpacity,
                                    SpriteSheet* maskedSheet);
 
-  void DrawProcessedText_LBFont(tcb::span<const ProcessedTextGlyph> text,
+  void DrawProcessedText_LBFont(std::span<const ProcessedTextGlyph> text,
                                 LBFont* font, float opacity,
                                 RendererOutlineMode outlineMode,
                                 bool smoothstepGlyphOpacity,
                                 float outlineOpacity, SpriteSheet* maskedSheet);
   void DrawProcessedText(
-      tcb::span<const ProcessedTextGlyph> text, Font* font,
+      std::span<const ProcessedTextGlyph> text, Font* font,
       float opacity = 1.0f,
       RendererOutlineMode outlineMode = RendererOutlineMode::RO_None,
       bool smoothstepGlyphOpacity = true, SpriteSheet* maskedSheet = 0);
 
   void DrawProcessedText(
-      tcb::span<const ProcessedTextGlyph> text, Font* font, float opacity,
+      std::span<const ProcessedTextGlyph> text, Font* font, float opacity,
       float outlineOpacity,
       RendererOutlineMode outlineMode = RendererOutlineMode::RO_None,
       bool smoothstepGlyphOpacity = true, SpriteSheet* maskedSheet = 0);

@@ -103,8 +103,8 @@ void FFmpegPlayer::OpenCodec(std::optional<FFmpegStream<MediaType>>& streamOpt,
   decoderContext.open({{{"threads", "auto"}}}, ec);
   decoderContext.setRefCountedFrames(true);
   if (ec) {
-    ImpLog(LL_Error, LC_Audio, "Failed to open codec, error: %s",
-           ec.message().c_str());
+    ImpLog(LL_Error, LC_Audio, "Failed to open codec, error: {:s}",
+           ec.message());
   }
 
   double rate = 1;
@@ -141,23 +141,23 @@ void FFmpegPlayer::Play(Io::Stream* stream, bool looping, bool alpha) {
   SeekRequest = false;
   Looping = looping;
   IsAlpha = alpha;
-  ImpLog(LL_Info, LC_Video, "Opening file: %s from: %s\n",
-         stream->Meta.FileName.c_str(), stream->Meta.ArchiveFileName.c_str());
+  ImpLog(LL_Info, LC_Video, "Opening file: {:s} from: {:s}\n",
+         stream->Meta.FileName, stream->Meta.ArchiveFileName);
 
   std::error_code ec;
   IoContext = FFmpegFileIO{stream};
   FormatContext.openInput(&IoContext, ec, FILESTREAMBUFFERSZ);
   if (ec) {
-    ImpLog(LL_Error, LC_Video, "Error opening file, error: %s\n",
-           ec.message().c_str());
+    ImpLog(LL_Error, LC_Video, "Error opening file, error: {:s}\n",
+           ec.message());
     StreamPtr.reset();
     return;
   }
 
   FormatContext.findStreamInfo(ec);
   if (ec) {
-    ImpLog(LL_Error, LC_Video, "Error opening file, error: %s\n",
-           ec.message().c_str());
+    ImpLog(LL_Error, LC_Video, "Error opening file, error: {:s}\n",
+           ec.message());
     StreamPtr.reset();
     return;
   }
@@ -239,8 +239,8 @@ void FFmpegPlayer::HandleSeekRequest() {
   std::error_code ec;
   FormatContext.seek(av::Timestamp(SeekPosition, av::TimeBaseQ), ec);
   if (ec) {
-    ImpLog(LL_Error, LC_Video, "Error encountered while seeking, error: %s",
-           ec.message().c_str());
+    ImpLog(LL_Error, LC_Video, "Error encountered while seeking, error: {:s}",
+           ec.message());
   }
 
   if (VideoStream) {
@@ -275,7 +275,7 @@ void FFmpegPlayer::Read() {
     std::error_code ec;
     item.Packet = FormatContext.readPacket(ec);
     if (ec) {
-      ImpLog(LL_Error, LC_Video, "Uh oh %s\n", ec.message().c_str());
+      ImpLog(LL_Error, LC_Video, "Uh oh {:s}\n", ec.message());
     }
     if (item.Packet) {
       if (item.Packet.streamIndex() == VideoStream->stream.index()) {
@@ -316,13 +316,14 @@ void FFmpegPlayer::Decode() {
 
   auto hasPacket = [this, stream, &waitMutex]() {
     std::unique_lock packetLock(stream->PacketLock);
-    ImpLogSlow(LL_Trace, LC_Video, "%d->PacketQueue.size() = %d\n", MediaType,
-               stream->PacketQueue.size());
+    ImpLogSlow(LL_Trace, LC_Video, "{:d}->PacketQueue.size() = {:d}\n",
+               to_underlying(MediaType), stream->PacketQueue.size());
     if (stream->PacketQueue.empty()) {
       packetLock.unlock();
       std::unique_lock lock(waitMutex);
       ReadCond.notify_one();
-      ImpLogSlow(LL_Trace, LC_Video, "%d Decoder starving!\n", MediaType);
+      ImpLogSlow(LL_Trace, LC_Video, "{:d} Decoder starving!\n",
+                 to_underlying(MediaType));
       stream->DecodeCond.wait(lock);
       return false;
     }
@@ -356,7 +357,8 @@ void FFmpegPlayer::Decode() {
   auto isFrameQueueFull = [stream, &waitMutex]() {
     if (std::unique_lock frameLock(stream->FrameLock);
         stream->FrameQueue.size() > 60) {
-      ImpLogSlow(LL_Trace, LC_Video, "%d FrameQueue full!\n", MediaType);
+      ImpLogSlow(LL_Trace, LC_Video, "{:d} FrameQueue full!\n",
+                 to_underlying(MediaType));
       std::unique_lock waitLock(waitMutex);
       frameLock.unlock();
       stream->DecodeCond.wait(waitLock);
@@ -389,7 +391,7 @@ void FFmpegPlayer::Decode() {
     if (packet.Serial != INT32_MIN) {
       Frame_t<MediaType> frame = stream->CodecContext.decode(packet.Packet, ec);
       if (ec) {
-        ImpLog(LL_Error, LC_Video, "Failed to decode %s", ec.message().c_str());
+        ImpLog(LL_Error, LC_Video, "Failed to decode {:s}", ec.message());
       }
       if (!frame) continue;  // Skip Empty Padding Frames
       pushFrame(std::move(frame));
@@ -398,8 +400,7 @@ void FFmpegPlayer::Decode() {
       bool decode = true;
       while (decode) {
         if (ec) {
-          ImpLog(LL_Error, LC_Video, "Failed to decode %s",
-                 ec.message().c_str());
+          ImpLog(LL_Error, LC_Video, "Failed to decode {:s}", ec.message());
         }
         Frame_t<MediaType> frame = stream->CodecContext.decode({}, ec);
         decode = frame;
@@ -464,7 +465,7 @@ void FFmpegPlayer::Update(float dt) {
     AVFrameItem<AVMEDIA_TYPE_VIDEO> const& frame =
         VideoStream->FrameQueue.front();
     frameLock.unlock();
-    ImpLogSlow(LL_Trace, LC_Video, "VideoStream->FrameQueue.size() = %d\n",
+    ImpLogSlow(LL_Trace, LC_Video, "VideoStream->FrameQueue.size() = {:d}\n",
                frameQueueSize);
     SetFlag(SF_MOVIE_DRAWWAIT, false);
 
@@ -543,7 +544,7 @@ double FFmpegPlayer::GetTargetDelay(double duration) {
     else if (diff >= sync_threshold)
       duration = 2 * duration;
   }
-  ImpLogSlow(LL_Trace, LC_Video, "Target delay: %f\n", duration);
+  ImpLogSlow(LL_Trace, LC_Video, "Target delay: {:f}\n", duration);
 
   return duration;
 }

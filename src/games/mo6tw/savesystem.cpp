@@ -250,7 +250,7 @@ void SaveSystem::WriteSaveFile() {
   IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &instream);
   auto err1 = SDL_GetError();
   if (err != IoError_OK) {
-    ImpLog(LL_Error, LC_IO, "Failed to create save file, SDL error: %s\n",
+    ImpLog(LL_Error, LC_IO, "Failed to create save file, SDL error: {:s}\n",
            err1);
     return;
   }
@@ -278,7 +278,7 @@ void SaveSystem::WriteSaveFile() {
       auto err1 = SDL_GetError();
       if (err != IoError_OK) {
         ImpLog(LL_Error, LC_IO,
-               "Failed to write save entry to file, SDL error: %s\n", err1);
+               "Failed to write save entry to file, SDL error: {:s}\n", err1);
         return;
       }
       // TODO: Add error checking

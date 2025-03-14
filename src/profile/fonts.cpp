@@ -80,7 +80,7 @@ void LoadFonts() {
         int64_t widthSz;
         if (widthTablePath.Slurp((void**)&widthBin, &widthSz) != IoError_OK) {
           ImpLog(LL_Fatal, LC_Profile,
-                 "Failed to load width table file for font %s\n", name.c_str());
+                 "Failed to load width table file for font {:s}\n", name);
           Window->Shutdown();
         }
         assert(widthSz == baseFont->Columns * baseFont->Rows);

@@ -9,7 +9,11 @@
 #include <string>
 #include <cctype>
 #include <chrono>
-#include <span/span.hpp>
+#include <span>
+
+#if defined(WIN32) || defined(_WIN32)
+#include <malloc.h>
+#endif
 
 // TODO own _malloca for gcc
 
@@ -21,14 +25,14 @@
 #define ImpStackFree free
 #endif
 
-#define TIME_CODE(code)                                       \
-  do {                                                        \
-    auto start = std::chrono::high_resolution_clock::now();   \
-    code;                                                     \
-    auto end = std::chrono::high_resolution_clock::now();     \
-    std::chrono::duration<double> elapsed = end - start;      \
-    ImpLog(LL_Info, LC_General, "Time elapsed: %f seconds\n", \
-           elapsed.count());                                  \
+#define TIME_CODE(code)                                         \
+  do {                                                          \
+    auto start = std::chrono::high_resolution_clock::now();     \
+    code;                                                       \
+    auto end = std::chrono::high_resolution_clock::now();       \
+    std::chrono::duration<double> elapsed = end - start;        \
+    ImpLog(LL_Info, LC_General, "Time elapsed: {:f} seconds\n", \
+           elapsed.count());                                    \
   } while (0)
 
 namespace Impacto {
@@ -182,8 +186,8 @@ constexpr glm::vec4 RgbIntToFloat(uint32_t rgb) {
 
 uint32_t GetHashCode(uint8_t* data, int length);
 
-char* DumpMat4(glm::mat4* matrix, const char* columnSeparator = "\t",
-               const char* rowSeparator = "\n");
+std::string DumpMat4(glm::mat4* matrix, std::string_view columnSeparator = "\t",
+                     std::string_view rowSeparator = "\n");
 
 // Thanks https://graphics.stanford.edu/~seander/bithacks.html#IntegerLog
 constexpr int Uint32Log2(uint32_t v) {
@@ -316,7 +320,7 @@ constexpr std::underlying_type_t<Enum> to_underlying(Enum e) noexcept {
 }
 
 int ResizeImage(Rect const& srcRect, Rect const& dstRect,
-                tcb::span<uint8_t> src, tcb::span<uint8_t> dst,
+                std::span<uint8_t> src, std::span<uint8_t> dst,
                 bool flipY = false);
 
 inline int CALCrnd(int max) {

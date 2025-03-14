@@ -1,4 +1,6 @@
 #include "clearlistmenu.h"
+#include <fmt/format.h>
+#include <string>
 
 #include "../../profile/ui/extramenus.h"
 #include "../../profile/games/mo6tw/clearlistmenu.h"
@@ -38,12 +40,14 @@ ClearListMenu::ClearListMenu() {
   ArrowsAnimation.SetDuration(ArrowsAnimationDuration);
   ArrowsAnimation.StartIn();
 
-  MainItems =
-      new Carousel(CDIR_HORIZONTAL,
-                   std::bind(&ClearListMenu::OnAdvancePage, this,
-                             std::placeholders::_1, std::placeholders::_2),
-                   std::bind(&ClearListMenu::OnGoBackPage, this,
-                             std::placeholders::_1, std::placeholders::_2));
+  MainItems = new Carousel(
+      CDIR_HORIZONTAL,
+      [this](auto* curPage, auto* nextPage) {
+        return OnAdvancePage(curPage, nextPage);
+      },
+      [this](auto* curPage, auto* nextPage) {
+        return OnGoBackPage(curPage, nextPage);
+      });
 
   Arrows = new Group(this);
   Arrows->FocusLock = false;
@@ -51,12 +55,15 @@ ClearListMenu::ClearListMenu() {
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
   auto arrowLeft =
       new Button(0, ArrowLeft, ArrowLeft, nullSprite, ArrowLeftPosition);
-  arrowLeft->OnClickHandler =
-      std::bind(&ClearListMenu::ArrowLeftOnClick, this, std::placeholders::_1);
+  arrowLeft->OnClickHandler = [this](auto* btn) {
+    return ArrowLeftOnClick(btn);
+  };
   auto arrowRight =
       new Button(1, ArrowRight, ArrowRight, nullSprite, ArrowRightPosition);
-  arrowRight->OnClickHandler =
-      std::bind(&ClearListMenu::ArrowRightOnClick, this, std::placeholders::_1);
+  arrowRight->OnClickHandler = [this](auto* btn) {
+    return ArrowRightOnClick(btn);
+  };
+
   Arrows->Add(arrowLeft);
   Arrows->Add(arrowRight);
   Arrows->IsShown = true;
@@ -185,7 +192,6 @@ void ClearListMenu::InitMainPage() {
                           PlayTimeLabelPosition + ClearListTextBGOffset));
 
   Vm::Sc3VmThread dummy;
-  char temp[10];
   uint16_t sc3StringBuffer[10];
 
   auto separator =
@@ -195,8 +201,7 @@ void ClearListMenu::InitMainPage() {
       TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
 
   // Ending count
-  sprintf(temp, "%d", EndingCount);
-  TextGetSc3String(temp, sc3StringBuffer);
+  TextGetSc3String(fmt::to_string(EndingCount), sc3StringBuffer);
   dummy.Ip = (uint8_t*)sc3StringBuffer;
   EndingCountWidth =
       TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
@@ -218,8 +223,7 @@ void ClearListMenu::InitMainPage() {
   MainPage->Add(UnlockedEndingCount);
 
   // Scene count
-  sprintf(temp, "%d", SceneCount);
-  TextGetSc3String(temp, sc3StringBuffer);
+  TextGetSc3String(fmt::to_string(SceneCount), sc3StringBuffer);
   dummy.Ip = (uint8_t*)sc3StringBuffer;
   SceneCountWidth =
       TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
@@ -246,8 +250,7 @@ void ClearListMenu::InitMainPage() {
   // Album count
   int totalCount = 0, unlockedCount = 0;
   SaveSystem::GetViewedEVsCount(&totalCount, &unlockedCount);
-  sprintf(temp, "%d", totalCount);
-  TextGetSc3String(temp, sc3StringBuffer);
+  TextGetSc3String(fmt::to_string(totalCount), sc3StringBuffer);
   dummy.Ip = (uint8_t*)sc3StringBuffer;
   AlbumCountWidth =
       TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
@@ -329,8 +332,7 @@ void ClearListMenu::UpdateEndingCount() {
   for (int i = 0; i < EndingCount; i++) {
     unlockedEndingCount += GetFlag(SF_CLR_END1 + i);
   }
-  sprintf(temp, "%2d", unlockedEndingCount);
-  TextGetSc3String(temp, sc3StringBuffer);
+  TextGetSc3String(fmt::format("{:2}", unlockedEndingCount), sc3StringBuffer);
   dummy.Ip = (uint8_t*)sc3StringBuffer;
   float unlockedEndingCountWidth =
       TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
@@ -346,15 +348,13 @@ void ClearListMenu::UpdateEndingCount() {
 
 void ClearListMenu::UpdateSceneCount() {
   Vm::Sc3VmThread dummy;
-  char temp[10];
   uint16_t sc3StringBuffer[10];
 
   int unlockedSceneCount = 0;
   for (int i = 0; i < SceneCount; ++i) {
     unlockedSceneCount += GetFlag(SF_SCN_CLR1 + i);
   }
-  sprintf(temp, "%d", unlockedSceneCount);
-  TextGetSc3String(temp, sc3StringBuffer);
+  TextGetSc3String(fmt::to_string(unlockedSceneCount), sc3StringBuffer);
   dummy.Ip = (uint8_t*)sc3StringBuffer;
   float unlockedSceneCountWidth =
       TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
@@ -370,13 +370,11 @@ void ClearListMenu::UpdateSceneCount() {
 
 void ClearListMenu::UpdateAlbumCount() {
   Vm::Sc3VmThread dummy;
-  char temp[10];
   uint16_t sc3StringBuffer[10];
 
   int totalCount = 0, unlockedCount = 0;
   SaveSystem::GetViewedEVsCount(&totalCount, &unlockedCount);
-  sprintf(temp, "%d", unlockedCount);
-  TextGetSc3String(temp, sc3StringBuffer);
+  TextGetSc3String(fmt::to_string(unlockedCount), sc3StringBuffer);
   dummy.Ip = (uint8_t*)sc3StringBuffer;
   float unlockedAlbumCountWidth =
       TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
@@ -392,14 +390,12 @@ void ClearListMenu::UpdateAlbumCount() {
 
 void ClearListMenu::UpdateCompletionPercentage() {
   Vm::Sc3VmThread dummy;
-  char temp[10];
   uint16_t sc3StringBuffer[10];
   int totalMessageCount = 0, readMessageCount = 0;
 
   SaveSystem::GetReadMessagesCount(&totalMessageCount, &readMessageCount);
   float readPercentage = readMessageCount / (float)totalMessageCount * 100.0f;
-  sprintf(temp, "%.2f%%", readPercentage);
-  TextGetSc3String(temp, sc3StringBuffer);
+  TextGetSc3String(fmt::format("{:.2f}%", readPercentage), sc3StringBuffer);
   dummy.Ip = (uint8_t*)sc3StringBuffer;
   float percentageWidth =
       TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
@@ -417,11 +413,9 @@ void ClearListMenu::UpdatePlayTime() {
   auto minutes = ScrWork[SW_TOTALPLAYTIME] % 3600 / 60;
   auto hours = ScrWork[SW_TOTALPLAYTIME] / 3600;
 
-  char temp[10];
   uint16_t sc3StringBuffer[10];
 
-  sprintf(temp, "%2d", seconds);
-  TextGetSc3String(temp, sc3StringBuffer);
+  TextGetSc3String(fmt::format("{:2d}", seconds), sc3StringBuffer);
   dummy.Ip = (uint8_t*)sc3StringBuffer;
   float secondsWidth =
       TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
@@ -432,8 +426,7 @@ void ClearListMenu::UpdatePlayTime() {
   PlaySeconds->SetText((uint8_t*)sc3StringBuffer, FontSize,
                        RendererOutlineMode::RO_None, ClearListColorIndex);
 
-  sprintf(temp, "%2d", minutes);
-  TextGetSc3String(temp, sc3StringBuffer);
+  TextGetSc3String(fmt::format("{:2d}", minutes), sc3StringBuffer);
   dummy.Ip = (uint8_t*)sc3StringBuffer;
   float minutesWidth =
       TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
@@ -447,8 +440,7 @@ void ClearListMenu::UpdatePlayTime() {
   if (hours != 0) {
     HoursText->Tint.a = FadeAnimation.Progress;
     PlayHours->Tint.a = FadeAnimation.Progress;
-    sprintf(temp, "%2d", hours);
-    TextGetSc3String(temp, sc3StringBuffer);
+    TextGetSc3String(fmt::format("{:2d}", hours), sc3StringBuffer);
     dummy.Ip = (uint8_t*)sc3StringBuffer;
     float hoursWidth = TextGetPlainLineWidth(
         &dummy, Profile::Dialogue::DialogueFont, FontSize);
@@ -475,14 +467,12 @@ void ClearListMenu::InitEndingListPage() {
   auto numberLabelPos = EndingsListNumberInitialPosition;
   auto textLabelPos = EndingsListTextInitialPosition;
   int idx = 0;
-  char temp[4];
   auto lockedText = Vm::ScriptGetTextTableStrAddress(
       EndingsListTextLockedTable, EndingsListTextLockedEntry);
   for (int i = 0; i < EndingCount; i++) {
-    sprintf(temp, "%2d", i + 1);
-    auto numberLabel =
-        new Label(std::string(temp), numberLabelPos, EndingsListTextFontSize,
-                  RendererOutlineMode::RO_None, EndingsListTextColorIndex);
+    auto numberLabel = new Label(
+        fmt::format("{:2d}", i + 1), numberLabelPos, EndingsListTextFontSize,
+        RendererOutlineMode::RO_None, EndingsListTextColorIndex);
     numberLabelPos += EndingsListTextMargin;
 
     auto lockedLabel =
@@ -538,14 +528,12 @@ void ClearListMenu::InitSceneTitlePage() {
   auto numberLabelPos = SceneListNumberInitialPosition;
   auto textLabelPos = SceneListTextInitialPosition;
 
-  char temp[4];
   auto lockedText = Vm::ScriptGetTextTableStrAddress(SceneTitleLockedTable,
                                                      SceneTitleLockedEntry);
   for (int i = 0; i < SceneCount; i++) {
-    sprintf(temp, "%2d", i + 1);
-    auto numberLabel =
-        new Label(std::string(temp), numberLabelPos, SceneListFontSize,
-                  RendererOutlineMode::RO_None, SceneListColorIndex);
+    auto numberLabel = new Label(
+        fmt::format("{:2d}", i + 1), numberLabelPos, SceneListFontSize,
+        RendererOutlineMode::RO_None, SceneListColorIndex);
     numberLabelPos += SceneListTextMargin;
 
     auto lockedLabel =

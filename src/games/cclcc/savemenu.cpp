@@ -48,8 +48,7 @@ SaveMenu::SaveMenu() {
 }
 
 void SaveMenu::Show() {
-  auto onClick =
-      std::bind(&SaveMenu::MenuButtonOnClick, this, std::placeholders::_1);
+  auto onClick = [this](auto* btn) { return MenuButtonOnClick(btn); };
 
   if (State != Shown) {
     HasCleared = false;

@@ -43,7 +43,7 @@ class Renderer : public BaseRenderer {
   std::vector<uint8_t> GetImageFromTexture(uint32_t texture,
                                            RectF dimensions) override;
   int GetImageFromTexture(uint32_t texture, RectF dimensions,
-                          tcb::span<uint8_t> outBuffer) override;
+                          std::span<uint8_t> outBuffer) override;
   void FreeTexture(uint32_t id) override;
   YUVFrame* CreateYUVFrame(float width, float height) override;
 
@@ -58,8 +58,8 @@ class Renderer : public BaseRenderer {
                         bool inverted = false) override;
 
   void DrawVertices(SpriteSheet const& sheet,
-                    tcb::span<const glm::vec2> sheetPositions,
-                    tcb::span<const glm::vec2> displayPositions, int width,
+                    std::span<const glm::vec2> sheetPositions,
+                    std::span<const glm::vec2> displayPositions, int width,
                     int height, glm::vec4 tint = glm::vec4(1.0),
                     bool inverted = false) override;
 

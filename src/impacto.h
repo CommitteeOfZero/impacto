@@ -1,14 +1,10 @@
 #pragma once
 
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <assert.h>
-#ifndef __APPLE__
-#include <malloc.h>
-#endif
+#include <cstdint>
+#include <cstdlib>
+#include <cassert>
 #define _USE_MATH_DEFINES
-#include <math.h>
+#include <cmath>
 
 #include "config.h"
 
@@ -22,3 +18,10 @@
 #include <imgui.h>
 #include <imgui_impl_sdl2.h>
 #endif
+
+#include <fmt/base.h>
+#include <fmt/std.h>
+#include <fmt/compile.h>
+#include <fmt/format.h>
+#include <fmt/printf.h>
+#include <fmt/chrono.h>

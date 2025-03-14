@@ -232,7 +232,7 @@ std::vector<uint8_t> Renderer::GetImageFromTexture(uint32_t texture,
 }
 
 int Renderer::GetImageFromTexture(uint32_t texture, RectF dimensions,
-                                  tcb::span<uint8_t> outBuffer) {
+                                  std::span<uint8_t> outBuffer) {
   const int bufferSize = dimensions.Width * dimensions.Height * 4;
   assert(outBuffer.size() >= bufferSize);
   glBindTexture(GL_TEXTURE_2D, texture);
@@ -402,8 +402,8 @@ void Renderer::DrawSprite(Sprite const& sprite, CornersQuad const& dest,
 }
 
 void Renderer::DrawVertices(SpriteSheet const& sheet,
-                            tcb::span<const glm::vec2> sheetPositions,
-                            tcb::span<const glm::vec2> displayPositions,
+                            std::span<const glm::vec2> sheetPositions,
+                            std::span<const glm::vec2> displayPositions,
                             int width, int height, glm::vec4 tint,
                             bool inverted) {
   if (!Drawing) {
@@ -970,7 +970,7 @@ void Renderer::EnsureSpaceAvailable(int vertices, int vertexSize, int indices) {
     ImpLogSlow(
         LL_Trace, LC_Render,
         "Renderer->EnsureSpaceAvailable flushing because buffers full at "
-        "VertexBufferFill=%08X,IndexBufferFill=%08X\n",
+        "VertexBufferFill=0x{:08x},IndexBufferFill=0x{:08x}\n",
         VertexBufferFill, IndexBufferFill);
     Flush();
   }
@@ -979,8 +979,8 @@ void Renderer::EnsureSpaceAvailable(int vertices, int vertexSize, int indices) {
 void Renderer::EnsureTextureBound(GLuint texture) {
   if (CurrentTexture != texture) {
     ImpLogSlow(LL_Trace, LC_Render,
-               "Renderer->EnsureTextureBound flushing because texture %d is "
-               "not %d\n",
+               "Renderer->EnsureTextureBound flushing because texture {:d} is "
+               "not {:d}\n",
                CurrentTexture, texture);
     Flush();
     glActiveTexture(GL_TEXTURE0);
@@ -994,8 +994,8 @@ void Renderer::EnsureModeSprite(bool inverted) {
   if (CurrentMode != wantedMode) {
     ImpLogSlow(
         LL_Trace, LC_Render,
-        "Renderer2D flushing because mode %d is not R2D_Sprite/inverted\n",
-        CurrentMode);
+        "Renderer2D flushing because mode {:d} is not R2D_Sprite/inverted\n",
+        to_underlying(CurrentMode));
     Flush();
     glBindVertexArray(VAOSprites);
     glUseProgram(inverted ? ShaderProgramSpriteInverted : ShaderProgramSprite);

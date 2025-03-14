@@ -22,6 +22,6 @@
 
 #include <SDL.h>
 #include <flat_hash_map.hpp>
-#include <span/span.hpp>
+#include <span>
 #include <glm/glm.hpp>
 #include <enum.h>

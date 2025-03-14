@@ -32,14 +32,15 @@ AudioStream* HcaAudioStream::Create(Stream* stream) {
   err = clHCA_DecodeHeader(Decoder, header, headerSize);
   ImpStackFree(header);
   if (err) {
-    ImpLog(LL_Error, LC_Audio, "clHCA_DecodeHeader failed with code %d\n", err);
+    ImpLog(LL_Error, LC_Audio, "clHCA_DecodeHeader failed with code {:d}\n",
+           err);
     goto fail;
   }
 
   clHCA_getInfo(Decoder, &info);
 
   if (info.channelCount != 1 && info.channelCount != 2) {
-    ImpLog(LL_Error, LC_Audio, "Unsupported channel count %d in HCA\n",
+    ImpLog(LL_Error, LC_Audio, "Unsupported channel count {:d} in HCA\n",
            info.channelCount);
     goto fail;
   }

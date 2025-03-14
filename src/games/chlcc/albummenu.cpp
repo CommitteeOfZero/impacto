@@ -51,13 +51,13 @@ AlbumMenu::AlbumMenu() {
   RedBarPosition = InitialRedBarPosition;
 
   CgViewerWidget = new Widgets::CgViewer();
-  CgViewerWidget->OnVariationEndHandler =
-      std::bind(&AlbumMenu::OnCgVariationEnd, this, std::placeholders::_1);
+  CgViewerWidget->OnVariationEndHandler = [this](auto* btn) {
+    return OnCgVariationEnd(btn);
+  };
   CgViewerGroup = new Group(this);
   CgViewerGroup->Add(CgViewerWidget, FDIR_DOWN);
 
-  auto cgOnClick =
-      std::bind(&AlbumMenu::CgOnClick, this, std::placeholders::_1);
+  auto cgOnClick = [this](auto* btn) { return CgOnClick(btn); };
 
   for (int k = 0; k < AlbumPages; k++) {
     auto page = new Group(this);

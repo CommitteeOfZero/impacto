@@ -17,5 +17,8 @@ void Push(void* data, WorkProc worker,
 // thread at the start of every frame. Returns true if event was handled, false
 // if not.
 bool HandleEvent(SDL_Event* evt);
+
+// Stops all the worker threads.
+void StopWorkQueue();
 }  // namespace WorkQueue
 }  // namespace Impacto

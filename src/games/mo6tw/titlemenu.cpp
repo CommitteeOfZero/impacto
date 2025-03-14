@@ -37,10 +37,10 @@ TitleMenu::TitleMenu() {
   ExtraStoryItems = new Widgets::Group(this);
   MemoriesItems = new Widgets::Group(this);
 
-  auto onClick =
-      std::bind(&TitleMenu::MenuButtonOnClick, this, std::placeholders::_1);
-  auto secondaryOnClick = std::bind(&TitleMenu::SecondaryButtonOnClick, this,
-                                    std::placeholders::_1);
+  auto onClick = [this](auto* btn) { return MenuButtonOnClick(btn); };
+  auto secondaryOnClick = [this](auto* btn) {
+    return SecondaryButtonOnClick(btn);
+  };
 
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);

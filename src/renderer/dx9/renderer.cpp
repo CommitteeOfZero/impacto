@@ -501,8 +501,8 @@ void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
 }
 
 void Renderer::DrawVertices(SpriteSheet const& sheet,
-                            tcb::span<const glm::vec2> sheetPositions,
-                            tcb::span<const glm::vec2> displayPositions,
+                            std::span<const glm::vec2> sheetPositions,
+                            std::span<const glm::vec2> displayPositions,
                             int width, int height, glm::vec4 tint,
                             bool inverted) {
   if (!Drawing) {
@@ -946,7 +946,7 @@ void Renderer::EnsureSpaceAvailable(int vertices, int vertexSize, int indices) {
     ImpLogSlow(
         LL_Trace, LC_Render,
         "Renderer->EnsureSpaceAvailable flushing because buffers full at "
-        "VertexBufferFill=%08X,IndexBufferFill=%08X\n",
+        "VertexBufferFill=0x{:08x},IndexBufferFill=0x{:08x}\n",
         VertexBufferFill, IndexBufferFill);
     Flush();
   }
@@ -955,8 +955,8 @@ void Renderer::EnsureSpaceAvailable(int vertices, int vertexSize, int indices) {
 void Renderer::EnsureTextureBound(uint32_t texture) {
   if (CurrentTexture != texture) {
     ImpLogSlow(LL_Trace, LC_Render,
-               "Renderer->EnsureTextureBound flushing because texture %d is "
-               "not %d\n",
+               "Renderer->EnsureTextureBound flushing because texture {:d} is "
+               "not {:d}\n",
                CurrentTexture, texture);
     Flush();
     auto res = Device->SetTexture(0, Textures[texture]);

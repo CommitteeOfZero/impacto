@@ -41,7 +41,7 @@ bool TextureLoadSTBI(Io::Stream* stream, Texture* outTexture) {
       break;
     }
     default: {
-      ImpLog(LL_Error, LC_TextureLoad, "STBI: unsupported channel count %d\n",
+      ImpLog(LL_Error, LC_TextureLoad, "STBI: unsupported channel count {:d}\n",
              channels_in_file);
       free(image);
       stream->Seek(0, RW_SEEK_SET);

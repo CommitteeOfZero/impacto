@@ -179,13 +179,13 @@ void Init() {
 bool LoadScript(uint32_t bufferId, uint32_t scriptId) {
   Io::FileMeta meta;
   Io::VfsGetMeta("script", scriptId, &meta);
-  ImpLogSlow(LL_Debug, LC_VM, "Loading script \"%s\"\n", meta.FileName.c_str());
+  ImpLogSlow(LL_Debug, LC_VM, "Loading script \"{:s}\"\n", meta.FileName);
 
   void* file;
   int64_t fileSize;
   IoError err = Io::VfsSlurp("script", scriptId, &file, &fileSize);
   if (err != IoError_OK) {
-    ImpLog(LL_Error, LC_VM, "Could not read script file for %d\n", scriptId);
+    ImpLog(LL_Error, LC_VM, "Could not read script file for {:d}\n", scriptId);
     return false;
   }
   ScriptBuffers[bufferId] = (uint8_t*)file;
@@ -198,15 +198,14 @@ bool LoadMsb(uint32_t bufferId, uint32_t fileId) {
   Io::FileMeta meta;
   std::string mountPoint =
       Profile::Vm::UseSeparateMsbArchive ? "mes" : "script";
-  Io::VfsGetMeta(mountPoint.c_str(), fileId, &meta);
-  ImpLogSlow(LL_Debug, LC_VM, "Loading msb file \"%s\"\n",
-             meta.FileName.c_str());
+  Io::VfsGetMeta(mountPoint, fileId, &meta);
+  ImpLogSlow(LL_Debug, LC_VM, "Loading msb file \"{:s}\"\n", meta.FileName);
 
   void* file;
   int64_t fileSize;
-  IoError err = Io::VfsSlurp(mountPoint.c_str(), fileId, &file, &fileSize);
+  IoError err = Io::VfsSlurp(mountPoint, fileId, &file, &fileSize);
   if (err != IoError_OK) {
-    ImpLog(LL_Error, LC_VM, "Could not read msb file for %d\n", fileId);
+    ImpLog(LL_Error, LC_VM, "Could not read msb file for {:d}\n", fileId);
     return false;
   }
   MsbBuffers[bufferId] = (uint8_t*)file;
@@ -441,7 +440,7 @@ void RunThread(Sc3VmThread* thread) {
   uint32_t opcodeGrp1;
   int calDummy;
 
-  ImpLog(LL_Trace, LC_VM, "Running thread ID = %i\n", thread->Id);
+  ImpLog(LL_Trace, LC_VM, "Running thread ID = {:d}\n", thread->Id);
 
 #ifndef IMPACTO_DISABLE_IMGUI
   if (DebugThreadId == thread->Id) {
@@ -451,9 +450,9 @@ void RunThread(Sc3VmThread* thread) {
 #endif
 
   BlockCurrentScriptThread = 0;
+  auto scriptIp = thread->Ip - ScriptBuffers[thread->ScriptBufferId];
   do {
 #ifndef IMPACTO_DISABLE_IMGUI
-    auto scriptIp = thread->Ip - ScriptBuffers[thread->ScriptBufferId];
     for (const auto& breakpoint : DebuggerBreakpoints) {
       uint32_t currentScriptId = LoadedScriptMetas[thread->ScriptBufferId].Id;
       if (currentScriptId == breakpoint.second.first &&
@@ -482,8 +481,8 @@ void RunThread(Sc3VmThread* thread) {
       opcodeGrp1 = opcodeGrp & 0x7F;
 
       ImpLog(LL_Trace, LC_VM,
-             "Address: %016X Opcode: %02X:%02X ScriptBuffer: %i\n", thread->Ip,
-             opcodeGrp1, opcode, thread->ScriptBufferId);
+             "Address: {:#0x} Opcode: {:02x}:{:02x} ScriptBuffer: {:d}\n",
+             scriptIp, opcodeGrp1, opcode, thread->ScriptBufferId);
 
       if (opcodeGrp1 == 0x10) {
         OpcodeTableUser1[opcode](thread);
@@ -496,8 +495,8 @@ void RunThread(Sc3VmThread* thread) {
       } else {
         ImpLog(LL_Error, LC_VM,
                "Thread CRASH! Unknown opcode. Attempting recovery. Address: "
-               "%016X Opcode: %02X:%02X ScriptBuffer: %i\n",
-               thread->Ip, opcodeGrp1, opcode, thread->ScriptBufferId);
+               "{:#0x} Opcode: {:02x}:{:02x} ScriptBuffer: {:d}\n",
+               scriptIp, opcodeGrp1, opcode, thread->ScriptBufferId);
         if (thread->CallStackDepth) {
           thread->CallStackDepth--;
           uint32_t retBufferId =

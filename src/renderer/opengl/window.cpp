@@ -26,8 +26,9 @@ void GLWindow::UpdateDimensions() {
       MsaaCount != lastMsaa || RenderScale != lastRenderScale) {
     WindowDimensionsChanged = true;
     ImpLog(LL_Debug, LC_General,
-           "Drawable size (pixels): %d x %d (%dx MSAA requested, render scale "
-           "%f)\n",
+           "Drawable size (pixels): {:d} x {:d} ({:d}x MSAA requested, render "
+           "scale "
+           "{:f})\n",
            WindowWidth, WindowHeight, MsaaCount, RenderScale);
   }
   lastWidth = WindowWidth;
@@ -138,14 +139,14 @@ void GLWindow::TryCreateGL(GraphicsApi api) {
       Profile::ResolutionWidth, Profile::ResolutionHeight, windowFlags);
 
   if (SDLWindow == NULL) {
-    ImpLog(LL_Error, LC_General, "Window creation failed: %s\n",
+    ImpLog(LL_Error, LC_General, "Window creation failed: {:s}\n",
            SDL_GetError());
     return;
   }
 
   GLContext = SDL_GL_CreateContext(SDLWindow);
   if (GLContext == NULL) {
-    ImpLog(LL_Error, LC_General, "OpenGL context creation failed: %s\n",
+    ImpLog(LL_Error, LC_General, "OpenGL context creation failed: {:s}\n",
            SDL_GetError());
     return;
   } else {
@@ -164,7 +165,7 @@ void GLWindow::Init() {
   IsInit = true;
 
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) != 0) {
-    ImpLog(LL_Fatal, LC_General, "SDL initialisation failed: %s\n",
+    ImpLog(LL_Fatal, LC_General, "SDL initialisation failed: {:s}\n",
            SDL_GetError());
     Shutdown();
     return;
@@ -198,7 +199,7 @@ void GLWindow::Init() {
   }
 
   SDL_GetWindowSize(SDLWindow, &WindowWidth, &WindowHeight);
-  ImpLog(LL_Debug, LC_General, "Window size (screen coords): %d x %d\n",
+  ImpLog(LL_Debug, LC_General, "Window size (screen coords): {:d} x {:d}\n",
          WindowWidth, WindowHeight);
 
   bool gladOk;
@@ -255,8 +256,9 @@ void GLWindow::Init() {
 void GLWindow::SetDimensions(int width, int height, int msaa,
                              float renderScale) {
   ImpLog(LL_Info, LC_General,
-         "Attempting to change window dimensions to %d x %d, %dx MSAA, render "
-         "scale %f\n",
+         "Attempting to change window dimensions to {:d} x {:d}, {:d}x MSAA, "
+         "render "
+         "scale {:f}\n",
          width, height, msaa, renderScale);
   assert(width > 0 && height > 0 && msaa >= 0 && renderScale > 0.0f);
 

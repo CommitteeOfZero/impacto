@@ -31,8 +31,7 @@ void SysMesBox::Show() {
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
 
-  auto onClick =
-      std::bind(&SysMesBox::ChoiceItemOnClick, this, std::placeholders::_1);
+  auto onClick = [this](auto* btn) { return ChoiceItemOnClick(btn); };
 
   float textBeginY = (TextMiddleY - TextMarginY * MessageCount) / 2.0f;
   float diff;

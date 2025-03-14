@@ -83,7 +83,7 @@ int ShaderCompiler::PrintParameter(char* dest, int destSz, char const* name,
       break;
 
     default:
-      ImpLog(LL_Error, LC_Render, "Invalid shader parameter type %d\n",
+      ImpLog(LL_Error, LC_Render, "Invalid shader parameter type {:d}\n",
              param.Type);
       if (destSz > 0) *dest = '\0';
       return 0;
@@ -92,7 +92,7 @@ int ShaderCompiler::PrintParameter(char* dest, int destSz, char const* name,
 
 GLuint ShaderCompiler::Attach(GLuint program, GLenum shaderType,
                               char const* path, char const* params) {
-  ImpLog(LL_Debug, LC_Render, "Loading shader object (type %d) \"%s\"\n",
+  ImpLog(LL_Debug, LC_Render, "Loading shader object (type {:d}) \"{:s}\"\n",
          shaderType, path);
 
   size_t sourceRawSz;
@@ -134,7 +134,7 @@ GLuint ShaderCompiler::Attach(GLuint program, GLenum shaderType,
   glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
   if (!result) {
     glGetShaderInfoLog(shader, sizeof(errorLog), NULL, errorLog);
-    ImpLog(LL_Fatal, LC_Render, "Error compiling shader: %s\n", errorLog);
+    ImpLog(LL_Fatal, LC_Render, "Error compiling shader: {:s}\n", errorLog);
     SDL_free(source);
     glDeleteShader(shader);
     return 0;
@@ -154,15 +154,7 @@ GLuint ShaderCompiler::Compile(char const* name, ShaderParamMap const& params) {
     return program;
   }
 
-  ImpLog(LL_Debug, LC_Render, "Compiling shader \"%s\"\n", name);
-
-  size_t pathSz =
-      std::max(
-          snprintf(NULL, 0, "%s/%s%s", ShaderPath, name, FragShaderExtension),
-          snprintf(NULL, 0, "%s/%s%s", ShaderPath, name, VertShaderExtension)) +
-      1;
-
-  char* fullPath = (char*)ImpStackAlloc(pathSz);
+  ImpLog(LL_Debug, LC_Render, "Compiling shader \"{:s}\"\n", name);
 
   int paramSz = 1;
   for (auto const& param : params) {
@@ -180,29 +172,31 @@ GLuint ShaderCompiler::Compile(char const* name, ShaderParamMap const& params) {
   }
   paramStr[paramSz - 1] = '\0';
 
-  sprintf(fullPath, "%s/%s%s", ShaderPath, name, VertShaderExtension);
-  GLuint vs = Attach(program, GL_VERTEX_SHADER, fullPath, paramStr);
+  std::string vertexShaderPath = fmt::format(FMT_COMPILE("{}/{}{}"), ShaderPath,
+                                             name, VertShaderExtension);
+  GLuint vs =
+      Attach(program, GL_VERTEX_SHADER, vertexShaderPath.c_str(), paramStr);
   if (!vs) {
     glDeleteProgram(program);
     ImpStackFree(paramStr);
-    ImpStackFree(fullPath);
     return 0;
   }
-  sprintf(fullPath, "%s/%s%s", ShaderPath, name, FragShaderExtension);
-  GLuint fs = Attach(program, GL_FRAGMENT_SHADER, fullPath, paramStr);
+  std::string fragShaderPath = fmt::format(FMT_COMPILE("{}/{}{}"), ShaderPath,
+                                           name, FragShaderExtension);
+  GLuint fs =
+      Attach(program, GL_FRAGMENT_SHADER, fragShaderPath.c_str(), paramStr);
   if (!fs) {
     static GLchar errorLog[1024] = {};
     glGetProgramInfoLog(program, sizeof(errorLog), NULL, errorLog);
-    ImpLog(LL_Fatal, LC_Render, "Error linking shader program: %s\n", errorLog);
+    ImpLog(LL_Fatal, LC_Render, "Error linking shader program: {:s}\n",
+           errorLog);
     glDeleteShader(vs);
     glDeleteProgram(program);
     ImpStackFree(paramStr);
-    ImpStackFree(fullPath);
     return 0;
   }
 
   ImpStackFree(paramStr);
-  ImpStackFree(fullPath);
 
   GLint result = 0;
   static GLchar errorLog[1024] = {};
@@ -217,7 +211,8 @@ GLuint ShaderCompiler::Compile(char const* name, ShaderParamMap const& params) {
   glGetProgramiv(program, GL_LINK_STATUS, &result);
   if (!result) {
     glGetProgramInfoLog(program, sizeof(errorLog), NULL, errorLog);
-    ImpLog(LL_Fatal, LC_Render, "Error linking shader program: %s\n", errorLog);
+    ImpLog(LL_Fatal, LC_Render, "Error linking shader program: {:s}\n",
+           errorLog);
     glDeleteProgram(program);
     return 0;
   }
@@ -229,7 +224,7 @@ GLuint ShaderCompiler::Compile(char const* name, ShaderParamMap const& params) {
   if (!result) {
     glGetProgramInfoLog(program, sizeof(errorLog), NULL, errorLog);
     ImpLog(LL_Fatal, LC_Render,
-           "ShaderCompiler program failed to validate: %s\n", errorLog);
+           "ShaderCompiler program failed to validate: {:s}\n", errorLog);
     glDeleteProgram(program);
     return 0;
   }
