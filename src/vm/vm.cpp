@@ -183,7 +183,7 @@ bool LoadScript(uint32_t bufferId, uint32_t scriptId) {
 
   void* file;
   int64_t fileSize;
-  IoError err = Io::VfsSlurp("script", scriptId, &file, &fileSize);
+  IoError err = Io::VfsSlurp("script", scriptId, file, fileSize);
   if (err != IoError_OK) {
     ImpLog(LL_Error, LC_VM, "Could not read script file for {:d}\n", scriptId);
     return false;
@@ -203,7 +203,7 @@ bool LoadMsb(uint32_t bufferId, uint32_t fileId) {
 
   void* file;
   int64_t fileSize;
-  IoError err = Io::VfsSlurp(mountPoint, fileId, &file, &fileSize);
+  IoError err = Io::VfsSlurp(mountPoint, fileId, file, fileSize);
   if (err != IoError_OK) {
     ImpLog(LL_Error, LC_VM, "Could not read msb file for {:d}\n", fileId);
     return false;

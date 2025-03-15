@@ -134,7 +134,7 @@ static IoError MountModel(uint32_t modelId, std::string& outMountpoint) {
   }
   void* arcMem;
   int64_t arcSz;
-  err = VfsSlurp("model", modelId, &arcMem, &arcSz);
+  err = VfsSlurp("model", modelId, arcMem, arcSz);
   if (err != IoError_OK) {
     ImpLog(LL_Error, LC_ModelLoad, "Could not open model archive for {:d}\n",
            modelId);
@@ -168,8 +168,8 @@ static void UnmountModel(uint32_t modelId) {
   VfsUnmount("model_" + arcMeta.FileName, arcMeta.FileName);
 }
 
-static IoError SlurpModel(uint32_t modelId, void** outMemory,
-                          int64_t* outSize) {
+static IoError SlurpModel(uint32_t modelId, void*& outMemory,
+                          int64_t& outSize) {
   if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
     return VfsSlurp("model", modelId, outMemory, outSize);
   } else {
@@ -180,8 +180,8 @@ static IoError SlurpModel(uint32_t modelId, void** outMemory,
   }
 }
 
-static IoError SlurpAnim(uint32_t modelId, int16_t animId, void** outMemory,
-                         int64_t* outSize, std::string& outName) {
+static IoError SlurpAnim(uint32_t modelId, int16_t animId, void*& outMemory,
+                         int64_t& outSize, std::string& outName) {
   std::string mountpoint;
   IoError err;
 
@@ -230,7 +230,7 @@ Model* Model::Load(uint32_t modelId) {
 
   void* file;
   int64_t fileSize;
-  err = SlurpModel(modelId, &file, &fileSize);
+  err = SlurpModel(modelId, file, fileSize);
   if (err != IoError_OK) {
     ImpLog(LL_Error, LC_ModelLoad, "Could not read model file for {:d}\n",
            modelId);
@@ -599,7 +599,7 @@ Model* Model::Load(uint32_t modelId) {
         int64_t animSize;
         void* animData;
 
-        if (SlurpAnim(modelId, animId, &animData, &animSize, animName) !=
+        if (SlurpAnim(modelId, animId, animData, animSize, animName) !=
             IoError_OK) {
           ImpLog(LL_Error, LC_ModelLoad,
                  "Could not read animation %h for model {:d}\n", animId,

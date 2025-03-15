@@ -528,7 +528,7 @@ static IoError DecompressLayla(char* input, int64_t compressedSize,
   return IoError_OK;
 }
 
-IoError CpkArchive::Slurp(FileMeta* file, void** outBuffer, int64_t* outSize) {
+IoError CpkArchive::Slurp(FileMeta* file, void*& outBuffer, int64_t& outSize) {
   CpkMetaEntry* entry = (CpkMetaEntry*)file;
   if (!entry->Compressed) {
     return IoError_Fail;
@@ -554,12 +554,12 @@ IoError CpkArchive::Slurp(FileMeta* file, void** outBuffer, int64_t* outSize) {
     return IoError_Fail;
   }
 
-  *outSize = entry->Size;
-  *outBuffer = malloc(*outSize);
+  outSize = entry->Size;
+  outBuffer = malloc(outSize);
 
   IoError err = DecompressLayla(compressedData, entry->CompressedSize,
-                                (char*)*outBuffer, *outSize);
-  if (err != IoError_OK) free(*outBuffer);
+                                (char*)outBuffer, outSize);
+  if (err != IoError_OK) free(outBuffer);
   free(compressedData);
   return err;
 }

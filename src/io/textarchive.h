@@ -12,7 +12,7 @@ class TextArchive : public VfsArchive {
  public:
   ~TextArchive();
   IoError Open(FileMeta* file, Stream** outStream) override;
-  IoError GetCurrentSize(FileMeta* file, int64_t* outSize) override;
+  IoError GetCurrentSize(FileMeta* file, int64_t& outSize) override;
 
   static IoError Create(Stream* stream, VfsArchive** outArchive);
 

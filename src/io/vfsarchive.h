@@ -15,11 +15,11 @@ class VfsArchive {
   // These methods are only ever called with FileMeta* found in IdsToFiles.
   virtual IoError Open(FileMeta* file, Stream** outStream) = 0;
 
-  virtual IoError Slurp(FileMeta* file, void** outBuffer, int64_t* outSize);
+  virtual IoError Slurp(FileMeta* file, void*& outBuffer, int64_t& outSize);
   // If the size of a file is uncertain when the archive is first opened (e.g.
   // directory-listing archives), the file's size in IdsToFiles must be negative
   // and this must be overridden
-  virtual IoError GetCurrentSize(FileMeta* file, int64_t* outSize);
+  virtual IoError GetCurrentSize(FileMeta* file, int64_t& outSize);
 
   ska::flat_hash_map<std::string, uint32_t> NamesToIds;
   ska::flat_hash_map<uint32_t, FileMeta*> IdsToFiles;

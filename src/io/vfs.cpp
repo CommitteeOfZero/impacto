@@ -1,6 +1,7 @@
 #include "vfs.h"
 #include "../impacto.h"
 #include <vector>
+#include <mutex>
 #include "vfsarchive.h"
 #include "memorystream.h"
 #include "../log.h"
@@ -20,12 +21,17 @@
 namespace Impacto {
 namespace Io {
 
+template <typename T>
+concept FileId = std::convertible_to<T, uint32_t> ||
+                 std::convertible_to<T, std::string const&>;
+
 using VfsArchiveFactory = auto (*)(Stream* stream, VfsArchive** outArchive)
     -> IoError;
 
 static std::vector<VfsArchiveFactory> Archivers;
-static ska::flat_hash_map<std::string, std::vector<VfsArchive*>> Mounts;
-static SDL_mutex* Lock;
+static ska::flat_hash_map<std::string, std::vector<std::unique_ptr<VfsArchive>>>
+    Mounts;
+static std::shared_mutex Lock;
 
 static IoError MountInternal(std::string const& mountpoint, Stream* stream) {
   VfsArchive* archive;
@@ -36,7 +42,7 @@ static IoError MountInternal(std::string const& mountpoint, Stream* stream) {
   }
   if (err == IoError_OK) {
     archive->MountPoint = mountpoint;
-    Mounts[mountpoint].push_back(archive);
+    Mounts[mountpoint].emplace_back(archive);
   } else {
     ImpLog(LL_Error, LC_IO, "No archiver supports file {:s}\n",
            stream->Meta.FileName);
@@ -48,15 +54,13 @@ static VfsArchive* FindArchive(std::string const& mountpoint,
                                std::string const& fileName) {
   auto it = Mounts.find(mountpoint);
   if (it == Mounts.end()) return 0;
-  for (auto archive : it->second) {
-    if (archive->BaseStream->Meta.FileName == fileName) return archive;
+  for (auto& archive : it->second) {
+    if (archive->BaseStream->Meta.FileName == fileName) return archive.get();
   }
   return 0;
 }
 
 void VfsInit() {
-  Lock = SDL_CreateMutex();
-
   Archivers.push_back(AfsArchive::Create);
   Archivers.push_back(CpkArchive::Create);
   Archivers.push_back(Lnk4Archive::Create);
@@ -68,19 +72,17 @@ void VfsInit() {
 
 IoError VfsMount(std::string const& mountpoint,
                  std::string const& archiveFileName) {
-  IoError err;
-  SDL_LockMutex(Lock);
-
   ImpLog(LL_Debug, LC_IO, "Trying to mount \"{:s}\" on mountpoint \"{:s}\"\n",
          archiveFileName, mountpoint);
 
+  std::unique_lock mountLock{Lock};
   if (FindArchive(mountpoint, archiveFileName) != 0) {
     ImpLog(LL_Error, LC_IO, "File with this name already mounted!\n");
-    err = IoError_Fail;
-    goto end;
+    return IoError_Fail;
   }
 
   Stream* archiveFile;
+  IoError err;
 #ifndef IMPACTO_DISABLE_MMAP
   err = MemoryMappedFileStream<AccessMode::read>::Create(archiveFileName,
                                                          &archiveFile);
@@ -90,16 +92,12 @@ IoError VfsMount(std::string const& mountpoint,
   if (err != IoError_OK) {
     ImpLog(LL_Debug, LC_IO, "Could not open physical file \"{:s}\"\n",
            archiveFileName);
-    goto end;
+    return err;
   }
-
   err = MountInternal(mountpoint, archiveFile);
   if (err != IoError_OK) {
     delete archiveFile;
   }
-
-end:
-  SDL_UnlockMutex(Lock);
   return err;
 }
 
@@ -109,17 +107,16 @@ IoError VfsMountMemory(std::string const& mountpoint,
   IoError err;
   Stream* archiveFile;
 
-  SDL_LockMutex(Lock);
-
   ImpLog(LL_Debug, LC_IO,
          "Trying to mount in-memory archive named \"{:s}\" on mountpoint "
          "\"{:s}\"\n",
          archiveFileName, mountpoint);
 
+  std::unique_lock mountLock{Lock};
   if (FindArchive(mountpoint, archiveFileName) != 0) {
     err = IoError_Fail;
     if (freeOnClose) free(memory);
-    goto end;
+    return err;
   }
 
   archiveFile = new MemoryStream(memory, size, freeOnClose);
@@ -128,53 +125,39 @@ IoError VfsMountMemory(std::string const& mountpoint,
   if (err != IoError_OK) {
     delete archiveFile;
   }
-
-end:
-  SDL_UnlockMutex(Lock);
   return err;
 }
 
 IoError VfsUnmount(std::string const& mountpoint,
                    std::string const& archiveFileName) {
-  IoError err;
-  SDL_LockMutex(Lock);
-
   ImpLog(LL_Debug, LC_IO,
          "Trying to unmount archive named \"{:s}\" on mountpoint \"{:s}\"\n",
          archiveFileName, mountpoint);
-
-  err = IoError_NotFound;
+  std::unique_lock unmountLock{Lock};
   auto it = Mounts.find(mountpoint);
-  if (it == Mounts.end()) goto end;
+  if (it == Mounts.end()) return IoError_NotFound;
   for (auto arcIt = it->second.begin(); arcIt != it->second.end(); arcIt++) {
     if ((*arcIt)->BaseStream->Meta.FileName == archiveFileName) {
-      delete *arcIt;
       it->second.erase(arcIt);
-      err = IoError_OK;
-      break;
+      return IoError_OK;
     }
   }
-  if (err != IoError_OK) {
-    ImpLog(LL_Debug, LC_IO, "Unmounting failed (file not mounted?)\n");
-  }
-
-end:
-  SDL_UnlockMutex(Lock);
-  return err;
+  ImpLog(LL_Debug, LC_IO, "Unmounting failed (file not mounted?)\n");
+  return IoError_NotFound;
 }
 
 static IoError GetOrigMetaInternal(std::string const& mountpoint,
                                    std::string const& fileName,
-                                   FileMeta** outMeta,
-                                   VfsArchive** outArchive) {
+                                   FileMeta*& outMeta,
+                                   VfsArchive*& outArchive) {
   auto it = Mounts.find(mountpoint);
   if (it == Mounts.end()) return IoError_NotFound;
 
-  for (auto archive : it->second) {
+  for (auto& archive : it->second) {
     auto nameToId = archive->NamesToIds.find(fileName);
     if (nameToId != archive->NamesToIds.end()) {
-      *outMeta = archive->IdsToFiles[nameToId->second];
-      *outArchive = archive;
+      outMeta = archive->IdsToFiles[nameToId->second];
+      outArchive = archive.get();
       return IoError_OK;
     }
   }
@@ -182,86 +165,50 @@ static IoError GetOrigMetaInternal(std::string const& mountpoint,
 }
 
 static IoError GetOrigMetaInternal(std::string const& mountpoint, uint32_t id,
-                                   FileMeta** outMeta,
-                                   VfsArchive** outArchive) {
+                                   FileMeta*& outMeta,
+                                   VfsArchive*& outArchive) {
   auto it = Mounts.find(mountpoint);
   if (it == Mounts.end()) return IoError_NotFound;
 
-  for (auto archive : it->second) {
+  for (auto& archive : it->second) {
     auto idToFile = archive->IdsToFiles.find(id);
     if (idToFile != archive->IdsToFiles.end()) {
-      *outMeta = idToFile->second;
-      *outArchive = archive;
+      outMeta = idToFile->second;
+      outArchive = archive.get();
       return IoError_OK;
     }
   }
   return IoError_NotFound;
 }
 
-IoError VfsGetMeta(std::string const& mountpoint, std::string const& fileName,
-                   FileMeta* outMeta) {
+template <FileId T>
+IoError VfsGetMetaImpl(std::string const& mountpoint, T file,
+                       FileMeta* outMeta) {
   IoError err;
-  SDL_LockMutex(Lock);
-
-  ImpLogSlow(
-      LL_Debug, LC_IO,
-      "Trying to get metadata for file \"{:s}\" on mountpoint \"{:s}\"\n",
-      fileName, mountpoint);
-
-  FileMeta* origMeta;
-  VfsArchive* archive;
-  err = GetOrigMetaInternal(mountpoint, fileName, &origMeta, &archive);
-  if (err != IoError_OK) {
-    ImpLog(LL_Error, LC_IO, "Could not get metadata\n");
-    goto end;
-  }
-
-  *outMeta = *origMeta;
-  outMeta->ArchiveMountPoint = mountpoint;
-  outMeta->ArchiveFileName = archive->BaseStream->Meta.FileName;
-  if (outMeta->Size < 0) {
-    err = archive->GetCurrentSize(origMeta, &outMeta->Size);
-    if (err != IoError_OK) {
-      ImpLog(LL_Error, LC_IO, "Getting current size failed!\n");
-      goto end;
-    }
-  }
-
-end:
-  SDL_UnlockMutex(Lock);
-  return err;
-}
-
-IoError VfsGetMeta(std::string const& mountpoint, uint32_t id,
-                   FileMeta* outMeta) {
-  IoError err;
-  SDL_LockMutex(Lock);
 
   ImpLogSlow(LL_Debug, LC_IO,
-             "Trying to get metadata for file {:d} on mountpoint \"{:s}\"\n",
-             id, mountpoint);
+             "Trying to get metadata for file \"{}\" on mountpoint \"{:s}\"\n",
+             file, mountpoint);
 
   FileMeta* origMeta;
   VfsArchive* archive;
-  err = GetOrigMetaInternal(mountpoint, id, &origMeta, &archive);
+  std::shared_lock lock{Lock};
+  err = GetOrigMetaInternal(mountpoint, file, origMeta, archive);
   if (err != IoError_OK) {
     ImpLog(LL_Error, LC_IO, "Could not get metadata\n");
-    goto end;
+    return err;
   }
 
   *outMeta = *origMeta;
   outMeta->ArchiveMountPoint = mountpoint;
   outMeta->ArchiveFileName = archive->BaseStream->Meta.FileName;
   if (outMeta->Size < 0) {
-    err = archive->GetCurrentSize(origMeta, &outMeta->Size);
+    err = archive->GetCurrentSize(origMeta, outMeta->Size);
     if (err != IoError_OK) {
       ImpLog(LL_Error, LC_IO, "Getting current size failed!\n");
-      goto end;
+      return err;
     }
   }
-
-end:
-  SDL_UnlockMutex(Lock);
   return err;
 }
 
@@ -281,7 +228,7 @@ static IoError OpenInternal(std::string const& mountpoint, VfsArchive* archive,
     // maybe streaming is not supported
     void* memory;
     int64_t size;
-    err = archive->Slurp(origMeta, &memory, &size);
+    err = archive->Slurp(origMeta, memory, size);
     // TODO lazy slurp stream
     *outStream = new MemoryStream(memory, size, true);
   }
@@ -301,49 +248,27 @@ static IoError OpenInternal(std::string const& mountpoint, VfsArchive* archive,
   return err;
 }
 
-IoError VfsOpen(std::string const& mountpoint, std::string const& fileName,
-                Stream** outStream) {
+template <FileId T>
+IoError VfsOpenImpl(std::string const& mountpoint, T file, Stream** outStream) {
   IoError err;
-  SDL_LockMutex(Lock);
 
   ImpLogSlow(LL_Debug, LC_IO,
-             "Trying to open file \"{:s}\" on mountpoint \"{:s}\"\n", fileName,
+             "Trying to open file \"{}\" on mountpoint \"{:s}\"\n", file,
              mountpoint);
-
   FileMeta* origMeta;
   VfsArchive* archive;
-  err = GetOrigMetaInternal(mountpoint, fileName, &origMeta, &archive);
+  std::unique_lock lock{Lock};
+  err = GetOrigMetaInternal(mountpoint, file, origMeta, archive);
   if (err != IoError_OK) {
     ImpLog(LL_Error, LC_IO, "Could not get metadata\n");
-    goto end;
+    return err;
   }
 
-  err = OpenInternal(mountpoint, archive, origMeta, outStream);
-
-end:
-  SDL_UnlockMutex(Lock);
-  return err;
+  return OpenInternal(mountpoint, archive, origMeta, outStream);
 }
 
-IoError VfsOpen(std::string const& mountpoint, uint32_t id,
-                Stream** outStream) {
-  IoError err;
-  SDL_LockMutex(Lock);
-
-  FileMeta* origMeta;
-  VfsArchive* archive;
-  err = GetOrigMetaInternal(mountpoint, id, &origMeta, &archive);
-  if (err != IoError_OK) goto end;
-
-  err = OpenInternal(mountpoint, archive, origMeta, outStream);
-
-end:
-  SDL_UnlockMutex(Lock);
-  return err;
-}
-
-IoError SlurpInternal(VfsArchive* archive, FileMeta* origMeta, void** outMemory,
-                      int64_t* outSize) {
+IoError SlurpInternal(VfsArchive* archive, FileMeta* origMeta, void*& outMemory,
+                      int64_t& outSize) {
   IoError err;
 
   ImpLogSlow(LL_Debug, LC_IO,
@@ -359,14 +284,14 @@ IoError SlurpInternal(VfsArchive* archive, FileMeta* origMeta, void** outMemory,
     Stream* stream;
     err = archive->Open(origMeta, &stream);
     if (err != IoError_OK) return err;
-    *outMemory = malloc(stream->Meta.Size);
-    *outSize = stream->Meta.Size;
-    int64_t readErr = stream->Read(*outMemory, *outSize);
-    // TODO should size output by Read() go into outSize, even though it may be
-    // less than the allocated size?
+    outMemory = malloc(stream->Meta.Size);
+    outSize = stream->Meta.Size;
+    int64_t readErr = stream->Read(outMemory, outSize);
+    // TODO should size output by Read() go into outSize, even though it may
+    // be less than the allocated size?
     delete stream;
     if (readErr < 0) {
-      free(*outMemory);
+      free(outMemory);
       ImpLog(
           LL_Error, LC_IO,
           "Opening/reading \"{:s}\" ({:d}) from mountpoint \"{:s}\" (archive "
@@ -382,49 +307,28 @@ IoError SlurpInternal(VfsArchive* archive, FileMeta* origMeta, void** outMemory,
   return err;
 }
 
-IoError VfsSlurp(std::string const& mountpoint, std::string const& fileName,
-                 void** outMemory, int64_t* outSize) {
+template <FileId T>
+IoError VfsSlurpImpl(std::string const& mountpoint, T fileName,
+                     void*& outMemory, int64_t& outSize) {
   IoError err;
-  SDL_LockMutex(Lock);
-
+  std::unique_lock lock{Lock};
   FileMeta* origMeta;
   VfsArchive* archive;
-  err = GetOrigMetaInternal(mountpoint, fileName, &origMeta, &archive);
-  if (err != IoError_OK) goto end;
+  err = GetOrigMetaInternal(mountpoint, fileName, origMeta, archive);
+  if (err != IoError_OK) return err;
 
-  err = SlurpInternal(archive, origMeta, outMemory, outSize);
-
-end:
-  SDL_UnlockMutex(Lock);
-  return err;
-}
-
-IoError VfsSlurp(std::string const& mountpoint, uint32_t id, void** outMemory,
-                 int64_t* outSize) {
-  IoError err;
-  SDL_LockMutex(Lock);
-
-  FileMeta* origMeta;
-  VfsArchive* archive;
-  err = GetOrigMetaInternal(mountpoint, id, &origMeta, &archive);
-  if (err != IoError_OK) goto end;
-
-  err = SlurpInternal(archive, origMeta, outMemory, outSize);
-
-end:
-  SDL_UnlockMutex(Lock);
-  return err;
+  return SlurpInternal(archive, origMeta, outMemory, outSize);
 }
 
 IoError VfsListFiles(std::string const& mountpoint,
                      std::map<uint32_t, std::string>& outListing) {
   IoError err;
-  SDL_LockMutex(Lock);
+  std::shared_lock lock{Lock};
 
   auto it = Mounts.find(mountpoint);
   if (it == Mounts.end()) {
     err = IoError_NotFound;
-    goto end;
+    return err;
   }
 
   outListing.clear();
@@ -436,11 +340,32 @@ IoError VfsListFiles(std::string const& mountpoint,
     }
   }
 
-  err = IoError_OK;
+  return IoError_OK;
+}
 
-end:
-  SDL_UnlockMutex(Lock);
-  return err;
+IoError VfsGetMeta(std::string const& mountpoint, std::string const& fileName,
+                   FileMeta* outMeta) {
+  return VfsGetMetaImpl(mountpoint, fileName, outMeta);
+}
+IoError VfsGetMeta(std::string const& mountpoint, uint32_t id,
+                   FileMeta* outMeta) {
+  return VfsGetMetaImpl(mountpoint, id, outMeta);
+}
+IoError VfsOpen(std::string const& mountpoint, std::string const& fileName,
+                Stream** outStream) {
+  return VfsOpenImpl(mountpoint, fileName, outStream);
+}
+IoError VfsOpen(std::string const& mountpoint, uint32_t id,
+                Stream** outStream) {
+  return VfsOpenImpl(mountpoint, id, outStream);
+}
+IoError VfsSlurp(std::string const& mountpoint, std::string const& fileName,
+                 void*& outMemory, int64_t& outSize) {
+  return VfsSlurpImpl(mountpoint, fileName, outMemory, outSize);
+}
+IoError VfsSlurp(std::string const& mountpoint, uint32_t id, void*& outMemory,
+                 int64_t& outSize) {
+  return VfsSlurpImpl(mountpoint, id, outMemory, outSize);
 }
 
 }  // namespace Io

@@ -769,6 +769,7 @@ FetchContent_MakeAvailable(pugixml)
 FetchContent_MakeAvailable(utf8cpp)
 FetchContent_MakeAvailable(libatrac9)
 FetchContent_MakeAvailable(concurrentqueue)
+FetchContent_MakeAvailable(readerwriterqueue)
 
 if (NOT DEFINED IMPACTO_DISABLE_MMAP)
     list(APPEND Impacto_Src

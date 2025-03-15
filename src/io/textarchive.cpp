@@ -44,10 +44,10 @@ IoError TextArchive::Open(FileMeta* file, Stream** outStream) {
   return err;
 }
 
-IoError TextArchive::GetCurrentSize(FileMeta* file, int64_t* outSize) {
+IoError TextArchive::GetCurrentSize(FileMeta* file, int64_t& outSize) {
   TextMetaEntry* entry = (TextMetaEntry*)file;
   std::error_code ec;
-  *outSize = std::filesystem::file_size(entry->FullPath, ec);
+  outSize = std::filesystem::file_size(entry->FullPath, ec);
   if (ec) {
     ImpLog(LL_Error, LC_IO,
            "TextArchive getting size failed for file \"{:s}\" in archive "

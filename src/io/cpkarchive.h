@@ -30,7 +30,7 @@ class CpkArchive : public VfsArchive {
   ~CpkArchive();
 
   IoError Open(FileMeta* file, Stream** outStream) override;
-  IoError Slurp(FileMeta* file, void** outBuffer, int64_t* outSize) override;
+  IoError Slurp(FileMeta* file, void*& outBuffer, int64_t& outSize) override;
 
   static IoError Create(Stream* stream, VfsArchive** outArchive);
 

@@ -78,7 +78,7 @@ void LoadFonts() {
       if (TryGetAssetPath(widthTablePath)) {
         uint8_t* widthBin;
         int64_t widthSz;
-        if (widthTablePath.Slurp((void**)&widthBin, &widthSz) != IoError_OK) {
+        if (widthTablePath.Slurp((void*&)widthBin, widthSz) != IoError_OK) {
           ImpLog(LL_Fatal, LC_Profile,
                  "Failed to load width table file for font {:s}\n", name);
           Window->Shutdown();
