@@ -1,13 +1,13 @@
 #pragma once
 
 #include "../spritesheet.h"
-#include <flat_hash_map.hpp>
+#include <ankerl/unordered_dense.h>
 
 namespace Impacto {
 namespace Profile {
 
-inline ska::flat_hash_map<std::string, SpriteSheet> SpriteSheets;
-inline ska::flat_hash_map<std::string, Sprite> Sprites;
+inline ankerl::unordered_dense::map<std::string, SpriteSheet> SpriteSheets;
+inline ankerl::unordered_dense::map<std::string, Sprite> Sprites;
 
 void LoadSpritesheets();
 

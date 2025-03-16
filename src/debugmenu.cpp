@@ -758,7 +758,7 @@ void ShowScriptDebugger() {
   ImGui::PopItemWidth();
 }
 
-static ska::flat_hash_map<uint32_t, std::vector<std::string>>
+static ankerl::unordered_dense::map<uint32_t, std::vector<std::string>>
     SpritesBySpriteSheet;
 
 static void ShowSprite(const Sprite* sprite) {

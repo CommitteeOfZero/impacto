@@ -54,7 +54,7 @@ void DecryptUtfBlock(uint8_t* utfBlock, uint64_t size) {
 
 bool CpkArchive::ReadUtfBlock(
     uint8_t* utfBlock, uint64_t utfSize,
-    std::vector<ska::flat_hash_map<std::string, CpkCell>>* rows) {
+    std::vector<ankerl::unordered_dense::map<std::string, CpkCell>>* rows) {
   const uint32_t utfMagic = 0x40555446;
   UtfStream = new MemoryStream(utfBlock, utfSize, true);
   if (ReadBE<uint32_t>(UtfStream) != utfMagic) {
@@ -97,7 +97,7 @@ bool CpkArchive::ReadUtfBlock(
 
   for (uint32_t i = 0; i < numRows; i++) {
     UtfStream->Seek(rowsOffset + (i * rowLength), RW_SEEK_SET);
-    ska::flat_hash_map<std::string, CpkCell> row;
+    ankerl::unordered_dense::map<std::string, CpkCell> row;
     for (auto& column : columns) {
       CpkCell cell;
       int storageFlag = column.Flags & CpkColumnFlags::STORAGE_MASK;
@@ -194,15 +194,17 @@ IoError CpkArchive::ReadItoc(int64_t itocOffset, int64_t contentOffset,
   uint64_t utfSize = ReadLE<uint64_t>(BaseStream);
   uint8_t* utfBlock = (uint8_t*)malloc(utfSize);
   BaseStream->Read(utfBlock, utfSize);
-  std::vector<ska::flat_hash_map<std::string, CpkCell>> itocUtfTable;
+  std::vector<ankerl::unordered_dense::map<std::string, CpkCell>> itocUtfTable;
   if (!ReadUtfBlock(utfBlock, utfSize, &itocUtfTable)) return IoError_Fail;
 
   if (itocUtfTable[0]["DataL"].Uint64Val != 0) {
-    std::vector<ska::flat_hash_map<std::string, CpkCell>> dataLUtfTable;
+    std::vector<ankerl::unordered_dense::map<std::string, CpkCell>>
+        dataLUtfTable;
     if (!ReadUtfBlock(itocUtfTable[0]["DataL"].DataArray,
                       itocUtfTable[0]["DataL"].DataSize, &dataLUtfTable))
       return IoError_Fail;
-    std::vector<ska::flat_hash_map<std::string, CpkCell>> dataHUtfTable;
+    std::vector<ankerl::unordered_dense::map<std::string, CpkCell>>
+        dataHUtfTable;
     if (!ReadUtfBlock(itocUtfTable[0]["DataH"].DataArray,
                       itocUtfTable[0]["DataH"].DataSize, &dataHUtfTable))
       return IoError_Fail;
@@ -285,7 +287,7 @@ IoError CpkArchive::ReadToc(int64_t tocOffset, int64_t contentOffset) {
   uint64_t utfSize = ReadLE<uint64_t>(BaseStream);
   uint8_t* utfBlock = (uint8_t*)malloc(utfSize);
   BaseStream->Read(utfBlock, utfSize);
-  std::vector<ska::flat_hash_map<std::string, CpkCell>> tocUtfTable;
+  std::vector<ankerl::unordered_dense::map<std::string, CpkCell>> tocUtfTable;
   if (!ReadUtfBlock(utfBlock, utfSize, &tocUtfTable)) return IoError_Fail;
 
   for (auto& row : tocUtfTable) {
@@ -335,7 +337,7 @@ IoError CpkArchive::ReadEtoc(int64_t etocOffset) {
   uint64_t utfSize = ReadLE<uint64_t>(BaseStream);
   uint8_t* utfBlock = (uint8_t*)malloc(utfSize);
   BaseStream->Read(utfBlock, utfSize);
-  std::vector<ska::flat_hash_map<std::string, CpkCell>> etocUtfTable;
+  std::vector<ankerl::unordered_dense::map<std::string, CpkCell>> etocUtfTable;
   if (!ReadUtfBlock(utfBlock, utfSize, &etocUtfTable)) return IoError_Fail;
 
   // for (auto& row : etocUtfTable) {
@@ -352,7 +354,8 @@ IoError CpkArchive::Create(Stream* stream, VfsArchive** outArchive) {
 
   CpkArchive* result = 0;
 
-  std::vector<ska::flat_hash_map<std::string, CpkCell>> headerUtfTable;
+  std::vector<ankerl::unordered_dense::map<std::string, CpkCell>>
+      headerUtfTable;
 
   uint16_t alignVal;
   uint64_t utfSize = 0;

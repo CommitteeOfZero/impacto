@@ -1,12 +1,12 @@
 #pragma once
 
-#include <flat_hash_map.hpp>
+#include <ankerl/unordered_dense.h>
 #include "../spriteanimation.h"
 
 namespace Impacto {
 namespace Profile {
 
-inline ska::flat_hash_map<std::string, SpriteAnimationDef> Animations;
+inline ankerl::unordered_dense::map<std::string, SpriteAnimationDef> Animations;
 
 void LoadAnimations();
 

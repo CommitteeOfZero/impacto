@@ -29,7 +29,8 @@ using VfsArchiveFactory = auto (*)(Stream* stream, VfsArchive** outArchive)
     -> IoError;
 
 static std::vector<VfsArchiveFactory> Archivers;
-static ska::flat_hash_map<std::string, std::vector<std::unique_ptr<VfsArchive>>>
+static ankerl::unordered_dense::map<std::string,
+                                    std::vector<std::unique_ptr<VfsArchive>>>
     Mounts;
 static std::shared_mutex Lock;
 

@@ -3,7 +3,7 @@
 #include "../io/physicalfilestream.h"
 #include "../log.h"
 #include "../renderer/renderer.h"
-#include <flat_hash_map.hpp>
+#include <ankerl/unordered_dense.h>
 
 #include "ui/backlogmenu.h"
 #include "dialogue.h"
@@ -27,7 +27,7 @@
 namespace Impacto {
 namespace Profile {
 
-static ska::flat_hash_set<std::string> IncludedFiles;
+static ankerl::unordered_dense::set<std::string> IncludedFiles;
 
 static int LuaPrint(lua_State* ctx) {
   ImpLog(LL_Info, LC_Profile, "Lua: {:s}\n", lua_tostring(ctx, 1));

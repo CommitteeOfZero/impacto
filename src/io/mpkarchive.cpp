@@ -1,7 +1,7 @@
 #include "mpkarchive.h"
 
 #include "../log.h"
-#include <flat_hash_map.hpp>
+#include <ankerl/unordered_dense.h>
 #include "zlibstream.h"
 #include "uncompressedstream.h"
 #include "vfs.h"

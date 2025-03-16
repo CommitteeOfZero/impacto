@@ -66,7 +66,7 @@ bool Character2D::LoadSync(uint32_t charaId) {
 
       stream->Seek(start, SEEK_SET);
       auto [stateItr, inserted] =
-          States.emplace(id, Character2DState{count, Profile::CharaIsMvl});
+          States.try_emplace(id, count, Profile::CharaIsMvl);
       auto mvlIndicesPtr =
           std::get_if<Character2DState::MVLData>(&stateItr->second.Data)
               ->Indices.get();
@@ -114,7 +114,7 @@ bool Character2D::LoadSync(uint32_t charaId) {
 
       int64_t back = stream->Position;
       auto [stateItr, inserted] =
-          States.emplace(id, Character2DState{count, Profile::CharaIsMvl});
+          States.try_emplace(id, count, Profile::CharaIsMvl);
       stream->Seek(12 * (stateCount) + 8 + (start * 16), SEEK_SET);
       for (int i = 0; i < count; i++) {
         glm::vec2 screenCoords;

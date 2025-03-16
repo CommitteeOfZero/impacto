@@ -7,7 +7,7 @@
 
 // only these for new vfs
 #include "stream.h"
-#include <flat_hash_map.hpp>
+#include <ankerl/unordered_dense.h>
 #include <map>
 
 namespace Impacto {

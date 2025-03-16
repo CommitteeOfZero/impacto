@@ -772,6 +772,15 @@ FetchContent_Declare(
     EXCLUDE_FROM_ALL
 )
 
+FetchContent_Declare(
+    unordered_dense
+    GIT_REPOSITORY "https://github.com/martinus/unordered_dense"
+    GIT_TAG "v4.5.0"
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/unordered_dense
+    SYSTEM
+    EXCLUDE_FROM_ALL
+)
+
 FetchContent_MakeAvailable(fmt)
 FetchContent_MakeAvailable(glm)
 FetchContent_MakeAvailable(pugixml)
@@ -779,6 +788,7 @@ FetchContent_MakeAvailable(utf8cpp)
 FetchContent_MakeAvailable(libatrac9)
 FetchContent_MakeAvailable(concurrentqueue)
 FetchContent_MakeAvailable(readerwriterqueue)
+FetchContent_MakeAvailable(unordered_dense)
 
 if (NOT DEFINED IMPACTO_DISABLE_MMAP)
     list(APPEND Impacto_Src
@@ -945,6 +955,7 @@ list(APPEND Impacto_Libs
         fmt::fmt
         pugixml::pugixml
         atrac9
+        unordered_dense::unordered_dense
 )
 
 if (NOT DEFINED IMPACTO_DISABLE_IMGUI)

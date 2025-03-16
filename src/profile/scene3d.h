@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <vector>
-#include <flat_hash_map.hpp>
+#include <ankerl/unordered_dense.h>
 #include "../renderer/3d/model.h"
 
 namespace Impacto {
@@ -34,11 +34,11 @@ class CharacterDef {
   uint32_t CharacterId;
   int16_t IdleAnimation;
   std::vector<uint32_t> Models;
-  ska::flat_hash_map<int16_t, AnimationDef> Animations;
+  ankerl::unordered_dense::map<int16_t, AnimationDef> Animations;
 };
 
-inline ska::flat_hash_map<uint32_t, CharacterDef> Characters;
-inline ska::flat_hash_map<uint32_t, uint32_t> ModelsToCharacters;
+inline ankerl::unordered_dense::map<uint32_t, CharacterDef> Characters;
+inline ankerl::unordered_dense::map<uint32_t, uint32_t> ModelsToCharacters;
 
 void Configure();
 

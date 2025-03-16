@@ -4,7 +4,7 @@
 #include "animation.h"
 #include "vm/thread.h"
 #include <enum.h>
-#include <flat_hash_map.hpp>
+#include <ankerl/unordered_dense.h>
 
 #include "audio/audiosystem.h"
 #include "audio/audiostream.h"
@@ -160,7 +160,7 @@ std::vector<ProcessedTextGlyph> TextLayoutPlainString(
 
 void TextGetSc3String(std::string_view str, std::span<uint16_t> out);
 
-inline ska::flat_hash_map<uint32_t, uint32_t> NamePlateData;
+inline ankerl::unordered_dense::map<uint32_t, uint32_t> NamePlateData;
 void InitNamePlateData(uint16_t* data);
 uint32_t GetNameId(uint8_t* name, int nameLength);
 

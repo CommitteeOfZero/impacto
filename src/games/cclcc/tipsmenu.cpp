@@ -85,7 +85,7 @@ struct SortByTipName {
     return aString[aIndex] == 0xff && bString[bIndex] != 0xff;
   }
   uint8_t* SortString;
-  ska::flat_hash_map<uint16_t, int> Sc3SortMap;
+  ankerl::unordered_dense::map<uint16_t, int> Sc3SortMap;
 };
 
 TipsMenu::TipsMenu() : TipViewItems(this) {

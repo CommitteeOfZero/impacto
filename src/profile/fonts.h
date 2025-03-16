@@ -1,12 +1,12 @@
 #pragma once
 
 #include "../font.h"
-#include <flat_hash_map.hpp>
+#include <ankerl/unordered_dense.h>
 
 namespace Impacto {
 namespace Profile {
 
-inline ska::flat_hash_map<std::string, Font*> Fonts;
+inline ankerl::unordered_dense::map<std::string, Font*> Fonts;
 
 void LoadFonts();
 

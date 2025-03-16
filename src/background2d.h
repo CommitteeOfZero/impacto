@@ -1,6 +1,6 @@
 #pragma once
 
-#include <flat_hash_map.hpp>
+#include <ankerl/unordered_dense.h>
 #include "texture/texture.h"
 #include "spritesheet.h"
 #include "loadable.h"
@@ -113,6 +113,6 @@ inline std::array<Background2D, MaxScreencaptures> Screencaptures;
 inline std::array<Background2D, MaxFramebuffers> Framebuffers;
 inline Background2D ShaderScreencapture;
 
-inline ska::flat_hash_map<int, Background2D*> Backgrounds2D;
+inline ankerl::unordered_dense::map<int, Background2D*> Backgrounds2D;
 
 }  // namespace Impacto

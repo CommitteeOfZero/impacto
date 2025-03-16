@@ -1,7 +1,7 @@
 #pragma once
 
 #include "stream.h"
-#include <flat_hash_map.hpp>
+#include <ankerl/unordered_dense.h>
 
 namespace Impacto {
 namespace Io {
@@ -21,8 +21,8 @@ class VfsArchive {
   // and this must be overridden
   virtual IoError GetCurrentSize(FileMeta* file, int64_t& outSize);
 
-  ska::flat_hash_map<std::string, uint32_t> NamesToIds;
-  ska::flat_hash_map<uint32_t, FileMeta*> IdsToFiles;
+  ankerl::unordered_dense::map<std::string, uint32_t> NamesToIds;
+  ankerl::unordered_dense::map<uint32_t, FileMeta*> IdsToFiles;
 
   std::string MountPoint;
 

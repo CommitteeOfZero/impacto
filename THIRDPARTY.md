@@ -14,7 +14,6 @@
 * `vendor/minilua`: [minilua](https://github.com/edubart/minilua)
 * `vendor/glad`: output from [glad](https://github.com/Dav1dde/glad) generator, patched for Switch support
 * `vendor/include/enum.h`: [Better Enums](http://github.com/aantron/better-enums)
-* `vendor/include/flat_hash_map.hpp`: [flat_hash_map](https://github.com/skarupke/flat_hash_map/blob/4ba60d1302288fae0257d07a5c079e8033372501/flat_hash_map.hpp) (with PR #18)
 * `vendor/include/stb_image.h`: [stb_image](https://github.com/nothings/stb)
 * `vendor/imgui`: [Dear ImGui](https://github.com/ocornut/imgui)
 * `vendor/pcg`: [PCG Random Number Generation, Minimal C Edition](https://github.com/imneme/pcg-c-basic)
@@ -655,11 +654,12 @@ Emscripten 1.38.21 / musl 1.1.15 system/lib/libc/musl/COPYRIGHT:
 >     permissive licensing, and of not having licensing issues being an
 >     obstacle to adoption, that text has been removed.
 
-## flat_hash_map
+## unordered_dense
 
-https://github.com/skarupke/flat_hash_map/blob/4ba60d1302288fae0257d07a5c079e8033372501/flat_hash_map.hpp
+https://github.com/martinus/unordered_dense
 
-Copyright Malte Skarupke 2017. Distributed under the Boost Software License, Version 1.0. See below for license text.
+Copyright (c) 2022 Martin Leitner-Ankerl
+See below for license text (MIT).
 
 ## glad
 

@@ -7,7 +7,7 @@
 
 #include <glm/glm.hpp>
 
-#include <flat_hash_map.hpp>
+#include <ankerl/unordered_dense.h>
 
 // BIG TODO: Use integer types consistently internally (not always possible for
 // file content, but eh)
@@ -221,11 +221,11 @@ class Model {
   int32_t RootBoneCount = 0;
   int16_t RootBones[ModelMaxRootBones];
 
-  ska::flat_hash_map<int16_t, ModelAnimation*> Animations;
+  ankerl::unordered_dense::map<int16_t, ModelAnimation*> Animations;
 
   // These are only filled for DaSH
-  ska::flat_hash_map<std::string, int32_t> NamedMeshGroups;
-  ska::flat_hash_map<std::string, uint16_t> NamedBones;
+  ankerl::unordered_dense::map<std::string, int32_t> NamedMeshGroups;
+  ankerl::unordered_dense::map<std::string, uint16_t> NamedBones;
 
   int16_t IdleAnimation = -1;
 

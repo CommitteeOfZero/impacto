@@ -1,6 +1,6 @@
 #pragma once
 
-#include <flat_hash_map.hpp>
+#include <ankerl/unordered_dense.h>
 #include "renderer/renderer.h"
 #include "texture/texture.h"
 #include "spritesheet.h"
@@ -83,7 +83,7 @@ class Character2D : public Loadable<Character2D> {
   Texture CharaTexture;
   SpriteSheet CharaSpriteSheet;
 
-  ska::flat_hash_map<int, Character2DState> States;
+  ankerl::unordered_dense::map<int, Character2DState> States;
   std::vector<int> StatesToDraw;
 
   int MvlVerticesCount;
