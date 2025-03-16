@@ -42,16 +42,20 @@ int main(int argc, char* argv[]) {
   g_LogLevelConsole = LogLevel::Trace;
   g_LogChannelsConsole = LogChannel::All;
 
-  Io::Stream* stream;
-  IoError err = Io::PhysicalFileStream::Create("profile.txt", &stream);
-  if (err != IoError_OK) {
-    ImpLog(LogLevel::Fatal, LogChannel::General, "Couldn't open profile.txt\n");
-    exit(1);
-  }
-
   std::string profileName;
-  profileName.resize(stream->Meta.Size, '\0');
-  profileName.resize(stream->Read(&profileName[0], stream->Meta.Size));
+  if (argc > 1) {
+    profileName = argv[1];
+  } else {
+    Io::Stream* stream;
+    IoError err = Io::PhysicalFileStream::Create("profile.txt", &stream);
+    if (err != IoError_OK) {
+      ImpLog(LL_Fatal, LC_General, "Couldn't open profile.txt\n");
+      exit(0);
+
+      profileName.resize(stream->Meta.Size, '\0');
+      profileName.resize(stream->Read(&profileName[0], stream->Meta.Size));
+    }
+  }
   TrimString(profileName);
   MakeLowerCase(profileName);
 
