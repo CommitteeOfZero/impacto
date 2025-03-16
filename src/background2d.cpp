@@ -153,8 +153,8 @@ void Background2D::RenderBgEff(int bgId, int layer) {
             ScrWork[SW_BGEFF1_POSX + structSize * bgId];
   float y = ScrWork[SW_BGEFF1_OFSY + 20 * bgId] +
             ScrWork[SW_BGEFF1_POSY + structSize * bgId];
-  x *= Profile::DesignWidth / 1280.0f;
-  y *= Profile::DesignHeight / 720.0f;
+  x *= Profile::DesignWidth;
+  y *= Profile::DesignHeight;
   DisplayCoords = glm::vec2(-x, -y);
 
   glm::vec4 col = glm::vec4(1.0f);
