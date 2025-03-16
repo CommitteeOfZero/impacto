@@ -1,6 +1,5 @@
 #pragma once
 
-#include <mutex>
 #include <codeccontext.h>
 #include <stream.h>
 #include <frame.h>
@@ -11,9 +10,14 @@
 
 #include <thread>
 #include <memory>
-#include <queue>
 #include <type_traits>
-#include <condition_variable>
+#if __SWITCH__
+#define __unix__
+#endif
+#include <readerwriterqueue/readerwritercircularbuffer.h>
+#if __SWITCH__
+#undef __unix__
+#endif
 
 struct AVFrame;
 struct AVPacket;
@@ -61,17 +65,14 @@ template <AVMediaType MediaType>
 struct FFmpegStream {
   DecodingContext_t<MediaType> CodecContext;
   av::Stream stream;
-  std::queue<AVPacketItem> PacketQueue;
-  std::queue<AVFrameItem<MediaType>> FrameQueue;
+  moodycamel::BlockingReaderWriterCircularBuffer<AVPacketItem> PacketQueue{25};
+  moodycamel::BlockingReaderWriterCircularBuffer<AVFrameItem<MediaType>>
+      FrameQueue{60};
   int Duration;
   int PacketQueueSerial = 0;
   int CurrentPacketSerial = 0;
 
-  std::thread DecoderThreadID;
-
-  std::mutex PacketLock;
-  std::mutex FrameLock;
-  std::condition_variable DecodeCond;
+  std::thread DecoderThread;
 
   FFmpegStream() = default;
   FFmpegStream(av::Stream&& avStream, DecodingContext_t<MediaType>&& codecCtx)

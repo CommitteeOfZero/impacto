@@ -72,20 +72,11 @@ void FFmpegAudioPlayer::FillAudioBuffers() {
     do {
       bool firstFrame = true;
 
-      std::unique_lock lock(Player->AudioStream->FrameLock);
-      if (Player->AudioStream->FrameQueue.empty()) {
-        Player->AudioStream->DecodeCond.notify_one();
+      Video::AVFrameItem<AVMEDIA_TYPE_AUDIO> aFrame;
+      if (!Player->AudioStream->FrameQueue.try_dequeue(aFrame)) {
         continue;
       }
-      Video::AVFrameItem<AVMEDIA_TYPE_AUDIO> aFrame =
-          std::move(Player->AudioStream->FrameQueue.front());
-
-      if (aFrame.Serial == INT32_MIN) {
-        Player->AudioStream->FrameQueue.pop();
-        break;
-      }
-      Player->AudioStream->FrameQueue.pop();
-      Player->AudioStream->DecodeCond.notify_one();
+      if (aFrame.Serial == INT32_MIN) break;
 
       if (firstFrame) {
         BufferStartPositions[FirstFreeBuffer] =
@@ -127,11 +118,8 @@ void FFmpegAudioPlayer::FillAudioBuffers() {
 void FFmpegAudioPlayer::Process() {
   float gain = Audio::MasterVolume * Audio::GroupVolumes[Audio::ACG_Movie];
   alSourcef(ALSource, AL_GAIN, gain);
-  Player->AudioStream->FrameLock.lock();
-  ImpLogSlow(LL_Trace, LC_Video, "AudioStream->FrameQueue.size() = {:d}\n",
-             Player->AudioStream->FrameQueue.size());
-  if (!Player->AudioStream->FrameQueue.empty()) {
-    Player->AudioStream->FrameLock.unlock();
+
+  if (Player->AudioStream->FrameQueue.peek() != nullptr) {
     alGetSourcei(ALSource, AL_BUFFERS_PROCESSED, &FreeBufferCount);
     if (First) {
       FreeBufferCount = AudioBufferCount;
@@ -157,10 +145,6 @@ void FFmpegAudioPlayer::Process() {
     if (sourceState == AL_STOPPED || sourceState == AL_INITIAL) {
       alSourcePlay(ALSource);
     }
-  } else {
-    Player->AudioStream->FrameLock.unlock();
-    Player->AudioStream->DecodeCond.notify_one();
-    ImpLog(LL_Debug, LC_Video, "Ran out of audio frames!\n");
   }
 }
 

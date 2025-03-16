@@ -763,6 +763,15 @@ FetchContent_Declare(
     EXCLUDE_FROM_ALL
 )
 
+FetchContent_Declare(
+    readerwriterqueue
+    GIT_REPOSITORY "https://github.com/cameron314/readerwriterqueue"
+    GIT_TAG "16b48ae1148284e7b40abf72167206a4390a4592"
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/readerwriterqueue
+    SYSTEM
+    EXCLUDE_FROM_ALL
+)
+
 FetchContent_MakeAvailable(fmt)
 FetchContent_MakeAvailable(glm)
 FetchContent_MakeAvailable(pugixml)
