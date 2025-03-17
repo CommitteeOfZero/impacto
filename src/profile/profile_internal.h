@@ -3,6 +3,7 @@
 #include "../minilua_impl.h"
 #include <initializer_list>
 #include <optional>
+#include <charconv>
 #include <system_error>
 #include <glm/glm.hpp>
 #include "../io/assetpath.h"
@@ -51,18 +52,33 @@ bool TryGet(T& outNumber) {
     return true;
   }
   if (lua_isstring(LuaState, -1)) {
-    std::string_view inputStr = lua_tostring(LuaState, -1);
-    auto [endP, ec] = std::from_chars(
-        inputStr.data(), inputStr.data() + inputStr.size(), outNumber);
-    if (ec != std::errc{}) {
-      ImpLog(LL_Fatal, LC_Profile,
-             "Error encountered converting to number: {}\n",
-             std::make_error_code(ec).message());
-      return false;
+    std::string_view inputStr = {lua_tostring(LuaState, -1)};
+    if constexpr (std::is_integral_v<T>) {
+      auto [ptr, ec] = std::from_chars(
+          inputStr.data(), inputStr.data() + inputStr.size(), outNumber);
+      if (ec != std::errc{}) {
+        ImpLog(LL_Fatal, LC_Profile,
+               "Error encountered converting {:s} to number: {:s}\n", inputStr,
+               std::make_error_code(ec).message());
+        return false;
+      }
+      return true;
+    } else {
+      char* endPtr = nullptr;
+      if constexpr (std::is_same_v<T, double>) {
+        outNumber = std::strtod(inputStr.data(), &endPtr);
+      } else if constexpr (std::is_same_v<T, float>) {
+        outNumber = std::strtof(inputStr.data(), &endPtr);
+      }
+      if (endPtr == inputStr.data()) {
+        ImpLog(LL_Fatal, LC_Profile,
+               "Error encountered converting {:s} to number: {:s}\n", inputStr,
+               std::error_code{errno, std::generic_category()}.message());
+        return false;
+      }
+      return true;
     }
-    return true;
   }
-
   return false;
 }
 
