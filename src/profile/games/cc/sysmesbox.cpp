@@ -13,10 +13,10 @@ namespace SysMesBox {
 void Configure() {
   GetMemberArray<Sprite>(SumoSealSprites, SealSpriteCount, "SumoSealSprites");
 
-  GetMemberArray<float> (SumoSealCenterPosX, SealSpriteCount,
-                         "SumoSealCenterPosX");
-  GetMemberArray<float> (SumoSealCenterPosY, SealSpriteCount,
-                         "SumoSealCenterPosY");
+  GetMemberArray<float>(SumoSealCenterPosX, SealSpriteCount,
+                        "SumoSealCenterPosX");
+  GetMemberArray<float>(SumoSealCenterPosY, SealSpriteCount,
+                        "SumoSealCenterPosY");
   ButtonYes = EnsureGetMember<Sprite>("ButtonYes");
   ButtonNo = EnsureGetMember<Sprite>("ButtonNo");
   ButtonOK = EnsureGetMember<Sprite>("ButtonOK");

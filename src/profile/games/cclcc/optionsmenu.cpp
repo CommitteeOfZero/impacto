@@ -33,7 +33,7 @@ void Configure() {
   PagePanelFadeStartPosition =
       EnsureGetMember<glm::vec2>("PagePanelFadeStartPosition");
   GetMemberArray<Sprite>(PagePanelSprites, PagePanelSpriteCount,
-                       "PagePanelSprites");
+                         "PagePanelSprites");
   GetMemberArray<glm::vec2>(PagePanelIconOffsets, PageCount,
                             "PagePanelIconOffsets");
   GetMemberArray<RectF>(PagePanelHoverBounds, PageCount,
