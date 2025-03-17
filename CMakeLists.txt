@@ -1162,6 +1162,10 @@ else()
     add_executable(impacto ${Impacto_Src} ${Impacto_Header})
 endif()
 
+if(MSVC)
+    set_property(TARGET impacto PROPERTY WIN32_EXECUTABLE TRUE)
+endIf()
+
 target_link_libraries(impacto PRIVATE ${Impacto_Libs})
 
 # compiler/dependency configuration

@@ -66,6 +66,8 @@ constexpr LogChannel& operator^=(LogChannel& channel, LogChannel other) {
 constexpr auto ChannelToString(LogChannel channel) {
   using enum LogChannel;
   switch (channel) {
+    case None:
+      return "None";
     case General:
       return "General";
     case IO:
@@ -95,7 +97,6 @@ constexpr auto ChannelToString(LogChannel channel) {
     case Video:
       return "Video";
     default:
-      assert(false);
       return "";
   }
 }
@@ -118,9 +119,46 @@ constexpr auto LevelToString(LogLevel level) {
     case Trace:
       return "Trace";
     default:
-      assert(false);
       return "";
   }
+}
+
+constexpr auto StringToChannel(std::string_view channel) {
+  using enum LogChannel;
+  if (channel == "None") return None;
+  if (channel == "General") return General;
+  if (channel == "IO") return IO;
+  if (channel == "Render") return Render;
+  if (channel == "ModelLoad") return ModelLoad;
+  if (channel == "GL") return GL;
+  if (channel == "Renderable3D") return Renderable3D;
+  if (channel == "TextureLoad") return TextureLoad;
+  if (channel == "Scene") return Scene;
+  if (channel == "VM") return VM;
+  if (channel == "Expr") return Expr;
+  if (channel == "VMStub") return VMStub;
+  if (channel == "Audio") return Audio;
+  if (channel == "Profile") return Profile;
+  if (channel == "Video") return Video;
+  if (channel == "All")
+    return All;
+  else
+    return None;
+}
+
+constexpr auto StringToLevel(std::string_view level) {
+  using enum LogLevel;
+  if (level == "Off") return Off;
+  if (level == "Fatal") return Fatal;
+  if (level == "Error") return Error;
+  if (level == "Warning") return Warning;
+  if (level == "Info") return Info;
+  if (level == "Debug") return Debug;
+  if (level == "Trace") return Trace;
+  if (level == "Max")
+    return Max;
+  else
+    return Off;
 }
 
 inline LogLevel g_LogLevelFile = LogLevel::Off;

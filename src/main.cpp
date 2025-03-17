@@ -37,25 +37,55 @@ int main(int argc, char* argv[]) {
 #ifdef EMSCRIPTEN
   EM_ASM(OnGameLoadStart(););
 #endif
-
-  LogSetConsole(true);
-  g_LogLevelConsole = LogLevel::Trace;
-  g_LogChannelsConsole = LogChannel::All;
+#ifdef _WIN32
+  if (AttachConsole(ATTACH_PARENT_PROCESS)) {
+    FILE* fDummy;
+    freopen_s(&fDummy, "CONOUT$", "w", stdout);
+    freopen_s(&fDummy, "CONOUT$", "w", stderr);
+    freopen_s(&fDummy, "CONIN$", "r", stdin);
+  }
+#endif
 
   std::string profileName;
-  if (argc > 1) {
-    profileName = argv[1];
-  } else {
+  LogSetConsole(true);
+  g_LogLevelConsole = LogLevel::Fatal;
+  g_LogChannelsConsole = LogChannel::All;
+  for (int i = 1; i < argc; ++i) {
+    std::string_view arg = argv[i];
+    if (arg == "-lc" || arg == "--logchannel") {
+      if (i++ < argc) {
+        std::string_view input = argv[i];
+        g_LogChannelsConsole = StringToChannel(input);
+      } else {
+        ImpLog(LogLevel::Fatal, LogChannel::General,
+               "Invalid number of arguments");
+        exit(1);
+      }
+    } else if (arg == "-ll" || arg == "--loglevel") {
+      if (i++ < argc) {
+        std::string_view input = argv[i];
+        g_LogLevelConsole = StringToLevel(input);
+      } else {
+        ImpLog(LogLevel::Fatal, LogChannel::General,
+               "Invalid number of arguments");
+        exit(1);
+      }
+    } else {
+      profileName = arg;
+    }
+  }
+  if (profileName.empty()) {
     Io::Stream* stream;
     IoError err = Io::PhysicalFileStream::Create("profile.txt", &stream);
     if (err != IoError_OK) {
-      ImpLog(LL_Fatal, LC_General, "Couldn't open profile.txt\n");
-      exit(0);
-
-      profileName.resize(stream->Meta.Size, '\0');
-      profileName.resize(stream->Read(&profileName[0], stream->Meta.Size));
+      ImpLog(LogLevel::Fatal, LogChannel::General,
+             "Couldn't open profile.txt\n");
+      exit(1);
     }
+    profileName.resize(stream->Meta.Size, '\0');
+    profileName.resize(stream->Read(&profileName[0], stream->Meta.Size));
   }
+
   TrimString(profileName);
   MakeLowerCase(profileName);
 
