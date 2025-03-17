@@ -130,6 +130,7 @@ inline LogChannel g_LogChannelsConsole = LogChannel::None;
 
 void LogSetFile(char* path);
 void LogSetConsole(bool enabled);
+bool CheckLogConfig(LogLevel level, LogChannel channel);
 
 void ImpLogImpl(LogLevel level, LogChannel channel, fmt::string_view format,
                 fmt::format_args args, size_t tailSize);
@@ -137,6 +138,7 @@ void ImpLogImpl(LogLevel level, LogChannel channel, fmt::string_view format,
 template <typename... T>
 void ImpLog(LogLevel level, LogChannel channel, fmt::format_string<T...> format,
             T&&... args) {
+  if (!CheckLogConfig(level, channel)) return;
   size_t tailSize = fmt::formatted_size(format, std::forward<T>(args)...);
   ImpLogImpl(level, channel, format.get(), fmt::make_format_args(args...),
              tailSize);

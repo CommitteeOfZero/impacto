@@ -14,6 +14,19 @@ namespace Impacto {
 static bool LoggingToConsole = false;
 static bool LoggingToFile = false;
 
+bool CheckLogConfig(LogLevel level, LogChannel channel) {
+  bool any = false;
+  if (LoggingToConsole && (level <= g_LogLevelConsole) &&
+      (g_LogChannelsConsole & channel) != LogChannel::None) {
+    any = true;
+  }
+  if (LoggingToFile && (level <= g_LogLevelFile) &&
+      (g_LogChannelsFile & channel) != LogChannel::None) {
+    any = true;
+  }
+  return any;
+}
+
 void ConsoleWrite(LogLevel level, std::string_view str) {
   assert(level > LogLevel::Off && level < LogLevel::Max);
   switch (level) {
@@ -45,16 +58,6 @@ void ImpLogImpl(LogLevel level, LogChannel channel, fmt::string_view format,
   constexpr size_t maxChannelSize = 16;
   constexpr size_t maxTimestampSize = 21;
   assert(level > LogLevel::Off && channel > LogChannel::None);
-  bool any = false;
-  if (LoggingToConsole && (level <= g_LogLevelConsole) &&
-      (g_LogChannelsConsole & channel) != LogChannel::None) {
-    any = true;
-  }
-  if (LoggingToFile && (level <= g_LogLevelFile) &&
-      (g_LogChannelsFile & channel) != LogChannel::None) {
-    any = true;
-  }
-  if (!any) return;
   const size_t lineBufferSize =
       maxChannelSize + maxTimestampSize + tailSize + 1;
   auto* line = static_cast<char*>(ImpStackAlloc(lineBufferSize));
