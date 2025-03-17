@@ -494,7 +494,8 @@ static IoError DecompressLayla(char* input, int64_t compressedSize,
   uint32_t compressedOffset = 16;
   int64_t prefixOffset = compressedOffset + compressedStreamLength;
   if (compressedSize < prefixOffset || compressedSize - prefixOffset != 0x100) {
-    ImpLog(LogLevel::Debug, LogChannel::IO, "CPK unexpected end of LAYLA stream\n");
+    ImpLog(LogLevel::Debug, LogChannel::IO,
+           "CPK unexpected end of LAYLA stream\n");
     return IoError_Fail;
   }
   memcpy(output, input + compressedOffset + compressedStreamLength, 0x100);
