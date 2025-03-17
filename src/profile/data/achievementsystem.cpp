@@ -13,7 +13,7 @@ void Configure() {
   if (TryPushMember("AchievementData")) {
     AssertIs(LUA_TTABLE);
     Type = AchievementDataType::_from_integral_unchecked(
-        EnsureGetMemberInt("Type"));
+        EnsureGetMember<int>("Type"));
 
     switch (Type) {
       case AchievementDataType::PS3:
@@ -21,7 +21,7 @@ void Configure() {
         break;
     }
 
-    AchievementDataPath = EnsureGetMemberString("AchievementDataPath");
+    AchievementDataPath = EnsureGetMember<std::string>("AchievementDataPath");
 
     Pop();
   }

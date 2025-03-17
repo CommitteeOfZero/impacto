@@ -46,6 +46,9 @@ struct string_hash {
   }
 };
 
+template <typename T, typename... Ts>
+concept is_any_of = std::disjunction_v<std::is_same<T, Ts>...>;
+
 glm::mat2 Rotate2D(float angle);
 
 struct Rect;

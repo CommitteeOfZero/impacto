@@ -8,13 +8,14 @@ namespace SaveIcon {
 void Configure() {
   EnsurePushMemberOfType("SaveIcon", LUA_TTABLE);
 
-  ForegroundAnimation = EnsureGetMemberAnimation("ForegroundAnimation");
-  DefaultPosition = EnsureGetMemberVec2("DefaultPosition");
-  BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
-  BackgroundOffset = EnsureGetMemberVec2("BackgroundOffset");
-  BackgroundMaxAlpha = EnsureGetMemberFloat("BackgroundMaxAlpha");
-  FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
-  FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
+  ForegroundAnimation =
+      EnsureGetMember<SpriteAnimationDef>("ForegroundAnimation");
+  DefaultPosition = EnsureGetMember<glm::vec2>("DefaultPosition");
+  BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSprite");
+  BackgroundOffset = EnsureGetMember<glm::vec2>("BackgroundOffset");
+  BackgroundMaxAlpha = EnsureGetMember<float>("BackgroundMaxAlpha");
+  FadeInDuration = EnsureGetMember<float>("FadeInDuration");
+  FadeOutDuration = EnsureGetMember<float>("FadeOutDuration");
 
   Pop();
 }

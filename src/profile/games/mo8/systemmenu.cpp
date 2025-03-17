@@ -13,20 +13,20 @@ namespace MO8 {
 namespace SystemMenu {
 
 void Configure() {
-  MenuEntriesLNum = EnsureGetMemberInt("MenuEntriesLNum");
+  MenuEntriesLNum = EnsureGetMember<int>("MenuEntriesLNum");
   if (MenuEntriesLNum > 0) {
-    GetMemberSpriteArray(MenuEntriesLSprites, MenuEntriesLNum,
-                         "MenuEntriesLockedSprites");
+    GetMemberArray<Sprite>(MenuEntriesLSprites, MenuEntriesLNum,
+                           "MenuEntriesLockedSprites");
   }
-  ExitMenuButtonId = EnsureGetMemberInt("ExitMenuButtonId");
+  ExitMenuButtonId = EnsureGetMember<int>("ExitMenuButtonId");
   SystemMenuBackgroundSprite =
-      EnsureGetMemberSprite("SystemMenuBackgroundSprite");
-  MenuEntriesTargetWidth = EnsureGetMemberFloat("MenuEntriesTargetWidth");
-  SystemMenuX = EnsureGetMemberFloat("SystemMenuX");
-  SystemMenuY = EnsureGetMemberFloat("SystemMenuY");
+      EnsureGetMember<Sprite>("SystemMenuBackgroundSprite");
+  MenuEntriesTargetWidth = EnsureGetMember<float>("MenuEntriesTargetWidth");
+  SystemMenuX = EnsureGetMember<float>("SystemMenuX");
+  SystemMenuY = EnsureGetMember<float>("SystemMenuY");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   UI::SystemMenuPtr = new UI::MO8::SystemMenu();
   UI::Menus[drawType].push_back(UI::SystemMenuPtr);

@@ -30,13 +30,13 @@ void LoadSpritesheets() {
 
   PushInitialIndex();
   while (PushNextTableElement() != 0) {
-    std::string name(EnsureGetKeyString());
+    std::string name(EnsureGetKey<std::string>());
 
     SpriteSheet& sheet = SpriteSheets[name];
-    sheet.DesignWidth = EnsureGetMemberFloat("DesignWidth");
-    sheet.DesignHeight = EnsureGetMemberFloat("DesignHeight");
+    sheet.DesignWidth = EnsureGetMember<float>("DesignWidth");
+    sheet.DesignHeight = EnsureGetMember<float>("DesignHeight");
 
-    Io::AssetPath asset = EnsureGetMemberAssetPath("Path");
+    Io::AssetPath asset = EnsureGetMember<Io::AssetPath>("Path");
 
     Io::Stream* stream;
     IoError err = asset.Open(&stream);
@@ -62,12 +62,12 @@ void LoadSpritesheets() {
 
   PushInitialIndex();
   while (PushNextTableElement() != 0) {
-    std::string name(EnsureGetKeyString());
+    std::string name(EnsureGetKey<std::string>());
 
     Sprite& sprite = Sprites[name];
-    sprite.Sheet = EnsureGetMemberSpriteSheet("Sheet");
-    sprite.Bounds = EnsureGetMemberRectF("Bounds");
-    if (!TryGetMemberVec2("BaseScale", sprite.BaseScale))
+    sprite.Sheet = EnsureGetMember<SpriteSheet>("Sheet");
+    sprite.Bounds = EnsureGetMember<RectF>("Bounds");
+    if (!TryGetMember<glm::vec2>("BaseScale", sprite.BaseScale))
       sprite.BaseScale = glm::vec2(1.0f);
 
     Pop();

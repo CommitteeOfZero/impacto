@@ -12,26 +12,26 @@ namespace MO6TW {
 namespace ActorsVoiceMenu {
 
 void Configure() {
-  BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
+  BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSprite");
 
-  GetMemberSpriteArray(UnlockedSprites, ActorsVoiceCount, "UnlockedSprites");
-  GetMemberSpriteArray(LockedSprites, ActorsVoiceCount, "LockedSprites");
-  GetMemberSpriteArray(UnlockedHighlightedSprites, ActorsVoiceCount,
-                       "UnlockedHighlightedSprites");
-  GetMemberSpriteArray(LockedHighlightedSprites, ActorsVoiceCount,
-                       "LockedHighlightedSprites");
+  GetMemberArray<Sprite>(UnlockedSprites, ActorsVoiceCount, "UnlockedSprites");
+  GetMemberArray<Sprite>(LockedSprites, ActorsVoiceCount, "LockedSprites");
+  GetMemberArray<Sprite>(UnlockedHighlightedSprites, ActorsVoiceCount,
+                         "UnlockedHighlightedSprites");
+  GetMemberArray<Sprite>(LockedHighlightedSprites, ActorsVoiceCount,
+                         "LockedHighlightedSprites");
 
-  InitialItemPosition = EnsureGetMemberVec2("InitialItemPosition");
-  ItemOffset = EnsureGetMemberVec2("ItemOffset");
+  InitialItemPosition = EnsureGetMember<glm::vec2>("InitialItemPosition");
+  ItemOffset = EnsureGetMember<glm::vec2>("ItemOffset");
 
   CharacterBackgroundBufferId =
-      EnsureGetMemberInt("CharacterBackgroundBufferId");
+      EnsureGetMember<int>("CharacterBackgroundBufferId");
 
-  FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
-  FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
+  FadeInDuration = EnsureGetMember<float>("FadeInDuration");
+  FadeOutDuration = EnsureGetMember<float>("FadeOutDuration");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   UI::Menus[drawType].push_back(new UI::MO6TW::ActorsVoiceMenu());
 }

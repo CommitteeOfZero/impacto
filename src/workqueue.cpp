@@ -25,7 +25,7 @@ struct WorkItem {
   void Handle();
 };
 
-static Uint32 WorkCompletedEventType = 0;
+static uint32_t WorkCompletedEventType = 0;
 
 static void InitEventType() {
   assert(WorkCompletedEventType == 0);

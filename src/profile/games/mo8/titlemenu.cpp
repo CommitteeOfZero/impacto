@@ -12,38 +12,38 @@ namespace MO8 {
 namespace TitleMenu {
 
 void Configure() {
-  BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
-  LogoSprite = EnsureGetMemberSprite("LogoSprite");
-  LogoPositionX = EnsureGetMemberFloat("LogoX");
-  LogoPositionY = EnsureGetMemberFloat("LogoY");
-  NewGameSpriteIndex = EnsureGetMemberInt("NewGameSpriteIndex");
-  ContinueSpriteIndex = EnsureGetMemberInt("ContinueSpriteIndex");
-  OptionSpriteIndex = EnsureGetMemberInt("OptionSpriteIndex");
-  GallerySpriteIndex = EnsureGetMemberInt("GallerySpriteIndex");
-  AlbumSpriteIndex = EnsureGetMemberInt("AlbumSpriteIndex");
-  MusicSpriteIndex = EnsureGetMemberInt("MusicSpriteIndex");
-  ClearListSpriteIndex = EnsureGetMemberInt("ClearListSpriteIndex");
-  WarningSpriteIndex = EnsureGetMemberInt("WarningSpriteIndex");
-  AdditionalSpriteIndex = EnsureGetMemberInt("AdditionalSpriteIndex");
-  DLCSpriteIndex = EnsureGetMemberInt("DLCSpriteIndex");
-  LoadSpriteIndex = EnsureGetMemberInt("LoadSpriteIndex");
-  QuickLoadSpriteIndex = EnsureGetMemberInt("QuickLoadSpriteIndex");
-  MenuEntriesX = EnsureGetMemberFloat("MenuEntriesX");
-  MenuEntriesFirstY = EnsureGetMemberFloat("MenuEntriesFirstY");
-  MenuEntriesGalleryFirstY = EnsureGetMemberFloat("MenuEntriesGalleryFirstY");
-  MenuEntriesYPadding = EnsureGetMemberFloat("MenuEntriesYPadding");
-  HasAdditional = EnsureGetMemberBool("HasAdditional");
-  PressToStartAnimated = EnsureGetMemberBool("PressToStartAnimated");
+  BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSprite");
+  LogoSprite = EnsureGetMember<Sprite>("LogoSprite");
+  LogoPositionX = EnsureGetMember<float>("LogoX");
+  LogoPositionY = EnsureGetMember<float>("LogoY");
+  NewGameSpriteIndex = EnsureGetMember<int>("NewGameSpriteIndex");
+  ContinueSpriteIndex = EnsureGetMember<int>("ContinueSpriteIndex");
+  OptionSpriteIndex = EnsureGetMember<int>("OptionSpriteIndex");
+  GallerySpriteIndex = EnsureGetMember<int>("GallerySpriteIndex");
+  AlbumSpriteIndex = EnsureGetMember<int>("AlbumSpriteIndex");
+  MusicSpriteIndex = EnsureGetMember<int>("MusicSpriteIndex");
+  ClearListSpriteIndex = EnsureGetMember<int>("ClearListSpriteIndex");
+  WarningSpriteIndex = EnsureGetMember<int>("WarningSpriteIndex");
+  AdditionalSpriteIndex = EnsureGetMember<int>("AdditionalSpriteIndex");
+  DLCSpriteIndex = EnsureGetMember<int>("DLCSpriteIndex");
+  LoadSpriteIndex = EnsureGetMember<int>("LoadSpriteIndex");
+  QuickLoadSpriteIndex = EnsureGetMember<int>("QuickLoadSpriteIndex");
+  MenuEntriesX = EnsureGetMember<float>("MenuEntriesX");
+  MenuEntriesFirstY = EnsureGetMember<float>("MenuEntriesFirstY");
+  MenuEntriesGalleryFirstY = EnsureGetMember<float>("MenuEntriesGalleryFirstY");
+  MenuEntriesYPadding = EnsureGetMember<float>("MenuEntriesYPadding");
+  HasAdditional = EnsureGetMember<bool>("HasAdditional");
+  PressToStartAnimated = EnsureGetMember<bool>("PressToStartAnimated");
   PressToStartAnimation.DurationIn =
       Profile::TitleMenu::PressToStartAnimDurationIn;
   PressToStartAnimation.DurationOut =
       Profile::TitleMenu::PressToStartAnimDurationOut;
   PressToStartAnimation.LoopMode = AnimationLoopMode::ReverseDirection;
-  PrimaryFadeAnimDuration = EnsureGetMemberFloat("PrimaryFadeAnimDuration");
-  ItemFadeAnimDuration = EnsureGetMemberFloat("ItemFadeAnimDuration");
+  PrimaryFadeAnimDuration = EnsureGetMember<float>("PrimaryFadeAnimDuration");
+  ItemFadeAnimDuration = EnsureGetMember<float>("ItemFadeAnimDuration");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   UI::MO8::TitleMenu* menu = new UI::MO8::TitleMenu();
   menu->PrimaryFadeAnimation.DurationIn = PrimaryFadeAnimDuration;

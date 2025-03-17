@@ -11,29 +11,29 @@ namespace CHLCC {
 namespace SysMesBox {
 
 void Configure() {
-  Box = EnsureGetMemberSprite("Box");
-  BoxDecoration = EnsureGetMemberSprite("BoxDecoration");
-  SelectionLeftPart = EnsureGetMemberSprite("SelectionLeftPart");
-  SelectionRightPart = EnsureGetMemberSprite("SelectionRightPart");
-  SelectionMiddlePart = EnsureGetMemberSprite("SelectionMiddlePart");
+  Box = EnsureGetMember<Sprite>("Box");
+  BoxDecoration = EnsureGetMember<Sprite>("BoxDecoration");
+  SelectionLeftPart = EnsureGetMember<Sprite>("SelectionLeftPart");
+  SelectionRightPart = EnsureGetMember<Sprite>("SelectionRightPart");
+  SelectionMiddlePart = EnsureGetMember<Sprite>("SelectionMiddlePart");
 
-  BoxX = EnsureGetMemberFloat("BoxX");
-  BoxY = EnsureGetMemberFloat("BoxY");
-  ChoicePadding = EnsureGetMemberFloat("ChoicePadding");
-  ChoiceY = EnsureGetMemberFloat("ChoiceY");
-  ChoiceXBase = EnsureGetMemberFloat("ChoiceXBase");
-  MinMaxMesWidth = EnsureGetMemberFloat("MinMaxMesWidth");
-  MinHighlightWidth = EnsureGetMemberFloat("MinHighlightWidth");
-  HighlightBaseWidth = EnsureGetMemberFloat("HighlightBaseWidth");
+  BoxX = EnsureGetMember<float>("BoxX");
+  BoxY = EnsureGetMember<float>("BoxY");
+  ChoicePadding = EnsureGetMember<float>("ChoicePadding");
+  ChoiceY = EnsureGetMember<float>("ChoiceY");
+  ChoiceXBase = EnsureGetMember<float>("ChoiceXBase");
+  MinMaxMesWidth = EnsureGetMember<float>("MinMaxMesWidth");
+  MinHighlightWidth = EnsureGetMember<float>("MinHighlightWidth");
+  HighlightBaseWidth = EnsureGetMember<float>("HighlightBaseWidth");
   HighlightRightPartSpriteWidth =
-      EnsureGetMemberFloat("HighlightRightPartSpriteWidth");
-  HighlightYOffset = EnsureGetMemberFloat("HighlightYOffset");
-  HighlightXOffset = EnsureGetMemberFloat("HighlightXOffset");
-  HighlightXBase = EnsureGetMemberFloat("HighlightXBase");
-  HighlightXStep = EnsureGetMemberFloat("HighlightXStep");
+      EnsureGetMember<float>("HighlightRightPartSpriteWidth");
+  HighlightYOffset = EnsureGetMember<float>("HighlightYOffset");
+  HighlightXOffset = EnsureGetMember<float>("HighlightXOffset");
+  HighlightXBase = EnsureGetMember<float>("HighlightXBase");
+  HighlightXStep = EnsureGetMember<float>("HighlightXStep");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   UI::SysMesBoxPtr = new UI::CHLCC::SysMesBox();
   UI::Menus[drawType].push_back(UI::SysMesBoxPtr);

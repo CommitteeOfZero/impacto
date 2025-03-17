@@ -8,17 +8,18 @@ namespace Scene3D {
 void Configure() {
   EnsurePushMemberOfType("Scene3D", LUA_TTABLE);
 
-  Version = LKMVersion::_from_integral_unchecked(EnsureGetMemberInt("Version"));
+  Version =
+      LKMVersion::_from_integral_unchecked(EnsureGetMember<int>("Version"));
 
-  MaxRenderables = EnsureGetMemberUint("MaxRenderables");
-  AnimationDesignFrameRate = EnsureGetMemberFloat("AnimationDesignFrameRate");
+  MaxRenderables = EnsureGetMember<uint32_t>("MaxRenderables");
+  AnimationDesignFrameRate = EnsureGetMember<float>("AnimationDesignFrameRate");
 
   {
     EnsurePushMemberOfType("DefaultCamera", LUA_TTABLE);
 
-    DefaultCameraPosition = EnsureGetMemberVec3("Position");
-    DefaultCameraTarget = EnsureGetMemberVec3("Target");
-    DefaultFov = EnsureGetMemberFloat("Fov");
+    DefaultCameraPosition = EnsureGetMember<glm::vec3>("Position");
+    DefaultCameraTarget = EnsureGetMember<glm::vec3>("Target");
+    DefaultFov = EnsureGetMember<float>("Fov");
 
     Pop();
   }
@@ -28,11 +29,12 @@ void Configure() {
 
     PushInitialIndex();
     while (PushNextTableElement() != 0) {
-      const uint32_t model = EnsureGetKeyUint();
+      const uint32_t model = EnsureGetKey<uint32_t>();
       AssertIs(LUA_TTABLE);
       PushInitialIndex();
       while (PushNextTableElement() != 0) {
-        AnimationParseBlacklist.emplace_back(model, EnsureGetArrayElementInt());
+        AnimationParseBlacklist.emplace_back(model,
+                                             EnsureGetArrayElement<int>());
         Pop();
       }
       Pop();
@@ -48,18 +50,18 @@ void Configure() {
 
     PushInitialIndex();
     while (PushNextTableElement() != 0) {
-      const uint32_t charId = EnsureGetKeyUint();
+      const uint32_t charId = EnsureGetKey<uint32_t>();
 
       CharacterDef& character = Characters[charId];
       character.CharacterId = charId;
-      character.IdleAnimation = EnsureGetMemberInt("IdleAnimation");
+      character.IdleAnimation = EnsureGetMember<int>("IdleAnimation");
 
       {
         EnsurePushMemberOfType("Models", LUA_TTABLE);
 
         PushInitialIndex();
         while (PushNextTableElement() != 0) {
-          uint32_t modelId = EnsureGetArrayElementUint();
+          uint32_t modelId = EnsureGetArrayElement<uint32_t>();
           character.Models.push_back(modelId);
           ModelsToCharacters[modelId] = charId;
           Pop();
@@ -73,17 +75,17 @@ void Configure() {
 
         PushInitialIndex();
         while (PushNextTableElement() != 0) {
-          uint16_t animId = EnsureGetKeyInt();
+          uint16_t animId = EnsureGetKey<int32_t>();
 
           AnimationDef& animDef = character.Animations[animId];
           animDef.AnimId = animId;
           animDef.CharacterId = charId;
 
-          if (!TryGetMemberFloat("LoopStart", animDef.LoopStart))
+          if (!TryGetMember<float>("LoopStart", animDef.LoopStart))
             animDef.LoopStart = 0;
-          if (!TryGetMemberFloat("LoopEnd", animDef.LoopEnd))
+          if (!TryGetMember<float>("LoopEnd", animDef.LoopEnd))
             animDef.LoopEnd = 0;
-          if (!TryGetMemberBool("OneShot", animDef.OneShot))
+          if (!TryGetMember<bool>("OneShot", animDef.OneShot))
             animDef.OneShot = false;
 
           Pop();

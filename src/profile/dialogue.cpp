@@ -14,50 +14,50 @@ namespace Dialogue {
 void Configure() {
   EnsurePushMemberOfType("Dialogue", LUA_TTABLE);
 
-  NVLBounds = EnsureGetMemberRectF("NVLBounds");
-  ADVBounds = EnsureGetMemberRectF("ADVBounds");
-  REVBounds = EnsureGetMemberRectF("REVBounds");
-  TryGetMemberRectF("TipsBounds", TipsBounds);
+  NVLBounds = EnsureGetMember<RectF>("NVLBounds");
+  ADVBounds = EnsureGetMember<RectF>("ADVBounds");
+  REVBounds = EnsureGetMember<RectF>("REVBounds");
+  TryGetMember<RectF>("TipsBounds", TipsBounds);
 
-  ADVBoxSprite = EnsureGetMemberSprite("ADVBoxSprite");
-  ADVBoxPos = EnsureGetMemberVec2("ADVBoxPos");
+  ADVBoxSprite = EnsureGetMember<Sprite>("ADVBoxSprite");
+  ADVBoxPos = EnsureGetMember<glm::vec2>("ADVBoxPos");
 
-  TryGetMemberBool("ADVBoxShowName", ADVBoxShowName);
+  TryGetMember<bool>("ADVBoxShowName", ADVBoxShowName);
 
-  FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
-  FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
+  FadeOutDuration = EnsureGetMember<float>("FadeOutDuration");
+  FadeInDuration = EnsureGetMember<float>("FadeInDuration");
 
-  TryGetMemberBool("HasAutoButton", HasAutoButton);
+  TryGetMember<bool>("HasAutoButton", HasAutoButton);
   if (HasAutoButton) {
-    AutoButtonSprite = EnsureGetMemberSprite("AutoButtonSprite");
-    AutoButtonActiveSprite = EnsureGetMemberSprite("AutoButtonActiveSprite");
-    AutoButtonPosition = EnsureGetMemberVec2("AutoButtonPosition");
+    AutoButtonSprite = EnsureGetMember<Sprite>("AutoButtonSprite");
+    AutoButtonActiveSprite = EnsureGetMember<Sprite>("AutoButtonActiveSprite");
+    AutoButtonPosition = EnsureGetMember<glm::vec2>("AutoButtonPosition");
   }
 
-  TryGetMemberBool("HasSkipButton", HasSkipButton);
+  TryGetMember<bool>("HasSkipButton", HasSkipButton);
   if (HasSkipButton) {
-    SkipButtonSprite = EnsureGetMemberSprite("SkipButtonSprite");
-    SkipButtonActiveSprite = EnsureGetMemberSprite("SkipButtonActiveSprite");
-    SkipButtonPosition = EnsureGetMemberVec2("SkipButtonPosition");
+    SkipButtonSprite = EnsureGetMember<Sprite>("SkipButtonSprite");
+    SkipButtonActiveSprite = EnsureGetMember<Sprite>("SkipButtonActiveSprite");
+    SkipButtonPosition = EnsureGetMember<glm::vec2>("SkipButtonPosition");
   }
 
-  TryGetMemberBool("HasBacklogButton", HasBacklogButton);
+  TryGetMember<bool>("HasBacklogButton", HasBacklogButton);
   if (HasBacklogButton) {
-    BacklogButtonSprite = EnsureGetMemberSprite("BacklogButtonSprite");
+    BacklogButtonSprite = EnsureGetMember<Sprite>("BacklogButtonSprite");
     BacklogButtonActiveSprite =
-        EnsureGetMemberSprite("BacklogButtonActiveSprite");
-    BacklogButtonPosition = EnsureGetMemberVec2("BacklogButtonPosition");
+        EnsureGetMember<Sprite>("BacklogButtonActiveSprite");
+    BacklogButtonPosition = EnsureGetMember<glm::vec2>("BacklogButtonPosition");
   }
 
-  TryGetMemberBool("HasMenuButton", HasMenuButton);
+  TryGetMember<bool>("HasMenuButton", HasMenuButton);
   if (HasMenuButton) {
-    MenuButtonSprite = EnsureGetMemberSprite("MenuButtonSprite");
-    MenuButtonActiveSprite = EnsureGetMemberSprite("MenuButtonActiveSprite");
-    MenuButtonPosition = EnsureGetMemberVec2("MenuButtonPosition");
+    MenuButtonSprite = EnsureGetMember<Sprite>("MenuButtonSprite");
+    MenuButtonActiveSprite = EnsureGetMember<Sprite>("MenuButtonActiveSprite");
+    MenuButtonPosition = EnsureGetMember<glm::vec2>("MenuButtonPosition");
   }
 
   DialogueBoxCurrentType = DialogueBoxType::_from_integral_unchecked(
-      EnsureGetMemberInt("DialogueBoxCurrentType"));
+      EnsureGetMember<int>("DialogueBoxCurrentType"));
 
   switch (DialogueBoxCurrentType) {
     case DialogueBoxType::MO6TW:
@@ -75,104 +75,110 @@ void Configure() {
       break;
   }
 
-  NVLBoxMaxOpacity = EnsureGetMemberFloat("NVLBoxMaxOpacity");
+  NVLBoxMaxOpacity = EnsureGetMember<float>("NVLBoxMaxOpacity");
 
   ADVNameAlignment = TextAlignment::_from_integral_unchecked(
-      EnsureGetMemberInt("ADVNameAlignment"));
+      EnsureGetMember<int>("ADVNameAlignment"));
 
-  ADVNameFontSize = EnsureGetMemberFloat("ADVNameFontSize");
-  ADVNamePos = EnsureGetMemberVec2("ADVNamePos");
+  ADVNameFontSize = EnsureGetMember<float>("ADVNameFontSize");
+  ADVNamePos = EnsureGetMember<glm::vec2>("ADVNamePos");
 
-  REVNameFontSize = EnsureGetMemberFloat("REVNameFontSize");
-  REVColor = EnsureGetMemberInt("REVColor");
-  REVNameColor = EnsureGetMemberInt("REVNameColor");
-  REVNameOffset = EnsureGetMemberFloat("REVNameOffset");
+  REVNameFontSize = EnsureGetMember<float>("REVNameFontSize");
+  REVColor = EnsureGetMember<int>("REVColor");
+  REVNameColor = EnsureGetMember<int>("REVNameColor");
+  REVNameOffset = EnsureGetMember<float>("REVNameOffset");
   REVNameLocation = REVNameLocationType::_from_integral_unchecked(
-      EnsureGetMemberInt("REVNameLocation"));
-  REVOutlineMode = RendererOutlineMode(EnsureGetMemberInt("REVOutlineMode"));
+      EnsureGetMember<int>("REVNameLocation"));
+  REVOutlineMode = RendererOutlineMode(EnsureGetMember<int>("REVOutlineMode"));
   REVNameOutlineMode =
-      RendererOutlineMode(EnsureGetMemberInt("REVNameOutlineMode"));
+      RendererOutlineMode(EnsureGetMember<int>("REVNameOutlineMode"));
 
-  TryGetMemberFloat("TipsLineSpacing", TipsLineSpacing);
-  TryGetMemberInt("TipsColorIndex", TipsColorIndex);
+  TryGetMember<float>("TipsLineSpacing", TipsLineSpacing);
+  TryGetMember<int>("TipsColorIndex", TipsColorIndex);
 
   int WaitIconCurrentTypeInt;
-  if (!TryGetMemberInt("WaitIconCurrentType", WaitIconCurrentTypeInt))
+  if (!TryGetMember<int>("WaitIconCurrentType", WaitIconCurrentTypeInt))
     WaitIconCurrentTypeInt = +WaitIconDisplay::WaitIconType::None;
   WaitIconCurrentType = WaitIconDisplay::WaitIconType::_from_integral_unchecked(
       WaitIconCurrentTypeInt);
   if (WaitIconCurrentType != +WaitIconDisplay::WaitIconType::None) {
     switch (WaitIconCurrentType) {
       case WaitIconDisplay::WaitIconType::SpriteAnim:
-        WaitIconSpriteAnim = EnsureGetMemberAnimation("WaitIconSpriteAnim");
+        WaitIconSpriteAnim =
+            EnsureGetMember<SpriteAnimationDef>("WaitIconSpriteAnim");
         break;
       case WaitIconDisplay::WaitIconType::SpriteAnimFixed:
-        WaitIconSpriteAnim = EnsureGetMemberAnimation("WaitIconSpriteAnim");
-        WaitIconFixedSpriteId = EnsureGetMemberInt("WaitIconFixedSpriteId");
+        WaitIconSpriteAnim =
+            EnsureGetMember<SpriteAnimationDef>("WaitIconSpriteAnim");
+        WaitIconFixedSpriteId = EnsureGetMember<int>("WaitIconFixedSpriteId");
         break;
       case WaitIconDisplay::WaitIconType::Fixed:
-        WaitIconSprite = EnsureGetMemberSprite("WaitIconSprite");
+        WaitIconSprite = EnsureGetMember<Sprite>("WaitIconSprite");
         break;
       default:
-        WaitIconSprite = EnsureGetMemberSprite("WaitIconSprite");
+        WaitIconSprite = EnsureGetMember<Sprite>("WaitIconSprite");
         WaitIconAnimationDuration =
-            EnsureGetMemberFloat("WaitIconAnimationDuration");
+            EnsureGetMember<float>("WaitIconAnimationDuration");
     }
-    WaitIconOffset = EnsureGetMemberVec2("WaitIconOffset");
+    WaitIconOffset = EnsureGetMember<glm::vec2>("WaitIconOffset");
   }
 
   int AutoIconCurrentTypeInt;
-  if (!TryGetMemberInt("AutoIconCurrentType", AutoIconCurrentTypeInt))
+  if (!TryGetMember<int>("AutoIconCurrentType", AutoIconCurrentTypeInt))
     AutoIconCurrentTypeInt = 0;  // None
   AutoIconCurrentType = AutoIconDisplay::AutoIconType::_from_integral_unchecked(
       AutoIconCurrentTypeInt);
   switch (AutoIconCurrentType) {
     case AutoIconDisplay::AutoIconType::SpriteAnim:
-      AutoIconSpriteAnim = EnsureGetMemberAnimation("AutoIconSpriteAnim");
-      AutoIconOffset = EnsureGetMemberVec2("AutoIconOffset");
+      AutoIconSpriteAnim =
+          EnsureGetMember<SpriteAnimationDef>("AutoIconSpriteAnim");
+      AutoIconOffset = EnsureGetMember<glm::vec2>("AutoIconOffset");
       break;
     case AutoIconDisplay::AutoIconType::SpriteAnimFixed:
-      AutoIconSpriteAnim = EnsureGetMemberAnimation("AutoIconSpriteAnim");
-      AutoIconFixedSpriteId = EnsureGetMemberInt("AutoIconFixedSpriteId");
-      AutoIconOffset = EnsureGetMemberVec2("AutoIconOffset");
+      AutoIconSpriteAnim =
+          EnsureGetMember<SpriteAnimationDef>("AutoIconSpriteAnim");
+      AutoIconFixedSpriteId = EnsureGetMember<int>("AutoIconFixedSpriteId");
+      AutoIconOffset = EnsureGetMember<glm::vec2>("AutoIconOffset");
       break;
     case AutoIconDisplay::AutoIconType::CHLCC:
-      AutoIconSprite = EnsureGetMemberSprite("AutoIconSprite");
-      AutoIconRotationSpeed = EnsureGetMemberFloat("AutoIconRotationSpeed");
-      AutoSkipArrowsSprite = EnsureGetMemberSprite("AutoSkipArrowsSprite");
-      AutoIconOffset = EnsureGetMemberVec2("AutoIconOffset");
+      AutoIconSprite = EnsureGetMember<Sprite>("AutoIconSprite");
+      AutoIconRotationSpeed = EnsureGetMember<float>("AutoIconRotationSpeed");
+      AutoSkipArrowsSprite = EnsureGetMember<Sprite>("AutoSkipArrowsSprite");
+      AutoIconOffset = EnsureGetMember<glm::vec2>("AutoIconOffset");
       break;
   }
 
   int SkipIconCurrentTypeInt;
-  if (!TryGetMemberInt("SkipIconCurrentType", SkipIconCurrentTypeInt))
+  if (!TryGetMember<int>("SkipIconCurrentType", SkipIconCurrentTypeInt))
     SkipIconCurrentTypeInt = 0;  // None
   SkipIconCurrentType = SkipIconDisplay::SkipIconType::_from_integral_unchecked(
       SkipIconCurrentTypeInt);
   switch (SkipIconCurrentType) {
     case SkipIconDisplay::SkipIconType::SpriteAnim:
-      SkipIconSpriteAnim = EnsureGetMemberAnimation("SkipIconSpriteAnim");
-      SkipIconOffset = EnsureGetMemberVec2("SkipIconOffset");
+      SkipIconSpriteAnim =
+          EnsureGetMember<SpriteAnimationDef>("SkipIconSpriteAnim");
+      SkipIconOffset = EnsureGetMember<glm::vec2>("SkipIconOffset");
       break;
     case SkipIconDisplay::SkipIconType::SpriteAnimFixed:
-      SkipIconSpriteAnim = EnsureGetMemberAnimation("SkipIconSpriteAnim");
-      SkipIconFixedSpriteId = EnsureGetMemberInt("SkipIconFixedSpriteId");
-      SkipIconOffset = EnsureGetMemberVec2("SkipIconOffset");
+      SkipIconSpriteAnim =
+          EnsureGetMember<SpriteAnimationDef>("SkipIconSpriteAnim");
+      SkipIconFixedSpriteId = EnsureGetMember<int>("SkipIconFixedSpriteId");
+      SkipIconOffset = EnsureGetMember<glm::vec2>("SkipIconOffset");
       break;
     case SkipIconDisplay::SkipIconType::CHLCC:
-      SkipIconSprite = EnsureGetMemberSprite("SkipIconSprite");
-      SkipIconRotationSpeed = EnsureGetMemberFloat("SkipIconRotationSpeed");
-      SkipIconOffset = EnsureGetMemberVec2("SkipIconOffset");
+      SkipIconSprite = EnsureGetMember<Sprite>("SkipIconSprite");
+      SkipIconRotationSpeed = EnsureGetMember<float>("SkipIconRotationSpeed");
+      SkipIconOffset = EnsureGetMember<glm::vec2>("SkipIconOffset");
       break;
   }
 
-  DialogueFont = EnsureGetMemberFont("DialogueFont");
-  DefaultFontSize = EnsureGetMemberFloat("DefaultFontSize");
-  RubyFontSize = EnsureGetMemberFloat("RubyFontSize");
-  RubyYOffset = EnsureGetMemberFloat("RubyYOffset");
+  DialogueFont = EnsureGetMember<Font*>("DialogueFont");
+  DefaultFontSize = EnsureGetMember<float>("DefaultFontSize");
+  RubyFontSize = EnsureGetMember<float>("RubyFontSize");
+  RubyYOffset = EnsureGetMember<float>("RubyYOffset");
 
-  MaxPageSize = EnsureGetMemberInt("MaxPageSize");
-  PageCount = EnsureGetMemberInt("PageCount");
+  MaxPageSize = EnsureGetMember<int>("MaxPageSize");
+  PageCount = EnsureGetMember<int>("PageCount");
 
   Impacto::DialoguePages = new DialoguePage[PageCount];
   Impacto::DialoguePageCount = PageCount;
@@ -187,7 +193,7 @@ void Configure() {
     ColorTable = new DialogueColorPair[ColorCount];
     PushInitialIndex();
     while (PushNextTableElement() != 0) {
-      int i = EnsureGetKeyInt() - 1;
+      int i = EnsureGetKey<int32_t>() - 1;
       AssertIs(LUA_TTABLE);
 
       auto pairSize = lua_rawlen(LuaState, -1);
@@ -195,8 +201,8 @@ void Configure() {
         ImpLog(LL_Fatal, LC_Profile, "Expected two colors\n");
         Window->Shutdown();
       }
-      ColorTable[i].TextColor = EnsureGetArrayElementByIndexUint(0);
-      ColorTable[i].OutlineColor = EnsureGetArrayElementByIndexUint(1);
+      ColorTable[i].TextColor = EnsureGetArrayElementByIndex<uint32_t>(0);
+      ColorTable[i].OutlineColor = EnsureGetArrayElementByIndex<uint32_t>(1);
 
       Pop();
     }
@@ -204,19 +210,19 @@ void Configure() {
     Pop();
   }
 
-  ColorTagIsUint8 = EnsureGetMemberBool("ColorTagIsUint8");
+  ColorTagIsUint8 = EnsureGetMember<bool>("ColorTagIsUint8");
 
-  TryGetMemberBool("HasSpeakerPortraits", HasSpeakerPortraits);
+  TryGetMember<bool>("HasSpeakerPortraits", HasSpeakerPortraits);
 
   HaveADVNameTag = TryPushMember("ADVNameTag");
   if (HaveADVNameTag) {
     AssertIs(LUA_TTABLE);
 
-    ADVNameTag::Position = EnsureGetMemberVec2("Position");
-    ADVNameTag::LeftSprite = EnsureGetMemberSprite("LeftSprite");
-    ADVNameTag::LineSprite = EnsureGetMemberSprite("LineSprite");
-    ADVNameTag::RightSprite = EnsureGetMemberSprite("RightSprite");
-    ADVNameTag::BaseLineWidth = EnsureGetMemberFloat("BaseLineWidth");
+    ADVNameTag::Position = EnsureGetMember<glm::vec2>("Position");
+    ADVNameTag::LeftSprite = EnsureGetMember<Sprite>("LeftSprite");
+    ADVNameTag::LineSprite = EnsureGetMember<Sprite>("LineSprite");
+    ADVNameTag::RightSprite = EnsureGetMember<Sprite>("RightSprite");
+    ADVNameTag::BaseLineWidth = EnsureGetMember<float>("BaseLineWidth");
 
     Pop();
   }

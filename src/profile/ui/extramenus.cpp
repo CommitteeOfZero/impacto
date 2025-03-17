@@ -24,8 +24,8 @@ void Configure() {
     AssertIs(LUA_TTABLE);
 
     if (TryPushMember("LibraryMenu")) {
-      LibraryMenuType =
-          LibraryMenuType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
+      LibraryMenuType = LibraryMenuType::_from_integral_unchecked(
+          EnsureGetMember<int>("Type"));
 
       if (LibraryMenuType == +LibraryMenuType::CCLCC) {
         CCLCC::LibraryMenu::Configure();
@@ -36,7 +36,7 @@ void Configure() {
 
     if (TryPushMember("ClearListMenu")) {
       ClearListType = ClearListMenuType::_from_integral_unchecked(
-          EnsureGetMemberInt("Type"));
+          EnsureGetMember<int>("Type"));
 
       if (ClearListType == +ClearListMenuType::MO6TW) {
         MO6TW::ClearListMenu::Configure();
@@ -51,7 +51,7 @@ void Configure() {
 
     if (TryPushMember("AlbumMenu")) {
       AlbumType =
-          AlbumMenuType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
+          AlbumMenuType::_from_integral_unchecked(EnsureGetMember<int>("Type"));
 
       if (AlbumType == +AlbumMenuType::MO6TW) {
         MO6TW::AlbumMenu::Configure();
@@ -64,7 +64,7 @@ void Configure() {
 
     if (TryPushMember("MusicMenu")) {
       MusicType =
-          MusicMenuType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
+          MusicMenuType::_from_integral_unchecked(EnsureGetMember<int>("Type"));
 
       if (MusicType == +MusicMenuType::MO6TW) {
         MO6TW::MusicMenu::Configure();
@@ -77,7 +77,7 @@ void Configure() {
 
     if (TryPushMember("MovieMenu")) {
       MovieType =
-          MovieMenuType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
+          MovieMenuType::_from_integral_unchecked(EnsureGetMember<int>("Type"));
 
       if (MovieType == +MovieMenuType::MO6TW) {
         MO6TW::MovieMenu::Configure();
@@ -90,7 +90,7 @@ void Configure() {
 
     if (TryPushMember("ActorsVoiceMenu")) {
       ActorsVoiceType = ActorsVoiceMenuType::_from_integral_unchecked(
-          EnsureGetMemberInt("Type"));
+          EnsureGetMember<int>("Type"));
 
       if (ActorsVoiceType == +ActorsVoiceMenuType::MO6TW) {
         MO6TW::ActorsVoiceMenu::Configure();

@@ -13,71 +13,75 @@ namespace CCLCC {
 namespace OptionsMenu {
 
 void Configure() {
-  BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
-  BackgroundPosition = EnsureGetMemberVec2("BackgroundPosition");
+  BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSprite");
+  BackgroundPosition = EnsureGetMember<glm::vec2>("BackgroundPosition");
   BackgroundFadeStartPosition =
-      EnsureGetMemberVec2("BackgroundFadeStartPosition");
+      EnsureGetMember<glm::vec2>("BackgroundFadeStartPosition");
 
-  HighlightColor = EnsureGetMemberVec3("HighlightColor");
+  HighlightColor = EnsureGetMember<glm::vec3>("HighlightColor");
 
-  PointerSprite = EnsureGetMemberSprite("PointerSprite");
-  PointerOffset = EnsureGetMemberVec2("PointerOffset");
+  PointerSprite = EnsureGetMember<Sprite>("PointerSprite");
+  PointerOffset = EnsureGetMember<glm::vec2>("PointerOffset");
 
-  HeaderSprite = EnsureGetMemberSprite("HeaderSprite");
-  HeaderPosition = EnsureGetMemberVec2("HeaderPosition");
-  GetMemberSpriteArray(PageHeaderSprites, PageCount, "PageHeaderSprites");
-  PageHeaderPosition = EnsureGetMemberVec2("PageHeaderPosition");
+  HeaderSprite = EnsureGetMember<Sprite>("HeaderSprite");
+  HeaderPosition = EnsureGetMember<glm::vec2>("HeaderPosition");
+  GetMemberArray<Sprite>(PageHeaderSprites, PageCount, "PageHeaderSprites");
+  PageHeaderPosition = EnsureGetMember<glm::vec2>("PageHeaderPosition");
 
-  PagePanelSprite = EnsureGetMemberSprite("PagePanelSprite");
-  PagePanelPosition = EnsureGetMemberVec2("PagePanelPosition");
+  PagePanelSprite = EnsureGetMember<Sprite>("PagePanelSprite");
+  PagePanelPosition = EnsureGetMember<glm::vec2>("PagePanelPosition");
   PagePanelFadeStartPosition =
-      EnsureGetMemberVec2("PagePanelFadeStartPosition");
-  GetMemberSpriteArray(PagePanelSprites, PagePanelSpriteCount,
+      EnsureGetMember<glm::vec2>("PagePanelFadeStartPosition");
+  GetMemberArray<Sprite>(PagePanelSprites, PagePanelSpriteCount,
                        "PagePanelSprites");
-  GetMemberVec2Array(PagePanelIconOffsets, PageCount, "PagePanelIconOffsets");
-  GetMemberRectFArray(PagePanelHoverBounds, PageCount, "PagePanelHoverBounds");
-  PoleAnimation = EnsureGetMemberAnimation("PoleAnimation");
+  GetMemberArray<glm::vec2>(PagePanelIconOffsets, PageCount,
+                            "PagePanelIconOffsets");
+  GetMemberArray<RectF>(PagePanelHoverBounds, PageCount,
+                        "PagePanelHoverBounds");
+  PoleAnimation = EnsureGetMember<SpriteAnimationDef>("PoleAnimation");
 
-  SliderTrackSprite = EnsureGetMemberSprite("SliderTrackSprite");
-  SliderTrackOffset = EnsureGetMemberVec2("SliderTrackOffset");
-  VoiceSliderTrackSprite = EnsureGetMemberSprite("VoiceSliderTrackSprite");
-  VoiceSliderOffset = EnsureGetMemberVec2("VoiceSliderOffset");
-  BinaryBoxSprite = EnsureGetMemberSprite("BinaryBoxSprite");
-  BinaryBoxOffset = EnsureGetMemberVec2("BinaryBoxOffset");
-  SliderSpeed = EnsureGetMemberFloat("SliderSpeed");
+  SliderTrackSprite = EnsureGetMember<Sprite>("SliderTrackSprite");
+  SliderTrackOffset = EnsureGetMember<glm::vec2>("SliderTrackOffset");
+  VoiceSliderTrackSprite = EnsureGetMember<Sprite>("VoiceSliderTrackSprite");
+  VoiceSliderOffset = EnsureGetMember<glm::vec2>("VoiceSliderOffset");
+  BinaryBoxSprite = EnsureGetMember<Sprite>("BinaryBoxSprite");
+  BinaryBoxOffset = EnsureGetMember<glm::vec2>("BinaryBoxOffset");
+  SliderSpeed = EnsureGetMember<float>("SliderSpeed");
 
-  SkipReadSprite = EnsureGetMemberSprite("SkipReadSprite");
-  SkipAllSprite = EnsureGetMemberSprite("SkipAllSprite");
-  OnSprite = EnsureGetMemberSprite("OnSprite");
-  OffSprite = EnsureGetMemberSprite("OffSprite");
-  YesSprite = EnsureGetMemberSprite("YesSprite");
-  NoSprite = EnsureGetMemberSprite("NoSprite");
+  SkipReadSprite = EnsureGetMember<Sprite>("SkipReadSprite");
+  SkipAllSprite = EnsureGetMember<Sprite>("SkipAllSprite");
+  OnSprite = EnsureGetMember<Sprite>("OnSprite");
+  OffSprite = EnsureGetMember<Sprite>("OffSprite");
+  YesSprite = EnsureGetMember<Sprite>("YesSprite");
+  NoSprite = EnsureGetMember<Sprite>("NoSprite");
 
-  GuideSprite = EnsureGetMemberSprite("GuideSprite");
-  VoiceGuideSprite = EnsureGetMemberSprite("VoiceGuideSprite");
-  GuidePosition = EnsureGetMemberVec2("GuidePosition");
-  GuideFadeStartPosition = EnsureGetMemberVec2("GuideFadeStartPosition");
+  GuideSprite = EnsureGetMember<Sprite>("GuideSprite");
+  VoiceGuideSprite = EnsureGetMember<Sprite>("VoiceGuideSprite");
+  GuidePosition = EnsureGetMember<glm::vec2>("GuidePosition");
+  GuideFadeStartPosition = EnsureGetMember<glm::vec2>("GuideFadeStartPosition");
 
-  EntriesStartPosition = EnsureGetMemberVec2("EntriesStartPosition");
-  EntriesVerticalOffset = EnsureGetMemberInt("EntriesVerticalOffset");
-  SoundEntriesStartPosition = EnsureGetMemberVec2("SoundEntriesStartPosition");
-  SoundEntriesVerticalOffset = EnsureGetMemberInt("SoundEntriesVerticalOffset");
-  VoiceEntriesOffset = EnsureGetMemberVec2("VoiceEntriesOffset");
-  EntryDimensions = EnsureGetMemberVec2("EntryDimensions");
-  VoiceEntryDimensions = EnsureGetMemberVec2("VoiceEntryDimensions");
+  EntriesStartPosition = EnsureGetMember<glm::vec2>("EntriesStartPosition");
+  EntriesVerticalOffset = EnsureGetMember<int>("EntriesVerticalOffset");
+  SoundEntriesStartPosition =
+      EnsureGetMember<glm::vec2>("SoundEntriesStartPosition");
+  SoundEntriesVerticalOffset =
+      EnsureGetMember<int>("SoundEntriesVerticalOffset");
+  VoiceEntriesOffset = EnsureGetMember<glm::vec2>("VoiceEntriesOffset");
+  EntryDimensions = EnsureGetMember<glm::vec2>("EntryDimensions");
+  VoiceEntryDimensions = EnsureGetMember<glm::vec2>("VoiceEntryDimensions");
 
-  GetMemberSpriteArray(LabelSprites, LabelCount, "LabelSprites");
-  LabelOffset = EnsureGetMemberVec2("LabelOffset");
-  GetMemberSpriteArray(NametagSprites, NametagCount, "NametagSprites");
-  NametagOffset = EnsureGetMemberVec2("NametagOffset");
-  GetMemberSpriteArray(PortraitSprites, PortraitCount, "PortraitSprites");
-  PortraitOffset = EnsureGetMemberVec2("PortraitOffset");
-  VoicePosition = EnsureGetMemberVec2("VoicePosition");
+  GetMemberArray<Sprite>(LabelSprites, LabelCount, "LabelSprites");
+  LabelOffset = EnsureGetMember<glm::vec2>("LabelOffset");
+  GetMemberArray<Sprite>(NametagSprites, NametagCount, "NametagSprites");
+  NametagOffset = EnsureGetMember<glm::vec2>("NametagOffset");
+  GetMemberArray<Sprite>(PortraitSprites, PortraitCount, "PortraitSprites");
+  PortraitOffset = EnsureGetMember<glm::vec2>("PortraitOffset");
+  VoicePosition = EnsureGetMember<glm::vec2>("VoicePosition");
 
-  MenuMaskSprite = EnsureGetMemberSprite("MenuMask");
+  MenuMaskSprite = EnsureGetMember<Sprite>("MenuMask");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   UI::OptionsMenuPtr = new UI::CCLCC::OptionsMenu();
   UI::Menus[drawType].push_back(UI::OptionsMenuPtr);

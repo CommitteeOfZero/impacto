@@ -20,25 +20,26 @@ void Configure() {
   if (TryPushMember("TitleMenu")) {
     AssertIs(LUA_TTABLE);
 
-    Type = TitleMenuType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
+    Type =
+        TitleMenuType::_from_integral_unchecked(EnsureGetMember<int>("Type"));
 
-    MenuEntriesNum = EnsureGetMemberInt("MenuEntriesNum");
+    MenuEntriesNum = EnsureGetMember<int>("MenuEntriesNum");
     if (MenuEntriesNum > 0) {
-      GetMemberSpriteArray(MenuEntriesSprites, MenuEntriesNum,
-                           "MenuEntriesSprites");
-      GetMemberSpriteArray(MenuEntriesHSprites, MenuEntriesNum,
-                           "MenuEntriesHighlightedSprites");
+      GetMemberArray<Sprite>(MenuEntriesSprites, MenuEntriesNum,
+                             "MenuEntriesSprites");
+      GetMemberArray<Sprite>(MenuEntriesHSprites, MenuEntriesNum,
+                             "MenuEntriesHighlightedSprites");
     }
 
-    PressToStartSprite = EnsureGetMemberSprite("PressToStartSprite");
+    PressToStartSprite = EnsureGetMember<Sprite>("PressToStartSprite");
 
     PressToStartAnimDurationIn =
-        EnsureGetMemberFloat("PressToStartAnimDurationIn");
+        EnsureGetMember<float>("PressToStartAnimDurationIn");
     PressToStartAnimDurationOut =
-        EnsureGetMemberFloat("PressToStartAnimDurationOut");
+        EnsureGetMember<float>("PressToStartAnimDurationOut");
 
-    PressToStartX = EnsureGetMemberFloat("PressToStartX");
-    PressToStartY = EnsureGetMemberFloat("PressToStartY");
+    PressToStartX = EnsureGetMember<float>("PressToStartX");
+    PressToStartY = EnsureGetMember<float>("PressToStartY");
 
     if (Type == +TitleMenuType::RNE) {
       RNE::TitleMenu::Configure();

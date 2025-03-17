@@ -11,46 +11,46 @@ void LoadGameFromLua() {
   AssertIs(LUA_TTABLE);
 
   ActiveRenderer = RendererType::_from_integral_unchecked(
-      EnsureGetMemberInt("ActiveRenderer"));
+      EnsureGetMember<int>("ActiveRenderer"));
 
-  LayerCount = EnsureGetMemberInt("LayerCount");
-  GameFeatures = EnsureGetMemberInt("GameFeatures");
-  WindowName = EnsureGetMemberString("WindowName");
-  DesignWidth = EnsureGetMemberFloat("DesignWidth");
-  DesignHeight = EnsureGetMemberFloat("DesignHeight");
+  LayerCount = EnsureGetMember<int>("LayerCount");
+  GameFeatures = EnsureGetMember<int>("GameFeatures");
+  WindowName = EnsureGetMember<char const*>("WindowName");
+  DesignWidth = EnsureGetMember<float>("DesignWidth");
+  DesignHeight = EnsureGetMember<float>("DesignHeight");
 
-  Language = EnsureGetMemberString("Language");
-  ResolutionWidth = EnsureGetMemberInt("ResolutionWidth");
-  ResolutionHeight = EnsureGetMemberInt("ResolutionHeight");
-  Fullscreen = EnsureGetMemberBool("Fullscreen");
-  Subtitles = EnsureGetMemberString("Subtitles");
+  Language = EnsureGetMember<char const*>("Language");
+  ResolutionWidth = EnsureGetMember<int>("ResolutionWidth");
+  ResolutionHeight = EnsureGetMember<int>("ResolutionHeight");
+  Fullscreen = EnsureGetMember<bool>("Fullscreen");
+  Subtitles = EnsureGetMember<char const*>("Subtitles");
 
-  bool res = TryGetMemberBool("LayFileBigEndian", LayFileBigEndian);
+  bool res = TryGetMember<bool>("LayFileBigEndian", LayFileBigEndian);
   if (!res) LayFileBigEndian = false;
-  res = TryGetMemberBool("CharaIsMvl", CharaIsMvl);
+  res = TryGetMember<bool>("CharaIsMvl", CharaIsMvl);
   if (!res) CharaIsMvl = false;
-  res = TryGetMemberFloat("LayFileTexXMultiplier", LayFileTexXMultiplier);
+  res = TryGetMember<float>("LayFileTexXMultiplier", LayFileTexXMultiplier);
   if (!res) LayFileTexXMultiplier = 1.0f;
-  res = TryGetMemberFloat("LayFileTexYMultiplier", LayFileTexYMultiplier);
+  res = TryGetMember<float>("LayFileTexYMultiplier", LayFileTexYMultiplier);
   if (!res) LayFileTexYMultiplier = 1.0f;
-  res = TryGetMemberBool("UseScreenCapEffects", UseScreenCapEffects);
+  res = TryGetMember<bool>("UseScreenCapEffects", UseScreenCapEffects);
   if (!res) UseScreenCapEffects = true;
-  TryGetMemberBool("UseMoviePriority", UseMoviePriority);
+  TryGetMember<bool>("UseMoviePriority", UseMoviePriority);
   int audioBackendType = -1;
-  res = TryGetMemberInt("AudioBackendType", audioBackendType);
+  res = TryGetMember<int>("AudioBackendType", audioBackendType);
   if (!res)
     ActiveAudioBackend = AudioBackendType::OpenAL;
   else
     ActiveAudioBackend =
         AudioBackendType::_from_integral_unchecked(audioBackendType);
   int videoPlayerType = -1;
-  res = TryGetMemberInt("VideoPlayerType", videoPlayerType);
+  res = TryGetMember<int>("VideoPlayerType", videoPlayerType);
   if (!res)
     VideoPlayer = VideoPlayerType::FFmpeg;
   else
     VideoPlayer = VideoPlayerType::_from_integral_unchecked(videoPlayerType);
 
-  TryGetMemberInt("PlatformId", PlatformId);
+  TryGetMember<int>("PlatformId", PlatformId);
 }
 
 }  // namespace Profile

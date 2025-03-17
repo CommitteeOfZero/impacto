@@ -11,56 +11,56 @@ namespace RNE {
 namespace SysMesBox {
 
 void Configure() {
-  BoxDecorationTop = EnsureGetMemberSprite("BoxDecorationTop");
-  BoxDecorationBottom = EnsureGetMemberSprite("BoxDecorationBottom");
-  TextDecoration = EnsureGetMemberSprite("TextDecoration");
-  MessageLabel = EnsureGetMemberSprite("MessageLabel");
-  Line1 = EnsureGetMemberSprite("Line1");
-  Line2 = EnsureGetMemberSprite("Line2");
-  ButtonYes = EnsureGetMemberSprite("ButtonYes");
-  ButtonNo = EnsureGetMemberSprite("ButtonNo");
-  ButtonOK = EnsureGetMemberSprite("ButtonOK");
-  ButtonYesHighlighted = EnsureGetMemberSprite("ButtonYesHighlighted");
-  ButtonNoHighlighted = EnsureGetMemberSprite("ButtonNoHighlighted");
-  ButtonOKHighlighted = EnsureGetMemberSprite("ButtonOKHighlighted");
+  BoxDecorationTop = EnsureGetMember<Sprite>("BoxDecorationTop");
+  BoxDecorationBottom = EnsureGetMember<Sprite>("BoxDecorationBottom");
+  TextDecoration = EnsureGetMember<Sprite>("TextDecoration");
+  MessageLabel = EnsureGetMember<Sprite>("MessageLabel");
+  Line1 = EnsureGetMember<Sprite>("Line1");
+  Line2 = EnsureGetMember<Sprite>("Line2");
+  ButtonYes = EnsureGetMember<Sprite>("ButtonYes");
+  ButtonNo = EnsureGetMember<Sprite>("ButtonNo");
+  ButtonOK = EnsureGetMember<Sprite>("ButtonOK");
+  ButtonYesHighlighted = EnsureGetMember<Sprite>("ButtonYesHighlighted");
+  ButtonNoHighlighted = EnsureGetMember<Sprite>("ButtonNoHighlighted");
+  ButtonOKHighlighted = EnsureGetMember<Sprite>("ButtonOKHighlighted");
 
-  LinePositionXFirst = EnsureGetMemberFloat("LinePositionXFirst");
-  LinePositionX = EnsureGetMemberFloat("LinePositionX");
-  LinePositionMultiplier = EnsureGetMemberFloat("LinePositionMultiplier");
-  LineWidthFirst = EnsureGetMemberFloat("LineWidthFirst");
-  LineWidthBase = EnsureGetMemberFloat("LineWidthBase");
-  LineWidthMultiplier = EnsureGetMemberFloat("LineWidthMultiplier");
-  Line1SpriteY = EnsureGetMemberFloat("Line1SpriteY");
-  Line2SpriteY = EnsureGetMemberFloat("Line2SpriteY");
-  LineSpriteHeight = EnsureGetMemberFloat("LineSpriteHeight");
-  LineDisplayXBase = EnsureGetMemberFloat("LineDisplayXBase");
-  Line1DisplayY = EnsureGetMemberFloat("Line1DisplayY");
-  Line2DisplayY = EnsureGetMemberFloat("Line2DisplayY");
-  BoxDisplayStartCount = EnsureGetMemberFloat("BoxDisplayStartCount");
-  BoxHeightBase = EnsureGetMemberFloat("BoxHeightBase");
-  BoxHeightMultiplier = EnsureGetMemberFloat("BoxHeightMultiplier");
-  BoxWidth = EnsureGetMemberFloat("BoxWidth");
-  BoxTextFontSize = EnsureGetMemberFloat("BoxTextFontSize");
-  BoxTopYBase = EnsureGetMemberFloat("BoxTopYBase");
-  BoxDisplayX = EnsureGetMemberFloat("BoxDisplayX");
-  MessageLabelSpriteXBase = EnsureGetMemberFloat("MessageLabelSpriteXBase");
-  MessageLabelSpriteY = EnsureGetMemberFloat("MessageLabelSpriteY");
-  MessageLabelSpriteHeight = EnsureGetMemberFloat("MessageLabelSpriteHeight");
+  LinePositionXFirst = EnsureGetMember<float>("LinePositionXFirst");
+  LinePositionX = EnsureGetMember<float>("LinePositionX");
+  LinePositionMultiplier = EnsureGetMember<float>("LinePositionMultiplier");
+  LineWidthFirst = EnsureGetMember<float>("LineWidthFirst");
+  LineWidthBase = EnsureGetMember<float>("LineWidthBase");
+  LineWidthMultiplier = EnsureGetMember<float>("LineWidthMultiplier");
+  Line1SpriteY = EnsureGetMember<float>("Line1SpriteY");
+  Line2SpriteY = EnsureGetMember<float>("Line2SpriteY");
+  LineSpriteHeight = EnsureGetMember<float>("LineSpriteHeight");
+  LineDisplayXBase = EnsureGetMember<float>("LineDisplayXBase");
+  Line1DisplayY = EnsureGetMember<float>("Line1DisplayY");
+  Line2DisplayY = EnsureGetMember<float>("Line2DisplayY");
+  BoxDisplayStartCount = EnsureGetMember<float>("BoxDisplayStartCount");
+  BoxHeightBase = EnsureGetMember<float>("BoxHeightBase");
+  BoxHeightMultiplier = EnsureGetMember<float>("BoxHeightMultiplier");
+  BoxWidth = EnsureGetMember<float>("BoxWidth");
+  BoxTextFontSize = EnsureGetMember<float>("BoxTextFontSize");
+  BoxTopYBase = EnsureGetMember<float>("BoxTopYBase");
+  BoxDisplayX = EnsureGetMember<float>("BoxDisplayX");
+  MessageLabelSpriteXBase = EnsureGetMember<float>("MessageLabelSpriteXBase");
+  MessageLabelSpriteY = EnsureGetMember<float>("MessageLabelSpriteY");
+  MessageLabelSpriteHeight = EnsureGetMember<float>("MessageLabelSpriteHeight");
   MessageLabelSpriteMultiplier =
-      EnsureGetMemberFloat("MessageLabelSpriteMultiplier");
-  ButtonYesDisplayXBase = EnsureGetMemberFloat("ButtonYesDisplayXBase");
-  ButtonRightDisplayXBase = EnsureGetMemberFloat("ButtonRightDisplayXBase");
-  ButtonWidth = EnsureGetMemberFloat("ButtonWidth");
-  ButtonYOffset = EnsureGetMemberFloat("ButtonYOffset");
-  ButtonYWidthBase = EnsureGetMemberFloat("ButtonYWidthBase");
-  ButtonRightWidthBase = EnsureGetMemberFloat("ButtonRightWidthBase");
-  TextDecorationStart = EnsureGetMemberFloat("TextDecorationStart");
-  TextDecorationTopYOffset = EnsureGetMemberFloat("TextDecorationTopYOffset");
+      EnsureGetMember<float>("MessageLabelSpriteMultiplier");
+  ButtonYesDisplayXBase = EnsureGetMember<float>("ButtonYesDisplayXBase");
+  ButtonRightDisplayXBase = EnsureGetMember<float>("ButtonRightDisplayXBase");
+  ButtonWidth = EnsureGetMember<float>("ButtonWidth");
+  ButtonYOffset = EnsureGetMember<float>("ButtonYOffset");
+  ButtonYWidthBase = EnsureGetMember<float>("ButtonYWidthBase");
+  ButtonRightWidthBase = EnsureGetMember<float>("ButtonRightWidthBase");
+  TextDecorationStart = EnsureGetMember<float>("TextDecorationStart");
+  TextDecorationTopYOffset = EnsureGetMember<float>("TextDecorationTopYOffset");
   TextDecorationBottomYOffset =
-      EnsureGetMemberFloat("TextDecorationBottomYOffset");
+      EnsureGetMember<float>("TextDecorationBottomYOffset");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   UI::SysMesBoxPtr = new UI::RNE::SysMesBox();
   UI::Menus[drawType].push_back(UI::SysMesBoxPtr);

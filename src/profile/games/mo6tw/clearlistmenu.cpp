@@ -11,93 +11,99 @@ namespace MO6TW {
 namespace ClearListMenu {
 
 void Configure() {
-  BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
-  WindowSprite = EnsureGetMemberSprite("WindowSprite");
-  WindowPosition = EnsureGetMemberVec2("WindowPosition");
-  WindowSpritePartLeft = EnsureGetMemberSprite("WindowSpritePartLeft");
-  WindowSpritePartRight = EnsureGetMemberSprite("WindowSpritePartRight");
-  FontSize = EnsureGetMemberFloat("FontSize");
-  SeparatorTable = EnsureGetMemberInt("SeparatorTable");
-  SeparatorEntry = EnsureGetMemberInt("SeparatorEntry");
+  BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSprite");
+  WindowSprite = EnsureGetMember<Sprite>("WindowSprite");
+  WindowPosition = EnsureGetMember<glm::vec2>("WindowPosition");
+  WindowSpritePartLeft = EnsureGetMember<Sprite>("WindowSpritePartLeft");
+  WindowSpritePartRight = EnsureGetMember<Sprite>("WindowSpritePartRight");
+  FontSize = EnsureGetMember<float>("FontSize");
+  SeparatorTable = EnsureGetMember<int>("SeparatorTable");
+  SeparatorEntry = EnsureGetMember<int>("SeparatorEntry");
 
-  LabelPosition = EnsureGetMemberVec2("LabelPosition");
+  LabelPosition = EnsureGetMember<glm::vec2>("LabelPosition");
 
-  ClearListLabel = EnsureGetMemberSprite("ClearListLabel");
-  EndingsLabelPosition = EnsureGetMemberVec2("EndingsLabelPosition");
-  EndingsLabel = EnsureGetMemberSprite("EndingsLabel");
-  EndingCountPosition = EnsureGetMemberVec2("EndingCountPosition");
-  ScenesLabelPosition = EnsureGetMemberVec2("ScenesLabelPosition");
-  ScenesLabel = EnsureGetMemberSprite("ScenesLabel");
-  SceneCountPosition = EnsureGetMemberVec2("SceneCountPosition");
-  CompletionLabelPosition = EnsureGetMemberVec2("CompletionLabelPosition");
-  CompletionLabel = EnsureGetMemberSprite("CompletionLabel");
-  CompletionPosition = EnsureGetMemberVec2("CompletionPosition");
-  AlbumLabelPosition = EnsureGetMemberVec2("AlbumLabelPosition");
-  AlbumLabel = EnsureGetMemberSprite("AlbumLabel");
-  AlbumCountPosition = EnsureGetMemberVec2("AlbumCountPosition");
-  PlayTimeLabelPosition = EnsureGetMemberVec2("PlayTimeLabelPosition");
-  PlayTimeLabel = EnsureGetMemberSprite("PlayTimeLabel");
-  PlayTimeTextTable = EnsureGetMemberInt("PlayTimeTextTable");
-  PlayTimeSecondsTextEntry = EnsureGetMemberInt("PlayTimeSecondsTextEntry");
-  PlayTimeMinutesTextEntry = EnsureGetMemberInt("PlayTimeMinutesTextEntry");
-  PlayTimeHoursTextEntry = EnsureGetMemberInt("PlayTimeHoursTextEntry");
+  ClearListLabel = EnsureGetMember<Sprite>("ClearListLabel");
+  EndingsLabelPosition = EnsureGetMember<glm::vec2>("EndingsLabelPosition");
+  EndingsLabel = EnsureGetMember<Sprite>("EndingsLabel");
+  EndingCountPosition = EnsureGetMember<glm::vec2>("EndingCountPosition");
+  ScenesLabelPosition = EnsureGetMember<glm::vec2>("ScenesLabelPosition");
+  ScenesLabel = EnsureGetMember<Sprite>("ScenesLabel");
+  SceneCountPosition = EnsureGetMember<glm::vec2>("SceneCountPosition");
+  CompletionLabelPosition =
+      EnsureGetMember<glm::vec2>("CompletionLabelPosition");
+  CompletionLabel = EnsureGetMember<Sprite>("CompletionLabel");
+  CompletionPosition = EnsureGetMember<glm::vec2>("CompletionPosition");
+  AlbumLabelPosition = EnsureGetMember<glm::vec2>("AlbumLabelPosition");
+  AlbumLabel = EnsureGetMember<Sprite>("AlbumLabel");
+  AlbumCountPosition = EnsureGetMember<glm::vec2>("AlbumCountPosition");
+  PlayTimeLabelPosition = EnsureGetMember<glm::vec2>("PlayTimeLabelPosition");
+  PlayTimeLabel = EnsureGetMember<Sprite>("PlayTimeLabel");
+  PlayTimeTextTable = EnsureGetMember<int>("PlayTimeTextTable");
+  PlayTimeSecondsTextEntry = EnsureGetMember<int>("PlayTimeSecondsTextEntry");
+  PlayTimeMinutesTextEntry = EnsureGetMember<int>("PlayTimeMinutesTextEntry");
+  PlayTimeHoursTextEntry = EnsureGetMember<int>("PlayTimeHoursTextEntry");
   PlayTimeSecondsTextPosition =
-      EnsureGetMemberVec2("PlayTimeSecondsTextPosition");
+      EnsureGetMember<glm::vec2>("PlayTimeSecondsTextPosition");
   PlayTimeMinutesTextPosition =
-      EnsureGetMemberVec2("PlayTimeMinutesTextPosition");
-  PlayTimeHoursTextPosition = EnsureGetMemberVec2("PlayTimeHoursTextPosition");
-  PlayTimeSecondsPosition = EnsureGetMemberVec2("PlayTimeSecondsPosition");
-  PlayTimeMinutesPosition = EnsureGetMemberVec2("PlayTimeMinutesPosition");
-  PlayTimeHoursPosition = EnsureGetMemberVec2("PlayTimeHoursPosition");
-  ClearListColorIndex = EnsureGetMemberInt("ClearListColorIndex");
-  ClearListTextBackground = EnsureGetMemberSprite("ClearListTextBackground");
-  ClearListTextBGOffset = EnsureGetMemberVec2("ClearListTextBGOffset");
+      EnsureGetMember<glm::vec2>("PlayTimeMinutesTextPosition");
+  PlayTimeHoursTextPosition =
+      EnsureGetMember<glm::vec2>("PlayTimeHoursTextPosition");
+  PlayTimeSecondsPosition =
+      EnsureGetMember<glm::vec2>("PlayTimeSecondsPosition");
+  PlayTimeMinutesPosition =
+      EnsureGetMember<glm::vec2>("PlayTimeMinutesPosition");
+  PlayTimeHoursPosition = EnsureGetMember<glm::vec2>("PlayTimeHoursPosition");
+  ClearListColorIndex = EnsureGetMember<int>("ClearListColorIndex");
+  ClearListTextBackground = EnsureGetMember<Sprite>("ClearListTextBackground");
+  ClearListTextBGOffset = EnsureGetMember<glm::vec2>("ClearListTextBGOffset");
 
-  EndingListLabel = EnsureGetMemberSprite("EndingListLabel");
-  EndingCount = EnsureGetMemberInt("EndingCount");
+  EndingListLabel = EnsureGetMember<Sprite>("EndingListLabel");
+  EndingCount = EnsureGetMember<int>("EndingCount");
   EndingsListNumberInitialPosition =
-      EnsureGetMemberVec2("EndingsListNumberInitialPosition");
+      EnsureGetMember<glm::vec2>("EndingsListNumberInitialPosition");
   EndingsListTextInitialPosition =
-      EnsureGetMemberVec2("EndingsListTextInitialPosition");
-  EndingsListTextMargin = EnsureGetMemberVec2("EndingsListTextMargin");
-  EndingsListTextFontSize = EnsureGetMemberFloat("EndingsListTextFontSize");
-  EndingsListTextLockedTable = EnsureGetMemberInt("EndingsListTextLockedTable");
-  EndingsListTextLockedEntry = EnsureGetMemberInt("EndingsListTextLockedEntry");
-  EndingsListTextTable = EnsureGetMemberInt("EndingsListTextTable");
-  EndingsListTextColorIndex = EnsureGetMemberInt("EndingsListTextColorIndex");
+      EnsureGetMember<glm::vec2>("EndingsListTextInitialPosition");
+  EndingsListTextMargin = EnsureGetMember<glm::vec2>("EndingsListTextMargin");
+  EndingsListTextFontSize = EnsureGetMember<float>("EndingsListTextFontSize");
+  EndingsListTextLockedTable =
+      EnsureGetMember<int>("EndingsListTextLockedTable");
+  EndingsListTextLockedEntry =
+      EnsureGetMember<int>("EndingsListTextLockedEntry");
+  EndingsListTextTable = EnsureGetMember<int>("EndingsListTextTable");
+  EndingsListTextColorIndex = EnsureGetMember<int>("EndingsListTextColorIndex");
 
-  SceneTitleLabel = EnsureGetMemberSprite("SceneTitleLabel");
-  SceneCount = EnsureGetMemberInt("SceneCount");
+  SceneTitleLabel = EnsureGetMember<Sprite>("SceneTitleLabel");
+  SceneCount = EnsureGetMember<int>("SceneCount");
   SceneListNumberInitialPosition =
-      EnsureGetMemberVec2("SceneListNumberInitialPosition");
+      EnsureGetMember<glm::vec2>("SceneListNumberInitialPosition");
   SceneListTextInitialPosition =
-      EnsureGetMemberVec2("SceneListTextInitialPosition");
-  SceneListTextMargin = EnsureGetMemberVec2("SceneListTextMargin");
-  SceneListFontSize = EnsureGetMemberFloat("SceneListFontSize");
-  SceneListTextTable = EnsureGetMemberInt("SceneListTextTable");
+      EnsureGetMember<glm::vec2>("SceneListTextInitialPosition");
+  SceneListTextMargin = EnsureGetMember<glm::vec2>("SceneListTextMargin");
+  SceneListFontSize = EnsureGetMember<float>("SceneListFontSize");
+  SceneListTextTable = EnsureGetMember<int>("SceneListTextTable");
   SceneTitleItemsRenderingBounds =
-      EnsureGetMemberRectF("SceneTitleItemsRenderingBounds");
-  SceneListColorIndex = EnsureGetMemberInt("SceneListColorIndex");
-  SceneTitleLockedTable = EnsureGetMemberInt("SceneTitleLockedTable");
-  SceneTitleLockedEntry = EnsureGetMemberInt("SceneTitleLockedEntry");
-  SceneTitleItemsWidth = EnsureGetMemberFloat("SceneTitleItemsWidth");
-  ScrollbarStart = EnsureGetMemberFloat("ScrollbarStart");
-  ScrollAreaHeight = EnsureGetMemberFloat("ScrollAreaHeight");
-  ScrollbarTrack = EnsureGetMemberSprite("ScrollbarTrackSprite");
-  ScrollbarThumb = EnsureGetMemberSprite("ScrollbarThumbSprite");
-  ScrollbarPosition = EnsureGetMemberVec2("ScrollbarPosition");
+      EnsureGetMember<RectF>("SceneTitleItemsRenderingBounds");
+  SceneListColorIndex = EnsureGetMember<int>("SceneListColorIndex");
+  SceneTitleLockedTable = EnsureGetMember<int>("SceneTitleLockedTable");
+  SceneTitleLockedEntry = EnsureGetMember<int>("SceneTitleLockedEntry");
+  SceneTitleItemsWidth = EnsureGetMember<float>("SceneTitleItemsWidth");
+  ScrollbarStart = EnsureGetMember<float>("ScrollbarStart");
+  ScrollAreaHeight = EnsureGetMember<float>("ScrollAreaHeight");
+  ScrollbarTrack = EnsureGetMember<Sprite>("ScrollbarTrackSprite");
+  ScrollbarThumb = EnsureGetMember<Sprite>("ScrollbarThumbSprite");
+  ScrollbarPosition = EnsureGetMember<glm::vec2>("ScrollbarPosition");
 
-  ArrowLeft = EnsureGetMemberSprite("ArrowLeft");
-  ArrowLeftPosition = EnsureGetMemberVec2("ArrowLeftPosition");
-  ArrowRight = EnsureGetMemberSprite("ArrowRight");
-  ArrowRightPosition = EnsureGetMemberVec2("ArrowRightPosition");
+  ArrowLeft = EnsureGetMember<Sprite>("ArrowLeft");
+  ArrowLeftPosition = EnsureGetMember<glm::vec2>("ArrowLeftPosition");
+  ArrowRight = EnsureGetMember<Sprite>("ArrowRight");
+  ArrowRightPosition = EnsureGetMember<glm::vec2>("ArrowRightPosition");
 
-  ArrowsAnimationDuration = EnsureGetMemberFloat("ArrowsAnimationDuration");
-  FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
-  FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
+  ArrowsAnimationDuration = EnsureGetMember<float>("ArrowsAnimationDuration");
+  FadeInDuration = EnsureGetMember<float>("FadeInDuration");
+  FadeOutDuration = EnsureGetMember<float>("FadeOutDuration");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   auto clearList = new UI::MO6TW::ClearListMenu();
   UI::Menus[drawType].push_back(clearList);

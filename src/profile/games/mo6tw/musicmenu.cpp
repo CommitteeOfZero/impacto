@@ -14,30 +14,33 @@ namespace MO6TW {
 namespace MusicMenu {
 
 void Configure() {
-  BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
+  BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSprite");
 
-  GetMemberSpriteArray(Thumbnails, MusicTrackCount, "Thumbnails");
-  ThumbnailPosition = EnsureGetMemberVec2("ThumbnailPosition");
-  ItemsWindow = EnsureGetMemberSprite("ItemsWindow");
-  ItemsWindowPosition = EnsureGetMemberVec2("ItemsWindowPosition");
+  GetMemberArray<Sprite>(Thumbnails, MusicTrackCount, "Thumbnails");
+  ThumbnailPosition = EnsureGetMember<glm::vec2>("ThumbnailPosition");
+  ItemsWindow = EnsureGetMember<Sprite>("ItemsWindow");
+  ItemsWindowPosition = EnsureGetMember<glm::vec2>("ItemsWindowPosition");
   ItemsWindowRenderingBounds =
-      EnsureGetMemberRectF("ItemsWindowRenderingBounds");
-  MusicListMargin = EnsureGetMemberVec2("MusicListMargin");
-  MusicListInitialPosition = EnsureGetMemberVec2("MusicListInitialPosition");
-  PlaybackWindow = EnsureGetMemberSprite("PlaybackWindow");
-  PlaybackWindowPosition = EnsureGetMemberVec2("PlaybackWindowPosition");
-  GetMemberSpriteArray(PlaybackModeLabels, MusicPlaybackModeLabelCount,
-                       "PlaybackModeLabels");
-  PlaybackModeLabelPosition = EnsureGetMemberVec2("PlaybackModeLabelPosition");
+      EnsureGetMember<RectF>("ItemsWindowRenderingBounds");
+  MusicListMargin = EnsureGetMember<glm::vec2>("MusicListMargin");
+  MusicListInitialPosition =
+      EnsureGetMember<glm::vec2>("MusicListInitialPosition");
+  PlaybackWindow = EnsureGetMember<Sprite>("PlaybackWindow");
+  PlaybackWindowPosition = EnsureGetMember<glm::vec2>("PlaybackWindowPosition");
+  GetMemberArray<Sprite>(PlaybackModeLabels, MusicPlaybackModeLabelCount,
+                         "PlaybackModeLabels");
+  PlaybackModeLabelPosition =
+      EnsureGetMember<glm::vec2>("PlaybackModeLabelPosition");
   CurrentlyPlayingLabelPosition =
-      EnsureGetMemberVec2("CurrentlyPlayingLabelPosition");
-  GetMemberSpriteArray(ItemNames, MusicTrackCount, "ItemNames");
-  ItemNameHighlightOffset = EnsureGetMemberVec2("ItemNameHighlightOffset");
-  LockedItem = EnsureGetMemberSprite("LockedItem");
-  ScrollbarThumb = EnsureGetMemberSprite("ScrollbarThumb");
-  ScrollbarTrack = EnsureGetMemberSprite("ScrollbarTrack");
-  ScrollbarPosition = EnsureGetMemberVec2("ScrollbarPosition");
-  ScrollbarStart = EnsureGetMemberFloat("ScrollbarStart");
+      EnsureGetMember<glm::vec2>("CurrentlyPlayingLabelPosition");
+  GetMemberArray<Sprite>(ItemNames, MusicTrackCount, "ItemNames");
+  ItemNameHighlightOffset =
+      EnsureGetMember<glm::vec2>("ItemNameHighlightOffset");
+  LockedItem = EnsureGetMember<Sprite>("LockedItem");
+  ScrollbarThumb = EnsureGetMember<Sprite>("ScrollbarThumb");
+  ScrollbarTrack = EnsureGetMember<Sprite>("ScrollbarTrack");
+  ScrollbarPosition = EnsureGetMember<glm::vec2>("ScrollbarPosition");
+  ScrollbarStart = EnsureGetMember<float>("ScrollbarStart");
 
   {
     EnsurePushMemberOfType("Playlist", LUA_TTABLE);
@@ -46,23 +49,23 @@ void Configure() {
     assert(size == MusicTrackCount);
     PushInitialIndex();
     while (PushNextTableElement() != 0) {
-      int i = EnsureGetKeyInt() - 1;
-      Playlist[i] = EnsureGetArrayElementInt();
+      int i = EnsureGetKey<int32_t>() - 1;
+      Playlist[i] = EnsureGetArrayElement<int>();
       Pop();
     }
 
     Pop();
   }
 
-  GetMemberSpriteArray(TimerChars, TimerCharCount, "TimerChars");
-  TimerInitialPosition = EnsureGetMemberVec2("TimerInitialPosition");
-  TimerMargin = EnsureGetMemberVec2("TimerMargin");
+  GetMemberArray<Sprite>(TimerChars, TimerCharCount, "TimerChars");
+  TimerInitialPosition = EnsureGetMember<glm::vec2>("TimerInitialPosition");
+  TimerMargin = EnsureGetMember<glm::vec2>("TimerMargin");
 
-  FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
-  FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
+  FadeInDuration = EnsureGetMember<float>("FadeInDuration");
+  FadeOutDuration = EnsureGetMember<float>("FadeOutDuration");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   UI::Menus[drawType].push_back(new UI::MO6TW::MusicMenu());
 }

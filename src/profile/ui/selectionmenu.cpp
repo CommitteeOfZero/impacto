@@ -12,46 +12,46 @@ namespace SelectionMenu {
 void Configure() {
   EnsurePushMemberOfType("SelectionDisplay", LUA_TTABLE);
 
-  SelectionBackground = EnsureGetMemberSprite("SelectionBackgroundSprite");
+  SelectionBackground = EnsureGetMember<Sprite>("SelectionBackgroundSprite");
   PlainSelectionFrameTopLeft =
-      EnsureGetMemberSprite("PlainSelectionFrameTopLeftSprite");
+      EnsureGetMember<Sprite>("PlainSelectionFrameTopLeftSprite");
   PlainSelectionFrameTopSide =
-      EnsureGetMemberSprite("PlainSelectionFrameTopSideSprite");
+      EnsureGetMember<Sprite>("PlainSelectionFrameTopSideSprite");
   PlainSelectionFrameTopRight =
-      EnsureGetMemberSprite("PlainSelectionFrameTopRightSprite");
+      EnsureGetMember<Sprite>("PlainSelectionFrameTopRightSprite");
   PlainSelectionFrameLeftSide =
-      EnsureGetMemberSprite("PlainSelectionFrameLeftSideSprite");
+      EnsureGetMember<Sprite>("PlainSelectionFrameLeftSideSprite");
   PlainSelectionFrameBottomLeft =
-      EnsureGetMemberSprite("PlainSelectionFrameBottomLeftSprite");
+      EnsureGetMember<Sprite>("PlainSelectionFrameBottomLeftSprite");
   PlainSelectionFrameRightSide =
-      EnsureGetMemberSprite("PlainSelectionFrameRightSideSprite");
+      EnsureGetMember<Sprite>("PlainSelectionFrameRightSideSprite");
   PlainSelectionFrameBottomRight =
-      EnsureGetMemberSprite("PlainSelectionFrameBottomRightSprite");
+      EnsureGetMember<Sprite>("PlainSelectionFrameBottomRightSprite");
   PlainSelectionFrameBottomSide =
-      EnsureGetMemberSprite("PlainSelectionFrameBottomSideSprite");
+      EnsureGetMember<Sprite>("PlainSelectionFrameBottomSideSprite");
   PlainSelectionFrameMiddle =
-      EnsureGetMemberSprite("PlainSelectionFrameMiddleSprite");
+      EnsureGetMember<Sprite>("PlainSelectionFrameMiddleSprite");
 
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
   SelectionHighlight = nullSprite;
-  TryGetMemberSprite("SelectionHighlightSprite", SelectionHighlight);
+  TryGetMember<Sprite>("SelectionHighlightSprite", SelectionHighlight);
   SelectionFocused = nullSprite;
-  TryGetMemberSprite("SelectionFocusedSprite", SelectionFocused);
+  TryGetMember<Sprite>("SelectionFocusedSprite", SelectionFocused);
 
-  TryGetMemberBool("HighlightTextOnly", HighlightTextOnly);
+  TryGetMember<bool>("HighlightTextOnly", HighlightTextOnly);
 
-  SelectionMaxCount = EnsureGetMemberInt("SelectionMaxCount");
-  SelectionBackgroundX = EnsureGetMemberFloat("SelectionBackgroundX");
-  GetMemberFloatArray(SelectionBackgroundY, SelectionMaxCount,
-                      "SelectionBackgroundY");
-  SelectionYSpacing = EnsureGetMemberFloat("SelectionYSpacing");
-  PlainSelectionYSpacing = EnsureGetMemberFloat("PlainSelectionYSpacing");
+  SelectionMaxCount = EnsureGetMember<int>("SelectionMaxCount");
+  SelectionBackgroundX = EnsureGetMember<float>("SelectionBackgroundX");
+  GetMemberArray<float>(SelectionBackgroundY, SelectionMaxCount,
+                        "SelectionBackgroundY");
+  SelectionYSpacing = EnsureGetMember<float>("SelectionYSpacing");
+  PlainSelectionYSpacing = EnsureGetMember<float>("PlainSelectionYSpacing");
   FadeAnimationDurationInOut =
-      EnsureGetMemberFloat("FadeAnimationDurationInOut");
+      EnsureGetMember<float>("FadeAnimationDurationInOut");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   UI::SelectionMenuPtr = new UI::SelectionMenu();
   UI::Menus[drawType].push_back(UI::SelectionMenuPtr);

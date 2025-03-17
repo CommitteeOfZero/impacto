@@ -11,20 +11,22 @@ namespace CCLCC {
 namespace LibraryMenu {
 
 void Configure() {
-  FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
-  FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
+  FadeInDuration = EnsureGetMember<float>("FadeInDuration");
+  FadeOutDuration = EnsureGetMember<float>("FadeOutDuration");
 
-  LibraryBackgroundSprite = EnsureGetMemberSprite("LibraryBackgroundSprite");
-  LibraryBackgroundPosition = EnsureGetMemberVec2("LibraryBackgroundPosition");
-  LibraryIndexSprite = EnsureGetMemberSprite("LibraryIndexSprite");
-  LibraryIndexPosition = EnsureGetMemberVec2("LibraryIndexPosition");
-  LibraryButtonGuideSprite = EnsureGetMemberSprite("LibraryButtonGuideSprite");
+  LibraryBackgroundSprite = EnsureGetMember<Sprite>("LibraryBackgroundSprite");
+  LibraryBackgroundPosition =
+      EnsureGetMember<glm::vec2>("LibraryBackgroundPosition");
+  LibraryIndexSprite = EnsureGetMember<Sprite>("LibraryIndexSprite");
+  LibraryIndexPosition = EnsureGetMember<glm::vec2>("LibraryIndexPosition");
+  LibraryButtonGuideSprite =
+      EnsureGetMember<Sprite>("LibraryButtonGuideSprite");
   LibraryButtonGuidePosition =
-      EnsureGetMemberVec2("LibraryButtonGuidePosition");
-  LibraryMaskSprite = EnsureGetMemberSprite("LibraryMaskSprite");
+      EnsureGetMember<glm::vec2>("LibraryButtonGuidePosition");
+  LibraryMaskSprite = EnsureGetMember<Sprite>("LibraryMaskSprite");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   auto library = new UI::CCLCC::LibraryMenu();
   UI::Menus[drawType].push_back(library);

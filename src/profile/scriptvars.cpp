@@ -8,7 +8,7 @@ namespace ScriptVars {
 void Configure() {
   EnsurePushMemberOfType("ScriptVars", LUA_TTABLE);
 
-#define V(var) var = EnsureGetMemberInt(#var);
+#define V(var) var = EnsureGetMember<int>(#var);
 #include "../scriptvars.h"
 #undef V
 

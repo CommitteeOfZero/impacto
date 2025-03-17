@@ -12,62 +12,64 @@ namespace MO6TW {
 namespace AlbumMenu {
 
 void Configure() {
-  BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
+  BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSprite");
 
-  GetMemberSpriteArray(CharacterButtonSprites, CharacterButtonCount,
-                       "CharacterButtons");
-  GetMemberSpriteArray(HighlightedCharacterButtonSprites, CharacterButtonCount,
-                       "HighlightedCharacterButtons");
-  InitialButtonPosition = EnsureGetMemberVec2("InitialButtonPosition");
-  ButtonOddX = EnsureGetMemberFloat("ButtonOddX");
-  ButtonEvenX = EnsureGetMemberFloat("ButtonEvenX");
-  ButtonMargin = EnsureGetMemberVec2("ButtonMargin");
+  GetMemberArray<Sprite>(CharacterButtonSprites, CharacterButtonCount,
+                         "CharacterButtons");
+  GetMemberArray<Sprite>(HighlightedCharacterButtonSprites,
+                         CharacterButtonCount, "HighlightedCharacterButtons");
+  InitialButtonPosition = EnsureGetMember<glm::vec2>("InitialButtonPosition");
+  ButtonOddX = EnsureGetMember<float>("ButtonOddX");
+  ButtonEvenX = EnsureGetMember<float>("ButtonEvenX");
+  ButtonMargin = EnsureGetMember<glm::vec2>("ButtonMargin");
   HighlightAnimationDuration =
-      EnsureGetMemberFloat("HighlightAnimationDuration");
-  YunoButtonIdx = EnsureGetMemberInt("YunoButtonIdx");
-  SuzuButtonIdx = EnsureGetMemberInt("SuzuButtonIdx");
-  GetMemberSpriteArray(CharacterPortraits, CharacterPortraitCount,
-                       "CharacterPortraits");
-  OthersPortraitTopPart = EnsureGetMemberSprite("OthersPortraitTopPart");
-  OthersPortraitBottomPart = EnsureGetMemberSprite("OthersPortraitBottomPart");
-  PortraitPosition = EnsureGetMemberVec2("PortraitPosition");
-  OthersPortraitPosition = EnsureGetMemberVec2("OthersPortraitPosition");
-  ThumbnailsPerRow = EnsureGetMemberInt("ThumbnailsPerRow");
-  ThumbnailsPerColumn = EnsureGetMemberInt("ThumbnailsPerColumn");
-  GetMemberSpriteArray(Thumbnails, EventCgCount, "Thumbnails");
-  GetMemberIntArray(ThumbnailOffsets, CharacterCount, "ThumbnailOffsets");
-  LockedThumbnail = EnsureGetMemberSprite("LockedThumbnail");
-  ThumbnailBorder = EnsureGetMemberSprite("ThumbnailBorder");
+      EnsureGetMember<float>("HighlightAnimationDuration");
+  YunoButtonIdx = EnsureGetMember<int>("YunoButtonIdx");
+  SuzuButtonIdx = EnsureGetMember<int>("SuzuButtonIdx");
+  GetMemberArray<Sprite>(CharacterPortraits, CharacterPortraitCount,
+                         "CharacterPortraits");
+  OthersPortraitTopPart = EnsureGetMember<Sprite>("OthersPortraitTopPart");
+  OthersPortraitBottomPart =
+      EnsureGetMember<Sprite>("OthersPortraitBottomPart");
+  PortraitPosition = EnsureGetMember<glm::vec2>("PortraitPosition");
+  OthersPortraitPosition = EnsureGetMember<glm::vec2>("OthersPortraitPosition");
+  ThumbnailsPerRow = EnsureGetMember<int>("ThumbnailsPerRow");
+  ThumbnailsPerColumn = EnsureGetMember<int>("ThumbnailsPerColumn");
+  GetMemberArray<Sprite>(Thumbnails, EventCgCount, "Thumbnails");
+  GetMemberArray<int>(ThumbnailOffsets, CharacterCount, "ThumbnailOffsets");
+  LockedThumbnail = EnsureGetMember<Sprite>("LockedThumbnail");
+  ThumbnailBorder = EnsureGetMember<Sprite>("ThumbnailBorder");
   ThumbnailHighlightTopLeft =
-      EnsureGetMemberSprite("ThumbnailHighlightTopLeft");
+      EnsureGetMember<Sprite>("ThumbnailHighlightTopLeft");
   ThumbnailHighlightTopRight =
-      EnsureGetMemberSprite("ThumbnailHighlightTopRight");
+      EnsureGetMember<Sprite>("ThumbnailHighlightTopRight");
   ThumbnailHighlightBottomLeft =
-      EnsureGetMemberSprite("ThumbnailHighlightBottomLeft");
+      EnsureGetMember<Sprite>("ThumbnailHighlightBottomLeft");
   ThumbnailHighlightBottomRight =
-      EnsureGetMemberSprite("ThumbnailHighlightBottomRight");
+      EnsureGetMember<Sprite>("ThumbnailHighlightBottomRight");
   ThumbnailGridFirstPosition =
-      EnsureGetMemberVec2("ThumbnailGridFirstPosition");
-  ThumbnailGridMargin = EnsureGetMemberVec2("ThumbnailGridMargin");
-  ThumbnailGridBounds = EnsureGetMemberRectF("ThumbnailGridBounds");
-  ArrowsAnimationDuration = EnsureGetMemberFloat("ArrowsAnimationDuration");
-  ArrowUp = EnsureGetMemberSprite("ArrowUp");
-  ArrowUpPosition = EnsureGetMemberVec2("ArrowUpPosition");
-  ArrowDown = EnsureGetMemberSprite("ArrowDown");
-  ArrowDownPosition = EnsureGetMemberVec2("ArrowDownPosition");
+      EnsureGetMember<glm::vec2>("ThumbnailGridFirstPosition");
+  ThumbnailGridMargin = EnsureGetMember<glm::vec2>("ThumbnailGridMargin");
+  ThumbnailGridBounds = EnsureGetMember<RectF>("ThumbnailGridBounds");
+  ArrowsAnimationDuration = EnsureGetMember<float>("ArrowsAnimationDuration");
+  ArrowUp = EnsureGetMember<Sprite>("ArrowUp");
+  ArrowUpPosition = EnsureGetMember<glm::vec2>("ArrowUpPosition");
+  ArrowDown = EnsureGetMember<Sprite>("ArrowDown");
+  ArrowDownPosition = EnsureGetMember<glm::vec2>("ArrowDownPosition");
   ThumbnailButtonBorderOffset =
-      EnsureGetMemberVec2("ThumbnailButtonBorderOffset");
+      EnsureGetMember<glm::vec2>("ThumbnailButtonBorderOffset");
   ThumbnailButtonTextFontSize =
-      EnsureGetMemberFloat("ThumbnailButtonTextFontSize");
+      EnsureGetMember<float>("ThumbnailButtonTextFontSize");
   ThumbnailButtonTextColorIndex =
-      EnsureGetMemberInt("ThumbnailButtonTextColorIndex");
-  ThumbnailButtonTextOffset = EnsureGetMemberVec2("ThumbnailButtonTextOffset");
+      EnsureGetMember<int>("ThumbnailButtonTextColorIndex");
+  ThumbnailButtonTextOffset =
+      EnsureGetMember<glm::vec2>("ThumbnailButtonTextOffset");
 
-  FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
-  FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
+  FadeInDuration = EnsureGetMember<float>("FadeInDuration");
+  FadeOutDuration = EnsureGetMember<float>("FadeOutDuration");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   UI::Menus[drawType].push_back(new UI::MO6TW::AlbumMenu());
 }

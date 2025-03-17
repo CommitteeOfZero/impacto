@@ -8,27 +8,27 @@ namespace Vm {
 void Configure() {
   EnsurePushMemberOfType("Vm", LUA_TTABLE);
 
-  StartScript = EnsureGetMemberUint("StartScript");
-  StartScriptBuffer = EnsureGetMemberUint("StartScriptBuffer");
+  StartScript = EnsureGetMember<uint32_t>("StartScript");
+  StartScriptBuffer = EnsureGetMember<uint32_t>("StartScriptBuffer");
 
   GameInstructionSet = Impacto::Vm::InstructionSet::_from_integral_unchecked(
-      EnsureGetMemberInt("GameInstructionSet"));
+      EnsureGetMember<int>("GameInstructionSet"));
 
-  UseReturnIds = EnsureGetMemberBool("UseReturnIds");
-  TryGetMemberBool("UseMsbStrings", UseMsbStrings);
-  TryGetMemberBool("UseSeparateMsbArchive", UseSeparateMsbArchive);
-  TryGetMemberBool("RestartMaskUsesThreadAlpha", RestartMaskUsesThreadAlpha);
+  UseReturnIds = EnsureGetMember<bool>("UseReturnIds");
+  TryGetMember<bool>("UseMsbStrings", UseMsbStrings);
+  TryGetMember<bool>("UseSeparateMsbArchive", UseSeparateMsbArchive);
+  TryGetMember<bool>("RestartMaskUsesThreadAlpha", RestartMaskUsesThreadAlpha);
 
-  ScrWorkChaStructSize = EnsureGetMemberInt("ScrWorkChaStructSize");
-  ScrWorkBgStructSize = EnsureGetMemberInt("ScrWorkBgStructSize");
-  ScrWorkCaptureStructSize = EnsureGetMemberInt("ScrWorkCaptureStructSize");
-  ScrWorkBgEffStructSize = EnsureGetMemberInt("ScrWorkBgEffStructSize");
+  ScrWorkChaStructSize = EnsureGetMember<int>("ScrWorkChaStructSize");
+  ScrWorkBgStructSize = EnsureGetMember<int>("ScrWorkBgStructSize");
+  ScrWorkCaptureStructSize = EnsureGetMember<int>("ScrWorkCaptureStructSize");
+  ScrWorkBgEffStructSize = EnsureGetMember<int>("ScrWorkBgEffStructSize");
 
-  TryGetMemberInt("MaxLinkedBgBuffers", MaxLinkedBgBuffers);
-  TryGetMemberInt("SystemScriptBuffer", SystemScriptBuffer);
+  TryGetMember<int>("MaxLinkedBgBuffers", MaxLinkedBgBuffers);
+  TryGetMember<int>("SystemScriptBuffer", SystemScriptBuffer);
 
-  TryGetMemberInt("SpeakerPortraitsScrWorkOffset",
-                  SpeakerPortraitsScrWorkOffset);
+  TryGetMember<int>("SpeakerPortraitsScrWorkOffset",
+                    SpeakerPortraitsScrWorkOffset);
 
   Pop();
 }

@@ -11,10 +11,10 @@ void LoadFonts() {
 
   PushInitialIndex();
   while (PushNextTableElement() != 0) {
-    std::string name(EnsureGetKeyString());
+    std::string name(EnsureGetKey<std::string>());
 
     FontType type =
-        FontType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
+        FontType::_from_integral_unchecked(EnsureGetMember<int>("Type"));
 
     Font* baseFont;
 
@@ -24,7 +24,7 @@ void LoadFonts() {
         Fonts[name] = font;
         baseFont = font;
 
-        font->Sheet = EnsureGetMemberSpriteSheet("Sheet");
+        font->Sheet = EnsureGetMember<SpriteSheet>("Sheet");
 
         break;
       }
@@ -33,52 +33,53 @@ void LoadFonts() {
         Fonts[name] = font;
         baseFont = font;
 
-        font->ForegroundSheet = EnsureGetMemberSpriteSheet("ForegroundSheet");
-        font->OutlineSheet = EnsureGetMemberSpriteSheet("OutlineSheet");
+        font->ForegroundSheet = EnsureGetMember<SpriteSheet>("ForegroundSheet");
+        font->OutlineSheet = EnsureGetMember<SpriteSheet>("OutlineSheet");
 
-        if (!TryGetMemberVec2("ForegroundOffset", font->ForegroundOffset)) {
+        if (!TryGetMember<glm::vec2>("ForegroundOffset",
+                                     font->ForegroundOffset)) {
           font->ForegroundOffset = glm::vec2(0.0f);
         }
-        font->OutlineOffset = EnsureGetMemberVec2("OutlineOffset");
+        font->OutlineOffset = EnsureGetMember<glm::vec2>("OutlineOffset");
 
         break;
       }
     }
 
-    baseFont->Rows = EnsureGetMemberInt("Rows");
-    baseFont->Columns = EnsureGetMemberInt("Columns");
+    baseFont->Rows = EnsureGetMember<int>("Rows");
+    baseFont->Columns = EnsureGetMember<int>("Columns");
 
     baseFont->CalculateDefaultSizes();
 
-    if (!TryGetMemberFloat("BitmapEmWidth", baseFont->BitmapEmWidth)) {
+    if (!TryGetMember<float>("BitmapEmWidth", baseFont->BitmapEmWidth)) {
       baseFont->BitmapEmWidth = baseFont->CellWidth;
     }
 
-    if (!TryGetMemberFloat("BitmapEmHeight", baseFont->BitmapEmHeight)) {
+    if (!TryGetMember<float>("BitmapEmHeight", baseFont->BitmapEmHeight)) {
       baseFont->BitmapEmHeight = baseFont->CellHeight;
     }
 
-    baseFont->LineSpacing = EnsureGetMemberFloat("LineSpacing");
+    baseFont->LineSpacing = EnsureGetMember<float>("LineSpacing");
 
-    float advanceWidthsEmWidth = EnsureGetMemberFloat("AdvanceWidthsEmWidth");
+    float advanceWidthsEmWidth = EnsureGetMember<float>("AdvanceWidthsEmWidth");
     float bitmapEmWidth = baseFont->BitmapEmWidth;
 
     baseFont->AdvanceWidths =
         (float*)malloc(baseFont->Columns * baseFont->Rows * sizeof(float));
 
     float extraLetterSpacing;
-    if (!TryGetMemberFloat("ExtraLetterSpacing", extraLetterSpacing)) {
+    if (!TryGetMember<float>("ExtraLetterSpacing", extraLetterSpacing)) {
       extraLetterSpacing = 0;
     }
 
     {
       EnsurePushMember("AdvanceWidths");
 
-      Io::AssetPath widthTablePath;
-      if (TryGetAssetPath(widthTablePath)) {
+      auto widthTablePath = TryGet<Io::AssetPath>();
+      if (widthTablePath) {
         uint8_t* widthBin;
         int64_t widthSz;
-        if (widthTablePath.Slurp((void*&)widthBin, widthSz) != IoError_OK) {
+        if (widthTablePath->Slurp((void*&)widthBin, widthSz) != IoError_OK) {
           ImpLog(LL_Fatal, LC_Profile,
                  "Failed to load width table file for font {:s}\n", name);
           Window->Shutdown();
@@ -94,9 +95,9 @@ void LoadFonts() {
 
         PushInitialIndex();
         while (PushNextTableElement() != 0) {
-          int i = EnsureGetKeyInt();
+          int i = EnsureGetKey<int32_t>();
           baseFont->AdvanceWidths[i] =
-              (EnsureGetArrayElementFloat() + extraLetterSpacing) *
+              (EnsureGetArrayElement<float>() + extraLetterSpacing) *
               bitmapEmWidth / advanceWidthsEmWidth;
           Pop();
         }

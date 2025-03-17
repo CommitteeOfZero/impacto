@@ -13,30 +13,31 @@ namespace MO8 {
 namespace SaveMenu {
 
 void Configure() {
-  SaveMenuBackgroundSprite = EnsureGetMemberSprite("SaveMenuBackgroundSprite");
+  SaveMenuBackgroundSprite =
+      EnsureGetMember<Sprite>("SaveMenuBackgroundSprite");
 
-  EntryStartX = EnsureGetMemberFloat("EntryStartX");
-  EntryXPadding = EnsureGetMemberFloat("EntryXPadding");
-  EntryStartY = EnsureGetMemberFloat("EntryStartY");
-  EntryYPadding = EnsureGetMemberFloat("EntryYPadding");
+  EntryStartX = EnsureGetMember<float>("EntryStartX");
+  EntryXPadding = EnsureGetMember<float>("EntryXPadding");
+  EntryStartY = EnsureGetMember<float>("EntryStartY");
+  EntryYPadding = EnsureGetMember<float>("EntryYPadding");
 
-  QuickLoadTextSprite = EnsureGetMemberSprite("QuickLoadTextSprite");
-  LoadTextSprite = EnsureGetMemberSprite("LoadTextSprite");
-  SaveTextSprite = EnsureGetMemberSprite("SaveTextSprite");
-  MenuTitleTextPos = EnsureGetMemberVec2("MenuTitleTextPos");
+  QuickLoadTextSprite = EnsureGetMember<Sprite>("QuickLoadTextSprite");
+  LoadTextSprite = EnsureGetMember<Sprite>("LoadTextSprite");
+  SaveTextSprite = EnsureGetMember<Sprite>("SaveTextSprite");
+  MenuTitleTextPos = EnsureGetMember<glm::vec2>("MenuTitleTextPos");
 
-  NextButtonSprite = EnsureGetMemberSprite("NextButtonSprite");
+  NextButtonSprite = EnsureGetMember<Sprite>("NextButtonSprite");
   NextButtonHighlightedSprite =
-      EnsureGetMemberSprite("NextButtonHighlightedSprite");
-  NextButtonPosition = EnsureGetMemberVec2("NextButtonPosition");
+      EnsureGetMember<Sprite>("NextButtonHighlightedSprite");
+  NextButtonPosition = EnsureGetMember<glm::vec2>("NextButtonPosition");
 
-  BackButtonSprite = EnsureGetMemberSprite("BackButtonSprite");
+  BackButtonSprite = EnsureGetMember<Sprite>("BackButtonSprite");
   BackButtonHighlightedSprite =
-      EnsureGetMemberSprite("BackButtonHighlightedSprite");
-  BackButtonPosition = EnsureGetMemberVec2("BackButtonPosition");
+      EnsureGetMember<Sprite>("BackButtonHighlightedSprite");
+  BackButtonPosition = EnsureGetMember<glm::vec2>("BackButtonPosition");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   UI::SaveMenuPtr = new UI::MO8::SaveMenu();
   UI::Menus[drawType].push_back(UI::SaveMenuPtr);

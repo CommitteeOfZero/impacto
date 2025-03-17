@@ -20,7 +20,7 @@ void Configure() {
     AssertIs(LUA_TTABLE);
 
     Type =
-        BacklogMenuType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
+        BacklogMenuType::_from_integral_unchecked(EnsureGetMember<int>("Type"));
 
     if (Type == +BacklogMenuType::None) {
       UI::BacklogMenuPtr = new UI::BacklogMenu();
@@ -32,30 +32,31 @@ void Configure() {
 
     EntryHighlightLocation =
         EntryHighlightLocationType::_from_integral_unchecked(
-            EnsureGetMemberInt("EntryHighlightLocation"));
+            EnsureGetMember<int>("EntryHighlightLocation"));
 
-    BacklogBackground = EnsureGetMemberSprite("BacklogBackgroundSprite");
-    EntryHighlight = EnsureGetMemberSprite("EntryHighlightSprite");
-    VoiceIcon = EnsureGetMemberSprite("VoiceIconSprite");
-    ScrollbarThumb = EnsureGetMemberSprite("ScrollbarThumbSprite");
-    ScrollbarTrack = EnsureGetMemberSprite("ScrollbarTrackSprite");
+    BacklogBackground = EnsureGetMember<Sprite>("BacklogBackgroundSprite");
+    EntryHighlight = EnsureGetMember<Sprite>("EntryHighlightSprite");
+    VoiceIcon = EnsureGetMember<Sprite>("VoiceIconSprite");
+    ScrollbarThumb = EnsureGetMember<Sprite>("ScrollbarThumbSprite");
+    ScrollbarTrack = EnsureGetMember<Sprite>("ScrollbarTrackSprite");
 
-    EntryYPadding = EnsureGetMemberFloat("EntryYPadding");
-    EntriesStart = EnsureGetMemberVec2("EntriesStart");
-    EntryHighlightOffset = EnsureGetMemberVec2("EntryHighlightOffset");
-    VoiceIconOffset = EnsureGetMemberVec2("VoiceIconOffset");
-    ScrollbarPosition = EnsureGetMemberVec2("ScrollbarPosition");
-    ScrollbarThumbLength = EnsureGetMemberFloat("ScrollbarThumbLength");
-    RenderingBounds = EnsureGetMemberRectF("RenderingBounds");
-    HoverBounds = EnsureGetMemberRectF("HoverBounds");
+    EntryYPadding = EnsureGetMember<float>("EntryYPadding");
+    EntriesStart = EnsureGetMember<glm::vec2>("EntriesStart");
+    EntryHighlightOffset = EnsureGetMember<glm::vec2>("EntryHighlightOffset");
+    VoiceIconOffset = EnsureGetMember<glm::vec2>("VoiceIconOffset");
+    ScrollbarPosition = EnsureGetMember<glm::vec2>("ScrollbarPosition");
+    ScrollbarThumbLength = EnsureGetMember<float>("ScrollbarThumbLength");
+    RenderingBounds = EnsureGetMember<RectF>("RenderingBounds");
+    HoverBounds = EnsureGetMember<RectF>("HoverBounds");
 
-    FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
-    FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
+    FadeInDuration = EnsureGetMember<float>("FadeInDuration");
+    FadeOutDuration = EnsureGetMember<float>("FadeOutDuration");
 
-    ScrollingSpeed = EnsureGetMemberFloat("ScrollingSpeed");
-    MinHoldTime = EnsureGetMemberFloat("MinHoldTime");
-    AdvanceFocusTimeInterval = EnsureGetMemberFloat("AdvanceFocusTimeInterval");
-    PageUpDownHeight = EnsureGetMemberFloat("PageUpDownHeight");
+    ScrollingSpeed = EnsureGetMember<float>("ScrollingSpeed");
+    MinHoldTime = EnsureGetMember<float>("MinHoldTime");
+    AdvanceFocusTimeInterval =
+        EnsureGetMember<float>("AdvanceFocusTimeInterval");
+    PageUpDownHeight = EnsureGetMember<float>("PageUpDownHeight");
 
     switch (Type) {
       case BacklogMenuType::MO6TW:
