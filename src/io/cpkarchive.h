@@ -43,7 +43,8 @@ class CpkArchive : public VfsArchive {
 
   bool ReadUtfBlock(
       uint8_t* utfBlock, uint64_t utfSize,
-      std::vector<ankerl::unordered_dense::map<std::string, CpkCell>>* rows);
+      std::vector<ankerl::unordered_dense::map<
+          std::string, CpkCell, string_hash, std::equal_to<>>>* rows);
   void ReadString(int64_t stringsOffset, char* output);
 
   uint16_t Version;

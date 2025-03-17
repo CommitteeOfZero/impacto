@@ -1,6 +1,7 @@
 #pragma once
 
 #include "stream.h"
+#include "../util.h"
 #include <ankerl/unordered_dense.h>
 
 namespace Impacto {
@@ -21,7 +22,9 @@ class VfsArchive {
   // and this must be overridden
   virtual IoError GetCurrentSize(FileMeta* file, int64_t& outSize);
 
-  ankerl::unordered_dense::map<std::string, uint32_t> NamesToIds;
+  ankerl::unordered_dense::map<std::string, uint32_t, string_hash,
+                               std::equal_to<>>
+      NamesToIds;
   ankerl::unordered_dense::map<uint32_t, FileMeta*> IdsToFiles;
 
   std::string MountPoint;

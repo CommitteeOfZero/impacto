@@ -2,6 +2,7 @@
 
 #include <enum.h>
 #include "../../impacto.h"
+#include "../../util.h"
 #include "../../texture/texture.h"
 #include "transform.h"
 
@@ -224,8 +225,12 @@ class Model {
   ankerl::unordered_dense::map<int16_t, ModelAnimation*> Animations;
 
   // These are only filled for DaSH
-  ankerl::unordered_dense::map<std::string, int32_t> NamedMeshGroups;
-  ankerl::unordered_dense::map<std::string, uint16_t> NamedBones;
+  ankerl::unordered_dense::map<std::string, int32_t, string_hash,
+                               std::equal_to<>>
+      NamedMeshGroups;
+  ankerl::unordered_dense::map<std::string, uint16_t, string_hash,
+                               std::equal_to<>>
+      NamedBones;
 
   int16_t IdleAnimation = -1;
 

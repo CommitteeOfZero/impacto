@@ -1,5 +1,6 @@
 #include "vfs.h"
 #include "../impacto.h"
+#include "../util.h"
 #include <vector>
 #include <mutex>
 #include "vfsarchive.h"
@@ -30,7 +31,8 @@ using VfsArchiveFactory = auto (*)(Stream* stream, VfsArchive** outArchive)
 
 static std::vector<VfsArchiveFactory> Archivers;
 static ankerl::unordered_dense::map<std::string,
-                                    std::vector<std::unique_ptr<VfsArchive>>>
+                                    std::vector<std::unique_ptr<VfsArchive>>,
+                                    string_hash, std::equal_to<>>
     Mounts;
 static std::shared_mutex Lock;
 

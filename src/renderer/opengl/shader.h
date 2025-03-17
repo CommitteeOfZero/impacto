@@ -58,7 +58,8 @@ struct ShaderParameter {
   ShaderParameter(glm::ivec4 val) : Type(SPT_Ivec4), Val_Ivec4(val) {}
 };
 
-typedef ankerl::unordered_dense::map<std::string, ShaderParameter>
+typedef ankerl::unordered_dense::map<std::string, ShaderParameter, string_hash,
+                                     std::equal_to<>>
     ShaderParamMap;
 
 class ShaderCompiler {
