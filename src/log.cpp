@@ -14,61 +14,25 @@ namespace Impacto {
 static bool LoggingToConsole = false;
 static bool LoggingToFile = false;
 
-std::string_view ChannelToString(LogChannel channel) {
-  switch (channel) {
-    case LC_General:
-      return "General";
-    case LC_IO:
-      return "IO";
-    case LC_Render:
-      return "Render";
-    case LC_ModelLoad:
-      return "ModelLoad";
-    case LC_GL:
-      return "GL";
-    case LC_Renderable3D:
-      return "Renderable3D";
-    case LC_TextureLoad:
-      return "TextureLoad";
-    case LC_Scene:
-      return "Scene";
-    case LC_VM:
-      return "VM";
-    case LC_VMStub:
-      return "VMStub";
-    case LC_Expr:
-      return "Expr";
-    case LC_Audio:
-      return "Audio";
-    case LC_Profile:
-      return "Profile";
-    case LC_Video:
-      return "Video";
-    default:
-      assert(false);
-      return "";
-  }
-}
-
 void ConsoleWrite(LogLevel level, std::string_view str) {
-  assert(level > LL_Off && level < LL_Max);
+  assert(level > LogLevel::Off && level < LogLevel::Max);
   switch (level) {
-    case LL_Fatal:
+    case LogLevel::Fatal:
       SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "%s", str.data());
       break;
-    case LL_Error:
+    case LogLevel::Error:
       SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", str.data());
       break;
-    case LL_Warning:
+    case LogLevel::Warning:
       SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "%s", str.data());
       break;
-    case LL_Info:
+    case LogLevel::Info:
       SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", str.data());
       break;
-    case LL_Debug:
+    case LogLevel::Debug:
       SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "%s", str.data());
       break;
-    case LL_Trace:
+    case LogLevel::Trace:
       SDL_LogVerbose(SDL_LOG_CATEGORY_APPLICATION, "%s", str.data());
       break;
     default:
@@ -80,14 +44,14 @@ void ImpLogImpl(LogLevel level, LogChannel channel, fmt::string_view format,
                 fmt::format_args args, size_t tailSize) {
   constexpr size_t maxChannelSize = 16;
   constexpr size_t maxTimestampSize = 21;
-  assert(level > 0 && channel > 0);
+  assert(level > LogLevel::Off && channel > LogChannel::None);
   bool any = false;
-  if (LoggingToConsole && level <= g_LogLevelConsole &&
-      (g_LogChannelsConsole & channel)) {
+  if (LoggingToConsole && (level <= g_LogLevelConsole) &&
+      (g_LogChannelsConsole & channel) != LogChannel::None) {
     any = true;
   }
-  if (LoggingToFile && level <= g_LogLevelFile &&
-      (g_LogChannelsFile & channel)) {
+  if (LoggingToFile && (level <= g_LogLevelFile) &&
+      (g_LogChannelsFile & channel) != LogChannel::None) {
     any = true;
   }
   if (!any) return;
@@ -127,14 +91,14 @@ void GLAPIENTRY LogGLMessageCallback(GLenum source, GLenum type, GLuint id,
   LogLevel level;
   switch (severity) {
     case GL_DEBUG_SEVERITY_HIGH_ARB:
-      level = LL_Error;
+      level = LogLevel::Error;
       break;
     case GL_DEBUG_SEVERITY_MEDIUM_ARB:
-      level = LL_Warning;
+      level = LogLevel::Warning;
       break;
     case GL_DEBUG_SEVERITY_LOW_ARB:
     default:
-      level = LL_Info;
+      level = LogLevel::Info;
       break;
   }
 
@@ -198,8 +162,9 @@ void GLAPIENTRY LogGLMessageCallback(GLenum source, GLenum type, GLuint id,
       break;
   }
 
-  ImpLog(level, LC_GL, "type={:s}, source={:s}, id={:d}, message: {:s}\n",
-         typeStr, sourceStr, id, message);
+  ImpLog(level, LogChannel::GL,
+         "type={:s}, source={:s}, id={:d}, message: {:s}\n", typeStr, sourceStr,
+         id, message);
 }
 #endif
 

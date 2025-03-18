@@ -32,7 +32,7 @@ void InitRenderer() {
       break;
 #endif
     default:
-      ImpLog(LL_Error, LC_Render,
+      ImpLog(LogLevel::Error, LogChannel::Render,
              "Unknown or unsupported renderer selected!\n");
       exit(1);
   }

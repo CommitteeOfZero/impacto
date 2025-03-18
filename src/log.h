@@ -1,46 +1,132 @@
 #pragma once
 
 #include "impacto.h"
+#include "util.h"
 
 #ifndef IMPACTO_DISABLE_OPENGL
 #include <glad/glad.h>
 #endif
 
 namespace Impacto {
-
-enum LogLevel {
-  LL_Off = 0,
-  LL_Fatal = 1,
-  LL_Error = 2,
-  LL_Warning = 3,
-  LL_Info = 4,
-  LL_Debug = 5,
-  LL_Trace = 6,
-  LL_Max
+enum class LogLevel {
+  Off = 0,
+  Fatal = 1,
+  Error = 2,
+  Warning = 3,
+  Info = 4,
+  Debug = 5,
+  Trace = 6,
+  Max
 };
 
-enum LogChannel : uint32_t {
-  LC_General = (1 << 0),
-  LC_IO = (1 << 1),
-  LC_Render = (1 << 2),
-  LC_ModelLoad = (1 << 3),
-  LC_GL = (1 << 4),
-  LC_Renderable3D = (1 << 5),
-  LC_TextureLoad = (1 << 6),
-  LC_Scene = (1 << 7),
-  LC_VM = (1 << 8),
-  LC_Expr = (1 << 9),
-  LC_VMStub = (1 << 10),
-  LC_Audio = (1 << 11),
-  LC_Profile = (1 << 12),
-  LC_Video = (1 << 13),
-  LC_All = 0xFFFFFFFF
+enum class LogChannel : uint32_t {
+  None = 0,
+  General = (1 << 0),
+  IO = (1 << 1),
+  Render = (1 << 2),
+  ModelLoad = (1 << 3),
+  GL = (1 << 4),
+  Renderable3D = (1 << 5),
+  TextureLoad = (1 << 6),
+  Scene = (1 << 7),
+  VM = (1 << 8),
+  Expr = (1 << 9),
+  VMStub = (1 << 10),
+  Audio = (1 << 11),
+  Profile = (1 << 12),
+  Video = (1 << 13),
+  All = 0xFFFFFFFF
 };
 
-inline LogLevel g_LogLevelFile = LL_Off;
-inline LogLevel g_LogLevelConsole = LL_Off;
-inline uint32_t g_LogChannelsFile = 0;
-inline uint32_t g_LogChannelsConsole = 0;
+constexpr LogChannel operator~(LogChannel channel) {
+  return static_cast<LogChannel>(~to_underlying(channel));
+}
+constexpr LogChannel operator|(LogChannel channel, LogChannel other) {
+  return static_cast<LogChannel>(to_underlying(channel) | to_underlying(other));
+}
+constexpr LogChannel operator&(LogChannel channel, LogChannel other) {
+  return static_cast<LogChannel>(to_underlying(channel) & to_underlying(other));
+}
+constexpr LogChannel operator^(LogChannel channel, LogChannel other) {
+  return static_cast<LogChannel>(to_underlying(channel) ^ to_underlying(other));
+}
+constexpr LogChannel& operator|=(LogChannel& channel, LogChannel other) {
+  channel = channel | other;
+  return channel;
+}
+constexpr LogChannel& operator&=(LogChannel& channel, LogChannel other) {
+  channel = channel & other;
+  return channel;
+}
+constexpr LogChannel& operator^=(LogChannel& channel, LogChannel other) {
+  channel = channel ^ other;
+  return channel;
+}
+
+constexpr auto ChannelToString(LogChannel channel) {
+  using enum LogChannel;
+  switch (channel) {
+    case General:
+      return "General";
+    case IO:
+      return "IO";
+    case Render:
+      return "Render";
+    case ModelLoad:
+      return "ModelLoad";
+    case GL:
+      return "GL";
+    case Renderable3D:
+      return "Renderable3D";
+    case TextureLoad:
+      return "TextureLoad";
+    case Scene:
+      return "Scene";
+    case VM:
+      return "VM";
+    case VMStub:
+      return "VMStub";
+    case Expr:
+      return "Expr";
+    case Audio:
+      return "Audio";
+    case Profile:
+      return "Profile";
+    case Video:
+      return "Video";
+    default:
+      assert(false);
+      return "";
+  }
+}
+
+constexpr auto LevelToString(LogLevel level) {
+  using enum LogLevel;
+  switch (level) {
+    case Off:
+      return "Off";
+    case Fatal:
+      return "Fatal";
+    case Error:
+      return "Error";
+    case Warning:
+      return "Warning";
+    case Info:
+      return "Info";
+    case Debug:
+      return "Debug";
+    case Trace:
+      return "Trace";
+    default:
+      assert(false);
+      return "";
+  }
+}
+
+inline LogLevel g_LogLevelFile = LogLevel::Off;
+inline LogLevel g_LogLevelConsole = LogLevel::Off;
+inline LogChannel g_LogChannelsFile = LogChannel::None;
+inline LogChannel g_LogChannelsConsole = LogChannel::None;
 
 void LogSetFile(char* path);
 void LogSetConsole(bool enabled);

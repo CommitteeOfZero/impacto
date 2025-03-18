@@ -59,7 +59,8 @@ void Pipeline::CreateWithShader(
     char const* name, VkVertexInputBindingDescription bindingDescription,
     VkVertexInputAttributeDescription* attributeDescriptions,
     size_t attributeNum, VkDescriptorSetLayout setLayout) {
-  ImpLog(LL_Debug, LC_Render, "Creating pipeline with shader \"{:s}\"\n", name);
+  ImpLog(LogLevel::Debug, LogChannel::Render,
+         "Creating pipeline with shader \"{:s}\"\n", name);
 
   size_t vertShaderCodeSize;
   std::string vertexShaderPath = fmt::format(FMT_COMPILE("{}/{}{}"), ShaderPath,
@@ -67,7 +68,8 @@ void Pipeline::CreateWithShader(
   char* vertShaderCode =
       (char*)SDL_LoadFile(vertexShaderPath.c_str(), &vertShaderCodeSize);
   if (!vertShaderCode) {
-    ImpLog(LL_Debug, LC_Render, "Failed to read shader source file\n");
+    ImpLog(LogLevel::Debug, LogChannel::Render,
+           "Failed to read shader source file\n");
     Window->Shutdown();
   }
 
@@ -77,7 +79,8 @@ void Pipeline::CreateWithShader(
   char* fragShaderCode =
       (char*)SDL_LoadFile(fragShaderPath.c_str(), &fragShaderCodeSize);
   if (!fragShaderCode) {
-    ImpLog(LL_Debug, LC_Render, "Failed to read shader source file\n");
+    ImpLog(LogLevel::Debug, LogChannel::Render,
+           "Failed to read shader source file\n");
     Window->Shutdown();
   }
 
@@ -173,7 +176,8 @@ void Pipeline::CreateWithShader(
 
   if (vkCreatePipelineLayout(Device, &pipelineLayoutInfo, nullptr,
                              &PipelineLayout) != VK_SUCCESS) {
-    ImpLog(LL_Error, LC_Render, "Failed to create pipeline layout!");
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Failed to create pipeline layout!");
     Window->Shutdown();
   }
 
@@ -196,7 +200,8 @@ void Pipeline::CreateWithShader(
 
   if (vkCreateGraphicsPipelines(Device, VK_NULL_HANDLE, 1, &pipelineInfo,
                                 nullptr, &GraphicsPipeline) != VK_SUCCESS) {
-    ImpLog(LL_Error, LC_Render, "Failed to create graphics pipeline!");
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Failed to create graphics pipeline!");
     Window->Shutdown();
   }
 
@@ -213,7 +218,8 @@ VkShaderModule Pipeline::CreateShaderModule(char const* code, size_t codeSize) {
   VkShaderModule shaderModule;
   if (vkCreateShaderModule(Device, &createInfo, nullptr, &shaderModule) !=
       VK_SUCCESS) {
-    ImpLog(LL_Error, LC_Render, "Failed to create shader module!");
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Failed to create shader module!");
     Window->Shutdown();
   }
 

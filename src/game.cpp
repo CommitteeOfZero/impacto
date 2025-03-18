@@ -531,7 +531,7 @@ void Render() {
           break;
         }
         default: {
-          ImpLogSlow(LL_Warning, LC_General,
+          ImpLogSlow(LogLevel::Warning, LogChannel::General,
                      "Encountered unknown draw component type 0x{:02x}\n",
                      DrawComponents[i]);
           break;

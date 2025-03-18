@@ -211,8 +211,8 @@ int ExpressionNode::Evaluate(Sc3VmThread* thd) {
         uint8_t* dataArray = (uint8_t*)&scrBuf[leftVal];
         return UnalignedRead<int>(&dataArray[rightVal * sizeof(int)]);
       } else {
-        ImpLogSlow(LL_Warning, LC_Expr, "STUB token 0x{:02x} evaluate\n",
-                   to_underlying(ExprType));
+        ImpLogSlow(LogLevel::Warning, LogChannel::Expr,
+                   "STUB token 0x{:02x} evaluate\n", to_underlying(ExprType));
         // TODO: Handle this
         return 0;
       }
@@ -229,15 +229,15 @@ int ExpressionNode::Evaluate(Sc3VmThread* thd) {
     case ET_FuncUnk30:
     case ET_FuncNop31:
     case ET_FuncNop32:
-      ImpLogSlow(LL_Warning, LC_Expr, "STUB token 0x{:02x} evaluate\n",
-                 to_underlying(ExprType));
+      ImpLogSlow(LogLevel::Warning, LogChannel::Expr,
+                 "STUB token 0x{:02x} evaluate\n", to_underlying(ExprType));
       return 0;
     case ET_FuncRandom:
       // TODO use our own RNG with our own seed
       return RightExpr->Evaluate(thd) * (rand() & 0x7FFF) >> 15;
     default:
-      ImpLogSlow(LL_Warning, LC_Expr, "STUB token 0x{:02x} evaluate\n",
-                 to_underlying(ExprType));
+      ImpLogSlow(LogLevel::Warning, LogChannel::Expr,
+                 "STUB token 0x{:02x} evaluate\n", to_underlying(ExprType));
       return 0;
   }
 }
@@ -289,7 +289,7 @@ void ExpressionNode::AssignValue(Sc3VmThread* thd) {
       leftVal--;
       break;
     default:
-      ImpLogSlow(LL_Error, LC_Expr,
+      ImpLogSlow(LogLevel::Error, LogChannel::Expr,
                  "Tried to assign with unknown token 0x{:02x}\n",
                  to_underlying(ExprType));
       break;
@@ -310,11 +310,13 @@ void ExpressionNode::AssignValue(Sc3VmThread* thd) {
       break;
     }
     case ET_FuncDMA:
-      ImpLogSlow(LL_Warning, LC_Expr, "STUB token 0x{:02x} assign\n",
+      ImpLogSlow(LogLevel::Warning, LogChannel::Expr,
+                 "STUB token 0x{:02x} assign\n",
                  to_underlying(LeftExpr->ExprType));
       break;
     default:
-      ImpLogSlow(LL_Warning, LC_Expr, "STUB token 0x{:02x} assign\n",
+      ImpLogSlow(LogLevel::Warning, LogChannel::Expr,
+                 "STUB token 0x{:02x} assign\n",
                  to_underlying(LeftExpr->ExprType));
       break;
   }

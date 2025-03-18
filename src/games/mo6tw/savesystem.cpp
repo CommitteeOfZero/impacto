@@ -250,8 +250,8 @@ void SaveSystem::WriteSaveFile() {
   IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &instream);
   auto err1 = SDL_GetError();
   if (err != IoError_OK) {
-    ImpLog(LL_Error, LC_IO, "Failed to create save file, SDL error: {:s}\n",
-           err1);
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Failed to create save file, SDL error: {:s}\n", err1);
     return;
   }
   stream = (Io::PhysicalFileStream*)instream;
@@ -277,7 +277,7 @@ void SaveSystem::WriteSaveFile() {
           stream->Write(&QuickSaveEntries[i]->Status, sizeof(uint8_t), 1);
       auto err1 = SDL_GetError();
       if (err != IoError_OK) {
-        ImpLog(LL_Error, LC_IO,
+        ImpLog(LogLevel::Error, LogChannel::IO,
                "Failed to write save entry to file, SDL error: {:s}\n", err1);
         return;
       }
@@ -562,7 +562,7 @@ uint32_t SaveSystem::GetSavePlayTime(SaveType type, int id) {
     case SaveQuick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->PlayTime;
     default:
-      ImpLog(LL_Error, LC_IO,
+      ImpLog(LogLevel::Error, LogChannel::IO,
              "Failed to read play time: Unknown save type, returning 0\n");
       return 0;
   }
@@ -575,7 +575,7 @@ uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) {
     case SaveQuick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->Flags;
     default:
-      ImpLog(LL_Error, LC_IO,
+      ImpLog(LogLevel::Error, LogChannel::IO,
              "Failed to read save flags: Unknown save type, returning 0\n");
       return 0;
   }
@@ -598,7 +598,7 @@ tm const& SaveSystem::GetSaveDate(SaveType type, int id) {
     case SaveQuick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->SaveDate;
     default:
-      ImpLog(LL_Error, LC_IO,
+      ImpLog(LogLevel::Error, LogChannel::IO,
              "Failed to read save date: Unknown save type, returning empty "
              "time\n");
       return t;
@@ -616,7 +616,7 @@ uint8_t SaveSystem::GetSaveStatus(SaveType type, int id) {
                  ? ((SaveFileEntry*)FullSaveEntries[id])->Status
                  : 0;
     default:
-      ImpLog(LL_Error, LC_IO,
+      ImpLog(LogLevel::Error, LogChannel::IO,
              "Failed to read save status: Unknown save type, returning 0\n");
       return 0;
   }
@@ -629,7 +629,7 @@ int SaveSystem::GetSaveTitle(SaveType type, int id) {
     case SaveFull:
       return ((SaveFileEntry*)FullSaveEntries[id])->SwTitle;
     default:
-      ImpLog(LL_Error, LC_IO,
+      ImpLog(LogLevel::Error, LogChannel::IO,
              "Failed to read save title: Unknown save type, returning 0\n");
       return 0;
   }

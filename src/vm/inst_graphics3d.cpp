@@ -63,14 +63,14 @@ VmInstruction(InstCHAload3D) {
 VmInstruction(InstCHArelease3D) {
   StartInstruction;
   PopExpression(bufferId);
-  ImpLogSlow(LL_Warning, LC_VMStub,
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
              "STUB instruction CHArelease3D(bufferId: {:d})\n", bufferId);
 }
 VmInstruction(InstUnk0204) {  // Not implemented
   StartInstruction;
   PopExpression(arg1);
   PopExpression(arg2);
-  ImpLogSlow(LL_Warning, LC_VMStub,
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
              "STUB instruction Unk0204(arg1: {:d}, arg2: {:d})\n", arg1, arg2);
 }
 VmInstruction(InstCHAswap3DMaybe) {
@@ -78,7 +78,7 @@ VmInstruction(InstCHAswap3DMaybe) {
   PopExpression(dstBufferId);
   PopExpression(srcBufferId);
   ImpLogSlow(
-      LL_Warning, LC_VMStub,
+      LogLevel::Warning, LogChannel::VMStub,
       "STUB instruction CHAswap3DMaybe(dstBufferId: {:d}, srcBufferId: {:d})\n",
       dstBufferId, srcBufferId);
 }
@@ -116,7 +116,7 @@ VmInstruction(InstCHAUnk02073D) {
   StartInstruction;
   PopExpression(bufferId);
   PopUint8(unk01);
-  ImpLogSlow(LL_Warning, LC_VMStub,
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
              "STUB instruction CHAUnk02073D(bufferId: {:d}, unk01: {:d})\n",
              bufferId, unk01);
 }
@@ -130,7 +130,7 @@ VmInstruction(InstCHAUnk02073D_Dash) {
     PopLocalLabel(arg5);
     (void)arg5;
     ImpLogSlow(
-        LL_Warning, LC_VMStub,
+        LogLevel::Warning, LogChannel::VMStub,
         "STUB instruction CHAUnk02073D_Dash(arg1: {:d}, arg2: {:d}, arg3: "
         "{:d}, arg4: {:d}, arg5: {:p})\n",
         arg1, arg2, arg3, arg4, (void*)arg5);
@@ -151,7 +151,7 @@ VmInstruction(InstCHAUnk02073D_Dash) {
         Renderer->Scene->Renderables[arg2]->SwitchAnimation(testNum, 0);
       }
     }
-    ImpLogSlow(LL_Warning, LC_VMStub,
+    ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                "STUB instruction CHAUnk02073D_Dash(arg1: {:d}, arg2: {:d})\n",
                arg1, arg2);
   }
@@ -298,7 +298,7 @@ VmInstruction(InstCHAsetAnim3D) {
   PopExpression(bufferId);
   PopExpression(animationId);
   ImpLogSlow(
-      LL_Warning, LC_VMStub,
+      LogLevel::Warning, LogChannel::VMStub,
       "STUB instruction CHAsetAnim3D(bufferId: {:d}, animationId: {:d})\n",
       bufferId, animationId);
 }
@@ -314,7 +314,7 @@ VmInstruction(InstUnk0210) {
     arg3 = 0;
     arg4 = 0;
   }
-  ImpLogSlow(LL_Warning, LC_VMStub,
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
              "STUB instruction Unk0210(arg1: {:d}, arg2: {:d}, arg3: "
              "{:d}, arg4: {:d})\n",
              arg1, arg2, arg3, arg4);
@@ -374,7 +374,7 @@ VmInstruction(InstUnk0211) {
   PopExpression(arg3);
   PopExpression(arg4);
   PopExpression(arg5);
-  ImpLogSlow(LL_Warning, LC_VMStub,
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
              "STUB instruction Unk0211(arg1: {:d}, arg2: {:d}, arg3: "
              "{:d}, arg4: {:d}, arg5: {:d})\n",
              arg1, arg2, arg3, arg4, arg5);
@@ -382,8 +382,8 @@ VmInstruction(InstUnk0211) {
 VmInstruction(InstUnk0212) {
   StartInstruction;
   PopExpression(arg1);
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk0212(arg1: {:d})\n",
-             arg1);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction Unk0212(arg1: {:d})\n", arg1);
 }
 VmInstruction(InstUnk0213) {  // Set Camera position ???
   StartInstruction;
@@ -425,7 +425,7 @@ VmInstruction(InstUnk0214) {
   PopUint8(arg1);
   PopExpression(arg2);
   PopExpression(arg3);
-  ImpLogSlow(LL_Warning, LC_VMStub,
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
              "STUB instruction Unk0214(arg1: {:d}, arg2: {:d}, arg3: {:d})\n",
              arg1, arg2, arg3);
 }
@@ -449,7 +449,7 @@ VmInstruction(InstUnk0215) {
   PopExpression(arg16);
   PopExpression(arg17);
   ImpLogSlow(
-      LL_Warning, LC_VMStub,
+      LogLevel::Warning, LogChannel::VMStub,
       "STUB instruction Unk0215(arg1: {:d}, arg2: {:d}, arg3: "
       "{:d}, arg4: {:d}, arg5: {:d}, arg6: {:d}, arg7: {:d}, arg8: {:d}, "
       "arg9: {:d}, arg10: {:d}, arg11: {:d}, arg12: {:d}, arg13: {:d}, arg14: "
@@ -536,8 +536,8 @@ VmInstruction(InstMoveCamera) {
 VmInstruction(InstUnk0217) {
   StartInstruction;
   PopUint8(arg1);
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk0217(arg1: {:d})\n",
-             arg1);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction Unk0217(arg1: {:d})\n", arg1);
 }
 VmInstruction(InstUnk0218) {
   StartInstruction;
@@ -568,7 +568,7 @@ VmInstruction(InstUnk0218) {
       PopExpression(arg7);
       PopExpression(arg8);
       ImpLogSlow(
-          LL_Warning, LC_VMStub,
+          LogLevel::Warning, LogChannel::VMStub,
           "STUB instruction Unk0218(type: {:d}, arg1: {:d}, arg2: {:d}, arg3: "
           "{:d}, arg4: {:d}, arg5: {:d}, arg6: {:d}, arg7: {:d}, arg8: {:d})\n",
           type, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
@@ -583,7 +583,7 @@ VmInstruction(InstUnk0218) {
       PopExpression(arg7);
       PopExpression(arg8);
       ImpLogSlow(
-          LL_Warning, LC_VMStub,
+          LogLevel::Warning, LogChannel::VMStub,
           "STUB instruction Unk0218(type: {:d}, arg1: {:d}, arg2: {:d}, arg3: "
           "{:d}, arg4: {:d}, arg5: {:d}, arg6: {:d}, arg7: {:d}, arg8: {:d})\n",
           type, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
@@ -597,7 +597,7 @@ VmInstruction(InstUnk0218) {
       PopExpression(arg6);
       PopExpression(arg7);
       ImpLogSlow(
-          LL_Warning, LC_VMStub,
+          LogLevel::Warning, LogChannel::VMStub,
           "STUB instruction Unk0218(type: {:d}, arg1: {:d}, arg2: {:d}, arg3: "
           "{:d}, arg4: {:d}, arg5: {:d}, arg6: {:d}, arg7: {:d})\n",
           type, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
@@ -606,7 +606,7 @@ VmInstruction(InstUnk0218) {
       PopExpression(arg1);
       PopExpression(arg2);
       ImpLogSlow(
-          LL_Warning, LC_VMStub,
+          LogLevel::Warning, LogChannel::VMStub,
           "STUB instruction Unk0218(type: {:d}, arg1: {:d}, arg2: {:d})\n",
           type, arg1, arg2);
     } break;
@@ -615,7 +615,7 @@ VmInstruction(InstUnk0218) {
 VmInstruction(InstUnk0219) {  // Not implemented
   StartInstruction;
   PopExpression(bufferId);
-  ImpLogSlow(LL_Warning, LC_VMStub,
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
              "STUB instruction Unk0219(bufferId: {:d})\n", bufferId);
 }
 VmInstruction(InstUnk0220_Dash) {
@@ -656,7 +656,7 @@ VmInstruction(InstUnk0220_Dash) {
       PopExpression(arg1);
       PopUint8(arg2);
       ImpLogSlow(
-          LL_Warning, LC_VMStub,
+          LogLevel::Warning, LogChannel::VMStub,
           "STUB instruction Unk0220(type: {:d}, arg1: {:d}, arg2: {:d})\n",
           type, arg1, arg2);
       if (ScrWorkAnimations[arg1].MainAnimation.IsIn() ||
@@ -672,7 +672,7 @@ VmInstruction(InstUnk0220_Dash) {
       if (!arg1) {
         PopExpression(arg2);
       }
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction Unk0220(type: {:d}, arg1: {:d})\n", type,
                  arg1);
     } break;
@@ -699,8 +699,8 @@ VmInstruction(InstUnk0240) {  // Debug opcode
     case 6:
       break;
   }
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk0240(type: {:d})\n",
-             type);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction Unk0240(type: {:d})\n", type);
 }
 
 }  // namespace Vm

@@ -37,7 +37,8 @@ void LuaDumpStack() {
         break;
     }
   }
-  ImpLog(LL_Debug, LC_Profile, "Current stack: \n{}", callStack);
+  ImpLog(LogLevel::Debug, LogChannel::Profile, "Current stack: \n{}",
+         callStack);
 }
 
 void Pop() { lua_pop(LuaState, 1); }
@@ -53,8 +54,9 @@ bool TryPushMember(char const* name) {
 void EnsurePushMember(char const* name) {
   bool success = TryPushMember(name);
   if (!success) {
-    ImpLog(LL_Fatal, LC_Profile, "Expected {:s} to have member {:s}\n",
-           lua_tostring(LuaState, -1), name);
+    ImpLog(LogLevel::Fatal, LogChannel::Profile,
+           "Expected {:s} to have member {:s}\n", lua_tostring(LuaState, -1),
+           name);
     exit(1);
   }
 }

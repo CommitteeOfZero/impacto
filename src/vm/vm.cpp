@@ -60,7 +60,7 @@ static void DrawAllThreads();
 static void DestroyThreadGroup(uint32_t groupId);
 
 void Init() {
-  ImpLog(LL_Info, LC_VM,
+  ImpLog(LogLevel::Info, LogChannel::VM,
          "Initializing SC3 virtual machine\n**** Start apprication ****\n");
 
   Profile::Vm::Configure();
@@ -131,7 +131,7 @@ void Init() {
       break;
     }
     default: {
-      ImpLog(LL_Fatal, LC_VM, "Unsupported instruction set\n");
+      ImpLog(LogLevel::Fatal, LogChannel::VM, "Unsupported instruction set\n");
       Window->Shutdown();
       break;
     }
@@ -179,13 +179,15 @@ void Init() {
 bool LoadScript(uint32_t bufferId, uint32_t scriptId) {
   Io::FileMeta meta;
   Io::VfsGetMeta("script", scriptId, &meta);
-  ImpLogSlow(LL_Debug, LC_VM, "Loading script \"{:s}\"\n", meta.FileName);
+  ImpLogSlow(LogLevel::Debug, LogChannel::VM, "Loading script \"{:s}\"\n",
+             meta.FileName);
 
   void* file;
   int64_t fileSize;
   IoError err = Io::VfsSlurp("script", scriptId, file, fileSize);
   if (err != IoError_OK) {
-    ImpLog(LL_Error, LC_VM, "Could not read script file for {:d}\n", scriptId);
+    ImpLog(LogLevel::Error, LogChannel::VM,
+           "Could not read script file for {:d}\n", scriptId);
     return false;
   }
   ScriptBuffers[bufferId] = (uint8_t*)file;
@@ -199,13 +201,15 @@ bool LoadMsb(uint32_t bufferId, uint32_t fileId) {
   std::string mountPoint =
       Profile::Vm::UseSeparateMsbArchive ? "mes" : "script";
   Io::VfsGetMeta(mountPoint, fileId, &meta);
-  ImpLogSlow(LL_Debug, LC_VM, "Loading msb file \"{:s}\"\n", meta.FileName);
+  ImpLogSlow(LogLevel::Debug, LogChannel::VM, "Loading msb file \"{:s}\"\n",
+             meta.FileName);
 
   void* file;
   int64_t fileSize;
   IoError err = Io::VfsSlurp(mountPoint, fileId, file, fileSize);
   if (err != IoError_OK) {
-    ImpLog(LL_Error, LC_VM, "Could not read msb file for {:d}\n", fileId);
+    ImpLog(LogLevel::Error, LogChannel::VM,
+           "Could not read msb file for {:d}\n", fileId);
     return false;
   }
   MsbBuffers[bufferId] = (uint8_t*)file;
@@ -440,7 +444,8 @@ void RunThread(Sc3VmThread* thread) {
   uint32_t opcodeGrp1;
   int calDummy;
 
-  ImpLog(LL_Trace, LC_VM, "Running thread ID = {:d}\n", thread->Id);
+  ImpLog(LogLevel::Trace, LogChannel::VM, "Running thread ID = {:d}\n",
+         thread->Id);
 
 #ifndef IMPACTO_DISABLE_IMGUI
   if (DebugThreadId == thread->Id) {
@@ -480,7 +485,7 @@ void RunThread(Sc3VmThread* thread) {
       opcode = *(scrVal + 1);
       opcodeGrp1 = opcodeGrp & 0x7F;
 
-      ImpLog(LL_Trace, LC_VM,
+      ImpLog(LogLevel::Trace, LogChannel::VM,
              "Address: {:#0x} Opcode: {:02x}:{:02x} ScriptBuffer: {:d}\n",
              scriptIp, opcodeGrp1, opcode, thread->ScriptBufferId);
 
@@ -493,7 +498,7 @@ void RunThread(Sc3VmThread* thread) {
       } else if (!opcodeGrp1) {
         OpcodeTableSystem[opcode](thread);
       } else {
-        ImpLog(LL_Error, LC_VM,
+        ImpLog(LogLevel::Error, LogChannel::VM,
                "Thread CRASH! Unknown opcode. Attempting recovery. Address: "
                "{:#0x} Opcode: {:02x}:{:02x} ScriptBuffer: {:d}\n",
                scriptIp, opcodeGrp1, opcode, thread->ScriptBufferId);
@@ -504,7 +509,7 @@ void RunThread(Sc3VmThread* thread) {
           thread->Ip = thread->ReturnAddresses[thread->CallStackDepth];
           thread->ScriptBufferId = retBufferId;
         } else {
-          ImpLog(LL_Error, LC_VM,
+          ImpLog(LogLevel::Error, LogChannel::VM,
                  "Call stack empty, attempting instruction skip (will most "
                  "likely result in a hang).\n");
           while (*(thread->Ip) != 0xFE) {

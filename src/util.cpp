@@ -81,7 +81,7 @@ int ResizeImage(Rect const& srcRect, Rect const& dstRect,
                         SDL_FreeSurface);
   SDL_SetSurfaceBlendMode(srcSurface.get(), SDL_BLENDMODE_NONE);
   if (!srcSurface) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "SDL_CreateRGBSurfaceWithFormatFrom failed: {:s}\n", SDL_GetError());
     return -1;
   }
@@ -91,8 +91,8 @@ int ResizeImage(Rect const& srcRect, Rect const& dstRect,
                             dstRect.Width * 4, SDL_PIXELFORMAT_RGBA32),
                         SDL_FreeSurface);
   if (!dstSurface) {
-    ImpLog(LL_Error, LC_Render, "SDL_CreateRGBSurfaceWithFormat failed: {:s}\n",
-           SDL_GetError());
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "SDL_CreateRGBSurfaceWithFormat failed: {:s}\n", SDL_GetError());
     return -1;
   }
   SDL_SetSurfaceBlendMode(dstSurface.get(), SDL_BLENDMODE_NONE);
@@ -101,7 +101,7 @@ int ResizeImage(Rect const& srcRect, Rect const& dstRect,
   SDL_Rect dstRectSDL = {dstRect.X, dstRect.Y, dstRect.Width, dstRect.Height};
   if (SDL_BlitScaled(srcSurface.get(), &srcRectSDL, dstSurface.get(),
                      &dstRectSDL) != 0) {
-    ImpLog(LL_Error, LC_Render, "SDL_BlitScaled failed: {:s}\n",
+    ImpLog(LogLevel::Error, LogChannel::Render, "SDL_BlitScaled failed: {:s}\n",
            SDL_GetError());
     return -1;
   }

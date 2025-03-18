@@ -96,12 +96,12 @@ struct SubtextureHeader {
   uint16_t MipmapCount;
 };
 
-#define TexfmtCheck(condition)                                                \
-  if (!((condition))) {                                                       \
-    ImpLog(LL_Error, LC_TextureLoad, "Unsupported texture format 0x{:08x}\n", \
-           stx->Format);                                                      \
-    return false;                                                             \
-  }                                                                           \
+#define TexfmtCheck(condition)                                    \
+  if (!((condition))) {                                           \
+    ImpLog(LogLevel::Error, LogChannel::TextureLoad,              \
+           "Unsupported texture format 0x{:08x}\n", stx->Format); \
+    return false;                                                 \
+  }                                                               \
   (void)0
 
 // Vita unswizzle
@@ -166,8 +166,8 @@ bool GXTLoadSubtexture(Stream* stream, Texture* outTexture,
   uint32_t channelOrder = (stx->Format & 0x0000FFFFU);
 
   if (stx->PixelOrder != Gxm::Swizzled && stx->PixelOrder != Gxm::Linear) {
-    ImpLog(LL_Error, LC_TextureLoad, "Unsupported pixel order 0x{:08x}\n",
-           stx->PixelOrder);
+    ImpLog(LogLevel::Error, LogChannel::TextureLoad,
+           "Unsupported pixel order 0x{:08x}\n", stx->PixelOrder);
     return false;
   }
 
@@ -359,7 +359,7 @@ bool TextureLoadGXT(Stream* stream, Texture* outTexture) {
     return false;
   }
 
-  ImpLogSlow(LL_Debug, LC_TextureLoad, "Loading GXT texture\n");
+  ImpLogSlow(LogLevel::Debug, LogChannel::TextureLoad, "Loading GXT texture\n");
 
   uint32_t version = ReadLE<uint32_t>(stream);
   (void)version;
@@ -374,7 +374,7 @@ bool TextureLoadGXT(Stream* stream, Texture* outTexture) {
   // padding
   stream->Seek(4, RW_SEEK_CUR);
 
-  ImpLogSlow(LL_Debug, LC_TextureLoad,
+  ImpLogSlow(LogLevel::Debug, LogChannel::TextureLoad,
              "GXT version=0x{:08x}, subtextureCount=0x{:08x}, "
              "subtexturesOffset=0x{:08x}, totalTexSize=0x{:08x}, "
              "p4Count=0x{:08x}, p8Count=0x{:08x}\n",
@@ -399,7 +399,7 @@ bool TextureLoadGXT(Stream* stream, Texture* outTexture) {
   stream->Seek(stx.Size, RW_SEEK_CUR);
 
   ImpLogSlow(
-      LL_Debug, LC_TextureLoad,
+      LogLevel::Debug, LogChannel::TextureLoad,
       "Subtexture Offset=0x{:08x}, Size=0x{:08x}, PaletteIdx=0x{:08x}, "
       "Flags=0x{:08x}, PixelOrder=0x{:08x}, Format=0x{:08x}, Width=0x{:08x}, "
       "Height=0x{:08x}, MipmapCount=0x{:08x}\n",

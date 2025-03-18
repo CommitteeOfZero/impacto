@@ -39,13 +39,13 @@ int main(int argc, char* argv[]) {
 #endif
 
   LogSetConsole(true);
-  g_LogLevelConsole = LL_Trace;
-  g_LogChannelsConsole = LC_All;
+  g_LogLevelConsole = LogLevel::Trace;
+  g_LogChannelsConsole = LogChannel::All;
 
   Io::Stream* stream;
   IoError err = Io::PhysicalFileStream::Create("profile.txt", &stream);
   if (err != IoError_OK) {
-    ImpLog(LL_Fatal, LC_General, "Couldn't open profile.txt\n");
+    ImpLog(LogLevel::Fatal, LogChannel::General, "Couldn't open profile.txt\n");
     exit(1);
   }
 
@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
     GameLoop();
   }
 
-  ImpLog(LL_Info, LC_General, "Bye!\n");
+  ImpLog(LogLevel::Info, LogChannel::General, "Bye!\n");
 
   Game::Shutdown();
 #endif

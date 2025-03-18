@@ -30,7 +30,7 @@ void Configure() {
         Implementation = new Impacto::CCLCC::TipsSystem(MaxTipsCount);
         break;
       case TipsSystemType::None:
-        ImpLog(LL_Warning, LC_Profile,
+        ImpLog(LogLevel::Warning, LogChannel::Profile,
                "Tips system type is None, not setting system implementation\n");
     }
   }

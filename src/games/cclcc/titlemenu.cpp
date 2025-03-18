@@ -353,7 +353,7 @@ void TitleMenu::Update(float dt) {
         SubMenuUpdate();
       } break;
       case 10: {
-        ImpLogSlow(LL_Warning, LC_VMStub,
+        ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                    "TitleMenu::Update: Unimplemented title mode {:d}\n",
                    ScrWork[SW_TITLEMODE]);
       } break;
@@ -557,7 +557,7 @@ void TitleMenu::Render() {
         ExtraItems->Render();
       } break;
       case 10: {
-        ImpLogSlow(LL_Warning, LC_VMStub,
+        ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                    "TitleMenu::Render: Unimplemented title mode {:d}\n",
                    ScrWork[SW_TITLEMODE]);
       } break;

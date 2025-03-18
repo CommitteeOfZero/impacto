@@ -56,8 +56,8 @@ DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
               VkDebugUtilsMessageTypeFlagsEXT messageType,
               const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
               void* pUserData) {
-  Impacto::ImpLog(LL_Debug, LC_Render, "validation layer: {:s}\n",
-                  pCallbackData->pMessage);
+  Impacto::ImpLog(LogLevel::Debug, LogChannel::Render,
+                  "validation layer: {:s}\n", pCallbackData->pMessage);
   return VK_FALSE;
 }
 
@@ -115,7 +115,8 @@ void Renderer::CreateInstance() {
   VkResult result = vkCreateInstance(&instanceCreateInfo, nullptr, &Instance);
 
   if (result != VK_SUCCESS) {
-    ImpLog(LL_Error, LC_Render, "Failed to create Vulkan instance! 0x{:04x}\n",
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Failed to create Vulkan instance! 0x{:04x}\n",
            to_underlying(result));
     Window->Shutdown();
   }
@@ -136,7 +137,8 @@ void Renderer::SetupDebug() {
   createInfo.pUserData = nullptr;
   if (CreateDebugUtilsMessengerEXT(Instance, &createInfo, nullptr,
                                    &DebugMessenger) != VK_SUCCESS) {
-    ImpLog(LL_Error, LC_Render, "Failed to create Vulkan debug!");
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Failed to create Vulkan debug!");
     Window->Shutdown();
   }
 }
@@ -146,7 +148,8 @@ void Renderer::PickPhysicalDevice() {
   vkEnumeratePhysicalDevices(Instance, &deviceCount, nullptr);
 
   if (deviceCount == 0) {
-    ImpLog(LL_Error, LC_Render, "No suitable video adapter found!");
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "No suitable video adapter found!");
     Window->Shutdown();
   }
 
@@ -190,7 +193,7 @@ void Renderer::CreateLogicalDevice() {
   FindQueues();
 
   if (QueueIndices.GraphicsQueueIdx == 0xFFFFFFFF) {
-    ImpLog(LL_Error, LC_Render, "No graphics queue found!");
+    ImpLog(LogLevel::Error, LogChannel::Render, "No graphics queue found!");
     Window->Shutdown();
   }
 
@@ -225,7 +228,8 @@ void Renderer::CreateLogicalDevice() {
 
   if (vkCreateDevice(PhysicalDevice, &createInfo, nullptr, &Device) !=
       VK_SUCCESS) {
-    ImpLog(LL_Error, LC_Render, "Failed to create logical device!");
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Failed to create logical device!");
     Window->Shutdown();
   }
 
@@ -245,7 +249,7 @@ void Renderer::CreateLogicalDevice() {
 void Renderer::CreateSurface() {
   if (SDL_Vulkan_CreateSurface(Window->SDLWindow, Instance, &Surface) !=
       SDL_TRUE) {
-    ImpLog(LL_Error, LC_Render, "Failed to create surface!");
+    ImpLog(LogLevel::Error, LogChannel::Render, "Failed to create surface!");
     Window->Shutdown();
   }
 }
@@ -328,7 +332,8 @@ void Renderer::CreateImageViews() {
     createInfo.subresourceRange.layerCount = 1;
     if (vkCreateImageView(Device, &createInfo, nullptr,
                           &SwapChainImageViews[i]) != VK_SUCCESS) {
-      ImpLog(LL_Error, LC_Render, "Failed to create image view!");
+      ImpLog(LogLevel::Error, LogChannel::Render,
+             "Failed to create image view!");
       Window->Shutdown();
     }
   }
@@ -410,7 +415,8 @@ void Renderer::CreateRenderPass() {
 
   if (vkCreateRenderPass(Device, &renderPassInfo, nullptr, &RenderPass) !=
       VK_SUCCESS) {
-    ImpLog(LL_Debug, LC_Render, "Failed to read create render pass!\n");
+    ImpLog(LogLevel::Debug, LogChannel::Render,
+           "Failed to read create render pass!\n");
     Window->Shutdown();
   }
 }
@@ -433,7 +439,8 @@ void Renderer::CreateFramebuffers() {
 
     if (vkCreateFramebuffer(Device, &framebufferInfo, nullptr,
                             &SwapChainFramebuffers[i]) != VK_SUCCESS) {
-      ImpLog(LL_Debug, LC_Render, "Failed to create framebuffer!\n");
+      ImpLog(LogLevel::Debug, LogChannel::Render,
+             "Failed to create framebuffer!\n");
       Window->Shutdown();
     }
   }
@@ -448,7 +455,8 @@ void Renderer::CreateCommandPool() {
        VK_SUCCESS) ||
       (vkCreateCommandPool(Device, &poolInfo, nullptr,
                            &MainUploadContext.CommandPool) != VK_SUCCESS)) {
-    ImpLog(LL_Debug, LC_Render, "Failed to create command pool!\n");
+    ImpLog(LogLevel::Debug, LogChannel::Render,
+           "Failed to create command pool!\n");
     Window->Shutdown();
   }
 }
@@ -465,7 +473,8 @@ void Renderer::CreateCommandBuffer() {
       (vkAllocateCommandBuffers(Device, &allocInfo,
                                 &MainUploadContext.CommandBuffer) !=
        VK_SUCCESS)) {
-    ImpLog(LL_Debug, LC_Render, "Failed to allocate command buffers!\n");
+    ImpLog(LogLevel::Debug, LogChannel::Render,
+           "Failed to allocate command buffers!\n");
     Window->Shutdown();
   }
 }
@@ -487,7 +496,7 @@ void Renderer::CreateSyncObjects() {
             VK_SUCCESS ||
         vkCreateFence(Device, &fenceInfo, nullptr,
                       &MainUploadContext.UploadFence) != VK_SUCCESS) {
-      ImpLog(LL_Debug, LC_Render,
+      ImpLog(LogLevel::Debug, LogChannel::Render,
              "Failed to create synchronization objects for a frame!\n");
       Window->Shutdown();
     }
@@ -650,7 +659,8 @@ void Renderer::RecreateSwapChain() {
 
 void Renderer::Init() {
   if (IsInit) return;
-  ImpLog(LL_Info, LC_Render, "Initializing Renderer2D Vulkan system\n");
+  ImpLog(LogLevel::Info, LogChannel::Render,
+         "Initializing Renderer2D Vulkan system\n");
   IsInit = true;
 
   CurrentFrameIndex = 0;
@@ -836,7 +846,7 @@ void Renderer::ImGuiBeginFrame() {
 
 void Renderer::BeginFrame() {
   if (Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->BeginFrame() called before EndFrame()\n");
     return;
   }
@@ -861,7 +871,8 @@ void Renderer::BeginFrame() {
   vkResetCommandBuffer(CommandBuffers[CurrentFrameIndex], 0);
   if (vkBeginCommandBuffer(CommandBuffers[CurrentFrameIndex], &beginInfo) !=
       VK_SUCCESS) {
-    ImpLog(LL_Debug, LC_Render, "Failed to begin recording command buffer!\n");
+    ImpLog(LogLevel::Debug, LogChannel::Render,
+           "Failed to begin recording command buffer!\n");
     Window->Shutdown();
   }
 
@@ -929,7 +940,8 @@ void Renderer::EndFrame() {
 
   vkCmdEndRenderPass(CommandBuffers[CurrentFrameIndex]);
   if (vkEndCommandBuffer(CommandBuffers[CurrentFrameIndex]) != VK_SUCCESS) {
-    ImpLog(LL_Debug, LC_Render, "Failed to record command buffer!\n");
+    ImpLog(LogLevel::Debug, LogChannel::Render,
+           "Failed to record command buffer!\n");
     Window->Shutdown();
   }
 
@@ -950,7 +962,7 @@ void Renderer::EndFrame() {
   VkResult res = vkQueueSubmit(GraphicsQueue, 1, &submitInfo,
                                InFlightFences[CurrentFrameIndex]);
   if (res != VK_SUCCESS) {
-    ImpLog(LL_Debug, LC_Render,
+    ImpLog(LogLevel::Debug, LogChannel::Render,
            "Failed to submit draw command buffer! 0x{:04x}\n",
            to_underlying(res));
     Window->Shutdown();
@@ -1118,7 +1130,7 @@ void Renderer::DrawSprite3DRotated(Sprite const& sprite, RectF const& dest,
                                    bool stayInScreen, glm::quat rot,
                                    glm::vec4 tint, bool inverted) {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawSprite3DRotated() called before BeginFrame()\n");
     return;
   }
@@ -1164,7 +1176,7 @@ void Renderer::DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
                                 bool inverted, glm::vec4 tint,
                                 glm::vec2 scale) {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawCharacterMvl() called before BeginFrame()\n");
     return;
   }
@@ -1250,7 +1262,7 @@ void Renderer::DrawSprite(Sprite const& sprite, CornersQuad const& dest,
                           std::array<glm::vec4, 4> const& tints, float angle,
                           bool inverted) {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawSprite() called before BeginFrame()\n");
     return;
   }
@@ -1287,7 +1299,7 @@ void Renderer::DrawSpriteOffset(Sprite const& sprite, glm::vec2 topLeft,
                                 glm::vec2 centerSprite, glm::vec4 tint,
                                 glm::vec2 scale, float angle, bool inverted) {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawSprite() called before BeginFrame()\n");
     return;
   }
@@ -1327,7 +1339,7 @@ void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
                                 int fadeRange, bool isInverted,
                                 bool isSameTexture) {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawMaskedSprite() called before BeginFrame()\n");
     return;
   }
@@ -1398,7 +1410,7 @@ void Renderer::DrawVertices(SpriteSheet const& sheet,
                             int width, int height, glm::vec4 tint,
                             bool inverted) {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawVertices() called before BeginFrame()\n");
     return;
   }
@@ -1407,7 +1419,7 @@ void Renderer::DrawVertices(SpriteSheet const& sheet,
   const int verticesCount = sheetPositions.size();
 
   if (verticesCount != displayPositions.size()) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawVertices() called with mismatched vertices count\n");
     return;
   }
@@ -1465,7 +1477,7 @@ void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                                 RectF const& dest, glm::vec4 tint, int alpha,
                                 int fadeRange, float effectCt) {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawCCMessageBox() called before BeginFrame()\n");
     return;
   }
@@ -1533,7 +1545,7 @@ void Renderer::DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
                                        bool isInverted, float angle,
                                        bool useMaskAlpha) {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawMaskedSpriteOverlay() called before BeginFrame()\n");
     return;
   }
@@ -1628,7 +1640,7 @@ void Renderer::DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
 void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
                                        const RectF& dest, float alpha) {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawCCMessageBox() called before BeginFrame()\n");
     return;
   }
@@ -1899,7 +1911,7 @@ void Renderer::QuadSetPosition3DRotated(RectF const& transformedQuad,
 
 void Renderer::EnsureTextureBound(unsigned int texture) {
   if (CurrentTexture != texture) {
-    ImpLogSlow(LL_Trace, LC_Render,
+    ImpLogSlow(LogLevel::Trace, LogChannel::Render,
                "Renderer->EnsureTextureBound flushing because texture {:d} is "
                "not {:d}\n",
                CurrentTexture, texture);
@@ -1929,7 +1941,8 @@ void Renderer::EnsureTextureBound(unsigned int texture) {
 
 void Renderer::EnsureMode(Pipeline* pipeline, bool flush) {
   if (CurrentPipeline != pipeline) {
-    ImpLogSlow(LL_Trace, LC_Render, "Renderer2D changing mode\n");
+    ImpLogSlow(LogLevel::Trace, LogChannel::Render,
+               "Renderer2D changing mode\n");
     if (flush) Flush();
     vkCmdBindPipeline(CommandBuffers[CurrentFrameIndex],
                       VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -1940,7 +1953,7 @@ void Renderer::EnsureMode(Pipeline* pipeline, bool flush) {
 
 void Renderer::Flush() {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->Flush() called before BeginFrame()\n");
     return;
   }
@@ -1968,7 +1981,7 @@ void Renderer::Flush() {
 void Renderer::DrawVideoTexture(YUVFrame* tex, RectF const& dest,
                                 glm::vec4 tint, float angle, bool alphaVideo) {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawVideoTexture() called before BeginFrame()\n");
     return;
   }

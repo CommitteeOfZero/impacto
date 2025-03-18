@@ -48,7 +48,7 @@ static bool ParseAt9Riff(Stream* stream, At9ContainerInfo* info) {
     switch (chunkId) {
       case fmtMagic: {
         if (gotFmt) {
-          ImpLog(LL_Error, LC_Audio,
+          ImpLog(LogLevel::Error, LogChannel::Audio,
                  "Encountered ATRAC9 file with more than one fmt chunk\n");
           return false;
         }
@@ -66,7 +66,7 @@ static bool ParseAt9Riff(Stream* stream, At9ContainerInfo* info) {
         info->ChannelCount = SDL_SwapLE16(*(uint16_t*)(fmtData + 2));
         if (info->ChannelCount != 1 && info->ChannelCount != 2) {
           ImpLog(
-              LL_Error, LC_Audio,
+              LogLevel::Error, LogChannel::Audio,
               "Encountered ATRAC9 file with unsupported channel count {:d}\n",
               info->ChannelCount);
           return false;
@@ -79,7 +79,7 @@ static bool ParseAt9Riff(Stream* stream, At9ContainerInfo* info) {
       }
       case factMagic: {
         if (gotFact) {
-          ImpLog(LL_Error, LC_Audio,
+          ImpLog(LogLevel::Error, LogChannel::Audio,
                  "Encountered ATRAC9 file with more than one fact chunk\n");
           return false;
         }
@@ -125,7 +125,8 @@ static bool ParseAt9Riff(Stream* stream, At9ContainerInfo* info) {
 
 breakLoop:
   if (!gotFmt || !gotFact) {
-    ImpLog(LL_Error, LC_Audio, "Encountered incomplete ATRAC9 file\n");
+    ImpLog(LogLevel::Error, LogChannel::Audio,
+           "Encountered incomplete ATRAC9 file\n");
     return false;
   }
   return true;
@@ -140,7 +141,7 @@ AudioStream* Atrac9AudioStream::Create(Stream* stream) {
 
   void* At9 = Atrac9GetHandle();
   if (!At9) {
-    ImpLog(LL_Error, LC_Audio, "Atrac9GetHandle failed\n");
+    ImpLog(LogLevel::Error, LogChannel::Audio, "Atrac9GetHandle failed\n");
     goto fail;
   }
 
@@ -151,14 +152,16 @@ AudioStream* Atrac9AudioStream::Create(Stream* stream) {
 
   ret = Atrac9InitDecoder(At9, container.ConfigData);
   if (ret != 0) {
-    ImpLog(LL_Error, LC_Audio, "Atrac9InitDecoder failed with {:d}\n", ret);
+    ImpLog(LogLevel::Error, LogChannel::Audio,
+           "Atrac9InitDecoder failed with {:d}\n", ret);
     goto fail;
   }
 
   Atrac9GetCodecInfo(At9, &codecinfo);
   if (codecinfo.channels != container.ChannelCount ||
       codecinfo.samplingRate != container.SampleRate) {
-    ImpLog(LL_Error, LC_Audio, "Atrac9CodecInfo does not match container\n");
+    ImpLog(LogLevel::Error, LogChannel::Audio,
+           "Atrac9CodecInfo does not match container\n");
     goto fail;
   }
 
@@ -201,7 +204,7 @@ void Atrac9AudioStream::InitWithInfo(At9ContainerInfo* container,
   EncodedBytesPerBuffer = codecinfo->superframeSize;
   EncodedBuffer = (uint8_t*)malloc(2048);
 
-  ImpLog(LL_Debug, LC_Audio,
+  ImpLog(LogLevel::Debug, LogChannel::Audio,
          "Created ATRAC9 stream Duration={:d}, SampleRate={:d}, "
          "ChannelCount={:d}, "
          "LoopStart={:d}, LoopEnd={:d}\n",
@@ -232,7 +235,8 @@ bool Atrac9AudioStream::DecodeBuffer() {
     int bytesUsed;
     int err = Atrac9Decode(At9, encoded, decoded, &bytesUsed);
     if (err != 0) {
-      ImpLog(LL_Error, LC_Audio, "Atrac9Decode error {:d}\n", err);
+      ImpLog(LogLevel::Error, LogChannel::Audio, "Atrac9Decode error {:d}\n",
+             err);
       return false;
     }
     encoded += bytesUsed;

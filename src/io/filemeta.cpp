@@ -10,7 +10,7 @@ int64_t GetFileSize(std::string const& path) {
   std::error_code ec;
   uintmax_t result = std::filesystem::file_size(filePath, ec);
   if (ec) {
-    ImpLog(LL_Error, LC_IO,
+    ImpLog(LogLevel::Error, LogChannel::IO,
            "Error getting file size of file \"{:s}\", error: \"{:s}\"\n", path,
            ec.message());
     return IoError_Fail;
@@ -24,7 +24,7 @@ IoError PathExists(std::string const& path) {
   std::error_code ec;
   bool result = std::filesystem::exists(filePath, ec);
   if (ec) {
-    ImpLog(LL_Error, LC_IO,
+    ImpLog(LogLevel::Error, LogChannel::IO,
            "Error checking for file existence for file \"{:s}\", error: "
            "\"{:s}\"\n",
            filePath, ec.message());
@@ -40,7 +40,7 @@ int8_t CreateDirectories(std::string const& path, bool createParent) {
   bool result = std::filesystem::create_directories(
       (createParent) ? Path(filePath).parent_path() : Path(filePath), ec);
   if (ec) {
-    ImpLog(LL_Error, LC_IO,
+    ImpLog(LogLevel::Error, LogChannel::IO,
            "Error creating directories for file \"{:s}\", error: \"{:s}\"\n",
            filePath, ec.message());
     return IoError_Fail;
@@ -54,7 +54,7 @@ IoError GetFilePermissions(std::string const& path,
   const std::string& filePath = GetSystemDependentPath(path);
   flags = std::filesystem::status(filePath, ec).permissions();
   if (ec) {
-    ImpLog(LL_Error, LC_IO,
+    ImpLog(LogLevel::Error, LogChannel::IO,
            "Error retrieving permissions for file \"{:s}\", error: \"{:s}\"\n",
            filePath, ec.message());
     return IoError_Fail;

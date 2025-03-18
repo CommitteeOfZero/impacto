@@ -239,7 +239,7 @@ static void EnumerateBackgrounds() {
   std::map<uint32_t, std::string> listing;
   IoError err = Io::VfsListFiles("bg", listing);
   if (err != IoError_OK) {
-    ImpLog(LL_Warning, LC_General,
+    ImpLog(LogLevel::Warning, LogChannel::General,
            "Failed to open backgrounds archive, aborting enumeration!\n");
     return;
   }
@@ -259,7 +259,7 @@ static void EnumerateCharacters() {
   std::map<uint32_t, std::string> listing;
   IoError err = Io::VfsListFiles("chara", listing);
   if (err != IoError_OK) {
-    ImpLog(LL_Warning, LC_General,
+    ImpLog(LogLevel::Warning, LogChannel::General,
            "Failed to open character archive, aborting enumeration!\n");
     return;
   }
@@ -280,7 +280,7 @@ static void EnumerateBgm() {
   std::map<uint32_t, std::string> listing;
   IoError err = Io::VfsListFiles("bgm", listing);
   if (err != IoError_OK) {
-    ImpLog(LL_Warning, LC_General,
+    ImpLog(LogLevel::Warning, LogChannel::General,
            "Failed to open BGM archive, aborting enumeration!\n");
     return;
   }

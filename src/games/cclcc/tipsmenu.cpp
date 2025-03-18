@@ -41,7 +41,7 @@ struct SortByTipName {
         Sc3SortMap[sc3Char] = distance++;
         i += 2;
       } else {
-        ImpLogSlow(LL_Warning, LC_VM,
+        ImpLogSlow(LogLevel::Warning, LogChannel::VM,
                    "SortByTipName: SC3 Tag Found in Sort String\n",
                    SortString[i]);
         i++;

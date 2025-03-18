@@ -28,7 +28,7 @@ void Configure() {
       Implementation = new Impacto::CCLCC::SaveSystem();
       break;
     case SaveDataType::None:
-      ImpLog(LL_Warning, LC_Profile,
+      ImpLog(LogLevel::Warning, LogChannel::Profile,
              "Save data type is none, not setting implementation\n");
       break;
   }
@@ -61,7 +61,7 @@ void Configure() {
       AssertIs(LUA_TTABLE);
       auto pairSize = lua_rawlen(LuaState, -1);
       if (pairSize != 2) {
-        ImpLog(LL_Fatal, LC_Profile, "Expected two values\n");
+        ImpLog(LogLevel::Fatal, LogChannel::Profile, "Expected two values\n");
         Window->Shutdown();
       }
       ScriptMessageData[i].LineCount =

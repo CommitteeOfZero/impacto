@@ -171,7 +171,7 @@ void AudioChannel::Update(float dt) {
   ALint sourceState;
   alGetSourcei(Source, AL_SOURCE_STATE, &sourceState);
   if (State != ACS_Stopped && sourceState != AL_PLAYING) {
-    ImpLog(LL_Error, LC_Audio,
+    ImpLog(LogLevel::Error, LogChannel::Audio,
            "Restarting playback after buffer underrun on channel {:d} - {:d}\n",
            Id, sourceState);
     alSourcePlay(Source);
@@ -204,7 +204,8 @@ void AudioChannel::FillBuffers() {
 
   if (FreeBufferCount == AudioBufferCount && !FinishedDecode &&
       State == ACS_Playing) {
-    ImpLog(LL_Error, LC_Audio, "Buffer underrun on channel {:d}\n", Id);
+    ImpLog(LogLevel::Error, LogChannel::Audio,
+           "Buffer underrun on channel {:d}\n", Id);
   }
 
   int maxSamples = SamplesPerBuffer();
@@ -221,7 +222,8 @@ void AudioChannel::FillBuffers() {
     int samplesRead = 0;
     while (samplesRead < maxSamples) {
       if (Looping && CurrentStream->ReadPosition >= CurrentStream->LoopEnd) {
-        ImpLog(LL_Trace, LC_Audio, "Channel {:d} looping\n", Id);
+        ImpLog(LogLevel::Trace, LogChannel::Audio, "Channel {:d} looping\n",
+               Id);
         CurrentStream->Seek(CurrentStream->LoopStart);
       }
       dest = HostBuffer + samplesRead * CurrentStream->BytesPerSample();

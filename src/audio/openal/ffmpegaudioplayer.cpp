@@ -45,7 +45,8 @@ void FFmpegAudioPlayer::InitConvertContext(AVCodecContext* codecCtx) {
                                 &stereoFormat, codecCtx->sample_fmt,
                                 codecCtx->sample_rate, 0, NULL);
   if (res) {
-    ImpLog(LL_Error, LC_Video, "Could not create audio convert context!\n");
+    ImpLog(LogLevel::Error, LogChannel::Video,
+           "Could not create audio convert context!\n");
     return;
   }
 
@@ -136,7 +137,8 @@ void FFmpegAudioPlayer::Process() {
     samplePosition = std::min(samplePosition, Player->AudioStream->Duration);
     auto audioTime = av::Timestamp(samplePosition, av::Rational(1, sampleRate));
     double audioS = audioTime.seconds();
-    ImpLogSlow(LL_Trace, LC_Video, "samplePosition: {:f}\n", audioS);
+    ImpLogSlow(LogLevel::Trace, LogChannel::Video, "samplePosition: {:f}\n",
+               audioS);
     AudioClock.Set(audioS, 0);
 
     FillAudioBuffers();

@@ -21,7 +21,8 @@ IoError MemoryMappedFileStream<M>::Create(std::string const& fileName,
   std::error_code ec;
   result->mmapFile.map(result->SourceFileName, 0, result->Meta.Size, ec);
   if (ec) {
-    ImpLog(LL_Error, LC_IO, "Failed to open file \"{:s}\", error:\"{:s}\"\n",
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Failed to open file \"{:s}\", error:\"{:s}\"\n",
            result->SourceFileName, ec.message());
     delete result;
     return ec == std::errc::no_such_file_or_directory ? IoError_Eof
@@ -74,7 +75,8 @@ template <AccessMode M>
 IoError MemoryMappedFileStream<M>::Duplicate(Stream** outStream) {
   MemoryMappedFileStream* result = new MemoryMappedFileStream(*this);
   if (result->Seek(Position, RW_SEEK_SET) < 0) {
-    ImpLog(LL_Error, LC_IO, "Seek failed for file \"{:s}\"\n", SourceFileName);
+    ImpLog(LogLevel::Error, LogChannel::IO, "Seek failed for file \"{:s}\"\n",
+           SourceFileName);
     delete result;
     return IoError_Fail;
   }

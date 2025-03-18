@@ -70,7 +70,7 @@ void Configure() {
       Profile::CC::DialogueBox::Configure();
       break;
     default:
-      ImpLog(LL_Warning, LC_General,
+      ImpLog(LogLevel::Warning, LogChannel::General,
              "Dialogue box is not implemented for the current profile yet!\n");
       break;
   }
@@ -198,7 +198,7 @@ void Configure() {
 
       auto pairSize = lua_rawlen(LuaState, -1);
       if (pairSize != 2) {
-        ImpLog(LL_Fatal, LC_Profile, "Expected two colors\n");
+        ImpLog(LogLevel::Fatal, LogChannel::Profile, "Expected two colors\n");
         Window->Shutdown();
       }
       ColorTable[i].TextColor = EnsureGetArrayElementByIndex<uint32_t>(0);

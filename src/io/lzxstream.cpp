@@ -23,7 +23,7 @@ IoError LzxStream::Create(Stream *baseStream, int64_t offset, int64_t size,
   uint32_t const magic = 0x0FF512EE;
 
   if (ReadBE<uint32_t>(dup) != magic) {
-    ImpLog(LL_Trace, LC_IO, "Not LZX\n");
+    ImpLog(LogLevel::Trace, LogChannel::IO, "Not LZX\n");
     delete dup;
     return IoError_Fail;
   }

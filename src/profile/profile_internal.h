@@ -57,7 +57,7 @@ bool TryGet(T& outNumber) {
       auto [ptr, ec] = std::from_chars(
           inputStr.data(), inputStr.data() + inputStr.size(), outNumber);
       if (ec != std::errc{}) {
-        ImpLog(LL_Fatal, LC_Profile,
+        ImpLog(LogLevel::Fatal, LogChannel::Profile,
                "Error encountered converting {:s} to number: {:s}\n", inputStr,
                std::make_error_code(ec).message());
         return false;
@@ -71,7 +71,7 @@ bool TryGet(T& outNumber) {
         outNumber = std::strtof(inputStr.data(), &endPtr);
       }
       if (endPtr == inputStr.data()) {
-        ImpLog(LL_Fatal, LC_Profile,
+        ImpLog(LogLevel::Fatal, LogChannel::Profile,
                "Error encountered converting {:s} to number: {:s}\n", inputStr,
                std::error_code{errno, std::generic_category()}.message());
         return false;
@@ -151,7 +151,8 @@ T EnsureGet() {
   T result;
   bool success = TryGet(result);
   if (!success) {
-    ImpLog(Impacto::LL_Fatal, Impacto::LC_Profile, "Unexpected type\n");
+    ImpLog(Impacto::LogLevel::Fatal, Impacto::LogChannel::Profile,
+           "Unexpected type\n");
     Game::Shutdown();
   }
   return result;
@@ -218,7 +219,7 @@ void GetMemberArray(T* arr, uint32_t count, char const* name) {
 
   uint32_t actualCount = static_cast<uint32_t>(lua_rawlen(LuaState, -1));
   if (actualCount != count) {
-    ImpLog(LL_Fatal, LC_Profile,
+    ImpLog(LogLevel::Fatal, LogChannel::Profile,
            "Expected to have {:d} values for {:s}, got {:d}\n", count, name,
            actualCount);
     Window->Shutdown();

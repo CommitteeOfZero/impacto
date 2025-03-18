@@ -28,7 +28,7 @@ VmInstruction(InstPlayMovie) {
     PopExpression(playView);
     PopExpression(playNo);
     PopExpression(movCancelFlag);
-    ImpLogSlow(LL_Warning, LC_VMStub,
+    ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                "STUB instruction PlayMovie(playMode: {:d}, playModeEx: {:d}, "
                "playView: {:d}, playNo: {:d}, movCancelFlag: {:d})\n",
                playMode, playModeEx, playView, playNo, movCancelFlag);
@@ -41,7 +41,7 @@ VmInstruction(InstPlayMovie) {
       Io::Stream* stream;
       auto err = Io::VfsOpen("movie", playNo, &stream);
       if (err != IoError_OK) {
-        ImpLog(LL_Error, LC_Video,
+        ImpLog(LogLevel::Error, LogChannel::Video,
                "Failed to open movie for playback: IO error {:s}\n", err);
         return;
       }
@@ -62,7 +62,7 @@ VmInstruction(InstPlayMovie) {
       SetFlag(SF_MOVIE_DRAWWAIT, true);
     }
     BlockThread;
-    ImpLogSlow(LL_Warning, LC_VMStub,
+    ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                "STUB instruction PlayMovie(playMode: {:d}, playView: {:d}, "
                "playNo: {:d}, movCancelFlag: {:d})\n",
                playMode, playView, playNo, movCancelFlag);
@@ -80,7 +80,7 @@ VmInstruction(InstPlayMovieOld) {
     Video::Players[0]->Play(stream, playMode == 5, playMode == 5);
   }
   BlockThread;
-  ImpLogSlow(LL_Warning, LC_VMStub,
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
              "STUB instruction PlayMovie(playMode: {:d}, playNo: {:d}, "
              "movCancelFlag: {:d})\n",
              playMode, playNo, movCancelFlag);
@@ -90,11 +90,11 @@ VmInstruction(InstMovie) {
   PopUint8(type);
   switch (type) {
     case 0: {  // Restart
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction Movie(type: Restart)\n");
     } break;
     case 1: {  // Pause
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction Movie(type: Pause)\n");
     } break;
   }
@@ -144,8 +144,8 @@ VmInstruction(InstMovieMain) {
 VmInstruction(InstLoadMovie) {
   StartInstruction;
   PopExpression(arg1);
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction LoadMovie(arg1: {:d})\n",
-             arg1);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction LoadMovie(arg1: {:d})\n", arg1);
 }
 VmInstruction(InstPlayMovieMemory) {
   StartInstruction;
@@ -154,7 +154,7 @@ VmInstruction(InstPlayMovieMemory) {
     PopExpression(playModeEx);
     PopExpression(playView);
     PopExpression(movCancelFlag);
-    ImpLogSlow(LL_Warning, LC_VMStub,
+    ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                "STUB instruction PlayMovie(playMode: {:d}, playModeEx: {:d}, "
                "playView: {:d}, movCancelFlag: {:d})\n",
                playMode, playModeEx, playView, movCancelFlag);
@@ -162,7 +162,7 @@ VmInstruction(InstPlayMovieMemory) {
   } else {
     PopUint8(playView);
     PopExpression(movCancelFlag);
-    ImpLogSlow(LL_Warning, LC_VMStub,
+    ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                "STUB instruction PlayMovie(playMode: {:d}, playView: {:d}, "
                "movCancelFlag: {:d})\n",
                playMode, playView, movCancelFlag);
@@ -171,8 +171,8 @@ VmInstruction(InstPlayMovieMemory) {
 VmInstruction(InstSFDpause) {
   StartInstruction;
   PopUint8(paused);
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SFDpause(paused: {:d})\n",
-             paused);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction SFDpause(paused: {:d})\n", paused);
 }
 
 }  // namespace Vm

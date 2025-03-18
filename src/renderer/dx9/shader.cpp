@@ -13,7 +13,8 @@ static char const VertShaderExtension[] = "_vert.hlsl";
 void Shader::Compile(char const* name, IDirect3DDevice9* device,
                      IDirect3DVertexDeclaration9* vertexDeclaration,
                      D3D_SHADER_MACRO* macros) {
-  ImpLog(LL_Debug, LC_Render, "Compiling shader \"{:s}\"\n", name);
+  ImpLog(LogLevel::Debug, LogChannel::Render, "Compiling shader \"{:s}\"\n",
+         name);
 
   VertexDeclaration = vertexDeclaration;
 
@@ -27,14 +28,16 @@ void Shader::Compile(char const* name, IDirect3DDevice9* device,
   size_t sourceRawSz;
   char* source = (char*)SDL_LoadFile(vertexShaderPath.c_str(), &sourceRawSz);
   if (!source) {
-    ImpLog(LL_Debug, LC_Render, "Failed to read shader source file\n");
+    ImpLog(LogLevel::Debug, LogChannel::Render,
+           "Failed to read shader source file\n");
     return;
   }
   auto result =
       D3DCompile(source, sourceRawSz, nullptr, macros, nullptr, "main",
                  "vs_3_0", 0, 0, &vertexShaderBuffer, &errorBlob);
   if (FAILED(result)) {
-    ImpLog(LL_Debug, LC_Render, "Failed to compile shader source file {:s}\n",
+    ImpLog(LogLevel::Debug, LogChannel::Render,
+           "Failed to compile shader source file {:s}\n",
            static_cast<const char*>(errorBlob->GetBufferPointer()));
     return;
   }
@@ -48,13 +51,15 @@ void Shader::Compile(char const* name, IDirect3DDevice9* device,
       fmt::format("{}/{}{}", ShaderPath, name, FragShaderExtension);
   source = (char*)SDL_LoadFile(fragShaderPath.c_str(), &sourceRawSz);
   if (!source) {
-    ImpLog(LL_Debug, LC_Render, "Failed to read shader source file\n");
+    ImpLog(LogLevel::Debug, LogChannel::Render,
+           "Failed to read shader source file\n");
     return;
   }
   result = D3DCompile(source, sourceRawSz, nullptr, macros, nullptr, "main",
                       "ps_3_0", 0, 0, &pixelShaderBuffer, &errorBlob);
   if (FAILED(result)) {
-    ImpLog(LL_Debug, LC_Render, "Failed to compile shader source file {:s}\n",
+    ImpLog(LogLevel::Debug, LogChannel::Render,
+           "Failed to compile shader source file {:s}\n",
            static_cast<const char*>(errorBlob->GetBufferPointer()));
     return;
   }

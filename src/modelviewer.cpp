@@ -425,7 +425,7 @@ static void EnumerateBgm() {
   std::map<uint32_t, std::string> listing;
   IoError err = Io::VfsListFiles("bgm", listing);
   if (err != IoError_OK) {
-    ImpLog(LL_Warning, LC_General,
+    ImpLog(LogLevel::Warning, LogChannel::General,
            "Failed to list BGM archive files, stopping enumeration!\n");
     return;
   }

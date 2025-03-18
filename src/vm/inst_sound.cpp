@@ -57,7 +57,7 @@ VmInstruction(InstSEplay) {
     Audio::Channels[Audio::AC_SE0 + channel]->Play("se", effect, (bool)loop,
                                                    0.0f);
   } else {
-    ImpLogSlow(LL_Warning, LC_VMStub,
+    ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                "STUB instruction SEplay(channel: {:d}, type: {:d})\n", channel,
                type);
   }
@@ -93,8 +93,8 @@ VmInstruction(InstSSEstop) {
 VmInstruction(InstBGMflag) {
   StartInstruction;
   PopExpression(arg1);
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction BGMflag(arg1: {:d})\n",
-             arg1);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction BGMflag(arg1: {:d})\n", arg1);
 }
 VmInstruction(InstVoicePlay) {
   StartInstruction;
@@ -125,7 +125,7 @@ VmInstruction(InstVoiceStopNew) {
 VmInstruction(InstVoicePlayWait) {
   StartInstruction;
   PopUint8(channel);
-  ImpLogSlow(LL_Warning, LC_VMStub,
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
              "STUB instruction VoicePlayWait(channel: {:d})\n", channel);
 }
 VmInstruction(InstBGMduelPlay) {
@@ -136,23 +136,23 @@ VmInstruction(InstBGMduelPlay) {
       PopExpression(arg1);
       PopExpression(arg2);
       ImpLogSlow(
-          LL_Warning, LC_VMStub,
+          LogLevel::Warning, LogChannel::VMStub,
           "STUB instruction BGMduelPlay(type: {:d}, arg1: {:d}, arg2: {:d})\n",
           type, arg1, arg2);
     } break;
     case 1: {
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction BGMduelPlay(type: {:d})\n", type);
     } break;
     case 2: {
       PopExpression(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction BGMduelPlay(type: {:d}, arg1: {:d})\n", type,
                  arg1);
     } break;
     case 3: {
       PopExpression(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction BGMduelPlay(type: {:d}, arg1: {:d})\n", type,
                  arg1);
     } break;
@@ -167,31 +167,34 @@ VmInstruction(InstSNDpause) {
              : Audio::Channels[Audio::AC_SE0 + i]->Resume();
   }
 
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SNDpause(paused: {:d})\n",
-             paused);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction SNDpause(paused: {:d})\n", paused);
 }
 VmInstruction(InstSEplayWait) {
   StartInstruction;
   PopUint8(channel);
-  ImpLogSlow(LL_Warning, LC_VMStub,
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
              "STUB instruction SEplayWait(channel: {:d})\n", channel);
 }
 VmInstruction(InstResetSoundAll) {
   StartInstruction;
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction ResetSoundAll()\n");
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction ResetSoundAll()\n");
 }
 VmInstruction(InstSNDloadStop) {
   StartInstruction;
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SNDloadStop()\n");
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction SNDloadStop()\n");
 }
 VmInstruction(InstBGMstopWait) {
   StartInstruction;
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction BGMstopWait()\n");
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction BGMstopWait()\n");
 }
 VmInstruction(InstSysVoicePlay) {
   PopUint8(arg1);
   PopExpression(arg2);
-  ImpLogSlow(LL_Warning, LC_VMStub,
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
              "STUB instruction SysVoicePlay(arg1: {:d}, arg2: {:d})\n", arg1,
              arg2);
 }
@@ -201,7 +204,8 @@ VmInstruction(InstSysSeload) {
       Profile::Vm::GameInstructionSet == +InstructionSet::CHN) {
     PopUint8(arg1);
   }
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SysSeload()\n");
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction SysSeload()\n");
 }
 
 }  // namespace Vm

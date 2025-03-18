@@ -34,7 +34,7 @@ IoError Lnk4Archive::Open(FileMeta* file, Stream** outStream) {
                                            entry->Size, outStream);
 #endif
   if (err != IoError_OK) {
-    ImpLog(LL_Error, LC_IO,
+    ImpLog(LogLevel::Error, LogChannel::IO,
            "LNK4 file open failed for file \"{:s}\" in archive \"{:s}\"\n",
            entry->FileName, BaseStream->Meta.FileName);
   }
@@ -42,7 +42,7 @@ IoError Lnk4Archive::Open(FileMeta* file, Stream** outStream) {
 }
 
 IoError Lnk4Archive::Create(Stream* stream, VfsArchive** outArchive) {
-  ImpLog(LL_Trace, LC_IO, "Trying to mount \"{:s}\" as LNK4\n",
+  ImpLog(LogLevel::Trace, LogChannel::IO, "Trying to mount \"{:s}\" as LNK4\n",
          stream->Meta.FileName);
 
   Lnk4Archive* result = 0;
@@ -61,13 +61,13 @@ IoError Lnk4Archive::Create(Stream* stream, VfsArchive** outArchive) {
   char fileName[6];
 
   if (ReadBE<uint32_t>(stream) != magic) {
-    ImpLog(LL_Trace, LC_IO, "Not LNK4\n");
+    ImpLog(LogLevel::Trace, LogChannel::IO, "Not LNK4\n");
     goto fail;
   }
 
   dataOffset = ReadLE<uint32_t>(stream);
   if (dataOffset < tocOffset) {
-    ImpLog(LL_Error, LC_IO, "LNK4 header too short\n");
+    ImpLog(LogLevel::Error, LogChannel::IO, "LNK4 header too short\n");
     goto fail;
   }
 

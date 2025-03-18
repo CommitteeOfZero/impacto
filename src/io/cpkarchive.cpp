@@ -63,7 +63,7 @@ bool CpkArchive::ReadUtfBlock(
     DecryptUtfBlock(utfBlock, utfSize);
     UtfStream->Seek(0, RW_SEEK_SET);
     if (ReadBE<uint32_t>(UtfStream) != utfMagic) {
-      ImpLog(LL_Trace, LC_IO, "Error reading CPK UTF table\n");
+      ImpLog(LogLevel::Trace, LogChannel::IO, "Error reading CPK UTF table\n");
       delete UtfStream;
       return false;
     }
@@ -191,7 +191,7 @@ IoError CpkArchive::ReadItoc(int64_t itocOffset, int64_t contentOffset,
   BaseStream->Seek(itocOffset, RW_SEEK_SET);
   const uint32_t itocMagic = 0x49544F43;
   if (ReadBE<uint32_t>(BaseStream) != itocMagic) {
-    ImpLog(LL_Trace, LC_IO, "Error reading CPK ITOC\n");
+    ImpLog(LogLevel::Trace, LogChannel::IO, "Error reading CPK ITOC\n");
     return IoError_Fail;
   }
   BaseStream->Seek(4, RW_SEEK_CUR);
@@ -288,7 +288,7 @@ IoError CpkArchive::ReadToc(int64_t tocOffset, int64_t contentOffset) {
   BaseStream->Seek(tocOffset, RW_SEEK_SET);
   const uint32_t tocMagic = 0x544F4320;
   if (ReadBE<uint32_t>(BaseStream) != tocMagic) {
-    ImpLog(LL_Trace, LC_IO, "Error reading CPK TOC\n");
+    ImpLog(LogLevel::Trace, LogChannel::IO, "Error reading CPK TOC\n");
     return IoError_Fail;
   }
   BaseStream->Seek(4, RW_SEEK_CUR);
@@ -340,7 +340,7 @@ IoError CpkArchive::ReadEtoc(int64_t etocOffset) {
   BaseStream->Seek(etocOffset, RW_SEEK_SET);
   const uint32_t etocMagic = 0x45544F43;
   if (ReadBE<uint32_t>(BaseStream) != etocMagic) {
-    ImpLog(LL_Trace, LC_IO, "Error reading CPK ETOC\n");
+    ImpLog(LogLevel::Trace, LogChannel::IO, "Error reading CPK ETOC\n");
     return IoError_Fail;
   }
   BaseStream->Seek(4, RW_SEEK_CUR);
@@ -361,7 +361,7 @@ IoError CpkArchive::ReadEtoc(int64_t etocOffset) {
 }
 
 IoError CpkArchive::Create(Stream* stream, VfsArchive** outArchive) {
-  ImpLog(LL_Trace, LC_IO, "Trying to mount \"{:s}\" as CPK\n",
+  ImpLog(LogLevel::Trace, LogChannel::IO, "Trying to mount \"{:s}\" as CPK\n",
          stream->Meta.FileName);
 
   CpkArchive* result = 0;
@@ -376,7 +376,7 @@ IoError CpkArchive::Create(Stream* stream, VfsArchive** outArchive) {
 
   uint32_t const magic = 0x43504B20;
   if (ReadBE<uint32_t>(stream) != magic) {
-    ImpLog(LL_Trace, LC_IO, "Not a CPK\n");
+    ImpLog(LogLevel::Trace, LogChannel::IO, "Not a CPK\n");
     goto fail;
   }
 
@@ -443,7 +443,7 @@ IoError CpkArchive::Open(FileMeta* file, Stream** outStream) {
   }
 
   if (entry->Compressed) {
-    ImpLog(LL_Debug, LC_IO,
+    ImpLog(LogLevel::Debug, LogChannel::IO,
            "CPK cannot stream LAYLA compressed file \"{:s}\" in archive "
            "\"{:s}\"\n",
            entry->FileName, BaseStream->Meta.FileName);
@@ -453,7 +453,7 @@ IoError CpkArchive::Open(FileMeta* file, Stream** outStream) {
                                      outStream);
   }
   if (err != IoError_OK) {
-    ImpLog(LL_Error, LC_IO,
+    ImpLog(LogLevel::Error, LogChannel::IO,
            "CPK file open failed for file \"{:s}\" in archive \"{:s}\"\n",
            entry->FileName, BaseStream->Meta.FileName);
   }
@@ -494,7 +494,7 @@ static IoError DecompressLayla(char* input, int64_t compressedSize,
   uint32_t compressedOffset = 16;
   int64_t prefixOffset = compressedOffset + compressedStreamLength;
   if (compressedSize < prefixOffset || compressedSize - prefixOffset != 0x100) {
-    ImpLog(LL_Debug, LC_IO, "CPK unexpected end of LAYLA stream\n");
+    ImpLog(LogLevel::Debug, LogChannel::IO, "CPK unexpected end of LAYLA stream\n");
     return IoError_Fail;
   }
   memcpy(output, input + compressedOffset + compressedStreamLength, 0x100);
@@ -552,7 +552,7 @@ IoError CpkArchive::Slurp(FileMeta* file, void*& outBuffer, int64_t& outSize) {
 
   int64_t pos = BaseStream->Seek(entry->Offset, RW_SEEK_SET);
   if (pos != entry->Offset) {
-    ImpLog(LL_Error, LC_IO,
+    ImpLog(LogLevel::Error, LogChannel::IO,
            "CPK failed to seek when slurping compressed file \"{:s}\" in "
            "archive \"{:s}\"\n",
            entry->FileName, BaseStream->Meta.FileName);
@@ -561,7 +561,7 @@ IoError CpkArchive::Slurp(FileMeta* file, void*& outBuffer, int64_t& outSize) {
   char* compressedData = (char*)malloc(entry->CompressedSize);
   int64_t read = BaseStream->Read(compressedData, entry->CompressedSize);
   if (read != entry->CompressedSize) {
-    ImpLog(LL_Error, LC_IO,
+    ImpLog(LogLevel::Error, LogChannel::IO,
            "CPK failed to read compressed data when slurping compressed file "
            "\"{:s}\" in "
            "archive \"{:s}\"\n",

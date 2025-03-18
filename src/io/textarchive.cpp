@@ -37,7 +37,7 @@ IoError TextArchive::Open(FileMeta* file, Stream** outStream) {
   IoError err = PhysicalFileStream::Create(entry->FullPath, outStream);
   if (err != IoError_OK) {
     ImpLog(
-        LL_Error, LC_IO,
+        LogLevel::Error, LogChannel::IO,
         "TextArchive file open failed for file \"{:s}\" in archive \"{:s}\"\n",
         entry->FullPath, BaseStream->Meta.FileName);
   }
@@ -49,7 +49,7 @@ IoError TextArchive::GetCurrentSize(FileMeta* file, int64_t& outSize) {
   std::error_code ec;
   outSize = std::filesystem::file_size(entry->FullPath, ec);
   if (ec) {
-    ImpLog(LL_Error, LC_IO,
+    ImpLog(LogLevel::Error, LogChannel::IO,
            "TextArchive getting size failed for file \"{:s}\" in archive "
            "\"{:s}\"\nerror: {:s}\n",
            entry->FullPath, BaseStream->Meta.FileName, ec.message());
@@ -59,8 +59,8 @@ IoError TextArchive::GetCurrentSize(FileMeta* file, int64_t& outSize) {
 }
 
 IoError TextArchive::Create(Stream* stream, VfsArchive** outArchive) {
-  ImpLog(LL_Trace, LC_IO, "Trying to mount \"{:s}\" as text archive\n",
-         stream->Meta.FileName);
+  ImpLog(LogLevel::Trace, LogChannel::IO,
+         "Trying to mount \"{:s}\" as text archive\n", stream->Meta.FileName);
 
   std::istringstream ss;
   std::string content;
@@ -82,12 +82,12 @@ IoError TextArchive::Create(Stream* stream, VfsArchive** outArchive) {
   } else if (StringEndsWithCi(stream->Meta.FileName, ".mpk")) {
     type = TextMPK;
     if (ReadBE<uint32_t>(stream) == 0x4D504B00u) {
-      ImpLog(LL_Trace, LC_IO, "Actually a binary MPK\n");
+      ImpLog(LogLevel::Trace, LogChannel::IO, "Actually a binary MPK\n");
       goto fail;
     }
     stream->Seek(0, RW_SEEK_SET);
   } else {
-    ImpLog(LL_Trace, LC_IO, "Not a text archive\n");
+    ImpLog(LogLevel::Trace, LogChannel::IO, "Not a text archive\n");
     goto fail;
   }
 
@@ -163,7 +163,7 @@ IoError TextArchive::Create(Stream* stream, VfsArchive** outArchive) {
       result->TOC[lineId].FileName =
           line.substr(firstColLength + 1, secondColLength);
     } else {
-      ImpLog(LL_Error, LC_IO,
+      ImpLog(LogLevel::Error, LogChannel::IO,
              "Archive {:s} could not be mounted as type {:d} is unknown\n",
              stream->Meta.FileName, to_underlying(type));
       return IoError_Fail;

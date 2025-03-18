@@ -139,9 +139,10 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
     default: {
       if (c < 0x80) {
         if (c == STT_Character) {
-          ImpLog(LL_Error, LC_VM, "STT_Character encountered, uh oh...");
+          ImpLog(LogLevel::Error, LogChannel::VM,
+                 "STT_Character encountered, uh oh...");
         }
-        ImpLog(LL_Error, LC_VM,
+        ImpLog(LogLevel::Error, LogChannel::VM,
                "Encountered unrecognized token 0x{:02x} in string\n", c);
         Type = STT_EndOfString;
       } else {

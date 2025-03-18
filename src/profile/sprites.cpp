@@ -12,7 +12,7 @@ namespace Profile {
 static Texture LoadTexture(Io::Stream* stream, std::string name) {
   Texture texture{};
   if (!texture.Load(stream)) {
-    ImpLog(LL_Error, LC_Profile,
+    ImpLog(LogLevel::Error, LogChannel::Profile,
            "Spritesheet {:s} texture could not be imported, using fallback\n",
            name);
     texture.LoadCheckerboard();
@@ -41,7 +41,8 @@ void LoadSpritesheets() {
     Io::Stream* stream;
     IoError err = asset.Open(&stream);
     if (err != IoError_OK) {
-      ImpLog(LL_Fatal, LC_Profile, "Could not open spritesheet {:s}\n", name);
+      ImpLog(LogLevel::Fatal, LogChannel::Profile,
+             "Could not open spritesheet {:s}\n", name);
       Window->Shutdown();
     }
 
