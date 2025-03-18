@@ -20,7 +20,7 @@ TitleButton::TitleButton(int id, Sprite const& norm, Sprite const& focused,
 }
 
 void TitleButton::UpdateInput() {
-  if (!DisableInput &&
+  if (Enabled &&
       (IsSubButton || HighlightAnimation.State == +AnimationState::Stopped) &&
       ChoiceBlinkAnimation.IsOut()) {
     Button::UpdateInput();
@@ -92,11 +92,7 @@ void TitleButton::Render() {
                            BlinkTint);
     }
   } else {
-    if (Enabled) {
-      Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
-    } else {
-      Renderer->DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
-    }
+    Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
   }
 }
 

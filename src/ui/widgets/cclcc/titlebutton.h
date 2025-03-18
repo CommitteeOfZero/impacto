@@ -17,10 +17,9 @@ class TitleButton : public Widgets::Button {
   void UpdateInput() override;
   void Hide() override;
   bool IsSubButton = false;
-  bool DisableInput = false;
   Animation HighlightAnimation;
   Animation ChoiceBlinkAnimation;
-  std::function<void(Widgets::Button*)> OnClickAnimCompleteHandler;
+  std::function<void(TitleButton*)> OnClickAnimCompleteHandler;
   bool PrevFocusState = false;
 };
 
