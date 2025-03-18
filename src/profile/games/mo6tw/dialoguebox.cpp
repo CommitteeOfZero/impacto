@@ -7,13 +7,13 @@ namespace MO6TW {
 namespace DialogueBox {
 
 void Configure() {
-  ADVBoxPartLeft = EnsureGetMemberSprite("ADVBoxPartLeft");
-  ADVBoxPartRight = EnsureGetMemberSprite("ADVBoxPartRight");
-  ADVBoxDecoration = EnsureGetMemberSprite("ADVBoxDecoration");
+  ADVBoxPartLeft = EnsureGetMember<Sprite>("ADVBoxPartLeft");
+  ADVBoxPartRight = EnsureGetMember<Sprite>("ADVBoxPartRight");
+  ADVBoxDecoration = EnsureGetMember<Sprite>("ADVBoxDecoration");
 
-  ADVBoxPartLeftPos = EnsureGetMemberVec2("ADVBoxPartLeftPos");
-  ADVBoxPartRightPos = EnsureGetMemberVec2("ADVBoxPartRightPos");
-  ADVBoxDecorationPos = EnsureGetMemberVec2("ADVBoxDecorationPos");
+  ADVBoxPartLeftPos = EnsureGetMember<glm::vec2>("ADVBoxPartLeftPos");
+  ADVBoxPartRightPos = EnsureGetMember<glm::vec2>("ADVBoxPartRightPos");
+  ADVBoxDecorationPos = EnsureGetMember<glm::vec2>("ADVBoxDecorationPos");
 }
 
 }  // namespace DialogueBox

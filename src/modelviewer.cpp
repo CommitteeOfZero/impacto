@@ -29,9 +29,8 @@ static int UiWindowWidth;
 static int UiWindowHeight;
 static int UiMsaaCount;
 
-static char** BgmNames = 0;
-static uint32_t* BgmIds = 0;
-static uint32_t BgmCount = 0;
+static std::vector<std::string> BgmNames;
+static std::vector<uint32_t> BgmIds;
 static bool BgmChangeQueued;
 
 static float BgmFadeOut;
@@ -358,16 +357,18 @@ void Update(float dt) {
     ImGui::Spacing();
 
     if (ImGui::CollapsingHeader("BGM", ImGuiTreeNodeFlags_DefaultOpen)) {
-      const char* comboPreviewValue = BgmNames[CurrentBgm];
+      std::string const& comboPreviewValue = BgmNames[CurrentBgm];
 
       ImGui::Spacing();
-      if (ImGui::BeginCombo("##bgmCombo", comboPreviewValue)) {
-        for (uint32_t i = 0; i < BgmCount; i++) {
+      if (ImGui::BeginCombo("##bgmCombo", comboPreviewValue.c_str())) {
+        size_t i = 0;
+        for (const auto& name : BgmNames) {
           ImGui::PushID(i);
           const bool isSelected = (CurrentBgm == i);
-          if (ImGui::Selectable(BgmNames[i], isSelected)) CurrentBgm = i;
+          if (ImGui::Selectable(name.c_str(), isSelected)) CurrentBgm = i;
           if (isSelected) ImGui::SetItemDefaultFocus();
           ImGui::PopID();
+          i++;
         }
         ImGui::EndCombo();
       }
@@ -424,21 +425,20 @@ static void EnumerateBgm() {
   std::map<uint32_t, std::string> listing;
   IoError err = Io::VfsListFiles("bgm", listing);
   if (err != IoError_OK) {
-    ImpLog(LL_Warning, LC_General,
+    ImpLog(LogLevel::Warning, LogChannel::General,
            "Failed to list BGM archive files, stopping enumeration!\n");
     return;
   }
 
-  BgmCount = (uint32_t)listing.size();
+  size_t bgmCount = listing.size();
 
-  BgmNames = (char**)malloc(BgmCount * sizeof(char*));
-  BgmIds = (uint32_t*)malloc(BgmCount * sizeof(uint32_t));
+  BgmNames.reserve(bgmCount);
+  BgmIds.reserve(bgmCount);
 
   uint32_t i = 0;
   for (auto const& file : listing) {
-    BgmIds[i] = file.first;
-    BgmNames[i] = strdup(file.second.c_str());
-    i++;
+    BgmIds.push_back(file.first);
+    BgmNames.push_back(std::move(file.second));
   }
 }
 

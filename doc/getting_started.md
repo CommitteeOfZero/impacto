@@ -98,7 +98,7 @@ root.TitleMenu = {
 5. In the appropriate UI definition file located in `/src/profile/games/<game_name>/` in the `Configure` function, get the sprite object defined in the profile UI definition file, for example:
 
 ```cpp
-BackgroundSprite = EnsureGetMemberSprite("BackgroundSpriteProfile");
+BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSpriteProfile");
 ```
 
 You can now use the defined sprite in the appropriate UI element.  

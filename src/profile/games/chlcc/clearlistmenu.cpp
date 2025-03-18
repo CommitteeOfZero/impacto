@@ -10,47 +10,49 @@ namespace CHLCC {
 namespace ClearListMenu {
 
 void Configure() {
-  MenuTransitionDuration = EnsureGetMemberFloat("TransitionDuration");
-  BackgroundColor = EnsureGetMemberUint("BackgroundColor");
-  CircleSprite = EnsureGetMemberSprite("CircleSprite");
-  CircleStartPosition = EnsureGetMemberVec2("CircleStartPosition");
-  CircleOffset = EnsureGetMemberFloat("CircleOffset");
-  ErinPosition = EnsureGetMemberVec2("ErinPosition");
-  ErinSprite = EnsureGetMemberSprite("ErinSprite");
-  BackgroundFilter = EnsureGetMemberSprite("BackgroundFilter");
-  InitialRedBarPosition = EnsureGetMemberVec2("InitialRedBarPosition");
-  RightRedBarPosition = EnsureGetMemberVec2("RightRedBarPosition");
-  InitialRedBarSprite = EnsureGetMemberSprite("RedBarSprite");
-  RedBarDivision = EnsureGetMemberFloat("RedBarDivision");
-  RedBarBaseX = EnsureGetMemberFloat("RedBarBaseX");
-  RedBarLabelPosition = EnsureGetMemberVec2("RedBarLabelPosition");
-  RedBarLabel = EnsureGetMemberSprite("RedBarLabel");
-  MenuTitleTextRightPosition = EnsureGetMemberVec2("MenuTitleTextRightPos");
-  MenuTitleTextLeftPosition = EnsureGetMemberVec2("MenuTitleTextLeftPos");
-  MenuTitleTextAngle = EnsureGetMemberFloat("MenuTitleTextAngle");
-  TitleFadeInDuration = EnsureGetMemberFloat("TitleFadeInDuration");
-  TitleFadeOutDuration = EnsureGetMemberFloat("TitleFadeOutDuration");
-  MenuTitleText = EnsureGetMemberSprite("MenuTitleText");
+  MenuTransitionDuration = EnsureGetMember<float>("TransitionDuration");
+  BackgroundColor = EnsureGetMember<uint32_t>("BackgroundColor");
+  CircleSprite = EnsureGetMember<Sprite>("CircleSprite");
+  CircleStartPosition = EnsureGetMember<glm::vec2>("CircleStartPosition");
+  CircleOffset = EnsureGetMember<float>("CircleOffset");
+  ErinPosition = EnsureGetMember<glm::vec2>("ErinPosition");
+  ErinSprite = EnsureGetMember<Sprite>("ErinSprite");
+  BackgroundFilter = EnsureGetMember<Sprite>("BackgroundFilter");
+  InitialRedBarPosition = EnsureGetMember<glm::vec2>("InitialRedBarPosition");
+  RightRedBarPosition = EnsureGetMember<glm::vec2>("RightRedBarPosition");
+  InitialRedBarSprite = EnsureGetMember<Sprite>("RedBarSprite");
+  RedBarDivision = EnsureGetMember<float>("RedBarDivision");
+  RedBarBaseX = EnsureGetMember<float>("RedBarBaseX");
+  RedBarLabelPosition = EnsureGetMember<glm::vec2>("RedBarLabelPosition");
+  RedBarLabel = EnsureGetMember<Sprite>("RedBarLabel");
+  MenuTitleTextRightPosition =
+      EnsureGetMember<glm::vec2>("MenuTitleTextRightPos");
+  MenuTitleTextLeftPosition =
+      EnsureGetMember<glm::vec2>("MenuTitleTextLeftPos");
+  MenuTitleTextAngle = EnsureGetMember<float>("MenuTitleTextAngle");
+  TitleFadeInDuration = EnsureGetMember<float>("TitleFadeInDuration");
+  TitleFadeOutDuration = EnsureGetMember<float>("TitleFadeOutDuration");
+  MenuTitleText = EnsureGetMember<Sprite>("MenuTitleText");
 
-  LabelPosition = EnsureGetMemberVec2("LabelPosition");
-  ClearListLabel = EnsureGetMemberSprite("ClearListLabel");
-  GetMemberVec2Array(TimePositions, 6, "TimePositions");
-  EndingCountPosition = EnsureGetMemberVec2("EndingCountPosition");
-  GetMemberVec2Array(TIPSCountPositions, 2, "TIPSCountPositions");
-  GetMemberSpriteArray(Digits, 10, "Digits");
-  GetMemberVec2Array(AlbumPositions, 3, "AlbumPositions");
-  ListPosition = EnsureGetMemberVec2("ListPosition");
-  EndingList = EnsureGetMemberSprite("EndingList");
-  GetMemberVec2Array(BoxPositions, Endings, "BoxPositions");
-  EndingBox = EnsureGetMemberSprite("EndingBox");
-  GetMemberVec2Array(ThumbnailPositions, Endings, "ThumbnailPositions");
-  GetMemberSpriteArray(EndingThumbnails, Endings, "EndingThumbnails");
-  LockedThumbnail = EnsureGetMemberSprite("LockedThumbnail");
-  ButtonPromptPosition = EnsureGetMemberVec2("ButtonPromptPosition");
-  ButtonPromptSprite = EnsureGetMemberSprite("ButtonPromptSprite");
+  LabelPosition = EnsureGetMember<glm::vec2>("LabelPosition");
+  ClearListLabel = EnsureGetMember<Sprite>("ClearListLabel");
+  GetMemberArray<glm::vec2>(TimePositions, 6, "TimePositions");
+  EndingCountPosition = EnsureGetMember<glm::vec2>("EndingCountPosition");
+  GetMemberArray<glm::vec2>(TIPSCountPositions, 2, "TIPSCountPositions");
+  GetMemberArray<Sprite>(Digits, 10, "Digits");
+  GetMemberArray<glm::vec2>(AlbumPositions, 3, "AlbumPositions");
+  ListPosition = EnsureGetMember<glm::vec2>("ListPosition");
+  EndingList = EnsureGetMember<Sprite>("EndingList");
+  GetMemberArray<glm::vec2>(BoxPositions, Endings, "BoxPositions");
+  EndingBox = EnsureGetMember<Sprite>("EndingBox");
+  GetMemberArray<glm::vec2>(ThumbnailPositions, Endings, "ThumbnailPositions");
+  GetMemberArray<Sprite>(EndingThumbnails, Endings, "EndingThumbnails");
+  LockedThumbnail = EnsureGetMember<Sprite>("LockedThumbnail");
+  ButtonPromptPosition = EnsureGetMember<glm::vec2>("ButtonPromptPosition");
+  ButtonPromptSprite = EnsureGetMember<Sprite>("ButtonPromptSprite");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   auto clearList = new UI::CHLCC::ClearListMenu();
   UI::Menus[drawType].push_back(clearList);

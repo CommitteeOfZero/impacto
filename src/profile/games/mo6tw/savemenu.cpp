@@ -13,29 +13,30 @@ namespace MO6TW {
 namespace SaveMenu {
 
 void Configure() {
-  SaveMenuBackgroundSprite = EnsureGetMemberSprite("SaveMenuBackgroundSprite");
+  SaveMenuBackgroundSprite =
+      EnsureGetMember<Sprite>("SaveMenuBackgroundSprite");
 
-  EntryStartX = EnsureGetMemberFloat("EntryStartX");
-  EntryXPadding = EnsureGetMemberFloat("EntryXPadding");
-  EntryStartY = EnsureGetMemberFloat("EntryStartY");
-  EntryYPadding = EnsureGetMemberFloat("EntryYPadding");
-  QuickLoadTextSprite = EnsureGetMemberSprite("QuickLoadTextSprite");
-  LoadTextSprite = EnsureGetMemberSprite("LoadTextSprite");
-  SaveTextSprite = EnsureGetMemberSprite("SaveTextSprite");
-  MenuTitleTextPos = EnsureGetMemberVec2("MenuTitleTextPos");
+  EntryStartX = EnsureGetMember<float>("EntryStartX");
+  EntryXPadding = EnsureGetMember<float>("EntryXPadding");
+  EntryStartY = EnsureGetMember<float>("EntryStartY");
+  EntryYPadding = EnsureGetMember<float>("EntryYPadding");
+  QuickLoadTextSprite = EnsureGetMember<Sprite>("QuickLoadTextSprite");
+  LoadTextSprite = EnsureGetMember<Sprite>("LoadTextSprite");
+  SaveTextSprite = EnsureGetMember<Sprite>("SaveTextSprite");
+  MenuTitleTextPos = EnsureGetMember<glm::vec2>("MenuTitleTextPos");
 
-  QuickLoadEntrySprite = EnsureGetMemberSprite("QuickLoadEntrySprite");
+  QuickLoadEntrySprite = EnsureGetMember<Sprite>("QuickLoadEntrySprite");
   QuickLoadEntryHighlightedSprite =
-      EnsureGetMemberSprite("QuickLoadEntryHighlightedSprite");
-  SaveEntrySprite = EnsureGetMemberSprite("SaveEntrySprite");
+      EnsureGetMember<Sprite>("QuickLoadEntryHighlightedSprite");
+  SaveEntrySprite = EnsureGetMember<Sprite>("SaveEntrySprite");
   SaveEntryHighlightedSprite =
-      EnsureGetMemberSprite("SaveEntryHighlightedSprite");
-  LoadEntrySprite = EnsureGetMemberSprite("LoadEntrySprite");
+      EnsureGetMember<Sprite>("SaveEntryHighlightedSprite");
+  LoadEntrySprite = EnsureGetMember<Sprite>("LoadEntrySprite");
   LoadEntryHighlightedSprite =
-      EnsureGetMemberSprite("LoadEntryHighlightedSprite");
+      EnsureGetMember<Sprite>("LoadEntryHighlightedSprite");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   UI::SaveMenuPtr = new UI::MO6TW::SaveMenu();
   UI::Menus[drawType].push_back(UI::SaveMenuPtr);

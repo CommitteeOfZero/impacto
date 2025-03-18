@@ -143,7 +143,8 @@ int BPPbyFormat(TextureFormatType format) {
       break;
     default:;
   }
-  ImpLog(LL_Warning, LC_TextureLoad, "Unknown texture format, returning 0!\n");
+  ImpLog(LogLevel::Warning, LogChannel::TextureLoad,
+         "Unknown texture format, returning 0!\n");
   return 0;
 }
 
@@ -238,7 +239,7 @@ uint32_t TextureNX::GetBytesPerTexel() {
     default:
       break;
   }
-  ImpLog(LL_Warning, LC_TextureLoad,
+  ImpLog(LogLevel::Warning, LogChannel::TextureLoad,
          "Unknown number of bytes per texel, returning 0!\n");
   return 0;
 }
@@ -264,7 +265,8 @@ bool TextureLoadBNTX(Stream* stream, Texture* outTexture) {
     return false;
   }
   bool result = false;
-  ImpLogSlow(LL_Debug, LC_TextureLoad, "Loading BNTX texture\n");
+  ImpLogSlow(LogLevel::Debug, LogChannel::TextureLoad,
+             "Loading BNTX texture\n");
 
   stream->Seek(4, RW_SEEK_CUR);
   // uint64_t BnTxSignature = ReadLE<uint64_t>(stream);
@@ -286,7 +288,7 @@ bool TextureLoadBNTX(Stream* stream, Texture* outTexture) {
   (void)NXSignature;
 
   uint32_t TexturesCount = ReadLE<uint32_t>(stream);
-  ImpLog(LL_Debug, LC_General, "%d\n", TexturesCount);
+  ImpLog(LogLevel::Debug, LogChannel::General, "{:d}\n", TexturesCount);
   uint64_t InfoPtrsAddress = ReadLE<uint64_t>(stream);
   uint64_t DataBlkAddress = ReadLE<uint64_t>(stream);
   (void)DataBlkAddress;
@@ -373,7 +375,7 @@ bool TextureLoadBNTX(Stream* stream, Texture* outTexture) {
       uint64_t mipOffset = ReadLE<uint64_t>(stream);
 
       MipOffsets.push_back(mipOffset - BaseOffset);
-      ImpLog(LL_Debug, LC_General, "%d\n", mipOffset);
+      ImpLog(LogLevel::Debug, LogChannel::General, "{:d}\n", mipOffset);
     }*/
 
     stream->Seek(BaseOffset, RW_SEEK_SET);
@@ -440,7 +442,8 @@ bool TextureLoadBNTX(Stream* stream, Texture* outTexture) {
           break;
 
         default:
-          ImpLog(LL_Warning, LC_TextureLoad, "Unknown texture format!\n");
+          ImpLog(LogLevel::Warning, LogChannel::TextureLoad,
+                 "Unknown texture format!\n");
           break;
       }
 

@@ -1,6 +1,7 @@
 #include "cpkarchive.h"
 
 #include "../log.h"
+#include "../util.h"
 #include "uncompressedstream.h"
 #include <SDL_endian.h>
 
@@ -54,14 +55,15 @@ void DecryptUtfBlock(uint8_t* utfBlock, uint64_t size) {
 
 bool CpkArchive::ReadUtfBlock(
     uint8_t* utfBlock, uint64_t utfSize,
-    std::vector<ska::flat_hash_map<std::string, CpkCell>>* rows) {
+    std::vector<ankerl::unordered_dense::map<std::string, CpkCell, string_hash,
+                                             std::equal_to<>>>* rows) {
   const uint32_t utfMagic = 0x40555446;
   UtfStream = new MemoryStream(utfBlock, utfSize, true);
   if (ReadBE<uint32_t>(UtfStream) != utfMagic) {
     DecryptUtfBlock(utfBlock, utfSize);
     UtfStream->Seek(0, RW_SEEK_SET);
     if (ReadBE<uint32_t>(UtfStream) != utfMagic) {
-      ImpLog(LL_Trace, LC_IO, "Error reading CPK UTF table\n");
+      ImpLog(LogLevel::Trace, LogChannel::IO, "Error reading CPK UTF table\n");
       delete UtfStream;
       return false;
     }
@@ -97,7 +99,9 @@ bool CpkArchive::ReadUtfBlock(
 
   for (uint32_t i = 0; i < numRows; i++) {
     UtfStream->Seek(rowsOffset + (i * rowLength), RW_SEEK_SET);
-    ska::flat_hash_map<std::string, CpkCell> row;
+    ankerl::unordered_dense::map<std::string, CpkCell, string_hash,
+                                 std::equal_to<>>
+        row;
     for (auto& column : columns) {
       CpkCell cell;
       int storageFlag = column.Flags & CpkColumnFlags::STORAGE_MASK;
@@ -187,22 +191,28 @@ IoError CpkArchive::ReadItoc(int64_t itocOffset, int64_t contentOffset,
   BaseStream->Seek(itocOffset, RW_SEEK_SET);
   const uint32_t itocMagic = 0x49544F43;
   if (ReadBE<uint32_t>(BaseStream) != itocMagic) {
-    ImpLog(LL_Trace, LC_IO, "Error reading CPK ITOC\n");
+    ImpLog(LogLevel::Trace, LogChannel::IO, "Error reading CPK ITOC\n");
     return IoError_Fail;
   }
   BaseStream->Seek(4, RW_SEEK_CUR);
   uint64_t utfSize = ReadLE<uint64_t>(BaseStream);
   uint8_t* utfBlock = (uint8_t*)malloc(utfSize);
   BaseStream->Read(utfBlock, utfSize);
-  std::vector<ska::flat_hash_map<std::string, CpkCell>> itocUtfTable;
+  std::vector<ankerl::unordered_dense::map<std::string, CpkCell, string_hash,
+                                           std::equal_to<>>>
+      itocUtfTable;
   if (!ReadUtfBlock(utfBlock, utfSize, &itocUtfTable)) return IoError_Fail;
 
   if (itocUtfTable[0]["DataL"].Uint64Val != 0) {
-    std::vector<ska::flat_hash_map<std::string, CpkCell>> dataLUtfTable;
+    std::vector<ankerl::unordered_dense::map<std::string, CpkCell, string_hash,
+                                             std::equal_to<>>>
+        dataLUtfTable;
     if (!ReadUtfBlock(itocUtfTable[0]["DataL"].DataArray,
                       itocUtfTable[0]["DataL"].DataSize, &dataLUtfTable))
       return IoError_Fail;
-    std::vector<ska::flat_hash_map<std::string, CpkCell>> dataHUtfTable;
+    std::vector<ankerl::unordered_dense::map<std::string, CpkCell, string_hash,
+                                             std::equal_to<>>>
+        dataHUtfTable;
     if (!ReadUtfBlock(itocUtfTable[0]["DataH"].DataArray,
                       itocUtfTable[0]["DataH"].DataSize, &dataHUtfTable))
       return IoError_Fail;
@@ -278,14 +288,16 @@ IoError CpkArchive::ReadToc(int64_t tocOffset, int64_t contentOffset) {
   BaseStream->Seek(tocOffset, RW_SEEK_SET);
   const uint32_t tocMagic = 0x544F4320;
   if (ReadBE<uint32_t>(BaseStream) != tocMagic) {
-    ImpLog(LL_Trace, LC_IO, "Error reading CPK TOC\n");
+    ImpLog(LogLevel::Trace, LogChannel::IO, "Error reading CPK TOC\n");
     return IoError_Fail;
   }
   BaseStream->Seek(4, RW_SEEK_CUR);
   uint64_t utfSize = ReadLE<uint64_t>(BaseStream);
   uint8_t* utfBlock = (uint8_t*)malloc(utfSize);
   BaseStream->Read(utfBlock, utfSize);
-  std::vector<ska::flat_hash_map<std::string, CpkCell>> tocUtfTable;
+  std::vector<ankerl::unordered_dense::map<std::string, CpkCell, string_hash,
+                                           std::equal_to<>>>
+      tocUtfTable;
   if (!ReadUtfBlock(utfBlock, utfSize, &tocUtfTable)) return IoError_Fail;
 
   for (auto& row : tocUtfTable) {
@@ -328,14 +340,16 @@ IoError CpkArchive::ReadEtoc(int64_t etocOffset) {
   BaseStream->Seek(etocOffset, RW_SEEK_SET);
   const uint32_t etocMagic = 0x45544F43;
   if (ReadBE<uint32_t>(BaseStream) != etocMagic) {
-    ImpLog(LL_Trace, LC_IO, "Error reading CPK ETOC\n");
+    ImpLog(LogLevel::Trace, LogChannel::IO, "Error reading CPK ETOC\n");
     return IoError_Fail;
   }
   BaseStream->Seek(4, RW_SEEK_CUR);
   uint64_t utfSize = ReadLE<uint64_t>(BaseStream);
   uint8_t* utfBlock = (uint8_t*)malloc(utfSize);
   BaseStream->Read(utfBlock, utfSize);
-  std::vector<ska::flat_hash_map<std::string, CpkCell>> etocUtfTable;
+  std::vector<ankerl::unordered_dense::map<std::string, CpkCell, string_hash,
+                                           std::equal_to<>>>
+      etocUtfTable;
   if (!ReadUtfBlock(utfBlock, utfSize, &etocUtfTable)) return IoError_Fail;
 
   // for (auto& row : etocUtfTable) {
@@ -347,12 +361,14 @@ IoError CpkArchive::ReadEtoc(int64_t etocOffset) {
 }
 
 IoError CpkArchive::Create(Stream* stream, VfsArchive** outArchive) {
-  ImpLog(LL_Trace, LC_IO, "Trying to mount \"%s\" as CPK\n",
-         stream->Meta.FileName.c_str());
+  ImpLog(LogLevel::Trace, LogChannel::IO, "Trying to mount \"{:s}\" as CPK\n",
+         stream->Meta.FileName);
 
   CpkArchive* result = 0;
 
-  std::vector<ska::flat_hash_map<std::string, CpkCell>> headerUtfTable;
+  std::vector<ankerl::unordered_dense::map<std::string, CpkCell, string_hash,
+                                           std::equal_to<>>>
+      headerUtfTable;
 
   uint16_t alignVal;
   uint64_t utfSize = 0;
@@ -360,7 +376,7 @@ IoError CpkArchive::Create(Stream* stream, VfsArchive** outArchive) {
 
   uint32_t const magic = 0x43504B20;
   if (ReadBE<uint32_t>(stream) != magic) {
-    ImpLog(LL_Trace, LC_IO, "Not a CPK\n");
+    ImpLog(LogLevel::Trace, LogChannel::IO, "Not a CPK\n");
     goto fail;
   }
 
@@ -427,19 +443,19 @@ IoError CpkArchive::Open(FileMeta* file, Stream** outStream) {
   }
 
   if (entry->Compressed) {
-    ImpLog(LL_Debug, LC_IO,
-           "CPK cannot stream LAYLA compressed file \"%s\" in archive "
-           "\"%s\"\n",
-           entry->FileName.c_str(), BaseStream->Meta.FileName.c_str());
+    ImpLog(LogLevel::Debug, LogChannel::IO,
+           "CPK cannot stream LAYLA compressed file \"{:s}\" in archive "
+           "\"{:s}\"\n",
+           entry->FileName, BaseStream->Meta.FileName);
     return IoError_Fail;
   } else {
     err = UncompressedStream::Create(BaseStream, entry->Offset, entry->Size,
                                      outStream);
   }
   if (err != IoError_OK) {
-    ImpLog(LL_Error, LC_IO,
-           "CPK file open failed for file \"%s\" in archive \"%s\"\n",
-           entry->FileName.c_str(), BaseStream->Meta.FileName.c_str());
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "CPK file open failed for file \"{:s}\" in archive \"{:s}\"\n",
+           entry->FileName, BaseStream->Meta.FileName);
   }
   return err;
 }
@@ -478,7 +494,8 @@ static IoError DecompressLayla(char* input, int64_t compressedSize,
   uint32_t compressedOffset = 16;
   int64_t prefixOffset = compressedOffset + compressedStreamLength;
   if (compressedSize < prefixOffset || compressedSize - prefixOffset != 0x100) {
-    ImpLog(LL_Debug, LC_IO, "CPK unexpected end of LAYLA stream\n");
+    ImpLog(LogLevel::Debug, LogChannel::IO,
+           "CPK unexpected end of LAYLA stream\n");
     return IoError_Fail;
   }
   memcpy(output, input + compressedOffset + compressedStreamLength, 0x100);
@@ -528,7 +545,7 @@ static IoError DecompressLayla(char* input, int64_t compressedSize,
   return IoError_OK;
 }
 
-IoError CpkArchive::Slurp(FileMeta* file, void** outBuffer, int64_t* outSize) {
+IoError CpkArchive::Slurp(FileMeta* file, void*& outBuffer, int64_t& outSize) {
   CpkMetaEntry* entry = (CpkMetaEntry*)file;
   if (!entry->Compressed) {
     return IoError_Fail;
@@ -536,30 +553,30 @@ IoError CpkArchive::Slurp(FileMeta* file, void** outBuffer, int64_t* outSize) {
 
   int64_t pos = BaseStream->Seek(entry->Offset, RW_SEEK_SET);
   if (pos != entry->Offset) {
-    ImpLog(LL_Error, LC_IO,
-           "CPK failed to seek when slurping compressed file \"%s\" in "
-           "archive \"%s\"\n",
-           entry->FileName.c_str(), BaseStream->Meta.FileName.c_str());
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "CPK failed to seek when slurping compressed file \"{:s}\" in "
+           "archive \"{:s}\"\n",
+           entry->FileName, BaseStream->Meta.FileName);
     return IoError_Fail;
   }
   char* compressedData = (char*)malloc(entry->CompressedSize);
   int64_t read = BaseStream->Read(compressedData, entry->CompressedSize);
   if (read != entry->CompressedSize) {
-    ImpLog(LL_Error, LC_IO,
+    ImpLog(LogLevel::Error, LogChannel::IO,
            "CPK failed to read compressed data when slurping compressed file "
-           "\"%s\" in "
-           "archive \"%s\"\n",
-           entry->FileName.c_str(), BaseStream->Meta.FileName.c_str());
+           "\"{:s}\" in "
+           "archive \"{:s}\"\n",
+           entry->FileName, BaseStream->Meta.FileName);
     free(compressedData);
     return IoError_Fail;
   }
 
-  *outSize = entry->Size;
-  *outBuffer = malloc(*outSize);
+  outSize = entry->Size;
+  outBuffer = malloc(outSize);
 
   IoError err = DecompressLayla(compressedData, entry->CompressedSize,
-                                (char*)*outBuffer, *outSize);
-  if (err != IoError_OK) free(*outBuffer);
+                                (char*)outBuffer, outSize);
+  if (err != IoError_OK) free(outBuffer);
   free(compressedData);
   return err;
 }

@@ -10,10 +10,10 @@ void LoadAnimations() {
 
   PushInitialIndex();
   while (PushNextTableElement() != 0) {
-    std::string name(EnsureGetKeyString());
+    std::string name(EnsureGetKey<std::string>());
 
     SpriteAnimationDef& animation = Animations[name];
-    animation.Duration = EnsureGetMemberFloat("Duration");
+    animation.Duration = EnsureGetMember<float>("Duration");
 
     {
       EnsurePushMemberOfType("Frames", LUA_TTABLE);
@@ -22,7 +22,8 @@ void LoadAnimations() {
       animation.Frames = (Sprite*)malloc(animation.FrameCount * sizeof(Sprite));
       PushInitialIndex();
       while (PushNextTableElement() != 0) {
-        animation.Frames[EnsureGetKeyInt() - 1] = EnsureGetArrayElementSprite();
+        animation.Frames[EnsureGetKey<int32_t>() - 1] =
+            EnsureGetArrayElement<Sprite>();
         Pop();
       }
 

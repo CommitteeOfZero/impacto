@@ -3,7 +3,7 @@
 #include "../io/physicalfilestream.h"
 #include "../log.h"
 #include "../renderer/renderer.h"
-#include <flat_hash_map.hpp>
+#include <ankerl/unordered_dense.h>
 
 #include "ui/backlogmenu.h"
 #include "dialogue.h"
@@ -27,10 +27,11 @@
 namespace Impacto {
 namespace Profile {
 
-static ska::flat_hash_set<std::string> IncludedFiles;
+static ankerl::unordered_dense::set<std::string> IncludedFiles;
 
 static int LuaPrint(lua_State* ctx) {
-  ImpLog(LL_Info, LC_Profile, "Lua: %s\n", lua_tostring(ctx, 1));
+  ImpLog(LogLevel::Info, LogChannel::Profile, "Lua: {:s}\n",
+         lua_tostring(ctx, 1));
   return 0;
 }
 
@@ -38,18 +39,18 @@ static int LuaInclude(lua_State* ctx) {
   auto fileName = lua_tostring(ctx, 1);
   std::string file = "profiles/" + std::string(fileName);
   if (IncludedFiles.find(file) != IncludedFiles.end()) {
-    ImpLog(LL_Debug, LC_Profile, "File %s already included, skipping...\n",
-           file.c_str());
+    ImpLog(LogLevel::Debug, LogChannel::Profile,
+           "File {:s} already included, skipping...\n", file);
     return 0;
   }
 
   IncludedFiles.insert(file);
-  ImpLog(LL_Debug, LC_Profile, "Including %s\n", file.c_str());
+  ImpLog(LogLevel::Debug, LogChannel::Profile, "Including {:s}\n", file);
 
   Io::Stream* stream;
   IoError err = Io::PhysicalFileStream::Create(file, &stream);
   if (err != IoError_OK) {
-    ImpLog(LL_Error, LC_Profile, "Could not open %s\n", file.c_str());
+    ImpLog(LogLevel::Error, LogChannel::Profile, "Could not open {:s}\n", file);
     return 0;
   }
 
@@ -62,8 +63,8 @@ static int LuaInclude(lua_State* ctx) {
   if (script == NULL) {
     delete stream;
 
-    ImpLog(LL_Error, LC_Profile, "Could not allocate memory for script: %s",
-           file.c_str());
+    ImpLog(LogLevel::Error, LogChannel::Profile,
+           "Could not allocate memory for script: {:s}", file);
     return 0;
   }
 
@@ -76,7 +77,7 @@ static int LuaInclude(lua_State* ctx) {
     free(script);
     delete stream;
 
-    ImpLog(LL_Error, LC_Profile, "Could not open %s\n", file.c_str());
+    ImpLog(LogLevel::Error, LogChannel::Profile, "Could not open {:s}\n", file);
     return 0;
   }
 
@@ -85,16 +86,16 @@ static int LuaInclude(lua_State* ctx) {
   len += strlen(suffix);
 
   if (luaL_loadbuffer(LuaState, script, len, script)) {
-    ImpLog(LL_Fatal, LC_Profile, "Lua profile compile error: %s\n",
-           lua_tostring(ctx, -1));
+    ImpLog(LogLevel::Fatal, LogChannel::Profile,
+           "Lua profile compile error: {:s}\n", lua_tostring(ctx, -1));
     lua_close(LuaState);
-    exit(0);
+    exit(1);
   }
   if (lua_pcall(ctx, 0, 0, 0)) {
-    ImpLog(LL_Fatal, LC_Profile, "Lua profile execute error: %s\n",
-           lua_tostring(ctx, -1));
+    ImpLog(LogLevel::Fatal, LogChannel::Profile,
+           "Lua profile execute error: {:s}\n", lua_tostring(ctx, -1));
     lua_close(LuaState);
-    exit(0);
+    exit(1);
   }
 
   free(script);
@@ -140,19 +141,19 @@ void MakeLuaProfile(std::string const& name) {
   IoError err =
       Io::PhysicalFileStream::Create("profiles/" + name + "/game.lua", &stream);
   if (err != IoError_OK) {
-    ImpLog(LL_Fatal, LC_Profile, "Could not open profiles/%s/game.lua\n",
-           name.c_str());
-    exit(0);
+    ImpLog(LogLevel::Fatal, LogChannel::Profile,
+           "Could not open profiles/{:s}/game.lua\n", name);
+    exit(1);
   }
 
   char* script = (char*)malloc(stream->Meta.Size + 1);
   if (script == NULL) {
     delete stream;
 
-    ImpLog(LL_Error, LC_Profile,
-           "Could not allocate memory for script: profiles/%s/game.lua",
-           name.c_str());
-    exit(0);
+    ImpLog(LogLevel::Error, LogChannel::Profile,
+           "Could not allocate memory for script: profiles/{:s}/game.lua",
+           name);
+    exit(1);
   }
 
   int64_t len = stream->Read(script, stream->Meta.Size);
@@ -160,9 +161,9 @@ void MakeLuaProfile(std::string const& name) {
     delete stream;
     free(script);
 
-    ImpLog(LL_Fatal, LC_Profile, "Could not open profiles/%s/game.lua\n",
-           name.c_str());
-    exit(0);
+    ImpLog(LogLevel::Fatal, LogChannel::Profile,
+           "Could not open profiles/{:s}/game.lua\n", name);
+    exit(1);
   }
   script[len] = '\0';
 
@@ -216,19 +217,19 @@ void MakeLuaProfile(std::string const& name) {
   DefineEnumInt<LKMVersion>(LuaState);
   DefineEnumInt<Dialogue::REVNameLocationType>(LuaState);
 
-  ImpLog(LL_Info, LC_Profile, "Starting profile %s\n", name.c_str());
+  ImpLog(LogLevel::Info, LogChannel::Profile, "Starting profile {:s}\n", name);
 
   if (luaL_loadbuffer(LuaState, script, len, name.c_str())) {
-    ImpLog(LL_Fatal, LC_Profile, "Lua profile compile error: %s\n",
-           lua_tostring(LuaState, -1));
+    ImpLog(LogLevel::Fatal, LogChannel::Profile,
+           "Lua profile compile error: {:s}\n", lua_tostring(LuaState, -1));
     lua_close(LuaState);
-    exit(0);
+    exit(1);
   }
   if (lua_pcall(LuaState, 0, 0, 0)) {
-    ImpLog(LL_Fatal, LC_Profile, "Lua profile execute error: %s\n",
-           lua_tostring(LuaState, -1));
+    ImpLog(LogLevel::Fatal, LogChannel::Profile,
+           "Lua profile execute error: {:s}\n", lua_tostring(LuaState, -1));
     lua_close(LuaState);
-    exit(0);
+    exit(1);
   }
 
   delete stream;
@@ -237,7 +238,7 @@ void MakeLuaProfile(std::string const& name) {
   // Push the global onto the stack to load all the values later
   lua_getglobal(LuaState, "root");
 
-  ImpLog(LL_Info, LC_Profile, "Lua profile execute success\n");
+  ImpLog(LogLevel::Info, LogChannel::Profile, "Lua profile execute success\n");
 }
 
 void ClearProfile() { ClearProfileInternal(); }

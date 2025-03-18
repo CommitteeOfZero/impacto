@@ -13,42 +13,45 @@ namespace MO6TW {
 namespace MovieMenu {
 
 void Configure() {
-  BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
+  BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSprite");
 
-  FirstOPTopPartSprite = EnsureGetMemberSprite("FirstOPTopPartSprite");
-  FirstOPBottomPartSprite = EnsureGetMemberSprite("FirstOPBottomPartSprite");
-  SecondOPTopPartSprite = EnsureGetMemberSprite("SecondOPTopPartSprite");
-  SecondOPBottomPartSprite = EnsureGetMemberSprite("SecondOPBottomPartSprite");
-  GetMemberSpriteArray(UnlockedMovieThumbnailSprites, MaxMovieThumbnails,
-                       "UnlockedMovieThumbnailSprites");
-  GetMemberSpriteArray(LockedMovieThumbnailSprites, MaxMovieThumbnails,
-                       "LockedMovieThumbnailSprites");
+  FirstOPTopPartSprite = EnsureGetMember<Sprite>("FirstOPTopPartSprite");
+  FirstOPBottomPartSprite = EnsureGetMember<Sprite>("FirstOPBottomPartSprite");
+  SecondOPTopPartSprite = EnsureGetMember<Sprite>("SecondOPTopPartSprite");
+  SecondOPBottomPartSprite =
+      EnsureGetMember<Sprite>("SecondOPBottomPartSprite");
+  GetMemberArray<Sprite>(UnlockedMovieThumbnailSprites, MaxMovieThumbnails,
+                         "UnlockedMovieThumbnailSprites");
+  GetMemberArray<Sprite>(LockedMovieThumbnailSprites, MaxMovieThumbnails,
+                         "LockedMovieThumbnailSprites");
   SelectionHighlightTopLeft =
-      EnsureGetMemberSprite("SelectionHighlightTopLeft");
+      EnsureGetMember<Sprite>("SelectionHighlightTopLeft");
   SelectionHighlightTopRight =
-      EnsureGetMemberSprite("SelectionHighlightTopRight");
+      EnsureGetMember<Sprite>("SelectionHighlightTopRight");
   SelectionHighlightBottomLeft =
-      EnsureGetMemberSprite("SelectionHighlightBottomLeft");
+      EnsureGetMember<Sprite>("SelectionHighlightBottomLeft");
   SelectionHighlightBottomRight =
-      EnsureGetMemberSprite("SelectionHighlightBottomRight");
-  ItemCount = EnsureGetMemberInt("ItemCount");
-  ItemsPerRow = EnsureGetMemberInt("ItemsPerRow");
-  InitialItemPosition = EnsureGetMemberVec2("InitialItemPosition");
-  ItemOffset = EnsureGetMemberVec2("ItemOffset");
+      EnsureGetMember<Sprite>("SelectionHighlightBottomRight");
+  ItemCount = EnsureGetMember<int>("ItemCount");
+  ItemsPerRow = EnsureGetMember<int>("ItemsPerRow");
+  InitialItemPosition = EnsureGetMember<glm::vec2>("InitialItemPosition");
+  ItemOffset = EnsureGetMember<glm::vec2>("ItemOffset");
 
   HighlightAnimationDuration =
-      EnsureGetMemberFloat("HighlightAnimationDuration");
-  HighlightTopLeftOffset = EnsureGetMemberVec2("HighlightTopLeftOffset");
-  HighlightTopRightOffset = EnsureGetMemberVec2("HighlightTopRightOffset");
-  HighlightBottomLeftOffset = EnsureGetMemberVec2("HighlightBottomLeftOffset");
+      EnsureGetMember<float>("HighlightAnimationDuration");
+  HighlightTopLeftOffset = EnsureGetMember<glm::vec2>("HighlightTopLeftOffset");
+  HighlightTopRightOffset =
+      EnsureGetMember<glm::vec2>("HighlightTopRightOffset");
+  HighlightBottomLeftOffset =
+      EnsureGetMember<glm::vec2>("HighlightBottomLeftOffset");
   HighlightBottomRightOffset =
-      EnsureGetMemberVec2("HighlightBottomRightOffset");
+      EnsureGetMember<glm::vec2>("HighlightBottomRightOffset");
 
-  FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
-  FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
+  FadeInDuration = EnsureGetMember<float>("FadeInDuration");
+  FadeOutDuration = EnsureGetMember<float>("FadeOutDuration");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   UI::Menus[drawType].push_back(new UI::MO6TW::MovieMenu());
 }

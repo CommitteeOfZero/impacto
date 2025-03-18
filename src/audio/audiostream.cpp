@@ -14,7 +14,7 @@ AudioStream* AudioStream::Create(Io::Stream* stream) {
     AudioStream* result = f(stream);
     if (result) return result;
   }
-  ImpLog(LL_Error, LC_Audio, "No audio decoder found\n");
+  ImpLog(LogLevel::Error, LogChannel::Audio, "No audio decoder found\n");
   return 0;
 }
 

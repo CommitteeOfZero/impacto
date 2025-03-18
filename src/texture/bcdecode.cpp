@@ -15,13 +15,13 @@
  */
 
 #ifdef BCN_DECODER_TEST
-#include <stdio.h>
+#include <cstdio>
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
 #endif
 
-#include <string.h>
-#include <stdint.h>
+#include <cstring>
+#include <cstdint>
 #include "bcdecode.h"
 
 typedef struct {

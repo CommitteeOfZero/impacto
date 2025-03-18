@@ -7,7 +7,7 @@
 #include "tipsmenu.h"
 #include "optionsmenu.h"
 
-#include <flat_hash_map.hpp>
+#include <ankerl/unordered_dense.h>
 #include <vector>
 
 namespace Impacto {
@@ -29,7 +29,7 @@ BETTER_ENUM(TrophyMenuType, int, None, CHLCC)
 
 int constexpr MaxExtraMenus = 10;
 
-inline ska::flat_hash_map<uint8_t, std::vector<Menu*>> Menus;
+inline ankerl::unordered_dense::map<uint8_t, std::vector<Menu*>> Menus;
 
 // Current focused menu
 inline Menu* FocusedMenu = nullptr;

@@ -16,13 +16,13 @@ void Configure() {
   if (TryPushMember("TipsMenu")) {
     AssertIs(LUA_TTABLE);
 
-    Type = TipsMenuType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
+    Type = TipsMenuType::_from_integral_unchecked(EnsureGetMember<int>("Type"));
 
     if (Type != +TipsMenuType::None && Type != +TipsMenuType::CHLCC) {
-      FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
-      FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
+      FadeInDuration = EnsureGetMember<float>("FadeInDuration");
+      FadeOutDuration = EnsureGetMember<float>("FadeOutDuration");
 
-      BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
+      BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSprite");
     }
 
     if (Type == +TipsMenuType::MO6TW) {

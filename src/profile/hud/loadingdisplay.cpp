@@ -8,16 +8,17 @@ namespace LoadingDisplay {
 void Configure() {
   EnsurePushMemberOfType("LoadingDisplay", LUA_TTABLE);
 
-  ResourceLoadBgAnim = EnsureGetMemberAnimation("ResourceLoadBgAnim");
-  SaveLoadBgAnim = EnsureGetMemberAnimation("SaveLoadBgAnim");
-  LoadingIconAnim = EnsureGetMemberAnimation("LoadingIconAnim");
-  LoadingTextAnim = EnsureGetMemberAnimation("LoadingTextAnim");
-  ResourceBgPos = EnsureGetMemberVec2("ResourceBgPos");
-  SaveBgPos = EnsureGetMemberVec2("SaveBgPos");
-  IconPos = EnsureGetMemberVec2("IconPos");
-  TextPos = EnsureGetMemberVec2("TextPos");
-  FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
-  FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
+  ResourceLoadBgAnim =
+      EnsureGetMember<SpriteAnimationDef>("ResourceLoadBgAnim");
+  SaveLoadBgAnim = EnsureGetMember<SpriteAnimationDef>("SaveLoadBgAnim");
+  LoadingIconAnim = EnsureGetMember<SpriteAnimationDef>("LoadingIconAnim");
+  LoadingTextAnim = EnsureGetMember<SpriteAnimationDef>("LoadingTextAnim");
+  ResourceBgPos = EnsureGetMember<glm::vec2>("ResourceBgPos");
+  SaveBgPos = EnsureGetMember<glm::vec2>("SaveBgPos");
+  IconPos = EnsureGetMember<glm::vec2>("IconPos");
+  TextPos = EnsureGetMember<glm::vec2>("TextPos");
+  FadeInDuration = EnsureGetMember<float>("FadeInDuration");
+  FadeOutDuration = EnsureGetMember<float>("FadeOutDuration");
 
   Pop();
 }

@@ -2,7 +2,7 @@
 
 #include <vulkan/vulkan.h>
 #include <functional>
-#include <flat_hash_map.hpp>
+#include <ankerl/unordered_dense.h>
 #include <vma/vk_mem_alloc.h>
 #include "pipeline.h"
 
@@ -41,7 +41,7 @@ typedef struct VkTexture {
   VkDescriptorSet Descriptor;
 } VkTexture;
 
-inline ska::flat_hash_map<uint32_t, VkTexture> Textures;
+inline ankerl::unordered_dense::map<uint32_t, VkTexture> Textures;
 
 struct UploadContext {
   VkDevice Device;

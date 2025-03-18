@@ -7,7 +7,7 @@
 
 // only these for new vfs
 #include "stream.h"
-#include <flat_hash_map.hpp>
+#include <ankerl/unordered_dense.h>
 #include <map>
 
 namespace Impacto {
@@ -49,9 +49,9 @@ IoError VfsOpen(std::string const& mountpoint, std::string const& fileName,
                 Stream** outStream);
 IoError VfsOpen(std::string const& mountpoint, uint32_t id, Stream** outStream);
 IoError VfsSlurp(std::string const& mountpoint, std::string const& fileName,
-                 void** outMemory, int64_t* outSize);
-IoError VfsSlurp(std::string const& mountpoint, uint32_t id, void** outMemory,
-                 int64_t* outSize);
+                 void*& outMemory, int64_t& outSize);
+IoError VfsSlurp(std::string const& mountpoint, uint32_t id, void*& outMemory,
+                 int64_t& outSize);
 // You can provide a filled outListing, we'll clear it
 IoError VfsListFiles(std::string const& mountpoint,
                      std::map<uint32_t, std::string>& outListing);

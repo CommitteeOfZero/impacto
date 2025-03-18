@@ -12,16 +12,18 @@ static ALCcontext* AlcContext = 0;
 bool AudioBackend::Init() {
   AlcDevice = alcOpenDevice(NULL);
   if (!AlcDevice) {
-    ImpLog(LL_Fatal, LC_Audio, "Could not create OpenAL device\n");
+    ImpLog(LogLevel::Fatal, LogChannel::Audio,
+           "Could not create OpenAL device\n");
     return false;
   }
   if (alIsExtensionPresent("AL_EXT_float32") == AL_FALSE) {
-    ImpLog(LL_Error, LC_Audio,
+    ImpLog(LogLevel::Error, LogChannel::Audio,
            "No floating-point audio support, some decoders may fail\n");
   }
   AlcContext = alcCreateContext(AlcDevice, NULL);
   if (!AlcContext || !alcMakeContextCurrent(AlcContext)) {
-    ImpLog(LL_Fatal, LC_Audio, "Failed to create OpenAL context\n");
+    ImpLog(LogLevel::Fatal, LogChannel::Audio,
+           "Failed to create OpenAL context\n");
     alcCloseDevice(AlcDevice);
     return false;
   }

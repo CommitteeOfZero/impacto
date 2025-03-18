@@ -15,101 +15,102 @@ namespace CHLCC {
 namespace TitleMenu {
 
 void Configure() {
-  IntroBackgroundSprite = EnsureGetMemberSprite("IntroBackgroundSprite");
-  BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
-  DelusionADVUnderSprite = EnsureGetMemberSprite("DelusionADVUnderSprite");
-  DelusionADVUnderX = EnsureGetMemberFloat("DelusionADVUnderX");
-  DelusionADVUnderY = EnsureGetMemberFloat("DelusionADVUnderY");
-  DelusionADVSprite = EnsureGetMemberSprite("DelusionADVSprite");
-  DelusionADVX = EnsureGetMemberFloat("DelusionADVX");
-  DelusionADVY = EnsureGetMemberFloat("DelusionADVY");
-  SeiraUnderSprite = EnsureGetMemberSprite("SeiraUnderSprite");
-  SeiraUnderX = EnsureGetMemberFloat("SeiraUnderX");
-  SeiraUnderY = EnsureGetMemberFloat("SeiraUnderY");
-  SeiraSprite = EnsureGetMemberSprite("SeiraSprite");
-  SeiraX = EnsureGetMemberFloat("SeiraX");
-  SeiraY = EnsureGetMemberFloat("SeiraY");
-  CHLogoSprite = EnsureGetMemberSprite("CHLogoSprite");
-  CHLogoX = EnsureGetMemberFloat("CHLogoX");
-  CHLogoY = EnsureGetMemberFloat("CHLogoY");
-  LCCLogoUnderSprite = EnsureGetMemberSprite("LCCLogoUnderSprite");
-  LCCLogoUnderX = EnsureGetMemberFloat("LCCLogoUnderX");
-  LCCLogoUnderY = EnsureGetMemberFloat("LCCLogoUnderY");
-  ChuLeftLogoSprite = EnsureGetMemberSprite("ChuLeftLogoSprite");
-  ChuLeftLogoX = EnsureGetMemberFloat("ChuLeftLogoX");
-  ChuLeftLogoY = EnsureGetMemberFloat("ChuLeftLogoY");
-  ChuRightLogoSprite = EnsureGetMemberSprite("ChuRightLogoSprite");
-  ChuRightLogoX = EnsureGetMemberFloat("ChuRightLogoX");
-  ChuRightLogoY = EnsureGetMemberFloat("ChuRightLogoY");
-  LoveLogoSprite = EnsureGetMemberSprite("LoveLogoSprite");
-  LoveLogoX = EnsureGetMemberFloat("LoveLogoX");
-  LoveLogoY = EnsureGetMemberFloat("LoveLogoY");
-  StarLogoSprite = EnsureGetMemberSprite("StarLogoSprite");
-  StarLogoX = EnsureGetMemberFloat("StarLogoX");
-  StarLogoY = EnsureGetMemberFloat("StarLogoY");
-  ExclMarkLogoSprite = EnsureGetMemberSprite("ExclMarkLogoSprite");
-  ExclMarkLogoX = EnsureGetMemberFloat("ExclMarkLogoX");
-  ExclMarkLogoY = EnsureGetMemberFloat("ExclMarkLogoY");
-  CopyrightTextSprite = EnsureGetMemberSprite("CopyrightTextSprite");
-  CopyrightTextX = EnsureGetMemberFloat("CopyrightTextX");
-  CopyrightTextY = EnsureGetMemberFloat("CopyrightTextY");
-  SpinningCircleSprite = EnsureGetMemberSprite("SpinningCircleSprite");
-  SpinningCircleX = EnsureGetMemberFloat("SpinningCircleX");
-  SpinningCircleY = EnsureGetMemberFloat("SpinningCircleY");
+  IntroBackgroundSprite = EnsureGetMember<Sprite>("IntroBackgroundSprite");
+  BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSprite");
+  DelusionADVUnderSprite = EnsureGetMember<Sprite>("DelusionADVUnderSprite");
+  DelusionADVUnderX = EnsureGetMember<float>("DelusionADVUnderX");
+  DelusionADVUnderY = EnsureGetMember<float>("DelusionADVUnderY");
+  DelusionADVSprite = EnsureGetMember<Sprite>("DelusionADVSprite");
+  DelusionADVX = EnsureGetMember<float>("DelusionADVX");
+  DelusionADVY = EnsureGetMember<float>("DelusionADVY");
+  SeiraUnderSprite = EnsureGetMember<Sprite>("SeiraUnderSprite");
+  SeiraUnderX = EnsureGetMember<float>("SeiraUnderX");
+  SeiraUnderY = EnsureGetMember<float>("SeiraUnderY");
+  SeiraSprite = EnsureGetMember<Sprite>("SeiraSprite");
+  SeiraX = EnsureGetMember<float>("SeiraX");
+  SeiraY = EnsureGetMember<float>("SeiraY");
+  CHLogoSprite = EnsureGetMember<Sprite>("CHLogoSprite");
+  CHLogoX = EnsureGetMember<float>("CHLogoX");
+  CHLogoY = EnsureGetMember<float>("CHLogoY");
+  LCCLogoUnderSprite = EnsureGetMember<Sprite>("LCCLogoUnderSprite");
+  LCCLogoUnderX = EnsureGetMember<float>("LCCLogoUnderX");
+  LCCLogoUnderY = EnsureGetMember<float>("LCCLogoUnderY");
+  ChuLeftLogoSprite = EnsureGetMember<Sprite>("ChuLeftLogoSprite");
+  ChuLeftLogoX = EnsureGetMember<float>("ChuLeftLogoX");
+  ChuLeftLogoY = EnsureGetMember<float>("ChuLeftLogoY");
+  ChuRightLogoSprite = EnsureGetMember<Sprite>("ChuRightLogoSprite");
+  ChuRightLogoX = EnsureGetMember<float>("ChuRightLogoX");
+  ChuRightLogoY = EnsureGetMember<float>("ChuRightLogoY");
+  LoveLogoSprite = EnsureGetMember<Sprite>("LoveLogoSprite");
+  LoveLogoX = EnsureGetMember<float>("LoveLogoX");
+  LoveLogoY = EnsureGetMember<float>("LoveLogoY");
+  StarLogoSprite = EnsureGetMember<Sprite>("StarLogoSprite");
+  StarLogoX = EnsureGetMember<float>("StarLogoX");
+  StarLogoY = EnsureGetMember<float>("StarLogoY");
+  ExclMarkLogoSprite = EnsureGetMember<Sprite>("ExclMarkLogoSprite");
+  ExclMarkLogoX = EnsureGetMember<float>("ExclMarkLogoX");
+  ExclMarkLogoY = EnsureGetMember<float>("ExclMarkLogoY");
+  CopyrightTextSprite = EnsureGetMember<Sprite>("CopyrightTextSprite");
+  CopyrightTextX = EnsureGetMember<float>("CopyrightTextX");
+  CopyrightTextY = EnsureGetMember<float>("CopyrightTextY");
+  SpinningCircleSprite = EnsureGetMember<Sprite>("SpinningCircleSprite");
+  SpinningCircleX = EnsureGetMember<float>("SpinningCircleX");
+  SpinningCircleY = EnsureGetMember<float>("SpinningCircleY");
   SpinningCircleAnimationDuration =
-      EnsureGetMemberFloat("SpinningCircleAnimationDuration");
-  ItemHighlightSprite = EnsureGetMemberSprite("ItemHighlightSprite");
-  ItemHighlightOffsetX = EnsureGetMemberFloat("ItemHighlightOffsetX");
-  ItemHighlightOffsetY = EnsureGetMemberFloat("ItemHighlightOffsetY");
-  ItemPadding = EnsureGetMemberFloat("ItemPadding");
-  ItemYBase = EnsureGetMemberFloat("ItemYBase");
-  ItemFadeInDuration = EnsureGetMemberFloat("ItemFadeInDuration");
-  ItemFadeOutDuration = EnsureGetMemberFloat("ItemFadeOutDuration");
+      EnsureGetMember<float>("SpinningCircleAnimationDuration");
+  ItemHighlightSprite = EnsureGetMember<Sprite>("ItemHighlightSprite");
+  ItemHighlightOffsetX = EnsureGetMember<float>("ItemHighlightOffsetX");
+  ItemHighlightOffsetY = EnsureGetMember<float>("ItemHighlightOffsetY");
+  ItemPadding = EnsureGetMember<float>("ItemPadding");
+  ItemYBase = EnsureGetMember<float>("ItemYBase");
+  ItemFadeInDuration = EnsureGetMember<float>("ItemFadeInDuration");
+  ItemFadeOutDuration = EnsureGetMember<float>("ItemFadeOutDuration");
   SecondaryItemFadeInDuration =
-      EnsureGetMemberFloat("SecondaryItemFadeInDuration");
+      EnsureGetMember<float>("SecondaryItemFadeInDuration");
   SecondaryItemFadeOutDuration =
-      EnsureGetMemberFloat("SecondaryItemFadeOutDuration");
-  PrimaryFadeInDuration = EnsureGetMemberFloat("PrimaryFadeInDuration");
-  PrimaryFadeOutDuration = EnsureGetMemberFloat("PrimaryFadeOutDuration");
-  SecondaryFadeInDuration = EnsureGetMemberFloat("SecondaryFadeInDuration");
-  SecondaryFadeOutDuration = EnsureGetMemberFloat("SecondaryFadeOutDuration");
-  LineNum = EnsureGetMemberInt("LineNum");
-  GetMemberSpriteArray(LineSprites, LineNum, "LineEntriesSprites");
-  ItemLoadQuickSprite = EnsureGetMemberSprite("ItemLoadQuickSprite");
-  SecondaryItemX = EnsureGetMemberFloat("SecondaryItemX");
-  ItemLoadY = EnsureGetMemberFloat("ItemLoadY");
-  ItemLoadQuickY = EnsureGetMemberFloat("ItemLoadQuickY");
-  ItemLoadSprite = EnsureGetMemberSprite("ItemLoadSprite");
+      EnsureGetMember<float>("SecondaryItemFadeOutDuration");
+  PrimaryFadeInDuration = EnsureGetMember<float>("PrimaryFadeInDuration");
+  PrimaryFadeOutDuration = EnsureGetMember<float>("PrimaryFadeOutDuration");
+  SecondaryFadeInDuration = EnsureGetMember<float>("SecondaryFadeInDuration");
+  SecondaryFadeOutDuration = EnsureGetMember<float>("SecondaryFadeOutDuration");
+  LineNum = EnsureGetMember<int>("LineNum");
+  GetMemberArray<Sprite>(LineSprites, LineNum, "LineEntriesSprites");
+  ItemLoadQuickSprite = EnsureGetMember<Sprite>("ItemLoadQuickSprite");
+  SecondaryItemX = EnsureGetMember<float>("SecondaryItemX");
+  ItemLoadY = EnsureGetMember<float>("ItemLoadY");
+  ItemLoadQuickY = EnsureGetMember<float>("ItemLoadQuickY");
+  ItemLoadSprite = EnsureGetMember<Sprite>("ItemLoadSprite");
   ItemLoadQuickHighlightedSprite =
-      EnsureGetMemberSprite("ItemLoadQuickHighlightedSprite");
+      EnsureGetMember<Sprite>("ItemLoadQuickHighlightedSprite");
   ItemLoadHighlightedSprite =
-      EnsureGetMemberSprite("ItemLoadHighlightedSprite");
-  ItemClearListY = EnsureGetMemberFloat("ItemClearListY");
-  ItemCGLibraryY = EnsureGetMemberFloat("ItemCGLibraryY");
-  ItemSoundLibraryY = EnsureGetMemberFloat("ItemSoundLibraryY");
-  ItemMovieLibraryY = EnsureGetMemberFloat("ItemMovieLibraryY");
-  ItemTipsY = EnsureGetMemberFloat("ItemTipsY");
-  ItemTrophyY = EnsureGetMemberFloat("ItemTrophyY");
-  ItemConfigY = EnsureGetMemberFloat("ItemConfigY");
-  ItemSystemSaveY = EnsureGetMemberFloat("ItemSystemSaveY");
+      EnsureGetMember<Sprite>("ItemLoadHighlightedSprite");
+  ItemClearListY = EnsureGetMember<float>("ItemClearListY");
+  ItemCGLibraryY = EnsureGetMember<float>("ItemCGLibraryY");
+  ItemSoundLibraryY = EnsureGetMember<float>("ItemSoundLibraryY");
+  ItemMovieLibraryY = EnsureGetMember<float>("ItemMovieLibraryY");
+  ItemTipsY = EnsureGetMember<float>("ItemTipsY");
+  ItemTrophyY = EnsureGetMember<float>("ItemTrophyY");
+  ItemConfigY = EnsureGetMember<float>("ItemConfigY");
+  ItemSystemSaveY = EnsureGetMember<float>("ItemSystemSaveY");
   SecondaryItemHighlightSprite =
-      EnsureGetMemberSprite("SecondaryItemHighlightSprite");
-  SecondaryItemHighlightX = EnsureGetMemberFloat("SecondaryItemHighlightX");
-  SecondaryMenuPaddingY = EnsureGetMemberFloat("SecondaryMenuPaddingY");
-  SecondaryMenuLoadOffsetY = EnsureGetMemberFloat("SecondaryMenuLoadOffsetY");
-  SecondaryMenuLineX = EnsureGetMemberFloat("SecondaryMenuLineX");
-  SecondaryMenuLoadLineY = EnsureGetMemberFloat("SecondaryMenuLoadLineY");
+      EnsureGetMember<Sprite>("SecondaryItemHighlightSprite");
+  SecondaryItemHighlightX = EnsureGetMember<float>("SecondaryItemHighlightX");
+  SecondaryMenuPaddingY = EnsureGetMember<float>("SecondaryMenuPaddingY");
+  SecondaryMenuLoadOffsetY = EnsureGetMember<float>("SecondaryMenuLoadOffsetY");
+  SecondaryMenuLineX = EnsureGetMember<float>("SecondaryMenuLineX");
+  SecondaryMenuLoadLineY = EnsureGetMember<float>("SecondaryMenuLoadLineY");
   SecondaryMenuLoadQuickLineY =
-      EnsureGetMemberFloat("SecondaryMenuLoadQuickLineY");
-  SecondaryMenuExtraClearY = EnsureGetMemberFloat("SecondaryMenuExtraClearY");
-  SecondaryMenuExtraCGY = EnsureGetMemberFloat("SecondaryMenuExtraCGY");
-  SecondaryMenuExtraSoundY = EnsureGetMemberFloat("SecondaryMenuExtraSoundY");
-  SecondaryMenuExtraMovieY = EnsureGetMemberFloat("SecondaryMenuExtraMovieY");
-  SecondaryMenuExtraTipsY = EnsureGetMemberFloat("SecondaryMenuExtraTipsY");
-  SecondaryMenuExtraTrophyY = EnsureGetMemberFloat("SecondaryMenuExtraTrophyY");
+      EnsureGetMember<float>("SecondaryMenuLoadQuickLineY");
+  SecondaryMenuExtraClearY = EnsureGetMember<float>("SecondaryMenuExtraClearY");
+  SecondaryMenuExtraCGY = EnsureGetMember<float>("SecondaryMenuExtraCGY");
+  SecondaryMenuExtraSoundY = EnsureGetMember<float>("SecondaryMenuExtraSoundY");
+  SecondaryMenuExtraMovieY = EnsureGetMember<float>("SecondaryMenuExtraMovieY");
+  SecondaryMenuExtraTipsY = EnsureGetMember<float>("SecondaryMenuExtraTipsY");
+  SecondaryMenuExtraTrophyY =
+      EnsureGetMember<float>("SecondaryMenuExtraTrophyY");
   SecondaryMenuSystemConfigY =
-      EnsureGetMemberFloat("SecondaryMenuSystemConfigY");
-  SecondaryMenuSystemSaveY = EnsureGetMemberFloat("SecondaryMenuSystemSaveY");
+      EnsureGetMember<float>("SecondaryMenuSystemConfigY");
+  SecondaryMenuSystemSaveY = EnsureGetMember<float>("SecondaryMenuSystemSaveY");
 
   UI::CHLCC::TitleMenu* menu = new UI::CHLCC::TitleMenu();
   menu->PressToStartAnimation.DurationIn =
@@ -132,7 +133,7 @@ void Configure() {
   UI::TitleMenuPtr = menu;
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   UI::Menus[drawType].push_back(UI::TitleMenuPtr);
 }

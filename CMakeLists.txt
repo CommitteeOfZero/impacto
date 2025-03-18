@@ -650,6 +650,7 @@ if (NX OR EMSCRIPTEN)
     set(IMPACTO_DISABLE_VULKAN ON)
     set(IMPACTO_DISABLE_DX9 ON)
     set(IMPACTO_DISABLE_MMAP ON)
+    set(BUILD_SHARED_LIBS OFF)
 endif ()
 
 if(ANDROID)
@@ -702,6 +703,10 @@ if(ANDROID OR NX)
     set(LIBATRAC9_BUILD_SHARED OFF)
 endif()
 
+if(NX)
+    add_compile_definitions(__SWITCH__)
+endif()
+
 # dependencies
 FetchContent_Declare(
     glm
@@ -725,7 +730,7 @@ FetchContent_Declare(
 FetchContent_Declare(
     fmt
     GIT_REPOSITORY "https://github.com/fmtlib/fmt.git"
-    GIT_TAG "11.0.2"
+    GIT_TAG "11.1.4"
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/fmtlib
     SYSTEM
     EXCLUDE_FROM_ALL
@@ -749,11 +754,41 @@ FetchContent_Declare(
     EXCLUDE_FROM_ALL
 )
 
+FetchContent_Declare(
+    concurrentqueue
+    GIT_REPOSITORY "https://github.com/cameron314/concurrentqueue"
+    GIT_TAG "v1.0.4"
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/concurrentqueue
+    SYSTEM
+    EXCLUDE_FROM_ALL
+)
+
+FetchContent_Declare(
+    readerwriterqueue
+    GIT_REPOSITORY "https://github.com/cameron314/readerwriterqueue"
+    GIT_TAG "16b48ae1148284e7b40abf72167206a4390a4592"
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/readerwriterqueue
+    SYSTEM
+    EXCLUDE_FROM_ALL
+)
+
+FetchContent_Declare(
+    unordered_dense
+    GIT_REPOSITORY "https://github.com/martinus/unordered_dense"
+    GIT_TAG "v4.5.0"
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/unordered_dense
+    SYSTEM
+    EXCLUDE_FROM_ALL
+)
+
 FetchContent_MakeAvailable(fmt)
 FetchContent_MakeAvailable(glm)
 FetchContent_MakeAvailable(pugixml)
 FetchContent_MakeAvailable(utf8cpp)
 FetchContent_MakeAvailable(libatrac9)
+FetchContent_MakeAvailable(concurrentqueue)
+FetchContent_MakeAvailable(readerwriterqueue)
+FetchContent_MakeAvailable(unordered_dense)
 
 if (NOT DEFINED IMPACTO_DISABLE_MMAP)
     list(APPEND Impacto_Src
@@ -920,6 +955,7 @@ list(APPEND Impacto_Libs
         fmt::fmt
         pugixml::pugixml
         atrac9
+        unordered_dense::unordered_dense
 )
 
 if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
@@ -1015,6 +1051,9 @@ if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
 
     if (NOT VCPKG_TOOLCHAIN)
         set(AVCPP_PATCH git apply ${CMAKE_CURRENT_SOURCE_DIR}/vendor/patches/avcpp.patch)
+        if(NX)
+            set(AV_ENABLE_SHARED OFF)
+        endif()
         FetchContent_Declare(
             avcpp
             GIT_REPOSITORY "https://github.com/h4tr3d/avcpp"
@@ -1127,7 +1166,8 @@ target_link_libraries(impacto PRIVATE ${Impacto_Libs})
 
 # compiler/dependency configuration
 
-set_property(TARGET impacto PROPERTY CXX_STANDARD 17)
+set_property(TARGET impacto PROPERTY CXX_STANDARD 20)
+set_property(TARGET impacto PROPERTY CXX_SCAN_FOR_MODULES OFF)
 
 # Hot reload for MSVC
 if(NOT IMPACTO_ASAN)

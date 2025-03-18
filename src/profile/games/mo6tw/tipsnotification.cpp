@@ -8,19 +8,21 @@ namespace MO6TW {
 namespace TipsNotification {
 
 void Configure() {
-  AlertPosition = EnsureGetMemberVec2("AlertPosition");
-  NotificationAlertMessageId = EnsureGetMemberInt("NotificationAlertMessageId");
-  FinalNotificationPosition = EnsureGetMemberVec2("FinalNotificationPosition");
+  AlertPosition = EnsureGetMember<glm::vec2>("AlertPosition");
+  NotificationAlertMessageId =
+      EnsureGetMember<int>("NotificationAlertMessageId");
+  FinalNotificationPosition =
+      EnsureGetMember<glm::vec2>("FinalNotificationPosition");
   InitialNotificationPosition =
-      EnsureGetMemberVec2("InitialNotificationPosition");
+      EnsureGetMember<glm::vec2>("InitialNotificationPosition");
   NotificationRenderingBounds =
-      EnsureGetMemberRectF("NotificationRenderingBounds");
-  TimerDuration = EnsureGetMemberFloat("TimerDuration");
-  MoveAnimationDuration = EnsureGetMemberFloat("MoveAnimationDuration");
+      EnsureGetMember<RectF>("NotificationRenderingBounds");
+  TimerDuration = EnsureGetMember<float>("TimerDuration");
+  MoveAnimationDuration = EnsureGetMember<float>("MoveAnimationDuration");
 
-  AlertTextColorIndex = EnsureGetMemberInt("AlertTextColorIndex");
-  TipNameColorIndex = EnsureGetMemberInt("TipNameColorIndex");
-  FontSize = EnsureGetMemberFloat("FontSize");
+  AlertTextColorIndex = EnsureGetMember<int>("AlertTextColorIndex");
+  TipNameColorIndex = EnsureGetMember<int>("TipNameColorIndex");
+  FontSize = EnsureGetMember<float>("FontSize");
 }
 
 }  // namespace TipsNotification

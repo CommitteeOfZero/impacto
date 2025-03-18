@@ -459,7 +459,8 @@ void ShowScriptDebugger() {
   if (ScriptFilesListing.size() == 0) {
     IoError err = Io::VfsListFiles("script", ScriptFilesListing);
     if (err != IoError_OK) {
-      ImpLog(LL_Warning, LC_General, "Failed to open script archive!\n");
+      ImpLog(LogLevel::Warning, LogChannel::General,
+             "Failed to open script archive!\n");
       return;
     }
   }
@@ -758,7 +759,7 @@ void ShowScriptDebugger() {
   ImGui::PopItemWidth();
 }
 
-static ska::flat_hash_map<uint32_t, std::vector<std::string>>
+static ankerl::unordered_dense::map<uint32_t, std::vector<std::string>>
     SpritesBySpriteSheet;
 
 static void ShowSprite(const Sprite* sprite) {

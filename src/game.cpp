@@ -163,7 +163,7 @@ void Shutdown() {
   if (Profile::GameFeatures & GameFeature::Renderer2D) {
     Renderer->Shutdown();
   }
-
+  WorkQueue::StopWorkQueue();
   Window->Shutdown();
 }
 
@@ -531,8 +531,8 @@ void Render() {
           break;
         }
         default: {
-          ImpLogSlow(LL_Warning, LC_General,
-                     "Encountered unknown draw component type %02X\n",
+          ImpLogSlow(LogLevel::Warning, LogChannel::General,
+                     "Encountered unknown draw component type 0x{:02x}\n",
                      DrawComponents[i]);
           break;
         }

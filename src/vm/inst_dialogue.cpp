@@ -46,9 +46,9 @@ VmInstruction(InstSetMesWinPri) {
   PopExpression(arg1);
   PopExpression(arg2);
   PopExpression(unused);
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction MesViewFlag(arg1: %i, arg2: "
-             "%i, unused: %i)\n",
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction MesViewFlag(arg1: {:d}, arg2: "
+             "{:d}, unused: {:d})\n",
              arg1, arg2, unused);
 }
 VmInstruction(InstMesSync) {}
@@ -62,21 +62,21 @@ VmInstruction(InstMesSetID) {
         if (!GetFlag(1288)) {
           SaveSystem::SetCheckpointId(savePointId);
         }
-        ImpLogSlow(
-            LL_Warning, LC_VMStub,
-            "STUB instruction MesSetID(type: SetSavePoint, savePointId: %i)\n",
-            savePointId);
+        ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                   "STUB instruction MesSetID(type: SetSavePoint, savePointId: "
+                   "{:d})\n",
+                   savePointId);
       } else {
-        ImpLogSlow(LL_Warning, LC_VMStub,
+        ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                    "STUB instruction MesSetID(type: SetSavePoint)\n");
       }
     } break;
     case 1: {  // SetSavePointForPage
       PopUint16(savePointId);
       PopExpression(dialoguePageId);
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction MesSetID(type: SetSavePoint1, "
-                 "savePointId: %i, arg1: %i)\n",
+                 "savePointId: {:d}, arg1: {:d})\n",
                  savePointId, dialoguePageId);
       if (!GetFlag(1288 + dialoguePageId)) {
         SaveSystem::SetCheckpointId(savePointId);
@@ -86,8 +86,8 @@ VmInstruction(InstMesSetID) {
     case 2: {  // SetPage
       PopExpression(dialoguePageId);
       ImpLogSlow(
-          LL_Warning, LC_VMStub,
-          "STUB instruction MesSetID(type: SetPage, dialoguePageId: %i)\n",
+          LogLevel::Warning, LogChannel::VMStub,
+          "STUB instruction MesSetID(type: SetPage, dialoguePageId: {:d})\n",
           dialoguePageId);
       thread->DialoguePageId = dialoguePageId;
     } break;
@@ -98,16 +98,17 @@ VmInstruction(InstMesCls) {
   PopUint8(type);  // TODO: Implement types 0, 1, 2, 3, 4, 5, 6, 7, 8
   if ((type & 0xFE) != 4 && !(type & 1)) {
     PopExpression(arg1);
-    ImpLogSlow(LL_Warning, LC_VMStub,
-               "STUB instruction MesCls(type: %i, arg1: %i)\n", type, arg1);
+    ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+               "STUB instruction MesCls(type: {:d}, arg1: {:d})\n", type, arg1);
   } else {
-    ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MesCls(type: %i)\n",
-               type);
+    ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+               "STUB instruction MesCls(type: {:d})\n", type);
   }
 }
 VmInstruction(InstMesVoiceWait) {
   StartInstruction;
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MesVoiceWait()\n");
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction MesVoiceWait()\n");
 }
 VmInstruction(InstMes) {
   StartInstruction;
@@ -231,8 +232,8 @@ VmInstruction(InstSetMesModeFormat) {
   PopExpression(id);
   PopLocalLabel(modeDataAdr);
   (void)modeDataAdr;
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction SetMesModeFormat(id: %i)\n", id);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction SetMesModeFormat(id: {:d})\n", id);
 }
 VmInstruction(InstSetNGmoji) {
   StartInstruction;
@@ -240,7 +241,8 @@ VmInstruction(InstSetNGmoji) {
   PopString(strAdr2);
   (void)strAdr1;
   (void)strAdr2;
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SetNGmoji()\n");
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction SetNGmoji()\n");
 }
 VmInstruction(InstMesRev) {
   StartInstruction;
@@ -248,32 +250,32 @@ VmInstruction(InstMesRev) {
   switch (type) {
     case 0:  // DispInit
       UI::BacklogMenuPtr->Show();
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SetMesModeFormat(type: DispInit)\n");
       break;
     case 1:  // Main
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SetMesModeFormat(type: Main)\n");
       break;
     case 2:  // AllCls
       UI::BacklogMenuPtr->Hide();
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SetMesModeFormat(type: AllCls)\n");
       break;
     case 3:  // ChkLoad
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SetMesModeFormat(type: ChkLoad)\n");
       break;
     case 4:  // SAVELoad
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SetMesModeFormat(type: SAVELoad)\n");
       break;
     case 5:  // SoundUnk
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SetMesModeFormat(type: SoundUnk)\n");
       break;
     case 0xA:  // DispInit
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SetMesModeFormat(type: DispInit)\n");
       break;
   }
@@ -327,15 +329,15 @@ VmInstruction(InstMessWindow) {
     case 6: {  // HideSlow
       PopExpression(messWindowId);
       ImpLogSlow(
-          LL_Warning, LC_VMStub,
-          "STUB instruction MessWindow(type: HideSlow, messWindowId: %i)\n",
+          LogLevel::Warning, LogChannel::VMStub,
+          "STUB instruction MessWindow(type: HideSlow, messWindowId: {:d})\n",
           messWindowId);
     } break;
     case 7: {  // HideSlow
       PopExpression(messWindowId);
       ImpLogSlow(
-          LL_Warning, LC_VMStub,
-          "STUB instruction MessWindow(type: HideSlow, messWindowId: %i)\n",
+          LogLevel::Warning, LogChannel::VMStub,
+          "STUB instruction MessWindow(type: HideSlow, messWindowId: {:d})\n",
           messWindowId);
     } break;
   }
@@ -443,8 +445,8 @@ VmInstruction(InstSysSel) {
     PopString(arg1);
     (void)arg1;
   }
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SysSel(type: %i)\n",
-             type);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction SysSel(type: {:d})\n", type);
 }
 VmInstruction(InstSysSelect) {
   StartInstruction;
@@ -453,15 +455,16 @@ VmInstruction(InstSysSelect) {
     case 0: {
       PopExpression(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction SysSelect(type: %i, arg1: %i, arg2: %i)\n",
-                 type, arg1, arg2);
+      ImpLogSlow(
+          LogLevel::Warning, LogChannel::VMStub,
+          "STUB instruction SysSelect(type: {:d}, arg1: {:d}, arg2: {:d})\n",
+          type, arg1, arg2);
     } break;
     case 2:
     case 3: {
       PopExpression(destination);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction SysSelect(type: %i, destination: %i)\n",
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction SysSelect(type: {:d}, destination: {:d})\n",
                  type, destination);
     } break;
   }
@@ -472,8 +475,8 @@ VmInstruction(InstSetTextTable) {
   PopLocalLabel(tableDataAdr);
   TextTable[id].scriptBufferAdr = ScriptBuffers[thread->ScriptBufferId];
   TextTable[id].labelAdr = tableDataAdr;
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SetTextTable(id: %i)\n",
-             id);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction SetTextTable(id: {:d})\n", id);
 }
 VmInstruction(InstSetDic) {
   StartInstruction;
@@ -493,12 +496,13 @@ VmInstruction(InstSetDic) {
         PopExpression(flagId);
         SetFlag(flagId, tipLocked);
       }
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction SetDic(type: NewTip, tipId: %i)\n", tipId);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction SetDic(type: NewTip, tipId: {:d})\n", tipId);
     } break;
     case 2:  // SetDic02
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction SetDic(type: %i, tipId: %i)\n", type, tipId);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction SetDic(type: {:d}, tipId: {:d})\n", type,
+                 tipId);
       break;
   }
 }
@@ -526,18 +530,18 @@ VmInstruction(InstNameID) {
         PopExpression(arg2);
         PopExpression(arg3);
       }
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction NameID(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction NameID(type: {:d})\n", type);
       break;
     case 1: {
       PopLocalLabel(namePlateDataBlock);
       (void)namePlateDataBlock;
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction NameID(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction NameID(type: {:d})\n", type);
     } break;
     case 2:
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction NameID(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction NameID(type: {:d})\n", type);
       break;
   }
 }
@@ -557,29 +561,29 @@ VmInstruction(InstTips) {
       uint32_t tipsDataSize =
           ScriptGetLabelSize(ScriptBuffers[thread->ScriptBufferId], labelNum);
       TipsSystem::DataInit(thread->ScriptBufferId, tipsDataAdr, tipsDataSize);
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction Tips(type: TipsDataInit)\n");
     } break;
     case 1:  // TipsInit
       TipsSystem::UpdateTipRecords();
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction Tips(type: TipsInit)\n");
       break;
     case 2:  // TipsMain
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction Tips(type: TipsMain)\n");
       break;
     case 3:  // TipsEnd
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction Tips(type: TipsEnd)\n");
       break;
     case 4:  // TipsSet
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction Tips(type: TipsSet)\n");
       TipsSystem::UpdateTipRecords();
       break;
     case 10:  // Tips_ProfSetXboxEvent
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction Tips(type: Tips_ProfSetXboxEvent)\n");
       break;
   }
@@ -593,8 +597,8 @@ VmInstruction(InstSetRevMes) {
   bool expression = type & (1 << 7);
 
   if ((type & (1 << 1)) || expression) {
-    ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SetRevMes(type: %i)\n",
-               type);
+    ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+               "STUB instruction SetRevMes(type: {:d})\n", type);
   }
 
   int audioId = -1;

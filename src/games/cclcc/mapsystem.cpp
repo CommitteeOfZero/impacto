@@ -959,7 +959,8 @@ bool MapSystemCCLCC::MapPlayerPhotoSelect(int unused) {
       return true;
     }
   } else {
-    ImpLogSlow(LL_Debug, LC_VMStub, "MapPlayerPhotoSelect: arg1 != 0\n");
+    ImpLogSlow(LogLevel::Debug, LogChannel::VMStub,
+               "MapPlayerPhotoSelect: arg1 != 0\n");
   }
   return false;
 }

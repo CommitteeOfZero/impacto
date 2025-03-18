@@ -9,16 +9,17 @@ namespace CC {
 namespace DialogueBox {
 
 void Configure() {
-  ADVBoxMask = EnsureGetMemberSprite("ADVBoxMask");
-  ADVBoxEffectDuration = EnsureGetMemberFloat("ADVBoxEffectDuration");
-  const int NamePlateCount = EnsureGetMemberInt("ADVBoxNamePlateCount");
-  GetMemberSpriteArray(NamePlateMainSprites, NamePlateCount,
-                       "ADVBoxNamePlateMainSprites");
-  GetMemberSpriteArray(NamePlateLabelSprites, NamePlateCount,
-                       "ADVBoxNamePlateLabelSprites");
+  ADVBoxMask = EnsureGetMember<Sprite>("ADVBoxMask");
+  ADVBoxEffectDuration = EnsureGetMember<float>("ADVBoxEffectDuration");
+  const int NamePlateCount = EnsureGetMember<int>("ADVBoxNamePlateCount");
+  GetMemberArray<Sprite>(NamePlateMainSprites, NamePlateCount,
+                         "ADVBoxNamePlateMainSprites");
+  GetMemberArray<Sprite>(NamePlateLabelSprites, NamePlateCount,
+                         "ADVBoxNamePlateLabelSprites");
 
-  ADVBoxNamePlateMainPos = EnsureGetMemberVec2("ADVBoxNamePlateMainPos");
-  ADVBoxNamePlateLabelPos = EnsureGetMemberVec2("ADVBoxNamePlateLabelPos");
+  ADVBoxNamePlateMainPos = EnsureGetMember<glm::vec2>("ADVBoxNamePlateMainPos");
+  ADVBoxNamePlateLabelPos =
+      EnsureGetMember<glm::vec2>("ADVBoxNamePlateLabelPos");
 }
 
 }  // namespace DialogueBox

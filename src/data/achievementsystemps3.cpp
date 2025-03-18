@@ -28,7 +28,7 @@ bool AchievementSystemPS3::MountAchievementFile() {
       Io::PhysicalFileStream::Create(AchievementDataPath, &baseStream);
 
   if (err != IoError_OK) {
-    ImpLog(LL_Error, LC_IO, "Couldn't open TROPHY.TRP\n");
+    ImpLog(LogLevel::Error, LogChannel::IO, "Couldn't open TROPHY.TRP\n");
     return false;
   }
 
@@ -41,7 +41,7 @@ bool AchievementSystemPS3::MountAchievementFile() {
   tdh.dev_flag = Io::ReadBE<uint32_t>(baseStream);
 
   if (tdh.magic != PS3_MAGIC) {
-    ImpLog(LL_Error, LC_IO, "Wrong magic in TROPHY.TRP\n");
+    ImpLog(LogLevel::Error, LogChannel::IO, "Wrong magic in TROPHY.TRP\n");
     delete baseStream;
     return false;
   }
@@ -63,7 +63,8 @@ bool AchievementSystemPS3::MountAchievementFile() {
   }
 
   if (tropEntry == nullptr) {
-    ImpLog(LL_Error, LC_IO, "TROP.SFM entry not found in TROPHY.TRP\n");
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "TROP.SFM entry not found in TROPHY.TRP\n");
     delete baseStream;
     return false;
   }
@@ -80,7 +81,7 @@ bool AchievementSystemPS3::MountAchievementFile() {
   pugi::xml_parse_result result = trop.load_string(rawTrop.data());
 
   if (!result) {
-    ImpLog(LL_Error, LC_IO, "Unable to load TROP.SFM\n");
+    ImpLog(LogLevel::Error, LogChannel::IO, "Unable to load TROP.SFM\n");
     delete baseStream;
     return false;
   }
@@ -94,14 +95,16 @@ bool AchievementSystemPS3::MountAchievementFile() {
     const char* ttypeStr = trophy.attribute("ttype").as_string();
 
     if (strlen(ttypeStr) == 0) {
-      ImpLog(LL_Error, LC_IO, "Missing trophy type in TROP.SFM\n");
+      ImpLog(LogLevel::Error, LogChannel::IO,
+             "Missing trophy type in TROP.SFM\n");
       delete baseStream;
       return false;
     }
 
     const char ttype = ttypeStr[0];
     if (strchr(TROPHY_TYPES, ttype) == nullptr) {
-      ImpLog(LL_Error, LC_IO, "Invalid trophy type in TROP.SFM\n");
+      ImpLog(LogLevel::Error, LogChannel::IO,
+             "Invalid trophy type in TROP.SFM\n");
       delete baseStream;
       return false;
     }
@@ -113,7 +116,8 @@ bool AchievementSystemPS3::MountAchievementFile() {
                                          &iconStream);
 
     if (err != IoError_OK) {
-      ImpLog(LL_Error, LC_IO, "Couldn't open icon for TROP%03d\n", id);
+      ImpLog(LogLevel::Error, LogChannel::IO,
+             "Couldn't open icon for TROP{:03d}\n", id);
       delete baseStream;
       return false;
     }
@@ -122,7 +126,8 @@ bool AchievementSystemPS3::MountAchievementFile() {
     texture.Init(TexFmt_RGBA, ICON_SIZE, ICON_SIZE);
 
     if (!texture.Load(iconStream)) {
-      ImpLog(LL_Error, LC_IO, "Unable to load texture for TROP%03d.PNG\n", id);
+      ImpLog(LogLevel::Error, LogChannel::IO,
+             "Unable to load texture for TROP{:03d}.PNG\n", id);
       delete iconStream;
       delete baseStream;
       return false;

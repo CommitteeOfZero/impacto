@@ -18,13 +18,13 @@ void Configure() {
     AssertIs(LUA_TTABLE);
 
     Type =
-        OptionsMenuType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
+        OptionsMenuType::_from_integral_unchecked(EnsureGetMember<int>("Type"));
 
-    MinButtonHoldTime = EnsureGetMemberFloat("MinButtonHoldTime");
-    ButtonHoldFireInterval = EnsureGetMemberFloat("ButtonHoldFireInterval");
+    MinButtonHoldTime = EnsureGetMember<float>("MinButtonHoldTime");
+    ButtonHoldFireInterval = EnsureGetMember<float>("ButtonHoldFireInterval");
 
-    FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
-    FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
+    FadeInDuration = EnsureGetMember<float>("FadeInDuration");
+    FadeOutDuration = EnsureGetMember<float>("FadeOutDuration");
 
     switch (Type) {
       case OptionsMenuType::MO6TW:

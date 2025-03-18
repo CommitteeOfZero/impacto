@@ -13,29 +13,31 @@ namespace MO6TW {
 namespace TitleMenu {
 
 void Configure() {
-  BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
-  CopyrightSprite = EnsureGetMemberSprite("CopyrightSprite");
-  LogoSprite = EnsureGetMemberSprite("LogoSprite");
-  LogoX = EnsureGetMemberFloat("LogoX");
-  LogoY = EnsureGetMemberFloat("LogoY");
-  CopyrightX = EnsureGetMemberFloat("CopyrightX");
-  CopyrightY = EnsureGetMemberFloat("CopyrightY");
-  MenuBackgroundSprite = EnsureGetMemberSprite("MenuBackgroundSprite");
-  MenuItemLockedSprite = EnsureGetMemberSprite("MenuItemLockedSprite");
-  MenuItemLockedSpriteH = EnsureGetMemberSprite("MenuItemLockedSpriteH");
-  MenuEntriesTargetWidth = EnsureGetMemberFloat("MenuEntriesTargetWidth");
-  MenuEntriesX = EnsureGetMemberFloat("MenuEntriesX");
-  MenuEntriesFirstY = EnsureGetMemberFloat("MenuEntriesFirstY");
-  MenuEntriesYPadding = EnsureGetMemberFloat("MenuEntriesYPadding");
-  PrimaryFadeAnimDuration = EnsureGetMemberFloat("PrimaryFadeAnimDuration");
-  SecondaryMenuAnimTarget = EnsureGetMemberVec2("SecondaryMenuAnimTarget");
-  SecondaryMenuPadding = EnsureGetMemberFloat("SecondaryMenuPadding");
-  SecondaryMenuAnimDuration = EnsureGetMemberFloat("SecondaryMenuAnimDuration");
-  SecondaryMenuAnimUnderX = EnsureGetMemberFloat("SecondaryMenuAnimUnderX");
-  ExtraStoryItemCount = EnsureGetMemberFloat("ExtraStoryItemCount");
-  ContinueItemCount = EnsureGetMemberFloat("ContinueItemCount");
-  MemoriesItemCount = EnsureGetMemberFloat("MemoriesItemCount");
-  SystemItemCount = EnsureGetMemberFloat("SystemItemCount");
+  BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSprite");
+  CopyrightSprite = EnsureGetMember<Sprite>("CopyrightSprite");
+  LogoSprite = EnsureGetMember<Sprite>("LogoSprite");
+  LogoX = EnsureGetMember<float>("LogoX");
+  LogoY = EnsureGetMember<float>("LogoY");
+  CopyrightX = EnsureGetMember<float>("CopyrightX");
+  CopyrightY = EnsureGetMember<float>("CopyrightY");
+  MenuBackgroundSprite = EnsureGetMember<Sprite>("MenuBackgroundSprite");
+  MenuItemLockedSprite = EnsureGetMember<Sprite>("MenuItemLockedSprite");
+  MenuItemLockedSpriteH = EnsureGetMember<Sprite>("MenuItemLockedSpriteH");
+  MenuEntriesTargetWidth = EnsureGetMember<float>("MenuEntriesTargetWidth");
+  MenuEntriesX = EnsureGetMember<float>("MenuEntriesX");
+  MenuEntriesFirstY = EnsureGetMember<float>("MenuEntriesFirstY");
+  MenuEntriesYPadding = EnsureGetMember<float>("MenuEntriesYPadding");
+  PrimaryFadeAnimDuration = EnsureGetMember<float>("PrimaryFadeAnimDuration");
+  SecondaryMenuAnimTarget =
+      EnsureGetMember<glm::vec2>("SecondaryMenuAnimTarget");
+  SecondaryMenuPadding = EnsureGetMember<float>("SecondaryMenuPadding");
+  SecondaryMenuAnimDuration =
+      EnsureGetMember<float>("SecondaryMenuAnimDuration");
+  SecondaryMenuAnimUnderX = EnsureGetMember<float>("SecondaryMenuAnimUnderX");
+  ExtraStoryItemCount = EnsureGetMember<float>("ExtraStoryItemCount");
+  ContinueItemCount = EnsureGetMember<float>("ContinueItemCount");
+  MemoriesItemCount = EnsureGetMember<float>("MemoriesItemCount");
+  SystemItemCount = EnsureGetMember<float>("SystemItemCount");
 
   UI::MO6TW::TitleMenu* menu = new UI::MO6TW::TitleMenu();
   menu->PressToStartAnimation.DurationIn =
@@ -50,7 +52,7 @@ void Configure() {
   UI::TitleMenuPtr = menu;
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   UI::Menus[drawType].push_back(UI::TitleMenuPtr);
 }

@@ -63,7 +63,8 @@ static GLWindow* Window;
 
 void Renderable3D::Init(GLWindow* window, ShaderCompiler* shaderCompiler) {
   assert(IsInit == false);
-  ImpLog(LL_Info, LC_Renderable3D, "Initializing Renderable3D system\n");
+  ImpLog(LogLevel::Info, LogChannel::Renderable3D,
+         "Initializing Renderable3D system\n");
   IsInit = true;
 
   Window = window;
@@ -218,16 +219,16 @@ void Renderable3D::BeginFrame(IScene3D* scene, Camera* camera) {
 bool Renderable3D::LoadSync(uint32_t modelId) {
   assert(IsUsed == false);
 
-  ImpLog(LL_Info, LC_Renderable3D, "Creating renderable (model ID %d)\n",
-         modelId);
+  ImpLog(LogLevel::Info, LogChannel::Renderable3D,
+         "Creating renderable (model ID {:d})\n", modelId);
 
   StaticModel = Model::Load(modelId);
   ModelTransform = Transform();
   PrevPoseWeight = 0.0f;
 
   if (!StaticModel) {
-    ImpLog(LL_Error, LC_Renderable3D,
-           "Model loading failed for character with model ID %d\n");
+    ImpLog(LogLevel::Error, LogChannel::Renderable3D,
+           "Model loading failed for character with model ID {:d}\n", modelId);
     return false;
   }
 
@@ -518,7 +519,8 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
       break;
     }
     default:
-      ImpLog(LL_Warning, LC_Renderable3D, "Unknown texture type!\n");
+      ImpLog(LogLevel::Warning, LogChannel::Renderable3D,
+             "Unknown texture type!\n");
       break;
   }
 
@@ -608,7 +610,8 @@ void Renderable3D::UseMaterial(MaterialType type) {
       break;
     }
     default:
-      ImpLog(LL_Warning, LC_Renderable3D, "Unknown texture type!\n");
+      ImpLog(LogLevel::Warning, LogChannel::Renderable3D,
+             "Unknown texture type!\n");
       break;
   }
 
@@ -706,7 +709,8 @@ void Renderable3D::UnloadSync() {
   Animator.CurrentAnimation = 0;
   PrevPoseWeight = 0.0f;
   if (StaticModel) {
-    ImpLog(LL_Info, LC_Renderable3D, "Unloading model %d\n", StaticModel->Id);
+    ImpLog(LogLevel::Info, LogChannel::Renderable3D, "Unloading model {:d}\n",
+           StaticModel->Id);
     if (IsSubmitted) {
       glDeleteBuffers(StaticModel->MeshCount, IBOs);
       glDeleteBuffers(StaticModel->MeshCount, VBOs);
@@ -732,8 +736,8 @@ void Renderable3D::UnloadSync() {
 void Renderable3D::MainThreadOnLoad() {
   assert(IsSubmitted == false);
 
-  ImpLog(LL_Info, LC_Renderable3D, "Submitting data to GPU for model ID %d\n",
-         StaticModel->Id);
+  ImpLog(LogLevel::Info, LogChannel::Renderable3D,
+         "Submitting data to GPU for model ID {:d}\n", StaticModel->Id);
 
   glGenVertexArrays(StaticModel->MeshCount, VAOs);
   glGenBuffers(StaticModel->MeshCount, VBOs);
@@ -829,8 +833,9 @@ void Renderable3D::MainThreadOnLoad() {
   for (uint32_t i = 0; i < StaticModel->TextureCount; i++) {
     TexBuffers[i] = StaticModel->Textures[i].Submit();
     if (TexBuffers[i] == 0) {
-      ImpLog(LL_Fatal, LC_Renderable3D,
-             "Submitting texture %d for model %d failed\n", i, StaticModel->Id);
+      ImpLog(LogLevel::Fatal, LogChannel::Renderable3D,
+             "Submitting texture {:d} for model {:d} failed\n", i,
+             StaticModel->Id);
     }
   }
 

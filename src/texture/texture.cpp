@@ -26,8 +26,8 @@ bool Texture::Load(Io::Stream* stream) {
   if (TextureIsPlain(stream)) return TextureLoadPlain(stream, this);
 
   uint32_t magic = Io::ReadBE<uint32_t>(stream);
-  ImpLog(LL_Error, LC_TextureLoad,
-         "No loader for texture, possible magic %08X\n", magic);
+  ImpLog(LogLevel::Error, LogChannel::TextureLoad,
+         "No loader for texture, possible magic 0x{:08x}\n", magic);
   return false;
 }
 
@@ -112,7 +112,7 @@ void Texture::LoadPoliticalCompass() {
 }
 
 uint32_t Texture::Submit() {
-  ImpLog(LL_Debug, LC_Render, "Submitting texture\n");
+  ImpLog(LogLevel::Debug, LogChannel::Render, "Submitting texture\n");
 
   if (Buffer == NULL) return -1;
 

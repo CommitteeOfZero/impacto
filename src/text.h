@@ -4,12 +4,12 @@
 #include "animation.h"
 #include "vm/thread.h"
 #include <enum.h>
-#include <flat_hash_map.hpp>
+#include <ankerl/unordered_dense.h>
 
 #include "audio/audiosystem.h"
 #include "audio/audiostream.h"
 #include "audio/audiochannel.h"
-#include <span/span.hpp>
+#include <span>
 
 namespace Impacto {
 
@@ -136,7 +136,7 @@ inline int DialoguePageCount = 0;
 int TextGetStringLength(Vm::Sc3VmThread* ctx);
 int TextGetMainCharacterCount(Vm::Sc3VmThread* ctx);
 int TextLayoutPlainLine(Vm::Sc3VmThread* ctx, int stringLength,
-                        tcb::span<ProcessedTextGlyph> outGlyphs, Font* font,
+                        std::span<ProcessedTextGlyph> outGlyphs, Font* font,
                         float fontSize, DialogueColorPair colors, float opacity,
                         glm::vec2 pos, TextAlignment alignment,
                         float blockWidth = 0.0f);
@@ -146,10 +146,10 @@ std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
     TextAlignment alignment, float blockWidth = 0.0f);
 int TextLayoutAlignment(Impacto::TextAlignment& alignment, float blockWidth,
                         float currentX, glm::vec2& pos, int characterCount,
-                        tcb::span<Impacto::ProcessedTextGlyph> outGlyphs);
+                        std::span<Impacto::ProcessedTextGlyph> outGlyphs);
 float TextGetPlainLineWidth(Vm::Sc3VmThread* ctx, Font* font, float fontSize);
 int TextLayoutPlainString(std::string_view str,
-                          tcb::span<ProcessedTextGlyph> outGlyphs, Font* font,
+                          std::span<ProcessedTextGlyph> outGlyphs, Font* font,
                           float fontSize, DialogueColorPair colors,
                           float opacity, glm::vec2 pos, TextAlignment alignment,
                           float blockWidth = 0.0f);
@@ -158,9 +158,9 @@ std::vector<ProcessedTextGlyph> TextLayoutPlainString(
     float opacity, glm::vec2 pos, TextAlignment alignment,
     float blockWidth = 0.0f);
 
-void TextGetSc3String(std::string_view str, tcb::span<uint16_t> out);
+void TextGetSc3String(std::string_view str, std::span<uint16_t> out);
 
-inline ska::flat_hash_map<uint32_t, uint32_t> NamePlateData;
+inline ankerl::unordered_dense::map<uint32_t, uint32_t> NamePlateData;
 void InitNamePlateData(uint16_t* data);
 uint32_t GetNameId(uint8_t* name, int nameLength);
 

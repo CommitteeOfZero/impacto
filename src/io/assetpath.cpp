@@ -17,19 +17,19 @@ IoError AssetPath::Open(Stream** outStream) {
   }
 }
 
-IoError AssetPath::Slurp(void** outMemory, int64_t* outSize) {
+IoError AssetPath::Slurp(void*& outMemory, int64_t& outSize) {
   if (Mount.empty()) {
     Stream* stream;
     IoError err = PhysicalFileStream::Create(FileName, &stream);
     if (err != IoError_OK) return err;
-    *outMemory = malloc(stream->Meta.Size);
-    *outSize = stream->Meta.Size;
-    int64_t readErr = stream->Read(*outMemory, *outSize);
+    outMemory = malloc(stream->Meta.Size);
+    outSize = stream->Meta.Size;
+    int64_t readErr = stream->Read(outMemory, outSize);
     // TODO should size output by Read() go into outSize, even though it may be
     // less than the allocated size?
     delete stream;
     if (readErr < 0) {
-      free(*outMemory);
+      free(outMemory);
       err = IoError_Fail;
     } else {
       err = IoError_OK;

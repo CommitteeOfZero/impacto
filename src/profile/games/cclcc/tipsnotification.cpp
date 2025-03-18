@@ -8,20 +8,22 @@ namespace CCLCC {
 namespace TipsNotification {
 
 void Configure() {
-  NotificationBackground = EnsureGetMemberSprite("NotificationBackground");
+  NotificationBackground = EnsureGetMember<Sprite>("NotificationBackground");
 
-  BackgroundPositionX = EnsureGetMemberFloat("BackgroundPositionX");
-  BackgroundPositionYOffset = EnsureGetMemberFloat("BackgroundPositionYOffset");
-  NotificationPositionX = EnsureGetMemberFloat("NotificationPositionX");
+  BackgroundPositionX = EnsureGetMember<float>("BackgroundPositionX");
+  BackgroundPositionYOffset =
+      EnsureGetMember<float>("BackgroundPositionYOffset");
+  NotificationPositionX = EnsureGetMember<float>("NotificationPositionX");
   NotificationPositionYOffset =
-      EnsureGetMemberFloat("NotificationPositionYOffset");
-  TimerDuration = EnsureGetMemberFloat("TimerDuration");
+      EnsureGetMember<float>("NotificationPositionYOffset");
+  TimerDuration = EnsureGetMember<float>("TimerDuration");
 
-  FontSize = EnsureGetMemberFloat("FontSize");
-  TipNameColor = DialogueColorPair{EnsureGetMemberUint("TipNameTextColor"),
-                                   EnsureGetMemberUint("TipNameOutlineColor")};
+  FontSize = EnsureGetMember<float>("FontSize");
+  TipNameColor =
+      DialogueColorPair{EnsureGetMember<uint32_t>("TipNameTextColor"),
+                        EnsureGetMember<uint32_t>("TipNameOutlineColor")};
   NotificationTextTableColorIndex =
-      EnsureGetMemberInt("NotificationTextTableColorIndex");
+      EnsureGetMember<int>("NotificationTextTableColorIndex");
 }
 
 }  // namespace TipsNotification

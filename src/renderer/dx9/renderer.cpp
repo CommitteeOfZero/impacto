@@ -17,7 +17,8 @@ namespace DirectX9 {
 
 void Renderer::Init() {
   if (IsInit) return;
-  ImpLog(LL_Info, LC_Render, "Initializing Renderer2D DirectX 9 system\n");
+  ImpLog(LogLevel::Info, LogChannel::Render,
+         "Initializing Renderer2D DirectX 9 system\n");
   IsInit = true;
 
   DXWindow = new DirectX9Window();
@@ -149,7 +150,7 @@ void Renderer::ImGuiBeginFrame() {
 
 void Renderer::BeginFrame() {
   if (Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->BeginFrame() called before EndFrame()\n");
     return;
   }
@@ -235,7 +236,7 @@ uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
   }
 
   if (FAILED(texture->UnlockRect(0))) {
-    ImpLog(LL_Error, LC_Render, "Failed to load texture!\n");
+    ImpLog(LogLevel::Error, LogChannel::Render, "Failed to load texture!\n");
     Window->Shutdown();
   }
 
@@ -271,7 +272,7 @@ void Renderer::DrawSprite3DRotated(Sprite const& sprite, RectF const& dest,
                                    bool stayInScreen, glm::quat rot,
                                    glm::vec4 tint, bool inverted) {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawSprite3DRotated() called before BeginFrame()\n");
     return;
   }
@@ -318,7 +319,7 @@ void Renderer::DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
                                 bool inverted, glm::vec4 tint,
                                 glm::vec2 scale) {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawCharacterMvl() called before BeginFrame()\n");
     return;
   }
@@ -376,7 +377,7 @@ void Renderer::DrawSprite(Sprite const& sprite, CornersQuad const& dest,
                           const std::array<glm::vec4, 4>& tints, float angle,
                           bool inverted) {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawSprite() called before BeginFrame()\n");
     return;
   }
@@ -413,7 +414,7 @@ void Renderer::DrawSpriteOffset(Sprite const& sprite, glm::vec2 topLeft,
                                 glm::vec2 displayOffset, glm::vec4 tint,
                                 glm::vec2 scale, float angle, bool inverted) {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawSprite() called before BeginFrame()\n");
     return;
   }
@@ -453,7 +454,7 @@ void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
                                 int fadeRange, bool isInverted,
                                 bool isSameTexture) {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawMaskedSprite() called before BeginFrame()\n");
     return;
   }
@@ -501,18 +502,18 @@ void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
 }
 
 void Renderer::DrawVertices(SpriteSheet const& sheet,
-                            tcb::span<const glm::vec2> sheetPositions,
-                            tcb::span<const glm::vec2> displayPositions,
+                            std::span<const glm::vec2> sheetPositions,
+                            std::span<const glm::vec2> displayPositions,
                             int width, int height, glm::vec4 tint,
                             bool inverted) {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawSprite() called before BeginFrame()\n");
     return;
   }
   const int verticesCount = sheetPositions.size();
   if (verticesCount != displayPositions.size()) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawVertices() called with mismatched vertices count\n");
     return;
   }
@@ -586,7 +587,7 @@ void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                                 RectF const& dest, glm::vec4 tint, int alpha,
                                 int fadeRange, float effectCt) {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawCCMessageBox() called before BeginFrame()\n");
     return;
   }
@@ -635,7 +636,7 @@ void Renderer::DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
                                        bool isInverted, float angle,
                                        bool useMaskAlpha) {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawMaskedSpriteOverlay() called before BeginFrame()\n");
     return;
   }
@@ -693,7 +694,7 @@ void Renderer::DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
 void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
                                        const RectF& dest, float alpha) {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawCHLCCMenuBackground() called before BeginFrame()\n");
     return;
   }
@@ -944,9 +945,9 @@ void Renderer::EnsureSpaceAvailable(int vertices, int vertexSize, int indices) {
   if (VertexBufferFill + vertices * vertexSize > VertexBufferSize ||
       IndexBufferFill + indices > IndexBufferCount) {
     ImpLogSlow(
-        LL_Trace, LC_Render,
+        LogLevel::Trace, LogChannel::Render,
         "Renderer->EnsureSpaceAvailable flushing because buffers full at "
-        "VertexBufferFill=%08X,IndexBufferFill=%08X\n",
+        "VertexBufferFill=0x{:08x},IndexBufferFill=0x{:08x}\n",
         VertexBufferFill, IndexBufferFill);
     Flush();
   }
@@ -954,9 +955,9 @@ void Renderer::EnsureSpaceAvailable(int vertices, int vertexSize, int indices) {
 
 void Renderer::EnsureTextureBound(uint32_t texture) {
   if (CurrentTexture != texture) {
-    ImpLogSlow(LL_Trace, LC_Render,
-               "Renderer->EnsureTextureBound flushing because texture %d is "
-               "not %d\n",
+    ImpLogSlow(LogLevel::Trace, LogChannel::Render,
+               "Renderer->EnsureTextureBound flushing because texture {:d} is "
+               "not {:d}\n",
                CurrentTexture, texture);
     Flush();
     auto res = Device->SetTexture(0, Textures[texture]);
@@ -966,7 +967,8 @@ void Renderer::EnsureTextureBound(uint32_t texture) {
 
 void Renderer::EnsureShader(Shader* shader, bool flush) {
   if (CurrentShader != shader) {
-    ImpLogSlow(LL_Debug, LC_Render, "Renderer2D changing mode\n");
+    ImpLogSlow(LogLevel::Debug, LogChannel::Render,
+               "Renderer2D changing mode\n");
     if (flush) Flush();
     shader->UseShader(Device);
     CurrentShader = shader;
@@ -975,7 +977,7 @@ void Renderer::EnsureShader(Shader* shader, bool flush) {
 
 void Renderer::Flush() {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->Flush() called before BeginFrame()\n");
     return;
   }
@@ -993,20 +995,22 @@ void Renderer::Flush() {
     auto result = Device->SetStreamSource(0, VertexBufferDevice, 0,
                                           sizeof(VertexBufferSprites));
     if (FAILED(result)) {
-      ImpLog(LL_Debug, LC_Render, "Failed to set stream source!\n");
+      ImpLog(LogLevel::Debug, LogChannel::Render,
+             "Failed to set stream source!\n");
       Window->Shutdown();
     }
 
     result = Device->SetIndices(IndexBufferDevice);
     if (FAILED(result)) {
-      ImpLog(LL_Debug, LC_Render, "Failed to set stream indices!\n");
+      ImpLog(LogLevel::Debug, LogChannel::Render,
+             "Failed to set stream indices!\n");
       Window->Shutdown();
     }
 
     result = Device->DrawIndexedPrimitive(
         D3DPT_TRIANGLELIST, 0, 0, IndexBufferFill, 0, IndexBufferFill / 3);
     if (FAILED(result)) {
-      ImpLog(LL_Debug, LC_Render, "Failed to draw!\n");
+      ImpLog(LogLevel::Debug, LogChannel::Render, "Failed to draw!\n");
       Window->Shutdown();
     }
   }
@@ -1018,7 +1022,7 @@ void Renderer::Flush() {
 void Renderer::DrawVideoTexture(YUVFrame* tex, RectF const& dest,
                                 glm::vec4 tint, float angle, bool alphaVideo) {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawVideoTexture() called before BeginFrame()\n");
     return;
   }

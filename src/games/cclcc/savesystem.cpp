@@ -32,15 +32,15 @@ SaveError SaveSystem::CheckSaveFile() {
   if (existsState == IoError_NotFound) {
     return SaveNotFound;
   } else if (existsState == IoError_Fail) {
-    ImpLog(LL_Error, LC_IO,
-           "Failed to check if save file exists, error: \"%s\"\n",
-           ec.message().c_str());
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Failed to check if save file exists, error: \"{:s}\"\n",
+           ec.message());
     return SaveFailed;
   }
   auto saveFileSize = Io::GetFileSize(SaveFilePath);
   if (saveFileSize == IoError_Fail) {
-    ImpLog(LL_Error, LC_IO, "Failed to get save file size, error: \"%s\"\n",
-           ec.message().c_str());
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Failed to get save file size, error: \"{:s}\"\n", ec.message());
     return SaveFailed;
   } else if (saveFileSize != SaveFileSize) {
     return SaveCorrupted;
@@ -53,9 +53,9 @@ SaveError SaveSystem::CheckSaveFile() {
   Io::FilePermissionsFlags perms;
   IoError permsState = Io::GetFilePermissions(SaveFilePath, perms);
   if (permsState == IoError_Fail) {
-    ImpLog(LL_Error, LC_IO,
-           "Failed to get save file permissions, error: \"%s\"\n",
-           ec.message().c_str());
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Failed to get save file permissions, error: \"{:s}\"\n",
+           ec.message());
     return SaveFailed;
   } else if ((!checkPermsBit(perms, Io::FilePermissionsFlags::owner_read) ||
               !checkPermsBit(perms, Io::FilePermissionsFlags::owner_write))) {
@@ -351,9 +351,10 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
 
     int result = ResizeImage(
         WorkingSaveThumbnail.Bounds, entry->SaveThumbnail.Bounds, captureBuffer,
-        tcb::span{tex.Buffer, static_cast<size_t>(tex.BufferSize)}, true);
+        std::span{tex.Buffer, static_cast<size_t>(tex.BufferSize)}, true);
     if (result < 0) {
-      ImpLog(LL_Error, LC_General, "Failed to resize save thumbnail\n");
+      ImpLog(LogLevel::Error, LogChannel::General,
+             "Failed to resize save thumbnail\n");
     }
     entry->SaveThumbnail.Sheet.Texture = tex.Submit();
   }
@@ -365,7 +366,8 @@ void SaveSystem::WriteSaveFile() {
   IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream,
                                                CF::WRITE | CF::READ);
   if (err != IoError_OK) {
-    ImpLog(LL_Error, LC_IO, "Failed to open save file for writing\n");
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Failed to open save file for writing\n");
     return;
   }
 
@@ -534,7 +536,7 @@ uint32_t SaveSystem::GetSavePlayTime(SaveType type, int id) {
     case SaveQuick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->PlayTime;
     default:
-      ImpLog(LL_Error, LC_IO,
+      ImpLog(LogLevel::Error, LogChannel::IO,
              "Failed to get save play time: unknown save type, returning 0\n");
       return 0;
   }
@@ -547,7 +549,7 @@ uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) {
     case SaveQuick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->Flags;
     default:
-      ImpLog(LL_Error, LC_IO,
+      ImpLog(LogLevel::Error, LogChannel::IO,
              "Failed to get save flags: unknown save type, returning 0\n");
       return 0;
   }
@@ -570,7 +572,7 @@ tm const& SaveSystem::GetSaveDate(SaveType type, int id) {
     case SaveQuick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->SaveDate;
     default:
-      ImpLog(LL_Error, LC_IO,
+      ImpLog(LogLevel::Error, LogChannel::IO,
              "Failed to read save date: Unknown save type, returning empty "
              "time\n");
       return t;
@@ -619,7 +621,8 @@ void SaveSystem::SaveMemory() {
 
 void SaveSystem::LoadEntry(SaveType type, int id) {
   if (!WorkingSaveEntry) {
-    ImpLog(LL_Error, LC_IO, "Failed to load save memory: no working save\n");
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Failed to load save memory: no working save\n");
     return;
   }
   switch (type) {
@@ -630,7 +633,7 @@ void SaveSystem::LoadEntry(SaveType type, int id) {
       WorkingSaveEntry = *static_cast<SaveFileEntry*>(FullSaveEntries[id]);
       break;
     default:
-      ImpLog(LL_Error, LC_IO,
+      ImpLog(LogLevel::Error, LogChannel::IO,
              "Failed to load save memory: unknown save type, doing nothing\n");
       return;
   }
@@ -638,7 +641,8 @@ void SaveSystem::LoadEntry(SaveType type, int id) {
 
 void SaveSystem::LoadMemoryNew(LoadProcess load) {
   if (!WorkingSaveEntry || WorkingSaveEntry->Status == 0) {
-    ImpLog(LL_Error, LC_IO, "Failed to load entry: save is empty\n");
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Failed to load entry: save is empty\n");
     return;
   }
   if (load == LoadProcess::LoadVars) {
@@ -704,7 +708,7 @@ uint8_t SaveSystem::GetSaveStatus(SaveType type, int id) {
                  ? ((SaveFileEntry*)FullSaveEntries[id])->Status
                  : 0;
     default:
-      ImpLog(LL_Error, LC_IO,
+      ImpLog(LogLevel::Error, LogChannel::IO,
              "Failed to get save status: unknown save type, returning 0\n");
       return 0;
   }
@@ -717,7 +721,7 @@ int SaveSystem::GetSaveTitle(SaveType type, int id) {
     case SaveFull:
       return ((SaveFileEntry*)FullSaveEntries[id])->SwTitle;
     default:
-      ImpLog(LL_Error, LC_IO,
+      ImpLog(LogLevel::Error, LogChannel::IO,
              "Failed to get save title: unknown save type, returning 0\n");
       return 0;
   }

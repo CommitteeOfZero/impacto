@@ -12,7 +12,7 @@ class AssetPath {
   uint32_t Id = 0;
 
   IoError Open(Stream** outStream);
-  IoError Slurp(void** outMemory, int64_t* outSize);
+  IoError Slurp(void*& outMemory, int64_t& outSize);
 };
 
 }  // namespace Io

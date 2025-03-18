@@ -15,8 +15,8 @@ void Configure() {
   if (!TryPushMember("DelusionTrigger")) return;
   AssertIs(LUA_TTABLE);
 
-  Type =
-      DelusionTriggerType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
+  Type = DelusionTriggerType::_from_integral_unchecked(
+      EnsureGetMember<int>("Type"));
 
   switch (Type) {
     case DelusionTriggerType::CHLCC:

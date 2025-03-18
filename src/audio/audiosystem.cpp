@@ -29,7 +29,7 @@ void AudioShutdown() {
 
 void AudioInit() {
   assert(IsInit == false);
-  ImpLog(LL_Info, LC_Audio, "Initialising audio system\n");
+  ImpLog(LogLevel::Info, LogChannel::Audio, "Initialising audio system\n");
 
   switch (Profile::ActiveAudioBackend) {
 #ifndef IMPACTO_DISABLE_OPENAL
@@ -41,7 +41,7 @@ void AudioInit() {
     } break;
 #endif
     default: {
-      ImpLog(LL_Warning, LC_Audio,
+      ImpLog(LogLevel::Warning, LogChannel::Audio,
              "Unknown or unsupported audio backend selected! You will not hear "
              "audio.\n");
       Backend = new AudioBackend();

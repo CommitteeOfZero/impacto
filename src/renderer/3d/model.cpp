@@ -45,8 +45,8 @@ void Model::EnumerateModels() {
   std::map<uint32_t, std::string> listing;
   IoError err = VfsListFiles("model", listing);
   if (err != IoError_OK) {
-    ImpLog(LL_Error, LC_Render, "Failed to list models from VFS: IO error %d\n",
-           err);
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Failed to list models from VFS: IO error {:s}\n", err);
     return;
   }
 
@@ -109,8 +109,8 @@ static IoError GetModelMountpoint(uint32_t modelId,
     FileMeta arcMeta;
     IoError err = VfsGetMeta("model", modelId, &arcMeta);
     if (err != IoError_OK) {
-      ImpLog(LL_Error, LC_ModelLoad, "Could not open model archive for %d\n",
-             modelId);
+      ImpLog(LogLevel::Error, LogChannel::ModelLoad,
+             "Could not open model archive for {:d}\n", modelId);
       return err;
     }
     outMountpoint = "model_" + arcMeta.FileName;
@@ -128,23 +128,23 @@ static IoError MountModel(uint32_t modelId, std::string& outMountpoint) {
   FileMeta arcMeta;
   IoError err = VfsGetMeta("model", modelId, &arcMeta);
   if (err != IoError_OK) {
-    ImpLog(LL_Error, LC_ModelLoad, "Could not open model archive for %d\n",
-           modelId);
+    ImpLog(LogLevel::Error, LogChannel::ModelLoad,
+           "Could not open model archive for {:d}\n", modelId);
     return err;
   }
   void* arcMem;
   int64_t arcSz;
-  err = VfsSlurp("model", modelId, &arcMem, &arcSz);
+  err = VfsSlurp("model", modelId, arcMem, arcSz);
   if (err != IoError_OK) {
-    ImpLog(LL_Error, LC_ModelLoad, "Could not open model archive for %d\n",
-           modelId);
+    ImpLog(LogLevel::Error, LogChannel::ModelLoad,
+           "Could not open model archive for {:d}\n", modelId);
     return err;
   }
   std::string modelMountpoint = "model_" + arcMeta.FileName;
   err = VfsMountMemory(modelMountpoint, arcMeta.FileName, arcMem, arcSz, true);
   if (err != IoError_OK) {
-    ImpLog(LL_Error, LC_ModelLoad, "Could not open model archive for %d\n",
-           modelId);
+    ImpLog(LogLevel::Error, LogChannel::ModelLoad,
+           "Could not open model archive for {:d}\n", modelId);
     free(arcMem);
     return err;
   }
@@ -160,16 +160,16 @@ static void UnmountModel(uint32_t modelId) {
   IoError err = VfsGetMeta("model", modelId, &arcMeta);
   if (err != IoError_OK) {
     ImpLog(
-        LL_Error, LC_ModelLoad,
-        "Could not unmount model archive for %d (this should never happen)\n",
+        LogLevel::Error, LogChannel::ModelLoad,
+        "Could not unmount model archive for {:d} (this should never happen)\n",
         modelId);
     return;
   }
   VfsUnmount("model_" + arcMeta.FileName, arcMeta.FileName);
 }
 
-static IoError SlurpModel(uint32_t modelId, void** outMemory,
-                          int64_t* outSize) {
+static IoError SlurpModel(uint32_t modelId, void*& outMemory,
+                          int64_t& outSize) {
   if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
     return VfsSlurp("model", modelId, outMemory, outSize);
   } else {
@@ -180,8 +180,8 @@ static IoError SlurpModel(uint32_t modelId, void** outMemory,
   }
 }
 
-static IoError SlurpAnim(uint32_t modelId, int16_t animId, void** outMemory,
-                         int64_t* outSize, std::string& outName) {
+static IoError SlurpAnim(uint32_t modelId, int16_t animId, void*& outMemory,
+                         int64_t& outSize, std::string& outName) {
   std::string mountpoint;
   IoError err;
 
@@ -195,8 +195,9 @@ static IoError SlurpAnim(uint32_t modelId, int16_t animId, void** outMemory,
   FileMeta animMeta;
   err = VfsGetMeta(mountpoint, animId, &animMeta);
   if (err != IoError_OK) {
-    ImpLog(LL_Error, LC_ModelLoad,
-           "Could not find animation file %h for model %d\n", animId, modelId);
+    ImpLog(LogLevel::Error, LogChannel::ModelLoad,
+           "Could not find animation file %h for model {:d}\n", animId,
+           modelId);
     return err;
   }
   outName = animMeta.FileName;
@@ -219,7 +220,8 @@ Model* Model::Load(uint32_t modelId) {
     boneBaseTransformOffset = BoneBaseTransformOffset;
   }
 
-  ImpLogSlow(LL_Debug, LC_ModelLoad, "Loading model %d\n", modelId);
+  ImpLogSlow(LogLevel::Debug, LogChannel::ModelLoad, "Loading model {:d}\n",
+             modelId);
 
   std::string modelMountpoint;
   IoError err = MountModel(modelId, modelMountpoint);
@@ -229,10 +231,10 @@ Model* Model::Load(uint32_t modelId) {
 
   void* file;
   int64_t fileSize;
-  err = SlurpModel(modelId, &file, &fileSize);
+  err = SlurpModel(modelId, file, fileSize);
   if (err != IoError_OK) {
-    ImpLog(LL_Error, LC_ModelLoad, "Could not read model file for %d\n",
-           modelId);
+    ImpLog(LogLevel::Error, LogChannel::ModelLoad,
+           "Could not read model file for {:d}\n", modelId);
     UnmountModel(modelId);
     return NULL;
   }
@@ -272,9 +274,9 @@ Model* Model::Load(uint32_t modelId) {
       result->MorphTargetCount <= ModelMaxMorphTargetsPerModel &&
       (result->Type == ModelType_Character || result->MorphTargetCount == 0));
 
-  ImpLog(LL_Debug, LC_ModelLoad,
-         "Model %d MeshCount=%d BoneCount=%d TextureCount=%d "
-         "MorphTargetCount=%d\n",
+  ImpLog(LogLevel::Debug, LogChannel::ModelLoad,
+         "Model {:d} MeshCount={:d} BoneCount={:d} TextureCount={:d} "
+         "MorphTargetCount={:d}\n",
          modelId, result->MeshCount, result->BoneCount, result->TextureCount,
          result->MorphTargetCount);
 
@@ -558,14 +560,14 @@ Model* Model::Load(uint32_t modelId) {
   stream->Seek(TexturesOffset, RW_SEEK_SET);
   for (uint32_t i = 0; i < result->TextureCount; i++) {
     uint32_t size = ReadLE<uint32_t>(stream);
-    ImpLogSlow(LL_Debug, LC_ModelLoad, "Loading texture %d, size=0x%08x\n", i,
-               size);
+    ImpLogSlow(LogLevel::Debug, LogChannel::ModelLoad,
+               "Loading texture {:d}, size=0x{:08x}\n", i, size);
     void* gxt = malloc(size);
     stream->Read(gxt, size);
     Stream* gxtStream = new MemoryStream(gxt, size, true);
     if (!result->Textures[i].Load(gxtStream)) {
-      ImpLog(LL_Debug, LC_ModelLoad,
-             "Texture %d failed to load, falling back to 1x1 pixel\n", i);
+      ImpLog(LogLevel::Debug, LogChannel::ModelLoad,
+             "Texture {:d} failed to load, falling back to 1x1 pixel\n", i);
       result->Textures[i].LoadCheckerboard();
     }
     delete gxtStream;
@@ -598,10 +600,11 @@ Model* Model::Load(uint32_t modelId) {
         int64_t animSize;
         void* animData;
 
-        if (SlurpAnim(modelId, animId, &animData, &animSize, animName) !=
+        if (SlurpAnim(modelId, animId, animData, animSize, animName) !=
             IoError_OK) {
-          ImpLog(LL_Error, LC_ModelLoad,
-                 "Could not read animation %h for model %d\n", animId, modelId);
+          ImpLog(LogLevel::Error, LogChannel::ModelLoad,
+                 "Could not read animation %h for model {:d}\n", animId,
+                 modelId);
           continue;
         }
 
@@ -610,8 +613,8 @@ Model* Model::Load(uint32_t modelId) {
         ModelAnimation* anim = ModelAnimation::Load(animStream, result, animId);
         delete animStream;
         if (anim == 0) {
-          ImpLog(LL_Error, LC_ModelLoad,
-                 "Could not parse animation %h for model %d\n", animId,
+          ImpLog(LogLevel::Error, LogChannel::ModelLoad,
+                 "Could not parse animation %h for model {:d}\n", animId,
                  modelId);
           continue;
         }

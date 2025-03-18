@@ -32,9 +32,9 @@ void InitRenderer() {
       break;
 #endif
     default:
-      ImpLog(LL_Error, LC_Render,
+      ImpLog(LogLevel::Error, LogChannel::Render,
              "Unknown or unsupported renderer selected!\n");
-      exit(0);
+      exit(1);
   }
 
   Renderer->Init();
@@ -77,7 +77,7 @@ void BaseRenderer::DrawSprite3DRotated(Sprite const& sprite, glm::vec2 topLeft,
                       rot, tint, inverted);
 }
 
-void BaseRenderer::DrawProcessedText(tcb::span<const ProcessedTextGlyph> text,
+void BaseRenderer::DrawProcessedText(std::span<const ProcessedTextGlyph> text,
                                      Font* font, float opacity,
                                      RendererOutlineMode outlineMode,
                                      bool smoothstepGlyphOpacity,
@@ -94,7 +94,7 @@ void BaseRenderer::DrawProcessedText(tcb::span<const ProcessedTextGlyph> text,
   }
 }
 
-void BaseRenderer::DrawProcessedText(tcb::span<const ProcessedTextGlyph> text,
+void BaseRenderer::DrawProcessedText(std::span<const ProcessedTextGlyph> text,
                                      Font* font, float opacity,
                                      float outlineOpacity,
                                      RendererOutlineMode outlineMode,
@@ -123,7 +123,7 @@ void BaseRenderer::DrawVideoTexture(YUVFrame* tex, glm::vec2 topLeft,
 }
 
 void BaseRenderer::DrawProcessedText_BasicFont(
-    tcb::span<const ProcessedTextGlyph> text, BasicFont* font, float opacity,
+    std::span<const ProcessedTextGlyph> text, BasicFont* font, float opacity,
     RendererOutlineMode outlineMode, bool smoothstepGlyphOpacity,
     float outlineOpacity, SpriteSheet* maskedSheet) {
   // cruddy mages outline
@@ -195,7 +195,7 @@ void BaseRenderer::DrawProcessedText_BasicFont(
 }
 
 void BaseRenderer::DrawProcessedText_LBFont(
-    tcb::span<const ProcessedTextGlyph> text, LBFont* font, float opacity,
+    std::span<const ProcessedTextGlyph> text, LBFont* font, float opacity,
     RendererOutlineMode outlineMode, bool smoothstepGlyphOpacity,
     float outlineOpacity, SpriteSheet* maskedSheet) {
   if (outlineMode != RendererOutlineMode::RO_None) {

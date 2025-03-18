@@ -9,7 +9,7 @@ VideoPlayer* VideoPlayer::Create(Io::Stream* stream) {
     VideoPlayer* result = f(stream);
     if (result) return result;
   }
-  ImpLog(LL_Error, LC_Video, "No video player found\n");
+  ImpLog(LogLevel::Error, LogChannel::Video, "No video player found\n");
   return 0;
 }
 

@@ -11,27 +11,27 @@ namespace Darling {
 namespace SysMesBox {
 
 void Configure() {
-  SelectionHighlight = EnsureGetMemberSprite("SelectionHighlight");
+  SelectionHighlight = EnsureGetMember<Sprite>("SelectionHighlight");
 
-  BoxPartLeft = EnsureGetMemberSprite("BoxPartLeft");
-  BoxPartRight = EnsureGetMemberSprite("BoxPartRight");
-  BoxPartMiddle = EnsureGetMemberSprite("BoxPartMiddle");
-  BoxDecoration = EnsureGetMemberSprite("BoxDecoration");
+  BoxPartLeft = EnsureGetMember<Sprite>("BoxPartLeft");
+  BoxPartRight = EnsureGetMember<Sprite>("BoxPartRight");
+  BoxPartMiddle = EnsureGetMember<Sprite>("BoxPartMiddle");
+  BoxDecoration = EnsureGetMember<Sprite>("BoxDecoration");
 
-  BoxX = EnsureGetMemberFloat("BoxX");
-  BoxY = EnsureGetMemberFloat("BoxY");
-  ChoicePadding = EnsureGetMemberFloat("ChoicePadding");
-  ChoiceY = EnsureGetMemberFloat("ChoiceY");
-  ChoiceXBase = EnsureGetMemberFloat("ChoiceXBase");
-  MinMaxMesWidth = EnsureGetMemberFloat("MinMaxMesWidth");
-  BoxMinimumWidth = EnsureGetMemberFloat("BoxMinimumWidth");
-  BoxMiddleBaseX = EnsureGetMemberFloat("BoxMiddleBaseX");
-  BoxMiddleBaseWidth = EnsureGetMemberFloat("BoxMiddleBaseWidth");
-  BoxRightBaseWidth = EnsureGetMemberFloat("BoxRightBaseWidth");
-  BoxRightRemainPad = EnsureGetMemberFloat("BoxRightRemainPad");
+  BoxX = EnsureGetMember<float>("BoxX");
+  BoxY = EnsureGetMember<float>("BoxY");
+  ChoicePadding = EnsureGetMember<float>("ChoicePadding");
+  ChoiceY = EnsureGetMember<float>("ChoiceY");
+  ChoiceXBase = EnsureGetMember<float>("ChoiceXBase");
+  MinMaxMesWidth = EnsureGetMember<float>("MinMaxMesWidth");
+  BoxMinimumWidth = EnsureGetMember<float>("BoxMinimumWidth");
+  BoxMiddleBaseX = EnsureGetMember<float>("BoxMiddleBaseX");
+  BoxMiddleBaseWidth = EnsureGetMember<float>("BoxMiddleBaseWidth");
+  BoxRightBaseWidth = EnsureGetMember<float>("BoxRightBaseWidth");
+  BoxRightRemainPad = EnsureGetMember<float>("BoxRightRemainPad");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   UI::SysMesBoxPtr = new UI::Darling::SysMesBox();
   UI::Menus[drawType].push_back(UI::SysMesBoxPtr);

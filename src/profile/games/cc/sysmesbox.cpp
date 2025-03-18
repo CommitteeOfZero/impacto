@@ -11,40 +11,40 @@ namespace CC {
 namespace SysMesBox {
 
 void Configure() {
-  GetMemberSpriteArray(SumoSealSprites, SealSpriteCount, "SumoSealSprites");
+  GetMemberArray<Sprite>(SumoSealSprites, SealSpriteCount, "SumoSealSprites");
 
-  GetMemberFloatArray(SumoSealCenterPosX, SealSpriteCount,
-                      "SumoSealCenterPosX");
-  GetMemberFloatArray(SumoSealCenterPosY, SealSpriteCount,
-                      "SumoSealCenterPosY");
-  ButtonYes = EnsureGetMemberSprite("ButtonYes");
-  ButtonNo = EnsureGetMemberSprite("ButtonNo");
-  ButtonOK = EnsureGetMemberSprite("ButtonOK");
-  ButtonYesHighlighted = EnsureGetMemberSprite("ButtonYesHighlighted");
-  ButtonNoHighlighted = EnsureGetMemberSprite("ButtonNoHighlighted");
-  ButtonOKHighlighted = EnsureGetMemberSprite("ButtonOKHighlighted");
-  ButtonYesCenterPosX = EnsureGetMemberFloat("ButtonYesCenterPosX");
-  ButtonYesCenterPosY = EnsureGetMemberFloat("ButtonYesCenterPosY");
-  ButtonNoCenterPosX = EnsureGetMemberFloat("ButtonNoCenterPosX");
-  ButtonNoCenterPosY = EnsureGetMemberFloat("ButtonNoCenterPosY");
-  ButtonOKCenterPosX = EnsureGetMemberFloat("ButtonOKCenterPosX");
-  ButtonOKCenterPosY = EnsureGetMemberFloat("ButtonOKCenterPosY");
+  GetMemberArray<float>(SumoSealCenterPosX, SealSpriteCount,
+                        "SumoSealCenterPosX");
+  GetMemberArray<float>(SumoSealCenterPosY, SealSpriteCount,
+                        "SumoSealCenterPosY");
+  ButtonYes = EnsureGetMember<Sprite>("ButtonYes");
+  ButtonNo = EnsureGetMember<Sprite>("ButtonNo");
+  ButtonOK = EnsureGetMember<Sprite>("ButtonOK");
+  ButtonYesHighlighted = EnsureGetMember<Sprite>("ButtonYesHighlighted");
+  ButtonNoHighlighted = EnsureGetMember<Sprite>("ButtonNoHighlighted");
+  ButtonOKHighlighted = EnsureGetMember<Sprite>("ButtonOKHighlighted");
+  ButtonYesCenterPosX = EnsureGetMember<float>("ButtonYesCenterPosX");
+  ButtonYesCenterPosY = EnsureGetMember<float>("ButtonYesCenterPosY");
+  ButtonNoCenterPosX = EnsureGetMember<float>("ButtonNoCenterPosX");
+  ButtonNoCenterPosY = EnsureGetMember<float>("ButtonNoCenterPosY");
+  ButtonOKCenterPosX = EnsureGetMember<float>("ButtonOKCenterPosX");
+  ButtonOKCenterPosY = EnsureGetMember<float>("ButtonOKCenterPosY");
   AnimationProgressWidgetsStartOffset =
-      EnsureGetMemberFloat("AnimationProgressWidgetsStartOffset");
-  ButtonNoDisplayStart = EnsureGetMemberFloat("ButtonNoDisplayStart");
+      EnsureGetMember<float>("AnimationProgressWidgetsStartOffset");
+  ButtonNoDisplayStart = EnsureGetMember<float>("ButtonNoDisplayStart");
   ButtonNoAnimationProgressOffset =
-      EnsureGetMemberFloat("ButtonNoAnimationProgressOffset");
+      EnsureGetMember<float>("ButtonNoAnimationProgressOffset");
   ButtonYesNoScaleMultiplier =
-      EnsureGetMemberFloat("ButtonYesNoScaleMultiplier");
-  ButtonOKScaleMultiplier = EnsureGetMemberFloat("ButtonOKScaleMultiplier");
-  ButtonScaleMax = EnsureGetMemberFloat("ButtonScaleMax");
+      EnsureGetMember<float>("ButtonYesNoScaleMultiplier");
+  ButtonOKScaleMultiplier = EnsureGetMember<float>("ButtonOKScaleMultiplier");
+  ButtonScaleMax = EnsureGetMember<float>("ButtonScaleMax");
   ButtonYesAnimationProgressEnd =
-      EnsureGetMemberFloat("ButtonYesAnimationProgressEnd");
-  ButtonYesNoAlphaDivider = EnsureGetMemberFloat("ButtonYesNoAlphaDivider");
-  WidgetsAlphaMultiplier = EnsureGetMemberFloat("WidgetsAlphaMultiplier");
+      EnsureGetMember<float>("ButtonYesAnimationProgressEnd");
+  ButtonYesNoAlphaDivider = EnsureGetMember<float>("ButtonYesNoAlphaDivider");
+  WidgetsAlphaMultiplier = EnsureGetMember<float>("WidgetsAlphaMultiplier");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   UI::SysMesBoxPtr = new UI::CC::SysMesBox();
   UI::Menus[drawType].push_back(UI::SysMesBoxPtr);

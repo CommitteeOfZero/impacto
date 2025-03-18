@@ -91,9 +91,9 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
   result->Id = animId;
   result->Name = stream->Meta.FileName;
 
-  ImpLogSlow(LL_Trace, LC_ModelLoad,
-             "Loading animation %hu (%s) for model %d\n", animId,
-             result->Name.c_str(), model->Id);
+  ImpLogSlow(LogLevel::Trace, LogChannel::ModelLoad,
+             "Loading animation {:d} ({:s}) for model {:d}\n", animId,
+             result->Name, model->Id);
 
   stream->Seek(HeaderDurationOffset, RW_SEEK_SET);
   result->Duration =
@@ -101,8 +101,8 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
   uint32_t trackCount = ReadLE<uint32_t>(stream);
   uint32_t tracksOffset = ReadLE<uint32_t>(stream);
 
-  ImpLogSlow(LL_Trace, LC_ModelLoad,
-             "Duration (s): %f, track count: %d, tracksOffset: %08x\n",
+  ImpLogSlow(LogLevel::Trace, LogChannel::ModelLoad,
+             "Duration (s): {:f}, track count: {:d}, tracksOffset: 0x{:08x}\n",
              result->Duration, trackCount, tracksOffset);
 
   // Offset into result->CoordKeyframes[]
@@ -120,17 +120,20 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
 
   // Only get coord track counts/offsets and other simple data
   for (uint32_t i = 0; i < trackCount; i++) {
-    ImpLogSlow(LL_Trace, LC_ModelLoad, "Pass 1 for track %d\n", i);
+    ImpLogSlow(LogLevel::Trace, LogChannel::ModelLoad,
+               "Pass 1 for track {:d}\n", i);
 
     stream->Seek(tracksOffset + trackSize * i, RW_SEEK_SET);
     Target target = GetTarget(stream, model);
     if (target.Type == TargetType_Bone) {
       if (TrackForBone[target.Id] != -1) {
-        ImpLogSlow(LL_Trace, LC_ModelLoad,
-                   "Skipping duplicate track %d for bone %d\n", i, target.Id);
+        ImpLogSlow(LogLevel::Trace, LogChannel::ModelLoad,
+                   "Skipping duplicate track {:d} for bone {:d}\n", i,
+                   target.Id);
         continue;
       }
-      ImpLogSlow(LL_Trace, LC_ModelLoad, "Track %d is bone %d\n", i, target.Id);
+      ImpLogSlow(LogLevel::Trace, LogChannel::ModelLoad,
+                 "Track {:d} is bone {:d}\n", i, target.Id);
 
       BoneTrack* track = &result->BoneTracks[result->BoneTrackCount];
       memcpy(track->Name, target.Name, sizeof(target.Name));
@@ -152,8 +155,8 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
       for (int j = BKT_TranslateX; j < BKT_Rotate; j++) {
         track->KeyOffsets[j] = currentCoordOffset;
         currentCoordOffset += track->KeyCounts[j];
-        ImpLogSlow(LL_Trace, LC_ModelLoad,
-                   "Subtrack %d: count %d offset %08x\n", j,
+        ImpLogSlow(LogLevel::Trace, LogChannel::ModelLoad,
+                   "Subtrack {:d}: count {:d} offset 0x{:08x}\n", j,
                    track->KeyCounts[j], track->KeyOffsets[j]);
       }
 
@@ -165,15 +168,15 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
       for (int j = BKT_ScaleX; j < BKT_Count; j++) {
         track->KeyOffsets[j] = currentCoordOffset;
         currentCoordOffset += track->KeyCounts[j];
-        ImpLogSlow(LL_Trace, LC_ModelLoad,
-                   "Subtrack %d: count %d offset %08x\n", j,
+        ImpLogSlow(LogLevel::Trace, LogChannel::ModelLoad,
+                   "Subtrack {:d}: count {:d} offset 0x{:08x}\n", j,
                    track->KeyCounts[j], track->KeyOffsets[j]);
       }
 
       result->BoneTrackCount++;
     } else if (target.Type == TargetType_MeshGroup) {
-      ImpLogSlow(LL_Trace, LC_ModelLoad, "Track %d is mesh group %d\n", i,
-                 target.Id);
+      ImpLogSlow(LogLevel::Trace, LogChannel::ModelLoad,
+                 "Track {:d} is mesh group {:d}\n", i, target.Id);
 
       // Mesh group track
       std::vector<Mesh*> meshes;
@@ -192,14 +195,15 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
       uint16_t visibilityCount = ReadLE<uint16_t>(stream);
       int visibilityOffset = currentCoordOffset;
       currentCoordOffset += visibilityCount;
-      ImpLogSlow(LL_Trace, LC_ModelLoad, "Visibility count %d offset %08x\n",
-                 visibilityCount, visibilityOffset);
+      ImpLogSlow(LogLevel::Trace, LogChannel::ModelLoad,
+                 "Visibility count {:d} offset 0x{:08x}\n", visibilityCount,
+                 visibilityOffset);
 
       stream->Seek(0x1E, RW_SEEK_CUR);
 
       uint16_t morphTargetCount = ReadLE<uint16_t>(stream);
-      ImpLogSlow(LL_Trace, LC_ModelLoad, "Morph target count %d\n",
-                 morphTargetCount);
+      ImpLogSlow(LogLevel::Trace, LogChannel::ModelLoad,
+                 "Morph target count {:d}\n", morphTargetCount);
       uint16_t morphTargetIds[AnimMaxMorphTargetsPerTrack];
       ReadArrayLE(morphTargetIds, stream, morphTargetCount);
 
@@ -215,8 +219,8 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
       for (int j = 0; j < morphTargetCount; j++) {
         morphInfluenceOffsets[j] = currentCoordOffset;
         currentCoordOffset += morphInfluenceCounts[j];
-        ImpLogSlow(LL_Trace, LC_ModelLoad,
-                   "Morph %d: influence count %d offset %08x\n", j,
+        ImpLogSlow(LogLevel::Trace, LogChannel::ModelLoad,
+                   "Morph {:d}: influence count {:d} offset 0x{:08x}\n", j,
                    morphInfluenceCounts[j], morphInfluenceOffsets[j]);
       }
 
@@ -225,8 +229,8 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
         MeshTrack* track = &result->MeshTracks[result->MeshTrackCount + j];
         memcpy(track->Name, target.Name, sizeof(target.Name));
         track->Mesh = mesh->Id;
-        ImpLogSlow(LL_Trace, LC_ModelLoad, "Mesh group %d <= mesh %d\n",
-                   target.Id, mesh->Id);
+        ImpLogSlow(LogLevel::Trace, LogChannel::ModelLoad,
+                   "Mesh group {:d} <= mesh {:d}\n", target.Id, mesh->Id);
 
         track->KeyCounts[MKT_Visible] = visibilityCount;
         track->KeyOffsets[MKT_Visible] = visibilityOffset;
@@ -246,8 +250,8 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
   result->CoordKeyframes = (CoordKeyframe*)malloc(sizeof(CoordKeyframe) *
                                                   result->CoordKeyframeCount);
 
-  ImpLogSlow(LL_Trace, LC_ModelLoad,
-             "---\nTotal coord keyframe count: %d\n---\n",
+  ImpLogSlow(LogLevel::Trace, LogChannel::ModelLoad,
+             "---\nTotal coord keyframe count: {:d}\n---\n",
              result->CoordKeyframeCount);
 
   //
@@ -274,8 +278,8 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
     if (target.Type == TargetType_Bone) {
       if (static_cast<int32_t>(i) != TrackForBone[target.Id]) continue;
 
-      ImpLogSlow(LL_Trace, LC_ModelLoad,
-                 "Interleaving rotations track %d bone %d\n", i, target.Id);
+      ImpLogSlow(LogLevel::Trace, LogChannel::ModelLoad,
+                 "Interleaving rotations track {:d} bone {:d}\n", i, target.Id);
       BoneTrack* track = &result->BoneTracks[currentBoneTrack];
 
       std::vector<QuatKeyframe> rotationTrack;
@@ -288,8 +292,8 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
       uint16_t rawRotYCount = ReadLE<uint16_t>(stream);
       uint16_t rawRotZCount = ReadLE<uint16_t>(stream);
 
-      ImpLogSlow(LL_Trace, LC_ModelLoad,
-                 "rawRotXCount=%d, rawRotYCount=%d, rawRotZCount=%d\n",
+      ImpLogSlow(LogLevel::Trace, LogChannel::ModelLoad,
+                 "rawRotXCount={:d}, rawRotYCount={:d}, rawRotZCount={:d}\n",
                  rawRotXCount, rawRotYCount, rawRotZCount);
       rotationTrack.reserve(rawRotXCount + rawRotYCount + rawRotZCount);
 
@@ -301,8 +305,8 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
       int rawRotYOffset = ReadLE<int>(stream) + HeaderSize;
       int rawRotZOffset = ReadLE<int>(stream) + HeaderSize;
 
-      ImpLogSlow(LL_Trace, LC_ModelLoad,
-                 "rawRotXOffset=%d, rawRotYOffset=%d, rawRotZOffset=%d\n",
+      ImpLogSlow(LogLevel::Trace, LogChannel::ModelLoad,
+                 "rawRotXOffset={:d}, rawRotYOffset={:d}, rawRotZOffset={:d}\n",
                  rawRotXOffset, rawRotYOffset, rawRotZOffset);
 
       CoordKeyframe* rotXBuffer =
@@ -377,9 +381,10 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
         eulerZYXToQuat(&currentEuler, &key.Value);
         rotationTrack.push_back(key);
 
-        ImpLogSlow(LL_Trace, LC_ModelLoad,
-                   "QuatKeyframe with z=%f, y=%f, x=%f - nextX=%d, nextY=%d, "
-                   "nextZ=%d - currentTime=%f\n",
+        ImpLogSlow(LogLevel::Trace, LogChannel::ModelLoad,
+                   "QuatKeyframe with z={:f}, y={:f}, x={:f} - nextX={:d}, "
+                   "nextY={:d}, "
+                   "nextZ={:d} - currentTime={:f}\n",
                    currentEuler.z, currentEuler.y, currentEuler.x, nextX, nextY,
                    nextZ, currentTime);
       }
@@ -394,7 +399,8 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
       track->KeyOffsets[BKT_Rotate] = result->QuatKeyframeCount;
       result->QuatKeyframeCount += track->KeyCounts[BKT_Rotate];
 
-      ImpLogSlow(LL_Trace, LC_ModelLoad, "QuatKeyframe count %d offset %08x\n",
+      ImpLogSlow(LogLevel::Trace, LogChannel::ModelLoad,
+                 "QuatKeyframe count {:d} offset 0x{:08x}\n",
                  track->KeyCounts[BKT_Rotate], track->KeyOffsets[BKT_Rotate]);
 
       currentBoneTrack++;
@@ -404,8 +410,8 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
   result->QuatKeyframes =
       (QuatKeyframe*)malloc(sizeof(QuatKeyframe) * result->QuatKeyframeCount);
 
-  ImpLogSlow(LL_Trace, LC_ModelLoad,
-             "---\nTotal quat keyframe count: %d\n---\n",
+  ImpLogSlow(LogLevel::Trace, LogChannel::ModelLoad,
+             "---\nTotal quat keyframe count: {:d}\n---\n",
              result->QuatKeyframeCount);
 
   // Now that we have the buffers, fill with data

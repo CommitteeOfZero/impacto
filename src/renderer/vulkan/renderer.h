@@ -63,7 +63,7 @@ class Renderer : public BaseRenderer {
     return std::vector<uint8_t>();
   };
   int GetImageFromTexture(uint32_t texture, RectF dimensions,
-                          tcb::span<uint8_t> outBuffer) override {
+                          std::span<uint8_t> outBuffer) override {
     // TODO implement
     return 0;
   }
@@ -81,8 +81,8 @@ class Renderer : public BaseRenderer {
                         bool inverted = false) override;
 
   void DrawVertices(SpriteSheet const& sheet,
-                    tcb::span<const glm::vec2> sheetPositions,
-                    tcb::span<const glm::vec2> displayPositions, int width,
+                    std::span<const glm::vec2> sheetPositions,
+                    std::span<const glm::vec2> displayPositions, int width,
                     int height, glm::vec4 tint = glm::vec4(1.0),
                     bool inverted = false) override;
 

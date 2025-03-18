@@ -54,8 +54,7 @@ MovieMenu::MovieMenu() {
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;
 
-  auto onClick =
-      std::bind(&MovieMenu::MovieButtonOnClick, this, std::placeholders::_1);
+  auto onClick = [this](auto* btn) { return MovieButtonOnClick(btn); };
 
   // Movie Buttons initialization
   MovieItems = new Widgets::Group(this);

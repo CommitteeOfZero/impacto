@@ -3,7 +3,7 @@
 #include "vfsarchive.h"
 #include "memorystream.h"
 #include <vector>
-#include <flat_hash_map.hpp>
+#include <ankerl/unordered_dense.h>
 
 namespace Impacto {
 namespace Io {
@@ -30,7 +30,7 @@ class CpkArchive : public VfsArchive {
   ~CpkArchive();
 
   IoError Open(FileMeta* file, Stream** outStream) override;
-  IoError Slurp(FileMeta* file, void** outBuffer, int64_t* outSize) override;
+  IoError Slurp(FileMeta* file, void*& outBuffer, int64_t& outSize) override;
 
   static IoError Create(Stream* stream, VfsArchive** outArchive);
 
@@ -43,7 +43,8 @@ class CpkArchive : public VfsArchive {
 
   bool ReadUtfBlock(
       uint8_t* utfBlock, uint64_t utfSize,
-      std::vector<ska::flat_hash_map<std::string, CpkCell>>* rows);
+      std::vector<ankerl::unordered_dense::map<
+          std::string, CpkCell, string_hash, std::equal_to<>>>* rows);
   void ReadString(int64_t stringsOffset, char* output);
 
   uint16_t Version;

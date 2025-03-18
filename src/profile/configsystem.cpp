@@ -17,40 +17,41 @@ void Configure() {
     AssertIs(LUA_TTABLE);
 
     Default::ShowTipsNotification =
-        TryGetMemberBool("ShowTipsNotification")
+        TryGetMember<bool>("ShowTipsNotification")
             .value_or(Default::ShowTipsNotification);
     Default::AdvanceTextOnDirectionalInput =
-        TryGetMemberBool("AdvanceTextOnDirectionalInput")
+        TryGetMember<bool>("AdvanceTextOnDirectionalInput")
             .value_or(Default::AdvanceTextOnDirectionalInput);
     Default::DirectionalInputForTrigger =
-        TryGetMemberBool("DirectionalInputForTrigger")
+        TryGetMember<bool>("DirectionalInputForTrigger")
             .value_or(Default::DirectionalInputForTrigger);
-    Default::TriggerStopSkip =
-        TryGetMemberBool("TriggerStopSkip").value_or(Default::TriggerStopSkip);
+    Default::TriggerStopSkip = TryGetMember<bool>("TriggerStopSkip")
+                                   .value_or(Default::TriggerStopSkip);
 
     Default::TextSpeed =
-        TryGetMemberFloat("TextSpeed").value_or(Default::TextSpeed);
+        TryGetMember<float>("TextSpeed").value_or(Default::TextSpeed);
     TextSpeedBounds =
-        TryGetMemberVec2("TextSpeedBounds").value_or(TextSpeedBounds);
+        TryGetMember<glm::vec2>("TextSpeedBounds").value_or(TextSpeedBounds);
     Default::AutoSpeed =
-        TryGetMemberFloat("AutoSpeed").value_or(Default::AutoSpeed);
+        TryGetMember<float>("AutoSpeed").value_or(Default::AutoSpeed);
     AutoSpeedBounds =
-        TryGetMemberVec2("AutoSpeedBounds").value_or(AutoSpeedBounds);
+        TryGetMember<glm::vec2>("AutoSpeedBounds").value_or(AutoSpeedBounds);
 
     Default::SkipRead =
-        TryGetMemberBool("SkipRead").value_or(Default::SkipRead);
+        TryGetMember<bool>("SkipRead").value_or(Default::SkipRead);
     Default::SyncVoice =
-        TryGetMemberBool("SyncVoice").value_or(Default::SyncVoice);
+        TryGetMember<bool>("SyncVoice").value_or(Default::SyncVoice);
     Default::SkipVoice =
-        TryGetMemberBool("SkipVoice").value_or(Default::SkipVoice);
+        TryGetMember<bool>("SkipVoice").value_or(Default::SkipVoice);
 
-    std::optional<Uint32> optionalVoiceCount = TryGetMemberUint("VoiceCount");
+    std::optional<uint32_t> optionalVoiceCount =
+        TryGetMember<uint32_t>("VoiceCount");
     if (optionalVoiceCount) {
-      Uint32 voiceCount = optionalVoiceCount.value();
+      uint32_t voiceCount = optionalVoiceCount.value();
       assert(voiceCount <= VoiceCount);
 
-      GetMemberBoolArray(Default::VoiceMuted, voiceCount, "VoiceMuted");
-      GetMemberFloatArray(Default::VoiceVolume, voiceCount, "VoiceVolume");
+      GetMemberArray(Default::VoiceMuted, voiceCount, "VoiceMuted");
+      GetMemberArray(Default::VoiceVolume, voiceCount, "VoiceVolume");
     }
 
     Pop();

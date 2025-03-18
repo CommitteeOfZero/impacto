@@ -14,7 +14,7 @@ class Label : public Widget {
   Label(Sprite const& label, glm::vec2 pos);
   Label(std::vector<ProcessedTextGlyph> str, float textWidth, float fontSize,
         RendererOutlineMode outlineMode);
-  Label(tcb::span<ProcessedTextGlyph> str, float textWidth, float fontSize,
+  Label(std::span<ProcessedTextGlyph> str, float textWidth, float fontSize,
         RendererOutlineMode outlineMode);
   Label(uint8_t* str, glm::vec2 pos, float fontSize,
         RendererOutlineMode outlineMode, int colorIndex = 10);
@@ -34,7 +34,7 @@ class Label : public Widget {
   void SetSprite(Sprite const& label);
   void SetText(std::vector<ProcessedTextGlyph> text, float textWidth,
                float fontSize, RendererOutlineMode outlineMode);
-  void SetText(tcb::span<ProcessedTextGlyph> str, float textWidth,
+  void SetText(std::span<ProcessedTextGlyph> str, float textWidth,
                float fontSize, RendererOutlineMode outlineMode);
   void SetText(uint8_t* str, float fontSize, RendererOutlineMode outlineMode,
                int colorIndex = 10);

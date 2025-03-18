@@ -17,7 +17,8 @@ void Configure() {
   if (TryPushMember("SysMesBoxDisplay")) {
     AssertIs(LUA_TTABLE);
 
-    Type = SysMesBoxType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
+    Type =
+        SysMesBoxType::_from_integral_unchecked(EnsureGetMember<int>("Type"));
 
     if (Type == +SysMesBoxType::RNE || Type == +SysMesBoxType::Dash) {
       RNE::SysMesBox::Configure();
@@ -31,14 +32,14 @@ void Configure() {
       CC::SysMesBox::Configure();
     }
 
-    TextFontSize = EnsureGetMemberFloat("TextFontSize");
-    TextMiddleY = EnsureGetMemberFloat("TextMiddleY");
-    TextX = EnsureGetMemberFloat("TextX");
-    TextLineHeight = EnsureGetMemberFloat("TextLineHeight");
-    TextMarginY = EnsureGetMemberFloat("TextMarginY");
-    AnimationSpeed = EnsureGetMemberFloat("AnimationSpeed");
-    FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
-    FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
+    TextFontSize = EnsureGetMember<float>("TextFontSize");
+    TextMiddleY = EnsureGetMember<float>("TextMiddleY");
+    TextX = EnsureGetMember<float>("TextX");
+    TextLineHeight = EnsureGetMember<float>("TextLineHeight");
+    TextMarginY = EnsureGetMember<float>("TextMarginY");
+    AnimationSpeed = EnsureGetMember<float>("AnimationSpeed");
+    FadeInDuration = EnsureGetMember<float>("FadeInDuration");
+    FadeOutDuration = EnsureGetMember<float>("FadeOutDuration");
 
     // Implementation->FadeAnimation.DurationIn = FadeInDuration;
     // Implementation->FadeAnimation.DurationOut = FadeOutDuration;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../util.h"
-#include <flat_hash_map.hpp>
+#include <ankerl/unordered_dense.h>
 
 namespace Impacto {
 namespace Profile {
@@ -12,10 +12,11 @@ enum InputAxisDir {
   AxisNeg = -1,
 };
 
-inline ska::flat_hash_map<uint32_t, std::vector<uint32_t>> PADToKeyboard;
-inline ska::flat_hash_map<uint32_t, uint32_t> PADToMouse;
-inline ska::flat_hash_map<uint32_t, uint32_t> PADToController;
-inline ska::flat_hash_map<uint32_t, std::pair<uint32_t, InputAxisDir>>
+inline ankerl::unordered_dense::map<uint32_t, std::vector<uint32_t>>
+    PADToKeyboard;
+inline ankerl::unordered_dense::map<uint32_t, uint32_t> PADToMouse;
+inline ankerl::unordered_dense::map<uint32_t, uint32_t> PADToController;
+inline ankerl::unordered_dense::map<uint32_t, std::pair<uint32_t, InputAxisDir>>
     PADToControllerAxis;
 
 inline uint32_t PADcustomType;

@@ -10,21 +10,21 @@ Impacto::RNE::TileBackground* ParseTileBackground() {
 
   Impacto::RNE::TileBackground* result = new Impacto::RNE::TileBackground();
 
-  result->DurationIn = EnsureGetMemberFloat("DurationIn");
-  result->DurationOut = EnsureGetMemberFloat("DurationOut");
+  result->DurationIn = EnsureGetMember<float>("DurationIn");
+  result->DurationOut = EnsureGetMember<float>("DurationOut");
 
-  result->Seed = EnsureGetMemberUint("Seed");
+  result->Seed = EnsureGetMember<uint32_t>("Seed");
 
-  result->Rows = EnsureGetMemberInt("Rows");
-  result->Columns = EnsureGetMemberInt("Columns");
+  result->Rows = EnsureGetMember<int>("Rows");
+  result->Columns = EnsureGetMember<int>("Columns");
 
-  result->VanishingPointX = EnsureGetMemberFloat("VanishingPointX");
-  result->CenterY = EnsureGetMemberFloat("CenterY");
-  result->Depth = EnsureGetMemberFloat("Depth");
+  result->VanishingPointX = EnsureGetMember<float>("VanishingPointX");
+  result->CenterY = EnsureGetMember<float>("CenterY");
+  result->Depth = EnsureGetMember<float>("Depth");
 
-  result->MaxAngle = EnsureGetMemberFloat("MaxAngle");
+  result->MaxAngle = EnsureGetMember<float>("MaxAngle");
 
-  result->BackgroundSprite = EnsureGetMemberSprite("Sprite");
+  result->BackgroundSprite = EnsureGetMember<Sprite>("Sprite");
 
   result->Init();
 

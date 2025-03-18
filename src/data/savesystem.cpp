@@ -57,15 +57,15 @@ void WriteSaveFile() {
 
 uint32_t GetSavePlayTime(SaveType type, int id) {
   if (Implementation) return Implementation->GetSavePlayTime(type, id);
-  ImpLog(LL_Warning, LC_VMStub,
-         "%s: save system not implemented, returning 0\n", __func__);
+  ImpLog(LogLevel::Warning, LogChannel::VMStub,
+         "{:s}: save system not implemented, returning 0\n", __func__);
   return 0;
 }
 
 uint8_t GetSaveFlags(SaveType type, int id) {
   if (Implementation) return Implementation->GetSaveFlags(type, id);
-  ImpLog(LL_Warning, LC_VMStub,
-         "%s: save system not implemented, returning 0\n", __func__);
+  ImpLog(LogLevel::Warning, LogChannel::VMStub,
+         "{:s}: save system not implemented, returning 0\n", __func__);
   return 0;
 }
 
@@ -82,47 +82,49 @@ tm const& GetSaveDate(SaveType type, int id) {
   }();
 
   if (Implementation) return Implementation->GetSaveDate(type, id);
-  ImpLog(LL_Warning, LC_VMStub,
-         "%s: save system not implemented, returning dummy time\n", __func__);
+  ImpLog(LogLevel::Warning, LogChannel::VMStub,
+         "{:s}: save system not implemented, returning dummy time\n", __func__);
   return t;
 }
 
 uint8_t GetSaveStatus(SaveType type, int id) {
   if (Implementation) return Implementation->GetSaveStatus(type, id);
-  ImpLog(LL_Warning, LC_VMStub,
-         "%s: save system not implemented, returning 0\n", __func__);
+  ImpLog(LogLevel::Warning, LogChannel::VMStub,
+         "{:s}: save system not implemented, returning 0\n", __func__);
   return 0;
 }
 
 int GetSaveTitle(SaveType type, int id) {
   if (Implementation) return Implementation->GetSaveTitle(type, id);
-  ImpLog(LL_Warning, LC_VMStub,
-         "%s: save system not implemented, returning 0\n", __func__);
+  ImpLog(LogLevel::Warning, LogChannel::VMStub,
+         "{:s}: save system not implemented, returning 0\n", __func__);
   return 0;
 }
 
 uint32_t GetTipStatus(int tipId) {
   if (Implementation) return Implementation->GetTipStatus(tipId);
-  ImpLog(LL_Warning, LC_VMStub,
-         "%s: save system not implemented, returning 0\n", __func__);
+  ImpLog(LogLevel::Warning, LogChannel::VMStub,
+         "{:s}: save system not implemented, returning 0\n", __func__);
   return 0;
 }
 
 void SetTipStatus(int tipId, bool isLocked, bool isUnread, bool isNew) {
   if (Implementation)
     return Implementation->SetTipStatus(tipId, isLocked, isUnread, isNew);
-  ImpLog(LL_Warning, LC_VMStub, "%s: save system not implemented\n", __func__);
+  ImpLog(LogLevel::Warning, LogChannel::VMStub,
+         "{:s}: save system not implemented\n", __func__);
 }
 
 void SetLineRead(int scriptId, int lineId) {
   if (Implementation) return Implementation->SetLineRead(scriptId, lineId);
-  ImpLog(LL_Warning, LC_VMStub, "%s: save system not implemented\n", __func__);
+  ImpLog(LogLevel::Warning, LogChannel::VMStub,
+         "{:s}: save system not implemented\n", __func__);
 }
 
 bool IsLineRead(int scriptId, int lineId) {
   if (Implementation) return Implementation->IsLineRead(scriptId, lineId);
-  ImpLog(LL_Warning, LC_VMStub,
-         "%s: save system not implemented, returing false\n", __func__);
+  ImpLog(LogLevel::Warning, LogChannel::VMStub,
+         "{:s}: save system not implemented, returing false\n", __func__);
   return false;
 }
 
@@ -130,8 +132,8 @@ void GetReadMessagesCount(int* totalMessageCount, int* readMessageCount) {
   if (Implementation)
     return Implementation->GetReadMessagesCount(totalMessageCount,
                                                 readMessageCount);
-  ImpLog(LL_Warning, LC_VMStub,
-         "%s: save system not implemented, returning 0\n", __func__);
+  ImpLog(LogLevel::Warning, LogChannel::VMStub,
+         "{:s}: save system not implemented, returning 0\n", __func__);
   *totalMessageCount = 0;
   *readMessageCount = 0;
 }
@@ -139,8 +141,8 @@ void GetReadMessagesCount(int* totalMessageCount, int* readMessageCount) {
 void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) {
   if (Implementation)
     return Implementation->GetViewedEVsCount(totalEVCount, viewedEVCount);
-  ImpLog(LL_Warning, LC_VMStub,
-         "%s: save system not implemented, returning 0\n", __func__);
+  ImpLog(LogLevel::Warning, LogChannel::VMStub,
+         "{:s}: save system not implemented, returning 0\n", __func__);
   *totalEVCount = 0;
   *viewedEVCount = 0;
 }
@@ -148,8 +150,8 @@ void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) {
 void GetEVStatus(int evId, int* totalVariations, int* viewedVariations) {
   if (Implementation)
     return Implementation->GetEVStatus(evId, totalVariations, viewedVariations);
-  ImpLog(LL_Warning, LC_VMStub,
-         "%s: save system not implemented, returning 0\n", __func__);
+  ImpLog(LogLevel::Warning, LogChannel::VMStub,
+         "{:s}: save system not implemented, returning 0\n", __func__);
   *totalVariations = 0;
   *viewedVariations = 0;
 }
@@ -157,15 +159,15 @@ void GetEVStatus(int evId, int* totalVariations, int* viewedVariations) {
 bool GetEVVariationIsUnlocked(int evId, int variationIdx) {
   if (Implementation)
     return Implementation->GetEVVariationIsUnlocked(evId, variationIdx);
-  ImpLog(LL_Warning, LC_VMStub,
-         "%s: save system not implemented, returing false\n", __func__);
+  ImpLog(LogLevel::Warning, LogChannel::VMStub,
+         "{:s}: save system not implemented, returing false\n", __func__);
   return false;
 }
 
 bool GetBgmFlag(int id) {
   if (Implementation) return Implementation->GetBgmFlag(id);
-  ImpLog(LL_Warning, LC_VMStub,
-         "%s: save system not implemented, returing false\n", __func__);
+  ImpLog(LogLevel::Warning, LogChannel::VMStub,
+         "{:s}: save system not implemented, returing false\n", __func__);
   return false;
 }
 
@@ -175,23 +177,25 @@ void SetCheckpointId(int id) {
 
 int GetQuickSaveOpenSlot() {
   if (Implementation) return Implementation->GetQuickSaveOpenSlot();
-  ImpLog(LL_Warning, LC_VMStub,
-         "%s: save system not implemented, returning -1\n", __func__);
+  ImpLog(LogLevel::Warning, LogChannel::VMStub,
+         "{:s}: save system not implemented, returning -1\n", __func__);
   return -1;
 }
 
 Sprite& GetSaveThumbnail(SaveType type, int id) {
   if (Implementation) return Implementation->GetSaveThumbnail(type, id);
-  ImpLog(LL_Warning, LC_VMStub,
-         "%s: save system not implemented, returning dummy sprite\n", __func__);
+  ImpLog(LogLevel::Warning, LogChannel::VMStub,
+         "{:s}: save system not implemented, returning dummy sprite\n",
+         __func__);
   static Sprite dummy;
   return dummy;
 }
 
 Sprite& GetWorkingSaveThumbnail() {
   if (Implementation) return Implementation->GetWorkingSaveThumbnail();
-  ImpLog(LL_Warning, LC_VMStub,
-         "%s: save system not implemented, returning dummy sprite\n", __func__);
+  ImpLog(LogLevel::Warning, LogChannel::VMStub,
+         "{:s}: save system not implemented, returning dummy sprite\n",
+         __func__);
   static Sprite dummy;
   return dummy;
 }

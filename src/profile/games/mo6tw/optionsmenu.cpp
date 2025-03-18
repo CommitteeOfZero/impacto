@@ -13,52 +13,53 @@ namespace MO6TW {
 namespace OptionsMenu {
 
 void Configure() {
-  BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
+  BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSprite");
 
-  GetMemberSpriteArray(VoiceToggleEnabledSprites, VoiceToggleCount,
-                       "VoiceToggleEnabledSprites");
-  GetMemberSpriteArray(VoiceToggleDisabledSprites, VoiceToggleCount,
-                       "VoiceToggleDisabledSprites");
+  GetMemberArray<Sprite>(VoiceToggleEnabledSprites, VoiceToggleCount,
+                         "VoiceToggleEnabledSprites");
+  GetMemberArray<Sprite>(VoiceToggleDisabledSprites, VoiceToggleCount,
+                         "VoiceToggleDisabledSprites");
   VoiceToggleHighlightSprite =
-      EnsureGetMemberSprite("VoiceToggleHighlightSprite");
+      EnsureGetMember<Sprite>("VoiceToggleHighlightSprite");
 
-  VoiceToggleStart = EnsureGetMemberVec2("VoiceToggleStart");
-  VoiceTogglePadding = EnsureGetMemberVec2("VoiceTogglePadding");
-  VoiceTogglePerLine = EnsureGetMemberInt("VoiceTogglePerLine");
+  VoiceToggleStart = EnsureGetMember<glm::vec2>("VoiceToggleStart");
+  VoiceTogglePadding = EnsureGetMember<glm::vec2>("VoiceTogglePadding");
+  VoiceTogglePerLine = EnsureGetMember<int>("VoiceTogglePerLine");
 
-  GetMemberSpriteArray(SectionHeaderSprites, SectionHeaderSpriteCount,
-                       "SectionHeaderSprites");
+  GetMemberArray<Sprite>(SectionHeaderSprites, SectionHeaderSpriteCount,
+                         "SectionHeaderSprites");
 
-  SliderTrackSprite = EnsureGetMemberSprite("SliderTrackSprite");
-  SliderFillSprite = EnsureGetMemberSprite("SliderFillSprite");
-  SliderThumbSprite = EnsureGetMemberSprite("SliderThumbSprite");
+  SliderTrackSprite = EnsureGetMember<Sprite>("SliderTrackSprite");
+  SliderFillSprite = EnsureGetMember<Sprite>("SliderFillSprite");
+  SliderThumbSprite = EnsureGetMember<Sprite>("SliderThumbSprite");
 
-  CheckboxBoxSprite = EnsureGetMemberSprite("CheckboxBoxSprite");
-  CheckboxTickSprite = EnsureGetMemberSprite("CheckboxTickSprite");
-  GetMemberSpriteArray(CheckboxLabelSprites, CheckboxLabelCount,
-                       "CheckboxLabelSprites");
+  CheckboxBoxSprite = EnsureGetMember<Sprite>("CheckboxBoxSprite");
+  CheckboxTickSprite = EnsureGetMember<Sprite>("CheckboxTickSprite");
+  GetMemberArray<Sprite>(CheckboxLabelSprites, CheckboxLabelCount,
+                         "CheckboxLabelSprites");
 
-  FirstPageSliderPos = EnsureGetMemberVec2("FirstPageSliderPos");
-  FirstPageSliderMargin = EnsureGetMemberFloat("FirstPageSliderMargin");
-  SliderThumbOffset = EnsureGetMemberVec2("SliderThumbOffset");
-  CheckboxLabelOffset = EnsureGetMemberVec2("CheckboxLabelOffset");
-  CheckboxFirstPos = EnsureGetMemberVec2("CheckboxFirstPos");
+  FirstPageSliderPos = EnsureGetMember<glm::vec2>("FirstPageSliderPos");
+  FirstPageSliderMargin = EnsureGetMember<float>("FirstPageSliderMargin");
+  SliderThumbOffset = EnsureGetMember<glm::vec2>("SliderThumbOffset");
+  CheckboxLabelOffset = EnsureGetMember<glm::vec2>("CheckboxLabelOffset");
+  CheckboxFirstPos = EnsureGetMember<glm::vec2>("CheckboxFirstPos");
   CheckboxFirstSectionPaddingX =
-      EnsureGetMemberFloat("CheckboxFirstSectionPaddingX");
-  CheckboxMargin = EnsureGetMemberVec2("CheckboxMargin");
-  CheckboxSecondPos = EnsureGetMemberVec2("CheckboxSecondPos");
+      EnsureGetMember<float>("CheckboxFirstSectionPaddingX");
+  CheckboxMargin = EnsureGetMember<glm::vec2>("CheckboxMargin");
+  CheckboxSecondPos = EnsureGetMember<glm::vec2>("CheckboxSecondPos");
   CheckboxSecondSectionFirstPaddingX =
-      EnsureGetMemberFloat("CheckboxSecondSectionFirstPaddingX");
-  GetMemberFloatArray(AutoSaveTriggerXPos, AutoSaveTriggerXPosCount,
-                      "AutoSaveTriggerXPos");
-  ScreenSizeSliderPos = EnsureGetMemberVec2("ScreenSizeSliderPos");
-  TipsPos = EnsureGetMemberVec2("TipsPos");
-  FirstPageSectionHeaderPos = EnsureGetMemberVec2("FirstPageSectionHeaderPos");
+      EnsureGetMember<float>("CheckboxSecondSectionFirstPaddingX");
+  GetMemberArray<float>(AutoSaveTriggerXPos, AutoSaveTriggerXPosCount,
+                        "AutoSaveTriggerXPos");
+  ScreenSizeSliderPos = EnsureGetMember<glm::vec2>("ScreenSizeSliderPos");
+  TipsPos = EnsureGetMember<glm::vec2>("TipsPos");
+  FirstPageSectionHeaderPos =
+      EnsureGetMember<glm::vec2>("FirstPageSectionHeaderPos");
   SecondPageSectionHeaderPos =
-      EnsureGetMemberVec2("SecondPageSectionHeaderPos");
+      EnsureGetMember<glm::vec2>("SecondPageSectionHeaderPos");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   UI::OptionsMenuPtr = new UI::MO6TW::OptionsMenu();
   UI::Menus[drawType].push_back(UI::OptionsMenuPtr);
