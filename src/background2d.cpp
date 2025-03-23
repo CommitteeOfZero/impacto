@@ -149,13 +149,16 @@ void Background2D::RenderBgEff(int bgId, int layer) {
   FadeCount = ScrWork[SW_BGEFF1_FADECT + structSize * bgId];
   FadeRange = ScrWork[SW_BGEFF1_MASKFADERANGE + structSize * bgId];
 
-  float x = ScrWork[SW_BGEFF1_OFSX + 20 * bgId] +
-            ScrWork[SW_BGEFF1_POSX + structSize * bgId];
-  float y = ScrWork[SW_BGEFF1_OFSY + 20 * bgId] +
-            ScrWork[SW_BGEFF1_POSY + structSize * bgId];
-  x *= Profile::DesignWidth / 1280.0;
-  y *= Profile::DesignHeight / 720.0;
-  DisplayCoords = glm::vec2(-x, -y);
+  DisplayCoords.x = ScrWork[SW_BGEFF1_POSX + structSize * bgId] +
+                    ScrWork[SW_BGEFF1_OFSX + 20 * bgId] -
+                    ScrWork[SW_BGEFF1_MASK_X1 + structSize * bgId] -
+                    ScrWork[SW_BGEFF1_MASK_X1_OFS + 20 * bgId];
+  DisplayCoords.y = ScrWork[SW_BGEFF1_POSY + structSize * bgId] +
+                    ScrWork[SW_BGEFF1_OFSY + 20 * bgId] -
+                    ScrWork[SW_BGEFF1_MASK_Y1 + structSize * bgId] -
+                    ScrWork[SW_BGEFF1_MASK_Y1_OFS + 20 * bgId];
+  DisplayCoords.x *= Profile::DesignWidth / 1280.0f;
+  DisplayCoords.y *= Profile::DesignHeight / 720.0f;
 
   glm::vec4 col = glm::vec4(1.0f);
   col.a = (ScrWork[SW_BGEFF1_ALPHA + structSize * bgId] +
