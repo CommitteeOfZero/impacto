@@ -288,6 +288,9 @@ vendor/fmtlib
 vendor/pugixml
 vendor/utf8-cpp
 vendor/glm
+vendor/concurrentqueue
+vendor/readerwriterqueue
+vendor/unordered_dense
 
 games/*/gamedata
 games/*/savedata
