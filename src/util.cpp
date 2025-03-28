@@ -66,19 +66,22 @@ std::string DumpMat4(glm::mat4* matrix, std::string_view columnSeparator,
 }
 
 int ResizeImage(Rect const& srcRect, Rect const& dstRect,
-                std::span<uint8_t> src, std::span<uint8_t> dst, bool flipY) {
+                std::span<uint8_t> src, std::span<uint8_t> dst) {
   using SurfacePtr = std::unique_ptr<SDL_Surface, decltype(&SDL_FreeSurface)>;
   if (srcRect.Width == dstRect.Width && srcRect.Height == dstRect.Height) {
     assert(dst.size() >= src.size());
     memcpy(dst.data(), src.data(), src.size());
     return 0;
   }
+  const uint32_t sdlFormat = SDL_PIXELFORMAT_RGBA32;
+  const int bytesPerPixel = 4;
 
-  assert(src.size() >= srcRect.Width * srcRect.Height * 4);
-  SurfacePtr srcSurface(SDL_CreateRGBSurfaceWithFormatFrom(
-                            src.data(), srcRect.Width, srcRect.Height, 32,
-                            srcRect.Width * 4, SDL_PIXELFORMAT_RGBA32),
-                        SDL_FreeSurface);
+  assert(src.size() >= srcRect.Width * srcRect.Height * bytesPerPixel);
+  SurfacePtr srcSurface(
+      SDL_CreateRGBSurfaceWithFormatFrom(
+          src.data(), srcRect.Width, srcRect.Height, bytesPerPixel * 8,
+          srcRect.Width * bytesPerPixel, sdlFormat),
+      SDL_FreeSurface);
   SDL_SetSurfaceBlendMode(srcSurface.get(), SDL_BLENDMODE_NONE);
   if (!srcSurface) {
     ImpLog(LogLevel::Error, LogChannel::Render,
@@ -86,10 +89,11 @@ int ResizeImage(Rect const& srcRect, Rect const& dstRect,
     return -1;
   }
   assert(dst.size() >= dstRect.Width * dstRect.Height * 4);
-  SurfacePtr dstSurface(SDL_CreateRGBSurfaceWithFormatFrom(
-                            dst.data(), dstRect.Width, dstRect.Height, 32,
-                            dstRect.Width * 4, SDL_PIXELFORMAT_RGBA32),
-                        SDL_FreeSurface);
+  SurfacePtr dstSurface(
+      SDL_CreateRGBSurfaceWithFormatFrom(
+          dst.data(), dstRect.Width, dstRect.Height, bytesPerPixel * 8,
+          dstRect.Width * bytesPerPixel, sdlFormat),
+      SDL_FreeSurface);
   if (!dstSurface) {
     ImpLog(LogLevel::Error, LogChannel::Render,
            "SDL_CreateRGBSurfaceWithFormat failed: {:s}\n", SDL_GetError());
@@ -104,16 +108,6 @@ int ResizeImage(Rect const& srcRect, Rect const& dstRect,
     ImpLog(LogLevel::Error, LogChannel::Render, "SDL_BlitScaled failed: {:s}\n",
            SDL_GetError());
     return -1;
-  }
-  if (flipY) {
-    auto itr = dst.begin();
-    auto revItr = dst.rbegin();
-    while (itr < revItr.base() - (dstRect.Width * 4)) {
-      std::swap_ranges(itr, itr + dstRect.Width * 4,
-                       revItr.base() - (dstRect.Width * 4));
-      itr += dstRect.Width * 4;
-      revItr += dstRect.Width * 4;
-    }
   }
   return 0;
 }

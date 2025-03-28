@@ -332,8 +332,7 @@ constexpr std::underlying_type_t<Enum> to_underlying(Enum e) noexcept {
 }
 
 int ResizeImage(Rect const& srcRect, Rect const& dstRect,
-                std::span<uint8_t> src, std::span<uint8_t> dst,
-                bool flipY = false);
+                std::span<uint8_t> src, std::span<uint8_t> dst);
 
 inline int CALCrnd(int max) {
   static std::random_device rd;

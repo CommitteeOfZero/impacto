@@ -15,7 +15,7 @@ inline GraphicsApi ActualGraphicsApi;
 
 enum class RendererOutlineMode { RO_None, RO_BottomRight, RO_Full };
 
-constexpr inline int MaxFramebuffers = 1;
+constexpr inline int MaxFramebuffers = 10;
 
 class BaseRenderer {
  public:
@@ -32,9 +32,14 @@ class BaseRenderer {
 
   virtual uint32_t SubmitTexture(TexFmt format, uint8_t* buffer, int width,
                                  int height) = 0;
-  virtual std::vector<uint8_t> GetImageFromTexture(uint32_t texture,
-                                                   RectF dimensions) = 0;
-  virtual int GetImageFromTexture(uint32_t texture, RectF dimensions,
+
+  std::vector<uint8_t> GetSpriteSheetImage(SpriteSheet const& sheet) {
+    std::vector<uint8_t> result(sheet.DesignWidth * sheet.DesignHeight * 4);
+    GetSpriteSheetImage(sheet, result);
+    return result;
+  };
+
+  virtual int GetSpriteSheetImage(SpriteSheet const& sheet,
                                   std::span<uint8_t> outBuffer) = 0;
   virtual void FreeTexture(uint32_t id) = 0;
   virtual YUVFrame* CreateYUVFrame(float width, float height) = 0;
@@ -61,7 +66,8 @@ class BaseRenderer {
                             std::span<const glm::vec2> displayPositions,
                             int width, int height,
                             glm::vec4 tint = glm::vec4(1.0),
-                            bool inverted = false) = 0;
+                            bool inverted = false,
+                            bool disableBlend = false) = 0;
 
   virtual void DrawRect(RectF const& dest, glm::vec4 color,
                         float angle = 0.0f) = 0;

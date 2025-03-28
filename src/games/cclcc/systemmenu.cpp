@@ -254,10 +254,6 @@ void SystemMenu::Render() {
                          (ScrWork[SW_SYSMENUCT] * 163840.0f / 5760.0f) /
                          (2 << 14);
 
-    CornersQuad bgBounds = repositionedBG.Bounds;
-    CornersQuad frameBounds = SystemMenuFrame.Bounds;
-    CornersQuad screenCapBounds = ScreenCap.Bounds;
-
     CornersQuad bgDisp = {
         glm::vec2{-1200, -330},
         glm::vec2{-1200, 2080},
@@ -279,23 +275,20 @@ void SystemMenu::Render() {
         glm::vec2{bgOffset + Profile::DesignWidth, Profile::DesignHeight},
     };
 
-    Renderer->CaptureScreencap(ScreenCap);
-
-    TransformImage(bgBounds, bgDisp, angleX, angleY, angleZ, scale, offset,
-                   SpriteGridVertices, DisplayGridVertices);
-
+    TransformImage(repositionedBG.Bounds, bgDisp, angleX, angleY, angleZ, scale,
+                   offset, SpriteGridVertices, DisplayGridVertices);
     Renderer->DrawVertices(repositionedBG.Sheet, SpriteGridVertices,
                            DisplayGridVertices, 21, 11);
 
-    TransformImage(frameBounds, frameDisp, angleX, angleY, angleZ, scale,
-                   offset, SpriteGridVertices, DisplayGridVertices);
+    TransformImage(SystemMenuFrame.Bounds, frameDisp, angleX, angleY, angleZ,
+                   scale, offset, SpriteGridVertices, DisplayGridVertices);
     Renderer->DrawVertices(SystemMenuFrame.Sheet, SpriteGridVertices,
                            DisplayGridVertices, 21, 11);
-    TransformImage(screenCapBounds, screenCapDisp, angleX, angleY, angleZ,
+    TransformImage(ScreenCap.Bounds, screenCapDisp, angleX, angleY, angleZ,
                    scale, offset, SpriteGridVertices, DisplayGridVertices);
     Renderer->DrawVertices(ScreenCap.Sheet, SpriteGridVertices,
-                           DisplayGridVertices, 21, 11, glm::vec4{1});
-
+                           DisplayGridVertices, 21, 11, glm::vec4{1}, false,
+                           true);
     Renderer->DrawSprite(SystemMenuMask,
                          {0, 0, Profile::DesignWidth, Profile::DesignHeight},
                          glm::vec4{tint, alpha});
@@ -306,8 +299,9 @@ void SystemMenu::Render() {
   }
 }
 
-void SystemMenu::InitPosition() {
+void SystemMenu::Init() {
   BGPosition = {CALCrnd(390) + 1350, CALCrnd(295) + 165};
+  SetFlag(SF_SYSTEMMENUCAPTURE, true);
 }
 
 }  // namespace CCLCC

@@ -696,6 +696,11 @@ void Renderer::Init() {
       "Sprite", bindingDescription, attributeDescriptions.data(),
       attributeDescriptions.size(), SingleTextureSetLayout);
 
+  PipelineSpriteNoBlending = new Pipeline(Device, RenderPass);
+  PipelineSpriteNoBlending->CreateWithShader(
+      "Sprite", bindingDescription, attributeDescriptions.data(),
+      attributeDescriptions.size(), SingleTextureSetLayout, false);
+
   PipelineSpriteInverted = new Pipeline(Device, RenderPass);
   PipelineSpriteInverted->CreateWithShader(
       "Sprite_inverted", bindingDescription, attributeDescriptions.data(),
@@ -807,8 +812,14 @@ void Renderer::Shutdown() {
   for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
     vkWaitForFences(Device, 1, &InFlightFences[i], VK_TRUE, UINT64_MAX);
   }
-  for (auto element : Textures) {
-    FreeTexture(element.first);
+
+  // Textures are invalidated when freeing, so store keys first
+  std::vector<uint32_t> textureIds;
+  for (const auto& texture : Textures) {
+    textureIds.push_back(texture.first);
+  }
+  for (uint32_t id : textureIds) {
+    FreeTexture(id);
   }
   for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
     vkDestroySemaphore(Device, RenderFinishedSemaphores[i], nullptr);
@@ -1408,7 +1419,7 @@ void Renderer::DrawVertices(SpriteSheet const& sheet,
                             std::span<const glm::vec2> sheetPositions,
                             std::span<const glm::vec2> displayPositions,
                             int width, int height, glm::vec4 tint,
-                            bool inverted) {
+                            bool inverted, bool disableBlend) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawVertices() called before BeginFrame()\n");
@@ -1429,6 +1440,8 @@ void Renderer::DrawVertices(SpriteSheet const& sheet,
   // Are we in sprite mode?
   if (inverted)
     EnsureMode(PipelineSpriteInverted);
+  else if (disableBlend)
+    EnsureMode(PipelineSpriteNoBlending);
   else
     EnsureMode(PipelineSprite);
 
@@ -2119,6 +2132,79 @@ void Renderer::CaptureScreencap(Sprite& sprite) {
 
   vkCmdBeginRenderPass(CommandBuffers[CurrentFrameIndex], &renderPassInfo,
                        VK_SUBPASS_CONTENTS_INLINE);
+}
+
+int Renderer::GetSpriteSheetImage(SpriteSheet const& sheet,
+                                  std::span<uint8_t> outBuffer) {
+  const int bufferSize = sheet.DesignWidth * sheet.DesignHeight * 4;
+  assert(outBuffer.size() >= bufferSize);
+
+  // Create a staging buffer to copy the image data to
+  AllocatedBuffer stagingBuffer = CreateBuffer(
+      bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
+
+  // Transition the image layout to VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL
+  VkImageSubresourceRange subresourceRange = {};
+  subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+  subresourceRange.baseMipLevel = 0;
+  subresourceRange.levelCount = 1;
+  subresourceRange.baseArrayLayer = 0;
+  subresourceRange.layerCount = 1;
+
+  ImmediateSubmit([&](VkCommandBuffer cmd) {
+    VkImageMemoryBarrier barrier{};
+    barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    barrier.oldLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.image = Textures[sheet.Texture].Image.Image;
+    barrier.subresourceRange = subresourceRange;
+    barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+    barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+
+    vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                         VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0,
+                         nullptr, 1, &barrier);
+
+    // Copy the image to the staging buffer
+    VkBufferImageCopy copyRegion = {};
+    copyRegion.bufferOffset = 0;
+    copyRegion.bufferRowLength = 0;
+    copyRegion.bufferImageHeight = 0;
+    copyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    copyRegion.imageSubresource.mipLevel = 0;
+    copyRegion.imageSubresource.baseArrayLayer = 0;
+    copyRegion.imageSubresource.layerCount = 1;
+    copyRegion.imageOffset = {0, 0, 0};
+    copyRegion.imageExtent = {static_cast<uint32_t>(sheet.DesignWidth),
+                              static_cast<uint32_t>(sheet.DesignHeight), 1};
+
+    vkCmdCopyImageToBuffer(cmd, Textures[sheet.Texture].Image.Image,
+                           VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                           stagingBuffer.Buffer, 1, &copyRegion);
+
+    // Transition the image layout back to
+    // VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+    barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+    barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+    vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TRANSFER_BIT,
+                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr,
+                         0, nullptr, 1, &barrier);
+  });
+
+  // Map the staging buffer and copy the data to the output buffer
+  void* data;
+  vmaMapMemory(Allocator, stagingBuffer.Allocation, &data);
+  memcpy(outBuffer.data(), data, bufferSize);
+  vmaUnmapMemory(Allocator, stagingBuffer.Allocation);
+
+  // Clean up the staging buffer
+  vmaDestroyBuffer(Allocator, stagingBuffer.Buffer, stagingBuffer.Allocation);
+  return bufferSize;
 }
 
 void Renderer::EnableScissor() {}

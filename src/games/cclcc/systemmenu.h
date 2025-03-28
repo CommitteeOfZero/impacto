@@ -18,13 +18,14 @@ class SystemMenu : public Menu {
 
   SystemMenu();
 
-  void InitPosition();
+  void Init();
   void Show();
   void Hide();
   void Update(float dt);
   void Render();
 
   void MenuButtonOnClick(Widgets::Button* target);
+  Sprite ScreenCap;
 
  private:
   Widgets::Group* MainItems;
@@ -32,7 +33,6 @@ class SystemMenu : public Menu {
   Animation MenuFade;
   Animation ItemsFade;
   bool ItemsFadeComplete = false;
-  Sprite ScreenCap;
   glm::vec2 BGPosition{};
 
   GridVertices SpriteGridVertices;

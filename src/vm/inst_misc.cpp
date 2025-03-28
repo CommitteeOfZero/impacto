@@ -93,7 +93,7 @@ VmInstruction(InstSystemMenu) {
       } else if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
         auto* sysMenuPtr =
             static_cast<UI::CCLCC::SystemMenu*>(UI::SystemMenuPtr);
-        sysMenuPtr->InitPosition();
+        sysMenuPtr->Init();
         // Block input during animation
         if (sysMenuPtr->State == UI::MenuState::Hiding ||
             sysMenuPtr->State == UI::MenuState::Showing) {

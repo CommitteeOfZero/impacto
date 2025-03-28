@@ -16,7 +16,8 @@ class Pipeline {
   void CreateWithShader(
       char const* name, VkVertexInputBindingDescription bindingDescription,
       VkVertexInputAttributeDescription* attributeDescriptions,
-      size_t attributeNum, VkDescriptorSetLayout setLayout);
+      size_t attributeNum, VkDescriptorSetLayout setLayout,
+      bool enableBlending = true);
 
   VkPipeline GraphicsPipeline;
   VkPipelineLayout PipelineLayout;
