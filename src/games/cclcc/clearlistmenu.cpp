@@ -28,7 +28,7 @@ ClearListMenu::ClearListMenu() {
 }
 
 void ClearListMenu::Show() {
-  if (State != Shown) {
+  if (State != Showing) {
     State = Showing;
 
     if (UI::FocusedMenu != 0) {
@@ -42,7 +42,7 @@ void ClearListMenu::Show() {
 }
 
 void ClearListMenu::Hide() {
-  if (State != Hidden) {
+  if (State != Hiding) {
     State = Hiding;
     FadeAnimation.StartOut();
     if (LastFocusedMenu != 0) {

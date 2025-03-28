@@ -367,6 +367,7 @@ void TitleMenu::Update(float dt) {
       SubMenuState = Hidden;
     } else if (SubMenuState == Showing && ScrWork[SW_SYSSUBMENUCT] == 32) {
       SubMenuState = Shown;
+      IsFocused = true;
     }
     if (ScrWork[SW_TITLEMODE] != 2) IsExploding = false;
   }
@@ -417,6 +418,7 @@ void TitleMenu::ReturnToMenuUpdate() {
     InputLocked = false;
     CurrentlyFocusedElement = NewGame;
     MainItems->Show();
+    IsFocused = true;
   }
   PrimaryFadeAnimation.Progress = 1.0f;
   if (SlideItemsAnimation.IsOut()) {
@@ -462,6 +464,7 @@ void TitleMenu::MainMenuUpdate() {
     NewGame->PrevFocusState = true;
     CurrentlyFocusedElement = NewGame;
     InputLocked = false;
+    IsFocused = true;
   }
 
   if (SecondaryFadeAnimation.IsOut() && CurrentSubMenu) {

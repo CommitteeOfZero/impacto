@@ -50,7 +50,7 @@ SaveMenu::SaveMenu() {
 void SaveMenu::Show() {
   auto onClick = [this](auto* btn) { return MenuButtonOnClick(btn); };
 
-  if (State != Shown) {
+  if (State != Showing) {
     HasCleared = false;
     State = Showing;
     FadeAnimation.StartIn();
@@ -189,12 +189,11 @@ void SaveMenu::Show() {
       LastFocusedMenu = UI::FocusedMenu;
       LastFocusedMenu->IsFocused = false;
     }
-    IsFocused = true;
     UI::FocusedMenu = this;
   }
 }
 void SaveMenu::Hide() {
-  if (State != Hidden) {
+  if (State != Hiding) {
     State = Hiding;
     FadeAnimation.StartOut();
     MainItems[CurrentPage]->Hide();
