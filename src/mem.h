@@ -9,8 +9,8 @@ namespace Impacto {
 int constexpr ScrWorkSize = 8000;
 int constexpr FlagWorkSize = 1000;
 
-inline int ScrWork[ScrWorkSize];
-inline uint8_t FlagWork[FlagWorkSize];
+inline std::array<int, ScrWorkSize> ScrWork;
+inline std::array<uint8_t, FlagWorkSize> FlagWork;
 
 inline float ScrRealToFloat(int scrReal) { return (float)scrReal / 1000.0f; }
 inline int FloatToScrReal(float f) { return (int)(f * 1000.0f); }

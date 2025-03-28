@@ -1966,7 +1966,7 @@ void MapSystemCCLCC::MapFadeMain(float dt) {
 }
 
 void MapSystemCCLCC::Update(float dt) {
-  if (ScrWork[6360] && GetFlag(2800)) {
+  if (ScrWork[SW_MAP_ALPHA] && GetFlag(2800)) {
     MapSetPos(dt);
   }
 

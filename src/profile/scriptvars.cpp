@@ -5,10 +5,11 @@ namespace Impacto {
 namespace Profile {
 namespace ScriptVars {
 
+// TODO: scope scriptvars for common and gamespecific
 void Configure() {
   EnsurePushMemberOfType("ScriptVars", LUA_TTABLE);
 
-#define V(var) var = EnsureGetMember<int>(#var);
+#define V(var) var = TryGetMember<int>(#var).value_or(-1);
 #include "../scriptvars.h"
 #undef V
 
