@@ -93,8 +93,8 @@ static void Init() {
     Video::VideoInit();
   }
 
-  memset(ScrWork, 0, sizeof(ScrWork));
-  memset(FlagWork, 0, sizeof(FlagWork));
+  ScrWork = {};
+FlagWork = {};
 
   if (Profile::GameFeatures & GameFeature::Renderer2D) {
     Profile::LoadSpritesheets();
