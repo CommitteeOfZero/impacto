@@ -50,7 +50,7 @@ SaveMenu::SaveMenu() {
 void SaveMenu::Show() {
   auto onClick = [this](auto* btn) { return MenuButtonOnClick(btn); };
 
-  if (State != Shown) {
+  if (State != Showing) {
     HasCleared = false;
     State = Showing;
     FadeAnimation.StartIn();
@@ -189,12 +189,11 @@ void SaveMenu::Show() {
       LastFocusedMenu = UI::FocusedMenu;
       LastFocusedMenu->IsFocused = false;
     }
-    IsFocused = true;
     UI::FocusedMenu = this;
   }
 }
 void SaveMenu::Hide() {
-  if (State != Hidden) {
+  if (State != Hiding) {
     State = Hiding;
     FadeAnimation.StartOut();
     MainItems[CurrentPage]->Hide();
@@ -233,16 +232,21 @@ void SaveMenu::Update(float dt) {
       (ScrWork[SW_SYSSUBMENUNO] == 0 || ScrWork[SW_SYSSUBMENUNO] == 3 ||
        ScrWork[SW_SYSSUBMENUNO] == 4)) {
     Hide();
-  } else if (ScrWork[SW_SYSSUBMENUCT] >= 32 && State == Hidden &&
+  } else if (ScrWork[SW_SYSSUBMENUCT] > 0 && State == Hidden &&
              (ScrWork[SW_SYSSUBMENUNO] == 0 || ScrWork[SW_SYSSUBMENUNO] == 3 ||
               ScrWork[SW_SYSSUBMENUNO] == 4)) {
     Show();
   }
 
-  if (FadeAnimation.IsIn())
+  if (State == Showing && FadeAnimation.IsIn() &&
+      ScrWork[SW_SYSSUBMENUCT] == 32) {
     State = Shown;
-  else if (FadeAnimation.IsOut())
+    IsFocused = true;
+  } else if (State == Hiding && FadeAnimation.IsOut() &&
+             ScrWork[SW_SYSSUBMENUCT] == 0) {
     State = Hidden;
+    if (UI::FocusedMenu) UI::FocusedMenu->IsFocused = true;
+  }
 
   if (State == Shown && IsFocused && CurrentlyFocusedElement) {
     int oldPage = CurrentPage;

@@ -31,7 +31,7 @@ ClearListMenu::ClearListMenu() {
 }
 
 void ClearListMenu::Show() {
-  if (State != Shown) {
+  if (State != Showing) {
     State = Showing;
     FadeAnimation.StartIn();
     if (UI::FocusedMenu != 0) {
@@ -44,12 +44,11 @@ void ClearListMenu::Show() {
 }
 
 void ClearListMenu::Hide() {
-  if (State != Hidden) {
+  if (State != Hiding) {
     State = Hiding;
     FadeAnimation.StartOut();
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
-      LastFocusedMenu->IsFocused = true;
     } else {
       UI::FocusedMenu = 0;
     }
@@ -60,12 +59,21 @@ void ClearListMenu::Hide() {
 void ClearListMenu::Update(float dt) {
   // UpdateInput();
   FadeAnimation.Update(dt);
-  if (ScrWork[SW_SYSSUBMENUCT] < 32 && State == Shown &&
-      ScrWork[SW_SYSSUBMENUNO] == 7) {
+  if (ScrWork[SW_SYSSUBMENUCT] < 32 && State == Shown) {
     Hide();
-  } else if (ScrWork[SW_SYSSUBMENUCT] >= 32 && State == Hidden &&
-             ScrWork[SW_SYSSUBMENUNO] == 7) {
+  } else if (ScrWork[SW_SYSSUBMENUCT] > 0 && State == Hidden &&
+             (ScrWork[SW_SYSSUBMENUNO] == 7)) {
     Show();
+  }
+
+  if (State == Showing && FadeAnimation.Progress == 1.0f &&
+      ScrWork[SW_SYSSUBMENUCT] == 32) {
+    State = Shown;
+    IsFocused = true;
+  } else if (State == Hiding && FadeAnimation.Progress == 0.0f &&
+             ScrWork[SW_SYSSUBMENUCT] == 0) {
+    State = Hidden;
+    if (UI::FocusedMenu) UI::FocusedMenu->IsFocused = true;
   }
 }
 
