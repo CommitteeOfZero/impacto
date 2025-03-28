@@ -338,8 +338,8 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
     time_t rawtime;
     time(&rawtime);
     entry->SaveDate = *localtime(&rawtime);
-    auto captureBuffer = Renderer->GetImageFromTexture(
-        WorkingSaveThumbnail.Sheet.Texture, WorkingSaveThumbnail.Bounds);
+    auto captureBuffer =
+        Renderer->GetSpriteSheetImage(WorkingSaveThumbnail.Sheet);
 
     Texture tex;
     tex.Init(TexFmt_RGBA, SaveThumbnailWidth, SaveThumbnailHeight);
@@ -351,7 +351,7 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
 
     int result = ResizeImage(
         WorkingSaveThumbnail.Bounds, entry->SaveThumbnail.Bounds, captureBuffer,
-        std::span{tex.Buffer, static_cast<size_t>(tex.BufferSize)}, true);
+        std::span{tex.Buffer, static_cast<size_t>(tex.BufferSize)});
     if (result < 0) {
       ImpLog(LogLevel::Error, LogChannel::General,
              "Failed to resize save thumbnail\n");
@@ -505,8 +505,7 @@ void SaveSystem::WriteSaveFile() {
         Io::WriteArrayLE<uint8_t>(entry->YesNoData, stream, 0x54);
 
         // CCLCC PS4 Save thumbnails are 240x135 RGB16
-        Renderer->GetImageFromTexture(entry->SaveThumbnail.Sheet.Texture,
-                                      entry->SaveThumbnail.Bounds,
+        Renderer->GetSpriteSheetImage(entry->SaveThumbnail.Sheet,
                                       thumbnailData);
 
         int thumbnailPadding = 0xA14;

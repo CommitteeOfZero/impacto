@@ -505,7 +505,7 @@ void Renderer::DrawVertices(SpriteSheet const& sheet,
                             std::span<const glm::vec2> sheetPositions,
                             std::span<const glm::vec2> displayPositions,
                             int width, int height, glm::vec4 tint,
-                            bool inverted) {
+                            bool inverted, bool disableBlend) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawSprite() called before BeginFrame()\n");

@@ -28,6 +28,7 @@
 #include "hud/tipsnotification.h"
 #include "hud/delusiontrigger.h"
 #include "games/cclcc/yesnotrigger.h"
+#include "games/cclcc/systemmenu.h"
 
 #include "profile/profile.h"
 #include "profile/game.h"
@@ -94,7 +95,7 @@ static void Init() {
   }
 
   ScrWork = {};
-FlagWork = {};
+  FlagWork = {};
 
   if (Profile::GameFeatures & GameFeature::Renderer2D) {
     Profile::LoadSpritesheets();
@@ -320,6 +321,151 @@ static bool ShouldRender(const int layer) {
   return false;
 }
 
+static void RenderMain() {
+  for (uint32_t layer = 0; layer <= Profile::LayerCount; layer++) {
+    const int renderTarget = ScrWork[SW_RENDERTARGET + layer];
+    if (0 <= renderTarget && renderTarget <= MaxFramebuffers &&
+        ShouldRender(layer)) {
+      Renderer->SetFramebuffer(renderTarget);
+    }
+
+    for (int i = 0; i < MaxBackgrounds2D; i++) {
+      int bufId = ScrWork[SW_BG1SURF + i];
+      Backgrounds2D[bufId]->Render(i, layer);
+    }
+
+    for (int i = 0; i < MaxCharacters2D; i++) {
+      int bufId = ScrWork[SW_CHA1SURF + i];
+      Characters2D[bufId].Render(layer);
+    }
+
+    for (int bgId = 0; bgId < MaxBackgrounds2D; bgId++) {
+      if (GetFlag(SF_BGEFF1DISP + bgId) &&
+          (ScrWork[SW_BGEFF1_PRI +
+                   Profile::Vm::ScrWorkBgEffStructSize * bgId] == layer ||
+           ScrWork[SW_BGEFF1_PRI2 +
+                   Profile::Vm::ScrWorkBgEffStructSize * bgId] == layer)) {
+        Framebuffers[0].RenderBgEff(bgId, layer);
+      }
+    }
+
+    if (ScrWork[SW_MAP_PRI] == static_cast<int>(layer) &&
+        ScrWork[SW_MAP_ALPHA]) {
+      UI::MapSystem::Render();
+    }
+    if (ScrWork[SW_MASK1PRI] == static_cast<int>(layer)) {
+      int maskAlpha = ScrWork[SW_MASK1ALPHA_OFS] + ScrWork[SW_MASK1ALPHA];
+      if (maskAlpha) {
+        float maskPosX = (float)ScrWork[SW_MASK1POSX];
+        float maskPosY = (float)ScrWork[SW_MASK1POSY];
+        float maskSizeX = (float)ScrWork[SW_MASK1SIZEX];
+        float maskSizeY = (float)ScrWork[SW_MASK1SIZEY];
+        if (!maskSizeX || !maskSizeY) {
+          maskPosX = 0.0f;
+          maskPosY = 0.0f;
+          maskSizeX = Profile::DesignWidth;
+          maskSizeY = Profile::DesignHeight;
+        }
+        glm::vec4 col = ScrWorkGetColor(SW_MASK1COLOR);
+        col.a = glm::min(maskAlpha / 255.0f, 1.0f);
+        Renderer->DrawRect(RectF(maskPosX, maskPosY, maskSizeX, maskSizeY),
+                           col);
+      }
+    }
+
+    for (size_t capId = 0; capId < MaxScreencaptures; capId++) {
+      if (!GetFlag(SF_CAP1DISP + capId)) continue;
+
+      for (size_t capLayer = 0; capLayer < MaxScreencaptures; capLayer++) {
+        if (ScrWork[SW_CAP1PRI + capId * 20 + capLayer * 8] == layer) {
+          Screencaptures[capId].RenderCapture(capId, layer);
+        }
+      }
+    }
+
+    if (Profile::UseScreenCapEffects) {
+      if (ScrWork[SW_EFF_CAP_BUF] && ScrWork[SW_EFF_CAP_PRI] == layer) {
+        int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF]);
+        if (Backgrounds2D[bufId]->Status == LS_Loaded) {
+          Renderer->CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
+        }
+      }
+
+      if (ScrWork[SW_EFF_CAP_BUF2] && ScrWork[SW_EFF_CAP_PRI2] == layer) {
+        int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF2]);
+        if (Backgrounds2D[bufId]->Status == LS_Loaded) {
+          Renderer->CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
+        }
+      }
+    }
+
+    if (Profile::UseMoviePriority &&
+        (Profile::GameFeatures & GameFeature::Video)) {
+      int videoAlpha = 0;
+      if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::CHLCC) {
+        if (ScrWork[SW_MOVIEALPHA] > 0 &&
+            ScrWork[SW_MOVIEPRI] == static_cast<int>(layer)) {
+          videoAlpha = ScrWork[SW_MOVIEALPHA];
+        } else if (ScrWork[SW_MOVIEALPHA] == 0 &&
+                   ScrWork[SW_MOVIEPRI2] == static_cast<int>(layer)) {
+          videoAlpha = ScrWork[SW_MOVIEALPHA2];
+        }
+      } else {
+        if (ScrWork[SW_MOVIEPRI] == static_cast<int>(layer)) {
+          videoAlpha = ScrWork[SW_MOVIEALPHA];
+        } else if (ScrWork[SW_MOVIEPRI2] == static_cast<int>(layer)) {
+          videoAlpha = ScrWork[SW_MOVIEALPHA2];
+        } else if (ScrWork[SW_MOVIEPRI3] == static_cast<int>(layer)) {
+          videoAlpha = ScrWork[SW_MOVIEALPHA3];
+        } else if (ScrWork[SW_MOVIEPRI4] == static_cast<int>(layer)) {
+          videoAlpha = ScrWork[SW_MOVIEALPHA4];
+        }
+      }
+      if (videoAlpha > 0) {
+        Video::VideoRender(videoAlpha / 256.0f);
+      }
+    }
+    if (ScrWork[SW_DELUSION_PRI] == layer) DelusionTrigger::Render();
+    if (CCLCC::YesNoTrigger::YesNoTriggerPtr &&
+        ScrWork[SW_YESNO_PRI] == layer) {
+      CCLCC::YesNoTrigger::YesNoTriggerPtr->Render();
+    }
+  }
+
+  Renderer->SetFramebuffer(0);
+
+  if (SaveSystem::Implementation) {
+    Renderer->CaptureScreencap(SaveSystem::GetWorkingSaveThumbnail());
+  }
+  if (GetFlag(SF_Pokecon_Open)) {
+    SetFlag(SF_DATEDISPLAY, 0);
+    // hack
+    ScrWork[SW_POKECON_BOOTANIMECT] = 0;
+    ScrWork[SW_POKECON_SHUTDOWNANIMECT] = 0;
+    ScrWork[SW_POKECON_MENUSELANIMECT] = 0;
+  }
+  if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::Dash) {
+    /////////// DaSH hack kind of? ///////
+    if (GetFlag(SF_Pokecon_Disable) || GetFlag(SF_Pokecon_Open) ||
+        Renderer->Scene->MainCamera.CameraTransform.Position !=
+            Profile::Scene3D::DefaultCameraPosition)
+      SetFlag(SF_DATEDISPLAY, 0);
+    else
+      SetFlag(SF_DATEDISPLAY, 1);
+    //////////////////////////////
+  }
+  DateDisplay::Render();
+  TipsNotification::Render();
+  // MO8 uses those huge layer indexes for movie menu, it doesn't
+  // actually have 4000 layers
+  if ((Profile::GameFeatures & GameFeature::Video) &&
+      (!Profile::UseMoviePriority ||
+       (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::MO8 &&
+        (ScrWork[SW_MOVIEPRI] == 3000 || ScrWork[SW_MOVIEPRI] == 4000)))) {
+    Video::VideoRender(ScrWork[SW_MOVIEALPHA] / 256.0f);
+  }
+}
+
 void Render() {
   Window->Update();
 
@@ -343,158 +489,29 @@ void Render() {
 
       switch (DrawComponents[i]) {
         case DrawComponentType::Text: {
-          for (int i = 0; i < Profile::Dialogue::PageCount; i++)
-            DialoguePages[i].Render();
+          if (!GetFlag(SF_UIHIDDEN) &&
+              (!GetFlag(SF_SELECTMODE) || GetFlag(SF_SYSTEMMENUCAPTURE))) {
+            for (int i = 0; i < Profile::Dialogue::PageCount; i++)
+              DialoguePages[i].Render();
+          }
+          // System menu capture
+          if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::CC &&
+              GetFlag(SF_SYSTEMMENUCAPTURE)) {
+            Renderer->CaptureScreencap(
+                static_cast<UI::CCLCC::SystemMenu*>(UI::SystemMenuPtr)
+                    ->ScreenCap);
+            SetFlag(SF_SYSTEMMENUCAPTURE, false);
+          }
           break;
         }
         case DrawComponentType::Main: {
-          for (uint32_t layer = 0; layer <= Profile::LayerCount; layer++) {
-            const int renderTarget = ScrWork[SW_RENDERTARGET + layer];
-            if (0 <= renderTarget && renderTarget <= MaxFramebuffers &&
-                ShouldRender(layer)) {
-              Renderer->SetFramebuffer(renderTarget);
-            }
-
-            for (int i = 0; i < MaxBackgrounds2D; i++) {
-              int bufId = ScrWork[SW_BG1SURF + i];
-              Backgrounds2D[bufId]->Render(i, layer);
-            }
-
-            for (int i = 0; i < MaxCharacters2D; i++) {
-              int bufId = ScrWork[SW_CHA1SURF + i];
-              Characters2D[bufId].Render(layer);
-            }
-
-            for (int bgId = 0; bgId < MaxBackgrounds2D; bgId++) {
-              if (GetFlag(SF_BGEFF1DISP + bgId) &&
-                  (ScrWork[SW_BGEFF1_PRI + Profile::Vm::ScrWorkBgEffStructSize *
-                                               bgId] == layer ||
-                   ScrWork[SW_BGEFF1_PRI2 +
-                           Profile::Vm::ScrWorkBgEffStructSize * bgId] ==
-                       layer)) {
-                Framebuffers[0].RenderBgEff(bgId, layer);
-              }
-            }
-
-            if (ScrWork[6361] == static_cast<int>(layer) && ScrWork[6360]) {
-              UI::MapSystem::Render();
-            }
-            if (ScrWork[SW_MASK1PRI] == static_cast<int>(layer)) {
-              int maskAlpha =
-                  ScrWork[SW_MASK1ALPHA_OFS] + ScrWork[SW_MASK1ALPHA];
-              if (maskAlpha) {
-                float maskPosX = (float)ScrWork[SW_MASK1POSX];
-                float maskPosY = (float)ScrWork[SW_MASK1POSY];
-                float maskSizeX = (float)ScrWork[SW_MASK1SIZEX];
-                float maskSizeY = (float)ScrWork[SW_MASK1SIZEY];
-                if (!maskSizeX || !maskSizeY) {
-                  maskPosX = 0.0f;
-                  maskPosY = 0.0f;
-                  maskSizeX = Profile::DesignWidth;
-                  maskSizeY = Profile::DesignHeight;
-                }
-                glm::vec4 col = ScrWorkGetColor(SW_MASK1COLOR);
-                col.a = glm::min(maskAlpha / 255.0f, 1.0f);
-                Renderer->DrawRect(
-                    RectF(maskPosX, maskPosY, maskSizeX, maskSizeY), col);
-              }
-            }
-
-            for (size_t capId = 0; capId < MaxScreencaptures; capId++) {
-              if (!GetFlag(SF_CAP1DISP + capId)) continue;
-
-              for (size_t capLayer = 0; capLayer < MaxScreencaptures;
-                   capLayer++) {
-                if (ScrWork[SW_CAP1PRI + capId * 20 + capLayer * 8] == layer) {
-                  Screencaptures[capId].RenderCapture(capId, layer);
-                }
-              }
-            }
-
-            if (Profile::UseScreenCapEffects) {
-              if (ScrWork[SW_EFF_CAP_BUF] && ScrWork[SW_EFF_CAP_PRI] == layer) {
-                int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF]);
-                if (Backgrounds2D[bufId]->Status == LS_Loaded) {
-                  Renderer->CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
-                }
-              }
-
-              if (ScrWork[SW_EFF_CAP_BUF2] &&
-                  ScrWork[SW_EFF_CAP_PRI2] == layer) {
-                int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF2]);
-                if (Backgrounds2D[bufId]->Status == LS_Loaded) {
-                  Renderer->CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
-                }
-              }
-            }
-
-            if (Profile::UseMoviePriority &&
-                (Profile::GameFeatures & GameFeature::Video)) {
-              int videoAlpha = 0;
-              if (Profile::Vm::GameInstructionSet ==
-                  +Vm::InstructionSet::CHLCC) {
-                if (ScrWork[SW_MOVIEALPHA] > 0 &&
-                    ScrWork[SW_MOVIEPRI] == static_cast<int>(layer)) {
-                  videoAlpha = ScrWork[SW_MOVIEALPHA];
-                } else if (ScrWork[SW_MOVIEALPHA] == 0 &&
-                           ScrWork[SW_MOVIEPRI2] == static_cast<int>(layer)) {
-                  videoAlpha = ScrWork[SW_MOVIEALPHA2];
-                }
-              } else {
-                if (ScrWork[SW_MOVIEPRI] == static_cast<int>(layer)) {
-                  videoAlpha = ScrWork[SW_MOVIEALPHA];
-                } else if (ScrWork[SW_MOVIEPRI2] == static_cast<int>(layer)) {
-                  videoAlpha = ScrWork[SW_MOVIEALPHA2];
-                } else if (ScrWork[SW_MOVIEPRI3] == static_cast<int>(layer)) {
-                  videoAlpha = ScrWork[SW_MOVIEALPHA3];
-                } else if (ScrWork[SW_MOVIEPRI4] == static_cast<int>(layer)) {
-                  videoAlpha = ScrWork[SW_MOVIEALPHA4];
-                }
-              }
-              if (videoAlpha > 0) {
-                Video::VideoRender(videoAlpha / 256.0f);
-              }
-            }
-            if (ScrWork[6417] == layer) DelusionTrigger::Render();
-            if (CCLCC::YesNoTrigger::YesNoTriggerPtr &&
-                ScrWork[6437] == layer) {
-              CCLCC::YesNoTrigger::YesNoTriggerPtr->Render();
-            }
+          if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::CC &&
+              !(!GetFlag(SF_SELECTMODE) ||
+                (GetFlag(SF_SYSTEMMENUCAPTURE) &&
+                 ScrWork[SW_RESTARTMASK] != 0x100))) {
+            break;
           }
-
-          Renderer->SetFramebuffer(0);
-
-          if (SaveSystem::Implementation) {
-            Renderer->CaptureScreencap(SaveSystem::GetWorkingSaveThumbnail());
-          }
-          if (GetFlag(SF_Pokecon_Open)) {
-            SetFlag(SF_DATEDISPLAY, 0);
-            // hack
-            ScrWork[SW_POKECON_BOOTANIMECT] = 0;
-            ScrWork[SW_POKECON_SHUTDOWNANIMECT] = 0;
-            ScrWork[SW_POKECON_MENUSELANIMECT] = 0;
-          }
-          if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::Dash) {
-            /////////// DaSH hack kind of? ///////
-            if (GetFlag(SF_Pokecon_Disable) || GetFlag(SF_Pokecon_Open) ||
-                Renderer->Scene->MainCamera.CameraTransform.Position !=
-                    Profile::Scene3D::DefaultCameraPosition)
-              SetFlag(SF_DATEDISPLAY, 0);
-            else
-              SetFlag(SF_DATEDISPLAY, 1);
-            //////////////////////////////
-          }
-          DateDisplay::Render();
-          TipsNotification::Render();
-          // MO8 uses those huge layer indexes for movie menu, it doesn't
-          // actually have 4000 layers
-          if ((Profile::GameFeatures & GameFeature::Video) &&
-              (!Profile::UseMoviePriority ||
-               (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::MO8 &&
-                (ScrWork[SW_MOVIEPRI] == 3000 ||
-                 ScrWork[SW_MOVIEPRI] == 4000)))) {
-            Video::VideoRender(ScrWork[SW_MOVIEALPHA] / 256.0f);
-          }
+          RenderMain();
           break;
         }
         case DrawComponentType::ExtrasScenes: {

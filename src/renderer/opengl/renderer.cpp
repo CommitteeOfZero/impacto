@@ -225,30 +225,34 @@ uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
   return result;
 }
 
-std::vector<uint8_t> Renderer::GetImageFromTexture(uint32_t texture,
-                                                   RectF dimensions) {
-  std::vector<uint8_t> result(dimensions.Width * dimensions.Height * 4);
-  GetImageFromTexture(texture, dimensions, result);
-  return result;
-}
-
-int Renderer::GetImageFromTexture(uint32_t texture, RectF dimensions,
+int Renderer::GetSpriteSheetImage(SpriteSheet const& sheet,
                                   std::span<uint8_t> outBuffer) {
-  const int bufferSize = dimensions.Width * dimensions.Height * 4;
+  const int bufferSize = sheet.DesignWidth * sheet.DesignHeight * 4;
   assert(outBuffer.size() >= bufferSize);
-  glBindTexture(GL_TEXTURE_2D, texture);
+  glBindTexture(GL_TEXTURE_2D, sheet.Texture);
 
   GLuint fbo;
   glGenFramebuffers(1, &fbo);
   glBindFramebuffer(GL_FRAMEBUFFER, fbo);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
-                         texture, 0);
-  glReadPixels(dimensions.X, dimensions.Y, dimensions.X + dimensions.Width,
-               dimensions.Y + dimensions.Height, GL_RGBA, GL_UNSIGNED_BYTE,
-               outBuffer.data());
+                         sheet.Texture, 0);
+  glReadPixels(0, 0, sheet.DesignWidth, sheet.DesignHeight, GL_RGBA,
+               GL_UNSIGNED_BYTE, outBuffer.data());
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glDeleteFramebuffers(1, &fbo);
+
+  if (sheet.IsScreenCap) {
+    auto itr = outBuffer.begin();
+    auto revItr = std::make_reverse_iterator(itr + bufferSize);
+    while (itr < revItr.base() - static_cast<int>(sheet.DesignWidth * 4)) {
+      std::swap_ranges(itr, itr + sheet.DesignWidth * 4,
+                       revItr.base() - (sheet.DesignWidth * 4));
+      itr += sheet.DesignWidth * 4;
+      revItr += sheet.DesignWidth * 4;
+    }
+  }
+
   return bufferSize;
 }
 
@@ -406,12 +410,17 @@ void Renderer::DrawVertices(SpriteSheet const& sheet,
                             std::span<const glm::vec2> sheetPositions,
                             std::span<const glm::vec2> displayPositions,
                             int width, int height, glm::vec4 tint,
-                            bool inverted) {
+                            bool inverted, bool disableBlend) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawVertices() called before BeginFrame()\n");
     return;
   }
+
+  if (disableBlend) {
+    glDisable(GL_BLEND);
+  }
+
   const int verticesCount = sheetPositions.size();
 
   if (verticesCount != displayPositions.size()) {
@@ -466,6 +475,9 @@ void Renderer::DrawVertices(SpriteSheet const& sheet,
 
   // Flush again and bind back our buffer
   Flush();
+  if (disableBlend) {
+    glEnable(GL_BLEND);
+  }
   glBufferData(GL_ELEMENT_ARRAY_BUFFER,
                IndexBufferCount * sizeof(IndexBuffer[0]), IndexBuffer,
                GL_STATIC_DRAW);

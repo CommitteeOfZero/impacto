@@ -57,16 +57,8 @@ class Renderer : public BaseRenderer {
 
   uint32_t SubmitTexture(TexFmt format, uint8_t* buffer, int width,
                          int height) override;
-  std::vector<uint8_t> GetImageFromTexture(uint32_t texture,
-                                           RectF dimensions) override {
-    // TODO implement
-    return std::vector<uint8_t>();
-  };
-  int GetImageFromTexture(uint32_t texture, RectF dimensions,
-                          std::span<uint8_t> outBuffer) override {
-    // TODO implement
-    return 0;
-  }
+  int GetSpriteSheetImage(SpriteSheet const& sheet,
+                          std::span<uint8_t> outBuffer) override;
   void FreeTexture(uint32_t id) override;
   YUVFrame* CreateYUVFrame(float width, float height) override;
 
@@ -84,7 +76,7 @@ class Renderer : public BaseRenderer {
                     std::span<const glm::vec2> sheetPositions,
                     std::span<const glm::vec2> displayPositions, int width,
                     int height, glm::vec4 tint = glm::vec4(1.0),
-                    bool inverted = false) override;
+                    bool inverted = false, bool disableBlend = false) override;
 
   void DrawRect(RectF const& dest, glm::vec4 color,
                 float angle = 0.0f) override;
@@ -217,6 +209,7 @@ class Renderer : public BaseRenderer {
   VkDescriptorSetLayout TripleTextureSetLayout;
 
   Pipeline* PipelineSprite;
+  Pipeline* PipelineSpriteNoBlending;
   Pipeline* PipelineSpriteInverted;
   Pipeline* PipelineMaskedSprite;
   Pipeline* PipelineMaskedSpriteNoAlpha;
