@@ -14,7 +14,17 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Vm::Interface;
 
 DelusionTrigger::DelusionTrigger()
-    : DelusionTriggerBase(ScrWork[SW_DELUSION_STATE], UiState::Hidden) {}
+    : DelusionTriggerBase(ScrWork[SW_DELUSION_STATE], UiState::Hidden) {
+  PositiveDelusionSprite.Bounds.X = 1024;
+  PositiveDelusionSprite.Bounds.Y = 0;
+  PositiveDelusionSprite.Bounds.Width = 1024;
+  PositiveDelusionSprite.Bounds.Height = 1024;
+
+  NegativeDelusionSprite.Bounds.X = 0;
+  NegativeDelusionSprite.Bounds.Y = 0;
+  NegativeDelusionSprite.Bounds.Width = 1024;
+  NegativeDelusionSprite.Bounds.Height = 1024;
+}
 
 bool DelusionTrigger::Show(int bgOverlayBgBufferId, int circlesBgBufferId,
                            int availableDelusions) {
@@ -22,24 +32,8 @@ bool DelusionTrigger::Show(int bgOverlayBgBufferId, int circlesBgBufferId,
     return false;
   }
 
-  ScrWork[6411] = circlesBgBufferId;
-  int bgOverlayBGIdx =
-      ScrWork[SW_BG1SURF + Vm::Interface::GetBufferId(bgOverlayBgBufferId)];
-  BgOverlaySprite = Backgrounds2D[bgOverlayBGIdx]->BgSprite;
-
-  int delusionCirclesBGIdx =
-      ScrWork[SW_BG1SURF + Vm::Interface::GetBufferId(circlesBgBufferId)];
-  PositiveDelusionSprite = Backgrounds2D[delusionCirclesBGIdx]->BgSprite;
-  PositiveDelusionSprite.Bounds.X = 1024;
-  PositiveDelusionSprite.Bounds.Y = 0;
-  PositiveDelusionSprite.Bounds.Width = 1024;
-  PositiveDelusionSprite.Bounds.Height = 1024;
-
-  NegativeDelusionSprite = Backgrounds2D[delusionCirclesBGIdx]->BgSprite;
-  NegativeDelusionSprite.Bounds.X = 0;
-  NegativeDelusionSprite.Bounds.Y = 0;
-  NegativeDelusionSprite.Bounds.Width = 1024;
-  NegativeDelusionSprite.Bounds.Height = 1024;
+  ScrWork[SW_DELUSION_OVERLAY_BUF] = bgOverlayBgBufferId;
+  ScrWork[SW_DELUSION_CIRCLE_BUF] = circlesBgBufferId;
 
   DelusionState = DS_Neutral;
   ScrWork[SW_DELUSION_BG_COUNTER] = 0;
@@ -103,6 +97,11 @@ void DelusionTrigger::Update(float dt) {
   if (!GetFlag(SF_DELUSIONACTIVE)) {
     if ((GetFlag(SF_MOVIEPLAY) && GetFlag(SF_MOVIE_DRAWWAIT)) ||
         ScrWork[SW_DELUSION_BG_COUNTER] == 0) {
+      if (BgOverlaySprite.Sheet.Texture) BgOverlaySprite = Sprite{};
+      if (PositiveDelusionSprite.Sheet.Texture)
+        PositiveDelusionSprite.Sheet = SpriteSheet{};
+      if (NegativeDelusionSprite.Sheet.Texture)
+        NegativeDelusionSprite.Sheet = SpriteSheet{};
       return;
     }
     if (GetFlag(SF_MESALLSKIP)) {
@@ -113,6 +112,25 @@ void DelusionTrigger::Update(float dt) {
   } else if (ScrWork[SW_DELUSION_BG_COUNTER]) {
     MtrgAlphaCt = (MtrgAlphaCt + 1) & 0x1f;
     MtrgAng = (MtrgAng + 100) & 0xffff;
+
+    if (BgOverlaySprite.Sheet.Texture == 0) {
+      int bgOverlayBGIdx =
+          ScrWork[SW_BG1SURF +
+                  Vm::Interface::GetBufferId(ScrWork[SW_DELUSION_OVERLAY_BUF])];
+      BgOverlaySprite = Backgrounds2D[bgOverlayBGIdx]->BgSprite;
+    }
+
+    int delusionCirclesBGIdx =
+        ScrWork[SW_BG1SURF +
+                Vm::Interface::GetBufferId(ScrWork[SW_DELUSION_CIRCLE_BUF])];
+    if (PositiveDelusionSprite.Sheet.Texture == 0) {
+      PositiveDelusionSprite.Sheet =
+          Backgrounds2D[delusionCirclesBGIdx]->BgSprite.Sheet;
+    }
+    if (NegativeDelusionSprite.Sheet.Texture == 0) {
+      NegativeDelusionSprite.Sheet =
+          Backgrounds2D[delusionCirclesBGIdx]->BgSprite.Sheet;
+    }
   }
 
   if (ScrWork[SW_DELUSION_BG_COUNTER] < 32) {
