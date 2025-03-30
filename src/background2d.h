@@ -71,38 +71,39 @@ class Background2D : public Loadable<Background2D> {
   void RenderMaskedInverted(glm::vec4 col);
   void RenderFade(glm::vec4 col);
 
-  BackgroundRenderProc constexpr static BackgroundRenderTable[30] = {
-      &Background2D::RenderRegular,         // 0
-      &Background2D::RenderFade,            // 1
-      &Background2D::RenderRegular,         // 2
-      &Background2D::RenderRegular,         // 3
-      &Background2D::RenderRegular,         // 4
-      &Background2D::RenderRegular,         // 5
-      &Background2D::RenderRegular,         // 6
-      &Background2D::RenderRegular,         // 7
-      &Background2D::RenderRegular,         // 8
-      &Background2D::RenderRegular,         // 9
-      &Background2D::RenderRegular,         // 10
-      &Background2D::RenderRegular,         // 11
-      &Background2D::RenderRegular,         // 12
-      &Background2D::RenderRegular,         // 13
-      &Background2D::RenderRegular,         // 14
-      &Background2D::RenderMasked,          // 15
-      &Background2D::RenderMaskedInverted,  // 16
-      &Background2D::RenderRegular,         // 17
-      &Background2D::RenderRegular,         // 18
-      &Background2D::RenderRegular,         // 19
-      &Background2D::RenderRegular,         // 20
-      &Background2D::RenderRegular,         // 21
-      &Background2D::RenderRegular,         // 22
-      &Background2D::RenderRegular,         // 23
-      &Background2D::RenderRegular,         // 24
-      &Background2D::RenderRegular,         // 25
-      &Background2D::RenderRegular,         // 26
-      &Background2D::RenderRegular,         // 27
-      &Background2D::RenderRegular,         // 28
-      &Background2D::RenderRegular,         // 29
-  };
+  std::array<BackgroundRenderProc, 30> constexpr static BackgroundRenderTable =
+      {
+          &Background2D::RenderRegular,         // 0
+          &Background2D::RenderFade,            // 1
+          &Background2D::RenderRegular,         // 2
+          &Background2D::RenderRegular,         // 3
+          &Background2D::RenderRegular,         // 4
+          &Background2D::RenderRegular,         // 5
+          &Background2D::RenderRegular,         // 6
+          &Background2D::RenderRegular,         // 7
+          &Background2D::RenderRegular,         // 8
+          &Background2D::RenderRegular,         // 9
+          &Background2D::RenderRegular,         // 10
+          &Background2D::RenderRegular,         // 11
+          &Background2D::RenderRegular,         // 12
+          &Background2D::RenderRegular,         // 13
+          &Background2D::RenderRegular,         // 14
+          &Background2D::RenderMasked,          // 15
+          &Background2D::RenderMaskedInverted,  // 16
+          &Background2D::RenderRegular,         // 17
+          &Background2D::RenderRegular,         // 18
+          &Background2D::RenderRegular,         // 19
+          &Background2D::RenderRegular,         // 20
+          &Background2D::RenderRegular,         // 21
+          &Background2D::RenderRegular,         // 22
+          &Background2D::RenderRegular,         // 23
+          &Background2D::RenderRegular,         // 24
+          &Background2D::RenderRegular,         // 25
+          &Background2D::RenderRegular,         // 26
+          &Background2D::RenderRegular,         // 27
+          &Background2D::RenderRegular,         // 28
+          &Background2D::RenderRegular,         // 29
+      };
 };
 
 int constexpr MaxBackgrounds2D = 8;
