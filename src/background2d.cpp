@@ -98,10 +98,12 @@ void Background2D::Render(int bgId, int layer) {
   FadeCount = ScrWork[SW_BG1FADECT + ScrWorkBgStructSize * bgId];
   FadeRange = ScrWork[SW_BG1MASKFADERANGE + ScrWorkBgStructSize * bgId];
 
-  glm::vec4 col = glm::vec4(1.0f);
-  col.a = (ScrWork[SW_BG1ALPHA + ScrWorkBgStructSize * bgId] +
-           ScrWork[SW_BG1ALPHA_OFS + 10 * bgId]) /
-          256.0f;
+  const uint32_t rgb = ScrWork[SW_BG1FILTER + ScrWorkBgStructSize * bgId];
+  const uint32_t alpha = ScrWork[SW_BG1ALPHA + ScrWorkBgStructSize * bgId] +
+                         ScrWork[SW_BG1ALPHA_OFS + 10 * bgId];
+  glm::vec4 col =
+      glm::vec4(rgb & 0xff, (rgb >> 8) & 0xff, (rgb >> 16) & 0xff, alpha) /
+      255.0f;
 
   switch (GameInstructionSet) {
     case Vm::InstructionSet::Dash:
@@ -130,10 +132,14 @@ void Background2D::RenderCapture(int capId, int layer) {
   FadeCount = ScrWork[SW_CAP1FADECT + ScrWorkCaptureStructSize * capId];
   FadeRange = ScrWork[SW_CAP1MASKFADERANGE + ScrWorkCaptureStructSize * capId];
 
-  glm::vec4 col = glm::vec4(1.0f);
-  col.a = (ScrWork[SW_CAP1ALPHA + ScrWorkCaptureStructSize * capId] +
-           ScrWork[SW_CAP1ALPHA_OFS + 10 * capId]) /
-          256.0f;
+  const uint32_t rgb =
+      ScrWork[SW_CAP1FILTER + ScrWorkCaptureStructSize * capId];
+  const uint32_t alpha =
+      ScrWork[SW_CAP1ALPHA + ScrWorkCaptureStructSize * capId] +
+      ScrWork[SW_CAP1ALPHA_OFS + 10 * capId];
+  glm::vec4 col =
+      glm::vec4(rgb & 0xff, (rgb >> 8) & 0xff, (rgb >> 16) & 0xff, alpha) /
+      255.0f;
 
   const int renderType =
       ScrWork[SW_CAP1FADETYPE + ScrWorkCaptureStructSize * capId];
@@ -160,10 +166,12 @@ void Background2D::RenderBgEff(int bgId, int layer) {
   DisplayCoords.x *= Profile::DesignWidth / 1280.0f;
   DisplayCoords.y *= Profile::DesignHeight / 720.0f;
 
-  glm::vec4 col = glm::vec4(1.0f);
-  col.a = (ScrWork[SW_BGEFF1_ALPHA + structSize * bgId] +
-           ScrWork[SW_BGEFF1_ALPHA_OFS + 20 * bgId]) /
-          256.0f;
+  const uint32_t rgb = ScrWork[SW_BGEFF1_FILTER + structSize * bgId];
+  const uint32_t alpha = ScrWork[SW_BGEFF1_ALPHA + structSize * bgId] +
+                         ScrWork[SW_BGEFF1_ALPHA_OFS + 20 * bgId];
+  glm::vec4 col =
+      glm::vec4(rgb & 0xff, (rgb >> 8) & 0xff, (rgb >> 16) & 0xff, alpha) /
+      255.0f;
 
   const int renderType = ScrWork[SW_BGEFF1_MODE + structSize * bgId];
   std::invoke(BackgroundRenderTable[renderType], this, col);
