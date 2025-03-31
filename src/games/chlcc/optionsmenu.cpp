@@ -100,10 +100,12 @@ void OptionsMenu::Update(float dt) {
 
   if (State != Hidden) {
     FadeAnimation.Update(dt);
-    if (FadeAnimation.Direction == -1.0f && FadeAnimation.Progress <= 0.72f) {
+    if (FadeAnimation.Direction == +AnimationDirection::Out &&
+        FadeAnimation.Progress <= 0.72f) {
       TitleFade.StartOut();
     } else if (FadeAnimation.IsIn() &&
-               (TitleFade.Direction == 1.0f || TitleFade.IsOut())) {
+               (TitleFade.Direction == +AnimationDirection::In ||
+                TitleFade.IsOut())) {
       TitleFade.StartIn();
     }
     TitleFade.Update(dt);
