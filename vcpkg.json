@@ -17,5 +17,11 @@
     "zlib",
     "avcpp",
     "libwebp"
+  ],
+  "overrides": [
+    {
+      "name": "avcpp",
+      "version": "2.4.0"
+    }
   ]
 }
