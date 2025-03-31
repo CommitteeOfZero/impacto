@@ -97,7 +97,7 @@ jobs:
             host_triplet: x64-linux-ci
     env:
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.triplet }}
-      vcpkgCommitId: '0f88ecb8528605f91980b90a2c5bad88e3cb565f'
+      vcpkgCommitId: 'acd5bba5aac8b6573b5f6f463dc0341ac0ee6fa4'
       PresetName: ${{ (matrix.os_name == 'android') && 'ci-release-android' || 'ci-release' }}
       VERSION: ${{ needs.get-version.outputs.VERSION }}
 
