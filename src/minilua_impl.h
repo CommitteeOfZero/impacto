@@ -1,1 +1,1 @@
-#include "../vendor/minilua/minilua.h"
+#include <minilua/minilua.h>

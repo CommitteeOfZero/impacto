@@ -1,6 +1,6 @@
 #include "debugmenu.h"
 
-#include "imgui.h"
+#include <imgui.h>
 #include <sstream>
 
 #include "game.h"
@@ -459,7 +459,8 @@ void ShowScriptDebugger() {
   if (ScriptFilesListing.size() == 0) {
     IoError err = Io::VfsListFiles("script", ScriptFilesListing);
     if (err != IoError_OK) {
-      ImpLog(LL_Warning, LC_General, "Failed to open script archive!\n");
+      ImpLog(LogLevel::Warning, LogChannel::General,
+             "Failed to open script archive!\n");
       return;
     }
   }
@@ -758,7 +759,7 @@ void ShowScriptDebugger() {
   ImGui::PopItemWidth();
 }
 
-static ska::flat_hash_map<uint32_t, std::vector<std::string>>
+static ankerl::unordered_dense::map<uint32_t, std::vector<std::string>>
     SpritesBySpriteSheet;
 
 static void ShowSprite(const Sprite* sprite) {
@@ -859,7 +860,8 @@ void ShowObjects() {
         ImGui::Spacing();
         ImGui::BulletText("IsShown: %d", Backgrounds[i].Show);
         ImGui::Spacing();
-        ImGui::BulletText("Layer: %d", Backgrounds[i].Layer);
+        ImGui::BulletText("Layers: %d, %d", Backgrounds[i].Layers[0],
+                          Backgrounds[i].Layers[1]);
         ImGui::Spacing();
         ImGui::BulletText("Display coords: (x: %f, y: %f)",
                           Backgrounds[i].DisplayCoords.x,
@@ -910,7 +912,8 @@ void ShowObjects() {
         ImGui::Spacing();
         ImGui::BulletText("IsShown: %d", Characters2D[i].Show);
         ImGui::Spacing();
-        ImGui::BulletText("Layer: %d", Characters2D[i].Layer);
+        ImGui::BulletText("Layers: %d, %d", Characters2D[i].Layers[0],
+                          Characters2D[i].Layers[1]);
         ImGui::Spacing();
         ImGui::BulletText("Display coords: (x: %f, y: %f)",
                           Characters2D[i].OffsetX, Characters2D[i].OffsetY);

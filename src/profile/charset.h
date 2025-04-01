@@ -1,14 +1,14 @@
 #pragma once
 
 #include "../impacto.h"
-#include <flat_hash_map.hpp>
+#include <ankerl/unordered_dense.h>
 
 namespace Impacto {
 namespace Profile {
 namespace Charset {
 
 inline std::vector<uint8_t> Flags;
-inline ska::flat_hash_map<uint32_t, uint16_t> CharacterToSc3;
+inline ankerl::unordered_dense::map<uint32_t, uint16_t> CharacterToSc3;
 
 void Load();
 

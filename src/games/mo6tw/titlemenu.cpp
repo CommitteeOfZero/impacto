@@ -37,10 +37,10 @@ TitleMenu::TitleMenu() {
   ExtraStoryItems = new Widgets::Group(this);
   MemoriesItems = new Widgets::Group(this);
 
-  auto onClick =
-      std::bind(&TitleMenu::MenuButtonOnClick, this, std::placeholders::_1);
-  auto secondaryOnClick = std::bind(&TitleMenu::SecondaryButtonOnClick, this,
-                                    std::placeholders::_1);
+  auto onClick = [this](auto* btn) { return MenuButtonOnClick(btn); };
+  auto secondaryOnClick = [this](auto* btn) {
+    return SecondaryButtonOnClick(btn);
+  };
 
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
@@ -369,7 +369,7 @@ void TitleMenu::Render() {
               RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
                     BackgroundSprite.ScaledHeight()),
               glm::vec4(1.0f), (ScrWork[SW_TITLECT] * 287) / 48, 32, false,
-              false, true);
+              true);
           if (ScrWork[SW_TITLECT] > 48) {
             Renderer->DrawMaskedSprite(
                 LogoSprite, Masks2D[17].MaskSprite,
@@ -383,7 +383,7 @@ void TitleMenu::Render() {
               BackgroundSprite, BackgroundSprite,
               RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
                     BackgroundSprite.ScaledHeight()),
-              glm::vec4(1.0f), 287, 32, false, false, true);
+              glm::vec4(1.0f), 287, 32, false, true);
           Renderer->DrawSprite(LogoSprite, glm::vec2(LogoX, LogoY));
           Renderer->DrawSprite(CopyrightSprite,
                                glm::vec2(CopyrightX, CopyrightY));
@@ -397,7 +397,7 @@ void TitleMenu::Render() {
               BackgroundSprite, BackgroundSprite,
               RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
                     BackgroundSprite.ScaledHeight()),
-              glm::vec4(1.0f), 287, 32, false, false, true);
+              glm::vec4(1.0f), 287, 32, false, true);
           Renderer->DrawSprite(LogoSprite, glm::vec2(LogoX, LogoY));
           Renderer->DrawSprite(CopyrightSprite,
                                glm::vec2(CopyrightX, CopyrightY));
@@ -408,7 +408,7 @@ void TitleMenu::Render() {
               MenuBackgroundSprite, MenuBackgroundSprite,
               RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
                     MenuBackgroundSprite.ScaledHeight()),
-              glm::vec4(1.0f), 287, 32, false, false, true);
+              glm::vec4(1.0f), 287, 32, false, true);
           MainItems->Render();
         } break;
         case 5:    // Secondary menu Extra story Fade In
@@ -417,7 +417,7 @@ void TitleMenu::Render() {
               MenuBackgroundSprite, MenuBackgroundSprite,
               RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
                     MenuBackgroundSprite.ScaledHeight()),
-              glm::vec4(1.0f), 287, 32, false, false, true);
+              glm::vec4(1.0f), 287, 32, false, true);
           ExtraStoryItems->Render();
           MainItems->Render();
         } break;
@@ -427,7 +427,7 @@ void TitleMenu::Render() {
               MenuBackgroundSprite, MenuBackgroundSprite,
               RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
                     MenuBackgroundSprite.ScaledHeight()),
-              glm::vec4(1.0f), 287, 32, false, false, true);
+              glm::vec4(1.0f), 287, 32, false, true);
           ContinueItems->Render();
           MainItems->Render();
         } break;
@@ -437,7 +437,7 @@ void TitleMenu::Render() {
               MenuBackgroundSprite, MenuBackgroundSprite,
               RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
                     MenuBackgroundSprite.ScaledHeight()),
-              glm::vec4(1.0f), 287, 32, false, false, true);
+              glm::vec4(1.0f), 287, 32, false, true);
           MemoriesItems->Render();
           MainItems->Render();
         } break;
@@ -447,7 +447,7 @@ void TitleMenu::Render() {
               MenuBackgroundSprite, MenuBackgroundSprite,
               RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
                     MenuBackgroundSprite.ScaledHeight()),
-              glm::vec4(1.0f), 287, 32, false, false, true);
+              glm::vec4(1.0f), 287, 32, false, true);
           SystemItems->Render();
           MainItems->Render();
         } break;
@@ -457,7 +457,7 @@ void TitleMenu::Render() {
               BackgroundSprite, BackgroundSprite,
               RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
                     BackgroundSprite.ScaledHeight()),
-              glm::vec4(1.0f), 287, 32, false, false, true);
+              glm::vec4(1.0f), 287, 32, false, true);
           Renderer->DrawMaskedSprite(
               LogoSprite, Masks2D[17].MaskSprite,
               RectF(LogoX, LogoY, LogoSprite.ScaledWidth(),
@@ -470,7 +470,7 @@ void TitleMenu::Render() {
               RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
                     MenuBackgroundSprite.ScaledHeight()),
               glm::vec4(1.0f), (ScrWork[SW_TITLECT] * 287) / 48, 32, false,
-              false, true);
+              true);
         } break;
       }
     }

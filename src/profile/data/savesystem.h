@@ -18,7 +18,8 @@ inline Impacto::SaveSystem::SaveDataType Type =
 inline std::string SaveFilePath;
 inline std::vector<uint32_t> StoryScriptIDs;
 inline std::optional<int> StoryScriptCount;
-inline Impacto::SaveSystem::ScriptMessageDataPair* ScriptMessageData;
+inline std::vector<Impacto::SaveSystem::ScriptMessageDataPair>
+    ScriptMessageData;
 inline uint16_t AlbumEvData[MaxAlbumEntries][MaxAlbumSubEntries];
 inline uint16_t AlbumData[MaxAlbumEntries][MaxAlbumSubEntries][MaxCGSprites];
 

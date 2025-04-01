@@ -14,108 +14,109 @@ namespace OptionsMenu {
 
 void Configure() {
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
-  BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
+  BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSprite");
 
-  NextButtonSprite = EnsureGetMemberSprite("NextButtonSprite");
+  NextButtonSprite = EnsureGetMember<Sprite>("NextButtonSprite");
   NextButtonHighlightedSprite =
-      EnsureGetMemberSprite("NextButtonHighlightedSprite");
-  NextButtonPosition = EnsureGetMemberVec2("NextButtonPosition");
+      EnsureGetMember<Sprite>("NextButtonHighlightedSprite");
+  NextButtonPosition = EnsureGetMember<glm::vec2>("NextButtonPosition");
 
-  BackButtonSprite = EnsureGetMemberSprite("BackButtonSprite");
+  BackButtonSprite = EnsureGetMember<Sprite>("BackButtonSprite");
   BackButtonHighlightedSprite =
-      EnsureGetMemberSprite("BackButtonHighlightedSprite");
-  BackButtonPosition = EnsureGetMemberVec2("BackButtonPosition");
+      EnsureGetMember<Sprite>("BackButtonHighlightedSprite");
+  BackButtonPosition = EnsureGetMember<glm::vec2>("BackButtonPosition");
 
-  SliderTrackSprite = EnsureGetMemberSprite("SliderTrackSprite");
-  SliderFillSprite = EnsureGetMemberSprite("SliderFillSprite");
-  SliderThumbSprite = EnsureGetMemberSprite("SliderThumbSprite");
+  SliderTrackSprite = EnsureGetMember<Sprite>("SliderTrackSprite");
+  SliderFillSprite = EnsureGetMember<Sprite>("SliderFillSprite");
+  SliderThumbSprite = EnsureGetMember<Sprite>("SliderThumbSprite");
 
-  ButtonHighlight = EnsureGetMemberSprite("ButtonHighlight");
-  PageLabelPosition = EnsureGetMemberVec2("PageLabelPosition");
-  ListStartingPosition = EnsureGetMemberVec2("ListStartingPosition");
-  ListPadding = EnsureGetMemberVec2("ListPadding");
-  OptionGroupItemsOffset = EnsureGetMemberVec2("OptionGroupItemsOffset");
-  OptionGroupSliderOffset = EnsureGetMemberVec2("OptionGroupSliderOffset");
+  ButtonHighlight = EnsureGetMember<Sprite>("ButtonHighlight");
+  PageLabelPosition = EnsureGetMember<glm::vec2>("PageLabelPosition");
+  ListStartingPosition = EnsureGetMember<glm::vec2>("ListStartingPosition");
+  ListPadding = EnsureGetMember<glm::vec2>("ListPadding");
+  OptionGroupItemsOffset = EnsureGetMember<glm::vec2>("OptionGroupItemsOffset");
+  OptionGroupSliderOffset =
+      EnsureGetMember<glm::vec2>("OptionGroupSliderOffset");
 
-  TextPageLabel = EnsureGetMemberSprite("TextPageLabel");
+  TextPageLabel = EnsureGetMember<Sprite>("TextPageLabel");
 
-  TextSpeedOptionsNum = EnsureGetMemberInt("TextSpeedOptionsNum");
+  TextSpeedOptionsNum = EnsureGetMember<int>("TextSpeedOptionsNum");
   if (TextSpeedOptionsNum > 0) {
-    TextSpeedOptionsLabel = EnsureGetMemberSprite("TextSpeedOptionsLabel");
-    TextSpeedOptionsLabelH = EnsureGetMemberSprite("TextSpeedOptionsLabelH");
+    TextSpeedOptionsLabel = EnsureGetMember<Sprite>("TextSpeedOptionsLabel");
+    TextSpeedOptionsLabelH = EnsureGetMember<Sprite>("TextSpeedOptionsLabelH");
 
-    GetMemberSpriteArray(TextSpeedOptionsSprites, TextSpeedOptionsNum,
-                         "TextSpeedOptionsSprites");
-    GetMemberSpriteArray(TextSpeedOptionsHSprites, TextSpeedOptionsNum,
-                         "TextSpeedOptionsHSprites");
+    GetMemberArray<Sprite>(TextSpeedOptionsSprites, TextSpeedOptionsNum,
+                           "TextSpeedOptionsSprites");
+    GetMemberArray<Sprite>(TextSpeedOptionsHSprites, TextSpeedOptionsNum,
+                           "TextSpeedOptionsHSprites");
   }
 
-  AutoModeOptionsNum = EnsureGetMemberInt("AutoModeOptionsNum");
+  AutoModeOptionsNum = EnsureGetMember<int>("AutoModeOptionsNum");
   if (AutoModeOptionsNum > 0) {
-    AutoModeOptionsLabel = EnsureGetMemberSprite("AutoModeOptionsLabel");
-    AutoModeOptionsLabelH = EnsureGetMemberSprite("AutoModeOptionsLabelH");
+    AutoModeOptionsLabel = EnsureGetMember<Sprite>("AutoModeOptionsLabel");
+    AutoModeOptionsLabelH = EnsureGetMember<Sprite>("AutoModeOptionsLabelH");
 
-    GetMemberSpriteArray(AutoModeOptionsSprites, AutoModeOptionsNum,
-                         "AutoModeOptionsSprites");
-    GetMemberSpriteArray(AutoModeOptionsHSprites, AutoModeOptionsNum,
-                         "AutoModeOptionsHSprites");
+    GetMemberArray<Sprite>(AutoModeOptionsSprites, AutoModeOptionsNum,
+                           "AutoModeOptionsSprites");
+    GetMemberArray<Sprite>(AutoModeOptionsHSprites, AutoModeOptionsNum,
+                           "AutoModeOptionsHSprites");
   }
 
-  SkipModeOptionsNum = EnsureGetMemberInt("SkipModeOptionsNum");
+  SkipModeOptionsNum = EnsureGetMember<int>("SkipModeOptionsNum");
   if (SkipModeOptionsNum > 0) {
-    SkipModeOptionsLabel = EnsureGetMemberSprite("SkipModeOptionsLabel");
-    SkipModeOptionsLabelH = EnsureGetMemberSprite("SkipModeOptionsLabelH");
+    SkipModeOptionsLabel = EnsureGetMember<Sprite>("SkipModeOptionsLabel");
+    SkipModeOptionsLabelH = EnsureGetMember<Sprite>("SkipModeOptionsLabelH");
 
-    GetMemberSpriteArray(SkipModeOptionsSprites, SkipModeOptionsNum,
-                         "SkipModeOptionsSprites");
-    GetMemberSpriteArray(SkipModeOptionsHSprites, SkipModeOptionsNum,
-                         "SkipModeOptionsHSprites");
+    GetMemberArray<Sprite>(SkipModeOptionsSprites, SkipModeOptionsNum,
+                           "SkipModeOptionsSprites");
+    GetMemberArray<Sprite>(SkipModeOptionsHSprites, SkipModeOptionsNum,
+                           "SkipModeOptionsHSprites");
   }
 
-  SoundPageLabel = EnsureGetMemberSprite("SoundPageLabel");
-  SoundModeOptionsNum = EnsureGetMemberInt("SoundModeOptionsNum");
+  SoundPageLabel = EnsureGetMember<Sprite>("SoundPageLabel");
+  SoundModeOptionsNum = EnsureGetMember<int>("SoundModeOptionsNum");
   if (SoundModeOptionsNum > 0) {
-    VoiceSyncOptionsLabel = EnsureGetMemberSprite("VoiceSyncOptionsLabel");
-    VoiceSyncOptionsLabelH = EnsureGetMemberSprite("VoiceSyncOptionsLabelH");
-    VoiceSkipOptionsLabel = EnsureGetMemberSprite("VoiceSkipOptionsLabel");
-    VoiceSkipOptionsLabelH = EnsureGetMemberSprite("VoiceSkipOptionsLabelH");
+    VoiceSyncOptionsLabel = EnsureGetMember<Sprite>("VoiceSyncOptionsLabel");
+    VoiceSyncOptionsLabelH = EnsureGetMember<Sprite>("VoiceSyncOptionsLabelH");
+    VoiceSkipOptionsLabel = EnsureGetMember<Sprite>("VoiceSkipOptionsLabel");
+    VoiceSkipOptionsLabelH = EnsureGetMember<Sprite>("VoiceSkipOptionsLabelH");
     VoiceHighlightOptionsLabel =
-        EnsureGetMemberSprite("VoiceHighlightOptionsLabel");
+        EnsureGetMember<Sprite>("VoiceHighlightOptionsLabel");
     VoiceHighlightOptionsLabelH =
-        EnsureGetMemberSprite("VoiceHighlightOptionsLabelH");
+        EnsureGetMember<Sprite>("VoiceHighlightOptionsLabelH");
 
-    GetMemberSpriteArray(SoundModeOptionsSprites, SoundModeOptionsNum,
-                         "SoundModeOptionsSprites");
-    GetMemberSpriteArray(SoundModeOptionsHSprites, SoundModeOptionsNum,
-                         "SoundModeOptionsHSprites");
+    GetMemberArray<Sprite>(SoundModeOptionsSprites, SoundModeOptionsNum,
+                           "SoundModeOptionsSprites");
+    GetMemberArray<Sprite>(SoundModeOptionsHSprites, SoundModeOptionsNum,
+                           "SoundModeOptionsHSprites");
   }
 
-  BgmVolumeLabel = EnsureGetMemberSprite("BgmVolumeLabel");
-  BgmVolumeLabelH = EnsureGetMemberSprite("BgmVolumeLabelH");
-  VoiceVolumeLabel = EnsureGetMemberSprite("VoiceVolumeLabel");
-  VoiceVolumeLabelH = EnsureGetMemberSprite("VoiceVolumeLabelH");
-  SeVolumeLabel = EnsureGetMemberSprite("SeVolumeLabel");
-  SeVolumeLabelH = EnsureGetMemberSprite("SeVolumeLabelH");
-  SystemSeVolumeLabel = EnsureGetMemberSprite("SystemSeVolumeLabel");
-  SystemSeVolumeLabelH = EnsureGetMemberSprite("SystemSeVolumeLabelH");
+  BgmVolumeLabel = EnsureGetMember<Sprite>("BgmVolumeLabel");
+  BgmVolumeLabelH = EnsureGetMember<Sprite>("BgmVolumeLabelH");
+  VoiceVolumeLabel = EnsureGetMember<Sprite>("VoiceVolumeLabel");
+  VoiceVolumeLabelH = EnsureGetMember<Sprite>("VoiceVolumeLabelH");
+  SeVolumeLabel = EnsureGetMember<Sprite>("SeVolumeLabel");
+  SeVolumeLabelH = EnsureGetMember<Sprite>("SeVolumeLabelH");
+  SystemSeVolumeLabel = EnsureGetMember<Sprite>("SystemSeVolumeLabel");
+  SystemSeVolumeLabelH = EnsureGetMember<Sprite>("SystemSeVolumeLabelH");
   CharacterVoiceVolumeLabel =
-      EnsureGetMemberSprite("CharacterVoiceVolumeLabel");
+      EnsureGetMember<Sprite>("CharacterVoiceVolumeLabel");
   CharacterVoiceVolumeLabelH =
-      EnsureGetMemberSprite("CharacterVoiceVolumeLabelH");
+      EnsureGetMember<Sprite>("CharacterVoiceVolumeLabelH");
 
-  OtherPageLabel = EnsureGetMemberSprite("OtherPageLabel");
+  OtherPageLabel = EnsureGetMember<Sprite>("OtherPageLabel");
 
-  QuickSaveOptionsNum = EnsureGetMemberInt("QuickSaveOptionsNum");
+  QuickSaveOptionsNum = EnsureGetMember<int>("QuickSaveOptionsNum");
   if (QuickSaveOptionsNum > 0) {
-    QuickSaveOptionsLabel = EnsureGetMemberSprite("QuickSaveOptionsLabel");
-    QuickSaveOptionsLabelH = EnsureGetMemberSprite("QuickSaveOptionsLabelH");
+    QuickSaveOptionsLabel = EnsureGetMember<Sprite>("QuickSaveOptionsLabel");
+    QuickSaveOptionsLabelH = EnsureGetMember<Sprite>("QuickSaveOptionsLabelH");
 
-    GetMemberSpriteArray(QuickSaveOptionsSprites, AutoModeOptionsNum,
-                         "QuickSaveOptionsSprites");
-    GetMemberSpriteArray(QuickSaveOptionsHSprites, AutoModeOptionsNum,
-                         "QuickSaveOptionsHSprites");
+    GetMemberArray<Sprite>(QuickSaveOptionsSprites, AutoModeOptionsNum,
+                           "QuickSaveOptionsSprites");
+    GetMemberArray<Sprite>(QuickSaveOptionsHSprites, AutoModeOptionsNum,
+                           "QuickSaveOptionsHSprites");
   }
 
   UI::OptionsMenuPtr = new UI::MO8::OptionsMenu();

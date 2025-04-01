@@ -20,53 +20,54 @@ constexpr char const* SaveMenuTypeNames[] = {
 
 void Configure() {
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   UI::SaveMenuPtr = new UI::CCLCC::SaveMenu();
   UI::Menus[drawType].push_back(UI::SaveMenuPtr);
 
-  EntryStartXL = EnsureGetMemberFloat("EntryStartXL");
-  EntryStartXR = EnsureGetMemberFloat("EntryStartXR");
-  EntryStartYL = EnsureGetMemberFloat("EntryStartYL");
-  EntryStartYR = EnsureGetMemberFloat("EntryStartYR");
-  EntryYPadding = EnsureGetMemberFloat("EntryYPadding");
+  EntryStartXL = EnsureGetMember<float>("EntryStartXL");
+  EntryStartXR = EnsureGetMember<float>("EntryStartXR");
+  EntryStartYL = EnsureGetMember<float>("EntryStartYL");
+  EntryStartYR = EnsureGetMember<float>("EntryStartYR");
+  EntryYPadding = EnsureGetMember<float>("EntryYPadding");
 
-  SaveMenuMaskSprite = EnsureGetMemberSprite("SaveMenuMaskSprite");
-  SaveEntryPrimaryColor = EnsureGetMemberUint("SaveEntryPrimaryColor");
-  SaveEntrySecondaryColor = EnsureGetMemberUint("SaveEntrySecondaryColor");
+  SaveMenuMaskSprite = EnsureGetMember<Sprite>("SaveMenuMaskSprite");
+  SaveEntryPrimaryColor = EnsureGetMember<uint32_t>("SaveEntryPrimaryColor");
+  SaveEntrySecondaryColor =
+      EnsureGetMember<uint32_t>("SaveEntrySecondaryColor");
   for (int i = 0; i < sizeof(SaveMenuTypeNames) / sizeof(*SaveMenuTypeNames);
        i++) {
     SaveMenuPageType menuType = SaveMenuPageType::_from_integral_unchecked(i);
     std::string menuName = menuType._to_string();
 
     MenuTextSprite[menuType] =
-        EnsureGetMemberSprite((menuName + "TextSprite").c_str());
-    EntryHighlightedBoxSprite[menuType] =
-        EnsureGetMemberSprite((menuName + "EntryHighlightedBoxSprite").c_str());
-    EntryHighlightedTextSprite[menuType] = EnsureGetMemberSprite(
+        EnsureGetMember<Sprite>((menuName + "TextSprite").c_str());
+    EntryHighlightedBoxSprite[menuType] = EnsureGetMember<Sprite>(
+        (menuName + "EntryHighlightedBoxSprite").c_str());
+    EntryHighlightedTextSprite[menuType] = EnsureGetMember<Sprite>(
         (menuName + "EntryHighlightedTextSprite").c_str());
     EntrySlotsSprite[menuType] =
-        EnsureGetMemberSprite((menuName + "EntrySlotsSprite").c_str());
+        EnsureGetMember<Sprite>((menuName + "EntrySlotsSprite").c_str());
     ButtonGuideSprite[menuType] =
-        EnsureGetMemberSprite((menuName + "ButtonGuideSprite").c_str());
+        EnsureGetMember<Sprite>((menuName + "ButtonGuideSprite").c_str());
     SeparationLineSprite[menuType] =
-        EnsureGetMemberSprite((menuName + "SeparationLineSprite").c_str());
+        EnsureGetMember<Sprite>((menuName + "SeparationLineSprite").c_str());
     for (int j = 0; j < 10; j++) {
-      NumberDigitSprite[menuType][j] = EnsureGetMemberSprite(
+      NumberDigitSprite[menuType][j] = EnsureGetMember<Sprite>(
           (menuName + "NumberDigitSprite" + std::to_string(j)).c_str());
     }
     NoDataSprite[menuType] =
-        EnsureGetMemberSprite((menuName + "NoDataEntrySprite").c_str());
+        EnsureGetMember<Sprite>((menuName + "NoDataEntrySprite").c_str());
     BrokenDataSprite[menuType] =
-        EnsureGetMemberSprite((menuName + "BrokenDataEntrySprite").c_str());
+        EnsureGetMember<Sprite>((menuName + "BrokenDataEntrySprite").c_str());
     SlotLockedSprite[menuType] =
-        EnsureGetMemberSprite((menuName + "SlotLockedSprite").c_str());
+        EnsureGetMember<Sprite>((menuName + "SlotLockedSprite").c_str());
     for (int j = 0; j < 6; j++) {
-      PageNumSprite[menuType][j] = EnsureGetMemberSprite(
+      PageNumSprite[menuType][j] = EnsureGetMember<Sprite>(
           (menuName + "PageNumSprite" + std::to_string(j)).c_str());
     }
     SaveTimeSprite[menuType] =
-        EnsureGetMemberSprite((menuName + "SaveTimeSprite").c_str());
+        EnsureGetMember<Sprite>((menuName + "SaveTimeSprite").c_str());
   }
 }
 }  // namespace SaveMenu

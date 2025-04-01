@@ -11,28 +11,28 @@ namespace MO6TW {
 namespace SysMesBox {
 
 void Configure() {
-  SelectionHighlight = EnsureGetMemberSprite("SelectionHighlight");
+  SelectionHighlight = EnsureGetMember<Sprite>("SelectionHighlight");
 
-  BoxPartLeft = EnsureGetMemberSprite("BoxPartLeft");
-  BoxPartRight = EnsureGetMemberSprite("BoxPartRight");
-  BoxPartMiddle = EnsureGetMemberSprite("BoxPartMiddle");
-  BoxDecoration = EnsureGetMemberSprite("BoxDecoration");
+  BoxPartLeft = EnsureGetMember<Sprite>("BoxPartLeft");
+  BoxPartRight = EnsureGetMember<Sprite>("BoxPartRight");
+  BoxPartMiddle = EnsureGetMember<Sprite>("BoxPartMiddle");
+  BoxDecoration = EnsureGetMember<Sprite>("BoxDecoration");
 
-  BoxX = EnsureGetMemberFloat("BoxX");
-  BoxY = EnsureGetMemberFloat("BoxY");
-  ChoicePadding = EnsureGetMemberFloat("ChoicePadding");
-  ChoiceY = EnsureGetMemberFloat("ChoiceY");
-  ChoiceXBase = EnsureGetMemberFloat("ChoiceXBase");
-  MinMaxMesWidth = EnsureGetMemberFloat("MinMaxMesWidth");
-  BoxMinimumWidth = EnsureGetMemberFloat("BoxMinimumWidth");
-  BoxMiddleBaseX = EnsureGetMemberFloat("BoxMiddleBaseX");
-  BoxMiddleBaseWidth = EnsureGetMemberFloat("BoxMiddleBaseWidth");
-  BoxMiddleRemainBase = EnsureGetMemberFloat("BoxMiddleRemainBase");
-  BoxRightBaseX = EnsureGetMemberFloat("BoxRightBaseX");
-  BoxRightRemainPad = EnsureGetMemberFloat("BoxRightRemainPad");
+  BoxX = EnsureGetMember<float>("BoxX");
+  BoxY = EnsureGetMember<float>("BoxY");
+  ChoicePadding = EnsureGetMember<float>("ChoicePadding");
+  ChoiceY = EnsureGetMember<float>("ChoiceY");
+  ChoiceXBase = EnsureGetMember<float>("ChoiceXBase");
+  MinMaxMesWidth = EnsureGetMember<float>("MinMaxMesWidth");
+  BoxMinimumWidth = EnsureGetMember<float>("BoxMinimumWidth");
+  BoxMiddleBaseX = EnsureGetMember<float>("BoxMiddleBaseX");
+  BoxMiddleBaseWidth = EnsureGetMember<float>("BoxMiddleBaseWidth");
+  BoxMiddleRemainBase = EnsureGetMember<float>("BoxMiddleRemainBase");
+  BoxRightBaseX = EnsureGetMember<float>("BoxRightBaseX");
+  BoxRightRemainPad = EnsureGetMember<float>("BoxRightRemainPad");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   UI::SysMesBoxPtr = new UI::MO6TW::SysMesBox();
   UI::Menus[drawType].push_back(UI::SysMesBoxPtr);

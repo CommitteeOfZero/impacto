@@ -12,9 +12,9 @@ namespace Profile {
 static Texture LoadTexture(Io::Stream* stream, std::string name) {
   Texture texture{};
   if (!texture.Load(stream)) {
-    ImpLog(LL_Error, LC_Profile,
-           "Spritesheet %s texture could not be imported, using fallback\n",
-           name.c_str());
+    ImpLog(LogLevel::Error, LogChannel::Profile,
+           "Spritesheet {:s} texture could not be imported, using fallback\n",
+           name);
     texture.LoadCheckerboard();
   }
 
@@ -30,19 +30,19 @@ void LoadSpritesheets() {
 
   PushInitialIndex();
   while (PushNextTableElement() != 0) {
-    std::string name(EnsureGetKeyString());
+    std::string name(EnsureGetKey<std::string>());
 
     SpriteSheet& sheet = SpriteSheets[name];
-    sheet.DesignWidth = EnsureGetMemberFloat("DesignWidth");
-    sheet.DesignHeight = EnsureGetMemberFloat("DesignHeight");
+    sheet.DesignWidth = EnsureGetMember<float>("DesignWidth");
+    sheet.DesignHeight = EnsureGetMember<float>("DesignHeight");
 
-    Io::AssetPath asset = EnsureGetMemberAssetPath("Path");
+    Io::AssetPath asset = EnsureGetMember<Io::AssetPath>("Path");
 
     Io::Stream* stream;
     IoError err = asset.Open(&stream);
     if (err != IoError_OK) {
-      ImpLog(LL_Fatal, LC_Profile, "Could not open spritesheet %s\n",
-             name.c_str());
+      ImpLog(LogLevel::Fatal, LogChannel::Profile,
+             "Could not open spritesheet {:s}\n", name);
       Window->Shutdown();
     }
 
@@ -63,12 +63,12 @@ void LoadSpritesheets() {
 
   PushInitialIndex();
   while (PushNextTableElement() != 0) {
-    std::string name(EnsureGetKeyString());
+    std::string name(EnsureGetKey<std::string>());
 
     Sprite& sprite = Sprites[name];
-    sprite.Sheet = EnsureGetMemberSpriteSheet("Sheet");
-    sprite.Bounds = EnsureGetMemberRectF("Bounds");
-    if (!TryGetMemberVec2("BaseScale", sprite.BaseScale))
+    sprite.Sheet = EnsureGetMember<SpriteSheet>("Sheet");
+    sprite.Bounds = EnsureGetMember<RectF>("Bounds");
+    if (!TryGetMember<glm::vec2>("BaseScale", sprite.BaseScale))
       sprite.BaseScale = glm::vec2(1.0f);
 
     Pop();

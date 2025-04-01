@@ -14,10 +14,10 @@ using namespace Impacto::TipsSystem;
 void Configure() {
   EnsurePushMemberOfType("TipsSystem", LUA_TTABLE);
 
-  Type = TipsSystemType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
+  Type = TipsSystemType::_from_integral_unchecked(EnsureGetMember<int>("Type"));
 
   if (Type != +TipsSystemType::None) {
-    MaxTipsCount = EnsureGetMemberInt("MaxTipsCount");
+    MaxTipsCount = EnsureGetMember<int>("MaxTipsCount");
 
     switch (Type) {
       case TipsSystemType::MO6TW:
@@ -30,7 +30,7 @@ void Configure() {
         Implementation = new Impacto::CCLCC::TipsSystem(MaxTipsCount);
         break;
       case TipsSystemType::None:
-        ImpLog(LL_Warning, LC_Profile,
+        ImpLog(LogLevel::Warning, LogChannel::Profile,
                "Tips system type is None, not setting system implementation\n");
     }
   }

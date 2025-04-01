@@ -15,31 +15,32 @@ DateDisplayType Type = DateDisplayType::None;
 void Configure() {
   EnsurePushMemberOfType("DateDisplay", LUA_TTABLE);
 
-  Type = DateDisplayType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
+  Type =
+      DateDisplayType::_from_integral_unchecked(EnsureGetMember<int>("Type"));
 
   if (Type == +DateDisplayType::RNE) {
     Impacto::DateDisplay::Implementation = new Impacto::RNE::DateDisplay;
   }
 
-  GetMemberSpriteArray(MonthNumSprites, NumSpriteCount, "MonthNumSprites");
-  GetMemberSpriteArray(DayNumSprites, NumSpriteCount, "DayNumSprites");
-  GetMemberSpriteArray(YearNumSprites, NumSpriteCount, "YearNumSprites");
-  GetMemberSpriteArray(WeekSprites, WeekSpriteCount, "WeekSprites");
+  GetMemberArray<Sprite>(MonthNumSprites, NumSpriteCount, "MonthNumSprites");
+  GetMemberArray<Sprite>(DayNumSprites, NumSpriteCount, "DayNumSprites");
+  GetMemberArray<Sprite>(YearNumSprites, NumSpriteCount, "YearNumSprites");
+  GetMemberArray<Sprite>(WeekSprites, WeekSpriteCount, "WeekSprites");
 
-  MDSeparatorSprite = EnsureGetMemberSprite("MDSeparatorSprite");
-  DYSeparatorSprite = EnsureGetMemberSprite("DYSeparatorSprite");
-  OpenBracketSprite = EnsureGetMemberSprite("OpenBracketSprite");
-  CloseBracketSprite = EnsureGetMemberSprite("CloseBracketSprite");
-  BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
+  MDSeparatorSprite = EnsureGetMember<Sprite>("MDSeparatorSprite");
+  DYSeparatorSprite = EnsureGetMember<Sprite>("DYSeparatorSprite");
+  OpenBracketSprite = EnsureGetMember<Sprite>("OpenBracketSprite");
+  CloseBracketSprite = EnsureGetMember<Sprite>("CloseBracketSprite");
+  BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSprite");
 
-  BackgroundStartPos = EnsureGetMemberVec2("BackgroundStartPos");
-  BackgroundEndPos = EnsureGetMemberVec2("BackgroundEndPos");
-  DateStartX = EnsureGetMemberFloat("DateStartX");
-  YearWeekY = EnsureGetMemberFloat("YearWeekY");
-  MonthDayY = EnsureGetMemberFloat("MonthDayY");
-  Spacing = EnsureGetMemberFloat("Spacing");
-  FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
-  FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
+  BackgroundStartPos = EnsureGetMember<glm::vec2>("BackgroundStartPos");
+  BackgroundEndPos = EnsureGetMember<glm::vec2>("BackgroundEndPos");
+  DateStartX = EnsureGetMember<float>("DateStartX");
+  YearWeekY = EnsureGetMember<float>("YearWeekY");
+  MonthDayY = EnsureGetMember<float>("MonthDayY");
+  Spacing = EnsureGetMember<float>("Spacing");
+  FadeInDuration = EnsureGetMember<float>("FadeInDuration");
+  FadeOutDuration = EnsureGetMember<float>("FadeOutDuration");
 
   Pop();
 }

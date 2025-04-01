@@ -178,10 +178,9 @@ end
 -- Rearange the labels in the array so they're in order of appearance
 labelIndices = {5, 6, 7, 1,
                 2, 3, 8,
-                9, 10, 11, 12, 13, 4, 15, 14,
-                16};
+                9, 10, 11, 12, 13, 4};
 height = 52;
-for i = 0, 15 do
+for i = 0, 12 do
     offset = ((i > 11) and {104} or {0})[1];
 
     root.Sprites["OptionsLabel" .. i] = {

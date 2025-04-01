@@ -2,7 +2,7 @@
 
 #include "mem.h"
 #include "profile/scriptvars.h"
-#include "enum.h"
+#include <enum.h>
 
 namespace Impacto {
 

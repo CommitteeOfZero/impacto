@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.28)
 
+if (POLICY CMP0141)
+  cmake_policy(SET CMP0141 NEW)
+endif()
+
 project("impacto")
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/modules")
@@ -48,6 +52,7 @@ set(Impacto_Src
         src/profile/vm.cpp
         src/profile/scriptvars.cpp
         src/profile/scriptinput.cpp
+        src/profile/configsystem.cpp
 
         src/profile/data/savesystem.cpp
         src/profile/data/tipssystem.cpp
@@ -376,6 +381,7 @@ set(Impacto_Header
         src/profile/vm.h
         src/profile/scriptvars.h
         src/profile/scriptinput.h
+        src/profile/configsystem.h
 
         src/profile/data/savesystem.h
         src/profile/data/tipssystem.h
@@ -632,14 +638,6 @@ set(Impacto_Header
         src/video/videosystem.h
         src/video/videoplayer.h
         src/video/clock.h
-
-        vendor/clHCA/clHCA.h
-
-        vendor/squish/squish.h
-
-        
-        vendor/vma/vk_mem_alloc.h
-        vendor/minilua/minilua.h
         )
 
 if (WIN32)
@@ -652,6 +650,7 @@ if (NX OR EMSCRIPTEN)
     set(IMPACTO_DISABLE_VULKAN ON)
     set(IMPACTO_DISABLE_DX9 ON)
     set(IMPACTO_DISABLE_MMAP ON)
+    set(BUILD_SHARED_LIBS OFF)
 endif ()
 
 if(ANDROID)
@@ -704,6 +703,10 @@ if(ANDROID OR NX)
     set(LIBATRAC9_BUILD_SHARED OFF)
 endif()
 
+if(NX)
+    add_compile_definitions(__SWITCH__)
+endif()
+
 # dependencies
 FetchContent_Declare(
     glm
@@ -727,7 +730,7 @@ FetchContent_Declare(
 FetchContent_Declare(
     fmt
     GIT_REPOSITORY "https://github.com/fmtlib/fmt.git"
-    GIT_TAG "11.0.2"
+    GIT_TAG "11.1.4"
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/fmtlib
     SYSTEM
     EXCLUDE_FROM_ALL
@@ -751,11 +754,41 @@ FetchContent_Declare(
     EXCLUDE_FROM_ALL
 )
 
+FetchContent_Declare(
+    concurrentqueue
+    GIT_REPOSITORY "https://github.com/cameron314/concurrentqueue"
+    GIT_TAG "v1.0.4"
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/concurrentqueue
+    SYSTEM
+    EXCLUDE_FROM_ALL
+)
+
+FetchContent_Declare(
+    readerwriterqueue
+    GIT_REPOSITORY "https://github.com/cameron314/readerwriterqueue"
+    GIT_TAG "16b48ae1148284e7b40abf72167206a4390a4592"
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/readerwriterqueue
+    SYSTEM
+    EXCLUDE_FROM_ALL
+)
+
+FetchContent_Declare(
+    unordered_dense
+    GIT_REPOSITORY "https://github.com/martinus/unordered_dense"
+    GIT_TAG "v4.5.0"
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/unordered_dense
+    SYSTEM
+    EXCLUDE_FROM_ALL
+)
+
 FetchContent_MakeAvailable(fmt)
 FetchContent_MakeAvailable(glm)
 FetchContent_MakeAvailable(pugixml)
 FetchContent_MakeAvailable(utf8cpp)
 FetchContent_MakeAvailable(libatrac9)
+FetchContent_MakeAvailable(concurrentqueue)
+FetchContent_MakeAvailable(readerwriterqueue)
+FetchContent_MakeAvailable(unordered_dense)
 
 if (NOT DEFINED IMPACTO_DISABLE_MMAP)
     list(APPEND Impacto_Src
@@ -914,6 +947,7 @@ if (NOT DEFINED IMPACTO_DISABLE_OPENAL)
 endif ()
 list(APPEND Impacto_Include_Dirs ${SDL2_INCLUDE_DIRS})
 list(APPEND Impacto_Include_Dirs ${WebP_INCLUDE_DIRS})
+list(APPEND Impacto_Include_Dirs vendor)
 list(APPEND Impacto_Include_Dirs vendor/include)
 list(APPEND Impacto_Include_Dirs vendor/pcg/include)
 
@@ -921,6 +955,7 @@ list(APPEND Impacto_Libs
         fmt::fmt
         pugixml::pugixml
         atrac9
+        unordered_dense::unordered_dense
 )
 
 if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
@@ -1016,6 +1051,9 @@ if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
 
     if (NOT VCPKG_TOOLCHAIN)
         set(AVCPP_PATCH git apply ${CMAKE_CURRENT_SOURCE_DIR}/vendor/patches/avcpp.patch)
+        if(NX)
+            set(AV_ENABLE_SHARED OFF)
+        endif()
         FetchContent_Declare(
             avcpp
             GIT_REPOSITORY "https://github.com/h4tr3d/avcpp"
@@ -1124,11 +1162,21 @@ else()
     add_executable(impacto ${Impacto_Src} ${Impacto_Header})
 endif()
 
+if(MSVC)
+    set_property(TARGET impacto PROPERTY WIN32_EXECUTABLE TRUE)
+endIf()
+
 target_link_libraries(impacto PRIVATE ${Impacto_Libs})
 
 # compiler/dependency configuration
 
-set_property(TARGET impacto PROPERTY CXX_STANDARD 17)
+set_property(TARGET impacto PROPERTY CXX_STANDARD 20)
+set_property(TARGET impacto PROPERTY CXX_SCAN_FOR_MODULES OFF)
+
+# Hot reload for MSVC
+if(NOT IMPACTO_ASAN)
+    set_property(TARGET impacto PROPERTY MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
+endif()
 
 if (EMSCRIPTEN)
     set(CMAKE_EXECUTABLE_SUFFIX ".html")
@@ -1172,9 +1220,19 @@ set(IMPACTO_HAVE_THREADS ON)
 set(IMPACTO_USE_SDL_HIGHDPI OFF)
 endif ()
 
+# Enable Hot Reload for MSVC compilers if supported.
+if (POLICY CMP0141)
+  cmake_policy(SET CMP0141 NEW)
+  set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
+endif()
+
 configure_file(src/config.h.in ${PROJECT_BINARY_DIR}/include/config.h)
 target_include_directories(impacto PRIVATE ${Impacto_Include_Dirs})
 target_include_directories(impacto PRIVATE ${PROJECT_BINARY_DIR}/include)
+
+target_precompile_headers(impacto PRIVATE 
+    "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_SOURCE_DIR}/src/pch.h>"
+)
 
 # binary install
 

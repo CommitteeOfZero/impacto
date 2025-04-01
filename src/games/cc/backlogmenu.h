@@ -12,15 +12,12 @@ class BacklogMenu : public UI::BacklogMenu {
  public:
   void Show() override;
   void Hide() override;
-  void Update(float dt) override;
   void Render() override;
 
   void MenuButtonOnClick(Widgets::BacklogEntry* target) override;
 
  private:
-  Widgets::CC::BacklogEntry* CreateBacklogEntry(
-      int id, uint8_t* str, int audioId, glm::vec2 pos,
-      const RectF& hoverBounds) const override;
+  void UpdateVisibility() override;
 };
 
 }  // namespace CC

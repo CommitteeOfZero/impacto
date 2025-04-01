@@ -11,7 +11,7 @@
 #include "../../profile/game.h"
 
 #ifndef IMPACTO_DISABLE_IMGUI
-#include "../../vendor/imgui_custom/backends/imgui_impl_opengl3.h"
+#include <imgui_custom/backends/imgui_impl_opengl3.h>
 #endif
 #include "../../game.h"
 #include "../../profile/vm.h"
@@ -25,9 +25,10 @@ void GLWindow::UpdateDimensions() {
   if (WindowWidth != lastWidth || WindowHeight != lastHeight ||
       MsaaCount != lastMsaa || RenderScale != lastRenderScale) {
     WindowDimensionsChanged = true;
-    ImpLog(LL_Debug, LC_General,
-           "Drawable size (pixels): %d x %d (%dx MSAA requested, render scale "
-           "%f)\n",
+    ImpLog(LogLevel::Debug, LogChannel::General,
+           "Drawable size (pixels): {:d} x {:d} ({:d}x MSAA requested, render "
+           "scale "
+           "{:f})\n",
            WindowWidth, WindowHeight, MsaaCount, RenderScale);
   }
   lastWidth = WindowWidth;
@@ -86,7 +87,8 @@ void GLWindow::TryCreateGL(GraphicsApi api) {
 
   switch (api) {
     case GfxApi_GL:
-      ImpLog(LL_Info, LC_General, "Trying to create desktop GL context\n");
+      ImpLog(LogLevel::Info, LogChannel::General,
+             "Trying to create desktop GL context\n");
       SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, "0");
       SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
       SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
@@ -97,7 +99,7 @@ void GLWindow::TryCreateGL(GraphicsApi api) {
       break;
 
     case GfxApi_ForceDesktopGLES:
-      ImpLog(LL_Info, LC_General,
+      ImpLog(LogLevel::Info, LogChannel::General,
              "Trying to create GLES on desktop GL context\n");
       SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, "0");
       SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -107,7 +109,8 @@ void GLWindow::TryCreateGL(GraphicsApi api) {
       break;
 
     case GfxApi_ForceNativeGLES:
-      ImpLog(LL_Info, LC_General, "Trying to create native GLES context\n");
+      ImpLog(LogLevel::Info, LogChannel::General,
+             "Trying to create native GLES context\n");
 
 #ifndef EMSCRIPTEN
       // Emscripten's EGL implementation fails when you ask it for GLES 3.2,
@@ -138,15 +141,15 @@ void GLWindow::TryCreateGL(GraphicsApi api) {
       Profile::ResolutionWidth, Profile::ResolutionHeight, windowFlags);
 
   if (SDLWindow == NULL) {
-    ImpLog(LL_Error, LC_General, "Window creation failed: %s\n",
-           SDL_GetError());
+    ImpLog(LogLevel::Error, LogChannel::General,
+           "Window creation failed: {:s}\n", SDL_GetError());
     return;
   }
 
   GLContext = SDL_GL_CreateContext(SDLWindow);
   if (GLContext == NULL) {
-    ImpLog(LL_Error, LC_General, "OpenGL context creation failed: %s\n",
-           SDL_GetError());
+    ImpLog(LogLevel::Error, LogChannel::General,
+           "OpenGL context creation failed: {:s}\n", SDL_GetError());
     return;
   } else {
     ActualGraphicsApi = api;
@@ -160,12 +163,12 @@ void GLWindow::TryCreateGL(GraphicsApi api) {
 
 void GLWindow::Init() {
   assert(IsInit == false);
-  ImpLog(LL_Info, LC_General, "Creating window\n");
+  ImpLog(LogLevel::Info, LogChannel::General, "Creating window\n");
   IsInit = true;
 
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) != 0) {
-    ImpLog(LL_Fatal, LC_General, "SDL initialisation failed: %s\n",
-           SDL_GetError());
+    ImpLog(LogLevel::Fatal, LogChannel::General,
+           "SDL initialisation failed: {:s}\n", SDL_GetError());
     Shutdown();
     return;
   }
@@ -191,15 +194,16 @@ void GLWindow::Init() {
   }
 
   if (GLContext == NULL) {
-    ImpLog(LL_Fatal, LC_General,
+    ImpLog(LogLevel::Fatal, LogChannel::General,
            "All options for OpenGL context creation failed\n");
     Shutdown();
     return;
   }
 
   SDL_GetWindowSize(SDLWindow, &WindowWidth, &WindowHeight);
-  ImpLog(LL_Debug, LC_General, "Window size (screen coords): %d x %d\n",
-         WindowWidth, WindowHeight);
+  ImpLog(LogLevel::Debug, LogChannel::General,
+         "Window size (screen coords): {:d} x {:d}\n", WindowWidth,
+         WindowHeight);
 
   bool gladOk;
   if (ActualGraphicsApi == GfxApi_GL) {
@@ -208,7 +212,8 @@ void GLWindow::Init() {
     gladOk = gladLoadGLES2Loader(SDL_GL_GetProcAddress);
   }
   if (!gladOk) {
-    ImpLog(LL_Fatal, LC_General, "GLAD initialisation failed\n");
+    ImpLog(LogLevel::Fatal, LogChannel::General,
+           "GLAD initialisation failed\n");
     Shutdown();
   }
 
@@ -223,7 +228,7 @@ void GLWindow::Init() {
   bool isDesktopGL = ActualGraphicsApi == GfxApi_GL;
   bool isVer3_2 = glContextVersion[0] >= 3 && glContextVersion[1] >= 2;
   if (!isDesktopGL && !isVer3_2) {
-    ImpLog(LL_Error, LC_GL,
+    ImpLog(LogLevel::Error, LogChannel::GL,
            "IMPACTO_GL_DEBUG defined but no debug context requested because "
            "we're using GLES <3.2\n");
   } else {
@@ -243,7 +248,7 @@ void GLWindow::Init() {
                               GL_TRUE);
       }
     } else {
-      ImpLog(LL_Error, LC_GL, "Could not get debug context\n");
+      ImpLog(LogLevel::Error, LogChannel::GL, "Could not get debug context\n");
     }
   }
 #endif
@@ -254,9 +259,10 @@ void GLWindow::Init() {
 
 void GLWindow::SetDimensions(int width, int height, int msaa,
                              float renderScale) {
-  ImpLog(LL_Info, LC_General,
-         "Attempting to change window dimensions to %d x %d, %dx MSAA, render "
-         "scale %f\n",
+  ImpLog(LogLevel::Info, LogChannel::General,
+         "Attempting to change window dimensions to {:d} x {:d}, {:d}x MSAA, "
+         "render "
+         "scale {:f}\n",
          width, height, msaa, renderScale);
   assert(width > 0 && height > 0 && msaa >= 0 && renderScale > 0.0f);
 

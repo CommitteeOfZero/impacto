@@ -1,7 +1,7 @@
 #include "mpkarchive.h"
 
 #include "../log.h"
-#include <flat_hash_map.hpp>
+#include <ankerl/unordered_dense.h>
 #include "zlibstream.h"
 #include "uncompressedstream.h"
 #include "vfs.h"
@@ -33,18 +33,17 @@ IoError MpkArchive::Open(FileMeta* file, Stream** outStream) {
                                      outStream);
   }
   if (err != IoError_OK) {
-    ImpLog(LL_Error, LC_IO,
-           "MPK file open failed for file \"%s\" in archive \"%s\" "
-           "(compression %d)\n",
-           entry->FileName.c_str(), BaseStream->Meta.FileName.c_str(),
-           entry->Compressed);
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "MPK file open failed for file \"{:s}\" in archive \"{:s}\" "
+           "(compression {:d})\n",
+           entry->FileName, BaseStream->Meta.FileName, entry->Compressed);
   }
   return err;
 }
 
 IoError MpkArchive::Create(Stream* stream, VfsArchive** outArchive) {
-  ImpLog(LL_Trace, LC_IO, "Trying to mount \"%s\" as MPK\n",
-         stream->Meta.FileName.c_str());
+  ImpLog(LogLevel::Trace, LogChannel::IO, "Trying to mount \"{:s}\" as MPK\n",
+         stream->Meta.FileName);
 
   MpkArchive* result = 0;
 
@@ -56,7 +55,7 @@ IoError MpkArchive::Create(Stream* stream, VfsArchive** outArchive) {
   char name[MpkMaxPath];
 
   if (ReadBE<uint32_t>(stream) != magic) {
-    ImpLog(LL_Trace, LC_IO, "Not an MPK\n");
+    ImpLog(LogLevel::Trace, LogChannel::IO, "Not an MPK\n");
     goto fail;
   }
 
@@ -64,8 +63,8 @@ IoError MpkArchive::Create(Stream* stream, VfsArchive** outArchive) {
   MajorVersion = ReadLE<uint16_t>(stream);
   // TODO support v1
   if (MinorVersion != 0 || MajorVersion != 2) {
-    ImpLog(LL_Trace, LC_IO, "Unsupported MPK version %d.%d\n", MajorVersion,
-           MinorVersion);
+    ImpLog(LogLevel::Trace, LogChannel::IO,
+           "Unsupported MPK version {:d}.{:d}\n", MajorVersion, MinorVersion);
     goto fail;
   }
 
@@ -82,8 +81,9 @@ IoError MpkArchive::Create(Stream* stream, VfsArchive** outArchive) {
     uint32_t Id = ReadLE<uint32_t>(stream);
 
     if (Compression != 1 && Compression != 0) {
-      ImpLog(LL_Error, LC_IO, "Unknown MPK compression type %d on file %d\n",
-             Id, Compression);
+      ImpLog(LogLevel::Error, LogChannel::IO,
+             "Unknown MPK compression type {:d} on file {:d}\n", Id,
+             Compression);
       stream->Seek(0x100 - 8, RW_SEEK_SET);
       continue;
     }
@@ -99,11 +99,12 @@ IoError MpkArchive::Create(Stream* stream, VfsArchive** outArchive) {
     entry->FileName = std::string(name);
 
     if (result->IdsToFiles.find(Id) != result->IdsToFiles.end()) {
-      ImpLog(LL_Error, LC_IO, "Duplicate MPK file ID %d\n", Id);
+      ImpLog(LogLevel::Error, LogChannel::IO, "Duplicate MPK file ID {:d}\n",
+             Id);
       continue;
     }
     if (!entry->Offset) {
-      ImpLog(LL_Error, LC_IO, "Reached end of ToC\n");
+      ImpLog(LogLevel::Error, LogChannel::IO, "Reached end of ToC\n");
       break;
     }
 

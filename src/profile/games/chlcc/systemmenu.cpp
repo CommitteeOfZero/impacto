@@ -12,21 +12,22 @@ namespace CHLCC {
 namespace SystemMenu {
 
 void Configure() {
-  BackgroundColor = EnsureGetMemberUint("BackgroundColor");
-  BackgroundFilter = EnsureGetMemberSprite("BackgroundFilter");
-  CircleStartPosition = EnsureGetMemberVec2("CircleStartPosition");
-  CircleSprite = EnsureGetMemberSprite("CircleSprite");
-  CircleOffset = EnsureGetMemberFloat("CircleOffset");
-  ErinPosition = EnsureGetMemberVec2("ErinPosition");
-  ErinSprite = EnsureGetMemberSprite("ErinSprite");
-  TitleFadeInDuration = EnsureGetMemberFloat("TitleFadeInDuration");
-  TitleFadeOutDuration = EnsureGetMemberFloat("TitleFadeOutDuration");
-  FocusTint = EnsureGetMemberUint("FocusTint");
-  GetMemberVec2Array(MenuEntriesPositions, Profile::SystemMenu::MenuEntriesNum,
-                     "MenuEntriesPositions");
+  BackgroundColor = EnsureGetMember<uint32_t>("BackgroundColor");
+  BackgroundFilter = EnsureGetMember<Sprite>("BackgroundFilter");
+  CircleStartPosition = EnsureGetMember<glm::vec2>("CircleStartPosition");
+  CircleSprite = EnsureGetMember<Sprite>("CircleSprite");
+  CircleOffset = EnsureGetMember<float>("CircleOffset");
+  ErinPosition = EnsureGetMember<glm::vec2>("ErinPosition");
+  ErinSprite = EnsureGetMember<Sprite>("ErinSprite");
+  TitleFadeInDuration = EnsureGetMember<float>("TitleFadeInDuration");
+  TitleFadeOutDuration = EnsureGetMember<float>("TitleFadeOutDuration");
+  FocusTint = EnsureGetMember<uint32_t>("FocusTint");
+  GetMemberArray<glm::vec2>(MenuEntriesPositions,
+                            Profile::SystemMenu::MenuEntriesNum,
+                            "MenuEntriesPositions");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   UI::SystemMenuPtr = new UI::CHLCC::SystemMenu();
   UI::Menus[drawType].push_back(UI::SystemMenuPtr);

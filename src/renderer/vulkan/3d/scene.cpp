@@ -19,7 +19,7 @@ Scene3D::Scene3D(VulkanWindow* window, VkDevice device, VkRenderPass renderPass,
 
 void Scene3D::Init() {
   assert(IsInit == false);
-  ImpLog(LL_Info, LC_Scene, "Initializing 3D scene system\n");
+  ImpLog(LogLevel::Info, LogChannel::Scene, "Initializing 3D scene system\n");
   IsInit = true;
 
   Profile::Scene3D::Configure();

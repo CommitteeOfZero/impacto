@@ -14,7 +14,6 @@
 * `vendor/minilua`: [minilua](https://github.com/edubart/minilua)
 * `vendor/glad`: output from [glad](https://github.com/Dav1dde/glad) generator, patched for Switch support
 * `vendor/include/enum.h`: [Better Enums](http://github.com/aantron/better-enums)
-* `vendor/include/flat_hash_map.hpp`: [flat_hash_map](https://github.com/skarupke/flat_hash_map/blob/4ba60d1302288fae0257d07a5c079e8033372501/flat_hash_map.hpp) (with PR #18)
 * `vendor/include/stb_image.h`: [stb_image](https://github.com/nothings/stb)
 * `vendor/imgui`: [Dear ImGui](https://github.com/ocornut/imgui)
 * `vendor/pcg`: [PCG Random Number Generation, Minimal C Edition](https://github.com/imneme/pcg-c-basic)
@@ -22,8 +21,10 @@
 * `vendor/utf8-cpp`: [UTF8-CPP](http://utfcpp.sourceforge.net/)
 * `vendor/mspack`: [libmspack](https://www.cabextract.org.uk/libmspack/), only includes LZX decompressor to reduce code size
 * `vendor/pugixml`: [pugixml](https://github.com/zeux/pugixml) 
-* `vendor/span`: [span](https://github.com/tcbrindle/span)
-* `vendor/mio`: [mio](https://github.com/vimpunk/mio)
+* `vendor/mio`: [mio](https://github.com/vimpunk/mio), except for platforms without mmap support
+* `vendor/fmtlib`: [fmtlib](https://github.com/fmtlib/fmt)
+* `vendor/concurrent_queue`: [concurrent_queue](https://github.com/cameron314/concurrentqueue)
+* `vendor/readerwriterqueue`: [readerwriterqueue](https://github.com/cameron314/readerwriterqueue)
 
 All third-party code mentioned above is mandatory, included in the build process and compiled into the output executable for impacto on every supported platform and build configuration.
 
@@ -653,11 +654,12 @@ Emscripten 1.38.21 / musl 1.1.15 system/lib/libc/musl/COPYRIGHT:
 >     permissive licensing, and of not having licensing issues being an
 >     obstacle to adoption, that text has been removed.
 
-## flat_hash_map
+## unordered_dense
 
-https://github.com/skarupke/flat_hash_map/blob/4ba60d1302288fae0257d07a5c079e8033372501/flat_hash_map.hpp
+https://github.com/martinus/unordered_dense
 
-Copyright Malte Skarupke 2017. Distributed under the Boost Software License, Version 1.0. See below for license text.
+Copyright (c) 2022 Martin Leitner-Ankerl
+See below for license text (MIT).
 
 ## glad
 
@@ -791,12 +793,6 @@ system version, originally https://libsdl.org/download-2.0.php
 Copyright (C) 1997-2019 Sam Lantinga <slouken@libsdl.org>
 
 See below for license text (zlib).
-
-## span
-
-https://github.com/tcbrindle/span
-
-Distributed under the Boost Software License - Version 1.0 - August 17th, 2003. See below for license text.
 
 ## mio
 
@@ -946,6 +942,54 @@ https://github.com/zeux/pugixml
 Copyright (c) 2006-2024 Arseny Kapoulkine
 
 See below for license text (MIT).
+
+## fmtlib
+
+https://github.com/fmtlib/fmt
+
+Copyright (c) 2012 - present, Victor Zverovich and {fmt} contributors
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+--- Optional exception to the license ---
+
+As an exception, if, as a result of your compiling your source code, portions
+of this Software are embedded into a machine-executable object form of such
+source code, you may redistribute such embedded portions in such object form
+without including the above copyright and permission notices.
+
+## concurrent_queue & readerwriterqueue
+
+https://github.com/cameron314/concurrentqueue
+https://github.com/cameron314/readerwriterqueue
+
+Simplified BSD License:
+
+Copyright (c) 2013-2016, Cameron Desrochers. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+    Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+    Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Generic license texts
 

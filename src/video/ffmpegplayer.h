@@ -51,7 +51,7 @@ class FFmpegPlayer : public VideoPlayer {
 
   bool AbortRequest;
   bool SeekRequest;
-  std::thread ReadThreadID;
+  std::thread ReadThread;
   std::optional<FFmpegStream<AVMEDIA_TYPE_VIDEO>> VideoStream;
   std::optional<FFmpegStream<AVMEDIA_TYPE_AUDIO>> AudioStream;
 
@@ -75,7 +75,6 @@ class FFmpegPlayer : public VideoPlayer {
   std::unique_ptr<Io::Stream> StreamPtr;
   av::FormatContext FormatContext;
   FFmpegFileIO IoContext;
-  SwsContext* ImgConvertContext;
   Clock VideoClock;
 
   Clock* MasterClock{};

@@ -4,12 +4,15 @@
 #include "../../spriteanimation.h"
 #include "../../ui/widgets/clickarea.h"
 #include "../../ui/widgets/cclcc/optionsentry.h"
+#include "../../ui/widgets/group.h"
 
 using namespace Impacto::UI::Widgets::CCLCC;
 
 namespace Impacto {
 namespace UI {
 namespace CCLCC {
+
+BETTER_ENUM(PageType, int, Basic = 0, Text = 1, Sound = 2, Voice = 3)
 
 class OptionsMenu : public UI::OptionsMenu {
  public:
@@ -20,8 +23,22 @@ class OptionsMenu : public UI::OptionsMenu {
   void Update(float dt) override;
   void UpdateInput(float dt) override;
   void Render() override;
+  void ResetToDefault() override;
 
  private:
+  std::unique_ptr<Widgets::Group> CreateBasicPage(
+      const std::function<void(OptionsEntry*)>& select,
+      const std::function<void(Widget*)>& highlight);
+  std::unique_ptr<Widgets::Group> CreateTextPage(
+      const std::function<void(OptionsEntry*)>& select,
+      const std::function<void(Widget*)>& highlight);
+  std::unique_ptr<Widgets::Group> CreateSoundPage(
+      const std::function<void(OptionsEntry*)>& select,
+      const std::function<void(Widget*)>& highlight);
+  std::unique_ptr<Widgets::Group> CreateVoicePage(
+      const std::function<void(OptionsEntry*)>& select,
+      const std::function<void(Widget*)>& highlight);
+
   void PageButtonOnHover(int pageNumber);
 
   void Select(OptionsEntry* entry);

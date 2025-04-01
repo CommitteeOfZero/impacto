@@ -66,7 +66,8 @@ VmInstruction(InstCall) {
         thread->ScriptBufferId;
     thread->Ip = labelAdr;
   } else {
-    ImpLog(LL_Error, LC_VM, "Call error, call stack overflow.\n");
+    ImpLog(LogLevel::Error, LogChannel::VM,
+           "Call error, call stack overflow.\n");
   }
 }
 VmInstruction(InstJumpFar) {
@@ -94,7 +95,8 @@ VmInstruction(InstCallFar) {
     thread->Ip = labelAdr;
     thread->ScriptBufferId = scriptBufferId;
   } else {
-    ImpLog(LL_Error, LC_VM, "CallFar error, call stack overflow.\n");
+    ImpLog(LogLevel::Error, LogChannel::VM,
+           "CallFar error, call stack overflow.\n");
   }
 }
 VmInstruction(InstReturn) {
@@ -112,7 +114,8 @@ VmInstruction(InstReturn) {
     }
     thread->ScriptBufferId = retBufferId;
   } else {
-    ImpLog(LL_Error, LC_VM, "Return error, call stack empty.\n");
+    ImpLog(LogLevel::Error, LogChannel::VM,
+           "Return error, call stack empty.\n");
   }
 }
 VmInstruction(InstReturnIfFlag) {
@@ -134,7 +137,8 @@ VmInstruction(InstReturnIfFlag) {
       thread->ScriptBufferId = retBufferId;
     }
   } else {
-    ImpLog(LL_Error, LC_VM, "Return error, call stack empty.\n");
+    ImpLog(LogLevel::Error, LogChannel::VM,
+           "Return error, call stack empty.\n");
   }
 }
 VmInstruction(InstLoop) {
@@ -187,9 +191,9 @@ VmInstruction(InstKeyOnJump) {
     Interface::PADinputMouseWentDown = 0;
   }
 
-  ImpLogSlow(LL_Trace, LC_VM,
-             "KeyOnJump(arg1: %i, arg2: %i, arg3: %i, "
-             "labelNum: %i)\n",
+  ImpLogSlow(LogLevel::Trace, LogChannel::VM,
+             "KeyOnJump(arg1: {:d}, arg2: {:d}, arg3: {:d}, "
+             "labelNum: {:d})\n",
              arg1, arg2, arg3, labelNum);
 }
 VmInstruction(InstKeyOnJump_Dash) {
@@ -212,9 +216,9 @@ VmInstruction(InstKeyOnJump_Dash) {
     Interface::PADinputMouseWentDown = 0;
   }
 
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction KeyOnJump(arg1: %i, arg2: %i, "
-             "labelNum: %i)\n",
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction KeyOnJump(arg1: {:d}, arg2: {:d}, "
+             "labelNum: {:d})\n",
              arg1, arg2, labelNum);
 }
 VmInstruction(InstClickOnJump) {
@@ -232,9 +236,9 @@ VmInstruction(InstClickOnJump) {
   if (Input::KeyboardButtonWentDown[SDL_SCANCODE_D]) {
     thread->Ip = labelAdr;
   }
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction ClickOnJump(arg1: %i, arg2: %i, "
-             "labelNum: %i)\n",
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction ClickOnJump(arg1: {:d}, arg2: {:d}, "
+             "labelNum: {:d})\n",
              arg1, arg2, labelNum);
 }
 VmInstruction(InstKeyboardOnJump) {
@@ -244,10 +248,11 @@ VmInstruction(InstKeyboardOnJump) {
   PopExpression(arg3);
   PopLocalLabel(arg4);
   (void)arg4;  // Unused
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction KeyboardOnJump(arg1: %i, arg2: %i, arg3: %i, "
-             "arg4: %i)\n",
-             arg1, arg2, arg3, arg4);
+  ImpLogSlow(
+      LogLevel::Warning, LogChannel::VMStub,
+      "STUB instruction KeyboardOnJump(arg1: {:d}, arg2: {:d}, arg3: {:d}, "
+      "arg4: {:p})\n",
+      arg1, arg2, arg3, (void*)arg4);
 }
 VmInstruction(InstControlOnJump) {
   StartInstruction;
@@ -306,7 +311,8 @@ VmInstruction(InstFlagOffReturn) {
       }
       thread->ScriptBufferId = retBufferId;
     } else {
-      ImpLog(LL_Error, LC_VM, "Return error, call stack empty.\n");
+      ImpLog(LogLevel::Error, LogChannel::VM,
+             "Return error, call stack empty.\n");
     }
   }
 }

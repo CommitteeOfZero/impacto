@@ -18,6 +18,8 @@ root.Vm = {
     UseReturnIds = true,
     ScrWorkChaStructSize = 40,
     ScrWorkBgStructSize = 40,
+    ScrWorkCaptureStructSize = 20,
+    ScrWorkBgEffStructSize = 30,
     MaxLinkedBgBuffers = 2
 };
 
@@ -41,6 +43,7 @@ include('cclcc/charset.lua');
 --include('cclcc/font-lb.lua');
 include('cclcc/font-lb-italic.lua');
 include('cclcc/dialogue.lua');
+include('cclcc/configsystem.lua');
 include('cclcc/hud/saveicon.lua');
 include('cclcc/hud/loadingdisplay.lua');
 include('cclcc/hud/datedisplay.lua');

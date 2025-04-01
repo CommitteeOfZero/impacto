@@ -6,8 +6,9 @@
 #include "../../game.h"
 #include "3d/scene.h"
 #include "yuvframe.h"
+
 #ifndef IMPACTO_DISABLE_IMGUI
-#include "../../vendor/imgui_custom/backends/imgui_impl_opengl3.h"
+#include <imgui_custom/backends/imgui_impl_opengl3.h>
 #endif
 
 namespace Impacto {
@@ -15,7 +16,8 @@ namespace OpenGL {
 
 void Renderer::Init() {
   if (IsInit) return;
-  ImpLog(LL_Info, LC_Render, "Initializing Renderer2D system\n");
+  ImpLog(LogLevel::Info, LogChannel::Render,
+         "Initializing Renderer2D system\n");
   IsInit = true;
 
   OpenGLWindow = new GLWindow();
@@ -57,6 +59,8 @@ void Renderer::Init() {
   glBufferData(GL_ELEMENT_ARRAY_BUFFER,
                IndexBufferCount * sizeof(IndexBuffer[0]), IndexBuffer,
                GL_STATIC_DRAW);
+
+  GLC::InitializeFramebuffers();
 
   // Specify vertex layouts
   glBindVertexArray(VAOSprites);
@@ -137,6 +141,10 @@ void Renderer::Shutdown() {
   if (RectSprite.Sheet.Texture) glDeleteTextures(1, &RectSprite.Sheet.Texture);
   IsInit = false;
 
+  GLC::DeleteFramebuffers(GLC::Framebuffers.size(), GLC::Framebuffers.data());
+  glDeleteTextures(GLC::FramebufferTextures.size(),
+                   GLC::FramebufferTextures.data());
+
   if (Profile::GameFeatures & GameFeature::Scene3D) {
     Scene->Shutdown();
   }
@@ -154,7 +162,7 @@ void Renderer::BeginFrame() {}
 
 void Renderer::BeginFrame2D() {
   if (Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->BeginFrame() called before EndFrame()\n");
     return;
   }
@@ -225,7 +233,7 @@ std::vector<uint8_t> Renderer::GetImageFromTexture(uint32_t texture,
 }
 
 int Renderer::GetImageFromTexture(uint32_t texture, RectF dimensions,
-                                  tcb::span<uint8_t> outBuffer) {
+                                  std::span<uint8_t> outBuffer) {
   const int bufferSize = dimensions.Width * dimensions.Height * 4;
   assert(outBuffer.size() >= bufferSize);
   glBindTexture(GL_TEXTURE_2D, texture);
@@ -253,7 +261,7 @@ YUVFrame* Renderer::CreateYUVFrame(float width, float height) {
 }
 
 void Renderer::DrawRect(RectF const& dest, glm::vec4 color, float angle) {
-  DrawSprite(RectSprite, dest, color, angle);
+  BaseRenderer::DrawSprite(RectSprite, dest, color, angle);
 }
 
 void Renderer::DrawSprite3DRotated(Sprite const& sprite, RectF const& dest,
@@ -261,7 +269,7 @@ void Renderer::DrawSprite3DRotated(Sprite const& sprite, RectF const& dest,
                                    bool stayInScreen, glm::quat rot,
                                    glm::vec4 tint, bool inverted) {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawSprite3DRotated() called before BeginFrame()\n");
     return;
   }
@@ -305,7 +313,7 @@ void Renderer::DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
                                 bool inverted, glm::vec4 tint,
                                 glm::vec2 scale) {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawCharacterMvl() called before BeginFrame()\n");
     return;
   }
@@ -349,25 +357,11 @@ void Renderer::DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
                GL_STATIC_DRAW);
 }
 
-void Renderer::DrawSprite(Sprite const& sprite, RectF const& dest,
-                          glm::vec4 tint, float angle, bool inverted,
-                          bool isScreencap) {
-  std::array<glm::vec4, 4> tints = {tint, tint, tint, tint};
-  std::array<glm::vec2, 4> destQuad = {
-      glm::vec2{dest.X, dest.Y + dest.Height},
-      glm::vec2{dest.X, dest.Y},
-      glm::vec2{dest.X + dest.Width, dest.Y},
-      glm::vec2{dest.X + dest.Width, dest.Y + dest.Height},
-  };
-  DrawSprite(sprite, destQuad, tints, angle, inverted, isScreencap);
-}
-
-void Renderer::DrawSprite(Sprite const& sprite,
-                          std::array<glm::vec2, 4> const& dest,
+void Renderer::DrawSprite(Sprite const& sprite, CornersQuad const& dest,
                           const std::array<glm::vec4, 4>& tints, float angle,
-                          bool inverted, bool isScreencap) {
+                          bool inverted) {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawSprite() called before BeginFrame()\n");
     return;
   }
@@ -378,7 +372,7 @@ void Renderer::DrawSprite(Sprite const& sprite,
   // Are we in sprite mode?
   EnsureModeSprite(inverted);
 
-  if (isScreencap) {
+  if (sprite.Sheet.IsScreenCap) {
     Flush();
   }
 
@@ -393,7 +387,7 @@ void Renderer::DrawSprite(Sprite const& sprite,
 
   IndexBufferFill += 6;
 
-  if (isScreencap) {
+  if (sprite.Sheet.IsScreenCap) {
     QuadSetUVFlipped(sprite.Bounds, sprite.Sheet.DesignWidth,
                      sprite.Sheet.DesignHeight, (uintptr_t)&vertices[0].UV,
                      sizeof(VertexBufferSprites));
@@ -408,11 +402,80 @@ void Renderer::DrawSprite(Sprite const& sprite,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
 }
 
+void Renderer::DrawVertices(SpriteSheet const& sheet,
+                            std::span<const glm::vec2> sheetPositions,
+                            std::span<const glm::vec2> displayPositions,
+                            int width, int height, glm::vec4 tint,
+                            bool inverted) {
+  if (!Drawing) {
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Renderer->DrawVertices() called before BeginFrame()\n");
+    return;
+  }
+  const int verticesCount = sheetPositions.size();
+
+  if (verticesCount != displayPositions.size()) {
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Renderer->DrawVertices() called with mismatched vertices count\n");
+    return;
+  }
+  Flush();
+  EnsureSpaceAvailable(verticesCount, sizeof(VertexBufferSprites),
+                       verticesCount * 3);
+  EnsureModeSprite(inverted);
+
+  EnsureTextureBound(sheet.Texture);
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
+  VertexBufferFill += verticesCount * sizeof(VertexBufferSprites);
+  std::vector<uint16_t> indices;
+  indices.reserve((width - 1) * (height - 1) * 6);
+  // Generate indices for triangles
+  for (int y = 0; y < height - 1; y++) {
+    for (int x = 0; x < width - 1; x++) {
+      int v0 = y * width + x;
+      int v1 = y * width + (x + 1);
+      int v2 = (y + 1) * width + x;
+      int v3 = (y + 1) * width + (x + 1);
+
+      // First triangle
+      for (auto v : {v1, v0, v2}) {
+        indices.push_back(v);
+      }
+      // Second triangle
+      for (auto v : {v3, v1, v2}) {
+        indices.push_back(v);
+      }
+    }
+  }
+  IndexBufferFill += indices.size();
+
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, IndexBufferFill * sizeof(uint16_t),
+               indices.data(), GL_STATIC_DRAW);
+
+  for (int i = 0; i < verticesCount; i++) {
+    vertices[i].Position = DesignToNDC(displayPositions[i]);
+    vertices[i].Tint = tint;
+    glm::vec2 uv =
+        sheetPositions[i] / glm::vec2(sheet.DesignWidth, sheet.DesignHeight);
+    if (sheet.IsScreenCap) {
+      uv.y = 1.0f - uv.y;
+    }
+    vertices[i].UV = uv;
+  }
+
+  // Flush again and bind back our buffer
+  Flush();
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+               IndexBufferCount * sizeof(IndexBuffer[0]), IndexBuffer,
+               GL_STATIC_DRAW);
+}
+
 void Renderer::DrawSpriteOffset(Sprite const& sprite, glm::vec2 topLeft,
                                 glm::vec2 displayOffset, glm::vec4 tint,
                                 glm::vec2 scale, float angle, bool inverted) {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawSprite() called before BeginFrame()\n");
     return;
   }
@@ -446,10 +509,10 @@ void Renderer::DrawSpriteOffset(Sprite const& sprite, glm::vec2 topLeft,
 
 void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
                                 RectF const& dest, glm::vec4 tint, int alpha,
-                                int fadeRange, bool isScreencap,
-                                bool isInverted, bool isSameTexture) {
+                                int fadeRange, bool isInverted,
+                                bool isSameTexture) {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawMaskedSprite() called before BeginFrame()\n");
     return;
   }
@@ -493,7 +556,7 @@ void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
 
   IndexBufferFill += 6;
 
-  if (isScreencap) {
+  if (sprite.Sheet.IsScreenCap) {
     QuadSetUVFlipped(sprite.Bounds, sprite.Sheet.DesignWidth,
                      sprite.Sheet.DesignHeight, (uintptr_t)&vertices[0].UV,
                      sizeof(VertexBufferSprites));
@@ -515,9 +578,9 @@ void Renderer::DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
                                        RectF const& dest, glm::vec4 tint,
                                        int alpha, int fadeRange,
                                        bool isInverted, float angle,
-                                       bool useMaskAlpha, bool isScreencap) {
+                                       bool useMaskAlpha) {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawMaskedSpriteOverlay() called before BeginFrame()\n");
     return;
   }
@@ -533,7 +596,7 @@ void Renderer::DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
 
   glBindVertexArray(VAOSprites);
   if (useMaskAlpha) {
-    if (CurrentMode != R2D_Masked || isScreencap) {
+    if (CurrentMode != R2D_Masked || sprite.Sheet.IsScreenCap) {
       Flush();
       CurrentMode = R2D_Masked;
     }
@@ -544,7 +607,7 @@ void Renderer::DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
     glUniform1i(MaskedIsInvertedLocation, isInverted);
     glUniform1i(MaskedIsSameTextureLocation, false);
   } else {
-    if (CurrentMode != R2D_MaskedNoAlpha || isScreencap) {
+    if (CurrentMode != R2D_MaskedNoAlpha || sprite.Sheet.IsScreenCap) {
       Flush();
       CurrentMode = R2D_MaskedNoAlpha;
     }
@@ -585,10 +648,9 @@ void Renderer::DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
 
 void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                                 RectF const& dest, glm::vec4 tint, int alpha,
-                                int fadeRange, float effectCt,
-                                bool isScreencap) {
+                                int fadeRange, float effectCt) {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawCCMessageBox() called before BeginFrame()\n");
     return;
   }
@@ -627,7 +689,7 @@ void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
 
   IndexBufferFill += 6;
 
-  if (isScreencap) {
+  if (sprite.Sheet.IsScreenCap) {
     QuadSetUVFlipped(sprite.Bounds, sprite.Sheet.DesignWidth,
                      sprite.Sheet.DesignHeight, (uintptr_t)&vertices[0].UV,
                      sizeof(VertexBufferSprites));
@@ -648,7 +710,7 @@ void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
 void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
                                        const RectF& dest, float alpha) {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawCHLCCMenuBackground() called before BeginFrame()\n");
     return;
   }
@@ -831,32 +893,26 @@ inline void Renderer::QuadSetPosition(RectF const& transformedQuad, float angle,
   *(glm::vec2*)(positions + 3 * stride) = DesignToNDC(bottomRight);
 }
 
-inline void Renderer::QuadSetPosition(std::array<glm::vec2, 4> const& destQuad,
-                                      float angle, uintptr_t positions,
-                                      int stride) {
-  glm::vec2 bottomLeft = destQuad[0];
-  glm::vec2 topLeft = destQuad[1];
-  glm::vec2 topRight = destQuad[2];
-  glm::vec2 bottomRight = destQuad[3];
-
+inline void Renderer::QuadSetPosition(CornersQuad destQuad, float angle,
+                                      uintptr_t positions, int stride) {
   if (angle != 0.0f) {
-    glm::vec2 center = (bottomLeft + topRight) * 0.5f;
+    glm::vec2 center = (destQuad.BottomLeft + destQuad.TopRight) * 0.5f;
     glm::mat2 rot = Rotate2D(angle);
 
-    bottomLeft = rot * (bottomLeft - center) + center;
-    topLeft = rot * (topLeft - center) + center;
-    topRight = rot * (topRight - center) + center;
-    bottomRight = rot * (bottomRight - center) + center;
+    destQuad.BottomLeft = rot * (destQuad.BottomLeft - center) + center;
+    destQuad.TopLeft = rot * (destQuad.TopLeft - center) + center;
+    destQuad.TopRight = rot * (destQuad.TopRight - center) + center;
+    destQuad.BottomRight = rot * (destQuad.BottomRight - center) + center;
   }
 
   // bottom-left
-  *(glm::vec2*)(positions + 0 * stride) = DesignToNDC(bottomLeft);
+  *(glm::vec2*)(positions + 0 * stride) = DesignToNDC(destQuad.BottomLeft);
   // top-left
-  *(glm::vec2*)(positions + 1 * stride) = DesignToNDC(topLeft);
+  *(glm::vec2*)(positions + 1 * stride) = DesignToNDC(destQuad.TopLeft);
   // top-right
-  *(glm::vec2*)(positions + 2 * stride) = DesignToNDC(topRight);
+  *(glm::vec2*)(positions + 2 * stride) = DesignToNDC(destQuad.TopRight);
   // bottom-right
-  *(glm::vec2*)(positions + 3 * stride) = DesignToNDC(bottomRight);
+  *(glm::vec2*)(positions + 3 * stride) = DesignToNDC(destQuad.BottomRight);
 }
 
 void Renderer::QuadSetPosition3DRotated(RectF const& transformedQuad,
@@ -913,9 +969,9 @@ void Renderer::EnsureSpaceAvailable(int vertices, int vertexSize, int indices) {
   if (VertexBufferFill + vertices * vertexSize > VertexBufferSize ||
       IndexBufferFill + indices > IndexBufferCount) {
     ImpLogSlow(
-        LL_Trace, LC_Render,
+        LogLevel::Trace, LogChannel::Render,
         "Renderer->EnsureSpaceAvailable flushing because buffers full at "
-        "VertexBufferFill=%08X,IndexBufferFill=%08X\n",
+        "VertexBufferFill=0x{:08x},IndexBufferFill=0x{:08x}\n",
         VertexBufferFill, IndexBufferFill);
     Flush();
   }
@@ -923,9 +979,9 @@ void Renderer::EnsureSpaceAvailable(int vertices, int vertexSize, int indices) {
 
 void Renderer::EnsureTextureBound(GLuint texture) {
   if (CurrentTexture != texture) {
-    ImpLogSlow(LL_Trace, LC_Render,
-               "Renderer->EnsureTextureBound flushing because texture %d is "
-               "not %d\n",
+    ImpLogSlow(LogLevel::Trace, LogChannel::Render,
+               "Renderer->EnsureTextureBound flushing because texture {:d} is "
+               "not {:d}\n",
                CurrentTexture, texture);
     Flush();
     glActiveTexture(GL_TEXTURE0);
@@ -938,9 +994,9 @@ void Renderer::EnsureModeSprite(bool inverted) {
   Renderer2DMode wantedMode = inverted ? R2D_SpriteInverted : R2D_Sprite;
   if (CurrentMode != wantedMode) {
     ImpLogSlow(
-        LL_Trace, LC_Render,
-        "Renderer2D flushing because mode %d is not R2D_Sprite/inverted\n",
-        CurrentMode);
+        LogLevel::Trace, LogChannel::Render,
+        "Renderer2D flushing because mode {:d} is not R2D_Sprite/inverted\n",
+        to_underlying(CurrentMode));
     Flush();
     glBindVertexArray(VAOSprites);
     glUseProgram(inverted ? ShaderProgramSpriteInverted : ShaderProgramSprite);
@@ -950,7 +1006,7 @@ void Renderer::EnsureModeSprite(bool inverted) {
 
 void Renderer::Flush() {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->Flush() called before BeginFrame()\n");
     return;
   }
@@ -968,7 +1024,7 @@ void Renderer::Flush() {
 void Renderer::DrawVideoTexture(YUVFrame* tex, RectF const& dest,
                                 glm::vec4 tint, float angle, bool alphaVideo) {
   if (!Drawing) {
-    ImpLog(LL_Error, LC_Render,
+    ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawVideoTexture() called before BeginFrame()\n");
     return;
   }
@@ -1016,8 +1072,12 @@ void Renderer::DrawVideoTexture(YUVFrame* tex, RectF const& dest,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
-void Renderer::CaptureScreencap(Sprite const& sprite) {
+void Renderer::CaptureScreencap(Sprite& sprite) {
   Flush();
+  sprite.Sheet.IsScreenCap = true;
+  sprite.Sheet.DesignWidth = Window->WindowWidth;
+  sprite.Sheet.DesignHeight = Window->WindowHeight;
+
   Window->SwapRTs();
   int prevTextureBinding;
   glGetIntegerv(GL_TEXTURE_BINDING_2D, &prevTextureBinding);

@@ -13,77 +13,79 @@ namespace CC {
 namespace TitleMenu {
 
 void Configure() {
-  BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
-  FenceSprite = EnsureGetMemberSprite("FenceSprite");
-  CopyrightSprite = EnsureGetMemberSprite("CopyrightSprite");
-  OverlaySprite = EnsureGetMemberSprite("OverlaySprite");
-  SmokeSprite = EnsureGetMemberSprite("SmokeSprite");
-  ItemHighlightSprite = EnsureGetMemberSprite("ItemHighlightSprite");
-  LoadSprite = EnsureGetMemberSprite("LoadSprite");
-  LoadHighlightSprite = EnsureGetMemberSprite("LoadHighlightSprite");
-  QuickLoadSprite = EnsureGetMemberSprite("QuickLoadSprite");
-  QuickLoadHighlightSprite = EnsureGetMemberSprite("QuickLoadHighlightSprite");
-  TipsSprite = EnsureGetMemberSprite("TipsSprite");
-  TipsHighlightSprite = EnsureGetMemberSprite("TipsHighlightSprite");
-  LibrarySprite = EnsureGetMemberSprite("LibrarySprite");
-  LibraryHighlightSprite = EnsureGetMemberSprite("LibraryHighlightSprite");
-  EndingListSprite = EnsureGetMemberSprite("EndingListSprite");
+  BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSprite");
+  FenceSprite = EnsureGetMember<Sprite>("FenceSprite");
+  CopyrightSprite = EnsureGetMember<Sprite>("CopyrightSprite");
+  OverlaySprite = EnsureGetMember<Sprite>("OverlaySprite");
+  SmokeSprite = EnsureGetMember<Sprite>("SmokeSprite");
+  ItemHighlightSprite = EnsureGetMember<Sprite>("ItemHighlightSprite");
+  LoadSprite = EnsureGetMember<Sprite>("LoadSprite");
+  LoadHighlightSprite = EnsureGetMember<Sprite>("LoadHighlightSprite");
+  QuickLoadSprite = EnsureGetMember<Sprite>("QuickLoadSprite");
+  QuickLoadHighlightSprite =
+      EnsureGetMember<Sprite>("QuickLoadHighlightSprite");
+  TipsSprite = EnsureGetMember<Sprite>("TipsSprite");
+  TipsHighlightSprite = EnsureGetMember<Sprite>("TipsHighlightSprite");
+  LibrarySprite = EnsureGetMember<Sprite>("LibrarySprite");
+  LibraryHighlightSprite = EnsureGetMember<Sprite>("LibraryHighlightSprite");
+  EndingListSprite = EnsureGetMember<Sprite>("EndingListSprite");
   EndingListHighlightSprite =
-      EnsureGetMemberSprite("EndingListHighlightSprite");
-  MenuSprite = EnsureGetMemberSprite("MenuSprite");
+      EnsureGetMember<Sprite>("EndingListHighlightSprite");
+  MenuSprite = EnsureGetMember<Sprite>("MenuSprite");
 
   PressToStartAnimFastDurationIn =
-      EnsureGetMemberFloat("PressToStartAnimFastDurationIn");
+      EnsureGetMember<float>("PressToStartAnimFastDurationIn");
   PressToStartAnimFastDurationOut =
-      EnsureGetMemberFloat("PressToStartAnimFastDurationOut");
-  BackgroundX = EnsureGetMemberFloat("BackgroundX");
-  BackgroundY = EnsureGetMemberFloat("BackgroundY");
-  BackgroundBoundsX = EnsureGetMemberFloat("BackgroundBoundsX");
-  BackgroundBoundsYNormal = EnsureGetMemberFloat("BackgroundBoundsYNormal");
-  BackgroundBoundsYTrue = EnsureGetMemberFloat("BackgroundBoundsYTrue");
-  BackgroundBoundsWidth = EnsureGetMemberFloat("BackgroundBoundsWidth");
-  BackgroundBoundsHeight = EnsureGetMemberFloat("BackgroundBoundsHeight");
-  FenceX = EnsureGetMemberFloat("FenceX");
-  FenceY = EnsureGetMemberFloat("FenceY");
-  FenceBoundsWidth = EnsureGetMemberFloat("FenceBoundsWidth");
-  FenceBoundsHeight = EnsureGetMemberFloat("FenceBoundsHeight");
-  FenceBoundsX = EnsureGetMemberFloat("FenceBoundsX");
-  FenceBoundsYNormal = EnsureGetMemberFloat("FenceBoundsYNormal");
-  FenceBoundsYTrue = EnsureGetMemberFloat("FenceBoundsYTrue");
-  CopyrightX = EnsureGetMemberFloat("CopyrightX");
-  CopyrightY = EnsureGetMemberFloat("CopyrightY");
-  CopyrightXMoveOffset = EnsureGetMemberFloat("CopyrightXMoveOffset");
-  SmokeOpacityNormal = EnsureGetMemberFloat("SmokeOpacityNormal");
-  SmokeX = EnsureGetMemberFloat("SmokeX");
-  SmokeY = EnsureGetMemberFloat("SmokeY");
-  SmokeBoundsX = EnsureGetMemberFloat("SmokeBoundsX");
-  SmokeBoundsY = EnsureGetMemberFloat("SmokeBoundsY");
-  SmokeBoundsWidth = EnsureGetMemberFloat("SmokeBoundsWidth");
-  SmokeBoundsHeight = EnsureGetMemberFloat("SmokeBoundsHeight");
+      EnsureGetMember<float>("PressToStartAnimFastDurationOut");
+  BackgroundX = EnsureGetMember<float>("BackgroundX");
+  BackgroundY = EnsureGetMember<float>("BackgroundY");
+  BackgroundBoundsX = EnsureGetMember<float>("BackgroundBoundsX");
+  BackgroundBoundsYNormal = EnsureGetMember<float>("BackgroundBoundsYNormal");
+  BackgroundBoundsYTrue = EnsureGetMember<float>("BackgroundBoundsYTrue");
+  BackgroundBoundsWidth = EnsureGetMember<float>("BackgroundBoundsWidth");
+  BackgroundBoundsHeight = EnsureGetMember<float>("BackgroundBoundsHeight");
+  FenceX = EnsureGetMember<float>("FenceX");
+  FenceY = EnsureGetMember<float>("FenceY");
+  FenceBoundsWidth = EnsureGetMember<float>("FenceBoundsWidth");
+  FenceBoundsHeight = EnsureGetMember<float>("FenceBoundsHeight");
+  FenceBoundsX = EnsureGetMember<float>("FenceBoundsX");
+  FenceBoundsYNormal = EnsureGetMember<float>("FenceBoundsYNormal");
+  FenceBoundsYTrue = EnsureGetMember<float>("FenceBoundsYTrue");
+  CopyrightX = EnsureGetMember<float>("CopyrightX");
+  CopyrightY = EnsureGetMember<float>("CopyrightY");
+  CopyrightXMoveOffset = EnsureGetMember<float>("CopyrightXMoveOffset");
+  SmokeOpacityNormal = EnsureGetMember<float>("SmokeOpacityNormal");
+  SmokeX = EnsureGetMember<float>("SmokeX");
+  SmokeY = EnsureGetMember<float>("SmokeY");
+  SmokeBoundsX = EnsureGetMember<float>("SmokeBoundsX");
+  SmokeBoundsY = EnsureGetMember<float>("SmokeBoundsY");
+  SmokeBoundsWidth = EnsureGetMember<float>("SmokeBoundsWidth");
+  SmokeBoundsHeight = EnsureGetMember<float>("SmokeBoundsHeight");
   SmokeAnimationBoundsXOffset =
-      EnsureGetMemberFloat("SmokeAnimationBoundsXOffset");
-  SmokeAnimationBoundsXMax = EnsureGetMemberFloat("SmokeAnimationBoundsXMax");
-  SmokeAnimationDurationIn = EnsureGetMemberFloat("SmokeAnimationDurationIn");
-  SmokeAnimationDurationOut = EnsureGetMemberFloat("SmokeAnimationDurationOut");
+      EnsureGetMember<float>("SmokeAnimationBoundsXOffset");
+  SmokeAnimationBoundsXMax = EnsureGetMember<float>("SmokeAnimationBoundsXMax");
+  SmokeAnimationDurationIn = EnsureGetMember<float>("SmokeAnimationDurationIn");
+  SmokeAnimationDurationOut =
+      EnsureGetMember<float>("SmokeAnimationDurationOut");
   MoveLeftAnimationDurationIn =
-      EnsureGetMemberFloat("MoveLeftAnimationDurationIn");
+      EnsureGetMember<float>("MoveLeftAnimationDurationIn");
   MoveLeftAnimationDurationOut =
-      EnsureGetMemberFloat("MoveLeftAnimationDurationOut");
-  ItemHighlightOffsetX = EnsureGetMemberFloat("ItemHighlightOffsetX");
-  ItemHighlightOffsetY = EnsureGetMemberFloat("ItemHighlightOffsetY");
-  ItemPadding = EnsureGetMemberFloat("ItemPadding");
-  ItemYBase = EnsureGetMemberFloat("ItemYBase");
+      EnsureGetMember<float>("MoveLeftAnimationDurationOut");
+  ItemHighlightOffsetX = EnsureGetMember<float>("ItemHighlightOffsetX");
+  ItemHighlightOffsetY = EnsureGetMember<float>("ItemHighlightOffsetY");
+  ItemPadding = EnsureGetMember<float>("ItemPadding");
+  ItemYBase = EnsureGetMember<float>("ItemYBase");
   SecondaryFirstItemHighlightOffsetX =
-      EnsureGetMemberFloat("SecondaryFirstItemHighlightOffsetX");
+      EnsureGetMember<float>("SecondaryFirstItemHighlightOffsetX");
   SecondarySecondItemHighlightOffsetX =
-      EnsureGetMemberFloat("SecondarySecondItemHighlightOffsetX");
+      EnsureGetMember<float>("SecondarySecondItemHighlightOffsetX");
   SecondaryThirdItemHighlightOffsetX =
-      EnsureGetMemberFloat("SecondaryThirdItemHighlightOffsetX");
+      EnsureGetMember<float>("SecondaryThirdItemHighlightOffsetX");
   ItemHighlightPointerSprite =
-      EnsureGetMemberSprite("ItemHighlightPointerSprite");
-  ItemHighlightPointerY = EnsureGetMemberFloat("ItemHighlightPointerY");
-  MenuX = EnsureGetMemberFloat("MenuX");
-  MenuY = EnsureGetMemberFloat("MenuY");
+      EnsureGetMember<Sprite>("ItemHighlightPointerSprite");
+  ItemHighlightPointerY = EnsureGetMember<float>("ItemHighlightPointerY");
+  MenuX = EnsureGetMember<float>("MenuX");
+  MenuY = EnsureGetMember<float>("MenuY");
 
   UI::CC::TitleMenu* menu = new UI::CC::TitleMenu();
   menu->PressToStartAnimation.DurationIn =
@@ -100,7 +102,7 @@ void Configure() {
   UI::TitleMenuPtr = menu;
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   UI::Menus[drawType].push_back(UI::TitleMenuPtr);
 }

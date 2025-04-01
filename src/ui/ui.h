@@ -5,8 +5,9 @@
 #include "nullmenu.h"
 #include "sysmesbox.h"
 #include "tipsmenu.h"
+#include "optionsmenu.h"
 
-#include <flat_hash_map.hpp>
+#include <ankerl/unordered_dense.h>
 #include <vector>
 
 namespace Impacto {
@@ -28,7 +29,7 @@ BETTER_ENUM(TrophyMenuType, int, None, CHLCC)
 
 int constexpr MaxExtraMenus = 10;
 
-inline ska::flat_hash_map<uint8_t, std::vector<Menu*>> Menus;
+inline ankerl::unordered_dense::map<uint8_t, std::vector<Menu*>> Menus;
 
 // Current focused menu
 inline Menu* FocusedMenu = nullptr;
@@ -37,7 +38,6 @@ inline Menu* FocusedMenu = nullptr;
 inline Menu* SystemMenuPtr = new NullMenu();
 inline Menu* TitleMenuPtr = new NullMenu();
 inline Menu* SaveMenuPtr = new NullMenu();
-inline Menu* OptionsMenuPtr = new NullMenu();
 inline Menu* TrophyMenuPtr = new NullMenu();
 
 //
@@ -45,6 +45,7 @@ inline SelectionMenu* SelectionMenuPtr = nullptr;
 inline SysMesBox* SysMesBoxPtr = nullptr;
 inline BacklogMenu* BacklogMenuPtr = nullptr;
 inline TipsMenu* TipsMenuPtr = nullptr;
+inline OptionsMenu* OptionsMenuPtr = nullptr;
 
 }  // namespace UI
 }  // namespace Impacto

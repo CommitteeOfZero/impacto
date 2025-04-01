@@ -10,64 +10,67 @@ namespace CHLCC {
 namespace AlbumMenu {
 
 void Configure() {
-  MenuTransitionDuration = EnsureGetMemberFloat("TransitionDuration");
-  BackgroundColor = EnsureGetMemberUint("BackgroundColor");
-  CircleSprite = EnsureGetMemberSprite("CircleSprite");
-  CircleStartPosition = EnsureGetMemberVec2("CircleStartPosition");
-  CircleOffset = EnsureGetMemberFloat("CircleOffset");
-  ErinPosition = EnsureGetMemberVec2("ErinPosition");
-  ErinSprite = EnsureGetMemberSprite("ErinSprite");
-  BackgroundFilter = EnsureGetMemberSprite("BackgroundFilter");
-  InitialRedBarPosition = EnsureGetMemberVec2("InitialRedBarPosition");
-  RightRedBarPosition = EnsureGetMemberVec2("RightRedBarPosition");
-  InitialRedBarSprite = EnsureGetMemberSprite("RedBarSprite");
-  RedBarDivision = EnsureGetMemberFloat("RedBarDivision");
-  RedBarBaseX = EnsureGetMemberFloat("RedBarBaseX");
-  RedBarLabelPosition = EnsureGetMemberVec2("RedBarLabelPosition");
-  RedBarLabel = EnsureGetMemberSprite("RedBarLabel");
-  TitleFadeInDuration = EnsureGetMemberFloat("TitleFadeInDuration");
-  TitleFadeOutDuration = EnsureGetMemberFloat("TitleFadeOutDuration");
-  CGList = EnsureGetMemberSprite("CGList");
-  CGListPosition = EnsureGetMemberVec2("CGListPosition");
-  PageCountLabel = EnsureGetMemberSprite("PageCountLabel");
-  PageLabelPosition = EnsureGetMemberVec2("PageLabelPosition");
-  CGBox = EnsureGetMemberSprite("CGBox");
-  CGBoxTemplatePosition = EnsureGetMemberVec2("CGBoxTemplatePosition");
-  GetMemberSpriteArray(AlbumThumbnails, 63, "AlbumThumbnails");
-  ThumbnailTemplatePosition = EnsureGetMemberVec2("ThumbnailTemplatePosition");
-  VariationUnlocked = EnsureGetMemberSprite("VariationUnlocked");
-  VariationLocked = EnsureGetMemberSprite("VariationLocked");
-  VariationTemplateOffset = EnsureGetMemberVec2("VariationTemplateOffset");
-  LockedCG = EnsureGetMemberSprite("LockedCG");
-  ThumbnailOffset = EnsureGetMemberVec2("ThumbnailOffset");
-  ThumbnailHighlight = EnsureGetMemberSprite("ThumbnailHighlight");
-  AlbumPages = EnsureGetMemberInt("AlbumPages");
-  EntriesPerPage = EnsureGetMemberInt("EntriesPerPage");
-  GetMemberSpriteArray(PageNums, 10, "PageNums");
-  CurrentPageNumPos = EnsureGetMemberVec2("CurrentPageNumPos");
-  MaxPageNumPos = EnsureGetMemberVec2("MaxPageNumPos");
-  PageNumSeparatorSlash = EnsureGetMemberSprite("PageNumSeparatorSlash");
-  PageNumSeparatorSlashPos = EnsureGetMemberVec2("PageNumSeparatorSlashPos");
-  GetMemberSpriteArray(ReachablePageNums, 10, "ReachablePageNums");
-  ButtonGuide = EnsureGetMemberSprite("ButtonGuide");
-  ButtonGuidePos = EnsureGetMemberVec2("ButtonGuidePos");
-  GetMemberSpriteArray(SelectData, 10, "SelectData");
-  GetMemberVec2Array(SelectDataPos, 10, "SelectDataPos");
-  AlbumMenuTitle = EnsureGetMemberSprite("AlbumMenuTitle");
-  AlbumMenuTitleRightPos = EnsureGetMemberVec2("AlbumMenuTitleRightPos");
-  AlbumMenuTitleLeftPos = EnsureGetMemberVec2("AlbumMenuTitleLeftPos");
-  AlbumMenuTitleAngle = EnsureGetMemberFloat("AlbumMenuTitleAngle");
+  MenuTransitionDuration = EnsureGetMember<float>("TransitionDuration");
+  BackgroundColor = EnsureGetMember<uint32_t>("BackgroundColor");
+  CircleSprite = EnsureGetMember<Sprite>("CircleSprite");
+  CircleStartPosition = EnsureGetMember<glm::vec2>("CircleStartPosition");
+  CircleOffset = EnsureGetMember<float>("CircleOffset");
+  ErinPosition = EnsureGetMember<glm::vec2>("ErinPosition");
+  ErinSprite = EnsureGetMember<Sprite>("ErinSprite");
+  BackgroundFilter = EnsureGetMember<Sprite>("BackgroundFilter");
+  InitialRedBarPosition = EnsureGetMember<glm::vec2>("InitialRedBarPosition");
+  RightRedBarPosition = EnsureGetMember<glm::vec2>("RightRedBarPosition");
+  InitialRedBarSprite = EnsureGetMember<Sprite>("RedBarSprite");
+  RedBarDivision = EnsureGetMember<float>("RedBarDivision");
+  RedBarBaseX = EnsureGetMember<float>("RedBarBaseX");
+  RedBarLabelPosition = EnsureGetMember<glm::vec2>("RedBarLabelPosition");
+  RedBarLabel = EnsureGetMember<Sprite>("RedBarLabel");
+  TitleFadeInDuration = EnsureGetMember<float>("TitleFadeInDuration");
+  TitleFadeOutDuration = EnsureGetMember<float>("TitleFadeOutDuration");
+  CGList = EnsureGetMember<Sprite>("CGList");
+  CGListPosition = EnsureGetMember<glm::vec2>("CGListPosition");
+  PageCountLabel = EnsureGetMember<Sprite>("PageCountLabel");
+  PageLabelPosition = EnsureGetMember<glm::vec2>("PageLabelPosition");
+  CGBox = EnsureGetMember<Sprite>("CGBox");
+  CGBoxTemplatePosition = EnsureGetMember<glm::vec2>("CGBoxTemplatePosition");
+  GetMemberArray<Sprite>(AlbumThumbnails, 63, "AlbumThumbnails");
+  ThumbnailTemplatePosition =
+      EnsureGetMember<glm::vec2>("ThumbnailTemplatePosition");
+  VariationUnlocked = EnsureGetMember<Sprite>("VariationUnlocked");
+  VariationLocked = EnsureGetMember<Sprite>("VariationLocked");
+  VariationTemplateOffset =
+      EnsureGetMember<glm::vec2>("VariationTemplateOffset");
+  LockedCG = EnsureGetMember<Sprite>("LockedCG");
+  ThumbnailOffset = EnsureGetMember<glm::vec2>("ThumbnailOffset");
+  ThumbnailHighlight = EnsureGetMember<Sprite>("ThumbnailHighlight");
+  AlbumPages = EnsureGetMember<int>("AlbumPages");
+  EntriesPerPage = EnsureGetMember<int>("EntriesPerPage");
+  GetMemberArray<Sprite>(PageNums, 10, "PageNums");
+  CurrentPageNumPos = EnsureGetMember<glm::vec2>("CurrentPageNumPos");
+  MaxPageNumPos = EnsureGetMember<glm::vec2>("MaxPageNumPos");
+  PageNumSeparatorSlash = EnsureGetMember<Sprite>("PageNumSeparatorSlash");
+  PageNumSeparatorSlashPos =
+      EnsureGetMember<glm::vec2>("PageNumSeparatorSlashPos");
+  GetMemberArray<Sprite>(ReachablePageNums, 10, "ReachablePageNums");
+  ButtonGuide = EnsureGetMember<Sprite>("ButtonGuide");
+  ButtonGuidePos = EnsureGetMember<glm::vec2>("ButtonGuidePos");
+  GetMemberArray<Sprite>(SelectData, 10, "SelectData");
+  GetMemberArray<glm::vec2>(SelectDataPos, 10, "SelectDataPos");
+  AlbumMenuTitle = EnsureGetMember<Sprite>("AlbumMenuTitle");
+  AlbumMenuTitleRightPos = EnsureGetMember<glm::vec2>("AlbumMenuTitleRightPos");
+  AlbumMenuTitleLeftPos = EnsureGetMember<glm::vec2>("AlbumMenuTitleLeftPos");
+  AlbumMenuTitleAngle = EnsureGetMember<float>("AlbumMenuTitleAngle");
   CgViewerButtonGuideVariation =
-      EnsureGetMemberSprite("CgViewerButtonGuideVariation");
+      EnsureGetMember<Sprite>("CgViewerButtonGuideVariation");
   CgViewerButtonGuideNoVariation =
-      EnsureGetMemberSprite("CgViewerButtonGuideNoVariation");
-  CgViewerButtonGuidePos = EnsureGetMemberVec2("CgViewerButtonGuidePos");
-  SelectionMarkerSprite = EnsureGetMemberSprite("SelectionMarkerSprite");
+      EnsureGetMember<Sprite>("CgViewerButtonGuideNoVariation");
+  CgViewerButtonGuidePos = EnsureGetMember<glm::vec2>("CgViewerButtonGuidePos");
+  SelectionMarkerSprite = EnsureGetMember<Sprite>("SelectionMarkerSprite");
   SelectionMarkerRelativePos =
-      EnsureGetMemberVec2("SelectionMarkerRelativePos");
+      EnsureGetMember<glm::vec2>("SelectionMarkerRelativePos");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   UI::Menus[drawType].push_back(new UI::CHLCC::AlbumMenu());
 }

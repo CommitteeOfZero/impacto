@@ -14,30 +14,31 @@ namespace CHLCC {
 namespace OptionsMenu {
 
 void Configure() {
-  BackgroundColor = EnsureGetMemberUint("BackgroundColor");
-  CircleSprite = EnsureGetMemberSprite("CircleSprite");
-  CircleStartPosition = EnsureGetMemberVec2("CircleStartPosition");
-  CircleOffset = EnsureGetMemberFloat("CircleOffset");
-  ErinPosition = EnsureGetMemberVec2("ErinPosition");
-  ErinSprite = EnsureGetMemberSprite("ErinSprite");
-  BackgroundFilter = EnsureGetMemberSprite("BackgroundFilter");
-  InitialRedBarPosition = EnsureGetMemberVec2("InitialRedBarPosition");
-  RightRedBarPosition = EnsureGetMemberVec2("RightRedBarPosition");
-  InitialRedBarSprite = EnsureGetMemberSprite("RedBarSprite");
-  RedBarDivision = EnsureGetMemberFloat("RedBarDivision");
-  RedBarBaseX = EnsureGetMemberFloat("RedBarBaseX");
-  RedBarLabelPosition = EnsureGetMemberVec2("RedBarLabelPosition");
-  RedBarLabel = EnsureGetMemberSprite("RedBarLabel");
-  MenuTitleTextRightPosition = EnsureGetMemberVec2("MenuTitleTextRightPos");
-  MenuTitleTextAngle = EnsureGetMemberFloat("MenuTitleTextAngle");
-  TitleFadeInDuration = EnsureGetMemberFloat("TitleFadeInDuration");
-  TitleFadeOutDuration = EnsureGetMemberFloat("TitleFadeOutDuration");
-  MenuTitleText = EnsureGetMemberSprite("MenuTitleText");
-  ButtonPromptPosition = EnsureGetMemberVec2("ButtonPromptPosition");
-  ButtonPromptSprite = EnsureGetMemberSprite("ButtonPromptSprite");
+  BackgroundColor = EnsureGetMember<uint32_t>("BackgroundColor");
+  CircleSprite = EnsureGetMember<Sprite>("CircleSprite");
+  CircleStartPosition = EnsureGetMember<glm::vec2>("CircleStartPosition");
+  CircleOffset = EnsureGetMember<float>("CircleOffset");
+  ErinPosition = EnsureGetMember<glm::vec2>("ErinPosition");
+  ErinSprite = EnsureGetMember<Sprite>("ErinSprite");
+  BackgroundFilter = EnsureGetMember<Sprite>("BackgroundFilter");
+  InitialRedBarPosition = EnsureGetMember<glm::vec2>("InitialRedBarPosition");
+  RightRedBarPosition = EnsureGetMember<glm::vec2>("RightRedBarPosition");
+  InitialRedBarSprite = EnsureGetMember<Sprite>("RedBarSprite");
+  RedBarDivision = EnsureGetMember<float>("RedBarDivision");
+  RedBarBaseX = EnsureGetMember<float>("RedBarBaseX");
+  RedBarLabelPosition = EnsureGetMember<glm::vec2>("RedBarLabelPosition");
+  RedBarLabel = EnsureGetMember<Sprite>("RedBarLabel");
+  MenuTitleTextRightPosition =
+      EnsureGetMember<glm::vec2>("MenuTitleTextRightPos");
+  MenuTitleTextAngle = EnsureGetMember<float>("MenuTitleTextAngle");
+  TitleFadeInDuration = EnsureGetMember<float>("TitleFadeInDuration");
+  TitleFadeOutDuration = EnsureGetMember<float>("TitleFadeOutDuration");
+  MenuTitleText = EnsureGetMember<Sprite>("MenuTitleText");
+  ButtonPromptPosition = EnsureGetMember<glm::vec2>("ButtonPromptPosition");
+  ButtonPromptSprite = EnsureGetMember<Sprite>("ButtonPromptSprite");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   UI::OptionsMenuPtr = new UI::CHLCC::OptionsMenu();
   UI::Menus[drawType].push_back(UI::OptionsMenuPtr);

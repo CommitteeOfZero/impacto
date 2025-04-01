@@ -17,7 +17,7 @@ void Configure() {
   EnsurePushMemberOfType("TipsNotification", LUA_TTABLE);
 
   Type = TipsNotificationType::_from_integral_unchecked(
-      EnsureGetMemberInt("Type"));
+      EnsureGetMember<int>("Type"));
 
   switch (Type) {
     case TipsNotificationType::MO6TW:
@@ -31,14 +31,14 @@ void Configure() {
       return;
   }
 
-  TextTableId = EnsureGetMemberInt("TextTableId");
+  TextTableId = EnsureGetMember<int>("TextTableId");
   NotificationTextPart1MessageId =
-      EnsureGetMemberInt("NotificationTextPart1MessageId");
+      EnsureGetMember<int>("NotificationTextPart1MessageId");
   NotificationTextPart2MessageId =
-      EnsureGetMemberInt("NotificationTextPart2MessageId");
+      EnsureGetMember<int>("NotificationTextPart2MessageId");
 
-  FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
-  FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
+  FadeInDuration = EnsureGetMember<float>("FadeInDuration");
+  FadeOutDuration = EnsureGetMember<float>("FadeOutDuration");
 
   Pop();
 }

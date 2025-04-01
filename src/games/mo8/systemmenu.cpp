@@ -32,8 +32,7 @@ void SystemMenu::MenuButtonOnClick(Widgets::Button* target) {
 SystemMenu::SystemMenu() {
   MainItems = new Widgets::Group(this);
 
-  auto onClick =
-      std::bind(&SystemMenu::MenuButtonOnClick, this, std::placeholders::_1);
+  auto onClick = [this](auto* btn) { return MenuButtonOnClick(btn); };
 
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);

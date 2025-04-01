@@ -12,23 +12,26 @@ namespace CCLCC {
 namespace SystemMenu {
 
 void Configure() {
-  MoveInDuration = EnsureGetMemberFloat("MoveInDuration");
-  MoveOutDuration = EnsureGetMemberFloat("MoveOutDuration");
-  ItemsFadeInDuration = EnsureGetMemberFloat("ItemsFadeInDuration");
-  ItemsFadeOutDuration = EnsureGetMemberFloat("ItemsFadeOutDuration");
+  MoveInDuration = EnsureGetMember<float>("MoveInDuration");
+  MoveOutDuration = EnsureGetMember<float>("MoveOutDuration");
+  ItemsFadeInDuration = EnsureGetMember<float>("ItemsFadeInDuration");
+  ItemsFadeOutDuration = EnsureGetMember<float>("ItemsFadeOutDuration");
 
-  GetMemberVec2Array(MenuEntriesPositions, Profile::SystemMenu::MenuEntriesNum,
-                     "MenuEntriesPositions");
+  GetMemberArray<glm::vec2>(MenuEntriesPositions,
+                            Profile::SystemMenu::MenuEntriesNum,
+                            "MenuEntriesPositions");
 
-  GetMemberRectFArray(MenuEntriesButtonBounds,
-                      Profile::SystemMenu::MenuEntriesNum,
-                      "MenuEntriesButtonBounds");
+  GetMemberArray<RectF>(MenuEntriesButtonBounds,
+                        Profile::SystemMenu::MenuEntriesNum,
+                        "MenuEntriesButtonBounds");
 
-  SystemMenuBG = EnsureGetMemberSprite("SystemMenuBG");
-  MenuButtonGuide = EnsureGetMemberSprite("MenuButtonGuide");
+  SystemMenuBG = EnsureGetMember<Sprite>("SystemMenuBG");
+  SystemMenuFrame = EnsureGetMember<Sprite>("SystemMenuFrame");
+  MenuButtonGuide = EnsureGetMember<Sprite>("MenuButtonGuide");
+  SystemMenuMask = EnsureGetMember<Sprite>("SystemMenuMask");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   UI::SystemMenuPtr = new UI::CCLCC::SystemMenu();
   UI::Menus[drawType].push_back(UI::SystemMenuPtr);

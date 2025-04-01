@@ -18,32 +18,33 @@ void Configure() {
   RNE::ParseTileBackground();
   Pop();
 
-  SkyBackgroundSprite = EnsureGetMemberSprite("SkyBackgroundSprite");
-  SkyArrowSprite = EnsureGetMemberSprite("SkyArrowSprite");
-  SkyTextSprite = EnsureGetMemberSprite("SkyTextSprite");
-  SkyBackgroundBeginX = EnsureGetMemberFloat("SkyBackgroundBeginX");
-  SkyBackgroundY = EnsureGetMemberFloat("SkyBackgroundY");
-  SkyTextBeginX = EnsureGetMemberFloat("SkyTextBeginX");
-  SkyTextY = EnsureGetMemberFloat("SkyTextY");
-  MenuEntriesXSkew = EnsureGetMemberFloat("MenuEntriesXSkew");
-  MenuEntriesTargetWidth = EnsureGetMemberFloat("MenuEntriesTargetWidth");
-  SkyInStartProgress = EnsureGetMemberFloat("SkyInStartProgress");
-  SkyOutStartProgress = EnsureGetMemberFloat("SkyOutStartProgress");
-  SkyMoveDurationIn = EnsureGetMemberFloat("SkyMoveDurationIn");
-  SkyMoveDurationOut = EnsureGetMemberFloat("SkyMoveDurationOut");
-  EntriesMoveDurationIn = EnsureGetMemberFloat("EntriesMoveDurationIn");
-  EntriesMoveDurationOut = EnsureGetMemberFloat("EntriesMoveDurationOut");
-  HighlightDurationIn = EnsureGetMemberFloat("HighlightDurationIn");
-  HighlightDurationOut = EnsureGetMemberFloat("HighlightDurationOut");
+  SkyBackgroundSprite = EnsureGetMember<Sprite>("SkyBackgroundSprite");
+  SkyArrowSprite = EnsureGetMember<Sprite>("SkyArrowSprite");
+  SkyTextSprite = EnsureGetMember<Sprite>("SkyTextSprite");
+  SkyBackgroundBeginX = EnsureGetMember<float>("SkyBackgroundBeginX");
+  SkyBackgroundY = EnsureGetMember<float>("SkyBackgroundY");
+  SkyTextBeginX = EnsureGetMember<float>("SkyTextBeginX");
+  SkyTextY = EnsureGetMember<float>("SkyTextY");
+  MenuEntriesXSkew = EnsureGetMember<float>("MenuEntriesXSkew");
+  MenuEntriesTargetWidth = EnsureGetMember<float>("MenuEntriesTargetWidth");
+  SkyInStartProgress = EnsureGetMember<float>("SkyInStartProgress");
+  SkyOutStartProgress = EnsureGetMember<float>("SkyOutStartProgress");
+  SkyMoveDurationIn = EnsureGetMember<float>("SkyMoveDurationIn");
+  SkyMoveDurationOut = EnsureGetMember<float>("SkyMoveDurationOut");
+  EntriesMoveDurationIn = EnsureGetMember<float>("EntriesMoveDurationIn");
+  EntriesMoveDurationOut = EnsureGetMember<float>("EntriesMoveDurationOut");
+  HighlightDurationIn = EnsureGetMember<float>("HighlightDurationIn");
+  HighlightDurationOut = EnsureGetMember<float>("HighlightDurationOut");
 
-  ButtonBackgroundSprite = EnsureGetMemberSprite("ButtonBackgroundSprite");
-  ButtonPromptsSprite = EnsureGetMemberSprite("ButtonPromptsSprite");
-  ButtonBackgroundStartX = EnsureGetMemberFloat("ButtonBackgroundStartX");
-  ButtonBackgroundX = EnsureGetMemberFloat("ButtonBackgroundX");
-  ButtonBackgroundY = EnsureGetMemberFloat("ButtonBackgroundY");
+  ButtonBackgroundSprite = EnsureGetMember<Sprite>("ButtonBackgroundSprite");
+  ButtonPromptsSprite = EnsureGetMember<Sprite>("ButtonPromptsSprite");
+  ButtonBackgroundStartX = EnsureGetMember<float>("ButtonBackgroundStartX");
+  ButtonBackgroundX = EnsureGetMember<float>("ButtonBackgroundX");
+  ButtonBackgroundY = EnsureGetMember<float>("ButtonBackgroundY");
   ButtonBackgroundTargetWidth =
-      EnsureGetMemberFloat("ButtonBackgroundTargetWidth");
-  ButtonBackgroundSprStartX = EnsureGetMemberFloat("ButtonBackgroundSprStartX");
+      EnsureGetMember<float>("ButtonBackgroundTargetWidth");
+  ButtonBackgroundSprStartX =
+      EnsureGetMember<float>("ButtonBackgroundSprStartX");
 
   SkyMoveAnimation.DurationIn = SkyMoveDurationIn;
   SkyMoveAnimation.DurationOut = SkyMoveDurationOut;
@@ -55,7 +56,7 @@ void Configure() {
   HighlightAnimation.DurationOut = HighlightDurationOut;
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   UI::SystemMenuPtr = new UI::RNE::SystemMenu();
   UI::Menus[drawType].push_back(UI::SystemMenuPtr);

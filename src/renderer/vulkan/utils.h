@@ -2,8 +2,8 @@
 
 #include <vulkan/vulkan.h>
 #include <functional>
-#include <flat_hash_map.hpp>
-#include "../../vendor/vma/vk_mem_alloc.h"
+#include <ankerl/unordered_dense.h>
+#include <vma/vk_mem_alloc.h>
 #include "pipeline.h"
 
 namespace Impacto {
@@ -41,7 +41,7 @@ typedef struct VkTexture {
   VkDescriptorSet Descriptor;
 } VkTexture;
 
-inline ska::flat_hash_map<uint32_t, VkTexture> Textures;
+inline ankerl::unordered_dense::map<uint32_t, VkTexture> Textures;
 
 struct UploadContext {
   VkDevice Device;
@@ -62,7 +62,8 @@ AllocatedBuffer CreateBuffer(size_t allocSize, VkBufferUsageFlags usage,
 
 void ImmediateSubmit(std::function<void(VkCommandBuffer cmd)>&& function);
 
-VkImageCreateInfo GetImageCreateInfo(VkFormat format, VkExtent3D extent);
+VkImageCreateInfo GetImageCreateInfo(VkFormat format, VkExtent3D extent,
+                                     VkSampleCountFlagBits msaaCount);
 
 }  // namespace Vulkan
 }  // namespace Impacto

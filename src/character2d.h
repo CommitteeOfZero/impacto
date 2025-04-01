@@ -1,6 +1,6 @@
 #pragma once
 
-#include <flat_hash_map.hpp>
+#include <ankerl/unordered_dense.h>
 #include "renderer/renderer.h"
 #include "texture/texture.h"
 #include "spritesheet.h"
@@ -8,16 +8,41 @@
 #include "io/stream.h"
 #include "profile/game.h"
 #include <vector>
+#include <memory>
+#include <variant>
 
 namespace Impacto {
-
 struct Character2DState {
+  struct LAYData {
+    LAYData() = default;
+    LAYData(int count)
+        : ScreenCoords(std::make_unique<glm::vec2[]>(count)),
+          TextureCoords(std::make_unique<glm::vec2[]>(count)) {}
+    std::unique_ptr<glm::vec2[]> ScreenCoords;
+    std::unique_ptr<glm::vec2[]> TextureCoords;
+  };
+  struct MVLData {
+    MVLData() = default;
+    MVLData(size_t count) : Indices(std::make_unique<uint16_t[]>(count)) {}
+    std::unique_ptr<uint16_t[]> Indices;
+  };
+
   int Count;
-  // LAY
-  glm::vec2* ScreenCoords = 0;
-  glm::vec2* TextureCoords = 0;
-  // MVL
-  uint16_t* Indices = 0;
+  std::variant<LAYData, MVLData> Data;
+
+  Character2DState() = default;
+  Character2DState(int count, bool isMVL)
+      : Count(count), Data(ConstructData(count, isMVL)) {}
+
+ private:
+  static auto ConstructData(int count, bool isMVL)
+      -> std::variant<LAYData, MVLData> {
+    if (isMVL) {
+      return std::variant<LAYData, MVLData>{std::in_place_type<MVLData>, count};
+    } else {
+      return std::variant<LAYData, MVLData>{std::in_place_type<LAYData>, count};
+    }
+  }
 };
 
 int constexpr MaxMvlIndices = 128 * 1024;
@@ -38,7 +63,7 @@ class Character2D : public Loadable<Character2D> {
   int LipFrame;
   int EyeFrame;
   bool Show;
-  int Layer;
+  std::array<int, 2> Layers;
   glm::vec4 Tint = glm::vec4(1.0f);
   void Update(float dt);
   void Render(int layer);
@@ -50,16 +75,20 @@ class Character2D : public Loadable<Character2D> {
   void UnloadSync();
   void MainThreadOnLoad();
 
+  bool OnLayer(int layer) {
+    return std::find(Layers.begin(), Layers.end(), layer) != Layers.end();
+  }
+
  private:
   Texture CharaTexture;
   SpriteSheet CharaSpriteSheet;
 
-  ska::flat_hash_map<int, Character2DState> States;
+  ankerl::unordered_dense::map<int, Character2DState> States;
   std::vector<int> StatesToDraw;
 
-  float* MvlVertices;
-  uint16_t MvlIndices[MaxMvlIndices];
   int MvlVerticesCount;
+  std::vector<float> MvlVertices;
+  std::array<uint16_t, MaxMvlIndices> MvlIndices;
   int MvlIndicesCount;
 };
 

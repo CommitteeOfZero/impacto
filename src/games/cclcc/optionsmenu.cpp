@@ -1,5 +1,6 @@
 #include "optionsmenu.h"
 
+#include "../../profile/configsystem.h"
 #include "../../profile/game.h"
 #include "../../profile/ui/optionsmenu.h"
 #include "../../profile/games/cclcc/optionsmenu.h"
@@ -8,6 +9,7 @@
 #include "../../ui/widgets/cclcc/optionsbinarybutton.h"
 #include "../../ui/widgets/cclcc/optionsslider.h"
 #include "../../ui/widgets/cclcc/optionsvoiceslider.h"
+#include "../../audio/audiosystem.h"
 
 namespace Impacto {
 namespace UI {
@@ -16,80 +18,143 @@ namespace CCLCC {
 using namespace Impacto::Profile::OptionsMenu;
 using namespace Impacto::Profile::CCLCC::OptionsMenu;
 using namespace Impacto::Profile::ScriptVars;
+using namespace Impacto::Profile::ConfigSystem;
 using namespace Impacto::UI::Widgets;
 using namespace Impacto::UI::Widgets::CCLCC;
 using namespace Impacto::Vm::Interface;
 
-OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
-  PoleAnimation = Profile::CCLCC::OptionsMenu::PoleAnimation.Instantiate();
-
-  Pages.reserve(PageCount);
-  glm::vec2 pos = EntriesStartPosition;
-  glm::vec4 highlightTint(HighlightColor, 1.0f);
-  std::function<void(OptionsEntry*)> select =
-      std::bind(&OptionsMenu::Select, this, std::placeholders::_1);
-  std::function<void(Widget*)> highlight =
-      std::bind(&OptionsMenu::Highlight, this, std::placeholders::_1);
-
-  PageButtons.reserve(PageCount);
-  for (int i = 0; i < PageCount; i++) {
-    PageButtons.push_back(ClickArea(i, PagePanelHoverBounds[i]));
-  }
-
+std::unique_ptr<Group> OptionsMenu::CreateBasicPage(
+    const std::function<void(OptionsEntry*)>& select,
+    const std::function<void(Widget*)>& highlight) {
+  const glm::vec4 highlightTint(HighlightColor, 1.0f);
   std::unique_ptr<Group> basicPage = std::make_unique<Group>(this);
-  for (int i = 0; i < 4; i++) {
-    basicPage->Add(new OptionsBinaryButton(BinaryBoxSprite, OnSprite, OffSprite,
-                                           LabelSprites[i], pos, highlightTint,
-                                           select, highlight),
-                   FDIR_DOWN);
 
-    pos.y += EntriesVerticalOffset;
-  }
-  Pages.push_back(std::move(basicPage));
+  basicPage->Add(
+      new OptionsBinaryButton(ShowTipsNotification, BinaryBoxSprite, OnSprite,
+                              OffSprite, LabelSprites[0], EntriesStartPosition,
+                              highlightTint, select, highlight),
+      FDIR_DOWN);
+  basicPage->Add(
+      new OptionsBinaryButton(
+          AdvanceTextOnDirectionalInput, BinaryBoxSprite, OnSprite, OffSprite,
+          LabelSprites[1],
+          EntriesStartPosition + glm::vec2(0.0f, EntriesVerticalOffset),
+          highlightTint, select, highlight),
+      FDIR_DOWN);
+  basicPage->Add(
+      new OptionsBinaryButton(
+          DirectionalInputForTrigger, BinaryBoxSprite, OnSprite, OffSprite,
+          LabelSprites[2],
+          EntriesStartPosition + glm::vec2(0.0f, EntriesVerticalOffset * 2),
+          highlightTint, select, highlight),
+      FDIR_DOWN);
+  basicPage->Add(
+      new OptionsBinaryButton(
+          TriggerStopSkip, BinaryBoxSprite, OnSprite, OffSprite,
+          LabelSprites[3],
+          EntriesStartPosition + glm::vec2(0.0f, EntriesVerticalOffset * 3),
+          highlightTint, select, highlight),
+      FDIR_DOWN);
 
-  pos = EntriesStartPosition;
+  return basicPage;
+}
+
+std::unique_ptr<Group> OptionsMenu::CreateTextPage(
+    const std::function<void(OptionsEntry*)>& select,
+    const std::function<void(Widget*)>& highlight) {
+  const glm::vec4 highlightTint(HighlightColor, 1.0f);
   std::unique_ptr<Group> textPage = std::make_unique<Group>(this);
-  for (int i = 4; i < 6; i++) {
-    textPage->Add(
-        new OptionsSlider(SliderTrackSprite, LabelSprites[i], pos,
-                          highlightTint, SliderSpeed, select, highlight),
-        FDIR_DOWN);
 
-    pos.y += EntriesVerticalOffset;
-  }
-  textPage->Add(new OptionsBinaryButton(BinaryBoxSprite, SkipReadSprite,
-                                        SkipAllSprite, LabelSprites[6], pos,
-                                        highlightTint, select, highlight),
+  textPage->Add(new OptionsSlider(
+                    TextSpeed, TextSpeedBounds[0], TextSpeedBounds[1],
+                    SliderTrackSprite, LabelSprites[4], EntriesStartPosition,
+                    highlightTint, SliderSpeed, select, highlight),
                 FDIR_DOWN);
-  Pages.push_back(std::move(textPage));
+  textPage->Add(
+      new OptionsSlider(
+          AutoSpeed, AutoSpeedBounds[0], AutoSpeedBounds[1], SliderTrackSprite,
+          LabelSprites[5],
+          EntriesStartPosition + glm::vec2(0.0f, EntriesVerticalOffset),
+          highlightTint, SliderSpeed, select, highlight),
+      FDIR_DOWN);
+  textPage->Add(
+      new OptionsBinaryButton(
+          SkipRead, BinaryBoxSprite, SkipReadSprite, SkipAllSprite,
+          LabelSprites[6],
+          EntriesStartPosition + glm::vec2(0.0f, EntriesVerticalOffset * 2),
+          highlightTint, select, highlight),
+      FDIR_DOWN);
 
-  pos = SoundEntriesStartPosition;
+  return textPage;
+}
+
+std::unique_ptr<Group> OptionsMenu::CreateSoundPage(
+    const std::function<void(OptionsEntry*)>& select,
+    const std::function<void(Widget*)>& highlight) {
+  const glm::vec4 highlightTint(HighlightColor, 1.0f);
   std::unique_ptr<Group> soundPage = std::make_unique<Group>(this);
-  for (int i = 7; i < 15; i++) {
-    Widget* widget =
-        (i < 11 || i == 14)
-            ? new OptionsSlider(SliderTrackSprite, LabelSprites[i], pos,
-                                highlightTint, SliderSpeed, select, highlight)
-            : widget = new OptionsBinaryButton(
-                  BinaryBoxSprite, YesSprite, NoSprite, LabelSprites[i], pos,
-                  highlightTint, select, highlight);
-    soundPage->Add(widget, FDIR_DOWN);
 
-    pos.y += SoundEntriesVerticalOffset;
-  }
-  Pages.push_back(std::move(soundPage));
+  soundPage->Add(new OptionsSlider(Audio::GroupVolumes[Audio::ACG_Voice], 0.0f,
+                                   1.0f, SliderTrackSprite, LabelSprites[7],
+                                   SoundEntriesStartPosition, highlightTint,
+                                   SliderSpeed, select, highlight),
+                 FDIR_DOWN);
+  soundPage->Add(
+      new OptionsSlider(Audio::GroupVolumes[Audio::ACG_BGM], 0.0f, 0.5f,
+                        SliderTrackSprite, LabelSprites[8],
+                        SoundEntriesStartPosition +
+                            glm::vec2(0.0f, SoundEntriesVerticalOffset),
+                        highlightTint, SliderSpeed, select, highlight),
+      FDIR_DOWN);
+  soundPage->Add(
+      new OptionsSlider(Audio::GroupVolumes[Audio::ACG_SE], 0.0f, 1.0f,
+                        SliderTrackSprite, LabelSprites[9],
+                        SoundEntriesStartPosition +
+                            glm::vec2(0.0f, SoundEntriesVerticalOffset * 2),
+                        highlightTint, SliderSpeed, select, highlight),
+      FDIR_DOWN);
+  soundPage->Add(
+      new OptionsSlider(Audio::GroupVolumes[Audio::ACG_Movie], 0.0f, 1.0f,
+                        SliderTrackSprite, LabelSprites[10],
+                        SoundEntriesStartPosition +
+                            glm::vec2(0.0f, SoundEntriesVerticalOffset * 3),
+                        highlightTint, SliderSpeed, select, highlight),
+      FDIR_DOWN);
+  soundPage->Add(
+      new OptionsBinaryButton(
+          SyncVoice, BinaryBoxSprite, YesSprite, NoSprite, LabelSprites[11],
+          SoundEntriesStartPosition +
+              glm::vec2(0.0f, SoundEntriesVerticalOffset * 4),
+          highlightTint, select, highlight),
+      FDIR_DOWN);
+  soundPage->Add(
+      new OptionsBinaryButton(
+          SkipVoice, BinaryBoxSprite, YesSprite, NoSprite, LabelSprites[12],
+          SoundEntriesStartPosition +
+              glm::vec2(0.0f, SoundEntriesVerticalOffset * 5),
+          highlightTint, select, highlight),
+      FDIR_DOWN);
 
+  return soundPage;
+}
+
+std::unique_ptr<Group> OptionsMenu::CreateVoicePage(
+    const std::function<void(OptionsEntry*)>& select,
+    const std::function<void(Widget*)>& highlight) {
+  const glm::vec4 highlightTint(HighlightColor, 1.0f);
   std::unique_ptr<Group> voicePage = std::make_unique<Group>(this);
+
   constexpr int columns = 3;
   constexpr int entries = 12;
   for (int i = 0; i < entries; i++) {
-    pos = VoicePosition;
-    pos += VoiceEntriesOffset * glm::vec2(i % columns, i / columns);
+    const glm::vec2 pos =
+        VoicePosition +
+        VoiceEntriesOffset * glm::vec2(i % columns, i / columns);
 
     Widget* widget = new OptionsVoiceSlider(
-        VoiceSliderTrackSprite, NametagSprites[i], PortraitSprites[2 * i],
-        PortraitSprites[2 * i + 1], pos, highlightTint, SliderSpeed, select,
-        highlight);
+        VoiceVolume[i], 0.0f, 1.0f, VoiceMuted[i], VoiceSliderTrackSprite,
+        NametagSprites[i], PortraitSprites[2 * i], PortraitSprites[2 * i + 1],
+        pos, highlightTint, SliderSpeed, select, highlight);
     voicePage->Add(widget, FDIR_RIGHT);
   }
 
@@ -122,7 +187,29 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
     }
   }
 
-  Pages.push_back(std::move(voicePage));
+  return voicePage;
+}
+
+OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
+  PoleAnimation = Profile::CCLCC::OptionsMenu::PoleAnimation.Instantiate();
+
+  PageButtons.reserve(PageCount);
+  for (int i = 0; i < PageCount; i++) {
+    PageButtons.emplace_back(i, PagePanelHoverBounds[i]);
+  }
+
+  std::function<void(OptionsEntry*)> select = [this](auto* btn) {
+    return Select(btn);
+  };
+  std::function<void(Widget*)> highlight = [this](auto* btn) {
+    return Highlight(btn);
+  };
+
+  Pages.reserve(PageCount);
+  Pages.emplace_back(CreateBasicPage(select, highlight));
+  Pages.emplace_back(CreateTextPage(select, highlight));
+  Pages.emplace_back(CreateSoundPage(select, highlight));
+  Pages.emplace_back(CreateVoicePage(select, highlight));
 
   Highlight(Pages[CurrentPage]->GetFirstFocusableChild());
 }
@@ -265,7 +352,7 @@ void OptionsMenu::Render() {
         maskTint);
 
     const Sprite& guideSprite =
-        CurrentPage == 3 ? VoiceGuideSprite : GuideSprite;
+        CurrentPage == +PageType::Voice ? VoiceGuideSprite : GuideSprite;
     Renderer->DrawSprite(guideSprite, guidePosition, col);
   }
 }
@@ -286,6 +373,40 @@ void OptionsMenu::Highlight(Widget* toHighlight) {
 
   for (Widget* entry : Pages[CurrentPage]->Children) {
     static_cast<OptionsEntry*>(entry)->Selected = false;
+  }
+}
+
+void OptionsMenu::ResetToDefault() {
+  switch (CurrentPage) {
+    case PageType::Basic: {
+      ShowTipsNotification = Default::ShowTipsNotification;
+      AdvanceTextOnDirectionalInput = Default::AdvanceTextOnDirectionalInput;
+      DirectionalInputForTrigger = Default::DirectionalInputForTrigger;
+      TriggerStopSkip = Default::TriggerStopSkip;
+      break;
+    }
+    case PageType::Text: {
+      TextSpeed = Default::TextSpeed;
+      AutoSpeed = Default::AutoSpeed;
+      SkipRead = Default::SkipRead;
+      break;
+    }
+    case PageType::Sound: {
+      std::copy(std::begin(Default::GroupVolumes),
+                std::end(Default::GroupVolumes), Audio::GroupVolumes);
+      SyncVoice = Default::SyncVoice;
+      SkipVoice = Default::SkipVoice;
+      break;
+    }
+    case PageType::Voice: {
+      std::copy(std::begin(Default::VoiceMuted), std::end(Default::VoiceMuted),
+                VoiceMuted);
+      std::copy(std::begin(Default::VoiceVolume),
+                std::end(Default::VoiceVolume), VoiceVolume);
+      break;
+    }
+    default:
+      break;
   }
 }
 

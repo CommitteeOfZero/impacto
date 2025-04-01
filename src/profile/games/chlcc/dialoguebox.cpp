@@ -9,31 +9,32 @@ namespace CHLCC {
 namespace DialogueBox {
 
 void Configure() {
-  SecondaryADVBoxSprite = EnsureGetMemberSprite("SecondaryADVBoxSprite");
+  SecondaryADVBoxSprite = EnsureGetMember<Sprite>("SecondaryADVBoxSprite");
 
   HaveSecondaryADVNameTag = TryPushMember("SecondaryADVNameTag");
   if (HaveSecondaryADVNameTag) {
     AssertIs(LUA_TTABLE);
 
-    SecondaryADVNameTag::Position = EnsureGetMemberVec2("SecondaryPosition");
+    SecondaryADVNameTag::Position =
+        EnsureGetMember<glm::vec2>("SecondaryPosition");
     SecondaryADVNameTag::LeftSprite =
-        EnsureGetMemberSprite("SecondaryLeftSprite");
+        EnsureGetMember<Sprite>("SecondaryLeftSprite");
     SecondaryADVNameTag::LineSprite =
-        EnsureGetMemberSprite("SecondaryLineSprite");
+        EnsureGetMember<Sprite>("SecondaryLineSprite");
     SecondaryADVNameTag::RightSprite =
-        EnsureGetMemberSprite("SecondaryRightSprite");
+        EnsureGetMember<Sprite>("SecondaryRightSprite");
     SecondaryADVNameTag::BaseLineWidth =
-        EnsureGetMemberFloat("SecondaryBaseLineWidth");
+        EnsureGetMember<float>("SecondaryBaseLineWidth");
 
     Pop();
   }
 
-  REVBoxSprite = EnsureGetMemberSprite("REVBoxSprite");
-  REVBoxPos = EnsureGetMemberVec2("REVBoxPos");
-  REVWaitIconOffset = EnsureGetMemberVec2("REVWaitIconOffset");
-  REVLineHeight = EnsureGetMemberInt("REVLineHeight");
-  REVLineSpacing = EnsureGetMemberInt("REVLineSpacing");
-  REVFontSize = EnsureGetMemberInt("REVFontSize");
+  REVBoxSprite = EnsureGetMember<Sprite>("REVBoxSprite");
+  REVBoxPos = EnsureGetMember<glm::vec2>("REVBoxPos");
+  REVWaitIconOffset = EnsureGetMember<glm::vec2>("REVWaitIconOffset");
+  REVLineHeight = EnsureGetMember<int>("REVLineHeight");
+  REVLineSpacing = EnsureGetMember<int>("REVLineSpacing");
+  REVFontSize = EnsureGetMember<int>("REVFontSize");
 }
 
 }  // namespace DialogueBox

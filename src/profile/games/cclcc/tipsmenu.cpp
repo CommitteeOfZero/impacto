@@ -14,58 +14,61 @@ namespace CCLCC {
 namespace TipsMenu {
 
 void Configure() {
-  TipsGuideSprite = EnsureGetMemberSprite("TipsGuideSprite");
-  TipsMaskSprite = EnsureGetMemberSprite("TipsMaskSprite");
-  TipsHighlightedSprite = EnsureGetMemberSprite("TipsHighlightedSprite");
-  TipsHighlightedTabSprite = EnsureGetMemberSprite("TipsHighlightedTabSprite");
-  TipsNewSprite = EnsureGetMemberSprite("TipsNewSprite");
-  TipsHighlightedTabAdder = EnsureGetMemberInt("TipsHighlightedTabAdder");
+  TipsGuideSprite = EnsureGetMember<Sprite>("TipsGuideSprite");
+  TipsMaskSprite = EnsureGetMember<Sprite>("TipsMaskSprite");
+  TipsHighlightedSprite = EnsureGetMember<Sprite>("TipsHighlightedSprite");
+  TipsHighlightedTabSprite =
+      EnsureGetMember<Sprite>("TipsHighlightedTabSprite");
+  TipsNewSprite = EnsureGetMember<Sprite>("TipsNewSprite");
+  TipsHighlightedTabAdder = EnsureGetMember<int>("TipsHighlightedTabAdder");
 
-  TipsGuideX = EnsureGetMemberInt("TipsGuideX");
-  TipsGuideY = EnsureGetMemberInt("TipsGuideY");
+  TipsGuideX = EnsureGetMember<int>("TipsGuideX");
+  TipsGuideY = EnsureGetMember<int>("TipsGuideY");
 
-  TipsTextTableIndex = EnsureGetMemberInt("TipsTextTableIndex");
-  TipsTextSortStringIndex = EnsureGetMemberInt("TipsTextSortStringIndex");
-  TipsTextEntryLockedIndex = EnsureGetMemberInt("TipsTextEntryLockedIndex");
+  TipsTextTableIndex = EnsureGetMember<int>("TipsTextTableIndex");
+  TipsTextSortStringIndex = EnsureGetMember<int>("TipsTextSortStringIndex");
+  TipsTextEntryLockedIndex = EnsureGetMember<int>("TipsTextEntryLockedIndex");
 
-  TipsEntryBounds = EnsureGetMemberRectF("TipsEntryBounds");
-  TipEntryNewOffset = EnsureGetMemberVec2("TipEntryNewOffset");
-  TipsEntryHighlightOffset = EnsureGetMemberVec2("TipsEntryHighlightOffset");
-  TipsEntryNumberOffset = EnsureGetMemberVec2("TipsEntryNumberOffset");
-  TipsEntryNameOffset = EnsureGetMemberVec2("TipsEntryNameOffset");
+  TipsEntryBounds = EnsureGetMember<RectF>("TipsEntryBounds");
+  TipEntryNewOffset = EnsureGetMember<glm::vec2>("TipEntryNewOffset");
+  TipsEntryHighlightOffset =
+      EnsureGetMember<glm::vec2>("TipsEntryHighlightOffset");
+  TipsEntryNumberOffset = EnsureGetMember<glm::vec2>("TipsEntryNumberOffset");
+  TipsEntryNameOffset = EnsureGetMember<glm::vec2>("TipsEntryNameOffset");
 
-  TipsTabBounds = EnsureGetMemberRectF("TipsTabBounds");
-  TipsTabNameDisplay = EnsureGetMemberVec2("TipsTabNameDisplay");
+  TipsTabBounds = EnsureGetMember<RectF>("TipsTabBounds");
+  TipsTabNameDisplay = EnsureGetMember<glm::vec2>("TipsTabNameDisplay");
 
-  CategoryPos = EnsureGetMemberVec2("CategoryPos");
-  CategoryFontSize = EnsureGetMemberInt("CategoryFontSize");
-  NamePos = EnsureGetMemberVec2("NamePos");
-  NameFontSize = EnsureGetMemberInt("NameFontSize");
-  PronounciationPos = EnsureGetMemberVec2("PronounciationPos");
-  PronounciationFontSize = EnsureGetMemberInt("PronounciationFontSize");
-  NumberPos = EnsureGetMemberVec2("NumberPos");
-  NumberFontSize = EnsureGetMemberInt("NumberFontSize");
+  CategoryPos = EnsureGetMember<glm::vec2>("CategoryPos");
+  CategoryFontSize = EnsureGetMember<int>("CategoryFontSize");
+  NamePos = EnsureGetMember<glm::vec2>("NamePos");
+  NameFontSize = EnsureGetMember<int>("NameFontSize");
+  PronounciationPos = EnsureGetMember<glm::vec2>("PronounciationPos");
+  PronounciationFontSize = EnsureGetMember<int>("PronounciationFontSize");
+  NumberPos = EnsureGetMember<glm::vec2>("NumberPos");
+  NumberFontSize = EnsureGetMember<int>("NumberFontSize");
 
-  TipsEntryNameUnreadColor = EnsureGetMemberUint("TipsEntryNameUnreadColor");
-  TipsMenuDarkTextColor = EnsureGetMemberUint("TipsMenuDarkTextColor");
+  TipsEntryNameUnreadColor =
+      EnsureGetMember<uint32_t>("TipsEntryNameUnreadColor");
+  TipsMenuDarkTextColor = EnsureGetMember<uint32_t>("TipsMenuDarkTextColor");
 
-  TipsScrollThumbSprite = EnsureGetMemberSprite("TipsScrollThumbSprite");
-  TipsScrollThumbLength = EnsureGetMemberFloat("TipsScrollThumbLength");
-  TipsScrollYStart = EnsureGetMemberInt("TipsScrollYStart");
-  TipsScrollYEnd = EnsureGetMemberInt("TipsScrollYEnd");
-  TipsScrollEntriesX = EnsureGetMemberInt("TipsScrollEntriesX");
-  TipsScrollDetailsX = EnsureGetMemberInt("TipsScrollDetailsX");
+  TipsScrollThumbSprite = EnsureGetMember<Sprite>("TipsScrollThumbSprite");
+  TipsScrollThumbLength = EnsureGetMember<float>("TipsScrollThumbLength");
+  TipsScrollYStart = EnsureGetMember<int>("TipsScrollYStart");
+  TipsScrollYEnd = EnsureGetMember<int>("TipsScrollYEnd");
+  TipsScrollEntriesX = EnsureGetMember<int>("TipsScrollEntriesX");
+  TipsScrollDetailsX = EnsureGetMember<int>("TipsScrollDetailsX");
 
-  TipsMaskSheet = EnsureGetMemberSpriteSheet("TipsMask");
+  TipsMaskSheet = EnsureGetMember<SpriteSheet>("TipsMask");
 
-  TransitionInDuration = EnsureGetMemberFloat("TransitionInDuration");
-  TransitionOutDuration = EnsureGetMemberFloat("TransitionOutDuration");
+  TransitionInDuration = EnsureGetMember<float>("TransitionInDuration");
+  TransitionOutDuration = EnsureGetMember<float>("TransitionOutDuration");
 
-  MinHoldTime = EnsureGetMemberFloat("MinHoldTime");
-  AdvanceFocusTimeInterval = EnsureGetMemberFloat("AdvanceFocusTimeInterval");
+  MinHoldTime = EnsureGetMember<float>("MinHoldTime");
+  AdvanceFocusTimeInterval = EnsureGetMember<float>("AdvanceFocusTimeInterval");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   UI::TipsMenuPtr = new UI::CCLCC::TipsMenu();
   UI::Menus[drawType].push_back(UI::TipsMenuPtr);

@@ -1,4 +1,5 @@
 #include "tipsmenu.h"
+#include <fmt/format.h>
 
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
@@ -143,7 +144,7 @@ void TipsMenu::Render() {
 void TipsMenu::Init() {
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
-  auto onClick = std::bind(&TipsMenu::TipOnClick, this, std::placeholders::_1);
+  auto onClick = [this](auto *btn) { return TipOnClick(btn); };
   int currentPage = 0, currentCategoryId = -1;
   Group *pageItems = new Group(this);
 
@@ -252,18 +253,15 @@ void TipsMenu::SwitchToTipId(int id) {
   else
     ThumbnailSprite = &TipTextOnlyThumbnail;
 
-  char temp[5];
-  sprintf(temp, "%4d", tipRecord->Id + 1);
-  Number->SetText(std::string(temp), NumberFontSize,
+  Number->SetText(fmt::format("{:4d}", tipRecord->Id + 1), NumberFontSize,
                   RendererOutlineMode::RO_Full, DefaultColorIndex);
 
-  sprintf(temp, "%d", CurrentTipPage);
-  CurrentPage->SetText(std::string(temp), PageSeparatorFontSize,
+  CurrentPage->SetText(fmt::to_string(CurrentTipPage), PageSeparatorFontSize,
                        RendererOutlineMode::RO_Full, DefaultColorIndex);
 
-  sprintf(temp, "%d", tipRecord->NumberOfContentStrings);
-  TotalPages->SetText(std::string(temp), PageSeparatorFontSize,
-                      RendererOutlineMode::RO_Full, DefaultColorIndex);
+  TotalPages->SetText(fmt::to_string(tipRecord->NumberOfContentStrings),
+                      PageSeparatorFontSize, RendererOutlineMode::RO_Full,
+                      DefaultColorIndex);
 
   TextPage.Clear();
   dummy.Ip = tipRecord->StringPtrs[3];
@@ -280,10 +278,7 @@ void TipsMenu::NextTipPage() {
   Vm::Sc3VmThread dummy;
   dummy.Ip = currentRecord->StringPtrs[2 + CurrentTipPage];
   TextPage.AddString(&dummy);
-
-  char temp[5];
-  sprintf(temp, "%d", CurrentTipPage);
-  CurrentPage->SetText(std::string(temp), PageSeparatorFontSize,
+  CurrentPage->SetText(fmt::to_string(CurrentTipPage), PageSeparatorFontSize,
                        RendererOutlineMode::RO_Full, DefaultColorIndex);
 }
 

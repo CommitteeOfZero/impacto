@@ -12,49 +12,49 @@ using namespace Impacto::Vm::Interface;
 void Configure() {
   EnsurePushMemberOfType("Input", LUA_TTABLE);
 
-  auto KB_PAD1A = GetMemberUintVector("KB_PAD1A");
-  auto KB_PAD1B = GetMemberUintVector("KB_PAD1B");
-  auto KB_PAD1X = GetMemberUintVector("KB_PAD1X");
-  auto KB_PAD1Y = GetMemberUintVector("KB_PAD1Y");
-  auto KB_PAD1SELECT = GetMemberUintVector("KB_PAD1SELECT");
-  auto KB_PAD1START = GetMemberUintVector("KB_PAD1START");
-  auto KB_PAD1UP = GetMemberUintVector("KB_PAD1UP");
-  auto KB_PAD1DOWN = GetMemberUintVector("KB_PAD1DOWN");
-  auto KB_PAD1LEFT = GetMemberUintVector("KB_PAD1LEFT");
-  auto KB_PAD1RIGHT = GetMemberUintVector("KB_PAD1RIGHT");
-  auto KB_PAD1L1 = GetMemberUintVector("KB_PAD1L1");
-  auto KB_PAD1L2 = GetMemberUintVector("KB_PAD1L2");
-  auto KB_PAD1L3 = GetMemberUintVector("KB_PAD1L3");
-  auto KB_PAD1R1 = GetMemberUintVector("KB_PAD1R1");
-  auto KB_PAD1R2 = GetMemberUintVector("KB_PAD1R2");
-  auto KB_PAD1R3 = GetMemberUintVector("KB_PAD1R3");
-  auto KB_PAD1UP_RS = GetMemberUintVector("KB_PAD1UP_RS");
-  auto KB_PAD1DOWN_RS = GetMemberUintVector("KB_PAD1DOWN_RS");
+  auto KB_PAD1A = GetMemberVector<uint32_t>("KB_PAD1A");
+  auto KB_PAD1B = GetMemberVector<uint32_t>("KB_PAD1B");
+  auto KB_PAD1X = GetMemberVector<uint32_t>("KB_PAD1X");
+  auto KB_PAD1Y = GetMemberVector<uint32_t>("KB_PAD1Y");
+  auto KB_PAD1SELECT = GetMemberVector<uint32_t>("KB_PAD1SELECT");
+  auto KB_PAD1START = GetMemberVector<uint32_t>("KB_PAD1START");
+  auto KB_PAD1UP = GetMemberVector<uint32_t>("KB_PAD1UP");
+  auto KB_PAD1DOWN = GetMemberVector<uint32_t>("KB_PAD1DOWN");
+  auto KB_PAD1LEFT = GetMemberVector<uint32_t>("KB_PAD1LEFT");
+  auto KB_PAD1RIGHT = GetMemberVector<uint32_t>("KB_PAD1RIGHT");
+  auto KB_PAD1L1 = GetMemberVector<uint32_t>("KB_PAD1L1");
+  auto KB_PAD1L2 = GetMemberVector<uint32_t>("KB_PAD1L2");
+  auto KB_PAD1L3 = GetMemberVector<uint32_t>("KB_PAD1L3");
+  auto KB_PAD1R1 = GetMemberVector<uint32_t>("KB_PAD1R1");
+  auto KB_PAD1R2 = GetMemberVector<uint32_t>("KB_PAD1R2");
+  auto KB_PAD1R3 = GetMemberVector<uint32_t>("KB_PAD1R3");
+  auto KB_PAD1UP_RS = GetMemberVector<uint32_t>("KB_PAD1UP_RS");
+  auto KB_PAD1DOWN_RS = GetMemberVector<uint32_t>("KB_PAD1DOWN_RS");
 
-  auto MS_LEFT = EnsureGetMemberUint("MS_LEFT");
-  auto MS_RIGHT = EnsureGetMemberUint("MS_RIGHT");
+  auto MS_LEFT = EnsureGetMember<uint32_t>("MS_LEFT");
+  auto MS_RIGHT = EnsureGetMember<uint32_t>("MS_RIGHT");
 
-  auto GP_PAD1A = EnsureGetMemberUint("GP_PAD1A");
-  auto GP_PAD1B = EnsureGetMemberUint("GP_PAD1B");
-  auto GP_PAD1X = EnsureGetMemberUint("GP_PAD1X");
-  auto GP_PAD1Y = EnsureGetMemberUint("GP_PAD1Y");
-  auto GP_PAD1SELECT = EnsureGetMemberUint("GP_PAD1SELECT");
-  auto GP_PAD1START = EnsureGetMemberUint("GP_PAD1START");
-  auto GP_PAD1UP = EnsureGetMemberUint("GP_PAD1UP");
-  auto GP_PAD1DOWN = EnsureGetMemberUint("GP_PAD1DOWN");
-  auto GP_PAD1LEFT = EnsureGetMemberUint("GP_PAD1LEFT");
-  auto GP_PAD1RIGHT = EnsureGetMemberUint("GP_PAD1RIGHT");
-  auto GP_PAD1L1 = EnsureGetMemberUint("GP_PAD1L1");
-  auto GP_PAD1L3 = EnsureGetMemberUint("GP_PAD1L3");
-  auto GP_PAD1R1 = EnsureGetMemberUint("GP_PAD1R1");
-  auto GP_PAD1R3 = EnsureGetMemberUint("GP_PAD1R3");
+  auto GP_PAD1A = EnsureGetMember<uint32_t>("GP_PAD1A");
+  auto GP_PAD1B = EnsureGetMember<uint32_t>("GP_PAD1B");
+  auto GP_PAD1X = EnsureGetMember<uint32_t>("GP_PAD1X");
+  auto GP_PAD1Y = EnsureGetMember<uint32_t>("GP_PAD1Y");
+  auto GP_PAD1SELECT = EnsureGetMember<uint32_t>("GP_PAD1SELECT");
+  auto GP_PAD1START = EnsureGetMember<uint32_t>("GP_PAD1START");
+  auto GP_PAD1UP = EnsureGetMember<uint32_t>("GP_PAD1UP");
+  auto GP_PAD1DOWN = EnsureGetMember<uint32_t>("GP_PAD1DOWN");
+  auto GP_PAD1LEFT = EnsureGetMember<uint32_t>("GP_PAD1LEFT");
+  auto GP_PAD1RIGHT = EnsureGetMember<uint32_t>("GP_PAD1RIGHT");
+  auto GP_PAD1L1 = EnsureGetMember<uint32_t>("GP_PAD1L1");
+  auto GP_PAD1L3 = EnsureGetMember<uint32_t>("GP_PAD1L3");
+  auto GP_PAD1R1 = EnsureGetMember<uint32_t>("GP_PAD1R1");
+  auto GP_PAD1R3 = EnsureGetMember<uint32_t>("GP_PAD1R3");
 
-  auto GPA_PAD1LX = EnsureGetMemberUint("GPA_PAD1LX");
-  auto GPA_PAD1LY = EnsureGetMemberUint("GPA_PAD1LY");
-  auto GPA_PAD1RX = EnsureGetMemberUint("GPA_PAD1RX");
-  auto GPA_PAD1RY = EnsureGetMemberUint("GPA_PAD1RY");
-  auto GPA_PAD1LT = EnsureGetMemberUint("GPA_PAD1LT");
-  auto GPA_PAD1RT = EnsureGetMemberUint("GPA_PAD1RT");
+  auto GPA_PAD1LX = EnsureGetMember<uint32_t>("GPA_PAD1LX");
+  auto GPA_PAD1LY = EnsureGetMember<uint32_t>("GPA_PAD1LY");
+  auto GPA_PAD1RX = EnsureGetMember<uint32_t>("GPA_PAD1RX");
+  auto GPA_PAD1RY = EnsureGetMember<uint32_t>("GPA_PAD1RY");
+  auto GPA_PAD1LT = EnsureGetMember<uint32_t>("GPA_PAD1LT");
+  auto GPA_PAD1RT = EnsureGetMember<uint32_t>("GPA_PAD1RT");
 
   PADToKeyboard[PAD1A] = KB_PAD1A;
   PADToKeyboard[PAD1B] = KB_PAD1B;
@@ -108,11 +108,11 @@ void Configure() {
 
   Pop();
 
-  PADcustomType = EnsureGetMemberUint("PADcustomType");
-  PADcustomSizeA = EnsureGetMemberUint("PADcustomSizeA");
-  PADcustomSizeB = EnsureGetMemberUint("PADcustomSizeB");
-  GetMemberUintArray(PADcustomA, PADcustomSizeA, "PADcustomA");
-  GetMemberUintArray(PADcustomB, PADcustomSizeB, "PADcustomB");
+  PADcustomType = EnsureGetMember<uint32_t>("PADcustomType");
+  PADcustomSizeA = EnsureGetMember<uint32_t>("PADcustomSizeA");
+  PADcustomSizeB = EnsureGetMember<uint32_t>("PADcustomSizeB");
+  GetMemberArray<uint32_t>(PADcustomA, PADcustomSizeA, "PADcustomA");
+  GetMemberArray<uint32_t>(PADcustomB, PADcustomSizeB, "PADcustomB");
 }
 
 }  // namespace ScriptInput

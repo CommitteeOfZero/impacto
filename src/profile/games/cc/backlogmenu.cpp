@@ -10,22 +10,23 @@ namespace BacklogMenu {
 
 void Configure() {
   BacklogBackgroundRepeatHeight =
-      EnsureGetMemberInt("BacklogBackgroundRepeatHeight");
+      EnsureGetMember<int>("BacklogBackgroundRepeatHeight");
 
-  BacklogHeaderSprite = EnsureGetMemberSprite("BacklogHeaderSprite");
-  BacklogHeaderPosition = EnsureGetMemberVec2("BacklogHeaderPosition");
+  BacklogHeaderSprite = EnsureGetMember<Sprite>("BacklogHeaderSprite");
+  BacklogHeaderPosition = EnsureGetMember<glm::vec2>("BacklogHeaderPosition");
 
-  BacklogControlsSprite = EnsureGetMemberSprite("BacklogControlsSprite");
-  BacklogControlsPosition = EnsureGetMemberVec2("BacklogControlsPosition");
+  BacklogControlsSprite = EnsureGetMember<Sprite>("BacklogControlsSprite");
+  BacklogControlsPosition =
+      EnsureGetMember<glm::vec2>("BacklogControlsPosition");
 
-  MenuMaskSprite = EnsureGetMemberSprite("MenuMask");
-  BacklogMaskSheet = EnsureGetMemberSpriteSheet("BacklogMask");
+  MenuMaskSprite = EnsureGetMember<Sprite>("MenuMask");
+  BacklogMaskSheet = EnsureGetMember<SpriteSheet>("BacklogMask");
 
-  FadeInDirectDuration = EnsureGetMemberFloat("FadeInDirectDuration");
-  FadeOutDirectDuration = EnsureGetMemberFloat("FadeOutDirectDuration");
+  FadeInDirectDuration = EnsureGetMember<float>("FadeInDirectDuration");
+  FadeOutDirectDuration = EnsureGetMember<float>("FadeOutDirectDuration");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   UI::BacklogMenuPtr = new UI::CC::BacklogMenu();
   UI::Menus[drawType].push_back(UI::BacklogMenuPtr);

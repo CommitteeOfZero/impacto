@@ -2,7 +2,7 @@
 
 #include "../../animation.h"
 #include <vector>
-#include <flat_hash_map.hpp>
+#include <ankerl/unordered_dense.h>
 
 namespace Impacto {
 namespace Vm {
@@ -23,7 +23,7 @@ struct ScrWorkAnimation {
 };
 
 inline std::vector<int> CurrentScrWorkAnimations;
-inline ska::flat_hash_map<int, ScrWorkAnimation> ScrWorkAnimations;
+inline ankerl::unordered_dense::map<int, ScrWorkAnimation> ScrWorkAnimations;
 
 }  // namespace Interface
 }  // namespace Vm

@@ -12,7 +12,7 @@ namespace Dash {
 namespace TitleMenu {
 
 void Configure() {
-  BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
+  BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSprite");
   PressToStartAnimation.DurationIn =
       Profile::TitleMenu::PressToStartAnimDurationIn;
   PressToStartAnimation.DurationOut =
@@ -20,7 +20,7 @@ void Configure() {
   PressToStartAnimation.LoopMode = AnimationLoopMode::ReverseDirection;
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   UI::TitleMenuPtr = new UI::Dash::TitleMenu();
   UI::Menus[drawType].push_back(UI::TitleMenuPtr);

@@ -20,65 +20,69 @@ using namespace Impacto::Profile::ScriptVars;
 
 VmInstruction(InstUnk0041) {
   StartInstruction;
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk0041()\n");
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction Unk0041()\n");
 }
 VmInstruction(InstUnk0052) {
   StartInstruction;
   PopExpression(arg1);
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk0052(arg1: %i)\n",
-             arg1);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction Unk0052(arg1: {:d})\n", arg1);
 }
 VmInstruction(InstUnk0053) {
   StartInstruction;
   PopExpression(arg1);
   PopExpression(arg2);
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction Unk0053(arg1: %i, arg2: %i)\n", arg1, arg2);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction Unk0053(arg1: {:d}, arg2: {:d})\n", arg1, arg2);
 }
 VmInstruction(InstUnk0054) {
   StartInstruction;
   PopExpression(arg1);
   PopExpression(arg2);
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction Unk0054(arg1: %i, arg2: %i)\n", arg1, arg2);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction Unk0054(arg1: {:d}, arg2: {:d})\n", arg1, arg2);
 }
 VmInstruction(InstAddContents) {
   StartInstruction;
   PopUint8(type);
   switch (type) {
     case 0: {
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction AddContents(type: %i)\n", type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction AddContents(type: {:d})\n", type);
     } break;
     case 1: {  // CheckDownloadComp
       PopExpression(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction AddContents(type: %i, arg1: %i)\n", type,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction AddContents(type: {:d}, arg1: {:d})\n", type,
                  arg1);
     } break;
     case 2: {  // OpenContents
       PopExpression(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction AddContents(type: %i, arg1: %i)\n", type,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction AddContents(type: {:d}, arg1: {:d})\n", type,
                  arg1);
     } break;
     case 3: {  // CloseContents
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction AddContents(type: %i)\n", type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction AddContents(type: {:d})\n", type);
     } break;
   }
 }
 VmInstruction(InstUnk011F) {
   StartInstruction;
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk011F()\n");
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction Unk011F()\n");
 }
 VmInstruction(InstUnk012D) {
   StartInstruction;
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk012D()\n");
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction Unk012D()\n");
 }
 VmInstruction(InstUnk1035CHLCC) {
   StartInstruction;
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction InstUnk1035CHLCC()\n");
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction InstUnk1035CHLCC()\n");
 }
 VmInstruction(InstRINNS) {
   StartInstruction;
@@ -88,23 +92,22 @@ VmInstruction(InstRINNS) {
       PopUint16(arg1);
       PopUint8(arg2);
       PopExpression(arg3);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction RINNSInit(arg1: %i, arg2: %i, "
-                 "arg3: %i)\n",
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction RINNSInit(arg1: {:d}, arg2: {:d}, "
+                 "arg3: {:d})\n",
                  arg1, arg2, arg3);
     } break;
     case 0x81: {  // RINNSAddID
       PopExpression(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction RINNSAddID(arg1: %i, arg2: %i)\n", arg1,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction RINNSAddID(arg1: {:d}, arg2: {:d})\n", arg1,
                  arg2);
     } break;
     case 0x91: {  // RINNSTimeupLogID
       PopExpression(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction RINNSTimeupLogID(arg1: %i, arg2: %i)\n",
-                 arg1);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction RINNSTimeupLogID(arg1: {:d})\n", arg1);
     } break;
   }
 }
@@ -113,17 +116,17 @@ VmInstruction(InstRINNSMain) {
   PopUint8(type);
   switch (type) {
     case 0: {
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction RINNSMain(type: %i)\n", type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction RINNSMain(type: {:d})\n", type);
     } break;
     case 1: {
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction RINNSMain(type: %i)\n", type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction RINNSMain(type: {:d})\n", type);
     } break;
     case 2: {
       PopExpression(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction RINNSMain(type: %i, arg1: %i)\n", type,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction RINNSMain(type: {:d}, arg1: {:d})\n", type,
                  arg1);
     } break;
   }
@@ -133,8 +136,8 @@ VmInstruction(InstChatMO8) {
   PopUint8(type);
   switch (type) {
     case 0: {  // ChatInit
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction ChatMO8(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction ChatMO8(type: {:d})\n", type);
     } break;
     case 1: {  // ChatAdd
       PopExpression(arg1);
@@ -142,28 +145,30 @@ VmInstruction(InstChatMO8) {
       PopExpression(arg3);
       PopExpression(arg4);
       PopUint8(arg5);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction ChatMO8(type: %i, arg1: %i, arg2: %i, "
-                 "arg3: %i, arg4: %i, arg5: %i)\n",
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction ChatMO8(type: {:d}, arg1: {:d}, arg2: {:d}, "
+                 "arg3: {:d}, arg4: {:d}, arg5: {:d})\n",
                  type, arg1, arg2, arg3, arg4, arg5);
     } break;
     case 2: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction ChatMO8(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction ChatMO8(type: {:d})\n", type);
     } break;
     case 3: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction ChatMO8(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction ChatMO8(type: {:d})\n", type);
     } break;
     case 4: {
       PopExpression(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction ChatMO8(type: %i, arg1: %i)\n", type, arg1);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction ChatMO8(type: {:d}, arg1: {:d})\n", type,
+                 arg1);
     } break;
     case 5: {
       PopExpression(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction ChatMO8(type: %i, arg1: %i)\n", type, arg1);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction ChatMO8(type: {:d}, arg1: {:d})\n", type,
+                 arg1);
     } break;
     case 6: {
       PopExpression(arg1);
@@ -171,9 +176,9 @@ VmInstruction(InstChatMO8) {
       PopExpression(arg3);
       PopExpression(arg4);
       PopExpression(arg5);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction ChatMO8(type: %i, arg1: %i, arg2: %i, "
-                 "arg3: %i, arg4: %i, arg5: %i)\n",
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction ChatMO8(type: {:d}, arg1: {:d}, arg2: {:d}, "
+                 "arg3: {:d}, arg4: {:d}, arg5: {:d})\n",
                  type, arg1, arg2, arg3, arg4, arg5);
     } break;
   }
@@ -187,71 +192,80 @@ VmInstruction(InstGeotag) {
       (void)label1;
       PopLocalLabel(label2);
       (void)label2;
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Geotag(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Geotag(type: {:d})\n", type);
     } break;
     case 1: {
       PopExpression(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Geotag(type: %i, arg1: %i, arg2: %i)\n",
-                 type, arg1, arg2);
+      ImpLogSlow(
+          LogLevel::Warning, LogChannel::VMStub,
+          "STUB instruction Geotag(type: {:d}, arg1: {:d}, arg2: {:d})\n", type,
+          arg1, arg2);
     } break;
     case 2: {
       PopExpression(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Geotag(type: %i, arg1: %i, arg2: %i)\n",
-                 type, arg1, arg2);
+      ImpLogSlow(
+          LogLevel::Warning, LogChannel::VMStub,
+          "STUB instruction Geotag(type: {:d}, arg1: {:d}, arg2: {:d})\n", type,
+          arg1, arg2);
     } break;
     case 3: {
       PopExpression(arg1);
       PopLocalLabel(label1);
       (void)label1;
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Geotag(type: %i, arg1: %i)\n", type, arg1);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Geotag(type: {:d}, arg1: {:d})\n", type,
+                 arg1);
     } break;
     case 4: {
       PopExpression(arg1);
       PopLocalLabel(label1);
       (void)label1;
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Geotag(type: %i, arg1: %i)\n", type, arg1);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Geotag(type: {:d}, arg1: {:d})\n", type,
+                 arg1);
     } break;
     case 5: {
       PopExpression(arg1);
       PopLocalLabel(label1);
       (void)label1;
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Geotag(type: %i, arg1: %i)\n", type, arg1);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Geotag(type: {:d}, arg1: {:d})\n", type,
+                 arg1);
     } break;
     case 6: {
       PopExpression(arg1);
       PopLocalLabel(label1);
       (void)label1;
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Geotag(type: %i, arg1: %i)\n", type, arg1);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Geotag(type: {:d}, arg1: {:d})\n", type,
+                 arg1);
     } break;
     case 7: {
       PopExpression(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Geotag(type: %i, arg1: %i, arg2: %i)\n",
-                 type, arg1, arg2);
+      ImpLogSlow(
+          LogLevel::Warning, LogChannel::VMStub,
+          "STUB instruction Geotag(type: {:d}, arg1: {:d}, arg2: {:d})\n", type,
+          arg1, arg2);
     } break;
     case 8: {
       PopExpression(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Geotag(type: %i, arg1: %i, arg2: %i)\n",
-                 type, arg1, arg2);
+      ImpLogSlow(
+          LogLevel::Warning, LogChannel::VMStub,
+          "STUB instruction Geotag(type: {:d}, arg1: {:d}, arg2: {:d})\n", type,
+          arg1, arg2);
     } break;
     case 9: {
       PopExpression(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Geotag(type: %i, arg1: %i, arg2: %i)\n",
-                 type, arg1, arg2);
+      ImpLogSlow(
+          LogLevel::Warning, LogChannel::VMStub,
+          "STUB instruction Geotag(type: {:d}, arg1: {:d}, arg2: {:d})\n", type,
+          arg1, arg2);
     } break;
     case 10: {
       for (int i = 0; i < 8; i++) {
@@ -264,8 +278,8 @@ VmInstruction(InstGeotag) {
             SetFlag(SF_MDL1SHDISP + i, 0);
         }
       }
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Geotag(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Geotag(type: {:d})\n", type);
     } break;
     case 11: {
       PopExpression(arg1);
@@ -273,36 +287,40 @@ VmInstruction(InstGeotag) {
       PopExpression(arg3);
       PopExpression(arg4);
       PopExpression(arg5);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Geotag(type: %i, arg1: %i, arg2: %i, arg3: "
-                 "%i, arg4: %i, arg5: %i)\n",
-                 type, arg1, arg2, arg3, arg4, arg5);
+      ImpLogSlow(
+          LogLevel::Warning, LogChannel::VMStub,
+          "STUB instruction Geotag(type: {:d}, arg1: {:d}, arg2: {:d}, arg3: "
+          "{:d}, arg4: {:d}, arg5: {:d})\n",
+          type, arg1, arg2, arg3, arg4, arg5);
     } break;
     case 12: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Geotag(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Geotag(type: {:d})\n", type);
     } break;
     case 13: {
       PopExpression(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Geotag(type: %i, arg1: %i)\n", type, arg1);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Geotag(type: {:d}, arg1: {:d})\n", type,
+                 arg1);
     } break;
     case 14: {
       PopExpression(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Geotag(type: %i, arg1: %i, arg2: %i)\n",
-                 type, arg1, arg2);
+      ImpLogSlow(
+          LogLevel::Warning, LogChannel::VMStub,
+          "STUB instruction Geotag(type: {:d}, arg1: {:d}, arg2: {:d})\n", type,
+          arg1, arg2);
     } break;
     case 15: {
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
       PopExpression(arg4);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Geotag(type: %i, arg1: %i, arg2: %i, arg3: "
-                 "%i, arg4: %i)\n",
-                 type, arg1, arg2, arg3, arg4);
+      ImpLogSlow(
+          LogLevel::Warning, LogChannel::VMStub,
+          "STUB instruction Geotag(type: {:d}, arg1: {:d}, arg2: {:d}, arg3: "
+          "{:d}, arg4: {:d})\n",
+          type, arg1, arg2, arg3, arg4);
     } break;
     case 20: {
       PopExpression(arg1);
@@ -317,12 +335,13 @@ VmInstruction(InstGeotag) {
       PopExpression(arg10);
       PopExpression(arg11);
       PopExpression(arg12);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Geotag(type: %i, arg1: %i, arg2: %i, arg3: "
-                 "%i, arg4: %i, arg5: %i, arg6: %i, arg7: %i, arg8: %i, arg9: "
-                 "%i, arg10: %i, arg11: %i, arg12: %i)\n",
-                 type, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9,
-                 arg10, arg11, arg12);
+      ImpLogSlow(
+          LogLevel::Warning, LogChannel::VMStub,
+          "STUB instruction Geotag(type: {:d}, arg1: {:d}, arg2: {:d}, arg3: "
+          "{:d}, arg4: {:d}, arg5: {:d}, arg6: {:d}, arg7: {:d}, arg8: {:d}, "
+          "arg9: {:d}, arg10: {:d}, arg11: {:d}, arg12: {:d})\n",
+          type, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10,
+          arg11, arg12);
     } break;
     case 21: {
       PopExpression(arg1);
@@ -330,8 +349,8 @@ VmInstruction(InstGeotag) {
       PopExpression(arg3);
     } break;
     case 22: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Geotag(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Geotag(type: {:d})\n", type);
     } break;
   }
 }
@@ -341,19 +360,21 @@ VmInstruction(InstUnk100FMO6) {
   PopExpression(arg1);
   PopExpression(arg2);
   PopExpression(arg3);
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction Unk100FMO6(type: %i, arg1: %i, arg2: %i, arg3: "
-             "%i)\n",
-             type, arg1, arg2, arg3);
+  ImpLogSlow(
+      LogLevel::Warning, LogChannel::VMStub,
+      "STUB instruction Unk100FMO6(type: {:d}, arg1: {:d}, arg2: {:d}, arg3: "
+      "{:d})\n",
+      type, arg1, arg2, arg3);
 }
 VmInstruction(InstUnk1010MO6) {
   StartInstruction;
   PopUint8(type);
   PopExpression(arg1);
   PopExpression(arg2);
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction Unk100FMO6(type: %i, arg1: %i, arg2: %i)\n",
-             type, arg1, arg2);
+  ImpLogSlow(
+      LogLevel::Warning, LogChannel::VMStub,
+      "STUB instruction Unk100FMO6(type: {:d}, arg1: {:d}, arg2: {:d})\n", type,
+      arg1, arg2);
 }
 VmInstruction(InstUnk1011MO6) {
   StartInstruction;
@@ -380,9 +401,9 @@ VmInstruction(InstUnk1037) {
   PopExpression(arg1);
   PopExpression(arg2);
   PopExpression(arg3);
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction Unk1037(arg1: %i, arg2: %i, arg3: %i)\n", arg1,
-             arg2, arg3);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction Unk1037(arg1: {:d}, arg2: {:d}, arg3: {:d})\n",
+             arg1, arg2, arg3);
 }
 VmInstruction(InstMapSystem) {
   StartInstruction;
@@ -401,10 +422,11 @@ VmInstruction(InstMapSystem) {
       PopExpression(arg2);
       PopExpression(arg3);
       PopExpression(arg4);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MapSetGroup(arg1: %i, arg2: %i, arg3: %i, "
-                 "arg4: %i)\n",
-                 arg1, arg2, arg3, arg4);
+      ImpLogSlow(
+          LogLevel::Warning, LogChannel::VMStub,
+          "STUB instruction MapSetGroup(arg1: {:d}, arg2: {:d}, arg3: {:d}, "
+          "arg4: {:d})\n",
+          arg1, arg2, arg3, arg4);
       Impacto::UI::MapSystem::MapSetGroup(arg1, arg2, arg3, arg4);
     } break;
     case 4: {
@@ -420,8 +442,8 @@ VmInstruction(InstMapSystem) {
     case 6: {
       PopExpression(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MapSetHide(arg1: %i, arg2: %i)\n", arg1,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction MapSetHide(arg1: {:d}, arg2: {:d})\n", arg1,
                  arg2);
       Impacto::UI::MapSystem::MapSetHide(arg1, arg2);
     } break;
@@ -435,14 +457,15 @@ VmInstruction(InstMapSystem) {
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
-      ImpLogSlow(
-          LL_Warning, LC_VMStub,
-          "STUB instruction MapMoveAnimeInit(arg1: %i, arg2: %i, arg3: %i)\n",
-          arg1, arg2, arg3);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction MapMoveAnimeInit(arg1: {:d}, arg2: {:d}, "
+                 "arg3: {:d})\n",
+                 arg1, arg2, arg3);
       Impacto::UI::MapSystem::MapMoveAnimeInit(arg1, arg2, arg3);
     } break;
     case 9:
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapMoveAnimeMain\n");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction MapMoveAnimeMain\n");
       if (!Impacto::UI::MapSystem::MapMoveAnimeMain()) {
         ResetInstruction;
         BlockThread;
@@ -479,17 +502,17 @@ VmInstruction(InstMapSystem) {
     case 0xF: {
       PopExpression(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MapPoolSetDisp(arg1: %i, arg2: %i)\n", arg1,
-                 arg2);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction MapPoolSetDisp(arg1: {:d}, arg2: {:d})\n",
+                 arg1, arg2);
       Impacto::UI::MapSystem::MapPoolSetDisp(arg1, arg2);
     } break;
     case 0x10: {
       PopExpression(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MapPoolSetHide(arg1: %i, arg2: %i)\n", arg1,
-                 arg2);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction MapPoolSetHide(arg1: {:d}, arg2: {:d})\n",
+                 arg1, arg2);
       Impacto::UI::MapSystem::MapPoolSetHide(arg1, arg2);
     } break;
     case 0x11: {
@@ -518,19 +541,20 @@ VmInstruction(InstMapSystem) {
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
-      ImpLogSlow(
-          LL_Warning, LC_VMStub,
-          "STUB instruction MapSetGroupEx(arg1: %i, arg2: %i, arg3: %i)\n",
-          arg1, arg2, arg3);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction MapSetGroupEx(arg1: {:d}, arg2: {:d}, arg3: "
+                 "{:d})\n",
+                 arg1, arg2, arg3);
       Impacto::UI::MapSystem::MapSetGroupEx(arg1, arg2, arg3);
     } break;
     case 0x16: {
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MapZoomInit(arg1: %i, arg2: %i, arg3: %i)\n",
-                 arg1, arg2, arg3);
+      ImpLogSlow(
+          LogLevel::Warning, LogChannel::VMStub,
+          "STUB instruction MapZoomInit(arg1: {:d}, arg2: {:d}, arg3: {:d})\n",
+          arg1, arg2, arg3);
       if (arg1 != ScrWork[6363] || arg2 != ScrWork[6364] ||
           arg3 != ScrWork[6362]) {
         Impacto::UI::MapSystem::MapZoomInit(arg1, arg2, arg3);
@@ -539,7 +563,8 @@ VmInstruction(InstMapSystem) {
       }
     } break;
     case 0x17:
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapZoomMain\n");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction MapZoomMain\n");
       if (!Impacto::UI::MapSystem::MapZoomMain()) {
         ResetInstruction;
         BlockThread;
@@ -550,9 +575,9 @@ VmInstruction(InstMapSystem) {
       PopExpression(arg2);
       PopExpression(arg3);
       ImpLogSlow(
-          LL_Warning, LC_VMStub,
-          "STUB instruction MapZoomInit2(arg1: %i, arg2: %i, arg3: %i)\n", arg1,
-          arg2, arg3);
+          LogLevel::Warning, LogChannel::VMStub,
+          "STUB instruction MapZoomInit2(arg1: {:d}, arg2: {:d}, arg3: {:d})\n",
+          arg1, arg2, arg3);
       if (arg1 != ScrWork[6363] || arg2 != ScrWork[6364] ||
           arg3 != ScrWork[6362]) {
         Impacto::UI::MapSystem::MapZoomInit2(arg1, arg2);
@@ -599,12 +624,12 @@ VmInstruction(InstMapSystem) {
       }
       break;
     case 0x1E:
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction MapPlayerPotalSelectInit\n");
       Impacto::UI::MapSystem::MapPlayerPotalSelectInit();
       break;
     case 0x1F:
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction MapPlayerPotalSelect\n");
       if (!Impacto::UI::MapSystem::MapPlayerPotalSelect()) {
         ResetInstruction;
@@ -612,7 +637,8 @@ VmInstruction(InstMapSystem) {
       }
       break;
     case 0x28:
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction MapSystem_28\n");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction MapSystem_28\n");
       Impacto::UI::MapSystem::MapSystem_28();
       break;
   }
@@ -624,33 +650,37 @@ VmInstruction(InstPhoneSG) {
     case 0: {
       PopUint8(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Unk1037(arg1: %i, arg2: %i)\n", arg1, arg2);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Unk1037(arg1: {:d}, arg2: {:d})\n", arg1,
+                 arg2);
       break;
     }
     case 1: {
       PopUint8(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Unk1037(arg1: %i, arg2: %i)\n", arg1, arg2);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Unk1037(arg1: {:d}, arg2: {:d})\n", arg1,
+                 arg2);
       break;
     }
     case 2: {
       PopUint8(arg1);
       PopExpression(arg2);
       PopUint16(arg3);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Unk1037(arg1: %i, arg2: %i, arg3: %i)\n",
-                 arg1, arg2, arg3);
+      ImpLogSlow(
+          LogLevel::Warning, LogChannel::VMStub,
+          "STUB instruction Unk1037(arg1: {:d}, arg2: {:d}, arg3: {:d})\n",
+          arg1, arg2, arg3);
       break;
     }
     case 3: {
       PopUint8(arg1);
       PopExpression(arg2);
       PopUint16(arg3);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Unk1037(arg1: %i, arg2: %i, arg3: %i)\n",
-                 arg1, arg2, arg3);
+      ImpLogSlow(
+          LogLevel::Warning, LogChannel::VMStub,
+          "STUB instruction Unk1037(arg1: {:d}, arg2: {:d}, arg3: {:d})\n",
+          arg1, arg2, arg3);
       if (GetFlag(SF_Phone_Open)) {
         ScrWork[SW_PHONE_DISP_CT] = 20;
       } else {
@@ -665,9 +695,9 @@ VmInstruction(InstPhoneSG) {
       PopUint16(arg4);
       PopUint16(arg5);
       PopUint16(arg6);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction CHAmoveSetSeqDirect(arg1: %i, arg2: %i, "
-                 "arg3: %i, arg4: %i, arg5: %i, arg6: %i)\n",
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction CHAmoveSetSeqDirect(arg1: {:d}, arg2: {:d}, "
+                 "arg3: {:d}, arg4: {:d}, arg5: {:d}, arg6: {:d})\n",
                  arg1, arg2, arg3, arg4, arg5, arg6);
       break;
     }
@@ -676,15 +706,16 @@ VmInstruction(InstPhoneSG) {
     }
     case 15: {
       PopExpression(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk1037(arg1: %i)\n",
-                 arg1);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Unk1037(arg1: {:d})\n", arg1);
       break;
     }
     case 18: {
       PopExpression(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Unk1037(arg1: %i, arg2: %i)\n", arg1, arg2);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Unk1037(arg1: {:d}, arg2: {:d})\n", arg1,
+                 arg2);
       break;
     }
   }
@@ -694,16 +725,16 @@ VmInstruction(InstMail) {
   PopUint8(type);
   switch (type) {
     case 0:
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Mail(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Mail(type: {:d})\n", type);
       break;
     case 1:
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Mail(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Mail(type: {:d})\n", type);
       break;
     case 2:
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Mail(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Mail(type: {:d})\n", type);
       break;
     case 3: {
       PopLocalLabel(label1);
@@ -716,77 +747,79 @@ VmInstruction(InstMail) {
       (void)label4;
       PopLocalLabel(label5);
       (void)label5;
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Mail(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Mail(type: {:d})\n", type);
     } break;
     case 20:
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Mail(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Mail(type: {:d})\n", type);
       break;
     case 21: {
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
       PopExpression(arg4);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Mail(type: %i, arg1: %i, arg2: %i, arg3: "
-                 "%i, arg4: %i)\n",
-                 type, arg1, arg2, arg3, arg4);
+      ImpLogSlow(
+          LogLevel::Warning, LogChannel::VMStub,
+          "STUB instruction Mail(type: {:d}, arg1: {:d}, arg2: {:d}, arg3: "
+          "{:d}, arg4: {:d})\n",
+          type, arg1, arg2, arg3, arg4);
     } break;
     case 22: {
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
       PopExpression(arg4);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Mail(type: %i, arg1: %i, arg2: %i, arg3: "
-                 "%i, arg4: %i)\n",
-                 type, arg1, arg2, arg3, arg4);
+      ImpLogSlow(
+          LogLevel::Warning, LogChannel::VMStub,
+          "STUB instruction Mail(type: {:d}, arg1: {:d}, arg2: {:d}, arg3: "
+          "{:d}, arg4: {:d})\n",
+          type, arg1, arg2, arg3, arg4);
     } break;
     case 40:
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Mail(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Mail(type: {:d})\n", type);
       break;
     case 50:
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Mail(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Mail(type: {:d})\n", type);
       break;
     case 51:
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Mail(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Mail(type: {:d})\n", type);
       break;
     case 60:
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Mail(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Mail(type: {:d})\n", type);
       break;
     case 61: {
       PopExpression(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Mail(type: %i, arg1: %i)\n", type, arg1);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Mail(type: {:d}, arg1: {:d})\n", type, arg1);
     } break;
     case 70:
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Mail(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Mail(type: {:d})\n", type);
       break;
     case 71: {
       PopLocalLabel(label1);
       (void)label1;
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Mail(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Mail(type: {:d})\n", type);
     } break;
     case 72: {
       PopLocalLabel(label1);
       (void)label1;
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Mail(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Mail(type: {:d})\n", type);
     } break;
     case 73:
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Mail(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Mail(type: {:d})\n", type);
       break;
     case 74:
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Mail(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Mail(type: {:d})\n", type);
       break;
   }
 }
@@ -802,8 +835,9 @@ VmInstruction(InstUnk1038MO7) {
   StartInstruction;
   PopExpression(arg1);
   PopExpression(arg2);
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction Unk1038MO7(arg1: %i, arg2: %i)\n", arg1, arg2);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction Unk1038MO7(arg1: {:d}, arg2: {:d})\n", arg1,
+             arg2);
 }
 VmInstruction(InstTwipo) {
   StartInstruction;
@@ -814,8 +848,8 @@ VmInstruction(InstTwipo) {
       (void)label1;
       PopLocalLabel(label2);
       (void)label2;
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Twipo(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Twipo(type: {:d})\n", type);
     } break;
     case 1: {
     } break;
@@ -823,45 +857,53 @@ VmInstruction(InstTwipo) {
       PopExpression(arg1);
       PopLocalLabel(label1);
       (void)label1;
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Twipo(type: %i, arg1: %i)\n", type, arg1);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Twipo(type: {:d}, arg1: {:d})\n", type,
+                 arg1);
     } break;
     case 3: {
       PopExpression(arg1);
       PopLocalLabel(label1);
       (void)label1;
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Twipo(type: %i, arg1: %i)\n", type, arg1);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Twipo(type: {:d}, arg1: {:d})\n", type,
+                 arg1);
     } break;
     case 4: {
       PopExpression(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Twipo(type: %i, arg1: %i)\n", type, arg1);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Twipo(type: {:d}, arg1: {:d})\n", type,
+                 arg1);
     } break;
     case 5: {
       PopExpression(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Twipo(type: %i, arg1: %i)\n", type, arg1);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Twipo(type: {:d}, arg1: {:d})\n", type,
+                 arg1);
     } break;
     case 6: {
       PopExpression(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Twipo(type: %i, arg1: %i)\n", type, arg1);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Twipo(type: {:d}, arg1: {:d})\n", type,
+                 arg1);
     } break;
     case 7: {
       PopExpression(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Twipo(type: %i, arg1: %i)\n", type, arg1);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Twipo(type: {:d}, arg1: {:d})\n", type,
+                 arg1);
     } break;
     case 10: {
       PopExpression(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Twipo(type: %i, arg1: %i)\n", type, arg1);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Twipo(type: {:d}, arg1: {:d})\n", type,
+                 arg1);
     } break;
     case 11: {
       PopExpression(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Twipo(type: %i, arg1: %i)\n", type, arg1);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Twipo(type: {:d}, arg1: {:d})\n", type,
+                 arg1);
     } break;
   }
 }
@@ -876,8 +918,8 @@ VmInstruction(InstTwipo_Dash) {
       (void)label2;
       PopLocalLabel(label3);
       (void)label3;
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Twipo(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Twipo(type: {:d})\n", type);
     } break;
     case 1:
     case 11:
@@ -887,40 +929,47 @@ VmInstruction(InstTwipo_Dash) {
       PopExpression(arg1);
       PopLocalLabel(label1);
       (void)label1;
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Twipo(type: %i, arg1: %i)\n", type, arg1);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Twipo(type: {:d}, arg1: {:d})\n", type,
+                 arg1);
     } break;
     case 3: {
       PopExpression(arg1);
       PopLocalLabel(label1);
       (void)label1;
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Twipo(type: %i, arg1: %i)\n", type, arg1);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Twipo(type: {:d}, arg1: {:d})\n", type,
+                 arg1);
     } break;
     case 4: {
       PopExpression(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Twipo(type: %i, arg1: %i)\n", type, arg1);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Twipo(type: {:d}, arg1: {:d})\n", type,
+                 arg1);
     } break;
     case 5: {
       PopExpression(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Twipo(type: %i, arg1: %i)\n", type, arg1);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Twipo(type: {:d}, arg1: {:d})\n", type,
+                 arg1);
     } break;
     case 6: {
       PopExpression(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Twipo(type: %i, arg1: %i)\n", type, arg1);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Twipo(type: {:d}, arg1: {:d})\n", type,
+                 arg1);
     } break;
     case 7: {
       PopExpression(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Twipo(type: %i, arg1: %i)\n", type, arg1);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Twipo(type: {:d}, arg1: {:d})\n", type,
+                 arg1);
     } break;
     case 10: {
       PopExpression(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Twipo(type: %i, arg1: %i)\n", type, arg1);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Twipo(type: {:d}, arg1: {:d})\n", type,
+                 arg1);
     } break;
   }
 }
@@ -929,31 +978,31 @@ VmInstruction(InstDelusionTriggerCHLCC) {
   PopUint8(type);
   switch (type) {
     case 1: {
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction DelusionTriggerCHLCC(type: %i)\n", type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction DelusionTriggerCHLCC(type: {:d})\n", type);
       DelusionTrigger::Show();
     } break;
     case 2: {
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction DelusionTriggerCHLCC(type: %i)\n", type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction DelusionTriggerCHLCC(type: {:d})\n", type);
       BlockThread;
     } break;
     case 4: {
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction DelusionTriggerCHLCC(type: %i)\n", type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction DelusionTriggerCHLCC(type: {:d})\n", type);
     } break;
     case 5: {
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction DelusionTriggerCHLCC(type: %i)\n", type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction DelusionTriggerCHLCC(type: {:d})\n", type);
     } break;
     case 6: {
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction DelusionTriggerCHLCC(type: %i)\n", type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction DelusionTriggerCHLCC(type: {:d})\n", type);
       DelusionTrigger::Hide();
     } break;
     case 7: {
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction DelusionTriggerCHLCC(type: %i)\n", type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction DelusionTriggerCHLCC(type: {:d})\n", type);
       BlockThread;
     } break;
   }
@@ -969,57 +1018,57 @@ VmInstruction(InstYesNoTriggerCCLCC) {
       PopExpression(arg1);  // 0, 1, 2, 3
       PopExpression(arg2);
       PopExpression(arg3);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Unk103A(type: %i, arg1: %i, arg2: %i, "
-                 "arg3: %i)\n",
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Unk103A(type: {:d}, arg1: {:d}, arg2: {:d}, "
+                 "arg3: {:d})\n",
                  type, arg1, arg2, arg3);
       YesNoTrigger::YesNoTriggerPtr->Start(arg1, arg2, arg3);
     } break;
     case 1: {
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction YesNoTriggerCCLCC(type: %i)\n", type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction YesNoTriggerCCLCC(type: {:d})\n", type);
       // Load images instruction
     } break;
     case 2: {
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction YesNoTriggerCCLCC(type: %i)\n", type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction YesNoTriggerCCLCC(type: {:d})\n", type);
       YesNoTrigger::YesNoTriggerPtr->Show();
       BlockThread;
     } break;
     case 3: {
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction YesNoTriggerCCLCC(type: %i)\n", type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction YesNoTriggerCCLCC(type: {:d})\n", type);
       YesNoTrigger::YesNoTriggerPtr->Hide();
     } break;
     case 4: {
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction YesNoTriggerCCLCC(type: %i)\n", type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction YesNoTriggerCCLCC(type: {:d})\n", type);
       if (YesNoTrigger::YesNoTriggerPtr->State != YesNoState::MainInput) {
         ResetInstruction;
         BlockThread;
       }
     } break;
     case 5: {
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction YesNoTriggerCCLCC(type: %i)\n", type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction YesNoTriggerCCLCC(type: {:d})\n", type);
       YesNoTrigger::YesNoTriggerPtr->AllowInput = true;
     } break;
     case 6: {
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction YesNoTriggerCCLCC(type: %i)\n", type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction YesNoTriggerCCLCC(type: {:d})\n", type);
       if (YesNoTrigger::YesNoTriggerPtr->State == YesNoState::MainInput) {
         ResetInstruction;
         BlockThread;
       }
     } break;
     case 7: {
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction YesNoTriggerCCLCC(type: %i)\n", type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction YesNoTriggerCCLCC(type: {:d})\n", type);
       YesNoTrigger::YesNoTriggerPtr->GoToNextQuestion = true;
     } break;
     case 8: {
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction YesNoTriggerCCLCC(type: %i)\n", type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction YesNoTriggerCCLCC(type: {:d})\n", type);
       PopLocalLabel(branchAddress);
       if (YesNoTrigger::YesNoTriggerPtr->State == YesNoState::PanToNext ||
           YesNoTrigger::YesNoTriggerPtr->State == YesNoState::ZoomStart) {
@@ -1032,14 +1081,14 @@ VmInstruction(InstYesNoTriggerCCLCC) {
 
     } break;
     case 10: {
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction YesNoTriggerCCLCC(type: %i)\n", type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction YesNoTriggerCCLCC(type: {:d})\n", type);
       YesNoTrigger::YesNoTriggerPtr->Reset();
 
     } break;
     default: {
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction YesNoTriggerCCLCC(type: %i)\n", type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction YesNoTriggerCCLCC(type: {:d})\n", type);
     } break;
   }
 }
@@ -1051,18 +1100,19 @@ VmInstruction(InstUnk103A) {
     case 0: {
       PopExpression(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Unk103A(type: %i, arg1: %i, arg2: %i)\n",
-                 type, arg1, arg2);
+      ImpLogSlow(
+          LogLevel::Warning, LogChannel::VMStub,
+          "STUB instruction Unk103A(type: {:d}, arg1: {:d}, arg2: {:d})\n",
+          type, arg1, arg2);
     } break;
     case 1: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk103A(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Unk103A(type: {:d})\n", type);
     } break;
     case 2: {
       SetFlag(2951, 1);  // Always win KillBallad
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Unk103A(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Unk103A(type: {:d})\n", type);
     } break;
   }
 }
@@ -1072,51 +1122,51 @@ VmInstruction(InstUnk1037Noah) {
   switch (type) {
     case 0x0: {
       PopExpression(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_00\n");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_00\n");
     } break;
     case 0x1: {
       PopExpression(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_01\n");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_01\n");
     } break;
     case 0x2: {
       PopExpression(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_01\n");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_01\n");
     } break;
     case 0x3: {
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
       PopExpression(arg4);
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_03");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_03");
     } break;
     case 0x4: {
       PopExpression(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_04");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_04");
     } break;
     case 0x5: {
       PopExpression(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_05");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_05");
     } break;
     case 0x6: {
       PopExpression(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_06");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_06");
     } break;
     case 0x7: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_07");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_07");
     } break;
     case 0x8: {
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_08");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_08");
     } break;
     case 0x9: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_09");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_09");
     } break;
     case 0xA: {
       PopExpression(arg1);
@@ -1124,7 +1174,7 @@ VmInstruction(InstUnk1037Noah) {
       PopExpression(arg3);
       PopExpression(arg4);
       PopExpression(arg5);
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_0A");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_0A");
     } break;
     case 0xB: {
       PopExpression(arg1);
@@ -1132,16 +1182,16 @@ VmInstruction(InstUnk1037Noah) {
       PopExpression(arg3);
       PopExpression(arg4);
       PopExpression(arg5);
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_0B");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_0B");
     } break;
     case 0xC: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_0C");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_0C");
     } break;
     case 0xD: {
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_0D");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_0D");
     } break;
     case 0xE: {
       PopExpression(arg1);
@@ -1150,23 +1200,23 @@ VmInstruction(InstUnk1037Noah) {
       PopExpression(arg4);
       PopExpression(arg5);
       PopExpression(arg6);
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_0E");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_0E");
     } break;
     case 0xF: {
       PopExpression(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_0F");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_0F");
     } break;
     case 0x10: {
       PopExpression(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_10");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_10");
     } break;
     case 0x11: {
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_13");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_13");
     } break;
     case 0x12: {
       PopExpression(arg1);
@@ -1174,7 +1224,7 @@ VmInstruction(InstUnk1037Noah) {
       PopExpression(arg3);
       PopExpression(arg4);
       PopExpression(arg5);
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_12");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_12");
     } break;
     case 0x13: {
       PopExpression(arg1);
@@ -1182,73 +1232,73 @@ VmInstruction(InstUnk1037Noah) {
       PopExpression(arg3);
       PopExpression(arg4);
       PopExpression(arg5);
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_13");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_13");
     } break;
     case 0x14: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_14");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_14");
     } break;
     case 0x15: {
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_05");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_05");
     } break;
     case 0x16: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_16");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_16");
     } break;
     case 0x17: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_07");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_07");
     } break;
     case 0x18: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_18");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_18");
     } break;
     case 0x19: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_19");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_19");
     } break;
     case 0x1A: {
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_1A");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_1A");
     } break;
     case 0x1B: {
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_1B");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_1B");
     } break;
     case 0x1C: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_1C");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_1C");
     } break;
     case 0x1E: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_1E");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_1E");
     } break;
     case 0x1F: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_1F");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_1F");
     } break;
     case 0x20: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_20");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_20");
     } break;
     case 0x21: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_21");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_21");
     } break;
     case 0x22: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_22");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_22");
     } break;
     case 0x28: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_28");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_28");
     } break;
     case 0x29: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_29");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_29");
     } break;
     case 0x2A: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_2A");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_2A");
     } break;
     case 0x2B: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_2B");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_2B");
     } break;
     case 0x2C: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_2C");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_2C");
     } break;
     case 0x52: {
       PopExpression(arg1);
@@ -1259,7 +1309,7 @@ VmInstruction(InstUnk1037Noah) {
       PopExpression(arg6);
       PopExpression(arg7);
       PopExpression(arg8);
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_53");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_53");
     } break;
     case 0x53: {
       PopExpression(arg1);
@@ -1270,28 +1320,28 @@ VmInstruction(InstUnk1037Noah) {
       PopExpression(arg6);
       PopExpression(arg7);
       PopExpression(arg8);
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_53");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_53");
     } break;
     case 0x78: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_78");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_78");
     } break;
     case 0x81: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_81");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_81");
     } break;
     case 0x8C: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_8C");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_8C");
     } break;
     case 0x8D: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_8D");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_8D");
     } break;
     case 0x8E: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_8E");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_8E");
     } break;
     case 0x8F: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_8F");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_8F");
     } break;
     case 0x90: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "1037_90");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub, "1037_90");
     } break;
   }
 }
@@ -1303,15 +1353,15 @@ VmInstruction(InstMtrg) {
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MtrgStart(type: %i)\n", type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction MtrgStart(type: {:d})\n", type);
       if (DelusionTrigger::Show(arg1, arg2, arg3)) {
         return;
       }
     } break;
     case 1: {
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MtrgEnd_Wait(type: %i)\n", type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction MtrgEnd_Wait(type: {:d})\n", type);
       DelusionTrigger::Hide();
       if (ScrWork[SW_DELUSION_BG_COUNTER] != 0) {
         ResetInstruction;
@@ -1341,24 +1391,24 @@ VmInstruction(InstMtrg) {
       }
     } break;
     case 3: {
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MtrgStop_Wait(type: %i)\n", type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction MtrgStop_Wait(type: {:d})\n", type);
       if (DelusionTrigger::CheckTransitionAnimationComplete()) {
         SetFlag(SF_DELUSIONSELECTED, 1);
         return;
       }
     } break;
     case 4: {
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MtrgStart_Wait(type: %i)\n", type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction MtrgStart_Wait(type: {:d})\n", type);
       if (DelusionTrigger::CheckStartTransitionComplete()) {
         return;
       }
     } break;
     case 5: {
       PopExpression(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction MtrgSetEvent(type: %i)\n", type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction MtrgSetEvent(type: {:d})\n", type);
       [[fallthrough]];
     };
     default:

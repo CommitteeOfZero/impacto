@@ -53,8 +53,7 @@ void SelectionMenu::Show() {
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
 
-  auto onClick =
-      std::bind(&SelectionMenu::ChoiceItemOnClick, this, std::placeholders::_1);
+  auto onClick = [this](auto* btn) { return ChoiceItemOnClick(btn); };
 
   if (IsPlain) {
     float diff = 0.0f;

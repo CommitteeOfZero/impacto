@@ -13,11 +13,11 @@ void Configure() {
 
     PushInitialIndex();
     while (PushNextTableElement() != 0) {
-      std::string name(EnsureGetKeyString());
+      std::string name(EnsureGetKey<std::string>());
 
       PushInitialIndex();
       while (PushNextTableElement() != 0) {
-        std::string file(EnsureGetArrayElementString());
+        std::string file(EnsureGetArrayElement<std::string>());
         Io::VfsMount(name, file);
         Pop();
       }

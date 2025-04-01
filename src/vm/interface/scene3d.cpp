@@ -110,7 +110,7 @@ static void UpdateCamera() {
   switch (Profile::Vm::GameInstructionSet) {
     default:
       // Calculations are game-specific, can't do anything reasonable here
-      ImpLog(LL_Error, LC_Render,
+      ImpLog(LogLevel::Error, LogChannel::Render,
              "Unknown instruction set, can't update camera!\n");
       return;
     case InstructionSet::Dash: {

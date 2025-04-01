@@ -9,7 +9,11 @@
 #include <string>
 #include <cctype>
 #include <chrono>
-#include "../vendor/span/span.hpp"
+#include <span>
+
+#if defined(WIN32) || defined(_WIN32)
+#include <malloc.h>
+#endif
 
 // TODO own _malloca for gcc
 
@@ -21,17 +25,29 @@
 #define ImpStackFree free
 #endif
 
-#define TIME_CODE(code)                                       \
-  do {                                                        \
-    auto start = std::chrono::high_resolution_clock::now();   \
-    code;                                                     \
-    auto end = std::chrono::high_resolution_clock::now();     \
-    std::chrono::duration<double> elapsed = end - start;      \
-    ImpLog(LL_Info, LC_General, "Time elapsed: %f seconds\n", \
-           elapsed.count());                                  \
+#define TIME_CODE(code)                                      \
+  do {                                                       \
+    auto start = std::chrono::high_resolution_clock::now();  \
+    code;                                                    \
+    auto end = std::chrono::high_resolution_clock::now();    \
+    std::chrono::duration<double> elapsed = end - start;     \
+    ImpLog(LogLevel::Info, LogChannel::General,              \
+           "Time elapsed: {:f} seconds\n", elapsed.count()); \
   } while (0)
 
 namespace Impacto {
+struct string_hash {
+  using is_transparent = void;  // enable heterogeneous overloads
+  using is_avalanching = void;  // mark class as high quality avalanching hash
+
+  [[nodiscard]] auto operator()(std::string_view str) const noexcept
+      -> uint64_t {
+    return ankerl::unordered_dense::hash<std::string_view>{}(str);
+  }
+};
+
+template <typename T, typename... Ts>
+concept is_any_of = std::disjunction_v<std::is_same<T, Ts>...>;
 
 glm::mat2 Rotate2D(float angle);
 
@@ -144,6 +160,28 @@ struct Rect {
   }
 };
 
+struct CornersQuad {
+  glm::vec2 TopLeft;
+  glm::vec2 BottomLeft;
+  glm::vec2 TopRight;
+  glm::vec2 BottomRight;
+
+  constexpr CornersQuad(glm::vec2 tl, glm::vec2 bl, glm::vec2 tr, glm::vec2 br)
+      : TopLeft(tl), BottomLeft(bl), TopRight(tr), BottomRight(br) {}
+
+  constexpr CornersQuad(RectF const& rect)
+      : CornersQuad({rect.X, rect.Y}, {rect.X, rect.Y + rect.Height},
+                    {rect.X + rect.Width, rect.Y},
+                    {rect.X + rect.Width, rect.Y + rect.Height}) {}
+
+  constexpr CornersQuad(Rect const& rect)
+      : CornersQuad(
+            {(float)rect.X, (float)rect.Y},
+            {(float)rect.X, (float)(rect.Y + rect.Height)},
+            {(float)(rect.X + rect.Width), (float)rect.Y},
+            {(float)(rect.X + rect.Width), (float)(rect.Y + rect.Height)}) {}
+};
+
 inline constexpr RectF::RectF(Rect const& rect)
     : RectF((float)rect.X, (float)rect.Y, (float)rect.Width,
             (float)rect.Height) {}
@@ -160,8 +198,8 @@ constexpr glm::vec4 RgbIntToFloat(uint32_t rgb) {
 
 uint32_t GetHashCode(uint8_t* data, int length);
 
-char* DumpMat4(glm::mat4* matrix, const char* columnSeparator = "\t",
-               const char* rowSeparator = "\n");
+std::string DumpMat4(glm::mat4* matrix, std::string_view columnSeparator = "\t",
+                     std::string_view rowSeparator = "\n");
 
 // Thanks https://graphics.stanford.edu/~seander/bithacks.html#IntegerLog
 constexpr int Uint32Log2(uint32_t v) {
@@ -294,7 +332,7 @@ constexpr std::underlying_type_t<Enum> to_underlying(Enum e) noexcept {
 }
 
 int ResizeImage(Rect const& srcRect, Rect const& dstRect,
-                tcb::span<uint8_t> src, tcb::span<uint8_t> dst,
+                std::span<uint8_t> src, std::span<uint8_t> dst,
                 bool flipY = false);
 
 inline int CALCrnd(int max) {

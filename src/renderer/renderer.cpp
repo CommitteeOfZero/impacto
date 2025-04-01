@@ -32,32 +32,37 @@ void InitRenderer() {
       break;
 #endif
     default:
-      ImpLog(LL_Error, LC_Render,
+      ImpLog(LogLevel::Error, LogChannel::Render,
              "Unknown or unsupported renderer selected!\n");
-      exit(0);
+      exit(1);
   }
 
   Renderer->Init();
 }
 
+void BaseRenderer::DrawSprite(Sprite const& sprite, RectF const& dest,
+                              glm::vec4 tint, float angle, bool inverted) {
+  std::array<glm::vec4, 4> tints = {tint, tint, tint, tint};
+  DrawSprite(sprite, CornersQuad(dest), tints, angle, inverted);
+}
+
 void BaseRenderer::DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
                               glm::vec4 tint, glm::vec2 scale, float angle,
-                              bool inverted, bool isScreencap) {
+                              bool inverted) {
   RectF scaledDest(topLeft.x, topLeft.y,
                    scale.x * sprite.Bounds.Width * sprite.BaseScale.x,
                    scale.y * sprite.Bounds.Height * sprite.BaseScale.y);
-  DrawSprite(sprite, scaledDest, tint, angle, inverted, isScreencap);
+  DrawSprite(sprite, scaledDest, tint, angle, inverted);
 }
 
 void BaseRenderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                                     glm::vec2 topLeft, glm::vec4 tint,
                                     int alpha, int fadeRange, float effectCt,
-                                    bool isScreencap, glm::vec2 scale) {
+                                    glm::vec2 scale) {
   RectF scaledDest(topLeft.x, topLeft.y,
                    scale.x * sprite.Bounds.Width * sprite.BaseScale.x,
                    scale.y * sprite.Bounds.Height * sprite.BaseScale.y);
-  DrawCCMessageBox(sprite, mask, scaledDest, tint, alpha, fadeRange, effectCt,
-                   isScreencap);
+  DrawCCMessageBox(sprite, mask, scaledDest, tint, alpha, fadeRange, effectCt);
 }
 
 void BaseRenderer::DrawSprite3DRotated(Sprite const& sprite, glm::vec2 topLeft,
@@ -72,8 +77,53 @@ void BaseRenderer::DrawSprite3DRotated(Sprite const& sprite, glm::vec2 topLeft,
                       rot, tint, inverted);
 }
 
+void BaseRenderer::DrawProcessedText(std::span<const ProcessedTextGlyph> text,
+                                     Font* font, float opacity,
+                                     RendererOutlineMode outlineMode,
+                                     bool smoothstepGlyphOpacity,
+                                     SpriteSheet* maskedSheet) {
+  switch (font->Type) {
+    case FontType::Basic:
+      DrawProcessedText_BasicFont(text, (BasicFont*)font, opacity, outlineMode,
+                                  smoothstepGlyphOpacity, opacity, maskedSheet);
+      break;
+    case FontType::LB: {
+      DrawProcessedText_LBFont(text, (LBFont*)font, opacity, outlineMode,
+                               smoothstepGlyphOpacity, opacity, maskedSheet);
+    }
+  }
+}
+
+void BaseRenderer::DrawProcessedText(std::span<const ProcessedTextGlyph> text,
+                                     Font* font, float opacity,
+                                     float outlineOpacity,
+                                     RendererOutlineMode outlineMode,
+                                     bool smoothstepGlyphOpacity,
+                                     SpriteSheet* maskedSheet) {
+  switch (font->Type) {
+    case FontType::Basic:
+      DrawProcessedText_BasicFont(text, (BasicFont*)font, opacity, outlineMode,
+                                  smoothstepGlyphOpacity, outlineOpacity,
+                                  maskedSheet);
+      break;
+    case FontType::LB: {
+      DrawProcessedText_LBFont(text, (LBFont*)font, opacity, outlineMode,
+                               smoothstepGlyphOpacity, outlineOpacity,
+                               maskedSheet);
+    }
+  }
+}
+
+void BaseRenderer::DrawVideoTexture(YUVFrame* tex, glm::vec2 topLeft,
+                                    glm::vec4 tint, glm::vec2 scale,
+                                    float angle, bool alphaVideo) {
+  RectF scaledDest(topLeft.x, topLeft.y, scale.x * tex->Width,
+                   scale.y * tex->Height);
+  DrawVideoTexture(tex, scaledDest, tint, angle, alphaVideo);
+}
+
 void BaseRenderer::DrawProcessedText_BasicFont(
-    tcb::span<const ProcessedTextGlyph> text, BasicFont* font, float opacity,
+    std::span<const ProcessedTextGlyph> text, BasicFont* font, float opacity,
     RendererOutlineMode outlineMode, bool smoothstepGlyphOpacity,
     float outlineOpacity, SpriteSheet* maskedSheet) {
   // cruddy mages outline
@@ -97,7 +147,7 @@ void BaseRenderer::DrawProcessedText_BasicFont(
             mask.Sheet = *maskedSheet;
             mask.Bounds = dest;
             DrawMaskedSpriteOverlay(glyph, mask, dest, color, color.a * 255,
-                                    256, false, 0, false, i == 0);
+                                    256, false, 0, i == 0);
           } else {
             DrawSprite(glyph, dest, color);
           }
@@ -112,7 +162,7 @@ void BaseRenderer::DrawProcessedText_BasicFont(
             mask.Sheet = *maskedSheet;
             mask.Bounds = dest;
             DrawMaskedSpriteOverlay(glyph, mask, dest, color, color.a * 255,
-                                    256, false, 0, false, i == 0);
+                                    256, false, 0, i == 0);
           } else {
             DrawSprite(glyph, dest, color);
           }
@@ -145,7 +195,7 @@ void BaseRenderer::DrawProcessedText_BasicFont(
 }
 
 void BaseRenderer::DrawProcessedText_LBFont(
-    tcb::span<const ProcessedTextGlyph> text, LBFont* font, float opacity,
+    std::span<const ProcessedTextGlyph> text, LBFont* font, float opacity,
     RendererOutlineMode outlineMode, bool smoothstepGlyphOpacity,
     float outlineOpacity, SpriteSheet* maskedSheet) {
   if (outlineMode != RendererOutlineMode::RO_None) {
@@ -186,7 +236,7 @@ void BaseRenderer::DrawProcessedText_LBFont(
         mask.Bounds = outlineDest;
         DrawMaskedSpriteOverlay(font->OutlineGlyph(text[i].CharId), mask,
                                 outlineDest, color, color.a * 255, 256, false,
-                                0, false, i == 0);
+                                0, i == 0);
       } else {
         DrawSprite(font->OutlineGlyph(text[i].CharId), outlineDest, color);
       }
@@ -214,57 +264,10 @@ void BaseRenderer::DrawProcessedText_LBFont(
       mask.Sheet = *maskedSheet;
       mask.Bounds = foregroundDest;
       DrawMaskedSpriteOverlay(font->Glyph(text[i].CharId), mask, foregroundDest,
-                              color, color.a * 255, 256, false, 0, false,
-                              i == 0);
+                              color, color.a * 255, 256, false, 0, i == 0);
     } else {
       DrawSprite(font->Glyph(text[i].CharId), foregroundDest, color);
     }
   }
 }
-
-void BaseRenderer::DrawProcessedText(tcb::span<const ProcessedTextGlyph> text,
-                                     Font* font, float opacity,
-                                     RendererOutlineMode outlineMode,
-                                     bool smoothstepGlyphOpacity,
-                                     SpriteSheet* maskedSheet) {
-  switch (font->Type) {
-    case FontType::Basic:
-      DrawProcessedText_BasicFont(text, (BasicFont*)font, opacity, outlineMode,
-                                  smoothstepGlyphOpacity, opacity, maskedSheet);
-      break;
-    case FontType::LB: {
-      DrawProcessedText_LBFont(text, (LBFont*)font, opacity, outlineMode,
-                               smoothstepGlyphOpacity, opacity, maskedSheet);
-    }
-  }
-}
-
-void BaseRenderer::DrawProcessedText(tcb::span<const ProcessedTextGlyph> text,
-                                     Font* font, float opacity,
-                                     float outlineOpacity,
-                                     RendererOutlineMode outlineMode,
-                                     bool smoothstepGlyphOpacity,
-                                     SpriteSheet* maskedSheet) {
-  switch (font->Type) {
-    case FontType::Basic:
-      DrawProcessedText_BasicFont(text, (BasicFont*)font, opacity, outlineMode,
-                                  smoothstepGlyphOpacity, outlineOpacity,
-                                  maskedSheet);
-      break;
-    case FontType::LB: {
-      DrawProcessedText_LBFont(text, (LBFont*)font, opacity, outlineMode,
-                               smoothstepGlyphOpacity, outlineOpacity,
-                               maskedSheet);
-    }
-  }
-}
-
-void BaseRenderer::DrawVideoTexture(YUVFrame* tex, glm::vec2 topLeft,
-                                    glm::vec4 tint, glm::vec2 scale,
-                                    float angle, bool alphaVideo) {
-  RectF scaledDest(topLeft.x, topLeft.y, scale.x * tex->Width,
-                   scale.y * tex->Height);
-  DrawVideoTexture(tex, scaledDest, tint, angle, alphaVideo);
-}
-
 }  // namespace Impacto

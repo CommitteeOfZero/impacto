@@ -18,11 +18,10 @@ using namespace Impacto::UI::Widgets::CC;
 using namespace Impacto::Profile::ScriptVars;
 
 void BacklogMenu::MenuButtonOnClick(Widgets::BacklogEntry* target) {
-  if (target->AudioId != -1) {
-    Audio::Channels[Audio::AC_REV]->Play("voice", target->AudioId, false, 0.0f);
-  } else {
-    Audio::Channels[Audio::AC_REV]->Play("sysse", 4, false, 0.0f);
-  }
+  UI::BacklogMenu::MenuButtonOnClick(target);
+
+  if (target->AudioId == -1)
+    Audio::Channels[Audio::AC_SSE]->Play("sysse", 4, false, 0.0f);
 }
 
 void BacklogMenu::Show() {
@@ -53,7 +52,7 @@ void BacklogMenu::Hide() {
   UI::BacklogMenu::Hide();
 }
 
-void BacklogMenu::Update(float dt) {
+void BacklogMenu::UpdateVisibility() {
   if (ScrWork[SW_SYSSUBMENUCT] < 32 && State == Shown) {
     Hide();
   } else if (ScrWork[SW_SYSSUBMENUCT] > 0 && State == Hidden &&
@@ -61,7 +60,17 @@ void BacklogMenu::Update(float dt) {
     Show();
   }
 
-  UI::BacklogMenu::Update(dt);
+  if (FadeAnimation.IsIn() && ScrWork[SW_SYSSUBMENUCT] == 32) {
+    State = Shown;
+    IsFocused = true;
+  } else if (State == Hiding && FadeAnimation.IsOut() &&
+             ScrWork[SW_SYSSUBMENUCT] == 0) {
+    State = Hidden;
+    IsFocused = false;
+    if (UI::FocusedMenu) UI::FocusedMenu->IsFocused = true;
+
+    MainItems->Hide();
+  }
 }
 
 void BacklogMenu::Render() {
@@ -95,12 +104,6 @@ void BacklogMenu::Render() {
 
   Renderer->DrawSprite(BacklogControlsSprite, BacklogControlsPosition,
                        transition);
-}
-
-BacklogEntry* BacklogMenu::CreateBacklogEntry(int id, uint8_t* str, int audioId,
-                                              glm::vec2 pos,
-                                              const RectF& hoverBounds) const {
-  return new BacklogEntry(id, str, audioId, pos, HoverBounds);
 }
 
 }  // namespace CC

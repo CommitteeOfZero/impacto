@@ -11,24 +11,24 @@ namespace CCLCC {
 namespace MapSystem {
 
 void Configure() {
-  MapBgSprite = EnsureGetMemberSprite("MapBackground");
-  int MapPartsPhotosNum = EnsureGetMemberInt("MapPartsPhotosNum");
-  GetMemberSpriteArray(MapPartsPhotoSprites, MapPartsPhotosNum,
-                       "MapPartsPhotoSprites");
-  SelectedMapPoolTagSprite = EnsureGetMemberSprite("SelectedMapPoolTag");
-  int MapPartsArticlesNum = EnsureGetMemberInt("MapPartsArticlesNum");
-  GetMemberSpriteArray(MapPartsArticleSprites, MapPartsArticlesNum,
-                       "MapPartsArticleSprites");
-  int MapPartsPinsNum = EnsureGetMemberInt("MapPartsPinsNum");
-  GetMemberSpriteArray(MapPartsPinSprites, MapPartsPinsNum,
-                       "MapPartsPinSprites");
-  MapButtonGuideSprite = EnsureGetMemberSprite("MapButtonGuide");
-  int MapPartsTagsNum = EnsureGetMemberInt("MapPartsTagsNum");
-  GetMemberSpriteArray(MapPartsTagSprites, MapPartsTagsNum,
-                       "MapPartsTagSprites");
-  FadeAnimationDuration = EnsureGetMemberFloat("FadeAnimationDuration");
-  MapLine = EnsureGetMemberSprite("MapLine");
-  MapLineRed = EnsureGetMemberSprite("MapLineRed");
+  MapBgSprite = EnsureGetMember<Sprite>("MapBackground");
+  int MapPartsPhotosNum = EnsureGetMember<int>("MapPartsPhotosNum");
+  GetMemberArray<Sprite>(MapPartsPhotoSprites, MapPartsPhotosNum,
+                         "MapPartsPhotoSprites");
+  SelectedMapPoolTagSprite = EnsureGetMember<Sprite>("SelectedMapPoolTag");
+  int MapPartsArticlesNum = EnsureGetMember<int>("MapPartsArticlesNum");
+  GetMemberArray<Sprite>(MapPartsArticleSprites, MapPartsArticlesNum,
+                         "MapPartsArticleSprites");
+  int MapPartsPinsNum = EnsureGetMember<int>("MapPartsPinsNum");
+  GetMemberArray<Sprite>(MapPartsPinSprites, MapPartsPinsNum,
+                         "MapPartsPinSprites");
+  MapButtonGuideSprite = EnsureGetMember<Sprite>("MapButtonGuide");
+  int MapPartsTagsNum = EnsureGetMember<int>("MapPartsTagsNum");
+  GetMemberArray<Sprite>(MapPartsTagSprites, MapPartsTagsNum,
+                         "MapPartsTagSprites");
+  FadeAnimationDuration = EnsureGetMember<float>("FadeAnimationDuration");
+  MapLine = EnsureGetMember<Sprite>("MapLine");
+  MapLineRed = EnsureGetMember<Sprite>("MapLineRed");
 }
 
 }  // namespace MapSystem

@@ -2,7 +2,7 @@
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
-#include <flat_hash_map.hpp>
+#include <ankerl/unordered_dense.h>
 #include <string>
 #include "window.h"
 
@@ -24,6 +24,9 @@ enum ShaderParameterType {
   SPT_Ivec3,
   SPT_Ivec4
 };
+constexpr inline int format_as(ShaderParameterType type) {
+  return to_underlying(type);
+}
 
 struct ShaderParameter {
   ShaderParameterType Type;
@@ -55,7 +58,9 @@ struct ShaderParameter {
   ShaderParameter(glm::ivec4 val) : Type(SPT_Ivec4), Val_Ivec4(val) {}
 };
 
-typedef ska::flat_hash_map<std::string, ShaderParameter> ShaderParamMap;
+typedef ankerl::unordered_dense::map<std::string, ShaderParameter, string_hash,
+                                     std::equal_to<>>
+    ShaderParamMap;
 
 class ShaderCompiler {
  public:

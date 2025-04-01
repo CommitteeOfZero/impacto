@@ -1,7 +1,8 @@
 #pragma once
 
 #include "stream.h"
-#include <flat_hash_map.hpp>
+#include "../util.h"
+#include <ankerl/unordered_dense.h>
 
 namespace Impacto {
 namespace Io {
@@ -15,14 +16,16 @@ class VfsArchive {
   // These methods are only ever called with FileMeta* found in IdsToFiles.
   virtual IoError Open(FileMeta* file, Stream** outStream) = 0;
 
-  virtual IoError Slurp(FileMeta* file, void** outBuffer, int64_t* outSize);
+  virtual IoError Slurp(FileMeta* file, void*& outBuffer, int64_t& outSize);
   // If the size of a file is uncertain when the archive is first opened (e.g.
   // directory-listing archives), the file's size in IdsToFiles must be negative
   // and this must be overridden
-  virtual IoError GetCurrentSize(FileMeta* file, int64_t* outSize);
+  virtual IoError GetCurrentSize(FileMeta* file, int64_t& outSize);
 
-  ska::flat_hash_map<std::string, uint32_t> NamesToIds;
-  ska::flat_hash_map<uint32_t, FileMeta*> IdsToFiles;
+  ankerl::unordered_dense::map<std::string, uint32_t, string_hash,
+                               std::equal_to<>>
+      NamesToIds;
+  ankerl::unordered_dense::map<uint32_t, FileMeta*> IdsToFiles;
 
   std::string MountPoint;
 

@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
-  "builtin-baseline": "0f88ecb8528605f91980b90a2c5bad88e3cb565f",
+  "builtin-baseline": "acd5bba5aac8b6573b5f6f463dc0341ac0ee6fa4",
   "dependencies": [
     "sdl2",
     {
@@ -17,5 +17,11 @@
     "zlib",
     "avcpp",
     "libwebp"
+  ],
+  "overrides": [
+    {
+      "name": "avcpp",
+      "version": "2.4.0"
+    }
   ]
 }

@@ -23,8 +23,9 @@ OptionsEntry::OptionsEntry(const Sprite& label, glm::vec2 pos,
   Bounds = RectF(pos.x, pos.y, LabelOffset.x + LabelSprite.ScaledWidth(),
                  LabelOffset.y + LabelSprite.ScaledHeight());
 
-  std::function<void(ClickArea*)> onClick =
-      std::bind(&OptionsEntry::EntryButtonOnClick, this, std::placeholders::_1);
+  std::function<void(ClickArea*)> onClick = [this](auto* btn) {
+    return EntryButtonOnClick(btn);
+  };
   EntryButton = ClickArea(0, Bounds, onClick);
 }
 

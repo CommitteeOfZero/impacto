@@ -11,17 +11,18 @@ namespace CCLCC {
 namespace ClearListMenu {
 
 void Configure() {
-  ClearListBookLayerSprite = EnsureGetMemberSprite("ClearListBookLayerSprite");
-  ClearListGuideSprite = EnsureGetMemberSprite("ClearListGuideSprite");
-  LibraryMaskSprite = EnsureGetMemberSprite("LibraryMaskSprite");
+  ClearListBookLayerSprite =
+      EnsureGetMember<Sprite>("ClearListBookLayerSprite");
+  ClearListGuideSprite = EnsureGetMember<Sprite>("ClearListGuideSprite");
+  LibraryMaskSprite = EnsureGetMember<Sprite>("LibraryMaskSprite");
 
-  FadeInDuration = EnsureGetMemberFloat("FadeInDuration");
-  FadeOutDuration = EnsureGetMemberFloat("FadeOutDuration");
-  ClearListGuideX = EnsureGetMemberInt("ClearListGuideX");
-  ClearListGuideY = EnsureGetMemberInt("ClearListGuideY");
+  FadeInDuration = EnsureGetMember<float>("FadeInDuration");
+  FadeOutDuration = EnsureGetMember<float>("FadeOutDuration");
+  ClearListGuideX = EnsureGetMember<int>("ClearListGuideX");
+  ClearListGuideY = EnsureGetMember<int>("ClearListGuideY");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   auto clearList = new UI::CCLCC::ClearListMenu();
   UI::Menus[drawType].push_back(clearList);

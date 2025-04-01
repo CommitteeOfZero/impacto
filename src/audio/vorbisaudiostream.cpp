@@ -30,12 +30,12 @@ AudioStream* VorbisAudioStream::Create(Stream* stream) {
     goto fail;
   }
   VfOpen = true;
-  ImpLog(LL_Info, LC_Audio, "Creating Vorbis stream\n");
+  ImpLog(LogLevel::Info, LogChannel::Audio, "Creating Vorbis stream\n");
 
   info = ov_info(&Vf, -1);
   if (info->channels != 1 && info->channels != 2) {
-    ImpLog(LL_Error, LC_Audio,
-           "Got Vorbis file with unsupported channel count %d\n",
+    ImpLog(LogLevel::Error, LogChannel::Audio,
+           "Got Vorbis file with unsupported channel count {:d}\n",
            info->channels);
     goto fail;
   }
@@ -107,8 +107,8 @@ int VorbisAudioStream::Read(void* buffer, int samples) {
         (SDL_BYTEORDER == SDL_BIG_ENDIAN), (BitDepth / 8), 1, &current_section);
     if (ret <= 0) {
       if (ret < 0) {
-        ImpLog(LL_Error, LC_Audio,
-               "ov_read %d samples at %d failed with code %d\n", samples,
+        ImpLog(LogLevel::Error, LogChannel::Audio,
+               "ov_read {:d} samples at {:d} failed with code {:d}\n", samples,
                ReadPosition, ret);
       }
       // else ret == 0 => eof

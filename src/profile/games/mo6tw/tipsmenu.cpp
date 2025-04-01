@@ -15,52 +15,52 @@ namespace MO6TW {
 namespace TipsMenu {
 
 void Configure() {
-  GetMemberSpriteArray(TipThumbnails, 37, "Thumbnails");
-  TipTextOnlyThumbnail = EnsureGetMemberSprite("TextOnlyThumbnail");
-  ThumbnailPosition = EnsureGetMemberVec2("ThumbnailPosition");
-  auto str = EnsureGetMemberString("CategoryString");
+  GetMemberArray<Sprite>(TipThumbnails, 37, "Thumbnails");
+  TipTextOnlyThumbnail = EnsureGetMember<Sprite>("TextOnlyThumbnail");
+  ThumbnailPosition = EnsureGetMember<glm::vec2>("ThumbnailPosition");
+  auto str = EnsureGetMember<char const*>("CategoryString");
   TextGetSc3String(str, CategoryString);
 
-  DefaultColorIndex = EnsureGetMemberInt("DefaultColorIndex");
-  UnreadColorIndex = EnsureGetMemberInt("UnreadColorIndex");
-  NameInitialBounds = EnsureGetMemberRectF("NameInitialBounds");
-  NameFontSize = EnsureGetMemberFloat("NameFontSize");
+  DefaultColorIndex = EnsureGetMember<int>("DefaultColorIndex");
+  UnreadColorIndex = EnsureGetMember<int>("UnreadColorIndex");
+  NameInitialBounds = EnsureGetMember<RectF>("NameInitialBounds");
+  NameFontSize = EnsureGetMember<float>("NameFontSize");
   PronounciationInitialBounds =
-      EnsureGetMemberRectF("PronounciationInitialBounds");
-  PronounciationFontSize = EnsureGetMemberFloat("PronounciationFontSize");
-  CategoryInitialBounds = EnsureGetMemberRectF("CategoryInitialBounds");
-  CategoryEndX = EnsureGetMemberFloat("CategoryEndX");
-  CategoryFontSize = EnsureGetMemberFloat("CategoryFontSize");
-  SortStringTable = EnsureGetMemberInt("SortStringTable");
-  SortStringIndex = EnsureGetMemberInt("SortStringIndex");
-  TipListInitialY = EnsureGetMemberFloat("TipListInitialY");
-  TipListCategoriesPerPage = EnsureGetMemberInt("TipListCategoriesPerPage");
-  TipListMaxPages = EnsureGetMemberInt("TipListMaxPages");
-  TipListEntryBounds = EnsureGetMemberRectF("TipListEntryBounds");
-  TipListEntryFontSize = EnsureGetMemberFloat("TipListEntryFontSize");
-  TipListYPadding = EnsureGetMemberFloat("TipListYPadding");
+      EnsureGetMember<RectF>("PronounciationInitialBounds");
+  PronounciationFontSize = EnsureGetMember<float>("PronounciationFontSize");
+  CategoryInitialBounds = EnsureGetMember<RectF>("CategoryInitialBounds");
+  CategoryEndX = EnsureGetMember<float>("CategoryEndX");
+  CategoryFontSize = EnsureGetMember<float>("CategoryFontSize");
+  SortStringTable = EnsureGetMember<int>("SortStringTable");
+  SortStringIndex = EnsureGetMember<int>("SortStringIndex");
+  TipListInitialY = EnsureGetMember<float>("TipListInitialY");
+  TipListCategoriesPerPage = EnsureGetMember<int>("TipListCategoriesPerPage");
+  TipListMaxPages = EnsureGetMember<int>("TipListMaxPages");
+  TipListEntryBounds = EnsureGetMember<RectF>("TipListEntryBounds");
+  TipListEntryFontSize = EnsureGetMember<float>("TipListEntryFontSize");
+  TipListYPadding = EnsureGetMember<float>("TipListYPadding");
   TipListEntryHighlightOffset =
-      EnsureGetMemberVec2("TipListEntryHighlightOffset");
-  TipListEntryNameXOffset = EnsureGetMemberFloat("TipListEntryNameXOffset");
-  TipListEntryNewText = EnsureGetMemberString("TipListEntryNewText");
-  TipListEntryNewOffset = EnsureGetMemberFloat("TipListEntryNewOffset");
-  TipListEntryLockedTable = EnsureGetMemberInt("TipListEntryLockedTable");
-  TipListEntryLockedIndex = EnsureGetMemberInt("TipListEntryLockedIndex");
-  NumberLabelStrTable = EnsureGetMemberInt("NumberLabelStrTable");
-  NumberLabelStrIndex = EnsureGetMemberInt("NumberLabelStrIndex");
-  NumberLabelPosition = EnsureGetMemberVec2("NumberLabelPosition");
-  NumberLabelFontSize = EnsureGetMemberFloat("NumberLabelFontSize");
-  NumberBounds = EnsureGetMemberRectF("NumberBounds");
-  NumberFontSize = EnsureGetMemberFloat("NumberFontSize");
-  PageSeparatorTable = EnsureGetMemberInt("PageSeparatorTable");
-  PageSeparatorIndex = EnsureGetMemberInt("PageSeparatorIndex");
-  PageSeparatorPosition = EnsureGetMemberVec2("PageSeparatorPosition");
-  PageSeparatorFontSize = EnsureGetMemberFloat("PageSeparatorFontSize");
-  CurrentPageBounds = EnsureGetMemberRectF("CurrentPageBounds");
-  TotalPagesBounds = EnsureGetMemberRectF("TotalPagesBounds");
+      EnsureGetMember<glm::vec2>("TipListEntryHighlightOffset");
+  TipListEntryNameXOffset = EnsureGetMember<float>("TipListEntryNameXOffset");
+  TipListEntryNewText = EnsureGetMember<std::string>("TipListEntryNewText");
+  TipListEntryNewOffset = EnsureGetMember<float>("TipListEntryNewOffset");
+  TipListEntryLockedTable = EnsureGetMember<int>("TipListEntryLockedTable");
+  TipListEntryLockedIndex = EnsureGetMember<int>("TipListEntryLockedIndex");
+  NumberLabelStrTable = EnsureGetMember<int>("NumberLabelStrTable");
+  NumberLabelStrIndex = EnsureGetMember<int>("NumberLabelStrIndex");
+  NumberLabelPosition = EnsureGetMember<glm::vec2>("NumberLabelPosition");
+  NumberLabelFontSize = EnsureGetMember<float>("NumberLabelFontSize");
+  NumberBounds = EnsureGetMember<RectF>("NumberBounds");
+  NumberFontSize = EnsureGetMember<float>("NumberFontSize");
+  PageSeparatorTable = EnsureGetMember<int>("PageSeparatorTable");
+  PageSeparatorIndex = EnsureGetMember<int>("PageSeparatorIndex");
+  PageSeparatorPosition = EnsureGetMember<glm::vec2>("PageSeparatorPosition");
+  PageSeparatorFontSize = EnsureGetMember<float>("PageSeparatorFontSize");
+  CurrentPageBounds = EnsureGetMember<RectF>("CurrentPageBounds");
+  TotalPagesBounds = EnsureGetMember<RectF>("TotalPagesBounds");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   UI::TipsMenuPtr = new UI::MO6TW::TipsMenu();
   UI::Menus[drawType].push_back(UI::TipsMenuPtr);

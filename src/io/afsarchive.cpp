@@ -22,16 +22,16 @@ IoError AfsArchive::Open(FileMeta* file, Stream** outStream) {
   IoError err = UncompressedStream::Create(BaseStream, entry->Offset,
                                            entry->Size, outStream);
   if (err != IoError_OK) {
-    ImpLog(LL_Error, LC_IO,
-           "AFS file open failed for file \"%s\" in archive \"%s\"\n",
-           entry->FileName.c_str(), BaseStream->Meta.FileName.c_str());
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "AFS file open failed for file \"{:s}\" in archive \"{:s}\"\n",
+           entry->FileName, BaseStream->Meta.FileName);
   }
   return err;
 }
 
 IoError AfsArchive::Create(Stream* stream, VfsArchive** outArchive) {
-  ImpLog(LL_Trace, LC_IO, "Trying to mount \"%s\" as AFS\n",
-         stream->Meta.FileName.c_str());
+  ImpLog(LogLevel::Trace, LogChannel::IO, "Trying to mount \"{:s}\" as AFS\n",
+         stream->Meta.FileName);
 
   AfsArchive* result = 0;
   uint32_t* rawToc = 0;
@@ -44,7 +44,7 @@ IoError AfsArchive::Create(Stream* stream, VfsArchive** outArchive) {
   char fileName[6];
 
   if (ReadBE<uint32_t>(stream) != magic) {
-    ImpLog(LL_Trace, LC_IO, "Not AFS\n");
+    ImpLog(LogLevel::Trace, LogChannel::IO, "Not AFS\n");
     goto fail;
   }
 

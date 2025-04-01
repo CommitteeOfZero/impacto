@@ -25,7 +25,7 @@ void TipsSystem::DataInit(int scriptBufferId, uint8_t *tipsData,
   int numberOfContentStrings = ReadLE<uint16_t>(&stream);
   while (numberOfContentStrings != 255) {
     if (TipEntryCount >= MaxTipsCount) {
-      ImpLog(LL_Error, LC_VM, "Too many tips in tips data\n");
+      ImpLog(LogLevel::Error, LogChannel::VM, "Too many tips in tips data\n");
       break;
     }
     // Read tip entry from the data array

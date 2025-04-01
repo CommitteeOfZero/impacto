@@ -1,7 +1,7 @@
 #include "charset.h"
 #include "profile_internal.h"
 
-#include "../../vendor/utf8-cpp/source/utf8.h"
+#include <utf8-cpp/source/utf8.h>
 
 namespace Impacto {
 namespace Profile {
@@ -16,8 +16,8 @@ void Load() {
     Flags.resize(flagsCount + 1);
     PushInitialIndex();
     while (PushNextTableElement() != 0) {
-      int i = EnsureGetKeyInt();
-      Flags[i] = EnsureGetArrayElementInt();
+      int i = EnsureGetKey<int32_t>();
+      Flags[i] = EnsureGetArrayElement<int>();
       Pop();
     }
 
@@ -29,13 +29,13 @@ void Load() {
 
     PushInitialIndex();
     while (PushNextTableElement() != 0) {
-      std::string key(EnsureGetKeyString());
+      std::string key(EnsureGetKey<std::string>());
 
       std::string::iterator strIt = key.begin();
       std::string::iterator strEnd = key.end();
       auto codePoint = utf8::next(strIt, strEnd);
 
-      uint32_t test = EnsureGetArrayElementUint();
+      uint32_t test = EnsureGetArrayElement<uint32_t>();
       CharacterToSc3[codePoint] = test;
 
       Pop();

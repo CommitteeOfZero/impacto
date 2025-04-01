@@ -14,51 +14,55 @@ namespace CHLCC {
 namespace TrophyMenu {
 
 void Configure() {
-  MenuTransitionDuration = EnsureGetMemberFloat("TransitionDuration");
-  BackgroundColor = EnsureGetMemberUint("BackgroundColor");
-  CircleSprite = EnsureGetMemberSprite("CircleSprite");
-  CircleStartPosition = EnsureGetMemberVec2("CircleStartPosition");
-  CircleOffset = EnsureGetMemberFloat("CircleOffset");
-  ErinPosition = EnsureGetMemberVec2("ErinPosition");
-  ErinSprite = EnsureGetMemberSprite("ErinSprite");
-  BackgroundFilter = EnsureGetMemberSprite("BackgroundFilter");
-  InitialRedBarPosition = EnsureGetMemberVec2("InitialRedBarPosition");
-  RightRedBarPosition = EnsureGetMemberVec2("RightRedBarPosition");
-  InitialRedBarSprite = EnsureGetMemberSprite("RedBarSprite");
-  RedBarDivision = EnsureGetMemberFloat("RedBarDivision");
-  RedBarBaseX = EnsureGetMemberFloat("RedBarBaseX");
-  RedBarLabelPosition = EnsureGetMemberVec2("RedBarLabelPosition");
-  RedBarLabel = EnsureGetMemberSprite("RedBarLabel");
-  MenuTitleTextRightPosition = EnsureGetMemberVec2("MenuTitleTextRightPos");
-  MenuTitleTextLeftPosition = EnsureGetMemberVec2("MenuTitleTextLeftPos");
-  MenuTitleTextAngle = EnsureGetMemberFloat("MenuTitleTextAngle");
-  TitleFadeInDuration = EnsureGetMemberFloat("TitleFadeInDuration");
-  TitleFadeOutDuration = EnsureGetMemberFloat("TitleFadeOutDuration");
-  MenuTitleText = EnsureGetMemberSprite("MenuTitleText");
-  ButtonPromptPosition = EnsureGetMemberVec2("ButtonPromptPosition");
-  ButtonPromptSprite = EnsureGetMemberSprite("ButtonPromptSprite");
-  DefaultTrophyIconSprite = EnsureGetMemberSprite("DefaultTrophyIconSprite");
-  TrophyEntryCardSprite = EnsureGetMemberSprite("TrophyEntryCardSprite");
-  PlatinumTrophySprite = EnsureGetMemberSprite("PlatinumTrophySprite");
-  PlatinumTrophyPos = EnsureGetMemberVec2("PlatinumTrophyPos");
-  GoldTrophySprite = EnsureGetMemberSprite("GoldTrophySprite");
-  GoldTrophyPos = EnsureGetMemberVec2("GoldTrophyPos");
-  SilverTrophySprite = EnsureGetMemberSprite("SilverTrophySprite");
-  SilverTrophyPos = EnsureGetMemberVec2("SilverTrophyPos");
-  BronzeTrophySprite = EnsureGetMemberSprite("BronzeTrophySprite");
-  BronzeTrophyPos = EnsureGetMemberVec2("BronzeTrophyPos");
+  MenuTransitionDuration = EnsureGetMember<float>("TransitionDuration");
+  BackgroundColor = EnsureGetMember<uint32_t>("BackgroundColor");
+  CircleSprite = EnsureGetMember<Sprite>("CircleSprite");
+  CircleStartPosition = EnsureGetMember<glm::vec2>("CircleStartPosition");
+  CircleOffset = EnsureGetMember<float>("CircleOffset");
+  ErinPosition = EnsureGetMember<glm::vec2>("ErinPosition");
+  ErinSprite = EnsureGetMember<Sprite>("ErinSprite");
+  BackgroundFilter = EnsureGetMember<Sprite>("BackgroundFilter");
+  InitialRedBarPosition = EnsureGetMember<glm::vec2>("InitialRedBarPosition");
+  RightRedBarPosition = EnsureGetMember<glm::vec2>("RightRedBarPosition");
+  InitialRedBarSprite = EnsureGetMember<Sprite>("RedBarSprite");
+  RedBarDivision = EnsureGetMember<float>("RedBarDivision");
+  RedBarBaseX = EnsureGetMember<float>("RedBarBaseX");
+  RedBarLabelPosition = EnsureGetMember<glm::vec2>("RedBarLabelPosition");
+  RedBarLabel = EnsureGetMember<Sprite>("RedBarLabel");
+  MenuTitleTextRightPosition =
+      EnsureGetMember<glm::vec2>("MenuTitleTextRightPos");
+  MenuTitleTextLeftPosition =
+      EnsureGetMember<glm::vec2>("MenuTitleTextLeftPos");
+  MenuTitleTextAngle = EnsureGetMember<float>("MenuTitleTextAngle");
+  TitleFadeInDuration = EnsureGetMember<float>("TitleFadeInDuration");
+  TitleFadeOutDuration = EnsureGetMember<float>("TitleFadeOutDuration");
+  MenuTitleText = EnsureGetMember<Sprite>("MenuTitleText");
+  ButtonPromptPosition = EnsureGetMember<glm::vec2>("ButtonPromptPosition");
+  ButtonPromptSprite = EnsureGetMember<Sprite>("ButtonPromptSprite");
+  DefaultTrophyIconSprite = EnsureGetMember<Sprite>("DefaultTrophyIconSprite");
+  TrophyEntryCardSprite = EnsureGetMember<Sprite>("TrophyEntryCardSprite");
+  PlatinumTrophySprite = EnsureGetMember<Sprite>("PlatinumTrophySprite");
+  PlatinumTrophyPos = EnsureGetMember<glm::vec2>("PlatinumTrophyPos");
+  GoldTrophySprite = EnsureGetMember<Sprite>("GoldTrophySprite");
+  GoldTrophyPos = EnsureGetMember<glm::vec2>("GoldTrophyPos");
+  SilverTrophySprite = EnsureGetMember<Sprite>("SilverTrophySprite");
+  SilverTrophyPos = EnsureGetMember<glm::vec2>("SilverTrophyPos");
+  BronzeTrophySprite = EnsureGetMember<Sprite>("BronzeTrophySprite");
+  BronzeTrophyPos = EnsureGetMember<glm::vec2>("BronzeTrophyPos");
   TrophyEntriesBorderSprite =
-      EnsureGetMemberSprite("TrophyEntriesBorderSprite");
-  TrophyPageCtBoxSprite = EnsureGetMemberSprite("TrophyPageCtBoxSprite");
-  GetMemberSpriteArray(PageNums, 10, "PageNums");
-  GetMemberSpriteArray(ReachablePageNums, 10, "ReachablePageNums");
-  PageNumSeparatorSlash = EnsureGetMemberSprite("PageNumSeparatorSlashSprite");
-  CurrentPageNumPos = EnsureGetMemberVec2("CurrentPageNumPos");
-  PageNumSeparatorPos = EnsureGetMemberVec2("PageNumSeparatorSlashPos");
-  MaxPageNumPos = EnsureGetMemberVec2("MaxPageNumPos");
-  TrophyCountHintLabelPos = EnsureGetMemberVec2("TrophyCountHintLabelPos");
+      EnsureGetMember<Sprite>("TrophyEntriesBorderSprite");
+  TrophyPageCtBoxSprite = EnsureGetMember<Sprite>("TrophyPageCtBoxSprite");
+  GetMemberArray<Sprite>(PageNums, 10, "PageNums");
+  GetMemberArray<Sprite>(ReachablePageNums, 10, "ReachablePageNums");
+  PageNumSeparatorSlash =
+      EnsureGetMember<Sprite>("PageNumSeparatorSlashSprite");
+  CurrentPageNumPos = EnsureGetMember<glm::vec2>("CurrentPageNumPos");
+  PageNumSeparatorPos = EnsureGetMember<glm::vec2>("PageNumSeparatorSlashPos");
+  MaxPageNumPos = EnsureGetMember<glm::vec2>("MaxPageNumPos");
+  TrophyCountHintLabelPos =
+      EnsureGetMember<glm::vec2>("TrophyCountHintLabelPos");
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   UI::TrophyMenuPtr = new UI::CHLCC::TrophyMenu();
   UI::Menus[drawType].push_back(UI::TrophyMenuPtr);

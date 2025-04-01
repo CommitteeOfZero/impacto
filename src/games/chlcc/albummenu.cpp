@@ -51,13 +51,13 @@ AlbumMenu::AlbumMenu() {
   RedBarPosition = InitialRedBarPosition;
 
   CgViewerWidget = new Widgets::CgViewer();
-  CgViewerWidget->OnVariationEndHandler =
-      std::bind(&AlbumMenu::OnCgVariationEnd, this, std::placeholders::_1);
+  CgViewerWidget->OnVariationEndHandler = [this](auto* btn) {
+    return OnCgVariationEnd(btn);
+  };
   CgViewerGroup = new Group(this);
   CgViewerGroup->Add(CgViewerWidget, FDIR_DOWN);
 
-  auto cgOnClick =
-      std::bind(&AlbumMenu::CgOnClick, this, std::placeholders::_1);
+  auto cgOnClick = [this](auto* btn) { return CgOnClick(btn); };
 
   for (int k = 0; k < AlbumPages; k++) {
     auto page = new Group(this);
@@ -192,10 +192,12 @@ void AlbumMenu::Update(float dt) {
 
   if (State != Hidden) {
     MenuTransition.Update(dt);
-    if (MenuTransition.Direction == -1.0f && MenuTransition.Progress <= 0.72f) {
+    if (MenuTransition.Direction == +AnimationDirection::Out &&
+        MenuTransition.Progress <= 0.72f) {
       TitleFade.StartOut();
     } else if (MenuTransition.IsIn() &&
-               (TitleFade.Direction == 1.0f || TitleFade.IsOut())) {
+               (TitleFade.Direction == +AnimationDirection::In ||
+                TitleFade.IsOut())) {
       TitleFade.StartIn();
     }
 

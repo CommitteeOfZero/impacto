@@ -13,23 +13,26 @@ namespace Widgets {
 namespace CCLCC {
 
 OptionsVoiceSlider::OptionsVoiceSlider(
-    const Sprite& box, const Sprite& label, const Sprite& portrait,
-    const Sprite& mutedPortrait, glm::vec2 pos, glm::vec4 highlightTint,
-    float sliderSpeed, std::function<void(OptionsEntry*)> select,
+    float& volume, float min, float max, bool& muted, const Sprite& box,
+    const Sprite& label, const Sprite& portrait, const Sprite& mutedPortrait,
+    glm::vec2 pos, glm::vec4 highlightTint, float sliderSpeed,
+    std::function<void(OptionsEntry*)> select,
     std::function<void(Widget*)> highlight)
     : OptionsSlider(
-          box, label, pos, highlightTint,
+          volume, min, max, box, label, pos, highlightTint,
           RectF(pos.x + VoiceSliderOffset.x, pos.y + VoiceSliderOffset.y,
                 box.ScaledWidth(), box.ScaledHeight()),
           sliderSpeed, select, highlight),
+      Muted(muted),
       Portrait(portrait),
       MutedPortrait(mutedPortrait) {
   Bounds =
       RectF(Bounds.X, Bounds.Y, VoiceEntryDimensions.x, VoiceEntryDimensions.y);
   EntryButton.Bounds = Bounds;
 
-  std::function<void(ClickArea*)> onClick = std::bind(
-      &OptionsVoiceSlider::MuteButtonOnClick, this, std::placeholders::_1);
+  std::function<void(ClickArea*)> onClick = [this](auto* btn) {
+    return MuteButtonOnClick(btn);
+  };
   const RectF muteButtonBounds(Bounds.GetPos().x + PortraitOffset.x,
                                Bounds.GetPos().y + PortraitOffset.y,
                                portrait.ScaledWidth(), portrait.ScaledHeight());
@@ -54,9 +57,10 @@ void OptionsVoiceSlider::Render() {
   Renderer->DrawSprite(LabelSprite, Bounds.GetPos() + NametagOffset,
                        Selected ? Tint : glm::vec4(0.0f, 0.0f, 0.0f, Tint.a));
 
-  RectF highlightBounds(
-      Bounds.X + VoiceSliderOffset.x, Bounds.Y + VoiceSliderOffset.y,
-      Progress * BoxSprite.ScaledWidth(), BoxSprite.ScaledHeight());
+  RectF highlightBounds(Bounds.X + VoiceSliderOffset.x,
+                        Bounds.Y + VoiceSliderOffset.y,
+                        Slider.GetNormalizedValue() * BoxSprite.ScaledWidth(),
+                        BoxSprite.ScaledHeight());
   Renderer->DrawRect(highlightBounds, HighlightTint);
   Renderer->DrawSprite(BoxSprite, Bounds.GetPos() + VoiceSliderOffset, Tint);
 }

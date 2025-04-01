@@ -41,7 +41,7 @@ struct SortByTipName {
         Sc3SortMap[sc3Char] = distance++;
         i += 2;
       } else {
-        ImpLogSlow(LL_Warning, LC_VM,
+        ImpLogSlow(LogLevel::Warning, LogChannel::VM,
                    "SortByTipName: SC3 Tag Found in Sort String\n",
                    SortString[i]);
         i++;
@@ -85,7 +85,7 @@ struct SortByTipName {
     return aString[aIndex] == 0xff && bString[bIndex] != 0xff;
   }
   uint8_t* SortString;
-  ska::flat_hash_map<uint16_t, int> Sc3SortMap;
+  ankerl::unordered_dense::map<uint16_t, int> Sc3SortMap;
 };
 
 TipsMenu::TipsMenu() : TipViewItems(this) {
@@ -381,9 +381,7 @@ void TipsMenu::SwitchToTipId(int id) {
   Pronounciation->SetText(record->StringPtrs[2], PronounciationFontSize,
                           RendererOutlineMode::RO_None, 0);
 
-  char temp[5];
-  sprintf(temp, "%4d", id);
-  Number->SetText(std::string(temp), NumberFontSize,
+  Number->SetText(fmt::format("{:4}", id), NumberFontSize,
                   RendererOutlineMode::RO_None, 0);
 
   Vm::Sc3VmThread dummy;

@@ -14,11 +14,12 @@ namespace Widgets {
 namespace CCLCC {
 
 OptionsBinaryButton::OptionsBinaryButton(
-    const Sprite& box, const Sprite& trueLabel, const Sprite& falseLabel,
-    const Sprite& label, glm::vec2 pos, glm::vec4 highlightTint,
-    std::function<void(OptionsEntry*)> select,
+    bool& value, const Sprite& box, const Sprite& trueLabel,
+    const Sprite& falseLabel, const Sprite& label, glm::vec2 pos,
+    glm::vec4 highlightTint, std::function<void(OptionsEntry*)> select,
     std::function<void(Widget*)> highlight)
     : OptionsEntry(label, pos, highlightTint, select, highlight),
+      State(value),
       BoxSprite(box),
       TrueSprite(trueLabel),
       FalseSprite(falseLabel) {
@@ -30,12 +31,10 @@ OptionsBinaryButton::OptionsBinaryButton(
       ClickArea(0,
                 RectF(truePosition.x, truePosition.y, TrueSprite.ScaledWidth(),
                       TrueSprite.ScaledHeight()),
-                std::bind(&OptionsBinaryButton::TrueOnClick, this,
-                          std::placeholders::_1));
+                [this](auto* btn) { return TrueOnClick(btn); });
   FalseButton = ClickArea(
       0, TrueButton.Bounds + glm::vec2(box.ScaledWidth() / 2.0f, 0.0f),
-      std::bind(&OptionsBinaryButton::FalseOnClick, this,
-                std::placeholders::_1));
+      [this](auto* btn) { return FalseOnClick(btn); });
 }
 
 void OptionsBinaryButton::Render() {

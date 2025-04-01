@@ -15,7 +15,7 @@ void VideoShutdown() {
 }
 
 void VideoInit() {
-  ImpLog(LL_Info, LC_Video, "Initialising video system\n");
+  ImpLog(LogLevel::Info, LogChannel::Video, "Initialising video system\n");
 
   switch (Profile::VideoPlayer) {
 #ifndef IMPACTO_DISABLE_FFMPEG
@@ -27,7 +27,7 @@ void VideoInit() {
     } break;
 #endif
     default: {
-      ImpLog(LL_Warning, LC_Video,
+      ImpLog(LogLevel::Warning, LogChannel::Video,
              "No suitable video player found! Using a null one, which means "
              "you will not see any videos.\n");
       for (int i = 0; i < VP_Count; i++) {

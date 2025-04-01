@@ -49,41 +49,24 @@ uint32_t GetHashCode(uint8_t* data, int length) {
   return hash;
 }
 
-char* DumpMat4(glm::mat4* matrix, const char* columnSeparator,
-               const char* rowSeparator) {
-  size_t reqSz =
-      snprintf(
-          NULL, 0,
-          "%s%.03f%s%.03f%s%.03f%s%.03f%s%s%.03f%s%.03f%s%.03f%s%.03f%s%s%"
-          ".03f%s%.03f%s%.03f%s%.03f%s%s%.03f%s%.03f%s%.03f%s%.03f",
-          columnSeparator, (*matrix)[0][0], columnSeparator, (*matrix)[1][0],
-          columnSeparator, (*matrix)[2][0], columnSeparator, (*matrix)[3][0],
-          rowSeparator, columnSeparator, (*matrix)[0][1], columnSeparator,
-          (*matrix)[1][1], columnSeparator, (*matrix)[2][1], columnSeparator,
-          (*matrix)[3][1], rowSeparator, columnSeparator, (*matrix)[0][2],
-          columnSeparator, (*matrix)[1][2], columnSeparator, (*matrix)[2][2],
-          columnSeparator, (*matrix)[3][2], rowSeparator, columnSeparator,
-          (*matrix)[0][3], columnSeparator, (*matrix)[1][3], columnSeparator,
-          (*matrix)[2][3], columnSeparator, (*matrix)[3][3]) +
-      1;
-  char* result = (char*)malloc(reqSz);
-  sprintf(result,
-          "%s%.03f%s%.03f%s%.03f%s%.03f%s%s%.03f%s%.03f%s%.03f%s%.03f%s%s%"
-          ".03f%s%.03f%s%.03f%s%.03f%s%s%.03f%s%.03f%s%.03f%s%.03f",
-          columnSeparator, (*matrix)[0][0], columnSeparator, (*matrix)[1][0],
-          columnSeparator, (*matrix)[2][0], columnSeparator, (*matrix)[3][0],
-          rowSeparator, columnSeparator, (*matrix)[0][1], columnSeparator,
-          (*matrix)[1][1], columnSeparator, (*matrix)[2][1], columnSeparator,
-          (*matrix)[3][1], rowSeparator, columnSeparator, (*matrix)[0][2],
-          columnSeparator, (*matrix)[1][2], columnSeparator, (*matrix)[2][2],
-          columnSeparator, (*matrix)[3][2], rowSeparator, columnSeparator,
-          (*matrix)[0][3], columnSeparator, (*matrix)[1][3], columnSeparator,
-          (*matrix)[2][3], columnSeparator, (*matrix)[3][3]);
-  return result;
+std::string DumpMat4(glm::mat4* matrix, std::string_view columnSeparator,
+                     std::string_view rowSeparator) {
+  return fmt::sprintf(
+      "%s%.03f%s%.03f%s%.03f%s%.03f%s%s%.03f%s%.03f%s%.03f%s%.03f%s%s"
+      "%.03f%s%.03f%s%.03f%s%.03f%s%s%.03f%s%.03f%s%.03f%s%.03f",
+      columnSeparator, (*matrix)[0][0], columnSeparator, (*matrix)[1][0],
+      columnSeparator, (*matrix)[2][0], columnSeparator, (*matrix)[3][0],
+      rowSeparator, columnSeparator, (*matrix)[0][1], columnSeparator,
+      (*matrix)[1][1], columnSeparator, (*matrix)[2][1], columnSeparator,
+      (*matrix)[3][1], rowSeparator, columnSeparator, (*matrix)[0][2],
+      columnSeparator, (*matrix)[1][2], columnSeparator, (*matrix)[2][2],
+      columnSeparator, (*matrix)[3][2], rowSeparator, columnSeparator,
+      (*matrix)[0][3], columnSeparator, (*matrix)[1][3], columnSeparator,
+      (*matrix)[2][3], columnSeparator, (*matrix)[3][3]);
 }
 
 int ResizeImage(Rect const& srcRect, Rect const& dstRect,
-                tcb::span<uint8_t> src, tcb::span<uint8_t> dst, bool flipY) {
+                std::span<uint8_t> src, std::span<uint8_t> dst, bool flipY) {
   using SurfacePtr = std::unique_ptr<SDL_Surface, decltype(&SDL_FreeSurface)>;
   if (srcRect.Width == dstRect.Width && srcRect.Height == dstRect.Height) {
     assert(dst.size() >= src.size());
@@ -98,8 +81,8 @@ int ResizeImage(Rect const& srcRect, Rect const& dstRect,
                         SDL_FreeSurface);
   SDL_SetSurfaceBlendMode(srcSurface.get(), SDL_BLENDMODE_NONE);
   if (!srcSurface) {
-    ImpLog(LL_Error, LC_Render,
-           "SDL_CreateRGBSurfaceWithFormatFrom failed: %s\n", SDL_GetError());
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "SDL_CreateRGBSurfaceWithFormatFrom failed: {:s}\n", SDL_GetError());
     return -1;
   }
   assert(dst.size() >= dstRect.Width * dstRect.Height * 4);
@@ -108,8 +91,8 @@ int ResizeImage(Rect const& srcRect, Rect const& dstRect,
                             dstRect.Width * 4, SDL_PIXELFORMAT_RGBA32),
                         SDL_FreeSurface);
   if (!dstSurface) {
-    ImpLog(LL_Error, LC_Render, "SDL_CreateRGBSurfaceWithFormat failed: %s\n",
-           SDL_GetError());
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "SDL_CreateRGBSurfaceWithFormat failed: {:s}\n", SDL_GetError());
     return -1;
   }
   SDL_SetSurfaceBlendMode(dstSurface.get(), SDL_BLENDMODE_NONE);
@@ -118,7 +101,8 @@ int ResizeImage(Rect const& srcRect, Rect const& dstRect,
   SDL_Rect dstRectSDL = {dstRect.X, dstRect.Y, dstRect.Width, dstRect.Height};
   if (SDL_BlitScaled(srcSurface.get(), &srcRectSDL, dstSurface.get(),
                      &dstRectSDL) != 0) {
-    ImpLog(LL_Error, LC_Render, "SDL_BlitScaled failed: %s\n", SDL_GetError());
+    ImpLog(LogLevel::Error, LogChannel::Render, "SDL_BlitScaled failed: {:s}\n",
+           SDL_GetError());
     return -1;
   }
   if (flipY) {

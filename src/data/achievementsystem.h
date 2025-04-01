@@ -1,6 +1,6 @@
 #pragma once
 
-#include "enum.h"
+#include <enum.h>
 #include "../spritesheet.h"
 
 namespace Impacto {

@@ -20,26 +20,27 @@ void Configure() {
   if (TryPushMember("SystemMenu")) {
     AssertIs(LUA_TTABLE);
 
-    Type = SystemMenuType::_from_integral_unchecked(EnsureGetMemberInt("Type"));
+    Type =
+        SystemMenuType::_from_integral_unchecked(EnsureGetMember<int>("Type"));
 
-    MenuEntriesNum = EnsureGetMemberInt("MenuEntriesNum");
-    MenuEntriesHNum = EnsureGetMemberInt("MenuEntriesHNum");
-    MenuEntriesX = TryGetMemberFloat("MenuEntriesX");
-    MenuEntriesXOffset = TryGetMemberFloat("MenuEntriesXOffset");
-    MenuEntriesFirstY = TryGetMemberFloat("MenuEntriesFirstY");
-    MenuEntriesYPadding = TryGetMemberFloat("MenuEntriesYPadding");
+    MenuEntriesNum = EnsureGetMember<int>("MenuEntriesNum");
+    MenuEntriesHNum = EnsureGetMember<int>("MenuEntriesHNum");
+    MenuEntriesX = TryGetMember<float>("MenuEntriesX");
+    MenuEntriesXOffset = TryGetMember<float>("MenuEntriesXOffset");
+    MenuEntriesFirstY = TryGetMember<float>("MenuEntriesFirstY");
+    MenuEntriesYPadding = TryGetMember<float>("MenuEntriesYPadding");
 
     if (MenuEntriesNum > 0) {
-      GetMemberSpriteArray(MenuEntriesSprites, MenuEntriesNum,
-                           "MenuEntriesSprites");
+      GetMemberArray<Sprite>(MenuEntriesSprites, MenuEntriesNum,
+                             "MenuEntriesSprites");
     }
     if (MenuEntriesHNum > 0) {
-      GetMemberSpriteArray(MenuEntriesHSprites, MenuEntriesHNum,
-                           "MenuEntriesHighlightedSprites");
+      GetMemberArray<Sprite>(MenuEntriesHSprites, MenuEntriesHNum,
+                             "MenuEntriesHighlightedSprites");
     }
 
-    TryGetMemberFloat("FadeInDuration", FadeInDuration);
-    TryGetMemberFloat("FadeOutDuration", FadeOutDuration);
+    TryGetMember<float>("FadeInDuration", FadeInDuration);
+    TryGetMember<float>("FadeOutDuration", FadeOutDuration);
 
     if (Type == +SystemMenuType::RNE) {
       RNE::SystemMenu::Configure();

@@ -1,12 +1,10 @@
 #pragma once
 
-#include <flat_hash_map.hpp>
+#include <ankerl/unordered_dense.h>
 #include "texture/texture.h"
 #include "spritesheet.h"
 #include "loadable.h"
-
-#define BackgroundRenderer(name) \
-  void name(Background2D* bg, int bgId, glm::vec4 col)
+#include "renderer/renderer.h"
 
 namespace Impacto {
 
@@ -37,12 +35,21 @@ class Background2D : public Loadable<Background2D> {
   static void Init();
 
   Sprite BgSprite;
+
   glm::vec2 DisplayCoords;
-  LinkState Links[MaxLinks];
+  int MaskNumber;
+
+  int FadeCount;
+  int FadeRange;
+
   bool Show;
-  bool IsScreencap = false;
-  int Layer;
+  std::array<int, 2> Layers;
+  LinkState Links[MaxLinks];
+
   void Render(int bgId, int layer);
+  void RenderCapture(int capId, int layer);
+  void RenderBgEff(int bgId, int layer);
+
   void LoadSolidColor(uint32_t color, int width, int height);
 
  protected:
@@ -50,58 +57,62 @@ class Background2D : public Loadable<Background2D> {
   void UnloadSync();
   void MainThreadOnLoad();
 
+  bool OnLayer(int layer) {
+    return std::find(Layers.begin(), Layers.end(), layer) != Layers.end();
+  }
+
  private:
   Texture BgTexture;
-  SpriteSheet BgSpriteSheet;
-};
 
-typedef void (*BackgroundRenderProc)(Background2D* bg, int bgId, glm::vec4 col);
+  using BackgroundRenderProc = auto (Background2D::*)(glm::vec4 col) -> void;
+
+  void RenderRegular(glm::vec4 col);
+  void RenderMasked(glm::vec4 col);
+  void RenderMaskedInverted(glm::vec4 col);
+  void RenderFade(glm::vec4 col);
+
+  BackgroundRenderProc constexpr static BackgroundRenderTable[30] = {
+      &Background2D::RenderRegular,         // 0
+      &Background2D::RenderFade,            // 1
+      &Background2D::RenderRegular,         // 2
+      &Background2D::RenderRegular,         // 3
+      &Background2D::RenderRegular,         // 4
+      &Background2D::RenderRegular,         // 5
+      &Background2D::RenderRegular,         // 6
+      &Background2D::RenderRegular,         // 7
+      &Background2D::RenderRegular,         // 8
+      &Background2D::RenderRegular,         // 9
+      &Background2D::RenderRegular,         // 10
+      &Background2D::RenderRegular,         // 11
+      &Background2D::RenderRegular,         // 12
+      &Background2D::RenderRegular,         // 13
+      &Background2D::RenderRegular,         // 14
+      &Background2D::RenderMasked,          // 15
+      &Background2D::RenderMaskedInverted,  // 16
+      &Background2D::RenderRegular,         // 17
+      &Background2D::RenderRegular,         // 18
+      &Background2D::RenderRegular,         // 19
+      &Background2D::RenderRegular,         // 20
+      &Background2D::RenderRegular,         // 21
+      &Background2D::RenderRegular,         // 22
+      &Background2D::RenderRegular,         // 23
+      &Background2D::RenderRegular,         // 24
+      &Background2D::RenderRegular,         // 25
+      &Background2D::RenderRegular,         // 26
+      &Background2D::RenderRegular,         // 27
+      &Background2D::RenderRegular,         // 28
+      &Background2D::RenderRegular,         // 29
+  };
+};
 
 int constexpr MaxBackgrounds2D = 8;
 int constexpr MaxScreencaptures = 2;
 
-inline Background2D Backgrounds[MaxBackgrounds2D];
-inline Background2D Screencaptures[MaxScreencaptures];
+inline std::array<Background2D, MaxBackgrounds2D> Backgrounds;
+inline std::array<Background2D, MaxScreencaptures> Screencaptures;
+inline std::array<Background2D, MaxFramebuffers> Framebuffers;
 inline Background2D ShaderScreencapture;
 
-inline ska::flat_hash_map<int, Background2D*> Backgrounds2D;
-
-BackgroundRenderer(RenderRegular);
-BackgroundRenderer(RenderMasked);
-BackgroundRenderer(RenderMaskedInverted);
-BackgroundRenderer(RenderFade);
-
-BackgroundRenderProc static BackgroundRenderTable[30] = {
-    RenderRegular,         // 0
-    RenderFade,            // 1
-    RenderRegular,         // 2
-    RenderRegular,         // 3
-    RenderRegular,         // 4
-    RenderRegular,         // 5
-    RenderRegular,         // 6
-    RenderRegular,         // 7
-    RenderRegular,         // 8
-    RenderRegular,         // 9
-    RenderRegular,         // 10
-    RenderRegular,         // 11
-    RenderRegular,         // 12
-    RenderRegular,         // 13
-    RenderRegular,         // 14
-    RenderMasked,          // 15
-    RenderMaskedInverted,  // 16
-    RenderRegular,         // 17
-    RenderRegular,         // 18
-    RenderRegular,         // 19
-    RenderRegular,         // 20
-    RenderRegular,         // 21
-    RenderRegular,         // 22
-    RenderRegular,         // 23
-    RenderRegular,         // 24
-    RenderRegular,         // 25
-    RenderRegular,         // 26
-    RenderRegular,         // 27
-    RenderRegular,         // 28
-    RenderRegular,         // 29
-};
+inline ankerl::unordered_dense::map<int, Background2D*> Backgrounds2D;
 
 }  // namespace Impacto

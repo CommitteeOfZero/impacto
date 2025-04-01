@@ -1,6 +1,7 @@
 #include <time.h>
-#include <stdarg.h>
+#include <cstdarg>
 
+#include <fmt/chrono.h>
 #include <SDL_log.h>
 #include "log.h"
 #include "util.h"
@@ -13,140 +14,67 @@ namespace Impacto {
 static bool LoggingToConsole = false;
 static bool LoggingToFile = false;
 
-char* Timestamp() {
-  time_t timestamp = time(NULL);
-  tm* ptm = gmtime(&timestamp);
-
-  char* buffer = (char*)malloc(20);
-  strftime(buffer, 20, "%Y-%m-%d %H:%M:%S", ptm);
-  return buffer;
-}
-
-const char* LevelToString(LogLevel level) {
-  assert(level > LL_Off && level < LL_Max);
-  switch (level) {
-    case LL_Fatal:
-      return "Fatal";
-    case LL_Error:
-      return "Error";
-    case LL_Warning:
-      return "Warning";
-    case LL_Info:
-      return "Info";
-    case LL_Debug:
-      return "Debug";
-    case LL_Trace:
-      return "Trace";
-    default:
-      assert(false);
-      return "";
-  }
-}
-
-const char* ChannelToString(LogChannel channel) {
-  switch (channel) {
-    case LC_General:
-      return "General";
-    case LC_IO:
-      return "IO";
-    case LC_Render:
-      return "Render";
-    case LC_ModelLoad:
-      return "ModelLoad";
-    case LC_GL:
-      return "GL";
-    case LC_Renderable3D:
-      return "Renderable3D";
-    case LC_TextureLoad:
-      return "TextureLoad";
-    case LC_Scene:
-      return "Scene";
-    case LC_VM:
-      return "VM";
-    case LC_VMStub:
-      return "VMStub";
-    case LC_Expr:
-      return "Expr";
-    case LC_Audio:
-      return "Audio";
-    case LC_Profile:
-      return "Profile";
-    case LC_Video:
-      return "Video";
-    default:
-      assert(false);
-      return "";
-  }
-}
-
-void ConsoleWrite(LogLevel level, const char* str) {
-  assert(level > LL_Off && level < LL_Max);
-  switch (level) {
-    case LL_Fatal:
-      SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "%s", str);
-      break;
-    case LL_Error:
-      SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", str);
-      break;
-    case LL_Warning:
-      SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "%s", str);
-      break;
-    case LL_Info:
-      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", str);
-      break;
-    case LL_Debug:
-      SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "%s", str);
-      break;
-    case LL_Trace:
-      SDL_LogVerbose(SDL_LOG_CATEGORY_APPLICATION, "%s", str);
-      break;
-    default:
-      assert(false);
-  }
-}
-
-void ImpLog(LogLevel level, LogChannel channel, const char* format, ...) {
-  assert(level > 0 && channel > 0);
+bool CheckLogConfig(LogLevel level, LogChannel channel) {
   bool any = false;
-  if (LoggingToConsole && level <= g_LogLevelConsole &&
-      (g_LogChannelsConsole & channel)) {
+  if (LoggingToConsole && (level <= g_LogLevelConsole) &&
+      (g_LogChannelsConsole & channel) != LogChannel::None) {
     any = true;
   }
-  if (LoggingToFile && level <= g_LogLevelFile &&
-      (g_LogChannelsFile & channel)) {
+  if (LoggingToFile && (level <= g_LogLevelFile) &&
+      (g_LogChannelsFile & channel) != LogChannel::None) {
     any = true;
   }
-  if (!any) return;
+  return any;
+}
 
-  char* ts = Timestamp();
-
-  const char* levelStr = LevelToString(level);
-  const char* channelStr = ChannelToString(channel);
-
-  size_t headSize =
-      snprintf(NULL, 0, "[%s][%s][%s] ", ts, levelStr, channelStr);
-
-  va_list args, args2;
-  va_start(args, format);
-  // cannot reuse args in glibc
-  va_copy(args2, args);
-  size_t tailSize = vsnprintf(NULL, 0, format, args);
-  va_end(args);
-
-  char* line = (char*)ImpStackAlloc(headSize + tailSize + 1);
-
-  snprintf(line, headSize + 1, "[%s][%s][%s] ", ts, levelStr, channelStr);
-  vsnprintf(line + headSize, tailSize + 1, format, args2);
-  line[headSize + tailSize] = '\0';
-
-  if (LoggingToConsole && level <= g_LogLevelConsole &&
-      (g_LogChannelsConsole & channel)) {
-    ConsoleWrite(level, line);
+void ConsoleWrite(LogLevel level, std::string_view str) {
+  assert(level > LogLevel::Off && level < LogLevel::Max);
+  switch (level) {
+    case LogLevel::Fatal:
+      SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "%s", str.data());
+      break;
+    case LogLevel::Error:
+      SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", str.data());
+      break;
+    case LogLevel::Warning:
+      SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "%s", str.data());
+      break;
+    case LogLevel::Info:
+      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", str.data());
+      break;
+    case LogLevel::Debug:
+      SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "%s", str.data());
+      break;
+    case LogLevel::Trace:
+      SDL_LogVerbose(SDL_LOG_CATEGORY_APPLICATION, "%s", str.data());
+      break;
+    default:
+      assert(false);
   }
+}
+
+void ImpLogImpl(LogLevel level, LogChannel channel, fmt::string_view format,
+                fmt::format_args args, size_t tailSize) {
+  constexpr size_t maxChannelSize = 16;
+  constexpr size_t maxTimestampSize = 21;
+  assert(level > LogLevel::Off && channel > LogChannel::None);
+  const size_t lineBufferSize =
+      maxChannelSize + maxTimestampSize + tailSize + 1;
+  auto* line = static_cast<char*>(ImpStackAlloc(lineBufferSize));
+
+  std::string_view channelStr = ChannelToString(channel);
+  time_t timestamp = time(nullptr);
+  auto tsFormat = fmt::format_to_n(
+      line, maxTimestampSize, "[{:%Y-%m-%d %H:%M:%S}]", fmt::gmtime(timestamp));
+  auto channelFormat =
+      fmt::format_to_n(tsFormat.out, maxChannelSize, "[{}] ", channelStr);
+  auto tailFormat =
+      fmt::vformat_to_n(channelFormat.out, tailSize + 1, format, args);
+  *tailFormat.out = '\0';
+
+  ConsoleWrite(level, line);
+
   // TODO file
-
-  free(ts);
-  ImpStackFree(line);
 }
 
 void LogSetFile(char* path) {
@@ -166,14 +94,14 @@ void GLAPIENTRY LogGLMessageCallback(GLenum source, GLenum type, GLuint id,
   LogLevel level;
   switch (severity) {
     case GL_DEBUG_SEVERITY_HIGH_ARB:
-      level = LL_Error;
+      level = LogLevel::Error;
       break;
     case GL_DEBUG_SEVERITY_MEDIUM_ARB:
-      level = LL_Warning;
+      level = LogLevel::Warning;
       break;
     case GL_DEBUG_SEVERITY_LOW_ARB:
     default:
-      level = LL_Info;
+      level = LogLevel::Info;
       break;
   }
 
@@ -237,8 +165,9 @@ void GLAPIENTRY LogGLMessageCallback(GLenum source, GLenum type, GLuint id,
       break;
   }
 
-  ImpLog(level, LC_GL, "type=%s, source=%s, id=%d, message: %s\n", typeStr,
-         sourceStr, id, message);
+  ImpLog(level, LogChannel::GL,
+         "type={:s}, source={:s}, id={:d}, message: {:s}\n", typeStr, sourceStr,
+         id, message);
 }
 #endif
 

@@ -13,76 +13,83 @@ namespace CHLCC {
 namespace SaveMenu {
 
 void Configure() {
-  EntryStartX = EnsureGetMemberFloat("EntryStartX");
-  EntryXPadding = EnsureGetMemberFloat("EntryXPadding");
-  EntryStartY = EnsureGetMemberFloat("EntryStartY");
-  EntryYPadding = EnsureGetMemberFloat("EntryYPadding");
-  SaveBackgroundColor = EnsureGetMemberUint("SaveBackgroundColor");
-  LoadBackgroundColor = EnsureGetMemberUint("LoadBackgroundColor");
-  QuickLoadBackgroundColor = EnsureGetMemberUint("QuickLoadBackgroundColor");
-  SaveCircle = EnsureGetMemberSprite("SaveCircle");
-  LoadCircle = EnsureGetMemberSprite("LoadCircle");
-  QuickLoadCircle = EnsureGetMemberSprite("QuickLoadCircle");
-  CircleStartPosition = EnsureGetMemberVec2("CircleStartPosition");
-  CircleOffset = EnsureGetMemberFloat("CircleOffset");
-  ErinPosition = EnsureGetMemberVec2("ErinPosition");
-  ErinSprite = EnsureGetMemberSprite("ErinSprite");
-  BackgroundFilter = EnsureGetMemberSprite("BackgroundFilter");
-  InitialRedBarPosition = EnsureGetMemberVec2("InitialRedBarPosition");
-  RightRedBarPosition = EnsureGetMemberVec2("RightRedBarPosition");
-  InitialRedBarSprite = EnsureGetMemberSprite("RedBarSprite");
-  RedBarDivision = EnsureGetMemberFloat("RedBarDivision");
-  RedBarBaseX = EnsureGetMemberFloat("RedBarBaseX");
-  RedBarLabelPosition = EnsureGetMemberVec2("RedBarLabelPosition");
-  RedBarLabel = EnsureGetMemberSprite("RedBarLabel");
-  QuickLoadTextSprite = EnsureGetMemberSprite("QuickLoadTextSprite");
-  LoadTextSprite = EnsureGetMemberSprite("LoadTextSprite");
-  SaveTextSprite = EnsureGetMemberSprite("SaveTextSprite");
-  MenuTitleTextRightPos = EnsureGetMemberVec2("MenuTitleTextRightPos");
-  MenuTitleTextLeftPos = EnsureGetMemberVec2("MenuTitleTextLeftPos");
-  MenuTitleTextAngle = EnsureGetMemberFloat("MenuTitleTextAngle");
-  TitleFadeInDuration = EnsureGetMemberFloat("TitleFadeInDuration");
-  TitleFadeOutDuration = EnsureGetMemberFloat("TitleFadeOutDuration");
+  EntryStartX = EnsureGetMember<float>("EntryStartX");
+  EntryXPadding = EnsureGetMember<float>("EntryXPadding");
+  EntryStartY = EnsureGetMember<float>("EntryStartY");
+  EntryYPadding = EnsureGetMember<float>("EntryYPadding");
+  SaveBackgroundColor = EnsureGetMember<uint32_t>("SaveBackgroundColor");
+  LoadBackgroundColor = EnsureGetMember<uint32_t>("LoadBackgroundColor");
+  QuickLoadBackgroundColor =
+      EnsureGetMember<uint32_t>("QuickLoadBackgroundColor");
+  SaveCircle = EnsureGetMember<Sprite>("SaveCircle");
+  LoadCircle = EnsureGetMember<Sprite>("LoadCircle");
+  QuickLoadCircle = EnsureGetMember<Sprite>("QuickLoadCircle");
+  CircleStartPosition = EnsureGetMember<glm::vec2>("CircleStartPosition");
+  CircleOffset = EnsureGetMember<float>("CircleOffset");
+  ErinPosition = EnsureGetMember<glm::vec2>("ErinPosition");
+  ErinSprite = EnsureGetMember<Sprite>("ErinSprite");
+  BackgroundFilter = EnsureGetMember<Sprite>("BackgroundFilter");
+  InitialRedBarPosition = EnsureGetMember<glm::vec2>("InitialRedBarPosition");
+  RightRedBarPosition = EnsureGetMember<glm::vec2>("RightRedBarPosition");
+  InitialRedBarSprite = EnsureGetMember<Sprite>("RedBarSprite");
+  RedBarDivision = EnsureGetMember<float>("RedBarDivision");
+  RedBarBaseX = EnsureGetMember<float>("RedBarBaseX");
+  RedBarLabelPosition = EnsureGetMember<glm::vec2>("RedBarLabelPosition");
+  RedBarLabel = EnsureGetMember<Sprite>("RedBarLabel");
+  QuickLoadTextSprite = EnsureGetMember<Sprite>("QuickLoadTextSprite");
+  LoadTextSprite = EnsureGetMember<Sprite>("LoadTextSprite");
+  SaveTextSprite = EnsureGetMember<Sprite>("SaveTextSprite");
+  MenuTitleTextRightPos = EnsureGetMember<glm::vec2>("MenuTitleTextRightPos");
+  MenuTitleTextLeftPos = EnsureGetMember<glm::vec2>("MenuTitleTextLeftPos");
+  MenuTitleTextAngle = EnsureGetMember<float>("MenuTitleTextAngle");
+  TitleFadeInDuration = EnsureGetMember<float>("TitleFadeInDuration");
+  TitleFadeOutDuration = EnsureGetMember<float>("TitleFadeOutDuration");
 
-  SaveListPosition = EnsureGetMemberVec2("SaveListPosition");
-  SaveListSprite = EnsureGetMemberSprite("SaveListSprite");
-  GetMemberVec2Array(EntryPositions, EntriesPerPage, "EntryPositions");
-  QuickLoadEntrySprite = EnsureGetMemberSprite("QuickLoadEntrySprite");
-  SaveEntrySprite = EnsureGetMemberSprite("SaveEntrySprite");
-  LoadEntrySprite = EnsureGetMemberSprite("LoadEntrySprite");
-  EntryHighlightedSprite = EnsureGetMemberSprite("EntryHighlightedSprite");
-  LockedSymbolSprite = EnsureGetMemberSprite("LockedSymbolSprite");
-  ThumbnailRelativePos = EnsureGetMemberVec2("ThumbnailRelativePos");
-  PageNumBackgroundPos = EnsureGetMemberVec2("PageNumBackgroundPos");
-  PageNumBackgroundSprite = EnsureGetMemberSprite("PageNumBackground");
-  CurrentPageNumPos = EnsureGetMemberVec2("CurrentPageNumPos");
-  GetMemberSpriteArray(BigDigits, 10, "BigDigits");
-  PageNumSeparatorSlashPos = EnsureGetMemberVec2("PageNumSeparatorSlashPos");
-  PageNumSeparatorSlashSprite = EnsureGetMemberSprite("PageNumSeparatorSlash");
-  MaxPageNumPos = EnsureGetMemberVec2("MaxPageNumPos");
-  MaxPageNumSprite = EnsureGetMemberSprite("MaxPageNum");
-  ButtonPromptPosition = EnsureGetMemberVec2("ButtonPromptPosition");
-  ButtonPromptSprite = EnsureGetMemberSprite("ButtonPrompt");
-  SelectDataFadeDuration = EnsureGetMemberFloat("SelectDataFadeDuration");
+  SaveListPosition = EnsureGetMember<glm::vec2>("SaveListPosition");
+  SaveListSprite = EnsureGetMember<Sprite>("SaveListSprite");
+  GetMemberArray<glm::vec2>(EntryPositions, EntriesPerPage, "EntryPositions");
+  QuickLoadEntrySprite = EnsureGetMember<Sprite>("QuickLoadEntrySprite");
+  SaveEntrySprite = EnsureGetMember<Sprite>("SaveEntrySprite");
+  LoadEntrySprite = EnsureGetMember<Sprite>("LoadEntrySprite");
+  EntryHighlightedSprite = EnsureGetMember<Sprite>("EntryHighlightedSprite");
+  LockedSymbolSprite = EnsureGetMember<Sprite>("LockedSymbolSprite");
+  ThumbnailRelativePos = EnsureGetMember<glm::vec2>("ThumbnailRelativePos");
+  PageNumBackgroundPos = EnsureGetMember<glm::vec2>("PageNumBackgroundPos");
+  PageNumBackgroundSprite = EnsureGetMember<Sprite>("PageNumBackground");
+  CurrentPageNumPos = EnsureGetMember<glm::vec2>("CurrentPageNumPos");
+  GetMemberArray<Sprite>(BigDigits, 10, "BigDigits");
+  PageNumSeparatorSlashPos =
+      EnsureGetMember<glm::vec2>("PageNumSeparatorSlashPos");
+  PageNumSeparatorSlashSprite =
+      EnsureGetMember<Sprite>("PageNumSeparatorSlash");
+  MaxPageNumPos = EnsureGetMember<glm::vec2>("MaxPageNumPos");
+  MaxPageNumSprite = EnsureGetMember<Sprite>("MaxPageNum");
+  ButtonPromptPosition = EnsureGetMember<glm::vec2>("ButtonPromptPosition");
+  ButtonPromptSprite = EnsureGetMember<Sprite>("ButtonPrompt");
+  SelectDataFadeDuration = EnsureGetMember<float>("SelectDataFadeDuration");
   // 10 letters in "SELECT DATA"
-  GetMemberVec2Array(SelectDataTextPositions, 10, "SelectDataTextPositions");
-  GetMemberSpriteArray(SelectDataTextSprites, 10, "SelectDataText");
+  GetMemberArray<glm::vec2>(SelectDataTextPositions, 10,
+                            "SelectDataTextPositions");
+  GetMemberArray<Sprite>(SelectDataTextSprites, 10, "SelectDataText");
 
   EntryNumberHintTextRelativePos =
-      EnsureGetMemberVec2("EntryNumberHintTextRelativePos");
+      EnsureGetMember<glm::vec2>("EntryNumberHintTextRelativePos");
   EntryNumberTextRelativePos =
-      EnsureGetMemberVec2("EntryNumberTextRelativePos");
-  SceneTitleTextRelativePos = EnsureGetMemberVec2("SceneTitleTextRelativePos");
-  NoDataTextRelativePos = EnsureGetMemberVec2("NoDataTextRelativePos");
+      EnsureGetMember<glm::vec2>("EntryNumberTextRelativePos");
+  SceneTitleTextRelativePos =
+      EnsureGetMember<glm::vec2>("SceneTitleTextRelativePos");
+  NoDataTextRelativePos = EnsureGetMember<glm::vec2>("NoDataTextRelativePos");
   PlayTimeHintTextRelativePos =
-      EnsureGetMemberVec2("PlayTimeHintTextRelativePos");
-  PlayTimeTextRelativePos = EnsureGetMemberVec2("PlayTimeTextRelativePos");
+      EnsureGetMember<glm::vec2>("PlayTimeHintTextRelativePos");
+  PlayTimeTextRelativePos =
+      EnsureGetMember<glm::vec2>("PlayTimeTextRelativePos");
   SaveDateHintTextRelativePos =
-      EnsureGetMemberVec2("SaveDateHintTextRelativePos");
-  SaveDateTextRelativePos = EnsureGetMemberVec2("SaveDateTextRelativePos");
+      EnsureGetMember<glm::vec2>("SaveDateHintTextRelativePos");
+  SaveDateTextRelativePos =
+      EnsureGetMember<glm::vec2>("SaveDateTextRelativePos");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMemberInt("DrawType"));
+      EnsureGetMember<int>("DrawType"));
 
   UI::SaveMenuPtr = new UI::CHLCC::SaveMenu();
   UI::Menus[drawType].push_back(UI::SaveMenuPtr);

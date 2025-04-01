@@ -12,9 +12,9 @@ namespace CHLCC {
 namespace DelusionTrigger {
 
 void Configure() {
-  BackgroundSprite = EnsureGetMemberSprite("BackgroundSprite");
-  BackgroundSpriteMask = EnsureGetMemberSprite("BackgroundSpriteMask");
-  ScreenMask = EnsureGetMemberSprite("ScreenMask");
+  BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSprite");
+  BackgroundSpriteMask = EnsureGetMember<Sprite>("BackgroundSpriteMask");
+  ScreenMask = EnsureGetMember<Sprite>("ScreenMask");
 
   BackgroundSpriteMask.Bounds.Y = BackgroundSprite.Bounds.Center().y -
                                   BackgroundSpriteMask.Bounds.Center().y;

@@ -9,6 +9,7 @@
 #include "../../profile/vm.h"
 #include "../../ui/mapsystem.h"
 #include "../../renderer/renderer.h"
+#include "../../profile/configsystem.h"
 
 #include "yesnotrigger.h"
 
@@ -23,6 +24,7 @@ using namespace Impacto::Vm;
 using namespace Impacto::Profile::SaveSystem;
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Vm;
+using namespace Impacto::Profile::ConfigSystem;
 
 SaveError SaveSystem::CheckSaveFile() {
   std::error_code ec;
@@ -30,15 +32,15 @@ SaveError SaveSystem::CheckSaveFile() {
   if (existsState == IoError_NotFound) {
     return SaveNotFound;
   } else if (existsState == IoError_Fail) {
-    ImpLog(LL_Error, LC_IO,
-           "Failed to check if save file exists, error: \"%s\"\n",
-           ec.message().c_str());
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Failed to check if save file exists, error: \"{:s}\"\n",
+           ec.message());
     return SaveFailed;
   }
   auto saveFileSize = Io::GetFileSize(SaveFilePath);
   if (saveFileSize == IoError_Fail) {
-    ImpLog(LL_Error, LC_IO, "Failed to get save file size, error: \"%s\"\n",
-           ec.message().c_str());
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Failed to get save file size, error: \"{:s}\"\n", ec.message());
     return SaveFailed;
   } else if (saveFileSize != SaveFileSize) {
     return SaveCorrupted;
@@ -51,9 +53,9 @@ SaveError SaveSystem::CheckSaveFile() {
   Io::FilePermissionsFlags perms;
   IoError permsState = Io::GetFilePermissions(SaveFilePath, perms);
   if (permsState == IoError_Fail) {
-    ImpLog(LL_Error, LC_IO,
-           "Failed to get save file permissions, error: \"%s\"\n",
-           ec.message().c_str());
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Failed to get save file permissions, error: \"{:s}\"\n",
+           ec.message());
     return SaveFailed;
   } else if ((!checkPermsBit(perms, Io::FilePermissionsFlags::owner_read) ||
               !checkPermsBit(perms, Io::FilePermissionsFlags::owner_write))) {
@@ -76,6 +78,38 @@ SaveError SaveSystem::CreateSaveFile() {
   std::vector<uint8_t> emptyData(SaveFileSize, 0);
   Io::WriteArrayBE<uint8_t>(emptyData.data(), stream, SaveFileSize);
   assert(stream->Position == SaveFileSize);
+
+  stream->Seek(0x8AC, SEEK_SET);
+  Io::WriteLE(stream, (Uint16)(Default::TextSpeed * 60));
+  Io::WriteLE(stream, (Uint16)(Default::AutoSpeed * 60));
+  Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_Voice] *
+                              128));  // VOICE2vol
+  Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_Voice] *
+                              128));  // VOICEvol
+  Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_BGM] * 256));
+  Io::WriteLE(stream,
+              (Uint8)(Default::GroupVolumes[Audio::ACG_SE] * 128));  // SEvol
+  Io::WriteLE(
+      stream,
+      (Uint8)(Default::GroupVolumes[Audio::ACG_SE] * 0.6 * 128));  // SYSSEvol
+  Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_Movie] * 128));
+  Io::WriteLE(stream, Default::SyncVoice);
+  Io::WriteLE(stream, !Default::SkipRead);
+
+  stream->Seek(0x8BE, SEEK_SET);
+  for (size_t i = 0; i < 33; i++) Io::WriteLE(stream, !Default::VoiceMuted[i]);
+  for (size_t i = 0; i < 33; i++)
+    Io::WriteLE(stream, (Uint8)(Default::VoiceVolume[i] * 128));
+
+  stream->Seek(0x901, SEEK_SET);
+  Io::WriteLE(stream, Default::SkipVoice);
+  Io::WriteLE(stream, Default::ShowTipsNotification);
+
+  stream->Seek(0x905, SEEK_SET);
+  Io::WriteLE(stream, Default::AdvanceTextOnDirectionalInput);
+  Io::WriteLE(stream, Default::DirectionalInputForTrigger);
+  Io::WriteLE(stream, Default::TriggerStopSkip);
+
   delete stream;
 
   return MountSaveFile();
@@ -112,6 +146,34 @@ SaveError SaveSystem::MountSaveFile() {
   Io::ReadArrayLE<int>(&ScrWork[1600], stream, 400);
   Io::ReadArrayLE<int>(&ScrWork[2000], stream, 100);
 
+  // Config settings
+  stream->Seek(0x8AC, SEEK_SET);
+  TextSpeed = Io::ReadLE<Uint16>(stream) / 60.0f;
+  AutoSpeed = Io::ReadLE<Uint16>(stream) / 60.0f;
+  stream->Seek(1, SEEK_CUR);  // VOICE2vol
+  Audio::GroupVolumes[Audio::ACG_Voice] = Io::ReadLE<Uint8>(stream) / 128.0f;
+  Audio::GroupVolumes[Audio::ACG_BGM] = Io::ReadLE<Uint8>(stream) / 256.0f;
+  Audio::GroupVolumes[Audio::ACG_SE] = Io::ReadLE<Uint8>(stream) / 128.0f;
+  stream->Seek(1, SEEK_CUR);  // SYSSEvol
+  Audio::GroupVolumes[Audio::ACG_Movie] = Io::ReadLE<Uint8>(stream) / 128.0f;
+  SyncVoice = Io::ReadLE<bool>(stream);
+  SkipRead = !Io::ReadLE<bool>(stream);
+
+  stream->Seek(0x8BE, SEEK_SET);
+  for (size_t i = 0; i < 33; i++) VoiceMuted[i] = !Io::ReadLE<bool>(stream);
+  for (size_t i = 0; i < 33; i++)
+    VoiceVolume[i] = Io::ReadLE<Uint8>(stream) / 128.0f;
+
+  stream->Seek(0x901, SEEK_SET);
+  SkipVoice = Io::ReadLE<bool>(stream);
+  ShowTipsNotification = Io::ReadLE<bool>(stream);
+
+  stream->Seek(0x905, SEEK_SET);
+  AdvanceTextOnDirectionalInput = Io::ReadLE<bool>(stream);
+  DirectionalInputForTrigger = Io::ReadLE<bool>(stream);
+  TriggerStopSkip = Io::ReadLE<bool>(stream);
+
+  // EV Flags
   stream->Seek(0xC0E, SEEK_SET);
   for (int i = 0; i < 150; i++) {
     auto val = Io::ReadU8(stream);
@@ -289,9 +351,10 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
 
     int result = ResizeImage(
         WorkingSaveThumbnail.Bounds, entry->SaveThumbnail.Bounds, captureBuffer,
-        tcb::span{tex.Buffer, static_cast<size_t>(tex.BufferSize)}, true);
+        std::span{tex.Buffer, static_cast<size_t>(tex.BufferSize)}, true);
     if (result < 0) {
-      ImpLog(LL_Error, LC_General, "Failed to resize save thumbnail\n");
+      ImpLog(LogLevel::Error, LogChannel::General,
+             "Failed to resize save thumbnail\n");
     }
     entry->SaveThumbnail.Sheet.Texture = tex.Submit();
   }
@@ -303,7 +366,8 @@ void SaveSystem::WriteSaveFile() {
   IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream,
                                                CF::WRITE | CF::READ);
   if (err != IoError_OK) {
-    ImpLog(LL_Error, LC_IO, "Failed to open save file for writing\n");
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Failed to open save file for writing\n");
     return;
   }
 
@@ -316,6 +380,39 @@ void SaveSystem::WriteSaveFile() {
   Io::WriteArrayLE<int>(&ScrWork[1600], stream, 400);
   Io::WriteArrayLE<int>(&ScrWork[2000], stream, 100);
 
+  // Config settings
+  stream->Seek(0x8AC, SEEK_SET);
+  Io::WriteLE(stream, (Uint16)(TextSpeed * 60));
+  Io::WriteLE(stream, (Uint16)(AutoSpeed * 60));
+  Io::WriteLE(stream, (Uint8)(Audio::GroupVolumes[Audio::ACG_Voice] *
+                              128));  // VOICE2vol
+  Io::WriteLE(stream, (Uint8)(Audio::GroupVolumes[Audio::ACG_Voice] *
+                              128));  // VOICEvol
+  Io::WriteLE(stream, (Uint8)(Audio::GroupVolumes[Audio::ACG_BGM] * 256));
+  Io::WriteLE(stream,
+              (Uint8)(Audio::GroupVolumes[Audio::ACG_SE] * 128));  // SEvol
+  Io::WriteLE(
+      stream,
+      (Uint8)(Audio::GroupVolumes[Audio::ACG_SE] * 0.6 * 128));  // SYSSEvol
+  Io::WriteLE(stream, (Uint8)(Audio::GroupVolumes[Audio::ACG_Movie] * 128));
+  Io::WriteLE(stream, SyncVoice);
+  Io::WriteLE(stream, !SkipRead);
+
+  stream->Seek(0x8BE, SEEK_SET);
+  for (size_t i = 0; i < 33; i++) Io::WriteLE(stream, !VoiceMuted[i]);
+  for (size_t i = 0; i < 33; i++)
+    Io::WriteLE(stream, (Uint8)(VoiceVolume[i] * 128));
+
+  stream->Seek(0x901, SEEK_SET);
+  Io::WriteLE(stream, SkipVoice);
+  Io::WriteLE(stream, ShowTipsNotification);
+
+  stream->Seek(0x905, SEEK_SET);
+  Io::WriteLE(stream, AdvanceTextOnDirectionalInput);
+  Io::WriteLE(stream, DirectionalInputForTrigger);
+  Io::WriteLE(stream, TriggerStopSkip);
+
+  // EV Flags
   stream->Seek(0xC0E, SEEK_SET);
   for (int i = 0; i < 150; i++) {
     auto val = Io::ReadU8(stream);
@@ -439,7 +536,7 @@ uint32_t SaveSystem::GetSavePlayTime(SaveType type, int id) {
     case SaveQuick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->PlayTime;
     default:
-      ImpLog(LL_Error, LC_IO,
+      ImpLog(LogLevel::Error, LogChannel::IO,
              "Failed to get save play time: unknown save type, returning 0\n");
       return 0;
   }
@@ -452,7 +549,7 @@ uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) {
     case SaveQuick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->Flags;
     default:
-      ImpLog(LL_Error, LC_IO,
+      ImpLog(LogLevel::Error, LogChannel::IO,
              "Failed to get save flags: unknown save type, returning 0\n");
       return 0;
   }
@@ -475,7 +572,7 @@ tm const& SaveSystem::GetSaveDate(SaveType type, int id) {
     case SaveQuick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->SaveDate;
     default:
-      ImpLog(LL_Error, LC_IO,
+      ImpLog(LogLevel::Error, LogChannel::IO,
              "Failed to read save date: Unknown save type, returning empty "
              "time\n");
       return t;
@@ -524,7 +621,8 @@ void SaveSystem::SaveMemory() {
 
 void SaveSystem::LoadEntry(SaveType type, int id) {
   if (!WorkingSaveEntry) {
-    ImpLog(LL_Error, LC_IO, "Failed to load save memory: no working save\n");
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Failed to load save memory: no working save\n");
     return;
   }
   switch (type) {
@@ -535,7 +633,7 @@ void SaveSystem::LoadEntry(SaveType type, int id) {
       WorkingSaveEntry = *static_cast<SaveFileEntry*>(FullSaveEntries[id]);
       break;
     default:
-      ImpLog(LL_Error, LC_IO,
+      ImpLog(LogLevel::Error, LogChannel::IO,
              "Failed to load save memory: unknown save type, doing nothing\n");
       return;
   }
@@ -543,7 +641,8 @@ void SaveSystem::LoadEntry(SaveType type, int id) {
 
 void SaveSystem::LoadMemoryNew(LoadProcess load) {
   if (!WorkingSaveEntry || WorkingSaveEntry->Status == 0) {
-    ImpLog(LL_Error, LC_IO, "Failed to load entry: save is empty\n");
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Failed to load entry: save is empty\n");
     return;
   }
   if (load == LoadProcess::LoadVars) {
@@ -609,7 +708,7 @@ uint8_t SaveSystem::GetSaveStatus(SaveType type, int id) {
                  ? ((SaveFileEntry*)FullSaveEntries[id])->Status
                  : 0;
     default:
-      ImpLog(LL_Error, LC_IO,
+      ImpLog(LogLevel::Error, LogChannel::IO,
              "Failed to get save status: unknown save type, returning 0\n");
       return 0;
   }
@@ -622,7 +721,7 @@ int SaveSystem::GetSaveTitle(SaveType type, int id) {
     case SaveFull:
       return ((SaveFileEntry*)FullSaveEntries[id])->SwTitle;
     default:
-      ImpLog(LL_Error, LC_IO,
+      ImpLog(LogLevel::Error, LogChannel::IO,
              "Failed to get save title: unknown save type, returning 0\n");
       return 0;
   }
@@ -726,7 +825,7 @@ void SaveSystem::SetCheckpointId(int id) {
   if (WorkingSaveEntry) WorkingSaveEntry->MainThreadIp = id;
 }
 
-Sprite const& SaveSystem::GetSaveThumbnail(SaveType type, int id) {
+Sprite& SaveSystem::GetSaveThumbnail(SaveType type, int id) {
   switch (type) {
     case SaveQuick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->SaveThumbnail;

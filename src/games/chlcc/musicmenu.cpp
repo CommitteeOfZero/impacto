@@ -207,10 +207,12 @@ void MusicMenu::Update(float dt) {
 
   if (State != Hidden) {
     MenuTransition.Update(dt);
-    if (MenuTransition.Direction == -1.0f && MenuTransition.Progress <= 0.72f) {
+    if (MenuTransition.Direction == +AnimationDirection::Out &&
+        MenuTransition.Progress <= 0.72f) {
       TitleFade.StartOut();
     } else if (MenuTransition.IsIn() &&
-               (TitleFade.Direction == 1.0f || TitleFade.IsOut())) {
+               (TitleFade.Direction == +AnimationDirection::In ||
+                TitleFade.IsOut())) {
       TitleFade.StartIn();
     }
     TitleFade.Update(dt);
@@ -355,8 +357,7 @@ inline void MusicMenu::DrawRedBar() {
 }
 
 void MusicMenu::UpdateEntries() {
-  auto onClick =
-      std::bind(&MusicMenu::MusicButtonOnClick, this, std::placeholders::_1);
+  auto onClick = [this](auto* btn) { return MusicButtonOnClick(btn); };
 
   for (size_t idx = 0; idx < MainItems->Children.size(); idx++) {
     auto button = static_cast<Widgets::CHLCC::TrackSelectButton*>(

@@ -5,6 +5,7 @@
 #include "expression.h"
 #include "interface/input.h"
 #include "../profile/scriptvars.h"
+#include "../profile/configsystem.h"
 #include "../game.h"
 #include "../mem.h"
 #include "../log.h"
@@ -23,77 +24,84 @@ using namespace Impacto::Profile::ScriptVars;
 VmInstruction(InstUPLmenuUI) {
   StartInstruction;
   PopUint8(arg1);
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction UPLmenuUI(arg1: %i)\n",
-             arg1);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction UPLmenuUI(arg1: {:d})\n", arg1);
 }
 VmInstruction(InstUPLxTitle) {
   StartInstruction;
   PopUint8(arg1);
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction UPLxTitle(arg1: %i)\n",
-             arg1);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction UPLxTitle(arg1: {:d})\n", arg1);
 }
 VmInstruction(InstPresence) {
   StartInstruction;
   PopUint8(arg1);
   PopExpression(arg2);
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction Presence(arg1: %i, arg2: %i)\n", arg1, arg2);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction Presence(arg1: {:d}, arg2: {:d})\n", arg1, arg2);
 }
 VmInstruction(InstPresenceMO6) {
   StartInstruction;
   PopExpression(arg1);
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Presence(arg1: %i)\n",
-             arg1);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction Presence(arg1: {:d})\n", arg1);
 }
 VmInstruction(InstSetAchievement) {
   StartInstruction;
   PopUint8(type);
   if (type == 1) {
     PopExpression(arg1);
-    ImpLogSlow(LL_Warning, LC_VMStub,
-               "STUB instruction Achievement(type: %i, arg1: %i)\n", type,
+    ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+               "STUB instruction Achievement(type: {:d}, arg1: {:d})\n", type,
                arg1);
   } else {
-    ImpLogSlow(LL_Warning, LC_VMStub,
-               "STUB instruction Achievement(type: %i)\n", type);
+    ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+               "STUB instruction Achievement(type: {:d})\n", type);
   }
 }
 VmInstruction(InstSetPlayer) {
   StartInstruction;
   PopUint8(arg1);
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SetPlayer(arg1: %i)\n",
-             arg1);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction SetPlayer(arg1: {:d})\n", arg1);
 }
 VmInstruction(InstSignIn) {
   StartInstruction;
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SignIn()\n");
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction SignIn()\n");
 }
 VmInstruction(InstAchievementIcon) {
   StartInstruction;
   PopUint8(arg1);
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction AchievementIcon(arg1: %i)\n", arg1);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction AchievementIcon(arg1: {:d})\n", arg1);
 }
 VmInstruction(InstSetX360SysMesPos) {
   StartInstruction;
   PopExpression(arg1);
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction SetX360SysMesPos(arg1: %i)\n", arg1);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction SetX360SysMesPos(arg1: {:d})\n", arg1);
 }
 VmInstruction(InstSystemMenu) {
   StartInstruction;
   PopUint8(mode);
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SystemMenu(mode: %i)\n",
-             mode);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction SystemMenu(mode: {:d})\n", mode);
   switch (mode) {
     case 0:
       if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW) {
       } else if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
-        // TODO: Randomize SystemMenuBgPos here (only for Chaos)
-        static_cast<UI::CCLCC::SystemMenu *>(UI::SystemMenuPtr)->InitPosition();
+        auto* sysMenuPtr =
+            static_cast<UI::CCLCC::SystemMenu*>(UI::SystemMenuPtr);
+        sysMenuPtr->InitPosition();
+        // Block input during animation
+        if (sysMenuPtr->State == UI::MenuState::Hiding ||
+            sysMenuPtr->State == UI::MenuState::Showing) {
+          ResetInstruction;
+          BlockThread;
+        }
       }
-      // UI::SystemMenuPtr->Show(); TODO: Update all games to use update loop
-      // based show
+
       break;
     case 1: {
       if (UI::SystemMenuPtr->ChoiceMade) {
@@ -110,9 +118,10 @@ VmInstruction(InstPressStart) {
     case 0: {
       PopExpression(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction PressStart(type: %i, arg1: %i, arg2: %i)\n",
-                 type, arg1, arg2);
+      ImpLogSlow(
+          LogLevel::Warning, LogChannel::VMStub,
+          "STUB instruction PressStart(type: {:d}, arg1: {:d}, arg2: {:d})\n",
+          type, arg1, arg2);
       switch (Profile::Vm::GameInstructionSet) {
         case InstructionSet::Dash: {
           SaveIconDisplay::ShowAt(glm::vec2(arg1 * 1.5f, arg2 * 1.5f));
@@ -123,45 +132,47 @@ VmInstruction(InstPressStart) {
       }
     } break;
     case 1: {
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction PressStart(type: %i)\n", type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction PressStart(type: {:d})\n", type);
       SaveIconDisplay::Hide();
     } break;
     case 2: {
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction PressStart(type: %i, arg1: %i, arg2: %i, "
-                 "arg3: %i)\n",
-                 type, arg1, arg2, arg3);
+      ImpLogSlow(
+          LogLevel::Warning, LogChannel::VMStub,
+          "STUB instruction PressStart(type: {:d}, arg1: {:d}, arg2: {:d}, "
+          "arg3: {:d})\n",
+          type, arg1, arg2, arg3);
     } break;
     case 3: {
       PopExpression(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction PressStart(type: %i, arg1: %i)\n", type,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction PressStart(type: {:d}, arg1: {:d})\n", type,
                  arg1);
     } break;
     case 4: {
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction PressStart(type: %i)\n", type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction PressStart(type: {:d})\n", type);
       SaveIconDisplay::Show();
     } break;
     case 5: {
       PopExpression(arg1);
       PopExpression(arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction PressStart(type: %i, arg1: %i, arg2: %i)\n",
-                 type, arg1, arg2);
+      ImpLogSlow(
+          LogLevel::Warning, LogChannel::VMStub,
+          "STUB instruction PressStart(type: {:d}, arg1: {:d}, arg2: {:d})\n",
+          type, arg1, arg2);
     } break;
     case 6: {
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction PressStart(type: %i)\n", type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction PressStart(type: {:d})\n", type);
       SaveIconDisplay::Hide();
     } break;
     case 7: {
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction PressStart(type: %i)\n", type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction PressStart(type: {:d})\n", type);
       SaveIconDisplay::Hide();
     } break;
   }
@@ -176,31 +187,32 @@ VmInstruction(InstPressStartNew) {
 }
 VmInstruction(InstClearFlagChk) {
   StartInstruction;
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction ClearFlagChk()\n");
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction ClearFlagChk()\n");
 }
 VmInstruction(InstEVinit) {
   StartInstruction;
   PopUint8(arg1);
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction ClearFlagInit(arg1: %i)\n", arg1);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction ClearFlagInit(arg1: {:d})\n", arg1);
 }
 VmInstruction(InstEVload) {
   StartInstruction;
   PopUint8(arg1);
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction ClearFlagLoad(arg1: %i)\n", arg1);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction ClearFlagLoad(arg1: {:d})\n", arg1);
 }
 VmInstruction(InstEVset) {
   StartInstruction;
   PopUint8(arg1);
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction ClearFlagSet(arg1: %i)\n",
-             arg1);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction ClearFlagSet(arg1: {:d})\n", arg1);
 }
 VmInstruction(InstClearFlagChkOld) {
   StartInstruction;
   PopUint8(arg1);
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction ClearFlagChk(arg1: %i)\n",
-             arg1);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction ClearFlagChk(arg1: {:d})\n", arg1);
 }
 VmInstruction(InstOption) {
   StartInstruction;
@@ -208,24 +220,23 @@ VmInstruction(InstOption) {
   switch (type) {
     case 0:
     case 0xA:
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction Option(type: Init)\n");
       break;
     case 1:
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction Option(type: Main)\n");
       break;
     case 2:
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction Option(type: Cancel)\n");
       break;
     case 3:
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction Option(type: V2toV1vol)\n");
       break;
     case 4:
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction Option(type: Default)\n");
+      UI::OptionsMenuPtr->ResetToDefault();
       break;
   }
 }
@@ -234,10 +245,12 @@ VmInstruction(InstHelp) {
   PopUint8(type);
   switch (type) {
     case 0:  // Init
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Help(type: Init)\n");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Help(type: Init)\n");
       break;
     case 1:  // Main
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction Help(type: Main)\n");
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Help(type: Main)\n");
       break;
   }
 }
@@ -246,15 +259,15 @@ VmInstruction(InstAchievementMenu) {
   PopUint8(type);
   switch (type) {
     case 0:  // Init
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction AchievementMenu(type: Init)\n");
       break;
     case 1:  // Main
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction AchievementMenu(type: Main)\n");
       break;
     case 0xA:  // ProfSetXboxEvent
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction AchievementMenu(type: ProfSetXboxEvent)\n");
       break;
   }
@@ -264,29 +277,30 @@ VmInstruction(InstSoundMenu) {
   PopUint8(type);
   switch (type) {
     case 0:  // MusicInit
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SoundMenu(type: MusicInit)\n");
       break;
     case 1:  // MusicMain
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SoundMenu(type: MusicMain)\n");
       break;
     case 0xA:  // ProfSetXboxEvent
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SoundMenu(type: ProfSetXboxEvent)\n");
       break;
   }
 }
 VmInstruction(InstAllClear) {
   StartInstruction;
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction AllClear()\n");
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction AllClear()\n");
 }
 VmInstruction(InstAlbum) {
   StartInstruction;
   PopUint8(type);
   switch (type) {
     case 0:  // EXmenuInit
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction Album(type: EXmenuInit)\n");
       break;
     case 1:  // EXmenuMain
@@ -298,11 +312,11 @@ VmInstruction(InstAlbum) {
         SetFlag(SF_ALBUMEND, true);
         Interface::PADinputButtonWentDown |= Interface::PAD1A;
       }
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction Album(type: EXmenuMain)\n");
       break;
     case 0xA:  // ProfSetXboxEvent
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction Album(type: ProfSetXboxEvent)\n");
       break;
   }
@@ -312,11 +326,11 @@ VmInstruction(InstMovieMode) {
   PopUint8(type);
   switch (type) {
     case 0:  // Init
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction MovieMode(type: Init)\n");
       break;
     case 1:  // Main
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction MovieMode(type: Main)\n");
       break;
   }
@@ -326,19 +340,19 @@ VmInstruction(InstClistInit) {
   PopUint8(type);
   switch (type) {
     case 0:  // PDmenuInit
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction ClistInit(type: EXmenuInit)\n");
       break;
     case 1:  // PlayDataMain
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction ClistInit(type: EXmenuMain)\n");
       break;
     case 3:  // Unused
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction ClistInit(type: %i)\n", type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction ClistInit(type: {:d})\n", type);
       break;
     case 0xA:  // ProfSetXboxEvent
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction ClistInit(type: ProfSetXboxEvent)\n");
       break;
   }
@@ -351,7 +365,7 @@ VmInstruction(InstSaveMenu) {
       PopUint8(arg1);
       ScrWork[SW_SAVEMENUMODE] = arg1;
       ScrWork[SW_SAVEFILESTATUS] = 0;
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SaveMenu(type: SaveMenuInit)\n");
     } break;
     case 1:  // SaveMenuMain
@@ -365,32 +379,32 @@ VmInstruction(InstSaveMenu) {
         UI::SaveMenuPtr->ChoiceMade = false;
         Interface::PADinputButtonWentDown |= Interface::PAD1A;
       }
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SaveMenu(type: SaveMenuMain)\n");
       break;
     case 2:  // SaveResetThumnail
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SaveMenu(type: SaveResetThumnail)\n");
       break;
     case 10:
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SaveMenu(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction SaveMenu(type: {:d})\n", type);
       break;
     case 11:
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SaveMenu(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction SaveMenu(type: {:d})\n", type);
       break;
     case 12:
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SaveMenu(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction SaveMenu(type: {:d})\n", type);
       break;
     case 13:
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SaveMenu(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction SaveMenu(type: {:d})\n", type);
       break;
     case 20:
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SaveMenu(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction SaveMenu(type: {:d})\n", type);
       break;
   }
 }
@@ -402,8 +416,9 @@ VmInstruction(InstSaveMenuOld) {
       PopUint8(arg1);
       ScrWork[SW_SAVEMENUMODE] = arg1;
       ScrWork[SW_SAVEFILESTATUS] = 0;
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction SaveMenu(type: %i, arg1: %i)\n", type, arg1);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction SaveMenu(type: {:d}, arg1: {:d})\n", type,
+                 arg1);
     } break;
     case 1:
       if (!UI::SaveMenuPtr->ChoiceMade) {
@@ -418,17 +433,18 @@ VmInstruction(InstSaveMenuOld) {
         ScrWork[SW_SAVEFILESTATUS] = SaveSystem::GetSaveStatus(
             SaveSystem::SaveType::SaveFull, ScrWork[SW_SAVEFILENO]);
       }
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SaveMenu(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction SaveMenu(type: {:d})\n", type);
       break;
     case 2: {
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SaveMenu(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction SaveMenu(type: {:d})\n", type);
     } break;
     case 10: {
       PopUint8(arg1);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction SaveMenu(type: %i, arg1: %i)\n", type, arg1);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction SaveMenu(type: {:d}, arg1: {:d})\n", type,
+                 arg1);
     } break;
   }
 }
@@ -441,14 +457,15 @@ VmInstruction(InstLoadData) {
       PopExpression(arg1);
       PopExpression(arg2);
       SaveSystem::LoadEntry(static_cast<SaveSystem::SaveType>(arg1), arg2);
-      ImpLogSlow(LL_Warning, LC_VMStub,
-                 "STUB instruction LoadData(type: %i, arg1: %i)\n", type, arg1);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction LoadData(type: {:d}, arg1: {:d})\n", type,
+                 arg1);
     } break;
     case 1:
     case 2:
     case 11:
-      ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction LoadData(type: %i)\n",
-                 type);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction LoadData(type: {:d})\n", type);
       break;
   }
   SaveSystem::LoadMemoryNew(static_cast<SaveSystem::LoadProcess>(type));
@@ -464,7 +481,7 @@ VmInstruction(InstTitleMenu) {
   PopUint8(type);
   switch (type) {
     case 0:  // Init
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction TitleMenu(type: Init)\n");
       SetFlag(SF_TITLEMODE, 1);
       break;
@@ -483,11 +500,11 @@ VmInstruction(InstTitleMenu) {
       }
       ScrWork[SW_TITLECUR2] = 255;
       SetFlag(SF_TITLEMODE, 0);
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction TitleMenu(type: Main)\n");
       break;
     case 2:  // Init2
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction TitleMenu(type: Init2)\n");
       break;
   }
@@ -497,7 +514,7 @@ VmInstruction(InstTitleMenuNew) {
   PopUint8(type);
   switch (type) {
     case 0:  // Init
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction TitleMenu(type: Init)\n");
       break;
     case 1:  // Main
@@ -543,7 +560,7 @@ VmInstruction(InstTitleMenuNew) {
       }
       break;
     case 2:  // Init2
-      ImpLogSlow(LL_Warning, LC_VMStub,
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction TitleMenu(type: Init2)\n");
       break;
       break;
@@ -575,7 +592,7 @@ VmInstruction(InstTitleMenuOld) {
 VmInstruction(InstSetPlayMode) {
   StartInstruction;
   PopExpression(arg1);
-  MesSkipMode = (arg1 == 4) ? SkipMode + 1 : arg1;
+  MesSkipMode = (arg1 == 4) ? (!Profile::ConfigSystem::SkipRead) + 1 : arg1;
 }
 VmInstruction(InstSetEVflag) {
   StartInstruction;
@@ -584,8 +601,8 @@ VmInstruction(InstSetEVflag) {
     PopUint8(unk01);
   }
   PopExpression(arg1);
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction SetEVflag(arg1: %i)\n",
-             arg1);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction SetEVflag(arg1: {:d})\n", arg1);
 }
 VmInstruction(InstSetCutin) {
   StartInstruction;
@@ -593,24 +610,26 @@ VmInstruction(InstSetCutin) {
   PopExpression(arg1);
   PopExpression(arg2);
   PopExpression(arg3);
-  ImpLogSlow(
-      LL_Warning, LC_VMStub,
-      "STUB instruction SetCutin(type: %i, arg1: %i, arg2: %i, arg3: %i)\n",
-      type, arg1, arg2, arg3);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction SetCutin(type: {:d}, arg1: {:d}, arg2: {:d}, "
+             "arg3: {:d})\n",
+             type, arg1, arg2, arg3);
 }
 VmInstruction(InstAchChkTitle) {
   StartInstruction;
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction AchChkTitle()\n");
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction AchChkTitle()\n");
 }
 VmInstruction(InstSetSceneViewFlag) {
   StartInstruction;
   PopExpression(sceneId);
-  ImpLogSlow(LL_Warning, LC_VMStub,
-             "STUB instruction SetSceneViewFlag(sceneId: %i)\n", sceneId);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction SetSceneViewFlag(sceneId: {:d})\n", sceneId);
 }
 VmInstruction(InstChkClearFlag) {
   StartInstruction;
-  ImpLogSlow(LL_Warning, LC_VMStub, "STUB instruction ChkClearFlag()\n");
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction ChkClearFlag()\n");
 }
 VmInstruction(InstScreenChange) { StartInstruction; }
 VmInstruction(InstExitGame) { StartInstruction; }

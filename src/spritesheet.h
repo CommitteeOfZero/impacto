@@ -13,6 +13,7 @@ struct SpriteSheet {
   float DesignHeight = 0;
 
   uint32_t Texture = 0;
+  bool IsScreenCap = false;
 };
 
 // TODO replace BaseScale with scaled width/height and unscaled width/height

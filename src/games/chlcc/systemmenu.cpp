@@ -35,8 +35,7 @@ SystemMenu::SystemMenu() {
   TitleFade.DurationIn = TitleFadeInDuration;
   TitleFade.DurationOut = TitleFadeOutDuration;
 
-  auto onClick =
-      std::bind(&SystemMenu::MenuButtonOnClick, this, std::placeholders::_1);
+  auto onClick = [this](auto* btn) { return MenuButtonOnClick(btn); };
 
   MainItems = new Widgets::Group(this);
 
@@ -101,10 +100,12 @@ void SystemMenu::Update(float dt) {
 
   if (State != Hidden) {
     MenuTransition.Update(dt);
-    if (MenuTransition.Direction == -1.0f && MenuTransition.Progress <= 0.72f) {
+    if (MenuTransition.Direction == +AnimationDirection::Out &&
+        MenuTransition.Progress <= 0.72f) {
       TitleFade.StartOut();
     } else if (MenuTransition.IsIn() &&
-               (TitleFade.Direction == 1.0f || TitleFade.IsOut())) {
+               (TitleFade.Direction == +AnimationDirection::In ||
+                TitleFade.IsOut())) {
       TitleFade.StartIn();
     }
     TitleFade.Update(dt);

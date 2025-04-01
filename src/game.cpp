@@ -39,6 +39,7 @@
 #include "profile/scene3d.h"
 #include "profile/vm.h"
 #include "profile/scriptvars.h"
+#include "profile/configsystem.h"
 #include "profile/ui/selectionmenu.h"
 #include "profile/ui/sysmesbox.h"
 #include "profile/ui/systemmenu.h"
@@ -68,6 +69,7 @@ static void Init() {
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
   ImGuiIO& io = ImGui::GetIO();
+  io.IniFilename = NULL;
   io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
   io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
   if (Profile::GameFeatures & GameFeature::DebugMenu &&
@@ -80,6 +82,8 @@ static void Init() {
   InitRenderer();
 
   memset(DrawComponents, DrawComponentType::None, sizeof(DrawComponents));
+
+  Profile::ConfigSystem::Configure();
 
   if (Profile::GameFeatures & GameFeature::Audio) {
     Audio::AudioInit();
@@ -160,7 +164,7 @@ void Shutdown() {
   if (Profile::GameFeatures & GameFeature::Renderer2D) {
     Renderer->Shutdown();
   }
-
+  WorkQueue::StopWorkQueue();
   Window->Shutdown();
 }
 
@@ -219,7 +223,6 @@ void UpdateSystem(float dt) {
   if (Profile::GameFeatures & GameFeature::Input) {
     Input::EndFrame();
   }
-
   if (Profile::GameFeatures & GameFeature::Sc3VirtualMachine) {
     Vm::Interface::UpdatePADInput();
     UpdateGameState(UpdateSecondCounter);
@@ -292,6 +295,31 @@ void Update(float dt) {
   }
 }
 
+static bool ShouldRender(const int layer) {
+  using namespace Impacto::Profile::Vm;
+
+  for (int bgId = 0; bgId < MaxBackgrounds2D; bgId++) {
+    if (GetFlag(SF_BG1DISP + bgId) && !GetFlag(SF_BG1LOADEXEC + bgId) &&
+        (ScrWork[SW_BG1PRI + ScrWorkBgStructSize * bgId] == layer ||
+         ScrWork[SW_BG1PRI2 + ScrWorkBgStructSize * bgId] == layer))
+      return true;
+
+    if (GetFlag(SF_BGEFF1DISP + bgId) &&
+        (ScrWork[SW_BGEFF1_PRI + ScrWorkBgEffStructSize * bgId] == layer ||
+         ScrWork[SW_BGEFF1_PRI2 + ScrWorkBgEffStructSize * bgId] == layer))
+      return true;
+  }
+
+  for (int capId = 0; capId < MaxScreencaptures; capId++) {
+    if (GetFlag(SF_CAP1DISP + capId) &&
+        (ScrWork[SW_CAP1PRI + ScrWorkCaptureStructSize * capId] == layer ||
+         ScrWork[SW_CAP1PRI2 + ScrWorkCaptureStructSize * capId] == layer))
+      return true;
+  }
+
+  return false;
+}
+
 void Render() {
   Window->Update();
 
@@ -321,16 +349,33 @@ void Render() {
         }
         case DrawComponentType::Main: {
           for (uint32_t layer = 0; layer <= Profile::LayerCount; layer++) {
-            // TODO
+            const int renderTarget = ScrWork[SW_RENDERTARGET + layer];
+            if (0 <= renderTarget && renderTarget <= MaxFramebuffers &&
+                ShouldRender(layer)) {
+              Renderer->SetFramebuffer(renderTarget);
+            }
 
             for (int i = 0; i < MaxBackgrounds2D; i++) {
               int bufId = ScrWork[SW_BG1SURF + i];
               Backgrounds2D[bufId]->Render(i, layer);
             }
+
             for (int i = 0; i < MaxCharacters2D; i++) {
               int bufId = ScrWork[SW_CHA1SURF + i];
               Characters2D[bufId].Render(layer);
             }
+
+            for (int bgId = 0; bgId < MaxBackgrounds2D; bgId++) {
+              if (GetFlag(SF_BGEFF1DISP + bgId) &&
+                  (ScrWork[SW_BGEFF1_PRI + Profile::Vm::ScrWorkBgEffStructSize *
+                                               bgId] == layer ||
+                   ScrWork[SW_BGEFF1_PRI2 +
+                           Profile::Vm::ScrWorkBgEffStructSize * bgId] ==
+                       layer)) {
+                Framebuffers[0].RenderBgEff(bgId, layer);
+              }
+            }
+
             if (ScrWork[6361] == static_cast<int>(layer) && ScrWork[6360]) {
               UI::MapSystem::Render();
             }
@@ -355,9 +400,19 @@ void Render() {
               }
             }
 
+            for (size_t capId = 0; capId < MaxScreencaptures; capId++) {
+              if (!GetFlag(SF_CAP1DISP + capId)) continue;
+
+              for (size_t capLayer = 0; capLayer < MaxScreencaptures;
+                   capLayer++) {
+                if (ScrWork[SW_CAP1PRI + capId * 20 + capLayer * 8] == layer) {
+                  Screencaptures[capId].RenderCapture(capId, layer);
+                }
+              }
+            }
+
             if (Profile::UseScreenCapEffects) {
-              if (ScrWork[SW_EFF_CAP_BUF] &&
-                  ScrWork[SW_EFF_CAP_PRI] == static_cast<int>(layer)) {
+              if (ScrWork[SW_EFF_CAP_BUF] && ScrWork[SW_EFF_CAP_PRI] == layer) {
                 int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF]);
                 if (Backgrounds2D[bufId]->Status == LS_Loaded) {
                   Renderer->CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
@@ -365,7 +420,7 @@ void Render() {
               }
 
               if (ScrWork[SW_EFF_CAP_BUF2] &&
-                  ScrWork[SW_EFF_CAP_PRI2] == static_cast<int>(layer)) {
+                  ScrWork[SW_EFF_CAP_PRI2] == layer) {
                 int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF2]);
                 if (Backgrounds2D[bufId]->Status == LS_Loaded) {
                   Renderer->CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
@@ -406,6 +461,8 @@ void Render() {
               CCLCC::YesNoTrigger::YesNoTriggerPtr->Render();
             }
           }
+
+          Renderer->SetFramebuffer(0);
 
           if (SaveSystem::Implementation) {
             Renderer->CaptureScreencap(SaveSystem::GetWorkingSaveThumbnail());
@@ -475,8 +532,8 @@ void Render() {
           break;
         }
         default: {
-          ImpLogSlow(LL_Warning, LC_General,
-                     "Encountered unknown draw component type %02X\n",
+          ImpLogSlow(LogLevel::Warning, LogChannel::General,
+                     "Encountered unknown draw component type 0x{:02x}\n",
                      DrawComponents[i]);
           break;
         }
@@ -496,7 +553,7 @@ void Render() {
                 Backgrounds2D[0]->BgSprite.ScaledHeight()));
     }
     if (Characters2D[0].Status == LS_Loaded) {
-      Characters2D[0].Layer = 0;
+      Characters2D[0].Layers[0] = 0;
       ScrWork[SW_CHA1ALPHA] = 256;
       Characters2D[0].Render(0);
     }
