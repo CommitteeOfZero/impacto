@@ -26,12 +26,14 @@ void Init() {
       SpriteAnim.LoopMode = AnimationLoopMode::Loop;
       SpriteAnim.StartIn();
       break;
+
     case WaitIconType::SpriteAnimFixed:
       SpriteAnim = WaitIconSpriteAnim.Instantiate();
       SpriteAnim.LoopMode = AnimationLoopMode::Stop;
       FixedSpriteAnim = static_cast<FixedSpriteAnimation&>(SpriteAnim);
       FixedSpriteAnim.Def->FixSpriteId = WaitIconFixedSpriteId;
       break;
+
     default:
       SimpleAnim.DurationIn = WaitIconAnimationDuration;
       SimpleAnim.LoopMode = AnimationLoopMode::Loop;
@@ -75,7 +77,7 @@ void Update(float dt) {
 
 static void RenderSpriteAnim(glm::vec2 pos, glm::vec4 opacityTint,
                              DialoguePageMode mode) {
-  if (FixedSpriteAnim.IsOut()) return;
+  if (!GetFlag(Profile::ScriptVars::SF_SHOWWAITICON)) return;
 
   glm::vec2 offset = WaitIconOffset;
 
@@ -127,18 +129,23 @@ void Render(glm::vec2 pos, glm::vec4 opacityTint, DialoguePageMode mode) {
   switch (WaitIconCurrentType) {
     case WaitIconType::None:
       return;
+
     case WaitIconType::SpriteAnim:
       RenderSpriteAnim(pos, opacityTint, mode);
       return;
+
     case WaitIconType::SpriteAnimFixed:
       RenderSpriteAnimFixed(opacityTint);
       return;
+
     case WaitIconType::RotateZ:
       RenderRotateZ(pos, opacityTint);
       return;
+
     case WaitIconType::Fixed:
       RenderFixed(opacityTint);
       return;
+
     default:
       if (!GetFlag(Profile::ScriptVars::SF_SHOWWAITICON)) return;
 
