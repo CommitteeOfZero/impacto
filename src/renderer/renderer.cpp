@@ -264,7 +264,7 @@ void BaseRenderer::DrawProcessedText_LBFont(
       mask.Sheet = *maskedSheet;
       mask.Bounds = foregroundDest;
       DrawMaskedSpriteOverlay(font->Glyph(text[i].CharId), mask, foregroundDest,
-                              color, color.a * 255, 256, false, 0, i == 0);
+                              color, color.a * 255, 256, false, 0, false);
     } else {
       DrawSprite(font->Glyph(text[i].CharId), foregroundDest, color);
     }
