@@ -30,6 +30,22 @@ void Configure() {
   MenuButtonGuide = EnsureGetMember<Sprite>("MenuButtonGuide");
   SystemMenuMask = EnsureGetMember<Sprite>("SystemMenuMask");
 
+  BGDispOffsetTopLeft = EnsureGetMember<glm::vec2>("BGDispOffsetTopLeft");
+  BGDispOffsetBottomLeft = EnsureGetMember<glm::vec2>("BGDispOffsetBottomLeft");
+  BGDispOffsetTopRight = EnsureGetMember<glm::vec2>("BGDispOffsetTopRight");
+  BGDispOffsetBottomRight =
+      EnsureGetMember<glm::vec2>("BGDispOffsetBottomRight");
+  FrameOffsetTopLeft = EnsureGetMember<glm::vec2>("FrameOffsetTopLeft");
+  FrameOffsetBottomLeft = EnsureGetMember<glm::vec2>("FrameOffsetBottomLeft");
+  FrameOffsetTopRight = EnsureGetMember<glm::vec2>("FrameOffsetTopRight");
+  FrameOffsetBottomRight = EnsureGetMember<glm::vec2>("FrameOffsetBottomRight");
+
+  AngleMultiplier = EnsureGetMember<glm::vec3>("AngleMultiplier");
+  BGRandPosInit = EnsureGetMember<glm::vec2>("BGRandPosInit");
+  BGRandPosRange = EnsureGetMember<glm::vec2>("BGRandPosRange");
+
+  BGTranslationOffset = EnsureGetMember<glm::vec2>("BGTranslationOffset");
+
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMember<int>("DrawType"));
 
