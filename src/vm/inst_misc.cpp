@@ -540,6 +540,8 @@ VmInstruction(InstTitleMenuNew) {
               ScrWork[SW_TITLEDISPCT] = 0;
               ScrWork[SW_TITLEMOVIECT] = 0;
               SetFlag(SF_TITLEEND, 1);
+            } else {
+              ScrWork[SW_TITLEMOVIECT]++;
             }
           }
         } break;
