@@ -276,7 +276,7 @@ inline void ClearListMenu::DrawAlbumCompletion(float yOffset) {
 }
 
 inline void ClearListMenu::DrawEndingTree(float yOffset) {
-  for (int i = 0; i < 8; i++) {
+  for (int i = 0; i < Endings; i++) {
     glm::vec2 boxPosition(BoxPositions[i].x, BoxPositions[i].y + yOffset);
     glm::vec2 thumbnailPosition(ThumbnailPositions[i].x,
                                 ThumbnailPositions[i].y + yOffset);
