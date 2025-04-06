@@ -226,23 +226,34 @@ void SaveMenu::UpdateInput() {
 }
 
 void SaveMenu::Update(float dt) {
-  UpdateInput();
-  FadeAnimation.Update(dt);
-
-  if (ScrWork[SW_SYSSUBMENUCT] < 32 && State == Shown &&
-      (ScrWork[SW_SYSSUBMENUNO] == 0 || ScrWork[SW_SYSSUBMENUNO] == 3 ||
-       ScrWork[SW_SYSSUBMENUNO] == 4)) {
+  if (ScrWork[SW_SYSSUBMENUCT] < 32 && State == Shown) {
     Hide();
-  } else if (ScrWork[SW_SYSSUBMENUCT] >= 32 && State == Hidden &&
+  } else if (ScrWork[SW_SYSSUBMENUCT] > 0 && State == Hidden &&
              (ScrWork[SW_SYSSUBMENUNO] == 0 || ScrWork[SW_SYSSUBMENUNO] == 3 ||
               ScrWork[SW_SYSSUBMENUNO] == 4)) {
     Show();
   }
 
-  if (FadeAnimation.IsIn())
+  if (State != Hidden) {
+    FadeAnimation.Update(dt);
+  }
+
+  if (State == Shown &&
+      (ScrWork[SW_SYSSUBMENUNO] == 0 || ScrWork[SW_SYSSUBMENUNO] == 3 ||
+       ScrWork[SW_SYSSUBMENUNO] == 4)) {
+    UpdateInput();
+  }
+
+  if (State == Showing && FadeAnimation.Progress == 1.0f &&
+      ScrWork[SW_SYSSUBMENUCT] == 32) {
     State = Shown;
-  else if (FadeAnimation.IsOut())
+    IsFocused = true;
+  } else if (State == Hiding && FadeAnimation.Progress == 0.0f &&
+             ScrWork[SW_SYSSUBMENUCT] == 0) {
     State = Hidden;
+    IsFocused = false;
+    if (UI::FocusedMenu) UI::FocusedMenu->IsFocused = true;
+  }
 
   if (State == Shown && IsFocused && CurrentlyFocusedElement) {
     int oldPage = CurrentPage;
@@ -288,8 +299,7 @@ void SaveMenu::Render() {
         RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
         maskTint);
     Renderer->DrawSprite(ButtonGuideSprite[ScrWork[SW_SAVEMENUMODE]],
-                         {ScrWork[SW_SYSSUBMENUCT] * 200 * 0.0625 - 400, 989},
-                         col);
+                         {200 * 0.0625 - 400, 989}, col);
   }
 }
 
