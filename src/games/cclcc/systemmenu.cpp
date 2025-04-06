@@ -259,37 +259,39 @@ void SystemMenu::Render() {
         BGDispOffsetBottomRight,
     };
 
-    CornersQuad frameDisp = {
-        glm::vec2{bgOffset, 0} + FrameOffsetTopLeft,
-        glm::vec2{bgOffset, 0} + FrameOffsetBottomLeft,
-        glm::vec2{bgOffset, 0} + FrameOffsetTopRight,
-        glm::vec2{bgOffset, 0} + FrameOffsetBottomRight,
-    };
-
-    CornersQuad screenCapDisp = {
-        glm::vec2{bgOffset + 0, 0},
-        glm::vec2{bgOffset + 0, Profile::DesignHeight},
-        glm::vec2{bgOffset + Profile::DesignWidth, 0},
-        glm::vec2{bgOffset + Profile::DesignWidth, Profile::DesignHeight},
-    };
-
     TransformImage(bgSpriteBounds, bgDisp, angleX, angleY, angleZ, scale,
                    BGTranslationOffset, SpriteGridVertices,
                    DisplayGridVertices);
     Renderer->DrawVertices(SystemMenuBG.Sheet, SpriteGridVertices,
                            DisplayGridVertices, 21, 11);
 
-    TransformImage(SystemMenuFrame.Bounds, frameDisp, angleX, angleY, angleZ,
-                   scale, BGTranslationOffset, SpriteGridVertices,
-                   DisplayGridVertices);
-    Renderer->DrawVertices(SystemMenuFrame.Sheet, SpriteGridVertices,
-                           DisplayGridVertices, 21, 11);
-    TransformImage(ScreenCap.Bounds, screenCapDisp, angleX, angleY, angleZ,
-                   scale, BGTranslationOffset, SpriteGridVertices,
-                   DisplayGridVertices);
-    Renderer->DrawVertices(ScreenCap.Sheet, SpriteGridVertices,
-                           DisplayGridVertices, 21, 11, glm::vec4{1}, false,
-                           true);
+    if (!GetFlag(SF_SYSTEMMENUDIRECT)) {
+      CornersQuad frameDisp = {
+          glm::vec2{bgOffset, 0} + FrameOffsetTopLeft,
+          glm::vec2{bgOffset, 0} + FrameOffsetBottomLeft,
+          glm::vec2{bgOffset, 0} + FrameOffsetTopRight,
+          glm::vec2{bgOffset, 0} + FrameOffsetBottomRight,
+      };
+
+      TransformImage(SystemMenuFrame.Bounds, frameDisp, angleX, angleY, angleZ,
+                     scale, BGTranslationOffset, SpriteGridVertices,
+                     DisplayGridVertices);
+      Renderer->DrawVertices(SystemMenuFrame.Sheet, SpriteGridVertices,
+                             DisplayGridVertices, 21, 11);
+
+      CornersQuad screenCapDisp = {
+          glm::vec2{bgOffset + 0, 0},
+          glm::vec2{bgOffset + 0, Profile::DesignHeight},
+          glm::vec2{bgOffset + Profile::DesignWidth, 0},
+          glm::vec2{bgOffset + Profile::DesignWidth, Profile::DesignHeight},
+      };
+      TransformImage(ScreenCap.Bounds, screenCapDisp, angleX, angleY, angleZ,
+                     scale, BGTranslationOffset, SpriteGridVertices,
+                     DisplayGridVertices);
+      Renderer->DrawVertices(ScreenCap.Sheet, SpriteGridVertices,
+                             DisplayGridVertices, 21, 11, glm::vec4{1}, false,
+                             true);
+    }
     Renderer->DrawSprite(SystemMenuMask,
                          {0, 0, Profile::DesignWidth, Profile::DesignHeight},
                          glm::vec4{tint, alpha});
