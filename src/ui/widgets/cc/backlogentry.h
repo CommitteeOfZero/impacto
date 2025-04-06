@@ -9,6 +9,8 @@ namespace CC {
 
 class BacklogEntry : public Widgets::BacklogEntry {
  public:
+  using Widgets::BacklogEntry::BacklogEntry;
+
   void Render() override;
 };
 

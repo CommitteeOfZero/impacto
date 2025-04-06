@@ -163,6 +163,8 @@ class BaseRenderer {
   IScene3D* Scene = 0;
 
  protected:
+  virtual void Flush() = 0;
+
   struct VertexBufferSprites {
     glm::vec2 Position;
     glm::vec2 UV;
