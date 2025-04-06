@@ -269,5 +269,7 @@ void BaseRenderer::DrawProcessedText_LBFont(
       DrawSprite(font->Glyph(text[i].CharId), foregroundDest, color);
     }
   }
+
+  if (maskedSheet) Flush();
 }
 }  // namespace Impacto
