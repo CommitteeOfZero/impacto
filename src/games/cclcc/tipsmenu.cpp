@@ -335,10 +335,10 @@ void TipsMenu::Render() {
       TipsScrollbar->Render();
     }
 
-    Renderer->DrawSprite(TipsMaskSprite,
-                         RectF(0.0f, Profile::DesignHeight / 2 - LastYPos,
-                               Profile::DesignWidth, Profile::DesignHeight),
-                         maskTint);
+    Renderer->DrawSprite(
+        TipsMaskSprite,
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+        maskTint);
     Renderer->DrawSprite(
         TipsGuideSprite,
         glm::vec2(TipsGuideX,
