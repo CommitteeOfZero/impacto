@@ -74,7 +74,7 @@ void SystemMenu::Show() {
     // If the function was called due to a submenu opening directly,
     // then don't take over focus
     if (!(ScrWork[SW_SYSMENUCT] == 32 && ScrWork[SW_SYSSUBMENUCT] ||
-          ScrWork[2151])) {
+          ScrWork[SW_CLRALPHA])) {
       if (UI::FocusedMenu != 0) {
         LastFocusedMenu = UI::FocusedMenu;
         LastFocusedMenu->IsFocused = false;

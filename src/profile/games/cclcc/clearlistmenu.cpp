@@ -2,7 +2,6 @@
 #include "../../profile_internal.h"
 #include "../../../ui/ui.h"
 #include "../../../games/cclcc/clearlistmenu.h"
-#include "../../../text.h"
 #include "../../../game.h"
 
 namespace Impacto {
@@ -14,12 +13,16 @@ void Configure() {
   ClearListBookLayerSprite =
       EnsureGetMember<Sprite>("ClearListBookLayerSprite");
   ClearListGuideSprite = EnsureGetMember<Sprite>("ClearListGuideSprite");
-  LibraryMaskSprite = EnsureGetMember<Sprite>("LibraryMaskSprite");
+  ClearListMaskSprite = EnsureGetMember<Sprite>("ClearListMaskSprite");
+
+  GetMemberArray<Sprite>(EndingSprites, Endings, "EndingSprites");
+  EndingSpriteOffsetY = EnsureGetMember<float>("EndingSpriteOffsetY");
+  MenuOffsetY = EnsureGetMember<float>("MenuOffsetY");
 
   FadeInDuration = EnsureGetMember<float>("FadeInDuration");
   FadeOutDuration = EnsureGetMember<float>("FadeOutDuration");
-  ClearListGuideX = EnsureGetMember<int>("ClearListGuideX");
-  ClearListGuideY = EnsureGetMember<int>("ClearListGuideY");
+
+  ClearListGuidePosition = EnsureGetMember<glm::vec2>("ClearListGuidePosition");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMember<int>("DrawType"));

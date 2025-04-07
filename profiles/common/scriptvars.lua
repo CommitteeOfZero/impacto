@@ -33,6 +33,7 @@ root.ScriptVars = {
     SW_SYSSUBMENUCT=2147,
     SW_SYSSUBMENUNO=2148,
     SW_SYSSUBMENUALPHA=2149,
+    SW_CLRALPHA=2151,
     SW_OPTIONCHAALPHA=2172,
     SW_OPTIONCHANO=2173,
     SW_TIMEYEAR=2180,
@@ -344,7 +345,7 @@ root.ScriptVars = {
     SW_SAVEMENUMODE=7999, -- This is our own
     -- FlagWork
     SF_CLR_FLAG=800,
-    SF_CLR_END1=801,
+    SF_CLR_END1=801, -- 801 to (at least) 814 is reserved for endings in all the games.
     SF_CLR_TRUE_CC=814,
     SF_ACTORSVOICE_UNLOCK1=840,
     SF_EXTRA_ENA=860,
