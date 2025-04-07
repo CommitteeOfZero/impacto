@@ -118,6 +118,12 @@ struct RectF {
   constexpr glm::vec2 GetSize() const { return glm::vec2(Width, Height); }
 
   static RectF Coalesce(const RectF& first, const RectF& second);
+
+  constexpr RectF Scale(const glm::vec2 scalar, const glm::vec2 origin) const {
+    const float scaledX = (X - origin.x) * scalar.x + origin.x;
+    const float scaledY = (Y - origin.y) * scalar.y + origin.y;
+    return RectF(scaledX, scaledY, Width * scalar.x, Height * scalar.y);
+  }
 };
 
 struct Rect {
