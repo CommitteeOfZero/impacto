@@ -298,8 +298,8 @@ void SaveMenu::Render() {
         SaveMenuMaskSprite,
         RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
         maskTint);
-    Renderer->DrawSprite(ButtonGuideSprite[ScrWork[SW_SAVEMENUMODE]],
-                         {200 * 0.0625 - 400, 989}, col);
+    Renderer->DrawSprite(ButtonGuideSprite[ScrWork[SW_SAVEMENUMODE]], {0, 989},
+                         col);
   }
 }
 
