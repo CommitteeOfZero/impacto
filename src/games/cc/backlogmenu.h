@@ -14,6 +14,13 @@ class BacklogMenu : public UI::BacklogMenu {
   void Hide() override;
   void Render() override;
 
+  Widgets::BacklogEntry* CreateBacklogEntry(
+      int id, uint8_t* str, int audioId, int characterId, glm::vec2 pos,
+      const RectF& hoverBounds) const override {
+    return new Widgets::CC::BacklogEntry(id, str, audioId, characterId, pos,
+                                         hoverBounds);
+  }
+
   void MenuButtonOnClick(Widgets::BacklogEntry* target) override;
 
  private:
