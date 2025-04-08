@@ -714,11 +714,11 @@ void DialoguePage::Render() {
   col.a = opacityTint.a;
 
   Renderer->DrawProcessedText(Glyphs, DialogueFont, opacityTint.a,
-                              RendererOutlineMode::RO_Full);
+                              RendererOutlineMode::Full);
 
   if (HasName && ADVBoxShowName) {
     Renderer->DrawProcessedText(Name, DialogueFont, opacityTint.a,
-                                RendererOutlineMode::RO_Full);
+                                RendererOutlineMode::Full);
   }
 
   // Wait icon

@@ -13,7 +13,7 @@ namespace Impacto {
 inline GraphicsApi GraphicsApiHint;
 inline GraphicsApi ActualGraphicsApi;
 
-enum class RendererOutlineMode { RO_None, RO_BottomRight, RO_Full };
+enum class RendererOutlineMode { None, BottomRight, Full };
 
 constexpr inline int MaxFramebuffers = 10;
 
@@ -124,13 +124,13 @@ class BaseRenderer {
   void DrawProcessedText(
       std::span<const ProcessedTextGlyph> text, Font* font,
       float opacity = 1.0f,
-      RendererOutlineMode outlineMode = RendererOutlineMode::RO_None,
+      RendererOutlineMode outlineMode = RendererOutlineMode::None,
       bool smoothstepGlyphOpacity = true, SpriteSheet* maskedSheet = 0);
 
   void DrawProcessedText(
       std::span<const ProcessedTextGlyph> text, Font* font, float opacity,
       float outlineOpacity,
-      RendererOutlineMode outlineMode = RendererOutlineMode::RO_None,
+      RendererOutlineMode outlineMode = RendererOutlineMode::None,
       bool smoothstepGlyphOpacity = true, SpriteSheet* maskedSheet = 0);
 
   virtual void DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,

@@ -127,7 +127,7 @@ void BaseRenderer::DrawProcessedText_BasicFont(
     RendererOutlineMode outlineMode, bool smoothstepGlyphOpacity,
     float outlineOpacity, SpriteSheet* maskedSheet) {
   // cruddy mages outline
-  if (outlineMode != RendererOutlineMode::RO_None) {
+  if (outlineMode != RendererOutlineMode::None) {
     for (int i = 0; i < text.size(); i++) {
       glm::vec4 color = RgbIntToFloat(text[i].Colors.OutlineColor);
       color.a = outlineOpacity;
@@ -139,7 +139,7 @@ void BaseRenderer::DrawProcessedText_BasicFont(
       Sprite glyph = font->Glyph(text[i].CharId);
       RectF dest = text[i].DestRect;
       switch (outlineMode) {
-        case RendererOutlineMode::RO_Full:
+        case RendererOutlineMode::Full:
           dest.X--;
           dest.Y--;
           if (maskedSheet) {
@@ -154,7 +154,7 @@ void BaseRenderer::DrawProcessedText_BasicFont(
           dest.X++;
           dest.Y++;
           [[fallthrough]];
-        case RendererOutlineMode::RO_BottomRight:
+        case RendererOutlineMode::BottomRight:
           dest.X++;
           dest.Y++;
           if (maskedSheet) {
@@ -198,7 +198,7 @@ void BaseRenderer::DrawProcessedText_LBFont(
     std::span<const ProcessedTextGlyph> text, LBFont* font, float opacity,
     RendererOutlineMode outlineMode, bool smoothstepGlyphOpacity,
     float outlineOpacity, SpriteSheet* maskedSheet) {
-  if (outlineMode != RendererOutlineMode::RO_None) {
+  if (outlineMode != RendererOutlineMode::None) {
     for (int i = 0; i < text.size(); i++) {
       glm::vec4 color = RgbIntToFloat(text[i].Colors.OutlineColor);
       color.a = outlineOpacity;
@@ -213,14 +213,14 @@ void BaseRenderer::DrawProcessedText_LBFont(
       RectF outlineDest;
 
       switch (outlineMode) {
-        case RendererOutlineMode::RO_Full:
+        case RendererOutlineMode::Full:
           outlineDest =
               RectF(text[i].DestRect.X + scaleX * font->OutlineOffset.x,
                     text[i].DestRect.Y + scaleY * font->OutlineOffset.y,
                     scaleX * font->OutlineCellWidth,
                     scaleY * font->OutlineCellHeight);
           break;
-        case RendererOutlineMode::RO_BottomRight:
+        case RendererOutlineMode::BottomRight:
           outlineDest = RectF(
               text[i].DestRect.X + scaleX * (font->OutlineOffset.x * 3 / 4),
               text[i].DestRect.Y + scaleY * (font->OutlineOffset.y * 3 / 4),

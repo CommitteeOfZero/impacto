@@ -84,7 +84,7 @@ void SelectionMenu::Show() {
 
       choice->SetText(Choices[i], ChoiceWidths[i],
                       Profile::Dialogue::DefaultFontSize,
-                      RendererOutlineMode::RO_Full);
+                      RendererOutlineMode::Full);
       choice->OnClickHandler = onClick;
 
       ChoiceItems->Add(choice, FDIR_DOWN);
@@ -114,7 +114,7 @@ void SelectionMenu::Show() {
 
       choice->SetText(Choices[i], ChoiceWidths[i],
                       Profile::Dialogue::DefaultFontSize,
-                      RendererOutlineMode::RO_Full);
+                      RendererOutlineMode::Full);
       choice->OnClickHandler = onClick;
       if (!HighlightTextOnly) {
         choice->Bounds = RectF(SelectionBackgroundX,

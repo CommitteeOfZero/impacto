@@ -19,16 +19,16 @@ TrophyMenuEntry::TrophyMenuEntry(int achievementId)
   if (ach == nullptr) {
     NameLabel = Label(Vm::ScriptGetTextTableStrAddress(0, 19),
                       Position + glm::vec2{218.0f, 13.0f}, 26,
-                      RendererOutlineMode::RO_BottomRight, 0);
+                      RendererOutlineMode::BottomRight, 0);
     DescriptionLabel = Label("", Position + glm::vec2{218.0f, 43.0f}, 18,
-                             RendererOutlineMode::RO_BottomRight, 0);
+                             RendererOutlineMode::BottomRight, 0);
     Icon = DefaultTrophyIconSprite;
   } else {
     NameLabel = Label(ach->Name(), Position + glm::vec2{218.0f, 13.0f}, 26,
-                      RendererOutlineMode::RO_BottomRight, 0);
+                      RendererOutlineMode::BottomRight, 0);
     DescriptionLabel =
         Label(ach->Description(), Position + glm::vec2{218.0f, 43.0f}, 18,
-              RendererOutlineMode::RO_BottomRight, 0);
+              RendererOutlineMode::BottomRight, 0);
     Icon = ach->Icon();
   }
   iconDest = {Position.x + 112.0f, Position.y + 4.0f, 64.0f, 64.0f};

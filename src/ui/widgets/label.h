@@ -57,7 +57,7 @@ class Label : public Widget {
   float FontSize;
   std::vector<ProcessedTextGlyph> Text;
   float TextWidth = 0.0f;
-  RendererOutlineMode OutlineMode = RendererOutlineMode::RO_None;
+  RendererOutlineMode OutlineMode = RendererOutlineMode::None;
 };
 
 }  // namespace Widgets

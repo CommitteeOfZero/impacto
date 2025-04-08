@@ -330,7 +330,7 @@ void TipsMenu::Render() {
       Renderer->DrawProcessedText(
           TextPage.Glyphs, Profile::Dialogue::DialogueFont,
           FadeAnimation.Progress, FadeAnimation.Progress,
-          RendererOutlineMode::RO_None, true, &TipsMaskSheet);
+          RendererOutlineMode::None, true, &TipsMaskSheet);
 
       TipsScrollbar->Render();
     }
@@ -375,14 +375,14 @@ void TipsMenu::SwitchToTipId(int id) {
 
   TipsSystem::SetTipUnreadState(actualId, false);
   Category->SetText(record->StringPtrs[0], CategoryFontSize,
-                    RendererOutlineMode::RO_None, {TipsMenuDarkTextColor, 0});
-  Name->SetText(record->StringPtrs[1], NameFontSize,
-                RendererOutlineMode::RO_None, {TipsMenuDarkTextColor, 0});
+                    RendererOutlineMode::None, {TipsMenuDarkTextColor, 0});
+  Name->SetText(record->StringPtrs[1], NameFontSize, RendererOutlineMode::None,
+                {TipsMenuDarkTextColor, 0});
   Pronounciation->SetText(record->StringPtrs[2], PronounciationFontSize,
-                          RendererOutlineMode::RO_None, 0);
+                          RendererOutlineMode::None, 0);
 
   Number->SetText(fmt::format("{:4}", id), NumberFontSize,
-                  RendererOutlineMode::RO_None, 0);
+                  RendererOutlineMode::None, 0);
 
   Vm::Sc3VmThread dummy;
   dummy.Ip = record->StringPtrs[4];
