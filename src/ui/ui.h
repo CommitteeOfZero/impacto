@@ -26,6 +26,7 @@ BETTER_ENUM(MusicMenuType, int, None, MO6TW, CHLCC)
 BETTER_ENUM(MovieMenuType, int, None, MO6TW, CHLCC)
 BETTER_ENUM(ActorsVoiceMenuType, int, None, MO6TW)
 BETTER_ENUM(TrophyMenuType, int, None, CHLCC)
+BETTER_ENUM(HelpMenuType, int, None, CCLCC)
 
 int constexpr MaxExtraMenus = 10;
 
@@ -39,6 +40,7 @@ inline Menu* SystemMenuPtr = new NullMenu();
 inline Menu* TitleMenuPtr = new NullMenu();
 inline Menu* SaveMenuPtr = new NullMenu();
 inline Menu* TrophyMenuPtr = new NullMenu();
+inline Menu* HelpMenuPtr = new NullMenu();
 
 //
 inline SelectionMenu* SelectionMenuPtr = nullptr;

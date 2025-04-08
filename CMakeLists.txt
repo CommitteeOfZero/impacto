@@ -75,6 +75,7 @@ set(Impacto_Src
         src/profile/ui/extramenus.cpp
         src/profile/ui/trophymenu.cpp
         src/profile/ui/mapsystem.cpp
+        src/profile/ui/helpmenu.cpp
 
         src/profile/games/rne/tilebackground.cpp
         src/profile/games/rne/systemmenu.cpp
@@ -113,6 +114,7 @@ set(Impacto_Src
         src/profile/games/cclcc/mapsystem.cpp
         src/profile/games/cclcc/delusiontrigger.cpp
         src/profile/games/cclcc/yesnotrigger.cpp
+        src/profile/games/cclcc/helpmenu.cpp
 
         src/profile/games/mo6tw/backlogmenu.cpp
         src/profile/games/mo6tw/dialoguebox.cpp
@@ -179,6 +181,7 @@ set(Impacto_Src
         src/games/cclcc/yesnotrigger.cpp
         src/games/cclcc/savesystem.cpp
         src/games/cclcc/systemmenu.cpp
+        src/games/cclcc/helpmenu.cpp
 
         src/games/mo6tw/backlogmenu.cpp
         src/games/mo6tw/dialoguebox.cpp
@@ -404,6 +407,7 @@ set(Impacto_Header
         src/profile/ui/extramenus.h
         src/profile/ui/trophymenu.h
         src/profile/ui/mapsystem.h
+        src/profile/ui/helpmenu.h
 
         src/profile/games/rne/tilebackground.h
         src/profile/games/rne/systemmenu.h
@@ -440,6 +444,7 @@ set(Impacto_Header
         src/profile/games/cclcc/tipsnotification.h
         src/profile/games/cclcc/mapsystem.h
         src/profile/games/cclcc/delusiontrigger.h
+        src/profile/games/cclcc/helpmenu.h
 
         src/profile/games/mo6tw/backlogmenu.h
         src/profile/games/mo6tw/dialoguebox.h
@@ -499,6 +504,7 @@ set(Impacto_Header
         src/games/cclcc/librarymenu.h
         src/games/cclcc/mapsystem.h
         src/games/cclcc/delusiontrigger.h
+        src/games/cclcc/helpmenu.h
 
         src/games/mo6tw/dialoguebox.h
         src/games/mo6tw/sysmesbox.h

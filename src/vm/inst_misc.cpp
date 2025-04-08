@@ -15,6 +15,7 @@
 
 #include "../profile/vm.h"
 #include "../games/cclcc/systemmenu.h"
+#include "../games/cclcc/helpmenu.h"
 namespace Impacto {
 
 namespace Vm {
@@ -245,8 +246,7 @@ VmInstruction(InstHelp) {
   PopUint8(type);
   switch (type) {
     case 0:  // Init
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction Help(type: Init)\n");
+      SetFlag(SF_HELPMENU, true);
       break;
     case 1:  // Main
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
