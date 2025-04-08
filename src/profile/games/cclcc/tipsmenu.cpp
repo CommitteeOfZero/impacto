@@ -35,6 +35,8 @@ void Configure() {
       EnsureGetMember<glm::vec2>("TipsEntryHighlightOffset");
   TipsEntryNumberOffset = EnsureGetMember<glm::vec2>("TipsEntryNumberOffset");
   TipsEntryNameOffset = EnsureGetMember<glm::vec2>("TipsEntryNameOffset");
+  TipsEntryNumberFontSize = EnsureGetMember<int>("TipsEntryNumberFontSize");
+  TipsEntryNameFontSize = EnsureGetMember<int>("TipsEntryNameFontSize");
 
   TipsTabBounds = EnsureGetMember<RectF>("TipsTabBounds");
   TipsTabNameDisplay = EnsureGetMember<glm::vec2>("TipsTabNameDisplay");

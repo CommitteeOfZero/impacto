@@ -24,6 +24,8 @@ inline glm::vec2 TipEntryNewOffset;
 inline glm::vec2 TipsEntryNameOffset;
 inline glm::vec2 TipsEntryNumberOffset;
 inline glm::vec2 TipsEntryHighlightOffset;
+inline int TipsEntryNumberFontSize;
+inline int TipsEntryNameFontSize;
 inline RectF TipsTabBounds;
 
 inline Sprite TipsHighlightedTabSprite;

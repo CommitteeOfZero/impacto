@@ -26,9 +26,10 @@ TipsEntryButton::TipsEntryButton(int tipId, int dispId, RectF const& dest,
   Enabled = true;
   HighlightOffset = {0, 0};
   PrevUnreadState = TipEntryRecord->IsUnread && !TipEntryRecord->IsLocked;
-  TextLayoutPlainString(fmt::format("{:03d}", dispId), TipNumber,
-                        Profile::Dialogue::DialogueFont, 21,
-                        {TipsMenuDarkTextColor, 0}, 1.0f,
+  TextLayoutPlainString(fmt::format("{:03d}.", dispId), TipNumber,
+                        Profile::Dialogue::DialogueFont,
+                        TipsEntryNumberFontSize, {TipsMenuDarkTextColor, 0},
+                        1.0f,
                         glm::vec2(Bounds.X, Bounds.Y) + TipsEntryNumberOffset,
                         TextAlignment::Left);
   Vm::Sc3VmThread dummy;
@@ -38,16 +39,16 @@ TipsEntryButton::TipsEntryButton(int tipId, int dispId, RectF const& dest,
 
   uint32_t initColorName =
       PrevUnreadState ? TipsEntryNameUnreadColor : TipsMenuDarkTextColor;
-  Text = TextLayoutPlainLine(&dummy, 255, Profile::Dialogue::DialogueFont, 26,
-                             {initColorName, 0}, 1.0f, nameDest,
-                             TextAlignment::Left);
+  Text = TextLayoutPlainLine(&dummy, 255, Profile::Dialogue::DialogueFont,
+                             TipsEntryNameFontSize, {initColorName, 0}, 1.0f,
+                             nameDest, TextAlignment::Left);
 
   dummy.Ip = Vm::ScriptGetStrAddress(
       Impacto::Vm::ScriptBuffers[TipsSystem::GetTipsScriptBufferId()],
       TipsTextEntryLockedIndex);
   TextLayoutPlainLine(&dummy, TipLockedTextLength, TipLockedText,
-                      Profile::Dialogue::DialogueFont, 26, {initColorName, 0},
-                      1.0f, nameDest, TextAlignment::Left);
+                      Profile::Dialogue::DialogueFont, TipsEntryNameFontSize,
+                      {initColorName, 0}, 1.0f, nameDest, TextAlignment::Left);
   HighlightOffset = TipsEntryHighlightOffset;
   Bounds = dest;
 }
