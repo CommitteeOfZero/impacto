@@ -46,7 +46,7 @@ void SysMesBox::Show() {
     }
 
     Label* message = new Label(Messages[i], MessageWidths[i], TextFontSize,
-                               RendererOutlineMode::RO_Full);
+                               RendererOutlineMode::Full);
 
     MessageItems->Add(message, FDIR_DOWN);
   }
@@ -77,7 +77,7 @@ void SysMesBox::Show() {
 
     choice->SetText(Choices[i], ChoiceWidths[i],
                     Profile::Dialogue::DefaultFontSize,
-                    RendererOutlineMode::RO_Full);
+                    RendererOutlineMode::Full);
     choice->OnClickHandler = onClick;
 
     ChoiceItems->Add(choice, FDIR_LEFT);

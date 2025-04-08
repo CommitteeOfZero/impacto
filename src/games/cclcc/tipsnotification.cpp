@@ -26,17 +26,17 @@ TipsNotification::TipsNotification() {
 
   auto textBefore = Vm::ScriptGetTextTableStrAddress(
       TextTableId, NotificationTextPart1MessageId);
-  TextPartBefore = Label(textBefore, {NotificationPositionX, 0}, FontSize,
-                         RendererOutlineMode::RO_BottomRight,
-                         NotificationTextTableColorIndex);
+  TextPartBefore =
+      Label(textBefore, {NotificationPositionX, 0}, FontSize,
+            RendererOutlineMode::BottomRight, NotificationTextTableColorIndex);
   auto textAfter = Vm::ScriptGetTextTableStrAddress(
       TextTableId, NotificationTextPart2MessageId);
   TextPartAfter =
       Label(textAfter, {NotificationPositionX + TextPartBefore.Bounds.Width, 0},
-            FontSize, RendererOutlineMode::RO_BottomRight,
+            FontSize, RendererOutlineMode::BottomRight,
             NotificationTextTableColorIndex);
   TipName = Label("", {NotificationPositionX, 0}, FontSize,
-                  RendererOutlineMode::RO_BottomRight, TipNameColor);
+                  RendererOutlineMode::BottomRight, TipNameColor);
 
   TextPartBefore.OutlineAlphaEnabled = true;
   TextPartAfter.OutlineAlphaEnabled = true;
@@ -53,7 +53,7 @@ void TipsNotification::Update(float dt) {
 
   auto UpdateNotificationDisplay = [&]() {
     auto tipName = NotificationQueue.front();
-    TipName.SetText(tipName, FontSize, RendererOutlineMode::RO_BottomRight,
+    TipName.SetText(tipName, FontSize, RendererOutlineMode::BottomRight,
                     TipNameColor);
     Timer.DurationIn = TimerDuration + TipName.GetTextLength() * 0.1f;
     NotificationQueue.pop();

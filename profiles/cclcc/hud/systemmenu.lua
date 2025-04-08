@@ -45,12 +45,28 @@ root.SystemMenu = {
     MenuButtonGuide = "SystemMenuButtonGuide",
     SystemMenuBG = "SystemMenuBG",
     SystemMenuFrame = "SystemMenuFrame",
-    SystemMenuMask = "SystemMenuMask"
+    SystemMenuMask = "SystemMenuMask",
+
+    BGDispOffsetTopLeft = {X=-1200, Y= -330},
+    BGDispOffsetBottomLeft = {X=-1200, Y= 2080},
+    BGDispOffsetTopRight = {X=2520, Y= -330},
+    BGDispOffsetBottomRight = {X=2520, Y= 2080},
+
+    FrameOffsetTopLeft = {X=-144, Y= -131},
+    FrameOffsetBottomLeft = {X=-144, Y= 1252},
+    FrameOffsetTopRight = {X=2108, Y= -131},
+    FrameOffsetBottomRight = {X=2108, Y= 1252},
+
+    AngleMultiplier = {X=-196608 / 5760, Y=-131072 / 5760, Z=163840 / 5760},
+    BGRandPosInit = {X=1350, Y=165},
+    BGRandPosRange = {X=390,Y=295},
+
+    BGTranslationOffset = {X=1452,Y=395},
 };
 
 root.Sprites["SystemMenuBG"] = {
     Sheet = "MenuBG",
-    Bounds = {X = 0, Y = 0, Width = 3000, Height = 1500}
+    Bounds = {X = -600, Y = -165, Width = 1860, Height = 1205}
 };
 
 root.Sprites["SystemMenuBacklog"] = {

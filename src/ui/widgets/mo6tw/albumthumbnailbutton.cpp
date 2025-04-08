@@ -38,7 +38,7 @@ AlbumThumbnailButton::AlbumThumbnailButton(
           glm::vec2(norm.Bounds.Width - InfoTextWidth,
                     norm.Bounds.Height - ThumbnailButtonTextFontSize) +
           ThumbnailButtonTextOffset,
-      ThumbnailButtonTextFontSize, RendererOutlineMode::RO_Full,
+      ThumbnailButtonTextFontSize, RendererOutlineMode::Full,
       ThumbnailButtonTextColorIndex);
   Border = border;
 }

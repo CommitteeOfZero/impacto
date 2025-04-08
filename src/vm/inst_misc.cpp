@@ -93,7 +93,7 @@ VmInstruction(InstSystemMenu) {
       } else if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
         auto* sysMenuPtr =
             static_cast<UI::CCLCC::SystemMenu*>(UI::SystemMenuPtr);
-        sysMenuPtr->InitPosition();
+        sysMenuPtr->Init();
         // Block input during animation
         if (sysMenuPtr->State == UI::MenuState::Hiding ||
             sysMenuPtr->State == UI::MenuState::Showing) {
@@ -540,6 +540,8 @@ VmInstruction(InstTitleMenuNew) {
               ScrWork[SW_TITLEDISPCT] = 0;
               ScrWork[SW_TITLEMOVIECT] = 0;
               SetFlag(SF_TITLEEND, 1);
+            } else {
+              ScrWork[SW_TITLEMOVIECT]++;
             }
           }
         } break;

@@ -32,8 +32,8 @@ void Background2D::Init() {
 
   for (size_t i = 0; i < Framebuffers.max_size(); i++) {
     Framebuffers[i].BgSprite =
-        Sprite(SpriteSheet(Window->WindowWidth, Window->WindowHeight), 0.0f,
-               0.0f, Window->WindowWidth, Window->WindowHeight);
+        Sprite(SpriteSheet(Profile::DesignWidth, Profile::DesignHeight), 0.0f,
+               0.0f, Profile::DesignWidth, Profile::DesignHeight);
     Framebuffers[i].BgSprite.Sheet.Texture =
         Renderer->GetFramebufferTexture(i + 1);
 
@@ -153,8 +153,8 @@ void Background2D::RenderBgEff(int bgId, int layer) {
             ScrWork[SW_BGEFF1_POSX + structSize * bgId];
   float y = ScrWork[SW_BGEFF1_OFSY + 20 * bgId] +
             ScrWork[SW_BGEFF1_POSY + structSize * bgId];
-  x *= Profile::DesignWidth;
-  y *= Profile::DesignHeight;
+  x *= Profile::DesignWidth / 1280.0;
+  y *= Profile::DesignHeight / 720.0;
   DisplayCoords = glm::vec2(-x, -y);
 
   glm::vec4 col = glm::vec4(1.0f);

@@ -21,18 +21,18 @@ void SaveEntryButton::Render() {
 
   if (EntryActive) {
     Renderer->DrawProcessedText(SceneTitle, Profile::Dialogue::DialogueFont,
-                                Tint.a, RendererOutlineMode::RO_Full, true);
+                                Tint.a, RendererOutlineMode::Full, true);
     Renderer->DrawProcessedText(PlayTimeHint, Profile::Dialogue::DialogueFont,
-                                Tint.a, RendererOutlineMode::RO_Full, true);
+                                Tint.a, RendererOutlineMode::Full, true);
     Renderer->DrawProcessedText(PlayTime, Profile::Dialogue::DialogueFont,
-                                Tint.a, RendererOutlineMode::RO_Full, true);
+                                Tint.a, RendererOutlineMode::Full, true);
     Renderer->DrawProcessedText(SaveDateHint, Profile::Dialogue::DialogueFont,
-                                Tint.a, RendererOutlineMode::RO_Full, true);
+                                Tint.a, RendererOutlineMode::Full, true);
     Renderer->DrawProcessedText(SaveDate, Profile::Dialogue::DialogueFont,
-                                Tint.a, RendererOutlineMode::RO_Full, true);
+                                Tint.a, RendererOutlineMode::Full, true);
   } else {
     Renderer->DrawProcessedText(SceneTitle, Profile::Dialogue::DialogueFont,
-                                Tint.a, RendererOutlineMode::RO_Full, true);
+                                Tint.a, RendererOutlineMode::Full, true);
   }
 
   Renderer->DrawSprite(Thumbnail, glm::vec2(Bounds.X + 41.0f, Bounds.Y + 5.0f),

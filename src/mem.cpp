@@ -15,7 +15,7 @@ void SetFlag(uint32_t flagId, uint32_t value) {
 
 bool GetFlag(uint32_t flagId) {
   return ((uint8_t)(1 << (flagId - 8 * (flagId >> 3))) &
-          *((uint8_t*)FlagWork + (flagId >> 3))) != 0;
+          FlagWork[flagId >> 3]) != 0;
 }
 
 }  // namespace Impacto

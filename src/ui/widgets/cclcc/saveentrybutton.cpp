@@ -133,7 +133,7 @@ void SaveEntryButton::RefreshCharacterRouteText(int strIndex) {
   // TODO actually make this look correct
   uint8_t* strAddr = Vm::ScriptGetTextTableStrAddress(1, strIndex);
   float fontSize = 28;
-  RendererOutlineMode outlineMode = RendererOutlineMode::RO_Full;
+  RendererOutlineMode outlineMode = RendererOutlineMode::Full;
   CharacterRouteLabel.SetText(strAddr, fontSize, outlineMode,
                               {SaveEntryPrimaryColor, SaveEntryPrimaryColor});
 }
@@ -142,7 +142,7 @@ void SaveEntryButton::RefreshSceneTitleText(int strIndex) {
   // TODO actually make this look correct
   uint8_t* strAddr = Vm::ScriptGetTextTableStrAddress(1, strIndex | 1);
   float fontSize = 28;
-  RendererOutlineMode outlineMode = RendererOutlineMode::RO_Full;
+  RendererOutlineMode outlineMode = RendererOutlineMode::Full;
   SceneTitleLabel.SetText(strAddr, fontSize, outlineMode,
                           {SaveEntrySecondaryColor, SaveEntrySecondaryColor});
 }
@@ -150,7 +150,7 @@ void SaveEntryButton::RefreshSceneTitleText(int strIndex) {
 void SaveEntryButton::RefreshSaveDateText() {
   tm const& date = SaveSystem::GetSaveDate(Type, Id);
   float fontSize = 32;
-  RendererOutlineMode outlineMode = RendererOutlineMode::RO_Full;
+  RendererOutlineMode outlineMode = RendererOutlineMode::Full;
   // Maybe fmt will merge my PR for space padded month
   SaveDateLabel.SetText(fmt::format(FMT_STRING("{:%Y/%m/%d %H:%M:%S}"), date),
                         fontSize, outlineMode,

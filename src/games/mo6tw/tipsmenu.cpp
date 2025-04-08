@@ -133,7 +133,7 @@ void TipsMenu::Render() {
       TipViewItems.Render();
       Renderer->DrawProcessedText(TextPage.Glyphs,
                                   Profile::Dialogue::DialogueFont, col.a,
-                                  RendererOutlineMode::RO_Full, true);
+                                  RendererOutlineMode::Full, true);
       if (ThumbnailSprite) {
         Renderer->DrawSprite(*ThumbnailSprite, ThumbnailPosition, col);
       }
@@ -184,7 +184,7 @@ void TipsMenu::Init() {
       categoryLabel->Bounds.X = TipListEntryBounds.X;
       categoryLabel->Bounds.Y = currentY;
       categoryLabel->SetText((uint8_t *)CategoryString, TipListEntryFontSize,
-                             RendererOutlineMode::RO_Full, 0);
+                             RendererOutlineMode::Full, 0);
       pageItems->Add(categoryLabel);
       currentY += TipListYPadding;
     }
@@ -207,7 +207,7 @@ void TipsMenu::Init() {
   NumberText = new Label(Vm::ScriptGetTextTableStrAddress(NumberLabelStrTable,
                                                           NumberLabelStrIndex),
                          NumberLabelPosition, NumberLabelFontSize,
-                         RendererOutlineMode::RO_Full, DefaultColorIndex);
+                         RendererOutlineMode::Full, DefaultColorIndex);
   TipViewItems.Add(NumberText);
   // Tip number
   Number = new Label();
@@ -216,8 +216,8 @@ void TipsMenu::Init() {
   // Tip page separator
   PageSeparator = new Label(
       Vm::ScriptGetTextTableStrAddress(PageSeparatorTable, PageSeparatorIndex),
-      PageSeparatorPosition, PageSeparatorFontSize,
-      RendererOutlineMode::RO_Full, DefaultColorIndex);
+      PageSeparatorPosition, PageSeparatorFontSize, RendererOutlineMode::Full,
+      DefaultColorIndex);
   TipViewItems.Add(PageSeparator);
   // Current tip page
   CurrentPage = new Label();
@@ -237,9 +237,9 @@ void TipsMenu::SwitchToTipId(int id) {
 
   auto tipRecord = TipsSystem::GetTipRecord(id);
   Name->SetText(tipRecord->StringPtrs[0], NameFontSize,
-                RendererOutlineMode::RO_Full, DefaultColorIndex);
+                RendererOutlineMode::Full, DefaultColorIndex);
   Pronounciation->SetText(tipRecord->StringPtrs[1], PronounciationFontSize,
-                          RendererOutlineMode::RO_Full, DefaultColorIndex);
+                          RendererOutlineMode::Full, DefaultColorIndex);
 
   Vm::Sc3VmThread dummy;
   dummy.Ip = tipRecord->StringPtrs[2];
@@ -247,20 +247,20 @@ void TipsMenu::SwitchToTipId(int id) {
       &dummy, Profile::Dialogue::DialogueFont, CategoryFontSize);
   Category->Bounds.X = CategoryEndX - categoryWidth;
   Category->SetText(tipRecord->StringPtrs[2], CategoryFontSize,
-                    RendererOutlineMode::RO_Full, DefaultColorIndex);
+                    RendererOutlineMode::Full, DefaultColorIndex);
   if (tipRecord->ThumbnailIndex != 0xFFFF)
     ThumbnailSprite = &TipThumbnails[tipRecord->ThumbnailIndex];
   else
     ThumbnailSprite = &TipTextOnlyThumbnail;
 
   Number->SetText(fmt::format("{:4d}", tipRecord->Id + 1), NumberFontSize,
-                  RendererOutlineMode::RO_Full, DefaultColorIndex);
+                  RendererOutlineMode::Full, DefaultColorIndex);
 
   CurrentPage->SetText(fmt::to_string(CurrentTipPage), PageSeparatorFontSize,
-                       RendererOutlineMode::RO_Full, DefaultColorIndex);
+                       RendererOutlineMode::Full, DefaultColorIndex);
 
   TotalPages->SetText(fmt::to_string(tipRecord->NumberOfContentStrings),
-                      PageSeparatorFontSize, RendererOutlineMode::RO_Full,
+                      PageSeparatorFontSize, RendererOutlineMode::Full,
                       DefaultColorIndex);
 
   TextPage.Clear();
@@ -279,7 +279,7 @@ void TipsMenu::NextTipPage() {
   dummy.Ip = currentRecord->StringPtrs[2 + CurrentTipPage];
   TextPage.AddString(&dummy);
   CurrentPage->SetText(fmt::to_string(CurrentTipPage), PageSeparatorFontSize,
-                       RendererOutlineMode::RO_Full, DefaultColorIndex);
+                       RendererOutlineMode::Full, DefaultColorIndex);
 }
 
 }  // namespace MO6TW

@@ -41,6 +41,7 @@ SystemMenu::SystemMenu() {
   ItemsFade.LoopMode = AnimationLoopMode::Stop;
   ItemsFade.DurationIn = ItemsFadeInDuration;
   ItemsFade.DurationOut = ItemsFadeOutDuration;
+  BGPosition = BGRandPosInit;
 
   auto onClick = [this](auto* btn) { return MenuButtonOnClick(btn); };
 
@@ -234,68 +235,63 @@ void SystemMenu::Render() {
     // Renderer->DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f,
     // 720.0f),
     //                      glm::vec4(tint, alpha));
-    Sprite repositionedBG = SystemMenuBG;
     float bgOffset = (ScrWork[SW_SYSSUBMENUCT] * 3000.0 * 0.03125 * 0.5);
-    repositionedBG.Bounds.X = (BGPosition.x - 0.5 * bgOffset) - 600;
-    repositionedBG.Bounds.Width = 1860;
-    repositionedBG.Bounds.Y = BGPosition.y - 165;
-    repositionedBG.Bounds.Height = 1205;
+    RectF bgSpriteBounds = SystemMenuBG.Bounds;
+    bgSpriteBounds.X += (BGPosition.x - 0.5 * bgOffset);
+    bgSpriteBounds.Y += BGPosition.y;
 
-    const glm::vec2 offset = {1452, 395};
     const float scale =
         (1000.0f - (ScrWork[SW_SYSMENUCT] * 400 / 32)) / 1000.0f;
     const float angleX = glm::pi<float>() *
-                         (ScrWork[SW_SYSMENUCT] * -196608.0f / 5760.0f) /
+                         (ScrWork[SW_SYSMENUCT] * AngleMultiplier.x) /
                          (2 << 14);
     const float angleY = glm::pi<float>() *
-                         (ScrWork[SW_SYSMENUCT] * -131072.0f / 5760.0f) /
+                         (ScrWork[SW_SYSMENUCT] * AngleMultiplier.y) /
                          (2 << 14);
     const float angleZ = glm::pi<float>() *
-                         (ScrWork[SW_SYSMENUCT] * 163840.0f / 5760.0f) /
+                         (ScrWork[SW_SYSMENUCT] * AngleMultiplier.z) /
                          (2 << 14);
 
-    CornersQuad bgBounds = repositionedBG.Bounds;
-    CornersQuad frameBounds = SystemMenuFrame.Bounds;
-    CornersQuad screenCapBounds = ScreenCap.Bounds;
-
     CornersQuad bgDisp = {
-        glm::vec2{-1200, -330},
-        glm::vec2{-1200, 2080},
-        glm::vec2{2520, -330},
-        glm::vec2{2520, 2080},
+        BGDispOffsetTopLeft,
+        BGDispOffsetBottomLeft,
+        BGDispOffsetTopRight,
+        BGDispOffsetBottomRight,
     };
 
-    CornersQuad frameDisp = {
-        glm::vec2{bgOffset - 144, -131},
-        glm::vec2{bgOffset - 144, 1252},
-        glm::vec2{bgOffset + 2108, -131},
-        glm::vec2{bgOffset + 2108, 1252},
-    };
-
-    CornersQuad screenCapDisp = {
-        glm::vec2{bgOffset + 0, 0},
-        glm::vec2{bgOffset + 0, Profile::DesignHeight},
-        glm::vec2{bgOffset + Profile::DesignWidth, 0},
-        glm::vec2{bgOffset + Profile::DesignWidth, Profile::DesignHeight},
-    };
-
-    Renderer->CaptureScreencap(ScreenCap);
-
-    TransformImage(bgBounds, bgDisp, angleX, angleY, angleZ, scale, offset,
-                   SpriteGridVertices, DisplayGridVertices);
-
-    Renderer->DrawVertices(repositionedBG.Sheet, SpriteGridVertices,
+    TransformImage(bgSpriteBounds, bgDisp, angleX, angleY, angleZ, scale,
+                   BGTranslationOffset, SpriteGridVertices,
+                   DisplayGridVertices);
+    Renderer->DrawVertices(SystemMenuBG.Sheet, SpriteGridVertices,
                            DisplayGridVertices, 21, 11);
 
-    TransformImage(frameBounds, frameDisp, angleX, angleY, angleZ, scale,
-                   offset, SpriteGridVertices, DisplayGridVertices);
-    Renderer->DrawVertices(SystemMenuFrame.Sheet, SpriteGridVertices,
-                           DisplayGridVertices, 21, 11);
-    TransformImage(screenCapBounds, screenCapDisp, angleX, angleY, angleZ,
-                   scale, offset, SpriteGridVertices, DisplayGridVertices);
-    Renderer->DrawVertices(ScreenCap.Sheet, SpriteGridVertices,
-                           DisplayGridVertices, 21, 11, glm::vec4{1});
+    if (!GetFlag(SF_SYSTEMMENUDIRECT)) {
+      CornersQuad frameDisp = {
+          glm::vec2{bgOffset, 0} + FrameOffsetTopLeft,
+          glm::vec2{bgOffset, 0} + FrameOffsetBottomLeft,
+          glm::vec2{bgOffset, 0} + FrameOffsetTopRight,
+          glm::vec2{bgOffset, 0} + FrameOffsetBottomRight,
+      };
 
+      TransformImage(SystemMenuFrame.Bounds, frameDisp, angleX, angleY, angleZ,
+                     scale, BGTranslationOffset, SpriteGridVertices,
+                     DisplayGridVertices);
+      Renderer->DrawVertices(SystemMenuFrame.Sheet, SpriteGridVertices,
+                             DisplayGridVertices, 21, 11);
+
+      CornersQuad screenCapDisp = {
+          glm::vec2{bgOffset + 0, 0},
+          glm::vec2{bgOffset + 0, Profile::DesignHeight},
+          glm::vec2{bgOffset + Profile::DesignWidth, 0},
+          glm::vec2{bgOffset + Profile::DesignWidth, Profile::DesignHeight},
+      };
+      TransformImage(ScreenCap.Bounds, screenCapDisp, angleX, angleY, angleZ,
+                     scale, BGTranslationOffset, SpriteGridVertices,
+                     DisplayGridVertices);
+      Renderer->DrawVertices(ScreenCap.Sheet, SpriteGridVertices,
+                             DisplayGridVertices, 21, 11, glm::vec4{1}, false,
+                             true);
+    }
     Renderer->DrawSprite(SystemMenuMask,
                          {0, 0, Profile::DesignWidth, Profile::DesignHeight},
                          glm::vec4{tint, alpha});
@@ -306,8 +302,10 @@ void SystemMenu::Render() {
   }
 }
 
-void SystemMenu::InitPosition() {
-  BGPosition = {CALCrnd(390) + 1350, CALCrnd(295) + 165};
+void SystemMenu::Init() {
+  BGPosition = {CALCrnd(BGRandPosRange.x) + BGRandPosInit.x,
+                CALCrnd(BGRandPosRange.y) + BGRandPosInit.y};
+  SetFlag(SF_SYSTEMMENUCAPTURE, true);
 }
 
 }  // namespace CCLCC

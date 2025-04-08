@@ -21,6 +21,21 @@ inline float ItemsFadeOutDuration;
 inline glm::vec2 MenuEntriesPositions[MenuEntriesNumMax];
 inline RectF MenuEntriesButtonBounds[MenuEntriesNumMax];
 
+inline glm::vec2 BGDispOffsetTopLeft;
+inline glm::vec2 BGDispOffsetBottomLeft;
+inline glm::vec2 BGDispOffsetTopRight;
+inline glm::vec2 BGDispOffsetBottomRight;
+
+inline glm::vec2 FrameOffsetTopLeft;
+inline glm::vec2 FrameOffsetBottomLeft;
+inline glm::vec2 FrameOffsetTopRight;
+inline glm::vec2 FrameOffsetBottomRight;
+
+inline glm::vec3 AngleMultiplier;
+inline glm::vec2 BGRandPosInit;
+inline glm::vec2 BGRandPosRange;
+
+inline glm::vec2 BGTranslationOffset;
 void Configure();
 
 }  // namespace SystemMenu

@@ -232,6 +232,7 @@ void TitleMenu::Hide() {
     }
     IsFocused = false;
     AllowsScriptInput = true;
+    SubMenuState = Hidden;
   }
 }
 
@@ -269,7 +270,7 @@ void TitleMenu::UpdateInput() {
     if (InputLocked != PrevInputLocked) {
       for (auto* menu : {MainItems, ContinueItems, ExtraItems}) {
         for (auto& item : menu->Children) {
-          static_cast<TitleButton*>(item)->DisableInput = InputLocked;
+          item->Enabled = !InputLocked;
         }
       }
       PrevInputLocked = InputLocked;
@@ -282,13 +283,15 @@ void TitleMenu::UpdateInput() {
     }
   }
   if (CurrentSubMenu && !CurrentSubMenu->HasFocus) return;
-  Menu::UpdateInput();
+  if (CurrentSubMenu || MainItems->HasFocus) {
+    Menu::UpdateInput();
+  }
 
   if (CurrentSubMenu && SecondaryFadeAnimation.IsIn()) {
     if ((PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B) &&
         CurrentSubMenu->IsShown && CurrentSubMenu->HasFocus) {
       Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0);
-      static_cast<TitleButton*>(CurrentlyFocusedElement)->DisableInput = true;
+      CurrentlyFocusedElement->Enabled = false;
       SecondaryFadeAnimation.StartOut();
       if (CurrentSubMenu == ContinueItems) {
         ContinueItems->Move(glm::vec2(-Profile::DesignWidth / 2, 0.0f),
@@ -334,8 +337,10 @@ void TitleMenu::Update(float dt) {
   if (State != Hidden && GetFlag(SF_TITLEMODE)) {
     switch (ScrWork[SW_TITLEMODE]) {
       case 1: {
-        if (PressToStartAnimation.IsOut()) {
-          PressToStartAnimation.StartIn(true);
+        if (PressToStartAnimation.LoopMode !=
+            +AnimationLoopMode::ReverseDirection) {
+          PressToStartAnimation.LoopMode = +AnimationLoopMode::ReverseDirection;
+          PressToStartAnimation.StartOut();
         }
       } break;
       case 2: {
@@ -362,6 +367,7 @@ void TitleMenu::Update(float dt) {
       SubMenuState = Hidden;
     } else if (SubMenuState == Showing && ScrWork[SW_SYSSUBMENUCT] == 32) {
       SubMenuState = Shown;
+      IsFocused = true;
     }
     if (ScrWork[SW_TITLEMODE] != 2) IsExploding = false;
   }
@@ -381,7 +387,10 @@ void TitleMenu::ExplodeScreenUpdate() {
     SecondaryFadeAnimation.Progress = 0.0f;
   }
 
-  if (!PressToStartAnimation.IsOut()) {
+  if (PressToStartAnimation.Direction != +AnimationDirection::Out ||
+      PressToStartAnimation.LoopMode != +AnimationLoopMode::Stop) {
+    PressToStartAnimation.Direction = AnimationDirection::Out;
+    PressToStartAnimation.LoopMode = AnimationLoopMode::Stop;
     PressToStartAnimation.StartOut();
   }
 
@@ -396,18 +405,20 @@ void TitleMenu::ExplodeScreenUpdate() {
   TitleAnimationSprite.Show = true;
   TitleAnimationSprite.Face =
       (TitleAnimationStartFrame +
-       (int)(TitleAnimationFrameCount * TitleAnimation.Progress))
-      << 16;
+       (TitleAnimationFrameCount * TitleAnimation.Progress)) *
+      65536;
 }
 
 void TitleMenu::ReturnToMenuUpdate() {
   if (!MainItems->IsShown) {
-    MainItems->Show();
-    CurrentlyFocusedElement = NewGame;
-    static_cast<TitleButton*>(CurrentlyFocusedElement)
-        ->HighlightAnimation.StartIn(true);
-    static_cast<TitleButton*>(CurrentlyFocusedElement)->PrevFocusState = true;
+    NewGame->Enabled = true;
     NewGame->HasFocus = true;
+    NewGame->HighlightAnimation.Progress = 1.0f;
+    NewGame->PrevFocusState = true;
+    InputLocked = false;
+    CurrentlyFocusedElement = NewGame;
+    MainItems->Show();
+    IsFocused = true;
   }
   PrimaryFadeAnimation.Progress = 1.0f;
   if (SlideItemsAnimation.IsOut()) {
@@ -440,13 +451,20 @@ void TitleMenu::MainMenuUpdate() {
   }
 
   if (!MainItems->IsShown) {
+    MainItems->FocusLock = false;
     MainItems->Show();
-    MainItems->Tint.a = 0.0f;
-    CurrentlyFocusedElement = NewGame;
-    static_cast<TitleButton*>(CurrentlyFocusedElement)
-        ->HighlightAnimation.StartIn(true);
-    static_cast<TitleButton*>(CurrentlyFocusedElement)->PrevFocusState = true;
+  }
+
+  if (SlideItemsAnimation.IsIn() && PrimaryFadeAnimation.IsIn() &&
+      CurrentlyFocusedElement == nullptr) {
+    MainItems->FocusLock = true;
+    NewGame->Enabled = true;
     NewGame->HasFocus = true;
+    NewGame->HighlightAnimation.Progress = 1.0f;
+    NewGame->PrevFocusState = true;
+    CurrentlyFocusedElement = NewGame;
+    InputLocked = false;
+    IsFocused = true;
   }
 
   if (SecondaryFadeAnimation.IsOut() && CurrentSubMenu) {
@@ -519,8 +537,8 @@ void TitleMenu::Render() {
       case 2: {  // Transition between Press to start and menus
         DrawMainMenuBackGraphics();
         DrawStartButton();
-        DrawSmoke(SmokeOpacityNormal);
         TitleAnimationSprite.Render(-1);
+        DrawSmoke(SmokeOpacityNormal);
       } break;
       case 3: {  // MenuItems Fade In
         DrawMainMenuBackGraphics();
@@ -630,7 +648,9 @@ void TitleMenu::ShowContinueItems() {
   CurrentlyFocusedElement = Load;
   CurrentSubMenu = ContinueItems;
   Load->HasFocus = true;
-  Load->DisableInput = true;
+  Load->Enabled = false;
+  QuickLoad->Enabled = false;
+  Continue->Enabled = false;
   SecondaryFadeAnimation.StartIn();
 
   Extra->Move(glm::vec2(0.0f, ItemPadding));
@@ -649,9 +669,6 @@ void TitleMenu::HideContinueItems() {
   Extra->Move(glm::vec2(0.0f, -ItemPadding));
   Config->Move(glm::vec2(0.0f, -ItemPadding));
   Help->Move(glm::vec2(0.0f, -ItemPadding));
-  Extra->DisableInput = false;
-  Config->DisableInput = false;
-  Help->DisableInput = false;
 }
 
 void TitleMenu::ShowExtraItems() {
@@ -661,7 +678,8 @@ void TitleMenu::ShowExtraItems() {
   CurrentlyFocusedElement = Tips;
   CurrentSubMenu = ExtraItems;
   Tips->HasFocus = true;
-  Tips->DisableInput = true;
+  Tips->Enabled = false;
+  Extra->Enabled = false;
   SecondaryFadeAnimation.StartIn();
 
   Config->Move(glm::vec2(0, ItemPadding));
@@ -679,8 +697,8 @@ void TitleMenu::HideExtraItems() {
   AllowsScriptInput = true;
   Config->Move(glm::vec2(0, -ItemPadding));
   Help->Move(glm::vec2(0, -ItemPadding));
-  Config->DisableInput = false;
-  Help->DisableInput = false;
+  Config->Enabled = true;
+  Help->Enabled = true;
 }
 
 }  // namespace CCLCC

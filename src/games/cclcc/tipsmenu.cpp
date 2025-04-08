@@ -330,7 +330,7 @@ void TipsMenu::Render() {
       Renderer->DrawProcessedText(
           TextPage.Glyphs, Profile::Dialogue::DialogueFont,
           FadeAnimation.Progress, FadeAnimation.Progress,
-          RendererOutlineMode::RO_None, true, &TipsMaskSheet);
+          RendererOutlineMode::None, true, &TipsMaskSheet);
 
       TipsScrollbar->Render();
     }
@@ -375,14 +375,24 @@ void TipsMenu::SwitchToTipId(int id) {
 
   TipsSystem::SetTipUnreadState(actualId, false);
   Category->SetText(record->StringPtrs[0], CategoryFontSize,
-                    RendererOutlineMode::RO_None, {TipsMenuDarkTextColor, 0});
-  Name->SetText(record->StringPtrs[1], NameFontSize,
-                RendererOutlineMode::RO_None, {TipsMenuDarkTextColor, 0});
+                    RendererOutlineMode::None, {TipsMenuDarkTextColor, 0});
+  Name->SetText(record->StringPtrs[1], NameFontSize, RendererOutlineMode::None,
+                {TipsMenuDarkTextColor, 0});
   Pronounciation->SetText(record->StringPtrs[2], PronounciationFontSize,
-                          RendererOutlineMode::RO_None, 0);
+                          RendererOutlineMode::None, 0);
 
-  Number->SetText(fmt::format("{:4}", id), NumberFontSize,
-                  RendererOutlineMode::RO_None, 0);
+  {
+    uint16_t sc3StringBuffer[5];
+    Vm::Sc3VmThread dummy;
+    TextGetSc3String(fmt::format("{:3d}", id), sc3StringBuffer);
+    dummy.Ip = (uint8_t*)sc3StringBuffer;
+    float numberWidth = TextGetPlainLineWidth(
+        &dummy, Profile::Dialogue::DialogueFont, NumberFontSize);
+    Number->Bounds.X = NumberPos.x - numberWidth;
+    Number->Bounds.Y = NumberPos.y;
+    Number->SetText((uint8_t*)sc3StringBuffer, NumberFontSize,
+                    RendererOutlineMode::None, 0);
+  }
 
   Vm::Sc3VmThread dummy;
   dummy.Ip = record->StringPtrs[4];
@@ -394,7 +404,7 @@ void TipsMenu::SwitchToTipId(int id) {
   int scrollDistance = lastGlyph.DestRect.Y + lastGlyph.DestRect.Height -
                        (TextPage.BoxBounds.Y + TextPage.BoxBounds.Height) +
                        lastGlyph.DestRect.Height;
-  ;
+
   TipPageY = 0;
   TipsScrollbar = std::make_unique<Widgets::Scrollbar>(
       0, TipsScrollStartPos, 0, std::max(0, scrollDistance), &TipPageY,
