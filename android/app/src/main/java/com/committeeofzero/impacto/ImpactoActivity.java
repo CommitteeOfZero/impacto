@@ -42,7 +42,11 @@ public class ImpactoActivity extends SDLActivity {
             resetFile.delete();
             reset = true;
         }
-        if (reset) {            
+
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean("firstRun", false);
+        editor.apply();
+        if (reset) {
             copyAssetFolder("games", externalFilesDir.getAbsolutePath() + "/" + "games");
             copyAssetFolder("profiles", externalFilesDir.getAbsolutePath() + "/" + "profiles");
             copyAssetFolder("shaders", getFilesDir().getAbsolutePath() + "/" + "shaders");
