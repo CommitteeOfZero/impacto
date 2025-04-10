@@ -515,8 +515,15 @@ void Renderer::DrawSpriteOffset(Sprite const& sprite, glm::vec2 topLeft,
 
   IndexBufferFill += 6;
 
-  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
+  if (sprite.Sheet.IsScreenCap) {
+    QuadSetUVFlipped(sprite.Bounds, sprite.Sheet.DesignWidth,
+                     sprite.Sheet.DesignHeight, (uintptr_t)&vertices[0].UV,
+                     sizeof(VertexBufferSprites));
+  } else {
+    QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth,
+              sprite.Sheet.DesignHeight, (uintptr_t)&vertices[0].UV,
+              sizeof(VertexBufferSprites));
+  }
 
   QuadSetPositionOffset(sprite.Bounds, topLeft, displayOffset, scale, angle,
                         (uintptr_t)&vertices[0].Position,
@@ -837,42 +844,38 @@ inline void Renderer::QuadSetPositionOffset(RectF const& spriteBounds,
                                             glm::vec2 displayOffset,
                                             glm::vec2 scale, float angle,
                                             uintptr_t positions, int stride) {
-  glm::vec2 bottomLeft =
-      glm::vec2(spriteBounds.X, spriteBounds.Y + spriteBounds.Height);
-  glm::vec2 topLeft = glm::vec2(spriteBounds.X, spriteBounds.Y);
-  glm::vec2 topRight =
-      glm::vec2(spriteBounds.X + spriteBounds.Width, spriteBounds.Y);
-  glm::vec2 bottomRight = glm::vec2(spriteBounds.X + spriteBounds.Width,
-                                    spriteBounds.Y + spriteBounds.Height);
+  glm::vec2 topLeft = {0.0f, 0.0f};
+  glm::vec2 bottomLeft = {0.0f, spriteBounds.Height};
+  glm::vec2 topRight = {spriteBounds.Width, 0.0f};
+  glm::vec2 bottomRight = {spriteBounds.Width, spriteBounds.Height};
 
-  // reset origin to top left
-  bottomLeft -= topLeft;
-  topRight -= topLeft;
-  bottomRight -= topLeft;
-  topLeft -= topLeft;
+  // Translate to origin
+  topLeft -= displayOffset;
+  bottomLeft -= displayOffset;
+  topRight -= displayOffset;
+  bottomRight -= displayOffset;
+
+  // Scale
+  bottomLeft *= scale;
+  topLeft *= scale;
+  topRight *= scale;
+  bottomRight *= scale;
 
   // Rotate
   if (angle != 0.0f) {
-    glm::mat2 rot = Rotate2D(angle);
+    const glm::mat2 rot = Rotate2D(angle);
 
-    bottomLeft = rot * (bottomLeft - displayOffset) + displayOffset;
-    topLeft = rot * (topLeft - displayOffset) + displayOffset;
-    topRight = rot * (topRight - displayOffset) + displayOffset;
-    bottomRight = rot * (bottomRight - displayOffset) + displayOffset;
+    bottomLeft = rot * bottomLeft;
+    topLeft = rot * topLeft;
+    topRight = rot * topRight;
+    bottomRight = rot * bottomRight;
   }
 
-  // Scale
-  bottomLeft = bottomLeft * scale;
-  topLeft = topLeft * scale;
-  topRight = topRight * scale;
-  bottomRight = bottomRight * scale;
-
   // Translate to the desired screen position
-  glm::vec2 newPos = displayXY - displayOffset * scale + displayOffset;
-  bottomLeft += newPos;
-  topLeft += newPos;
-  topRight += newPos;
-  bottomRight += newPos;
+  bottomLeft += displayOffset + displayXY;
+  topLeft += displayOffset + displayXY;
+  topRight += displayOffset + displayXY;
+  bottomRight += displayOffset + displayXY;
 
   // Store the transformed positions
   *(glm::vec2*)(positions + 0 * stride) = DesignToNDC(bottomLeft);
