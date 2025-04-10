@@ -159,34 +159,13 @@ void Background2D::RenderBgEff(int bgId, int layer) {
   FadeCount = ScrWork[SW_BGEFF1_FADECT + structOffset];
   FadeRange = ScrWork[SW_BGEFF1_MASKFADERANGE + structOffset];
 
-  // Get position coordinates
-  const glm::vec2 pos = {(float)(ScrWork[SW_BGEFF1_POSX + structOffset] +
-                                 ScrWork[SW_BGEFF1_OFSX + structOfsOffset]),
-                         (float)(ScrWork[SW_BGEFF1_POSY + structOffset] +
-                                 ScrWork[SW_BGEFF1_OFSY + structOfsOffset])};
+  Angle = (ScrWork[SW_BGEFF1_ROTZ + structOffset] +
+           ScrWork[SW_BGEFF1_ROTZ_OFS + structOfsOffset]) *
+          (float)(2.0f * M_PI / (float)(1 << 16));
 
-  const glm::vec2 maskTopLeft = {
-      (float)(ScrWork[SW_BGEFF1_MASK_X1 + structOffset] +
-              ScrWork[SW_BGEFF1_MASK_X1_OFS + structOfsOffset]),
-      (float)(ScrWork[SW_BGEFF1_MASK_Y1 + structOffset] +
-              ScrWork[SW_BGEFF1_MASK_Y1_OFS + structOfsOffset])};
-
-  const glm::vec2 maskBottomRight = {
-      (float)(ScrWork[SW_BGEFF1_MASK_X2 + structOffset] +
-              ScrWork[SW_BGEFF1_MASK_X2_OFS + structOfsOffset]),
-      (float)(ScrWork[SW_BGEFF1_MASK_Y2 + structOffset] +
-              ScrWork[SW_BGEFF1_MASK_Y2_OFS + structOfsOffset])};
-
-  DisplayCoords = pos - maskTopLeft;
-  RectF maskRect = {pos.x, pos.y, maskBottomRight.x - maskTopLeft.x,
-                    maskBottomRight.y - maskTopLeft.y};
-
-  // Scale position coordinates
-  DisplayCoords *=
-      glm::vec2(Profile::DesignWidth / 1280.0f, Profile::DesignHeight / 720.0f);
-  maskRect = maskRect.Scale(
-      glm::vec2(Profile::DesignWidth / 1280.0f, Profile::DesignHeight / 720.0f),
-      {0.0f, 0.0f});
+  Scale = glm::vec2((ScrWork[SW_BGEFF1_SIZE + structOffset] +
+                     ScrWork[SW_BGEFF1_SIZE_OFS + structOfsOffset]) /
+                    1000.0f);
 
   // Set tint
   glm::vec4 col = glm::vec4(255.0f);
@@ -198,21 +177,58 @@ void Background2D::RenderBgEff(int bgId, int layer) {
   }
   col /= glm::vec4(255.0f, 255.0f, 255.0f, 256.0f);
 
+  // Get position coordinates
+  const int maskType = ScrWork[SW_BGEFF1_MASK_TYPE + structOffset];
+  const glm::vec2 resolutionScale = {Profile::DesignWidth / 1280.0f,
+                                     Profile::DesignHeight / 720.0f};
+
+  const size_t vertexCount = maskType == 0 ? 4 : 3;
+  std::vector<glm::vec2> vertices;
+  vertices.reserve(vertexCount);
+  for (size_t i = 0; i < vertexCount; i++) {
+    const int x =
+        ScrWork[SW_BGEFF1_MASK_VERTEX1_X + structOffset + i * 2] +
+        ScrWork[SW_BGEFF1_MASK_VERTEX1_OFSX + structOfsOffset + i * 2];
+    const int y =
+        ScrWork[SW_BGEFF1_MASK_VERTEX1_Y + structOffset + i * 2] +
+        ScrWork[SW_BGEFF1_MASK_VERTEX1_OFSY + structOfsOffset + i * 2];
+    vertices.emplace_back(glm::vec2(x, y) * resolutionScale);
+  }
+
+  const glm::vec2 pos =
+      glm::vec2(ScrWork[SW_BGEFF1_POSX + structOffset] +
+                    ScrWork[SW_BGEFF1_OFSX + structOfsOffset],
+                ScrWork[SW_BGEFF1_POSY + structOffset] +
+                    ScrWork[SW_BGEFF1_OFSY + structOfsOffset]) *
+      resolutionScale;
+
+  DisplayCoords = pos - vertices[0];
+
+  // Origin is the center of mass
+  Origin = {0.0f, 0.0f};
+  for (const glm::vec2 vertex : vertices) Origin += vertex / (float)vertexCount;
+
   // Draw
-  Renderer->EnableScissor();
-  Renderer->SetScissorRect(maskRect);
+  if (maskType == 0) {  // Rectangle
+    const glm::vec2 maskDimensions = vertices[3] - vertices[0];
+    const RectF mask = RectF(pos.x, pos.y, maskDimensions.x, maskDimensions.y)
+                           .Scale(Scale, vertices[0]);
+
+    Renderer->EnableScissor();
+    Renderer->SetScissorRect(mask);
+  }
 
   const int renderType = ScrWork[SW_BGEFF1_MODE + structOffset];
   std::invoke(BackgroundRenderTable[renderType], this, col);
 
-  Renderer->DisableScissor();
+  if (maskType == 0) {  // Rectangle
+    Renderer->DisableScissor();
+  }
 }
 
 void Background2D::RenderRegular(glm::vec4 col) {
-  Renderer->DrawSprite(BgSprite,
-                       RectF(DisplayCoords.x, DisplayCoords.y,
-                             BgSprite.ScaledWidth(), BgSprite.ScaledHeight()),
-                       col, 0.0f, false);
+  Renderer->DrawSpriteOffset(BgSprite, DisplayCoords, Origin, col, Scale, Angle,
+                             false);
 
   for (int i = 0; i < MaxLinkedBgBuffers; i++) {
     if (Links[i].Direction != LD_Off && Links[i].LinkedBuffer != NULL) {
@@ -257,7 +273,7 @@ void Background2D::RenderFade(glm::vec4 col) {
           RectF(Links[i].DisplayCoords.x, Links[i].DisplayCoords.y,
                 Links[i].LinkedBuffer->BgSprite.ScaledWidth(),
                 Links[i].LinkedBuffer->BgSprite.ScaledHeight()),
-          col, 0.0f, false);
+          col, Angle, false);
     }
   }
 }

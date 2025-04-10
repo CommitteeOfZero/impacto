@@ -37,6 +37,9 @@ class Background2D : public Loadable<Background2D> {
   Sprite BgSprite;
 
   glm::vec2 DisplayCoords;
+  glm::vec2 Origin = {0.0f, 0.0f};
+  glm::vec2 Scale = {1.0f, 1.0f};
+  float Angle = 0.0f;
   int MaskNumber;
 
   int FadeCount;
