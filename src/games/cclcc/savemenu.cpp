@@ -38,6 +38,11 @@ void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
     SetFlag(1245,
             SaveSystem::GetSaveFlags(saveType, ScrWork[SW_SAVEFILENO]) & 1);
   }
+  if (SaveStatus == 0 || ScrWork[SW_SAVEMENUMODE] == SaveMenuPageType::Load ||
+      ScrWork[SW_SAVEMENUMODE] == SaveMenuPageType::QuickLoad) {
+    Audio::Channels[Audio::AC_SSE]->Play("sysse", 4, false, 0);
+    return;
+  }
 }
 
 SaveMenu::SaveMenu() {
