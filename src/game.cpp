@@ -52,6 +52,7 @@
 #include "profile/ui/extramenus.h"
 #include "profile/ui/trophymenu.h"
 #include "profile/ui/mapsystem.h"
+#include "profile/ui/helpmenu.h"
 
 namespace Impacto {
 
@@ -133,6 +134,7 @@ static void Init() {
     Profile::BacklogMenu::Configure();
     Profile::OptionsMenu::Configure();
     Profile::TrophyMenu::Configure();
+    Profile::HelpMenu::Configure();
     Profile::TipsMenu::Configure();
     Profile::ExtraMenus::Configure();
     DateDisplay::Init();

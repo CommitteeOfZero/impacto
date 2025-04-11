@@ -559,8 +559,8 @@ InstructionProc inline constexpr OpcodeTableUser1_CC[256] = {
     InstBGfadeExpInit,     // 10 17
     InstDummy,             // 10 18
     InstDummy,             // 10 19
-    InstDummy,             // 10 1A
-    InstHelp,              // 10 1B
+    InstHelp,              // 10 1A
+    InstDummy,             // 10 1B
     InstAchievementMenu,   // 10 1C
     InstSoundMenu,         // 10 1D
     InstAllClear,          // 10 1E

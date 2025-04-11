@@ -141,4 +141,14 @@ root.SpriteSheets = {
     },
 };
 
+local numberOfPages = root.Language == "English" and 1 or 16
+
+for i = 0, numberOfPages do
+    root.SpriteSheets["ManualSheet" .. i] = {
+        Path = { Mount = "manual", Id = i },
+        DesignWidth = 1920,
+        DesignHeight = 1080
+    };
+end
+
 root.Sprites = {};
