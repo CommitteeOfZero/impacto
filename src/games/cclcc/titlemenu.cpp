@@ -46,8 +46,12 @@ void TitleMenu::ContinueButtonOnClick(Widgets::Button* target) {
 }
 
 void TitleMenu::ExtraButtonOnClick(Widgets::Button* target) {
+<<<<<<< Updated upstream
   if (CurrentSubMenu == ExtraItems) return;
   // SetFlag(SF_CLR_FLAG, true); // Uncomment for testing
+=======
+  SetFlag(SF_CLR_FLAG, true); // Uncomment for testing
+>>>>>>> Stashed changes
   if (!GetFlag(SF_CLR_FLAG)) {
     Audio::Channels[Audio::AC_SSE]->Play("sysse", 4, false, 0);
     return;
@@ -126,7 +130,7 @@ TitleMenu::TitleMenu() {
 
   // Help menu button
   Help = new TitleButton(
-      40, MenuEntriesSprites[4], MenuEntriesHSprites[4], ItemHighlightSprite,
+      6, MenuEntriesSprites[4], MenuEntriesHSprites[4], ItemHighlightSprite,
       glm::vec2(ItemHighlightOffsetX, (ItemYBase + (4 * ItemPadding))));
   setupBtn(Help, onClick, MainItems, FDIR_DOWN);
 
