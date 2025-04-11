@@ -59,9 +59,9 @@ void FFmpegAudioPlayer::InitConvertContext(AVCodecContext* codecCtx) {
 void FFmpegAudioPlayer::Stop() { alSourceStop(ALSource); }
 
 void FFmpegAudioPlayer::Unload() {
-  av_freep(&AudioBuffer[0]);
-  alSourcei(ALSource, AL_BUFFER, 0);
   Stop();
+  alSourcei(ALSource, AL_BUFFER, 0);
+  av_freep(&AudioBuffer[0]);
   alDeleteSources(1, &ALSource);
   alGenSources(1, &ALSource);
   First = true;
@@ -103,7 +103,9 @@ void FFmpegAudioPlayer::FillAudioBuffers() {
       totalSize += bufferSize;
     } while (totalSize <= 4096);
 
-    alSourceUnqueueBuffers(ALSource, 1, &BufferIds[FirstFreeBuffer]);
+    if (!First) {
+      alSourceUnqueueBuffers(ALSource, 1, &BufferIds[FirstFreeBuffer]);
+    }
     FreeBufferCount--;
 
     alBufferData(BufferIds[FirstFreeBuffer], AL_FORMAT_STEREO16, HostBuffer,
@@ -124,7 +126,6 @@ void FFmpegAudioPlayer::Process() {
     alGetSourcei(ALSource, AL_BUFFERS_PROCESSED, &FreeBufferCount);
     if (First) {
       FreeBufferCount = AudioBufferCount;
-      First = false;
     }
 
     int currentlyPlayingBuffer =
@@ -147,6 +148,7 @@ void FFmpegAudioPlayer::Process() {
     if (sourceState == AL_STOPPED || sourceState == AL_INITIAL) {
       alSourcePlay(ALSource);
     }
+    First = false;
   }
 }
 

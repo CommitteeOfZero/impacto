@@ -84,8 +84,8 @@ void AudioChannel::Stop(float fadeOutDuration) {
   if (fadeOutDuration == 0.0f) {
     State = ACS_Stopped;
     // unqueue all buffers
-    alSourcei(Source, AL_BUFFER, 0);
     alSourceStop(Source);
+    alSourcei(Source, AL_BUFFER, 0);
     // ugh, leftover state
     alDeleteSources(1, &Source);
     alGenSources(1, &Source);
@@ -211,7 +211,9 @@ void AudioChannel::FillBuffers() {
   int maxSamples = SamplesPerBuffer();
 
   while (FreeBufferCount) {
-    alSourceUnqueueBuffers(Source, 1, &BufferIds[FirstFreeBuffer]);
+    if (State != ACS_FadingIn) {
+      alSourceUnqueueBuffers(Source, 1, &BufferIds[FirstFreeBuffer]);
+    }
     FreeBufferCount--;
 
     BufferStartPositions[FirstFreeBuffer] = CurrentStream->ReadPosition;
