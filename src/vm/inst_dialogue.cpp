@@ -213,7 +213,7 @@ VmInstruction(InstMesMain) {
                                   ScrWork[2 * currentPage->Id + SW_LINEID]);
           SetFlag(SF_SHOWWAITICON + thread->DialoguePageId, false);
 
-          if (Profile::ConfigSystem::SkipVoice)
+          if (Profile::ConfigSystem::SkipVoice || GetFlag(SF_MESALLSKIP))
             Audio::Channels[Audio::AC_VOICE0]->Stop(0.0f);
 
           BlockThread;
