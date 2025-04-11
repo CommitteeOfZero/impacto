@@ -297,8 +297,9 @@ void OptionsMenu::UpdateEntryMovementInput(float dt) {
 
 void OptionsMenu::UpdateInput(float dt) {
   UpdatePageInput(dt);
-  bool backBtnPressed = (PADinputMouseWentDown & PAD1B) ||
-                        (!AnyEntrySelected() && GetControlState(CT_Back));
+  bool backBtnPressed =
+      ((PADinputButtonWentDown | PADinputMouseWentDown) & PAD1B) ||
+      (!AnyEntrySelected() && GetControlState(CT_Back));
   if (State == Shown && backBtnPressed) {
     if (!GetFlag(SF_SUBMENUEXIT))
       Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0.0f);
