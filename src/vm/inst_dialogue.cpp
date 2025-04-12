@@ -104,6 +104,16 @@ VmInstruction(InstMesCls) {
     ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                "STUB instruction MesCls(type: {:d})\n", type);
   }
+  switch (type) {
+    case 1: {
+      for (int i = 0; i < DialoguePageCount; i++) {
+        DialoguePages[i].Clear();
+      }
+      SetFlag(SF_SHOWWAITICON, 0);
+      SetFlag(SF_SHOWWAITICON + 1, 0);
+      SetFlag(SF_SHOWWAITICON + 2, 0);
+    } break;
+  }
 }
 VmInstruction(InstMesVoiceWait) {
   StartInstruction;
