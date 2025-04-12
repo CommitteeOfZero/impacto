@@ -40,6 +40,8 @@ class MovieMenu : public Menu {
   glm::vec2 RedTitleLabelPos;
   glm::vec2 RightTitlePos;
   glm::vec2 LeftTitlePos;
+
+  bool IsChoiceMadeOnce = false;
 };
 
 }  // namespace CHLCC

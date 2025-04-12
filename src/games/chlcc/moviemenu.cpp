@@ -6,6 +6,7 @@
 #include "../../renderer/renderer.h"
 #include "../../ui/ui.h"
 #include "../../data/savesystem.h"
+#include "../../vm/interface/input.h"
 
 namespace Impacto {
 namespace UI {
@@ -13,10 +14,14 @@ namespace CHLCC {
 using namespace Impacto::Profile::CHLCC::MovieMenu;
 using namespace Impacto::Profile::ScriptVars;
 
+using namespace Impacto::Vm::Interface;
+
 using namespace Impacto::UI::Widgets::CHLCC;
 
 void MovieMenu::MovieButtonOnClick(Widgets::Button* target) {
   auto movieButton = static_cast<MovieMenuEntryButton*>(target);
+  ChoiceMade = true;
+  IsChoiceMadeOnce = true;
   if (!movieButton->IsLocked) {
     switch (movieButton->Id) {
       case 0: {
@@ -75,11 +80,16 @@ MovieMenu::MovieMenu() {
 void MovieMenu::Show() {
   if (State != Shown) {
     if (State != Showing) {
+      if (ChoiceMade) {
+        MenuTransition.Progress = 1.0f;
+        SelectMovieTextFade.Progress = 1.0f;
+      }
       MenuTransition.StartIn();
       SelectMovieTextFade.StartIn();
     }
     MovieItems->Show();
     State = Showing;
+    ChoiceMade = false;
     UpdateMovieEntries();
     ScrWork[SW_MOVIEMODE_CUR] = 255;
     if (UI::FocusedMenu != 0) {
@@ -94,6 +104,10 @@ void MovieMenu::Show() {
 void MovieMenu::Hide() {
   if (State != Hidden) {
     if (State != Hiding) {
+      if (ChoiceMade) {
+        MenuTransition.Progress = 0.0f;
+        SelectMovieTextFade.Progress = 0.0f;
+      }
       MenuTransition.StartOut();
       SelectMovieTextFade.StartOut();
     }
@@ -156,11 +170,15 @@ void MovieMenu::Render() {
 void MovieMenu::UpdateInput() {
   Menu::UpdateInput();
   if (State == Shown) {
+    if (PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B) {
+      IsChoiceMadeOnce = false;
+    }
     MovieItems->UpdateInput();
   }
 }
 
 void MovieMenu::Update(float dt) {
+  UpdateInput();
   if (ScrWork[SW_SYSMENUCT] < 10000 && State == Shown) {
     Hide();
   } else if (GetFlag(SF_MOVIEMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
@@ -181,10 +199,16 @@ void MovieMenu::Update(float dt) {
     SelectMovieTextFade.Update(dt);
     if (MenuTransition.Direction == +AnimationDirection::Out &&
         MenuTransition.Progress <= 0.72f) {
+      if (IsChoiceMadeOnce) {
+        TitleFade.Progress = 0.0f;
+      }
       TitleFade.StartOut();
     } else if (MenuTransition.IsIn() &&
                (TitleFade.Direction == +AnimationDirection::In ||
                 TitleFade.IsOut())) {
+      if (IsChoiceMadeOnce) {
+        TitleFade.Progress = 1.0f;
+      }
       TitleFade.StartIn();
     }
     TitleFade.Update(dt);
@@ -305,7 +329,7 @@ void MovieMenu::UpdateTitles() {
 
 void MovieMenu::UpdateMovieEntries() {
   for (auto el : MovieItems->Children) {
-    auto movieButton = static_cast<Widgets::CHLCC::MovieMenuEntryButton*>(el);
+    auto movieButton = dynamic_cast<MovieMenuEntryButton*>(el);
     if (movieButton->Id == 0 || movieButton->Id == 1)
       movieButton->IsLocked = false;
     else
