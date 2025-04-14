@@ -1415,6 +1415,85 @@ void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
+void Renderer::DrawMaskedSpriteOffset(const Sprite& sprite, const Sprite& mask,
+                                      const glm::vec2 pos,
+                                      const glm::vec2 origin, int alpha,
+                                      const int fadeRange, const glm::vec4 tint,
+                                      const glm::vec2 scale, const float angle,
+                                      const bool spriteInverted,
+                                      const bool maskInverted,
+                                      const bool isSameTexture) {
+  if (!Drawing) {
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Renderer->DrawMaskedSprite() called before BeginFrame()\n");
+    return;
+  }
+
+  if (Textures.count(sprite.Sheet.Texture) == 0 ||
+      Textures.count(mask.Sheet.Texture) == 0)
+    return;
+
+  if (alpha < 0) alpha = 0;
+  if (alpha > fadeRange + 256) alpha = fadeRange + 256;
+
+  float alphaRange = 256.0f / fadeRange;
+  float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
+
+  Flush();
+  // TODO: handle inverted sprites
+  EnsureMode(PipelineMaskedSprite, false);
+
+  VkDescriptorImageInfo imageBufferInfo[2];
+  imageBufferInfo[0].sampler = Sampler;
+  imageBufferInfo[0].imageView = Textures[sprite.Sheet.Texture].ImageView;
+  imageBufferInfo[0].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+  imageBufferInfo[1].sampler = Sampler;
+  imageBufferInfo[1].imageView = Textures[mask.Sheet.Texture].ImageView;
+  imageBufferInfo[1].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+  VkWriteDescriptorSet writeDescriptorSet{};
+  writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+  writeDescriptorSet.dstSet = 0;
+  writeDescriptorSet.dstBinding = 0;
+  writeDescriptorSet.descriptorCount = 2;
+  writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+  writeDescriptorSet.pImageInfo = imageBufferInfo;
+
+  vkCmdPushDescriptorSetKHR(
+      CommandBuffers[CurrentFrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
+      PipelineMaskedSprite->PipelineLayout, 0, 1, &writeDescriptorSet);
+
+  SpritePushConstants constants = {};
+  constants.Alpha = glm::vec2(alphaRange, constAlpha);
+  constants.IsInverted = maskInverted;
+  constants.IsSameTexture = isSameTexture;
+  vkCmdPushConstants(
+      CommandBuffers[CurrentFrameIndex], CurrentPipeline->PipelineLayout,
+      VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SpritePushConstants), &constants);
+
+  // OK, all good, make quad
+  MakeQuad();
+
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferOffset +
+                             VertexBufferFill);
+  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
+
+  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
+            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
+  QuadSetUV(sprite.Bounds, sprite.Bounds.Width, sprite.Bounds.Height,
+            (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites));
+
+  QuadSetPositionOffset(sprite.Bounds, pos, origin, scale, angle,
+                        (uintptr_t)&vertices[0].Position,
+                        sizeof(VertexBufferSprites));
+  QuadSetPositionOffset({0.0f, 0.0f, 1.0f, 1.0f}, pos, origin, scale, angle,
+                        (uintptr_t)&vertices[0].MaskUV,
+                        sizeof(VertexBufferSprites), false);
+
+  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
+}
+
 void Renderer::DrawVertices(SpriteSheet const& sheet,
                             std::span<const glm::vec2> sheetPositions,
                             std::span<const glm::vec2> displayPositions,
@@ -1795,53 +1874,54 @@ inline void Renderer::QuadSetUV(RectF const& spriteBounds, float designWidth,
   *(glm::vec2*)(uvs + 3 * stride) = topRight;
 }
 
-inline void Renderer::QuadSetPositionOffset(RectF const& spriteBounds,
-                                            glm::vec2 displayXY,
-                                            glm::vec2 displayOffset,
-                                            glm::vec2 scale, float angle,
-                                            uintptr_t positions, int stride) {
-  glm::vec2 bottomLeft =
-      glm::vec2(spriteBounds.X, spriteBounds.Y + spriteBounds.Height);
-  glm::vec2 topLeft = glm::vec2(spriteBounds.X, spriteBounds.Y);
-  glm::vec2 topRight =
-      glm::vec2(spriteBounds.X + spriteBounds.Width, spriteBounds.Y);
-  glm::vec2 bottomRight = glm::vec2(spriteBounds.X + spriteBounds.Width,
-                                    spriteBounds.Y + spriteBounds.Height);
+inline void Renderer::QuadSetPositionOffset(
+    RectF const& spriteBounds, glm::vec2 displayXY, glm::vec2 displayOffset,
+    glm::vec2 scale, float angle, uintptr_t positions, int stride, bool toNDC) {
+  glm::vec2 topLeft = {0.0f, 0.0f};
+  glm::vec2 bottomLeft = {0.0f, spriteBounds.Height};
+  glm::vec2 topRight = {spriteBounds.Width, 0.0f};
+  glm::vec2 bottomRight = {spriteBounds.Width, spriteBounds.Height};
 
-  // reset origin to top left
-  bottomLeft -= topLeft;
-  topRight -= topLeft;
-  bottomRight -= topLeft;
-  topLeft -= topLeft;
+  // Translate to origin
+  topLeft -= displayOffset;
+  bottomLeft -= displayOffset;
+  topRight -= displayOffset;
+  bottomRight -= displayOffset;
+
+  // Scale
+  bottomLeft *= scale;
+  topLeft *= scale;
+  topRight *= scale;
+  bottomRight *= scale;
 
   // Rotate
   if (angle != 0.0f) {
-    glm::mat2 rot = Rotate2D(angle);
+    const glm::mat2 rot = Rotate2D(angle);
 
-    bottomLeft = rot * (bottomLeft - displayOffset) + displayOffset;
-    topLeft = rot * (topLeft - displayOffset) + displayOffset;
-    topRight = rot * (topRight - displayOffset) + displayOffset;
-    bottomRight = rot * (bottomRight - displayOffset) + displayOffset;
+    bottomLeft = rot * bottomLeft;
+    topLeft = rot * topLeft;
+    topRight = rot * topRight;
+    bottomRight = rot * bottomRight;
   }
 
-  // Scale
-  bottomLeft = bottomLeft * scale;
-  topLeft = topLeft * scale;
-  topRight = topRight * scale;
-  bottomRight = bottomRight * scale;
-
   // Translate to the desired screen position
-  glm::vec2 newPos = displayXY - displayOffset * scale + displayOffset;
-  bottomLeft += newPos;
-  topLeft += newPos;
-  topRight += newPos;
-  bottomRight += newPos;
+  bottomLeft += displayOffset + displayXY;
+  topLeft += displayOffset + displayXY;
+  topRight += displayOffset + displayXY;
+  bottomRight += displayOffset + displayXY;
+
+  if (toNDC) {
+    topLeft = DesignToNDCNonFlipped(topLeft);
+    bottomLeft = DesignToNDCNonFlipped(bottomLeft);
+    bottomRight = DesignToNDCNonFlipped(bottomRight);
+    topRight = DesignToNDCNonFlipped(topRight);
+  }
 
   // Store the transformed positions
-  *(glm::vec2*)(positions + 0 * stride) = DesignToNDCNonFlipped(topLeft);
-  *(glm::vec2*)(positions + 1 * stride) = DesignToNDCNonFlipped(bottomLeft);
-  *(glm::vec2*)(positions + 2 * stride) = DesignToNDCNonFlipped(bottomRight);
-  *(glm::vec2*)(positions + 3 * stride) = DesignToNDCNonFlipped(topRight);
+  *(glm::vec2*)(positions + 0 * stride) = topLeft;
+  *(glm::vec2*)(positions + 1 * stride) = bottomLeft;
+  *(glm::vec2*)(positions + 2 * stride) = bottomRight;
+  *(glm::vec2*)(positions + 3 * stride) = topRight;
 }
 
 inline void Renderer::QuadSetPosition(RectF const& transformedQuad, float angle,
