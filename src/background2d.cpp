@@ -232,48 +232,36 @@ void Background2D::RenderRegular(glm::vec4 col) {
 
   for (int i = 0; i < MaxLinkedBgBuffers; i++) {
     if (Links[i].Direction != LD_Off && Links[i].LinkedBuffer != NULL) {
-      Renderer->DrawSprite(
-          Links[i].LinkedBuffer->BgSprite,
-          RectF(Links[i].DisplayCoords.x, Links[i].DisplayCoords.y,
-                Links[i].LinkedBuffer->BgSprite.ScaledWidth(),
-                Links[i].LinkedBuffer->BgSprite.ScaledHeight()),
-          col, 0.0f, false);
+      Renderer->DrawSpriteOffset(Links[i].LinkedBuffer->BgSprite,
+                                 Links[i].DisplayCoords, Origin, col, Scale,
+                                 Angle, false);
     }
   }
 }
 
 void Background2D::RenderMasked(glm::vec4 col) {
-  Renderer->DrawMaskedSprite(
-      BgSprite, Masks2D[MaskNumber].MaskSprite,
-      RectF(DisplayCoords.x, DisplayCoords.y, BgSprite.ScaledWidth(),
-            BgSprite.ScaledHeight()),
-      col, FadeCount, FadeRange);
+  Renderer->DrawMaskedSpriteOffset(BgSprite, Masks2D[MaskNumber].MaskSprite,
+                                   DisplayCoords, Origin, FadeCount, FadeRange,
+                                   col, Scale, Angle, false, false, false);
 }
 
 void Background2D::RenderMaskedInverted(glm::vec4 col) {
-  Renderer->DrawMaskedSprite(
-      BgSprite, Masks2D[MaskNumber].MaskSprite,
-      RectF(DisplayCoords.x, DisplayCoords.y, BgSprite.ScaledWidth(),
-            BgSprite.ScaledHeight()),
-      col, FadeCount, FadeRange, true);
+  Renderer->DrawMaskedSpriteOffset(BgSprite, Masks2D[MaskNumber].MaskSprite,
+                                   DisplayCoords, Origin, FadeCount, FadeRange,
+                                   col, Scale, Angle, false, true, false);
 }
 
 void Background2D::RenderFade(glm::vec4 col) {
   col.a *= FadeCount / 256.0f;
 
-  Renderer->DrawSprite(BgSprite,
-                       RectF(DisplayCoords.x, DisplayCoords.y,
-                             BgSprite.ScaledWidth(), BgSprite.ScaledHeight()),
-                       col, 0.0f, false);
+  Renderer->DrawSpriteOffset(BgSprite, DisplayCoords, Origin, col, Scale, Angle,
+                             false);
 
   for (int i = 0; i < MaxLinkedBgBuffers; i++) {
     if (Links[i].Direction != LD_Off && Links[i].LinkedBuffer != NULL) {
-      Renderer->DrawSprite(
-          Links[i].LinkedBuffer->BgSprite,
-          RectF(Links[i].DisplayCoords.x, Links[i].DisplayCoords.y,
-                Links[i].LinkedBuffer->BgSprite.ScaledWidth(),
-                Links[i].LinkedBuffer->BgSprite.ScaledHeight()),
-          col, Angle, false);
+      Renderer->DrawSpriteOffset(Links[i].LinkedBuffer->BgSprite,
+                                 Links[i].DisplayCoords, Origin, col, Scale,
+                                 Angle, false);
     }
   }
 }

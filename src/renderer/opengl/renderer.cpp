@@ -599,6 +599,84 @@ void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
+void Renderer::DrawMaskedSpriteOffset(const Sprite& sprite, const Sprite& mask,
+                                      const glm::vec2 pos,
+                                      const glm::vec2 origin, int alpha,
+                                      const int fadeRange, const glm::vec4 tint,
+                                      const glm::vec2 scale, const float angle,
+                                      const bool spriteInverted,
+                                      const bool maskInverted,
+                                      const bool isSameTexture) {
+  if (!Drawing) {
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Renderer->DrawMaskedSprite() called before BeginFrame()\n");
+    return;
+  }
+
+  if (alpha < 0) alpha = 0;
+  if (alpha > fadeRange + 256) alpha = fadeRange + 256;
+
+  float alphaRange = 256.0f / fadeRange;
+  float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
+
+  // Do we have space for one more sprite quad?
+  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
+
+  // Are we in sprite mode?
+  EnsureModeSprite(spriteInverted);
+
+  if (CurrentMode != R2D_Masked) {
+    Flush();
+    CurrentMode = R2D_Masked;
+  }
+
+  EnsureTextureBound(sprite.Sheet.Texture);
+
+  glBindVertexArray(VAOSprites);
+  glUseProgram(ShaderProgramMaskedSprite);
+  glUniform1i(glGetUniformLocation(ShaderProgramMaskedSprite, "Mask"), 2);
+  glUniform2f(glGetUniformLocation(ShaderProgramMaskedSprite, "Alpha"),
+              alphaRange, constAlpha);
+  glUniform1i(MaskedIsInvertedLocation, maskInverted);
+  glUniform1i(MaskedIsSameTextureLocation, isSameTexture);
+
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
+
+  glActiveTexture(GL_TEXTURE2);
+  glBindTexture(GL_TEXTURE_2D, mask.Sheet.Texture);
+  glBindSampler(2, Sampler);
+
+  // OK, all good, make quad
+
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
+  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
+
+  IndexBufferFill += 6;
+
+  if (sprite.Sheet.IsScreenCap) {
+    QuadSetUVFlipped(sprite.Bounds, sprite.Sheet.DesignWidth,
+                     sprite.Sheet.DesignHeight, (uintptr_t)&vertices[0].UV,
+                     sizeof(VertexBufferSprites));
+  } else {
+    QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth,
+              sprite.Sheet.DesignHeight, (uintptr_t)&vertices[0].UV,
+              sizeof(VertexBufferSprites));
+  }
+  QuadSetUV(sprite.Bounds, sprite.Bounds.Width, sprite.Bounds.Height,
+            (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites));
+
+  QuadSetPositionOffset(sprite.Bounds, pos, origin, scale, angle,
+                        (uintptr_t)&vertices[0].Position,
+                        sizeof(VertexBufferSprites));
+  QuadSetPositionOffset({0.0f, 0.0f, 1.0f, 1.0f}, pos, origin, scale, angle,
+                        (uintptr_t)&vertices[0].MaskUV,
+                        sizeof(VertexBufferSprites), false);
+
+  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
+}
+
 void Renderer::DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
                                        RectF const& dest, glm::vec4 tint,
                                        int alpha, int fadeRange,
@@ -839,11 +917,9 @@ inline void Renderer::QuadSetUV(RectF const& spriteBounds, float designWidth,
   *(glm::vec2*)(uvs + 3 * stride) = bottomRight;
 }
 
-inline void Renderer::QuadSetPositionOffset(RectF const& spriteBounds,
-                                            glm::vec2 displayXY,
-                                            glm::vec2 displayOffset,
-                                            glm::vec2 scale, float angle,
-                                            uintptr_t positions, int stride) {
+inline void Renderer::QuadSetPositionOffset(
+    RectF const& spriteBounds, glm::vec2 displayXY, glm::vec2 displayOffset,
+    glm::vec2 scale, float angle, uintptr_t positions, int stride, bool toNDC) {
   glm::vec2 topLeft = {0.0f, 0.0f};
   glm::vec2 bottomLeft = {0.0f, spriteBounds.Height};
   glm::vec2 topRight = {spriteBounds.Width, 0.0f};
@@ -877,11 +953,18 @@ inline void Renderer::QuadSetPositionOffset(RectF const& spriteBounds,
   topRight += displayOffset + displayXY;
   bottomRight += displayOffset + displayXY;
 
+  if (toNDC) {
+    bottomLeft = DesignToNDC(bottomLeft);
+    topLeft = DesignToNDC(topLeft);
+    topRight = DesignToNDC(topRight);
+    bottomRight = DesignToNDC(bottomRight);
+  }
+
   // Store the transformed positions
-  *(glm::vec2*)(positions + 0 * stride) = DesignToNDC(bottomLeft);
-  *(glm::vec2*)(positions + 1 * stride) = DesignToNDC(topLeft);
-  *(glm::vec2*)(positions + 2 * stride) = DesignToNDC(topRight);
-  *(glm::vec2*)(positions + 3 * stride) = DesignToNDC(bottomRight);
+  *(glm::vec2*)(positions + 0 * stride) = bottomLeft;
+  *(glm::vec2*)(positions + 1 * stride) = topLeft;
+  *(glm::vec2*)(positions + 2 * stride) = topRight;
+  *(glm::vec2*)(positions + 3 * stride) = bottomRight;
 }
 
 inline void Renderer::QuadSetPosition(RectF const& transformedQuad, float angle,
