@@ -86,6 +86,7 @@ struct DialoguePage {
 
   int Length;
   glm::vec2 Dimensions;
+  float FontSize;
 
   int NameLength;
   int NameId;

@@ -334,7 +334,7 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, int nextLineStart,
     FirstRubyChunkOnLine++;
   }
 
-  float lineHeight = DefaultFontSize;
+  float lineHeight = FontSize;
   // Erin DialogueBox
   if (DialogueBoxCurrentType == +DialogueBoxType::CHLCC && Mode == DPM_REV) {
     lineHeight = Impacto::Profile::CHLCC::DialogueBox::REVLineHeight;
@@ -343,6 +343,17 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, int nextLineStart,
   for (int i = LastLineStart; i < nextLineStart; i++) {
     if (Glyphs[i].DestRect.Height > lineHeight)
       lineHeight = Glyphs[i].DestRect.Height;
+  }
+
+  // completely trial and error guess
+  if (CurrentLineTopMargin) {
+    CurrentLineTopMargin *= (FontSize / DefaultFontSize);
+  }
+  float marginXOffset = 0;
+  if (LastLineStart < nextLineStart &&
+      Glyphs[LastLineStart].DestRect.X > boxBounds.X) {
+    marginXOffset = (Glyphs[LastLineStart].DestRect.X - boxBounds.X) *
+                    ((FontSize / DefaultFontSize) - 1.0f);
   }
   for (int i = LastLineStart; i < nextLineStart; i++) {
     Glyphs[i].DestRect.Y = CurrentLineTop + CurrentLineTopMargin +
@@ -354,8 +365,10 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, int nextLineStart,
         Glyphs[i].DestRect.X += (boxBounds.Width - lastGlyphX) / 2.0f;
         break;
       case TextAlignment::Right:
-        Glyphs[i].DestRect.X += boxBounds.Width - lastGlyphX;
+        Glyphs[i].DestRect.X += boxBounds.Width - lastGlyphX - marginXOffset;
         break;
+      case TextAlignment::Left:
+        Glyphs[i].DestRect.X += marginXOffset;
       default:
         break;
     }
@@ -398,11 +411,6 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
 
   AutoForward = false;
 
-  float FontSize = DefaultFontSize;
-  // Erin DialogueBox
-  if (DialogueBoxCurrentType == +DialogueBoxType::CHLCC && Mode == DPM_REV) {
-    FontSize = Impacto::Profile::CHLCC::DialogueBox::REVFontSize;
-  }
   TextParseState State = TPS_Normal;
   // TODO respect alignment
   Alignment = TextAlignment::Left;
@@ -410,6 +418,12 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
   LastLineStart = Glyphs.size();
   DialogueColorPair CurrentColors = ColorTable[0];
   if (Mode == DPM_REV) CurrentColors = ColorTable[REVColor];
+
+  FontSize = DefaultFontSize;
+  // Erin DialogueBox
+  if (DialogueBoxCurrentType == +DialogueBoxType::CHLCC && Mode == DPM_REV) {
+    FontSize = Impacto::Profile::CHLCC::DialogueBox::REVFontSize;
+  }
 
   if (Mode == DPM_ADV) {
     BoxBounds = ADVBounds;
@@ -498,7 +512,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
         break;
       }
       case STT_SetFontSize: {
-        FontSize = DefaultFontSize * (token.Val_Uint16 / 800.0f);
+        FontSize = DefaultFontSize * (token.Val_Uint16 / SetFontSizeRatio);
         break;
       }
       case STT_RubyBaseStart: {
