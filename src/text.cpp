@@ -498,7 +498,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
         break;
       }
       case STT_SetFontSize: {
-        FontSize = DefaultFontSize * (token.Val_Uint16 / 1000.0f);
+        FontSize = DefaultFontSize * (token.Val_Uint16 / 800.0f);
         break;
       }
       case STT_RubyBaseStart: {

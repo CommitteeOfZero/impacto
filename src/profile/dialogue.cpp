@@ -173,6 +173,7 @@ void Configure() {
   }
 
   DialogueFont = EnsureGetMember<Font*>("DialogueFont");
+  SetFontSizeRatio = EnsureGetMember<float>("SetFontSizeRatio");
   DefaultFontSize = EnsureGetMember<float>("DefaultFontSize");
   RubyFontSize = EnsureGetMember<float>("RubyFontSize");
   RubyYOffset = EnsureGetMember<float>("RubyYOffset");
