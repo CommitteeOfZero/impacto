@@ -52,6 +52,7 @@ root.Dialogue = {
     SkipIconOffset = { X = 1688, Y = 794 },
     SkipIconFixedSpriteId = 6,
     DialogueFont = "Default",
+    SetFontSizeRatio = 800.0,
     DefaultFontSize = 42,
     RubyFontSize = 21,
     RubyYOffset = -27,

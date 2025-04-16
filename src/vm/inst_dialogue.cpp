@@ -59,7 +59,7 @@ VmInstruction(InstMesSetID) {
     case 0: {  // SetSavePointPage0
       if (Profile::Vm::UseReturnIds) {
         PopUint16(savePointId);
-        if (!GetFlag(1288)) {
+        if (!GetFlag(SF_MESSAVEPOINT_SSP)) {
           SaveSystem::SetCheckpointId(savePointId);
         }
         ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
@@ -78,7 +78,7 @@ VmInstruction(InstMesSetID) {
                  "STUB instruction MesSetID(type: SetSavePoint1, "
                  "savePointId: {:d}, arg1: {:d})\n",
                  savePointId, dialoguePageId);
-      if (!GetFlag(1288 + dialoguePageId)) {
+      if (!GetFlag(SF_MESSAVEPOINT_SSP + dialoguePageId)) {
         SaveSystem::SetCheckpointId(savePointId);
       }
       thread->DialoguePageId = dialoguePageId;
@@ -103,6 +103,16 @@ VmInstruction(InstMesCls) {
   } else {
     ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                "STUB instruction MesCls(type: {:d})\n", type);
+  }
+  switch (type) {
+    case 1: {
+      for (int i = 0; i < DialoguePageCount; i++) {
+        DialoguePages[i].Clear();
+      }
+      SetFlag(SF_SHOWWAITICON, 0);
+      SetFlag(SF_SHOWWAITICON + 1, 0);
+      SetFlag(SF_SHOWWAITICON + 2, 0);
+    } break;
   }
 }
 VmInstruction(InstMesVoiceWait) {
@@ -140,7 +150,7 @@ VmInstruction(InstMes) {
       MSB ? MsbGetStrAddress(MsbBuffers[thread->ScriptBufferId], lineId)
           : ScriptGetStrAddress(ScriptBuffers[thread->ScriptBufferId], lineId);
 
-  if (!(ScrWork[10 * thread->DialoguePageId + 4362] & (1 << 6))) {
+  if (!(ScrWork[10 * thread->DialoguePageId + SW_MESWIN0TYPE] & (1 << 6))) {
     SetFlag(SF_MESREAD, SaveSystem::IsLineRead(scriptId, lineId));
     ChkMesSkip();
   }
@@ -163,15 +173,15 @@ VmInstruction(InstMes) {
   dialoguePage.AddString(thread, audioStream, animationId);
   if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
     ResetInstruction;
-    if (!GetFlag(1288 + thread->DialoguePageId)) {
-      if ((ScrWork[thread->DialoguePageId * 10 + 4362] & 4) == 0 &&
+    if (!GetFlag(SF_MESSAVEPOINT_SSP + thread->DialoguePageId)) {
+      if ((ScrWork[thread->DialoguePageId * 10 + SW_MESWIN0TYPE] & 4) == 0 &&
           ScrWork[SW_TITLE] != 0xffff) {
         SaveSystem::SaveMemory();
         SetFlag(1206, 1);
-        SetFlag(1285, 1);
+        SetFlag(SF_AUTOSAVEENABLE, 1);
       }
     } else {
-      SetFlag(1288 + thread->DialoguePageId, 0);
+      SetFlag(SF_MESSAVEPOINT_SSP + thread->DialoguePageId, 0);
     }
   }
 
@@ -351,13 +361,13 @@ VmInstruction(InstSel) {
           Profile::Vm::GameInstructionSet == +InstructionSet::CC ||
           Profile::Vm::GameInstructionSet == +InstructionSet::MO8) {
         PopUint16(savepointid);
-        // 1288 + dialog page's field 5 in decompile?
-        // if (GetFlag(1288 + thread->DialoguePageId) == 0) {
+        // SF_MESSAVEPOINT_SSP + dialog page's field 5 in decompile?
+        // if (GetFlag(SF_MESSAVEPOINT_SSP + thread->DialoguePageId) == 0) {
         if (ScrWork[SW_TITLE] != 0xffff) {
           SaveSystem::SetCheckpointId(savepointid);
           SaveSystem::SaveMemory();
           SetFlag(1206, 1);
-          SetFlag(1285, 1);
+          SetFlag(SF_AUTOSAVEENABLE, 1);
           BlockThread;
         }
         // }

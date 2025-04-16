@@ -27,6 +27,7 @@ root.Dialogue = {
     WaitIconCurrentType = WaitIconType.SpriteAnim,
     WaitIconOffset = { X = 4, Y = 4 },
     DialogueFont = "Default",
+    SetFontSizeRatio = 1000.0,
     DefaultFontSize = 32,
     RubyFontSize = 14,
     RubyYOffset = -18,

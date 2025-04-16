@@ -736,7 +736,7 @@ VmInstruction(InstAutoSave) {
                                           quicksaveEntries, saveType);
       }
     }
-    SetFlag(1285, 1);
+    SetFlag(SF_AUTOSAVEENABLE, 1);
     ScrWork[SW_AUTOSAVERESTART] = 0;
   };
 
@@ -770,7 +770,7 @@ VmInstruction(InstAutoSave) {
                                           quicksaveEntries, 0);
       }
 
-      SetFlag(1285, 0);
+      SetFlag(SF_AUTOSAVEENABLE, 0);
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction AutoSave(type: {:d})\n", type);
     } break;
@@ -779,7 +779,7 @@ VmInstruction(InstAutoSave) {
                  "STUB instruction AutoSave(type: {:d})\n", type);
       if (ScrWork[SW_TITLE] != 0xffff) {
         SaveSystem::SaveMemory();
-        SetFlag(1285, 1);
+        SetFlag(SF_AUTOSAVEENABLE, 1);
         ScrWork[SW_AUTOSAVERESTART] = 0;
       }
     } break;

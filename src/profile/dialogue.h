@@ -76,6 +76,7 @@ inline SkipIconDisplay::SkipIconType SkipIconCurrentType =
 inline Sprite AutoSkipArrowsSprite;
 
 inline Font* DialogueFont;
+inline float SetFontSizeRatio;
 inline float DefaultFontSize;
 inline float RubyFontSize;
 inline float RubyYOffset;

@@ -63,6 +63,7 @@ root.Dialogue = {
     REVLineHeight = 24,
     REVLineSpacing = 16,
     REVFontSize = 24,
+    SetFontSizeRatio = 1000.0,
     DefaultFontSize = 32,
     RubyFontSize = 14,
     RubyYOffset = -18,

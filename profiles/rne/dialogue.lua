@@ -35,6 +35,7 @@ root.Dialogue = {
     WaitIconOffset = { X = 4, Y = 4 },
     WaitIconAnimationDuration = 3.2,
     DialogueFont = "Default",
+    SetFontSizeRatio = 1000.0,
     DefaultFontSize = 32,
     RubyFontSize = 14,
     RubyYOffset = -18,

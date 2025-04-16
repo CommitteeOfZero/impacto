@@ -493,8 +493,10 @@ void Render() {
         case DrawComponentType::Text: {
           if (!GetFlag(SF_UIHIDDEN) &&
               (!GetFlag(SF_SELECTMODE) || GetFlag(SF_SYSTEMMENUCAPTURE))) {
-            for (int i = 0; i < Profile::Dialogue::PageCount; i++)
-              DialoguePages[i].Render();
+            // Dialogue pages drawn in reverse order, at least for cclcc
+            for (int pageId = Profile::Dialogue::PageCount - 1; pageId >= 0;
+                 pageId--)
+              DialoguePages[pageId].Render();
           }
           // System menu capture
           if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::CC &&
