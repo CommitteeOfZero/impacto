@@ -40,6 +40,7 @@ class Background2D : public Loadable<Background2D> {
   glm::vec2 Origin = {0.0f, 0.0f};
   glm::vec2 Scale = {1.0f, 1.0f};
   float Angle = 0.0f;
+  glm::vec4 Tint = glm::vec4(1.0f);
   int MaskNumber;
 
   int FadeCount;
@@ -67,12 +68,12 @@ class Background2D : public Loadable<Background2D> {
  private:
   Texture BgTexture;
 
-  using BackgroundRenderProc = auto (Background2D::*)(glm::vec4 col) -> void;
+  using BackgroundRenderProc = auto (Background2D::*)() -> void;
 
-  void RenderRegular(glm::vec4 col);
-  void RenderMasked(glm::vec4 col);
-  void RenderMaskedInverted(glm::vec4 col);
-  void RenderFade(glm::vec4 col);
+  void RenderRegular();
+  void RenderMasked();
+  void RenderMaskedInverted();
+  void RenderFade();
 
   std::array<BackgroundRenderProc, 30> constexpr static BackgroundRenderTable =
       {
