@@ -2,6 +2,7 @@
 
 #include "../../data/savesystem.h"
 #include "../../texture/texture.h"
+#include "../../io/memorystream.h"
 #include "../../spritesheet.h"
 #include <optional>
 
@@ -29,6 +30,12 @@ class SaveSystem : public SaveSystemBase {
   SaveError CreateSaveFile() override;
   SaveError CheckSaveFile() override;
   SaveError MountSaveFile() override;
+  void LoadSystemBuffer(Io::MemoryStream& memoryStream);
+  void SaveSystemBuffer(Io::MemoryStream& memoryStream);
+  void LoadEntryBuffer(Io::MemoryStream& memoryStream, SaveFileEntry& entry,
+                       SaveType saveType);
+  void SaveEntryBuffer(Io::MemoryStream& memoryStream, SaveFileEntry& entry,
+                       SaveType saveType);
   void SaveMemory() override;
   void LoadEntry(SaveType type, int id) override;
   void LoadMemoryNew(LoadProcess load) override;
