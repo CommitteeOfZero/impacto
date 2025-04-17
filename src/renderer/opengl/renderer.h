@@ -69,6 +69,14 @@ class Renderer : public BaseRenderer {
                         int fadeRange, bool isInverted = false,
                         bool isSameTexture = false) override;
 
+  void DrawMaskedSpriteOffset(const Sprite& sprite, const Sprite& mask,
+                              glm::vec2 pos, glm::vec2 origin, int alpha,
+                              int fadeRange, glm::vec4 tint = glm::vec4(1.0f),
+                              glm::vec2 scale = glm::vec2(1.0),
+                              float angle = 0.0f, bool spriteInverted = false,
+                              bool maskInverted = false,
+                              bool isSameTexture = false) override;
+
   void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                         RectF const& dest, glm::vec4 tint, int alpha,
                         int fadeRange, float effectCt) override;
@@ -127,7 +135,8 @@ class Renderer : public BaseRenderer {
                  float angle = 0.0f);
   void QuadSetPositionOffset(RectF const& spriteBounds, glm::vec2 displayXY,
                              glm::vec2 displayOffset, glm::vec2 scale,
-                             float angle, uintptr_t positions, int stride);
+                             float angle, uintptr_t positions, int stride,
+                             bool toNDC = true);
   void QuadSetUVFlipped(RectF const& spriteBounds, float designWidth,
                         float designHeight, uintptr_t uvs, int stride);
   void QuadSetPosition(RectF const& transformedQuad, float angle,

@@ -98,19 +98,23 @@ void Background2D::Render(int bgId, int layer) {
   FadeCount = ScrWork[SW_BG1FADECT + ScrWorkBgStructSize * bgId];
   FadeRange = ScrWork[SW_BG1MASKFADERANGE + ScrWorkBgStructSize * bgId];
 
-  glm::vec4 col = glm::vec4(1.0f);
-  col.a = (ScrWork[SW_BG1ALPHA + ScrWorkBgStructSize * bgId] +
-           ScrWork[SW_BG1ALPHA_OFS + 10 * bgId]) /
-          256.0f;
+  Tint = glm::vec4(255.0f);
+  Tint.a = ScrWork[SW_BG1ALPHA + ScrWorkBgStructSize * bgId] +
+           ScrWork[SW_BG1ALPHA_OFS + 10 * bgId];
+  if (GameInstructionSet == +Vm::InstructionSet::CC) {
+    const uint32_t rgb = ScrWork[SW_BG1FILTER + ScrWorkBgStructSize * bgId];
+    Tint = {rgb & 0xff, (rgb >> 8) & 0xff, (rgb >> 16) & 0xff, Tint.a};
+  }
+  Tint /= glm::vec4(255.0f, 255.0f, 255.0f, 256.0f);
 
   switch (GameInstructionSet) {
     case Vm::InstructionSet::Dash:
-      col.a = ScrWork[SW_BG1ALPHA + ScrWorkBgStructSize * bgId] / 256.0f;
+      Tint.a = ScrWork[SW_BG1ALPHA + ScrWorkBgStructSize * bgId] / 256.0f;
       break;
 
     case Vm::InstructionSet::CC:
       if (ScrWork[SW_BGEFF1_MODE + ScrWorkBgEffStructSize * bgId] == 1) {
-        col.a =
+        Tint.a =
             ScrWork[SW_BGEFF1_ALPHA + ScrWorkBgEffStructSize * bgId] / 256.0f;
       }
       break;
@@ -120,7 +124,7 @@ void Background2D::Render(int bgId, int layer) {
   }
 
   const int renderType = ScrWork[SW_BG1FADETYPE + ScrWorkBgStructSize * bgId];
-  std::invoke(BackgroundRenderTable[renderType], this, col);
+  std::invoke(BackgroundRenderTable[renderType], this);
 }
 
 void Background2D::RenderCapture(int capId, int layer) {
@@ -130,92 +134,134 @@ void Background2D::RenderCapture(int capId, int layer) {
   FadeCount = ScrWork[SW_CAP1FADECT + ScrWorkCaptureStructSize * capId];
   FadeRange = ScrWork[SW_CAP1MASKFADERANGE + ScrWorkCaptureStructSize * capId];
 
-  glm::vec4 col = glm::vec4(1.0f);
-  col.a = (ScrWork[SW_CAP1ALPHA + ScrWorkCaptureStructSize * capId] +
-           ScrWork[SW_CAP1ALPHA_OFS + 10 * capId]) /
-          256.0f;
+  Tint = glm::vec4(255.0f);
+  Tint.a = ScrWork[SW_CAP1ALPHA + ScrWorkCaptureStructSize * capId] +
+           ScrWork[SW_CAP1ALPHA_OFS + 10 * capId];
+  if (GameInstructionSet == +Vm::InstructionSet::CC) {
+    const uint32_t rgb =
+        ScrWork[SW_CAP1FILTER + ScrWorkCaptureStructSize * capId];
+    Tint = {rgb & 0xff, (rgb >> 8) & 0xff, (rgb >> 16) & 0xff, Tint.a};
+  }
+  Tint /= glm::vec4(255.0f, 255.0f, 255.0f, 256.0f);
 
   const int renderType =
       ScrWork[SW_CAP1FADETYPE + ScrWorkCaptureStructSize * capId];
-  std::invoke(BackgroundRenderTable[renderType], this, col);
+  std::invoke(BackgroundRenderTable[renderType], this);
 }
 
 void Background2D::RenderBgEff(int bgId, int layer) {
   if (Status != LS_Loaded) return;
 
-  const int structSize = ScrWorkBgEffStructSize;
+  const int structOffset = ScrWorkBgEffStructSize * bgId;
+  const int structOfsOffset = 20 * bgId;
 
-  MaskNumber = ScrWork[SW_BGEFF1_MASKNO + structSize * bgId];
-  FadeCount = ScrWork[SW_BGEFF1_FADECT + structSize * bgId];
-  FadeRange = ScrWork[SW_BGEFF1_MASKFADERANGE + structSize * bgId];
+  MaskNumber = ScrWork[SW_BGEFF1_MASKNO + structOffset];
+  FadeCount = ScrWork[SW_BGEFF1_FADECT + structOffset];
+  FadeRange = ScrWork[SW_BGEFF1_MASKFADERANGE + structOffset];
 
-  float x = ScrWork[SW_BGEFF1_OFSX + 20 * bgId] +
-            ScrWork[SW_BGEFF1_POSX + structSize * bgId];
-  float y = ScrWork[SW_BGEFF1_OFSY + 20 * bgId] +
-            ScrWork[SW_BGEFF1_POSY + structSize * bgId];
-  x *= Profile::DesignWidth / 1280.0;
-  y *= Profile::DesignHeight / 720.0;
-  DisplayCoords = glm::vec2(-x, -y);
+  Angle = (ScrWork[SW_BGEFF1_ROTZ + structOffset] +
+           ScrWork[SW_BGEFF1_ROTZ_OFS + structOfsOffset]) *
+          (float)(2.0f * M_PI / (float)(1 << 16));
 
-  glm::vec4 col = glm::vec4(1.0f);
-  col.a = (ScrWork[SW_BGEFF1_ALPHA + structSize * bgId] +
-           ScrWork[SW_BGEFF1_ALPHA_OFS + 20 * bgId]) /
-          256.0f;
+  Scale = glm::vec2((ScrWork[SW_BGEFF1_SIZE + structOffset] +
+                     ScrWork[SW_BGEFF1_SIZE_OFS + structOfsOffset]) /
+                    1000.0f);
 
-  const int renderType = ScrWork[SW_BGEFF1_MODE + structSize * bgId];
-  std::invoke(BackgroundRenderTable[renderType], this, col);
+  // Set tint
+  Tint = glm::vec4(255.0f);
+  Tint.a = ScrWork[SW_BGEFF1_ALPHA + structOffset] +
+           ScrWork[SW_BGEFF1_ALPHA_OFS + structOfsOffset];
+  if (GameInstructionSet == +Vm::InstructionSet::CC) {
+    const uint32_t rgb = ScrWork[SW_BGEFF1_FILTER + structOffset];
+    Tint = {rgb & 0xff, (rgb >> 8) & 0xff, (rgb >> 16) & 0xff, Tint.a};
+  }
+  Tint /= glm::vec4(255.0f, 255.0f, 255.0f, 256.0f);
+
+  // Get position coordinates
+  const int maskType = ScrWork[SW_BGEFF1_MASK_TYPE + structOffset];
+  const glm::vec2 resolutionScale = {Profile::DesignWidth / 1280.0f,
+                                     Profile::DesignHeight / 720.0f};
+
+  const size_t vertexCount = maskType == 0 ? 4 : 3;
+  std::vector<glm::vec2> vertices;
+  vertices.reserve(vertexCount);
+  for (size_t i = 0; i < vertexCount; i++) {
+    const int x =
+        ScrWork[SW_BGEFF1_MASK_VERTEX1_X + structOffset + i * 2] +
+        ScrWork[SW_BGEFF1_MASK_VERTEX1_OFSX + structOfsOffset + i * 2];
+    const int y =
+        ScrWork[SW_BGEFF1_MASK_VERTEX1_Y + structOffset + i * 2] +
+        ScrWork[SW_BGEFF1_MASK_VERTEX1_OFSY + structOfsOffset + i * 2];
+    vertices.emplace_back(glm::vec2(x, y) * resolutionScale);
+  }
+
+  const glm::vec2 pos =
+      glm::vec2(ScrWork[SW_BGEFF1_POSX + structOffset] +
+                    ScrWork[SW_BGEFF1_OFSX + structOfsOffset],
+                ScrWork[SW_BGEFF1_POSY + structOffset] +
+                    ScrWork[SW_BGEFF1_OFSY + structOfsOffset]) *
+      resolutionScale;
+
+  DisplayCoords = pos - vertices[0];
+
+  // Origin is the center of mass
+  Origin = {0.0f, 0.0f};
+  for (const glm::vec2 vertex : vertices) Origin += vertex / (float)vertexCount;
+
+  // Draw
+  if (maskType == 0) {  // Rectangle
+    const glm::vec2 maskDimensions = vertices[3] - vertices[0];
+    const RectF mask = RectF(pos.x, pos.y, maskDimensions.x, maskDimensions.y)
+                           .Scale(Scale, vertices[0]);
+
+    Renderer->EnableScissor();
+    Renderer->SetScissorRect(mask);
+  }
+
+  const int renderType = ScrWork[SW_BGEFF1_MODE + structOffset];
+  std::invoke(BackgroundRenderTable[renderType], this);
+
+  if (maskType == 0) {  // Rectangle
+    Renderer->DisableScissor();
+  }
 }
 
-void Background2D::RenderRegular(glm::vec4 col) {
-  Renderer->DrawSprite(BgSprite,
-                       RectF(DisplayCoords.x, DisplayCoords.y,
-                             BgSprite.ScaledWidth(), BgSprite.ScaledHeight()),
-                       col, 0.0f, false);
+void Background2D::RenderRegular() {
+  Renderer->DrawSpriteOffset(BgSprite, DisplayCoords, Origin, Tint, Scale,
+                             Angle, false);
 
   for (int i = 0; i < MaxLinkedBgBuffers; i++) {
     if (Links[i].Direction != LD_Off && Links[i].LinkedBuffer != NULL) {
-      Renderer->DrawSprite(
-          Links[i].LinkedBuffer->BgSprite,
-          RectF(Links[i].DisplayCoords.x, Links[i].DisplayCoords.y,
-                Links[i].LinkedBuffer->BgSprite.ScaledWidth(),
-                Links[i].LinkedBuffer->BgSprite.ScaledHeight()),
-          col, 0.0f, false);
+      Renderer->DrawSpriteOffset(Links[i].LinkedBuffer->BgSprite,
+                                 Links[i].DisplayCoords, Origin, Tint, Scale,
+                                 Angle, false);
     }
   }
 }
 
-void Background2D::RenderMasked(glm::vec4 col) {
-  Renderer->DrawMaskedSprite(
-      BgSprite, Masks2D[MaskNumber].MaskSprite,
-      RectF(DisplayCoords.x, DisplayCoords.y, BgSprite.ScaledWidth(),
-            BgSprite.ScaledHeight()),
-      col, FadeCount, FadeRange);
+void Background2D::RenderMasked() {
+  Renderer->DrawMaskedSpriteOffset(BgSprite, Masks2D[MaskNumber].MaskSprite,
+                                   DisplayCoords, Origin, FadeCount, FadeRange,
+                                   Tint, Scale, Angle, false, false, false);
 }
 
-void Background2D::RenderMaskedInverted(glm::vec4 col) {
-  Renderer->DrawMaskedSprite(
-      BgSprite, Masks2D[MaskNumber].MaskSprite,
-      RectF(DisplayCoords.x, DisplayCoords.y, BgSprite.ScaledWidth(),
-            BgSprite.ScaledHeight()),
-      col, FadeCount, FadeRange, true);
+void Background2D::RenderMaskedInverted() {
+  Renderer->DrawMaskedSpriteOffset(BgSprite, Masks2D[MaskNumber].MaskSprite,
+                                   DisplayCoords, Origin, FadeCount, FadeRange,
+                                   Tint, Scale, Angle, false, true, false);
 }
 
-void Background2D::RenderFade(glm::vec4 col) {
-  col.a *= FadeCount / 256.0f;
+void Background2D::RenderFade() {
+  Tint.a *= FadeCount / 256.0f;
 
-  Renderer->DrawSprite(BgSprite,
-                       RectF(DisplayCoords.x, DisplayCoords.y,
-                             BgSprite.ScaledWidth(), BgSprite.ScaledHeight()),
-                       col, 0.0f, false);
+  Renderer->DrawSpriteOffset(BgSprite, DisplayCoords, Origin, Tint, Scale,
+                             Angle, false);
 
   for (int i = 0; i < MaxLinkedBgBuffers; i++) {
     if (Links[i].Direction != LD_Off && Links[i].LinkedBuffer != NULL) {
-      Renderer->DrawSprite(
-          Links[i].LinkedBuffer->BgSprite,
-          RectF(Links[i].DisplayCoords.x, Links[i].DisplayCoords.y,
-                Links[i].LinkedBuffer->BgSprite.ScaledWidth(),
-                Links[i].LinkedBuffer->BgSprite.ScaledHeight()),
-          col, 0.0f, false);
+      Renderer->DrawSpriteOffset(Links[i].LinkedBuffer->BgSprite,
+                                 Links[i].DisplayCoords, Origin, Tint, Scale,
+                                 Angle, false);
     }
   }
 }

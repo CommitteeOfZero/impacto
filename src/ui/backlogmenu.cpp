@@ -289,8 +289,8 @@ void BacklogMenu::AddMessage(uint8_t* str, int audioId, int characterId) {
   if (!GetFlag(SF_REVADDDISABLE) || ScrWork[SW_MESWIN0TYPE] == 0) {
     auto onClick = [this](auto* btn) { return MenuButtonOnClick(btn); };
 
-    auto backlogEntry = new BacklogEntry(CurrentId, str, audioId, characterId,
-                                         CurrentEntryPos, HoverBounds);
+    Widgets::BacklogEntry* backlogEntry = CreateBacklogEntry(
+        CurrentId, str, audioId, characterId, CurrentEntryPos, HoverBounds);
     backlogEntry->OnClickHandler = onClick;
     MainItems->Add(backlogEntry, FDIR_DOWN);
     CurrentId++;
