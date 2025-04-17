@@ -26,6 +26,29 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Vm;
 using namespace Impacto::Profile::ConfigSystem;
 
+uint32_t CalculateChecksum(std::span<const uint8_t> bufferData,
+                           uint16_t initSum = 0, uint16_t initXor = 0,
+                           bool swapSrcBytes = false) {
+  // Initialize checksum variables
+
+  uint32_t checksumSum = initSum;
+
+  uint32_t checksumXor = initXor;
+
+  for (int i = 0; i < bufferData.size() - 1; i += 2) {
+    uint16_t dataShort;
+    memcpy(&dataShort, &bufferData[i], 2);
+    if (swapSrcBytes) {
+      dataShort = SDL_Swap16(dataShort);
+    }
+    checksumSum = checksumSum + dataShort;
+    checksumXor = checksumXor ^ dataShort;
+  }
+
+  uint32_t result = (checksumSum << 16) | checksumXor & 0xFFFF;
+  return result;
+}
+
 SaveError SaveSystem::CheckSaveFile() {
   std::error_code ec;
   IoError existsState = Io::PathExists(SaveFilePath);
@@ -115,6 +138,105 @@ SaveError SaveSystem::CreateSaveFile() {
   return MountSaveFile();
 }
 
+void SaveSystem::LoadEntryBuffer(Io::MemoryStream& stream, SaveFileEntry& entry,
+                                 SaveType saveType) {
+  entry.Status = Io::ReadLE<uint8_t>(&stream);
+  Io::ReadLE<uint8_t>(&stream);
+  if (entry.Status == 1 && saveType == SaveType::SaveQuick) {
+    QuickSaveCount++;
+  }
+  uint16_t checksumSum = Io::ReadLE<uint16_t>(&stream);
+  uint16_t checksumXor = Io::ReadLE<uint16_t>(&stream);
+
+  entry.Checksum = checksumSum << 16 | checksumXor;
+  Io::ReadLE<uint16_t>(&stream);
+  uint16_t saveYear = Io::ReadLE<uint16_t>(&stream);
+  uint8_t saveDay = Io::ReadLE<uint8_t>(&stream);
+  uint8_t saveMonth = Io::ReadLE<uint8_t>(&stream);
+  uint8_t saveSecond = Io::ReadLE<uint8_t>(&stream);
+  uint8_t saveMinute = Io::ReadLE<uint8_t>(&stream);
+  uint8_t saveHour = Io::ReadLE<uint8_t>(&stream);
+  std::tm t{};
+  t.tm_sec = saveSecond;
+  t.tm_min = saveMinute;
+  t.tm_hour = saveHour;
+  t.tm_mday = saveDay;
+  t.tm_mon = saveMonth - 1;
+  t.tm_year = saveYear - 1900;
+  entry.SaveDate = t;
+
+  Io::ReadLE<uint8_t>(&stream);
+  entry.PlayTime = Io::ReadLE<uint32_t>(&stream);
+  entry.SwTitle = Io::ReadLE<uint32_t>(&stream);
+  Io::ReadLE<uint32_t>(&stream);
+  entry.Flags = Io::ReadLE<uint8_t>(&stream);
+  stream.Seek(7, SEEK_CUR);
+  entry.SaveType = Io::ReadLE<uint32_t>(&stream);
+  assert(stream.Position == 0x28);
+  stream.Seek(0x58, SEEK_CUR);
+  Io::ReadArrayLE<uint8_t>(entry.FlagWorkScript1, &stream, 50);
+  assert(stream.Position == 178);
+  Io::ReadArrayLE<uint8_t>(entry.FlagWorkScript2, &stream, 100);
+  Io::ReadLE<uint16_t>(&stream);
+  assert(stream.Position == 280);
+  Io::ReadArrayLE<int>(entry.ScrWorkScript1, &stream, 600);
+  assert(stream.Position == 2680);
+  Io::ReadArrayLE<int>(entry.ScrWorkScript2, &stream, 3000);
+
+  assert(stream.Position == 0x3958);
+  entry.MainThreadExecPriority = Io::ReadLE<uint32_t>(&stream);
+  entry.MainThreadGroupId = Io::ReadLE<uint32_t>(&stream);
+  entry.MainThreadWaitCounter = Io::ReadLE<uint32_t>(&stream);
+  entry.MainThreadScriptParam = Io::ReadLE<uint32_t>(&stream);
+  entry.MainThreadIp = Io::ReadLE<uint32_t>(&stream);
+  entry.MainThreadLoopCounter = Io::ReadLE<uint32_t>(&stream);
+  entry.MainThreadLoopAdr = Io::ReadLE<uint32_t>(&stream);
+  entry.MainThreadCallStackDepth = Io::ReadLE<uint32_t>(&stream);
+  for (int j = 0; j < 8; j++) {
+    entry.MainThreadReturnIds[j] = Io::ReadLE<uint32_t>(&stream);
+  }
+  for (int j = 0; j < 8; j++) {
+    entry.MainThreadReturnBufIds[j] = Io::ReadLE<uint32_t>(&stream);
+  }
+  Io::ReadLE<uint32_t>(&stream);
+  assert(stream.Position == 0x39bc);
+  entry.MainThreadScriptBufferId = Io::ReadLE<uint32_t>(&stream);
+  Io::ReadArrayBE<int>(entry.MainThreadVariables, &stream, 16);
+  entry.MainThreadDialoguePageId = Io::ReadLE<uint32_t>(&stream);
+  assert(stream.Position == 0x3a04);
+  stream.Seek(1212, SEEK_CUR);
+  assert(stream.Position == 0x3ec0);
+  Io::ReadArrayLE<uint8_t>(entry.MapLoadData, &stream, 0x6ac8);
+  Io::ReadArrayLE<uint8_t>(entry.YesNoData, &stream, 0x54);
+
+  auto& thumbnail = entry.SaveThumbnail;
+  thumbnail.Sheet = SpriteSheet(SaveThumbnailWidth, SaveThumbnailHeight);
+  thumbnail.Bounds = RectF(0.0f, 0.0f, SaveThumbnailWidth, SaveThumbnailHeight);
+
+  Texture tex;
+  tex.Init(TexFmt_RGB, SaveThumbnailWidth, SaveThumbnailHeight);
+
+  // CCLCC PS4 Save thumbnails are 240x135 RGB16
+  std::vector<uint16_t> thumbnailData(SaveThumbnailWidth * SaveThumbnailHeight);
+
+  int thumbnailPadding = 0xA14;
+  stream.Seek(thumbnailPadding, SEEK_CUR);
+  Io::ReadArrayLE<uint16_t>(thumbnailData.data(), &stream,
+                            thumbnailData.size());
+
+  for (int i = 0; i < thumbnailData.size(); i++) {
+    uint16_t pixel = thumbnailData[i];
+    uint8_t r = (pixel & 0xF800) >> 8;
+    uint8_t g = (pixel & 0x07E0) >> 3;
+    uint8_t b = (pixel & 0x001F) << 3;
+    tex.Buffer[3 * i] = r;
+    tex.Buffer[3 * i + 1] = g;
+    tex.Buffer[3 * i + 2] = b;
+  }
+
+  thumbnail.Sheet.Texture = tex.Submit();
+}
+
 SaveError SaveSystem::MountSaveFile() {
   Io::Stream* stream;
   IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream);
@@ -137,185 +259,39 @@ SaveError SaveSystem::MountSaveFile() {
                      WorkingSaveThumbnail.Bounds.Height, 0x000000);
   WorkingSaveThumbnail.Sheet.Texture = txt.Submit();
 
-  stream->Seek(0x14, SEEK_SET);
-
-  stream->Seek(0x80, SEEK_SET);
-  Io::ReadArrayLE<uint8_t>(&FlagWork[100], stream, 50);
-  Io::ReadArrayLE<uint8_t>(&FlagWork[460], stream, 40);
-  stream->Seek(0xDC, SEEK_SET);
-  Io::ReadArrayLE<int>(&ScrWork[1600], stream, 400);
-  Io::ReadArrayLE<int>(&ScrWork[2000], stream, 100);
-
-  // Config settings
-  stream->Seek(0x8AC, SEEK_SET);
-  TextSpeed = Io::ReadLE<Uint16>(stream) / 60.0f;
-  AutoSpeed = Io::ReadLE<Uint16>(stream) / 60.0f;
-  stream->Seek(1, SEEK_CUR);  // VOICE2vol
-  Audio::GroupVolumes[Audio::ACG_Voice] = Io::ReadLE<Uint8>(stream) / 128.0f;
-  Audio::GroupVolumes[Audio::ACG_BGM] = Io::ReadLE<Uint8>(stream) / 256.0f;
-  Audio::GroupVolumes[Audio::ACG_SE] = Io::ReadLE<Uint8>(stream) / 128.0f;
-  stream->Seek(1, SEEK_CUR);  // SYSSEvol
-  Audio::GroupVolumes[Audio::ACG_Movie] = Io::ReadLE<Uint8>(stream) / 128.0f;
-  SyncVoice = Io::ReadLE<bool>(stream);
-  SkipRead = !Io::ReadLE<bool>(stream);
-
-  stream->Seek(0x8BE, SEEK_SET);
-  for (size_t i = 0; i < 33; i++) VoiceMuted[i] = !Io::ReadLE<bool>(stream);
-  for (size_t i = 0; i < 33; i++)
-    VoiceVolume[i] = Io::ReadLE<Uint8>(stream) / 128.0f;
-
-  stream->Seek(0x901, SEEK_SET);
-  SkipVoice = Io::ReadLE<bool>(stream);
-  ShowTipsNotification = Io::ReadLE<bool>(stream);
-
-  stream->Seek(0x905, SEEK_SET);
-  AdvanceTextOnDirectionalInput = Io::ReadLE<bool>(stream);
-  DirectionalInputForTrigger = Io::ReadLE<bool>(stream);
-  TriggerStopSkip = Io::ReadLE<bool>(stream);
-
-  // EV Flags
-  stream->Seek(0xC0E, SEEK_SET);
-  for (int i = 0; i < 150; i++) {
-    auto val = Io::ReadU8(stream);
-    EVFlags[8 * i] = val & 1;
-    EVFlags[8 * i + 1] = (val & 2) != 0;
-    EVFlags[8 * i + 2] = (val & 4) != 0;
-    EVFlags[8 * i + 3] = (val & 8) != 0;
-    EVFlags[8 * i + 4] = (val & 0x10) != 0;
-    EVFlags[8 * i + 5] = (val & 0x20) != 0;
-    EVFlags[8 * i + 6] = (val & 0x40) != 0;
-    EVFlags[8 * i + 7] = val >> 7;
-  }
-
-  stream->Seek(0xCA4, SEEK_SET);
-  Io::ReadArrayLE<uint8_t>(BGMFlags, stream, 100);
-
-  stream->Seek(0xd6c, SEEK_SET);
-  Io::ReadArrayLE<uint8_t>(MessageFlags, stream, 10000);
-
-  // EPnewList goes here
-
-  stream->Seek(0x347c, SEEK_SET);
-  Io::ReadArrayLE<uint8_t>(GameExtraData, stream, 1024);
-
-  stream->Seek(0x387c, SEEK_SET);  // TODO: Actually load system data
+  std::array<uint8_t, 0x387c> systemSaveBuf;
+  Io::ReadArrayLE<uint8_t>(systemSaveBuf.data(), stream, 0x387c);
+  Io::MemoryStream systemSaveStream(systemSaveBuf.data(), systemSaveBuf.size(),
+                                    false);
+  LoadSystemBuffer(systemSaveStream);
+  uint32_t systemSaveChecksum =
+      CalculateChecksum(std::span(systemSaveBuf).subspan(4));
 
   for (auto& entryArray : {FullSaveEntries, QuickSaveEntries}) {
+    SaveType saveType = (entryArray == QuickSaveEntries) ? SaveType::SaveQuick
+                                                         : SaveType::SaveFull;
     int64_t saveDataPos = stream->Position;
     for (int i = 0; i < MaxSaveEntries; i++) {
-      int64_t startPos = stream->Position;
-      assert(startPos - saveDataPos == 0x1b110 * i);
+      assert(stream->Position - saveDataPos == 0x1b110 * i);
       entryArray[i] = new SaveFileEntry();
 
-      entryArray[i]->Status = Io::ReadLE<uint16_t>(stream);
-      if (entryArray[i]->Status == 1 && entryArray == QuickSaveEntries) {
-        QuickSaveCount++;
-      }
-      // Not sure about these two
-      entryArray[i]->Checksum = Io::ReadLE<uint16_t>(stream);
-      Io::ReadLE<uint32_t>(stream);
-      uint16_t saveYear = Io::ReadLE<uint16_t>(stream);
-      uint8_t saveDay = Io::ReadLE<uint8_t>(stream);
-      uint8_t saveMonth = Io::ReadLE<uint8_t>(stream);
-      uint8_t saveSecond = Io::ReadLE<uint8_t>(stream);
-      uint8_t saveMinute = Io::ReadLE<uint8_t>(stream);
-      uint8_t saveHour = Io::ReadLE<uint8_t>(stream);
-      std::tm t{};
-      t.tm_sec = saveSecond;
-      t.tm_min = saveMinute;
-      t.tm_hour = saveHour;
-      t.tm_mday = saveDay;
-      t.tm_mon = saveMonth - 1;
-      t.tm_year = saveYear - 1900;
-      entryArray[i]->SaveDate = t;
+      std::array<uint8_t, 0x1b110> entrySlotBuf;
+      auto pos = stream->Position;
+      Io::ReadArrayLE<uint8_t>(entrySlotBuf.data(), stream,
+                               entrySlotBuf.size());
+      Io::MemoryStream saveEntryDataStream(entrySlotBuf.data(),
+                                           entrySlotBuf.size(), false);
 
-      Io::ReadLE<uint8_t>(stream);
-      entryArray[i]->PlayTime = Io::ReadLE<uint32_t>(stream);
-      entryArray[i]->SwTitle = Io::ReadLE<uint32_t>(stream);
-      Io::ReadLE<uint32_t>(stream);
-      entryArray[i]->Flags = Io::ReadLE<uint8_t>(stream);
-      stream->Seek(7, SEEK_CUR);
-      entryArray[i]->SaveType = Io::ReadLE<uint32_t>(stream);
-      assert(stream->Position - startPos == 0x28);
-      stream->Seek(0x58, SEEK_CUR);
-      Io::ReadArrayLE<uint8_t>(((SaveFileEntry*)entryArray[i])->FlagWorkScript1,
-                               stream, 50);
-      assert(stream->Position - startPos == 178);
-      Io::ReadArrayLE<uint8_t>(((SaveFileEntry*)entryArray[i])->FlagWorkScript2,
-                               stream, 100);
-      Io::ReadLE<uint16_t>(stream);
-      assert(stream->Position - startPos == 280);
-      Io::ReadArrayLE<int>(((SaveFileEntry*)entryArray[i])->ScrWorkScript1,
-                           stream, 600);
-      assert(stream->Position - startPos == 2680);
-      Io::ReadArrayLE<int>(((SaveFileEntry*)entryArray[i])->ScrWorkScript2,
-                           stream, 3000);
-
-      assert(stream->Position - startPos == 0x3958);
-      entryArray[i]->MainThreadExecPriority = Io::ReadLE<uint32_t>(stream);
-      entryArray[i]->MainThreadGroupId = Io::ReadLE<uint32_t>(stream);
-      entryArray[i]->MainThreadWaitCounter = Io::ReadLE<uint32_t>(stream);
-      entryArray[i]->MainThreadScriptParam = Io::ReadLE<uint32_t>(stream);
-      entryArray[i]->MainThreadIp = Io::ReadLE<uint32_t>(stream);
-      entryArray[i]->MainThreadLoopCounter = Io::ReadLE<uint32_t>(stream);
-      entryArray[i]->MainThreadLoopAdr = Io::ReadLE<uint32_t>(stream);
-      entryArray[i]->MainThreadCallStackDepth = Io::ReadLE<uint32_t>(stream);
-      for (int j = 0; j < 8; j++) {
-        entryArray[i]->MainThreadReturnIds[j] = Io::ReadLE<uint32_t>(stream);
-      }
-      for (int j = 0; j < 8; j++) {
-        entryArray[i]->MainThreadReturnBufIds[j] = Io::ReadLE<uint32_t>(stream);
-      }
-      Io::ReadLE<uint32_t>(stream);
-      assert(stream->Position - startPos == 0x39bc);
-      entryArray[i]->MainThreadScriptBufferId = Io::ReadLE<uint32_t>(stream);
-      Io::ReadArrayBE<int>(entryArray[i]->MainThreadVariables, stream, 16);
-      entryArray[i]->MainThreadDialoguePageId = Io::ReadLE<uint32_t>(stream);
-      assert(stream->Position - startPos == 0x3a04);
-      stream->Seek(1212, SEEK_CUR);
-      assert(stream->Position - startPos == 0x3ec0);
-      Io::ReadArrayLE<uint8_t>(((SaveFileEntry*)entryArray[i])->MapLoadData,
-                               stream, 0x6ac8);
-      Io::ReadArrayLE<uint8_t>(((SaveFileEntry*)entryArray[i])->YesNoData,
-                               stream, 0x54);
-
-      auto& thumbnail = entryArray[i]->SaveThumbnail;
-      thumbnail.Sheet = SpriteSheet(SaveThumbnailWidth, SaveThumbnailHeight);
-      thumbnail.Bounds =
-          RectF(0.0f, 0.0f, SaveThumbnailWidth, SaveThumbnailHeight);
-
-      Texture tex;
-      tex.Init(TexFmt_RGB, SaveThumbnailWidth, SaveThumbnailHeight);
-
-      // CCLCC PS4 Save thumbnails are 240x135 RGB16
-      std::vector<uint16_t> thumbnailData(SaveThumbnailWidth *
-                                          SaveThumbnailHeight);
-
-      int thumbnailPadding = 0xA14;
-      stream->Seek(thumbnailPadding, SEEK_CUR);
-      Io::ReadArrayLE<uint16_t>(thumbnailData.data(), stream,
-                                thumbnailData.size());
-
-      for (int i = 0; i < thumbnailData.size(); i++) {
-        uint16_t pixel = thumbnailData[i];
-        uint8_t r = (pixel & 0xF800) >> 8;
-        uint8_t g = (pixel & 0x07E0) >> 3;
-        uint8_t b = (pixel & 0x001F) << 3;
-        tex.Buffer[3 * i] = r;
-        tex.Buffer[3 * i + 1] = g;
-        tex.Buffer[3 * i + 2] = b;
-      }
-
-      thumbnail.Sheet.Texture = tex.Submit();
+      LoadEntryBuffer(saveEntryDataStream,
+                      static_cast<SaveFileEntry&>(*entryArray[i]), saveType);
+      // Todo, validate checksum?
+      uint32_t entryChecksum = CalculateChecksum(
+          std::span(entrySlotBuf).subspan(6, 23029 * 2), 18198, 5250, false);
     }
   }
   delete stream;
   return SaveOK;
 }
-
-// uint16_t CalculateChecksum(int id) {
-//  return 0;
-//}
 
 void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
                                        int autoSaveType) {
@@ -360,6 +336,220 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
   }
 }
 
+void SaveSystem::SaveEntryBuffer(Io::MemoryStream& memoryStream,
+                                 SaveFileEntry& entry, SaveType saveType) {
+  Io::WriteLE<uint16_t>(&memoryStream, entry.Status);
+  Io::WriteLE<uint32_t>(&memoryStream, entry.Checksum);
+  Io::WriteLE<uint16_t>(&memoryStream, 0);
+
+  Io::WriteLE<uint16_t>(&memoryStream, entry.SaveDate.tm_year + 1900);
+  Io::WriteLE<uint8_t>(&memoryStream, entry.SaveDate.tm_mday);
+  Io::WriteLE<uint8_t>(&memoryStream, entry.SaveDate.tm_mon + 1);
+  Io::WriteLE<uint8_t>(&memoryStream, entry.SaveDate.tm_sec);
+  Io::WriteLE<uint8_t>(&memoryStream, entry.SaveDate.tm_min);
+  Io::WriteLE<uint8_t>(&memoryStream, entry.SaveDate.tm_hour);
+  Io::WriteLE<uint8_t>(&memoryStream, 0);
+
+  Io::WriteLE<uint32_t>(&memoryStream, entry.PlayTime);
+  Io::WriteLE<uint32_t>(&memoryStream, entry.SwTitle);
+  Io::WriteLE<uint32_t>(&memoryStream, 0);
+  Io::WriteLE<uint8_t>(&memoryStream, entry.Flags);
+  memoryStream.Seek(7, SEEK_CUR);
+  Io::WriteLE<uint32_t>(&memoryStream, entry.SaveType);
+  assert(memoryStream.Position == 0x28);
+  memoryStream.Seek(0x58, SEEK_CUR);
+  Io::WriteArrayLE<uint8_t>(entry.FlagWorkScript1, &memoryStream, 50);
+  assert(memoryStream.Position == 178);
+  Io::WriteArrayLE<uint8_t>(entry.FlagWorkScript2, &memoryStream, 100);
+  Io::WriteLE<uint16_t>(&memoryStream, 0);
+  assert(memoryStream.Position == 280);
+  Io::WriteArrayLE<int>(entry.ScrWorkScript1, &memoryStream, 600);
+  assert(memoryStream.Position == 2680);
+  Io::WriteArrayLE<int>(entry.ScrWorkScript2, &memoryStream, 3000);
+
+  assert(memoryStream.Position == 0x3958);
+  Io::WriteLE<uint32_t>(&memoryStream, entry.MainThreadExecPriority);
+  Io::WriteLE<uint32_t>(&memoryStream, entry.MainThreadGroupId);
+  Io::WriteLE<uint32_t>(&memoryStream, entry.MainThreadWaitCounter);
+  Io::WriteLE<uint32_t>(&memoryStream, entry.MainThreadScriptParam);
+  Io::WriteLE<uint32_t>(&memoryStream, entry.MainThreadIp);
+  Io::WriteLE<uint32_t>(&memoryStream, entry.MainThreadLoopCounter);
+  Io::WriteLE<uint32_t>(&memoryStream, entry.MainThreadLoopAdr);
+  Io::WriteLE<uint32_t>(&memoryStream, entry.MainThreadCallStackDepth);
+  for (int j = 0; j < 8; j++) {
+    Io::WriteLE<uint32_t>(&memoryStream, entry.MainThreadReturnIds[j]);
+  }
+  for (int j = 0; j < 8; j++) {
+    Io::WriteLE<uint32_t>(&memoryStream, entry.MainThreadReturnBufIds[j]);
+  }
+  Io::WriteLE<uint32_t>(&memoryStream, 0);
+  assert(memoryStream.Position == 0x39bc);
+  Io::WriteLE<uint32_t>(&memoryStream, entry.MainThreadScriptBufferId);
+  Io::WriteArrayBE<int>(entry.MainThreadVariables, &memoryStream, 16);
+  Io::WriteLE<uint32_t>(&memoryStream, entry.MainThreadDialoguePageId);
+  assert(memoryStream.Position == 0x3a04);
+  memoryStream.Seek(1212, SEEK_CUR);
+  assert(memoryStream.Position == 0x3ec0);
+  Io::WriteArrayLE<uint8_t>(entry.MapLoadData, &memoryStream, 0x6ac8);
+  Io::WriteArrayLE<uint8_t>(entry.YesNoData, &memoryStream, 0x54);
+
+  // CCLCC PS4 Save thumbnails are 240x135 RGB16
+  std::vector<uint8_t> thumbnailData(SaveThumbnailWidth * SaveThumbnailHeight *
+                                     4);
+  Renderer->GetSpriteSheetImage(entry.SaveThumbnail.Sheet, thumbnailData);
+
+  int thumbnailPadding = 0xA14;
+  memoryStream.Seek(thumbnailPadding, SEEK_CUR);
+
+  for (int i = 0; i < thumbnailData.size(); i += 4) {
+    uint8_t r = thumbnailData[i];
+    uint8_t g = thumbnailData[i + 1];
+    uint8_t b = thumbnailData[i + 2];
+    uint16_t pixel = ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
+    pixel = SDL_SwapBE16(pixel);
+    thumbnailData[i / 2] = pixel >> 8;
+    thumbnailData[i / 2 + 1] = pixel & 0xFF;
+  }
+  Io::WriteArrayLE<uint8_t>(thumbnailData.data(), &memoryStream,
+                            thumbnailData.size() / 2);
+}
+
+void SaveSystem::LoadSystemBuffer(Io::MemoryStream& stream) {
+  uint16_t systemSum = Io::ReadLE<uint16_t>(&stream);
+  uint16_t systemXor = Io::ReadLE<uint16_t>(&stream);
+  stream.Seek(0x14, SEEK_SET);
+
+  stream.Seek(0x80, SEEK_SET);
+  Io::ReadArrayLE<uint8_t>(&FlagWork[100], &stream, 50);
+  Io::ReadArrayLE<uint8_t>(&FlagWork[460], &stream, 40);
+  stream.Seek(0xDC, SEEK_SET);
+  Io::ReadArrayLE<int>(&ScrWork[1600], &stream, 400);
+  Io::ReadArrayLE<int>(&ScrWork[2000], &stream, 100);
+
+  // Config settings
+  stream.Seek(0x8AC, SEEK_SET);
+  TextSpeed = Io::ReadLE<Uint16>(&stream) / 60.0f;
+  AutoSpeed = Io::ReadLE<Uint16>(&stream) / 60.0f;
+  stream.Seek(1, SEEK_CUR);  // VOICE2vol
+  Audio::GroupVolumes[Audio::ACG_Voice] = Io::ReadLE<Uint8>(&stream) / 128.0f;
+  Audio::GroupVolumes[Audio::ACG_BGM] = Io::ReadLE<Uint8>(&stream) / 256.0f;
+  Audio::GroupVolumes[Audio::ACG_SE] = Io::ReadLE<Uint8>(&stream) / 128.0f;
+  stream.Seek(1, SEEK_CUR);  // SYSSEvol
+  Audio::GroupVolumes[Audio::ACG_Movie] = Io::ReadLE<Uint8>(&stream) / 128.0f;
+  SyncVoice = Io::ReadLE<bool>(&stream);
+  SkipRead = !Io::ReadLE<bool>(&stream);
+
+  stream.Seek(0x8BE, SEEK_SET);
+  for (size_t i = 0; i < 33; i++) VoiceMuted[i] = !Io::ReadLE<bool>(&stream);
+  for (size_t i = 0; i < 33; i++)
+    VoiceVolume[i] = Io::ReadLE<Uint8>(&stream) / 128.0f;
+
+  stream.Seek(0x901, SEEK_SET);
+  SkipVoice = Io::ReadLE<bool>(&stream);
+  ShowTipsNotification = Io::ReadLE<bool>(&stream);
+
+  stream.Seek(0x905, SEEK_SET);
+  AdvanceTextOnDirectionalInput = Io::ReadLE<bool>(&stream);
+  DirectionalInputForTrigger = Io::ReadLE<bool>(&stream);
+  TriggerStopSkip = Io::ReadLE<bool>(&stream);
+
+  // EV Flags
+  stream.Seek(0xC0E, SEEK_SET);
+  for (int i = 0; i < 150; i++) {
+    auto val = Io::ReadU8(&stream);
+    EVFlags[8 * i] = val & 1;
+    EVFlags[8 * i + 1] = (val & 2) != 0;
+    EVFlags[8 * i + 2] = (val & 4) != 0;
+    EVFlags[8 * i + 3] = (val & 8) != 0;
+    EVFlags[8 * i + 4] = (val & 0x10) != 0;
+    EVFlags[8 * i + 5] = (val & 0x20) != 0;
+    EVFlags[8 * i + 6] = (val & 0x40) != 0;
+    EVFlags[8 * i + 7] = val >> 7;
+  }
+
+  stream.Seek(0xCA4, SEEK_SET);
+  Io::ReadArrayLE<uint8_t>(BGMFlags, &stream, 100);
+
+  stream.Seek(0xd6c, SEEK_SET);
+  Io::ReadArrayLE<uint8_t>(MessageFlags, &stream, 10000);
+
+  // EPnewList goes here
+
+  stream.Seek(0x347c, SEEK_SET);
+  Io::ReadArrayLE<uint8_t>(GameExtraData, &stream, 1024);
+}
+
+void SaveSystem::SaveSystemBuffer(Io::MemoryStream& systemSaveStream) {
+  systemSaveStream.Seek(0x14, SEEK_SET);
+
+  systemSaveStream.Seek(0x80, SEEK_SET);
+  Io::WriteArrayLE<uint8_t>(&FlagWork[100], &systemSaveStream, 50);
+  Io::WriteArrayLE<uint8_t>(&FlagWork[460], &systemSaveStream, 40);
+  systemSaveStream.Seek(0xDC, SEEK_SET);
+  Io::WriteArrayLE<int>(&ScrWork[1600], &systemSaveStream, 400);
+  Io::WriteArrayLE<int>(&ScrWork[2000], &systemSaveStream, 100);
+
+  // Config settings
+  systemSaveStream.Seek(0x8AC, SEEK_SET);
+  Io::WriteLE(&systemSaveStream, (Uint16)(TextSpeed * 60));
+  Io::WriteLE(&systemSaveStream, (Uint16)(AutoSpeed * 60));
+  Io::WriteLE(&systemSaveStream, (Uint8)(Audio::GroupVolumes[Audio::ACG_Voice] *
+                                         128));  // VOICE2vol
+  Io::WriteLE(&systemSaveStream, (Uint8)(Audio::GroupVolumes[Audio::ACG_Voice] *
+                                         128));  // VOICEvol
+  Io::WriteLE(&systemSaveStream,
+              (Uint8)(Audio::GroupVolumes[Audio::ACG_BGM] * 256));
+  Io::WriteLE(&systemSaveStream,
+              (Uint8)(Audio::GroupVolumes[Audio::ACG_SE] * 128));  // SEvol
+  Io::WriteLE(
+      &systemSaveStream,
+      (Uint8)(Audio::GroupVolumes[Audio::ACG_SE] * 0.6 * 128));  // SYSSEvol
+  Io::WriteLE(&systemSaveStream,
+              (Uint8)(Audio::GroupVolumes[Audio::ACG_Movie] * 128));
+  Io::WriteLE(&systemSaveStream, SyncVoice);
+  Io::WriteLE(&systemSaveStream, !SkipRead);
+
+  systemSaveStream.Seek(0x8BE, SEEK_SET);
+  for (size_t i = 0; i < 33; i++)
+    Io::WriteLE(&systemSaveStream, !VoiceMuted[i]);
+  for (size_t i = 0; i < 33; i++)
+    Io::WriteLE(&systemSaveStream, (Uint8)(VoiceVolume[i] * 128));
+
+  systemSaveStream.Seek(0x901, SEEK_SET);
+  Io::WriteLE(&systemSaveStream, SkipVoice);
+  Io::WriteLE(&systemSaveStream, ShowTipsNotification);
+
+  systemSaveStream.Seek(0x905, SEEK_SET);
+  Io::WriteLE(&systemSaveStream, AdvanceTextOnDirectionalInput);
+  Io::WriteLE(&systemSaveStream, DirectionalInputForTrigger);
+  Io::WriteLE(&systemSaveStream, TriggerStopSkip);
+
+  // EV Flags
+  systemSaveStream.Seek(0xC0E, SEEK_SET);
+  for (int i = 0; i < 150; i++) {
+    auto val = Io::ReadU8(&systemSaveStream);
+    EVFlags[8 * i] = val & 1;
+    EVFlags[8 * i + 1] = (val & 2) != 0;
+    EVFlags[8 * i + 2] = (val & 4) != 0;
+    EVFlags[8 * i + 3] = (val & 8) != 0;
+    EVFlags[8 * i + 4] = (val & 0x10) != 0;
+    EVFlags[8 * i + 5] = (val & 0x20) != 0;
+    EVFlags[8 * i + 6] = (val & 0x40) != 0;
+    EVFlags[8 * i + 7] = val >> 7;
+  }
+
+  systemSaveStream.Seek(0xCA4, SEEK_SET);
+  Io::WriteArrayLE<uint8_t>(BGMFlags, &systemSaveStream, 100);
+
+  systemSaveStream.Seek(0xd6c, SEEK_SET);
+  Io::WriteArrayLE<uint8_t>(MessageFlags, &systemSaveStream, 10000);
+
+  // EPnewList goes here
+
+  systemSaveStream.Seek(0x347c, SEEK_SET);
+  Io::WriteArrayLE<uint8_t>(GameExtraData, &systemSaveStream, 1024);
+}
+
 void SaveSystem::WriteSaveFile() {
   using CF = Io::PhysicalFileStream::CreateFlagsMode;
   Io::Stream* stream;
@@ -371,157 +561,38 @@ void SaveSystem::WriteSaveFile() {
     return;
   }
 
-  stream->Seek(0x14, SEEK_SET);
-
-  stream->Seek(0x80, SEEK_SET);
-  Io::WriteArrayLE<uint8_t>(&FlagWork[100], stream, 50);
-  Io::WriteArrayLE<uint8_t>(&FlagWork[460], stream, 40);
-  stream->Seek(0xDC, SEEK_SET);
-  Io::WriteArrayLE<int>(&ScrWork[1600], stream, 400);
-  Io::WriteArrayLE<int>(&ScrWork[2000], stream, 100);
-
-  // Config settings
-  stream->Seek(0x8AC, SEEK_SET);
-  Io::WriteLE(stream, (Uint16)(TextSpeed * 60));
-  Io::WriteLE(stream, (Uint16)(AutoSpeed * 60));
-  Io::WriteLE(stream, (Uint8)(Audio::GroupVolumes[Audio::ACG_Voice] *
-                              128));  // VOICE2vol
-  Io::WriteLE(stream, (Uint8)(Audio::GroupVolumes[Audio::ACG_Voice] *
-                              128));  // VOICEvol
-  Io::WriteLE(stream, (Uint8)(Audio::GroupVolumes[Audio::ACG_BGM] * 256));
-  Io::WriteLE(stream,
-              (Uint8)(Audio::GroupVolumes[Audio::ACG_SE] * 128));  // SEvol
-  Io::WriteLE(
-      stream,
-      (Uint8)(Audio::GroupVolumes[Audio::ACG_SE] * 0.6 * 128));  // SYSSEvol
-  Io::WriteLE(stream, (Uint8)(Audio::GroupVolumes[Audio::ACG_Movie] * 128));
-  Io::WriteLE(stream, SyncVoice);
-  Io::WriteLE(stream, !SkipRead);
-
-  stream->Seek(0x8BE, SEEK_SET);
-  for (size_t i = 0; i < 33; i++) Io::WriteLE(stream, !VoiceMuted[i]);
-  for (size_t i = 0; i < 33; i++)
-    Io::WriteLE(stream, (Uint8)(VoiceVolume[i] * 128));
-
-  stream->Seek(0x901, SEEK_SET);
-  Io::WriteLE(stream, SkipVoice);
-  Io::WriteLE(stream, ShowTipsNotification);
-
-  stream->Seek(0x905, SEEK_SET);
-  Io::WriteLE(stream, AdvanceTextOnDirectionalInput);
-  Io::WriteLE(stream, DirectionalInputForTrigger);
-  Io::WriteLE(stream, TriggerStopSkip);
-
-  // EV Flags
-  stream->Seek(0xC0E, SEEK_SET);
-  for (int i = 0; i < 150; i++) {
-    auto val = Io::ReadU8(stream);
-    EVFlags[8 * i] = val & 1;
-    EVFlags[8 * i + 1] = (val & 2) != 0;
-    EVFlags[8 * i + 2] = (val & 4) != 0;
-    EVFlags[8 * i + 3] = (val & 8) != 0;
-    EVFlags[8 * i + 4] = (val & 0x10) != 0;
-    EVFlags[8 * i + 5] = (val & 0x20) != 0;
-    EVFlags[8 * i + 6] = (val & 0x40) != 0;
-    EVFlags[8 * i + 7] = val >> 7;
-  }
-
-  stream->Seek(0xCA4, SEEK_SET);
-  Io::WriteArrayLE<uint8_t>(BGMFlags, stream, 100);
-
-  stream->Seek(0xd6c, SEEK_SET);
-  Io::WriteArrayLE<uint8_t>(MessageFlags, stream, 10000);
-
-  // EPnewList goes here
-
-  stream->Seek(0x347c, SEEK_SET);
-  Io::WriteArrayLE<uint8_t>(GameExtraData, stream, 1024);
-
-  stream->Seek(0x387c, SEEK_SET);  // TODO: Actually save system data
-  std::vector<uint8_t> thumbnailData(SaveThumbnailWidth * SaveThumbnailHeight *
-                                     4);
+  std::array<uint8_t, 0x387c> systemSaveBuf{};
+  auto systemSaveStream =
+      Io::MemoryStream(systemSaveBuf.data(), systemSaveBuf.size(), false);
+  SaveSystemBuffer(systemSaveStream);
+  uint32_t systemChecksum =
+      CalculateChecksum(std::span(systemSaveBuf).subspan(4));
+  systemSaveStream.Seek(0, SEEK_SET);
+  Io::WriteLE<uint16_t>(&systemSaveStream, systemChecksum >> 16);
+  Io::WriteLE<uint16_t>(&systemSaveStream, systemChecksum & 0xFFFF);
+  Io::WriteArrayLE<uint8_t>(systemSaveBuf.data(), stream, systemSaveBuf.size());
+  // End system data
   for (auto* entryArray : {FullSaveEntries, QuickSaveEntries}) {
+    SaveType saveType = (entryArray == QuickSaveEntries) ? SaveType::SaveQuick
+                                                         : SaveType::SaveFull;
     int64_t saveDataPos = stream->Position;
     for (int i = 0; i < MaxSaveEntries; i++) {
       SaveFileEntry* entry = (SaveFileEntry*)entryArray[i];
       if (entry->Status == 0) {
         stream->Seek(0x1b110, SEEK_CUR);
       } else {
-        int64_t startPos = stream->Position;
-        assert(startPos - saveDataPos == 0x1b110 * i);
-        Io::WriteLE<uint16_t>(stream, entry->Status);
-        Io::WriteLE<uint16_t>(stream, entry->Checksum);
-        Io::WriteLE<uint32_t>(stream, 0);
-
-        Io::WriteLE<uint16_t>(stream, entry->SaveDate.tm_year + 1900);
-        Io::WriteLE<uint8_t>(stream, entry->SaveDate.tm_mday);
-        Io::WriteLE<uint8_t>(stream, entry->SaveDate.tm_mon + 1);
-        Io::WriteLE<uint8_t>(stream, entry->SaveDate.tm_sec);
-        Io::WriteLE<uint8_t>(stream, entry->SaveDate.tm_min);
-        Io::WriteLE<uint8_t>(stream, entry->SaveDate.tm_hour);
-        Io::WriteLE<uint8_t>(stream, 0);
-
-        Io::WriteLE<uint32_t>(stream, entry->PlayTime);
-        Io::WriteLE<uint32_t>(stream, entry->SwTitle);
-        Io::WriteLE<uint32_t>(stream, 0);
-        Io::WriteLE<uint8_t>(stream, entry->Flags);
-        stream->Seek(7, SEEK_CUR);
-        Io::WriteLE<uint32_t>(stream, entry->SaveType);
-        assert(stream->Position - startPos == 0x28);
-        stream->Seek(0x58, SEEK_CUR);
-        Io::WriteArrayLE<uint8_t>(entry->FlagWorkScript1, stream, 50);
-        assert(stream->Position - startPos == 178);
-        Io::WriteArrayLE<uint8_t>(entry->FlagWorkScript2, stream, 100);
-        Io::WriteLE<uint16_t>(stream, 0);
-        assert(stream->Position - startPos == 280);
-        Io::WriteArrayLE<int>(entry->ScrWorkScript1, stream, 600);
-        assert(stream->Position - startPos == 2680);
-        Io::WriteArrayLE<int>(entry->ScrWorkScript2, stream, 3000);
-
-        assert(stream->Position - startPos == 0x3958);
-        Io::WriteLE<uint32_t>(stream, entry->MainThreadExecPriority);
-        Io::WriteLE<uint32_t>(stream, entry->MainThreadGroupId);
-        Io::WriteLE<uint32_t>(stream, entry->MainThreadWaitCounter);
-        Io::WriteLE<uint32_t>(stream, entry->MainThreadScriptParam);
-        Io::WriteLE<uint32_t>(stream, entry->MainThreadIp);
-        Io::WriteLE<uint32_t>(stream, entry->MainThreadLoopCounter);
-        Io::WriteLE<uint32_t>(stream, entry->MainThreadLoopAdr);
-        Io::WriteLE<uint32_t>(stream, entry->MainThreadCallStackDepth);
-        for (int j = 0; j < 8; j++) {
-          Io::WriteLE<uint32_t>(stream, entry->MainThreadReturnIds[j]);
-        }
-        for (int j = 0; j < 8; j++) {
-          Io::WriteLE<uint32_t>(stream, entry->MainThreadReturnBufIds[j]);
-        }
-        Io::WriteLE<uint32_t>(stream, 0);
-        assert(stream->Position - startPos == 0x39bc);
-        Io::WriteLE<uint32_t>(stream, entry->MainThreadScriptBufferId);
-        Io::WriteArrayBE<int>(entry->MainThreadVariables, stream, 16);
-        Io::WriteLE<uint32_t>(stream, entry->MainThreadDialoguePageId);
-        assert(stream->Position - startPos == 0x3a04);
-        stream->Seek(1212, SEEK_CUR);
-        assert(stream->Position - startPos == 0x3ec0);
-        Io::WriteArrayLE<uint8_t>(entry->MapLoadData, stream, 0x6ac8);
-        Io::WriteArrayLE<uint8_t>(entry->YesNoData, stream, 0x54);
-
-        // CCLCC PS4 Save thumbnails are 240x135 RGB16
-        Renderer->GetSpriteSheetImage(entry->SaveThumbnail.Sheet,
-                                      thumbnailData);
-
-        int thumbnailPadding = 0xA14;
-        stream->Seek(thumbnailPadding, SEEK_CUR);
-
-        for (int i = 0; i < thumbnailData.size(); i += 4) {
-          uint8_t r = thumbnailData[i];
-          uint8_t g = thumbnailData[i + 1];
-          uint8_t b = thumbnailData[i + 2];
-          uint16_t pixel = ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
-          pixel = SDL_SwapBE16(pixel);
-          thumbnailData[i / 2] = pixel >> 8;
-          thumbnailData[i / 2 + 1] = pixel & 0xFF;
-        }
-        Io::WriteArrayLE<uint8_t>(thumbnailData.data(), stream,
-                                  thumbnailData.size() / 2);
+        assert(stream->Position - saveDataPos == 0x1b110 * i);
+        std::array<uint8_t, 0x1b110> entrySlotBuf{};
+        Io::MemoryStream saveEntryMemoryStream(entrySlotBuf.data(),
+                                               entrySlotBuf.size(), false);
+        SaveEntryBuffer(saveEntryMemoryStream, *entry, saveType);
+        uint32_t entryCheckSum = CalculateChecksum(
+            std::span(entrySlotBuf).subspan(6, 23029 * 2), 18198, 5250, false);
+        saveEntryMemoryStream.Seek(2, SEEK_SET);
+        Io::WriteLE<uint16_t>(&saveEntryMemoryStream, entryCheckSum >> 16);
+        Io::WriteLE<uint16_t>(&saveEntryMemoryStream, entryCheckSum & 0xFFFF);
+        Io::WriteArrayLE<uint8_t>(entrySlotBuf.data(), stream,
+                                  entrySlotBuf.size());
       }
     }
   }
@@ -583,7 +654,6 @@ void SaveSystem::SaveMemory() {
 
   if (WorkingSaveEntry) {
     WorkingSaveEntry->Status = 1;
-    WorkingSaveEntry->Checksum = 0;  // CalculateChecksum(0);
     time_t rawtime;
     time(&rawtime);
     tm* timeinfo = localtime(&rawtime);
