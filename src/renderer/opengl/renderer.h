@@ -23,6 +23,7 @@ enum Renderer2DMode {
   R2D_MaskedNoAlpha,
   R2D_CCMessageBox,
   R2D_CHLCCMenuBackground,
+  R2D_ColorShift
 };
 
 class Renderer : public BaseRenderer {
@@ -80,6 +81,10 @@ class Renderer : public BaseRenderer {
 
   void DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
                                const RectF& dest, float alpha) override;
+
+  void DrawSpriteColorShift(const Sprite& sprite, const RectF& dest,
+                            glm::vec4 tint, float angle,
+                            glm::vec4 colorShift) override;
 
   void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest, float depth,
                            glm::vec2 vanishingPoint, bool stayInScreen,
@@ -151,6 +156,7 @@ class Renderer : public BaseRenderer {
   GLuint ShaderProgramYUVFrame;
   GLuint ShaderProgramCCMessageBox;
   GLuint ShaderProgramCHLCCMenuBackground;
+  GLuint ShaderProgramColorShift;
 
   GLuint YUVFrameCbLocation;
   GLuint YUVFrameCrLocation;
@@ -158,6 +164,7 @@ class Renderer : public BaseRenderer {
   GLuint MaskedIsInvertedLocation;
   GLuint MaskedIsSameTextureLocation;
   GLuint MaskedNoAlphaIsInvertedLocation;
+  GLuint ColorShiftLocation;
 
   GLuint VBO;
   GLuint IBO;

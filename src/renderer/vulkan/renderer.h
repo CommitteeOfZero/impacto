@@ -98,6 +98,10 @@ class Renderer : public BaseRenderer {
   void DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
                                const RectF& dest, float alpha) override;
 
+  void DrawSpriteColorShift(const Sprite& sprite, const RectF& dest,
+                            glm::vec4 tint, float angle,
+                            glm::vec4 colorShift) override {}
+
   void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest, float depth,
                            glm::vec2 vanishingPoint, bool stayInScreen,
                            glm::quat rot, glm::vec4 tint = glm::vec4(1.0f),

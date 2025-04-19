@@ -91,6 +91,10 @@ class BaseRenderer {
   virtual void DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
                                        const RectF& dest, float alpha) = 0;
 
+  virtual void DrawSpriteColorShift(const Sprite& sprite, const RectF& dest,
+                                    glm::vec4 tint, float angle,
+                                    glm::vec4 colorShift) = 0;
+
   virtual void DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
                                        RectF const& dest, glm::vec4 tint,
                                        int alpha, int fadeRange,

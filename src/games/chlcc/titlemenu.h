@@ -27,15 +27,23 @@ class TitleMenu : public Menu {
   Animation ItemsFadeInAnimation;
   Animation SecondaryItemsFadeInAnimation;
   Animation SpinningCircleAnimation;
+  Animation SpinningCircleFlashingAnimation;
 
   SequencedAnimation IntroAnimation;
   Animation IntroPanningAnimation;
-  Animation IntroAfterPanningWaitAnimation;
   Animation IntroStarBounceAnimation;
   Animation IntroExplodingStarAnimation;
   Animation IntroExplodingStarRotationAnimation;
   Animation IntroFallingStarsAnimation;
   Animation IntroFallingStarsRotationAnimation;
+  Animation IntroLogoFadeAnimation;
+  Animation IntroLCCLogoAnimation;
+  Animation IntroLogoStarHighlightAnimation;
+  Animation IntroDelusionADVAnimation;
+  Animation IntroDelusionADVHighlightAnimation;
+  Animation IntroSeiraAnimation;
+  Animation IntroLogoPopOutAnimation;
+  Animation IntroCopyrightAnimation;
 
   void MenuButtonOnClick(Widgets::Button* target);
   void SecondaryButtonOnClick(Widgets::Button* target);
@@ -43,6 +51,7 @@ class TitleMenu : public Menu {
   void DrawIntroAnimation();
   void DrawIntroBackground() const;
   void DrawFallingStars() const;
+  void DrawSpinningCircle() const;
   void DrawTitleMenuBackGraphics() const;
 
  private:
