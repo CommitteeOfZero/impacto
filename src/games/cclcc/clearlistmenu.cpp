@@ -115,9 +115,7 @@ void ClearListMenu::DrawEndingSprites(const glm::vec4& transition) {
   int alphas[10]{};
   int tmp = ScrWork[SW_CLRALPHA] << 3;
   for (int i = 0; i < Endings; i++) {
-    if (0 < tmp < 256) {
-      alphas[i] = tmp * ScrWork[SW_SYSSUBMENUALPHA] >> 8;
-    }
+    alphas[i] = std::clamp(tmp, 0, 256) * ScrWork[SW_SYSSUBMENUALPHA] >> 8;
     tmp -= 32;
   }
 
