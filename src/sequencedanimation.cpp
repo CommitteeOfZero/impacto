@@ -16,13 +16,13 @@ void SequencedAnimation::AddAnimation(Animation* animation, float startTime,
 void SequencedAnimation::StartInImpl(bool reset) {
   for (ChildAnimation& child : Children) {
     if (reset) {
-      child.Animation->Stop();
-      child.Animation->Progress = 0;
+      child.ChildAnimation->Stop();
+      child.ChildAnimation->Progress = 0;
     }
 
     float time = Progress * DurationIn;
     if (child.StartTime <= time && time <= child.EndTime) {
-      child.Animation->StartIn();
+      child.ChildAnimation->StartIn();
     }
   }
 }
@@ -30,13 +30,13 @@ void SequencedAnimation::StartInImpl(bool reset) {
 void SequencedAnimation::StartOutImpl(bool reset) {
   for (ChildAnimation& child : Children) {
     if (reset) {
-      child.Animation->Stop();
-      child.Animation->Progress = 1;
+      child.ChildAnimation->Stop();
+      child.ChildAnimation->Progress = 1;
     }
 
     float time = Progress * DurationOut;
     if (child.StartTime <= time && time <= child.EndTime) {
-      child.Animation->StartOut();
+      child.ChildAnimation->StartOut();
     }
   }
 }
@@ -53,9 +53,9 @@ void SequencedAnimation::UpdateImpl(float dt) {
 
   for (ChildAnimation& child : Children) {
     if (time < child.StartTime || child.EndTime < time) {
-      if (child.Animation->State == +AnimationState::Playing) {
-        child.Animation->Stop();
-        child.Animation->Progress = time > child.StartTime;
+      if (child.ChildAnimation->State == +AnimationState::Playing) {
+        child.ChildAnimation->Stop();
+        child.ChildAnimation->Progress = time > child.StartTime;
       }
 
       continue;
@@ -67,24 +67,24 @@ void SequencedAnimation::UpdateImpl(float dt) {
                                        time >= child.StartTime);
 
       if (shouldStart) {
-        child.Animation->StartIn(true);
-        child.Animation->Update(time - child.StartTime);
+        child.ChildAnimation->StartIn(true);
+        child.ChildAnimation->Update(time - child.StartTime);
         continue;
       }
 
-      child.Animation->Update(delta);
+      child.ChildAnimation->Update(delta);
     } else {
       float delta = previousTime - time;
       bool shouldStart =
           delta < 0 || (previousTime >= child.EndTime && time <= child.EndTime);
 
       if (shouldStart) {
-        child.Animation->StartOut(true);
-        child.Animation->Update(child.EndTime - time);
+        child.ChildAnimation->StartOut(true);
+        child.ChildAnimation->Update(child.EndTime - time);
         continue;
       }
 
-      child.Animation->Update(delta);
+      child.ChildAnimation->Update(delta);
     }
   }
 }

@@ -8,6 +8,24 @@ root.TitleMenu = {
     PressToStartSprite = "TitleMenuPressToStart",
     BackgroundSprite = "TitleMenuBackground",
     IntroBackgroundSprite = "TitleMenuIntroBackground",
+    IntroHighlightSprites = {
+        "IntroBrightGreenHighlight",
+        "IntroSunHighlight",
+        "IntroGrayHighlight",
+        "IntroCrescentRainbowHighlight",
+        "IntroBlueHighlight",
+        "IntroWhiteHighlight",
+        "IntroBrownHighlight",
+        "IntroDiamondHighlight",
+        "IntroDarkGreenHighlight",
+        "IntroCircularRainbowHighlight"
+    },
+
+    -- Positions along the diagonal normalized between -1 and 1
+    IntroHighlightPositions = {
+        -1.13, -1.00, -0.49, 0.00, 0.17,
+        0.30, 0.58, 0.69, 0.91, 1.12
+    },
     IntroPanningAnimationDuration = 2.1,
     IntroAfterPanningWaitDuration = 0.8,
     IntroBouncingStarSprite = "StarLogo",
@@ -21,33 +39,64 @@ root.TitleMenu = {
     IntroFallingStarsAnimationDistance = 2546,
     IntroFallingStarsAnimationDirection = { X = -1, Y = 1 },
     IntroFallingStarsAnimationRotationDuration = 0.7,
+    IntroCHLogoFadeAnimationDuration = 2,
+    IntroCHLogoFadeAnimationStartY = 406,
+    IntroLCCLogoAnimationDuration = 1.067,
+    IntroLogoStarHighlightSprite = "LogoStarHighlight";
+    IntroLogoStarHighlightPosition = { X = 471, Y = 342 };
+    IntroLogoStarHighlightAnimationDuration = 0.5334,
+    IntroDelusionADVAnimationDuration = 1.4;
+    IntroDelusionADVSprites = {},
+    IntroDelusionADVPositions = {
+        { X = 80,  Y = 402 },
+        { X = 104, Y = 402 },
+        { X = 127, Y = 402 },
+        { X = 150, Y = 402 },
+        { X = 172, Y = 402 },
+        { X = 195, Y = 402 },
+        { X = 215, Y = 402 }
+    },
+    IntroDelusionADVHighlightAnimationDuration = 0.5334,
+    IntroSeiraAnimationDuration = 0.8,
+    IntroLogoPopOutAnimationDuration = 0.2,
+    IntroLogoPopOutAnimationDelay = 0.5334,
+    IntroLogoPopOutOffset = { X = -6, Y = -6 },
+    IntroCopyrightAnimationDuration = 0.25,
+    LCCLogoSprites = {
+        "LoveLogo",
+        "ChuLeftLogo",
+        "ChuRightLogo",
+        "ExclMarkLogo"
+    };
+    LCCLogoPositions = {
+        { X = 235, Y = 336 },
+        { X = 353, Y = 336 },
+        { X = 500, Y = 316 },
+        { X = 614, Y = 316 }
+    },
+    DelusionADVSpriteCount = 7,
+    DelusionADVSprites = {},
     DelusionADVUnderSprite = "DelusionADVUnder", -- "DelusionADVUnderEnglish" with the TLed assets, "DelusionADVUnder" with the original ones
-    DelusionADVUnderPosition = { X = 78, Y = 394 }, -- (74, 396) with TLed assets, (78, 394) with the original ones
     DelusionADVSprite = "DelusionADV", -- "DelusionADVEnglish" with the TLed assets, "DelusionADV" with the original ones
-    DelusionADVPosition = { X = 78, Y = 394 }, -- (74, 396) with TLed assets, (78, 394) with the original ones
+    DelusionADVPosition = { X = 76, Y = 394 }, -- (74, 396) with TLed assets, (76, 394) with the original ones
+    DelusionADVPopoutOffset = { X = -2, Y = -3 },
     SeiraUnderSprite = "SeiraUnder",
-    SeiraUnderPosition = { X = 773, Y = 0 },
+    SeiraUnderPosition = { X = 733, Y = 0 },
+    SeiraPopoutOffset = { X = -48, Y = -48 };
     SeiraSprite = "Seira",
     SeiraPosition = { X = 728, Y = -47 },
     CHLogoSprite = "CHLogo",
     CHLogoPosition = { X = 61, Y = 279 },
     LCCLogoUnderSprite = "LCCLogoUnder",
     LCCLogoUnderPosition = { X = 241, Y = 327 },
-    ChuLeftLogoSprite = "ChuLeftLogo",
-    ChuLeftLogoPosition = { X = 353, Y = 336 },
-    ChuRightLogoSprite = "ChuRightLogo",
-    ChuRightLogoPosition = { X = 500, Y = 316 },
-    LoveLogoSprite = "LoveLogo",
-    LoveLogoPosition = { X = 235, Y = 336 }, -- (231, 335) with TLed assets, (235, 336) with the original ones
     StarLogoSprite = "StarLogo",
     StarLogoPosition = { X = 465, Y = 316 },
-    ExclMarkLogoSprite = "ExclMarkLogo",
-    ExclMarkLogoPosition = { X = 614, Y = 316 },
     CopyrightTextSprite = "CopyrightText",
     CopyrightTextPosition = { X = 72, Y = 675 },
     SpinningCircleSprite = "SpinningCircle",
     SpinningCirclePosition = { X = 610.5, Y = -285.5 },
     SpinningCircleAnimationDuration = 15,
+    SpinningCircleFlashingAnimationDuration = 0.833;
     ItemHighlightSprite = "TitleMenuItemHighlight",
     ItemHighlightOffset = { X = 73, Y = 7 },
     ItemPadding = 40,
@@ -103,24 +152,10 @@ root.TitleMenu = {
     LineEntriesSprites = {}
 };
 
-root.TitleMenu.IntroHighlightSprites = {
-    "IntroBrightGreenHighlight",
-    "IntroSunHighlight",
-    "IntroGrayHighlight",
-    "IntroCrescentRainbowHighlight",
-    "IntroBlueHighlight",
-    "IntroWhiteHighlight",
-    "IntroBrownHighlight",
-    "IntroDiamondHighlight",
-    "IntroDarkGreenHighlight",
-    "IntroCircularRainbowHighlight"
-};
-
--- Positions along the diagonal normalized between -1 and 1
-root.TitleMenu.IntroHighlightPositions = {
-    -1.13, -1.00, -0.49, 0.00, 0.17,
-    0.30, 0.58, 0.69, 0.91, 1.12
-};
+root.TitleMenu.IntroDelusionADVSpriteCount = #root.TitleMenu.IntroDelusionADVPositions;
+for i = 1, root.TitleMenu.IntroDelusionADVSpriteCount do
+    root.TitleMenu.IntroDelusionADVSprites[i] = "IntroDelusionADV" .. i
+end
 
 for i = 0, 3 do
     root.Sprites["TitleMenuEntry" .. i] = {
@@ -199,6 +234,41 @@ root.Sprites["DelusionADVEnglish"] = {
     Bounds = { X = 1862, Y = 734, Width = 153, Height = 33 },
 };
 
+root.Sprites["IntroDelusionADV1"] = {
+    Sheet = "Title",
+    Bounds = { X = 1863, Y = 684, Width = 23, Height = 20 },
+};
+
+root.Sprites["IntroDelusionADV2"] = {
+    Sheet = "Title",
+    Bounds = { X = 1888, Y = 684, Width = 22, Height = 20 },
+};
+
+root.Sprites["IntroDelusionADV3"] = {
+    Sheet = "Title",
+    Bounds = { X = 1912, Y = 684, Width = 22, Height = 20 },
+};
+
+root.Sprites["IntroDelusionADV4"] = {
+    Sheet = "Title",
+    Bounds = { X = 1936, Y = 684, Width = 21, Height = 20 },
+};
+
+root.Sprites["IntroDelusionADV5"] = {
+    Sheet = "Title",
+    Bounds = { X = 1959, Y = 684, Width = 22, Height = 20 },
+};
+
+root.Sprites["IntroDelusionADV6"] = {
+    Sheet = "Title",
+    Bounds = { X = 1983, Y = 684, Width = 20, Height = 20 },
+};
+
+root.Sprites["IntroDelusionADV7"] = {
+    Sheet = "Title",
+    Bounds = { X = 2005, Y = 684, Width = 21, Height = 20 },
+};
+
 root.Sprites["SeiraUnder"] = {
     Sheet = "Title",
     Bounds = { X = 555, Y = 1, Width = 594, Height = 768 },
@@ -268,6 +338,11 @@ root.Sprites["IntroBigStar"] = {
     Sheet = "Title",
     Bounds = { X = 1156, Y = 345, Width = 178, Height = 170 },
 };
+
+root.Sprites["LogoStarHighlight"] = {
+    Sheet = "Title",
+    Bounds = { X = 1202, Y = 915, Width = 70, Height = 108 }
+}
 
 root.Sprites["IntroBrightGreenHighlight"] = {
     Sheet = "Highlights",

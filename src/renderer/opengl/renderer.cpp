@@ -296,7 +296,8 @@ void Renderer::UseTextures(
 void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
                           const glm::mat4 transformation,
                           const std::span<const glm::vec4, 4> tints,
-                          const bool inverted, const bool disableBlend,
+                          const glm::vec3 colorShift, const bool inverted,
+                          const bool disableBlend,
                           const bool textureWrapRepeat) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
@@ -333,6 +334,7 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
         .Projection = Projection,
         .Transformation = transformation,
         .ColorMap = 0,
+        .ColorShift = colorShift,
     };
 
     UseShader(*SpriteShaderProgram, uniforms);

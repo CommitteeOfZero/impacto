@@ -4,7 +4,7 @@
 namespace Impacto {
 
 struct ChildAnimation {
-  Animation* Animation;
+  Animation* ChildAnimation;
   float StartTime;
   float EndTime;
 };

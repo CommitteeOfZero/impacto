@@ -18,13 +18,14 @@ inline Sprite BackgroundSprite;
 
 inline Sprite DelusionADVUnderSprite;
 inline Sprite DelusionADVSprite;
-inline glm::vec2 DelusionADVUnderPosition;
 inline glm::vec2 DelusionADVPosition;
+inline glm::vec2 DelusionADVPopoutOffset;
 
 inline Sprite SeiraUnderSprite;
 inline Sprite SeiraSprite;
 inline glm::vec2 SeiraUnderPosition;
 inline glm::vec2 SeiraPosition;
+inline glm::vec2 SeiraPopoutOffset;
 
 inline Sprite CHLogoSprite;
 inline glm::vec2 CHLogoPosition;
@@ -32,20 +33,8 @@ inline glm::vec2 CHLogoPosition;
 inline Sprite LCCLogoUnderSprite;
 inline glm::vec2 LCCLogoUnderPosition;
 
-inline Sprite ChuLeftLogoSprite;
-inline glm::vec2 ChuLeftLogoPosition;
-
-inline Sprite ChuRightLogoSprite;
-inline glm::vec2 ChuRightLogoPosition;
-
-inline Sprite LoveLogoSprite;
-inline glm::vec2 LoveLogoPosition;
-
 inline Sprite StarLogoSprite;
 inline glm::vec2 StarLogoPosition;
-
-inline Sprite ExclMarkLogoSprite;
-inline glm::vec2 ExclMarkLogoPosition;
 
 inline Sprite CopyrightTextSprite;
 inline glm::vec2 CopyrightTextPosition;
@@ -101,11 +90,15 @@ inline float SecondaryMenuExtraTrophyY;
 inline float SecondaryMenuSystemConfigY;
 inline float SecondaryMenuSystemSaveY;
 
+constexpr size_t LCCLogoSpriteCount = 4;
+inline std::array<glm::vec2, LCCLogoSpriteCount> LCCLogoPositions;
+inline std::array<Sprite, LCCLogoSpriteCount> LCCLogoSprites;
+
 inline Sprite IntroBackgroundSprite;
 
 constexpr size_t IntroHighlightCount = 10;
-inline Sprite IntroHighlightSprites[IntroHighlightCount];
-inline float IntroHighlightPositions[IntroHighlightCount];
+inline std::array<Sprite, IntroHighlightCount> IntroHighlightSprites;
+inline std::array<float, IntroHighlightCount> IntroHighlightPositions;
 
 inline Sprite IntroExplodingStarSprite;
 inline float IntroExplodingStarAnimationDistance;
@@ -115,6 +108,20 @@ inline Sprite IntroBouncingStarSprite;
 inline Sprite IntroFallingStarSprite;
 inline float IntroFallingStarsAnimationDistance;
 inline glm::vec2 IntroFallingStarsAnimationDirection;
+
+inline float IntroCHLogoFadeAnimationStartY;
+
+inline Sprite IntroLogoStarHighlightSprite;
+inline glm::vec2 IntroLogoStarHighlightPosition;
+
+constexpr size_t IntroDelusionADVMaxSpriteCount = 7;
+inline int IntroDelusionADVSpriteCount;
+inline std::array<Sprite, IntroDelusionADVMaxSpriteCount>
+    IntroDelusionADVSprites;
+inline std::array<glm::vec2, IntroDelusionADVMaxSpriteCount>
+    IntroDelusionADVPositions;
+
+inline glm::vec2 IntroLogoPopOutOffset;
 
 }  // namespace TitleMenu
 }  // namespace CHLCC
