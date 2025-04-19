@@ -651,6 +651,7 @@ VmInstruction(InstMSinit) {
     ScrWork[SW_BG1SURF + i] = i;
     ScrWork[SW_BG1ALPHA + Profile::Vm::ScrWorkBgStructSize * i] = 256;
     ScrWork[SW_BG1NO + Profile::Vm::ScrWorkBgStructSize * i] = 0xFFFF;
+    ScrWork[SW_BG1FILTER + Profile::Vm::ScrWorkBgStructSize * i] = 0xFFFFFF;
   }
   for (int i = 0; i < MaxCharacters2D; i++) {
     ScrWork[SW_CHA1SURF + i] = i;
