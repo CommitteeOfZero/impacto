@@ -684,6 +684,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
 
 void DialoguePage::Update(float dt) {
   if (GetFlag(SF_UIHIDDEN)) return;
+  if ((ScrWork[SW_GAMESTATE] & 4) != 0) return;
   Typewriter.Update(dt);
 
   for (int i = 0; i < Glyphs.size(); i++) {

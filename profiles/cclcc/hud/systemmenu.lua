@@ -58,8 +58,7 @@ root.SystemMenu = {
     FrameOffsetBottomRight = {X=2108, Y= 1252},
 
     AngleMultiplier = {X=-196608 / 5760, Y=-131072 / 5760, Z=163840 / 5760},
-    BGRandPosInit = {X=1350, Y=165},
-    BGRandPosRange = {X=390,Y=295},
+    BGRandPosRange = {X=4095,Y=4095},
 
     BGTranslationOffset = {X=1452,Y=395},
 };

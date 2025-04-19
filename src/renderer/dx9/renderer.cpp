@@ -530,6 +530,8 @@ void Renderer::DrawVertices(SpriteSheet const& sheet,
     EnsureShader(ShaderSprite);
 
   EnsureTextureBound(sheet.Texture);
+  Device->SetSamplerState(1, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
+  Device->SetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
 
   VertexBufferSprites* vertices =
       (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
@@ -565,6 +567,8 @@ void Renderer::DrawVertices(SpriteSheet const& sheet,
   }
 
   Flush();
+  Device->SetSamplerState(1, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+  Device->SetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
 
   // ReFill index buffer with quads
   int index = 0;

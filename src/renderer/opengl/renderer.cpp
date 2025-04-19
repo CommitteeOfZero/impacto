@@ -429,6 +429,10 @@ void Renderer::DrawVertices(SpriteSheet const& sheet,
     return;
   }
   Flush();
+  glBindSampler(2, Sampler);
+  glSamplerParameteri(Sampler, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glSamplerParameteri(Sampler, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
   EnsureSpaceAvailable(verticesCount, sizeof(VertexBufferSprites),
                        verticesCount * 3);
   EnsureModeSprite(inverted);
@@ -475,6 +479,8 @@ void Renderer::DrawVertices(SpriteSheet const& sheet,
 
   // Flush again and bind back our buffer
   Flush();
+  glSamplerParameteri(Sampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glSamplerParameteri(Sampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   if (disableBlend) {
     glEnable(GL_BLEND);
   }

@@ -41,7 +41,6 @@ SystemMenu::SystemMenu() {
   ItemsFade.LoopMode = AnimationLoopMode::Stop;
   ItemsFade.DurationIn = ItemsFadeInDuration;
   ItemsFade.DurationOut = ItemsFadeOutDuration;
-  BGPosition = BGRandPosInit;
 
   auto onClick = [this](auto* btn) { return MenuButtonOnClick(btn); };
 
@@ -235,9 +234,9 @@ void SystemMenu::Render() {
     // Renderer->DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f,
     // 720.0f),
     //                      glm::vec4(tint, alpha));
-    float bgOffset = (ScrWork[SW_SYSSUBMENUCT] * 3000.0 * 0.03125 * 0.5);
+    float bgOffset = (ScrWork[SW_SYSSUBMENUCT] * 3000.0f * 0.03125f);
     RectF bgSpriteBounds = SystemMenuBG.Bounds;
-    bgSpriteBounds.X += (BGPosition.x - 0.5 * bgOffset);
+    bgSpriteBounds.X += (BGPosition.x - 0.5f * bgOffset);
     bgSpriteBounds.Y += BGPosition.y;
 
     const float scale =
@@ -303,8 +302,7 @@ void SystemMenu::Render() {
 }
 
 void SystemMenu::Init() {
-  BGPosition = {CALCrnd(BGRandPosRange.x) + BGRandPosInit.x,
-                CALCrnd(BGRandPosRange.y) + BGRandPosInit.y};
+  BGPosition = {CALCrnd(BGRandPosRange.x), CALCrnd(BGRandPosRange.y)};
   SetFlag(SF_SYSTEMMENUCAPTURE, true);
 }
 

@@ -41,7 +41,6 @@ void Configure() {
   FrameOffsetBottomRight = EnsureGetMember<glm::vec2>("FrameOffsetBottomRight");
 
   AngleMultiplier = EnsureGetMember<glm::vec3>("AngleMultiplier");
-  BGRandPosInit = EnsureGetMember<glm::vec2>("BGRandPosInit");
   BGRandPosRange = EnsureGetMember<glm::vec2>("BGRandPosRange");
 
   BGTranslationOffset = EnsureGetMember<glm::vec2>("BGTranslationOffset");
