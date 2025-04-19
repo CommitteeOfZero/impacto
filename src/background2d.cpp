@@ -98,14 +98,19 @@ void Background2D::Render(int bgId, int layer) {
   FadeCount = ScrWork[SW_BG1FADECT + ScrWorkBgStructSize * bgId];
   FadeRange = ScrWork[SW_BG1MASKFADERANGE + ScrWorkBgStructSize * bgId];
 
-  Tint = glm::vec4(255.0f);
-  Tint.a = ScrWork[SW_BG1ALPHA + ScrWorkBgStructSize * bgId] +
-           ScrWork[SW_BG1ALPHA_OFS + 10 * bgId];
-  if (GameInstructionSet == +Vm::InstructionSet::CC) {
-    const uint32_t rgb = ScrWork[SW_BG1FILTER + ScrWorkBgStructSize * bgId];
-    Tint = {rgb & 0xff, (rgb >> 8) & 0xff, (rgb >> 16) & 0xff, Tint.a};
+  // Set tint
+  switch (GameInstructionSet) {
+    case Vm::InstructionSet::CC:
+      Tint = ScrWorkGetColor(SW_BG1FILTER + ScrWorkBgStructSize * bgId);
+      break;
+
+    default:
+      Tint = glm::vec4(1.0f);
+      break;
   }
-  Tint /= glm::vec4(255.0f, 255.0f, 255.0f, 256.0f);
+  Tint.a = (ScrWork[SW_BG1ALPHA + ScrWorkBgStructSize * bgId] +
+            ScrWork[SW_BG1ALPHA_OFS + 10 * bgId]) /
+           256.0f;
 
   switch (GameInstructionSet) {
     case Vm::InstructionSet::Dash:
@@ -134,15 +139,19 @@ void Background2D::RenderCapture(int capId, int layer) {
   FadeCount = ScrWork[SW_CAP1FADECT + ScrWorkCaptureStructSize * capId];
   FadeRange = ScrWork[SW_CAP1MASKFADERANGE + ScrWorkCaptureStructSize * capId];
 
-  Tint = glm::vec4(255.0f);
-  Tint.a = ScrWork[SW_CAP1ALPHA + ScrWorkCaptureStructSize * capId] +
-           ScrWork[SW_CAP1ALPHA_OFS + 10 * capId];
-  if (GameInstructionSet == +Vm::InstructionSet::CC) {
-    const uint32_t rgb =
-        ScrWork[SW_CAP1FILTER + ScrWorkCaptureStructSize * capId];
-    Tint = {rgb & 0xff, (rgb >> 8) & 0xff, (rgb >> 16) & 0xff, Tint.a};
+  // Set tint
+  switch (GameInstructionSet) {
+    case Vm::InstructionSet::CC:
+      Tint = ScrWorkGetColor(SW_CAP1FILTER + ScrWorkCaptureStructSize * capId);
+      break;
+
+    default:
+      Tint = glm::vec4(1.0f);
+      break;
   }
-  Tint /= glm::vec4(255.0f, 255.0f, 255.0f, 256.0f);
+  Tint.a = (ScrWork[SW_CAP1ALPHA + ScrWorkCaptureStructSize * capId] +
+            ScrWork[SW_CAP1ALPHA_OFS + 10 * capId]) /
+           256.0f;
 
   const int renderType =
       ScrWork[SW_CAP1FADETYPE + ScrWorkCaptureStructSize * capId];
@@ -168,14 +177,18 @@ void Background2D::RenderBgEff(int bgId, int layer) {
                     1000.0f);
 
   // Set tint
-  Tint = glm::vec4(255.0f);
-  Tint.a = ScrWork[SW_BGEFF1_ALPHA + structOffset] +
-           ScrWork[SW_BGEFF1_ALPHA_OFS + structOfsOffset];
-  if (GameInstructionSet == +Vm::InstructionSet::CC) {
-    const uint32_t rgb = ScrWork[SW_BGEFF1_FILTER + structOffset];
-    Tint = {rgb & 0xff, (rgb >> 8) & 0xff, (rgb >> 16) & 0xff, Tint.a};
+  switch (GameInstructionSet) {
+    case Vm::InstructionSet::CC:
+      Tint = ScrWorkGetColor(SW_BGEFF1_FILTER + structOffset);
+      break;
+
+    default:
+      Tint = glm::vec4(1.0f);
+      break;
   }
-  Tint /= glm::vec4(255.0f, 255.0f, 255.0f, 256.0f);
+  Tint.a = (ScrWork[SW_BGEFF1_ALPHA + structOffset] +
+            ScrWork[SW_BGEFF1_ALPHA_OFS + structOfsOffset]) /
+           256.0f;
 
   // Get position coordinates
   const int maskType = ScrWork[SW_BGEFF1_MASK_TYPE + structOffset];
