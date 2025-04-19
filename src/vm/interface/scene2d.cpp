@@ -29,19 +29,21 @@ void UpdateBackground2D() {
       }
     }
 
-    Backgrounds2D[bufId]->Layers = {
-        ScrWork[SW_BG1PRI + ScrWorkBgStructSize * i],
-        ScrWork[SW_BG1PRI2 + ScrWorkBgStructSize * i]};
+    const size_t structOffset = ScrWorkBgStructSize * i;
+    const size_t structOfsOffset = ScrWorkBgOffsetStructSize * i;
+
+    Backgrounds2D[bufId]->Layers = {ScrWork[SW_BG1PRI + structOffset],
+                                    ScrWork[SW_BG1PRI2 + structOffset]};
     Backgrounds2D[bufId]->Show = GetFlag(SF_BG1DISP + i);
 
     // ScrWork coordinates assume everything is 1280x720 regardless of design
     // resolution, that's why that's hardcoded here
-    switch (ScrWork[SW_BG1DISPMODE + ScrWorkBgStructSize * i]) {
+    switch (ScrWork[SW_BG1DISPMODE + structOffset]) {
       case 0: {
-        float posX = (float)(ScrWork[SW_BG1POSX + ScrWorkBgStructSize * i] +
-                             ScrWork[SW_BG1POSX_OFS + 10 * i]);
-        float posY = (float)(ScrWork[SW_BG1POSY + ScrWorkBgStructSize * i] +
-                             ScrWork[SW_BG1POSY_OFS + 10 * i]);
+        float posX = (float)(ScrWork[SW_BG1POSX + structOffset] +
+                             ScrWork[SW_BG1POSX_OFS + structOfsOffset]);
+        float posY = (float)(ScrWork[SW_BG1POSY + structOffset] +
+                             ScrWork[SW_BG1POSY_OFS + structOfsOffset]);
         posX *= Profile::DesignWidth / 1280.0f;
         posY *= Profile::DesignHeight / 720.0f;
 
@@ -61,28 +63,28 @@ void UpdateBackground2D() {
       } break;
       case 1: {
         Backgrounds2D[bufId]->BgSprite.BaseScale =
-            glm::vec2(1280.0f / (ScrWork[SW_BG1LX + ScrWorkBgStructSize * i] +
-                                 ScrWork[SW_BG1LX_OFS + 10 * i]),
-                      720.0f / (ScrWork[SW_BG1LY + ScrWorkBgStructSize * i] +
-                                ScrWork[SW_BG1LY_OFS + 10 * i]));
+            glm::vec2(1280.0f / (ScrWork[SW_BG1LX + structOffset] +
+                                 ScrWork[SW_BG1LX_OFS + structOfsOffset]),
+                      720.0f / (ScrWork[SW_BG1LY + structOffset] +
+                                ScrWork[SW_BG1LY_OFS + structOfsOffset]));
         Backgrounds2D[bufId]->DisplayCoords =
-            glm::vec2(-((ScrWork[SW_BG1SX + ScrWorkBgStructSize * i] +
-                         ScrWork[SW_BG1SX_OFS + 10 * i]) *
+            glm::vec2(-((ScrWork[SW_BG1SX + structOffset] +
+                         ScrWork[SW_BG1SX_OFS + structOfsOffset]) *
                         (Profile::DesignWidth / 1280.0f)) *
                           Backgrounds2D[bufId]->BgSprite.BaseScale.x,
-                      -((ScrWork[SW_BG1SY + ScrWorkBgStructSize * i] +
-                         ScrWork[SW_BG1SY_OFS + 10 * i]) *
+                      -((ScrWork[SW_BG1SY + structOffset] +
+                         ScrWork[SW_BG1SY_OFS + structOfsOffset]) *
                         (Profile::DesignHeight / 720.0f)) *
                           Backgrounds2D[bufId]->BgSprite.BaseScale.y);
       } break;
       case 2: {
-        float scale = (ScrWork[SW_BG1SIZE + ScrWorkBgStructSize * i] +
-                       ScrWork[SW_BG1SIZE_OFS + 10 * i]) /
+        float scale = (ScrWork[SW_BG1SIZE + structOffset] +
+                       ScrWork[SW_BG1SIZE_OFS + structOfsOffset]) /
                       1000.0f;
-        float posX = (float)(ScrWork[SW_BG1POSX + ScrWorkBgStructSize * i] +
-                             ScrWork[SW_BG1POSX_OFS + 10 * i]);
-        float posY = (float)(ScrWork[SW_BG1POSY + ScrWorkBgStructSize * i] +
-                             ScrWork[SW_BG1POSY_OFS + 10 * i]);
+        float posX = (float)(ScrWork[SW_BG1POSX + structOffset] +
+                             ScrWork[SW_BG1POSX_OFS + structOfsOffset]);
+        float posY = (float)(ScrWork[SW_BG1POSY + structOffset] +
+                             ScrWork[SW_BG1POSY_OFS + structOfsOffset]);
         posX = posX * (Profile::DesignWidth / 1280.0f) -
                (Backgrounds2D[bufId]->BgSprite.ScaledWidth() / 2.0f);
         posY = posY * (Profile::DesignHeight / 720.0f) -
@@ -91,11 +93,11 @@ void UpdateBackground2D() {
         Backgrounds2D[bufId]->DisplayCoords = glm::vec2(posX, posY);
       } break;
       case 4: {
-        float posX = (ScrWork[SW_BG1POSX + ScrWorkBgStructSize * i] +
-                      ScrWork[SW_BG1POSX_OFS + 10 * i]) /
+        float posX = (ScrWork[SW_BG1POSX + structOffset] +
+                      ScrWork[SW_BG1POSX_OFS + structOfsOffset]) /
                      1000.0f;
-        float posY = (ScrWork[SW_BG1POSY + ScrWorkBgStructSize * i] +
-                      ScrWork[SW_BG1POSY_OFS + 10 * i]) /
+        float posY = (ScrWork[SW_BG1POSY + structOffset] +
+                      ScrWork[SW_BG1POSY_OFS + structOfsOffset]) /
                      1000.0f;
         Backgrounds2D[bufId]->DisplayCoords =
             glm::vec2(-(posX * (Profile::DesignWidth / 1280.0f)),
@@ -249,79 +251,66 @@ void UpdateEyeMouth2D() {
 
 void UpdateCharacter2D() {
   for (int i = 0; i < MaxCharacters2D; i++) {
+    const size_t structOffset = ScrWorkChaStructSize * i;
+    const size_t structOfsOffset = ScrWorkChaOffsetStructSize * i;
+
     if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW) {
       // If I don't do this it tries to access a label with an index of 65535,
       // which is... not good. I have no idea why this happens, the script code
       // does actually seem to do this on purpose, so... HACK (for now)
-      if (ScrWork[SW_CHA1NO + ScrWorkChaStructSize * i] == 65535)
-        ScrWork[SW_CHA1NO + ScrWorkChaStructSize * i] = 0;
+      if (ScrWork[SW_CHA1NO + structOffset] == 65535)
+        ScrWork[SW_CHA1NO + structOffset] = 0;
     }
     int bufId = ScrWork[SW_CHA1SURF + i];
-    Characters2D[bufId].Layers = {
-        ScrWork[SW_CHA1PRI + ScrWorkChaStructSize * i],
-        ScrWork[SW_CHA1PRI2 + ScrWorkChaStructSize * i]};
+    Characters2D[bufId].Layers = {ScrWork[SW_CHA1PRI + structOffset],
+                                  ScrWork[SW_CHA1PRI2 + structOffset]};
     Characters2D[bufId].Show = GetFlag(SF_CHA1DISP + i);
-    Characters2D[bufId].OffsetX =
-        (ScrWork[SW_CHA1POSX + ScrWorkChaStructSize * i] +
-         ScrWork[SW_CHA1POSX_OFS + 10 * i]) *
-        (Profile::DesignWidth / 1280.0f);
-    Characters2D[bufId].OffsetY =
-        (ScrWork[SW_CHA1POSY + ScrWorkChaStructSize * i] +
-         ScrWork[SW_CHA1POSY_OFS + 10 * i]) *
-        (Profile::DesignHeight / 720.0f);
+    Characters2D[bufId].OffsetX = (ScrWork[SW_CHA1POSX + structOffset] +
+                                   ScrWork[SW_CHA1POSX_OFS + structOfsOffset]) *
+                                  (Profile::DesignWidth / 1280.0f);
+    Characters2D[bufId].OffsetY = (ScrWork[SW_CHA1POSY + structOffset] +
+                                   ScrWork[SW_CHA1POSY_OFS + structOfsOffset]) *
+                                  (Profile::DesignHeight / 720.0f);
     if (Profile::Vm::GameInstructionSet == +InstructionSet::MO8) {
       float baseScale = 1.0f;
-      if (ScrWork[SW_CHA1BASESIZE + ScrWorkChaStructSize * i] < 7) {
-        baseScale = BaseScaleValues[ScrWork[SW_CHA1BASESIZE +
-                                            ScrWorkChaStructSize * i]];
+      if (ScrWork[SW_CHA1BASESIZE + structOffset] < 7) {
+        baseScale = BaseScaleValues[ScrWork[SW_CHA1BASESIZE + structOffset]];
       }
       Characters2D[bufId].ScaleX =
-          baseScale *
-          (ScrWork[SW_CHA1SIZEX + ScrWorkChaStructSize * i] / 1000.0f);
+          baseScale * (ScrWork[SW_CHA1SIZEX + structOffset] / 1000.0f);
       Characters2D[bufId].ScaleY =
-          baseScale *
-          (ScrWork[SW_CHA1SIZEY + ScrWorkChaStructSize * i] / 1000.0f);
+          baseScale * (ScrWork[SW_CHA1SIZEY + structOffset] / 1000.0f);
 
       // ScrWork magic
       Characters2D[bufId].RotationX =
-          ScrWork[SW_CHA1ROTX + ScrWorkChaStructSize * i] * (float)M_PI *
-          (0.000030517578f);
+          ScrWork[SW_CHA1ROTX + structOffset] * (float)M_PI * (0.000030517578f);
       Characters2D[bufId].RotationY =
-          ScrWork[SW_CHA1ROTY + ScrWorkChaStructSize * i] * (float)M_PI *
-          (0.000030517578f);
+          ScrWork[SW_CHA1ROTY + structOffset] * (float)M_PI * (0.000030517578f);
       Characters2D[bufId].RotationZ =
-          ScrWork[SW_CHA1ROTZ + ScrWorkChaStructSize * i] * (float)M_PI *
-          (0.000030517578f);
+          ScrWork[SW_CHA1ROTZ + structOffset] * (float)M_PI * (0.000030517578f);
 
       // More magic, wouldn't be Mage... I'll excuse myself
       Characters2D[bufId].OffsetY =
           Characters2D[bufId].OffsetY - 228.0f - (baseScale * 1030.0f);
     }
-    Characters2D[bufId].Face = ScrWork[SW_CHA1FACE + ScrWorkChaStructSize * i]
-                               << 16;
+    Characters2D[bufId].Face = ScrWork[SW_CHA1FACE + structOffset] << 16;
 
-    Characters2D[bufId].Tint.a =
-        (ScrWork[SW_CHA1ALPHA + Profile::Vm::ScrWorkChaStructSize * i] +
-         ScrWork[SW_CHA1ALPHA_OFS + 10 * i]) /
-        256.0f;
-    if (ScrWork[SW_CHA1FADETYPE + Profile::Vm::ScrWorkChaStructSize * i] == 1) {
+    Characters2D[bufId].Tint.a = (ScrWork[SW_CHA1ALPHA + structOffset] +
+                                  ScrWork[SW_CHA1ALPHA_OFS + structOfsOffset]) /
+                                 256.0f;
+    if (ScrWork[SW_CHA1FADETYPE + structOffset] == 1) {
       Characters2D[bufId].Tint.a =
-          ScrWork[SW_CHA1FADECT + Profile::Vm::ScrWorkChaStructSize * i] /
-          256.0f;
+          ScrWork[SW_CHA1FADECT + structOffset] / 256.0f;
     }
 
     uint32_t chaIndexMask = 1 << i & 0x1f;
-    if (ScrWork[SW_CHA1ANIME_EYE + i * Profile::Vm::ScrWorkChaStructSize] ==
-        0xff) {
+    if (ScrWork[SW_CHA1ANIME_EYE + structOffset] == 0xff) {
       Characters2D[bufId].EyeFrame = curEyeFrame[i];
     } else {
-      Characters2D[bufId].EyeFrame =
-          ScrWork[SW_CHA1ANIME_EYE + i * Profile::Vm::ScrWorkChaStructSize];
+      Characters2D[bufId].EyeFrame = ScrWork[SW_CHA1ANIME_EYE + structOffset];
     }
-    if (ScrWork[SW_CHA1ANIME_MOUTH + i * Profile::Vm::ScrWorkChaStructSize] !=
-        0xff) {
-      Characters2D[bufId].LipFrame =
-          ScrWork[SW_CHA1ANIME_MOUTH + i * Profile::Vm::ScrWorkChaStructSize];
+    if (ScrWork[SW_CHA1ANIME_MOUTH + structOffset] != 0xff) {
+      Characters2D[bufId].LipFrame = ScrWork[SW_CHA1ANIME_MOUTH + structOffset];
       return;
     } else {
       bool charSpeaking = false;

@@ -19,9 +19,13 @@ inline bool UseSeparateMsbArchive = false;
 inline bool RestartMaskUsesThreadAlpha = false;
 
 inline int ScrWorkChaStructSize;
+inline int ScrWorkChaOffsetStructSize;
 inline int ScrWorkBgStructSize;
+inline int ScrWorkBgOffsetStructSize;
 inline int ScrWorkCaptureStructSize;
+inline int ScrWorkCaptureOffsetStructSize;
 inline int ScrWorkBgEffStructSize;
+inline int ScrWorkBgEffOffsetStructSize;
 
 inline int MaxLinkedBgBuffers = 1;
 inline int SystemScriptBuffer = 1;

@@ -19,10 +19,15 @@ root.Vm = {
     GameInstructionSet=InstructionSet.MO6TW,
     UseReturnIds=false,
     RestartMaskUsesThreadAlpha=true,
-    ScrWorkChaStructSize=20,
-    ScrWorkBgStructSize=20,
-    ScrWorkCaptureStructSize=20,
+
+    ScrWorkChaStructSize = 20,
+    ScrWorkChaOffsetStructSize = 10,
+    ScrWorkBgStructSize = 20,
+    ScrWorkBgOffsetStructSize = 10,
+    ScrWorkCaptureStructSize = 20,
+    ScrWorkCaptureOffsetStructSize = 10,
     ScrWorkBgEffStructSize = 20,
+    ScrWorkBgEffOffsetStructSize = 20,
 };
 
 include('common/scriptinput.lua');

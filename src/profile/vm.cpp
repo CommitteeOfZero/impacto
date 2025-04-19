@@ -20,9 +20,16 @@ void Configure() {
   TryGetMember<bool>("RestartMaskUsesThreadAlpha", RestartMaskUsesThreadAlpha);
 
   ScrWorkChaStructSize = EnsureGetMember<int>("ScrWorkChaStructSize");
+  ScrWorkChaOffsetStructSize =
+      EnsureGetMember<int>("ScrWorkChaOffsetStructSize");
   ScrWorkBgStructSize = EnsureGetMember<int>("ScrWorkBgStructSize");
+  ScrWorkBgOffsetStructSize = EnsureGetMember<int>("ScrWorkBgOffsetStructSize");
   ScrWorkCaptureStructSize = EnsureGetMember<int>("ScrWorkCaptureStructSize");
+  ScrWorkCaptureOffsetStructSize =
+      EnsureGetMember<int>("ScrWorkCaptureStructSize");
   ScrWorkBgEffStructSize = EnsureGetMember<int>("ScrWorkBgEffStructSize");
+  ScrWorkBgEffOffsetStructSize =
+      EnsureGetMember<int>("ScrWorkBgEffOffsetStructSize");
 
   TryGetMember<int>("MaxLinkedBgBuffers", MaxLinkedBgBuffers);
   TryGetMember<int>("SystemScriptBuffer", SystemScriptBuffer);

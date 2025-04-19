@@ -109,7 +109,7 @@ void Background2D::Render(int bgId, int layer) {
       break;
   }
   Tint.a = (ScrWork[SW_BG1ALPHA + ScrWorkBgStructSize * bgId] +
-            ScrWork[SW_BG1ALPHA_OFS + 10 * bgId]) /
+            ScrWork[SW_BG1ALPHA_OFS + ScrWorkBgOffsetStructSize * bgId]) /
            256.0f;
 
   switch (GameInstructionSet) {
@@ -149,9 +149,10 @@ void Background2D::RenderCapture(int capId, int layer) {
       Tint = glm::vec4(1.0f);
       break;
   }
-  Tint.a = (ScrWork[SW_CAP1ALPHA + ScrWorkCaptureStructSize * capId] +
-            ScrWork[SW_CAP1ALPHA_OFS + 10 * capId]) /
-           256.0f;
+  Tint.a =
+      (ScrWork[SW_CAP1ALPHA + ScrWorkCaptureStructSize * capId] +
+       ScrWork[SW_CAP1ALPHA_OFS + ScrWorkCaptureOffsetStructSize * capId]) /
+      256.0f;
 
   const int renderType =
       ScrWork[SW_CAP1FADETYPE + ScrWorkCaptureStructSize * capId];
@@ -162,7 +163,7 @@ void Background2D::RenderBgEff(int bgId, int layer) {
   if (Status != LS_Loaded) return;
 
   const int structOffset = ScrWorkBgEffStructSize * bgId;
-  const int structOfsOffset = 20 * bgId;
+  const int structOfsOffset = ScrWorkBgEffOffsetStructSize * bgId;
 
   MaskNumber = ScrWork[SW_BGEFF1_MASKNO + structOffset];
   FadeCount = ScrWork[SW_BGEFF1_FADECT + structOffset];
