@@ -16,11 +16,17 @@ root.Vm = {
     UseReturnIds = true,
     UseMsbStrings = true,
     UseSeparateMsbArchive = true,
+
     ScrWorkChaStructSize = 40,
+    ScrWorkChaOffsetStructSize = 10,
     ScrWorkBgStructSize = 40,
+    ScrWorkBgOffsetStructSize = 10,
     ScrWorkCaptureStructSize = 20,
+    ScrWorkCaptureOffsetStructSize = 10,
     ScrWorkBgEffStructSize = 30,
-    MaxLinkedBgBuffers = 2
+    ScrWorkBgEffOffsetStructSize = 20,
+
+    MaxLinkedBgBuffers = 2,
 };
 
 include('common/scriptinput.lua');

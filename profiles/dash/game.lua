@@ -12,10 +12,16 @@ root.Vm = {
     StartScriptBuffer = 0,
     GameInstructionSet = InstructionSet.Dash,
     UseReturnIds = true,
+
     ScrWorkChaStructSize = 40,
+    ScrWorkChaOffsetStructSize = 10,
     ScrWorkBgStructSize = 40,
+    ScrWorkBgOffsetStructSize = 10,
     ScrWorkCaptureStructSize = 20,
+    ScrWorkCaptureOffsetStructSize = 10,
     ScrWorkBgEffStructSize = 30,
+    ScrWorkBgEffOffsetStructSize = 20,
+
     MaxLinkedBgBuffers = 2
 };
 
