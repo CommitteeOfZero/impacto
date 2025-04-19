@@ -32,7 +32,6 @@ inline glm::vec2 FrameOffsetTopRight;
 inline glm::vec2 FrameOffsetBottomRight;
 
 inline glm::vec3 AngleMultiplier;
-inline glm::vec2 BGRandPosInit;
 inline glm::vec2 BGRandPosRange;
 
 inline glm::vec2 BGTranslationOffset;

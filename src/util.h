@@ -336,8 +336,8 @@ int ResizeImage(Rect const& srcRect, Rect const& dstRect,
 
 inline int CALCrnd(int max) {
   static std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_int_distribution<> distr(0, 0x7FFF);
+  static std::mt19937 gen(std::random_device{}());
+  static std::uniform_int_distribution<> distr(0, 0x7FFF);
   return distr(gen) * max >> 0xf;
 }
 
