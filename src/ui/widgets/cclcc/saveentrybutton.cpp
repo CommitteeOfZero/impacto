@@ -140,7 +140,7 @@ void SaveEntryButton::RefreshCharacterRouteText(int strIndex) {
 
 void SaveEntryButton::RefreshSceneTitleText(int strIndex) {
   // TODO actually make this look correct
-  uint8_t* strAddr = Vm::ScriptGetTextTableStrAddress(1, strIndex | 1);
+  uint8_t* strAddr = Vm::ScriptGetTextTableStrAddress(1, strIndex + 1);
   float fontSize = 28;
   RendererOutlineMode outlineMode = RendererOutlineMode::Full;
   SceneTitleLabel.SetText(strAddr, fontSize, outlineMode,
@@ -162,12 +162,12 @@ void SaveEntryButton::Update(float dt) {
   SaveStatus = SaveSystem::GetSaveStatus(Type, Id);
   IsLocked = SaveSystem::GetSaveFlags(Type, Id) & WriteProtect;
   if (SaveStatus == 1) {
-    auto strIndex = (SaveSystem::GetSaveTitle(Type, Id) * 2);
-    if (strIndex > 40) {
+    auto strIndex = SaveSystem::GetSaveTitle(Type, Id);
+    if (strIndex > 21) {
       strIndex = 0;
     }
-    RefreshCharacterRouteText(strIndex);
-    RefreshSceneTitleText(strIndex);
+    RefreshCharacterRouteText(strIndex * 2);
+    RefreshSceneTitleText(strIndex * 2);
     RefreshSaveDateText();
     Thumbnail = SaveSystem::GetSaveThumbnail(Type, Id);
   }
