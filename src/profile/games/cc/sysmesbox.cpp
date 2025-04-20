@@ -43,6 +43,10 @@ void Configure() {
   ButtonYesNoAlphaDivider = EnsureGetMember<float>("ButtonYesNoAlphaDivider");
   WidgetsAlphaMultiplier = EnsureGetMember<float>("WidgetsAlphaMultiplier");
 
+  ButtonYesHoverBounds = EnsureGetMember<RectF>("ButtonYesHoverBounds");
+  ButtonNoHoverBounds = EnsureGetMember<RectF>("ButtonNoHoverBounds");
+  ButtonOkHoverBounds = EnsureGetMember<RectF>("ButtonOkHoverBounds");
+
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMember<int>("DrawType"));
 

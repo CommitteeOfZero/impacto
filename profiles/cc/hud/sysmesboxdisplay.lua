@@ -35,6 +35,25 @@ root.SysMesBoxDisplay = {
     ButtonScaleMax = 1.5,
     FadeInDuration = 0.4,
     FadeOutDuration = 0.4
+
+    ButtonYesHoverBounds = {
+        X = 1128,
+        Y = 847,
+        Width = 141,
+        Height = 103
+    },
+    ButtonNoHoverBounds = {
+        X = 1224,
+        Y = 744,
+        Width = 156,
+        Height = 121
+    },
+    ButtonOkHoverBounds = {
+        X = 0,
+        Y = 0,
+        Width = 0,
+        Height = 0
+    }
 };
 
 root.Sprites[name .. "ButtonYes"] = {

@@ -14,7 +14,7 @@ namespace Widgets {
 using namespace Impacto::Profile::ScriptVars;
 
 Button::Button(int id, Sprite const& norm, Sprite const& focused,
-               Sprite const& highlight, glm::vec2 pos) {
+               Sprite const& highlight, glm::vec2 pos, RectF hoverBounds) {
   Enabled = true;
   Id = id;
   NormalSprite = norm;
@@ -22,17 +22,19 @@ Button::Button(int id, Sprite const& norm, Sprite const& focused,
   HighlightSprite = highlight;
   Bounds = RectF(pos.x, pos.y, NormalSprite.Bounds.Width,
                  NormalSprite.Bounds.Height);
+  HoverBounds = hoverBounds;
 }
 
 void Button::UpdateInput() {
   if (Enabled) {
+    const RectF& bounds = (HoverBounds != RectF{}) ? HoverBounds : Bounds;
     if (Input::CurrentInputDevice == Input::Device::Mouse &&
         Input::PrevMousePos != Input::CurMousePos) {
-      Hovered = Bounds.ContainsPoint(Input::CurMousePos);
+      Hovered = bounds.ContainsPoint(Input::CurMousePos);
     } else if (Input::CurrentInputDevice == Input::Device::Touch &&
                Input::TouchIsDown[0] &&
                Input::PrevTouchPos != Input::CurTouchPos) {
-      Hovered = Bounds.ContainsPoint(Input::CurTouchPos);
+      Hovered = bounds.ContainsPoint(Input::CurTouchPos);
     }
     if (OnClickHandler && HasFocus &&
         ((Hovered &&
@@ -81,6 +83,7 @@ void Button::SetText(uint8_t* str, float fontSize,
     TextWidth += Text[i].DestRect.Width;
   }
   Bounds = RectF(Text[0].DestRect.X, Text[0].DestRect.Y, TextWidth, fontSize);
+  HoverBounds = Bounds;
 }
 
 void Button::SetText(std::vector<ProcessedTextGlyph> text, float textWidth,
@@ -90,6 +93,7 @@ void Button::SetText(std::vector<ProcessedTextGlyph> text, float textWidth,
   TextWidth = textWidth;
   OutlineMode = outlineMode;
   Bounds = RectF(Text[0].DestRect.X, Text[0].DestRect.Y, TextWidth, fontSize);
+  HoverBounds = Bounds;
 }
 
 void Button::Move(glm::vec2 relativePosition) {
@@ -100,6 +104,7 @@ void Button::Move(glm::vec2 relativePosition) {
     }
   }
   Widget::Move(relativePosition);
+  HoverBounds += relativePosition;
 }
 
 void Button::Move(glm::vec2 relativePosition, float duration) {

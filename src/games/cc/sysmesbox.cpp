@@ -55,10 +55,11 @@ void SysMesBox::Show() {
   }
 
   if (ChoiceCount == 1) {
-    WidgetOK = new Button(
-        0, ButtonOK, ButtonOKHighlighted, nullSprite,
-        glm::vec2(ButtonOKCenterPosX - (ButtonOK.Bounds.Width / 2),
-                  ButtonOKCenterPosY - (ButtonOK.Bounds.Height / 2)));
+    WidgetOK =
+        new Button(0, ButtonOK, ButtonOKHighlighted, nullSprite,
+                   glm::vec2(ButtonOKCenterPosX - (ButtonOK.Bounds.Width / 2),
+                             ButtonOKCenterPosY - (ButtonOK.Bounds.Height / 2)),
+                   ButtonOkHoverBounds);
     WidgetOK->OnClickHandler = onClick;
     ChoiceItems->Add(WidgetOK, FDIR_RIGHT);
 
@@ -66,13 +67,15 @@ void SysMesBox::Show() {
     WidgetYes = new Button(
         0, ButtonYes, ButtonYesHighlighted, nullSprite,
         glm::vec2(ButtonYesCenterPosX - (ButtonYes.Bounds.Width / 2),
-                  ButtonYesCenterPosY - (ButtonYes.Bounds.Height / 2)));
+                  ButtonYesCenterPosY - (ButtonYes.Bounds.Height / 2)),
+        ButtonYesHoverBounds);
     WidgetYes->OnClickHandler = onClick;
     ChoiceItems->Add(WidgetYes, FDIR_RIGHT);
-    WidgetNo = new Button(
-        1, ButtonNo, ButtonNoHighlighted, nullSprite,
-        glm::vec2(ButtonNoCenterPosX - (ButtonNo.Bounds.Width / 2),
-                  ButtonNoCenterPosY - (ButtonNo.Bounds.Height / 2)));
+    WidgetNo =
+        new Button(1, ButtonNo, ButtonNoHighlighted, nullSprite,
+                   glm::vec2(ButtonNoCenterPosX - (ButtonNo.Bounds.Width / 2),
+                             ButtonNoCenterPosY - (ButtonNo.Bounds.Height / 2)),
+                   ButtonNoHoverBounds);
     WidgetNo->OnClickHandler = onClick;
     ChoiceItems->Add(WidgetNo, FDIR_LEFT);
   }
