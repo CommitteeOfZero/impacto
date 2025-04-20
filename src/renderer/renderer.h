@@ -176,9 +176,9 @@ class BaseRenderer {
   virtual void SetScissorRect(RectF const& rect) = 0;
   virtual void DisableScissor() = 0;
 
-  virtual void EnableStencilBuffer() {}
-  virtual void DisableStencilBuffer() {}
-  virtual void EnableStencilWriting() {}
+  virtual void EnableStencilTesting() {}
+  virtual void DisableStencilTesting() {}
+  virtual void EnableStencilWriting(bool clear) {}
   virtual void DisableStencilWriting() {}
 
   static glm::vec2 Transform(glm::vec2 pos, glm::vec2 translation,

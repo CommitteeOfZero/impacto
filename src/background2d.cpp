@@ -208,6 +208,7 @@ void Background2D::RenderBgEff(int bgId, int layer) {
         ScrWork[SW_BGEFF1_MASK_VERTEX1_OFSY + structOfsOffset + i * 2];
     vertices.emplace_back(glm::vec2(x, y) * resolutionScale);
   }
+  if (maskType == 0) std::swap(vertices[2], vertices[3]);
 
   const glm::vec2 pos =
       glm::vec2(ScrWork[SW_BGEFF1_POSX + structOffset] +
@@ -223,21 +224,18 @@ void Background2D::RenderBgEff(int bgId, int layer) {
   for (const glm::vec2 vertex : vertices) Origin += vertex / (float)vertexCount;
 
   // Draw
-  if (maskType == 0) {  // Rectangle
-    const glm::vec2 maskDimensions = vertices[3] - vertices[0];
-    const RectF mask = RectF(pos.x, pos.y, maskDimensions.x, maskDimensions.y)
-                           .Scale(Scale, vertices[0]);
+  Renderer->EnableStencilWriting(true);
 
-    Renderer->EnableScissor();
-    Renderer->SetScissorRect(mask);
-  }
+  Renderer->DrawConvexPolygon(std::move(vertices), DisplayCoords,
+                              {1.0f, 1.0f, 1.0f, 1.0f}, Origin, Angle, Scale);
+
+  Renderer->DisableStencilWriting();
+  Renderer->EnableStencilTesting();
 
   const int renderType = ScrWork[SW_BGEFF1_MODE + structOffset];
   std::invoke(BackgroundRenderTable[renderType], this);
 
-  if (maskType == 0) {  // Rectangle
-    Renderer->DisableScissor();
-  }
+  Renderer->DisableStencilTesting();
 }
 
 void Background2D::RenderRegular() {
