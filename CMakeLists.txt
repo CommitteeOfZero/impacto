@@ -163,6 +163,7 @@ set(Impacto_Src
         src/games/chlcc/trophymenu.cpp
         src/games/chlcc/trophymenuentry.cpp
         src/games/chlcc/delusiontrigger.cpp
+        src/games/chlcc/introsequence.cpp
 
         src/games/cc/backlogmenu.cpp
         src/games/cc/dialoguebox.cpp
@@ -493,6 +494,7 @@ set(Impacto_Header
         src/games/chlcc/systemmenu.h
         src/games/chlcc/trophymenu.h
         src/games/chlcc/delusiontrigger.h
+        src/games/chlcc/introsequence.h
 
         src/games/cc/dialoguebox.h
         src/games/cc/titlemenu.h
