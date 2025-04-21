@@ -400,9 +400,10 @@ void Renderer::DrawMaskedSprite(
   // OK, all good, make quad
 
   CornersQuad uvDest = sprite.NormalizedBounds();
-  if (sprite.Sheet.IsScreenCap) uvDest.FlipVertical();
   CornersQuad maskUVDest = CornersQuad(maskDest).Scale(
       {1.0f / sprite.Bounds.Width, 1.0f / sprite.Bounds.Height}, {0.0f, 0.0f});
+  if (sprite.Sheet.IsScreenCap) uvDest.FlipVertical();
+  if (mask.Sheet.IsScreenCap) maskUVDest.FlipVertical();
   InsertVerticesQuad(spriteDest, uvDest, tints, maskUVDest);
 }
 

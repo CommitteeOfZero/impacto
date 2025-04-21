@@ -5,7 +5,7 @@
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
 #include "../../ui/widgets/chlcc/titlebutton.h"
-#include "../../sequencedanimation.h"
+#include "introsequence.h"
 
 namespace Impacto {
 namespace UI {
@@ -14,7 +14,6 @@ namespace CHLCC {
 class TitleMenu : public Menu {
  public:
   TitleMenu();
-  ~TitleMenu();
 
   void Show();
   void Hide();
@@ -29,30 +28,11 @@ class TitleMenu : public Menu {
   Animation SpinningCircleAnimation;
   Animation SpinningCircleFlashingAnimation;
 
-  SequencedAnimation IntroAnimation;
-  Animation IntroPanningAnimation;
-  Animation IntroStarBounceAnimation;
-  Animation IntroExplodingStarAnimation;
-  Animation IntroExplodingStarRotationAnimation;
-  Animation IntroFallingStarsAnimation;
-  Animation IntroFallingStarsRotationAnimation;
-  Animation IntroLogoFadeAnimation;
-  Animation IntroLCCLogoAnimation;
-  Animation IntroLogoStarHighlightAnimation;
-  Animation IntroDelusionADVAnimation;
-  Animation IntroDelusionADVHighlightAnimation;
-  Animation IntroSeiraAnimation;
-  Animation IntroLogoPopOutAnimation;
-  Animation IntroCopyrightAnimation;
-
   void MenuButtonOnClick(Widgets::Button* target);
   void SecondaryButtonOnClick(Widgets::Button* target);
 
-  void DrawIntroAnimation();
-  void DrawIntroBackground() const;
-  void DrawFallingStars() const;
-  void DrawSpinningCircle() const;
   void DrawTitleMenuBackGraphics() const;
+  void DrawSpinningCircle(float alpha) const;
 
  private:
   Widgets::Group* MainItems;
@@ -79,8 +59,7 @@ class TitleMenu : public Menu {
   Widgets::CHLCC::TitleButton* Config;
   Widgets::CHLCC::TitleButton* SystemSave;
 
-  std::array<std::pair<glm::vec2, float>, 20> IntroFallingStarSeeds;
-  Sprite IntroFallingStarsMask;
+  std::unique_ptr<Impacto::CHLCC::IntroSequence> IntroSequence;
 };
 
 }  // namespace CHLCC
