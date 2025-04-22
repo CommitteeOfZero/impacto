@@ -320,6 +320,39 @@ static bool ShouldRender(const int layer) {
       return true;
   }
 
+  constexpr int chaCount = 8;
+  for (int chaId = 0; chaId < chaCount; chaId++) {
+    if (GetFlag(SF_CHA1DISP + chaId) && ScrWork[SW_CHA1NO] != 0xFFFF &&
+        (ScrWork[SW_CHA1PRI + ScrWorkChaStructSize * chaId] == layer ||
+         ScrWork[SW_CHA1PRI2 + ScrWorkChaStructSize * chaId] == layer))
+      return true;
+  }
+
+  constexpr int maskCount = 3;
+  for (int maskId = 0; maskId < maskCount; maskId++) {
+    const int maskAlpha = ScrWork[SW_MASK1ALPHA + maskId * 10] +
+                          ScrWork[SW_MASK1ALPHA_OFS + maskId];
+
+    if (ScrWork[SW_MASK1PRI + maskId * 10] == layer && maskAlpha > 0)
+      return true;
+  }
+
+  if (GetFlag(SF_MOVIEPLAY) && !GetFlag(SF_MOVIE_DRAWWAIT)) {
+    if (ScrWork[SW_MOVIEPRI] == layer && ScrWork[SW_MOVIEALPHA] > 0)
+      return true;
+
+    if (ScrWork[SW_MOVIEPRI2] == layer && ScrWork[SW_MOVIEALPHA2] > 0)
+      return true;
+  }
+
+  constexpr int effCount = 2;
+  const int effStructSize = SW_EFF_CAP_PRI2 - SW_EFF_CAP_PRI;
+  for (int effId = 0; effId < effCount; effId++) {
+    if (ScrWork[SW_EFF_CAP_BUF + effId * effStructSize] &&
+        ScrWork[SW_EFF_CAP_PRI + effId * effStructSize] == layer)
+      return true;
+  }
+
   return false;
 }
 
@@ -356,22 +389,20 @@ static void RenderMain() {
       UI::MapSystem::Render();
     }
     if (ScrWork[SW_MASK1PRI] == static_cast<int>(layer)) {
-      int maskAlpha = ScrWork[SW_MASK1ALPHA_OFS] + ScrWork[SW_MASK1ALPHA];
-      if (maskAlpha) {
-        float maskPosX = (float)ScrWork[SW_MASK1POSX];
-        float maskPosY = (float)ScrWork[SW_MASK1POSY];
-        float maskSizeX = (float)ScrWork[SW_MASK1SIZEX];
-        float maskSizeY = (float)ScrWork[SW_MASK1SIZEY];
-        if (!maskSizeX || !maskSizeY) {
-          maskPosX = 0.0f;
-          maskPosY = 0.0f;
-          maskSizeX = Profile::DesignWidth;
-          maskSizeY = Profile::DesignHeight;
+      const int maskAlpha = ScrWork[SW_MASK1ALPHA_OFS] + ScrWork[SW_MASK1ALPHA];
+
+      if (maskAlpha > 0) {
+        RectF maskRect = {
+            (float)ScrWork[SW_MASK1POSX], (float)ScrWork[SW_MASK1POSY],
+            (float)ScrWork[SW_MASK1SIZEX], (float)ScrWork[SW_MASK1SIZEY]};
+        if (maskRect.GetSize() == glm::vec2(0.0f)) {
+          maskRect = {0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight};
         }
+
         glm::vec4 col = ScrWorkGetColor(SW_MASK1COLOR);
-        col.a = glm::min(maskAlpha / 255.0f, 1.0f);
-        Renderer->DrawQuad(RectF(maskPosX, maskPosY, maskSizeX, maskSizeY),
-                           col);
+        col.a = glm::min(maskAlpha / 256.0f, 1.0f);
+
+        Renderer->DrawQuad(maskRect, col);
       }
     }
 
