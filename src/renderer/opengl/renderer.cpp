@@ -1275,37 +1275,50 @@ void Renderer::DisableScissor() {
   glDisable(GL_SCISSOR_TEST);
 }
 
-void Renderer::EnableStencilTesting() {
+void Renderer::SetStencilMode(StencilBufferMode mode) {
   Flush();
 
-  glEnable(GL_STENCIL_TEST);
-  glStencilFunc(GL_NOTEQUAL, 0x00, 0xFF);
+  switch (mode) {
+    case StencilBufferMode::Off: {
+      glDisable(GL_STENCIL_TEST);
+      break;
+    }
+
+    case StencilBufferMode::Test: {
+      glEnable(GL_STENCIL_TEST);
+      glStencilMask(0x00);
+
+      glStencilFunc(GL_NOTEQUAL, 0x00, 0xFF);
+      glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+      break;
+    }
+
+    case StencilBufferMode::Write: {
+      glEnable(GL_STENCIL_TEST);
+      glStencilMask(0xFF);
+
+      glStencilFunc(GL_NEVER, 0x01, 0xFF);
+      glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+      break;
+    }
+
+    default: {
+      ImpLogSlow(LogLevel::Warning, LogChannel::Render,
+                 "Unexpected stencil mode {:d}\n", (size_t)mode);
+      break;
+    }
+  }
 }
 
-void Renderer::DisableStencilTesting() {
-  Flush();
-  glDisable(GL_STENCIL_TEST);
-}
-
-void Renderer::EnableStencilWriting(bool clear) {
+void Renderer::ClearStencilBuffer() {
   Flush();
 
-  glEnable(GL_STENCIL_TEST);
+  GLint oldMask;
+  glGetIntegerv(GL_STENCIL_WRITEMASK, &oldMask);
+
   glStencilMask(0xFF);
-
-  if (clear) glClear(GL_STENCIL_BUFFER_BIT);
-
-  glStencilFunc(GL_NEVER, 0x01, 0xFF);
-  glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
-}
-
-void Renderer::DisableStencilWriting() {
-  Flush();
-
-  glStencilMask(0x00);
-
-  glStencilFunc(GL_ALWAYS, 0x00, 0x00);
-  glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+  glClear(GL_STENCIL_BUFFER_BIT);
+  glStencilMask(oldMask);
 }
 
 }  // namespace OpenGL

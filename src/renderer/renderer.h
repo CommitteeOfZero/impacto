@@ -15,6 +15,8 @@ inline GraphicsApi ActualGraphicsApi;
 
 enum class RendererOutlineMode { None, BottomRight, Full };
 
+enum class StencilBufferMode { Off, Test, Write };
+
 constexpr inline int MaxFramebuffers = 10;
 
 class BaseRenderer {
@@ -176,10 +178,8 @@ class BaseRenderer {
   virtual void SetScissorRect(RectF const& rect) = 0;
   virtual void DisableScissor() = 0;
 
-  virtual void EnableStencilTesting() {}
-  virtual void DisableStencilTesting() {}
-  virtual void EnableStencilWriting(bool clear) {}
-  virtual void DisableStencilWriting() {}
+  virtual void SetStencilMode(StencilBufferMode mode) {}
+  virtual void ClearStencilBuffer() {}
 
   static glm::vec2 Transform(glm::vec2 pos, glm::vec2 translation,
                              glm::vec2 origin = glm::vec2(0.0f),

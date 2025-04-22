@@ -224,18 +224,18 @@ void Background2D::RenderBgEff(int bgId, int layer) {
   for (const glm::vec2 vertex : vertices) Origin += vertex / (float)vertexCount;
 
   // Draw
-  Renderer->EnableStencilWriting(true);
+  Renderer->SetStencilMode(StencilBufferMode::Write);
+  Renderer->ClearStencilBuffer();
 
   Renderer->DrawConvexPolygon(std::move(vertices), DisplayCoords,
                               {1.0f, 1.0f, 1.0f, 1.0f}, Origin, Angle, Scale);
 
-  Renderer->DisableStencilWriting();
-  Renderer->EnableStencilTesting();
+  Renderer->SetStencilMode(StencilBufferMode::Test);
 
   const int renderType = ScrWork[SW_BGEFF1_MODE + structOffset];
   std::invoke(BackgroundRenderTable[renderType], this);
 
-  Renderer->DisableStencilTesting();
+  Renderer->SetStencilMode(StencilBufferMode::Off);
 }
 
 void Background2D::RenderRegular() {

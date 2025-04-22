@@ -128,10 +128,8 @@ class Renderer : public BaseRenderer {
   void SetScissorRect(RectF const& rect) override;
   void DisableScissor() override;
 
-  void EnableStencilTesting() override;
-  void DisableStencilTesting() override;
-  void EnableStencilWriting(bool clear) override;
-  void DisableStencilWriting() override;
+  void SetStencilMode(StencilBufferMode mode) override;
+  void ClearStencilBuffer() override;
 
  private:
   void EnsureSpaceAvailable(int vertices, int vertexSize, int indices);
