@@ -450,7 +450,7 @@ VmInstruction(InstGetSystemStatus) {
     case 1: {  // SYSSTAT_VOICEPLAY (Note, called voiceplay, but actually
                // !voiceplay...)
       thread->ScriptParam =
-          Audio::Channels[Audio::AC_VOICE0]->State != Audio::ACS_Playing;
+          Audio::Channels[Audio::AC_VOICE0]->GetState() != Audio::ACS_Playing;
       break;
     }
     case 5: {  // SYSSTAT_SKIP

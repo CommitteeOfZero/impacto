@@ -34,7 +34,7 @@ void BacklogMenu::MenuButtonOnClick(Widgets::BacklogEntry* target) {
         Profile::ConfigSystem::VoiceMuted[target->CharacterId]
             ? 0.0f
             : Profile::ConfigSystem::VoiceVolume[target->CharacterId];
-    Audio::Channels[Audio::AC_REV]->Volume = volume;
+    Audio::Channels[Audio::AC_REV]->SetVolume(volume);
     Audio::Channels[Audio::AC_REV]->Play("voice", target->AudioId, false, 0.0f);
   }
 }

@@ -1,9 +1,6 @@
-#include <algorithm>
-
 #include "audiochannel.h"
 #include "../audiosystem.h"
 #include "../audiostream.h"
-#include "../../log.h"
 
 namespace Impacto {
 namespace Audio {
@@ -20,166 +17,149 @@ static ALenum ToALFormat(int channels, int bitdepth) {
   assert(false);
 }
 
-AudioChannel::~AudioChannel() {
-  if (!IsInit) return;
-  Stop(0.0f);
-  alDeleteSources(1, &Source);
-  alDeleteBuffers(AudioBufferCount, BufferIds);
-}
+OpenALAudioChannel::OpenALAudioChannel(AudioChannelId id,
+                                       AudioChannelGroup group)
+    : AudioChannel(id, group),
+      HostBuffer(std::vector(AudioBufferSize, (uint8_t)0)) {
+  BufferStartPositions.fill(0);
 
-const AudioStream* AudioChannel::GetStream() const { return CurrentStream; }
-
-void AudioChannel::Init(AudioChannelId id, AudioChannelGroup group) {
-  assert(IsInit == false);
-  Id = id;
-  Group = group;
-  State = ACS_Stopped;
-  CurrentStream = 0;
-
+  alGenBuffers(AudioBuffers.size(), AudioBuffers.data());
   alGenSources(1, &Source);
+
   alSourcef(Source, AL_PITCH, 1);
-  alSourcef(Source, AL_GAIN, 0);
   alSource3f(Source, AL_POSITION, 0, 0, 0);
   alSource3f(Source, AL_VELOCITY, 0, 0, 0);
   alSourcei(Source, AL_LOOPING, AL_FALSE);
-
-  alGenBuffers(AudioBufferCount, BufferIds);
-
-  IsInit = true;
+  UpdateGain();
 }
 
-// TODO AudioStream creation on background thread
-void AudioChannel::Play(AudioStream* stream, bool loop, float fadeInDuration) {
-  if (!IsInit) return;
-  assert(fadeInDuration >= 0.0f);
-  Stop(0.0f);
+OpenALAudioChannel::~OpenALAudioChannel() {
+  if (Stream) delete Stream;
 
-  CurrentStream = stream;
-  Looping = loop;
-  FreeBufferCount = AudioBufferCount;
-  FirstFreeBuffer = 0;
-  memset(BufferStartPositions, 0, sizeof(BufferStartPositions));
-  FinishedDecode = false;
-  Position = 0;
+  alDeleteBuffers(AudioBuffers.size(), AudioBuffers.data());
+  alDeleteSources(1, &Source);
+}
 
-  State = ACS_FadingIn;
+void OpenALAudioChannel::Play(AudioStream* stream, bool loop,
+                              float fadeInDuration) {
+  EndPlayback();
+
+  Stream = stream;
   FadeDuration = fadeInDuration;
-  if (fadeInDuration > 0.0f) {
-    FadeCompletion = 0.0f;
-  } else {
-    // Still FadingIn so FillBuffers doesn't think we're underrunning
-    FadeCompletion = 1.0f;
-  }
-  SetGain();
-
-  FillBuffers();
-  alSourcePlay(Source);
+  FadeProgress = FadeDuration == 0 ? 1 : 0;
+  State = FadeDuration == 0 ? ACS_Playing : ACS_FadingIn;
 }
 
-// TODO what to do when already fading out?
-void AudioChannel::Stop(float fadeOutDuration) {
-  if (!IsInit) return;
-  assert(fadeOutDuration >= 0.0f);
-  if (State == ACS_Stopped) return;
-  if (fadeOutDuration == 0.0f) {
-    State = ACS_Stopped;
-    // unqueue all buffers
-    alSourceStop(Source);
-    alSourcei(Source, AL_BUFFER, 0);
-    // ugh, leftover state
-    alDeleteSources(1, &Source);
-    alGenSources(1, &Source);
-    if (CurrentStream) {
-      delete CurrentStream;
-      CurrentStream = 0;
-    }
-    Position = 0;
-  } else {
-    State = ACS_FadingOut;
-    FadeDuration = fadeOutDuration;
-    FadeCompletion = 0.0f;
-  }
-}
-
-void AudioChannel::Pause() {
-  if (State == ACS_Playing) {
-    alSourcePause(Source);
-    State = ACS_Paused;
-  }
-}
-
-void AudioChannel::Resume() {
-  if (State == ACS_Paused) {
-    alSourcePlay(Source);
-    State = ACS_Playing;
-  }
-}
-
-void AudioChannel::Update(float dt) {
-  if (!IsInit) return;
-  if (State == ACS_Paused) return;
-
-  // Update fade
-
-  if (State == ACS_FadingIn || State == ACS_FadingOut) {
-    FadeCompletion += dt / FadeDuration;
-    if (FadeCompletion >= 1.0f) {
-      if (State == ACS_FadingIn) {
-        State = ACS_Playing;
-      } else {
-        Stop(0);
-      }
-    }
-  }
-  if (State == ACS_Stopped) return;
-  SetGain();
-
-  // Update playhead and stop playing if we're done
-
-  alGetSourcei(Source, AL_BUFFERS_PROCESSED, &FreeBufferCount);
-
-  if (FreeBufferCount == AudioBufferCount && FinishedDecode && !Looping) {
-    // whole file has been played out
-    Stop(0.0f);
+void OpenALAudioChannel::Stop(float fadeOutDuration) {
+  if (fadeOutDuration == 0) {
+    EndPlayback();
     return;
   }
 
-  // The first buffer we can't write to = currently playing buffer
-  int currentlyPlayingBuffer =
-      (FirstFreeBuffer + FreeBufferCount) % AudioBufferCount;
+  State = ACS_FadingOut;
+  FadeDuration = fadeOutDuration;
+  FadeProgress = 0;
+}
 
-  // TODO: Figure out what's wrong with this, seems like position can randomly
-  // become less than the previous position (I think start + offset somehow gets
-  // bigger than next buffer start)
-  int offset;
-  alGetSourcei(Source, AL_SAMPLE_OFFSET, &offset);
-  Position = BufferStartPositions[currentlyPlayingBuffer] + offset;
-  if (Looping) {
-    if (Position > CurrentStream->LoopEnd)
-      Position =
-          CurrentStream->LoopStart +
-          (Position % (CurrentStream->LoopEnd - CurrentStream->LoopStart));
-  } else {
-    Position = std::min(Position, CurrentStream->Duration);
+void OpenALAudioChannel::EndPlayback() {
+  if (Stream) delete Stream;
+  Stream = nullptr;
+
+  alSourceStop(Source);
+
+  ALint queuedBuffers;
+  alGetSourcei(Source, AL_BUFFERS_QUEUED, &queuedBuffers);
+  UnqueueBuffers(queuedBuffers);
+
+  State = ACS_Stopped;
+  FadeProgress = 0;
+  FirstQueuedBufferIndex = 0;
+  BufferStartPositions.fill(0);
+}
+
+void OpenALAudioChannel::Pause() {
+  if (State != ACS_Playing && State != ACS_FadingIn && State != ACS_FadingOut) {
+    return;
   }
 
-  // TODO do this on background thread detached from game loop
-  FillBuffers();
+  alSourcePause(Source);
+  State = ACS_Paused;
+}
 
-  // restart playback after underrun
+void OpenALAudioChannel::Resume() {
+  if (State != ACS_Paused) return;
 
-  ALint sourceState;
-  alGetSourcei(Source, AL_SOURCE_STATE, &sourceState);
-  if (State != ACS_Stopped && sourceState != AL_PLAYING) {
-    ImpLog(LogLevel::Error, LogChannel::Audio,
-           "Restarting playback after buffer underrun on channel {:d} - {:d}\n",
-           Id, sourceState);
+  // Should we fade here?
+  State = ACS_Playing;
+}
+
+float OpenALAudioChannel::PositionInSeconds() const {
+  int offset;
+  alGetSourcei(Source, AL_SAMPLE_OFFSET, &offset);
+
+  size_t position = BufferStartPositions[FirstQueuedBufferIndex] + offset;
+  return (float)position / Stream->SampleRate;
+}
+
+void OpenALAudioChannel::Update(float dt) {
+  if (State == ACS_FadingIn || State == ACS_FadingOut) {
+    UpdateFade(dt);
+  }
+
+  if (State != ACS_Playing && State != ACS_FadingIn && State != ACS_FadingIn) {
+    return;
+  }
+
+  // Continuously update the gain
+  // because the global state might have changed
+  UpdateGain();
+
+  // End playback if OpenAL stopped playback
+  ALenum alState;
+  alGetSourcei(Source, AL_SOURCE_STATE, &alState);
+  if (Stream->ReadPosition > 0 && alState == AL_STOPPED) {
+    EndPlayback();
+    return;
+  }
+
+  ALint processedBuffers;
+  alGetSourcei(Source, AL_BUFFERS_PROCESSED, &processedBuffers);
+  UnqueueBuffers(processedBuffers);
+
+  // TODO do this on background thread
+  while (CanQueueBuffer()) {
+    int queuedBuffers;
+    alGetSourcei(Source, AL_BUFFERS_QUEUED, &queuedBuffers);
+
+    if (queuedBuffers == 0 && Stream->ReadPosition > 0) {
+      ImpLog(LogLevel::Error, LogChannel::Audio,
+             "Buffer underrun on channel {:d}\n", Id);
+    }
+
+    size_t firstFreeIndex =
+        (FirstQueuedBufferIndex + queuedBuffers) % AudioBuffers.size();
+    QueueBuffer(firstFreeIndex);
+  }
+
+  // Start playback if it isn't started yet
+  if (alState != AL_PLAYING) {
     alSourcePlay(Source);
+  }
+}
+
+void OpenALAudioChannel::UpdateFade(float dt) {
+  FadeProgress = std::min(1.0f, FadeProgress + dt / FadeDuration);
+  if (FadeProgress >= 1.0f) {
+    if (State == ACS_FadingIn) {
+      State = ACS_Playing;
+    } else {
+      EndPlayback();
+    }
   }
 }
 
 // TODO what easing functions do we want for this?
-void AudioChannel::SetGain() {
+void OpenALAudioChannel::UpdateGain() {
   float gain = MasterVolume * GroupVolumes[Group] * Volume;
   switch (State) {
     case ACS_Stopped:
@@ -188,85 +168,62 @@ void AudioChannel::SetGain() {
       // Nothing
       break;
     case ACS_FadingIn:
-      gain *= powf(FadeCompletion, 3.0f);
+      gain *= powf(FadeProgress, 3.0f);
       break;
     case ACS_FadingOut:
-      gain *= 1.0f - powf(FadeCompletion, 3.0f);
+      gain *= 1.0f - powf(FadeProgress, 3.0f);
       break;
   }
+
   alSourcef(Source, AL_GAIN, gain);
 }
 
-// TODO restart playback on underrun, e.g.
-// https://github.com/arx/ArxLibertatis/blob/master/src/audio/openal/OpenALSource.cpp
-void AudioChannel::FillBuffers() {
-  if (!CurrentStream) return;
-
-  if (FreeBufferCount == AudioBufferCount && !FinishedDecode &&
-      State == ACS_Playing) {
-    ImpLog(LogLevel::Error, LogChannel::Audio,
-           "Buffer underrun on channel {:d}\n", Id);
-  }
-
-  int maxSamples = SamplesPerBuffer();
-
-  while (FreeBufferCount) {
-    if (State != ACS_FadingIn) {
-      alSourceUnqueueBuffers(Source, 1, &BufferIds[FirstFreeBuffer]);
-    }
-    FreeBufferCount--;
-
-    BufferStartPositions[FirstFreeBuffer] = CurrentStream->ReadPosition;
-
-    memset(HostBuffer, 0, AudioBufferSize);
-
-    uint8_t* dest;
-    int samplesRead = 0;
-    while (samplesRead < maxSamples) {
-      if (Looping && CurrentStream->ReadPosition >= CurrentStream->LoopEnd) {
-        ImpLog(LogLevel::Trace, LogChannel::Audio, "Channel {:d} looping\n",
-               Id);
-        CurrentStream->Seek(CurrentStream->LoopStart);
-      }
-      dest = HostBuffer + samplesRead * CurrentStream->BytesPerSample();
-      int samplesToRead = maxSamples - samplesRead;
-      if (Looping)
-        samplesToRead =
-            std::min(samplesToRead,
-                     CurrentStream->LoopEnd - CurrentStream->ReadPosition);
-      int samplesReadThisIteration = CurrentStream->Read(dest, samplesToRead);
-      samplesRead += samplesReadThisIteration;
-
-      if (CurrentStream->ReadPosition >= CurrentStream->Duration &&
-          CurrentStream->Duration >= 0) {
-        FinishedDecode = true;
-      }
-      if (samplesReadThisIteration == 0 && FinishedDecode) break;
-    }
-
-    alBufferData(
-        BufferIds[FirstFreeBuffer],
-        ToALFormat(CurrentStream->ChannelCount, CurrentStream->BitDepth),
-        HostBuffer, SamplesPerBuffer() * CurrentStream->BytesPerSample(),
-        CurrentStream->SampleRate);
-    alSourceQueueBuffers(Source, 1, &BufferIds[FirstFreeBuffer]);
-
-    FirstFreeBuffer++;
-    FirstFreeBuffer %= AudioBufferCount;
+// Unqueues `amount` buffers, starting at the first queued buffer
+void OpenALAudioChannel::UnqueueBuffers(size_t amount) {
+  for (size_t i = 0; i < amount; i++) {
+    size_t bufferIndex = FirstQueuedBufferIndex % AudioBuffers.size();
+    alSourceUnqueueBuffers(Source, 1, &AudioBuffers[bufferIndex]);
+    FirstQueuedBufferIndex = (bufferIndex + 1) % AudioBuffers.size();
   }
 }
 
-int AudioChannel::SamplesPerBuffer() const {
-  return AudioBufferSize / CurrentStream->BytesPerSample();
+bool OpenALAudioChannel::CanQueueBuffer() {
+  ALint queuedBuffers;
+  alGetSourcei(Source, AL_BUFFERS_QUEUED, &queuedBuffers);
+
+  if (queuedBuffers >= AudioBuffers.size()) return false;
+
+  return Looping || Stream->ReadPosition < Stream->Duration;
 }
 
-float AudioChannel::PositionInSeconds() const {
-  if (!CurrentStream) return 0;
-  return (float)Position / (float)CurrentStream->SampleRate;
-}
-float AudioChannel::DurationInSeconds() const {
-  if (!CurrentStream) return 0;
-  return (float)CurrentStream->Duration / (float)CurrentStream->SampleRate;
+void OpenALAudioChannel::QueueBuffer(size_t bufferIndex) {
+  BufferStartPositions[bufferIndex] = Stream->ReadPosition;
+  std::fill(HostBuffer.begin(), HostBuffer.end(), 0);
+
+  int maxSamples = AudioBufferSize / Stream->BytesPerSample();
+  int samplesRead = 0;
+
+  while (samplesRead < maxSamples && Stream->ReadPosition < Stream->Duration) {
+    int end = Looping ? Stream->LoopEnd : Stream->Duration;
+    int samplesToRead = std::min(maxSamples, end - Stream->ReadPosition);
+
+    uint8_t* dest = &HostBuffer[samplesRead * Stream->BytesPerSample()];
+    int samplesReadThisIteration = Stream->Read(dest, samplesToRead);
+    samplesRead += samplesReadThisIteration;
+
+    if (Looping && Stream->ReadPosition >= Stream->LoopEnd) {
+      Stream->Seek(Stream->LoopStart);
+    }
+
+    if (samplesReadThisIteration == 0) break;
+  }
+
+  ALuint buffer = AudioBuffers[bufferIndex];
+  ALenum format = ToALFormat(Stream->ChannelCount, Stream->BitDepth);
+
+  alBufferData(buffer, format, HostBuffer.data(),
+               samplesRead * Stream->BytesPerSample(), Stream->SampleRate);
+  alSourceQueueBuffers(Source, 1, &buffer);
 }
 
 }  // namespace OpenAL
