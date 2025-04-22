@@ -63,7 +63,10 @@ class EmptyAudioChannel : public AudioChannel {
     State = ACS_Playing;
   }
 
-  void Stop(float fadeOutDuration) override { State = ACS_Stopped; }
+  void Stop(float fadeOutDuration) override {
+    if (State == ACS_Playing || State == ACS_FadingIn && State == ACS_FadingOut)
+      State = ACS_Stopped;
+  }
 
   void Pause() override {
     if (State == ACS_Playing || State == ACS_FadingIn || State == ACS_FadingOut)

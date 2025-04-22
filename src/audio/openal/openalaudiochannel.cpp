@@ -52,6 +52,10 @@ void OpenALAudioChannel::Play(AudioStream* stream, bool loop,
 }
 
 void OpenALAudioChannel::Stop(float fadeOutDuration) {
+  if (State != ACS_Playing && State != ACS_FadingIn && State != ACS_FadingOut) {
+    return;
+  }
+
   if (fadeOutDuration == 0) {
     EndPlayback();
     return;
