@@ -6,7 +6,6 @@
 
 #ifndef IMPACTO_DISABLE_OPENAL
 #include "openal/audiobackend.h"
-#include "openal/audiochannel.h"
 #endif
 
 #include <utility>

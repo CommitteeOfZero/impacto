@@ -852,12 +852,12 @@ if (NOT DEFINED IMPACTO_DISABLE_OPENAL)
 
     list(APPEND Impacto_Src
             src/audio/openal/audiobackend.cpp
-            src/audio/openal/audiochannel.cpp
+            src/audio/openal/openalaudiochannel.cpp
             src/audio/openal/ffmpegaudioplayer.cpp
     )
     list(APPEND Impacto_Header
             src/audio/openal/audiobackend.h
-            src/audio/openal/audiochannel.h
+            src/audio/openal/openalaudiochannel.h
             src/audio/openal/audiocommon.h
             src/audio/openal/ffmpegaudioplayer.h
     )

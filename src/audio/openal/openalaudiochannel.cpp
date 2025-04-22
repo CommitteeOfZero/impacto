@@ -1,4 +1,4 @@
-#include "audiochannel.h"
+#include "openalaudiochannel.h"
 #include "../audiosystem.h"
 #include "../audiostream.h"
 

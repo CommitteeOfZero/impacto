@@ -1,6 +1,6 @@
 #include "audiochannel.h"
 #include "audiostream.h"
-#include "openal/audiochannel.h"
+#include "openal/openalaudiochannel.h"
 
 #include "../io/stream.h"
 #include "../io/vfs.h"
