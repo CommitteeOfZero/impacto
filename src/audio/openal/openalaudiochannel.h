@@ -12,7 +12,8 @@ class OpenALAudioChannel : public Audio::AudioChannel {
   OpenALAudioChannel(AudioChannelId id, AudioChannelGroup group);
   ~OpenALAudioChannel();
 
-  void Play(AudioStream* stream, bool loop, float fadeInDuration) override;
+  void Play(std::unique_ptr<AudioStream> stream, bool loop,
+            float fadeInDuration) override;
   void Stop(float fadeOutDuration) override;
   void Pause() override;
   void Resume() override;

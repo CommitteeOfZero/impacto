@@ -1,6 +1,7 @@
 #pragma once
 
 #include "audiocommon.h"
+#include "audiostream.h"
 #include <string>
 #include <cstdint>
 
@@ -12,7 +13,8 @@ class AudioChannel {
   static std::unique_ptr<AudioChannel> Create(AudioChannelId id,
                                               AudioChannelGroup group);
 
-  virtual void Play(AudioStream* stream, bool loop, float fadeInDuration) = 0;
+  virtual void Play(std::unique_ptr<AudioStream> stream, bool loop,
+                    float fadeInDuration) = 0;
   void Play(std::string const& mountpoint, std::string const& fileName,
             bool loop, float fadeInDuration);
   void Play(std::string const& mountpoint, uint32_t fileId, bool loop,
@@ -35,7 +37,7 @@ class AudioChannel {
   float GetVolume() const { return Volume; }
   void SetVolume(float volume) { Volume = volume; }
 
-  const AudioStream* GetStream() const { return Stream; }
+  const AudioStream* GetStream() const { return Stream.get(); }
 
   // may be negative for no fixed duration, 0 for no audio
   float DurationInSeconds() const;
@@ -51,7 +53,7 @@ class AudioChannel {
   float Volume = 1.0f;
   bool Looping = false;
 
-  AudioStream* Stream = nullptr;
+  std::unique_ptr<AudioStream> Stream;
 };
 
 class EmptyAudioChannel : public AudioChannel {
@@ -59,7 +61,8 @@ class EmptyAudioChannel : public AudioChannel {
   EmptyAudioChannel(AudioChannelId id, AudioChannelGroup group)
       : AudioChannel(id, group) {}
 
-  void Play(AudioStream* stream, bool loop, float fadeInDuration) override {
+  void Play(std::unique_ptr<AudioStream> stream, bool loop,
+            float fadeInDuration) override {
     State = ACS_Playing;
   }
 

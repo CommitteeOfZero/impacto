@@ -34,17 +34,15 @@ OpenALAudioChannel::OpenALAudioChannel(AudioChannelId id,
 }
 
 OpenALAudioChannel::~OpenALAudioChannel() {
-  if (Stream) delete Stream;
-
   alDeleteBuffers(AudioBuffers.size(), AudioBuffers.data());
   alDeleteSources(1, &Source);
 }
 
-void OpenALAudioChannel::Play(AudioStream* stream, bool loop,
+void OpenALAudioChannel::Play(std::unique_ptr<AudioStream> stream, bool loop,
                               float fadeInDuration) {
   EndPlayback();
 
-  Stream = stream;
+  Stream = std::move(stream);
   FadeDuration = fadeInDuration;
   FadeProgress = FadeDuration == 0 ? 1 : 0;
   State = FadeDuration == 0 ? ACS_Playing : ACS_FadingIn;
@@ -67,15 +65,13 @@ void OpenALAudioChannel::Stop(float fadeOutDuration) {
 }
 
 void OpenALAudioChannel::EndPlayback() {
-  if (Stream) delete Stream;
-  Stream = nullptr;
-
   alSourceStop(Source);
 
   ALint queuedBuffers;
   alGetSourcei(Source, AL_BUFFERS_QUEUED, &queuedBuffers);
   UnqueueBuffers(queuedBuffers);
 
+  Stream = nullptr;
   PlaybackStarted = false;
   State = ACS_Stopped;
   FadeProgress = 0;

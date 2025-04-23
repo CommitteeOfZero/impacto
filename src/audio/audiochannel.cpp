@@ -30,7 +30,8 @@ void AudioChannel::Play(std::string const& mountpoint,
   Io::Stream* stream;
   IoError err = Io::VfsOpen(mountpoint, fileName, &stream);
   if (err == IoError_OK) {
-    Play(AudioStream::Create(stream), loop, fadeInDuration);
+    Play(std::unique_ptr<AudioStream>(AudioStream::Create(stream)), loop,
+         fadeInDuration);
   } else {
     ImpLog(LogLevel::Error, LogChannel::Audio,
            "Could not open audio file {:s} from mountpoint {:s}!\n", fileName,
@@ -43,7 +44,8 @@ void AudioChannel::Play(std::string const& mountpoint, uint32_t fileId,
   Io::Stream* stream;
   IoError err = Io::VfsOpen(mountpoint, fileId, &stream);
   if (err == IoError_OK) {
-    Play(AudioStream::Create(stream), loop, fadeInDuration);
+    Play(std::unique_ptr<AudioStream>(AudioStream::Create(stream)), loop,
+         fadeInDuration);
   } else {
     ImpLog(LogLevel::Error, LogChannel::Audio,
            "Could not open audio file with ID {:d} from mountpoint {:s}!\n",

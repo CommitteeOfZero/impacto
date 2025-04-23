@@ -22,6 +22,7 @@
 #include "games/chlcc/dialoguebox.h"
 #include "profile/games/chlcc/dialoguebox.h"
 #include "games/cc/dialoguebox.h"
+#include "audio/audiostream.h"
 
 #include <utf8-cpp/source/utf8.h>
 #include "vm/interface/input.h"
@@ -671,7 +672,8 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
   }
 
   if (voice != 0) {
-    Audio::Channels[Audio::AC_VOICE0]->Play(voice, false, 0.0f);
+    Audio::Channels[Audio::AC_VOICE0]->Play(
+        std::unique_ptr<Audio::AudioStream>(voice), false, 0.0f);
   }
 
   int typewriterCt = Glyphs.size() - typewriterStart;
