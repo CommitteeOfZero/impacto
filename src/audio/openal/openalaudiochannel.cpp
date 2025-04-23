@@ -208,7 +208,8 @@ void OpenALAudioChannel::QueueBuffer(size_t bufferIndex) {
 
   while (samplesRead < maxSamples && Stream->ReadPosition < Stream->Duration) {
     int end = Looping ? Stream->LoopEnd : Stream->Duration;
-    int samplesToRead = std::min(maxSamples, end - Stream->ReadPosition);
+    int samplesToRead =
+        std::min(maxSamples - samplesRead, end - Stream->ReadPosition);
 
     uint8_t* dest = &HostBuffer[samplesRead * Stream->BytesPerSample()];
     int samplesReadThisIteration = Stream->Read(dest, samplesToRead);
