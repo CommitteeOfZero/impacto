@@ -76,6 +76,7 @@ void OpenALAudioChannel::EndPlayback() {
   alGetSourcei(Source, AL_BUFFERS_QUEUED, &queuedBuffers);
   UnqueueBuffers(queuedBuffers);
 
+  PlaybackStarted = false;
   State = ACS_Stopped;
   FadeProgress = 0;
   FirstQueuedBufferIndex = 0;
@@ -122,7 +123,7 @@ void OpenALAudioChannel::Update(float dt) {
   // End playback if OpenAL stopped playback
   ALenum alState;
   alGetSourcei(Source, AL_SOURCE_STATE, &alState);
-  if (Stream->ReadPosition > 0 && alState == AL_STOPPED) {
+  if (alState == AL_STOPPED && PlaybackStarted) {
     EndPlayback();
     return;
   }
@@ -136,7 +137,7 @@ void OpenALAudioChannel::Update(float dt) {
     int queuedBuffers;
     alGetSourcei(Source, AL_BUFFERS_QUEUED, &queuedBuffers);
 
-    if (queuedBuffers == 0 && Stream->ReadPosition > 0) {
+    if (queuedBuffers == 0 && PlaybackStarted) {
       ImpLog(LogLevel::Error, LogChannel::Audio,
              "Buffer underrun on channel {:d}\n", Id);
     }
@@ -148,6 +149,7 @@ void OpenALAudioChannel::Update(float dt) {
 
   // Start playback if it isn't started yet
   if (alState != AL_PLAYING) {
+    PlaybackStarted = true;
     alSourcePlay(Source);
   }
 }
