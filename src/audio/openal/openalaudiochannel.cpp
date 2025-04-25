@@ -50,9 +50,7 @@ void OpenALAudioChannel::Play(std::unique_ptr<AudioStream> stream, bool loop,
 }
 
 void OpenALAudioChannel::Stop(float fadeOutDuration) {
-  if (State != ACS_Playing && State != ACS_FadingIn && State != ACS_FadingOut) {
-    return;
-  }
+  if (State == ACS_Stopped) return;
 
   if (fadeOutDuration == 0) {
     EndPlayback();
@@ -84,7 +82,6 @@ void OpenALAudioChannel::Pause() {
     return;
   }
 
-  alSourcePause(Source);
   State = ACS_Paused;
 }
 
@@ -104,60 +101,65 @@ float OpenALAudioChannel::PositionInSeconds() const {
 }
 
 void OpenALAudioChannel::Update(float dt) {
-  if (State == ACS_FadingIn || State == ACS_FadingOut) {
-    UpdateFade(dt);
+  UpdateFade(dt);
+
+  if (State == ACS_Playing || State == ACS_FadingIn || State == ACS_FadingOut) {
+    // Continuously update the gain
+    // because the global state might have changed
+    UpdateGain();
+
+    ALint processedBuffers;
+    alGetSourcei(Source, AL_BUFFERS_PROCESSED, &processedBuffers);
+    UnqueueBuffers(processedBuffers);
+
+    // TODO do this on background thread
+    while (CanQueueBuffer()) {
+      int queuedBuffers;
+      alGetSourcei(Source, AL_BUFFERS_QUEUED, &queuedBuffers);
+
+      if (queuedBuffers == 0 && PlaybackStarted) {
+        ImpLog(LogLevel::Error, LogChannel::Audio,
+               "Buffer underrun on channel {:d}\n", Id);
+      }
+
+      size_t firstFreeIndex =
+          (FirstQueuedBufferIndex + queuedBuffers) % AudioBuffers.size();
+      QueueBuffer(firstFreeIndex);
+    }
   }
 
-  if (State != ACS_Playing && State != ACS_FadingIn && State != ACS_FadingIn) {
-    return;
+  UpdatePlayback();
+}
+
+void OpenALAudioChannel::UpdateFade(float dt) {
+  if (State != ACS_FadingIn && State != ACS_FadingOut) return;
+
+  FadeProgress = std::min(1.0f, FadeProgress + dt / FadeDuration);
+  if (FadeProgress >= 1.0f) {
+    State = State == ACS_FadingIn ? ACS_Playing : ACS_Stopped;
   }
+}
 
-  // Continuously update the gain
-  // because the global state might have changed
-  UpdateGain();
-
-  // End playback if OpenAL stopped playback
+void OpenALAudioChannel::UpdatePlayback() {
   ALenum alState;
   alGetSourcei(Source, AL_SOURCE_STATE, &alState);
+
+  // Stop playback when OpenAL finished processing the whole stream
   if (alState == AL_STOPPED && PlaybackStarted) {
     EndPlayback();
     return;
   }
 
-  ALint processedBuffers;
-  alGetSourcei(Source, AL_BUFFERS_PROCESSED, &processedBuffers);
-  UnqueueBuffers(processedBuffers);
-
-  // TODO do this on background thread
-  while (CanQueueBuffer()) {
-    int queuedBuffers;
-    alGetSourcei(Source, AL_BUFFERS_QUEUED, &queuedBuffers);
-
-    if (queuedBuffers == 0 && PlaybackStarted) {
-      ImpLog(LogLevel::Error, LogChannel::Audio,
-             "Buffer underrun on channel {:d}\n", Id);
-    }
-
-    size_t firstFreeIndex =
-        (FirstQueuedBufferIndex + queuedBuffers) % AudioBuffers.size();
-    QueueBuffer(firstFreeIndex);
-  }
-
-  // Start playback if it isn't started yet
-  if (alState != AL_PLAYING) {
-    PlaybackStarted = true;
+  // Only propogate the latest state to OpenAL
+  // when the audio channel is updated to avoid "blips"
+  // when multiple state changes occur in one frame
+  if (alState != AL_PAUSED && State == ACS_Paused) {
+    alSourcePause(Source);
+  } else if (alState != AL_PLAYING &&
+             (State == ACS_Playing || State == ACS_FadingIn ||
+              State == ACS_FadingOut)) {
     alSourcePlay(Source);
-  }
-}
-
-void OpenALAudioChannel::UpdateFade(float dt) {
-  FadeProgress = std::min(1.0f, FadeProgress + dt / FadeDuration);
-  if (FadeProgress >= 1.0f) {
-    if (State == ACS_FadingIn) {
-      State = ACS_Playing;
-    } else {
-      EndPlayback();
-    }
+    PlaybackStarted = true;
   }
 }
 
@@ -184,7 +186,7 @@ void OpenALAudioChannel::UpdateGain() {
 // Unqueues `amount` buffers, starting at the first queued buffer
 void OpenALAudioChannel::UnqueueBuffers(size_t amount) {
   for (size_t i = 0; i < amount; i++) {
-    size_t bufferIndex = FirstQueuedBufferIndex % AudioBuffers.size();
+    size_t bufferIndex = FirstQueuedBufferIndex;
     alSourceUnqueueBuffers(Source, 1, &AudioBuffers[bufferIndex]);
     FirstQueuedBufferIndex = (bufferIndex + 1) % AudioBuffers.size();
   }
@@ -201,7 +203,6 @@ bool OpenALAudioChannel::CanQueueBuffer() {
 
 void OpenALAudioChannel::QueueBuffer(size_t bufferIndex) {
   BufferStartPositions[bufferIndex] = Stream->ReadPosition;
-  std::fill(HostBuffer.begin(), HostBuffer.end(), 0);
 
   int maxSamples = AudioBufferSize / Stream->BytesPerSample();
   int samplesRead = 0;

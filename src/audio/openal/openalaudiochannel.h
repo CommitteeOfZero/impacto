@@ -43,6 +43,7 @@ class OpenALAudioChannel : public Audio::AudioChannel {
   void UnqueueBuffers(size_t amount);
   bool CanQueueBuffer();
   void QueueBuffer(size_t bufferIndex);
+  void UpdatePlayback();
 };
 
 }  // namespace OpenAL
