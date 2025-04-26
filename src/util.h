@@ -308,6 +308,7 @@ inline float NormalizeRad(float rad) {
 constexpr float ScrWorkAngleToRad(float angle) {
   return angle * (float)(2.0f * M_PI / (float)(1 << 16));
 }
+glm::quat ScrWorkAnglesToQuaternion(int x, int y, int z);
 
 inline bool StringEndsWith(std::string const& str, std::string const& ending) {
   if (str.length() < ending.length()) return false;
