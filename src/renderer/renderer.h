@@ -183,6 +183,33 @@ class BaseRenderer {
     glm::vec4 Tint;
     glm::vec2 MaskUV;
   };
+
+  static void QuadSetUV(const RectF spriteBounds, float designWidth,
+                        float designHeight, glm::vec2* uvs, size_t stride,
+                        float angle = 0.0f);
+
+  static void QuadSetUVFlipped(const RectF spriteBounds, float designWidth,
+                               float designHeight, glm::vec2* uvs,
+                               size_t stride) {
+    QuadSetUV({spriteBounds.X, spriteBounds.Y + spriteBounds.Height,
+               spriteBounds.Width, -spriteBounds.Height},
+              designWidth, designHeight, uvs, stride);
+  }
+
+  static void QuadSetPosition(RectF const& transformedQuad, float angle,
+                              uintptr_t positions, int stride);
+  static void QuadSetPosition(CornersQuad destQuad, float angle,
+                              uintptr_t positions, int stride);
+
+  static void QuadSetPositionOffset(RectF const& spriteBounds,
+                                    glm::vec2 displayXY,
+                                    glm::vec2 displayOffset, glm::vec2 scale,
+                                    float angle, uintptr_t positions,
+                                    int stride, bool toNDC = true);
+  static void QuadSetPosition3DRotated(RectF const& transformedQuad,
+                                       float depth, glm::vec2 vanishingPoint,
+                                       bool stayInScreen, glm::quat rot,
+                                       uintptr_t positions, int stride);
 };
 
 inline BaseRenderer* Renderer;
