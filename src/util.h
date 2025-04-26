@@ -51,6 +51,19 @@ concept is_any_of = std::disjunction_v<std::is_same<T, Ts>...>;
 
 glm::mat2 Rotate2D(float angle);
 
+glm::mat4 Transformation3D(glm::vec3 translation,
+                           glm::vec3 origin = glm::vec3(0.0f),
+                           glm::quat rotation = glm::quat(),
+                           glm::vec2 scaling = glm::vec2(1.0f));
+
+glm::vec2 Transform2D(glm::vec2 pos, glm::vec2 translation,
+                      glm::vec2 origin = glm::vec2(0.0f), float rotation = 0.0f,
+                      glm::vec2 scaling = glm::vec2(1.0f));
+glm::vec3 Transform3D(glm::vec3 pos, glm::vec3 translation,
+                      glm::vec3 origin = glm::vec3(0.0f),
+                      glm::quat rotation = glm::quat(),
+                      glm::vec2 scaling = glm::vec2(1.0f));
+
 struct Rect;
 
 struct RectF {
