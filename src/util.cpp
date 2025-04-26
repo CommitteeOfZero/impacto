@@ -2,6 +2,7 @@
 
 #include "profile/game.h"
 #include <memory>
+#include <glm/gtx/quaternion.hpp>
 
 namespace Impacto {
 
@@ -14,6 +15,32 @@ glm::mat2 Rotate2D(float angle) {
   result[1][0] = -sina;
   result[1][1] = cosa;
   return result;
+}
+
+glm::mat4 Transformation3D(const glm::vec3 translation, const glm::vec3 origin,
+                           const glm::quat rotation, const glm::vec3 scaling) {
+  glm::mat4 matrix(1.0f);
+  matrix = glm::translate(matrix, -origin);
+  matrix = glm::scale(matrix, scaling);
+  matrix = glm::toMat4(rotation) * matrix;
+  matrix = glm::translate(matrix, origin + translation);
+  return matrix;
+}
+
+glm::vec2 Transform2D(const glm::vec2 pos, const glm::vec2 translation,
+                      const glm::vec2 origin, const float rotation,
+                      const glm::vec2 scaling) {
+  return Transformation3D(glm::vec3(translation, 0.0f), glm::vec3(origin, 0.0f),
+                          glm::quat(rotation, {0.0f, 0.0f, 1.0f}),
+                          glm::vec3(scaling, 1.0f)) *
+         glm::vec4(pos, 0.0f, 0.0f);
+}
+
+glm::vec3 Transform3D(const glm::vec3 pos, const glm::vec3 translation,
+                      const glm::vec3 origin, const glm::quat rotation,
+                      const glm::vec3 scaling) {
+  return Transformation3D(translation, origin, rotation, scaling) *
+         glm::vec4(pos, 0.0f);
 }
 
 glm::vec2 DesignToNDC(glm::vec2 xy) {
