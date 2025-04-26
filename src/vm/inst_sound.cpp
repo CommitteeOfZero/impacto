@@ -52,8 +52,8 @@ VmInstruction(InstSEplay) {
     } else {
       ScrWork[SW_SEREQNO + channel] = 0xFFFF;
     }
-    Audio::Channels[Audio::AC_SE0 + channel]->Volume =
-        (ScrWork[SW_SEVOL + channel] / 100.0f) * 0.3f;
+    Audio::Channels[Audio::AC_SE0 + channel]->SetVolume(
+        (ScrWork[SW_SEVOL + channel] / 100.0f) * 0.3f);
     Audio::Channels[Audio::AC_SE0 + channel]->Play("se", effect, (bool)loop,
                                                    0.0f);
   } else {
@@ -67,8 +67,8 @@ VmInstruction(InstSEplayMO6) {
   PopUint8(channel);
   PopExpression(effect);
   PopExpression(loop);
-  Audio::Channels[Audio::AC_SE0 + channel]->Volume =
-      (ScrWork[SW_SEVOL + channel] / 100.0f) * 0.3f;
+  Audio::Channels[Audio::AC_SE0 + channel]->SetVolume(
+      (ScrWork[SW_SEVOL + channel] / 100.0f) * 0.3f);
   Audio::Channels[Audio::AC_SE0 + channel]->Play("se", effect, (bool)loop,
                                                  0.0f);
 }

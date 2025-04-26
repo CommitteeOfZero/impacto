@@ -227,7 +227,7 @@ void MusicMenu::Update(float dt) {
       NowPlayingAnimation.StartOut();
       Audio::Channels[Audio::AC_BGM0]->Stop(2.0f);
     }
-    if (Audio::Channels[Audio::AC_BGM0]->State == Audio::ACS_Stopped) {
+    if (Audio::Channels[Audio::AC_BGM0]->GetState() == Audio::ACS_Stopped) {
       int trackId;
       if (PlaybackMode == MPM_One) {
         trackId = -1;
@@ -260,9 +260,9 @@ void MusicMenu::UpdateInput() {
       PlaymodeRepeatSprite =
           mode & 2 ? PlaymodeRepeatHighlight : PlaymodeRepeat;
       if (PlaybackMode == MPM_RepeatOne) {
-        Audio::Channels[Audio::AC_BGM0]->Looping = true;
+        Audio::Channels[Audio::AC_BGM0]->SetLooping(true);
       } else {
-        Audio::Channels[Audio::AC_BGM0]->Looping = false;
+        Audio::Channels[Audio::AC_BGM0]->SetLooping(false);
       }
     }
 

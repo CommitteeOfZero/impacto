@@ -201,7 +201,7 @@ constexpr static int animeTable[20][2] = {
     {1, 10}, {2, 5},  {1, 7},  {2, 5}, {1, 7}, {2, 3}};
 
 uint8_t GetSoundLevel() {
-  if (Audio::Channels[Audio::AC_VOICE0]->State != Audio::ACS_Playing ||
+  if (Audio::Channels[Audio::AC_VOICE0]->GetState() != Audio::ACS_Playing ||
       Audio::Channels[Audio::AC_VOICE0]->DurationInSeconds() -
               Audio::Channels[Audio::AC_VOICE0]->PositionInSeconds() <
           FLT_EPSILON)

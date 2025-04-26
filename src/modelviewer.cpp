@@ -411,7 +411,7 @@ void Update(float dt) {
 #endif
 
   if (BgmChangeQueued &&
-      Audio::Channels[Audio::AC_BGM0]->State == Audio::ACS_Stopped) {
+      Audio::Channels[Audio::AC_BGM0]->GetState() == Audio::ACS_Stopped) {
     Audio::Channels[Audio::AC_BGM0]->Play("bgm", BgmIds[CurrentBgm], BgmLoop,
                                           BgmFadeIn);
     BgmChangeQueued = false;

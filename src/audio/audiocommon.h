@@ -48,8 +48,5 @@ constexpr inline auto format_as(AudioChannelState state) -> std::string_view {
   return "Unknown";
 }
 
-class AudioChannel;
-class AudioStream;
-
 }  // namespace Audio
 }  // namespace Impacto

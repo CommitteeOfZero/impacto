@@ -209,8 +209,8 @@ void DelusionTrigger::UpdateShowing() {
 
 void DelusionTrigger::PlayClickSound() {
   ScrWork[SW_SEREQNO + 0] = 19;
-  Impacto::Audio::Channels[Audio::AC_SE0 + 0]->Volume =
-      (ScrWork[SW_SEVOL + 0] / 100.0f) * 0.3f;
+  Impacto::Audio::Channels[Audio::AC_SE0 + 0]->SetVolume(
+      (ScrWork[SW_SEVOL + 0] / 100.0f) * 0.3f);
   Impacto::Audio::Channels[Audio::AC_SE0 + 0]->Play("se", 19, false, 0.0f);
 }
 

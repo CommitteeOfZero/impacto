@@ -6,7 +6,6 @@
 
 #ifndef IMPACTO_DISABLE_OPENAL
 #include "openal/audiobackend.h"
-#include "openal/audiochannel.h"
 #endif
 
 #include <utility>
@@ -22,8 +21,7 @@ void AudioShutdown() {
   Backend->Shutdown();
   IsInit = false;
   for (int i = 0; i < AC_Count; i++) {
-    delete Channels[i];
-    Channels[i] = 0;
+    Channels[i] = nullptr;
   }
 }
 
@@ -35,9 +33,6 @@ void AudioInit() {
 #ifndef IMPACTO_DISABLE_OPENAL
     case AudioBackendType::OpenAL: {
       Backend = new OpenAL::AudioBackend();
-      for (int i = 0; i < AC_Count; i++) {
-        Channels[i] = new OpenAL::AudioChannel();
-      }
     } break;
 #endif
     default: {
@@ -45,21 +40,17 @@ void AudioInit() {
              "Unknown or unsupported audio backend selected! You will not hear "
              "audio.\n");
       Backend = new AudioBackend();
-      for (int i = 0; i < AC_Count; i++) {
-        Channels[i] = new AudioChannel();
-      }
-    } break;
+    }
   }
 
   if (!Backend->Init()) return;
-
   for (int i = AC_SE0; i <= AC_SE2; i++)
-    Channels[i]->Init((AudioChannelId)i, ACG_SE);
+    Channels[i] = AudioChannel::Create((AudioChannelId)i, ACG_SE);
   for (int i = AC_VOICE0; i <= AC_REV; i++)
-    Channels[i]->Init((AudioChannelId)i, ACG_Voice);
+    Channels[i] = AudioChannel::Create((AudioChannelId)i, ACG_Voice);
   for (int i = AC_BGM0; i <= AC_BGM2; i++)
-    Channels[i]->Init((AudioChannelId)i, ACG_BGM);
-  Channels[AC_SSE]->Init(AC_SSE, ACG_SE);
+    Channels[i] = AudioChannel::Create((AudioChannelId)i, ACG_BGM);
+  Channels[AC_SSE] = AudioChannel::Create(AC_SSE, ACG_SE);
 
   IsInit = true;
 }
@@ -73,7 +64,7 @@ void AudioUpdate(float dt) {
         Profile::ConfigSystem::VoiceMuted[mappedCharId]
             ? 0.0f
             : Profile::ConfigSystem::VoiceVolume[mappedCharId];
-    Channels[i]->Volume = voiceVolumeModifier;
+    Channels[i]->SetVolume(voiceVolumeModifier);
   }
 
   for (int i = 0; i < AC_Count; i++) {
