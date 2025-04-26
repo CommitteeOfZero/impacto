@@ -62,7 +62,8 @@ void BaseRenderer::DrawSprite(const Sprite& sprite,
                                        sprite.ScaledHeight()))
                          .Transform(transformation);
 
-  DrawSprite(sprite, dest, std::array<glm::vec4, 4>{tint}, inverted);
+  DrawSprite(sprite, dest, std::array<glm::vec4, 4>{tint, tint, tint, tint},
+             inverted);
 }
 
 void BaseRenderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
@@ -75,7 +76,8 @@ void BaseRenderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
                          .Transform(transformation);
 
   DrawMaskedSprite(sprite, mask, dest, alpha, fadeRange,
-                   std::array<glm::vec4, 4>{tint}, isInverted, isSameTexture);
+                   std::array<glm::vec4, 4>{tint, tint, tint, tint}, isInverted,
+                   isSameTexture);
 }
 
 void BaseRenderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
