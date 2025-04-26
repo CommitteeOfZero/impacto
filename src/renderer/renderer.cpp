@@ -55,6 +55,29 @@ void BaseRenderer::DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
   DrawSprite(sprite, scaledDest, tint, angle, inverted);
 }
 
+void BaseRenderer::DrawSprite(const Sprite& sprite,
+                              const glm::mat4 transformation,
+                              const glm::vec4 tint, const bool inverted) {
+  CornersQuad dest = CornersQuad(RectF(0.0f, 0.0f, sprite.ScaledWidth(),
+                                       sprite.ScaledHeight()))
+                         .Transform(transformation);
+
+  DrawSprite(sprite, dest, std::array<glm::vec4, 4>{tint}, inverted);
+}
+
+void BaseRenderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
+                                    const int alpha, const int fadeRange,
+                                    const glm::mat4 transformation,
+                                    const glm::vec4 tint, const bool isInverted,
+                                    const bool isSameTexture) {
+  CornersQuad dest = CornersQuad(RectF(0.0f, 0.0f, sprite.ScaledWidth(),
+                                       sprite.ScaledHeight()))
+                         .Transform(transformation);
+
+  DrawMaskedSprite(sprite, mask, dest, alpha, fadeRange,
+                   std::array<glm::vec4, 4>{tint}, isInverted, isSameTexture);
+}
+
 void BaseRenderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                                     glm::vec2 topLeft, glm::vec4 tint,
                                     int alpha, int fadeRange, float effectCt,

@@ -227,6 +227,15 @@ void Background2D::RenderBgEff(int bgId, int layer) {
   Origin = {0.0f, 0.0f};
   for (const glm::vec2 vertex : vertices) Origin += vertex / (float)vertexCount;
 
+  // Transform vertices
+  const glm::mat4 transformation =
+      Transformation3D(glm::vec3(DisplayCoords, 0.0f), glm::vec3(Origin, 0.0f),
+                       Rotation, glm::vec3(Scale, 1.0f));
+  std::transform(vertices.begin(), vertices.end(), vertices.begin(),
+                 [transformation](const glm::vec2 vertex) {
+                   return transformation * glm::vec4(vertex, 0.0f, 1.0f);
+                 });
+
   // Draw
   if (maskType == 0) {  // Rectangle
     const glm::vec2 maskDimensions = vertices[3] - vertices[0];
