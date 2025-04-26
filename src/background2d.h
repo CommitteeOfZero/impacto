@@ -39,7 +39,7 @@ class Background2D : public Loadable<Background2D> {
   glm::vec2 DisplayCoords;
   glm::vec2 Origin = {0.0f, 0.0f};
   glm::vec2 Scale = {1.0f, 1.0f};
-  float Angle = 0.0f;
+  glm::vec3 Angle = glm::vec3(0.0f);
   glm::vec4 Tint = glm::vec4(1.0f);
   int MaskNumber;
 

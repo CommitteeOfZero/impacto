@@ -169,9 +169,14 @@ void Background2D::RenderBgEff(int bgId, int layer) {
   FadeCount = ScrWork[SW_BGEFF1_FADECT + structOffset];
   FadeRange = ScrWork[SW_BGEFF1_MASKFADERANGE + structOffset];
 
-  Angle = (ScrWork[SW_BGEFF1_ROTZ + structOffset] +
-           ScrWork[SW_BGEFF1_ROTZ_OFS + structOfsOffset]) *
-          (float)(2.0f * M_PI / (float)(1 << 16));
+  Angle = glm::vec3(
+      ScrWorkAngleToRad((float)(ScrWork[SW_BGEFF1_ROTX + structOffset] +
+                                ScrWork[SW_BGEFF1_ROTX_OFS + structOfsOffset])),
+      ScrWorkAngleToRad((float)(ScrWork[SW_BGEFF1_ROTY + structOffset] +
+                                ScrWork[SW_BGEFF1_ROTY_OFS + structOfsOffset])),
+      ScrWorkAngleToRad(
+          (float)(ScrWork[SW_BGEFF1_ROTZ + structOffset] +
+                  ScrWork[SW_BGEFF1_ROTZ_OFS + structOfsOffset])));
 
   Scale = glm::vec2((ScrWork[SW_BGEFF1_SIZE + structOffset] +
                      ScrWork[SW_BGEFF1_SIZE_OFS + structOfsOffset]) /
