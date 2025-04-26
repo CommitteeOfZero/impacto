@@ -272,4 +272,5 @@ void BaseRenderer::DrawProcessedText_LBFont(
 
   if (maskedSheet) Flush();
 }
+
 }  // namespace Impacto
