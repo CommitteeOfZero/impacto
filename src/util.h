@@ -299,6 +299,9 @@ inline float NormalizeRad(float rad) {
   if (rad < 0) rad += 2.0f * (float)M_PI;
   return rad - (float)M_PI;
 }
+constexpr float ScrWorkAngleToRad(float angle) {
+  return angle * (float)(2.0f * M_PI / (float)(1 << 16));
+}
 
 inline bool StringEndsWith(std::string const& str, std::string const& ending) {
   if (str.length() < ending.length()) return false;
