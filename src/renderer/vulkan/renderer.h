@@ -161,20 +161,6 @@ class Renderer : public BaseRenderer {
   void Flush();
 
   void MakeQuad();
-  void QuadSetUV(RectF const& spriteBounds, float designWidth,
-                 float designHeight, uintptr_t uvs, int stride,
-                 float angle = 0.0f);
-  void QuadSetPositionOffset(RectF const& spriteBounds, glm::vec2 topLeftPos,
-                             glm::vec2 displayOffset, glm::vec2 scale,
-                             float angle, uintptr_t positions, int stride,
-                             bool toNDC = true);
-  void QuadSetPosition(RectF const& transformedQuad, float angle,
-                       uintptr_t positions, int stride);
-  void QuadSetPosition(CornersQuad destQuad, float angle, uintptr_t positions,
-                       int stride);
-  void QuadSetPosition3DRotated(RectF const& transformedQuad, float depth,
-                                glm::vec2 vanishingPoint, bool stayInScreen,
-                                glm::quat rot, uintptr_t positions, int stride);
 
   bool Drawing = false;
 
