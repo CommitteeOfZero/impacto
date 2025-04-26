@@ -54,6 +54,8 @@ class BaseRenderer {
   virtual void DrawSprite(Sprite const& sprite, CornersQuad const& dest,
                           std::array<glm::vec4, 4> const& tints,
                           float angle = 0.0f, bool inverted = false) = 0;
+  void DrawSprite(const Sprite& sprite, glm::mat4 transformation,
+                  glm::vec4 tint = glm::vec4(1.0f), bool inverted = false);
 
   virtual void DrawSpriteOffset(Sprite const& sprite, glm::vec2 topLeft,
                                 glm::vec2 displayOffset,
@@ -76,6 +78,18 @@ class BaseRenderer {
                                 RectF const& dest, glm::vec4 tint, int alpha,
                                 int fadeRange, bool isInverted = false,
                                 bool isSameTexture = false) = 0;
+
+  virtual void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
+                                const CornersQuad& dest, int alpha,
+                                int fadeRange,
+                                const std::array<glm::vec4, 4>& tints,
+                                bool isInverted = false,
+                                bool isSameTexture = false) {}
+
+  void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask, int alpha,
+                        int fadeRange, glm::mat4 transformation,
+                        glm::vec4 tint = glm::vec4(1.0f),
+                        bool isInverted = false, bool isSameTexture = false);
 
   virtual void DrawMaskedSpriteOffset(
       const Sprite& sprite, const Sprite& mask, glm::vec2 pos, glm::vec2 origin,

@@ -69,6 +69,11 @@ class Renderer : public BaseRenderer {
                         int fadeRange, bool isInverted = false,
                         bool isSameTexture = false) override;
 
+  void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
+                        const CornersQuad& dest, int alpha, int fadeRange,
+                        const std::array<glm::vec4, 4>& tints, bool isInverted,
+                        bool isSameTexture) override;
+
   void DrawMaskedSpriteOffset(const Sprite& sprite, const Sprite& mask,
                               glm::vec2 pos, glm::vec2 origin, int alpha,
                               int fadeRange, glm::vec4 tint = glm::vec4(1.0f),
