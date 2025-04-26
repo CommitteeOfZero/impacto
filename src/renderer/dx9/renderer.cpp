@@ -298,7 +298,7 @@ void Renderer::DrawSprite3DRotated(Sprite const& sprite, RectF const& dest,
   IndexBufferFill += 6;
 
   QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
+            &vertices[0].UV, sizeof(VertexBufferSprites));
   QuadSetPosition3DRotated(dest, depth, vanishingPoint, stayInScreen, rot,
                            (uintptr_t)&vertices[0].Position,
                            sizeof(VertexBufferSprites));
@@ -403,7 +403,7 @@ void Renderer::DrawSprite(Sprite const& sprite, CornersQuad const& dest,
   IndexBufferFill += 6;
 
   QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
+            &vertices[0].UV, sizeof(VertexBufferSprites));
   QuadSetPosition(dest, angle, (uintptr_t)&vertices[0].Position,
                   sizeof(VertexBufferSprites));
 
@@ -440,7 +440,7 @@ void Renderer::DrawSpriteOffset(Sprite const& sprite, glm::vec2 topLeft,
   IndexBufferFill += 6;
 
   QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
+            &vertices[0].UV, sizeof(VertexBufferSprites));
 
   QuadSetPositionOffset(sprite.Bounds, topLeft, displayOffset, scale, angle,
                         (uintptr_t)&vertices[0].Position,
@@ -491,9 +491,9 @@ void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
   IndexBufferFill += 6;
 
   QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
+            &vertices[0].UV, sizeof(VertexBufferSprites));
   QuadSetUV(sprite.Bounds, sprite.Bounds.Width, sprite.Bounds.Height,
-            (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites));
+            &vertices[0].MaskUV, sizeof(VertexBufferSprites));
 
   QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
                   sizeof(VertexBufferSprites));
@@ -548,9 +548,9 @@ void Renderer::DrawMaskedSpriteOffset(const Sprite& sprite, const Sprite& mask,
   IndexBufferFill += 6;
 
   QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
+            &vertices[0].UV, sizeof(VertexBufferSprites));
   QuadSetUV(sprite.Bounds, sprite.Bounds.Width, sprite.Bounds.Height,
-            (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites));
+            &vertices[0].MaskUV, sizeof(VertexBufferSprites));
 
   QuadSetPositionOffset(sprite.Bounds, pos, origin, scale, angle,
                         (uintptr_t)&vertices[0].Position,
@@ -685,9 +685,9 @@ void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
   IndexBufferFill += 6;
 
   QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
+            &vertices[0].UV, sizeof(VertexBufferSprites));
   QuadSetUV(mask.Bounds, mask.Sheet.DesignWidth, mask.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites));
+            &vertices[0].MaskUV, sizeof(VertexBufferSprites));
 
   QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
                   sizeof(VertexBufferSprites));
@@ -746,9 +746,9 @@ void Renderer::DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
   IndexBufferFill += 6;
 
   QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
+            &vertices[0].UV, sizeof(VertexBufferSprites));
   QuadSetUV(mask.Bounds, mask.Sheet.DesignWidth, mask.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites), angle);
+            &vertices[0].MaskUV, sizeof(VertexBufferSprites), angle);
 
   QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
                   sizeof(VertexBufferSprites));
@@ -791,220 +791,17 @@ void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
   IndexBufferFill += 6;
 
   QuadSetUVFlipped(sprite.Bounds, sprite.Sheet.DesignWidth,
-                   sprite.Sheet.DesignHeight, (uintptr_t)&vertices[0].UV,
+                   sprite.Sheet.DesignHeight, &vertices[0].UV,
                    sizeof(VertexBufferSprites));
 
   QuadSetUV(mask.Bounds, mask.Sheet.DesignWidth, mask.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites));
+            &vertices[0].MaskUV, sizeof(VertexBufferSprites));
 
   QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
                   sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++)
     vertices[i].Tint = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-}
-
-inline void Renderer::QuadSetUVFlipped(RectF const& spriteBounds,
-                                       float designWidth, float designHeight,
-                                       uintptr_t uvs, int stride) {
-  float topUV = (spriteBounds.Y / designHeight);
-  float leftUV = (spriteBounds.X / designWidth);
-  float bottomUV = ((spriteBounds.Y + spriteBounds.Height) / designHeight);
-  float rightUV = ((spriteBounds.X + spriteBounds.Width) / designWidth);
-
-  // top-left
-  *(glm::vec2*)(uvs + 0 * stride) = glm::vec2(leftUV, topUV);
-  // bottom-left
-  *(glm::vec2*)(uvs + 1 * stride) = glm::vec2(leftUV, bottomUV);
-  // bottom-right
-  *(glm::vec2*)(uvs + 2 * stride) = glm::vec2(rightUV, bottomUV);
-  // top-right
-  *(glm::vec2*)(uvs + 3 * stride) = glm::vec2(rightUV, topUV);
-}
-
-inline void Renderer::QuadSetUV(RectF const& spriteBounds, float designWidth,
-                                float designHeight, uintptr_t uvs, int stride,
-                                float angle) {
-  float topUV = (spriteBounds.Y / designHeight);
-  float leftUV = (spriteBounds.X / designWidth);
-  float bottomUV = ((spriteBounds.Y + spriteBounds.Height) / designHeight);
-  float rightUV = ((spriteBounds.X + spriteBounds.Width) / designWidth);
-
-  glm::vec2 bottomLeft(leftUV, bottomUV);
-  glm::vec2 topLeft(leftUV, topUV);
-  glm::vec2 topRight(rightUV, topUV);
-  glm::vec2 bottomRight(rightUV, bottomUV);
-
-  if (angle != 0.0f) {
-    glm::vec2 center = (bottomLeft + topRight) * 0.5f;  // Center of the quad
-    glm::mat2 rot = Rotate2D(angle);
-
-    bottomLeft = rot * (bottomLeft - center) + center;
-    topLeft = rot * (topLeft - center) + center;
-    topRight = rot * (topRight - center) + center;
-    bottomRight = rot * (bottomRight - center) + center;
-  }
-
-  // bottom-left
-  *(glm::vec2*)(uvs + 0 * stride) = bottomLeft;
-  // top-left
-  *(glm::vec2*)(uvs + 1 * stride) = topLeft;
-  // top-right
-  *(glm::vec2*)(uvs + 2 * stride) = topRight;
-  // bottom-right
-  *(glm::vec2*)(uvs + 3 * stride) = bottomRight;
-}
-
-inline void Renderer::QuadSetPositionOffset(
-    RectF const& spriteBounds, glm::vec2 displayXY, glm::vec2 displayOffset,
-    glm::vec2 scale, float angle, uintptr_t positions, int stride, bool toNDC) {
-  glm::vec2 topLeft = {0.0f, 0.0f};
-  glm::vec2 bottomLeft = {0.0f, spriteBounds.Height};
-  glm::vec2 topRight = {spriteBounds.Width, 0.0f};
-  glm::vec2 bottomRight = {spriteBounds.Width, spriteBounds.Height};
-
-  // Translate to origin
-  topLeft -= displayOffset;
-  bottomLeft -= displayOffset;
-  topRight -= displayOffset;
-  bottomRight -= displayOffset;
-
-  // Scale
-  bottomLeft *= scale;
-  topLeft *= scale;
-  topRight *= scale;
-  bottomRight *= scale;
-
-  // Rotate
-  if (angle != 0.0f) {
-    const glm::mat2 rot = Rotate2D(angle);
-
-    bottomLeft = rot * bottomLeft;
-    topLeft = rot * topLeft;
-    topRight = rot * topRight;
-    bottomRight = rot * bottomRight;
-  }
-
-  // Translate to the desired screen position
-  bottomLeft += displayOffset + displayXY;
-  topLeft += displayOffset + displayXY;
-  topRight += displayOffset + displayXY;
-  bottomRight += displayOffset + displayXY;
-
-  if (toNDC) {
-    bottomLeft = DesignToNDC(bottomLeft);
-    topLeft = DesignToNDC(topLeft);
-    topRight = DesignToNDC(topRight);
-    bottomRight = DesignToNDC(bottomRight);
-  }
-
-  // Store the transformed positions
-  *(glm::vec2*)(positions + 0 * stride) = bottomLeft;
-  *(glm::vec2*)(positions + 1 * stride) = topLeft;
-  *(glm::vec2*)(positions + 2 * stride) = topRight;
-  *(glm::vec2*)(positions + 3 * stride) = bottomRight;
-}
-
-inline void Renderer::QuadSetPosition(RectF const& transformedQuad, float angle,
-                                      uintptr_t positions, int stride) {
-  glm::vec2 bottomLeft =
-      glm::vec2(transformedQuad.X, transformedQuad.Y + transformedQuad.Height);
-  glm::vec2 topLeft = glm::vec2(transformedQuad.X, transformedQuad.Y);
-  glm::vec2 topRight =
-      glm::vec2(transformedQuad.X + transformedQuad.Width, transformedQuad.Y);
-  glm::vec2 bottomRight = glm::vec2(transformedQuad.X + transformedQuad.Width,
-                                    transformedQuad.Y + transformedQuad.Height);
-
-  if (angle != 0.0f) {
-    glm::vec2 center = transformedQuad.Center();
-    glm::mat2 rot = Rotate2D(angle);
-
-    bottomLeft = rot * (bottomLeft - center) + center;
-    topLeft = rot * (topLeft - center) + center;
-    topRight = rot * (topRight - center) + center;
-    bottomRight = rot * (bottomRight - center) + center;
-  }
-
-  // bottom-left
-  *(glm::vec2*)(positions + 0 * stride) = DesignToNDC(bottomLeft);
-  // top-left
-  *(glm::vec2*)(positions + 1 * stride) = DesignToNDC(topLeft);
-  // top-right
-  *(glm::vec2*)(positions + 2 * stride) = DesignToNDC(topRight);
-  // bottom-right
-  *(glm::vec2*)(positions + 3 * stride) = DesignToNDC(bottomRight);
-}
-
-inline void Renderer::QuadSetPosition(CornersQuad destQuad, float angle,
-                                      uintptr_t positions, int stride) {
-  if (angle != 0.0f) {
-    glm::vec2 center = (destQuad.BottomLeft + destQuad.TopRight) * 0.5f;
-    glm::mat2 rot = Rotate2D(angle);
-
-    destQuad.BottomLeft = rot * (destQuad.BottomLeft - center) + center;
-    destQuad.TopLeft = rot * (destQuad.TopLeft - center) + center;
-    destQuad.TopRight = rot * (destQuad.TopRight - center) + center;
-    destQuad.BottomRight = rot * (destQuad.BottomRight - center) + center;
-  }
-
-  // bottom-left
-  *(glm::vec2*)(positions + 0 * stride) = DesignToNDC(destQuad.BottomLeft);
-  // top-left
-  *(glm::vec2*)(positions + 1 * stride) = DesignToNDC(destQuad.TopLeft);
-  // top-right
-  *(glm::vec2*)(positions + 2 * stride) = DesignToNDC(destQuad.TopRight);
-  // bottom-right
-  *(glm::vec2*)(positions + 3 * stride) = DesignToNDC(destQuad.BottomRight);
-}
-
-void Renderer::QuadSetPosition3DRotated(RectF const& transformedQuad,
-                                        float depth, glm::vec2 vanishingPoint,
-                                        bool stayInScreen, glm::quat rot,
-                                        uintptr_t positions, int stride) {
-  float widthNormalized = transformedQuad.Width / (Profile::DesignWidth * 0.5f);
-  float heightNormalized =
-      transformedQuad.Height / (Profile::DesignHeight * 0.5f);
-
-  glm::vec4 corners[4]{
-      // bottom-left
-      {glm::vec2(-widthNormalized / 2.0f, -heightNormalized / 2.0f), 0, 1},
-      // top-left
-      {glm::vec2(-widthNormalized / 2.0f, heightNormalized / 2.0f), 0, 1},
-      // top-right
-      {glm::vec2(widthNormalized / 2.0f, heightNormalized / 2.0f), 0, 1},
-      // bottom-right
-      {glm::vec2(widthNormalized / 2.0f, -heightNormalized / 2.0f), 0, 1}};
-
-  glm::mat4 transform =
-      glm::translate(glm::mat4(1.0f),
-                     glm::vec3(DesignToNDC(transformedQuad.Center()), 0)) *
-      glm::mat4_cast(rot);
-
-  glm::vec4 vanishingPointNDC(DesignToNDC(vanishingPoint), 0, 0);
-
-  for (int i = 0; i < 4; i++) {
-    corners[i] = transform * corners[i];
-  }
-
-  if (stayInScreen) {
-    float maxZ = 0.0f;
-    for (int i = 0; i < 4; i++) {
-      if (corners[i].z > maxZ) maxZ = corners[i].z;
-    }
-    for (int i = 0; i < 4; i++) {
-      corners[i].z -= maxZ;
-    }
-  }
-
-  for (int i = 0; i < 4; i++) {
-    // perspective
-    corners[i] -= vanishingPointNDC;
-    corners[i].x *= (depth / (depth - corners[i].z));
-    corners[i].y *= (depth / (depth - corners[i].z));
-    corners[i] += vanishingPointNDC;
-
-    *(glm::vec2*)(positions + i * stride) = corners[i];
-  }
 }
 
 void Renderer::EnsureSpaceAvailable(int vertices, int vertexSize, int indices) {
@@ -1116,7 +913,7 @@ void Renderer::DrawVideoTexture(YUVFrame* tex, RectF const& dest,
   IndexBufferFill += 6;
 
   QuadSetUV(RectF(0.0f, 0.0f, tex->Width, tex->Height), tex->Width, tex->Height,
-            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
+            &vertices[0].UV, sizeof(VertexBufferSprites));
   QuadSetPosition(dest, angle, (uintptr_t)&vertices[0].Position,
                   sizeof(VertexBufferSprites));
 
