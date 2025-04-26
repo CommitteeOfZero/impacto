@@ -10,6 +10,8 @@ namespace Audio {
 
 class AudioChannel {
  public:
+  virtual ~AudioChannel() = default;
+
   static std::unique_ptr<AudioChannel> Create(AudioChannelId id,
                                               AudioChannelGroup group);
 
