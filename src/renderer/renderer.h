@@ -126,9 +126,9 @@ class BaseRenderer {
                            bool inverted = false);
 
   // TODO: Remove entirely
-  virtual void DrawRect3DRotated(RectF const& dest, float depth,
-                                 glm::vec2 vanishingPoint, bool stayInScreen,
-                                 glm::quat rot, glm::vec4 color) = 0;
+  void DrawRect3DRotated(const RectF& dest, float depth,
+                         glm::vec2 vanishingPoint, bool stayInScreen,
+                         glm::quat rot, glm::vec4 color);
 
   void DrawProcessedText_BasicFont(std::span<const ProcessedTextGlyph> text,
                                    BasicFont* font, float opacity,

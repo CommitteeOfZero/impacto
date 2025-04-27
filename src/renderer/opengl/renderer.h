@@ -72,10 +72,6 @@ class Renderer : public BaseRenderer {
   void DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
                                const RectF& dest, float alpha) override;
 
-  void DrawRect3DRotated(RectF const& dest, float depth,
-                         glm::vec2 vanishingPoint, bool stayInScreen,
-                         glm::quat rot, glm::vec4 color) override;
-
   void DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
                         int verticesCount, float* mvlVertices, int indicesCount,
                         uint16_t* mvlIndices, bool inverted, glm::vec4 tint,

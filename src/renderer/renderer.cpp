@@ -167,6 +167,15 @@ void BaseRenderer::DrawRect(const RectF& dest, const glm::vec4 color,
   DrawSprite(RectSprite, dest, color, angle);
 }
 
+void BaseRenderer::DrawRect3DRotated(const RectF& dest, const float depth,
+                                     const glm::vec2 vanishingPoint,
+                                     const bool stayInScreen,
+                                     const glm::quat rot,
+                                     const glm::vec4 color) {
+  DrawSprite3DRotated(RectSprite, dest, depth, vanishingPoint, stayInScreen,
+                      rot, color);
+}
+
 void BaseRenderer::DrawProcessedText(std::span<const ProcessedTextGlyph> text,
                                      Font* font, float opacity,
                                      RendererOutlineMode outlineMode,
