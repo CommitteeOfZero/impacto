@@ -92,8 +92,7 @@ class BaseRenderer {
                             bool inverted = false,
                             bool disableBlend = false) = 0;
 
-  virtual void DrawRect(RectF const& dest, glm::vec4 color,
-                        float angle = 0.0f) = 0;
+  void DrawRect(const RectF& dest, glm::vec4 color, float angle = 0.0f);
 
   void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                         glm::vec2 topLeft, glm::vec4 tint, int alpha,
@@ -220,6 +219,8 @@ class BaseRenderer {
                                        float depth, glm::vec2 vanishingPoint,
                                        bool stayInScreen, glm::quat rot,
                                        uintptr_t positions, int stride);
+
+  Sprite RectSprite;
 };
 
 inline BaseRenderer* Renderer;

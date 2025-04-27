@@ -44,9 +44,6 @@ class Renderer : public BaseRenderer {
                     int height, glm::vec4 tint = glm::vec4(1.0),
                     bool inverted = false, bool disableBlend = false) override;
 
-  void DrawRect(RectF const& dest, glm::vec4 color,
-                float angle = 0.0f) override;
-
   void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                         RectF const& dest, glm::vec4 tint, int alpha,
                         int fadeRange, float effectCt) override;
@@ -122,8 +119,6 @@ class Renderer : public BaseRenderer {
   IDirect3DIndexBuffer9* IndexBufferDevice;
   IDirect3DIndexBuffer9* IndexBufferMvl;
   int IndexBufferFill = 0;
-
-  Sprite RectSprite;
 };
 
 }  // namespace DirectX9

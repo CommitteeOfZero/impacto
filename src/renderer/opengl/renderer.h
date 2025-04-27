@@ -55,9 +55,6 @@ class Renderer : public BaseRenderer {
                     int height, glm::vec4 tint = glm::vec4(1.0),
                     bool inverted = false, bool disableBlend = false) override;
 
-  void DrawRect(RectF const& dest, glm::vec4 color,
-                float angle = 0.0f) override;
-
   void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
                         const CornersQuad& dest, int alpha, int fadeRange,
                         const std::array<glm::vec4, 4>& tints, bool isInverted,
@@ -147,8 +144,6 @@ class Renderer : public BaseRenderer {
   int VertexBufferFill = 0;
   uint16_t IndexBuffer[IndexBufferCount];
   int IndexBufferFill = 0;
-
-  Sprite RectSprite;
 
   // ShaderCompiler compiler
   ShaderCompiler* Shaders;

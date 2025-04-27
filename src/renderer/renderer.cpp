@@ -162,6 +162,11 @@ void BaseRenderer::DrawSprite3DRotated(Sprite const& sprite, glm::vec2 topLeft,
                       rot, tint, inverted);
 }
 
+void BaseRenderer::DrawRect(const RectF& dest, const glm::vec4 color,
+                            const float angle) {
+  DrawSprite(RectSprite, dest, color, angle);
+}
+
 void BaseRenderer::DrawProcessedText(std::span<const ProcessedTextGlyph> text,
                                      Font* font, float opacity,
                                      RendererOutlineMode outlineMode,
