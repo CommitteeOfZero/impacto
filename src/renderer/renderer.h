@@ -114,11 +114,10 @@ class BaseRenderer {
                                        bool useMaskAlpha = true) = 0;
 
   // TODO: Remove entirely
-  virtual void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest,
-                                   float depth, glm::vec2 vanishingPoint,
-                                   bool stayInScreen, glm::quat rot,
-                                   glm::vec4 tint = glm::vec4(1.0f),
-                                   bool inverted = false) = 0;
+  void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest, float depth,
+                           glm::vec2 vanishingPoint, bool stayInScreen,
+                           glm::quat rot, glm::vec4 tint = glm::vec4(1.0f),
+                           bool inverted = false);
 
   // TODO: Remove entirely
   void DrawSprite3DRotated(Sprite const& sprite, glm::vec2 topLeft, float depth,
