@@ -1132,10 +1132,6 @@ YUVFrame* Renderer::CreateYUVFrame(float width, float height) {
   return (YUVFrame*)VideoFrameInternal;
 }
 
-void Renderer::DrawRect(RectF const& dest, glm::vec4 color, float angle) {
-  BaseRenderer::DrawSprite(RectSprite, dest, color, angle);
-}
-
 void Renderer::DrawRect3DRotated(RectF const& dest, float depth,
                                  glm::vec2 vanishingPoint, bool stayInScreen,
                                  glm::quat rot, glm::vec4 color) {
