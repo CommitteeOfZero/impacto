@@ -489,49 +489,6 @@ void Renderer::DrawVertices(SpriteSheet const& sheet,
                GL_STATIC_DRAW);
 }
 
-void Renderer::DrawSpriteOffset(Sprite const& sprite, glm::vec2 topLeft,
-                                glm::vec2 displayOffset, glm::vec4 tint,
-                                glm::vec2 scale, float angle, bool inverted) {
-  if (!Drawing) {
-    ImpLog(LogLevel::Error, LogChannel::Render,
-           "Renderer->DrawSprite() called before BeginFrame()\n");
-    return;
-  }
-
-  // Do we have space for one more sprite quad?
-  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
-
-  // Are we in sprite mode?
-  EnsureModeSprite(inverted);
-
-  // Do we have the texture assigned?
-  EnsureTextureBound(sprite.Sheet.Texture);
-
-  // OK, all good, make quad
-
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
-  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  IndexBufferFill += 6;
-
-  if (sprite.Sheet.IsScreenCap) {
-    QuadSetUVFlipped(sprite.Bounds, sprite.Sheet.DesignWidth,
-                     sprite.Sheet.DesignHeight, &vertices[0].UV,
-                     sizeof(VertexBufferSprites));
-  } else {
-    QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth,
-              sprite.Sheet.DesignHeight, &vertices[0].UV,
-              sizeof(VertexBufferSprites));
-  }
-
-  QuadSetPositionOffset(sprite.Bounds, topLeft, displayOffset, scale, angle,
-                        (uintptr_t)&vertices[0].Position,
-                        sizeof(VertexBufferSprites));
-
-  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
-}
-
 void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
                                 RectF const& dest, glm::vec4 tint, int alpha,
                                 int fadeRange, bool isInverted,

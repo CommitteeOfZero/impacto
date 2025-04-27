@@ -1306,45 +1306,6 @@ void Renderer::DrawSprite(Sprite const& sprite, CornersQuad const& dest,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
 }
 
-void Renderer::DrawSpriteOffset(Sprite const& sprite, glm::vec2 topLeft,
-                                glm::vec2 centerSprite, glm::vec4 tint,
-                                glm::vec2 scale, float angle, bool inverted) {
-  if (!Drawing) {
-    ImpLog(LogLevel::Error, LogChannel::Render,
-           "Renderer->DrawSprite() called before BeginFrame()\n");
-    return;
-  }
-
-  if (!sprite.Sheet.Texture) return;
-  if (Textures.count(sprite.Sheet.Texture) == 0) return;
-
-  // Are we in sprite mode?
-  if (inverted)
-    EnsureMode(PipelineSpriteInverted);
-  else
-    EnsureMode(PipelineSprite);
-
-  // Do we have the texture assigned?
-  EnsureTextureBound(sprite.Sheet.Texture);
-
-  // OK, all good, make quad
-  MakeQuad();
-
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferOffset +
-                             VertexBufferFill);
-  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            &vertices[0].UV, sizeof(VertexBufferSprites));
-
-  QuadSetPositionOffset(sprite.Bounds, topLeft, centerSprite, scale, angle,
-                        (uintptr_t)&vertices[0].Position,
-                        sizeof(VertexBufferSprites));
-
-  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
-}
-
 void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
                                 RectF const& dest, glm::vec4 tint, int alpha,
                                 int fadeRange, bool isInverted,

@@ -66,12 +66,6 @@ class Renderer : public BaseRenderer {
                   const std::array<glm::vec4, 4>& tints, float angle = 0.0f,
                   bool inverted = false) override;
 
-  void DrawSpriteOffset(Sprite const& sprite, glm::vec2 topLeft,
-                        glm::vec2 displayOffset,
-                        glm::vec4 tint = glm::vec4(1.0),
-                        glm::vec2 scale = glm::vec2(1.0), float angle = 0.0f,
-                        bool inverted = false) override;
-
   void DrawVertices(SpriteSheet const& sheet,
                     std::span<const glm::vec2> sheetPositions,
                     std::span<const glm::vec2> displayPositions, int width,
