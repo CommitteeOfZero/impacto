@@ -325,9 +325,9 @@ void Renderer::DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
                GL_STATIC_DRAW);
 }
 
-void Renderer::DrawSprite(Sprite const& sprite, CornersQuad const& dest,
-                          const std::array<glm::vec4, 4>& tints, float angle,
-                          bool inverted) {
+void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
+                          const std::array<glm::vec4, 4>& tints,
+                          const bool inverted) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawSprite() called before BeginFrame()\n");
@@ -364,7 +364,7 @@ void Renderer::DrawSprite(Sprite const& sprite, CornersQuad const& dest,
               sprite.Sheet.DesignHeight, &vertices[0].UV,
               sizeof(VertexBufferSprites));
   }
-  QuadSetPosition(dest, angle, (uintptr_t)&vertices[0].Position,
+  QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
                   sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
