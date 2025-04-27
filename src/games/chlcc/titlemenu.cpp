@@ -307,6 +307,12 @@ void TitleMenu::Update(float dt) {
           IntroSequence->IntroAnimation.StartIn();
         }
 
+        // Skip the animation if requested
+        if (ScrWork[SW_TITLECT] >= 934 &&
+            IntroSequence->IntroAnimation.State == +AnimationState::Playing) {
+          IntroSequence->IntroAnimation.Finish();
+        }
+
         if (!IntroSequence->SeiraAnimation.IsOut() &&
             SpinningCircleAnimation.State == +AnimationState::Stopped) {
           SpinningCircleAnimation.StartIn();
@@ -397,7 +403,7 @@ void TitleMenu::Update(float dt) {
           PressToStartAnimation.StartIn();
         }
 
-        if (IntroSequence->IntroAnimation.IsIn()) {
+        if (!IntroSequence->IntroAnimation.IsOut()) {
           IntroSequence = std::make_unique<Impacto::CHLCC::IntroSequence>();
         }
       } break;
