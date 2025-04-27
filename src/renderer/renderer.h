@@ -84,19 +84,6 @@ class BaseRenderer {
                         int fadeRange, bool isInverted = false,
                         bool isSameTexture = false);
 
-  // TODO: Remove entirely
-  virtual void DrawMaskedSpriteOffset(
-      const Sprite& sprite, const Sprite& mask, glm::vec2 pos, glm::vec2 origin,
-      int alpha, int fadeRange, glm::vec4 tint = glm::vec4(1.0f),
-      glm::vec2 scale = glm::vec2(1.0), float angle = 0.0f,
-      bool spriteInverted = false, bool maskInverted = false,
-      bool isSameTexture = false) {
-    DrawMaskedSprite(
-        sprite, mask,
-        {pos.x, pos.y, sprite.ScaledWidth(), sprite.ScaledHeight()}, tint,
-        alpha, fadeRange, maskInverted, isSameTexture);
-  }
-
   virtual void DrawVertices(SpriteSheet const& sheet,
                             std::span<const glm::vec2> sheetPositions,
                             std::span<const glm::vec2> displayPositions,
