@@ -34,8 +34,8 @@ OpenALAudioChannel::OpenALAudioChannel(AudioChannelId id,
 }
 
 OpenALAudioChannel::~OpenALAudioChannel() {
-  alDeleteBuffers(AudioBuffers.size(), AudioBuffers.data());
   alDeleteSources(1, &Source);
+  alDeleteBuffers(AudioBuffers.size(), AudioBuffers.data());
 }
 
 void OpenALAudioChannel::Play(std::unique_ptr<AudioStream> stream, bool loop,
@@ -117,14 +117,17 @@ void OpenALAudioChannel::Update(float dt) {
       int queuedBuffers;
       alGetSourcei(Source, AL_BUFFERS_QUEUED, &queuedBuffers);
 
-      if (queuedBuffers == 0 && PlaybackStarted) {
-        ImpLog(LogLevel::Error, LogChannel::Audio,
-               "Buffer underrun on channel {:d}\n", Id);
-      }
-
       size_t firstFreeIndex =
           (FirstQueuedBufferIndex + queuedBuffers) % AudioBuffers.size();
       QueueBuffer(firstFreeIndex);
+
+      if (queuedBuffers == 0 && PlaybackStarted) {
+        ImpLog(LogLevel::Error, LogChannel::Audio,
+               "Buffer underrun on channel {:d}\n", Id);
+
+        // Restart playback in case of buffer underrun
+        alSourcePlay(Source);
+      }
     }
   }
 
