@@ -44,19 +44,23 @@ class BaseRenderer {
   virtual void FreeTexture(uint32_t id) = 0;
   virtual YUVFrame* CreateYUVFrame(float width, float height) = 0;
 
-  void DrawSprite(Sprite const& sprite, RectF const& dest,
-                  glm::vec4 tint = glm::vec4(1.0), float angle = 0.0f,
-                  bool inverted = false);
-  void DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
-                  glm::vec4 tint = glm::vec4(1.0),
-                  glm::vec2 scale = glm::vec2(1.0), float angle = 0.0f,
-                  bool inverted = false);
   virtual void DrawSprite(Sprite const& sprite, CornersQuad const& dest,
                           std::array<glm::vec4, 4> const& tints,
                           float angle = 0.0f, bool inverted = false) = 0;
   void DrawSprite(const Sprite& sprite, glm::mat4 transformation,
                   glm::vec4 tint = glm::vec4(1.0f), bool inverted = false);
 
+  // TODO: Remove entirely
+  void DrawSprite(Sprite const& sprite, RectF const& dest,
+                  glm::vec4 tint = glm::vec4(1.0), float angle = 0.0f,
+                  bool inverted = false);
+  // TODO: Remove entirely
+  void DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
+                  glm::vec4 tint = glm::vec4(1.0),
+                  glm::vec2 scale = glm::vec2(1.0), float angle = 0.0f,
+                  bool inverted = false);
+
+  // TODO: Remove entirely
   virtual void DrawSpriteOffset(Sprite const& sprite, glm::vec2 topLeft,
                                 glm::vec2 displayOffset,
                                 glm::vec4 tint = glm::vec4(1.0),
@@ -74,11 +78,6 @@ class BaseRenderer {
   virtual void DrawRect(RectF const& dest, glm::vec4 color,
                         float angle = 0.0f) = 0;
 
-  virtual void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
-                                RectF const& dest, glm::vec4 tint, int alpha,
-                                int fadeRange, bool isInverted = false,
-                                bool isSameTexture = false) = 0;
-
   virtual void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
                                 const CornersQuad& dest, int alpha,
                                 int fadeRange,
@@ -86,11 +85,18 @@ class BaseRenderer {
                                 bool isInverted = false,
                                 bool isSameTexture = false) {}
 
+  // TODO: Remove entirely
+  virtual void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
+                                RectF const& dest, glm::vec4 tint, int alpha,
+                                int fadeRange, bool isInverted = false,
+                                bool isSameTexture = false) = 0;
+
   void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask, int alpha,
                         int fadeRange, glm::mat4 transformation,
                         glm::vec4 tint = glm::vec4(1.0f),
                         bool isInverted = false, bool isSameTexture = false);
 
+  // TODO: Remove entirely
   virtual void DrawMaskedSpriteOffset(
       const Sprite& sprite, const Sprite& mask, glm::vec2 pos, glm::vec2 origin,
       int alpha, int fadeRange, glm::vec4 tint = glm::vec4(1.0f),
@@ -121,16 +127,21 @@ class BaseRenderer {
                                        float angle = 0.0f,
                                        bool useMaskAlpha = true) = 0;
 
+  // TODO: Remove entirely
   virtual void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest,
                                    float depth, glm::vec2 vanishingPoint,
                                    bool stayInScreen, glm::quat rot,
                                    glm::vec4 tint = glm::vec4(1.0f),
                                    bool inverted = false) = 0;
+
+  // TODO: Remove entirely
   void DrawSprite3DRotated(Sprite const& sprite, glm::vec2 topLeft, float depth,
                            glm::vec2 vanishingPoint, bool stayInScreen,
                            glm::quat rot, glm::vec4 tint = glm::vec4(1.0f),
                            glm::vec2 scale = glm::vec2(1.0f),
                            bool inverted = false);
+
+  // TODO: Remove entirely
   virtual void DrawRect3DRotated(RectF const& dest, float depth,
                                  glm::vec2 vanishingPoint, bool stayInScreen,
                                  glm::quat rot, glm::vec4 color) = 0;
