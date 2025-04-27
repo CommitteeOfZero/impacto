@@ -53,8 +53,10 @@ void BaseRenderer::DrawSprite(const Sprite& sprite,
 
 void BaseRenderer::DrawSprite(Sprite const& sprite, RectF const& dest,
                               glm::vec4 tint, float angle, bool inverted) {
-  std::array<glm::vec4, 4> tints = {tint, tint, tint, tint};
-  DrawSprite(sprite, CornersQuad(dest), tints, angle, inverted);
+  const glm::mat4 transformation =
+      Transformation2D({0.0f, 0.0f}, dest.Center(), angle);
+  DrawSprite(sprite, CornersQuad(dest).Transform(transformation),
+             std::array<glm::vec4, 4>{tint, tint, tint, tint}, inverted);
 }
 
 void BaseRenderer::DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
@@ -145,7 +147,7 @@ void BaseRenderer::DrawSprite3DRotated(
   corners.BottomLeft = glm::vec2(vertices[3]);
 
   DrawSprite(sprite, corners, std::array<glm::vec4, 4>{tint, tint, tint, tint},
-             0.0f, inverted);
+             inverted);
 }
 
 void BaseRenderer::DrawSprite3DRotated(Sprite const& sprite, glm::vec2 topLeft,
