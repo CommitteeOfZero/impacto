@@ -25,6 +25,7 @@ class SequencedAnimation : public Animation {
   void UpdateImpl(float dt) override;
   void StartInImpl(bool reset) override;
   void StartOutImpl(bool reset) override;
+  void FinishImpl() override;
 
  private:
   std::vector<ChildAnimation> Children;
