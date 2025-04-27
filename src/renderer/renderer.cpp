@@ -319,13 +319,13 @@ void BaseRenderer::QuadSetPosition(RectF const& transformedQuad, float angle,
   }
 
   // top-left
-  *(glm::vec2*)(positions + 0 * stride) = DesignToNDCNonFlipped(topLeft);
+  *(glm::vec2*)(positions + 0 * stride) = DesignToNDC(topLeft);
   // bottom-left
-  *(glm::vec2*)(positions + 1 * stride) = DesignToNDCNonFlipped(bottomLeft);
+  *(glm::vec2*)(positions + 1 * stride) = DesignToNDC(bottomLeft);
   // bottom-right
-  *(glm::vec2*)(positions + 2 * stride) = DesignToNDCNonFlipped(bottomRight);
+  *(glm::vec2*)(positions + 2 * stride) = DesignToNDC(bottomRight);
   // top-right
-  *(glm::vec2*)(positions + 3 * stride) = DesignToNDCNonFlipped(topRight);
+  *(glm::vec2*)(positions + 3 * stride) = DesignToNDC(topRight);
 }
 
 void BaseRenderer::QuadSetPosition(CornersQuad destQuad, float angle,
@@ -340,14 +340,14 @@ void BaseRenderer::QuadSetPosition(CornersQuad destQuad, float angle,
     destQuad.BottomRight = rot * (destQuad.BottomRight - center) + center;
   }
 
-  // bottom-left
-  *(glm::vec2*)(positions + 0 * stride) = DesignToNDC(destQuad.BottomLeft);
   // top-left
-  *(glm::vec2*)(positions + 1 * stride) = DesignToNDC(destQuad.TopLeft);
-  // top-right
-  *(glm::vec2*)(positions + 2 * stride) = DesignToNDC(destQuad.TopRight);
+  *(glm::vec2*)(positions + 0 * stride) = DesignToNDC(destQuad.TopLeft);
+  // bottom-left
+  *(glm::vec2*)(positions + 1 * stride) = DesignToNDC(destQuad.BottomLeft);
   // bottom-right
-  *(glm::vec2*)(positions + 3 * stride) = DesignToNDC(destQuad.BottomRight);
+  *(glm::vec2*)(positions + 2 * stride) = DesignToNDC(destQuad.BottomRight);
+  // top-right
+  *(glm::vec2*)(positions + 3 * stride) = DesignToNDC(destQuad.TopRight);
 }
 
 void BaseRenderer::QuadSetPositionOffset(
@@ -387,10 +387,10 @@ void BaseRenderer::QuadSetPositionOffset(
   bottomRight += displayOffset + displayXY;
 
   if (toNDC) {
-    topLeft = DesignToNDCNonFlipped(topLeft);
-    bottomLeft = DesignToNDCNonFlipped(bottomLeft);
-    bottomRight = DesignToNDCNonFlipped(bottomRight);
-    topRight = DesignToNDCNonFlipped(topRight);
+    topLeft = DesignToNDC(topLeft);
+    bottomLeft = DesignToNDC(bottomLeft);
+    bottomRight = DesignToNDC(bottomRight);
+    topRight = DesignToNDC(topRight);
   }
 
   // Store the transformed positions
@@ -475,14 +475,14 @@ void BaseRenderer::QuadSetUV(const RectF spriteBounds, const float designWidth,
     bottomRight = rot * (bottomRight - center) + center;
   }
 
-  // bottom-left
-  *(glm::vec2*)((uint8_t*)uvs + 0 * stride) = bottomLeft;
   // top-left
-  *(glm::vec2*)((uint8_t*)uvs + 1 * stride) = topLeft;
-  // top-right
-  *(glm::vec2*)((uint8_t*)uvs + 2 * stride) = topRight;
+  *(glm::vec2*)((uint8_t*)uvs + 0 * stride) = topLeft;
+  // bottom-left
+  *(glm::vec2*)((uint8_t*)uvs + 1 * stride) = bottomLeft;
   // bottom-right
-  *(glm::vec2*)((uint8_t*)uvs + 3 * stride) = bottomRight;
+  *(glm::vec2*)((uint8_t*)uvs + 2 * stride) = bottomRight;
+  // top-right
+  *(glm::vec2*)((uint8_t*)uvs + 3 * stride) = topRight;
 }
 
 }  // namespace Impacto
