@@ -52,7 +52,7 @@ void OpenALAudioChannel::Play(std::unique_ptr<AudioStream> stream, bool loop,
 void OpenALAudioChannel::Stop(float fadeOutDuration) {
   if (State == ACS_Stopped) return;
 
-  if (fadeOutDuration == 0) {
+  if (fadeOutDuration == 0 || State == ACS_Paused) {
     EndPlayback();
     return;
   }

@@ -44,6 +44,12 @@ class Animation {
     StartOutImpl(reset);
   }
 
+  void Finish() {
+    State = AnimationState::Stopped;
+    Progress = Direction == +AnimationDirection::In ? 1 : 0;
+    FinishImpl();
+  }
+
   void Update(float dt) {
     if (State == +AnimationState::Stopped) return;
     UpdateImpl(dt);
@@ -62,6 +68,7 @@ class Animation {
   void AddDelta(float dt);
   virtual void StartInImpl(bool reset = false) {}
   virtual void StartOutImpl(bool reset = false) {}
+  virtual void FinishImpl() {};
   virtual void UpdateImpl(float dt) {
     if (SkipOnSkipMode && GetFlag(Profile::ScriptVars::SF_MESALLSKIP) &&
         State != +AnimationState::Stopped) {

@@ -41,6 +41,12 @@ void SequencedAnimation::StartOutImpl(bool reset) {
   }
 }
 
+void SequencedAnimation::FinishImpl() {
+  for (ChildAnimation& child : Children) {
+    child.ChildAnimation->Finish();
+  }
+}
+
 void SequencedAnimation::UpdateImpl(float dt) {
   float duration =
       Direction == +AnimationDirection::In ? DurationIn : DurationOut;

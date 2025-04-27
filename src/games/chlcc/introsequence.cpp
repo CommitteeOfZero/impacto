@@ -99,7 +99,16 @@ IntroSequence::~IntroSequence() {
   Renderer->FreeTexture(FallingStarsMask.Sheet.Texture);
 }
 
-void IntroSequence::Update(float dt) { IntroAnimation.Update(dt); }
+void IntroSequence::Update(float dt) {
+  if (StarBounceAnimation.Progress >= 0.357f &&
+      Audio::Channels[Audio::AC_SE0]->GetState() == ACS_Paused &&
+      !IntroAnimation.IsIn()) {
+    // Should still skip ahead playback in case of desync
+    Audio::Channels[Audio::AC_SE0]->Resume();
+  }
+
+  IntroAnimation.Update(dt);
+}
 
 void IntroSequence::Render() {
   if (FallingStarsAnimation.IsOut()) {
@@ -107,12 +116,6 @@ void IntroSequence::Render() {
   }
 
   if (StarBounceAnimation.State == +AnimationState::Playing) {
-    if (StarBounceAnimation.Progress >= 0.357f &&
-        Audio::Channels[Audio::AC_SE0]->GetState() == ACS_Paused) {
-      // Should still skip ahead playback in case of desync
-      Audio::Channels[Audio::AC_SE0]->Resume();
-    }
-
     DrawBouncingStar();
   } else if (ExplodingStarAnimation.State == +AnimationState::Playing) {
     DrawExplodingStars();
