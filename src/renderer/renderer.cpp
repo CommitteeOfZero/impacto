@@ -111,6 +111,43 @@ void BaseRenderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
   DrawCCMessageBox(sprite, mask, scaledDest, tint, alpha, fadeRange, effectCt);
 }
 
+void BaseRenderer::DrawSprite3DRotated(
+    const Sprite& sprite, const RectF& dest, const float depth,
+    const glm::vec2 vanishingPoint, const bool stayInScreen,
+    const glm::quat rot, const glm::vec4 tint, const bool inverted) {
+  CornersQuad corners = dest;
+  std::array<glm::vec4, 4> vertices = {
+      glm::vec4(corners.TopLeft, 0.0f, 1.0f),
+      glm::vec4(corners.TopRight, 0.0f, 1.0f),
+      glm::vec4(corners.BottomRight, 0.0f, 1.0f),
+      glm::vec4(corners.BottomLeft, 0.0f, 1.0f)};
+
+  const glm::mat4 transformation =
+      Transformation3D(glm::vec3(0.0f), {dest.Center(), 0.0f}, rot);
+  for (glm::vec4& vertex : vertices) vertex = transformation * vertex;
+
+  if (stayInScreen) {
+    float maxZ = 0.0f;
+    for (const glm::vec4 vertex : vertices) maxZ = std::max(maxZ, vertex.z);
+
+    for (glm::vec4& vertex : vertices) vertex.z -= maxZ;
+  }
+
+  for (glm::vec4 vertex : vertices) {
+    vertex -= glm::vec4(vanishingPoint, 0.0f, 0.0f);
+    vertex *= depth / (depth - vertex.z);
+    vertex += glm::vec4(vanishingPoint, 0.0f, 0.0f);
+  }
+
+  corners.TopLeft = glm::vec2(vertices[0]);
+  corners.TopRight = glm::vec2(vertices[1]);
+  corners.BottomRight = glm::vec2(vertices[2]);
+  corners.BottomLeft = glm::vec2(vertices[3]);
+
+  DrawSprite(sprite, corners, std::array<glm::vec4, 4>{tint, tint, tint, tint},
+             0.0f, inverted);
+}
+
 void BaseRenderer::DrawSprite3DRotated(Sprite const& sprite, glm::vec2 topLeft,
                                        float depth, glm::vec2 vanishingPoint,
                                        bool stayInScreen, glm::quat rot,

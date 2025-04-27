@@ -267,45 +267,6 @@ void Renderer::DrawRect(RectF const& dest, glm::vec4 color, float angle) {
   BaseRenderer::DrawSprite(RectSprite, dest, color, angle);
 }
 
-void Renderer::DrawSprite3DRotated(Sprite const& sprite, RectF const& dest,
-                                   float depth, glm::vec2 vanishingPoint,
-                                   bool stayInScreen, glm::quat rot,
-                                   glm::vec4 tint, bool inverted) {
-  if (!Drawing) {
-    ImpLog(LogLevel::Error, LogChannel::Render,
-           "Renderer->DrawSprite3DRotated() called before BeginFrame()\n");
-    return;
-  }
-
-  // Do we have space for one more sprite quad?
-  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
-
-  // Are we in sprite mode?
-  if (inverted)
-    EnsureShader(ShaderSpriteInverted);
-  else
-    EnsureShader(ShaderSprite);
-
-  // Do we have the texture assigned?
-  EnsureTextureBound(sprite.Sheet.Texture);
-
-  // OK, all good, make quad
-
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
-  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  IndexBufferFill += 6;
-
-  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            &vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetPosition3DRotated(dest, depth, vanishingPoint, stayInScreen, rot,
-                           (uintptr_t)&vertices[0].Position,
-                           sizeof(VertexBufferSprites));
-
-  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
-}
-
 void Renderer::DrawRect3DRotated(RectF const& dest, float depth,
                                  glm::vec2 vanishingPoint, bool stayInScreen,
                                  glm::quat rot, glm::vec4 color) {
