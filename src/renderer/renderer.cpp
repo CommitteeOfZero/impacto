@@ -40,6 +40,17 @@ void InitRenderer() {
   Renderer->Init();
 }
 
+void BaseRenderer::DrawSprite(const Sprite& sprite,
+                              const glm::mat4 transformation,
+                              const glm::vec4 tint, const bool inverted) {
+  CornersQuad dest = CornersQuad(RectF(0.0f, 0.0f, sprite.ScaledWidth(),
+                                       sprite.ScaledHeight()))
+                         .Transform(transformation);
+
+  DrawSprite(sprite, dest, std::array<glm::vec4, 4>{tint, tint, tint, tint},
+             inverted);
+}
+
 void BaseRenderer::DrawSprite(Sprite const& sprite, RectF const& dest,
                               glm::vec4 tint, float angle, bool inverted) {
   std::array<glm::vec4, 4> tints = {tint, tint, tint, tint};
@@ -55,15 +66,15 @@ void BaseRenderer::DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
   DrawSprite(sprite, scaledDest, tint, angle, inverted);
 }
 
-void BaseRenderer::DrawSprite(const Sprite& sprite,
-                              const glm::mat4 transformation,
-                              const glm::vec4 tint, const bool inverted) {
-  CornersQuad dest = CornersQuad(RectF(0.0f, 0.0f, sprite.ScaledWidth(),
-                                       sprite.ScaledHeight()))
-                         .Transform(transformation);
+void BaseRenderer::DrawSpriteOffset(const Sprite& sprite,
+                                    const glm::vec2 topLeft,
+                                    const glm::vec2 displayOffset,
+                                    const glm::vec4 tint, const glm::vec2 scale,
+                                    const float angle, const bool inverted) {
+  const glm::mat4 transformation =
+      Transformation2D(topLeft, displayOffset, angle, scale);
 
-  DrawSprite(sprite, dest, std::array<glm::vec4, 4>{tint, tint, tint, tint},
-             inverted);
+  DrawSprite(sprite, transformation, tint, inverted);
 }
 
 void BaseRenderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,

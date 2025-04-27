@@ -61,11 +61,11 @@ class BaseRenderer {
                   bool inverted = false);
 
   // TODO: Remove entirely
-  virtual void DrawSpriteOffset(Sprite const& sprite, glm::vec2 topLeft,
-                                glm::vec2 displayOffset,
-                                glm::vec4 tint = glm::vec4(1.0),
-                                glm::vec2 scale = glm::vec2(1.0),
-                                float angle = 0.0f, bool inverted = false) = 0;
+  void DrawSpriteOffset(Sprite const& sprite, glm::vec2 topLeft,
+                        glm::vec2 displayOffset,
+                        glm::vec4 tint = glm::vec4(1.0),
+                        glm::vec2 scale = glm::vec2(1.0), float angle = 0.0f,
+                        bool inverted = false);
 
   virtual void DrawVertices(SpriteSheet const& sheet,
                             std::span<const glm::vec2> sheetPositions,
