@@ -34,9 +34,9 @@ class Renderer : public BaseRenderer {
   void FreeTexture(uint32_t id) override;
   YUVFrame* CreateYUVFrame(float width, float height) override;
 
-  void DrawSprite(Sprite const& sprite, CornersQuad const& dest,
-                  const std::array<glm::vec4, 4>& tints, float angle = 0.0f,
-                  bool inverted = false) override;
+  void DrawSprite(const Sprite& sprite, const CornersQuad& dest,
+                  const std::array<glm::vec4, 4>& tints,
+                  const bool inverted) override;
 
   void DrawVertices(SpriteSheet const& sheet,
                     std::span<const glm::vec2> sheetPositions,

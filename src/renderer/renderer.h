@@ -44,9 +44,9 @@ class BaseRenderer {
   virtual void FreeTexture(uint32_t id) = 0;
   virtual YUVFrame* CreateYUVFrame(float width, float height) = 0;
 
-  virtual void DrawSprite(Sprite const& sprite, CornersQuad const& dest,
-                          std::array<glm::vec4, 4> const& tints,
-                          float angle = 0.0f, bool inverted = false) = 0;
+  virtual void DrawSprite(const Sprite& sprite, const CornersQuad& dest,
+                          const std::array<glm::vec4, 4>& tints,
+                          bool inverted = false) = 0;
   void DrawSprite(const Sprite& sprite, glm::mat4 transformation,
                   glm::vec4 tint = glm::vec4(1.0f), bool inverted = false);
 
