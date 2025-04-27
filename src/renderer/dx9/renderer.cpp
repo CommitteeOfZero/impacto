@@ -410,58 +410,6 @@ void Renderer::DrawSprite(Sprite const& sprite, CornersQuad const& dest,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
 }
 
-void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
-                                RectF const& dest, glm::vec4 tint, int alpha,
-                                int fadeRange, bool isInverted,
-                                bool isSameTexture) {
-  if (!Drawing) {
-    ImpLog(LogLevel::Error, LogChannel::Render,
-           "Renderer->DrawMaskedSprite() called before BeginFrame()\n");
-    return;
-  }
-
-  if (alpha < 0) alpha = 0;
-  if (alpha > fadeRange + 256) alpha = fadeRange + 256;
-
-  float alphaRange = 256.0f / fadeRange;
-  float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
-
-  // Do we have space for one more sprite quad?
-  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
-
-  Flush();
-  EnsureShader(ShaderMaskedSprite);
-
-  Device->SetTexture(0, Textures[sprite.Sheet.Texture]);
-  Device->SetTexture(1, Textures[mask.Sheet.Texture]);
-
-  // This is cursed man, idk
-  float alphaRes[] = {alphaRange, constAlpha};
-  BOOL isInvertedB = (BOOL)isInverted;
-  BOOL isSameTextureB = (BOOL)isSameTexture;
-  Device->SetPixelShaderConstantF(0, alphaRes, 1);
-  Device->SetPixelShaderConstantB(0, &isInvertedB, 1);
-  Device->SetPixelShaderConstantB(1, &isSameTextureB, 1);
-
-  // OK, all good, make quad
-
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
-  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  IndexBufferFill += 6;
-
-  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            &vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetUV(sprite.Bounds, sprite.Bounds.Width, sprite.Bounds.Height,
-            &vertices[0].MaskUV, sizeof(VertexBufferSprites));
-
-  QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
-                  sizeof(VertexBufferSprites));
-
-  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
-}
-
 void Renderer::DrawMaskedSpriteOffset(const Sprite& sprite, const Sprite& mask,
                                       const glm::vec2 pos,
                                       const glm::vec2 origin, int alpha,

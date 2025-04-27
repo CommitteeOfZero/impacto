@@ -91,6 +91,16 @@ void BaseRenderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
                    isSameTexture);
 }
 
+void BaseRenderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
+                                    const RectF& dest, const glm::vec4 tint,
+                                    const int alpha, const int fadeRange,
+                                    const bool isInverted,
+                                    const bool isSameTexture) {
+  DrawMaskedSprite(sprite, mask, CornersQuad(dest), alpha, fadeRange,
+                   std::array<glm::vec4, 4>{tint, tint, tint, tint}, isInverted,
+                   isSameTexture);
+}
+
 void BaseRenderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                                     glm::vec2 topLeft, glm::vec4 tint,
                                     int alpha, int fadeRange, float effectCt,

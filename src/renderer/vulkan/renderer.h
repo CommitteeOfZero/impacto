@@ -75,11 +75,6 @@ class Renderer : public BaseRenderer {
   void DrawRect(RectF const& dest, glm::vec4 color,
                 float angle = 0.0f) override;
 
-  void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
-                        RectF const& dest, glm::vec4 tint, int alpha,
-                        int fadeRange, bool isInverted = false,
-                        bool isSameTexture = false) override;
-
   void DrawMaskedSpriteOffset(const Sprite& sprite, const Sprite& mask,
                               glm::vec2 pos, glm::vec2 origin, int alpha,
                               int fadeRange, glm::vec4 tint = glm::vec4(1.0f),
