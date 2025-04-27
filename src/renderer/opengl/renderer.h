@@ -63,14 +63,6 @@ class Renderer : public BaseRenderer {
                         const std::array<glm::vec4, 4>& tints, bool isInverted,
                         bool isSameTexture) override;
 
-  void DrawMaskedSpriteOffset(const Sprite& sprite, const Sprite& mask,
-                              glm::vec2 pos, glm::vec2 origin, int alpha,
-                              int fadeRange, glm::vec4 tint = glm::vec4(1.0f),
-                              glm::vec2 scale = glm::vec2(1.0),
-                              float angle = 0.0f, bool spriteInverted = false,
-                              bool maskInverted = false,
-                              bool isSameTexture = false) override;
-
   void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                         RectF const& dest, glm::vec4 tint, int alpha,
                         int fadeRange, float effectCt) override;
