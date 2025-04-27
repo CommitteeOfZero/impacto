@@ -67,34 +67,22 @@ class BaseRenderer {
                         glm::vec2 scale = glm::vec2(1.0), float angle = 0.0f,
                         bool inverted = false);
 
-  virtual void DrawVertices(SpriteSheet const& sheet,
-                            std::span<const glm::vec2> sheetPositions,
-                            std::span<const glm::vec2> displayPositions,
-                            int width, int height,
-                            glm::vec4 tint = glm::vec4(1.0),
-                            bool inverted = false,
-                            bool disableBlend = false) = 0;
-
-  virtual void DrawRect(RectF const& dest, glm::vec4 color,
-                        float angle = 0.0f) = 0;
-
   virtual void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
                                 const CornersQuad& dest, int alpha,
                                 int fadeRange,
                                 const std::array<glm::vec4, 4>& tints,
                                 bool isInverted = false,
                                 bool isSameTexture = false) {}
-
-  // TODO: Remove entirely
-  virtual void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
-                                RectF const& dest, glm::vec4 tint, int alpha,
-                                int fadeRange, bool isInverted = false,
-                                bool isSameTexture = false) = 0;
-
   void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask, int alpha,
                         int fadeRange, glm::mat4 transformation,
                         glm::vec4 tint = glm::vec4(1.0f),
                         bool isInverted = false, bool isSameTexture = false);
+
+  // TODO: Remove entirely
+  void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
+                        RectF const& dest, glm::vec4 tint, int alpha,
+                        int fadeRange, bool isInverted = false,
+                        bool isSameTexture = false);
 
   // TODO: Remove entirely
   virtual void DrawMaskedSpriteOffset(
@@ -108,6 +96,17 @@ class BaseRenderer {
         {pos.x, pos.y, sprite.ScaledWidth(), sprite.ScaledHeight()}, tint,
         alpha, fadeRange, maskInverted, isSameTexture);
   }
+
+  virtual void DrawVertices(SpriteSheet const& sheet,
+                            std::span<const glm::vec2> sheetPositions,
+                            std::span<const glm::vec2> displayPositions,
+                            int width, int height,
+                            glm::vec4 tint = glm::vec4(1.0),
+                            bool inverted = false,
+                            bool disableBlend = false) = 0;
+
+  virtual void DrawRect(RectF const& dest, glm::vec4 color,
+                        float angle = 0.0f) = 0;
 
   void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                         glm::vec2 topLeft, glm::vec4 tint, int alpha,
