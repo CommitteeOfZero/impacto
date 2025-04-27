@@ -25,6 +25,13 @@ glm::mat2 Rotate2D(float angle) {
   return result;
 }
 
+glm::mat4 Transformation2D(const glm::vec2 translation, const glm::vec2 origin,
+                           const float rotation, const glm::vec2 scaling) {
+  return Transformation3D({translation, 0.0f}, {origin, 0.0f},
+                          glm::quat(rotation, {0.0f, 0.0f, 1.0f}),
+                          {scaling, 1.0f});
+}
+
 glm::mat4 Transformation3D(const glm::vec3 translation, const glm::vec3 origin,
                            const glm::quat rotation, const glm::vec3 scaling) {
   glm::mat4 matrix(1.0f);
@@ -38,9 +45,7 @@ glm::mat4 Transformation3D(const glm::vec3 translation, const glm::vec3 origin,
 glm::vec2 Transform2D(const glm::vec2 pos, const glm::vec2 translation,
                       const glm::vec2 origin, const float rotation,
                       const glm::vec2 scaling) {
-  return Transformation3D(glm::vec3(translation, 0.0f), glm::vec3(origin, 0.0f),
-                          glm::quat(rotation, {0.0f, 0.0f, 1.0f}),
-                          glm::vec3(scaling, 1.0f)) *
+  return Transformation2D(translation, origin, rotation, scaling) *
          glm::vec4(pos, 0.0f, 1.0f);
 }
 
