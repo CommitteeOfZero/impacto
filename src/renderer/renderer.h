@@ -124,7 +124,15 @@ class BaseRenderer {
                             bool inverted = false,
                             bool disableBlend = false) = 0;
 
+  void DrawQuad(const CornersQuad& dest, glm::vec4 color);
+
+  // TODO: Remove entirely
   void DrawRect(const RectF& dest, glm::vec4 color, float angle = 0.0f);
+
+  // TODO: Remove entirely
+  void DrawRect3DRotated(const RectF& dest, float depth,
+                         glm::vec2 vanishingPoint, bool stayInScreen,
+                         glm::quat rot, glm::vec4 color);
 
   void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                         glm::vec2 topLeft, glm::vec4 tint, int alpha,
@@ -136,11 +144,6 @@ class BaseRenderer {
 
   virtual void DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
                                        const RectF& dest, float alpha) = 0;
-
-  // TODO: Remove entirely
-  void DrawRect3DRotated(const RectF& dest, float depth,
-                         glm::vec2 vanishingPoint, bool stayInScreen,
-                         glm::quat rot, glm::vec4 color);
 
   void DrawProcessedText_BasicFont(std::span<const ProcessedTextGlyph> text,
                                    BasicFont* font, float opacity,
