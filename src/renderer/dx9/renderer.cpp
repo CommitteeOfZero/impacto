@@ -357,6 +357,120 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
 }
 
+void Renderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
+                                const CornersQuad& dest, int alpha,
+                                const int fadeRange,
+                                const std::span<const glm::vec4, 4> tints,
+                                const bool isInverted,
+                                const bool isSameTexture) {
+  if (!Drawing) {
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Renderer->DrawMaskedSpriteOverlay() called before BeginFrame()\n");
+    return;
+  }
+
+  if (sprite.Sheet.IsScreenCap) Flush();
+
+  alpha = std::clamp(alpha, 0, fadeRange + 256);
+  const float alphaRange = 256.0f / fadeRange;
+  const float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
+
+  // Do we have space for one more sprite quad?
+  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
+
+  std::array<float, 4> alphaRes = {alphaRange, constAlpha};
+  const BOOL isInvertedB = (BOOL)isInverted;
+  const BOOL isSameTextureB = (BOOL)isSameTexture;
+
+  EnsureShader(ShaderMaskedSprite);
+  Device->SetTexture(0, Textures[sprite.Sheet.Texture]);
+  Device->SetTexture(1, Textures[mask.Sheet.Texture]);
+
+  Device->SetSamplerState(1, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+  Device->SetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+  Device->SetPixelShaderConstantF(0, alphaRes.data(), 1);
+  Device->SetPixelShaderConstantB(0, &isInvertedB, 1);
+  Device->SetPixelShaderConstantB(1, &isSameTextureB, 1);
+
+  // OK, all good, make quad
+
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
+  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
+
+  IndexBufferFill += 6;
+
+  QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
+            sizeof(VertexBufferSprites));
+  QuadSetUV(mask.Bounds, mask.Sheet.GetDimensions(), &vertices[0].MaskUV,
+            sizeof(VertexBufferSprites));
+
+  QuadSetPosition(dest, &vertices[0].Position, sizeof(VertexBufferSprites));
+
+  for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
+}
+
+void Renderer::DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
+                                       const CornersQuad& dest, int alpha,
+                                       const int fadeRange,
+                                       const glm::vec4 tint,
+                                       const bool isInverted,
+                                       const bool useMaskAlpha) {
+  if (!Drawing) {
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Renderer->DrawMaskedSpriteOverlay() called before BeginFrame()\n");
+    return;
+  }
+
+  if (sprite.Sheet.IsScreenCap) Flush();
+
+  if (alpha < 0) alpha = 0;
+  if (alpha > fadeRange + 256) alpha = fadeRange + 256;
+
+  float alphaRange = 256.0f / fadeRange;
+  float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
+
+  // Do we have space for one more sprite quad?
+  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
+
+  std::array<float, 4> alphaRes = {alphaRange, constAlpha};
+  BOOL isInvertedB = (BOOL)isInverted;
+  BOOL isSameTextureB = (BOOL) false;
+  BOOL useMaskAlphaB = (BOOL)useMaskAlpha;
+
+  if (useMaskAlpha) {
+    EnsureShader(ShaderMaskedSprite);
+    Device->SetPixelShaderConstantB(1, &isSameTextureB, 1);
+  } else {
+    EnsureShader(ShaderMaskedSpriteNoAlpha);
+  }
+
+  Device->SetTexture(0, Textures[sprite.Sheet.Texture]);
+  Device->SetTexture(1, Textures[mask.Sheet.Texture]);
+
+  Device->SetSamplerState(1, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+  Device->SetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+  Device->SetPixelShaderConstantF(0, alphaRes.data(), 1);
+  Device->SetPixelShaderConstantB(0, &isInvertedB, 1);
+
+  // OK, all good, make quad
+
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
+  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
+
+  IndexBufferFill += 6;
+
+  QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
+            sizeof(VertexBufferSprites));
+  QuadSetUV(mask.Bounds, mask.Sheet.GetDimensions(), &vertices[0].MaskUV,
+            sizeof(VertexBufferSprites));
+
+  QuadSetPosition(dest, &vertices[0].Position, sizeof(VertexBufferSprites));
+
+  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
+}
+
 void Renderer::DrawVertices(SpriteSheet const& sheet,
                             std::span<const glm::vec2> sheetPositions,
                             std::span<const glm::vec2> displayPositions,
@@ -470,67 +584,6 @@ void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
   // This is cursed man, idk
   float alphaRes[] = {alphaRange, constAlpha, effectCt, 0.0f};
   Device->SetPixelShaderConstantF(0, alphaRes, 1);
-
-  // OK, all good, make quad
-
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
-  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  IndexBufferFill += 6;
-
-  QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
-            sizeof(VertexBufferSprites));
-  QuadSetUV(mask.Bounds, mask.Sheet.GetDimensions(), &vertices[0].MaskUV,
-            sizeof(VertexBufferSprites));
-
-  QuadSetPosition(dest, &vertices[0].Position, sizeof(VertexBufferSprites));
-
-  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
-}
-
-void Renderer::DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
-                                       const CornersQuad& dest, int alpha,
-                                       const int fadeRange,
-                                       const glm::vec4 tint,
-                                       const bool isInverted,
-                                       const bool useMaskAlpha) {
-  if (!Drawing) {
-    ImpLog(LogLevel::Error, LogChannel::Render,
-           "Renderer->DrawMaskedSpriteOverlay() called before BeginFrame()\n");
-    return;
-  }
-
-  if (sprite.Sheet.IsScreenCap) Flush();
-
-  if (alpha < 0) alpha = 0;
-  if (alpha > fadeRange + 256) alpha = fadeRange + 256;
-
-  float alphaRange = 256.0f / fadeRange;
-  float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
-
-  // Do we have space for one more sprite quad?
-  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
-
-  float alphaRes[] = {alphaRange, constAlpha};
-  BOOL isInvertedB = (BOOL)isInverted;
-  BOOL isSameTextureB = (BOOL) false;
-  BOOL useMaskAlphaB = (BOOL)useMaskAlpha;
-
-  if (useMaskAlpha) {
-    EnsureShader(ShaderMaskedSprite);
-    Device->SetPixelShaderConstantB(1, &isSameTextureB, 1);
-  } else {
-    EnsureShader(ShaderMaskedSpriteNoAlpha);
-  }
-
-  Device->SetTexture(0, Textures[sprite.Sheet.Texture]);
-  Device->SetTexture(1, Textures[mask.Sheet.Texture]);
-
-  Device->SetSamplerState(1, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
-  Device->SetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
-  Device->SetPixelShaderConstantF(0, alphaRes, 1);
-  Device->SetPixelShaderConstantB(0, &isInvertedB, 1);
 
   // OK, all good, make quad
 
