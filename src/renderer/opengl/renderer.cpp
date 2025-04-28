@@ -354,6 +354,140 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
 }
 
+void Renderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
+                                const CornersQuad& dest, int alpha,
+                                const int fadeRange,
+                                const std::span<const glm::vec4, 4> tints,
+                                const bool isInverted,
+                                const bool isSameTexture) {
+  if (!Drawing) {
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Renderer->DrawMaskedSprite() called before BeginFrame()\n");
+    return;
+  }
+
+  alpha = std::clamp(alpha, 0, fadeRange + 256);
+  const float alphaRange = 256.0f / fadeRange;
+  const float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
+
+  // Do we have space for one more sprite quad?
+  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
+
+  if (CurrentMode != R2D_Masked) {
+    Flush();
+    CurrentMode = R2D_Masked;
+  }
+
+  EnsureTextureBound(sprite.Sheet.Texture);
+
+  glBindVertexArray(VAOSprites);
+  glUseProgram(ShaderProgramMaskedSprite);
+  glUniform1i(glGetUniformLocation(ShaderProgramMaskedSprite, "Mask"), 2);
+  glUniform2f(glGetUniformLocation(ShaderProgramMaskedSprite, "Alpha"),
+              alphaRange, constAlpha);
+  glUniform1i(MaskedIsInvertedLocation, isInverted);
+  glUniform1i(MaskedIsSameTextureLocation, isSameTexture);
+
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
+
+  glActiveTexture(GL_TEXTURE2);
+  glBindTexture(GL_TEXTURE_2D, mask.Sheet.Texture);
+  glBindSampler(2, Sampler);
+
+  // OK, all good, make quad
+
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
+  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
+
+  IndexBufferFill += 6;
+
+  if (sprite.Sheet.IsScreenCap) {
+    QuadSetUVFlipped(sprite.Bounds, sprite.Sheet.GetDimensions(),
+                     &vertices[0].UV, sizeof(VertexBufferSprites));
+  } else {
+    QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
+              sizeof(VertexBufferSprites));
+  }
+  QuadSetUV(sprite.Bounds, sprite.Bounds.GetSize(), &vertices[0].MaskUV,
+            sizeof(VertexBufferSprites));
+
+  QuadSetPosition(dest, &vertices[0].Position, sizeof(VertexBufferSprites));
+
+  for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
+}
+
+void Renderer::DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
+                                       const CornersQuad& dest, int alpha,
+                                       const int fadeRange,
+                                       const glm::vec4 tint,
+                                       const bool isInverted,
+                                       const bool useMaskAlpha) {
+  if (!Drawing) {
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Renderer->DrawMaskedSpriteOverlay() called before BeginFrame()\n");
+    return;
+  }
+
+  alpha = std::clamp(alpha, 0, fadeRange + 256);
+  const float alphaRange = 256.0f / fadeRange;
+  const float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
+
+  // Do we have space for one more sprite quad?
+  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
+
+  glBindVertexArray(VAOSprites);
+  if (useMaskAlpha) {
+    if (CurrentMode != R2D_Masked || sprite.Sheet.IsScreenCap) {
+      Flush();
+      CurrentMode = R2D_Masked;
+    }
+    glUseProgram(ShaderProgramMaskedSprite);
+    glUniform1i(glGetUniformLocation(ShaderProgramMaskedSprite, "Mask"), 2);
+    glUniform2f(glGetUniformLocation(ShaderProgramMaskedSprite, "Alpha"),
+                alphaRange, constAlpha);
+    glUniform1i(MaskedIsInvertedLocation, isInverted);
+    glUniform1i(MaskedIsSameTextureLocation, false);
+  } else {
+    if (CurrentMode != R2D_MaskedNoAlpha || sprite.Sheet.IsScreenCap) {
+      Flush();
+      CurrentMode = R2D_MaskedNoAlpha;
+    }
+    glUseProgram(ShaderProgramMaskedSpriteNoAlpha);
+    glUniform1i(glGetUniformLocation(ShaderProgramMaskedSpriteNoAlpha, "Mask"),
+                2);
+    glUniform2f(glGetUniformLocation(ShaderProgramMaskedSpriteNoAlpha, "Alpha"),
+                alphaRange, constAlpha);
+    glUniform1i(MaskedNoAlphaIsInvertedLocation, isInverted);
+  }
+
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
+
+  glActiveTexture(GL_TEXTURE2);
+  glBindTexture(GL_TEXTURE_2D, mask.Sheet.Texture);
+  glBindSampler(2, Sampler);
+
+  // OK, all good, make quad
+
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
+  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
+
+  IndexBufferFill += 6;
+
+  QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
+            sizeof(VertexBufferSprites));
+
+  QuadSetUV(mask.Bounds, mask.Sheet.GetDimensions(), &vertices[0].MaskUV,
+            sizeof(VertexBufferSprites));
+
+  QuadSetPosition(dest, &vertices[0].Position, sizeof(VertexBufferSprites));
+
+  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
+}
+
 void Renderer::DrawVertices(SpriteSheet const& sheet,
                             std::span<const glm::vec2> sheetPositions,
                             std::span<const glm::vec2> displayPositions,
@@ -435,144 +569,6 @@ void Renderer::DrawVertices(SpriteSheet const& sheet,
   glBufferData(GL_ELEMENT_ARRAY_BUFFER,
                IndexBufferCount * sizeof(IndexBuffer[0]), IndexBuffer,
                GL_STATIC_DRAW);
-}
-
-void Renderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
-                                const CornersQuad& dest, int alpha,
-                                const int fadeRange,
-                                const std::span<const glm::vec4, 4> tints,
-                                const bool isInverted,
-                                const bool isSameTexture) {
-  if (!Drawing) {
-    ImpLog(LogLevel::Error, LogChannel::Render,
-           "Renderer->DrawMaskedSprite() called before BeginFrame()\n");
-    return;
-  }
-
-  if (alpha < 0) alpha = 0;
-  if (alpha > fadeRange + 256) alpha = fadeRange + 256;
-
-  float alphaRange = 256.0f / fadeRange;
-  float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
-
-  // Do we have space for one more sprite quad?
-  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
-
-  if (CurrentMode != R2D_Masked) {
-    Flush();
-    CurrentMode = R2D_Masked;
-  }
-
-  EnsureTextureBound(sprite.Sheet.Texture);
-
-  glBindVertexArray(VAOSprites);
-  glUseProgram(ShaderProgramMaskedSprite);
-  glUniform1i(glGetUniformLocation(ShaderProgramMaskedSprite, "Mask"), 2);
-  glUniform2f(glGetUniformLocation(ShaderProgramMaskedSprite, "Alpha"),
-              alphaRange, constAlpha);
-  glUniform1i(MaskedIsInvertedLocation, isInverted);
-  glUniform1i(MaskedIsSameTextureLocation, isSameTexture);
-
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
-
-  glActiveTexture(GL_TEXTURE2);
-  glBindTexture(GL_TEXTURE_2D, mask.Sheet.Texture);
-  glBindSampler(2, Sampler);
-
-  // OK, all good, make quad
-
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
-  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  IndexBufferFill += 6;
-
-  if (sprite.Sheet.IsScreenCap) {
-    QuadSetUVFlipped(sprite.Bounds, sprite.Sheet.GetDimensions(),
-                     &vertices[0].UV, sizeof(VertexBufferSprites));
-  } else {
-    QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
-              sizeof(VertexBufferSprites));
-  }
-  QuadSetUV(sprite.Bounds, sprite.Bounds.GetSize(), &vertices[0].MaskUV,
-            sizeof(VertexBufferSprites));
-
-  QuadSetPosition(dest, &vertices[0].Position, sizeof(VertexBufferSprites));
-
-  for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
-}
-
-void Renderer::DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
-                                       const CornersQuad& dest, int alpha,
-                                       const int fadeRange,
-                                       const glm::vec4 tint,
-                                       const bool isInverted,
-                                       const bool useMaskAlpha) {
-  if (!Drawing) {
-    ImpLog(LogLevel::Error, LogChannel::Render,
-           "Renderer->DrawMaskedSpriteOverlay() called before BeginFrame()\n");
-    return;
-  }
-
-  if (alpha < 0) alpha = 0;
-  if (alpha > fadeRange + 256) alpha = fadeRange + 256;
-
-  float alphaRange = 256.0f / fadeRange;
-  float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
-
-  // Do we have space for one more sprite quad?
-  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
-
-  glBindVertexArray(VAOSprites);
-  if (useMaskAlpha) {
-    if (CurrentMode != R2D_Masked || sprite.Sheet.IsScreenCap) {
-      Flush();
-      CurrentMode = R2D_Masked;
-    }
-    glUseProgram(ShaderProgramMaskedSprite);
-    glUniform1i(glGetUniformLocation(ShaderProgramMaskedSprite, "Mask"), 2);
-    glUniform2f(glGetUniformLocation(ShaderProgramMaskedSprite, "Alpha"),
-                alphaRange, constAlpha);
-    glUniform1i(MaskedIsInvertedLocation, isInverted);
-    glUniform1i(MaskedIsSameTextureLocation, false);
-  } else {
-    if (CurrentMode != R2D_MaskedNoAlpha || sprite.Sheet.IsScreenCap) {
-      Flush();
-      CurrentMode = R2D_MaskedNoAlpha;
-    }
-    glUseProgram(ShaderProgramMaskedSpriteNoAlpha);
-    glUniform1i(glGetUniformLocation(ShaderProgramMaskedSpriteNoAlpha, "Mask"),
-                2);
-    glUniform2f(glGetUniformLocation(ShaderProgramMaskedSpriteNoAlpha, "Alpha"),
-                alphaRange, constAlpha);
-    glUniform1i(MaskedNoAlphaIsInvertedLocation, isInverted);
-  }
-
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
-
-  glActiveTexture(GL_TEXTURE2);
-  glBindTexture(GL_TEXTURE_2D, mask.Sheet.Texture);
-  glBindSampler(2, Sampler);
-
-  // OK, all good, make quad
-
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
-  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  IndexBufferFill += 6;
-
-  QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
-            sizeof(VertexBufferSprites));
-
-  QuadSetUV(mask.Bounds, mask.Sheet.GetDimensions(), &vertices[0].MaskUV,
-            sizeof(VertexBufferSprites));
-
-  QuadSetPosition(dest, &vertices[0].Position, sizeof(VertexBufferSprites));
-
-  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
 
 void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,

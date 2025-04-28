@@ -1245,6 +1245,182 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
 }
 
+void Renderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
+                                const CornersQuad& dest, int alpha,
+                                const int fadeRange,
+                                const std::span<const glm::vec4, 4> tints,
+                                const bool isInverted,
+                                const bool isSameTexture) {
+  if (!Drawing) {
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Renderer->DrawMaskedSpriteOverlay() called before BeginFrame()\n");
+    return;
+  }
+
+  if (sprite.Sheet.IsScreenCap) Flush();
+
+  if (Textures.count(sprite.Sheet.Texture) == 0 ||
+      Textures.count(mask.Sheet.Texture) == 0)
+    return;
+
+  alpha = std::clamp(alpha, 0, fadeRange + 256);
+  const float alphaRange = 256.0f / fadeRange;
+  const float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
+
+  VkSamplerCreateInfo samplerInfo = {};
+  samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+  samplerInfo.pNext = nullptr;
+  samplerInfo.magFilter = VK_FILTER_LINEAR;
+  samplerInfo.minFilter = VK_FILTER_LINEAR;
+  samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+  samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+  samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+  samplerInfo.anisotropyEnable = VK_TRUE;
+  samplerInfo.maxAnisotropy = 16;
+
+  VkDescriptorImageInfo imageBufferInfo[2];
+  imageBufferInfo[0].sampler = Sampler;
+  imageBufferInfo[0].imageView = Textures[sprite.Sheet.Texture].ImageView;
+  imageBufferInfo[0].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+  vkCreateSampler(Device, &samplerInfo, nullptr, &imageBufferInfo[1].sampler);
+  imageBufferInfo[1].imageView = Textures[mask.Sheet.Texture].ImageView;
+  imageBufferInfo[1].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+  VkWriteDescriptorSet writeDescriptorSet{};
+  writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+  writeDescriptorSet.dstSet = 0;
+  writeDescriptorSet.dstBinding = 0;
+  writeDescriptorSet.descriptorCount = 2;
+  writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+  writeDescriptorSet.pImageInfo = imageBufferInfo;
+
+  EnsureMode(PipelineMaskedSprite, true);
+  vkCmdPushDescriptorSetKHR(
+      CommandBuffers[CurrentFrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
+      CurrentPipeline->PipelineLayout, 0, 1, &writeDescriptorSet);
+  SpritePushConstants constants = {};
+  constants.Alpha = glm::vec2(alphaRange, constAlpha);
+  constants.IsInverted = isInverted;
+  constants.IsSameTexture = isSameTexture;
+  vkCmdPushConstants(
+      CommandBuffers[CurrentFrameIndex], CurrentPipeline->PipelineLayout,
+      VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SpritePushConstants), &constants);
+
+  // OK, all good, make quad
+  MakeQuad();
+
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferOffset +
+                             VertexBufferFill);
+  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
+
+  QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
+            sizeof(VertexBufferSprites));
+  QuadSetUV(mask.Bounds, mask.Sheet.GetDimensions(), &vertices[0].MaskUV,
+            sizeof(VertexBufferSprites));
+
+  QuadSetPosition(dest, &vertices[0].Position, sizeof(VertexBufferSprites));
+
+  for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
+}
+
+void Renderer::DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
+                                       const CornersQuad& dest, int alpha,
+                                       const int fadeRange,
+                                       const glm::vec4 tint,
+                                       const bool isInverted,
+                                       const bool useMaskAlpha) {
+  if (!Drawing) {
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Renderer->DrawMaskedSpriteOverlay() called before BeginFrame()\n");
+    return;
+  }
+
+  if (sprite.Sheet.IsScreenCap) Flush();
+
+  if (Textures.count(sprite.Sheet.Texture) == 0 ||
+      Textures.count(mask.Sheet.Texture) == 0)
+    return;
+
+  alpha = std::clamp(alpha, 0, fadeRange + 256);
+  const float alphaRange = 256.0f / fadeRange;
+  const float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
+
+  VkSamplerCreateInfo samplerInfo = {};
+  samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+  samplerInfo.pNext = nullptr;
+  samplerInfo.magFilter = VK_FILTER_LINEAR;
+  samplerInfo.minFilter = VK_FILTER_LINEAR;
+  samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+  samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+  samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+  samplerInfo.anisotropyEnable = VK_TRUE;
+  samplerInfo.maxAnisotropy = 16;
+
+  VkDescriptorImageInfo imageBufferInfo[2];
+  imageBufferInfo[0].sampler = Sampler;
+  imageBufferInfo[0].imageView = Textures[sprite.Sheet.Texture].ImageView;
+  imageBufferInfo[0].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+  vkCreateSampler(Device, &samplerInfo, nullptr, &imageBufferInfo[1].sampler);
+  imageBufferInfo[1].imageView = Textures[mask.Sheet.Texture].ImageView;
+  imageBufferInfo[1].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+  VkWriteDescriptorSet writeDescriptorSet{};
+  writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+  writeDescriptorSet.dstSet = 0;
+  writeDescriptorSet.dstBinding = 0;
+  writeDescriptorSet.descriptorCount = 2;
+  writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+  writeDescriptorSet.pImageInfo = imageBufferInfo;
+
+  if (useMaskAlpha) {
+    EnsureMode(PipelineMaskedSprite, true);
+    vkCmdPushDescriptorSetKHR(
+        CommandBuffers[CurrentFrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
+        CurrentPipeline->PipelineLayout, 0, 1, &writeDescriptorSet);
+    SpritePushConstants constants = {};
+    constants.Alpha = glm::vec2(alphaRange, constAlpha);
+    constants.IsInverted = isInverted;
+    constants.IsSameTexture = false;
+    vkCmdPushConstants(CommandBuffers[CurrentFrameIndex],
+                       CurrentPipeline->PipelineLayout,
+                       VK_SHADER_STAGE_FRAGMENT_BIT, 0,
+                       sizeof(SpritePushConstants), &constants);
+
+  } else {
+    EnsureMode(PipelineMaskedSpriteNoAlpha, true);
+    vkCmdPushDescriptorSetKHR(
+        CommandBuffers[CurrentFrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
+        CurrentPipeline->PipelineLayout, 0, 1, &writeDescriptorSet);
+    MaskedNoAlphaPushConstants constants = {};
+    constants.Alpha = glm::vec2(alphaRange, constAlpha);
+    constants.IsInverted = isInverted;
+    vkCmdPushConstants(CommandBuffers[CurrentFrameIndex],
+                       CurrentPipeline->PipelineLayout,
+                       VK_SHADER_STAGE_FRAGMENT_BIT, 0,
+                       sizeof(MaskedNoAlphaPushConstants), &constants);
+  }
+
+  // OK, all good, make quad
+  MakeQuad();
+
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferOffset +
+                             VertexBufferFill);
+  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
+
+  QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
+            sizeof(VertexBufferSprites));
+  QuadSetUV(mask.Bounds, mask.Sheet.GetDimensions(), &vertices[0].MaskUV,
+            sizeof(VertexBufferSprites));
+
+  QuadSetPosition(dest, &vertices[0].Position, sizeof(VertexBufferSprites));
+
+  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
+}
+
 void Renderer::DrawVertices(SpriteSheet const& sheet,
                             std::span<const glm::vec2> sheetPositions,
                             std::span<const glm::vec2> displayPositions,
@@ -1391,104 +1567,6 @@ void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
   vkCmdPushConstants(
       CommandBuffers[CurrentFrameIndex], CurrentPipeline->PipelineLayout,
       VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(CCBoxPushConstants), &constants);
-
-  // OK, all good, make quad
-  MakeQuad();
-
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferOffset +
-                             VertexBufferFill);
-  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
-            sizeof(VertexBufferSprites));
-  QuadSetUV(mask.Bounds, mask.Sheet.GetDimensions(), &vertices[0].MaskUV,
-            sizeof(VertexBufferSprites));
-
-  QuadSetPosition(dest, &vertices[0].Position, sizeof(VertexBufferSprites));
-
-  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
-}
-
-void Renderer::DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
-                                       const CornersQuad& dest, int alpha,
-                                       const int fadeRange,
-                                       const glm::vec4 tint,
-                                       const bool isInverted,
-                                       const bool useMaskAlpha) {
-  if (!Drawing) {
-    ImpLog(LogLevel::Error, LogChannel::Render,
-           "Renderer->DrawMaskedSpriteOverlay() called before BeginFrame()\n");
-    return;
-  }
-
-  if (sprite.Sheet.IsScreenCap) Flush();
-
-  if (Textures.count(sprite.Sheet.Texture) == 0 ||
-      Textures.count(mask.Sheet.Texture) == 0)
-    return;
-
-  if (alpha < 0) alpha = 0;
-  if (alpha > fadeRange + 256) alpha = fadeRange + 256;
-
-  float alphaRange = 256.0f / fadeRange;
-  float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
-
-  VkSamplerCreateInfo samplerInfo = {};
-  samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-  samplerInfo.pNext = nullptr;
-  samplerInfo.magFilter = VK_FILTER_LINEAR;
-  samplerInfo.minFilter = VK_FILTER_LINEAR;
-  samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-  samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-  samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-  samplerInfo.anisotropyEnable = VK_TRUE;
-  samplerInfo.maxAnisotropy = 16;
-
-  VkDescriptorImageInfo imageBufferInfo[2];
-  imageBufferInfo[0].sampler = Sampler;
-  imageBufferInfo[0].imageView = Textures[sprite.Sheet.Texture].ImageView;
-  imageBufferInfo[0].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-
-  vkCreateSampler(Device, &samplerInfo, nullptr, &imageBufferInfo[1].sampler);
-  imageBufferInfo[1].imageView = Textures[mask.Sheet.Texture].ImageView;
-  imageBufferInfo[1].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-
-  VkWriteDescriptorSet writeDescriptorSet{};
-  writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-  writeDescriptorSet.dstSet = 0;
-  writeDescriptorSet.dstBinding = 0;
-  writeDescriptorSet.descriptorCount = 2;
-  writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-  writeDescriptorSet.pImageInfo = imageBufferInfo;
-
-  if (useMaskAlpha) {
-    EnsureMode(PipelineMaskedSprite, true);
-    vkCmdPushDescriptorSetKHR(
-        CommandBuffers[CurrentFrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
-        CurrentPipeline->PipelineLayout, 0, 1, &writeDescriptorSet);
-    SpritePushConstants constants = {};
-    constants.Alpha = glm::vec2(alphaRange, constAlpha);
-    constants.IsInverted = isInverted;
-    constants.IsSameTexture = false;
-    vkCmdPushConstants(CommandBuffers[CurrentFrameIndex],
-                       CurrentPipeline->PipelineLayout,
-                       VK_SHADER_STAGE_FRAGMENT_BIT, 0,
-                       sizeof(SpritePushConstants), &constants);
-
-  } else {
-    EnsureMode(PipelineMaskedSpriteNoAlpha, true);
-    vkCmdPushDescriptorSetKHR(
-        CommandBuffers[CurrentFrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
-        CurrentPipeline->PipelineLayout, 0, 1, &writeDescriptorSet);
-    MaskedNoAlphaPushConstants constants = {};
-    constants.Alpha = glm::vec2(alphaRange, constAlpha);
-    constants.IsInverted = isInverted;
-    vkCmdPushConstants(CommandBuffers[CurrentFrameIndex],
-                       CurrentPipeline->PipelineLayout,
-                       VK_SHADER_STAGE_FRAGMENT_BIT, 0,
-                       sizeof(MaskedNoAlphaPushConstants), &constants);
-  }
 
   // OK, all good, make quad
   MakeQuad();
