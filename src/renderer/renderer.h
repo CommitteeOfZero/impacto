@@ -45,7 +45,7 @@ class BaseRenderer {
   virtual YUVFrame* CreateYUVFrame(float width, float height) = 0;
 
   virtual void DrawSprite(const Sprite& sprite, const CornersQuad& dest,
-                          const std::array<glm::vec4, 4>& tints,
+                          std::span<const glm::vec4, 4> tints,
                           bool inverted = false) = 0;
   void DrawSprite(const Sprite& sprite, glm::mat4 transformation,
                   glm::vec4 tint = glm::vec4(1.0f), bool inverted = false);
@@ -83,7 +83,7 @@ class BaseRenderer {
   virtual void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
                                 const CornersQuad& dest, int alpha,
                                 int fadeRange,
-                                const std::array<glm::vec4, 4>& tints,
+                                std::span<const glm::vec4, 4> tints,
                                 bool isInverted = false,
                                 bool isSameTexture = false) {}
   void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask, int alpha,

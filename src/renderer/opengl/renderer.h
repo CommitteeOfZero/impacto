@@ -46,7 +46,7 @@ class Renderer : public BaseRenderer {
   YUVFrame* CreateYUVFrame(float width, float height) override;
 
   void DrawSprite(const Sprite& sprite, const CornersQuad& dest,
-                  const std::array<glm::vec4, 4>& tints,
+                  std::span<const glm::vec4, 4> tints,
                   const bool inverted) override;
 
   void DrawVertices(SpriteSheet const& sheet,
@@ -57,7 +57,7 @@ class Renderer : public BaseRenderer {
 
   void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
                         const CornersQuad& dest, int alpha, int fadeRange,
-                        const std::array<glm::vec4, 4>& tints, bool isInverted,
+                        std::span<const glm::vec4, 4> tints, bool isInverted,
                         bool isSameTexture) override;
 
   void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
