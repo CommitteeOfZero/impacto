@@ -36,6 +36,10 @@ inline float ButtonYesAnimationProgressEnd;
 inline float ButtonYesNoAlphaDivider;
 inline float WidgetsAlphaMultiplier;
 
+inline RectF ButtonYesHoverBounds;
+inline RectF ButtonNoHoverBounds;
+inline RectF ButtonOkHoverBounds;
+
 void Configure();
 
 }  // namespace SysMesBox

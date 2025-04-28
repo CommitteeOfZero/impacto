@@ -11,10 +11,10 @@ root.SysMesBoxDisplay = {
     SumoSealCenterPosY = {
         612, 454, 520, 606, 625, 425, 584, 461
     },
-    ButtonYesCenterPosX = 1098,
-    ButtonYesCenterPosY = 846,
-    ButtonNoCenterPosX = 1211,
-    ButtonNoCenterPosY = 736,
+    ButtonYesCenterPosX = 1173,
+    ButtonYesCenterPosY = 882,
+    ButtonNoCenterPosX = 1288,
+    ButtonNoCenterPosY = 796,
     ButtonOKCenterPosX = 1170,
     ButtonOKCenterPosY = 824,
     TextFontSize = 32,
@@ -29,21 +29,40 @@ root.SysMesBoxDisplay = {
     ButtonYesAnimationProgressEnd = 12,
     ButtonNoDisplayStart = 4,
     ButtonNoAnimationProgressOffset = 13,
-    ButtonYesNoScaleMultiplier = 0.0416,
+    ButtonYesNoScaleMultiplier = 0.044,
     ButtonYesNoAlphaDivider = 12,
     ButtonOKScaleMultiplier = 0.03125,
     ButtonScaleMax = 1.5,
     FadeInDuration = 0.4,
-    FadeOutDuration = 0.4
+    FadeOutDuration = 0.4,
+
+    ButtonYesHoverBounds = {
+        X = 1109,
+        Y = 842,
+        Width = 141,
+        Height = 103
+    },
+    ButtonNoHoverBounds = {
+        X = 1224,
+        Y = 739,
+        Width = 156,
+        Height = 121
+    },
+    ButtonOkHoverBounds = {
+        X = 0,
+        Y = 0,
+        Width = 0,
+        Height = 0
+    }
 };
 
 root.Sprites[name .. "ButtonYes"] = {
     Sheet = sheet,
     Bounds = {
-        X = 672,
-        Y = 1153,
-        Width = 354,
-        Height = 376
+        X = 694,
+        Y = 1150,
+        Width = 344,
+        Height = 378
     }
 };
 root.SysMesBoxDisplay.ButtonYes = name .. "ButtonYes";
@@ -51,10 +70,10 @@ root.SysMesBoxDisplay.ButtonYes = name .. "ButtonYes";
 root.Sprites[name .. "ButtonNo"] = {
     Sheet = sheet,
     Bounds = {
-        X = 1440,
-        Y = 1249,
-        Width = 256,
-        Height = 280
+        X = 1473,
+        Y = 1273,
+        Width = 252,
+        Height = 255
     }
 };
 root.SysMesBoxDisplay.ButtonNo = name .. "ButtonNo";
@@ -63,9 +82,9 @@ root.Sprites[name .. "ButtonOK"] = {
     Sheet = sheet,
     Bounds = {
         X = 0,
-        Y = 1229,
-        Width = 318,
-        Height = 298
+        Y = 1254,
+        Width = 301,
+        Height = 274
     }
 };
 root.SysMesBoxDisplay.ButtonOK = name .. "ButtonOK";
@@ -73,10 +92,10 @@ root.SysMesBoxDisplay.ButtonOK = name .. "ButtonOK";
 root.Sprites[name .. "ButtonYesHighlighted"] = {
     Sheet = sheet,
     Bounds = {
-        X = 1064,
-        Y = 1153,
-        Width = 354,
-        Height = 376
+        X = 1086,
+        Y = 1150,
+        Width = 344,
+        Height = 378
     }
 };
 root.SysMesBoxDisplay.ButtonYesHighlighted = name .. "ButtonYesHighlighted";
@@ -84,10 +103,10 @@ root.SysMesBoxDisplay.ButtonYesHighlighted = name .. "ButtonYesHighlighted";
 root.Sprites[name .. "ButtonNoHighlighted"] = {
     Sheet = sheet,
     Bounds = {
-        X = 1729,
-        Y = 1249,
-        Width = 256,
-        Height = 280
+        X = 1761,
+        Y = 1273,
+        Width = 252,
+        Height = 255
     }
 };
 root.SysMesBoxDisplay.ButtonNoHighlighted = name .. "ButtonNoHighlighted";
@@ -96,9 +115,9 @@ root.Sprites[name .. "ButtonOKHighlighted"] = {
     Sheet = sheet,
     Bounds = {
         X = 348,
-        Y = 1229,
-        Width = 318,
-        Height = 298
+        Y = 1254,
+        Width = 301,
+        Height = 274
     }
 };
 root.SysMesBoxDisplay.ButtonOKHighlighted = name .. "ButtonOKHighlighted";

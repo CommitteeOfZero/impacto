@@ -187,14 +187,15 @@ void TipsTabGroup::Update(float dt) {
     TipsEntriesGroup.Enabled = true;
     TabName.HasFocus = false;
     TipsEntriesGroup.Update(dt);
-  }
-  float oldScrollPosY = ScrollPosY;
-  UpdatePageInput(dt);
-  if (TipsEntriesScrollbar) {
-    TipsEntriesScrollbar->Update(dt);
-    TipsEntriesScrollbar->UpdateInput();
-    if (oldScrollPosY != ScrollPosY) {
-      TipsEntriesGroup.Move({0, oldScrollPosY - ScrollPosY});
+
+    float oldScrollPosY = ScrollPosY;
+    UpdatePageInput(dt);
+    if (TipsEntriesScrollbar) {
+      TipsEntriesScrollbar->Update(dt);
+      TipsEntriesScrollbar->UpdateInput();
+      if (oldScrollPosY != ScrollPosY) {
+        TipsEntriesGroup.Move({0, oldScrollPosY - ScrollPosY});
+      }
     }
   }
 }
@@ -293,6 +294,7 @@ void TipsTabGroup::Hide() {
   if (State != Hidden) {
     State = Hidden;
     IsFocused = false;
+    TipsEntriesGroup.Move({0, ScrollPosY});
     ScrollPosY = 0.0f;
     TipsEntriesGroup.Hide();
   }

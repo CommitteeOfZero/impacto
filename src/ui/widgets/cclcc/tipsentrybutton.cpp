@@ -51,6 +51,7 @@ TipsEntryButton::TipsEntryButton(int tipId, int dispId, RectF const& dest,
                       {initColorName, 0}, 1.0f, nameDest, TextAlignment::Left);
   HighlightOffset = TipsEntryHighlightOffset;
   Bounds = dest;
+  HoverBounds = dest;
 }
 
 void TipsEntryButton::Update(float dt) {

@@ -15,7 +15,7 @@ class Button : public Widget {
  public:
   Button() {}
   Button(int id, Sprite const& norm, Sprite const& focused,
-         Sprite const& highlight, glm::vec2 pos);
+         Sprite const& highlight, glm::vec2 pos, RectF hoverBounds = RectF{});
 
   virtual void UpdateInput() override;
   virtual void Render() override;
@@ -37,6 +37,7 @@ class Button : public Widget {
   Sprite LockedSprite;
 
   bool IsLocked = false;
+  RectF HoverBounds;
 
   std::function<void(Button*)> OnClickHandler;
 
