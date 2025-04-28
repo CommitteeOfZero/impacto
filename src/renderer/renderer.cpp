@@ -103,6 +103,27 @@ void BaseRenderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
                    isSameTexture);
 }
 
+void BaseRenderer::DrawMaskedSpriteOverlay(
+    const Sprite& sprite, const Sprite& mask, const int alpha,
+    const int fadeRange, const glm::mat4 transformation, const glm::vec4 tint,
+    const bool isInverted, const bool useMaskAlpha) {
+  const CornersQuad dest =
+      CornersQuad(sprite.ScaledBounds()).Transform(transformation);
+  DrawMaskedSpriteOverlay(sprite, mask, dest, alpha, fadeRange, tint,
+                          isInverted, useMaskAlpha);
+}
+
+void BaseRenderer::DrawMaskedSpriteOverlay(
+    const Sprite& sprite, const Sprite& mask, const RectF& dest,
+    const glm::vec4 tint, const int alpha, const int fadeRange,
+    const bool isInverted, const float angle, const bool useMaskAlpha) {
+  const CornersQuad corners = CornersQuad(dest).Transform(
+      Transformation2D({0.0f, 0.0f}, dest.Center(), angle));
+
+  DrawMaskedSpriteOverlay(sprite, mask, corners, alpha, fadeRange, tint,
+                          isInverted, useMaskAlpha);
+}
+
 void BaseRenderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                                     glm::vec2 topLeft, glm::vec4 tint,
                                     int alpha, int fadeRange, float effectCt,

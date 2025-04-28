@@ -36,6 +36,9 @@ struct Sprite {
   void SetScaledHeight(float scaledHeight) {
     Bounds.Height = scaledHeight / BaseScale.y;
   }
+  RectF ScaledBounds() const {
+    return Bounds.Scale(BaseScale, Bounds.GetPos());
+  }
 };
 
 }  // namespace Impacto

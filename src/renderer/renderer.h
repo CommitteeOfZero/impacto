@@ -67,6 +67,19 @@ class BaseRenderer {
                         glm::vec2 scale = glm::vec2(1.0), float angle = 0.0f,
                         bool inverted = false);
 
+  // TODO: Remove entirely
+  void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest, float depth,
+                           glm::vec2 vanishingPoint, bool stayInScreen,
+                           glm::quat rot, glm::vec4 tint = glm::vec4(1.0f),
+                           bool inverted = false);
+
+  // TODO: Remove entirely
+  void DrawSprite3DRotated(Sprite const& sprite, glm::vec2 topLeft, float depth,
+                           glm::vec2 vanishingPoint, bool stayInScreen,
+                           glm::quat rot, glm::vec4 tint = glm::vec4(1.0f),
+                           glm::vec2 scale = glm::vec2(1.0f),
+                           bool inverted = false);
+
   virtual void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
                                 const CornersQuad& dest, int alpha,
                                 int fadeRange,
@@ -83,6 +96,25 @@ class BaseRenderer {
                         RectF const& dest, glm::vec4 tint, int alpha,
                         int fadeRange, bool isInverted = false,
                         bool isSameTexture = false);
+
+  virtual void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
+                                       const CornersQuad& dest, int alpha,
+                                       int fadeRange,
+                                       glm::vec4 tint = glm::vec4(1.0f),
+                                       bool isInverted = false,
+                                       bool useMaskAlpha = true) = 0;
+  void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
+                               int alpha, int fadeRange,
+                               glm::mat4 transformation,
+                               glm::vec4 tint = glm::vec4(1.0f),
+                               bool isInverted = false,
+                               bool useMaskAlpha = true);
+
+  // TODO: Remove entirely
+  void DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
+                               RectF const& dest, glm::vec4 tint, int alpha,
+                               int fadeRange, bool isInverted = false,
+                               float angle = 0.0f, bool useMaskAlpha = true);
 
   virtual void DrawVertices(SpriteSheet const& sheet,
                             std::span<const glm::vec2> sheetPositions,
@@ -104,26 +136,6 @@ class BaseRenderer {
 
   virtual void DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
                                        const RectF& dest, float alpha) = 0;
-
-  virtual void DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
-                                       RectF const& dest, glm::vec4 tint,
-                                       int alpha, int fadeRange,
-                                       bool isInverted = false,
-                                       float angle = 0.0f,
-                                       bool useMaskAlpha = true) = 0;
-
-  // TODO: Remove entirely
-  void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest, float depth,
-                           glm::vec2 vanishingPoint, bool stayInScreen,
-                           glm::quat rot, glm::vec4 tint = glm::vec4(1.0f),
-                           bool inverted = false);
-
-  // TODO: Remove entirely
-  void DrawSprite3DRotated(Sprite const& sprite, glm::vec2 topLeft, float depth,
-                           glm::vec2 vanishingPoint, bool stayInScreen,
-                           glm::quat rot, glm::vec4 tint = glm::vec4(1.0f),
-                           glm::vec2 scale = glm::vec2(1.0f),
-                           bool inverted = false);
 
   // TODO: Remove entirely
   void DrawRect3DRotated(const RectF& dest, float depth,
