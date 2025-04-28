@@ -274,9 +274,14 @@ void BaseRenderer::DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
 void BaseRenderer::DrawVideoTexture(YUVFrame* tex, glm::vec2 topLeft,
                                     glm::vec4 tint, glm::vec2 scale,
                                     float angle, bool alphaVideo) {
-  RectF scaledDest(topLeft.x, topLeft.y, scale.x * tex->Width,
-                   scale.y * tex->Height);
-  DrawVideoTexture(tex, scaledDest, tint, angle, alphaVideo);
+  CornersQuad corners = CornersQuad(
+      RectF(topLeft.x, topLeft.y, scale.x * tex->Width, scale.y * tex->Height));
+
+  const glm::mat4 transformation =
+      Transformation2D({0.0f, 0.0f}, corners.Center(), angle);
+  corners.Transform(transformation);
+
+  DrawVideoTexture(*tex, corners, tint, alphaVideo);
 }
 
 void BaseRenderer::DrawProcessedText_BasicFont(
@@ -430,7 +435,7 @@ void BaseRenderer::DrawProcessedText_LBFont(
   if (maskedSheet) Flush();
 }
 
-void BaseRenderer::QuadSetPosition(RectF const& transformedQuad, float angle,
+void BaseRenderer::QuadSetPosition(RectF const& transformedQuad,
                                    uintptr_t positions, int stride) {
   glm::vec2 bottomLeft =
       glm::vec2(transformedQuad.X, transformedQuad.Y + transformedQuad.Height);
@@ -439,16 +444,6 @@ void BaseRenderer::QuadSetPosition(RectF const& transformedQuad, float angle,
       glm::vec2(transformedQuad.X + transformedQuad.Width, transformedQuad.Y);
   glm::vec2 bottomRight = glm::vec2(transformedQuad.X + transformedQuad.Width,
                                     transformedQuad.Y + transformedQuad.Height);
-
-  if (angle != 0.0f) {
-    glm::vec2 center = transformedQuad.Center();
-    glm::mat2 rot = Rotate2D(angle);
-
-    bottomLeft = rot * (bottomLeft - center) + center;
-    topLeft = rot * (topLeft - center) + center;
-    topRight = rot * (topRight - center) + center;
-    bottomRight = rot * (bottomRight - center) + center;
-  }
 
   // top-left
   *(glm::vec2*)(positions + 0 * stride) = DesignToNDC(topLeft);
@@ -460,18 +455,8 @@ void BaseRenderer::QuadSetPosition(RectF const& transformedQuad, float angle,
   *(glm::vec2*)(positions + 3 * stride) = DesignToNDC(topRight);
 }
 
-void BaseRenderer::QuadSetPosition(CornersQuad destQuad, float angle,
-                                   uintptr_t positions, int stride) {
-  if (angle != 0.0f) {
-    glm::vec2 center = (destQuad.BottomLeft + destQuad.TopRight) * 0.5f;
-    glm::mat2 rot = Rotate2D(angle);
-
-    destQuad.BottomLeft = rot * (destQuad.BottomLeft - center) + center;
-    destQuad.TopLeft = rot * (destQuad.TopLeft - center) + center;
-    destQuad.TopRight = rot * (destQuad.TopRight - center) + center;
-    destQuad.BottomRight = rot * (destQuad.BottomRight - center) + center;
-  }
-
+void BaseRenderer::QuadSetPosition(CornersQuad destQuad, uintptr_t positions,
+                                   int stride) {
   // top-left
   *(glm::vec2*)(positions + 0 * stride) = DesignToNDC(destQuad.TopLeft);
   // bottom-left

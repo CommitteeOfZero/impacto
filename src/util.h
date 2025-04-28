@@ -204,6 +204,10 @@ struct CornersQuad {
             {(float)(rect.X + rect.Width), (float)rect.Y},
             {(float)(rect.X + rect.Width), (float)(rect.Y + rect.Height)}) {}
 
+  constexpr glm::vec2 Center() const {
+    return (TopLeft + BottomLeft + TopRight + BottomRight) / 4.0f;
+  }
+
   CornersQuad& Transform(glm::mat4 transformation);
 };
 

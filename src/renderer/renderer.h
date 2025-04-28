@@ -187,10 +187,10 @@ class BaseRenderer {
                         glm::vec4 tint = glm::vec4(1.0),
                         glm::vec2 scale = glm::vec2(1.0f));
 
-  virtual void DrawVideoTexture(YUVFrame* tex, RectF const& dest,
-                                glm::vec4 tint = glm::vec4(1.0),
-                                float angle = 0.0f,
-                                bool alphaVideo = false) = 0;
+  virtual void DrawVideoTexture(const YUVFrame& frame, const CornersQuad& dest,
+                                glm::vec4 tint, bool alphaVideo = false) = 0;
+
+  // TODO: Remove entirely
   void DrawVideoTexture(YUVFrame* tex, glm::vec2 topLeft,
                         glm::vec4 tint = glm::vec4(1.0),
                         glm::vec2 scale = glm::vec2(1.0), float angle = 0.0f,
@@ -231,10 +231,10 @@ class BaseRenderer {
               designWidth, designHeight, uvs, stride);
   }
 
-  static void QuadSetPosition(RectF const& transformedQuad, float angle,
-                              uintptr_t positions, int stride);
-  static void QuadSetPosition(CornersQuad destQuad, float angle,
-                              uintptr_t positions, int stride);
+  static void QuadSetPosition(RectF const& transformedQuad, uintptr_t positions,
+                              int stride);
+  static void QuadSetPosition(CornersQuad destQuad, uintptr_t positions,
+                              int stride);
 
   static void QuadSetPositionOffset(RectF const& spriteBounds,
                                     glm::vec2 displayXY,
