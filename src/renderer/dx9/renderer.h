@@ -60,9 +60,8 @@ class Renderer : public BaseRenderer {
                         std::span<const uint16_t> indices, glm::vec4 tint,
                         bool inverted) override;
 
-  void DrawVideoTexture(YUVFrame* tex, RectF const& dest,
-                        glm::vec4 tint = glm::vec4(1.0), float angle = 0.0f,
-                        bool alphaVideo = false) override;
+  void DrawVideoTexture(const YUVFrame& frame, const CornersQuad& dest,
+                        glm::vec4 tint, bool alphaVideo) override;
 
   void CaptureScreencap(Sprite& sprite) override;
 
