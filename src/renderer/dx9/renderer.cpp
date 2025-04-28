@@ -263,11 +263,10 @@ YUVFrame* Renderer::CreateYUVFrame(float width, float height) {
   return (YUVFrame*)VideoFrameInternal;
 }
 
-void Renderer::DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
-                                int verticesCount, float* mvlVertices,
-                                int indicesCount, uint16_t* mvlIndices,
-                                bool inverted, glm::vec4 tint,
-                                glm::vec2 scale) {
+void Renderer::DrawCharacterMvl(const Sprite& sprite,
+                                const std::span<const float> mvlVertices,
+                                const std::span<const uint16_t> mvlIndices,
+                                const glm::vec4 tint, const bool inverted) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawCharacterMvl() called before BeginFrame()\n");
@@ -287,20 +286,19 @@ void Renderer::DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
   // Do we have the texture assigned?
   EnsureTextureBound(sprite.Sheet.Texture);
 
+  const size_t vertexCount = mvlVertices.size() / 5;
   VertexBufferSprites* vertices =
       (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
-  VertexBufferFill += verticesCount * sizeof(VertexBufferSprites);
+  VertexBufferFill += vertexCount * sizeof(VertexBufferSprites);
 
-  IndexBufferFill += indicesCount;
+  IndexBufferFill += mvlIndices.size();
 
-  memcpy(IndexBuffer, mvlIndices, indicesCount * sizeof(mvlIndices[0]));
+  std::copy(mvlIndices.begin(), mvlIndices.end(), IndexBuffer);
 
-  for (int i = 0; i < verticesCount; i++) {
-    glm::vec2 pos = glm::vec2(mvlVertices[i * 5], mvlVertices[i * 5 + 1]);
-    pos *= scale;
-    pos += topLeft;
-    vertices[i].Position = DesignToNDC(pos);
-    vertices[i].UV = glm::vec2(mvlVertices[i * 5 + 3], mvlVertices[i * 5 + 4]);
+  for (int i = 0; i < vertexCount; i++) {
+    vertices[i].Position =
+        DesignToNDC({mvlVertices[i * 5], mvlVertices[i * 5 + 1]});
+    vertices[i].UV = {mvlVertices[i * 5 + 3], mvlVertices[i * 5 + 4]};
     vertices[i].Tint = tint;
   }
 
