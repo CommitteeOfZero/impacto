@@ -230,20 +230,8 @@ class BaseRenderer {
               designWidth, designHeight, uvs, stride);
   }
 
-  static void QuadSetPosition(RectF const& transformedQuad, uintptr_t positions,
-                              int stride);
   static void QuadSetPosition(CornersQuad destQuad, uintptr_t positions,
                               int stride);
-
-  static void QuadSetPositionOffset(RectF const& spriteBounds,
-                                    glm::vec2 displayXY,
-                                    glm::vec2 displayOffset, glm::vec2 scale,
-                                    float angle, uintptr_t positions,
-                                    int stride, bool toNDC = true);
-  static void QuadSetPosition3DRotated(RectF const& transformedQuad,
-                                       float depth, glm::vec2 vanishingPoint,
-                                       bool stayInScreen, glm::quat rot,
-                                       uintptr_t positions, int stride);
 
   Sprite RectSprite;
 };
