@@ -572,35 +572,20 @@ void BaseRenderer::QuadSetPosition3DRotated(RectF const& transformedQuad,
 
 void BaseRenderer::QuadSetUV(const RectF spriteBounds, const float designWidth,
                              const float designHeight, glm::vec2* const uvs,
-                             const size_t stride, const float angle) {
-  float topUV = (spriteBounds.Y / designHeight);
-  float leftUV = (spriteBounds.X / designWidth);
-  float bottomUV = ((spriteBounds.Y + spriteBounds.Height) / designHeight);
-  float rightUV = ((spriteBounds.X + spriteBounds.Width) / designWidth);
-
-  glm::vec2 bottomLeft(leftUV, bottomUV);
-  glm::vec2 topLeft(leftUV, topUV);
-  glm::vec2 topRight(rightUV, topUV);
-  glm::vec2 bottomRight(rightUV, bottomUV);
-
-  if (angle != 0.0f) {
-    glm::vec2 center = (bottomLeft + topRight) * 0.5f;  // Center of the quad
-    glm::mat2 rot = Rotate2D(angle);
-
-    bottomLeft = rot * (bottomLeft - center) + center;
-    topLeft = rot * (topLeft - center) + center;
-    topRight = rot * (topRight - center) + center;
-    bottomRight = rot * (bottomRight - center) + center;
-  }
+                             const size_t stride) {
+  const float topUV = spriteBounds.Y / designHeight;
+  const float leftUV = spriteBounds.X / designWidth;
+  const float bottomUV = (spriteBounds.Y + spriteBounds.Height) / designHeight;
+  const float rightUV = (spriteBounds.X + spriteBounds.Width) / designWidth;
 
   // top-left
-  *(glm::vec2*)((uint8_t*)uvs + 0 * stride) = topLeft;
+  *(glm::vec2*)((uint8_t*)uvs + 0 * stride) = {leftUV, topUV};
   // bottom-left
-  *(glm::vec2*)((uint8_t*)uvs + 1 * stride) = bottomLeft;
+  *(glm::vec2*)((uint8_t*)uvs + 1 * stride) = {leftUV, bottomUV};
   // bottom-right
-  *(glm::vec2*)((uint8_t*)uvs + 2 * stride) = bottomRight;
+  *(glm::vec2*)((uint8_t*)uvs + 2 * stride) = {rightUV, bottomUV};
   // top-right
-  *(glm::vec2*)((uint8_t*)uvs + 3 * stride) = topRight;
+  *(glm::vec2*)((uint8_t*)uvs + 3 * stride) = {rightUV, topUV};
 }
 
 }  // namespace Impacto
