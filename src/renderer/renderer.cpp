@@ -183,9 +183,15 @@ void BaseRenderer::DrawSprite3DRotated(Sprite const& sprite, glm::vec2 topLeft,
                       rot, tint, inverted);
 }
 
+void BaseRenderer::DrawQuad(const CornersQuad& dest, const glm::vec4 color) {
+  DrawSprite(RectSprite, dest, {color, color, color, color});
+}
+
 void BaseRenderer::DrawRect(const RectF& dest, const glm::vec4 color,
                             const float angle) {
-  DrawSprite(RectSprite, dest, color, angle);
+  DrawQuad(CornersQuad(dest).Transform(
+               Transformation2D({0.0f, 0.0f}, dest.Center(), angle)),
+           color);
 }
 
 void BaseRenderer::DrawRect3DRotated(const RectF& dest, const float depth,
