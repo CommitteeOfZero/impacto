@@ -13,7 +13,8 @@ using namespace Impacto::Profile::CHLCC::TitleMenu;
 void TitleButton::Render() {
   if (HasFocus) {
     if (!IsSubButton) {  // Main buttons
-      Renderer->DrawSprite(HighlightSprite, Bounds - ItemHighlightOffset, Tint);
+      Renderer->DrawSprite(HighlightSprite,
+                           Bounds.GetPos() - ItemHighlightOffset, Tint);
       Renderer->DrawSprite(FocusedSprite, Bounds.GetPos(), Tint);
     } else {  // Sub buttons
       Renderer->DrawSprite(
