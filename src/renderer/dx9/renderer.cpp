@@ -322,7 +322,7 @@ void Renderer::DrawCharacterMvl(const Sprite& sprite,
 }
 
 void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
-                          const std::array<glm::vec4, 4>& tints,
+                          const std::span<const glm::vec4, 4> tints,
                           const bool inverted) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,

@@ -184,7 +184,8 @@ void BaseRenderer::DrawSprite3DRotated(Sprite const& sprite, glm::vec2 topLeft,
 }
 
 void BaseRenderer::DrawQuad(const CornersQuad& dest, const glm::vec4 color) {
-  DrawSprite(RectSprite, dest, {color, color, color, color});
+  DrawSprite(RectSprite, dest,
+             std::array<glm::vec4, 4>{color, color, color, color});
 }
 
 void BaseRenderer::DrawRect(const RectF& dest, const glm::vec4 color,
