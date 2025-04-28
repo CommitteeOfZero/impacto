@@ -436,34 +436,21 @@ void BaseRenderer::DrawProcessedText_LBFont(
   if (maskedSheet) Flush();
 }
 
-void BaseRenderer::QuadSetPosition(CornersQuad destQuad, uintptr_t positions,
+void BaseRenderer::QuadSetPosition(CornersQuad quad, glm::vec2* const pos,
                                    int stride) {
-  // top-left
-  *(glm::vec2*)(positions + 0 * stride) = DesignToNDC(destQuad.TopLeft);
-  // bottom-left
-  *(glm::vec2*)(positions + 1 * stride) = DesignToNDC(destQuad.BottomLeft);
-  // bottom-right
-  *(glm::vec2*)(positions + 2 * stride) = DesignToNDC(destQuad.BottomRight);
-  // top-right
-  *(glm::vec2*)(positions + 3 * stride) = DesignToNDC(destQuad.TopRight);
+  *(glm::vec2*)((uint8_t*)pos + 0 * stride) = DesignToNDC(quad.TopLeft);
+  *(glm::vec2*)((uint8_t*)pos + 1 * stride) = DesignToNDC(quad.BottomLeft);
+  *(glm::vec2*)((uint8_t*)pos + 2 * stride) = DesignToNDC(quad.BottomRight);
+  *(glm::vec2*)((uint8_t*)pos + 3 * stride) = DesignToNDC(quad.TopRight);
 }
 
-void BaseRenderer::QuadSetUV(const RectF spriteBounds, const float designWidth,
-                             const float designHeight, glm::vec2* const uvs,
+void BaseRenderer::QuadSetUV(const CornersQuad bounds,
+                             const glm::vec2 dimensions, glm::vec2* const uvs,
                              const size_t stride) {
-  const float topUV = spriteBounds.Y / designHeight;
-  const float leftUV = spriteBounds.X / designWidth;
-  const float bottomUV = (spriteBounds.Y + spriteBounds.Height) / designHeight;
-  const float rightUV = (spriteBounds.X + spriteBounds.Width) / designWidth;
-
-  // top-left
-  *(glm::vec2*)((uint8_t*)uvs + 0 * stride) = {leftUV, topUV};
-  // bottom-left
-  *(glm::vec2*)((uint8_t*)uvs + 1 * stride) = {leftUV, bottomUV};
-  // bottom-right
-  *(glm::vec2*)((uint8_t*)uvs + 2 * stride) = {rightUV, bottomUV};
-  // top-right
-  *(glm::vec2*)((uint8_t*)uvs + 3 * stride) = {rightUV, topUV};
+  *(glm::vec2*)((uint8_t*)uvs + 0 * stride) = bounds.TopLeft / dimensions;
+  *(glm::vec2*)((uint8_t*)uvs + 1 * stride) = bounds.BottomLeft / dimensions;
+  *(glm::vec2*)((uint8_t*)uvs + 2 * stride) = bounds.BottomRight / dimensions;
+  *(glm::vec2*)((uint8_t*)uvs + 3 * stride) = bounds.TopRight / dimensions;
 }
 
 }  // namespace Impacto

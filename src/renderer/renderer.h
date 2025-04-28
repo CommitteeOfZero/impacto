@@ -219,18 +219,18 @@ class BaseRenderer {
     glm::vec2 MaskUV;
   };
 
-  static void QuadSetUV(const RectF spriteBounds, float designWidth,
-                        float designHeight, glm::vec2* uvs, size_t stride);
+  static void QuadSetUV(CornersQuad spriteBounds, glm::vec2 designDimensions,
+                        glm::vec2* uvs, size_t stride);
 
-  static void QuadSetUVFlipped(const RectF spriteBounds, float designWidth,
-                               float designHeight, glm::vec2* uvs,
+  static void QuadSetUVFlipped(CornersQuad spriteBounds,
+                               glm::vec2 designDimensions, glm::vec2* uvs,
                                size_t stride) {
-    QuadSetUV({spriteBounds.X, spriteBounds.Y + spriteBounds.Height,
-               spriteBounds.Width, -spriteBounds.Height},
-              designWidth, designHeight, uvs, stride);
+    QuadSetUV({spriteBounds.BottomLeft, spriteBounds.TopLeft,
+               spriteBounds.BottomRight, spriteBounds.TopRight},
+              designDimensions, uvs, stride);
   }
 
-  static void QuadSetPosition(CornersQuad destQuad, uintptr_t positions,
+  static void QuadSetPosition(CornersQuad destQuad, glm::vec2* positions,
                               int stride);
 
   Sprite RectSprite;
