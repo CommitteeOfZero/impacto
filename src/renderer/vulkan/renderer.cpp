@@ -1238,10 +1238,9 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
                              VertexBufferFill);
   VertexBufferFill += 4 * sizeof(VertexBufferSprites);
 
-  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            &vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetPosition(dest, (uintptr_t)&vertices[0].Position,
-                  sizeof(VertexBufferSprites));
+  QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
+            sizeof(VertexBufferSprites));
+  QuadSetPosition(dest, &vertices[0].Position, sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
 }
@@ -1401,13 +1400,12 @@ void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                              VertexBufferFill);
   VertexBufferFill += 4 * sizeof(VertexBufferSprites);
 
-  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            &vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetUV(mask.Bounds, mask.Sheet.DesignWidth, mask.Sheet.DesignHeight,
-            &vertices[0].MaskUV, sizeof(VertexBufferSprites));
+  QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
+            sizeof(VertexBufferSprites));
+  QuadSetUV(mask.Bounds, mask.Sheet.GetDimensions(), &vertices[0].MaskUV,
+            sizeof(VertexBufferSprites));
 
-  QuadSetPosition(dest, (uintptr_t)&vertices[0].Position,
-                  sizeof(VertexBufferSprites));
+  QuadSetPosition(dest, &vertices[0].Position, sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
@@ -1500,13 +1498,12 @@ void Renderer::DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
                              VertexBufferFill);
   VertexBufferFill += 4 * sizeof(VertexBufferSprites);
 
-  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            &vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetUV(mask.Bounds, mask.Sheet.DesignWidth, mask.Sheet.DesignHeight,
-            &vertices[0].MaskUV, sizeof(VertexBufferSprites));
+  QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
+            sizeof(VertexBufferSprites));
+  QuadSetUV(mask.Bounds, mask.Sheet.GetDimensions(), &vertices[0].MaskUV,
+            sizeof(VertexBufferSprites));
 
-  QuadSetPosition(dest, (uintptr_t)&vertices[0].Position,
-                  sizeof(VertexBufferSprites));
+  QuadSetPosition(dest, &vertices[0].Position, sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
@@ -1564,13 +1561,12 @@ void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
                              VertexBufferFill);
   VertexBufferFill += 4 * sizeof(VertexBufferSprites);
 
-  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            &vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetUV(mask.Bounds, mask.Sheet.DesignWidth, mask.Sheet.DesignHeight,
-            &vertices[0].MaskUV, sizeof(VertexBufferSprites));
+  QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
+            sizeof(VertexBufferSprites));
+  QuadSetUV(mask.Bounds, mask.Sheet.GetDimensions(), &vertices[0].MaskUV,
+            sizeof(VertexBufferSprites));
 
-  QuadSetPosition(dest, (uintptr_t)&vertices[0].Position,
-                  sizeof(VertexBufferSprites));
+  QuadSetPosition(dest, &vertices[0].Position, sizeof(VertexBufferSprites));
 }
 
 inline void Renderer::MakeQuad() {
@@ -1711,10 +1707,10 @@ void Renderer::DrawVideoTexture(const YUVFrame& frame, const CornersQuad& dest,
                              VertexBufferFill);
   VertexBufferFill += 4 * sizeof(VertexBufferSprites);
 
-  QuadSetUV(RectF(0.0f, 0.0f, frame.Width, frame.Height), frame.Width,
-            frame.Height, &vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetPosition(dest, (uintptr_t)&vertices[0].Position,
-                  sizeof(VertexBufferSprites));
+  QuadSetUV(RectF(0.0f, 0.0f, frame.Width, frame.Height),
+            {frame.Width, frame.Height}, &vertices[0].UV,
+            sizeof(VertexBufferSprites));
+  QuadSetPosition(dest, &vertices[0].Position, sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }

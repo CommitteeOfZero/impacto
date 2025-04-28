@@ -12,6 +12,8 @@ struct SpriteSheet {
   float DesignWidth = 0;
   float DesignHeight = 0;
 
+  glm::vec2 GetDimensions() const { return {DesignWidth, DesignHeight}; }
+
   uint32_t Texture = 0;
   bool IsScreenCap = false;
 };
