@@ -66,6 +66,11 @@ class Renderer : public BaseRenderer {
                   std::span<const glm::vec4, 4> tints,
                   const bool inverted) override;
 
+  void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
+                        const CornersQuad& dest, int alpha, int fadeRange,
+                        std::span<const glm::vec4, 4> tints, bool isInverted,
+                        bool isSameTexture);
+
   void DrawVertices(SpriteSheet const& sheet,
                     std::span<const glm::vec2> sheetPositions,
                     std::span<const glm::vec2> displayPositions, int width,

@@ -85,7 +85,7 @@ class BaseRenderer {
                                 int fadeRange,
                                 std::span<const glm::vec4, 4> tints,
                                 bool isInverted = false,
-                                bool isSameTexture = false) {}
+                                bool isSameTexture = false) = 0;
   void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask, int alpha,
                         int fadeRange, glm::mat4 transformation,
                         glm::vec4 tint = glm::vec4(1.0f),
