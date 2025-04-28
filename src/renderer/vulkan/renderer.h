@@ -84,10 +84,9 @@ class Renderer : public BaseRenderer {
   void DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
                                const RectF& dest, float alpha) override;
 
-  void DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
-                        int verticesCount, float* mvlVertices, int indicesCount,
-                        uint16_t* mvlIndices, bool inverted, glm::vec4 tint,
-                        glm::vec2 scale) override;
+  void DrawCharacterMvl(const Sprite& sprite, std::span<const float> vertices,
+                        std::span<const uint16_t> indices, glm::vec4 tint,
+                        bool inverted) override;
 
   void DrawVideoTexture(YUVFrame* tex, RectF const& dest,
                         glm::vec4 tint = glm::vec4(1.0), float angle = 0.0f,

@@ -234,6 +234,37 @@ void BaseRenderer::DrawProcessedText(std::span<const ProcessedTextGlyph> text,
   }
 }
 
+void BaseRenderer::DrawCharacterMvl(const Sprite& sprite,
+                                    const std::span<float> vertices,
+                                    const std::span<const uint16_t> indices,
+                                    glm::mat4 transformation, glm::vec4 tint,
+                                    bool inverted) {
+  const size_t vertexCount = vertices.size() / 5;
+  for (size_t i = 0; i < vertexCount; i++) {
+    const glm::vec2 pos =
+        transformation *
+        glm::vec4(vertices[i * 5], vertices[i * 5 + 1], 0.0f, 1.0f);
+    vertices[i * 5] = pos.x;
+    vertices[i * 5 + 1] = pos.y;
+  }
+
+  DrawCharacterMvl(sprite, vertices, indices, tint, inverted);
+}
+
+void BaseRenderer::DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
+                                    int verticesCount, float* mvlVertices,
+                                    int indicesCount, uint16_t* mvlIndices,
+                                    bool inverted, glm::vec4 tint,
+                                    glm::vec2 scale) {
+  const glm::mat4 transformation =
+      Transformation2D(topLeft, {0.0f, 0.0f}, 0.0f, scale);
+
+  std::vector<float> vertices(mvlVertices, mvlVertices + verticesCount * 5);
+  std::vector<uint16_t> indices(mvlIndices, mvlIndices + indicesCount);
+
+  DrawCharacterMvl(sprite, vertices, indices, transformation, tint, inverted);
+}
+
 void BaseRenderer::DrawVideoTexture(YUVFrame* tex, glm::vec2 topLeft,
                                     glm::vec4 tint, glm::vec2 scale,
                                     float angle, bool alphaVideo) {

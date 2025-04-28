@@ -264,11 +264,10 @@ YUVFrame* Renderer::CreateYUVFrame(float width, float height) {
   return (YUVFrame*)frame;
 }
 
-void Renderer::DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
-                                int verticesCount, float* mvlVertices,
-                                int indicesCount, uint16_t* mvlIndices,
-                                bool inverted, glm::vec4 tint,
-                                glm::vec2 scale) {
+void Renderer::DrawCharacterMvl(const Sprite& sprite,
+                                const std::span<const float> mvlVertices,
+                                const std::span<const uint16_t> mvlIndices,
+                                const glm::vec4 tint, const bool inverted) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawCharacterMvl() called before BeginFrame()\n");
@@ -280,8 +279,9 @@ void Renderer::DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
   Flush();
 
   // Do we have space for the whole character?
-  EnsureSpaceAvailable(verticesCount, sizeof(VertexBufferSprites),
-                       indicesCount);
+  const size_t vertexCount = mvlVertices.size() / 5;
+  EnsureSpaceAvailable(vertexCount, sizeof(VertexBufferSprites),
+                       mvlIndices.size());
 
   // Are we in sprite mode?
   EnsureModeSprite(inverted);
@@ -291,19 +291,17 @@ void Renderer::DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
 
   VertexBufferSprites* vertices =
       (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
-  VertexBufferFill += verticesCount * sizeof(VertexBufferSprites);
+  VertexBufferFill += vertexCount * sizeof(VertexBufferSprites);
 
-  IndexBufferFill += indicesCount;
+  IndexBufferFill += mvlIndices.size();
 
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesCount * sizeof(mvlIndices[0]),
-               mvlIndices, GL_STATIC_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, mvlIndices.size() * sizeof(uint16_t),
+               mvlIndices.data(), GL_STATIC_DRAW);
 
-  for (int i = 0; i < verticesCount; i++) {
-    glm::vec2 pos = glm::vec2(mvlVertices[i * 5], mvlVertices[i * 5 + 1]);
-    pos *= scale;
-    pos += topLeft;
-    vertices[i].Position = DesignToNDC(pos);
-    vertices[i].UV = glm::vec2(mvlVertices[i * 5 + 3], mvlVertices[i * 5 + 4]);
+  for (int i = 0; i < vertexCount; i++) {
+    vertices[i].Position =
+        DesignToNDC({mvlVertices[i * 5], mvlVertices[i * 5 + 1]});
+    vertices[i].UV = {mvlVertices[i * 5 + 3], mvlVertices[i * 5 + 4]};
     vertices[i].Tint = tint;
   }
 
