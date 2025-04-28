@@ -352,7 +352,7 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
 
   QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
             &vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
+  QuadSetPosition(dest, (uintptr_t)&vertices[0].Position,
                   sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
@@ -485,7 +485,7 @@ void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
   QuadSetUV(mask.Bounds, mask.Sheet.DesignWidth, mask.Sheet.DesignHeight,
             &vertices[0].MaskUV, sizeof(VertexBufferSprites));
 
-  QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
+  QuadSetPosition(dest, (uintptr_t)&vertices[0].Position,
                   sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
@@ -547,7 +547,7 @@ void Renderer::DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
   QuadSetUV(mask.Bounds, mask.Sheet.DesignWidth, mask.Sheet.DesignHeight,
             &vertices[0].MaskUV, sizeof(VertexBufferSprites));
 
-  QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
+  QuadSetPosition(dest, (uintptr_t)&vertices[0].Position,
                   sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
@@ -594,7 +594,7 @@ void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
   QuadSetUV(mask.Bounds, mask.Sheet.DesignWidth, mask.Sheet.DesignHeight,
             &vertices[0].MaskUV, sizeof(VertexBufferSprites));
 
-  QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
+  QuadSetPosition(dest, (uintptr_t)&vertices[0].Position,
                   sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++)
@@ -679,8 +679,8 @@ void Renderer::Flush() {
   CurrentTexture = -1;
 }
 
-void Renderer::DrawVideoTexture(YUVFrame* tex, RectF const& dest,
-                                glm::vec4 tint, float angle, bool alphaVideo) {
+void Renderer::DrawVideoTexture(const YUVFrame& frame, const CornersQuad& dest,
+                                const glm::vec4 tint, const bool alphaVideo) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawVideoTexture() called before BeginFrame()\n");
@@ -709,9 +709,9 @@ void Renderer::DrawVideoTexture(YUVFrame* tex, RectF const& dest,
 
   IndexBufferFill += 6;
 
-  QuadSetUV(RectF(0.0f, 0.0f, tex->Width, tex->Height), tex->Width, tex->Height,
-            &vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetPosition(dest, angle, (uintptr_t)&vertices[0].Position,
+  QuadSetUV(RectF(0.0f, 0.0f, frame.Width, frame.Height), frame.Width,
+            frame.Height, &vertices[0].UV, sizeof(VertexBufferSprites));
+  QuadSetPosition(dest, (uintptr_t)&vertices[0].Position,
                   sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
