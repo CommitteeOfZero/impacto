@@ -220,8 +220,7 @@ class BaseRenderer {
   };
 
   static void QuadSetUV(const RectF spriteBounds, float designWidth,
-                        float designHeight, glm::vec2* uvs, size_t stride,
-                        float angle = 0.0f);
+                        float designHeight, glm::vec2* uvs, size_t stride);
 
   static void QuadSetUVFlipped(const RectF spriteBounds, float designWidth,
                                float designHeight, glm::vec2* uvs,
