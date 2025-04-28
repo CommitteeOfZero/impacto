@@ -79,7 +79,7 @@ class Renderer : public BaseRenderer {
   void DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
                                RectF const& dest, glm::vec4 tint, int alpha,
                                int fadeRange, bool isInverted, float angle,
-                               bool useMaskAlpha);
+                               bool useMaskAlpha) override;
 
   void DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
                                const RectF& dest, float alpha) override;
@@ -128,7 +128,7 @@ class Renderer : public BaseRenderer {
 
   void EnsureTextureBound(unsigned int texture);
   void EnsureMode(Pipeline* pipeline, bool flush = true);
-  void Flush();
+  void Flush() override;
 
   void MakeQuad();
 

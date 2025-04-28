@@ -80,7 +80,7 @@ class Renderer : public BaseRenderer {
   void EnsureSpaceAvailable(int vertices, int vertexSize, int indices);
   void EnsureTextureBound(uint32_t texture);
   void EnsureShader(Shader* shader, bool flush = true);
-  void Flush();
+  void Flush() override;
 
   DirectX9Window* DXWindow;
 
