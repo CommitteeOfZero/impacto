@@ -166,12 +166,23 @@ class BaseRenderer {
       RendererOutlineMode outlineMode = RendererOutlineMode::None,
       bool smoothstepGlyphOpacity = true, SpriteSheet* maskedSheet = 0);
 
-  virtual void DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
-                                int verticesCount, float* mvlVertices,
-                                int indicesCount, uint16_t* mvlIndices,
-                                bool inverted = false,
-                                glm::vec4 tint = glm::vec4(1.0),
-                                glm::vec2 scale = glm::vec2(1.0f)) = 0;
+  virtual void DrawCharacterMvl(const Sprite& sprite,
+                                std::span<const float> vertices,
+                                std::span<const uint16_t> indices,
+                                glm::vec4 tint = glm::vec4(1.0f),
+                                bool inverted = false) = 0;
+  void DrawCharacterMvl(const Sprite& sprite, std::span<float> vertices,
+                        std::span<const uint16_t> indices,
+                        glm::mat4 transformation,
+                        glm::vec4 tint = glm::vec4(1.0f),
+                        bool inverted = false);
+
+  // TODO: Remove entirely
+  void DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
+                        int verticesCount, float* mvlVertices, int indicesCount,
+                        uint16_t* mvlIndices, bool inverted = false,
+                        glm::vec4 tint = glm::vec4(1.0),
+                        glm::vec2 scale = glm::vec2(1.0f));
 
   virtual void DrawVideoTexture(YUVFrame* tex, RectF const& dest,
                                 glm::vec4 tint = glm::vec4(1.0),
