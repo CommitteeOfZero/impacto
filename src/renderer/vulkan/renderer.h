@@ -63,7 +63,7 @@ class Renderer : public BaseRenderer {
   YUVFrame* CreateYUVFrame(float width, float height) override;
 
   void DrawSprite(const Sprite& sprite, const CornersQuad& dest,
-                  const std::array<glm::vec4, 4>& tints,
+                  std::span<const glm::vec4, 4> tints,
                   const bool inverted) override;
 
   void DrawVertices(SpriteSheet const& sheet,
