@@ -8,11 +8,10 @@ on:
   pull_request_target:
     branches:
     - "master"
-  workflow_dispatch: 
-    
+  workflow_dispatch:
+
 env:
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
-
 
 jobs:
   get-version:
@@ -97,6 +96,7 @@ jobs:
             host_triplet: x64-linux-ci
     env:
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.triplet }}
+      VCPKG_BINARY_SOURCES: clear;files,${{ github.workspace }}/.vcpkg_cache,readwrite
       vcpkgCommitId: 'acd5bba5aac8b6573b5f6f463dc0341ac0ee6fa4'
       PresetName: ${{ (matrix.os_name == 'android') && 'ci-release-android' || 'ci-release' }}
       VERSION: ${{ needs.get-version.outputs.VERSION }}
@@ -126,6 +126,14 @@ jobs:
         cache: 'gradle'
 
     - uses: lukka/get-cmake@latest
+
+    - name: 'Restore vcpkg cache'
+      uses: actions/cache/restore@v4
+      id: vcpkgcache
+      with:
+        path: "${{ github.workspace }}/.vcpkg_cache"
+        key: vcpkg-${{ matrix.triplet }}-${{ hashFiles('**/vcpkg.json', 'vcpkg-configuration.json', 'triplets/**', 'portfiles/**') }}
+
     - name: Setup vcpkg
       uses: lukka/run-vcpkg@v11
       id: runvcpkg
@@ -153,6 +161,11 @@ jobs:
             '-DVCPKG_HOST_TRIPLET=${{ matrix.host_triplet }}',
           ]
         buildPreset: ${{ env.PresetName }}
+    - name: Save vcpkg cache
+      uses: actions/cache/save@v4
+      with:
+        path: "${{ github.workspace }}/.vcpkg_cache"
+        key: ${{ steps.vcpkgcache.outputs.cache-primary-key }}
     - name: Copy Shaders
       run: cp -r src/shaders "${{ github.workspace }}/release/${{ env.PresetName }}"
       shell: bash
