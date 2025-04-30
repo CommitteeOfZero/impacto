@@ -69,6 +69,7 @@ glm::vec3 Transform3D(glm::vec3 pos, glm::vec3 translation,
                       glm::vec2 scaling = glm::vec2(1.0f));
 
 struct Rect;
+struct CornersQuad;
 
 struct RectF {
   float X = 0;
@@ -113,14 +114,18 @@ struct RectF {
     return RectF(X - movementVector.x, Y - movementVector.y, Width, Height);
   }
 
-  constexpr void operator+=(const glm::vec2 movementVector) {
+  constexpr RectF& operator+=(const glm::vec2 movementVector) {
     X += movementVector.x;
     Y += movementVector.y;
+
+    return *this;
   }
 
-  constexpr void operator-=(const glm::vec2 movementVector) {
+  constexpr RectF& operator-=(const glm::vec2 movementVector) {
     X -= movementVector.x;
     Y -= movementVector.y;
+
+    return *this;
   }
 
   constexpr bool operator==(RectF const& other) const {
@@ -136,11 +141,11 @@ struct RectF {
 
   static RectF Coalesce(const RectF& first, const RectF& second);
 
-  constexpr RectF Scale(const glm::vec2 scalar, const glm::vec2 origin) const {
-    const float scaledX = (X - origin.x) * scalar.x + origin.x;
-    const float scaledY = (Y - origin.y) * scalar.y + origin.y;
-    return RectF(scaledX, scaledY, Width * scalar.x, Height * scalar.y);
-  }
+  CornersQuad Transform(glm::mat4 transformation) const;
+  RectF& Translate(glm::vec2 offset) { return *this += offset; }
+  RectF& Scale(glm::vec2 scaling, glm::vec2 origin);
+  CornersQuad Rotate(float angle, glm::vec2 origin) const;
+  CornersQuad Rotate(glm::quat rotation, glm::vec3 origin) const;
 };
 
 struct Rect {
@@ -209,6 +214,10 @@ struct CornersQuad {
   }
 
   CornersQuad& Transform(glm::mat4 transformation);
+  CornersQuad& Translate(glm::vec2 offset);
+  CornersQuad& Scale(glm::vec2 scaling, glm::vec2 origin);
+  CornersQuad& Rotate(float angle, glm::vec2 origin);
+  CornersQuad& Rotate(glm::quat rotation, glm::vec3 origin);
 };
 
 inline CornersQuad operator*(const glm::mat4 transformation, CornersQuad quad) {
