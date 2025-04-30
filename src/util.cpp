@@ -165,9 +165,4 @@ RectF RectF::Coalesce(const RectF& first, const RectF& second) {
   return rect;
 }
 
-glm::quat ScrWorkAnglesToQuaternion(const int x, const int y, const int z) {
-  return glm::quat(
-      {ScrWorkAngleToRad(x), ScrWorkAngleToRad(y), ScrWorkAngleToRad(z)});
-}
-
 }  // namespace Impacto

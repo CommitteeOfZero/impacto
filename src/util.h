@@ -317,7 +317,11 @@ constexpr float ScrWorkAngleToRad(float angle) {
   return angle * (float)(2.0f * M_PI / (float)(1 << 16));
 }
 
-glm::quat ScrWorkAnglesToQuaternion(int x, int y, int z);
+inline glm::quat ScrWorkAnglesToQuaternion(int x, int y, int z) {
+  return glm::quat(
+      {ScrWorkAngleToRad(x), ScrWorkAngleToRad(y), ScrWorkAngleToRad(z)});
+}
+
 inline glm::quat AxisAngleToQuaternion(glm::vec3 axis, float angle) {
   return glm::quat(cos(angle / 2.0f), sin(angle / 2.0f) * axis);
 }
