@@ -39,7 +39,7 @@ struct Sprite {
     Bounds.Height = scaledHeight / BaseScale.y;
   }
   RectF ScaledBounds() const {
-    return Bounds.Scale(BaseScale, Bounds.GetPos());
+    return RectF(Bounds).Scale(BaseScale, Bounds.GetPos());
   }
 };
 

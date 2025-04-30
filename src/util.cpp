@@ -14,6 +14,88 @@ CornersQuad& CornersQuad::Transform(const glm::mat4 transformation) {
   return *this;
 }
 
+CornersQuad& CornersQuad::Translate(const glm::vec2 offset) {
+  TopLeft += offset;
+  TopRight += offset;
+  BottomRight += offset;
+  BottomLeft += offset;
+
+  return *this;
+}
+
+CornersQuad& CornersQuad::Scale(const glm::vec2 scaling,
+                                const glm::vec2 origin) {
+  Translate(-origin);
+
+  TopLeft *= scaling;
+  TopRight *= scaling;
+  BottomRight *= scaling;
+  BottomLeft *= scaling;
+
+  Translate(origin);
+
+  return *this;
+}
+
+CornersQuad& CornersQuad::Rotate(const float angle, const glm::vec2 origin) {
+  Translate(-origin);
+
+  const glm::mat2 rotation = Rotate2D(angle);
+  TopLeft = rotation * TopLeft;
+  TopRight = rotation * TopRight;
+  BottomRight = rotation * BottomRight;
+  BottomLeft = rotation * BottomLeft;
+
+  Translate(origin);
+
+  return *this;
+}
+
+CornersQuad& CornersQuad::Rotate(const glm::quat rotation, glm::vec3 origin) {
+  glm::vec3 topLeft = glm::vec3(TopLeft, 0.0f) - origin;
+  glm::vec3 topRight = glm::vec3(TopRight, 0.0f) - origin;
+  glm::vec3 bottomRight = glm::vec3(BottomRight, 0.0f) - origin;
+  glm::vec3 bottomLeft = glm::vec3(BottomLeft, 0.0f) - origin;
+
+  const glm::mat3 rotationMatrix = glm::mat3_cast(rotation);
+  topLeft = rotationMatrix * topLeft;
+  topRight = rotationMatrix * topRight;
+  bottomRight = rotationMatrix * bottomRight;
+  topRight = rotationMatrix * topRight;
+
+  TopLeft = topLeft + origin;
+  TopRight = topRight + origin;
+  BottomRight = bottomRight + origin;
+  BottomLeft = bottomLeft + origin;
+
+  return *this;
+}
+
+CornersQuad RectF::Transform(glm::mat4 transformation) const {
+  return CornersQuad(*this).Transform(transformation);
+}
+
+RectF& RectF::Scale(const glm::vec2 scaling, const glm::vec2 origin) {
+  Translate(-origin);
+
+  X *= scaling.x;
+  Y *= scaling.y;
+  Width *= scaling.x;
+  Height *= scaling.y;
+
+  Translate(origin);
+
+  return *this;
+}
+
+CornersQuad RectF::Rotate(float angle, glm::vec2 origin) const {
+  return CornersQuad(*this).Rotate(angle, origin);
+}
+
+CornersQuad RectF::Rotate(glm::quat rotation, glm::vec3 origin) const {
+  return CornersQuad(*this).Rotate(rotation, origin);
+}
+
 glm::mat2 Rotate2D(float angle) {
   glm::mat2 result;
   float cosa = cosf(angle);
@@ -35,10 +117,19 @@ glm::mat4 Transformation2D(const glm::vec2 translation, const glm::vec2 origin,
 glm::mat4 Transformation3D(const glm::vec3 translation, const glm::vec3 origin,
                            const glm::quat rotation, const glm::vec3 scaling) {
   glm::mat4 matrix(1.0f);
-  matrix = glm::translate(glm::mat4(1.0f), -origin) * matrix;
-  matrix = glm::scale(glm::mat4(1.0f), scaling) * matrix;
-  matrix = glm::mat4_cast(normalize(rotation)) * matrix;
-  matrix = glm::translate(glm::mat4(1.0f), origin + translation) * matrix;
+
+  if (origin != glm::vec3(0.0f))
+    matrix = glm::translate(glm::mat4(1.0f), -origin) * matrix;
+
+  if (scaling != glm::vec3(0.0f))
+    matrix = glm::scale(glm::mat4(1.0f), scaling) * matrix;
+
+  if (rotation != glm::quat())
+    matrix = glm::mat4_cast(normalize(rotation)) * matrix;
+
+  if (origin + translation != glm::vec3(0.0f))
+    matrix = glm::translate(glm::mat4(1.0f), origin + translation) * matrix;
+
   return matrix;
 }
 
