@@ -49,6 +49,8 @@ class BaseRenderer {
                           bool inverted = false) = 0;
   void DrawSprite(const Sprite& sprite, glm::mat4 transformation,
                   glm::vec4 tint = glm::vec4(1.0f), bool inverted = false);
+  void DrawSprite(const Sprite& sprite, glm::vec2 topLeft,
+                  glm::vec4 tint = glm::vec4(1.0f), bool inverted = false);
 
   // TODO: Remove entirely
   void DrawSprite(Sprite const& sprite, RectF const& dest,
@@ -90,6 +92,10 @@ class BaseRenderer {
                         int fadeRange, glm::mat4 transformation,
                         glm::vec4 tint = glm::vec4(1.0f),
                         bool isInverted = false, bool isSameTexture = false);
+  void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask, int alpha,
+                        int fadeRange, glm::vec2 topLeft,
+                        glm::vec4 tint = glm::vec4(1.0f),
+                        bool isInverted = false, bool isSameTexture = false);
 
   // TODO: Remove entirely
   void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
@@ -106,6 +112,11 @@ class BaseRenderer {
   void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
                                int alpha, int fadeRange,
                                glm::mat4 transformation,
+                               glm::vec4 tint = glm::vec4(1.0f),
+                               bool isInverted = false,
+                               bool useMaskAlpha = true);
+  void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
+                               int alpha, int fadeRange, glm::vec2 topLeft,
                                glm::vec4 tint = glm::vec4(1.0f),
                                bool isInverted = false,
                                bool useMaskAlpha = true);
@@ -177,6 +188,10 @@ class BaseRenderer {
   void DrawCharacterMvl(const Sprite& sprite, std::span<float> vertices,
                         std::span<const uint16_t> indices,
                         glm::mat4 transformation,
+                        glm::vec4 tint = glm::vec4(1.0f),
+                        bool inverted = false);
+  void DrawCharacterMvl(const Sprite& sprite, std::span<float> vertices,
+                        std::span<const uint16_t> indices, glm::vec2 offset,
                         glm::vec4 tint = glm::vec4(1.0f),
                         bool inverted = false);
 
