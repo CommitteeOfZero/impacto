@@ -304,19 +304,6 @@ void BaseRenderer::DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
   DrawCharacterMvl(sprite, vertices, indices, transformation, tint, inverted);
 }
 
-void BaseRenderer::DrawVideoTexture(YUVFrame* tex, glm::vec2 topLeft,
-                                    glm::vec4 tint, glm::vec2 scale,
-                                    float angle, bool alphaVideo) {
-  CornersQuad corners = CornersQuad(
-      RectF(topLeft.x, topLeft.y, scale.x * tex->Width, scale.y * tex->Height));
-
-  const glm::mat4 transformation =
-      Transformation2D({0.0f, 0.0f}, corners.Center(), angle);
-  corners.Transform(transformation);
-
-  DrawVideoTexture(*tex, corners, tint, alphaVideo);
-}
-
 void BaseRenderer::DrawProcessedText_BasicFont(
     std::span<const ProcessedTextGlyph> text, BasicFont* font, float opacity,
     RendererOutlineMode outlineMode, bool smoothstepGlyphOpacity,

@@ -1737,7 +1737,7 @@ void Renderer::Flush() {
   CurrentTexture = 0;
 }
 
-void Renderer::DrawVideoTexture(const YUVFrame& frame, const CornersQuad& dest,
+void Renderer::DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
                                 const glm::vec4 tint, const bool alphaVideo) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
