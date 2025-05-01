@@ -57,10 +57,8 @@ class BaseRenderer {
                   glm::vec4 tint = glm::vec4(1.0), float angle = 0.0f,
                   bool inverted = false);
   // TODO: Remove entirely
-  void DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
-                  glm::vec4 tint = glm::vec4(1.0),
-                  glm::vec2 scale = glm::vec2(1.0), float angle = 0.0f,
-                  bool inverted = false);
+  void DrawSprite(Sprite const& sprite, glm::vec2 topLeft, glm::vec4 tint,
+                  glm::vec2 scale, float angle = 0.0f, bool inverted = false);
 
   // TODO: Remove entirely
   void DrawSpriteOffset(Sprite const& sprite, glm::vec2 topLeft,
@@ -202,14 +200,8 @@ class BaseRenderer {
                         glm::vec4 tint = glm::vec4(1.0),
                         glm::vec2 scale = glm::vec2(1.0f));
 
-  virtual void DrawVideoTexture(const YUVFrame& frame, const CornersQuad& dest,
+  virtual void DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
                                 glm::vec4 tint, bool alphaVideo = false) = 0;
-
-  // TODO: Remove entirely
-  void DrawVideoTexture(YUVFrame* tex, glm::vec2 topLeft,
-                        glm::vec4 tint = glm::vec4(1.0),
-                        glm::vec2 scale = glm::vec2(1.0), float angle = 0.0f,
-                        bool alphaVideo = false);
 
   virtual void CaptureScreencap(Sprite& sprite) = 0;
 
