@@ -147,30 +147,6 @@ glm::vec3 Transform3D(const glm::vec3 pos, const glm::vec3 translation,
          glm::vec4(pos, 1.0f);
 }
 
-glm::vec2 DesignToNDC(glm::vec2 xy) {
-  glm::vec2 result;
-  result.x = (xy.x / (Profile::DesignWidth * 0.5f)) - 1.0f;
-  result.y = 1.0f - (xy.y / (Profile::DesignHeight * 0.5f));
-  return result;
-}
-
-glm::vec2 DesignToNDCNonFlipped(glm::vec2 xy) {
-  glm::vec2 result;
-  result.x = (xy.x / (Profile::DesignWidth * 0.5f)) - 1.0f;
-  result.y = (xy.y / (Profile::DesignHeight * 0.5f)) - 1.0f;
-  return result;
-}
-
-RectF DesignToNDC(RectF const& rect) {
-  RectF result;
-  glm::vec2 xy = DesignToNDC(glm::vec2(rect.X, rect.Y));
-  result.X = xy.x;
-  result.Y = xy.y;
-  result.Width = rect.Width / (Profile::DesignWidth * 0.5f);
-  result.Height = rect.Height / (Profile::DesignHeight * 0.5f);
-  return result;
-}
-
 uint32_t GetHashCode(uint8_t* data, int length) {
   uint32_t hash = 2166136261;
   for (int i = 0; i < length; i++) {

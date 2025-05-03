@@ -228,10 +228,6 @@ inline constexpr RectF::RectF(Rect const& rect)
     : RectF((float)rect.X, (float)rect.Y, (float)rect.Width,
             (float)rect.Height) {}
 
-glm::vec2 DesignToNDC(glm::vec2 xy);
-glm::vec2 DesignToNDCNonFlipped(glm::vec2 xy);
-RectF DesignToNDC(RectF const& rect);
-
 constexpr glm::vec4 RgbIntToFloat(uint32_t rgb) {
   return glm::vec4{(float)((rgb >> 16) & 0xFF) / 255.0f,
                    (float)((rgb >> 8) & 0xFF) / 255.0f,

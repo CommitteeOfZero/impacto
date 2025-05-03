@@ -104,6 +104,8 @@ class Renderer : public BaseRenderer {
   void EnsureModeSprite(bool inverted);
   void Flush() override;
 
+  glm::vec2 DesignToNDC(glm::vec2 designCoord) const;
+
   GLWindow* OpenGLWindow;
 
   GLuint ShaderProgramSprite;

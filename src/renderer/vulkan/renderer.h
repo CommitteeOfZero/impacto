@@ -136,6 +136,8 @@ class Renderer : public BaseRenderer {
 
   void MakeQuad();
 
+  glm::vec2 DesignToNDC(glm::vec2 designCoord) const;
+
   bool Drawing = false;
 
   VulkanWindow* VkWindow;
