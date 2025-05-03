@@ -83,8 +83,9 @@ class Renderer : public BaseRenderer {
 
   void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
                                const CornersQuad& dest, int alpha,
-                               int fadeRange, glm::vec4 tint, bool isInverted,
-                               bool useMaskAlpha) override;
+                               int fadeRange,
+                               std::span<const glm::vec4, 4> tints,
+                               bool isInverted, bool useMaskAlpha) override;
 
   void DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
                                const RectF& dest, float alpha) override;
