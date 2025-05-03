@@ -828,5 +828,12 @@ void Renderer::DisableScissor() {
   glDisable(GL_SCISSOR_TEST);
 }
 
+glm::vec2 Renderer::DesignToNDC(glm::vec2 designCoord) const {
+  glm::vec2 result;
+  result.x = (designCoord.x / (Profile::DesignWidth * 0.5f)) - 1.0f;
+  result.y = 1.0f - (designCoord.y / (Profile::DesignHeight * 0.5f));
+  return result;
+}
+
 }  // namespace OpenGL
 }  // namespace Impacto

@@ -258,8 +258,9 @@ class BaseRenderer {
               designDimensions, uvs, stride);
   }
 
-  static void QuadSetPosition(CornersQuad destQuad, glm::vec2* positions,
-                              int stride);
+  void QuadSetPosition(CornersQuad destQuad, glm::vec2* positions, int stride);
+
+  virtual glm::vec2 DesignToNDC(glm::vec2 designCoord) const = 0;
 
   Sprite RectSprite;
 };
