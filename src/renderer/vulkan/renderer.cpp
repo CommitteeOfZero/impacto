@@ -1189,19 +1189,19 @@ void Renderer::DrawCharacterMvl(const Sprite& sprite,
         glm::vec2(mvlVertices[(i + 3) * 5 + 3], mvlVertices[(i + 3) * 5 + 4]);
 
     // top-left
-    vertices[i].Position = DesignToNDCNonFlipped(topLeftV);
+    vertices[i].Position = DesignToNDC(topLeftV);
     vertices[i].UV = topLeftUV;
     vertices[i].Tint = tint;
     // bottom-left
-    vertices[i + 1].Position = DesignToNDCNonFlipped(bottomLeftV);
+    vertices[i + 1].Position = DesignToNDC(bottomLeftV);
     vertices[i + 1].UV = bottomLeftUV;
     vertices[i + 1].Tint = tint;
     // bottom-right
-    vertices[i + 2].Position = DesignToNDCNonFlipped(bottomRightV);
+    vertices[i + 2].Position = DesignToNDC(bottomRightV);
     vertices[i + 2].UV = bottomRightUV;
     vertices[i + 2].Tint = tint;
     // top-right
-    vertices[i + 3].Position = DesignToNDCNonFlipped(topRightV);
+    vertices[i + 3].Position = DesignToNDC(topRightV);
     vertices[i + 3].UV = topRightUV;
     vertices[i + 3].Tint = tint;
   }
@@ -1510,7 +1510,7 @@ void Renderer::DrawVertices(SpriteSheet const& sheet,
   assert(IndexBufferFill == (width - 1) * (height - 1) * 6);
 
   for (int i = 0; i < verticesCount; i++) {
-    vertices[i].Position = DesignToNDCNonFlipped(displayPositions[i]);
+    vertices[i].Position = DesignToNDC(displayPositions[i]);
     vertices[i].Tint = tint;
     glm::vec2 uv =
         sheetPositions[i] / glm::vec2(sheet.DesignWidth, sheet.DesignHeight);
@@ -1987,6 +1987,13 @@ void Renderer::DisableScissor() {
     PreviousScissorRect = RectF(0.0f, 0.0f, (float)SwapChainExtent.width,
                                 (float)SwapChainExtent.height);
   }
+}
+
+glm::vec2 Renderer::DesignToNDC(const glm::vec2 designCoord) const {
+  glm::vec2 result;
+  result.x = (designCoord.x / (Profile::DesignWidth * 0.5f)) - 1.0f;
+  result.y = (designCoord.y / (Profile::DesignHeight * 0.5f)) - 1.0f;
+  return result;
 }
 
 }  // namespace Vulkan
