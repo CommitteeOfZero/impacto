@@ -47,22 +47,19 @@ void BaseRenderer::DrawSprite(const Sprite& sprite,
       RectF(0.0f, 0.0f, sprite.ScaledWidth(), sprite.ScaledHeight())
           .Transform(transformation);
 
-  DrawSprite(sprite, dest, std::array<glm::vec4, 4>{tint, tint, tint, tint},
-             inverted);
+  DrawSprite(sprite, dest, tint, inverted);
 }
 
 void BaseRenderer::DrawSprite(const Sprite& sprite, const glm::vec2 topLeft,
                               const glm::vec4 tint, const bool inverted) {
   const CornersQuad dest =
       RectF(topLeft.x, topLeft.y, sprite.ScaledWidth(), sprite.ScaledHeight());
-  DrawSprite(sprite, dest, std::array<glm::vec4, 4>{tint, tint, tint, tint},
-             inverted);
+  DrawSprite(sprite, dest, tint, inverted);
 }
 
 void BaseRenderer::DrawSprite(Sprite const& sprite, RectF const& dest,
                               glm::vec4 tint, float angle, bool inverted) {
-  DrawSprite(sprite, dest.Rotate(angle, dest.Center()),
-             std::array<glm::vec4, 4>{tint, tint, tint, tint}, inverted);
+  DrawSprite(sprite, dest.Rotate(angle, dest.Center()), tint, inverted);
 }
 
 void BaseRenderer::DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
@@ -90,8 +87,7 @@ void BaseRenderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
                                     const glm::vec4 tint, const bool isInverted,
                                     const bool isSameTexture) {
   const CornersQuad dest = sprite.ScaledBounds().Transform(transformation);
-  DrawMaskedSprite(sprite, mask, dest, alpha, fadeRange,
-                   std::array<glm::vec4, 4>{tint, tint, tint, tint}, isInverted,
+  DrawMaskedSprite(sprite, mask, dest, alpha, fadeRange, tint, isInverted,
                    isSameTexture);
 }
 
@@ -102,8 +98,7 @@ void BaseRenderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
                                     const bool isSameTexture) {
   const RectF dest = {topLeft.x, topLeft.y, sprite.ScaledWidth(),
                       sprite.ScaledHeight()};
-  DrawMaskedSprite(sprite, mask, dest, alpha, fadeRange,
-                   std::array<glm::vec4, 4>{tint, tint, tint, tint}, isInverted,
+  DrawMaskedSprite(sprite, mask, dest, alpha, fadeRange, tint, isInverted,
                    isSameTexture);
 }
 
@@ -112,8 +107,7 @@ void BaseRenderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
                                     const int alpha, const int fadeRange,
                                     const bool isInverted,
                                     const bool isSameTexture) {
-  DrawMaskedSprite(sprite, mask, dest, alpha, fadeRange,
-                   std::array<glm::vec4, 4>{tint, tint, tint, tint}, isInverted,
+  DrawMaskedSprite(sprite, mask, dest, alpha, fadeRange, tint, isInverted,
                    isSameTexture);
 }
 
@@ -187,8 +181,7 @@ void BaseRenderer::DrawSprite3DRotated(
   corners.BottomRight = glm::vec2(vertices[2]);
   corners.BottomLeft = glm::vec2(vertices[3]);
 
-  DrawSprite(sprite, corners, std::array<glm::vec4, 4>{tint, tint, tint, tint},
-             inverted);
+  DrawSprite(sprite, corners, tint, inverted);
 }
 
 void BaseRenderer::DrawSprite3DRotated(Sprite const& sprite, glm::vec2 topLeft,
@@ -204,8 +197,7 @@ void BaseRenderer::DrawSprite3DRotated(Sprite const& sprite, glm::vec2 topLeft,
 }
 
 void BaseRenderer::DrawQuad(const CornersQuad& dest, const glm::vec4 color) {
-  DrawSprite(RectSprite, dest,
-             std::array<glm::vec4, 4>{color, color, color, color});
+  DrawSprite(RectSprite, dest, color);
 }
 
 void BaseRenderer::DrawRect(const RectF& dest, const glm::vec4 color,

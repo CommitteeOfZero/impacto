@@ -410,12 +410,10 @@ void Renderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
 }
 
-void Renderer::DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
-                                       const CornersQuad& dest, int alpha,
-                                       const int fadeRange,
-                                       const glm::vec4 tint,
-                                       const bool isInverted,
-                                       const bool useMaskAlpha) {
+void Renderer::DrawMaskedSpriteOverlay(
+    const Sprite& sprite, const Sprite& mask, const CornersQuad& dest,
+    int alpha, const int fadeRange, const std::span<const glm::vec4, 4> tints,
+    const bool isInverted, const bool useMaskAlpha) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawMaskedSpriteOverlay() called before BeginFrame()\n");
@@ -468,7 +466,7 @@ void Renderer::DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
 
   QuadSetPosition(dest, &vertices[0].Position, sizeof(VertexBufferSprites));
 
-  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
+  for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
 }
 
 void Renderer::DrawVertices(SpriteSheet const& sheet,

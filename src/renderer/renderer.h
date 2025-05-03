@@ -47,15 +47,19 @@ class BaseRenderer {
   virtual void DrawSprite(const Sprite& sprite, const CornersQuad& dest,
                           std::span<const glm::vec4, 4> tints,
                           bool inverted = false) = 0;
+  void DrawSprite(const Sprite& sprite, const CornersQuad& dest,
+                  glm::vec4 tint = glm::vec4(1.0f), bool inverted = false) {
+    DrawSprite(sprite, dest, std::array<glm::vec4, 4>{tint, tint, tint, tint},
+               inverted);
+  }
   void DrawSprite(const Sprite& sprite, glm::mat4 transformation,
                   glm::vec4 tint = glm::vec4(1.0f), bool inverted = false);
   void DrawSprite(const Sprite& sprite, glm::vec2 topLeft,
                   glm::vec4 tint = glm::vec4(1.0f), bool inverted = false);
 
   // TODO: Remove entirely
-  void DrawSprite(Sprite const& sprite, RectF const& dest,
-                  glm::vec4 tint = glm::vec4(1.0), float angle = 0.0f,
-                  bool inverted = false);
+  void DrawSprite(Sprite const& sprite, RectF const& dest, glm::vec4 tint,
+                  float angle, bool inverted = false);
   // TODO: Remove entirely
   void DrawSprite(Sprite const& sprite, glm::vec2 topLeft, glm::vec4 tint,
                   glm::vec2 scale, float angle = 0.0f, bool inverted = false);
@@ -86,6 +90,14 @@ class BaseRenderer {
                                 std::span<const glm::vec4, 4> tints,
                                 bool isInverted = false,
                                 bool isSameTexture = false) = 0;
+  void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
+                        const CornersQuad& dest, int alpha, int fadeRange,
+                        glm::vec4 tint = glm::vec4(1.0f),
+                        bool isInverted = false, bool isSameTexture = false) {
+    DrawMaskedSprite(sprite, mask, dest, alpha, fadeRange,
+                     std::array<glm::vec4, 4>{tint, tint, tint, tint},
+                     isInverted, isSameTexture);
+  }
   void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask, int alpha,
                         int fadeRange, glm::mat4 transformation,
                         glm::vec4 tint = glm::vec4(1.0f),
@@ -104,9 +116,18 @@ class BaseRenderer {
   virtual void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
                                        const CornersQuad& dest, int alpha,
                                        int fadeRange,
-                                       glm::vec4 tint = glm::vec4(1.0f),
+                                       std::span<const glm::vec4, 4> tints,
                                        bool isInverted = false,
                                        bool useMaskAlpha = true) = 0;
+  void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
+                               const CornersQuad& dest, int alpha,
+                               int fadeRange, glm::vec4 tint = glm::vec4(1.0f),
+                               bool isInverted = false,
+                               bool useMaskAlpha = true) {
+    DrawMaskedSpriteOverlay(sprite, mask, dest, alpha, fadeRange,
+                            std::array<glm::vec4, 4>{tint, tint, tint, tint},
+                            isInverted, useMaskAlpha);
+  }
   void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
                                int alpha, int fadeRange,
                                glm::mat4 transformation,

@@ -291,9 +291,10 @@ void SystemMenu::Render() {
                              DisplayGridVertices, 21, 11, glm::vec4{1}, false,
                              true);
     }
-    Renderer->DrawSprite(SystemMenuMask,
-                         {0, 0, Profile::DesignWidth, Profile::DesignHeight},
-                         glm::vec4{tint, alpha});
+    Renderer->DrawSprite(
+        SystemMenuMask,
+        RectF{0, 0, Profile::DesignWidth, Profile::DesignHeight},
+        glm::vec4{tint, alpha});
 
     MainItems->Tint =
         glm::vec4(tint, glm::smoothstep(0.0f, 1.0f, ItemsFade.Progress));
