@@ -343,7 +343,7 @@ void DelusionTrigger::Render() {
         BgOverlaySprite, glm::vec2{0.0f, 0.0f}, glm::vec2{960.0f, 413.0f},
         glm::vec4{1.0f, 1.0f, 1.0f, mtrgSelAlpha}, {scale, scale});
   } else {
-    Renderer->DrawSprite(BgOverlaySprite, {0, 0, 1920, 1080});
+    Renderer->DrawSprite(BgOverlaySprite, RectF{0, 0, 1920, 1080});
   }
 
   float spinAngle = MtrgAng / 65535.0f * 2.0f * float(M_PI);

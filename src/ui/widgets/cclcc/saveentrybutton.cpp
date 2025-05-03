@@ -85,8 +85,8 @@ void SaveEntryButton::Render() {
     }
     Renderer->DrawSprite(
         Thumbnail,
-        {Bounds.X + 20, Bounds.Y + 22, Thumbnail.Bounds.Width + 30,
-         Thumbnail.Bounds.Height + 17},
+        RectF{Bounds.X + 20, Bounds.Y + 22, Thumbnail.Bounds.Width + 30,
+              Thumbnail.Bounds.Height + 17},
         Tint);
     CharacterRouteLabel.Render();
     SceneTitleLabel.Render();
