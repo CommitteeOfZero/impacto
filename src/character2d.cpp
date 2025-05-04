@@ -202,10 +202,11 @@ void Character2D::Render(int layer) {
   if (Status != LS_Loaded || !OnLayer(layer) || !Show) return;
 
   if (Profile::CharaIsMvl) {
-    Renderer->DrawCharacterMvl(CharaSprite, glm::vec2(OffsetX, OffsetY),
-                               MvlVerticesCount, MvlVertices.data(),
-                               MvlIndicesCount, MvlIndices.data(), false, Tint,
-                               glm::vec2(ScaleX, ScaleY));
+    const glm::mat4 transformation = Transformation2D(
+        {OffsetX, OffsetY}, {0.0f, 0.0f}, 0.0f, {ScaleX, ScaleY});
+    Renderer->DrawCharacterMvl(CharaSprite, MvlVertices,
+                               std::span(MvlIndices.begin(), MvlIndicesCount),
+                               transformation, Tint);
   } else {
     for (auto id : StatesToDraw) {
       if (auto stateItr = States.find(id); stateItr != States.end()) {

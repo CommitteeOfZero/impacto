@@ -200,48 +200,38 @@ void BaseRenderer::DrawProcessedText(std::span<const ProcessedTextGlyph> text,
 }
 
 void BaseRenderer::DrawCharacterMvl(const Sprite& sprite,
-                                    const std::span<float> vertices,
+                                    const std::span<const float> vertices,
                                     const std::span<const uint16_t> indices,
                                     glm::mat4 transformation, glm::vec4 tint,
                                     bool inverted) {
+  std::vector<float> transformedVertices(vertices.begin(), vertices.end());
+
   const size_t vertexCount = vertices.size() / 5;
   for (size_t i = 0; i < vertexCount; i++) {
     const glm::vec2 pos =
         transformation *
         glm::vec4(vertices[i * 5], vertices[i * 5 + 1], 0.0f, 1.0f);
-    vertices[i * 5] = pos.x;
-    vertices[i * 5 + 1] = pos.y;
+    transformedVertices[i * 5] = pos.x;
+    transformedVertices[i * 5 + 1] = pos.y;
   }
 
-  DrawCharacterMvl(sprite, vertices, indices, tint, inverted);
+  DrawCharacterMvl(sprite, transformedVertices, indices, tint, inverted);
 }
 
 void BaseRenderer::DrawCharacterMvl(const Sprite& sprite,
-                                    std::span<float> vertices,
+                                    std::span<const float> vertices,
                                     std::span<const uint16_t> indices,
                                     const glm::vec2 offset,
                                     const glm::vec4 tint, const bool inverted) {
+  std::vector<float> transformedVertices(vertices.begin(), vertices.end());
+
   const size_t vertexCount = vertices.size() / 5;
   for (size_t i = 0; i < vertexCount; i++) {
-    vertices[i * 5] += offset.x;
-    vertices[i * 5 + 1] += offset.y;
+    transformedVertices[i * 5] += offset.x;
+    transformedVertices[i * 5 + 1] += offset.y;
   }
 
-  DrawCharacterMvl(sprite, vertices, indices, tint, inverted);
-}
-
-void BaseRenderer::DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
-                                    int verticesCount, float* mvlVertices,
-                                    int indicesCount, uint16_t* mvlIndices,
-                                    bool inverted, glm::vec4 tint,
-                                    glm::vec2 scale) {
-  const glm::mat4 transformation =
-      Transformation2D(topLeft, {0.0f, 0.0f}, 0.0f, scale);
-
-  std::vector<float> vertices(mvlVertices, mvlVertices + verticesCount * 5);
-  std::vector<uint16_t> indices(mvlIndices, mvlIndices + indicesCount);
-
-  DrawCharacterMvl(sprite, vertices, indices, transformation, tint, inverted);
+  DrawCharacterMvl(sprite, transformedVertices, indices, tint, inverted);
 }
 
 void BaseRenderer::DrawProcessedText_BasicFont(
