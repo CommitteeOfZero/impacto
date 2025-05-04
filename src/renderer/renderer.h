@@ -134,11 +134,6 @@ class BaseRenderer {
 
   void DrawQuad(const CornersQuad& dest, glm::vec4 color);
 
-  // TODO: Remove entirely
-  void DrawRect3DRotated(const RectF& dest, float depth,
-                         glm::vec2 vanishingPoint, bool stayInScreen,
-                         glm::quat rot, glm::vec4 color);
-
   void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                         glm::vec2 topLeft, glm::vec4 tint, int alpha,
                         int fadeRange, float effectCt,
