@@ -112,8 +112,12 @@ void MusicMenu::Render() {
 
     if (MenuTransition.Progress > 0.34f) {
       Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
-      Renderer->DrawSprite(SoundLibraryTitle, RightTitlePos, glm::vec4(1.0f),
-                           glm::vec2(1.0f), SoundLibraryTitleAngle);
+
+      const CornersQuad titleDest =
+          SoundLibraryTitle.ScaledBounds()
+              .Rotate(SoundLibraryTitleAngle, SoundLibraryTitle.Center())
+              .Translate(RightTitlePos);
+      Renderer->DrawSprite(SoundLibraryTitle, titleDest);
     }
 
     Renderer->CaptureScreencap(ShaderScreencapture.BgSprite);

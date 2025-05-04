@@ -86,12 +86,14 @@ void Render(glm::vec4 opacityTint) {
 
     case AutoIconType::CHLCC:
       if (MesSkipMode & SkipModeFlags::Auto) {
-        Renderer->DrawSprite(
-            AutoSkipArrowsSprite, glm::vec2(AutoIconOffset.x, AutoIconOffset.y),
-            opacityTint, glm::vec2(1.0f), Progress * 2 * (float)M_PI);
-        Renderer->DrawSprite(AutoIconSprite,
-                             glm::vec2(AutoIconOffset.x, AutoIconOffset.y),
-                             opacityTint);
+        const CornersQuad arrowsDest =
+            AutoSkipArrowsSprite.ScaledBounds()
+                .Rotate(Progress * 2.0f * (float)M_PI,
+                        AutoSkipArrowsSprite.Center())
+                .Translate(AutoIconOffset);
+        Renderer->DrawSprite(AutoSkipArrowsSprite, arrowsDest, opacityTint);
+
+        Renderer->DrawSprite(AutoIconSprite, AutoIconOffset, opacityTint);
       }
       break;
   }

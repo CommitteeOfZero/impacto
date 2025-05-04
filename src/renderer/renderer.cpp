@@ -53,17 +53,6 @@ void BaseRenderer::DrawSprite(const Sprite& sprite, const glm::vec2 topLeft,
   DrawSprite(sprite, dest, tint, inverted);
 }
 
-void BaseRenderer::DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
-                              glm::vec4 tint, glm::vec2 scale, float angle,
-                              bool inverted) {
-  CornersQuad dest = sprite.ScaledBounds();
-  dest.Scale(scale, {0.0f, 0.0f})
-      .Rotate(angle, dest.Center())
-      .Translate(topLeft);
-
-  DrawSprite(sprite, dest, tint, inverted);
-}
-
 void BaseRenderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
                                     const int alpha, const int fadeRange,
                                     const glm::mat4 transformation,

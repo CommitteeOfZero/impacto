@@ -446,10 +446,14 @@ void TitleMenu::Render() {
 
 inline void TitleMenu::DrawTitleMenuBackGraphics() {
   Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
-  Renderer->DrawSprite(SpinningCircleSprite,
-                       glm::vec2(SpinningCircleX, SpinningCircleY),
-                       glm::vec4(1.0f), glm::vec2(2.0f),
-                       -SpinningCircleAnimation.Progress * 2.0f * (float)M_PI);
+
+  const CornersQuad spinningCircleDest =
+      SpinningCircleSprite.ScaledBounds()
+          .Rotate(-SpinningCircleAnimation.Progress * 2.0f * (float)M_PI,
+                  SpinningCircleSprite.Center())
+          .Translate({SpinningCircleX, SpinningCircleY});
+  Renderer->DrawSprite(SpinningCircleSprite, spinningCircleDest);
+
   Renderer->DrawSprite(DelusionADVUnderSprite,
                        glm::vec2(DelusionADVUnderX, DelusionADVUnderY));
   Renderer->DrawSprite(DelusionADVSprite,

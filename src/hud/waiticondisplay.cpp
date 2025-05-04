@@ -146,15 +146,18 @@ void Render(glm::vec2 pos, glm::vec4 opacityTint, DialoguePageMode mode) {
       RenderFixed(opacityTint);
       return;
 
-    default:
+    default: {
       if (!GetFlag(Profile::ScriptVars::SF_SHOWWAITICON)) return;
 
-      Renderer->DrawSprite(
-          WaitIconSprite,
-          glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y),
-          opacityTint, glm::vec2(1.0f),
-          SimpleAnim.Progress * 2.0f * (float)M_PI);
+      const CornersQuad dest =
+          WaitIconSprite.ScaledBounds()
+              .Rotate(SimpleAnim.Progress * 2.0f * (float)M_PI,
+                      WaitIconSprite.Center())
+              .Translate(pos + WaitIconOffset);
+      Renderer->DrawSprite(WaitIconSprite, dest, opacityTint);
+
       return;
+    }
   }
 }
 

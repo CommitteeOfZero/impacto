@@ -367,8 +367,12 @@ void SaveMenu::Render() {
 
     if (MenuTransition.Progress > 0.34f) {
       Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
-      Renderer->DrawSprite(MenuTitleTextSprite, RightTitlePos, glm::vec4(1.0f),
-                           glm::vec2(1.0f), MenuTitleTextAngle);
+
+      const CornersQuad titleDest =
+          MenuTitleTextSprite.ScaledBounds()
+              .Rotate(MenuTitleTextAngle, MenuTitleTextSprite.Center())
+              .Translate(RightTitlePos);
+      Renderer->DrawSprite(MenuTitleTextSprite, titleDest);
     }
 
     Renderer->CaptureScreencap(ShaderScreencapture.BgSprite);
