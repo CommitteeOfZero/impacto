@@ -357,7 +357,7 @@ void SaveMenu::Update(float dt) {
 void SaveMenu::Render() {
   if (State != Hidden && ScrWork[SW_FILEALPHA] != 0) {
     if (MenuTransition.IsIn()) {
-      Renderer->DrawRect(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
+      Renderer->DrawQuad(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                          RgbIntToFloat(BackgroundColor));
     } else {
       DrawCircles();

@@ -35,8 +35,8 @@ void OptionsEntry::Render() {
   if (HasFocus) {
     RectF highlightBoundBox(Bounds.X, Bounds.Y, EntryDimensions.x,
                             EntryDimensions.y);
-    Renderer->DrawRect(highlightBoundBox, HighlightTint);
-    Renderer->DrawRect(
+    Renderer->DrawQuad(highlightBoundBox, HighlightTint);
+    Renderer->DrawQuad(
         RectF(highlightBoundBox.X + 2.0f, highlightBoundBox.Y + 2.0f,
               highlightBoundBox.Width - 4.0f, highlightBoundBox.Height - 4.0f),
         glm::vec4(1.0f, 1.0f, 1.0f, Tint.a));

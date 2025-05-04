@@ -162,11 +162,6 @@ void BaseRenderer::DrawQuad(const CornersQuad& dest, const glm::vec4 color) {
   DrawSprite(RectSprite, dest, color);
 }
 
-void BaseRenderer::DrawRect(const RectF& dest, const glm::vec4 color,
-                            const float angle) {
-  DrawQuad(dest.Rotate(angle, dest.Center()), color);
-}
-
 void BaseRenderer::DrawRect3DRotated(const RectF& dest, const float depth,
                                      const glm::vec2 vanishingPoint,
                                      const bool stayInScreen,

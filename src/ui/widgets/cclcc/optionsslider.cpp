@@ -46,7 +46,7 @@ void OptionsSlider::Render() {
                         Bounds.Y + SliderTrackOffset.y,
                         Slider.GetNormalizedValue() * BoxSprite.ScaledWidth(),
                         BoxSprite.ScaledHeight());
-  Renderer->DrawRect(highlightBounds, HighlightTint);
+  Renderer->DrawQuad(highlightBounds, HighlightTint);
 
   Renderer->DrawSprite(BoxSprite, Bounds.GetPos() + SliderTrackOffset, Tint);
 }
