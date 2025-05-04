@@ -62,13 +62,6 @@ class BaseRenderer {
                   glm::vec2 scale, float angle = 0.0f, bool inverted = false);
 
   // TODO: Remove entirely
-  void DrawSpriteOffset(Sprite const& sprite, glm::vec2 topLeft,
-                        glm::vec2 displayOffset,
-                        glm::vec4 tint = glm::vec4(1.0),
-                        glm::vec2 scale = glm::vec2(1.0), float angle = 0.0f,
-                        bool inverted = false);
-
-  // TODO: Remove entirely
   void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest, float depth,
                            glm::vec2 vanishingPoint, bool stayInScreen,
                            glm::quat rot, glm::vec4 tint = glm::vec4(1.0f),

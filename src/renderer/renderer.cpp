@@ -64,16 +64,6 @@ void BaseRenderer::DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
   DrawSprite(sprite, dest, tint, inverted);
 }
 
-void BaseRenderer::DrawSpriteOffset(const Sprite& sprite,
-                                    const glm::vec2 topLeft,
-                                    const glm::vec2 displayOffset,
-                                    const glm::vec4 tint, const glm::vec2 scale,
-                                    const float angle, const bool inverted) {
-  const glm::mat4 transformation =
-      Transformation2D(topLeft, displayOffset, angle, scale);
-  DrawSprite(sprite, transformation, tint, inverted);
-}
-
 void BaseRenderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
                                     const int alpha, const int fadeRange,
                                     const glm::mat4 transformation,

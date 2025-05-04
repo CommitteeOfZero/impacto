@@ -1419,18 +1419,19 @@ void MapSystemCCLCC::MapDispPhoto(int id, int photoGroupId) {
     float scaledPosOffsetY = (yOffset + 10) * scaledFactor;
 
     // Shadow
-    Renderer->DrawSpriteOffset(
-        displayedSprite,
-        glm::vec2((xOffset + 82 + 3) * scaledFactor - 82,
-                  (yOffset + 10 + 3) * scaledFactor - 10),
-        glm::vec2{82, 10}, glm::vec4{0.0f, 0.0f, 0.0f, (alpha / 2) / 256.0f},
-        glm::vec2{shadowZoom, shadowZoom}, angle);
+    const glm::vec2 shadowPos = {(xOffset + 82 + 3) * scaledFactor - 82,
+                                 (yOffset + 10 + 3) * scaledFactor - 10};
+    const glm::mat4 shadowTransformation =
+        Transformation2D(shadowPos, {82, 10}, angle, {shadowZoom, shadowZoom});
+    Renderer->DrawSprite(displayedSprite, shadowTransformation,
+                         {0.0f, 0.0f, 0.0f, (alpha / 2) / 256.0f});
+
     // Photo
-    Renderer->DrawSpriteOffset(
-        displayedSprite,
-        glm::vec2(scaledPosOffsetX - 82, scaledPosOffsetY - 10),
-        glm::vec2{82, 10}, glm::vec4{1.0f, 1.0f, 1.0f, alpha / 256.0f},
-        glm::vec2{zoomMulti, zoomMulti}, angle);
+    const glm::mat4 photoTransformation =
+        Transformation2D({scaledPosOffsetX - 82, scaledPosOffsetY - 10},
+                         {82, 10}, angle, {zoomMulti, zoomMulti});
+    Renderer->DrawSprite(displayedSprite, photoTransformation,
+                         {1.0f, 1.0f, 1.0f, alpha / 256.0f});
   }
 }
 
@@ -1498,27 +1499,25 @@ void MapSystemCCLCC::MapPoolDispPhoto(int poolId) {
           (MapPoolCurCt[poolId] * 50.0f / 16.0f + 78.0f) * 2;
 
       // HoverTag Tag
-      Renderer->DrawSpriteOffset(
-          SelectedMapPoolTagSprite,
-          glm::vec2(scaledPosOffsetX - selectedTagXOffset,
-                    scaledPosOffsetY - 18),
-          glm::vec2{selectedTagXOffset, 11},
-          glm::vec4{1.0f, 1.0f, 1.0f, alpha / 256.0f},
-          glm::vec2{zoomMulti / 2.0, zoomMulti / 2.0}, angle);
+      const glm::mat4 transformation = Transformation2D(
+          {scaledPosOffsetX - selectedTagXOffset, scaledPosOffsetY - 18},
+          {selectedTagXOffset, 11}, angle, glm::vec2(zoomMulti / 2.0f));
+      Renderer->DrawSprite(SelectedMapPoolTagSprite, transformation,
+                           {1.0f, 1.0f, 1.0f, alpha / 256.0f});
     }
     // Shadow
-    Renderer->DrawSpriteOffset(
-        displayedSprite,
-        glm::vec2((xOffset + 82 + 3) * scaledFactor - 82,
-                  (yOffset + 10 + 3) * scaledFactor - 10),
-        glm::vec2{82, 10}, glm::vec4{0.0f, 0.0f, 0.0f, (alpha >> 1) / 256.0f},
-        glm::vec2{shadowZoom, shadowZoom}, angle);
+    const glm::mat4 shadowTransformation =
+        Transformation2D({(xOffset + 82 + 3) * scaledFactor - 82,
+                          (yOffset + 10 + 3) * scaledFactor - 10},
+                         {82, 10}, angle, glm::vec2(shadowZoom));
+    Renderer->DrawSprite(displayedSprite, shadowTransformation,
+                         {0.0f, 0.0f, 0.0f, (alpha >> 1) / 256.0f});
     // Photo
-    Renderer->DrawSpriteOffset(
-        displayedSprite,
-        glm::vec2(scaledPosOffsetX - 82, scaledPosOffsetY - 10),
-        glm::vec2{82, 10}, glm::vec4{1.0f, 1.0f, 1.0f, alpha / 256.0f},
-        glm::vec2{zoomMulti, zoomMulti}, angle);
+    const glm::mat4 photoTransformation =
+        Transformation2D({scaledPosOffsetX - 82, scaledPosOffsetY - 10},
+                         {82, 10}, angle, glm::vec2(zoomMulti));
+    Renderer->DrawSprite(displayedSprite, photoTransformation,
+                         {1.0f, 1.0f, 1.0f, alpha / 256.0f});
     if (!MapPool[poolId].button.Enabled) {
       MapPool[poolId].button.Enabled = true;
       MapPool[poolId].button.Id = poolId;
@@ -1575,10 +1574,11 @@ void MapSystemCCLCC::MapPoolDispPin(int poolId) {
     glm::vec4 color = RgbIntToFloat(Tints[poolId]);
     color[3] = alpha / 256.0f;
 
-    Renderer->DrawSpriteOffset(
-        displayedSprite,
-        glm::vec2(scaledPosOffsetX - 16.0f, scaledPosOffsetY - 29.0f),
-        glm::vec2{16.0f, 29.0f}, color, glm::vec2{zoomMulti, zoomMulti}, 0);
+    const RectF dest =
+        displayedSprite.ScaledBounds()
+            .Scale({zoomMulti, zoomMulti}, {16.0f, 29.0f})
+            .Translate({scaledPosOffsetX - 16.0f, scaledPosOffsetY - 29.0f});
+    Renderer->DrawSprite(displayedSprite, dest, color);
   }
 }
 
@@ -1648,10 +1648,11 @@ void MapSystemCCLCC::MapDispPin(int id) {
     glm::vec4 color = RgbIntToFloat(Tints[mappedId + 27]);
     color[3] = alpha / 256.0f;
 
-    Renderer->DrawSpriteOffset(
-        displayedSprite,
-        glm::vec2(scaledPosOffsetX - 16.0f, scaledPosOffsetY - 29.0f),
-        glm::vec2{16.0f, 29.0f}, color, glm::vec2{zoomMulti, zoomMulti}, 0);
+    const RectF dest =
+        displayedSprite.ScaledBounds()
+            .Scale({zoomMulti, zoomMulti}, {16, 29})
+            .Translate({scaledPosOffsetX - 16.0f, scaledPosOffsetY - 29.0f});
+    Renderer->DrawSprite(displayedSprite, dest, color);
   }
 }
 
@@ -1696,20 +1697,16 @@ void MapSystemCCLCC::MapDispArticle(int id) {
     float displayPhotoY = scaledPosOffsetY - 16;
 
     // Shadow
-    Renderer->DrawSpriteOffset(
-        MapPartsArticleSprites[partId],
-        glm::vec2(displayShadowPhotoX, displayShadowPhotoY), glm::vec2{166, 16},
-        glm::vec4{0.0f, 0.0f, 0.0f, (alpha >> 1) / 256.0f},
-        glm::vec2{shadowZoom * 0.5 * scaledFactor,
-                  shadowZoom * scaledFactor * 0.5},
-        angle);
+    const glm::mat4 shadowTransformation =
+        Transformation2D({displayShadowPhotoX, displayShadowPhotoY}, {166, 16},
+                         angle, glm::vec2(shadowZoom * 0.5 * scaledFactor));
+    Renderer->DrawSprite(MapPartsArticleSprites[partId], shadowTransformation,
+                         {0.0f, 0.0f, 0.0f, (alpha >> 1) / 256.0f});
     // Photo
-    Renderer->DrawSpriteOffset(MapPartsArticleSprites[partId],
-                               glm::vec2(displayPhotoX, displayPhotoY),
-                               glm::vec2{166, 16}, glm::vec4{1.0f},
-                               glm::vec2{zoomMulti * 0.5 * scaledFactor,
-                                         zoomMulti * 0.5 * scaledFactor},
-                               angle);
+    const glm::mat4 photoTransformation =
+        Transformation2D({displayPhotoX, displayPhotoY}, {166, 16}, angle,
+                         glm::vec2(zoomMulti * 0.5 * scaledFactor));
+    Renderer->DrawSprite(MapPartsArticleSprites[partId], photoTransformation);
   }
 }
 
@@ -1753,21 +1750,20 @@ void MapSystemCCLCC::MapDispTag(int id) {
     float shadowScaledPosOffsetX = (xOffset + 2.0f + 46.0f) * scaledFactor;
     float shadowScaledPosOffsetY = (yOffset + 2.0f + 16.0f) * scaledFactor;
     // Shadow
-    Renderer->DrawSpriteOffset(displayedSprite,
-                               glm::vec2(shadowScaledPosOffsetX - 46.0f,
-                                         shadowScaledPosOffsetY - 16.0f),
-                               glm::vec2{46.0f, 16.0f},
-                               {0.0f, 0.0f, 0.0f, alpha / 2 / 256.0f},
-                               glm::vec2{shadowZoom, shadowZoom}, angle);
-    float scaledPosOffsetX = (xOffset + 46.0f) * scaledFactor;
-    float scaledPosOffsetY = (yOffset + 16.0f) * scaledFactor;
+    const glm::mat4 shadowTransformation = Transformation2D(
+        {shadowScaledPosOffsetX - 46.0f, shadowScaledPosOffsetY - 16.0f},
+        {46, 16}, angle, glm::vec2(shadowZoom));
+    Renderer->DrawSprite(displayedSprite, shadowTransformation,
+                         {0.0f, 0.0f, 0.0f, (alpha >> 1) / 256.0f});
 
     // Tag
-    Renderer->DrawSpriteOffset(
-        displayedSprite,
-        glm::vec2(scaledPosOffsetX - 46.0f, scaledPosOffsetY - 16.0f),
-        glm::vec2{46.0f, 16.0f}, {1.0f, 1.0f, 1.0f, alpha / 256.0f},
-        glm::vec2{zoomMulti, zoomMulti}, angle);
+    const glm::vec2 scaledPosOffset =
+        glm::vec2(xOffset + 46.0f, yOffset + 16.0f) * scaledFactor;
+    const glm::mat4 tagTransformation =
+        Transformation2D(scaledPosOffset - glm::vec2(46.0f, 16.0f), {46, 16},
+                         angle, {zoomMulti, zoomMulti});
+    Renderer->DrawSprite(displayedSprite, tagTransformation,
+                         {1.0f, 1.0f, 1.0f, alpha / 256.0f});
   }
 }
 
