@@ -370,7 +370,7 @@ static void RenderMain() {
         }
         glm::vec4 col = ScrWorkGetColor(SW_MASK1COLOR);
         col.a = glm::min(maskAlpha / 255.0f, 1.0f);
-        Renderer->DrawRect(RectF(maskPosX, maskPosY, maskSizeX, maskSizeY),
+        Renderer->DrawQuad(RectF(maskPosX, maskPosY, maskSizeX, maskSizeY),
                            col);
       }
     }
@@ -522,7 +522,7 @@ void Render() {
           break;
         }
         case DrawComponentType::Mask: {
-          Renderer->DrawRect(
+          Renderer->DrawQuad(
               RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
               glm::vec4(0.0f, 0.0f, 0.0f, (ScrWork[SW_RESTARTMASK] / 256.0f)));
           break;

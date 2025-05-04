@@ -334,7 +334,7 @@ void DelusionTrigger::Render() {
   ScaledMask.Bounds.Y = BackgroundSpriteMask.Bounds.Y - deltaHeight / 2.0f;
 
   TriggerOnTint[3] = TriggerOnTintAlpha * backgroundAlpha / 65536.0f;
-  Renderer->DrawRect(RectF(0.0f, 0.0f, 1280.0f, 720.0f), TriggerOnTint);
+  Renderer->DrawQuad(RectF(0.0f, 0.0f, 1280.0f, 720.0f), TriggerOnTint);
 
   ScreenMask.Bounds.X = UnderlayerXOffset / 1000.0f;
   Renderer->DrawSprite(

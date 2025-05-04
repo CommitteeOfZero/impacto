@@ -529,7 +529,7 @@ void TitleMenu::Render() {
         DrawSmoke(SmokeOpacityNormal);
         Renderer->DrawSprite(CopyrightTextSprite,
                              glm::vec2(CopyrightTextX, CopyrightTextY));
-        Renderer->DrawRect(
+        Renderer->DrawQuad(
             RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
             glm::vec4(1.0f, 1.0f, 1.0f,
                       1.0f - ScrWork[SW_TITLEDISPCT] / 60.0f));
@@ -560,7 +560,7 @@ void TitleMenu::Render() {
         MainItems->Render();
         ContinueItems->Render();
         ExtraItems->Render();
-        Renderer->DrawRect(
+        Renderer->DrawQuad(
             RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
             {0.0f, 0.0f, 0.0f, ScrWork[SW_TITLEDISPCT] / 32.0f});
       } break;
@@ -590,7 +590,7 @@ void TitleMenu::Render() {
     int maskAlpha = ScrWork[SW_TITLEMASKALPHA];
     glm::vec4 col = ScrWorkGetColor(SW_TITLEMASKCOLOR);
     col.a = glm::min(maskAlpha / 255.0f, 1.0f);
-    Renderer->DrawRect(
+    Renderer->DrawQuad(
         RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight), col);
   }
 }
