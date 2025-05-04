@@ -71,6 +71,43 @@ CornersQuad& CornersQuad::Rotate(const glm::quat rotation, glm::vec3 origin) {
   return *this;
 }
 
+CornersQuad& CornersQuad::Rotate(const glm::quat rotation,
+                                 const glm::vec3 origin, const float depth,
+                                 const glm::vec2 vanishingPoint,
+                                 const bool stayInScreen) {
+  std::array<glm::vec4, 4> vertices = {
+      glm::vec4(TopLeft, 0.0f, 1.0f), glm::vec4(BottomLeft, 0.0f, 1.0f),
+      glm::vec4(TopRight, 0.0f, 1.0f), glm::vec4(BottomRight, 0.0f, 1.0f)};
+
+  // Rotate
+  const glm::mat4 rotationMatrix = glm::mat4_cast(rotation);
+  for (glm::vec4& vertex : vertices) {
+    vertex -= glm::vec4(origin, 0.0f);
+    vertex = rotationMatrix * vertex;
+    vertex += glm::vec4(origin, 0.0f);
+  }
+
+  // Move into screen
+  if (stayInScreen) {
+    float maxZ = 0.0f;
+    for (const glm::vec4 vertex : vertices) maxZ = std::max(maxZ, vertex.z);
+
+    for (glm::vec4& vertex : vertices) vertex.z -= maxZ;
+  }
+
+  // Project
+  for (glm::vec4& vertex : vertices) {
+    vertex -= glm::vec4(vanishingPoint, 0.0f, 0.0f);
+    const float normalizedZ = vertex.z / glm::length(glm::vec3(vertex));
+    vertex *= depth / (depth - normalizedZ);
+    vertex += glm::vec4(vanishingPoint, 0.0f, 0.0f);
+  }
+
+  *this = {glm::vec2(vertices[0]), glm::vec2(vertices[1]),
+           glm::vec2(vertices[2]), glm::vec2(vertices[3])};
+  return *this;
+}
+
 CornersQuad RectF::Transform(glm::mat4 transformation) const {
   return CornersQuad(*this).Transform(transformation);
 }
@@ -94,6 +131,13 @@ CornersQuad RectF::Rotate(float angle, glm::vec2 origin) const {
 
 CornersQuad RectF::Rotate(glm::quat rotation, glm::vec3 origin) const {
   return CornersQuad(*this).Rotate(rotation, origin);
+}
+
+CornersQuad RectF::Rotate(const glm::quat rotation, const glm::vec3 origin,
+                          const float depth, const glm::vec2 vanishingPoint,
+                          const bool stayInScreen) const {
+  return CornersQuad(*this).Rotate(rotation, origin, depth, vanishingPoint,
+                                   stayInScreen);
 }
 
 glm::mat2 Rotate2D(float angle) {

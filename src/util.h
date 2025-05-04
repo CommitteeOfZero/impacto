@@ -146,6 +146,8 @@ struct RectF {
   RectF& Scale(glm::vec2 scaling, glm::vec2 origin);
   CornersQuad Rotate(float angle, glm::vec2 origin) const;
   CornersQuad Rotate(glm::quat rotation, glm::vec3 origin) const;
+  CornersQuad Rotate(glm::quat rotation, glm::vec3 origin, float depth,
+                     glm::vec2 vanishingPoint, bool stayInScreen = false) const;
 };
 
 struct Rect {
@@ -218,6 +220,8 @@ struct CornersQuad {
   CornersQuad& Scale(glm::vec2 scaling, glm::vec2 origin);
   CornersQuad& Rotate(float angle, glm::vec2 origin);
   CornersQuad& Rotate(glm::quat rotation, glm::vec3 origin);
+  CornersQuad& Rotate(glm::quat rotation, glm::vec3 origin, float depth,
+                      glm::vec2 vanishingPoint, bool stayInScreen = false);
 };
 
 inline CornersQuad operator*(const glm::mat4 transformation, CornersQuad quad) {

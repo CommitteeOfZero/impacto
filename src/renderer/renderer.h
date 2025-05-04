@@ -57,19 +57,6 @@ class BaseRenderer {
   void DrawSprite(const Sprite& sprite, glm::vec2 topLeft,
                   glm::vec4 tint = glm::vec4(1.0f), bool inverted = false);
 
-  // TODO: Remove entirely
-  void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest, float depth,
-                           glm::vec2 vanishingPoint, bool stayInScreen,
-                           glm::quat rot, glm::vec4 tint = glm::vec4(1.0f),
-                           bool inverted = false);
-
-  // TODO: Remove entirely
-  void DrawSprite3DRotated(Sprite const& sprite, glm::vec2 topLeft, float depth,
-                           glm::vec2 vanishingPoint, bool stayInScreen,
-                           glm::quat rot, glm::vec4 tint = glm::vec4(1.0f),
-                           glm::vec2 scale = glm::vec2(1.0f),
-                           bool inverted = false);
-
   virtual void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
                                 const CornersQuad& dest, int alpha,
                                 int fadeRange,
