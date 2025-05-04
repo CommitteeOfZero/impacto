@@ -102,14 +102,6 @@ void BaseRenderer::DrawMaskedSpriteOverlay(
                           isInverted, useMaskAlpha);
 }
 
-void BaseRenderer::DrawMaskedSpriteOverlay(
-    const Sprite& sprite, const Sprite& mask, const RectF& dest,
-    const glm::vec4 tint, const int alpha, const int fadeRange,
-    const bool isInverted, const float angle, const bool useMaskAlpha) {
-  DrawMaskedSpriteOverlay(sprite, mask, dest.Rotate(angle, dest.Center()),
-                          alpha, fadeRange, tint, isInverted, useMaskAlpha);
-}
-
 void BaseRenderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                                     glm::vec2 topLeft, glm::vec4 tint,
                                     int alpha, int fadeRange, float effectCt,
@@ -290,8 +282,8 @@ void BaseRenderer::DrawProcessedText_BasicFont(
             Sprite mask;
             mask.Sheet = *maskedSheet;
             mask.Bounds = dest;
-            DrawMaskedSpriteOverlay(glyph, mask, dest, color, color.a * 255,
-                                    256, false, 0, i == 0);
+            DrawMaskedSpriteOverlay(glyph, mask, dest, color.a * 255, 256,
+                                    color, false, i == 0);
           } else {
             DrawSprite(glyph, dest, color);
           }
@@ -305,8 +297,8 @@ void BaseRenderer::DrawProcessedText_BasicFont(
             Sprite mask;
             mask.Sheet = *maskedSheet;
             mask.Bounds = dest;
-            DrawMaskedSpriteOverlay(glyph, mask, dest, color, color.a * 255,
-                                    256, false, 0, i == 0);
+            DrawMaskedSpriteOverlay(glyph, mask, dest, color.a * 255, 256,
+                                    color, false, i == 0);
           } else {
             DrawSprite(glyph, dest, color);
           }
@@ -330,8 +322,8 @@ void BaseRenderer::DrawProcessedText_BasicFont(
       mask.Sheet = *maskedSheet;
       mask.Bounds = text[i].DestRect;
       DrawMaskedSpriteOverlay(font->Glyph(text[i].CharId), mask,
-                              text[i].DestRect, color, color.a * 255, 256,
-                              false, 0, false);
+                              text[i].DestRect, color.a * 255, 256, color,
+                              false, false);
     } else {
       DrawSprite(font->Glyph(text[i].CharId), text[i].DestRect, color);
     }
@@ -379,8 +371,8 @@ void BaseRenderer::DrawProcessedText_LBFont(
         mask.Sheet = *maskedSheet;
         mask.Bounds = outlineDest;
         DrawMaskedSpriteOverlay(font->OutlineGlyph(text[i].CharId), mask,
-                                outlineDest, color, color.a * 255, 256, false,
-                                0, i == 0);
+                                outlineDest, color.a * 255, 256, color, false,
+                                i == 0);
       } else {
         DrawSprite(font->OutlineGlyph(text[i].CharId), outlineDest, color);
       }
@@ -408,7 +400,7 @@ void BaseRenderer::DrawProcessedText_LBFont(
       mask.Sheet = *maskedSheet;
       mask.Bounds = foregroundDest;
       DrawMaskedSpriteOverlay(font->Glyph(text[i].CharId), mask, foregroundDest,
-                              color, color.a * 255, 256, false, 0, false);
+                              color.a * 255, 256, color, false, false);
     } else {
       DrawSprite(font->Glyph(text[i].CharId), foregroundDest, color);
     }
