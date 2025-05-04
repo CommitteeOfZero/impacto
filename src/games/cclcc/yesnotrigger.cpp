@@ -249,7 +249,7 @@ void YesNoTrigger::Render() {
            static_cast<int>(BgSpritePos.y + bgYOffset),
            static_cast<int>(bgWidth), static_cast<int>(bgHeight));
 
-  Renderer->DrawSprite(ActiveBackground, Rect(0, 0, 1920, 1080), bgtint, 0.0f);
+  Renderer->DrawSprite(ActiveBackground, Rect(0, 0, 1920, 1080), bgtint);
 
   if (DispSel) {
     float chipYesX =
@@ -298,8 +298,11 @@ void YesNoTrigger::Render() {
     float noChipWidthX = 0.5f * BgSpriteScale * ActiveNoChip->Bounds.Width;
     float noChipWidthY = 0.5f * BgSpriteScale * ActiveNoChip->Bounds.Height;
     if (Selection != YesNoSelect::NONE) {
-      Renderer->DrawSprite(StarChip, starPos, chipTint, {1.0, 1.0},
-                           StarAngle / 65536.0f);
+      const CornersQuad dest =
+          StarChip.ScaledBounds()
+              .Rotate(StarAngle / 65536.0f, StarChip.Center())
+              .Translate(starPos);
+      Renderer->DrawSprite(StarChip, dest, chipTint);
     }
     Renderer->DrawSprite(*ActiveYesChip,
                          Rect(chipYesX, chipYesY, yesChipWidthX, yesChipWidthY),
@@ -309,7 +312,7 @@ void YesNoTrigger::Render() {
                          chipTint);
   }
   glm::vec4 maskTint = glm::vec4(1.0f, 1.0f, 1.0f, 160 / 256.0f);
-  Renderer->DrawSprite(YesNoBgMask, Rect(0, 0, 1920, 1080), maskTint, 0.0f);
+  Renderer->DrawSprite(YesNoBgMask, Rect(0, 0, 1920, 1080), maskTint);
 }
 
 void YesNoTrigger::Start(int type, int bgBufId, int chipsBufId) {

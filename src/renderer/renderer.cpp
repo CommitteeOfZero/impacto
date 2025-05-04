@@ -43,32 +43,25 @@ void InitRenderer() {
 void BaseRenderer::DrawSprite(const Sprite& sprite,
                               const glm::mat4 transformation,
                               const glm::vec4 tint, const bool inverted) {
-  const CornersQuad dest =
-      RectF(0.0f, 0.0f, sprite.ScaledWidth(), sprite.ScaledHeight())
-          .Transform(transformation);
-
+  const CornersQuad dest = sprite.ScaledBounds().Transform(transformation);
   DrawSprite(sprite, dest, tint, inverted);
 }
 
 void BaseRenderer::DrawSprite(const Sprite& sprite, const glm::vec2 topLeft,
                               const glm::vec4 tint, const bool inverted) {
-  const CornersQuad dest =
-      RectF(topLeft.x, topLeft.y, sprite.ScaledWidth(), sprite.ScaledHeight());
+  const CornersQuad dest = sprite.ScaledBounds().Translate(topLeft);
   DrawSprite(sprite, dest, tint, inverted);
-}
-
-void BaseRenderer::DrawSprite(Sprite const& sprite, RectF const& dest,
-                              glm::vec4 tint, float angle, bool inverted) {
-  DrawSprite(sprite, dest.Rotate(angle, dest.Center()), tint, inverted);
 }
 
 void BaseRenderer::DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
                               glm::vec4 tint, glm::vec2 scale, float angle,
                               bool inverted) {
-  const RectF scaledDest(topLeft.x, topLeft.y,
-                         scale.x * sprite.Bounds.Width * sprite.BaseScale.x,
-                         scale.y * sprite.Bounds.Height * sprite.BaseScale.y);
-  DrawSprite(sprite, scaledDest, tint, angle, inverted);
+  CornersQuad dest = sprite.ScaledBounds();
+  dest.Scale(scale, {0.0f, 0.0f})
+      .Rotate(angle, dest.Center())
+      .Translate(topLeft);
+
+  DrawSprite(sprite, dest, tint, inverted);
 }
 
 void BaseRenderer::DrawSpriteOffset(const Sprite& sprite,
@@ -96,8 +89,7 @@ void BaseRenderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
                                     const glm::vec2 topLeft,
                                     const glm::vec4 tint, const bool isInverted,
                                     const bool isSameTexture) {
-  const RectF dest = {topLeft.x, topLeft.y, sprite.ScaledWidth(),
-                      sprite.ScaledHeight()};
+  const RectF dest = sprite.ScaledBounds().Translate(topLeft);
   DrawMaskedSprite(sprite, mask, dest, alpha, fadeRange, tint, isInverted,
                    isSameTexture);
 }
@@ -115,8 +107,7 @@ void BaseRenderer::DrawMaskedSpriteOverlay(
     const Sprite& sprite, const Sprite& mask, const int alpha,
     const int fadeRange, const glm::vec2 topLeft, const glm::vec4 tint,
     const bool isInverted, const bool useMaskAlpha) {
-  const RectF dest = {topLeft.x, topLeft.y, sprite.ScaledWidth(),
-                      sprite.ScaledHeight()};
+  const RectF dest = sprite.ScaledBounds().Translate(topLeft);
   DrawMaskedSpriteOverlay(sprite, mask, dest, alpha, fadeRange, tint,
                           isInverted, useMaskAlpha);
 }
@@ -133,10 +124,9 @@ void BaseRenderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                                     glm::vec2 topLeft, glm::vec4 tint,
                                     int alpha, int fadeRange, float effectCt,
                                     glm::vec2 scale) {
-  const RectF scaledDest(topLeft.x, topLeft.y,
-                         scale.x * sprite.Bounds.Width * sprite.BaseScale.x,
-                         scale.y * sprite.Bounds.Height * sprite.BaseScale.y);
-  DrawCCMessageBox(sprite, mask, scaledDest, tint, alpha, fadeRange, effectCt);
+  const RectF dest =
+      sprite.ScaledBounds().Scale(scale, {0.0f, 0.0f}).Translate(topLeft);
+  DrawCCMessageBox(sprite, mask, dest, tint, alpha, fadeRange, effectCt);
 }
 
 void BaseRenderer::DrawSprite3DRotated(
@@ -180,11 +170,10 @@ void BaseRenderer::DrawSprite3DRotated(Sprite const& sprite, glm::vec2 topLeft,
                                        bool stayInScreen, glm::quat rot,
                                        glm::vec4 tint, glm::vec2 scale,
                                        bool inverted) {
-  const RectF scaledDest(topLeft.x, topLeft.y,
-                         scale.x * sprite.Bounds.Width * sprite.BaseScale.x,
-                         scale.y * sprite.Bounds.Height * sprite.BaseScale.y);
-  DrawSprite3DRotated(sprite, scaledDest, depth, vanishingPoint, stayInScreen,
-                      rot, tint, inverted);
+  const RectF dest =
+      sprite.ScaledBounds().Scale(scale, {0.0f, 0.0f}).Translate(topLeft);
+  DrawSprite3DRotated(sprite, dest, depth, vanishingPoint, stayInScreen, rot,
+                      tint, inverted);
 }
 
 void BaseRenderer::DrawQuad(const CornersQuad& dest, const glm::vec4 color) {
