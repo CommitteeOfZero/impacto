@@ -135,9 +135,6 @@ class BaseRenderer {
   void DrawQuad(const CornersQuad& dest, glm::vec4 color);
 
   // TODO: Remove entirely
-  void DrawRect(const RectF& dest, glm::vec4 color, float angle = 0.0f);
-
-  // TODO: Remove entirely
   void DrawRect3DRotated(const RectF& dest, float depth,
                          glm::vec2 vanishingPoint, bool stayInScreen,
                          glm::quat rot, glm::vec4 color);

@@ -252,7 +252,7 @@ void TitleMenu::Render() {
             OverlaySprite,
             RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight));
         DrawSmoke(SmokeOpacityNormal);
-        Renderer->DrawRect(
+        Renderer->DrawQuad(
             RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
             glm::vec4(1.0f, 1.0f, 1.0f,
                       1.0f - ScrWork[SW_TITLEDISPCT] / 60.0f));
