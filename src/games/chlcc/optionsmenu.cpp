@@ -54,8 +54,12 @@ void OptionsMenu::Render() {
   }
   if (FadeAnimation.Progress > 0.34f) {
     Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
-    Renderer->DrawSprite(MenuTitleText, RightTitlePos, glm::vec4(1.0f),
-                         glm::vec2(1.0f), MenuTitleTextAngle);
+
+    const CornersQuad titleDest =
+        MenuTitleText.ScaledBounds()
+            .Rotate(MenuTitleTextAngle, MenuTitleText.Center())
+            .Translate(RightTitlePos);
+    Renderer->DrawSprite(MenuTitleText, titleDest);
   }
 
   glm::vec3 tint = {1.0f, 1.0f, 1.0f};

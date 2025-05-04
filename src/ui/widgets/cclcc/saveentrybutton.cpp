@@ -57,42 +57,58 @@ SaveEntryButton::SaveEntryButton(int id, int index, Sprite const& focusedBox,
 }
 
 void SaveEntryButton::Render() {
+  const glm::vec2 scale = {Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f};
+
   NormalSpriteLabel.Render();
   if (HasFocus) {
     FocusedSpriteLabel.Tint = FocusedAlpha;
     FocusedSpriteLabel.Render();
-    Renderer->DrawSprite(
-        HighlightSprite,
-        glm::vec2(Bounds.X + HighlightOffset.x, Bounds.Y + HighlightOffset.y),
-        Tint, glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
+
+    const RectF highlightDest =
+        HighlightSprite.ScaledBounds()
+            .Scale(scale, {0.0f, 0.0f})
+            .Translate(Bounds.GetPos() + HighlightOffset);
+    Renderer->DrawSprite(HighlightSprite, highlightDest, Tint);
   }
+
+  const RectF numberDigitDest = NumberDigitSprite[0][0]
+                                    .ScaledBounds()
+                                    .Scale(scale, {0.0f, 0.0f})
+                                    .Translate(Bounds.GetPos());
   Renderer->DrawSprite(
       NumberDigitSprite[ScrWork[SW_SAVEMENUMODE]][(Index + 1) / 10],
-      glm::vec2(Bounds.X + 720, Bounds.Y + 120), Tint,
-      glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
+      RectF(numberDigitDest).Translate({720, 120}), Tint);
   Renderer->DrawSprite(
       NumberDigitSprite[ScrWork[SW_SAVEMENUMODE]][(Index + 1) % 10],
-      glm::vec2(Bounds.X + 752, Bounds.Y + 120), Tint,
-      glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
+      RectF(numberDigitDest).Translate({752, 120}), Tint);
+
   if (SaveStatus == 1) {
-    Renderer->DrawSprite(
-        SeparationLineSprite[ScrWork[SW_SAVEMENUMODE]],
-        glm::vec2(Bounds.X + 308, Bounds.Y + 112), Tint,
-        glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
+    const RectF separationLineDest =
+        SeparationLineSprite[0]
+            .ScaledBounds()
+            .Scale(scale, {0.0f, 0.0f})
+            .Translate(Bounds.GetPos() + glm::vec2(308, 112));
+    Renderer->DrawSprite(SeparationLineSprite[ScrWork[SW_SAVEMENUMODE]],
+                         separationLineDest, Tint);
+
     if (IsLocked) {
       SceneTitleLabel.Render();
       LockedSymbol.Render();
     }
+
     Renderer->DrawSprite(
         Thumbnail,
         RectF{Bounds.X + 20, Bounds.Y + 22, Thumbnail.Bounds.Width + 30,
               Thumbnail.Bounds.Height + 17},
         Tint);
+
     CharacterRouteLabel.Render();
     SceneTitleLabel.Render();
     SaveDateLabel.Render();
+
   } else if (SaveStatus == 0) {
     NoDataSymbol.Render();
+
   } else {
     BrokenDataSymbol.Render();
   }

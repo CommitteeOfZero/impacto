@@ -75,8 +75,12 @@ void ClearListMenu::Render() {
 
     if (MenuTransition.Progress > 0.34f) {
       Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
-      Renderer->DrawSprite(MenuTitleText, RightTitlePos, glm::vec4(1.0f),
-                           glm::vec2(1.0f), MenuTitleTextAngle);
+
+      const CornersQuad titleDest =
+          MenuTitleText.ScaledBounds()
+              .Rotate(MenuTitleTextAngle, MenuTitleText.Center())
+              .Translate(RightTitlePos);
+      Renderer->DrawSprite(MenuTitleText, titleDest);
     }
 
     Renderer->CaptureScreencap(ShaderScreencapture.BgSprite);
