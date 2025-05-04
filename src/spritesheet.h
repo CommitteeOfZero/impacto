@@ -39,8 +39,10 @@ struct Sprite {
     Bounds.Height = scaledHeight / BaseScale.y;
   }
   RectF ScaledBounds() const {
-    return RectF(Bounds).Scale(BaseScale, Bounds.GetPos());
+    return {0.0f, 0.0f, ScaledWidth(), ScaledHeight()};
   }
+
+  glm::vec2 Center() const { return ScaledBounds().Center(); }
 };
 
 }  // namespace Impacto
