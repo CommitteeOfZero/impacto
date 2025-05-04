@@ -124,12 +124,6 @@ class BaseRenderer {
                                bool isInverted = false,
                                bool useMaskAlpha = true);
 
-  // TODO: Remove entirely
-  void DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
-                               RectF const& dest, glm::vec4 tint, int alpha,
-                               int fadeRange, bool isInverted = false,
-                               float angle = 0.0f, bool useMaskAlpha = true);
-
   virtual void DrawVertices(SpriteSheet const& sheet,
                             std::span<const glm::vec2> sheetPositions,
                             std::span<const glm::vec2> displayPositions,

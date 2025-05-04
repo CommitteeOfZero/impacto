@@ -341,10 +341,11 @@ void DelusionTrigger::Render() {
       ScreenMask, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
       glm::vec4(1.0f, 1.0f, 1.0f, (backgroundAlpha * 160) / 65536.0));
 
-  Renderer->DrawMaskedSpriteOverlay(
-      BackgroundSprite, ScaledMask, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-      glm::vec4{1.0f}, (backgroundAlpha * 160) >> 8, 20, true,
-      spinAngle * 2 * (float)M_PI / 65536.0f);
+  CornersQuad dest = RectF(0.0f, 0.0f, 1280.0f, 720.0f)
+                         .Rotate(ScrWorkAngleToRad(spinAngle), {640, 360});
+  Renderer->DrawMaskedSpriteOverlay(BackgroundSprite, ScaledMask, dest,
+                                    (backgroundAlpha * 160) >> 8, 20,
+                                    glm::vec4(1.0f), true);
 }
 
 }  // namespace CHLCC
