@@ -102,15 +102,6 @@ void BaseRenderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
                    isSameTexture);
 }
 
-void BaseRenderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
-                                    const RectF& dest, const glm::vec4 tint,
-                                    const int alpha, const int fadeRange,
-                                    const bool isInverted,
-                                    const bool isSameTexture) {
-  DrawMaskedSprite(sprite, mask, dest, alpha, fadeRange, tint, isInverted,
-                   isSameTexture);
-}
-
 void BaseRenderer::DrawMaskedSpriteOverlay(
     const Sprite& sprite, const Sprite& mask, const int alpha,
     const int fadeRange, const glm::mat4 transformation, const glm::vec4 tint,

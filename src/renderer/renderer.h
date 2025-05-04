@@ -107,12 +107,6 @@ class BaseRenderer {
                         glm::vec4 tint = glm::vec4(1.0f),
                         bool isInverted = false, bool isSameTexture = false);
 
-  // TODO: Remove entirely
-  void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
-                        RectF const& dest, glm::vec4 tint, int alpha,
-                        int fadeRange, bool isInverted = false,
-                        bool isSameTexture = false);
-
   virtual void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
                                        const CornersQuad& dest, int alpha,
                                        int fadeRange,
