@@ -1832,10 +1832,13 @@ void MapSystemCCLCC::MapDispLine(int id, int partType) {
 
     RectF lineShadowRect(xPos * scaledFactor, yPosShadow * scaledFactor,
                          lineWidth * scaledFactor, 10.0f * scaledFactor);
-    Renderer->DrawSprite(shortenedLine, lineShadowRect, shadowTint, -angle);
+    Renderer->DrawSprite(shortenedLine,
+                         lineShadowRect.Rotate(-angle, lineShadowRect.Center()),
+                         shadowTint);
     RectF lineRect(xPos * scaledFactor, yPos * scaledFactor,
                    lineWidth * scaledFactor, 10.0f * scaledFactor);
-    Renderer->DrawSprite(shortenedLine, lineRect, color, -angle);
+    Renderer->DrawSprite(shortenedLine,
+                         lineRect.Rotate(-angle, lineRect.Center()), color);
   }
 }
 
@@ -2021,8 +2024,7 @@ void MapSystemCCLCC::Render() {
   MapBgSprite.Bounds =
       Rect(static_cast<int>(MapPosX), static_cast<int>(MapPosY),
            static_cast<int>(MapBGWidth), static_cast<int>(MapBGHeight));
-  Renderer->DrawSprite(MapBgSprite, Rect(0, 0, 1920, 1080), glm::vec4{1.0f},
-                       0.0f);
+  Renderer->DrawSprite(MapBgSprite, Rect(0, 0, 1920, 1080));
 
   // Render map parts
   for (int i = 0; i < MapPartsMax; ++i) {
