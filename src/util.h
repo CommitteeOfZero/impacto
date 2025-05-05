@@ -51,22 +51,25 @@ concept is_any_of = std::disjunction_v<std::is_same<T, Ts>...>;
 
 glm::mat2 Rotate2D(float angle);
 
-glm::mat4 Transformation2D(glm::vec2 translation,
-                           glm::vec2 origin = glm::vec2(0.0f),
-                           float rotation = 0.0f,
-                           glm::vec2 scaling = glm::vec2(1.0f));
-glm::mat4 Transformation3D(glm::vec3 translation,
-                           glm::vec3 origin = glm::vec3(0.0f),
-                           glm::quat rotation = glm::quat(),
-                           glm::vec3 scaling = glm::vec3(1.0f));
+glm::mat4 TransformationMatrix(glm::vec2 scalingOrigin, glm::vec2 scaling,
+                               glm::vec2 rotationOrigin = glm::vec2(0.0f),
+                               float rotation = 0.0f,
+                               glm::vec2 translation = glm::vec2(0.0f));
+glm::mat4 TransformationMatrix(glm::vec3 scalingOrigin, glm::vec3 scaling,
+                               glm::vec3 rotationOrigin = glm::vec3(0.0f),
+                               glm::quat rotation = glm::quat(),
+                               glm::vec3 translation = glm::vec3(0.0f));
 
-glm::vec2 Transform2D(glm::vec2 pos, glm::vec2 translation,
-                      glm::vec2 origin = glm::vec2(0.0f), float rotation = 0.0f,
-                      glm::vec2 scaling = glm::vec2(1.0f));
-glm::vec3 Transform3D(glm::vec3 pos, glm::vec3 translation,
-                      glm::vec3 origin = glm::vec3(0.0f),
-                      glm::quat rotation = glm::quat(),
-                      glm::vec2 scaling = glm::vec2(1.0f));
+glm::vec4 TransformVector(glm::vec2 pos, glm::vec2 scalingOrigin,
+                          glm::vec2 scaling,
+                          glm::vec2 rotationOrigin = glm::vec2(0.0f),
+                          float rotation = 0.0f,
+                          glm::vec2 translation = glm::vec2(0.0f));
+glm::vec4 TransformVector(glm::vec3 pos, glm::vec3 scalingOrigin,
+                          glm::vec3 scaling,
+                          glm::vec3 rotationOrigin = glm::vec3(0.0f),
+                          glm::quat rotation = glm::quat(),
+                          glm::vec3 translation = glm::vec3(0.0f));
 
 struct Rect;
 struct CornersQuad;
@@ -142,13 +145,20 @@ struct RectF {
   static RectF Coalesce(const RectF& first, const RectF& second);
 
   CornersQuad Transform(glm::mat4 transformation) const;
+
   RectF& Translate(glm::vec2 offset) { return *this += offset; }
+  RectF& Translate(float dx, float dy) { return Translate({dx, dy}); }
+
   RectF& Scale(glm::vec2 scaling, glm::vec2 origin);
+
   CornersQuad Rotate(float angle, glm::vec2 origin) const;
+  CornersQuad RotateAroundCenter(float angle) const;
   CornersQuad Rotate(glm::quat rotation, glm::vec3 origin) const;
   CornersQuad Rotate(glm::quat rotation, glm::vec3 origin, float depth,
                      glm::vec2 vanishingPoint, bool stayInScreen = false) const;
 };
+
+inline CornersQuad operator*(const glm::mat4 transformation, RectF rect);
 
 struct Rect {
   int X = 0;
@@ -216,9 +226,16 @@ struct CornersQuad {
   }
 
   CornersQuad& Transform(glm::mat4 transformation);
+
   CornersQuad& Translate(glm::vec2 offset);
+  CornersQuad& Translate(float dx, float dy) { return Translate({dx, dy}); }
+
   CornersQuad& Scale(glm::vec2 scaling, glm::vec2 origin);
+
   CornersQuad& Rotate(float angle, glm::vec2 origin);
+  CornersQuad& RotateAroundCenter(float angle) {
+    return Rotate(angle, Center());
+  }
   CornersQuad& Rotate(glm::quat rotation, glm::vec3 origin);
   CornersQuad& Rotate(glm::quat rotation, glm::vec3 origin, float depth,
                       glm::vec2 vanishingPoint, bool stayInScreen = false);

@@ -90,8 +90,7 @@ void Render(glm::vec4 opacityTint) {
       if (MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll)) {
         const CornersQuad arrowsDest =
             AutoSkipArrowsSprite.ScaledBounds()
-                .Rotate(Progress * 2.0f * (float)M_PI,
-                        AutoSkipArrowsSprite.Center())
+                .RotateAroundCenter(Progress * 2.0f * (float)M_PI)
                 .Translate(SkipIconOffset);
         Renderer->DrawSprite(AutoSkipArrowsSprite, arrowsDest, opacityTint);
 

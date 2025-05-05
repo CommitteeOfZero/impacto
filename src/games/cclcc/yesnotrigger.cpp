@@ -298,10 +298,9 @@ void YesNoTrigger::Render() {
     float noChipWidthX = 0.5f * BgSpriteScale * ActiveNoChip->Bounds.Width;
     float noChipWidthY = 0.5f * BgSpriteScale * ActiveNoChip->Bounds.Height;
     if (Selection != YesNoSelect::NONE) {
-      const CornersQuad dest =
-          StarChip.ScaledBounds()
-              .Rotate(StarAngle / 65536.0f, StarChip.Center())
-              .Translate(starPos);
+      const CornersQuad dest = StarChip.ScaledBounds()
+                                   .RotateAroundCenter(StarAngle / 65536.0f)
+                                   .Translate(starPos);
       Renderer->DrawSprite(StarChip, dest, chipTint);
     }
     Renderer->DrawSprite(*ActiveYesChip,

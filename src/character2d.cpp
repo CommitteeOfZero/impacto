@@ -202,8 +202,8 @@ void Character2D::Render(int layer) {
   if (Status != LS_Loaded || !OnLayer(layer) || !Show) return;
 
   if (Profile::CharaIsMvl) {
-    const glm::mat4 transformation = Transformation2D(
-        {OffsetX, OffsetY}, {0.0f, 0.0f}, 0.0f, {ScaleX, ScaleY});
+    const glm::mat4 transformation = TransformationMatrix(
+        {0.0f, 0.0f}, {ScaleX, ScaleY}, {0.0f, 0.0f}, 0.0f, {OffsetX, OffsetY});
     Renderer->DrawCharacterMvl(CharaSprite, MvlVertices,
                                std::span(MvlIndices.begin(), MvlIndicesCount),
                                transformation, Tint);

@@ -124,10 +124,9 @@ void AlbumMenu::Render() {
     if (MenuTransition.Progress > 0.34f) {
       Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
 
-      const CornersQuad titleDest =
-          AlbumMenuTitle.ScaledBounds()
-              .Rotate(AlbumMenuTitleAngle, AlbumMenuTitle.Center())
-              .Translate(RightTitlePos);
+      const CornersQuad titleDest = AlbumMenuTitle.ScaledBounds()
+                                        .RotateAroundCenter(AlbumMenuTitleAngle)
+                                        .Translate(RightTitlePos);
       Renderer->DrawSprite(AlbumMenuTitle, titleDest);
     }
 
