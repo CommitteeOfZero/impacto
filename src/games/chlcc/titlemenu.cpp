@@ -449,8 +449,8 @@ inline void TitleMenu::DrawTitleMenuBackGraphics() {
 
   const CornersQuad spinningCircleDest =
       SpinningCircleSprite.ScaledBounds()
-          .Rotate(-SpinningCircleAnimation.Progress * 2.0f * (float)M_PI,
-                  SpinningCircleSprite.Center())
+          .RotateAroundCenter(-SpinningCircleAnimation.Progress * 2.0f *
+                              (float)M_PI)
           .Translate({SpinningCircleX, SpinningCircleY});
   Renderer->DrawSprite(SpinningCircleSprite, spinningCircleDest);
 

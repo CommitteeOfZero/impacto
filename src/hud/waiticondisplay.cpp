@@ -149,8 +149,7 @@ void Render(glm::vec2 pos, glm::vec4 opacityTint, DialoguePageMode mode) {
 
       const CornersQuad dest =
           WaitIconSprite.ScaledBounds()
-              .Rotate(SimpleAnim.Progress * 2.0f * (float)M_PI,
-                      WaitIconSprite.Center())
+              .RotateAroundCenter(SimpleAnim.Progress * 2.0f * (float)M_PI)
               .Translate(pos + WaitIconOffset);
       Renderer->DrawSprite(WaitIconSprite, dest, opacityTint);
 

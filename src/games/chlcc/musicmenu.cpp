@@ -115,7 +115,7 @@ void MusicMenu::Render() {
 
       const CornersQuad titleDest =
           SoundLibraryTitle.ScaledBounds()
-              .Rotate(SoundLibraryTitleAngle, SoundLibraryTitle.Center())
+              .RotateAroundCenter(SoundLibraryTitleAngle)
               .Translate(RightTitlePos);
       Renderer->DrawSprite(SoundLibraryTitle, titleDest);
     }

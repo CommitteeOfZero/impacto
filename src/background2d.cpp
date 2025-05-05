@@ -228,8 +228,8 @@ void Background2D::RenderBgEff(int bgId, int layer) {
 
   // Transform vertices
   const glm::mat4 transformation =
-      Transformation3D(glm::vec3(DisplayCoords, 0.0f), glm::vec3(Origin, 0.0f),
-                       Rotation, glm::vec3(Scale, 1.0f));
+      TransformationMatrix({Origin, 0.0f}, {Scale, 1.0f}, {Origin, 0.0f},
+                           Rotation, {DisplayCoords, 0.0f});
   std::transform(vertices.begin(), vertices.end(), vertices.begin(),
                  [transformation](const glm::vec2 vertex) {
                    return transformation * glm::vec4(vertex, 0.0f, 1.0f);
@@ -254,15 +254,17 @@ void Background2D::RenderBgEff(int bgId, int layer) {
 }
 
 void Background2D::RenderRegular() {
-  glm::mat4 transformation = Transformation3D(
-      {DisplayCoords, 0.0f}, {Origin, 0.0f}, Rotation, {Scale, 1.0f});
+  const glm::mat4 transformation =
+      TransformationMatrix({Origin, 0.0f}, {Scale, 1.0f}, {Origin, 0.0f},
+                           Rotation, {DisplayCoords, 0.0f});
   Renderer->DrawSprite(BgSprite, transformation, Tint, false);
 
   for (int i = 0; i < MaxLinkedBgBuffers; i++) {
     if (Links[i].Direction != LD_Off && Links[i].LinkedBuffer != NULL) {
-      glm::mat4 transformation =
-          Transformation3D({Links[i].DisplayCoords, 0.0f}, {Origin, 0.0f},
-                           Rotation, {Scale, 1.0f});
+      const glm::mat4 linkTransformation =
+          transformation *
+          glm::translate(glm::mat4(1.0f), {Links[i].DisplayCoords, 0.0f});
+
       Renderer->DrawSprite(Links[i].LinkedBuffer->BgSprite, transformation,
                            Tint, false);
     }
@@ -270,8 +272,9 @@ void Background2D::RenderRegular() {
 }
 
 void Background2D::RenderMasked() {
-  const glm::mat4 transformation = Transformation3D(
-      {DisplayCoords, 0.0f}, {Origin, 0.0f}, Rotation, {Scale, 1.0f});
+  const glm::mat4 transformation =
+      TransformationMatrix({Origin, 0.0f}, {Scale, 1.0f}, {Origin, 0.0f},
+                           Rotation, {DisplayCoords, 0.0f});
 
   Renderer->DrawMaskedSprite(BgSprite, Masks2D[MaskNumber].MaskSprite,
                              FadeCount, FadeRange, transformation, Tint, false,
@@ -279,8 +282,9 @@ void Background2D::RenderMasked() {
 }
 
 void Background2D::RenderMaskedInverted() {
-  const glm::mat4 transformation = Transformation3D(
-      {DisplayCoords, 0.0f}, {Origin, 0.0f}, Rotation, {Scale, 1.0f});
+  const glm::mat4 transformation =
+      TransformationMatrix({Origin, 0.0f}, {Scale, 1.0f}, {Origin, 0.0f},
+                           Rotation, {DisplayCoords, 0.0f});
   Renderer->DrawMaskedSprite(BgSprite, Masks2D[MaskNumber].MaskSprite,
                              FadeCount, FadeRange, transformation, Tint, true,
                              false);

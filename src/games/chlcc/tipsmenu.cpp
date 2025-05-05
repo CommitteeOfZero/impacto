@@ -81,10 +81,9 @@ void TipsMenu::Render() {
   if (MenuTransition.Progress > 0.34f) {
     Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
 
-    const CornersQuad titleDest =
-        MenuTitleText.ScaledBounds()
-            .Rotate(MenuTitleTextAngle, MenuTitleText.Center())
-            .Translate(RightTitlePos);
+    const CornersQuad titleDest = MenuTitleText.ScaledBounds()
+                                      .RotateAroundCenter(MenuTitleTextAngle)
+                                      .Translate(RightTitlePos);
     Renderer->DrawSprite(MenuTitleText, titleDest);
   }
 

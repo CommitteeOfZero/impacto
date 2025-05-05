@@ -129,6 +129,10 @@ CornersQuad RectF::Rotate(float angle, glm::vec2 origin) const {
   return CornersQuad(*this).Rotate(angle, origin);
 }
 
+CornersQuad RectF::RotateAroundCenter(float angle) const {
+  return Rotate(angle, Center());
+}
+
 CornersQuad RectF::Rotate(glm::quat rotation, glm::vec3 origin) const {
   return CornersQuad(*this).Rotate(rotation, origin);
 }
@@ -138,6 +142,10 @@ CornersQuad RectF::Rotate(const glm::quat rotation, const glm::vec3 origin,
                           const bool stayInScreen) const {
   return CornersQuad(*this).Rotate(rotation, origin, depth, vanishingPoint,
                                    stayInScreen);
+}
+
+inline CornersQuad operator*(const glm::mat4 transformation, RectF rect) {
+  return rect.Transform(transformation);
 }
 
 glm::mat2 Rotate2D(float angle) {
@@ -151,43 +159,61 @@ glm::mat2 Rotate2D(float angle) {
   return result;
 }
 
-glm::mat4 Transformation2D(const glm::vec2 translation, const glm::vec2 origin,
-                           const float rotation, const glm::vec2 scaling) {
-  return Transformation3D({translation, 0.0f}, {origin, 0.0f},
-                          AxisAngleToQuaternion({0.0f, 0.0f, 1.0f}, rotation),
-                          {scaling, 1.0f});
+glm::mat4 TransformationMatrix(const glm::vec2 scalingOrigin,
+                               const glm::vec2 scaling,
+                               const glm::vec2 rotationOrigin,
+                               const float rotation,
+                               const glm::vec2 translation) {
+  return TransformationMatrix(
+      {scalingOrigin, 0.0f}, {scaling, 1.0f}, {rotationOrigin, 0.0f},
+      AxisAngleToQuaternion({0.0f, 0.0f, 1.0f}, rotation), {translation, 0.0f});
 }
 
-glm::mat4 Transformation3D(const glm::vec3 translation, const glm::vec3 origin,
-                           const glm::quat rotation, const glm::vec3 scaling) {
+glm::mat4 TransformationMatrix(const glm::vec3 scalingOrigin,
+                               const glm::vec3 scaling,
+                               const glm::vec3 rotationOrigin,
+                               const glm::quat rotation,
+                               const glm::vec3 translation) {
   glm::mat4 matrix(1.0f);
 
-  if (origin != glm::vec3(0.0f))
-    matrix = glm::translate(glm::mat4(1.0f), -origin) * matrix;
+  if (scalingOrigin != glm::vec3(0.0f))
+    matrix = glm::translate(glm::mat4(1.0f), -scalingOrigin) * matrix;
 
-  if (scaling != glm::vec3(0.0f))
+  if (scaling != glm::vec3(1.0f))
     matrix = glm::scale(glm::mat4(1.0f), scaling) * matrix;
+
+  if (scalingOrigin - rotationOrigin != glm::vec3(0.0f)) {
+    matrix = glm::translate(glm::mat4(1.0f), scalingOrigin - rotationOrigin) *
+             matrix;
+  }
 
   if (rotation != glm::quat())
     matrix = glm::mat4_cast(normalize(rotation)) * matrix;
 
-  if (origin + translation != glm::vec3(0.0f))
-    matrix = glm::translate(glm::mat4(1.0f), origin + translation) * matrix;
+  if (rotationOrigin + translation != glm::vec3(0.0f)) {
+    matrix =
+        glm::translate(glm::mat4(1.0f), rotationOrigin + translation) * matrix;
+  }
 
   return matrix;
 }
 
-glm::vec2 Transform2D(const glm::vec2 pos, const glm::vec2 translation,
-                      const glm::vec2 origin, const float rotation,
-                      const glm::vec2 scaling) {
-  return Transformation2D(translation, origin, rotation, scaling) *
+glm::vec4 TransformVector(const glm::vec2 pos, const glm::vec2 scalingOrigin,
+                          const glm::vec2 scaling,
+                          const glm::vec2 rotationOrigin, const float rotation,
+                          const glm::vec2 translation) {
+  return TransformationMatrix(scalingOrigin, scaling, rotationOrigin, rotation,
+                              translation) *
          glm::vec4(pos, 0.0f, 1.0f);
 }
 
-glm::vec3 Transform3D(const glm::vec3 pos, const glm::vec3 translation,
-                      const glm::vec3 origin, const glm::quat rotation,
-                      const glm::vec3 scaling) {
-  return Transformation3D(translation, origin, rotation, scaling) *
+glm::vec4 TransformVector(const glm::vec3 pos, const glm::vec3 scalingOrigin,
+                          const glm::vec3 scaling,
+                          const glm::vec3 rotationOrigin,
+                          const glm::quat rotation,
+                          const glm::vec3 translation) {
+  return TransformationMatrix(scalingOrigin, scaling, rotationOrigin, rotation,
+                              translation) *
          glm::vec4(pos, 1.0f);
 }
 
