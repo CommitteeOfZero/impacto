@@ -1421,15 +1421,15 @@ void MapSystemCCLCC::MapDispPhoto(int id, int photoGroupId) {
     // Shadow
     const glm::vec2 shadowPos = {(xOffset + 82 + 3) * scaledFactor - 82,
                                  (yOffset + 10 + 3) * scaledFactor - 10};
-    const glm::mat4 shadowTransformation =
-        Transformation2D(shadowPos, {82, 10}, angle, {shadowZoom, shadowZoom});
+    const glm::mat4 shadowTransformation = TransformationMatrix(
+        {82, 10}, {shadowZoom, shadowZoom}, {82, 10}, angle, shadowPos);
     Renderer->DrawSprite(displayedSprite, shadowTransformation,
                          {0.0f, 0.0f, 0.0f, (alpha / 2) / 256.0f});
 
     // Photo
     const glm::mat4 photoTransformation =
-        Transformation2D({scaledPosOffsetX - 82, scaledPosOffsetY - 10},
-                         {82, 10}, angle, {zoomMulti, zoomMulti});
+        TransformationMatrix({82, 10}, {zoomMulti, zoomMulti}, {82, 10}, angle,
+                             {scaledPosOffsetX - 82, scaledPosOffsetY - 10});
     Renderer->DrawSprite(displayedSprite, photoTransformation,
                          {1.0f, 1.0f, 1.0f, alpha / 256.0f});
   }
@@ -1499,23 +1499,24 @@ void MapSystemCCLCC::MapPoolDispPhoto(int poolId) {
           (MapPoolCurCt[poolId] * 50.0f / 16.0f + 78.0f) * 2;
 
       // HoverTag Tag
-      const glm::mat4 transformation = Transformation2D(
-          {scaledPosOffsetX - selectedTagXOffset, scaledPosOffsetY - 18},
-          {selectedTagXOffset, 11}, angle, glm::vec2(zoomMulti / 2.0f));
+      const glm::vec2 origin = {selectedTagXOffset, 11};
+      const glm::mat4 transformation = TransformationMatrix(
+          origin, glm::vec2(zoomMulti / 2.0f), origin, angle,
+          {scaledPosOffsetX - selectedTagXOffset, scaledPosOffsetY - 18});
       Renderer->DrawSprite(SelectedMapPoolTagSprite, transformation,
                            {1.0f, 1.0f, 1.0f, alpha / 256.0f});
     }
     // Shadow
     const glm::mat4 shadowTransformation =
-        Transformation2D({(xOffset + 82 + 3) * scaledFactor - 82,
-                          (yOffset + 10 + 3) * scaledFactor - 10},
-                         {82, 10}, angle, glm::vec2(shadowZoom));
+        TransformationMatrix({82, 10}, glm::vec2(shadowZoom), {82, 10}, angle,
+                             {(xOffset + 82 + 3) * scaledFactor - 82,
+                              (yOffset + 10 + 3) * scaledFactor - 10});
     Renderer->DrawSprite(displayedSprite, shadowTransformation,
                          {0.0f, 0.0f, 0.0f, (alpha >> 1) / 256.0f});
     // Photo
     const glm::mat4 photoTransformation =
-        Transformation2D({scaledPosOffsetX - 82, scaledPosOffsetY - 10},
-                         {82, 10}, angle, glm::vec2(zoomMulti));
+        TransformationMatrix({82, 10}, glm::vec2(zoomMulti), {82, 10}, angle,
+                             {scaledPosOffsetX - 82, scaledPosOffsetY - 10});
     Renderer->DrawSprite(displayedSprite, photoTransformation,
                          {1.0f, 1.0f, 1.0f, alpha / 256.0f});
     if (!MapPool[poolId].button.Enabled) {
@@ -1697,15 +1698,15 @@ void MapSystemCCLCC::MapDispArticle(int id) {
     float displayPhotoY = scaledPosOffsetY - 16;
 
     // Shadow
-    const glm::mat4 shadowTransformation =
-        Transformation2D({displayShadowPhotoX, displayShadowPhotoY}, {166, 16},
-                         angle, glm::vec2(shadowZoom * 0.5 * scaledFactor));
+    const glm::mat4 shadowTransformation = TransformationMatrix(
+        {166, 16}, glm::vec2(shadowZoom * 0.5 * scaledFactor), {166, 16}, angle,
+        {displayShadowPhotoX, displayShadowPhotoY});
     Renderer->DrawSprite(MapPartsArticleSprites[partId], shadowTransformation,
                          {0.0f, 0.0f, 0.0f, (alpha >> 1) / 256.0f});
     // Photo
-    const glm::mat4 photoTransformation =
-        Transformation2D({displayPhotoX, displayPhotoY}, {166, 16}, angle,
-                         glm::vec2(zoomMulti * 0.5 * scaledFactor));
+    const glm::mat4 photoTransformation = TransformationMatrix(
+        {166, 16}, glm::vec2(zoomMulti * 0.5 * scaledFactor), {166, 16}, angle,
+        {displayPhotoX, displayPhotoY});
     Renderer->DrawSprite(MapPartsArticleSprites[partId], photoTransformation);
   }
 }
@@ -1750,9 +1751,9 @@ void MapSystemCCLCC::MapDispTag(int id) {
     float shadowScaledPosOffsetX = (xOffset + 2.0f + 46.0f) * scaledFactor;
     float shadowScaledPosOffsetY = (yOffset + 2.0f + 16.0f) * scaledFactor;
     // Shadow
-    const glm::mat4 shadowTransformation = Transformation2D(
-        {shadowScaledPosOffsetX - 46.0f, shadowScaledPosOffsetY - 16.0f},
-        {46, 16}, angle, glm::vec2(shadowZoom));
+    const glm::mat4 shadowTransformation = TransformationMatrix(
+        {46, 16}, glm::vec2(shadowZoom), {46, 16}, angle,
+        {shadowScaledPosOffsetX - 46.0f, shadowScaledPosOffsetY - 16.0f});
     Renderer->DrawSprite(displayedSprite, shadowTransformation,
                          {0.0f, 0.0f, 0.0f, (alpha >> 1) / 256.0f});
 
@@ -1760,8 +1761,8 @@ void MapSystemCCLCC::MapDispTag(int id) {
     const glm::vec2 scaledPosOffset =
         glm::vec2(xOffset + 46.0f, yOffset + 16.0f) * scaledFactor;
     const glm::mat4 tagTransformation =
-        Transformation2D(scaledPosOffset - glm::vec2(46.0f, 16.0f), {46, 16},
-                         angle, {zoomMulti, zoomMulti});
+        TransformationMatrix({46, 16}, {zoomMulti, zoomMulti}, {46, 16}, angle,
+                             scaledPosOffset - glm::vec2(46.0f, 16.0f));
     Renderer->DrawSprite(displayedSprite, tagTransformation,
                          {1.0f, 1.0f, 1.0f, alpha / 256.0f});
   }
@@ -1829,12 +1830,11 @@ void MapSystemCCLCC::MapDispLine(int id, int partType) {
     RectF lineShadowRect(xPos * scaledFactor, yPosShadow * scaledFactor,
                          lineWidth * scaledFactor, 10.0f * scaledFactor);
     Renderer->DrawSprite(shortenedLine,
-                         lineShadowRect.Rotate(-angle, lineShadowRect.Center()),
-                         shadowTint);
+                         lineShadowRect.RotateAroundCenter(-angle), shadowTint);
     RectF lineRect(xPos * scaledFactor, yPos * scaledFactor,
                    lineWidth * scaledFactor, 10.0f * scaledFactor);
-    Renderer->DrawSprite(shortenedLine,
-                         lineRect.Rotate(-angle, lineRect.Center()), color);
+    Renderer->DrawSprite(shortenedLine, lineRect.RotateAroundCenter(-angle),
+                         color);
   }
 }
 
