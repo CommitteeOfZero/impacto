@@ -86,7 +86,7 @@ class Renderer : public BaseRenderer {
   void EnsureShader(Shader* shader, bool flush = true);
   void Flush() override;
 
-  glm::vec2 DesignToNDC(glm::vec2 designCoord) const;
+  glm::vec2 DesignToNDC(glm::vec2 designCoord) const override;
 
   DirectX9Window* DXWindow;
 
