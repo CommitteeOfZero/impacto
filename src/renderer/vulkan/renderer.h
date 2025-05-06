@@ -136,7 +136,7 @@ class Renderer : public BaseRenderer {
 
   void MakeQuad();
 
-  glm::vec2 DesignToNDC(glm::vec2 designCoord) const;
+  glm::vec2 DesignToNDC(glm::vec2 designCoord) const override;
 
   bool Drawing = false;
 
