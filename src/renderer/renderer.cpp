@@ -42,15 +42,17 @@ void InitRenderer() {
 
 void BaseRenderer::DrawSprite(const Sprite& sprite,
                               const glm::mat4 transformation,
-                              const glm::vec4 tint, const bool inverted) {
+                              const glm::vec4 tint, const bool inverted,
+                              const bool disableBlend) {
   const CornersQuad dest = sprite.ScaledBounds().Transform(transformation);
-  DrawSprite(sprite, dest, tint, inverted);
+  DrawSprite(sprite, dest, tint, inverted, disableBlend);
 }
 
 void BaseRenderer::DrawSprite(const Sprite& sprite, const glm::vec2 topLeft,
-                              const glm::vec4 tint, const bool inverted) {
+                              const glm::vec4 tint, const bool inverted,
+                              const bool disableBlend) {
   const CornersQuad dest = sprite.ScaledBounds().Translate(topLeft);
-  DrawSprite(sprite, dest, tint, inverted);
+  DrawSprite(sprite, dest, tint, inverted, disableBlend);
 }
 
 void BaseRenderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
@@ -89,6 +91,104 @@ void BaseRenderer::DrawMaskedSpriteOverlay(
   const RectF dest = sprite.ScaledBounds().Translate(topLeft);
   DrawMaskedSpriteOverlay(sprite, mask, dest, alpha, fadeRange, tint,
                           isInverted, useMaskAlpha);
+}
+
+void BaseRenderer::DrawVertices(
+    const SpriteSheet& sheet,
+    const std::span<const VertexBufferSprites> vertices,
+    const std::span<const uint16_t> indices, const glm::mat4 transformation,
+    const bool inverted) {
+  std::vector<VertexBufferSprites> transformedVertices;
+  transformedVertices.resize(vertices.size());
+
+  const auto transform = [transformation](VertexBufferSprites info) {
+    info.Position = transformation * glm::vec4(info.Position, 0.0f, 1.0f);
+    return info;
+  };
+  std::transform(vertices.begin(), vertices.end(), transformedVertices.begin(),
+                 transform);
+
+  DrawVertices(sheet, transformedVertices, indices, inverted);
+}
+
+void BaseRenderer::DrawVertices(
+    const SpriteSheet& sheet,
+    const std::span<const VertexBufferSprites> vertices,
+    const std::span<const uint16_t> indices, const glm::vec2 offset,
+    const bool inverted) {
+  std::vector<VertexBufferSprites> transformedVertices;
+  transformedVertices.resize(vertices.size());
+
+  const auto transform = [offset](VertexBufferSprites info) {
+    info.Position += offset;
+    return info;
+  };
+  std::transform(vertices.begin(), vertices.end(), transformedVertices.begin(),
+                 transform);
+
+  DrawVertices(sheet, transformedVertices, indices, inverted);
+}
+
+void BaseRenderer::DrawVertices(
+    const SpriteSheet& sheet,
+    const std::span<const VertexBufferSprites> vertices, const int width,
+    const int height, const bool inverted) {
+  // Generate indices for triangles
+  std::vector<uint16_t> indices;
+  indices.reserve((width - 1) * (height - 1) * 6);
+  for (int y = 0; y < height - 1; y++) {
+    for (int x = 0; x < width - 1; x++) {
+      int v0 = y * width + x;
+      int v1 = y * width + (x + 1);
+      int v2 = (y + 1) * width + x;
+      int v3 = (y + 1) * width + (x + 1);
+
+      // First triangle
+      for (auto v : {v1, v0, v2}) {
+        indices.push_back(v);
+      }
+      // Second triangle
+      for (auto v : {v3, v1, v2}) {
+        indices.push_back(v);
+      }
+    }
+  }
+
+  DrawVertices(sheet, vertices, indices, inverted);
+}
+
+void BaseRenderer::DrawVertices(
+    const SpriteSheet& sheet,
+    const std::span<const VertexBufferSprites> vertices, const int width,
+    const int height, const glm::mat4 transformation, const bool inverted) {
+  std::vector<VertexBufferSprites> transformedVertices;
+  transformedVertices.resize(vertices.size());
+
+  const auto transform = [transformation](VertexBufferSprites info) {
+    info.Position = transformation * glm::vec4(info.Position, 0.0f, 1.0f);
+    return info;
+  };
+  std::transform(vertices.begin(), vertices.end(), transformedVertices.begin(),
+                 transform);
+
+  DrawVertices(sheet, transformedVertices, width, height, inverted);
+}
+
+void BaseRenderer::DrawVertices(
+    const SpriteSheet& sheet,
+    const std::span<const VertexBufferSprites> vertices, const int width,
+    const int height, const glm::vec2 offset, const bool inverted) {
+  std::vector<VertexBufferSprites> transformedVertices;
+  transformedVertices.resize(vertices.size());
+
+  const auto transform = [offset](VertexBufferSprites info) {
+    info.Position += offset;
+    return info;
+  };
+  std::transform(vertices.begin(), vertices.end(), transformedVertices.begin(),
+                 transform);
+
+  DrawVertices(sheet, transformedVertices, width, height, inverted);
 }
 
 void BaseRenderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
@@ -139,41 +239,6 @@ void BaseRenderer::DrawProcessedText(std::span<const ProcessedTextGlyph> text,
                                maskedSheet);
     }
   }
-}
-
-void BaseRenderer::DrawCharacterMvl(const Sprite& sprite,
-                                    const std::span<const float> vertices,
-                                    const std::span<const uint16_t> indices,
-                                    glm::mat4 transformation, glm::vec4 tint,
-                                    bool inverted) {
-  std::vector<float> transformedVertices(vertices.begin(), vertices.end());
-
-  const size_t vertexCount = vertices.size() / 5;
-  for (size_t i = 0; i < vertexCount; i++) {
-    const glm::vec2 pos =
-        transformation *
-        glm::vec4(vertices[i * 5], vertices[i * 5 + 1], 0.0f, 1.0f);
-    transformedVertices[i * 5] = pos.x;
-    transformedVertices[i * 5 + 1] = pos.y;
-  }
-
-  DrawCharacterMvl(sprite, transformedVertices, indices, tint, inverted);
-}
-
-void BaseRenderer::DrawCharacterMvl(const Sprite& sprite,
-                                    std::span<const float> vertices,
-                                    std::span<const uint16_t> indices,
-                                    const glm::vec2 offset,
-                                    const glm::vec4 tint, const bool inverted) {
-  std::vector<float> transformedVertices(vertices.begin(), vertices.end());
-
-  const size_t vertexCount = vertices.size() / 5;
-  for (size_t i = 0; i < vertexCount; i++) {
-    transformedVertices[i * 5] += offset.x;
-    transformedVertices[i * 5 + 1] += offset.y;
-  }
-
-  DrawCharacterMvl(sprite, transformedVertices, indices, tint, inverted);
 }
 
 void BaseRenderer::DrawProcessedText_BasicFont(

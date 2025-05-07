@@ -35,19 +35,17 @@ class Renderer : public BaseRenderer {
   YUVFrame* CreateYUVFrame(float width, float height) override;
 
   void DrawSprite(const Sprite& sprite, const CornersQuad& dest,
-                  std::span<const glm::vec4, 4> tints,
-                  const bool inverted) override;
+                  std::span<const glm::vec4, 4> tints, bool inverted,
+                  bool disableBlend) override;
 
   void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
                         const CornersQuad& dest, int alpha, int fadeRange,
                         std::span<const glm::vec4, 4> tints, bool isInverted,
                         bool isSameTexture);
 
-  void DrawVertices(SpriteSheet const& sheet,
-                    std::span<const glm::vec2> sheetPositions,
-                    std::span<const glm::vec2> displayPositions, int width,
-                    int height, glm::vec4 tint = glm::vec4(1.0),
-                    bool inverted = false, bool disableBlend = false) override;
+  void DrawVertices(const SpriteSheet& sheet,
+                    std::span<const VertexBufferSprites> vertices,
+                    std::span<const uint16_t> indices, bool inverted) override;
 
   void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                         RectF const& dest, glm::vec4 tint, int alpha,
@@ -61,10 +59,6 @@ class Renderer : public BaseRenderer {
 
   void DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
                                const RectF& dest, float alpha) override;
-
-  void DrawCharacterMvl(const Sprite& sprite, std::span<const float> vertices,
-                        std::span<const uint16_t> indices, glm::vec4 tint,
-                        bool inverted) override;
 
   void DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
                         glm::vec4 tint, bool alphaVideo) override;
