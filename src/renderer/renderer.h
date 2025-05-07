@@ -17,6 +17,13 @@ enum class RendererOutlineMode { None, BottomRight, Full };
 
 constexpr inline int MaxFramebuffers = 10;
 
+struct VertexBufferSprites {
+  glm::vec2 Position;
+  glm::vec2 UV;
+  glm::vec4 Tint;
+  glm::vec2 MaskUV;
+};
+
 class BaseRenderer {
  public:
   virtual void Init() = 0;
@@ -46,16 +53,19 @@ class BaseRenderer {
 
   virtual void DrawSprite(const Sprite& sprite, const CornersQuad& dest,
                           std::span<const glm::vec4, 4> tints,
-                          bool inverted = false) = 0;
+                          bool inverted = false, bool disableBlend = false) = 0;
   void DrawSprite(const Sprite& sprite, const CornersQuad& dest,
-                  glm::vec4 tint = glm::vec4(1.0f), bool inverted = false) {
+                  glm::vec4 tint = glm::vec4(1.0f), bool inverted = false,
+                  bool disableBlend = false) {
     DrawSprite(sprite, dest, std::array<glm::vec4, 4>{tint, tint, tint, tint},
-               inverted);
+               inverted, disableBlend);
   }
   void DrawSprite(const Sprite& sprite, glm::mat4 transformation,
-                  glm::vec4 tint = glm::vec4(1.0f), bool inverted = false);
+                  glm::vec4 tint = glm::vec4(1.0f), bool inverted = false,
+                  bool disableBlend = false);
   void DrawSprite(const Sprite& sprite, glm::vec2 topLeft,
-                  glm::vec4 tint = glm::vec4(1.0f), bool inverted = false);
+                  glm::vec4 tint = glm::vec4(1.0f), bool inverted = false,
+                  bool disableBlend = false);
 
   virtual void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
                                 const CornersQuad& dest, int alpha,
@@ -107,13 +117,29 @@ class BaseRenderer {
                                bool isInverted = false,
                                bool useMaskAlpha = true);
 
-  virtual void DrawVertices(SpriteSheet const& sheet,
-                            std::span<const glm::vec2> sheetPositions,
-                            std::span<const glm::vec2> displayPositions,
-                            int width, int height,
-                            glm::vec4 tint = glm::vec4(1.0),
-                            bool inverted = false,
-                            bool disableBlend = false) = 0;
+  virtual void DrawVertices(const SpriteSheet& sheet,
+                            std::span<const VertexBufferSprites> vertices,
+                            std::span<const uint16_t> indices,
+                            bool inverted = false) = 0;
+  void DrawVertices(const SpriteSheet& sheet,
+                    std::span<const VertexBufferSprites> vertices,
+                    std::span<const uint16_t> indices, glm::mat4 transformation,
+                    bool inverted = false);
+  void DrawVertices(const SpriteSheet& sheet,
+                    std::span<const VertexBufferSprites> vertices,
+                    std::span<const uint16_t> indices, glm::vec2 offset,
+                    bool inverted = false);
+
+  void DrawVertices(const SpriteSheet& sheet,
+                    std::span<const VertexBufferSprites> vertices, int width,
+                    int height, bool inverted = false);
+  void DrawVertices(const SpriteSheet& sheet,
+                    std::span<const VertexBufferSprites> vertices, int width,
+                    int height, glm::mat4 transformation,
+                    bool inverted = false);
+  void DrawVertices(const SpriteSheet& sheet,
+                    std::span<const VertexBufferSprites> vertices, int width,
+                    int height, glm::vec2 offset, bool inverted = false);
 
   void DrawQuad(const CornersQuad& dest, glm::vec4 color);
 
@@ -152,21 +178,6 @@ class BaseRenderer {
       RendererOutlineMode outlineMode = RendererOutlineMode::None,
       bool smoothstepGlyphOpacity = true, SpriteSheet* maskedSheet = 0);
 
-  virtual void DrawCharacterMvl(const Sprite& sprite,
-                                std::span<const float> vertices,
-                                std::span<const uint16_t> indices,
-                                glm::vec4 tint = glm::vec4(1.0f),
-                                bool inverted = false) = 0;
-  void DrawCharacterMvl(const Sprite& sprite, std::span<const float> vertices,
-                        std::span<const uint16_t> indices,
-                        glm::mat4 transformation,
-                        glm::vec4 tint = glm::vec4(1.0f),
-                        bool inverted = false);
-  void DrawCharacterMvl(const Sprite& sprite, std::span<const float> vertices,
-                        std::span<const uint16_t> indices, glm::vec2 offset,
-                        glm::vec4 tint = glm::vec4(1.0f),
-                        bool inverted = false);
-
   virtual void DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
                                 glm::vec4 tint, bool alphaVideo = false) = 0;
 
@@ -185,13 +196,6 @@ class BaseRenderer {
 
  protected:
   virtual void Flush() = 0;
-
-  struct VertexBufferSprites {
-    glm::vec2 Position;
-    glm::vec2 UV;
-    glm::vec4 Tint;
-    glm::vec2 MaskUV;
-  };
 
   static void QuadSetUV(CornersQuad spriteBounds, glm::vec2 designDimensions,
                         glm::vec2* uvs, size_t stride);
