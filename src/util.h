@@ -150,6 +150,9 @@ struct RectF {
   RectF& Translate(float dx, float dy) { return Translate({dx, dy}); }
 
   RectF& Scale(glm::vec2 scaling, glm::vec2 origin);
+  RectF& ScaleAroundCenter(glm::vec2 scaling, glm::vec2 origin) {
+    return Scale(scaling, Center());
+  }
 
   CornersQuad Rotate(float angle, glm::vec2 origin) const;
   CornersQuad RotateAroundCenter(float angle) const;
@@ -231,6 +234,9 @@ struct CornersQuad {
   CornersQuad& Translate(float dx, float dy) { return Translate({dx, dy}); }
 
   CornersQuad& Scale(glm::vec2 scaling, glm::vec2 origin);
+  CornersQuad& ScaleAroundCenter(glm::vec2 scaling, glm::vec2 origin) {
+    return Scale(scaling, Center());
+  }
 
   CornersQuad& Rotate(float angle, glm::vec2 origin);
   CornersQuad& RotateAroundCenter(float angle) {
