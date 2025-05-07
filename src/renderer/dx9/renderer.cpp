@@ -263,67 +263,9 @@ YUVFrame* Renderer::CreateYUVFrame(float width, float height) {
   return (YUVFrame*)VideoFrameInternal;
 }
 
-void Renderer::DrawCharacterMvl(const Sprite& sprite,
-                                const std::span<const float> mvlVertices,
-                                const std::span<const uint16_t> mvlIndices,
-                                const glm::vec4 tint, const bool inverted) {
-  if (!Drawing) {
-    ImpLog(LogLevel::Error, LogChannel::Render,
-           "Renderer->DrawCharacterMvl() called before BeginFrame()\n");
-    return;
-  }
-
-  // Draw just the character with this since we need to rebind the index buffer
-  // anyway...
-  Flush();
-
-  // Are we in sprite mode?
-  if (inverted)
-    EnsureShader(ShaderSpriteInverted);
-  else
-    EnsureShader(ShaderSprite);
-
-  // Do we have the texture assigned?
-  EnsureTextureBound(sprite.Sheet.Texture);
-
-  const size_t vertexCount = mvlVertices.size() / 5;
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
-  VertexBufferFill += vertexCount * sizeof(VertexBufferSprites);
-
-  IndexBufferFill += mvlIndices.size();
-
-  std::copy(mvlIndices.begin(), mvlIndices.end(), IndexBuffer);
-
-  for (int i = 0; i < vertexCount; i++) {
-    vertices[i].Position =
-        DesignToNDC({mvlVertices[i * 5], mvlVertices[i * 5 + 1]});
-    vertices[i].UV = {mvlVertices[i * 5 + 3], mvlVertices[i * 5 + 4]};
-    vertices[i].Tint = tint;
-  }
-
-  Flush();
-
-  // ReFill index buffer with quads
-  int index = 0;
-  int vertex = 0;
-  while (index + 6 <= IndexBufferCount) {
-    // bottom-left -> top-left -> top-right
-    IndexBuffer[index] = vertex + 0;
-    IndexBuffer[index + 1] = vertex + 1;
-    IndexBuffer[index + 2] = vertex + 2;
-    // bottom-left -> top-right -> bottom-right
-    IndexBuffer[index + 3] = vertex + 0;
-    IndexBuffer[index + 4] = vertex + 2;
-    IndexBuffer[index + 5] = vertex + 3;
-    index += 6;
-    vertex += 4;
-  }
-}
-
 void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
                           const std::span<const glm::vec4, 4> tints,
-                          const bool inverted) {
+                          const bool inverted, const bool disableBlend) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawSprite() called before BeginFrame()\n");
@@ -469,74 +411,44 @@ void Renderer::DrawMaskedSpriteOverlay(
   for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
 }
 
-void Renderer::DrawVertices(SpriteSheet const& sheet,
-                            std::span<const glm::vec2> sheetPositions,
-                            std::span<const glm::vec2> displayPositions,
-                            int width, int height, glm::vec4 tint,
-                            bool inverted, bool disableBlend) {
+void Renderer::DrawVertices(const SpriteSheet& sheet,
+                            const std::span<const VertexBufferSprites> vertices,
+                            const std::span<const uint16_t> indices,
+                            const bool inverted) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
-           "Renderer->DrawSprite() called before BeginFrame()\n");
-    return;
-  }
-  const int verticesCount = sheetPositions.size();
-  if (verticesCount != displayPositions.size()) {
-    ImpLog(LogLevel::Error, LogChannel::Render,
-           "Renderer->DrawVertices() called with mismatched vertices count\n");
+           "Renderer->DrawVertices() called before BeginFrame()\n");
     return;
   }
 
-  EnsureSpaceAvailable(verticesCount, sizeof(VertexBufferSprites),
-                       verticesCount * 3);
-
+  // The index buffer needs to be flushed
   Flush();
 
-  // Are we in sprite mode?
   if (inverted)
     EnsureShader(ShaderSpriteInverted);
   else
     EnsureShader(ShaderSprite);
 
   EnsureTextureBound(sheet.Texture);
-  Device->SetSamplerState(1, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
-  Device->SetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
 
-  VertexBufferSprites* vertices =
+  // Push vertices
+  VertexBufferSprites* vertexBuffer =
       (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
-  VertexBufferFill += verticesCount * sizeof(VertexBufferSprites);
+  VertexBufferFill += vertices.size_bytes();
 
-  IndexBufferFill = 0;
-  // Generate indices for triangles
-  for (int y = 0; y < height - 1; y++) {
-    for (int x = 0; x < width - 1; x++) {
-      uint16_t v0 = y * width + x;
-      uint16_t v1 = y * width + (x + 1);
-      uint16_t v2 = (y + 1) * width + x;
-      uint16_t v3 = (y + 1) * width + (x + 1);
+  const auto vertexInfoToNDC = [this, sheet](VertexBufferSprites info) {
+    info.Position = DesignToNDC(info.Position);
+    return info;
+  };
+  std::transform(vertices.begin(), vertices.end(), vertexBuffer,
+                 vertexInfoToNDC);
 
-      // First triangle
-      for (auto v : {v1, v0, v2}) {
-        IndexBuffer[IndexBufferFill++] = v;
-      }
-      // Second triangle
-      for (auto v : {v3, v1, v2}) {
-        IndexBuffer[IndexBufferFill++] = v;
-      }
-    }
-  }
-  assert(IndexBufferFill == (height - 1) * (width - 1) * 6);
+  // Push indices
+  IndexBufferFill += indices.size();
+  std::copy(indices.begin(), indices.end(), IndexBuffer);
 
-  for (int i = 0; i < verticesCount; i++) {
-    vertices[i].Position = DesignToNDC(displayPositions[i]);
-    vertices[i].Tint = tint;
-    glm::vec2 uv =
-        sheetPositions[i] / glm::vec2(sheet.DesignWidth, sheet.DesignHeight);
-    vertices[i].UV = uv;
-  }
-
+  // Flush again and bind back our buffer
   Flush();
-  Device->SetSamplerState(1, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
-  Device->SetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
 
   // ReFill index buffer with quads
   int index = 0;
