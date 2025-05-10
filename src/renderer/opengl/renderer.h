@@ -54,7 +54,8 @@ class Renderer : public BaseRenderer {
                     std::span<const uint16_t> indices, bool inverted) override;
 
   void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
-                        const CornersQuad& dest, int alpha, int fadeRange,
+                        const CornersQuad& spriteDest,
+                        const CornersQuad& maskDest, int alpha, int fadeRange,
                         std::span<const glm::vec4, 4> tints, bool isInverted,
                         bool isSameTexture) override;
 
