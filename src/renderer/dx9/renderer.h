@@ -52,7 +52,8 @@ class Renderer : public BaseRenderer {
                         int fadeRange, float effectCt) override;
 
   void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
-                               const CornersQuad& dest, int alpha,
+                               const CornersQuad& spriteDest,
+                               const CornersQuad& maskDest, int alpha,
                                int fadeRange,
                                std::span<const glm::vec4, 4> tints,
                                bool isInverted, bool useMaskAlpha) override;

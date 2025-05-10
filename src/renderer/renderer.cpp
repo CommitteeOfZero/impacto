@@ -77,20 +77,26 @@ void BaseRenderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
 
 void BaseRenderer::DrawMaskedSpriteOverlay(
     const Sprite& sprite, const Sprite& mask, const int alpha,
-    const int fadeRange, const glm::mat4 transformation, const glm::vec4 tint,
+    const int fadeRange, const glm::mat4 spriteTransformation,
+    const glm::mat4 maskTransformation, const glm::vec4 tint,
     const bool isInverted, const bool useMaskAlpha) {
-  const CornersQuad dest = sprite.ScaledBounds().Transform(transformation);
-  DrawMaskedSpriteOverlay(sprite, mask, dest, alpha, fadeRange, tint,
-                          isInverted, useMaskAlpha);
+  const CornersQuad spriteDest =
+      sprite.ScaledBounds().Transform(spriteTransformation);
+  const CornersQuad maskDest =
+      mask.ScaledBounds().Transform(maskTransformation);
+  DrawMaskedSpriteOverlay(sprite, mask, spriteDest, maskDest, alpha, fadeRange,
+                          tint, isInverted, useMaskAlpha);
 }
 
 void BaseRenderer::DrawMaskedSpriteOverlay(
     const Sprite& sprite, const Sprite& mask, const int alpha,
-    const int fadeRange, const glm::vec2 topLeft, const glm::vec4 tint,
-    const bool isInverted, const bool useMaskAlpha) {
-  const RectF dest = sprite.ScaledBounds().Translate(topLeft);
-  DrawMaskedSpriteOverlay(sprite, mask, dest, alpha, fadeRange, tint,
-                          isInverted, useMaskAlpha);
+    const int fadeRange, const glm::vec2 spriteTopLeft,
+    const glm::vec2 maskTopLeft, const glm::vec4 tint, const bool isInverted,
+    const bool useMaskAlpha) {
+  const RectF spriteDest = sprite.ScaledBounds().Translate(spriteTopLeft);
+  const RectF maskDest = mask.ScaledBounds().Translate(maskTopLeft);
+  DrawMaskedSpriteOverlay(sprite, mask, spriteDest, maskDest, alpha, fadeRange,
+                          tint, isInverted, useMaskAlpha);
 }
 
 void BaseRenderer::DrawVertices(
