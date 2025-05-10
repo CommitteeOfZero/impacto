@@ -91,31 +91,63 @@ class BaseRenderer {
                         bool isInverted = false, bool isSameTexture = false);
 
   virtual void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
-                                       const CornersQuad& dest, int alpha,
+                                       const CornersQuad& spriteDest,
+                                       const CornersQuad& maskDest, int alpha,
                                        int fadeRange,
                                        std::span<const glm::vec4, 4> tints,
                                        bool isInverted = false,
                                        bool useMaskAlpha = true) = 0;
   void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
-                               const CornersQuad& dest, int alpha,
+                               const CornersQuad& spriteDest,
+                               const CornersQuad& maskDest, int alpha,
                                int fadeRange, glm::vec4 tint = glm::vec4(1.0f),
                                bool isInverted = false,
                                bool useMaskAlpha = true) {
-    DrawMaskedSpriteOverlay(sprite, mask, dest, alpha, fadeRange,
+    DrawMaskedSpriteOverlay(sprite, mask, spriteDest, maskDest, alpha,
+                            fadeRange,
                             std::array<glm::vec4, 4>{tint, tint, tint, tint},
                             isInverted, useMaskAlpha);
   }
   void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
+                               const CornersQuad& spriteDest, int alpha,
+                               int fadeRange, glm::vec4 tint = glm::vec4(1.0f),
+                               bool isInverted = false,
+                               bool useMaskAlpha = true) {
+    DrawMaskedSpriteOverlay(sprite, mask, spriteDest, mask.ScaledBounds(),
+                            alpha, fadeRange, tint, isInverted, useMaskAlpha);
+  }
+  void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
                                int alpha, int fadeRange,
-                               glm::mat4 transformation,
+                               glm::mat4 spriteTransformation,
+                               glm::mat4 maskTransformation,
                                glm::vec4 tint = glm::vec4(1.0f),
                                bool isInverted = false,
                                bool useMaskAlpha = true);
   void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
-                               int alpha, int fadeRange, glm::vec2 topLeft,
+                               int alpha, int fadeRange,
+                               glm::mat4 spriteTransformation,
+                               glm::vec4 tint = glm::vec4(1.0f),
+                               bool isInverted = false,
+                               bool useMaskAlpha = true) {
+    DrawMaskedSpriteOverlay(sprite, mask, alpha, fadeRange,
+                            spriteTransformation, glm::mat4(1.0f), tint,
+                            isInverted, useMaskAlpha);
+  }
+  void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
+                               int alpha, int fadeRange,
+                               glm::vec2 spriteTopLeft, glm::vec2 maskTopLeft,
                                glm::vec4 tint = glm::vec4(1.0f),
                                bool isInverted = false,
                                bool useMaskAlpha = true);
+  void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
+                               int alpha, int fadeRange,
+                               glm::vec2 spriteTopLeft,
+                               glm::vec4 tint = glm::vec4(1.0f),
+                               bool isInverted = false,
+                               bool useMaskAlpha = true) {
+    DrawMaskedSpriteOverlay(sprite, mask, alpha, fadeRange, spriteTopLeft,
+                            {0.0f, 0.0f}, tint, isInverted, useMaskAlpha);
+  }
 
   virtual void DrawVertices(const SpriteSheet& sheet,
                             std::span<const VertexBufferSprites> vertices,
