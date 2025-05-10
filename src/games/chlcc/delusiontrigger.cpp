@@ -341,10 +341,11 @@ void DelusionTrigger::Render() {
       ScreenMask, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
       glm::vec4(1.0f, 1.0f, 1.0f, (backgroundAlpha * 160) / 65536.0));
 
-  CornersQuad dest = RectF(0.0f, 0.0f, 1280.0f, 720.0f)
-                         .Rotate(ScrWorkAngleToRad(spinAngle), {640, 360});
-  Renderer->DrawMaskedSpriteOverlay(BackgroundSprite, ScaledMask, dest,
-                                    (backgroundAlpha * 160) >> 8, 20,
+  const RectF spriteDest = {0.0f, 0.0f, 1280.0f, 720.0f};
+  const CornersQuad maskDest =
+      ScaledMask.Bounds.RotateAroundCenter(ScrWorkAngleToRad(spinAngle));
+  Renderer->DrawMaskedSpriteOverlay(BackgroundSprite, ScaledMask, spriteDest,
+                                    maskDest, (backgroundAlpha * 160) >> 8, 20,
                                     glm::vec4(1.0f), true);
 }
 
