@@ -57,22 +57,28 @@ void BaseRenderer::DrawSprite(const Sprite& sprite, const glm::vec2 topLeft,
 
 void BaseRenderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
                                     const int alpha, const int fadeRange,
-                                    const glm::mat4 transformation,
+                                    const glm::mat4 spriteTransformation,
+                                    const glm::mat4 maskTransformation,
                                     const glm::vec4 tint, const bool isInverted,
                                     const bool isSameTexture) {
-  const CornersQuad dest = sprite.ScaledBounds().Transform(transformation);
-  DrawMaskedSprite(sprite, mask, dest, alpha, fadeRange, tint, isInverted,
-                   isSameTexture);
+  const CornersQuad spriteDest =
+      sprite.ScaledBounds().Transform(spriteTransformation);
+  const CornersQuad maskDest =
+      sprite.ScaledBounds().Transform(maskTransformation);
+  DrawMaskedSprite(sprite, mask, spriteDest, maskDest, alpha, fadeRange, tint,
+                   isInverted, isSameTexture);
 }
 
 void BaseRenderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
                                     const int alpha, const int fadeRange,
-                                    const glm::vec2 topLeft,
+                                    const glm::vec2 spriteTopLeft,
+                                    const glm::vec2 maskTopLeft,
                                     const glm::vec4 tint, const bool isInverted,
                                     const bool isSameTexture) {
-  const RectF dest = sprite.ScaledBounds().Translate(topLeft);
-  DrawMaskedSprite(sprite, mask, dest, alpha, fadeRange, tint, isInverted,
-                   isSameTexture);
+  const RectF spriteDest = sprite.ScaledBounds().Translate(spriteTopLeft);
+  const RectF maskDest = sprite.ScaledBounds().Translate(maskTopLeft);
+  DrawMaskedSprite(sprite, mask, spriteDest, maskDest, alpha, fadeRange, tint,
+                   isInverted, isSameTexture);
 }
 
 void BaseRenderer::DrawMaskedSpriteOverlay(
