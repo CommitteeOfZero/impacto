@@ -188,7 +188,6 @@ void Character2D::Update(float dt) {
         Character2DState const& state = stateItr->second;
         auto& stateIndices =
             std::get_if<Character2DState::MVLData>(&state.Data)->Indices;
-        MvlIndices.reserve(MvlIndices.size() + state.Count);
         MvlIndices.insert(MvlIndices.end(), stateIndices.get(),
                           stateIndices.get() + state.Count);
       }
