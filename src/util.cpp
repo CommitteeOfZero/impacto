@@ -167,7 +167,7 @@ glm::mat4 TransformationMatrix(const glm::vec2 scalingOrigin,
                                const float rotation,
                                const glm::vec2 translation) {
   return TransformationMatrix(
-      {scalingOrigin, 0.0f}, {scaling, 1.0f}, {rotationOrigin, 0.0f},
+      scalingOrigin, scaling, {rotationOrigin, 0.0f},
       AxisAngleToQuaternion({0.0f, 0.0f, 1.0f}, rotation), {translation, 0.0f});
 }
 
