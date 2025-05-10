@@ -191,19 +191,19 @@ void DelusionTrigger::RenderStartTransition(float spinAngle, int spinAlpha) {
 
   if ((ScrWork[SW_DELUSION_LIMIT] == Delusion_Both) ||
       (ScrWork[SW_DELUSION_LIMIT] == Delusion_PosOnly)) {
-    const glm::vec2 topLeft = {-800, -109};
-    const glm::vec2 offset = {600, 557};
+    const glm::vec2 offset = {-800, -109};
+    const glm::vec2 origin = {600, 557};
     const glm::mat4 transformation =
-        TransformationMatrix(offset, scale, offset, spinAngle, topLeft);
+        TransformationMatrix(origin, scale, origin, spinAngle, offset);
     Renderer->DrawSprite(PositiveDelusionSprite, transformation, tint);
   }
 
   if ((ScrWork[SW_DELUSION_LIMIT] == Delusion_Both) ||
       (ScrWork[SW_DELUSION_LIMIT] == Delusion_NegOnly)) {
-    const glm::vec2 topLeft = {1696, -109};
-    const glm::vec2 offset = {424, 557};
+    const glm::vec2 offset = {1696, -109};
+    const glm::vec2 origin = {424, 557};
     const glm::mat4 transformation =
-        TransformationMatrix(offset, scale, offset, spinAngle, topLeft);
+        TransformationMatrix(origin, scale, origin, spinAngle, offset);
     Renderer->DrawSprite(NegativeDelusionSprite, transformation, tint);
   }
 }
@@ -244,12 +244,12 @@ void DelusionTrigger::RenderNeutralToPositiveTransition(float spinAngle,
                                                         int spinAlpha) {
   const glm::vec4 tint = {1.0f, 1.0f, 1.0f, spinAlpha / 256.0f};
 
-  const glm::vec2 topLeft = {
+  const glm::vec2 offset = {
       448 - ((ScrWork[SW_DELUSION_SPIN_COUNTER] * 1248) >> 6), -109};
   const glm::vec2 scale(1.8f -
                         ScrWork[SW_DELUSION_SPIN_COUNTER] * 0.8f / 64.0f);
   const glm::mat4 transformation =
-      TransformationMatrix({600, 557}, scale, {600, 557}, spinAngle, topLeft);
+      TransformationMatrix({600, 557}, scale, {600, 557}, spinAngle, offset);
   Renderer->DrawSprite(PositiveDelusionSprite, transformation, tint);
 
   if (ScrWork[SW_DELUSION_LIMIT] == Delusion_Both) {
@@ -266,20 +266,20 @@ void DelusionTrigger::RenderNeutralToNegativeTransition(float spinAngle,
                                                         int spinAlpha) {
   const glm::vec4 tint = {1.0f, 1.0f, 1.0f, spinAlpha / 256.0f};
 
-  const glm::vec2 topLeft = {
+  const glm::vec2 offset = {
       ((ScrWork[SW_DELUSION_SPIN_COUNTER] * 1248) >> 6) + 448, -109};
   const glm::vec2 scale(1.8f -
                         ScrWork[SW_DELUSION_SPIN_COUNTER] * 0.8f / 64.0f);
   const glm::mat4 transformation =
-      TransformationMatrix({424, 557}, scale, {424, 557}, spinAngle, topLeft);
+      TransformationMatrix({424, 557}, scale, {424, 557}, spinAngle, offset);
   Renderer->DrawSprite(NegativeDelusionSprite, transformation, tint);
 
   if (ScrWork[SW_DELUSION_LIMIT] == Delusion_Both) {
-    const glm::vec2 topLeftPositive = {
+    const glm::vec2 offsetPositive = {
         ((ScrWork[SW_DELUSION_SPIN_COUNTER] * 1248) >> 6) - 2048, -109};
     const CornersQuad dest = PositiveDelusionSprite.ScaledBounds()
                                  .Rotate(spinAngle, {600, 557})
-                                 .Translate(topLeftPositive);
+                                 .Translate(offsetPositive);
     Renderer->DrawSprite(PositiveDelusionSprite, dest, tint);
   }
 }
@@ -288,12 +288,12 @@ void DelusionTrigger::RenderPositiveToNeutralTransition(float spinAngle,
                                                         int spinAlpha) {
   const glm::vec4 tint = {1.0f, 1.0f, 1.0f, spinAlpha / 256.0f};
 
-  const glm::vec2 topLeft = {
+  const glm::vec2 offset = {
       ((ScrWork[SW_DELUSION_SPIN_COUNTER] * 1248) >> 6) - 800, -109};
   const glm::vec2 scale(1.0f +
                         ScrWork[SW_DELUSION_SPIN_COUNTER] * 0.8f / 64.0f);
   const glm::mat4 transformation =
-      TransformationMatrix({600, 557}, scale, {600, 557}, spinAngle, topLeft);
+      TransformationMatrix({600, 557}, scale, {600, 557}, spinAngle, offset);
   Renderer->DrawSprite(PositiveDelusionSprite, transformation, tint);
 
   if (ScrWork[SW_DELUSION_LIMIT] == Delusion_Both) {
@@ -310,12 +310,12 @@ void DelusionTrigger::RenderNegativeToNeutralTransition(float spinAngle,
                                                         int spinAlpha) {
   const glm::vec4 tint = {1.0f, 1.0f, 1.0f, spinAlpha / 256.0f};
 
-  const glm::vec2 topLeft = {
+  const glm::vec2 offset = {
       1696 - ((ScrWork[SW_DELUSION_SPIN_COUNTER] * 1248) >> 6), -109};
   const glm::vec2 scale(1.0f +
                         ScrWork[SW_DELUSION_SPIN_COUNTER] * 0.8f / 64.0f);
   const glm::mat4 transformation =
-      TransformationMatrix({424, 557}, scale, {424, 557}, spinAngle, topLeft);
+      TransformationMatrix({424, 557}, scale, {424, 557}, spinAngle, offset);
   Renderer->DrawSprite(NegativeDelusionSprite, transformation, tint);
 
   if (ScrWork[SW_DELUSION_LIMIT] == Delusion_Both) {
@@ -334,21 +334,21 @@ void DelusionTrigger::RenderEndNeutralTransition(float spinAngle,
 
   if ((ScrWork[SW_DELUSION_LIMIT] == Delusion_Both) ||
       (ScrWork[SW_DELUSION_LIMIT] == Delusion_PosOnly)) {
-    const glm::vec2 topLeft = {
+    const glm::vec2 offset = {
         ((ScrWork[SW_DELUSION_BG_COUNTER] * 1248) >> 5) - 2048, -109};
     const CornersQuad dest = PositiveDelusionSprite.ScaledBounds()
                                  .Rotate(spinAngle, {600, 557})
-                                 .Translate(topLeft);
+                                 .Translate(offset);
     Renderer->DrawSprite(PositiveDelusionSprite, dest, tint);
   }
 
   if ((ScrWork[SW_DELUSION_LIMIT] == Delusion_Both) ||
       (ScrWork[SW_DELUSION_LIMIT] == Delusion_NegOnly)) {
-    const glm::vec2 topLeft = {
+    const glm::vec2 offset = {
         2944 - ((ScrWork[SW_DELUSION_BG_COUNTER] * 1248) >> 5), -109};
     const CornersQuad dest = PositiveDelusionSprite.ScaledBounds()
                                  .Rotate(spinAngle, {424, 557})
-                                 .Translate(topLeft);
+                                 .Translate(offset);
     Renderer->DrawSprite(NegativeDelusionSprite, dest, tint);
   }
 }
