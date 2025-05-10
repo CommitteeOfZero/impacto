@@ -68,27 +68,53 @@ class BaseRenderer {
                   bool disableBlend = false);
 
   virtual void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
-                                const CornersQuad& dest, int alpha,
+                                const CornersQuad& spriteDest,
+                                const CornersQuad& maskDest, int alpha,
                                 int fadeRange,
                                 std::span<const glm::vec4, 4> tints,
                                 bool isInverted = false,
                                 bool isSameTexture = false) = 0;
   void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
-                        const CornersQuad& dest, int alpha, int fadeRange,
+                        const CornersQuad& spriteDest,
+                        const CornersQuad& maskDest, int alpha, int fadeRange,
                         glm::vec4 tint = glm::vec4(1.0f),
                         bool isInverted = false, bool isSameTexture = false) {
-    DrawMaskedSprite(sprite, mask, dest, alpha, fadeRange,
+    DrawMaskedSprite(sprite, mask, spriteDest, maskDest, alpha, fadeRange,
+                     std::array<glm::vec4, 4>{tint, tint, tint, tint},
+                     isInverted, isSameTexture);
+  }
+  void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
+                        const CornersQuad& spriteDest, int alpha, int fadeRange,
+                        glm::vec4 tint = glm::vec4(1.0f),
+                        bool isInverted = false, bool isSameTexture = false) {
+    DrawMaskedSprite(sprite, mask, spriteDest, sprite.ScaledBounds(), alpha,
+                     fadeRange,
                      std::array<glm::vec4, 4>{tint, tint, tint, tint},
                      isInverted, isSameTexture);
   }
   void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask, int alpha,
-                        int fadeRange, glm::mat4 transformation,
+                        int fadeRange, glm::mat4 spriteTransformation,
+                        glm::mat4 maskTransformation,
                         glm::vec4 tint = glm::vec4(1.0f),
                         bool isInverted = false, bool isSameTexture = false);
   void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask, int alpha,
-                        int fadeRange, glm::vec2 topLeft,
+                        int fadeRange, glm::mat4 spriteTransformation,
                         glm::vec4 tint = glm::vec4(1.0f),
+                        bool isInverted = false, bool isSameTexture = false) {
+    DrawMaskedSprite(sprite, mask, alpha, fadeRange, spriteTransformation,
+                     glm::mat4(1.0f), tint, isInverted, isSameTexture);
+  }
+  void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask, int alpha,
+                        int fadeRange, glm::vec2 spriteTopLeft,
+                        glm::vec2 maskTopLeft, glm::vec4 tint = glm::vec4(1.0f),
                         bool isInverted = false, bool isSameTexture = false);
+  void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask, int alpha,
+                        int fadeRange, glm::vec2 spriteTopLeft,
+                        glm::vec4 tint = glm::vec4(1.0f),
+                        bool isInverted = false, bool isSameTexture = false) {
+    DrawMaskedSprite(sprite, mask, alpha, fadeRange, spriteTopLeft,
+                     {0.0f, 0.0f}, tint, isInverted, isSameTexture);
+  }
 
   virtual void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
                                        const CornersQuad& spriteDest,
