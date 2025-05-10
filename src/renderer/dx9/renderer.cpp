@@ -320,7 +320,7 @@ void Renderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
   // Do we have space for one more sprite quad?
   EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
 
-  std::array<float, 4> alphaRes = {alphaRange, constAlpha};
+  std::array<float, 4> alphaRes = {alphaRange, constAlpha, 0.0f, 0.0f};
   const BOOL isInvertedB = (BOOL)isInverted;
   const BOOL isSameTextureB = (BOOL)isSameTexture;
 
@@ -373,7 +373,7 @@ void Renderer::DrawMaskedSpriteOverlay(
   // Do we have space for one more sprite quad?
   EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
 
-  std::array<float, 4> alphaRes = {alphaRange, constAlpha};
+  std::array<float, 4> alphaRes = {alphaRange, constAlpha, 0.0f, 0.0f};
   BOOL isInvertedB = (BOOL)isInverted;
   BOOL isSameTextureB = (BOOL) false;
   BOOL useMaskAlphaB = (BOOL)useMaskAlpha;
