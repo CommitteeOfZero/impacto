@@ -59,6 +59,15 @@ glm::mat4 TransformationMatrix(glm::vec3 scalingOrigin, glm::vec3 scaling,
                                glm::vec3 rotationOrigin = glm::vec3(0.0f),
                                glm::quat rotation = glm::quat(),
                                glm::vec3 translation = glm::vec3(0.0f));
+inline glm::mat4 TransformationMatrix(glm::vec2 scalingOrigin,
+                                      glm::vec2 scaling,
+                                      glm::vec3 rotationOrigin,
+                                      glm::quat rotation,
+                                      glm::vec3 translation = glm::vec3(0.0f)) {
+  return TransformationMatrix(glm::vec3(scalingOrigin, 0.0f),
+                              glm::vec3(scaling, 1.0f), rotationOrigin,
+                              rotation, translation);
+}
 
 glm::vec4 TransformVector(glm::vec2 pos, glm::vec2 scalingOrigin,
                           glm::vec2 scaling,
@@ -70,6 +79,14 @@ glm::vec4 TransformVector(glm::vec3 pos, glm::vec3 scalingOrigin,
                           glm::vec3 rotationOrigin = glm::vec3(0.0f),
                           glm::quat rotation = glm::quat(),
                           glm::vec3 translation = glm::vec3(0.0f));
+inline glm::vec4 TransformVector(glm::vec3 pos, glm::vec2 scalingOrigin,
+                                 glm::vec2 scaling, glm::vec3 rotationOrigin,
+                                 glm::quat rotation,
+                                 glm::vec3 translation = glm::vec3(0.0f)) {
+  return TransformVector(pos, glm::vec3(scalingOrigin, 0.0f),
+                         glm::vec3(scaling, 1.0f), rotationOrigin, rotation,
+                         translation);
+}
 
 struct Rect;
 struct CornersQuad;
