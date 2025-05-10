@@ -346,7 +346,7 @@ void Renderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
 
   QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
             sizeof(VertexBufferSprites));
-  QuadSetUV(mask.Bounds, mask.Sheet.GetDimensions(), &vertices[0].MaskUV,
+  QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].MaskUV,
             sizeof(VertexBufferSprites));
 
   QuadSetPosition(dest, &vertices[0].Position, sizeof(VertexBufferSprites));
