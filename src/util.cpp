@@ -89,8 +89,10 @@ CornersQuad& CornersQuad::Rotate(const glm::quat rotation,
 
   // Move into screen
   if (stayInScreen) {
-    float maxZ = 0.0f;
-    for (const glm::vec4 vertex : vertices) maxZ = std::max(maxZ, vertex.z);
+    float maxZ =
+        std::max_element(vertices.begin(), vertices.end(),
+                         [](auto lhs, auto rhs) { return lhs.z < rhs.z; })
+            ->z;
 
     for (glm::vec4& vertex : vertices) vertex.z -= maxZ;
   }
