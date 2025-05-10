@@ -1182,7 +1182,7 @@ void Renderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
     return;
   }
 
-  if (sprite.Sheet.IsScreenCap) Flush();
+  Flush();
 
   if (Textures.count(sprite.Sheet.Texture) == 0 ||
       Textures.count(mask.Sheet.Texture) == 0)

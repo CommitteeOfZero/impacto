@@ -324,6 +324,8 @@ void Renderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
   const BOOL isInvertedB = (BOOL)isInverted;
   const BOOL isSameTextureB = (BOOL)isSameTexture;
 
+  Flush();
+
   EnsureShader(ShaderMaskedSprite);
   Device->SetTexture(0, Textures[sprite.Sheet.Texture]);
   Device->SetTexture(1, Textures[mask.Sheet.Texture]);
