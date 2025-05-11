@@ -10,7 +10,7 @@
 #if __SWITCH__
 #define __unix__
 #endif
-#include <concurrentqueue/blockingconcurrentqueue.h>
+#include <blockingconcurrentqueue.h>
 #if __SWITCH__
 #undef __unix__
 #endif

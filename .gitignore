@@ -282,16 +282,7 @@ __pycache__/
 compile_commands.json
 /CMakeSettings.json
 CMakeUserPresets.json
-vendor/LibAtrac9
-vendor/imgui
-vendor/fmtlib
-vendor/pugixml
-vendor/utf8-cpp
-vendor/glm
 vendor/avcpp
-vendor/readerwriterqueue
-vendor/concurrentqueue
-vendor/unordered_dense
 
 games/*/gamedata
 games/*/savedata

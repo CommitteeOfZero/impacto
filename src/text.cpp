@@ -24,7 +24,7 @@
 #include "games/cc/dialoguebox.h"
 #include "audio/audiostream.h"
 
-#include <utf8-cpp/source/utf8.h>
+#include <utf8.h>
 #include "vm/interface/input.h"
 #include <memory>
 

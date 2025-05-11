@@ -718,7 +718,6 @@ FetchContent_Declare(
     glm
     GIT_REPOSITORY	https://github.com/g-truc/glm.git
 	GIT_TAG "1.0.1"
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glm
     SYSTEM
     EXCLUDE_FROM_ALL
 )
@@ -727,7 +726,6 @@ FetchContent_Declare(
     libatrac9
     GIT_TAG "master"
     GIT_REPOSITORY "https://github.com/Thealexbarney/LibAtrac9.git"
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/LibAtrac9
     PATCH_COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/vendor/patches/LibAtrac9/CMakeLists.txt <SOURCE_DIR>/CMakeLists.txt
     SYSTEM
     EXCLUDE_FROM_ALL
@@ -737,7 +735,6 @@ FetchContent_Declare(
     fmt
     GIT_REPOSITORY "https://github.com/fmtlib/fmt.git"
     GIT_TAG "11.1.4"
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/fmtlib
     SYSTEM
     EXCLUDE_FROM_ALL
 )
@@ -746,7 +743,6 @@ FetchContent_Declare(
     pugixml
     GIT_REPOSITORY "https://github.com/zeux/pugixml.git"
     GIT_TAG "v1.14"
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/pugixml
     SYSTEM
     EXCLUDE_FROM_ALL
 )
@@ -755,7 +751,6 @@ FetchContent_Declare(
     utf8cpp
     GIT_REPOSITORY "https://github.com/nemtrif/utfcpp"
     GIT_TAG "v4.0.5"
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/utf8-cpp
     SYSTEM
     EXCLUDE_FROM_ALL
 )
@@ -764,7 +759,6 @@ FetchContent_Declare(
     concurrentqueue
     GIT_REPOSITORY "https://github.com/cameron314/concurrentqueue"
     GIT_TAG "v1.0.4"
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/concurrentqueue
     SYSTEM
     EXCLUDE_FROM_ALL
 )
@@ -773,7 +767,6 @@ FetchContent_Declare(
     readerwriterqueue
     GIT_REPOSITORY "https://github.com/cameron314/readerwriterqueue"
     GIT_TAG "16b48ae1148284e7b40abf72167206a4390a4592"
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/readerwriterqueue
     SYSTEM
     EXCLUDE_FROM_ALL
 )
@@ -782,7 +775,6 @@ FetchContent_Declare(
     unordered_dense
     GIT_REPOSITORY "https://github.com/martinus/unordered_dense"
     GIT_TAG "v4.5.0"
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/unordered_dense
     SYSTEM
     EXCLUDE_FROM_ALL
 )
@@ -811,7 +803,6 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
             ImGui
             GIT_REPOSITORY "https://github.com/ocornut/imgui.git"
             GIT_TAG "1db579d458da29fa43376af9d88d486910d9406a"
-            SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui
     )
 
     FetchContent_MakeAvailable(ImGui)
@@ -914,7 +905,6 @@ else ()
     if (NX)
         list(APPEND Impacto_Libs
                 ${SDL2_LIBRARIES}
-                glm::glm
                 ZLIB::ZLIB
                 vorbisfile
                 vorbis
@@ -941,7 +931,6 @@ else ()
                 ZLIB::ZLIB
                 ${OGGVORBIS_LIBRARIES}
                 ${WebP_LIBRARIES}
-                glm::glm
         )
 
         add_definitions(-DIMPACTO_OPENAL_HAVE_ALEXT)
@@ -962,6 +951,10 @@ list(APPEND Impacto_Libs
         pugixml::pugixml
         atrac9
         unordered_dense::unordered_dense
+        glm::glm
+        utf8cpp
+        concurrentqueue
+        readerwriterqueue
 )
 
 if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
@@ -991,10 +984,10 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
 
     if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
         list(APPEND Impacto_Src
-                ${imgui_SOURCE_DIR}_custom/backends/imgui_impl_opengl3.cpp
+                vendor/imgui_custom/backends/imgui_impl_opengl3.cpp
         )
         list(APPEND Impacto_Header
-                ${imgui_SOURCE_DIR}_custom/backends/imgui_impl_opengl3.h
+                vendor/imgui_custom/backends/imgui_impl_opengl3.h
         )
     endif ()
 
@@ -1066,7 +1059,6 @@ if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
             GIT_TAG "v2.4.0"
             PATCH_COMMAND ${AVCPP_PATCH}
             UPDATE_DISCONNECTED 1
-            SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/avcpp
             SYSTEM
             GIT_SUBMODULES ""
         )
