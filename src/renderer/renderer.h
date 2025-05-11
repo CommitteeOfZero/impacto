@@ -6,6 +6,7 @@
 #include "../spritesheet.h"
 #include "../text.h"
 #include "yuvframe.h"
+#include "enum.h"
 #include <span>
 
 namespace Impacto {
@@ -16,6 +17,8 @@ inline GraphicsApi ActualGraphicsApi;
 enum class RendererOutlineMode { None, BottomRight, Full };
 
 constexpr inline int MaxFramebuffers = 10;
+
+BETTER_ENUM(RendererBlendMode, int, Normal, Additive)
 
 class BaseRenderer {
  public:
@@ -100,6 +103,10 @@ class BaseRenderer {
   virtual void DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
                                        const RectF& dest, float alpha) = 0;
 
+  virtual void DrawSpriteColorShift(const Sprite& sprite, const RectF& dest,
+                                    glm::vec4 tint, float angle,
+                                    glm::vec4 colorShift) = 0;
+
   virtual void DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
                                        RectF const& dest, glm::vec4 tint,
                                        int alpha, int fadeRange,
@@ -169,6 +176,10 @@ class BaseRenderer {
   virtual void EnableScissor() = 0;
   virtual void SetScissorRect(RectF const& rect) = 0;
   virtual void DisableScissor() = 0;
+
+  virtual void SetBlendMode(RendererBlendMode blendMode) = 0;
+
+  virtual void Clear(glm::vec4 color) = 0;
 
   bool IsInit = false;
 

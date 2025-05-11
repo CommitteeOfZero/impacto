@@ -44,6 +44,7 @@ VmInstruction(InstSEplay) {
   StartInstruction;
   PopUint8(channel);
   PopUint8(type);
+
   if (type != 2) {
     PopExpression(effect);
     PopExpression(loop);
@@ -54,8 +55,12 @@ VmInstruction(InstSEplay) {
     }
     Audio::Channels[Audio::AC_SE0 + channel]->SetVolume(
         (ScrWork[SW_SEVOL + channel] / 100.0f) * 0.3f);
+
     Audio::Channels[Audio::AC_SE0 + channel]->Play("se", effect, (bool)loop,
                                                    0.0f);
+    if (type == 1) {
+      Audio::Channels[Audio::AC_SE0 + channel]->Pause();
+    }
   } else {
     ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                "STUB instruction SEplay(channel: {:d}, type: {:d})\n", channel,
