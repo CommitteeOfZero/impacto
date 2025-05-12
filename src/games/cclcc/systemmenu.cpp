@@ -203,7 +203,7 @@ auto GenerateMatrix(CornersQuad const& corners) {
 glm::vec2 TransformImageVertex(const glm::vec2 vertex, const glm::quat rotation,
                                const float scale, const glm::vec2 origin) {
   glm::mat4 transformation = TransformationMatrix(
-      origin, {scale, scale}, {origin, 0.0f}, rotation, {-origin, 0.0f});
+      origin, {scale, scale}, {origin, 0.0f}, rotation, -origin);
 
   glm::vec4 transformedVertex = {vertex, 0.0f, 1.0f};
   transformedVertex = transformation * transformedVertex;
