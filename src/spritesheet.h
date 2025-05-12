@@ -12,6 +12,8 @@ struct SpriteSheet {
   float DesignWidth = 0;
   float DesignHeight = 0;
 
+  glm::vec2 GetDimensions() const { return {DesignWidth, DesignHeight}; }
+
   uint32_t Texture = 0;
   bool IsScreenCap = false;
 };
@@ -36,6 +38,11 @@ struct Sprite {
   void SetScaledHeight(float scaledHeight) {
     Bounds.Height = scaledHeight / BaseScale.y;
   }
+  RectF ScaledBounds() const {
+    return {0.0f, 0.0f, ScaledWidth(), ScaledHeight()};
+  }
+
+  glm::vec2 Center() const { return ScaledBounds().Center(); }
 };
 
 }  // namespace Impacto

@@ -40,41 +40,180 @@ void InitRenderer() {
   Renderer->Init();
 }
 
-void BaseRenderer::DrawSprite(Sprite const& sprite, RectF const& dest,
-                              glm::vec4 tint, float angle, bool inverted) {
-  std::array<glm::vec4, 4> tints = {tint, tint, tint, tint};
-  DrawSprite(sprite, CornersQuad(dest), tints, angle, inverted);
+void BaseRenderer::DrawSprite(const Sprite& sprite,
+                              const glm::mat4 transformation,
+                              const glm::vec4 tint, const bool inverted,
+                              const bool disableBlend) {
+  const CornersQuad dest = sprite.ScaledBounds().Transform(transformation);
+  DrawSprite(sprite, dest, tint, inverted, disableBlend);
 }
 
-void BaseRenderer::DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
-                              glm::vec4 tint, glm::vec2 scale, float angle,
-                              bool inverted) {
-  RectF scaledDest(topLeft.x, topLeft.y,
-                   scale.x * sprite.Bounds.Width * sprite.BaseScale.x,
-                   scale.y * sprite.Bounds.Height * sprite.BaseScale.y);
-  DrawSprite(sprite, scaledDest, tint, angle, inverted);
+void BaseRenderer::DrawSprite(const Sprite& sprite, const glm::vec2 topLeft,
+                              const glm::vec4 tint, const bool inverted,
+                              const bool disableBlend) {
+  const CornersQuad dest = sprite.ScaledBounds().Translate(topLeft);
+  DrawSprite(sprite, dest, tint, inverted, disableBlend);
+}
+
+void BaseRenderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
+                                    const int alpha, const int fadeRange,
+                                    const glm::mat4 spriteTransformation,
+                                    const glm::mat4 maskTransformation,
+                                    const glm::vec4 tint, const bool isInverted,
+                                    const bool isSameTexture) {
+  const CornersQuad spriteDest =
+      sprite.ScaledBounds().Transform(spriteTransformation);
+  const CornersQuad maskDest =
+      sprite.ScaledBounds().Transform(maskTransformation);
+  DrawMaskedSprite(sprite, mask, spriteDest, maskDest, alpha, fadeRange, tint,
+                   isInverted, isSameTexture);
+}
+
+void BaseRenderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
+                                    const int alpha, const int fadeRange,
+                                    const glm::vec2 spriteTopLeft,
+                                    const glm::vec2 maskTopLeft,
+                                    const glm::vec4 tint, const bool isInverted,
+                                    const bool isSameTexture) {
+  const RectF spriteDest = sprite.ScaledBounds().Translate(spriteTopLeft);
+  const RectF maskDest = sprite.ScaledBounds().Translate(maskTopLeft);
+  DrawMaskedSprite(sprite, mask, spriteDest, maskDest, alpha, fadeRange, tint,
+                   isInverted, isSameTexture);
+}
+
+void BaseRenderer::DrawMaskedSpriteOverlay(
+    const Sprite& sprite, const Sprite& mask, const int alpha,
+    const int fadeRange, const glm::mat4 spriteTransformation,
+    const glm::mat4 maskTransformation, const glm::vec4 tint,
+    const bool isInverted, const bool useMaskAlpha) {
+  const CornersQuad spriteDest =
+      sprite.ScaledBounds().Transform(spriteTransformation);
+  const CornersQuad maskDest =
+      mask.ScaledBounds().Transform(maskTransformation);
+  DrawMaskedSpriteOverlay(sprite, mask, spriteDest, maskDest, alpha, fadeRange,
+                          tint, isInverted, useMaskAlpha);
+}
+
+void BaseRenderer::DrawMaskedSpriteOverlay(
+    const Sprite& sprite, const Sprite& mask, const int alpha,
+    const int fadeRange, const glm::vec2 spriteTopLeft,
+    const glm::vec2 maskTopLeft, const glm::vec4 tint, const bool isInverted,
+    const bool useMaskAlpha) {
+  const RectF spriteDest = sprite.ScaledBounds().Translate(spriteTopLeft);
+  const RectF maskDest = mask.ScaledBounds().Translate(maskTopLeft);
+  DrawMaskedSpriteOverlay(sprite, mask, spriteDest, maskDest, alpha, fadeRange,
+                          tint, isInverted, useMaskAlpha);
+}
+
+void BaseRenderer::DrawVertices(
+    const SpriteSheet& sheet,
+    const std::span<const VertexBufferSprites> vertices,
+    const std::span<const uint16_t> indices, const glm::mat4 transformation,
+    const bool inverted) {
+  std::vector<VertexBufferSprites> transformedVertices;
+  transformedVertices.resize(vertices.size());
+
+  const auto transform = [transformation](VertexBufferSprites info) {
+    info.Position = transformation * glm::vec4(info.Position, 0.0f, 1.0f);
+    return info;
+  };
+  std::transform(vertices.begin(), vertices.end(), transformedVertices.begin(),
+                 transform);
+
+  DrawVertices(sheet, transformedVertices, indices, inverted);
+}
+
+void BaseRenderer::DrawVertices(
+    const SpriteSheet& sheet,
+    const std::span<const VertexBufferSprites> vertices,
+    const std::span<const uint16_t> indices, const glm::vec2 offset,
+    const bool inverted) {
+  std::vector<VertexBufferSprites> transformedVertices;
+  transformedVertices.resize(vertices.size());
+
+  const auto transform = [offset](VertexBufferSprites info) {
+    info.Position += offset;
+    return info;
+  };
+  std::transform(vertices.begin(), vertices.end(), transformedVertices.begin(),
+                 transform);
+
+  DrawVertices(sheet, transformedVertices, indices, inverted);
+}
+
+void BaseRenderer::DrawVertices(
+    const SpriteSheet& sheet,
+    const std::span<const VertexBufferSprites> vertices, const int width,
+    const int height, const bool inverted) {
+  // Generate indices for triangles
+  std::vector<uint16_t> indices;
+  indices.reserve((width - 1) * (height - 1) * 6);
+  for (int y = 0; y < height - 1; y++) {
+    for (int x = 0; x < width - 1; x++) {
+      int v0 = y * width + x;
+      int v1 = y * width + (x + 1);
+      int v2 = (y + 1) * width + x;
+      int v3 = (y + 1) * width + (x + 1);
+
+      // First triangle
+      for (auto v : {v1, v0, v2}) {
+        indices.push_back(v);
+      }
+      // Second triangle
+      for (auto v : {v3, v1, v2}) {
+        indices.push_back(v);
+      }
+    }
+  }
+
+  DrawVertices(sheet, vertices, indices, inverted);
+}
+
+void BaseRenderer::DrawVertices(
+    const SpriteSheet& sheet,
+    const std::span<const VertexBufferSprites> vertices, const int width,
+    const int height, const glm::mat4 transformation, const bool inverted) {
+  std::vector<VertexBufferSprites> transformedVertices;
+  transformedVertices.resize(vertices.size());
+
+  const auto transform = [transformation](VertexBufferSprites info) {
+    info.Position = transformation * glm::vec4(info.Position, 0.0f, 1.0f);
+    return info;
+  };
+  std::transform(vertices.begin(), vertices.end(), transformedVertices.begin(),
+                 transform);
+
+  DrawVertices(sheet, transformedVertices, width, height, inverted);
+}
+
+void BaseRenderer::DrawVertices(
+    const SpriteSheet& sheet,
+    const std::span<const VertexBufferSprites> vertices, const int width,
+    const int height, const glm::vec2 offset, const bool inverted) {
+  std::vector<VertexBufferSprites> transformedVertices;
+  transformedVertices.resize(vertices.size());
+
+  const auto transform = [offset](VertexBufferSprites info) {
+    info.Position += offset;
+    return info;
+  };
+  std::transform(vertices.begin(), vertices.end(), transformedVertices.begin(),
+                 transform);
+
+  DrawVertices(sheet, transformedVertices, width, height, inverted);
 }
 
 void BaseRenderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                                     glm::vec2 topLeft, glm::vec4 tint,
                                     int alpha, int fadeRange, float effectCt,
                                     glm::vec2 scale) {
-  RectF scaledDest(topLeft.x, topLeft.y,
-                   scale.x * sprite.Bounds.Width * sprite.BaseScale.x,
-                   scale.y * sprite.Bounds.Height * sprite.BaseScale.y);
-  DrawCCMessageBox(sprite, mask, scaledDest, tint, alpha, fadeRange, effectCt);
+  const RectF dest =
+      sprite.ScaledBounds().Scale(scale, {0.0f, 0.0f}).Translate(topLeft);
+  DrawCCMessageBox(sprite, mask, dest, tint, alpha, fadeRange, effectCt);
 }
 
-void BaseRenderer::DrawSprite3DRotated(Sprite const& sprite, glm::vec2 topLeft,
-                                       float depth, glm::vec2 vanishingPoint,
-                                       bool stayInScreen, glm::quat rot,
-                                       glm::vec4 tint, glm::vec2 scale,
-                                       bool inverted) {
-  RectF scaledDest(topLeft.x, topLeft.y,
-                   scale.x * sprite.Bounds.Width * sprite.BaseScale.x,
-                   scale.y * sprite.Bounds.Height * sprite.BaseScale.y);
-  DrawSprite3DRotated(sprite, scaledDest, depth, vanishingPoint, stayInScreen,
-                      rot, tint, inverted);
+void BaseRenderer::DrawQuad(const CornersQuad& dest, const glm::vec4 color) {
+  DrawSprite(RectSprite, dest, color);
 }
 
 void BaseRenderer::DrawProcessedText(std::span<const ProcessedTextGlyph> text,
@@ -114,14 +253,6 @@ void BaseRenderer::DrawProcessedText(std::span<const ProcessedTextGlyph> text,
   }
 }
 
-void BaseRenderer::DrawVideoTexture(YUVFrame* tex, glm::vec2 topLeft,
-                                    glm::vec4 tint, glm::vec2 scale,
-                                    float angle, bool alphaVideo) {
-  RectF scaledDest(topLeft.x, topLeft.y, scale.x * tex->Width,
-                   scale.y * tex->Height);
-  DrawVideoTexture(tex, scaledDest, tint, angle, alphaVideo);
-}
-
 void BaseRenderer::DrawProcessedText_BasicFont(
     std::span<const ProcessedTextGlyph> text, BasicFont* font, float opacity,
     RendererOutlineMode outlineMode, bool smoothstepGlyphOpacity,
@@ -146,8 +277,8 @@ void BaseRenderer::DrawProcessedText_BasicFont(
             Sprite mask;
             mask.Sheet = *maskedSheet;
             mask.Bounds = dest;
-            DrawMaskedSpriteOverlay(glyph, mask, dest, color, color.a * 255,
-                                    256, false, 0, i == 0);
+            DrawMaskedSpriteOverlay(glyph, mask, dest, color.a * 255, 256,
+                                    color, false, i == 0);
           } else {
             DrawSprite(glyph, dest, color);
           }
@@ -161,8 +292,8 @@ void BaseRenderer::DrawProcessedText_BasicFont(
             Sprite mask;
             mask.Sheet = *maskedSheet;
             mask.Bounds = dest;
-            DrawMaskedSpriteOverlay(glyph, mask, dest, color, color.a * 255,
-                                    256, false, 0, i == 0);
+            DrawMaskedSpriteOverlay(glyph, mask, dest, color.a * 255, 256,
+                                    color, false, i == 0);
           } else {
             DrawSprite(glyph, dest, color);
           }
@@ -186,8 +317,8 @@ void BaseRenderer::DrawProcessedText_BasicFont(
       mask.Sheet = *maskedSheet;
       mask.Bounds = text[i].DestRect;
       DrawMaskedSpriteOverlay(font->Glyph(text[i].CharId), mask,
-                              text[i].DestRect, color, color.a * 255, 256,
-                              false, 0, false);
+                              text[i].DestRect, color.a * 255, 256, color,
+                              false, false);
     } else {
       DrawSprite(font->Glyph(text[i].CharId), text[i].DestRect, color);
     }
@@ -235,8 +366,8 @@ void BaseRenderer::DrawProcessedText_LBFont(
         mask.Sheet = *maskedSheet;
         mask.Bounds = outlineDest;
         DrawMaskedSpriteOverlay(font->OutlineGlyph(text[i].CharId), mask,
-                                outlineDest, color, color.a * 255, 256, false,
-                                0, i == 0);
+                                outlineDest, color.a * 255, 256, color, false,
+                                i == 0);
       } else {
         DrawSprite(font->OutlineGlyph(text[i].CharId), outlineDest, color);
       }
@@ -264,7 +395,7 @@ void BaseRenderer::DrawProcessedText_LBFont(
       mask.Sheet = *maskedSheet;
       mask.Bounds = foregroundDest;
       DrawMaskedSpriteOverlay(font->Glyph(text[i].CharId), mask, foregroundDest,
-                              color, color.a * 255, 256, false, 0, false);
+                              color.a * 255, 256, color, false, false);
     } else {
       DrawSprite(font->Glyph(text[i].CharId), foregroundDest, color);
     }
@@ -272,4 +403,22 @@ void BaseRenderer::DrawProcessedText_LBFont(
 
   if (maskedSheet) Flush();
 }
+
+void BaseRenderer::QuadSetPosition(CornersQuad quad, glm::vec2* const pos,
+                                   int stride) {
+  *(glm::vec2*)((uint8_t*)pos + 0 * stride) = DesignToNDC(quad.TopLeft);
+  *(glm::vec2*)((uint8_t*)pos + 1 * stride) = DesignToNDC(quad.BottomLeft);
+  *(glm::vec2*)((uint8_t*)pos + 2 * stride) = DesignToNDC(quad.BottomRight);
+  *(glm::vec2*)((uint8_t*)pos + 3 * stride) = DesignToNDC(quad.TopRight);
+}
+
+void BaseRenderer::QuadSetUV(const CornersQuad bounds,
+                             const glm::vec2 dimensions, glm::vec2* const uvs,
+                             const size_t stride) {
+  *(glm::vec2*)((uint8_t*)uvs + 0 * stride) = bounds.TopLeft / dimensions;
+  *(glm::vec2*)((uint8_t*)uvs + 1 * stride) = bounds.BottomLeft / dimensions;
+  *(glm::vec2*)((uint8_t*)uvs + 2 * stride) = bounds.BottomRight / dimensions;
+  *(glm::vec2*)((uint8_t*)uvs + 3 * stride) = bounds.TopRight / dimensions;
+}
+
 }  // namespace Impacto

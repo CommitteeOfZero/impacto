@@ -169,9 +169,13 @@ void Background2D::RenderBgEff(int bgId, int layer) {
   FadeCount = ScrWork[SW_BGEFF1_FADECT + structOffset];
   FadeRange = ScrWork[SW_BGEFF1_MASKFADERANGE + structOffset];
 
-  Angle = (ScrWork[SW_BGEFF1_ROTZ + structOffset] +
-           ScrWork[SW_BGEFF1_ROTZ_OFS + structOfsOffset]) *
-          (float)(2.0f * M_PI / (float)(1 << 16));
+  Rotation = ScrWorkAnglesToQuaternion(
+      ScrWork[SW_BGEFF1_ROTX + structOffset] +
+          ScrWork[SW_BGEFF1_ROTX_OFS + structOfsOffset],
+      ScrWork[SW_BGEFF1_ROTY + structOffset] +
+          ScrWork[SW_BGEFF1_ROTY_OFS + structOfsOffset],
+      ScrWork[SW_BGEFF1_ROTZ + structOffset] +
+          ScrWork[SW_BGEFF1_ROTZ_OFS + structOfsOffset]);
 
   Scale = glm::vec2((ScrWork[SW_BGEFF1_SIZE + structOffset] +
                      ScrWork[SW_BGEFF1_SIZE_OFS + structOfsOffset]) /
@@ -222,6 +226,14 @@ void Background2D::RenderBgEff(int bgId, int layer) {
   Origin = {0.0f, 0.0f};
   for (const glm::vec2 vertex : vertices) Origin += vertex / (float)vertexCount;
 
+  // Transform vertices
+  const glm::mat4 transformation = TransformationMatrix(
+      Origin, Scale, {Origin, 0.0f}, Rotation, DisplayCoords);
+  std::transform(vertices.begin(), vertices.end(), vertices.begin(),
+                 [transformation](const glm::vec2 vertex) {
+                   return transformation * glm::vec4(vertex, 0.0f, 1.0f);
+                 });
+
   // Draw
   if (maskType == 0) {  // Rectangle
     const glm::vec2 maskDimensions = vertices[3] - vertices[0];
@@ -241,43 +253,43 @@ void Background2D::RenderBgEff(int bgId, int layer) {
 }
 
 void Background2D::RenderRegular() {
-  Renderer->DrawSpriteOffset(BgSprite, DisplayCoords, Origin, Tint, Scale,
-                             Angle, false);
+  const glm::mat4 transformation = TransformationMatrix(
+      Origin, Scale, {Origin, 0.0f}, Rotation, DisplayCoords);
+  Renderer->DrawSprite(BgSprite, transformation, Tint, false);
 
   for (int i = 0; i < MaxLinkedBgBuffers; i++) {
     if (Links[i].Direction != LD_Off && Links[i].LinkedBuffer != NULL) {
-      Renderer->DrawSpriteOffset(Links[i].LinkedBuffer->BgSprite,
-                                 Links[i].DisplayCoords, Origin, Tint, Scale,
-                                 Angle, false);
+      const glm::mat4 linkTransformation =
+          transformation *
+          glm::translate(glm::mat4(1.0f), {Links[i].DisplayCoords, 0.0f});
+
+      Renderer->DrawSprite(Links[i].LinkedBuffer->BgSprite, transformation,
+                           Tint, false);
     }
   }
 }
 
 void Background2D::RenderMasked() {
-  Renderer->DrawMaskedSpriteOffset(BgSprite, Masks2D[MaskNumber].MaskSprite,
-                                   DisplayCoords, Origin, FadeCount, FadeRange,
-                                   Tint, Scale, Angle, false, false, false);
+  const glm::mat4 transformation = TransformationMatrix(
+      Origin, Scale, {Origin, 0.0f}, Rotation, DisplayCoords);
+
+  Renderer->DrawMaskedSprite(BgSprite, Masks2D[MaskNumber].MaskSprite,
+                             FadeCount, FadeRange, transformation, Tint, false,
+                             false);
 }
 
 void Background2D::RenderMaskedInverted() {
-  Renderer->DrawMaskedSpriteOffset(BgSprite, Masks2D[MaskNumber].MaskSprite,
-                                   DisplayCoords, Origin, FadeCount, FadeRange,
-                                   Tint, Scale, Angle, false, true, false);
+  const glm::mat4 transformation = TransformationMatrix(
+      Origin, Scale, {Origin, 0.0f}, Rotation, DisplayCoords);
+  Renderer->DrawMaskedSprite(BgSprite, Masks2D[MaskNumber].MaskSprite,
+                             FadeCount, FadeRange, transformation, Tint, true,
+                             false);
 }
 
 void Background2D::RenderFade() {
   Tint.a *= FadeCount / 256.0f;
 
-  Renderer->DrawSpriteOffset(BgSprite, DisplayCoords, Origin, Tint, Scale,
-                             Angle, false);
-
-  for (int i = 0; i < MaxLinkedBgBuffers; i++) {
-    if (Links[i].Direction != LD_Off && Links[i].LinkedBuffer != NULL) {
-      Renderer->DrawSpriteOffset(Links[i].LinkedBuffer->BgSprite,
-                                 Links[i].DisplayCoords, Origin, Tint, Scale,
-                                 Angle, false);
-    }
-  }
+  RenderRegular();
 }
 
 }  // namespace Impacto

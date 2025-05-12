@@ -476,13 +476,10 @@ void FFmpegPlayer::Update(float dt) {
 
 void FFmpegPlayer::Render(float videoAlpha) {
   if (IsPlaying && PlaybackStarted) {
-    float widthScale = Profile::DesignWidth / VideoTexture->Width;
-    float heightScale = Profile::DesignHeight / VideoTexture->Height;
-    glm::vec4 tint = glm::vec4(1.0f);
-    tint.a = videoAlpha;
-    Renderer->DrawVideoTexture(VideoTexture, glm::vec2(0.0f, 0.0f), tint,
-                               glm::vec2(widthScale, heightScale), 0.0f,
-                               IsAlpha);
+    const RectF dest = {0.0f, 0.0f, Profile::DesignWidth,
+                        Profile::DesignHeight};
+    const glm::vec4 tint = {1.0f, 1.0f, 1.0f, videoAlpha};
+    Renderer->DrawVideoTexture(*VideoTexture, dest, tint, IsAlpha);
   }
 }
 

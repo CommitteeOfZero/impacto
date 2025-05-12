@@ -45,8 +45,6 @@ struct Character2DState {
   }
 };
 
-int constexpr MaxMvlIndices = 128 * 1024;
-
 class Character2D : public Loadable<Character2D> {
   friend class Loadable<Character2D>;
 
@@ -86,10 +84,8 @@ class Character2D : public Loadable<Character2D> {
   ankerl::unordered_dense::map<int, Character2DState> States;
   std::vector<int> StatesToDraw;
 
-  int MvlVerticesCount;
-  std::vector<float> MvlVertices;
-  std::array<uint16_t, MaxMvlIndices> MvlIndices;
-  int MvlIndicesCount;
+  std::vector<VertexBufferSprites> MvlVertices;
+  std::vector<uint16_t> MvlIndices;
 };
 
 int constexpr MaxCharacters2D = 16;

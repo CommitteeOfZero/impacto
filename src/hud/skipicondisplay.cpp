@@ -88,9 +88,12 @@ void Render(glm::vec4 opacityTint) {
 
     case SkipIconType::CHLCC:
       if (MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll)) {
-        Renderer->DrawSprite(
-            AutoSkipArrowsSprite, glm::vec2(SkipIconOffset.x, SkipIconOffset.y),
-            opacityTint, glm::vec2(1.0f), Progress * 2 * (float)M_PI);
+        const CornersQuad arrowsDest =
+            AutoSkipArrowsSprite.ScaledBounds()
+                .RotateAroundCenter(Progress * 2.0f * (float)M_PI)
+                .Translate(SkipIconOffset);
+        Renderer->DrawSprite(AutoSkipArrowsSprite, arrowsDest, opacityTint);
+
         Renderer->DrawSprite(SkipIconSprite,
                              glm::vec2(SkipIconOffset.x, SkipIconOffset.y),
                              opacityTint);
