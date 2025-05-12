@@ -228,7 +228,7 @@ void Background2D::RenderBgEff(int bgId, int layer) {
 
   // Transform vertices
   const glm::mat4 transformation = TransformationMatrix(
-      Origin, Scale, {Origin, 0.0f}, Rotation, {DisplayCoords, 0.0f});
+      Origin, Scale, {Origin, 0.0f}, Rotation, DisplayCoords);
   std::transform(vertices.begin(), vertices.end(), vertices.begin(),
                  [transformation](const glm::vec2 vertex) {
                    return transformation * glm::vec4(vertex, 0.0f, 1.0f);
@@ -254,7 +254,7 @@ void Background2D::RenderBgEff(int bgId, int layer) {
 
 void Background2D::RenderRegular() {
   const glm::mat4 transformation = TransformationMatrix(
-      Origin, Scale, {Origin, 0.0f}, Rotation, {DisplayCoords, 0.0f});
+      Origin, Scale, {Origin, 0.0f}, Rotation, DisplayCoords);
   Renderer->DrawSprite(BgSprite, transformation, Tint, false);
 
   for (int i = 0; i < MaxLinkedBgBuffers; i++) {
@@ -271,7 +271,7 @@ void Background2D::RenderRegular() {
 
 void Background2D::RenderMasked() {
   const glm::mat4 transformation = TransformationMatrix(
-      Origin, Scale, {Origin, 0.0f}, Rotation, {DisplayCoords, 0.0f});
+      Origin, Scale, {Origin, 0.0f}, Rotation, DisplayCoords);
 
   Renderer->DrawMaskedSprite(BgSprite, Masks2D[MaskNumber].MaskSprite,
                              FadeCount, FadeRange, transformation, Tint, false,
@@ -280,7 +280,7 @@ void Background2D::RenderMasked() {
 
 void Background2D::RenderMaskedInverted() {
   const glm::mat4 transformation = TransformationMatrix(
-      Origin, Scale, {Origin, 0.0f}, Rotation, {DisplayCoords, 0.0f});
+      Origin, Scale, {Origin, 0.0f}, Rotation, DisplayCoords);
   Renderer->DrawMaskedSprite(BgSprite, Masks2D[MaskNumber].MaskSprite,
                              FadeCount, FadeRange, transformation, Tint, true,
                              false);
