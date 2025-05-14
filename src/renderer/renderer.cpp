@@ -40,111 +40,10 @@ void InitRenderer() {
   Renderer->Init();
 }
 
-void BaseRenderer::DrawSprite(const Sprite& sprite,
-                              const glm::mat4 transformation,
-                              const glm::vec4 tint, const bool inverted,
-                              const bool disableBlend) {
-  const CornersQuad dest = sprite.ScaledBounds().Transform(transformation);
-  DrawSprite(sprite, dest, tint, inverted, disableBlend);
-}
-
-void BaseRenderer::DrawSprite(const Sprite& sprite, const glm::vec2 topLeft,
-                              const glm::vec4 tint, const bool inverted,
-                              const bool disableBlend) {
-  const CornersQuad dest = sprite.ScaledBounds().Translate(topLeft);
-  DrawSprite(sprite, dest, tint, inverted, disableBlend);
-}
-
-void BaseRenderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
-                                    const int alpha, const int fadeRange,
-                                    const glm::mat4 spriteTransformation,
-                                    const glm::mat4 maskTransformation,
-                                    const glm::vec4 tint, const bool isInverted,
-                                    const bool isSameTexture) {
-  const CornersQuad spriteDest =
-      sprite.ScaledBounds().Transform(spriteTransformation);
-  const CornersQuad maskDest =
-      sprite.ScaledBounds().Transform(maskTransformation);
-  DrawMaskedSprite(sprite, mask, spriteDest, maskDest, alpha, fadeRange, tint,
-                   isInverted, isSameTexture);
-}
-
-void BaseRenderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
-                                    const int alpha, const int fadeRange,
-                                    const glm::vec2 spriteTopLeft,
-                                    const glm::vec2 maskTopLeft,
-                                    const glm::vec4 tint, const bool isInverted,
-                                    const bool isSameTexture) {
-  const RectF spriteDest = sprite.ScaledBounds().Translate(spriteTopLeft);
-  const RectF maskDest = sprite.ScaledBounds().Translate(maskTopLeft);
-  DrawMaskedSprite(sprite, mask, spriteDest, maskDest, alpha, fadeRange, tint,
-                   isInverted, isSameTexture);
-}
-
-void BaseRenderer::DrawMaskedSpriteOverlay(
-    const Sprite& sprite, const Sprite& mask, const int alpha,
-    const int fadeRange, const glm::mat4 spriteTransformation,
-    const glm::mat4 maskTransformation, const glm::vec4 tint,
-    const bool isInverted, const bool useMaskAlpha) {
-  const CornersQuad spriteDest =
-      sprite.ScaledBounds().Transform(spriteTransformation);
-  const CornersQuad maskDest =
-      mask.ScaledBounds().Transform(maskTransformation);
-  DrawMaskedSpriteOverlay(sprite, mask, spriteDest, maskDest, alpha, fadeRange,
-                          tint, isInverted, useMaskAlpha);
-}
-
-void BaseRenderer::DrawMaskedSpriteOverlay(
-    const Sprite& sprite, const Sprite& mask, const int alpha,
-    const int fadeRange, const glm::vec2 spriteTopLeft,
-    const glm::vec2 maskTopLeft, const glm::vec4 tint, const bool isInverted,
-    const bool useMaskAlpha) {
-  const RectF spriteDest = sprite.ScaledBounds().Translate(spriteTopLeft);
-  const RectF maskDest = mask.ScaledBounds().Translate(maskTopLeft);
-  DrawMaskedSpriteOverlay(sprite, mask, spriteDest, maskDest, alpha, fadeRange,
-                          tint, isInverted, useMaskAlpha);
-}
-
-void BaseRenderer::DrawVertices(
-    const SpriteSheet& sheet,
-    const std::span<const VertexBufferSprites> vertices,
-    const std::span<const uint16_t> indices, const glm::mat4 transformation,
-    const bool inverted) {
-  std::vector<VertexBufferSprites> transformedVertices;
-  transformedVertices.resize(vertices.size());
-
-  const auto transform = [transformation](VertexBufferSprites info) {
-    info.Position = transformation * glm::vec4(info.Position, 0.0f, 1.0f);
-    return info;
-  };
-  std::transform(vertices.begin(), vertices.end(), transformedVertices.begin(),
-                 transform);
-
-  DrawVertices(sheet, transformedVertices, indices, inverted);
-}
-
-void BaseRenderer::DrawVertices(
-    const SpriteSheet& sheet,
-    const std::span<const VertexBufferSprites> vertices,
-    const std::span<const uint16_t> indices, const glm::vec2 offset,
-    const bool inverted) {
-  std::vector<VertexBufferSprites> transformedVertices;
-  transformedVertices.resize(vertices.size());
-
-  const auto transform = [offset](VertexBufferSprites info) {
-    info.Position += offset;
-    return info;
-  };
-  std::transform(vertices.begin(), vertices.end(), transformedVertices.begin(),
-                 transform);
-
-  DrawVertices(sheet, transformedVertices, indices, inverted);
-}
-
 void BaseRenderer::DrawVertices(
     const SpriteSheet& sheet,
     const std::span<const VertexBufferSprites> vertices, const int width,
-    const int height, const bool inverted) {
+    const int height, const glm::mat4 transformation, const bool inverted) {
   // Generate indices for triangles
   std::vector<uint16_t> indices;
   indices.reserve((width - 1) * (height - 1) * 6);
@@ -166,41 +65,7 @@ void BaseRenderer::DrawVertices(
     }
   }
 
-  DrawVertices(sheet, vertices, indices, inverted);
-}
-
-void BaseRenderer::DrawVertices(
-    const SpriteSheet& sheet,
-    const std::span<const VertexBufferSprites> vertices, const int width,
-    const int height, const glm::mat4 transformation, const bool inverted) {
-  std::vector<VertexBufferSprites> transformedVertices;
-  transformedVertices.resize(vertices.size());
-
-  const auto transform = [transformation](VertexBufferSprites info) {
-    info.Position = transformation * glm::vec4(info.Position, 0.0f, 1.0f);
-    return info;
-  };
-  std::transform(vertices.begin(), vertices.end(), transformedVertices.begin(),
-                 transform);
-
-  DrawVertices(sheet, transformedVertices, width, height, inverted);
-}
-
-void BaseRenderer::DrawVertices(
-    const SpriteSheet& sheet,
-    const std::span<const VertexBufferSprites> vertices, const int width,
-    const int height, const glm::vec2 offset, const bool inverted) {
-  std::vector<VertexBufferSprites> transformedVertices;
-  transformedVertices.resize(vertices.size());
-
-  const auto transform = [offset](VertexBufferSprites info) {
-    info.Position += offset;
-    return info;
-  };
-  std::transform(vertices.begin(), vertices.end(), transformedVertices.begin(),
-                 transform);
-
-  DrawVertices(sheet, transformedVertices, width, height, inverted);
+  DrawVertices(sheet, vertices, indices, transformation, inverted);
 }
 
 void BaseRenderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
@@ -268,37 +133,45 @@ void BaseRenderer::DrawProcessedText_BasicFont(
         color.a *= text[i].Opacity;
       }
       Sprite glyph = font->Glyph(text[i].CharId);
+
       RectF dest = text[i].DestRect;
       switch (outlineMode) {
         case RendererOutlineMode::Full:
           dest.X--;
           dest.Y--;
+
           if (maskedSheet) {
             Sprite mask;
             mask.Sheet = *maskedSheet;
             mask.Bounds = dest;
             DrawMaskedSpriteOverlay(glyph, mask, dest, color.a * 255, 256,
-                                    color, false, i == 0);
+                                    glm::mat4(1.0f), color, false, i == 0);
           } else {
             DrawSprite(glyph, dest, color);
           }
+
           dest.X++;
           dest.Y++;
+
           [[fallthrough]];
         case RendererOutlineMode::BottomRight:
           dest.X++;
           dest.Y++;
+
           if (maskedSheet) {
             Sprite mask;
             mask.Sheet = *maskedSheet;
             mask.Bounds = dest;
             DrawMaskedSpriteOverlay(glyph, mask, dest, color.a * 255, 256,
-                                    color, false, i == 0);
+                                    glm::mat4(1.0f), color, false, i == 0);
           } else {
             DrawSprite(glyph, dest, color);
           }
           break;
+
         default:
+          ImpLogSlow(LogLevel::Warning, LogChannel::Render,
+                     "Unexpected outline mode!");
           break;
       }
     }
@@ -307,18 +180,20 @@ void BaseRenderer::DrawProcessedText_BasicFont(
   for (int i = 0; i < text.size(); i++) {
     glm::vec4 color = RgbIntToFloat(text[i].Colors.TextColor);
     color.a = opacity;
+
     if (smoothstepGlyphOpacity) {
       color.a *= glm::smoothstep(0.0f, 1.0f, text[i].Opacity);
     } else {
       color.a *= text[i].Opacity;
     }
+
     if (maskedSheet) {
       Sprite mask;
       mask.Sheet = *maskedSheet;
       mask.Bounds = text[i].DestRect;
       DrawMaskedSpriteOverlay(font->Glyph(text[i].CharId), mask,
-                              text[i].DestRect, color.a * 255, 256, color,
-                              false, false);
+                              text[i].DestRect, color.a * 255, 256,
+                              glm::mat4(1.0f), color, false, false);
     } else {
       DrawSprite(font->Glyph(text[i].CharId), text[i].DestRect, color);
     }
@@ -359,15 +234,18 @@ void BaseRenderer::DrawProcessedText_LBFont(
               scaleY * (font->OutlineCellHeight + font->OutlineOffset.y / 2));
           break;
         default:
+          ImpLogSlow(LogLevel::Warning, LogChannel::Render,
+                     "Unexpected outline mode!");
           break;
       }
+
       if (maskedSheet) {
         Sprite mask;
         mask.Sheet = *maskedSheet;
         mask.Bounds = outlineDest;
         DrawMaskedSpriteOverlay(font->OutlineGlyph(text[i].CharId), mask,
-                                outlineDest, color.a * 255, 256, color, false,
-                                i == 0);
+                                outlineDest, color.a * 255, 256,
+                                glm::mat4(1.0f), color, false, i == 0);
       } else {
         DrawSprite(font->OutlineGlyph(text[i].CharId), outlineDest, color);
       }
@@ -395,7 +273,8 @@ void BaseRenderer::DrawProcessedText_LBFont(
       mask.Sheet = *maskedSheet;
       mask.Bounds = foregroundDest;
       DrawMaskedSpriteOverlay(font->Glyph(text[i].CharId), mask, foregroundDest,
-                              color.a * 255, 256, color, false, false);
+                              color.a * 255, 256, glm::mat4(1.0f), color, false,
+                              false);
     } else {
       DrawSprite(font->Glyph(text[i].CharId), foregroundDest, color);
     }
@@ -406,10 +285,10 @@ void BaseRenderer::DrawProcessedText_LBFont(
 
 void BaseRenderer::QuadSetPosition(CornersQuad quad, glm::vec2* const pos,
                                    int stride) {
-  *(glm::vec2*)((uint8_t*)pos + 0 * stride) = DesignToNDC(quad.TopLeft);
-  *(glm::vec2*)((uint8_t*)pos + 1 * stride) = DesignToNDC(quad.BottomLeft);
-  *(glm::vec2*)((uint8_t*)pos + 2 * stride) = DesignToNDC(quad.BottomRight);
-  *(glm::vec2*)((uint8_t*)pos + 3 * stride) = DesignToNDC(quad.TopRight);
+  *(glm::vec2*)((uint8_t*)pos + 0 * stride) = quad.TopLeft;
+  *(glm::vec2*)((uint8_t*)pos + 1 * stride) = quad.BottomLeft;
+  *(glm::vec2*)((uint8_t*)pos + 2 * stride) = quad.BottomRight;
+  *(glm::vec2*)((uint8_t*)pos + 3 * stride) = quad.TopRight;
 }
 
 void BaseRenderer::QuadSetUV(const CornersQuad bounds,
