@@ -346,7 +346,7 @@ void DelusionTrigger::Render() {
       ScaledMask.Bounds.RotateAroundCenter(ScrWorkAngleToRad(spinAngle));
   Renderer->DrawMaskedSpriteOverlay(BackgroundSprite, ScaledMask, spriteDest,
                                     maskDest, (backgroundAlpha * 160) >> 8, 20,
-                                    glm::vec4(1.0f), true);
+                                    glm::mat4(1.0f), glm::vec4(1.0f), true);
 }
 
 }  // namespace CHLCC

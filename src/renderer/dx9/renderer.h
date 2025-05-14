@@ -35,29 +35,33 @@ class Renderer : public BaseRenderer {
   YUVFrame* CreateYUVFrame(float width, float height) override;
 
   void DrawSprite(const Sprite& sprite, const CornersQuad& dest,
-                  std::span<const glm::vec4, 4> tints, bool inverted,
-                  bool disableBlend) override;
+                  glm::mat4 transformation, std::span<const glm::vec4, 4> tints,
+                  bool inverted, bool disableBlend) override;
 
   void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
                         const CornersQuad& spriteDest,
                         const CornersQuad& maskDest, int alpha, int fadeRange,
+                        glm::mat4 spriteTransformation,
+                        glm::mat4 maskTransformation,
                         std::span<const glm::vec4, 4> tints, bool isInverted,
                         bool isSameTexture);
-
-  void DrawVertices(const SpriteSheet& sheet,
-                    std::span<const VertexBufferSprites> vertices,
-                    std::span<const uint16_t> indices, bool inverted) override;
-
-  void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
-                        RectF const& dest, glm::vec4 tint, int alpha,
-                        int fadeRange, float effectCt) override;
 
   void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
                                const CornersQuad& spriteDest,
                                const CornersQuad& maskDest, int alpha,
-                               int fadeRange,
+                               int fadeRange, glm::mat4 spriteTransformation,
+                               glm::mat4 maskTransformation,
                                std::span<const glm::vec4, 4> tints,
                                bool isInverted, bool useMaskAlpha) override;
+
+  void DrawVertices(const SpriteSheet& sheet,
+                    std::span<const VertexBufferSprites> vertices,
+                    std::span<const uint16_t> indices, glm::mat4 transformation,
+                    bool inverted) override;
+
+  void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
+                        RectF const& dest, glm::vec4 tint, int alpha,
+                        int fadeRange, float effectCt) override;
 
   void DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
                                const RectF& dest, float alpha) override;

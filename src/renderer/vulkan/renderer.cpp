@@ -1133,6 +1133,7 @@ YUVFrame* Renderer::CreateYUVFrame(float width, float height) {
 }
 
 void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
+                          const glm::mat4 transformation,
                           const std::span<const glm::vec4, 4> tints,
                           const bool inverted, const bool disableBlend) {
   if (!Drawing) {
@@ -1170,13 +1171,12 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
   for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
 }
 
-void Renderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
-                                const CornersQuad& spriteDest,
-                                const CornersQuad& maskDest, int alpha,
-                                const int fadeRange,
-                                const std::span<const glm::vec4, 4> tints,
-                                const bool isInverted,
-                                const bool isSameTexture) {
+void Renderer::DrawMaskedSprite(
+    const Sprite& sprite, const Sprite& mask, const CornersQuad& spriteDest,
+    const CornersQuad& maskDest, int alpha, const int fadeRange,
+    const glm::mat4 spriteTransformation, const glm::mat4 maskTransformation,
+    const std::span<const glm::vec4, 4> tints, const bool isInverted,
+    const bool isSameTexture) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawMaskedSpriteOverlay() called before BeginFrame()\n");
@@ -1255,6 +1255,7 @@ void Renderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
 void Renderer::DrawMaskedSpriteOverlay(
     const Sprite& sprite, const Sprite& mask, const CornersQuad& spriteDest,
     const CornersQuad& maskDest, int alpha, const int fadeRange,
+    const glm::mat4 spriteTransformation, const glm::mat4 maskTransformation,
     const std::span<const glm::vec4, 4> tints, const bool isInverted,
     const bool useMaskAlpha) {
   if (!Drawing) {
@@ -1351,6 +1352,7 @@ void Renderer::DrawMaskedSpriteOverlay(
 void Renderer::DrawVertices(const SpriteSheet& sheet,
                             const std::span<const VertexBufferSprites> vertices,
                             const std::span<const uint16_t> indices,
+                            const glm::mat4 transformation,
                             const bool inverted) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
