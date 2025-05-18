@@ -34,6 +34,8 @@ inline std::vector<glm::vec2> MovieDiskDisplayPositions;
 
 inline float FadeInDuration;
 inline float FadeOutDuration;
+inline float SubMenuFadeInDuration;
+inline float SubMenuFadeOutDuration;
 
 void Configure();
 

@@ -50,5 +50,13 @@ inline BacklogMenu* BacklogMenuPtr = nullptr;
 inline TipsMenu* TipsMenuPtr = nullptr;
 inline OptionsMenu* OptionsMenuPtr = nullptr;
 
+// Extras menus
+inline Menu* LibraryMenuPtr = nullptr;
+inline Menu* ClearListMenuPtr = nullptr;
+inline Menu* AlbumMenuPtr = nullptr;
+inline Menu* MusicMenuPtr = nullptr;
+inline Menu* MovieMenuPtr = nullptr;
+inline Menu* ActorsVoiceMenuPtr = nullptr;
+
 }  // namespace UI
 }  // namespace Impacto
