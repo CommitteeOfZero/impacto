@@ -304,7 +304,8 @@ VmInstruction(InstAlbum) {
                  "STUB instruction Album(type: EXmenuInit)\n");
       break;
     case 1:  // EXmenuMain
-      if (!((Interface::PADinputButtonWentDown & Interface::PAD1B) ||
+      if ((UI::LibraryMenuPtr && !UI::LibraryMenuPtr->AllowsScriptInput) ||
+          !((Interface::PADinputButtonWentDown & Interface::PAD1B) ||
             (Interface::PADinputMouseWentDown & Interface::PAD1B))) {
         ResetInstruction;
         BlockThread;
