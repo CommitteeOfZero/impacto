@@ -25,26 +25,44 @@ using namespace Impacto::UI::Widgets;
 using namespace Impacto::UI::Widgets::CCLCC;
 
 LibraryMenu::LibraryMenu() : MainItems(this) {
-  auto libraryMenuOnClick = [&](Widgets::Button* target) {
+  auto libraryMenuOnClickCommon = [&](Widgets::Button* target) {
     auto* button = static_cast<LibraryMenuButton*>(target);
     auto* prevButton = static_cast<LibraryMenuButton*>(
         MainItems.Children.at(CurrentLibraryMenu));
     Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
     prevButton->Selected = false;
     CurrentLibraryMenu = LibraryMenuPageType::_from_integral(target->Id);
+    AllowsScriptInput = false;
     button->Selected = true;
+  };
+  auto showAlbumMenu = [this,
+                        libraryMenuOnClickCommon](Widgets::Button* target) {
+    // AlbumMenu.Show();
+    libraryMenuOnClickCommon(target);
+  };
+
+  auto showSoundMenu = [this,
+                        libraryMenuOnClickCommon](Widgets::Button* target) {
+    // SoundMenu.Show();
+    libraryMenuOnClickCommon(target);
+  };
+
+  auto showMovieMenu = [this,
+                        libraryMenuOnClickCommon](Widgets::Button* target) {
+    MovieMenu.Show();
+    libraryMenuOnClickCommon(target);
   };
 
   auto* album = new LibraryMenuButton(0, SnapPhotoSpriteHover,
                                       SnapPhotoSpriteSelect, SnapPhotoPos);
-  album->OnClickHandler = libraryMenuOnClick;
+  album->OnClickHandler = showAlbumMenu;
 
   auto* sound = new LibraryMenuButton(1, HitSongsSpriteHover,
                                       HitSongsSpriteSelect, HitSongsPos);
-  sound->OnClickHandler = libraryMenuOnClick;
+  sound->OnClickHandler = showSoundMenu;
   auto* movie = new LibraryMenuButton(2, LoveMovieSpriteHover,
                                       LoveMovieSpriteSelect, LoveMoviePos);
-  movie->OnClickHandler = libraryMenuOnClick;
+  movie->OnClickHandler = showMovieMenu;
 
   MainItems.Add(album, FDIR_DOWN);
   MainItems.Add(sound, FDIR_DOWN);
@@ -99,6 +117,9 @@ void LibraryMenu::Update(float dt) {
   }
   FadeAnimation.Update(dt);
   MainItems.Update(dt);
+  if (CurrentLibraryMenu == +LibraryMenuPageType::Movie) {
+    MovieMenu.Update(dt);
+  }
 
   if (State == Showing && FadeAnimation.Progress == 1.0f &&
       ScrWork[SW_SYSSUBMENUCT] == 32) {
@@ -120,6 +141,13 @@ void LibraryMenu::Render() {
     if (CurrentLibraryMenu != +LibraryMenuPageType::Sound) {
       Renderer->DrawSprite(LibraryBackgroundSprite, LibraryBackgroundPosition,
                            col);
+    }
+    if (CurrentLibraryMenu == +LibraryMenuPageType::Album) {
+      // AlbumMenu.Render();
+    } else if (CurrentLibraryMenu == +LibraryMenuPageType::Sound) {
+      // SoundMenu.Render();
+    } else if (CurrentLibraryMenu == +LibraryMenuPageType::Movie) {
+      MovieMenu.Render();
     }
     Renderer->DrawSprite(LibraryIndexSprite, LibraryIndexPosition, col);
     MainItems.Render();

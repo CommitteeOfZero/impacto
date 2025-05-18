@@ -177,6 +177,7 @@ set(Impacto_Src
         src/games/cclcc/tipssystem.cpp
         src/games/cclcc/clearlistmenu.cpp
         src/games/cclcc/librarymenu.cpp
+        src/games/cclcc/librarysubmenus.cpp
         src/games/cclcc/tipsnotification.cpp
         src/games/cclcc/mapsystem.cpp
         src/games/cclcc/delusiontrigger.cpp
