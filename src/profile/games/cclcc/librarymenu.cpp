@@ -28,8 +28,27 @@ void Configure() {
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMember<int>("DrawType"));
 
-  auto library = new UI::CCLCC::LibraryMenu();
-  UI::Menus[drawType].push_back(library);
+  SnapPhotoSpriteHover = EnsureGetMember<Sprite>("SnapPhotoSpriteHover");
+  SnapPhotoSpriteSelect = EnsureGetMember<Sprite>("SnapPhotoSpriteSelect");
+  SnapPhotoPos = EnsureGetMember<glm::vec2>("SnapPhotoPos");
+  HitSongsSpriteHover = EnsureGetMember<Sprite>("HitSongsSpriteHover");
+  HitSongsSpriteSelect = EnsureGetMember<Sprite>("HitSongsSpriteSelect");
+  HitSongsPos = EnsureGetMember<glm::vec2>("HitSongsPos");
+  LoveMovieSpriteHover = EnsureGetMember<Sprite>("LoveMovieSpriteHover");
+  LoveMovieSpriteSelect = EnsureGetMember<Sprite>("LoveMovieSpriteSelect");
+  LoveMoviePos = EnsureGetMember<glm::vec2>("LoveMoviePos");
+
+  MovieDiskSprites = GetMemberVector<Sprite>("MovieDiskSprites");
+  MovieDiskHighlightSprites =
+      GetMemberVector<Sprite>("MovieDiskHighlightSprites");
+  MovieDiskDisplayPositions =
+      GetMemberVector<glm::vec2>("MovieDiskDisplayPositions");
+  SubMenuFadeInDuration = EnsureGetMember<float>("SubMenuFadeInDuration");
+  SubMenuFadeOutDuration = EnsureGetMember<float>("SubMenuFadeOutDuration");
+  MovieDiskPlayIds = GetMemberVector<int>("MovieDiskPlayIds");
+
+  UI::LibraryMenuPtr = new UI::CCLCC::LibraryMenu();
+  UI::Menus[drawType].push_back(UI::LibraryMenuPtr);
 }
 
 }  // namespace LibraryMenu

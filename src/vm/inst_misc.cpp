@@ -300,18 +300,20 @@ VmInstruction(InstAlbum) {
   PopUint8(type);
   switch (type) {
     case 0:  // EXmenuInit
+      SetFlag(SF_ALBUMEND, false);
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction Album(type: EXmenuInit)\n");
       break;
     case 1:  // EXmenuMain
-      if (!((Interface::PADinputButtonWentDown & Interface::PAD1B) ||
-            (Interface::PADinputMouseWentDown & Interface::PAD1B))) {
-        ResetInstruction;
-        BlockThread;
-      } else {
-        SetFlag(SF_ALBUMEND, true);
-        Interface::PADinputButtonWentDown |= Interface::PAD1A;
-      }
+      // if ((UI::LibraryMenuPtr && !UI::LibraryMenuPtr->AllowsScriptInput) ||
+      //     !((Interface::PADinputButtonWentDown & Interface::PAD1B) ||
+      //       (Interface::PADinputMouseWentDown & Interface::PAD1B))) {
+      //   ResetInstruction;
+      //   BlockThread;
+      // } else {
+      //   SetFlag(SF_ALBUMEND, true);
+      //   Interface::PADinputButtonWentDown |= Interface::PAD1A;
+      // }
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction Album(type: EXmenuMain)\n");
       break;
