@@ -27,6 +27,17 @@ root.ExtraMenus = {
         LibraryButtonGuideSprite = "LibraryButtonGuide",
         LibraryButtonGuidePosition = { X = 0, Y = 989 },
         LibraryMaskSprite = "LibraryMask",
+        
+        SnapPhotoSpriteHover = "SnapPhotoHover",
+        SnapPhotoSpriteSelect = "SnapPhotoSelect",
+        HitSongsSpriteHover = "HitSongsHover",
+        HitSongsSpriteSelect = "HitSongsSelect",
+        LoveMovieSpriteHover = "LoveMovieHover",
+        LoveMovieSpriteSelect = "LoveMovieSelect",
+
+        SnapPhotoPos = {X=0, Y=80},
+        HitSongsPos = {X=0, Y=382},
+        LoveMoviePos = {X=0, Y=684},
     }
 }
 
@@ -125,31 +136,30 @@ root.Sprites["AlbumButtonGuide"] = {
 
 root.Sprites["SnapPhotoHover"] = {
     Sheet = "LibraryMenu",
-    Bounds = { X = 0, Y = 0, Width = 252, Height = 300 },
+    Bounds = { X = 0, Y = 0, Width = 256, Height = 300 },
 };
 
 root.Sprites["HitSongsHover"] = {
     Sheet = "LibraryMenu",
-    Bounds = { X = 256, Y = 0, Width = 252, Height = 300 },
+    Bounds = { X = 256, Y = 0, Width = 256, Height = 300 },
 };
 
 root.Sprites["LoveMovieHover"] = {
     Sheet = "LibraryMenu",
-    Bounds = { X = 512, Y = 0, Width = 252, Height = 300 },
+    Bounds = { X = 512, Y = 0, Width = 256, Height = 300 },
 };
 
-root.Sprites["SnapPhotoSelecting"] = {
+root.Sprites["SnapPhotoSelect"] = {
     Sheet = "LibraryMenu",
-    Bounds = { X = 0, Y = 365, Width = 350, Height = 300 },
+    Bounds = { X = 0, Y = 360, Width = 352, Height = 300 },
 };
 
-root.Sprites["HitSongsHover"] = {
+root.Sprites["HitSongsSelect"] = {
     Sheet = "LibraryMenu",
-    Bounds = { X = 352, Y = 365, Width = 350, Height = 300 },
+    Bounds = { X = 352, Y = 360, Width = 352, Height = 300 },
 };
 
-root.Sprites["LoveMovieHover"] = {
+root.Sprites["LoveMovieSelect"] = {
     Sheet = "LibraryMenu",
-    Bounds = { X = 704, Y = 365, Width = 350, Height = 300 },
+    Bounds = { X = 704, Y = 360, Width = 352, Height = 300 },
 };
-
