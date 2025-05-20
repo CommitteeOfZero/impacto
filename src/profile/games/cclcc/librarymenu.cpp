@@ -45,6 +45,7 @@ void Configure() {
       GetMemberVector<glm::vec2>("MovieDiskDisplayPositions");
   SubMenuFadeInDuration = EnsureGetMember<float>("SubMenuFadeInDuration");
   SubMenuFadeOutDuration = EnsureGetMember<float>("SubMenuFadeOutDuration");
+  MovieDiskPlayIds = GetMemberVector<int>("MovieDiskPlayIds");
 
   UI::LibraryMenuPtr = new UI::CCLCC::LibraryMenu();
   UI::Menus[drawType].push_back(UI::LibraryMenuPtr);

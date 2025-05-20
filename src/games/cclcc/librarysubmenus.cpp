@@ -1,5 +1,6 @@
 #include "../../ui/ui.h"
 #include "../../profile/games/cclcc/librarymenu.h"
+#include "../../video/videosystem.h"
 #include "librarysubmenus.h"
 
 namespace Impacto {
@@ -7,6 +8,7 @@ namespace UI {
 namespace CCLCC {
 
 using namespace Impacto::Profile::CCLCC::LibraryMenu;
+using namespace Impacto::Profile::ScriptVars;
 
 void LibrarySubmenu::Show() {
   if (State != Shown) {
@@ -66,9 +68,14 @@ MovieMenu::MovieMenu() : LibrarySubmenu() {
   for (int i = 0; i < MovieDiskSprites.size(); ++i) {
     const auto& diskSprite = MovieDiskSprites[i];
     const auto& diskHighlightSprite = MovieDiskHighlightSprites[i];
+    auto movieOnclick = [this, i](Widgets::Button* target) {
+      ScrWork[2301] = MovieDiskPlayIds[i];
+      LibraryMenuPtr->AllowsScriptInput = true;
+    };
     auto disk =
         new Widgets::Button(i, diskSprite, Sprite(), diskHighlightSprite,
                             MovieDiskDisplayPositions[i]);
+    disk->OnClickHandler = movieOnclick;
     MainItems.Add(disk, FDIR_RIGHT);
   }
 }
