@@ -7,6 +7,7 @@
 #include "../../profile/dialogue.h"
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
+#include "../../video/videosystem.h"
 #include "../../profile/scriptvars.h"
 #include "../../vm/interface/input.h"
 #include "../../profile/game.h"
@@ -27,10 +28,12 @@ using namespace Impacto::UI::Widgets::CCLCC;
 LibraryMenu::LibraryMenu() : MainItems(this) {
   auto libraryMenuOnClickCommon = [&](Widgets::Button* target) {
     auto* button = static_cast<LibraryMenuButton*>(target);
-    auto* prevButton = static_cast<LibraryMenuButton*>(
-        MainItems.Children.at(CurrentLibraryMenu));
+    if (CurrentLibraryMenu) {
+      auto* prevButton = static_cast<LibraryMenuButton*>(
+          MainItems.Children.at(+*CurrentLibraryMenu));
+      prevButton->Selected = false;
+    }
     Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
-    prevButton->Selected = false;
     CurrentLibraryMenu = LibraryMenuPageType::_from_integral(target->Id);
     AllowsScriptInput = false;
     button->Selected = true;
@@ -114,6 +117,25 @@ void LibraryMenu::Update(float dt) {
   }
   if (State == Shown && ScrWork[SW_SYSSUBMENUNO] == 8) {
     UpdateInput();
+    if ((Vm::Interface::PADinputButtonWentDown & Vm::Interface::PAD1B) ||
+        (Vm::Interface::PADinputMouseWentDown & Vm::Interface::PAD1B)) {
+      if (CurrentLibraryMenu) {
+        auto* activeButton = static_cast<LibraryMenuButton*>(
+            MainItems.Children.at(*CurrentLibraryMenu));
+        activeButton->Selected = false;
+        if (*CurrentLibraryMenu == +LibraryMenuPageType::Movie) {
+          MovieMenu.Hide();
+        } else if (*CurrentLibraryMenu == +LibraryMenuPageType::Album) {
+          // AlbumMenu.Hide();
+        } else if (*CurrentLibraryMenu == +LibraryMenuPageType::Sound) {
+          // SoundMenu.Hide();
+        }
+        CurrentLibraryMenu = std::nullopt;
+
+      } else {
+        SetFlag(SF_ALBUMEND, 1);
+      }
+    }
   }
   FadeAnimation.Update(dt);
   MainItems.Update(dt);
@@ -157,6 +179,10 @@ void LibraryMenu::Render() {
         maskTint);
     Renderer->DrawSprite(LibraryButtonGuideSprite, LibraryButtonGuidePosition,
                          col);
+    if (CurrentLibraryMenu == +LibraryMenuPageType::Movie &&
+        Video::Players[0]->IsPlaying) {
+      Video::VideoRender(1);
+    }
   }
 }
 

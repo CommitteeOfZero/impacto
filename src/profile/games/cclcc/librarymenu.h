@@ -31,6 +31,7 @@ inline glm::vec2 LoveMoviePos;
 inline std::vector<Sprite> MovieDiskSprites;
 inline std::vector<Sprite> MovieDiskHighlightSprites;
 inline std::vector<glm::vec2> MovieDiskDisplayPositions;
+inline std::vector<int> MovieDiskPlayIds;
 
 inline float FadeInDuration;
 inline float FadeOutDuration;
