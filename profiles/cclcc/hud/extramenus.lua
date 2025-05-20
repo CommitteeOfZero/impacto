@@ -44,11 +44,12 @@ root.ExtraMenus = {
         MovieDiskSprites = {},
         MovieDiskHighlightSprites = {},
         MovieDiskDisplayPositions = {
-            {X = 300, Y= 200},
-            {X = 300, Y= 400},
-            {X = 500, Y= 200},
-            {X = 500, Y= 400},
+            {X = 388, Y= 138},
+            {X = 830, Y= 578},
+            {X = 956, Y= -64},
+            {X = 1422, Y= 412},
         },
+        MovieDiskPlayIds = {54, 53, 52, 51},
     }
 }
 
