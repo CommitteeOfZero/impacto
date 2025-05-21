@@ -179,6 +179,8 @@ void LibraryMenu::Render() {
         maskTint);
     Renderer->DrawSprite(LibraryButtonGuideSprite, LibraryButtonGuidePosition,
                          col);
+    // This is technically a double render but menus always render after videos
+    // so what can you do.
     if (CurrentLibraryMenu == +LibraryMenuPageType::Movie &&
         Video::Players[0]->IsPlaying) {
       Video::VideoRender(1);

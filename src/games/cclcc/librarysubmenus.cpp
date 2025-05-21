@@ -14,6 +14,15 @@ void LibrarySubmenu::Show() {
   if (State != Shown) {
     State = Showing;
     FadeAnimation.StartIn();
+    MainItems.Children[0]->Enabled = true;
+    MainItems.Children[1]->Enabled = GetFlag(SF_CLR_TRUE_CCLCC);
+    MainItems.Children[2]->Enabled = [&]() {
+      for (int i = 1; i < 10; ++i) {
+        if (GetFlag(SF_CLR_END1 + i)) return true;
+      }
+      return false;
+    }();
+    MainItems.Children[3]->Enabled = GetFlag(SF_CLR_END1);
     MainItems.Show();
     if (UI::FocusedMenu != 0) {
       LastFocusedMenu = UI::FocusedMenu;
@@ -69,7 +78,7 @@ MovieMenu::MovieMenu() : LibrarySubmenu() {
     const auto& diskSprite = MovieDiskSprites[i];
     const auto& diskHighlightSprite = MovieDiskHighlightSprites[i];
     auto movieOnclick = [this, i](Widgets::Button* target) {
-      ScrWork[2301] = MovieDiskPlayIds[i];
+      ScrWork[SW_MOVIEMODE_CUR] = MovieDiskPlayIds[i];
       LibraryMenuPtr->AllowsScriptInput = true;
     };
     auto disk =
