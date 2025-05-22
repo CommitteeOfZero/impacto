@@ -162,6 +162,8 @@ struct RectF {
   static RectF Coalesce(const RectF& first, const RectF& second);
 
   CornersQuad Transform(glm::mat4 transformation) const;
+  CornersQuad Transform(
+      const std::function<glm::vec2(glm::vec2)>& transformation) const;
 
   RectF& Translate(glm::vec2 offset) { return *this += offset; }
   RectF& Translate(float dx, float dy) { return Translate({dx, dy}); }
@@ -246,6 +248,8 @@ struct CornersQuad {
   }
 
   CornersQuad& Transform(glm::mat4 transformation);
+  CornersQuad& Transform(
+      const std::function<glm::vec2(glm::vec2)>& transformation);
 
   CornersQuad& Translate(glm::vec2 offset);
   CornersQuad& Translate(float dx, float dy) { return Translate({dx, dy}); }
