@@ -143,8 +143,8 @@ void Renderer::Init() {
   glGenSamplers(1, &Sampler);
 
   // Don't wrap textures
-  glSamplerParameteri(Sampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glSamplerParameteri(Sampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glSamplerParameteri(Sampler, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glSamplerParameteri(Sampler, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
   glSamplerParameteri(Sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glSamplerParameteri(Sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -522,10 +522,6 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
   glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "Transformation"), 1,
                      GL_FALSE, &transformation[0][0]);
 
-  glBindSampler(2, Sampler);
-  glSamplerParameteri(Sampler, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glSamplerParameteri(Sampler, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
   // Push vertices
   VertexBufferSprites* vertexBuffer =
       (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
@@ -545,8 +541,6 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
 
   // Flush again and bind back our buffer
   Flush();
-  glSamplerParameteri(Sampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glSamplerParameteri(Sampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER,
                IndexBufferCount * sizeof(IndexBuffer[0]), IndexBuffer,
                GL_STATIC_DRAW);

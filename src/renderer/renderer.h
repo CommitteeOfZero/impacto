@@ -228,17 +228,6 @@ class BaseRenderer {
                  glm::translate(glm::mat4(1.0f), glm::vec3(offset, 0.0f)),
                  inverted);
   }
-  void DrawVertices(const SpriteSheet& sheet,
-                    std::span<const VertexBufferSprites> vertices, int width,
-                    int height, glm::mat4 transformation = glm::mat4(1.0f),
-                    bool inverted = false);
-  void DrawVertices(const SpriteSheet& sheet,
-                    std::span<const VertexBufferSprites> vertices, int width,
-                    int height, glm::vec2 offset, bool inverted = false) {
-    DrawVertices(sheet, vertices, width, height,
-                 glm::translate(glm::mat4(1.0f), glm::vec3(offset, 0.0f)),
-                 inverted);
-  }
 
   void DrawQuad(const CornersQuad& dest, glm::vec4 color);
 
