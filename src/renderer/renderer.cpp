@@ -87,34 +87,6 @@ static void InsertQuad(std::vector<VertexBufferSprites>& vertices,
   maxIndex += 4;
 }
 
-void BaseRenderer::DrawVertices(
-    const SpriteSheet& sheet,
-    const std::span<const VertexBufferSprites> vertices, const int width,
-    const int height, const glm::mat4 transformation, const bool inverted) {
-  // Generate indices for triangles
-  std::vector<uint16_t> indices;
-  indices.reserve((width - 1) * (height - 1) * 6);
-  for (int y = 0; y < height - 1; y++) {
-    for (int x = 0; x < width - 1; x++) {
-      int v0 = y * width + x;
-      int v1 = y * width + (x + 1);
-      int v2 = (y + 1) * width + x;
-      int v3 = (y + 1) * width + (x + 1);
-
-      // First triangle
-      for (auto v : {v1, v0, v2}) {
-        indices.push_back(v);
-      }
-      // Second triangle
-      for (auto v : {v3, v1, v2}) {
-        indices.push_back(v);
-      }
-    }
-  }
-
-  DrawVertices(sheet, vertices, indices, transformation, inverted);
-}
-
 void BaseRenderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                                     glm::vec2 topLeft, glm::vec4 tint,
                                     int alpha, int fadeRange, float effectCt,

@@ -14,6 +14,16 @@ CornersQuad& CornersQuad::Transform(const glm::mat4 transformation) {
   return *this;
 }
 
+CornersQuad& CornersQuad::Transform(
+    const std::function<glm::vec2(glm::vec2)>& transformation) {
+  TopLeft = transformation(TopLeft);
+  TopRight = transformation(TopRight);
+  BottomLeft = transformation(BottomLeft);
+  BottomRight = transformation(BottomRight);
+
+  return *this;
+}
+
 CornersQuad& CornersQuad::Translate(const glm::vec2 offset) {
   TopLeft += offset;
   TopRight += offset;
@@ -111,6 +121,11 @@ CornersQuad& CornersQuad::Rotate(const glm::quat rotation,
 }
 
 CornersQuad RectF::Transform(glm::mat4 transformation) const {
+  return CornersQuad(*this).Transform(transformation);
+}
+
+CornersQuad RectF::Transform(
+    const std::function<glm::vec2(glm::vec2)>& transformation) const {
   return CornersQuad(*this).Transform(transformation);
 }
 

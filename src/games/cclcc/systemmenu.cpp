@@ -154,95 +154,6 @@ void SystemMenu::Update(float dt) {
   }
 }
 
-auto GenerateMatrix(CornersQuad const& corners) {
-  auto get2DIndex = [](int x, int y) { return x + (GridColCount + 1) * y; };
-  constexpr int xVerticesCount = GridColCount + 1;
-  constexpr int yVerticesCount = GridRowCount + 1;
-  std::array<float, xVerticesCount> topRowX;
-  std::array<float, xVerticesCount> bottomRowX;
-  const float topRowWidthDelta =
-      (corners.TopRight.x - corners.TopLeft.x) / GridColCount;
-  const float bottomRowWidthDelta =
-      (corners.BottomRight.x - corners.BottomLeft.x) / GridColCount;
-  for (int i = 0; i < xVerticesCount; i++) {
-    topRowX[i] = corners.TopLeft.x + topRowWidthDelta * i;
-    bottomRowX[i] = corners.BottomLeft.x + bottomRowWidthDelta * i;
-  }
-  std::array<float, yVerticesCount> leftColY;
-  std::array<float, yVerticesCount> rightColY;
-  const float leftColHeightDelta =
-      (corners.BottomLeft.y - corners.TopLeft.y) / GridRowCount;
-  const float rightColHeightDelta =
-      (corners.BottomRight.y - corners.TopRight.y) / GridRowCount;
-  for (int i = 0; i < yVerticesCount; i++) {
-    leftColY[i] = corners.TopLeft.y + leftColHeightDelta * i;
-    rightColY[i] = corners.TopRight.y + rightColHeightDelta * i;
-  }
-
-  std::array<float, xVerticesCount> xDeltas;
-  for (int col = 0; col < xDeltas.size(); col++) {
-    xDeltas[col] = (bottomRowX[col] - topRowX[col]) / GridRowCount;
-  }
-
-  std::array<float, yVerticesCount> yDeltas;
-  for (int row = 0; row < yDeltas.size(); row++) {
-    yDeltas[row] = (rightColY[row] - leftColY[row]) / GridColCount;
-  }
-
-  std::array<glm::vec2, yVerticesCount * xVerticesCount> matrix;
-  for (int row = 0; row < yVerticesCount; row++) {
-    for (int col = 0; col < xVerticesCount; col++) {
-      glm::vec2 pos = {topRowX[col] + xDeltas[col] * row,
-                       leftColY[row] + yDeltas[row] * col};
-      matrix[get2DIndex(col, row)] = pos;
-    }
-  }
-  return matrix;
-}
-
-glm::vec2 TransformImageVertex(const glm::vec2 vertex, const glm::quat rotation,
-                               const float scale, const glm::vec2 origin) {
-  glm::mat4 transformation = TransformationMatrix(
-      origin, {scale, scale}, {origin, 0.0f}, rotation, -origin);
-
-  glm::vec4 transformedVertex = {vertex, 0.0f, 1.0f};
-  transformedVertex = transformation * transformedVertex;
-  const float perspective = (transformedVertex.z / 2000.0f) + 1.0f;
-  transformedVertex *= perspective;
-  transformedVertex += glm::vec4(origin, 0.0f, 0.0f);
-
-  return transformedVertex;
-}
-
-void TransformImageCorners(CornersQuad& corners, const glm::quat rotation,
-                           const float scale, const glm::vec2 origin) {
-  corners.BottomLeft =
-      TransformImageVertex(corners.BottomLeft, rotation, scale, origin);
-  corners.BottomRight =
-      TransformImageVertex(corners.BottomRight, rotation, scale, origin);
-  corners.TopLeft =
-      TransformImageVertex(corners.TopLeft, rotation, scale, origin);
-  corners.TopRight =
-      TransformImageVertex(corners.TopRight, rotation, scale, origin);
-}
-
-void TransformImage(CornersQuad const& sprCorners,
-                    CornersQuad const& destCorners, glm::quat rotation,
-                    float scale, glm::vec2 origin, glm::vec2 sheetBounds,
-                    SystemMenu::GridVertices& vertices) {
-  auto spriteVertices = GenerateMatrix(sprCorners);
-  auto displayVertices = GenerateMatrix(destCorners);
-
-  for (size_t i = 0; i < vertices.size(); i++) {
-    vertices[i] = VertexBufferSprites{
-        .Position =
-            TransformImageVertex(displayVertices[i], rotation, scale, origin),
-        .UV = spriteVertices[i] / sheetBounds,
-        .Tint = glm::vec4(1.0f),
-    };
-  }
-}
-
 void SystemMenu::Render() {
   if (State != Hidden && !GetFlag(SF_TITLEMODE)) {
     if (MenuTransition.IsIn()) {
@@ -253,10 +164,11 @@ void SystemMenu::Render() {
     // Renderer->DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f,
     // 720.0f),
     //                      glm::vec4(tint, alpha));
+
     float bgOffset = (ScrWork[SW_SYSSUBMENUCT] * 3000.0f * 0.03125f);
-    RectF bgSpriteBounds = SystemMenuBG.Bounds;
-    bgSpriteBounds.X += (BGPosition.x - 0.5f * bgOffset);
-    bgSpriteBounds.Y += BGPosition.y;
+    Sprite offsetSystemMenuBG(SystemMenuBG);
+    offsetSystemMenuBG.Bounds.Translate(BGPosition.x - 0.5f * bgOffset,
+                                        BGPosition.y);
 
     const float scale =
         (1000.0f - (ScrWork[SW_SYSMENUCT] * 400 / 32)) / 1000.0f;
@@ -265,34 +177,42 @@ void SystemMenu::Render() {
                                   (ScrWork[SW_SYSMENUCT] * AngleMultiplier.y),
                                   (ScrWork[SW_SYSMENUCT] * AngleMultiplier.z));
 
-    CornersQuad bgDisp = {
-        BGDispOffsetTopLeft,
-        BGDispOffsetBottomLeft,
-        BGDispOffsetTopRight,
-        BGDispOffsetBottomRight,
+    const auto transformation = [rotation, scale](glm::vec2 vertex) {
+      glm::mat4 transformation = TransformationMatrix(
+          BGTranslationOffset, {scale, scale}, {BGTranslationOffset, 0.0f},
+          rotation, -BGTranslationOffset);
+
+      glm::vec4 transformedVertex = {vertex, 0.0f, 1.0f};
+      transformedVertex = transformation * transformedVertex;
+      const float perspective = (transformedVertex.z / 2000.0f) + 1.0f;
+      transformedVertex *= perspective;
+      transformedVertex += glm::vec4(BGTranslationOffset, 0.0f, 0.0f);
+
+      return glm::vec2(transformedVertex);
     };
-    TransformImage(bgSpriteBounds, bgDisp, rotation, scale, BGTranslationOffset,
-                   SystemMenuBG.Sheet.GetDimensions(), Vertices);
-    Renderer->DrawVertices(SystemMenuBG.Sheet, Vertices, 21, 11);
+
+    const CornersQuad bgDisp =
+        CornersQuad(BGDispOffsetTopLeft, BGDispOffsetBottomLeft,
+                    BGDispOffsetTopRight, BGDispOffsetBottomRight)
+            .Transform(transformation);
+    Renderer->DrawSprite(offsetSystemMenuBG, bgDisp);
 
     if (!GetFlag(SF_SYSTEMMENUDIRECT)) {
-      CornersQuad frameDisp = {
-          glm::vec2{bgOffset, 0} + FrameOffsetTopLeft,
-          glm::vec2{bgOffset, 0} + FrameOffsetBottomLeft,
-          glm::vec2{bgOffset, 0} + FrameOffsetTopRight,
-          glm::vec2{bgOffset, 0} + FrameOffsetBottomRight,
-      };
-      TransformImageCorners(frameDisp, rotation, scale, BGTranslationOffset);
+      const CornersQuad frameDisp =
+          CornersQuad(glm::vec2{bgOffset, 0} + FrameOffsetTopLeft,
+                      glm::vec2{bgOffset, 0} + FrameOffsetBottomLeft,
+                      glm::vec2{bgOffset, 0} + FrameOffsetTopRight,
+                      glm::vec2{bgOffset, 0} + FrameOffsetBottomRight)
+              .Transform(transformation);
       Renderer->DrawSprite(SystemMenuFrame, frameDisp);
 
-      CornersQuad screenCapDisp = {
-          glm::vec2{bgOffset + 0, 0},
-          glm::vec2{bgOffset + 0, Profile::DesignHeight},
-          glm::vec2{bgOffset + Profile::DesignWidth, 0},
-          glm::vec2{bgOffset + Profile::DesignWidth, Profile::DesignHeight},
-      };
-      TransformImageCorners(screenCapDisp, rotation, scale,
-                            BGTranslationOffset);
+      const CornersQuad screenCapDisp =
+          CornersQuad(
+              glm::vec2{bgOffset + 0, 0},
+              glm::vec2{bgOffset + 0, Profile::DesignHeight},
+              glm::vec2{bgOffset + Profile::DesignWidth, 0},
+              glm::vec2{bgOffset + Profile::DesignWidth, Profile::DesignHeight})
+              .Transform(transformation);
       Renderer->DrawSprite(ScreenCap, screenCapDisp, glm::vec4(1.0f), false,
                            true);
     }
