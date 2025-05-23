@@ -177,8 +177,15 @@ void LibraryMenu::Render() {
         LibraryMaskSprite,
         RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
         maskTint);
-    Renderer->DrawSprite(LibraryButtonGuideSprite, LibraryButtonGuidePosition,
-                         col);
+    const Sprite& guideSprite =
+        (CurrentLibraryMenu == +LibraryMenuPageType::Album)
+            ? AlbumMenuGuideSprite
+        : (CurrentLibraryMenu == +LibraryMenuPageType::Sound)
+            ? MusicMenuGuideSprite
+        : (CurrentLibraryMenu == +LibraryMenuPageType::Movie)
+            ? MovieMenuGuideSprite
+            : LibraryButtonGuideSprite;
+    Renderer->DrawSprite(guideSprite, LibraryButtonGuidePosition, col);
     // This is technically a double render but menus always render after videos
     // so what can you do.
     if (CurrentLibraryMenu == +LibraryMenuPageType::Movie &&
