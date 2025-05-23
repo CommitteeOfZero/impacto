@@ -33,6 +33,10 @@ inline std::vector<Sprite> MovieDiskHighlightSprites;
 inline std::vector<glm::vec2> MovieDiskDisplayPositions;
 inline std::vector<int> MovieDiskPlayIds;
 
+inline Sprite AlbumMenuGuideSprite;
+inline Sprite MusicMenuGuideSprite;
+inline Sprite MovieMenuGuideSprite;
+
 inline float FadeInDuration;
 inline float FadeOutDuration;
 inline float SubMenuFadeInDuration;
