@@ -35,12 +35,17 @@ root.ExtraMenus = {
         LoveMovieSpriteHover = "LoveMovieHover",
         LoveMovieSpriteSelect = "LoveMovieSelect",
 
+        AlbumMenuGuideSprite = "AlbumMenuGuide",
+        MusicMenuGuideSprite = "MusicMenuGuide",
+        MovieMenuGuideSprite = "MovieMenuGuide",
+        
         SnapPhotoPos = {X=0, Y=80},
         HitSongsPos = {X=0, Y=382},
         LoveMoviePos = {X=0, Y=684},
 
         SubMenuFadeInDuration = 0.4,
         SubMenuFadeOutDuration = 0.4,
+
         MovieDiskSprites = {},
         MovieDiskHighlightSprites = {},
         MovieDiskDisplayPositions = {
@@ -138,7 +143,7 @@ root.Sprites["LibraryIndex"] = {
 
 root.Sprites["LibraryButtonGuide"] = {
     Sheet = "LibraryMenu",
-    Bounds = { X = 0, Y = 1780, Width = 1926, Height = 57 },
+    Bounds = { X = 0, Y = 1783, Width = 1926, Height = 57 },
 };
 
 root.Sprites["AlbumButtonGuide"] = {
@@ -176,6 +181,14 @@ root.Sprites["LoveMovieSelect"] = {
     Bounds = { X = 704, Y = 360, Width = 352, Height = 300 },
 };
 
+
+-- Album Menu
+root.Sprites["AlbumMenuGuide"] = {
+    Sheet = "LibraryMenu",
+    Bounds = { X = 0, Y = 1880, Width = 1920, Height = 59 },
+};
+
+-- Movie Menu
 for i = 0, 3 do
     root.Sprites["MovieDiskSprites" .. i] = {
         Sheet = "MovMenu",
@@ -191,6 +204,13 @@ end
 
 root.Sprites["MovieMenuGuide"] = {
     Sheet = "MovMenu",
-    Bounds = { X = 0, Y = 0, Width = 350, Height = 300 },
+    Bounds = { X = 0, Y = 1169, Width = 1920, Height = 59 },
 };
 
+
+-- Music Menu
+
+root.Sprites["MusicMenuGuide"] = {
+    Sheet = "MusicMenu",
+    Bounds = { X = 0, Y = 1292, Width = 1920, Height = 59 },
+};

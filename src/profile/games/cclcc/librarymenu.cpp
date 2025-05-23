@@ -47,6 +47,10 @@ void Configure() {
   SubMenuFadeOutDuration = EnsureGetMember<float>("SubMenuFadeOutDuration");
   MovieDiskPlayIds = GetMemberVector<int>("MovieDiskPlayIds");
 
+  AlbumMenuGuideSprite = EnsureGetMember<Sprite>("AlbumMenuGuideSprite");
+  MusicMenuGuideSprite = EnsureGetMember<Sprite>("MusicMenuGuideSprite");
+  MovieMenuGuideSprite = EnsureGetMember<Sprite>("MovieMenuGuideSprite");
+
   UI::LibraryMenuPtr = new UI::CCLCC::LibraryMenu();
   UI::Menus[drawType].push_back(UI::LibraryMenuPtr);
 }
