@@ -1,6 +1,5 @@
 #include "titlemenu.h"
 #include "../../../log.h"
-// #include "../../../window.h"
 #include "../../../renderer/renderer.h"
 #include "../../profile_internal.h"
 
@@ -15,52 +14,32 @@ namespace CHLCC {
 namespace TitleMenu {
 
 void Configure() {
-  IntroBackgroundSprite = EnsureGetMember<Sprite>("IntroBackgroundSprite");
   BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSprite");
   DelusionADVUnderSprite = EnsureGetMember<Sprite>("DelusionADVUnderSprite");
-  DelusionADVUnderX = EnsureGetMember<float>("DelusionADVUnderX");
-  DelusionADVUnderY = EnsureGetMember<float>("DelusionADVUnderY");
   DelusionADVSprite = EnsureGetMember<Sprite>("DelusionADVSprite");
-  DelusionADVX = EnsureGetMember<float>("DelusionADVX");
-  DelusionADVY = EnsureGetMember<float>("DelusionADVY");
+  DelusionADVPosition = EnsureGetMember<glm::vec2>("DelusionADVPosition");
+  DelusionADVPopoutOffset =
+      EnsureGetMember<glm::vec2>("DelusionADVPopoutOffset");
   SeiraUnderSprite = EnsureGetMember<Sprite>("SeiraUnderSprite");
-  SeiraUnderX = EnsureGetMember<float>("SeiraUnderX");
-  SeiraUnderY = EnsureGetMember<float>("SeiraUnderY");
+  SeiraUnderPosition = EnsureGetMember<glm::vec2>("SeiraUnderPosition");
   SeiraSprite = EnsureGetMember<Sprite>("SeiraSprite");
-  SeiraX = EnsureGetMember<float>("SeiraX");
-  SeiraY = EnsureGetMember<float>("SeiraY");
+  SeiraPosition = EnsureGetMember<glm::vec2>("SeiraPosition");
   CHLogoSprite = EnsureGetMember<Sprite>("CHLogoSprite");
-  CHLogoX = EnsureGetMember<float>("CHLogoX");
-  CHLogoY = EnsureGetMember<float>("CHLogoY");
+  CHLogoPosition = EnsureGetMember<glm::vec2>("CHLogoPosition");
   LCCLogoUnderSprite = EnsureGetMember<Sprite>("LCCLogoUnderSprite");
-  LCCLogoUnderX = EnsureGetMember<float>("LCCLogoUnderX");
-  LCCLogoUnderY = EnsureGetMember<float>("LCCLogoUnderY");
-  ChuLeftLogoSprite = EnsureGetMember<Sprite>("ChuLeftLogoSprite");
-  ChuLeftLogoX = EnsureGetMember<float>("ChuLeftLogoX");
-  ChuLeftLogoY = EnsureGetMember<float>("ChuLeftLogoY");
-  ChuRightLogoSprite = EnsureGetMember<Sprite>("ChuRightLogoSprite");
-  ChuRightLogoX = EnsureGetMember<float>("ChuRightLogoX");
-  ChuRightLogoY = EnsureGetMember<float>("ChuRightLogoY");
-  LoveLogoSprite = EnsureGetMember<Sprite>("LoveLogoSprite");
-  LoveLogoX = EnsureGetMember<float>("LoveLogoX");
-  LoveLogoY = EnsureGetMember<float>("LoveLogoY");
+  LCCLogoUnderPosition = EnsureGetMember<glm::vec2>("LCCLogoUnderPosition");
   StarLogoSprite = EnsureGetMember<Sprite>("StarLogoSprite");
-  StarLogoX = EnsureGetMember<float>("StarLogoX");
-  StarLogoY = EnsureGetMember<float>("StarLogoY");
-  ExclMarkLogoSprite = EnsureGetMember<Sprite>("ExclMarkLogoSprite");
-  ExclMarkLogoX = EnsureGetMember<float>("ExclMarkLogoX");
-  ExclMarkLogoY = EnsureGetMember<float>("ExclMarkLogoY");
+  StarLogoPosition = EnsureGetMember<glm::vec2>("StarLogoPosition");
   CopyrightTextSprite = EnsureGetMember<Sprite>("CopyrightTextSprite");
-  CopyrightTextX = EnsureGetMember<float>("CopyrightTextX");
-  CopyrightTextY = EnsureGetMember<float>("CopyrightTextY");
+  CopyrightTextPosition = EnsureGetMember<glm::vec2>("CopyrightTextPosition");
   SpinningCircleSprite = EnsureGetMember<Sprite>("SpinningCircleSprite");
-  SpinningCircleX = EnsureGetMember<float>("SpinningCircleX");
-  SpinningCircleY = EnsureGetMember<float>("SpinningCircleY");
+  SpinningCirclePosition = EnsureGetMember<glm::vec2>("SpinningCirclePosition");
   SpinningCircleAnimationDuration =
       EnsureGetMember<float>("SpinningCircleAnimationDuration");
+  SpinningCircleFlashingAnimationDuration =
+      EnsureGetMember<float>("SpinningCircleFlashingAnimationDuration");
   ItemHighlightSprite = EnsureGetMember<Sprite>("ItemHighlightSprite");
-  ItemHighlightOffsetX = EnsureGetMember<float>("ItemHighlightOffsetX");
-  ItemHighlightOffsetY = EnsureGetMember<float>("ItemHighlightOffsetY");
+  ItemHighlightOffset = EnsureGetMember<glm::vec2>("ItemHighlightOffset");
   ItemPadding = EnsureGetMember<float>("ItemPadding");
   ItemYBase = EnsureGetMember<float>("ItemYBase");
   ItemFadeInDuration = EnsureGetMember<float>("ItemFadeInDuration");
@@ -112,6 +91,91 @@ void Configure() {
       EnsureGetMember<float>("SecondaryMenuSystemConfigY");
   SecondaryMenuSystemSaveY = EnsureGetMember<float>("SecondaryMenuSystemSaveY");
 
+  GetMemberArray<Sprite>(IntroHighlightSprites.data(), IntroHighlightCount,
+                         "IntroHighlightSprites");
+  GetMemberArray<float>(IntroHighlightPositions.data(), IntroHighlightCount,
+                        "IntroHighlightPositions");
+
+  GetMemberArray<Sprite>(LCCLogoSprites.data(), LCCLogoSpriteCount,
+                         "LCCLogoSprites");
+  GetMemberArray<glm::vec2>(LCCLogoPositions.data(), LCCLogoSpriteCount,
+                            "LCCLogoPositions");
+
+  IntroBackgroundSprite = EnsureGetMember<Sprite>("IntroBackgroundSprite");
+  IntroPanningAnimationDuration =
+      EnsureGetMember<float>("IntroPanningAnimationDuration");
+
+  IntroBouncingStarSprite = EnsureGetMember<Sprite>("IntroBouncingStarSprite");
+  IntroStarBounceAnimationDuration =
+      EnsureGetMember<float>("IntroBouncingStarAnimationDuration");
+
+  IntroExplodingStarSprite =
+      EnsureGetMember<Sprite>("IntroExplodingStarSprite");
+  IntroExplodingStarAnimationDistance =
+      EnsureGetMember<float>("IntroExplodingStarAnimationDistance");
+
+  IntroExplodingStarRotationAnimationDuration =
+      EnsureGetMember<float>("IntroExplodingStarAnimationRotationDuration");
+
+  IntroExplodingStarAnimationDuration =
+      EnsureGetMember<float>("IntroExplodingStarAnimationDuration");
+
+  IntroFallingStarSprite = EnsureGetMember<Sprite>("IntroFallingStarSprite");
+  IntroFallingStarsAnimationDistance =
+      EnsureGetMember<float>("IntroFallingStarsAnimationDistance");
+  IntroFallingStarsAnimationDirection = glm::normalize(
+      EnsureGetMember<glm::vec2>("IntroFallingStarsAnimationDirection"));
+  IntroFallingStarsAnimationDuration =
+      EnsureGetMember<float>("IntroFallingStarsAnimationDuration");
+
+  IntroFallingStarsRotationAnimationDuration =
+      EnsureGetMember<float>("IntroFallingStarsAnimationRotationDuration");
+
+  IntroCHLogoFadeAnimationStartY =
+      EnsureGetMember<float>("IntroCHLogoFadeAnimationStartY");
+  IntroLogoFadeAnimationDuration =
+      EnsureGetMember<float>("IntroCHLogoFadeAnimationDuration");
+
+  IntroLCCLogoAnimationDuration =
+      EnsureGetMember<float>("IntroLCCLogoAnimationDuration");
+
+  IntroLogoStarHighlightAnimationDuration =
+      EnsureGetMember<float>("IntroLogoStarHighlightAnimationDuration");
+  IntroLogoStarHighlightSprite =
+      EnsureGetMember<Sprite>("IntroLogoStarHighlightSprite");
+  IntroLogoStarHighlightPosition =
+      EnsureGetMember<glm::vec2>("IntroLogoStarHighlightPosition");
+
+  IntroDelusionADVSpriteCount =
+      EnsureGetMember<int>("IntroDelusionADVSpriteCount");
+  GetMemberArray<Sprite>(IntroDelusionADVSprites.data(),
+                         IntroDelusionADVSpriteCount,
+                         "IntroDelusionADVSprites");
+  GetMemberArray<glm::vec2>(IntroDelusionADVPositions.data(),
+                            IntroDelusionADVSpriteCount,
+                            "IntroDelusionADVPositions");
+  IntroDelusionADVAnimationDuration =
+      EnsureGetMember<float>("IntroDelusionADVAnimationDuration");
+
+  SeiraPopoutOffset = EnsureGetMember<glm::vec2>("SeiraPopoutOffset");
+  IntroSeiraAnimationDuration =
+      EnsureGetMember<float>("IntroSeiraAnimationDuration");
+
+  IntroDelusionADVHighlightAnimationDuration =
+      EnsureGetMember<float>("IntroDelusionADVHighlightAnimationDuration");
+
+  IntroLogoPopOutOffset = EnsureGetMember<glm::vec2>("IntroLogoPopOutOffset");
+  IntroLogoPopOutAnimationDuration =
+      EnsureGetMember<float>("IntroLogoPopOutAnimationDuration");
+  IntroLogoPopOutAnimationDelay =
+      EnsureGetMember<float>("IntroLogoPopOutAnimationDelay");
+
+  IntroCopyrightAnimationDuration =
+      EnsureGetMember<float>("IntroCopyrightAnimationDuration");
+
+  IntroAfterPanningWaitDuration =
+      EnsureGetMember<float>("IntroAfterPanningWaitDuration");
+
   UI::CHLCC::TitleMenu* menu = new UI::CHLCC::TitleMenu();
   menu->PressToStartAnimation.DurationIn =
       Profile::TitleMenu::PressToStartAnimDurationIn;
@@ -127,8 +191,10 @@ void Configure() {
       SecondaryItemFadeOutDuration;
 
   menu->SpinningCircleAnimation.LoopMode = AnimationLoopMode::Loop;
-  menu->SpinningCircleAnimation.DurationIn = SpinningCircleAnimationDuration;
-  menu->SpinningCircleAnimation.DurationOut = SpinningCircleAnimationDuration;
+  menu->SpinningCircleAnimation.SetDuration(SpinningCircleAnimationDuration);
+
+  menu->SpinningCircleFlashingAnimation.LoopMode =
+      AnimationLoopMode::ReverseDirection;
 
   UI::TitleMenuPtr = menu;
 

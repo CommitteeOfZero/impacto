@@ -121,6 +121,12 @@ void Renderer::Init() {
   glUniform1i(glGetUniformLocation(ShaderProgramCCMessageBox, "ColorMap"), 0);
   ShaderProgramCHLCCMenuBackground = Shaders->Compile("CHLCCMenuBackground");
 
+  ShaderProgramColorShift = Shaders->Compile("SpriteColorShift");
+  glUseProgram(ShaderProgramColorShift);
+  glUniform1i(glGetUniformLocation(ShaderProgramColorShift, "ColorMap"), 0);
+  ColorShiftLocation =
+      glGetUniformLocation(ShaderProgramColorShift, "ColorShift");
+
   // No-mipmapping sampler
   glGenSamplers(1, &Sampler);
 
@@ -590,8 +596,15 @@ void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
               sprite.Sheet.DesignHeight, (uintptr_t)&vertices[0].UV,
               sizeof(VertexBufferSprites));
   }
-  QuadSetUV(sprite.Bounds, sprite.Bounds.Width, sprite.Bounds.Height,
-            (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites));
+
+  if (mask.Sheet.IsScreenCap) {
+    QuadSetUVFlipped(sprite.Bounds, sprite.Bounds.Width, sprite.Bounds.Height,
+                     (uintptr_t)&vertices[0].MaskUV,
+                     sizeof(VertexBufferSprites));
+  } else {
+    QuadSetUV(sprite.Bounds, sprite.Bounds.Width, sprite.Bounds.Height,
+              (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites));
+  }
 
   QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
                   sizeof(VertexBufferSprites));
@@ -864,6 +877,46 @@ void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
 
   QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
                   sizeof(VertexBufferSprites));
+}
+
+void Renderer::DrawSpriteColorShift(const Sprite& sprite, const RectF& dest,
+                                    glm::vec4 tint, float angle,
+                                    glm::vec4 colorShift) {
+  if (!Drawing) {
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Renderer->DrawSpriteColorShift() called before BeginFrame()\n");
+    return;
+  }
+
+  if (CurrentMode != R2D_ColorShift) {
+    CurrentMode = R2D_ColorShift;
+    Flush();
+  }
+
+  glBindVertexArray(VAOSprites);
+  glUseProgram(ShaderProgramColorShift);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
+  glUniform4f(ColorShiftLocation, colorShift.r, colorShift.g, colorShift.b,
+              colorShift.a);
+
+  // OK, all good, make quad
+
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
+  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
+
+  IndexBufferFill += 6;
+
+  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
+            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
+
+  QuadSetPosition(dest, angle, (uintptr_t)&vertices[0].Position,
+                  sizeof(VertexBufferSprites));
+
+  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
+
+  Flush();
 }
 
 inline void Renderer::QuadSetUVFlipped(RectF const& spriteBounds,
@@ -1214,6 +1267,26 @@ void Renderer::SetScissorRect(RectF const& rect) {
 void Renderer::DisableScissor() {
   Flush();
   glDisable(GL_SCISSOR_TEST);
+}
+
+void Renderer::SetBlendMode(RendererBlendMode blendMode) {
+  Flush();
+
+  switch (blendMode) {
+    case RendererBlendMode::Normal:
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      return;
+    case RendererBlendMode::Additive:
+      glBlendFunc(GL_ONE, GL_ONE);
+      return;
+  }
+}
+
+void Renderer::Clear(glm::vec4 color) {
+  Flush();
+
+  glClearColor(color.r, color.g, color.b, color.a);
+  glClear(GL_COLOR_BUFFER_BIT);
 }
 
 }  // namespace OpenGL
