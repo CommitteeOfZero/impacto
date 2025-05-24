@@ -46,6 +46,19 @@ root.ExtraMenus = {
         SubMenuFadeInDuration = 0.4,
         SubMenuFadeOutDuration = 0.4,
 
+        MusicItemsBackgroundSprite = "MusicItemsBackground",
+        MusicItemsBackgroundPosition = {X=293, Y=-93},
+        MusicItemsBackgroundRepeatHeight = 1200,
+        MusicItemsOverlaySprite = "MusicItemsOverlay",
+        MusicItemsCount = 61,
+        MusicItemPadding = 60,
+        MusicRenderingBounds = {
+            X = 293,
+            Y = -93,
+            Width = 1527,
+            Height = 1200
+        },
+        
         MovieDiskSprites = {},
         MovieDiskHighlightSprites = {},
         MovieDiskDisplayPositions = {
@@ -213,4 +226,22 @@ root.Sprites["MovieMenuGuide"] = {
 root.Sprites["MusicMenuGuide"] = {
     Sheet = "MusicMenu",
     Bounds = { X = 0, Y = 1292, Width = 1920, Height = 59 },
+};
+root.Sprites["MusicItemsBackground"] = {
+    Sheet = "MusicMenu",
+    Bounds = { 
+        X = 1, 
+        Y = 1, 
+        Width = 1527, 
+        Height = 1200
+    },
+};
+root.Sprites["MusicItemsOverlay"] = {
+    Sheet = "MusicMenu",
+    Bounds = { 
+        X = 1530, 
+        Y = 1, 
+        Width = 1527, 
+        Height = 1200
+    },
 };

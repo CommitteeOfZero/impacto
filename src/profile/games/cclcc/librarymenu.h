@@ -28,6 +28,15 @@ inline Sprite LoveMovieSpriteHover;
 inline Sprite LoveMovieSpriteSelect;
 inline glm::vec2 LoveMoviePos;
 
+inline int MusicItemsBackgroundRepeatHeight;
+inline Sprite MusicItemsBackgroundSprite;
+inline glm::vec2 MusicItemsBackgroundPosition;
+inline Sprite MusicItemsOverlaySprite;
+inline glm::vec2 MusicItemsOverlayPosition;
+inline float MusicItemPadding;
+inline int MusicItemsCount;
+inline RectF MusicRenderingBounds;
+
 inline std::vector<Sprite> MovieDiskSprites;
 inline std::vector<Sprite> MovieDiskHighlightSprites;
 inline std::vector<glm::vec2> MovieDiskDisplayPositions;
