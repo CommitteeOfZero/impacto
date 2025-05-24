@@ -38,6 +38,23 @@ void Configure() {
   LoveMovieSpriteSelect = EnsureGetMember<Sprite>("LoveMovieSpriteSelect");
   LoveMoviePos = EnsureGetMember<glm::vec2>("LoveMoviePos");
 
+  MusicItemsBackgroundRepeatHeight =
+      EnsureGetMember<int>("MusicItemsBackgroundRepeatHeight");
+  MusicItemsBackgroundSprite =
+      EnsureGetMember<Sprite>("MusicItemsBackgroundSprite");
+  MusicItemsOverlaySprite = EnsureGetMember<Sprite>("MusicItemsOverlaySprite");
+  MusicItemsBackgroundPosition =
+      EnsureGetMember<glm::vec2>("MusicItemsBackgroundPosition");
+  MusicItemPadding = EnsureGetMember<float>("MusicItemPadding");
+  MusicRenderingBounds = EnsureGetMember<RectF>("MusicRenderingBounds");
+  MusicPlayIds = GetMemberVector<uint8_t>("MusicPlayIds");
+  MusicStringTableId = EnsureGetMember<uint8_t>("MusicStringTableId");
+  MusicStringLockedIndex = EnsureGetMember<int>("MusicStringLockedIndex");
+  MusicTrackNameSize = EnsureGetMember<int>("MusicTrackNameSize");
+  MusicTrackNameOffsetX = EnsureGetMember<int>("MusicTrackNameOffsetX");
+  MusicTrackArtistSize = EnsureGetMember<int>("MusicTrackArtistSize");
+  MusicTrackArtistOffsetX = EnsureGetMember<int>("MusicTrackArtistOffsetX");
+
   MovieDiskSprites = GetMemberVector<Sprite>("MovieDiskSprites");
   MovieDiskHighlightSprites =
       GetMemberVector<Sprite>("MovieDiskHighlightSprites");

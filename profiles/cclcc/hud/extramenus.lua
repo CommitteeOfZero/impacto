@@ -46,6 +46,33 @@ root.ExtraMenus = {
         SubMenuFadeInDuration = 0.4,
         SubMenuFadeOutDuration = 0.4,
 
+        MusicItemsBackgroundSprite = "MusicItemsBackground",
+        MusicItemsBackgroundPosition = {X=293, Y=-93},
+        MusicItemsBackgroundRepeatHeight = 1200,
+        MusicItemsOverlaySprite = "MusicItemsOverlay",
+        MusicItemsCount = 61,
+        MusicItemPadding = 60,
+        MusicRenderingBounds = {
+            X = 293,
+            Y = 20,
+            Width = 1527,
+            Height = 1200
+        },
+        MusicPlayIds =  { 
+            0x66, 0x68, 0x6a, 0x6c, 0x6e, 0x70, 0x72, 0x74, 0x76, 0x78, 0x7a, 0x7c, 
+            0x7e, 0x80, 0x82, 0x02, 0x04, 0x08, 0x07, 0x0a, 0x0e, 0x0d, 0x12, 0x11, 
+            0x14, 0x18, 0x17, 0x1c, 0x1b, 0x20, 0x1f, 0x22, 0x26, 0x25, 0x28, 0x2a, 
+            0x2e, 0x2d, 0x31, 0x36, 0x35, 0x38, 0x3a, 0x3c, 0x3e, 0x40, 0x44, 0x43, 
+            0x46, 0x48, 0x4a, 0x4c, 0x4e, 0x52, 0x56, 0x58, 0x5f, 0x54, 0x61, 0x83,
+            0x84 
+        },
+        MusicStringTableId = 4,
+        MusicStringLockedIndex = 3,
+        MusicTrackNameSize = 30,
+        MusicTrackNameOffsetX = 160,
+        MusicTrackArtistSize = 20,
+        MusicTrackArtistOffsetX = 800,
+
         MovieDiskSprites = {},
         MovieDiskHighlightSprites = {},
         MovieDiskDisplayPositions = {
@@ -213,4 +240,22 @@ root.Sprites["MovieMenuGuide"] = {
 root.Sprites["MusicMenuGuide"] = {
     Sheet = "MusicMenu",
     Bounds = { X = 0, Y = 1292, Width = 1920, Height = 59 },
+};
+root.Sprites["MusicItemsBackground"] = {
+    Sheet = "MusicMenu",
+    Bounds = { 
+        X = 1, 
+        Y = 1, 
+        Width = 1527, 
+        Height = 1200
+    },
+};
+root.Sprites["MusicItemsOverlay"] = {
+    Sheet = "MusicMenu",
+    Bounds = { 
+        X = 1530, 
+        Y = 1, 
+        Width = 1527, 
+        Height = 1200
+    },
 };

@@ -44,9 +44,9 @@ LibraryMenu::LibraryMenu() : MainItems(this) {
     libraryMenuOnClickCommon(target);
   };
 
-  auto showSoundMenu = [this,
+  auto showMusicMenu = [this,
                         libraryMenuOnClickCommon](Widgets::Button* target) {
-    // SoundMenu.Show();
+    MusicMenu.Show();
     libraryMenuOnClickCommon(target);
   };
 
@@ -62,7 +62,7 @@ LibraryMenu::LibraryMenu() : MainItems(this) {
 
   auto* sound = new LibraryMenuButton(1, HitSongsSpriteHover,
                                       HitSongsSpriteSelect, HitSongsPos);
-  sound->OnClickHandler = showSoundMenu;
+  sound->OnClickHandler = showMusicMenu;
   auto* movie = new LibraryMenuButton(2, LoveMovieSpriteHover,
                                       LoveMovieSpriteSelect, LoveMoviePos);
   movie->OnClickHandler = showMovieMenu;
@@ -128,7 +128,7 @@ void LibraryMenu::Update(float dt) {
         } else if (*CurrentLibraryMenu == +LibraryMenuPageType::Album) {
           // AlbumMenu.Hide();
         } else if (*CurrentLibraryMenu == +LibraryMenuPageType::Sound) {
-          // SoundMenu.Hide();
+          MusicMenu.Hide();
         }
         CurrentLibraryMenu = std::nullopt;
 
@@ -139,7 +139,11 @@ void LibraryMenu::Update(float dt) {
   }
   FadeAnimation.Update(dt);
   MainItems.Update(dt);
-  if (CurrentLibraryMenu == +LibraryMenuPageType::Movie) {
+  if (CurrentLibraryMenu == +LibraryMenuPageType::Album) {
+    // AlbumMenu.Update(dt);
+  } else if (CurrentLibraryMenu == +LibraryMenuPageType::Sound) {
+    MusicMenu.Update(dt);
+  } else if (CurrentLibraryMenu == +LibraryMenuPageType::Movie) {
     MovieMenu.Update(dt);
   }
 
@@ -167,7 +171,7 @@ void LibraryMenu::Render() {
     if (CurrentLibraryMenu == +LibraryMenuPageType::Album) {
       // AlbumMenu.Render();
     } else if (CurrentLibraryMenu == +LibraryMenuPageType::Sound) {
-      // SoundMenu.Render();
+      MusicMenu.Render();
     } else if (CurrentLibraryMenu == +LibraryMenuPageType::Movie) {
       MovieMenu.Render();
     }

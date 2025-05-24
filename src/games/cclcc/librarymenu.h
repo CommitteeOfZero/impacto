@@ -28,7 +28,7 @@ class LibraryMenu : public Menu {
   Widgets::Group MainItems;
   std::optional<LibraryMenuPageType> CurrentLibraryMenu;
   // AlbumMenu AlbumMenu;
-  // SoundMenu SoundMenu;
+  MusicMenu MusicMenu;
   MovieMenu MovieMenu;
 };
 
