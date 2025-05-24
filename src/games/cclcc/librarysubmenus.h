@@ -32,12 +32,18 @@ class AlbumMenu : public LibrarySubmenu {
 
 class MusicMenu : public LibrarySubmenu {
  public:
-  MusicMenu() = default;
+  MusicMenu();
+  void Update(float dt) override;
+  void Render() override;
+
+ private:
+  float PageY = 0;
 };
 
 class MovieMenu : public LibrarySubmenu {
  public:
   MovieMenu();
+  void Show() override;
 };
 
 }  // namespace CCLCC

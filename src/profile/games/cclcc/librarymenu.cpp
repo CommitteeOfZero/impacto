@@ -38,6 +38,17 @@ void Configure() {
   LoveMovieSpriteSelect = EnsureGetMember<Sprite>("LoveMovieSpriteSelect");
   LoveMoviePos = EnsureGetMember<glm::vec2>("LoveMoviePos");
 
+  MusicItemsBackgroundRepeatHeight =
+      EnsureGetMember<int>("MusicItemsBackgroundRepeatHeight");
+  MusicItemsBackgroundSprite =
+      EnsureGetMember<Sprite>("MusicItemsBackgroundSprite");
+  MusicItemsOverlaySprite = EnsureGetMember<Sprite>("MusicItemsOverlaySprite");
+  MusicItemsBackgroundPosition =
+      EnsureGetMember<glm::vec2>("MusicItemsBackgroundPosition");
+  MusicItemPadding = EnsureGetMember<float>("MusicItemPadding");
+  MusicItemsCount = EnsureGetMember<int>("MusicItemsCount");
+  MusicRenderingBounds = EnsureGetMember<RectF>("MusicRenderingBounds");
+
   MovieDiskSprites = GetMemberVector<Sprite>("MovieDiskSprites");
   MovieDiskHighlightSprites =
       GetMemberVector<Sprite>("MovieDiskHighlightSprites");

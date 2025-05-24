@@ -1,6 +1,7 @@
 #include "../../ui/ui.h"
 #include "../../profile/games/cclcc/librarymenu.h"
 #include "../../video/videosystem.h"
+#include "../../vm/interface/input.h"
 #include "librarysubmenus.h"
 
 namespace Impacto {
@@ -14,22 +15,9 @@ void LibrarySubmenu::Show() {
   if (State != Shown) {
     State = Showing;
     FadeAnimation.StartIn();
-    MainItems.Children[0]->Enabled = true;
-    MainItems.Children[1]->Enabled = GetFlag(SF_CLR_TRUE_CCLCC);
-    MainItems.Children[2]->Enabled = [&]() {
-      for (int i = 1; i < 10; ++i) {
-        if (GetFlag(SF_CLR_END1 + i)) return true;
-      }
-      return false;
-    }();
-    MainItems.Children[3]->Enabled = GetFlag(SF_CLR_END1);
-    MainItems.Show();
     if (UI::FocusedMenu != 0) {
       LastFocusedMenu = UI::FocusedMenu;
       LastFocusedMenu->IsFocused = false;
-    }
-    if (!CurrentlyFocusedElement) {
-      CurrentlyFocusedElement = MainItems.GetFirstFocusableChild();
     }
     IsFocused = true;
   }
@@ -89,6 +77,61 @@ MovieMenu::MovieMenu() : LibrarySubmenu() {
   }
 }
 
+void MovieMenu::Show() {
+  if (State != Shown) {
+    MainItems.Children[0]->Enabled = true;
+    MainItems.Children[1]->Enabled = GetFlag(SF_CLR_TRUE_CCLCC);
+    MainItems.Children[2]->Enabled = [&]() {
+      for (int i = 1; i < 10; ++i) {
+        if (GetFlag(SF_CLR_END1 + i)) return true;
+      }
+      return false;
+    }();
+    MainItems.Children[3]->Enabled = GetFlag(SF_CLR_END1);
+    MainItems.Show();
+  }
+  LibrarySubmenu::Show();
+}
+
+MusicMenu::MusicMenu() : LibrarySubmenu() {}
+
+void MusicMenu::Update(float dt) {
+  LibrarySubmenu::Update(dt);
+  if (State == Shown) {
+    PageY += (Vm::Interface::PADinputButtonIsDown & Vm::Interface::PAD1DOWN)
+                 ? 1.0f
+                 : 0.0f;
+    PageY -= (Vm::Interface::PADinputButtonIsDown & Vm::Interface::PAD1UP)
+                 ? 1.0f
+                 : 0.0f;
+    auto maxPageY = MusicItemPadding * MusicItemsCount;
+    if (PageY < 0) PageY += maxPageY;
+    std::clamp(PageY, 0.0f, MusicItemPadding * MusicItemsCount);
+    MainItems.MoveTo(glm::vec2(MusicRenderingBounds.X, PageY));
+  }
+}
+
+void MusicMenu::Render() {
+  if (State != Hidden) {
+    float backgroundY = fmod(MusicRenderingBounds.Y - PageY - MusicItemPadding,
+                             MusicItemsBackgroundRepeatHeight);
+    glm::vec2 backgroundPos = MusicItemsBackgroundPosition;
+    Renderer->DrawSprite(MusicItemsBackgroundSprite,
+                         glm::vec2(MusicRenderingBounds.X, backgroundY));
+    Renderer->DrawSprite(
+        MusicItemsBackgroundSprite,
+        glm::vec2(MusicRenderingBounds.X,
+                  backgroundY + MusicItemsBackgroundRepeatHeight));
+
+    Renderer->DrawSprite(MusicItemsOverlaySprite,
+                         glm::vec2(MusicRenderingBounds.X, backgroundY));
+    Renderer->DrawSprite(
+        MusicItemsOverlaySprite,
+        glm::vec2(MusicRenderingBounds.X,
+                  backgroundY + MusicItemsBackgroundRepeatHeight));
+  }
+  LibrarySubmenu::Render();
+}
 }  // namespace CCLCC
 }  // namespace UI
 }  // namespace Impacto
