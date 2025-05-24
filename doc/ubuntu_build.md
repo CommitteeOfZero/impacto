@@ -29,3 +29,8 @@ cp -r src/shaders .
 LIBATRAC9DIR=vendor/LibAtrac9 cmake .
 make
 ```
+
+## Afterwards
+
+- Remember to follow the instructions in the [Getting Started guide](getting_started.md) to properly build and run impacto
+

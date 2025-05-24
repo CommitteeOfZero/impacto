@@ -22,6 +22,11 @@ Run `.\build-deps.ps1` from a PowerShell prompt, addings args for architecture [
 - Open the project with *File->Open->Folder...* in Visual Studio
 - When picking a startup item, make sure to use `impacto.exe (Install)`
 
+
+## Afterwards
+
+- Remember to follow the instructions in the [Getting Started guide](getting_started.md) to properly build and run impacto
+
 ## Cry
 
 about the absolute state of C++ dependency management
