@@ -164,6 +164,8 @@ void Character2D::MainThreadOnLoad() {
 }
 
 void Character2D::Update(float dt) {
+  if (Status != LS_Loaded) return;
+
   if (Profile::CharaIsMvl) {
     MvlIndicesCount = 0;
     StatesToDraw.clear();
