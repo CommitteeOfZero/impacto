@@ -411,12 +411,12 @@ void TitleMenu::ExplodeScreenUpdate() {
 
 void TitleMenu::ReturnToMenuUpdate() {
   if (!MainItems->IsShown) {
-    NewGame->Enabled = true;
-    NewGame->HasFocus = true;
-    NewGame->HighlightAnimation.Progress = 1.0f;
-    NewGame->PrevFocusState = true;
     InputLocked = false;
     CurrentlyFocusedElement = NewGame;
+    for (auto& item : MainItems->Children) {
+      if (item == NewGame) continue;  // Skip NewGame button
+      item->HasFocus = false;
+    }
     MainItems->Show();
     IsFocused = true;
   }
