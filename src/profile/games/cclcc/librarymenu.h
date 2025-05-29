@@ -34,8 +34,14 @@ inline glm::vec2 MusicItemsBackgroundPosition;
 inline Sprite MusicItemsOverlaySprite;
 inline glm::vec2 MusicItemsOverlayPosition;
 inline float MusicItemPadding;
-inline int MusicItemsCount;
+inline std::vector<uint8_t> MusicPlayIds;
 inline RectF MusicRenderingBounds;
+inline uint8_t MusicStringTableId;
+inline int MusicStringLockedIndex;
+inline int MusicTrackNameSize;
+inline int MusicTrackNameOffsetX;
+inline int MusicTrackArtistSize;
+inline int MusicTrackArtistOffsetX;
 
 inline std::vector<Sprite> MovieDiskSprites;
 inline std::vector<Sprite> MovieDiskHighlightSprites;

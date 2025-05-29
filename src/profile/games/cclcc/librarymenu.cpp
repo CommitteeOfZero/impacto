@@ -46,8 +46,14 @@ void Configure() {
   MusicItemsBackgroundPosition =
       EnsureGetMember<glm::vec2>("MusicItemsBackgroundPosition");
   MusicItemPadding = EnsureGetMember<float>("MusicItemPadding");
-  MusicItemsCount = EnsureGetMember<int>("MusicItemsCount");
   MusicRenderingBounds = EnsureGetMember<RectF>("MusicRenderingBounds");
+  MusicPlayIds = GetMemberVector<uint8_t>("MusicPlayIds");
+  MusicStringTableId = EnsureGetMember<uint8_t>("MusicStringTableId");
+  MusicStringLockedIndex = EnsureGetMember<int>("MusicStringLockedIndex");
+  MusicTrackNameSize = EnsureGetMember<int>("MusicTrackNameSize");
+  MusicTrackNameOffsetX = EnsureGetMember<int>("MusicTrackNameOffsetX");
+  MusicTrackArtistSize = EnsureGetMember<int>("MusicTrackArtistSize");
+  MusicTrackArtistOffsetX = EnsureGetMember<int>("MusicTrackArtistOffsetX");
 
   MovieDiskSprites = GetMemberVector<Sprite>("MovieDiskSprites");
   MovieDiskHighlightSprites =
