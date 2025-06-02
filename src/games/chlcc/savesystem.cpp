@@ -70,7 +70,7 @@ SaveError SaveSystem::MountSaveFile() {
   Io::ReadArrayLE<uint8_t>(GameExtraData, stream, 1024);
 
   stream->Seek(0x3b06, SEEK_SET);  // TODO: Actually load system data
-  for (auto& entryArray : {FullSaveEntries, QuickSaveEntries}) {
+  for (auto& entryArray : {QuickSaveEntries, FullSaveEntries}) {
     for (int i = 0; i < MaxSaveEntries; i++) {
       entryArray[i] = new SaveFileEntry();
 
@@ -158,8 +158,10 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
 }
 
 void SaveSystem::WriteSaveFile() {
+  using CF = Io::PhysicalFileStream::CreateFlagsMode;
   Io::Stream* stream;
-  IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream);
+  IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream,
+                                               CF::WRITE | CF::READ);
   if (err != IoError_OK) {
     ImpLog(LogLevel::Error, LogChannel::IO,
            "Failed to open save file for writing\n");
@@ -195,7 +197,7 @@ void SaveSystem::WriteSaveFile() {
   Io::WriteArrayLE<uint8_t>(GameExtraData, stream, 1024);
 
   stream->Seek(0x3b06, SEEK_SET);  // TODO: Actually write system data
-  for (auto& entryArray : {FullSaveEntries, QuickSaveEntries}) {
+  for (auto& entryArray : {QuickSaveEntries, FullSaveEntries}) {
     int64_t saveDataPos = stream->Position;
     for (int i = 0; i < MaxSaveEntries; i++) {
       assert(stream->Position - saveDataPos == i * 0x2000);

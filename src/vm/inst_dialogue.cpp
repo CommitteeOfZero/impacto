@@ -171,18 +171,16 @@ VmInstruction(InstMes) {
   uint8_t* oldIp = thread->Ip;
   thread->Ip = line;
   dialoguePage.AddString(thread, audioStream, animationId);
-  if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
-    ResetInstruction;
-    if (!GetFlag(SF_MESSAVEPOINT_SSP + thread->DialoguePageId)) {
-      if ((ScrWork[thread->DialoguePageId * 10 + SW_MESWIN0TYPE] & 4) == 0 &&
-          ScrWork[SW_TITLE] != 0xffff) {
-        SaveSystem::SaveMemory();
-        SetFlag(1206, 1);
-        SetFlag(SF_AUTOSAVEENABLE, 1);
-      }
-    } else {
-      SetFlag(SF_MESSAVEPOINT_SSP + thread->DialoguePageId, 0);
+  ResetInstruction;
+  if (!GetFlag(SF_MESSAVEPOINT_SSP + thread->DialoguePageId)) {
+    if ((ScrWork[thread->DialoguePageId * 10 + SW_MESWIN0TYPE] & 4) == 0 &&
+        ScrWork[SW_TITLE] != 0xffff) {
+      SaveSystem::SaveMemory();
+      SetFlag(1206, 1);
+      SetFlag(SF_AUTOSAVEENABLE, 1);
     }
+  } else {
+    SetFlag(SF_MESSAVEPOINT_SSP + thread->DialoguePageId, 0);
   }
 
   thread->Ip = oldIp;
