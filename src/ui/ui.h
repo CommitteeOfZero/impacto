@@ -6,6 +6,7 @@
 #include "sysmesbox.h"
 #include "tipsmenu.h"
 #include "optionsmenu.h"
+#include "savemenu.h"
 
 #include <ankerl/unordered_dense.h>
 #include <vector>
@@ -38,9 +39,9 @@ inline Menu* FocusedMenu = nullptr;
 // Common menus
 inline Menu* SystemMenuPtr = new NullMenu();
 inline Menu* TitleMenuPtr = new NullMenu();
-inline Menu* SaveMenuPtr = new NullMenu();
 inline Menu* TrophyMenuPtr = new NullMenu();
 inline Menu* HelpMenuPtr = new NullMenu();
+inline SaveMenu* SaveMenuPtr = new SaveMenu();
 
 //
 inline SelectionMenu* SelectionMenuPtr = nullptr;

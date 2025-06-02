@@ -29,7 +29,7 @@ Widget* EntryGrid[EntriesPerPage];
 
 void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
   if ((SaveSystem::GetSaveStatus(EntryType, target->Id) != 0) ||
-      ScrWork[SW_SAVEMENUMODE] == 1) {
+      ActiveMenuType == +SaveMenuPageType::Save) {
     ScrWork[SW_SAVEFILENO] = target->Id;
     ChoiceMade = true;
   }
@@ -177,14 +177,14 @@ SaveMenu::SaveMenu() {
 
 void SaveMenu::UpdateEntry(SaveEntryButton* saveEntryButton) {
   Sprite entrySprite;
-  switch (ScrWork[SW_SAVEMENUMODE]) {
-    case 0:
+  switch (*UI::SaveMenuPtr->ActiveMenuType) {
+    case SaveMenuPageType::QuickLoad:
       entrySprite = QuickLoadEntrySprite;
       break;
-    case 1:
+    case SaveMenuPageType::Save:
       entrySprite = SaveEntrySprite;
       break;
-    case 2:
+    case SaveMenuPageType::Load:
       entrySprite = LoadEntrySprite;
       break;
   }
@@ -238,8 +238,8 @@ void SaveMenu::UpdateEntry(SaveEntryButton* saveEntryButton) {
 
 void SaveMenu::Show() {
   if (State != Shown) {
-    switch (ScrWork[SW_SAVEMENUMODE]) {
-      case 0:
+    switch (*ActiveMenuType) {
+      case SaveMenuPageType::QuickLoad:
         EntryType = SaveSystem::SaveQuick;
         SavePages = &QuickSavePages;
         BackgroundColor = QuickLoadBackgroundColor;
@@ -247,7 +247,7 @@ void SaveMenu::Show() {
         MenuTitleTextSprite = QuickLoadTextSprite;
         CurrentPage = &CurrentQuickSavePage;
         break;
-      case 1:
+      case SaveMenuPageType::Save:
         EntryType = SaveSystem::SaveFull;
         SavePages = &FullSavePages;
         BackgroundColor = SaveBackgroundColor;
@@ -255,7 +255,7 @@ void SaveMenu::Show() {
         MenuTitleTextSprite = SaveTextSprite;
         CurrentPage = &CurrentFullSavePage;
         break;
-      case 2:
+      case SaveMenuPageType::Load:
         EntryType = SaveSystem::SaveFull;
         SavePages = &FullSavePages;
         BackgroundColor = LoadBackgroundColor;

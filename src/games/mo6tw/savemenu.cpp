@@ -26,7 +26,7 @@ Widget* EntryGrid[RowsPerPage][EntriesPerRow];
 void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
   if ((SaveSystem::GetSaveStatus(SaveSystem::SaveType::SaveFull, target->Id) !=
        0) ||
-      ScrWork[SW_SAVEMENUMODE] == 1) {
+      ActiveMenuType == +SaveMenuPageType::Save) {
     ScrWork[SW_SAVEFILENO] = target->Id;
     ChoiceMade = true;
   }
@@ -51,16 +51,16 @@ void SaveMenu::Show() {
     Sprite nullSprite = Sprite();
     nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
 
-    switch (ScrWork[SW_SAVEMENUMODE]) {
-      case 0:
+    switch (*ActiveMenuType) {
+      case SaveMenuPageType::QuickLoad:
         entrySprite = QuickLoadEntrySprite;
         entryHSprite = QuickLoadEntryHighlightedSprite;
         break;
-      case 1:
+      case SaveMenuPageType::Save:
         entrySprite = SaveEntrySprite;
         entryHSprite = SaveEntryHighlightedSprite;
         break;
-      case 2:
+      case SaveMenuPageType::Load:
         entrySprite = LoadEntrySprite;
         entryHSprite = LoadEntryHighlightedSprite;
         break;
@@ -163,17 +163,17 @@ void SaveMenu::Update(float dt) {
 }
 
 void SaveMenu::Render() {
-  if (State != Hidden) {
+  if (State != Hidden && ActiveMenuType) {
     glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
     Renderer->DrawSprite(SaveMenuBackgroundSprite, glm::vec2(0.0f), col);
-    switch (ScrWork[SW_SAVEMENUMODE]) {
-      case 0:
+    switch (*ActiveMenuType) {
+      case SaveMenuPageType::QuickLoad:
         Renderer->DrawSprite(QuickLoadTextSprite, MenuTitleTextPos, col);
         break;
-      case 1:
+      case SaveMenuPageType::Save:
         Renderer->DrawSprite(SaveTextSprite, MenuTitleTextPos, col);
         break;
-      case 2:
+      case SaveMenuPageType::Load:
         Renderer->DrawSprite(LoadTextSprite, MenuTitleTextPos, col);
         break;
     }

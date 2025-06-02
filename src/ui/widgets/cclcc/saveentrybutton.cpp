@@ -6,6 +6,7 @@
 #include "../../../profile/dialogue.h"
 #include "../../../profile/games/cclcc/savemenu.h"
 #include "../../../vm/vm.h"
+#include "../../../ui/ui.h"
 #include <fmt/format.h>
 #include <fmt/chrono.h>
 
@@ -76,10 +77,12 @@ void SaveEntryButton::Render() {
                                     .Scale(scale, {0.0f, 0.0f})
                                     .Translate(Bounds.GetPos());
   Renderer->DrawSprite(
-      NumberDigitSprite[ScrWork[SW_SAVEMENUMODE]][(Index + 1) / 10],
+      NumberDigitSprite[UI::SaveMenuPtr->ActiveMenuType->_to_integral()]
+                       [(Index + 1) / 10],
       RectF(numberDigitDest).Translate({720, 120}), Tint);
   Renderer->DrawSprite(
-      NumberDigitSprite[ScrWork[SW_SAVEMENUMODE]][(Index + 1) % 10],
+      NumberDigitSprite[UI::SaveMenuPtr->ActiveMenuType->_to_integral()]
+                       [(Index + 1) % 10],
       RectF(numberDigitDest).Translate({752, 120}), Tint);
 
   if (SaveStatus == 1) {
@@ -88,8 +91,9 @@ void SaveEntryButton::Render() {
             .ScaledBounds()
             .Scale(scale, {0.0f, 0.0f})
             .Translate(Bounds.GetPos() + glm::vec2(308, 112));
-    Renderer->DrawSprite(SeparationLineSprite[ScrWork[SW_SAVEMENUMODE]],
-                         separationLineDest, Tint);
+    Renderer->DrawSprite(
+        SeparationLineSprite[UI::SaveMenuPtr->ActiveMenuType->_to_integral()],
+        separationLineDest, Tint);
 
     if (IsLocked) {
       SceneTitleLabel.Render();

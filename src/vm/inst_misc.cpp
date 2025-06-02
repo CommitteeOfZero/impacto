@@ -363,7 +363,8 @@ VmInstruction(InstSaveMenu) {
   switch (type) {
     case 0: {  // SaveMenuInit
       PopUint8(arg1);
-      ScrWork[SW_SAVEMENUMODE] = arg1;
+      UI::SaveMenuPtr->ActiveMenuType =
+          UI::SaveMenuPageType::_from_integral_nothrow(arg1);
       ScrWork[SW_SAVEFILESTATUS] = 0;
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SaveMenu(type: SaveMenuInit)\n");
@@ -414,7 +415,8 @@ VmInstruction(InstSaveMenuOld) {
   switch (type) {
     case 0: {
       PopUint8(arg1);
-      ScrWork[SW_SAVEMENUMODE] = arg1;
+      UI::SaveMenuPtr->ActiveMenuType =
+          UI::SaveMenuPageType::_from_integral_nothrow(arg1);
       ScrWork[SW_SAVEFILESTATUS] = 0;
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SaveMenu(type: {:d}, arg1: {:d})\n", type,

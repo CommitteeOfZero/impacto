@@ -360,7 +360,6 @@ root.ScriptVars = {
     SW_BGEFF1_POSX=6624,
     SW_BGEFF1_POSY=6625,
     SW_RENDERTARGET=7000,
-    SW_SAVEMENUMODE=7999, -- This is our own
     -- FlagWork
     SF_CLR_FLAG=800,
     SF_CLR_END1=801, -- 801 to (at least) 814 is reserved for endings in all the games.
