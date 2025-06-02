@@ -1,13 +1,13 @@
 #pragma once
 
 #include "../../../spritesheet.h"
+#include "../../../ui/savemenu.h"
 #include <enum.h>
 
 namespace Impacto {
 namespace Profile {
 namespace CCLCC {
 namespace SaveMenu {
-BETTER_ENUM(SaveMenuPageType, int, QuickLoad, Save, Load)
 
 int constexpr Pages = 6;
 
@@ -23,18 +23,18 @@ inline Sprite SaveMenuMaskSprite;
 inline uint32_t SaveEntryPrimaryColor;
 inline uint32_t SaveEntrySecondaryColor;
 
-inline Sprite MenuTextSprite[SaveMenuPageType::_size_constant];
-inline Sprite EntryHighlightedBoxSprite[SaveMenuPageType::_size_constant];
-inline Sprite EntryHighlightedTextSprite[SaveMenuPageType::_size_constant];
-inline Sprite EntrySlotsSprite[SaveMenuPageType::_size_constant];
-inline Sprite ButtonGuideSprite[SaveMenuPageType::_size_constant];
-inline Sprite SeparationLineSprite[SaveMenuPageType::_size_constant];
-inline Sprite NumberDigitSprite[SaveMenuPageType::_size_constant][10];
-inline Sprite NoDataSprite[SaveMenuPageType::_size_constant];
-inline Sprite BrokenDataSprite[SaveMenuPageType::_size_constant];
-inline Sprite SlotLockedSprite[SaveMenuPageType::_size_constant];
-inline Sprite PageNumSprite[SaveMenuPageType::_size_constant][6];
-inline Sprite SaveTimeSprite[SaveMenuPageType::_size_constant];
+inline Sprite MenuTextSprite[UI::SaveMenuPageType::_size_constant];
+inline Sprite EntryHighlightedBoxSprite[UI::SaveMenuPageType::_size_constant];
+inline Sprite EntryHighlightedTextSprite[UI::SaveMenuPageType::_size_constant];
+inline Sprite EntrySlotsSprite[UI::SaveMenuPageType::_size_constant];
+inline Sprite ButtonGuideSprite[UI::SaveMenuPageType::_size_constant];
+inline Sprite SeparationLineSprite[UI::SaveMenuPageType::_size_constant];
+inline Sprite NumberDigitSprite[UI::SaveMenuPageType::_size_constant][10];
+inline Sprite NoDataSprite[UI::SaveMenuPageType::_size_constant];
+inline Sprite BrokenDataSprite[UI::SaveMenuPageType::_size_constant];
+inline Sprite SlotLockedSprite[UI::SaveMenuPageType::_size_constant];
+inline Sprite PageNumSprite[UI::SaveMenuPageType::_size_constant][6];
+inline Sprite SaveTimeSprite[UI::SaveMenuPageType::_size_constant];
 
 void Configure();
 

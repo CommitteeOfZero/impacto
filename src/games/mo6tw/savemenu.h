@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../ui/menu.h"
+#include "../../ui/savemenu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
 
@@ -8,7 +9,7 @@ namespace Impacto {
 namespace UI {
 namespace MO6TW {
 
-class SaveMenu : public Menu {
+class SaveMenu : public UI::SaveMenu {
  public:
   SaveMenu();
 

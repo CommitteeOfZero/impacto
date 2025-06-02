@@ -3,13 +3,14 @@
 #include "../../ui/menu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
+#include "../../ui/savemenu.h"
 #include "../../profile/games/cclcc/savemenu.h"
 
 namespace Impacto {
 namespace UI {
 namespace CCLCC {
 
-class SaveMenu : public Menu {
+class SaveMenu : public UI::SaveMenu {
  public:
   SaveMenu();
 

@@ -6,6 +6,7 @@
 #include "../../../profile/dialogue.h"
 #include "../../../profile/games/cclcc/savemenu.h"
 #include "../../../vm/vm.h"
+#include "../../../ui/ui.h"
 #include <fmt/format.h>
 #include <fmt/chrono.h>
 
@@ -67,16 +68,18 @@ void SaveEntryButton::Render() {
         Tint, glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
   }
   Renderer->DrawSprite(
-      NumberDigitSprite[ScrWork[SW_SAVEMENUMODE]][(Index + 1) / 10],
+      NumberDigitSprite[UI::SaveMenuPtr->ActiveMenuType->_to_integral()]
+                       [(Index + 1) / 10],
       glm::vec2(Bounds.X + 720, Bounds.Y + 120), Tint,
       glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
   Renderer->DrawSprite(
-      NumberDigitSprite[ScrWork[SW_SAVEMENUMODE]][(Index + 1) % 10],
+      NumberDigitSprite[UI::SaveMenuPtr->ActiveMenuType->_to_integral()]
+                       [(Index + 1) % 10],
       glm::vec2(Bounds.X + 752, Bounds.Y + 120), Tint,
       glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
   if (SaveStatus == 1) {
     Renderer->DrawSprite(
-        SeparationLineSprite[ScrWork[SW_SAVEMENUMODE]],
+        SeparationLineSprite[UI::SaveMenuPtr->ActiveMenuType->_to_integral()],
         glm::vec2(Bounds.X + 308, Bounds.Y + 112), Tint,
         glm::vec2(Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f));
     if (IsLocked) {
