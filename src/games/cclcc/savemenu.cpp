@@ -24,11 +24,11 @@ Widget* EntryGrid[Pages][RowsPerPage][EntriesPerRow];
 
 void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
   Impacto::SaveSystem::SaveType saveType =
-      ActiveMenuType == +SaveMenuPageType::QuickLoad
+      *ActiveMenuType == +SaveMenuPageType::QuickLoad
           ? SaveSystem::SaveType::SaveQuick
           : SaveSystem::SaveType::SaveFull;
   int SaveStatus = SaveSystem::GetSaveStatus(saveType, target->Id);
-  if (SaveStatus == 1 || ActiveMenuType == +SaveMenuPageType::Save) {
+  if (SaveStatus == 1 || *ActiveMenuType == +SaveMenuPageType::Save) {
     ScrWork[SW_SAVEFILENO] = target->Id;
     ScrWork[SW_SAVEFILETYPE] = saveType;
     ScrWork[SW_SAVEFILESTATUS] =
@@ -38,8 +38,8 @@ void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
     SetFlag(1245,
             SaveSystem::GetSaveFlags(saveType, ScrWork[SW_SAVEFILENO]) & 1);
   }
-  if (SaveStatus == 0 || ActiveMenuType == +SaveMenuPageType::Load ||
-      ActiveMenuType == +SaveMenuPageType::QuickLoad) {
+  if (SaveStatus == 0 || *ActiveMenuType == +SaveMenuPageType::Load ||
+      *ActiveMenuType == +SaveMenuPageType::QuickLoad) {
     Audio::Channels[Audio::AC_SSE]->Play("sysse", 4, false, 0);
     return;
   }
@@ -61,7 +61,7 @@ void SaveMenu::Show() {
     FadeAnimation.StartIn();
     int id = 0;
     Impacto::SaveSystem::SaveType saveType =
-        ActiveMenuType == +SaveMenuPageType::QuickLoad
+        *ActiveMenuType == +SaveMenuPageType::QuickLoad
             ? SaveSystem::SaveType::SaveQuick
             : SaveSystem::SaveType::SaveFull;
 

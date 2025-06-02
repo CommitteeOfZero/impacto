@@ -475,7 +475,13 @@ VmInstruction(InstLoadData) {
 VmInstruction(InstLoadDataOld) {
   StartInstruction;
   PopExpression(arg1);
-  SaveSystem::LoadEntry(SaveSystem::SaveFull, arg1);
+  SaveSystem::SaveType saveType;
+  if (*UI::SaveMenuPtr->ActiveMenuType == +UI::SaveMenuPageType::QuickLoad) {
+    saveType = SaveSystem::SaveType::SaveQuick;
+  } else {
+    saveType = SaveSystem::SaveType::SaveFull;
+  }
+  SaveSystem::LoadEntry(saveType, arg1);
   if (ScrWork[SW_MESWINDOW_COLOR] == 0) ScrWork[SW_MESWINDOW_COLOR] = 0xFFFFFF;
 }
 VmInstruction(InstTitleMenu) {

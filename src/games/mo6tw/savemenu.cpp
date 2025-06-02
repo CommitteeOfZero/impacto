@@ -26,7 +26,7 @@ Widget* EntryGrid[RowsPerPage][EntriesPerRow];
 void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
   if ((SaveSystem::GetSaveStatus(SaveSystem::SaveType::SaveFull, target->Id) !=
        0) ||
-      ActiveMenuType == +SaveMenuPageType::Save) {
+      *ActiveMenuType == +SaveMenuPageType::Save) {
     ScrWork[SW_SAVEFILENO] = target->Id;
     ChoiceMade = true;
   }

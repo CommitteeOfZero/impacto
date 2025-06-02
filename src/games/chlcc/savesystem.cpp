@@ -70,7 +70,7 @@ SaveError SaveSystem::MountSaveFile() {
   Io::ReadArrayLE<uint8_t>(GameExtraData, stream, 1024);
 
   stream->Seek(0x3b06, SEEK_SET);  // TODO: Actually load system data
-  for (auto& entryArray : {FullSaveEntries, QuickSaveEntries}) {
+  for (auto& entryArray : {QuickSaveEntries, FullSaveEntries}) {
     for (int i = 0; i < MaxSaveEntries; i++) {
       entryArray[i] = new SaveFileEntry();
 
@@ -158,8 +158,10 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
 }
 
 void SaveSystem::WriteSaveFile() {
+  using CF = Io::PhysicalFileStream::CreateFlagsMode;
   Io::Stream* stream;
-  IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream);
+  IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream,
+                                               CF::WRITE | CF::READ);
   if (err != IoError_OK) {
     ImpLog(LogLevel::Error, LogChannel::IO,
            "Failed to open save file for writing\n");
@@ -195,7 +197,7 @@ void SaveSystem::WriteSaveFile() {
   Io::WriteArrayLE<uint8_t>(GameExtraData, stream, 1024);
 
   stream->Seek(0x3b06, SEEK_SET);  // TODO: Actually write system data
-  for (auto& entryArray : {FullSaveEntries, QuickSaveEntries}) {
+  for (auto& entryArray : {QuickSaveEntries, FullSaveEntries}) {
     int64_t saveDataPos = stream->Position;
     for (int i = 0; i < MaxSaveEntries; i++) {
       assert(stream->Position - saveDataPos == i * 0x2000);
@@ -428,15 +430,15 @@ void SaveSystem::LoadEntry(SaveType type, int id) {
       ScrWork[2066] = ScrWork[3235];
       ScrWork[2067] = ScrWork[3236];
 
-      if (ScrWork[SW_SVSCRNO1] != 65535) LoadScript(2, ScrWork[SW_SVSCRNO1]);
-      if (ScrWork[SW_SVSCRNO2] != 65535) LoadScript(3, ScrWork[SW_SVSCRNO2]);
-      if (ScrWork[SW_SVSCRNO3] != 65535) LoadScript(4, ScrWork[SW_SVSCRNO3]);
-      if (ScrWork[SW_SVSCRNO4] != 65535) LoadScript(5, ScrWork[SW_SVSCRNO4]);
+      // if (ScrWork[SW_SVSCRNO1] != 65535) LoadScript(2, ScrWork[SW_SVSCRNO1]);
+      // if (ScrWork[SW_SVSCRNO2] != 65535) LoadScript(3, ScrWork[SW_SVSCRNO2]);
+      // if (ScrWork[SW_SVSCRNO3] != 65535) LoadScript(4, ScrWork[SW_SVSCRNO3]);
+      // if (ScrWork[SW_SVSCRNO4] != 65535) LoadScript(5, ScrWork[SW_SVSCRNO4]);
 
-      ScrWork[SW_SVSCRNO1] = 65535;
-      ScrWork[SW_SVSCRNO2] = 65535;
-      ScrWork[SW_SVSCRNO3] = 65535;
-      ScrWork[SW_SVSCRNO4] = 65535;
+      // ScrWork[SW_SVSCRNO1] = 65535;
+      // ScrWork[SW_SVSCRNO2] = 65535;
+      // ScrWork[SW_SVSCRNO3] = 65535;
+      // ScrWork[SW_SVSCRNO4] = 65535;
 
       int threadId = ScrWork[SW_MAINTHDP];
       Sc3VmThread* thd = &ThreadPool[threadId & 0x7FFFFFFF];
