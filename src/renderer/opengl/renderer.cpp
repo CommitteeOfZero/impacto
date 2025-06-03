@@ -24,7 +24,7 @@ void Renderer::Init() {
   OpenGLWindow->Init();
   Window = (BaseWindow*)OpenGLWindow;
 
-  Shaders = new ShaderCompiler();
+  Shaders = std::make_shared<ShaderCompiler>();
 
   if (Profile::GameFeatures & GameFeature::Scene3D) {
     Scene = new Scene3D(OpenGLWindow, Shaders);
@@ -86,58 +86,23 @@ void Renderer::Init() {
   rectSheet.Texture = rectTexture.Submit();
   RectSprite = Sprite(rectSheet, 0.0f, 0.0f, 1.0f, 1.0f);
 
-  // Set up sprite shader
-  ShaderProgramSprite = Shaders->Compile("Sprite");
-  glUseProgram(ShaderProgramSprite);
-  glUniform1i(glGetUniformLocation(ShaderProgramSprite, "ColorMap"), 0);
-  ShaderProgramSpriteInverted = Shaders->Compile("Sprite_inverted");
-  glUniform1i(glGetUniformLocation(ShaderProgramSpriteInverted, "ColorMap"), 0);
-  glUniformMatrix4fv(
-      glGetUniformLocation(ShaderProgramSpriteInverted, "Projection"), 1,
-      GL_FALSE, &Projection[0][0]);
-
-  ShaderProgramMaskedSprite = Shaders->Compile("MaskedSprite");
-  glUseProgram(ShaderProgramMaskedSprite);
-  glUniform1i(glGetUniformLocation(ShaderProgramMaskedSprite, "ColorMap"), 0);
-  MaskedIsInvertedLocation =
-      glGetUniformLocation(ShaderProgramMaskedSprite, "IsInverted");
-  MaskedIsSameTextureLocation =
-      glGetUniformLocation(ShaderProgramMaskedSprite, "IsSameTexture");
-  glUniformMatrix4fv(
-      glGetUniformLocation(ShaderProgramMaskedSprite, "Projection"), 1,
-      GL_FALSE, &Projection[0][0]);
-
-  ShaderProgramMaskedSpriteNoAlpha = Shaders->Compile("MaskedSpriteNoAlpha");
-  glUseProgram(ShaderProgramMaskedSpriteNoAlpha);
-  glUniform1i(
-      glGetUniformLocation(ShaderProgramMaskedSpriteNoAlpha, "ColorMap"), 0);
-  MaskedNoAlphaIsInvertedLocation =
-      glGetUniformLocation(ShaderProgramMaskedSpriteNoAlpha, "IsInverted");
-  glUniformMatrix4fv(
-      glGetUniformLocation(ShaderProgramMaskedSpriteNoAlpha, "Projection"), 1,
-      GL_FALSE, &Projection[0][0]);
-
-  ShaderProgramYUVFrame = Shaders->Compile("YUVFrame");
-  glUseProgram(ShaderProgramYUVFrame);
-  glUniform1i(glGetUniformLocation(ShaderProgramYUVFrame, "Luma"), 0);
-  glUniformMatrix4fv(glGetUniformLocation(ShaderProgramYUVFrame, "Projection"),
-                     1, GL_FALSE, &Projection[0][0]);
-  YUVFrameCbLocation = glGetUniformLocation(ShaderProgramYUVFrame, "Cb");
-  YUVFrameCrLocation = glGetUniformLocation(ShaderProgramYUVFrame, "Cr");
-  YUVFrameIsAlphaLocation =
-      glGetUniformLocation(ShaderProgramYUVFrame, "IsAlpha");
-
-  ShaderProgramCCMessageBox = Shaders->Compile("CCMessageBoxSprite");
-  glUseProgram(ShaderProgramCCMessageBox);
-  glUniform1i(glGetUniformLocation(ShaderProgramCCMessageBox, "ColorMap"), 0);
-  glUniformMatrix4fv(
-      glGetUniformLocation(ShaderProgramCCMessageBox, "Projection"), 1,
-      GL_FALSE, &Projection[0][0]);
-
-  ShaderProgramCHLCCMenuBackground = Shaders->Compile("CHLCCMenuBackground");
-  glUniformMatrix4fv(
-      glGetUniformLocation(ShaderProgramCHLCCMenuBackground, "Projection"), 1,
-      GL_FALSE, &Projection[0][0]);
+  // Set up shaders
+  SpriteShaderProgram =
+      std::make_unique<SpriteShader>(Shaders->Compile("Sprite"));
+  SpriteInvertedShaderProgram = std::make_unique<SpriteInvertedShader>(
+      Shaders->Compile("SpriteInverted"));
+  MaskedSpriteShaderProgram =
+      std::make_unique<MaskedSpriteShader>(Shaders->Compile("MaskedSprite"));
+  MaskedSpriteNoAlphaShaderProgram =
+      std::make_unique<MaskedSpriteNoAlphaShader>(
+          Shaders->Compile("MaskedSpriteNoAlpha"));
+  YUVFrameShaderProgram =
+      std::make_unique<YUVFrameShader>(Shaders->Compile("YUVFrame"));
+  CCMessageBoxShaderProgram = std::make_unique<CCMessageBoxShader>(
+      Shaders->Compile("CCMessageBoxSprite"));
+  CHLCCMenuBackgroundShaderProgram =
+      std::make_unique<CHLCCMenuBackgroundShader>(
+          Shaders->Compile("CHLCCMenuBackground"));
 
   // No-mipmapping sampler
   glGenSamplers(1, &Sampler);
@@ -187,7 +152,6 @@ void Renderer::BeginFrame2D() {
 
   Drawing = true;
   CurrentTexture = 0;
-  CurrentMode = R2D_None;
   VertexBufferFill = 0;
   IndexBufferFill = 0;
 
@@ -295,19 +259,27 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
   // Do we have space for one more sprite quad?
   EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
 
-  // Are we in sprite mode?
-  EnsureModeSprite(inverted);
-
-  if (sprite.Sheet.IsScreenCap) {
-    Flush();
-  }
+  if (sprite.Sheet.IsScreenCap) Flush();
 
   // Set uniform variables
-  const GLuint shaderProgram =
-      inverted ? ShaderProgramSpriteInverted : ShaderProgramSprite;
+  if (inverted) {
+    SpriteInvertedUniforms uniforms{
+        .Projection = Projection,
+        .Transformation = transformation,
+        .ColorMap = 0,
+    };
 
-  glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "Transformation"), 1,
-                     GL_FALSE, &transformation[0][0]);
+    UseShader(SpriteInvertedShaderProgram, uniforms);
+
+  } else {
+    SpriteUniforms uniforms{
+        .Projection = Projection,
+        .Transformation = transformation,
+        .ColorMap = 0,
+    };
+
+    UseShader(SpriteShaderProgram, uniforms);
+  }
 
   // Do we have the texture assigned?
   EnsureTextureBound(sprite.Sheet.Texture);
@@ -361,30 +333,21 @@ void Renderer::DrawMaskedSprite(
   // Do we have space for one more sprite quad?
   EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
 
-  if (CurrentMode != R2D_Masked) {
-    Flush();
-    CurrentMode = R2D_Masked;
-  }
-
   EnsureTextureBound(sprite.Sheet.Texture);
 
   // Set uniform variables
-  glBindVertexArray(VAOSprites);
-  glUseProgram(ShaderProgramMaskedSprite);
+  MaskedSpriteUniforms uniforms{
+      .Projection = Projection,
+      .SpriteTransformation = spriteTransformation,
+      .MaskTransformation = maskTransformation,
+      .ColorMap = 0,
+      .Mask = 2,
+      .Alpha = {alphaRange, constAlpha},
+      .IsInverted = isInverted,
+      .IsSameTexture = isSameTexture,
+  };
 
-  glUniform1i(glGetUniformLocation(ShaderProgramMaskedSprite, "Mask"), 2);
-  glUniform2f(glGetUniformLocation(ShaderProgramMaskedSprite, "Alpha"),
-              alphaRange, constAlpha);
-
-  glUniform1i(MaskedIsInvertedLocation, isInverted);
-  glUniform1i(MaskedIsSameTextureLocation, isSameTexture);
-
-  glUniformMatrix4fv(
-      glGetUniformLocation(ShaderProgramMaskedSprite, "SpriteTransformation"),
-      1, GL_FALSE, &spriteTransformation[0][0]);
-  glUniformMatrix4fv(
-      glGetUniformLocation(ShaderProgramMaskedSprite, "MaskTransformation"), 1,
-      GL_FALSE, &maskTransformation[0][0]);
+  UseShader(MaskedSpriteShaderProgram, uniforms);
 
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
@@ -436,38 +399,33 @@ void Renderer::DrawMaskedSpriteOverlay(
   // Do we have space for one more sprite quad?
   EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
 
-  glBindVertexArray(VAOSprites);
-  GLuint shaderProgram;
   if (useMaskAlpha) {
-    shaderProgram = ShaderProgramMaskedSprite;
+    MaskedSpriteUniforms uniforms{
+        .Projection = Projection,
+        .SpriteTransformation = spriteTransformation,
+        .MaskTransformation = maskTransformation,
+        .ColorMap = 0,
+        .Mask = 2,
+        .Alpha = {alphaRange, constAlpha},
+        .IsInverted = isInverted,
+        .IsSameTexture = false,
+    };
 
-    if (CurrentMode != R2D_Masked || sprite.Sheet.IsScreenCap) {
-      Flush();
-      CurrentMode = R2D_Masked;
-    }
-    glUseProgram(shaderProgram);
-    glUniform1i(MaskedIsInvertedLocation, isInverted);
-    glUniform1i(MaskedIsSameTextureLocation, false);
+    UseShader(MaskedSpriteShaderProgram, uniforms);
+
   } else {
-    shaderProgram = ShaderProgramMaskedSpriteNoAlpha;
+    MaskedSpriteNoAlphaUniforms uniforms{
+        .Projection = Projection,
+        .SpriteTransformation = spriteTransformation,
+        .MaskTransformation = maskTransformation,
+        .ColorMap = 0,
+        .Mask = 2,
+        .Alpha = {alphaRange, constAlpha},
+        .IsInverted = isInverted,
+    };
 
-    if (CurrentMode != R2D_MaskedNoAlpha || sprite.Sheet.IsScreenCap) {
-      Flush();
-      CurrentMode = R2D_MaskedNoAlpha;
-    }
-    glUseProgram(shaderProgram);
-    glUniform1i(MaskedNoAlphaIsInvertedLocation, isInverted);
+    UseShader(MaskedSpriteNoAlphaShaderProgram, uniforms);
   }
-
-  glUniform1i(glGetUniformLocation(shaderProgram, "Mask"), 2);
-  glUniform2f(glGetUniformLocation(shaderProgram, "Alpha"), alphaRange,
-              constAlpha);
-
-  glUniformMatrix4fv(
-      glGetUniformLocation(shaderProgram, "SpriteTransformation"), 1, GL_FALSE,
-      &spriteTransformation[0][0]);
-  glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "MaskTransformation"),
-                     1, GL_FALSE, &maskTransformation[0][0]);
 
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
@@ -512,15 +470,27 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
   EnsureSpaceAvailable(vertices.size(), sizeof(VertexBufferSprites),
                        indices.size());
 
-  EnsureModeSprite(inverted);
   EnsureTextureBound(sheet.Texture);
 
   // Set uniform variables
-  const GLuint shaderProgram =
-      inverted ? ShaderProgramSpriteInverted : ShaderProgramSprite;
+  if (inverted) {
+    SpriteInvertedUniforms uniforms{
+        .Projection = Projection,
+        .Transformation = transformation,
+        .ColorMap = 0,
+    };
 
-  glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "Transformation"), 1,
-                     GL_FALSE, &transformation[0][0]);
+    UseShader(SpriteInvertedShaderProgram, uniforms);
+
+  } else {
+    SpriteUniforms uniforms{
+        .Projection = Projection,
+        .Transformation = transformation,
+        .ColorMap = 0,
+    };
+
+    UseShader(SpriteShaderProgram, uniforms);
+  }
 
   // Push vertices
   VertexBufferSprites* vertexBuffer =
@@ -564,15 +534,14 @@ void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
   // Do we have space for one more sprite quad?
   EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
 
-  if (CurrentMode != R2D_CCMessageBox) {
-    Flush();
-    CurrentMode = R2D_CCMessageBox;
-  }
-  glBindVertexArray(VAOSprites);
-  glUseProgram(ShaderProgramCCMessageBox);
-  glUniform1i(glGetUniformLocation(ShaderProgramCCMessageBox, "Mask"), 2);
-  glUniform4f(glGetUniformLocation(ShaderProgramCCMessageBox, "Alpha"),
-              alphaRange, constAlpha, effectCt, 0.0f);
+  CCMessageBoxUniforms uniforms{
+      .Projection = Projection,
+      .ColorMap = 0,
+      .Mask = 2,
+      .Alpha = {alphaRange, constAlpha, effectCt, 0.0f},
+  };
+
+  UseShader(CCMessageBoxShaderProgram, uniforms);
 
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
@@ -620,17 +589,14 @@ void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
   // Do we have space for one more sprite quad?
   EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
 
-  if (CurrentMode != R2D_CHLCCMenuBackground) {
-    Flush();
-    CurrentMode = R2D_CHLCCMenuBackground;
-  }
+  CHLCCMenuBackgroundUniforms uniforms{
+      .Projection = Projection,
+      .ColorMap = 0,
+      .Mask = 2,
+      .Alpha = alpha,
+  };
 
-  glBindVertexArray(VAOSprites);
-  glUseProgram(ShaderProgramCHLCCMenuBackground);
-  glUniform1i(glGetUniformLocation(ShaderProgramCCMessageBox, "ColorMap"), 0);
-  glUniform1i(glGetUniformLocation(ShaderProgramCCMessageBox, "Mask"), 2);
-  glUniform1f(glGetUniformLocation(ShaderProgramCHLCCMenuBackground, "Alpha"),
-              alpha);
+  UseShader(CHLCCMenuBackgroundShaderProgram, uniforms);
 
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
@@ -683,20 +649,6 @@ void Renderer::EnsureTextureBound(GLuint texture) {
   }
 }
 
-void Renderer::EnsureModeSprite(bool inverted) {
-  Renderer2DMode wantedMode = inverted ? R2D_SpriteInverted : R2D_Sprite;
-  if (CurrentMode != wantedMode) {
-    ImpLogSlow(
-        LogLevel::Trace, LogChannel::Render,
-        "Renderer2D flushing because mode {:d} is not R2D_Sprite/inverted\n",
-        to_underlying(CurrentMode));
-    Flush();
-    glBindVertexArray(VAOSprites);
-    glUseProgram(inverted ? ShaderProgramSpriteInverted : ShaderProgramSprite);
-    CurrentMode = wantedMode;
-  }
-}
-
 void Renderer::Flush() {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
@@ -725,15 +677,15 @@ void Renderer::DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
   // Do we have space for one more sprite quad?
   EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
 
-  if (CurrentMode != R2D_YUVFrame) {
-    Flush();
-    CurrentMode = R2D_YUVFrame;
-  }
-  glBindVertexArray(VAOSprites);
-  glUseProgram(ShaderProgramYUVFrame);
-  glUniform1i(YUVFrameCbLocation, 2);
-  glUniform1i(YUVFrameCrLocation, 4);
-  glUniform1i(YUVFrameIsAlphaLocation, alphaVideo);
+  YUVFrameUniforms uniforms{
+      .Projection = Projection,
+      .Luma = 0,
+      .Cb = 2,
+      .Cr = 4,
+      .IsAlpha = alphaVideo,
+  };
+
+  UseShader(YUVFrameShaderProgram, uniforms);
 
   // Luma
   glActiveTexture(GL_TEXTURE0);
