@@ -16,17 +16,6 @@ namespace OpenGL {
 int constexpr NkMaxVertexMemory = 256 * 1024;
 int constexpr NkMaxElementMemory = 128 * 1024;
 
-enum Renderer2DMode {
-  R2D_None,
-  R2D_Sprite,
-  R2D_SpriteInverted,
-  R2D_YUVFrame,
-  R2D_Masked,
-  R2D_MaskedNoAlpha,
-  R2D_CCMessageBox,
-  R2D_CHLCCMenuBackground,
-};
-
 class Renderer : public BaseRenderer {
  public:
   void Init() override;
@@ -101,27 +90,37 @@ class Renderer : public BaseRenderer {
   void DisableScissor() override;
 
  private:
+  std::unique_ptr<SpriteShader> SpriteShaderProgram;
+  std::unique_ptr<SpriteInvertedShader> SpriteInvertedShaderProgram;
+  std::unique_ptr<MaskedSpriteShader> MaskedSpriteShaderProgram;
+  std::unique_ptr<MaskedSpriteNoAlphaShader> MaskedSpriteNoAlphaShaderProgram;
+  std::unique_ptr<YUVFrameShader> YUVFrameShaderProgram;
+  std::unique_ptr<CCMessageBoxShader> CCMessageBoxShaderProgram;
+  std::unique_ptr<CHLCCMenuBackgroundShader> CHLCCMenuBackgroundShaderProgram;
+
+  const void* CurrentShaderProgram = nullptr;
+
+  template <typename ShaderType, typename UniformsStruct>
+  void UseShader(std::unique_ptr<ShaderType>& shader, UniformsStruct uniforms) {
+    static_assert(std::is_base_of<Shader<UniformsStruct>, ShaderType>());
+
+    if (CurrentShaderProgram != &shader) {
+      Flush();
+      CurrentShaderProgram = &shader;
+      shader->Bind();
+    }
+
+    if (shader->GetUniforms() != uniforms) {
+      Flush();
+      shader->UploadUniforms(uniforms);
+    }
+  }
+
   void EnsureSpaceAvailable(int vertices, int vertexSize, int indices);
   void EnsureTextureBound(GLuint texture);
-  void EnsureModeSprite(bool inverted);
   void Flush() override;
 
   GLWindow* OpenGLWindow;
-
-  GLuint ShaderProgramSprite;
-  GLuint ShaderProgramSpriteInverted;
-  GLuint ShaderProgramMaskedSprite;
-  GLuint ShaderProgramMaskedSpriteNoAlpha;
-  GLuint ShaderProgramYUVFrame;
-  GLuint ShaderProgramCCMessageBox;
-  GLuint ShaderProgramCHLCCMenuBackground;
-
-  GLuint YUVFrameCbLocation;
-  GLuint YUVFrameCrLocation;
-  GLuint YUVFrameIsAlphaLocation;
-  GLuint MaskedIsInvertedLocation;
-  GLuint MaskedIsSameTextureLocation;
-  GLuint MaskedNoAlphaIsInvertedLocation;
 
   GLuint VBO;
   GLuint IBO;
@@ -136,7 +135,6 @@ class Renderer : public BaseRenderer {
       VertexBufferSize / (4 * sizeof(VertexBufferSprites)) * 6;
 
   GLuint CurrentTexture = 0;
-  Renderer2DMode CurrentMode = R2D_None;
   uint8_t VertexBuffer[VertexBufferSize];
   int VertexBufferFill = 0;
   uint16_t IndexBuffer[IndexBufferCount];
@@ -146,7 +144,7 @@ class Renderer : public BaseRenderer {
       glm::ortho(0.0f, Profile::DesignWidth, Profile::DesignHeight, 0.0f);
 
   // ShaderCompiler compiler
-  ShaderCompiler* Shaders;
+  std::shared_ptr<ShaderCompiler> Shaders;
 };
 
 }  // namespace OpenGL

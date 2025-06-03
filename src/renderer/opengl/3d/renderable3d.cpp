@@ -61,7 +61,8 @@ static bool CurrentMaterialIsDepthWrite = false;
 
 static GLWindow* Window;
 
-void Renderable3D::Init(GLWindow* window, ShaderCompiler* shaderCompiler) {
+void Renderable3D::Init(GLWindow* window,
+                        std::shared_ptr<ShaderCompiler> shaderCompiler) {
   assert(IsInit == false);
   ImpLog(LogLevel::Info, LogChannel::Renderable3D,
          "Initializing Renderable3D system\n");
