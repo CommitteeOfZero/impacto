@@ -11,10 +11,9 @@
 namespace Impacto {
 namespace OpenGL {
 
-Scene3D::Scene3D(GLWindow* window, ShaderCompiler* shaderCompiler) {
-  Window = window;
-  Shaders = shaderCompiler;
-}
+Scene3D::Scene3D(GLWindow* window,
+                 std::shared_ptr<ShaderCompiler> shaderCompiler)
+    : Window(window), Shaders(shaderCompiler) {}
 
 void Scene3D::Init() {
   assert(IsInit == false);
