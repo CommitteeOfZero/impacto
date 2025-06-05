@@ -334,17 +334,19 @@ void DelusionTrigger::Render() {
   ScaledMask.Bounds.Y = BackgroundSpriteMask.Bounds.Y - deltaHeight / 2.0f;
 
   TriggerOnTint[3] = TriggerOnTintAlpha * backgroundAlpha / 65536.0f;
-  Renderer->DrawRect(RectF(0.0f, 0.0f, 1280.0f, 720.0f), TriggerOnTint);
+  Renderer->DrawQuad(RectF(0.0f, 0.0f, 1280.0f, 720.0f), TriggerOnTint);
 
   ScreenMask.Bounds.X = UnderlayerXOffset / 1000.0f;
   Renderer->DrawSprite(
       ScreenMask, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
       glm::vec4(1.0f, 1.0f, 1.0f, (backgroundAlpha * 160) / 65536.0));
 
-  Renderer->DrawMaskedSpriteOverlay(
-      BackgroundSprite, ScaledMask, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-      glm::vec4{1.0f}, (backgroundAlpha * 160) >> 8, 20, true,
-      spinAngle * 2 * (float)M_PI / 65536.0f);
+  const RectF spriteDest = {0.0f, 0.0f, 1280.0f, 720.0f};
+  const CornersQuad maskDest =
+      ScaledMask.Bounds.RotateAroundCenter(ScrWorkAngleToRad(spinAngle));
+  Renderer->DrawMaskedSpriteOverlay(BackgroundSprite, ScaledMask, spriteDest,
+                                    maskDest, (backgroundAlpha * 160) >> 8, 20,
+                                    glm::mat4(1.0f), glm::vec4(1.0f), true);
 }
 
 }  // namespace CHLCC

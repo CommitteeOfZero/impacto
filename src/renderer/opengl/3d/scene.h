@@ -24,7 +24,7 @@ enum MSResolveMode {
 
 class Scene3D : public IScene3D {
  public:
-  Scene3D(GLWindow* window, ShaderCompiler* shaderCompiler);
+  Scene3D(GLWindow* window, std::shared_ptr<ShaderCompiler> shaderCompiler);
 
   void Init();
   void Shutdown();
@@ -35,7 +35,7 @@ class Scene3D : public IScene3D {
   bool IsInit = false;
 
   GLWindow* Window;
-  ShaderCompiler* Shaders;
+  std::shared_ptr<ShaderCompiler> Shaders;
 
   void SetupFramebufferState();
   void CleanFramebufferState();

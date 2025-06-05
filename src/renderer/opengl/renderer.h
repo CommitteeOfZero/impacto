@@ -8,22 +8,13 @@
 #include "shader.h"
 #include "glc.h"
 
+#include "../../profile/game.h"
+
 namespace Impacto {
 namespace OpenGL {
 
 int constexpr NkMaxVertexMemory = 256 * 1024;
 int constexpr NkMaxElementMemory = 128 * 1024;
-
-enum Renderer2DMode {
-  R2D_None,
-  R2D_Sprite,
-  R2D_SpriteInverted,
-  R2D_YUVFrame,
-  R2D_Masked,
-  R2D_MaskedNoAlpha,
-  R2D_CCMessageBox,
-  R2D_CHLCCMenuBackground,
-};
 
 class Renderer : public BaseRenderer {
  public:
@@ -45,66 +36,40 @@ class Renderer : public BaseRenderer {
   void FreeTexture(uint32_t id) override;
   YUVFrame* CreateYUVFrame(float width, float height) override;
 
-  void DrawSprite(Sprite const& sprite, CornersQuad const& dest,
-                  const std::array<glm::vec4, 4>& tints, float angle = 0.0f,
-                  bool inverted = false) override;
+  void DrawSprite(const Sprite& sprite, const CornersQuad& dest,
+                  glm::mat4 transformation, std::span<const glm::vec4, 4> tints,
+                  bool inverted, bool disableBlend) override;
 
-  void DrawSpriteOffset(Sprite const& sprite, glm::vec2 topLeft,
-                        glm::vec2 displayOffset,
-                        glm::vec4 tint = glm::vec4(1.0),
-                        glm::vec2 scale = glm::vec2(1.0), float angle = 0.0f,
-                        bool inverted = false) override;
+  void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
+                        const CornersQuad& spriteDest,
+                        const CornersQuad& maskDest, int alpha, int fadeRange,
+                        glm::mat4 spriteTransformation,
+                        glm::mat4 maskTransformation,
+                        std::span<const glm::vec4, 4> tints, bool isInverted,
+                        bool isSameTexture) override;
 
-  void DrawVertices(SpriteSheet const& sheet,
-                    std::span<const glm::vec2> sheetPositions,
-                    std::span<const glm::vec2> displayPositions, int width,
-                    int height, glm::vec4 tint = glm::vec4(1.0),
-                    bool inverted = false, bool disableBlend = false) override;
+  void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
+                               const CornersQuad& spriteDest,
+                               const CornersQuad& maskDest, int alpha,
+                               int fadeRange, glm::mat4 spriteTransformation,
+                               glm::mat4 maskTransformation,
+                               std::span<const glm::vec4, 4> tints,
+                               bool isInverted, bool useMaskAlpha) override;
 
-  void DrawRect(RectF const& dest, glm::vec4 color,
-                float angle = 0.0f) override;
-
-  void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
-                        RectF const& dest, glm::vec4 tint, int alpha,
-                        int fadeRange, bool isInverted = false,
-                        bool isSameTexture = false) override;
-
-  void DrawMaskedSpriteOffset(const Sprite& sprite, const Sprite& mask,
-                              glm::vec2 pos, glm::vec2 origin, int alpha,
-                              int fadeRange, glm::vec4 tint = glm::vec4(1.0f),
-                              glm::vec2 scale = glm::vec2(1.0),
-                              float angle = 0.0f, bool spriteInverted = false,
-                              bool maskInverted = false,
-                              bool isSameTexture = false) override;
+  void DrawVertices(const SpriteSheet& sheet,
+                    std::span<const VertexBufferSprites> vertices,
+                    std::span<const uint16_t> indices, glm::mat4 transformation,
+                    bool inverted) override;
 
   void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                         RectF const& dest, glm::vec4 tint, int alpha,
                         int fadeRange, float effectCt) override;
 
-  void DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
-                               RectF const& dest, glm::vec4 tint, int alpha,
-                               int fadeRange, bool isInverted, float angle,
-                               bool useMaskAlpha);
-
   void DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
                                const RectF& dest, float alpha) override;
 
-  void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest, float depth,
-                           glm::vec2 vanishingPoint, bool stayInScreen,
-                           glm::quat rot, glm::vec4 tint = glm::vec4(1.0f),
-                           bool inverted = false) override;
-  void DrawRect3DRotated(RectF const& dest, float depth,
-                         glm::vec2 vanishingPoint, bool stayInScreen,
-                         glm::quat rot, glm::vec4 color) override;
-
-  void DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
-                        int verticesCount, float* mvlVertices, int indicesCount,
-                        uint16_t* mvlIndices, bool inverted, glm::vec4 tint,
-                        glm::vec2 scale) override;
-
-  void DrawVideoTexture(YUVFrame* tex, RectF const& dest,
-                        glm::vec4 tint = glm::vec4(1.0), float angle = 0.0f,
-                        bool alphaVideo = false) override;
+  void DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
+                        glm::vec4 tint, bool alphaVideo) override;
 
   void CaptureScreencap(Sprite& sprite) override;
 
@@ -125,44 +90,37 @@ class Renderer : public BaseRenderer {
   void DisableScissor() override;
 
  private:
+  std::unique_ptr<SpriteShader> SpriteShaderProgram;
+  std::unique_ptr<SpriteInvertedShader> SpriteInvertedShaderProgram;
+  std::unique_ptr<MaskedSpriteShader> MaskedSpriteShaderProgram;
+  std::unique_ptr<MaskedSpriteNoAlphaShader> MaskedSpriteNoAlphaShaderProgram;
+  std::unique_ptr<YUVFrameShader> YUVFrameShaderProgram;
+  std::unique_ptr<CCMessageBoxShader> CCMessageBoxShaderProgram;
+  std::unique_ptr<CHLCCMenuBackgroundShader> CHLCCMenuBackgroundShaderProgram;
+
+  const void* CurrentShaderProgram = nullptr;
+
+  template <typename ShaderType, typename UniformsStruct>
+  void UseShader(std::unique_ptr<ShaderType>& shader, UniformsStruct uniforms) {
+    static_assert(std::is_base_of<Shader<UniformsStruct>, ShaderType>());
+
+    if (CurrentShaderProgram != &shader) {
+      Flush();
+      CurrentShaderProgram = &shader;
+      shader->Bind();
+    }
+
+    if (shader->GetUniforms() != uniforms) {
+      Flush();
+      shader->UploadUniforms(uniforms);
+    }
+  }
+
   void EnsureSpaceAvailable(int vertices, int vertexSize, int indices);
   void EnsureTextureBound(GLuint texture);
-  void EnsureModeSprite(bool inverted);
-  void Flush();
-
-  void QuadSetUV(RectF const& spriteBounds, float designWidth,
-                 float designHeight, uintptr_t uvs, int stride,
-                 float angle = 0.0f);
-  void QuadSetPositionOffset(RectF const& spriteBounds, glm::vec2 displayXY,
-                             glm::vec2 displayOffset, glm::vec2 scale,
-                             float angle, uintptr_t positions, int stride,
-                             bool toNDC = true);
-  void QuadSetUVFlipped(RectF const& spriteBounds, float designWidth,
-                        float designHeight, uintptr_t uvs, int stride);
-  void QuadSetPosition(RectF const& transformedQuad, float angle,
-                       uintptr_t positions, int stride);
-  void QuadSetPosition(CornersQuad destQuad, float angle, uintptr_t positions,
-                       int stride);
-  void QuadSetPosition3DRotated(RectF const& transformedQuad, float depth,
-                                glm::vec2 vanishingPoint, bool stayInScreen,
-                                glm::quat rot, uintptr_t positions, int stride);
+  void Flush() override;
 
   GLWindow* OpenGLWindow;
-
-  GLuint ShaderProgramSprite;
-  GLuint ShaderProgramSpriteInverted;
-  GLuint ShaderProgramMaskedSprite;
-  GLuint ShaderProgramMaskedSpriteNoAlpha;
-  GLuint ShaderProgramYUVFrame;
-  GLuint ShaderProgramCCMessageBox;
-  GLuint ShaderProgramCHLCCMenuBackground;
-
-  GLuint YUVFrameCbLocation;
-  GLuint YUVFrameCrLocation;
-  GLuint YUVFrameIsAlphaLocation;
-  GLuint MaskedIsInvertedLocation;
-  GLuint MaskedIsSameTextureLocation;
-  GLuint MaskedNoAlphaIsInvertedLocation;
 
   GLuint VBO;
   GLuint IBO;
@@ -177,16 +135,16 @@ class Renderer : public BaseRenderer {
       VertexBufferSize / (4 * sizeof(VertexBufferSprites)) * 6;
 
   GLuint CurrentTexture = 0;
-  Renderer2DMode CurrentMode = R2D_None;
   uint8_t VertexBuffer[VertexBufferSize];
   int VertexBufferFill = 0;
   uint16_t IndexBuffer[IndexBufferCount];
   int IndexBufferFill = 0;
 
-  Sprite RectSprite;
+  const glm::mat4 Projection =
+      glm::ortho(0.0f, Profile::DesignWidth, Profile::DesignHeight, 0.0f);
 
   // ShaderCompiler compiler
-  ShaderCompiler* Shaders;
+  std::shared_ptr<ShaderCompiler> Shaders;
 };
 
 }  // namespace OpenGL

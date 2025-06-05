@@ -63,12 +63,11 @@ void TileBackground::Render() {
       tileSprite.Bounds.X = (float)x * tileSprite.Bounds.Width;
       tileSprite.Bounds.Y = (float)y * tileSprite.Bounds.Height;
 
-      Renderer->DrawSprite3DRotated(
-          tileSprite,
-          RectF((float)x * ColumnWidth, (float)y * RowHeight, ColumnWidth,
-                RowHeight),
-          2.0f, vanishingPoint, false, quat,
-          glm::vec4(1.0f, 1.0f, 1.0f, smoothedTileProgress));
+      CornersQuad dest = RectF((float)x * ColumnWidth, (float)y * RowHeight,
+                               ColumnWidth, RowHeight);
+      dest.Rotate(quat, {dest.Center(), 0.0f}, 2.0f, vanishingPoint);
+      Renderer->DrawSprite(tileSprite, dest,
+                           {1.0f, 1.0f, 1.0f, smoothedTileProgress});
     }
   }
 }

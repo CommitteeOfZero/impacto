@@ -40,41 +40,64 @@ void InitRenderer() {
   Renderer->Init();
 }
 
-void BaseRenderer::DrawSprite(Sprite const& sprite, RectF const& dest,
-                              glm::vec4 tint, float angle, bool inverted) {
-  std::array<glm::vec4, 4> tints = {tint, tint, tint, tint};
-  DrawSprite(sprite, CornersQuad(dest), tints, angle, inverted);
+static void InsertQuad(std::vector<VertexBufferSprites>& vertices,
+                       const CornersQuad position, const CornersQuad uv,
+                       const glm::vec4 tint,
+                       const CornersQuad maskUV = RectF()) {
+  vertices.insert(vertices.end(), {
+                                      VertexBufferSprites{
+                                          .Position = position.TopLeft,
+                                          .UV = uv.TopLeft,
+                                          .Tint = tint,
+                                          .MaskUV = maskUV.TopLeft,
+                                      },
+                                      VertexBufferSprites{
+                                          .Position = position.TopRight,
+                                          .UV = uv.TopRight,
+                                          .Tint = tint,
+                                          .MaskUV = maskUV.TopRight,
+                                      },
+                                      VertexBufferSprites{
+                                          .Position = position.BottomRight,
+                                          .UV = uv.BottomRight,
+                                          .Tint = tint,
+                                          .MaskUV = maskUV.BottomRight,
+                                      },
+                                      VertexBufferSprites{
+                                          .Position = position.BottomLeft,
+                                          .UV = uv.BottomLeft,
+                                          .Tint = tint,
+                                          .MaskUV = maskUV.BottomLeft,
+                                      },
+                                  });
 }
 
-void BaseRenderer::DrawSprite(Sprite const& sprite, glm::vec2 topLeft,
-                              glm::vec4 tint, glm::vec2 scale, float angle,
-                              bool inverted) {
-  RectF scaledDest(topLeft.x, topLeft.y,
-                   scale.x * sprite.Bounds.Width * sprite.BaseScale.x,
-                   scale.y * sprite.Bounds.Height * sprite.BaseScale.y);
-  DrawSprite(sprite, scaledDest, tint, angle, inverted);
+static void InsertQuad(std::vector<VertexBufferSprites>& vertices,
+                       std::vector<uint16_t>& indices, uint16_t& maxIndex,
+                       const CornersQuad position, const CornersQuad uv,
+                       const glm::vec4 tint,
+                       const CornersQuad maskUV = RectF()) {
+  InsertQuad(vertices, position, uv, tint, maskUV);
+
+  const uint16_t tl = maxIndex;
+  const uint16_t tr = maxIndex + 1;
+  const uint16_t br = maxIndex + 2;
+  const uint16_t bl = maxIndex + 3;
+  indices.insert(indices.end(), {tl, tr, br, tl, br, bl});
+  maxIndex += 4;
 }
 
 void BaseRenderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                                     glm::vec2 topLeft, glm::vec4 tint,
                                     int alpha, int fadeRange, float effectCt,
                                     glm::vec2 scale) {
-  RectF scaledDest(topLeft.x, topLeft.y,
-                   scale.x * sprite.Bounds.Width * sprite.BaseScale.x,
-                   scale.y * sprite.Bounds.Height * sprite.BaseScale.y);
-  DrawCCMessageBox(sprite, mask, scaledDest, tint, alpha, fadeRange, effectCt);
+  const RectF dest =
+      sprite.ScaledBounds().Scale(scale, {0.0f, 0.0f}).Translate(topLeft);
+  DrawCCMessageBox(sprite, mask, dest, tint, alpha, fadeRange, effectCt);
 }
 
-void BaseRenderer::DrawSprite3DRotated(Sprite const& sprite, glm::vec2 topLeft,
-                                       float depth, glm::vec2 vanishingPoint,
-                                       bool stayInScreen, glm::quat rot,
-                                       glm::vec4 tint, glm::vec2 scale,
-                                       bool inverted) {
-  RectF scaledDest(topLeft.x, topLeft.y,
-                   scale.x * sprite.Bounds.Width * sprite.BaseScale.x,
-                   scale.y * sprite.Bounds.Height * sprite.BaseScale.y);
-  DrawSprite3DRotated(sprite, scaledDest, depth, vanishingPoint, stayInScreen,
-                      rot, tint, inverted);
+void BaseRenderer::DrawQuad(const CornersQuad& dest, const glm::vec4 color) {
+  DrawSprite(RectSprite, dest, color);
 }
 
 void BaseRenderer::DrawProcessedText(std::span<const ProcessedTextGlyph> text,
@@ -114,162 +137,224 @@ void BaseRenderer::DrawProcessedText(std::span<const ProcessedTextGlyph> text,
   }
 }
 
-void BaseRenderer::DrawVideoTexture(YUVFrame* tex, glm::vec2 topLeft,
-                                    glm::vec4 tint, glm::vec2 scale,
-                                    float angle, bool alphaVideo) {
-  RectF scaledDest(topLeft.x, topLeft.y, scale.x * tex->Width,
-                   scale.y * tex->Height);
-  DrawVideoTexture(tex, scaledDest, tint, angle, alphaVideo);
-}
-
 void BaseRenderer::DrawProcessedText_BasicFont(
     std::span<const ProcessedTextGlyph> text, BasicFont* font, float opacity,
     RendererOutlineMode outlineMode, bool smoothstepGlyphOpacity,
     float outlineOpacity, SpriteSheet* maskedSheet) {
-  // cruddy mages outline
+  const size_t vertexCount = text.size() * 4;
+  const size_t indexCount = text.size() * 6;
+  std::vector<VertexBufferSprites> vertices;
+  std::vector<uint16_t> indices;
+  vertices.reserve(vertexCount);
+  indices.reserve(indexCount);
+
+  uint16_t maxIndex = 0;
+  for (const ProcessedTextGlyph glyph : text) {
+    const CornersQuad dest = glyph.DestRect;
+    const CornersQuad destUV = CornersQuad(font->Glyph(glyph.CharId).Bounds)
+                                   .Scale({1.0f / font->Sheet.DesignWidth,
+                                           1.0f / font->Sheet.DesignHeight},
+                                          {0.0f, 0.0f});
+    glm::vec4 color = RgbIntToFloat(glyph.Colors.TextColor);
+    color.a = opacity * (smoothstepGlyphOpacity
+                             ? glm::smoothstep(0.0f, 1.0f, glyph.Opacity)
+                             : glyph.Opacity);
+
+    InsertQuad(vertices, indices, maxIndex, dest, destUV, color, dest);
+  }
+
   if (outlineMode != RendererOutlineMode::None) {
-    for (int i = 0; i < text.size(); i++) {
-      glm::vec4 color = RgbIntToFloat(text[i].Colors.OutlineColor);
-      color.a = outlineOpacity;
-      if (smoothstepGlyphOpacity) {
-        color.a *= glm::smoothstep(0.0f, 1.0f, text[i].Opacity);
-      } else {
-        color.a *= text[i].Opacity;
+    // Add outline to the front of the buffers
+    vertices.reserve(vertexCount * 2);
+    vertices.insert(vertices.end(), vertices.begin(), vertices.end());
+
+    indices.resize(indexCount * 2);
+    std::transform(indices.begin(), indices.begin() + indexCount,
+                   indices.begin() + indexCount,
+                   [maxIndex](uint16_t index) { return index + maxIndex; });
+    maxIndex += vertexCount;
+
+    // Set the color of the outline
+    for (size_t i = 0; i < text.size(); i++) {
+      const ProcessedTextGlyph glyph = text[i];
+      glm::vec4 color = RgbIntToFloat(glyph.Colors.OutlineColor);
+      color.a =
+          outlineOpacity * (smoothstepGlyphOpacity
+                                ? glm::smoothstep(0.0f, 1.0f, glyph.Opacity)
+                                : glyph.Opacity);
+      std::transform(vertices.begin() + i * 4, vertices.begin() + (i + 1) * 4,
+                     vertices.begin() + i * 4, [color](auto vertex) {
+                       vertex.Tint = color;
+                       return vertex;
+                     });
+    }
+
+    const auto translateVertex = [](VertexBufferSprites vertex,
+                                    const glm::vec2 offset) {
+      vertex.Position += offset;
+      return vertex;
+    };
+
+    switch (outlineMode) {
+      case RendererOutlineMode::Full: {
+        // Add bottom-right outline
+        vertices.reserve(vertexCount * 3);
+        vertices.insert(vertices.begin() + vertexCount, vertices.begin(),
+                        vertices.begin() + vertexCount);
+
+        indices.resize(indexCount * 3);
+        std::transform(indices.begin(), indices.begin() + indexCount,
+                       indices.begin() + indexCount * 2,
+                       [maxIndex](uint16_t index) { return index + maxIndex; });
+        maxIndex += vertexCount;
+
+        // Translate outlines
+        const auto glyphsBegin = vertices.begin() + vertexCount * 2;
+        const auto glyphsEnd = vertices.end();
+        std::transform(glyphsBegin, glyphsEnd, vertices.begin(),
+                       [translateVertex](auto vertex) {
+                         return translateVertex(vertex, {-1.0f, -1.0f});
+                       });
+        std::transform(glyphsBegin, glyphsEnd, vertices.begin() + vertexCount,
+                       [translateVertex](auto vertex) {
+                         return translateVertex(vertex, {1.0f, 1.0f});
+                       });
+
+        break;
       }
-      Sprite glyph = font->Glyph(text[i].CharId);
-      RectF dest = text[i].DestRect;
-      switch (outlineMode) {
-        case RendererOutlineMode::Full:
-          dest.X--;
-          dest.Y--;
-          if (maskedSheet) {
-            Sprite mask;
-            mask.Sheet = *maskedSheet;
-            mask.Bounds = dest;
-            DrawMaskedSpriteOverlay(glyph, mask, dest, color, color.a * 255,
-                                    256, false, 0, i == 0);
-          } else {
-            DrawSprite(glyph, dest, color);
-          }
-          dest.X++;
-          dest.Y++;
-          [[fallthrough]];
-        case RendererOutlineMode::BottomRight:
-          dest.X++;
-          dest.Y++;
-          if (maskedSheet) {
-            Sprite mask;
-            mask.Sheet = *maskedSheet;
-            mask.Bounds = dest;
-            DrawMaskedSpriteOverlay(glyph, mask, dest, color, color.a * 255,
-                                    256, false, 0, i == 0);
-          } else {
-            DrawSprite(glyph, dest, color);
-          }
-          break;
-        default:
-          break;
+
+      case RendererOutlineMode::BottomRight: {
+        std::transform(vertices.begin(), vertices.end(), vertices.begin(),
+                       [translateVertex](auto vertex) {
+                         return translateVertex(vertex, {-1.0f, -1.0f});
+                       });
+
+        break;
       }
+
+      default:
+        ImpLogSlow(LogLevel::Warning, LogChannel::Render,
+                   "Unexpected outline mode!");
+        break;
     }
   }
 
-  for (int i = 0; i < text.size(); i++) {
-    glm::vec4 color = RgbIntToFloat(text[i].Colors.TextColor);
-    color.a = opacity;
-    if (smoothstepGlyphOpacity) {
-      color.a *= glm::smoothstep(0.0f, 1.0f, text[i].Opacity);
-    } else {
-      color.a *= text[i].Opacity;
-    }
-    if (maskedSheet) {
-      Sprite mask;
-      mask.Sheet = *maskedSheet;
-      mask.Bounds = text[i].DestRect;
-      DrawMaskedSpriteOverlay(font->Glyph(text[i].CharId), mask,
-                              text[i].DestRect, color, color.a * 255, 256,
-                              false, 0, false);
-    } else {
-      DrawSprite(font->Glyph(text[i].CharId), text[i].DestRect, color);
-    }
-  }
+  DrawVertices(font->Sheet, vertices, indices);
 }
 
 void BaseRenderer::DrawProcessedText_LBFont(
     std::span<const ProcessedTextGlyph> text, LBFont* font, float opacity,
     RendererOutlineMode outlineMode, bool smoothstepGlyphOpacity,
     float outlineOpacity, SpriteSheet* maskedSheet) {
+  const size_t vertexCount = text.size() * 4;
+  const size_t indexCount = text.size() * 6;
+  std::vector<uint16_t> indices;
+  indices.reserve(indexCount);
+
+  for (size_t i = 0; i < text.size(); i++) {
+    const uint16_t tl = i * 4;
+    const uint16_t tr = tl + 1;
+    const uint16_t br = tl + 2;
+    const uint16_t bl = tl + 3;
+
+    indices.insert(indices.end(), {tl, tr, br, tl, br, bl});
+  }
+
   if (outlineMode != RendererOutlineMode::None) {
-    for (int i = 0; i < text.size(); i++) {
-      glm::vec4 color = RgbIntToFloat(text[i].Colors.OutlineColor);
-      color.a = outlineOpacity;
-      if (smoothstepGlyphOpacity) {
-        color.a *= glm::smoothstep(0.0f, 1.0f, text[i].Opacity);
-      } else {
-        color.a *= text[i].Opacity;
-      }
+    std::vector<VertexBufferSprites> outlineVertices;
+    outlineVertices.reserve(vertexCount);
 
-      float scaleX = text[i].DestRect.Height / font->BitmapEmWidth;
-      float scaleY = text[i].DestRect.Height / font->BitmapEmHeight;
-      RectF outlineDest;
+    for (const ProcessedTextGlyph glyph : text) {
+      glm::vec4 color = RgbIntToFloat(glyph.Colors.OutlineColor);
+      color.a =
+          outlineOpacity * (smoothstepGlyphOpacity
+                                ? glm::smoothstep(0.0f, 1.0f, glyph.Opacity)
+                                : glyph.Opacity);
+      const CornersQuad destUV =
+          CornersQuad(font->OutlineGlyph(glyph.CharId).Bounds)
+              .Scale({1.0f / font->OutlineSheet.DesignWidth,
+                      1.0f / font->OutlineSheet.DesignHeight},
+                     {0.0f, 0.0f});
 
+      CornersQuad dest = RectF();
+      const glm::vec2 scale = {glyph.DestRect.Height / font->BitmapEmWidth,
+                               glyph.DestRect.Height / font->BitmapEmHeight};
       switch (outlineMode) {
-        case RendererOutlineMode::Full:
-          outlineDest =
-              RectF(text[i].DestRect.X + scaleX * font->OutlineOffset.x,
-                    text[i].DestRect.Y + scaleY * font->OutlineOffset.y,
-                    scaleX * font->OutlineCellWidth,
-                    scaleY * font->OutlineCellHeight);
+        case RendererOutlineMode::Full: {
+          dest = RectF(font->OutlineOffset.x, font->OutlineOffset.y,
+                       font->OutlineCellWidth, font->OutlineCellHeight)
+                     .Scale(scale, {0.0f, 0.0f})
+                     .Translate(glyph.DestRect.GetPos());
           break;
-        case RendererOutlineMode::BottomRight:
-          outlineDest = RectF(
-              text[i].DestRect.X + scaleX * (font->OutlineOffset.x * 3 / 4),
-              text[i].DestRect.Y + scaleY * (font->OutlineOffset.y * 3 / 4),
-              scaleX * (font->OutlineCellWidth + font->OutlineOffset.x / 2),
-              scaleY * (font->OutlineCellHeight + font->OutlineOffset.y / 2));
+        }
+
+        case RendererOutlineMode::BottomRight: {
+          dest = RectF(font->OutlineOffset.x * 3 / 4,
+                       font->OutlineOffset.y * 3 / 4,
+                       font->OutlineCellWidth + font->OutlineOffset.x / 2,
+                       font->OutlineCellHeight + font->OutlineOffset.y / 2)
+                     .Scale(scale, {0.0f, 0.0f})
+                     .Translate(glyph.DestRect.GetPos());
           break;
+        }
+
         default:
+          ImpLogSlow(LogLevel::Warning, LogChannel::Render,
+                     "Unexpected outline mode!");
           break;
       }
-      if (maskedSheet) {
-        Sprite mask;
-        mask.Sheet = *maskedSheet;
-        mask.Bounds = outlineDest;
-        DrawMaskedSpriteOverlay(font->OutlineGlyph(text[i].CharId), mask,
-                                outlineDest, color, color.a * 255, 256, false,
-                                0, i == 0);
-      } else {
-        DrawSprite(font->OutlineGlyph(text[i].CharId), outlineDest, color);
-      }
+
+      InsertQuad(outlineVertices, dest, destUV, color, dest);
     }
+
+    DrawVertices(font->OutlineSheet, outlineVertices, indices);
   }
 
-  for (int i = 0; i < text.size(); i++) {
-    glm::vec4 color = RgbIntToFloat(text[i].Colors.TextColor);
-    color.a = opacity;
-    if (smoothstepGlyphOpacity) {
-      color.a *= glm::smoothstep(0.0f, 1.0f, text[i].Opacity);
-    } else {
-      color.a *= text[i].Opacity;
-    }
+  std::vector<VertexBufferSprites> vertices;
+  vertices.reserve(vertexCount);
 
-    float scaleX = text[i].DestRect.Height / font->BitmapEmWidth;
-    float scaleY = text[i].DestRect.Height / font->BitmapEmHeight;
+  for (const ProcessedTextGlyph glyph : text) {
+    glm::vec2 scale = {glyph.DestRect.Height / font->BitmapEmWidth,
+                       glyph.DestRect.Height / font->BitmapEmHeight};
+    CornersQuad dest = RectF(font->ForegroundOffset.x, font->ForegroundOffset.y,
+                             font->CellWidth, font->CellHeight)
+                           .Scale(scale, {0.0f, 0.0f})
+                           .Translate(glyph.DestRect.GetPos());
 
-    RectF foregroundDest =
-        RectF(text[i].DestRect.X + scaleX * font->ForegroundOffset.x,
-              text[i].DestRect.Y + scaleY * font->ForegroundOffset.y,
-              scaleX * font->CellWidth, scaleY * font->CellHeight);
-    if (maskedSheet) {
-      Sprite mask;
-      mask.Sheet = *maskedSheet;
-      mask.Bounds = foregroundDest;
-      DrawMaskedSpriteOverlay(font->Glyph(text[i].CharId), mask, foregroundDest,
-                              color, color.a * 255, 256, false, 0, false);
-    } else {
-      DrawSprite(font->Glyph(text[i].CharId), foregroundDest, color);
-    }
+    const CornersQuad destUV =
+        CornersQuad(font->Glyph(glyph.CharId).Bounds)
+            .Scale({1.0f / font->OutlineSheet.DesignWidth,
+                    1.0f / font->OutlineSheet.DesignHeight},
+                   {0.0f, 0.0f});
+
+    glm::vec4 color = RgbIntToFloat(glyph.Colors.TextColor);
+    color.a = opacity * (smoothstepGlyphOpacity
+                             ? glm::smoothstep(0.0f, 1.0f, glyph.Opacity)
+                             : glyph.Opacity);
+
+    InsertQuad(vertices, dest, destUV, color, dest);
   }
 
-  if (maskedSheet) Flush();
+  DrawVertices(font->ForegroundSheet, vertices, indices);
+
+  return;
 }
+
+void BaseRenderer::QuadSetPosition(CornersQuad quad, glm::vec2* const pos,
+                                   int stride) {
+  *(glm::vec2*)((uint8_t*)pos + 0 * stride) = quad.TopLeft;
+  *(glm::vec2*)((uint8_t*)pos + 1 * stride) = quad.BottomLeft;
+  *(glm::vec2*)((uint8_t*)pos + 2 * stride) = quad.BottomRight;
+  *(glm::vec2*)((uint8_t*)pos + 3 * stride) = quad.TopRight;
+}
+
+void BaseRenderer::QuadSetUV(const CornersQuad bounds,
+                             const glm::vec2 dimensions, glm::vec2* const uvs,
+                             const size_t stride) {
+  *(glm::vec2*)((uint8_t*)uvs + 0 * stride) = bounds.TopLeft / dimensions;
+  *(glm::vec2*)((uint8_t*)uvs + 1 * stride) = bounds.BottomLeft / dimensions;
+  *(glm::vec2*)((uint8_t*)uvs + 2 * stride) = bounds.BottomRight / dimensions;
+  *(glm::vec2*)((uint8_t*)uvs + 3 * stride) = bounds.TopRight / dimensions;
+}
+
 }  // namespace Impacto
