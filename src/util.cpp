@@ -193,23 +193,24 @@ glm::mat4 TransformationMatrix(const glm::vec3 scalingOrigin,
                                const glm::vec3 translation) {
   glm::mat4 matrix(1.0f);
 
-  if (scalingOrigin != glm::vec3(0.0f))
-    matrix = glm::translate(glm::mat4(1.0f), -scalingOrigin) * matrix;
-
-  if (scaling != glm::vec3(1.0f))
-    matrix = glm::scale(glm::mat4(1.0f), scaling) * matrix;
-
-  if (scalingOrigin - rotationOrigin != glm::vec3(0.0f)) {
-    matrix = glm::translate(glm::mat4(1.0f), scalingOrigin - rotationOrigin) *
-             matrix;
+  if (rotationOrigin + translation != glm::vec3(0.0f)) {
+    matrix = glm::translate(matrix, rotationOrigin + translation);
   }
 
-  if (rotation != glm::quat())
-    matrix = glm::mat4_cast(normalize(rotation)) * matrix;
+  if (rotation != glm::quat()) {
+    matrix *= glm::mat4_cast(normalize(rotation));
+  }
 
-  if (rotationOrigin + translation != glm::vec3(0.0f)) {
-    matrix =
-        glm::translate(glm::mat4(1.0f), rotationOrigin + translation) * matrix;
+  if (scalingOrigin - rotationOrigin != glm::vec3(0.0f)) {
+    matrix = glm::translate(matrix, scalingOrigin - rotationOrigin);
+  }
+
+  if (scaling != glm::vec3(1.0f)) {
+    matrix = glm::scale(matrix, scaling);
+  }
+
+  if (scalingOrigin != glm::vec3(0.0f)) {
+    matrix = glm::translate(matrix, -scalingOrigin);
   }
 
   return matrix;
