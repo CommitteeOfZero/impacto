@@ -161,6 +161,14 @@ CornersQuad RectF::Rotate(const glm::quat rotation, const glm::vec3 origin,
                                    stayInScreen);
 }
 
+CornersQuad RectF::FlipVertical() const {
+  return CornersQuad(*this).FlipVertical();
+}
+
+CornersQuad RectF::FlipHorizontal() const {
+  return CornersQuad(*this).FlipHorizontal();
+}
+
 inline CornersQuad operator*(const glm::mat4 transformation, RectF rect) {
   return rect.Transform(transformation);
 }

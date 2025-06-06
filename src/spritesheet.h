@@ -43,6 +43,12 @@ struct Sprite {
   }
 
   glm::vec2 Center() const { return ScaledBounds().Center(); }
+
+  RectF NormalizedBounds() const {
+    return RectF(Bounds).Scale(
+        glm::vec2(1.0f / Sheet.DesignWidth, 1.0f / Sheet.DesignHeight),
+        {0.0f, 0.0f});
+  }
 };
 
 }  // namespace Impacto

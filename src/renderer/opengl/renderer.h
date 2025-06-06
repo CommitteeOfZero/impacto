@@ -116,9 +116,18 @@ class Renderer : public BaseRenderer {
     }
   }
 
-  void EnsureSpaceAvailable(int vertices, int vertexSize, int indices);
   void EnsureTextureBound(GLuint texture);
   void Flush() override;
+
+  void InsertVertices(std::span<const VertexBufferSprites> vertices,
+                      std::span<const uint16_t> indices);
+  void InsertVerticesQuad(CornersQuad pos, CornersQuad uv,
+                          std::span<const glm::vec4, 4> tints,
+                          CornersQuad maskUV = RectF());
+  void InsertVerticesQuad(CornersQuad pos, CornersQuad uv, glm::vec4 tint,
+                          CornersQuad maskUV = RectF()) {
+    InsertVerticesQuad(pos, uv, std::array{tint, tint, tint, tint}, maskUV);
+  }
 
   GLWindow* OpenGLWindow;
 
@@ -130,15 +139,19 @@ class Renderer : public BaseRenderer {
 
   bool Drawing = false;
 
-  static int constexpr VertexBufferSize = 1024 * 1024;
-  static int constexpr IndexBufferCount =
-      VertexBufferSize / (4 * sizeof(VertexBufferSprites)) * 6;
-
   GLuint CurrentTexture = 0;
-  uint8_t VertexBuffer[VertexBufferSize];
-  int VertexBufferFill = 0;
-  uint16_t IndexBuffer[IndexBufferCount];
-  int IndexBufferFill = 0;
+
+  static constexpr size_t MaxVertexCount =
+      1024 * 1024 / sizeof(VertexBufferSprites);
+  static constexpr uint16_t MaxIndexCount =
+      std::numeric_limits<uint16_t>::max();
+
+  std::array<VertexBufferSprites, MaxVertexCount> VertexBuffer;
+  std::array<uint16_t, MaxIndexCount> IndexBuffer;
+
+  size_t VertexCount = 0;
+  size_t IndexCount = 0;
+  uint16_t NextFreeIndex = 0;
 
   const glm::mat4 Projection =
       glm::ortho(0.0f, Profile::DesignWidth, Profile::DesignHeight, 0.0f);

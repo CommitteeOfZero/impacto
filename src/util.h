@@ -178,6 +178,9 @@ struct RectF {
   CornersQuad Rotate(glm::quat rotation, glm::vec3 origin) const;
   CornersQuad Rotate(glm::quat rotation, glm::vec3 origin, float depth,
                      glm::vec2 vanishingPoint, bool stayInScreen = false) const;
+
+  CornersQuad FlipVertical() const;
+  CornersQuad FlipHorizontal() const;
 };
 
 inline CornersQuad operator*(const glm::mat4 transformation, RectF rect);
@@ -266,6 +269,18 @@ struct CornersQuad {
   CornersQuad& Rotate(glm::quat rotation, glm::vec3 origin);
   CornersQuad& Rotate(glm::quat rotation, glm::vec3 origin, float depth,
                       glm::vec2 vanishingPoint, bool stayInScreen = false);
+
+  CornersQuad& FlipVertical() {
+    std::swap(TopLeft, BottomLeft);
+    std::swap(TopRight, BottomRight);
+    return *this;
+  }
+
+  CornersQuad& FlipHorizontal() {
+    std::swap(TopLeft, TopRight);
+    std::swap(BottomLeft, BottomRight);
+    return *this;
+  }
 };
 
 inline CornersQuad operator*(const glm::mat4 transformation, CornersQuad quad) {

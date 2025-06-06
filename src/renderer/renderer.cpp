@@ -40,51 +40,34 @@ void InitRenderer() {
   Renderer->Init();
 }
 
-static void InsertQuad(std::vector<VertexBufferSprites>& vertices,
+static void InsertQuad(const std::span<VertexBufferSprites, 4> vertices,
                        const CornersQuad position, const CornersQuad uv,
                        const glm::vec4 tint,
                        const CornersQuad maskUV = RectF()) {
-  vertices.insert(vertices.end(), {
-                                      VertexBufferSprites{
-                                          .Position = position.TopLeft,
-                                          .UV = uv.TopLeft,
-                                          .Tint = tint,
-                                          .MaskUV = maskUV.TopLeft,
-                                      },
-                                      VertexBufferSprites{
-                                          .Position = position.TopRight,
-                                          .UV = uv.TopRight,
-                                          .Tint = tint,
-                                          .MaskUV = maskUV.TopRight,
-                                      },
-                                      VertexBufferSprites{
-                                          .Position = position.BottomRight,
-                                          .UV = uv.BottomRight,
-                                          .Tint = tint,
-                                          .MaskUV = maskUV.BottomRight,
-                                      },
-                                      VertexBufferSprites{
-                                          .Position = position.BottomLeft,
-                                          .UV = uv.BottomLeft,
-                                          .Tint = tint,
-                                          .MaskUV = maskUV.BottomLeft,
-                                      },
-                                  });
-}
-
-static void InsertQuad(std::vector<VertexBufferSprites>& vertices,
-                       std::vector<uint16_t>& indices, uint16_t& maxIndex,
-                       const CornersQuad position, const CornersQuad uv,
-                       const glm::vec4 tint,
-                       const CornersQuad maskUV = RectF()) {
-  InsertQuad(vertices, position, uv, tint, maskUV);
-
-  const uint16_t tl = maxIndex;
-  const uint16_t tr = maxIndex + 1;
-  const uint16_t br = maxIndex + 2;
-  const uint16_t bl = maxIndex + 3;
-  indices.insert(indices.end(), {tl, tr, br, tl, br, bl});
-  maxIndex += 4;
+  vertices[0] = {
+      .Position = position.BottomLeft,
+      .UV = uv.BottomLeft,
+      .Tint = tint,
+      .MaskUV = maskUV.BottomLeft,
+  };
+  vertices[1] = {
+      .Position = position.TopLeft,
+      .UV = uv.TopLeft,
+      .Tint = tint,
+      .MaskUV = maskUV.TopLeft,
+  };
+  vertices[2] = {
+      .Position = position.TopRight,
+      .UV = uv.TopRight,
+      .Tint = tint,
+      .MaskUV = maskUV.TopRight,
+  };
+  vertices[3] = {
+      .Position = position.BottomRight,
+      .UV = uv.BottomRight,
+      .Tint = tint,
+      .MaskUV = maskUV.BottomRight,
+  };
 }
 
 void BaseRenderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
@@ -145,27 +128,40 @@ void BaseRenderer::DrawProcessedText_BasicFont(
   const size_t indexCount = text.size() * 6;
   std::vector<VertexBufferSprites> vertices;
   std::vector<uint16_t> indices;
-  vertices.reserve(vertexCount);
-  indices.reserve(indexCount);
+  vertices.resize(vertexCount);
+  indices.resize(indexCount);
+
+  for (size_t i = 0; i < text.size(); i++) {
+    const uint16_t bl = i * 4;
+    const uint16_t tl = bl + 1;
+    const uint16_t tr = bl + 2;
+    const uint16_t br = bl + 3;
+
+    indices[i * 6 + 0] = bl;
+    indices[i * 6 + 1] = tl;
+    indices[i * 6 + 2] = tr;
+    indices[i * 6 + 3] = bl;
+    indices[i * 6 + 4] = tr;
+    indices[i * 6 + 5] = br;
+  }
 
   uint16_t maxIndex = 0;
-  for (const ProcessedTextGlyph glyph : text) {
+  for (size_t i = 0; i < text.size(); i++) {
+    const ProcessedTextGlyph glyph = text[i];
+
     const CornersQuad dest = glyph.DestRect;
-    const CornersQuad destUV = CornersQuad(font->Glyph(glyph.CharId).Bounds)
-                                   .Scale({1.0f / font->Sheet.DesignWidth,
-                                           1.0f / font->Sheet.DesignHeight},
-                                          {0.0f, 0.0f});
+    const CornersQuad destUV = font->Glyph(glyph.CharId).NormalizedBounds();
     glm::vec4 color = RgbIntToFloat(glyph.Colors.TextColor);
     color.a = opacity * (smoothstepGlyphOpacity
                              ? glm::smoothstep(0.0f, 1.0f, glyph.Opacity)
                              : glyph.Opacity);
 
-    InsertQuad(vertices, indices, maxIndex, dest, destUV, color, dest);
+    InsertQuad(std::span<VertexBufferSprites, 4>(vertices.begin() + i * 4, 4),
+               dest, destUV, color, dest);
   }
 
   if (outlineMode != RendererOutlineMode::None) {
     // Add outline to the front of the buffers
-    vertices.reserve(vertexCount * 2);
     vertices.insert(vertices.end(), vertices.begin(), vertices.end());
 
     indices.resize(indexCount * 2);
@@ -198,7 +194,6 @@ void BaseRenderer::DrawProcessedText_BasicFont(
     switch (outlineMode) {
       case RendererOutlineMode::Full: {
         // Add bottom-right outline
-        vertices.reserve(vertexCount * 3);
         vertices.insert(vertices.begin() + vertexCount, vertices.begin(),
                         vertices.begin() + vertexCount);
 
@@ -248,33 +243,34 @@ void BaseRenderer::DrawProcessedText_LBFont(
     float outlineOpacity, SpriteSheet* maskedSheet) {
   const size_t vertexCount = text.size() * 4;
   const size_t indexCount = text.size() * 6;
-  std::vector<uint16_t> indices;
-  indices.reserve(indexCount);
+  std::vector<VertexBufferSprites> vertices(vertexCount);
+  std::vector<uint16_t> indices(indexCount);
 
   for (size_t i = 0; i < text.size(); i++) {
-    const uint16_t tl = i * 4;
-    const uint16_t tr = tl + 1;
-    const uint16_t br = tl + 2;
-    const uint16_t bl = tl + 3;
+    const uint16_t bl = i * 4;
+    const uint16_t tl = bl + 1;
+    const uint16_t tr = bl + 2;
+    const uint16_t br = bl + 3;
 
-    indices.insert(indices.end(), {tl, tr, br, tl, br, bl});
+    indices[i * 6 + 0] = bl;
+    indices[i * 6 + 1] = tl;
+    indices[i * 6 + 2] = tr;
+    indices[i * 6 + 3] = bl;
+    indices[i * 6 + 4] = tr;
+    indices[i * 6 + 5] = br;
   }
 
   if (outlineMode != RendererOutlineMode::None) {
-    std::vector<VertexBufferSprites> outlineVertices;
-    outlineVertices.reserve(vertexCount);
+    for (size_t i = 0; i < text.size(); i++) {
+      const ProcessedTextGlyph glyph = text[i];
 
-    for (const ProcessedTextGlyph glyph : text) {
       glm::vec4 color = RgbIntToFloat(glyph.Colors.OutlineColor);
       color.a =
           outlineOpacity * (smoothstepGlyphOpacity
                                 ? glm::smoothstep(0.0f, 1.0f, glyph.Opacity)
                                 : glyph.Opacity);
       const CornersQuad destUV =
-          CornersQuad(font->OutlineGlyph(glyph.CharId).Bounds)
-              .Scale({1.0f / font->OutlineSheet.DesignWidth,
-                      1.0f / font->OutlineSheet.DesignHeight},
-                     {0.0f, 0.0f});
+          font->OutlineGlyph(glyph.CharId).NormalizedBounds();
 
       CornersQuad dest = RectF();
       const glm::vec2 scale = {glyph.DestRect.Height / font->BitmapEmWidth,
@@ -304,16 +300,16 @@ void BaseRenderer::DrawProcessedText_LBFont(
           break;
       }
 
-      InsertQuad(outlineVertices, dest, destUV, color, dest);
+      InsertQuad(std::span<VertexBufferSprites, 4>(vertices.begin() + i * 4, 4),
+                 dest, destUV, color, dest);
     }
 
-    DrawVertices(font->OutlineSheet, outlineVertices, indices);
+    DrawVertices(font->OutlineSheet, vertices, indices);
   }
 
-  std::vector<VertexBufferSprites> vertices;
-  vertices.reserve(vertexCount);
+  for (size_t i = 0; i < text.size(); i++) {
+    const ProcessedTextGlyph glyph = text[i];
 
-  for (const ProcessedTextGlyph glyph : text) {
     glm::vec2 scale = {glyph.DestRect.Height / font->BitmapEmWidth,
                        glyph.DestRect.Height / font->BitmapEmHeight};
     CornersQuad dest = RectF(font->ForegroundOffset.x, font->ForegroundOffset.y,
@@ -321,23 +317,18 @@ void BaseRenderer::DrawProcessedText_LBFont(
                            .Scale(scale, {0.0f, 0.0f})
                            .Translate(glyph.DestRect.GetPos());
 
-    const CornersQuad destUV =
-        CornersQuad(font->Glyph(glyph.CharId).Bounds)
-            .Scale({1.0f / font->OutlineSheet.DesignWidth,
-                    1.0f / font->OutlineSheet.DesignHeight},
-                   {0.0f, 0.0f});
+    const CornersQuad destUV = font->Glyph(glyph.CharId).NormalizedBounds();
 
     glm::vec4 color = RgbIntToFloat(glyph.Colors.TextColor);
     color.a = opacity * (smoothstepGlyphOpacity
                              ? glm::smoothstep(0.0f, 1.0f, glyph.Opacity)
                              : glyph.Opacity);
 
-    InsertQuad(vertices, dest, destUV, color, dest);
+    InsertQuad(std::span<VertexBufferSprites, 4>(vertices.begin() + i * 4, 4),
+               dest, destUV, color, dest);
   }
 
   DrawVertices(font->ForegroundSheet, vertices, indices);
-
-  return;
 }
 
 void BaseRenderer::QuadSetPosition(CornersQuad quad, glm::vec2* const pos,
