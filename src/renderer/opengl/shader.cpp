@@ -242,36 +242,34 @@ SpriteShader::SpriteShader(GLint programId)
     : Shader(programId),
       ProjectionLocation(glGetUniformLocation(programId, "Projection")),
       TransformationLocation(glGetUniformLocation(programId, "Transformation")),
-      ColorMapLocation(glGetUniformLocation(programId, "ColorMap")) {
+      TexturesLocation(glGetUniformLocation(programId, "Textures")) {
   UploadVar(Uniforms.Projection, ProjectionLocation);
   UploadVar(Uniforms.Transformation, TransformationLocation);
-  UploadVar(Uniforms.ColorMap, ColorMapLocation);
+  UploadVar(Uniforms.Textures, TexturesLocation);
 }
 
 void SpriteShader::UploadUniforms(SpriteUniforms newUniforms) {
   UpdateVar(newUniforms.Projection, Uniforms.Projection, ProjectionLocation);
   UpdateVar(newUniforms.Transformation, Uniforms.Transformation,
             TransformationLocation);
-
-  UpdateVar(newUniforms.ColorMap, Uniforms.ColorMap, ColorMapLocation);
+  UpdateVar(newUniforms.Textures, Uniforms.Textures, TexturesLocation);
 }
 
 SpriteInvertedShader::SpriteInvertedShader(GLint programId)
     : Shader(programId),
       ProjectionLocation(glGetUniformLocation(programId, "Projection")),
       TransformationLocation(glGetUniformLocation(programId, "Transformation")),
-      ColorMapLocation(glGetUniformLocation(programId, "ColorMap")) {
+      TexturesLocation(glGetUniformLocation(programId, "Textures")) {
   UploadVar(Uniforms.Projection, ProjectionLocation);
   UploadVar(Uniforms.Transformation, TransformationLocation);
-  UploadVar(Uniforms.ColorMap, ColorMapLocation);
+  UploadVar(Uniforms.Textures, TexturesLocation);
 }
 
 void SpriteInvertedShader::UploadUniforms(SpriteInvertedUniforms newUniforms) {
   UpdateVar(newUniforms.Projection, Uniforms.Projection, ProjectionLocation);
   UpdateVar(newUniforms.Transformation, Uniforms.Transformation,
             TransformationLocation);
-
-  UpdateVar(newUniforms.ColorMap, Uniforms.ColorMap, ColorMapLocation);
+  UpdateVar(newUniforms.Textures, Uniforms.Textures, TexturesLocation);
 }
 
 YUVFrameShader::YUVFrameShader(GLint programId)
@@ -304,15 +302,13 @@ MaskedSpriteNoAlphaShader::MaskedSpriteNoAlphaShader(GLint programId)
           glGetUniformLocation(programId, "SpriteTransformation")),
       MaskTransformationLocation(
           glGetUniformLocation(programId, "MaskTransformation")),
-      ColorMapLocation(glGetUniformLocation(programId, "ColorMap")),
-      MaskLocation(glGetUniformLocation(programId, "Mask")),
       AlphaLocation(glGetUniformLocation(programId, "Alpha")),
-      IsInvertedLocation(glGetUniformLocation(programId, "IsInverted")) {
+      IsInvertedLocation(glGetUniformLocation(programId, "IsInverted")),
+      TexturesLocation(glGetUniformLocation(programId, "Textures")) {
   UploadVar(Uniforms.Projection, ProjectionLocation);
   UploadVar(Uniforms.SpriteTransformation, SpriteTransformationLocation);
   UploadVar(Uniforms.MaskTransformation, MaskTransformationLocation);
-  UploadVar(Uniforms.ColorMap, ColorMapLocation);
-  UploadVar(Uniforms.Mask, MaskLocation);
+  UploadVar(Uniforms.Textures, TexturesLocation);
   UploadVar(Uniforms.Alpha, AlphaLocation);
   UploadVar(Uniforms.IsInverted, IsInvertedLocation);
 }
@@ -325,8 +321,7 @@ void MaskedSpriteNoAlphaShader::UploadUniforms(
   UpdateVar(newUniforms.MaskTransformation, Uniforms.MaskTransformation,
             MaskTransformationLocation);
 
-  UpdateVar(newUniforms.ColorMap, Uniforms.ColorMap, ColorMapLocation);
-  UpdateVar(newUniforms.Mask, Uniforms.Mask, MaskLocation);
+  UpdateVar(newUniforms.Textures, Uniforms.Textures, TexturesLocation);
   UpdateVar(newUniforms.Alpha, Uniforms.Alpha, AlphaLocation);
   UpdateVar(newUniforms.IsInverted, Uniforms.IsInverted, IsInvertedLocation);
 }
@@ -338,16 +333,14 @@ MaskedSpriteShader::MaskedSpriteShader(GLint programId)
           glGetUniformLocation(programId, "SpriteTransformation")),
       MaskTransformationLocation(
           glGetUniformLocation(programId, "MaskTransformation")),
-      ColorMapLocation(glGetUniformLocation(programId, "ColorMap")),
-      MaskLocation(glGetUniformLocation(programId, "Mask")),
       AlphaLocation(glGetUniformLocation(programId, "Alpha")),
       IsInvertedLocation(glGetUniformLocation(programId, "IsInverted")),
-      IsSameTextureLocation(glGetUniformLocation(programId, "IsSameTexture")) {
+      IsSameTextureLocation(glGetUniformLocation(programId, "IsSameTexture")),
+      TexturesLocation(glGetUniformLocation(programId, "Textures")) {
   UploadVar(Uniforms.Projection, ProjectionLocation);
   UploadVar(Uniforms.SpriteTransformation, SpriteTransformationLocation);
   UploadVar(Uniforms.MaskTransformation, MaskTransformationLocation);
-  UploadVar(Uniforms.ColorMap, ColorMapLocation);
-  UploadVar(Uniforms.Mask, MaskLocation);
+  UploadVar(Uniforms.Textures, TexturesLocation);
   UploadVar(Uniforms.Alpha, AlphaLocation);
   UploadVar(Uniforms.IsInverted, IsInvertedLocation);
 }
@@ -359,8 +352,7 @@ void MaskedSpriteShader::UploadUniforms(MaskedSpriteUniforms newUniforms) {
   UpdateVar(newUniforms.MaskTransformation, Uniforms.MaskTransformation,
             MaskTransformationLocation);
 
-  UpdateVar(newUniforms.ColorMap, Uniforms.ColorMap, ColorMapLocation);
-  UpdateVar(newUniforms.Mask, Uniforms.Mask, MaskLocation);
+  UpdateVar(newUniforms.Textures, Uniforms.Textures, TexturesLocation);
   UpdateVar(newUniforms.Alpha, Uniforms.Alpha, AlphaLocation);
   UpdateVar(newUniforms.IsInverted, Uniforms.IsInverted, IsInvertedLocation);
 }
@@ -368,32 +360,27 @@ void MaskedSpriteShader::UploadUniforms(MaskedSpriteUniforms newUniforms) {
 CCMessageBoxShader::CCMessageBoxShader(GLint programId)
     : Shader(programId),
       ProjectionLocation(glGetUniformLocation(programId, "Projection")),
-      ColorMapLocation(glGetUniformLocation(programId, "ColorMap")),
-      MaskLocation(glGetUniformLocation(programId, "Mask")),
-      AlphaLocation(glGetUniformLocation(programId, "Alpha")) {
+      AlphaLocation(glGetUniformLocation(programId, "Alpha")),
+      TexturesLocation(glGetUniformLocation(programId, "Textures")) {
   UploadVar(Uniforms.Projection, ProjectionLocation);
-  UploadVar(Uniforms.ColorMap, ColorMapLocation);
-  UploadVar(Uniforms.Mask, MaskLocation);
+  UploadVar(Uniforms.Textures, TexturesLocation);
   UploadVar(Uniforms.Alpha, AlphaLocation);
 }
 
 void CCMessageBoxShader::UploadUniforms(CCMessageBoxUniforms newUniforms) {
   UpdateVar(newUniforms.Projection, Uniforms.Projection, ProjectionLocation);
 
-  UpdateVar(newUniforms.ColorMap, Uniforms.ColorMap, ColorMapLocation);
-  UpdateVar(newUniforms.Mask, Uniforms.Mask, MaskLocation);
+  UpdateVar(newUniforms.Textures, Uniforms.Textures, TexturesLocation);
   UpdateVar(newUniforms.Alpha, Uniforms.Alpha, AlphaLocation);
 }
 
 CHLCCMenuBackgroundShader::CHLCCMenuBackgroundShader(GLint programId)
     : Shader(programId),
       ProjectionLocation(glGetUniformLocation(programId, "Projection")),
-      ColorMapLocation(glGetUniformLocation(programId, "ColorMap")),
-      MaskLocation(glGetUniformLocation(programId, "Mask")),
-      AlphaLocation(glGetUniformLocation(programId, "Alpha")) {
+      AlphaLocation(glGetUniformLocation(programId, "Alpha")),
+      TexturesLocation(glGetUniformLocation(programId, "Textures")) {
   UploadVar(Uniforms.Projection, ProjectionLocation);
-  UploadVar(Uniforms.ColorMap, ColorMapLocation);
-  UploadVar(Uniforms.Mask, MaskLocation);
+  UploadVar(Uniforms.Textures, TexturesLocation);
   UploadVar(Uniforms.Alpha, AlphaLocation);
 }
 
@@ -401,8 +388,7 @@ void CHLCCMenuBackgroundShader::UploadUniforms(
     CHLCCMenuBackgroundUniforms newUniforms) {
   UpdateVar(newUniforms.Projection, Uniforms.Projection, ProjectionLocation);
 
-  UpdateVar(newUniforms.ColorMap, Uniforms.ColorMap, ColorMapLocation);
-  UpdateVar(newUniforms.Mask, Uniforms.Mask, MaskLocation);
+  UpdateVar(newUniforms.Textures, Uniforms.Textures, TexturesLocation);
   UpdateVar(newUniforms.Alpha, Uniforms.Alpha, AlphaLocation);
 }
 
