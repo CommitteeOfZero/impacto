@@ -1,17 +1,18 @@
+flat in uint colorMap;
 in vec2 uv;
 in vec4 tint;
+flat in uint mask;
 in vec2 maskUV;
 
 out vec4 color;
 
-uniform sampler2D ColorMap;
-uniform sampler2D Mask;
+uniform sampler2D[15] Textures;
 uniform vec4 Alpha;
 
 void main() { 
-	color = texture(ColorMap, uv);
+	color = texture(Textures[colorMap], uv);
 	color *= tint;
-	vec4 alp = texture(Mask, maskUV);
+	vec4 alp = texture(Textures[mask], maskUV);
 	float ga = alp.r;
 	float ea = 1.0 - alp.g;
 	float fa = 1.0 - alp.b;

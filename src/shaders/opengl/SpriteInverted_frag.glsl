@@ -1,12 +1,13 @@
+flat in uint colorMap;
 in vec2 uv;
 in vec4 tint;
 
 out vec4 color;
 
-uniform sampler2D ColorMap;
+uniform sampler2D[15] Textures;
 
 void main() {
-  color = texture(ColorMap, uv);
+  color = texture(Textures[colorMap], uv);
   color.rgb = vec3(1.0) - color.rgb;
   color *= tint;
 }

@@ -116,17 +116,21 @@ class Renderer : public BaseRenderer {
     }
   }
 
-  void EnsureTextureBound(GLuint texture);
   void Flush() override;
 
   void InsertVertices(std::span<const VertexBufferSprites> vertices,
                       std::span<const uint16_t> indices);
-  void InsertVerticesQuad(CornersQuad pos, CornersQuad uv,
-                          std::span<const glm::vec4, 4> tints,
+  void InsertVerticesQuad(CornersQuad pos, GLuint textureLocation,
+                          CornersQuad uv, std::span<const glm::vec4, 4> tints,
+                          GLuint maskLocation = 0,
                           CornersQuad maskUV = RectF());
-  void InsertVerticesQuad(CornersQuad pos, CornersQuad uv, glm::vec4 tint,
+  void InsertVerticesQuad(CornersQuad pos, GLuint textureLocation,
+                          CornersQuad uv, glm::vec4 tint = glm::vec4(1.0f),
+                          GLuint maskLocation = 0,
                           CornersQuad maskUV = RectF()) {
-    InsertVerticesQuad(pos, uv, std::array{tint, tint, tint, tint}, maskUV);
+    InsertVerticesQuad(pos, textureLocation, uv,
+                       std::array{tint, tint, tint, tint}, maskLocation,
+                       maskUV);
   }
 
   GLWindow* OpenGLWindow;
@@ -135,11 +139,16 @@ class Renderer : public BaseRenderer {
   GLuint IBO;
   GLuint VAOSprites;
 
-  GLuint Sampler;
-
   bool Drawing = false;
 
-  GLuint CurrentTexture = 0;
+  static constexpr size_t MaxTextureCount = 15;
+  static constexpr std::array<GLint, MaxTextureCount> Textures = {
+      0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14};
+  std::vector<uint32_t> TextureLocations;
+
+  std::vector<GLuint> GetTextureLocations(std::span<const uint32_t> textureIds);
+
+  std::array<GLuint, MaxTextureCount> Samplers;
 
   static constexpr size_t MaxVertexCount =
       1024 * 1024 / sizeof(VertexBufferSprites);
