@@ -31,34 +31,10 @@ void Renderer::Init() {
     Scene->Init();
   }
 
-  // Fill index buffer with quads
-  int index = 0;
-  int vertex = 0;
-  while (index + 6 <= IndexBufferCount) {
-    // bottom-left -> top-left -> top-right
-    IndexBuffer[index] = vertex + 0;
-    IndexBuffer[index + 1] = vertex + 1;
-    IndexBuffer[index + 2] = vertex + 2;
-    // bottom-left -> top-right -> bottom-right
-    IndexBuffer[index + 3] = vertex + 0;
-    IndexBuffer[index + 4] = vertex + 2;
-    IndexBuffer[index + 5] = vertex + 3;
-    index += 6;
-    vertex += 4;
-  }
-
   // Generate buffers
   glGenBuffers(1, &VBO);
   glGenBuffers(1, &IBO);
   glGenVertexArrays(1, &VAOSprites);
-
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, VertexBufferSize, NULL, GL_STREAM_DRAW);
-
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-               IndexBufferCount * sizeof(IndexBuffer[0]), IndexBuffer,
-               GL_STATIC_DRAW);
 
   GLC::InitializeFramebuffers();
 
@@ -152,8 +128,10 @@ void Renderer::BeginFrame2D() {
 
   Drawing = true;
   CurrentTexture = 0;
-  VertexBufferFill = 0;
-  IndexBufferFill = 0;
+
+  VertexCount = 0;
+  IndexCount = 0;
+  NextFreeIndex = 0;
 
   glDisable(GL_CULL_FACE);
 
@@ -246,6 +224,63 @@ YUVFrame* Renderer::CreateYUVFrame(float width, float height) {
   return (YUVFrame*)frame;
 }
 
+void Renderer::InsertVertices(
+    const std::span<const VertexBufferSprites> vertices,
+    const std::span<const uint16_t> indices) {
+  if (vertices.empty() || indices.empty()) return;
+  assert(indices.size() <= MaxIndexCount);
+
+  if (IndexCount + indices.size() > MaxIndexCount) Flush();
+
+  const uint16_t maxIndex = *std::max_element(indices.begin(), indices.end());
+
+  std::copy(vertices.begin(), vertices.end(),
+            VertexBuffer.begin() + VertexCount);
+  VertexCount += vertices.size();
+
+  std::transform(
+      indices.begin(), indices.end(), IndexBuffer.begin() + IndexCount,
+      [this](uint16_t index) { return index + this->NextFreeIndex; });
+  IndexCount += indices.size();
+
+  NextFreeIndex += maxIndex + 1;
+}
+
+void Renderer::InsertVerticesQuad(const CornersQuad pos, const CornersQuad uv,
+                                  const std::span<const glm::vec4, 4> tints,
+                                  const CornersQuad maskUV) {
+  const std::array<const VertexBufferSprites, 4> vertices = {
+      VertexBufferSprites{
+          .Position = pos.BottomLeft,
+          .UV = uv.BottomLeft,
+          .Tint = tints[0],
+          .MaskUV = maskUV.BottomLeft,
+      },
+      VertexBufferSprites{
+          .Position = pos.TopLeft,
+          .UV = uv.TopLeft,
+          .Tint = tints[1],
+          .MaskUV = maskUV.TopLeft,
+      },
+      VertexBufferSprites{
+          .Position = pos.TopRight,
+          .UV = uv.TopRight,
+          .Tint = tints[2],
+          .MaskUV = maskUV.TopRight,
+      },
+      VertexBufferSprites{
+          .Position = pos.BottomRight,
+          .UV = uv.BottomRight,
+          .Tint = tints[3],
+          .MaskUV = maskUV.BottomRight,
+      },
+  };
+
+  const std::array<const uint16_t, 6> indices = {0, 1, 2, 0, 2, 3};
+
+  InsertVertices(vertices, indices);
+}
+
 void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
                           const glm::mat4 transformation,
                           const std::span<const glm::vec4, 4> tints,
@@ -255,9 +290,6 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
            "Renderer->DrawSprite() called before BeginFrame()\n");
     return;
   }
-
-  // Do we have space for one more sprite quad?
-  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
 
   if (sprite.Sheet.IsScreenCap) Flush();
 
@@ -291,22 +323,9 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
 
   // OK, all good, make quad
 
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
-  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  IndexBufferFill += 6;
-
-  if (sprite.Sheet.IsScreenCap) {
-    QuadSetUVFlipped(sprite.Bounds, sprite.Sheet.GetDimensions(),
-                     &vertices[0].UV, sizeof(VertexBufferSprites));
-  } else {
-    QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
-              sizeof(VertexBufferSprites));
-  }
-  QuadSetPosition(dest, &vertices[0].Position, sizeof(VertexBufferSprites));
-
-  for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
+  CornersQuad uvDest = sprite.NormalizedBounds();
+  if (sprite.Sheet.IsScreenCap) uvDest.FlipVertical();
+  InsertVerticesQuad(dest, uvDest, tints);
 
   if (disableBlend) {
     Flush();
@@ -329,9 +348,6 @@ void Renderer::DrawMaskedSprite(
   alpha = std::clamp(alpha, 0, fadeRange + 256);
   const float alphaRange = 256.0f / fadeRange;
   const float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
-
-  // Do we have space for one more sprite quad?
-  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
 
   EnsureTextureBound(sprite.Sheet.Texture);
 
@@ -358,26 +374,11 @@ void Renderer::DrawMaskedSprite(
 
   // OK, all good, make quad
 
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
-  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  IndexBufferFill += 6;
-
-  if (sprite.Sheet.IsScreenCap) {
-    QuadSetUVFlipped(sprite.Bounds, sprite.Sheet.GetDimensions(),
-                     &vertices[0].UV, sizeof(VertexBufferSprites));
-  } else {
-    QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
-              sizeof(VertexBufferSprites));
-  }
-  QuadSetUV(maskDest, sprite.Bounds.GetSize(), &vertices[0].MaskUV,
-            sizeof(VertexBufferSprites));
-
-  QuadSetPosition(spriteDest, &vertices[0].Position,
-                  sizeof(VertexBufferSprites));
-
-  for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
+  CornersQuad uvDest = sprite.NormalizedBounds();
+  if (sprite.Sheet.IsScreenCap) uvDest.FlipVertical();
+  CornersQuad maskUVDest = CornersQuad(maskDest).Scale(
+      {1.0f / sprite.Bounds.Width, 1.0f / sprite.Bounds.Height}, {0.0f, 0.0f});
+  InsertVerticesQuad(spriteDest, uvDest, tints, maskUVDest);
 }
 
 void Renderer::DrawMaskedSpriteOverlay(
@@ -395,9 +396,6 @@ void Renderer::DrawMaskedSpriteOverlay(
   alpha = std::clamp(alpha, 0, fadeRange + 256);
   const float alphaRange = 256.0f / fadeRange;
   const float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
-
-  // Do we have space for one more sprite quad?
-  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
 
   if (useMaskAlpha) {
     MaskedSpriteUniforms uniforms{
@@ -436,22 +434,8 @@ void Renderer::DrawMaskedSpriteOverlay(
 
   // OK, all good, make quad
 
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
-  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  IndexBufferFill += 6;
-
-  QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
-            sizeof(VertexBufferSprites));
-
-  QuadSetUV(maskDest, mask.Sheet.GetDimensions(), &vertices[0].MaskUV,
-            sizeof(VertexBufferSprites));
-
-  QuadSetPosition(spriteDest, &vertices[0].Position,
-                  sizeof(VertexBufferSprites));
-
-  for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
+  InsertVerticesQuad(spriteDest, sprite.NormalizedBounds(), tints,
+                     mask.NormalizedBounds());
 }
 
 void Renderer::DrawVertices(const SpriteSheet& sheet,
@@ -463,12 +447,6 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
            "Renderer->DrawVertices() called before BeginFrame()\n");
     return;
   }
-
-  // The index buffer needs to be flushed
-  Flush();
-
-  EnsureSpaceAvailable(vertices.size(), sizeof(VertexBufferSprites),
-                       indices.size());
 
   EnsureTextureBound(sheet.Texture);
 
@@ -492,28 +470,21 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
     UseShader(SpriteShaderProgram, uniforms);
   }
 
-  // Push vertices
-  VertexBufferSprites* vertexBuffer =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
-  VertexBufferFill += vertices.size_bytes();
+  if (sheet.IsScreenCap) {
+    std::vector<VertexBufferSprites> flippedVertices;
+    flippedVertices.reserve(vertices.size());
 
-  const auto vertexInfoToNDC = [this, sheet](VertexBufferSprites info) {
-    if (sheet.IsScreenCap) info.UV.y = 1.0f - info.UV.y;
-    return info;
-  };
-  std::transform(vertices.begin(), vertices.end(), vertexBuffer,
-                 vertexInfoToNDC);
+    const auto vertexInfoToNDC = [this, sheet](VertexBufferSprites info) {
+      if (sheet.IsScreenCap) info.UV.y = 1.0f - info.UV.y;
+      return info;
+    };
+    std::transform(vertices.begin(), vertices.end(), flippedVertices.begin(),
+                   vertexInfoToNDC);
 
-  // Push indices
-  IndexBufferFill += indices.size();
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size_bytes(), indices.data(),
-               GL_STATIC_DRAW);
-
-  // Flush again and bind back our buffer
-  Flush();
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-               IndexBufferCount * sizeof(IndexBuffer[0]), IndexBuffer,
-               GL_STATIC_DRAW);
+    InsertVertices(flippedVertices, indices);
+  } else {
+    InsertVertices(vertices, indices);
+  }
 }
 
 void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
@@ -530,9 +501,6 @@ void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
 
   float alphaRange = 256.0f / fadeRange;
   float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
-
-  // Do we have space for one more sprite quad?
-  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
 
   CCMessageBoxUniforms uniforms{
       .Projection = Projection,
@@ -552,25 +520,9 @@ void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
 
   // OK, all good, make quad
 
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
-  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  IndexBufferFill += 6;
-
-  if (sprite.Sheet.IsScreenCap) {
-    QuadSetUVFlipped(sprite.Bounds, sprite.Sheet.GetDimensions(),
-                     &vertices[0].UV, sizeof(VertexBufferSprites));
-  } else {
-    QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
-              sizeof(VertexBufferSprites));
-  }
-  QuadSetUV(mask.Bounds, mask.Sheet.GetDimensions(), &vertices[0].MaskUV,
-            sizeof(VertexBufferSprites));
-
-  QuadSetPosition(dest, &vertices[0].Position, sizeof(VertexBufferSprites));
-
-  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
+  CornersQuad uvDest = sprite.NormalizedBounds();
+  if (sprite.Sheet.IsScreenCap) uvDest.FlipVertical();
+  InsertVerticesQuad(dest, uvDest, tint, mask.NormalizedBounds());
 }
 
 void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
@@ -585,9 +537,6 @@ void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
     alpha = 0;
   else if (alpha > 1.0f)
     alpha = 1.0f;
-
-  // Do we have space for one more sprite quad?
-  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
 
   CHLCCMenuBackgroundUniforms uniforms{
       .Projection = Projection,
@@ -609,31 +558,8 @@ void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
 
   // OK, all good, make quad
 
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
-  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  IndexBufferFill += 6;
-
-  QuadSetUVFlipped(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
-                   sizeof(VertexBufferSprites));
-
-  QuadSetUV(mask.Bounds, mask.Sheet.GetDimensions(), &vertices[0].MaskUV,
-            sizeof(VertexBufferSprites));
-
-  QuadSetPosition(dest, &vertices[0].Position, sizeof(VertexBufferSprites));
-}
-
-void Renderer::EnsureSpaceAvailable(int vertices, int vertexSize, int indices) {
-  if (VertexBufferFill + vertices * vertexSize > VertexBufferSize ||
-      IndexBufferFill + indices > IndexBufferCount) {
-    ImpLogSlow(
-        LogLevel::Trace, LogChannel::Render,
-        "Renderer->EnsureSpaceAvailable flushing because buffers full at "
-        "VertexBufferFill=0x{:08x},IndexBufferFill=0x{:08x}\n",
-        VertexBufferFill, IndexBufferFill);
-    Flush();
-  }
+  InsertVerticesQuad(dest, sprite.NormalizedBounds(), glm::vec4(1.0f),
+                     mask.NormalizedBounds());
 }
 
 void Renderer::EnsureTextureBound(GLuint texture) {
@@ -655,14 +581,22 @@ void Renderer::Flush() {
            "Renderer->Flush() called before BeginFrame()\n");
     return;
   }
-  if (VertexBufferFill > 0 && IndexBufferFill > 0) {
+  if (VertexCount != 0 && IndexCount != 0) {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    // TODO: better to specify the whole thing or just this?
-    glBufferSubData(GL_ARRAY_BUFFER, 0, VertexBufferFill, VertexBuffer);
-    glDrawElements(GL_TRIANGLES, IndexBufferFill, GL_UNSIGNED_SHORT, 0);
+    glBufferData(GL_ARRAY_BUFFER, VertexCount * sizeof(VertexBufferSprites),
+                 VertexBuffer.data(), GL_DYNAMIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, IndexCount * sizeof(uint16_t),
+                 IndexBuffer.data(), GL_DYNAMIC_DRAW);
+
+    glDrawElements(GL_TRIANGLES, IndexCount, GL_UNSIGNED_SHORT, 0);
   }
-  IndexBufferFill = 0;
-  VertexBufferFill = 0;
+
+  VertexCount = 0;
+  IndexCount = 0;
+  NextFreeIndex = 0;
+
   CurrentTexture = 0;
 }
 
@@ -673,9 +607,6 @@ void Renderer::DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
            "Renderer->DrawVideoTexture() called before BeginFrame()\n");
     return;
   }
-
-  // Do we have space for one more sprite quad?
-  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
 
   YUVFrameUniforms uniforms{
       .Projection = Projection,
@@ -703,18 +634,7 @@ void Renderer::DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
 
   // OK, all good, make quad
 
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
-  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  IndexBufferFill += 6;
-
-  QuadSetUV(RectF(0.0f, 0.0f, frame.Width, frame.Height),
-            {frame.Width, frame.Height}, &vertices[0].UV,
-            sizeof(VertexBufferSprites));
-  QuadSetPosition(dest, &vertices[0].Position, sizeof(VertexBufferSprites));
-
-  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
+  InsertVerticesQuad(dest, RectF(0.0f, 0.0f, 1.0f, 1.0f), tint);
 }
 
 void Renderer::CaptureScreencap(Sprite& sprite) {
