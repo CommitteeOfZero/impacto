@@ -111,7 +111,7 @@ class Renderer : public BaseRenderer {
 
   void SetBlendMode(RendererBlendMode blendMode) override {};
 
-  void Clear(glm::vec4 color) override {}
+  void Clear(glm::vec4 color) override;
 
  private:
   void CreateInstance();
