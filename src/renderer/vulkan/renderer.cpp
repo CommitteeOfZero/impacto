@@ -2354,5 +2354,28 @@ void Renderer::DisableScissor() {
   }
 }
 
+void Renderer::Clear(glm::vec4 color) {
+  if (!Drawing) {
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Renderer->Clear() called before BeginFrame()\n");
+    return;
+  }
+
+  Flush();
+
+  VkClearAttachment clearAttachment = {
+      .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+      .colorAttachment = 0,
+      .clearValue = {.color = {color.r, color.g, color.b, color.a}}};
+
+  VkClearRect clearRect = {
+      .rect = {.offset = {0, 0}, .extent = SwapChainExtent},
+      .baseArrayLayer = 0,
+      .layerCount = 1};
+
+  vkCmdClearAttachments(CommandBuffers[CurrentFrameIndex], 1, &clearAttachment,
+                        1, &clearRect);
+}
+
 }  // namespace Vulkan
 }  // namespace Impacto

@@ -1181,5 +1181,29 @@ void Renderer::DisableScissor() {
   Device->SetRenderState(D3DRS_SCISSORTESTENABLE, false);
 }
 
+void Renderer::SetBlendMode(RendererBlendMode blendMode) {
+  Flush();
+
+  switch (blendMode) {
+    case RendererBlendMode::Normal:
+      Device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+      Device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+      break;
+    case RendererBlendMode::Additive:
+      Device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
+      Device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+      break;
+  }
+}
+
+void Renderer::Clear(glm::vec4 color) {
+  Flush();
+
+  color *= 255;
+  D3DCOLOR clearColor =
+      D3DCOLOR_ARGB((BYTE)color.a, (BYTE)color.r, (BYTE)color.g, (BYTE)color.b);
+  Device->Clear(0, NULL, D3DCLEAR_TARGET, clearColor, 1.0f, 0);
+}
+
 }  // namespace DirectX9
 }  // namespace Impacto
