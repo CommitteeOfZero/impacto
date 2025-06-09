@@ -419,6 +419,7 @@ void Renderer::DrawMaskedSpriteOverlay(
 }
 
 void Renderer::DrawVertices(const SpriteSheet& sheet,
+                            const std::optional<const SpriteSheet> mask,
                             const std::span<const VertexBufferSprites> vertices,
                             const std::span<const uint16_t> indices,
                             const glm::mat4 transformation,

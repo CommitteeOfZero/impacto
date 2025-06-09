@@ -55,6 +55,7 @@ class Renderer : public BaseRenderer {
                                bool isInverted, bool useMaskAlpha) override;
 
   void DrawVertices(const SpriteSheet& sheet,
+                    std::optional<const SpriteSheet> mask,
                     std::span<const VertexBufferSprites> vertices,
                     std::span<const uint16_t> indices, glm::mat4 transformation,
                     bool inverted) override;

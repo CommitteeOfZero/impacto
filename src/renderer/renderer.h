@@ -18,12 +18,12 @@ enum class RendererOutlineMode { None, BottomRight, Full };
 constexpr inline int MaxFramebuffers = 10;
 
 struct VertexBufferSprites {
-  glm::vec2 Position;
-  GLuint ColorMap;
-  glm::vec2 UV;
-  glm::vec4 Tint;
-  GLuint Mask;
-  glm::vec2 MaskUV;
+  glm::vec2 Position = {0.0f, 0.0f};
+  GLuint ColorMap = 0;
+  glm::vec2 UV = {0.0f, 0.0f};
+  glm::vec4 Tint = glm::vec4(1.0f);
+  GLuint Mask = 0;
+  glm::vec2 MaskUV = {0.0f, 0.0f};
 };
 
 class BaseRenderer {
@@ -217,10 +217,30 @@ class BaseRenderer {
   }
 
   virtual void DrawVertices(const SpriteSheet& sheet,
+                            std::optional<const SpriteSheet> mask,
                             std::span<const VertexBufferSprites> vertices,
                             std::span<const uint16_t> indices,
                             glm::mat4 transformation = glm::mat4(1.0f),
                             bool inverted = false) = 0;
+
+  virtual void DrawVertices(const SpriteSheet& sheet,
+                            std::span<const VertexBufferSprites> vertices,
+                            std::span<const uint16_t> indices,
+                            glm::mat4 transformation = glm::mat4(1.0f),
+                            bool inverted = false) {
+    DrawVertices(sheet, std::nullopt, vertices, indices, transformation,
+                 inverted);
+  }
+
+  void DrawVertices(const SpriteSheet& sheet,
+                    std::optional<const SpriteSheet> mask,
+                    std::span<const VertexBufferSprites> vertices,
+                    std::span<const uint16_t> indices, glm::vec2 offset,
+                    bool inverted = false) {
+    DrawVertices(sheet, mask, vertices, indices,
+                 glm::translate(glm::mat4(1.0f), glm::vec3(offset, 0.0f)),
+                 inverted);
+  }
 
   void DrawVertices(const SpriteSheet& sheet,
                     std::span<const VertexBufferSprites> vertices,
