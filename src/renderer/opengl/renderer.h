@@ -168,6 +168,8 @@ class Renderer : public BaseRenderer {
 
   // ShaderCompiler compiler
   std::shared_ptr<ShaderCompiler> Shaders;
+
+  bool ScissorEnabled = false;
 };
 
 }  // namespace OpenGL

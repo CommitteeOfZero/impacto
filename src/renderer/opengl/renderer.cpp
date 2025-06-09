@@ -722,11 +722,16 @@ void Renderer::CaptureScreencap(Sprite& sprite) {
 }
 
 void Renderer::EnableScissor() {
+  if (ScissorEnabled) return;
+
   Flush();
   glEnable(GL_SCISSOR_TEST);
+  ScissorEnabled = true;
 }
 
 void Renderer::SetScissorRect(RectF const& rect) {
+  if (!ScissorEnabled) return;
+
   Rect viewport = Window->GetViewport();
   float scale = fmin((float)Window->WindowWidth / Profile::DesignWidth,
                      (float)Window->WindowHeight / Profile::DesignHeight);
@@ -741,8 +746,11 @@ void Renderer::SetScissorRect(RectF const& rect) {
 }
 
 void Renderer::DisableScissor() {
+  if (!ScissorEnabled) return;
+
   Flush();
   glDisable(GL_SCISSOR_TEST);
+  ScissorEnabled = false;
 }
 
 }  // namespace OpenGL
