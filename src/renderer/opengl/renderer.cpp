@@ -524,6 +524,7 @@ void Renderer::DrawMaskedSpriteOverlay(
 }
 
 void Renderer::DrawVertices(const SpriteSheet& sheet,
+                            const std::optional<const SpriteSheet> mask,
                             const std::span<const VertexBufferSprites> vertices,
                             const std::span<const uint16_t> indices,
                             glm::mat4 transformation, const bool inverted) {
@@ -534,27 +535,43 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
   }
 
   // Set uniform variables
-  if (inverted) {
-    SpriteInvertedUniforms uniforms{
+  if (mask.has_value()) {
+    MaskedSpriteNoAlphaUniforms uniforms{
         .Projection = Projection,
-        .Transformation = transformation,
+        .SpriteTransformation = transformation,
+        .MaskTransformation = glm::mat4(1.0f),
         .Textures = Textures,
+        .Alpha = {1.0f, 0.0f},
+        .IsInverted = inverted,
     };
 
-    UseShader(SpriteInvertedShaderProgram, uniforms);
+    UseShader(MaskedSpriteNoAlphaShaderProgram, uniforms);
 
   } else {
-    SpriteUniforms uniforms{
-        .Projection = Projection,
-        .Transformation = transformation,
-        .Textures = Textures,
-    };
+    if (inverted) {
+      SpriteInvertedUniforms uniforms{
+          .Projection = Projection,
+          .Transformation = transformation,
+          .Textures = Textures,
+      };
 
-    UseShader(SpriteShaderProgram, uniforms);
+      UseShader(SpriteInvertedShaderProgram, uniforms);
+
+    } else {
+      SpriteUniforms uniforms{
+          .Projection = Projection,
+          .Transformation = transformation,
+          .Textures = Textures,
+      };
+
+      UseShader(SpriteShaderProgram, uniforms);
+    }
   }
 
   const std::vector<GLuint> textureLocations =
-      GetTextureLocations(std::array{sheet.Texture});
+      mask.has_value() ? GetTextureLocations(std::array<uint32_t, 2>{
+                             sheet.Texture, mask->Texture})
+                       : GetTextureLocations(std::array{sheet.Texture});
 
   std::vector<VertexBufferSprites> transformedVertices;
   transformedVertices.resize(vertices.size());
@@ -563,6 +580,7 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
                                 &textureLocations](VertexBufferSprites info) {
     if (sheet.IsScreenCap) info.UV.y = 1.0f - info.UV.y;
     info.ColorMap = textureLocations[0];
+    if (textureLocations.size() >= 2) info.Mask = textureLocations[1];
     return info;
   };
   std::transform(vertices.begin(), vertices.end(), transformedVertices.begin(),
