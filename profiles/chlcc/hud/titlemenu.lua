@@ -90,10 +90,10 @@ root.TitleMenu = {
     DelusionADVUnderSprite = "DelusionADVUnder" .. languageSuffix,
     DelusionADVSprite = "DelusionADV" .. languageSuffix,
     DelusionADVPosition = root.Language == "English"
-        and { X = 74, Y = 396 }
+        and { X = 76, Y = 397 }
         or { X = 76, Y = 394 },
     DelusionADVPopoutOffset = root.Language == "English"
-        and { X = -2, Y = -2 }
+        and { X = -2, Y = -3 }
         or { X = -2, Y = -3 },
     SeiraUnderSprite = "SeiraUnder",
     SeiraUnderPosition = { X = 733, Y = 0 },
@@ -104,7 +104,7 @@ root.TitleMenu = {
     CHLogoPosition = { X = 61, Y = 279 },
     LCCLogoUnderSprite = "LCCLogoUnder",
     LCCLogoUnderPosition = root.Language == "English"
-        and { X = 241, Y = 327 }
+        and { X = 242, Y = 328 }
         or { X = 241, Y = 327 },
     StarLogoSprite = "StarLogo",
     StarLogoPosition = { X = 465, Y = 316 },
@@ -238,7 +238,7 @@ root.Sprites["DelusionADVUnder"] = {
 
 root.Sprites["DelusionADVUnderEnglish"] = {
     Sheet = "Title",
-    Bounds = { X = 1862, Y = 785, Width = 157, Height = 37 },
+    Bounds = { X = 1862, Y = 785, Width = 154, Height = 33 },
 };
 
 root.Sprites["DelusionADV"] = {
@@ -248,7 +248,7 @@ root.Sprites["DelusionADV"] = {
 
 root.Sprites["DelusionADVEnglish"] = {
     Sheet = "Title",
-    Bounds = { X = 1860, Y = 732, Width = 157, Height = 37 },
+    Bounds = { X = 1862, Y = 734, Width = 154, Height = 33 },
 };
 
 root.Sprites["IntroDelusionADV1"] = {
@@ -308,7 +308,7 @@ root.Sprites["IntroDelusionADV4English"] = {
 
 root.Sprites["IntroDelusionADV5English"] = {
     Sheet = "Title",
-    Bounds = { X = 1995, Y = 683, Width = 19, Height = 33 },
+    Bounds = { X = 1996, Y = 683, Width = 19, Height = 33 },
 };
 
 root.Sprites["SeiraUnder"] = {
@@ -323,7 +323,7 @@ root.Sprites["Seira"] = {
 
 root.Sprites["CHLogo"] = {
     Sheet = "Title",
-    Bounds = { X = 1, Y = 771, Width = 594, Height = 115 },
+    Bounds = { X = 1, Y = 771, Width = 592, Height = 115 },
 };
 
 root.Sprites["LCCLogoUnder"] = {
