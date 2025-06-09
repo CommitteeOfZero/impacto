@@ -168,9 +168,9 @@ struct YUVFrameUniforms {
 
   glm::mat4 Projection;
 
-  GLuint Luma;
-  GLuint Cb;
-  GLuint Cr;
+  GLint Luma = 0;
+  GLint Cb = 0;
+  GLint Cr = 0;
   bool IsAlpha;
 };
 
