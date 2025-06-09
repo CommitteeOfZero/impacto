@@ -692,13 +692,24 @@ void Renderer::DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
 
   YUVFrameUniforms uniforms{
       .Projection = Projection,
-      .Luma = textureLocations[0],
-      .Cb = textureLocations[1],
-      .Cr = textureLocations[2],
+      .Luma = (GLint)textureLocations[0],
+      .Cb = (GLint)textureLocations[1],
+      .Cr = (GLint)textureLocations[2],
       .IsAlpha = alphaVideo,
   };
 
   UseShader(YUVFrameShaderProgram, uniforms);
+
+  // TODO: Remove hack and create new vertex layout
+  if (TextureLocations.empty()) {
+    GLuint maxIndex =
+        *std::max_element(textureLocations.begin(), textureLocations.end());
+    TextureLocations.resize(maxIndex + 1);
+
+    TextureLocations[textureLocations[0]] = frame.LumaId;
+    TextureLocations[textureLocations[1]] = frame.CbId;
+    TextureLocations[textureLocations[2]] = frame.CrId;
+  }
 
   // OK, all good, make quad
 
