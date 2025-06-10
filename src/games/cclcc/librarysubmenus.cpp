@@ -2,6 +2,7 @@
 #include "../../profile/games/cclcc/librarymenu.h"
 #include "../../video/videosystem.h"
 #include "../../vm/interface/input.h"
+#include "../../inputsystem.h"
 #include "../../text.h"
 #include "../../profile/dialogue.h"
 #include "librarysubmenus.h"
@@ -16,7 +17,9 @@ using namespace Impacto::Profile::ScriptVars;
 MusicTrackButton::MusicTrackButton(int id, int position, glm::vec2 pos)
     : Button(), Position(position) {
   Id = id;
-  Bounds = RectF(pos.x, pos.y, MusicRenderingBounds.Width, MusicItemPadding);
+  float textOffset = 20.0f;
+  Bounds = RectF(pos.x, pos.y + textOffset, MusicRenderingBounds.Width,
+                 MusicItemPadding);
   size_t trackTextIndex = 2 * Id;
   SetText(
       Vm::ScriptGetTextTableStrAddress(MusicStringTableId, trackTextIndex + 6),
@@ -30,18 +33,20 @@ MusicTrackButton::MusicTrackButton(int id, int position, glm::vec2 pos)
       MusicStringTableId, MusicStringLockedIndex);
   Vm::Sc3VmThread dummy;
   dummy.Ip = lockedSc3Text;
-  TextLayoutPlainLine(&dummy, 6, LockedText, Profile::Dialogue::DialogueFont,
-                      MusicTrackNameSize, {0x4f4f4b, 0x0}, 1.0f,
-                      glm::vec2(Bounds.X + MusicTrackNameOffsetX, Bounds.Y),
-                      TextAlignment::Left);
+  TextLayoutPlainLine(
+      &dummy, 6, LockedText, Profile::Dialogue::DialogueFont,
+      MusicTrackNameSize, {0x4f4f4b, 0x0}, 1.0f,
+      glm::vec2(Bounds.X + MusicTrackNameOffsetX, Bounds.Y + textOffset),
+      TextAlignment::Left);
   ArtistName = Widgets::Label(
       Vm::ScriptGetTextTableStrAddress(MusicStringTableId, trackTextIndex + 7),
-      glm::vec2(Bounds.X + MusicTrackArtistOffsetX, Bounds.Y),
+      glm::vec2(Bounds.X + MusicTrackArtistOffsetX, Bounds.Y + textOffset),
       MusicTrackArtistSize, RendererOutlineMode::None, {0x4f4f4b, 0x0});
-  TextLayoutPlainString(
-      fmt::format("{}", position), NumberText, Profile::Dialogue::DialogueFont,
-      MusicTrackNameSize, {0xfffffff, 0}, 1.0f,
-      glm::vec2(Bounds.X + 80.0f, Bounds.Y), TextAlignment::Center);
+  TextLayoutPlainString(fmt::format("{}", position), NumberText,
+                        Profile::Dialogue::DialogueFont, MusicTrackNameSize,
+                        {0xfffffff, 0}, 1.0f,
+                        glm::vec2(Bounds.X + 80.0f, Bounds.Y + textOffset),
+                        TextAlignment::Center);
 }
 
 void MusicTrackButton::Show() {
@@ -51,16 +56,33 @@ void MusicTrackButton::Show() {
 }
 
 void MusicTrackButton::Move(glm::vec2 relativePos) {
-  Button::Move(relativePos);
-  ArtistName.Move(relativePos);
-  for (auto& glyph : LockedText) {
-    glyph.DestRect.X += relativePos.x;
-    glyph.DestRect.Y += relativePos.y;
+  auto maxY = MusicItemPadding * MusicPlayIds.size();
+  float sum = Bounds.Y + relativePos.y;
+  float newY = sum;
+  if (newY > maxY - MusicItemPadding) {
+    newY -= maxY;
+  } else if (newY < 0) {
+    newY += maxY;
   }
-  for (auto& glyph : NumberText) {
-    glyph.DestRect.X += relativePos.x;
-    glyph.DestRect.Y += relativePos.y;
-  }
+
+  float yDiff = (newY - Bounds.Y);
+
+  auto moveGlyphs = [&](std::span<ProcessedTextGlyph> glyphs,
+                        glm::vec2 offset) {
+    for (auto& glyph : glyphs) {
+      glyph.DestRect.X += offset.x;
+      glyph.DestRect.Y += offset.y;
+    }
+  };
+  auto move = [&](glm::vec2 offset) {
+    Button::Move(offset);
+    ArtistName.Move(offset);
+    HoverBounds = Bounds;
+
+    moveGlyphs(NumberText, offset);
+    moveGlyphs(LockedText, offset);
+  };
+  move({relativePos.x, yDiff});
 }
 
 void MusicTrackButton::Update(float dt) { Button::Update(dt); }
@@ -77,6 +99,11 @@ void MusicTrackButton::Render() {
   }
 }
 
+LibrarySubmenu::LibrarySubmenu() {
+  FadeAnimation.DurationIn = SubMenuFadeInDuration;
+  FadeAnimation.DurationOut = SubMenuFadeOutDuration;
+}
+
 void LibrarySubmenu::Show() {
   if (State != Shown) {
     State = Showing;
@@ -86,6 +113,7 @@ void LibrarySubmenu::Show() {
       LastFocusedMenu->IsFocused = false;
     }
     IsFocused = true;
+    UI::FocusedMenu = this;
   }
 }
 void LibrarySubmenu::Hide() {
@@ -95,7 +123,6 @@ void LibrarySubmenu::Hide() {
     MainItems.Hide();
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
-      LastFocusedMenu->IsFocused = true;
     } else {
       UI::FocusedMenu = 0;
     }
@@ -110,13 +137,13 @@ void LibrarySubmenu::Update(float dt) {
   if (CurrentlyFocusedElement) {
     CurrentlyFocusedElement->Update(dt);
   }
-  if (FadeAnimation.IsOut()) {
-    IsFocused = false;
-    State = Hidden;
-  }
-  if (FadeAnimation.IsIn()) {
-    IsFocused = true;
+  if (State == Showing && FadeAnimation.IsIn()) {
     State = Shown;
+    IsFocused = true;
+  } else if (State == Hiding && FadeAnimation.IsOut()) {
+    State = Hidden;
+    IsFocused = false;
+    if (UI::FocusedMenu) UI::FocusedMenu->IsFocused = true;
   }
 }
 
@@ -162,22 +189,25 @@ void MovieMenu::Show() {
 MusicMenu::MusicMenu() : LibrarySubmenu() {}
 
 void MusicMenu::Show() {
-  if (MainItems.Children.empty()) {
+  if (State == MenuState::Hidden) {
+    const int maxY = MusicPlayIds.size() * MusicItemPadding;
     for (int pos = 1; pos <= MusicPlayIds.size(); ++pos) {
       int i = (pos + MusicPlayIds.size() - 1) % MusicPlayIds.size();
       auto musicOnclick = [this, i](Widgets::Button* target) {
         Audio::Channels[Audio::AC_BGM0]->Play(
             "bgm", MusicPlayIds[i], PlayMode == MusicPlayMode::RepeatOne, 0.0f);
       };
-      glm::vec2 btnPos = {
-          MusicRenderingBounds.X,
-          MusicRenderingBounds.Y + MusicItemPadding * pos + 20.0f};
+      float btnY = fmod(MusicRenderingBounds.Y + MusicItemPadding * pos +
+                            MusicItemPadding * 8,
+                        maxY);
+      glm::vec2 btnPos = {MusicRenderingBounds.X, btnY};
       auto musicItem = new MusicTrackButton(i, pos, btnPos);
 
       musicItem->OnClickHandler = musicOnclick;
       MainItems.Add(musicItem, FDIR_DOWN);
     }
   }
+
   LibrarySubmenu::Show();
   MainItems.Show();
 }
@@ -186,12 +216,15 @@ void MusicMenu::Update(float dt) {
   LibrarySubmenu::Update(dt);
   if (State == Shown) {
     auto lastPageY = PageY;
-    PageY += (Vm::Interface::PADinputButtonIsDown & Vm::Interface::PAD1DOWN)
-                 ? 10.0f
-                 : 0.0f;
-    PageY -= (Vm::Interface::PADinputButtonIsDown & Vm::Interface::PAD1UP)
-                 ? 10.0f
-                 : 0.0f;
+    float deltaY = 0;
+    deltaY += (Vm::Interface::PADinputButtonIsDown & Vm::Interface::PAD1DOWN)
+                  ? 10.0f
+                  : 0.0f;
+    deltaY -= (Vm::Interface::PADinputButtonIsDown & Vm::Interface::PAD1UP)
+                  ? 10.0f
+                  : 0.0f;
+    MainItems.Move(glm::vec2(0, -deltaY));
+    PageY += deltaY;
     if (PageY != lastPageY) {
       auto maxPageY = MusicItemPadding * MusicPlayIds.size();
       if (PageY < lastPageY && PageY < MusicItemPadding)
@@ -199,8 +232,11 @@ void MusicMenu::Update(float dt) {
       else if (PageY > lastPageY && PageY > maxPageY - MusicItemPadding) {
         PageY -= maxPageY - MusicItemPadding;
       }
-      MainItems.MoveTo(glm::vec2(0, -PageY));
     }
+  } else if (State == Hidden && !MainItems.Children.empty()) {
+    PageY = 0;
+    MainItems.Clear();
+    MainItems.MoveTo(glm::vec2(0, 0));
   }
 }
 

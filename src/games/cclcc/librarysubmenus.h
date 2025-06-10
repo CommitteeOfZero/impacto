@@ -9,7 +9,6 @@
 namespace Impacto {
 namespace UI {
 namespace CCLCC {
-
 class MusicTrackButton : public Widgets::Button {
  public:
   MusicTrackButton(int id, int position, glm::vec2 pos);
@@ -29,7 +28,7 @@ class MusicTrackButton : public Widgets::Button {
 };
 class LibrarySubmenu : public Menu {
  public:
-  LibrarySubmenu() = default;
+  LibrarySubmenu();
 
   void Show() override;
   void Hide() override;
@@ -56,7 +55,6 @@ class MusicMenu : public LibrarySubmenu {
   void Render() override;
   void Show() override;
 
- private:
   float PageY = 0;
   MusicPlayMode PlayMode = MusicPlayMode::Normal;
 };
