@@ -7,6 +7,7 @@
 
 #include "shader.h"
 #include "glc.h"
+#include "textureunit.h"
 
 #include "../../profile/game.h"
 
@@ -142,14 +143,13 @@ class Renderer : public BaseRenderer {
 
   bool Drawing = false;
 
-  static constexpr size_t MaxTextureCount = 15;
-  static constexpr std::array<GLint, MaxTextureCount> Textures = {
+  static constexpr size_t TextureUnitCount = 15;
+  static constexpr std::array<GLint, TextureUnitCount> Textures = {
       0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14};
-  std::vector<uint32_t> TextureLocations;
+  std::array<std::unique_ptr<TextureUnit>, TextureUnitCount> TextureUnits;
 
-  std::vector<GLuint> GetTextureLocations(std::span<const uint32_t> textureIds);
-
-  std::array<GLuint, MaxTextureCount> Samplers;
+  std::vector<TextureUnit> GetTextureLocations(
+      std::span<const uint32_t> textureIds);
 
   static constexpr size_t MaxVertexCount =
       1024 * 1024 / sizeof(VertexBufferSprites);
