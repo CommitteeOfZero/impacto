@@ -650,9 +650,10 @@ void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
 
   // OK, all good, make quad
 
-  InsertVerticesQuad(dest, textureLocations[0], sprite.NormalizedBounds(),
-                     glm::vec4(1.0f), textureLocations[1],
-                     mask.NormalizedBounds());
+  CornersQuad uvDest = sprite.NormalizedBounds();
+  if (sprite.Sheet.IsScreenCap) uvDest.FlipVertical();
+  InsertVerticesQuad(dest, textureLocations[0], uvDest, glm::vec4(1.0f),
+                     textureLocations[1], mask.NormalizedBounds());
 }
 
 void Renderer::Flush() {
