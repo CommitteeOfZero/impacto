@@ -1,8 +1,8 @@
 uniform float Alpha;
 
-flat in int ucolorMap;
+flat in uint colorMap;
 in vec2 uv;
-flat in int umask;
+flat in uint mask;
 in vec2 maskUV;
 
 out vec4 outColor;
