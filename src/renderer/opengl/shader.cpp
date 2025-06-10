@@ -343,6 +343,7 @@ MaskedSpriteShader::MaskedSpriteShader(GLint programId)
   UploadVar(Uniforms.Textures, TexturesLocation);
   UploadVar(Uniforms.Alpha, AlphaLocation);
   UploadVar(Uniforms.IsInverted, IsInvertedLocation);
+  UploadVar(Uniforms.IsSameTexture, IsSameTextureLocation);
 }
 
 void MaskedSpriteShader::UploadUniforms(MaskedSpriteUniforms newUniforms) {
@@ -355,6 +356,8 @@ void MaskedSpriteShader::UploadUniforms(MaskedSpriteUniforms newUniforms) {
   UpdateVar(newUniforms.Textures, Uniforms.Textures, TexturesLocation);
   UpdateVar(newUniforms.Alpha, Uniforms.Alpha, AlphaLocation);
   UpdateVar(newUniforms.IsInverted, Uniforms.IsInverted, IsInvertedLocation);
+  UpdateVar(newUniforms.IsSameTexture, Uniforms.IsSameTexture,
+            IsSameTextureLocation);
 }
 
 CCMessageBoxShader::CCMessageBoxShader(GLint programId)
