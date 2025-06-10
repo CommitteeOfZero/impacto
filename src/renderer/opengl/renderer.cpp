@@ -87,24 +87,10 @@ void Renderer::Init() {
       std::make_unique<CHLCCMenuBackgroundShader>(
           Shaders->Compile("CHLCCMenuBackground"));
 
-  // No-mipmapping sampler
-  glGenSamplers(MaxTextureCount, Samplers.data());
+  for (size_t i = 0; i < TextureUnitCount; i++)
+    TextureUnits[i] = std::make_unique<TextureUnit>(i);
 
-  // Don't wrap textures
-  for (size_t i = 0; i < Samplers.size(); i++) {
-    const GLint sampler = Samplers[i];
-
-    glBindSampler(i, sampler);
-
-    glSamplerParameteri(sampler, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glSamplerParameteri(sampler, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glSamplerParameteri(sampler, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16);
-  }
-
-  glActiveTexture(GL_TEXTURE0 + MaxTextureCount);
+  glActiveTexture(GL_TEXTURE0 + TextureUnitCount);
 }
 
 void Renderer::Shutdown() {
@@ -303,79 +289,89 @@ void Renderer::InsertVerticesQuad(const CornersQuad pos,
   InsertVertices(vertices, indices);
 }
 
-// Important to call as late as possible,
-// as flushes may invalidate the given texture IDs!
-std::vector<GLuint> Renderer::GetTextureLocations(
+std::vector<TextureUnit> Renderer::GetTextureLocations(
     const std::span<const uint32_t> textureIds) {
-  std::vector<GLuint> allocatedLocations(textureIds.size());
+  std::vector<size_t> allocatedLocations(textureIds.size());
+
+  std::vector<TextureUnit> returnVector;
+  returnVector.reserve(allocatedLocations.size());
 
   size_t newTexturesNeeded = 0;
   std::vector<size_t> notFound;
   for (size_t i = 0; i < textureIds.size(); i++) {
-    const auto locationsIt = std::find(TextureLocations.begin(),
-                                       TextureLocations.end(), textureIds[i]);
+    const uint32_t textureId = textureIds[i];
 
-    if (locationsIt != TextureLocations.end()) {
-      allocatedLocations[i] =
-          std::distance(TextureLocations.begin(), locationsIt);
+    const auto sameTexture =
+        [this, textureId](const std::unique_ptr<TextureUnit>& unit) {
+          return unit->GetTexture() == textureId;
+        };
+    const auto foundIt =
+        std::find_if(TextureUnits.begin(), TextureUnits.end(), sameTexture);
+
+    if (foundIt != TextureUnits.end()) {
+      allocatedLocations[i] = std::distance(TextureUnits.begin(), foundIt);
+
+      // TODO: Remove once textures are managed
+      // Currently needed because the texture under this ID may be deleted and
+      // then recreated, meaning the texture would need to be rebound
+      (*foundIt)->SetTexture(textureId);
+
+      (*foundIt)->Reserve();
+
     } else {
       notFound.push_back(i);
 
-      const auto textureIt = textureIds.begin() + i;
-      newTexturesNeeded +=
-          std::find(textureIds.begin(), textureIt, textureIds[i]) == textureIt;
+      // Check if the current new texture hasn't already been requested
+      const auto curTextureIt = textureIds.begin() + i;
+      newTexturesNeeded += std::find(textureIds.begin(), curTextureIt,
+                                     textureIds[i]) == curTextureIt;
     }
   }
 
   // If all textures were found, immediately return their locations
-  if (notFound.empty()) return allocatedLocations;
+  if (notFound.empty()) {
+    for (size_t unit : allocatedLocations)
+      returnVector.emplace_back(*TextureUnits[unit]);
 
-  if (TextureLocations.size() + newTexturesNeeded <= MaxTextureCount) {
-    // If the needed textures still fit in the buffer, add them
-    TextureLocations.reserve(TextureLocations.size() + newTexturesNeeded);
-
-    for (size_t i : notFound) {
-      const auto foundIt = std::find(TextureLocations.begin(),
-                                     TextureLocations.end(), textureIds[i]);
-
-      if (foundIt != TextureLocations.end()) {
-        // Texture already added by prior entry in notFound
-        allocatedLocations[i] =
-            std::distance(TextureLocations.begin(), foundIt);
-
-      } else {
-        // Add the texture
-        const size_t glTextureId = TextureLocations.size();
-        glBindTextureUnit(glTextureId, textureIds[i]);
-        TextureLocations.push_back(textureIds[i]);
-        allocatedLocations[i] = glTextureId;
-      }
-    }
-
-    return allocatedLocations;
+    return returnVector;
   }
 
-  // If they do not fit in the buffer, flush and add them
-  Flush();
+  const size_t freeSlots =
+      std::count_if(TextureUnits.begin(), TextureUnits.end(),
+                    [](const auto& unit) { return !unit->IsLocked(); });
 
-  for (size_t i = 0; i < textureIds.size(); i++) {
-    const auto foundIt = std::find(TextureLocations.begin(),
-                                   TextureLocations.end(), textureIds[i]);
+  // If the needed textures don't fit in the buffer, flush to make room
+  if (newTexturesNeeded > freeSlots) Flush();
 
-    if (foundIt != TextureLocations.end()) {
-      // Texture already added by prior entry in textureIds
-      allocatedLocations[i] = std::distance(TextureLocations.begin(), foundIt);
+  for (size_t i : notFound) {
+    const uint32_t textureId = textureIds[i];
+    const auto sameTexture =
+        [this, textureId](const std::unique_ptr<TextureUnit>& unit) {
+          return unit->GetTexture() == textureId;
+        };
+    const auto foundIt =
+        std::find_if(TextureUnits.begin(), TextureUnits.end(), sameTexture);
+
+    if (foundIt != TextureUnits.end()) {
+      // Texture already added by prior entry in notFound
+      allocatedLocations[i] = std::distance(TextureUnits.begin(), foundIt);
 
     } else {
       // Add the texture
-      const size_t glTextureId = TextureLocations.size();
-      glBindTextureUnit(glTextureId, textureIds[i]);
-      TextureLocations.push_back(textureIds[i]);
-      allocatedLocations[i] = glTextureId;
+      const auto freeIt =
+          std::find_if(TextureUnits.begin(), TextureUnits.end(),
+                       [](const auto& unit) { return !unit->IsLocked(); });
+
+      (*freeIt)->SetTexture(textureId);
+      (*freeIt)->Reserve();
+      allocatedLocations[i] = std::distance(TextureUnits.begin(), freeIt);
     }
   }
 
-  return allocatedLocations;
+  for (size_t unit : allocatedLocations)
+    returnVector.emplace_back(*TextureUnits[unit]);
+
+  return returnVector;
 }
 
 void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
@@ -389,6 +385,11 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
   }
 
   if (sprite.Sheet.IsScreenCap) Flush();
+
+  if (disableBlend) {
+    Flush();
+    glDisable(GL_BLEND);
+  }
 
   // Set uniform variables
   if (inverted) {
@@ -410,12 +411,7 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
     UseShader(SpriteShaderProgram, uniforms);
   }
 
-  if (disableBlend) {
-    Flush();
-    glDisable(GL_BLEND);
-  }
-
-  const std::vector<GLuint> textureLocations =
+  std::vector<TextureUnit> textureLocations =
       GetTextureLocations(std::array{sprite.Sheet.Texture});
 
   // OK, all good, make quad
@@ -423,6 +419,9 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
   CornersQuad uvDest = sprite.NormalizedBounds();
   if (sprite.Sheet.IsScreenCap) uvDest.FlipVertical();
   InsertVerticesQuad(dest, textureLocations[0], uvDest, tints);
+
+  // Free texture units for possible flush
+  textureLocations.clear();
 
   if (disableBlend) {
     Flush();
@@ -459,7 +458,7 @@ void Renderer::DrawMaskedSprite(
 
   UseShader(MaskedSpriteShaderProgram, uniforms);
 
-  const std::vector<GLuint> textureLocations =
+  const std::vector<TextureUnit> textureLocations =
       GetTextureLocations(std::array{sprite.Sheet.Texture, mask.Sheet.Texture});
 
   // OK, all good, make quad
@@ -514,7 +513,7 @@ void Renderer::DrawMaskedSpriteOverlay(
     UseShader(MaskedSpriteNoAlphaShaderProgram, uniforms);
   }
 
-  const std::vector<GLuint> textureLocations =
+  const std::vector<TextureUnit> textureLocations =
       GetTextureLocations(std::array{sprite.Sheet.Texture, mask.Sheet.Texture});
 
   // OK, all good, make quad
@@ -568,7 +567,7 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
     }
   }
 
-  const std::vector<GLuint> textureLocations =
+  const std::vector<TextureUnit> textureLocations =
       mask.has_value() ? GetTextureLocations(std::array<uint32_t, 2>{
                              sheet.Texture, mask->Texture})
                        : GetTextureLocations(std::array{sheet.Texture});
@@ -612,7 +611,7 @@ void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
 
   UseShader(CCMessageBoxShaderProgram, uniforms);
 
-  const std::vector<GLuint> textureLocations =
+  const std::vector<TextureUnit> textureLocations =
       GetTextureLocations(std::array{sprite.Sheet.Texture, mask.Sheet.Texture});
 
   // OK, all good, make quad
@@ -644,7 +643,7 @@ void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
 
   UseShader(CHLCCMenuBackgroundShaderProgram, uniforms);
 
-  const std::vector<GLuint> textureLocations =
+  const std::vector<TextureUnit> textureLocations =
       GetTextureLocations(std::array{sprite.Sheet.Texture, mask.Sheet.Texture});
 
   // OK, all good, make quad
@@ -676,7 +675,7 @@ void Renderer::Flush() {
   IndexCount = 0;
   NextFreeIndex = 0;
 
-  TextureLocations.clear();
+  for (std::unique_ptr<TextureUnit>& unit : TextureUnits) unit->Flush();
 }
 
 void Renderer::DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
@@ -687,7 +686,7 @@ void Renderer::DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
     return;
   }
 
-  const std::vector<GLuint> textureLocations =
+  const std::vector<TextureUnit> textureLocations =
       GetTextureLocations(std::array{frame.LumaId, frame.CbId, frame.CrId});
 
   YUVFrameUniforms uniforms{
@@ -699,17 +698,6 @@ void Renderer::DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
   };
 
   UseShader(YUVFrameShaderProgram, uniforms);
-
-  // TODO: Remove hack and create new vertex layout
-  if (TextureLocations.empty()) {
-    GLuint maxIndex =
-        *std::max_element(textureLocations.begin(), textureLocations.end());
-    TextureLocations.resize(maxIndex + 1);
-
-    TextureLocations[textureLocations[0]] = frame.LumaId;
-    TextureLocations[textureLocations[1]] = frame.CbId;
-    TextureLocations[textureLocations[2]] = frame.CrId;
-  }
 
   // OK, all good, make quad
 
