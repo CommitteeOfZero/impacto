@@ -145,7 +145,6 @@ void BaseRenderer::DrawProcessedText_BasicFont(
     indices[i * 6 + 5] = br;
   }
 
-  uint16_t maxIndex = 0;
   for (size_t i = 0; i < text.size(); i++) {
     const ProcessedTextGlyph glyph = text[i];
 
@@ -162,6 +161,7 @@ void BaseRenderer::DrawProcessedText_BasicFont(
     InsertQuad(std::span<VertexBufferSprites, 4>(vertices.begin() + i * 4, 4),
                dest, destUV, color, maskUV);
   }
+  uint16_t maxIndex = vertexCount;
 
   if (outlineMode != RendererOutlineMode::None) {
     // Add outline to the front of the buffers
@@ -181,11 +181,12 @@ void BaseRenderer::DrawProcessedText_BasicFont(
           outlineOpacity * (smoothstepGlyphOpacity
                                 ? glm::smoothstep(0.0f, 1.0f, glyph.Opacity)
                                 : glyph.Opacity);
-      std::transform(vertices.begin() + i * 4, vertices.begin() + (i + 1) * 4,
-                     vertices.begin() + i * 4, [color](auto vertex) {
-                       vertex.Tint = color;
-                       return vertex;
-                     });
+      const auto glyphStart = vertices.begin() + i * 4;
+      const auto glyphEnd = glyphStart + 4;
+      std::transform(glyphStart, glyphEnd, glyphStart, [color](auto vertex) {
+        vertex.Tint = color;
+        return vertex;
+      });
     }
 
     const auto translateVertex = [](VertexBufferSprites vertex,
@@ -207,13 +208,14 @@ void BaseRenderer::DrawProcessedText_BasicFont(
         maxIndex += vertexCount;
 
         // Translate outlines
-        const auto glyphsBegin = vertices.begin() + vertexCount * 2;
-        const auto glyphsEnd = vertices.end();
-        std::transform(glyphsBegin, glyphsEnd, vertices.begin(),
+        const auto tlOutlineStart = vertices.begin();
+        const auto brOutlineStart = tlOutlineStart + vertexCount;
+        const auto foregroundStart = brOutlineStart + vertexCount;
+        std::transform(tlOutlineStart, brOutlineStart, tlOutlineStart,
                        [translateVertex](auto vertex) {
                          return translateVertex(vertex, {-1.0f, -1.0f});
                        });
-        std::transform(glyphsBegin, glyphsEnd, vertices.begin() + vertexCount,
+        std::transform(brOutlineStart, foregroundStart, brOutlineStart,
                        [translateVertex](auto vertex) {
                          return translateVertex(vertex, {1.0f, 1.0f});
                        });
@@ -222,9 +224,11 @@ void BaseRenderer::DrawProcessedText_BasicFont(
       }
 
       case RendererOutlineMode::BottomRight: {
-        std::transform(vertices.begin(), vertices.end(), vertices.begin(),
+        const auto brOutlineStart = vertices.begin();
+        const auto foregroundStart = vertices.begin() + vertexCount;
+        std::transform(brOutlineStart, foregroundStart, brOutlineStart,
                        [translateVertex](auto vertex) {
-                         return translateVertex(vertex, {-1.0f, -1.0f});
+                         return translateVertex(vertex, {1.0f, 1.0f});
                        });
 
         break;
