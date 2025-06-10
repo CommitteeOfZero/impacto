@@ -134,6 +134,8 @@ void Renderer::BeginFrame2D() {
   NextFreeIndex = 0;
 
   glDisable(GL_CULL_FACE);
+
+  glBindSampler(0, TextureUnits[0]->GetSampler());
 }
 
 void Renderer::EndFrame() {

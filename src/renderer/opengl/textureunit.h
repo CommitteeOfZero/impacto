@@ -54,6 +54,8 @@ class TextureUnit {
     return true;
   }
 
+  GLuint GetSampler() const { return Sampler; }
+
   void Flush() {
     if (Info.use_count() == 1) Info->Flushed = true;
   }
