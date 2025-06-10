@@ -40,18 +40,24 @@ LibraryMenu::LibraryMenu() : MainItems(this) {
   };
   auto showAlbumMenu = [this,
                         libraryMenuOnClickCommon](Widgets::Button* target) {
+    if (!IsFocused) return;
+
     // AlbumMenu.Show();
     libraryMenuOnClickCommon(target);
   };
 
   auto showMusicMenu = [this,
                         libraryMenuOnClickCommon](Widgets::Button* target) {
+    if (!IsFocused) return;
+
     MusicMenu.Show();
     libraryMenuOnClickCommon(target);
   };
 
   auto showMovieMenu = [this,
                         libraryMenuOnClickCommon](Widgets::Button* target) {
+    if (!IsFocused) return;
+
     MovieMenu.Show();
     libraryMenuOnClickCommon(target);
   };
@@ -139,13 +145,9 @@ void LibraryMenu::Update(float dt) {
   }
   FadeAnimation.Update(dt);
   MainItems.Update(dt);
-  if (CurrentLibraryMenu == +LibraryMenuPageType::Album) {
-    // AlbumMenu.Update(dt);
-  } else if (CurrentLibraryMenu == +LibraryMenuPageType::Sound) {
-    MusicMenu.Update(dt);
-  } else if (CurrentLibraryMenu == +LibraryMenuPageType::Movie) {
-    MovieMenu.Update(dt);
-  }
+  // AlbumMenu.Update(dt);
+  MusicMenu.Update(dt);
+  MovieMenu.Update(dt);
 
   if (State == Showing && FadeAnimation.Progress == 1.0f &&
       ScrWork[SW_SYSSUBMENUCT] == 32) {
