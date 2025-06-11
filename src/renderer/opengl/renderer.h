@@ -156,11 +156,9 @@ class Renderer : public BaseRenderer {
   static constexpr uint16_t MaxIndexCount =
       std::numeric_limits<uint16_t>::max();
 
-  std::array<VertexBufferSprites, MaxVertexCount> VertexBuffer;
-  std::array<uint16_t, MaxIndexCount> IndexBuffer;
+  std::vector<VertexBufferSprites> VertexBuffer;
+  std::vector<uint16_t> IndexBuffer;
 
-  size_t VertexCount = 0;
-  size_t IndexCount = 0;
   uint16_t NextFreeIndex = 0;
 
   const glm::mat4 Projection =

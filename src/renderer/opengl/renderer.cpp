@@ -129,8 +129,8 @@ void Renderer::BeginFrame2D() {
 
   Drawing = true;
 
-  VertexCount = 0;
-  IndexCount = 0;
+  VertexBuffer.clear();
+  IndexBuffer.clear();
   NextFreeIndex = 0;
 
   glDisable(GL_CULL_FACE);
@@ -229,18 +229,17 @@ void Renderer::InsertVertices(
   if (vertices.empty() || indices.empty()) return;
   assert(indices.size() <= MaxIndexCount);
 
-  if (IndexCount + indices.size() > MaxIndexCount) Flush();
+  if (IndexBuffer.size() + indices.size() > MaxIndexCount) Flush();
 
   const uint16_t maxIndex = *std::max_element(indices.begin(), indices.end());
 
-  std::copy(vertices.begin(), vertices.end(),
-            VertexBuffer.begin() + VertexCount);
-  VertexCount += vertices.size();
+  VertexBuffer.insert(VertexBuffer.end(), vertices.begin(), vertices.end());
 
+  const size_t indexOffset = IndexBuffer.size();
+  IndexBuffer.resize(IndexBuffer.size() + indices.size());
   std::transform(
-      indices.begin(), indices.end(), IndexBuffer.begin() + IndexCount,
+      indices.begin(), indices.end(), IndexBuffer.begin() + indexOffset,
       [this](uint16_t index) { return index + this->NextFreeIndex; });
-  IndexCount += indices.size();
 
   NextFreeIndex += maxIndex + 1;
 }
@@ -662,20 +661,21 @@ void Renderer::Flush() {
            "Renderer->Flush() called before BeginFrame()\n");
     return;
   }
-  if (VertexCount != 0 && IndexCount != 0) {
+  if (!VertexBuffer.empty() && !IndexBuffer.empty()) {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, VertexCount * sizeof(VertexBufferSprites),
+    glBufferData(GL_ARRAY_BUFFER,
+                 VertexBuffer.size() * sizeof(VertexBufferSprites),
                  VertexBuffer.data(), GL_DYNAMIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, IndexCount * sizeof(uint16_t),
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer.size() * sizeof(uint16_t),
                  IndexBuffer.data(), GL_DYNAMIC_DRAW);
 
-    glDrawElements(GL_TRIANGLES, IndexCount, GL_UNSIGNED_SHORT, 0);
+    glDrawElements(GL_TRIANGLES, IndexBuffer.size(), GL_UNSIGNED_SHORT, 0);
   }
 
-  VertexCount = 0;
-  IndexCount = 0;
+  VertexBuffer.clear();
+  IndexBuffer.clear();
   NextFreeIndex = 0;
 
   for (std::unique_ptr<TextureUnit>& unit : TextureUnits) unit->Flush();
