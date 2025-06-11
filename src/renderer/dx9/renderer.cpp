@@ -295,7 +295,8 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
 
   QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
             sizeof(VertexBufferSprites));
-  QuadSetPosition(dest, &vertices[0].Position, sizeof(VertexBufferSprites));
+  QuadSetPosition(CornersQuad(dest).Transform(transformation),
+                  &vertices[0].Position, sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
 }
@@ -347,11 +348,12 @@ void Renderer::DrawMaskedSprite(
 
   QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
             sizeof(VertexBufferSprites));
-  QuadSetUV(maskDest, sprite.Sheet.GetDimensions(), &vertices[0].MaskUV,
+  QuadSetUV(CornersQuad(maskDest).Transform(maskTransformation),
+            sprite.Sheet.GetDimensions(), &vertices[0].MaskUV,
             sizeof(VertexBufferSprites));
 
-  QuadSetPosition(spriteDest, &vertices[0].Position,
-                  sizeof(VertexBufferSprites));
+  QuadSetPosition(CornersQuad(spriteDest).Transform(spriteTransformation),
+                  &vertices[0].Position, sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
 }
@@ -409,11 +411,12 @@ void Renderer::DrawMaskedSpriteOverlay(
 
   QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
             sizeof(VertexBufferSprites));
-  QuadSetUV(maskDest, mask.Sheet.GetDimensions(), &vertices[0].MaskUV,
+  QuadSetUV(CornersQuad(maskDest).Transform(maskTransformation),
+            mask.Sheet.GetDimensions(), &vertices[0].MaskUV,
             sizeof(VertexBufferSprites));
 
-  QuadSetPosition(spriteDest, &vertices[0].Position,
-                  sizeof(VertexBufferSprites));
+  QuadSetPosition(CornersQuad(spriteDest).Transform(spriteTransformation),
+                  &vertices[0].Position, sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
 }
@@ -445,8 +448,10 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
       (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
   VertexBufferFill += vertices.size_bytes();
 
-  const auto vertexInfoToNDC = [this, sheet](VertexBufferSprites info) {
-    info.Position = DesignToNDC(info.Position);
+  const auto vertexInfoToNDC = [this,
+                                transformation](VertexBufferSprites info) {
+    info.Position = DesignToNDC(
+        glm::vec2(transformation * glm::vec4(info.Position, 0.0f, 1.0f)));
     return info;
   };
   std::transform(vertices.begin(), vertices.end(), vertexBuffer,
