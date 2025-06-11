@@ -351,10 +351,10 @@ void BaseRenderer::DrawProcessedText_LBFont(
 
 void BaseRenderer::QuadSetPosition(CornersQuad quad, glm::vec2* const pos,
                                    int stride) {
-  *(glm::vec2*)((uint8_t*)pos + 0 * stride) = quad.TopLeft;
-  *(glm::vec2*)((uint8_t*)pos + 1 * stride) = quad.BottomLeft;
-  *(glm::vec2*)((uint8_t*)pos + 2 * stride) = quad.BottomRight;
-  *(glm::vec2*)((uint8_t*)pos + 3 * stride) = quad.TopRight;
+  *(glm::vec2*)((uint8_t*)pos + 0 * stride) = DesignToNDC(quad.TopLeft);
+  *(glm::vec2*)((uint8_t*)pos + 1 * stride) = DesignToNDC(quad.BottomLeft);
+  *(glm::vec2*)((uint8_t*)pos + 2 * stride) = DesignToNDC(quad.BottomRight);
+  *(glm::vec2*)((uint8_t*)pos + 3 * stride) = DesignToNDC(quad.TopRight);
 }
 
 void BaseRenderer::QuadSetUV(const CornersQuad bounds,
