@@ -536,8 +536,11 @@ void Renderer::DrawMaskedSpriteOverlay(
 
   // OK, all good, make quad
 
+  CornersQuad normalizedMaskDest = CornersQuad(maskDest).Scale(
+      {1.0f / mask.Sheet.DesignWidth, 1.0f / mask.Sheet.DesignHeight},
+      {0.0f, 0.0f});
   InsertVerticesQuad(spriteDest, textureLocations[0], sprite.NormalizedBounds(),
-                     tints, textureLocations[1], mask.NormalizedBounds());
+                     tints, textureLocations[1], normalizedMaskDest);
 }
 
 void Renderer::DrawVertices(const SpriteSheet& sheet,
