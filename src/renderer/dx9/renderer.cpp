@@ -781,7 +781,7 @@ void Renderer::SetBlendMode(RendererBlendMode blendMode) {
       Device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
       break;
     case RendererBlendMode::Additive:
-      Device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
+      Device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
       Device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
       break;
   }

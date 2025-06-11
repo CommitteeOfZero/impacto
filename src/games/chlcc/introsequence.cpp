@@ -236,8 +236,10 @@ void IntroSequence::DrawBouncingStar() const {
 }
 
 void IntroSequence::DrawExplodingStars() const {
+  Renderer->SetBlendMode(RendererBlendMode::Additive);
+
   glm::vec2 origin = glm::vec2(DesignWidth, DesignHeight) / 2.0f -
-                     IntroBouncingStarSprite.Bounds.GetSize() / 2.0f;
+                     IntroExplodingStarSprite.Bounds.GetSize() / 2.0f;
 
   constexpr size_t NUM_STARS = 5;
   for (size_t i = 0; i < NUM_STARS; i++) {
@@ -247,7 +249,7 @@ void IntroSequence::DrawExplodingStars() const {
                              IntroExplodingStarAnimationDistance;
     glm::vec2 position = origin + displacement;
 
-    float opacity = 1 - ExplodingStarAnimation.Progress;
+    float opacity = std::min(2 - ExplodingStarAnimation.Progress * 2, 1.0f);
     float angle = M_PI * 2 * ExplodingStarRotationAnimation.Progress;
     if (i >= 3) angle = -angle;
 
@@ -258,6 +260,8 @@ void IntroSequence::DrawExplodingStars() const {
     Renderer->DrawSprite(IntroExplodingStarSprite, dest,
                          {1.0f, 1.0f, 1.0f, opacity});
   }
+
+  Renderer->SetBlendMode(RendererBlendMode::Normal);
 }
 
 void IntroSequence::DrawFallingStars() const {
