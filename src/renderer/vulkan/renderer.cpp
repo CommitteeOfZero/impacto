@@ -1135,7 +1135,8 @@ YUVFrame* Renderer::CreateYUVFrame(float width, float height) {
 void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
                           const glm::mat4 transformation,
                           const std::span<const glm::vec4, 4> tints,
-                          const bool inverted, const bool disableBlend) {
+                          const bool inverted, const bool disableBlend,
+                          const bool textureWrapRepeat) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawSprite() called before BeginFrame()\n");
