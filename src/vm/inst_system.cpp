@@ -692,6 +692,10 @@ VmInstruction(InstMSinit) {
     ScrWork[SW_SHORTCUT] = 0xFFFF;
   }
 
+  if (Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
+    ScrWork[SW_INTROVOICE] = 999;
+  }
+
   ScrWork[SW_SINSTALL_ALL] = 100;
 }
 VmInstruction(InstSaveSlot) {
