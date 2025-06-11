@@ -195,7 +195,10 @@ void SystemMenu::Render() {
         CornersQuad(BGDispOffsetTopLeft, BGDispOffsetBottomLeft,
                     BGDispOffsetTopRight, BGDispOffsetBottomRight)
             .Transform(transformation);
-    Renderer->DrawSprite(offsetSystemMenuBG, bgDisp);
+    Renderer->DrawSprite(offsetSystemMenuBG, bgDisp, glm::mat4(1.0f),
+                         std::array{glm::vec4(1.0f), glm::vec4(1.0f),
+                                    glm::vec4(1.0f), glm::vec4(1.0f)},
+                         false, false, true);
 
     if (!GetFlag(SF_SYSTEMMENUDIRECT)) {
       const CornersQuad frameDisp =

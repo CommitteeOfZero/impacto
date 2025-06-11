@@ -378,7 +378,8 @@ std::vector<TextureUnit> Renderer::GetTextureLocations(
 void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
                           const glm::mat4 transformation,
                           const std::span<const glm::vec4, 4> tints,
-                          const bool inverted, const bool disableBlend) {
+                          const bool inverted, const bool disableBlend,
+                          const bool textureWrapRepeat) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawSprite() called before BeginFrame()\n");
@@ -386,6 +387,14 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
   }
 
   if (sprite.Sheet.IsScreenCap) Flush();
+
+  if (textureWrapRepeat) {
+    Flush();
+    const GLuint sampler = TextureUnits[0]->GetSampler();
+    glBindSampler(0, sampler);
+    glSamplerParameteri(sampler, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glSamplerParameteri(sampler, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  }
 
   if (disableBlend) {
     Flush();
@@ -427,6 +436,14 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
   if (disableBlend) {
     Flush();
     glEnable(GL_BLEND);
+  }
+
+  if (textureWrapRepeat) {
+    Flush();
+    const GLuint sampler = TextureUnits[0]->GetSampler();
+    glBindSampler(0, sampler);
+    glSamplerParameteri(sampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glSamplerParameteri(sampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   }
 }
 

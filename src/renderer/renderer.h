@@ -56,7 +56,8 @@ class BaseRenderer {
   virtual void DrawSprite(const Sprite& sprite, const CornersQuad& dest,
                           glm::mat4 transformation,
                           std::span<const glm::vec4, 4> tints,
-                          bool inverted = false, bool disableBlend = false) = 0;
+                          bool inverted = false, bool disableBlend = false,
+                          bool textureWrapRepeat = false) = 0;
 
   void DrawSprite(const Sprite& sprite, const CornersQuad& dest,
                   glm::mat4 transformation = glm::mat4(1.0f),
