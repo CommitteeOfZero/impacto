@@ -39,6 +39,26 @@ class TextureUnit {
         Sampler(std::move(other.Sampler)),
         Info(std::move(other.Info)) {}
 
+  TextureUnit& operator=(const TextureUnit& other) {
+    if (Info.use_count() == 1 && &other != this) glDeleteSamplers(1, &Sampler);
+
+    Unit = other.Unit;
+    Sampler = other.Sampler;
+    Info = other.Info;
+
+    return *this;
+  }
+
+  TextureUnit& operator=(TextureUnit&& other) {
+    if (Info.use_count() == 1 && &other != this) glDeleteSamplers(1, &Sampler);
+
+    Unit = std::move(other.Unit);
+    Sampler = std::move(other.Sampler);
+    Info = std::move(other.Info);
+
+    return *this;
+  }
+
   GLuint GetUnit() const { return Unit; }
   operator GLuint() const { return GetUnit(); }
 
@@ -62,10 +82,9 @@ class TextureUnit {
   void Reserve() { Info->Flushed = false; }
 
  private:
-  const GLuint Unit;
+  GLuint Unit;
   GLuint Sampler;
-  const std::shared_ptr<TextureUnitInfo> Info =
-      std::make_shared<TextureUnitInfo>();
+  std::shared_ptr<TextureUnitInfo> Info = std::make_shared<TextureUnitInfo>();
 };
 
 }  // namespace OpenGL
