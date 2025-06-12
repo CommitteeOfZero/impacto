@@ -56,7 +56,7 @@ struct TextTableEntry {
 inline TextTableEntry TextTable[16];
 
 #ifndef IMPACTO_DISABLE_IMGUI
-inline uint32_t DebugThreadId = -1;
+inline uint32_t DebugThreadId = std::numeric_limits<uint32_t>::max();
 inline bool DebuggerBreak = false;
 inline bool DebuggerStepRequest = false;
 inline bool DebuggerContinueRequest = false;

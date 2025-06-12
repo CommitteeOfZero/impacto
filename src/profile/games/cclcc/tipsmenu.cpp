@@ -70,7 +70,7 @@ void Configure() {
   AdvanceFocusTimeInterval = EnsureGetMember<float>("AdvanceFocusTimeInterval");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<int>("DrawType"));
+      EnsureGetMember<uint8_t>("DrawType"));
 
   UI::TipsMenuPtr = new UI::CCLCC::TipsMenu();
   UI::Menus[drawType].push_back(UI::TipsMenuPtr);

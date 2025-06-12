@@ -20,8 +20,6 @@ void DX9YUVFrame::Init(float width, float height) {
 }
 
 void DX9YUVFrame::Submit(const void* luma, const void* cb, const void* cr) {
-  int imageSize = 0;
-
   D3DLOCKED_RECT lockRect;
   auto err = Luma->LockRect(0, &lockRect, NULL, 0);
   memcpy(lockRect.pBits, luma, (size_t)(Width * Height));

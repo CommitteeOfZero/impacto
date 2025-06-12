@@ -84,7 +84,7 @@ void Configure() {
   LibraryMaskAlpha = EnsureGetMember<float>("LibraryMaskAlpha");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<int>("DrawType"));
+      EnsureGetMember<uint8_t>("DrawType"));
 
   SnapPhotoSpriteHover = EnsureGetMember<Sprite>("SnapPhotoSpriteHover");
   SnapPhotoSpriteSelect = EnsureGetMember<Sprite>("SnapPhotoSpriteSelect");
@@ -170,10 +170,10 @@ void Configure() {
   MusicNowPlayingTextOutlineColor =
       EnsureGetMember<uint32_t>("MusicNowPlayingTextOutlineColor");
   GetMemberArray<Sprite>(MusicPlayingModeSprites.data(),
-                         MusicMenuPlayingMode::_size(),
+                         (uint32_t)MusicMenuPlayingMode::_size(),
                          "MusicPlayingModeSprites");
   GetMemberArray<RectF>(MusicPlayingModeDisplayBounds.data(),
-                        MusicMenuPlayingMode::_size(),
+                        (uint32_t)MusicMenuPlayingMode::_size(),
                         "MusicPlayingModeDisplayBounds");
 
   MovieDiskSprites = GetMemberVector<Sprite>("MovieDiskSprites");

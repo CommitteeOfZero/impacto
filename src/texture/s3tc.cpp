@@ -186,14 +186,18 @@ void DecompressBlockDXT5(uint32_t startX, uint32_t startY, uint32_t imageWidth,
         a = alpha1;
       } else {
         if (alpha0 > alpha1) {
-          a = ((8 - alphaCode) * alpha0 + (alphaCode - 1) * alpha1) / 7;
+          a = (uint8_t)(((8 - alphaCode) * alpha0 + (alphaCode - 1) * alpha1) /
+                        7);
         } else {
           if (alphaCode == 6)
             a = 0;
           else if (alphaCode == 7)
             a = 255;
-          else
-            a = ((6 - alphaCode) * alpha0 + (alphaCode - 1) * alpha1) / 5;
+          else {
+            a = (uint8_t)(((6 - alphaCode) * alpha0 +
+                           (alphaCode - 1) * alpha1) /
+                          5);
+          }
         }
       }
 

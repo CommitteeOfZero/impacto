@@ -9,7 +9,6 @@ namespace Impacto {
 namespace UI {
 namespace MO6TW {
 
-using namespace Impacto::UI::MO6TW;
 using namespace Impacto::Profile::BacklogMenu;
 using namespace Impacto::Profile::MO6TW::BacklogMenu;
 

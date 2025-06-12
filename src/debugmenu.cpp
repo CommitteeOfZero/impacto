@@ -2,6 +2,7 @@
 
 #include <imgui.h>
 #include <sstream>
+#include <limits>
 
 #include "game.h"
 #include "mem.h"
@@ -219,7 +220,7 @@ void Show() {
       ShowSingleWindow();
     }
   } else {
-    Vm::DebugThreadId = -1;
+    Vm::DebugThreadId = std::numeric_limits<uint32_t>::max();
   }
 }
 
@@ -349,7 +350,6 @@ void ShowScriptVariablesEditor() {
   if (ImGui::CollapsingHeader("ScrWork Editor")) {
     for (int i = ScrWorkIndexStart; i <= ScrWorkIndexEnd; i++) {
       ImGui::PushID(i);
-      float width = 0.0f;
       char buf[32];
       snprintf(buf, 32, "ScrWork[%04d]", i);
       int one = 1;
@@ -409,7 +409,7 @@ void ShowScriptDebugger() {
 
   char comboPreviewValue[128];
   auto groupType = ThreadGroupType::_from_integral_nothrow(
-      Vm::ThreadPool[ScriptDebuggerSelectedThreadId].GroupId);
+      (uint8_t)Vm::ThreadPool[ScriptDebuggerSelectedThreadId].GroupId);
   if (groupType) {
     snprintf(
         comboPreviewValue, 128, "[%s][%d] %s", groupType.value()._to_string(),
@@ -432,8 +432,8 @@ void ShowScriptDebugger() {
     for (int i = 0; i < Vm::MaxThreads; i++) {
       if (Vm::ThreadPool[i].Ip != 0) {
         const bool isSelected = (ScriptDebuggerSelectedThreadId == i);
-        auto groupType =
-            ThreadGroupType::_from_integral_nothrow(Vm::ThreadPool[i].GroupId);
+        groupType = ThreadGroupType::_from_integral_nothrow(
+            (uint8_t)Vm::ThreadPool[i].GroupId);
         if (groupType) {
           snprintf(comboPreviewValue, 128, "[%s][%d] %s",
                    groupType.value()._to_string(), Vm::ThreadPool[i].Id,
@@ -470,12 +470,13 @@ void ShowScriptDebugger() {
   if (ImGui::BeginCombo("Script##vmScriptCombo", comboPreviewValue,
                         ImGuiComboFlags_WidthFitPreview)) {
     for (auto const& file : ScriptFilesListing) {
-      const bool isSelected = (ScriptDebuggerSelectedScriptId == file.first);
+      const bool isSelected =
+          (static_cast<uint32_t>(ScriptDebuggerSelectedScriptId) == file.first);
       snprintf(comboPreviewValue, 128, "[%d] %s", file.first,
                file.second.c_str());
       if (ImGui::Selectable(comboPreviewValue, isSelected)) {
         ScriptDebuggerSelectedScriptId = file.first;
-        if (ScriptDebuggerSelectedScriptId !=
+        if (static_cast<uint32_t>(ScriptDebuggerSelectedScriptId) !=
             Vm::LoadedScriptMetas[Vm::ThreadPool[ScriptDebuggerSelectedThreadId]
                                       .ScriptBufferId]
                 .Id) {
@@ -518,7 +519,7 @@ void ShowScriptDebugger() {
     ImGui::TableNextColumn();
     ImGui::CheckboxFlags("Message",
                          &Vm::ThreadPool[ScriptDebuggerSelectedThreadId].Flags,
-                         Vm::TF_Message);
+                         (unsigned int)Vm::TF_Message);
     ImGui::EndTable();
   }
 
@@ -549,8 +550,8 @@ void ShowScriptDebugger() {
                 Vm::ThreadPool[ScriptDebuggerSelectedThreadId].Alpha);
 
     ImGui::TableNextColumn();
-    auto groupType = ThreadGroupType::_from_integral_nothrow(
-        Vm::ThreadPool[ScriptDebuggerSelectedThreadId].GroupId);
+    groupType = ThreadGroupType::_from_integral_nothrow(
+        (uint8_t)Vm::ThreadPool[ScriptDebuggerSelectedThreadId].GroupId);
     if (groupType) {
       ImGui::Text("Group: %s", groupType.value()._to_string());
     } else {
@@ -647,7 +648,7 @@ void ShowScriptDebugger() {
               ImVec2(ImGui::GetContentRegionAvail().x,
                      ImGui::GetContentRegionAvail().y * 0.9f))) {
         ImGuiListClipper clipper;
-        clipper.Begin(ScriptDebugSource[scriptId].size());
+        clipper.Begin((int)ScriptDebugSource[scriptId].size());
         while (clipper.Step()) {
           for (int row = clipper.DisplayStart; row < clipper.DisplayEnd;
                row++) {
@@ -714,7 +715,8 @@ void ShowScriptDebugger() {
       ImGui::Text(
           "%s - %08X",
           Vm::LoadedScriptMetas[thd.ReturnScriptBufferIds[i]].FileName.c_str(),
-          returnAddress - Vm::ScriptBuffers[thd.ReturnScriptBufferIds[i]]);
+          (void*)(returnAddress -
+                  Vm::ScriptBuffers[thd.ReturnScriptBufferIds[i]]));
       ImGui::PopID();
     }
 
@@ -765,7 +767,7 @@ static void ShowSprite(const Sprite* sprite) {
     float texWidth = sprite->Sheet.DesignWidth;
     float texHeight = sprite->Sheet.DesignHeight;
     ImGui::Image(
-        (ImTextureID)sprite->Sheet.Texture,
+        (ImTextureID)(intptr_t)sprite->Sheet.Texture,
         ImVec2(sprite->Bounds.Width, sprite->Bounds.Height),
         ImVec2(sprite->Bounds.X / texWidth, sprite->Bounds.Y / texHeight),
         ImVec2((sprite->Bounds.X + sprite->Bounds.Width) / texWidth,
@@ -792,10 +794,10 @@ void ShowObjects() {
         // Only OpenGL for now
         if (Profile::ActiveRenderer == +RendererType::OpenGL) {
           ImVec2 pos = ImGui::GetCursorScreenPos();
-          ImGui::Image((ImTextureID)spriteSheet.second.Texture,
+          ImGui::Image((ImTextureID)(size_t)spriteSheet.second.Texture,
                        ImVec2(texWidth, texHeight));
-          ImageTooltip(pos, (ImTextureID)spriteSheet.second.Texture, texWidth,
-                       texHeight);
+          ImageTooltip(pos, (ImTextureID)(size_t)spriteSheet.second.Texture,
+                       texWidth, texHeight);
         }
 
         ImGui::Spacing();
@@ -841,11 +843,13 @@ void ShowObjects() {
           // Only OpenGL for now
           if (Profile::ActiveRenderer == +RendererType::OpenGL) {
             ImVec2 pos = ImGui::GetCursorScreenPos();
-            ImGui::Image((ImTextureID)Backgrounds[i].BgSprite.Sheet.Texture,
-                         ImVec2(texWidth, texHeight));
-            ImageTooltip(pos,
-                         (ImTextureID)Backgrounds[i].BgSprite.Sheet.Texture,
-                         texWidth, texHeight);
+            ImGui::Image(
+                (ImTextureID)(intptr_t)Backgrounds[i].BgSprite.Sheet.Texture,
+                ImVec2(texWidth, texHeight));
+            ImageTooltip(
+                pos,
+                (ImTextureID)(intptr_t)Backgrounds[i].BgSprite.Sheet.Texture,
+                texWidth, texHeight);
           }
         }
 
@@ -892,10 +896,12 @@ void ShowObjects() {
           // Only OpenGL for now
           if (Profile::ActiveRenderer == +RendererType::OpenGL) {
             ImVec2 pos = ImGui::GetCursorScreenPos();
-            ImGui::Image((ImTextureID)Characters2D[i].CharaSprite.Sheet.Texture,
+            ImGui::Image((ImTextureID)(intptr_t)Characters2D[i]
+                             .CharaSprite.Sheet.Texture,
                          ImVec2(texWidth, texHeight));
             ImageTooltip(pos,
-                         (ImTextureID)Characters2D[i].CharaSprite.Sheet.Texture,
+                         (ImTextureID)(intptr_t)Characters2D[i]
+                             .CharaSprite.Sheet.Texture,
                          texWidth, texHeight);
           }
         }

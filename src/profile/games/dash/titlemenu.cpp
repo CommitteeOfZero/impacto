@@ -20,7 +20,7 @@ void Configure() {
   PressToStartAnimation.LoopMode = AnimationLoopMode::ReverseDirection;
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<int>("DrawType"));
+      EnsureGetMember<uint8_t>("DrawType"));
 
   UI::TitleMenuPtr = new UI::Dash::TitleMenu();
   UI::Menus[drawType].push_back(UI::TitleMenuPtr);

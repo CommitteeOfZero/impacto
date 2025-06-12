@@ -402,9 +402,9 @@ void TitleMenu::ExplodeScreenUpdate() {
   }
   TitleAnimationSprite.Show = true;
   TitleAnimationSprite.Face =
-      (TitleAnimationStartFrame +
-       (TitleAnimationFrameCount * TitleAnimation.Progress)) *
-      65536;
+      (int)((TitleAnimationStartFrame +
+             (TitleAnimationFrameCount * TitleAnimation.Progress)) *
+            65536);
   TitleAnimationSprite.UpdateStatesToDraw();
 }
 

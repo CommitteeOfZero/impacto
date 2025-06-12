@@ -303,11 +303,11 @@ void YesNoTrigger::Render() {
                                    .Translate(starPos);
       Renderer->DrawSprite(StarChip, dest, chipTint);
     }
-    Renderer->DrawSprite(*ActiveYesChip,
-                         Rect(chipYesX, chipYesY, yesChipWidthX, yesChipWidthY),
-                         chipTint);
+    Renderer->DrawSprite(
+        *ActiveYesChip, RectF(chipYesX, chipYesY, yesChipWidthX, yesChipWidthY),
+        chipTint);
     Renderer->DrawSprite(*ActiveNoChip,
-                         Rect(chipNoX, chipNoY, noChipWidthX, noChipWidthY),
+                         RectF(chipNoX, chipNoY, noChipWidthX, noChipWidthY),
                          chipTint);
   }
   glm::vec4 maskTint = glm::vec4(1.0f, 1.0f, 1.0f, 160 / 256.0f);

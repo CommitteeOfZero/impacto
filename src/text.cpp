@@ -282,7 +282,7 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, int nextLineStart,
 
   // Lay out all ruby chunks on this line (before we change CurrentLineTop and
   // thus can't find where to put them)
-  for (int i = FirstRubyChunkOnLine; i < RubyChunkCount; i++) {
+  for (size_t i = FirstRubyChunkOnLine; i < RubyChunkCount; i++) {
     if (RubyChunks[i].FirstBaseCharacter >= nextLineStart) break;
 
     uint8_t* oldIp = ctx->Ip;
@@ -341,7 +341,7 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, int nextLineStart,
     lineHeight = Impacto::Profile::CHLCC::DialogueBox::REVLineHeight;
   }
   // Glyphs of different font sizes are bottom-aligned within the line
-  for (int i = LastLineStart; i < nextLineStart; i++) {
+  for (size_t i = LastLineStart; i < nextLineStart; i++) {
     if (Glyphs[i].DestRect.Height > lineHeight)
       lineHeight = Glyphs[i].DestRect.Height;
   }
@@ -356,7 +356,7 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, int nextLineStart,
     marginXOffset = (Glyphs[LastLineStart].DestRect.X - boxBounds.X) *
                     ((FontSize / DefaultFontSize) - 1.0f);
   }
-  for (int i = LastLineStart; i < nextLineStart; i++) {
+  for (size_t i = LastLineStart; i < nextLineStart; i++) {
     Glyphs[i].DestRect.Y = CurrentLineTop + CurrentLineTopMargin +
                            (lineHeight - Glyphs[i].DestRect.Height);
     float lastGlyphX = Glyphs[nextLineStart - 1].DestRect.X +
@@ -404,7 +404,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
   }
   PrevMode = Mode;
 
-  int typewriterStart = Glyphs.size();
+  size_t typewriterStart = Glyphs.size();
 
   // TODO should we reset HasName here?
   // It shouldn't really matter since names are an ADV thing and we clear before
@@ -415,7 +415,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
   TextParseState State = TPS_Normal;
   // TODO respect alignment
   Alignment = TextAlignment::Left;
-  int LastWordStart = Glyphs.size();
+  size_t LastWordStart = Glyphs.size();
   LastLineStart = Glyphs.size();
   DialogueColorPair CurrentColors = ColorTable[0];
   if (Mode == DPM_REV) CurrentColors = ColorTable[REVColor];
@@ -449,7 +449,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
     switch (token.Type) {
       case STT_LineBreak:
       case STT_AltLineBreak: {
-        FinishLine(ctx, Glyphs.size(), BoxBounds, Alignment);
+        FinishLine(ctx, (int)Glyphs.size(), BoxBounds, Alignment);
         LastWordStart = Glyphs.size();
         CurrentX = 0.0f;
         break;
@@ -466,7 +466,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
         break;
       }
       case STT_RubyTextStart: {
-        EndRubyBase(Glyphs.size() - 1);
+        EndRubyBase((int)Glyphs.size() - 1);
         State = TPS_Ruby;
         break;
       }
@@ -481,7 +481,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
       case STT_RubyTextEnd: {
         // At least S;G uses [ruby-base]link text[ruby-text-end] for mails, with
         // no ruby-text-start
-        EndRubyBase(Glyphs.size() - 1);
+        EndRubyBase((int)Glyphs.size() - 1);
         State = TPS_Normal;
         break;
       }
@@ -496,13 +496,13 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
       case STT_SetLeftMargin: {
         float addX = token.Val_Uint16;
         if (CurrentX + addX > BoxBounds.Width) {
-          FinishLine(ctx, Glyphs.size(), BoxBounds, Alignment);
+          FinishLine(ctx, (int)Glyphs.size(), BoxBounds, Alignment);
           LastWordStart = Glyphs.size();
           addX -= (BoxBounds.Width - CurrentX);
           CurrentX = 0.0f;
         }
         while (addX > BoxBounds.Width) {
-          FinishLine(ctx, Glyphs.size(), BoxBounds, Alignment);
+          FinishLine(ctx, (int)Glyphs.size(), BoxBounds, Alignment);
           addX -= BoxBounds.Width;
         }
         CurrentX += addX;
@@ -519,7 +519,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
       case STT_RubyBaseStart: {
         CurrentRubyChunk = RubyChunkCount;
         RubyChunkCount++;
-        RubyChunks[CurrentRubyChunk].FirstBaseCharacter = Glyphs.size();
+        RubyChunks[CurrentRubyChunk].FirstBaseCharacter = (int)Glyphs.size();
         LastWordStart = Glyphs.size();
         break;
       }
@@ -585,19 +585,19 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
               // Word doesn't fit on a line, gotta break in the middle of it
               ptg.DestRect.X = BoxBounds.X;
               CurrentX = ptg.DestRect.Width;
-              FinishLine(ctx, Glyphs.size() - 1, BoxBounds, Alignment);
+              FinishLine(ctx, (int)Glyphs.size() - 1, BoxBounds, Alignment);
               LastWordStart = Glyphs.size() - 1;
             } else {
-              int firstNonSpace = LastWordStart;
+              size_t firstNonSpace = LastWordStart;
               // Skip spaces at start of (new) line
-              for (int i = LastWordStart; i < Glyphs.size(); i++) {
+              for (size_t i = LastWordStart; i < Glyphs.size(); i++) {
                 if (!(Glyphs[i].Flags() & CharacterTypeFlags::Space)) break;
                 firstNonSpace = i + 1;
               }
-              FinishLine(ctx, firstNonSpace, BoxBounds, Alignment);
+              FinishLine(ctx, (int)firstNonSpace, BoxBounds, Alignment);
               LastWordStart = firstNonSpace;
               CurrentX = 0.0f;
-              for (int i = firstNonSpace; i < Glyphs.size(); i++) {
+              for (size_t i = firstNonSpace; i < Glyphs.size(); i++) {
                 Glyphs[i].DestRect.X = BoxBounds.X + CurrentX;
                 CurrentX += Glyphs[i].DestRect.Width;
               }
@@ -617,7 +617,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
     }
   } while (token.Type != STT_EndOfString);
 
-  FinishLine(ctx, Glyphs.size(), BoxBounds, Alignment);
+  FinishLine(ctx, (int)Glyphs.size(), BoxBounds, Alignment);
   CurrentX = 0.0f;
 
   RectF boundingBox = Glyphs.empty() ? RectF() : Glyphs.begin()->DestRect;
@@ -676,12 +676,12 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
         std::unique_ptr<Audio::AudioStream>(voice), false, 0.0f);
   }
 
-  int typewriterCt = Glyphs.size() - typewriterStart;
+  size_t typewriterCt = Glyphs.size() - typewriterStart;
   float typewriterDur =
       (Profile::ConfigSystem::SyncVoice && voice != nullptr)
           ? Audio::Channels[Audio::AC_VOICE0]->DurationInSeconds()
           : (float)typewriterCt / Profile::ConfigSystem::TextSpeed;
-  Typewriter.Start(typewriterStart, typewriterCt, typewriterDur);
+  Typewriter.Start((int)typewriterStart, (int)typewriterCt, typewriterDur);
 }
 
 void DialoguePage::Update(float dt) {

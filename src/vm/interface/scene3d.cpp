@@ -19,10 +19,10 @@ static void UpdateScrWorkAnimations(float dt) {
   for (size_t i = 0; i < CurrentScrWorkAnimations.size(); i++) {
     int id = CurrentScrWorkAnimations[i];
     ScrWorkAnimations[id].MainAnimation.Update(dt);
-    for (size_t i = 0; i < ScrWorkAnimations[id].AnimationData.size(); i++) {
-      ScrWork[ScrWorkAnimations[id].AnimationData[i].Target] = glm::mix(
-          ScrWorkAnimations[id].AnimationData[i].From,
-          ScrWorkAnimations[id].AnimationData[i].To,
+    for (ScrWorkAnimationData animationData :
+         ScrWorkAnimations[id].AnimationData) {
+      ScrWork[animationData.Target] = glm::mix(
+          animationData.From, animationData.To,
           std::pow(ScrWorkAnimations[id].MainAnimation.Progress - 1, 3) + 1);
     }
     if (ScrWorkAnimations[id].MainAnimation.IsIn()) {

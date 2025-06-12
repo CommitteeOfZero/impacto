@@ -352,11 +352,11 @@ bool TextureLoadBNTX(Stream* stream, Texture* outTexture) {
     (void)Reserved48;
     uint32_t Reserved4C = ReadLE<uint32_t>(stream);
     (void)Reserved4C;
-    uint32_t DataLength = ReadLE<uint32_t>(stream);
+    DataLength = ReadLE<uint32_t>(stream);
     uint32_t Alignment = ReadLE<uint32_t>(stream);
     uint32_t ChannelTypes = ReadLE<uint32_t>(stream);
     uint32_t TextureType2 = ReadLE<uint32_t>(stream);
-    uint64_t NameAddress = ReadLE<uint64_t>(stream);
+    NameAddress = (uint32_t)ReadLE<uint64_t>(stream);
     uint64_t ParentAddress = ReadLE<uint64_t>(stream);
     (void)ParentAddress;
     uint64_t PtrsAddress = ReadLE<uint64_t>(stream);

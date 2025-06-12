@@ -184,7 +184,7 @@ void BaseRenderer::DrawProcessedText_BasicFont(
   vertices.resize(vertexCount);
   indices.resize(indexCount);
 
-  for (size_t i = 0; i < text.size(); i++) {
+  for (uint16_t i = 0; i < text.size(); i++) {
     const uint16_t bl = i * 4;
     const uint16_t tl = bl + 1;
     const uint16_t tr = bl + 2;
@@ -214,7 +214,7 @@ void BaseRenderer::DrawProcessedText_BasicFont(
     InsertQuad(std::span<VertexBufferSprites, 4>(vertices.begin() + i * 4, 4),
                dest, destUV, color, maskUV);
   }
-  uint16_t maxIndex = vertexCount;
+  uint16_t maxIndex = (uint16_t)vertexCount;
 
   if (outlineMode != RendererOutlineMode::None) {
     // Add outline to the front of the buffers
@@ -223,7 +223,7 @@ void BaseRenderer::DrawProcessedText_BasicFont(
     indices.reserve(indexCount * 2);
     std::transform(indices.begin(), indices.end(), std::back_inserter(indices),
                    [maxIndex](uint16_t index) { return index + maxIndex; });
-    maxIndex += vertexCount;
+    maxIndex += (uint16_t)vertexCount;
 
     // Set the color of the outline
     for (size_t i = 0; i < text.size(); i++) {
@@ -257,7 +257,7 @@ void BaseRenderer::DrawProcessedText_BasicFont(
         std::transform(indices.begin(), indices.begin() + indexCount,
                        indices.begin() + indexCount * 2,
                        [maxIndex](uint16_t index) { return index + maxIndex; });
-        maxIndex += vertexCount;
+        maxIndex += (uint16_t)vertexCount;
 
         // Translate outlines
         const auto tlOutlineStart = vertices.begin();
@@ -312,7 +312,7 @@ void BaseRenderer::DrawProcessedText_LBFont(
   std::vector<VertexBufferSprites> vertices(vertexCount);
   std::vector<uint16_t> indices(indexCount);
 
-  for (size_t i = 0; i < text.size(); i++) {
+  for (uint16_t i = 0; i < text.size(); i++) {
     const uint16_t bl = i * 4;
     const uint16_t tl = bl + 1;
     const uint16_t tr = bl + 2;

@@ -46,7 +46,7 @@ class Animation {
 
   void Finish() {
     State = AnimationState::Stopped;
-    Progress = Direction == +AnimationDirection::In ? 1 : 0;
+    Progress = Direction == +AnimationDirection::In ? 1.0f : 0.0f;
     FinishImpl();
   }
 

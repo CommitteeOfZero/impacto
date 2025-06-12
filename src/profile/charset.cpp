@@ -17,7 +17,7 @@ void Load() {
     PushInitialIndex();
     while (PushNextTableElement() != 0) {
       int i = EnsureGetKey<int32_t>();
-      Flags[i] = EnsureGetArrayElement<int>();
+      Flags[i] = EnsureGetArrayElement<uint8_t>();
       Pop();
     }
 
@@ -35,8 +35,7 @@ void Load() {
       std::string::iterator strEnd = key.end();
       auto codePoint = utf8::next(strIt, strEnd);
 
-      uint32_t test = EnsureGetArrayElement<uint32_t>();
-      CharacterToSc3[codePoint] = test;
+      CharacterToSc3[codePoint] = EnsureGetArrayElement<uint16_t>();
 
       Pop();
     }

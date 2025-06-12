@@ -493,7 +493,7 @@ Model* Model::Load(uint32_t modelId) {
     stream->Seek(2, RW_SEEK_CUR);
     bone->Parent = ReadLE<int16_t>(stream);
     if (bone->Parent < 0) {
-      result->RootBones[result->RootBoneCount] = i;
+      result->RootBones[result->RootBoneCount] = (int16_t)i;
       result->RootBoneCount++;
       assert(result->RootBoneCount < ModelMaxRootBones);
     }
@@ -610,16 +610,17 @@ Model* Model::Load(uint32_t modelId) {
 
         Stream* animStream = new MemoryStream(animData, animSize, true);
         animStream->Meta.FileName = animName;
-        ModelAnimation* anim = ModelAnimation::Load(animStream, result, animId);
+        ModelAnimation* modelAnim =
+            ModelAnimation::Load(animStream, result, animId);
         delete animStream;
-        if (anim == 0) {
+        if (modelAnim == nullptr) {
           ImpLog(LogLevel::Error, LogChannel::ModelLoad,
                  "Could not parse animation %h for model {:d}\n", animId,
                  modelId);
           continue;
         }
         assert(result->Animations.count(animId) == 0);
-        result->Animations[animId] = anim;
+        result->Animations[animId] = modelAnim;
         result->AnimationCount++;
       }
     }
@@ -645,7 +646,7 @@ Model* Model::Load(uint32_t modelId) {
 // WARNING: Breaks with DaSH
 Model* Model::MakePlane() {
   Model* result = new Model;
-  result->Id = -1;
+  result->Id = std::numeric_limits<uint32_t>::max();
   result->Type = ModelType_Character;
   result->MeshCount = 1;
   result->VertexCount = 4;

@@ -52,7 +52,8 @@ class BaseRenderer {
                                  int height) = 0;
 
   std::vector<uint8_t> GetSpriteSheetImage(SpriteSheet const& sheet) {
-    std::vector<uint8_t> result(sheet.DesignWidth * sheet.DesignHeight * 4);
+    std::vector<uint8_t> result(
+        (size_t)(sheet.DesignWidth * sheet.DesignHeight * 4));
     GetSpriteSheetImage(sheet, result);
     return result;
   };

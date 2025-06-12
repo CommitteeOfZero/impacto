@@ -37,7 +37,7 @@ int64_t MemoryMappedFileStream<M>::Read(void* buffer, int64_t sz) {
   if (sz < 0) return IoError_Fail;
   if (Position >= Meta.Size) return IoError_Eof;
 
-  int bytesToRead = std::min(sz, Meta.Size - Position);
+  size_t bytesToRead = std::min(sz, Meta.Size - Position);
   assert(mmapFile.data());
   // Lock only if we are in read/write mode
   if constexpr (M == AccessMode::write) {
@@ -85,7 +85,7 @@ IoError MemoryMappedFileStream<M>::Duplicate(Stream** outStream) {
 }
 
 template <AccessMode M>
-int64_t MemoryMappedFileStream<M>::Write(void* buffer, int64_t sz, int cnt) {
+int64_t MemoryMappedFileStream<M>::Write(void* buffer, int64_t sz, size_t cnt) {
   if constexpr (M == AccessMode::read) {
     assert(false);
     return 0;

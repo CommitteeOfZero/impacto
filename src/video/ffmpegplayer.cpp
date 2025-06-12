@@ -117,7 +117,7 @@ void FFmpegPlayer::OpenCodec(std::optional<FFmpegStream<MediaType>>& streamOpt,
   double duration = avStream.duration().seconds();
   double frameMultiplier = (rate);
   streamOpt.emplace(std::move(avStream), std::move(decoderContext),
-                    frameMultiplier * duration);
+                    (int)(frameMultiplier * duration));
 };
 
 template void FFmpegPlayer::OpenCodec(
@@ -169,10 +169,10 @@ void FFmpegPlayer::Play(Io::Stream* stream, bool looping, bool alpha) {
   for (size_t i = 0; i < FormatContext.streamsCount(); ++i) {
     auto st = FormatContext.stream(i);
     if (st.isVideo()) {
-      videoStreamId = i;
+      videoStreamId = (int)i;
       videoStream = st;
     } else if (st.isAudio()) {
-      audioStreamId = i;
+      audioStreamId = (int)i;
       audioStream = st;
     } else {
       st.raw()->discard = AVDISCARD_ALL;

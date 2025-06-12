@@ -9,8 +9,8 @@
 
 namespace Impacto {
 struct VoiceMeta {
-  uint16_t dataIndex;
-  uint16_t voiceLengthSecTimes6;
+  uint16_t DataIndex;
+  uint16_t VoiceLengthSecTimes6;
 };
 
 class VoiceTable : public Loadable<VoiceTable, bool, uint32_t> {
@@ -18,7 +18,7 @@ class VoiceTable : public Loadable<VoiceTable, bool, uint32_t> {
 
  public:
   uint8_t GetVoiceData(uint32_t id, size_t index) {
-    return lipSyncData[tableOfContents[id].dataIndex * 4 + index];
+    return LipSyncData[TableOfContents[id].DataIndex * 4 + index];
   }
 
  protected:
@@ -27,9 +27,9 @@ class VoiceTable : public Loadable<VoiceTable, bool, uint32_t> {
   void MainThreadOnLoad(bool result);
 
  private:
-  int voiceFileCount = 0;
-  std::map<int, VoiceMeta> tableOfContents;
-  std::vector<uint8_t> lipSyncData;
+  int VoiceFileCount = 0;
+  std::map<size_t, VoiceMeta> TableOfContents;
+  std::vector<uint8_t> LipSyncData;
 };
 
 inline VoiceTable VoiceTableData;

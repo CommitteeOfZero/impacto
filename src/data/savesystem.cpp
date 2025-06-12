@@ -152,16 +152,14 @@ uint8_t GetSaveFlags(SaveType type, int id) {
 }
 
 tm const& GetSaveDate(SaveType type, int id) {
-  static tm t = []() {
-    tm t;
-    t.tm_sec = 0;
-    t.tm_min = 0;
-    t.tm_hour = 0;
-    t.tm_mday = 1;
-    t.tm_mon = 0;
-    t.tm_year = 0;
-    return t;
-  }();
+  static tm t{
+      .tm_sec = 0,
+      .tm_min = 0,
+      .tm_hour = 0,
+      .tm_mday = 1,
+      .tm_mon = 0,
+      .tm_year = 0,
+  };
 
   if (Implementation) return Implementation->GetSaveDate(type, id);
   ImpLog(LogLevel::Warning, LogChannel::VMStub,
@@ -244,7 +242,7 @@ void SetEVStatus(int id) {
          "{:s}: save system not implemented\n", __func__);
 }
 
-bool GetEVVariationIsUnlocked(int evId, int variationIdx) {
+bool GetEVVariationIsUnlocked(size_t evId, size_t variationIdx) {
   if (Implementation)
     return Implementation->GetEVVariationIsUnlocked(evId, variationIdx);
   ImpLog(LogLevel::Warning, LogChannel::VMStub,

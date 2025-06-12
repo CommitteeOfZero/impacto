@@ -15,7 +15,6 @@ namespace Impacto {
 namespace UI {
 namespace CCLCC {
 using namespace Impacto::Vm::Interface;
-using namespace Impacto::UI::CCLCC;
 using namespace Impacto::UI::Widgets;
 using namespace Impacto::Profile::CCLCC::MapSystem;
 using namespace Impacto::Profile::ScriptVars;
@@ -217,7 +216,7 @@ int MapSystemCCLCC::MapLoad(uint8_t* data) {
     MapPartsDisp[i].dist = data[dataSize];
     dataSize += 4;
   }
-  dataSize += (800 - MapPartsDisp.size()) * 32;
+  dataSize += (int)(800 - MapPartsDisp.size()) * 32;
   assert(dataSize == 0x65e0);
   for (int i = 0; i < MapPoolDisp.size(); i++) {
     int show = data[dataSize];
@@ -283,9 +282,9 @@ int MapSystemCCLCC::MapSave(uint8_t* data) {
   memmove(data, &MapGroup, sizeof(MapGroup));
   dataSize += sizeof(MapGroup);
   for (int i = 0; i < MapPartsDisp.size(); i++) {
-    data[dataSize] = MapPartsDisp[i].partId;
+    data[dataSize] = (uint8_t)MapPartsDisp[i].partId;
     dataSize += 4;
-    data[dataSize] = MapPartsDisp[i].type;
+    data[dataSize] = (uint8_t)MapPartsDisp[i].type;
     dataSize += 4;
     switch (MapPartsDisp[i].state) {
       case Shown:
@@ -312,20 +311,21 @@ int MapSystemCCLCC::MapSave(uint8_t* data) {
     dataSize += 4;
     data[dataSize] =
         (MapPartsDisp[i].state == Hiding || MapPartsDisp[i].state == Hidden)
-            ? MapPartsDisp[i].fadeAnim.Progress * FadeAnimationDuration * 60.0f
+            ? (uint8_t)(MapPartsDisp[i].fadeAnim.Progress *
+                        FadeAnimationDuration * 60.0f)
         : (MapPartsDisp[i].state == Showing || MapPartsDisp[i].state == Shown)
-            ? (1 - MapPartsDisp[i].fadeAnim.Progress) * FadeAnimationDuration *
-                  60.0f
+            ? (uint8_t)((1 - MapPartsDisp[i].fadeAnim.Progress) *
+                        FadeAnimationDuration * 60.0f)
             : 0;
     dataSize += 4;
-    data[dataSize] = MapPartsDisp[i].delay;
+    data[dataSize] = (uint8_t)MapPartsDisp[i].delay;
     dataSize += 4;
-    data[dataSize] = MapPartsDisp[i].angle;
+    data[dataSize] = (uint8_t)MapPartsDisp[i].angle;
     dataSize += 4;
-    data[dataSize] = MapPartsDisp[i].dist;
+    data[dataSize] = (uint8_t)MapPartsDisp[i].dist;
     dataSize += 4;
   }
-  dataSize += (800 - MapPartsDisp.size()) * 32;
+  dataSize += (int)(800 - MapPartsDisp.size()) * 32;
   assert(dataSize == 0x65e0);
   for (int i = 0; i < MapPoolDisp.size(); i++) {
     switch (MapPoolDisp[i].state) {
@@ -353,23 +353,24 @@ int MapSystemCCLCC::MapSave(uint8_t* data) {
     dataSize += 4;
     data[dataSize] =
         (MapPoolDisp[i].state == Hiding || MapPoolDisp[i].state == Shown)
-            ? MapPoolDisp[i].fadeAnim.Progress * FadeAnimationDuration * 60.0f
+            ? (uint8_t)(MapPoolDisp[i].fadeAnim.Progress *
+                        FadeAnimationDuration * 60.0f)
         : (MapPoolDisp[i].state == Showing || MapPoolDisp[i].state == Hidden)
-            ? (1 - MapPoolDisp[i].fadeAnim.Progress) * FadeAnimationDuration *
-                  60.0f
+            ? (uint8_t)((1 - MapPoolDisp[i].fadeAnim.Progress) *
+                        FadeAnimationDuration * 60.0f)
             : 0;
     dataSize += 4;
-    data[dataSize] = MapPoolDisp[i].delay;
+    data[dataSize] = (uint8_t)MapPoolDisp[i].delay;
     dataSize += 4;
-    data[dataSize] = MapPoolDisp[i].angle;
+    data[dataSize] = (uint8_t)MapPoolDisp[i].angle;
     dataSize += 4;
     dataSize += 4;  // padding?
   }
   assert(dataSize == 0x69a0);
   for (int i = 0; i < MapPool.size(); i++) {
-    data[dataSize] = MapPool[i].id;
+    data[dataSize] = (uint8_t)MapPool[i].id;
     dataSize += 4;
-    data[dataSize] = MapPool[i].type;
+    data[dataSize] = (uint8_t)MapPool[i].type;
     dataSize += 4;
   }
   assert(dataSize == 0x6a40);
@@ -379,11 +380,11 @@ int MapSystemCCLCC::MapSave(uint8_t* data) {
   dataSize += 24;  // MapMoveAnimeInit and MapMoveAnimeMain which uses
                    // MapMoveAnime are not called in cclcc
   assert(dataSize == 0x6aa8);
-  data[dataSize] = MapPartsMax;
+  data[dataSize] = (uint8_t)MapPartsMax;
   dataSize += 4;
-  data[dataSize] = HoverMapPoolIdx;
+  data[dataSize] = (uint8_t)HoverMapPoolIdx;
   dataSize += 4;
-  data[dataSize] = SelectedMapPoolIdx;
+  data[dataSize] = (uint8_t)SelectedMapPoolIdx;
   dataSize += 4;
   assert(dataSize == 0x6ab4);
   dataSize += 20;  // Variables used by MapMoveAnimeInit and MapMoveAnimeMain
@@ -1699,14 +1700,14 @@ void MapSystemCCLCC::MapDispArticle(int id) {
 
     // Shadow
     const glm::mat4 shadowTransformation = TransformationMatrix(
-        {166, 16}, glm::vec2(shadowZoom * 0.5 * scaledFactor), {166, 16}, angle,
-        {displayShadowPhotoX, displayShadowPhotoY});
+        {166.0f, 16.0f}, glm::vec2(shadowZoom * 0.5f * scaledFactor),
+        {166.0f, 16.0f}, angle, {displayShadowPhotoX, displayShadowPhotoY});
     Renderer->DrawSprite(MapPartsArticleSprites[partId], shadowTransformation,
                          {0.0f, 0.0f, 0.0f, (alpha >> 1) / 256.0f});
     // Photo
     const glm::mat4 photoTransformation = TransformationMatrix(
-        {166, 16}, glm::vec2(zoomMulti * 0.5 * scaledFactor), {166, 16}, angle,
-        {displayPhotoX, displayPhotoY});
+        {166.0f, 16.0f}, glm::vec2(zoomMulti * 0.5f * scaledFactor),
+        {166.0f, 16.0f}, angle, {displayPhotoX, displayPhotoY});
     Renderer->DrawSprite(MapPartsArticleSprites[partId], photoTransformation);
   }
 }

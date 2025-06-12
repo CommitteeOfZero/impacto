@@ -62,16 +62,16 @@ static void bc3_alpha_load(bc3_alpha *dst, const uint8_t *src) {
 
 static rgba decode_565(uint16_t x) {
   rgba c;
-  int r, g, b;
+  uint32_t r, g, b;
   r = (x & 0xf800) >> 8;
   r |= r >> 5;
-  c.r = r;
+  c.r = (uint8_t)r;
   g = (x & 0x7e0) >> 3;
   g |= g >> 6;
-  c.g = g;
+  c.g = (uint8_t)g;
   b = (x & 0x1f) << 3;
   b |= b >> 5;
-  c.b = b;
+  c.b = (uint8_t)b;
   c.a = 0xff;
   return c;
 }
@@ -92,18 +92,18 @@ static void decode_bc1_color(rgba *dst, const uint8_t *src) {
   g1 = p[1].g;
   b1 = p[1].b;
   if (col.c0 > col.c1) {
-    p[2].r = (2 * r0 + 1 * r1) / 3;
-    p[2].g = (2 * g0 + 1 * g1) / 3;
-    p[2].b = (2 * b0 + 1 * b1) / 3;
+    p[2].r = (uint8_t)((2 * r0 + 1 * r1) / 3);
+    p[2].g = (uint8_t)((2 * g0 + 1 * g1) / 3);
+    p[2].b = (uint8_t)((2 * b0 + 1 * b1) / 3);
     p[2].a = 0xff;
-    p[3].r = (1 * r0 + 2 * r1) / 3;
-    p[3].g = (1 * g0 + 2 * g1) / 3;
-    p[3].b = (1 * b0 + 2 * b1) / 3;
+    p[3].r = (uint8_t)((1 * r0 + 2 * r1) / 3);
+    p[3].g = (uint8_t)((1 * g0 + 2 * g1) / 3);
+    p[3].b = (uint8_t)((1 * b0 + 2 * b1) / 3);
     p[3].a = 0xff;
   } else {
-    p[2].r = (r0 + r1) / 2;
-    p[2].g = (g0 + g1) / 2;
-    p[2].b = (b0 + b1) / 2;
+    p[2].r = (uint8_t)((r0 + r1) / 2);
+    p[2].g = (uint8_t)((g0 + g1) / 2);
+    p[2].b = (uint8_t)((b0 + b1) / 2);
     p[2].a = 0xff;
     p[3].r = 0;
     p[3].g = 0;
@@ -128,17 +128,17 @@ static void decode_bc3_alpha(char *dst, const uint8_t *src, int stride, int o) {
   a[0] = (uint8_t)a0;
   a[1] = (uint8_t)a1;
   if (a0 > a1) {
-    a[2] = (6 * a0 + 1 * a1) / 7;
-    a[3] = (5 * a0 + 2 * a1) / 7;
-    a[4] = (4 * a0 + 3 * a1) / 7;
-    a[5] = (3 * a0 + 4 * a1) / 7;
-    a[6] = (2 * a0 + 5 * a1) / 7;
-    a[7] = (1 * a0 + 6 * a1) / 7;
+    a[2] = (uint8_t)((6 * a0 + 1 * a1) / 7);
+    a[3] = (uint8_t)((5 * a0 + 2 * a1) / 7);
+    a[4] = (uint8_t)((4 * a0 + 3 * a1) / 7);
+    a[5] = (uint8_t)((3 * a0 + 4 * a1) / 7);
+    a[6] = (uint8_t)((2 * a0 + 5 * a1) / 7);
+    a[7] = (uint8_t)((1 * a0 + 6 * a1) / 7);
   } else {
-    a[2] = (4 * a0 + 1 * a1) / 5;
-    a[3] = (3 * a0 + 2 * a1) / 5;
-    a[4] = (2 * a0 + 3 * a1) / 5;
-    a[5] = (1 * a0 + 4 * a1) / 5;
+    a[2] = (uint8_t)((4 * a0 + 1 * a1) / 5);
+    a[3] = (uint8_t)((3 * a0 + 2 * a1) / 5);
+    a[4] = (uint8_t)((2 * a0 + 3 * a1) / 5);
+    a[5] = (uint8_t)((1 * a0 + 4 * a1) / 5);
     a[6] = 0;
     a[7] = 0xff;
   }
@@ -159,7 +159,8 @@ static void decode_bc1_block(rgba *col, const uint8_t *src) {
 }
 
 static void decode_bc2_block(rgba *col, const uint8_t *src) {
-  int n, bitI, byI, av;
+  int n, bitI, byI;
+  uint8_t av;
   decode_bc1_color(col, src + 8);
   for (n = 0; n < 16; n++) {
     bitI = n * 4;

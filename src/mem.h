@@ -51,7 +51,9 @@ inline glm::vec3 ScrWorkGetAngleVec3(int idX, int idY, int idZ) {
   return glm::vec3(ScrWorkGetAngle(idX), ScrWorkGetAngle(idY),
                    ScrWorkGetAngle(idZ));
 }
-inline glm::vec4 ScrWorkGetColor(int id) { return RgbIntToFloat(ScrWork[id]); }
+inline glm::vec4 ScrWorkGetColor(size_t id) {
+  return RgbIntToFloat(ScrWork[id]);
+}
 
 void SetFlag(uint32_t flagId, uint32_t value);
 bool GetFlag(uint32_t flagId);

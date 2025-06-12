@@ -22,7 +22,7 @@ class PhysicalFileStream : public Stream {
   int64_t Read(void* buffer, int64_t sz) override;
   int64_t Seek(int64_t offset, int origin) override;
   IoError Duplicate(Stream** outStream) override;
-  int64_t Write(void* buffer, int64_t sz, int cnt = 1) override;
+  int64_t Write(void* buffer, int64_t sz, size_t cnt = 1) override;
 
  protected:
   std::ios_base::openmode PrepareFileOpenMode(CreateFlags flags);

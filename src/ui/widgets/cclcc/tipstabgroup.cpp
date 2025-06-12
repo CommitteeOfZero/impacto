@@ -72,7 +72,8 @@ TipsTabGroup::TipsTabGroup(
 
   TipsScrollTrackBounds = {TipsScrollThumbSprite.Bounds.Width,
                            TipsScrollYEnd - TipsScrollYStart};
-  EntriesPerPage = std::ceil(TipsTabBounds.Height / TipsEntryBounds.Height);
+  EntriesPerPage =
+      (int)std::ceil(TipsTabBounds.Height / TipsEntryBounds.Height);
 }
 
 void TipsTabGroup::UpdatePageInput(float dt) {
@@ -80,9 +81,6 @@ void TipsTabGroup::UpdatePageInput(float dt) {
   if (IsFocused) {
     auto prevEntry = CurrentlyFocusedElement;
     TipsEntriesScrollbar->UpdateInput();
-
-    FocusDirection dir =
-        (PADinputButtonIsDown & PAD1LEFT) ? FDIR_UP : FDIR_DOWN;
 
     auto checkScrollBounds = [&]() {
       return !TipsTabBounds.Contains(CurrentlyFocusedElement->Bounds);
@@ -223,6 +221,10 @@ void TipsTabGroup::UpdateTipsEntries(std::vector<int> const& SortedTipIds) {
       case TipsTabType::NewTips:
         return record.IsNew && !record.IsLocked;
     }
+
+    ImpLog(LogLevel::Error, LogChannel::General,
+           "Tried to update unimplemented tips tab type {}", (int)Type);
+    return false;
   };
 
   int sortIndex = 1;
@@ -262,12 +264,12 @@ void TipsTabGroup::UpdateTipsEntries(std::vector<int> const& SortedTipIds) {
     return std::ceil(numToRound / multiple) * multiple;
   };
   int scrollDistance =
-      TipsEntryBounds.Height * TipsEntryButtons.size() -
-      roundUpMultiple(TipsTabBounds.Height, TipsEntryBounds.Height);
+      (int)(TipsEntryBounds.Height * TipsEntryButtons.size() -
+            roundUpMultiple(TipsTabBounds.Height, TipsEntryBounds.Height));
 
   TipsEntriesScrollbar = std::make_unique<Scrollbar>(
-      0, TipsScrollStartPos, 0, std::max(0, scrollDistance), &ScrollPosY,
-      SBDIR_VERTICAL, TipsScrollThumbSprite, TipsScrollTrackBounds,
+      0, TipsScrollStartPos, 0.0f, std::max(0.0f, (float)scrollDistance),
+      &ScrollPosY, SBDIR_VERTICAL, TipsScrollThumbSprite, TipsScrollTrackBounds,
       TipsScrollThumbLength, TipsTabBounds);
   TipsEntriesGroup.RenderingBounds = TipsTabBounds;
   TipsEntriesGroup.HoverBounds = TipsTabBounds;

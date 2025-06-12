@@ -297,7 +297,7 @@ VmInstruction(InstFlagOffReturn) {
   StartInstruction;
   PopUint8(arg1);
   PopExpression(arg2);
-  if (arg1 == GetFlag(arg2)) {
+  if ((bool)arg1 == GetFlag(arg2)) {
     if (thread->CallStackDepth) {
       thread->CallStackDepth--;
       uint32_t retBufferId =
