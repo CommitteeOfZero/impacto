@@ -126,7 +126,7 @@ bool Character2D::LoadSync(uint32_t charaId) {
       auto [stateItr, inserted] =
           States.try_emplace(id, count, Profile::CharaIsMvl);
       stream->Seek(12 * (stateCount) + 8 + (start * 16), SEEK_SET);
-      for (int i = 0; i < count; i++) {
+      for (int j = 0; j < count; j++) {
         glm::vec2 screenCoords;
         glm::vec2 txtCoords;
         screenCoords.x = StreamReadFloat(stream);
@@ -136,8 +136,8 @@ bool Character2D::LoadSync(uint32_t charaId) {
         txtCoords.y = StreamReadFloat(stream) * Profile::LayFileTexYMultiplier;
         auto* layDataPtr =
             std::get_if<Character2DState::LAYData>(&stateItr->second.Data);
-        layDataPtr->ScreenCoords[i] = screenCoords;
-        layDataPtr->TextureCoords[i] = txtCoords;
+        layDataPtr->ScreenCoords[j] = screenCoords;
+        layDataPtr->TextureCoords[j] = txtCoords;
       }
 
       stream->Seek(back, SEEK_SET);
@@ -254,7 +254,7 @@ static uint8_t GetSoundLevel() {
   }
 
   const int audioPos =
-      Audio::Channels[Audio::AC_VOICE0]->PositionInSeconds() * 6;
+      (int)(Audio::Channels[Audio::AC_VOICE0]->PositionInSeconds() * 6.0f);
 
   const int fileId =
       Audio::Channels[Audio::AC_VOICE0]->GetStream()->GetBaseStream()->Meta.Id;

@@ -47,7 +47,8 @@ SystemMenu::SystemMenu() {
 
   MainItems = new Widgets::Group(this);
 
-  ScreenCap.Sheet = SpriteSheet(Window->WindowWidth, Window->WindowHeight);
+  ScreenCap.Sheet =
+      SpriteSheet((float)Window->WindowWidth, (float)Window->WindowHeight);
   Texture tex;
   tex.LoadSolidColor(Window->WindowWidth, Window->WindowHeight, 0x000000);
   ScreenCap.Sheet.Texture = tex.Submit();
@@ -173,10 +174,10 @@ void SystemMenu::Render() {
 
     const float scale =
         (1000.0f - (ScrWork[SW_SYSMENUCT] * 400 / 32)) / 1000.0f;
-    const glm::quat rotation =
-        ScrWorkAnglesToQuaternion((ScrWork[SW_SYSMENUCT] * AngleMultiplier.x),
-                                  (ScrWork[SW_SYSMENUCT] * AngleMultiplier.y),
-                                  (ScrWork[SW_SYSMENUCT] * AngleMultiplier.z));
+    const glm::quat rotation = ScrWorkAnglesToQuaternion(
+        ((int)(ScrWork[SW_SYSMENUCT] * AngleMultiplier.x)),
+        ((int)(ScrWork[SW_SYSMENUCT] * AngleMultiplier.y)),
+        ((int)(ScrWork[SW_SYSMENUCT] * AngleMultiplier.z)));
 
     const auto transformation = [rotation, scale](glm::vec2 vertex) {
       glm::mat4 transformation = TransformationMatrix(
@@ -231,7 +232,7 @@ void SystemMenu::Render() {
 }
 
 void SystemMenu::Init() {
-  BGPosition = {CALCrnd(BGRandPosRange.x), CALCrnd(BGRandPosRange.y)};
+  BGPosition = {CALCrnd((int)BGRandPosRange.x), CALCrnd((int)BGRandPosRange.y)};
   SetFlag(SF_SYSTEMMENUCAPTURE, true);
 }
 

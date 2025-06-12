@@ -62,7 +62,7 @@ void Configure() {
   GetMemberArray<glm::vec2>(SelectSoundPos, 11, "SelectSoundPos");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<int>("DrawType"));
+      EnsureGetMember<uint8_t>("DrawType"));
 
   UI::Menus[drawType].push_back(new UI::CHLCC::MusicMenu());
 }

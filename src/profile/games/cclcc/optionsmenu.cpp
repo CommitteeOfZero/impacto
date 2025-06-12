@@ -81,7 +81,7 @@ void Configure() {
   MenuMaskSprite = EnsureGetMember<Sprite>("MenuMask");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<int>("DrawType"));
+      EnsureGetMember<uint8_t>("DrawType"));
 
   UI::OptionsMenuPtr = new UI::CCLCC::OptionsMenu();
   UI::Menus[drawType].push_back(UI::OptionsMenuPtr);

@@ -14,7 +14,10 @@ static ALenum ToALFormat(int channels, int bitdepth) {
   if (channels == 2 && bitdepth == 8) return AL_FORMAT_STEREO8;
   if (channels == 1 && bitdepth == 8) return AL_FORMAT_MONO8;
 
-  assert(false);
+  ImpLog(LogLevel::Error, LogChannel::Audio,
+         "Unimplemented AL format with {} channels and a bit depth of {}",
+         channels, bitdepth);
+  return AL_FORMAT_MONO8;
 }
 
 OpenALAudioChannel::OpenALAudioChannel(AudioChannelId id,
@@ -23,7 +26,7 @@ OpenALAudioChannel::OpenALAudioChannel(AudioChannelId id,
       HostBuffer(std::vector(AudioBufferSize, (uint8_t)0)) {
   BufferStartPositions.fill(0);
 
-  alGenBuffers(AudioBuffers.size(), AudioBuffers.data());
+  alGenBuffers((ALsizei)AudioBuffers.size(), AudioBuffers.data());
   alGenSources(1, &Source);
 
   alSourcef(Source, AL_PITCH, 1);
@@ -35,7 +38,7 @@ OpenALAudioChannel::OpenALAudioChannel(AudioChannelId id,
 
 OpenALAudioChannel::~OpenALAudioChannel() {
   alDeleteSources(1, &Source);
-  alDeleteBuffers(AudioBuffers.size(), AudioBuffers.data());
+  alDeleteBuffers((ALsizei)AudioBuffers.size(), AudioBuffers.data());
 }
 
 void OpenALAudioChannel::Play(std::unique_ptr<AudioStream> stream, bool loop,
@@ -44,7 +47,7 @@ void OpenALAudioChannel::Play(std::unique_ptr<AudioStream> stream, bool loop,
 
   Stream = std::move(stream);
   FadeDuration = fadeInDuration;
-  FadeProgress = FadeDuration == 0 ? 1 : 0;
+  FadeProgress = FadeDuration == 0 ? 1.0f : 0.0f;
   State = FadeDuration == 0 ? ACS_Playing : ACS_FadingIn;
   Looping = loop;
 }

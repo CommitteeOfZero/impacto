@@ -87,7 +87,7 @@ void Configure() {
       PushInitialIndex();
       while (PushNextTableElement() != 0) {
         int j = EnsureGetKey<int32_t>() - 1;
-        AlbumEvData[i][j] = EnsureGetArrayElement<uint32_t>();
+        AlbumEvData[i][j] = EnsureGetArrayElement<uint16_t>();
         Pop();
       }
       // End marker
@@ -118,7 +118,7 @@ void Configure() {
         PushInitialIndex();
         while (PushNextTableElement() != 0) {
           int k = EnsureGetKey<int32_t>() - 1;
-          AlbumData[i][j][k] = EnsureGetArrayElement<uint32_t>();
+          AlbumData[i][j][k] = EnsureGetArrayElement<uint16_t>();
           Pop();
         }
         // End marker

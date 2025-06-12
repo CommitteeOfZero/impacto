@@ -46,8 +46,8 @@ void LoadFonts() {
       }
     }
 
-    baseFont->Rows = EnsureGetMember<int>("Rows");
-    baseFont->Columns = EnsureGetMember<int>("Columns");
+    baseFont->Rows = EnsureGetMember<uint8_t>("Rows");
+    baseFont->Columns = EnsureGetMember<uint8_t>("Columns");
 
     baseFont->CalculateDefaultSizes();
 

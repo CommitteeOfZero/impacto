@@ -169,7 +169,6 @@ void SaveMenu::Show() {
             }
           } else {
             int nextCol = (j + 1) % EntriesPerRow;
-            int prevCol = (j + 1) % EntriesPerRow;
             int nextRow = j == 0 ? i + 1 : i;
             int prevRow = j == 1 ? i - 1 : i;
             EntryGrid[p][i][j]->SetFocus(EntryGrid[p][nextRow][nextCol],

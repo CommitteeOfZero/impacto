@@ -99,7 +99,7 @@ int64_t PhysicalFileStream::Read(void* buffer, int64_t sz) {
   if (sz < 0 || !(Flags & READ)) return IoError_Fail;
   if (Position >= Meta.Size) return IoError_Eof;
 
-  int bytesToRead = std::min(sz, Meta.Size - Position);
+  size_t bytesToRead = std::min(sz, Meta.Size - Position);
   FileStream.read((char*)buffer, bytesToRead);
   auto read = FileStream.gcount();
 
@@ -182,7 +182,7 @@ IoError PhysicalFileStream::Duplicate(Stream** outStream) {
   return IoError_OK;
 }
 
-int64_t PhysicalFileStream::Write(void* buffer, int64_t sz, int cnt) {
+int64_t PhysicalFileStream::Write(void* buffer, int64_t sz, size_t cnt) {
   if (!(Flags & WRITE)) {
     return IoError_Fail;
   }
@@ -195,7 +195,7 @@ int64_t PhysicalFileStream::Write(void* buffer, int64_t sz, int cnt) {
                      ~std::ios::eofbit);  // Clear only failbit and eofbit
     return IoError_Fail;
   }
-  int64_t written = sz * cnt;
+  int64_t written = sz * (int64_t)cnt;
   Position += written;
   Meta.Size = std::max(Position, Meta.Size);
   return written;

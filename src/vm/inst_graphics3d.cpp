@@ -106,8 +106,8 @@ VmInstruction(InstCHAplayAnim3DMaybe) {
       ResetInstruction;
       BlockThread;
     } else {
-      Renderer->Scene->Renderables[bufferId]->SwitchAnimation(animationId,
-                                                              0.66f);
+      Renderer->Scene->Renderables[bufferId]->SwitchAnimation(
+          (int16_t)animationId, 0.66f);
       BlockThread;
     }
   }

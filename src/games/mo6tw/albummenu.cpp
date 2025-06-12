@@ -33,7 +33,7 @@ void AlbumMenu::ArrowDownOnClick(Widgets::Button* target) { MoveImageGrid(); }
 
 void AlbumMenu::CgOnClick(Widgets::Button* target) {
   ShowCgViewer = true;
-  CgViewerWidget->LoadCgSprites(target->Id, "bg",
+  CgViewerWidget->LoadCgSprites((size_t)target->Id, "bg",
                                 Profile::SaveSystem::AlbumData[target->Id]);
 }
 

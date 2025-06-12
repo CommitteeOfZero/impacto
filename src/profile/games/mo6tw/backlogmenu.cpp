@@ -10,7 +10,7 @@ namespace BacklogMenu {
 
 void Configure() {
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<int>("DrawType"));
+      EnsureGetMember<uint8_t>("DrawType"));
 
   UI::BacklogMenuPtr = new UI::MO6TW::BacklogMenu();
   UI::Menus[drawType].push_back(UI::BacklogMenuPtr);

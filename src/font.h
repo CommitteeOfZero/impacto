@@ -42,7 +42,7 @@ class BasicFont : public Font {
   Sprite Glyph(uint8_t row, uint8_t col) { return Glyph(row * Columns + col); }
 
   Sprite Glyph(uint16_t id) {
-    uint8_t row = id / Columns;
+    uint8_t row = (uint8_t)(id / Columns);
     uint8_t col = id % Columns;
     float width = AdvanceWidths[id];
     return Sprite(Sheet, col * CellWidth + 1, row * CellHeight + 1, width - 2,
@@ -74,7 +74,7 @@ class LBFont : public Font {
   Sprite Glyph(uint8_t row, uint8_t col) { return Glyph(row * Columns + col); }
 
   Sprite Glyph(uint16_t id) {
-    uint8_t row = id / Columns;
+    uint8_t row = (uint8_t)(id / Columns);
     uint8_t col = id % Columns;
     return Sprite(ForegroundSheet, col * CellWidth, row * CellHeight, CellWidth,
                   CellHeight);
@@ -85,7 +85,7 @@ class LBFont : public Font {
   }
 
   Sprite OutlineGlyph(uint16_t id) {
-    uint8_t row = id / Columns;
+    uint8_t row = (uint8_t)(id / Columns);
     uint8_t col = id % Columns;
     return Sprite(OutlineSheet, col * OutlineCellWidth, row * OutlineCellHeight,
                   OutlineCellWidth, OutlineCellHeight);

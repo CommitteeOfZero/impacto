@@ -47,7 +47,7 @@ void Configure() {
   PreTitleItemsAnimation.DurationOut = PreTitleAnimDurationOut;
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<int>("DrawType"));
+      EnsureGetMember<uint8_t>("DrawType"));
 
   UI::TitleMenuPtr = new UI::RNE::TitleMenu();
   UI::Menus[drawType].push_back(UI::TitleMenuPtr);

@@ -390,7 +390,7 @@ inline float NormalizeRad(float rad) {
   return rad - (float)M_PI;
 }
 constexpr float ScrWorkAngleToRad(int angle) {
-  return ((float)angle * 2.0f * std::numbers::pi) / (float)(1 << 16);
+  return ((float)angle * 2.0f * (float)std::numbers::pi) / (float)(1 << 16);
 }
 
 inline glm::quat ScrWorkAnglesToQuaternion(int x, int y, int z) {

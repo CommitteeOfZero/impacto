@@ -52,7 +52,7 @@ void Configure() {
   ButtonPromptSprite = EnsureGetMember<Sprite>("ButtonPromptSprite");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<int>("DrawType"));
+      EnsureGetMember<uint8_t>("DrawType"));
 
   auto clearList = new UI::CHLCC::ClearListMenu();
   UI::Menus[drawType].push_back(clearList);

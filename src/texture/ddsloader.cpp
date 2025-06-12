@@ -183,11 +183,15 @@ bool internal_readimg(Stream* stream, unsigned char* dst, int w, int h, int d) {
         for (int x = 0; x < w; x++) {
           if (!stream->Read(&pixel, m_Bpp)) return false;
           k = (z * h * w + y * w + x) * m_nchans;
-          dst[k + 0] = ((pixel & m_dds.fmt.rmask) >> m_redR) << m_redL;
-          dst[k + 1] = ((pixel & m_dds.fmt.gmask) >> m_greenR) << m_greenL;
-          dst[k + 2] = ((pixel & m_dds.fmt.bmask) >> m_blueR) << m_blueL;
+          dst[k + 0] =
+              (unsigned char)(((pixel & m_dds.fmt.rmask) >> m_redR) << m_redL);
+          dst[k + 1] = (unsigned char)(((pixel & m_dds.fmt.gmask) >> m_greenR)
+                                       << m_greenL);
+          dst[k + 2] = (unsigned char)(((pixel & m_dds.fmt.bmask) >> m_blueR)
+                                       << m_blueL);
           if (m_dds.fmt.flags & DDS_PF_ALPHA)
-            dst[k + 3] = ((pixel & m_dds.fmt.amask) >> m_alphaR) << m_alphaL;
+            dst[k + 3] = (unsigned char)(((pixel & m_dds.fmt.amask) >> m_alphaR)
+                                         << m_alphaL);
         }
       }
     }

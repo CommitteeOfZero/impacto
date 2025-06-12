@@ -126,11 +126,11 @@ class Renderer : public BaseRenderer {
 
   uint8_t VertexBuffer[VertexBufferSize];
   IDirect3DVertexBuffer9* VertexBufferDevice;
-  int VertexBufferFill = 0;
+  size_t VertexBufferFill = 0;
   uint16_t IndexBuffer[IndexBufferCount];
   IDirect3DIndexBuffer9* IndexBufferDevice;
   IDirect3DIndexBuffer9* IndexBufferMvl;
-  int IndexBufferFill = 0;
+  size_t IndexBufferFill = 0;
 };
 
 }  // namespace DirectX9

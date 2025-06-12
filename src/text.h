@@ -123,11 +123,11 @@ struct DialoguePage {
   void EndRubyBase(int lastBaseCharacter);
 
   bool BuildingRubyBase;
-  int FirstRubyChunkOnLine;
+  size_t FirstRubyChunkOnLine;
 
   float CurrentLineTop;
   float CurrentLineTopMargin;
-  int LastLineStart;
+  size_t LastLineStart;
   DialoguePageMode PrevMode = DPM_ADV;
 };
 
