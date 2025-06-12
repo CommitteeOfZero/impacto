@@ -89,7 +89,7 @@ class Shader {
  protected:
   const GLuint ProgramId;
 
-  UniformsStruct Uniforms;
+  UniformsStruct Uniforms{};
 
   void UploadVar(bool value, GLint location) { glUniform1i(location, value); }
   void UploadVar(int value, GLint location) { glUniform1i(location, value); }
@@ -122,8 +122,8 @@ class Shader {
 struct SpriteUniforms {
   bool operator==(const SpriteUniforms& other) const = default;
 
-  glm::mat4 Projection;
-  glm::mat4 Transformation;
+  glm::mat4 Projection{};
+  glm::mat4 Transformation{};
 
   std::array<GLint, 15> Textures;
 };
@@ -144,8 +144,8 @@ class SpriteShader : public Shader<SpriteUniforms> {
 struct SpriteInvertedUniforms {
   bool operator==(const SpriteInvertedUniforms& other) const = default;
 
-  glm::mat4 Projection;
-  glm::mat4 Transformation;
+  glm::mat4 Projection{};
+  glm::mat4 Transformation{};
 
   std::array<GLint, 15> Textures;
 };
@@ -171,7 +171,7 @@ struct YUVFrameUniforms {
   GLint Luma = 0;
   GLint Cb = 0;
   GLint Cr = 0;
-  bool IsAlpha;
+  bool IsAlpha = false;
 };
 
 class YUVFrameShader : public Shader<YUVFrameUniforms> {
@@ -192,12 +192,12 @@ class YUVFrameShader : public Shader<YUVFrameUniforms> {
 struct MaskedSpriteNoAlphaUniforms {
   bool operator==(const MaskedSpriteNoAlphaUniforms& other) const = default;
 
-  glm::mat4 Projection = glm::mat4();
-  glm::mat4 SpriteTransformation = glm::mat4();
-  glm::mat4 MaskTransformation = glm::mat4();
+  glm::mat4 Projection{};
+  glm::mat4 SpriteTransformation{};
+  glm::mat4 MaskTransformation{};
 
   std::array<GLint, 15> Textures;
-  glm::vec2 Alpha = glm::vec2();
+  glm::vec2 Alpha{};
   bool IsInverted = false;
 };
 
@@ -220,12 +220,12 @@ class MaskedSpriteNoAlphaShader : public Shader<MaskedSpriteNoAlphaUniforms> {
 struct MaskedSpriteUniforms {
   bool operator==(const MaskedSpriteUniforms& other) const = default;
 
-  glm::mat4 Projection = glm::mat4();
-  glm::mat4 SpriteTransformation = glm::mat4();
-  glm::mat4 MaskTransformation = glm::mat4();
+  glm::mat4 Projection{};
+  glm::mat4 SpriteTransformation{};
+  glm::mat4 MaskTransformation{};
 
   std::array<GLint, 15> Textures;
-  glm::vec2 Alpha = glm::vec2();
+  glm::vec2 Alpha{};
   bool IsInverted = false;
   bool IsSameTexture = false;
 };
@@ -250,10 +250,10 @@ class MaskedSpriteShader : public Shader<MaskedSpriteUniforms> {
 struct CCMessageBoxUniforms {
   bool operator==(const CCMessageBoxUniforms& other) const = default;
 
-  glm::mat4 Projection = glm::mat4();
+  glm::mat4 Projection{};
 
   std::array<GLint, 15> Textures;
-  glm::vec4 Alpha = glm::vec4();
+  glm::vec4 Alpha{};
 };
 
 class CCMessageBoxShader : public Shader<CCMessageBoxUniforms> {
@@ -272,7 +272,7 @@ class CCMessageBoxShader : public Shader<CCMessageBoxUniforms> {
 struct CHLCCMenuBackgroundUniforms {
   bool operator==(const CHLCCMenuBackgroundUniforms& other) const = default;
 
-  glm::mat4 Projection = glm::mat4();
+  glm::mat4 Projection{};
 
   std::array<GLint, 15> Textures;
   float Alpha = 0.0f;
