@@ -14,7 +14,7 @@ namespace OptionsMenu {
 
 void Configure() {
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<int>("DrawType"));
+      EnsureGetMember<uint8_t>("DrawType"));
 
   BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSprite");
 

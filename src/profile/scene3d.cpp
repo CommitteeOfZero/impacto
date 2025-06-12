@@ -54,7 +54,7 @@ void Configure() {
 
       CharacterDef& character = Characters[charId];
       character.CharacterId = charId;
-      character.IdleAnimation = EnsureGetMember<int>("IdleAnimation");
+      character.IdleAnimation = EnsureGetMember<uint16_t>("IdleAnimation");
 
       {
         EnsurePushMemberOfType("Models", LUA_TTABLE);
@@ -75,7 +75,7 @@ void Configure() {
 
         PushInitialIndex();
         while (PushNextTableElement() != 0) {
-          uint16_t animId = EnsureGetKey<int32_t>();
+          uint16_t animId = EnsureGetKey<uint16_t>();
 
           AnimationDef& animDef = character.Animations[animId];
           animDef.AnimId = animId;

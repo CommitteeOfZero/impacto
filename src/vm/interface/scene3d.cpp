@@ -21,10 +21,10 @@ static void UpdateScrWorkAnimations() {
     ScrWorkAnimations[id].MainAnimation.Update(
         1 /
         60.0f);  // TODO: Nice hack you have here (get the proper dt in there)
-    for (size_t i = 0; i < ScrWorkAnimations[id].AnimationData.size(); i++) {
-      ScrWork[ScrWorkAnimations[id].AnimationData[i].Target] = glm::mix(
-          ScrWorkAnimations[id].AnimationData[i].From,
-          ScrWorkAnimations[id].AnimationData[i].To,
+    for (size_t j = 0; j < ScrWorkAnimations[id].AnimationData.size(); j++) {
+      ScrWork[ScrWorkAnimations[id].AnimationData[j].Target] = glm::mix(
+          ScrWorkAnimations[id].AnimationData[j].From,
+          ScrWorkAnimations[id].AnimationData[j].To,
           std::pow(ScrWorkAnimations[id].MainAnimation.Progress - 1, 3) + 1);
     }
     if (ScrWorkAnimations[id].MainAnimation.IsIn()) {

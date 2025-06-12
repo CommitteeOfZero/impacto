@@ -26,7 +26,7 @@ void Configure() {
   LibraryMaskSprite = EnsureGetMember<Sprite>("LibraryMaskSprite");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<int>("DrawType"));
+      EnsureGetMember<uint8_t>("DrawType"));
 
   auto library = new UI::CCLCC::LibraryMenu();
   UI::Menus[drawType].push_back(library);

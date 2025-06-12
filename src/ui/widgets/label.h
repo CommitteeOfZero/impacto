@@ -45,7 +45,7 @@ class Label : public Widget {
   void SetText(std::string_view str, float fontSize,
                RendererOutlineMode outlineMode, DialogueColorPair colorPair);
 
-  int GetTextLength() { return Text.size(); }
+  size_t GetTextLength() { return Text.size(); }
   float GetFontSize() { return FontSize; }
 
   float OutlineAlpha = 1.0f;

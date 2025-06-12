@@ -32,9 +32,9 @@ void Configure() {
   REVBoxSprite = EnsureGetMember<Sprite>("REVBoxSprite");
   REVBoxPos = EnsureGetMember<glm::vec2>("REVBoxPos");
   REVWaitIconOffset = EnsureGetMember<glm::vec2>("REVWaitIconOffset");
-  REVLineHeight = EnsureGetMember<int>("REVLineHeight");
-  REVLineSpacing = EnsureGetMember<int>("REVLineSpacing");
-  REVFontSize = EnsureGetMember<int>("REVFontSize");
+  REVLineHeight = EnsureGetMember<uint8_t>("REVLineHeight");
+  REVLineSpacing = EnsureGetMember<uint8_t>("REVLineSpacing");
+  REVFontSize = EnsureGetMember<uint8_t>("REVFontSize");
 }
 
 }  // namespace DialogueBox

@@ -48,7 +48,7 @@ void Configure() {
   ButtonOkHoverBounds = EnsureGetMember<RectF>("ButtonOkHoverBounds");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<int>("DrawType"));
+      EnsureGetMember<uint8_t>("DrawType"));
 
   UI::SysMesBoxPtr = new UI::CC::SysMesBox();
   UI::Menus[drawType].push_back(UI::SysMesBoxPtr);
