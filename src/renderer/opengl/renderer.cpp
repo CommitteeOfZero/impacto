@@ -534,7 +534,7 @@ void Renderer::DrawMaskedSpriteOverlay(
 }
 
 void Renderer::DrawVertices(const SpriteSheet& sheet,
-                            const std::optional<const SpriteSheet> mask,
+                            const SpriteSheet* const mask,
                             const std::span<const VertexBufferSprites> vertices,
                             const std::span<const uint16_t> indices,
                             glm::mat4 transformation, const bool inverted) {
@@ -545,7 +545,7 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
   }
 
   // Set uniform variables
-  if (mask.has_value()) {
+  if (mask != nullptr) {
     MaskedSpriteNoAlphaUniforms uniforms{
         .Projection = Projection,
         .SpriteTransformation = transformation,
@@ -579,9 +579,9 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
   }
 
   const std::vector<TextureUnit> textureLocations =
-      mask.has_value() ? GetTextureLocations(std::array<uint32_t, 2>{
-                             sheet.Texture, mask->Texture})
-                       : GetTextureLocations(std::array{sheet.Texture});
+      mask ? GetTextureLocations(
+                 std::array<uint32_t, 2>{sheet.Texture, mask->Texture})
+           : GetTextureLocations(std::array{sheet.Texture});
 
   std::vector<VertexBufferSprites> transformedVertices;
   transformedVertices.resize(vertices.size());

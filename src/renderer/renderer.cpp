@@ -240,18 +240,13 @@ void BaseRenderer::DrawProcessedText_BasicFont(
     }
   }
 
-  const std::optional<const SpriteSheet> mask =
-      maskedSheet ? std::optional(*maskedSheet) : std::nullopt;
-  DrawVertices(font->Sheet, mask, vertices, indices);
+  DrawVertices(font->Sheet, maskedSheet, vertices, indices);
 }
 
 void BaseRenderer::DrawProcessedText_LBFont(
     std::span<const ProcessedTextGlyph> text, LBFont* font, float opacity,
     RendererOutlineMode outlineMode, bool smoothstepGlyphOpacity,
     float outlineOpacity, SpriteSheet* maskedSheet) {
-  const std::optional<const SpriteSheet> mask =
-      maskedSheet ? std::optional(*maskedSheet) : std::nullopt;
-
   const size_t vertexCount = text.size() * 4;
   const size_t indexCount = text.size() * 6;
   std::vector<VertexBufferSprites> vertices(vertexCount);
@@ -318,7 +313,7 @@ void BaseRenderer::DrawProcessedText_LBFont(
                  dest, destUV, color, maskUV);
     }
 
-    DrawVertices(font->OutlineSheet, mask, vertices, indices);
+    DrawVertices(font->OutlineSheet, maskedSheet, vertices, indices);
   }
 
   for (size_t i = 0; i < text.size(); i++) {
@@ -345,7 +340,7 @@ void BaseRenderer::DrawProcessedText_LBFont(
                dest, destUV, color, maskUV);
   }
 
-  DrawVertices(font->ForegroundSheet, mask, vertices, indices);
+  DrawVertices(font->ForegroundSheet, maskedSheet, vertices, indices);
 }
 
 void BaseRenderer::QuadSetPosition(CornersQuad quad, glm::vec2* const pos,
