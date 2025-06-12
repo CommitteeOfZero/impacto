@@ -192,8 +192,8 @@ void SystemMenu::Render() {
     };
 
     const CornersQuad bgDisp =
-        CornersQuad(BGDispOffsetTopLeft, BGDispOffsetBottomLeft,
-                    BGDispOffsetTopRight, BGDispOffsetBottomRight)
+        CornersQuad{BGDispOffsetTopLeft, BGDispOffsetBottomLeft,
+                    BGDispOffsetTopRight, BGDispOffsetBottomRight}
             .Transform(transformation);
     Renderer->DrawSprite(offsetSystemMenuBG, bgDisp, glm::mat4(1.0f),
                          std::array{glm::vec4(1.0f), glm::vec4(1.0f),
@@ -202,20 +202,19 @@ void SystemMenu::Render() {
 
     if (!GetFlag(SF_SYSTEMMENUDIRECT)) {
       const CornersQuad frameDisp =
-          CornersQuad(glm::vec2{bgOffset, 0} + FrameOffsetTopLeft,
+          CornersQuad{glm::vec2{bgOffset, 0} + FrameOffsetTopLeft,
                       glm::vec2{bgOffset, 0} + FrameOffsetBottomLeft,
                       glm::vec2{bgOffset, 0} + FrameOffsetTopRight,
-                      glm::vec2{bgOffset, 0} + FrameOffsetBottomRight)
+                      glm::vec2{bgOffset, 0} + FrameOffsetBottomRight}
               .Transform(transformation);
       Renderer->DrawSprite(SystemMenuFrame, frameDisp);
 
-      const CornersQuad screenCapDisp =
-          CornersQuad(
-              glm::vec2{bgOffset + 0, 0},
-              glm::vec2{bgOffset + 0, Profile::DesignHeight},
-              glm::vec2{bgOffset + Profile::DesignWidth, 0},
-              glm::vec2{bgOffset + Profile::DesignWidth, Profile::DesignHeight})
-              .Transform(transformation);
+      const CornersQuad screenCapDisp = CornersQuad{
+          glm::vec2{bgOffset + 0, 0},
+          glm::vec2{bgOffset + 0, Profile::DesignHeight},
+          glm::vec2{bgOffset + Profile::DesignWidth, 0},
+          glm::vec2{bgOffset + Profile::DesignWidth,
+                    Profile::DesignHeight}}.Transform(transformation);
       Renderer->DrawSprite(ScreenCap, screenCapDisp, glm::vec4(1.0f), false,
                            true);
     }
