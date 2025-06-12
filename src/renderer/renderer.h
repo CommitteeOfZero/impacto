@@ -217,8 +217,7 @@ class BaseRenderer {
                             {0.0f, 0.0f}, tint, isInverted, useMaskAlpha);
   }
 
-  virtual void DrawVertices(const SpriteSheet& sheet,
-                            std::optional<const SpriteSheet> mask,
+  virtual void DrawVertices(const SpriteSheet& sheet, const SpriteSheet* mask,
                             std::span<const VertexBufferSprites> vertices,
                             std::span<const uint16_t> indices,
                             glm::mat4 transformation = glm::mat4(1.0f),
@@ -229,12 +228,10 @@ class BaseRenderer {
                             std::span<const uint16_t> indices,
                             glm::mat4 transformation = glm::mat4(1.0f),
                             bool inverted = false) {
-    DrawVertices(sheet, std::nullopt, vertices, indices, transformation,
-                 inverted);
+    DrawVertices(sheet, nullptr, vertices, indices, transformation, inverted);
   }
 
-  void DrawVertices(const SpriteSheet& sheet,
-                    std::optional<const SpriteSheet> mask,
+  void DrawVertices(const SpriteSheet& sheet, const SpriteSheet* mask,
                     std::span<const VertexBufferSprites> vertices,
                     std::span<const uint16_t> indices, glm::vec2 offset,
                     bool inverted = false) {
@@ -281,13 +278,13 @@ class BaseRenderer {
       std::span<const ProcessedTextGlyph> text, Font* font,
       float opacity = 1.0f,
       RendererOutlineMode outlineMode = RendererOutlineMode::None,
-      bool smoothstepGlyphOpacity = true, SpriteSheet* maskedSheet = 0);
+      bool smoothstepGlyphOpacity = true, SpriteSheet* maskedSheet = nullptr);
 
   void DrawProcessedText(
       std::span<const ProcessedTextGlyph> text, Font* font, float opacity,
       float outlineOpacity,
       RendererOutlineMode outlineMode = RendererOutlineMode::None,
-      bool smoothstepGlyphOpacity = true, SpriteSheet* maskedSheet = 0);
+      bool smoothstepGlyphOpacity = true, SpriteSheet* maskedSheet = nullptr);
 
   virtual void DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
                                 glm::vec4 tint, bool alphaVideo = false) = 0;
