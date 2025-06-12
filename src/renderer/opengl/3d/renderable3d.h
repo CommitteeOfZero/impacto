@@ -12,8 +12,7 @@ enum RenderPass { RP_Outline = 0, RP_First = 1, RP_Second = 2, RP_Count };
 
 class Renderable3D : public IRenderable3D {
  public:
-  static void Init(GLWindow* window,
-                   std::shared_ptr<ShaderCompiler> shaderCompiler);
+  static void Init(GLWindow* window, ShaderCompiler& shaderCompiler);
   static void BeginFrame(IScene3D* scene, Camera* camera);
 
   void MakePlane() override;
