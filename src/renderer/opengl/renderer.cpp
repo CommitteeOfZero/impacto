@@ -226,9 +226,9 @@ void Renderer::InsertVertices(
   VertexBuffer.insert(VertexBuffer.end(), vertices.begin(), vertices.end());
 
   const size_t indexOffset = IndexBuffer.size();
-  IndexBuffer.resize(IndexBuffer.size() + indices.size());
+  IndexBuffer.reserve(IndexBuffer.size() + indices.size());
   std::transform(
-      indices.begin(), indices.end(), IndexBuffer.begin() + indexOffset,
+      indices.begin(), indices.end(), std::back_inserter(IndexBuffer),
       [this](uint16_t index) { return index + this->NextFreeIndex; });
 
   NextFreeIndex += maxIndex + 1;

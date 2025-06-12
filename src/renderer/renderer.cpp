@@ -167,9 +167,8 @@ void BaseRenderer::DrawProcessedText_BasicFont(
     // Add outline to the front of the buffers
     vertices.insert(vertices.end(), vertices.begin(), vertices.end());
 
-    indices.resize(indexCount * 2);
-    std::transform(indices.begin(), indices.begin() + indexCount,
-                   indices.begin() + indexCount,
+    indices.reserve(indexCount * 2);
+    std::transform(indices.begin(), indices.end(), std::back_inserter(indices),
                    [maxIndex](uint16_t index) { return index + maxIndex; });
     maxIndex += vertexCount;
 
