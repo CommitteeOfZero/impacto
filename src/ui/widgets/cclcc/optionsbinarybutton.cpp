@@ -46,13 +46,11 @@ void OptionsBinaryButton::Render() {
   highlightBounds.X = highlightPos.x;
   highlightBounds.Y = highlightPos.y;
 
-  Renderer->DrawRect(highlightBounds, HighlightTint);
+  Renderer->DrawQuad(highlightBounds, HighlightTint);
   Renderer->DrawSprite(BoxSprite, TrueButton.Bounds.GetPos(), Tint);
 
-  Renderer->DrawSprite(TrueSprite, TrueButton.Bounds.GetPos(), Tint,
-                       glm::vec2(1.0f), 0.0f, !State);
-  Renderer->DrawSprite(FalseSprite, FalseButton.Bounds.GetPos(), Tint,
-                       glm::vec2(1.0f), 0.0f, State);
+  Renderer->DrawSprite(TrueSprite, TrueButton.Bounds.GetPos(), Tint, !State);
+  Renderer->DrawSprite(FalseSprite, FalseButton.Bounds.GetPos(), Tint, State);
 }
 
 void OptionsBinaryButton::Update(float dt) {

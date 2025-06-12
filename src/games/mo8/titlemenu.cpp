@@ -284,7 +284,7 @@ void TitleMenu::Render() {
                              glm::vec2(PressToStartX, PressToStartY), col);
         glm::vec4 black = glm::vec4(0.0f);
         black.a = glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
-        Renderer->DrawRect(
+        Renderer->DrawQuad(
             RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
             black);
       } break;
@@ -314,7 +314,7 @@ void TitleMenu::Render() {
         GalleryItems->Render();
         glm::vec4 black = glm::vec4(0.0f);
         black.a = glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
-        Renderer->DrawRect(
+        Renderer->DrawQuad(
             RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
             black);
       } break;

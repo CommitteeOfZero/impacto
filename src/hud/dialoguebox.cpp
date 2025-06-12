@@ -59,7 +59,7 @@ void DialogueBox::Render(DialoguePageMode mode, bool hasName, float nameWidth,
     RenderControlButtons(col);
   } else {
     glm::vec4 nvlBoxTint(0.0f, 0.0f, 0.0f, opacity * NVLBoxMaxOpacity);
-    Renderer->DrawRect(RectF(0, 0, Profile::DesignWidth, Profile::DesignHeight),
+    Renderer->DrawQuad(RectF(0, 0, Profile::DesignWidth, Profile::DesignHeight),
                        nvlBoxTint);
   }
 

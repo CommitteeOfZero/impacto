@@ -21,8 +21,8 @@ void BacklogEntry::Render() {
     mask.Sheet = BacklogMaskSheet;
     mask.Bounds = bounds;
 
-    Renderer->DrawMaskedSpriteOverlay(VoiceIcon, mask, bounds, Tint,
-                                      Tint.a * 255, 256, false, 0, false);
+    Renderer->DrawMaskedSpriteOverlay(VoiceIcon, mask, bounds, Tint.a * 255,
+                                      256, glm::mat4(1.0f), Tint, false, false);
   }
 
   if (BacklogPage->HasName) {
