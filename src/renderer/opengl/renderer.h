@@ -93,29 +93,29 @@ class Renderer : public BaseRenderer {
   void DisableScissor() override;
 
  private:
-  std::unique_ptr<SpriteShader> SpriteShaderProgram;
-  std::unique_ptr<SpriteInvertedShader> SpriteInvertedShaderProgram;
-  std::unique_ptr<MaskedSpriteShader> MaskedSpriteShaderProgram;
-  std::unique_ptr<MaskedSpriteNoAlphaShader> MaskedSpriteNoAlphaShaderProgram;
-  std::unique_ptr<YUVFrameShader> YUVFrameShaderProgram;
-  std::unique_ptr<CCMessageBoxShader> CCMessageBoxShaderProgram;
-  std::unique_ptr<CHLCCMenuBackgroundShader> CHLCCMenuBackgroundShaderProgram;
+  std::optional<SpriteShader> SpriteShaderProgram;
+  std::optional<SpriteInvertedShader> SpriteInvertedShaderProgram;
+  std::optional<MaskedSpriteShader> MaskedSpriteShaderProgram;
+  std::optional<MaskedSpriteNoAlphaShader> MaskedSpriteNoAlphaShaderProgram;
+  std::optional<YUVFrameShader> YUVFrameShaderProgram;
+  std::optional<CCMessageBoxShader> CCMessageBoxShaderProgram;
+  std::optional<CHLCCMenuBackgroundShader> CHLCCMenuBackgroundShaderProgram;
 
   const void* CurrentShaderProgram = nullptr;
 
   template <typename ShaderType, typename UniformsStruct>
-  void UseShader(std::unique_ptr<ShaderType>& shader, UniformsStruct uniforms) {
+  void UseShader(ShaderType& shader, UniformsStruct uniforms) {
     static_assert(std::is_base_of<Shader<UniformsStruct>, ShaderType>());
 
     if (CurrentShaderProgram != &shader) {
       Flush();
       CurrentShaderProgram = &shader;
-      shader->Bind();
+      shader.Bind();
     }
 
-    if (shader->GetUniforms() != uniforms) {
+    if (shader.GetUniforms() != uniforms) {
       Flush();
-      shader->UploadUniforms(uniforms);
+      shader.UploadUniforms(uniforms);
     }
   }
 
@@ -147,7 +147,7 @@ class Renderer : public BaseRenderer {
   static constexpr size_t TextureUnitCount = 15;
   static constexpr std::array<GLint, TextureUnitCount> Textures = {
       0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14};
-  std::array<std::unique_ptr<TextureUnit>, TextureUnitCount> TextureUnits;
+  std::array<std::optional<TextureUnit>, TextureUnitCount> TextureUnits;
 
   std::vector<TextureUnit> GetTextureLocations(
       std::span<const uint32_t> textureIds);
@@ -166,7 +166,7 @@ class Renderer : public BaseRenderer {
       glm::ortho(0.0f, Profile::DesignWidth, Profile::DesignHeight, 0.0f);
 
   // ShaderCompiler compiler
-  std::shared_ptr<ShaderCompiler> Shaders;
+  ShaderCompiler Shaders;
 
   bool ScissorEnabled = false;
 };

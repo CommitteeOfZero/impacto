@@ -25,8 +25,6 @@ void Renderer::Init() {
   OpenGLWindow->Init();
   Window = (BaseWindow*)OpenGLWindow;
 
-  Shaders = std::make_shared<ShaderCompiler>();
-
   if (Profile::GameFeatures & GameFeature::Scene3D) {
     Scene = new Scene3D(OpenGLWindow, Shaders);
     Scene->Init();
@@ -70,25 +68,17 @@ void Renderer::Init() {
   RectSprite = Sprite(rectSheet, 0.0f, 0.0f, 1.0f, 1.0f);
 
   // Set up shaders
-  SpriteShaderProgram =
-      std::make_unique<SpriteShader>(Shaders->Compile("Sprite"));
-  SpriteInvertedShaderProgram = std::make_unique<SpriteInvertedShader>(
-      Shaders->Compile("SpriteInverted"));
-  MaskedSpriteShaderProgram =
-      std::make_unique<MaskedSpriteShader>(Shaders->Compile("MaskedSprite"));
-  MaskedSpriteNoAlphaShaderProgram =
-      std::make_unique<MaskedSpriteNoAlphaShader>(
-          Shaders->Compile("MaskedSpriteNoAlpha"));
-  YUVFrameShaderProgram =
-      std::make_unique<YUVFrameShader>(Shaders->Compile("YUVFrame"));
-  CCMessageBoxShaderProgram = std::make_unique<CCMessageBoxShader>(
-      Shaders->Compile("CCMessageBoxSprite"));
-  CHLCCMenuBackgroundShaderProgram =
-      std::make_unique<CHLCCMenuBackgroundShader>(
-          Shaders->Compile("CHLCCMenuBackground"));
+  SpriteShaderProgram.emplace(Shaders.Compile("Sprite"));
+  SpriteInvertedShaderProgram.emplace(Shaders.Compile("SpriteInverted"));
+  MaskedSpriteShaderProgram.emplace(Shaders.Compile("MaskedSprite"));
+  MaskedSpriteNoAlphaShaderProgram.emplace(
+      Shaders.Compile("MaskedSpriteNoAlpha"));
+  YUVFrameShaderProgram.emplace(Shaders.Compile("YUVFrame"));
+  CCMessageBoxShaderProgram.emplace(Shaders.Compile("CCMessageBoxSprite"));
+  CHLCCMenuBackgroundShaderProgram.emplace(
+      Shaders.Compile("CHLCCMenuBackground"));
 
-  for (size_t i = 0; i < TextureUnitCount; i++)
-    TextureUnits[i] = std::make_unique<TextureUnit>(i);
+  for (size_t i = 0; i < TextureUnitCount; i++) TextureUnits[i].emplace(i);
 
   glActiveTexture(GL_TEXTURE0 + TextureUnitCount);
 }
@@ -303,7 +293,7 @@ std::vector<TextureUnit> Renderer::GetTextureLocations(
     const uint32_t textureId = textureIds[i];
 
     const auto sameTexture =
-        [this, textureId](const std::unique_ptr<TextureUnit>& unit) {
+        [this, textureId](const std::optional<TextureUnit>& unit) {
           return unit->GetTexture() == textureId;
         };
     const auto foundIt =
@@ -347,7 +337,7 @@ std::vector<TextureUnit> Renderer::GetTextureLocations(
   for (size_t i : notFound) {
     const uint32_t textureId = textureIds[i];
     const auto sameTexture =
-        [this, textureId](const std::unique_ptr<TextureUnit>& unit) {
+        [this, textureId](const std::optional<TextureUnit>& unit) {
           return unit->GetTexture() == textureId;
         };
     const auto foundIt =
@@ -409,7 +399,7 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
         .Textures = Textures,
     };
 
-    UseShader(SpriteInvertedShaderProgram, uniforms);
+    UseShader(*SpriteInvertedShaderProgram, uniforms);
 
   } else {
     SpriteUniforms uniforms{
@@ -418,7 +408,7 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
         .Textures = Textures,
     };
 
-    UseShader(SpriteShaderProgram, uniforms);
+    UseShader(*SpriteShaderProgram, uniforms);
   }
 
   std::vector<TextureUnit> textureLocations =
@@ -474,7 +464,7 @@ void Renderer::DrawMaskedSprite(
       .IsSameTexture = isSameTexture,
   };
 
-  UseShader(MaskedSpriteShaderProgram, uniforms);
+  UseShader(*MaskedSpriteShaderProgram, uniforms);
 
   const std::vector<TextureUnit> textureLocations =
       GetTextureLocations(std::array{sprite.Sheet.Texture, mask.Sheet.Texture});
@@ -516,7 +506,7 @@ void Renderer::DrawMaskedSpriteOverlay(
         .IsSameTexture = false,
     };
 
-    UseShader(MaskedSpriteShaderProgram, uniforms);
+    UseShader(*MaskedSpriteShaderProgram, uniforms);
 
   } else {
     MaskedSpriteNoAlphaUniforms uniforms{
@@ -528,7 +518,7 @@ void Renderer::DrawMaskedSpriteOverlay(
         .IsInverted = isInverted,
     };
 
-    UseShader(MaskedSpriteNoAlphaShaderProgram, uniforms);
+    UseShader(*MaskedSpriteNoAlphaShaderProgram, uniforms);
   }
 
   const std::vector<TextureUnit> textureLocations =
@@ -565,7 +555,7 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
         .IsInverted = inverted,
     };
 
-    UseShader(MaskedSpriteNoAlphaShaderProgram, uniforms);
+    UseShader(*MaskedSpriteNoAlphaShaderProgram, uniforms);
 
   } else {
     if (inverted) {
@@ -575,7 +565,7 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
           .Textures = Textures,
       };
 
-      UseShader(SpriteInvertedShaderProgram, uniforms);
+      UseShader(*SpriteInvertedShaderProgram, uniforms);
 
     } else {
       SpriteUniforms uniforms{
@@ -584,7 +574,7 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
           .Textures = Textures,
       };
 
-      UseShader(SpriteShaderProgram, uniforms);
+      UseShader(*SpriteShaderProgram, uniforms);
     }
   }
 
@@ -630,7 +620,7 @@ void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
       .Alpha = {alphaRange, constAlpha, effectCt, 0.0f},
   };
 
-  UseShader(CCMessageBoxShaderProgram, uniforms);
+  UseShader(*CCMessageBoxShaderProgram, uniforms);
 
   const std::vector<TextureUnit> textureLocations =
       GetTextureLocations(std::array{sprite.Sheet.Texture, mask.Sheet.Texture});
@@ -662,7 +652,7 @@ void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
       .Alpha = alpha,
   };
 
-  UseShader(CHLCCMenuBackgroundShaderProgram, uniforms);
+  UseShader(*CHLCCMenuBackgroundShaderProgram, uniforms);
 
   const std::vector<TextureUnit> textureLocations =
       GetTextureLocations(std::array{sprite.Sheet.Texture, mask.Sheet.Texture});
@@ -698,7 +688,7 @@ void Renderer::Flush() {
   IndexBuffer.clear();
   NextFreeIndex = 0;
 
-  for (std::unique_ptr<TextureUnit>& unit : TextureUnits) unit->Flush();
+  for (std::optional<TextureUnit>& unit : TextureUnits) unit->Flush();
 }
 
 void Renderer::DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
@@ -720,7 +710,7 @@ void Renderer::DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
       .IsAlpha = alphaVideo,
   };
 
-  UseShader(YUVFrameShaderProgram, uniforms);
+  UseShader(*YUVFrameShaderProgram, uniforms);
 
   // OK, all good, make quad
 
