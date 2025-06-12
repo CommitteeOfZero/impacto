@@ -15,6 +15,8 @@ inline GraphicsApi ActualGraphicsApi;
 
 enum class RendererOutlineMode { None, BottomRight, Full };
 
+enum class StencilBufferMode { Off, Test, Write };
+
 constexpr inline int MaxFramebuffers = 10;
 
 class BaseRenderer {
@@ -71,6 +73,12 @@ class BaseRenderer {
 
   virtual void DrawRect(RectF const& dest, glm::vec4 color,
                         float angle = 0.0f) = 0;
+
+  virtual void DrawConvexPolygon(std::vector<glm::vec2> vertices, glm::vec2 pos,
+                                 glm::vec4 color,
+                                 glm::vec2 origin = glm::vec2(0.0f),
+                                 float angle = 0.0f,
+                                 glm::vec2 scale = glm::vec2(1.0f)) {}
 
   virtual void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
                                 RectF const& dest, glm::vec4 tint, int alpha,
@@ -169,6 +177,14 @@ class BaseRenderer {
   virtual void EnableScissor() = 0;
   virtual void SetScissorRect(RectF const& rect) = 0;
   virtual void DisableScissor() = 0;
+
+  virtual void SetStencilMode(StencilBufferMode mode) {}
+  virtual void ClearStencilBuffer() {}
+
+  static glm::vec2 Transform(glm::vec2 pos, glm::vec2 translation,
+                             glm::vec2 origin = glm::vec2(0.0f),
+                             float rotation = 0.0f,
+                             glm::vec2 scaling = glm::vec2(1.0f));
 
   bool IsInit = false;
 

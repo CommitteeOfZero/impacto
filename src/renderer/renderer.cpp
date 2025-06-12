@@ -272,4 +272,16 @@ void BaseRenderer::DrawProcessedText_LBFont(
 
   if (maskedSheet) Flush();
 }
+
+glm::vec2 BaseRenderer::Transform(glm::vec2 pos, const glm::vec2 translation,
+                                  const glm::vec2 origin, const float rotation,
+                                  const glm::vec2 scaling) {
+  pos -= origin;
+  pos *= scaling;
+  if (rotation != 0.0f) pos = Rotate2D(rotation) * pos;
+  pos += origin + translation;
+
+  return pos;
+}
+
 }  // namespace Impacto

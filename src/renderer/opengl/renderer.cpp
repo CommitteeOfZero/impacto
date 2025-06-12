@@ -144,6 +144,7 @@ void Renderer::Shutdown() {
   GLC::DeleteFramebuffers(GLC::Framebuffers.size(), GLC::Framebuffers.data());
   glDeleteTextures(GLC::FramebufferTextures.size(),
                    GLC::FramebufferTextures.data());
+  glDeleteRenderbuffers(GLC::StencilBuffers.size(), GLC::StencilBuffers.data());
 
   if (Profile::GameFeatures & GameFeature::Scene3D) {
     Scene->Shutdown();
@@ -266,6 +267,64 @@ YUVFrame* Renderer::CreateYUVFrame(float width, float height) {
 
 void Renderer::DrawRect(RectF const& dest, glm::vec4 color, float angle) {
   BaseRenderer::DrawSprite(RectSprite, dest, color, angle);
+}
+
+void Renderer::DrawConvexPolygon(std::vector<glm::vec2> vertices,
+                                 const glm::vec2 pos, const glm::vec4 color,
+                                 const glm::vec2 origin, const float angle,
+                                 const glm::vec2 scale) {
+  if (!Drawing) {
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Renderer->DrawConvexPolygon() called before BeginFrame()\n");
+    return;
+  }
+
+  Flush();
+  EnsureTextureBound(RectSprite.Sheet.Texture);
+
+  const size_t vertexCount = vertices.size() + 1;
+  const size_t indexCount = vertices.size() + 2;
+
+  VertexBufferSprites* const vertexBuffer =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
+  VertexBufferFill += vertexCount * sizeof(VertexBufferSprites);
+
+  // Transform vertices
+  std::transform(
+      vertices.begin(), vertices.end(), vertices.begin(),
+      [pos, origin, angle, scale](const glm::vec2 vertex) {
+        return DesignToNDC(Transform(vertex, pos, origin, angle, scale));
+      });
+
+  // Find inside of shape
+  glm::vec2 center = {0.0f, 0.0f};
+  for (glm::vec2 vertex : vertices) center += vertex;
+  center /= vertices.size();
+  vertexBuffer[0] = {.Position = center, .Tint = color};
+
+  // Prepare vertices/indices
+  std::vector<uint16_t> indices = {0};
+  indices.reserve(indexCount);
+  for (size_t index = 1; index < vertexCount; index++) {
+    vertexBuffer[index] = {.Position = vertices[index - 1], .Tint = color};
+    indices.push_back(index);
+  }
+  indices.push_back(1);
+
+  // Draw polygon
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * sizeof(uint16_t),
+               indices.data(), GL_STATIC_DRAW);
+
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  glBufferSubData(GL_ARRAY_BUFFER, 0, VertexBufferFill, VertexBuffer);
+  glDrawElements(GL_TRIANGLE_FAN, indexCount, GL_UNSIGNED_SHORT, 0);
+
+  IndexBufferFill = 0;
+  VertexBufferFill = 0;
+  CurrentTexture = 0;
+
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, IndexBufferCount * sizeof(uint16_t),
+               IndexBuffer, GL_STATIC_DRAW);
 }
 
 void Renderer::DrawSprite3DRotated(Sprite const& sprite, RectF const& dest,
@@ -1214,6 +1273,52 @@ void Renderer::SetScissorRect(RectF const& rect) {
 void Renderer::DisableScissor() {
   Flush();
   glDisable(GL_SCISSOR_TEST);
+}
+
+void Renderer::SetStencilMode(StencilBufferMode mode) {
+  Flush();
+
+  switch (mode) {
+    case StencilBufferMode::Off: {
+      glDisable(GL_STENCIL_TEST);
+      break;
+    }
+
+    case StencilBufferMode::Test: {
+      glEnable(GL_STENCIL_TEST);
+      glStencilMask(0x00);
+
+      glStencilFunc(GL_NOTEQUAL, 0x00, 0xFF);
+      glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+      break;
+    }
+
+    case StencilBufferMode::Write: {
+      glEnable(GL_STENCIL_TEST);
+      glStencilMask(0xFF);
+
+      glStencilFunc(GL_NEVER, 0x01, 0xFF);
+      glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+      break;
+    }
+
+    default: {
+      ImpLogSlow(LogLevel::Warning, LogChannel::Render,
+                 "Unexpected stencil mode {:d}\n", (size_t)mode);
+      break;
+    }
+  }
+}
+
+void Renderer::ClearStencilBuffer() {
+  Flush();
+
+  GLint oldMask;
+  glGetIntegerv(GL_STENCIL_WRITEMASK, &oldMask);
+
+  glStencilMask(0xFF);
+  glClear(GL_STENCIL_BUFFER_BIT);
+  glStencilMask(oldMask);
 }
 
 }  // namespace OpenGL
