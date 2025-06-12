@@ -39,9 +39,8 @@ void Renderer::Init() {
   d3dpp.EnableAutoDepthStencil = TRUE;
   d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
 
-  auto res = Interface->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
-                                     D3DCREATE_HARDWARE_VERTEXPROCESSING,
-                                     &d3dpp, &Device);
+  Interface->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
+                          D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &Device);
   Device->CreateVertexBuffer(VertexBufferSize, 0, 0, D3DPOOL_MANAGED,
                              &VertexBufferDevice, NULL);
   Device->CreateIndexBuffer(IndexBufferCount * sizeof(uint16_t), 0,
@@ -97,8 +96,8 @@ void Renderer::Init() {
   }
 
   // Fill index buffer with quads
-  int index = 0;
-  int vertex = 0;
+  size_t index = 0;
+  uint16_t vertex = 0;
   while (index + 6 <= IndexBufferCount) {
     // bottom-left -> top-left -> top-right
     IndexBuffer[index] = vertex + 0;
@@ -183,7 +182,7 @@ void Renderer::EndFrame() {
   Device->EndScene();
   Device->Present(NULL, NULL, NULL, NULL);
   CurrentShader = 0;
-  CurrentTexture = -1;
+  CurrentTexture = std::numeric_limits<uint32_t>::max();
 }
 
 uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
@@ -357,8 +356,8 @@ void Renderer::DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
   Flush();
 
   // ReFill index buffer with quads
-  int index = 0;
-  int vertex = 0;
+  size_t index = 0;
+  uint16_t vertex = 0;
   while (index + 6 <= IndexBufferCount) {
     // bottom-left -> top-left -> top-right
     IndexBuffer[index] = vertex + 0;
@@ -572,15 +571,15 @@ void Renderer::DrawVertices(SpriteSheet const& sheet,
            "Renderer->DrawSprite() called before BeginFrame()\n");
     return;
   }
-  const int verticesCount = sheetPositions.size();
+  const size_t verticesCount = sheetPositions.size();
   if (verticesCount != displayPositions.size()) {
     ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawVertices() called with mismatched vertices count\n");
     return;
   }
 
-  EnsureSpaceAvailable(verticesCount, sizeof(VertexBufferSprites),
-                       verticesCount * 3);
+  EnsureSpaceAvailable((int)verticesCount, sizeof(VertexBufferSprites),
+                       (int)verticesCount * 3);
 
   Flush();
 
@@ -596,16 +595,16 @@ void Renderer::DrawVertices(SpriteSheet const& sheet,
 
   VertexBufferSprites* vertices =
       (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
-  VertexBufferFill += verticesCount * sizeof(VertexBufferSprites);
+  VertexBufferFill += (int)(verticesCount * sizeof(VertexBufferSprites));
 
   IndexBufferFill = 0;
   // Generate indices for triangles
   for (int y = 0; y < height - 1; y++) {
     for (int x = 0; x < width - 1; x++) {
-      uint16_t v0 = y * width + x;
-      uint16_t v1 = y * width + (x + 1);
-      uint16_t v2 = (y + 1) * width + x;
-      uint16_t v3 = (y + 1) * width + (x + 1);
+      uint16_t v0 = (uint16_t)(y * width + x);
+      uint16_t v1 = (uint16_t)(y * width + (x + 1));
+      uint16_t v2 = (uint16_t)((y + 1) * width + x);
+      uint16_t v3 = (uint16_t)((y + 1) * width + (x + 1));
 
       // First triangle
       for (auto v : {v1, v0, v2}) {
@@ -632,8 +631,8 @@ void Renderer::DrawVertices(SpriteSheet const& sheet,
   Device->SetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
 
   // ReFill index buffer with quads
-  int index = 0;
-  int vertex = 0;
+  size_t index = 0;
+  uint16_t vertex = 0;
   while (index + 6 <= IndexBufferCount) {
     // bottom-left -> top-left -> top-right
     IndexBuffer[index] = vertex + 0;
@@ -720,7 +719,6 @@ void Renderer::DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
   float alphaRes[] = {alphaRange, constAlpha};
   BOOL isInvertedB = (BOOL)isInverted;
   BOOL isSameTextureB = (BOOL) false;
-  BOOL useMaskAlphaB = (BOOL)useMaskAlpha;
 
   if (useMaskAlpha) {
     EnsureShader(ShaderMaskedSprite);
@@ -1026,7 +1024,7 @@ void Renderer::EnsureTextureBound(uint32_t texture) {
                "not {:d}\n",
                CurrentTexture, texture);
     Flush();
-    auto res = Device->SetTexture(0, Textures[texture]);
+    Device->SetTexture(0, Textures[texture]);
     CurrentTexture = texture;
   }
 }
@@ -1082,7 +1080,7 @@ void Renderer::Flush() {
   }
   IndexBufferFill = 0;
   VertexBufferFill = 0;
-  CurrentTexture = -1;
+  CurrentTexture = std::numeric_limits<uint32_t>::max();
 }
 
 void Renderer::DrawVideoTexture(YUVFrame* tex, RectF const& dest,
@@ -1094,7 +1092,7 @@ void Renderer::DrawVideoTexture(YUVFrame* tex, RectF const& dest,
   }
 
   EnsureShader(ShaderYUVFrame);
-  CurrentTexture = -1;
+  CurrentTexture = std::numeric_limits<uint32_t>::max();
 
   // Do we have space for one more sprite quad?
   EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);

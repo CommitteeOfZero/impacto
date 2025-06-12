@@ -343,10 +343,12 @@ static void RenderMain() {
 
     for (int bgId = 0; bgId < MaxBackgrounds2D; bgId++) {
       if (GetFlag(SF_BGEFF1DISP + bgId) &&
-          (ScrWork[SW_BGEFF1_PRI +
-                   Profile::Vm::ScrWorkBgEffStructSize * bgId] == layer ||
-           ScrWork[SW_BGEFF1_PRI2 +
-                   Profile::Vm::ScrWorkBgEffStructSize * bgId] == layer)) {
+          (static_cast<uint32_t>(
+               ScrWork[SW_BGEFF1_PRI +
+                       Profile::Vm::ScrWorkBgEffStructSize * bgId]) == layer ||
+           static_cast<uint32_t>(
+               ScrWork[SW_BGEFF1_PRI2 +
+                       Profile::Vm::ScrWorkBgEffStructSize * bgId]) == layer)) {
         Framebuffers[0].RenderBgEff(bgId, layer);
       }
     }
@@ -375,25 +377,29 @@ static void RenderMain() {
       }
     }
 
-    for (size_t capId = 0; capId < MaxScreencaptures; capId++) {
-      if (!GetFlag(SF_CAP1DISP + capId)) continue;
+    for (size_t capId = 0; capId < (size_t)MaxScreencaptures; capId++) {
+      if (!GetFlag((uint32_t)(SF_CAP1DISP + capId))) continue;
 
-      for (size_t capLayer = 0; capLayer < MaxScreencaptures; capLayer++) {
-        if (ScrWork[SW_CAP1PRI + capId * 20 + capLayer * 8] == layer) {
-          Screencaptures[capId].RenderCapture(capId, layer);
+      for (size_t capLayer = 0; capLayer < (size_t)MaxScreencaptures;
+           capLayer++) {
+        if (static_cast<uint32_t>(
+                ScrWork[SW_CAP1PRI + capId * 20 + capLayer * 8]) == layer) {
+          Screencaptures[capId].RenderCapture((int)capId, layer);
         }
       }
     }
 
     if (Profile::UseScreenCapEffects) {
-      if (ScrWork[SW_EFF_CAP_BUF] && ScrWork[SW_EFF_CAP_PRI] == layer) {
+      if (ScrWork[SW_EFF_CAP_BUF] &&
+          static_cast<uint32_t>(ScrWork[SW_EFF_CAP_PRI]) == layer) {
         int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF]);
         if (Backgrounds2D[bufId]->Status == LS_Loaded) {
           Renderer->CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
         }
       }
 
-      if (ScrWork[SW_EFF_CAP_BUF2] && ScrWork[SW_EFF_CAP_PRI2] == layer) {
+      if (ScrWork[SW_EFF_CAP_BUF2] &&
+          static_cast<uint32_t>(ScrWork[SW_EFF_CAP_PRI2]) == layer) {
         int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF2]);
         if (Backgrounds2D[bufId]->Status == LS_Loaded) {
           Renderer->CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
@@ -427,9 +433,10 @@ static void RenderMain() {
         Video::VideoRender(videoAlpha / 256.0f);
       }
     }
-    if (ScrWork[SW_DELUSION_PRI] == layer) DelusionTrigger::Render();
+    if (static_cast<uint32_t>(ScrWork[SW_DELUSION_PRI]) == layer)
+      DelusionTrigger::Render();
     if (CCLCC::YesNoTrigger::YesNoTriggerPtr &&
-        ScrWork[SW_YESNO_PRI] == layer) {
+        static_cast<uint32_t>(ScrWork[SW_YESNO_PRI]) == layer) {
       CCLCC::YesNoTrigger::YesNoTriggerPtr->Render();
     }
   }

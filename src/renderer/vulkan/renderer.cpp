@@ -1506,7 +1506,7 @@ void Renderer::DrawVertices(SpriteSheet const& sheet,
   }
 
   if (Textures.count(sheet.Texture) == 0) return;
-  const int verticesCount = sheetPositions.size();
+  const size_t verticesCount = sheetPositions.size();
 
   if (verticesCount != displayPositions.size()) {
     ImpLog(LogLevel::Error, LogChannel::Render,
@@ -1560,17 +1560,17 @@ void Renderer::DrawVertices(SpriteSheet const& sheet,
       (VertexBufferSprites*)(VertexBuffer + VertexBufferOffset +
                              VertexBufferFill);
 
-  VertexBufferFill += verticesCount * sizeof(VertexBufferSprites);
+  VertexBufferFill += (int)(verticesCount * sizeof(VertexBufferSprites));
 
   int indexBufferOffset = IndexBufferOffset / sizeof(uint16_t);
 
   // Generate indices for triangles
   for (int y = 0; y < height - 1; y++) {
     for (int x = 0; x < width - 1; x++) {
-      uint16_t v0 = y * width + x;
-      uint16_t v1 = y * width + (x + 1);
-      uint16_t v2 = (y + 1) * width + x;
-      uint16_t v3 = (y + 1) * width + (x + 1);
+      uint16_t v0 = (uint16_t)(y * width + x);
+      uint16_t v1 = (uint16_t)(y * width + (x + 1));
+      uint16_t v2 = (uint16_t)((y + 1) * width + x);
+      uint16_t v3 = (uint16_t)((y + 1) * width + (x + 1));
 
       // First triangle
       for (auto v : {v1, v0, v2}) {
@@ -1584,7 +1584,7 @@ void Renderer::DrawVertices(SpriteSheet const& sheet,
   }
   assert(IndexBufferFill == (width - 1) * (height - 1) * 6);
 
-  for (int i = 0; i < verticesCount; i++) {
+  for (size_t i = 0; i < verticesCount; i++) {
     vertices[i].Position = DesignToNDCNonFlipped(displayPositions[i]);
     vertices[i].Tint = tint;
     glm::vec2 uv =
@@ -1824,18 +1824,19 @@ inline void Renderer::MakeQuad() {
   int indexBufferOffset = IndexBufferOffset / sizeof(uint16_t);
   if (IndexBufferFill + 6 <= IndexBufferCount) {
     // bottom-left -> top-left -> top-right
-    IndexBuffer[indexBufferOffset + IndexBufferFill] = VertexBufferCount + 0;
+    IndexBuffer[indexBufferOffset + IndexBufferFill] =
+        (uint16_t)VertexBufferCount + 0;
     IndexBuffer[indexBufferOffset + IndexBufferFill + 1] =
-        VertexBufferCount + 1;
+        (uint16_t)VertexBufferCount + 1;
     IndexBuffer[indexBufferOffset + IndexBufferFill + 2] =
-        VertexBufferCount + 2;
+        (uint16_t)VertexBufferCount + 2;
     // bottom-left -> top-right -> bottom-right
     IndexBuffer[indexBufferOffset + IndexBufferFill + 3] =
-        VertexBufferCount + 0;
+        (uint16_t)VertexBufferCount + 0;
     IndexBuffer[indexBufferOffset + IndexBufferFill + 4] =
-        VertexBufferCount + 2;
+        (uint16_t)VertexBufferCount + 2;
     IndexBuffer[indexBufferOffset + IndexBufferFill + 5] =
-        VertexBufferCount + 3;
+        (uint16_t)VertexBufferCount + 3;
     IndexBufferFill += 6;
     VertexBufferCount += 4;
   }
@@ -2159,8 +2160,8 @@ void Renderer::DrawVideoTexture(YUVFrame* tex, RectF const& dest,
 void Renderer::CaptureScreencap(Sprite& sprite) {
   if (Textures.count(sprite.Sheet.Texture) == 0) return;
   sprite.Sheet.IsScreenCap = true;
-  sprite.Sheet.DesignWidth = Window->WindowWidth;
-  sprite.Sheet.DesignHeight = Window->WindowHeight;
+  sprite.Sheet.DesignWidth = (float)Window->WindowWidth;
+  sprite.Sheet.DesignHeight = (float)Window->WindowHeight;
 
   // Here we go...
   Flush();
@@ -2245,7 +2246,7 @@ void Renderer::CaptureScreencap(Sprite& sprite) {
 
 int Renderer::GetSpriteSheetImage(SpriteSheet const& sheet,
                                   std::span<uint8_t> outBuffer) {
-  const int bufferSize = sheet.DesignWidth * sheet.DesignHeight * 4;
+  const int bufferSize = (int)(sheet.DesignWidth * sheet.DesignHeight * 4);
   assert(outBuffer.size() >= bufferSize);
 
   // Create a staging buffer to copy the image data to

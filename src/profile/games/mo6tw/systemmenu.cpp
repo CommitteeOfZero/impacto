@@ -22,7 +22,7 @@ void Configure() {
   SystemMenuY = EnsureGetMember<float>("SystemMenuY");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<int>("DrawType"));
+      EnsureGetMember<uint8_t>("DrawType"));
 
   UI::SystemMenuPtr = new UI::MO6TW::SystemMenu();
   UI::Menus[drawType].push_back(UI::SystemMenuPtr);
