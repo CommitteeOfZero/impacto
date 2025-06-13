@@ -239,8 +239,7 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
       }
       entry->Status = 1;
 
-      std::time_t t = std::time(0);
-      entry->SaveDate = *std::localtime(&t);
+      entry->SaveDate = CurrentDateTime();
       entry->PlayTime = WorkingSaveEntry->PlayTime;
       entry->SwTitle = WorkingSaveEntry->SwTitle;
 

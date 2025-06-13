@@ -315,7 +315,7 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
     }
     time_t rawtime;
     time(&rawtime);
-    entry->SaveDate = *localtime(&rawtime);
+    entry->SaveDate = CurrentDateTime();
     auto captureBuffer =
         Renderer->GetSpriteSheetImage(WorkingSaveThumbnail.Sheet);
 
@@ -680,8 +680,8 @@ void SaveSystem::SaveMemory() {
     WorkingSaveEntry->Status = 1;
     time_t rawtime;
     time(&rawtime);
-    tm* timeinfo = localtime(&rawtime);
-    WorkingSaveEntry->SaveDate = *timeinfo;
+    const tm timeinfo = CurrentDateTime();
+    WorkingSaveEntry->SaveDate = timeinfo;
     WorkingSaveEntry->PlayTime = ScrWork[SW_PLAYTIME];
     WorkingSaveEntry->SwTitle = ScrWork[SW_TITLE];
 

@@ -350,4 +350,28 @@ RectF RectF::BoundingBox(const CornersQuad& first, const RectF& second) {
   return BoundingBox(second, first);
 }
 
+tm CurrentDateTime() {
+  const auto now = std::chrono::system_clock::now();
+  const auto tp = std::chrono::time_point_cast<std::chrono::days>(now);
+  const auto date = std::chrono::year_month_day(tp);
+  const auto weekday = std::chrono::year_month_weekday(tp).weekday_indexed();
+  const auto time =
+      std::chrono::hh_mm_ss(now - std::chrono::floor<std::chrono::days>(now));
+  const int yday = std::chrono::duration_cast<std::chrono::days>(
+                       now - std::chrono::floor<std::chrono::years>(now))
+                       .count();
+
+  return tm{
+      .tm_sec = (int)time.seconds().count(),
+      .tm_min = (int)time.minutes().count(),
+      .tm_hour = (int)time.hours().count(),
+      .tm_mday = (int)(unsigned)date.day(),
+      .tm_mon = (int)(unsigned)date.month() - 1,
+      .tm_year = (int)date.year() - 1900,
+      .tm_wday = (int)weekday.index(),
+      .tm_yday = yday,
+      .tm_isdst = -1,
+  };
+}
+
 }  // namespace Impacto
