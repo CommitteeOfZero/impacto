@@ -124,7 +124,6 @@ void Scrollbar::UpdateInput() {
     if (Input::MouseButtonIsDown[SDL_BUTTON_LEFT] && ScrollHeld) {
       float mouseP, trackP1, trackP2;
       switch (Direction) {
-        default:
         case SBDIR_VERTICAL:
           mouseP = Input::CurMousePos.y;
           trackP1 = TrackBounds.Y;

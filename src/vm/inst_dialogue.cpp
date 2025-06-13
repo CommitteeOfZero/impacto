@@ -648,18 +648,21 @@ void ChkMesSkip() {
         (bool)(Interface::PADinputButtonIsDown & Interface::PADcustom[7]);
 
     // Skip
-    if (Interface::PADinputButtonWentDown & Interface::PADcustom[8])
-      if (MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll))
+    if (Interface::PADinputButtonWentDown & Interface::PADcustom[8]) {
+      if (MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll)) {
         // Turn off all skip modes (leaving auto)
         MesSkipMode &= SkipModeFlags::Auto;
-      else
+      } else {
         MesSkipMode |=
             (Profile::ConfigSystem::SkipRead ? SkipModeFlags::SkipRead
                                              : SkipModeFlags::SkipAll);
+      }
+    }
 
     // Auto
-    if (Interface::PADinputButtonWentDown & Interface::PADcustom[9])
+    if (Interface::PADinputButtonWentDown & Interface::PADcustom[9]) {
       MesSkipMode ^= SkipModeFlags::Auto;
+    }
   }
 
   mesSkip |= (bool)(MesSkipMode & SkipModeFlags::SkipAll);

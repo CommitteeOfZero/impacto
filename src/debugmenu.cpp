@@ -626,9 +626,9 @@ void ShowScriptDebugger() {
             Io::FileMeta scriptMeta;
             Io::VfsGetMeta("script", it->second.first, &scriptMeta);
             bool isBreakpoint = true;
-            snprintf(buf, 256, "%08lX - %d - %s - %s", it->second.second,
-                     it->first, scriptMeta.FileName.c_str(),
-                     ScriptDebugSource[it->second.first][it->first].c_str());
+            fmt::format_to_n(buf, 256, "%08X - %d - %s - %s", it->second.second,
+                             it->first, scriptMeta.FileName,
+                             ScriptDebugSource[it->second.first][it->first]);
             ImGui::Selectable(buf, &isBreakpoint,
                               ImGuiSelectableFlags_SpanAllColumns);
             if (!isBreakpoint) {
@@ -713,7 +713,7 @@ void ShowScriptDebugger() {
               : thd.ReturnAddresses[i];
 
       ImGui::Text(
-          "%s - %08X",
+          "%s - %p",
           Vm::LoadedScriptMetas[thd.ReturnScriptBufferIds[i]].FileName.c_str(),
           (void*)(returnAddress -
                   Vm::ScriptBuffers[thd.ReturnScriptBufferIds[i]]));

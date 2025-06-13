@@ -29,6 +29,11 @@ void Init() {
       FixedSpriteAnim.Def->FixSpriteId = SkipIconFixedSpriteId;
       FixedSpriteAnim.StartIn();
       break;
+
+    case SkipIconType::None:
+    case SkipIconType::Fixed:
+    case SkipIconType::CHLCC:
+      break;
   }
 }
 
@@ -59,6 +64,10 @@ void Update(float dt) {
     case SkipIconType::CHLCC:
       Progress += dt * SkipIconRotationSpeed;
       Progress -= (int)Progress;  // Progress %= 1.0f
+      break;
+
+    case SkipIconType::None:
+    case SkipIconType::Fixed:
       break;
   }
 }
@@ -98,6 +107,10 @@ void Render(glm::vec4 opacityTint) {
                              glm::vec2(SkipIconOffset.x, SkipIconOffset.y),
                              opacityTint);
       }
+      break;
+
+    case SkipIconType::None:
+    case SkipIconType::Fixed:
       break;
   }
 }

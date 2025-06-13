@@ -26,22 +26,26 @@ Group::~Group() { Clear(); }
 void Group::Add(Widget* widget) { Children.push_back(widget); }
 
 void Group::Add(Widget* widget, FocusDirection dir) {
-  FocusDirection oppositeDir;
-  switch (dir) {
-    case FDIR_LEFT:
-      oppositeDir = FDIR_RIGHT;
-      break;
-    case FDIR_RIGHT:
-      oppositeDir = FDIR_LEFT;
-      break;
-    case FDIR_UP:
-      oppositeDir = FDIR_DOWN;
-      break;
-    default:
-    case FDIR_DOWN:
-      oppositeDir = FDIR_UP;
-      break;
-  }
+  const FocusDirection oppositeDir = [dir]() {
+    switch (dir) {
+      case FDIR_LEFT:
+        return FDIR_RIGHT;
+
+      case FDIR_RIGHT:
+        return FDIR_LEFT;
+
+      case FDIR_UP:
+        return FDIR_DOWN;
+
+      case FDIR_DOWN:
+        return FDIR_UP;
+
+      default:
+        ImpLog(LogLevel::Error, LogChannel::General,
+               "Unknown focus direction {}", (int)dir);
+        return FDIR_DOWN;
+    }
+  }();
 
   if (LastFocusableElementId != -1) {
     auto el = Children.at(LastFocusableElementId);

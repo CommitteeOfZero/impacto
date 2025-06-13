@@ -175,6 +175,7 @@ void OpenALAudioChannel::UpdateGain() {
   switch (State) {
     case ACS_Stopped:
       return;
+    case ACS_Paused:
     case ACS_Playing:
       // Nothing
       break;
