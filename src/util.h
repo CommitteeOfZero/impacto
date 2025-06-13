@@ -320,7 +320,8 @@ inline void MakeLowerCase(std::string& str) {
 
 template <typename T>
 T UnalignedRead(void* ptr) {
-  static_assert(std::is_pod<T>::value, "!std::is_pod<T>");
+  static_assert(std::is_trivially_copyable<T>::value,
+                "!std::is_trivially_copyable<T>");
   T value;
   memcpy(&value, ptr, sizeof value);
   return value;
@@ -328,7 +329,8 @@ T UnalignedRead(void* ptr) {
 
 template <typename T>
 void UnalignedWrite(void* ptr, T value) {
-  static_assert(std::is_pod<T>::value, "!std::is_pod<T>");
+  static_assert(std::is_trivially_copyable<T>::value,
+                "!std::is_trivially_copyable<T>");
   memcpy(ptr, &value, sizeof value);
 }
 
