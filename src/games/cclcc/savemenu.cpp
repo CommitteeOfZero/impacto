@@ -254,7 +254,6 @@ void SaveMenu::Update(float dt) {
     PageAnimation.Update(dt);
   }
 
-  static_cast<SaveEntryButton*>(CurrentlyFocusedElement);
   if (State == Shown &&
       (ScrWork[SW_SYSSUBMENUNO] == 0 || ScrWork[SW_SYSSUBMENUNO] == 3 ||
        ScrWork[SW_SYSSUBMENUNO] == 4)) {

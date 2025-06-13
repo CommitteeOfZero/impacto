@@ -210,6 +210,9 @@ void Background2D::LinkBuffers(const int linkCode, const int currentBufferId) {
             Links[i].DisplayCoords = {Position.x + BgSprite.ScaledWidth(),
                                       Position.y};
           } break;
+
+          case LinkDirection::Off:
+            break;
         }
       }
     }
