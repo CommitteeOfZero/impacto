@@ -134,17 +134,23 @@ void Configure() {
           EnsureGetMember<SpriteAnimationDef>("AutoIconSpriteAnim");
       AutoIconOffset = EnsureGetMember<glm::vec2>("AutoIconOffset");
       break;
+
     case AutoIconDisplay::AutoIconType::SpriteAnimFixed:
       AutoIconSpriteAnim =
           EnsureGetMember<SpriteAnimationDef>("AutoIconSpriteAnim");
       AutoIconFixedSpriteId = EnsureGetMember<int>("AutoIconFixedSpriteId");
       AutoIconOffset = EnsureGetMember<glm::vec2>("AutoIconOffset");
       break;
+
     case AutoIconDisplay::AutoIconType::CHLCC:
       AutoIconSprite = EnsureGetMember<Sprite>("AutoIconSprite");
       AutoIconRotationSpeed = EnsureGetMember<float>("AutoIconRotationSpeed");
       AutoSkipArrowsSprite = EnsureGetMember<Sprite>("AutoSkipArrowsSprite");
       AutoIconOffset = EnsureGetMember<glm::vec2>("AutoIconOffset");
+      break;
+
+    case AutoIconDisplay::AutoIconType::Fixed:
+    case AutoIconDisplay::AutoIconType::None:
       break;
   }
 
@@ -159,16 +165,22 @@ void Configure() {
           EnsureGetMember<SpriteAnimationDef>("SkipIconSpriteAnim");
       SkipIconOffset = EnsureGetMember<glm::vec2>("SkipIconOffset");
       break;
+
     case SkipIconDisplay::SkipIconType::SpriteAnimFixed:
       SkipIconSpriteAnim =
           EnsureGetMember<SpriteAnimationDef>("SkipIconSpriteAnim");
       SkipIconFixedSpriteId = EnsureGetMember<int>("SkipIconFixedSpriteId");
       SkipIconOffset = EnsureGetMember<glm::vec2>("SkipIconOffset");
       break;
+
     case SkipIconDisplay::SkipIconType::CHLCC:
       SkipIconSprite = EnsureGetMember<Sprite>("SkipIconSprite");
       SkipIconRotationSpeed = EnsureGetMember<float>("SkipIconRotationSpeed");
       SkipIconOffset = EnsureGetMember<glm::vec2>("SkipIconOffset");
+      break;
+
+    case SkipIconDisplay::SkipIconType::Fixed:
+    case SkipIconDisplay::SkipIconType::None:
       break;
   }
 
