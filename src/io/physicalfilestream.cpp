@@ -122,18 +122,22 @@ int64_t PhysicalFileStream::Seek(int64_t offset, int origin) {
     // seeking is useless in readless append mode
     return IoError_Fail;
   }
-  int64_t absPos;
-  switch (origin) {
-    case RW_SEEK_SET:
-      absPos = offset;
-      break;
-    case RW_SEEK_CUR:
-      absPos = Position + offset;
-      break;
-    case RW_SEEK_END:
-      absPos = Meta.Size - offset;
-      break;
-  }
+  const int64_t absPos = [&]() {
+    switch (origin) {
+      case RW_SEEK_SET:
+        return offset;
+
+      case RW_SEEK_CUR:
+        return Position + offset;
+
+      case RW_SEEK_END:
+        return Meta.Size - offset;
+
+      default:
+        ImpLog(LogLevel::Error, LogChannel::IO, "Unknown origin {}", origin);
+        return (int64_t)0;
+    }
+  }();
 
   // seeking past EOF is a legal operation, after write past EOF, the gap
   // between prev file size and write pos is zero padded
