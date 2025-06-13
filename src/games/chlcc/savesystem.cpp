@@ -202,7 +202,7 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
       }
       time_t rawtime;
       time(&rawtime);
-      entry->SaveDate = *localtime(&rawtime);
+      entry->SaveDate = CurrentDateTime();
     }
   }
 }
