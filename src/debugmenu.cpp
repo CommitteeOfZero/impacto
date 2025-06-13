@@ -854,7 +854,7 @@ void ShowObjects() {
         }
 
         ImGui::Spacing();
-        ImGui::BulletText("Status: %d", Backgrounds[i].Status);
+        ImGui::BulletText("Status: %d", (int)Backgrounds[i].Status);
         ImGui::Spacing();
         ImGui::BulletText("Texture: (width: %f, height: %f)",
                           Backgrounds[i].BgSprite.Sheet.DesignWidth,
@@ -907,7 +907,7 @@ void ShowObjects() {
         }
 
         ImGui::Spacing();
-        ImGui::BulletText("Status: %d", Characters2D[i].Status);
+        ImGui::BulletText("Status: %d", (int)Characters2D[i].Status);
         ImGui::Spacing();
         ImGui::BulletText("Texture: (width: %f, height: %f)",
                           Characters2D[i].CharaSprite.Sheet.DesignWidth,
