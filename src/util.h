@@ -349,4 +349,6 @@ inline int CALCrnd(int max) {
   return distr(gen) * max >> 0xf;
 }
 
+tm CurrentDateTime();
+
 }  // namespace Impacto
