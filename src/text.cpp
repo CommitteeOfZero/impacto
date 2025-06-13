@@ -775,6 +775,7 @@ int TextGetStringLength(Vm::Sc3VmThread* ctx) {
   } while (token.Type != STT_EndOfString);
   return result;
 }
+/*
 int TextGetMainCharacterCount(Vm::Sc3VmThread* ctx) {
   int result = 0;
   StringToken token;  // FIXME: Initialize token
@@ -801,6 +802,7 @@ int TextGetMainCharacterCount(Vm::Sc3VmThread* ctx) {
   } while (token.Type != STT_EndOfString);
   return result;
 }
+*/
 
 int TextLayoutPlainLine(Vm::Sc3VmThread* ctx, int stringLength,
                         std::span<ProcessedTextGlyph> outGlyphs, Font* font,

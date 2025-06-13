@@ -16,7 +16,7 @@ void LoadFonts() {
     FontType type =
         FontType::_from_integral_unchecked(EnsureGetMember<int>("Type"));
 
-    Font* baseFont;
+    Font* baseFont = nullptr;
 
     switch (type) {
       case FontType::Basic: {

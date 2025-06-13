@@ -998,7 +998,7 @@ uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
                                  int height) {
   VkDeviceSize imageSize = 0;
   VkFormat imageFormat = VK_FORMAT_R8G8B8A8_SRGB;
-  uint8_t* newBuffer;
+  uint8_t* newBuffer = nullptr;
 
   switch (format) {
     case TexFmt_RGBA:

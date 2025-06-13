@@ -53,18 +53,22 @@ int64_t MemoryMappedFileStream<M>::Read(void* buffer, int64_t sz) {
 
 template <AccessMode M>
 int64_t MemoryMappedFileStream<M>::Seek(int64_t offset, int origin) {
-  int64_t absPos;
-  switch (origin) {
-    case RW_SEEK_SET:
-      absPos = offset;
-      break;
-    case RW_SEEK_CUR:
-      absPos = Position + offset;
-      break;
-    case RW_SEEK_END:
-      absPos = Meta.Size - offset;
-      break;
-  }
+  const int64_t absPos = [&]() {
+    switch (origin) {
+      case RW_SEEK_SET:
+        return offset;
+
+      case RW_SEEK_CUR:
+        return Position + offset;
+
+      case RW_SEEK_END:
+        return Meta.Size - offset;
+
+      default:
+        ImpLog(LogLevel::Error, LogChannel::IO, "Unknown origin {}", origin);
+        return (int64_t)0;
+    }
+  }();
 
   if (absPos < 0 || absPos > Meta.Size) return IoError_Fail;
   Position = absPos;

@@ -243,7 +243,7 @@ void YesNoTrigger::Render() {
     alpha = 0;
   }
   glm::vec4 bgtint = glm::vec4(1.0f, 1.0f, 1.0f, alpha / 255.0f);
-  glm::vec2 starPos;
+  glm::vec2 starPos{};
   ActiveBackground.Bounds =
       Rect(static_cast<int>(BgSpritePos.x + bgXOffset),
            static_cast<int>(BgSpritePos.y + bgYOffset),
@@ -281,7 +281,7 @@ void YesNoTrigger::Render() {
         starPos = {chipNoX - 132, chipNoY - 166};
       }
 
-    } else if (BgType == BGType::BG2 || BgType == BGType::BG3) {
+    } else /* if (BgType == BGType::BG2 || BgType == BGType::BG3) */ {
       ActiveYesChip =
           (Selection == YesNoSelect::YES) ? &YN2YesChipLarge : &YN2YesChipSmall;
       ActiveNoChip =

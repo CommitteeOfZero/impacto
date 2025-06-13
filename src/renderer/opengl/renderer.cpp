@@ -174,20 +174,26 @@ uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16);
 
   // Load in data
-  GLuint texFormat;
-  switch (format) {
-    case TexFmt_RGBA:
-      glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-      texFormat = GL_RGBA;
-      break;
-    case TexFmt_RGB:
-      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-      texFormat = GL_RGB;
-      break;
-    case TexFmt_U8:
-      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-      texFormat = GL_RED;
-  }
+  const GLuint texFormat = [format]() {
+    switch (format) {
+      case TexFmt_RGBA:
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+        return GL_RGBA;
+
+      case TexFmt_RGB:
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        return GL_RGB;
+
+      case TexFmt_U8:
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        return GL_RED;
+
+      default:
+        ImpLog(LogLevel::Error, LogChannel::GL,
+               "Unimplemented texture format {}", (int)format);
+        return 0;
+    }
+  }();
   glTexImage2D(GL_TEXTURE_2D, 0, texFormat, width, height, 0, texFormat,
                GL_UNSIGNED_BYTE, buffer);
 
