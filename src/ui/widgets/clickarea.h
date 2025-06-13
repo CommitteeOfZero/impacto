@@ -17,9 +17,9 @@ class ClickArea : public Widget {
 
   virtual void UpdateInput() override;
 
-  virtual void Show();
-  virtual void Hide();
-  virtual void Render() {}
+  virtual void Show() override;
+  virtual void Hide() override;
+  virtual void Render() override {}
 
   int Id;
 

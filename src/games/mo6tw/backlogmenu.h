@@ -8,7 +8,7 @@ namespace MO6TW {
 
 class BacklogMenu : public UI::BacklogMenu {
  public:
-  void Render();
+  void Render() override;
 
  private:
   void UpdateVisibility() override;

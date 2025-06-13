@@ -43,8 +43,14 @@ void ClickArea::Show() {
     case Input::Device::Mouse:
       Hovered = Bounds.ContainsPoint(Input::CurMousePos);
       break;
+
     case Input::Device::Touch:
       Hovered = Bounds.ContainsPoint(Input::CurTouchPos);
+      break;
+
+    case Input::Device::Keyboard:
+    case Input::Device::Controller:
+      Hovered = false;
       break;
   }
 }
