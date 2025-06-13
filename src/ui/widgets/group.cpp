@@ -36,6 +36,7 @@ void Group::Add(Widget* widget, FocusDirection dir) {
     case FDIR_UP:
       oppositeDir = FDIR_DOWN;
       break;
+    default:
     case FDIR_DOWN:
       oppositeDir = FDIR_UP;
       break;

@@ -56,6 +56,7 @@ void DecompressBlockDXT1(uint32_t startX, uint32_t startY, uint32_t imageWidth,
   uint32_t code = ReadLE<uint32_t>(stream);
 
   uint8_t r, g, b, a;
+  r = g = b = a = 0;
 
   for (int j = 0; j < 4; j++) {
     for (int i = 0; i < 4; i++) {
@@ -162,6 +163,7 @@ void DecompressBlockDXT5(uint32_t startX, uint32_t startY, uint32_t imageWidth,
   uint32_t code = ReadLE<uint32_t>(stream);
 
   uint8_t r, g, b, a;
+  r = g = b = a = 0;
 
   for (int j = 0; j < 4; j++) {
     for (int i = 0; i < 4; i++) {

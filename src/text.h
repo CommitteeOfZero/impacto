@@ -135,7 +135,7 @@ inline DialoguePage* DialoguePages;
 inline int DialoguePageCount = 0;
 
 int TextGetStringLength(Vm::Sc3VmThread* ctx);
-int TextGetMainCharacterCount(Vm::Sc3VmThread* ctx);
+// int TextGetMainCharacterCount(Vm::Sc3VmThread* ctx); TODO: Implement
 int TextLayoutPlainLine(Vm::Sc3VmThread* ctx, int stringLength,
                         std::span<ProcessedTextGlyph> outGlyphs, Font* font,
                         float fontSize, DialogueColorPair colors, float opacity,
