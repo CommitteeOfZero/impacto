@@ -158,8 +158,8 @@ MovieMenu::MovieMenu() : LibrarySubmenu() {
   for (int i = 0; i < MovieDiskSprites.size(); ++i) {
     const auto& diskSprite = MovieDiskSprites[i];
     const auto& diskHighlightSprite = MovieDiskHighlightSprites[i];
-    auto movieOnclick = [this, i](Widgets::Button* target) {
-      ScrWork[SW_MOVIEMODE_CUR] = MovieDiskPlayIds[i];
+    auto movieOnclick = [](Widgets::Button* target) {
+      ScrWork[SW_MOVIEMODE_CUR] = MovieDiskPlayIds[target->Id];
       LibraryMenuPtr->AllowsScriptInput = true;
     };
     auto disk =
@@ -193,9 +193,10 @@ void MusicMenu::Show() {
     const int maxY = MusicPlayIds.size() * MusicItemPadding;
     for (int pos = 1; pos <= MusicPlayIds.size(); ++pos) {
       int i = (pos + MusicPlayIds.size() - 1) % MusicPlayIds.size();
-      auto musicOnclick = [this, i](Widgets::Button* target) {
+      auto musicOnclick = [this](Widgets::Button* target) {
         Audio::Channels[Audio::AC_BGM0]->Play(
-            "bgm", MusicPlayIds[i], PlayMode == MusicPlayMode::RepeatOne, 0.0f);
+            "bgm", MusicPlayIds[target->Id],
+            PlayMode == MusicPlayMode::RepeatOne, 0.0f);
       };
       float btnY = fmod(MusicRenderingBounds.Y + MusicItemPadding * pos +
                             MusicItemPadding * 8,
