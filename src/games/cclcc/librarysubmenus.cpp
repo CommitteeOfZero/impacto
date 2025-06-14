@@ -17,14 +17,14 @@ using namespace Impacto::Profile::ScriptVars;
 MusicTrackButton::MusicTrackButton(int id, int position, glm::vec2 pos)
     : Button(), Position(position) {
   Id = id;
-  float textOffset = 20.0f;
-  Bounds = RectF(pos.x, pos.y + textOffset, MusicRenderingBounds.Width,
-                 MusicItemPadding);
+  Bounds = RectF(pos.x, pos.y + MusicButtonTextYOffset, MusicButtonBounds.Width,
+                 MusicButtonBounds.Height);
   size_t trackTextIndex = 2 * Id;
   SetText(
       Vm::ScriptGetTextTableStrAddress(MusicStringTableId, trackTextIndex + 6),
       MusicTrackNameSize, RendererOutlineMode::None, {0x4f4f4b, 0x0});
-  Bounds = RectF(pos.x, pos.y, MusicRenderingBounds.Width, MusicItemPadding);
+  Bounds =
+      RectF(pos.x, pos.y, MusicButtonBounds.Width, MusicButtonBounds.Height);
   HoverBounds = Bounds;
   for (int i = 0; i < Text.size(); i++) {
     Text[i].DestRect.X += MusicTrackNameOffsetX;
@@ -33,20 +33,21 @@ MusicTrackButton::MusicTrackButton(int id, int position, glm::vec2 pos)
       MusicStringTableId, MusicStringLockedIndex);
   Vm::Sc3VmThread dummy;
   dummy.Ip = lockedSc3Text;
-  TextLayoutPlainLine(
-      &dummy, 6, LockedText, Profile::Dialogue::DialogueFont,
-      MusicTrackNameSize, {0x4f4f4b, 0x0}, 1.0f,
-      glm::vec2(Bounds.X + MusicTrackNameOffsetX, Bounds.Y + textOffset),
-      TextAlignment::Left);
+  TextLayoutPlainLine(&dummy, 6, LockedText, Profile::Dialogue::DialogueFont,
+                      MusicTrackNameSize, {0x4f4f4b, 0x0}, 1.0f,
+                      glm::vec2(Bounds.X + MusicTrackNameOffsetX,
+                                Bounds.Y + MusicButtonTextYOffset),
+                      TextAlignment::Left);
   ArtistName = Widgets::Label(
       Vm::ScriptGetTextTableStrAddress(MusicStringTableId, trackTextIndex + 7),
-      glm::vec2(Bounds.X + MusicTrackArtistOffsetX, Bounds.Y + textOffset),
+      glm::vec2(Bounds.X + MusicTrackArtistOffsetX,
+                Bounds.Y + MusicButtonTextYOffset),
       MusicTrackArtistSize, RendererOutlineMode::None, {0x4f4f4b, 0x0});
-  TextLayoutPlainString(fmt::format("{}", position), NumberText,
-                        Profile::Dialogue::DialogueFont, MusicTrackNameSize,
-                        {0xfffffff, 0}, 1.0f,
-                        glm::vec2(Bounds.X + 80.0f, Bounds.Y + textOffset),
-                        TextAlignment::Center);
+  TextLayoutPlainString(
+      fmt::format("{}", position), NumberText, Profile::Dialogue::DialogueFont,
+      MusicTrackNameSize, {0xfffffff, 0}, 1.0f,
+      glm::vec2(Bounds.X + 80.0f, Bounds.Y + MusicButtonTextYOffset),
+      TextAlignment::Center);
 }
 
 void MusicTrackButton::Show() {
@@ -56,12 +57,12 @@ void MusicTrackButton::Show() {
 }
 
 void MusicTrackButton::Move(glm::vec2 relativePos) {
-  auto maxY = MusicItemPadding * MusicPlayIds.size();
+  auto maxY = MusicButtonBounds.Height * MusicPlayIds.size();
   float sum = Bounds.Y + relativePos.y;
   float newY = sum;
-  if (relativePos.y > 0 && newY > maxY - MusicItemPadding) {
+  if (relativePos.y > 0 && newY > maxY - MusicButtonBounds.Height) {
     newY -= maxY;
-  } else if (relativePos.y < 0 && newY < -MusicItemPadding) {
+  } else if (relativePos.y < 0 && newY < -MusicButtonBounds.Height) {
     newY += maxY;
   }
 
@@ -190,7 +191,7 @@ MusicMenu::MusicMenu() : LibrarySubmenu() {}
 
 void MusicMenu::Show() {
   if (State == MenuState::Hidden) {
-    const int maxY = MusicPlayIds.size() * MusicItemPadding;
+    const int maxY = MusicPlayIds.size() * MusicButtonBounds.Height;
     for (int pos = 1; pos <= MusicPlayIds.size(); ++pos) {
       int i = (pos + MusicPlayIds.size() - 1) % MusicPlayIds.size();
       auto musicOnclick = [this](Widgets::Button* target) {
@@ -198,10 +199,10 @@ void MusicMenu::Show() {
             "bgm", MusicPlayIds[target->Id],
             PlayMode == MusicPlayMode::RepeatOne, 0.0f);
       };
-      float btnY = fmod(MusicRenderingBounds.Y + MusicItemPadding * pos +
-                            MusicItemPadding * 8,
+      float btnY = fmod(MusicButtonBounds.Y + MusicButtonBounds.Height * pos +
+                            MusicButtonBounds.Height * 8,
                         maxY);
-      glm::vec2 btnPos = {MusicRenderingBounds.X, btnY};
+      glm::vec2 btnPos = {MusicButtonBounds.X, btnY};
       auto musicItem = new MusicTrackButton(i, pos, btnPos);
 
       musicItem->OnClickHandler = musicOnclick;
@@ -227,11 +228,12 @@ void MusicMenu::Update(float dt) {
     MainItems.Move(glm::vec2(0, -deltaY));
     PageY += deltaY;
     if (PageY != lastPageY) {
-      auto maxPageY = MusicItemPadding * MusicPlayIds.size();
-      if (PageY < lastPageY && PageY < MusicItemPadding)
-        PageY += maxPageY - MusicItemPadding;
-      else if (PageY > lastPageY && PageY > maxPageY - MusicItemPadding) {
-        PageY -= maxPageY - MusicItemPadding;
+      auto maxPageY = MusicButtonBounds.Height * MusicPlayIds.size();
+      if (PageY < lastPageY && PageY < MusicButtonBounds.Height)
+        PageY += maxPageY - MusicButtonBounds.Height;
+      else if (PageY > lastPageY &&
+               PageY > maxPageY - MusicButtonBounds.Height) {
+        PageY -= maxPageY - MusicButtonBounds.Height;
       }
     }
   } else if (State == Hidden && !MainItems.Children.empty()) {
@@ -243,8 +245,9 @@ void MusicMenu::Update(float dt) {
 
 void MusicMenu::Render() {
   if (State != Hidden) {
-    float backgroundY = fmod(MusicRenderingBounds.Y - PageY - MusicItemPadding,
-                             MusicItemsBackgroundRepeatHeight);
+    float backgroundY =
+        fmod(MusicRenderingBounds.Y - PageY - MusicButtonBounds.Height,
+             MusicItemsBackgroundRepeatHeight);
     glm::vec2 backgroundPos = MusicItemsBackgroundPosition;
     Renderer->DrawSprite(MusicItemsBackgroundSprite,
                          glm::vec2(MusicRenderingBounds.X, backgroundY));

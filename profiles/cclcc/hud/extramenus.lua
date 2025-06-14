@@ -82,6 +82,13 @@ root.ExtraMenus = {
             {X = 1422, Y= 412},
         },
         MovieDiskPlayIds = {54, 53, 52, 51},
+        MusicButtonTextYOffset = 20,
+        MusicButtonBounds = {
+            X = 320,
+            Y = 20,
+            Width = 1460,
+            Height = 60
+        }
     }
 }
 
