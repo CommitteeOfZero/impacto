@@ -25,9 +25,7 @@ void DateDisplay::Update(float dt) {
       time_in.tm_mday = Day;
       time_in.tm_mon = Month - 1;
       time_in.tm_year = Year + 100;
-      std::time_t time_temp = std::mktime(&time_in);
-      const std::tm* time_out = std::localtime(&time_temp);
-      Week = time_out->tm_wday;
+      Week = CurrentDateTime().tm_wday;
     }
   } else if (FadeAnimation.IsIn() && !GetFlag(SF_DATEDISPLAY)) {
     FadeAnimation.StartOut();

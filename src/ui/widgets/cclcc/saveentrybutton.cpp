@@ -24,7 +24,7 @@ SaveEntryButton::SaveEntryButton(int id, int index, Sprite const& focusedBox,
                                  Sprite const& focusedText, int page,
                                  glm::vec2 pos, Sprite lockedSymbol,
                                  SaveSystem::SaveType saveType,
-                                 Sprite NoDataSprite, Sprite BrokenDataSprite)
+                                 Sprite noDataSprite, Sprite brokenDataSprite)
     : Widgets::Button(
           id,
           Sprite(SpriteSheet(), focusedBox.Bounds.X, focusedBox.Bounds.Y,
@@ -36,9 +36,9 @@ SaveEntryButton::SaveEntryButton(int id, int index, Sprite const& focusedBox,
       LockedSymbol(lockedSymbol,
                    glm::vec2(Bounds.X, Bounds.Y) + glm::vec2(205.0f, 79.0f)),
       Type(saveType),
-      NoDataSymbol(NoDataSprite, glm::vec2(Bounds.X, Bounds.Y) +
+      NoDataSymbol(noDataSprite, glm::vec2(Bounds.X, Bounds.Y) +
                                      glm::vec2(211.0f, 20.0f + 1.0f - 12.0f)),
-      BrokenDataSymbol(BrokenDataSprite,
+      BrokenDataSymbol(brokenDataSprite,
                        glm::vec2(Bounds.X, Bounds.Y) +
                            glm::vec2(211.0f, 20.0f + 1.0f - 12.0f)) {
   DisabledSprite = NormalSprite;

@@ -346,7 +346,7 @@ void Update(float dt) {
           ImGui::Spacing();
           if (ImGui::Button("Switch")) {
             Renderer->Scene->Renderables[1]->SwitchAnimation(
-                Renderer->Scene->Renderables[1]
+                (int16_t)Renderer->Scene->Renderables[1]
                     ->StaticModel->AnimationIds[CurrentAnim],
                 0.66f);
           }
@@ -363,9 +363,11 @@ void Update(float dt) {
       if (ImGui::BeginCombo("##bgmCombo", comboPreviewValue.c_str())) {
         size_t i = 0;
         for (const auto& name : BgmNames) {
-          ImGui::PushID(i);
+          ImGui::PushID((int)i);
           const bool isSelected = (CurrentBgm == i);
-          if (ImGui::Selectable(name.c_str(), isSelected)) CurrentBgm = i;
+          if (ImGui::Selectable(name.c_str(), isSelected)) {
+            CurrentBgm = (uint32_t)i;
+          }
           if (isSelected) ImGui::SetItemDefaultFocus();
           ImGui::PopID();
           i++;
@@ -435,7 +437,6 @@ static void EnumerateBgm() {
   BgmNames.reserve(bgmCount);
   BgmIds.reserve(bgmCount);
 
-  uint32_t i = 0;
   for (auto const& file : listing) {
     BgmIds.push_back(file.first);
     BgmNames.push_back(std::move(file.second));

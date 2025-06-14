@@ -132,10 +132,17 @@ void Scrollbar::UpdateInput() {
           trackP1 = TrackBounds.Y;
           trackP2 = TrackBounds.Height;
           break;
+
         case SBDIR_HORIZONTAL:
           mouseP = Input::CurMousePos.x;
           trackP1 = TrackBounds.X;
           trackP2 = TrackBounds.Width;
+          break;
+
+        default:
+          ImpLog(LogLevel::Error, LogChannel::IO,
+                 "Unexpected scrollbar direction {}", (int)Direction);
+          mouseP = trackP1 = trackP2 = 0.0f;
           break;
       }
 

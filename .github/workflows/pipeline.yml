@@ -86,7 +86,7 @@ jobs:
             os_name: macos-arm64
             triplet: arm64-osx-ci
             host_triplet: arm64-osx-ci
-          - os: macos-13
+          - os: macos-15
             os_name: macos-x64
             triplet: x64-osx-ci
             host_triplet: x64-osx-ci
@@ -148,7 +148,9 @@ jobs:
         sudo apt-get install nasm libx11-dev libxft-dev libxext-dev libwayland-dev libxkbcommon-dev libegl1-mesa-dev libibus-1.0-dev libxrandr-dev libltdl-dev
       if: matrix.os_name == 'linux' || matrix.os_name == 'android'
     - name: Install Dependencies Mac
-      run: brew install nasm
+      run: |
+        brew install nasm
+        echo "CC=$(brew --prefix llvm@18)/bin/clang" >> $GITHUB_ENV
       if: contains(matrix.os_name, 'macos')
     - name: Run CMake with vcpkg.json manifest
       uses: lukka/run-cmake@v10
