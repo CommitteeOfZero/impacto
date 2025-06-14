@@ -59,9 +59,9 @@ void MusicTrackButton::Move(glm::vec2 relativePos) {
   auto maxY = MusicItemPadding * MusicPlayIds.size();
   float sum = Bounds.Y + relativePos.y;
   float newY = sum;
-  if (newY > maxY - MusicItemPadding) {
+  if (relativePos.y > 0 && newY > maxY - MusicItemPadding) {
     newY -= maxY;
-  } else if (newY < 0) {
+  } else if (relativePos.y < 0 && newY < -MusicItemPadding) {
     newY += maxY;
   }
 
