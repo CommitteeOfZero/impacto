@@ -270,6 +270,7 @@ void TipsTabGroup::UpdateTipsEntries(std::vector<int> const& SortedTipIds) {
       SBDIR_VERTICAL, TipsScrollThumbSprite, TipsScrollTrackBounds,
       TipsScrollThumbLength, TipsTabBounds);
   TipsEntriesGroup.RenderingBounds = TipsTabBounds;
+  TipsEntriesGroup.HoverBounds = TipsTabBounds;
   TabName.Reset();
 }
 
