@@ -56,7 +56,13 @@ root.ExtraMenus = {
             X = 293,
             Y = 20,
             Width = 1527,
-            Height = 1200
+            Height = 1080
+        },
+        MusicHoverBounds = {
+            X = 293,
+            Y = 40,
+            Width = 1527,
+            Height = 900
         },
         MusicPlayIds =  { 
             0x66, 0x68, 0x6a, 0x6c, 0x6e, 0x70, 0x72, 0x74, 0x76, 0x78, 0x7a, 0x7c, 
@@ -72,6 +78,17 @@ root.ExtraMenus = {
         MusicTrackNameOffsetX = 160,
         MusicTrackArtistSize = 20,
         MusicTrackArtistOffsetX = 800,
+        MusicButtonTextYOffset = 20,
+        MusicButtonBounds = {
+            X = 320,
+            Y = 20,
+            Width = 1460,
+            Height = 60
+        },
+        MusicDirectionalHoldTime = 0.2,
+        MusicDirectionalFocusTimeInterval = 0.05,
+        MusicButtonHoverSprite = "MusicButtonHover",
+        MusicButtonSelectSprite = "MusicButtonSelect",
 
         MovieDiskSprites = {},
         MovieDiskHighlightSprites = {},
@@ -82,13 +99,6 @@ root.ExtraMenus = {
             {X = 1422, Y= 412},
         },
         MovieDiskPlayIds = {54, 53, 52, 51},
-        MusicButtonTextYOffset = 20,
-        MusicButtonBounds = {
-            X = 320,
-            Y = 20,
-            Width = 1460,
-            Height = 60
-        }
     }
 }
 
@@ -264,5 +274,23 @@ root.Sprites["MusicItemsOverlay"] = {
         Y = 1, 
         Width = 1527, 
         Height = 1200
+    },
+};
+root.Sprites["MusicButtonHover"] = {
+    Sheet = "MusicMenu",
+    Bounds = { 
+        X = 141, 
+        Y = 1231, 
+        Width = 1387, 
+        Height = 60
+    },
+};
+root.Sprites["MusicButtonSelect"] = {
+    Sheet = "MusicMenu",
+    Bounds = { 
+        X = 1670, 
+        Y = 1231, 
+        Width = 1387, 
+        Height = 60
     },
 };
