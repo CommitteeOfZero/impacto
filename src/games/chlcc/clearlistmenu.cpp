@@ -64,7 +64,7 @@ void ClearListMenu::Hide() {
 void ClearListMenu::Render() {
   if (State != Hidden) {
     if (MenuTransition.IsIn()) {
-      Renderer->DrawRect(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
+      Renderer->DrawQuad(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                          RgbIntToFloat(BackgroundColor));
     } else {
       DrawCircles();
@@ -75,8 +75,11 @@ void ClearListMenu::Render() {
 
     if (MenuTransition.Progress > 0.34f) {
       Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
-      Renderer->DrawSprite(MenuTitleText, RightTitlePos, glm::vec4(1.0f),
-                           glm::vec2(1.0f), MenuTitleTextAngle);
+
+      const CornersQuad titleDest = MenuTitleText.ScaledBounds()
+                                        .RotateAroundCenter(MenuTitleTextAngle)
+                                        .Translate(RightTitlePos);
+      Renderer->DrawSprite(MenuTitleText, titleDest);
     }
 
     Renderer->CaptureScreencap(ShaderScreencapture.BgSprite);

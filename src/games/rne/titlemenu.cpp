@@ -91,13 +91,8 @@ void TitleMenu::Render() {
                            glm::vec4(1.0f));
       Renderer->DrawSprite(EliteSprite, glm::vec2(EliteX, EliteY),
                            glm::vec4(1.0f));
-      if (ScrWork[SW_TITLECGNO] == 542) {
-        Renderer->DrawSprite(LogoSprite, glm::vec2(LogoX, LogoY),
-                             glm::vec4(1.0f), glm::vec2(1.0f), 0.0f, true);
-      } else {
-        Renderer->DrawSprite(LogoSprite, glm::vec2(LogoX, LogoY),
-                             glm::vec4(1.0f));
-      }
+      Renderer->DrawSprite(LogoSprite, {LogoX, LogoY}, glm::vec4(1.0f),
+                           ScrWork[SW_TITLECGNO] == 542);
     }
   }
 }
