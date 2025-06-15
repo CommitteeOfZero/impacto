@@ -55,6 +55,7 @@ MusicMenu::MusicMenu() {
   auto onClick = [this](auto* btn) { return MusicButtonOnClick(btn); };
 
   MainItems->RenderingBounds = ItemsWindowRenderingBounds;
+  MainItems->HoverBounds = ItemsWindowRenderingBounds;
   auto pos = MusicListInitialPosition;
   for (int i = 0; i < MusicTrackCount; i++) {
     auto button = new Button(i, ItemNames[i], ItemNames[i],
