@@ -21,7 +21,6 @@ class LibrarySubmenu : public Menu {
   // void Move(glm::vec2 offset);
   // void MoveTo(glm::vec2 pos);
 
- protected:
   Animation FadeAnimation;
   Widgets::Group MainItems{this};
 };

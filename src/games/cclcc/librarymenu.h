@@ -27,9 +27,11 @@ class LibraryMenu : public Menu {
 
  private:
   using LibraryMenuPageType = Profile::CCLCC::LibraryMenu::LibraryMenuPageType;
+  LibrarySubmenu& GetMenuFromType(LibraryMenuPageType menuType);
+
   Widgets::Group MainItems;
   std::optional<LibraryMenuPageType> CurrentLibraryMenu;
-  // AlbumMenu AlbumMenu;
+  AlbumMenu AlbumMenu;
   MusicMenu MusicMenu;
   MovieMenu MovieMenu;
 };

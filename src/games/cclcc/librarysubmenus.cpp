@@ -15,7 +15,7 @@ namespace CCLCC {
 using namespace Impacto::Profile::CCLCC::LibraryMenu;
 using namespace Impacto::Profile::ScriptVars;
 
-LibrarySubmenu::LibrarySubmenu() : MainItems(this) {
+LibrarySubmenu::LibrarySubmenu() : Menu(), MainItems(this) {
   FadeAnimation.DurationIn = SubMenuFadeInDuration;
   FadeAnimation.DurationOut = SubMenuFadeOutDuration;
 };
@@ -36,7 +36,6 @@ void LibrarySubmenu::Hide() {
   if (State != Hidden) {
     State = Hiding;
     FadeAnimation.StartOut();
-    MainItems.Hide();
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
     } else {
@@ -59,6 +58,7 @@ void LibrarySubmenu::Update(float dt) {
   } else if (State == Hiding && FadeAnimation.IsOut()) {
     State = Hidden;
     IsFocused = false;
+    MainItems.Hide();
     if (UI::FocusedMenu) UI::FocusedMenu->IsFocused = true;
   }
 }
