@@ -549,6 +549,7 @@ void ClearListMenu::InitSceneTitlePage() {
       (SceneListFontSize * SceneCount) +
       ((SceneListTextMargin.y - SceneListFontSize) * (SceneCount - 2));
   SceneTitleItems->RenderingBounds = SceneTitleItemsRenderingBounds;
+  SceneTitleItems->HoverBounds = SceneTitleItemsRenderingBounds;
   SceneTitleItems->Bounds =
       RectF(SceneListNumberInitialPosition.x, SceneListNumberInitialPosition.y,
             SceneTitleItemsWidth, totalHeight);

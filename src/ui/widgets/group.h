@@ -20,7 +20,8 @@ class Group : public Widget {
   void Add(Widget* widget);
   void Add(Widget* widget, FocusDirection dir);
 
-  RectF RenderingBounds;
+  RectF RenderingBounds{};
+  RectF HoverBounds{};
 
   bool IsShown = false;
   bool FocusLock = true;
@@ -46,7 +47,7 @@ class Group : public Widget {
 
   Widget* GetFirstFocusableChild();
 
- private:
+ protected:
   Menu* MenuContext;
   int FirstFocusableElementId = -1;
   int LastFocusableElementId = -1;
