@@ -19,10 +19,8 @@ constexpr inline int MaxFramebuffers = 10;
 
 struct VertexBufferSprites {
   glm::vec2 Position = {0.0f, 0.0f};
-  GLuint ColorMap = 0;
   glm::vec2 UV = {0.0f, 0.0f};
   glm::vec4 Tint = glm::vec4(1.0f);
-  GLuint Mask = 0;
   glm::vec2 MaskUV = {0.0f, 0.0f};
 };
 

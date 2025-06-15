@@ -1,13 +1,12 @@
 uniform float Alpha;
 
-flat in uint colorMap;
 in vec2 uv;
-flat in uint mask;
 in vec2 maskUV;
 
 out vec4 outColor;
 
-uniform sampler2D[15] Textures;
+uniform sampler2D ColorMap;
+uniform sampler2D Mask;
 
 float remapMiddle(float value, float newMiddle) {
     if (value < 0.5) {
@@ -18,8 +17,8 @@ float remapMiddle(float value, float newMiddle) {
 }
 
 void main() {
-    vec4 color = texture(Textures[colorMap], uv);
-    vec4 maskColor = texture(Textures[mask], maskUV);
+    vec4 color = texture(ColorMap, uv);
+    vec4 maskColor = texture(Mask, maskUV);
     outColor = vec4(
         remapMiddle(color.r, maskColor.r),
         remapMiddle(color.g, maskColor.g),

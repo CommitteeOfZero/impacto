@@ -7,7 +7,6 @@
 
 #include "shader.h"
 #include "glc.h"
-#include "textureunit.h"
 
 #include "../../profile/game.h"
 
@@ -122,17 +121,13 @@ class Renderer : public BaseRenderer {
 
   void InsertVertices(std::span<const VertexBufferSprites> vertices,
                       std::span<const uint16_t> indices);
-  void InsertVerticesQuad(CornersQuad pos, GLuint textureLocation,
-                          CornersQuad uv, std::span<const glm::vec4, 4> tints,
-                          GLuint maskLocation = 0,
+  void InsertVerticesQuad(CornersQuad pos, CornersQuad uv,
+                          std::span<const glm::vec4, 4> tints,
                           CornersQuad maskUV = RectF());
-  void InsertVerticesQuad(CornersQuad pos, GLuint textureLocation,
-                          CornersQuad uv, glm::vec4 tint = glm::vec4(1.0f),
-                          GLuint maskLocation = 0,
+  void InsertVerticesQuad(CornersQuad pos, CornersQuad uv,
+                          glm::vec4 tint = glm::vec4(1.0f),
                           CornersQuad maskUV = RectF()) {
-    InsertVerticesQuad(pos, textureLocation, uv,
-                       std::array{tint, tint, tint, tint}, maskLocation,
-                       maskUV);
+    InsertVerticesQuad(pos, uv, std::array{tint, tint, tint, tint}, maskUV);
   }
 
   GLWindow* OpenGLWindow;
@@ -143,13 +138,24 @@ class Renderer : public BaseRenderer {
 
   bool Drawing = false;
 
+  struct TextureUnit {
+    uint32_t TextureId = 0;
+    bool InUse = false;
+  };
   static constexpr size_t TextureUnitCount = 15;
-  static constexpr std::array<GLint, TextureUnitCount> Textures = {
-      0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14};
-  std::array<std::optional<TextureUnit>, TextureUnitCount> TextureUnits;
+  std::array<TextureUnit, TextureUnitCount> TextureUnits;
 
-  std::vector<TextureUnit> GetTextureLocations(
-      std::span<const uint32_t> textureIds);
+  void UseTextures(
+      std::span<const std::pair<uint32_t, size_t>> textureUnitPairs);
+  void FlushTextures() {
+    std::transform(TextureUnits.begin(), TextureUnits.end(),
+                   TextureUnits.begin(), [](TextureUnit unit) {
+                     unit.InUse = false;
+                     return unit;
+                   });
+  }
+
+  std::array<GLuint, TextureUnitCount> Samplers;
 
   static constexpr size_t MaxVertexCount =
       1024 * 1024 / sizeof(VertexBufferSprites);

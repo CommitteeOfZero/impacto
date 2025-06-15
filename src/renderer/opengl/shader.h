@@ -106,9 +106,6 @@ class Shader {
   void UploadVar(glm::mat4 value, GLint location) {
     glUniformMatrix4fv(location, 1, GL_FALSE, &value[0][0]);
   }
-  void UploadVar(std::span<GLint> value, GLint location) {
-    glUniform1iv(location, value.size(), value.data());
-  }
 
   template <typename T>
   void UpdateVar(T newValue, T& oldValue, GLint location) {
@@ -125,7 +122,7 @@ struct SpriteUniforms {
   glm::mat4 Projection{};
   glm::mat4 Transformation{};
 
-  std::array<GLint, 15> Textures;
+  GLint ColorMap = 0;
 };
 
 class SpriteShader : public Shader<SpriteUniforms> {
@@ -138,7 +135,7 @@ class SpriteShader : public Shader<SpriteUniforms> {
   const GLint ProjectionLocation;
   const GLint TransformationLocation;
 
-  const GLint TexturesLocation;
+  const GLint ColorMapLocation;
 };
 
 struct SpriteInvertedUniforms {
@@ -147,7 +144,7 @@ struct SpriteInvertedUniforms {
   glm::mat4 Projection{};
   glm::mat4 Transformation{};
 
-  std::array<GLint, 15> Textures;
+  GLint ColorMap = 0;
 };
 
 class SpriteInvertedShader : public Shader<SpriteInvertedUniforms> {
@@ -160,7 +157,7 @@ class SpriteInvertedShader : public Shader<SpriteInvertedUniforms> {
   const GLint ProjectionLocation;
   const GLint TransformationLocation;
 
-  const GLint TexturesLocation;
+  const GLint ColorMapLocation;
 };
 
 struct YUVFrameUniforms {
@@ -196,7 +193,8 @@ struct MaskedSpriteNoAlphaUniforms {
   glm::mat4 SpriteTransformation{};
   glm::mat4 MaskTransformation{};
 
-  std::array<GLint, 15> Textures;
+  GLint ColorMap = 0;
+  GLint Mask = 0;
   glm::vec2 Alpha{};
   bool IsInverted = false;
 };
@@ -212,7 +210,8 @@ class MaskedSpriteNoAlphaShader : public Shader<MaskedSpriteNoAlphaUniforms> {
   const GLint SpriteTransformationLocation;
   const GLint MaskTransformationLocation;
 
-  const GLint TexturesLocation;
+  const GLint ColorMapLocation;
+  const GLint MaskLocation;
   const GLint AlphaLocation;
   const GLint IsInvertedLocation;
 };
@@ -224,7 +223,8 @@ struct MaskedSpriteUniforms {
   glm::mat4 SpriteTransformation{};
   glm::mat4 MaskTransformation{};
 
-  std::array<GLint, 15> Textures;
+  GLint ColorMap;
+  GLint Mask;
   glm::vec2 Alpha{};
   bool IsInverted = false;
   bool IsSameTexture = false;
@@ -241,7 +241,8 @@ class MaskedSpriteShader : public Shader<MaskedSpriteUniforms> {
   const GLint SpriteTransformationLocation;
   const GLint MaskTransformationLocation;
 
-  const GLint TexturesLocation;
+  const GLint ColorMapLocation;
+  const GLint MaskLocation;
   const GLint AlphaLocation;
   const GLint IsInvertedLocation;
   const GLint IsSameTextureLocation;
@@ -252,7 +253,8 @@ struct CCMessageBoxUniforms {
 
   glm::mat4 Projection{};
 
-  std::array<GLint, 15> Textures;
+  GLint ColorMap;
+  GLint Mask;
   glm::vec4 Alpha{};
 };
 
@@ -265,7 +267,8 @@ class CCMessageBoxShader : public Shader<CCMessageBoxUniforms> {
  private:
   const GLint ProjectionLocation;
 
-  const GLint TexturesLocation;
+  const GLint ColorMapLocation;
+  const GLint MaskLocation;
   const GLint AlphaLocation;
 };
 
@@ -274,7 +277,8 @@ struct CHLCCMenuBackgroundUniforms {
 
   glm::mat4 Projection{};
 
-  std::array<GLint, 15> Textures;
+  GLint ColorMap;
+  GLint Mask;
   float Alpha = 0.0f;
 };
 
@@ -287,7 +291,8 @@ class CHLCCMenuBackgroundShader : public Shader<CHLCCMenuBackgroundUniforms> {
  private:
   const GLint ProjectionLocation;
 
-  const GLint TexturesLocation;
+  const GLint ColorMapLocation;
+  const GLint MaskLocation;
   const GLint AlphaLocation;
 };
 
