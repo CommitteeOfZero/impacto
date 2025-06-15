@@ -178,6 +178,8 @@ set(Impacto_Src
         src/games/cclcc/clearlistmenu.cpp
         src/games/cclcc/librarymenu.cpp
         src/games/cclcc/librarysubmenus.cpp
+        src/games/cclcc/musicmenu.cpp
+        src/games/cclcc/moviemenu.cpp
         src/games/cclcc/tipsnotification.cpp
         src/games/cclcc/mapsystem.cpp
         src/games/cclcc/delusiontrigger.cpp
@@ -507,6 +509,9 @@ set(Impacto_Header
         src/games/cclcc/tipsmenu.h
         src/games/cclcc/clearlistmenu.h
         src/games/cclcc/librarymenu.h
+        src/games/cclcc/librarysubmenus.h
+        src/games/cclcc/musicmenu.h
+        src/games/cclcc/moviemenu.h
         src/games/cclcc/mapsystem.h
         src/games/cclcc/delusiontrigger.h
         src/games/cclcc/helpmenu.h

@@ -5,6 +5,8 @@
 #include "../../ui/widgets/group.h"
 #include "../../profile/games/cclcc/librarymenu.h"
 #include "librarysubmenus.h"
+#include "musicmenu.h"
+#include "moviemenu.h"
 
 namespace Impacto {
 namespace UI {
