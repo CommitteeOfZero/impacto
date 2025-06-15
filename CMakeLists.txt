@@ -1031,7 +1031,6 @@ if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
             src/renderer/opengl/shader.h
             src/renderer/opengl/glc.h
             src/renderer/opengl/yuvframe.h
-            src/renderer/opengl/textureunit.h
             src/renderer/opengl/3d/renderable3d.h
             src/renderer/opengl/3d/scene.h
     )

@@ -1,12 +1,11 @@
-flat in uint colorMap;
 in vec2 uv;
 in vec4 tint;
-flat in uint mask;
 in vec2 maskUV;
 
 out vec4 color;
 
-uniform sampler2D[15] Textures;
+uniform sampler2D ColorMap;
+uniform sampler2D Mask;
 uniform vec2 Alpha;
 uniform bool IsInverted;
 
@@ -18,8 +17,8 @@ float rgbToLightness(vec3 rgb) {
 }
 
 void main() { 
-	color = texture(Textures[colorMap], uv);
-	vec4 alp = texture(Textures[mask], maskUV);
+	color = texture(ColorMap, uv);
+	vec4 alp = texture(Mask, maskUV);
 	float maskAlpha = rgbToLightness(alp.rgb);
 	if (IsInverted) maskAlpha = 1.0f - maskAlpha;
 	

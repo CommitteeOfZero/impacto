@@ -43,22 +43,13 @@ void Renderer::Init() {
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(VertexBufferSprites),
                         (void*)offsetof(VertexBufferSprites, Position));
-  glVertexAttribIPointer(1, 1, GL_UNSIGNED_INT, sizeof(VertexBufferSprites),
-                         (void*)offsetof(VertexBufferSprites, ColorMap));
-  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(VertexBufferSprites),
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(VertexBufferSprites),
                         (void*)offsetof(VertexBufferSprites, UV));
-  glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(VertexBufferSprites),
+  glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(VertexBufferSprites),
                         (void*)offsetof(VertexBufferSprites, Tint));
-  glVertexAttribIPointer(4, 1, GL_UNSIGNED_INT, sizeof(VertexBufferSprites),
-                         (void*)offsetof(VertexBufferSprites, Mask));
-  glVertexAttribPointer(5, 2, GL_FLOAT, GL_FALSE, sizeof(VertexBufferSprites),
+  glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(VertexBufferSprites),
                         (void*)offsetof(VertexBufferSprites, MaskUV));
-  glEnableVertexAttribArray(0);
-  glEnableVertexAttribArray(1);
-  glEnableVertexAttribArray(2);
-  glEnableVertexAttribArray(3);
-  glEnableVertexAttribArray(4);
-  glEnableVertexAttribArray(5);
+  for (size_t i = 0; i < 4; i++) glEnableVertexAttribArray(i);
 
   // Make 1x1 white pixel for colored rectangles
   Texture rectTexture;
@@ -78,9 +69,21 @@ void Renderer::Init() {
   CHLCCMenuBackgroundShaderProgram.emplace(
       Shaders.Compile("CHLCCMenuBackground"));
 
-  for (size_t i = 0; i < TextureUnitCount; i++) TextureUnits[i].emplace(i);
+  glGenSamplers(Samplers.size(), Samplers.data());
+  for (size_t i = 0; i < TextureUnitCount; i++) {
+    glBindSampler(i, Samplers[i]);
 
-  glActiveTexture(GL_TEXTURE0 + TextureUnitCount);
+    glSamplerParameteri(Samplers[i], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glSamplerParameteri(Samplers[i], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glSamplerParameteri(Samplers[i], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glSamplerParameteri(Samplers[i], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glSamplerParameteri(Samplers[i], GL_TEXTURE_MAX_ANISOTROPY, 16);
+  }
+
+  glActiveTexture(GL_TEXTURE0);
+  glBindSampler(0, Samplers[0]);
 }
 
 void Renderer::Shutdown() {
@@ -94,6 +97,8 @@ void Renderer::Shutdown() {
   GLC::DeleteFramebuffers(GLC::Framebuffers.size(), GLC::Framebuffers.data());
   glDeleteTextures(GLC::FramebufferTextures.size(),
                    GLC::FramebufferTextures.data());
+
+  glDeleteSamplers(Samplers.size(), Samplers.data());
 
   if (Profile::GameFeatures & GameFeature::Scene3D) {
     Scene->Shutdown();
@@ -125,7 +130,7 @@ void Renderer::BeginFrame2D() {
 
   glDisable(GL_CULL_FACE);
 
-  glBindSampler(0, TextureUnits[0]->GetSampler());
+  glBindSampler(0, Samplers[0]);
 }
 
 void Renderer::EndFrame() {
@@ -234,43 +239,32 @@ void Renderer::InsertVertices(
   NextFreeIndex += maxIndex + 1;
 }
 
-void Renderer::InsertVerticesQuad(const CornersQuad pos,
-                                  const GLuint textureLocation,
-                                  const CornersQuad uv,
+void Renderer::InsertVerticesQuad(const CornersQuad pos, const CornersQuad uv,
                                   const std::span<const glm::vec4, 4> tints,
-                                  const GLuint maskLocation,
                                   const CornersQuad maskUV) {
   const std::array<const VertexBufferSprites, 4> vertices = {
       VertexBufferSprites{
           .Position = pos.BottomLeft,
-          .ColorMap = textureLocation,
           .UV = uv.BottomLeft,
           .Tint = tints[0],
-          .Mask = maskLocation,
           .MaskUV = maskUV.BottomLeft,
       },
       VertexBufferSprites{
           .Position = pos.TopLeft,
-          .ColorMap = textureLocation,
           .UV = uv.TopLeft,
           .Tint = tints[1],
-          .Mask = maskLocation,
           .MaskUV = maskUV.TopLeft,
       },
       VertexBufferSprites{
           .Position = pos.TopRight,
-          .ColorMap = textureLocation,
           .UV = uv.TopRight,
           .Tint = tints[2],
-          .Mask = maskLocation,
           .MaskUV = maskUV.TopRight,
       },
       VertexBufferSprites{
           .Position = pos.BottomRight,
-          .ColorMap = textureLocation,
           .UV = uv.BottomRight,
           .Tint = tints[3],
-          .Mask = maskLocation,
           .MaskUV = maskUV.BottomRight,
       },
   };
@@ -280,89 +274,23 @@ void Renderer::InsertVerticesQuad(const CornersQuad pos,
   InsertVertices(vertices, indices);
 }
 
-std::vector<TextureUnit> Renderer::GetTextureLocations(
-    const std::span<const uint32_t> textureIds) {
-  std::vector<size_t> allocatedLocations(textureIds.size());
-
-  std::vector<TextureUnit> returnVector;
-  returnVector.reserve(allocatedLocations.size());
-
-  size_t newTexturesNeeded = 0;
-  std::vector<size_t> notFound;
-  for (size_t i = 0; i < textureIds.size(); i++) {
-    const uint32_t textureId = textureIds[i];
-
-    const auto sameTexture =
-        [this, textureId](const std::optional<TextureUnit>& unit) {
-          return unit->GetTexture() == textureId;
-        };
-    const auto foundIt =
-        std::find_if(TextureUnits.begin(), TextureUnits.end(), sameTexture);
-
-    if (foundIt != TextureUnits.end()) {
-      allocatedLocations[i] = std::distance(TextureUnits.begin(), foundIt);
-
-      // TODO: Remove once textures are managed
-      // Currently needed because the texture under this ID may be deleted and
-      // then recreated, meaning the texture would need to be rebound
-      (*foundIt)->SetTexture(textureId);
-
-      (*foundIt)->Reserve();
-
-    } else {
-      notFound.push_back(i);
-
-      // Check if the current new texture hasn't already been requested
-      const auto curTextureIt = textureIds.begin() + i;
-      newTexturesNeeded += std::find(textureIds.begin(), curTextureIt,
-                                     textureIds[i]) == curTextureIt;
+void Renderer::UseTextures(
+    const std::span<const std::pair<uint32_t, size_t>> textureUnitPairs) {
+  for (const auto [textureId, unitIndex] : textureUnitPairs) {
+    if (TextureUnits[unitIndex].TextureId != textureId &&
+        TextureUnits[unitIndex].InUse) {
+      Flush();
     }
   }
 
-  // If all textures were found, immediately return their locations
-  if (notFound.empty()) {
-    for (size_t unit : allocatedLocations)
-      returnVector.emplace_back(*TextureUnits[unit]);
+  for (const auto [textureId, unitIndex] : textureUnitPairs) {
+    TextureUnit& textureUnit = TextureUnits[unitIndex];
 
-    return returnVector;
+    glBindTextureUnit(unitIndex, textureId);
+
+    textureUnit.TextureId = textureId;
+    textureUnit.InUse = true;
   }
-
-  const size_t freeSlots =
-      std::count_if(TextureUnits.begin(), TextureUnits.end(),
-                    [](const auto& unit) { return !unit->IsLocked(); });
-
-  // If the needed textures don't fit in the buffer, flush to make room
-  if (newTexturesNeeded > freeSlots) Flush();
-
-  for (size_t i : notFound) {
-    const uint32_t textureId = textureIds[i];
-    const auto sameTexture =
-        [this, textureId](const std::optional<TextureUnit>& unit) {
-          return unit->GetTexture() == textureId;
-        };
-    const auto foundIt =
-        std::find_if(TextureUnits.begin(), TextureUnits.end(), sameTexture);
-
-    if (foundIt != TextureUnits.end()) {
-      // Texture already added by prior entry in notFound
-      allocatedLocations[i] = std::distance(TextureUnits.begin(), foundIt);
-
-    } else {
-      // Add the texture
-      const auto freeIt =
-          std::find_if(TextureUnits.begin(), TextureUnits.end(),
-                       [](const auto& unit) { return !unit->IsLocked(); });
-
-      (*freeIt)->SetTexture(textureId);
-      (*freeIt)->Reserve();
-      allocatedLocations[i] = std::distance(TextureUnits.begin(), freeIt);
-    }
-  }
-
-  for (size_t unit : allocatedLocations)
-    returnVector.emplace_back(*TextureUnits[unit]);
-
-  return returnVector;
 }
 
 void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
@@ -380,10 +308,9 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
 
   if (textureWrapRepeat) {
     Flush();
-    const GLuint sampler = TextureUnits[0]->GetSampler();
-    glBindSampler(0, sampler);
-    glSamplerParameteri(sampler, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glSamplerParameteri(sampler, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glBindSampler(0, Samplers[0]);
+    glSamplerParameteri(Samplers[0], GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glSamplerParameteri(Samplers[0], GL_TEXTURE_WRAP_T, GL_REPEAT);
   }
 
   if (disableBlend) {
@@ -396,7 +323,7 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
     SpriteInvertedUniforms uniforms{
         .Projection = Projection,
         .Transformation = transformation,
-        .Textures = Textures,
+        .ColorMap = 0,
     };
 
     UseShader(*SpriteInvertedShaderProgram, uniforms);
@@ -405,23 +332,20 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
     SpriteUniforms uniforms{
         .Projection = Projection,
         .Transformation = transformation,
-        .Textures = Textures,
+        .ColorMap = 0,
     };
 
     UseShader(*SpriteShaderProgram, uniforms);
   }
 
-  std::vector<TextureUnit> textureLocations =
-      GetTextureLocations(std::array{sprite.Sheet.Texture});
+  UseTextures(std::array<std::pair<uint32_t, size_t>, 1>{
+      std::pair{sprite.Sheet.Texture, 0}});
 
   // OK, all good, make quad
 
   CornersQuad uvDest = sprite.NormalizedBounds();
   if (sprite.Sheet.IsScreenCap) uvDest.FlipVertical();
-  InsertVerticesQuad(dest, textureLocations[0], uvDest, tints);
-
-  // Free texture units for possible flush
-  textureLocations.clear();
+  InsertVerticesQuad(dest, uvDest, tints);
 
   if (disableBlend) {
     Flush();
@@ -430,10 +354,9 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
 
   if (textureWrapRepeat) {
     Flush();
-    const GLuint sampler = TextureUnits[0]->GetSampler();
-    glBindSampler(0, sampler);
-    glSamplerParameteri(sampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glSamplerParameteri(sampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glBindSampler(0, Samplers[0]);
+    glSamplerParameteri(Samplers[0], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glSamplerParameteri(Samplers[0], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   }
 }
 
@@ -458,7 +381,8 @@ void Renderer::DrawMaskedSprite(
       .Projection = Projection,
       .SpriteTransformation = spriteTransformation,
       .MaskTransformation = maskTransformation,
-      .Textures = Textures,
+      .ColorMap = 0,
+      .Mask = 2,
       .Alpha = {alphaRange, constAlpha},
       .IsInverted = isInverted,
       .IsSameTexture = isSameTexture,
@@ -466,8 +390,10 @@ void Renderer::DrawMaskedSprite(
 
   UseShader(*MaskedSpriteShaderProgram, uniforms);
 
-  const std::vector<TextureUnit> textureLocations =
-      GetTextureLocations(std::array{sprite.Sheet.Texture, mask.Sheet.Texture});
+  UseTextures(std::array<std::pair<uint32_t, size_t>, 2>{
+      std::pair{sprite.Sheet.Texture, 0},
+      std::pair{mask.Sheet.Texture, 2},
+  });
 
   // OK, all good, make quad
 
@@ -475,8 +401,7 @@ void Renderer::DrawMaskedSprite(
   if (sprite.Sheet.IsScreenCap) uvDest.FlipVertical();
   CornersQuad maskUVDest = CornersQuad(maskDest).Scale(
       {1.0f / sprite.Bounds.Width, 1.0f / sprite.Bounds.Height}, {0.0f, 0.0f});
-  InsertVerticesQuad(spriteDest, textureLocations[0], uvDest, tints,
-                     textureLocations[1], maskUVDest);
+  InsertVerticesQuad(spriteDest, uvDest, tints, maskUVDest);
 }
 
 void Renderer::DrawMaskedSpriteOverlay(
@@ -500,7 +425,8 @@ void Renderer::DrawMaskedSpriteOverlay(
         .Projection = Projection,
         .SpriteTransformation = spriteTransformation,
         .MaskTransformation = maskTransformation,
-        .Textures = Textures,
+        .ColorMap = 0,
+        .Mask = 2,
         .Alpha = {alphaRange, constAlpha},
         .IsInverted = isInverted,
         .IsSameTexture = false,
@@ -513,7 +439,8 @@ void Renderer::DrawMaskedSpriteOverlay(
         .Projection = Projection,
         .SpriteTransformation = spriteTransformation,
         .MaskTransformation = maskTransformation,
-        .Textures = Textures,
+        .ColorMap = 0,
+        .Mask = 2,
         .Alpha = {alphaRange, constAlpha},
         .IsInverted = isInverted,
     };
@@ -521,16 +448,18 @@ void Renderer::DrawMaskedSpriteOverlay(
     UseShader(*MaskedSpriteNoAlphaShaderProgram, uniforms);
   }
 
-  const std::vector<TextureUnit> textureLocations =
-      GetTextureLocations(std::array{sprite.Sheet.Texture, mask.Sheet.Texture});
+  UseTextures(std::array<std::pair<uint32_t, size_t>, 2>{
+      std::pair{sprite.Sheet.Texture, 0},
+      std::pair{mask.Sheet.Texture, 2},
+  });
 
   // OK, all good, make quad
 
   CornersQuad normalizedMaskDest = CornersQuad(maskDest).Scale(
       {1.0f / mask.Sheet.DesignWidth, 1.0f / mask.Sheet.DesignHeight},
       {0.0f, 0.0f});
-  InsertVerticesQuad(spriteDest, textureLocations[0], sprite.NormalizedBounds(),
-                     tints, textureLocations[1], normalizedMaskDest);
+  InsertVerticesQuad(spriteDest, sprite.NormalizedBounds(), tints,
+                     normalizedMaskDest);
 }
 
 void Renderer::DrawVertices(const SpriteSheet& sheet,
@@ -550,7 +479,8 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
         .Projection = Projection,
         .SpriteTransformation = transformation,
         .MaskTransformation = glm::mat4(1.0f),
-        .Textures = Textures,
+        .ColorMap = 0,
+        .Mask = 2,
         .Alpha = {1.0f, 0.0f},
         .IsInverted = inverted,
     };
@@ -562,7 +492,7 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
       SpriteInvertedUniforms uniforms{
           .Projection = Projection,
           .Transformation = transformation,
-          .Textures = Textures,
+          .ColorMap = 0,
       };
 
       UseShader(*SpriteInvertedShaderProgram, uniforms);
@@ -571,26 +501,29 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
       SpriteUniforms uniforms{
           .Projection = Projection,
           .Transformation = transformation,
-          .Textures = Textures,
+          .ColorMap = 0,
       };
 
       UseShader(*SpriteShaderProgram, uniforms);
     }
   }
 
-  const std::vector<TextureUnit> textureLocations =
-      mask ? GetTextureLocations(
-                 std::array<uint32_t, 2>{sheet.Texture, mask->Texture})
-           : GetTextureLocations(std::array{sheet.Texture});
+  if (mask == nullptr) {
+    UseTextures(std::array<std::pair<uint32_t, size_t>, 1>{
+        std::pair{sheet.Texture, 0},
+    });
+  } else {
+    UseTextures(std::array<std::pair<uint32_t, size_t>, 2>{
+        std::pair{sheet.Texture, 0},
+        std::pair{mask->Texture, 2},
+    });
+  }
 
   std::vector<VertexBufferSprites> transformedVertices;
   transformedVertices.resize(vertices.size());
 
-  const auto transformVertex = [this, sheet,
-                                &textureLocations](VertexBufferSprites info) {
+  const auto transformVertex = [this, sheet](VertexBufferSprites info) {
     if (sheet.IsScreenCap) info.UV.y = 1.0f - info.UV.y;
-    info.ColorMap = textureLocations[0];
-    if (textureLocations.size() >= 2) info.Mask = textureLocations[1];
     return info;
   };
   std::transform(vertices.begin(), vertices.end(), transformedVertices.begin(),
@@ -616,21 +549,23 @@ void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
 
   CCMessageBoxUniforms uniforms{
       .Projection = Projection,
-      .Textures = Textures,
+      .ColorMap = 0,
+      .Mask = 2,
       .Alpha = {alphaRange, constAlpha, effectCt, 0.0f},
   };
 
   UseShader(*CCMessageBoxShaderProgram, uniforms);
 
-  const std::vector<TextureUnit> textureLocations =
-      GetTextureLocations(std::array{sprite.Sheet.Texture, mask.Sheet.Texture});
+  UseTextures(std::array<std::pair<uint32_t, size_t>, 2>{
+      std::pair{sprite.Sheet.Texture, 0},
+      std::pair{mask.Sheet.Texture, 2},
+  });
 
   // OK, all good, make quad
 
   CornersQuad uvDest = sprite.NormalizedBounds();
   if (sprite.Sheet.IsScreenCap) uvDest.FlipVertical();
-  InsertVerticesQuad(dest, textureLocations[0], uvDest, tint,
-                     textureLocations[1], mask.NormalizedBounds());
+  InsertVerticesQuad(dest, uvDest, tint, mask.NormalizedBounds());
 }
 
 void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
@@ -648,21 +583,23 @@ void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
 
   CHLCCMenuBackgroundUniforms uniforms{
       .Projection = Projection,
-      .Textures = Textures,
+      .ColorMap = 0,
+      .Mask = 2,
       .Alpha = alpha,
   };
 
   UseShader(*CHLCCMenuBackgroundShaderProgram, uniforms);
 
-  const std::vector<TextureUnit> textureLocations =
-      GetTextureLocations(std::array{sprite.Sheet.Texture, mask.Sheet.Texture});
+  UseTextures(std::array<std::pair<uint32_t, size_t>, 2>{
+      std::pair{sprite.Sheet.Texture, 0},
+      std::pair{mask.Sheet.Texture, 2},
+  });
 
   // OK, all good, make quad
 
   CornersQuad uvDest = sprite.NormalizedBounds();
   if (sprite.Sheet.IsScreenCap) uvDest.FlipVertical();
-  InsertVerticesQuad(dest, textureLocations[0], uvDest, glm::vec4(1.0f),
-                     textureLocations[1], mask.NormalizedBounds());
+  InsertVerticesQuad(dest, uvDest, glm::vec4(1.0f), mask.NormalizedBounds());
 }
 
 void Renderer::Flush() {
@@ -688,7 +625,7 @@ void Renderer::Flush() {
   IndexBuffer.clear();
   NextFreeIndex = 0;
 
-  for (std::optional<TextureUnit>& unit : TextureUnits) unit->Flush();
+  FlushTextures();
 }
 
 void Renderer::DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
@@ -699,14 +636,17 @@ void Renderer::DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
     return;
   }
 
-  const std::vector<TextureUnit> textureLocations =
-      GetTextureLocations(std::array{frame.LumaId, frame.CbId, frame.CrId});
+  UseTextures(std::array<std::pair<uint32_t, size_t>, 3>{
+      std::pair{frame.LumaId, 0},
+      std::pair{frame.CbId, 1},
+      std::pair{frame.CrId, 2},
+  });
 
   YUVFrameUniforms uniforms{
       .Projection = Projection,
-      .Luma = (GLint)textureLocations[0],
-      .Cb = (GLint)textureLocations[1],
-      .Cr = (GLint)textureLocations[2],
+      .Luma = 0,
+      .Cb = 1,
+      .Cr = 2,
       .IsAlpha = alphaVideo,
   };
 
@@ -714,7 +654,7 @@ void Renderer::DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
 
   // OK, all good, make quad
 
-  InsertVerticesQuad(dest, 0, RectF(0.0f, 0.0f, 1.0f, 1.0f), tint);
+  InsertVerticesQuad(dest, RectF(0.0f, 0.0f, 1.0f, 1.0f), tint);
 }
 
 void Renderer::CaptureScreencap(Sprite& sprite) {
