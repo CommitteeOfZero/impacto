@@ -98,6 +98,16 @@ IntroSequence::~IntroSequence() {
   Renderer->FreeTexture(FallingStarsMask.Sheet.Texture);
 }
 
+void IntroSequence::Reset() {
+  Renderer->FreeTexture(FallingStarsMask.Sheet.Texture);
+
+  Texture fallingStarsMaskTexture{};
+  fallingStarsMaskTexture.LoadSolidColor(DesignWidth, DesignHeight, 0);
+  FallingStarsMask.Sheet.Texture = fallingStarsMaskTexture.Submit();
+
+  IntroAnimation.StartIn(true);
+}
+
 void IntroSequence::Update(float dt) {
   if (StarBounceAnimation.Progress >= 0.357f &&
       Audio::Channels[Audio::AC_SE0]->GetState() == ACS_Paused &&

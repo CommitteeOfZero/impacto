@@ -59,7 +59,7 @@ class TitleMenu : public Menu {
   Widgets::CHLCC::TitleButton* Config;
   Widgets::CHLCC::TitleButton* SystemSave;
 
-  std::unique_ptr<Impacto::CHLCC::IntroSequence> IntroSequence;
+  Impacto::CHLCC::IntroSequence IntroSequence;
 };
 
 }  // namespace CHLCC
