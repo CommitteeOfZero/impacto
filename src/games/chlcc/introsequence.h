@@ -14,6 +14,7 @@ class IntroSequence {
   ~IntroSequence();
 
   void Update(float dt);
+  void Reset();
 
   SequencedAnimation IntroAnimation;
   Animation PanningAnimation;

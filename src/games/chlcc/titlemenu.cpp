@@ -231,8 +231,6 @@ TitleMenu::TitleMenu() {
       AnimationLoopMode::ReverseDirection;
   SpinningCircleFlashingAnimation.SetDuration(
       SpinningCircleFlashingAnimationDuration);
-
-  IntroSequence = std::make_unique<Impacto::CHLCC::IntroSequence>();
 }
 
 void TitleMenu::Show() {
@@ -303,23 +301,23 @@ void TitleMenu::Update(float dt) {
 
     switch (ScrWork[SW_TITLEDISPCT]) {
       case 0: {
-        if (IntroSequence->IntroAnimation.IsOut()) {
-          IntroSequence->IntroAnimation.StartIn();
+        if (IntroSequence.IntroAnimation.IsOut()) {
+          IntroSequence.IntroAnimation.StartIn();
         }
 
         // Skip the animation if requested
         if (ScrWork[SW_TITLECT] >= 934 &&
-            IntroSequence->IntroAnimation.State == +AnimationState::Playing) {
-          IntroSequence->IntroAnimation.Finish();
+            IntroSequence.IntroAnimation.State == +AnimationState::Playing) {
+          IntroSequence.IntroAnimation.Finish();
         }
 
-        if (!IntroSequence->SeiraAnimation.IsOut() &&
+        if (!IntroSequence.SeiraAnimation.IsOut() &&
             SpinningCircleAnimation.State == +AnimationState::Stopped) {
           SpinningCircleAnimation.StartIn();
           SpinningCircleFlashingAnimation.StartIn();
         }
 
-        IntroSequence->Update(dt);
+        IntroSequence.Update(dt);
 
         // When returning to title menu from loading a game we need to hide the
         // load sub-menu
@@ -403,8 +401,8 @@ void TitleMenu::Update(float dt) {
           PressToStartAnimation.StartIn();
         }
 
-        if (!IntroSequence->IntroAnimation.IsOut()) {
-          IntroSequence = std::make_unique<Impacto::CHLCC::IntroSequence>();
+        if (!IntroSequence.IntroAnimation.IsOut()) {
+          IntroSequence.Reset();
         }
       } break;
     }
@@ -416,15 +414,15 @@ void TitleMenu::Render() {
     if (ScrWork[SW_MENUCT] < 64) {
       switch (ScrWork[SW_TITLEDISPCT]) {
         case 0: {  // Initial animation
-          if (IntroSequence->FallingStarsAnimation.IsIn()) {
+          if (IntroSequence.FallingStarsAnimation.IsIn()) {
             Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
           }
 
           if (SpinningCircleAnimation.State == +AnimationState::Playing) {
-            DrawSpinningCircle(IntroSequence->SeiraAnimation.Progress);
+            DrawSpinningCircle(IntroSequence.SeiraAnimation.Progress);
           }
 
-          IntroSequence->Render();
+          IntroSequence.Render();
         } break;
         case 1: {  // Press to start
           DrawTitleMenuBackGraphics();
