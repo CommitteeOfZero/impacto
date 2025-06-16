@@ -4,20 +4,20 @@
 namespace Impacto {
 
 struct ChildAnimation {
-  Animation* ChildAnimation;
+  std::reference_wrapper<Animation> ChildAnimation;
   float StartTime;
   float EndTime;
 };
 
 class SequencedAnimation : public Animation {
  public:
-  void AddAnimation(Animation* animation, float startTime, float duration);
+  void AddAnimation(Animation& animation, float startTime, float duration);
 
-  void AddAnimation(Animation* animation, float startTime) {
-    AddAnimation(animation, startTime, animation->DurationIn);
+  void AddAnimation(Animation& animation, float startTime) {
+    AddAnimation(animation, startTime, animation.DurationIn);
   }
 
-  void AddAnimation(Animation* animation) {
+  void AddAnimation(Animation& animation) {
     AddAnimation(animation, DurationIn);
   }
 

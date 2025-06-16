@@ -109,7 +109,8 @@ class Renderer : public BaseRenderer {
   void SetScissorRect(RectF const& rect) override;
   void DisableScissor() override;
 
-  void SetBlendMode(RendererBlendMode blendMode) override {};
+  void SetBlendMode(RendererBlendMode blendMode) override {
+  };  // TODO: Implement
 
   void Clear(glm::vec4 color) override;
 

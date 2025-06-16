@@ -32,67 +32,66 @@ IntroSequence::IntroSequence() {
   }
 
   PanningAnimation.SetDuration(IntroPanningAnimationDuration);
-  IntroAnimation.AddAnimation(&PanningAnimation);
+  IntroAnimation.AddAnimation(PanningAnimation);
 
   float starBounceTime =
       IntroAnimation.DurationIn + IntroAfterPanningWaitDuration;
   StarBounceAnimation.SetDuration(IntroStarBounceAnimationDuration);
-  IntroAnimation.AddAnimation(&StarBounceAnimation, starBounceTime);
+  IntroAnimation.AddAnimation(StarBounceAnimation, starBounceTime);
 
   float explodingStarAnimationTime = IntroAnimation.DurationIn;
   ExplodingStarAnimation.SetDuration(IntroExplodingStarAnimationDuration);
-  IntroAnimation.AddAnimation(&ExplodingStarAnimation);
+  IntroAnimation.AddAnimation(ExplodingStarAnimation);
 
   ExplodingStarRotationAnimation.LoopMode = AnimationLoopMode::Loop;
   ExplodingStarRotationAnimation.SetDuration(
       IntroExplodingStarRotationAnimationDuration);
-  IntroAnimation.AddAnimation(&ExplodingStarRotationAnimation,
+  IntroAnimation.AddAnimation(ExplodingStarRotationAnimation,
                               explodingStarAnimationTime,
                               ExplodingStarAnimation.DurationIn);
 
   float fallingStarAnimationTime = IntroAnimation.DurationIn;
   FallingStarsAnimation.SetDuration(IntroFallingStarsAnimationDuration);
-  IntroAnimation.AddAnimation(&FallingStarsAnimation);
+  IntroAnimation.AddAnimation(FallingStarsAnimation);
 
   FallingStarsRotationAnimation.LoopMode = AnimationLoopMode::Loop;
   FallingStarsRotationAnimation.SetDuration(
       IntroFallingStarsRotationAnimationDuration);
-  IntroAnimation.AddAnimation(&FallingStarsRotationAnimation,
+  IntroAnimation.AddAnimation(FallingStarsRotationAnimation,
                               fallingStarAnimationTime,
                               FallingStarsAnimation.DurationIn);
 
   LogoFadeAnimation.SetDuration(IntroLogoFadeAnimationDuration);
-  IntroAnimation.AddAnimation(&LogoFadeAnimation);
+  IntroAnimation.AddAnimation(LogoFadeAnimation);
 
   float lccLogoAnimationTime = IntroAnimation.DurationIn;
   LCCLogoAnimation.SetDuration(IntroLCCLogoAnimationDuration);
-  IntroAnimation.AddAnimation(&LCCLogoAnimation);
+  IntroAnimation.AddAnimation(LCCLogoAnimation);
 
   DelusionADVAnimation.SetDuration(IntroDelusionADVAnimationDuration);
-  IntroAnimation.AddAnimation(&DelusionADVAnimation, lccLogoAnimationTime,
+  IntroAnimation.AddAnimation(DelusionADVAnimation, lccLogoAnimationTime,
                               DelusionADVAnimation.DurationIn);
 
   LogoStarHighlightAnimation.SetDuration(
       IntroLogoStarHighlightAnimationDuration);
-  IntroAnimation.AddAnimation(&LogoStarHighlightAnimation);
+  IntroAnimation.AddAnimation(LogoStarHighlightAnimation);
 
   float seiraAnimationTime = IntroAnimation.DurationIn;
   SeiraAnimation.SetDuration(IntroSeiraAnimationDuration);
-  IntroAnimation.AddAnimation(&SeiraAnimation);
+  IntroAnimation.AddAnimation(SeiraAnimation);
 
   DelusionADVHighlightAnimation.SetDuration(
       IntroDelusionADVHighlightAnimationDuration);
-  IntroAnimation.AddAnimation(&DelusionADVHighlightAnimation,
-                              seiraAnimationTime,
+  IntroAnimation.AddAnimation(DelusionADVHighlightAnimation, seiraAnimationTime,
                               DelusionADVHighlightAnimation.DurationIn);
 
   LogoPopOutAnimation.SetDuration(IntroLogoPopOutAnimationDuration);
   IntroAnimation.AddAnimation(
-      &LogoPopOutAnimation, seiraAnimationTime + IntroLogoPopOutAnimationDelay,
+      LogoPopOutAnimation, seiraAnimationTime + IntroLogoPopOutAnimationDelay,
       LogoPopOutAnimation.DurationIn);
 
   CopyrightAnimation.SetDuration(IntroCopyrightAnimationDuration);
-  IntroAnimation.AddAnimation(&CopyrightAnimation);
+  IntroAnimation.AddAnimation(CopyrightAnimation);
 }
 
 IntroSequence::~IntroSequence() {
@@ -241,9 +240,9 @@ void IntroSequence::DrawExplodingStars() const {
   glm::vec2 origin = glm::vec2(DesignWidth, DesignHeight) / 2.0f -
                      IntroExplodingStarSprite.Bounds.GetSize() / 2.0f;
 
-  constexpr size_t NUM_STARS = 5;
-  for (size_t i = 0; i < NUM_STARS; i++) {
-    float rayAngle = M_PI_2 - M_PI * 2 / NUM_STARS * i;
+  constexpr size_t numStars = 5;
+  for (size_t i = 0; i < numStars; i++) {
+    float rayAngle = M_PI_2 - M_PI * 2 / numStars * i;
     glm::vec2 directionVector(std::cos(rayAngle), -std::sin(rayAngle));
     glm::vec2 displacement = directionVector * ExplodingStarAnimation.Progress *
                              IntroExplodingStarAnimationDistance;
@@ -349,7 +348,9 @@ void IntroSequence::DrawDelusionADVText() const {
         std::modf(DelusionADVAnimation.Progress * IntroDelusionADVSpriteCount,
                   &animationStep);
 
-    for (size_t index = 0; index < IntroDelusionADVSpriteCount; index++) {
+    size_t lastVisibleStep = std::min((size_t)IntroDelusionADVSpriteCount,
+                                      (size_t)(animationStep + 1));
+    for (size_t index = 0; index < lastVisibleStep; index++) {
       if (index > animationStep) continue;
 
       float opacity = index < animationStep ? 1.0f : progress;
