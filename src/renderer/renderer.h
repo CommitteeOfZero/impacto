@@ -6,7 +6,6 @@
 #include "../spritesheet.h"
 #include "../text.h"
 #include "yuvframe.h"
-#include "enum.h"
 #include <span>
 
 namespace Impacto {
@@ -18,7 +17,7 @@ enum class RendererOutlineMode { None, BottomRight, Full };
 
 constexpr inline int MaxFramebuffers = 10;
 
-BETTER_ENUM(RendererBlendMode, int, Normal, Additive)
+enum class RendererBlendMode { Normal, Additive };
 
 class BaseRenderer {
  public:

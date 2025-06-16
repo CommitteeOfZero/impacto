@@ -108,7 +108,8 @@ class Renderer : public BaseRenderer {
 
   void DrawSpriteColorShift(const Sprite& sprite, const RectF& dest,
                             glm::vec4 tint, float angle,
-                            glm::vec4 colorShift) override {}
+                            glm::vec4 colorShift) override {
+  }  // TODO: Implement
 
   void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest, float depth,
                            glm::vec2 vanishingPoint, bool stayInScreen,
@@ -138,7 +139,8 @@ class Renderer : public BaseRenderer {
   void SetScissorRect(RectF const& rect) override;
   void DisableScissor() override;
 
-  void SetBlendMode(RendererBlendMode blendMode) override {};
+  void SetBlendMode(RendererBlendMode blendMode) override {
+  };  // TODO: Implement
 
   void Clear(glm::vec4 color) override;
 

@@ -8,7 +8,7 @@ uniform vec4 ColorShift;
 
 void main() {
     color = texture(ColorMap, uv) * tint;
-    float alpha = color.w;
+    float alpha = color.a;
     color = clamp(color + ColorShift, 0.0, 1.0);
-    color.w = alpha;
+    color.a = alpha;
 }

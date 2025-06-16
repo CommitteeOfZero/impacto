@@ -80,7 +80,8 @@ class Renderer : public BaseRenderer {
 
   void DrawSpriteColorShift(const Sprite& sprite, const RectF& dest,
                             glm::vec4 tint, float angle,
-                            glm::vec4 colorShift) override {}
+                            glm::vec4 colorShift) override {
+  }  // TODO: Implement
 
   void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest, float depth,
                            glm::vec2 vanishingPoint, bool stayInScreen,
