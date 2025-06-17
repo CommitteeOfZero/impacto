@@ -22,6 +22,7 @@ root.ExtraMenus = {
         FadeOutDuration = 0.4,
         ButtonBlinkDuration = 0.8,
         ButtonBlinkTintMinimum = 0.2,
+        LibraryTransitionPositionOffset = 600.0,
         LibraryBackgroundSprite = "LibraryBackground",
         LibraryBackgroundPosition = { X = 291, Y = 0 },
         LibraryIndexSprite = "LibraryIndex",

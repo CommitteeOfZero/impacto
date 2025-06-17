@@ -63,17 +63,17 @@ LibraryMenu::LibraryMenu() : MainItems(this) {
   };
 
   auto* album =
-new LibraryMenuButton(0, SnapPhotoSpriteHover, SnapPhotoSpriteSelect,
-SnapPhotoPos, ButtonBlinkAnimation);
+      new LibraryMenuButton(0, SnapPhotoSpriteHover, SnapPhotoSpriteSelect,
+                            SnapPhotoPos, ButtonBlinkAnimation);
   album->OnClickHandler = libraryMenuOnClickCommon;
 
   auto* sound =
-new LibraryMenuButton(1, HitSongsSpriteHover, HitSongsSpriteSelect,
-HitSongsPos, ButtonBlinkAnimation);
+      new LibraryMenuButton(1, HitSongsSpriteHover, HitSongsSpriteSelect,
+                            HitSongsPos, ButtonBlinkAnimation);
   sound->OnClickHandler = libraryMenuOnClickCommon;
   auto* movie =
-new LibraryMenuButton(2, LoveMovieSpriteHover, LoveMovieSpriteSelect,
-LoveMoviePos, ButtonBlinkAnimation);
+      new LibraryMenuButton(2, LoveMovieSpriteHover, LoveMovieSpriteSelect,
+                            LoveMoviePos, ButtonBlinkAnimation);
   movie->OnClickHandler = libraryMenuOnClickCommon;
 
   MainItems.Add(album, FDIR_DOWN);
@@ -100,7 +100,10 @@ void LibraryMenu::Show() {
       LastFocusedMenu = UI::FocusedMenu;
       LastFocusedMenu->IsFocused = false;
     }
+    MainItems.MoveTo({0.0f, -LibraryTransitionPositionOffset});
     MainItems.Show();
+    MainItems.Move({0.0f, LibraryTransitionPositionOffset},
+                   FadeAnimation.DurationIn);
     UI::FocusedMenu = this;
   }
 }
@@ -116,6 +119,7 @@ void LibraryMenu::Hide() {
       UI::FocusedMenu = 0;
     }
     MainItems.Hide();
+    MainItems.Move({0.0f, -600.0f}, FadeAnimation.DurationOut);
     IsFocused = false;
   }
 }
@@ -182,10 +186,19 @@ void LibraryMenu::Update(float dt) {
 }
 
 void LibraryMenu::Render() {
-  if (State != Hidden && ScrWork[SW_SYSSUBMENUCT] >= 32 &&
+  if (State != Hidden && ScrWork[SW_SYSSUBMENUCT] > 0 &&
       ScrWork[SW_SYSSUBMENUNO] == 8) {
     const glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
     const glm::vec4 maskTint = glm::vec4(1.0f);
+
+    const glm::vec2 leftSpritesOffset{
+        (1.0f - FadeAnimation.Progress) * -LibraryTransitionPositionOffset,
+        0.0f};
+
+    const glm::vec2 rightSpritesOffset{
+        (1.0f - FadeAnimation.Progress) * LibraryTransitionPositionOffset,
+        0.0f};
+
     const float submenuFadeProgress =
         CurrentLibraryMenu
             ? GetMenuFromType(*CurrentLibraryMenu).FadeAnimation.Progress
@@ -194,13 +207,15 @@ void LibraryMenu::Render() {
         (CurrentLibraryMenu == +LibraryMenuPageType::Sound)
             ? col * glm::vec4{glm::vec3(1.0f), 1 - submenuFadeProgress}
             : col;
-    Renderer->DrawSprite(LibraryBackgroundSprite, LibraryBackgroundPosition,
+    Renderer->DrawSprite(LibraryBackgroundSprite,
+                         LibraryBackgroundPosition + rightSpritesOffset,
                          libBgCol);
     if (CurrentLibraryMenu) {
       auto& submenu = GetMenuFromType(*CurrentLibraryMenu);
       submenu.Render();
     }
-    Renderer->DrawSprite(LibraryIndexSprite, LibraryIndexPosition, col);
+    Renderer->DrawSprite(LibraryIndexSprite,
+                         LibraryIndexPosition + leftSpritesOffset, col);
     MainItems.Render();
     Renderer->DrawSprite(
         LibraryMaskSprite,
@@ -218,11 +233,12 @@ void LibraryMenu::Render() {
 
     if (submenuGuideSprite) {
       Renderer->DrawSprite(
-          *submenuGuideSprite, LibraryButtonGuidePosition,
+          *submenuGuideSprite, LibraryButtonGuidePosition + leftSpritesOffset,
           col * glm::vec4{glm::vec3(1.0f), submenuFadeProgress});
     }
     Renderer->DrawSprite(
-        LibraryButtonGuideSprite, LibraryButtonGuidePosition,
+        LibraryButtonGuideSprite,
+        LibraryButtonGuidePosition + leftSpritesOffset,
         col * glm::vec4{glm::vec3(1.0f), 1 - submenuFadeProgress});
 
     // This is technically a double render but menus always render after videos
