@@ -13,7 +13,11 @@ namespace LibraryMenu {
 void Configure() {
   FadeInDuration = EnsureGetMember<float>("FadeInDuration");
   FadeOutDuration = EnsureGetMember<float>("FadeOutDuration");
+  ButtonBlinkDuration = EnsureGetMember<float>("ButtonBlinkDuration");
+  ButtonBlinkTintMinimum = EnsureGetMember<float>("ButtonBlinkTintMinimum");
 
+  LibraryTransitionPositionOffset =
+      EnsureGetMember<float>("LibraryTransitionPositionOffset");
   LibraryBackgroundSprite = EnsureGetMember<Sprite>("LibraryBackgroundSprite");
   LibraryBackgroundPosition =
       EnsureGetMember<glm::vec2>("LibraryBackgroundPosition");
