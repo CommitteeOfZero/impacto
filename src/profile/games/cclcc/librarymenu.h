@@ -62,6 +62,8 @@ inline float FadeInDuration;
 inline float FadeOutDuration;
 inline float SubMenuFadeInDuration;
 inline float SubMenuFadeOutDuration;
+inline float ButtonBlinkDuration;
+inline float ButtonBlinkTintMinimum;
 
 void Configure();
 
