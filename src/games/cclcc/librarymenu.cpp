@@ -62,15 +62,18 @@ LibraryMenu::LibraryMenu() : MainItems(this) {
     button->Selected = true;
   };
 
-  auto* album = new LibraryMenuButton(0, SnapPhotoSpriteHover,
-                                      SnapPhotoSpriteSelect, SnapPhotoPos);
+  auto* album =
+new LibraryMenuButton(0, SnapPhotoSpriteHover, SnapPhotoSpriteSelect,
+SnapPhotoPos, ButtonBlinkAnimation);
   album->OnClickHandler = libraryMenuOnClickCommon;
 
-  auto* sound = new LibraryMenuButton(1, HitSongsSpriteHover,
-                                      HitSongsSpriteSelect, HitSongsPos);
+  auto* sound =
+new LibraryMenuButton(1, HitSongsSpriteHover, HitSongsSpriteSelect,
+HitSongsPos, ButtonBlinkAnimation);
   sound->OnClickHandler = libraryMenuOnClickCommon;
-  auto* movie = new LibraryMenuButton(2, LoveMovieSpriteHover,
-                                      LoveMovieSpriteSelect, LoveMoviePos);
+  auto* movie =
+new LibraryMenuButton(2, LoveMovieSpriteHover, LoveMovieSpriteSelect,
+LoveMoviePos, ButtonBlinkAnimation);
   movie->OnClickHandler = libraryMenuOnClickCommon;
 
   MainItems.Add(album, FDIR_DOWN);
@@ -84,6 +87,9 @@ LibraryMenu::LibraryMenu() : MainItems(this) {
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
   FadeAnimation.DurationIn = FadeInDuration;
   FadeAnimation.DurationOut = FadeOutDuration;
+  ButtonBlinkAnimation.Direction = AnimationDirection::In;
+  ButtonBlinkAnimation.LoopMode = AnimationLoopMode::ReverseDirection;
+  ButtonBlinkAnimation.SetDuration(ButtonBlinkDuration);
 }
 
 void LibraryMenu::Show() {
@@ -138,11 +144,22 @@ void LibraryMenu::Update(float dt) {
       }
     }
   }
+
+  if (CurrentlyFocusedElement) {
+    auto* activeBtn = static_cast<LibraryMenuButton*>(CurrentlyFocusedElement);
+
+    if (activeBtn->Selected)
+      ButtonBlinkAnimation.Stop();
+    else if (ButtonBlinkAnimation.State == +AnimationState::Stopped)
+      ButtonBlinkAnimation.StartIn();
+  }
+
   FadeAnimation.Update(dt);
   MainItems.Update(dt);
   AlbumMenu.Update(dt);
   MusicMenu.Update(dt);
   MovieMenu.Update(dt);
+  ButtonBlinkAnimation.Update(dt);
 
   if (State == Shown && IsFocused) {
     if (CurrentLibraryMenu) {

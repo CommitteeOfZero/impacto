@@ -22,6 +22,7 @@ class LibraryMenu : public Menu {
   void Render();
 
   Animation FadeAnimation;
+  Animation ButtonBlinkAnimation;
 
   void LibraryMenuButtonOnClick(Widgets::Button* target);
 
