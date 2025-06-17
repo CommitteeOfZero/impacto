@@ -17,6 +17,7 @@ inline glm::vec2 LibraryIndexPosition;
 inline Sprite LibraryButtonGuideSprite;
 inline glm::vec2 LibraryButtonGuidePosition;
 inline Sprite LibraryMaskSprite;
+inline float LibraryTransitionPositionOffset;
 
 inline Sprite SnapPhotoSpriteHover;
 inline Sprite SnapPhotoSpriteSelect;
