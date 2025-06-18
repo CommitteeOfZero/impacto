@@ -2,10 +2,20 @@
 
 #include "librarysubmenus.h"
 #include "../../ui/turboonholdhandler.h"
+#include "../../ui/widget.h"
 
 namespace Impacto {
 namespace UI {
 namespace CCLCC {
+
+struct MusicBGs : public UI::Widget {
+  using UI::Widget::Move;
+  using UI::Widget::MoveTo;
+  void UpdateInput() override {};
+  void Move(glm::vec2 relativePos) override;
+  void MoveTo(glm::vec2 pos) override { Move(pos - Bounds.GetPos()); }
+  void Render() override;
+};
 
 class MusicTrackButton : public Widgets::Button {
  public:
@@ -36,6 +46,7 @@ class MusicMenu : public LibrarySubmenu {
   void Hide() override;
 
   float PageY = 0;
+  MusicBGs BGWidget;
   MusicPlayMode PlayMode = MusicPlayMode::Normal;
   MusicTrackButton* CurrentlyPlayingBtn = nullptr;
   TurboOnHoldHandler DirectionButtonHoldHandler;

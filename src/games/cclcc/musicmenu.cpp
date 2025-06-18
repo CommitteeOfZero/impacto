@@ -100,7 +100,8 @@ void MusicTrackButton::Render() {
     if (Selected) {
       Renderer->DrawSprite(FocusedSprite, glm::vec2(Bounds.X + 113, Bounds.Y),
                            Tint);
-    } else if (HasFocus) {
+    }
+    if (HasFocus) {
       Renderer->DrawSprite(HighlightSprite, glm::vec2(Bounds.X + 113, Bounds.Y),
                            Tint);
     }
@@ -125,7 +126,7 @@ MusicMenu::MusicMenu()
 
 void MusicMenu::Show() {
   if (State == MenuState::Hidden) {
-    const int maxY = MusicPlayIds.size() * MusicButtonBounds.Height;
+    const float maxY = MusicPlayIds.size() * MusicButtonBounds.Height;
     const auto musicOnclick = [this](Widgets::Button* target) {
       auto* musicBtn = static_cast<MusicTrackButton*>(target);
       if (CurrentlyPlayingBtn) CurrentlyPlayingBtn->Selected = false;
@@ -135,14 +136,14 @@ void MusicMenu::Show() {
           "bgm", MusicPlayIds[target->Id], PlayMode == MusicPlayMode::RepeatOne,
           0.0f);
     };
-    for (int pos = 1; pos <= MusicPlayIds.size(); ++pos) {
-      const int i = (pos + MusicPlayIds.size() - 1) % MusicPlayIds.size();
+    for (size_t pos = 1; pos <= MusicPlayIds.size(); ++pos) {
+      const size_t i = (pos + MusicPlayIds.size() - 1) % MusicPlayIds.size();
       const float btnY =
           fmod(MusicButtonBounds.Y + MusicButtonBounds.Height * pos +
                    MusicButtonBounds.Height * 8,
                maxY);
       const glm::vec2 btnPos = {MusicButtonBounds.X, btnY};
-      const auto musicItem = new MusicTrackButton(i, pos, btnPos);
+      const auto musicItem = new MusicTrackButton((int)i, (int)pos, btnPos);
 
       musicItem->OnClickHandler = musicOnclick;
       MainItems.Add(musicItem, FDIR_DOWN);
@@ -155,11 +156,17 @@ void MusicMenu::Show() {
 
 void MusicMenu::Update(float dt) {
   LibrarySubmenu::Update(dt);
+  BGWidget.Update(dt);
   if (State == Hidden && !MainItems.Children.empty()) {
     PageY = 0;
     MainItems.Clear();
     MainItems.MoveTo(glm::vec2(0, 0));
   }
+  const int alpha = ((ScrWork[SW_SYSSUBMENUCT] * 32 - 768) * 224) >> 8;
+  const auto tint =
+      glm::vec4(1.0f, 1.0f, 1.0f, alpha / 255.0f * FadeAnimation.Progress);
+  MainItems.Tint = tint;
+  BGWidget.Tint = tint;
 }
 
 void MusicMenu::Hide() {
@@ -183,8 +190,6 @@ void MusicMenu::Hide() {
 void MusicMenu::UpdateInput(float dt) {
   using namespace Vm::Interface;
   if (State == Shown) {
-    const auto maxPageY = MusicButtonBounds.Height * MusicPlayIds.size();
-
     const uint32_t btnUp = PADcustom[0];
     const uint32_t btnDown = PADcustom[1];
     const bool upScroll = Input::MouseWheelDeltaY > 0;
@@ -198,52 +203,60 @@ void MusicMenu::UpdateInput(float dt) {
 
     if (directionMovement) {
       float deltaY = 0;
-      if (directionShouldFire & btnDown || downScroll) {
-        AdvanceFocus(FDIR_DOWN);
-        deltaY += MusicButtonBounds.Height;
+      bool dirDown = directionShouldFire & btnDown || downScroll;
+        deltaY += dirDown ? MusicButtonBounds.Height : -MusicButtonBounds.Height;
+            const float animationSpeed = DirectionButtonHoldHandler.IsTurbo
+                                       ? MusicDirectionalFocusTimeInterval
+                                       : 0.4f;
+      if (MainItems.MoveAnimation.State == +AnimationState::Playing ||
+          BGWidget.MoveAnimation.State == +AnimationState::Playing) {
+        MainItems.MoveAnimation.Stop();
+BGWidget.MoveAnimation.Stop();
+        MainItems.MoveTo(MainItems.MoveTarget);
+BGWidget.MoveTo(BGWidget.MoveTarget);
       } else {
-        AdvanceFocus(FDIR_UP);
-        deltaY -= MusicButtonBounds.Height;
-      }
-      MainItems.Move(glm::vec2(0, -deltaY));
-      auto lastPageY = PageY;
-      PageY += deltaY;
-      if (PageY != lastPageY) {
-        if (PageY < lastPageY && PageY < MusicButtonBounds.Height)
-          PageY += maxPageY - MusicButtonBounds.Height;
-        else if (PageY > lastPageY &&
-                 PageY > maxPageY - MusicButtonBounds.Height) {
-          PageY -= maxPageY - MusicButtonBounds.Height;
-        }
+        MainItems.Move({0.0f, -deltaY}, animationSpeed);
+              BGWidget.Move({0.0f, -deltaY}, animationSpeed);
+if (dirDown)
+          AdvanceFocus(FocusDirection::FDIR_DOWN);
+        else
+          AdvanceFocus(FocusDirection::FDIR_UP);
       }
     }
   }
 }
 
+void MusicBGs::Move(glm::vec2 relativePos) {
+  const auto maxY = MusicItemsBackgroundRepeatHeight;
+  const float sum = Bounds.Y + relativePos.y;
+  float newY = sum;
+  if (relativePos.y > 0 && newY > maxY - MusicButtonBounds.Height) {
+    newY -= maxY;
+  } else if (relativePos.y < 0 && newY < -MusicButtonBounds.Height) {
+    newY += maxY;
+  }
+
+  const float yDiff = (newY - Bounds.Y);
+  Widget::Move({relativePos.x, yDiff});
+}
+
+void MusicBGs::Render() {
+  glm::vec2 backgroundPos = MusicItemsBackgroundPosition;
+  glm::vec2 topSplitPos{
+      MusicRenderingBounds.X,
+      MusicRenderingBounds.Y + Bounds.Y - MusicItemsBackgroundRepeatHeight};
+  glm::vec2 botSplitPos(MusicRenderingBounds.X,
+                        MusicRenderingBounds.Y + Bounds.Y);
+  Renderer->DrawSprite(MusicItemsBackgroundSprite, topSplitPos, Tint);
+  Renderer->DrawSprite(MusicItemsBackgroundSprite, botSplitPos, Tint);
+
+  Renderer->DrawSprite(MusicItemsOverlaySprite, topSplitPos, Tint);
+  Renderer->DrawSprite(MusicItemsOverlaySprite, botSplitPos, Tint);
+}
+
 void MusicMenu::Render() {
   if (State != Hidden) {
-    const int alpha = ((ScrWork[SW_SYSSUBMENUCT] * 32 - 768) * 224) >> 8;
-    const auto tint =
-        glm::vec4(1.0f, 1.0f, 1.0f, alpha / 255.0f * FadeAnimation.Progress);
-    const float backgroundY =
-        fmod(MusicRenderingBounds.Y - PageY - MusicButtonBounds.Height,
-             MusicItemsBackgroundRepeatHeight);
-    glm::vec2 backgroundPos = MusicItemsBackgroundPosition;
-    Renderer->DrawSprite(MusicItemsBackgroundSprite,
-                         glm::vec2(MusicRenderingBounds.X, backgroundY), tint);
-    Renderer->DrawSprite(
-        MusicItemsBackgroundSprite,
-        glm::vec2(MusicRenderingBounds.X,
-                  backgroundY + MusicItemsBackgroundRepeatHeight),
-        tint);
-
-    Renderer->DrawSprite(MusicItemsOverlaySprite,
-                         glm::vec2(MusicRenderingBounds.X, backgroundY), tint);
-    Renderer->DrawSprite(
-        MusicItemsOverlaySprite,
-        glm::vec2(MusicRenderingBounds.X,
-                  backgroundY + MusicItemsBackgroundRepeatHeight),
-        tint);
+    BGWidget.Render();
   }
   LibrarySubmenu::Render();
 }
