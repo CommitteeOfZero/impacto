@@ -7,6 +7,7 @@
 #include "../../inputsystem.h"
 #include "../../text.h"
 #include "../../profile/dialogue.h"
+#include "../../data/savesystem.h"
 
 namespace Impacto {
 namespace UI {
@@ -20,6 +21,7 @@ MusicTrackButton::MusicTrackButton(int id, int position, glm::vec2 pos)
   Id = id;
   Bounds = RectF(pos.x, pos.y + MusicButtonTextYOffset, MusicButtonBounds.Width,
                  MusicButtonBounds.Height);
+  IsLocked = !SaveSystem::GetBgmFlag(MusicPlayIds[Id]);
   size_t trackTextIndex = 2 * Id;
   SetText(
       Vm::ScriptGetTextTableStrAddress(MusicStringTableId, trackTextIndex + 6),
@@ -134,6 +136,7 @@ void MusicMenu::Show() {
     const float maxY = MusicPlayIds.size() * MusicButtonBounds.Height;
     const auto musicOnclick = [this](Widgets::Button* target) {
       auto* musicBtn = static_cast<MusicTrackButton*>(target);
+      if (target->IsLocked) return;
       if (CurrentlyPlayingBtn) CurrentlyPlayingBtn->Selected = false;
       musicBtn->Selected = true;
       CurrentlyPlayingBtn = musicBtn;

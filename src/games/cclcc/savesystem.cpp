@@ -918,6 +918,7 @@ bool SaveSystem::GetEVVariationIsUnlocked(int evId, int variationIdx) {
 }
 
 bool SaveSystem::GetBgmFlag(int id) { return BGMFlags[id]; }
+void SaveSystem::SetBgmFlag(int id, bool flag) { BGMFlags[id] = flag; }
 
 void SaveSystem::SetCheckpointId(int id) {
   if (WorkingSaveEntry) WorkingSaveEntry->MainThreadIp = id;

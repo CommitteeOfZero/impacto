@@ -44,6 +44,7 @@ class SaveSystem : public SaveSystemBase {
                    int* viewedVariations) override;
   bool GetEVVariationIsUnlocked(int evId, int variationIdx) override;
   bool GetBgmFlag(int id) override;
+  void SetBgmFlag(int id, bool flag) override;
   void SetCheckpointId(int id) override {}
   Sprite& GetSaveThumbnail(SaveType type, int id) override;
 
