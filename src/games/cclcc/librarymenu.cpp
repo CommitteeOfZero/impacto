@@ -145,6 +145,7 @@ void LibraryMenu::Update(float dt) {
         }
       } else {
         SetFlag(SF_ALBUMEND, 1);
+        Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0);
       }
     }
   }
