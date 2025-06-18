@@ -49,11 +49,11 @@ MusicTrackButton::MusicTrackButton(int id, int position, glm::vec2 pos)
                 Bounds.Y + MusicButtonTextYOffset),
       MusicTrackArtistSize, RendererOutlineMode::None, {0x4f4f4b, 0x0});
   TextLayoutPlainString(fmt::format("{:02}", position), NumberText,
-Profile::Dialogue::DialogueFont, MusicTrackNameSize,
-{0xfffffff, 0}, 1.0f,
-      glm::vec2(Bounds.X + MusicTrackNumberOffsetX,
-Bounds.Y + MusicButtonTextYOffset),
-      TextAlignment::Center);
+                        Profile::Dialogue::DialogueFont, MusicTrackNameSize,
+                        {0xfffffff, 0}, 1.0f,
+                        glm::vec2(Bounds.X + MusicTrackNumberOffsetX,
+                                  Bounds.Y + MusicButtonTextYOffset),
+                        TextAlignment::Center);
 }
 
 void MusicTrackButton::Show() {
@@ -96,24 +96,29 @@ void MusicTrackButton::Update(float dt) {
   const int alpha = ((ScrWork[SW_SYSSUBMENUCT] * 32 - 768) * 224) >> 8;
   Tint = glm::vec4(1.0f, 1.0f, 1.0f, alpha / 255.0f);
   Button::Update(dt);
+  if (HasFocus && !PrevFocusState)
+    Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0);
+  if (PrevFocusState != HasFocus) {
+    PrevFocusState = HasFocus;
+  }
 }
 
 void MusicTrackButton::Render() {
   if (Enabled) {
     if (Selected) {
-Renderer->DrawSprite(
+      Renderer->DrawSprite(
           MusicButtonPlayingSprite,
           MusicButtonPlayingDispOffset + glm::vec2(Bounds.X, Bounds.Y), Tint);
       Renderer->DrawSprite(FocusedSprite, glm::vec2(Bounds.X + 113, Bounds.Y),
                            Tint);
-} else {
+    } else {
       Renderer->DrawProcessedText(NumberText, Profile::Dialogue::DialogueFont);
     }
     if (HasFocus) {
       Renderer->DrawSprite(HighlightSprite, glm::vec2(Bounds.X + 113, Bounds.Y),
                            Tint);
     }
-        if (IsLocked) {
+    if (IsLocked) {
       Renderer->DrawProcessedText(LockedText, Profile::Dialogue::DialogueFont);
     } else {
       Renderer->DrawProcessedText(Text, Profile::Dialogue::DialogueFont);
@@ -133,6 +138,7 @@ MusicMenu::MusicMenu()
 
 void MusicMenu::Show() {
   if (State == MenuState::Hidden) {
+    Audio::Channels[Audio::AC_BGM0]->Stop(0.0f);
     const float maxY = MusicPlayIds.size() * MusicButtonBounds.Height;
     const auto musicOnclick = [this](Widgets::Button* target) {
       auto* musicBtn = static_cast<MusicTrackButton*>(target);
@@ -183,12 +189,9 @@ void MusicMenu::Hide() {
     CurrentlyPlayingBtn = nullptr;
   }
   if (CurrentlyFocusedElement) CurrentlyFocusedElement = nullptr;
-  if (Audio::Channels[Audio::AC_BGM0]->GetState() !=
-          Audio::AudioChannelState::ACS_Playing ||
-      Audio::Channels[Audio::AC_BGM0]->GetStream()->GetBaseStream()->Meta.Id !=
-          101) {
-    Audio::Channels[Audio::AC_BGM0]->Play("bgm", 101, true, 0.0f);
-  }
+
+  Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0);
+  Audio::Channels[Audio::AC_BGM0]->Play("bgm", 101, true, 0.0f);
 
   MainItems.Clear();
   MainItems.MoveTo(glm::vec2(0, 0));
@@ -212,20 +215,20 @@ void MusicMenu::UpdateInput(float dt) {
     if (directionMovement) {
       float deltaY = 0;
       bool dirDown = directionShouldFire & btnDown || downScroll;
-        deltaY += dirDown ? MusicButtonBounds.Height : -MusicButtonBounds.Height;
-            const float animationSpeed = DirectionButtonHoldHandler.IsTurbo
+      deltaY += dirDown ? MusicButtonBounds.Height : -MusicButtonBounds.Height;
+      const float animationSpeed = DirectionButtonHoldHandler.IsTurbo
                                        ? MusicDirectionalFocusTimeInterval
                                        : 0.4f;
       if (MainItems.MoveAnimation.State == +AnimationState::Playing ||
           BGWidget.MoveAnimation.State == +AnimationState::Playing) {
         MainItems.MoveAnimation.Stop();
-BGWidget.MoveAnimation.Stop();
+        BGWidget.MoveAnimation.Stop();
         MainItems.MoveTo(MainItems.MoveTarget);
-BGWidget.MoveTo(BGWidget.MoveTarget);
+        BGWidget.MoveTo(BGWidget.MoveTarget);
       } else {
         MainItems.Move({0.0f, -deltaY}, animationSpeed);
-              BGWidget.Move({0.0f, -deltaY}, animationSpeed);
-if (dirDown)
+        BGWidget.Move({0.0f, -deltaY}, animationSpeed);
+        if (dirDown)
           AdvanceFocus(FocusDirection::FDIR_DOWN);
         else
           AdvanceFocus(FocusDirection::FDIR_UP);
