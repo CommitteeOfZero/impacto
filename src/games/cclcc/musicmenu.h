@@ -27,6 +27,7 @@ class MusicTrackButton : public Widgets::Button {
   void Move(glm::vec2 relativePosition) override;
 
   bool Selected = false;
+  bool PrevFocusState = false;
 
  private:
   std::array<ProcessedTextGlyph, 6> LockedText;
