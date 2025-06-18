@@ -79,9 +79,11 @@ root.ExtraMenus = {
         MusicStringLockedIndex = 3,
         MusicTrackNameSize = 30,
         MusicTrackNameOffsetX = 160,
+        MusicTrackNumberOffsetX = 80,
         MusicTrackArtistSize = 20,
         MusicTrackArtistOffsetX = 800,
         MusicButtonTextYOffset = 20,
+        MusicButtonPlayingDispOffset = {X = 55, Y = 10},
         MusicButtonBounds = {
             X = 320,
             Y = 20,
@@ -92,6 +94,7 @@ root.ExtraMenus = {
         MusicDirectionalFocusTimeInterval = 0.05,
         MusicButtonHoverSprite = "MusicButtonHover",
         MusicButtonSelectSprite = "MusicButtonSelect",
+        MusicButtonPlayingSprite = "MusicButtonPlaying",
 
         MovieDiskSprites = {},
         MovieDiskHighlightSprites = {},
@@ -295,5 +298,14 @@ root.Sprites["MusicButtonSelect"] = {
         Y = 1231, 
         Width = 1387, 
         Height = 60
+    },
+};
+root.Sprites["MusicButtonPlaying"] = {
+    Sheet = "MusicMenu",
+    Bounds = { 
+        X = 865, 
+        Y = 1393, 
+        Width = 46, 
+        Height = 46
     },
 };

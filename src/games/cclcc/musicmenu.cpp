@@ -46,10 +46,11 @@ MusicTrackButton::MusicTrackButton(int id, int position, glm::vec2 pos)
       glm::vec2(Bounds.X + MusicTrackArtistOffsetX,
                 Bounds.Y + MusicButtonTextYOffset),
       MusicTrackArtistSize, RendererOutlineMode::None, {0x4f4f4b, 0x0});
-  TextLayoutPlainString(
-      fmt::format("{}", position), NumberText, Profile::Dialogue::DialogueFont,
-      MusicTrackNameSize, {0xfffffff, 0}, 1.0f,
-      glm::vec2(Bounds.X + 80.0f, Bounds.Y + MusicButtonTextYOffset),
+  TextLayoutPlainString(fmt::format("{:02}", position), NumberText,
+Profile::Dialogue::DialogueFont, MusicTrackNameSize,
+{0xfffffff, 0}, 1.0f,
+      glm::vec2(Bounds.X + MusicTrackNumberOffsetX,
+Bounds.Y + MusicButtonTextYOffset),
       TextAlignment::Center);
 }
 
@@ -98,15 +99,19 @@ void MusicTrackButton::Update(float dt) {
 void MusicTrackButton::Render() {
   if (Enabled) {
     if (Selected) {
+Renderer->DrawSprite(
+          MusicButtonPlayingSprite,
+          MusicButtonPlayingDispOffset + glm::vec2(Bounds.X, Bounds.Y), Tint);
       Renderer->DrawSprite(FocusedSprite, glm::vec2(Bounds.X + 113, Bounds.Y),
                            Tint);
+} else {
+      Renderer->DrawProcessedText(NumberText, Profile::Dialogue::DialogueFont);
     }
     if (HasFocus) {
       Renderer->DrawSprite(HighlightSprite, glm::vec2(Bounds.X + 113, Bounds.Y),
                            Tint);
     }
-    Renderer->DrawProcessedText(NumberText, Profile::Dialogue::DialogueFont);
-    if (IsLocked) {
+        if (IsLocked) {
       Renderer->DrawProcessedText(LockedText, Profile::Dialogue::DialogueFont);
     } else {
       Renderer->DrawProcessedText(Text, Profile::Dialogue::DialogueFont);
