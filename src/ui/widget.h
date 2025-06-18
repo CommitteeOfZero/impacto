@@ -44,7 +44,6 @@ class Widget {
 
   glm::vec2 MoveTarget;
   glm::vec2 MoveOrigin;
-  bool Moving = false;
   Animation MoveAnimation;
 
  private:
