@@ -35,6 +35,7 @@ inline glm::vec2 MusicItemsBackgroundPosition;
 inline Sprite MusicItemsOverlaySprite;
 inline glm::vec2 MusicItemsOverlayPosition;
 inline std::vector<uint8_t> MusicPlayIds;
+inline std::vector<uint8_t> MusicBGMFlagIds;
 inline RectF MusicRenderingBounds;
 inline RectF MusicHoverBounds;
 inline uint8_t MusicStringTableId;
