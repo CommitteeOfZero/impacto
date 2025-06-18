@@ -20,6 +20,7 @@ class SystemMenu : public Menu {
   void MenuButtonOnClick(Widgets::Button* target);
 
  private:
+  int GetIndexOfActiveButton();
   void DrawCircles();
   void DrawErin();
   Widgets::Group* MainItems;

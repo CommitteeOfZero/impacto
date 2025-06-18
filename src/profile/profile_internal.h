@@ -35,6 +35,7 @@ int PushNextTableElement();
 template <typename T>
 bool TryGet(T& out) {
   static_assert(sizeof(T*) == 0, "Invalid Type");
+  return false; //Suppress warning
 }
 
 template <typename T>

@@ -25,6 +25,39 @@ void Configure() {
   GetMemberArray<glm::vec2>(MenuEntriesPositions,
                             Profile::SystemMenu::MenuEntriesNum,
                             "MenuEntriesPositions");
+  Background = EnsureGetMember<Sprite>("SystemMenuBackground");
+  BackgroundPosition =
+      EnsureGetMember<glm::vec2>("SystemMenuBackgroundPosition");
+
+  MenuItemsLine = EnsureGetMember<Sprite>("SystemMenuItemsLine");
+  MenuItemsLinePosition =
+      EnsureGetMember<glm::vec2>("SystemMenuItemsLinePosition");
+  MainMenuLabel = EnsureGetMember<Sprite>("MainMenuLabel");
+  MainMenuLabelRightPosition = EnsureGetMember<glm::vec2>("MainMenuLabelRightPosition");
+  MainMenuLabelRightAngle =
+      EnsureGetMember<float>("MainMenuLabelRightAngle");
+  MainMenuLabelPosition = EnsureGetMember<glm::vec2>("MainMenuLabelPosition");
+  MenuSelectionDot = EnsureGetMember<Sprite>("SystemMenuSelectionDot");
+  MenuSelectionDotPosition =
+      EnsureGetMember<glm::vec2>("SystemMenuSelectionDotPosition");
+  MenuSelectionDotMultiplier =
+      EnsureGetMember<float>("SystemMenuSelectionDotMultiplier");
+  MenuSelection = EnsureGetMember<Sprite>("SystemMenuSelection");
+    MenuSelectionPosition =
+        EnsureGetMember<glm::vec2>("SystemMenuSelectionPosition");
+  SelectMenuHeader = EnsureGetMember<Sprite>("SystemSelectMenuHeader");
+  SelectMenuHeaderPosition =
+      EnsureGetMember<glm::vec2>("SystemSelectMenuHeaderPosition");
+  MenuRunningSelectedLabel =
+      EnsureGetMember<Sprite>("SystemMenuRunningSelectedLabel");
+  MenuButtonPrompt = EnsureGetMember<Sprite>("SystemMenuButtonPrompt");
+  MenuButtonPromptPosition =
+      EnsureGetMember<glm::vec2>("SystemMenuButtonPromptPosition");
+  MenuLine = EnsureGetMember<Sprite>("SystemMenuLine");
+  MenuLinePosition = EnsureGetMember<glm::vec2>("SystemMenuLinePosition");
+  MenuCHLCCLabel = EnsureGetMember<Sprite>("SystemMenuCHLCCLabel");
+  MenuCHLCCLabelPosition =
+      EnsureGetMember<glm::vec2>("SystemMenuCHLCCLabelPosition");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMember<int>("DrawType"));

@@ -248,7 +248,7 @@ void UpdateSystem(float dt) {
         CCLCC::YesNoTrigger::YesNoTriggerPtr->Update(UpdateSecondCounter);
     }
 
-    Vm::Update();
+    Vm::Update(dt);
   }
   UpdateSecondCounter = 0.0f;
 }
@@ -467,7 +467,7 @@ static void RenderMain() {
     Video::VideoRender(ScrWork[SW_MOVIEALPHA] / 256.0f);
   }
 }
-
+#include <cstdio>
 void Render() {
   Window->Update();
 
@@ -480,9 +480,9 @@ void Render() {
   Renderer->BeginFrame2D();
 
 #ifndef IMPACTO_DISABLE_IMGUI
-  if (Profile::GameFeatures & GameFeature::DebugMenu) {
+ // if (Profile::GameFeatures & GameFeature::DebugMenu) {
     DebugMenu::Show();
-  }
+  //}
 #endif
 
   if (Profile::GameFeatures & GameFeature::Renderer2D) {

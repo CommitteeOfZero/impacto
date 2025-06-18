@@ -287,3 +287,20 @@ vendor/avcpp
 games/*/gamedata
 games/*/savedata
 games/*/trophydata
+
+// remove before Pull Request
+
+/CMakeCache.txt
+shaders/
+CPackConfig.cmake
+CPackSourceConfig.cmake
+_deps
+/vendor
+//Compiled files
+/impacto
+*.o
+*.d
+CMakeFiles
+*build/
+/profile.txt
+.gitignore

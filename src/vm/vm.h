@@ -27,7 +27,7 @@ uint8_t* ScriptGetRetAddress(uint8_t* scriptBufferAdr, uint32_t retNum);
 uint8_t* MsbGetStrAddress(uint8_t* msbBufferAdr, uint32_t mesNum);
 
 void Init();
-void Update();
+void Update(float dt);
 
 bool LoadScript(uint32_t bufferId, uint32_t scriptId);
 bool LoadMsb(uint32_t bufferId, uint32_t fileId);
