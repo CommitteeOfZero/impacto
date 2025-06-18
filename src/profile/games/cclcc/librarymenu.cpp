@@ -54,17 +54,22 @@ void Configure() {
   MusicPlayIds = GetMemberVector<uint8_t>("MusicPlayIds");
   MusicStringTableId = EnsureGetMember<uint8_t>("MusicStringTableId");
   MusicStringLockedIndex = EnsureGetMember<int>("MusicStringLockedIndex");
-  MusicTrackNameSize = EnsureGetMember<int>("MusicTrackNameSize");
+  MusicTrackNameSize = EnsureGetMember<float>("MusicTrackNameSize");
   MusicTrackNameOffsetX = EnsureGetMember<int>("MusicTrackNameOffsetX");
   MusicTrackArtistSize = EnsureGetMember<int>("MusicTrackArtistSize");
   MusicTrackArtistOffsetX = EnsureGetMember<int>("MusicTrackArtistOffsetX");
+  MusicTrackNumberOffsetX = EnsureGetMember<int>("MusicTrackNumberOffsetX");
   MusicButtonTextYOffset = EnsureGetMember<int>("MusicButtonTextYOffset");
+  MusicButtonPlayingDispOffset =
+      EnsureGetMember<glm::vec2>("MusicButtonPlayingDispOffset");
   MusicButtonBounds = EnsureGetMember<RectF>("MusicButtonBounds");
   MusicDirectionalHoldTime = EnsureGetMember<float>("MusicDirectionalHoldTime");
   MusicDirectionalFocusTimeInterval =
       EnsureGetMember<float>("MusicDirectionalFocusTimeInterval");
   MusicButtonHoverSprite = EnsureGetMember<Sprite>("MusicButtonHoverSprite");
   MusicButtonSelectSprite = EnsureGetMember<Sprite>("MusicButtonSelectSprite");
+  MusicButtonPlayingSprite =
+      EnsureGetMember<Sprite>("MusicButtonPlayingSprite");
 
   MovieDiskSprites = GetMemberVector<Sprite>("MovieDiskSprites");
   MovieDiskHighlightSprites =
