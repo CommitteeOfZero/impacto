@@ -142,17 +142,19 @@ root.Sprites["SystemMenuQuickLoad"] = {
 };
 root.SystemMenu.MenuEntriesSprites[#root.SystemMenu.MenuEntriesSprites + 1] = "SystemMenuQuickLoad";
 
+root.Sprites["SystemMenuConfig"] = {
+    Sheet = "Main",
+    Bounds = {X = 173, Y = 800, Width = 243, Height = 53}
+};
+root.SystemMenu.MenuEntriesSprites[#root.SystemMenu.MenuEntriesSprites + 1] = "SystemMenuConfig";
+
+
 root.Sprites["SystemMenuTips"] = {
     Sheet = "Main",
     Bounds = {X = 173, Y = 759, Width = 243, Height = 39}
 };
 root.SystemMenu.MenuEntriesSprites[#root.SystemMenu.MenuEntriesSprites + 1] = "SystemMenuTips";
 
-root.Sprites["SystemMenuConfig"] = {
-    Sheet = "Main",
-    Bounds = {X = 173, Y = 800, Width = 243, Height = 53}
-};
-root.SystemMenu.MenuEntriesSprites[#root.SystemMenu.MenuEntriesSprites + 1] = "SystemMenuConfig";
 
 root.Sprites["SystemMenuTrophy"] = {
     Sheet = "Main",
