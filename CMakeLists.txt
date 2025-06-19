@@ -939,9 +939,9 @@ if (NOT DEFINED IMPACTO_DISABLE_OPENAL)
 endif ()
 list(APPEND Impacto_Include_Dirs ${SDL2_INCLUDE_DIRS})
 list(APPEND Impacto_Include_Dirs ${WebP_INCLUDE_DIRS})
-list(APPEND Impacto_Include_Dirs vendor)
-list(APPEND Impacto_Include_Dirs vendor/include)
-list(APPEND Impacto_Include_Dirs vendor/pcg/include)
+list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor)
+list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor/include)
+list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor/pcg/include)
 
 list(APPEND Impacto_Libs
         fmt::fmt
@@ -1032,7 +1032,7 @@ if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
             src/renderer/opengl/3d/scene.h
     )
 
-    list(APPEND Impacto_Include_Dirs vendor/glad/include)
+    list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/include)
 endif ()
 
 if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
@@ -1094,7 +1094,7 @@ if (NOT DEFINED IMPACTO_DISABLE_MSPACK)
     list(APPEND Impacto_Header
             src/io/lzxstream.h
     )
-    list(APPEND Impacto_Include_Dirs vendor/mspack)
+    list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor/mspack)
 endif ()
 
 if (NOT DEFINED IMPACTO_DISABLE_VULKAN)
@@ -1210,11 +1210,11 @@ add_definitions(-DGLM_FORCE_RADIANS) # lol
 # target configuration
 
 if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-set(IMPACTO_ENABLE_SLOW_LOG_DEFAULT ON)
-set(IMPACTO_GL_DEBUG_DEFAULT ON)
+    set(IMPACTO_ENABLE_SLOW_LOG_DEFAULT ON)
+    set(IMPACTO_GL_DEBUG_DEFAULT ON)
 else ()
-set(IMPACTO_ENABLE_SLOW_LOG_DEFAULT OFF)
-set(IMPACTO_GL_DEBUG_DEFAULT OFF)
+    set(IMPACTO_ENABLE_SLOW_LOG_DEFAULT OFF)
+    set(IMPACTO_GL_DEBUG_DEFAULT OFF)
 endif ()
 
 option(IMPACTO_ENABLE_SLOW_LOG
@@ -1225,11 +1225,11 @@ option(IMPACTO_GL_DEBUG
 ${IMPACTO_GL_DEBUG_DEFAULT})
 
 if (EMSCRIPTEN)
-set(IMPACTO_HAVE_THREADS OFF)
-set(IMPACTO_USE_SDL_HIGHDPI ON)
+    set(IMPACTO_HAVE_THREADS OFF)
+    set(IMPACTO_USE_SDL_HIGHDPI ON)
 else ()
-set(IMPACTO_HAVE_THREADS ON)
-set(IMPACTO_USE_SDL_HIGHDPI OFF)
+    set(IMPACTO_HAVE_THREADS ON)
+    set(IMPACTO_USE_SDL_HIGHDPI OFF)
 endif ()
 
 # Enable Hot Reload for MSVC compilers if supported.
@@ -1239,7 +1239,7 @@ if (POLICY CMP0141)
 endif()
 
 configure_file(src/config.h.in ${PROJECT_BINARY_DIR}/include/config.h)
-target_include_directories(impacto PRIVATE ${Impacto_Include_Dirs})
+target_include_directories(impacto SYSTEM PRIVATE ${Impacto_Include_Dirs})
 target_include_directories(impacto PRIVATE ${PROJECT_BINARY_DIR}/include)
 
 target_precompile_headers(impacto PRIVATE 
