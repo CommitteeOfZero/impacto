@@ -68,30 +68,30 @@ Sprites are defined in profile configuration files. For example, in order to def
 Sprite BackgroundSprite;
 ```
 
-2. In profile sprites definition file located in `/profiles/<profile_name>/sprites.js` in `root.SpriteSheets` list, define a spritesheet, for example:
+2. In profile sprites definition file located in `/profiles/<profile_name>/sprites.lua` in `root.SpriteSheets` list, define a spritesheet, for example:
 
-```javascript
-"Data": {
-    Path: { Mount: "system", Id: 5 },
-    DesignWidth: 2048,  //Spritesheet width
-    DesignHeight: 1024  //Spritesheet height
+```lua
+["Data"] = {
+    Path: { Mount = "system", Id = 5 },
+    DesignWidth = 2048,  --Spritesheet width
+    DesignHeight = 1024  --Spritesheet height
 },
 ```
 
 3. In the appropriate profile UI definition file located in `/profiles/<profile_name>/hud/` add a sprite definition to the global `root.Sprites` dictionary, for example:
 
-```javascript
+```lua
 root.Sprites["TitleMenuBackground"] = {
-    Sheet: "Title",
-    Bounds: { X: 0, Y: 0, Width: 1920, Height: 1080 },
+    Sheet = "Title",
+    Bounds = { X = 0, Y = 0, Width = 1920, Height = 1080 }
 };
 ```
 
 4. In the appropriate profile UI definition file located in `/profiles/<profile_name>/hud/` in the UI element object define the sprite variable, for example:
 
-```javascript
+```lua
 root.TitleMenu = {
-    BackgroundSpriteProfile: "TitleMenuBackground",
+    BackgroundSpriteProfile = "TitleMenuBackground"
 };
 ```
 
