@@ -19,8 +19,8 @@ root.SystemMenu = {
     SystemMenuItemsLinePosition = {X = 80,Y = 0},
     MainMenuLabel = "MainMenuLabel",
     MainMenuLabelPosition = {X=260, Y = 0},
-    MainMenuLabelRightPosition = {X=1000, Y = 50},
-    MainMenuLabelRightAngle = -95,
+    MainMenuLabelRightPosition = {X=800, Y = 165},
+    MainMenuLabelRightAngle = -1.8,
     SystemMenuSelectionDot = "SystemMenuSelectionDot",
     SystemMenuSelectionDotPosition = {X = 86, Y = 162},
     SystemMenuSelectionDotMultiplier = 52,
@@ -29,13 +29,15 @@ root.SystemMenu = {
     SystemSelectMenuHeader ="SystemSelectMenuHeader",
     SystemSelectMenuHeaderPosition = {X = 96, Y = 50},
     SystemMenuRunningSelectedLabel = "SystemMenuRunningSelectedLabel",
+    SystemMenuRunningSelectedLabelPosition = {X = 0,Y=112},
+    SystemMenuRunningSelectedLabelAngle = -0.27,
     SystemMenuButtonPrompt= "SystemMenuButtonPrompt",
     SystemMenuButtonPromptPosition = {X = 1022, Y = 651},
     SystemMenuLine="SystemMenuLine",
     SystemMenuLinePosition = {X = 0, Y = 539},
     SystemMenuCHLCCLabel = "SystemMenuCHLCCLabel",
     SystemMenuCHLCCLabelPosition = {X = 1068, Y = 575},
-    MenuEntriesNum = 8,
+    MenuEntriesNum = 9,
     MenuEntriesHNum = 0,
     ------
     --Not used since it isn't laid out in a way that would make it easier to use this
@@ -46,10 +48,11 @@ root.SystemMenu = {
     ------
     FocusTint = 0xff9cb6,
     MenuEntriesPositions = {
-        {X = 110, Y = 107}, {X = 110, Y = 183},
-        {X = 110, Y = 240}, {X = 110, Y = 263},
-        {X = 110, Y = 321}, {X = 110, Y = 408},
-        {X = 110, Y = 449}, {X = 110, Y = 475},
+        {X = 110, Y = 107}, {X = 110, Y = 182},
+        {X = 110, Y = 233}, {X = 110, Y = 253},
+        {X = 110, Y = 304}, {X = 110, Y = 390},
+        {X = 110, Y = 428}, {X = 110, Y = 475},
+        {X = 110, Y = 499}
     },
     MenuEntriesSprites = {},
 };
@@ -71,7 +74,7 @@ root.Sprites["MainMenuLabel"] = {
 
 root.Sprites["SystemMenuRunningSelectedLabel"] = {
     Sheet = "Main",
-    Bounds = {X = 1395, Y = 801, Width = 226, Height = 105}
+    Bounds = {X = 1396, Y = 801, Width = 226, Height = 102}
 };
 
 root.Sprites["SystemSelectMenuHeader"] = {
@@ -150,6 +153,12 @@ root.Sprites["SystemMenuConfig"] = {
     Bounds = {X = 173, Y = 800, Width = 243, Height = 53}
 };
 root.SystemMenu.MenuEntriesSprites[#root.SystemMenu.MenuEntriesSprites + 1] = "SystemMenuConfig";
+
+root.Sprites["SystemMenuTrophy"] = {
+    Sheet = "Main",
+    Bounds = {X = 173, Y = 945, Width = 243, Height = 58}
+};
+root.SystemMenu.MenuEntriesSprites[#root.SystemMenu.MenuEntriesSprites + 1] = "SystemMenuTrophy";
 
 root.Sprites["SystemMenuReturnTitle"] = {
     Sheet = "Main",

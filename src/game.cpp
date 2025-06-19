@@ -467,7 +467,7 @@ static void RenderMain() {
     Video::VideoRender(ScrWork[SW_MOVIEALPHA] / 256.0f);
   }
 }
-#include <cstdio>
+
 void Render() {
   Window->Update();
 
@@ -480,8 +480,8 @@ void Render() {
   Renderer->BeginFrame2D();
 
 #ifndef IMPACTO_DISABLE_IMGUI
- // if (Profile::GameFeatures & GameFeature::DebugMenu) {
-    DebugMenu::Show();
+  // if (Profile::GameFeatures & GameFeature::DebugMenu) {
+  DebugMenu::Show();
   //}
 #endif
 

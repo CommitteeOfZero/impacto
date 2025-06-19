@@ -33,9 +33,9 @@ void Configure() {
   MenuItemsLinePosition =
       EnsureGetMember<glm::vec2>("SystemMenuItemsLinePosition");
   MainMenuLabel = EnsureGetMember<Sprite>("MainMenuLabel");
-  MainMenuLabelRightPosition = EnsureGetMember<glm::vec2>("MainMenuLabelRightPosition");
-  MainMenuLabelRightAngle =
-      EnsureGetMember<float>("MainMenuLabelRightAngle");
+  MainMenuLabelRightPosition =
+      EnsureGetMember<glm::vec2>("MainMenuLabelRightPosition");
+  MainMenuLabelRightAngle = EnsureGetMember<float>("MainMenuLabelRightAngle");
   MainMenuLabelPosition = EnsureGetMember<glm::vec2>("MainMenuLabelPosition");
   MenuSelectionDot = EnsureGetMember<Sprite>("SystemMenuSelectionDot");
   MenuSelectionDotPosition =
@@ -43,13 +43,17 @@ void Configure() {
   MenuSelectionDotMultiplier =
       EnsureGetMember<float>("SystemMenuSelectionDotMultiplier");
   MenuSelection = EnsureGetMember<Sprite>("SystemMenuSelection");
-    MenuSelectionPosition =
-        EnsureGetMember<glm::vec2>("SystemMenuSelectionPosition");
+  MenuSelectionPosition =
+      EnsureGetMember<glm::vec2>("SystemMenuSelectionPosition");
   SelectMenuHeader = EnsureGetMember<Sprite>("SystemSelectMenuHeader");
   SelectMenuHeaderPosition =
       EnsureGetMember<glm::vec2>("SystemSelectMenuHeaderPosition");
   MenuRunningSelectedLabel =
       EnsureGetMember<Sprite>("SystemMenuRunningSelectedLabel");
+  MenuRunningSelectedLabelPosition =
+      EnsureGetMember<glm::vec2>("SystemMenuRunningSelectedLabelPosition");
+  MenuRunningSelectedLabelAngle =
+      EnsureGetMember<float>("SystemMenuRunningSelectedLabelAngle");
   MenuButtonPrompt = EnsureGetMember<Sprite>("SystemMenuButtonPrompt");
   MenuButtonPromptPosition =
       EnsureGetMember<glm::vec2>("SystemMenuButtonPromptPosition");

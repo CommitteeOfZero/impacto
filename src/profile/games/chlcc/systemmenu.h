@@ -6,7 +6,7 @@ namespace Impacto {
 namespace Profile {
 namespace CHLCC {
 namespace SystemMenu {
-constexpr int MenuEntriesNumMax = 8;
+constexpr int MenuEntriesNumMax = 9;
 
 inline uint32_t BackgroundColor;
 inline Sprite BackgroundFilter;
@@ -38,13 +38,14 @@ inline glm::vec2 MenuSelectionPosition;
 inline Sprite SelectMenuHeader;
 inline glm::vec2 SelectMenuHeaderPosition;
 inline Sprite MenuRunningSelectedLabel;
+inline glm::vec2 MenuRunningSelectedLabelPosition;
+inline float MenuRunningSelectedLabelAngle;
 inline Sprite MenuButtonPrompt;
 inline glm::vec2 MenuButtonPromptPosition;
 inline Sprite MenuLine;
 inline glm::vec2 MenuLinePosition;
 inline Sprite MenuCHLCCLabel;
 inline glm::vec2 MenuCHLCCLabelPosition;
-
 
 void Configure();
 
