@@ -162,6 +162,12 @@ root.Sprites["SystemMenuTrophy"] = {
 };
 root.SystemMenu.MenuEntriesSprites[#root.SystemMenu.MenuEntriesSprites + 1] = "SystemMenuTrophy";
 
+root.Sprites["SystemMenuTrophy"] = {
+    Sheet = "Main",
+    Bounds = {X = 173, Y = 945, Width = 243, Height = 58}
+};
+root.SystemMenu.MenuEntriesSprites[#root.SystemMenu.MenuEntriesSprites + 1] = "SystemMenuTrophy";
+
 root.Sprites["SystemMenuReturnTitle"] = {
     Sheet = "Main",
     Bounds = {X = 173, Y = 855, Width = 243, Height = 86}
