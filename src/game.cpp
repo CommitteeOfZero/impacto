@@ -480,9 +480,9 @@ void Render() {
   Renderer->BeginFrame2D();
 
 #ifndef IMPACTO_DISABLE_IMGUI
-  // if (Profile::GameFeatures & GameFeature::DebugMenu) {
-  DebugMenu::Show();
-  //}
+  if (Profile::GameFeatures & GameFeature::DebugMenu) {
+    DebugMenu::Show();
+  }
 #endif
 
   if (Profile::GameFeatures & GameFeature::Renderer2D) {
