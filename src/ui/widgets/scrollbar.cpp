@@ -22,8 +22,7 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end,
       Step((end - start) * 0.01f),
       Length(dir == SBDIR_VERTICAL ? trackBounds.y : trackBounds.x),
       ThumbBounds(0.0f, 0.0f, 0.0f, 0.0f),
-      ThumbLength(0.0f),
-      HasTrack(false) {
+      ThumbLength(0.0f) {
   UpdatePosition();
 }
 
@@ -64,11 +63,10 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end,
       TrackBounds(pos.x, pos.y, track.ScaledWidth(), track.ScaledHeight()),
       ScrollWheelBounds(wheelBounds == RectF() ? TrackBounds : wheelBounds),
       WheelSpeedMultiplier(wheelSpeedMultiplier),
-      Step((EndValue - StartValue) * 0.01f),
-      HasTrack(true) {
+      Step((EndValue - StartValue) * 0.01f) {
   Enabled = true;
-  Length = Direction == SBDIR_VERTICAL ? TrackSprite.Bounds.Height
-                                       : TrackSprite.Bounds.Width;
+  Length = Direction == SBDIR_VERTICAL ? TrackSprite->Bounds.Height
+                                       : TrackSprite->Bounds.Width;
   ThumbBounds =
       RectF(0.0f, 0.0f, ThumbSprite.ScaledWidth(), ThumbSprite.ScaledHeight());
   if (Direction == SBDIR_VERTICAL) {
@@ -91,7 +89,6 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end,
     : Scrollbar(id, pos, start, end, value, dir, track, thumb, thumbOffset,
                 thumbLength, wheelBounds, wheelSpeedMultiplier) {
   FillSprite = fill;
-  HasFill = true;
   UpdatePosition();
 }
 
@@ -156,15 +153,15 @@ void Scrollbar::UpdateInput() {
 }
 
 void Scrollbar::Render() {
-  if (HasFill && FillBeforeTrack) {
-    Renderer->DrawSprite(FillSprite, glm::vec2(TrackBounds.X, TrackBounds.Y),
+  if (FillSprite.has_value() && FillBeforeTrack) {
+    Renderer->DrawSprite(*FillSprite, glm::vec2(TrackBounds.X, TrackBounds.Y),
                          Tint);
   }
-  if (HasTrack) {
-    Renderer->DrawSprite(TrackSprite, TrackBounds, Tint);
+  if (TrackSprite.has_value()) {
+    Renderer->DrawSprite(*TrackSprite, TrackBounds, Tint);
   }
-  if (HasFill && !FillBeforeTrack) {
-    Renderer->DrawSprite(FillSprite, glm::vec2(TrackBounds.X, TrackBounds.Y),
+  if (FillSprite.has_value() && !FillBeforeTrack) {
+    Renderer->DrawSprite(*FillSprite, glm::vec2(TrackBounds.X, TrackBounds.Y),
                          Tint);
   }
   Renderer->DrawSprite(ThumbSprite, glm::vec2(ThumbBounds.X, ThumbBounds.Y),
@@ -209,14 +206,16 @@ void Scrollbar::UpdatePosition() {
     ThumbBounds.Y =
         (TrackBounds.Y + ThumbLength / 2.0f + thumbNormalizedProgress) -
         (ThumbSprite.ScaledHeight() / 2.0f);
-    FillSprite.Bounds.Height = TrackProgress;
+
+    if (FillSprite) FillSprite->Bounds.Height = TrackProgress;
   } else if (Direction == SBDIR_HORIZONTAL) {
     ThumbBounds.X =
         (TrackBounds.X + ThumbLength / 2.0f + thumbNormalizedProgress) -
         (ThumbSprite.ScaledWidth() / 2.0f);
     ThumbBounds.Y = (TrackBounds.Y + (TrackBounds.Height / 2.0f)) -
                     (ThumbSprite.ScaledHeight() / 2.0f);
-    FillSprite.Bounds.Width = TrackProgress;
+
+    if (FillSprite) FillSprite->Bounds.Width = TrackProgress;
   }
 
   ThumbBounds.X += ThumbSpriteOffset.x;
