@@ -15,7 +15,9 @@ The following directories must be in the same directory as the impacto executabl
 
 These folders can be found in the repository root. When using the *install* build step they are automatically copied to your specified install location.
 
-In order to launch a game using impacto, until UI is developed for this, a file named `profile.txt` that contains the name of the profile to launch must be placed next to the impacto executable.
+In order to launch a game using impacto, until UI is developed for this, you must specify the game that needs to be launched using:
+ - A file named `profile.txt` that contains the name of the profile to launch placed next to the impacto executable.
+ - A command line argument with the name of the profile as the first argument after the executable name.
 
 The following profiles are currently available:
 
