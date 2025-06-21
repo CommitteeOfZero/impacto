@@ -1,6 +1,8 @@
 #pragma once
 
+#include <optional>
 #include "librarysubmenus.h"
+#include "../../profile/games/cclcc/librarymenu.h"
 #include "../../ui/turboonholdhandler.h"
 #include "../../ui/widget.h"
 
@@ -38,7 +40,6 @@ class MusicTrackButton : public Widgets::Button {
 
 class MusicMenu : public LibrarySubmenu {
  public:
-  enum class MusicPlayMode { Normal, Shuffle, Repeat, RepeatOne };
   MusicMenu();
   void UpdateInput(float dt) override;
   void Update(float dt) override;
@@ -48,9 +49,12 @@ class MusicMenu : public LibrarySubmenu {
 
   float PageY = 0;
   MusicBGs BGWidget;
-  MusicPlayMode PlayMode = MusicPlayMode::Normal;
+  Profile::CCLCC::LibraryMenu::MusicMenuPlayingMode PlayMode =
+      Profile::CCLCC::LibraryMenu::MusicMenuPlayingMode::PlayAll;
   MusicTrackButton* CurrentlyPlayingBtn = nullptr;
   TurboOnHoldHandler DirectionButtonHoldHandler;
+  Animation NowPlayingFadeAnimation;
+  Widgets::Label NowPlayingTrackName;
 };
 
 }  // namespace CCLCC

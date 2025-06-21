@@ -61,6 +61,9 @@ void Configure() {
   MusicTrackArtistOffsetX = EnsureGetMember<int>("MusicTrackArtistOffsetX");
   MusicTrackNumberOffsetX = EnsureGetMember<int>("MusicTrackNumberOffsetX");
   MusicButtonTextYOffset = EnsureGetMember<int>("MusicButtonTextYOffset");
+  MusicButtonTextColor = EnsureGetMember<uint32_t>("MusicButtonTextColor");
+  MusicButtonTextOutlineColor =
+      EnsureGetMember<uint32_t>("MusicButtonTextOutlineColor");
   MusicButtonPlayingDispOffset =
       EnsureGetMember<glm::vec2>("MusicButtonPlayingDispOffset");
   MusicButtonBounds = EnsureGetMember<RectF>("MusicButtonBounds");
@@ -71,6 +74,29 @@ void Configure() {
   MusicButtonSelectSprite = EnsureGetMember<Sprite>("MusicButtonSelectSprite");
   MusicButtonPlayingSprite =
       EnsureGetMember<Sprite>("MusicButtonPlayingSprite");
+  MusicNowPlayingNotificationSprite =
+      EnsureGetMember<Sprite>("MusicNowPlayingNotificationSprite");
+
+  MusicNowPlayingNotificationPos =
+      EnsureGetMember<glm::vec2>("MusicNowPlayingNotificationPos");
+  MusicNowPlayingNotificationFadeIn =
+      EnsureGetMember<float>("MusicNowPlayingNotificationFadeIn");
+  MusicNowPlayingNotificationFadeOut =
+      EnsureGetMember<float>("MusicNowPlayingNotificationFadeOut");
+  MusicNowPlayingNotificationTrackOffset =
+      EnsureGetMember<glm::vec2>("MusicNowPlayingNotificationTrackOffset");
+  MusicNowPlayingNotificationTrackFontSize =
+      EnsureGetMember<int>("MusicNowPlayingNotificationTrackFontSize");
+  MusicNowPlayingTextColor =
+      EnsureGetMember<uint32_t>("MusicNowPlayingTextColor");
+  MusicNowPlayingTextOutlineColor =
+      EnsureGetMember<uint32_t>("MusicNowPlayingTextOutlineColor");
+  GetMemberArray<Sprite>(MusicNowPlayingModeSprites.data(),
+                         MusicMenuPlayingMode::_size(),
+                         "MusicNowPlayingModeSprites");
+  GetMemberArray<glm::vec2>(MusicNowPlayingModePositions.data(),
+                            MusicMenuPlayingMode::_size(),
+                            "MusicNowPlayingModePositions");
 
   MovieDiskSprites = GetMemberVector<Sprite>("MovieDiskSprites");
   MovieDiskHighlightSprites =

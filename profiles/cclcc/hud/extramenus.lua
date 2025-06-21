@@ -103,6 +103,19 @@ root.ExtraMenus = {
         MusicButtonHoverSprite = "MusicButtonHover",
         MusicButtonSelectSprite = "MusicButtonSelect",
         MusicButtonPlayingSprite = "MusicButtonPlaying",
+        MusicButtonTextColor = 0x4f4f4b,
+        MusicButtonTextOutlineColor = 0x0,
+
+        MusicNowPlayingNotificationSprite = "MusicNowPlayingNotification",
+        MusicNowPlayingNotificationPos = {X = 1096, Y = 30},
+        MusicNowPlayingNotificationFadeIn = 0.3,
+        MusicNowPlayingNotificationFadeOut = 0.3,
+        MusicNowPlayingNotificationTrackOffset = {X = 20, Y = 80},
+        MusicNowPlayingNotificationTrackFontSize = 36,
+        MusicNowPlayingTextColor = 0xffffff,
+        MusicNowPlayingTextOutlineColor = 0xffffff,
+        MusicNowPlayingModeSprites = {},
+        MusicNowPlayingModePositions = {},
 
         MovieDiskSprites = {},
         MovieDiskHighlightSprites = {},
@@ -317,3 +330,40 @@ root.Sprites["MusicButtonPlaying"] = {
         Height = 46
     },
 };
+root.Sprites["MusicNowPlayingNotification"] = {
+    Sheet = "MusicMenu",
+    Bounds = { 
+        X = 1.0,
+        Y = 1353.0,
+        Width = 789.0,
+        Height = 138.0
+    },
+};
+root.Sprites["MusicNowPlayingNotification"] = {
+    Sheet = "MusicMenu",
+    Bounds = { 
+        X = 1.0,
+        Y = 1353.0,
+        Width = 789.0,
+        Height = 138.0
+    },
+};
+
+local MusicNowPlayingModeBounds = {
+    { X = 2390, Y = 1351, Width = 349, Height = 58.0},  -- Mode 0
+    { X = 1940, Y = 1292, Width = 278, Height = 58.0},  -- Mode 1
+    { X = 2360, Y = 1292, Width = 368, Height = 58.0},  -- Mode 2
+    { X = 1940, Y = 1351, Width = 274, Height = 58.0}   -- Mode 3
+}
+for i = 0, 3 do
+    local index = i + 1;
+    root.Sprites["MusicNowPlayingMode" .. i] = {
+        Sheet = "MusicMenu",
+        Bounds = MusicNowPlayingModeBounds[index]
+    };
+    root.ExtraMenus.LibraryMenu.MusicNowPlayingModeSprites[index] = "MusicNowPlayingMode" .. i;
+    root.ExtraMenus.LibraryMenu.MusicNowPlayingModePositions[index] = {
+        X = 1854 - MusicNowPlayingModeBounds[index].Width + 1;
+        Y = 42
+    };
+end

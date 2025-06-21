@@ -9,6 +9,7 @@ namespace CCLCC {
 namespace LibraryMenu {
 
 BETTER_ENUM(LibraryMenuPageType, int, Album, Sound, Movie)
+BETTER_ENUM(MusicMenuPlayingMode, int, PlayAll, Shuffle, Repeat, RepeatOne)
 
 inline Sprite LibraryBackgroundSprite;
 inline glm::vec2 LibraryBackgroundPosition;
@@ -45,6 +46,8 @@ inline int MusicTrackNameOffsetX;
 inline int MusicTrackArtistSize;
 inline int MusicTrackArtistOffsetX;
 inline int MusicTrackNumberOffsetX;
+inline uint32_t MusicButtonTextColor;
+inline uint32_t MusicButtonTextOutlineColor;
 inline int MusicButtonTextYOffset;
 inline glm::vec2 MusicButtonPlayingDispOffset;
 inline float MusicDirectionalHoldTime;
@@ -53,6 +56,18 @@ inline RectF MusicButtonBounds;
 inline Sprite MusicButtonHoverSprite;
 inline Sprite MusicButtonSelectSprite;
 inline Sprite MusicButtonPlayingSprite;
+inline Sprite MusicNowPlayingNotificationSprite;
+inline glm::vec2 MusicNowPlayingNotificationPos;
+inline float MusicNowPlayingNotificationFadeIn;
+inline float MusicNowPlayingNotificationFadeOut;
+inline glm::vec2 MusicNowPlayingNotificationTrackOffset;
+inline int MusicNowPlayingNotificationTrackFontSize;
+inline uint32_t MusicNowPlayingTextColor;
+inline uint32_t MusicNowPlayingTextOutlineColor;
+inline std::array<Sprite, MusicMenuPlayingMode::_size()>
+    MusicNowPlayingModeSprites;
+inline std::array<glm::vec2, MusicMenuPlayingMode::_size()>
+    MusicNowPlayingModePositions;
 
 inline std::vector<Sprite> MovieDiskSprites;
 inline std::vector<Sprite> MovieDiskHighlightSprites;
