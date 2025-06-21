@@ -25,7 +25,8 @@ MusicTrackButton::MusicTrackButton(int id, int position, glm::vec2 pos)
   size_t trackTextIndex = 2 * Id;
   SetText(
       Vm::ScriptGetTextTableStrAddress(MusicStringTableId, trackTextIndex + 6),
-      MusicTrackNameSize, RendererOutlineMode::None, {0x4f4f4b, 0x0});
+      MusicTrackNameSize, RendererOutlineMode::None,
+      {MusicButtonTextColor, MusicButtonTextOutlineColor});
   Bounds =
       RectF(pos.x, pos.y, MusicButtonBounds.Width, MusicButtonBounds.Height);
   HighlightSprite = MusicButtonHoverSprite;
@@ -39,7 +40,8 @@ MusicTrackButton::MusicTrackButton(int id, int position, glm::vec2 pos)
   Vm::Sc3VmThread dummy;
   dummy.Ip = lockedSc3Text;
   TextLayoutPlainLine(&dummy, 6, LockedText, Profile::Dialogue::DialogueFont,
-                      MusicTrackNameSize, {0x4f4f4b, 0x0}, 1.0f,
+                      MusicTrackNameSize,
+                      {MusicButtonTextColor, MusicButtonTextOutlineColor}, 1.0f,
                       glm::vec2(Bounds.X + MusicTrackNameOffsetX,
                                 Bounds.Y + MusicButtonTextYOffset),
                       TextAlignment::Left);
@@ -47,7 +49,8 @@ MusicTrackButton::MusicTrackButton(int id, int position, glm::vec2 pos)
       Vm::ScriptGetTextTableStrAddress(MusicStringTableId, trackTextIndex + 7),
       glm::vec2(Bounds.X + MusicTrackArtistOffsetX,
                 Bounds.Y + MusicButtonTextYOffset),
-      MusicTrackArtistSize, RendererOutlineMode::None, {0x4f4f4b, 0x0});
+      MusicTrackArtistSize, RendererOutlineMode::None,
+      {MusicButtonTextColor, MusicButtonTextOutlineColor});
   TextLayoutPlainString(fmt::format("{:02}", position), NumberText,
                         Profile::Dialogue::DialogueFont, MusicTrackNameSize,
                         {0xfffffff, 0}, 1.0f,
@@ -134,6 +137,12 @@ MusicMenu::MusicMenu()
           Vm::Interface::PAD1UP | Vm::Interface::PAD1DOWN) {
   MainItems.RenderingBounds = MusicRenderingBounds;
   MainItems.HoverBounds = MusicHoverBounds;
+  NowPlayingFadeAnimation.DurationIn = MusicNowPlayingNotificationFadeIn;
+  NowPlayingFadeAnimation.DurationOut = MusicNowPlayingNotificationFadeOut;
+  const glm::vec2 playingNamePos =
+      MusicNowPlayingNotificationPos + MusicNowPlayingNotificationTrackOffset;
+  NowPlayingTrackName.Bounds.X = playingNamePos.x;
+  NowPlayingTrackName.Bounds.Y = playingNamePos.y;
 }
 
 void MusicMenu::Show() {
@@ -144,11 +153,19 @@ void MusicMenu::Show() {
       auto* musicBtn = static_cast<MusicTrackButton*>(target);
       if (target->IsLocked) return;
       if (CurrentlyPlayingBtn) CurrentlyPlayingBtn->Selected = false;
+      NowPlayingFadeAnimation.StartIn();
+
+      NowPlayingTrackName.SetText(
+          Vm::ScriptGetTextTableStrAddress(MusicStringTableId,
+                                           2 * target->Id + 6),
+          MusicNowPlayingNotificationTrackFontSize, RendererOutlineMode::None,
+          {MusicNowPlayingTextColor, MusicNowPlayingTextOutlineColor});
+      NowPlayingTrackName.Show();
       musicBtn->Selected = true;
       CurrentlyPlayingBtn = musicBtn;
       Audio::Channels[Audio::AC_BGM0]->Play(
-          "bgm", MusicPlayIds[target->Id], PlayMode == MusicPlayMode::RepeatOne,
-          0.0f);
+          "bgm", MusicPlayIds[target->Id],
+          PlayMode == +MusicMenuPlayingMode::RepeatOne, 0.0f);
     };
     for (size_t pos = 1; pos <= MusicPlayIds.size(); ++pos) {
       const size_t i = (pos + MusicPlayIds.size() - 1) % MusicPlayIds.size();
@@ -171,16 +188,25 @@ void MusicMenu::Show() {
 void MusicMenu::Update(float dt) {
   LibrarySubmenu::Update(dt);
   BGWidget.Update(dt);
+  NowPlayingFadeAnimation.Update(dt);
+  NowPlayingTrackName.Update(dt);
   if (State == Hidden && !MainItems.Children.empty()) {
     PageY = 0;
     MainItems.Clear();
     MainItems.MoveTo(glm::vec2(0, 0));
+    NowPlayingTrackName.SetText(std::vector<ProcessedTextGlyph>{}, 0, 30,
+                                RendererOutlineMode::None);
   }
   const int alpha = ((ScrWork[SW_SYSSUBMENUCT] * 32 - 768) * 224) >> 8;
   const auto tint =
       glm::vec4(1.0f, 1.0f, 1.0f, alpha / 255.0f * FadeAnimation.Progress);
   MainItems.Tint = tint;
   BGWidget.Tint = tint;
+  if (Audio::Channels[Audio::AC_BGM0]->GetState() ==
+          Audio::AudioChannelState::ACS_Stopped &&
+      NowPlayingTrackName.GetTextLength() > 0) {
+    NowPlayingTrackName.ClearText();
+  }
 }
 
 void MusicMenu::Hide() {
@@ -189,7 +215,7 @@ void MusicMenu::Hide() {
     CurrentlyPlayingBtn = nullptr;
   }
   if (CurrentlyFocusedElement) CurrentlyFocusedElement = nullptr;
-
+  NowPlayingFadeAnimation.StartOut();
   Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0);
   Audio::Channels[Audio::AC_BGM0]->Play("bgm", 101, true, 0.0f);
 
@@ -268,8 +294,19 @@ void MusicBGs::Render() {
 void MusicMenu::Render() {
   if (State != Hidden) {
     BGWidget.Render();
+    LibrarySubmenu::Render();
+    if (Audio::Channels[Audio::AC_BGM0]->GetState() !=
+        Audio::AudioChannelState::ACS_Stopped) {
+      Renderer->DrawSprite(
+          MusicNowPlayingNotificationSprite, MusicNowPlayingNotificationPos,
+          glm::vec4{glm::vec3{1.0f}, NowPlayingFadeAnimation.Progress});
+      NowPlayingTrackName.Render();
+      Renderer->DrawSprite(
+          MusicNowPlayingModeSprites[PlayMode._to_integral()],
+          MusicNowPlayingModePositions[PlayMode._to_integral()],
+          glm::vec4{glm::vec3{1.0f}, NowPlayingFadeAnimation.Progress});
+    }
   }
-  LibrarySubmenu::Render();
 }
 }  // namespace CCLCC
 }  // namespace UI
