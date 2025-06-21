@@ -103,7 +103,7 @@ bool CpkArchive::ReadUtfBlock(
                                  std::equal_to<>>
         row;
     for (auto& column : columns) {
-      CpkCell cell;
+      CpkCell cell{};
       int storageFlag = column.Flags & CpkColumnFlags::STORAGE_MASK;
       if (storageFlag == 0x50) {
         int cellType = column.Flags & CpkColumnFlags::TYPE_MASK;

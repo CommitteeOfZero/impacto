@@ -29,6 +29,11 @@ void Init() {
       FixedSpriteAnim.Def->FixSpriteId = AutoIconFixedSpriteId;
       FixedSpriteAnim.StartIn();
       break;
+
+    case AutoIconType::None:
+    case AutoIconType::Fixed:
+    case AutoIconType::CHLCC:
+      break;
   }
 }
 
@@ -57,6 +62,10 @@ void Update(float dt) {
     case AutoIconType::CHLCC:
       Progress += dt * AutoIconRotationSpeed;
       Progress -= (int)Progress;  // Progress %= 1.0f
+      break;
+
+    case AutoIconType::None:
+    case AutoIconType::Fixed:
       break;
   }
 }
@@ -93,6 +102,10 @@ void Render(glm::vec4 opacityTint) {
                              glm::vec2(AutoIconOffset.x, AutoIconOffset.y),
                              opacityTint);
       }
+      break;
+
+    case AutoIconType::None:
+    case AutoIconType::Fixed:
       break;
   }
 }

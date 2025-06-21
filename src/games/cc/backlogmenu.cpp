@@ -11,7 +11,6 @@ namespace Impacto {
 namespace UI {
 namespace CC {
 
-using namespace Impacto::UI::CC;
 using namespace Impacto::Profile::BacklogMenu;
 using namespace Impacto::Profile::CC::BacklogMenu;
 using namespace Impacto::UI::Widgets::CC;
@@ -87,7 +86,7 @@ void BacklogMenu::Render() {
 
   int repeatHeight = BacklogBackgroundRepeatHeight;
   float backgroundY =
-      fmod(PageY - EntryYPadding - RenderingBounds.Y, repeatHeight);
+      (float)fmod(PageY - EntryYPadding - RenderingBounds.Y, repeatHeight);
   Renderer->DrawSprite(BacklogBackground, glm::vec2(0.0f, backgroundY),
                        transition);
   Renderer->DrawSprite(BacklogBackground,

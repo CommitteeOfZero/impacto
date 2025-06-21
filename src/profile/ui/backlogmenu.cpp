@@ -62,8 +62,12 @@ void Configure() {
       case BacklogMenuType::MO6TW:
         MO6TW::BacklogMenu::Configure();
         break;
+
       case BacklogMenuType::CC:
         CC::BacklogMenu::Configure();
+        break;
+
+      case BacklogMenuType::None:
         break;
     }
 

@@ -667,23 +667,6 @@ if (UNIX AND NOT CYGWIN)
     set(IMPACTO_DISABLE_DX9 ON)
 endif ()
 
-if (IMPACTO_WARNINGS)
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        message(STATUS "Enabling warnings for clang")
-        add_compile_options(-Wall -Wextra -Wno-unused-parameter -Wno-nullability-completeness)
-    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-        message(STATUS "Enabling warnings for GCC")
-        add_compile_options(-Wall -Wextra -Wno-unused-parameter)
-    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-        message(STATUS "Enabling warnings for MSVC")
-        add_compile_options(/W4 /external:anglebrackets /external:W0)
-    else ()
-        message(WARNING "Unknown compiler, not enabling warnings")
-    endif ()
-else ()
-    message(STATUS "NOT enabling compiler warnings, consider enabling them when developing")
-endif ()
-
 if (IMPACTO_ASAN)
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
         message(STATUS "Enabling ASAN/UBSAN for clang")
@@ -942,9 +925,9 @@ if (NOT DEFINED IMPACTO_DISABLE_OPENAL)
 endif ()
 list(APPEND Impacto_Include_Dirs ${SDL2_INCLUDE_DIRS})
 list(APPEND Impacto_Include_Dirs ${WebP_INCLUDE_DIRS})
-list(APPEND Impacto_Include_Dirs vendor)
-list(APPEND Impacto_Include_Dirs vendor/include)
-list(APPEND Impacto_Include_Dirs vendor/pcg/include)
+list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor)
+list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor/include)
+list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor/pcg/include)
 
 list(APPEND Impacto_Libs
         fmt::fmt
@@ -1035,7 +1018,7 @@ if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
             src/renderer/opengl/3d/scene.h
     )
 
-    list(APPEND Impacto_Include_Dirs vendor/glad/include)
+    list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/include)
 endif ()
 
 if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
@@ -1097,7 +1080,7 @@ if (NOT DEFINED IMPACTO_DISABLE_MSPACK)
     list(APPEND Impacto_Header
             src/io/lzxstream.h
     )
-    list(APPEND Impacto_Include_Dirs vendor/mspack)
+    list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor/mspack)
 endif ()
 
 if (NOT DEFINED IMPACTO_DISABLE_VULKAN)
@@ -1166,6 +1149,23 @@ endIf()
 
 target_link_libraries(impacto PRIVATE ${Impacto_Libs})
 
+if (IMPACTO_WARNINGS)
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        message(STATUS "Enabling warnings for clang")
+        target_compile_options(impacto PRIVATE -Wall -Wextra -Wno-unused-parameter -Wno-nullability-completeness)
+    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        message(STATUS "Enabling warnings for GCC")
+        target_compile_options(impacto PRIVATE -Wall -Wextra -Wno-unused-parameter -Wno-nullability-completeness)
+    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+        message(STATUS "Enabling warnings for MSVC")
+        target_compile_options(impacto PRIVATE /W4 /external:anglebrackets /external:W0 /wd4100)
+    else ()
+        message(WARNING "Unknown compiler, not enabling warnings")
+    endif ()
+else ()
+    message(STATUS "NOT enabling compiler warnings, consider enabling them when developing")
+endif ()
+
 # compiler/dependency configuration
 
 set_property(TARGET impacto PROPERTY CXX_STANDARD 20)
@@ -1196,11 +1196,11 @@ add_definitions(-DGLM_FORCE_RADIANS) # lol
 # target configuration
 
 if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-set(IMPACTO_ENABLE_SLOW_LOG_DEFAULT ON)
-set(IMPACTO_GL_DEBUG_DEFAULT ON)
+    set(IMPACTO_ENABLE_SLOW_LOG_DEFAULT ON)
+    set(IMPACTO_GL_DEBUG_DEFAULT ON)
 else ()
-set(IMPACTO_ENABLE_SLOW_LOG_DEFAULT OFF)
-set(IMPACTO_GL_DEBUG_DEFAULT OFF)
+    set(IMPACTO_ENABLE_SLOW_LOG_DEFAULT OFF)
+    set(IMPACTO_GL_DEBUG_DEFAULT OFF)
 endif ()
 
 option(IMPACTO_ENABLE_SLOW_LOG
@@ -1211,11 +1211,11 @@ option(IMPACTO_GL_DEBUG
 ${IMPACTO_GL_DEBUG_DEFAULT})
 
 if (EMSCRIPTEN)
-set(IMPACTO_HAVE_THREADS OFF)
-set(IMPACTO_USE_SDL_HIGHDPI ON)
+    set(IMPACTO_HAVE_THREADS OFF)
+    set(IMPACTO_USE_SDL_HIGHDPI ON)
 else ()
-set(IMPACTO_HAVE_THREADS ON)
-set(IMPACTO_USE_SDL_HIGHDPI OFF)
+    set(IMPACTO_HAVE_THREADS ON)
+    set(IMPACTO_USE_SDL_HIGHDPI OFF)
 endif ()
 
 # Enable Hot Reload for MSVC compilers if supported.
@@ -1225,7 +1225,7 @@ if (POLICY CMP0141)
 endif()
 
 configure_file(src/config.h.in ${PROJECT_BINARY_DIR}/include/config.h)
-target_include_directories(impacto PRIVATE ${Impacto_Include_Dirs})
+target_include_directories(impacto SYSTEM PRIVATE ${Impacto_Include_Dirs})
 target_include_directories(impacto PRIVATE ${PROJECT_BINARY_DIR}/include)
 
 target_precompile_headers(impacto PRIVATE 

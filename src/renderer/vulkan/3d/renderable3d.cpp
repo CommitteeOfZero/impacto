@@ -1118,20 +1118,21 @@ void Renderable3D::MainThreadOnLoad() {
              StaticModel->Indices + StaticModel->Meshes[i].IndexOffset,
              sizeof(uint16_t) * StaticModel->Meshes[i].IndexCount);
 
-      ImmediateSubmit([=](VkCommandBuffer cmd) {
-        VkBufferCopy copy;
-        copy.dstOffset = 0;
-        copy.srcOffset = 0;
-        copy.size = vertexCopySize;
-        vkCmdCopyBuffer(cmd, stagingBuffer.Buffer,
-                        MeshVertexBuffers[i][j].Buffer, 1, &copy);
+      ImmediateSubmit(
+          [this, vertexCopySize, stagingBuffer, i, j](VkCommandBuffer cmd) {
+            VkBufferCopy copy;
+            copy.dstOffset = 0;
+            copy.srcOffset = 0;
+            copy.size = vertexCopySize;
+            vkCmdCopyBuffer(cmd, stagingBuffer.Buffer,
+                            MeshVertexBuffers[i][j].Buffer, 1, &copy);
 
-        copy.dstOffset = 0;
-        copy.srcOffset = vertexCopySize;
-        copy.size = sizeof(uint16_t) * StaticModel->Meshes[i].IndexCount;
-        vkCmdCopyBuffer(cmd, stagingBuffer.Buffer,
-                        MeshIndexBuffers[i][j].Buffer, 1, &copy);
-      });
+            copy.dstOffset = 0;
+            copy.srcOffset = vertexCopySize;
+            copy.size = sizeof(uint16_t) * StaticModel->Meshes[i].IndexCount;
+            vkCmdCopyBuffer(cmd, stagingBuffer.Buffer,
+                            MeshIndexBuffers[i][j].Buffer, 1, &copy);
+          });
     }
   }
 

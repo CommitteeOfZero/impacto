@@ -84,7 +84,7 @@ class Renderer : public BaseRenderer {
   void DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
                                RectF const& dest, glm::vec4 tint, int alpha,
                                int fadeRange, bool isInverted, float angle,
-                               bool useMaskAlpha);
+                               bool useMaskAlpha) override;
 
   void DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
                                const RectF& dest, float alpha) override;
@@ -128,7 +128,7 @@ class Renderer : public BaseRenderer {
   void EnsureSpaceAvailable(int vertices, int vertexSize, int indices);
   void EnsureTextureBound(GLuint texture);
   void EnsureModeSprite(bool inverted);
-  void Flush();
+  void Flush() override;
 
   void QuadSetUV(RectF const& spriteBounds, float designWidth,
                  float designHeight, uintptr_t uvs, int stride,

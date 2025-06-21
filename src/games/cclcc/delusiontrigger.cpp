@@ -261,7 +261,7 @@ void DelusionTrigger::RenderNeutralToNegativeTransition(float spinAngle,
        1.8 - ScrWork[SW_DELUSION_SPIN_COUNTER] * 0.8 / 64},
       spinAngle);
   if (ScrWork[SW_DELUSION_LIMIT] == Delusion_Both) {
-    float topLeftX =
+    topLeftX =
         (float)((ScrWork[SW_DELUSION_SPIN_COUNTER] * 1248) >> 6) - 2048.0f;
     Renderer->DrawSpriteOffset(
         PositiveDelusionSprite, glm::vec2{topLeftX, -109.0f},

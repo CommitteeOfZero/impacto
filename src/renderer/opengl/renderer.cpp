@@ -32,8 +32,8 @@ void Renderer::Init() {
   }
 
   // Fill index buffer with quads
-  int index = 0;
-  int vertex = 0;
+  size_t index = 0;
+  uint16_t vertex = 0;
   while (index + 6 <= IndexBufferCount) {
     // bottom-left -> top-left -> top-right
     IndexBuffer[index] = vertex + 0;
@@ -141,8 +141,9 @@ void Renderer::Shutdown() {
   if (RectSprite.Sheet.Texture) glDeleteTextures(1, &RectSprite.Sheet.Texture);
   IsInit = false;
 
-  GLC::DeleteFramebuffers(GLC::Framebuffers.size(), GLC::Framebuffers.data());
-  glDeleteTextures(GLC::FramebufferTextures.size(),
+  GLC::DeleteFramebuffers((GLsizei)GLC::Framebuffers.size(),
+                          GLC::Framebuffers.data());
+  glDeleteTextures((GLsizei)GLC::FramebufferTextures.size(),
                    GLC::FramebufferTextures.data());
 
   if (Profile::GameFeatures & GameFeature::Scene3D) {
@@ -200,20 +201,26 @@ uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16);
 
   // Load in data
-  GLuint texFormat;
-  switch (format) {
-    case TexFmt_RGBA:
-      glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-      texFormat = GL_RGBA;
-      break;
-    case TexFmt_RGB:
-      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-      texFormat = GL_RGB;
-      break;
-    case TexFmt_U8:
-      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-      texFormat = GL_RED;
-  }
+  const GLuint texFormat = [format]() {
+    switch (format) {
+      case TexFmt_RGBA:
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+        return GL_RGBA;
+
+      case TexFmt_RGB:
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        return GL_RGB;
+
+      case TexFmt_U8:
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        return GL_RED;
+
+      default:
+        ImpLog(LogLevel::Error, LogChannel::GL,
+               "Unimplemented texture format {}", (int)format);
+        return 0;
+    }
+  }();
   glTexImage2D(GL_TEXTURE_2D, 0, texFormat, width, height, 0, texFormat,
                GL_UNSIGNED_BYTE, buffer);
 
@@ -227,7 +234,7 @@ uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
 
 int Renderer::GetSpriteSheetImage(SpriteSheet const& sheet,
                                   std::span<uint8_t> outBuffer) {
-  const int bufferSize = sheet.DesignWidth * sheet.DesignHeight * 4;
+  const int bufferSize = (int)sheet.DesignWidth * (int)sheet.DesignHeight * 4;
   assert(outBuffer.size() >= bufferSize);
   glBindTexture(GL_TEXTURE_2D, sheet.Texture);
 
@@ -236,8 +243,8 @@ int Renderer::GetSpriteSheetImage(SpriteSheet const& sheet,
   glBindFramebuffer(GL_FRAMEBUFFER, fbo);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
                          sheet.Texture, 0);
-  glReadPixels(0, 0, sheet.DesignWidth, sheet.DesignHeight, GL_RGBA,
-               GL_UNSIGNED_BYTE, outBuffer.data());
+  glReadPixels(0, 0, (GLsizei)sheet.DesignWidth, (GLsizei)sheet.DesignHeight,
+               GL_RGBA, GL_UNSIGNED_BYTE, outBuffer.data());
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glDeleteFramebuffers(1, &fbo);
@@ -245,11 +252,11 @@ int Renderer::GetSpriteSheetImage(SpriteSheet const& sheet,
   if (sheet.IsScreenCap) {
     auto itr = outBuffer.begin();
     auto revItr = std::make_reverse_iterator(itr + bufferSize);
-    while (itr < revItr.base() - static_cast<int>(sheet.DesignWidth * 4)) {
-      std::swap_ranges(itr, itr + sheet.DesignWidth * 4,
-                       revItr.base() - (sheet.DesignWidth * 4));
-      itr += sheet.DesignWidth * 4;
-      revItr += sheet.DesignWidth * 4;
+    while (itr < revItr.base() - (size_t)(sheet.DesignWidth * 4)) {
+      std::swap_ranges(itr, itr + (size_t)sheet.DesignWidth * 4,
+                       revItr.base() - ((size_t)sheet.DesignWidth * 4));
+      itr += (size_t)sheet.DesignWidth * 4;
+      revItr += (size_t)sheet.DesignWidth * 4;
     }
   }
 
@@ -421,7 +428,7 @@ void Renderer::DrawVertices(SpriteSheet const& sheet,
     glDisable(GL_BLEND);
   }
 
-  const int verticesCount = sheetPositions.size();
+  const int verticesCount = (int)sheetPositions.size();
 
   if (verticesCount != displayPositions.size()) {
     ImpLog(LogLevel::Error, LogChannel::Render,
@@ -446,10 +453,10 @@ void Renderer::DrawVertices(SpriteSheet const& sheet,
   // Generate indices for triangles
   for (int y = 0; y < height - 1; y++) {
     for (int x = 0; x < width - 1; x++) {
-      int v0 = y * width + x;
-      int v1 = y * width + (x + 1);
-      int v2 = (y + 1) * width + x;
-      int v3 = (y + 1) * width + (x + 1);
+      uint16_t v0 = (uint16_t)(y * width + x);
+      uint16_t v1 = (uint16_t)(y * width + (x + 1));
+      uint16_t v2 = (uint16_t)((y + 1) * width + x);
+      uint16_t v3 = (uint16_t)((y + 1) * width + (x + 1));
 
       // First triangle
       for (auto v : {v1, v0, v2}) {
@@ -461,7 +468,7 @@ void Renderer::DrawVertices(SpriteSheet const& sheet,
       }
     }
   }
-  IndexBufferFill += indices.size();
+  IndexBufferFill += (int)indices.size();
 
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, IndexBufferFill * sizeof(uint16_t),
                indices.data(), GL_STATIC_DRAW);
@@ -1179,8 +1186,8 @@ void Renderer::DrawVideoTexture(YUVFrame* tex, RectF const& dest,
 void Renderer::CaptureScreencap(Sprite& sprite) {
   Flush();
   sprite.Sheet.IsScreenCap = true;
-  sprite.Sheet.DesignWidth = Window->WindowWidth;
-  sprite.Sheet.DesignHeight = Window->WindowHeight;
+  sprite.Sheet.DesignWidth = (float)Window->WindowWidth;
+  sprite.Sheet.DesignHeight = (float)Window->WindowHeight;
 
   Window->SwapRTs();
   int prevTextureBinding;

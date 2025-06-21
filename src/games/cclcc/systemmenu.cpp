@@ -46,7 +46,8 @@ SystemMenu::SystemMenu() {
 
   MainItems = new Widgets::Group(this);
 
-  ScreenCap.Sheet = SpriteSheet(Window->WindowWidth, Window->WindowHeight);
+  ScreenCap.Sheet =
+      SpriteSheet((float)Window->WindowWidth, (float)Window->WindowHeight);
   Texture tex;
   tex.LoadSolidColor(Window->WindowWidth, Window->WindowHeight, 0x000000);
   ScreenCap.Sheet.Texture = tex.Submit();
@@ -302,7 +303,7 @@ void SystemMenu::Render() {
 }
 
 void SystemMenu::Init() {
-  BGPosition = {CALCrnd(BGRandPosRange.x), CALCrnd(BGRandPosRange.y)};
+  BGPosition = {CALCrnd((int)BGRandPosRange.x), CALCrnd((int)BGRandPosRange.y)};
   SetFlag(SF_SYSTEMMENUCAPTURE, true);
 }
 

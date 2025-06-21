@@ -147,8 +147,7 @@ void SysMesBox::Update(float dt) {
 
       if (animationProgress - AnimationProgressWidgetsStartOffset >
           ButtonNoDisplayStart) {
-        float offsetProgress =
-            (animationProgress - ButtonNoAnimationProgressOffset);
+        offsetProgress = animationProgress - ButtonNoAnimationProgressOffset;
         float scaleNo =
             ButtonScaleMax - (offsetProgress * ButtonYesNoScaleMultiplier);
         WidgetNo->NormalSprite.BaseScale = glm::vec2(scaleNo);
