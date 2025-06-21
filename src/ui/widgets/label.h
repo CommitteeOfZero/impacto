@@ -44,6 +44,11 @@ class Label : public Widget {
                DialogueColorPair colorPair);
   void SetText(std::string_view str, float fontSize,
                RendererOutlineMode outlineMode, DialogueColorPair colorPair);
+  void ClearText() {
+    Text.clear();
+    IsText = false;
+    Bounds = {};
+  }
 
   int GetTextLength() { return Text.size(); }
   float GetFontSize() { return FontSize; }
