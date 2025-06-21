@@ -30,6 +30,12 @@ class Button : public Widget {
                DialogueColorPair colorPair);
   void SetText(std::vector<ProcessedTextGlyph> text, float textWidth,
                float fontSize, RendererOutlineMode outlineMode);
+  void ClearText() {
+    Text.clear();
+    Bounds = {};
+    HoverBounds = {};
+    HasText = false;
+  }
 
   int Id;
   Sprite NormalSprite;
