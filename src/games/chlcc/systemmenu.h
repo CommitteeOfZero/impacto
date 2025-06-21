@@ -20,6 +20,10 @@ class SystemMenu : public Menu {
   void MenuButtonOnClick(Widgets::Button* target);
 
  private:
+  void DrawRunningSelectedLabel(float offsetY);
+  void UpdateRunningSelectedLabel(float dt);
+  float CurrentRunningPosition = 0.0f;
+  int GetIndexOfActiveButton();
   void DrawCircles();
   void DrawErin();
   Widgets::Group* MainItems;

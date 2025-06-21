@@ -8,7 +8,7 @@ namespace Impacto {
 namespace Vm {
 namespace Interface {
 
-void UpdateScene3D();
+void UpdateScene3D(float dt);
 
 struct ScrWorkAnimationData {
   int From;

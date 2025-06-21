@@ -112,11 +112,18 @@ void SystemMenu::Update(float dt) {
   }
 
   if (State == Shown && IsFocused) {
+    UpdateRunningSelectedLabel(dt);
     MainItems->Update(dt);
   }
 }
+
 void SystemMenu::Render() {
   if (State != Hidden) {
+    auto* btn = static_cast<Widgets::Button*>(CurrentlyFocusedElement);
+    int indexOfActiveButton = 0;
+    if (btn) {
+      indexOfActiveButton = btn->Id;
+    }
     if (MenuTransition.IsIn()) {
       Renderer->DrawRect(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                          RgbIntToFloat(BackgroundColor));
@@ -124,6 +131,7 @@ void SystemMenu::Render() {
       DrawCircles();
     }
     DrawErin();
+
     glm::vec3 tint = {1.0f, 1.0f, 1.0f};
     // Alpha goes from 0 to 1 in half the time
     float alpha =
@@ -139,10 +147,74 @@ void SystemMenu::Render() {
             1.00397f * std::sin(3.97161f - 3.26438f * MenuTransition.Progress) -
                 0.00295643f);
       }
+
+      if (indexOfActiveButton >= 0 && State == Shown) {
+        DrawRunningSelectedLabel(indexOfActiveButton *
+                                     MenuSelectionDotMultiplier +
+                                 MenuRunningSelectedLabelPosition.y);
+      }
+
+      // TODO Make Proper Animations (copy from other menu?)
+
+      Renderer->DrawSprite(MenuLine, MenuLinePosition,
+                           glm::vec4(tint, TitleFade.Progress));
+      Renderer->DrawSprite(MenuButtonPrompt, MenuButtonPromptPosition,
+                           glm::vec4(tint, TitleFade.Progress));
+
+      Renderer->DrawSprite(MenuCHLCCLabel, MenuCHLCCLabelPosition,
+                           glm::vec4(tint, TitleFade.Progress));
+      Renderer->DrawSprite(Background,
+                           glm::vec2(BackgroundPosition.x, yOffset));
+      Renderer->DrawSprite(MainMenuLabel, MainMenuLabelPosition,
+                           glm::vec4(tint, TitleFade.Progress));
+      Renderer->DrawSprite(MainMenuLabel, MainMenuLabelRightPosition,
+                           glm::vec4(tint, TitleFade.Progress),
+                           glm::vec2(1.0f, 1.0f), MainMenuLabelRightAngle,
+                           false);
+      Renderer->DrawSprite(MenuItemsLine,
+                           glm::vec2(MenuItemsLinePosition.x, yOffset));
+      if (indexOfActiveButton >= 0 && State == Shown) {
+        Renderer->DrawSprite(
+            MenuSelectionDot,
+            glm::vec2(MenuSelectionDotPosition.x,
+                      MenuSelectionDotPosition.y +
+                          indexOfActiveButton * MenuSelectionDotMultiplier));
+        Renderer->DrawSprite(
+            MenuSelection,
+            glm::vec2(MenuSelectionPosition.x,
+                      MenuSelectionPosition.y +
+                          indexOfActiveButton * MenuSelectionDotMultiplier));
+      }
+      Renderer->DrawSprite(SelectMenuHeader,
+                           RectF(SelectMenuHeaderPosition.x,
+                                 SelectMenuHeaderPosition.y + yOffset,
+                                 SelectMenuHeader.Bounds.Width - 50,
+                                 SelectMenuHeader.Bounds.Height));
+
       MainItems->MoveTo(glm::vec2(0, yOffset));
       MainItems->Tint = glm::vec4(tint, 1.0f);
       MainItems->Render();
     }
+  }
+}
+
+inline void SystemMenu::UpdateRunningSelectedLabel(float dt) {
+  CurrentRunningPosition += SelectedLabelSpeed * dt;
+  if (glm::abs(CurrentRunningPosition) >=
+      MenuRunningSelectedLabel.Bounds.Width) {
+    CurrentRunningPosition = MenuRunningSelectedLabel.Bounds.Width -
+                             glm::abs(CurrentRunningPosition);
+  }
+}
+inline void SystemMenu::DrawRunningSelectedLabel(float offsetY) {
+  float x = 0;
+  for (int i = -1; i < (1280 / MenuRunningSelectedLabel.Bounds.Width) + 1;
+       i++) {
+    x = (i * (MenuRunningSelectedLabel.Bounds.Width - 3) +
+         CurrentRunningPosition);
+    Renderer->DrawSprite(
+        MenuRunningSelectedLabel,
+        glm::vec2(x, x * MenuRunningSelectedLabelAngle + offsetY));
   }
 }
 

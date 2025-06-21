@@ -320,7 +320,12 @@ inline void MakeLowerCase(std::string& str) {
 
 template <typename T>
 T UnalignedRead(void* ptr) {
+#if __cplusplus >= 202002L  // Suppress deprecated warning in C++20+
+  static_assert(std::is_standard_layout<T>::value && std::is_trivial<T>::value,
+                "!std::is_pod<T>");
+#else
   static_assert(std::is_pod<T>::value, "!std::is_pod<T>");
+#endif
   T value;
   memcpy(&value, ptr, sizeof value);
   return value;

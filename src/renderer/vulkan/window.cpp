@@ -32,7 +32,7 @@ void VulkanWindow::UpdateDimensions() {
   SDL_GetWindowSize(SDLWindow, &osWindowWidth, &osWindowHeight);
   DpiScaleX = (float)WindowWidth / (float)osWindowWidth;
   DpiScaleY = (float)WindowHeight / (float)osWindowHeight;
-  SDL_SetWindowInputFocus(SDLWindow);
+  // SDL_SetWindowInputFocus(SDLWindow);
   MainRendererInstance->RecreateSwapChain();
 }
 

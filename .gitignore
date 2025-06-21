@@ -287,3 +287,8 @@ vendor/avcpp
 games/*/gamedata
 games/*/savedata
 games/*/trophydata
+
+/shaders
+/vendor/LibAtrac9
+/impacto
+/profile.txt

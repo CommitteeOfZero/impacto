@@ -281,7 +281,7 @@ static void SortThreadExecTable() {
   }
 }
 
-void Update() {
+void Update(float dt) {
   CreateThreadExecTable();
   SortThreadExecTable();
 
@@ -301,7 +301,7 @@ void Update() {
   DrawAllThreads();
 
   if (Profile::GameFeatures & GameFeature::Scene3D) {
-    Interface::UpdateScene3D();
+    Interface::UpdateScene3D(dt);
   } else {
     Interface::UpdateEyeMouth2D();
     Interface::UpdateCharacter2D();
