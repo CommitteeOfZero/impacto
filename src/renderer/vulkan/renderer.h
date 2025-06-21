@@ -106,6 +106,11 @@ class Renderer : public BaseRenderer {
   void DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
                                const RectF& dest, float alpha) override;
 
+  void DrawSpriteColorShift(const Sprite& sprite, const RectF& dest,
+                            glm::vec4 tint, float angle,
+                            glm::vec4 colorShift) override {
+  }  // TODO: Implement
+
   void DrawSprite3DRotated(Sprite const& sprite, RectF const& dest, float depth,
                            glm::vec2 vanishingPoint, bool stayInScreen,
                            glm::quat rot, glm::vec4 tint = glm::vec4(1.0f),
@@ -133,6 +138,11 @@ class Renderer : public BaseRenderer {
   void EnableScissor() override;
   void SetScissorRect(RectF const& rect) override;
   void DisableScissor() override;
+
+  void SetBlendMode(RendererBlendMode blendMode) override {
+  };  // TODO: Implement
+
+  void Clear(glm::vec4 color) override;
 
  private:
   void CreateInstance();

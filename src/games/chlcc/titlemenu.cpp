@@ -12,6 +12,7 @@
 #include "../../profile/games/chlcc/titlemenu.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/game.h"
+#include <vector>
 
 namespace Impacto {
 namespace UI {
@@ -20,6 +21,7 @@ namespace CHLCC {
 using namespace Impacto::Profile::TitleMenu;
 using namespace Impacto::Profile::CHLCC::TitleMenu;
 using namespace Impacto::Profile::ScriptVars;
+using namespace Impacto::Profile;
 
 using namespace Impacto::UI::Widgets::CHLCC;
 
@@ -49,8 +51,8 @@ TitleMenu::TitleMenu() {
   Start = new TitleButton(
       0, MenuEntriesSprites[0], MenuEntriesHSprites[0], ItemHighlightSprite,
       glm::vec2(
-          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
-              ItemHighlightOffsetX,
+          ((ItemHighlightOffset.x * ItemsFadeInAnimation.Progress) - 1.0f) +
+              ItemHighlightOffset.x,
           ((ItemYBase - 1.0f) + (0 * ItemPadding))));
   Start->OnClickHandler = onClick;
   MainItems->Add(Start, FDIR_DOWN);
@@ -59,8 +61,8 @@ TitleMenu::TitleMenu() {
   Load = new TitleButton(
       1, MenuEntriesSprites[1], MenuEntriesHSprites[1], ItemHighlightSprite,
       glm::vec2(
-          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
-              ItemHighlightOffsetX,
+          ((ItemHighlightOffset.x * ItemsFadeInAnimation.Progress) - 1.0f) +
+              ItemHighlightOffset.x,
           ((ItemYBase - 1.0f) + (1 * ItemPadding))));
   Load->OnClickHandler = onClick;
   MainItems->Add(Load, FDIR_DOWN);
@@ -69,8 +71,8 @@ TitleMenu::TitleMenu() {
   Extra = new TitleButton(
       2, MenuEntriesSprites[2], MenuEntriesHSprites[2], ItemHighlightSprite,
       glm::vec2(
-          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
-              ItemHighlightOffsetX,
+          ((ItemHighlightOffset.x * ItemsFadeInAnimation.Progress) - 1.0f) +
+              ItemHighlightOffset.x,
           ((ItemYBase - 1.0f) + (2 * ItemPadding))));
   Extra->OnClickHandler = onClick;
   MainItems->Add(Extra, FDIR_DOWN);
@@ -79,8 +81,8 @@ TitleMenu::TitleMenu() {
   System = new TitleButton(
       3, MenuEntriesSprites[3], MenuEntriesHSprites[3], ItemHighlightSprite,
       glm::vec2(
-          ((ItemHighlightOffsetX * ItemsFadeInAnimation.Progress) - 1.0f) +
-              ItemHighlightOffsetX,
+          ((ItemHighlightOffset.x * ItemsFadeInAnimation.Progress) - 1.0f) +
+              ItemHighlightOffset.x,
           ((ItemYBase - 1.0f) + (3 * ItemPadding))));
   System->OnClickHandler = onClick;
   MainItems->Add(System, FDIR_DOWN);
@@ -222,6 +224,13 @@ TitleMenu::TitleMenu() {
   SystemItems->Add(SystemSave, FDIR_DOWN);
 
   CurrentExtraItems = LockedExtraItems;
+
+  SpinningCircleAnimation.LoopMode = AnimationLoopMode::Loop;
+  SpinningCircleAnimation.SetDuration(SpinningCircleAnimationDuration);
+  SpinningCircleFlashingAnimation.LoopMode =
+      AnimationLoopMode::ReverseDirection;
+  SpinningCircleFlashingAnimation.SetDuration(
+      SpinningCircleFlashingAnimationDuration);
 }
 
 void TitleMenu::Show() {
@@ -238,10 +247,15 @@ void TitleMenu::Show() {
     UI::FocusedMenu = this;
     if (PressToStartAnimation.State == +AnimationState::Stopped) {
       PressToStartAnimation.StartIn();
+    }
+
+    if (SpinningCircleAnimation.State == +AnimationState::Stopped) {
       SpinningCircleAnimation.StartIn();
+      SpinningCircleFlashingAnimation.StartIn();
     }
   }
 }
+
 void TitleMenu::Hide() {
   if (State != Hidden) {
     State = Hidden;
@@ -259,6 +273,7 @@ void TitleMenu::Update(float dt) {
   UpdateInput();
   PressToStartAnimation.Update(dt);
   SpinningCircleAnimation.Update(dt);
+  SpinningCircleFlashingAnimation.Update(dt);
   PrimaryFadeAnimation.Update(dt);
   SecondaryFadeAnimation.Update(dt);
 
@@ -286,6 +301,24 @@ void TitleMenu::Update(float dt) {
 
     switch (ScrWork[SW_TITLEDISPCT]) {
       case 0: {
+        if (IntroSequence.IntroAnimation.IsOut()) {
+          IntroSequence.IntroAnimation.StartIn();
+        }
+
+        // Skip the animation if requested
+        if (ScrWork[SW_TITLECT] >= 934 &&
+            IntroSequence.IntroAnimation.State == +AnimationState::Playing) {
+          IntroSequence.IntroAnimation.Finish();
+        }
+
+        if (!IntroSequence.SeiraAnimation.IsOut() &&
+            SpinningCircleAnimation.State == +AnimationState::Stopped) {
+          SpinningCircleAnimation.StartIn();
+          SpinningCircleFlashingAnimation.StartIn();
+        }
+
+        IntroSequence.Update(dt);
+
         // When returning to title menu from loading a game we need to hide the
         // load sub-menu
         if (LoadItems->IsShown) {
@@ -363,11 +396,15 @@ void TitleMenu::Update(float dt) {
           MainItems->HasFocus = true;
         }
       } break;
-    }
-    if (PressToStartAnimation.State == +AnimationState::Stopped &&
-        ScrWork[SW_TITLEDISPCT] == 1) {
-      PressToStartAnimation.StartIn();
-      SpinningCircleAnimation.StartIn();
+      case 1: {
+        if (PressToStartAnimation.State == +AnimationState::Stopped) {
+          PressToStartAnimation.StartIn();
+        }
+
+        if (!IntroSequence.IntroAnimation.IsOut()) {
+          IntroSequence.Reset();
+        }
+      } break;
     }
   }
 }
@@ -377,7 +414,15 @@ void TitleMenu::Render() {
     if (ScrWork[SW_MENUCT] < 64) {
       switch (ScrWork[SW_TITLEDISPCT]) {
         case 0: {  // Initial animation
-          Renderer->DrawSprite(IntroBackgroundSprite, glm::vec2(0.0f));
+          if (IntroSequence.FallingStarsAnimation.IsIn()) {
+            Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
+          }
+
+          if (SpinningCircleAnimation.State == +AnimationState::Playing) {
+            DrawSpinningCircle(IntroSequence.SeiraAnimation.Progress);
+          }
+
+          IntroSequence.Render();
         } break;
         case 1: {  // Press to start
           DrawTitleMenuBackGraphics();
@@ -444,31 +489,37 @@ void TitleMenu::Render() {
   }
 }
 
-inline void TitleMenu::DrawTitleMenuBackGraphics() {
+void TitleMenu::DrawSpinningCircle(float alpha) const {
+  glm::vec4 tint = {1.0f, 1.0f, 1.0f, alpha};
+  float angle = -SpinningCircleAnimation.Progress * 2.0f * (float)M_PI;
+  float intensity = SpinningCircleFlashingAnimation.Progress;
+  glm::vec4 colorShift = {intensity, intensity, intensity, 0.0f};
+
+  glm::vec2 circleSize = SpinningCircleSprite.Bounds.GetSize() * 2.0f;
+  RectF dest = {SpinningCirclePosition.x, SpinningCirclePosition.y,
+                circleSize.x, circleSize.y};
+
+  Renderer->DrawSpriteColorShift(SpinningCircleSprite, dest, tint, angle,
+                                 colorShift);
+}
+
+void TitleMenu::DrawTitleMenuBackGraphics() const {
   Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
-  Renderer->DrawSprite(SpinningCircleSprite,
-                       glm::vec2(SpinningCircleX, SpinningCircleY),
-                       glm::vec4(1.0f), glm::vec2(2.0f),
-                       -SpinningCircleAnimation.Progress * 2.0f * (float)M_PI);
+  DrawSpinningCircle(1.0f);
   Renderer->DrawSprite(DelusionADVUnderSprite,
-                       glm::vec2(DelusionADVUnderX, DelusionADVUnderY));
-  Renderer->DrawSprite(DelusionADVSprite,
-                       glm::vec2(DelusionADVX, DelusionADVY));
-  Renderer->DrawSprite(SeiraUnderSprite, glm::vec2(SeiraUnderX, SeiraUnderY));
-  Renderer->DrawSprite(SeiraSprite, glm::vec2(SeiraX, SeiraY));
-  Renderer->DrawSprite(CHLogoSprite, glm::vec2(CHLogoX, CHLogoY));
-  Renderer->DrawSprite(LCCLogoUnderSprite,
-                       glm::vec2(LCCLogoUnderX, LCCLogoUnderY));
-  Renderer->DrawSprite(ChuLeftLogoSprite,
-                       glm::vec2(ChuLeftLogoX, ChuLeftLogoY));
-  Renderer->DrawSprite(ChuRightLogoSprite,
-                       glm::vec2(ChuRightLogoX, ChuRightLogoY));
-  Renderer->DrawSprite(LoveLogoSprite, glm::vec2(LoveLogoX, LoveLogoY));
-  Renderer->DrawSprite(StarLogoSprite, glm::vec2(StarLogoX, StarLogoY));
-  Renderer->DrawSprite(ExclMarkLogoSprite,
-                       glm::vec2(ExclMarkLogoX, ExclMarkLogoY));
-  Renderer->DrawSprite(CopyrightTextSprite,
-                       glm::vec2(CopyrightTextX, CopyrightTextY));
+                       DelusionADVPosition - DelusionADVPopoutOffset);
+  Renderer->DrawSprite(DelusionADVSprite, DelusionADVPosition);
+  Renderer->DrawSprite(SeiraUnderSprite, SeiraUnderPosition);
+  Renderer->DrawSprite(SeiraSprite, SeiraPosition);
+  Renderer->DrawSprite(CHLogoSprite, CHLogoPosition);
+  Renderer->DrawSprite(LCCLogoUnderSprite, LCCLogoUnderPosition);
+  Renderer->DrawSprite(CopyrightTextSprite, CopyrightTextPosition);
+
+  for (size_t i : LCCLogoDrawOrder) {
+    Renderer->DrawSprite(LCCLogoSprites[i], LCCLogoPositions[i]);
+  }
+
+  Renderer->DrawSprite(StarLogoSprite, StarLogoPosition);
 }
 
 }  // namespace CHLCC
