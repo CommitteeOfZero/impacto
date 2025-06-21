@@ -439,17 +439,22 @@ void TitleMenu::Render() {
     int maskAlpha = ScrWork[SW_TITLEMASKALPHA];
     glm::vec4 col = ScrWorkGetColor(SW_TITLEMASKCOLOR);
     col.a = glm::min(maskAlpha / 255.0f, 1.0f);
-    Renderer->DrawRect(
+    Renderer->DrawQuad(
         RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight), col);
   }
 }
 
 inline void TitleMenu::DrawTitleMenuBackGraphics() {
   Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
-  Renderer->DrawSprite(SpinningCircleSprite,
-                       glm::vec2(SpinningCircleX, SpinningCircleY),
-                       glm::vec4(1.0f), glm::vec2(2.0f),
-                       -SpinningCircleAnimation.Progress * 2.0f * (float)M_PI);
+
+  const CornersQuad spinningCircleDest =
+      SpinningCircleSprite.ScaledBounds()
+          .Scale({2.0f, 2.0f}, {0.0f, 0.0f})
+          .RotateAroundCenter(-SpinningCircleAnimation.Progress * 2.0f *
+                              (float)M_PI)
+          .Translate({SpinningCircleX, SpinningCircleY});
+  Renderer->DrawSprite(SpinningCircleSprite, spinningCircleDest);
+
   Renderer->DrawSprite(DelusionADVUnderSprite,
                        glm::vec2(DelusionADVUnderX, DelusionADVUnderY));
   Renderer->DrawSprite(DelusionADVSprite,

@@ -13,8 +13,9 @@ namespace CCLCC {
 class SystemMenu : public Menu {
  public:
   using GridVertices =
-      std::array<glm::vec2, (Profile::CCLCC::SystemMenu::GridRowCount + 1) *
-                                (Profile::CCLCC::SystemMenu::GridColCount + 1)>;
+      std::array<VertexBufferSprites,
+                 (Profile::CCLCC::SystemMenu::GridRowCount + 1) *
+                     (Profile::CCLCC::SystemMenu::GridColCount + 1)>;
 
   SystemMenu();
 
@@ -35,8 +36,7 @@ class SystemMenu : public Menu {
   bool ItemsFadeComplete = false;
   glm::vec2 BGPosition{};
 
-  GridVertices SpriteGridVertices;
-  GridVertices DisplayGridVertices;
+  GridVertices Vertices;
 };
 
 }  // namespace CCLCC

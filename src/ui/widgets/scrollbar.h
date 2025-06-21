@@ -41,9 +41,9 @@ class Scrollbar : public Widget {
 
   int Id;
   ScrollbarDirection Direction;
-  Sprite TrackSprite;
   Sprite ThumbSprite;
-  Sprite FillSprite;
+  std::optional<Sprite> TrackSprite;
+  std::optional<Sprite> FillSprite;
   float Length;
   float StartValue;
   float EndValue;
@@ -62,8 +62,6 @@ class Scrollbar : public Widget {
   RectF ScrollWheelBounds;
   float ThumbLength;
   bool ScrollHeld = false;
-  bool HasFill = false;
-  bool HasTrack = true;
   int LastScrollPos = 0;
   float WheelSpeedMultiplier = 1.0f;
   void UpdatePosition();

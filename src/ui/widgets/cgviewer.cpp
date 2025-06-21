@@ -111,7 +111,7 @@ void CgViewer::Update(float dt) {
 void CgViewer::Render() {
   glm::vec4 col(1.0f, 1.0f, 1.0f,
                 glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress));
-  Renderer->DrawRect(
+  Renderer->DrawQuad(
       RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
       glm::vec4(0.0f, 0.0f, 0.0f, col.a));
   glm::vec2 pos;

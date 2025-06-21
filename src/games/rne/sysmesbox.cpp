@@ -221,7 +221,7 @@ void SysMesBox::Render() {
     glm::vec4 col(1.0f, 1.0f, 1.0f, 1.0f);
 
     if (BoxAnimCount > BoxDisplayStartCount) {
-      Renderer->DrawRect(
+      Renderer->DrawQuad(
           RectF(BoxDisplayX, BoxTopY - 1.0f, BoxWidth, BoxHeight + 2.0f),
           glm::vec4(1.0f, 1.0f, 1.0f, 0.75f));
       Renderer->DrawSprite(BoxDecorationTop,

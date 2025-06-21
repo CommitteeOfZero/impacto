@@ -61,7 +61,7 @@ static bool CurrentMaterialIsDepthWrite = false;
 
 static GLWindow* Window;
 
-void Renderable3D::Init(GLWindow* window, ShaderCompiler* shaderCompiler) {
+void Renderable3D::Init(GLWindow* window, ShaderCompiler& shaderCompiler) {
   assert(IsInit == false);
   ImpLog(LogLevel::Info, LogChannel::Renderable3D,
          "Initializing Renderable3D system\n");
@@ -75,13 +75,13 @@ void Renderable3D::Init(GLWindow* window, ShaderCompiler* shaderCompiler) {
   shaderParams["DASH"] = ShaderParameter(isDaSH, true);
 
   ShaderProgram =
-      shaderCompiler->Compile("Renderable3D_Character", shaderParams);
+      shaderCompiler.Compile("Renderable3D_Character", shaderParams);
   ShaderProgramOutline =
-      shaderCompiler->Compile("Renderable3D_Outline", shaderParams);
-  ShaderProgramEye = shaderCompiler->Compile("Renderable3D_Eye", shaderParams);
+      shaderCompiler.Compile("Renderable3D_Outline", shaderParams);
+  ShaderProgramEye = shaderCompiler.Compile("Renderable3D_Eye", shaderParams);
 
   ShaderProgramBackground =
-      shaderCompiler->Compile("Renderable3D_Background", shaderParams);
+      shaderCompiler.Compile("Renderable3D_Background", shaderParams);
 
   GLuint sceneUniformIndices[SU_Count];
   glGetUniformIndices(ShaderProgram, SU_Count, SceneUniformNames,
