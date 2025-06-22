@@ -47,14 +47,18 @@ class MusicMenu : public LibrarySubmenu {
   void Show() override;
   void Hide() override;
 
-  float PageY = 0;
-  MusicBGs BGWidget;
+ private:
   Profile::CCLCC::LibraryMenu::MusicMenuPlayingMode PlayMode =
-      Profile::CCLCC::LibraryMenu::MusicMenuPlayingMode::PlayAll;
+      Profile::CCLCC::LibraryMenu::MusicMenuPlayingMode::RepeatAll;
   MusicTrackButton* CurrentlyPlayingBtn = nullptr;
+
+  std::vector<size_t> ShuffleTrackIndices;
+  MusicBGs BGWidget;
   TurboOnHoldHandler DirectionButtonHoldHandler;
   Animation NowPlayingFadeAnimation;
   Widgets::Label NowPlayingTrackName;
+  void PlayTrack(size_t index);
+  void ResetShuffle();
 };
 
 }  // namespace CCLCC
