@@ -9,7 +9,7 @@ namespace CCLCC {
 namespace LibraryMenu {
 
 BETTER_ENUM(LibraryMenuPageType, int, Album, Sound, Movie)
-BETTER_ENUM(MusicMenuPlayingMode, int, PlayAll, Shuffle, Repeat, RepeatOne)
+BETTER_ENUM(MusicMenuPlayingMode, int, RepeatOne, PlayAll, RepeatAll, Shuffle)
 
 inline Sprite LibraryBackgroundSprite;
 inline glm::vec2 LibraryBackgroundPosition;
