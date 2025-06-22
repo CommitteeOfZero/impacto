@@ -21,7 +21,7 @@ MusicTrackButton::MusicTrackButton(int id, int position, glm::vec2 pos)
   Id = id;
   Bounds = RectF(pos.x, pos.y + MusicButtonTextYOffset, MusicButtonBounds.Width,
                  MusicButtonBounds.Height);
-  IsLocked = !SaveSystem::GetBgmFlag(MusicPlayIds[Id]);
+  IsLocked = !SaveSystem::GetBgmFlag(MusicBGMFlagIds[Id]);
   size_t trackTextIndex = 2 * Id;
   SetText(
       Vm::ScriptGetTextTableStrAddress(MusicStringTableId, trackTextIndex + 6),
