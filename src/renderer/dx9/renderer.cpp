@@ -437,12 +437,28 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
   // The index buffer needs to be flushed
   Flush();
 
-  if (inverted)
-    EnsureShader(ShaderSpriteInverted);
-  else
-    EnsureShader(ShaderSprite);
+  if (mask != nullptr) {
+    std::array<float, 4> alphaRes = {1.0f, 0.0f, 0.0f, 0.0f};
+    BOOL isInvertedB = (BOOL)inverted;
 
-  EnsureTextureBound(sheet.Texture);
+    EnsureShader(ShaderMaskedSpriteNoAlpha);
+
+    Device->SetTexture(0, Textures[sheet.Texture]);
+    Device->SetTexture(1, Textures[mask->Texture]);
+
+    Device->SetSamplerState(1, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+    Device->SetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+    Device->SetPixelShaderConstantF(0, alphaRes.data(), 1);
+    Device->SetPixelShaderConstantB(0, &isInvertedB, 1);
+
+  } else {
+    if (inverted)
+      EnsureShader(ShaderSpriteInverted);
+    else
+      EnsureShader(ShaderSprite);
+
+    EnsureTextureBound(sheet.Texture);
+  }
 
   // Push vertices
   VertexBufferSprites* vertexBuffer =
