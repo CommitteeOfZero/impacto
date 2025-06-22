@@ -1370,12 +1370,55 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
   // The index buffer needs to be flushed
   Flush();
 
-  if (inverted)
-    EnsureMode(PipelineSpriteInverted);
-  else
-    EnsureMode(PipelineSprite);
+  if (mask != nullptr) {
+    VkSamplerCreateInfo samplerInfo = {};
+    samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+    samplerInfo.pNext = nullptr;
+    samplerInfo.magFilter = VK_FILTER_LINEAR;
+    samplerInfo.minFilter = VK_FILTER_LINEAR;
+    samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    samplerInfo.anisotropyEnable = VK_TRUE;
+    samplerInfo.maxAnisotropy = 16;
 
-  EnsureTextureBound(sheet.Texture);
+    VkDescriptorImageInfo imageBufferInfo[2];
+    imageBufferInfo[0].sampler = Sampler;
+    imageBufferInfo[0].imageView = Textures[sheet.Texture].ImageView;
+    imageBufferInfo[0].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+    vkCreateSampler(Device, &samplerInfo, nullptr, &imageBufferInfo[1].sampler);
+    imageBufferInfo[1].imageView = Textures[mask->Texture].ImageView;
+    imageBufferInfo[1].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+    VkWriteDescriptorSet writeDescriptorSet{};
+    writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writeDescriptorSet.dstSet = 0;
+    writeDescriptorSet.dstBinding = 0;
+    writeDescriptorSet.descriptorCount = 2;
+    writeDescriptorSet.descriptorType =
+        VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    writeDescriptorSet.pImageInfo = imageBufferInfo;
+
+    EnsureMode(PipelineMaskedSpriteNoAlpha);
+    vkCmdPushDescriptorSetKHR(
+        CommandBuffers[CurrentFrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
+        CurrentPipeline->PipelineLayout, 0, 1, &writeDescriptorSet);
+    MaskedNoAlphaPushConstants constants = {};
+    constants.Alpha = glm::vec2(1.0f, 0.0f);
+    constants.IsInverted = inverted;
+    vkCmdPushConstants(CommandBuffers[CurrentFrameIndex],
+                       CurrentPipeline->PipelineLayout,
+                       VK_SHADER_STAGE_FRAGMENT_BIT, 0,
+                       sizeof(MaskedNoAlphaPushConstants), &constants);
+  } else {
+    if (inverted)
+      EnsureMode(PipelineSpriteInverted);
+    else
+      EnsureMode(PipelineSprite);
+
+    EnsureTextureBound(sheet.Texture);
+  }
 
   // Push vertices
   VertexBufferSprites* vertexBuffer =
