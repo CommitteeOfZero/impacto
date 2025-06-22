@@ -1,5 +1,6 @@
 #include "musicmenu.h"
 
+#include <numeric>
 #include "../../ui/ui.h"
 #include "../../profile/games/cclcc/librarymenu.h"
 #include "../../video/videosystem.h"
@@ -139,10 +140,6 @@ MusicMenu::MusicMenu()
   MainItems.HoverBounds = MusicHoverBounds;
   NowPlayingFadeAnimation.DurationIn = MusicNowPlayingNotificationFadeIn;
   NowPlayingFadeAnimation.DurationOut = MusicNowPlayingNotificationFadeOut;
-  const glm::vec2 playingNamePos =
-      MusicNowPlayingNotificationPos + MusicNowPlayingNotificationTrackOffset;
-  NowPlayingTrackName.Bounds.X = playingNamePos.x;
-  NowPlayingTrackName.Bounds.Y = playingNamePos.y;
 }
 
 void MusicMenu::Show() {
@@ -153,19 +150,11 @@ void MusicMenu::Show() {
       auto* musicBtn = static_cast<MusicTrackButton*>(target);
       if (target->IsLocked) return;
       if (CurrentlyPlayingBtn) CurrentlyPlayingBtn->Selected = false;
-      NowPlayingFadeAnimation.StartIn();
-
-      NowPlayingTrackName.SetText(
-          Vm::ScriptGetTextTableStrAddress(MusicStringTableId,
-                                           2 * target->Id + 6),
-          MusicNowPlayingNotificationTrackFontSize, RendererOutlineMode::None,
-          {MusicNowPlayingTextColor, MusicNowPlayingTextOutlineColor});
-      NowPlayingTrackName.Show();
+      PlayTrack(musicBtn->Id);
+      if (PlayMode == +MusicMenuPlayingMode::Shuffle) {
+        ResetShuffle();
+      }
       musicBtn->Selected = true;
-      CurrentlyPlayingBtn = musicBtn;
-      Audio::Channels[Audio::AC_BGM0]->Play(
-          "bgm", MusicPlayIds[target->Id],
-          PlayMode == +MusicMenuPlayingMode::RepeatOne, 0.0f);
     };
     for (size_t pos = 1; pos <= MusicPlayIds.size(); ++pos) {
       const size_t i = (pos + MusicPlayIds.size() - 1) % MusicPlayIds.size();
@@ -191,7 +180,6 @@ void MusicMenu::Update(float dt) {
   NowPlayingFadeAnimation.Update(dt);
   NowPlayingTrackName.Update(dt);
   if (State == Hidden && !MainItems.Children.empty()) {
-    PageY = 0;
     MainItems.Clear();
     MainItems.MoveTo(glm::vec2(0, 0));
     NowPlayingTrackName.SetText(std::vector<ProcessedTextGlyph>{}, 0, 30,
@@ -202,10 +190,46 @@ void MusicMenu::Update(float dt) {
       glm::vec4(1.0f, 1.0f, 1.0f, alpha / 255.0f * FadeAnimation.Progress);
   MainItems.Tint = tint;
   BGWidget.Tint = tint;
-  if (Audio::Channels[Audio::AC_BGM0]->GetState() ==
-          Audio::AudioChannelState::ACS_Stopped &&
-      NowPlayingTrackName.GetTextLength() > 0) {
-    NowPlayingTrackName.ClearText();
+
+  const auto getNextUnlockedTrack =
+      [this](size_t current) -> std::optional<size_t> {
+    size_t next = (current + 1) % MusicPlayIds.size();
+    while (!SaveSystem::GetBgmFlag(MusicBGMFlagIds[next]) && next != current) {
+      next = (next + 1) % MusicPlayIds.size();
+    }
+    return next == current ? std::nullopt : std::make_optional(next);
+  };
+  if (CurrentlyPlayingBtn && Audio::Channels[Audio::AC_BGM0]->GetState() ==
+                                 Audio::AudioChannelState::ACS_Stopped) {
+    switch (PlayMode) {
+      case MusicMenuPlayingMode::RepeatOne:
+        PlayTrack(CurrentlyPlayingBtn->Id);
+        break;
+      case MusicMenuPlayingMode::PlayAll: {
+        if (CurrentlyPlayingBtn->Id != MusicPlayIds.size() - 1) {
+          auto nextTrack = getNextUnlockedTrack(CurrentlyPlayingBtn->Id);
+          if (nextTrack) {
+            PlayTrack(*nextTrack);
+            break;
+          }
+        }
+        CurrentlyPlayingBtn->Selected = false;
+        CurrentlyPlayingBtn = nullptr;
+        NowPlayingFadeAnimation.StartOut();
+        NowPlayingTrackName.ClearText();
+      } break;
+      case MusicMenuPlayingMode::RepeatAll: {
+        auto nextTrack = getNextUnlockedTrack(CurrentlyPlayingBtn->Id);
+        PlayTrack(nextTrack.value_or(CurrentlyPlayingBtn->Id));
+      } break;
+      case MusicMenuPlayingMode::Shuffle: {
+        if (ShuffleTrackIndices.empty()) {
+          ResetShuffle();
+        }
+        PlayTrack(ShuffleTrackIndices.back());
+        ShuffleTrackIndices.pop_back();
+      } break;
+    }
   }
 }
 
@@ -227,6 +251,21 @@ void MusicMenu::Hide() {
 void MusicMenu::UpdateInput(float dt) {
   using namespace Vm::Interface;
   if (State == Shown) {
+    if (PADinputButtonWentDown & PADcustom[17]) {
+      Audio::Channels[Audio::AC_BGM0]->Stop(0.0f);
+      if (CurrentlyPlayingBtn) {
+        CurrentlyPlayingBtn->Selected = false;
+        CurrentlyPlayingBtn = nullptr;
+      }
+      NowPlayingFadeAnimation.StartOut();
+      NowPlayingTrackName.ClearText();
+    }
+
+    if (PADinputButtonWentDown & PADcustom[18]) {
+      PlayMode = MusicMenuPlayingMode::_from_integral(
+          (PlayMode._to_integral() + 1) % MusicMenuPlayingMode::_size());
+    }
+
     const uint32_t btnUp = PADcustom[0];
     const uint32_t btnDown = PADcustom[1];
     const bool upScroll = Input::MouseWheelDeltaY > 0;
@@ -295,17 +334,46 @@ void MusicMenu::Render() {
   if (State != Hidden) {
     BGWidget.Render();
     LibrarySubmenu::Render();
-    if (Audio::Channels[Audio::AC_BGM0]->GetState() !=
-        Audio::AudioChannelState::ACS_Stopped) {
-      Renderer->DrawSprite(
-          MusicNowPlayingNotificationSprite, MusicNowPlayingNotificationPos,
-          glm::vec4{glm::vec3{1.0f}, NowPlayingFadeAnimation.Progress});
-      NowPlayingTrackName.Render();
-      Renderer->DrawSprite(
-          MusicNowPlayingModeSprites[PlayMode._to_integral()],
-          MusicNowPlayingModePositions[PlayMode._to_integral()],
-          glm::vec4{glm::vec3{1.0f}, NowPlayingFadeAnimation.Progress});
-    }
+    Renderer->DrawSprite(
+        MusicNowPlayingNotificationSprite, MusicNowPlayingNotificationPos,
+        glm::vec4{glm::vec3{1.0f}, NowPlayingFadeAnimation.Progress});
+    NowPlayingTrackName.Render();
+    Renderer->DrawSprite(MusicNowPlayingModeSprites[PlayMode._to_integral()],
+                         MusicNowPlayingModePositions[PlayMode._to_integral()]);
+  }
+}
+
+void MusicMenu::PlayTrack(size_t index) {
+  if (index >= MusicPlayIds.size()) return;
+  if (CurrentlyPlayingBtn) {
+    CurrentlyPlayingBtn->Selected = false;
+    CurrentlyPlayingBtn = nullptr;
+  }
+  CurrentlyPlayingBtn =
+      static_cast<MusicTrackButton*>(MainItems.Children[index]);
+  CurrentlyPlayingBtn->Selected = true;
+  NowPlayingFadeAnimation.StartIn();
+
+  const glm::vec2 playingNamePos =
+      MusicNowPlayingNotificationPos + MusicNowPlayingNotificationTrackOffset;
+  NowPlayingTrackName.Bounds.X = playingNamePos.x;
+  NowPlayingTrackName.Bounds.Y = playingNamePos.y;
+  NowPlayingTrackName.SetText(
+      Vm::ScriptGetTextTableStrAddress(MusicStringTableId, 2 * index + 6),
+      MusicNowPlayingNotificationTrackFontSize, RendererOutlineMode::None,
+      {MusicNowPlayingTextColor, MusicNowPlayingTextOutlineColor});
+  NowPlayingTrackName.Show();
+  Audio::Channels[Audio::AC_BGM0]->Play("bgm", MusicPlayIds[index], false,
+                                        0.0f);
+}
+
+void MusicMenu::ResetShuffle() {
+  static std::random_device randomDevice{};
+  if (PlayMode == +MusicMenuPlayingMode::Shuffle) {
+    ShuffleTrackIndices.resize(MusicPlayIds.size());
+    std::iota(ShuffleTrackIndices.begin(), ShuffleTrackIndices.end(), 0);
+    std::shuffle(ShuffleTrackIndices.begin(), ShuffleTrackIndices.end(),
+                 std::mt19937{randomDevice()});
   }
 }
 }  // namespace CCLCC
