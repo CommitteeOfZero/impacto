@@ -52,6 +52,7 @@ void Configure() {
   MusicRenderingBounds = EnsureGetMember<RectF>("MusicRenderingBounds");
   MusicHoverBounds = EnsureGetMember<RectF>("MusicHoverBounds");
   MusicPlayIds = GetMemberVector<uint8_t>("MusicPlayIds");
+  MusicBGMFlagIds = GetMemberVector<uint8_t>("MusicBGMFlagIds");
   MusicStringTableId = EnsureGetMember<uint8_t>("MusicStringTableId");
   MusicStringLockedIndex = EnsureGetMember<int>("MusicStringLockedIndex");
   MusicTrackNameSize = EnsureGetMember<float>("MusicTrackNameSize");
