@@ -155,16 +155,16 @@ void MusicMenu::Show() {
 }
 
 void MusicMenu::Init() {
-    const auto musicOnclick = [this](Widgets::Button* target) {
-      auto* musicBtn = static_cast<MusicTrackButton*>(target);
-      if (target->IsLocked) return;
-      if (CurrentlyPlayingBtn) CurrentlyPlayingBtn->Selected = false;
-      PlayTrack(musicBtn->Id);
-      if (PlayMode == +MusicMenuPlayingMode::Shuffle) {
-        ResetShuffle();
-      }
-      musicBtn->Selected = true;
-    };
+  const auto musicOnclick = [this](Widgets::Button* target) {
+    auto* musicBtn = static_cast<MusicTrackButton*>(target);
+    if (target->IsLocked) return;
+    if (CurrentlyPlayingBtn) CurrentlyPlayingBtn->Selected = false;
+    PlayTrack(musicBtn->Id);
+    if (PlayMode == +MusicMenuPlayingMode::Shuffle) {
+      ResetShuffle();
+    }
+    musicBtn->Selected = true;
+  };
   const float maxY = MusicPlayIds.size() * MusicButtonBounds.Height;
 
   // Small indie company please understand
@@ -172,18 +172,18 @@ void MusicMenu::Init() {
   SaveSystem::SetBgmFlag(131, true);
   ResetShuffle();
   MainItems.Clear();
-      for (size_t pos = 1; pos <= MusicPlayIds.size(); ++pos) {
-      const size_t i = (pos + MusicPlayIds.size() - 1) % MusicPlayIds.size();
-      const float btnY =
-          fmod(MusicButtonBounds.Y + MusicButtonBounds.Height * pos +
-                   MusicButtonBounds.Height * 8,
-               maxY);
-      const glm::vec2 btnPos = {MusicButtonBounds.X, btnY};
-      const auto musicItem = new MusicTrackButton((int)i, (int)pos, btnPos);
+  for (size_t pos = 1; pos <= MusicPlayIds.size(); ++pos) {
+    const size_t i = (pos + MusicPlayIds.size() - 1) % MusicPlayIds.size();
+    const float btnY =
+        fmod(MusicButtonBounds.Y + MusicButtonBounds.Height * pos +
+                 MusicButtonBounds.Height * 8,
+             maxY);
+    const glm::vec2 btnPos = {MusicButtonBounds.X, btnY};
+    const auto musicItem = new MusicTrackButton((int)i, (int)pos, btnPos);
 
-      musicItem->OnClickHandler = musicOnclick;
-      MainItems.Add(musicItem, FDIR_DOWN);
-    }
+    musicItem->OnClickHandler = musicOnclick;
+    MainItems.Add(musicItem, FDIR_DOWN);
+  }
 }
 
 void MusicMenu::Update(float dt) {
@@ -196,7 +196,7 @@ void MusicMenu::Update(float dt) {
       glm::vec4(1.0f, 1.0f, 1.0f, alpha / 255.0f * FadeAnimation.Progress);
   MainItems.Tint = tint;
   BGWidget.Tint = tint;
-NowPlayingTrackName.Tint = tint;
+  NowPlayingTrackName.Tint = tint;
 
   const auto getNextUnlockedTrack =
       [this](size_t current) -> std::optional<size_t> {
@@ -277,6 +277,7 @@ void MusicMenu::UpdateInput(float dt) {
     const bool upScroll = Input::MouseWheelDeltaY > 0;
     const bool downScroll = Input::MouseWheelDeltaY < 0;
 
+    const bool wasTurbo = DirectionButtonHoldHandler.IsTurbo;
     DirectionButtonHoldHandler.Update(dt);
     const int directionShouldFire = DirectionButtonHoldHandler.ShouldFire();
     const bool directionMovement =
@@ -284,26 +285,30 @@ void MusicMenu::UpdateInput(float dt) {
         (bool)(directionShouldFire & btnDown || downScroll);
 
     if (directionMovement) {
+      const bool dirDown = directionShouldFire & btnDown || downScroll;
+      QueuedMove =
+          (dirDown ? FocusDirection::FDIR_DOWN : FocusDirection::FDIR_UP);
+    } else if (wasTurbo) {
+      QueuedMove.reset();
+    }
+
+    if (QueuedMove.has_value() &&
+        (MainItems.MoveAnimation.State != +AnimationState::Playing &&
+         BGWidget.MoveAnimation.State != +AnimationState::Playing)) {
       float deltaY = 0;
-      bool dirDown = directionShouldFire & btnDown || downScroll;
+      const bool dirDown = *QueuedMove == FocusDirection::FDIR_DOWN;
       deltaY += dirDown ? MusicButtonBounds.Height : -MusicButtonBounds.Height;
       const float animationSpeed = DirectionButtonHoldHandler.IsTurbo
                                        ? MusicDirectionalFocusTimeInterval
-                                       : 0.4f;
-      if (MainItems.MoveAnimation.State == +AnimationState::Playing ||
-          BGWidget.MoveAnimation.State == +AnimationState::Playing) {
-        MainItems.MoveAnimation.Stop();
-        BGWidget.MoveAnimation.Stop();
-        MainItems.MoveTo(MainItems.MoveTarget);
-        BGWidget.MoveTo(BGWidget.MoveTarget);
-      } else {
-        MainItems.Move({0.0f, -deltaY}, animationSpeed);
-        BGWidget.Move({0.0f, -deltaY}, animationSpeed);
-        if (dirDown)
-          AdvanceFocus(FocusDirection::FDIR_DOWN);
-        else
-          AdvanceFocus(FocusDirection::FDIR_UP);
-      }
+                                       : 0.3f;
+
+      MainItems.Move({0.0f, -deltaY}, animationSpeed);
+      BGWidget.Move({0.0f, -deltaY}, animationSpeed);
+      if (dirDown)
+        AdvanceFocus(FocusDirection::FDIR_DOWN);
+      else
+        AdvanceFocus(FocusDirection::FDIR_UP);
+      QueuedMove.reset();
     }
   }
 }
