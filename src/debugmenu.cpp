@@ -603,8 +603,6 @@ void ShowScriptDebugger() {
       if (ImGui::Button("Step")) {
         AutoScrollSourceView = true;
         Vm::DebuggerStepRequest = true;
-      } else {
-        Vm::DebuggerStepRequest = false;
       }
       ImGui::EndDisabled();
       ImGui::SameLine();
