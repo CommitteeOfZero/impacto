@@ -52,7 +52,7 @@ class MusicMenu : public LibrarySubmenu {
   Profile::CCLCC::LibraryMenu::MusicMenuPlayingMode PlayMode =
       Profile::CCLCC::LibraryMenu::MusicMenuPlayingMode::RepeatAll;
   MusicTrackButton* CurrentlyPlayingBtn = nullptr;
-
+  std::optional<FocusDirection> QueuedMove;
   std::vector<size_t> ShuffleTrackIndices;
   MusicBGs BGWidget;
   TurboOnHoldHandler DirectionButtonHoldHandler;
