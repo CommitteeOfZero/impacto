@@ -151,14 +151,8 @@ void LibraryMenu::Update(float dt) {
     }
   }
 
-  if (CurrentlyFocusedElement) {
-    auto* activeBtn = static_cast<LibraryMenuButton*>(CurrentlyFocusedElement);
-
-    if (activeBtn->Selected)
-      ButtonBlinkAnimation.Stop();
-    else if (ButtonBlinkAnimation.State == +AnimationState::Stopped)
-      ButtonBlinkAnimation.StartIn();
-  }
+  const bool wasHovered =
+      CurrentlyFocusedElement && CurrentlyFocusedElement->Hovered;
 
   FadeAnimation.Update(dt);
   MainItems.Update(dt);
@@ -166,6 +160,20 @@ void LibraryMenu::Update(float dt) {
   UI::MusicMenuPtr->Update(dt);
   UI::MovieMenuPtr->Update(dt);
   ButtonBlinkAnimation.Update(dt);
+
+  if (CurrentlyFocusedElement) {
+    auto* activeBtn = static_cast<LibraryMenuButton*>(CurrentlyFocusedElement);
+    if (activeBtn->Selected)
+      ButtonBlinkAnimation.Stop();
+    else if (ButtonBlinkAnimation.State == +AnimationState::Stopped)
+      ButtonBlinkAnimation.StartIn();
+    if (!activeBtn->Hovered && wasHovered) {
+      ButtonBlinkAnimation.Stop();
+      ButtonBlinkAnimation.Progress = 0.0f;
+      CurrentlyFocusedElement->HasFocus = false;
+      CurrentlyFocusedElement = nullptr;
+    }
+  }
 
   if (State == Shown && IsFocused) {
     if (CurrentLibraryMenu) {
