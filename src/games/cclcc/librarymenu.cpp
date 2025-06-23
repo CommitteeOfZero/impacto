@@ -28,11 +28,11 @@ using namespace Impacto::UI::Widgets::CCLCC;
 LibrarySubmenu& LibraryMenu::GetMenuFromType(LibraryMenuPageType menuType) {
   switch (menuType) {
     case LibraryMenuPageType::Album:
-      return AlbumMenu;
+      return static_cast<LibrarySubmenu&>(*UI::AlbumMenuPtr);
     case LibraryMenuPageType::Sound:
-      return MusicMenu;
+      return static_cast<LibrarySubmenu&>(*UI::MusicMenuPtr);
     case LibraryMenuPageType::Movie:
-      return MovieMenu;
+      return static_cast<LibrarySubmenu&>(*UI::MovieMenuPtr);
   }
 }
 
@@ -92,6 +92,7 @@ LibraryMenu::LibraryMenu() : MainItems(this) {
   ButtonBlinkAnimation.SetDuration(ButtonBlinkDuration);
 }
 
+void LibraryMenu::Init() { SetFlag(SF_ALBUMEND, false); }
 void LibraryMenu::Show() {
   if (State != Shown) {
     State = Showing;
@@ -161,9 +162,9 @@ void LibraryMenu::Update(float dt) {
 
   FadeAnimation.Update(dt);
   MainItems.Update(dt);
-  AlbumMenu.Update(dt);
-  MusicMenu.Update(dt);
-  MovieMenu.Update(dt);
+  UI::AlbumMenuPtr->Update(dt);
+  UI::MusicMenuPtr->Update(dt);
+  UI::MovieMenuPtr->Update(dt);
   ButtonBlinkAnimation.Update(dt);
 
   if (State == Shown && IsFocused) {
