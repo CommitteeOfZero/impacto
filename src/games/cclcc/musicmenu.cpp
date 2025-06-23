@@ -170,7 +170,6 @@ void MusicMenu::Init() {
   // Small indie company please understand
   SaveSystem::SetBgmFlag(101, true);
   SaveSystem::SetBgmFlag(131, true);
-  ResetShuffle();
   MainItems.Clear();
   for (size_t pos = 1; pos <= MusicPlayIds.size(); ++pos) {
     const size_t i = (pos + MusicPlayIds.size() - 1) % MusicPlayIds.size();
@@ -184,6 +183,7 @@ void MusicMenu::Init() {
     musicItem->OnClickHandler = musicOnclick;
     MainItems.Add(musicItem, FDIR_DOWN);
   }
+  ResetShuffle();
 }
 
 void MusicMenu::Update(float dt) {
@@ -382,8 +382,12 @@ void MusicMenu::PlayTrack(size_t index) {
 void MusicMenu::ResetShuffle() {
   static std::random_device randomDevice{};
   if (PlayMode == +MusicMenuPlayingMode::Shuffle) {
-    ShuffleTrackIndices.resize(MusicPlayIds.size());
-    std::iota(ShuffleTrackIndices.begin(), ShuffleTrackIndices.end(), 0);
+    ShuffleTrackIndices.clear();
+    for (size_t i = 0; i < MusicPlayIds.size(); ++i) {
+      if (static_cast<MusicTrackButton*>(MainItems.Children[i])->IsLocked)
+        continue;
+      ShuffleTrackIndices.push_back(i);
+    }
     std::shuffle(ShuffleTrackIndices.begin(), ShuffleTrackIndices.end(),
                  std::mt19937{randomDevice()});
   }
