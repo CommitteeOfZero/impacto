@@ -1,5 +1,6 @@
 #include "moviemenu.h"
 
+#include <ranges>
 #include "../../ui/ui.h"
 #include "../../profile/games/cclcc/librarymenu.h"
 
@@ -23,19 +24,16 @@ MovieMenu::MovieMenu() : LibrarySubmenu() {
   }
 }
 
-void MovieMenu::Show() {
-  if (State != Shown) {
-    MainItems.Children[0]->Enabled = true;
-    MainItems.Children[1]->Enabled = GetFlag(SF_CLR_TRUE_CCLCC);
-    MainItems.Children[2]->Enabled = [&]() {
-      for (int i = 1; i < 10; ++i) {
-        if (GetFlag(SF_CLR_END1 + i)) return true;
-      }
-      return false;
-    }();
-    MainItems.Children[3]->Enabled = GetFlag(SF_CLR_END1);
-    MainItems.Show();
-  }
-  LibrarySubmenu::Show();
+void MovieMenu::Init() {
+  ScrWork[SW_MOVIEMODE_CUR] = 0xff;
+  MainItems.Children[0]->Enabled = true;
+  MainItems.Children[1]->Enabled = GetFlag(SF_CLR_TRUE_CCLCC);
+  auto const endingFlags =
+      std::views::iota(1, 10) |
+      std::views::transform([](int i) { return GetFlag(SF_CLR_END1 + i); });
+  MainItems.Children[2]->Enabled =
+      std::ranges::any_of(endingFlags, [](bool flag) { return flag; });
+  MainItems.Children[3]->Enabled = GetFlag(SF_CLR_END1);
 }
+
 }  // namespace Impacto::UI::CCLCC

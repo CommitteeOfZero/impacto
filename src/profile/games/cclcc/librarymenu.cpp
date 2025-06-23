@@ -91,12 +91,12 @@ void Configure() {
       EnsureGetMember<uint32_t>("MusicNowPlayingTextColor");
   MusicNowPlayingTextOutlineColor =
       EnsureGetMember<uint32_t>("MusicNowPlayingTextOutlineColor");
-  GetMemberArray<Sprite>(MusicNowPlayingModeSprites.data(),
+  GetMemberArray<Sprite>(MusicPlayingModeSprites.data(),
                          MusicMenuPlayingMode::_size(),
-                         "MusicNowPlayingModeSprites");
-  GetMemberArray<glm::vec2>(MusicNowPlayingModePositions.data(),
+                         "MusicPlayingModeSprites");
+  GetMemberArray<glm::vec2>(MusicPlayingModePositions.data(),
                             MusicMenuPlayingMode::_size(),
-                            "MusicNowPlayingModePositions");
+                            "MusicPlayingModePositions");
 
   MovieDiskSprites = GetMemberVector<Sprite>("MovieDiskSprites");
   MovieDiskHighlightSprites =
@@ -113,6 +113,11 @@ void Configure() {
 
   UI::LibraryMenuPtr = new UI::CCLCC::LibraryMenu();
   UI::Menus[drawType].push_back(UI::LibraryMenuPtr);
+  // Don't push library submenus to the main menus list, let library menu handle
+  // it
+  UI::AlbumMenuPtr = new UI::CCLCC::AlbumMenu();
+  UI::MusicMenuPtr = new UI::CCLCC::MusicMenu();
+  UI::MovieMenuPtr = new UI::CCLCC::MovieMenu();
 }
 
 }  // namespace LibraryMenu

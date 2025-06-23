@@ -300,8 +300,10 @@ VmInstruction(InstAlbum) {
   PopUint8(type);
   switch (type) {
     case 0:  // EXmenuInit
-      SetFlag(SF_ALBUMEND, false);
-      ScrWork[SW_MOVIEMODE_CUR] = 0xff;
+      if (UI::LibraryMenuPtr) UI::LibraryMenuPtr->Init();
+      if (UI::AlbumMenuPtr) UI::AlbumMenuPtr->Init();
+      if (UI::MusicMenuPtr) UI::MusicMenuPtr->Init();
+      if (UI::MovieMenuPtr) UI::MovieMenuPtr->Init();
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction Album(type: EXmenuInit)\n");
       break;
