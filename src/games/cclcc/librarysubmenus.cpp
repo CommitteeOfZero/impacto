@@ -30,6 +30,7 @@ void LibrarySubmenu::Show() {
     }
     IsFocused = true;
     UI::FocusedMenu = this;
+    MainItems.Show();
   }
 }
 void LibrarySubmenu::Hide() {

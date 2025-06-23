@@ -492,7 +492,7 @@ SaveError SaveSystem::LoadSystemData() {
   }
 
   stream.Seek(0xCA4, SEEK_SET);
-  Io::ReadArrayLE<uint8_t>(BGMFlags, &stream, 100);
+  Io::ReadArrayLE<uint8_t>(BGMFlags, &stream, 200);
 
   stream.Seek(0xd6c, SEEK_SET);
   Io::ReadArrayLE<uint8_t>(MessageFlags, &stream, 10000);
@@ -570,7 +570,7 @@ void SaveSystem::SaveSystemData() {
   }
 
   systemSaveStream.Seek(0xCA4, SEEK_SET);
-  Io::WriteArrayLE<uint8_t>(BGMFlags, &systemSaveStream, 100);
+  Io::WriteArrayLE<uint8_t>(BGMFlags, &systemSaveStream, 200);
 
   systemSaveStream.Seek(0xd6c, SEEK_SET);
   Io::WriteArrayLE<uint8_t>(MessageFlags, &systemSaveStream, 10000);

@@ -114,8 +114,8 @@ root.ExtraMenus = {
         MusicNowPlayingNotificationTrackFontSize = 36,
         MusicNowPlayingTextColor = 0xffffff,
         MusicNowPlayingTextOutlineColor = 0xffffff,
-        MusicNowPlayingModeSprites = {},
-        MusicNowPlayingModePositions = {},
+        MusicPlayingModeSprites = {},
+        MusicPlayingModePositions = {},
 
         MovieDiskSprites = {},
         MovieDiskHighlightSprites = {},
@@ -361,8 +361,8 @@ for i = 0, 3 do
         Sheet = "MusicMenu",
         Bounds = MusicNowPlayingModeBounds[index]
     };
-    root.ExtraMenus.LibraryMenu.MusicNowPlayingModeSprites[index] = "MusicNowPlayingMode" .. i;
-    root.ExtraMenus.LibraryMenu.MusicNowPlayingModePositions[index] = {
+    root.ExtraMenus.LibraryMenu.MusicPlayingModeSprites[index] = "MusicNowPlayingMode" .. i;
+    root.ExtraMenus.LibraryMenu.MusicPlayingModePositions[index] = {
         X = 1854 - MusicNowPlayingModeBounds[index].Width + 1;
         Y = 42
     };

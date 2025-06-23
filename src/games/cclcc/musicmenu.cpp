@@ -109,6 +109,7 @@ void MusicTrackButton::Update(float dt) {
 
 void MusicTrackButton::Render() {
   if (Enabled) {
+    ArtistName.Tint = Tint;
     if (Selected) {
       Renderer->DrawSprite(
           MusicButtonPlayingSprite,
@@ -116,16 +117,19 @@ void MusicTrackButton::Render() {
       Renderer->DrawSprite(FocusedSprite, glm::vec2(Bounds.X + 113, Bounds.Y),
                            Tint);
     } else {
-      Renderer->DrawProcessedText(NumberText, Profile::Dialogue::DialogueFont);
+      Renderer->DrawProcessedText(NumberText, Profile::Dialogue::DialogueFont,
+                                  Tint.a);
     }
     if (HasFocus) {
       Renderer->DrawSprite(HighlightSprite, glm::vec2(Bounds.X + 113, Bounds.Y),
                            Tint);
     }
     if (IsLocked) {
-      Renderer->DrawProcessedText(LockedText, Profile::Dialogue::DialogueFont);
+      Renderer->DrawProcessedText(LockedText, Profile::Dialogue::DialogueFont,
+                                  Tint.a);
     } else {
-      Renderer->DrawProcessedText(Text, Profile::Dialogue::DialogueFont);
+      Renderer->DrawProcessedText(Text, Profile::Dialogue::DialogueFont,
+                                  Tint.a);
       ArtistName.Render();
     }
   }
@@ -145,7 +149,12 @@ MusicMenu::MusicMenu()
 void MusicMenu::Show() {
   if (State == MenuState::Hidden) {
     Audio::Channels[Audio::AC_BGM0]->Stop(0.0f);
-    const float maxY = MusicPlayIds.size() * MusicButtonBounds.Height;
+  }
+
+  LibrarySubmenu::Show();
+}
+
+void MusicMenu::Init() {
     const auto musicOnclick = [this](Widgets::Button* target) {
       auto* musicBtn = static_cast<MusicTrackButton*>(target);
       if (target->IsLocked) return;
@@ -156,7 +165,14 @@ void MusicMenu::Show() {
       }
       musicBtn->Selected = true;
     };
-    for (size_t pos = 1; pos <= MusicPlayIds.size(); ++pos) {
+  const float maxY = MusicPlayIds.size() * MusicButtonBounds.Height;
+
+  // Small indie company please understand
+  SaveSystem::SetBgmFlag(101, true);
+  SaveSystem::SetBgmFlag(131, true);
+  ResetShuffle();
+  MainItems.Clear();
+      for (size_t pos = 1; pos <= MusicPlayIds.size(); ++pos) {
       const size_t i = (pos + MusicPlayIds.size() - 1) % MusicPlayIds.size();
       const float btnY =
           fmod(MusicButtonBounds.Y + MusicButtonBounds.Height * pos +
@@ -168,10 +184,6 @@ void MusicMenu::Show() {
       musicItem->OnClickHandler = musicOnclick;
       MainItems.Add(musicItem, FDIR_DOWN);
     }
-  }
-
-  LibrarySubmenu::Show();
-  MainItems.Show();
 }
 
 void MusicMenu::Update(float dt) {
@@ -179,17 +191,12 @@ void MusicMenu::Update(float dt) {
   BGWidget.Update(dt);
   NowPlayingFadeAnimation.Update(dt);
   NowPlayingTrackName.Update(dt);
-  if (State == Hidden && !MainItems.Children.empty()) {
-    MainItems.Clear();
-    MainItems.MoveTo(glm::vec2(0, 0));
-    NowPlayingTrackName.SetText(std::vector<ProcessedTextGlyph>{}, 0, 30,
-                                RendererOutlineMode::None);
-  }
   const int alpha = ((ScrWork[SW_SYSSUBMENUCT] * 32 - 768) * 224) >> 8;
   const auto tint =
       glm::vec4(1.0f, 1.0f, 1.0f, alpha / 255.0f * FadeAnimation.Progress);
   MainItems.Tint = tint;
   BGWidget.Tint = tint;
+NowPlayingTrackName.Tint = tint;
 
   const auto getNextUnlockedTrack =
       [this](size_t current) -> std::optional<size_t> {
@@ -242,8 +249,7 @@ void MusicMenu::Hide() {
   NowPlayingFadeAnimation.StartOut();
   Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0);
   Audio::Channels[Audio::AC_BGM0]->Play("bgm", 101, true, 0.0f);
-
-  MainItems.Clear();
+  NowPlayingTrackName.ClearText();
   MainItems.MoveTo(glm::vec2(0, 0));
   LibrarySubmenu::Hide();
 }
@@ -338,8 +344,9 @@ void MusicMenu::Render() {
         MusicNowPlayingNotificationSprite, MusicNowPlayingNotificationPos,
         glm::vec4{glm::vec3{1.0f}, NowPlayingFadeAnimation.Progress});
     NowPlayingTrackName.Render();
-    Renderer->DrawSprite(MusicNowPlayingModeSprites[PlayMode._to_integral()],
-                         MusicNowPlayingModePositions[PlayMode._to_integral()]);
+    Renderer->DrawSprite(MusicPlayingModeSprites[PlayMode._to_integral()],
+                         MusicPlayingModePositions[PlayMode._to_integral()],
+                         glm::vec4{glm::vec3{1.0f}, FadeAnimation.Progress});
   }
 }
 

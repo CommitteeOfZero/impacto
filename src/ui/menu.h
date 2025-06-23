@@ -12,6 +12,7 @@ enum MenuState { Hidden, Hiding, Showing, Shown };
 
 class Menu {
  public:
+  virtual void Init() {};
   virtual void Show();
   virtual void Hide();
   virtual void Update(float dt) = 0;
