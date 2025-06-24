@@ -33,7 +33,7 @@ void Configure() {
   HighlightXStep = EnsureGetMember<float>("HighlightXStep");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<int>("DrawType"));
+      EnsureGetMember<uint8_t>("DrawType"));
 
   UI::SysMesBoxPtr = new UI::CHLCC::SysMesBox();
   UI::Menus[drawType].push_back(UI::SysMesBoxPtr);

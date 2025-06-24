@@ -29,7 +29,7 @@ void TipsSystem::DataInit(int scriptBufferId, uint8_t *tipsData,
     // Read tip entry from the data array
     TipsDataRecord record;
     memset(&record, 0, sizeof(TipsDataRecord));
-    record.Id = idx;
+    record.Id = (uint16_t)idx;
     // I don't know, I don't care, this is not my magic
     record.SortLetterIndex = (unk01 - 5 * ((unk01 + 1) / 10) - 6);
     record.ThumbnailIndex = ReadLE<uint16_t>(stream);

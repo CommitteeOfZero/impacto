@@ -381,8 +381,8 @@ inline float NormalizeRad(float rad) {
   if (rad < 0) rad += 2.0f * (float)M_PI;
   return rad - (float)M_PI;
 }
-constexpr float ScrWorkAngleToRad(float angle) {
-  return angle * (float)(2.0f * M_PI / (float)(1 << 16));
+constexpr float ScrWorkAngleToRad(int angle) {
+  return (float)angle * (2.0f * (float)M_PI / (float)(1 << 16));
 }
 
 inline glm::quat ScrWorkAnglesToQuaternion(int x, int y, int z) {
@@ -427,7 +427,8 @@ inline void MakeLowerCase(std::string& str) {
 
 template <typename T>
 T UnalignedRead(void* ptr) {
-  static_assert(std::is_pod<T>::value, "!std::is_pod<T>");
+  static_assert(std::is_trivially_copyable<T>::value,
+                "!std::is_trivially_copyable<T>");
   T value;
   memcpy(&value, ptr, sizeof value);
   return value;
@@ -435,7 +436,8 @@ T UnalignedRead(void* ptr) {
 
 template <typename T>
 void UnalignedWrite(void* ptr, T value) {
-  static_assert(std::is_pod<T>::value, "!std::is_pod<T>");
+  static_assert(std::is_trivially_copyable<T>::value,
+                "!std::is_trivially_copyable<T>");
   memcpy(ptr, &value, sizeof value);
 }
 
@@ -453,5 +455,7 @@ inline int CALCrnd(int max) {
   static std::uniform_int_distribution<> distr(0, 0x7FFF);
   return distr(gen) * max >> 0xf;
 }
+
+tm CurrentDateTime();
 
 }  // namespace Impacto

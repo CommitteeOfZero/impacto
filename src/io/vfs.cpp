@@ -37,7 +37,7 @@ static ankerl::unordered_dense::map<std::string,
 static std::shared_mutex Lock;
 
 static IoError MountInternal(std::string const& mountpoint, Stream* stream) {
-  VfsArchive* archive;
+  VfsArchive* archive = nullptr;
   IoError err = IoError_Fail;
   for (auto archiver : Archivers) {
     err = archiver(stream, &archive);

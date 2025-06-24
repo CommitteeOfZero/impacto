@@ -26,7 +26,7 @@ void Configure() {
   FadeOutDirectDuration = EnsureGetMember<float>("FadeOutDirectDuration");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<int>("DrawType"));
+      EnsureGetMember<uint8_t>("DrawType"));
 
   UI::BacklogMenuPtr = new UI::CC::BacklogMenu();
   UI::Menus[drawType].push_back(UI::BacklogMenuPtr);

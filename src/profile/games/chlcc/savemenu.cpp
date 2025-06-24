@@ -89,7 +89,7 @@ void Configure() {
       EnsureGetMember<glm::vec2>("SaveDateTextRelativePos");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<int>("DrawType"));
+      EnsureGetMember<uint8_t>("DrawType"));
 
   UI::SaveMenuPtr = new UI::CHLCC::SaveMenu();
   UI::Menus[drawType].push_back(UI::SaveMenuPtr);

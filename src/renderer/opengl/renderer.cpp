@@ -49,7 +49,7 @@ void Renderer::Init() {
                         (void*)offsetof(VertexBufferSprites, Tint));
   glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(VertexBufferSprites),
                         (void*)offsetof(VertexBufferSprites, MaskUV));
-  for (size_t i = 0; i < 4; i++) glEnableVertexAttribArray(i);
+  for (GLuint i = 0; i < 4; i++) glEnableVertexAttribArray(i);
 
   // Make 1x1 white pixel for colored rectangles
   Texture rectTexture;
@@ -69,9 +69,9 @@ void Renderer::Init() {
   CHLCCMenuBackgroundShaderProgram.emplace(
       Shaders.Compile("CHLCCMenuBackground"));
 
-  glGenSamplers(Samplers.size(), Samplers.data());
+  glGenSamplers((GLsizei)Samplers.size(), Samplers.data());
   for (size_t i = 0; i < TextureUnitCount; i++) {
-    glBindSampler(i, Samplers[i]);
+    glBindSampler((GLuint)i, Samplers[i]);
 
     glSamplerParameteri(Samplers[i], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glSamplerParameteri(Samplers[i], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -94,11 +94,12 @@ void Renderer::Shutdown() {
   if (RectSprite.Sheet.Texture) glDeleteTextures(1, &RectSprite.Sheet.Texture);
   IsInit = false;
 
-  GLC::DeleteFramebuffers(GLC::Framebuffers.size(), GLC::Framebuffers.data());
-  glDeleteTextures(GLC::FramebufferTextures.size(),
+  GLC::DeleteFramebuffers((GLsizei)GLC::Framebuffers.size(),
+                          GLC::Framebuffers.data());
+  glDeleteTextures((GLsizei)GLC::FramebufferTextures.size(),
                    GLC::FramebufferTextures.data());
 
-  glDeleteSamplers(Samplers.size(), Samplers.data());
+  glDeleteSamplers((GLsizei)Samplers.size(), Samplers.data());
 
   if (Profile::GameFeatures & GameFeature::Scene3D) {
     Scene->Shutdown();
@@ -154,20 +155,26 @@ uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16);
 
   // Load in data
-  GLuint texFormat;
-  switch (format) {
-    case TexFmt_RGBA:
-      glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-      texFormat = GL_RGBA;
-      break;
-    case TexFmt_RGB:
-      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-      texFormat = GL_RGB;
-      break;
-    case TexFmt_U8:
-      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-      texFormat = GL_RED;
-  }
+  const GLuint texFormat = [format]() {
+    switch (format) {
+      case TexFmt_RGBA:
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+        return GL_RGBA;
+
+      case TexFmt_RGB:
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        return GL_RGB;
+
+      case TexFmt_U8:
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        return GL_RED;
+
+      default:
+        ImpLog(LogLevel::Error, LogChannel::GL,
+               "Unimplemented texture format {}", (int)format);
+        return 0;
+    }
+  }();
   glTexImage2D(GL_TEXTURE_2D, 0, texFormat, width, height, 0, texFormat,
                GL_UNSIGNED_BYTE, buffer);
 
@@ -181,7 +188,7 @@ uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
 
 int Renderer::GetSpriteSheetImage(SpriteSheet const& sheet,
                                   std::span<uint8_t> outBuffer) {
-  const int bufferSize = sheet.DesignWidth * sheet.DesignHeight * 4;
+  const int bufferSize = (int)sheet.DesignWidth * (int)sheet.DesignHeight * 4;
   assert(outBuffer.size() >= bufferSize);
   glBindTexture(GL_TEXTURE_2D, sheet.Texture);
 
@@ -190,8 +197,8 @@ int Renderer::GetSpriteSheetImage(SpriteSheet const& sheet,
   glBindFramebuffer(GL_FRAMEBUFFER, fbo);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
                          sheet.Texture, 0);
-  glReadPixels(0, 0, sheet.DesignWidth, sheet.DesignHeight, GL_RGBA,
-               GL_UNSIGNED_BYTE, outBuffer.data());
+  glReadPixels(0, 0, (GLsizei)sheet.DesignWidth, (GLsizei)sheet.DesignHeight,
+               GL_RGBA, GL_UNSIGNED_BYTE, outBuffer.data());
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glDeleteFramebuffers(1, &fbo);
@@ -199,11 +206,11 @@ int Renderer::GetSpriteSheetImage(SpriteSheet const& sheet,
   if (sheet.IsScreenCap) {
     auto itr = outBuffer.begin();
     auto revItr = std::make_reverse_iterator(itr + bufferSize);
-    while (itr < revItr.base() - static_cast<int>(sheet.DesignWidth * 4)) {
-      std::swap_ranges(itr, itr + sheet.DesignWidth * 4,
-                       revItr.base() - (sheet.DesignWidth * 4));
-      itr += sheet.DesignWidth * 4;
-      revItr += sheet.DesignWidth * 4;
+    while (itr < revItr.base() - (size_t)(sheet.DesignWidth * 4)) {
+      std::swap_ranges(itr, itr + (size_t)sheet.DesignWidth * 4,
+                       revItr.base() - ((size_t)sheet.DesignWidth * 4));
+      itr += (size_t)sheet.DesignWidth * 4;
+      revItr += (size_t)sheet.DesignWidth * 4;
     }
   }
 
@@ -230,7 +237,6 @@ void Renderer::InsertVertices(
 
   VertexBuffer.insert(VertexBuffer.end(), vertices.begin(), vertices.end());
 
-  const size_t indexOffset = IndexBuffer.size();
   IndexBuffer.reserve(IndexBuffer.size() + indices.size());
   std::transform(
       indices.begin(), indices.end(), std::back_inserter(IndexBuffer),
@@ -286,7 +292,7 @@ void Renderer::UseTextures(
   for (const auto [textureId, unitIndex] : textureUnitPairs) {
     TextureUnit& textureUnit = TextureUnits[unitIndex];
 
-    glBindTextureUnit(unitIndex, textureId);
+    glBindTextureUnit((GLuint)unitIndex, (GLuint)textureId);
 
     textureUnit.TextureId = textureId;
     textureUnit.InUse = true;
@@ -618,7 +624,8 @@ void Renderer::Flush() {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer.size() * sizeof(uint16_t),
                  IndexBuffer.data(), GL_DYNAMIC_DRAW);
 
-    glDrawElements(GL_TRIANGLES, IndexBuffer.size(), GL_UNSIGNED_SHORT, 0);
+    glDrawElements(GL_TRIANGLES, (GLsizei)IndexBuffer.size(), GL_UNSIGNED_SHORT,
+                   0);
   }
 
   VertexBuffer.clear();
@@ -660,8 +667,8 @@ void Renderer::DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
 void Renderer::CaptureScreencap(Sprite& sprite) {
   Flush();
   sprite.Sheet.IsScreenCap = true;
-  sprite.Sheet.DesignWidth = Window->WindowWidth;
-  sprite.Sheet.DesignHeight = Window->WindowHeight;
+  sprite.Sheet.DesignWidth = (float)Window->WindowWidth;
+  sprite.Sheet.DesignHeight = (float)Window->WindowHeight;
 
   Window->SwapRTs();
   int prevTextureBinding;

@@ -9,8 +9,9 @@ static GLuint CurrentDrawFramebuffer = 0, CurrentReadFramebuffer = 0,
               CurrentFramebuffer = 0;
 
 void InitializeFramebuffers() {
-  glGenFramebuffers(Framebuffers.max_size(), Framebuffers.data());
-  glGenTextures(FramebufferTextures.max_size(), FramebufferTextures.data());
+  glGenFramebuffers((GLsizei)Framebuffers.max_size(), Framebuffers.data());
+  glGenTextures((GLsizei)FramebufferTextures.max_size(),
+                FramebufferTextures.data());
 
   for (size_t buffer = 0; buffer < FramebufferTextures.size(); buffer++) {
     const GLuint framebufferId = Framebuffers[buffer];

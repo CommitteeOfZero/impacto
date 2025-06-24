@@ -37,7 +37,7 @@ void Configure() {
   BackButtonPosition = EnsureGetMember<glm::vec2>("BackButtonPosition");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<int>("DrawType"));
+      EnsureGetMember<uint8_t>("DrawType"));
 
   UI::SaveMenuPtr = new UI::MO8::SaveMenu();
   UI::Menus[drawType].push_back(UI::SaveMenuPtr);

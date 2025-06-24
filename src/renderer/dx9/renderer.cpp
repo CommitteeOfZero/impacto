@@ -39,9 +39,8 @@ void Renderer::Init() {
   d3dpp.EnableAutoDepthStencil = TRUE;
   d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
 
-  auto res = Interface->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
-                                     D3DCREATE_HARDWARE_VERTEXPROCESSING,
-                                     &d3dpp, &Device);
+  Interface->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
+                          D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &Device);
   Device->CreateVertexBuffer(VertexBufferSize, 0, 0, D3DPOOL_MANAGED,
                              &VertexBufferDevice, NULL);
   Device->CreateIndexBuffer(IndexBufferCount * sizeof(uint16_t), 0,
@@ -97,8 +96,8 @@ void Renderer::Init() {
   }
 
   // Fill index buffer with quads
-  int index = 0;
-  int vertex = 0;
+  size_t index = 0;
+  uint16_t vertex = 0;
   while (index + 6 <= IndexBufferCount) {
     // bottom-left -> top-left -> top-right
     IndexBuffer[index] = vertex + 0;
@@ -183,14 +182,14 @@ void Renderer::EndFrame() {
   Device->EndScene();
   Device->Present(NULL, NULL, NULL, NULL);
   CurrentShader = 0;
-  CurrentTexture = -1;
+  CurrentTexture = std::numeric_limits<uint32_t>::max();
 }
 
 uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
                                  int height) {
   int imageSize = 0;
   D3DFORMAT imageFormat = D3DFMT_A1;
-  uint8_t* newBuffer;
+  uint8_t* newBuffer = nullptr;
 
   switch (format) {
     case TexFmt_RGBA: {
@@ -385,7 +384,6 @@ void Renderer::DrawMaskedSpriteOverlay(
   std::array<float, 4> alphaRes = {alphaRange, constAlpha, 0.0f, 0.0f};
   BOOL isInvertedB = (BOOL)isInverted;
   BOOL isSameTextureB = (BOOL) false;
-  BOOL useMaskAlphaB = (BOOL)useMaskAlpha;
 
   if (useMaskAlpha) {
     EnsureShader(ShaderMaskedSprite);
@@ -482,8 +480,8 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
   Flush();
 
   // ReFill index buffer with quads
-  int index = 0;
-  int vertex = 0;
+  size_t index = 0;
+  uint16_t vertex = 0;
   while (index + 6 <= IndexBufferCount) {
     // bottom-left -> top-left -> top-right
     IndexBuffer[index] = vertex + 0;
@@ -609,7 +607,7 @@ void Renderer::EnsureTextureBound(uint32_t texture) {
                "not {:d}\n",
                CurrentTexture, texture);
     Flush();
-    auto res = Device->SetTexture(0, Textures[texture]);
+    Device->SetTexture(0, Textures[texture]);
     CurrentTexture = texture;
   }
 }
@@ -656,8 +654,9 @@ void Renderer::Flush() {
       Window->Shutdown();
     }
 
-    result = Device->DrawIndexedPrimitive(
-        D3DPT_TRIANGLELIST, 0, 0, IndexBufferFill, 0, IndexBufferFill / 3);
+    result = Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0,
+                                          (UINT)IndexBufferFill, 0,
+                                          (UINT)(IndexBufferFill / 3));
     if (FAILED(result)) {
       ImpLog(LogLevel::Debug, LogChannel::Render, "Failed to draw!\n");
       Window->Shutdown();
@@ -665,7 +664,7 @@ void Renderer::Flush() {
   }
   IndexBufferFill = 0;
   VertexBufferFill = 0;
-  CurrentTexture = -1;
+  CurrentTexture = std::numeric_limits<uint32_t>::max();
 }
 
 void Renderer::DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
@@ -677,7 +676,7 @@ void Renderer::DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
   }
 
   EnsureShader(ShaderYUVFrame);
-  CurrentTexture = -1;
+  CurrentTexture = std::numeric_limits<uint32_t>::max();
 
   // Do we have space for one more sprite quad?
   EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);

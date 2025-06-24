@@ -111,9 +111,9 @@ void UpdateBackground2D() {
     } else if (ScrWork[SW_BGLINK2]) {
       LinkBuffers(ScrWork[SW_BGLINK2], i, Backgrounds2D[bufId]);
     } else {
-      for (int i = 0; i < MaxLinkedBgBuffers; i++) {
-        Backgrounds2D[bufId]->Links[i].Direction = LD_Off;
-        Backgrounds2D[bufId]->Links[i].LinkedBuffer = NULL;
+      for (int j = 0; j < MaxLinkedBgBuffers; j++) {
+        Backgrounds2D[bufId]->Links[j].Direction = LD_Off;
+        Backgrounds2D[bufId]->Links[j].LinkedBuffer = NULL;
       }
     }
 
@@ -206,7 +206,8 @@ uint8_t GetSoundLevel() {
               Audio::Channels[Audio::AC_VOICE0]->PositionInSeconds() <
           FLT_EPSILON)
     return 0;
-  int audioPos = Audio::Channels[Audio::AC_VOICE0]->PositionInSeconds() * 6;
+  int audioPos =
+      (int)(Audio::Channels[Audio::AC_VOICE0]->PositionInSeconds() * 6);
 
   int fileId =
       Audio::Channels[Audio::AC_VOICE0]->GetStream()->GetBaseStream()->Meta.Id;
