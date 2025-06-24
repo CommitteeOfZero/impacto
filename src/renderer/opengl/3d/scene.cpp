@@ -11,10 +11,8 @@
 namespace Impacto {
 namespace OpenGL {
 
-Scene3D::Scene3D(GLWindow* window, ShaderCompiler* shaderCompiler) {
-  Window = window;
-  Shaders = shaderCompiler;
-}
+Scene3D::Scene3D(GLWindow* window, ShaderCompiler& shaderCompiler)
+    : Window(window), Shaders(shaderCompiler) {}
 
 void Scene3D::Init() {
   assert(IsInit == false);
@@ -211,7 +209,7 @@ void Scene3D::SetupFramebufferState() {
         glm::vec2(viewport.Width, viewport.Height);
     shaderParams["RenderScale"] = Window->RenderScale;
 
-    ShaderProgram = Shaders->Compile("SceneToRT", shaderParams);
+    ShaderProgram = Shaders.Compile("SceneToRT", shaderParams);
     glUseProgram(ShaderProgram);
     glUniform1i(glGetUniformLocation(ShaderProgram, "Framebuffer3D"), 0);
 

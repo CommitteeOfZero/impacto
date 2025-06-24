@@ -12,6 +12,8 @@ struct SpriteSheet {
   float DesignWidth = 0;
   float DesignHeight = 0;
 
+  glm::vec2 GetDimensions() const { return {DesignWidth, DesignHeight}; }
+
   uint32_t Texture = 0;
   bool IsScreenCap = false;
 };
@@ -35,6 +37,17 @@ struct Sprite {
   }
   void SetScaledHeight(float scaledHeight) {
     Bounds.Height = scaledHeight / BaseScale.y;
+  }
+  RectF ScaledBounds() const {
+    return {0.0f, 0.0f, ScaledWidth(), ScaledHeight()};
+  }
+
+  glm::vec2 Center() const { return ScaledBounds().Center(); }
+
+  RectF NormalizedBounds() const {
+    return RectF(Bounds).Scale(
+        glm::vec2(1.0f / Sheet.DesignWidth, 1.0f / Sheet.DesignHeight),
+        {0.0f, 0.0f});
   }
 };
 

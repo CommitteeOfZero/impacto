@@ -17,7 +17,7 @@ void main() {
 	float fa = 1.0 - alp.b;
 	fa *= Alpha.r;
 	fa -= Alpha.g;
-	fa = clamp(fa,0.0,1.0);
+	fa = clamp(fa, 0.0, 1.0);
 	color.a *= fa;
 
 	ea += Alpha.b;
@@ -28,5 +28,5 @@ void main() {
 	ga *= ea;
 	ga = clamp(ga, 0.0, 1.0);
 	color.a -= ga;
-	color.a = clamp(color.a,0.0,1.0);
+	color.a = clamp(color.a, 0.0, 1.0);
 }

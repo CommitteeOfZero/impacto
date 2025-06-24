@@ -263,119 +263,11 @@ YUVFrame* Renderer::CreateYUVFrame(float width, float height) {
   return (YUVFrame*)VideoFrameInternal;
 }
 
-void Renderer::DrawRect(RectF const& dest, glm::vec4 color, float angle) {
-  BaseRenderer::DrawSprite(RectSprite, dest, color, angle);
-}
-
-void Renderer::DrawSprite3DRotated(Sprite const& sprite, RectF const& dest,
-                                   float depth, glm::vec2 vanishingPoint,
-                                   bool stayInScreen, glm::quat rot,
-                                   glm::vec4 tint, bool inverted) {
-  if (!Drawing) {
-    ImpLog(LogLevel::Error, LogChannel::Render,
-           "Renderer->DrawSprite3DRotated() called before BeginFrame()\n");
-    return;
-  }
-
-  // Do we have space for one more sprite quad?
-  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
-
-  // Are we in sprite mode?
-  if (inverted)
-    EnsureShader(ShaderSpriteInverted);
-  else
-    EnsureShader(ShaderSprite);
-
-  // Do we have the texture assigned?
-  EnsureTextureBound(sprite.Sheet.Texture);
-
-  // OK, all good, make quad
-
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
-  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  IndexBufferFill += 6;
-
-  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetPosition3DRotated(dest, depth, vanishingPoint, stayInScreen, rot,
-                           (uintptr_t)&vertices[0].Position,
-                           sizeof(VertexBufferSprites));
-
-  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
-}
-
-void Renderer::DrawRect3DRotated(RectF const& dest, float depth,
-                                 glm::vec2 vanishingPoint, bool stayInScreen,
-                                 glm::quat rot, glm::vec4 color) {
-  DrawSprite3DRotated(RectSprite, dest, depth, vanishingPoint, stayInScreen,
-                      rot, color);
-}
-
-void Renderer::DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
-                                int verticesCount, float* mvlVertices,
-                                int indicesCount, uint16_t* mvlIndices,
-                                bool inverted, glm::vec4 tint,
-                                glm::vec2 scale) {
-  if (!Drawing) {
-    ImpLog(LogLevel::Error, LogChannel::Render,
-           "Renderer->DrawCharacterMvl() called before BeginFrame()\n");
-    return;
-  }
-
-  // Draw just the character with this since we need to rebind the index buffer
-  // anyway...
-  Flush();
-
-  // Are we in sprite mode?
-  if (inverted)
-    EnsureShader(ShaderSpriteInverted);
-  else
-    EnsureShader(ShaderSprite);
-
-  // Do we have the texture assigned?
-  EnsureTextureBound(sprite.Sheet.Texture);
-
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
-  VertexBufferFill += verticesCount * sizeof(VertexBufferSprites);
-
-  IndexBufferFill += indicesCount;
-
-  memcpy(IndexBuffer, mvlIndices, indicesCount * sizeof(mvlIndices[0]));
-
-  for (int i = 0; i < verticesCount; i++) {
-    glm::vec2 pos = glm::vec2(mvlVertices[i * 5], mvlVertices[i * 5 + 1]);
-    pos *= scale;
-    pos += topLeft;
-    vertices[i].Position = DesignToNDC(pos);
-    vertices[i].UV = glm::vec2(mvlVertices[i * 5 + 3], mvlVertices[i * 5 + 4]);
-    vertices[i].Tint = tint;
-  }
-
-  Flush();
-
-  // ReFill index buffer with quads
-  int index = 0;
-  int vertex = 0;
-  while (index + 6 <= IndexBufferCount) {
-    // bottom-left -> top-left -> top-right
-    IndexBuffer[index] = vertex + 0;
-    IndexBuffer[index + 1] = vertex + 1;
-    IndexBuffer[index + 2] = vertex + 2;
-    // bottom-left -> top-right -> bottom-right
-    IndexBuffer[index + 3] = vertex + 0;
-    IndexBuffer[index + 4] = vertex + 2;
-    IndexBuffer[index + 5] = vertex + 3;
-    index += 6;
-    vertex += 4;
-  }
-}
-
-void Renderer::DrawSprite(Sprite const& sprite, CornersQuad const& dest,
-                          const std::array<glm::vec4, 4>& tints, float angle,
-                          bool inverted) {
+void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
+                          const glm::mat4 transformation,
+                          const std::span<const glm::vec4, 4> tints,
+                          const bool inverted, const bool disableBlend,
+                          const bool textureWrapRepeat) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawSprite() called before BeginFrame()\n");
@@ -402,234 +294,192 @@ void Renderer::DrawSprite(Sprite const& sprite, CornersQuad const& dest,
 
   IndexBufferFill += 6;
 
-  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetPosition(dest, angle, (uintptr_t)&vertices[0].Position,
-                  sizeof(VertexBufferSprites));
+  QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
+            sizeof(VertexBufferSprites));
+  QuadSetPosition(CornersQuad(dest).Transform(transformation),
+                  &vertices[0].Position, sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
 }
 
-void Renderer::DrawSpriteOffset(Sprite const& sprite, glm::vec2 topLeft,
-                                glm::vec2 displayOffset, glm::vec4 tint,
-                                glm::vec2 scale, float angle, bool inverted) {
+void Renderer::DrawMaskedSprite(
+    const Sprite& sprite, const Sprite& mask, const CornersQuad& spriteDest,
+    const CornersQuad& maskDest, int alpha, const int fadeRange,
+    const glm::mat4 spriteTransformation, const glm::mat4 maskTransformation,
+    const std::span<const glm::vec4, 4> tints, const bool isInverted,
+    const bool isSameTexture) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
-           "Renderer->DrawSprite() called before BeginFrame()\n");
+           "Renderer->DrawMaskedSpriteOverlay() called before BeginFrame()\n");
     return;
   }
+
+  if (sprite.Sheet.IsScreenCap) Flush();
+
+  alpha = std::clamp(alpha, 0, fadeRange + 256);
+  const float alphaRange = 256.0f / fadeRange;
+  const float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
 
   // Do we have space for one more sprite quad?
   EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
 
-  // Are we in sprite mode?
-  if (inverted)
-    EnsureShader(ShaderSpriteInverted);
-  else
-    EnsureShader(ShaderSprite);
-
-  // Do we have the texture assigned?
-  EnsureTextureBound(sprite.Sheet.Texture);
-
-  // OK, all good, make quad
-
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
-  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  IndexBufferFill += 6;
-
-  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
-
-  QuadSetPositionOffset(sprite.Bounds, topLeft, displayOffset, scale, angle,
-                        (uintptr_t)&vertices[0].Position,
-                        sizeof(VertexBufferSprites));
-
-  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
-}
-
-void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
-                                RectF const& dest, glm::vec4 tint, int alpha,
-                                int fadeRange, bool isInverted,
-                                bool isSameTexture) {
-  if (!Drawing) {
-    ImpLog(LogLevel::Error, LogChannel::Render,
-           "Renderer->DrawMaskedSprite() called before BeginFrame()\n");
-    return;
-  }
-
-  if (alpha < 0) alpha = 0;
-  if (alpha > fadeRange + 256) alpha = fadeRange + 256;
-
-  float alphaRange = 256.0f / fadeRange;
-  float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
-
-  // Do we have space for one more sprite quad?
-  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
+  std::array<float, 4> alphaRes = {alphaRange, constAlpha, 0.0f, 0.0f};
+  const BOOL isInvertedB = (BOOL)isInverted;
+  const BOOL isSameTextureB = (BOOL)isSameTexture;
 
   Flush();
-  EnsureShader(ShaderMaskedSprite);
 
+  EnsureShader(ShaderMaskedSprite);
   Device->SetTexture(0, Textures[sprite.Sheet.Texture]);
   Device->SetTexture(1, Textures[mask.Sheet.Texture]);
 
-  // This is cursed man, idk
-  float alphaRes[] = {alphaRange, constAlpha};
-  BOOL isInvertedB = (BOOL)isInverted;
-  BOOL isSameTextureB = (BOOL)isSameTexture;
-  Device->SetPixelShaderConstantF(0, alphaRes, 1);
-  Device->SetPixelShaderConstantB(0, &isInvertedB, 1);
-  Device->SetPixelShaderConstantB(1, &isSameTextureB, 1);
-
-  // OK, all good, make quad
-
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
-  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  IndexBufferFill += 6;
-
-  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetUV(sprite.Bounds, sprite.Bounds.Width, sprite.Bounds.Height,
-            (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites));
-
-  QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
-                  sizeof(VertexBufferSprites));
-
-  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
-}
-
-void Renderer::DrawMaskedSpriteOffset(const Sprite& sprite, const Sprite& mask,
-                                      const glm::vec2 pos,
-                                      const glm::vec2 origin, int alpha,
-                                      const int fadeRange, const glm::vec4 tint,
-                                      const glm::vec2 scale, const float angle,
-                                      const bool spriteInverted,
-                                      const bool maskInverted,
-                                      const bool isSameTexture) {
-  if (!Drawing) {
-    ImpLog(LogLevel::Error, LogChannel::Render,
-           "Renderer->DrawMaskedSprite() called before BeginFrame()\n");
-    return;
-  }
-
-  if (alpha < 0) alpha = 0;
-  if (alpha > fadeRange + 256) alpha = fadeRange + 256;
-
-  float alphaRange = 256.0f / fadeRange;
-  float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
-
-  // Do we have space for one more sprite quad?
-  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
-
-  Flush();
-  // TODO: handle inverted sprites
-  EnsureShader(ShaderMaskedSprite);
-
-  Device->SetTexture(0, Textures[sprite.Sheet.Texture]);
-  Device->SetTexture(1, Textures[mask.Sheet.Texture]);
-
-  // This is cursed man, idk
-  float alphaRes[] = {alphaRange, constAlpha};
-  BOOL isInvertedB = (BOOL)maskInverted;
-  BOOL isSameTextureB = (BOOL)isSameTexture;
-  Device->SetPixelShaderConstantF(0, alphaRes, 1);
-  Device->SetPixelShaderConstantB(0, &isInvertedB, 1);
-  Device->SetPixelShaderConstantB(1, &isSameTextureB, 1);
-
-  // OK, all good, make quad
-
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
-  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  IndexBufferFill += 6;
-
-  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetUV(sprite.Bounds, sprite.Bounds.Width, sprite.Bounds.Height,
-            (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites));
-
-  QuadSetPositionOffset(sprite.Bounds, pos, origin, scale, angle,
-                        (uintptr_t)&vertices[0].Position,
-                        sizeof(VertexBufferSprites));
-  QuadSetPositionOffset({0.0f, 0.0f, 1.0f, 1.0f}, pos, origin, scale, angle,
-                        (uintptr_t)&vertices[0].MaskUV,
-                        sizeof(VertexBufferSprites));
-
-  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
-}
-
-void Renderer::DrawVertices(SpriteSheet const& sheet,
-                            std::span<const glm::vec2> sheetPositions,
-                            std::span<const glm::vec2> displayPositions,
-                            int width, int height, glm::vec4 tint,
-                            bool inverted, bool disableBlend) {
-  if (!Drawing) {
-    ImpLog(LogLevel::Error, LogChannel::Render,
-           "Renderer->DrawSprite() called before BeginFrame()\n");
-    return;
-  }
-  const int verticesCount = sheetPositions.size();
-  if (verticesCount != displayPositions.size()) {
-    ImpLog(LogLevel::Error, LogChannel::Render,
-           "Renderer->DrawVertices() called with mismatched vertices count\n");
-    return;
-  }
-
-  EnsureSpaceAvailable(verticesCount, sizeof(VertexBufferSprites),
-                       verticesCount * 3);
-
-  Flush();
-
-  // Are we in sprite mode?
-  if (inverted)
-    EnsureShader(ShaderSpriteInverted);
-  else
-    EnsureShader(ShaderSprite);
-
-  EnsureTextureBound(sheet.Texture);
-  Device->SetSamplerState(1, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
-  Device->SetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
-
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
-  VertexBufferFill += verticesCount * sizeof(VertexBufferSprites);
-
-  IndexBufferFill = 0;
-  // Generate indices for triangles
-  for (int y = 0; y < height - 1; y++) {
-    for (int x = 0; x < width - 1; x++) {
-      uint16_t v0 = y * width + x;
-      uint16_t v1 = y * width + (x + 1);
-      uint16_t v2 = (y + 1) * width + x;
-      uint16_t v3 = (y + 1) * width + (x + 1);
-
-      // First triangle
-      for (auto v : {v1, v0, v2}) {
-        IndexBuffer[IndexBufferFill++] = v;
-      }
-      // Second triangle
-      for (auto v : {v3, v1, v2}) {
-        IndexBuffer[IndexBufferFill++] = v;
-      }
-    }
-  }
-  assert(IndexBufferFill == (height - 1) * (width - 1) * 6);
-
-  for (int i = 0; i < verticesCount; i++) {
-    vertices[i].Position = DesignToNDC(displayPositions[i]);
-    vertices[i].Tint = tint;
-    glm::vec2 uv =
-        sheetPositions[i] / glm::vec2(sheet.DesignWidth, sheet.DesignHeight);
-    vertices[i].UV = uv;
-  }
-
-  Flush();
   Device->SetSamplerState(1, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
   Device->SetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+  Device->SetPixelShaderConstantF(0, alphaRes.data(), 1);
+  Device->SetPixelShaderConstantB(0, &isInvertedB, 1);
+  Device->SetPixelShaderConstantB(1, &isSameTextureB, 1);
+
+  // OK, all good, make quad
+
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
+  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
+
+  IndexBufferFill += 6;
+
+  QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
+            sizeof(VertexBufferSprites));
+  QuadSetUV(CornersQuad(maskDest).Transform(maskTransformation),
+            sprite.Sheet.GetDimensions(), &vertices[0].MaskUV,
+            sizeof(VertexBufferSprites));
+
+  QuadSetPosition(CornersQuad(spriteDest).Transform(spriteTransformation),
+                  &vertices[0].Position, sizeof(VertexBufferSprites));
+
+  for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
+}
+
+void Renderer::DrawMaskedSpriteOverlay(
+    const Sprite& sprite, const Sprite& mask, const CornersQuad& spriteDest,
+    const CornersQuad& maskDest, int alpha, const int fadeRange,
+    const glm::mat4 spriteTransformation, const glm::mat4 maskTransformation,
+    const std::span<const glm::vec4, 4> tints, const bool isInverted,
+    const bool useMaskAlpha) {
+  if (!Drawing) {
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Renderer->DrawMaskedSpriteOverlay() called before BeginFrame()\n");
+    return;
+  }
+
+  if (sprite.Sheet.IsScreenCap) Flush();
+
+  if (alpha < 0) alpha = 0;
+  if (alpha > fadeRange + 256) alpha = fadeRange + 256;
+
+  float alphaRange = 256.0f / fadeRange;
+  float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
+
+  // Do we have space for one more sprite quad?
+  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
+
+  std::array<float, 4> alphaRes = {alphaRange, constAlpha, 0.0f, 0.0f};
+  BOOL isInvertedB = (BOOL)isInverted;
+  BOOL isSameTextureB = (BOOL) false;
+  BOOL useMaskAlphaB = (BOOL)useMaskAlpha;
+
+  if (useMaskAlpha) {
+    EnsureShader(ShaderMaskedSprite);
+    Device->SetPixelShaderConstantB(1, &isSameTextureB, 1);
+  } else {
+    EnsureShader(ShaderMaskedSpriteNoAlpha);
+  }
+
+  Device->SetTexture(0, Textures[sprite.Sheet.Texture]);
+  Device->SetTexture(1, Textures[mask.Sheet.Texture]);
+
+  Device->SetSamplerState(1, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+  Device->SetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+  Device->SetPixelShaderConstantF(0, alphaRes.data(), 1);
+  Device->SetPixelShaderConstantB(0, &isInvertedB, 1);
+
+  // OK, all good, make quad
+
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
+  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
+
+  IndexBufferFill += 6;
+
+  QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
+            sizeof(VertexBufferSprites));
+  QuadSetUV(CornersQuad(maskDest).Transform(maskTransformation),
+            mask.Sheet.GetDimensions(), &vertices[0].MaskUV,
+            sizeof(VertexBufferSprites));
+
+  QuadSetPosition(CornersQuad(spriteDest).Transform(spriteTransformation),
+                  &vertices[0].Position, sizeof(VertexBufferSprites));
+
+  for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
+}
+
+void Renderer::DrawVertices(const SpriteSheet& sheet,
+                            const SpriteSheet* const mask,
+                            const std::span<const VertexBufferSprites> vertices,
+                            const std::span<const uint16_t> indices,
+                            const glm::mat4 transformation,
+                            const bool inverted) {
+  if (!Drawing) {
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Renderer->DrawVertices() called before BeginFrame()\n");
+    return;
+  }
+
+  // The index buffer needs to be flushed
+  Flush();
+
+  if (mask != nullptr) {
+    std::array<float, 4> alphaRes = {1.0f, 0.0f, 0.0f, 0.0f};
+    BOOL isInvertedB = (BOOL)inverted;
+
+    EnsureShader(ShaderMaskedSpriteNoAlpha);
+
+    Device->SetTexture(0, Textures[sheet.Texture]);
+    Device->SetTexture(1, Textures[mask->Texture]);
+
+    Device->SetSamplerState(1, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+    Device->SetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+    Device->SetPixelShaderConstantF(0, alphaRes.data(), 1);
+    Device->SetPixelShaderConstantB(0, &isInvertedB, 1);
+
+  } else {
+    if (inverted)
+      EnsureShader(ShaderSpriteInverted);
+    else
+      EnsureShader(ShaderSprite);
+
+    EnsureTextureBound(sheet.Texture);
+  }
+
+  // Push vertices
+  VertexBufferSprites* vertexBuffer =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
+  VertexBufferFill += vertices.size_bytes();
+
+  const auto vertexInfoToNDC = [this,
+                                transformation](VertexBufferSprites info) {
+    info.Position = DesignToNDC(
+        glm::vec2(transformation * glm::vec4(info.Position, 0.0f, 1.0f)));
+    return info;
+  };
+  std::transform(vertices.begin(), vertices.end(), vertexBuffer,
+                 vertexInfoToNDC);
+
+  // Push indices
+  IndexBufferFill += indices.size();
+  std::copy(indices.begin(), indices.end(), IndexBuffer);
+
+  // Flush again and bind back our buffer
+  Flush();
 
   // ReFill index buffer with quads
   int index = 0;
@@ -684,74 +534,12 @@ void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
 
   IndexBufferFill += 6;
 
-  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetUV(mask.Bounds, mask.Sheet.DesignWidth, mask.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites));
+  QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
+            sizeof(VertexBufferSprites));
+  QuadSetUV(mask.Bounds, mask.Sheet.GetDimensions(), &vertices[0].MaskUV,
+            sizeof(VertexBufferSprites));
 
-  QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
-                  sizeof(VertexBufferSprites));
-
-  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
-}
-
-void Renderer::DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
-                                       RectF const& dest, glm::vec4 tint,
-                                       int alpha, int fadeRange,
-                                       bool isInverted, float angle,
-                                       bool useMaskAlpha) {
-  if (!Drawing) {
-    ImpLog(LogLevel::Error, LogChannel::Render,
-           "Renderer->DrawMaskedSpriteOverlay() called before BeginFrame()\n");
-    return;
-  }
-
-  if (sprite.Sheet.IsScreenCap) Flush();
-
-  if (alpha < 0) alpha = 0;
-  if (alpha > fadeRange + 256) alpha = fadeRange + 256;
-
-  float alphaRange = 256.0f / fadeRange;
-  float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
-
-  // Do we have space for one more sprite quad?
-  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
-
-  float alphaRes[] = {alphaRange, constAlpha};
-  BOOL isInvertedB = (BOOL)isInverted;
-  BOOL isSameTextureB = (BOOL) false;
-  BOOL useMaskAlphaB = (BOOL)useMaskAlpha;
-
-  if (useMaskAlpha) {
-    EnsureShader(ShaderMaskedSprite);
-    Device->SetPixelShaderConstantB(1, &isSameTextureB, 1);
-  } else {
-    EnsureShader(ShaderMaskedSpriteNoAlpha);
-  }
-
-  Device->SetTexture(0, Textures[sprite.Sheet.Texture]);
-  Device->SetTexture(1, Textures[mask.Sheet.Texture]);
-
-  Device->SetSamplerState(1, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
-  Device->SetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
-  Device->SetPixelShaderConstantF(0, alphaRes, 1);
-  Device->SetPixelShaderConstantB(0, &isInvertedB, 1);
-
-  // OK, all good, make quad
-
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
-  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  IndexBufferFill += 6;
-
-  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetUV(mask.Bounds, mask.Sheet.DesignWidth, mask.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites), angle);
-
-  QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
-                  sizeof(VertexBufferSprites));
+  QuadSetPosition(dest, &vertices[0].Position, sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
@@ -790,221 +578,16 @@ void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
 
   IndexBufferFill += 6;
 
-  QuadSetUVFlipped(sprite.Bounds, sprite.Sheet.DesignWidth,
-                   sprite.Sheet.DesignHeight, (uintptr_t)&vertices[0].UV,
+  QuadSetUVFlipped(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
                    sizeof(VertexBufferSprites));
 
-  QuadSetUV(mask.Bounds, mask.Sheet.DesignWidth, mask.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites));
+  QuadSetUV(mask.Bounds, mask.Sheet.GetDimensions(), &vertices[0].MaskUV,
+            sizeof(VertexBufferSprites));
 
-  QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
-                  sizeof(VertexBufferSprites));
+  QuadSetPosition(dest, &vertices[0].Position, sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++)
     vertices[i].Tint = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-}
-
-inline void Renderer::QuadSetUVFlipped(RectF const& spriteBounds,
-                                       float designWidth, float designHeight,
-                                       uintptr_t uvs, int stride) {
-  float topUV = (spriteBounds.Y / designHeight);
-  float leftUV = (spriteBounds.X / designWidth);
-  float bottomUV = ((spriteBounds.Y + spriteBounds.Height) / designHeight);
-  float rightUV = ((spriteBounds.X + spriteBounds.Width) / designWidth);
-
-  // top-left
-  *(glm::vec2*)(uvs + 0 * stride) = glm::vec2(leftUV, topUV);
-  // bottom-left
-  *(glm::vec2*)(uvs + 1 * stride) = glm::vec2(leftUV, bottomUV);
-  // bottom-right
-  *(glm::vec2*)(uvs + 2 * stride) = glm::vec2(rightUV, bottomUV);
-  // top-right
-  *(glm::vec2*)(uvs + 3 * stride) = glm::vec2(rightUV, topUV);
-}
-
-inline void Renderer::QuadSetUV(RectF const& spriteBounds, float designWidth,
-                                float designHeight, uintptr_t uvs, int stride,
-                                float angle) {
-  float topUV = (spriteBounds.Y / designHeight);
-  float leftUV = (spriteBounds.X / designWidth);
-  float bottomUV = ((spriteBounds.Y + spriteBounds.Height) / designHeight);
-  float rightUV = ((spriteBounds.X + spriteBounds.Width) / designWidth);
-
-  glm::vec2 bottomLeft(leftUV, bottomUV);
-  glm::vec2 topLeft(leftUV, topUV);
-  glm::vec2 topRight(rightUV, topUV);
-  glm::vec2 bottomRight(rightUV, bottomUV);
-
-  if (angle != 0.0f) {
-    glm::vec2 center = (bottomLeft + topRight) * 0.5f;  // Center of the quad
-    glm::mat2 rot = Rotate2D(angle);
-
-    bottomLeft = rot * (bottomLeft - center) + center;
-    topLeft = rot * (topLeft - center) + center;
-    topRight = rot * (topRight - center) + center;
-    bottomRight = rot * (bottomRight - center) + center;
-  }
-
-  // bottom-left
-  *(glm::vec2*)(uvs + 0 * stride) = bottomLeft;
-  // top-left
-  *(glm::vec2*)(uvs + 1 * stride) = topLeft;
-  // top-right
-  *(glm::vec2*)(uvs + 2 * stride) = topRight;
-  // bottom-right
-  *(glm::vec2*)(uvs + 3 * stride) = bottomRight;
-}
-
-inline void Renderer::QuadSetPositionOffset(
-    RectF const& spriteBounds, glm::vec2 displayXY, glm::vec2 displayOffset,
-    glm::vec2 scale, float angle, uintptr_t positions, int stride, bool toNDC) {
-  glm::vec2 topLeft = {0.0f, 0.0f};
-  glm::vec2 bottomLeft = {0.0f, spriteBounds.Height};
-  glm::vec2 topRight = {spriteBounds.Width, 0.0f};
-  glm::vec2 bottomRight = {spriteBounds.Width, spriteBounds.Height};
-
-  // Translate to origin
-  topLeft -= displayOffset;
-  bottomLeft -= displayOffset;
-  topRight -= displayOffset;
-  bottomRight -= displayOffset;
-
-  // Scale
-  bottomLeft *= scale;
-  topLeft *= scale;
-  topRight *= scale;
-  bottomRight *= scale;
-
-  // Rotate
-  if (angle != 0.0f) {
-    const glm::mat2 rot = Rotate2D(angle);
-
-    bottomLeft = rot * bottomLeft;
-    topLeft = rot * topLeft;
-    topRight = rot * topRight;
-    bottomRight = rot * bottomRight;
-  }
-
-  // Translate to the desired screen position
-  bottomLeft += displayOffset + displayXY;
-  topLeft += displayOffset + displayXY;
-  topRight += displayOffset + displayXY;
-  bottomRight += displayOffset + displayXY;
-
-  if (toNDC) {
-    bottomLeft = DesignToNDC(bottomLeft);
-    topLeft = DesignToNDC(topLeft);
-    topRight = DesignToNDC(topRight);
-    bottomRight = DesignToNDC(bottomRight);
-  }
-
-  // Store the transformed positions
-  *(glm::vec2*)(positions + 0 * stride) = bottomLeft;
-  *(glm::vec2*)(positions + 1 * stride) = topLeft;
-  *(glm::vec2*)(positions + 2 * stride) = topRight;
-  *(glm::vec2*)(positions + 3 * stride) = bottomRight;
-}
-
-inline void Renderer::QuadSetPosition(RectF const& transformedQuad, float angle,
-                                      uintptr_t positions, int stride) {
-  glm::vec2 bottomLeft =
-      glm::vec2(transformedQuad.X, transformedQuad.Y + transformedQuad.Height);
-  glm::vec2 topLeft = glm::vec2(transformedQuad.X, transformedQuad.Y);
-  glm::vec2 topRight =
-      glm::vec2(transformedQuad.X + transformedQuad.Width, transformedQuad.Y);
-  glm::vec2 bottomRight = glm::vec2(transformedQuad.X + transformedQuad.Width,
-                                    transformedQuad.Y + transformedQuad.Height);
-
-  if (angle != 0.0f) {
-    glm::vec2 center = transformedQuad.Center();
-    glm::mat2 rot = Rotate2D(angle);
-
-    bottomLeft = rot * (bottomLeft - center) + center;
-    topLeft = rot * (topLeft - center) + center;
-    topRight = rot * (topRight - center) + center;
-    bottomRight = rot * (bottomRight - center) + center;
-  }
-
-  // bottom-left
-  *(glm::vec2*)(positions + 0 * stride) = DesignToNDC(bottomLeft);
-  // top-left
-  *(glm::vec2*)(positions + 1 * stride) = DesignToNDC(topLeft);
-  // top-right
-  *(glm::vec2*)(positions + 2 * stride) = DesignToNDC(topRight);
-  // bottom-right
-  *(glm::vec2*)(positions + 3 * stride) = DesignToNDC(bottomRight);
-}
-
-inline void Renderer::QuadSetPosition(CornersQuad destQuad, float angle,
-                                      uintptr_t positions, int stride) {
-  if (angle != 0.0f) {
-    glm::vec2 center = (destQuad.BottomLeft + destQuad.TopRight) * 0.5f;
-    glm::mat2 rot = Rotate2D(angle);
-
-    destQuad.BottomLeft = rot * (destQuad.BottomLeft - center) + center;
-    destQuad.TopLeft = rot * (destQuad.TopLeft - center) + center;
-    destQuad.TopRight = rot * (destQuad.TopRight - center) + center;
-    destQuad.BottomRight = rot * (destQuad.BottomRight - center) + center;
-  }
-
-  // bottom-left
-  *(glm::vec2*)(positions + 0 * stride) = DesignToNDC(destQuad.BottomLeft);
-  // top-left
-  *(glm::vec2*)(positions + 1 * stride) = DesignToNDC(destQuad.TopLeft);
-  // top-right
-  *(glm::vec2*)(positions + 2 * stride) = DesignToNDC(destQuad.TopRight);
-  // bottom-right
-  *(glm::vec2*)(positions + 3 * stride) = DesignToNDC(destQuad.BottomRight);
-}
-
-void Renderer::QuadSetPosition3DRotated(RectF const& transformedQuad,
-                                        float depth, glm::vec2 vanishingPoint,
-                                        bool stayInScreen, glm::quat rot,
-                                        uintptr_t positions, int stride) {
-  float widthNormalized = transformedQuad.Width / (Profile::DesignWidth * 0.5f);
-  float heightNormalized =
-      transformedQuad.Height / (Profile::DesignHeight * 0.5f);
-
-  glm::vec4 corners[4]{
-      // bottom-left
-      {glm::vec2(-widthNormalized / 2.0f, -heightNormalized / 2.0f), 0, 1},
-      // top-left
-      {glm::vec2(-widthNormalized / 2.0f, heightNormalized / 2.0f), 0, 1},
-      // top-right
-      {glm::vec2(widthNormalized / 2.0f, heightNormalized / 2.0f), 0, 1},
-      // bottom-right
-      {glm::vec2(widthNormalized / 2.0f, -heightNormalized / 2.0f), 0, 1}};
-
-  glm::mat4 transform =
-      glm::translate(glm::mat4(1.0f),
-                     glm::vec3(DesignToNDC(transformedQuad.Center()), 0)) *
-      glm::mat4_cast(rot);
-
-  glm::vec4 vanishingPointNDC(DesignToNDC(vanishingPoint), 0, 0);
-
-  for (int i = 0; i < 4; i++) {
-    corners[i] = transform * corners[i];
-  }
-
-  if (stayInScreen) {
-    float maxZ = 0.0f;
-    for (int i = 0; i < 4; i++) {
-      if (corners[i].z > maxZ) maxZ = corners[i].z;
-    }
-    for (int i = 0; i < 4; i++) {
-      corners[i].z -= maxZ;
-    }
-  }
-
-  for (int i = 0; i < 4; i++) {
-    // perspective
-    corners[i] -= vanishingPointNDC;
-    corners[i].x *= (depth / (depth - corners[i].z));
-    corners[i].y *= (depth / (depth - corners[i].z));
-    corners[i] += vanishingPointNDC;
-
-    *(glm::vec2*)(positions + i * stride) = corners[i];
-  }
 }
 
 void Renderer::EnsureSpaceAvailable(int vertices, int vertexSize, int indices) {
@@ -1085,8 +668,8 @@ void Renderer::Flush() {
   CurrentTexture = -1;
 }
 
-void Renderer::DrawVideoTexture(YUVFrame* tex, RectF const& dest,
-                                glm::vec4 tint, float angle, bool alphaVideo) {
+void Renderer::DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
+                                const glm::vec4 tint, const bool alphaVideo) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawVideoTexture() called before BeginFrame()\n");
@@ -1115,10 +698,10 @@ void Renderer::DrawVideoTexture(YUVFrame* tex, RectF const& dest,
 
   IndexBufferFill += 6;
 
-  QuadSetUV(RectF(0.0f, 0.0f, tex->Width, tex->Height), tex->Width, tex->Height,
-            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetPosition(dest, angle, (uintptr_t)&vertices[0].Position,
-                  sizeof(VertexBufferSprites));
+  QuadSetUV(RectF(0.0f, 0.0f, frame.Width, frame.Height),
+            {frame.Width, frame.Height}, &vertices[0].UV,
+            sizeof(VertexBufferSprites));
+  QuadSetPosition(dest, &vertices[0].Position, sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
@@ -1179,6 +762,13 @@ void Renderer::SetScissorRect(RectF const& rect) {
 void Renderer::DisableScissor() {
   Flush();
   Device->SetRenderState(D3DRS_SCISSORTESTENABLE, false);
+}
+
+glm::vec2 Renderer::DesignToNDC(glm::vec2 designCoord) const {
+  glm::vec2 result;
+  result.x = (designCoord.x / (Profile::DesignWidth * 0.5f)) - 1.0f;
+  result.y = 1.0f - (designCoord.y / (Profile::DesignHeight * 0.5f));
+  return result;
 }
 
 }  // namespace DirectX9

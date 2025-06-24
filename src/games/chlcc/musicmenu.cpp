@@ -102,7 +102,7 @@ void MusicMenu::Hide() {
 void MusicMenu::Render() {
   if (State != Hidden) {
     if (MenuTransition.IsIn()) {
-      Renderer->DrawRect(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
+      Renderer->DrawQuad(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                          RgbIntToFloat(BackgroundColor));
     } else {
       DrawCircles();
@@ -112,8 +112,12 @@ void MusicMenu::Render() {
 
     if (MenuTransition.Progress > 0.34f) {
       Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
-      Renderer->DrawSprite(SoundLibraryTitle, RightTitlePos, glm::vec4(1.0f),
-                           glm::vec2(1.0f), SoundLibraryTitleAngle);
+
+      const CornersQuad titleDest =
+          SoundLibraryTitle.ScaledBounds()
+              .RotateAroundCenter(SoundLibraryTitleAngle)
+              .Translate(RightTitlePos);
+      Renderer->DrawSprite(SoundLibraryTitle, titleDest);
     }
 
     Renderer->CaptureScreencap(ShaderScreencapture.BgSprite);

@@ -5,6 +5,174 @@
 
 namespace Impacto {
 
+CornersQuad& CornersQuad::Transform(const glm::mat4 transformation) {
+  TopLeft = transformation * glm::vec4(TopLeft, 0.0f, 1.0f);
+  TopRight = transformation * glm::vec4(TopRight, 0.0f, 1.0f);
+  BottomRight = transformation * glm::vec4(BottomRight, 0.0f, 1.0f);
+  BottomLeft = transformation * glm::vec4(BottomLeft, 0.0f, 1.0f);
+
+  return *this;
+}
+
+CornersQuad& CornersQuad::Transform(
+    const std::function<glm::vec2(glm::vec2)>& transformation) {
+  TopLeft = transformation(TopLeft);
+  TopRight = transformation(TopRight);
+  BottomLeft = transformation(BottomLeft);
+  BottomRight = transformation(BottomRight);
+
+  return *this;
+}
+
+CornersQuad& CornersQuad::Translate(const glm::vec2 offset) {
+  TopLeft += offset;
+  TopRight += offset;
+  BottomRight += offset;
+  BottomLeft += offset;
+
+  return *this;
+}
+
+CornersQuad& CornersQuad::Scale(const glm::vec2 scaling,
+                                const glm::vec2 origin) {
+  Translate(-origin);
+
+  TopLeft *= scaling;
+  TopRight *= scaling;
+  BottomRight *= scaling;
+  BottomLeft *= scaling;
+
+  Translate(origin);
+
+  return *this;
+}
+
+CornersQuad& CornersQuad::Rotate(const float angle, const glm::vec2 origin) {
+  Translate(-origin);
+
+  const glm::mat2 rotation = Rotate2D(angle);
+  TopLeft = rotation * TopLeft;
+  TopRight = rotation * TopRight;
+  BottomRight = rotation * BottomRight;
+  BottomLeft = rotation * BottomLeft;
+
+  Translate(origin);
+
+  return *this;
+}
+
+CornersQuad& CornersQuad::Rotate(const glm::quat rotation, glm::vec3 origin) {
+  glm::vec3 topLeft = glm::vec3(TopLeft, 0.0f) - origin;
+  glm::vec3 topRight = glm::vec3(TopRight, 0.0f) - origin;
+  glm::vec3 bottomRight = glm::vec3(BottomRight, 0.0f) - origin;
+  glm::vec3 bottomLeft = glm::vec3(BottomLeft, 0.0f) - origin;
+
+  const glm::mat3 rotationMatrix = glm::mat3_cast(rotation);
+  topLeft = rotationMatrix * topLeft;
+  topRight = rotationMatrix * topRight;
+  bottomRight = rotationMatrix * bottomRight;
+  topRight = rotationMatrix * topRight;
+
+  TopLeft = topLeft + origin;
+  TopRight = topRight + origin;
+  BottomRight = bottomRight + origin;
+  BottomLeft = bottomLeft + origin;
+
+  return *this;
+}
+
+CornersQuad& CornersQuad::Rotate(const glm::quat rotation,
+                                 const glm::vec3 origin, const float depth,
+                                 const glm::vec2 vanishingPoint,
+                                 const bool stayInScreen) {
+  std::array<glm::vec4, 4> vertices = {
+      glm::vec4(TopLeft, 0.0f, 1.0f), glm::vec4(BottomLeft, 0.0f, 1.0f),
+      glm::vec4(TopRight, 0.0f, 1.0f), glm::vec4(BottomRight, 0.0f, 1.0f)};
+
+  // Rotate
+  const glm::mat4 rotationMatrix = glm::mat4_cast(rotation);
+  for (glm::vec4& vertex : vertices) {
+    vertex -= glm::vec4(origin, 0.0f);
+    vertex = rotationMatrix * vertex;
+    vertex += glm::vec4(origin, 0.0f);
+  }
+
+  // Move into screen
+  if (stayInScreen) {
+    float maxZ =
+        std::max_element(vertices.begin(), vertices.end(),
+                         [](auto lhs, auto rhs) { return lhs.z < rhs.z; })
+            ->z;
+
+    for (glm::vec4& vertex : vertices) vertex.z -= maxZ;
+  }
+
+  // Project
+  for (glm::vec4& vertex : vertices) {
+    vertex -= glm::vec4(vanishingPoint, 0.0f, 0.0f);
+    const float normalizedZ = vertex.z / glm::length(glm::vec3(vertex));
+    vertex *= depth / (depth - normalizedZ);
+    vertex += glm::vec4(vanishingPoint, 0.0f, 0.0f);
+  }
+
+  *this = {glm::vec2(vertices[0]), glm::vec2(vertices[1]),
+           glm::vec2(vertices[2]), glm::vec2(vertices[3])};
+  return *this;
+}
+
+CornersQuad RectF::Transform(glm::mat4 transformation) const {
+  return CornersQuad(*this).Transform(transformation);
+}
+
+CornersQuad RectF::Transform(
+    const std::function<glm::vec2(glm::vec2)>& transformation) const {
+  return CornersQuad(*this).Transform(transformation);
+}
+
+RectF& RectF::Scale(const glm::vec2 scaling, const glm::vec2 origin) {
+  Translate(-origin);
+
+  X *= scaling.x;
+  Y *= scaling.y;
+  Width *= scaling.x;
+  Height *= scaling.y;
+
+  Translate(origin);
+
+  return *this;
+}
+
+CornersQuad RectF::Rotate(float angle, glm::vec2 origin) const {
+  return CornersQuad(*this).Rotate(angle, origin);
+}
+
+CornersQuad RectF::RotateAroundCenter(float angle) const {
+  return Rotate(angle, Center());
+}
+
+CornersQuad RectF::Rotate(glm::quat rotation, glm::vec3 origin) const {
+  return CornersQuad(*this).Rotate(rotation, origin);
+}
+
+CornersQuad RectF::Rotate(const glm::quat rotation, const glm::vec3 origin,
+                          const float depth, const glm::vec2 vanishingPoint,
+                          const bool stayInScreen) const {
+  return CornersQuad(*this).Rotate(rotation, origin, depth, vanishingPoint,
+                                   stayInScreen);
+}
+
+CornersQuad RectF::FlipVertical() const {
+  return CornersQuad(*this).FlipVertical();
+}
+
+CornersQuad RectF::FlipHorizontal() const {
+  return CornersQuad(*this).FlipHorizontal();
+}
+
+inline CornersQuad operator*(const glm::mat4 transformation, RectF rect) {
+  return rect.Transform(transformation);
+}
+
 glm::mat2 Rotate2D(float angle) {
   glm::mat2 result;
   float cosa = cosf(angle);
@@ -16,28 +184,63 @@ glm::mat2 Rotate2D(float angle) {
   return result;
 }
 
-glm::vec2 DesignToNDC(glm::vec2 xy) {
-  glm::vec2 result;
-  result.x = (xy.x / (Profile::DesignWidth * 0.5f)) - 1.0f;
-  result.y = 1.0f - (xy.y / (Profile::DesignHeight * 0.5f));
-  return result;
+glm::mat4 TransformationMatrix(const glm::vec2 scalingOrigin,
+                               const glm::vec2 scaling,
+                               const glm::vec2 rotationOrigin,
+                               const float rotation,
+                               const glm::vec2 translation) {
+  return TransformationMatrix(
+      scalingOrigin, scaling, {rotationOrigin, 0.0f},
+      AxisAngleToQuaternion({0.0f, 0.0f, 1.0f}, rotation), translation);
 }
 
-glm::vec2 DesignToNDCNonFlipped(glm::vec2 xy) {
-  glm::vec2 result;
-  result.x = (xy.x / (Profile::DesignWidth * 0.5f)) - 1.0f;
-  result.y = (xy.y / (Profile::DesignHeight * 0.5f)) - 1.0f;
-  return result;
+glm::mat4 TransformationMatrix(const glm::vec3 scalingOrigin,
+                               const glm::vec3 scaling,
+                               const glm::vec3 rotationOrigin,
+                               const glm::quat rotation,
+                               const glm::vec3 translation) {
+  glm::mat4 matrix(1.0f);
+
+  if (rotationOrigin + translation != glm::vec3(0.0f)) {
+    matrix = glm::translate(matrix, rotationOrigin + translation);
+  }
+
+  if (rotation != glm::quat()) {
+    matrix *= glm::mat4_cast(normalize(rotation));
+  }
+
+  if (scalingOrigin - rotationOrigin != glm::vec3(0.0f)) {
+    matrix = glm::translate(matrix, scalingOrigin - rotationOrigin);
+  }
+
+  if (scaling != glm::vec3(1.0f)) {
+    matrix = glm::scale(matrix, scaling);
+  }
+
+  if (scalingOrigin != glm::vec3(0.0f)) {
+    matrix = glm::translate(matrix, -scalingOrigin);
+  }
+
+  return matrix;
 }
 
-RectF DesignToNDC(RectF const& rect) {
-  RectF result;
-  glm::vec2 xy = DesignToNDC(glm::vec2(rect.X, rect.Y));
-  result.X = xy.x;
-  result.Y = xy.y;
-  result.Width = rect.Width / (Profile::DesignWidth * 0.5f);
-  result.Height = rect.Height / (Profile::DesignHeight * 0.5f);
-  return result;
+glm::vec4 TransformVector(const glm::vec2 pos, const glm::vec2 scalingOrigin,
+                          const glm::vec2 scaling,
+                          const glm::vec2 rotationOrigin, const float rotation,
+                          const glm::vec2 translation) {
+  return TransformationMatrix(scalingOrigin, scaling, rotationOrigin, rotation,
+                              translation) *
+         glm::vec4(pos, 0.0f, 1.0f);
+}
+
+glm::vec4 TransformVector(const glm::vec3 pos, const glm::vec3 scalingOrigin,
+                          const glm::vec3 scaling,
+                          const glm::vec3 rotationOrigin,
+                          const glm::quat rotation,
+                          const glm::vec3 translation) {
+  return TransformationMatrix(scalingOrigin, scaling, rotationOrigin, rotation,
+                              translation) *
+         glm::vec4(pos, 1.0f);
 }
 
 uint32_t GetHashCode(uint8_t* data, int length) {

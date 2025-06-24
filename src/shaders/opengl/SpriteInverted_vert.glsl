@@ -5,8 +5,12 @@ layout(location = 2) in vec4 Tint;
 out vec2 uv;
 out vec4 tint;
 
+uniform mat4 Projection;
+uniform mat4 Transformation;
+
 void main() {
-  gl_Position = vec4(Position.x, Position.y, 0.0, 1.0);
+  gl_Position = Projection * Transformation * vec4(Position, 0.0, 1.0);
+
   uv = UV;
   tint = Tint;
 }

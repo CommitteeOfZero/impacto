@@ -21,12 +21,17 @@ void GLYUVFrame::Submit(const void* luma, const void* cb, const void* cr) {
   glBindTexture(GL_TEXTURE_2D, LumaId);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, (GLsizei)Width, (GLsizei)Height, 0,
                GL_RED, GL_UNSIGNED_BYTE, luma);
+  glGenerateMipmap(GL_TEXTURE_2D);
+
   glBindTexture(GL_TEXTURE_2D, CbId);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, (GLsizei)(Width / 2),
                (GLsizei)(Height / 2), 0, GL_RED, GL_UNSIGNED_BYTE, cb);
+  glGenerateMipmap(GL_TEXTURE_2D);
+
   glBindTexture(GL_TEXTURE_2D, CrId);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, (GLsizei)(Width / 2),
                (GLsizei)(Height / 2), 0, GL_RED, GL_UNSIGNED_BYTE, cr);
+  glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 void GLYUVFrame::Release() {

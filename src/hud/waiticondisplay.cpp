@@ -109,14 +109,12 @@ static void RenderRotateZ(glm::vec2 pos, glm::vec4 opacityTint) {
   glm::quat quat;
   eulerZYXToQuat(&euler, &quat);
 
-  glm::vec2 vanishingPoint(
-      (pos.x + WaitIconOffset.x) + (WaitIconSprite.ScaledWidth() / 2.0f),
-      (pos.y + WaitIconOffset.y) + (WaitIconSprite.ScaledHeight() / 2.0f));
+  glm::vec2 vanishingPoint = pos + WaitIconOffset + WaitIconSprite.Center();
 
-  Renderer->DrawSprite3DRotated(
-      WaitIconSprite,
-      glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y), 1.0f,
-      vanishingPoint, true, quat, opacityTint);
+  CornersQuad dest =
+      WaitIconSprite.ScaledBounds().Translate(pos + WaitIconOffset);
+  dest.Rotate(quat, {dest.Center(), 0.0f}, 1.0f, vanishingPoint, true);
+  Renderer->DrawSprite(WaitIconSprite, dest, opacityTint);
 }
 
 static void RenderFixed(glm::vec4 opacityTint) {
@@ -146,15 +144,17 @@ void Render(glm::vec2 pos, glm::vec4 opacityTint, DialoguePageMode mode) {
       RenderFixed(opacityTint);
       return;
 
-    default:
+    default: {
       if (!GetFlag(Profile::ScriptVars::SF_SHOWWAITICON)) return;
 
-      Renderer->DrawSprite(
-          WaitIconSprite,
-          glm::vec2(pos.x + WaitIconOffset.x, pos.y + WaitIconOffset.y),
-          opacityTint, glm::vec2(1.0f),
-          SimpleAnim.Progress * 2.0f * (float)M_PI);
+      const CornersQuad dest =
+          WaitIconSprite.ScaledBounds()
+              .RotateAroundCenter(SimpleAnim.Progress * 2.0f * (float)M_PI)
+              .Translate(pos + WaitIconOffset);
+      Renderer->DrawSprite(WaitIconSprite, dest, opacityTint);
+
       return;
+    }
   }
 }
 

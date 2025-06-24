@@ -18,7 +18,7 @@ namespace Vulkan {
 VkVertexInputBindingDescription Renderer::GetBindingDescription() {
   VkVertexInputBindingDescription bindingDescription{};
   bindingDescription.binding = 0;
-  bindingDescription.stride = sizeof(Renderer::VertexBufferSprites);
+  bindingDescription.stride = sizeof(VertexBufferSprites);
   bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
   return bindingDescription;
@@ -1132,146 +1132,11 @@ YUVFrame* Renderer::CreateYUVFrame(float width, float height) {
   return (YUVFrame*)VideoFrameInternal;
 }
 
-void Renderer::DrawRect(RectF const& dest, glm::vec4 color, float angle) {
-  BaseRenderer::DrawSprite(RectSprite, dest, color, angle);
-}
-
-void Renderer::DrawSprite3DRotated(Sprite const& sprite, RectF const& dest,
-                                   float depth, glm::vec2 vanishingPoint,
-                                   bool stayInScreen, glm::quat rot,
-                                   glm::vec4 tint, bool inverted) {
-  if (!Drawing) {
-    ImpLog(LogLevel::Error, LogChannel::Render,
-           "Renderer->DrawSprite3DRotated() called before BeginFrame()\n");
-    return;
-  }
-
-  if (Textures.count(sprite.Sheet.Texture) == 0) return;
-
-  // Are we in sprite mode?
-  if (inverted)
-    EnsureMode(PipelineSpriteInverted);
-  else
-    EnsureMode(PipelineSprite);
-
-  // Do we have the texture assigned?
-  EnsureTextureBound(sprite.Sheet.Texture);
-
-  // OK, all good, make quad
-  MakeQuad();
-
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferOffset +
-                             VertexBufferFill);
-  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetPosition3DRotated(dest, depth, vanishingPoint, stayInScreen, rot,
-                           (uintptr_t)&vertices[0].Position,
-                           sizeof(VertexBufferSprites));
-
-  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
-}
-
-void Renderer::DrawRect3DRotated(RectF const& dest, float depth,
-                                 glm::vec2 vanishingPoint, bool stayInScreen,
-                                 glm::quat rot, glm::vec4 color) {
-  DrawSprite3DRotated(RectSprite, dest, depth, vanishingPoint, stayInScreen,
-                      rot, color);
-}
-
-void Renderer::DrawCharacterMvl(Sprite const& sprite, glm::vec2 topLeft,
-                                int verticesCount, float* mvlVertices,
-                                int indicesCount, uint16_t* mvlIndices,
-                                bool inverted, glm::vec4 tint,
-                                glm::vec2 scale) {
-  if (!Drawing) {
-    ImpLog(LogLevel::Error, LogChannel::Render,
-           "Renderer->DrawCharacterMvl() called before BeginFrame()\n");
-    return;
-  }
-
-  if (Textures.count(sprite.Sheet.Texture) == 0) return;
-
-  // Draw just the character with this since we need to rebind the index buffer
-  // anyway...
-  Flush();
-
-  // Are we in sprite mode?
-  if (inverted)
-    EnsureMode(PipelineSpriteInverted);
-  else
-    EnsureMode(PipelineSprite);
-
-  // Do we have the texture assigned?
-  EnsureTextureBound(sprite.Sheet.Texture);
-
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferOffset +
-                             VertexBufferFill);
-  VertexBufferFill += verticesCount * sizeof(VertexBufferSprites);
-
-  IndexBufferFill += indicesCount;
-
-  int indexBufferOffset = IndexBufferOffset / sizeof(uint16_t);
-  memcpy(IndexBuffer + indexBufferOffset, mvlIndices,
-         indicesCount * sizeof(mvlIndices[0]));
-
-  for (int i = 0; i < verticesCount; i += 4) {
-    glm::vec2 pos = glm::vec2(mvlVertices[i * 5], mvlVertices[i * 5 + 1]);
-    (void)pos;  // Currently unused
-    glm::vec2 bottomLeftV =
-        glm::vec2(mvlVertices[i * 5], mvlVertices[i * 5 + 1]);
-    glm::vec2 topLeftV =
-        glm::vec2(mvlVertices[(i + 1) * 5], mvlVertices[(i + 1) * 5 + 1]);
-    glm::vec2 topRightV =
-        glm::vec2(mvlVertices[(i + 2) * 5], mvlVertices[(i + 2) * 5 + 1]);
-    glm::vec2 bottomRightV =
-        glm::vec2(mvlVertices[(i + 3) * 5], mvlVertices[(i + 3) * 5 + 1]);
-
-    glm::vec2 bottomLeftUV =
-        glm::vec2(mvlVertices[i * 5 + 3], mvlVertices[i * 5 + 4]);
-    glm::vec2 topLeftUV =
-        glm::vec2(mvlVertices[(i + 1) * 5 + 3], mvlVertices[(i + 1) * 5 + 4]);
-    glm::vec2 topRightUV =
-        glm::vec2(mvlVertices[(i + 2) * 5 + 3], mvlVertices[(i + 2) * 5 + 4]);
-    glm::vec2 bottomRightUV =
-        glm::vec2(mvlVertices[(i + 3) * 5 + 3], mvlVertices[(i + 3) * 5 + 4]);
-
-    bottomLeftV *= scale;
-    bottomLeftV += topLeft;
-    topLeftV *= scale;
-    topLeftV += topLeft;
-    topRightV *= scale;
-    topRightV += topLeft;
-    bottomRightV *= scale;
-    bottomRightV += topLeft;
-
-    // top-left
-    vertices[i].Position = DesignToNDCNonFlipped(topLeftV);
-    vertices[i].UV = topLeftUV;
-    vertices[i].Tint = tint;
-    // bottom-left
-    vertices[i + 1].Position = DesignToNDCNonFlipped(bottomLeftV);
-    vertices[i + 1].UV = bottomLeftUV;
-    vertices[i + 1].Tint = tint;
-    // bottom-right
-    vertices[i + 2].Position = DesignToNDCNonFlipped(bottomRightV);
-    vertices[i + 2].UV = bottomRightUV;
-    vertices[i + 2].Tint = tint;
-    // top-right
-    vertices[i + 3].Position = DesignToNDCNonFlipped(topRightV);
-    vertices[i + 3].UV = topRightUV;
-    vertices[i + 3].Tint = tint;
-  }
-
-  Flush();
-}
-
-void Renderer::DrawSprite(Sprite const& sprite, CornersQuad const& dest,
-                          std::array<glm::vec4, 4> const& tints, float angle,
-                          bool inverted) {
+void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
+                          const glm::mat4 transformation,
+                          const std::span<const glm::vec4, 4> tints,
+                          const bool inverted, const bool disableBlend,
+                          const bool textureWrapRepeat) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawSprite() called before BeginFrame()\n");
@@ -1284,6 +1149,8 @@ void Renderer::DrawSprite(Sprite const& sprite, CornersQuad const& dest,
   // Are we in sprite mode?
   if (inverted)
     EnsureMode(PipelineSpriteInverted);
+  else if (disableBlend)
+    EnsureMode(PipelineSpriteNoBlending);
   else
     EnsureMode(PipelineSprite);
 
@@ -1298,81 +1165,53 @@ void Renderer::DrawSprite(Sprite const& sprite, CornersQuad const& dest,
                              VertexBufferFill);
   VertexBufferFill += 4 * sizeof(VertexBufferSprites);
 
-  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetPosition(dest, angle, (uintptr_t)&vertices[0].Position,
-                  sizeof(VertexBufferSprites));
+  QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
+            sizeof(VertexBufferSprites));
+  QuadSetPosition(CornersQuad(dest).Transform(transformation),
+                  &vertices[0].Position, sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
 }
 
-void Renderer::DrawSpriteOffset(Sprite const& sprite, glm::vec2 topLeft,
-                                glm::vec2 centerSprite, glm::vec4 tint,
-                                glm::vec2 scale, float angle, bool inverted) {
+void Renderer::DrawMaskedSprite(
+    const Sprite& sprite, const Sprite& mask, const CornersQuad& spriteDest,
+    const CornersQuad& maskDest, int alpha, const int fadeRange,
+    const glm::mat4 spriteTransformation, const glm::mat4 maskTransformation,
+    const std::span<const glm::vec4, 4> tints, const bool isInverted,
+    const bool isSameTexture) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
-           "Renderer->DrawSprite() called before BeginFrame()\n");
+           "Renderer->DrawMaskedSpriteOverlay() called before BeginFrame()\n");
     return;
   }
 
-  if (!sprite.Sheet.Texture) return;
-  if (Textures.count(sprite.Sheet.Texture) == 0) return;
-
-  // Are we in sprite mode?
-  if (inverted)
-    EnsureMode(PipelineSpriteInverted);
-  else
-    EnsureMode(PipelineSprite);
-
-  // Do we have the texture assigned?
-  EnsureTextureBound(sprite.Sheet.Texture);
-
-  // OK, all good, make quad
-  MakeQuad();
-
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferOffset +
-                             VertexBufferFill);
-  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
-
-  QuadSetPositionOffset(sprite.Bounds, topLeft, centerSprite, scale, angle,
-                        (uintptr_t)&vertices[0].Position,
-                        sizeof(VertexBufferSprites));
-
-  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
-}
-
-void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
-                                RectF const& dest, glm::vec4 tint, int alpha,
-                                int fadeRange, bool isInverted,
-                                bool isSameTexture) {
-  if (!Drawing) {
-    ImpLog(LogLevel::Error, LogChannel::Render,
-           "Renderer->DrawMaskedSprite() called before BeginFrame()\n");
-    return;
-  }
+  Flush();
 
   if (Textures.count(sprite.Sheet.Texture) == 0 ||
       Textures.count(mask.Sheet.Texture) == 0)
     return;
 
-  if (alpha < 0) alpha = 0;
-  if (alpha > fadeRange + 256) alpha = fadeRange + 256;
+  alpha = std::clamp(alpha, 0, fadeRange + 256);
+  const float alphaRange = 256.0f / fadeRange;
+  const float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
 
-  float alphaRange = 256.0f / fadeRange;
-  float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
-
-  Flush();
-  EnsureMode(PipelineMaskedSprite, false);
+  VkSamplerCreateInfo samplerInfo = {};
+  samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+  samplerInfo.pNext = nullptr;
+  samplerInfo.magFilter = VK_FILTER_LINEAR;
+  samplerInfo.minFilter = VK_FILTER_LINEAR;
+  samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+  samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+  samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+  samplerInfo.anisotropyEnable = VK_TRUE;
+  samplerInfo.maxAnisotropy = 16;
 
   VkDescriptorImageInfo imageBufferInfo[2];
   imageBufferInfo[0].sampler = Sampler;
   imageBufferInfo[0].imageView = Textures[sprite.Sheet.Texture].ImageView;
   imageBufferInfo[0].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-  imageBufferInfo[1].sampler = Sampler;
+
+  vkCreateSampler(Device, &samplerInfo, nullptr, &imageBufferInfo[1].sampler);
   imageBufferInfo[1].imageView = Textures[mask.Sheet.Texture].ImageView;
   imageBufferInfo[1].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
@@ -1384,10 +1223,10 @@ void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
   writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
   writeDescriptorSet.pImageInfo = imageBufferInfo;
 
+  EnsureMode(PipelineMaskedSprite, true);
   vkCmdPushDescriptorSetKHR(
       CommandBuffers[CurrentFrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
-      PipelineMaskedSprite->PipelineLayout, 0, 1, &writeDescriptorSet);
-
+      CurrentPipeline->PipelineLayout, 0, 1, &writeDescriptorSet);
   SpritePushConstants constants = {};
   constants.Alpha = glm::vec2(alphaRange, constAlpha);
   constants.IsInverted = isInverted;
@@ -1404,267 +1243,24 @@ void Renderer::DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
                              VertexBufferFill);
   VertexBufferFill += 4 * sizeof(VertexBufferSprites);
 
-  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetUV(sprite.Bounds, sprite.Bounds.Width, sprite.Bounds.Height,
-            (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites));
+  QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
+            sizeof(VertexBufferSprites));
+  QuadSetUV(CornersQuad(maskDest).Transform(maskTransformation),
+            sprite.Sheet.GetDimensions(), &vertices[0].MaskUV,
+            sizeof(VertexBufferSprites));
 
-  QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
-                  sizeof(VertexBufferSprites));
+  QuadSetPosition(CornersQuad(spriteDest).Transform(spriteTransformation),
+                  &vertices[0].Position, sizeof(VertexBufferSprites));
 
-  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
+  for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
 }
 
-void Renderer::DrawMaskedSpriteOffset(const Sprite& sprite, const Sprite& mask,
-                                      const glm::vec2 pos,
-                                      const glm::vec2 origin, int alpha,
-                                      const int fadeRange, const glm::vec4 tint,
-                                      const glm::vec2 scale, const float angle,
-                                      const bool spriteInverted,
-                                      const bool maskInverted,
-                                      const bool isSameTexture) {
-  if (!Drawing) {
-    ImpLog(LogLevel::Error, LogChannel::Render,
-           "Renderer->DrawMaskedSprite() called before BeginFrame()\n");
-    return;
-  }
-
-  if (Textures.count(sprite.Sheet.Texture) == 0 ||
-      Textures.count(mask.Sheet.Texture) == 0)
-    return;
-
-  if (alpha < 0) alpha = 0;
-  if (alpha > fadeRange + 256) alpha = fadeRange + 256;
-
-  float alphaRange = 256.0f / fadeRange;
-  float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
-
-  Flush();
-  // TODO: handle inverted sprites
-  EnsureMode(PipelineMaskedSprite, false);
-
-  VkDescriptorImageInfo imageBufferInfo[2];
-  imageBufferInfo[0].sampler = Sampler;
-  imageBufferInfo[0].imageView = Textures[sprite.Sheet.Texture].ImageView;
-  imageBufferInfo[0].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-  imageBufferInfo[1].sampler = Sampler;
-  imageBufferInfo[1].imageView = Textures[mask.Sheet.Texture].ImageView;
-  imageBufferInfo[1].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-
-  VkWriteDescriptorSet writeDescriptorSet{};
-  writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-  writeDescriptorSet.dstSet = 0;
-  writeDescriptorSet.dstBinding = 0;
-  writeDescriptorSet.descriptorCount = 2;
-  writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-  writeDescriptorSet.pImageInfo = imageBufferInfo;
-
-  vkCmdPushDescriptorSetKHR(
-      CommandBuffers[CurrentFrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
-      PipelineMaskedSprite->PipelineLayout, 0, 1, &writeDescriptorSet);
-
-  SpritePushConstants constants = {};
-  constants.Alpha = glm::vec2(alphaRange, constAlpha);
-  constants.IsInverted = maskInverted;
-  constants.IsSameTexture = isSameTexture;
-  vkCmdPushConstants(
-      CommandBuffers[CurrentFrameIndex], CurrentPipeline->PipelineLayout,
-      VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SpritePushConstants), &constants);
-
-  // OK, all good, make quad
-  MakeQuad();
-
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferOffset +
-                             VertexBufferFill);
-  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetUV(sprite.Bounds, sprite.Bounds.Width, sprite.Bounds.Height,
-            (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites));
-
-  QuadSetPositionOffset(sprite.Bounds, pos, origin, scale, angle,
-                        (uintptr_t)&vertices[0].Position,
-                        sizeof(VertexBufferSprites));
-  QuadSetPositionOffset({0.0f, 0.0f, 1.0f, 1.0f}, pos, origin, scale, angle,
-                        (uintptr_t)&vertices[0].MaskUV,
-                        sizeof(VertexBufferSprites), false);
-
-  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
-}
-
-void Renderer::DrawVertices(SpriteSheet const& sheet,
-                            std::span<const glm::vec2> sheetPositions,
-                            std::span<const glm::vec2> displayPositions,
-                            int width, int height, glm::vec4 tint,
-                            bool inverted, bool disableBlend) {
-  if (!Drawing) {
-    ImpLog(LogLevel::Error, LogChannel::Render,
-           "Renderer->DrawVertices() called before BeginFrame()\n");
-    return;
-  }
-
-  if (Textures.count(sheet.Texture) == 0) return;
-  const int verticesCount = sheetPositions.size();
-
-  if (verticesCount != displayPositions.size()) {
-    ImpLog(LogLevel::Error, LogChannel::Render,
-           "Renderer->DrawVertices() called with mismatched vertices count\n");
-    return;
-  }
-
-  Flush();
-
-  VkSamplerCreateInfo samplerInfo = {};
-  samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-  samplerInfo.pNext = nullptr;
-  samplerInfo.magFilter = VK_FILTER_LINEAR;
-  samplerInfo.minFilter = VK_FILTER_LINEAR;
-  samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-  samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-  samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-  samplerInfo.anisotropyEnable = VK_TRUE;
-  samplerInfo.maxAnisotropy = 16;
-
-  VkDescriptorImageInfo imageBufferInfo[2];
-  imageBufferInfo[0].sampler = Sampler;
-  imageBufferInfo[0].imageView = Textures[sheet.Texture].ImageView;
-  imageBufferInfo[0].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-
-  vkCreateSampler(Device, &samplerInfo, nullptr, &imageBufferInfo[1].sampler);
-  imageBufferInfo[1].imageView = Textures[sheet.Texture].ImageView;
-  imageBufferInfo[1].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-
-  VkWriteDescriptorSet writeDescriptorSet{};
-  writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-  writeDescriptorSet.dstSet = 0;
-  writeDescriptorSet.dstBinding = 0;
-  writeDescriptorSet.descriptorCount = 2;
-  writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-  writeDescriptorSet.pImageInfo = imageBufferInfo;
-
-  // Are we in sprite mode?
-  if (inverted)
-    EnsureMode(PipelineSpriteInverted);
-  else if (disableBlend)
-    EnsureMode(PipelineSpriteNoBlending);
-  else
-    EnsureMode(PipelineSprite);
-
-  vkCmdPushDescriptorSetKHR(
-      CommandBuffers[CurrentFrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
-      CurrentPipeline->PipelineLayout, 0, 1, &writeDescriptorSet);
-
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferOffset +
-                             VertexBufferFill);
-
-  VertexBufferFill += verticesCount * sizeof(VertexBufferSprites);
-
-  int indexBufferOffset = IndexBufferOffset / sizeof(uint16_t);
-
-  // Generate indices for triangles
-  for (int y = 0; y < height - 1; y++) {
-    for (int x = 0; x < width - 1; x++) {
-      uint16_t v0 = y * width + x;
-      uint16_t v1 = y * width + (x + 1);
-      uint16_t v2 = (y + 1) * width + x;
-      uint16_t v3 = (y + 1) * width + (x + 1);
-
-      // First triangle
-      for (auto v : {v1, v0, v2}) {
-        IndexBuffer[indexBufferOffset + IndexBufferFill++] = v;
-      }
-      // Second triangle
-      for (auto v : {v3, v1, v2}) {
-        IndexBuffer[indexBufferOffset + IndexBufferFill++] = v;
-      }
-    }
-  }
-  assert(IndexBufferFill == (width - 1) * (height - 1) * 6);
-
-  for (int i = 0; i < verticesCount; i++) {
-    vertices[i].Position = DesignToNDCNonFlipped(displayPositions[i]);
-    vertices[i].Tint = tint;
-    glm::vec2 uv =
-        sheetPositions[i] / glm::vec2(sheet.DesignWidth, sheet.DesignHeight);
-    vertices[i].UV = uv;
-  }
-  Flush();
-}
-
-void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
-                                RectF const& dest, glm::vec4 tint, int alpha,
-                                int fadeRange, float effectCt) {
-  if (!Drawing) {
-    ImpLog(LogLevel::Error, LogChannel::Render,
-           "Renderer->DrawCCMessageBox() called before BeginFrame()\n");
-    return;
-  }
-
-  if (Textures.count(sprite.Sheet.Texture) == 0 ||
-      Textures.count(mask.Sheet.Texture) == 0)
-    return;
-
-  if (alpha < 0) alpha = 0;
-  if (alpha > fadeRange + 256) alpha = fadeRange + 256;
-
-  float alphaRange = 256.0f / fadeRange;
-  float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
-
-  EnsureMode(PipelineCCMessageBox);
-
-  VkDescriptorImageInfo imageBufferInfo[2];
-  imageBufferInfo[0].sampler = Sampler;
-  imageBufferInfo[0].imageView = Textures[sprite.Sheet.Texture].ImageView;
-  imageBufferInfo[0].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-  imageBufferInfo[1].sampler = Sampler;
-  imageBufferInfo[1].imageView = Textures[mask.Sheet.Texture].ImageView;
-  imageBufferInfo[1].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-
-  VkWriteDescriptorSet writeDescriptorSet{};
-  writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-  writeDescriptorSet.dstSet = 0;
-  writeDescriptorSet.dstBinding = 0;
-  writeDescriptorSet.descriptorCount = 2;
-  writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-  writeDescriptorSet.pImageInfo = imageBufferInfo;
-
-  vkCmdPushDescriptorSetKHR(
-      CommandBuffers[CurrentFrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
-      PipelineMaskedSprite->PipelineLayout, 0, 1, &writeDescriptorSet);
-
-  CCBoxPushConstants constants = {};
-  constants.CCBoxAlpha = glm::vec4(alphaRange, constAlpha, effectCt, 0.0f);
-  vkCmdPushConstants(
-      CommandBuffers[CurrentFrameIndex], CurrentPipeline->PipelineLayout,
-      VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(CCBoxPushConstants), &constants);
-
-  // OK, all good, make quad
-  MakeQuad();
-
-  VertexBufferSprites* vertices =
-      (VertexBufferSprites*)(VertexBuffer + VertexBufferOffset +
-                             VertexBufferFill);
-  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
-
-  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetUV(mask.Bounds, mask.Sheet.DesignWidth, mask.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites));
-
-  QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
-                  sizeof(VertexBufferSprites));
-
-  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
-}
-
-void Renderer::DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
-                                       RectF const& dest, glm::vec4 tint,
-                                       int alpha, int fadeRange,
-                                       bool isInverted, float angle,
-                                       bool useMaskAlpha) {
+void Renderer::DrawMaskedSpriteOverlay(
+    const Sprite& sprite, const Sprite& mask, const CornersQuad& spriteDest,
+    const CornersQuad& maskDest, int alpha, const int fadeRange,
+    const glm::mat4 spriteTransformation, const glm::mat4 maskTransformation,
+    const std::span<const glm::vec4, 4> tints, const bool isInverted,
+    const bool useMaskAlpha) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawMaskedSpriteOverlay() called before BeginFrame()\n");
@@ -1677,11 +1273,9 @@ void Renderer::DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
       Textures.count(mask.Sheet.Texture) == 0)
     return;
 
-  if (alpha < 0) alpha = 0;
-  if (alpha > fadeRange + 256) alpha = fadeRange + 256;
-
-  float alphaRange = 256.0f / fadeRange;
-  float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
+  alpha = std::clamp(alpha, 0, fadeRange + 256);
+  const float alphaRange = 256.0f / fadeRange;
+  const float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
 
   VkSamplerCreateInfo samplerInfo = {};
   samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -1747,13 +1341,170 @@ void Renderer::DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
                              VertexBufferFill);
   VertexBufferFill += 4 * sizeof(VertexBufferSprites);
 
-  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetUV(mask.Bounds, mask.Sheet.DesignWidth, mask.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites), angle);
+  QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
+            sizeof(VertexBufferSprites));
+  QuadSetUV(CornersQuad(maskDest).Transform(maskTransformation),
+            mask.Sheet.GetDimensions(), &vertices[0].MaskUV,
+            sizeof(VertexBufferSprites));
 
-  QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
-                  sizeof(VertexBufferSprites));
+  QuadSetPosition(CornersQuad(spriteDest).Transform(spriteTransformation),
+                  &vertices[0].Position, sizeof(VertexBufferSprites));
+
+  for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
+}
+
+void Renderer::DrawVertices(const SpriteSheet& sheet,
+                            const SpriteSheet* const mask,
+                            const std::span<const VertexBufferSprites> vertices,
+                            const std::span<const uint16_t> indices,
+                            const glm::mat4 transformation,
+                            const bool inverted) {
+  if (!Drawing) {
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Renderer->DrawVertices() called before BeginFrame()\n");
+    return;
+  }
+
+  if (Textures.count(sheet.Texture) == 0) return;
+
+  // The index buffer needs to be flushed
+  Flush();
+
+  if (mask != nullptr) {
+    VkSamplerCreateInfo samplerInfo = {};
+    samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+    samplerInfo.pNext = nullptr;
+    samplerInfo.magFilter = VK_FILTER_LINEAR;
+    samplerInfo.minFilter = VK_FILTER_LINEAR;
+    samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    samplerInfo.anisotropyEnable = VK_TRUE;
+    samplerInfo.maxAnisotropy = 16;
+
+    VkDescriptorImageInfo imageBufferInfo[2];
+    imageBufferInfo[0].sampler = Sampler;
+    imageBufferInfo[0].imageView = Textures[sheet.Texture].ImageView;
+    imageBufferInfo[0].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+    vkCreateSampler(Device, &samplerInfo, nullptr, &imageBufferInfo[1].sampler);
+    imageBufferInfo[1].imageView = Textures[mask->Texture].ImageView;
+    imageBufferInfo[1].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+    VkWriteDescriptorSet writeDescriptorSet{};
+    writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writeDescriptorSet.dstSet = 0;
+    writeDescriptorSet.dstBinding = 0;
+    writeDescriptorSet.descriptorCount = 2;
+    writeDescriptorSet.descriptorType =
+        VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    writeDescriptorSet.pImageInfo = imageBufferInfo;
+
+    EnsureMode(PipelineMaskedSpriteNoAlpha);
+    vkCmdPushDescriptorSetKHR(
+        CommandBuffers[CurrentFrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
+        CurrentPipeline->PipelineLayout, 0, 1, &writeDescriptorSet);
+    MaskedNoAlphaPushConstants constants = {};
+    constants.Alpha = glm::vec2(1.0f, 0.0f);
+    constants.IsInverted = inverted;
+    vkCmdPushConstants(CommandBuffers[CurrentFrameIndex],
+                       CurrentPipeline->PipelineLayout,
+                       VK_SHADER_STAGE_FRAGMENT_BIT, 0,
+                       sizeof(MaskedNoAlphaPushConstants), &constants);
+  } else {
+    if (inverted)
+      EnsureMode(PipelineSpriteInverted);
+    else
+      EnsureMode(PipelineSprite);
+
+    EnsureTextureBound(sheet.Texture);
+  }
+
+  // Push vertices
+  VertexBufferSprites* vertexBuffer =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferOffset +
+                             VertexBufferFill);
+  VertexBufferFill += vertices.size_bytes();
+
+  const auto vertexInfoToNDC = [this,
+                                transformation](VertexBufferSprites info) {
+    info.Position = DesignToNDC(
+        glm::vec2(transformation * glm::vec4(info.Position, 0.0f, 1.0f)));
+    return info;
+  };
+  std::transform(vertices.begin(), vertices.end(), vertexBuffer,
+                 vertexInfoToNDC);
+
+  // Push indices
+  IndexBufferFill += indices.size();
+  int indexBufferOffset = IndexBufferOffset / sizeof(uint16_t);
+  std::copy(indices.begin(), indices.end(), IndexBuffer + indexBufferOffset);
+
+  // Flush again and bind back our buffer
+  Flush();
+}
+
+void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
+                                RectF const& dest, glm::vec4 tint, int alpha,
+                                int fadeRange, float effectCt) {
+  if (!Drawing) {
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Renderer->DrawCCMessageBox() called before BeginFrame()\n");
+    return;
+  }
+
+  if (Textures.count(sprite.Sheet.Texture) == 0 ||
+      Textures.count(mask.Sheet.Texture) == 0)
+    return;
+
+  if (alpha < 0) alpha = 0;
+  if (alpha > fadeRange + 256) alpha = fadeRange + 256;
+
+  float alphaRange = 256.0f / fadeRange;
+  float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
+
+  EnsureMode(PipelineCCMessageBox);
+
+  VkDescriptorImageInfo imageBufferInfo[2];
+  imageBufferInfo[0].sampler = Sampler;
+  imageBufferInfo[0].imageView = Textures[sprite.Sheet.Texture].ImageView;
+  imageBufferInfo[0].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+  imageBufferInfo[1].sampler = Sampler;
+  imageBufferInfo[1].imageView = Textures[mask.Sheet.Texture].ImageView;
+  imageBufferInfo[1].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+  VkWriteDescriptorSet writeDescriptorSet{};
+  writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+  writeDescriptorSet.dstSet = 0;
+  writeDescriptorSet.dstBinding = 0;
+  writeDescriptorSet.descriptorCount = 2;
+  writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+  writeDescriptorSet.pImageInfo = imageBufferInfo;
+
+  vkCmdPushDescriptorSetKHR(
+      CommandBuffers[CurrentFrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
+      PipelineMaskedSprite->PipelineLayout, 0, 1, &writeDescriptorSet);
+
+  CCBoxPushConstants constants = {};
+  constants.CCBoxAlpha = glm::vec4(alphaRange, constAlpha, effectCt, 0.0f);
+  vkCmdPushConstants(
+      CommandBuffers[CurrentFrameIndex], CurrentPipeline->PipelineLayout,
+      VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(CCBoxPushConstants), &constants);
+
+  // OK, all good, make quad
+  MakeQuad();
+
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferOffset +
+                             VertexBufferFill);
+  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
+
+  QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
+            sizeof(VertexBufferSprites));
+  QuadSetUV(mask.Bounds, mask.Sheet.GetDimensions(), &vertices[0].MaskUV,
+            sizeof(VertexBufferSprites));
+
+  QuadSetPosition(dest, &vertices[0].Position, sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
@@ -1811,13 +1562,12 @@ void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
                              VertexBufferFill);
   VertexBufferFill += 4 * sizeof(VertexBufferSprites);
 
-  QuadSetUV(sprite.Bounds, sprite.Sheet.DesignWidth, sprite.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetUV(mask.Bounds, mask.Sheet.DesignWidth, mask.Sheet.DesignHeight,
-            (uintptr_t)&vertices[0].MaskUV, sizeof(VertexBufferSprites));
+  QuadSetUV(sprite.Bounds, sprite.Sheet.GetDimensions(), &vertices[0].UV,
+            sizeof(VertexBufferSprites));
+  QuadSetUV(mask.Bounds, mask.Sheet.GetDimensions(), &vertices[0].MaskUV,
+            sizeof(VertexBufferSprites));
 
-  QuadSetPosition(dest, 0.0f, (uintptr_t)&vertices[0].Position,
-                  sizeof(VertexBufferSprites));
+  QuadSetPosition(dest, &vertices[0].Position, sizeof(VertexBufferSprites));
 }
 
 inline void Renderer::MakeQuad() {
@@ -1838,196 +1588,6 @@ inline void Renderer::MakeQuad() {
         VertexBufferCount + 3;
     IndexBufferFill += 6;
     VertexBufferCount += 4;
-  }
-}
-
-inline void Renderer::QuadSetUV(RectF const& spriteBounds, float designWidth,
-                                float designHeight, uintptr_t uvs, int stride,
-                                float angle) {
-  float topUV = (spriteBounds.Y / designHeight);
-  float leftUV = (spriteBounds.X / designWidth);
-  float bottomUV = ((spriteBounds.Y + spriteBounds.Height) / designHeight);
-  float rightUV = ((spriteBounds.X + spriteBounds.Width) / designWidth);
-
-  glm::vec2 bottomLeft(leftUV, bottomUV);
-  glm::vec2 topLeft(leftUV, topUV);
-  glm::vec2 topRight(rightUV, topUV);
-  glm::vec2 bottomRight(rightUV, bottomUV);
-
-  if (angle != 0.0f) {
-    glm::vec2 center = (bottomLeft + topRight) * 0.5f;  // Center of the quad
-    glm::mat2 rot = Rotate2D(angle);
-
-    bottomLeft = rot * (bottomLeft - center) + center;
-    topLeft = rot * (topLeft - center) + center;
-    topRight = rot * (topRight - center) + center;
-    bottomRight = rot * (bottomRight - center) + center;
-  }
-
-  // top-left
-  *(glm::vec2*)(uvs + 0 * stride) = topLeft;
-  // bottom-left
-  *(glm::vec2*)(uvs + 1 * stride) = bottomLeft;
-  // bottom-right
-  *(glm::vec2*)(uvs + 2 * stride) = bottomRight;
-  // top-right
-  *(glm::vec2*)(uvs + 3 * stride) = topRight;
-}
-
-inline void Renderer::QuadSetPositionOffset(
-    RectF const& spriteBounds, glm::vec2 displayXY, glm::vec2 displayOffset,
-    glm::vec2 scale, float angle, uintptr_t positions, int stride, bool toNDC) {
-  glm::vec2 topLeft = {0.0f, 0.0f};
-  glm::vec2 bottomLeft = {0.0f, spriteBounds.Height};
-  glm::vec2 topRight = {spriteBounds.Width, 0.0f};
-  glm::vec2 bottomRight = {spriteBounds.Width, spriteBounds.Height};
-
-  // Translate to origin
-  topLeft -= displayOffset;
-  bottomLeft -= displayOffset;
-  topRight -= displayOffset;
-  bottomRight -= displayOffset;
-
-  // Scale
-  bottomLeft *= scale;
-  topLeft *= scale;
-  topRight *= scale;
-  bottomRight *= scale;
-
-  // Rotate
-  if (angle != 0.0f) {
-    const glm::mat2 rot = Rotate2D(angle);
-
-    bottomLeft = rot * bottomLeft;
-    topLeft = rot * topLeft;
-    topRight = rot * topRight;
-    bottomRight = rot * bottomRight;
-  }
-
-  // Translate to the desired screen position
-  bottomLeft += displayOffset + displayXY;
-  topLeft += displayOffset + displayXY;
-  topRight += displayOffset + displayXY;
-  bottomRight += displayOffset + displayXY;
-
-  if (toNDC) {
-    topLeft = DesignToNDCNonFlipped(topLeft);
-    bottomLeft = DesignToNDCNonFlipped(bottomLeft);
-    bottomRight = DesignToNDCNonFlipped(bottomRight);
-    topRight = DesignToNDCNonFlipped(topRight);
-  }
-
-  // Store the transformed positions
-  *(glm::vec2*)(positions + 0 * stride) = topLeft;
-  *(glm::vec2*)(positions + 1 * stride) = bottomLeft;
-  *(glm::vec2*)(positions + 2 * stride) = bottomRight;
-  *(glm::vec2*)(positions + 3 * stride) = topRight;
-}
-
-inline void Renderer::QuadSetPosition(RectF const& transformedQuad, float angle,
-                                      uintptr_t positions, int stride) {
-  glm::vec2 bottomLeft =
-      glm::vec2(transformedQuad.X, transformedQuad.Y + transformedQuad.Height);
-  glm::vec2 topLeft = glm::vec2(transformedQuad.X, transformedQuad.Y);
-  glm::vec2 topRight =
-      glm::vec2(transformedQuad.X + transformedQuad.Width, transformedQuad.Y);
-  glm::vec2 bottomRight = glm::vec2(transformedQuad.X + transformedQuad.Width,
-                                    transformedQuad.Y + transformedQuad.Height);
-
-  if (angle != 0.0f) {
-    glm::vec2 center = transformedQuad.Center();
-    glm::mat2 rot = Rotate2D(angle);
-
-    bottomLeft = rot * (bottomLeft - center) + center;
-    topLeft = rot * (topLeft - center) + center;
-    topRight = rot * (topRight - center) + center;
-    bottomRight = rot * (bottomRight - center) + center;
-  }
-
-  // top-left
-  *(glm::vec2*)(positions + 0 * stride) = DesignToNDCNonFlipped(topLeft);
-  // bottom-left
-  *(glm::vec2*)(positions + 1 * stride) = DesignToNDCNonFlipped(bottomLeft);
-  // bottom-right
-  *(glm::vec2*)(positions + 2 * stride) = DesignToNDCNonFlipped(bottomRight);
-  // top-right
-  *(glm::vec2*)(positions + 3 * stride) = DesignToNDCNonFlipped(topRight);
-}
-
-inline void Renderer::QuadSetPosition(CornersQuad destQuad, float angle,
-                                      uintptr_t positions, int stride) {
-  if (angle != 0.0f) {
-    glm::vec2 center = (destQuad.BottomLeft + destQuad.TopRight) * 0.5f;
-    glm::mat2 rot = Rotate2D(angle);
-
-    destQuad.BottomLeft = rot * (destQuad.BottomLeft - center) + center;
-    destQuad.TopLeft = rot * (destQuad.TopLeft - center) + center;
-    destQuad.TopRight = rot * (destQuad.TopRight - center) + center;
-    destQuad.BottomRight = rot * (destQuad.BottomRight - center) + center;
-  }
-
-  // bottom-left
-  *(glm::vec2*)(positions + 0 * stride) =
-      DesignToNDCNonFlipped(destQuad.TopLeft);
-  // top-left
-  *(glm::vec2*)(positions + 1 * stride) =
-      DesignToNDCNonFlipped(destQuad.BottomLeft);
-  // top-right
-  *(glm::vec2*)(positions + 2 * stride) =
-      DesignToNDCNonFlipped(destQuad.BottomRight);
-  // bottom-right
-  *(glm::vec2*)(positions + 3 * stride) =
-      DesignToNDCNonFlipped(destQuad.TopRight);
-}
-
-void Renderer::QuadSetPosition3DRotated(RectF const& transformedQuad,
-                                        float depth, glm::vec2 vanishingPoint,
-                                        bool stayInScreen, glm::quat rot,
-                                        uintptr_t positions, int stride) {
-  float widthNormalized = transformedQuad.Width / (Profile::DesignWidth * 0.5f);
-  float heightNormalized =
-      transformedQuad.Height / (Profile::DesignHeight * 0.5f);
-
-  glm::vec4 corners[4]{
-      // top-left
-      {glm::vec2(-widthNormalized / 2.0f, heightNormalized / 2.0f), 0, 1},
-      // top-right
-      {glm::vec2(widthNormalized / 2.0f, heightNormalized / 2.0f), 0, 1},
-      // bottom-right
-      {glm::vec2(widthNormalized / 2.0f, -heightNormalized / 2.0f), 0, 1},
-      // bottom-left
-      {glm::vec2(-widthNormalized / 2.0f, -heightNormalized / 2.0f), 0, 1}};
-
-  glm::mat4 transform =
-      glm::translate(
-          glm::mat4(1.0f),
-          glm::vec3(DesignToNDCNonFlipped(transformedQuad.Center()), 0)) *
-      glm::mat4_cast(rot);
-
-  glm::vec4 vanishingPointNDC(DesignToNDCNonFlipped(vanishingPoint), 0, 0);
-
-  for (int i = 0; i < 4; i++) {
-    corners[i] = transform * corners[i];
-  }
-
-  if (stayInScreen) {
-    float maxZ = 0.0f;
-    for (int i = 0; i < 4; i++) {
-      if (corners[i].z > maxZ) maxZ = corners[i].z;
-    }
-    for (int i = 0; i < 4; i++) {
-      corners[i].z -= maxZ;
-    }
-  }
-
-  for (int i = 0; i < 4; i++) {
-    // perspective
-    corners[i] -= vanishingPointNDC;
-    corners[i].x *= (depth / (depth - corners[i].z));
-    corners[i].y *= (depth / (depth - corners[i].z));
-    corners[i] += vanishingPointNDC;
-
-    *(glm::vec2*)(positions + i * stride) = corners[i];
   }
 }
 
@@ -2100,8 +1660,8 @@ void Renderer::Flush() {
   CurrentTexture = 0;
 }
 
-void Renderer::DrawVideoTexture(YUVFrame* tex, RectF const& dest,
-                                glm::vec4 tint, float angle, bool alphaVideo) {
+void Renderer::DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
+                                const glm::vec4 tint, const bool alphaVideo) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawVideoTexture() called before BeginFrame()\n");
@@ -2148,10 +1708,10 @@ void Renderer::DrawVideoTexture(YUVFrame* tex, RectF const& dest,
                              VertexBufferFill);
   VertexBufferFill += 4 * sizeof(VertexBufferSprites);
 
-  QuadSetUV(RectF(0.0f, 0.0f, tex->Width, tex->Height), tex->Width, tex->Height,
-            (uintptr_t)&vertices[0].UV, sizeof(VertexBufferSprites));
-  QuadSetPosition(dest, angle, (uintptr_t)&vertices[0].Position,
-                  sizeof(VertexBufferSprites));
+  QuadSetUV(RectF(0.0f, 0.0f, frame.Width, frame.Height),
+            {frame.Width, frame.Height}, &vertices[0].UV,
+            sizeof(VertexBufferSprites));
+  QuadSetPosition(dest, &vertices[0].Position, sizeof(VertexBufferSprites));
 
   for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
 }
@@ -2352,6 +1912,13 @@ void Renderer::DisableScissor() {
     PreviousScissorRect = RectF(0.0f, 0.0f, (float)SwapChainExtent.width,
                                 (float)SwapChainExtent.height);
   }
+}
+
+glm::vec2 Renderer::DesignToNDC(const glm::vec2 designCoord) const {
+  glm::vec2 result;
+  result.x = (designCoord.x / (Profile::DesignWidth * 0.5f)) - 1.0f;
+  result.y = (designCoord.y / (Profile::DesignHeight * 0.5f)) - 1.0f;
+  return result;
 }
 
 }  // namespace Vulkan

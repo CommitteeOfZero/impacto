@@ -112,7 +112,7 @@ void AlbumMenu::Hide() {
 void AlbumMenu::Render() {
   if (State != Hidden) {
     if (MenuTransition.IsIn()) {
-      Renderer->DrawRect(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
+      Renderer->DrawQuad(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                          RgbIntToFloat(BackgroundColor));
     } else {
       DrawCircles();
@@ -123,8 +123,11 @@ void AlbumMenu::Render() {
 
     if (MenuTransition.Progress > 0.34f) {
       Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
-      Renderer->DrawSprite(AlbumMenuTitle, RightTitlePos, glm::vec4(1.0f),
-                           glm::vec2(1.0f), AlbumMenuTitleAngle);
+
+      const CornersQuad titleDest = AlbumMenuTitle.ScaledBounds()
+                                        .RotateAroundCenter(AlbumMenuTitleAngle)
+                                        .Translate(RightTitlePos);
+      Renderer->DrawSprite(AlbumMenuTitle, titleDest);
     }
 
     Renderer->CaptureScreencap(ShaderScreencapture.BgSprite);

@@ -51,7 +51,45 @@ concept is_any_of = std::disjunction_v<std::is_same<T, Ts>...>;
 
 glm::mat2 Rotate2D(float angle);
 
+glm::mat4 TransformationMatrix(glm::vec2 scalingOrigin, glm::vec2 scaling,
+                               glm::vec2 rotationOrigin = glm::vec2(0.0f),
+                               float rotation = 0.0f,
+                               glm::vec2 translation = glm::vec2(0.0f));
+glm::mat4 TransformationMatrix(glm::vec3 scalingOrigin, glm::vec3 scaling,
+                               glm::vec3 rotationOrigin = glm::vec3(0.0f),
+                               glm::quat rotation = glm::quat(),
+                               glm::vec3 translation = glm::vec3(0.0f));
+inline glm::mat4 TransformationMatrix(glm::vec2 scalingOrigin,
+                                      glm::vec2 scaling,
+                                      glm::vec3 rotationOrigin,
+                                      glm::quat rotation,
+                                      glm::vec2 translation = glm::vec2(0.0f)) {
+  return TransformationMatrix(glm::vec3(scalingOrigin, 0.0f),
+                              glm::vec3(scaling, 1.0f), rotationOrigin,
+                              rotation, glm::vec3(translation, 0.0f));
+}
+
+glm::vec4 TransformVector(glm::vec2 pos, glm::vec2 scalingOrigin,
+                          glm::vec2 scaling,
+                          glm::vec2 rotationOrigin = glm::vec2(0.0f),
+                          float rotation = 0.0f,
+                          glm::vec2 translation = glm::vec2(0.0f));
+glm::vec4 TransformVector(glm::vec3 pos, glm::vec3 scalingOrigin,
+                          glm::vec3 scaling,
+                          glm::vec3 rotationOrigin = glm::vec3(0.0f),
+                          glm::quat rotation = glm::quat(),
+                          glm::vec3 translation = glm::vec3(0.0f));
+inline glm::vec4 TransformVector(glm::vec2 pos, glm::vec2 scalingOrigin,
+                                 glm::vec2 scaling, glm::vec3 rotationOrigin,
+                                 glm::quat rotation,
+                                 glm::vec2 translation = glm::vec2(0.0f)) {
+  return TransformVector({pos, 0.0f}, glm::vec3(scalingOrigin, 0.0f),
+                         glm::vec3(scaling, 1.0f), rotationOrigin, rotation,
+                         {translation, 0.0f});
+}
+
 struct Rect;
+struct CornersQuad;
 
 struct RectF {
   float X = 0;
@@ -96,14 +134,18 @@ struct RectF {
     return RectF(X - movementVector.x, Y - movementVector.y, Width, Height);
   }
 
-  constexpr void operator+=(const glm::vec2 movementVector) {
+  constexpr RectF& operator+=(const glm::vec2 movementVector) {
     X += movementVector.x;
     Y += movementVector.y;
+
+    return *this;
   }
 
-  constexpr void operator-=(const glm::vec2 movementVector) {
+  constexpr RectF& operator-=(const glm::vec2 movementVector) {
     X -= movementVector.x;
     Y -= movementVector.y;
+
+    return *this;
   }
 
   constexpr bool operator==(RectF const& other) const {
@@ -119,12 +161,29 @@ struct RectF {
 
   static RectF Coalesce(const RectF& first, const RectF& second);
 
-  constexpr RectF Scale(const glm::vec2 scalar, const glm::vec2 origin) const {
-    const float scaledX = (X - origin.x) * scalar.x + origin.x;
-    const float scaledY = (Y - origin.y) * scalar.y + origin.y;
-    return RectF(scaledX, scaledY, Width * scalar.x, Height * scalar.y);
+  CornersQuad Transform(glm::mat4 transformation) const;
+  CornersQuad Transform(
+      const std::function<glm::vec2(glm::vec2)>& transformation) const;
+
+  RectF& Translate(glm::vec2 offset) { return *this += offset; }
+  RectF& Translate(float dx, float dy) { return Translate({dx, dy}); }
+
+  RectF& Scale(glm::vec2 scaling, glm::vec2 origin);
+  RectF& ScaleAroundCenter(glm::vec2 scaling, glm::vec2 origin) {
+    return Scale(scaling, Center());
   }
+
+  CornersQuad Rotate(float angle, glm::vec2 origin) const;
+  CornersQuad RotateAroundCenter(float angle) const;
+  CornersQuad Rotate(glm::quat rotation, glm::vec3 origin) const;
+  CornersQuad Rotate(glm::quat rotation, glm::vec3 origin, float depth,
+                     glm::vec2 vanishingPoint, bool stayInScreen = false) const;
+
+  CornersQuad FlipVertical() const;
+  CornersQuad FlipHorizontal() const;
 };
+
+inline CornersQuad operator*(const glm::mat4 transformation, RectF rect);
 
 struct Rect {
   int X = 0;
@@ -186,15 +245,51 @@ struct CornersQuad {
             {(float)rect.X, (float)(rect.Y + rect.Height)},
             {(float)(rect.X + rect.Width), (float)rect.Y},
             {(float)(rect.X + rect.Width), (float)(rect.Y + rect.Height)}) {}
+
+  constexpr glm::vec2 Center() const {
+    return (TopLeft + BottomLeft + TopRight + BottomRight) / 4.0f;
+  }
+
+  CornersQuad& Transform(glm::mat4 transformation);
+  CornersQuad& Transform(
+      const std::function<glm::vec2(glm::vec2)>& transformation);
+
+  CornersQuad& Translate(glm::vec2 offset);
+  CornersQuad& Translate(float dx, float dy) { return Translate({dx, dy}); }
+
+  CornersQuad& Scale(glm::vec2 scaling, glm::vec2 origin);
+  CornersQuad& ScaleAroundCenter(glm::vec2 scaling, glm::vec2 origin) {
+    return Scale(scaling, Center());
+  }
+
+  CornersQuad& Rotate(float angle, glm::vec2 origin);
+  CornersQuad& RotateAroundCenter(float angle) {
+    return Rotate(angle, Center());
+  }
+  CornersQuad& Rotate(glm::quat rotation, glm::vec3 origin);
+  CornersQuad& Rotate(glm::quat rotation, glm::vec3 origin, float depth,
+                      glm::vec2 vanishingPoint, bool stayInScreen = false);
+
+  CornersQuad& FlipVertical() {
+    std::swap(TopLeft, BottomLeft);
+    std::swap(TopRight, BottomRight);
+    return *this;
+  }
+
+  CornersQuad& FlipHorizontal() {
+    std::swap(TopLeft, TopRight);
+    std::swap(BottomLeft, BottomRight);
+    return *this;
+  }
 };
+
+inline CornersQuad operator*(const glm::mat4 transformation, CornersQuad quad) {
+  return quad.Transform(transformation);
+}
 
 inline constexpr RectF::RectF(Rect const& rect)
     : RectF((float)rect.X, (float)rect.Y, (float)rect.Width,
             (float)rect.Height) {}
-
-glm::vec2 DesignToNDC(glm::vec2 xy);
-glm::vec2 DesignToNDCNonFlipped(glm::vec2 xy);
-RectF DesignToNDC(RectF const& rect);
 
 constexpr glm::vec4 RgbIntToFloat(uint32_t rgb) {
   return glm::vec4{(float)((rgb >> 16) & 0xFF) / 255.0f,
@@ -285,6 +380,18 @@ inline float NormalizeRad(float rad) {
   rad = fmodf(rad + (float)M_PI, 2.0f * (float)M_PI);
   if (rad < 0) rad += 2.0f * (float)M_PI;
   return rad - (float)M_PI;
+}
+constexpr float ScrWorkAngleToRad(float angle) {
+  return angle * (float)(2.0f * M_PI / (float)(1 << 16));
+}
+
+inline glm::quat ScrWorkAnglesToQuaternion(int x, int y, int z) {
+  return glm::quat(
+      {ScrWorkAngleToRad(x), ScrWorkAngleToRad(y), ScrWorkAngleToRad(z)});
+}
+
+inline glm::quat AxisAngleToQuaternion(glm::vec3 axis, float angle) {
+  return glm::quat(cos(angle / 2.0f), sin(angle / 2.0f) * axis);
 }
 
 inline bool StringEndsWith(std::string const& str, std::string const& ending) {

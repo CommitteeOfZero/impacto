@@ -7,9 +7,14 @@ out vec2 uv;
 out vec4 tint;
 out vec2 maskUV;
 
+uniform mat4 Projection;
+uniform mat4 SpriteTransformation;
+uniform mat4 MaskTransformation;
+
 void main() {
-  gl_Position = vec4(Position.x, Position.y, 0.0, 1.0);
+  gl_Position = Projection * SpriteTransformation * vec4(Position, 0.0, 1.0);
+
   uv = UV;
   tint = Tint;
-  maskUV = MaskUV;
+  maskUV = vec2(MaskTransformation * vec4(MaskUV, 0.0, 1.0));
 }

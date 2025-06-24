@@ -74,5 +74,227 @@ class ShaderCompiler {
                 char const* params);
 };
 
+template <typename UniformsStruct>
+class Shader {
+ public:
+  Shader(GLuint programId) : ProgramId(programId) { Bind(); }
+
+  ~Shader() { glDeleteProgram(ProgramId); }
+
+  void Bind() { glUseProgram(ProgramId); }
+
+  UniformsStruct GetUniforms() { return Uniforms; }
+  virtual void UploadUniforms(UniformsStruct uniforms) = 0;
+
+ protected:
+  const GLuint ProgramId;
+
+  UniformsStruct Uniforms{};
+
+  void UploadVar(bool value, GLint location) { glUniform1i(location, value); }
+  void UploadVar(int value, GLint location) { glUniform1i(location, value); }
+  void UploadVar(GLuint value, GLint location) {
+    glUniform1ui(location, value);
+  }
+  void UploadVar(float value, GLint location) { glUniform1f(location, value); }
+  void UploadVar(glm::vec2 value, GLint location) {
+    glUniform2fv(location, 1, &value[0]);
+  }
+  void UploadVar(glm::vec4 value, GLint location) {
+    glUniform4fv(location, 1, &value[0]);
+  }
+  void UploadVar(glm::mat4 value, GLint location) {
+    glUniformMatrix4fv(location, 1, GL_FALSE, &value[0][0]);
+  }
+
+  template <typename T>
+  void UpdateVar(T newValue, T& oldValue, GLint location) {
+    if (newValue != oldValue) {
+      oldValue = newValue;
+      UploadVar(newValue, location);
+    }
+  }
+};
+
+struct SpriteUniforms {
+  bool operator==(const SpriteUniforms& other) const = default;
+
+  glm::mat4 Projection{};
+  glm::mat4 Transformation{};
+
+  GLint ColorMap = 0;
+};
+
+class SpriteShader : public Shader<SpriteUniforms> {
+ public:
+  SpriteShader(GLint programId);
+
+  void UploadUniforms(SpriteUniforms uniforms) override;
+
+ private:
+  const GLint ProjectionLocation;
+  const GLint TransformationLocation;
+
+  const GLint ColorMapLocation;
+};
+
+struct SpriteInvertedUniforms {
+  bool operator==(const SpriteInvertedUniforms& other) const = default;
+
+  glm::mat4 Projection{};
+  glm::mat4 Transformation{};
+
+  GLint ColorMap = 0;
+};
+
+class SpriteInvertedShader : public Shader<SpriteInvertedUniforms> {
+ public:
+  SpriteInvertedShader(GLint programId);
+
+  void UploadUniforms(SpriteInvertedUniforms uniforms) override;
+
+ private:
+  const GLint ProjectionLocation;
+  const GLint TransformationLocation;
+
+  const GLint ColorMapLocation;
+};
+
+struct YUVFrameUniforms {
+  bool operator==(const YUVFrameUniforms& other) const = default;
+
+  glm::mat4 Projection;
+
+  GLint Luma = 0;
+  GLint Cb = 0;
+  GLint Cr = 0;
+  bool IsAlpha = false;
+};
+
+class YUVFrameShader : public Shader<YUVFrameUniforms> {
+ public:
+  YUVFrameShader(GLint programId);
+
+  void UploadUniforms(YUVFrameUniforms uniforms) override;
+
+ private:
+  const GLint ProjectionLocation;
+
+  const GLint LumaLocation;
+  const GLint CbLocation;
+  const GLint CrLocation;
+  const GLint IsAlphaLocation;
+};
+
+struct MaskedSpriteNoAlphaUniforms {
+  bool operator==(const MaskedSpriteNoAlphaUniforms& other) const = default;
+
+  glm::mat4 Projection{};
+  glm::mat4 SpriteTransformation{};
+  glm::mat4 MaskTransformation{};
+
+  GLint ColorMap = 0;
+  GLint Mask = 0;
+  glm::vec2 Alpha{};
+  bool IsInverted = false;
+};
+
+class MaskedSpriteNoAlphaShader : public Shader<MaskedSpriteNoAlphaUniforms> {
+ public:
+  MaskedSpriteNoAlphaShader(GLint programId);
+
+  void UploadUniforms(MaskedSpriteNoAlphaUniforms uniforms) override;
+
+ private:
+  const GLint ProjectionLocation;
+  const GLint SpriteTransformationLocation;
+  const GLint MaskTransformationLocation;
+
+  const GLint ColorMapLocation;
+  const GLint MaskLocation;
+  const GLint AlphaLocation;
+  const GLint IsInvertedLocation;
+};
+
+struct MaskedSpriteUniforms {
+  bool operator==(const MaskedSpriteUniforms& other) const = default;
+
+  glm::mat4 Projection{};
+  glm::mat4 SpriteTransformation{};
+  glm::mat4 MaskTransformation{};
+
+  GLint ColorMap;
+  GLint Mask;
+  glm::vec2 Alpha{};
+  bool IsInverted = false;
+  bool IsSameTexture = false;
+};
+
+class MaskedSpriteShader : public Shader<MaskedSpriteUniforms> {
+ public:
+  MaskedSpriteShader(GLint programId);
+
+  void UploadUniforms(MaskedSpriteUniforms uniforms) override;
+
+ private:
+  const GLint ProjectionLocation;
+  const GLint SpriteTransformationLocation;
+  const GLint MaskTransformationLocation;
+
+  const GLint ColorMapLocation;
+  const GLint MaskLocation;
+  const GLint AlphaLocation;
+  const GLint IsInvertedLocation;
+  const GLint IsSameTextureLocation;
+};
+
+struct CCMessageBoxUniforms {
+  bool operator==(const CCMessageBoxUniforms& other) const = default;
+
+  glm::mat4 Projection{};
+
+  GLint ColorMap;
+  GLint Mask;
+  glm::vec4 Alpha{};
+};
+
+class CCMessageBoxShader : public Shader<CCMessageBoxUniforms> {
+ public:
+  CCMessageBoxShader(GLint programId);
+
+  void UploadUniforms(CCMessageBoxUniforms uniforms) override;
+
+ private:
+  const GLint ProjectionLocation;
+
+  const GLint ColorMapLocation;
+  const GLint MaskLocation;
+  const GLint AlphaLocation;
+};
+
+struct CHLCCMenuBackgroundUniforms {
+  bool operator==(const CHLCCMenuBackgroundUniforms& other) const = default;
+
+  glm::mat4 Projection{};
+
+  GLint ColorMap;
+  GLint Mask;
+  float Alpha = 0.0f;
+};
+
+class CHLCCMenuBackgroundShader : public Shader<CHLCCMenuBackgroundUniforms> {
+ public:
+  CHLCCMenuBackgroundShader(GLint programId);
+
+  void UploadUniforms(CHLCCMenuBackgroundUniforms uniforms) override;
+
+ private:
+  const GLint ProjectionLocation;
+
+  const GLint ColorMapLocation;
+  const GLint MaskLocation;
+  const GLint AlphaLocation;
+};
+
 }  // namespace OpenGL
 }  // namespace Impacto

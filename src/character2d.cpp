@@ -37,7 +37,7 @@ bool Character2D::LoadSync(uint32_t charaId) {
     // Skip to state data
     stream->Seek(0x68, SEEK_CUR);
 
-    MvlVerticesCount = Io::ReadLE<int>(stream);
+    int vertexCount = Io::ReadLE<int>(stream);
     int vertexOffset = Io::ReadLE<int>(stream);
 
     for (int i = 0; i < stateCount; i++) {
@@ -79,8 +79,18 @@ bool Character2D::LoadSync(uint32_t charaId) {
     // They seem to use the whole vertex array in all states, so... read it once
     // and forget about it?
     stream->Seek(vertexOffset, SEEK_SET);
-    MvlVertices.resize(MvlVerticesCount * 5);
-    Io::ReadArrayLE<float>(MvlVertices.data(), stream, MvlVerticesCount * 5);
+    std::vector<float> mvlVertexInfo(vertexCount * 5);
+    Io::ReadArrayLE<float>(mvlVertexInfo.data(), stream, vertexCount * 5);
+
+    MvlVertices.resize(vertexCount);
+    for (size_t i = 0; i < vertexCount; i++) {
+      MvlVertices[i] = VertexBufferSprites{
+          .Position = {mvlVertexInfo[i * 5], mvlVertexInfo[i * 5 + 1]},
+          .UV = glm::vec2(mvlVertexInfo[i * 5 + 3], mvlVertexInfo[i * 5 + 4]),
+          .Tint = Tint,
+      };
+    }
+
     delete stream;
   } else {
     // LAY format
@@ -146,7 +156,7 @@ void Character2D::UnloadSync() {
   Show = false;
   std::fill(Layers.begin(), Layers.end(), -1);
   MvlVertices.clear();
-  MvlIndicesCount = 0;
+  MvlIndices.clear();
   States.clear();
   StatesToDraw.clear();
 }
@@ -165,7 +175,7 @@ void Character2D::MainThreadOnLoad() {
 
 void Character2D::Update(float dt) {
   if (Profile::CharaIsMvl) {
-    MvlIndicesCount = 0;
+    MvlIndices.clear();
     StatesToDraw.clear();
     StatesToDraw.push_back((Face & 0xFFFF0000) >> 16);  // face
     StatesToDraw.push_back(0x40000000 | ((Face & 0xFFFF0000) >> 8) |
@@ -178,9 +188,8 @@ void Character2D::Update(float dt) {
         Character2DState const& state = stateItr->second;
         auto& stateIndices =
             std::get_if<Character2DState::MVLData>(&state.Data)->Indices;
-        std::copy(stateIndices.get(), stateIndices.get() + state.Count,
-                  MvlIndices.begin() + MvlIndicesCount);
-        MvlIndicesCount += state.Count;
+        MvlIndices.insert(MvlIndices.end(), stateIndices.get(),
+                          stateIndices.get() + state.Count);
       }
     }
   } else {
@@ -202,10 +211,10 @@ void Character2D::Render(int layer) {
   if (Status != LS_Loaded || !OnLayer(layer) || !Show) return;
 
   if (Profile::CharaIsMvl) {
-    Renderer->DrawCharacterMvl(CharaSprite, glm::vec2(OffsetX, OffsetY),
-                               MvlVerticesCount, MvlVertices.data(),
-                               MvlIndicesCount, MvlIndices.data(), false, Tint,
-                               glm::vec2(ScaleX, ScaleY));
+    const glm::mat4 transformation = TransformationMatrix(
+        {0.0f, 0.0f}, {ScaleX, ScaleY}, {0.0f, 0.0f}, 0.0f, {OffsetX, OffsetY});
+    Renderer->DrawVertices(CharaSpriteSheet, MvlVertices, MvlIndices,
+                           transformation);
   } else {
     for (auto id : StatesToDraw) {
       if (auto stateItr = States.find(id); stateItr != States.end()) {

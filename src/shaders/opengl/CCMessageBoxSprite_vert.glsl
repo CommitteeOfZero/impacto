@@ -7,8 +7,11 @@ out vec2 uv;
 out vec4 tint;
 out vec2 maskUV;
 
+uniform mat4 Projection;
+
 void main() {
-  gl_Position = vec4(Position.x, Position.y, 0.0, 1.0);
+  gl_Position = Projection * vec4(Position, 0.0, 1.0);
+
   uv = UV;
   tint = Tint;
   maskUV = MaskUV;

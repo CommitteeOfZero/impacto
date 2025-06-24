@@ -357,7 +357,7 @@ void SaveMenu::Update(float dt) {
 void SaveMenu::Render() {
   if (State != Hidden && ScrWork[SW_FILEALPHA] != 0) {
     if (MenuTransition.IsIn()) {
-      Renderer->DrawRect(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
+      Renderer->DrawQuad(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                          RgbIntToFloat(BackgroundColor));
     } else {
       DrawCircles();
@@ -367,8 +367,11 @@ void SaveMenu::Render() {
 
     if (MenuTransition.Progress > 0.34f) {
       Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
-      Renderer->DrawSprite(MenuTitleTextSprite, RightTitlePos, glm::vec4(1.0f),
-                           glm::vec2(1.0f), MenuTitleTextAngle);
+
+      const CornersQuad titleDest = MenuTitleTextSprite.ScaledBounds()
+                                        .RotateAroundCenter(MenuTitleTextAngle)
+                                        .Translate(RightTitlePos);
+      Renderer->DrawSprite(MenuTitleTextSprite, titleDest);
     }
 
     Renderer->CaptureScreencap(ShaderScreencapture.BgSprite);
