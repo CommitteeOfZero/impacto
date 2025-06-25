@@ -97,6 +97,7 @@ void Renderer::Shutdown() {
   GLC::DeleteFramebuffers(GLC::Framebuffers.size(), GLC::Framebuffers.data());
   glDeleteTextures(GLC::FramebufferTextures.size(),
                    GLC::FramebufferTextures.data());
+  glDeleteRenderbuffers(GLC::StencilBuffers.size(), GLC::StencilBuffers.data());
 
   glDeleteSamplers(Samplers.size(), Samplers.data());
 
@@ -706,6 +707,52 @@ void Renderer::DisableScissor() {
   Flush();
   glDisable(GL_SCISSOR_TEST);
   ScissorEnabled = false;
+}
+
+void Renderer::SetStencilMode(StencilBufferMode mode) {
+  Flush();
+
+  switch (mode) {
+    case StencilBufferMode::Off: {
+      glDisable(GL_STENCIL_TEST);
+      break;
+    }
+
+    case StencilBufferMode::Test: {
+      glEnable(GL_STENCIL_TEST);
+      glStencilMask(0x00);
+
+      glStencilFunc(GL_NOTEQUAL, 0x00, 0xFF);
+      glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+      break;
+    }
+
+    case StencilBufferMode::Write: {
+      glEnable(GL_STENCIL_TEST);
+      glStencilMask(0xFF);
+
+      glStencilFunc(GL_NEVER, 0x01, 0xFF);
+      glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+      break;
+    }
+
+    default: {
+      ImpLogSlow(LogLevel::Warning, LogChannel::Render,
+                 "Unexpected stencil mode {:d}\n", (size_t)mode);
+      break;
+    }
+  }
+}
+
+void Renderer::ClearStencilBuffer() {
+  Flush();
+
+  GLint oldMask;
+  glGetIntegerv(GL_STENCIL_WRITEMASK, &oldMask);
+
+  glStencilMask(0xFF);
+  glClear(GL_STENCIL_BUFFER_BIT);
+  glStencilMask(oldMask);
 }
 
 void Renderer::SetBlendMode(RendererBlendMode blendMode) {

@@ -90,6 +90,9 @@ class Renderer : public BaseRenderer {
   void SetScissorRect(RectF const& rect) override;
   void DisableScissor() override;
 
+  void SetStencilMode(StencilBufferMode mode) override;
+  void ClearStencilBuffer() override;
+
   void SetBlendMode(RendererBlendMode blendMode) override;
 
   void Clear(glm::vec4 color) override;
