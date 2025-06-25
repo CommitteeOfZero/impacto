@@ -1,5 +1,7 @@
 #include "background2d.h"
 
+#include <numeric>
+
 #include "mask2d.h"
 #include "mem.h"
 #include "io/memorystream.h"
@@ -201,8 +203,7 @@ void Background2D::RenderBgEff(int bgId, int layer) {
                                      Profile::DesignHeight / 720.0f};
 
   const size_t vertexCount = maskType == 0 ? 4 : 3;
-  std::vector<glm::vec2> vertices;
-  vertices.reserve(vertexCount);
+  std::array<glm::vec2, 4> vertices;
   for (size_t i = 0; i < vertexCount; i++) {
     const int x =
         ScrWork[SW_BGEFF1_MASK_VERTEX1_X + structOffset + i * 2] +
@@ -210,8 +211,9 @@ void Background2D::RenderBgEff(int bgId, int layer) {
     const int y =
         ScrWork[SW_BGEFF1_MASK_VERTEX1_Y + structOffset + i * 2] +
         ScrWork[SW_BGEFF1_MASK_VERTEX1_OFSY + structOfsOffset + i * 2];
-    vertices.emplace_back(glm::vec2(x, y) * resolutionScale);
+    vertices[i] = glm::vec2((float)x, (float)y) * resolutionScale;
   }
+  if (vertexCount == 4) std::swap(vertices[1], vertices[2]);
 
   const glm::vec2 pos =
       glm::vec2(ScrWork[SW_BGEFF1_POSX + structOffset] +
@@ -223,33 +225,27 @@ void Background2D::RenderBgEff(int bgId, int layer) {
   DisplayCoords = pos - vertices[0];
 
   // Origin is the center of mass
-  Origin = {0.0f, 0.0f};
-  for (const glm::vec2 vertex : vertices) Origin += vertex / (float)vertexCount;
+  Origin = std::reduce(vertices.begin(), vertices.begin() + vertexCount) /
+           (float)vertexCount;
 
   // Transform vertices
-  const glm::mat4 transformation = TransformationMatrix(
+  const glm::mat4 stencilTransformation = TransformationMatrix(
       Origin, Scale, {Origin, 0.0f}, Rotation, DisplayCoords);
-  std::transform(vertices.begin(), vertices.end(), vertices.begin(),
-                 [transformation](const glm::vec2 vertex) {
-                   return transformation * glm::vec4(vertex, 0.0f, 1.0f);
-                 });
 
   // Draw
-  if (maskType == 0) {  // Rectangle
-    const glm::vec2 maskDimensions = vertices[3] - vertices[0];
-    const RectF mask = RectF(pos.x, pos.y, maskDimensions.x, maskDimensions.y)
-                           .Scale(Scale, vertices[0]);
+  Renderer->SetStencilMode(StencilBufferMode::Write);
+  Renderer->ClearStencilBuffer();
 
-    Renderer->EnableScissor();
-    Renderer->SetScissorRect(mask);
-  }
+  Renderer->DrawConvexShape(
+      std::span(vertices.begin(), vertices.begin() + vertexCount),
+      stencilTransformation, glm::vec4(1.0f));
+
+  Renderer->SetStencilMode(StencilBufferMode::Test);
 
   const int renderType = ScrWork[SW_BGEFF1_MODE + structOffset];
   std::invoke(BackgroundRenderTable[renderType], this);
 
-  if (maskType == 0) {  // Rectangle
-    Renderer->DisableScissor();
-  }
+  Renderer->SetStencilMode(StencilBufferMode::Off);
 }
 
 void Background2D::RenderRegular() {
