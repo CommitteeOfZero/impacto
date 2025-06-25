@@ -255,6 +255,12 @@ class BaseRenderer {
                  inverted);
   }
 
+  void DrawConvexShape(std::span<const glm::vec2> vertices,
+                       glm::mat4 transformation, glm::vec4 color);
+  void DrawConvexShape(std::span<const glm::vec2> vertices, glm::vec4 color) {
+    DrawConvexShape(vertices, glm::mat4(1.0f), color);
+  }
+
   void DrawQuad(const CornersQuad& dest, glm::vec4 color);
 
   void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
