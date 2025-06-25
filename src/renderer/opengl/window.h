@@ -25,6 +25,8 @@ class GLWindow : public BaseWindow {
   GLuint ReadRT;
   // Texture associated with ReadRT
   GLuint ReadRenderTexture;
+  // Stencil buffer associated with both ReadRT and DrawRT
+  GLuint StencilBuffer;
 
  private:
   void UpdateDimensions() override;

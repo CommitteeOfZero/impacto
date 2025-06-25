@@ -11,10 +11,12 @@ static GLuint CurrentDrawFramebuffer = 0, CurrentReadFramebuffer = 0,
 void InitializeFramebuffers() {
   glGenFramebuffers(Framebuffers.max_size(), Framebuffers.data());
   glGenTextures(FramebufferTextures.max_size(), FramebufferTextures.data());
+  glGenRenderbuffers(StencilBuffers.max_size(), StencilBuffers.data());
 
   for (size_t buffer = 0; buffer < FramebufferTextures.size(); buffer++) {
     const GLuint framebufferId = Framebuffers[buffer];
     const GLuint textureId = FramebufferTextures[buffer];
+    const GLuint stencilBufferId = StencilBuffers[buffer];
 
     glBindFramebuffer(GL_FRAMEBUFFER, framebufferId);
     glBindTexture(GL_TEXTURE_2D, textureId);
@@ -26,6 +28,12 @@ void InitializeFramebuffers() {
 
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
                            textureId, 0);
+
+    glBindRenderbuffer(GL_RENDERBUFFER, stencilBufferId);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_STENCIL_INDEX8,
+                          Window->WindowWidth, Window->WindowHeight);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
+                              GL_RENDERBUFFER, stencilBufferId);
   }
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);

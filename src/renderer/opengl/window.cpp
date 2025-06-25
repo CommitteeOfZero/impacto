@@ -278,6 +278,7 @@ void GLWindow::CleanFBOs() {
   if (ReadRenderTexture) glDeleteTextures(1, &ReadRenderTexture);
   if (DrawRT) GLC::DeleteFramebuffers(1, &DrawRT);
   if (ReadRT) GLC::DeleteFramebuffers(1, &ReadRT);
+  if (StencilBuffer) glDeleteRenderbuffers(1, &StencilBuffer);
 
   drawRenderTexture = ReadRenderTexture = DrawRT = ReadRT = 0;
 }
@@ -316,6 +317,13 @@ void GLWindow::Update() {
     glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                            GL_TEXTURE_2D, ReadRenderTexture, 0);
 
+    glGenRenderbuffers(1, &StencilBuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, StencilBuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_STENCIL_INDEX8, WindowWidth,
+                          WindowHeight);
+    glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
+                              GL_RENDERBUFFER, StencilBuffer);
+
     glGenFramebuffers(1, &DrawRT);
     GLC::BindFramebuffer(GL_DRAW_FRAMEBUFFER, DrawRT);
     glGenTextures(1, &drawRenderTexture);
@@ -326,6 +334,9 @@ void GLWindow::Update() {
 
     glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                            GL_TEXTURE_2D, drawRenderTexture, 0);
+
+    glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
+                              GL_RENDERBUFFER, StencilBuffer);
   }
 
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -336,13 +347,13 @@ void GLWindow::Update() {
     // flickering into the margins on Linux otherwise
     GLC::BindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glViewport(0, 0, WindowWidth, WindowHeight);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   }
 
   SwapRTs();
 
   glViewport(0, 0, viewport.Width, viewport.Height);
-  glClear(GL_COLOR_BUFFER_BIT);
+  glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
   glEnable(GL_BLEND);
 
