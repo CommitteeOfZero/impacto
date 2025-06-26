@@ -175,7 +175,8 @@ class Renderer : public BaseRenderer {
   uint16_t NextFreeIndex = 0;
 
   const glm::mat4 Projection =
-      glm::ortho(0.0f, Profile::DesignWidth, Profile::DesignHeight, 0.0f);
+      glm::ortho(0.0f, Profile::DesignWidth, Profile::DesignHeight, 0.0f,
+                 -Profile::DesignWidth, Profile::DesignWidth);
 
   // ShaderCompiler compiler
   ShaderCompiler Shaders;

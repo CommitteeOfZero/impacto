@@ -206,7 +206,7 @@ glm::mat4 TransformationMatrix(const glm::vec3 scalingOrigin,
   }
 
   if (rotation != glm::quat()) {
-    matrix *= glm::mat4_cast(normalize(rotation));
+    matrix = matrix * glm::mat4_cast(glm::normalize(rotation));
   }
 
   if (scalingOrigin - rotationOrigin != glm::vec3(0.0f)) {
