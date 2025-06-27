@@ -18,11 +18,11 @@ using namespace Impacto::Profile::ScriptVars;
 static bool IsInit = false;
 
 void AudioShutdown() {
-  Backend->Shutdown();
-  IsInit = false;
   for (int i = 0; i < AC_Count; i++) {
     Channels[i] = nullptr;
   }
+  IsInit = false;
+  Backend->Shutdown();
 }
 
 void AudioInit() {

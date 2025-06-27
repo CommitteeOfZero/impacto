@@ -106,6 +106,7 @@ struct RectF {
   constexpr glm::vec2 Center() const {
     return glm::vec2(X + Width / 2.0f, Y + Height / 2.0f);
   }
+
   constexpr bool ContainsPoint(glm::vec2 point, float angle = 0.0f) const {
     point -= Center();
     if (angle != 0.0f) {
@@ -169,7 +170,7 @@ struct RectF {
   RectF& Translate(float dx, float dy) { return Translate({dx, dy}); }
 
   RectF& Scale(glm::vec2 scaling, glm::vec2 origin);
-  RectF& ScaleAroundCenter(glm::vec2 scaling, glm::vec2 origin) {
+  RectF& ScaleAroundCenter(glm::vec2 scaling) {
     return Scale(scaling, Center());
   }
 

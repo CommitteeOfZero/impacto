@@ -23,6 +23,7 @@ set(Impacto_Src
         src/modelviewer.cpp
         src/characterviewer.cpp
         src/spriteanimation.cpp
+        src/sequencedanimation.cpp
         src/background2d.cpp
         src/mask2d.cpp
         src/character2d.cpp
@@ -162,6 +163,7 @@ set(Impacto_Src
         src/games/chlcc/trophymenu.cpp
         src/games/chlcc/trophymenuentry.cpp
         src/games/chlcc/delusiontrigger.cpp
+        src/games/chlcc/introsequence.cpp
 
         src/games/cc/backlogmenu.cpp
         src/games/cc/dialoguebox.cpp
@@ -351,6 +353,7 @@ set(Impacto_Header
         src/characterviewer.h
         src/spritesheet.h
         src/spriteanimation.h
+        src/sequencedanimation.h
         src/font.h
         src/background2d.h
         src/mask2d.h
@@ -491,6 +494,7 @@ set(Impacto_Header
         src/games/chlcc/systemmenu.h
         src/games/chlcc/trophymenu.h
         src/games/chlcc/delusiontrigger.h
+        src/games/chlcc/introsequence.h
 
         src/games/cc/dialoguebox.h
         src/games/cc/titlemenu.h

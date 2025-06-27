@@ -198,7 +198,7 @@ void SystemMenu::Render() {
     Renderer->DrawSprite(offsetSystemMenuBG, bgDisp, glm::mat4(1.0f),
                          std::array{glm::vec4(1.0f), glm::vec4(1.0f),
                                     glm::vec4(1.0f), glm::vec4(1.0f)},
-                         false, false, true);
+                         glm::vec3(0.0f), false, false, true);
 
     if (!GetFlag(SF_SYSTEMMENUDIRECT)) {
       const CornersQuad frameDisp =
@@ -215,8 +215,8 @@ void SystemMenu::Render() {
           glm::vec2{bgOffset + Profile::DesignWidth, 0},
           glm::vec2{bgOffset + Profile::DesignWidth,
                     Profile::DesignHeight}}.Transform(transformation);
-      Renderer->DrawSprite(ScreenCap, screenCapDisp, glm::vec4(1.0f), false,
-                           true);
+      Renderer->DrawSprite(ScreenCap, screenCapDisp, glm::vec4(1.0f),
+                           glm::vec3(0.0f), false, true);
     }
     Renderer->DrawSprite(
         SystemMenuMask,

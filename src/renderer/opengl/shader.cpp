@@ -242,10 +242,12 @@ SpriteShader::SpriteShader(GLint programId)
     : Shader(programId),
       ProjectionLocation(glGetUniformLocation(programId, "Projection")),
       TransformationLocation(glGetUniformLocation(programId, "Transformation")),
-      ColorMapLocation(glGetUniformLocation(programId, "ColorMap")) {
+      ColorMapLocation(glGetUniformLocation(programId, "ColorMap")),
+      ColorShiftLocation(glGetUniformLocation(programId, "ColorShift")) {
   UploadVar(Uniforms.Projection, ProjectionLocation);
   UploadVar(Uniforms.Transformation, TransformationLocation);
   UploadVar(Uniforms.ColorMap, ColorMapLocation);
+  UploadVar(Uniforms.ColorShift, ColorShiftLocation);
 }
 
 void SpriteShader::UploadUniforms(SpriteUniforms newUniforms) {
@@ -253,6 +255,7 @@ void SpriteShader::UploadUniforms(SpriteUniforms newUniforms) {
   UpdateVar(newUniforms.Transformation, Uniforms.Transformation,
             TransformationLocation);
   UpdateVar(newUniforms.ColorMap, Uniforms.ColorMap, ColorMapLocation);
+  UpdateVar(newUniforms.ColorShift, Uniforms.ColorShift, ColorShiftLocation);
 }
 
 SpriteInvertedShader::SpriteInvertedShader(GLint programId)

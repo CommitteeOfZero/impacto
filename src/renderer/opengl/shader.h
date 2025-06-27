@@ -100,6 +100,9 @@ class Shader {
   void UploadVar(glm::vec2 value, GLint location) {
     glUniform2fv(location, 1, &value[0]);
   }
+  void UploadVar(glm::vec3 value, GLint location) {
+    glUniform3fv(location, 1, &value[0]);
+  }
   void UploadVar(glm::vec4 value, GLint location) {
     glUniform4fv(location, 1, &value[0]);
   }
@@ -123,6 +126,7 @@ struct SpriteUniforms {
   glm::mat4 Transformation{};
 
   GLint ColorMap = 0;
+  glm::vec3 ColorShift{};
 };
 
 class SpriteShader : public Shader<SpriteUniforms> {
@@ -136,6 +140,7 @@ class SpriteShader : public Shader<SpriteUniforms> {
   const GLint TransformationLocation;
 
   const GLint ColorMapLocation;
+  const GLint ColorShiftLocation;
 };
 
 struct SpriteInvertedUniforms {

@@ -2007,7 +2007,7 @@ void MapSystemCCLCC::RenderButtonGuide() {
             glm::vec2{guideXWidth + 60, 1042.0f},  // bottom right
         };
         Renderer->DrawSprite(MapButtonGuideSprite2, dest, glm::mat4(1.0f),
-                             tints, false);
+                             tints, glm::vec3(0.0f), false);
       }
     }
   }

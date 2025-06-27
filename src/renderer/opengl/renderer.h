@@ -38,7 +38,7 @@ class Renderer : public BaseRenderer {
 
   void DrawSprite(const Sprite& sprite, const CornersQuad& dest,
                   glm::mat4 transformation, std::span<const glm::vec4, 4> tints,
-                  bool inverted, bool disableBlend,
+                  glm::vec3 colorShift, bool inverted, bool disableBlend,
                   bool textureWrapRepeat) override;
 
   void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
@@ -89,6 +89,10 @@ class Renderer : public BaseRenderer {
   void EnableScissor() override;
   void SetScissorRect(RectF const& rect) override;
   void DisableScissor() override;
+
+  void SetBlendMode(RendererBlendMode blendMode) override;
+
+  void Clear(glm::vec4 color) override;
 
  private:
   std::optional<SpriteShader> SpriteShaderProgram;

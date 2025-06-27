@@ -266,7 +266,8 @@ YUVFrame* Renderer::CreateYUVFrame(float width, float height) {
 void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
                           const glm::mat4 transformation,
                           const std::span<const glm::vec4, 4> tints,
-                          const bool inverted, const bool disableBlend,
+                          const glm::vec3 colorShift, const bool inverted,
+                          const bool disableBlend,
                           const bool textureWrapRepeat) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
@@ -769,6 +770,30 @@ glm::vec2 Renderer::DesignToNDC(glm::vec2 designCoord) const {
   result.x = (designCoord.x / (Profile::DesignWidth * 0.5f)) - 1.0f;
   result.y = 1.0f - (designCoord.y / (Profile::DesignHeight * 0.5f));
   return result;
+}
+
+void Renderer::SetBlendMode(RendererBlendMode blendMode) {
+  Flush();
+
+  switch (blendMode) {
+    case RendererBlendMode::Normal:
+      Device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+      Device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+      break;
+    case RendererBlendMode::Additive:
+      Device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+      Device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+      break;
+  }
+}
+
+void Renderer::Clear(glm::vec4 color) {
+  Flush();
+
+  color *= 255;
+  D3DCOLOR clearColor =
+      D3DCOLOR_ARGB((BYTE)color.a, (BYTE)color.r, (BYTE)color.g, (BYTE)color.b);
+  Device->Clear(0, NULL, D3DCLEAR_TARGET, clearColor, 1.0f, 0);
 }
 
 }  // namespace DirectX9

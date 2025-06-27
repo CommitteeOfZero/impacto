@@ -5,6 +5,7 @@
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
 #include "../../ui/widgets/chlcc/titlebutton.h"
+#include "introsequence.h"
 
 namespace Impacto {
 namespace UI {
@@ -25,11 +26,13 @@ class TitleMenu : public Menu {
   Animation ItemsFadeInAnimation;
   Animation SecondaryItemsFadeInAnimation;
   Animation SpinningCircleAnimation;
+  Animation SpinningCircleFlashingAnimation;
 
   void MenuButtonOnClick(Widgets::Button* target);
   void SecondaryButtonOnClick(Widgets::Button* target);
 
-  void DrawTitleMenuBackGraphics();
+  void DrawTitleMenuBackGraphics() const;
+  void DrawSpinningCircle(float alpha) const;
 
  private:
   Widgets::Group* MainItems;
@@ -55,6 +58,8 @@ class TitleMenu : public Menu {
   Widgets::Group* SystemItems;
   Widgets::CHLCC::TitleButton* Config;
   Widgets::CHLCC::TitleButton* SystemSave;
+
+  Impacto::CHLCC::IntroSequence IntroSequence;
 };
 
 }  // namespace CHLCC

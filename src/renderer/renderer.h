@@ -24,6 +24,8 @@ struct VertexBufferSprites {
   glm::vec2 MaskUV = {0.0f, 0.0f};
 };
 
+enum class RendererBlendMode { Normal, Additive };
+
 class BaseRenderer {
  public:
   virtual void Init() = 0;
@@ -54,32 +56,36 @@ class BaseRenderer {
   virtual void DrawSprite(const Sprite& sprite, const CornersQuad& dest,
                           glm::mat4 transformation,
                           std::span<const glm::vec4, 4> tints,
+                          glm::vec3 colorShift = glm::vec3(0.0f),
                           bool inverted = false, bool disableBlend = false,
                           bool textureWrapRepeat = false) = 0;
 
   void DrawSprite(const Sprite& sprite, const CornersQuad& dest,
                   glm::mat4 transformation = glm::mat4(1.0f),
-                  glm::vec4 tint = glm::vec4(1.0f), bool inverted = false,
+                  glm::vec4 tint = glm::vec4(1.0f),
+                  glm::vec3 colorShift = glm::vec3(0.0f), bool inverted = false,
                   bool disableBlend = false) {
     DrawSprite(sprite, dest, transformation,
-               std::array<glm::vec4, 4>{tint, tint, tint, tint}, inverted,
-               disableBlend);
+               std::array<glm::vec4, 4>{tint, tint, tint, tint}, colorShift,
+               inverted, disableBlend);
   }
   void DrawSprite(const Sprite& sprite, const CornersQuad& dest, glm::vec4 tint,
-                  bool inverted = false, bool disableBlend = false) {
-    DrawSprite(sprite, dest, glm::mat4(1.0f), tint, inverted, disableBlend);
+                  glm::vec3 colorShift = glm::vec3(0.0f), bool inverted = false,
+                  bool disableBlend = false) {
+    DrawSprite(sprite, dest, glm::mat4(1.0f), tint, colorShift, inverted,
+               disableBlend);
   }
   void DrawSprite(const Sprite& sprite, glm::mat4 transformation,
                   glm::vec4 tint = glm::vec4(1.0f), bool inverted = false,
                   bool disableBlend = false) {
-    DrawSprite(sprite, sprite.ScaledBounds(), transformation, tint, inverted,
-               disableBlend);
+    DrawSprite(sprite, sprite.ScaledBounds(), transformation, tint,
+               glm::vec3(0.0f), inverted, disableBlend);
   }
   void DrawSprite(const Sprite& sprite, glm::vec2 topLeft,
                   glm::vec4 tint = glm::vec4(1.0f), bool inverted = false,
                   bool disableBlend = false) {
     DrawSprite(sprite, sprite.ScaledBounds().Translate(topLeft),
-               glm::mat4(1.0f), tint, inverted, disableBlend);
+               glm::mat4(1.0f), tint, glm::vec3(0.0f), inverted, disableBlend);
   }
 
   virtual void DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
@@ -295,6 +301,10 @@ class BaseRenderer {
   virtual void EnableScissor() = 0;
   virtual void SetScissorRect(RectF const& rect) = 0;
   virtual void DisableScissor() = 0;
+
+  virtual void SetBlendMode(RendererBlendMode blendMode) = 0;
+
+  virtual void Clear(glm::vec4 color) = 0;
 
   bool IsInit = false;
 

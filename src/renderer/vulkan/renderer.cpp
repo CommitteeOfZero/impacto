@@ -1135,7 +1135,8 @@ YUVFrame* Renderer::CreateYUVFrame(float width, float height) {
 void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
                           const glm::mat4 transformation,
                           const std::span<const glm::vec4, 4> tints,
-                          const bool inverted, const bool disableBlend,
+                          const glm::vec3 colorShift, const bool inverted,
+                          const bool disableBlend,
                           const bool textureWrapRepeat) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
@@ -1919,6 +1920,29 @@ glm::vec2 Renderer::DesignToNDC(const glm::vec2 designCoord) const {
   result.x = (designCoord.x / (Profile::DesignWidth * 0.5f)) - 1.0f;
   result.y = (designCoord.y / (Profile::DesignHeight * 0.5f)) - 1.0f;
   return result;
+}
+
+void Renderer::Clear(glm::vec4 color) {
+  if (!Drawing) {
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Renderer->Clear() called before BeginFrame()\n");
+    return;
+  }
+
+  Flush();
+
+  VkClearAttachment clearAttachment = {
+      .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+      .colorAttachment = 0,
+      .clearValue = {.color = {color.r, color.g, color.b, color.a}}};
+
+  VkClearRect clearRect = {
+      .rect = {.offset = {0, 0}, .extent = SwapChainExtent},
+      .baseArrayLayer = 0,
+      .layerCount = 1};
+
+  vkCmdClearAttachments(CommandBuffers[CurrentFrameIndex], 1, &clearAttachment,
+                        1, &clearRect);
 }
 
 }  // namespace Vulkan

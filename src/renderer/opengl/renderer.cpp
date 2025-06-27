@@ -296,7 +296,8 @@ void Renderer::UseTextures(
 void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
                           const glm::mat4 transformation,
                           const std::span<const glm::vec4, 4> tints,
-                          const bool inverted, const bool disableBlend,
+                          const glm::vec3 colorShift, const bool inverted,
+                          const bool disableBlend,
                           const bool textureWrapRepeat) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
@@ -333,6 +334,7 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
         .Projection = Projection,
         .Transformation = transformation,
         .ColorMap = 0,
+        .ColorShift = colorShift,
     };
 
     UseShader(*SpriteShaderProgram, uniforms);
@@ -398,9 +400,10 @@ void Renderer::DrawMaskedSprite(
   // OK, all good, make quad
 
   CornersQuad uvDest = sprite.NormalizedBounds();
-  if (sprite.Sheet.IsScreenCap) uvDest.FlipVertical();
   CornersQuad maskUVDest = CornersQuad(maskDest).Scale(
       {1.0f / sprite.Bounds.Width, 1.0f / sprite.Bounds.Height}, {0.0f, 0.0f});
+  if (sprite.Sheet.IsScreenCap) uvDest.FlipVertical();
+  if (mask.Sheet.IsScreenCap) maskUVDest.FlipVertical();
   InsertVerticesQuad(spriteDest, uvDest, tints, maskUVDest);
 }
 
@@ -703,6 +706,26 @@ void Renderer::DisableScissor() {
   Flush();
   glDisable(GL_SCISSOR_TEST);
   ScissorEnabled = false;
+}
+
+void Renderer::SetBlendMode(RendererBlendMode blendMode) {
+  Flush();
+
+  switch (blendMode) {
+    case RendererBlendMode::Normal:
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      return;
+    case RendererBlendMode::Additive:
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+      return;
+  }
+}
+
+void Renderer::Clear(glm::vec4 color) {
+  Flush();
+
+  glClearColor(color.r, color.g, color.b, color.a);
+  glClear(GL_COLOR_BUFFER_BIT);
 }
 
 }  // namespace OpenGL
