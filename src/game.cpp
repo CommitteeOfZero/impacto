@@ -298,69 +298,10 @@ void Update(float dt) {
   }
 }
 
-static bool ShouldRender(const int layer) {
-  using namespace Impacto::Profile::Vm;
-
-  for (int bgId = 0; bgId < MaxBackgrounds2D; bgId++) {
-    if (GetFlag(SF_BG1DISP + bgId) && !GetFlag(SF_BG1LOADEXEC + bgId) &&
-        (ScrWork[SW_BG1PRI + ScrWorkBgStructSize * bgId] == layer ||
-         ScrWork[SW_BG1PRI2 + ScrWorkBgStructSize * bgId] == layer))
-      return true;
-
-    if (GetFlag(SF_BGEFF1DISP + bgId) &&
-        (ScrWork[SW_BGEFF1_PRI + ScrWorkBgEffStructSize * bgId] == layer ||
-         ScrWork[SW_BGEFF1_PRI2 + ScrWorkBgEffStructSize * bgId] == layer))
-      return true;
-  }
-
-  for (int capId = 0; capId < MaxScreencaptures; capId++) {
-    if (GetFlag(SF_CAP1DISP + capId) &&
-        (ScrWork[SW_CAP1PRI + ScrWorkCaptureStructSize * capId] == layer ||
-         ScrWork[SW_CAP1PRI2 + ScrWorkCaptureStructSize * capId] == layer))
-      return true;
-  }
-
-  constexpr int chaCount = 8;
-  for (int chaId = 0; chaId < chaCount; chaId++) {
-    if (GetFlag(SF_CHA1DISP + chaId) && ScrWork[SW_CHA1NO] != 0xFFFF &&
-        (ScrWork[SW_CHA1PRI + ScrWorkChaStructSize * chaId] == layer ||
-         ScrWork[SW_CHA1PRI2 + ScrWorkChaStructSize * chaId] == layer))
-      return true;
-  }
-
-  constexpr int maskCount = 3;
-  for (int maskId = 0; maskId < maskCount; maskId++) {
-    const int maskAlpha = ScrWork[SW_MASK1ALPHA + maskId * 10] +
-                          ScrWork[SW_MASK1ALPHA_OFS + maskId];
-
-    if (ScrWork[SW_MASK1PRI + maskId * 10] == layer && maskAlpha > 0)
-      return true;
-  }
-
-  if (GetFlag(SF_MOVIEPLAY) && !GetFlag(SF_MOVIE_DRAWWAIT)) {
-    if (ScrWork[SW_MOVIEPRI] == layer && ScrWork[SW_MOVIEALPHA] > 0)
-      return true;
-
-    if (ScrWork[SW_MOVIEPRI2] == layer && ScrWork[SW_MOVIEALPHA2] > 0)
-      return true;
-  }
-
-  constexpr int effCount = 2;
-  const int effStructSize = SW_EFF_CAP_PRI2 - SW_EFF_CAP_PRI;
-  for (int effId = 0; effId < effCount; effId++) {
-    if (ScrWork[SW_EFF_CAP_BUF + effId * effStructSize] &&
-        ScrWork[SW_EFF_CAP_PRI + effId * effStructSize] == layer)
-      return true;
-  }
-
-  return false;
-}
-
 static void RenderMain() {
   for (uint32_t layer = 0; layer <= Profile::LayerCount; layer++) {
     const int renderTarget = ScrWork[SW_RENDERTARGET + layer];
-    if (0 <= renderTarget && renderTarget <= MaxFramebuffers &&
-        ShouldRender(layer)) {
+    if (0 <= renderTarget && renderTarget <= MaxFramebuffers) {
       Renderer->SetFramebuffer(renderTarget);
     }
 
