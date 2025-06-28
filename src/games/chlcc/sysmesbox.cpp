@@ -17,7 +17,9 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::SysMesBox;
 using namespace Impacto::Profile::CHLCC::SysMesBox;
 
-SysMesBox::SysMesBox() { LoadingStarsFadeAnimation.DurationIn = LoadingStarsFadeDuration; }
+SysMesBox::SysMesBox() {
+  LoadingStarsFadeAnimation.DurationIn = LoadingStarsFadeDuration;
+}
 
 void SysMesBox::ChoiceItemOnClick(Button* target) {
   ScrWork[SW_SYSSEL] = target->Id;
