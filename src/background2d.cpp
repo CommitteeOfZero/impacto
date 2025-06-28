@@ -215,6 +215,11 @@ void Background2D::RenderBgEff(int bgId, int layer) {
   }
   if (vertexCount == 4) std::swap(vertices[1], vertices[2]);
 
+  const glm::vec2 backgroundOffset =
+      glm::vec2(ScrWork[SW_BGEFF1_SX + structOffset],
+                ScrWork[SW_BGEFF1_SY + structOffset]) *
+      resolutionScale;
+
   const glm::vec2 pos =
       glm::vec2(ScrWork[SW_BGEFF1_POSX + structOffset] +
                     ScrWork[SW_BGEFF1_OFSX + structOfsOffset],
@@ -222,7 +227,8 @@ void Background2D::RenderBgEff(int bgId, int layer) {
                     ScrWork[SW_BGEFF1_OFSY + structOfsOffset]) *
       resolutionScale;
 
-  DisplayCoords = pos - vertices[0];
+  DisplayCoords = pos - backgroundOffset;
+  const glm::vec2 stencilOffset = pos - vertices[0];
 
   // Origin is the center of mass
   Origin = std::reduce(vertices.begin(), vertices.begin() + vertexCount) /
@@ -230,7 +236,7 @@ void Background2D::RenderBgEff(int bgId, int layer) {
 
   // Transform vertices
   const glm::mat4 stencilTransformation = TransformationMatrix(
-      Origin, Scale, {Origin, 0.0f}, Rotation, DisplayCoords);
+      Origin, Scale, {Origin, 0.0f}, Rotation, stencilOffset);
 
   // Draw
   Renderer->SetStencilMode(StencilBufferMode::Write);
