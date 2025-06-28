@@ -9,11 +9,14 @@
 #include "../profile/data/achievementsystem.h"
 #include "../log.h"
 #include "../texture/texture.h"
+#include "../mem.h"
+#include "../profile/scriptvars.h"
 
 int constexpr ICON_START = 3;
 int constexpr ICON_SIZE = 240;
 
 using namespace Impacto::Profile::AchievementSystem;
+using namespace Impacto::Profile::ScriptVars;
 
 namespace Impacto {
 namespace AchievementSystem {
@@ -22,7 +25,20 @@ size_t AchievementSystemPS3::GetAchievementCount() const {
   return Trophies.size();
 }
 
-bool AchievementSystemPS3::MountAchievementFile() {
+AchievementError AchievementSystemPS3::MountAchievementFile() {
+  bool success = LoadAsync(0);
+  return success ? AchievementError::InProgress : AchievementError::Failed;
+}
+
+void AchievementSystemPS3::MainThreadOnLoad() {
+  // Maybe let's not fail just yet, atleast not until we create trophy data
+  // ScrWork[SW_SAVEERRORCODE] = (int)LoadingError;
+  ScrWork[SW_SAVEERRORCODE] = (int)AchievementError::OK;
+}
+
+bool AchievementSystemPS3::UnloadSync() { return true; }
+
+bool AchievementSystemPS3::LoadSync(uint32_t id) {
   Io::Stream* baseStream;
   IoError err =
       Io::PhysicalFileStream::Create(AchievementDataPath, &baseStream);
@@ -43,6 +59,8 @@ bool AchievementSystemPS3::MountAchievementFile() {
   if (tdh.magic != PS3_MAGIC) {
     ImpLog(LogLevel::Error, LogChannel::IO, "Wrong magic in TROPHY.TRP\n");
     delete baseStream;
+
+    LoadingError = AchievementError::Failed;
     return false;
   }
   TrophyDataEntries.resize(tdh.file_count);
@@ -66,6 +84,8 @@ bool AchievementSystemPS3::MountAchievementFile() {
     ImpLog(LogLevel::Error, LogChannel::IO,
            "TROP.SFM entry not found in TROPHY.TRP\n");
     delete baseStream;
+
+    LoadingError = AchievementError::Failed;
     return false;
   }
 
@@ -83,6 +103,8 @@ bool AchievementSystemPS3::MountAchievementFile() {
   if (!result) {
     ImpLog(LogLevel::Error, LogChannel::IO, "Unable to load TROP.SFM\n");
     delete baseStream;
+
+    LoadingError = AchievementError::Failed;
     return false;
   }
 
@@ -98,6 +120,8 @@ bool AchievementSystemPS3::MountAchievementFile() {
       ImpLog(LogLevel::Error, LogChannel::IO,
              "Missing trophy type in TROP.SFM\n");
       delete baseStream;
+
+      LoadingError = AchievementError::Failed;
       return false;
     }
 
@@ -106,6 +130,8 @@ bool AchievementSystemPS3::MountAchievementFile() {
       ImpLog(LogLevel::Error, LogChannel::IO,
              "Invalid trophy type in TROP.SFM\n");
       delete baseStream;
+
+      LoadingError = AchievementError::Failed;
       return false;
     }
 
@@ -119,6 +145,8 @@ bool AchievementSystemPS3::MountAchievementFile() {
       ImpLog(LogLevel::Error, LogChannel::IO,
              "Couldn't open icon for TROP{:03d}\n", id);
       delete baseStream;
+
+      LoadingError = AchievementError::Failed;
       return false;
     }
 
@@ -130,6 +158,8 @@ bool AchievementSystemPS3::MountAchievementFile() {
              "Unable to load texture for TROP{:03d}.PNG\n", id);
       delete iconStream;
       delete baseStream;
+
+      LoadingError = AchievementError::Failed;
       return false;
     }
     delete iconStream;
@@ -149,6 +179,8 @@ bool AchievementSystemPS3::MountAchievementFile() {
   }
 
   delete baseStream;
+
+  LoadingError = AchievementError::OK;
   return true;
 }
 
