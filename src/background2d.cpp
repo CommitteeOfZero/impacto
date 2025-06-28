@@ -213,6 +213,11 @@ void Background2D::RenderBgEff(int bgId, int layer) {
   }
   if (maskType == 0) std::swap(vertices[1], vertices[2]);
 
+  const glm::vec2 backgroundOffset =
+      glm::vec2(ScrWork[SW_BGEFF1_SX + structOffset],
+                ScrWork[SW_BGEFF1_SY + structOffset]) *
+      resolutionScale;
+
   const glm::vec2 pos =
       glm::vec2(ScrWork[SW_BGEFF1_POSX + structOffset] +
                     ScrWork[SW_BGEFF1_OFSX + structOfsOffset],
@@ -220,7 +225,8 @@ void Background2D::RenderBgEff(int bgId, int layer) {
                     ScrWork[SW_BGEFF1_OFSY + structOfsOffset]) *
       resolutionScale;
 
-  DisplayCoords = pos - vertices[0];
+  DisplayCoords = pos - backgroundOffset;
+  const glm::vec2 stencilOffset = pos - vertices[0];
 
   // Origin is the center of mass
   Origin = {0.0f, 0.0f};
@@ -228,14 +234,14 @@ void Background2D::RenderBgEff(int bgId, int layer) {
   Origin /= (float)vertexCount;
 
   // Transform vertices
-  const glm::mat4 transformation = TransformationMatrix(
-      Origin, Scale, {Origin, 0.0f}, Rotation, DisplayCoords);
+  const glm::mat4 stencilTransformation = TransformationMatrix(
+      Origin, Scale, {Origin, 0.0f}, Rotation, stencilOffset);
 
   // Draw
   Renderer->SetStencilMode(StencilBufferMode::Write);
   Renderer->ClearStencilBuffer();
 
-  Renderer->DrawConvexShape(vertices, transformation, glm::vec4(1.0f));
+  Renderer->DrawConvexShape(vertices, stencilTransformation, glm::vec4(1.0f));
 
   Renderer->SetStencilMode(StencilBufferMode::Test);
 
