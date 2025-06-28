@@ -46,6 +46,11 @@ enum ThreadMemberOffset {
   TO_ThdVarBegin = 47
 };
 
+struct BufferOffsetContext {
+  uint32_t ScriptBufferId;
+  uint32_t IpOffset;
+};
+
 class Vm;
 
 struct Sc3VmThread {
@@ -59,12 +64,12 @@ struct Sc3VmThread {
   uint32_t GroupId;
   uint32_t WaitCounter;
   uint32_t ScriptParam;
-  uint8_t* Ip;
+  uint32_t IpOffset;
   uint32_t LoopCounter;
   uint16_t LoopLabelNum;
   uint32_t CallStackDepth;
   union {
-    uint8_t* ReturnAddresses[MaxCallStackDepth];
+    uint32_t ReturnAddresses[MaxCallStackDepth];
     uint16_t ReturnIds[MaxCallStackDepth];
   };
   uint32_t ReturnScriptBufferIds[MaxCallStackDepth];
@@ -77,6 +82,9 @@ struct Sc3VmThread {
   uint32_t DialoguePageId;
 
   void* GetMemberPointer(uint32_t offset);
+  uint8_t* GetIp() const;
+  void SetIp(uint8_t* ptr);
+  void SetIp(BufferOffsetContext ctx);
 };
 
 }  // namespace Vm

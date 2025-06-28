@@ -193,20 +193,22 @@ void ClearListMenu::InitMainPage() {
 
   Vm::Sc3VmThread dummy;
   uint16_t sc3StringBuffer[10];
+  Vm::Sc3Stream sc3StrStream(sc3StringBuffer);
 
   auto separator =
       Vm::ScriptGetTextTableStrAddress(SeparatorTable, SeparatorEntry);
-  dummy.Ip = separator;
+  dummy.IpOffset = separator.IpOffset;
+  dummy.ScriptBufferId = separator.ScriptBufferId;
   SeparatorWidth =
       TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
 
   // Ending count
   TextGetSc3String(fmt::to_string(EndingCount), sc3StringBuffer);
-  dummy.Ip = (uint8_t*)sc3StringBuffer;
-  EndingCountWidth =
-      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
+  EndingCountWidth = TextGetPlainLineWidth(
+      sc3StrStream, Profile::Dialogue::DialogueFont, FontSize);
+  sc3StrStream = Vm::Sc3Stream(sc3StringBuffer);
   MainPage->Add(new Label(
-      (uint8_t*)sc3StringBuffer,
+      sc3StrStream,
       glm::vec2(
           (EndingsLabelPosition.x - EndingCountWidth) + EndingCountPosition.x,
           EndingCountPosition.y),
@@ -224,10 +226,10 @@ void ClearListMenu::InitMainPage() {
 
   // Scene count
   TextGetSc3String(fmt::to_string(SceneCount), sc3StringBuffer);
-  dummy.Ip = (uint8_t*)sc3StringBuffer;
-  SceneCountWidth =
-      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
-  MainPage->Add(new Label((uint8_t*)sc3StringBuffer,
+  SceneCountWidth = TextGetPlainLineWidth(
+      sc3StrStream, Profile::Dialogue::DialogueFont, FontSize);
+  sc3StrStream = Vm::Sc3Stream(sc3StringBuffer);
+  MainPage->Add(new Label(sc3StrStream,
                           glm::vec2((ScenesLabelPosition.x - SceneCountWidth) +
                                         SceneCountPosition.x,
                                     SceneCountPosition.y),
@@ -251,11 +253,12 @@ void ClearListMenu::InitMainPage() {
   int totalCount = 0, unlockedCount = 0;
   SaveSystem::GetViewedEVsCount(&totalCount, &unlockedCount);
   TextGetSc3String(fmt::to_string(totalCount), sc3StringBuffer);
-  dummy.Ip = (uint8_t*)sc3StringBuffer;
-  AlbumCountWidth =
-      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
+  sc3StrStream = Vm::Sc3Stream(sc3StringBuffer);
+  AlbumCountWidth = TextGetPlainLineWidth(
+      sc3StrStream, Profile::Dialogue::DialogueFont, FontSize);
+  sc3StrStream = Vm::Sc3Stream(sc3StringBuffer);
   MainPage->Add(new Label(
-      (uint8_t*)sc3StringBuffer,
+      sc3StrStream,
       glm::vec2((AlbumLabelPosition.x - AlbumCountWidth) + AlbumCountPosition.x,
                 AlbumCountPosition.y),
       FontSize, RendererOutlineMode::None, ClearListColorIndex));
@@ -273,7 +276,7 @@ void ClearListMenu::InitMainPage() {
   // Play time
   auto secondsText = Vm::ScriptGetTextTableStrAddress(PlayTimeTextTable,
                                                       PlayTimeSecondsTextEntry);
-  dummy.Ip = secondsText;
+  dummy.SetIp(secondsText);
   SecondsTextWidth =
       TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
   MainPage->Add(new Label(secondsText,
@@ -285,7 +288,7 @@ void ClearListMenu::InitMainPage() {
 
   auto minutesText = Vm::ScriptGetTextTableStrAddress(PlayTimeTextTable,
                                                       PlayTimeMinutesTextEntry);
-  dummy.Ip = minutesText;
+  dummy.SetIp(minutesText);
   MinutesTextWidth =
       TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
   MainPage->Add(
@@ -297,7 +300,7 @@ void ClearListMenu::InitMainPage() {
 
   auto hoursText = Vm::ScriptGetTextTableStrAddress(PlayTimeTextTable,
                                                     PlayTimeHoursTextEntry);
-  dummy.Ip = hoursText;
+  dummy.SetIp(hoursText);
   HoursTextWidth =
       TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
   HoursText = new Label(
@@ -324,127 +327,129 @@ void ClearListMenu::InitMainPage() {
 }
 
 void ClearListMenu::UpdateEndingCount() {
-  Vm::Sc3VmThread dummy;
   uint16_t sc3StringBuffer[10];
+  Vm::Sc3Stream stream(sc3StringBuffer);
 
   int unlockedEndingCount = 0;
   for (int i = 0; i < EndingCount; i++) {
     unlockedEndingCount += GetFlag(SF_CLR_END1 + i);
   }
   TextGetSc3String(fmt::format("{:2}", unlockedEndingCount), sc3StringBuffer);
-  dummy.Ip = (uint8_t*)sc3StringBuffer;
   float unlockedEndingCountWidth =
-      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
+      TextGetPlainLineWidth(stream, Profile::Dialogue::DialogueFont, FontSize);
+  stream = Vm::Sc3Stream(sc3StringBuffer);
   UnlockedEndingCount->Bounds.X =
       (EndingsLabelPosition.x -
        (EndingCountWidth + SeparatorWidth + unlockedEndingCountWidth)) +
       EndingCountPosition.x;
   UnlockedEndingCount->Bounds.Y = EndingCountPosition.y;
-  UnlockedEndingCount->SetText((uint8_t*)sc3StringBuffer, FontSize,
-                               RendererOutlineMode::None, ClearListColorIndex);
+  UnlockedEndingCount->SetText(stream, FontSize, RendererOutlineMode::None,
+                               ClearListColorIndex);
 }
 
 void ClearListMenu::UpdateSceneCount() {
-  Vm::Sc3VmThread dummy;
   uint16_t sc3StringBuffer[10];
-
+  Vm::Sc3Stream stream(sc3StringBuffer);
   int unlockedSceneCount = 0;
   for (int i = 0; i < SceneCount; ++i) {
     unlockedSceneCount += GetFlag(SF_SCN_CLR1 + i);
   }
   TextGetSc3String(fmt::to_string(unlockedSceneCount), sc3StringBuffer);
-  dummy.Ip = (uint8_t*)sc3StringBuffer;
   float unlockedSceneCountWidth =
-      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
+      TextGetPlainLineWidth(stream, Profile::Dialogue::DialogueFont, FontSize);
+  stream = Vm::Sc3Stream(sc3StringBuffer);
   UnlockedSceneCount->Bounds.X =
       (ScenesLabelPosition.x -
        (SceneCountWidth + SeparatorWidth + unlockedSceneCountWidth)) +
       SceneCountPosition.x;
   UnlockedSceneCount->Bounds.Y = SceneCountPosition.y;
-  UnlockedSceneCount->SetText((uint8_t*)sc3StringBuffer, FontSize,
-                              RendererOutlineMode::None, ClearListColorIndex);
+  UnlockedSceneCount->SetText(stream, FontSize, RendererOutlineMode::None,
+                              ClearListColorIndex);
 }
 
 void ClearListMenu::UpdateAlbumCount() {
-  Vm::Sc3VmThread dummy;
   uint16_t sc3StringBuffer[10];
+  Vm::Sc3Stream stream(sc3StringBuffer);
 
   int totalCount = 0, unlockedCount = 0;
   SaveSystem::GetViewedEVsCount(&totalCount, &unlockedCount);
   TextGetSc3String(fmt::to_string(unlockedCount), sc3StringBuffer);
-  dummy.Ip = (uint8_t*)sc3StringBuffer;
   float unlockedAlbumCountWidth =
-      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
+      TextGetPlainLineWidth(stream, Profile::Dialogue::DialogueFont, FontSize);
+  stream = Vm::Sc3Stream(sc3StringBuffer);
   UnlockedAlbumCount->Bounds.X =
       (AlbumLabelPosition.x -
        (AlbumCountWidth + SeparatorWidth + unlockedAlbumCountWidth)) +
       AlbumCountPosition.x;
   UnlockedAlbumCount->Bounds.Y = AlbumCountPosition.y;
-  UnlockedAlbumCount->SetText((uint8_t*)sc3StringBuffer, FontSize,
-                              RendererOutlineMode::None, ClearListColorIndex);
+  UnlockedAlbumCount->SetText(stream, FontSize, RendererOutlineMode::None,
+                              ClearListColorIndex);
 }
 
 void ClearListMenu::UpdateCompletionPercentage() {
-  Vm::Sc3VmThread dummy;
   uint16_t sc3StringBuffer[10];
+  Vm::Sc3Stream stream(sc3StringBuffer);
+
   int totalMessageCount = 0, readMessageCount = 0;
 
   SaveSystem::GetReadMessagesCount(&totalMessageCount, &readMessageCount);
   float readPercentage = readMessageCount / (float)totalMessageCount * 100.0f;
   TextGetSc3String(fmt::format("{:.2f}%", readPercentage), sc3StringBuffer);
-  dummy.Ip = (uint8_t*)sc3StringBuffer;
   float percentageWidth =
-      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
+      TextGetPlainLineWidth(stream, Profile::Dialogue::DialogueFont, FontSize);
+  stream = Vm::Sc3Stream(sc3StringBuffer);
+
   CompletionPercentage->Bounds.X =
       CompletionLabelPosition.x - percentageWidth + CompletionPosition.x;
   CompletionPercentage->Bounds.Y = CompletionPosition.y;
-  CompletionPercentage->SetText((uint8_t*)sc3StringBuffer, FontSize,
-                                RendererOutlineMode::None, ClearListColorIndex);
+  CompletionPercentage->SetText(stream, FontSize, RendererOutlineMode::None,
+                                ClearListColorIndex);
 }
 
 void ClearListMenu::UpdatePlayTime() {
-  Vm::Sc3VmThread dummy;
   auto seconds = ScrWork[SW_TOTALPLAYTIME] % 3600 % 60;
   auto minutes = ScrWork[SW_TOTALPLAYTIME] % 3600 / 60;
   auto hours = ScrWork[SW_TOTALPLAYTIME] / 3600;
 
   uint16_t sc3StringBuffer[10];
+  Vm::Sc3Stream stream(sc3StringBuffer);
 
   TextGetSc3String(fmt::format("{:2d}", seconds), sc3StringBuffer);
-  dummy.Ip = (uint8_t*)sc3StringBuffer;
   float secondsWidth =
-      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
+      TextGetPlainLineWidth(stream, Profile::Dialogue::DialogueFont, FontSize);
+  stream = Vm::Sc3Stream(sc3StringBuffer);
   PlaySeconds->Bounds.X = PlayTimeLabelPosition.x -
                           (SecondsTextWidth + secondsWidth) +
                           PlayTimeSecondsPosition.x;
   PlaySeconds->Bounds.Y = PlayTimeSecondsPosition.y;
-  PlaySeconds->SetText((uint8_t*)sc3StringBuffer, FontSize,
-                       RendererOutlineMode::None, ClearListColorIndex);
-
+  PlaySeconds->SetText(stream, FontSize, RendererOutlineMode::None,
+                       ClearListColorIndex);
   TextGetSc3String(fmt::format("{:2d}", minutes), sc3StringBuffer);
-  dummy.Ip = (uint8_t*)sc3StringBuffer;
+  stream = Vm::Sc3Stream(sc3StringBuffer);
   float minutesWidth =
-      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
+      TextGetPlainLineWidth(stream, Profile::Dialogue::DialogueFont, FontSize);
+  stream = Vm::Sc3Stream(sc3StringBuffer);
   PlayMinutes->Bounds.X = PlayTimeLabelPosition.x -
                           (SecondsTextWidth + MinutesTextWidth + minutesWidth) +
                           PlayTimeMinutesPosition.x;
   PlayMinutes->Bounds.Y = PlayTimeMinutesPosition.y;
-  PlayMinutes->SetText((uint8_t*)sc3StringBuffer, FontSize,
-                       RendererOutlineMode::None, ClearListColorIndex);
+  PlayMinutes->SetText(stream, FontSize, RendererOutlineMode::None,
+                       ClearListColorIndex);
 
   if (hours != 0) {
     HoursText->Tint.a = FadeAnimation.Progress;
     PlayHours->Tint.a = FadeAnimation.Progress;
     TextGetSc3String(fmt::format("{:2d}", hours), sc3StringBuffer);
-    dummy.Ip = (uint8_t*)sc3StringBuffer;
+    stream = Vm::Sc3Stream(sc3StringBuffer);
     float hoursWidth = TextGetPlainLineWidth(
-        &dummy, Profile::Dialogue::DialogueFont, FontSize);
+        stream, Profile::Dialogue::DialogueFont, FontSize);
+    stream = Vm::Sc3Stream(sc3StringBuffer);
     PlayHours->Bounds.X = PlayTimeLabelPosition.x - SecondsTextWidth -
                           MinutesTextWidth - (HoursTextWidth + hoursWidth) +
                           PlayTimeHoursPosition.x;
     PlayHours->Bounds.Y = PlayTimeHoursPosition.y;
-    PlayHours->SetText((uint8_t*)sc3StringBuffer, FontSize,
-                       RendererOutlineMode::None, ClearListColorIndex);
+    PlayHours->SetText(stream, FontSize, RendererOutlineMode::None,
+                       ClearListColorIndex);
   } else {
     PlayHours->Tint.a = 0.0f;
     HoursText->Tint.a = 0.0f;

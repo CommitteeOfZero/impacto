@@ -1,15 +1,16 @@
 #pragma once
 
-#include "font.h"
-#include "animation.h"
-#include "vm/thread.h"
+#include <span>
 #include <enum.h>
 #include <ankerl/unordered_dense.h>
 
+#include "font.h"
+#include "animation.h"
+#include "vm/thread.h"
+#include "vm/sc3stream.h"
 #include "audio/audiosystem.h"
 #include "audio/audiostream.h"
 #include "audio/audiochannel.h"
-#include <span>
 
 namespace Impacto {
 
@@ -134,21 +135,32 @@ struct DialoguePage {
 inline DialoguePage* DialoguePages;
 inline int DialoguePageCount = 0;
 
+int TextGetStringLength(Vm::Sc3Stream& stream);
 int TextGetStringLength(Vm::Sc3VmThread* ctx);
 [[maybe_unused]] int TextGetMainCharacterCount(Vm::Sc3VmThread* ctx);
+int TextLayoutPlainLine(Vm::Sc3Stream& stream, int stringLength,
+                        std::span<ProcessedTextGlyph> outGlyphs, Font* font,
+                        float fontSize, DialogueColorPair colors, float opacity,
+                        glm::vec2 pos, TextAlignment alignment,
+                        float blockWidth = 0.0f);
 int TextLayoutPlainLine(Vm::Sc3VmThread* ctx, int stringLength,
                         std::span<ProcessedTextGlyph> outGlyphs, Font* font,
                         float fontSize, DialogueColorPair colors, float opacity,
                         glm::vec2 pos, TextAlignment alignment,
                         float blockWidth = 0.0f);
 std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
-    Vm::Sc3VmThread* ctx, int maxLength, Font* font, float fontSize,
+    Vm::Sc3Stream& stream, int maxLength, Font* font, float fontSize,
+    DialogueColorPair colors, float opacity, glm::vec2 pos,
+    TextAlignment alignment, float blockWidth = 0.0f);
+std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
+    Vm::Sc3VmThread* thd, int maxLength, Font* font, float fontSize,
     DialogueColorPair colors, float opacity, glm::vec2 pos,
     TextAlignment alignment, float blockWidth = 0.0f);
 int TextLayoutAlignment(Impacto::TextAlignment& alignment, float blockWidth,
                         float currentX, glm::vec2& pos, int characterCount,
                         std::span<Impacto::ProcessedTextGlyph> outGlyphs);
 float TextGetPlainLineWidth(Vm::Sc3VmThread* ctx, Font* font, float fontSize);
+float TextGetPlainLineWidth(Vm::Sc3Stream& stream, Font* font, float fontSize);
 int TextLayoutPlainString(std::string_view str,
                           std::span<ProcessedTextGlyph> outGlyphs, Font* font,
                           float fontSize, DialogueColorPair colors,
@@ -162,7 +174,7 @@ std::vector<ProcessedTextGlyph> TextLayoutPlainString(
 void TextGetSc3String(std::string_view str, std::span<uint16_t> out);
 
 inline ankerl::unordered_dense::map<uint32_t, uint32_t> NamePlateData;
-void InitNamePlateData(uint16_t* data);
+void InitNamePlateData(Vm::Sc3Stream& stream);
 uint32_t GetNameId(uint8_t* name, int nameLength);
 
 // Bitfield denoting the skip mode, according to SkipModeFlags

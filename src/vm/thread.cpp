@@ -1,4 +1,5 @@
 #include "thread.h"
+#include "vm.h"
 
 namespace Impacto {
 namespace Vm {
@@ -16,7 +17,7 @@ void* Sc3VmThread::GetMemberPointer(uint32_t offset) {
     case TO_ScrParam:
       return &ScriptParam;
     case TO_ScrAddr:
-      return &Ip;
+      return &IpOffset;
     case TO_LoopCount:
       return &LoopCounter;
     case TO_LoopAddr:
@@ -42,5 +43,21 @@ void* Sc3VmThread::GetMemberPointer(uint32_t offset) {
       break;
   }
 }
+
+uint8_t* Sc3VmThread::GetIp() const {
+  return ScriptBuffers[ScriptBufferId].data() + IpOffset;
+}
+void Sc3VmThread::SetIp(uint8_t* ptr) {
+  assert(ptr >= ScriptBuffers[ScriptBufferId].data() &&
+         ptr < ScriptBuffers[ScriptBufferId].data() +
+                   ScriptBuffers[ScriptBufferId].size());
+  IpOffset = static_cast<uint32_t>(ptr - ScriptBuffers[ScriptBufferId].data());
+}
+
+void Sc3VmThread::SetIp(BufferOffsetContext ctx) {
+  IpOffset = ctx.IpOffset;
+  ScriptBufferId = ctx.ScriptBufferId;
+}
+
 }  // namespace Vm
 }  // namespace Impacto

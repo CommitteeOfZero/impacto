@@ -24,10 +24,14 @@ class Button : public Widget {
   virtual void MoveTo(glm::vec2 pos) override;
   virtual void MoveTo(glm::vec2 pos, float duration) override;
 
-  void SetText(uint8_t* str, float fontSize, RendererOutlineMode outlineMode,
-               int colorIndex = 10);
-  void SetText(uint8_t* str, float fontSize, RendererOutlineMode outlineMode,
-               DialogueColorPair colorPair);
+  void SetText(Vm::BufferOffsetContext scrCtx, float fontSize,
+               RendererOutlineMode outlineMode, int colorIndex = 10);
+  void SetText(Vm::BufferOffsetContext scrCtx, float fontSize,
+               RendererOutlineMode outlineMode, DialogueColorPair colorPair);
+  void SetText(Vm::Sc3Stream& stream, float fontSize,
+               RendererOutlineMode outlineMode, int colorIndex = 10);
+  void SetText(Vm::Sc3Stream& stream, float fontSize,
+               RendererOutlineMode outlineMode, DialogueColorPair colorPair);
   void SetText(std::vector<ProcessedTextGlyph> text, float textWidth,
                float fontSize, RendererOutlineMode outlineMode);
   void ClearText() {

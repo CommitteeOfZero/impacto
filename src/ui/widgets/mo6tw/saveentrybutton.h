@@ -13,11 +13,16 @@ class SaveEntryButton : public Widgets::Button {
                   Sprite const& highlight, glm::vec2 pos)
       : Widgets::Button(id, norm, focused, highlight, pos) {}
   void Render() override;
-  void AddPlayTimeHintText(uint8_t* str, float fontSize, bool outline);
-  void AddPlayTimeText(uint8_t* str, float fontSize, bool outline);
-  void AddSaveDateHintText(uint8_t* str, float fontSize, bool outline);
-  void AddSaveDateText(uint8_t* str, float fontSize, bool outline);
-  void AddSceneTitleText(uint8_t* str, float fontSize, bool outline);
+  void AddPlayTimeHintText(Vm::BufferOffsetContext strAdr, float fontSize,
+                           bool outline);
+  void AddPlayTimeText(Vm::BufferOffsetContext strAdr, float fontSize,
+                       bool outline);
+  void AddSaveDateHintText(Vm::BufferOffsetContext strAdr, float fontSize,
+                           bool outline);
+  void AddSaveDateText(Vm::BufferOffsetContext strAdr, float fontSize,
+                       bool outline);
+  void AddSceneTitleText(Vm::BufferOffsetContext strAdr, float fontSize,
+                         bool outline);
 
   Sprite Thumbnail;
 

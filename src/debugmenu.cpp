@@ -392,10 +392,10 @@ static std::map<uint32_t, std::string> ScriptFilesListing;
 
 void ShowScriptDebugger() {
   if (ScriptDebuggerSelectedThreadId == -1 ||
-      Vm::ThreadPool[ScriptDebuggerSelectedThreadId].Ip == 0) {
+      Vm::ThreadPool[ScriptDebuggerSelectedThreadId].IpOffset == 0) {
     int firstThreadId = 0;
     for (int i = 0; i < Vm::MaxThreads; i++) {
-      if (Vm::ThreadPool[i].Ip != 0) {
+      if (Vm::ThreadPool[i].IpOffset != 0) {
         firstThreadId = i;
         break;
       }
@@ -430,7 +430,7 @@ void ShowScriptDebugger() {
   if (ImGui::BeginCombo("Thread##vmThreadCombo", comboPreviewValue,
                         ImGuiComboFlags_WidthFitPreview)) {
     for (int i = 0; i < Vm::MaxThreads; i++) {
-      if (Vm::ThreadPool[i].Ip != 0) {
+      if (Vm::ThreadPool[i].IpOffset != 0) {
         const bool isSelected = (ScriptDebuggerSelectedThreadId == i);
         groupType = ThreadGroupType::_from_integral_nothrow(
             (uint8_t)Vm::ThreadPool[i].GroupId);
@@ -527,11 +527,8 @@ void ShowScriptDebugger() {
   if (ImGui::BeginTable("tableThreadData", 3, ImGuiTableFlags_None)) {
     ImGui::TableNextColumn();
     ImGui::Text("ID: %d", Vm::ThreadPool[ScriptDebuggerSelectedThreadId].Id);
-    ImGui::Text(
-        "IP: %08lX",
-        Vm::ThreadPool[ScriptDebuggerSelectedThreadId].Ip -
-            Vm::ScriptBuffers[Vm::ThreadPool[ScriptDebuggerSelectedThreadId]
-                                  .ScriptBufferId]);
+    ImGui::Text("IP: %d",
+                Vm::ThreadPool[ScriptDebuggerSelectedThreadId].IpOffset);
     ImGui::Text("ExecPriority: %d",
                 Vm::ThreadPool[ScriptDebuggerSelectedThreadId].ExecPriority);
 
@@ -569,11 +566,7 @@ void ShowScriptDebugger() {
   ImGui::Spacing();
   if (ImGui::TreeNode("Source View")) {
     uint32_t scriptId = ScriptDebuggerSelectedScriptId;
-    uint32_t scriptIp =
-        (uint32_t)(Vm::ThreadPool[ScriptDebuggerSelectedThreadId].Ip -
-                   Vm::ScriptBuffers
-                       [Vm::ThreadPool[ScriptDebuggerSelectedThreadId]
-                            .ScriptBufferId]);
+    uint32_t scriptIp = Vm::ThreadPool[ScriptDebuggerSelectedThreadId].IpOffset;
 
     ParseScriptDebugData(scriptId);
     if (ScriptDebugSource.find(scriptId) != ScriptDebugSource.end()) {
@@ -705,18 +698,16 @@ void ShowScriptDebugger() {
          i >= 0; i--) {
       ImGui::PushID(i);
       auto& thd = Vm::ThreadPool[ScriptDebuggerSelectedThreadId];
-      uint8_t* returnAddress =
+      uint32_t returnAddress =
           (Profile::Vm::UseReturnIds)
-              ? Vm::ScriptGetRetAddress(
-                    Vm::ScriptBuffers[thd.ReturnScriptBufferIds[i]],
-                    thd.ReturnIds[i])
+              ? Vm::ScriptGetRetAddress(thd.ReturnScriptBufferIds[i],
+                                        thd.ReturnIds[i])
               : thd.ReturnAddresses[i];
 
       ImGui::Text(
-          "%s - %p",
+          "%s - %08X",
           Vm::LoadedScriptMetas[thd.ReturnScriptBufferIds[i]].FileName.c_str(),
-          (void*)(returnAddress -
-                  Vm::ScriptBuffers[thd.ReturnScriptBufferIds[i]]));
+          returnAddress);
       ImGui::PopID();
     }
 
@@ -794,9 +785,9 @@ void ShowObjects() {
         // Only OpenGL for now
         if (Profile::ActiveRenderer == +RendererType::OpenGL) {
           ImVec2 pos = ImGui::GetCursorScreenPos();
-          ImGui::Image((ImTextureID)(size_t)spriteSheet.second.Texture,
+          ImGui::Image((ImTextureID)(intptr_t)spriteSheet.second.Texture,
                        ImVec2(texWidth, texHeight));
-          ImageTooltip(pos, (ImTextureID)(size_t)spriteSheet.second.Texture,
+          ImageTooltip(pos, (ImTextureID)(intptr_t)spriteSheet.second.Texture,
                        texWidth, texHeight);
         }
 

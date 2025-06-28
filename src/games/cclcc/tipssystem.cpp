@@ -13,7 +13,7 @@ using namespace Impacto::Vm;
 using namespace Impacto::Profile::TipsSystem;
 using namespace Impacto::Io;
 
-void TipsSystem::DataInit(int scriptBufferId, uint8_t *tipsData,
+void TipsSystem::DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
                           uint32_t tipsDataSize) {
   ScriptBufferId = (uint8_t)scriptBufferId;
   auto scriptBuffer = ScriptBuffers[scriptBufferId];
@@ -21,7 +21,8 @@ void TipsSystem::DataInit(int scriptBufferId, uint8_t *tipsData,
   TipEntryCount = 0;
 
   // Read tips data from the script and create UI elements for each tip
-  MemoryStream stream = MemoryStream(tipsData, tipsDataSize, false);
+  MemoryStream stream =
+      MemoryStream(&scriptBuffer[tipsDataAdr], tipsDataSize, false);
   int numberOfContentStrings = ReadLE<uint16_t>(&stream);
   while (numberOfContentStrings != 255) {
     if (TipEntryCount >= MaxTipsCount) {
@@ -34,8 +35,8 @@ void TipsSystem::DataInit(int scriptBufferId, uint8_t *tipsData,
     // TODO: record.SortLetterIndex
     record.NumberOfContentStrings = (uint16_t)numberOfContentStrings;
     for (int i = 0; i < numberOfContentStrings + 4; i++) {
-      record.StringPtrs[i] =
-          ScriptGetStrAddress(scriptBuffer, ReadLE<uint16_t>(&stream));
+      record.StringAdr[i] =
+          ScriptGetStrAddress(scriptBufferId, ReadLE<uint16_t>(&stream));
     }
     Records[TipEntryCount] = std::move(record);
 

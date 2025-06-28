@@ -207,7 +207,7 @@ int ExpressionNode::Evaluate(Sc3VmThread* thd) {
       leftVal = LeftExpr->Evaluate(thd);
       rightVal = RightExpr->Evaluate(thd);
       if (leftVal >= 0) {
-        uint8_t* scrBuf = ScriptBuffers[thd->ScriptBufferId];
+        auto scrBuf = ScriptBuffers[thd->ScriptBufferId];
         uint8_t* dataArray = (uint8_t*)&scrBuf[leftVal];
         return UnalignedRead<int>(&dataArray[rightVal * sizeof(int)]);
       } else {
@@ -217,8 +217,8 @@ int ExpressionNode::Evaluate(Sc3VmThread* thd) {
         return 0;
       }
     case ET_FuncLabelTable:
-      return ScriptGetLabelAddressNum(ScriptBuffers[thd->ScriptBufferId],
-                                      RightExpr->Evaluate(thd));
+      return ScriptGetLabelAddress(thd->ScriptBufferId,
+                                   RightExpr->Evaluate(thd));
     case ET_FuncFarLabelTable:
       return 0;
     case ET_FuncThreadVars:
@@ -445,50 +445,52 @@ ExpressionNode* ExpressionParser::ParseTerm() {
 void ExpressionParser::GetTokens(Sc3VmThread* thd) {
   ExprToken curToken;
 
-  if (*thd->Ip) {
+  if (*thd->GetIp()) {
     do {
-      int8_t tokenType = *thd->Ip;
+      int8_t tokenType = *thd->GetIp();
       if (tokenType >= 0) {
         curToken.Type = (ExprTokenType)tokenType;
-        curToken.Precedence = *(++thd->Ip);
-        thd->Ip++;
+        thd->IpOffset++;
+        curToken.Precedence = *(thd->GetIp());
+        thd->IpOffset++;
         curToken.Value = 0;
         Tokens.push_back(curToken);
       } else {
-        uint8_t* immValue = thd->Ip;
+        uint8_t* immValue = thd->GetIp();
         curToken.Type = ET_ImmediateValue;
         switch (tokenType & 0x60) {
           case 0:
             curToken.Value = tokenType & 0x1F;
             if (tokenType & 0x10) curToken.Value |= 0xFFFFFFE0;
-            thd->Ip++;
+            thd->IpOffset++;
             break;
           case 0x20:
             curToken.Value = ((immValue[0] & 0x1F) << 8) + immValue[1];
             if (tokenType & 0x10) curToken.Value |= 0xFFFFE000;
-            thd->Ip += 2;
+            thd->IpOffset += 2;
             break;
           case 0x40:
             curToken.Value =
                 ((immValue[0] & 0x1F) << 16) + (immValue[2] << 8) + immValue[1];
             if (tokenType & 0x10) curToken.Value |= 0xFFE00000;
-            thd->Ip += 3;
+            thd->IpOffset += 3;
             break;
           case 0x60:
             curToken.Value = immValue[1] + (immValue[2] << 8) +
                              (immValue[3] << 16) + (immValue[4] << 24);
-            thd->Ip += 5;
+            thd->IpOffset += 5;
             break;
           default:
             break;
         }
-        curToken.Precedence = *(++thd->Ip);
+        thd->IpOffset++;
+        curToken.Precedence = *(thd->GetIp());
         Tokens.push_back(curToken);
       }
-    } while (*thd->Ip);
+    } while (*thd->GetIp());
   }
 
-  thd->Ip++;
+  thd->IpOffset++;
 }
 
 }  // namespace Vm

@@ -16,7 +16,7 @@ class SelectionMenu : public Menu {
   void Render();
 
   void Init(bool isPlain);
-  void AddChoice(uint8_t* str);
+  void AddChoice(Vm::BufferOffsetContext ctx);
 
   void ChoiceItemOnClick(Widgets::Button* target);
 

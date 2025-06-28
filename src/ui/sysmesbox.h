@@ -1,6 +1,7 @@
 #pragma once
 
 #include "menu.h"
+#include "../vm/vm.h"
 #include "../text.h"
 #include "../ui/widgets/group.h"
 
@@ -15,8 +16,8 @@ class SysMesBox : public Menu {
   virtual void Render();
 
   virtual void Init();
-  virtual void AddMessage(uint8_t* str);
-  virtual void AddChoice(uint8_t* str);
+  virtual void AddMessage(Vm::BufferOffsetContext str);
+  virtual void AddChoice(Vm::BufferOffsetContext str);
 
   int MessageCount;
   int ChoiceCount;

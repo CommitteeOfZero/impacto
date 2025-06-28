@@ -69,9 +69,10 @@ void TipsNotification::Update(float dt) {
   }
   if (FadeAnimation.IsIn() && Timer.IsOut()) {
     Timer.StartIn();
-    auto tipName = NotificationQueue.front();
-    TipName->SetText(tipName, FontSize, RendererOutlineMode::Full,
-                     TipNameColorIndex);
+    auto tipNameAdr = NotificationQueue.front();
+    auto tipsScrBufId = TipsSystem::GetTipsScriptBufferId();
+    TipName->SetText({.ScriptBufferId = tipsScrBufId, .IpOffset = tipNameAdr},
+                     FontSize, RendererOutlineMode::Full, TipNameColorIndex);
     TipName->MoveTo(
         glm::vec2(FinalNotificationPosition.x + TextPartBefore->Bounds.Width,
                   FinalNotificationPosition.y));
@@ -107,7 +108,7 @@ void TipsNotification::Render() {
 
 void TipsNotification::AddTip(int tipId) {
   auto record = TipsSystem::GetTipRecord(tipId);
-  NotificationQueue.push(record->StringPtrs[0]);
+  NotificationQueue.push(record->StringAdr[0]);
 }
 
 }  // namespace MO6TW
