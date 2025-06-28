@@ -16,6 +16,7 @@ void Configure() {
   SelectionLeftPart = EnsureGetMember<Sprite>("SelectionLeftPart");
   SelectionRightPart = EnsureGetMember<Sprite>("SelectionRightPart");
   SelectionMiddlePart = EnsureGetMember<Sprite>("SelectionMiddlePart");
+  LoadingStar = EnsureGetMember<Sprite>("LoadingStar");
 
   BoxX = EnsureGetMember<float>("BoxX");
   BoxY = EnsureGetMember<float>("BoxY");
@@ -31,6 +32,8 @@ void Configure() {
   HighlightXOffset = EnsureGetMember<float>("HighlightXOffset");
   HighlightXBase = EnsureGetMember<float>("HighlightXBase");
   HighlightXStep = EnsureGetMember<float>("HighlightXStep");
+  LoadingStarsFadeDuration = EnsureGetMember<float>("LoadingStarsFadeDuration");
+  LoadingStarsPosition = EnsureGetMember<glm::vec2>("LoadingStarsPosition");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMember<int>("DrawType"));
