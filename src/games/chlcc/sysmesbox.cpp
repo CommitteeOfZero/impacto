@@ -6,6 +6,7 @@
 #include "../../profile/scriptvars.h"
 #include "../../mem.h"
 #include "../../renderer/renderer.h"
+#include "../../util.h"
 
 namespace Impacto {
 namespace UI {
@@ -15,6 +16,10 @@ using namespace Impacto::UI::Widgets;
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::SysMesBox;
 using namespace Impacto::Profile::CHLCC::SysMesBox;
+
+SysMesBox::SysMesBox() {
+  LoadingStarsFadeAnimation.DurationIn = LoadingStarsFadeDuration;
+}
 
 void SysMesBox::ChoiceItemOnClick(Button* target) {
   ScrWork[SW_SYSSEL] = target->Id;
@@ -97,6 +102,12 @@ void SysMesBox::Show() {
   }
   IsFocused = true;
   UI::FocusedMenu = this;
+
+  LoadingStarsFadeAnimation.StartIn(true);
+  for (SysMesBoxStar& star : LoadingStars) {
+    star.Angle = ScrWorkAngleToRad(CALCrnd(8192) << 3);
+    star.RotationSpeed = ScrWorkAngleToRad(CALCrnd(4096) - 2048);
+  }
 }
 
 void SysMesBox::Hide() {
@@ -123,6 +134,13 @@ void SysMesBox::Update(float dt) {
       MessageItems->Update(dt);
       ChoiceItems->Update(dt);
     }
+
+    if (GetFlag(SF_SAVEICON)) {
+      LoadingStarsFadeAnimation.Update(dt);
+      for (SysMesBoxStar& star : LoadingStars) {
+        star.Angle += star.RotationSpeed;
+      }
+    }
   }
 }
 
@@ -142,6 +160,21 @@ void SysMesBox::Render() {
     MessageItems->Render();
     ChoiceItems->Tint.a = FadeAnimation.Progress;
     ChoiceItems->Render();
+
+    if (GetFlag(SF_SAVEICON)) {
+      for (size_t i = 0; i < LoadingStarCount; i++) {
+        const SysMesBoxStar& star = LoadingStars[i];
+        glm::vec2 position = LoadingStarsPosition +
+                             glm::vec2(LoadingStar.ScaledWidth() * i, 0.0f);
+
+        CornersQuad dest = LoadingStar.ScaledBounds()
+                               .RotateAroundCenter(star.Angle)
+                               .Translate(position);
+
+        float alpha = LoadingStarsFadeAnimation.Progress;
+        Renderer->DrawSprite(LoadingStar, dest, {1.0f, 1.0f, 1.0f, alpha});
+      }
+    }
   }
 }
 

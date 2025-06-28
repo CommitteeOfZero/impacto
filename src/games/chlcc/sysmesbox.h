@@ -7,8 +7,15 @@ namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
+struct SysMesBoxStar {
+  float Angle;
+  float RotationSpeed;
+};
+
 class SysMesBox : public UI::SysMesBox {
  public:
+  SysMesBox();
+
   virtual void Show() override;
   virtual void Hide() override;
   virtual void Update(float dt) override;
@@ -19,6 +26,10 @@ class SysMesBox : public UI::SysMesBox {
   virtual void AddChoice(uint8_t* str) override;
 
  private:
+  static constexpr size_t LoadingStarCount = 14;
+  std::array<SysMesBoxStar, LoadingStarCount> LoadingStars;
+  Animation LoadingStarsFadeAnimation;
+
   void ChoiceItemOnClick(UI::Widgets::Button* target);
 };
 
