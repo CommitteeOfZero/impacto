@@ -100,10 +100,11 @@ void SystemMenu::Update(float dt) {
     Show();
   }
 
-  if (MenuTransition.IsOut() && State == Hiding) {
+  if (MenuTransition.IsOut() && State == Hiding && ScrWork[SW_SYSMENUCT] == 0) {
     MainItems->Hide();
     State = Hidden;
-  } else if (MenuTransition.IsIn() && State == Showing) {
+  } else if (MenuTransition.IsIn() && State == Showing &&
+             ScrWork[SW_SYSMENUCT] == 10000) {
     State = Shown;
   }
 
