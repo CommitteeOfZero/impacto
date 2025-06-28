@@ -1,6 +1,7 @@
 #pragma once
 
 #include "vm.h"
+#include "sc3stream.h"
 
 namespace Impacto {
 

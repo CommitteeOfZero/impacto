@@ -71,14 +71,36 @@ void Button::Render() {
   }
 }
 
-void Button::SetText(uint8_t* str, float fontSize,
+void Button::SetText(Vm::BufferOffsetContext scrCtx, float fontSize,
                      RendererOutlineMode outlineMode,
                      DialogueColorPair colorPair) {
   HasText = true;
   Impacto::Vm::Sc3VmThread dummy;
-  dummy.Ip = str;
+  dummy.IpOffset = scrCtx.IpOffset;
+  dummy.ScriptBufferId = scrCtx.ScriptBufferId;
   Text = TextLayoutPlainLine(
       &dummy, 255, Profile::Dialogue::DialogueFont, fontSize, colorPair, 1.0f,
+      glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
+  OutlineMode = outlineMode;
+  TextWidth = 0.0f;
+  for (int i = 0; i < Text.size(); i++) {
+    TextWidth += Text[i].DestRect.Width;
+  }
+  Bounds = RectF(Text[0].DestRect.X, Text[0].DestRect.Y, TextWidth, fontSize);
+  HoverBounds = Bounds;
+}
+void Button::SetText(Vm::BufferOffsetContext scrCtx, float fontSize,
+                     RendererOutlineMode outlineMode, int colorIndex) {
+  SetText(scrCtx, fontSize, outlineMode,
+          Profile::Dialogue::ColorTable[colorIndex]);
+}
+
+void Button::SetText(Vm::Sc3Stream& stream, float fontSize,
+                     RendererOutlineMode outlineMode,
+                     DialogueColorPair colorPair) {
+  HasText = true;
+  Text = TextLayoutPlainLine(
+      stream, 255, Profile::Dialogue::DialogueFont, fontSize, colorPair, 1.0f,
       glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
   OutlineMode = outlineMode;
   for (int i = 0; i < Text.size(); i++) {
@@ -88,9 +110,9 @@ void Button::SetText(uint8_t* str, float fontSize,
   HoverBounds = Bounds;
 }
 
-void Button::SetText(uint8_t* str, float fontSize,
+void Button::SetText(Vm::Sc3Stream& stream, float fontSize,
                      RendererOutlineMode outlineMode, int colorIndex) {
-  SetText(str, fontSize, outlineMode,
+  SetText(stream, fontSize, outlineMode,
           Profile::Dialogue::ColorTable[colorIndex]);
 }
 
