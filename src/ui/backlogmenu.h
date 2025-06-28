@@ -20,13 +20,14 @@ class BacklogMenu : public Menu {
   virtual void Render();
 
   virtual Widgets::BacklogEntry* CreateBacklogEntry(
-      int id, uint8_t* str, int audioId, int characterId, glm::vec2 pos,
-      const RectF& hoverBounds) const {
-    return new Widgets::BacklogEntry(id, str, audioId, characterId, pos,
+      int id, Vm::BufferOffsetContext scrCtx, int audioId, int characterId,
+      glm::vec2 pos, const RectF& hoverBounds) const {
+    return new Widgets::BacklogEntry(id, scrCtx, audioId, characterId, pos,
                                      hoverBounds);
   }
 
-  virtual void AddMessage(uint8_t* str, int audioId = -1, int characterId = 0);
+  virtual void AddMessage(Vm::BufferOffsetContext scrCtx, int audioId = -1,
+                          int characterId = 0);
   virtual void MenuButtonOnClick(Widgets::BacklogEntry* target);
   void Clear();
 
