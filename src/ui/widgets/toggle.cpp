@@ -24,11 +24,11 @@ Toggle::Toggle(int id, bool* value, Sprite const& enabled,
 
 Toggle::Toggle(int id, bool* value, Sprite const& enabled,
                Sprite const& disabled, Sprite const& highlight, glm::vec2 pos,
-               bool isCheckbox, uint8_t* str, glm::vec2 labelOfs,
+               bool isCheckbox, Vm::Sc3Stream& stream, glm::vec2 labelOfs,
                float fontSize, RendererOutlineMode outlineMode)
     : Toggle(id, value, enabled, disabled, highlight, pos, isCheckbox) {
   HasTextLabel = true;
-  SetText(str, fontSize, outlineMode);
+  SetText(stream, fontSize, outlineMode);
 }
 
 Toggle::Toggle(int id, bool* value, Sprite const& enabled,
@@ -84,11 +84,9 @@ void Toggle::Render() {
   }
 }
 
-void Toggle::SetText(uint8_t* str, float fontSize,
+void Toggle::SetText(Vm::Sc3Stream& stream, float fontSize,
                      RendererOutlineMode outlineMode) {
-  Impacto::Vm::Sc3VmThread dummy;
-  dummy.Ip = str;
-  Label = TextLayoutPlainLine(&dummy, 255, Profile::Dialogue::DialogueFont,
+  Label = TextLayoutPlainLine(stream, 255, Profile::Dialogue::DialogueFont,
                               fontSize, Profile::Dialogue::ColorTable[10], 1.0f,
                               glm::vec2(Bounds.X, Bounds.Y) + LabelOffset,
                               TextAlignment::Left);
